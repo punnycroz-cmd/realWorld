@@ -159,7 +159,10 @@ function countNearbyVillagers(v, cells){
   return n;
 }
 function rescueInstinct(v, dtH){
-  if(v.brainControlled || v.dead || v.downed) return;
+  /* v16: a driven main is never voluntold into a rescue — choosing to
+     help is the brain's call; only the bounded collapse reflex may
+     touch a main's body */
+  if(v.brainControlled || v.dead || v.downed || v.sfAgentDriven) return;
   if(v.plan && v.plan.length) return;
   for(const o of VILLAGERS){
     if(o === v || !o.downed || o.dead) continue;

@@ -91,7 +91,8 @@ simTick = function(dtH){
 const __uv15 = updateVillagerAI;
 updateVillagerAI = function(v, dtH){
   __uv15(v, dtH);
-  if(v.dead || v.downed || v.brainControlled || v.outsider) return;
+  if(v.dead || v.downed || v.brainControlled || v.outsider ||
+     v.sfAgentDriven) return;   // v16: no code-authored fire duty on mains
   if(v.plan && v.plan.length) return;
   // daytime 'work' state included: routine labor yields to a threatening fire
   if(bestFireTarget(v)){

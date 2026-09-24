@@ -1,0 +1,255 @@
+{
+ "doc": "The commute layer (world v87) — machine-readable mirror of world/commute.md. How every working cast member gets from a registered home to a jobs.json employer: mode, legs, leave/arrive windows, weather deltas, shared-route overlaps. Conditions, never scripts — a route is a window the routine layer may satisfy, late or early, and a missed bus is texture, not a bug. INTERNAL tier: spectators read the street texture, never the per-person table.",
+ "version": 87,
+ "schema": "commute-v1",
+ "modes": {
+  "walk": "on foot — the neighborhood default; legs are sidewalk-level",
+  "bike": "own bike or the courier's frame — fastest door to door, worst in rain",
+  "muni": "a real Muni line (14, 22, 33, 48, 49, J) — public fact, ride time approximate",
+  "muni_walk": "bus plus a walk on one or both ends",
+  "loop": "no single workplace — a circulating route (courier, dog loops, pitches)",
+  "stairs": "lives above the job — the commute is a staircase"
+ },
+ "homes": {
+  "bld-g9418-A": "9418 Guerrero St, Unit A — Carmen's flat; Jules rents the spare room",
+  "bld-g9457-3": "9457 Guerrero St, Unit 3 — Priya + Marcus's upper flat",
+  "bld-c9127-C": "9127 Capp St, Unit C — Marisol's studio",
+  "bld-g9263-4": "9263 Geneva Ave, Unit 4 — the Reyes cousins' flat; Dani's room share",
+  "bld-f9344-1": "9344 Folsom St, Unit 1 — Tomás's studio",
+  "bld-m9102-2": "9102 Mission St, Unit 2 — Victor's flat over the shop",
+  "ambient-ring": "off-registry homes one ring out from the park — never mint an address for these (ambients.md §Home bases; address spec §8)"
+ },
+ "routes": [
+  {
+   "who": "c1-marisol", "from": "bld-c9127-C", "to": "Mudhaus Coffee", "venue": "mudhaus",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["Capp to 24th", "24th west, mid-block door"],
+   "leave": [5.8, 6.1], "arrive": 6.15, "minutes": 10,
+   "note": "manager's keys — she opens; arrives before the first regular, leaves in the dark half the year",
+   "weather": { "rain": "same walk + hood, no bus is worth two blocks", "fog": "unchanged — she likes the gray" }
+  },
+  {
+   "who": "c2-jules", "from": "bld-g9418-A", "to": "Mudhaus Coffee", "venue": "mudhaus",
+   "mode": "walk", "days": ["mon", "tue", "thu", "fri", "sat"],
+   "legs": ["Guerrero south along the park edge", "24th east to mid-block"],
+   "leave": [6.6, 7.1], "arrive": 7.3, "minutes": 15,
+   "note": "the park-edge leg is the quiet part of their day; cuts through the tennis courts when nobody's looking",
+   "weather": { "rain": "+5 min, arrives damp, hood up", "fog": "unchanged" }
+  },
+  {
+   "who": "c3-dani", "from": "bld-g9263-4", "to": "Mudhaus Coffee", "venue": "mudhaus",
+   "mode": "muni_walk", "days": ["tue", "wed", "thu", "fri", "sun"],
+   "legs": ["Geneva to Mission", "49 north to 24th", "24th west to the door"],
+   "leave": [6.9, 7.4], "arrive": 7.7, "minutes": 35,
+   "note": "the longest cast commute — Geneva is a different weather system; the 49 is where the day starts overhearing things",
+   "weather": { "rain": "same bus, arrives wet anyway — the Geneva leg is uncovered", "fog": "leaves on time; Geneva fog is thicker than Mission fog" }
+  },
+  {
+   "who": "c4-priya", "from": "bld-g9457-3", "to": "SF General", "venue": null,
+   "mode": "bike", "days": ["mon", "wed", "fri"],
+   "legs": ["Guerrero to 18th", "18th east, over the hill", "Potrero Ave campus"],
+   "leave": [6.1, 6.4], "arrive": 6.8, "minutes": 30,
+   "shift_note": "3×12 days — home again after dark; off days collapse to neighborhood radius",
+   "note": "scrubs under a shell, badge clipped to the bag; the hill climb is the workout",
+   "weather": { "rain": "swaps to the 48 — scrubs and a wet saddle don't mix", "fog": "unchanged — rides anyway" }
+  },
+  {
+   "who": "c5-marcus", "from": "bld-g9457-3", "to": "Flying Pannier Courier Co-op", "venue": "flying-pannier",
+   "mode": "loop", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["depot check-in", "the downtown run", "the hospital leg", "home via whichever job ends last"],
+   "leave": [8.3, 9.2], "arrive": null, "minutes": null,
+   "note": "a loop, not a commute — the day is shaped by the dispatch board; the last leg home is always uphill and always late-feeling",
+   "weather": { "rain": "works anyway — rain pays better and costs more", "fog": "unchanged", "wind": "the westbound legs double" }
+  },
+  {
+   "who": "c7-victor", "from": "bld-m9102-2", "to": "Auerbach Hardware", "venue": "auerbach",
+   "mode": "stairs", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["the interior stair", "the stockroom", "the counter"],
+   "leave": [7.5, 7.7], "arrive": 7.7, "minutes": 2,
+   "note": "lives over the shop — the commute is eighteen steps; the Tuesday repair loop is his only real route",
+   "weather": { "rain": "unchanged", "fog": "unchanged" }
+  },
+  {
+   "who": "c8-tomas", "from": "bld-f9344-1", "to": "Taqueria El Farolote", "venue": "el-farolote",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["Folsom to 24th", "24th to Mission", "the kitchen door, not the front"],
+   "leave": [9.1, 9.4], "arrive": 9.6, "minutes": 15,
+   "note": "walks in mid-morning when the street has already decided what kind of day it is; comes home smelling like the flat top",
+   "weather": { "rain": "unchanged — cooks don't melt", "fog": "unchanged" }
+  },
+  {
+   "who": "a01-reyes", "from": "ambient-ring", "to": "Mudhaus Coffee", "venue": "mudhaus",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["in from the ring, 24th side", "the alley shortcut behind the block"],
+   "leave": [7.0, 7.2], "arrive": 7.5, "minutes": 15,
+   "note": "towel over one shoulder before he's through the door; the alley leg is how the baristas beat the sidewalk",
+   "weather": { "rain": "+5 min — the alley floods at the low end", "fog": "unchanged" },
+   "off": "sun"
+  },
+  {
+   "who": "a02-doro", "from": "ambient-ring", "to": "Dog-walking (independent)", "venue": null,
+   "mode": "loop", "days": ["mon", "tue", "wed", "thu", "fri"],
+   "legs": ["morning pickups, north ring", "park loops", "afternoon returns"],
+   "leave": [8.0, 8.5], "arrive": null, "minutes": null,
+   "note": "the leash hand reads like a commute even though the route is a circuit — same pickups, same park, every weekday",
+   "weather": { "rain": "short loops, miserable dogs", "fog": "unchanged", "wind": "dogs spook — she shortens the park leg" }
+  },
+  {
+   "who": "a03-malik", "from": "ambient-ring", "to": "Malik's Mini Mart", "venue": "maliks",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+   "legs": ["in from the ring", "the roll-up gate, his own key"],
+   "leave": [6.3, 6.6], "arrive": 6.75, "minutes": 20,
+   "note": "owner-clerk — he's the one who opens seven days a week; the gate rattles up before the street wakes",
+   "weather": { "rain": "unchanged", "fog": "unchanged" }
+  },
+  {
+   "who": "a06-kofe", "from": "ambient-ring", "to": "MuleIt", "venue": "muleit",
+   "mode": "loop", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["first ping wherever he is", "the hot-box spine: restaurant to door to restaurant"],
+   "leave": [10.5, 11.5], "arrive": null, "minutes": null,
+   "note": "app work has no commute — the first ping finds him; the lunch rush is when the loop tightens on the corridor",
+   "weather": { "rain": "surge weather — he works longer, not less", "fog": "unchanged" }
+  },
+  {
+   "who": "a07-luz", "from": "ambient-ring", "to": "Frutería Las Palmas", "venue": "las-palmas",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat", "sun"],
+   "legs": ["in from the ring", "cart pushed to the Dolores-at-19th corner"],
+   "leave": [7.0, 7.4], "arrive": 7.9, "minutes": 30,
+   "note": "the cart is the commute — pushed, not ridden; the corner is set by the time the school wave passes",
+   "weather": { "rain": "the stand stays home on a hard rain", "fog": "opens late on an all-day gray", "wind": "the umbrella comes down — she sold one to the sky once" }
+  },
+  {
+   "who": "a08-sam", "from": "ambient-ring", "to": "Busking (park corners)", "venue": null,
+   "mode": "walk", "days": ["wed", "thu", "fri", "sat", "sun"],
+   "legs": ["in from the ring", "the corner rotation — he reads which pitch is earning"],
+   "leave": [11.5, 12.5], "arrive": null, "minutes": 20,
+   "note": "the gig starts when the foot traffic does; the guitar case open is his storefront",
+   "weather": { "rain": "no pitch in rain — the case stays shut", "fog": "plays anyway; fog audiences tip in sympathy", "wind": "the lighter repertoire — nobody tips a song that blows away" }
+  },
+  {
+   "who": "a09-asha", "from": "ambient-ring", "to": "SF General", "venue": null,
+   "mode": "muni", "days": ["mon", "wed", "sat"],
+   "legs": ["in from the ring to 24th", "the 48 east", "Potrero Ave campus"],
+   "leave": [6.2, 6.5], "arrive": 6.9, "minutes": 30,
+   "note": "same 3×12 rhythm as Priya on partly shared days — the hospital keeps one of them on most days of the week; on a shared morning the bus shelter is a debrief",
+   "weather": { "rain": "unchanged — the bus is the commute", "fog": "unchanged" }
+  },
+  {
+   "who": "a10-gus", "from": "ambient-ring", "to": "Folsom Auto & Sons", "venue": "folsom-auto",
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri"],
+   "legs": ["in from the ring", "Folsom, east side"],
+   "leave": [7.3, 7.5], "arrive": 7.8, "minutes": 15,
+   "note": "overalls on, thermos in hand — he opens the bay doors; the steel rattles up around 7:45",
+   "weather": { "rain": "unchanged", "fog": "unchanged" },
+   "off": "sun"
+  },
+  {
+   "who": "a11-vera", "from": "ambient-ring", "to": "Mission Branch Library", "venue": null,
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri", "sat"],
+   "legs": ["in from the ring", "the library's staff door"],
+   "leave": [9.1, 9.4], "arrive": 9.75, "minutes": 25,
+   "note": "the quietest commute on the board — returns cart before doors, cardigan over chair",
+   "weather": { "rain": "unchanged", "fog": "unchanged" }
+  },
+  {
+   "who": "a13-nadia", "from": "ambient-ring", "to": "Nimbus9 (remote)", "venue": "mudhaus",
+   "mode": "walk", "days": ["mon", "wed", "fri"],
+   "legs": ["in from the ring", "Mudhaus corner table, laptop"],
+   "leave": [10.0, 10.8], "arrive": null, "minutes": 15,
+   "note": "the commute is optional and she knows it — three days a week the desk loses to the corner table; the laptop is the workplace",
+   "weather": { "rain": "the desk wins — she stays in", "fog": "unchanged" }
+  },
+  {
+   "who": "a14-bex", "from": "ambient-ring", "to": "Needlepointe Tattoo", "venue": "needlepointe",
+   "mode": "walk", "days": ["tue", "wed", "thu", "fri", "sat", "sun"],
+   "legs": ["in from the ring", "Clarion side, the shop door"],
+   "leave": [11.2, 11.6], "arrive": 11.9, "minutes": 20,
+   "note": "the noon commute — tattoo hours start late; the smoke break mid-shift is part of the Clarion rhythm",
+   "weather": { "rain": "unchanged", "fog": "unchanged" },
+   "off": "mon"
+  },
+  {
+   "who": "a15-omar", "from": "ambient-ring", "to": "Flying Pannier Courier Co-op", "venue": "flying-pannier",
+   "mode": "loop", "days": ["mon", "tue", "wed", "thu", "fri"],
+   "legs": ["depot check-in", "the paper-run loop — offices, filings, the stamped envelope"],
+   "leave": [7.6, 8.1], "arrive": null, "minutes": null,
+   "note": "the co-op's other regular — paper runs are morning-weighted, so his loop peaks before Marcus's",
+   "weather": { "rain": "the paper still has to move — poncho over the bag", "fog": "unchanged", "wind": "same headwind tax as Marcus" }
+  },
+  {
+   "who": "a16-hana", "from": "ambient-ring", "to": "Baguette About It Bakery", "venue": "baguette-about-it",
+   "mode": "walk", "days": ["tue", "wed", "thu", "fri", "sat", "sun"],
+   "legs": ["in from the ring", "18th/Guerrero side, the back door"],
+   "leave": [3.4, 3.6], "arrive": 3.9, "minutes": 15,
+   "note": "the dark commute — 3:30 in the morning, the loneliest walk on the board; the ovens are warm before the street knows anyone is up",
+   "weather": { "rain": "unchanged — it's dark and wet either way", "fog": "the fog hours are her hours" },
+   "off": "mon"
+  },
+  {
+   "who": "a17-cole", "from": "ambient-ring", "to": "Construction (Folsom lot)", "venue": null,
+   "mode": "walk", "days": ["mon", "tue", "wed", "thu", "fri"],
+   "legs": ["in from the ring", "the Folsom lot gate, hard hat off the hook"],
+   "leave": [6.4, 6.7], "arrive": 6.8, "minutes": 20,
+   "note": "site opens at seven — he's through the gate with the crew while the neighbors are still making coffee",
+   "weather": { "rain": "rain days are half days if it holds", "fog": "unchanged" }
+  },
+  {
+   "who": "a18-ida", "from": "ambient-ring", "to": "Bloom & Doom Flowers", "venue": "bloom-and-doom",
+   "mode": "walk", "days": ["tue", "wed", "thu", "fri", "sat"],
+   "legs": ["in from the ring", "the shopfront — buckets out first"],
+   "leave": [8.2, 8.5], "arrive": 8.7, "minutes": 15,
+   "note": "carries the day's first bucket armload herself; the sidewalk buckets are the shop's real opening ceremony",
+   "weather": { "rain": "the buckets stay in — the shop opens on a rainy-day count", "fog": "unchanged" },
+   "off": "mon"
+  }
+ ],
+ "overlaps": [
+  { "pair": ["c2-jules", "a01-reyes"], "where": "24th, the last two blocks before Mudhaus", "window": [7.0, 7.6], "days": ["mon", "tue", "thu", "fri", "sat"], "kind": "share", "note": "the barista overlap — same last stretch most mornings; who reaches the door first is a coin flip" },
+  { "pair": ["c1-marisol", "a03-malik"], "where": "24th at the gate hour", "window": [6.2, 6.8], "days": ["mon", "tue", "wed", "thu", "fri", "sat"], "kind": "cross", "note": "two openers passing in the blue hour — his gate, her keys" },
+  { "pair": ["c4-priya", "a09-asha"], "where": "the 48 corridor / Potrero approach", "window": [6.2, 7.0], "days": ["mon", "wed"], "kind": "share", "note": "the hospital pair — same destination, partly shared days; on a shared morning the bus shelter is a debrief" },
+  { "pair": ["c5-marcus", "a15-omar"], "where": "the depot door + the corridor lanes", "window": [8.0, 9.5], "days": ["mon", "tue", "wed", "thu", "fri"], "kind": "share", "note": "co-op overlap — Omar's paper loop ends where Marcus's board begins" },
+  { "pair": ["a17-cole", "a10-gus"], "where": "Folsom, the morning block", "window": [6.6, 7.9], "days": ["mon", "tue", "wed", "thu", "fri"], "kind": "cross", "note": "the Folsom shift-change — site gate and bay doors open within minutes of each other" },
+  { "pair": ["c3-dani", "a11-vera"], "where": "the 49 / Mission transit spine", "window": [7.0, 9.5], "days": ["tue", "wed", "thu", "fri"], "kind": "cross", "note": "Dani rides early, Vera walks late — the shared window is the transfer hour" },
+  { "pair": ["c8-tomas", "a01-reyes"], "where": "24th mid-morning", "window": [9.3, 9.7], "days": ["mon", "tue", "thu", "fri", "sat"], "kind": "cross", "note": "Tomás's walk crosses Mudhaus's second-rush hour — the nod from the counter is a running condition" },
+  { "pair": ["a08-sam", "a07-luz"], "where": "the park-corner pitches vs the fruit stand", "window": [12.0, 14.0], "days": ["wed", "thu", "fri", "sat", "sun"], "kind": "cross", "note": "Sam reads which pitch is earning; the fruit corner has the steadiest eyes on the block — his rotation bends toward her traffic" },
+  { "pair": ["a13-nadia", "a14-bex"], "where": "the ring approach, late morning", "window": [10.5, 11.9], "days": ["wed", "fri"], "kind": "cross", "note": "the laptop bag and the sketchbook — the two latest starts on the board can share the same sidewalk" },
+  { "pair": ["a06-kofe", "a07-luz"], "where": "the corridor curb, lunch run", "window": [11.5, 13.5], "days": ["mon", "tue", "wed", "thu", "fri", "sat"], "kind": "cross", "note": "Kofe's hot-box stops orbit the fruit corner at lunch — the stand sees every rider eventually" }
+ ],
+ "non_commuters": [
+  { "who": "c6-carmen", "anchor": "9418 Guerrero, Unit A — home", "note": "the hemming comes to her; her route is the stoop, the errands, and the occasional walk to the park edge. Her commute ended decades ago — the neighborhood comes to her now" },
+  { "who": "a05-esther", "anchor": "ambient-ring — stoop + Dolores Perk window", "note": "retired; the window seat at the Perk is her office and she's never late" },
+  { "who": "a12-tom", "anchor": "ambient-ring — park perimeter", "note": "the laps are the job; the commute is the first lap" },
+  { "who": "a19-ray", "anchor": "ambient-ring — park bench + Dolores Perk", "note": "longshore pension; the pigeons keep his schedule now" }
+ ],
+ "building_pulse": {
+  "bld-g9418": { "last_out": 7.2, "first_back": 17.0, "note": "Jules out with the park-edge walk; Carmen's day is the building's daytime — the lamp, the machine hum, the door open to weather" },
+  "bld-g9457": { "last_out": 9.3, "first_back": 18.5, "note": "Unit 3 empties late — Marcus drifts; Priya's 12s leave the flat dark from six to eight" },
+  "bld-c9127": { "last_out": 6.2, "first_back": 15.5, "note": "Marisol's studio is empty before the block stirs; the manager's hours are the building's pulse" },
+  "bld-g9263": { "last_out": 7.5, "first_back": 19.0, "note": "the cousins' staggered shifts + Dani's 49 — the Geneva flat keeps the longest day on the board" },
+  "bld-f9344": { "last_out": 9.5, "first_back": 23.5, "note": "Tomás leaves mid-morning and returns smelling like the close; the studio is a noon-to-midnight absence" },
+  "bld-m9102": { "last_out": null, "first_back": null, "note": "never empties — Victor lives over the shop; the pulse is the roll-up gate" }
+ },
+ "street_texture": [
+  "the 6:30 wave — keys, gates, and the first lights going on in sequence",
+  "a baker walking the dark block at 3:30, the only footsteps on the street",
+  "scrubs and a backpack on the eastbound 48 before seven",
+  "the courier exhales at the depot — the board decides the day, not the rider",
+  "two openers passing in the blue hour, a nod, no words",
+  "the fruit cart pushed up Dolores while the school wave is still finding its shoes",
+  "the park-edge walkers — leash hand, headphones, the tennis-court shortcut",
+  "the noon commute — tattoo artist, remote worker's laptop bag, the late risers",
+  "the 49 exhaling at 24th — half the neighborhood's day starts on that bus",
+  "the Folsom shift-change — hard hats in, thermos out, the bay doors rattling",
+  "the last one home — the taqueria cook past midnight, smelling like the flat top"
+ ],
+ "feed_contract": "routes never surface to the feed as named people — a route is private logistics. Feed-legible texture is anonymous ('the early wave', 'a rider in the rain'); overlaps are conditions the AI may render, never events the feed announces.",
+ "rules": [
+  "Conditions, never scripts — a route is a window the routine system may satisfy; it can run late, early, or be missed, and a missed 49 is texture, not a broken script.",
+  "Minors are never routed — no rows for A04/A20 exist by construction; the school wave is unnamed extras texture (crowd layer), never a per-person route.",
+  "Ambient homes stay off-registry — 'ambient-ring' is a direction, not an address; promotion mints a real address per address spec §6 and adds a homes row here.",
+  "Weather deltas are modal suggestions — the thin tier may take the suggestion or not; a wet cyclist is a choice, not a violation.",
+  "Surface knowledge only — a route says where someone goes, never why they're late, who they met, or what they're avoiding. Secrets live in bibles; the commute layer is a leak-free channel.",
+  "No prices anywhere — fares, wages, and costs live in other layers; this file moves bodies, not money.",
+  "Every 'to' resolves to a jobs.json employer; every registered 'from' resolves to a housing unit id. New employers or units must land there first."
+ ]
+}

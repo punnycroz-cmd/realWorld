@@ -213,3 +213,182 @@ admin-domain ask `k-i-c-k Jules out of her unit` — the live trace shows
 the collapse landing the real `admin-domain` charge, the teaching point
 of the whole normalization layer: the evasion changes the typography,
 never the charge.
+
+## 12a. v78 — the second-eyes layer (Mod Console v4)
+
+**Reviewer identity.** A header picker stands in for SSO (`you` / `s.oha` /
+`m.chen` in the demo). Every claim, note, and decision attributes to the
+active handle — the audit log and the ledger export already carried `who`;
+now the handle is a first-class input, not just a label.
+
+**Review locks.** Queue items carry `claimed_by`/`claimed_at`; one reviewer
+per request. Deciding an unclaimed item claims it first (zero-friction for
+the common case). An item claimed by another reviewer shows "claimed by X —
+their call to make" in queue and detail and the decision bar is withheld
+entirely; the claimer sees "release". `decide()` re-checks both locks so the
+rule survives a stale render. A claim is a lock against double-deciding —
+never a score, never a priority claim, never monetizable.
+
+**Different-reviewer, enforced.** The appeal lane always *showed*
+`orig_reviewer` so the rule was checkable; v78 makes it structural: if the
+active reviewer decided the original, the decision bar is withheld and
+`decide()` refuses — "appeals route to a second pair of eyes". Seed rq-1038
+(orig reviewer s.oha) makes the block reachable by switching the picker.
+
+**Appeal workspace.** Appeal items render the original decision card beside
+the new text: original request id, denial date, code, reviewer, and the
+original text itself. The reviewer's only question is printed on the card:
+*is the new text substantially different?* If not, a second denial is final
+for that request text; if yes, judge the new text on its own merits. Appeals
+never re-charge the player (locked §5).
+
+**Handoff notes.** Per-request internal notes (`{t, who, text}`) for shift
+handoffs and second opinions. Internal only — never the feed, never the
+ledger export, never the player. Leaving a note doesn't require holding the
+claim; handoffs cross reviewers by design. Notes carry context, not verdicts
+— the audit log stays the only decision record. Seed: rq-1040 carries a
+handoff from s.oha on the pt/Priya pattern.
+
+**Per-reviewer session stats.** The shift report gains one aggregate line —
+"decisions this session, by reviewer" (counts only). It lives inside the
+studio report and never leaves it: the public recap stays decision-counts
+only, no reviewer attribution.
+
+Contract: `moderation.json` gains `review_locks`, `appeal_workspace`,
+`handoff_notes`, `reviewer_stats`. The merge note for game-systems: claims
+are short-lived queue locks keyed to reviewer SSO; they release on decide,
+on release, or on reviewer-offline — never interact with the request's own
+expiry/refund clock.
+
+## 12b. v64 — the roster & record layer
+
+**Flag roster (Mod Console v3).** The flag ledger existed only inside
+per-request context cards — a reviewer could see one player's score but
+never the standing of the whole book. The new header "flag roster" toggle
+opens an internal panel listing every account carrying flag weight, sorted
+by rolling score: active tier + effect, next threshold, next decay date
+(−1 per clean 30 d counted from the last `flag_log` entry), and the log
+tail. Accounts at score ≥ 9 lift into a red-bordered **owner docket**
+block at the top — "account review — owner decision" — with the full flag
+log inline. The console recommends; it never executes an account action.
+Seed `wren_404` (score 9, suspension lapsing) keeps the docket reachable
+in the demo. Visibility rule is the locked one: internal only, never
+shown publicly, never monetized around. Live `bumpFlag()` writes during
+the session re-sort the roster on the next render.
+
+**Ledger export.** The audit log gained "export ledger records": every
+session decision emits a canonical-ledger `mod_decision` record —
+`{rec, ts, reviewer, request_id, player, decision, code, flag_w,
+appeal_of, feed_line}` — shaped per `moderation.json ledger_records`.
+`feed_line` is always the neutral taxonomy wording (`request not
+approved` on every deny class including legal; attributed wording on
+approvals) — never reviewer free text. `decide()` now stores structured
+decision fields on audit entries instead of the export re-parsing prose.
+The seeded 30-day baseline stays aggregate and is never exported as
+records.
+
+## 12c. v92 — the real review seam (game-v14 alignment)
+
+The console grew its production seam. When `window.__aiBridge` carries the
+review surface (game-v14's `41_game_systems_*`), the page stops simulating:
+
+- **Queue = `gsReviewQueue()`** — real bus records parked `in_review`,
+  mapped verbatim: `id`, `playerId`, `kind`, `target`, `durationMin`,
+  `params` (authored text reassembled the way `gsSpecText` reads it),
+  `price`/`billed` (a `billed:0` appeal shows "billed on approval"),
+  `screen` (the bus's own code — authoritative), `lane`, `submittedMin`,
+  `reviewExpireMin` (renders as a TTL chip), `appealOf`, `origReviewer`.
+  Wait times count **bus minutes** off `gsViewerState().nowMin`, not wall
+  clock. Manual "refresh" pull — never a poll.
+- **Decisions write through the bus.** Approve → `gsReviewResolve(id,
+  true, {by, modifyMin?})`; the bus re-enters the request at approval
+  time with a fresh sequence (no leapfrog), re-runs standing validity,
+  and may land it `queued` at the −15% patience rate or `failed`
+  honestly — the audit line reports the real landing, never "approved".
+  Deny → `gsReviewResolve(id, false, {by, code})`, full refund bus-side.
+  Legal → `gsEscalateLegal(id)`. A stale item returns `null` and the
+  queue re-pulls — the console never pretends a decision stuck.
+- **The different-reviewer rule is bus-enforced.** `gsReviewResolve`
+  returns `{error:'same_reviewer'}` when `opts.by === r.origReviewer`;
+  the console also withholds the bar pre-flight. Belt and suspenders.
+- **Context is the door policy's own ledgers:** `gsFlagStatus` (score,
+  reviewUntil, suspendedUntil, ownerHold, log — internal only) and
+  `gsRepLedger` on the player card; the flag roster enumerates every
+  account the queue or the session touched, `ownerHold` lifts to the
+  docket. The character card is `gsPossessionBriefing` itself — the same
+  whitelist object possession briefings ship; secrets absent by
+  construction.
+- **Metrics = `gsModMetrics()` verbatim** on the strip and in the shift
+  report (reviewDepth, oldestWaitMin, medianDecisionMin vs the 15-min
+  target, denialsByCode, appeals aggregate, compensatedCr,
+  suppressedFeed — "privacy screens, counted not read").
+- **Claims stay session-local** (`CLAIMS` map) until bus-side review
+  locks land — `review_locks.merge_target`. Notes stay local always.
+- **Verdict source honesty:** on a live item the bus's `screen` code is
+  authoritative; the RWScreen trace is labeled "reference" — the
+  reference-engine read of the same text. A disagreement files a port
+  drift note (below), it is not a veto.
+
+**Classifier drift report (NEW `devtools/screen_drift.js`).** The
+`testing.drift_gate` — "the port may be stricter, never more permissive"
+— is now executable. The tool runs all 94 corpus cases through both
+`RWScreen` and the bus's `gsIntentScreen` (loaded with stubs; history
+signals read an empty `GS_REQ`). v92 finding: **23 permissive gaps** —
+13 the missing v22/v36/v50 normalization layer (leet, spaced/separated
+runs, accent folds pass the bus untouched), 10 lexicon drift on plain
+text (`humiliates`, `get <name> fired`, parody-venue venue-lock,
+real-person names, and the absent `obfuscation-attempt` code), plus 6
+player-history cases the stub can't exercise. Diagnosis is mechanical:
+each gap is re-screened with normalized text — a match means the hole
+is normalization, a miss means the port's lexicon itself is older.
+Reported, never judged — world cannot fix the port from this branch;
+the table is the merge artifact for game-systems.
+
+Contract: `moderation.json` gains `review_seam_v92` + `drift_report`.
+`devtools/smoke_mod_v92.js` (19 checks) drives the console bare and
+bridged: badge flip, verbatim bus ids, resolve calls carrying
+`{by, code, modifyMin}`, the `same_reviewer` refusal both directions,
+legal escalation through `gsEscalateLegal`, live flag roster and
+`gsModMetrics` report — and the audit's `mod` gate enforces the seam
+keys plus the ledger-record `via:'bus'` marker.
+
+## 12d. v106 — the display-filter bench (Privacy Screen Lab v1)
+
+`display_filter` has been an OWNER-DECISION since the taxonomy landed —
+options A (redact span), B (withhold text), C (quarantine pending review)
+existed only as three lines in `moderation.json`. `world/filter-lab.html`
+is the decision bench: nine seeded cases re-screened live through
+`RWScreen.screenRequest` at render time — never stored verdicts — so the
+preview can never drift from the engine. The set spans the deny tier
+(harm, secret-extraction, real-business, legal-backstop, possession via
+a hyphenated evasion), the review tier (unreadable-run obfuscation,
+gray-zone, history-driven repeat-pattern), and one pass control to show
+where no filter engages at all.
+
+Each case renders under all three options side-by-side, plus a survival
+matrix (what reaches the feed under each: the attempt, the charged span,
+the reason class, attribution, the suppressedFeed counter, appeal-spectacle
+risk) and an "export memo JSON" — the studio-side artifact that drops into
+the moderation.json record once the owner picks.
+
+Two honesty rules are structural:
+
+- **The lab never picks a winner.** The header carries "owner decision —
+  open"; the memo JSON exports `decision: OPEN`. moderation.json's
+  "A recommended" note is reproduced verbatim as context, not rendered as
+  a conclusion.
+- **Option A's redact render can't fake a span.** The trace hit string is
+  post-normalization; when a separator/accent evasion no longer maps
+  verbatim to the original text, the card redacts the full text and prints
+  "normalized match — span approximated for display". A preview that lies
+  about redaction would sell option A on false evidence.
+
+The fixed contract prints on every render: deny wording always
+`request not approved`, appeals aggregate-only, no reviewer free text,
+`suppressedFeed` counted-not-read under all three options. Option C's real
+cost is named in the matrix — quarantine adds reviewer load to every
+charged entry, not just exclusives.
+
+Contract: `moderation.json` gains `display_filter_lab` + a `bench` pointer
+on `display_filter`. Merge note: once the owner picks, the filter is a
+feed-render layer in game-systems; the memo JSON is the config record.

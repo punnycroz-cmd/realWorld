@@ -7,7 +7,10 @@
 **Status:** runnable spec; nothing executes before day-14 per §4.1, and
 every appointment is an explicit owner decision.
 
-At launch the owner is the only moderator — correct at small scale. Around
+At launch the owner is the only moderator — correct at small scale. (Mod
+count scales by *action load*, not member count — the ratio rule lives in
+`scale-plan.md` §2; this file owns who and how, that file owns how many
+and when.) Around
 day-14, if the server is active enough to need it, recruit 1–2 volunteer
 mods *from the membership*. This file is the whole job: who to pick, what
 to hand them, and what they may never do.

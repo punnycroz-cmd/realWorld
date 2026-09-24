@@ -2969,3 +2969,2657 @@ Registry now P1–P554; numbering stable.
   "same kind of event" — coarse but legible; the n_recur reset
   at arousal 0.8 is locked because without it the model would
   habituate a character out of noticing escalation.
+
+---
+
+# Part VI — v65: the afterlife of feeling — the tone outlives the words, the dead keep their cues, and safety has a face (2026-09-23, sixth pass)
+
+Five passes built the emotional tag: born by peak-end, priced at
+consolidation, split by valence, traded against context, dampened by
+telling, healed by time and forgiveness. What remains unpriced is
+where affect lives when the episode is gone — the person who died,
+the voice that carried the insult, the rival who never did anything
+at all. This pass pushes into the residue layer: grief's oscillating
+ecology, the direction asymmetry of emotional binding, the second
+tag that counterconditioning mints instead of erasing the first, the
+amplification of shared good news, prosody's implicit leak, the
+content-less flashback, rival vigilance, the small self of awe,
+the hot record that refuses the delete, and the safety signal that
+quiets a firing cue without ever unlearning it.
+
+## 70. Grief oscillates — the dead stay in the cue ecology
+
+When a person dies, the records don't — every person-cued record
+keeps its `people` field, every place smells of them, and the
+CondEntry they minted keeps firing. The bereavement literature
+supplies the dynamics:
+
+- Stroebe & Schut 1999 (Death Studies 23:197 — the dual-process
+  model, verified): adaptive grieving OSCILLATES between
+  loss-oriented coping (confronting memories, the pang when the cue
+  fires) and restoration-oriented coping (new routines, suppression,
+  ordinary days). Dosage is intrinsic — respite is part of the
+  mechanism, not avoidance failure.
+- Klass, Silverman & Nickman 1996 (continuing bonds — verified):
+  the bereaved maintain an inner relationship with the deceased —
+  inner conversations, consulting them in decisions, sensing
+  presence. The bond is maintained, not extinguished; the 1990s
+  consensus overturned the older "detachment = health" assumption.
+- The presence/absence flip (Ratcliffe 2020 review; phenomenology —
+  verified): the SAME vivid memory of the deceased can be warm
+  (they feel present) or stabbing (they feel absent) depending on
+  which property the context makes salient — mode-dependent valence
+  on identical content.
+
+**Spec consequence (§6.110):**
+
+```
+PersonModel gains { deceased:true, deathDay }  — world marks it;
+the person's cue stays live in every record that references them.
+
+char gains grief state: { mode: "loss"|"restore",
+                          modeDay, bond_strength }
+  — mode flips stochastically: p_switch = grief_osc_k·(1 + load)
+    per focused tick, grief_osc_k ≈ 0.15; early bereavement starts
+    in loss mode and restore-mode residence rises monotonically
+    with days since deathDay (grief_restore_slope ≈ +0.02/day,
+    saturating ~0.8) — the oscillation decays toward restoration,
+    never to zero (DPM: oscillation is lifelong at lower amplitude).
+
+In loss mode (the pang ecology):
+  - deceased-person cues fire CondEntry AND pull person-linked
+    records at intrusion_thresh − grief_pang_gain (≈0.15) —
+    the spouse's coffee cup intrudes
+  - emissions of deceased-linked records carry absence:true —
+    the valence of the tag is REPORTED with sign flipped toward
+    negative (the warm memory reads as loss; Ratcliffe's
+    absence-salient context)
+  - bond_strength accrues +bond_gain (0.02) per loss-mode day
+
+In restore mode:
+  - pang discount waived; deceased-linked records retrieve
+    normally and emissions carry presence:true — same record,
+    positive valence report (the memory feels like having them
+    back, continuing bonds)
+  - loss-mode intrusions suppressed at ×(1 − restore_suppress)
+    (0.4) — dosage, not deletion
+
+Continuing bonds (emission): at low ambient-load ticks,
+p = bond_talk_p·bond_strength (bond_talk_p ≈ 0.05) mints an
+inner-speech emission addressed TO the deceased (the talk-to-them
+beat) — dialogue renders it as private apostrophe; it rehear ses
+nothing new (no verbatim gain) but sustains bond_strength.
+
+Locked null: grief_erasure_null = 0 — no decay, rewrite, or
+suppressor is applied to deceased-linked records THEMSELVES;
+grief is an emission-mode and cue-ecology phenomenon, the store
+is untouched (DPM is about coping orientation, not memory loss).
+```
+
+Emergent: the widow who speaks to her dead husband at the sink;
+the griever fine for weeks who crumbles at the smell of his soap;
+the same photo that comforts on Tuesday and destroys on Thursday —
+all from one state variable and the existing cue machinery. (P677)
+
+---
+
+## 71. Emotion binds forward and breaks backward — the directional leak
+
+§2's emotional blink taxed *neighbors' strength* symmetrically.
+The relational-memory literature has since shown the loss is
+directional and the gain is directional too:
+
+- Bisby & Burgess 2013 (Learn. & Mem. 21:21 — verified): negative
+  affect impairs ASSOCIATIVE memory (item-item, item-context
+  binding) while sparing item memory — coherence loss, not
+  content loss. Bisby, Burgess & Brewin 2020 (Curr. Dir. 29:267)
+  tie it to PTSD: the traumatic event's elements stay loose.
+- The 2023 Cognition & Emotion discovery+preregistered-replication
+  pair (N=72+150 — verified): a "forward-favouring" asymmetry —
+  the association from a negative item to the FOLLOWING neutral
+  item is encoded STRONGER than from the preceding neutral to the
+  negative one. Emotion leaks downstream: what came after the bad
+  thing binds to it; what came before stays loose.
+- Palombo et al. 2021 (Psych. Sci. — verified): emotion enhances
+  "what", impairs "which", and for "when" — the emotional item's
+  own temporal position is preserved while neutral items are
+  systematically mislocalized later. The hot event keeps its
+  timestamp; the timeline warps around it.
+
+**Spec consequence (§6.111):**
+
+```
+on encodeEvent with arousal ≥ emo_blink_thresh:
+  for each neighbor within emo_blink_window (existing blink):
+    if neighbor.timestamp < event.timestamp (E−1, before):
+        neighbor→event link_p *= (1 − emo_back_loss)   // ≈0.4 —
+            the antecedent stays loose: you can't recall what led
+            up to the crash, it "came out of nowhere"
+    if neighbor.timestamp > event.timestamp (E+1, after):
+        link_p(event→neighbor) *= (1 + emo_fwd_gain)   // ≈0.2 —
+            forward-favouring: the thing right after the bad thing
+            binds TO it (this is the θ-shaped bridge the 2023
+            study measured)
+  within-event coherence: verbatim fields of the event's own
+    record mint at E·(1 − emo_coh_loss·neg_w) pairwise-binding
+    penalty ≈0.25 — the elements exist but the joint is weak;
+    retrieval emits fragments, not scenes (Bisby PTSD signature)
+  the hot record's own verbatim.when is EXEMPT from the §4.30f
+    telescoping bias (teles_when_immune:true at arousal ≥ 0.85 —
+    Palombo: the emotional item keeps "when")
+```
+
+Emergent: characters narrate disasters as "suddenly" — no lead-up
+retrievable, the aftermath welded to the event; eyewitness order
+claims around hot events are reliably wrong in the backward
+direction only. (P678)
+
+---
+
+## 72. Counterconditioning mints a rival tag, not an eraser
+
+§4.9's extinction is inhibitory — the fear stays, suppressed.
+A second procedure exists: pair the feared cue with a POSITIVE
+outcome. The literature:
+
+- Keller et al. 2020 (Behav. Res. Ther. review — verified;
+  pre-registered multilevel meta on OSF): counterconditioning is
+  expected to beat extinction specifically on RELAPSE channels —
+  renewal, reinstatement, spontaneous recovery — because it
+  changes the cue's evaluative valence rather than merely
+  inhibiting the response. Effect sizes are modest.
+- Mechanism (Baeyens evaluative conditioning; Raes & De Raedt
+  2012 — verified): counterconditioning reduces EVALUATIVE
+  conditioning efficiently (d ≈ 0.2) but leaves OUTCOME
+  EXPECTANCY nearly intact — the cue is felt as nicer, not as
+  safer-by-prediction.
+- Bouton 2004: counter-conditioned responses revert like
+  extinguished ones when tested in isolation — no special
+  permanence. [DEBATED whether CC is a distinct process or a
+  bolstered extinction.]
+
+**Spec consequence (§6.112a):**
+
+```
+on a positive event (valence > +0.3, arousal ≥ cond_thresh·0.6)
+    sharing a cue with an existing NEGATIVE CondEntry:
+  mint a SECOND CondEntry on the same cue, valence positive,
+    strength = cond_gain·arousal·cc_eval_gain   // cc_eval_gain
+    ≈0.6 — the rival tag; the cue now has TWO entries
+  DO NOT touch the negative entry's strength or safeCount —
+    evaluative valence moved, expectancy didn't
+at fire time: a cue with rival entries emits the STRENGTH-
+  weighted mixture:  affect += Σ(valence_i·strength_i·sim) — the
+  feared neighbor you learn to like emits ambivalence, not a
+  smoothed-over average; the negative entry's extinction channels
+  (renewal/recovery/reinstatement) all still apply to ITS entry
+```
+
+Emergent: the character who learns to love the bar where the
+fight happened still flinches when it rains (renewal context) —
+the fondness is real and so is the residue; they coexist on the
+same cue. (P679)
+
+---
+
+## 73. Capitalization — sharing the good news deepens it
+
+§16 priced telling as dampening for NEGATIVE events. The positive
+side has the opposite sign:
+
+- Gable, Reis, Impett & Asher 2004 (JPSP 87:228 — verified):
+  communicating a personal positive event raises positive affect
+  ABOVE the event's own impact; the increment is gated by the
+  listener's response — only ACTIVE-CONSTRUCTIVE responses
+  (enthusiastic elaboration) pay; passive-constructive and
+  destructive responses pay nothing.
+- Langston 1994 (JPSP 67:1112): expressive response to positive
+  events is a capitalization attempt — retelling the good news is
+  itself a positive event.
+- Follow-up replication work (incl. better event-memory after
+  active-constructive reception): shared positive events are
+  remembered better — the retell rehearsed it AND the response
+  re-stamped it.
+
+**Spec consequence (§6.113):**
+
+```
+retell(charId, audienceId, record) where record.valence > +0.3:
+  // capitalization leg — positive sharing amplifies (opposite of
+  // §16 verbal_dampen which remains negative-valence only)
+  audience response ∈ {active_constructive, passive, destructive}
+    — world supplies from the listener's reaction event
+  if active_constructive:
+      record.S *= (1 + capitalize_gain)          // ≈0.15 — the
+          // shared triumph consolidates harder
+      record.affect_tag.valence += cap_val_gain·(1 − valence)
+          // ≈0.1 — the felt goodness creeps toward 1
+      affect_arousal += small bump (the telling WAS arousing)
+  if passive or destructive: no gain — the shrugged-off
+      promotion barely counts as shared
+  Locked null cap_content_null = 0: capitalization moves strength
+      and affect, NEVER verbatim fields — the story grows warmer,
+      not more detailed (the re-stamp is evaluative, not factual)
+```
+
+Emergent: characters who share wins with enthusiastic partners
+hold those wins brighter and longer; the same win told to a
+flat roommate fades at the ordinary rate — the audience response,
+not the event, sets the memorial weight of good news. (P680)
+
+---
+
+## 74. The tone survives the words — prosody as a separate field
+
+Records of speech currently keep content verbatim. But listeners
+keep the VOICE too, and it decays on its own schedule:
+
+- Schirmer & Escoffier 2010 (PLoS ONE "Mark My Words" —
+  verified): neutral words heard in emotional prosody acquire a
+  shifted affective representation in memory — rated more
+  negative (sad voice) or positive (happy voice) at test —
+  and the shift did NOT depend on remembering the prosody
+  itself: it is an implicit residue, not a retrieved field.
+- Chappuis et al. 2014 (Interspeech — verified): prosody-induced
+  emotional enhancement of memory is real and replicates across
+  three studies; angry/happy/fearful voices show different
+  item-vs-periphery facilitation.
+- Voice-in-context study (verified): voices experienced in an
+  emotionally engaging context are recognized after ONE exposure,
+  intact at one week — the vocal-affect channel consolidates fast.
+
+**Spec consequence (§6.114):**
+
+```
+speech Event gains optional field `prosody` ∈ [-1,+1] (valence
+  of delivery — world tags sharp/warm/wounded); the record mints
+  it as its own verbatim field `prosody`
+decay: verbatim.prosody decays at k_verbatim·tone_survive_mult
+  (≈0.5 — the tone outlives the sentence; HYPOTHESIS magnitude,
+  CONSENSUS that vocal-affect channels consolidate fast)
+implicit leak (Schirmer & Escoffier): at encode, the CONTENT's
+  valence tag shifts: affect_tag.valence += prosody_leak_k·prosody
+  (≈0.15) — sarcastic praise lands colder in the store even when
+  the prosody field itself is long gone; the leak is irreversible
+  because it was never a retrievable field, it re-tagged the
+  content
+record flag `heard:voice` on first-person-audio records —
+  voice identity joins the person cue naturally
+```
+
+Emergent: "I don't remember what she said, but she said it
+sweetly / like a slap" — the survivor field is prosody; and the
+content's emotional color carries the delivery's bias forever,
+invisible to the rememberer. (P681)
+
+---
+
+## 75. The affect flashback — dread with no picture
+
+The CondEntry table already survives its episodic source
+(§1 Bechara split). But §4.9's fire path emits affect only into
+`C.affect` — there is no EMISSION type for the felt state with no
+episode attached. Clinical phenomenology needs one:
+
+- Brewin 2015 (re-experiencing taxonomy): intrusive phenomena
+  span full sensory re-experiencing down to affect-only
+  "emotional flashbacks" — panic, shame, or dread arriving with
+  no retrievable scene. [DEBATED boundary vs ordinary anxiety;
+  the dissociation is clinically standard]
+- Ehlers & Clark 2000 model: trauma cues can trigger the
+  CONDITIONED response without successful episodic retrieval —
+  sensation without autobiographical access.
+- Our machinery already asserts the substrate: `strength` decays
+  at cond_decay while records decay at β_episodic — the tag
+  outlives its source by construction.
+
+**Spec consequence (§5.65):**
+
+```
+when a CondEntry fires (§4.9 fire path) and its SOURCE record
+  is below θ (forgotten, below-wall, or never minted — e.g.,
+  §58 instructed route): emit an aff_flash emission:
+  { affect:{valence, arousal·strength}, aff_flash:true,
+    content:null } — pure felt state, no fields, no confidence,
+  no source attribution. Dialogue renders: free-floating dread,
+  "something about this place."
+  if the source record IS retrievable: ordinary re-experiencing
+  emission as before — aff_flash is the below-wall branch only
+gate: aff_flash_thresh ≈ 0.3 — fired strength below it emits
+  nothing (sub-threshold residue stays silent in C.affect only)
+locked null aff_flash_verbatim = 0: an aff_flash NEVER emits
+  content fields — if the episode can't be retrieved, the
+  flashback can't contain it (no false-picture minting)
+```
+
+Emergent: characters get moods with no story — the ex-friend's
+street feels wrong for no stated reason; the listener inherits
+the affect without inheriting a rumor. (P682)
+
+---
+
+## 76. Jealousy — the rival who never acted still gets remembered
+
+The vigilance literature is thin but real:
+
+- Maner et al. 2009 ("Intrasexual vigilance" — verified): priming
+  infidelity concerns produced, in chronically jealous
+  individuals, early attentional vigilance to attractive
+  same-sex targets AND enhanced encoding/memory for them —
+  a coordinated implicit cascade (attend → encode → remember →
+  evaluate negatively). Effects trait-gated: low-jealousy
+  individuals showed none of it.
+- Schützwohl & Koch 2004 (verified): a week after hearing an
+  ambiguous couple's-evening story, participants' recall was
+  biased by sex-differentiated jealousy cues — memorial recall
+  privileged the infidelity cue class relevant to the reader's
+  sex (sexual vs emotional infidelity).
+
+**Spec consequence (§4.33a):**
+
+```
+trait `jealous` ∈ [0,1] (correlated w/ attach_anx, distrust —
+  loads through the §7 trait layer)
+on encodeEvent: if event.people includes BOTH the character's
+  partner AND a person flagged/attributable as rival-role, AND
+  jealous ≥ 0.5:  E *= (1 + rival_vigil_gain)   // ≈0.25 — the
+  partner-plus-rival co-occurrence encodes hot even at neutral
+  arousal; record mints rival:true
+rival:true records: decay at β·(1 − rival_stick_k) (≈0.3 slower)
+  and mint a mild negative CondEntry on the rival person-cue
+  (trust_neg_gain·0.5 — below-betrayal but above baseline)
+sex-differentiated cue class (Schützwohl): Event tag
+  `infid_cue:{sexual,emotional}` — male-profiled characters
+  weight sexual ×1.3, emotional ×0.8; female-profiled reverse
+  (trait `sex` mediates; apply as rival_vigil_gain multiplier)
+```
+
+Emergent: the jealous character "just remembers" every time the
+partner chatted with that one neighbor — the rival's face
+consolidates at partner-presence, no incident required. (P683)
+
+---
+
+## 77. Awe — the small self encodes wide
+
+The discrete-emotion tag (§26) has no slot for awe, and awe has a
+documented phenomenology worth a record signature:
+
+- Keltner & Haidt 2003 (Cogn. & Emot. 17:297 — verified): awe =
+  perceived vastness + need for accommodation (the experience
+  doesn't fit existing schemas).
+- Shiota, Keltner & Mossman 2007 (verified): awe is
+  stimulus-focused and self-DIMINISHING — small-self reports,
+  reduced need for cognitive closure; asocial elicitors dominate
+  (nature, art — not social reward).
+- Piff et al. 2015 (JPSP — verified): awe → small self →
+  prosociality. Rudd, Vohs & Aaker 2012: awe expands perceived
+  time (time-affluence).
+- Memory consequences are NOT directly measured — [HYPOTHESIS]
+  arm, constructed from the appraisals: accommodation failure →
+  schema can't scaffold the record → verbatim fields thin, gist
+  huge; self-diminishment → self-as-actor fields thin; time
+  expansion → dur_dil reuse.
+
+**Spec consequence (§4.33b):**
+
+```
+Event flag `awe:true` (world tags vista/transcendent moments —
+  the parrot murmuration, the skyline through fog):
+  verbatim.self fields mint at ×(1 − awe_self_loss)   // ≈0.4 —
+      the character is small in their own memory of it
+  gist field mints at full + awe_gist_gain (≈0.3) and semantic
+      node "awe-places" mints/links at boosted strength — the
+      PLACE becomes a meaning-anchor (revisiting the overlook
+      re-primes the record via place cue, §4.30 place reinstate)
+  verbatim.duration × (1 + dur_dil·arousal)  — reuse §45,
+      Rudd's time-expansion is the same channel
+  affect tag: positive valence + HIGH arousal is legal here —
+      awe is the lab's exception to valence-arousal confound;
+      keep arousal full (goosebumps are arousal)
+  schema_gap flag: the record resists confab_fill at ×(1 −
+      awe_gap_resist) ≈0.5 — accommodation failed at encode, the
+      gap stays a gap (awe memories stay strange)
+```
+
+Emergent: the character who saw the eclipse over the park tells
+it badly and forever — thin self-detail, huge gist, "you can't
+describe it," and the overlook keeps the charge for years. (P684)
+
+---
+
+## 78. The hot record refuses the delete — directed-forgetting resistance
+
+§4.30b's `forgetEvent`/`dforget` treats all records alike. The
+suppression literature says emotional records resist:
+
+- Hauswald et al. 2010 (SCAN, ERP — verified): item-cued directed
+  forgetting succeeded for neutral but FAILED for arousing
+  negative pictures — "due to their deeper incidental processing,
+  highly arousing negative pictures are exempt from directed
+  forgetting."
+- 2021 item-method directed-forgetting meta (Mem. & Cogn. —
+  verified): directed forgetting exists for emotional items but
+  is reliably SMALLER than for neutral (≈4.2pp less on average;
+  larger gaps when the emotional items are more arousing).
+- Counter-evidence: van Schie et al. 2013 — under controlled
+  DIRECT-suppression strategy, negative items were comparably
+  inhibited; strategy, not valence, drives the deficit.
+  [DEBATED — take the weak end: resistance, not immunity.]
+- PTSD/OCD clinical reports: suppressive control over intrusions
+  is harder — consistent with resistance scaling with arousal.
+
+**Spec consequence (§6.115):**
+
+```
+forgetEvent / dforget flag: effective starvation threshold scales
+  df_theta_eff = df_theta·(1 − emo_df_resist·arousal)
+  // emo_df_resist ≈ 0.5 — an arousal-0.8 record must decay ~40%
+  // deeper than a neutral one before the flag lets go; ecology
+  // starvation takes longer on hot records
+exempt band: valence<0 AND arousal ≥ 0.8 records ignore dforget
+  entirely (Hauswald exemption — the traumatic record cannot be
+  told to go away; the flag is stored but inert)
+the DEBATED arm is honored by keeping emo_df_resist ≤ 0.5 — under
+  strong direct suppression (cueContext.suppress:true) the
+  resistance halves again (strategy matters, van Schie)
+```
+
+Emergent: "stop thinking about it" works on the errand and fails
+on the humiliation; a character's deliberate suppression of a hot
+record runs the machinery but the record keeps clearing the
+starvation floor. (P685)
+
+---
+
+## 79. The safety signal — a trusted presence quiets a firing cue
+
+§44 attenuated encoding when a trusted person is co-present at
+the BAD event. The complementary channel — safety at FIRE time —
+is separate and verified:
+
+- Hornstein & Eisenberger work on social safety signaling
+  (verified literature direction): a trusted other's presence
+  functions as a learned safety signal that suppresses the
+  conditioned response itself — not the encoding of new threat,
+  but the expression of old fear.
+- Extinction-analog framing (Bouton): safety signals are
+  conditioned INHIBITORS — they suppress CR expression while the
+  CS-US association stays intact. Suppression ≠ unlearning:
+  remove the safety signal and the fear returns at full
+  strength (the locked null).
+- This is why "I'll go with you" works at the feared place
+  itself, not just on the way to it.
+
+**Spec consequence (§6.112b):**
+
+```
+at CondEntry fire time (§4.9): if a co-present person's
+  PersonModel.trust ≥ secure_trust:
+    fired affect *= (1 − safety_suppress·tier_mult)
+    safety_suppress ≈ 0.35 — the held hand quiets the firing cue;
+    tier_mult shared with §44's table (partner 1.0·relQuality,
+    close friend 0.6, stranger ~0.2)
+LOCKED NULL safety_unlearn_null = 0: safety suppression does NOT
+  decrement strength or increment safeCount — the entry is
+  inhibited at expression, not extinguished; the cue alone later
+  fires at full remaining strength (inhibitor, not exposure)
+interaction: presence of the safe person during a SAFE-day cue
+  exposure still accrues safeCount normally — you can also
+  genuinely extinguish; the two channels stack (inhibition now,
+  extinction accruing)
+```
+
+Emergent: the character who can only enter the feared venue with
+the trusted friend — and whose fear is undiminished the day she
+goes alone; company is a suppressor, never a cure. (P686)
+
+---
+
+## 80. Spec delta (v5.12 → v5.13)
+
+Params (all new, clamp ranges in profiles §0):
+
+- `grief_osc_k` 0.15, `grief_restore_slope` 0.02/day (sat 0.8),
+  `grief_pang_gain` 0.15, `restore_suppress` 0.4, `bond_gain`
+  0.02, `bond_talk_p` 0.05, `grief_erasure_null` 0 — §70
+- `emo_back_loss` 0.4, `emo_fwd_gain` 0.2, `emo_coh_loss` 0.25,
+  `teles_when_immune` flag at arousal ≥0.85 — §71
+- `cc_eval_gain` 0.6 (rival-entry mint multiplier), mixed-cue
+  mixture rule — §72
+- `capitalize_gain` 0.15, `cap_val_gain` 0.1, audience
+  `ac_response` gate, `cap_content_null` 0 — §73
+- `tone_survive_mult` 0.5, `prosody_leak_k` 0.15, Event/record
+  `prosody` field — §74
+- `aff_flash` emission mode, `aff_flash_thresh` 0.3,
+  `aff_flash_verbatim` 0 — §75
+- `jealous` trait, `rival_vigil_gain` 0.25, `rival_stick_k` 0.3,
+  `rival:true` + `infid_cue` event tags — §76
+- `awe:true` Event flag, `awe_self_loss` 0.4, `awe_gist_gain`
+  0.3, `awe_gap_resist` 0.5 — §77
+- `emo_df_resist` 0.5, arousal-0.8-negative exemption (locked) —
+  §78
+- `safety_suppress` 0.35 (fire-time inhibition),
+  `safety_unlearn_null` 0 — §79
+
+Fields: PersonModel `deceased`/`deathDay`; char state `grief`
+{mode, modeDay, bond_strength}; record `rival:true`,
+`prosody` verbatim field, `teles_when_immune`; emission
+`aff_flash:true`, `absence:true`/`presence:true` on
+deceased-linked emissions; Event `prosody`, `awe:true`,
+`infid_cue:{sexual,emotional}`; retell context `ac_response`.
+Locked nulls: grief_erasure_null, cap_content_null,
+aff_flash_verbatim, safety_unlearn_null.
+
+## 81. Age guidance (extends §§10/23/37/53/67)
+
+- `grief_*`: DPM oscillation operates across the lifespan; older
+  widows' restore-mode residence rises faster (established coping
+  literature — bereavement outcome improves with age into the
+  60s; ×1.2 slope at 65+, [HYPOTHESIS] curve). Children below ~10
+  get the pang ecology but weaker continuing-bonds semantics
+  (bond_talk_p ×0.5 — concept of death consolidation, HYPOTHESIS).
+- `emo_fwd_gain`/`emo_back_loss`: flat — the asymmetry is
+  attentional, not developmental. `emo_coh_loss` may sharpen in
+  old age (associative deficit compounds — ×1.2 at 75,
+  HYPOTHESIS, bridges to AD§78 segmentation).
+- `cc_eval_gain`: flat; evaluative conditioning is among the most
+  age-invariant learning channels.
+- `capitalize_gain`: slightly higher at 65+ (positivity emphasis
+  compounds — ×1.15, HYPOTHESIS).
+- `tone_survive_mult`: flat; `prosody_leak_k` higher under hearing
+  loss (the degraded-content listener leans harder on the voice —
+  ×1.3 when sensory>0.4, composition with v5.12 sensory).
+- `aff_flash`: no age curve — the channel is conditioning-age,
+  not calendar-age.
+- `rival_vigil_gain`: flat adult; declines in elder profiles
+  (mate-value ecology shifts — ×0.6 at 65+, HYPOTHESIS).
+- `awe_*`: awe-proneness may rise with age (small-self
+  accessibility); keep encode constants flat, raise `awe:true`
+  minting rate ×1.2 at 65+ via the Event side (world tags).
+- `emo_df_resist`: rises with age ×1.3 at 70+ (inhibitory
+  decline compounds emotional resistance — DEBATED; SHOULD).
+- `safety_suppress`: flat; partner-dependence composes with
+  §5.64d transactive dyad naturally.
+
+## 82. Validation probes (P677–P686; registry continues)
+
+- **P677 grief oscillation (MUST):** kill a high-trust dyad
+  partner; over 90 simulated days the widow's loss/restore mode
+  residence must show (a) early loss dominance, (b) rising
+  restore share, (c) nonzero loss episodes late — monotone trend
+  with oscillation, never a clean one-way decay; deceased-linked
+  emissions carry absence:true in loss mode and presence:true in
+  restore mode; the store itself is untouched
+  (grief_erasure_null). FAIL if mode is monotone one-direction or
+  if records decay faster than matched live-person records.
+- **P678 forward-leak asymmetry (MUST — sign lock):** encode a
+  neutral→NEGATIVE→neutral sandwich at arousal 0.9: the
+  negative→following link must exceed the preceding→negative
+  link (fwd > back); both must differ from a matched
+  neutral-sandwich control; the hot record's own `when` field
+  must resist the telescoping bias (teles_when_immune) while
+  neighbors' `when` drift. FAIL on symmetric loss or on the hot
+  record telescoping.
+- **P679 counterconditioning rival (MUST):** negative CondEntry
+  on cue X, then three positive X-events: cue must hold TWO
+  entries (both valences present); fired affect must be the
+  strength-weighted MIXTURE (ambivalence), not a merged scalar;
+  the negative entry's renewal channel must still fire on
+  context change. FAIL if the positive events decrement or
+  replace the negative entry.
+- **P680 capitalization gate (MUST):** retell a positive record
+  to active_constructive vs passive audiences: S gain only in the
+  active arm (≥capitalize_gain·0.8); verbatim fields identical
+  pre/post in both arms (cap_content_null); valence tag creeps
+  positive in the active arm only.
+- **P681 tone survival (MUST):** speech record with prosody −0.7
+  vs neutral prosody, decayed 60 days: (a) prosody field
+  strength > content verbatim fields by the tone_survive_mult
+  ratio; (b) content affect tag shifted by prosody_leak_k at
+  encode and UNCHANGED by prosody-field decay — the leak is
+  irreversible.
+- **P682 affect flashback (MUST):** drive a CondEntry's source
+  record below θ (decay or forgetEvent), then present the cue:
+  emission must be aff_flash:true with content:null — affect
+  present, no fields; FAIL if any content fields emit or if
+  confidence emits. Below aff_flash_thresh: no emission at all.
+- **P683 jealousy vigilance (SHOULD — trait gate):** identical
+  partner+rival co-presence events on jealous 0.8 vs 0.2
+  characters: high arm mints rival:true, encodes at
+  rival_vigil_gain, and accrues a mild negative person-CondEntry;
+  low arm mints none of it. infid_cue:sexual vs emotional must
+  weight by profile sex per the Schützwohl multipliers.
+- **P684 awe signature (SHOULD — HYPOTHESIS arm):** awe:true
+  event vs matched positive non-awe: awe record must show thin
+  self fields + strong gist + schema_gap resistance to
+  confab_fill + full arousal tag; FAIL if self fields mint at
+  ordinary strength (small-self is the signature).
+- **P685 directed-forgetting resistance (MUST):** dforget on
+  arousal-0.8-negative vs arousal-0.3-neutral records: the hot
+  record must stay above df_theta_eff longer (resist factor) and
+  the ≥0.8 negative arm must NEVER starve (locked exemption);
+  under suppress:true contexts the resistance halves (strategy
+  arm).
+- **P686 safety signal (MUST — locked null):** CondEntry firing
+  with vs without a trusted co-present person: fired affect lower
+  with the safe person (safety_suppress), while entry strength
+  and safeCount are IDENTICAL across arms afterward
+  (safety_unlearn_null — inhibition, not extinction); cue alone
+  later refires at pre-suppression strength.
+
+Registry now P1–P686; numbering stable.
+
+## 83. Honest limits (Part VI)
+
+- **Grief modes** compress the DPM's rich account into a two-state
+  oscillator with a monotone restore slope. Real oscillation is
+  event-triggered (a funeral spikes loss mode for days) — our
+  stochastic switch approximates it; a cue-triggered mode-flip
+  refinement is flagged for a future pass.
+- **Forward-favouring** is a two-study finding (72+150); the
+  mechanism (post-encoding attentional capture of the E+1 item)
+  is inferred, not shown. We implement the directional asymmetry
+  and flag the magnitude as calibrated guess.
+- **Counterconditioning** magnitude (cc_eval_gain 0.6) exceeds
+  the lab's d≈0.2 on evaluative ratings deliberately — the lab
+  measures a single rating, we mint a rival TAG whose long-run
+  effect must survive the ecology; treat as prior.
+- **Capitalization** measures affect/well-being, not record
+  strength directly — the memory benefit is attested in
+  follow-ups but thin. The ACR gate is the load-bearing part and
+  is well-replicated.
+- **Prosody** survival asymmetry (×0.5 decay) is a modeling
+  hypothesis on top of verified effects (implicit leak is
+  established; the half-life ratio is ours).
+- **Affect flashbacks** are clinically real but the clean
+  dissociation from episodic content is DEBATED (Brewin's
+  taxonomy vs single-memory accounts); we implement the
+  below-wall branch because our architecture makes it nearly
+  free and it is behaviorally distinct.
+- **Jealousy** is the thinnest literature in the pass — two
+  programs, modest Ns, evolutionary framing contested. The
+  trait gate (jealous ≥0.5) is the honest implementation: the
+  literature only supports effects in high-jealousy individuals.
+- **Awe** has NO direct memory literature — §77 is a labeled
+  HYPOTHESIS built from awe's appraisal structure (accommodation
+  failure → thin verbatim, small self → thin self fields).
+  P684 tests internal consistency, not fidelity to a corpus.
+- **Directed-forgetting resistance** sits between Hauswald's
+  exemption and van Schie's comparability — we take the weak
+  end (resist ≤0.5, strategy-halving) and lock only the
+  ≥0.8-negative exemption, which is the best-replicated cell.
+- **Safety signals** are real conditioned inhibitors but our
+  tier_mult reuses §44's relationship table by analogy — the
+  fire-time suppression magnitude (0.35) is a prior.
+
+---
+
+# Part VII — v77: the uses of feeling — who you attach, who you thank, who you tell, and how you stand back from your own past (2026-09-23, seventh pass)
+
+Six passes priced the tag itself: birth by peak-end, consolidation
+wave, valence split, conditioned entries, the ecology of cues,
+grief, contagion, regulation style. What remains unpriced is the
+*instrumental* layer — the ways emotion is not merely stored but
+spent: kindness minting a creditor in the ledger of the heart, a
+friend's rumination deepening both the wound and the bond, the
+rememberer stepping back from the memory to look at it, the joke
+that cools the wound, and the calm self that cannot feel what the
+furious self did. This pass also formalizes two things left as
+qualitative labels: disgust's extinction resistance (a tag text
+since v2.9, never parametrized) and the felt-vs-believed split in
+emotion reports — where the character answers "how did you feel"
+not from the record but from who they believe they are.
+
+## 84. Gratitude mints the benefactor — a positive entry that refuses to fade
+
+The asymmetry of §4.9 (`trust_neg_gain > trust_pos_gain`, bad is
+stronger than good) has one documented exception: received
+kindness that is *felt as gratitude*, not merely recorded as
+pleasant.
+
+- McCullough, Kilpatrick, Emmons & Larson 2001 (review — the
+  gratitude-as-moral-barometer account): receiving a benefit
+  appraised as costly-to-the-giver mints a durable affective
+  orientation toward the benefactor — gratitude is theorized as a
+  *stored signal of relationship value*, precisely because it
+  outlasts the pleasantness of the gift.
+- Bartlett & DeSteno 2006 (*Psych. Sci.* 17:319 — verified):
+  induced gratitude produced costly helping toward the
+  benefactor — effortful repayment behavior, not generic
+  goodwill; the motive survives after mood inductions wash out
+  (gratitude, not positive affect, mediated).
+- Fehr & Gächter 2000 / Algoe 2012 (find-remind-bind):
+  gratitude's function is maintaining the relationship — it
+  binds to a PERSON, not an outcome. This makes it the mirror of
+  betrayal (§57): betrayal prices the perpetrator's closeness
+  negatively; gratitude prices the benefactor's positively.
+
+**Spec consequence (§6.154):**
+
+```
+Event `benefit:true` + `benefactor:<charId>` (world tags acts of
+kindness appraised as costly/effortful — carrying groceries is
+only benefit:true when it cost something):
+  mint a person-CondEntry on benefactor with valence +
+  and strength *= (1 + grat_gain·cost_appraisal)
+    grat_gain ≈ 0.5 — a genuinely costly kindness beats the
+    §4.9 positive discount and approaches harm-entry strength
+  entry flag `grateful:true` → decay leg × (1 − grat_fade_resist)
+    grat_fade_resist ≈ 0.4 — gratitude is the positive exception
+    to the fading-affect ecology (FAB leaves it intact)
+  emission cue: benefactor in need (need:true event) raises the
+    entry and may emit `reciprocate:true` — the Bartlett & DeSteno
+    motive channel; reciprocity bias toward the benefactor, not
+    generalized prosociality
+```
+
+Emergent: the character who shows up to help the friend who once
+helped them, years later, unbidden — and cannot say exactly why
+the debt feels unpaid. Gratitude is the book the ledger never
+closes. (P815)
+
+---
+
+## 85. Co-rumination — the shared dark loop that binds and worsens
+
+§64's `emo_inertia` and the existing `rumin` trait price solitary
+rehearsal. The dyadic version is a separate, verified channel:
+
+- Rose 2002 (*Child Dev.* 73:1830 — verified): co-rumination —
+  extensively discussing problems with a friend, rehashing,
+  speculating, dwelling on negative affect — predicts BOTH
+  friendship quality AND internalizing symptoms. The same
+  behavior buys closeness and buys distress; the trade is the
+  finding, not a side effect.
+- Rose, Carlson & Waller 2007 (*Dev. Psychol.* 43:1019 —
+  verified): prospective — co-rumination predicts later
+  depression/anxiety while predicting increasing friendship
+  closeness. Girls > boys; emerges in adolescence.
+- Stone & Gibbons 2020 / Spendelow et al.: co-rumination is
+  distinguishable from ordinary self-disclosure by its
+  *repetitive* and *speculative* structure — same problem, no
+  resolution, affect rehearsed not worked through.
+
+**Spec consequence (§6.155):**
+
+```
+jointRecall(charIds, cue) on a shared NEGATIVE record where
+min(rumin_A, rumin_B) ≥ corumin_gate (0.4):
+  bond_strength += corumin_bond (0.03) per episode —
+    the intimacy is real; closeness accrues as in §73's ACR arm
+    but WITHOUT requiring active-constructive responses —
+    mutual dwelling is enough (the dark channel)
+  the record's negative tag does NOT take the §16 verbal
+    dampen discount — ruminative retell is rehearsal, not
+    disclosure: verbal_dampen *= (1 − corumin_damp_loss·
+    min(rumin_A,rumin_B))  (corumin_damp_loss ≈ 0.6)
+  affect re-fired at full strength AND increments rumin
+    co-gain: both tellers' mood += mood_bleed·neg
+  discriminator: a negative jointRecall that reaches a
+    RESOLUTION field (solved:true, decided:true — world tags
+    closure in the retell event) escapes the loop and takes
+    the ordinary dampen + cap capitalization path
+age arm (age-dev tie-in): corumin_gate effective only when
+  both participants' age_now ≥ ~10 (Rose & Rudolph: the loop
+  is an adolescent acquisition; children co-disclose but the
+  rehearsal-without-resolution structure is post-onset);
+  sex loading: trait draw girls > boys (handled in profiles,
+  not the function)
+```
+
+Emergent: two high-rumin mains who "talk about everything"
+become visibly closer AND visibly sadder — the audience sees the
+friendship deepen as the mood decays. (P816)
+
+---
+
+## 86. Directed self-distancing — asking "why" from a distance
+
+§5.39's `persp` is a *sampled* emission property — the rememberer
+sometimes finds themselves watching the memory. The regulation
+channel is different: a *deliberate* distanced analysis of a
+negative record that cools reactivity without avoiding the
+content.
+
+- Ayduk & Kross 2010 (*JPSP* 99:809 — verified): spontaneous
+  self-distancing while reflecting on negative memories → less
+  emotional AND cardiovascular reactivity short-term, less
+  intrusive ideation over time; effect mediated by
+  *reconstruing* (making meaning) vs *recounting* (reliving);
+  NOT mediated by avoidance — distancers engaged, they engaged
+  differently.
+- Kross & Ayduk 2008, 2011 (the "why from a distance" program):
+  distanced-analysis of a negative experience produces less
+  rumination than immersed-analysis and does not degrade the
+  meaning extracted — the benefit is affective, the insight is
+  preserved.
+- The §5.39 observer emission dampens REPORTED affect
+  (`persp_affect_loss` 0.2). Distanced reflection operates one
+  level up: it dampens the *re-fired* affect and the rehearsal
+  dividend of the session itself.
+
+**Spec consequence (§6.156):**
+
+```
+cueContext.reflect:{mode:"distanced"} (dialogue/internal layer
+sets it on deliberate "think about it calmly" / third-person
+replays; rate scaled by persp_obs trait and mindful):
+  fired affect of the reflected record ×= (1 − dist_cool·
+    persp_obs_scaled)   dist_cool ≈ 0.5 — deeper than the 0.2
+    surface loss; reflection-mode, not emission-mode
+  rumin refresh dividend on the record ×= (1 − dist_cool)
+    — the replay consolidates WITHOUT reheating; the
+    distinction from §64's rumin loop is mechanistic: rumination
+    recounts, distancing reconstrues
+  coherence field still accrues (the Ayduk & Kross insight arm —
+    meaning-making is not impaired, only affect is cooled)
+LOCKED NULL dist_avoid_null = 0: a distanced reflection does NOT
+  raise theta, does NOT add the avoid_suppress surcharge, and
+  does NOT reduce future cueMatch — the record stays as
+  accessible as before; cooling ≠ excluding (verified: effect
+  not mediated by avoidance)
+emission `distanced:true` marks the report
+```
+
+Emergent: the character who "thinks about the fight" at night
+and comes out of it calm but still knowing exactly what happened
+— versus the ruminator who replays and ends up angrier with a
+stronger memory. Same record, opposite regulation. (P817)
+
+---
+
+## 87. Humor as reappraisal — the joke cools the tag
+
+v4.6's `humor_gain` prices *memorability* — witty events encode
+stronger. The separate, verified channel is humor as an
+*emotion-regulation* operation on negative events:
+
+- Kugler & Kuhbandner 2015 (*Neuropsychologia* 62:357 —
+  verified): humorous reappraisal of negative images vs ordinary
+  reinterpretation — humor reduced amygdala response MORE and
+  produced *worse* later memory for the negative items (the
+  coolness costs fidelity: the joke rewrites what the scene was).
+- Samson & Gross 2012 / Samson, Glassco, Lee & Gross 2014
+  (*Cogn. Emot.* — verified): positive humor down-regulates
+  negative emotion responses; humor generation is a
+  reappraisal-family operation, demand-wise heavier than
+  expressive suppression but cheaper than detached
+  reinterpretation.
+- Strick et al. 2009: humor's regulatory effect is largest on
+  moderately negative content; extremely negative content
+  resists the joke (the ceiling matters).
+
+**Spec consequence (§6.157):**
+
+```
+Event `humor:true` on a NEGATIVE-valence event (the joke AT the
+bad thing — distinct from humor on attended events generally,
+which keeps the v4.6 memorability path):
+  arousal_tag ×= (1 − humor_reapp_k·min(1, humor_trait + 0.3))
+    humor_reapp_k ≈ 0.35 — the laugh is a down-regulation
+    operator on the born tag; gated on arousal < 0.85 (the
+    Strick ceiling — nobody jokes the trauma cooler)
+  verbatim fields of the humorous negative record mint ~15%
+    thinner (the fidelity cost — humor buys affect relief with
+    detail; Kugler & Kuhbandner's memory decrement)
+  at REPLAY: a negative record retold with humor (retell event
+    carries humor:true) takes the §16 dampen as usual PLUS a
+    small additional tag cool (×(1 − humor_replay_k ≈ 0.15)),
+    once per record per humor-cool window — the running gag
+    genuinely wears the sting down, slowly
+interactions: suppressors (regulate_style<0.5) can still use
+  humor — it is reappraisal-family, not suppression-family;
+  humor_trait is a new IndivTraits axis (v5.25, loads
+  extra + open, anti-loads neurot mildly)
+```
+
+Emergent: the funny main's worst day comes back smaller —
+dimmer in affect AND thinner in detail, the real cost the lab
+measured. The unfunny character's identical day stays hot and
+sharp. (P818)
+
+---
+
+## 88. The hot–cold read — the calm self cannot feel the furious self
+
+§88s predecessors priced state-dependent *access* (§5.3's
+`w_msd`, small and erasable). The visceral-states literature
+prices a different failure: the *interpretation* of a hot-state
+record by a cold-state reader — including of oneself.
+
+- Nordgren, van der Pligt & van Harreveld 2006 (*Psych. Sci.*
+  17:635 — verified): people in a cold state UNDERESTIMATE the
+  motivational force that a past hot state exerted — on others'
+  AND on their own past behavior; attribution shifts toward
+  dispositional/other factors; instruction to correct does NOT
+  remove the gap.
+- Nordgren et al. 2007 (*JPSP* 93:75 — verified): cold-state
+  participants evaluated impulsive behavior less favorably —
+  the empathy gap is state-SPECIFIC (hungry evaluators forgive
+  only hunger-driven lapses) and applies to self-judgments
+  (Study 3).
+- Loewenstein 2005 (theoretical — hot-cold empathy gaps): the
+  cold self cannot simulate the hot self's utility function;
+  the retrospective consequence is "I can't believe I did that"
+  — the record is intact, the comprehension is not.
+
+**Spec consequence (§6.158):**
+
+```
+at Reconstruction of a record whose arousal_tag ≥ 0.7 while
+C.arousal_now ≤ 0.3 (or vice versa — hot reading cold is the
+same gap, sign-flipped):
+  re-fired affect *= (1 − hotcold_k·|a_enc − a_now|)
+    hotcold_k ≈ 0.5 — the affect under-ports even though the
+    record is verbatim-intact; the reader retrieves the scene
+    but not the heat
+  when the record describes the character's OWN impulsive/hot
+    behavior and the gap binds (|Δ| ≥ hotcold_gap_thresh 0.5):
+    emission carries `cold_read:true` — report layer renders
+    dispositional attribution ("that wasn't like me" /
+    "I don't know what came over me"); the attribution style is
+    state-specific — a tired self forgives only fatigue-driven
+    lapses (Nordgren state-specificity: match on the drive
+    channel, not valence generally)
+LOCKED NULL hotcold_store_null = 0: the gap never rewrites
+  arousal_tag or any verbatim field — it is a read-time
+  failure only; re-reading the same record tomorrow in a hot
+  state re-fires at full tag strength
+```
+
+Emergent: the main who screamed at a friend yesterday calmly
+reviews the scene today and judges the person in the memory as
+an inexplicable stranger — while the archive shows the same
+record untouched, waiting to refire at full heat the next time
+the state returns. (P819)
+
+---
+
+## 89. Anxiety's retrieval priority — the threat record wins the cue race
+
+§6.143's `rival_vigil_gain` priced threat-priority for one
+specific cue class (the romantic rival). The general anxiety
+channel — threat-tagged material winning ordinary cue
+competition — is separate and older:
+
+- Williams, Watts, MacLeod & Mathews 1997 (*Cognitive
+  Psychology of Emotional Disorders* — the canonical account):
+  anxiety biases the *detection* stage — threat-relevant
+  stimuli win attentional competition before elaboration
+  begins. Depression biases elaboration instead — the
+  anxiety=detection / depression=rumination split is the
+  textbook dissociation.
+- Bishop 2007 (*Nat. Neurosci.* 10:307 review — verified):
+  trait anxiety = hypervigilant attentional set; threat cues
+  capture attention even below awareness and resist
+  disengagement.
+- Mathews & MacLeod 2005: the bias scales with state × trait
+  anxiety — it is a priority weight, not a threshold gate.
+
+**Spec consequence (§6.159):**
+
+```
+anx_eff = clamp(0.6·neurot + 0.4·max(0, C.anxiety_state), 0, 1)
+  (state anxiety is a context field the emotion layer supplies;
+  absent → trait only)
+in §5.2 noisy-OR cue competition, records carrying
+  threat:true / negative CondEntry linkage receive
+  cueMatch += threat_cue_gain·anx_eff·arousal_tag
+    threat_cue_gain ≈ 0.15 — a priority bonus on the
+    detection stage, before fan/latency pricing; threat
+    records surface first under anxiety even when not the
+    strongest
+disengagement arm (the Bishop hold): when a threat-cued
+  recall fires, the ambient scan's next-step disengage
+  probability drops ×(1 − threat_hold·anx_eff),
+  threat_hold ≈ 0.3 — anxious characters stay with the threat
+  record after neutral characters would have moved on
+  (§6.143's rival hold is the special case where the threat
+  object is a person)
+boundary: DEPRESSION does not get this bonus — depr's channel
+  stays §6.52/§64 (accessibility + inertia at elaboration, not
+  detection priority); locked as the textbook dissociation
+```
+
+Emergent: an anxious main mentions the unpaid bill, the strange
+car, the weird look — the three threat-tagged records of an
+unremarkable week — while a low-anxiety main recounting the same
+week surfaces the meal and the weather. Same ecology, different
+first reach. (P820)
+
+---
+
+## 90. Positive mood widens the fan — the happy searcher finds remote kin
+
+§8's `mood_bleed` prices mood-*congruent* reconstruction. Positive
+mood has a second, structural effect on search itself:
+
+- Rowe, Hirsh & Anderson 2007 (*PNAS* 104:383 — verified):
+  positive mood enhanced access to REMOTE semantic associates
+  (RAT performance up) while impairing flanker selectivity —
+  positive affect loosens inhibitory selection in both semantic
+  and spatial search. One mechanism: wider attentional aperture.
+- Fredrickson & Branigan 2005 (broaden-and-build — verified
+  direction): positive emotion widens thought–action repertoires;
+  negative emotion narrows toward the prepared action.
+- Isen, Daubman & Nowicki 1987 (classic): positive affect
+  improves creative problem-solving requiring remote association.
+
+**Spec consequence (§6.160):**
+
+```
+when C.mood > mood_broaden_floor (0.3):
+  θ_eff for associative (non-verbatim) cue spread ×=
+    (1 − broaden_k·C.mood)    broaden_k ≈ 0.25 — a modest
+    theta cut; the happy searcher clears weaker candidate
+    records, producing the remote-reminding pattern
+  fan pricing: fan_k penalty per extra candidate reduced by
+    (1 − 0.5·broaden_k·C.mood) — wide search is cheaper in a
+    good mood (the Rowe finding is access gain, not accuracy
+    gain: candidate count rises, hit precision does not)
+  search_breadth effective +floor(broaden_k·C.mood·4) candidates
+LOCKED NULL broaden_store_null = 0: mood-broadened search never
+  writes — no S changes, no link mints, no confab bonus from the
+  wider candidate pool beyond normal confab_fill mechanics;
+  the aperture is a read-side lens, lifted when mood lifts
+```
+
+Emergent: a main in a good mood answers "what does this remind
+you of" with the surprising-but-apt association — the same
+character in a flat mood retrieves the obvious neighbor.
+Creativity as a retrieval-state, not a storage property. (P821)
+
+---
+
+## 91. Disgust formalized — extinction-resistant, and the wash that works is counterconditioning
+
+v2.9 tagged `emotion:disgust` as "conditioning-resistant" in the
+appraisal table — a qualitative label, never parametrized. The
+conditioning literature prices it precisely, and the asymmetry
+between the two unlearning channels is the finding:
+
+- Olatunji, Forsyth & Cherian 2007 (*J. Anxiety Disord.*
+  21:820 — verified): disgust evaluative conditioning is
+  "sticky" — resistant to extinction relative to fear
+  conditioning on the same paradigm.
+- Engelhard, Leer, Lange & Olatunji 2014 (*Behav. Therapy*
+  45:708 — verified, and the key asymmetry): Study 1 —
+  extinction training did NOT reduce disgust evaluative
+  learning; Study 2 — counterconditioning DID reduce it.
+  The wash that works on disgust is a rival tag (§72), not
+  exposure.
+- Bosman, Borg & de Jong 2016 (PLoS ONE — verified): disgust
+  extinction optimized only with extended/evaluative framing;
+  standard exposure insufficient.
+- Olatunji, Tomarken & Puncochar 2013 (*Emotion* 13:881 —
+  verified): disgust PROPENSITY potentiates evaluative learning
+  of aversion — trait disgust-sensitivity raises acquisition
+  itself.
+- Rachman 2004 contamination literature: disgust generalizes
+  through *contact semantics* (the touched-by relation) — our
+  cue-mixture machinery already supports it via people/place
+  contiguity.
+
+**Spec consequence (§6.161):**
+
+```
+CondEntry with emotion:disgust:
+  acquisition gain += disg_prop_gain·disg_prop  where
+    disg_prop = clamp(0.6·neurot + 0.4·consc, 0, 1)
+    (consc carries the orderliness/cleanliness loading —
+     disg_prop_gain ≈ 0.3 — propensity feeds the mint,
+     Olatunji 2013)
+  extinction: safeCount accrual on disgust entries ×=
+    dis_extinct_mult (0.4) — exposure without the rival tag
+    barely moves it (Engelhard Study 1)
+  counterconditioning (§72 rival-tag mint) at ~full efficacy:
+    dis_cc_mult 0.9 — the rival-tag channel is the documented
+    wash; disgust yields to a minted rival, not to repetition
+  renewal/ABA on disgust entries: standard (no special return
+    bonus — the resistance is in extinction rate, not renewal
+    magnitude; keep the ecology shared)
+```
+
+Emergent: the character who was revolted by the restaurant
+stays revolted after three clean visits — and finally softens
+only after the birthday dinner mints a rival warm tag on the
+same place. Exposure fails, counterconditioning works, exactly
+as Engelhard showed. (P822)
+
+---
+
+## 92. Mood-repair recall — the sad searcher reaches for a happy memory on purpose
+
+Mood-congruent recall is the default ecology (§8). The
+instrumental override — deliberately retrieving incongruent
+positive records to repair a negative mood — is a measured,
+trait-gated channel:
+
+- Josephson, Singer & Salovey 1996 (*Cogn. & Emot.* 10:437 —
+  verified): sad-mood induction → first memories sadder
+  (congruent default); but non-depressed participants' SECOND
+  memories shifted positive — and 68% of the shifters
+  explicitly reported doing it to repair mood. The repair
+  attempt is a conscious recruitment, not drift.
+- Rusting & DeHart 2000 (*JPSP* 78:737 — verified):
+  mood-incongruent recall occurs specifically under
+  positive-reappraisal strategies; trait negative-mood-
+  regulation expectancies predict who does it.
+- Joormann & Siemer 2004 (*J. Abnorm. Psychol.* 113:179 —
+  verified): dysphoric participants CANNOT use the
+  mood-incongruent repair path — positive recall does not
+  lift their mood (they need distraction instead). The repair
+  channel is gated OFF by dysphoria.
+
+**Spec consequence (§6.162):**
+
+```
+on self-initiated recall (ambient scan / pm_self path) while
+C.mood < −repair_thresh (0.4):
+  P(mood_repair) = clamp(repair_base·(1 + regulate_style)·
+    (1 + 0.5·self_est)·(1 − depr), 0, repair_cap)
+    repair_base ≈ 0.3, repair_cap ≈ 0.7 — regulators reach for
+    the incongruent-positive record; dysphorics do not
+  a repair-arm recall inverts the cue-valence weight: the
+    search weights positive-tagged records as if the cue were
+    positive (candidate pool flips, θ unchanged)
+  if the repair recall fires: C.mood += repair_lift·(1 − depr)
+    (repair_lift ≈ 0.1 — modest, Josephson's is a shift not a
+    cure) AND the recalled record takes ordinary retell_boost
+    — repairing also strengthens the good memory
+LOCKED NULL repair_dep_null: when depr ≥ 0.5, P(mood_repair)
+  uses the (1 − depr) term toward zero AND repair_lift = 0 —
+  the dysphoric character recalls the good memory and stays
+  sad (Joormann & Siemer — the failure is in the lift, not
+  just the reaching); distraction path (dforget/redirect) is
+  their working channel
+```
+
+Emergent: the resilient main, after a bad day, narrates the
+good summer — and the audience watches the mood meter actually
+lift. The depressive main tries the same move and it does
+nothing; their repair is distraction, a different mechanism
+entirely. (P823)
+
+---
+
+## 93. Felt or believed — how the character answers "how did you feel?"
+
+Every pass so far priced *re-firing* — affect re-instantiated
+from the record. The emotion-report literature says the answer
+a character GIVES often bypasses the record entirely:
+
+- Robinson & Clore 2002 (*Psych. Bull.* 128:934 — verified, the
+  accessibility model): reports of past emotion draw on
+  episodic retrieval for very recent experiences; beyond ~2
+  weeks, reports reconstruct emotion from SEMANTIC sources —
+  beliefs about the self ("I'm an anxious person"), beliefs
+  about the situation ("dentists are scary"), and current
+  state — not from the stored feeling. The divergence between
+  experience-sampled emotion and recalled emotion is large and
+  systematic.
+- Levine & Safer 2002 / Levine et al.: remembered emotion is
+  biased by current appraisal — §28 already implements the
+  appraisal-drift (`emo_update_k`); what that channel lacks is
+  the report-layer bypass: the character who reports an emotion
+  that was never in the record at all.
+- Verified consequence structure: experiential emotion (fired
+  affect) and reported emotion (verbal report) are different
+  quantities with different error structure — reports are
+  stable, stereotyped, identity-consistent; experiences are
+  variable, arousal-bound.
+
+**Spec consequence (§6.163):**
+
+```
+emotion reports split into two channels:
+  felt report (record fires, arousal re-instantiated — existing
+    machinery; available while the record clears θ)
+  believed report (record absent/thin OR report-context is
+    "how did you feel about X" with recency > felt_window
+    ≈ 14 days): the report samples
+      reported_affect = mix(self_belief, schema_prototype,
+                            current_mood_bleed)
+    — identity beliefs and the event-type script, not the tag
+  felt_window is the Robinson & Clore seam: inside ~2 weeks
+    reports track the record; beyond it they drift toward
+    belief-reconstruction EVEN WHEN the record is intact
+    (accessibility model: retrieval is effortful; the cheap
+    answer is the theory of self)
+  divergence audit: when a believed report and the record's tag
+    disagree by >0.4, emission carries `felt_believed_gap:true`
+    — the character says "I was devastated" about a record
+    tagged mildly annoyed; the gap is data, not a bug
+LOCKED NULL felt_write_null = 0: believed reports never write
+  to the record's affect tag — the false report is emitted, not
+  stored; a later felt recall can still refire the true tag
+  (the record remembers what the report forgot)
+```
+
+Emergent: asked in month three how the breakup felt, the
+character answers from who-they-are — "it destroyed me" over a
+tag of tired resignation, or "I barely noticed" over a hot
+record that will still refire on the right song. Both channels
+true; the disagreement IS the human shape. (P824)
+
+---
+
+## 94. Spec delta (v5.24 → v5.25)
+
+Params (all new, clamp ranges in profiles §0):
+
+- `grat_gain` 0.5, `grat_fade_resist` 0.4; Event
+  `benefit:true`+`benefactor`, record `grateful:true`, emission
+  `reciprocate:true` — §84
+- `corumin_gate` 0.4, `corumin_bond` 0.03, `corumin_damp_loss`
+  0.6; jointRecall resolution field `solved:true`; age floor
+  ~10y — §85
+- `cueContext.reflect:{mode:"distanced"}`, `dist_cool` 0.5,
+  emission `distanced:true`; locked `dist_avoid_null` 0 — §86
+- `humor_reapp_k` 0.35 (encode cool, arousal<0.85 gate),
+  `humor_replay_k` 0.15 (per-record once-per-window replay
+  cool), verbatim thin ~15%; new trait `humor` — §87
+- `hotcold_k` 0.5, `hotcold_gap_thresh` 0.5, emission
+  `cold_read:true`; locked `hotcold_store_null` 0 — §88
+- `threat_cue_gain` 0.15, `threat_hold` 0.3, context
+  `anxiety_state`; depr excluded (locked dissociation) — §89
+- `broaden_k` 0.25, `mood_broaden_floor` 0.3; locked
+  `broaden_store_null` 0 — §90
+- `dis_extinct_mult` 0.4, `dis_cc_mult` 0.9, `disg_prop_gain`
+  0.3 (+`disg_prop` composite) — §91
+- `repair_base` 0.3, `repair_cap` 0.7, `repair_thresh` 0.4,
+  `repair_lift` 0.1; locked `repair_dep_null` (dysphoric lift
+  zero) — §92
+- `felt_window` 14 days; `felt_believed_gap:true` audit
+  emission; locked `felt_write_null` 0 — §93
+
+Fields: Event `benefit`/`benefactor`/`humor`/`solved`; record
+`grateful:true`; cueContext `reflect.mode`; emission
+`reciprocate`/`distanced`/`cold_read`/`felt_believed_gap`;
+context `anxiety_state`; new IndivTraits axis `humor`
+(extra+open loading, mild −neurot). Locked nulls:
+dist_avoid_null, hotcold_store_null, broaden_store_null,
+repair_dep_null, felt_write_null (+ depr exclusion on §89
+threat priority).
+
+## 95. Age guidance (extends §§10/23/37/53/67/81)
+
+- `grat_*`: gratitude capacity develops with benefactor-cost
+  appraisal — benefit:true mints at half gain below ~8
+  (children register kindness, under-appraise cost; HYPOTHESIS
+  knot), full adult thereafter; elder positivity emphasis
+  raises grat_gain ×1.15 at 65+ (HYPOTHESIS).
+- `corumin_*`: gated ≥10y both participants (Rose & Rudolph —
+  verified developmental emergence); peak adolescent→young-
+  adult; adult rate persists; sex loading handled trait-side.
+- `dist_cool`: distancing capacity is metacognitive — children
+  use it poorly (age-floor ~0.3 efficacy below ~10, HYPOTHESIS);
+  mindful trait composes multiplicatively; elders skew slightly
+  higher (SST distancing tendency, ×1.1 at 65+, HYPOTHESIS).
+- `humor_*`: humor regulation present by late childhood;
+  humor_reapp_k flat adult; elderly humor styles stay
+  affiliative/positive — unchanged.
+- `hotcold_*`: no reliable age literature — flat across adult
+  lifespan (HYPOTHESIS: flat; the empathy gap is a
+  visceral-state mechanism, not a developmental one).
+- `threat_cue_gain`/`threat_hold`: trait-anxiety expression
+  flat adult; older adults' threat bias declines relative to
+  positivity shift (Mather & Carstensen — threat priority
+  attenuates ×0.7 at 65+, DEBATED — take weak end).
+- `broaden_k`: positive-affect broadening shows in elders too
+  (Rowe replication arm weak); flat with HYPOTHESIS flag.
+- `dis_*`: disgust conditioning/extinction pattern present from
+  childhood (contamination learning is early — Rozin); flat
+  adult; disg_prop composite unchanged by age.
+- `repair_*`: mood-repair emerges ~adolescence with regulation
+  competence (below ~10, repair_base ×0.3); elders' repair
+  succeeds MORE often (positivity arm — ×1.2 lift at 65+,
+  SST-consistent, HYPOTHESIS).
+- `felt_window`: the belief-reconstruction seam is hypothesized
+  adult-flat; children's reports may run believed-channel
+  earlier (weaker episodic access — felt_window ×0.5 below
+  ~10, HYPOTHESIS).
+
+## 96. Validation probes (P815–P824; registry continues)
+
+- **P815 gratitude mint (MUST — locked asymmetry):** benefit:true
+  event with cost_appraisal 0.8 vs matched pleasant non-benefit
+  event on same benefactor: the benefactor CondEntry must mint
+  grateful:true, exceed the §4.9 positive-entry strength, decay
+  measurably slower across 60 days, and emit reciprocate:true on
+  a later benefactor-need event. FAIL if the entry decays at
+  ordinary positive rate or if no entry mints on low-cost events.
+- **P816 co-rumination bond/affect split (MUST — sign lock):**
+  two high-rumin characters jointRecall a shared negative record
+  thrice: bond_strength must rise ≥3×corumin_bond·0.8 AND the
+  record's negative tag must NOT take verbal_dampen (damp_loss
+  active); a solved:true retell arm must take the ordinary
+  dampen (escape channel). FAIL if bond grows without affect
+  refresh or if the loop applies below age floor.
+- **P817 distanced reflection (MUST — locked null):** a negative
+  record reflected under reflect.mode:distanced vs immersed:
+  fired affect lower by dist_cool, coherence accrual EQUAL, and
+  theta/accessibility IDENTICAL post-session (dist_avoid_null —
+  FAIL if distancing raises theta or adds surcharge);
+  distanced:true emission present.
+- **P818 humor reappraisal (MUST):** humor:true on negative event
+  (arousal 0.6) vs matched unfunny: arousal_tag lower by
+  ~humor_reapp_k, verbatim fields ~15% thinner; at arousal 0.9
+  the gate blocks the cool (Strick ceiling). Replay arm: two
+  humor:true retells cool the tag ~2×humor_replay_k; FAIL if
+  replay cool exceeds once-per-window cap or touches neutral
+  records.
+- **P819 hot–cold read (MUST — locked null):** reconstruct an
+  arousal-0.8 own-impulsive record under C.arousal_now 0.2:
+  re-fired affect attenuated ≥hotcold_k·0.5, cold_read:true
+  emitted, stored tag and verbatim fields byte-identical
+  (hotcold_store_null); re-present the cue under arousal_now
+  0.7 — fired affect must return to full tag strength.
+- **P820 threat priority (MUST — dissociation lock):** under
+  anx_eff 0.8, cue competition over matched-strength records
+  must surface threat:true first at rate exceeding baseline by
+  the threat_cue_gain margin; under depr 0.8 / anx_eff 0 the
+  same set must show NO threat preference (the anxiety/depression
+  dissociation is locked). threat_hold: ambient scan dwell on
+  threat records longer under anxiety.
+- **P821 broaden fan (MUST — locked null):** C.mood 0.7 vs 0:
+  associative search must clear a measurably weaker record class
+  (θ_eff cut) and search_breadth effective must rise; all
+  store fields byte-identical across arms afterward
+  (broaden_store_null — read-side only).
+- **P822 disgust extinction asymmetry (MUST):** disgust
+  CondEntry: five safe exposures must move safeCount <0.4× a
+  matched fear entry (dis_extinct_mult); three positive
+  rival-tag mints (§72 counterconditioning) must reduce fired
+  affect near-normally (dis_cc_mult ~0.9 arm). FAIL if
+  extinction and counterconditioning behave identically on
+  disgust entries — the asymmetry IS the probe.
+- **P823 mood-repair gate (MUST):** negative mood, regulator
+  profile vs depr≥0.5 profile: regulator arm shows positive-
+  candidate inversion and post-recall mood lift; depr arm shows
+  neither (repair_dep_null — lift must be ~0 even when a
+  positive record is force-recalled). FAIL if depr arm lifts.
+- **P824 felt-vs-believed (MUST):** (a) report "how did X feel"
+  at day 3 vs day 30 on an intact record: day-3 report tracks
+  tag; day-30 report shifts toward self_belief/script with
+  felt_believed_gap:true when divergence >0.4; (b) the record's
+  tag unchanged by any believed report (felt_write_null);
+  (c) a later strong sensory cue still refires the true tag —
+  the record remembers what the report forgot.
+
+Registry now P1–P824; numbering stable.
+
+## 97. Honest limits (Part VII)
+
+- **Gratitude** has strong theory (find-remind-bind) but thin
+  *memory* evidence — the durability claim (`grat_fade_resist`)
+  is extrapolated from the motive-persistence findings of
+  Bartlett & DeSteno, not a measured decay rate. The person-entry
+  form is our operationalization.
+- **Co-rumination** effects are on friendship quality and
+  symptom inventories, not record mechanics — `corumin_bond`
+  and `corumin_damp_loss` magnitudes are priors; the solved:true
+  escape discriminator is our formalization of Rose's
+  "repetitive, without resolution" criterion.
+- **Directed distancing** sits on §5.39's spontaneous persp
+  layer; whether deliberate distancing uses the same machinery
+  at different gain is assumed, not shown. dist_avoid_null is
+  the load-bearing verified cell (Ayduk & Kross: not avoidance).
+- **Humor reappraisal** magnitudes: Kugler & Kuhbandner
+  measured amygdala + recognition decrement on aversive
+  pictures; mapping that onto arousal_tag cool + verbatim thin
+  is direct, but humor_replay_k (the running-gag decay) is our
+  accumulation model — flagged HYPOTHESIS.
+- **Hot–cold** is priced for visceral drives (hunger, fatigue,
+  arousal); extending the gap to emotional arousal generally is
+  the standard reading but the strict evidence is drive-state.
+  State-specificity implemented as drive-channel match —
+  coarse.
+- **Threat priority** magnitude (0.15) is calibrated to keep
+  threat-first rates visible without swamping cueMatch; the
+  anxiety/depression dissociation is textbook (Williams et al.)
+  but its boundary under comorbidity is genuinely messy —
+  we implement the clean dissociation and flag it.
+- **Broadening** is a semantic-attention finding; projecting it
+  onto episodic cue thresholds is the standard broaden-and-build
+  reading but the episodic recall evidence is thinner than the
+  attention evidence. Locked to read-side only to bound the
+  risk.
+- **Disgust** asymmetry (extinction fails / counterconditioning
+  works) is two-study solid in evaluative-conditioning paradigms;
+  contamination fear in the wild has confounds (disgust
+  propensity, inflation). `disg_prop` composite reuses neurot +
+  neurot + consc rather than a dedicated trait — honest but coarse.
+- **Mood repair** is the strongest causal chain in the pass
+  (Josephson's self-report + Joormann's dysphoric failure);
+  repair_lift 0.1 is deliberately small — the lab measured a
+  report shift, not a cure.
+- **Felt/believed** is the most consequential new split for
+  believability: characters who report emotions their records
+  never held. The 14-day seam is Robinson & Clore's rough
+  boundary; the mix weights (self_belief vs script vs bleed) are
+  unspecified by the model — we price them equal-ish and flag
+  the weighting as the main open parameter.
+
+# Part VIII — v89: the quiet uses of feeling — how now bends then, how choosing rewrites options, and how suppressing leaves dents (2026-09-23, eighth pass)
+
+Parts I–VII priced what emotion does to records at mint,
+decay, cue, retell, and repair. Part VIII prices the
+remaining asymmetries where the FEELING OF NOW silently
+re-edits the FEELING OF THEN — the biases a spectator
+actually watches for: the partner who "never loved you"
+after the breakup, the option you didn't pick getting
+uglier in hindsight, the boundary where an evening splits
+in two. Plus three edge-mechanisms the earlier passes left
+informal: mood-state-dependent retrieval, deliberate
+suppression's aftereffects, and peritraumatic dissociation.
+The spine throughout: **bends are emission- or
+re-encode-side; the born tag is never silently rewritten
+by current state** (felt_write_null / hotcold_store_null
+discipline, §§93/88).
+
+## 98. Consistency bias — today's bond rewrites yesterday's feeling
+
+The most consequential single bias for a relationship sim.
+McFarland & Ross 1987 (dating couples, 2-month longitudinal):
+partners whose relationships *improved* recalled their earlier
+feelings as more positive than they had reported at the time;
+partners whose relationships deteriorated recalled them as
+more negative — recalled past tracked the PRESENT evaluation,
+not the stored one. Karney & Coombs 2000 (newlyweds, 4y):
+satisfaction trajectory, not satisfaction level, drove the
+direction of bias; women showed it more. Scharfe &
+Bartholomew 1995; Sprecher 1999 same direction for
+attachment. Holmberg & Holmes 1994: reconstructed premarital
+narratives correlate with current, not initial, satisfaction.
+This is *not* mood-congruent confabulation (§63 — a fill
+on absent content): it is a systematic re-valence of
+surviving affect reports on an intact relationship.
+
+Mechanics (spec §6.173). Emission of past-feeling reports
+toward a person (§6.163 believed channel AND the felt
+channel's *reported* tag — the stored tag still does not
+rewrite): `reported_affect = stored + rel_consist_k·
+(1−field_verbatim)·signΔ·|bond_now − bond_then|` where
+bond_then is the stored bond field, `rel_consist_k` 0.3.
+- **Gate 1 — person-scoped:** only applies to affect fields
+  whose object is a CondEntry person (§31). Events with no
+  person-field are exempt — locked `consist_scope:"person"`.
+- **Gate 2 — direction matters:** sign of the bend follows
+  Δbond, not bond level (Karney & Coombs). A stable-unhappy
+  marriage does NOT produce "never loved" reports; a
+  deteriorating one does. `consist_floor` 0.1 |Δ| minimum.
+- **Gate 3 — verbatim survives:** verbatim-rated fields
+  (§2's verbatim track) bend at `(1−field_verbatim)` — a
+  remembered letter keeps its wording even when its reported
+  warmth shifts. Locked `consist_fact_null`: non-affect
+  content (what was done/said) never bends — only how it
+  felt. Fischhoff-style discipline (§6.168 hind_store_null).
+- **Audit:** bend > `consist_audit` 0.4 emits
+  `rewrote_feelings:true` — spectator-visible when a
+  character narrates a past a viewer watched live.
+
+Personality: `consist_gain` scales with `self_concept`
+stability (high = less bend — a strong self-theory resists
+present-pull); `rumin` adds bend on deteriorations only
+(rehearsal of the grievance consolidates the revised
+feeling — §60 gate).
+
+## 99. Mood is an internal context — state-dependent retrieval, priced small
+
+Bower, Monteiro & Gilligan 1978; Bower 1981 proposed mood
+as an encoding-retrieval context. The honest verdict after
+two decades: real but SMALL and fragile — Eich & Macaulay
+2000 review puts it well below place/context reinstatement,
+largest when cues are *self-generated* and material is
+affectively charged; near-absent when the environment
+supplies strong external cues (Smith & Vela 2001
+meta-analysis: context-dependency generally; mood
+specifically is the weakest of the context terms). Ucros
+1989 review same: effect requires the mood to be genuinely
+installed at both ends. We already carry `w_msd` (v0.2
+clamp ≤0.25 — deliberately weak). Part VIII prices the
+*conditions* under which that weak term matters, so the
+substrate doesn't apply it flatly.
+
+Mechanics (spec §6.174). `w_msd_eff = w_msd·
+(1 + msd_selfgen_gain·selfGenerated)·(1 − msd_extcue_pen·
+env_cue_share)`:
+- `selfGenerated` — the recall was spontaneous/internally
+  cued (no Event cue, no conversational prompt): the msd
+  term roughly triples (`msd_selfgen_gain` 2.0). Internal
+  search is where mood-as-context lives (Eich & Macaulay).
+- `env_cue_share` — fraction of cueMatch from place/people/
+  topic (external channels): each unit halves the term
+  (`msd_extcue_pen` 0.5); a Dolores-Park cue makes today's
+  mood nearly irrelevant.
+- Affective-charge gate: term applies full when the
+  candidate record |valence| ≥ `msd_charge_gate` 0.3, else
+  at `msd_neutral_mult` 0.3 — mood context binds emotional
+  material, barely touches neutral (Bower's own boundary).
+- Locked `msd_store_null`: mismatch never *erases* — the
+  term is cueMatch-side only; a mismatched-mood record is
+  harder to reach, never deleted.
+
+Distinct from mood-congruent *content* selection (§63,
+§8): congruence picks WHICH record wins among matched
+candidates; state-dependency is a match-strength term that
+helps or hurts ALL candidates whose encode-mood differs
+from now. Keep them separate — they compose.
+
+## 100. "Don't think about it" leaves dents — suppression-induced forgetting
+
+Anderson & Green 2001 (Think/No-Think): deliberately
+preventing a cued memory from entering awareness, repeated
+~16×, reduces later recall of the suppressed item —
+INCLUDING on independent probes (cues never paired with it
+in training), which rules out simple cue-blocking and
+argues for inhibition of the representation itself.
+Anderson & Huddleston 2012 (Nebraska Symposium): ~10%
+below-baseline effect aggregated over 47 experiments;
+grows with suppression repetitions; valence-neutral in
+aggregate (the 2024 multilevel meta re-confirms: small
+SIF, larger on same-probe than independent-probe tests,
+unaffected by emotional content — honest bound: SIF is a
+*retrieval-control* phenomenon, not an emotion one).
+Levy & Anderson 2008: suppression also quiets the
+emotional response on later recall — the feeling fades
+with the fact. Rebound side: Wegner's ironic-process work
+(1987, 1994) — suppression under cognitive load produces
+the intrusions it prevents; Wenzlaff & Wegner 2000:
+suppressed thoughts become hyper-accessible afterward,
+especially in dysphoria.
+
+Mechanics (spec §6.175). A `suppress:true` reflect-mode
+(§6.156 sibling) or repeated cue-avoidance of the same
+record mints `sup_n` on the record:
+- Each successful suppression (cue presented, record NOT
+  emitted) adds `sup_n += 1`; record's effective R for
+  *all* cue channels decays by `sif_pen·log1p(sup_n)` —
+  cue-independent because the meta says independent probes
+  still fail (0.04/log — deliberately small, ~10% at
+  sup_n 15).
+- `sif_load_rebound`: if `C.load` ≥ 0.6 during a suppress
+  attempt, the attempt FAILS and instead mints an
+  intrusion (`rebound:true` emission, fires the record at
+  intrusion_thresh×(1−0.2) next ticks) — Wegner's ironic
+  arm; `rumin` and dysphoric `C.mood` each add
+  `sif_rebound_gain` to failure odds.
+- `sif_tag_decay` 0.35: suppressed records' affect tags
+  cool slightly faster on later successful recalls (Levy
+  & Anderson) — the relief pathway that is NOT just
+  extinction: applies on top of §16's verbal dampen, not
+  instead of it.
+- Locked `sif_del_null`: suppression never archives or
+  deletes — it is a dent in reachability, and every
+  suppressed record keeps its full latent match-key; a
+  strong enough cue (resurrect path §retrieval) still
+  fires it. The white bear keeps its claws.
+- Honest bound: SIF magnitude is small and contested at
+  the individual-study level; implement as a slow lever,
+  flag `sif_pen` magnitude HYPOTHESIS — the probe gates
+  sign and order, not the exact slope.
+
+## 101. The story you choose to tell — redemption and contamination sequences
+
+McAdams 2001, 2006 (life-narrative research): when people
+narrate autobiographical episodes, a stable *sequence
+schema* shapes the retell — REDEMPTION (bad → good: the
+negative scene is narrated as yielding growth, relief,
+insight) vs CONTAMINATION (good → bad: a positive scene
+narrated as ruined, poisoned, foreshadowing loss). The
+schema is a personality-stable narrative habit (McAdams
+et al. 1997: redemptive narrators score higher on
+generativity and well-being; Adler et al. 2015, 2017:
+sequence shifts in therapy track symptom change) — and
+each retell that follows the schema *drifts the record's
+tag* in the schema's direction (Pasupathi 2001 +
+§16 verbal-dampen machinery: the retold version is the
+version that keeps getting stronger).
+
+Mechanics (spec §6.176). Trait `narr_seq` ∈ [−1,+1]
+(contam ↔ redempt, bible-pinnable, near-zero for most):
+- On jointRecall/self-retell of a NEGATIVE record:
+  redemptive narrators mint the retell with
+  `redempt_reframe_p = max(0, narr_seq)·redempt_k` (0.5)
+  — the emitted account appends a `resolution` beat
+  (world-supplied or generated), and the tag cools an
+  extra `redempt_cool` 0.15 on top of §16 dampen.
+  Contam narrators: `contam_gain = max(0,−narr_seq)·
+  contam_k` — the tag *warms* back (cools less:
+  dampen ×(1−contam_gain), and on POSITIVE records a
+  contam retell can flip reported valence negative —
+  "that was the night before everything went wrong").
+- **Event-rewrite side (new in VIII):** a resolution
+  event the world actually delivers (apology accepted,
+  recovery milestone — `resolve:true` on the linked
+  record) feeds `narr_seq` once: +`narr_seq_shift` 0.05.
+  Witnessed betrayals feed −. The trait drifts only on
+  real world events, never on retells themselves —
+  same discipline as `purpose` (§4.45d).
+- Locked `narr_truth_null`: a redemptive retell changes
+  the TAG and the FRAMING, never the content fields —
+  "it made me who I am" does not erase what happened;
+  a contam retell cannot invent new negative content
+  fields, only re-valence reported affect.
+- Emission marker `seq_redempt` / `seq_contam` on the
+  emitted account — the spectator sees the schema at work.
+
+## 102. The repair that leaves no trace — immune neglect on the memory side
+
+Wilson & Gilbert (immune neglect, Gilbert et al. 1998;
+Wilson, Meyers & Gilbert 2001; Wilson & Gilbert 2003
+review): people recover from negative events faster and
+more completely than they predict — and crucially for a
+memory model, they *under-credit the recovery itself*.
+The rationalization machinery (§101's redemptive frame,
+§61 forgiveness, §72 rival tags) works largely
+unconsciously, so what gets stored is the WOUND, not the
+healing process. Consequence already documented in §50's
+impact bias (forecasts overshoot); the memory-side result
+is that the record of HOW one healed is thin: the
+event ends in the ledger at peak pain + a thin resolved
+flag, while the days of gradual recovery — dozens of
+small ordinary mornings — consolidate as nothing.
+
+Mechanics (spec §6.177).
+- `resolve_thin_null` (locked): post-event recovery
+  micro-events mint at baseline E×`resolve_thin` 0.3 —
+  ordinary-coping days are ordinary, and ordinary is
+  forgettable (distinctiveness confound §47 cuts the
+  other way too: nothing about "another normal Tuesday"
+  competes for space).
+- Resolved negative records (forgiven, counterconditioned,
+  redemptively retold) keep `resolved:true` but the
+  *duration-to-recover* field decays verbatim-fast —
+  the remembered wound outlives the remembered convalescence.
+- **Forecast seam:** §50 impact-bias reads peak tag and
+  stored duration; it does NOT read an adaptive recovery
+  rate — `immune_blind_null` (locked): characters forecast
+  from the scar, not from their own demonstrated healing
+  speed. This is the mechanism-level source of durable
+  forecasting error — a character who healed from the
+  last breakup in 3 weeks still predicts months of pain
+  for the next one.
+- Spectator seam: `heal_gap:true` emission when a
+  character voices a forecast that exceeds their own
+  stored (thin) recovery record by > `heal_gap_k` 2× —
+  the world can *show* the neglect.
+
+## 103. The road not taken gets uglier — choice-supportive memory
+
+Henkel & Mather 2007 (Psych Sci; Mather & Johnson 2000;
+Mather, Shafir & Johnson 2000): after choosing between
+options, memory migrates option features to favor the
+chosen — positive features are misattributed TO the
+chosen option, negative features to the rejected, and
+invented positive features get "remembered" as belonging
+to what you picked. Critically delay-dependent: the bias
+GROWS over days as feature-source tags rot (§source
+machinery — feature→option binding is exactly a source
+tag). Henkel & Mather's older adults showed MORE bias,
+not less — choice-supportive distortion is a positivity
+mechanism for the chosen self (§105 link). Benney &
+Henkel 2006: the bias is reliable even at short delay
+when source memory is weak; Svenson & Benthorn 1992:
+post-decision differentiation begins immediately.
+
+Mechanics (spec §6.178). `decision` records (Event kind
+`choice` with `options:[{id, features…}], chosen:id`):
+- Each non-chosen option's affect-valued features carry a
+  source tag `opt_src`; tag decays at `beta_source·
+  choice_src_mult` (1.4 — option-feature binding is
+  fragile). On report/recall of the decision, feature
+  fields with `opt_src` below θ get re-attributed with
+  probability `choice_bias_k·(1−opt_src)` (0.25): positive
+  → chosen, negative → rejected; invented positive fills
+  (§confab machinery) land on the chosen side at
+  `choice_fill_gain` 0.5.
+- Age gradient: `choice_age_gain` — at age_eff 80 the bias
+  ×1.4 (Henkel & Mather), the positivity pathway again.
+- `choice_irrevocable_gain` 0.3 extra on irreversible
+  choices (lease signed, job quit): commitment needs the
+  distorting (Gilbert & Ebert 2002 — the immune system
+  works hardest on unchangeable outcomes; locked
+  `choice_rev_null`: reversible choices still bias, just
+  less — never zero).
+- Audit `rationalized:true` when a re-attributed feature
+  is emitted — the spectator watched the actual options.
+- Locked `choice_content_null`: the option SET and the
+  choice itself never reattribute — what was chosen is
+  fact; only feature *ownership* drifts.
+
+## 104. The evening splits in two — affect shifts mint event boundaries
+
+Event segmentation (Zacks lab; Ezzyat & Davachi 2011;
+Clewett & Davachi 2017): continuous experience is chunked
+into episodes at context changes, and boundaries *organize*
+later memory — within-event order is preserved, across-
+event order degrades, and across-boundary pairs feel
+farther apart in time (temporal-distance dilation:
+Heusser, Poeppel, Ezzyat & Davachi 2022, Nat Comms — the
+"reset" model). Clewett et al. 2020 (Nat Comms): the
+boundary itself is an arousal burst (pupil dilation) —
+and arousal peaks index where the mind decides a new
+event began. Rouhani & Niv-adjacent 2020 (Princeton):
+reward-prediction-error spikes mint boundaries
+retroactively — the surprising scene binds backward,
+splitting the stream. The 2023 Cognition & Emotion
+dissociation (Clewett-group replication family): emotion
+and segmentation pull in OPPOSITE directions on order
+vs item-context binding — emotion *enhances* temporal
+order for its own items while boundaries *impair* order
+across the seam. RW consequence: an affect swing inside
+one "scene" (the dinner that turned into a fight) is
+where the record splits, and the split is legible in
+later recall errors.
+
+Mechanics (spec §6.179). Within an Event, tracked
+`affect_shift = |arousal/valence delta between scene
+beats|` (world supplies beat boundaries or the mint
+infers from beat-level arousal fields):
+- `affect_shift ≥ bound_thresh` (0.4) mints
+  `seg_boundary:true` on the post-shift beat's record;
+  negative-valence shifts add `bound_neg_amp` (0.15) —
+  the aversive turn splits deeper (2023 CE finding).
+- **Order:** recalled order of fields ACROSS a
+  `seg_boundary` pays `bound_order_pen` (0.3) — "did the
+  toast come before the fight?" becomes genuinely hard;
+  WITHIN-segment order gets `bound_within_gain` (0.15,
+  local-primacy leg of the reset model — items early in
+  a segment order best).
+- **Distance:** across-boundary pairs emit
+  `felt_dt ×(1+bound_dist_gain)` (0.35) — "the calm part
+  feels like a different night" (§46 machinery carries
+  the emission).
+- **Interference:** records in different segments accrue
+  less mutual proactive interference (`bound_interf_res`
+  0.25 reduction) — segmentation protects (Ezzyat &
+  Davachi's original result); records in the same segment
+  merge/interfere normally.
+- Locked `bound_del_null`: the boundary is organizational
+  metadata — it never prevents a strong cue from bridging
+  the seam (the fight can still bring back the toast;
+  it just won't come back *in order*).
+
+## 105. The positivity effect — and the distraction that kills it
+
+Mather & Carstensen 2005 (TICS); Kennedy, Mather &
+Carstensen 2004 (Psych Sci, autobiographical): older
+adults disproportionately prefer positive over negative
+material in attention and memory — the *positivity
+effect*, interpreted via socioemotional selectivity
+(Carstensen's SST: shrinking time horizon prioritizes
+emotion-regulation goals). Reed, Chan & Mikels 2014
+meta-analysis confirms a real age-graded positivity
+preference. The decisive boundary is Mather & Knight
+2005 (Psych & Aging) + Knight, Seymour, Gaunt, Baker,
+Nesmith & Mather 2007: the effect is CONTROL-DEPENDENT —
+under divided attention at encoding, older adults not
+only lose the positivity preference but *reverse* it,
+attending and remembering MORE negative material than
+the young; low-cognitive-control elders show no
+positivity at all. This is a motivated-cognition
+mechanism running on scarce resource — when the resource
+is taxed, the default negativity bias resurfaces.
+DEBATED alternative framings (neural-decline accounts;
+Murphy & Isaacowitz 2008 meta on attention showing weak
+age-valence interactions) are honored by keeping the
+mechanism on the regulation pathway, not a hard valence
+filter.
+
+Mechanics (spec §6.180). A `pos_eff` term active only
+for `age_eff ≥ pos_onset` (55) on *valenced candidate
+scoring*:
+- Encode arm: `E_pos *= (1+pos_enc_gain·pos_eff)` and
+  `E_neg *= (1−pos_enc_pen·pos_eff)` — older characters
+  mint positive a bit stronger, negative a bit weaker;
+  `pos_eff` ramps `pos_ramp` per year past onset, capped
+  0.5, scaled by `control_eff` (cognitive-control
+  composite: reserve × (1−load) — Mather & Knight's
+  control dependence).
+- **The reversal (the load-bearing clause):** under
+  `C.daLoad`/`C.load ≥ 0.6`, `pos_eff` signs NEGATIVE —
+  `E_neg *= (1+neg_rebound·|pos_eff|)` and retrieval
+  threat-priority (§6.159) doubles on the oldest-old.
+  The distracted grandparent is the MOST negativity-
+  biased person at the table — Knight 2007's reversal,
+  not merely the effect's absence.
+- Retrieval arm: positive-mood broadening (§6.160)
+  gets `pos_broaden_gain` on the oldest-old; negative
+  records pay a small θ surcharge `pos_theta` 0.05 under
+  full attention only.
+- Locked `pos_youth_null`: below `pos_onset` the term is
+  identically zero — youth's bias, such as it is, is not
+  this mechanism (young adults show no motivated
+  positivity preference — Kennedy 2004 control
+  conditions).
+- `pos_appraisal_null` (locked): the effect never touches
+  threat-relevant fields — a real danger still encodes;
+  SST redirects *gratification* attention, not survival
+  attention (Mather & Knight's own caveat).
+
+## 106. Checked out while it happened — peritraumatic dissociation
+
+Ozer, Best, Lipsey & Weiss 2003 (Psych Bull meta, 68
+studies): peritraumatic dissociation — feeling numb,
+unreal, out-of-body, or time-warped DURING the event —
+is the single strongest *during-event* predictor of later
+PTSD symptoms (r ≈ .35), stronger than peritraumatic
+fear itself. van der Kolk & Fisler 1995; Marmar et al.
+1994: dissociative encoding produces recall that is
+fragmentary, often somatic, and intrusive rather than
+narratable. Proneness is trait-distributed (absorption,
+dissociative capacity — Putnam 1997 DES work; also
+higher under fatigue and prior trauma — prior `trauma_n`
+records raise the base rate, "kindling" pattern).
+Different from §7's trauma-tagging (which is
+arousal-magnitude-driven — EVERYONE fragments past
+arousal 0.9): dissociation is PRONENESS-driven — two
+characters in the same bad event walk out with different
+record structures.
+
+Mechanics (spec §6.181). Trait `dissoc` ∈[0,1]
+(composite: absorption/neuroticism/fatigue at mint,
+bible-pinnable as `absorption` loading):
+- On events arousal ≥ `dissoc_arousal_gate` (0.6):
+  `dissoc_p = dissoc·(1+kindle_gain·trauma_n)` rolls a
+  dissociative encode. `kindle_gain` 0.3 per prior
+  trauma record (cap ×1.9).
+- A dissociated record mints `dissociated:true` with the
+  §7 phenotype ROTATED: content fields present but
+  `link_p ×(1−dissoc_frame_pen)` (0.5) — the record
+  fails to bind to its context and to neighboring
+  records (van der Kolk & Fisler's fragmentary quality);
+  `narr_coherence` starts at `dissoc_coh_start` 0.2
+  (§32 repair variable starts low — the record arrives
+  pre-fragmented, not fragmentable).
+- Retrieval asymmetry: voluntary cue-recall θ pays
+  `dissoc_vol_pen` (0.1 surcharge — "I can't quite get
+  to it"), but intrusion/spontaneous-fire threshold
+  DROPS `dissoc_intru_gain` (0.15) — it won't come when
+  called and won't stay away when cued accidentally
+  (Ehlers & Clark's intrusive-poor-voluntary dissociation
+  in PTSD phenomenology).
+- `dissoc_time_warp`: `felt_dt` emission ×(1±0.4) seeded
+  — dissociative time distortion lands either direction
+  (slowed OR collapsed), unlike §45's arousal dilation
+  which is one-directional.
+- Locked `dissoc_content_null`: dissociation impairs
+  BINDING, never content existence — details exist,
+  orphaned; the confused character can still emit
+  accurate fragments under strong cue.
+
+## 107. The camera in the hand — photo-mediated encoding and the photo cue
+
+Barasch, Diehl, Silverman & Zauberman 2017 (Psych Sci,
+museum field + 3 lab studies): volitional photo-taking
+redirects attention WITHIN an experience — visual
+recognition improves (even for unphotographed regions),
+auditory/verbal memory degrades; *mental* photo-taking
+produces the same shift, proving the mechanism is
+attentional, not offloading. Diehl, Zauberman & Barasch
+2016 (JPSP): photo-taking increases engagement and
+thereby ENJOYMENT of positive experiences — and worsens
+evaluations of negative ones (engagement cuts both
+ways). Henkel 2014 (the earlier "camera hurts memory"
+result) found the offload deficit only when photos were
+expected to be archived-for-you — reconciled: volitional
+in-the-moment framing helps vision and costs sound;
+delegated archiving costs everything. For RW: a
+character at Dolores Park framing the sunset is
+literally encoding a different event than the one her
+companion gets.
+
+Mechanics (spec §6.182). Event context `photographing`
+(world-minted; ambient characters rarely, mains
+personality-gated by `social`/extraversion):
+- Encode: `visual`/`scene` fields ×(1+`photo_vis_gain`
+  0.3); `verbal`/`auditory` fields ×(1−`photo_aud_pen`
+  0.25); photographed-beat fields ×(1+`photo_frame_gain`
+  0.2) beyond the visual gain (the framed content wins
+  twice — Barasch's photographed>unphotographed gap).
+- Valence interaction: positive events mint arousal_tag
+  +`photo_engage_gain` 0.1 (enjoyment via engagement);
+  negative events mint the same magnitude NEGATIVE —
+  photographing the argument makes it feel worse in the
+  moment AND encode deeper (Diehl 2016's asymmetry —
+  locked `photo_neg_null` prohibits the positive-only
+  reading).
+- **Photo-cue (new cue carrier):** a later `photo_review`
+  re-encounter event refreshes ONLY the fields that were
+  `photographed:true` at mint — the image preserves its
+  contents verbatim-strong (`photo_verbatim_resist` 0.4
+  slower verbatim decay on framed fields) while
+  unphotographed context continues normal drift. The
+  photo becomes the fixed face of a drifting event —
+  and a channel for discrepancy (`photo_gap:true` audit
+  when remembered affect has drifted far from what the
+  photo still shows; St. Jacques & Schacter 2013's
+  reactivation-selectivity reading).
+- Locked `photo_offload_null`: volitional photographing
+  never reduces overall E — the Henkel-2014 offload arm
+  is reserved for `photographing:"archive"` context
+  (world-supplied distinction: taking a photo to
+  remember vs delegating memory to a device); absent
+  that flag, engagement wins.
+
+## 108. Spec delta (v5.36 → v5.37)
+
+`memory-model-spec.md` v5.37. New §§6.173–6.182 (ten
+mechanisms above). Params: +26 scalars (+2 traits,
++1 record flag family, +2 context flags, +1 event kind,
++2 emissions):
+
+```
+rel_consist_k 0.3, consist_floor 0.1, consist_audit 0.4  §6.173
+msd_selfgen_gain 2.0, msd_extcue_pen 0.5,
+msd_charge_gate 0.3, msd_neutral_mult 0.3              §6.174
+sif_pen 0.04, sif_load_rebound 0.6, sif_rebound_gain 0.2,
+sif_tag_decay 0.35                                     §6.175
+redempt_k 0.5, redempt_cool 0.15, contam_k 0.6,
+narr_seq_shift 0.05                                    §6.176
+resolve_thin 0.3, heal_gap_k 2.0                       §6.177
+choice_src_mult 1.4, choice_bias_k 0.25,
+choice_fill_gain 0.5, choice_age_gain 1.4,
+choice_irrevocable_gain 0.3                            §6.178
+bound_thresh 0.4, bound_neg_amp 0.15, bound_order_pen 0.3,
+bound_within_gain 0.15, bound_dist_gain 0.35,
+bound_interf_res 0.25                                  §6.179
+pos_onset 55, pos_ramp 0.02, pos_enc_gain 0.3,
+pos_enc_pen 0.2, neg_rebound 1.0, pos_theta 0.05,
+pos_broaden_gain 0.3                                   §6.180
+dissoc_arousal_gate 0.6, kindle_gain 0.3,
+dissoc_frame_pen 0.5, dissoc_coh_start 0.2,
+dissoc_vol_pen 0.1, dissoc_intru_gain 0.15,
+dissoc_time_warp 0.4                                   §6.181
+photo_vis_gain 0.3, photo_aud_pen 0.25,
+photo_frame_gain 0.2, photo_engage_gain 0.1,
+photo_verbatim_resist 0.4                              §6.182
+```
+
+Traits: `narr_seq` ∈[−1,1] (bible-pinnable, event-
+rewritable only); `dissoc` ∈[0,1] (absorption composite).
+Record fields: `seg_boundary:true`, `dissociated:true`,
+`sup_n`, `resolved:true`, `photographed:true` per field,
+`opt_src` on option features. Event kinds/flags:
+`choice`, `resolve:true`, `photographing` context
+(+`:"archive"` variant), `photo_review` cue-carrier,
+`suppress:true` reflect mode. Emissions:
+`rewrote_feelings:true`, `rebound:true`,
+`seq_redempt`/`seq_contam`, `heal_gap:true`,
+`rationalized:true`, `photo_gap:true`. Locked nulls:
+`consist_fact_null`, `consist_scope:"person"`,
+`msd_store_null`, `sif_del_null`, `narr_truth_null`,
+`resolve_thin_null` (magnitude), `immune_blind_null`,
+`choice_content_null`, `choice_rev_null`,
+`bound_del_null`, `pos_youth_null`, `pos_appraisal_null`,
+`dissoc_content_null`, `photo_neg_null`,
+`photo_offload_null`. Frozen: `msd_scope:"cueMatch"`.
+
+## 109. Age guidance (extends §§10/23/37/53/67/81/95)
+
+| mechanism | encodeAge | note |
+|---|---|---|
+| consist bend | <8 damp ×0.5 (thin relational ledger) | present-pull needs a longitudinal bond field |
+| msd term | flat | mood-as-context has no known age gradient; keep w_msd clamp |
+| sif | <10 weak (×0.6 — immature inhibitory control, Anderson developmental work); ≥65 `sif_pen` ×0.7 | control weakens at both ends |
+| narr_seq | schema consolidates ~15–25 (McAdams identity-formation window — bump-adjacent) | `narr_seq` draws at bible-write; young mains nearer 0 |
+| immune blind | flat — Gilbert's participants were young | the neglect is human-universal |
+| choice bias | ≥60 ×`choice_age_gain` ramp | Henkel & Mather: old > young — the one distortion that GROWS with age |
+| boundaries | ≥70 `bound_order_pen` ×1.3 (aging impairs temporal-order binding generally — Naveh-Benjamin) | |
+| positivity | onset 55, ramp `pos_ramp`/yr, cap 0.5; control-scaled | the only mechanism here with a hard age gate |
+| dissoc | flat base; `trauma_n` kindling makes it cohort-shaped | war/accident histories differ per bible |
+| photo | flat; ambient use rare | platform-habit, trait-gated |
+
+## 110. Validation probes (P938–P947; registry continues)
+
+- **P938 consistency direction (MUST, sign-lock):** a dyad
+  whose bond rises +0.4 over 60 days emits past-feeling
+  reports bent positive by ≥`consist_floor`; a dyad whose
+  bond falls the same amount bends negative; a STABLE-
+  unhappy dyad bends < floor. McFarland & Ross 1987;
+  Karney & Coombs 2000.
+- **P939 msd conditions (SHOULD, dissociation):** at fixed
+  cue strengths, self-generated recalls show mood-match
+  effect ≥3× the externally-cued effect; neutral records
+  show ≤`msd_neutral_mult` of the charged effect.
+  Eich & Macaulay 2000; Smith & Vela 2001.
+- **P940 SIF dent-and-rebound (MUST, dissociation):** 15
+  successful suppressions produce below-baseline recall
+  on both same-cue AND novel-cue probes (independence is
+  the load-bearing cell); `C.load`≥0.6 suppression
+  attempts produce MORE intrusions than baseline within
+  2 ticks; record never archives (`sif_del_null`).
+  Anderson & Green 2001; Anderson & Huddleston 2012.
+- **P941 sequence drift (SHOULD, sign-lock):** narr_seq
+  +0.8 vs −0.8 twins retell the same negative record 5×;
+  the redemptive record's tag cools ≥`redempt_cool`-scaled
+  beyond verbal-dampen; the contam record's reported
+  valence drifts toward zero/negative; CONTENT fields
+  identical in both (`narr_truth_null`). McAdams 2001.
+- **P942 immune blind (SHOULD):** a character with a
+  resolved negative record (peak tag 0.7, 21-day recovery)
+  forecasting a matched new event overshoots stored
+  recovery duration by ≥`heal_gap_k` and emits
+  `heal_gap:true`; `immune_blind_null` — no recovery-rate
+  term exists to correct it. Wilson & Gilbert 2003.
+- **P943 choice migration (MUST, interaction):** 30 days
+  post-decision, feature reports misattribute positive
+  features to the chosen option ≥4× the reverse
+  direction; effect grows with retention interval
+  (day-2 < day-30); 80yo > 30yo (`choice_age_gain`);
+  option set and choice fact intact
+  (`choice_content_null`). Henkel & Mather 2007.
+- **P944 boundary split (MUST, dissociation):** one
+  3-beat event with an affect_shift ≥`bound_thresh` at
+  beat 2: across-seam order errors ≥2× within-seam;
+  across-seam `felt_dt` ≥1.3×; a strong cross-seam cue
+  still retrieves (order lost, access kept —
+  `bound_del_null`). Heusser 2022; Clewett 2020.
+- **P945 positivity reversal (MUST, sign-lock):** 70yo
+  vs 30yo twins, mixed pos/neg event: full-attention arm
+  shows older recall skewed positive (pos_share +
+  `pos_enc_gain`-scaled); divided-attention arm shows
+  older skewed NEGATIVE relative to young — both arms
+  required, `pos_youth_null` holds in the young.
+  Mather & Knight 2005; Knight et al. 2007.
+- **P946 dissociation split (SHOULD, dissociation):**
+  dissoc 0.9 vs 0.1 twins, arousal 0.75 event: high-
+  dissoc record shows link density <60% of low-dissoc
+  + intrusion rate > low + voluntary θ surcharge —
+  three-way split; content fields present in both
+  (`dissoc_content_null`). Ozer et al. 2003.
+- **P947 camera asymmetry (COULD):** photographing arm
+  vs control: visual-field recall +, auditory-field −;
+  photographed beats > unphotographed; positive event
+  tag +`photo_engage_gain`, negative event tag −same;
+  overall E parity (`photo_offload_null`); photo_review
+  refreshes only photographed fields. Barasch 2017;
+  Diehl 2016.
+
+## 111. Honest limits (Part VIII)
+
+- **Consistency bias** magnitudes: McFarland & Ross and
+  Karney & Coombs measured *correlational* report shifts
+  in small longitudinal samples; the bend-toward-present
+  direction is replicated, the exact gain is ours
+  (HYPOTHESIS — P938 gates sign and floor, not slope).
+  Whether the bend applies to the felt channel's REPORT
+  (not just believed reports) is our extension; the
+  locked null keeps it emission-side regardless.
+- **Mood-state-dependency** is the weakest context term
+  in the literature and failed-replication-prone (the
+  Eich group's own bounds are hedged); we keep `w_msd`
+  clamped ≤0.25 and let the *conditions* carry the
+  realism — self-generated internal search is where it
+  lives.
+- **SIF** effect size is small and the field has
+  failed-replication history (the 2024 multilevel meta
+  is the honest aggregate: real, small, method-sensitive).
+  `sif_pen` is deliberately conservative; the meta's
+  valence-neutrality is honored — we did NOT make SIF
+  stronger for negative records, tempting as that is.
+  The Wegner rebound arm is on separate footing
+  (ironic process, not inhibition) and is priced as an
+  intrusion mechanism, not a SIF multiplier.
+- **Narrative sequences** are measured as coding
+  categories on transcribed life stories — `narr_seq`'s
+  continuum is our compression; the event-rewrite
+  direction (redemptive experiences raise the trait) is
+  documented in therapy-outcome data (Adler 2015) but
+  the magnitudes are ours.
+- **Immune neglect** as implemented is a *storage*
+  claim: recovery events encode thin because ordinary.
+  The forecasting consequence is established (Gilbert's
+  lab); the specific "heal_gap audit" is a
+  game-facing audit we invented — it operationalizes the
+  neglect, it isn't from the literature.
+- **Choice-supportive bias** is solid at the effect level;
+  our routing through `opt_src` source-tag decay is the
+  mechanism story (feature→option binding IS a source
+  tag — clean fit), but `choice_src_mult`/`choice_bias_k`
+  magnitudes are unpriced by the source papers.
+- **Emotional boundaries**: the within/across order
+  dissociation and distance dilation are well replicated
+  (Heusser 2022 gives the mechanism model we literally
+  implement — reset on boundary); the *negative-shift
+  amplification* (`bound_neg_amp`) rests on a newer
+  single-paradigm line (2023 CE) — flagged accordingly.
+- **Positivity effect**: the motivated-cognition framing
+  (SST + control-dependence + DA reversal) is the
+  implemented account; the neural-decline counter-frame
+  exists (Murphy & Isaacowitz's meta found weaker
+  attention effects). The DA-reversal is the load-bearing
+  testable cell — a sim that shows old-positivity under
+  distraction has implemented the wrong mechanism.
+- **Dissociation**: Ozer's meta is strong at the
+  predictor level but the record-structure phenotype
+  (binding loss vs content loss) is our formalization
+  of the fragmentary-recall phenomenology; `kindle_gain`
+  is plausible but unpriced.
+- **Photo effects**: Barasch 2017 is one lab's program
+  (well-powered, multi-study) — the visual/auditory split
+  is verified; the photo-cue *preservation* asymmetry
+  (framed fields resist drift) is our extension via
+  St. Jacques & Schacter's reactivation-selectivity
+  principle — flagged HYPOTHESIS.
+
+# Part IX — v101: what the arousal leaves behind — the hangover window, the unpaid regret, the borrowed fear, and the gate that cortisol can't open alone (2026-09-24, ninth pass)
+
+Parts I–VIII priced emotion's effect on the record it is
+part of. Part IX prices the cases where the arousal is a
+*carrier* — it outlasts its own event and stamps the next
+one (§112), it pools into a potency scalar the earlier
+passes left scattered (§113), it outlives its own decision
+(§114), it resurfaces as embarrassment on a cheap cue
+(§115), it misinvoices pain (§116), it fuses two witnesses
+into one tie (§117), it needs a second hormone's signature
+(§118), it enters through the senses with no search at all
+(§119), it skews the whole next day dark when sleep is
+skipped (§120), and it gates retrieval on whether the body
+is in the same state it was then (§121). Spine unchanged:
+emissions and re-encodes may bend; born tags do not
+silently rewrite.
+
+## 112. The emotional hangover — the next half-hour encodes hot
+
+Tambini, Rimmele, Phelps & Davachi 2017 (Nat Neurosci 20:
+271–278; verified): neutral items studied **9–33 minutes
+after** an emotional block were recollected better than
+neutral items studied before it — and the benefit tracked
+reinstatement of the emotional-encoding brain state during
+the later neutral encoding, not the items' own arousal.
+Order control: N→E produced no backward benefit. The
+carryover needs *sustained* emotion — brief arousal spikes
+do not mint the state (Nature Reviews Neuroscience
+commentary 2017). Dunsmoor, Murty, Davachi & Phelps 2015
+(Nature) is the retroactive sibling: a shock-paired category
+retroactively strengthens same-category neutrals encoded
+*before* conditioning — concept-level reach, both
+directions.
+
+Mechanics (spec §4.57). A record whose minted arousal tag
+exceeds `hangover_arm` (0.65) opens a decaying window on
+the character's encoding state: for `Δt ≤ hangover_win`
+(≈30 sim-min) subsequent records — *any* record, valence-
+blind — mint with `E0 += hangover_gain·exp(−Δt/hangover_tau)`
+where `hangover_gain` ≈0.25, `hangover_tau` ≈12 min.
+- **The window belongs to the character, not the event.**
+  It is a state field (`hangover_until`, `hangover_amp`),
+  refreshed (not stacked) by a stronger arming event —
+  `hangover_amp = max(amp_old·exp(−Δ/τ), amp_new)`.
+- **No backward leg** (the N→E order control is the locked
+  `hangover_retro_null`): records minted before the arming
+  event never gain strength from it. Dunsmoor's retroactive
+  strengthening is concept-mediated and already routed
+  through §4.9 CondEntry fear-generalization — do not double
+  it into a generic retroactive boost.
+- **What it explains:** the afternoon after the fight
+  remembers the parking meter. Spectator-visible texture:
+  "and then, weirdly, I remember the whole walk home."
+
+Personality: `hangover_gain` scales with `neurot` — the
+sustained-state is an amygdala-engagement measure.
+[HYPOTHESIS: single-lab program, well-controlled; direction
+CONSENSUS, magnitude and 30-min bound ours.]
+
+## 113. Bad outweighs good — the potency scalar, unified
+
+Baumeister, Bratslavsky, Finkenauer & Vohs 2001 ("Bad is
+stronger than good," Rev Gen Psych — the canonical review:
+bad events/feedback/impressions outweigh good across
+virtually every memory-adjacent measure); Rozin & Royzman
+2001 (negativity bias taxonomy — potency, steepness,
+mobility). Taylor 1991 is the counterweight: the negative
+*also* mobilizes faster repair — the asymmetry is largest
+at encoding and immediate response, smallest after
+mobilization.
+
+The spec already carries scattered negative multipliers
+(`neg_affect_decay` 1.3 FAB leg, `neg_fidelity` 0.85 drift
+discount, `valmismatch_gen`, rumination draw). Part IX
+unifies the *encoding-time* potency into one named scalar
+so profiles can't silently double-count:
+
+`E0_valence = E0·(1 + w_emo·arousal)·(1 + neg_potency·
+max(0, −valence))`, `neg_potency` ≈1.7 (clamp 0.8–2.5).
+- **Signed, not absolute:** a +0.8 event and a −0.8 event
+  are NOT symmetric at mint — the negative mints ~1.35×
+  hotter at equal |valence|. Existing per-mechanism negative
+  legs (`neg_fidelity`, `neg_affect_decay`) are unchanged —
+  they govern *after* mint; `neg_potency` is the mint term.
+- **Mobility clause (Taylor 1991):** the potency is
+  largest pre-mobilization. Post-event regulation success
+  (§17 regulate_style, §86 distancing, §87 humor) applies
+  to the tag normally — `neg_potency` does not also tax
+  repair. Locked `potency_repair_null`: the scalar never
+  enters the regulation equations.
+- **Profiles:** `neg_potency` is a free per-profile trait —
+  the sunniest main can run 1.1, the anxious one 2.3.
+  It is the single cheapest diversity lever in the doc.
+
+## 114. The un-acted regret stays hot
+
+Gilovich & Medvec 1995 (Psych Rev — the temporal pattern of
+regret): **action regrets dominate the short run, inaction
+regrets dominate the long run.** What you did stings now
+and heals; what you didn't do festers for decades —
+because the action closes its own case (you saw the
+outcome, paid the cost, moved on) while the inaction never
+gets a counterfactual disconfirmation. Roese & Summerville
+2005 (Personality Soc Psych Rev): regret is the most
+frequently named everyday emotion; opportunity breeds it —
+regret concentrates where the door was open. Medvec,
+Madey & Gilovich 1995 (Olympic medalists): bronze
+happier than silver — counterfactual direction, not
+objective outcome, sets the tag.
+
+Mechanics (spec §4.59). Records minted from a foregone
+option (`action_taken:false`, world flags the passed-up
+choice) carry `regret:true` and decay at
+`beta·regret_inaction_mult` (≈0.5 — half-rate) while the
+same decision's taken-option records decay normally —
+the asymmetry GROWS with time (Gilovich & Medvec's
+crossover, not a level shift).
+- **The counterfactual feed:** each voluntary recall of a
+  `regret` record mints a `sim` record (§6.199) of the
+  unlived branch at `counterfac_gain` ≈0.4 — inaction
+  regrets accumulate *imagined* satellites; the welterweight
+  memory is half simulation by year ten.
+- **Opportunity gate (Roese & Summerville):** the record
+  only mints `regret` if `opportunity:true` — a foreclosed
+  option (no choice existed) cannot regret. World supplies
+  the flag on the decision event.
+- **Repair path:** actually pursuing the foregone option
+  later mints a closing record that kills the multiplier —
+  the door closing is what heals it (locked
+  `regret_reopen_null`: a `regret` tag never re-arms once
+  its opportunity field flips false).
+
+## 115. Cringe returns cheap
+
+Miller 1996 (Embarrassment: Poise and Peril — the
+definitive treatment: embarrassment is mild, social, and
+unusually persistent as *involuntary* recall); the clinical
+line on intrusive embarrassment (Huppert, Roth & Foa 2003;
+social-evaluative intrusions) and the cringe-attack
+phenomenology are consistent: **low arousal at mint, high
+intrusion frequency for years**, triggered by trivially
+similar contexts. Unlike trauma intrusions (§7) there is no
+dissociative fragmentation — the record is intact, veridical,
+and *frequent*.
+
+Mechanics (spec §5.111). `discrete:embarrass` records carry
+`cringe_intrude` ≈0.3 added to their involuntary-draw
+weight, with a **lower cue bar**: any of {same location,
+same audience-member present, same activity-type} at
+simOp ≥ `cringe_cue_sim` (0.35 — well below the ordinary
+intrusion similarity floor) can fire the emission. No
+affect-flashback, no `aff_flash` — the content comes too.
+- **Age floor:** `cringe_intrude` is highest 15–30 and
+  decays with `age_eff` toward ~0.1 by 60 — cringe is a
+  young-self phenomenon; older adults' embarrassments mostly
+  just decay (socioemotional filtering, §105). Knot:
+  `1.0@20 → 0.8@35 → 0.5@50 → 0.35@65`.
+- **Audience specificity:** the cue bar drops further
+  (`cringe_cue_sim` −0.15) when a *witness* of the original
+  event is present — embarrassment is about who saw.
+- **Locked `cringe_fab_null`:** embarrassment tags are
+  exempt from the §19 fading-affect-bias self-gate's
+  positive discount — cringe does NOT heal on the FAB
+  schedule; it fades on the intrusion schedule. (Miller's
+  persistence finding.)
+
+## 116. Pain remembers the peak — and lies high
+
+Redelmeier & Kahneman 1996 (Pain 66:3–8 — colonoscopy &
+lithotripsy patients' *remembered* pain tracked peak + end,
+not duration; verified); Redelmeier, Katz & Kahneman 2003
+(lengthening a colonoscopy with a dull tail *improved*
+remembered pain — duration neglect exploited); Terry,
+Brodie & colleagues (dental pain, same pattern). The
+decision-relevant asymmetry: remembered pain, not felt
+pain, drives avoidance and willingness-to-return (Wirtz et
+al. 2003 found remembered affect predicts vacation
+repeat-intent better than experienced affect).
+
+Mechanics (spec §6.232). `pain:true` events (world tags
+procedures, injuries, dental visits) mint their affect tag
+from `peak_end` already (§13) — the new clause is the
+*retrieval report*: reported pain = `pain_inflate·(peak·
+pain_peak_w + end·(1−pain_peak_w))` with `pain_peak_w` ≈0.7,
+`pain_inflate` ≈1.1 (the report runs hotter than the stored
+tag when the record's verbatim intensity field is gone —
+peak-end survives as the only anchor).
+- **Avoidance term:** `pain_avoid_gain` ≈0.5 multiplies the
+  record's weight in *decision* contexts (booking the
+  follow-up, declining the hike) — the remembered pain is
+  the policy input, not the fact.
+- **The Redelmeier exploit is legal:** a `gentle_tail:true`
+  flag on the event halves `pain_end` contribution — a
+  boring cool-down literally improves the memory. World's
+  procedural events can use it.
+
+## 117. Shared arousal fuses — the witness bond
+
+Whitehouse & Lanman 2014 ("The Ties That Bind Us," Curr
+Anthropol — identity fusion: shared dysphoric experience
+fuses self to group; verified); Páez, Basabe et al. 2007
+(collective emotional gatherings after trauma — shared
+emotion rehearsed socially predicts post-traumatic growth
+and integration); Durkheim's effervescence is the
+sociological ancestor; Konvalinka et al. 2011 (fire-walking:
+synchrony of arousal between participants AND watchers
+predicts bonding — the spectator doesn't have to be in the
+fire).
+
+Mechanics (spec §6.233). When ≥2 characters encode the same
+event with arousal ≥ `co_arousal_min` (0.5), each mints
+with `E0 += co_arousal_gain` (≈0.2) AND the pairwise
+`bond_delta` (substrate relationship matrix) gains
+`co_arousal_bond·min(arousal_i, arousal_j)` (≈0.15 — the
+*weaker* arousal sets the fuse, you can't bond someone's
+fire they didn't feel).
+- **Dysphoric ≫ euphoric** at the bond leg (Whitehouse's
+  fusion findings are about shared hardship): negative
+  shared arousal multiplies `co_arousal_bond` ×1.5.
+- **Not contiguity:** merely co-present with low own-arousal
+  (bystander) gets the encoding boost but not the bond leg —
+  `co_arousal_bond` requires BOTH arousals ≥ min.
+- **Locked `fuse_abuse_null`:** engineered pseudo-crises
+  (world-forced arousal via lighting/weather with no
+  event) do not fuse — the gate reads the arousal's
+  *source* field, not its magnitude. The spectator economy
+  can't manufacture found-family.
+
+## 118. The two-factor stress gate — cortisol needs the adrenaline
+
+The §4 stress model is currently additive (stress shifts
+encoding/consolidation signs by phase). Roozendaal, Okuda,
+Van der Zee & McGaugh 2006 (PNAS — verified: glucocorticoid
+enhancement of consolidation requires **concurrent
+noradrenergic arousal**; blocking amygdala NA abolishes the
+cortisol benefit entirely; cortisol alone on quiet tissue
+does nothing or harms); van Stegeren et al. 2010; the
+human stress-timing meta (Shields et al. 2017) replicates
+the interaction shape.
+
+Mechanics (spec §6.234). The consolidation-side stress
+term becomes a **gate, not an adder**:
+
+```
+consol_gain = stress_consol_k·C.cortisol·na_gate
+na_gate = min(1, C.arousal_now / gc_na_thresh)   // gc_na_thresh 0.4
+```
+
+No arousal, no benefit — the character who absorbs bad news
+while *numb* (low sympathetic arousal) does not get the
+consolidation bump; the one who absorbs it while *racing*
+does. The retrieval-side penalty (§5.1 stress_retrieve_loss)
+is unchanged — it does NOT require the gate (glucocorticoid
+retrieval impairment is NA-independent in the Roozendaal
+account; keep the asymmetry).
+- **Locked `gc_solo_null`:** `na_gate → 0` sends
+  consol_gain → 0, never negative — quiet cortisol is
+  inert, not corrosive (the impairing findings live on the
+  retrieval side).
+- **Interface note:** the gate needs `C.arousal_now` — the
+  same sympathetic-arousal field §112's hangover reads. One
+  field, two consumers.
+
+## 119. The sensory trigger needs no search
+
+Ehlers & Clark 2000 (the PTSD cognitive model — data-driven
+processing mints peri-traumatic records as *sensory-implicit*
+traces whose cues are perceptual features, not concepts;
+verified in §5.65's aff_flash citations); Brewin, Dalgleish
+& Joseph 1996 dual-representation (VAM vs SAM — the
+situationally-accessible layer is cue-bound); Ehlers,
+Hackmann & Michael 2004 (intrusions match *sensory* detail
+of the worst moment).
+
+Mechanics (spec §5.112). `trauma:true` records (§7) gain a
+`percept_cue_w` ≈0.8 weight on **perceptual-feature match
+alone** — cueContext fields `sensory:{smell, sound, light,
+weather}` match the record's sensory verbatim fields at
+`simOp ≥ percept_thresh` (0.55) and fire the intrusion
+emission *without* passing the voluntary-search threshold
+θ. The ambient scan runs it per-tick; θ never consulted.
+- **Feature-scoped, not event-scoped:** the cue is the
+  *sensory signature* — rain-on-tin fires the accident
+  record even when nothing semantic overlaps. This is what
+  makes trauma cues feel arbitrary to the character.
+- **Exclusivity:** `percept_cue_w` applies ONLY to
+  trauma-tagged records — locked `percept_gate_null`:
+  ordinary records' sensory fields never bypass θ (a bakery
+  smell routes through the normal Proust channel §29).
+- **Extinction hooks:** the percept match is the exposure
+  mechanic's target — each non-reinforced percept firing
+  applies §21 reconsolidation-window extinction to the
+  CondEntry, not the record (the story stays; the trigger
+  quiets).
+
+## 120. Skipped sleep skews the next day dark
+
+Yoo, Gujar, Hu, Jolesz & Walker 2007 (Curr Biol — verified:
+one night of total sleep deprivation produced ~60% amygdala
+hyper-reactivity to negative stimuli via PFC disconnect —
+the "primitive response" profile); Tempesta et al. 2018
+(sleep-dep reviews: negative bias in affective evaluation
+plus preserved-or-enhanced negative memory trade-off);
+Walker & van der Helm 2009 framing.
+
+Mechanics (spec §4.60). When `sleep_debt` (existing field)
+crosses `sdep_thresh` (≈1 night equivalent):
+- `w_emo` on **negative-valence** mints ×(1+
+  `sleeploss_neg_gain` ≈0.6) — the threat channel
+  amplifies, matching the amygdala reactivity;
+- `w_emo` on positive mints ×(1−`sleeploss_pos_pen` ≈0.25)
+  and `neg_potency` (§113) +0.3 — the day after no sleep
+  is remembered as worse than it was;
+- the bias is an *encoding* skew only — no decay,
+  retrieval, or tag-rewrite legs. Locked
+  `sdep_recall_null`: sleep-debt state never enters the
+  retrieval equation (retrieval deficits ride the general
+  `daLoad` channel instead — don't double-count).
+- Stacks multiplicatively with §112's hangover in the
+  plausible opposite direction — a bad night followed by a
+  fight mints the hottest records in the sim.
+
+## 121. The body is a context — arousal-state matching
+
+§99 priced *mood* as internal context (small, clamped,
+replication-shaky). There is a second state-dependency
+channel: **sympathetic arousal level** at test vs at
+encoding. Clark, Milberg & Erber 1988 (arousal state-
+dependent effects); Eich's broader context-dependency
+program (1995); and the exercise/stress-hormone matching
+literature (Schmidt et al., retrieval under matched
+noradrenergic tone) all point the same direction with
+small, condition-sensitive effects.
+
+Mechanics (spec §5.113). Add one term to drive(m):
+`+ arousal_match_w·(1 − |C.arousal_now −
+m.emotional.arousal_at_mint|)` with `arousal_match_w` ≈0.08 —
+**smaller than `w_msd` (0.25) and clamped harder**
+(clamp 0–0.15). The channel's real work: a calm
+character has measurably *worse* voluntary access to their
+panic-era records (the records are hot but state-locked),
+and vice versa — which is why the §5.112 perceptual
+bypass exists: the state-locked record still fires on
+sensory match. [HYPOTHESIS — the arousal-matching
+literature is thinner and less replicated than the mood
+literature; keep the weight below `w_msd` and let the
+perceptual channel carry the clinical cases.]
+
+## 122. Spec delta (v5.48 → v5.49)
+
+- **§4.57** The hangover window — `hangover_arm`,
+  `hangover_gain`, `hangover_tau`, `hangover_win`; locked
+  `hangover_retro_null`.
+- **§4.58** The potency scalar — `neg_potency` unifies
+  mint-time negative weighting; locked `potency_repair_null`.
+- **§4.59** Un-acted regret — `regret_inaction_mult`,
+  `counterfac_gain`, opportunity gate; locked
+  `regret_reopen_null`.
+- **§4.60** Sleep-debt encoding skew — `sdep_thresh`,
+  `sleeploss_neg_gain`, `sleeploss_pos_pen`; locked
+  `sdep_recall_null`.
+- **§5.111** Cringe intrusions — `cringe_intrude`,
+  `cringe_cue_sim`, age knots; locked `cringe_fab_null`.
+- **§5.112** Perceptual bypass — `percept_cue_w`,
+  `percept_thresh` on trauma records; locked
+  `percept_gate_null`.
+- **§5.113** Arousal-state match — `arousal_match_w`
+  (clamped < `w_msd`).
+- **§6.232** Pain report — `pain_peak_w`, `pain_inflate`,
+  `pain_avoid_gain`, `gentle_tail` flag.
+- **§6.233** Shared-arousal fusion — `co_arousal_min`,
+  `co_arousal_gain`, `co_arousal_bond`; locked
+  `fuse_abuse_null`.
+- **§6.234** Two-factor stress gate — `gc_na_thresh`,
+  `stress_consol_k` (reparametrizes the existing §4
+  consolidation term); locked `gc_solo_null`.
+- **§7 param block:** +14 named params (17 scalars),
+  +6 locked nulls. Knot rows: `cringe_intrude`,
+  `neg_potency` (trait range, no age leg),
+  `arousal_match_w` (flat).
+- **§10 contracts:** hangover window is a character-state
+  field (not per-record); `neg_potency` mint-time only;
+  `percept_cue_w` trauma-gated; `gc_na_gate` consolidation
+  only, retrieval leg exempt; `co_arousal_bond` needs
+  substrate's pairwise matrix.
+
+## 123. Age guidance (extends §§10/23/37/53/67/81/95/109)
+
+- `hangover_gain`: mild taper `1.0@30 → 0.8@60 → 0.6@80`
+  — the sustained arousal state attenuates with amygdala
+  reactivity, not abolished (consistent with preserved
+  emotional enhancement, §10). [HYPOTHESIS]
+- `neg_potency`: **no age leg by itself** — the older-adult
+  positivity shift is carried by `pos_retrieve_bias`
+  (§5.104) and the SST gate (§105), not by minting negative
+  events colder. Locked `potency_age_null`.
+- `cringe_intrude`: knots in §115 — the only mechanism
+  this pass with a strong age gradient.
+- `regret_inaction_mult`: flat — inaction regret is a
+  lifespan phenomenon; if anything the *opportunity* field
+  thins with age (doors close), which the world supplies.
+- `co_arousal_bond`: flat — dysphoric fusion is documented
+  across ages.
+- `arousal_match_w`: flat, already tiny.
+- Sleep-debt skew: adolescents are the natural high-debt
+  population — the bias applies whenever `sleep_debt`
+  crosses threshold, so teens inherit it behaviorally, no
+  knots needed.
+
+## 124. Validation probes (P1065–P1074; registry continues)
+
+- **P1065 hangover forward (MUST, order-lock):** neutral
+  records minted 15 min post-arousal-arm recollect better
+  than pre-arm controls (≥1.3× recollection-class recalls);
+  pre→post reversal (N→E) produces NO backward boost —
+  `hangover_retro_null` structure-checked. Tambini 2017.
+- **P1066 potency scalar (MUST, sign-lock):** matched
+  ±0.8-valence events at fixed arousal mint with negative
+  hotter by `neg_potency` factor; post-mint regulation
+  unaffected (`potency_repair_null`); a 2×-neg_potency
+  profile keeps the asymmetry proportionally.
+  Baumeister 2001; Rozin & Royzman 2001.
+- **P1067 regret crossover (MUST, shape-lock):** at
+  t+7d action regrets exceed inaction regrets in
+  surfacing count; at t+365d the ordering inverts;
+  `opportunity:false` decisions never mint `regret`.
+  Gilovich & Medvec 1995; Roese & Summerville 2005.
+- **P1068 sleep-debt skew (SHOULD):** encoding under
+  `sleep_debt > sdep_thresh` raises negative-record S by
+  ≥1.4× vs rested control, positive ≤1.0×; retrieval on
+  rested records unchanged (`sdep_recall_null`). Yoo 2007.
+- **P1069 cringe persistence (SHOULD):** embarrass-tagged
+  records surface ≥2× matched-neutral intrusions over 30d
+  on cheap cues (sim 0.35–0.5); emission carries content
+  (never `aff_flash`); age-20 profile ≥ age-60.
+  Miller 1996.
+- **P1070 perceptual bypass (MUST, scope-lock):** a
+  sensory-only cue (matching smell field, no semantic
+  overlap) fires trauma-record intrusion without θ;
+  identical cue on a neutral record does NOT bypass —
+  `percept_gate_null`. Ehlers & Clark 2000; Brewin 1996.
+- **P1071 arousal match (COULD):** recall P rises with
+  |arousal_now − arousal_at_mint| match, effect ≤ `w_msd`
+  in magnitude; flat clamp respected. Clark 1988; Eich 1995.
+- **P1072 pain peak-end (MUST):** reported pain ≈
+  0.7·peak + 0.3·end regardless of duration; extended
+  `gentle_tail` arm reports lower remembered pain;
+  decision-context weight ×`pain_avoid_gain`.
+  Redelmeier & Kahneman 1996; Redelmeier et al. 2003.
+- **P1073 shared-arousal fusion (SHOULD):** co-encoded
+  ≥0.5-arousal events mint stronger AND raise pairwise
+  bond; single-side arousal (one calm witness) raises
+  encoding but not bond; world-forced arousal with no
+  event source raises neither (`fuse_abuse_null`).
+  Whitehouse & Lanman 2014; Konvalinka 2011.
+- **P1074 two-factor gate (MUST, sign-lock):** high
+  cortisol + high arousal → consolidation gain; high
+  cortisol + arousal below `gc_na_thresh` → gain ≈0,
+  never negative (`gc_solo_null`); retrieval-side
+  penalty fires in both arms. Roozendaal 2006.
+
+Registry: P1–P1074. v101 suite: P1065, P1066, P1067,
+P1070, P1072, P1074 MUST (P1065, P1070, P1074 carry
+locked-null class); P1068, P1069, P1073 SHOULD; P1071
+COULD.
+
+## 125. Honest limits (Part IX)
+
+- **Hangover** rests on one well-controlled fMRI program
+  (Tambini/Davachi) plus the Dunsmoor retroactive sibling —
+  the *direction* is strong, the `hangover_tau`≈12-min decay
+  is ours (the paper measured a 9–33-min window, not a
+  curve). Flagged HYPOTHESIS on magnitude; P1065 audits
+  order, not slope.
+- **Potency scalar** unifies what the literature reports as
+  many local asymmetries — Baumeister's review is the
+  warrant for existence, not for a single multiplier.
+  Treating it as one scalar is a modeling compression;
+  P1066 protects the sign, not the exact factor.
+- **Regret crossover** is solid at the level Gilovich &
+  Medvec measured (self-report salience) — our decay-rate
+  implementation is the mechanism story, not theirs.
+  `counterfac_gain`'s sim-satellite minting is our
+  extension (the counterfactual-literature half is real;
+  the satellite mechanics are invented).
+- **Cringe**: Miller's persistence claim is
+  phenomenological; the intrusion-frequency literature for
+  embarrassment specifically is thinner than for trauma.
+  The age gradient is our inference from SST + adolescent
+  self-consciousness data — flagged.
+- **Pain**: Redelmeier & Kahneman is well replicated;
+  `pain_inflate`>1 (report exceeding stored tag) is our
+  extension — the papers show peak-end dominates, not that
+  reports inflate. The `gentle_tail` exploit is literally
+  the 2003 finding operationalized.
+- **Shared fusion**: Whitehouse & Lanman is a theoretical
+  synthesis (ethnographic + survey), not a parametric
+  study — `co_arousal_bond` magnitudes are unpriced by any
+  source; the dysphoric≫euphoric asymmetry is the
+  literature-consistent claim, the 1.5× is ours.
+- **Two-factor gate**: Roozendaal's mechanism is animal +
+  human pharmacology, well established — but the model
+  elides the dose-response (the real interaction is
+  non-monotonic); `na_gate`'s linear ramp is our
+  simplification.
+- **Perceptual bypass**: Ehlers & Clark is a clinical
+  model — the *existence* of perceptually-triggered
+  intrusions is textbook, the `percept_thresh` 0.55 value
+  is calibrated only to "below semantic thresholds." The
+  trauma-only scope lock is conservative; non-trauma
+  perceptual triggers may exist (music §51 is adjacent).
+- **Sleep-debt skew**: Yoo 2007 is one night of *total*
+  deprivation; `sdep_thresh`≈1 night is faithful, but
+  partial-debt scaling is extrapolated linearly — likely
+  overshoots at the low end.
+- **Arousal match**: weakest empirical base in this pass —
+  kept sub-`w_msd` deliberately; COULD-tier probe only.

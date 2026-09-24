@@ -4,11 +4,18 @@
 block clock + theater mode + canonical-vocabulary feed preview (v41) +
 rotating dev captures + time-aware viewing guide + cast strip (v56) +
 real app embeds (v61) + guided watch, routine-aware cast chips,
-keyboard deck control, today-vs-launch block (v71); live
+keyboard deck control, today-vs-launch block (v71) + clickable camera
+presets (v86) + #shot deep links, first-watch field card, sim example
+cycler (v101) + "Would it air?" screening quiz + streamer embed
+snippet (v116) + request-lifecycle ribbon + simulated feed rows that
+walk the real `request_status` vocabulary (v131) + "Label the shot"
+annotation overlay (v146); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
-to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71.
+to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
+seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131;
+eleventh pass v146.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -33,7 +40,7 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 
 ## 2. Fallback state (pre-build)
 
-- Real development capture (`shots/v48-A.*`) behind a gradient overlay labeled
+- Real development capture (`shots/v50-A.*`) behind a gradient overlay labeled
   "Spectator build not wired in yet" — honest, never fakes liveness.
 - `noscript` notice routing to the static gallery.
 - Falls back gracefully on `file://`, blocked JS, and rejected embed schemes.
@@ -43,8 +50,9 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 An **illustrative** `.feed-preview` block (rewritten v41) uses the canonical
 vocabulary verbatim from `world/feed.json`: event kinds `move · scene ·
 venue · weather · request · admin · press · housing · cast · quiet` and
-`request_status` labels (`in_review`, `approved`, `running`, `queued`,
-`resolved`, `refunded`, `not approved`, `player session ended`). Rows quote
+`request_status` labels — the full set since v131 (`requested`, `in_review`,
+`approved`, `approved (modified)`, `running`, `queued`, `resolved`,
+`refunded`, `not approved`, `player session ended`). Rows quote
 the feed's own demo seeds where they exist; the `not approved` row shows
 only the outcome (never screened text), the `admin` row carries
 `compensated_cr`, and the `quiet` marker demonstrates the honest-empty rule.
@@ -88,7 +96,7 @@ says "Simulation only," and simulated feed rows are marked "filed by you
 ## 4a-ii. v56 upgrades
 
 - **Rotating fallback captures** — while `data-demo-src` is empty, the
-  fallback screen cycles v48-A–D every 8 s (crossfade) with a `.demo-cap`
+  fallback screen cycles v50-A–D every 8 s (crossfade) with a `.demo-cap`
   caption chip that always reads "Development capture — …" verbatim. Off
   under `prefers-reduced-motion` and paused while the tab is hidden; never
   runs once the live iframe replaces the fallback.
@@ -153,6 +161,123 @@ spectator game build; the wire embed is a separate, already-real surface.
   show the day the build ships. Reinforces the one-attribute launch
   switch without promising a date.
 
+## 4a-v. v86 — camera presets
+
+- **`.cam-bar` / `.cam-chip`** — four named presets (Overhead · Street ·
+  Park · Director) sitting between the stage and the toolbar. Each chip
+  maps 1:1 onto the capture deck (`data-shot` = SHOTS index) and jumps
+  the deck on click; `show()` keeps the active chip in sync so
+  auto-cycle, ←/→, and chip clicks all share one highlight. Chips carry
+  `aria-pressed` and emit declarative `cta_click{cta:"demo-cam",cam:<name>}`.
+- **Keyboard 1–4** — number keys pick a preset (form fields excluded,
+  same guard as ←/→); the `#demo-keys` hint names both bindings.
+- **Why presets exist:** the production spectator contract (production-1
+  plan: multi-camera — free pan/zoom, follow-cam on any cast/NPC, named
+  presets, per-viewer state) ships named cameras; the fallback bar lets
+  visitors learn that surface today on honest captures. The bar is
+  **fallback-only** — hidden when a live embed resolves, since the live
+  view carries its own camera UI inside the frame. Copy is precise about
+  this: "the same preset names move inside the live view," and the
+  cam-note promises only what the contract has (free pan, zoom,
+  follow-cam).
+- Clicking a chip while the guided watch runs ends the tour (the viewer
+  took the wheel); auto-cycle restarts after a manual pick so the deck
+  doesn't yank the chosen shot away.
+
+## 4a-vi. v101 — shot deep links, field card, sim examples
+
+- **Deck fix** — `SHOTS` in demo.js still pointed at `v50-*` captures
+  deleted in the v100 gallery rebase (deck 404'd). Rebased to `v53-A..D`
+  with captions matching gallery.html's canonical text.
+- **`#shot=N` deep links** — `demo.html#shot=1..4` pins the fallback deck
+  (and the matching cam chip) on load. "Share this view" appends the
+  current shot's hash so a shared link lands on the same capture. Live
+  embed ignores the hash — live cameras live inside the frame.
+- **First-watch field card** (`#fieldcard`) — eight-item first-visit
+  checklist between the cast strip and the day strip; every item is
+  doable today on the page's real surfaces (deck, Wire demo stream,
+  theater mode, simulator). State persists in `localStorage
+  rw_watchcard_v1` (device-only, copy says so); storage failure degrades
+  to session-only. Emits `cta_click{cta:"demo-fieldcard",item,checked}`
+  per toggle.
+- **"Give me an idea"** (`#rs-example`) — cycles four canned asks through
+  the simulator so visitors see the screen answer differently: clean
+  compatible, exclusive→human-review, clean event, and a
+  secret-extraction deny. All four map to real SCREEN/pipeline outcomes.
+- **share_click** on demo.html now carries `surface:"demo"` (spec'd since
+  v97; demo.js predated the prop).
+
+## 4a-vii. v116 — screening quiz + embed snippet
+
+- **"Would it air?"** (`#screen-quiz` + `js/demo-quiz.js`) — a 7-scenario
+  quiz that puts the visitor on the screening desk. Each scenario is a
+  plausible request text; the three picks (`Runs` / `In review` /
+  `Not approved`) map 1:1 onto the real pipeline outcomes, and every
+  verdict card names its actual `world/moderation.json` reason code
+  (clean run, `exclusive`→human review, `surface-relationship`,
+  `secret-extraction`, `harm-targeting`, `admin-domain`, `venue-lock`).
+  The score screen restates the honest rules: intent not keywords, gray
+  zones to a human, denies always refund, attribution always public.
+  Local-only — nothing is filed, nothing is scored server-side. Emits
+  `screening_quiz` per answer (+ a `round:"final"` completion emit with
+  `score`); the "Run it again" button carries `cta_click{cta:"demo-quiz"}`.
+- **"Put the block on your stream"** — a copyable iframe snippet for
+  streamers/creators. Points at `demo.html#watch` on the placeholder
+  domain (swap at launch, same as every other placeholder); honest copy:
+  the frame shows the labeled fallback today and the live world at launch
+  without re-embedding. Copy button (`#embed-copy`, handled in demo.js)
+  degrades to select-then-copy; emits `cta_click{cta:"demo-embed"}`.
+
+## 4a-viii. v131 — the request's whole life
+
+- **Lifecycle ribbon** (`"The whole life of a request"`, new section
+  between the feed preview and the Wire embed) — the `request_status`
+  vocabulary drawn as a map: `.req-life` ordered chain
+  `requested → in_review → approved → running → resolved` plus four
+  `.req-side` cards for the side doors (`queued`, `not approved`,
+  `refunded`, `player session ended`). Every label verbatim from
+  `world/feed.json`; the copy's only claim is that the path is public —
+  the screened text stays private, per the feed's own rules.
+- **Feed preview completion** — the illustrative block now shows all ten
+  statuses, adding `requested`, `running`, and `approved (modified)`
+  rows; the footnote lists the full verbatim set.
+- **Sim rows walk the lifecycle** (`demo-sim.js`) — each simulated feed
+  row now posts as `request · requested` and steps through the real
+  status sequence for its branch (~1.5 s/step): denied → `not approved` →
+  `refunded`; review → `in_review` → `approved`/`approved (modified)`
+  (alternating) → `running` → `resolved`; queued → `queued` → `running` →
+  `resolved`; clean compatible/flat → `approved` → `running` →
+  `resolved`, with every third clean possession ending
+  `player session ended` (the real label for a viewer stepping away —
+  demonstrated, not randomized). The verdict card is unchanged — it
+  reports the screening answer while the feed row walks on.
+- **Field card** grows to nine items (`data-fc="lifecycle"`); count is
+  `boxes.length`-derived so JS needed no change. Key stays
+  `rw_watchcard_v1` — existing cards just show 8/9 until the new item
+  is checked (honest, no migration).
+
+## 4a-ix. v146 — "Label the shot" overlay
+
+- **`#demo-labels` + `#demo-marks`** — a toolbar toggle that drops a
+  `.demo-marks` layer over the fallback screen. `MARKS` in demo.js holds
+  one marker set per `SHOTS` entry (x/y % + text); each label names only
+  what is verifiable in the frame itself — the resident inspector, names
+  over heads, the Wire HUD chip, the REC/DIRECTOR markers, fog at the
+  edges, dressed facades. `renderMarks()` runs inside `show()`, so the
+  markers stay pinned to the right capture through auto-cycle, ←/→,
+  chips, deep links and the tour.
+- **Fallback-only** — the button and layer hide when a live embed
+  resolves (the live HUD names its own surfaces); the today-vs-launch
+  block says the overlay retires at launch.
+- Toggle carries `aria-pressed`, emits declarative
+  `cta_click{cta:"demo-labels"}`; key **L** toggles it (form fields
+  excluded, same guard as ←/→); `#demo-keys` hint names all three
+  bindings. Markers are `pointer-events:none` — they never block the
+  overlay or note card.
+- **Field card** grows to ten items (`data-fc="labels"`); count stays
+  `boxes.length`-derived. Key stays `rw_watchcard_v1` — existing cards
+  show 9/10 until the new item is checked (same honest pattern as v131).
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -176,16 +301,19 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 14 KB
-  (raised v71 — guided watch + deck controls; was < 6 KB pre-v56),
-  `demo-sim.js` < 10 KB (raised v41 — screen table + modifiers).
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 22 KB
+  (raised v146 — MARKS overlay + toggle; was < 20 KB at v116, < 16 KB at
+  v86, < 14 KB at v71, < 6 KB pre-v56), `demo-sim.js` < 16 KB (raised v131 —
+  lifecycle walk + status map grew it past the old 12 KB line),
+  `demo-quiz.js` < 8 KB (v116).
 
 ## 6. Analytics hooks
 
 `watch_start` (live|fallback), `cta_click` on hero/share/fullscreen/ladder/
 sim/wire/tour CTAs (`demo-tour` + `demo-tour-done` added v71),
 `request_simulated` from the request widget (+`queued`, `surge`,
-`screened` props in v41), `screenshot_view` via the shared gallery handler.
+`screened` props in v41), `screening_quiz` from the quiz (v116),
+`screenshot_view` via the shared gallery handler.
 All inert until an endpoint is configured — see ANALYTICS.md and
 analytics-events.json.
 
@@ -196,7 +324,7 @@ analytics-events.json.
   The wire/wire-archive embeds (v61) are the world's own demo-mode apps —
   they go live automatically when `__aiBridge` is present; on a static host
   they stay in honest demo mode.
-- **Art:** fallback capture is `shots/v48-A.*`; swap when a better canonical
+- **Art:** fallback capture is `shots/v50-A.*`; swap when a better canonical
   shot is published (same filename convention).
 - Feed row labels must mirror the live feed's real vocabulary at launch —
   sync with `gsViewerState` feed events before flipping the switch.
@@ -220,5 +348,23 @@ analytics-events.json.
   says so (v71).
 - [x] Keyboard deck controls skip form fields; reduced-motion disables
   auto-cycle but not manual flips or the tour (v71).
+- [x] Camera presets drive the deck (click + keys 1–4), track the active
+  shot across every navigation path, hide when the live embed resolves,
+  and promise only contract-verified live cameras (v86).
+- [x] `#shot=N` deep link pins deck + chip on load; share URL carries the
+  current shot (v101).
+- [x] Field card is device-local only, degrades without localStorage, and
+  every item is completable on today's surfaces (v101).
+- [x] Sim example cycler only loads asks the toy screen + pipeline actually
+  produce (clean / in_review / deny) (v101).
+- [x] Quiz scenarios map 1:1 onto real reason codes; verdict cards name
+  them; score screen restates intent-not-keywords + deny-refunds (v116).
+- [x] Embed snippet is placeholder-domain, labeled, and degrades to
+  manual copy where clipboard is unavailable (v116).
+- [x] Lifecycle ribbon + sim feed rows use only the ten verbatim
+  `request_status` labels; walk timers stop on detached rows (v131).
+- [x] Label overlay markers name only frame-verifiable surfaces, track
+  the active shot across every deck navigation path, are pointer-transparent,
+  and hide with the button when the live embed resolves (v146).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).

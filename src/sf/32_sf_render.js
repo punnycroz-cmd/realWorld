@@ -2291,7 +2291,7 @@ function sfPerfHud(cw, ch){
    is then ~40 canvas blits and ZERO tile re-renders; only a wetness
    bucket crossing re-renders the visible chunks. Row/column spans use
    round-to-round extents so chunks abut seamlessly at any zoom. */
-const SF_TERR = { cache: new Map(), max: 96 };
+const SF_TERR = { cache: new Map(), max: 240 };   // prod-2: a full overview frame (~200 chunks at min zoom) must fit the LRU or it thrashes
 /* ---------------- v17: ground truth pass ----------------
    Baked once per terrain chunk: SF curb paint (red at crosswalk
    approaches, rare blue accessible + yellow loading zones), storm
@@ -3546,38 +3546,95 @@ function sfRenderWorld(cw, ch){
   drawables.sort((a, b) => a.y - b.y);
   SF_TOPMARK = null; // v27: set when a sprite ghosts over the subject
 
+  /* prod-2 far LOD: SF_BLD is ~5.8k records but SF_BLD_CACHE holds 160 —
+     below ~0.55 zoom the visible set outruns the cache and every frame
+     re-bakes hundreds of pixel-art facades (~18ms each → multi-second
+     frames; the overlook preset at 0.24 hangs the page outright). Below
+     this zoom a baked sprite is < ~90px tall anyway, so buildings draw
+     as massing: ground footprint (wall tone) + the same polygon lifted
+     hPx (roof plane) in the bake's own deterministic palette indices. */
+  const _farLod = cam.zoom < 0.55;
+
   for(const d of drawables){
     if(d.kind === 'bld'){
       const b = d.b;
+      // v27: cutaway — if the inspected pawn is hidden behind this
+      // sprite's opaque mass (pawn drawn earlier in the y-sort), the
+      // building fades to glass and a locator ring marks the subject.
+      const sv = VILLAGERS[inspectedPawnIdx];
+      // v70: dollhouse — the inspected pawn's own building lifts its
+      // roof; the plan is drawn over the ghosted sprite below
+      const doll = sv && sv.inBuilding && b.i === sfInsideBldIdx(sv.inside);
+      let cover = false;
+      const dwF = (b.bx1 - b.bx0) * cam.zoom,
+            dhF = (b.hPx + (b.by1 - b.by0)) * cam.zoom,
+            sxF = (b.bx0 - cam.x) * cam.zoom + cw / 2,
+            syF = sfSY(b.by1, ch) - dhF;
+      if(SF_CUT.on && sv && !sv.inBuilding && sv.y < b.by1){
+        const psx = (sv.x - cam.x) * cam.zoom + cw / 2,
+              psy = sfSY(sv.y, ch);
+        if(psx > sxF + 2 && psx < sxF + dwF - 2 &&
+           psy > syF + 2 && psy < syF + dhF){
+          cover = true; SF_TOPMARK = [psx, psy];
+        }
+      }
+      ctx.save();
+      // v62: aerial relief displacement — the sprite leans radially
+      // outward from the frame nadir, pivoting on its south footprint
+      // line so the base stays glued to the pavement
+      sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2,
+                sfSY(b.by1, ch));
+      ctx.globalAlpha = cover ? 0.45 : (doll ? 0.22 : 1);
+      if(_farLod){
+        const wetF = SF_WX.wet > 0.45 ? 0.78 : 1;
+        const W2 = rampOf(SF_WALL_COLS[Math.floor(
+                    phash(b.i, 7, 1300) * SF_WALL_COLS.length)]);
+        const ROOF2 = rampOf(SF_ROOF_COLS[Math.floor(
+                    phash(b.i, 11, 1302) * SF_ROOF_COLS.length)]);
+        const PC2 = rampOf(SF_PITCH_COLS[Math.floor(
+                    phash(b.i, 23, 1391) * SF_PITCH_COLS.length)]);
+        let area2 = 0; const nP2 = b.px.length;
+        for(let e2 = 0; e2 < nP2; e2++){
+          const p1 = b.px[e2], p2 = b.px[(e2 + 1) % nP2];
+          area2 += (p2[0] - p1[0]) * (p2[1] + p1[1]);
+        }
+        const rk2 = sfRoofKind(b, !!b.name || phash(b.i, 5, 1303) < 0.12,
+                               Math.abs(area2));
+        const hOff = b.hPx * cam.zoom;
+        // walls: footprint at ground plane
+        ctx.fillStyle = shade(W2[3], wetF);
+        ctx.beginPath();
+        for(let e2 = 0; e2 < nP2; e2++){
+          const q = b.px[e2],
+                qx = (q[0] - cam.x) * cam.zoom + cw / 2,
+                qy = sfSY(q[1], ch);
+          e2 ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy);
+        }
+        ctx.closePath(); ctx.fill();
+        // roof plane lifted hPx, same deterministic color the bake picks
+        ctx.fillStyle = shade((rk2 === 'flat' ? ROOF2 : PC2)[3], wetF);
+        ctx.beginPath();
+        for(let e2 = 0; e2 < nP2; e2++){
+          const q = b.px[e2],
+                qx = (q[0] - cam.x) * cam.zoom + cw / 2,
+                qy = sfSY(q[1], ch) - hOff;
+          e2 ? ctx.lineTo(qx, qy) : ctx.moveTo(qx, qy);
+        }
+        ctx.closePath(); ctx.fill();
+        ctx.strokeStyle = shade((rk2 === 'flat' ? ROOF2 : PC2)[2],
+                                wetF * 0.85);
+        ctx.lineWidth = Math.max(0.75, 1.1 * cam.zoom);
+        ctx.stroke();
+        ctx.restore();
+        if(doll) sfDollhouse(b, sv.inside, cw, ch);
+        continue;
+      }
       const art = getSfBldArt(b.i, SF_WX.wet > 0.45 ? 1 : 0); // v12: wet bake
       const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom);
       // v8 diorama: anchor the sprite's SOUTH footprint edge to the tilted
       // ground so facades stand on the correct pavement line; the roof plane
       // visually deepens toward the tilted north edge.
       const sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
-      // v27: cutaway — if the inspected pawn is hidden behind this
-      // sprite's opaque mass (pawn drawn earlier in the y-sort), the
-      // building fades to glass and a locator ring marks the subject.
-      const sv = VILLAGERS[inspectedPawnIdx];
-      let cover = false;
-      if(SF_CUT.on && sv && !sv.inBuilding && sv.y < b.by1){
-        const psx = (sv.x - cam.x) * cam.zoom + cw / 2,
-              psy = sfSY(sv.y, ch),
-              dw = art.c.width * cam.zoom, dh = art.c.height * cam.zoom;
-        if(psx > sx + 2 && psx < sx + dw - 2 && psy > sy + 2 && psy < sy + dh){
-          cover = true; SF_TOPMARK = [psx, psy];
-        }
-      }
-      // v62: aerial relief displacement — the sprite leans radially
-      // outward from the frame nadir, pivoting on its south footprint
-      // line so the base stays glued to the pavement
-      ctx.save();
-      sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2,
-                sfSY(b.by1, ch));
-      // v70: dollhouse — the inspected pawn's own building lifts its
-      // roof; the plan is drawn over the ghosted sprite below
-      const doll = sv && sv.inBuilding && b.i === sfInsideBldIdx(sv.inside);
-      ctx.globalAlpha = cover ? 0.45 : (doll ? 0.22 : 1);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
       // v79: live roof overlay — smoke, spinning fans, swinging laundry,
@@ -6371,8 +6428,9 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
     // blade sign: bracketed panel perpendicular to the wall at the shop edge
+    // (blx/bly hoisted: the v57 dusk neon-edge block below reuses them)
+    const blx = x1 + ex * 0.9, bly = y1 + ey * 0.9;
     {
-      const blx = x1 + ex * 0.9, bly = y1 + ey * 0.9;
       quad([[blx, bly, 3.9], [blx + nx * 0.6, bly + ny * 0.6, 3.9],
             [blx + nx * 0.6, bly + ny * 0.6, 4.9], [blx, bly, 4.9]],
            shade(signC, Math.max(0.5, dim) * 1.15));

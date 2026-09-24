@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Permit Wall (paper layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Paper-layer demo — "The Permit Wall" (world v100). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/permits.json
+  (mirrored inline below as PERM — hand-synced, deep-compared by the audit.js
+  perm gate). Shows the framed paper behind every door venue's counter —
+  licenses, score cards, permits — plus the door's lineage: former tenants
+  and the ghost sign the facade still carries.
+  Boundaries: doors only (offstage orgs and reserved names have no wall);
+  agency names are civic facts and stay real; every business name is parody
+  or invented; papers carry no people, no prices, no credit figures;
+  pending = an application receipt taped up — a condition, never a script.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --org:#d98e5f;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim);flex-wrap:wrap}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  main{max-width:1280px;margin:0 auto;padding:16px 18px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .pk{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border:1px solid var(--line);border-radius:9px;color:var(--dim)}
+  .pk b{color:var(--blu);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+  .wall{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .wall.pend{border-color:var(--org)}
+  .whead{padding:9px 13px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .whead b{font-family:var(--mono);font-size:12.5px;color:var(--acc);letter-spacing:.05em}
+  .whead .tier{font-size:10.5px;color:var(--dim)}
+  .whead .corner{font-size:10.5px;color:var(--dim);margin-left:auto}
+  .papers{margin:0;padding:8px 13px;list-style:none}
+  .papers li{font-size:11.5px;padding:4px 0 4px 16px;position:relative;border-bottom:1px dashed var(--line)}
+  .papers li:last-child{border-bottom:none}
+  .papers li::before{content:"▤";position:absolute;left:0;color:var(--dim)}
+  .papers .kind{font-family:var(--mono);font-size:10px;color:var(--blu)}
+  .papers .st{font-family:var(--mono);font-size:9.5px;padding:1px 7px;border-radius:8px;margin-left:6px}
+  .st.posted{color:var(--dim);border:1px solid var(--line)}
+  .st.renewed{color:var(--grn);border:1px solid var(--grn)}
+  .st.pending{color:var(--org);border:1px solid var(--org)}
+  .ghost{padding:7px 13px;border-top:1px solid var(--line);font-family:var(--mono);font-size:11px}
+  .ghost .tag{color:var(--pink);font-size:9.5px;letter-spacing:.1em}
+  .ghost .sign{color:#c9b98a;letter-spacing:.18em;text-shadow:0 0 6px #3a3324}
+  .ghost .none{color:var(--dim);font-style:italic}
+  .former{margin:0;padding:6px 13px 10px;list-style:none}
+  .former li{font-size:11px;color:var(--dim);padding-left:14px;position:relative}
+  .former li::before{content:"←";position:absolute;left:0;color:var(--pink)}
+  .former b{color:var(--ink);font-weight:600}
+  .former .yr{font-family:var(--mono);color:var(--pink);font-size:10px}
+  .rules{font-size:11.5px;color:var(--dim)}
+  .rules li{margin:3px 0}
+  .stat{font-family:var(--mono);font-size:11px;color:var(--dim)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> · THE PERMIT WALL</div>
+  <div class="tgl" id="flt">
+    <span>show</span>
+    <button data-f="all" class="on">all doors</button>
+    <button data-f="pending">has pending</button>
+    <button data-f="ghost">has ghost sign</button>
+    <button data-f="liquor">liquor venues</button>
+  </div>
+  <div class="tgl" style="margin-left:auto"><span>internal — paper layer · conditions, never scripts</span></div>
+</header>
+<main>
+  <h2>The wall — framed paper a camera can read <span class="stat" id="stat"></span></h2>
+  <div class="grid" id="walls"></div>
+
+  <h2>Paper kinds — the closed key list</h2>
+  <div class="legend" id="legend"></div>
+
+  <h2>Rules</h2>
+  <ul class="rules" id="rules"></ul>
+</main>
+<script>
+const PERM={
+  "_doc": "world/permits.md — v100 the paper layer: per-door permit walls (the framed paper behind the counter a camera can read) + door lineage (former tenants, ghost signs). Doors only. Agency names are civic facts (SFDPH, ABC, CDTFA, BAR, SFFD, Public Works) — they stay real per the naming rule; every business name in this file is parody or invented. Papers are conditions, never scripts; pending = an application receipt taped up, a readable state, never a drama beat.",
+  "version": 100,
+  "paper_keys": {
+    "business_license": "SF Treasurer & Tax Collector — Business Registration Certificate",
+    "health_score": "SFDPH — Food Facility Inspection Score Card",
+    "occupancy": "SFFD — Maximum Occupancy card",
+    "workers_notice": "CA labor-law poster block (minimum wage, sick leave, workers' comp)",
+    "resale": "CDTFA — Seller's Permit",
+    "liquor_license": "CA Dept. of Alcoholic Beverage Control — license type + conditions",
+    "entertainment": "SF Entertainment Commission — Limited Live Performance permit",
+    "sidewalk_seating": "SF Public Works — Tables & Chairs on the Sidewalk permit",
+    "food_handler": "Food Handler Cards — staff on file behind the counter",
+    "weights": "CA Weights & Measures — device seal on the scale",
+    "auto_repair": "Bureau of Automotive Repair — registration placard",
+    "tattoo_reg": "SFDPH — Body Art Practitioner Registrations",
+    "signage": "SF Planning — sign permit, fascia"
+  },
+  "status_keys": {
+    "posted": "the default — framed or taped, current",
+    "renewed": "reissued this cycle — the date is fresh",
+    "pending": "application filed; the receipt is what's taped up — a readable state, not a violation"
+  },
+  "rules": {
+    "doors_only": "walls keys == anchor+street tier business ids, exactly — offstage orgs and reserved names carry no wall",
+    "liquor_venues": ["el-farolote", "the-600-club", "il-delfino", "buy-rite-market", "maliks", "the-musket"],
+    "food_venues": ["mudhaus", "el-farolote", "dolores-perk", "buy-rite-market", "buy-rite-creamery", "il-delfino", "baguette-about-it", "dandy-lion", "valencia-growers", "maliks", "las-palmas", "the-musket"],
+    "score_range": [70, 100],
+    "ghost_rule": "ghost_sign is null or a string; a string requires at least one former entry — the wall remembers a tenant, not a rumor",
+    "no_people": "papers never name cast or regulars — 'staff on file' is the whole sentence",
+    "no_money": "no prices, no fees, no credit figures — the wall is framed paper, not a ledger"
+  },
+  "walls": {
+    "mudhaus": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Mudhaus Coffee · cert. on file"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 94 · posted by the register"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 38 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year, corner of the corkboard"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — two tables, four chairs, as drawn", "status": "renewed"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Pallet & Pine Home Goods", "years": "2010–2016", "note": "the reclaimed-wood shelf by the door is theirs"},
+        {"name": "Cielo Rojo Furniture", "years": "1988–2009", "note": "the brick under the counter paint is theirs"}
+      ],
+      "ghost_sign": "PALLET & PINE"
+    },
+    "el-farolote": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Taqueria El Farolote"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 91 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 46 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — bilingual, current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 41 — on-sale beer & wine, eating place"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "La Correa Shoe Repair", "years": "1974–2003", "note": "the awning anchors still carry its bolt holes"}
+      ],
+      "ghost_sign": "LA CORREA"
+    },
+    "auerbach": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Auerbach Hardware · third generation", "status": "renewed"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 24 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "weights", "text": "Weights & Measures seal — the bulk-nail scale, inspected"}
+      ],
+      "former": [
+        {"name": "Auerbach Radio & TV", "years": "1952–1978", "note": "same family — the repair counter never really left, it just changed what it fixes"}
+      ],
+      "ghost_sign": "AUERBACH RADIO · TV"
+    },
+    "dolores-perk": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Dolores Perk"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 96 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — park-edge row, as drawn"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Park Slope Delicatessen", "years": "1961–1998", "note": "the marble counter outlasted the deli"}
+      ],
+      "ghost_sign": "PARK SLOPE DELI"
+    },
+    "buy-rite-market": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Buy-Rite Market"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 89 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 74 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 20 — off-sale beer & wine"},
+        {"kind": "weights", "text": "Weights & Measures seal — produce scales, inspected"}
+      ],
+      "former": [
+        {"name": "Corona Grocery & Produce", "years": "1955–1989", "note": "the loading door still swings both ways"}
+      ],
+      "ghost_sign": "CORONA GROCERY"
+    },
+    "buy-rite-creamery": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Buy-Rite Creamery"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 95 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 12 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Sweet Relief Candy", "years": "1972–2001", "note": "the marble slab in the window is original"}
+      ],
+      "ghost_sign": "SWEET RELIEF"
+    },
+    "il-delfino": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Il Delfino"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 93 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 58 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 47 — on-sale general, eating place"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Trattoria Luna", "years": "1994–2011", "note": "the tile floor is the same — only the sign changed"}
+      ],
+      "ghost_sign": "TRATTORIA LUNA"
+    },
+    "baguette-about-it": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Baguette About It Bakery"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 92 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 20 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — application filed, receipt taped inside the glass", "status": "pending"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Pan del Barrio", "years": "1979–2008", "note": "the deck oven came with the lease"}
+      ],
+      "ghost_sign": "PAN DEL BARRIO"
+    },
+    "the-600-club": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The 600 Club"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 49 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — behind the bar, half under the specials"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 48 — on-sale general, public premises"},
+        {"kind": "entertainment", "text": "Limited Live Performance — one act, no dancing, doors at 10"}
+      ],
+      "former": [
+        {"name": "El Trovador Lounge", "years": "1963–1999", "note": "the back-bar mirror is older than the name"}
+      ],
+      "ghost_sign": "EL TROVADOR"
+    },
+    "dandy-lion": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Dandy Lion Chocolate Co."},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 97 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 18 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "The Cocoa Line", "years": "2002–2014", "note": "the tempering room is why the shop chose the door"}
+      ],
+      "ghost_sign": "THE COCOA LINE"
+    },
+    "valencia-growers": {
+      "papers": [
+        {"kind": "business_license", "text": "Market Operator Registration — Valencia Growers Market"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 90 · posted at the manager's stall"},
+        {"kind": "weights", "text": "Weights & Measures seals — every stall's scale, inspected"}
+      ],
+      "former": [
+        {"name": "The Saturday Table", "years": "1998–2006", "note": "the pop-up that grew into a permit"}
+      ],
+      "ghost_sign": null
+    },
+    "needlepointe": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Needlepointe Tattoo"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 10 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "tattoo_reg", "text": "Body Art Practitioner Registrations — SFDPH, posted by the flash wall"}
+      ],
+      "former": [
+        {"name": "Pins & Needles Dry Goods", "years": "1948–1985", "note": "the joke writes itself; the needle stayed"}
+      ],
+      "ghost_sign": "PINS & NEEDLES"
+    },
+    "folsom-auto": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Folsom Auto & Sons"},
+        {"kind": "auto_repair", "text": "Bureau of Automotive Repair — registration placard by the office door"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — inside the office, above the coffee"},
+        {"kind": "signage", "text": "Sign permit — fascia, as drawn"}
+      ],
+      "former": [
+        {"name": "Folsom Smog & Lube", "years": "1981–2007", "note": "Gus bought the lift, the pit, and the phone number"}
+      ],
+      "ghost_sign": "SMOG · LUBE · TUNE"
+    },
+    "maliks": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Malik's Mini Mart"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 88 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 15 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — behind the register"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 20 — off-sale beer & wine"}
+      ],
+      "former": [
+        {"name": "Corner Stop Grocery", "years": "1969–2002", "note": "the bell on the door is the same bell"}
+      ],
+      "ghost_sign": "CORNER STOP"
+    },
+    "las-palmas": {
+      "papers": [
+        {"kind": "business_license", "text": "Vendor Registration — Frutería Las Palmas, stand"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 93 · clipped to the till box"},
+        {"kind": "weights", "text": "Weights & Measures seal — the hanging scale, inspected"}
+      ],
+      "former": [
+        {"name": "El Puesto Verde", "years": "1991–2009", "note": "Luz bought the stand, the route, and the umbrella"}
+      ],
+      "ghost_sign": null
+    },
+    "bloom-and-doom": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Bloom & Doom Flowers"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 12 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"}
+      ],
+      "former": [
+        {"name": "Petals Flower Shop", "years": "1977–2012", "note": "same trade, darker sense of humor"}
+      ],
+      "ghost_sign": "PETALS"
+    },
+    "golden-hour": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Golden Hour Laundromat"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — by the change machine"},
+        {"kind": "signage", "text": "Sign permit — awning, as drawn"}
+      ],
+      "former": [
+        {"name": "Sud City Laundry", "years": "1984–2015", "note": "the machines were sold with the room — oldest drum is #9"}
+      ],
+      "ghost_sign": "SUD CITY"
+    },
+    "dusty-spine": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The Dusty Spine"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 25 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"}
+      ],
+      "former": [
+        {"name": "The Paper Pile", "years": "1971–2003", "note": "three owners, one shop, the same free box"}
+      ],
+      "ghost_sign": "THE PAPER PILE"
+    },
+    "marooned": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Marooned Records"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "entertainment", "text": "Limited Live Performance — in-store sets, acoustic only"}
+      ],
+      "former": [
+        {"name": "Groove Yard Records", "years": "1987–2008", "note": "the dollar bins are inherited furniture"}
+      ],
+      "ghost_sign": "GROOVE YARD"
+    },
+    "the-musket": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The Musket"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 95 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 42 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 47 — on-sale general, eating place"},
+        {"kind": "entertainment", "text": "Limited Live Performance — application filed, receipt taped to the glass", "status": "pending"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Saffron & Rye", "years": "2009–2019", "note": "the copper rail came with the room"}
+      ],
+      "ghost_sign": "SAFFRON · RYE"
+    }
+  }
+};
+const DOORS={"mudhaus": {"name": "Mudhaus Coffee", "tier": "anchor", "corner": "24th St, mid-block"}, "el-farolote": {"name": "Taqueria El Farolote", "tier": "anchor", "corner": "Mission at 24th"}, "auerbach": {"name": "Auerbach Hardware", "tier": "anchor", "corner": "Mission St; flat upstairs is 9102 Mission St, Unit 2 (Victor's home)"}, "dolores-perk": {"name": "Dolores Perk", "tier": "anchor", "corner": "park edge, Dolores side"}, "buy-rite-market": {"name": "Buy-Rite Market", "tier": "street", "corner": "18th St"}, "buy-rite-creamery": {"name": "Buy-Rite Creamery", "tier": "street", "corner": "18th St, beside the market"}, "il-delfino": {"name": "Il Delfino", "tier": "street", "corner": "18th St"}, "baguette-about-it": {"name": "Baguette About It Bakery", "tier": "street", "corner": "18th / Guerrero side"}, "the-600-club": {"name": "The 600 Club", "tier": "street", "corner": "Guerrero side"}, "dandy-lion": {"name": "Dandy Lion Chocolate Co.", "tier": "street", "corner": "Valencia side"}, "valencia-growers": {"name": "Valencia Growers Market", "tier": "street", "corner": "Valencia, weekly stall set"}, "needlepointe": {"name": "Needlepointe Tattoo", "tier": "street", "corner": "Clarion-adjacent"}, "folsom-auto": {"name": "Folsom Auto & Sons", "tier": "street", "corner": "Folsom side"}, "maliks": {"name": "Malik's Mini Mart", "tier": "street", "corner": "Guerrero corner"}, "las-palmas": {"name": "Fruter\u00eda Las Palmas", "tier": "street", "corner": "Dolores at 19th (stand)"}, "bloom-and-doom": {"name": "Bloom & Doom Flowers", "tier": "street", "corner": "24th side"}, "golden-hour": {"name": "Golden Hour Laundromat", "tier": "street", "corner": "Mission St side, orange awning"}, "dusty-spine": {"name": "The Dusty Spine", "tier": "street", "corner": "Valencia at 20th side"}, "marooned": {"name": "Marooned Records", "tier": "street", "corner": "Valencia side"}, "the-musket": {"name": "The Musket", "tier": "street", "corner": "Valencia at 23rd side"}};
+const S={f:'all'};
+const STITLE={posted:'posted — framed or taped, current',renewed:'renewed — reissued this cycle',pending:'application filed — receipt taped up'};
+
+function pend(w){return w.papers.some(p=>p.status==='pending');}
+function show(id,w){
+  if(S.f==='pending')return pend(w);
+  if(S.f==='ghost')return !!w.ghost_sign;
+  if(S.f==='liquor')return PERM.rules.liquor_venues.includes(id);
+  return true;
+}
+function render(){
+  const ids=Object.keys(PERM.walls);
+  const nPapers=ids.reduce((n,id)=>n+PERM.walls[id].papers.length,0);
+  const nPend=ids.filter(id=>pend(PERM.walls[id])).length;
+  const nGhost=ids.filter(id=>PERM.walls[id].ghost_sign).length;
+  document.getElementById('stat').textContent=
+    ` · ${ids.length} doors · ${nPapers} papers · ${nPend} pending · ${nGhost} ghost signs`;
+
+  document.getElementById('walls').innerHTML=ids.filter(id=>show(id,PERM.walls[id])).map(id=>{
+    const w=PERM.walls[id],d=DOORS[id]||{name:id,tier:'?',corner:''};
+    return`<div class="wall${pend(w)?' pend':''}">
+      <div class="whead"><b>${d.name}</b><span class="tier">${d.tier}</span><span class="corner">${d.corner}</span></div>
+      <ul class="papers">${w.papers.map(p=>{
+        const st=p.status||'posted';
+        return`<li><span class="kind">${p.kind}</span><span class="st ${st}" title="${STITLE[st]}">${st}</span><br>${p.text}</li>`;
+      }).join('')}</ul>
+      <div class="ghost"><span class="tag">GHOST SIGN</span> ${w.ghost_sign?`<span class="sign">${w.ghost_sign}</span>`:'<span class="none">no wall to paint — the sign lives nowhere</span>'}</div>
+      <ul class="former">${w.former.map(f=>`<li><b>${f.name}</b> <span class="yr">${f.years}</span> — ${f.note}</li>`).join('')}</ul>
+    </div>`;
+  }).join('');
+
+  document.getElementById('legend').innerHTML=Object.entries(PERM.paper_keys)
+    .map(([k,v])=>`<span class="pk"><b>${k}</b> · ${v}</span>`).join('');
+  document.getElementById('rules').innerHTML=Object.entries(PERM.rules)
+    .map(([k,v])=>`<li><b>${k}</b> — ${Array.isArray(v)||typeof v!=='string'?JSON.stringify(v):v}</li>`).join('');
+}
+document.querySelectorAll('#flt button').forEach(b=>b.onclick=()=>{
+  S.f=b.dataset.f;
+  document.querySelectorAll('#flt button').forEach(x=>x.classList.toggle('on',x===b));
+  render();
+});
+render();
+</script>
+</body>
+</html>

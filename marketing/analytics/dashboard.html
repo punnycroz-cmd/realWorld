@@ -63,7 +63,8 @@
   of the public site.</p>
 </header>
 <main>
-  <div id="drop"><b>Drop an .ndjson capture here</b><br>or click to choose a file
+  <div id="drop"><b>Drop an .ndjson capture here</b><br>or click to choose a file —
+    also accepts <code>goals.json</code> (adds the goals panel)
     <input type="file" id="file" accept=".ndjson,.json,.txt" hidden></div>
   <div id="out"></div>
 </main>
@@ -80,6 +81,7 @@ var ONBOARD = ["persona_chosen","tour_started","handle_set","handle_taken_shown"
                "first_request_filed","tour_completed","returning_session"];
 var drop = document.getElementById("drop"), out = document.getElementById("out");
 var file = document.getElementById("file");
+var LAST_EVTS=null, LAST_NAME="", GOALS=null;
 
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
@@ -148,8 +150,31 @@ function render(evts, fname){
   var reached=function(stage){var c=0;for(var s in sids)if(sids[s][stage])c++;return c;};
   var nVisit=reached("pageview");
 
+  // --- journeys (v111): per-sid pageview trails --------------------------
+  var trails={}, landings={}, exits={}, trans={}, jLen={one:0,few:0,many:0};
+  var bySid={};
+  evts.forEach(function(e){ if(e.sid) (bySid[e.sid]=bySid[e.sid]||[]).push(e); });
+  Object.keys(bySid).forEach(function(sid){
+    var seq=bySid[sid].sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+    var pages=[];
+    seq.forEach(function(e){
+      if(e.event!=="pageview") return;
+      var p=(e.props&&e.props.page)||(e.path||"?").replace(/^\//,"").replace(/\.html$/,"")||"index";
+      if(!pages.length||pages[pages.length-1]!==p) pages.push(p);
+    });
+    if(!pages.length) return;
+    landings[pages[0]]=(landings[pages[0]]||0)+1;
+    exits[pages[pages.length-1]]=(exits[pages[pages.length-1]]||0)+1;
+    var t=pages.join(" → "); trails[t]=(trails[t]||0)+1;
+    for(var i=0;i<pages.length-1;i++){
+      var k=pages[i]+" → "+pages[i+1]; trans[k]=(trans[k]||0)+1; }
+    if(pages.length===1) jLen.one++; else if(pages.length<=3) jLen.few++; else jLen.many++;
+  });
+  var nJ=jLen.one+jLen.few+jLen.many;
+
   var h='';
   h+='<div class="grid">';
+  if(GOALS) h+=goalPanel(evts);
 
   // Summary strip
   var span = tmax>tmin ? Math.round((tmax-tmin)/86400000)+"d span" : "single batch";
@@ -191,6 +216,19 @@ function render(evts, fname){
   fun+='</div>';
   h+=fun;
 
+  // Panel 5 — journeys
+  if(nJ){
+    h+='<div class="panel"><h2>5 · Journeys — how sessions move</h2>'
+      +'<p class="note" style="margin-top:0">length: 1 page '+jLen.one
+      +' · 2–3 '+jLen.few+' · 4+ '+jLen.many
+      +' · bounce '+Math.round(100*jLen.one/nJ)+'%</p>'
+      +'<p class="note">top landings</p>'+kvs(landings,6)
+      +'<p class="note">top exits</p>'+kvs(exits,6)
+      +'<p class="note">top transitions</p>'+kvs(trans,8)
+      +'<p class="note">common trails</p>'+kvs(trails,8)
+      +'</div>';
+  }
+
   // Panel 2 — engagement
   h+='<div class="panel"><h2>2 · Site engagement</h2>'
     +'<p class="note" style="margin-top:0">cta_click by slot</p>'+kvs(ctas,8)
@@ -215,7 +253,99 @@ function render(evts, fname){
   out.innerHTML=h;
 }
 
+// --- goals panel (v126): same metric kinds as tools/analytics_goals.py --
+function goalEval(g, idx){
+  var m=g.metric, num=0, den=0, s, sid;
+  if(m.kind==="stage_conv"||m.kind==="stage_reach"){
+    var from=m.kind==="stage_conv"?m.from:m.per;
+    var to=m.kind==="stage_conv"?m.to:m.stage;
+    for(sid in idx.stage){ s=idx.stage[sid];
+      if(s[from]){den++; if(s[to])num++;} }
+    return {v:den?num/den:null, n:den};
+  }
+  if(m.kind==="event_session_rate"){
+    var want={}; m.events.forEach(function(e){want[e]=1;});
+    for(sid in idx.stage){ s=idx.stage[sid]; if(!s[m.per_stage])continue;
+      den++; var evs=idx.events[sid]||{};
+      for(var e in evs) if(want[e]){num++;break;} }
+    return {v:den?num/den:null, n:den};
+  }
+  if(m.kind==="bounce_rate"){
+    for(sid in idx.pages){den++; if(idx.pages[sid]<=1)num++;}
+    return {v:den?num/den:null, n:den};
+  }
+  if(m.kind==="notfound_pageview_share")
+    return {v:idx.pageviews?idx.notfound/idx.pageviews:null, n:idx.pageviews};
+  if(m.kind==="median_engaged_seconds"){
+    var xs=(m.page?idx.engSec[m.page]||[]:
+      [].concat.apply([],Object.keys(idx.engSec).map(function(k){return idx.engSec[k];}))
+      ).sort(function(a,b){return a-b;});
+    var med=xs.length?(xs.length%2?xs[(xs.length-1)/2]:
+      (xs[xs.length/2-1]+xs[xs.length/2])/2):null;
+    return {v:med, n:xs.length};
+  }
+  return {v:null,n:0};
+}
+function goalGrade(g, v, n, defs){
+  if(v==null) return "NO-DATA";
+  if(n<(g.min_n||defs.min_n)) return "LOW-N";
+  var t=g.target, wf=g.watch_frac||defs.watch_frac;
+  if(g.direction==="at_least")
+    return v>=t?"PASS":(v>=t*wf?"WATCH":"MISS");
+  return v<=t?"PASS":(v<=t/wf?"WATCH":"MISS");
+}
+function goalPanel(evts){
+  var idx={stage:{},pages:{},events:{},pageviews:0,notfound:0,engSec:{}};
+  var stages=GOALS.stages||{};
+  evts.forEach(function(e){
+    var sid=e.sid, n=e.event; if(!sid||!n)return;
+    idx.events[sid]=idx.events[sid]||{}; idx.events[sid][n]=1;
+    idx.stage[sid]=idx.stage[sid]||{};
+    for(var st in stages) if(stages[st].indexOf(n)>=0) idx.stage[sid][st]=1;
+    if(n==="pageview"){
+      idx.pageviews++;
+      idx.pages[sid]=idx.pages[sid]||{}; var path=e.path||"";
+      if(!idx.pages[sid][path]){idx.pages[sid][path]=1;idx.pages[sid].n=(idx.pages[sid].n||0)+1;}
+      var p=e.props||{};
+      if(p.page==="404"||/404\.html$/.test(path)) idx.notfound++;
+    }
+    if(n==="engaged_time"){var p2=e.props||{},pg=p2.page||"?";
+      (idx.engSec[pg]=idx.engSec[pg]||[]).push(+p2.seconds||0);}
+  });
+  var pageCount={}; for(var sid in idx.pages) pageCount[sid]=idx.pages[sid].n||0;
+  idx.pages=pageCount;
+  var defs=GOALS.defaults||{min_n:30,watch_frac:0.8};
+  var cls={PASS:"var(--good)",WATCH:"var(--acc)",MISS:"#d97a6c",
+           "LOW-N":"var(--mut)","NO-DATA":"var(--mut)"};
+  var h='<div class="panel"><h2>0 · Goals — graded against goals.json</h2>';
+  var misses=0;
+  GOALS.goals.forEach(function(g){
+    var r=goalEval(g,idx), st=goalGrade(g,r.v,r.n,defs);
+    if(st==="MISS")misses++;
+    var d=g.direction==="at_least"?"≥":"≤";
+    var fmt=function(v){if(v==null)return "—";
+      return g.unit==="s"?Math.round(v)+"s":(100*v).toFixed(1)+"%";};
+    h+='<div class="kv"><span>'+esc(g.id)+
+      ' <em style="color:var(--mut)">'+d+fmt(g.target)+' · n='+r.n+'</em></span>'
+      +'<span style="color:'+cls[st]+'">'+fmt(r.v)+' · '+st+'</span></div>';
+  });
+  h+='<p class="note">PASS/WATCH/MISS vs targets · LOW-N &lt; min_n · '+
+    'NO-DATA = emitter not live. '+(misses?misses+" MISS — investigate.":"All clear.")+'</p></div>';
+  return h;
+}
+
 function ingest(text, fname){
+  // v126: a dropped goals.json (single JSON doc with a "goals" array) is
+  // stored and the last capture re-rendered; NDJSON still parses per line.
+  try{
+    var doc=JSON.parse(text);
+    if(doc&&doc.goals&&doc.goals.length){
+      GOALS=doc;
+      if(LAST_EVTS){render(LAST_EVTS,LAST_NAME+" + goals.json");}
+      else out.innerHTML='<p class="note">goals.json loaded — now drop a capture.</p>';
+      return;
+    }
+  }catch(x){/* not a single JSON doc — NDJSON path */}
   var evts=[], bad=0;
   text.split(/\r?\n/).forEach(function(line){
     line=line.trim(); if(!line) return;
@@ -227,6 +357,7 @@ function ingest(text, fname){
       ' ('+bad+' unparseable lines). Expecting NDJSON per analytics-events.json.</p>';
     return;
   }
+  LAST_EVTS=evts; LAST_NAME=fname;
   render(evts, fname+(bad?" — "+bad+" bad lines skipped":""));
 }
 

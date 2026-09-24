@@ -150,11 +150,21 @@ const api = eval(m[1] + `
   }
   ok(n === STATES.length, 'all ' + STATES.length + ' states render (got ' + n + ')');
 
-  // schedule sanity: every cast member has a routine + home cell
-  ok(api.VILLAGERS.every(v => v.sfSched && v.sfSched.length),
-     'every cast member has a schedule');
+  // v16 becoming brain: the 8 mains are driven pawns — brain-authored
+  // will, no code-authored schedule, all in the intention gap until the
+  // brain's first filing. The 20 ambients keep thin routines.
+  const isCore = v => /^C[1-8]$/.test(v._castId || '');
+  ok(api.VILLAGERS.filter(isCore).every(v =>
+       v.sfAgentDriven === true && v.isNPC === true && !v.sfSched &&
+       v.sfGap === true),
+     'the 8 mains are driven, schedule-free, and in the gap');
+  ok(api.VILLAGERS.filter(v => !isCore(v)).every(v =>
+       v.sfSched && v.sfSched.length),
+     'the 20 ambients keep their routines');
   ok(api.VILLAGERS.every(v => v.sfHome && isFinite(v.sfHome.wx)),
      'every cast member has a home cell');
+  ok(api.VILLAGERS.filter(isCore).every(v => v.isNPC === true),
+     'no main is player-controlled');
 
   // one sim tick of the schedule system doesn't throw
   try { api.VILLAGERS.forEach(v => api.sfNpcTick(v, 0.016)); pass++; }

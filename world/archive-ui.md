@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -246,7 +246,211 @@ Copy deck additions:
 | Neighbor trail head | "around that time — same day, the wire's own rows" |
 | Settled-by line | "settled by the public record — HH:MM · <kind>" |
 
-## 12. Merge notes (for the game track)
+## 12. v62 — The Archive v5 — the reading layer
+
+Four additions. The standing rule holds — projections of public rows,
+counted, never curated — plus a new one for the shelf: reader-side state
+is the reader's own device, never the world's.
+
+- **Your shelf** (`#v=shelf`). Every record detail gains a `keep on the
+  shelf` toggle. Pins persist in `localStorage` under `rw_archive_shelf`
+  — this browser only; nothing is sent anywhere, and the header copy
+  says so ("the shelf lives in this browser — the archive doesn't
+  remember you"). The shelf view lists pinned records through the same
+  day-grouped trail renderer, with a summary strip: pinned count plus an
+  honest "N pinned ids not in this archive source" when a pin outlives a
+  demo↔live source change (ids are stable; an unserved pin is stated,
+  never dropped silently or invented). `copy shelf` emits the pins as a
+  transcript carrying the source badge — same honesty rule as the day
+  transcript. `clear the shelf` empties it; the toast confirms nothing
+  was sent.
+- **Seen together** (`#v=pair&a=<id>&b=<id>`). Two pickers in the left
+  rail; the trail is every event where both ids appear — structurally,
+  via `who`/`mentions` only. Header: `public co-presence — the wire's
+  own rows, never a claim about the relationship`. Same-name selection
+  redirects to the person view with a plain explanation. Empty picker
+  state explains the view without implying anyone was together.
+- **Person: seen with + first/latest.** The person head gains a
+  `seen with — public rows only` chip row: the top-3 co-occurring ids
+  across the trail (counted, ties alphabetical), each chip opening the
+  pair view for that pair. Plus `first on record` / `latest` jump chips
+  that select the trail's end rows. All counted from rows; none of it
+  asserts anything the rows don't.
+- **Venue rhythm.** The venue view gains `the corner's rhythm` — a
+  24-hour histogram of that venue's tags across the whole record,
+  non-interactive, tooltips read "HH:00 — N across the record". Label:
+  `counted across the whole record, not a promise` — the bars say where
+  the wire happened to look, never where the corner will be.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Shelf chip | "pins kept on this device — the archive doesn't remember you" |
+| Shelf head | "the shelf lives in this browser — the archive doesn't remember you; nothing is sent anywhere" |
+| Shelf empty | "Nothing pinned — 'keep on the shelf' on any record puts it here. The shelf is this browser's, not the world's." |
+| Shelf orphans | "N pinned ids not in this archive source" |
+| Shelf transcript head | "real world — the archive — your shelf (<source badge>)" |
+| Record toggle | "keep on the shelf" / "on the shelf — take off" |
+| Pair chip | "two names, one public record — co-presence only" |
+| Pair head | "public co-presence — the wire's own rows, never a claim about the relationship" |
+| Pair empty | "Pick two names on the left — …the archive doesn't guess at relationships." |
+| Seen-with label | "seen with — public rows only:" |
+| Person jumps | "first on record — HH:MM · <day>" / "latest — HH:MM · <day>" |
+| Rhythm head | "the corner's rhythm — counted across the whole record, not a promise" |
+| Rhythm tooltip | "HH:00 — N across the record" |
+
+## 13. v76 — The Archive v6 — the shape layer
+
+Four additions. The standing rule holds — projections of public rows,
+counted, never curated — plus the shelf rule: reader-side state stays
+on the reader's device.
+
+- **The same hour** (`#v=hour&h=<0-23>`). An hour-of-day picker in the
+  left rail; the center lists every event the wire ever wrote inside
+  that hour, across all days, through the day-grouped trail renderer.
+  The head counts rows and days, names the most-tagged corner in that
+  hour (same busiest-corner rule as the week rows), and counts kinds.
+  Copy calls it what it is: "a shape the wire happened to draw — not a
+  schedule". Empty hour: "the block keeps some hours to itself."
+- **Day vs day** (`#v=cmp&d1=<day>&d2=<day>`). Two day pickers
+  (default: the latest two days on record). The table counts each
+  day's own rows side by side — entries, coverage span, busiest
+  corner, then one row per day-view kind filter (`the block` / word /
+  requests / admin / press). Kind cells open that day pre-filtered, so
+  a number and its rows can never disagree. "Shared corners" lists
+  venue ids the wire tagged on both days; chips open the venue view.
+  Same day picked twice gets a plain explanation, not a table.
+- **Person lens.** The person trail gains a cut-finer chip row:
+  `all rows` / `followed` (the wire's row is theirs — `who`) /
+  `named in passing` (somebody else's row named them — `mentions`).
+  Same scope either way; the lens subtracts, never adds. The head
+  count still reports the whole trail.
+- **Copy record + j/k.** The record detail gains `copy record` — the
+  single record as a badged plain-text line (`record <id>`, source
+  badge in the header line, same honesty rule as the day transcript).
+  On the day view, `j` / `k` walk the visible rows — selection,
+  detail, and permalink move together; clamped at both ends, inert
+  inside inputs and on other views.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Hour chip | "the same hour — one hour of day, every day on record — a shape, not a schedule" |
+| Hour head | "The block at HH:00 — a shape the wire happened to draw — not a schedule" |
+| Hour meta | "N rows · M days on record · most-tagged corner: <venue> (K)" |
+| Hour kinds | "kinds counted — N kind · N kind …" |
+| Hour empty | "Nothing public in this hour on any day — the block keeps some hours to itself." |
+| Cmp chip | "day vs day — two days side by side — counted, not explained" |
+| Cmp head | "<day> vs <day> — same rows, two columns — counted, not explained" |
+| Shared corners | "shared corners — venue ids the wire tagged on both days" |
+| Cmp footnote | "a kind cell opens that day pre-filtered — the number and the rows never disagree" |
+| Cmp same-day | "Same day twice — pick two different days on the left." |
+| Lens label | "the trail, cut finer:" |
+| Lens chips | "all rows" / "followed" / "named in passing" |
+| Copy record | "copy record" → toast "record copied — one line, badge included" |
+| Record transcript head | "real world — the archive — record <id> (<source badge>)" |
+| Row walk | "j / k" (in-page; no separate chip — the ← → keyhint already marks day-view keys) |
+
+## 15. v90 — The Archive v7 — the real archive seam
+
+Same job v88 did for request.html and v89 did for wire.html: the live
+source now reads the game-v14 wire the way `41_game_systems_feed`
+actually writes it — `gsWireDays()` day keys, `gsWireArchiveDay(d)`
+day-objects, entries
+`{id, n, t, day, kind, text, venue, who, req, status, reason_code,
+attempt, mentions, attrs, thread, src, outcome}`.
+
+- **id→day index.** Live ids may carry no `d<MMDD>` prefix (`w-NNNN`
+  when the bus clock has no PT date) and any year; the demo-era
+  prefix-parse is now a fallback only. `ID2DAY` records each event's own
+  day bucket at load/merge — permalinks, trail grouping, whole-record
+  hit counts, and `outcome.by` jumps all resolve through it.
+- **Person index.** The pickers (`pickWho`, `pickA`, `pickB`) are built
+  from `WHO_INDEX` = `NAMES` (the cast registry) ∪ every id any event
+  ever put in `mentions[]`. Live char ids the demo never knew are
+  browsable verbatim (`nameOf` = `NAMES[id] || id`). Player handles
+  never appear — the wire only ever mentions people; handles stay
+  ledger-side, same as demo. The venue picker likewise is `VENUES` ∪
+  every venue id the wire tagged.
+- **`asked for — <kind>`** on denied rows and in the record detail —
+  the bus's `attempt` field, the only public piece of a denied ask.
+  The screened text was never written and cannot be found here
+  (unchanged law).
+- **Kind vocabulary grows honestly.** A kind outside the page's known
+  set (`KNOWN_KINDS`) earns its own filter chip on the day view —
+  counted, not interpreted. `kindPass` is now generic: `all` /
+  `block` (everything not request/admin/rumor) / exact kind.
+- **Catch up.** On today, live mode only: a manual `catch up` button
+  re-pulls `gsWireDays`/`gsWireArchiveDay` and merges by id via
+  `mergeDay` — additive only. The page keeps rows it already served; a
+  ring-capped bus (`GS_WIRE_CAP`) dropping old lines doesn't erase the
+  reader's copy. No polling — the archive stays a reading surface; the
+  wire does the watching. Reports both ways.
+- **`n` tiebreak.** Within a day, rows sort by `t` then the bus's
+  monotonic `n` — same-minute sub-lines keep the wire's own order.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Catch-up button | `catch up` — "pull whatever the wire has written since this page loaded — additive only" |
+| Catch-up toast (new) | "caught up — N new line(s) on the record" |
+| Catch-up toast (none) | "already current — nothing new on the wire" |
+| Catch-up toast (error) | "the live archive hiccuped — showing what it had" |
+| Denied attempt (row) | `asked for — <kind>` (dim italic suffix) |
+| Denied attempt (detail) | "asked for — \<kind\> (the only public piece of a denied ask)" |
+| Extra kind chip | `<kind>` — "a kind the wire wrote — counted, not interpreted" |
+| Unknown person/venue label | the id itself, verbatim — "the archive never invents a display name" |
+
+## 17. v104 — The Archive v8 — the absence + lifecycle layer
+
+Same rule as every pass: projections of rows that were already public —
+counted, never curated; linked, never inferred.
+
+- **OFF THE FEED** (`#v=gaps`). The uncovered-stretch map: every gap of
+  ≥2 h (`GAP_MIN=120`, the same rule the day view's inline "— off the
+  feed —" markers use) between consecutive written rows, enumerated per
+  day and across the record. The header counts stretches, the longest
+  one, total uncovered minutes, and days-with-a-gap. Each stretch links
+  its two boundary rows (`before`/`after` chips open their records) —
+  the edge of coverage is a fact; what happened inside it is not, and
+  the page says so: "a quiet hour and an unwatched hour look the same."
+  A gap is never interpolated into "where somebody probably was."
+- **REQUEST TRAILS** (`#v=reqs`, `#v=reqs&rq=<id>`). Every request event
+  grouped by its shared `req` id into one card: payer handle verbatim,
+  declared credits where `attrs.credits` carries them, and the full
+  public lifecycle the wire wrote — `queued → running → resolved`,
+  `in_review → refunded`, however it ran, chronological by `t`+`n` and
+  day-aware. Open trails (any member in an open status:
+  `requested/in_review/approved/queued/running`) sort first, then
+  newest-first. A trail row click opens that event's record. A trail
+  can end at "not approved" and no further — denied text was never
+  written, so there is no secret step to leak.
+- **Settled-the-talk** — the reverse edge of `outcome.by`: when the
+  selected record is the public event a rumor's outcome points at, the
+  detail panel shows "settled the talk" chips linking the rumor rows.
+  Same law as forward: the link only ever points at rows that stood on
+  the wire in their own right.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Gaps chip | "off the feed — the hours the wire never wrote — counted, never filled" |
+| Gaps head | "Off the feed — the hours the wire never wrote — counted, never filled" |
+| Gaps rule line | "a stretch is ≥2 h between two written rows — the same rule the day view's markers use. Today counts only the rows already written; a quiet hour and an unwatched hour look the same, and the archive says so." |
+| Gaps empty | "No uncovered stretches on record — the wire never blinked. That's a count too." |
+| Gap row | "— off the feed (HH:MM → HH:MM) — N h M min" + `before`/`after` boundary chips |
+| Reqs chip | "request trails — one paid reach-in, all its public statuses in a row" |
+| Reqs head | "Request trails — one paid reach-in, all its public statuses in a row — the trail is what the wire wrote, nothing more" |
+| Reqs rule line | "…Denied ask text was never written, so a trail can end at 'not approved' and no further. Open trails sort first." |
+| Reqs empty | "No paid reach-ins on this record — the ledger is clean." |
+| Trail card | "<payer> · N public statuses · M days · req <id> · K cr declared" (+ "still open" when any member is open) |
+| Settled-the-talk | "settled the talk: HH:MM · word on the block" chips in record detail |
+
+## 18. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -270,3 +474,36 @@ event that settled the talk. Emit it only when such an event genuinely
 exists on the wire; the archive drops unresolvable ids silently. The week
 view needs nothing new — it counts `kind`, `venue`, `req`, `status`,
 `outcome`, and `attrs` over the same day-objects.
+
+v62: no schema change — the shelf lives in the reader's localStorage and
+the pair/rhythm views project `who`/`mentions`/`venue`/`t` only. Live
+sources change nothing: a pin id the current source doesn't serve is
+counted honestly, never dropped or invented. If the bus ever rewrites an
+id, the shelf treats the old id as absent — correct behavior, no repair
+path needed.
+
+v76: no schema change — the same-hour and day-vs-day views project `t`,
+`kind`, `venue`, `who`/`mentions` over the same day-objects; the person
+lens is a display filter, not a field. `copy record` carries the source
+badge like every transcript. Nothing new for the bridge to emit; the
+two views degrade gracefully on a one-day record (compare asks for two
+days; the hour view just counts fewer rows).
+
+v90: no schema change — the seam hardening reads fields the bus already
+emits (`n`, `attempt`, `mentions`, `reason_code`, `status`). Two
+contract notes for the game track: (1) the archive now resolves events
+to their day via the day-object's own bucket, not the id prefix — ids
+may stay `w-NNNN` or `d<MMDD>-…` freely; (2) the person index treats
+`mentions[]` as the canonical named-people field — keep putting char
+ids there (never player handles) and the archive's person/venue/pair
+views stay honest automatically. `catch up` calls `gsWireDays` +
+`gsWireArchiveDay` again on demand; both must stay cheap and
+idempotent.
+
+v104: no schema change — the gaps view reuses the ≥120-min rule the
+day view already applies inline, and request trails group the `req`
+field the ledger already requires (`req` on every lifecycle event is
+what makes a trail complete; keep emitting it on every status the wire
+writes). `OPEN_ST` mirrors feed.json's open statuses — if the
+vocabulary gains a new open status, add it there too or a live trail
+will mis-sort as closed.

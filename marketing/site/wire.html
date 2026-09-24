@@ -225,9 +225,13 @@
   .keycard td.k{font-family:var(--mono);color:var(--acc);white-space:nowrap}
   .wire li:focus-visible{outline:2px solid var(--acc);outline-offset:-2px}
   @media (prefers-reduced-motion:reduce){.live::before{animation:none}}
+  .skip-link{position:absolute;left:12px;top:-48px;z-index:200;background:var(--acc);
+    color:#1a1408;font-weight:700;padding:10px 16px;border-radius:8px}
+  .skip-link:focus{top:12px}
 </style>
 </head>
 <body data-page="wire">
+<a class="skip-link" href="#main">Skip to the feed</a>
 <h1 style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">The Wire — Real World spectator feed</h1>
 <header>
   <a href="demo.html" class="hbtn" style="text-decoration:none" title="back to the Real World site">← site</a>
@@ -241,7 +245,7 @@
   <div class="viewers"><b id="vcount">1,412</b> watching</div>
 </header>
 
-<main>
+<main id="main">
   <div class="railL">
     <section class="panel">
       <h2>Now on the block <span class="free">— free forever</span></h2>

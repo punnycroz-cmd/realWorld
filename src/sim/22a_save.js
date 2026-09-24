@@ -432,6 +432,17 @@ function applySaveState(s){
     const n = VILLAGERS.length;
     controlledPawnIdx = n ? clamp(s.ui ? (s.ui.controlledPawnIdx | 0) : 0, 0, n - 1) : 0;
     inspectedPawnIdx = n ? clamp(s.ui ? (s.ui.inspectedPawnIdx | 0) : 0, 0, n - 1) : 0;
+    /* v16: the possession ban on the 8 mains survives a save round-trip —
+       a save written mid-possession must not restore control of a main */
+    for(let i = 0; i < VILLAGERS.length; i++){
+      const pv = VILLAGERS[i];
+      if(pv && (pv.sfAgentDriven ||
+               (typeof sfIsMain === 'function' && sfIsMain(pv)))){
+        pv.isNPC = true;
+        pv.brainControlled = false;
+        if(i === controlledPawnIdx) controlledPawnIdx = -1;
+      }
+    }
     if(typeof G !== 'undefined' && G) G.inspectedVillager = VILLAGERS[inspectedPawnIdx] || null;
 
     return { ok: true };

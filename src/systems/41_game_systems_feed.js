@@ -111,6 +111,7 @@ const GS_WIRE_EVENT_LABEL = {
   farmers_market: 'a farmers market', parade: 'a parade',
   movie_night: 'a movie night', park_cleanup: 'a park cleanup',
   mural_tour: 'a mural tour',
+  fitness_class: 'a fitness class',          /* v15 zoned permit kind */
 };
 /* v9 co-star asks — plain words for the bounded favors */
 const GS_WIRE_COSTAR_LABEL = {
@@ -133,6 +134,9 @@ const GS_WIRE_ADMIN_LABEL = {
   registry: 'registry paperwork moved',
   foreclose: 'title transferred',          /* v10: holder takes the deed */
   license: 'a landlord license was issued',
+  /* v15: the city's hand — a declared closure and its lift */
+  hold: 'a city closure was declared',
+  hold_lift: 'a city closure lifted',
 };
 
 /* player-authored text may name a real business; on the wire those names
@@ -224,7 +228,12 @@ function gsWireDispName(name){
   }
   return String(name);
 }
-function gsWireWho(pid){ return pid || 'a player'; }
+function gsWireWho(pid){
+  /* v12: the feed attributes by the spectator's chosen handle when one
+     exists — a handle is attribution, not identity (onboarding S2) */
+  const h = (typeof gsHandleOf === 'function') ? gsHandleOf(pid) : null;
+  return h || pid || 'a player';
+}
 function gsWireReason(code){
   if(!code) return null;
   const m = GS_WIRE_REASON[code];
@@ -326,6 +335,9 @@ function gsWireReqSummary(evt, r){
       return 'purchase — ' + (ad || 'a unit');
     }
     case 'license': return 'landlord license filing';
+    case 'camera':
+      /* v12: the director's view — a compatible, view-layer-only pass */
+      return 'camera — a directed view' + dTxt;
     default:
       return (evt.kind || 'request') + dTxt;
   }
@@ -433,7 +445,9 @@ function gsWireFormat(evt){
       n: evt.n, t: clock.t, day: clock.day,
       kind: kind, text: text,
       venue: o.venue || null,
-      who: o.who != null ? o.who : null,
+      /* v12: attribution is the player's handle when they have one —
+         the wire never prints raw ids for named spectators */
+      who: o.who != null ? gsWireWho(o.who) : null,
     };
     sub++;
     if(evt.req) e.req = evt.req;   // request correlation (internal id)
@@ -454,14 +468,29 @@ function gsWireFormat(evt){
   switch(evt.type){
 
     case 'approve': {
-      const out = [mk('request', sum() + gsWireNoteSuffix(r, 'running'),
-        { status: 'running', who: evt.player, credits: evt.price,
+      /* v14: a cleared booking reads as the promise it is — the window
+         and any slide land on the wire in the contract's own words
+         ('approved · booked for HH:MM'), never as a live run. The book
+         adds no new status chip — 'approved' is the word. */
+      const bookedTxt = evt.hhmm
+        ? ' — approved · booked for ' + evt.hhmm +
+          (evt.slid ? ' (slid from ' + evt.slid + ')' : '')
+        : null;
+      const clipTxt = (!bookedTxt && evt.clipped)
+        ? ' — runs until ' + evt.clipped + ' (the book holds the rest)'
+        : '';
+      const out = [mk('request',
+        sum() + gsWireNoteSuffix(r, 'running') + (bookedTxt || clipTxt),
+        { status: bookedTxt ? 'approved' : 'running', who: evt.player,
+          credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
       /* player-called sky: the weather change itself is a feed kind,
-         always attributed (feed.json event_kinds). */
-      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+         always attributed (feed.json event_kinds). A booking prints it
+         when the window FIRES, not when it's filed. */
+      if(evt.kind === 'weather' && !bookedTxt &&
+         r && r.params && r.params.wx){
         const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
         out.push(mk('weather', wl + ' over the Mission — called by ' +
           gsWireWho(evt.player), { who: evt.player }));
@@ -488,12 +517,32 @@ function gsWireFormat(evt){
     }
 
     case 'queue':
+      /* v14: a queued booking still names its window on the wire —
+         'in line for 21:30' reads exactly as exposed as 'in line' */
       return [mk('request', sum() + gsWireNoteSuffix(r, 'queued') +
-        ' — in line (#' + (evt.pos || '?') + ')',
+        ' — in line' + (evt.booked ? ' for ' + evt.booked : '') +
+        ' (#' + (evt.pos || '?') + ')',
         { status: 'queued', who: evt.player, credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
+
+    case 'fire': {
+      /* v14: a booked window arrives — the contract line is
+         'booked window arrived — <action> fired' (running) */
+      const out = [mk('request',
+        'booked window arrived — ' + sum() + ' fired' +
+        (evt.late ? ' (window ran late)' : ''),
+        { status: 'running', who: evt.player, credits: evt.price,
+          venue: gsWireReqVenue(evt, r),
+          mentions: gsWireReqMentions(evt, r) })];
+      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+        const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
+        out.push(mk('weather', wl + ' over the Mission — called by ' +
+          gsWireWho(evt.player), { who: evt.player }));
+      }
+      return out;
+    }
 
     case 'deny':
       /* verbatim contract wording — never the note, never the detail.
@@ -504,7 +553,11 @@ function gsWireFormat(evt){
           attempt: evt.kind })];
 
     case 'expire':
-      return [mk('request', sum() + ' — lapsed, fully refunded',
+      /* v14: a booked window that passed unfired reads differently from
+         an ordinary queue lapse — the promise is what missed */
+      return [mk('request', sum() + (evt.via === 'window'
+          ? ' — window missed, fully refunded'
+          : ' — lapsed, fully refunded'),
         { status: 'refunded', who: evt.player, credits: evt.refund })];
 
     case 'fail':
@@ -515,8 +568,13 @@ function gsWireFormat(evt){
       /* v9: a declined co-star ask resolves honestly — the pawn said
          no, half the bill came back, and the wire says exactly that */
       const declined = evt.declined || (r && r.declined);
+      /* v14: a clipped or late-fired run still wrapped — the wire owns
+         that the un-run minutes came back */
+      const shortTxt = (!declined && evt.clipped)
+        ? ' — wrapped early · un-run minutes refunded' : null;
       const out = [mk('request', sum() + gsWireNoteSuffix(r, 'resolved') +
-        (declined ? ' — resolved · declined' : ' — wrapped'),
+        (declined ? ' — resolved · declined'
+                  : shortTxt || ' — wrapped'),
         { status: 'resolved', who: evt.player,
           credits: declined ? evt.refund : null,
           venue: gsWireReqVenue(evt, r),
@@ -531,9 +589,13 @@ function gsWireFormat(evt){
 
     case 'cancel': {
       const admin = (evt.by === 'admin' || evt.by === 'owner');
+      /* v14: a pre-window cancel is a booking coming off the calendar —
+         the wire says which kind of promise ended */
+      const preWin = evt.pre_window;
       return [mk('request', sum() + (admin
           ? ' — ended by admin, player compensated'
-          : ' — cancelled, refunded'),
+          : preWin ? ' — cancelled before the window, refunded'
+                   : ' — cancelled, refunded'),
         { status: 'refunded', who: evt.player,
           credits: evt.refund,
           compensated: admin ? evt.refund : null })];
@@ -541,7 +603,10 @@ function gsWireFormat(evt){
 
     case 'review':
       if(evt.action === 'in_review')
-        return [mk('request', sum() + ' — in human review',
+        /* v14: a booked filing in review still names its window —
+           the calendar ask is public even before it's a promise */
+        return [mk('request', sum() + ' — in human review' +
+          (evt.booked ? ' · for ' + evt.booked : ''),
           { status: 'in_review', who: evt.player,
             reason: gsWireReason(evt.code) })];
       if(evt.action === 'approved')
@@ -566,9 +631,21 @@ function gsWireFormat(evt){
 
     case 'session':
       return [mk('request', 'two players, one scene — ' +
-        (evt.players || []).join(' + ') + ' sharing the block',
+        (evt.players || []).map(gsWireWho).join(' + ') +
+        ' sharing the block',
         { who: (evt.players || [])[0] || null,
           mentions: evt.chars || null })];
+
+    case 'cohost':
+      /* v15: a second permit joins a running event — one party on the
+         ground, two names on the paper (the sky's co-sponsor rule) */
+      return [mk('request', 'one party, ' + (evt.co || 2) +
+        ' permits — ' +
+        (GS_WIRE_EVENT_LABEL[evt.event] || evt.event || 'an event') +
+        (evt.at ? ' at ' + gsWireDispName(evt.at) : '') +
+        ' gains a co-host',
+        { status: 'running', who: evt.player,
+          venue: gsWireVenueId(evt.at) })];
 
     case 'hire':
       if(evt.action === 'release')
@@ -632,6 +709,16 @@ function gsWireFormat(evt){
     case 'lease':
       return gsWireLeaseLines(evt, mk);
 
+    case 'econ':
+      /* v13: payroll Friday is a beat the whole block feels — one
+         texture line, no names, no amounts. Every other econ event
+         (shares, shortfalls, benefit deposits) is INTERNAL money data:
+         considered, withheld, counted by the audit. */
+      if(evt.action === 'payday' && evt.count > 0)
+        return [mk('scene', 'payday — the Mission\u2019s Friday ' +
+          'shifts cash out', {})];
+      return [];
+
     case 'admin': {
       const lbl = GS_WIRE_ADMIN_LABEL[evt.action] ||
         String(evt.action || 'paperwork').replace(/_/g, ' ');
@@ -657,6 +744,10 @@ function gsWirePush(e){
 function gsWireOnEvent(evt){
   if(!evt || evt.n == null) return;
   if(evt.n <= GS_WIRE_CURSOR.n) return;
+  /* commit the cursor BEFORE pushing: gsWirePush -> gsWirePanelSync ->
+     gsWireTail -> gsWireSync re-enters and would re-dispatch this same
+     event forever (stack overflow on the live panel) */
+  GS_WIRE_CURSOR.n = evt.n;
   const lines = gsWireFormat(evt);
   if(lines.length){
     for(const e of lines) gsWirePush(e);
@@ -668,7 +759,6 @@ function gsWireOnEvent(evt){
     const k = evt.type + ':' + (evt.action || evt.kind || '');
     GS_WIRE_SUP.by[k] = (GS_WIRE_SUP.by[k] || 0) + 1;
   }
-  GS_WIRE_CURSOR.n = evt.n;
 }
 if(typeof gsBusOnEvent === 'function') gsBusOnEvent(gsWireOnEvent);
 

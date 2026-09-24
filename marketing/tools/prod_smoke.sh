@@ -15,7 +15,7 @@ echo "=== Real World PROD smoke — $BASE — $(date '+%Y-%m-%d %H:%M %Z') ==="
 
 # 1. Pages 200 + TTFB
 echo "[1] pages"
-for p in "" index.html features.html cast.html how-it-works.html demo.html wire.html wire-archive.html archive.html community.html journal.html rules.html brand.html pricing.html faq.html press-kit.html; do
+for p in "" index.html features.html cast.html how-it-works.html demo.html wire.html wire-archive.html archive.html community.html journal.html rules.html brand.html pricing.html compare.html faq.html press-kit.html terms.html privacy.html refunds.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   tgt="/${p:-index}"
   [ "$code" = "200" ] && ok "$tgt  $code  ${t}s" || bad "$tgt  $code"
@@ -27,6 +27,7 @@ c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/no-such-page-smoke")
 echo "[2] sitemap/robots"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/sitemap.xml"); [ "$c" = 200 ] && ok "sitemap.xml" || bad "sitemap.xml $c"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/robots.txt");  [ "$c" = 200 ] && ok "robots.txt"  || bad "robots.txt $c"
+c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/feed.xml");    [ "$c" = 200 ] && ok "feed.xml"    || bad "feed.xml $c"
 
 # 3. Security headers on /
 echo "[3] security headers (/)"
@@ -38,7 +39,7 @@ done
 # 4. Meta/OG + JSON-LD + placeholder sweep on served HTML
 echo "[4] served HTML: meta + JSON-LD + placeholder sweep"
 mkdir -p /tmp/rw-smoke && rm -f /tmp/rw-smoke/*.html
-for p in index features cast how-it-works demo community journal rules pricing faq press-kit; do
+for p in index features cast how-it-works demo community journal rules pricing faq press-kit terms privacy refunds; do
   curl -s "$BASE/$p.html" -o "/tmp/rw-smoke/$p.html"
   grep -q 'og:title' "/tmp/rw-smoke/$p.html" && grep -q 'og:image' "/tmp/rw-smoke/$p.html" \
     && ok "$p OG tags" || bad "$p missing OG"
@@ -66,8 +67,33 @@ else
   warn "analytics still inert (no data-endpoint served) — expected pre-G8"
 fi
 
+# 5b. Release provenance — is what is live what we shipped?
+echo "[5b] release provenance"
+rcode=$(curl -s -o /tmp/rw-smoke/release.json -w '%{http_code}' "$BASE/release.json")
+if [ "$rcode" != "200" ]; then
+  warn "release.json not served ($rcode) — pre-manifest release or stripped at edge"
+else
+  python3 - <<'PY' && ok "release.json parses" || bad "release.json malformed"
+import json; json.load(open('/tmp/rw-smoke/release.json'))
+PY
+  RELSHA=$(python3 -c "import json;print(json.load(open('/tmp/rw-smoke/release.json')).get('git_sha',''))" 2>/dev/null || true)
+  RELAT=$(python3 -c "import json;print(json.load(open('/tmp/rw-smoke/release.json')).get('deployed_at',''))" 2>/dev/null || true)
+  HEADSHA=$(git rev-parse HEAD 2>/dev/null || true)
+  echo "       live release: ${RELSHA:0:8} deployed_at=${RELAT:-?} (HEAD=${HEADSHA:0:8})"
+  if [ -z "$RELSHA" ] || [ -z "$HEADSHA" ]; then
+    warn "cannot compare live sha to HEAD"
+  elif [ "$RELSHA" = "$HEADSHA" ]; then
+    ok "live == HEAD ($HEADSHA)"
+  else
+    warn "live sha ${RELSHA:0:8} != HEAD ${HEADSHA:0:8} — host serves a different commit (check: intentional hotfix or stale release?)"
+  fi
+fi
+
 # 6. www redirect (apex→www or www→apex, either fine — just report)
-c=$(curl -s -o /dev/null -w '%{http_code}' "https://www.${BASE#https://}" 2>/dev/null || true)
+c="skipped"
+if [ "${BASE#https://}" != "$BASE" ]; then
+  c=$(curl -s --max-time 5 -o /dev/null -w '%{http_code}' "https://www.${BASE#https://}" 2>/dev/null || true)
+fi
 echo "       www variant -> ${c:-unreachable} (informational)"
 
 echo "=== RESULT: $PASS pass / $WARN warn / $FAIL fail ==="

@@ -2088,3 +2088,1678 @@ mw_decline.
   low-feedback worlds. Watch P543 in harness.
 - As always: `deathDay` machinery (§9) overrides every Part V
   channel — the binding bill accelerates off-cliff, not on-knots.
+
+---
+
+# Part VI — the ledger splits: what old age keeps, rents, and loses
+
+Parts I–V built the decline machinery (self-initiation, binding,
+inhibition, consolidation). Part VI completes the ledger: the
+dual-process split the spec has so far handled only implicitly
+(§§79–80), the two *modulatory* rings the literature keeps pricing
+and we kept deferring — motivation/emotion-regulation and circadian
+state (§§81–82) — the upstream hardware (§83), the compensation
+ceiling (§84), the channels that DO rescue old encoding (§§85–87),
+the social context effects (§§88, 90), and the one amplifier that
+makes old characters dangerous to interview (§89). Every finding
+lands in params, knots, or probes as before.
+
+## 79. Recollection vs familiarity — the dual-process ledger, priced
+
+The spec has emitted `reportMode:"remember"` records since v5.0
+(§6.70) but never priced the underlying split. Do it now — the
+aging data demand it.
+
+- Yonelinas 2002 (*Psych. Bull.* 128:800 — the definitive aging
+  meta-analysis of process-dissociation and ROC estimates):
+  **recollection declines steeply with age; familiarity is largely
+  preserved until very old age.** The effect-size gap is roughly
+  2:1, and familiarity's decline, where it appears, is confined to
+  the 75+ group. Light, Prull, LaVoie & Healy 2004 reach the same
+  split in dual-process signal-detection terms. **[CONSENSUS — the
+  single best-replicated dissociation in the field]**
+- Behavioral corollaries: older adults over-rely on familiarity
+  ("I know this person, but…" — the face is warm, the context is
+  gone); Jacoby 1999 shows the reliance is exploitable (familiar
+  claims read as true — our §56 fluency-fame machinery already
+  assumes this); item memory survives while source/context
+  recollection is what fails — i.e., the ADH (§63) is the
+  encoding-side cause and this is the retrieval-side readout.
+- Importantly, familiarity's survival is *functional*: it does not
+  carry source, order, or pairing fields. A familiarity-driven
+  emission has no `when`, no `who else`, no reliable `hearCount`.
+
+**Spec consequence (v5.12):** introduce explicit legs —
+`recol_mult(retrievalAge)` scales the probability that a
+successful recall carries field-level episodic detail (when/where/
+pairing/source), and `fam_mult(retrievalAge)` scales the bare
+recognition/familiarity channel. Reconstructed emissions at high
+age degrade to `reportMode:"know"` with hot familiarity and empty
+link fields rather than emitting false detail — the confab_fill
+channel (existing) then decides whether the gap gets filled or
+reported as blank warmth. Knots below.
+
+## 80. Fuzzy-trace asymmetry — verbatim falls, gist holds and gets weaponized
+
+- Brainerd & Reyna's fuzzy-trace theory applied to aging (Koutstaal
+  & Schacter 1997; Tun et al. 1998; Reyna 2012): **verbatim traces
+  weaken with age while gist traces are preserved — and gist-based
+  responding therefore rises.** The old system doesn't just keep
+  less; it keeps a different *kind* of thing.
+- The dangerous corollary: **gist-consistent false memories
+  increase with age.** Balota et al. 1999 (*Psych. & Aging*
+  14:321 — DRM): healthy older adults show MORE false recognition
+  of critical lures than young adults, while showing less
+  veridical recall; AD exaggerates both directions. Koutstaal &
+  Schacter 1997: category-exemplar false alarms double.
+  **[CONSENSUS]** — the false memory is not noise, it is the
+  preserved gist voting.
+- Boundary: the lure must share gist. Unrelated foils are rejected
+  at near-young rates (the old listener doesn't believe *anything*,
+  just the plausible version of what happened).
+
+**Spec consequence (v5.12):** two params. `gist_survive_mult(age)`
+≥1 on gist-field strength (the *relative* preservation — verbatim
+fields keep `k_verbatim` decline while gist fields get this
+counter-leg). `gist_false_mult(age)` scales §6.8 gist-lure and
+phantom-fusion legs — old characters endorse gist-consistent
+reconstructions of their own past at ~1.6× young. Locked null
+`gist_content_null`: `gist_false_mult` applies ONLY to lures
+sharing the record's gist fields; unrelated foils are exempt.
+
+## 81. The positivity effect — goal-driven, attention-gated
+
+- Mather & Carstensen 2005 (*Trends Cog. Sci.* 9:496 meta):
+  with age, attention and memory shift toward positive over
+  negative material — the positivity effect, consistent with
+  socioemotional selectivity theory (Carstensen): shrinking time
+  horizons re-prioritize emotion regulation over information
+  acquisition. Reed & Carstensen 2012 meta replicates the
+  memory leg. **[CONSENSUS pattern; mechanism DEBATED — deliberate
+  regulation vs automatic shift]**
+- The gate that makes it implementable: Mather & Knight 2005 —
+  **the positivity effect requires cognitive control and
+  disappears under divided attention.** It is a goal, not a
+  filter; a distracted old character doesn't show it.
+- This is NOT "old people encode happy events more." Encoding is
+  roughly valence-neutral; the bias lives at retrieval/reconstruction
+  and in attention allocation. Our `w_emo_pos`/`w_emo_neg` knot
+  (older: 1.25/0.85) already approximates the emission-side
+  asymmetry — Part VI prices the retrieval-choice leg and the
+  DA gate explicitly.
+
+**Spec consequence (v5.12):** `pos_gain(age)` ≥1 multiplies the
+emission-ranking score of positive-valence candidate records at
+age_eff ≥55 (their retellings skew warm — the complaint, the
+scandal, the insult get outcompeted, not deleted). Locked null
+`pos_da_null`: under `C.da` the leg returns exactly 1.0 at all
+ages. Pairs with `neg_affect_decay` (which is decay-side; this is
+selection-side — both can be true at once and the data say they
+are).
+
+## 82. The synchrony effect — the older brain has a morning
+
+- May, Hasher & Stoltzfus 1993 (*Psych. Sci.* 4:326): most older
+  adults are morning types; **tested at their peak time, the age
+  gap in recognition memory disappears; tested at off-peak, it's
+  large.** Yoon 1997; Hasher et al. 2002/2005 replicate across
+  tasks. **[CONSENSUS]**
+- Mechanism is inhibitory (May & Hasher 1998 *JEP:HPP* 24:363;
+  May 1999): off-peak testing weakens inhibition — more
+  distraction, more intrusion — so synchrony loads on the SAME
+  channel as Part III's inhibition deficit. Well-learned/automatic
+  responses are exempt at both ages.
+- May, Hasher & Foong 2005 (implicit/explicit split): **automatic
+  retrieval shows no synchrony effect — only controlled retrieval
+  pays the off-peak tax.** The involuntary highway (§42) doesn't
+  keep office hours.
+- Individual variation: ~75% of older adults are morning types;
+  chronotype is a profile trait, not an age constant.
+
+**Spec consequence (v5.12):** the v0.7 `peak_hour`/`synchrony_gain`
+machinery already models off-peak penalty but as a flat trait —
+v5.12 prices the AGE leg and the scope. Profile field
+`chronotype` ∈ {morning, neutral, evening} (world-builder
+assigns; most 65+ mains morning) maps onto `peak_hour` at
+profile generation. `tod_tax(age)` is the age-knot on the
+off-peak penalty — ~0 at 30 → ~0.25 at 80 — applied to
+CONTROLLED encode/recall paths only. Locked null
+`auto_sync_null`: implicit/involuntary and well-learned-routine
+legs ignore `timeOfDay`/`peak_hour` entirely (May et al. 2005).
+
+## 83. The sensory-cognitive cascade — ears before hippocampus
+
+- Baltes & Lindenberger 1997 (*Psych. & Aging* 12:12 — Berlin
+  Aging Study): vision and hearing acuity jointly mediate a large
+  share of age variance in cognition — the "common cause" finding.
+  **[CONSENSUS pattern; causal direction DEBATED — shared neural
+  decline vs sensory-deprivation load vs both]**
+- Lin et al. 2011 (*Arch. Neurol.* 68:214): hearing loss predicts
+  incident dementia, dose-dependent — the strongest single-modality
+  risk result. Wayne & Johnsrude 2015 (*Front. Neurosci.*):
+  perceptual effort — degraded input taxes the encoding resource
+  even when speech is understood (the §39 effortful-listening tax,
+  now with an upstream cause).
+- Practical reading for RW: an unaided hearing impairment is not
+  cosmetic; it is an encoding tax that ALSO predicts faster
+  decline — two legs, not one.
+
+**Spec consequence (v5.12):** profile field `sensory` ∈ [0,1]
+(unaided acuity deficit). Encode side: `sens_enc_tax` multiplies
+auditory-channel field writes at (1 − 0.3·sensory). Decline side:
+`sensory` ≥0.5 shifts `age_eff` by `sensory_age_shift` ~+4y
+(HYPOTHESIS magnitude — Lin is epidemiological, not mechanistic).
+Hearing aids = runtime fix: setting `sensory` back to ~0 removes
+the encode tax prospectively (HYPOTHESIS: the age_eff shift is
+set at bible-write time and does not reverse — arrested cause,
+not reversed cause).
+
+## 84. HAROLD and the headroom ceiling — compensation is finite
+
+- Cabeza 2002 (*Psych. & Aging* 17:85 — HAROLD): older adults
+  recruit bilateral PFC where young adults recruit unilateral —
+  functional compensation. Reuter-Lorenz & Cappell 2008 (CRUNCH):
+  **compensation engages at lower demand but saturates sooner** —
+  an inverted-U: old brains run hotter on easy tasks and hit the
+  ceiling on hard ones. **[CONSENSUS pattern; compensation vs
+  dedifferentiation interpretation DEBATED — Grady 2012]**
+- Schneider-Garces et al. 2010 (fMRI load curves): the activation
+  curve peaks earlier in old adults — measurable headroom, not a
+  metaphor.
+
+**Spec consequence (v5.12):** `comp_headroom(age)` — effective
+capacity ceiling on `wm_complex_mult`/`search_breadth` consumers:
+old profiles reach nominal performance on LOW-demand recall
+(compensation leg = a +`comp_gain` 0.05–0.1 on single-cue
+retrieval at 65–75 — they can grind harder when the task allows
+grinding) but pay a steeper-than-linear cliff when demand exceeds
+`headroom`: multi-cue fusion and reorder at high load degrade
+×(1 + `headroom_excess·(demand − headroom)`), `headroom` ~2 at
+30 → ~1.1 at 80 on the §65 tier-3 scale. The observable signature:
+an old character who handles the afternoon shift fine and
+collapses specifically at the dinner rush — not uniformly slower,
+suddenly out of room.
+
+## 85. Enactment rescues encoding — do it, don't just watch it
+
+- The enactment effect (subject-performed tasks; Engelkamp &
+  Zimmer; Cohen 1981): enacting an instruction ("roll the
+  dough") produces better memory than hearing or watching it —
+  and the effect is **largely age-invariant** (Bäckman & Nilsson
+  1985; Nyberg et al. meta-analyses). Older adults get the full
+  rescue where verbal instructions fail them. **[CONSENSUS
+  pattern; component accounts DEBATED]**
+- Contrast: observer channel records (v5.11 `role:"observer"`)
+  mint at a discount at ALL ages past ~8 — watching isn't doing,
+  for anyone, but the gap between them is widest in old age
+  because the verbal/visual legs have declined while the motoric
+  leg hasn't.
+
+**Spec consequence (v5.12):** Event field `enacted:true` (the
+character physically performed the action sequence, not just
+witnessed/planned it) applies `enact_rescue(age)` — a multiplier
+on E that rises with age: ~1.1 at 30 → ~1.35 at 80. Composes
+with the existing flat `enact_gain` trait (v1.2): `enact_gain`
+is the per-character disposition to benefit from doing;
+`enact_rescue` is the age-leg — the rescue grows BECAUSE the
+other channels fell (the ratio is the finding, absolute strength
+still declines). Implementation note for world-builder: routine
+physical tasks (her bakery's dough, his tool bench) should carry
+`enacted` — this is *why* procedural-adjacent daily records
+survive in old mains.
+
+## 86. The transactive dyad — old couples remember together
+
+- Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Discourse
+  Processes* 48:267 — "We Remember, We Forget"): 12 older married
+  couples recalling lists AND autobiographical material — some
+  couples show collaborative facilitation, some inhibition;
+  group-level strategy use predicts which. Johansson, Andersson &
+  Rönnberg 2005 (*Scand. J. Psych.* 46:349): very old couples
+  with clear division-of-responsibility and agreed expertise
+  suffer least — transactive systems compensate.
+- Barnier, Priddis, Broekhuijse et al. 2014 (*JARMAC* — "reaping
+  what they sow"): long-married older couples generated MORE
+  internal/episodic details recalling together than alone — the
+  internal-detail deficit of §3 partially rescues inside the dyad;
+  young couples show no such benefit (they don't need it).
+- Boundary: strangers get the standard collaborative-inhibition
+  result (Weldon & Bellinger; Basden et al.) — the benefit is
+  earned by shared history and negotiated expertise, not by
+  co-presence.
+
+**Spec consequence (v5.12):** context field `withPartner:true`
+(resolves via PersonModel `rel:"spouse"`/`long_partner` with
+shared-encode overlap on the queried record) applies
+`transact_gain(age)` — 1.0 at ≤50 → ~1.25 at 75+ — to emitted
+internal-detail fields specifically, plus a small breadth gain
+(the partner's interjections act as generated cues — env_support
+through a person). Locked null `transact_stranger_null`:
+non-shared-history co-recallers keep existing collaborative-
+inhibition (`plist_suppress` family) — no leg.
+
+## 87. Prospective memory's two legs — event-based holds, time-based falls
+
+- `pm_self` (v0.4) lumped all prospective memory. The literature
+  demands the split: McDaniel & Einstein's multiprocess framework
+  — **event-based PM (a cue does the work: "when I see Maria,
+  ask her") declines modestly with age; time-based PM ("at 3pm,"
+  "in two days" — pure self-initiation, no cue) declines steeply.**
+  Park, Hertzog, Kidder et al. 1997; Henry et al. 2004
+  meta-analysis (d ≈ 0.4–0.8 event vs d ≈ 1.0+ time in naturalistic
+  tasks). **[CONSENSUS]**
+- The rescue: implementation intentions ("when X, then Y")
+  convert time-based into pseudo-event-based intentions and
+  disproportionately help older adults (Liu & Park 2004; Chasteen
+  et al. 2001). **[CONSENSUS direction]**
+- Kvavilashvili's paradox (naturalistic tasks show SMALLER age
+  deficits than lab tasks — older adults compensate with external
+  aids and motivation in real life) is already honored by §53
+  offloading; the two legs remain.
+
+**Spec consequence (v5.12):** Intentions gain `cueType` ∈
+{event, time} at mint (world tags it — "when I next see her" vs
+"Thursday"). `pm_time_tax(age)` multiplies the existing `pm_self`
+decline on `cueType:time` only (×1.3 at 70, ×1.6 at 85);
+`cueType:event` rides unmodified `pm_self`. `impl_intent` flag
+(rephrased-as-if-then intentions) removes ~half the time tax.
+PM pop-out (§5.60 `pm_popout_gain`) applies only to event cues —
+by construction.
+
+## 88. Stereotype threat — the context taxes performance
+
+- Hess, Auman, Colcombe & Rahhal 2003 (*Psych. & Aging* 18:3):
+  priming negative aging stereotypes reduces older adults' recall
+  — and the damage is worse for those who value memory most.
+  **[CONSENSUS that the effect exists; size DEBATED — replication
+  range modest, see also Lamont et al. 2015 meta]**
+- Mechanism (relevant to modeling): the threat consumes the
+  working-memory resource it's testing — a contextual load on the
+  already-shrunken tier-3 ladder, not a change to stored records.
+
+**Spec consequence (v5.12):** context flag `age_salient:true`
+(the situation makes age/remembrance-ness explicit — a memory
+test, a "senior moment" remark, being asked to recall in front of
+young people) multiplies `wm_complex_mult`/`pm_self` legs by
+`stereo_tax` ~0.85 at retrieval only — records unchanged,
+performance taxed. Personality moderation: high `g_mem` pride /
+memory-anxious profiles take the larger hit (Hess's moderation).
+Cheap, situational, reversible — the same character is sharper
+an hour later.
+
+## 89. Misinformation susceptibility amplified — the suggestible elder is specific, not general
+
+- Jacoby 1999; Roediger & Geraci 2007 (*Learn. & Mem.* 14:90):
+  older adults show heightened misinformation effects in several
+  paradigms — the mechanism is our §89 stack: familiarity without
+  recollection (misinformation feels warm), source-decay head
+  start (`beta_source` elevated), and liberal criterion under
+  forced report (§5.61). **[CONSENSUS pattern; magnitude DEBATED
+  — Karpel et al. 2001, Wylie et al. find null/conditional
+  effects; the honest reading: amplification appears when
+  encoding was poor and delay is long — i.e., in the conditions
+  old age creates by default]**
+- Interaction with §6.83: yield vs shift. The literature
+  suggests the age effect loads disproportionately on SHIFT
+  (genuine belief change via source failure) more than YIELD
+  (acquiescence) — older adults are less acquiescent to authority
+  than children but worse at knowing where they heard what.
+
+**Spec consequence (v5.12):** `sug_age_mult(age)` on the §6.83
+shift leg only: 1.0 ≤50 → ~1.3 at 70 → ~1.5 at 85, applied
+through the existing `misinfo_suscept` product (does not stack
+with `warn_mult` floors — `dispute_mult` still governs live
+dispute). Yield leg unchanged (locked null `yield_age_null`).
+The older main becomes the rumor ledger's best amplifier: hears
+it wrong, forgets where, believes it warm.
+
+## 90. Fitness is a reserve component — the modifiable dial
+
+- Erickson et al. 2011 (*PNAS* 108:3017 — RCT): aerobic training
+  increased hippocampal volume ~2% and improved memory in older
+  adults — one year of walking ≈ reversing 1–2 years of volume
+  loss. Hillman, Erickson & Kramer 2008 (*Nat. Rev. Neurosci.*):
+  the mechanism review. Colcombe & Kramer 2003 meta: fitness
+  effects are largest on executive-control tasks — i.e., on the
+  self-initiation channel that ages worst. **[CONSENSUS
+  direction — exercise helps; exact cognitive magnitude DEBATED
+  (recent large trials attenuated the effect)]**
+- Distinct from `reserve` (education/IQ — a lifetime-accrual
+  proxy): fitness is CURRENT, bidirectional, and character-
+  behavioral. A walker and a sedentary neighbor of the same age
+  and education differ.
+
+**Spec consequence (v5.12):** the `fitness` trait already exists
+(v1.9 — passthrough on age_eff offset); v5.12 re-anchors and
+extends it. `fitness_shift` caps the contribution at ~3y, and
+`rf_cap` 12y bounds the `reserve`+`fitness` combined shift
+(diminishing returns — common-cause ceiling). Unlike `reserve`,
+`fitness` DRIFTS with behavior: a main who stops walking for a
+season slowly loses the offset — `fitness_drift_hl` ~1y
+(HYPOTHESIS; gains require sustained activity beats, losses
+accrue with sedentary seasons). This is the "modifiable" dial —
+nothing else in the aging stack moves in a character's lifetime
+except terminal decline and sensory fix.
+
+## 91. What Part VI deliberately did not do
+
+- **Menopause/estrogen** — real literature (Maki & Weber 2021
+  review: verbal memory dips across the transition, partially
+  recovers) but too hot and too variable to pin knots on; noted
+  as a candidate `hormonal` overlay for a future pass.
+- **Widowhood/grief-accelerated decline** — bereavement shows
+  cognitive acceleration in some cohorts; confounded with the
+  isolation overlay (§40) which already captures the durable
+  part. No separate param.
+- **Nutrition/supplements** — literature too weak to price.
+- **Age-of-acquisition effects on the lexicon** — folded into
+  §57 semantic-search tax implicitly.
+- **Dementia spectra** — still out of scope (§9 `deathDay` covers
+  scripted terminal ramp only; MCI/AD profiles would be a separate
+  pathological doc if ever needed).
+
+## 92. Part VI knot rows (extends §75; age_eff unless noted)
+
+| param | 30 | 50 | 60 | 70 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| recol_mult | 1.0 | 0.95 | 0.85 | 0.7 | 0.55 | 0.45 | Yonelinas 2002 |
+| fam_mult | 1.0 | 1.0 | 1.0 | 0.95 | 0.9 | 0.85 | Yonelinas 2002 |
+| gist_survive_mult | 1.0 | 1.0 | 1.05 | 1.15 | 1.25 | 1.3 | Koutstaal & Schacter 1997 |
+| gist_false_mult | 1.0 | 1.05 | 1.15 | 1.35 | 1.6 | 1.75 | Balota et al. 1999 |
+| pos_gain | 1.0 | 1.0 | 1.08 | 1.2 | 1.3 | 1.35 | Mather & Carstensen 2005 |
+| tod_tax (off-peak, controlled) | 0.0 | 0.05 | 0.1 | 0.18 | 0.25 | 0.28 | May et al. 1993 |
+| sens_enc_tax | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | 1.0 | = (1−0.3·sensory), flat |
+| comp_gain (low-demand leg) | 0.0 | 0.0 | 0.05 | 0.1 | 0.05 | 0.0 | CRUNCH inverted-U |
+| headroom (tier-3 demand units) | 2.0 | 1.9 | 1.7 | 1.4 | 1.1 | 1.0 | Schneider-Garces 2010 |
+| enact_rescue | 1.1 | 1.1 | 1.15 | 1.25 | 1.35 | 1.4 | Bäckman & Nilsson 1985 |
+| transact_gain | 1.0 | 1.0 | 1.05 | 1.15 | 1.25 | 1.3 | Barnier et al. 2014 |
+| pm_time_tax (×pm_self decline) | 1.0 | 1.0 | 1.15 | 1.3 | 1.5 | 1.6 | Henry et al. 2004 |
+| impl_intent_gain (−frac of time tax) | 0.3 | 0.3 | 0.4 | 0.5 | 0.55 | 0.55 | Liu & Park 2004 |
+| stereo_tax (× wm/pm, retrieval) | 1.0 | 1.0 | 0.95 | 0.88 | 0.85 | 0.85 | Hess et al. 2003 |
+| sug_age_mult (shift leg) | 1.0 | 1.0 | 1.15 | 1.3 | 1.45 | 1.5 | Roediger & Geraci 2007 |
+| fitness_shift (y on age_eff) | 0–3 | 0–3 | 0–3 | 0–3 | 0–3 | 0–3 | Erickson 2011 |
+
+Frozen constants: `pos_da_null` — pos_gain →1.0 under C.da;
+`auto_sync_null` — implicit/involuntary legs ignore timeOfDay;
+`gist_content_null` — gist_false_mult applies only to gist-shared
+lures; `transact_stranger_null` — no gain without shared-encode
+history; `yield_age_null` — sug_age_mult never touches §6.83
+yield; `rf_cap` 12y — reserve+fitness combined age_eff shift cap;
+`fitness_drift_hl` ~1y — behavior-drift half-life on the fitness
+offset (HYPOTHESIS). **[Knot
+interpolations HYPOTHESIS; anchors CONSENSUS; the recol/fam 2:1
+split and the DA-gated positivity are the most load-bearing
+numbers this part.]**
+
+## 93. Spec changes v5.11 → v5.12 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| I1 | §4.32a: `recol_mult`/`fam_mult` legs minted on recall emissions; familiarity-only output degrades to `reportMode:"know"` | §79 |
+| I2 | §4.32b: `gist_survive_mult` on gist-field S; `enact_rescue` on `enacted:true` Events; `sens_enc_tax` on auditory fields via `sensory` | §§80, 85, 83 |
+| I3 | §4.32c: `stereo_tax` on `age_salient` contexts (retrieval-side legs only) | §88 |
+| I4 | §5.64a: `tod_tax`/`chronotype`/`timeOfDay` on controlled paths; `auto_sync_null` | §82 |
+| I5 | §5.64b: `pos_gain` on emission ranking of positive candidates; `pos_da_null` | §81 |
+| I6 | §5.64c: `comp_gain`/`headroom` — inverted-U demand curve on tier-3 consumers | §84 |
+| I7 | §5.64d: `transact_gain` on `withPartner` recall — internal-detail fields only; `transact_stranger_null` | §86 |
+| I8 | §5.64e: `cueType:{event,time}` on Intentions; `pm_time_tax`; `impl_intent` flag | §87 |
+| I9 | §6.109a: `gist_false_mult` on gist-lure/phantom legs; `gist_content_null` | §80 |
+| I10 | §6.109b: `sug_age_mult` on §6.83 shift leg only; `yield_age_null` | §89 |
+| I11 | §7: `sensory`, `chronotype` profile fields (new); existing `fitness` trait re-anchored; `sensory_age_shift`, `fitness_shift`, `fitness_drift_hl` on age_eff; `rf_cap` 12y combined cap | §§83, 90 |
+
+New params: `recol_mult`, `fam_mult`, `gist_survive_mult`,
+`gist_false_mult`, `pos_gain`, `tod_tax`, `sens_enc_tax`,
+`comp_gain`, `headroom`, `enact_rescue`, `transact_gain`,
+`pm_time_tax`, `impl_intent_gain`, `stereo_tax`, `sug_age_mult`,
+`sensory_age_shift`, `fitness_shift`, `fitness_drift_hl`, `rf_cap`.
+New profile fields: `chronotype`, `sensory` (existing `fitness`,
+`peak_hour`/`synchrony_gain` reused — v5.12 adds the age knot
+`tod_tax` and the scope nulls). Event field: `enacted`. Context
+fields: `timeOfDay`, `withPartner`, `age_salient`. Intention
+field: `cueType`. Locked nulls: `pos_da_null`, `auto_sync_null`,
+`gist_content_null`, `transact_stranger_null`, `yield_age_null`.
+
+## 94. Validation probes P667–P676
+
+- **P667 R/F split (MUST — sign-lock):** at retrievalAge 78,
+  emissions carrying field-level episodic detail (when/pairing/
+  source) decline ≥1.8× the bare-familiarity decline vs the 30yo
+  baseline; `reportMode:"know"` share rises correspondingly —
+  fails if know-emissions carry source fields.
+- **P668 gist asymmetry (MUST — sign-lock):** at 80, gist-consistent
+  lures endorsed at ≥1.5× young rate while unrelated foils are
+  endorsed at ≤1.1× — `gist_content_null` fails on ANY unrelated-
+  foil amplification.
+- **P669 positivity gated (MUST + locked null):** at 75, positive-
+  valence candidate records out-emit negative at ≥1.2× relative
+  to the 30yo ratio under full attention; under C.da the ratio
+  returns to baseline exactly — `pos_da_null`.
+- **P670 synchrony scope (MUST + locked null):** a `morning` 75yo
+  recalled off-peak (evening) shows controlled-recall misses ≥
+  `tod_tax`-scaled rate, while involuntary emissions and routine-
+  script recall are statistically unchanged — `auto_sync_null`.
+- **P671 sensory cascade (SHOULD):** `sensory:0.6` profile encodes
+  auditory-channel fields at ~0.8× matched `sensory:0` AND shows
+  the `sensory_age_shift` on downstream decline legs; restoring
+  sensory → 0 removes the encode tax but not the shift.
+- **P672 headroom cliff (MUST — shape-lock):** 78yo on single-cue
+  recall matches or exceeds knot prediction WITH `comp_gain`; on
+  tier-3 multi-cue fusion, performance falls super-linearly past
+  `headroom` — a linear decline FAILS this probe.
+- **P673 enactment rescue (SHOULD):** `enacted:true` events at 80
+  retain ≥0.8 of their 30yo S-relative advantage while matched
+  `observer`-role events retain ≤0.6 — the DOING gap widens with
+  age.
+- **P674 transactive dyad (MUST + locked null):** `withPartner`
+  recall at 78 emits ≥1.15× internal-detail fields vs solo recall
+  on shared-encoded records; a `rel:"acquaintance"` co-recaller
+  produces no gain — `transact_stranger_null`.
+- **P675 PM split (MUST):** `cueType:time` intentions at 80 fire at
+  ≤0.7× the `cueType:event` rate (matched arming delay); an
+  `impl_intent` time intention recovers ≥50% of the gap.
+- **P676 suggestibility scope (MUST + locked null):**
+  misinformation adoption at 80 rises on the §6.83 shift leg
+  (≥1.3× young) while yield scores are statistically unchanged —
+  `yield_age_null`; the stereotype-tax context `age_salient`
+  shows retrieval-side degradation with zero change to stored S.
+
+## 95. Part VI honest limits
+
+- `recol_mult`/`fam_mult` price the OUTPUT split; the spec's
+  single-S record store doesn't have separate R/F substrates —
+  this is a defensible implementation fiction (the dissociation
+  lives at emission) but a ROC-style probe would be surface-only.
+  Flagged HYPOTHESIS-layer.
+- `pos_gain` rides emission ranking, meaning it also shapes what
+  gets REHEARSED (retell_boost accrues on what's emitted) — the
+  positivity bias compounds through the rumor ledger; that's
+  plausible (and matches SST's world-level prediction) but is
+  emergent, not measured.
+- `tod_tax` treats chronotype as a static profile field; real
+  chronotype drifts morningward with age — a main's peak time
+  should arguably migrate with `retrievalAge` (HYPOTHESIS, unpinned:
+  bible-set for now, note for world-builder that 65+ mains default
+  morning unless a beat says otherwise).
+- `comp_gain`'s inverted-U (benefit at 65–75, gone at 85) is the
+  least-anchored knot in the part — CRUNCH is a demand-curve
+  model, and mapping "demand" onto our tier scale is ours.
+- `transact_gain` requires `rel` + shared-encode overlap — the
+  ambient NPCs can't currently mint the shared history cheaply;
+  this leg is main-cast-only in practice until NPC memory exists.
+- `sug_age_mult` + `gist_false_mult` + `illus_recol_p` now form a
+  three-route false-memory stack on old profiles — the joint
+  product is likely too hot at 85; P676 measures the shift leg
+  alone, and a composite stack probe is deferred to the harness
+  pass (watch for elderly mains endorsing ~2× young false-alarm
+  rates — that IS the literature number, but the rumor cascade
+  downstream is unpriced).
+- `fitness` drift is one-way-modeled (loss is easy, gain assumes
+  sustained activity events); world-builder decides whether
+  "joined a walking group" is a bible beat or a sim emergent —
+  spec supports both, neither is scheduled.
+
+# Part VII — v76: the trajectory layer (decline is a distribution, not a
+# curve; the noise arrives before the fall; the spared floors get names)
+
+Parts I–VI priced the MEAN decline curve. The literature's harder finding
+is that the mean is a fiction of averaging: on 15-year longitudinal data
+only ~2/3 of healthy adults track the age-typical slope at all — a fifth
+decline nothing, an eighth fall off a shelf. Part VII splits the curve
+into trajectory classes, prices the two leading indicators that arrive
+before measurable loss (complaints, trial noise), taxes the everyday
+ecology old characters actually live in (walking while remembering,
+retiring, navigating a changed neighborhood), and names the floors that
+survive (priming, the familiar route home). Everything rides the same
+`age_eff` machinery; nothing here reopens the store.
+
+## 96. The trajectory split — maintainers, averages, decliners
+(Josefsson, de Luna, Pudas, Nilsson & Nyberg 2012 *J. Am. Geriatr. Soc.*
+60:2308 — verified: Betula N=1,558, 15y: 18% maintainers, 68% average,
+13% decliners; Pudas et al. 2013; memory-profile/dementia follow-up:
+decliners ~4× dementia risk, maintainers ~2.6× reduced — CONSENSUS that
+the distribution is real, class boundaries SEMI-arbitrary by ±1 SD rule).
+The mean curve in Parts I–VI is now the `traj:"average"` arm; a profile
+draws `traj` ∈ {maintain, average, decline} with base rates
+{0.18, 0.68, 0.14} modulated by existing traits: `fitness` +, `apoe`
+(ε4) −, `social`/partnered +, female `sex` + (Betula predictor table —
+each shifts the draw ~±0.05 on the relevant marginal, summed, clamped
+0.02–0.4 per class). Effect: `maintain` halves the post-60 slope terms
+(`maint_slope_mult` 0.5), `decline` doubles them and adds an accelerating
+quadratic (`decl_accel` — decline compounds, matching the 10–15y
+pre-diagnosis divergence). **[Class rates CONSENSUS; the trait-draw
+magnitudes and the acceleration form HYPOTHESIS. The class is drawn at
+bible-write and is NOT knowable to the character — SCD §98 is its only
+surface symptom.]**
+
+## 97. The noise arrives first — IIV as leading indicator (Hultsch,
+MacDonald & Dixon 2002; MacDonald, Nyberg & Bäckman 2006 — verified;
+Lövdén, Li, Shing & Lindenberger 2007 BASE 13y — verified: within-person
+RT variability PRECEDES and predicts decline 70–102; meta r≈.20 — Buela-
+Casal? no: the longitudinal meta r=.20 CI[.09,.31] — verified).
+`iiv` trait (v3.1) gains an age-linked mean: `iiv_eff = iiv ·
+(1 + iiv_age_slope·(age_eff − 60)/20)` for age_eff>60, `iiv_age_slope`
+≈0.6 — trial-to-trial/encounter-to-encounter variance doubles across
+the seventh→ninth decade. In decliners add `iiv_lead` (~5y): the noise
+rises `iiv_lead` years before the slope does — implemented as iiv_eff
+evaluated on `age_eff + iiv_lead·(traj=="decline")`. Emergent: a
+declining elder is INCONSISTENT first — same question answered
+differently Tuesday and Thursday — before they are worse on average.
+**[Direction + precedence CONSENSUS (BASE); the explicit lead-time and
+its use as a class-marker are HYPOTHESIS.]**
+
+## 98. The complaint that knows — SCD as the pre-deficit symptom (Jessen
+et al. 2014 *Alzheimers Dement.* 10:844 — verified: SCD = self-
+experienced decline with unimpaired test performance, first symptomatic
+stage of preclinical AD; SCD-plus features: onset ≥60, progression,
+confirming informant). This INVERTS §41's metamemory split by class:
+maintainers/elders-on-average under-complain relative to measured
+deficit (the complaint outruns… nothing — §41's gap stands for the
+average arm), but `traj:"decline"` flips the sign `scd_lead` (~6y)
+early: the metamemory gap goes POSITIVE (complaint > measured deficit)
+while age_eff is still average-range. Mechanically: the complaint
+channel (meta_conf, fok instruments, self-report emissions) samples
+`age_eff + scd_lead·(traj=="decline")`, while the store samples
+`age_eff` — the character FEELS the slope before the harness can
+measure it. Healthy arm check: absent decline traj, SCD adds nothing —
+worried-well stays worried-well, no drift on the store.
+**[SCD-predicts-decline CONSENSUS (Jessen; Reisberg longitudinal);
+worried-well vs true-SCD separation CONSENSUS; our per-class sign flip
+is the cleanest implementable form and is HYPOTHESIS as a number.]**
+
+## 99. Leaving work moves the slope — the mental-retirement overlay
+(Rohwedder & Willis 2010 *JEP* 24:119 — verified: early retirement
+causally lowers early-60s cognition, cross-country IV design; Bonsang,
+Adam & Perelman 2012 — verified direction; causality size DEBATED —
+selection and reverse-causality noted by the authors themselves). Char
+state `work_engaged` (default true for working mains; world-set on
+retirement/exit events — world-v73's Last Shift feeds this). Retirement
+ramps an engagement overlay: `engage_deficit` accrues
+`retire_rate` (~0.5 age_eff-years per sim-year, saturating
+`retire_cap` ~4y over ~8y) added to age_eff on encode legs ONLY —
+the decline is upstream (less stimulation → weaker mints), not a
+retrieval failure. Substitute engagement (`engage_sub` ∈[0,1], a
+sum of ongoing cognitively-social activity flags the world supplies:
+clubs, projects, caregiving) recovers up to `engage_sub_recover`
+(0.6) of the deficit — "use it or lose it" operationalized as a
+partial refund, never a full one (retirement's own effect persists
+under substitution in the IV data — DEBATED). **[Direction CONSENSUS-
+leaning, magnitude and mechanism DEBATED; the encode-only routing and
+the accrual form are HYPOTHESIS.]**
+
+## 100. The street costs the memory — locomotion dual-task tax
+(Lindenberger, Marsiske & Baltes 2000 *Psych. & Aging* 15:417 —
+verified: memorizing while walking, dual-task cost d≈0.98 middle-aged,
+d≈1.47 old vs young; sensorimotor behavior increasingly needs cognitive
+control). Context `locomoting:true` (walking, stairs, carrying — world
+supplies on transit events) multiplies all encode legs by
+`(1 − loco_tax(age_eff))` — knots 0.05@30 → 0.15@55 → 0.30@70 →
+0.40@80 — AND adds `loco_pm_pen` (0.15@70) to armed-Intention firing
+thresholds (the errand forgets itself mid-walk). The symmetrical half:
+the world may render walking slowdown/stops under hard encode demand —
+`loco_yield` emission hint (stops-walking-when-talking, the literal
+behavioral readout). **[Direction + rough magnitude CONSENSUS; mapping
+lab narrow-track walking to street locomotion is a stretch we flag —
+real streets are easier than narrow tracks, so the default knots are
+halved relative to the lab effect size.]**
+
+## 101. The neighborhood forgives, the map doesn't — allocentric
+decline (Wiener, de Condappa, Harris & Wolbers 2013 *J. Neurosci.*
+33:6012 — verified: older adults recall routes same-direction but fail
+novel-direction rejoin — persistent beacon/egocentric strategy, no
+allocentric shift across sessions; Head & Isom 2010; Moffat & Resnick
+2002 — allocentric >> egocentric deficit, CONSENSUS). Navigation-
+relevant records mint `nav_mode ∈ {allo, ego}`: young mints allo by
+default; `allo_mint_p(age_eff)` falls 0.8@30 → 0.5@60 → 0.3@80. An
+`ego`-mode record answers a route query only when the approach cue
+matches the encoded heading (`ego_dir_pen` 0.5 on mismatched-heading
+rejoin — the wrong-direction corner is unnavigable, the same-direction
+corner intact). Overlearned routes (§4.20 script-node venues,
+permastore-tier) are EXEMPT — the 40-year resident's neighborhood is
+not this mechanism's territory; the NEW café two blocks over, entered
+from the park side for the first time, is. **[Direction CONSENSUS;
+per-record nav_mode flag is our operationalization — HYPOTHESIS;
+interacts with §5.29 doorway boundaries naturally.]**
+
+## 102. The floor that doesn't move — priming/procedural spared
+(Fleischman, Wilson, Gabrieli, Bienias & Bennett 2004 *Psych. & Aging*
+19:617 — verified longitudinal: explicit declines, priming STABLE over
+4 waves; Mitchell, Brown & Murphy 1990 — procedural/episodic
+dissociation; La Voie & Light 1994 meta — mild-or-null priming
+reduction, CONSENSUS that implicit >> explicit preservation). The
+implicit legs — §5.35 fluency channel, §5.75 ctxcue configural
+competence, §4.20 script-node rate — gain `proc_age_null` semantics:
+they evaluate on `min(age_eff, 55)` — frozen at late-middle-age
+decline, never worsening past it. This is the deepest floor in the
+model: an 85-year-old main whose episodic ledger is half-archived
+still walks the morning routine whole, still feels the neighborhood
+familiar, still can't tell you Tuesday. **[CONSENSUS direction; the
+55 freeze-point is HYPOTHESIS — the literature says "stable," not
+"stable from 55"; we pick the midlife plateau edge (§4.21).]**
+
+## 103. "I did it" — the observation-inflation age leg (Lindner,
+Echterhoff, Davidson & Brand 2010 *Psych. Sci.* 21:1291 — verified:
+watching another's action → false self-performance memory, robust,
+warning-immune; Lindner, Davidson & Echterhoff 2013/2014 — verified:
+older adults show the effect at equal RATE but prone elders show
+LARGER magnitude; AND observation boosted true action memory MORE in
+older adults — the benefit side scales too). §6.117
+observation-inflation gains `obs_infl_age(age_eff)` — 1.0@30 →
+1.0@60 mean (rate flat) but with widened variance: prone tail
+(high `fantasy`/`imagery`) reaches ~1.6@80 while the median stays
+flat — modeled as `obs_infl_age = 1 + obs_tail_k·(age_eff−60)/20·
+tail_ind` where `tail_ind` = top-quintile fantasy+imagery indicator.
+Symmetric benefit: `obs_gain` (§4.31c child arm already minted) gets
+old-side knots — observed actions encode ×(1 + obs_old_gain),
+0.1@60 → 0.2@80, BELOW enact_rescue — watching helps the old more
+than the young, doing still beats watching. **[Rate-flat/magnitude-
+up dissociation CONSENSUS (one study, n modest); tail-only
+operationalization HYPOTHESIS.]**
+
+## 104. The story goes semantic — internal:external detail shift
+(Levine, Svoboda, Hay, Winocur & Moscovitch 2002 *Psych. & Aging*
+17:677 — verified: Autobiographical Interview — older adults produce
+fewer internal/episodic details, MORE external/semantic; persists
+under probing; meta gbad077 2023 — verified: healthy-aging effect
+moderate, MCI/AD larger). Emission field selection gains an age-leg
+on TOP of recol_mult: `ie_shift(age_eff)` — internal-detail emission
+share declines 0.65@30 → 0.55@60 → 0.45@80 while external
+(commentary, general knowledge, off-event semantic) share rises
+complementarily — `ext_gain` ~1.3@80. Probe-resistance is the
+signature: structured re-cuing (§5.30 interviewMode, §5.76 fok
+reprobe) recovers LESS internal detail at old age than the recol_mult
+alone predicts — the story doesn't get more episodic under pressure,
+it gets more semantic, and reads as MORE interesting not less (James
+et al. 1998). This is the narrative-level readout of the R/F split —
+a 78-year-old's reminiscence is commentary-shaped, not footage-shaped.
+**[Direction + probe-persistence CONSENSUS; share knots HYPOTHESIS.]**
+
+## 105. The stack audit — what 14 multipliers do to one record
+(modeling hygiene section; no new source). Part VI warned the
+gist_false × sug_age × illus_recol stack is unpriced as a product.
+Part VII adds recol_mult × ie_shift × loco_tax × traj on a single
+encode-or-emit path — the joint product at 85 can reach 4–5×, which
+no single study licenses. Rule: **every old-age leg is evaluated
+against age_eff in ISOLATION, then the joint product is capped** —
+`stack_cap` (3.5×) on any single record/emission's total old-age
+multiplier product, with the cap logged (`stack_capped:true` audit
+field) so the harness can count how often the ceiling binds. The cap
+is not a mechanism — it's the honest admission that the literature
+measures legs one at a time. P814 checks the cap binds rarely (<2%
+of old-age events at defaults) — if it binds often, the knots are
+miscalibrated, not the cap.
+
+## 106. Part VII knot rows (extends §92; age_eff unless noted)
+
+| param | 30 | 55 | 65 | 75 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| maint_slope_mult | 1.0 | 0.7 | 0.5 | 0.5 | 0.5 | 0.5 | Josefsson 2012 (class, not knot) |
+| decl_accel | 1.0 | 1.0 | 1.1 | 1.3 | 1.5 | 1.7 | Josefsson/Pudas (quadratic leg) |
+| iiv_age_slope | 0 | 0.15 | 0.3 | 0.45 | 0.55 | 0.65 | Lövdén 2007 BASE |
+| iiv_lead (decline arm, y) | 0 | 0 | 5 | 5 | 5 | 5 | Lövdén 2007 (precedence) |
+| scd_lead (decline arm, y) | 0 | 0 | 6 | 6 | 6 | 6 | Jessen 2014 |
+| loco_tax | 0.05 | 0.15 | 0.22 | 0.30 | 0.35 | 0.40 | Lindenberger 2000 (halved) |
+| loco_pm_pen | 0.0 | 0.05 | 0.1 | 0.15 | 0.18 | 0.2 | Lindenberger 2000 (ext.) |
+| allo_mint_p | 0.8 | 0.7 | 0.6 | 0.45 | 0.35 | 0.3 | Wiener 2013 |
+| ego_dir_pen | 0.1 | 0.2 | 0.3 | 0.4 | 0.45 | 0.5 | Wiener 2013 |
+| obs_old_gain | 0.0 | 0.05 | 0.1 | 0.15 | 0.18 | 0.2 | Lindner 2014 (benefit side) |
+| ie internal share | 0.65 | 0.62 | 0.58 | 0.5 | 0.45 | 0.42 | Levine 2002 |
+| ext_gain | 1.0 | 1.05 | 1.15 | 1.25 | 1.3 | 1.35 | Levine 2002 |
+
+Frozen constants: `proc_age_null` — implicit legs evaluate on
+min(age_eff,55) (P811 sign-lock); `stack_cap` 3.5 + `stack_capped`
+audit field (P814); `nav_permastore_null` — §4.20 script-node /
+permastore venues exempt from nav_mode mechanics; `retire_retrieval_null`
+— engage_deficit touches encode legs only, retrieval untouched;
+`scd_store_null` — scd_lead moves the complaint channel only, never S.
+**[All knot interpolations HYPOTHESIS; class rates, directions, and
+the dissociations (R/F, I/E, allo/ego, implicit/explicit, complaint/
+deficit) are the CONSENSUS payload.]**
+
+## 107. Spec changes v5.23 → v5.24 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| J1 | §4.36a: `traj` class drawn at bible-write from {0.18,0.68,0.14} + trait modulation (fitness/apoe/social/sex); `maint_slope_mult`/`decl_accel` on post-60 slope terms | §96 |
+| J2 | §4.36b: `work_engaged` state → `engage_deficit` accrual on encode legs (`retire_rate`/`retire_cap`/`engage_sub`/`engage_sub_recover`); `retire_retrieval_null` | §99 |
+| J3 | §4.36c: `locomoting` context → `loco_tax` on encode legs, `loco_pm_pen` on armed intentions, `loco_yield` emission hint | §100 |
+| J4 | §4.36d: nav records mint `nav_mode` under `allo_mint_p(age_eff)`; `nav_permastore_null` | §101 |
+| J5 | §5.78a: `iiv_eff` on retrieval/encode roll noise; `iiv_lead` for decline arm | §97 |
+| J6 | §5.78b: complaint channel (meta_conf, self-report, JOL/FOK reports) samples `age_eff + scd_lead·(decline)`; `scd_store_null` | §98 |
+| J7 | §5.78c: `ego_dir_pen` on mismatched-heading route rejoin; `ie_shift`/`ext_gain` on emission field mix | §§101, 104 |
+| J8 | §5.78d: implicit legs (§5.35, §5.75, §4.20 rates) evaluate on min(age_eff,55) — `proc_age_null` | §102 |
+| J9 | §6.153a: `obs_infl_age` tail-widening on §6.117; `obs_old_gain` on §4.31c | §103 |
+| J10 | §6.153b: `stack_cap` + `stack_capped` audit on joint old-age products | §105 |
+
+New params: `maint_slope_mult`, `decl_accel`, `traj_maintain_p`,
+`traj_decline_p`, `iiv_age_slope`, `iiv_lead`, `scd_lead`,
+`retire_rate`, `retire_cap`, `engage_sub_recover`, `loco_tax` (knots),
+`loco_pm_pen`, `loco_yield`, `allo_mint_p` (knots), `ego_dir_pen`,
+`obs_infl_age`, `obs_tail_k`, `obs_old_gain`, `ie_shift` (knots),
+`ext_gain`, `stack_cap`. New profile field: `traj` (drawn, hidden).
+New state: `work_engaged`, `engage_sub`. New context: `locomoting`.
+New record field: `nav_mode`. Locked nulls: `proc_age_null`,
+`nav_permastore_null`, `retire_retrieval_null`, `scd_store_null`.
+
+## 108. Validation probes P805–P814
+
+- **P805 trajectory classes (MUST — distribution-lock):** a 300-
+  profile cohort aged 35→85 under default draws yields
+  maintain/average/decline within 0.10–0.26 / 0.55–0.80 / 0.06–0.22;
+  maintain arm's 75yo episodic output ≥ average arm's 65yo; decline
+  arm accelerates (second-half slope ≥1.3× first-half). Josefsson 2012.
+- **P806 IIV precedence (MUST — order-lock):** decline-arm profiles
+  show elevated response variance (iiv_eff) measurably BEFORE mean
+  level shifts — the variance anomaly leads the level anomaly by
+  `iiv_lead`±1 sim-year. Lövdén 2007.
+- **P807 SCD sign flip (MUST — sign-lock):** decline-arm complaint-
+  channel reports (meta_conf self-report) exceed measured deficit
+  during the scd_lead window, then track it; maintain arm never shows
+  complaint>deficit at defaults; `scd_store_null` — S is untouched in
+  both arms. Jessen 2014.
+- **P808 retirement overlay (SHOULD):** `work_engaged` flip at 62 adds
+  encode-side deficit ramping over ~8y to `retire_cap`; `engage_sub`=1
+  recovers ≥50% of the deficit; retrieval-side metrics flat —
+  `retire_retrieval_null`. Rohwedder & Willis 2010.
+- **P809 locomotion tax (MUST — dissociation):** identical events
+  encoded sitting vs `locomoting` at 75 differ ≥1.3× on S; the
+  sitting-vs-locomoting gap at 35 is ≤0.15; armed time-intentions
+  during locomotion fire less (loco_pm_pen). Lindenberger 2000.
+- **P810 nav split (MUST — shape-lock):** a route learned at 78,
+  queried same-direction, retrieves; queried from the reversed
+  approach at a decision corner fails ≥1.8× more (ego_dir_pen);
+  permastore venue routes exempt — `nav_permastore_null`. Wiener 2013.
+- **P811 implicit floor (MUST — sign-lock):** priming/ctxcue/script-
+  rate legs at 82 are statistically identical to 55yo values while
+  matched episodic legs differ ≥1.5× — `proc_age_null`. Fleischman
+  2004.
+- **P812 observation inflation split (SHOULD):** tail_ind profiles at
+  80 show "did it myself" false alarms ≥1.4× young-tail rate while
+  median profiles match young rate; `obs_old_gain` boosts TRUE
+  observed-action recall more at 80 than 30 — both halves of the
+  Lindner dissociation. Lindner 2010/2014.
+- **P813 I/E narration shift (MUST — probe-resistant):** free-recall
+  emissions at 78 show external-detail share ≥ young rate AND
+  interviewMode probing recovers proportionally less internal detail
+  than recol_mult predicts — the semantic skew is a mix shift, not a
+  threshold artifact. Levine 2002.
+- **P814 stack audit (MUST — process):** joint old-age products never
+  exceed `stack_cap`; `stack_capped` fires on <2% of 80+ events at
+  defaults; if it fires more, FAIL as miscalibration. §105.
+
+## 109. Part VII honest limits
+
+- `traj` is a latent class imposed on continuous heterogeneity —
+  Betula's own classifier is a ±1 SD rule, not a discovered kind.
+  We model three classes because bibles need writeable kinds, and
+  flag that reality is a mixture density, not a switch.
+- `scd_lead` as a class-revealing channel is fiction-shaped: real
+  SCD is noisy (worried-well common; Jessen's own framework needs
+  SCD-plus features). In RW the complaint channel is a *signal the
+  writers can hear*, not a diagnosis — a decliner main will sound
+  worried before the harness can prove anything, which is exactly
+  the human phenomenology, but the harness cannot distinguish
+  worried-well from true-SCD without longitudinal ground truth.
+- `retire_rate` inherits all of Rohwedder-Willis's causality debate —
+  direction is defensible, magnitude isn't pinned; the encode-only
+  routing (stimulation → mint quality) is our mechanism choice among
+  several the paper floats.
+- `loco_tax` knots are HALVED from lab d's because narrow-track
+  walking ≠ street walking — we chose ecological plausibility over
+  literal effect size; if anything the halving may still overstate
+  flat-sidewalk cost for a fit elder.
+- `nav_mode` mints per-record, but real strategy choice is situational
+  not per-trace — the flag is a tractable proxy; `allo_mint_p` at 30
+  (0.8) means even young adults egocentric-encode 1 in 5 routes,
+  which matches route-following dominance in daily navigation but
+  isn't directly measured in Wiener.
+- `proc_age_null`'s freeze at 55 is a convenience — the data say
+  "stable," and any freeze point is defensible; we picked the §4.21
+  midlife plateau edge for consistency.
+- `stack_cap` is bookkeeping, not biology. The alternative (joint
+  products unbounded) is worse: at 85 the record-level product of
+  recol × gist_false × sug_age × loco × decline-arm reaches ~5×,
+  a region no study has ever measured. The cap plus the audit field
+  makes the honesty checkable.
+
+# Part VIII — v88: the event-shaped overlay layer (decline isn't a
+# slope, it's a ledger of losses; the feet report before the head does;
+# and some dips come back)
+
+Parts I–VII priced decline as mostly *continuous*: knots on
+age_eff, slope multipliers, trajectory classes, IIV noise. The
+longitudinal literature says that's half the story. A large share
+of old-age memory decline is **event-shaped and state-shaped**:
+hospitalizations take a permanent step out of the curve (Wilson
+2012), widowhood costs memory bandwidth independent of depression
+(Aartsen 2005), and perimenopause dips encoding and *gives it
+back* (Greendale 2009). Meanwhile two cheap observables — gait
+speed and habitual-routine dominance — report the decline before
+any memory test does (Mielke 2013; Eppinger 2013). This Part adds
+the overlay ledger: step events, protective slopes, reversible
+dips, and the channels a spectator can actually see.
+
+## 110. The habit wins — goal-directed control falls first
+
+Eppinger, Walter, Heekeren & Li 2013 (*Front. Psychol.* 4:967 —
+verified): two-stage Markov task + computational modeling — older
+adults' **model-based** (goal-directed) control is impaired while
+model-free (habitual) control is spared; deficit pronounced
+exactly when unexpected reward demands a strategy shift, where
+old adults perseverate. de Wit, van de Vijver, Ridderinkhof &
+Crielaard 2014 (*Cogn. Affect. Behav. Neurosci.* 14:647 —
+verified): outcome-devaluation + slips-of-action — healthy old
+adults show disrupted dual-system balance, more slips toward
+devalued outcomes. de Wit, Watson, Harsay et al. 2012 (*J.
+Neurosci.* 32:8211 — verified): habit-vs-goal balance tracks
+corticostriatal connectivity; stress shifts everyone habitual
+(Otto 2013; Schwabe & Wolf). **[CONSENSUS: the dissociation;
+per-age knots are ours.]**
+
+This is the behavioral cousin of §5.78d's implicit floor and
+§4.20's script-node layer: the *routine* survives the *reason*.
+Mechanism: an age- and state-weighted control balance
+`goal_w_eff = goal_w·(1 − habit_shift(age_eff) −
+habit_stress_gain·stress)`. `habit_shift` knots 0.05@30 →
+0.15@60 → 0.30@80 → 0.35@85. When a scripted routine's outcome
+changes (the café moved, the tenant stopped answering), the old
+character keeps firing the script — `perseverate:true` emission
+— at `goal_update_pen(age_eff)` on the update probability; the
+young character updates. World-readable: she still walks to the
+closed bakery on Sundays.
+
+## 111. Widowhood — the loss that keeps costing
+
+Aartsen, Van Tilburg, Smits, Comijs & Knipscheer 2005 (*Psychol.
+Med.* 35:217 — verified): widowed LASA participants showed
+greater 6-year memory decline than still-married, and the effect
+survived controlling depression and physical health — an
+*independent* memory cost, not mediated mood. Shin, Kim & An 2018
+(*Am. J. Geriatr. Psychiatry* 26:778 — verified HRS 6,766):
+widowhood status related to cognitive decline; decline scales
+with time-since-loss; education and a living sibling protective.
+COUNTERPOINT: Comijs et al. LASA fixed-effects (gby104 —
+verified) found only a *temporary* 2-year reasoning dip in women,
+nothing robust in men — the honest read is a real acute overlay
+with a DEBATED persistent tail.
+
+Mechanism: event `spousal_loss` mints overlay state `grief_decline`
+{minted, half-life `grief_hl` 2.5y} adding `grief_age_equiv`
+(+3 age_eff-years peak) to encode legs only, decaying
+exponentially; plus a persistent `grief_slope` increment
+(×1.15 on post-60 decline legs) representing the contested tail —
+kept small and probe-gated (P929 tests both halves). Locked
+`grief_recall_null`: bereavement does not degrade retrieval of
+pre-loss records — she can still tell you about 1987 perfectly;
+it's Tuesday she loses. Note the independence claim: this stacks
+with, not inside, the loneliness overlay (AD§40) — the literature
+separates perceived loneliness from bereavement status.
+
+## 112. The hospitalization step — decline is partly event-shaped
+
+Wilson, Rajan, Barnes et al. 2012 (*Neurology* 78:950 — verified
+MAP n=1,870): global cognition declined 0.031/yr before first
+hospitalization vs 0.075/yr after — a **2.4× acceleration**;
+episodic memory specifically 3.3×; executive 1.7×. James, Wilson
+et al. 2019 (*JAMA Netw Open* — verified): the acceleration is
+carried by *nonelective* hospitalizations (0.076→0.112/yr);
+elective admissions show no post-step acceleration. Ehlenbach et
+al. 2010 (*JAMA* 303:763 — verified): post-visit CASI −1.01 after
+acute care, −2.14 after critical illness; dementia hazard ratios
+1.4 / 2.3. **[CONSENSUS direction and shape; magnitude modulated
+by illness severity; elective-null is the load-bearing detail.]**
+
+Mechanism: world event `hospitalization:{elective|acute|critical}`
+mints `hosp_step` state: a one-time `age_eff` step
+(`hosp_step_elective` 0 / `hosp_step_acute` +1.0 /
+`hosp_step_critical` +2.0 age-years — scaled from CASI deltas
+onto our age-equivalent axis) PLUS a slope multiplier
+`hosp_slope_mult` (1.0 / 1.7 / 2.4) on encode-side decline legs
+that decays toward 1.0 over `hosp_recover_tau` 3y for elective-
+adjacent recoveries. **This is the first non-age term in the
+decline integrator** — a 78-year-old's curve is now literally
+shaped by what happened to her body. Two hospitalizations two
+years apart is a different old age than none. Locked
+`hosp_level_null`: the step does not drop the stored corpus —
+nothing archived, nothing degraded retroactively; the *machinery*
+ages, the *memories* keep their S values.
+
+## 113. Purpose holds the slope
+
+Boyle, Buchman, Barnes & Bennett 2010 (*Arch. Gen. Psychiatry*
+67:304 — verified MAP n>900): purpose in life → incident AD HR
+0.48 (90th vs 10th percentile ≈ 2.4× protection), MCI HR 0.71,
+and slower global decline — robust to adjusting depression,
+neuroticism, social network, chronic illness. Boyle et al. 2012
+(*Arch. Gen. Psychiatry* — verified): purpose *moderates the
+pathology→cognition coupling* itself — same tangle burden, better
+function; the reserve acts on the mapping, not the pathology.
+Kim 2019 (*Am. J. Geriatr. Psychiatry* — verified HRS n=11,557):
+replication, larger for older and Black participants.
+
+Mechanism: bible-pinnable trait `purpose` ∈[0,1] (what she'd
+say her reason to get up is — the garden, the tenants, the
+court case). Post-60 decline legs multiply `purpose_mult =
+1 − purpose_slope·purpose`, `purpose_slope` 0.35 — a max-purpose
+character declines at ~65% the rate of a purposeless one, the
+Boyle hazard ratio compressed to a slope. Unlike `social`
+(network size, §118) and `work_engaged` (§4.36b), purpose is
+*internal* — it survives widowhood, retirement, and moving; it
+can only be removed by narrative (world may re-set it on
+goal-completion/goal-destruction events). Distinct from the
+latent `traj` draw: purpose is a *writable, observable* lever
+that partially explains who lands in the maintain class.
+
+## 114. The bilingual delay — reserve with a flag
+
+Bialystok, Craik & Freedman 2007 (*Neuropsychologia* 45:459 —
+verified): lifelong bilinguals showed dementia symptoms ~4.1
+years later than matched monolinguals (75.5 vs 71.4) despite
+equal education/occupation. Craik, Bialystok & Freedman 2010
+replicated (~5y). **DEBATED:** Zahodne et al. 2014 (*Neurology*
+— verified) found no bilingual advantage in a diverse cohort;
+meta-analyses (Mukadam 2017) find the effect is real in
+retrospective clinic series but attenuates in prospective
+community samples — classic reserve-confound territory.
+
+Mechanism (flagged): trait `bilingual` ∈{0,1} shifts the
+*onset* of age_decline legs rightward by `biling_years` (default
+2.0, range 0–4 — we center below Bialystok's 4.1 given the
+prospective attenuation). Frozen `biling_scope="onset-only"`:
+the bilingual character declines on the *same slope*, just
+starting later — compensation, not immunity (both Craik and
+the skeptics agree the slope isn't spared). This is the cleanest
+reserve parameterization we have: a pure horizontal shift,
+probe-testable (P932: bilingual arm crosses each knot 2y later,
+post-onset slope identical). RW note: a Mission bilingual
+ambient/main plausibly carries this flag — it is a *language-use*
+trait, not an ethnicity marker.
+
+## 115. The gait tells first — observable leading indicators
+
+Mielke, Roberts, Savica et al. 2013 (*J. Gerontol. A* 68:929 —
+verified Mayo n=1,478): baseline gait speed predicted subsequent
+cognitive decline across all domains; cognition did NOT predict
+subsequent gait change — **the temporal arrow runs feet→head**.
+Buracchio, Dodge, Howieson, Wasserman & Kaye 2010 (*Arch.
+Neurol.* 67:980 — verified): gait-slowing trajectory accelerates
+~12 years before MCI diagnosis in eventual decliners. Tian et
+al. 2020 (*JAMA Netw Open* — verified 6-cohort meta): *dual*
+decline (memory+gait) → dementia risk 6.28× vs nondecliners —
+the joint signal is far stronger than either alone.
+
+Mechanism: `gait_eff` — a world-readable motor channel — is
+*defined* as declining on `age_eff + gait_lead·(traj=="decline")`,
+`gait_lead` 4y (conservative vs Buracchio's 12 — we lead by less
+than the truth because 12y of foreshadowing swallows a season
+arc). The world layer may render `gaitSlow:true` hints (slower
+walk cycles, more rests) that *precede* the memory symptoms by
+the lead — a spectator who watches feet learns the trajectory
+class before the character does, a structural irony SCD (§5.78b)
+mirrors from inside. Ties to §4.36c: `loco_yield` micro-events
+scale ×(1+gait_deficit) — the dual-task tax compounds the tell.
+**[CONSENSUS direction; our lead magnitude compressed.]**
+
+## 116. The menopause dip — encoding fails transiently, rebounds
+
+Greendale, Huang, Wight et al. 2009 (*Neurology* 72:1850 —
+verified SWAN n=2,362): perimenopause flattened *learning* —
+EBMT verbal-memory improvement over repeat testing ran at 29%
+(early) and 7% (late) of the premenopause learning rate; SDMT
+processing-speed practice gains vanished in late perimenopause;
+**performance rebounded to premenopausal levels postmenopause**
+— the dip is time-limited. Greendale et al. 2010 SWAN symptoms
+analysis (verified): the dip is not fully explained by
+depression/anxiety/vasomotor symptoms — a direct transition
+effect. 60% of transitioning women report memory complaints —
+the phenomenology is loud (metamemory channel leads again).
+
+Mechanism: profile flag `mt_stage` ∈{pre, early_peri, late_peri,
+post} (female profiles, world/bible-set around ages 42–52,
+transition span `mt_span` ~4y). Encode legs and *re-learning
+gains* multiply `mt_learn_mult`: 0.75 early_peri, 0.5 late_peri
+(compressing Greendale's 29%/7% of improvement — a full 0.07
+would make the character unplayable); retrieval of pre-dip
+records untouched (`mt_recall_null` — locked). `mt_complaint`
+0.5: the complaint channel samples the dipped legs honestly —
+she notices, and she's right, unlike SCD. Post stage: legs
+restore to baseline over `mt_recover` 1y — **the only overlay
+in this Part that fully reverses**. This is also the spec's
+first sex-linked age mechanism: female mains have a midlife
+encoding trough that male profiles never pay.
+
+## 117. Remote stories semanticize — the old record becomes a lesson
+
+Sekeres, Winocur & Moscovitch 2018 (*J. Neurosci.* — verified):
+remote autobiographical memories lose contextual detail and gain
+schema consistency over retention interval — MTT's transformation
+is measurable, not just theoretical. Levine, Svoboda, Hay,
+Winocur & Moscovitch 2002 (*Psychol. Aging* — verified, the §104
+anchor) showed the old adult's report shifts internal→external
+detail; the missing half is *which* records shift most: the
+remote ones. Piolino et al. 2006 (verified): remote AM in old
+adults is the most semanticized stratum of the store.
+
+Mechanism: extends §5.78c — emission detail mix gains a
+*record-age* interaction: `ie_remote_gain = 1 +
+remote_ie·log1p((worldDay−createdDay)/3650)` with `remote_ie`
+0.4, applied only when age_eff ≥60 (young adults keep remote
+episodic detail better — the *decay* of detail, not just its
+encoding, is age-dependent). The 40-year-old's memory of her
+wedding retrieves; what emits is the *meaning* of it — the
+verbatim toast is gone but the lesson of that marriage is
+fluently available. Probe P935 locks the interaction: at equal
+retention intervals the 78yo emits more external detail than
+the 35yo; at equal ages remote records emit more than recent.
+
+## 118. The network is structural, not just felt
+
+Bennett, Schneider, Tang, Arnold & Wilson 2006 (*Lancet Neurol.*
+5:406 — verified): social network SIZE modified the
+pathology→cognition relation — at equal tangle burden, larger
+networks meant higher function; strongest for semantic and
+working memory; unchanged controlling activities, depression,
+chronic disease. Crooks et al. 2008 (*AJPH* 98:1221 — verified):
+larger networks → dementia HR 0.74 in women ≥78. James, Wilson,
+Barnes & Bennett 2011 (*J. Int. Neuropsychol. Soc.* — verified):
+late-life social *activity* frequency → slower decline,
+independent of physical/cognitive activity. §40's loneliness
+overlay is the *perceived* channel — this is the *counted*
+channel; Bennett controlled depressive symptoms and they didn't
+carry the effect.
+
+Mechanism: `net_size` — a world-computable scalar (count of
+relationship-matrix ties above a maintenance threshold,
+EMA'd over `net_ema_tau` 1y — it should track the *substrate's*
+graph, not be a bible number). Decline legs multiply
+`net_mult = 1 − net_slope·min(net_z,2)` where net_z standardizes
+against the cohort (net_slope 0.15 — smaller than purpose,
+structural reserve is real but thinner). Orthogonal to
+loneliness: a widowed main with a big network keeps `net_mult`
+protection while paying `grief_decline` — matching Aartsen's
+independence result. And the RW system already computes the
+relationship graph — this parameter *costs the game nothing*.
+
+## 119. Retrieval practice needs a teacher — the feedback gate
+
+Tse, Balota & Roediger 2010 (*Psychol. Aging* 25:19 — verified):
+repeated testing vs restudy on face-name pairs — **crossover**:
+middle-aged gained from testing without feedback; older adults
+gained MORE from restudy; with feedback, testing beat restudy at
+every age including ~80. Meyer & Logan 2013 (*Psychol. Aging* —
+verified): educationally-relevant materials replicate — testing
+effect preserved in old age *given* corrective feedback.
+Interpretation: old learners can't afford errorful retrieval —
+a failed recall that isn't corrected consolidates the gap.
+
+Mechanism: the re-encode path (§4.37 savings-shadow adjacency —
+reinstatement gain `sav_gain`) gains an age-gated condition:
+`relearn_gain(age_eff, feedback) = feedback ? test_fb_gain :
+lerp(study_gain, test_fb_gain, young_frac(age_eff))` — concretely,
+old-age re-learning events carry `relearn_fb_req`: retrieval-
+attempt re-encodes (quizzing herself, being corrected in
+conversation = `feedback:true` from hearAccount correction
+events) gain `test_gain` 1.3; *uncorrected* retrieval attempts
+in old adults gain only `test_nofb_gain` 0.7 — below the passive
+re-exposure gain (re-study equivalent 1.0). The crossover is the
+spec: **an 80-year-old who misremembers aloud and is never
+corrected learns the error better than the truth** — which is
+also §6.3's fluency mechanism arriving through the back door.
+Young arm: test_nofb_gain ≥1.15 (the classic testing effect).
+
+## 120. What Part VIII deliberately did not do
+
+- No dementia layer. Every mechanism here is *normal* aging —
+  steps, overlays, leads, dips. AD/MCI conversion stays outside
+  the model (design decision: the mains age, none are written
+  into disease; a `traj=="decline"` character is a slow
+  decliner, not a patient).
+- No delirium/acute-confusion state under hospitalization —
+  `hosp_step` absorbs the mean effect; a dedicated acute-confusion
+  emission mode would need its own source base.
+- No caregiving burden parameter (dementia-caregiver spouses show
+  accelerated decline — Vitaliano 2009) — real, but no RW
+  character has a dementia spouse to care for; noted for the
+  world-builder if a bible ever writes one.
+- No hormone-therapy modifier on `mt_*` (Greendale found
+  pre-FMP HT beneficial / post-FMP detrimental) — too fine a
+  lever for bible authors to wield responsibly; absorbed into
+  the `mt_learn_mult` knots' width.
+- No per-domain hospitalization splits (episodic 3.3× vs
+  executive 1.7×) beyond the single `hosp_slope_mult` — domain
+  resolution can come if probes show the aggregate hides signal.
+
+## 121. Part VIII knot rows (extends §106; age_eff unless noted)
+
+| param | 30 | 55 | 65 | 75 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| habit_shift | 0.05 | 0.10 | 0.15 | 0.22 | 0.30 | 0.35 | Eppinger 2013 |
+| goal_update_pen | 0.0 | 0.1 | 0.2 | 0.3 | 0.4 | 0.5 | de Wit 2014 (slips) |
+| habit_stress_gain | 0.2 | 0.2 | 0.25 | 0.3 | 0.3 | 0.3 | Otto 2013 (flat-ish) |
+| grief_age_equiv | 0 | 0 | 3 | 3 | 3 | 3 | Aartsen 2005 (peak overlay) |
+| grief_slope | 1.0 | 1.0 | 1.15 | 1.15 | 1.15 | 1.15 | Shin 2018 (tail, DEBATED) |
+| hosp_step_acute | — | — | +1.0 | +1.0 | +1.0 | +1.0 | Ehlenbach 2010 CASI −1.01 |
+| hosp_step_critical | — | — | +2.0 | +2.0 | +2.0 | +2.0 | Ehlenbach 2010 CASI −2.14 |
+| hosp_slope_mult acute/crit | — | — | 1.7/2.4 | same | same | same | Wilson 2012 |
+| purpose_mult (purpose=1) | 1.0 | 0.85 | 0.65 | 0.65 | 0.65 | 0.65 | Boyle 2010 HR 0.48 |
+| biling_years | 0 | 0 | 2.0 | 2.0 | 2.0 | 2.0 | Bialystok 2007 (attenuated) |
+| gait_lead (decline arm, y) | 0 | 0 | 4 | 4 | 4 | 4 | Mielke 2013/Buracchio 2010 |
+| mt_learn_mult (early/late peri) | — | 0.75/0.5 | — | — | — | — | Greendale 2009 (compressed) |
+| remote_ie | 0 | 0 | 0.4 | 0.4 | 0.4 | 0.4 | Sekeres 2018 (≥60 gate) |
+| net_slope | 0 | 0 | 0.15 | 0.15 | 0.15 | 0.15 | Bennett 2006 |
+| test_gain / test_nofb_gain | 1.3/1.15 | 1.3/1.0 | 1.3/0.9 | 1.3/0.75 | 1.3/0.7 | 1.3/0.7 | Tse 2010 (crossover) |
+
+Frozen constants: `biling_scope="onset-only"` (slope never
+spared — P932 shape-lock); `mt_scope="encode-only"`; `hosp_level_null`
+(step never touches stored S); `grief_recall_null`;
+`gait_channel_null` (gait_eff is world-renderable only — never
+enters a memory roll). All knots **[HYPOTHESIS]**; the
+dissociations (habit/goal, encode/recall on grief+MT, gait→cog
+arrow, dual-decline compounding, testing×feedback crossover,
+elective/nonelective split) are the **[CONSENSUS]** payload.
+
+## 122. Spec changes v5.35 → v5.36 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| K1 | §4.45a: `habit_shift`/`goal_update_pen`/`habit_stress_gain` on script-vs-goal control + `perseverate:true` emission | §110 |
+| K2 | §4.45b: `spousal_loss` → `grief_decline` state {hl 2.5y, `grief_age_equiv`, `grief_slope`}; `grief_recall_null` | §111 |
+| K3 | §4.45c: `hospitalization{elective|acute|critical}` → `hosp_step` age_eff step + `hosp_slope_mult` decays on `hosp_recover_tau`; `hosp_level_null` | §112 |
+| K4 | §4.45d: trait `purpose` → `purpose_mult` on post-60 legs | §113 |
+| K5 | §4.45e: trait `bilingual` → onset shift `biling_years`; frozen `biling_scope` | §114 |
+| K6 | §4.45f: `mt_stage` → `mt_learn_mult` on encode+relearn legs, `mt_complaint`, `mt_recover`; `mt_recall_null` | §116 |
+| K7 | §5.95a: `gait_eff` channel `age_eff + gait_lead·(decline)` → `gaitSlow` hints; `gait_channel_null` | §115 |
+| K8 | §5.95b: `ie_remote_gain` — record-age × age_eff interaction on §5.78c mix | §117 |
+| K9 | §5.95c: `net_size` (world-computed EMA) → `net_mult` on decline legs | §118 |
+| K10 | §5.95d: relearn gate — `relearn_fb_req`, `test_gain`/`test_nofb_gain`/`study_gain` crossover | §119 |
+
+New params: `habit_shift` (knots), `goal_update_pen`,
+`habit_stress_gain`, `grief_hl`, `grief_age_equiv`,
+`grief_slope`, `hosp_step_{acute,critical}`,
+`hosp_slope_mult_{acute,critical}`, `hosp_recover_tau`,
+`purpose_slope`, `biling_years`, `gait_lead`,
+`mt_learn_early`, `mt_learn_late`, `mt_span`, `mt_recover`,
+`mt_complaint`, `remote_ie`, `net_ema_tau`, `net_slope`,
+`test_gain`, `test_nofb_gain`, `study_gain` — 24 named
+(28 scalars once knots are expanded). New traits:
+`purpose`, `bilingual`. New state: `grief_decline`,
+`hosp_step`, `mt_stage`. New emissions: `perseverate:true`,
+`gaitSlow:true`. Locked nulls: `grief_recall_null`,
+`hosp_level_null`, `mt_recall_null`, `gait_channel_null`.
+Frozen: `biling_scope`, `mt_scope`.
+
+## 123. Validation probes P928–P937
+
+- **P928 habit shift (MUST — dissociation):** script-node
+  execution share at 80 ≥1.3× the 30yo share under a changed-
+  outcome world; `goal_update_pen` delays script updating on
+  old profiles ≥2× sim-days vs young; `perseverate` emissions
+  fire only when an outcome changed. Eppinger 2013; de Wit 2014.
+- **P929 grief two-half (MUST — sign-lock):** `spousal_loss` at
+  72 degrades *new* encode legs for ~`grief_hl` while pre-loss
+  record recall is flat (`grief_recall_null`); the persistent
+  slope tail is detectable but ≤1.3× — if the tail dominates
+  the acute dip, FAIL (LASA null result honored). Aartsen 2005;
+  Comijs (LASA) fixed-effects.
+- **P930 hospitalization step (MUST — shape-lock):** an
+  `acute` hospitalization at 74 shifts subsequent encode legs
+  by `hosp_step_acute`±20% AND accelerates the slope ≥1.5×
+  transiently; `elective` produces neither step nor slope
+  (elective-null, James 2019); stored-record recall unchanged —
+  `hosp_level_null`. Wilson 2012; Ehlenbach 2010.
+- **P931 purpose slope (SHOULD):** purpose 0.9 vs 0.1 twins
+  diverge on post-60 episodic output by ~the HR-0.48-mapped
+  slope ratio; protection persists through a `spousal_loss`
+  event (internal lever, not network-mediated). Boyle 2010.
+- **P932 bilingual onset (SHOULD — shape-lock):** `bilingual`
+  twins cross each decline knot `biling_years`±0.5 later with
+  post-onset slopes statistically identical — onset shift,
+  never slope (`biling_scope`). Bialystok 2007; flagged DEBATED.
+- **P933 gait precedence (MUST — order-lock):** decline-arm
+  profiles emit `gaitSlow` hints measurably BEFORE episodic
+  output drops — lead `gait_lead`±1y, mirroring P806's IIV
+  order-lock; `gait_channel_null` — gait metrics never alter
+  memory rolls. Mielke 2013; Buracchio 2010.
+- **P934 MT dip-and-rebound (MUST — sign-lock):** female
+  profile forced through mt_stage sequence shows encode-side
+  trough at late_peri (≥1.4× worse than pre) then full recovery
+  post (within `mt_recover`, ≤5% residual deficit); male twin
+  flat; pre-dip records recall flat — `mt_recall_null`.
+  Greendale 2009.
+- **P935 remote semanticization (SHOULD — interaction):** at
+  fixed 20y retention, 78yo emissions show higher external share
+  than 35yo; at fixed age 78, 20y-old records emit more external
+  than 1y-old — BOTH halves required (age × record-age).
+  Sekeres 2018; Levine 2002.
+- **P936 network structure (SHOULD — orthogonality):**
+  `net_size` top-tertile vs bottom-tertile diverge on decline
+  legs with `social` trait and loneliness overlay held equal —
+  structural channel must be separable from perceived. Bennett
+  2006.
+- **P937 feedback crossover (MUST — sign-lock):** uncorrected
+  failed-retrieval re-encodes at 80 gain LESS than passive
+  re-exposure (test_nofb_gain < study_gain) while corrected
+  retrievals gain MORE (test_gain > study_gain); at 30 both
+  retrieval modes beat re-exposure — the full crossover, not
+  half of it. Tse 2010.
+
+## 124. Part VIII honest limits
+
+- `hosp_step`'s age-equivalent scaling is a unit conversion we
+  invented: CASI points → age-years via the cohort's own slope.
+  The shape (step+acceleration, elective-null) is solid; the
+  magnitude is calibrated to produce ~1–2 effective years and
+  is probe-gated, not measured.
+- `grief_slope` encodes the contested persistent tail at 1.15 —
+  Shin's "linear with time-since-loss" vs LASA's "temporary
+  only" genuinely disagree; we split the difference and P929
+  caps the tail so the honest case (mostly temporary) dominates.
+- `biling_years` 2.0 deliberately halves Bialystok's 4.1 —
+  prospective-sample attenuation argues the clinic figure
+  inflates; the flag exists because bilingualism is common in
+  the Mission's plausible cast, not because we're sure.
+- `gait_lead` 4y compresses Buracchio's ~12 — drama economy:
+  a spectator channel needs the tell inside a season, and the
+  direction (feet before head) is the science; the lead length
+  is ours.
+- `mt_learn_mult` compresses Greendale's learning-rate ratios
+  (0.07 late-peri would effectively disable encoding — she
+  couldn't function). 0.5 preserves sign and recoverability;
+  magnitude HYPOTHESIS.
+- `net_size` reads the relationship matrix — if the game-systems
+  graph counts ties differently than humans count "people I'd
+  call," net_z inherits the distortion. It's substrate-shaped
+  data used as psychological input; flagged.
+- `purpose` as a writable trait risks the world layer treating
+  it as a dial to crank; the spec treats it as slowly-moving
+  (event-driven only) — bible authors should set it, events may
+  rewrite it, nothing should tick it.
+- The crossover probe P937 assumes `hearAccount` correction
+  events reach the relearn path — a wiring assumption the
+  game-systems track must honor or the old-age learning channel
+  silently defaults to errorful.
+
+# Part IX — v100: the control layer retires piecemeal (speed fails
+# before strength, the debunk feeds the claim, the elders who choose
+# few and keep them sharp, and two levers that never age)
+
+Parts I–VIII priced *capacity* — encoding strength, decay legs,
+interference susceptibility. The missing layer is *control*:
+what old age does to the operations characters run on their
+memories — how long a search takes, whether a correction
+sticks, which memories get the rehearsal budget, how far a
+reminding chain travels. The control findings are more
+surprising than the capacity findings: speed fails while
+accuracy holds (Salthouse 1996); the *cost* of selective
+retrieval outlives its *benefit* by a decade (Aslan et al.
+2015); and two interventions — spacing and savings — do not
+age at all (Balota et al. 1989; Nelson 1985). This Part adds
+the control knobs, including two deliberately frozen
+preservation nulls.
+
+## 125. The answer exists, the window doesn't — retrieval latency
+
+Salthouse 1996 (*Psychol. Rev.* 103:403 — verified): a general
+processing-speed factor mediates most age variance in cognition;
+memory performance differences shrink dramatically when tasks
+are self-paced — the deficit is partly *temporal*, not
+*structural*. Bugg, Zook, DeLosh, Davalos & Davis 2006 verified
+older adults' category fluency is time-limited: given enough
+time, output approaches young levels. **[CONSENSUS: speed
+mediates; accuracy-at-asymptote largely intact.]**
+
+Mechanism: `ret_lat_mult(age_eff)` multiplies bout duration
+(not probability): `1.0@55 → 1.15@65 → 1.3@75 → 1.7@85`. It
+couples to the existing §5.101 suspended-bout machinery —
+`susp_*` windows are world-time constants, so older bouts
+expire mid-search more often: `lost_it` emissions rise with
+age without any recall-probability change. In dialogue this
+is the beat-late answer — she gets it, three exchanges after
+it mattered. **Locked `lat_strength_null`:** given unlimited
+window, retrieval probability at fixed S is age-invariant —
+latency never converts into loss by itself; only the
+interaction with `susp_*` does. (This is what keeps the knob
+honest: the record is intact, the *clock* is what aged.)
+
+## 126. The name that won't come — the proper-name cliff
+
+Burke, MacKay, Worthley & Wade 1991 (*J. Mem. Lang.* 30:542 —
+verified): proper names are retrieved less often than common
+nouns and produce more TOTs, even controlling frequency.
+Cohen & Burke 1993: the proper-name disadvantage *grows* with
+age — semantic person-knowledge (occupation, relations)
+retrieves fine while the phonological name node fails; the
+asymmetry is the defining signature (name-only TOT, person
+known). Cross & Burke 2004: aging degrades the phonological
+half of the link more than the semantic half. **[CONSENSUS:
+proper-name TOT steeply age-graded and dissociable from
+person knowledge.]**
+
+Mechanism: `propname_tot_mult(age_eff)` multiplies `tot_rate`
+for proper-name referent fields only:
+`1.0@55 → 1.4@65 → 2.0@75 → 2.6@85`. The failed retrieval emits
+`name_block:true` and — because the person-knowledge fields
+retrieved fine — the dialogue fallback "the tenant, you know
+the one, third floor" is *structurally* available, not a
+confabulation. The elder who can't produce a name is not
+uncertain about who she means; confidence on the referent
+stays high (that's why the signature is legible to spectators).
+
+## 127. The warning that feeds the claim — debunk backfire
+
+Skurnik, Yoon, Park & Schwarz 2005 (*J. Consumer Res.* 31:713 —
+verified): after a 3-day delay, older adults misremembered
+28% of once-denied false claims as true — and **40%** of
+thrice-denied ones. Repetition raised the claim's familiarity
+faster than the "false" tag survived; with only familiarity
+left, fluent processing reads as truth. No parallel tendency
+for true claims to flip false. Kumkale & Albarracín 2004
+(*Psychol. Bull.* — verified meta): the sleeper effect —
+discounting-tag decay outrunning message decay — is real,
+small, and *age-amplified* through exactly this channel.
+Jacoby 1999: familiarity-as-truth attribution when
+recollection fails. **[CONSENSUS: the age × delay ×
+repetition interaction is replicated; magnitudes vary.]**
+
+Mechanism: heard-account records already carry a `cred_tag`
+field on the discounting edge (existing sleeper machinery —
+the tag rots faster than content). New operator leg:
+`debunk_fam_gain(age_eff)` `1.0@55 → 1.2@65 → 1.6@80`
+multiplies the *content* familiarity accrued per repetition
+of a denied claim, while the tag decays on `disc_tag_hl` 3d
+independent of repetitions. When the tag dies and content
+familiarity exceeds `fam_truth_thresh` (existing §6.x
+familiarity→truth inference), the record's belief flip fires:
+`debunk_flipped:true`. **Locked `debunk_true_null`:**
+repetition of a *true* label never flips a record to false —
+the operator is sign-locked, matching Skurnik's asymmetry.
+This is the rumor-substrate knife edge: a correction campaign
+in a neighborhood full of 70-year-olds *manufactures* the
+belief it fights.
+
+## 128. Choosing few and keeping them — selective optimization
+
+Baltes & Baltes 1990 (SOC model — verified framework):
+successful aging is selection (narrowing goals), optimization
+(concentrating practice on the chosen), compensation
+(scaffolding). Freund & Baltes 2002: SOC strategy use predicts
+preserved functioning in old-old adults. On memory
+specifically: older adults' restricted rehearsal isn't purely
+capacity loss — resource allocation narrows by *value*.
+Wolf & Zimprich 2020 verified memory selectivity intact-to-
+enhanced in aging when stakes are explicit. **[Framework
+CONSENSUS; our parameterization is HYPOTHESIS.]**
+
+Mechanism: `soc_narrow(age_eff)` `0@55 → 0.15@65 → 0.35@75 →
+0.5@85` reshapes the §5.x retell/rehearsal budget: the
+fraction of rehearsal draws going to records in the top
+`soc_top_q` 0.25 quantile of `goal_value` rises by soc_narrow,
+drawn proportionally from mid-value records (bottom deciles
+were already unrehearsed). Consequence the spectator sees:
+the elder's *chosen* domain — the garden ledger, the court
+case, the grandson's schedule — stays improbably sharp while
+everything peripheral thins faster than the capacity curves
+alone would give. Decline is uneven *because it is allocated*.
+
+## 129. The decade testing turns against you — split knees
+
+Aslan & Bäuml 2012 (*J. Exp. Psychol.* 38:894 — verified):
+RIF intact in young-old (60–75), absent in old-old (>75) —
+already spec'd as `rif_age_tail` (§5.50). The piece v100 adds:
+Aslan, Schlichting, John & Bäuml 2015 (*Psychol. Aging* 30:111
+— verified): the *beneficial* effect of selective retrieval
+declines **earlier** than the detrimental effect — mediated
+by working-memory capacity. Two knees, ~a decade apart.
+**[DEBATED at the edges: a 2025 report found durable RIF in
+older adults; the split-knee ordering itself is the
+replicated finding.]**
+
+Mechanism: `rp_benefit_knee` 65±5 on the §119/test_gain
+relearn path — retrieval-practice benefit multiplies by
+`rp_benefit_mult(age_eff)`: `1.0@55 → 0.7@65 → 0.45@75` —
+while `rif_age_tail` stays pinned at ~75. The 65–75 window is
+the dangerous decade: self-quizzing still suppresses rival
+records (the cost lives) but buys less strengthening (the
+benefit retired early) — net negative before it goes neutral.
+Probe P1059 order-locks `rp_benefit_knee < rif_age_tail` so
+no parametrization inverts the sequence.
+
+## 130. The gap that never ages — spacing preserved
+
+Balota, Duchek & Paullin 1989 (*Psychol. Aging* 4:423 —
+verified): spacing effects on free recall are at least as
+large in older as younger adults — in some analyses
+proportionally *larger*, since massed-practice gains are
+disproportionately fragile in the old. Kornell, Castel, Eich
+& Bjork 2010 and Delaney et al. spacing reviews concur: the
+benefit of distributed over massed repetition is one of the
+most robust age-invariant effects in the memory literature.
+**[CONSENSUS: relative spacing benefit survives aging.]**
+
+Mechanism: **frozen `spacing_age_null`** — `spacing_gain`
+carries NO age leg and no profile may add one. Deliberately
+specified as a preservation claim, not an omission: when the
+substrate schedules re-exposure, distributing it helps the
+80yo exactly as much as the 25yo. (The *encoding* it rescues
+still ages — spacing multiplies a smaller enc_base — but the
+multiplier itself is flat.)
+
+## 131. The archive is dormant, not gone — savings preserved
+
+Ebbinghaus 1885: savings — relearning a forgotten list costs
+less than first learning — even when recall is at floor.
+Nelson 1985 verified savings as the most sensitive retention
+measure, revealing trace survival beneath zero recall.
+MacLeod 1988 and subsequent aging work: relearning speedups
+persist in old age; the residue survives what recall cannot
+reach. **[Established for savings-as-measure; the age-flat
+parameterization is our HYPOTHESIS — flagged.]**
+
+Mechanism: **frozen `savings_age_null`** — `savings_mult`
+(the re-encode discount for records that decayed below
+retrieval threshold but not below the noise floor) carries no
+age leg. An 80yo re-learning yesterday's lost record pays the
+same fraction as a 30yo. This pairs with §119's relearn gate:
+feedback is *required* for the old learner, but once corrected,
+the re-encoding itself is as cheap as anyone's — the trouble
+is the gate, not the clay.
+
+## 132. The future loses detail too — simulation impoverishment
+
+Addis, Wong & Schacter 2008 (*Psychol. Sci.* 19:33 —
+verified): older adults generate fewer *internal* (episodic)
+details than young when imagining future events — same deficit
+as for past events, and the two correlate; internal-detail
+count tracks relational-memory ability. Addis, Musicaro, Pan
+& Schacter 2010 and Schacter's constructive-episodic-simulation
+framework: simulating the future recombines the same
+episodic-detail pool that recall draws on — age thins the
+pool both directions. **[CONSENSUS direction; the prospective-
+encoding consequence is our extension.]**
+
+Mechanism: `sim_detail_mult(age_eff)` `1.0@55 → 0.85@65 →
+0.7@75 → 0.6@85` scales internal-detail count on §6.199's
+`sim` trait whenever a character simulates/plans a future
+episode — plans, promises, imagined encounters mint thinner
+records at old ages, with external/semantic content
+preserved. Downstream consequence the substrate inherits for
+free: prospective intentions encoded by elders carry fewer
+contextual anchors → the §87 time-based PM deficit partially
+*explains itself* through encoding poverty, not only
+retrieval failure. The 76yo's "I'll drop by Tuesday" is
+literally a vaguer memory than the 30yo's was.
+
+## 133. The past becomes a film you're in — vantage drift
+
+Nigro & Neisser 1983 established field vs observer vantage.
+Butler, Rice, Wooldridge & Rubin 2016 (*Mem. Stud.* —
+verified): repeated retrieval itself shifts memories toward
+observer perspective — vantage is *reconstructive*, moved by
+retell count more than by retention interval. Piolino et al.
+2006 found older adults report more observer-perspective
+memories; Rice & Rubin 2009 document flexible vantage at
+retrieval in both directions. Berntsen & Rubin 2006
+(*Cogn. Emot.* 20:1193 — verified): observer vantage
+*attenuates* sensory and emotional reliving across all
+emotions. **[Retell-driven shift: CONSENSUS; the residual
+age leg: weak/mixed — flagged.]**
+
+Mechanism: emission-level field `vantage:"field"|"observer"`
+with `vantage_drift = vantage_retell_gain·retell_n +
+vantage_age_leg·age_eff` on each voluntary recall —
+`vantage_retell_gain` 0.04/retell capped 0.6, `vantage_age_leg`
+0.002/yr ≥60 capped 0.15 (kept deliberately small: the
+literature supports retell-driven shift strongly, pure-age
+weakly). Observer-emitted recalls pay a reliving tax:
+`relive_mult` 0.75 on the §4.5 affect channel — her most-
+retold story is also her least felt, the well-worn anecdote
+gone flat. And a nice asymmetry: retelling *causes* the
+distance it pretends to report.
+
+## 134. The chain stops short — reminding depth truncates
+
+§5.17's reminding chains let one retrieved record cue the
+next ("that reminds me…"). Chain depth is working-memory-
+bound: each hop holds the cue record active while sampling
+its associates. Craik & McDowd 1987 and the WM literature
+(Park et al. 2002 verified lifespan WM decline) put effective
+multi-step depth down by roughly half from 30 to 80.
+Verhaeghen's aging meta-analyses concur on the WM-mediated
+chain. **[Mechanism CONSENSUS; the knot values are ours.]**
+
+Mechanism: `cue_chain_max(age_eff)` `4@30 → 3@60 → 2@75 →
+2@85` hard-caps hop count per retrieval bout. Two visible
+consequences: (a) the elder's story doesn't make the second
+hop — she remembers the argument but not what it led to;
+(b) transitive reminding weakens → cue-dependent records that
+*only* surface via chains become rarer in voluntary recall,
+concentrating the recall diet on directly-cued and bump-era
+records. Cheap to implement: a counter on the bout state,
+already present via `pending_cand`.
+
+## 135. Part IX knot rows (extends §121; age_eff unless noted)
+
+| param | 55 | 65 | 75 | 85 | source |
+|---|---|---|---|---|---|
+| ret_lat_mult (§5.106) | 1.0 | 1.15 | 1.3 | 1.7 | Salthouse 1996; Bugg 2006 |
+| propname_tot_mult (§5.110) | 1.0 | 1.4 | 2.0 | 2.6 | Burke 1991; Cohen & Burke 1993 |
+| debunk_fam_gain (§6.230) | 1.0 | 1.2 | 1.5 | 1.6 | Skurnik 2005 |
+| soc_narrow (§5.107) | 0 | 0.15 | 0.35 | 0.5 | Baltes & Baltes 1990 (param ours) |
+| rp_benefit_mult (§5.108) | 1.0 | 0.7 | 0.45 | 0.35 | Aslan et al. 2015 |
+| cue_chain_max (§5.109) | 4 | 3 | 2 | 2 | Park 2002 WM (param ours) |
+| sim_detail_mult (§4.56) | 1.0 | 0.85 | 0.7 | 0.6 | Addis 2008 |
+| vantage_age_leg (§6.231) | — | 0.05 | 0.10 | 0.15 | Piolino 2006 (weak) |
+
+Scalars: `disc_tag_hl` 3d (Skurnik delay); `soc_top_q` 0.25;
+`rp_benefit_knee` 65±5; `vantage_retell_gain` 0.04 cap 0.6;
+`relive_mult` 0.75. Locked nulls: `lat_strength_null`,
+`debunk_true_null`. Frozen: `spacing_age_null`,
+`savings_age_null`. New emissions: `name_block:true`,
+`debunk_flipped:true`, `vantage:"observer"`.
+
+## 136. Spec changes v5.47 → v5.48 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| L1 | §5.106: `ret_lat_mult` on bout duration; couples to §5.101 `susp_*` windows → `lost_it`; locked `lat_strength_null` | §125 |
+| L2 | §5.110: `propname_tot_mult` on `tot_rate` for proper-name referents; `name_block` emission + fallback phrasing | §126 |
+| L3 | §6.230: `debunk_fam_gain` × content familiarity per denial repetition vs `disc_tag_hl` tag decay → `debunk_flipped`; locked `debunk_true_null` | §127 |
+| L4 | §5.107: `soc_narrow` + `soc_top_q` rehearsal-budget concentration on top `goal_value` quantile | §128 |
+| L5 | §5.108: `rp_benefit_knee`/`rp_benefit_mult` on §119 test_gain, ordered before `rif_age_tail` | §129 |
+| L6 | §4.55: frozen `spacing_age_null`, `savings_age_null` — two preservation claims | §§130–131 |
+| L7 | §4.56: `sim_detail_mult` age leg on §6.199 `sim` — future-simulation internal detail | §132 |
+| L8 | §6.231: `vantage` emission field; `vantage_drift` (retell×age); `relive_mult` tax | §133 |
+| L9 | §5.109: `cue_chain_max` cap on §5.17 reminding chains | §134 |
+
+New params: `ret_lat_mult`, `propname_tot_mult`,
+`debunk_fam_gain`, `disc_tag_hl`, `soc_narrow`, `soc_top_q`,
+`rp_benefit_knee`, `rp_benefit_mult`, `cue_chain_max`,
+`sim_detail_mult`, `vantage_retell_gain`, `vantage_age_leg`,
+`relive_mult` — 13 named (19 scalars once knots expand).
+Locked nulls: `lat_strength_null`, `debunk_true_null`.
+Frozen: `spacing_age_null`, `savings_age_null`.
+New emissions/fields: `name_block`, `debunk_flipped`,
+`vantage`.
+
+## 137. Validation probes P1055–P1064
+
+- **P1055 latency-not-loss (MUST — null-lock):** at fixed S,
+  raising the bout window asymptotically equalizes 30yo and
+  80yo recall (≥95% convergence); at default `susp_*` windows,
+  `lost_it` rate rises ≥1.5× by 80 while successful-recall
+  accuracy is unchanged. Salthouse 1996; Bugg 2006.
+- **P1056 proper-name cliff (MUST — dissociation):** at 80,
+  name-field TOT rate ≥2× person-knowledge-field failure rate
+  on the same referent; `name_block` emissions accompany
+  referent-confident fallback phrasing; the 30yo gap is
+  <1.3×. Burke 1991; Cohen & Burke 1993.
+- **P1057 debunk backfire (MUST — sign-lock):** a false claim
+  denied ×3 to a 78yo profile flips `believed`→true at ~40%
+  after `disc_tag_hl` (vs ~28% denied ×1); a true claim
+  labeled-true ×3 NEVER flips false (`debunk_true_null`);
+  the 30yo arm flips ≤10%. Skurnik 2005.
+- **P1058 SOC concentration (SHOULD):** retell-count share of
+  top-`goal_value`-quantile records rises with `soc_narrow`;
+  chosen-domain effective S at 85 exceeds the unstructured-
+  budget control ≥1.3× while peripheral records decay faster.
+  Baltes & Baltes 1990.
+- **P1059 split knee (MUST — order-lock):** across the 55–85
+  sweep, `rp_benefit_mult` departs 1.0 before `rif_age_tail`
+  activates — the 65–75 window must show (benefit ↓, cost ↑)
+  simultaneously; any parametrization with knees ordered
+  reversed or coincident FAILs. Aslan 2015 vs 2012.
+- **P1060 spacing flat (COULD — frozen):** spacing/massed
+  benefit ratio is age-invariant within noise at 30/60/80;
+  a profile-level age leg on `spacing_gain` is a spec
+  violation. Balota 1989.
+- **P1061 savings flat (COULD — frozen):** re-encode cost
+  ratio for sub-threshold vs fresh records is age-invariant;
+  savings exists (ratio <1) at all ages. Ebbinghaus; Nelson.
+- **P1062 future vagueness (SHOULD):** simulated future-event
+  records at 80 carry ~60% the internal-field count of the
+  30yo, external fields flat; internal count correlates with
+  the record's `assoc_mult`-aged binding integrity. Addis 2008.
+- **P1063 vantage drift (SHOULD — shape-lock):** `vantage`
+  flips toward observer with retell_n (dominant) more than
+  with record age; observer recalls show `relive_mult`-
+  reduced affect terms vs matched field recalls. Butler 2016;
+  Berntsen & Rubin 2006.
+- **P1064 chain truncation (MUST):** reminding chains never
+  exceed `cue_chain_max(age_eff)`; voluntary-recall diet of
+  chain-only-reachable records drops ≥40% from 30 to 80 with
+  directly-cued records flat. Craik & McDowd 1987.
+
+## 138. Part IX honest limits
+
+- `ret_lat_mult` scales *duration*; the underlying speed
+  theory is about processing rate across the board — mapping
+  it to bout-length alone is a simplification, and its
+  interaction with `susp_*` windows is our construction
+  (the studies don't use suspended-bout semantics).
+- `propname_tot_mult` knots compress a measured *relative*
+  deficit; absolute TOT rates vary with corpus statistics a
+  sim doesn't have. Sign and ordering are solid; magnitudes
+  HYPOTHESIS.
+- `debunk_fam_gain` rides the existing sleeper/familiarity→
+  truth machinery — it is an *amplifier on a repetition
+  count*, not a new op. Skurnik's 40% is a lab ceiling on
+  debriefed consumer claims; rumor-domain claims with social
+  stakes may run hotter or colder. `debunk_true_null`
+  replicates Skurnik's asymmetry, which a fairness account
+  (fluency helps both labels) predicts should be weaker —
+  flagged.
+- `soc_narrow` parameterizes Baltes & Baltes as a rehearsal-
+  budget reshaping; SOC is a life-management framework, not
+  a memory mechanism — the mapping to retell budget is ours
+  and the most speculative number in this Part.
+- `vantage_age_leg` is deliberately tiny: Butler 2016
+  supports *retell-driven* drift; the pure-age literature is
+  one small study (Piolino 2006). If validation shows the
+  age leg doing work, it's overfit — retell_n should carry
+  it.
+- `cue_chain_max` treats WM decline as a hop cap; real chains
+  degrade probabilistically (hop-3 succeeds sometimes). The
+  cap is a contract, not a cognitive claim — acceptable for
+  the substrate, noted here.
+- Frozen nulls (`spacing_age_null`, `savings_age_null`) are
+  preservation claims game-systems could quietly violate;
+  P1060/P1061 exist to catch exactly that.

@@ -23,6 +23,15 @@ function initControls(){
     // invoked programmatically (protects C1–C8 absolutely).
     if(typeof SF_MODE !== 'undefined' && SF_MODE) return;
     const v = VILLAGERS[inspectedPawnIdx];
+    if(!v) return;
+    /* v16: possession ban on the 8 mains is absolute — Take Control
+       refuses any sfAgentDriven pawn (owner included) */
+    if(v.sfAgentDriven ||
+       (typeof sfIsMain === 'function' && sfIsMain(v))){
+      if(typeof showToast === 'function')
+        showToast('Their mind is their own.');
+      return;
+    }
     if(v === VILLAGERS[controlledPawnIdx]){
       v.isNPC = true;
       controlledPawnIdx = -1;

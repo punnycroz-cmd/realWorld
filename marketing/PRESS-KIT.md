@@ -1,6 +1,6 @@
 # Press Kit — Real World ("The Mission")
 
-**Version:** v77 · 2026-09-24 · **Status:** LOCAL DRAFT — pre-launch.
+**Version:** v136 · 2026-09-23 · **Status:** LOCAL DRAFT — pre-launch.
 Kit freshness record: `press-kit/CHANGELOG.md`.
 Contact fields are placeholders; no public channels exist yet. HTML mirror:
 `marketing/site/press-kit.html`. Downloadable bundle:
@@ -89,7 +89,7 @@ date. The founder quote slot below stays empty until the user writes one:
 | Logo — icon mono | **Available** — single-ink SVG (`currentColor`) | `press-kit/logos/logo-icon-mono.svg` |
 | Logo — lockup mono | **Available** — single-ink horizontal lockup SVG (`currentColor`) | `press-kit/logos/logo-primary-mono.svg` |
 | Key art | **Available** — 1920×1080 + 1080×1080 composites on a real build capture | `press-kit/keyart/keyart-16x9.png`, `keyart-square.png` |
-| Screenshots | **Available** — 4 current-build shots (v48) + 2 interior vignettes (v16) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
+| Screenshots | **Available** — 4 current-build shots (v71 set, matching the site gallery) + 2 interior vignettes (v16) + 2 early-pass shots (v1) | `press-kit/screenshots/` (mirrors `site/shots/`) |
 | Fact sheet | **Available** — print-ready HTML, prints to PDF | `press-kit/fact-sheet.html` |
 | Offline press hub | **Available** — self-contained `index.html` inside the bundle | `press-kit/index.html` |
 | Press release | **Available** — launch release draft, slots marked | `press-kit/press-release-launch.md` |
@@ -102,8 +102,16 @@ date. The founder quote slot below stays empty until the user writes one:
 | Context sheet | **Available** — endorsed "X meets Y" framings, comparison table vs. Sims/FiveM/TPP/SL, honest weaknesses | `press-kit/context.md` |
 | Guided tour | **Available** — 10-minute press-preview run sheet + presenter hard rules | `press-kit/guided-tour.md` |
 | B-roll shotlist | **Available** — six essential b-roll shots + optional color shots, camera keys, capture rules | `press-kit/b-roll-shotlist.md` |
+| Deadline desk | **Available** — the 15-minute coverage path: three checkable facts, verbatim paragraph, three go-to images, mistakes to avoid, corrections policy | `press-kit/deadline-desk.md` |
+| What's new sheet | **Available** — build-highlights crib (v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71) for "what changed" coverage | `press-kit/whats-new.md` |
+| One-sheet | **Available** — single-page printable sell sheet, prints to PDF | `press-kit/one-sheet.html` |
+| Embargo briefing | **Available** — long-lead pre-brief book: embargo terms, 2-hour session plan, on/off-record lists | `press-kit/embargo-briefing.md` |
+| Review guide | **Available** — self-guided watch plan (30 min / 90 min / one evening) + traps to avoid | `press-kit/review-guide.md` |
+| Contact sheet | **Available** — printable visual index of every image asset in the kit | `press-kit/contact-sheet.html` |
 | Social banners | **Available** — X/YouTube/Discord/LinkedIn, safe-zone padded | `press-kit/banners/` |
+| Creator badge | **Available** — "WATCHED ON REAL WORLD" embed badge, color + mono SVGs | `press-kit/badges/` |
 | Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
+| Coverage log | **Available** — post-launch tracker: per-piece ledger, misstated-claims checklist, corrections + inbound-contact tables (empty until launch) | `press-kit/coverage-log.md` |
 | Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |
 | Manifest | **Available** — machine-readable kit contents | `press-kit/manifest.json` |
 | Trailer | **Not yet produced** — see TRAILER-PLAN.md | — |

@@ -53,6 +53,11 @@
 - `banners/` — sized for X/YouTube/Discord/LinkedIn headers; built for
   our own channels but fine for fan/community spaces with attribution.
 - `logos/` — the lit-window mark; don't recolor or redraw it.
+- `badges/` — the "WATCHED ON REAL WORLD" embed badge for overlays,
+  video corners, and article footers. `badge-watched.svg` on dark
+  surfaces; `badge-watched-mono.svg` inherits your text color for
+  overlays and one-color print. Don't recolor the lit window in the
+  color version — amber is the point.
 - `copy-deck.md` — approved wording if you want to describe the mechanics
   without accidentally promising a feature that doesn't exist.
 

@@ -1,4 +1,4 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
@@ -257,3 +257,259 @@ no editorial layer: every figure is the wire counted, and the UI says so.
 | Missed bar action | "catch me up" |
 | Declared cost (detail) | "declared — N cr · M min (paid upfront, hard cap — shown at filing)" |
 | Join marker | "you tuned in \<HH:MM\> — dimmed timestamps ran earlier" |
+
+## 11. v61 — the Director's rail (world v61)
+
+The left-rail Director upsell grows a real, free **preview** — the honest
+version of "try before you pay": every control is view-layer, nothing is
+gated content, and the page carries no purchase affordance (the paid pass
+is filed at the Counter like any request; the bar links there, and that
+is the whole monetization surface).
+
+### The director bar
+
+- `#dirbar`, toggled by the rail's **Preview** button, the `v` key, or
+  `#dir=1`; `esc` closes it before clearing selection; zen hides it. The
+  open state + choices persist per-viewer (`rw_wire_cam`) — viewer
+  state, never world state.
+- **Camera presets** — named chips (`park lawn`, `café row`,
+  `the strip`, `clarion alley`, `the night shift`, `all cams`) mapping to
+  venue sets. A live preset puts a gold edge (`.camhl`) on wire rows in
+  that camera's view. A camera **marks** the wire; it never filters it —
+  the stream stays whole and honest, and nothing a preset can do adds
+  coverage the feed didn't already have.
+- **Follow-cam** — a selector over the mains, the named ambients, and
+  hired residents; rows whose `who`/`attrs.mentions` hit the pick get the
+  same gold edge. Options are labeled "public whereabouts only": a
+  follow-cam is a pin on existing visibility, never new visibility —
+  off-the-feed stretches stay off, homes stay walls.
+- **Replay scrub** — a slider spanning today's wire window
+  `[earliest event .. now]`. Scrubbing shows "the wire at HH:MM — N
+  events by then" plus the newest few rows at-or-before the minute,
+  verbatim. It replays the feed's own record — nothing is reconstructed
+  or guessed — and the card says so: *"the feed, replayed — the world
+  itself kept running."* At live edge the card hides and the label reads
+  `live`.
+- **The pass pointer** — footer copy names the paid thing plainly:
+  *"The Director pass — multi-cam, PiP, scrub inside the sim view — is
+  10 cr / 30 min, filed at the Counter like any request."* Price adopts
+  plan §2.3 PROPOSAL verbatim. No countdown, no trial-credit trick, no
+  "unlock" verb on a button.
+
+### Live-seam deepening (capability-checked)
+
+- **Live receipt:** request detail panels call
+  `BRIDGE.gsExplainRequest(req)` when the bus offers it, rendering a
+  "live record" line (status · claim · declared cost · trail count) —
+  the bus's own explainer, so the wire's account of a paid intervention
+  matches the Counter's receipt word-for-word.
+- **Live occupancy:** venue cards read `BRIDGE.gsOccupancy()` or
+  `gsViewerState().occupancy` when offered (`{mains, labels, count}` per
+  venue); absent either, the public-routine picture stands — the demo
+  fallback is the contract reference, as ever.
+
+### Copy deck — v61 strings
+
+| Moment | Copy |
+|---|---|
+| Bar label | "director preview" |
+| Bar honesty note | "view-layer only — cameras watch the wire, never the inside of a home" |
+| Presets | "park lawn · café row · the strip · clarion alley · the night shift · all cams" |
+| Follow-cam option | "\<name\> — public whereabouts only" |
+| Replay label (scrubbed) | "the wire at \<HH:MM\> — N events by then" |
+| Replay label (edge) | "live" |
+| Replay footer | "the feed, replayed — the world itself kept running." |
+| Pass pointer | "The Director pass — multi-cam, PiP, scrub inside the sim view — is 10 cr / 30 min, filed at the Counter like any request. Watching costs nothing either way." |
+| Live record line | "live record — \<status · claim · declared · trail count\> (gsExplainRequest — the bus's own explainer)" |
+
+## 12. v75 — the schedule + the person layer (world v75)
+
+Two new answers for the two questions a settled-in viewer asks next —
+*"what's already promised?"* and *"what has she been up to today?"* —
+plus one comfort feature and one honesty counter. All view-layer, as ever:
+the wire reads the world's public records; nothing here writes them.
+
+### "on the book" — the wire shows the schedule
+
+- `#bookbar` sits between the reaching-in-now strip and the missed bar.
+  It lists the booked windows still ahead of the block clock
+  (`HH:MM · claim · what · holder handle`), newest-first, max five.
+  A window that already fired is a wire event, not a strip row — the
+  strip only ever shows promises not yet kept.
+- Source: an inline `BOOKW` mirror of `bookings.json` windows (the audit
+  deep-compares them field-for-field — same rule as request.html's own
+  BOOKW). Live mode merges `gsViewerState().calendar` (the v74 seam),
+  deduped by `claim+start`, accepting `start_min` or `HH:MM`.
+- Collapses on its header, the `b` key, persisted `rw_wire_book`. Footer
+  links `book.html`. **No prices, no slot-picker, no claim affordance**
+  on the wire — a viewer who wants a window files at the Counter.
+  Copy: *"a booked window is a promise the world already made — the
+  whole day's calendar lives at the Book."*
+
+### "their wire today" — the person card
+
+- `#cday`, a right-rail card under the event detail. Two ways in: click
+  a name in the cast strip, or the "their wire today — \<name\>" button
+  on any event whose `who` is a rostered character (C/A/h ids).
+- The card lists every event today whose `who` or `attrs.mentions`
+  touched that id — newest eight, then an honest *"…and N earlier"* —
+  plus the same free pin affordance and the standing honesty line:
+  *"public whereabouts only — homes are walls; off-the-feed stretches
+  stay off."* An empty card says so: *"Nothing yet today — the wire
+  only knows what a camera could see."*
+- It is the wire counted per person — never a dossier. No invented
+  activity, no inferred mood, no coverage the feed didn't already have.
+
+### Thread mute — your screen, not the record
+
+- A request event's detail gains **mute this thread**. That `req`'s
+  lines drop out of the stream and the reaching-in-now strip for this
+  viewer only (`rw_wire_mute`, persisted, reversible). The Following
+  panel lists muted threads with one-click unmute.
+- The honesty contract is explicit everywhere the feature appears:
+  *"muted on your screen only — the wire's record is unchanged and The
+  Archive keeps everything."* The day-so-far card still counts muted
+  rows — it counts the wire, not your view of it. A mute is a reader's
+  preference, never a moderation act; it cannot hide a paid
+  intervention from anyone but the muter.
+
+### Search match count
+
+- The search box gains `#qcount` — a live *"N matching"* over the whole
+  feed (text + `who` + resolved names + venue names). An honest count,
+  never a ranking: the wire does not sort results by salience.
+
+### Copy deck — v75 strings
+
+| Moment | Copy |
+|---|---|
+| Book strip label | "on the book — N windows ahead — scheduled claims, public" |
+| Book strip footer | "a booked window is a promise the world already made — the whole day's calendar lives at the Book." |
+| Char card empty | "Nothing yet today — the wire only knows what a camera could see." |
+| Char card honesty | "public whereabouts only — homes are walls; off-the-feed stretches stay off." |
+| Char card remainder | "…and N earlier — the stream has them all." |
+| Mute button / note | "mute this thread" · "muted on your screen only — the wire's record is unchanged and The Archive keeps everything." |
+| Muted list label | "muted threads" |
+| Search count | "N matching" |
+
+## 13. v89 — the real wire seam (world v89)
+
+The v6 live seam was written against the game track's *documented* feed
+contract; game-v14 shipped the real one. This version aligns the page to
+what `41_game_systems_feed` actually emits — same honesty rules, real
+names.
+
+### The bus's own entry shape
+
+`gsWireTail()` entries carry `{id, n, t, day, kind, text, venue, who,
+req, status, reason_code, attempt, mentions, attrs}`. The page now
+reads them as they are:
+
+- `n` is the monotonic feed sequence — it becomes the event's `seq`, so
+  ordering, the missed bar, and request trails follow bus order exactly.
+- `day` (PT date) drives **multi-day separators** — the stream no longer
+  assumes everything is today; each day gets its own `wednesday, sep 23`
+  style divider.
+- `mentions` is top-level (not under `attrs`) — folded into
+  `attrs.mentions` for the renderers that already speak that shape.
+- `attempt` on denied entries renders an "asked for — \<kind\>" line:
+  the *class* of ask is public, the screened text never is.
+- `booked` (scheduled-window status on bus-forwarded entries, the v88
+  seam) gets a chip and counts as open on the reaching-in-now strip.
+
+### Incremental sync + real paging
+
+- After the join handshake (`vs.feed` tail), polls prefer
+  `BRIDGE.gsWireSince(maxN)` — a 50-line tail can drop events on a busy
+  day; the cursor can't.
+- **load older** calls `BRIDGE.gsWirePage({before:oldestN, limit:60})`
+  live — paging the bus's own archive projection, not just the local
+  array. `oldest:true` ends the stream at "the top of the record —
+  earlier days live in The Archive."
+
+### The clock is real when live
+
+The block clock follows PT wall time (`America/Los_Angeles`) the moment
+the bus attaches — the daypart label, the book strip's "still ahead"
+filter, and the admin-recency window stop being demo math.
+
+### The permit board (new right-rail panel)
+
+`vs.board` / `gsResourceBoard()` render as a read-only claim board:
+each contended resource (`sky`, `venue:<id>`, `char:<id>`, `openair`,
+`paper:<unit>`, `listing:<unit>`) with its public state —
+free / cool / locked / queued — honest times, queue depth, booked
+markers. A spectator can see a resource is claimed; claims are filed at
+the Counter, never here.
+
+### Co-sessions + sponsored skies + the withheld count
+
+- `vs.sessions` / `gsCoSessions()` pairs ride the reaching-in-now strip
+  as "a + b · one scene" cards — the compatible-multiplayer overlaps the
+  bus itself logs `session` events for.
+- `vs.weather` sets the header line "player-called sky — \<wx\> until
+  HH:MM · N sponsors" while a called sky holds.
+- `gsWireStats()`'s real shape (`total`, `suppressed`, `displayFilter`)
+  feeds a day-card line: "withheld from the wire — N, privacy screens,
+  not downtime." The viewer counter only displays when the bus reports
+  one — no invented audience.
+- `gsExplainRequest` renders its real shape (`note`, `queuePos`,
+  `blockedBy`, `behind`, `on` claim labels, review `code`) as
+  "the bus says — \<note\>" plus waiting-on/blocked-by lines.
+- Pins write through to `BRIDGE.gsWireFollow` with bus keys
+  (`v:<venue>` / `m:<char>`) — the only write a spectator surface ever
+  makes, and it's the viewer's own pin.
+
+### Copy deck — v89 strings
+
+| Moment | Copy |
+|---|---|
+| Permit board header | "the permit board — what's claimed, publicly" |
+| Permit board footer | "the bus's own claim states … Read-only: claims are filed at the Counter, never here." |
+| Top of record | "the top of the record — earlier days live in The Archive." |
+| Withheld line | "withheld from the wire — N, privacy screens, not downtime" |
+| Co-session card | "\<a\> + \<b\> · one scene" |
+| Player-called sky | "player-called sky — \<wx\> until HH:MM · N sponsors" |
+| Denied attempt | "asked for — \<kind\> (the class of ask only — the screened text is never public)" |
+| Explainer | "the bus says — \<note\>" · "waiting on — \<claims\>" · "blocked by — \<reqs\>" |
+| Queue discount | "filed queued — −15% (the queue discount, declared at filing)" |
+
+## 14. v103 — the record layer (world v103)
+
+v89 wired the page to the bus's wire endpoints; v103 takes the remaining
+four — still strictly view-layer, still capability-checked with the demo
+pipeline untouched.
+
+- **Pin read-back** (`gsWireFollows()`): the Following panel hydrates
+  from the bus's own pin set. Bus keys `v:<venue>` / `m:<char>` map to
+  page keys `v:` / `c:`. `followsSync()` runs inside `livePoll`: new
+  bus-side pins (set in the sim's own `gs-wire` panel or any other
+  surface) are adopted into the viewer's panel; on the first sync only,
+  page pins the bus lacks (localStorage carry-over) are pushed through
+  `gsWireFollow`. After that the flow is one-directional — adopt, never
+  delete. A viewer's unpin already wrote `false` through, so nothing
+  resurrects a removed pin.
+- **Archive depth** (`gsWireDays()`): the footer link stops guessing —
+  "N days on record → The Archive" when the record spans more than one
+  day, the classic "earlier days → The Archive" otherwise. The count is
+  the bus's, not a fabricated history.
+- **Vocabulary coverage** (`gsWireVocabulary()`): cached as `LIVE_VOCAB`
+  (kinds/statuses/reasonCodes). The day card gains "statuses seen today
+  — M of S on the bus's own vocabulary," counted from the wire's own
+  events. A coverage count, never a completeness grade.
+- **Self-check** (`gsWireAudit()`): runs when the day card opens — on
+  demand, never per-poll (a full record scan isn't 1.5 s work). Live
+  only: "the bus's self-check — N lines · self-check ok" or "M issues
+  flagged by the record." Issues render as a count, never quoted — the
+  audit's strings are for the console, not spectators.
+
+### Copy deck — v103 strings
+
+| Moment | Copy |
+|---|---|
+| Archive link, multi-day | "N days on record → The Archive" |
+| Archive link, one day | "earlier days → The Archive" (unchanged) |
+| Vocabulary coverage | "statuses seen today — M of S on the bus's own vocabulary" |
+| Self-check clean | "the bus's self-check — N lines · self-check ok" |
+| Self-check issues | "N lines · M issues flagged by the record" |
+| Pin read-back note | (no new copy — pins adopted silently; the Following panel's standing copy already says it filters the wire and never touches the world) |

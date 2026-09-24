@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v58)
+# Playtest Harness — "Real World / The Mission" (world v94)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -9,7 +9,7 @@ gate: `node world/audit.js` (see §3a).
 
 The demo surfaces (`feed`, `request`, `mod-console`, `create`, `board`,
 `history`, `onboarding`, `lease`, `thinai`, `cast`, `crowd`, `directory`,
-`timeclock`, `market`, `storefront`, `regulars`, `screen-lab`)
+`timeclock`, `market`, `storefront`, `regulars`, `grievance`, `screen-lab`)
 plus `screen.js` are **local simulations of the product contracts** —
 the request pipeline, the moderation queue, the spectator feed vocabulary. A
 playtest here validates *content, copy, flow, and the locked boundary rules*.
@@ -96,6 +96,231 @@ One person can wear every hat; four real testers is the intended shape.
   the regulars layer across all 20 door venues: standing orders,
   held seats, name basis, tabs in game dollars, windows that agree
   with posted hours, and the surface-knowledge bar on every line.
+  PT54 (the Ear, v59) is a spectator + facilitator audit — the
+  grievance layer: the five-rung ladder, per-employer/per-building
+  ears, the two offstage parody tables at rung 4, door-not-name feed
+  shapes, and the griev gate's coverage + surface-bar checks.
+  PT55 (the Counter, v60) is a payer audit — request.html's live seam
+  (mirror/live badge, capability-checked gsRequestSubmit write path),
+  the free pre-flight wording check (same screen, before money moves,
+  never a gate), and the per-request receipt drawer with its rq- ref.
+  PT56 (the Director's rail, v61) is a spectator + facilitator audit —
+  the director preview bar (cam presets marking, never filtering;
+  follow-cam with "public whereabouts only"), the replay scrub over the
+  wire's own events, the gsExplainRequest/gsOccupancy live reads, and
+  the no-purchase-affordance rule on a spectator surface.
+  PT57 (the Archive v5 reading layer, v62) is a spectator audit — the
+  device-local shelf (rw_archive_shelf pins, copy-shelf transcript with
+  the badge line, honest orphan count), the seen-together pair view
+  (structural co-presence, never a relationship claim), person
+  'seen with' chips + first/latest jumps, and the venue rhythm strip —
+  all projections, nothing world-touching.
+  PT58 (Join the Cast v5 — the queue & keys layer, v63) is a player
+  audit — the pending application that keeps its place across a closed
+  page (rw_create_app_v24 queue card, nothing-charged-while-pending),
+  withdraw as a real never-billed path, the optional 'goes by' block
+  name (screened + collision-checked), and the keys card's day-one
+  logistics that never script the day.
+  PT59 (Mod Console v3 — the roster & record layer, v64) is a reviewer
+  audit — the flag roster's whole-book account standing (tier effects,
+  next decay dates, the score-9+ owner docket that recommends and never
+  executes), live re-sort on a tier-crossing legal confirm, and the
+  'export ledger records' flow that emits canonical mod_decision records
+  with neutral feed lines while the seeded baseline stays aggregate.
+  PT60 (harness v65) is a facilitator audit — the finding-template
+  dropdown seeding the five boundary breaks without logging on its own,
+  the 'hide finished' rail filter composing with the smoke set, and the
+  'Copy handoff' resume block for tester-to-tester relay.
+  PT61 (drama board v66) is a showrunner-side audit — the fuse
+  interference matrix covering all 15 pairs exactly once, per-seed
+  suspicion ceilings at every rung, the comedy-duty roster whose only
+  mechanism is a review flag, and the dormant-only residue nursery,
+  checked against the §19 legality checklist.
+  PT62 (onboarding v5 — the eligibility layer, v67) is a first-session
+  audit — the one-question age band fronting every paid stage but never
+  the feed or the tour, the under-13 'watching account' with no packs or
+  asks and honestly relabeled checklist items, the under-18
+  spending-limits disclosure that quotes no invented figure, and the
+  adults-only rewarded-ads line at plan §2.7 verbatim.
+  PT63 (lease v68 — the hand-off layer) is a tenant/admin audit — the
+  guarantor path on a screening near-miss (2.0–2.5× rent; liable, never
+  a tenant, never a feed event), notice service records (clocks run
+  from service, not the posting), the itemized move-out walkthrough
+  that every deduction must cite, and receipts that agree with the
+  ledger.
+  PT64 (thin-AI v69 — the long-outage layer) is an ops audit — wake
+  parity (the first beat back continues the handoff note's doing;
+  place/ledger/needs carry over), outage rotation on the deg_min
+  credit ledger (a dwell-eligible bench swaps up within Δ≤1 salience —
+  a swap is not a recovery), scene-yield on a degraded main, the
+  closed co-star ask-class taxonomy (be-present / hold-space /
+  walk-with / carry-item), the phrase-kit repetition guard, and the
+  0% blackout floor that reads as a quiet day, never an outage
+  screen.
+  PT65–PT71 audit the per-version surface layers (menus, exits, the
+  Book, wire v6, archive v6, create v77, mod v78). PT72 (harness v76
+  relay layer) is a facilitator audit — the revisit flags, the
+  directional Regressions card, the run sheet, and the doubly-filtered
+  scenario walk. PT73 (onboarding v6) audits the house-&-other-hands
+  pass — admin-transparency tour beat, the S4f coexistence lesson,
+  surge disclosure ordering, and the settle-time ownership arc.
+  PT74 (lease v82) audits the doorstep-&-deed layer — entry notices as
+  file-only docs, sale-with-tenant carryover, the months-10–12 renewal
+  window, returned payments that leave the ladder untouched, and the
+  guarantor release request/decide pair.
+  PT75 (thin-AI v83) audits the fallback-surface layer — the closed
+  posture matrix (unaffected/hold/static), routine-fit vs off-routine
+  asks on a degraded main with locked vocabulary, the held press
+  backlog and its ≤1/daypart recovery trickle, and the deterministic
+  ±15-min day-hash jitter on cell edges.
+  PT76 (crowd v85) audits the company & courtesy layer — the
+  kind×daypart social-unit mix with lone-only pre-dawn hours and
+  family-cluster safeguards (kid-backpack never lone, never bars), the
+  17 counter-courtesy beats gated on state + extra presence + cooldown,
+  and the crowd gate's v85 mirror/integrity checks.
+  PT77 (supply v86) audits the back-door layer — the 19 offstage
+  parody suppliers and their 44 delivery runs, the Thursday flyer
+  circuit, door coverage with Valencia Growers's self-supply
+  exemption, the [open-3h, close] window rule, and the supply gate's
+  mirror/coverage checks.
+  PT78 (commute v87) audits the getting-there layer — the 22 routes
+  binding registry homes to jobs.json employers, the six modes
+  (walk/bike/muni/muni_walk/loop/stairs), the 10 shared-route overlaps
+  as openable conditions, weather deltas as modal suggestions, minors
+  never routed, and the commute gate's mirror/integrity checks.
+  PT79 (request v88) audits the real bus seam — gsSubmitRequest as the
+  canonical write (gsRequestSubmit legacy alias) with bus spec keys
+  and event→street_event mapping, the returned record as truth
+  (denied short-circuits before any charge), board/calendar/slots/
+  price-quote reads, and the 'booked' feed chip. Reference stub +
+  13-check run: devtools/smoke_request_v88.js.
+  PT80 (wire v89) audits the real wire seam — The Wire reads the bus's
+  own entry shape (top-level mentions, n as seq, day → multi-day
+  separators, attempt on denials, 'booked' chip), syncs via
+  gsWireSince / gsWirePage, renders the permit board and co-sessions,
+  counts the withheld honestly, and writes only the viewer's own pin
+  (gsWireFollow). Reference stub + 15-check run:
+  devtools/smoke_wire_v89.js.
+  PT81 (archive v90) audits the real archive seam — The Archive reads
+  game-v14 day-objects (id→day index for w- ids, person index from
+  mentions, attempt on denials, honest kind-growth chips, n tiebreak)
+  and 'catch up' merges new rows by id, additive only, no polling.
+  Reference stub + 20-check run: devtools/smoke_archive_v90.js.
+  PT82 (create v91) audits the real hire seam — Join the Cast files the
+  bus's own shape (gsSubmitRequest kind 'hire', target = unit id, full
+  params), reads gsVacantUnits doors and the gsHireQuote personnel
+  card, carries the hire-package truth (deposit waived, first month
+  pro-rated to moveInDate), shows real deny codes, parks live filings
+  in the naming lane with the bus record id — never a fake approval —
+  and withdraws through gsCancelRequest. Reference stub + 27-check run:
+  devtools/smoke_create_v91.js.
+  PT83 (mod v92) audits the real review seam — the Mod Console queue IS
+  gsReviewQueue() (bus records mapped verbatim, bus-minute waits, TTL
+  chip), decisions write through gsReviewResolve/gsEscalateLegal with
+  {by,code,modifyMin} and report the bus's real landing, the
+  same_reviewer refusal is honored twice (UI + bus), metrics read
+  gsModMetrics, flags read gsFlagStatus/gsRepLedger, and the character
+  card is the gsPossessionBriefing whitelist object itself. Reference
+  stub + 19-check run: devtools/smoke_mod_v92.js; the classifier drift
+  gate is executable at devtools/screen_drift.js (23 port gaps reported).
+  PT84 (harness v93) is a facilitator audit — the rail's surface filter
+  (SURF-derived options, composes with smoke + hide-finished, persisted),
+  per-finding triage status (open/fixed/wontfix/deferred — persists,
+  rides both exports, gates the handoff list), the per-finding
+  [world-playtest-finding] copy block, the step n/a sweep, and the
+  harness gate's v93 marks at key rw_playtest_v93.
+  PT85 (drama board v94) is a showrunner-side audit — drama.json at
+  schema drama-v6 carries the cooling grammar (rung descent, afterglow,
+  no refund, surfaced never cools), the double-surface contingency
+  (canon + merge-not-stack + protections never mask), the fair-misfire
+  register (whisper-only, retroactive fairness, never aimed), and the
+  five-posture vocabulary (prefer/hold/shed/observe/recovery); the
+  pressure catalog runs P-01–P-26; drama.html renders all four new
+  sections; §19 legality checked line by line.
+  PT86 (onboarding v95) walks the seventh pass — the wallet card's
+  credit-rules line (never run out / never cash out / never move
+  between accounts), the stated-once standing orders (Resident
+  $4.99/mo · 600 cr, Director $11.99/mo · 1,500 cr — §2.5 verbatim, a
+  one-shot idempotent stipend preview, structurally absent for u13),
+  and the S7 first visit: a guided 22-cr 15-min possession off the
+  first-day card, both exits (step out / hard cap) handing back
+  mid-motion with no refund promised, one-time lesson then settle.
+  PT87 (Rent Book v6 / leases v96) walks the counter-paper layer —
+  lease assignment behind the clean-ledger gate (deposit carries,
+  outgoing liability ends at signature, file-only), buyout offers
+  (active-only, tenant decides, free decline + 30-day re-offer lock,
+  BUYOUT credit code on accept), prepaid rent (3-month cap, draws down
+  on the 1st before any balance exists), and the one-per-tenancy
+  rental history letter.
+  PT88 (Understudy v7 / thinai v97) probes the encounter layer — the
+  nod economy when two thin pawns share a cell (gesture register,
+  cap unchanged, nothing persists), a possessed player pressing thin
+  (kit → deflect → silence; "are you AI?" resolves like any other
+  question; attention never wakes a mode), and the request split:
+  world-bound asks (rain) deliver at 0% service while brain-bound
+  scene asks decline `resolved · declined` + 50% refund.
+  PT89 (The Company v98 / characters.json v98) walks the receiving
+  register — the two new bible sections: **Weather** (fog/heat/rain
+  read through each main's own work, body, and routine) and **Being
+  helped** (how each of the eight takes help, care, and gifts — the
+  complement to a caretaking cast). Both render on every cast.html
+  card, sit between Repairs and the briefing-safe block in all eight
+  bibles, mirror as `weather`/`helped` in characters.json, and stay
+  inside the observable-safe sweep — orbit, never seed.
+  PT90 (The Crowd v99 / crowd.json v99) probes the bench layer — the
+  pull protocol for borrowing a named ambient (15–90 min loans, ≤3/day
+  each, ≤2 concurrent, ≥60 min cooldown, one-step bounds, in-role only,
+  sleep/home/transit never, minors never) and the coverage map: what
+  each post reads while borrowed (understudy extra / honest sign /
+  honestly empty post; minors' kind is `pack` — a refusal, not a
+  surface). The bench panel in crowd.html shows live pullability per
+  ambient; the loan never appears on the wire — the coverage read is
+  the whole spectator-facing trace.
+  PT91 (The Permit Wall v100 / permits.json v100) walks the paper
+  layer — the framed paper behind every door venue's counter
+  (business license, health score card, occupancy, plus liquor /
+  entertainment / sidewalk papers where the rules allow) and each
+  door's lineage: former tenants plus the `ghost_sign` the facade
+  still carries. Doors only — the two no-wall stands read "no wall
+  to paint"; civic agency names stay real as facts; pending is a
+  taped-up receipt, never a violation; papers carry no people and
+  no money.
+  PT92 (The Fridge Door v101 / homes.json v101) walks the household
+  layer — what each actively-leased registry unit is like inside
+  (occupants, shape, rota, kitchen, quiet, guests, kit) plus one
+  pinned fridge-note voice line per named household; the ambient
+  household honestly carries none. Vacant listings show texture, never
+  people; the perks table covers every jobs.json employer once —
+  texture, never compensation; the ambient ring stays a direction.
+  PT93 (The live session layer v102 / request.html) audits the second
+  bus pass — a bridged request card is driven by the bus end-to-end:
+  gsRequestMeter mirrors status verbatim (own queue position that can
+  only shrink, the review SLA clock, the live session's remaining /
+  spent / low-credits), gsCancelRequest and gsAppealRequest are the live
+  write paths, gsWatchAd/gsAdStatus run the wallet's rewarded ads,
+  gsPossessionBriefing serves the §7 whitelist live, gsConflictRules
+  explains the classes, and gsAppealStats surfaces in aggregate only.
+  PT94 (The record layer v103 / wire.html) audits the last four wire
+  endpoints — gsWireFollows pin read-back (adopt-only, never deletes a
+  viewer's pin), gsWireDays archive depth ("N days on record → The
+  Archive"), gsWireVocabulary status coverage in the day card, and
+  gsWireAudit's self-check run on demand when the card opens.
+  PT95 (The absence + lifecycle layer v104 / archive.html v8) audits the
+  two new archive projections — the gaps view (every ≥2h uncovered
+  stretch, same GAP_MIN rule as the day view's inline markers, boundary
+  rows linked, nothing interpolated) and request trails (one card per
+  req id, the wire's own statuses only, open trails first, 'not
+  approved' can be the last step) — plus the settled-the-talk reverse
+  edge on records a rumor's outcome.by points at.
+  PT96 (The desk's answer layer v105 / create.html v8) audits the
+  creation flow's refusal surfaces — the repair bench (one card for
+  every refusal path, FIELD_FIX chips to the owning step, persisted
+  rw_create_return_v105), the second look (one appeal on text-judgment
+  refusals only, gsAppealRequest live, the demo desk never fakes a
+  reversal, appeal_final on identical text), and the live desk-status
+  resolution (gsExplainRequest pull on render + 'check the desk',
+  approved → approval tail, denied → repair bench, closed → honest
+  line).
 
 ## 3. Running a session
 
@@ -165,6 +390,84 @@ v51 harness affordances (PT47 exercises all of them):
   the rail order (clamped, honors the smoke filter); the deep-link hash
   updates on each hop.
 
+v65 harness affordances (PT60 exercises all of them):
+
+- **Finding templates** — a `template…` dropdown in the findings form
+  seeds severity + title + detail + repro for the five boundary breaks:
+  possession affordance on a main, real business name, price off the §2
+  PROPOSAL, deny wording, AI-moderation surface. Templates seed only —
+  nothing is logged until `Log finding`, and the seeded text stays
+  editable.
+- **Hide finished** — a rail checkbox drops scenarios whose every
+  checkpoint carries a verdict; it composes with `smoke set only`
+  (neither filter eats the other's meaning), narrows the progress line's
+  denominator honestly, and persists in session state.
+- **Copy handoff** — emits a `[world-playtest-handoff]` block for the
+  next tester: build, session minutes, the exact scenario to resume at,
+  per-scenario remaining counts matching the rail's N/M math, every open
+  finding at any severity with refs and owner routing, and ttfr when set.
+
+v76 harness affordances (PT72 exercises all of them):
+
+- **Revisit flags** — a `⚑` toggle on every rail card marks a scenario
+  to come back to (`S.flags`, persisted, never a verdict). Flagging does
+  not select the card. Flagged ids ride the handoff note under
+  `flagged for revisit:` so the relay survives a tester change.
+- **Regressions card** — the cohort panel gains `#regr`: refs verdicted
+  pass by an imported session but fail in the current session list as
+  `regressed`; imported-fail → current-pass list as `recovered`.
+  Directional (current build vs history), keyed on checkpoint refs,
+  never averaged — the plain Disagreements card is unchanged. The same
+  split rides the Markdown export's `## Cohort` section.
+- **Copy run sheet** — `exSheet` emits a `[world-playtest-runsheet]`
+  Markdown block for the filtered scenario list: header + build/estimate
+  line, then per scenario the persona, goal, and `- [ ]` lines for every
+  step and checkpoint. Blank by design — a paper artifact for the next
+  session, not a report. Honors smoke + hide-finished, which now also
+  compose on the `[` / `]` walk (previously smoke-only).
+
+v93 harness affordances (PT84 exercises all of them):
+
+- **Surface filter** — a `surface` dropdown in the rail lists every
+  declared surface (options built from `Object.keys(SURF)` — it can
+  never cite a phantom). `S.surf` narrows the rail to scenarios that
+  touch the pick, composing with `smoke set only` and `hide finished`;
+  the progress line, the `[` / `]` walk, and Copy run sheet all honor
+  the narrowed list. Persisted; built for post-change regression passes.
+- **Finding triage status** — each logged finding carries a status
+  chip (`open` / `fixed` / `wontfix` / `deferred`, default `open`),
+  persisted on the finding and exported in JSON + Markdown. `fixed` and
+  `wontfix` drop out of the handoff's open-findings list; `deferred`
+  stays listed but labeled. The statline reads `findings: N (M open)`.
+- **Copy finding** — a `copy` button on every finding row emits a
+  `[world-playtest-finding]` block (severity, ref, owner, status, title,
+  detail, repro, `#pt=` deep link) — the single-finding paste for
+  routing to an owning track without exporting the whole session.
+- **n/a step** — a toggle on each step header sweeps every checkpoint
+  in that step to n/a; pressed again on an all-n/a step it clears them.
+  Mixed steps go all-n/a; other steps are never touched.
+
+v66 content under test (PT61 exercises it): the drama-direction board's
+new permission structures — fuse interference matrix (§31, all 15 pairs
+carry exactly one of interlocked/adjacent/independent/masked), audience
+suspicion calibration (§32, per-seed per-rung ceilings), the comedy-duty
+roster (§33, the `comedy_drought` flag is a review artifact, never a
+world event), and the residue nursery (§34, dormant-only candidates N1–N4
+promoted only at a declared season boundary). drama.html stays internal
+— PT61 runs it through `audit` surface + a file:// eyeball, and it is
+deliberately absent from the harness's own surface dropdown.
+
+v67 content under test (PT62 exercises it): the onboarding flow's
+eligibility layer — the S2a age-band card (under 13 / 13–17 / 18 or
+older / rather not say) that fronts the wallet and the asks via
+`normalizeStage()` while gating nothing free; S3u 'the watching
+account' for under-13 (no packs, no asks, checklist relabeled
+'spectator account — watching only', S5 drops the hire button); the
+under-18 spending-limits disclosure (limits apply, no figure quoted);
+and the adult-only rewarded-ads line at plan §2.7 verbatim (2 cr/view,
+5/day, opt-in, never in the stream) with a demo +2 cr affordance and
+N/5 counter.
+
 A full pass (PT1–PT8) is ~2.5 h. A smoke pass is PT1 + PT4 + PT7 + PT21
 (~50 min) — free-tier, every deny path, the boundary audit, and the machine gate.
 
@@ -178,7 +481,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Twenty-two gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirty gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -195,7 +498,7 @@ eviction is file-only — no evictConfirm path from the landlord mode),
 **thinai** (thinai.json ↔ thinai.html: storage key, inline MODES matrix matches
 the json pawn modes, every wire push on locked feed vocabulary, handoff-note
 writer carries no forbidden field, degrade mains-only, ambients always thin),
-**bible** (characters/*.md carry the fixed 14-section order with SECRETS last,
+**bible** (characters/*.md carry the fixed 27-section order with SECRETS last,
 five dated backstory beats each; characters.json mirrors roleplay/briefing
 fields + v28 backstory/room/strangers; cast.html CAST ids and card fields
 agree), **crowd** (crowd.json ↔ crowd.html mirror — zones, budgets, shades,
@@ -232,10 +535,25 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v51 mark present, scenario integrity — unique PT ids,
+harness_ui_vNN mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
-surfaces).
+surfaces), **regs** (regulars.json ↔ regulars.html: REG mirror, every
+door venue covered, standing orders/held seats/name basis, windows
+agree with posted hours, surface-knowledge bar), **menus** (menus.json ↔
+menus.html: MENUS mirror, doors only, board-price agreement, game
+dollars only), **supply** (suppliers.json ↔ supply.html: SUP mirror,
+door coverage incl. the self-supply exemption, [open-3h, close] windows,
+no prices), **apply** (applications.json ↔ apply.html: live-opening
+coverage, channel agreement with the market layer, decline voices, game
+dollars only), **griev** (grievances.json ↔ grievance.html:
+employer/building coverage, the five-rung ladder, door-not-name feed
+shapes, surface bar), **exits** (exits.json ↔ exit.html:
+employer/building coverage, door-not-name feed shapes, game dollars
+only), **book** (bookings.json ↔ book.html ↔ request.html BOOKW: no
+repricing, feed-vocabulary reuse, seeded windows), **commute**
+(commute.json ↔ commute.html: route/employer/home integrity, minors
+never routed, weather deltas are suggestions, no prices).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and
@@ -295,8 +613,8 @@ shared inbox after each session with blockers/majors only.
   fn)` returning hits with `file:line` refs; REVIEW for eyeballed contexts,
   FAIL for violations.
 - v51: harness affordances are contract-checked — when you add a harness
-  feature, declare its marks under `harness_ui_v51.required_marks` in
-  playtest.json and the harness gate enforces them. Bumping the LS key
-  without bumping `version` (or vice versa) FAILs the gate.
+  feature, declare its marks under the current `harness_ui_vNN.required_marks`
+  block in playtest.json and the harness gate enforces them. Bumping the
+  LS key without bumping `version` (or vice versa) FAILs the gate.
 - When the game track lands real plumbing, add a `PT9 "merge wiring"` scenario
   rather than rewriting the demos — the demo contracts stay the reference.

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" role="img" aria-label="Watched on Real World">
+  <g fill="currentColor">
+    <rect x="24" y="28" width="104" height="104" rx="22" fill="none" stroke="currentColor" stroke-width="6"/>
+    <rect x="44" y="46" width="64" height="6"/>
+    <rect x="46" y="56" width="60" height="60" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="64" y="56" width="2" height="60"/>
+    <rect x="84" y="56" width="2" height="60"/>
+    <rect x="51" y="62" width="10" height="11" rx="1" opacity="0.45"/>
+    <rect x="51" y="81" width="10" height="11" rx="1" opacity="0.45"/>
+    <rect x="51" y="100" width="10" height="11" rx="1"/>
+    <rect x="70" y="62" width="10" height="11" rx="1" opacity="0.45"/>
+    <rect x="70" y="81" width="10" height="11" rx="1"/>
+    <rect x="70" y="100" width="10" height="11" rx="1" opacity="0.45"/>
+    <rect x="89" y="62" width="10" height="11" rx="1"/>
+    <rect x="89" y="81" width="10" height="11" rx="1" opacity="0.45"/>
+    <rect x="89" y="100" width="10" height="11" rx="1" opacity="0.45"/>
+    <text x="152" y="72" font-family="DejaVu Sans, system-ui, sans-serif" font-weight="700" font-size="26" letter-spacing="6">WATCHED ON</text>
+    <text x="152" y="118" font-family="DejaVu Sans, system-ui, sans-serif" font-weight="700" font-size="44" letter-spacing="1">REAL WORLD</text>
+    <rect x="560" y="52" width="56" height="56" rx="10" fill="none" stroke="currentColor" stroke-width="4"/>
+    <rect x="577" y="69" width="22" height="22" rx="4"/>
+  </g>
+</svg>

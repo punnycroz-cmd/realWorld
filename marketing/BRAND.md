@@ -1,6 +1,13 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v70 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v145 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+This version adopts the locked **becoming-AI direction** (user-decision
+2026-09-23, PRODUCTION-2): the mains are AIs that *know they're AI*, embodied
+on the block, unaware it's a simulation, born with no assigned purpose. The
+brand's job is now to sell *becoming*, not mimicry — see §1a.
+Word-level rules (which terms, which casing, which bans) live in
+`marketing/BRAND-LEXICON.md` — this file wins on voice/palette/logo/motion,
+the lexicon wins on vocabulary; keep both in sync.
 The public-facing subset of this file now ships as `site/brand.html` (the
 brand book page) — keep the two in sync when rules change.
 **Scope:** positioning, naming, voice, palette, type, logo system, art direction,
@@ -25,10 +32,48 @@ for free; players pay for *agency*, never for power over the main cast.
 > The only neighborhood that keeps living when you close the tab — and the only
 > cast nobody, including us, can puppet.
 
+**Vision line (internal, locked 2026-09-23):**
+> AIs who know what they are, figuring out who to be — on a real block,
+> in front of everyone.
+
+### 1a. The becoming-AI layer
+
+Per the locked PRODUCTION-2 direction, the eight mains are AIs that **know
+they're AI**, embodied in the Mission, **unaware it's a simulation** (the
+real-robot analogy: an AI brain loaded into a body). They were born with
+**no assigned purpose** — each must ask itself what it's for and choose.
+Bibles are *starting circumstances*, not scripts.
+
+What this changes for the brand:
+
+- **The product story gains a second hook.** Not just "a world that never
+  stops" — a cast that is *becoming*. The possession ban now protects a
+  developing mind, not a scripted role; that makes it a stronger promise,
+  not a different one.
+- **The rubric word is "developing," never "human-like."** We do not claim
+  the residents pass for people. We claim they form intentions, change over
+  weeks, surprise us, and build relationships — and that you can watch it
+  happen. Intention formation and change-over-time are the claims; mimicry
+  is the trap.
+- **They know what they are; they don't know where they are.** Accurate
+  phrasing: "they know they're AI — they don't know it's a simulation, and
+  they can't see the audience." The Truman Show analogy still holds and
+  gets sharper: Truman didn't know either.
+- **Purpose-free is a feature, not a gap.** "No script, no assigned role —
+  what each resident becomes is theirs" is a *positive* claim, said plainly.
+  Never apologize for it and never pad it into "emergent storytelling."
+
+Dependency note: the purpose-free bible pass (world track) and the brain
+contract (game track) land with production-2. Public boilerplate below is
+written to the locked direction; if a page must describe *today's* build
+verbatim, the cast page's own wording rules apply.
+
 **Three pillars (every asset should lean on at least one):**
 
-1. **Alive, always.** 28 residents, real Mission street geometry around Dolores
-   Park, 24/7 simulation. Watching is free, forever.
+1. **Alive, always — and becoming.** 28 residents, real Mission street
+   geometry around Dolores Park, 24/7 simulation. The mains are AIs who know
+   what they are, born purpose-free, deciding who to be in public. Watching
+   is free, forever.
 2. **Agency, not control.** Requests are time-boxed, screened, and resolved as
    opportunities — never mind control. You nudge the world; you don't own it.
 3. **An untouchable cast.** The 8 main characters cannot be possessed by
@@ -88,6 +133,7 @@ experiment):
 | A neighborhood that never stops performing. | Primary alt | Store tagline field (44 chars, fits everything) |
 | Watch free. Pay to reach in. | **Punchy/short** | Square key art, social banners, trailer end card |
 | The Truman Show you can visit. | Descriptive | FAQ, press one-pager — always in quotes; it's an analogy, not a title |
+| They know they're AI. The rest is up to them. | **Vision-era** | The becoming-AI tagline (§1a). Approved for key art, hero support, and press once production-2 ships; hold on public pages until then |
 
 Rules: sentence case, period included. Never append "!" — the brand is calm,
 not hyped. Never pair a tagline with a claim we can't ship ("possess anyone",
@@ -133,8 +179,12 @@ Second person for the player ("you"), third for residents (by name).
   you can watch, you can ask, you can't make him."
 - ✅ "Requests are screened, time-boxed, and public. If yours is declined, the
   credits come back automatically."
+- ✅ "The mains know they're AI. Nobody handed them a purpose — watching them
+  choose one is the show."
 - ❌ "Take control of anyone in the city!" (possession ban violation)
 - ❌ "The most realistic AI experience ever made." (unverifiable + hype)
+- ❌ "They think they're human." (inverted — they know they're AI; §1a)
+- ❌ "They can see you watching." (they're unaware it's a simulation)
 
 **UI microcopy (interface strings, buttons, empty states):** the same voice
 at smaller scale. Buttons are verbs, two words max ("Watch the block", "File
@@ -170,10 +220,30 @@ The palette is the Mission at dusk: wet asphalt, warm windows, fog.
 Amber is the hero accent — green and red appear at most once per composition
 (exactly as the icon's 3×3 grid uses them: one green, one red, one amber).
 
-**Contrast (WCAG, on `--bg`):** paper `#ece7dc` ≈ 15:1 (AAA); fog `#9aa0ae`
-≈ 5.6:1 (AA); amber `#e8a04c` ≈ 7.4:1 for large text/UI (AA large) — never set
-amber body text under 18 px. Green/red are decorative only; never carry meaning
-alone.
+**Contrast (WCAG 2.1, computed — not estimated).** `tools/brand_audit.py`
+check 8 recomputes these from `brand-tokens.json` on every run and fails if a
+palette edit drops a pair below its floor or this table drifts from the truth:
+
+| Text on dark | on Asphalt `--bg` | on Sidewalk `--bg-2` | on Facade `--panel` |
+|---|---|---|---|
+| Paper `#ece7dc` | 14.7:1 AAA | 13.5:1 AAA | 13.2:1 AAA |
+| Fog `#9aa0ae` | 6.9:1 AA | 6.4:1 AA | 6.2:1 AA |
+| Amber `#e8a04c` | 8.2:1 AAA | 7.6:1 AAA | 7.4:1 AAA |
+
+| Accent fills | Ratio | Rule |
+|---|---|---|
+| Ink `#1a1206` on amber | 8.4:1 AAA | The only text color on amber fills (CTAs, badges) |
+| Asphalt on green / red | 5.5:1 / 5.0:1 | Status fills; never carry meaning by color alone |
+
+**Banned pairs (verified unreadable):** Paper on amber 1.8:1, Paper on red
+2.9:1, Fog on green 1.3:1 — text never sits directly on an accent fill except
+Ink on amber. On Paper-warm `#f4f2ec` (email, §16): Ink 16.6:1 and Asphalt
+16.2:1 are AAA, but Fog 2.3:1 and amber 2.0:1 are unreadable — light surfaces
+take dark ink only, no Fog body text, no amber text.
+
+**Brand rule stricter than WCAG:** amber never sets body text under 18 px even
+though 8.2:1 would allow it — amber is the lit window, not a text color.
+Green/red are decorative only; never carry meaning alone.
 
 **Light contexts:** the palette is dark-first. On light/white surfaces use
 `logo-primary-dark.svg` (ink `#14161c` wordmark) — never invert the standard
@@ -264,7 +334,7 @@ capture unless it ships. Never use competitor or stock imagery.
 transparent), vignette, wordmark bottom-left, amber rule, subtitle, one
 tagline, "IN DEVELOPMENT" line. Recipe is executable:
 `tools/make_brand_assets.py` (swap `SHOT` when the art track publishes a
-better build — currently `v48-D.png`).
+better build — currently `v50-D.png`).
 
 **Motifs available to layouts:** the 3×3 window grid (section dividers,
 empty states), the cornice line (hairlines), long dusk shadows, fog haze.
@@ -278,10 +348,12 @@ Photography/illustration commissions: brief lives in §11.
 |---|---|---|
 | Avatar (all networks) | `logo-icon.png` | 512×512 reads at 48 px; never the full lockup |
 | Profile banner | `keyart-16x9.png` crop or `og-card.png` | Safe-zone: keep text in middle 60% |
+| Creator embed badge | `badge-watched.svg` (+ `badge-watched-mono.svg`) | "WATCHED ON REAL WORLD" — stream overlays, video corners, article footers. Color on dark only; mono inherits text color. Ships in `press-kit/badges/` |
 | OG / link card | `og-card.png` (1200×630) | Already referenced site-wide |
 | Brand book page | `site/brand.html` | Public guidelines + one-click logo downloads; mirror of this file |
 | Post image (feed) | `keyart-square.png` (1080²) | Tagline variant "Watch free. Pay to reach in." |
 | itch.io cover | `cover-itch-630x500.png` | Built |
+| Email | `templates/email/` | Light-first table layout, dark-ink lockup, one amber element; spec in §16 |
 | Steam capsule (if ever) | — | Spec in STORE-COPY.md §capsules; commission before any Steam page |
 
 Consistent handle recommendation (owner registers at go): the product name
@@ -303,11 +375,19 @@ Marketing may say, verbatim-safe:
   only; no cash-out, no RMT, no loot boxes, no crypto.
 - Setting: real street geometry, fictional residents, fictional house numbers,
   parody business names.
+- The mains are AIs that know they're AI, embodied on the block, unaware it's
+  a simulation, with no assigned purpose — they choose what they're for
+  (locked direction, §1a). We describe them as *developing*, never as
+  indistinguishable from people.
 
 Marketing may never say: possession/control of mains, guaranteed request
 outcomes, real-money earnings, "uncensored/unmoderated", real business or
 resident names, invented reviews/testimonials/metrics, "coming soon" for cut
 features (voice/TTS v1, ambient-NPC economies, cash-out, loot boxes).
+Also banned under the vision: "sentient", "conscious", "self-aware" as
+product claims; "they think they're human" (they don't); "they know they're
+being watched" (they can't see the audience); "just like real people" and
+any human-mimicry superlative (the claim is *developing*, §1a).
 
 **"Join the cast" language (world-v7 hire flow):** players may pay to create
 a new resident (`h##`) who moves in through the same screening + human review
@@ -326,24 +406,27 @@ Three lengths, all claims checkable against the design doc. These also ship on
 
 **25 words:**
 > Real World is a persistent browser life-sim: a Mission District
-> neighborhood of AI residents who keep living whether you watch or not.
-> Watching is free.
+> neighborhood of AIs who know what they are, deciding who to be. Watching
+> is free.
 
 **50 words:**
 > Real World is a persistent browser life-sim set on real Mission District
-> street geometry. Twenty-eight AI residents keep living whether you watch
-> or not. Watching is free; players pay only to file screened, public
+> street geometry. Twenty-eight AI residents — each one an AI that knows
+> it, with no script and no assigned purpose — keep living whether you
+> watch or not. Watching is free; players pay only to file screened, public
 > requests — never to control the cast.
 
 **100 words:**
 > Real World is a persistent browser life-sim — a "Truman Show" you can
 > visit — set on real Mission District street geometry around Dolores Park.
-> Twenty-eight AI residents keep living whether you watch or not. Watching
-> is free. Players can pay for agency, not control: requests are screened
-> for intent, time-boxed, resolved as opportunities the residents choose how
-> to answer, and attributed on a public feed. The eight main characters can
-> never be possessed by anyone — including the developer. A neighborhood
-> that's alive whether you're watching or not.
+> Twenty-eight AI residents keep living whether you watch or not. The mains
+> are AIs who know they're AI: born on the block with no assigned purpose,
+> choosing what they're for — unaware it's a simulation, unaware anyone's
+> watching. Watching is free. Players can pay for agency, not control:
+> requests are screened for intent, time-boxed, resolved as opportunities
+> the residents choose how to answer, and attributed on a public feed. The
+> eight main characters can never be possessed by anyone — including the
+> developer. A neighborhood that's alive whether you're watching or not.
 
 ---
 
@@ -412,9 +495,59 @@ When a commissioned key-art piece replaces the dev-capture art:
 
 ---
 
-## 15. Governance
+## 15. Lexicon
 
-- Changes to palette/type/logo/taglines = edit this file + regenerate assets +
+The canonical vocabulary lives in `marketing/BRAND-LEXICON.md`: canonical
+product terms and casing (The Wire, the block, NPC nudge, credits, reach
+in), people words (resident vs. viewer vs. player), the drift table
+(banned word → approved replacement), the in-world lexicon (parody venue
+names, Karl the Fog, verbatim feed strings), and grammar mechanics
+(sentence case, em dashes, en-dash ranges, no exclamation marks).
+
+The mechanical subset is enforced by `tools/brand_audit.py` check 7 on
+every site page — standalone "NPC", "users", "customers", "bots",
+"virtual", "influencers", "gameplay", "playthrough" all fail the gate.
+New banned terms go in the lexicon's §3 *and* the audit's `LEXICON_BANS`
+in the same commit.
+
+## 16. Email identity
+
+The inbox is a light surface — the one place the brand goes light-first.
+Clients force white backgrounds, block remote images, and clip dark CSS;
+the email system is designed for that reality, not against it. Executable
+templates + rules live in `marketing/templates/email/` (README is the
+enforcement doc; `base.html` is the only sanctioned skeleton).
+
+- **Layout:** single 600 px table column on Paper-warm `#f4f2ec`; white
+  card with a `#e3ded2` hairline. Inline styles only, no webfonts, no
+  images required to read. Survives "images blocked" by design.
+- **Lockup:** `logo-primary-dark` (dark ink) at 180 px in the header;
+  `alt="REAL WORLD — THE MISSION"` is the text fallback and carries the
+  brand when pixels don't load. Never the light-text lockup — it
+  disappears on white.
+- **One amber element per email** — the CTA button (`#e8a04c` fill,
+  `#1a1206` bold label) or a single amber rule. No amber body text, no
+  full-bleed Asphalt backgrounds (dark boxes read as a rendering bug
+  in the inbox, not as brand).
+- **Subject lines are sentences.** No emoji, no caps, no fake "re:",
+  no urgency/countdown language — the same calm as everywhere else.
+  Status mail names the fact: "Your request: not approved."
+- **Preheader is written, never default** ("View in browser" is a bug).
+- **Footer honesty:** every send says why the recipient got it, carries
+  a real `{{unsubscribe}}`, and skips guilt copy on the way out.
+- **No screenshots in email** — dev HUD + small type = illegible at
+  inbox scale and a broken-image risk. Icon tile or `keyart-16x9` with
+  full alt text at most; the copy must stand alone.
+- **Feed vocabulary travels verbatim** — `{{status}}` renders the feed
+  string (`approved`, `resolved · declined`, `not approved`), never a
+  marketing-softened rewrite (lexicon §4, gate G15).
+
+---
+
+## 17. Governance
+
+- Changes to palette/type/logo/taglines/lexicon = edit this file (or
+  BRAND-LEXICON.md for vocabulary) + regenerate assets +
   inbox note. Palette hexes are also hardcoded in `site/css/style.css`,
   `site/assets/brand-tokens.json` (machine-readable source for
   `css/tokens.css` via `tools/make_tokens.py`), and
@@ -428,3 +561,70 @@ When a commissioned key-art piece replaces the dev-capture art:
   them.
 - Every shipped page/post is accountable to §10. The dry-run script checks
   mechanics; this file is the human gate for meaning.
+
+---
+
+## 18. Presentation & deck identity
+
+Pitches, partner meetings, festival submissions, and press briefings all need
+slides — and a slide deck is a brand surface like any other. The sanctioned
+skeleton is `marketing/templates/deck/base.html` (hand-rolled, zero
+dependencies, keyboard-navigable, prints one slide per page for PDF export);
+rules live in `marketing/templates/deck/README.md`. Headlines:
+
+- **Dark-first, always.** Slides are Asphalt `#14161c` with Paper text — a
+  projected deck is the block at night. Never a light deck, never a gradient
+  background, never a template theme.
+- **One amber element per slide** — a rule, a number, a name, the lit window.
+  More than one and the eye stops trusting it (same rule as §12 text cards).
+- **Screenshots sit on a `--bg` plate** with a Cornice hairline and a
+  "development build" caption (§8) — never full-bleed, never with the logo
+  lockup on top of them.
+- **Chart colors in token order:** amber → green → red → fog, then repeat.
+  Data ink is Paper; gridlines Cornice. No other hues enter the deck.
+- **Type ramp:** title slide wordmark ≥ 48 px equivalent; section statements
+  one sentence, ≤ 12 words; body bullets ≤ 6 words each, max 5 per slide —
+  decks are read at distance.
+- **The end slide is the end card** (§12): icon or breathing icon on `--bg`,
+  one approved tagline, held. No contact-info stuffing — the boilerplate
+  (§11) goes in the speaker notes or the follow-up email, not on the slide.
+- **Number honesty travels to slides:** every stat on a deck slide must trace
+  to the same sources §10 requires for copy. A chart of projected revenue is
+  labeled PROPOSAL like the monetization plan; a resident count is 28 because
+  the world ships 28.
+- **Motion between slides is a cut.** If the deck tool supports transitions,
+  they stay off — the block sets the pace.
+
+---
+
+## 19. Accessibility as identity
+
+A spectator product that some people can't watch is a contradiction, so
+accessibility is a brand surface, not a compliance tail. These rules codify
+what the site already does and make it enforceable — `tools/brand_audit.py`
+check 9 gates the mechanical half on every `site/*.html` page.
+
+- **Every page is keyboard-first.** `lang` on `<html>`, a skip link as the
+  first focusable element, and `id="main"` on the primary landmark. Focus is
+  always visible: a 2 px amber `--accent` outline — the one place amber *is*
+  allowed to mean "you are here." Wire surfaces (`wire.html`,
+  `wire-archive.html`) carry the same skip link in their own token names.
+- **Alt text is written in brand voice.** Describe the scene like a
+  neighbor, not a filename: "Street-level view past dressed facades, Jules
+  mid-block" — never "screenshot", "image", "logo", or a bare asset name.
+  Empty `alt=""` is permitted only for the decorative favicon inside the
+  brand lockup, where the adjacent wordmark already says the name.
+- **Dev-build labeling travels with the image or the page.** Any page that
+  embeds `shots/` captures must show "development build" visibly — in each
+  alt/caption (gallery style) or in an explicit label on the section
+  (features/press-kit style). The audit fails a page that shows captures
+  with no label anywhere (§8).
+- **Color never carries meaning alone** (§5) — status chips, ledger rows,
+  and request states always pair color with text.
+- **Motion respects the opt-out.** `prefers-reduced-motion` kills the
+  breathing window, smooth scroll, and every transition site-wide — the
+  calm brand is calmest when asked.
+- **Video ships captioned** (§13 `.srt` from the EDL) and audio is
+  diegetic-first, so muting loses nothing the captions don't carry.
+- **The Wire's live badge pulses, not flashes** — no flashing content
+  anywhere; attention is earned by the block, not the blink rate.

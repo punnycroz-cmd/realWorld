@@ -118,6 +118,12 @@ class Build:
             img = ImageEnhance.Color(img).enhance(0.7)
             blue = Image.new("RGB", img.size, (10, 14, 34))
             img = Image.blend(img, blue, 0.28)
+        elif kind == "dusk":
+            img = ImageEnhance.Brightness(img).enhance(0.62)
+            img = ImageEnhance.Color(img).enhance(0.88)
+            img = ImageEnhance.Contrast(img).enhance(1.04)
+            amber = Image.new("RGB", img.size, (96, 44, 18))
+            img = Image.blend(img, amber, 0.14)
         return img
 
     def vignette(self, img, strength=0.35):
@@ -558,7 +564,8 @@ class Build:
     TRANSITIONS = {"cut", "dip"}
     # soft ceilings per program (seconds) — warn, not fail
     DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5,
-                    "bumper": 6.5, "feed": 50.5, "movein": 60.5}
+                    "bumper": 6.5, "feed": 50.5, "movein": 60.5,
+                    "day": 45.5, "booking": 40.5}
     CARD_MAX = 80  # title-card readability ceiling
 
     def check(self):

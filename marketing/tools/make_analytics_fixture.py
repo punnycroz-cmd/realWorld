@@ -32,7 +32,7 @@ UTMS = [
     {"utm_source": "discord", "utm_medium": "community", "utm_campaign": "launch-2026"},
 ]
 REFS = ["bsky.app", "pcgamer.com", "itch.io", "news.ycombinator.com", None, None]
-SHOTS = ["v48-A.png", "v48-B.png", "v48-C.png", "v48-D.png",
+SHOTS = ["v50-A.png", "v50-B.png", "v50-C.png", "v50-D.png",
          "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png"]
 CTAS = ["hero", "walkthrough", "footer", "nav", "demo-hero", "demo-ladder",
         "pricing-teaser", "faq-exit"]
@@ -67,12 +67,44 @@ def main():
         ref = rnd.choice(REFS)
         yield_evt = lambda *a, **k: print(json.dumps(evt(*a, **k), sort_keys=True))
 
+        vw = rnd.choice([390, 768, 1440, 1920])
+        lang = rnd.choice(["en-US", "en-GB", "en-US", "de-DE"])
         yield_evt("pageview", path, sid,
-                  {"title": "Real World", "page": slug, "vw": rnd.choice([390, 768, 1440, 1920]),
-                   "lang": rnd.choice(["en-US", "en-GB", "en-US", "de-DE"])},
+                  {"title": "Real World", "page": slug, "vw": vw, "lang": lang},
                   utm=utm, ref=ref, ts=ts)
 
-        # session flow — each deeper stage is a subset
+        # --- journey: 0-3 internal hops via CTA clicks (v111) -------------
+        # Visitors land, then navigate — mostly toward demo/pricing. Each hop
+        # emits cta_click on the page left behind + pageview on the page
+        # reached, so analytics_paths.py has real trails to read.
+        hops = 0
+        clock = ts
+        while hops < 3 and rnd.random() < 0.55:
+            nxt_r = rnd.randrange(total_w)
+            acc2 = 0
+            for npath, nslug, w in PAGES:
+                acc2 += w
+                if nxt_r < acc2:
+                    break
+            if npath == path:
+                break
+            clock += rnd.randrange(4000, 40000)
+            yield_evt("cta_click", path, sid,
+                      {"cta": rnd.choice(CTAS), "dest": nslug,
+                       "href": npath.lstrip("/") or "./"},
+                      utm=utm, ref=ref, ts=clock)
+            yield_evt("engaged_time", path, sid,
+                      {"seconds": rnd.randrange(4, 120), "page": slug},
+                      utm=utm, ref=ref, ts=clock + 100)
+            clock += rnd.randrange(500, 3000)
+            path, slug = npath, nslug
+            yield_evt("pageview", path, sid,
+                      {"title": "Real World", "page": slug, "vw": vw, "lang": lang},
+                      utm=utm, ref=None, ts=clock)
+            hops += 1
+
+        # session flow — each deeper stage is a subset (fires on the page
+        # the journey landed on, not necessarily the landing page)
         if rnd.random() < 0.72:  # scrolled
             for m in (25, 50, 75, 100):
                 if rnd.random() < {25: .95, 50: .8, 75: .55, 100: .3}[m]:
@@ -116,7 +148,14 @@ def main():
                       {"action": rnd.choice(["possess", "venue", "weather"]),
                        "class": rnd.choice(["compatible", "exclusive", "flat"]),
                        "minutes": rnd.choice([5, 10, 30]),
-                       "credits": rnd.choice([8, 45, 90, 180])},
+                       "credits": rnd.choice([8, 45, 90, 180]),
+                       "queued": rnd.random() < 0.3,
+                       "surge": rnd.random() < 0.15,
+                       "screened": rnd.choice(
+                           ["clean", "clean", "clean", "clean",
+                            "surface-relationship", "venue-lock",
+                            "harm-targeting", "secret-extraction",
+                            "admin-domain", "real-business"])},
                       utm=utm, ref=ref, ts=ts + 20000)
         if rnd.random() < 0.15:  # community intent: invite click / recap read
             yield_evt("community_join", "/community.html", sid,

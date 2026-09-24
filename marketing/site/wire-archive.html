@@ -241,9 +241,13 @@
   .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
     border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
     display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
+  .skip-link{position:absolute;left:12px;top:-48px;z-index:200;background:var(--acc);
+    color:#1a1408;font-weight:700;padding:10px 16px;border-radius:8px}
+  .skip-link:focus{top:12px}
 </style>
 </head>
 <body data-page="wire-archive">
+<a class="skip-link" href="#main">Skip to the record</a>
 <h1 style="position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden">The Archive — Real World history browser</h1>
 <header>
   <div class="logo">Real <span>World</span> — The Archive</div>
@@ -255,7 +259,7 @@
   <a class="navlink" href="wire.html">→ The Wire (live today)</a>
 </header>
 
-<main>
+<main id="main">
   <div class="railL">
     <section class="panel">
       <h2>Browse <span class="free">— free forever</span></h2>
