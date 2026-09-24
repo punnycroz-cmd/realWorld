@@ -32430,6 +32430,83 @@ function sfWireShadow(wx, wy, wz, x1, y1, ux, uy, nx, ny, L){
   const z = wz - s * Math.tan(Math.max(0.02, SF_SUN.el));
   return { u, z, s };
 }
+/* ---------------- v80: the sun field --------------------------------
+   Every pass before this painted shadows LOCALLY — a building's bake can
+   only shade inside its own canvas pad, so a 20m rowhouse never throws
+   its real 40m evening shadow across the street, and nothing shades the
+   park. This replaces the patchwork with a sky-visibility FIELD: for
+   each half-cell ground sample we march a ray toward the sun through
+   building masses AND crown volumes (elevations are absolute, so the
+   Dolores bowl and Liberty Hill carry shade uphill/downhill correctly);
+   the result bakes into the terrain chunk as a cool skylight-only shade
+   layer plus a visibility-gated warm key. Crowns transmit a fraction of
+   the beam (species density), so a hard parapet umbra and a palm's
+   sieve shade differently. sfSkyVis doubles as the live query so pawns
+   and props standing in a shadow stop casting light they never see. */
+// crown occluder: [radius m, crown base m, crown top m, shade density]
+function sfCrownOcc(o){
+  switch(o.kind){
+    case 'sfTree':       return o.big ? [2.7, 2.6, 8.4, 0.85]
+                                      : [1.7, 1.6, 5.4, 0.72];
+    case 'sfPalm':       return [1.6, 5.0, 7.4, 0.42];
+    case 'sfCypress':    return [1.0, 0.3, 7.6, 0.8];
+    case 'sfStreetTree': return o.v === 0 ? [2.3, 1.5, 5.2, 0.72]
+                                          : [1.2, 1.3, 3.9, 0.55];
+    default: return null;
+  }
+}
+/* direct-sun visibility 0..1 at ground point (meters). tMap is the
+   per-chunk-bake occluder index (cell -> crown records pre-expanded over
+   every cell the disc overlaps); without it we probe the 3x3 prop-cell
+   neighborhood — the live query for pawns/props. */
+function sfSkyVis(xm, ym, tMap){
+  if(SF_SUN.day < 0.05 || isNight()) return 1;
+  const cm = SF_M.cell_m, tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+  const z0 = sfElevM(xm, ym);
+  const maxD = Math.min(90, 34 / tanEl);
+  let vis = 1;
+  for(let s = 1.5; s < maxD; s += 1.5){
+    const ox = xm + SF_SUN.toX * s, oy = ym + SF_SUN.toY * s;
+    const zr = z0 + s * tanEl;
+    const bi = sfBldAtM(ox, oy);
+    if(bi >= 0 && SF_BLD[bi].hPx / 4.2 + sfElevM(ox, oy) > zr)
+      return 0;                                   // opaque mass — umbra
+    const cxx = Math.floor(ox / cm), cyy = Math.floor(oy / cm);
+    if(tMap){
+      const lst = tMap.get(cxx + ',' + cyy);
+      if(lst) for(const t of lst){
+        const dx = ox - t.x, dy = oy - t.y;
+        if(dx * dx + dy * dy < t.r2 && zr > t.zb && zr < t.zt){
+          vis *= t.tr; if(vis < 0.04) return 0.04;
+        }
+      }
+    } else {
+      for(let ny = -1; ny <= 1; ny++) for(let nx = -1; nx <= 1; nx++){
+        const lst = SF_PROP_CELL.get((cxx + nx) + ',' + (cyy + ny));
+        if(!lst) continue;
+        for(const o of lst){
+          const oc = o._occ || (o._occ = sfCrownOcc(o));
+          if(!oc) continue;
+          const dx = ox - o.x / SF_PXM, dy = oy - o.y / SF_PXM;
+          if(dx * dx + dy * dy < oc[0] * oc[0] && zr > oc[1] && zr < oc[2]){
+            vis *= 1 - oc[3];
+            if(vis < 0.04) return 0.04;
+          }
+        }
+      }
+    }
+  }
+  return vis;
+}
+/* memoized field query for static props — the sun sector is the cache
+   key, so a pawn-free frame costs one compare per prop */
+function sfPropVis(o){
+  if(o._visQ !== SF_SUN.q){
+    o._visV = sfSkyVis(o.x / SF_PXM, o.y / SF_PXM);
+    o._visQ = SF_SUN.q;
+  }
+  return o._visV;
+}
 /* ---------------- v15: penumbra & twilight ----------------
    sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
    opaque core fading to nothing, drawn as a scaled radial gradient.
@@ -34311,11 +34388,11 @@ function sfTerrChunk(cx, cy, wetQ){
           g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
         }
       }
-      // v42: the warm key — open ground is sun-struck, not just unshadowed.
-      // A faint gold wash (scaled by elevation + golden-hour warmth) sits
-      // under every cast-shadow sprite, so lit pavement reads warm against
-      // the cool skylight-only shade the buildings throw over it.
-      if(SF_TERR.litA > 0.004){
+      // v80: the flat warm key moved into the sun-field pass below —
+      // visibility-gated per half-cell, so shadowed ground stops
+      // receiving the gold wash. Fallback only when the field is off
+      // (deep overcast / night edges where litA is ~0 anyway).
+      if(SF_TERR.litA > 0.004 && (SF_SUN.day <= 0.05 || isNight())){
         g.fillStyle = `rgba(255,210,142,${SF_TERR.litA})`;
         g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
       }
@@ -34335,6 +34412,77 @@ function sfTerrChunk(cx, cy, wetQ){
     }
   }
   sfDecalChunk(g, cx, cy);
+  /* v80: sun field — bake the raymarched sky-visibility map into the
+     chunk. Two half-cell-resolution layers drawn smoothed (bilinear
+     does the penumbra): a warm key where the sun lands (shadowed ground
+     keeps only a faint bounce term) and a cool skylight shade where it
+     doesn't. One map drives both, so lit and shaded pavement can never
+     disagree about where the shadow line runs. */
+  if(SF_SUN.day > 0.05 && !isNight()){
+    const cm = SF_M.cell_m, SS = 2, N = CHN * SS;
+    const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+    const maxD = Math.min(90, 34 / tanEl);
+    // crown occluders: gather veg props over the chunk + the up-sun
+    // reach, pre-expanded into every cell each crown disc overlaps
+    const reach = Math.ceil(maxD / cm) + 2;
+    const ax = Math.round(SF_SUN.toX * reach), ay = Math.round(SF_SUN.toY * reach);
+    const xA = Math.min(cx * CHN, cx * CHN + ax) - 2,
+          xB = Math.max(cx * CHN + CHN - 1, cx * CHN + CHN - 1 + ax) + 2,
+          yA = Math.min(cy * CHN, cy * CHN + ay) - 2,
+          yB = Math.max(cy * CHN + CHN - 1, cy * CHN + CHN - 1 + ay) + 2;
+    const tMap = new Map();
+    for(let cy2 = yA; cy2 <= yB; cy2++) for(let cx2 = xA; cx2 <= xB; cx2++){
+      const lst = SF_PROP_CELL.get(cx2 + ',' + cy2);
+      if(!lst) continue;
+      for(const o of lst){
+        const oc = o._occ || (o._occ = sfCrownOcc(o));
+        if(!oc) continue;
+        const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+        const ze = sfElevM(mx, my);
+        const rec = { x: mx, y: my, r2: oc[0] * oc[0],
+                      zb: oc[1] + ze, zt: oc[2] + ze, tr: 1 - oc[3] };
+        const rc = Math.ceil(oc[0] / cm);
+        const ccx = Math.floor(mx / cm), ccy = Math.floor(my / cm);
+        for(let dy2 = -rc; dy2 <= rc; dy2++)
+          for(let dx2 = -rc; dx2 <= rc; dx2++){
+            const k2 = (ccx + dx2) + ',' + (ccy + dy2);
+            if(!tMap.has(k2)) tMap.set(k2, []);
+            tMap.get(k2).push(rec);
+          }
+      }
+    }
+    // march one sun ray per half-cell sample
+    const vis8 = new Uint8Array(N * N);
+    for(let j = 0; j < N; j++){
+      const ym = (cy * CHN + (j + 0.5) / SS) * cm;
+      for(let i = 0; i < N; i++){
+        const xm = (cx * CHN + (i + 0.5) / SS) * cm;
+        vis8[j * N + i] = Math.round(sfSkyVis(xm, ym, tMap) * 255);
+      }
+    }
+    const mk = (r, g2, b, f) => {
+      const c2 = document.createElement('canvas'); c2.width = c2.height = N;
+      const g3 = c2.getContext('2d'), im = g3.createImageData(N, N),
+            dd = im.data;
+      for(let j = 0; j < N; j++) for(let i = 0; i < N; i++){
+        const k2 = (j * N + i) * 4, vis = vis8[j * N + i] / 255;
+        dd[k2] = r; dd[k2 + 1] = g2; dd[k2 + 2] = b;
+        dd[k2 + 3] = Math.round(255 * f(vis));
+      }
+      g3.putImageData(im, 0, 0);
+      return c2;
+    };
+    const litA = SF_TERR.litA;
+    const shA = clamp(0.40 * Math.min(1, SF_SUN.day * 1.4), 0, 0.44);
+    g.imageSmoothingEnabled = true;
+    if(litA > 0.003)
+      g.drawImage(mk(255, 214, 150, v => litA * (0.3 + 0.7 * v) * 1.35),
+                  0, 0, c.width, c.height);
+    if(shA > 0.004)
+      g.drawImage(mk(34, 48, 92, v => shA * (1 - v)),
+                  0, 0, c.width, c.height);
+    g.imageSmoothingEnabled = false;
+  }
   SF_TERR.cache.set(key, c);
   while(SF_TERR.cache.size > SF_TERR.max)
     SF_TERR.cache.delete(SF_TERR.cache.keys().next().value);
@@ -35127,14 +35275,14 @@ function sfRenderWorld(cw, ch){
           sfSoftEllipse(sx + shx, sy + shy,
                         cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
                         chh * 0.5, Math.atan2(shy, shx),
-                        0.22 * Math.min(1, SF_SUN.day + 0.3),
+                        0.22 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
                         sfUmbra(Math.hypot(shx, shy)));
         }
         ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
         /* v51: parked sheet metal — the sunward rim of the roof/hood
            throws a short bright arc back when the sun is up (the same
            bearing that throws the car's shadow, flipped). */
-        if(!isNight() && SF_SUN.day > 0.3){
+        if(!isNight() && SF_SUN.day > 0.3 && sfPropVis(o) > 0.4){
           const sa = Math.atan2(-SF_SUN.y * SF_TILT, -SF_SUN.x);
           ctx.strokeStyle = `rgba(255,244,214,${(0.30 * SF_SUN.day *
                              (0.4 + 0.6 * SF_SUN.warm)).toFixed(3)})`;
@@ -35164,7 +35312,7 @@ function sfRenderWorld(cw, ch){
           sfSoftEllipse(sx + shx, sy + shy,
                         cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
                         chh * 0.5, Math.atan2(shy, shx),
-                        0.2 * Math.min(1, SF_SUN.day + 0.3),
+                        0.2 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
                         sfUmbra(Math.hypot(shx, shy)));
         }
         ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
@@ -35177,6 +35325,9 @@ function sfRenderWorld(cw, ch){
         // and stretch both come from the solar elevation (long low-sun
         // streaks, compact noon pools), tilted with the ground plane
         if(shadeR && !isNight() && SF_SUN.day > 0.08){
+          // v80: a crown inside a building's shadow throws nothing —
+          // the field owns that pavement now
+          const pVis = sfPropVis(o);
           const hmPx = (o.kind === 'sfTree' ? (o.big ? 7.2 : 4.4) : o.kind === 'sfPalm' ? 6.4 :
                         o.kind === 'sfCypress' ? 6.0 :
                         o.kind === 'sfStreetTree' && o.v === 0 ? 4.8 : 3.6) * SF_PXM * cam.zoom;
@@ -35185,7 +35336,7 @@ function sfRenderWorld(cw, ch){
           const rot = Math.atan2(shy, shx);
           // v15: penumbral canopy shadow — umbra core, soft falloff edge;
           // the longer the throw, the wider the penumbra spreads
-          const aS = 0.26 * Math.min(1, SF_SUN.day + 0.3),
+          const aS = 0.26 * Math.min(1, SF_SUN.day + 0.3) * pVis,
                 um = sfUmbra(Math.hypot(shx, shy));
           if(o.kind === 'sfPalm'){
             // v46: a palm crown is a rosette — its shadow is a star of
@@ -35302,7 +35453,8 @@ function sfRenderWorld(cw, ch){
                         footM * SF_PXM * cam.zoom + len * 0.45,
                         Math.max(2 * cam.zoom, footM * SF_PXM * cam.zoom * 0.7),
                         Math.atan2(shy, shx),
-                        0.24 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+                        0.24 * Math.min(1, SF_SUN.day + 0.3) * sfPropVis(o),
+                        sfUmbra(len));
         }
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         const vegK = o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
@@ -35465,7 +35617,7 @@ function sfRenderWorld(cw, ch){
         // v31: crowns answer the REAL sun — a warm wash on the sunward
         // flank of the crown, cool sky-fill lee, and light-dapple
         // speckles where sun leaks through onto the shadowed ground
-        if(vegK && !isNight() && SF_SUN.day > 0.2){
+        if(vegK && !isNight() && SF_SUN.day > 0.2 && sfPropVis(o) > 0.3){
           const crx = pw * 0.42, cy2 = sy - ph * 0.58;
           const sux = SF_SUN.toX, suy = SF_SUN.toY * SF_TILT;
           const sl2 = Math.hypot(sux, suy) || 1;
@@ -35493,6 +35645,17 @@ function sfRenderWorld(cw, ch){
             const rr = Math.sqrt(phash(di, o.wy * 11 + o.wx, 3463)) * shadeR * cam.zoom;
             ctx.fillRect(Math.round(dcx + Math.cos(a) * rr),
                          Math.round(dcy + Math.sin(a) * rr * 0.5), 1.6, 1.2);
+          }
+        }
+        // v80: a crown inside a building's shadow is lit by the sky dome
+        // alone — cool and flat, no sun flank, no dapple
+        if(vegK && !isNight() && SF_SUN.day > 0.08){
+          const pv2 = sfPropVis(o);
+          if(pv2 < 0.55){
+            ctx.fillStyle = `rgba(44,58,96,${(0.30 * (1 - pv2)).toFixed(3)})`;
+            ctx.beginPath();
+            ctx.ellipse(sx, sy - ph * 0.55, pw * 0.46, ph * 0.42, 0, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
         // v59: wet foliage — rain-soaked crowns darken (wet cuticle
@@ -35533,7 +35696,11 @@ function sfRenderWorld(cw, ch){
       ctx.beginPath();
       ctx.ellipse(sx, sy + 2 * cam.zoom, 9 * cam.zoom, 4 * cam.zoom, 0, 0, Math.PI * 2);
       ctx.fill();
-      if(!isNight() && SF_SUN.day > 0.08){
+      // v80: a pawn inside a shadow throws none of its own and takes the
+      // same skylight-only fill as the pavement under it
+      const pvVis = (!isNight() && SF_SUN.day > 0.08)
+        ? sfSkyVis(v.x / SF_PXM, v.y / SF_PXM) : 1;
+      if(!isNight() && SF_SUN.day > 0.08 && pvVis > 0.05){
         const hmPx = 1.6 * SF_PXM * cam.zoom;
         const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
         const len = Math.hypot(shx, shy);
@@ -35541,7 +35708,7 @@ function sfRenderWorld(cw, ch){
                       9 * cam.zoom + len * 0.5,
                       Math.max(3 * cam.zoom, 4.5 * cam.zoom + len * 0.12),
                       Math.atan2(shy, shx),
-                      0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
+                      0.28 * Math.min(1, SF_SUN.day + 0.3) * pvVis, sfUmbra(len));
       }
       // v62: pawns lean like every other upright mass — 1.6m is small,
       // but at the frame edges the aerial displacement is real
@@ -35575,6 +35742,15 @@ function sfRenderWorld(cw, ch){
         ctx.fill();
       }
       ctx.restore();
+      // v80: skylight-only body fill — a pawn in a building's shadow
+      // reads cool and flat like the pavement under it
+      if(pvVis < 0.6){
+        ctx.fillStyle = `rgba(44,58,96,${(0.30 * (1 - pvVis)).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy - 8 * cam.zoom, 8 * cam.zoom,
+                    12 * cam.zoom, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
     }
   }
 
