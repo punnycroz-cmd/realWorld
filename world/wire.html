@@ -91,6 +91,21 @@
       day card's withheld-count honesty line (privacy, not downtime).
     - follow pins sync to the bus endpoint gsWireFollow (v:/m: keys) —
       the only write this page makes is the viewer's own pin.
+  New in v8 (world v103) — the record layer:
+    - pin read-back: gsWireFollows() hydrates the Following panel from
+      the bus's own pin set on join and adopts new bus-side pins each
+      poll (v:<venue> / m:<char> → page v:/c:) — pins made in the sim's
+      own panel or another surface show up here. Page pins the bus lacks
+      are pushed through once at join; a viewer's unpin still writes
+      through and is never resurrected.
+    - archive depth: gsWireDays() counts the days on record — the footer
+      link reads "N days on record → The Archive" instead of a guess.
+    - vocabulary coverage: gsWireVocabulary() supplies the canonical
+      kinds/statuses; the day card reports "M of S statuses seen today"
+      — the wire's own coverage, counted, never ranked.
+    - bus self-check: opening the day card (live) runs gsWireAudit() and
+      reports the bus's own verdict — "N lines · self-check ok" or the
+      honest issue count. Read-only; the record flags itself.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -416,7 +431,7 @@
       <button id="older">load older</button>
       <span id="foot" class="caughtup"></span>
       <button id="keys" title="keyboard shortcuts">keys</button>
-      <a href="archive.html" style="margin-left:auto">earlier days → The Archive</a>
+      <a href="archive.html" id="archlink" style="margin-left:auto">earlier days → The Archive</a>
     </div>
   </section>
 
@@ -936,12 +951,35 @@ function renderDayBar(){
     if (LIVE_STATS && LIVE_STATS.suppressed)
       h+='<div class="stat"><span>withheld from the wire</span><b>'+
         LIVE_STATS.suppressed+' — privacy screens, not downtime</b></div>';
+    /* v103 — vocabulary coverage: how much of the bus's own status
+       vocabulary the wire has exercised today. A count, not a grade. */
+    if (LIVE_VOCAB && LIVE_VOCAB.statuses && LIVE_VOCAB.statuses.length){
+      var seen={}; FEED.forEach(function(e){ if(e.status) seen[e.status]=1; });
+      var cov=Object.keys(seen).filter(function(x){return LIVE_VOCAB.statuses.indexOf(x)>=0;}).length;
+      h+='<div class="stat"><span>statuses seen today</span><b>'+cov+' of '+
+        LIVE_VOCAB.statuses.length+' on the bus\u2019s own vocabulary</b></div>';
+    }
+    /* v103 — the record flags itself: the bus's own audit, run when the
+       card opens (live only). Issues render as a count, never content. */
+    if (LIVE_AUDIT)
+      h+='<div class="stat"><span>the bus\u2019s self-check</span><b>'+
+        esc(String(LIVE_AUDIT.total||0))+' lines · '+
+        (LIVE_AUDIT.ok?'self-check ok':(LIVE_AUDIT.issues||[]).length+' issue'+
+          ((LIVE_AUDIT.issues||[]).length===1?'':'s')+' flagged by the record')+'</b></div>';
     h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
       'no ranking, nothing extra a camera couldn’t see.</div>';
     card.innerHTML=h; card.classList.add('open');
   } else card.classList.remove('open');
 }
-function toggleDay(){ dayOpen=!dayOpen; renderDayBar(); }
+function toggleDay(){
+  dayOpen=!dayOpen;
+  /* v103 — the self-check runs on demand, not on the poll loop: a full
+     scan of the record is cheap but not per-1.5s cheap. */
+  if (dayOpen && LIVE && BRIDGE.gsWireAudit){
+    try{ LIVE_AUDIT=BRIDGE.gsWireAudit(); }catch(_){}
+  }
+  renderDayBar();
+}
 document.getElementById('daybar').onclick=toggleDay;
 document.getElementById('daybar').onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); toggleDay(); } };
 
@@ -1408,6 +1446,33 @@ function seedFeed(){
 var liveSeen = {};
 var liveExhausted = false;     /* gsWirePage said we've hit the top */
 var LIVE_STATS = null;         /* gsWireStats snapshot (suppressed, etc.) */
+var LIVE_VOCAB = null;         /* gsWireVocabulary snapshot (v103) */
+var LIVE_AUDIT = null;         /* gsWireAudit result, refreshed on day-card open (v103) */
+var followsSynced = false;     /* v103 — first bus↔page pin reconcile done */
+/* v103 — pin read-back: the bus's own pin set (gsWireFollows, keys
+   v:<venue> / m:<char>) hydrates the Following panel. First sync also
+   pushes any page pins (localStorage carry-over) the bus lacks; after
+   that the flow is one-directional — adopt new bus pins, never delete a
+   page pin (a viewer's unpin already wrote false through gsWireFollow). */
+function followsSync(){
+  if (!(LIVE && BRIDGE.gsWireFollows)) return;
+  var keys;
+  try{ keys=BRIDGE.gsWireFollows()||[]; }catch(_){ return; }
+  var changed=false;
+  keys.forEach(function(bk){
+    var pk = bk[0]==='v' ? bk : (bk[0]==='m' ? 'c:'+bk.slice(2) : null);
+    if (pk && !follows[pk]){ follows[pk]=true; changed=true; }
+  });
+  if (!followsSynced && BRIDGE.gsWireFollow){
+    var bus={}; keys.forEach(function(k){ bus[k]=1; });
+    Object.keys(follows).forEach(function(pk){
+      var bk = pk[0]==='v' ? pk : 'm:'+pk.slice(2);
+      if (!bus[bk]){ try{ BRIDGE.gsWireFollow(bk,true); }catch(_){} }
+    });
+  }
+  followsSynced=true;
+  if (changed){ saveFollows(); renderFollows(); renderVenues(); renderCast(); }
+}
 function wireClock(min){       /* mirrors gsWireClock — PT wall time */
   try{
     var p={};
@@ -1517,6 +1582,20 @@ function livePoll(){
         if (s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
         else document.querySelector('.viewers').style.display='none';
       }
+    }
+    /* v103 — the record layer: pin read-back, vocabulary coverage,
+       archive depth. All capability-checked; demo never fakes them. */
+    followsSync();
+    if (BRIDGE.gsWireVocabulary && !LIVE_VOCAB){
+      try{ LIVE_VOCAB=BRIDGE.gsWireVocabulary(); }catch(_){}
+    }
+    if (BRIDGE.gsWireDays){
+      var days;
+      try{ days=BRIDGE.gsWireDays()||[]; }catch(_){ days=[]; }
+      var al=document.getElementById('archlink');
+      al.textContent = days.length>1
+        ? days.length+' days on record → The Archive'
+        : 'earlier days → The Archive';
     }
   }catch(err){ /* bridge hiccup — keep last good frame */ }
 }

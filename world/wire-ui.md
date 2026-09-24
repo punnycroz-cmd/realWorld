@@ -1,4 +1,4 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
@@ -473,3 +473,43 @@ the Counter, never here.
 | Denied attempt | "asked for — \<kind\> (the class of ask only — the screened text is never public)" |
 | Explainer | "the bus says — \<note\>" · "waiting on — \<claims\>" · "blocked by — \<reqs\>" |
 | Queue discount | "filed queued — −15% (the queue discount, declared at filing)" |
+
+## 14. v103 — the record layer (world v103)
+
+v89 wired the page to the bus's wire endpoints; v103 takes the remaining
+four — still strictly view-layer, still capability-checked with the demo
+pipeline untouched.
+
+- **Pin read-back** (`gsWireFollows()`): the Following panel hydrates
+  from the bus's own pin set. Bus keys `v:<venue>` / `m:<char>` map to
+  page keys `v:` / `c:`. `followsSync()` runs inside `livePoll`: new
+  bus-side pins (set in the sim's own `gs-wire` panel or any other
+  surface) are adopted into the viewer's panel; on the first sync only,
+  page pins the bus lacks (localStorage carry-over) are pushed through
+  `gsWireFollow`. After that the flow is one-directional — adopt, never
+  delete. A viewer's unpin already wrote `false` through, so nothing
+  resurrects a removed pin.
+- **Archive depth** (`gsWireDays()`): the footer link stops guessing —
+  "N days on record → The Archive" when the record spans more than one
+  day, the classic "earlier days → The Archive" otherwise. The count is
+  the bus's, not a fabricated history.
+- **Vocabulary coverage** (`gsWireVocabulary()`): cached as `LIVE_VOCAB`
+  (kinds/statuses/reasonCodes). The day card gains "statuses seen today
+  — M of S on the bus's own vocabulary," counted from the wire's own
+  events. A coverage count, never a completeness grade.
+- **Self-check** (`gsWireAudit()`): runs when the day card opens — on
+  demand, never per-poll (a full record scan isn't 1.5 s work). Live
+  only: "the bus's self-check — N lines · self-check ok" or "M issues
+  flagged by the record." Issues render as a count, never quoted — the
+  audit's strings are for the console, not spectators.
+
+### Copy deck — v103 strings
+
+| Moment | Copy |
+|---|---|
+| Archive link, multi-day | "N days on record → The Archive" |
+| Archive link, one day | "earlier days → The Archive" (unchanged) |
+| Vocabulary coverage | "statuses seen today — M of S on the bus's own vocabulary" |
+| Self-check clean | "the bus's self-check — N lines · self-check ok" |
+| Self-check issues | "N lines · M issues flagged by the record" |
+| Pin read-back note | (no new copy — pins adopted silently; the Following panel's standing copy already says it filters the wire and never touches the world) |

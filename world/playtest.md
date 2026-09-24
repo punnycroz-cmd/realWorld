@@ -300,6 +300,11 @@ One person can wear every hat; four real testers is the intended shape.
   write paths, gsWatchAd/gsAdStatus run the wallet's rewarded ads,
   gsPossessionBriefing serves the §7 whitelist live, gsConflictRules
   explains the classes, and gsAppealStats surfaces in aggregate only.
+  PT94 (The record layer v103 / wire.html) audits the last four wire
+  endpoints — gsWireFollows pin read-back (adopt-only, never deletes a
+  viewer's pin), gsWireDays archive depth ("N days on record → The
+  Archive"), gsWireVocabulary status coverage in the day card, and
+  gsWireAudit's self-check run on demand when the card opens.
 
 ## 3. Running a session
 

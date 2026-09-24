@@ -76,6 +76,14 @@
       "explain": "gsExplainRequest real shape {note, queuePos, blockedBy[], behind[], on[] claim labels, code} renders as 'the bus says — <note>' + waiting-on/blocked-by lines",
       "booked_status": "'booked' (a scheduled-window status on bus-forwarded entries, v88 seam) gets a chip style and counts as open on the live strip; the 10 canonical request_status values are unchanged",
       "follow_sync": "pins write through to BRIDGE.gsWireFollow with bus keys (v:<venue> / m:<char>) — the ONLY write a spectator surface ever makes, and it's the viewer's own pin"
+    },
+    "spectator_ui_v103": {
+      "doc": "world v103 — the record layer on wire.html (v8). The last bus endpoints get honest surfaces; still strictly view-layer.",
+      "pin_readback": "BRIDGE.gsWireFollows() hydrates the Following panel: bus keys v:<venue>/m:<char> map to page v:/c:; each poll adopts bus-side pins set elsewhere; first sync pushes page pins the bus lacks once; unpins never resurrect",
+      "archive_depth": "BRIDGE.gsWireDays() drives the footer link — 'N days on record → The Archive' when the record spans >1 day; honest count, no guessed history",
+      "vocab_coverage": "BRIDGE.gsWireVocabulary() (kinds/statuses/reasonCodes) caches as LIVE_VOCAB; the day card reports 'M of S statuses seen today' — coverage counted from the wire itself",
+      "self_check": "BRIDGE.gsWireAudit() runs on day-card open (not per-poll): 'the bus's self-check — N lines · self-check ok' or the honest issue count; issues are counted, never quoted",
+      "keyboard": "unchanged — d still toggles the day card and now also refreshes the self-check live"
     }
   },
   "event_kinds": [

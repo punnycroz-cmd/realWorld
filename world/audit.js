@@ -2799,6 +2799,25 @@ const PUB = Object.values(PT.surfaces)
       'permit_board', 'co_sessions', 'wx_sponsors', 'wire_stats',
       'explain', 'booked_status', 'follow_sync'])
       if (!V89[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v89.${k} missing`);
+    /* v103 affordances + contract keys (the record layer) */
+    for (const s of ['id="archlink"', 'followsSync', 'followsSynced',
+      'gsWireFollows', 'gsWireVocabulary', 'gsWireDays', 'gsWireAudit',
+      'LIVE_VOCAB', 'LIVE_AUDIT', 'days on record',
+      'statuses seen today', 'self-check ok', 'flagged by the record',
+      'the bus\\u2019s own vocabulary'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v103 affordance "${s}" absent`);
+    const V103 = (FJ.spectator_ui || {}).spectator_ui_v103 || {};
+    for (const k of ['pin_readback', 'archive_depth', 'vocab_coverage',
+      'self_check', 'keyboard'])
+      if (!V103[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v103.${k} missing`);
+    /* v103 honesty: pin read-back is adopt-only — the sync may never
+       delete a page pin (an unpin already wrote false through the bus) */
+    {
+      const m = html.match(/function followsSync\(\)\{[\s\S]*?\n\}/);
+      if (!m) add(g, 'fail', 'wire.html', null, 'followsSync body not found');
+      else if (/delete follows\[/.test(m[0]))
+        add(g, 'fail', 'wire.html', null, 'followsSync deletes a page pin — read-back must be adopt-only');
+    }
     /* wire BOOKW mirrors bookings.json windows — same five-field key as
        request.html's own BOOKW check in the book gate */
     {
@@ -2842,7 +2861,8 @@ const PUB = Object.values(PT.surfaces)
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
       `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'} · ` +
-      `v75 keys: ${Object.keys(V75).join(',') || 'none'} · v89 keys: ${Object.keys(V89).join(',') || 'none'}`;
+      `v75 keys: ${Object.keys(V75).join(',') || 'none'} · v89 keys: ${Object.keys(V89).join(',') || 'none'} · ` +
+      `v103 keys: ${Object.keys(V103).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 

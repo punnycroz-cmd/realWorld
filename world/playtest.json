@@ -4819,6 +4819,46 @@
    ]
   }
  ]
+},
+{
+ "id": "PT94",
+ "title": "The record layer v103 — wire.html reads the bus's own pins, days, vocabulary, and self-check",
+ "minutes": 8,
+ "persona": "merge auditor — wants proof the last four wire endpoints have honest surfaces, not decorative ones",
+ "goal": "Verify the v103 record layer: wire.html consumes gsWireFollows (pin read-back), gsWireDays (archive depth), gsWireVocabulary (status coverage), and gsWireAudit (self-check) — all capability-checked behind LIVE; feed.json documents them in spectator_ui_v103; the wire gate enforces every surface plus the adopt-only pin rule.",
+ "surfaces": [
+  "wire",
+  "audit"
+ ],
+ "steps": [
+  {
+   "do": "Read the v103 block in world/wire.html's header comment, then find followsSync and its call inside livePoll (search 'v103').",
+   "expect": "followsSync maps bus keys v:<venue>/m:<char> to page v:/c:, adopts new bus-side pins into the viewer's Following panel each poll, and on the first sync only pushes page pins (localStorage carry-over) the bus lacks through gsWireFollow. It never deletes a page pin — a viewer's unpin already wrote false through the bus.",
+   "checkpoints": [
+    "Pin read-back is adopt-only — no delete follows[...] inside followsSync",
+    "Bus m: keys become page c: keys; v: keys pass through unchanged",
+    "Every bus call sits inside try/catch under the LIVE flag — a missing endpoint degrades silently"
+   ]
+  },
+  {
+   "do": "Find the archive-depth, vocabulary-coverage, and self-check passes — livePoll's tail and toggleDay/renderDayBar.",
+   "expect": "gsWireDays() rewrites the footer link to 'N days on record → The Archive' when the record spans >1 day; gsWireVocabulary() caches as LIVE_VOCAB and the open day card counts 'statuses seen today — M of S on the bus's own vocabulary'; gsWireAudit() runs on day-card open (not per-poll) and renders 'the bus's self-check — N lines · self-check ok' or the honest issue count. Demo mode shows none of it.",
+   "checkpoints": [
+    "The archive link counts the bus's days — no fabricated history",
+    "Vocabulary coverage is a count of the wire's own statuses — never a completeness grade or ranking",
+    "Self-check is on-demand only; issues render as a count, never quoted strings"
+   ]
+  },
+  {
+   "do": "Run node world/audit.js and read the wire gate; then open world/feed.json spectator_ui_v103 and world/wire-ui.md §14.",
+   "expect": "Wire gate passes with the v103 checks green (all four endpoint names, id=\"archlink\", the adopt-only followsSync body check, all five spectator_ui_v103 keys). Prose spells the adopt-never-delete rule and the on-demand self-check.",
+   "checkpoints": [
+    "Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
+    "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
+    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"
+   ]
+  }
+ ]
 }
  ],
  "session_report_schema": {
