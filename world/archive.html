@@ -80,6 +80,20 @@
       at rows that stood on the wire in their own right.
     All three are still projections: nothing counted, cut, or linked
     that wasn't already a public row.
+  v9 additions (world v118) — THE TWO-CLOCKS + EDITION LAYER:
+    - REPLAY — the day view gains a second clock: 'replay' deals the
+      day's own rows back in timestamp order at a chosen speed
+      (15/30/60 block-minutes per real second), with pause, 'next
+      line' dead-air skip, and a block-time readout. Same rows on a
+      faster clock — the live clock stays on the wire; 'r' toggles it.
+    - THE EDITION — the catch-up edition: a reader-side mark
+      (rw_archive_seen, this device only) holds the newest line the
+      reader had seen; the edition is everything the wire has written
+      since, grouped by day with kind counts and touched threads.
+      'mark the record read' moves the mark; first visit starts it
+      honestly. A window, never a cut — the record itself is untouched.
+    Both are still projections: replay hides unreached rows only while
+    it runs; the edition reads a mark the reader set on this device.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -260,6 +274,11 @@
   .dnav{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;border:1px solid var(--line);
     background:var(--panel2);color:var(--blu);cursor:pointer}
   .dnav:disabled{opacity:.35;cursor:default}
+  .rpbar{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:8px 0 2px;
+    padding:7px 10px;border:1px solid var(--acc);border-radius:8px;background:#241f12;font-size:12px}
+  .rpclock{font-family:var(--mono);font-size:15px;color:var(--acc);min-width:52px;text-align:center}
+  .rpbar .meta{font-size:11px}
+  .rpbar .chip{cursor:pointer;user-select:none}
   .keyhint{font-size:10px;color:var(--dim);border:1px solid var(--line);border-radius:6px;
     padding:1px 8px;font-family:var(--mono)}
 
@@ -342,6 +361,7 @@
         <div class="vchip" data-v="gaps">off the feed<small>the hours the wire never wrote — counted, never filled</small></div>
         <div class="vchip" data-v="pair">seen together<small>two names, one public record — co-presence only</small></div>
         <div class="vchip" data-v="shelf">your shelf<small>pins kept on this device — the archive doesn’t remember you</small></div>
+        <div class="vchip" data-v="edition">the edition<small>everything the wire wrote since your mark — a window, never a cut</small></div>
       </div>
       <select class="pick" id="pickWho" style="display:none"></select>
       <select class="pick" id="pickVenue" style="display:none"></select>
@@ -665,6 +685,99 @@ function shelfToggle(id){
   shelfSave();
 }
 
+/* ---- the edition mark (v118). Same rule as the shelf: reader-side
+   localStorage on this device only — the archive doesn't remember you.
+   The mark is the id of the newest line the reader had seen; the
+   edition is every line after it in record order. A window, never a
+   cut — the record itself is untouched and never filtered. */
+var SEEN_KEY='rw_archive_seen';
+var seenId=(function(){
+  try{ return localStorage.getItem(SEEN_KEY)||null; }catch(e){ return null; }
+})();
+function markSave(){
+  try{
+    if (seenId) localStorage.setItem(SEEN_KEY, seenId);
+    else localStorage.removeItem(SEEN_KEY);
+  }catch(e){}
+}
+function newestEvent(){ var all=allEvents(); return all.length?all[all.length-1]:null; }
+function editionList(){
+  var all=allEvents();
+  if (!seenId) return null;                    /* no mark — the edition hasn't started */
+  for (var i=0;i<all.length;i++) if (all[i].id===seenId)
+    return {missing:false, list:all.slice(i+1)};
+  return {missing:true, list:all};             /* mark id not served by this source — say so */
+}
+function markRead(){
+  var ne=newestEvent();
+  if (!ne){ toast('nothing on the record yet'); return; }
+  seenId=ne.id; markSave(); renderAll();
+  toast('mark set — the edition counts from here');
+}
+
+/* ---- the replay clock (v118). The day view's second clock: the
+   day's own rows dealt back in timestamp order at a chosen speed.
+   Display state only — nothing is fetched, written, or scored; the
+   live clock stays on the wire. */
+var RP={on:false, t:0, speed:30, paused:false, timer:null};
+function replayStart(){
+  var evs=DAYS[day]||[];
+  if (!evs.length){ toast('a quiet day — nothing to replay'); return; }
+  RP.on=true; RP.paused=false; RP.t=evs[0].t;
+  if (!RP.timer) RP.timer=setInterval(replayTick,250);
+  renderAll();
+}
+function replayStop(rerender){
+  RP.on=false; RP.paused=false;
+  if (RP.timer){ clearInterval(RP.timer); RP.timer=null; }
+  if (rerender!==false) renderAll();
+}
+function replayTick(){
+  if (!RP.on||RP.paused) return;
+  var evs=DAYS[day]||[]; var lastT=evs.length?evs[evs.length-1].t:0;
+  RP.t=Math.min(lastT, RP.t+RP.speed/4);
+  var c=document.getElementById('rpclock'); if(c) c.textContent=fmt(Math.floor(RP.t));
+  renderDayList_rows();
+  if (RP.t>=lastT){
+    RP.paused=true;
+    var pb=document.getElementById('rppause'); if(pb) pb.textContent='again';
+    toast('the day played out — the record is whole again');
+  }
+}
+function replayBar(){
+  var evs=DAYS[day]||[]; var lastT=evs.length?evs[evs.length-1].t:0;
+  var done=RP.paused&&RP.t>=lastT;
+  return '<div class="rpbar"><span class="rpclock" id="rpclock">'+fmt(Math.floor(RP.t))+'</span>'+
+    '<span class="meta">block time — the day\u2019s own rows, dealt back at speed; the live clock stays on the wire</span>'+
+    '<span class="chip" id="rppause">'+(done?'again':(RP.paused?'resume':'pause'))+'</span>'+
+    '<span class="chip" id="rpnext" title="dead air stays dead — jump to the next written line">next line \u2192</span>'+
+    [15,30,60].map(function(s){
+      return '<span class="chip'+(RP.speed===s?' on':'')+'" data-spd="'+s+
+        '" title="'+s+' block-minutes per real second">'+s+' m/s</span>';
+    }).join('')+
+    '<span class="chip" id="rpstop" title="back to the whole day — same rows, no clock">whole day</span></div>';
+}
+function wireReplayBar(){
+  var pb=document.getElementById('rppause');
+  if (pb) pb.onclick=function(){
+    var evs=DAYS[day]||[]; var lastT=evs.length?evs[evs.length-1].t:0;
+    if (RP.paused && RP.t>=lastT){ RP.t=evs[0].t; RP.paused=false; }
+    else RP.paused=!RP.paused;
+    renderAll();
+  };
+  var nx=document.getElementById('rpnext');
+  if (nx) nx.onclick=function(){
+    var evs=DAYS[day]||[];
+    for (var i=0;i<evs.length;i++) if (evs[i].t>RP.t){ RP.t=evs[i].t; break; }
+    var c=document.getElementById('rpclock'); if(c) c.textContent=fmt(Math.floor(RP.t));
+    renderDayList_rows();
+  };
+  document.querySelectorAll('#rpslot .chip[data-spd]').forEach(function(ch){
+    ch.onclick=function(){ RP.speed=parseInt(ch.dataset.spd,10); renderAll(); };
+  });
+  var st=document.getElementById('rpstop'); if(st) st.onclick=function(){ replayStop(); };
+}
+
 function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stKey(s){ return String(s).replace(/[ ()]/g,'_').toLowerCase(); }
@@ -687,6 +800,7 @@ function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.st
 function stepDay(dir){
   var ks=Object.keys(DAYS).sort(), i=ks.indexOf(day)+dir;
   if (i<0||i>=ks.length) return;
+  if (RP.on) replayStop(false);
   day=ks[i]; selHour=-1; selId=null; view='day'; renderAll();
 }
 
@@ -708,7 +822,7 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs','edition'].indexOf(kv.v)>=0) view=kv.v;
   if (kv.rq){ rqSel=kv.rq; view='reqs'; }
   if (kv.h!==undefined){ var hi=parseInt(kv.h,10); if(hi>=0&&hi<24) hourSel=hi; }
   if (kv.d1 && DAYS[kv.d1]) cmpA=kv.d1;
@@ -748,6 +862,14 @@ function renderViewChips(){
   document.getElementById('pickHour').style.display = view==='hour'?'':'none';
   document.getElementById('pickD1').style.display = view==='cmp'?'':'none';
   document.getElementById('pickD2').style.display = view==='cmp'?'':'none';
+  /* the edition chip carries its own honest count once a mark exists */
+  var ec=document.querySelector('.vchip[data-v="edition"] small');
+  if (ec){
+    var ed=editionList();
+    ec.textContent = ed
+      ? ed.list.length+' line'+(ed.list.length===1?'':'s')+' since your mark — a window, never a cut'
+      : 'everything the wire wrote since your mark — a window, never a cut';
+  }
 }
 function buildPickers(){
   var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
@@ -825,12 +947,14 @@ function renderDayView(){
     '<button class="dnav" id="dnext" '+(di<0||di>=ks.length-1?'disabled':'')+'>next day &rsaquo;</button>'+
     '<span class="keyhint">&larr; &rarr;</span>'+
     (LIVE&&isToday?'<button class="dnav" id="catchup" title="pull whatever the wire has written since this page loaded — additive only">catch up</button>':'')+
+    '<button class="dnav" id="rpbtn" title="the second clock — this day\u2019s own rows dealt back in order at speed; r toggles it">'+(RP.on?'stop replay':'replay')+'</button>'+
     '<span class="meta">'+evs.length+' entries'+
     (evs.filter(function(e){return e.kind==='rumor';}).length?' · '+evs.filter(function(e){return e.kind==='rumor';}).length+' word-on-the-block':'')+
     ' · coverage: street-level only</span>'+
     (isToday?'<span class="writing">still being written — archive holds through the last completed hour</span>':'')+
     '</div>'+
     '<div class="hours" id="hours"></div><div class="hrlabels" id="hrlabels"></div>'+
+    '<div id="rpslot">'+(RP.on?replayBar():'')+'</div>'+
     '<div class="chiprow" id="kinds">'+
       '<span class="chip'+(kindF==='all'?' on':'')+'" data-k="all">all</span>'+
       '<span class="chip'+(kindF==='block'?' on':'')+'" data-k="block">the block</span>'+
@@ -869,6 +993,9 @@ function renderDayView(){
   if (dp) dp.onclick=function(){ stepDay(-1); };
   if (dn) dn.onclick=function(){ stepDay(1); };
   var cu=document.getElementById('catchup'); if (cu) cu.onclick=catchUp;
+  var rb=document.getElementById('rpbtn');
+  if (rb) rb.onclick=function(){ if(RP.on) replayStop(); else replayStart(); };
+  wireReplayBar();
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderDayList_rows(); };
   document.getElementById('scopetgl').onclick=function(){
     searchScope=(searchScope==='all'?'day':'all'); renderAll();
@@ -956,6 +1083,9 @@ function renderDayList_rows(){
     ul.appendChild(holder); mountTrailDays(); return;
   }
   var evs=(DAYS[day]||[]).filter(dayPass), lastH=-1, prevT=null;
+  /* the replay clock: while it runs, rows ahead of the playhead are
+     simply not dealt yet — same rows, same order, one clock faster */
+  if (RP.on) evs=evs.filter(function(e){ return e.t<=RP.t; });
   evs.forEach(function(e){
     var h=Math.floor(e.t/60);
     if (h!==lastH){ lastH=h;
@@ -1347,6 +1477,61 @@ function renderReqsView(){
     });
     list.appendChild(c);
   });
+}
+
+/* ================= VIEW: the edition =================
+   The catch-up edition — every line the wire has written since the
+   reader's mark (rw_archive_seen, this device only). A window on the
+   record, never a cut of it: nothing here is filtered out of the
+   archive, it's just counted from the mark. */
+function renderEditionView(){
+  var body=document.getElementById('viewBody');
+  var ed=editionList();
+  var html='<div class="dayhead"><h3>The edition</h3>'+
+    '<span class="meta">everything the wire wrote since your mark — the mark lives in this browser; the archive doesn\u2019t remember you</span></div>';
+  if (!ed){
+    var all=allEvents();
+    body.innerHTML=html+
+      '<div class="empty">The edition hasn\u2019t started — it counts from the line you mark read, '+
+      'not from when you first loaded the page. '+(all.length?
+        'Mark the record read and everything the wire writes after it lands here.':
+        'There\u2019s nothing on the record yet.')+'</div>'+
+      '<div class="controls"><button class="chip" id="edmark" style="cursor:pointer" '+
+        'title="set the mark at the newest line on record — this device only">start the edition here</button></div>';
+    document.getElementById('edmark').onclick=markRead;
+    return;
+  }
+  var list=ed.list, kc={}, days={}, ths={};
+  list.forEach(function(e){
+    kc[e.kind]=(kc[e.kind]||0)+1;
+    var d=dateOfId(e.id); if(d) days[d]=1;
+    (e.thread||[]).forEach(function(t){ ths[t]=1; });
+  });
+  html+='<div class="ledsum">'+
+    '<div class="rs"><b>'+list.length+'</b><span>line'+(list.length===1?'':'s')+' since your mark</span></div>'+
+    '<div class="rs"><b>'+Object.keys(days).length+'</b><span>day'+(Object.keys(days).length===1?'':'s')+' touched</span></div>'+
+    '<div class="rs"><b>'+Object.keys(kc).length+'</b><span>kind'+(Object.keys(kc).length===1?'':'s')+'</span></div>'+
+    '<div class="rs"><b>'+Object.keys(ths).length+'</b><span>thread'+(Object.keys(ths).length===1?'':'s')+' touched</span></div>'+
+    '</div>';
+  if (ed.missing)
+    html+='<div class="meta" style="margin:4px 0 8px">your mark (<b>'+esc(seenId)+'</b>) isn\u2019t in this archive source — '+
+      'showing the whole record, unmarked. The mark is yours; move it whenever.</div>';
+  else {
+    var last=findEvent(seenId);
+    if (last) html+='<div class="meta" style="margin:4px 0 8px">your mark: <span class="chip" id="edjump" '+
+      'title="open the record your mark sits on">'+fmt(last.e.t)+' · '+esc(last.e.kind)+' · '+esc(last.e.id)+'</span>'+
+      ' — the last line you had seen</div>';
+  }
+  html+='<div class="controls"><button class="chip" id="edmark" style="cursor:pointer" '+
+    'title="move the mark to the newest line — this device only">mark the record read</button></div>';
+  html+= list.length ? renderTrailDays(list)
+    : '<div class="empty">Nothing new since your mark — the record is caught up. A quiet stretch is a count too.</div>';
+  body.innerHTML=html;
+  document.getElementById('edmark').onclick=markRead;
+  var ej=document.getElementById('edjump');
+  if (ej) ej.onclick=function(){ var f=findEvent(seenId); if(!f) return;
+    selId=seenId; if(f.day) day=f.day; view='day'; renderAll(); };
+  mountTrailDays();
 }
 
 /* ================= VIEW: your shelf =================
@@ -1755,10 +1940,13 @@ document.addEventListener('keydown',function(ev){
     }
     if (selRow&&selRow.scrollIntoView) selRow.scrollIntoView({block:'nearest'});
   }
+  /* r — the replay clock: the day's own rows on a faster clock */
+  else if (ev.key==='r'){ if (RP.on) replayStop(); else replayStart(); }
 });
 
 /* ================= render root ================= */
 function renderView(){
+  if (view!=='day'&&RP.on) replayStop(false);
   if (view==='week') renderWeekView();
   else if (view==='day') renderDayView();
   else if (view==='person') renderPersonView();
@@ -1772,6 +1960,7 @@ function renderView(){
   else if (view==='cmp') renderCmpView();
   else if (view==='gaps') renderGapsView();
   else if (view==='reqs') renderReqsView();
+  else if (view==='edition') renderEditionView();
 }
 function renderAll(){
   renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();

@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104; v9 pass v118)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -450,7 +450,57 @@ Copy deck additions:
 | Trail card | "<payer> · N public statuses · M days · req <id> · K cr declared" (+ "still open" when any member is open) |
 | Settled-the-talk | "settled the talk: HH:MM · word on the block" chips in record detail |
 
-## 18. Merge notes (for the game track)
+## 18. v118 — The Archive v9 — the two-clocks + edition layer
+
+The production-3 direction names the archive's job outright: *anti-boredom
+is edit observation* — a catch-up edition, thread following, and **two
+clocks** (fast replay + live). v9 ships the two clocks and the edition on
+the same law as every pass: projections of rows that were already public —
+a window on the record, never a cut of it.
+
+- **REPLAY — the second clock** (`replay` on the day header, `r` toggles).
+  Deals the day's own rows back in timestamp order while a block-time
+  readout runs at 15 / 30 / 60 block-minutes per real second. Pause /
+  resume; `next line →` jumps the playhead to the next written row —
+  dead air stays dead, the same ≥120-min honesty the gap markers use;
+  `whole day` stops the clock and returns the full list. Rows ahead of
+  the playhead are *not dealt yet* — the filter subtracts display only,
+  never scope. Replay stops itself when the reader leaves the day view
+  or walks to another day; on *today* it can never run ahead of the
+  wire, because the playhead only ever reaches rows already written.
+  The bar says it plainly: *the live clock stays on the wire.*
+- **THE EDITION** (`#v=edition`). The catch-up edition: `rw_archive_seen`
+  (this browser's localStorage — the shelf's law, not world state) holds
+  the id of the newest line the reader had seen. The edition is every
+  line strictly after the mark in record order, grouped by day through
+  the same trail renderer, with counted lines / days touched / kinds /
+  threads touched. A `your mark` chip jumps back to the record the mark
+  sits on; `mark the record read` moves it to the newest line. A mark
+  the current source doesn't serve is reported verbatim ("isn't in this
+  archive source") and the record shows unmarked — never silently reset.
+  First visit is explicit: *the edition hasn't started* — the page never
+  pretends it watched a visit it didn't.
+- **Edition chip count.** Once a mark exists, the rail chip's own count
+  reports the lines since it — counted, not teased.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Replay button | `replay` / `stop replay` — "the second clock — this day's own rows dealt back in order at speed; r toggles it" |
+| Replay bar | `HH:MM` block clock + "block time — the day's own rows, dealt back at speed; the live clock stays on the wire" |
+| Replay chips | `pause`/`resume`/`again`, `next line →` ("dead air stays dead — jump to the next written line"), `15/30/60 m/s`, `whole day` |
+| Replay empty day | "a quiet day — nothing to replay" |
+| Replay done | "the day played out — the record is whole again" |
+| Edition chip | "the edition" — "everything the wire wrote since your mark — a window, never a cut" (once marked: "N lines since your mark") |
+| Edition head | "everything the wire wrote since your mark — the mark lives in this browser; the archive doesn't remember you" |
+| Edition first visit | "The edition hasn't started — it counts from the line you mark read, not from when you first loaded the page." + `start the edition here` |
+| Edition mark chip | `HH:MM · kind · id` — "the last line you had seen" |
+| Edition missing mark | "your mark (<id>) isn't in this archive source — showing the whole record, unmarked." |
+| Edition caught up | "Nothing new since your mark — the record is caught up. A quiet stretch is a count too." |
+| Mark set | "mark set — the edition counts from here" |
+
+## 19. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -507,3 +557,10 @@ what makes a trail complete; keep emitting it on every status the wire
 writes). `OPEN_ST` mirrors feed.json's open statuses — if the
 vocabulary gains a new open status, add it there too or a live trail
 will mis-sort as closed.
+v118: no schema change — the replay clock and the edition are pure
+reader-side display state. Replay re-deals rows already served;
+`rw_archive_seen` is localStorage like `rw_archive_shelf`. One contract
+note: the edition counts "lines since the mark" in global record order
+(day, then `t`+`n`), so a live source must keep serving stable ids —
+an id the bus later drops reads honestly as "not in this archive
+source" rather than silently resetting the reader's mark.

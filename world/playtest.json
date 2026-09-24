@@ -5358,6 +5358,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT107",
+   "title": "The two-clocks + edition layer v118 — replay clock + catch-up edition in The Archive",
+   "minutes": 8,
+   "persona": "returning spectator — away for a few days, wants the shape of what they missed without a spoiler edit; facilitator checking that both new affordances are windows on the record, never cuts of it",
+   "goal": "Verify the v118 layer on world/archive.html: 'replay' deals a day's own rows back on a second block clock (pause, dead-air skip, speed chips, honest stop) and 'the edition' counts every line the wire wrote since a reader-side mark (rw_archive_seen) — first visit explicit, a missing mark reported, never silently reset.",
+   "surfaces": [
+    "archive",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open archive.html (file://), pick a dense demo day in the rail, and hit 'replay' (or press r). Let the block clock run, switch speeds (15/30/60 m/s), pause and resume, then hit 'next line →' through a gap stretch. Let it run out, then click 'whole day'.",
+     "expect": "A replay bar appears under the hour strip: a mono block-time readout, 'the day's own rows, dealt back at speed; the live clock stays on the wire', pause/resume, next-line skip, three speed chips, 'whole day'. Rows deal in timestamp order — rows ahead of the playhead are simply not dealt yet, while the hour strip and entry count still report the whole day. 'next line →' jumps the playhead to the next written row instead of interpolating the gap. At day's end the bar offers 'again' and toasts 'the day played out — the record is whole again'.",
+     "checkpoints": [
+      "Rows ahead of the playhead are absent only while replay runs — 'whole day' or r restores the identical list, and stepping days or leaving the view stops the clock",
+      "The day head count and hour strip never change under replay — the clock subtracts display, never scope",
+      "An empty day toasts 'a quiet day — nothing to replay' instead of pretending a clock"
+     ]
+    },
+    {
+     "do": "Open 'the edition' in the left rail on a first visit (clear rw_archive_seen if needed): read the first-visit card, then 'start the edition here'. Reopen the edition, then in devtools set rw_archive_seen to an early event id like d0917-01 and reload the view. Finally 'mark the record read'.",
+     "expect": "First visit refuses to pretend: 'The edition hasn't started — it counts from the line you mark read' plus the start affordance. After marking, the edition reports 'Nothing new since your mark — the record is caught up' and the mark chip names the newest line. With the mark moved to d0917-01, the edition lists every later line grouped by day with counted lines/days/kinds/threads, and the rail chip reads 'N lines since your mark'. A mark id the source doesn't serve shows 'isn't in this archive source — showing the whole record, unmarked' — never a silent reset.",
+     "checkpoints": [
+      "The mark chip (HH:MM · kind · id) opens the record the mark sits on — 'the last line you had seen'",
+      "Lines/days/kinds/threads counts match the actual rows after the mark — a window, never a cut",
+      "rw_archive_seen lives in localStorage next to rw_archive_shelf — nothing is sent anywhere"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and read the archive gate. Then try permalink #v=edition directly and hit j/k and ←/→ on the day view with replay off.",
+     "expect": "The archive gate passes at v118: DEMO_DAYS mirror, archive_ui_v118 contract block, edition + replay affordance marks, storage key, honesty copy, and the r-key toggle. #v=edition deep-links the view. Replay never issues a fetch or a bus write — it's the day's own rows on a faster clock.",
+     "checkpoints": [
+      "Archive gate: 0 fail at v118 — the v118 mirror, 'the live clock stays on the wire', 'a window, never a cut', and the missing-mark copy all pinned",
+      "No archive affordance touches the world — the no-mutation scan still passes (no gsRequest*/fetch/post)",
+      "Harness gate: '107 scenarios · N checkpoints'; mirror gate confirms the PT107 hand-sync"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

@@ -3565,8 +3565,28 @@ const PUB = Object.values(PT.surfaces)
       [/still open/, 'open-trail marker'],
       [/rqSel/, 'req-trail selection state'],
       [/settled the talk/, 'settled-by reverse edge'],
-      [/kv\.rq/, 'req-trail permalink param']
+      [/kv\.rq/, 'req-trail permalink param'],
+      /* v118 — the two-clocks + edition layer */
+      [/data-v="edition"/, 'edition view switch'],
+      [/renderEditionView/, 'edition view renderer'],
+      [/rw_archive_seen/, 'edition mark storage key'],
+      [/editionList/, 'edition list fn'],
+      [/mark the record read/, 'mark-read affordance'],
+      [/start the edition here/, 'edition first-visit affordance'],
+      [/a window, never a cut/, 'edition honesty copy'],
+      [/isn.{0,8}t in this archive source/, 'missing-mark honesty copy'],
+      [/id="rpbtn"/, 'replay button'],
+      [/replayStart/, 'replay start fn'],
+      [/replayTick/, 'replay tick fn'],
+      [/id="rpclock"/, 'replay block-time readout'],
+      [/id="rpnext"/, 'dead-air skip control'],
+      [/the live clock stays on the wire/, 'replay second-clock honesty copy'],
+      [/the day.{0,8}own rows, dealt back at speed/, 'replay projection copy'],
+      [/data-spd/, 'replay speed chips'],
+      [/ev\.key==='r'/, 'r replay toggle']
     ];
+    if (!HJ.archive_ui?.archive_ui_v118)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v118 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v104)
       add(g, 'fail', 'history.json', null, 'archive_ui_v104 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v90)
