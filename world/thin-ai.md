@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83; sixth pass v97; seventh pass v111)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83; sixth pass v97; seventh pass v111; eighth pass v125)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -18,7 +18,11 @@ Every character pawn carries one of four brain modes at any instant:
 | `thin` | A01–A20 always; h## hired chars whose owner is offline | schedule + reflexes | ~0 (no LLM) |
 | `full` | C1–C8 always; h## while owner is online | LLM | paid compute |
 | `possessed` | h## during an approved session only | the player | suspended brain — cheapest |
-| `degraded` | C1–C8 only, during brain-service outage | thin posture on a main | ~0 |
+| `degraded` | C1–C8 and promoted residents, during brain-service outage | thin posture on a full-brained pawn | ~0 |
+
+(Promoted residents — A-ids carrying full brains per world/promotion.md —
+joined this table in v125; see §53. An unpromoted ambient is still thin-only
+and can never be `degraded` — there is nothing to degrade.)
 
 `degraded` is a resilience posture, not a feature: if the brain service
 stalls, a main falls back to their **public routine** (the same schedule a
@@ -1109,3 +1113,164 @@ watched / shadowed / dark minutes — the visible claim that thin
 costs scale with observation, not population. The §47 promise
 holds end to end: unwatched, the block doesn't run less
 *correctly* — it runs the same day at less cost.
+
+## 53. The promoted row (v125)
+
+Promotion (world/promotion.md) mints a fifth kind of pawn: the **supporting
+resident** — an A-id carrying a full brain. The mode table gains them as a
+row, and the fallback layer gains its most interesting case:
+
+| who | modes | thin self |
+|-----|-------|-----------|
+| promoted resident (A-id, promoted) | `full`, `degraded` | the ambient card, verbatim |
+
+- **Their fallback is already written.** Promotion step 4 keeps the
+  `SF_AMBIENT_ROUTINES` schedule as the character's routine; the reflex
+  flags and phrase-kit register were authored on the card. When a promoted
+  resident degrades, the pawn doesn't put on a costume — it goes back to
+  the self the block already lived with. A main's degrade is an
+  understudy; a promoted resident's degrade is a homecoming.
+- **On the ladder, youngest brains thin first** (§56). Not because they
+  matter less — because degrade costs them least. The ladder orders by
+  what a posture change loses, and a promoted resident loses less than any
+  main: their thin posture is authored, rehearsed, and continuous with who
+  the neighborhood already knows.
+- **Seeds arrive with the brain.** A promoted resident's SECRETS section
+  exists only in `full`; under degrade the same `no seed access` rule
+  binds — thin posture can no more leak Bex's new interior than Carmen's.
+- **Demotion ≠ degrade.** Degrade is a posture that ends when service
+  returns; demotion (promotion.md §4) is an admin reversion of the role.
+  A reverted ambient is not `degraded` — they are simply ambient again,
+  thin by nature. The two paths never share a label.
+- Feed/seam rules unchanged: promotion itself logs `ambient_promoted`
+  (admin transparency); degrade/recover of a promoted resident logs
+  nothing — the seam stays invisible at every tier.
+
+## 54. The era seam — what thin leaves behind (v125)
+
+A promoted resident's ambient era is the longest thin run the system
+produces — weeks of a pawn that was only ever schedule + reflexes. What
+that era deposits, and what it may become at promotion:
+
+- **Era-tagged, never enriched.** Every record written while the pawn was
+  thin carries `ambient:true`. Promotion re-labels the extant record; it
+  never rewrites it. A merge or migration that lets ambient-era records
+  gain detail they never had (verbatim lines, interior states, inferred
+  relationships) breaks the layer — thin didn't live those facts, so they
+  don't exist.
+- **Seen-facts become gist, at TOLD-tier.** The §49 witness record is the
+  era's honest residue: "Bex was at the counter most evenings" survives as
+  a paraphrase-shaped memory other characters can hold — place + doing +
+  posture, deduped, mode-blind. Never verbatim dialogue (thin never spoke
+  any), never OBSERVED-tier for anything nobody's ledger witnessed.
+- **Backfill skeletons are authored, not simulated.** The promotion
+  packet's off-screen threads land as `generic`-tier records flagged
+  `backfill:true` — a sketch of a past, not footage of it. A catch-up
+  edition can never cite a backfilled day as something a camera saw.
+- **Secrets mint post-promotion only.** Thin held no secrets, so nothing
+  leaks upward at the seam. The first secret a promoted resident has is
+  the first one they earn with a full brain. (Minors — A04, A20 — carry
+  `guardian:true` before `promote()` accepts them; thin-side, nothing
+  about their pawn changes.)
+- **The pawn keeps its name and its history.** Era seams are not resets.
+  A neighbor who nodded to A14 for a month is nodding to the same person
+  after promotion — the only thing that changed is who's home inside.
+
+## 55. Consequence under degrade — held threads (v125)
+
+The missed-meal doctrine (drama-notes §49) applied to the fallback layer:
+consequence continuity must survive a brain outage, and it does — because
+consequence lives in the observers, never in the degraded pawn.
+
+- **Thin can show up; it cannot hold.** A bounded opportunity that sits on
+  a pawn's routine (the shared supper, the open workshop hours) is a
+  schedule row — a degraded or thin pawn attends it like any other cell.
+  What thin never does: author an invitation, register a breach, feel the
+  miss, or mint a promise. Showing up is all it can do.
+- **`held_threads` on the handoff note.** The degrade→full wake carries a
+  new optional field — the eager ledger's facts from the outage window:
+  cells attended, co-presence at venues, obligations drafted. Facts only,
+  never interpretation. `"supper at 9457, 19:00 — two chairs stayed
+  empty"` is ledger fact; *what that means* is the full brain's first
+  beat back, not anything thin recorded.
+- **The asymmetry is the consequence.** The room's witness records of the
+  degraded pawn are full-fidelity — Carmen's friends saw she was there,
+  or wasn't. Her own record of the same evening is posture-only. A missed
+  meal during an outage is still a real miss: the people who cooked
+  remember; her brain inherits the fact of the evening, not a verdict
+  about it. Repair is her call on wake — the layer guarantees the *facts*
+  arrive, never the *feeling*.
+- **Never:** thin minting a commitment, accepting an obligation beyond its
+  ledger (co-star windows still time-box and release, §13), or writing a
+  repair gesture. An apology requires someone home to mean it.
+- **Promotion corollary:** an ambient can't hold a thread at all —
+  co-star windows end, nothing persists. A promoted resident can carry
+  one; under degrade the thread parks as a `held_thread` on the next wake
+  note — parked, never dropped, never quietly completed.
+
+## 56. The ladder, revised (v125)
+
+`degrade_ladder` gains the promoted tier. Order of degrade:
+
+1. **Promoted residents first** — regardless of salience. Their thin
+   self is authored and continuous; the block loses the least.
+2. **Mains by scene-salience** — unchanged (§20): watchers, live scenes,
+   mid-conversation keep a brain paid; lowest salience thins first.
+
+Recovery walks back up in the same order: mains restore before promoted
+residents (salience still ranks within each tier). Flap guard, 30-min
+dwell, one step per beat, and the deg_min rotation (§30) are unchanged —
+rotation eligibility extends to promoted residents, who accrue deg_min
+like any degraded pawn. Possessed pawns and unpromoted ambients remain
+off the ladder entirely. New budget bands:
+
+| capacity | posture |
+|----------|---------|
+| ≥60% | everyone full |
+| 30–59% | promoted residents degraded; mains full |
+| <30% | mains degrade lowest-salience first toward blackout floor |
+
+## 57. Failure matrix — the promoted cases (v125)
+
+Extends §§15/28/35/40/45/51. Decided, not deferred:
+
+- **Brownout on promotion day:** promotion mints between ticks
+  (promotion.md §3); the new pawn enters `degraded` if the service is
+  stalled — born into the posture, no ceremony waits on the service.
+- **A promoted resident dark through their debut week:** lazy resolve
+  applies unchanged — their routine is the card verbatim, so the landed
+  state is the same day the block always saw. Obligations eager.
+- **A held thread that outlives the outage:** `held_threads` ride the
+  next wake note; if the note goes stale first (≥24 h), the archive keeps
+  it — yesterday's parked threads are still facts for the audit, never a
+  feed line.
+- **Demotion during degrade:** two different doors — demote reverts the
+  role (admin, feed-visible `ambient_promoted` inverse); degrade is
+  posture. A demoted pawn leaves the ladder entirely; no `degraded`
+  badge ever lands on an ambient.
+- **Scene request naming a promoted resident under degrade:** the §37
+  routine-fit rule applies verbatim — posture-only inside the public
+  cell, resolved·declined + 50% refund otherwise. Promotion changed who
+  they are, not what the fallback can sell.
+- **A04/A20 promotion without guardian:** `promote()` refuses —
+  `guardian:true` first. Thin-side nothing changes either way; a minor's
+  pawn is schedule + reflexes before and after the paperwork.
+- **A thin-era seen-fact cited as footage:** impossible by construction —
+  `ambient:true`/`backfill:true` records never satisfy OBSERVED. The
+  Archive's verified-edition rule (history spec) reads the era tags;
+  a seeded past can't pretend a camera was there.
+
+## 58. What the demo v9 proves
+
+The Understudy v9 adds, on top of v8's unobserved tick: a fifth pawn —
+A14 Bex, arriving as ambient thin — with a Promote A14 event that crosses
+the era seam live (the pawn keeps its name, cell, and card; the mode
+gains `full`/`degraded`; ambient-era seen-facts re-render as TOLD-tier
+gist with `ambient:true`, never enriched); the revised ladder degrading
+the promoted resident before any main at 30–59%; a `held_threads` field
+on degrade wake-notes (facts from the outage window — cells, co-presence,
+drafts — never interpretation); and a supper-at-19:00 bounded opportunity
+that runs with or without a live mind in the room — the degraded pawn's
+attendance is posture-only, the empty chair is ledger fact, and the wake
+note carries the evening home without verdicts. The seam still shows
+nothing; the ledger still settles eager; the block still never freezes.

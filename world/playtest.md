@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v124)
+# Playtest Harness — "Real World / The Mission" (world v125)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -426,6 +426,17 @@ One person can wear every hat; four real testers is the intended shape.
   the stakes contract block, both never-list entries, the spectator
   branch's figure-freedom, the read-only check, the per-uid mirror
   coverage, and the rw_lease_v124 key.
+  PT114 (thinai v125) audits the promoted-resident era — A14 Bex crossing
+  the era seam live (ambient-era seen-facts re-labeling ambient:true as
+  TOLD-tier gist, backfill:true sketches landing, secrets minting
+  post-promotion only), the revised ladder degrading the promoted tier
+  before any main at 30–59%, degrade wake-notes carrying held_threads
+  (facts, never interpretation), and the supper-at-19:00 bounded
+  opportunity where a thin pawn's routine declining the invitation IS
+  the may-ignore rule. The audit's v125 marks pin the promoted_row /
+  era_seam / held_threads blocks, the ladder's youngest-brains-first
+  rule, the two new demo events, the fifth pawn, and the
+  rw_thinai_v125 key.
 
 ## 3. Running a session
 

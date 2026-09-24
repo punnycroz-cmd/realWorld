@@ -5638,6 +5638,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT114",
+   "title": "Understudy v9 (thin-AI v125) — the promoted-resident era",
+   "minutes": 9,
+   "persona": "builder who has watched thin AI all week and wants to know what happens when the cheap brain meets the consequence layer — promotion, brownouts, and a supper nobody has to attend",
+   "goal": "Verify the v125 thin-AI pass: A14 Bex crosses the era seam live (promote → kind flips to supporting resident, mode gains full/degraded, ambient-era seen-facts re-label ambient:true as TOLD-tier gist and a backfill:true sketch lands — never enriched, never OBSERVED); the revised ladder degrades the promoted resident before any main at 30–59%; degrade wake-notes carry held_threads (eager-ledger facts, never interpretation); the supper-at-19:00 bounded opportunity resolves attendance as ledger fact — thin can show up but cannot hold, and Bex's thin routine declining the invitation IS the may-ignore rule; demotion≠degrade and secrets mint post-promotion only. thinai.json v125 carries promoted_row / era_seam / held_threads / degrade_ladder.promoted_tier under rw_thinai_v125; thin-ai.md §§53–58 is canonical.",
+   "surfaces": [
+    "thinai",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Read thin-ai.md §§53–58 and the thinai.json v125 blocks, then open thinai.html (file://). Confirm five pawns render with A14 Bex ambient/thin; step the clock a few hours so the witness panel accumulates A14 seen-facts.",
+     "expect": "Five pawn cards. A14 runs her card verbatim (Clarion alley coffee → Needlepointe linework → 600 Club night crowd). Seen-facts accumulate for her like any watched pawn — mode-blind place+doing+posture. The era panel shows the pre-promotion explainer line.",
+     "checkpoints": [
+      "A14's routine is the ambient card — the same rows promotion step 4 carries over",
+      "Witness records for A14 are schema-identical to the mains' — the era tag lives on the record, not the schema",
+      "The era panel pre-promotion states the rules: re-label never enrich, TOLD-tier gist, secrets mint post-promotion"
+     ]
+    },
+    {
+     "do": "Press 'Promote A14 Bex'. Then press 'Service 55%' and watch the ladder; press 'Service 100%' and let the dwell elapse (step +1 h).",
+     "expect": "The wire logs 'ambient promoted — A14 Bex joins the cast (admin)'; her card flips to supporting resident · full, routine line reads 'the ambient card, verbatim — degrade is a homecoming'. Era panel shows gist rows tagged TOLD-tier · ambient:true plus the backfill:true Clarion sketch. At 55% Bex degrades BEFORE any main (youngest brains thin first) with 'no seed access' posture; C2/C6 stay full. At 100% with dwell elapsed she recovers last of the ladder.",
+     "checkpoints": [
+      "Promotion is feed-visible (admin transparency); degrade/recover log seam-only — the seam stays invisible at every tier",
+      "At 30–59% only the promoted tier thins — the mains never leave full",
+      "Seen-facts were re-labeled, not enriched: gist is paraphrase-shaped, no verbatim lines anywhere"
+     ]
+    },
+    {
+     "do": "Reset. Press 'Supper at 9457 · 19:00', then 'Service 55%', then 'Promote A14 Bex' (born degraded mid-outage), and step the clock past 19:00. Then 'Service 100%' + step +1 h until Bex recovers.",
+     "expect": "At 19:00 the seam logs co-presence as ledger fact: C6 hosts posture-only if degraded, C2 attends, degraded-Bex stays at the 600 Club — 'may ignore, honored by the routine'. The wake note on C6's (or Bex's) next recovery carries held_threads naming the supper facts — cells attended, who sat — with no verdict attached.",
+     "checkpoints": [
+      "A thin/degraded pawn's routine declining the supper IS the may-ignore rule — nobody was tracked as invited",
+      "held_threads are facts only (cells, co-presence, drafts) — interpretation is the full brain's first beat back",
+      "Consequence lives in the observers: the room's witness records of a degraded pawn are full-fidelity while her own record is posture-only"
+     ]
+    },
+    {
+     "do": "Run node audit.js (or the thinai gate) and the node DOM-stub smoke: MODES.a14 == json demo modes; storage_key rw_thinai_v125 agrees html↔json; demo.events carry promote_a14 + supper_19; era_seam never-list covers enrich + OBSERVED + pre-seeded secrets.",
+     "expect": "The thinai gate passes with detail 'schema v125 · 5 pawns · key rw_thinai_v125'. No new fails anywhere.",
+     "checkpoints": [
+      "Gate detail shows v125 / 5 pawns",
+      "Unpromoted ambients still can never be degraded — the audit's a01/h01 bans hold; demotion and degrade never share a label",
+      "wire() vocabulary still locked — promotion logs through the request-line channel as admin"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

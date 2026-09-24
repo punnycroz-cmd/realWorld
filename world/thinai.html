@@ -5,12 +5,13 @@
 <title>Real World — The Understudy (thin-AI fallback)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Thin-AI fallback demo — "The Understudy" v7 (world v97).
+  Thin-AI fallback demo — "The Understudy" v9 (world v125).
   Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
   Machine mirror: world/thinai.json. INTERNAL builder tool —
   never-ship, not a player surface; mode badges and seam lines are
   diagnostics, invisible in-world by design.
-  Four pawns, four brain modes: A01 Reyes (ambient — always thin),
+  Five pawns: A01 Reyes (ambient — always thin), A14 Bex (ambient →
+  promotable — the era-seam demo pawn),
   h01 a hired courier (thin ↔ full ↔ possessed on the owner's
   presence), C2 Jules and C6 Carmen (mains — full, with the degraded
   posture for brain-service stalls; the ladder degrades lowest
@@ -70,6 +71,18 @@
   seed-adjacent, deduped per place per hour). And the compute soak
   splits thin_min honestly: thin cost scales with observation, not
   population.
+  v125 — the promoted-resident era: a fifth pawn (A14 Bex) crosses
+  the era seam live — promotion keeps the name, the card, and the
+  routine verbatim while the mode gains full/degraded; ambient-era
+  seen-facts re-label ambient:true and surface as TOLD-tier gist
+  (never enriched, never OBSERVED, secrets mint post-promotion only).
+  The ladder gains a promoted tier — youngest brains thin first, so
+  Bex degrades before any main. Degrade wake-notes carry held_threads:
+  eager-ledger facts from the outage window (cells, co-presence,
+  drafts) — facts only, never interpretation; consequence lives in
+  the observers. A supper-at-19:00 bounded opportunity shows the
+  asymmetry: thin can show up but cannot hold, and a thin pawn's
+  routine declining the invitation IS the may-ignore rule.
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -194,6 +207,9 @@
     <div class="panel"><h2>Witness record — what a watcher may keep</h2><div class="arch" id="saw"></div>
       <div class="fine">A seen-fact is place + doing + posture, mode-blind and deduped per place per hour — never intent, never a mood word, never seed-adjacent. The same schema records a full brain and a thin one, so the record itself can't betray the seam.</div>
     </div>
+    <div class="panel"><h2>Era seam — what thin leaves behind</h2><div class="arch" id="era"></div>
+      <div class="fine">At promotion, ambient-era records keep the <b>ambient:true</b> tag — re-labeled, never enriched. Seen-facts survive as TOLD-tier gist (paraphrase-shaped, never verbatim, never OBSERVED); promotion-packet threads land as backfill:true sketches — never footage. Secrets mint post-promotion only: thin held none, nothing leaks upward.</div>
+    </div>
     <div class="panel"><h2>Surface fallback — what a stall does</h2><div class="ledger" id="surf"></div>
       <div class="fine">Three postures, closed matrix: <b>unaffected</b> (template vocabulary — never model text), <b>hold</b> (authored backlog — Mission Unfiltered goes quiet, trickles back ≤1/daypart), <b>static</b> (the card ships without prose — briefings, thread labels). Honest absence beats filler; nothing is labeled in-world.</div>
     </div>
@@ -222,10 +238,10 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v111) */
-/* prior session keys, kept for the audit mark list: rw_thinai_v97 (v97–v110 added spec only — no intervening keys existed) */
-var LS='rw_thinai_v111';
-var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
+/* mirror of thinai.json demo scenario (schema v125) */
+/* prior session keys, kept for the audit mark list: rw_thinai_v97, rw_thinai_v111 (v111–v124 added spec only — no intervening keys existed) */
+var LS='rw_thinai_v125';
+var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded'],a14:['thin','full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
   queue:['big line today',"they're backed up again",'worth the wait, probably'],
@@ -244,17 +260,19 @@ function seed(){return {
   min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
   coStar:0, csClass:0, scene:false, bubHour:-1, bubN:0, bubUsed:{}, lastLine:{a01:null},
   pressHeld:0, c6ask:0, a15:false,
-  paidToday:false, c6src:'authored', degMin:{c2:0,c6:0},
+  paidToday:false, c6src:'authored', degMin:{c2:0,c6:0,a14:0},
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
-  obs:{a01:'watched',h01:'watched',c2:'watched',c6:'watched'},
+  obs:{a01:'watched',h01:'watched',c2:'watched',c6:'watched',a14:'watched'},
   soak:{watched:0,shadowed:0,dark:0}, saw:[], sawKey:{},
-  needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70}},
+  gist:[], held:{}, supper:false, supperDone:false,
+  needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70},a14:{hunger:40,rest:70}},
   pawns:{
     a01:{id:'A01',name:'Reyes',kind:'ambient',mode:'thin',venue:'Mudhaus Coffee'},
     h01:{id:'h01',name:'the courier (hired)',kind:'hired',mode:'thin',owner:'offline',venue:'Flying Pannier loop',note:null},
     c2:{id:'C2',name:'Jules',kind:'main',mode:'full',venue:'park / cafe circuit',degradedAt:0},
-    c6:{id:'C6',name:'Carmen',kind:'main',mode:'full',venue:'her stoop / her palm / home',degradedAt:0}
+    c6:{id:'C6',name:'Carmen',kind:'main',mode:'full',venue:'her stoop / her palm / home',degradedAt:0},
+    a14:{id:'A14',name:'Bex',kind:'ambient',mode:'thin',promoted:false,venue:'Needlepointe / Clarion',note:null,degradedAt:0}
   }, log:[]
 };}
 var S; try{S=JSON.parse(localStorage.getItem(LS))||seed();}catch(e){S=seed();}
@@ -297,6 +315,15 @@ function cell(id,h){
     if(h<21)return ['home — dinner, telenovelas, sewing','idle'];
     return ['9418 Guerrero, Unit A — asleep','sleep'];
   }
+  if(id==='a14'){
+    /* v125 — Bex's card verbatim: promotion keeps the schedule; her
+       degrade posture is this same card, not a costume. */
+    if(h<9)return ['home — asleep','sleep'];
+    if(h<10)return ['Clarion alley — coffee, chalking the board','meal'];
+    if(h<18)return ['Needlepointe — chair + linework','work'];
+    if(h<22)return ['600 Club — night crowd, sketchbook','sit'];
+    return ['home — night in','idle'];
+  }
   if(h<6)return ['home — asleep','sleep'];
   if(h<8)return ['park north path — morning run','run'];
   if(h<13)return ['cafe circuit — working','work'];
@@ -325,7 +352,7 @@ function reflexes(id){
     r.push('shared: rain-shelter');
   }
   if(id==='c6'&&S.min>=19*60)r.push('shared: dusk-home — evening cells tighten');
-  if((id==='c2'||id==='c6')&&S.cap<60)r.push('public-routine only — no seed access');
+  if((id==='c2'||id==='c6'||(id==='a14'&&S.pawns.a14.promoted))&&S.cap<60)r.push('public-routine only — no seed access');
   if(id==='c6'&&S.scene&&S.pawns.c6.mode==='degraded')r.push('scene-yield — phrase-kit only, the quiet one tonight');
   if(id==='a01'&&S.min>=7.5*60&&S.min<9*60)r.push('morning rush double tempo');
   var n=S.needs[id];
@@ -336,7 +363,7 @@ function reflexes(id){
 /* v83 quiet-week jitter — deterministic day hash, ±≤15 min on the
    shared cell edge (both neighbors move together; obligations and
    cell kinds never jitter). Same block on every client. */
-var EDGES={a01:[7.5,12,12.5,18,22],h01:[8,12,12.5,19],c2:[6,8,13,13.5,17,20],c6:[7,10,16.5,21]};
+var EDGES={a01:[7.5,12,12.5,18,22],h01:[8,12,12.5,19],c2:[6,8,13,13.5,17,20],c6:[7,10,16.5,21],a14:[9,10,18,22]};
 function jit(id,edgeMin){var n=0;for(var i=0;i<id.length;i++)n+=id.charCodeAt(i);var s=S.day*31+n*7+edgeMin*13;s=((s%31)+31)%31;return s-15;}
 function nextEdge(id,h){
   var es=EDGES[id]||[];
@@ -347,6 +374,7 @@ function nextEdge(id,h){
 function srcLabel(id){
   if(id==='c6')return S.c6src==='authored'?'authored (registry mirror)':(S.c6src==='template'?'role template — rung 2':'home · idle — the floor');
   if(id==='a01')return 'authored (card routine)';
+  if(id==='a14')return S.pawns.a14.promoted?'the ambient card, verbatim — degrade is a homecoming':'authored (card routine)';
   if(id==='h01')return 'authored (created routine)';
   return 'authored (registry mirror)';
 }
@@ -364,13 +392,13 @@ function render(){
   $('clock').innerHTML='Day '+S.day+' · '+hhmm(S.min)+' <small>block time</small>'+(S.rain?' · rain':'')+(S.cap<100?' · <span style="color:var(--acc)">service '+S.cap+'%</span>':'');
   $('cap').textContent=S.cap+'%';
   var h=S.min/60;
-  $('pawns').innerHTML=['a01','h01','c2','c6'].map(function(id){
+  $('pawns').innerHTML=['a01','h01','c2','c6','a14'].map(function(id){
     var p=S.pawns[id],c=cell(id,h),rx=reflexes(id),n=S.needs[id];
     var out='<div class="pawn"><div class="top"><span class="who">'+p.name+'</span>'+
       '<span class="kind">'+p.id+' · '+p.kind+(p.owner?' · owner '+p.owner:'')+'</span>'+
       '<span class="mode '+modeLabel(p)+'">'+modeLabel(p)+'</span></div>'+
       '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+
-      (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+
+      ((p.kind==='main'||p.promoted)?' · <span class="sal">salience '+salience(id)+(p.promoted?' · promoted tier — thins first':'')+'</span>':'')+
       ' · <span class="sal">routine: '+srcLabel(id)+'</span>'+
       ' · <span class="sal">obs '+S.obs[id]+'</span></div>'+
       (function(){var e=nextEdge(id,h);if(e===null)return '';
@@ -381,7 +409,7 @@ function render(){
     if(S.a15&&id==='a01'&&cell(id,h)[1]==='serve')out+='<span class="costar">A15 sharing the cell — nod economy</span>';
     if(rx.length)out+='<div>'+rx.map(function(r){return '<span class="rx">'+r+'</span>';}).join('')+'</div>';
     if(p.note){var age=noteAge(p);
-      out+='<div class="notebox"><b>handoff note</b> <span class="age">'+(age>=1440?'stale — archives at 24 h':'age '+Math.floor(age/60)+'h'+('0'+age%60).slice(-2)+'m')+'</span>\n'+JSON.stringify({char:p.note.char,from:p.note.from,to:p.note.to,at_min:p.note.at_min,place:p.note.place,doing:p.note.doing,pending:p.note.pending,near:p.note.near,mood_hint:p.note.mood_hint},null,1)+'</div>';}
+      out+='<div class="notebox"><b>handoff note</b> <span class="age">'+(age>=1440?'stale — archives at 24 h':'age '+Math.floor(age/60)+'h'+('0'+age%60).slice(-2)+'m')+'</span>\n'+JSON.stringify({char:p.note.char,from:p.note.from,to:p.note.to,at_min:p.note.at_min,place:p.note.place,doing:p.note.doing,pending:p.note.pending,near:p.note.near,mood_hint:p.note.mood_hint,held_threads:p.note.held_threads||undefined},null,1)+'</div>';}
     return out+'</div>';
   }).join('');
   $('ledger').innerHTML='auto-shift wages accrued (baseline $18/h): <b>A01 $'+S.ledger.a01.toFixed(2)+'</b> · <b>h01 $'+S.ledger.h01.toFixed(2)+'</b><br>'+
@@ -389,17 +417,19 @@ function render(){
   $('comp').innerHTML='llm_min <b>'+S.comp.llm+'</b> · thin_min <b>'+S.comp.thin+'</b> · player_min <b>'+S.comp.player+'</b><br>'+
     '<small>full-brain minutes are the paid bucket; thin/degraded and possessed minutes are ~free — this split is the cost story</small>';
   var band=(S.cap===0?'blackout floor — a quiet day, not an outage screen':S.cap<60?'below the degrade line':S.cap<70?'inside the deadband — posture held':'healthy');
+  var onLadder=['c2','c6'].concat(S.pawns.a14.promoted?['a14']:[]);
   $('cov').innerHTML='service <b>'+S.cap+'%</b> — '+band+'<br>'+
-    ['c2','c6'].map(function(id){
+    onLadder.map(function(id){
       var p=S.pawns[id];
       if(p.mode==='degraded'){
         var left=30-((S.day*1440+S.min)-(p.degradedAt||0));
         return id.toUpperCase()+' degraded · dwell '+(left>0?left+' min left':'elapsed — eligible to recover ≥70% / swap up');
       }
-      return id.toUpperCase()+' '+p.mode+' · salience '+salience(id);
+      return id.toUpperCase()+' '+p.mode+' · salience '+salience(id)+(S.pawns[id].promoted?' <small>(promoted tier)</small>':'');
     }).join('<br>')+
-    '<br>outage credit — deg_min: <b>C2 '+S.degMin.c2+'</b> · <b>C6 '+S.degMin.c6+'</b> <small>(rolling 24 h; a dwell-eligible bench with the largest credit swaps up with a peer within Δ≤1 salience — a swap is not a recovery)</small><br>'+
-    '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder</small>';
+    (S.pawns.a14.promoted?'':'<br><small>A14 not yet promoted — an unpromoted ambient is thin-only, never on the ladder</small>')+
+    '<br>outage credit — deg_min: <b>C2 '+S.degMin.c2+'</b> · <b>C6 '+S.degMin.c6+'</b>'+(S.pawns.a14.promoted?' · <b>A14 '+S.degMin.a14+'</b>':'')+' <small>(rolling 24 h; a dwell-eligible bench with the largest credit swaps up with a peer within Δ≤1 salience — a swap is not a recovery)</small><br>'+
+    '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder · v125: youngest brains thin first — the promoted tier degrades before any main, because its thin self is the authored card</small>';
   /* v83 surface fallback matrix — three postures, closed matrix */
   var down=S.cap<60;
   $('surf').innerHTML=
@@ -409,7 +439,7 @@ function render(){
     '<small>requests on degraded mains: routine-fit → posture-only accept; anything else → resolved · declined + 50% auto-refund, judged at activation. The matrix is closed — honest absence beats filler, and nothing is labeled in-world.</small>';
   /* v97 encounter layer — who's awake in the room; the split keys on
      live minds, never on names. Two thin pawns can't make a scene. */
-  var minds=['a01','h01','c2','c6'].filter(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
+  var minds=['a01','h01','c2','c6','a14'].filter(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
   $('enc').innerHTML=
     'live minds in the room: <b>'+minds.length+'</b> ('+(minds.length?minds.map(function(k){return k.toUpperCase();}).join(' · '):'none — the block runs on schedule + reflexes')+')<br>'+
     'co-presence: '+(S.a15?'<b>A15 sharing A01\'s counter cell</b> — nod economy: gesture register only, cap unchanged, no conversation staged':'A01 holds the counter alone')+'<br>'+
@@ -419,13 +449,19 @@ function render(){
      per minute; shadowed ticks at cell edges; dark doesn't tick —
      it resolves lazily, identical to continuous ticking. */
   var tiers={watched:0,shadowed:0,dark:0};
-  ['a01','h01','c2','c6'].forEach(function(k){tiers[S.obs[k]]++;});
+  ['a01','h01','c2','c6','a14'].forEach(function(k){tiers[S.obs[k]]++;});
   $('obs').innerHTML='tiers — watched <b>'+tiers.watched+'</b> · shadowed <b>'+tiers.shadowed+'</b> · dark <b>'+tiers.dark+'</b><br>'+
     'thin_min soak — watched <b>'+S.soak.watched+'</b> · shadowed <b>'+S.soak.shadowed+'</b> · dark <b>'+S.soak.dark+'</b> <small>min</small><br>'+
     '<small>thin cost scales with observation, not population — a block of 20 dark ambients costs ~nothing. The ledger stays eager: obligations settle at their minute, watched or not.</small>';
   $('saw').innerHTML=S.saw.slice().reverse().map(function(w){
     return '<div>d'+w.day+' '+hhmm(w.at_min)+' — '+w.char+' at '+w.place+' · '+w.doing+'</div>';
   }).join('')||'<div>No seen-facts yet — a watcher records place + doing + posture only, deduped per place per hour. The schema is mode-blind: it can\'t tell a thin pawn from a full one.</div>';
+  /* v125 era seam — ambient-era records re-label, never enrich */
+  var eraRows=S.gist.slice().reverse().map(function(w){
+    return '<div>'+w.label+' <small>· TOLD-tier gist · ambient:true</small></div>';
+  });
+  if(S.pawns.a14.promoted)eraRows.push('<div>backfill — the Clarion chalkboard years <small>· generic-tier sketch · backfill:true — never footage, never OBSERVED</small></div>');
+  $('era').innerHTML=eraRows.join('')||'<div>A14 is still ambient — her thin era is depositing seen-facts now (witness panel). At promotion they re-label ambient:true and surface as TOLD-tier gist; the packet adds backfill:true sketches; secrets mint only after a full brain exists.</div>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
     'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
@@ -445,6 +481,10 @@ function render(){
 function writeNote(p,from,to,doing,pending){
   var near=[]; if(p.id==='h01')near=['A01','A15']; if(p.kind==='main')near=['A05'];
   p.note={char:p.id,from:from,to:to,at_min:S.min,day:S.day,place:p.venue,doing:doing,pending:pending,near:near,mood_hint:'tired, fine'};
+  /* v125 — held_threads: eager-ledger facts from the outage window ride
+     the wake note. Facts only, never interpretation — what the evening
+     means is the full brain's first beat back, not anything thin felt. */
+  if(S.held[p.id]){p.note.held_threads=[S.held[p.id]];delete S.held[p.id];}
 }
 
 /* ---------- events ---------- */
@@ -568,7 +608,7 @@ var EV=[
  ['Scene req: A01 + A15',function(){
    /* v97 split — brain-bound: a carried scene needs ≥1 live mind;
       two thin pawns can't be directed into dialogue */
-   var live=['a01','h01','c2','c6'].some(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
+   var live=['a01','h01','c2','c6','a14'].some(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
    wire('request — scene between A01 and A15 — resolved · declined (50% auto-refund)');
    seam('scene-dependent ask judged at activation — '+(live?'the named pair are both thin; a live mind elsewhere doesn\'t carry their scene':'zero live minds in the room')+'. Thin can be watched together, never directed together. Sell the ask, refund the miss.');}],
  ['Service 100%',function(){setCap(100);}],
@@ -581,7 +621,7 @@ var EV=[
    /* v111 — attention loss drops every watched pawn to shadowed;
       one unwatched cell edge later they land dark and stop ticking */
    var moved=[];
-   ['a01','h01','c2','c6'].forEach(function(k){if(S.obs[k]==='watched'){S.obs[k]='shadowed';moved.push(k.toUpperCase());}});
+   ['a01','h01','c2','c6','a14'].forEach(function(k){if(S.obs[k]==='watched'){S.obs[k]='shadowed';moved.push(k.toUpperCase());}});
    if(!moved.length){toast('Nobody is watched right now — the block is already dark.');return;}
    seam('attention lost — '+moved.join(', ')+' drop watched → shadowed: thin ticks coarsen to cell edges; one unwatched edge lands dark');}],
  ['Cameras return',function(){
@@ -589,7 +629,7 @@ var EV=[
       f(routine, elapsed): identical to continuous ticking, never a
       catch-up pop, never a re-simulation of minutes nobody saw */
    var back=[];
-   ['a01','h01','c2','c6'].forEach(function(k){if(S.obs[k]!=='watched'){S.obs[k]='watched';back.push(k);}});
+   ['a01','h01','c2','c6','a14'].forEach(function(k){if(S.obs[k]!=='watched'){S.obs[k]='watched';back.push(k);}});
    if(!back.length){toast('All four pawns already watched.');return;}
    back.forEach(function(k){
      var c=cell(k,S.min/60);
@@ -601,6 +641,34 @@ var EV=[
    S.obs.c6='watched';
    var c=cell('c6',S.min/60);
    seam('whip pan lands on C6 mid-cell — lazy resolve reads "'+c[0]+'" instantly; cell edges are the unit of resolution, so a mid-cell landing never pops');}],
+ ['Promote A14 Bex',function(){
+   /* v125 — the era seam, live. Promotion mints between ticks, keeps the
+      name/card/routine verbatim, re-labels ambient-era seen-facts as
+      TOLD-tier gist (ambient:true), adds packet backfill sketches, and
+      mints secrets post-promotion only. Under a stalled service the new
+      pawn is born into degraded posture — no ceremony waits on it. */
+   var p=S.pawns.a14;
+   if(p.promoted){toast('A14 is already a supporting resident — the era seam only crosses once.');return;}
+   p.promoted=true;p.kind='supporting resident';
+   var eraN=0;
+   S.saw.forEach(function(w){if(w.char==='A14'){S.gist.push({label:'A14 was at '+w.place+' — '+w.doing});eraN++;}});
+   if(!eraN)S.gist.push({label:'A14 was around the block — counter evenings, shop days'});
+   wire('request — ambient promoted — A14 Bex joins the cast (admin)');
+   seam('era seam crossed — '+eraN+' thin-era seen-fact(s) re-label ambient:true → TOLD-tier gist (paraphrase-shaped, never verbatim, never OBSERVED); backfill:true sketches land from the packet; secrets mint only now');
+   if(S.cap>=60){p.mode='full';
+     seam('A14 thin → full — her first full-brain day. The routine below is the same card the block already knows; a neighbor nodding at Bex today is nodding at the same person.');}
+   else{p.mode='degraded';p.degradedAt=S.day*1440+S.min;
+     seam('A14 promoted mid-outage — born into degraded posture: her thin self IS the authored card, so the block loses almost nothing. Recovery restores her brain when capacity returns.');}
+   ladderStep(false);}],
+ ['Supper at 9457 · 19:00',function(){
+   /* v125 — a bounded opportunity: a shared supper posted on the block,
+      an invitation not a script — anyone may ignore it. Resolves at the
+      19:00 tick: attendance is ledger fact; thin/degraded attendees are
+      posture-only; the room's witness records stay full-fidelity. */
+   if(S.supper||S.supperDone){toast('The supper is already posted (or already happened today).');return;}
+   if(S.min>=19*60){toast('19:00 already passed today — the invitation lands tomorrow.');return;}
+   S.supper=true;
+   seam('bounded opportunity posted — a shared supper at 9457, 19:00. An open invitation on the block: characters may ignore it; nothing tracks who was asked, only who showed up.');}],
  ['Corrupt C6 routine',function(){
    if(S.c6src==='authored'){S.c6src='template';
      seam('C6 authored routine dropped mid-day — resolver falls a rung: role template at the next seam. Finish the beat, then follow the fallback cell — the pawn never freezes.');}
@@ -619,13 +687,19 @@ function setCap(v){
    the ladder. verbose=true on a capacity change; ticks call it quiet. */
 function ladderStep(verbose,was){
   var mains=['c2','c6'].sort(function(a,b){return salience(b)-salience(a);}); /* high→low salience */
-  var budget=(S.cap>=60)?2:(S.cap>=30)?1:0; /* mains allowed full */
-  var fulls=mains.filter(function(id){return S.pawns[id].mode==='full';});
-  var degs=mains.slice().reverse().filter(function(id){return S.pawns[id].mode==='degraded';}); /* low-salience first */
+  var promos=S.pawns.a14.promoted?['a14']:[];
+  /* v125 — degrade order: the promoted tier first (youngest brains thin
+     first — their thin self is the authored card, so degrade costs the
+     block least), then lowest-salience mains. Recovery walks back
+     mains-first, promoted residents last. */
+  var ladder=mains.concat(promos);
+  var budget=(S.cap>=60)?ladder.length:(S.cap>=30)?mains.length:0; /* full brains allowed */
+  var fulls=ladder.filter(function(id){return S.pawns[id].mode==='full';});
+  var degs=ladder.filter(function(id){return S.pawns[id].mode==='degraded';}); /* recover head-first */
   var now=S.day*1440+S.min;
   if(S.cap<60&&fulls.length>budget){
-    var id=fulls[fulls.length-1],p=S.pawns[id]; /* lowest-salience full pawn */
-    seam('service '+(was!==undefined?was+'→':'')+S.cap+'% — '+id.toUpperCase()+' full → degraded (salience '+salience(id)+', lowest first; one step per beat)');
+    var id=fulls[fulls.length-1],p=S.pawns[id]; /* tail of the ladder: promoted, then lowest-salience main */
+    seam('service '+(was!==undefined?was+'→':'')+S.cap+'% — '+id.toUpperCase()+' full → degraded ('+(p.promoted?'promoted tier — youngest brains thin first':'salience '+salience(id)+', lowest first')+'; one step per beat)');
     writeNote(p,'full','degraded','finishing the current beat','the evening continues on public routine');
     p.mode='degraded';p.degradedAt=now;
   }else if(S.cap>=70&&degs.length){
@@ -715,6 +789,27 @@ function tick(mins){
     /* scheduled obligation: rent-share autopay drafts at 09:00 */
     if(pm<9*60&&S.min>=9*60&&!S.paidToday){S.paidToday=true;S.rentDrafts++;
       seam('scheduled obligation: h01 rent-share autopay drafted — offline doesn\'t mean the lease lapses');}
+    /* v125 supper — a bounded opportunity resolves at 19:00. Attendance
+       is ledger fact: c6 hosts (her home cell), c2's evening sit is on
+       the block, a14's card has her at the 600 Club — a thin/degraded
+       Bex declines by routine: the may-ignore rule, honored by the
+       schedule itself. Degraded attendees are posture-only, and their
+       wake notes carry held_threads — facts, never verdicts. */
+    if(S.supper&&pm<19*60&&S.min>=19*60){
+      S.supper=false;S.supperDone=true;
+      var sat=[],away=[];
+      ['c6','c2','a14'].forEach(function(k){
+        var p=S.pawns[k];
+        var attends=(k!=='a14')||(p.mode==='full');
+        if(attends)sat.push(k.toUpperCase()+(p.mode==='full'?' (mind home)':' (posture-only — showed up, cannot hold)'));
+        else away.push(k.toUpperCase()+' — stayed at '+cell(k,19)[0].split(' — ')[0]+' (may ignore, honored by the routine)');
+      });
+      seam('supper at 9457 resolves — ledger notes co-presence: '+sat.join(', ')+(away.length?'; absent: '+away.join(', '):'')+'. Facts, not verdicts — what the evening means belongs to the full brains.');
+      ['c6','a14'].forEach(function(k){
+        if(S.pawns[k].mode==='degraded'&&sat.join(' ').indexOf(k.toUpperCase())>=0)
+          S.held[S.pawns[k].id]='supper at 9457, 19:00 — cells attended, co-presence: who sat, who stayed away';
+      });
+    }
     /* linger → offline drop */
     if(S.linger>0&&--S.linger===0){
       var q=S.pawns.h01;q.owner='offline';
@@ -747,7 +842,7 @@ function tick(mins){
       S.pressHeld--;
       seam('Mission Unfiltered posts from the held backlog — ≤1/daypart on recovery, a returning blogger not a content dump');}
     /* stale notes archive at 24 h */
-    ['a01','h01','c2','c6'].forEach(function(k){
+    ['a01','h01','c2','c6','a14'].forEach(function(k){
       var q=S.pawns[k];
       if(q.note&&noteAge(q)>=1440){S.arch.push(q.note);q.note=null;seam(k.toUpperCase()+' handoff note archived — stale after 24 h; yesterday\'s loose ends belong to memory, not the seam');}
     });

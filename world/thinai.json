@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), encounter layer — thin-to-thin nod economy + player contact + world-bound request split under degrade (v97), the unobserved tick — observation tiers + lazy resolve + witness record + compute soak (v111), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 111,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), encounter layer — thin-to-thin nod economy + player contact + world-bound request split under degrade (v97), the unobserved tick — observation tiers + lazy resolve + witness record + compute soak (v111), the promoted-resident era — the promoted row, the era seam (ambient:true records re-labeled never enriched, seen-facts → TOLD-tier gist, backfill skeletons never OBSERVED, secrets mint post-promotion only), held_threads on degrade wake-notes (consequence lives in the observers), and the revised ladder — youngest brains thin first (v125); live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 125,
   "brain_modes": {
     "thin": {
       "who": "A01–A20 always; h## while owner offline",
@@ -15,7 +15,7 @@
       "llm": "suspended — player drives"
     },
     "degraded": {
-      "who": "C1–C8 during brain-service stall",
+      "who": "C1–C8 + promoted residents during brain-service stall",
       "llm": false,
       "posture": "public routine only; no seed access"
     }
@@ -61,7 +61,7 @@
       "to": "degraded",
       "when": "brain-service stall",
       "feed": null,
-      "mains_only": true
+      "applies_to": "mains + promoted residents (never ambients, never possessed)"
     },
     {
       "id": "recover",
@@ -98,6 +98,7 @@
       "char ids"
     ],
     "mood_hint": "one phrase",
+    "held_threads": "optional — eager-ledger facts from the outage window (cells attended, co-presence, drafts); facts only, never interpretation",
     "forbidden_fields": [
       "secrets",
       "seeds",
@@ -116,15 +117,15 @@
     "tiers": [
       {
         "min_pct": 60,
-        "posture": "all mains full"
+        "posture": "all full — mains + promoted residents"
       },
       {
         "min_pct": 30,
-        "posture": "mains degrade lowest scene-salience first"
+        "posture": "promoted residents degraded; mains full"
       },
       {
         "min_pct": 0,
-        "posture": "all mains degraded"
+        "posture": "mains degrade lowest scene-salience first toward the blackout floor"
       }
     ],
     "salience": {
@@ -141,7 +142,13 @@
       "ambients (never on the service)",
       "possessed pawns (the player is the compute)"
     ],
-    "feed": null
+    "feed": null,
+    "promoted_tier": {
+      "rule": "youngest brains thin first — degrade costs a promoted resident least: their thin posture is the authored ambient card, continuous with who the block already knows",
+      "order": "before every main, regardless of salience; recovery restores in the same order (mains first)",
+      "deg_min": "accrues like any degraded pawn; rotation (§30) eligible",
+      "demotion_vs_degrade": "demote = admin reversion of the role (feed-visible); degrade = temporary posture (seam-invisible). A reverted ambient is thin by nature, never degraded."
+    }
   },
   "needs_model": {
     "hunger": "rises while awake, faster on work cells; resets on routine meal windows; hungry → detour to a routine food stop, never a new place",
@@ -918,7 +925,7 @@
     "rule": "a blackout day and a fully dark day both land in thin_min — but dark costs less than watched; the ledger keeps them honest separately"
   },
   "demo": {
-    "storage_key": "rw_thinai_v111",
+    "storage_key": "rw_thinai_v125",
     "pawns": [
       {
         "id": "A01",
@@ -959,6 +966,17 @@
           "degraded"
         ],
         "venue": "her stoop / her palm / home"
+      },
+      {
+        "id": "A14",
+        "name": "Bex",
+        "kind": "ambient · promotable",
+        "modes": [
+          "thin",
+          "full",
+          "degraded"
+        ],
+        "venue": "Needlepointe / Clarion"
       }
     ],
     "events": [
@@ -987,7 +1005,48 @@
       "reset",
       "cam_pullback",
       "cam_return",
-      "whip_pan_c6"
+      "whip_pan_c6",
+      "promote_a14",
+      "supper_19"
+    ]
+  },
+  "promoted_row": {
+    "who": "A-ids promoted per world/promotion.md — supporting residents with full brains",
+    "modes": [
+      "full",
+      "degraded"
+    ],
+    "thin_self": "the ambient card verbatim — schedule + reflex flags + phrase-kit register were authored before promotion; degrade is a homecoming, not a costume",
+    "seed_rule": "SECRETS exist only in full; under degrade the same no-seed-access rule binds",
+    "never": [
+      "an unpromoted ambient can never be degraded — nothing to degrade",
+      "demotion and degrade never share a label",
+      "no feed line for a promoted resident degrading or recovering"
+    ],
+    "feed": "promotion itself logs ambient_promoted (admin transparency); posture changes log nothing"
+  },
+  "era_seam": {
+    "rule": "ambient-era records keep era tag ambient:true at promotion — re-labeled, never enriched",
+    "seen_facts": "thin-era witness records survive as TOLD-tier gist — paraphrase-shaped (place + doing + posture), never verbatim, never OBSERVED",
+    "backfill": "promotion-packet off-screen threads land as generic-tier records flagged backfill:true — a sketch of a past, never footage of it; can never satisfy ledger-OBSERVED",
+    "secrets": "mint post-promotion only — thin held none, nothing leaks upward; minors (A04/A20) need guardian:true before promote() accepts",
+    "never": [
+      "enrich ambient-era records (verbatim lines, interior states, inferred relationships)",
+      "cite a backfilled day as something a camera saw",
+      "pre-seed secrets",
+      "recast the pawn — same name, same history, same face"
+    ]
+  },
+  "held_threads": {
+    "field": "held_threads on the degrade→full handoff note — eager-ledger facts from the outage window: cells attended, co-presence at venues, obligations drafted",
+    "rule": "facts only, never interpretation — what the evening means is the full brain’s first beat back, not anything thin recorded",
+    "asymmetry": "the room’s witness records of the degraded pawn are full-fidelity; the pawn’s own record is posture-only — a missed meal during an outage is still a real miss: the people who cooked remember",
+    "bounded_opportunities": "thin can show up (an invitation on the routine is a schedule row); thin can never author one, register a breach, feel the miss, or mint a promise",
+    "never": [
+      "thin minting a commitment",
+      "accepting an obligation beyond the ledger",
+      "writing a repair gesture — an apology requires someone home to mean it",
+      "dropping a parked thread — held_threads ride the next wake note; a stale note archives them as facts"
     ]
   }
 }

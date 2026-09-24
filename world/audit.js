@@ -1708,6 +1708,50 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST111)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v111 copy: ${label}`);
+    /* ---- v125 promoted-resident pass ---- */
+    for (const blk of ['promoted_row', 'era_seam', 'held_threads'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v125 block "${blk}" missing`);
+    if (TJ.promoted_row) {
+      if (!(TJ.promoted_row.modes || []).join(',').match(/full.*degraded|degraded.*full/))
+        add(g, 'fail', 'thinai.json', null, 'promoted_row.modes must be full+degraded');
+      if (!/ambient card/.test(TJ.promoted_row.thin_self || ''))
+        add(g, 'fail', 'thinai.json', null, 'promoted_row lost the card-verbatim thin-self rule');
+    }
+    if (TJ.era_seam) {
+      const es = (TJ.era_seam.never || []).join(' ') + ' ' + (TJ.era_seam.seen_facts || '') + ' ' + (TJ.era_seam.backfill || '');
+      if (!/never enrich|never enriched|enrich/.test(es) || !/OBSERVED/.test(es))
+        add(g, 'fail', 'thinai.json', null, 'era_seam lost the never-enrich / never-OBSERVED rules');
+      if (!/post-promotion/.test(TJ.era_seam.secrets || ''))
+        add(g, 'fail', 'thinai.json', null, 'era_seam lost the secrets-mint-post-promotion rule');
+    }
+    if (TJ.held_threads) {
+      if (!/facts only|never interpretation/.test(TJ.held_threads.rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'held_threads lost the facts-never-interpretation rule');
+      if (!/observers|room/.test(TJ.held_threads.asymmetry || ''))
+        add(g, 'fail', 'thinai.json', null, 'held_threads lost the consequence-lives-in-observers asymmetry');
+    }
+    if (TJ.degrade_ladder && TJ.degrade_ladder.promoted_tier) {
+      if (!/youngest brains thin first/.test(TJ.degrade_ladder.promoted_tier.rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'degrade_ladder lost the youngest-brains-first rule');
+    } else add(g, 'fail', 'thinai.json', null, 'degrade_ladder.promoted_tier missing');
+    for (const ev of ['promote_a14', 'supper_19'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    if (!(TJ.demo.pawns || []).some(p => p.id === 'A14'))
+      add(g, 'fail', 'thinai.json', null, 'demo.pawns missing the A14 era-seam pawn');
+    /* html mirror: v125 surfaces */
+    const MUST125 = [
+      [/rw_thinai_v125/, 'v125 storage key'],
+      [/era seam/i, 'era-seam panel'],
+      [/ambient:true/, 'ambient-era record tag'],
+      [/TOLD-tier gist/i, 'seen-facts → TOLD-tier gist'],
+      [/held_threads/, 'held_threads on wake notes'],
+      [/youngest brains thin first/i, 'promoted-tier ladder rule'],
+      [/backfill:true/, 'backfill sketch flag'],
+      [/may ignore/i, 'bounded-opportunity may-ignore rule']
+    ];
+    for (const [re, label] of MUST125)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v125 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
