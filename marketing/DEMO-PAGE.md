@@ -9,13 +9,15 @@ presets (v86) + #shot deep links, first-watch field card, sim example
 cycler (v101) + "Would it air?" screening quiz + streamer embed
 snippet (v116) + request-lifecycle ribbon + simulated feed rows that
 walk the real `request_status` vocabulary (v131) + "Label the shot"
-annotation overlay (v146) + "Call it" non-wager prediction card (v176);
+annotation overlay (v146) + "Call it" non-wager prediction card (v176) +
+embedded app refresh to Wire v10 / Archive v9 + fallback deck rebased
+to published art-v85 (v191);
 live embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
 seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131;
-eleventh pass v146; twelfth pass v176.
+eleventh pass v146; twelfth pass v176; thirteenth pass v191.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -115,20 +117,33 @@ says "Simulation only," and simulated feed rows are marked "filed by you
 The page now embeds the actual spectator applications, copied verbatim from
 the world branch and running their built-in demo modes:
 
-- `site/wire.html` — world `wire.html` v3 (world-v33): full spectator feed
-  (filters, request threading, follow pins, hold, zen mode, #e=/#r=/#z=
-  permalinks, keyboard map). Demo stream seeds itself from `feed.json`
+- `site/wire.html` — world `wire.html` v10 (world-v131; refreshed v191
+  from v3): full spectator feed — filters, request threading, follow
+  pins, hold, zen mode, #e=/#r=/#z=/#dir=1/#u=1 permalinks, keyboard
+  map, plus every layer added since v3: the day-so-far card and hour
+  grid (v4), earlier-today bar + declared-cost lines (v4), director
+  preview rail (v5), on-the-book strip + their-wire-today + thread
+  mute + live search count (v6), real bus seam (v7), pin read-back +
+  vocabulary coverage + bus self-check (v8/v103), kind tray + thread
+  watch (v9/v117), and the return layer — `#edition` "since you were
+  away" catch-up card (`u` key) + stakeless `call it` on open request
+  threads (v10/v131). Demo stream seeds itself from `feed.json`
   vocabulary and carries the app's own `demo stream` badge.
-- `site/wire-archive.html` — world `archive.html` v3 (world-v34): history
-  browser (day/person/venue/threads/word/ledger views) on the demo week.
+- `site/wire-archive.html` — world `archive.html` v9 (world-v118;
+  refreshed v191 from v3): history browser on the demo week — week
+  grid, day/person/venue/same-hour/day-vs-day views, threads, word,
+  ledger, request trails, off-the-feed gaps, seen-together pairs,
+  shelf, edition, following.
 
 Both are file://-safe, zero-network until `__aiBridge` exists — at which
 point the same files render live data and flip their badges themselves.
 Patches applied on top of the verbatim copies (re-apply on refresh, noted
 in a header comment inside each file): site meta/OG tags, a back-nav link,
-`data-page` + analytics.js include, and in wire.html the `archive.html`
-href repointed to `wire-archive.html` (site `archive.html` is the marketing
-explainer, not the app).
+`data-page` + analytics.js include, the `.skip-link` style + sr-only h1,
+and link repoints — in wire.html `archive.html` → `wire-archive.html`
+and the `request.html`/`book.html` in-app links → `demo.html#try` (those
+pages don't exist on the site); in wire-archive.html the self permalink
+`archive.html#e=` → `wire-archive.html#e=`.
 
 Placement: a "The interface, running" section between the feed preview and
 the request simulator, iframe `.demo-frame.app-frame` (72vh, lazy). The
@@ -309,6 +324,27 @@ spectator game build; the wire embed is a separate, already-real surface.
   `demo-call-hit`, `demo-call-miss`, `demo-call-drop`, `demo-call-clear`
   with `item` = resident key. All slots added to analytics-events.json
   (v176). No call text ever leaves the device — only the resident key.
+
+## 4a-xi. v191 — embedded apps refreshed to the return layer
+
+- **`site/wire.html` v3 → v10, `site/wire-archive.html` v3 → v9** — the
+  embedded copies were seven world-versions stale. Refreshed verbatim
+  from the world branch with the same patch set re-applied (see
+  §4a-iii). The demo embed now shows the observer loop end to end:
+  catch-up edition, stakeless calls, watch pins, the book, the permit
+  board — all on the demo stream, all badged.
+- **Demo copy tracks it** — the "interface, running" paragraph names
+  `d`/`u`/`v`; the today-vs-launch block says the edition, calls and
+  pins behave identically on live data; the field card grows to
+  thirteen items (`data-fc="edition"` — press `u` in the Wire). Count
+  stays `boxes.length`-derived; key stays `rw_watchcard_v1` (existing
+  cards show 12/13 until checked — same honest pattern as v131/v146).
+- **Fallback deck rebased v83 → v85** (published art-v85 — dollhouse
+  floor-plan pass): `SHOTS`, `MARKS`, the initial `<picture>` and the
+  sitemap image entries for demo.html all updated; new `shots/v85-A..D`
+  png + webp (PIL q82). Old v83 files stay — gallery.html still uses
+  them. `archive.html` explainer freshened ("many ways in" + the v9
+  view list) since the embedded archive now has fifteen lenses.
 
 ## 4b. Day strip (v26)
 

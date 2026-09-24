@@ -38,7 +38,10 @@
     <lastmod>2026-09-24</lastmod>
 <changefreq>weekly</changefreq>
     <priority>0.9</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v53-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v85-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v85-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v85-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v85-D.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/gallery.html</loc>

@@ -93,11 +93,11 @@
       <div class="demo-fallback">
         <div class="demo-fallback-screen">
           <picture>
-            <source srcset="shots/v83-A.webp" type="image/webp">
-            <img src="shots/v83-A.png" alt="Development capture of the Mission block from overhead — resident inspector open on Jules, the Wire rooftop camera live in the corner." width="1440" height="900" loading="lazy">
+            <source srcset="shots/v85-A.webp" type="image/webp">
+            <img src="shots/v85-A.png" alt="Development capture of the Mission block from overhead — resident inspector open on Jules inside Mudhaus, the dollhouse cutaway showing the café floor, the Wire rooftop camera live in the corner." width="1440" height="900" loading="lazy">
           </picture>
           <div class="demo-marks" id="demo-marks" hidden aria-hidden="true"></div>
-          <span class="demo-cap" id="demo-cap">Development capture — the block from overhead, Jules selected, the Wire&rsquo;s rooftop cam in the corner</span>
+          <span class="demo-cap" id="demo-cap">Development capture — the block from overhead, Jules inside Mudhaus, the Wire&rsquo;s rooftop cam in the corner</span>
           <div class="demo-note" id="demo-note" hidden>
             <span class="demo-note-step" id="demo-note-step">1 / 4</span>
             <p id="demo-note-text"></p>
@@ -160,7 +160,7 @@
         <ul>
           <li>Labeled development captures cycling in the frame — always captioned, never passed off as live.</li>
           <li>Four camera presets you can already click — they drive the capture deck the way they&rsquo;ll drive the live cameras.</li>
-          <li>The real Wire below, running its built-in <b>demo stream</b> with the badge to prove it.</li>
+          <li>The real Wire below, running its built-in <b>demo stream</b> with the badge to prove it — the day card, the kind tray, the permit board, the catch-up edition (<kbd>u</kbd>), and stakeless calls on open request threads, all working today.</li>
           <li>A guided watch narrating what a spectator would be looking for.</li>
           <li>A <b>Label the shot</b> overlay that names what each capture proves — the inspector, names over heads, the Wire HUD. Every marker points at something you can verify in the frame.</li>
           <li>A <b>Clip this frame</b> button that exports the capture you&rsquo;re looking at as a captioned PNG — &ldquo;development capture&rdquo; watermarked in, so anything you share carries its own honesty.</li>
@@ -172,7 +172,7 @@
         <ul>
           <li>The same frame becomes the live world — one attribute flips it; the page itself doesn&rsquo;t change.</li>
           <li>The same preset names move inside the live view itself — joined by free pan/zoom and a follow-cam that can sit on any resident.</li>
-          <li>The same Wire drops its badge and shows the real feed, writes and all.</li>
+          <li>The same Wire drops its badge and shows the real feed, writes and all — the edition, calls, and watch pins work exactly the same on live data.</li>
           <li>The guided watch retires. Live needs no narration — and no script.</li>
           <li>The label overlay retires with it — the live HUD names its own surfaces.</li>
           <li>Clipping moves inside the live view — same button idea, real frames, same watermark honesty.</li>
@@ -305,8 +305,11 @@
     running on its built-in <b>demo stream</b> — the badge in its header
     tells you so, and it will still tell you so at launch when the same
     frame shows live data. Filter the feed, open a request thread, pin a
-    resident, hit <i>hold</i>. Nothing here touches the world; the Wire is
-    view-layer only.</p>
+    resident, hit <i>hold</i>. Press <kbd>d</kbd> for the day-so-far card,
+    <kbd>u</kbd> for the <i>since you were away</i> edition, <kbd>v</kbd>
+    for the director preview — or call it on an open request thread and
+    let the wire prove you right or wrong. Nothing here touches the
+    world; the Wire is view-layer only.</p>
     <div class="demo-stage">
       <iframe class="demo-frame app-frame" src="wire.html"
               title="The Wire — Real World spectator feed, demo stream"
@@ -510,7 +513,7 @@
   <div class="wrap">
     <p class="eyebrow">Your first watch</p>
     <h2>A field card for the first hour.</h2>
-    <p class="muted">Twelve things worth doing on a first visit — every one
+    <p class="muted">Thirteen things worth doing on a first visit — every one
     works today on this page&rsquo;s real surfaces (the capture deck, the
     Wire&rsquo;s demo stream, the simulator above). Checks save on this
     device only; nothing leaves your browser.</p>
@@ -528,8 +531,9 @@
         <li><label><input type="checkbox" data-fc="labels"> Toggle <i>Label the shot</i> on the capture deck — every marker names something a spectator can verify in the frame.</label></li>
         <li><label><input type="checkbox" data-fc="clip"> Hit <i>Clip this frame</i> — the exported PNG carries its own &ldquo;development capture&rdquo; watermark, so a shared clip can&rsquo;t be passed off as live.</label></li>
         <li><label><input type="checkbox" data-fc="call"> Log a call in <i>Call it</i> above and leave it open — the card remembers it between visits; settling it is the reason to come back.</label></li>
+        <li><label><input type="checkbox" data-fc="edition"> In the Wire, press <kbd>u</kbd> — the <i>since you were away</i> edition is the return loop, already running on the demo stream.</label></li>
       </ul>
-      <p class="fieldcard-status"><span id="fc-count">0 / 12</span>
+      <p class="fieldcard-status"><span id="fc-count">0 / 13</span>
         <button class="btn btn-ghost btn-sm" id="fc-reset" type="button">Reset the card</button>
       </p>
     </div>

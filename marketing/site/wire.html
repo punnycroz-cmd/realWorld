@@ -2,14 +2,16 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>The Wire — Real World spectator feed</title>
+<title>Real World — The Wire (spectator)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<!-- MARKETING SITE COPY (sf/marketing v61): verbatim world/wire.html v3
-     (world-v33) + these patches: site meta tags, full icon link set
+<!-- MARKETING SITE COPY (sf/marketing v191): verbatim world/wire.html v10
+     (world-v131) + these patches: site meta tags, full icon link set
      (favicon-32/apple-touch-icon/webmanifest/mask-icon — brand_audit
      check 5 requires them), back-nav link, archive link repointed to
-     wire-archive.html, analytics include, sr-only h1.
-     Re-apply the same six patches when refreshing from the world branch. -->
+     wire-archive.html, Counter/Book links repointed to demo.html
+     (request.html/book.html don't exist on the site), analytics
+     include, sr-only h1 + skip-link.
+     Re-apply the same patches when refreshing from the world branch. -->
 <meta name="description" content="The Wire is Real World's free spectator feed — the live block plus every paid request, attributed. This preview runs the app's demo stream.">
 <link rel="canonical" href="https://realworld-game.example/wire.html"><!-- PLACEHOLDER domain: replace at launch -->
 <meta property="og:type" content="website">
@@ -58,6 +60,103 @@
       z zen · ? help · esc back out
     - #r=<req> request permalink; mentions chips; pin-from-detail
     - density toggle (cozy/compact, persisted); reduced-motion honored
+  New in v4 (world v47) — the recap layer:
+    - "the day so far" card — live counts computed from the wire itself
+      (window, busiest venue, requests open/closed, weather calls, admin
+      actions + compensated credits). `d` key or the bar toggles it.
+      No editorial picks: it is the feed, counted.
+    - "earlier today" catch-up bar — one honest summary of everything
+      that was already on the wire when you arrived, plus "catch me up"
+      which scrolls to the oldest of it. Timestamps of pre-join events
+      render dimmed.
+    - declared-cost transparency — request rows/detail show the filed
+      credits + minutes (attrs.credits/minutes) with "paid upfront,
+      hard cap". The price was public at filing; the wire says so.
+    - header weather follows the wire — the newest `weather` event sets
+      the header line (demo and live alike), never a fabricated temp.
+  New in v5 (world v61) — the Director's rail:
+    - the upsell becomes a real preview: a collapsible director bar
+      (Preview button / `v` key / `#dir=1`) with named camera presets,
+      a follow-cam selector, and a replay scrub over the wire's own
+      events. Everything is view-layer only — cameras watch the wire,
+      never the inside of a home; the paid pass is filed at the
+      Counter, not here.
+    - live-seam deepening: gsExplainRequest(req) fills a "live record"
+      line on request detail when the bus is present, and venue cards
+      read gsOccupancy()/viewer-state occupancy when offered —
+      capability-checked, demo falls back to public routines.
+  New in v6 (world v75) — the schedule + the person layer:
+    - "on the book" strip — upcoming booked windows (v74's public
+      calendar) rendered on the wire itself: HH:MM · what · holder ·
+      claim, collapsible (`b` key, persisted rw_wire_book). A booked
+      window is a promise the world already made; the wire shows it.
+    - "their wire today" — a per-character card (click a cast name, or
+      the button on a character's event record): every event that
+      touched them today, counted from the wire — public whereabouts
+      only, homes stay walls.
+    - thread mute — a request's detail gains "mute this thread": its
+      future lines drop out of YOUR display only (rw_wire_mute), with
+      the honest note that the wire's record is unchanged and The
+      Archive keeps everything.
+    - search gains a live match count — "N matching" beside the box.
+  New in v7 (world v89) — the real wire seam (game-v14 alignment):
+    - live ingest reads the bus's own wire shape (41_game_systems_feed):
+      top-level `mentions`, stable `n` ordering, `day` for multi-day
+      separators, `attempt` on denied lines, `booked` status chip.
+    - incremental sync prefers gsWireSince(maxN) over re-reading the
+      50-line tail; "load older" pages the bus via gsWirePage and ends
+      honestly at the top of the record.
+    - the block clock follows real PT wall time (America/Los_Angeles),
+      so daypart, the book strip, and admin-recency are true live.
+    - "the permit board" right-rail panel reads vs.board /
+      gsResourceBoard — public claim states (free/cool/locked/queued),
+      never a write.
+    - co-session cards from vs.sessions / gsCoSessions join the
+      reaching-in-now strip; player-called sky shows sponsor count.
+    - gsExplainRequest renders the real shape (note, queuePos,
+      blockedBy/behind, on-claims, review code); gsWireStats feeds the
+      day card's withheld-count honesty line (privacy, not downtime).
+    - follow pins sync to the bus endpoint gsWireFollow (v:/m: keys) —
+      the only write this page makes is the viewer's own pin.
+  New in v9 (world v117) — the attention layer:
+    - kind tray — the wire counted by kind ("weather 3 · press 1 …"):
+      one chip per kind actually on the wire today; click isolates that
+      kind, `g` cycles, click again clears. A lens, never a ranking.
+    - the hour grid in the day card — 24 cells shaded by the wire's own
+      per-hour count; clicking an hour jumps to its first line.
+    - thread watch — a request's detail gains "watch this thread":
+      its new lines carry a ◆ for you only (rw_wire_watch), the watched
+      list lives beside muted threads, and the new-events pill counts
+      what landed on your pins and watches. The record is unchanged.
+  New in v8 (world v103) — the record layer:
+    - pin read-back: gsWireFollows() hydrates the Following panel from
+      the bus's own pin set on join and adopts new bus-side pins each
+      poll (v:<venue> / m:<char> → page v:/c:) — pins made in the sim's
+      own panel or another surface show up here. Page pins the bus lacks
+      are pushed through once at join; a viewer's unpin still writes
+      through and is never resurrected.
+    - archive depth: gsWireDays() counts the days on record — the footer
+      link reads "N days on record → The Archive" instead of a guess.
+    - vocabulary coverage: gsWireVocabulary() supplies the canonical
+      kinds/statuses; the day card reports "M of S statuses seen today"
+      — the wire's own coverage, counted, never ranked.
+    - bus self-check: opening the day card (live) runs gsWireAudit() and
+      reports the bus's own verdict — "N lines · self-check ok" or the
+      honest issue count. Read-only; the record flags itself.
+  New in v10 (world v131) — the return layer:
+    - "since you were away" — the catch-up edition (#edition, `u` key,
+      rw_wire_ed/rw_wire_lastseen). The page remembers the feed's edge
+      at your last visit and reports AT MOST THREE verified changes
+      since: request threads filed or moved, sky changes, registry/
+      press/admin/cast events — each linked to its own line, its
+      pre-away context, and its thread. Still-open threads carry
+      'still open'. Moves and street texture aren't "changes"; nothing
+      inferred, nothing ranked.
+    - calls — a stakeless prediction ledger (rw_wire_calls). On an open
+      request thread: "call it — will run / won't run". The record
+      answers at the terminal line ('your call held' / 'the record went
+      the other way'). No stakes, no score, nobody else sees it; like a
+      watch, a call never reaches the bus.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -148,6 +247,7 @@
   .st.resolved,.st.refunded,.st.approved,.st.approved__modified_,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
   .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
   .st.not_approved{background:#33222c;color:var(--pink)}
+  .st.booked{background:#22303f;color:var(--blu)}
   .daysep{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--dim);
     font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
   .daysep::before,.daysep::after{content:"";flex:1;border-top:1px solid var(--line)}
@@ -208,6 +308,7 @@
   .lncard .who{color:var(--blu)}
   .lncard .st{margin-left:0}
   .lncard.admin{border-color:var(--pink)}
+  .lncard.sess{border-color:var(--blu)}
   .holdbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
     background:#2a2618;color:var(--ink);font-size:12px;padding:6px 12px;cursor:pointer}
   .mchip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:10px;
@@ -228,6 +329,125 @@
   .skip-link{position:absolute;left:12px;top:-48px;z-index:200;background:var(--acc);
     color:#1a1408;font-weight:700;padding:10px 16px;border-radius:8px}
   .skip-link:focus{top:12px}
+
+  /* ---- v47: the recap layer ---- */
+  .wire li.early .t{opacity:.45}
+  .wire .cr{font-style:normal;color:var(--dim);font-size:10.5px;margin-left:6px;white-space:nowrap}
+  .missed{display:none;align-items:center;gap:8px;margin:0 0 10px;border:1px solid var(--blu);
+    border-radius:8px;background:#1a2430;font-size:12px;padding:6px 12px;flex-wrap:wrap}
+  .missed .grow{flex:1;min-width:220px;color:var(--ink)}
+  .missed button{font:inherit;font-size:11px;padding:2px 10px;border-radius:6px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel);color:var(--blu)}
+  .daybar{display:none;align-items:center;gap:8px;margin:0 0 10px;border:1px solid var(--line);
+    border-radius:8px;padding:5px 12px;font-size:11.5px;color:var(--dim);cursor:pointer;
+    background:var(--panel2)}
+  .daybar b{color:var(--ink);letter-spacing:.06em;text-transform:uppercase;font-size:10.5px}
+  .daybar .arrow{margin-left:auto;color:var(--acc)}
+  .daycard{display:none;margin:0 0 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel2);padding:10px 14px;font-size:12.5px}
+  .daycard.open{display:block}
+  .daycard .stat{display:flex;justify-content:space-between;gap:12px;padding:2px 0;
+    border-bottom:1px solid var(--line)}
+  .daycard .stat:last-of-type{border-bottom:0}
+  .daycard .stat b{color:var(--ink);font-weight:600;text-align:right}
+  .daycard .fnote{margin-top:8px;color:var(--dim);font-size:11px}
+
+  /* ---- v61: the Director's rail ---- */
+  .dirbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
+    background:#221f16;padding:9px 12px;font-size:12.5px}
+  .dirbar.open{display:block}
+  .dirbar .dhead{display:flex;align-items:baseline;gap:10px}
+  .dirbar .dhead b{color:var(--acc);letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .dirbar .dnote{color:var(--dim);font-size:11px;flex:1}
+  .dirbar .dx{color:var(--dim);cursor:pointer;font-size:14px}
+  .dirbar .drow{display:flex;align-items:center;gap:7px;margin-top:7px;flex-wrap:wrap}
+  .dirbar .dlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .camchip{font:inherit;font-size:11px;padding:2px 10px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--dim)}
+  .camchip.on{color:var(--acc);border-color:var(--acc);background:#2a2618}
+  .dirbar select{background:var(--panel2);color:var(--ink);border:1px solid var(--line);
+    border-radius:6px;font:inherit;font-size:11.5px;padding:2px 6px}
+  .dirbar input[type=range]{flex:1;min-width:120px;accent-color:var(--acc)}
+  .dirbar .slab{font-family:var(--mono);font-size:11px;color:var(--dim);min-width:38px;text-align:right}
+  .replay{display:none;margin-top:7px;border-top:1px dashed var(--line);padding-top:6px}
+  .replay .rt{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--blu)}
+  .replay .rev{padding:2px 0;font-size:12px;color:var(--dim)}
+  .replay .rev .t{font-family:var(--mono);font-size:10.5px;margin-right:7px}
+  .dirbar .dfoot{margin-top:8px;color:var(--dim);font-size:11px}
+  .dirbar .dfoot a{color:var(--blu)}
+  .wire li.camhl{box-shadow:inset 2px 0 0 var(--acc)}
+  body.zen .dirbar{display:none !important}
+
+  /* ---- v75: the book strip + char day + thread mute + search count ---- */
+  .bookbar{display:none;margin:0 0 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel2);padding:6px 12px;font-size:12px}
+  .bookbar .bhead{display:flex;align-items:baseline;gap:8px;cursor:pointer}
+  .bookbar .bhead b{color:var(--blu);letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .bookbar .bhead .arrow{margin-left:auto;color:var(--acc)}
+  .bookbar .brow{display:flex;gap:8px;align-items:baseline;padding:3px 0 0;
+    color:var(--dim);font-size:12px}
+  .bookbar .brow .t{font-family:var(--mono);font-size:11px;color:var(--ink)}
+  .bookbar .brow .who{color:var(--blu)}
+  .bookbar .brow .claim{flex:none;color:var(--dim);font-size:10.5px}
+  .bookbar .bfoot{margin-top:5px;font-size:10.5px;color:var(--dim)}
+  .bookbar .bfoot a{color:var(--blu)}
+  .qcount{font-size:10.5px;color:var(--acc);font-family:var(--mono);flex:none}
+  .cp b{cursor:pointer}
+  .cp b:hover{color:var(--acc)}
+  .cday .ev2{padding:3px 0;border-bottom:1px solid var(--line);font-size:12px;color:var(--dim)}
+  .cday .ev2:last-child{border-bottom:0}
+  .cday .ev2 .t{font-family:var(--mono);font-size:10.5px;margin-right:7px}
+  .cday .fnote{margin-top:8px;color:var(--dim);font-size:11px}
+  .mutelist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .mutelist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+  /* ---- v89: the permit board (live claim states, read-only) ---- */
+  .pboard .pb{display:flex;align-items:baseline;gap:8px;padding:4px 0;
+    border-bottom:1px solid var(--line);font-size:12px}
+  .pboard .pb:last-child{border-bottom:0}
+  .pboard .pb .res{color:var(--ink);font-weight:600;min-width:110px}
+  .pboard .pb .pst{font-size:9.5px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;border-radius:8px;padding:1px 7px;flex:none}
+  .pboard .pst.free{background:#1e3a2c;color:var(--grn)}
+  .pboard .pst.cool{background:#2b2b28;color:var(--dim)}
+  .pboard .pst.locked{background:#33261e;color:var(--acc)}
+  .pboard .pst.queued{background:#22303f;color:var(--blu)}
+  .pboard .pb .pnote{color:var(--dim);flex:1;font-size:11.5px}
+  .pboard .pb .pwho{color:var(--blu);flex:none;font-size:11px}
+  .pboard .pfoot{margin-top:8px;color:var(--dim);font-size:11px}
+
+  /* ---- v117: the attention layer ---- */
+  .kindtray{display:none;gap:6px;flex-wrap:wrap;align-items:center;margin:-4px 0 10px}
+  .kindtray .ktlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .kindtray .ktnote{font-size:10.5px;color:var(--dim);font-style:italic}
+  .kchip{font:inherit;font-size:10.5px;padding:2px 9px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--dim)}
+  .kchip.on{color:var(--acc);border-color:var(--acc);background:#2a2618}
+  .kchip .n{color:var(--acc);font-family:var(--mono);font-size:9.5px}
+  .hgrid{display:flex;gap:2px;margin:8px 0 2px}
+  .hcell{flex:1;min-width:0;height:20px;border-radius:3px;background:var(--blu);
+    font-family:var(--mono);font-size:8.5px;color:#10151b;text-align:center;
+    line-height:20px;cursor:pointer;overflow:hidden}
+  .hcell:hover{outline:1px solid var(--acc)}
+  .wire .wm{color:var(--grn);font-size:9px;margin-left:5px}
+  .lncard.wch{border-color:var(--grn)}
+  .watchlist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .watchlist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  /* v131 — the return layer */
+  .edition{display:none;margin:8px 0;padding:8px 10px;border:1px solid var(--line);
+    border-radius:8px;background:rgba(255,255,255,.02);font-size:12px}
+  .edition .edhead{display:flex;align-items:center;gap:8px;cursor:pointer}
+  .edition .edhead b{color:var(--ink);font-size:12.5px}
+  .edition .edhead .arrow{margin-left:auto;color:var(--dim)}
+  .edition .edrow{padding:5px 0;border-top:1px dashed var(--line);color:var(--dim)}
+  .edition .edrow:first-of-type{border-top:0}
+  .edition .edrow .t{color:var(--dim);font-variant-numeric:tabular-nums;margin-right:6px}
+  .edition .edlink{color:var(--blu);cursor:pointer;margin-left:8px;white-space:nowrap}
+  .edition .edfoot{margin-top:6px;font-size:11px;color:var(--dim)}
+  .edition .stopen{color:var(--grn,#7ec98a);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;margin-left:6px}
+  .calllist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .calllist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 </style>
 </head>
 <body data-page="wire">
@@ -271,9 +491,31 @@
       <button class="chip" data-f="admin">admin</button>
       <button class="chip" data-f="followed" id="chipf" style="display:none">following <span class="n" id="fn"></span></button>
       <input class="search" id="q" placeholder="search the wire…" aria-label="search the wire">
+      <span class="qcount" id="qcount"></span>
       <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
+    <div class="kindtray" id="kindtray" aria-label="the wire counted by kind — a lens, never a ranking"></div>
     <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
+    <div class="bookbar" id="bookbar" aria-label="on the book — upcoming booked windows"></div>
+    <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
+    <div class="daybar" id="daybar" role="button" tabindex="0" aria-label="toggle the day-so-far recap"></div>
+    <div class="daycard" id="daycard"></div>
+    <div class="edition" id="edition" aria-label="since you were away — verified changes from the wire's own record"></div>
+    <div class="dirbar" id="dirbar" aria-label="director preview — camera presets, follow-cam, replay scrub">
+      <div class="dhead"><b>director preview</b>
+        <span class="dnote">view-layer only — cameras watch the wire, never the inside of a home</span>
+        <span class="dx" id="dirx" title="close">✕</span></div>
+      <div class="drow"><span class="dlab">cam</span><span id="camps"></span>
+        <span class="dlab" style="margin-left:8px">follow</span>
+        <select id="fcamsel" aria-label="follow-cam — public whereabouts only"></select></div>
+      <div class="drow"><span class="dlab">replay</span>
+        <input type="range" id="scrub" min="0" max="100" value="100" aria-label="scrub the wire back through today">
+        <span class="slab" id="scrublab">live</span></div>
+      <div class="replay" id="replay"></div>
+      <div class="dfoot">preview is free. The Director pass — multi-cam, PiP, scrub inside
+        the sim view — is 10 cr / 30 min, filed at <a href="demo.html#try">the Counter</a>
+        like any request. Watching costs nothing either way.</div>
+    </div>
     <div class="holdbar" id="holdbar"></div>
     <div class="newpill" id="newpill"></div>
     <ul class="wire" id="wire" role="log" aria-live="polite" aria-label="the wire — public feed"></ul>
@@ -281,7 +523,7 @@
       <button id="older">load older</button>
       <span id="foot" class="caughtup"></span>
       <button id="keys" title="keyboard shortcuts">keys</button>
-      <a href="wire-archive.html" style="margin-left:auto">earlier days → The Archive</a>
+      <a href="wire-archive.html" id="archlink" style="margin-left:auto">earlier days → The Archive</a>
     </div>
   </section>
 
@@ -291,11 +533,27 @@
       <div id="detBody"><div class="detempty">Select any wire line for its record —
         id, permalink, and (for requests) the whole status trail.</div></div>
     </section>
+    <section class="panel pboard" id="pboardPanel" style="display:none">
+      <h2>The permit board <span class="free">— what's claimed, publicly</span></h2>
+      <div id="pboard"></div>
+      <div class="pfoot">the bus's own claim states — free / cool / locked /
+        queued, with honest times. Read-only: claims are filed at
+        <a href="demo.html#try" style="color:var(--blu)">the Counter</a>, never here.</div>
+    </section>
+    <section class="panel cday" id="cdayPanel">
+      <h2>Their wire today</h2>
+      <div id="cday" style="font-size:12.5px;color:var(--dim)">Click a name in the cast
+        strip (or "their wire today" on an event) for everything the wire saw of them
+        today — public whereabouts only.</div>
+    </section>
     <section class="panel">
       <h2>Following</h2>
       <div id="folllist" style="font-size:12.5px;color:var(--dim)">Nothing pinned. Follow a
         venue or a character on the left — free, instant, reversible. It filters the wire;
         it never touches the world.</div>
+      <div class="mutelist" id="mutelist" style="display:none"></div>
+      <div class="watchlist" id="watchlist" style="display:none"></div>
+      <div class="calllist" id="calllist" style="display:none"></div>
     </section>
   </div>
 </main>
@@ -322,6 +580,11 @@
       <tr><td class="k">f</td><td>filter to followed venues + characters</td></tr>
       <tr><td class="k">z</td><td>zen — lean-back view (esc or z again to leave)</td></tr>
       <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
+      <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
+      <tr><td class="k">v</td><td>director preview — cam presets, follow-cam, replay scrub</td></tr>
+      <tr><td class="k">b</td><td>on the book — upcoming booked windows</td></tr>
+      <tr><td class="k">g</td><td>cycle the kind lens — kinds today, counted</td></tr>
+      <tr><td class="k">u</td><td>since you were away — the catch-up edition</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -425,8 +688,368 @@ var density='cozy';
 try{ density = localStorage.getItem('rw_wire_density')||'cozy'; }catch(e){}
 if (density==='compact') document.body.classList.add('compact');
 
+/* ---- v61: director preview state (per-viewer, view-layer only) ---- */
+var dirOpen=false, camPreset=null, fcam=null;
+try{ var camSaved=JSON.parse(localStorage.getItem('rw_wire_cam')||'{}');
+  camPreset=camSaved.preset||null; fcam=camSaved.fcam||null; }catch(e){}
+var CAM_PRESETS=[
+  {id:'park',   label:'park lawn',       venues:{park:1}},
+  {id:'cafe',   label:'café row',        venues:{mudhaus:1,perk:1}},
+  {id:'strip',  label:'the strip',       venues:{buyrite:1,maliks:1,block:1}},
+  {id:'clarion',label:'clarion alley',   venues:{clarion:1}},
+  {id:'night',  label:'the night shift', venues:{club600:1,farolote:1}}
+];
+function camVenues(){ var p=CAM_PRESETS.filter(function(x){return x.id===camPreset;})[0];
+  return p?p.venues:null; }
+function camMatch(e){
+  var vs=camVenues();
+  if (vs && e.venue && vs[e.venue]) return true;
+  if (fcam && (e.who===fcam || (e.attrs && e.attrs.mentions && e.attrs.mentions.indexOf(fcam)>=0))) return true;
+  return false;
+}
+
+/* ---- v75: the schedule + the person layer (all view-layer) ----
+   The book strip reads today's booked windows — a booked window is a
+   promise the world already made, so the wire shows it. BOOKW mirrors
+   world/bookings.json windows (the audit compares them field-for-field);
+   live mode merges vs.calendar on top, deduped by claim+start. */
+var BOOKW = [
+  {claim:'sky',           start:'07:30', min:60,  who:'marina_w', what:'fog burn-off for the morning crowd'},
+  {claim:'openair',       start:'09:00', min:90,  who:'leaf',     what:'park cleanup — Dolores, Saturday'},
+  {claim:'venue:club600', start:'22:30', min:60,  who:'dvh',      what:'birthday window — the back corner'},
+  {claim:'venue:mudhaus', start:'16:00', min:60,  who:'okfm',     what:'poetry hour — corner tables'}
+];
+var LIVE_BOOK=[];           /* bus-side calendar rows, same shape */
+var bookOpen=true;
+try{ bookOpen = localStorage.getItem('rw_wire_book')!=='0'; }catch(e){}
+function hm(s){ var p=String(s).split(':'); return (+p[0])*60+(+p[1]); }
+function claimName(c){
+  if (c.indexOf('venue:')===0) return VENUE_NAME[c.slice(6)]||c;
+  if (c==='sky') return 'the sky';
+  if (c==='openair' || c.indexOf('openair:')===0) return 'the open air';
+  /* v89 — the rest of the pairwise claim vocabulary (41_game_systems_requests) */
+  if (c.indexOf('char:')===0){ var cid=c.slice(5);
+    return 'character '+(CHAR_NAME[cid]||cid); }
+  if (c.indexOf('paper:')===0) return 'registry paperwork — '+c.slice(6);
+  if (c.indexOf('listing:')===0) return 'the listing on '+c.slice(8);
+  return c;
+}
+function bookRows(){
+  var rows=[];
+  BOOKW.forEach(function(w){ rows.push({claim:w.claim, t:hm(w.start), min:w.min, who:w.who, what:w.what}); });
+  var seen={}; rows.forEach(function(r){ seen[r.claim+'|'+r.t]=1; });
+  LIVE_BOOK.forEach(function(w){
+    var t = w.start_min!=null ? w.start_min : hm(w.start||'0:00');
+    if (!seen[w.claim+'|'+t]) rows.push({claim:w.claim, t:t, min:w.min, who:w.who, what:w.what});
+  });
+  /* the strip is what's still ahead — past windows already fired on the wire */
+  return rows.filter(function(r){ return r.t>T && r.t<T+1440; })
+             .sort(function(a,b){return a.t-b.t;}).slice(0,5);
+}
+function renderBook(){
+  var bar=document.getElementById('bookbar');
+  var rows=bookRows();
+  if (!rows.length){ bar.style.display='none'; return; }
+  bar.style.display='block';
+  var h='<div class="bhead" id="bookhead"><b>on the book</b>'+
+    '<span style="color:var(--dim)">'+rows.length+' window'+(rows.length===1?'':'s')+
+    ' ahead — scheduled claims, public</span><span class="arrow">'+(bookOpen?'▾':'▸')+'</span></div>';
+  if (bookOpen){
+    rows.forEach(function(r){
+      h+='<div class="brow"><span class="t">'+fmt(r.t)+'</span>'+
+        '<span class="claim">'+esc(claimName(r.claim))+'</span>'+
+        '<span style="flex:1">'+esc(r.what)+'</span>'+
+        '<span class="who">'+esc(r.who)+'</span></div>';
+    });
+    h+='<div class="bfoot">a booked window is a promise the world already made — '+
+      'the whole day\u2019s calendar lives at <a href="demo.html#try">the Book</a>.</div>';
+  }
+  bar.innerHTML=h;
+  document.getElementById('bookhead').onclick=toggleBook;
+}
+function toggleBook(){
+  bookOpen=!bookOpen;
+  try{ localStorage.setItem('rw_wire_book',bookOpen?'1':'0'); }catch(e){}
+  renderBook();
+}
+
+/* thread mute — drops a request's lines from YOUR display only.
+   The wire's record is unchanged; The Archive keeps everything. */
+var muted={};
+try{ muted=JSON.parse(localStorage.getItem('rw_wire_mute')||'{}'); }catch(e){}
+function saveMuted(){ try{ localStorage.setItem('rw_wire_mute',JSON.stringify(muted)); }catch(e){} }
+function toggleMute(req){
+  if (muted[req]) delete muted[req]; else muted[req]=true;
+  saveMuted(); renderFollows(); renderWire(); renderDetail();
+}
+
+/* v117 — thread watch: the mute's mirror. A watched request's lines get
+   a ◆ for this viewer only and its updates are counted in the new-events
+   pill. Viewer-side, persisted (rw_wire_watch); the wire's record — and
+   everyone else's screen — is unchanged. A watch never writes to the
+   bus: unlike a pin it is pure display state, so nothing leaves the page. */
+var watching={};
+try{ watching=JSON.parse(localStorage.getItem('rw_wire_watch')||'{}'); }catch(e){}
+function saveWatching(){ try{ localStorage.setItem('rw_wire_watch',JSON.stringify(watching)); }catch(e){} }
+function toggleWatch(req){
+  if (watching[req]) delete watching[req]; else watching[req]=true;
+  saveWatching(); renderFollows(); renderWire(); renderDetail();
+}
+
+/* ================= v131 — the return layer =================
+   Two answers for the coming-back viewer, both strictly view-layer:
+
+   1) "since you were away" — the catch-up edition (#edition, `u` key,
+      persisted rw_wire_ed). The page remembers the feed's edge when the
+      viewer last left (rw_wire_lastseen: {seq,t,id}) and reports AT MOST
+      THREE verified changes since — where a "change" is something the
+      wire itself recorded crossing a boundary: a request thread that
+      moved status or was filed, a sky change, a housing/registry event,
+      a press post, an admin action, a new resident. Moves, scenes, and
+      venue texture are deliberately not "changes" — they're the day
+      happening, and the stream already has them. Each row links to its
+      own line (the evidence) and to the thread's last pre-away line
+      (the earlier context); a still-open thread carries 'still open' —
+      the unresolved follow-up. Nothing inferred, nothing ranked: rows
+      are newest-first, capped at three, and the card says so.
+
+   2) calls — a stakeless prediction ledger (rw_wire_calls). On any open
+      request thread the viewer may note "will run" / "won't run" — a
+      private expectation, viewer-side only (like a watch it never
+      reaches the bus). When the thread posts a terminal status the
+      record answers: 'the record shows resolved — your call held' or
+      'the record went the other way'. No points, no streaks, no share
+      button, nobody else sees it — a call is a note to yourself about
+      what you expected, kept honest by the wire's own record. */
+var edOpen=true;
+try{ edOpen = localStorage.getItem('rw_wire_ed')!=='0'; }catch(e){}
+/* the edge the viewer last left — read once at boot, then re-stamped as
+   this session advances so the next visit measures from tonight, not
+   from the first visit ever. Baseline resolution at render time is
+   id- first, then seq, then t (a demo restart's seq can regress; the
+   block clock can't). */
+var LAST_SEEN=null;
+try{ LAST_SEEN = JSON.parse(localStorage.getItem('rw_wire_lastseen')||'null'); }catch(e){}
+function stampLastSeen(){
+  var edge=null;
+  FEED.forEach(function(e){ if(!edge || e.seq>edge.seq || (e.seq===edge.seq&&e.t>edge.t)) edge=e; });
+  if (!edge) return;
+  try{ localStorage.setItem('rw_wire_lastseen',
+    JSON.stringify({seq:edge.seq, t:edge.t, id:edge.id, at:Date.now()})); }catch(e){}
+}
+window.addEventListener('pagehide',stampLastSeen);
+window.addEventListener('beforeunload',stampLastSeen);
+function isSince(e){
+  if (!LAST_SEEN) return false;
+  if (e.id && e.id===LAST_SEEN.id) return false;
+  if (LAST_SEEN.seq!=null && e.seq>LAST_SEEN.seq) return true;
+  if (LAST_SEEN.t!=null && e.t>LAST_SEEN.t) return true;
+  return false;
+}
+var TERMINAL_ST={'resolved':1,'refunded':1,'not approved':1,'player session ended':1};
+function reqRan(st){ return st==='resolved'||st==='player session ended'; }
+/* collect the verified changes since the baseline — at most three */
+function editionRows(){
+  var rows=[];
+  /* request threads: filed or moved across the boundary */
+  var order=[], seenReq={};
+  FEED.forEach(function(e){
+    if (e.kind!=='request'||!e.req||seenReq[e.req]) return;
+    seenReq[e.req]=1; order.push(e.req);
+  });
+  order.forEach(function(r){
+    var post=FEED.filter(function(e){return e.req===r&&isSince(e);});
+    if (!post.length) return;
+    var latest=post[0]; /* FEED newest-first */
+    var pre =FEED.filter(function(e){return e.req===r&&!isSince(e);});
+    var prev=pre.length?pre[0]:null;
+    rows.push({t:latest.t, seq:latest.seq, id:latest.id, ctx:prev&&prev.id,
+      open:!!LIVE_STATUSES[latest.status], req:r,
+      text: prev ? 'request '+r+' moved — '+prev.status+' → '+latest.status
+                 : 'request '+r+' filed — '+(latest.status||'requested')+(latest.who?' · '+latest.who:'')});
+  });
+  /* the sky, the registry, the paper, admin, a new face — one row each */
+  var singles={weather:null,housing:null,press:null,admin:null,cast:null};
+  FEED.forEach(function(e){
+    if (!(e.kind in singles) || !isSince(e)) return;
+    if (!singles[e.kind]) singles[e.kind]=e;
+  });
+  var ONE_LINERS={weather:'the sky changed — ', housing:'the registry moved — ',
+    press:'the paper posted — ', admin:'admin acted — ', cast:'a new face — '};
+  Object.keys(singles).forEach(function(k){
+    var e=singles[k]; if(!e) return;
+    rows.push({t:e.t, seq:e.seq, id:e.id, ctx:null, open:false, req:null,
+      text:ONE_LINERS[k]+e.text});
+  });
+  rows.sort(function(a,b){ return (b.t-a.t)||(b.seq-a.seq); });
+  return rows.slice(0,3);
+}
+function renderEdition(){
+  var box=document.getElementById('edition');
+  /* the card exists the moment the viewer has any baseline — a first
+     visit renders the honest empty state instead of hiding the feature */
+  var rows = LAST_SEEN ? editionRows() : [];
+  var head = '<div class="edhead" id="edhead"><b>since you were away</b>'+
+    '<span style="color:var(--dim)">'+
+    (LAST_SEEN ? 'the record since '+fmt(LAST_SEEN.t)+' — up to three verified changes'
+               : 'first visit on record — the wire keeps the edge you leave')+
+    '</span><span class="arrow">'+(edOpen?'▾':'▸')+'</span></div>';
+  if (!edOpen){ box.innerHTML=head; box.style.display='block';
+    document.getElementById('edhead').onclick=toggleEdition; return; }
+  var h=head;
+  if (!LAST_SEEN){
+    h+='<div class="edrow">Nothing to compare yet — from here on, the wire '+
+      'remembers where you left. Come back and this card lists what verifiably changed.</div>';
+  } else if (!rows.length){
+    h+='<div class="edrow">The record is unchanged since '+fmt(LAST_SEEN.t)+
+      ' — quiet is a finding, not a gap.</div>';
+  } else {
+    rows.forEach(function(r){
+      h+='<div class="edrow"><span class="t">'+fmt(r.t)+'</span>'+esc(r.text)+
+        (r.open?'<span class="stopen">still open</span>':'')+
+        ' <span class="edlink" data-e="'+r.id+'">the line</span>'+
+        (r.ctx?' <span class="edlink" data-e="'+r.ctx+'">before that</span>':'')+
+        (r.req?' <span class="edlink" data-r="'+esc(r.req)+'">the thread</span>':'')+
+        '</div>';
+    });
+    h+='<div class="edfoot">at most three verified changes, each linked to its own '+
+      'lines — moves and street texture aren\u2019t "changes"; the stream has them. '+
+      'Nothing inferred, nothing ranked.</div>';
+  }
+  box.innerHTML=h; box.style.display='block';
+  document.getElementById('edhead').onclick=toggleEdition;
+  box.querySelectorAll('.edlink[data-e]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation();
+      selId=c.dataset.e; renderWire(); renderDetail();
+      var el=document.querySelector('#wire .ev[data-id="'+selId+'"]');
+      if (el){ el.scrollIntoView({block:'center'}); el.focus(); }
+      else toast('that line is older than the loaded page — load older first');
+    };
+  });
+  box.querySelectorAll('.edlink[data-r]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation();
+      var hit=null;
+      for (var i=0;i<FEED.length;i++) if (FEED[i].req===c.dataset.r){ hit=FEED[i]; break; }
+      if (hit){ selId=hit.id; renderWire(); renderDetail(); }
+      else toast('request '+c.dataset.r+' isn\u2019t on the loaded wire — try The Archive');
+    };
+  });
+}
+function toggleEdition(){
+  edOpen=!edOpen;
+  try{ localStorage.setItem('rw_wire_ed',edOpen?'1':'0'); }catch(e){}
+  renderEdition();
+}
+
+/* calls — the stakeless prediction ledger. {req: {pick:'will'|'wont', t}}.
+   A call is writable only while the thread's latest status is open; once
+   the record answers, the call locks and the outcome line renders beside
+   it. One call per thread — change your mind while it's open, never after. */
+var calls={};
+try{ calls=JSON.parse(localStorage.getItem('rw_wire_calls')||'{}'); }catch(e){}
+function saveCalls(){ try{ localStorage.setItem('rw_wire_calls',JSON.stringify(calls)); }catch(e){} }
+function reqLatest(req){
+  var tr=trailFor(req);
+  return tr.length?tr[tr.length-1]:null;
+}
+function makeCall(req,pick){
+  var lt=reqLatest(req);
+  if (!lt || !LIVE_STATUSES[lt.status]){ toast('the record already answered that thread'); return; }
+  calls[req]={pick:pick,t:T};
+  saveCalls(); renderFollows(); renderDetail();
+}
+function clearCall(req){
+  var lt=reqLatest(req);
+  if (lt && !LIVE_STATUSES[lt.status]){ toast('the record already answered — the call stands'); return; }
+  delete calls[req]; saveCalls(); renderFollows(); renderDetail();
+}
+function callVerdict(req){
+  var c=calls[req], lt=reqLatest(req);
+  if (!c||!lt) return null;
+  if (LIVE_STATUSES[lt.status]) return {open:true, status:lt.status};
+  var ran=reqRan(lt.status);
+  var held=(c.pick==='will')===ran;
+  return {open:false, status:lt.status, held:held};
+}
+
+/* v117 — the kind tray: the wire counted by kind. Chips exist only for
+   kinds actually on the wire (a count, never a ranking); picking one
+   isolates the stream to it — stacked on the main filter, so "requests"
+   + "the block" reads the way it sounds. */
+var kindPick=null;
+var KIND_ORDER=['move','scene','venue','weather','request','admin','press','housing','cast','quiet'];
+function kindCounts(){
+  var ct={};
+  FEED.forEach(function(e){ ct[e.kind]=(ct[e.kind]||0)+1; });
+  var ks=KIND_ORDER.filter(function(k){return ct[k];})
+    .concat(Object.keys(ct).filter(function(k){return KIND_ORDER.indexOf(k)<0;}));
+  return {order:ks, ct:ct};
+}
+function renderKinds(){
+  var tray=document.getElementById('kindtray');
+  if (!FEED.length){ tray.style.display='none'; tray.innerHTML=''; return; }
+  var kc=kindCounts();
+  tray.style.display='flex';
+  tray.innerHTML='<span class="ktlab">kinds</span>'+
+    kc.order.map(function(k){
+      return '<button class="kchip'+(kindPick===k?' on':'')+'" data-k="'+k+'">'+
+        esc(k)+' <span class="n">'+kc.ct[k]+'</span></button>';
+    }).join('')+
+    (kindPick?'<button class="kchip" data-k="">all kinds</button>':'')+
+    '<span class="ktnote">the wire counted by kind — a lens, never a ranking</span>';
+  tray.querySelectorAll('.kchip').forEach(function(c){
+    c.onclick=function(){ kindPick=c.dataset.k||null; page=1; renderWire(); };
+  });
+}
+function cycleKind(){
+  var ks=kindCounts().order;
+  var i=ks.indexOf(kindPick);
+  kindPick = (i+1>ks.length-1) ? null : ks[i+1];
+  if (i===-1 && ks.length) kindPick=ks[0];
+  page=1; renderWire();
+}
+
+/* their wire today — a per-character card counted from the wire itself */
+var cdayId=null;
+function renderCharDay(){
+  var box=document.getElementById('cday');
+  if (!cdayId){
+    box.innerHTML='Click a name in the cast strip (or "their wire today" on an event) '+
+      'for everything the wire saw of them today — public whereabouts only.';
+    return;
+  }
+  var name=CHAR_NAME[cdayId]||cdayId;
+  var evs=FEED.filter(function(e){
+    return e.who===cdayId || (e.attrs && e.attrs.mentions && e.attrs.mentions.indexOf(cdayId)>=0);
+  });
+  var h='<b style="color:var(--ink)">'+esc(name)+'</b> — '+evs.length+
+    ' event'+(evs.length===1?'':'s')+' on the wire today';
+  evs.slice(0,8).forEach(function(e){
+    h+='<div class="ev2"><span class="t">'+fmt(e.t)+'</span>'+esc(e.text)+'</div>';
+  });
+  if (evs.length>8) h+='<div class="ev2" style="font-style:italic">…and '+(evs.length-8)+' earlier — the stream has them all.</div>';
+  if (!evs.length) h+='<div class="ev2" style="font-style:italic">Nothing yet today — the wire only knows what a camera could see.</div>';
+  var k='c:'+cdayId;
+  h+='<div class="fnote"><button class="dbtn'+(follows[k]?' on':'')+'" data-k="'+k+'">'+
+    (follows[k]?'pinned':'pin')+' '+esc(name)+'</button> '+
+    'public whereabouts only — homes are walls; off-the-feed stretches stay off.</div>';
+  box.innerHTML=h;
+  box.querySelectorAll('.dbtn').forEach(function(c){
+    c.onclick=function(){ toggleFollow(c.dataset.k); renderCharDay(); };
+  });
+}
+function openCharDay(id){ cdayId=id; renderCharDay(); }
+
 function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
-function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
+function push(e){ e.id = e.id || eid();
+  /* v89 — bus entries carry their own monotonic n; it IS the seq */
+  e.seq = (e.n!=null) ? e.n : feedN;
+  /* v89 — real wire shape: top-level mentions fold into attrs for the
+     renderers that already speak attrs.mentions */
+  if (e.mentions && !(e.attrs && e.attrs.mentions)){
+    e.attrs = e.attrs || {}; e.attrs.mentions = e.mentions;
+  }
+  FEED.unshift(e); stampLastSeen(); return e; }
 function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
 function trailFor(req){ return FEED.filter(function(e){return e.req===req;}).sort(function(a,b){return a.seq-b.seq;}); }
 
@@ -441,12 +1064,14 @@ function followsMatch(e){
   return false;
 }
 function kindVisible(e){
+  if (e.req && muted[e.req]) return false;   /* v75 — viewer-side thread mute */
   var ok;
   if (filter==='all') ok = true;
   else if (filter==='request') ok = e.kind==='request';
   else if (filter==='admin') ok = e.kind==='admin';
   else if (filter==='followed') ok = followsMatch(e);
   else ok = e.kind!=='request' && e.kind!=='admin' && e.kind!=='quiet';
+  if (ok && kindPick) ok = e.kind===kindPick;   /* v117 — the kind lens */
   if (ok && query){
     var hay = (e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
     ok = hay.indexOf(query.toLowerCase())>=0;
@@ -461,21 +1086,40 @@ function rowHtml(e){
   var txt = esc(e.text);
   if (e.kind==='request' && e.who) txt = '<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.status) txt += ' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  if (e.attrs && e.attrs.credits) txt += ' <span class="cr">'+e.attrs.credits+' cr'+
+    (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</span>';
   if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
-  var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'');
+  if (e.req && watching[e.req]) txt += ' <span class="wm" title="watched thread — your screen only">◆</span>';
+  var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'')+
+    (e.t<joinT?' early':'')+(dirOpen&&camMatch(e)?' camhl':'');
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
     '<span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span></li>';
 }
+/* v89 — live entries carry a PT `day` ('YYYY-MM-DD'); the stream shows a
+   separator per day, newest first. Demo entries have no day — one sep. */
+function dayLabel(day){
+  if (!day) return LIVE ? 'today' : 'today — wednesday, sep 23';
+  try{
+    var d=new Date(day+'T12:00:00');
+    var wd=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][d.getDay()];
+    var mo=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][d.getMonth()];
+    return wd+', '+mo+' '+d.getDate();
+  }catch(e){ return day; }
+}
 function renderWire(){
   var w=document.getElementById('wire'); w.innerHTML='';
-  var n=0, cap=page*PAGE;
+  var n=0, cap=page*PAGE, lastDay=null;
   for (var i=0;i<FEED.length && n<cap;i++){
     var e=FEED[i]; if(!kindVisible(e)) continue;
+    var d=e.day||'';
+    if (d!==lastDay){
+      w.insertAdjacentHTML('beforeend',
+        '<li class="daysep" style="cursor:default">'+esc(dayLabel(e.day))+'</li>');
+      lastDay=d;
+    }
     w.insertAdjacentHTML('beforeend', rowHtml(e));
     n++;
   }
-  if (n) w.insertAdjacentHTML('afterbegin',
-    '<li class="daysep" style="cursor:default">today — wednesday, sep 23</li>');
   if (!n){
     var li2=document.createElement('li'); li2.className='empty';
     li2.textContent = (T<240||T>=1440)
@@ -483,17 +1127,30 @@ function renderWire(){
       : 'Nothing on this filter right now.';
     w.appendChild(li2);
   }
-  var more = FEED.filter(kindVisible).length > n;
+  var more = LIVE ? !liveExhausted
+                  : FEED.filter(kindVisible).length > n;
   document.getElementById('older').style.display = more?'':'none';
   document.getElementById('foot').textContent = more
     ? ''
-    : (n ? 'You\u2019re caught up — nothing older than this today.'
+    : (n ? (LIVE ? 'the top of the record — earlier days live in The Archive.'
+                 : 'You\u2019re caught up — nothing older than this today.')
          : 'The wire is quiet. The Archive holds earlier days.');
   w.querySelectorAll('.ev').forEach(function(li){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
-  renderLiveNow();
+  renderLiveNow(); renderDayBar(); renderBook(); renderQCount(); renderKinds(); renderEdition();
+  if (cdayId) renderCharDay();
+}
+function renderQCount(){
+  var el=document.getElementById('qcount');
+  if (!query){ el.textContent=''; return; }
+  var n=0, q=query.toLowerCase();
+  FEED.forEach(function(e){
+    var hay=(e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
+    if (hay.indexOf(q)>=0) n++;
+  });
+  el.textContent=n+' matching';
 }
 
 /* ================= reaching-in-now strip =================
@@ -502,18 +1159,20 @@ function renderWire(){
    running), plus recent admin actions. Attribution is the point —
    the strip answers "who is reaching into the world right now?"
    without the viewer digging for it. Never shows denied text. */
-var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1, queued:1, running:1};
+var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1,
+  queued:1, running:1, booked:1};   /* v89 — 'booked' rides the strip (v88 seam) */
+var LIVE_SESS = [];               /* v89 — vs.sessions / gsCoSessions pairs */
 function renderLiveNow(){
   var box=document.getElementById('livenow');
   var latest={}, order=[];
   FEED.forEach(function(e){
-    if (e.kind!=='request' || !e.req) return;
+    if (e.kind!=='request' || !e.req || muted[e.req]) return;
     if (!(e.req in latest)){ latest[e.req]={status:e.status, who:e.who, req:e.req, id:e.id}; order.push(e.req); }
   });
   var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
                    .slice(0,6).map(function(r){
     var l=latest[r];
-    return '<span class="lncard" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
+    return '<span class="lncard'+(watching[r]?' wch':'')+'" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
       '<span class="who">'+esc(l.who||'?')+'</span>'+
       '<span class="st '+stKey(l.status)+'">'+esc(l.status)+'</span></span>';
   });
@@ -522,6 +1181,15 @@ function renderLiveNow(){
     if (e.kind==='admin' && (T - e.t) <= 45)
       cards.unshift('<span class="lncard admin" data-id="'+e.id+'" title="admin action — always attributed">'+
         '<span class="who">admin</span><span>⚙</span></span>');
+  });
+  /* v89 — compatible multiplayer, visible: co-possession pairs between
+     different players (the same overlaps the bus logs 'session' for) */
+  LIVE_SESS.forEach(function(p){
+    var a=(p.a&&p.a.player)||'?', b=(p.b&&p.b.player)||'?';
+    cards.push('<span class="lncard sess" title="two players steering two '+
+      'hired characters through one scene — compatible, not a conflict">'+
+      '<span class="who">'+esc(a)+' + '+esc(b)+'</span>'+
+      '<span>one scene</span></span>');
   });
   if (!cards.length){ box.style.display='none'; return; }
   box.style.display='flex';
@@ -535,22 +1203,248 @@ function renderLiveNow(){
 /* new-events pill: never yank scroll */
 var wireEl = document.getElementById('wire');
 var stickTop = true;
+var pendingMine=0;   /* v117 — of the pending new lines, how many hit a pin or a watched thread */
 window.addEventListener('scroll', function(){
   stickTop = window.scrollY < 120;
-  if (stickTop && pendingNew){ pendingNew=0; renderWire(); updatePill(); }
+  if (stickTop && pendingNew){ pendingNew=0; pendingMine=0; renderWire(); updatePill(); }
 });
 function updatePill(){
   var p=document.getElementById('newpill');
-  if (pendingNew>0){ p.style.display='block'; p.textContent = pendingNew+' new — jump to top'; }
+  if (pendingNew>0){ p.style.display='block';
+    p.textContent = pendingNew+' new — jump to top'+(pendingMine?' · '+pendingMine+' on your pins':''); }
   else p.style.display='none';
 }
 document.getElementById('newpill').onclick=function(){
-  pendingNew=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
+  pendingNew=0; pendingMine=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
 };
 function ingest(e){
-  push(e);
+  push(e); applyWx(e);
   if (held){ heldCount++; updateHoldBar(); return; }
-  if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+  if (stickTop || selId) renderWire();
+  else { pendingNew++;
+    if (followsMatch(e)||(e.req&&watching[e.req])) pendingMine++;
+    updatePill(); }
+}
+
+/* ================= v47: the recap layer =================
+   Everything below reads the wire, never the world. The day card is the
+   feed counted; the missed bar is the feed as it stood at join. Neither
+   invents content — an empty wire shows an honest empty recap. */
+var joinT = T;                 /* block-minute at page load */
+var joinSeq = 0;               /* feedN when join snapshot is taken (boot) */
+var dayOpen = false;
+
+function dayStats(){
+  var venueCt={}, reqs={}, admin=0, comp=0, wxN=0, first=null, last=null;
+  FEED.forEach(function(e){
+    if (e.venue) venueCt[e.venue]=(venueCt[e.venue]||0)+1;
+    if (e.kind==='request' && e.req){
+      if (!reqs[e.req]) reqs[e.req]={latest:e.status, who:e.who};
+    }
+    if (e.kind==='admin'){ admin++; if(e.attrs&&e.attrs.compensated_cr) comp+=e.attrs.compensated_cr; }
+    if (e.kind==='weather') wxN++;
+    if (!first||e.t<first.t) first=e;
+    if (!last ||e.t> last.t) last =e;
+  });
+  var open=0, closed=0, ids=Object.keys(reqs);
+  ids.forEach(function(r){ if(LIVE_STATUSES[reqs[r].latest]) open++; else closed++; });
+  var bv=null, bn=0; for (var v in venueCt) if(venueCt[v]>bn){ bn=venueCt[v]; bv=v; }
+  return {n:FEED.length, first:first, last:last, busiest:bv, busiestN:bn,
+          reqTotal:ids.length, reqOpen:open, reqClosed:closed,
+          admin:admin, comp:comp, wx:wxN};
+}
+function renderDayBar(){
+  var bar=document.getElementById('daybar'), card=document.getElementById('daycard');
+  if (!FEED.length){ bar.style.display='none'; card.className='daycard'; return; }
+  var s=dayStats();
+  bar.style.display='flex';
+  bar.innerHTML='<b>the day so far</b><span>'+s.n+' events · '+
+    (s.busiest?esc(VENUE_NAME[s.busiest]||s.busiest):'—')+' busiest · '+
+    s.reqOpen+' request'+(s.reqOpen===1?'':'s')+' open</span>'+
+    '<span class="arrow">'+(dayOpen?'▾':'▸')+'</span>';
+  if (dayOpen){
+    var h='';
+    h+='<div class="stat"><span>window on the wire</span><b>'+fmt(s.first.t)+' → '+fmt(s.last.t)+
+      ' · '+s.n+' events</b></div>';
+    h+='<div class="stat"><span>busiest venue</span><b>'+esc(VENUE_NAME[s.busiest]||s.busiest)+
+      ' · '+s.busiestN+' events</b></div>';
+    h+='<div class="stat"><span>requests</span><b>'+s.reqTotal+' filed · '+s.reqOpen+' open · '+
+      s.reqClosed+' closed — all attributed above</b></div>';
+    h+='<div class="stat"><span>weather changes</span><b>'+s.wx+'</b></div>';
+    h+='<div class="stat"><span>admin actions</span><b>'+s.admin+
+      (s.comp?' · '+s.comp+' cr compensated to affected players':'')+'</b></div>';
+    h+='<div class="stat"><span>you tuned in</span><b>'+fmt(joinT)+
+      ' — dimmed timestamps ran earlier</b></div>';
+    /* v89 — the bus counts what the privacy policy withheld: visible so
+       "quiet" never reads as downtime. A count, never the content. */
+    if (LIVE_STATS && LIVE_STATS.suppressed)
+      h+='<div class="stat"><span>withheld from the wire</span><b>'+
+        LIVE_STATS.suppressed+' — privacy screens, not downtime</b></div>';
+    /* v103 — vocabulary coverage: how much of the bus's own status
+       vocabulary the wire has exercised today. A count, not a grade. */
+    if (LIVE_VOCAB && LIVE_VOCAB.statuses && LIVE_VOCAB.statuses.length){
+      var seen={}; FEED.forEach(function(e){ if(e.status) seen[e.status]=1; });
+      var cov=Object.keys(seen).filter(function(x){return LIVE_VOCAB.statuses.indexOf(x)>=0;}).length;
+      h+='<div class="stat"><span>statuses seen today</span><b>'+cov+' of '+
+        LIVE_VOCAB.statuses.length+' on the bus\u2019s own vocabulary</b></div>';
+    }
+    /* v103 — the record flags itself: the bus's own audit, run when the
+       card opens (live only). Issues render as a count, never content. */
+    if (LIVE_AUDIT)
+      h+='<div class="stat"><span>the bus\u2019s self-check</span><b>'+
+        esc(String(LIVE_AUDIT.total||0))+' lines · '+
+        (LIVE_AUDIT.ok?'self-check ok':(LIVE_AUDIT.issues||[]).length+' issue'+
+          ((LIVE_AUDIT.issues||[]).length===1?'':'s')+' flagged by the record')+'</b></div>';
+    /* v117 — the hour grid: the wire's own per-hour counts as a 24-cell
+       strip. Clicking an hour jumps to its first line — a reading aid,
+       not a chart of anything the feed didn't already say. */
+    var hours=new Array(24).fill(0);
+    FEED.forEach(function(e){ hours[Math.min(23,Math.floor(e.t/60))]++; });
+    var hmx=1; hours.forEach(function(n){ if(n>hmx)hmx=n; });
+    h+='<div class="hgrid" id="hourgrid">'+hours.map(function(n,hh){
+      return '<div class="hcell" data-h="'+hh+'" title="'+
+        ('0'+hh).slice(-2)+':00 — '+n+' event'+(n===1?'':'s')+' on the wire"'+
+        ' style="opacity:'+(n?(0.22+0.78*n/hmx):0.07)+'">'+(n||'')+'</div>';
+    }).join('')+'</div>';
+    h+='<div class="fnote">the shape the wire drew today — click an hour to jump to '+
+      'its first line. Counted, not curated.</div>';
+    h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
+      'no ranking, nothing extra a camera couldn’t see.</div>';
+    card.innerHTML=h; card.classList.add('open');
+    card.querySelectorAll('.hcell').forEach(function(c){
+      c.onclick=function(){
+        var hh=+c.dataset.h, target=null;
+        FEED.forEach(function(e){ if (Math.floor(e.t/60)===hh) target=e; }); /* FEED is newest-first — last hit is the hour's first line */
+        if (!target){ toast('nothing on the wire in that hour'); return; }
+        var el=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (!el){ toast('that hour is older than the loaded page — load older first'); return; }
+        selId=target.id; renderWire(); renderDetail();
+        var el2=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (el2){ el2.scrollIntoView({block:'center'}); el2.focus(); }
+      };
+    });
+  } else card.classList.remove('open');
+}
+function toggleDay(){
+  dayOpen=!dayOpen;
+  /* v103 — the self-check runs on demand, not on the poll loop: a full
+     scan of the record is cheap but not per-1.5s cheap. */
+  if (dayOpen && LIVE && BRIDGE.gsWireAudit){
+    try{ LIVE_AUDIT=BRIDGE.gsWireAudit(); }catch(_){}
+  }
+  renderDayBar();
+}
+document.getElementById('daybar').onclick=toggleDay;
+document.getElementById('daybar').onkeydown=function(ev){ if(ev.key==='Enter'||ev.key===' '){ ev.preventDefault(); toggleDay(); } };
+
+/* "earlier today" — one honest summary of what was already on the wire
+   when the viewer arrived. Dismissible; the day card can recount it. */
+function renderMissed(){
+  var bar=document.getElementById('missedbar');
+  var missed=FEED.filter(function(e){ return e.seq<=joinSeq; });
+  if (!missed.length){ bar.style.display='none'; return; }
+  var reqs={}, admin=0, wxLatest=null;
+  missed.forEach(function(e){
+    if (e.kind==='request' && e.req && !reqs[e.req]) reqs[e.req]=e.status;
+    if (e.kind==='admin') admin++;
+    if (e.kind==='weather' && (!wxLatest||e.t>wxLatest.t)) wxLatest=e;
+  });
+  var rids=Object.keys(reqs);
+  var summary = missed.length+' event'+(missed.length===1?'':'s')+' were already on the wire';
+  var bits=[];
+  if (rids.length) bits.push(rids.length+' request'+(rids.length===1?'':'s'));
+  if (admin) bits.push(admin+' admin action'+(admin===1?'':'s'));
+  if (wxLatest) bits.push('latest sky: '+wxLatest.text);
+  bar.innerHTML='<span style="font-size:10.5px;color:var(--blu);letter-spacing:.08em;'+
+    'text-transform:uppercase;flex:none">earlier today</span>'+
+    '<span class="grow">'+esc(summary)+(bits.length?' — '+esc(bits.join(' · ')):'')+'</span>'+
+    '<button id="missedGo">catch me up</button><button id="missedX" title="dismiss">✕</button>';
+  bar.style.display='flex';
+  document.getElementById('missedGo').onclick=function(){
+    /* oldest missed row = where today's wire picked up before join */
+    var oldest=null;
+    missed.forEach(function(e){ if(!oldest||e.seq<oldest.seq) oldest=e; });
+    var el=oldest && document.querySelector('#wire .ev[data-id="'+oldest.id+'"]');
+    if (el){ el.scrollIntoView({block:'center'}); el.focus(); }
+    bar.style.display='none';
+  };
+  document.getElementById('missedX').onclick=function(){ bar.style.display='none'; };
+}
+
+/* ================= v61: the Director's rail =================
+   A free preview of the paid view-layer pass. Camera presets and the
+   follow-cam only MARK wire rows (gold edge) — the stream itself is
+   never filtered by a camera. The replay scrub walks the wire's own
+   events: it replays the feed, not the world. The paid pass (multi-cam,
+   PiP, scrub inside the sim view) is filed at the Counter — this page
+   carries no purchase affordance by contract. */
+function renderDirector(){
+  var bar=document.getElementById('dirbar');
+  bar.classList.toggle('open',dirOpen);
+  document.getElementById('dir').classList.toggle('on',dirOpen);
+  if (!dirOpen) return;
+  var cp=document.getElementById('camps');
+  cp.innerHTML=CAM_PRESETS.map(function(p){
+    return '<button class="camchip'+(camPreset===p.id?' on':'')+'" data-p="'+p.id+'">'+p.label+'</button>';
+  }).join('')+'<button class="camchip'+(!camPreset?' on':'')+'" data-p="">all cams</button>';
+  cp.querySelectorAll('.camchip').forEach(function(c){
+    c.onclick=function(){ camPreset=c.dataset.p||null; saveCam(); renderDirector(); renderWire(); };
+  });
+  var sel=document.getElementById('fcamsel');
+  if (!sel.options.length){
+    var opts=['<option value="">follow-cam: off</option>'];
+    MAINS.forEach(function(m){ opts.push('<option value="'+m.id+'">'+esc(m.name)+' — public whereabouts only</option>'); });
+    Object.keys(CHAR_NAME).forEach(function(id){
+      if (/^A/.test(id)) opts.push('<option value="'+id+'">'+esc(CHAR_NAME[id])+' (ambient)</option>');
+      else if (/^h/.test(id)) opts.push('<option value="'+id+'">'+esc(CHAR_NAME[id])+'</option>');
+    });
+    sel.innerHTML=opts.join('');
+  }
+  sel.value=fcam||'';
+  sel.onchange=function(){ fcam=sel.value||null; saveCam(); renderWire(); renderReplay(); };
+  renderReplay();
+}
+function saveCam(){ try{ localStorage.setItem('rw_wire_cam',JSON.stringify({preset:camPreset,fcam:fcam})); }catch(e){} }
+function toggleDir(on){
+  dirOpen = (on===undefined)?!dirOpen:!!on;
+  renderDirector(); renderWire();
+  if (dirOpen) history.replaceState(null,'','#dir=1');
+}
+/* replay scrub — the slider spans today's wire window; the card lists
+   the newest events at-or-before the scrubbed minute. It replays the
+   feed's own record — nothing is reconstructed or guessed. */
+var scrubLive=true;
+function renderReplay(){
+  var sc=document.getElementById('scrub'), lab=document.getElementById('scrublab'),
+      card=document.getElementById('replay');
+  if (!FEED.length){ card.style.display='none'; return; }
+  var lo=FEED[FEED.length-1].t, hi=T;
+  FEED.forEach(function(e){ if(e.t<lo)lo=e.t; if(e.t>hi)hi=e.t; });
+  if (sc.min!=lo){ sc.min=lo; sc.max=Math.max(hi,lo+1); if(scrubLive) sc.value=sc.max; }
+  var t=+sc.value; scrubLive=(t>=+sc.max);
+  lab.textContent=scrubLive?'live':fmt(t);
+  if (scrubLive){ card.style.display='none'; return; }
+  var at=FEED.filter(function(e){return e.t<=t;}).slice(0,4);
+  var nBefore=FEED.filter(function(e){return e.t<=t;}).length;
+  card.style.display='block';
+  card.innerHTML='<span class="rt">the wire at '+fmt(t)+'</span> — '+
+    nBefore+' event'+(nBefore===1?'':'s')+' by then'+
+    at.map(function(e){return '<div class="rev"><span class="t">'+fmt(e.t)+'</span>'+esc(e.text)+'</div>';}).join('')+
+    '<div class="rev" style="font-style:italic">the feed, replayed — the world itself kept running.</div>';
+}
+document.getElementById('scrub').addEventListener('input',function(){ scrubLive=false; renderReplay(); });
+document.getElementById('scrub').addEventListener('change',function(){ if(+this.value>=+this.max){ scrubLive=true; renderReplay(); } });
+document.getElementById('dirx').onclick=function(){ toggleDir(false); };
+
+/* header weather follows the wire — the newest weather event is the sky.
+   No fabricated temperature; the icon is a guess from the text's own words. */
+var WX_ICON=[[/sun|clear|burned off/i,'☀'],[/rain|drizzle|shower/i,'🌧'],
+  [/fog|karl/i,'🌫'],[/wind|breeze|gust/i,'🌬'],[/cloud|overcast|grey|gray/i,'☁']];
+function applyWx(e){
+  if (e.kind!=='weather') return;
+  var ic='🌡';
+  for (var i=0;i<WX_ICON.length;i++) if (WX_ICON[i][0].test(e.text)){ ic=WX_ICON[i][1]; break; }
+  document.getElementById('wx').textContent=ic+' '+e.text;
 }
 
 /* hold — freezes the DISPLAY only. Events keep accruing; the bar
@@ -590,6 +1484,11 @@ function renderDetail(){
   if (e.venue) h+='<div class="meta">venue — <b>'+esc(VENUE_NAME[e.venue]||e.venue)+'</b></div>';
   if (e.who) h+='<div class="meta">'+((e.kind==='request'||e.kind==='cast')?'filed by':'who')+' — <b>'+esc(CHAR_NAME[e.who]||e.who)+'</b></div>';
   if (e.status) h+='<div class="meta">status — <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span></div>';
+  if (e.attrs && e.attrs.credits) h+='<div class="meta">declared — <b>'+e.attrs.credits+' cr'+
+    (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</b>'+
+    ' <span style="color:var(--dim)">(paid upfront, hard cap — shown at filing)</span></div>';
+  if (e.attempt) h+='<div class="meta">asked for — <b>'+esc(e.attempt)+'</b>'+
+    ' <span style="color:var(--dim)">(the class of ask only — the screened text is never public)</span></div>';
   if (e.reason_code) h+='<div class="meta">why-class — <b>'+esc(e.reason_code)+'</b> <span style="color:var(--dim)">(the screened text is never public)</span></div>';
   if (e.attrs && e.attrs.compensated_cr) h+='<div class="meta">compensation — <b>'+e.attrs.compensated_cr+' cr</b> credited to affected players</div>';
   if (e.attrs && e.attrs.sponsors && e.attrs.sponsors.length)
@@ -597,6 +1496,9 @@ function renderDetail(){
        ' <span style="color:var(--dim)">(same world event, not a discount)</span></div>';
   if (e.attrs && e.attrs.surge)
     h+='<div class="meta">surge — <b>priced at surge</b> <span style="color:var(--dim)">(contested resource, disclosed at filing)</span></div>';
+  if (e.attrs && e.attrs.discount)
+    h+='<div class="meta">filed queued — <b>−'+Math.round(e.attrs.discount*100)+'%</b>'+
+      ' <span style="color:var(--dim)">(the queue discount, declared at filing)</span></div>';
   if (e.attrs && e.attrs.mentions && e.attrs.mentions.length){
     h+='<div class="meta">also seen — ' + e.attrs.mentions.map(function(c){
       var k='c:'+c, on=follows[k];
@@ -615,13 +1517,67 @@ function renderDetail(){
         (follows[p.k]?'pinned':'pin')+' '+esc(p.label)+'</button>';
     }).join(' ') + '</div>';
   }
+  /* v75 — jump to a character's day on the wire (public whereabouts only) */
+  if (e.who && CHAR_NAME[e.who] && /^[CAh]/.test(e.who))
+    h+='<div class="meta"><button class="dbtn" data-cd="'+e.who+'">their wire today — '+
+      esc(CHAR_NAME[e.who])+'</button></div>';
   if (e.req){
+    /* v75 — thread mute: viewer-side only, the wire's record is unchanged */
+    h+='<div class="meta"><button class="dbtn'+(muted[e.req]?' on':'')+'" data-mute="'+esc(e.req)+'">'+
+      (muted[e.req]?'unmute this thread':'mute this thread')+'</button>'+
+      ' <button class="dbtn'+(watching[e.req]?' on':'')+'" data-watch="'+esc(e.req)+'">'+
+      (watching[e.req]?'unwatch this thread':'watch this thread')+'</button>'+
+      ' <span style="color:var(--dim)">muted or watched — your screen only; the wire\u2019s record '+
+      'is unchanged and The Archive keeps everything.</span></div>';
+    /* v131 — call it: a stakeless note to yourself about how this thread
+       ends. Writable only while the record hasn't answered; locks at the
+       terminal line. No stakes, no score, nobody else sees it. */
+    var cv=callVerdict(e.req);
+    if (cv && cv.open){
+      h+='<div class="meta">call it — '+
+        '<button class="dbtn'+(calls[e.req]&&calls[e.req].pick==='will'?' on':'')+'" data-call="'+esc(e.req)+'" data-pick="will">will run</button> '+
+        '<button class="dbtn'+(calls[e.req]&&calls[e.req].pick==='wont'?' on':'')+'" data-call="'+esc(e.req)+'" data-pick="wont">won\u2019t run</button>'+
+        (calls[e.req]?' <button class="dbtn" data-uncall="'+esc(e.req)+'">clear</button>':'')+
+        ' <span style="color:var(--dim)">a call is a note to yourself — no stakes, no score, '+
+        'nobody else sees it. The record answers when the thread closes.</span></div>';
+    } else if (cv){
+      h+='<div class="meta">you called — <b>'+(calls[e.req].pick==='will'?'will run':'won\u2019t run')+'</b> at '+fmt(calls[e.req].t)+
+        ' · the record shows <b>'+esc(cv.status)+'</b> — '+(cv.held?'your call held.':'the record went the other way.')+
+        ' <span style="color:var(--dim)">kept, not scored.</span></div>';
+    }
     var tr=trailFor(e.req);
     h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
     tr.forEach(function(x){
       h+='<li class="'+(x.id===e.id?'cur':'')+'">'+fmt(x.t)+' — '+esc(x.status||x.kind)+(x.id===e.id?' ·':'')+'</li>';
     });
     h+='</ul>';
+    /* v61/v89 live receipt — the bus-side explainer, capability-checked.
+       Real shape (game-v14): {id,kind,player,status, queuePos, blockedBy[],
+       behind[], on[] (claim labels), note, code} — note is the
+       plain-English "why is this waiting". */
+    if (LIVE && BRIDGE.gsExplainRequest){
+      try{
+        var ex=BRIDGE.gsExplainRequest(e.req);
+        if (ex){
+          var bits=[];
+          if (ex.status) bits.push('status '+ex.status);
+          if (ex.queuePos) bits.push('#'+ex.queuePos+' in line');
+          if (ex.kind) bits.push(ex.kind);
+          if (ex.claim) bits.push('claim '+ex.claim);   /* legacy shape */
+          if (ex.credits!=null) bits.push(ex.credits+' cr'+(ex.minutes?' · '+ex.minutes+' min':''));
+          if (ex.trail && ex.trail.length) bits.push(ex.trail.length+' trail entries on the bus');
+          if (bits.length) h+='<div class="meta">live record — <b>'+esc(bits.join(' · '))+'</b>'+
+            ' <span style="color:var(--dim)">(gsExplainRequest — the bus\u2019s own explainer)</span></div>';
+          if (ex.note) h+='<div class="meta">the bus says — <b>'+esc(ex.note)+'</b></div>';
+          if (ex.on && ex.on.length)
+            h+='<div class="meta">waiting on — <b>'+ex.on.map(esc).join(' · ')+'</b>'+
+              ' <span style="color:var(--dim)">(the clashing claims, in plain words)</span></div>';
+          if (ex.blockedBy && ex.blockedBy.length)
+            h+='<div class="meta">blocked by — <b>'+ex.blockedBy.map(esc).join(', ')+'</b>'+
+              (ex.behind&&ex.behind.length?' <span style="color:var(--dim)">· in line behind '+esc(ex.behind.join(', '))+'</span>':'')+'</div>';
+        }
+      }catch(_){}
+    }
   }
   h+='<div class="plink"><input readonly value="'+esc(permalink(e))+'" aria-label="permalink"><button id="cplink">copy link</button></div>';
   h+='<div class="meta" style="margin-top:8px">ids are stable — this event will sit in The Archive under the same id.</div>';
@@ -632,8 +1588,23 @@ function renderDetail(){
     try{ document.execCommand('copy'); toast('link copied'); }
     catch(_){ toast('permalink: '+permalink(e)); }
   };
-  box.querySelectorAll('.mchip,.dbtn').forEach(function(c){
+  box.querySelectorAll('.mchip,.dbtn[data-k]').forEach(function(c){
     c.onclick=function(){ toggleFollow(c.dataset.k); renderDetail(); };
+  });
+  box.querySelectorAll('.dbtn[data-mute]').forEach(function(c){
+    c.onclick=function(){ toggleMute(c.dataset.mute); };
+  });
+  box.querySelectorAll('.dbtn[data-watch]').forEach(function(c){
+    c.onclick=function(){ toggleWatch(c.dataset.watch); };
+  });
+  box.querySelectorAll('.dbtn[data-cd]').forEach(function(c){
+    c.onclick=function(){ openCharDay(c.dataset.cd); };
+  });
+  box.querySelectorAll('.dbtn[data-call]').forEach(function(c){
+    c.onclick=function(){ makeCall(c.dataset.call, c.dataset.pick); };
+  });
+  box.querySelectorAll('.dbtn[data-uncall]').forEach(function(c){
+    c.onclick=function(){ clearCall(c.dataset.uncall); };
   });
 }
 
@@ -646,33 +1617,112 @@ function renderFollows(){
   var list=document.getElementById('folllist');
   if (!keys.length){
     list.innerHTML='Nothing pinned. Follow a venue or a character on the left — free, instant, reversible. It filters the wire; it never touches the world.';
-    return;
-  }
+  } else {
   list.innerHTML=keys.map(function(k){
     var label = k[0]==='v' ? VENUE_NAME[k.slice(2)]||k : (CHAR_NAME[k.slice(2)]||k)+' <span style="color:var(--dim)">(public whereabouts only)</span>';
     return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+label+
       ' <span class="pin on" data-k="'+k+'" style="float:right">unpin</span></div>';
   }).join('');
+  }
   list.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete follows[p.dataset.k]; saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire(); };
+  });
+  /* v75 — muted threads live here too: viewer-side only, reversible */
+  var mk=Object.keys(muted), ml=document.getElementById('mutelist');
+  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; }
+  else {
+  ml.style.display='block';
+  ml.innerHTML='<div class="mlab">muted threads</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">muted on your screen only — '+
+    'the wire\u2019s record is unchanged; The Archive keeps everything.</div>'+
+    mk.map(function(r){
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        ' <span class="pin" data-m="'+esc(r)+'" style="float:right">unmute</span></div>';
+    }).join('');
+  ml.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete muted[p.dataset.m]; saveMuted(); renderFollows(); renderWire(); renderDetail(); };
+  });
+  }
+  /* v117 — watched threads sit beside muted ones: a watch flags the
+     thread's lines for you only (◆ + a counted pill line); the wire's
+     record is everyone's and stays unchanged. */
+  var wk=Object.keys(watching), wl=document.getElementById('watchlist');
+  if (!wk.length){ wl.style.display='none'; wl.innerHTML=''; }
+  else {
+  wl.style.display='block';
+  wl.innerHTML='<div class="mlab">watching</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">a watch flags the thread\u2019s '+
+    'new lines for you only — the record is everyone\u2019s.</div>'+
+    wk.map(function(r){
+      var tr=trailFor(r), lt=tr.length?tr[tr.length-1].status:null;
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        (lt?' <span class="st '+stKey(lt)+'">'+esc(lt)+'</span>':'')+
+        ' <span class="pin" data-w="'+esc(r)+'" style="float:right">unwatch</span></div>';
+    }).join('');
+  wl.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete watching[p.dataset.w]; saveWatching(); renderFollows(); renderWire(); renderDetail(); };
+  });
+  }
+  /* v131 — the call ledger sits beside watches: each entry is the
+     viewer's own stakeless note plus, once the thread closes, what the
+     record showed. A call never reaches the bus — same class of state
+     as a watch, pure screen. */
+  var ck2=Object.keys(calls), cl=document.getElementById('calllist');
+  if (!ck2.length){ cl.style.display='none'; cl.innerHTML=''; return; }
+  cl.style.display='block';
+  cl.innerHTML='<div class="mlab">your calls</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">notes to yourself — '+
+    'no stakes, no score, nobody else sees them. The record answers.</div>'+
+    ck2.map(function(r){
+      var v=callVerdict(r), c=calls[r];
+      var tail = !v ? '' :
+        v.open ? ' <span class="st '+stKey(v.status)+'">'+esc(v.status)+'</span>'
+               : ' · the record shows <b>'+esc(v.status)+'</b> — '+
+                 (v.held?'your call held':'the record went the other way');
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        ' <span style="color:var(--dim)">you called '+(c.pick==='will'?'will run':'won\u2019t run')+'</span>'+tail+
+        ' <span class="pin" data-c="'+esc(r)+'" style="float:right">'+(v&&v.open?'clear':'✕')+'</span></div>';
+    }).join('');
+  cl.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){
+      var r=p.dataset.c, lt=reqLatest(r);
+      if (lt && !LIVE_STATUSES[lt.status]){ delete calls[r]; saveCalls(); renderFollows(); renderDetail(); }
+      else clearCall(r);
+    };
   });
 }
 function toggleFollow(k){
   if (follows[k]) delete follows[k]; else follows[k]=true;
   saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire();
+  /* v89 — sync the pin to the bus's own follow endpoint when offered.
+     The wire bus keys follows v:<venue> / m:<char>; this is the ONLY
+     write a spectator surface ever makes — the viewer's own pin. */
+  if (LIVE && BRIDGE.gsWireFollow){
+    try{ BRIDGE.gsWireFollow(k[0]==='v' ? k : 'm:'+k.slice(2), !!follows[k]); }catch(_){}
+  }
 }
 
 /* ================= left rail ================= */
+var LIVE_OCC=null;   /* v61 — bus-side occupancy when offered (gsOccupancy() or vs.occupancy) */
 function renderVenues(){
   var box=document.getElementById('venues'); box.innerHTML='';
   VENUES.forEach(function(v){
     var id=v[0], name=v[1];
     var mains=[], amb=0, labels=[];
-    MAINS.forEach(function(m){
-      var loc=whereIs(m,T)[1];
-      if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
-    });
-    (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    var occ = LIVE_OCC && LIVE_OCC[id];
+    if (occ){
+      /* live read: { mains:[names or ids], labels:[scene labels], count } —
+         missing fields degrade to the routine-derived picture */
+      (occ.mains||[]).forEach(function(x){ mains.push(CHAR_NAME[x]?CHAR_NAME[x].split(' ')[0]:String(x).split(' ')[0]); });
+      (occ.labels||[]).forEach(function(l){ labels.push(l); amb++; });
+      if (occ.count!=null && occ.count>mains.length+amb) amb += occ.count-mains.length-amb;
+    } else {
+      MAINS.forEach(function(m){
+        var loc=whereIs(m,T)[1];
+        if (LOC2VENUE[loc]===id) mains.push(m.name.split(' ')[0]);
+      });
+      (AMBIENT_AT[id]||[]).forEach(function(a){ if(T>=a[0]&&T<a[1]){ amb++; labels.push(a[2]); } });
+    }
     var crowd = mains.length+amb;
     var d = document.createElement('div'); d.className='venue';
     var who = mains.map(function(m){return '<span class="m">'+m+'</span>';}).join(', ');
@@ -691,12 +1741,13 @@ function renderCast(){
   MAINS.forEach(function(m){
     var cur=whereIs(m,T), k='c:'+m.id;
     var d=document.createElement('div'); d.className='cp';
-    d.innerHTML='<b>'+m.name.split(' ')[0]+'</b><span class="at">'+esc(cur[2])+'</span>'+
+    d.innerHTML='<b data-cd="'+m.id+'" title="their wire today">'+m.name.split(' ')[0]+'</b><span class="at">'+esc(cur[2])+'</span>'+
       '<span class="ban">UNPOSSESSABLE</span>'+
       '<button class="pin'+(follows[k]?' on':'')+'" data-k="'+k+'">'+(follows[k]?'pinned':'pin')+'</button>';
     c.appendChild(d);
   });
   c.querySelectorAll('.pin').forEach(function(p){ p.onclick=function(){ toggleFollow(p.dataset.k); }; });
+  c.querySelectorAll('b[data-cd]').forEach(function(b){ b.onclick=function(){ openCharDay(b.dataset.cd); }; });
 }
 
 /* ================= demo generators ================= */
@@ -751,12 +1802,12 @@ var texI=0;
    every few ticks so the lifecycle trail has something to show */
 var reqSeq = 1040;
 var REQ_NEW = [
-  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', path:['requested','approved','running','resolved']},
-  {who:'r0ok',     text:'event — stoop-sale window on Guerrero',        path:['requested','queued','refunded'], refundNote:'queued request expired before activation'},
-  {who:'pt',       text:'nudge — an ask to Carmen Echeverría',          path:['requested','in_review','not approved'], reason:'admin-domain'},
-  {who:'leaf',     text:'event — park cleanup at Dolores Park',         path:['requested','approved','running','resolved']},
-  {who:'kes',      text:'camera director — 30 min',                     path:['running','player session ended']},
-  {who:'juno_',    text:'nudge — an ask to Tomás Herrera',              path:['requested','in_review','approved (modified)','running','resolved']},
+  {who:'marina_w', text:'weather — clear skies over Dolores Park, 2 h', path:['requested','approved','running','resolved'], credits:80, minutes:120},
+  {who:'r0ok',     text:'event — stoop-sale window on Guerrero',        path:['requested','queued','refunded'], refundNote:'queued request expired before activation', credits:170},
+  {who:'pt',       text:'nudge — an ask to Carmen Echeverría',          path:['requested','in_review','not approved'], reason:'admin-domain', credits:45},
+  {who:'leaf',     text:'event — park cleanup at Dolores Park',         path:['requested','approved','running','resolved'], credits:210},
+  {who:'kes',      text:'camera director — 30 min',                     path:['running','player session ended'], credits:10, minutes:30},
+  {who:'juno_',    text:'nudge — an ask to Tomás Herrera',              path:['requested','in_review','approved (modified)','running','resolved'], credits:40},
   {who:'ghostline',text:'a request',                                    path:['requested','not approved'], redacted:true}
 ];
 var reqQueue=[], reqClock=0;
@@ -771,6 +1822,7 @@ function reqTick(){
       e.text = r.def.redacted && st==='not approved' ? 'request not approved'
              : (r.def.refundNote && st==='refunded' ? r.def.refundNote+' — refunded' : r.def.text);
       if (r.def.reason && st==='not approved') e.reason_code=r.def.reason;
+      if (r.def.credits) e.attrs={credits:r.def.credits, minutes:r.def.minutes};
       ingest(e);
       if (r.step>=r.def.path.length-1) reqQueue.splice(i,1);
       return;
@@ -782,7 +1834,9 @@ function reqTick(){
     var id='rq-'+(++reqSeq);
     var e2={t:T, kind:'request', who:def.who, req:id, status:def.path[0],
             text:(def.path[0]==='not approved')?'request not approved':def.text};
-    if (def.sponsors) e2.attrs={sponsors:def.sponsors};
+    if (def.sponsors || def.credits){ e2.attrs={};
+      if (def.sponsors) e2.attrs.sponsors=def.sponsors;
+      if (def.credits){ e2.attrs.credits=def.credits; e2.attrs.minutes=def.minutes; } }
     ingest(e2);
     if (def.path.length>1) reqQueue.push({id:id,def:def,step:0});
   }
@@ -796,16 +1850,16 @@ function seedFeed(){
     {t:452, kind:'scene',   venue:'mudhaus', text:'Rush hour at Mudhaus — Reyes at double tempo, line to the door'},
     {t:487, kind:'move',    who:'C4', venue:'buyrite', text:'Priya headed in to SF General — a twelves day'},
     {t:540, kind:'venue',   venue:'park',    text:'Bench parliament in session — Esther and Ray, adjacent sections'},
-    {t:566, kind:'request', who:'okfm', req:'rq-1033', text:'possess — own courier, 30 min', status:'resolved'},
+    {t:566, kind:'request', who:'okfm', req:'rq-1033', text:'possess — own courier, 30 min', status:'resolved', attrs:{credits:45, minutes:30}},
     {t:601, kind:'weather', text:'Fog burned off over the park — full sun'},
     {t:647, kind:'press',   text:'Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always'},
     {t:720, kind:'scene',   venue:'farolote', text:'Lunch prep at El Farolote — the salsa bar gets its midday refill'},
-    {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued'},
+    {t:783, kind:'request', who:'leaf', req:'rq-1038', text:'event — park cleanup at Dolores Park', status:'queued', attrs:{credits:178}},
     {t:806, kind:'cast',    who:'okfm', venue:'block',   text:'a new face on the block — Dana Okafor, a hired resident, settling in'},
     {t:812, kind:'housing', venue:'block',   text:'Listing filled — 9457 Guerrero St, Unit 2 comes off the board'},
     {t:841, kind:'admin',   venue:'club600', text:'admin action — venue window reset at The 600 Club', attrs:{compensated_cr:90}},
     {t:878, kind:'request', who:'tide_9', req:'rq-1039', text:'weather — evening fog return, 1 h', status:'running',
-      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true}},
+      attrs:{sponsors:['tide_9','loam','marina_w'], surge:true, credits:120, minutes:60}},
     {t:900, kind:'scene',   venue:'park',    text:'The 15:00 release — June to the park with books, Zee\u2019s pack on the perimeter', attrs:{mentions:['A04','A20']}}
   ].forEach(function(e){ push(e); });
   /* give the queued seed its follow-up so the trail reads honestly */
@@ -813,21 +1867,165 @@ function seedFeed(){
         text:'queued request expired before activation — refunded', status:'refunded'});
 }
 
-/* ================= live ingest (merge seam, game-v6) ================= */
+/* ================= live ingest (merge seam, game-v14) =================
+   The bus wire (41_game_systems_feed gsWireTail) already speaks the
+   feed.json schema: {id, n, t, day, kind, text, venue, who, req, status,
+   reason_code, attempt, mentions, attrs:{credits,compensated_cr,surge,
+   discount}}. n is monotonic feed order; day is the PT date and drives
+   the day separators. We never mutate — the page reads, the bus writes. */
 var liveSeen = {};
+var liveExhausted = false;     /* gsWirePage said we've hit the top */
+var LIVE_STATS = null;         /* gsWireStats snapshot (suppressed, etc.) */
+var LIVE_VOCAB = null;         /* gsWireVocabulary snapshot (v103) */
+var LIVE_AUDIT = null;         /* gsWireAudit result, refreshed on day-card open (v103) */
+var followsSynced = false;     /* v103 — first bus↔page pin reconcile done */
+/* v103 — pin read-back: the bus's own pin set (gsWireFollows, keys
+   v:<venue> / m:<char>) hydrates the Following panel. First sync also
+   pushes any page pins (localStorage carry-over) the bus lacks; after
+   that the flow is one-directional — adopt new bus pins, never delete a
+   page pin (a viewer's unpin already wrote false through gsWireFollow). */
+function followsSync(){
+  if (!(LIVE && BRIDGE.gsWireFollows)) return;
+  var keys;
+  try{ keys=BRIDGE.gsWireFollows()||[]; }catch(_){ return; }
+  var changed=false;
+  keys.forEach(function(bk){
+    var pk = bk[0]==='v' ? bk : (bk[0]==='m' ? 'c:'+bk.slice(2) : null);
+    if (pk && !follows[pk]){ follows[pk]=true; changed=true; }
+  });
+  if (!followsSynced && BRIDGE.gsWireFollow){
+    var bus={}; keys.forEach(function(k){ bus[k]=1; });
+    Object.keys(follows).forEach(function(pk){
+      var bk = pk[0]==='v' ? pk : 'm:'+pk.slice(2);
+      if (!bus[bk]){ try{ BRIDGE.gsWireFollow(bk,true); }catch(_){} }
+    });
+  }
+  followsSynced=true;
+  if (changed){ saveFollows(); renderFollows(); renderVenues(); renderCast(); }
+}
+function wireClock(min){       /* mirrors gsWireClock — PT wall time */
+  try{
+    var p={};
+    new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',
+      hour12:false,hour:'numeric',minute:'numeric'})
+      .formatToParts(new Date(min*60000)).forEach(function(q){p[q.type]=q.value;});
+    return ((+p.hour)%24)*60+(+p.minute);
+  }catch(e){ return Math.floor(((min%1440)+1440)%1440); }
+}
+function wireIngest(list){
+  var any=false;
+  (list||[]).forEach(function(e){
+    if (liveSeen[e.id]) return; liveSeen[e.id]=true;
+    push(e); applyWx(e); any=true;
+  });
+  if (any) FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
+  return any;
+}
+/* load older — in live mode this pages the bus's own archive projection,
+   not just the local array. Ends honestly at the top of the record. */
+function liveOlder(){
+  if (!(LIVE && BRIDGE.gsWirePage)) return false;
+  var oldest=null;
+  FEED.forEach(function(e){ if(e.n!=null&&(oldest==null||e.n<oldest)) oldest=e.n; });
+  var p;
+  try{ p=BRIDGE.gsWirePage({before:oldest==null?1e15:oldest, limit:PAGE}); }
+  catch(_){ return false; }
+  if (!p || !p.entries) return false;
+  wireIngest(p.entries);
+  if (p.oldest) liveExhausted=true;
+  return true;
+}
+/* the permit board — vs.board / gsResourceBoard, the bus's public claim
+   states. Read-only: a viewer can see a resource is claimed, never why
+   beyond the public board's own words. */
+function renderBoard(board){
+  var panel=document.getElementById('pboardPanel'), box=document.getElementById('pboard');
+  var keys=board?Object.keys(board):[];
+  if (!keys.length){ panel.style.display='none'; return; }
+  panel.style.display='';
+  var h='';
+  keys.sort().forEach(function(res){
+    var b=board[res]||{};
+    var st=b.state||'free';
+    var note='';
+    if (typeof b.leftMin==='number') note+=Math.ceil(b.leftMin)+' min left';
+    if (typeof b.depth==='number') note+=(note?' · ':'')+b.depth+' queued';
+    if (typeof b.qa==='number') note+=(note?' · ':'')+b.qa+' queued';
+    if (b.booked && b.booked.length)
+      note+=(note?' · ':'')+'booked '+b.booked.map(function(w){
+        return (w.start||'')+(w.who?' · '+w.who:''); }).join(', ');
+    h+='<div class="pb"><span class="res">'+esc(claimName(res))+'</span>'+
+      '<span class="pst '+stKey(st)+'">'+esc(st)+'</span>'+
+      '<span class="pnote">'+esc(note||'open')+'</span>'+
+      (b.by?'<span class="pwho">'+esc(b.by)+'</span>':'')+'</div>';
+  });
+  box.innerHTML=h;
+}
 function livePoll(){
   try{
     var vs = BRIDGE.gsViewerState();
-    var feed = (vs && vs.feed) || [];
-    /* feed entries already match feed.json schema — normalize + dedupe */
-    feed.forEach(function(e){
-      if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); }
-    });
-    FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
-    renderWire();
+    /* the block clock is real PT wall time when the bus is attached */
+    var nowT = wireClock(Date.now()/60000);
+    if (nowT!==T){ T=nowT; renderClock(); renderVenues(); renderCast(); }
+    /* v89 — incremental sync: gsWireSince(max n) beats re-reading the
+       50-line tail on busy days; the tail remains the join handshake */
+    var maxN=null; FEED.forEach(function(e){ if(e.n!=null&&(maxN==null||e.n>maxN)) maxN=e.n; });
+    var feed;
+    if (maxN!=null && BRIDGE.gsWireSince){
+      try{ feed=BRIDGE.gsWireSince(maxN); }catch(_){ feed=null; }
+    }
+    if (!feed) feed = (vs && vs.feed) || [];
+    wireIngest(feed);
+    renderWire(); if (dirOpen) renderReplay();
+    /* v61 — live occupancy: capability-checked, demo keeps routines */
+    var occ = null;
+    if (BRIDGE.gsOccupancy) occ = BRIDGE.gsOccupancy();
+    else if (vs && vs.occupancy) occ = vs.occupancy;
+    if (occ && occ!==LIVE_OCC){ LIVE_OCC=occ; renderVenues(); }
+    /* v75 — booked windows ride the same calendar seam the Counter writes */
+    var cal = (vs && vs.calendar) || [];
+    if (cal.length !== LIVE_BOOK.length){ LIVE_BOOK=cal.slice(); renderBook(); }
+    /* v89 — the permit board: public claim states from the bus itself */
+    var board = (vs && vs.board) ||
+      (BRIDGE.gsResourceBoard ? BRIDGE.gsResourceBoard() : null);
+    renderBoard(board);
+    /* v89 — compatible multiplayer, visible */
+    var sess = (vs && vs.sessions) ||
+      (BRIDGE.gsCoSessions ? BRIDGE.gsCoSessions() : []);
+    var sessKey = JSON.stringify(sess||[]);
+    if (sessKey !== JSON.stringify(LIVE_SESS)){ LIVE_SESS=sess||[]; renderLiveNow(); }
+    /* v89 — a player-called sky names its sponsors on the header line;
+       the newest weather event still wins when it's fresher copy */
+    if (vs && vs.weather && vs.weather.wx){
+      var until = vs.weather.untilMin!=null ? fmt(wireClock(vs.weather.untilMin)) : null;
+      document.getElementById('wx').textContent='🌦 player-called sky — '+
+        vs.weather.wx+(until?' until '+until:'')+
+        ' · '+(vs.weather.sponsors||1)+' sponsor'+((vs.weather.sponsors||1)===1?'':'s');
+    }
+    /* v89 — gsWireStats's real shape: total / suppressed / displayFilter.
+       The viewer counter only moves if the bus actually reports one —
+       honest metrics means no invented audience. */
     if (BRIDGE.gsWireStats){
       var s=BRIDGE.gsWireStats();
-      if (s && s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
+      if (s){
+        LIVE_STATS=s;
+        if (s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
+        else document.querySelector('.viewers').style.display='none';
+      }
+    }
+    /* v103 — the record layer: pin read-back, vocabulary coverage,
+       archive depth. All capability-checked; demo never fakes them. */
+    followsSync();
+    if (BRIDGE.gsWireVocabulary && !LIVE_VOCAB){
+      try{ LIVE_VOCAB=BRIDGE.gsWireVocabulary(); }catch(_){}
+    }
+    if (BRIDGE.gsWireDays){
+      var days;
+      try{ days=BRIDGE.gsWireDays()||[]; }catch(_){ days=[]; }
+      var al=document.getElementById('archlink');
+      al.textContent = days.length>1
+        ? days.length+' days on record → The Archive'
+        : 'earlier days → The Archive';
     }
   }catch(err){ /* bridge hiccup — keep last good frame */ }
 }
@@ -861,8 +2059,13 @@ document.getElementById('filters').addEventListener('click', function(ev){
   renderWire();
 });
 document.getElementById('q').addEventListener('input', function(ev){ query=ev.target.value.trim(); page=1; renderWire(); });
-document.getElementById('older').onclick=function(){ page++; renderWire(); };
-document.getElementById('dir').onclick=function(){ toast('View-layer only; the world doesn\u2019t notice.'); };
+document.getElementById('older').onclick=function(){
+  /* v89 — live mode asks the bus for the page before our oldest n;
+     demo mode just widens the local window */
+  if (LIVE && liveOlder()){ renderWire(); return; }
+  page++; renderWire();
+};
+document.getElementById('dir').onclick=function(){ toggleDir(); };
 document.getElementById('hold').onclick=toggleHold;
 document.getElementById('holdbar').onclick=toggleHold;
 document.getElementById('zen').onclick=function(){ setZen(!zen); };
@@ -905,10 +2108,17 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='f'){ var c=document.getElementById('chipf'); if (c.style.display!=='none'){ c.click(); } }
   else if (ev.key==='z'){ setZen(!zen); }
   else if (ev.key==='h'){ toggleHold(); }
+  else if (ev.key==='d'){ toggleDay(); }
+  else if (ev.key==='v'){ toggleDir(); }
+  else if (ev.key==='b'){ toggleBook(); }
+  else if (ev.key==='g'){ cycleKind(); }
+  else if (ev.key==='u'){ if(!edOpen) toggleEdition();
+    document.getElementById('edition').scrollIntoView({block:'center'}); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
     else if (zen) setZen(false);
+    else if (dirOpen) toggleDir(false);
     else if (selId){ selId=null; renderWire(); renderDetail(); history.replaceState(null,'','#'); }
   }
 });
@@ -917,9 +2127,14 @@ function toast(m){ var t=document.getElementById('toast'); t.textContent=m; t.st
 /* ================= boot ================= */
 renderFollows();
 if (LIVE){
-  livePoll(); setInterval(livePoll, 1500);
+  livePoll();
+  joinSeq=feedN; renderMissed();
+  setInterval(livePoll, 1500);
 } else {
   seedFeed(); renderWire(); renderVenues(); renderCast(); renderClock();
+  joinSeq=feedN; renderMissed();
+  /* header weather starts from the newest weather event already on the wire */
+  for (var wi=0; wi<FEED.length; wi++) if (FEED[wi].kind==='weather'){ applyWx(FEED[wi]); break; }
   setInterval(tick, TICK_MS);
 }
 var deep = location.hash.match(/^#e=(.+)$/);
@@ -934,6 +2149,8 @@ if (deepR){
 }
 var deepZ = location.hash.match(/#z=1/);
 if (deepZ) setZen(true);
+if (location.hash.match(/#dir=1/)) toggleDir(true);
+if (location.hash.match(/#u=1/)){ edOpen=true; renderEdition(); }
 </script>
 <script src="js/analytics.js" defer></script>
 </body>
