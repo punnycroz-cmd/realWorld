@@ -280,6 +280,29 @@ drift shows as wrong math, not wrong claims).
 - **TOC chip** — "Surge hours" (#clock) between "A receipt" and "A
   credit's life". Section count now 25; all anchors verified to resolve.
 
+## 1k. Page components (v172)
+
+- **"What turns on, and when"** (`#order`, `.grid grid-3` card row between
+  `#promise` and `#fineprint`) — the proof-first staging that the
+  monetization direction (Astra review, 2026-09-24) locks in: stage 1 is
+  free observation (watching, catch-up edition, thread-following,
+  stakeless predictions, one bounded invitation) measured against cost
+  per simulated day; stage 2 is subscriptions for archival depth /
+  custom editions / creator-export tools (the Resident/Director tiers
+  above stay provisional until then); stage 3 is capped, publicly
+  attributed opportunity sponsorship with explicit delivery/refusal/
+  refund terms. Closing line prints the three at-no-stage nevers: no
+  "unlimited living worlds" packages, no consciousness claims, no credit
+  economy before repeat interest is proven. Pure HTML, no JS.
+- **Fineprint +1 row** — "Paid rails open in stages" restates the gate at
+  body size and adds the honest edge: "provisional" can mean "never."
+- **Quick answers +1** — "Is everything on this page for sale on day
+  one?" in BOTH the visible `<details>` list and the FAQPage JSON-LD
+  (verbatim-faithful), pointing at `#order`.
+- **TOC chip** — "The order" (#order) between "The promise" and "The
+  fine print". All anchors verified to resolve; both JSON-LD blocks
+  re-validated.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
