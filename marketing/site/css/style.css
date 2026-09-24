@@ -807,6 +807,41 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .sim-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 @media (max-width: 700px) { .fieldcard-list { grid-template-columns: 1fr; } }
 
+/* v176 — demo page: "Call it" non-wager prediction card */
+.calls {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+}
+.calls-form { display: grid; gap: 14px; }
+.calls-list { margin-top: 16px; display: grid; gap: 8px; }
+.call-row {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 10px 14px; display: grid;
+  grid-template-columns: 1fr auto; gap: 2px 12px; align-items: center;
+}
+.call-row.is-settled { opacity: .75; }
+.call-text { margin: 0; font-size: 14.5px; line-height: 1.45; }
+.call-meta { grid-column: 1; font-size: 12.5px; color: var(--muted); }
+.call-acts { grid-column: 2; grid-row: 1 / span 2; display: flex; gap: 6px; flex-wrap: wrap; }
+.call-btn {
+  background: none; border: 1px solid var(--border); border-radius: 999px;
+  color: var(--muted); font: inherit; font-size: 12.5px;
+  padding: 3px 10px; cursor: pointer;
+}
+.call-btn:hover, .call-btn:focus-visible { border-color: var(--accent); color: var(--text); }
+.call-verdict {
+  grid-column: 2; grid-row: 1 / span 2; align-self: center;
+  font-size: 12.5px; font-weight: 700; text-transform: uppercase;
+  letter-spacing: .06em;
+}
+.call-verdict.is-hit { color: var(--accent-2); }
+.call-verdict.is-miss { color: var(--muted); }
+.calls-status { margin-top: 16px; }
+@media (max-width: 640px) {
+  .call-row { grid-template-columns: 1fr; }
+  .call-acts, .call-verdict { grid-column: 1; grid-row: auto; }
+}
+
 /* v129 — community page: sample recap issue + regulars line */
 .recap-issue {
   background: var(--bg-2); border: 1px solid var(--border);

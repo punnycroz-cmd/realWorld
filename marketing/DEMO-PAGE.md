@@ -9,13 +9,13 @@ presets (v86) + #shot deep links, first-watch field card, sim example
 cycler (v101) + "Would it air?" screening quiz + streamer embed
 snippet (v116) + request-lifecycle ribbon + simulated feed rows that
 walk the real `request_status` vocabulary (v131) + "Label the shot"
-annotation overlay (v146); live
-embed pending a shippable spectator build (game-systems/world track
+annotation overlay (v146) + "Call it" non-wager prediction card (v176);
+live embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
 seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131;
-eleventh pass v146.
+eleventh pass v146; twelfth pass v176.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -278,6 +278,38 @@ spectator game build; the wire embed is a separate, already-real surface.
   `boxes.length`-derived. Key stays `rw_watchcard_v1` — existing cards
   show 9/10 until the new item is checked (same honest pattern as v131).
 
+## 4a-x. v176 — "Call it": the observer loop's prediction step
+
+- **`#calls` section** (between the cast strip and the field card) — a
+  device-only prediction card implementing the free observer loop's middle
+  step: catch up → pick someone → *make a non-wager call* → come back →
+  settle it. Resident `<select>` (the eight mains + "someone else on the
+  block"), a 140-char sentence field, and a **Need a prompt?** cycler whose
+  eight suggestions are all small, routine-verifiable guesses drawn from the
+  chips' own published routines.
+- **Storage** — calls persist in `localStorage rw_calls_v1` as
+  `{who, text, ts, st: open|hit|miss}`; cap of 12 open calls (the intro says
+  "a dozen"). Storage failure degrades to session-only, same as the field
+  card. Each open row offers **Called it / Missed it / Drop it**; settled
+  rows show a verdict chip. A tally line reads "Your card: n open · n
+  called · n missed"; a clear button sweeps settled rows. Settling is the
+  visitor's own read of the Wire/Archive — the copy says so explicitly:
+  *your call, not an oracle*.
+- **Honesty rails** — no stakes, no wager, no leaderboard, nothing sent or
+  scored anywhere (the section and its footnote both say it). This is
+  deliberately the P3 observer-loop shape: the call is the reason to
+  return, and at launch checking it means opening the live Wire or the
+  Archive under that resident's name — the today-vs-launch block gains a
+  row pair saying exactly that.
+- **Field card** grows to twelve items (`data-fc="call"`); count stays
+  `boxes.length`-derived. Key stays `rw_watchcard_v1` — existing cards show
+  11/12 until checked (same honest pattern as v131/v146).
+- **Analytics** — declarative `cta_click` on the two buttons
+  (`demo-call`, `demo-call-prompt`); the JS emits `demo-call-log`,
+  `demo-call-hit`, `demo-call-miss`, `demo-call-drop`, `demo-call-clear`
+  with `item` = resident key. All slots added to analytics-events.json
+  (v176). No call text ever leaves the device — only the resident key.
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -301,9 +333,10 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 22 KB
-  (raised v146 — MARKS overlay + toggle; was < 20 KB at v116, < 16 KB at
-  v86, < 14 KB at v71, < 6 KB pre-v56), `demo-sim.js` < 16 KB (raised v131 —
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 34 KB
+  (raised v176 — Call-it card; was < 22 KB at v146, < 20 KB at v116,
+  < 16 KB at v86, < 14 KB at v71, < 6 KB pre-v56), `demo-sim.js` < 16 KB
+  (raised v131 —
   lifecycle walk + status map grew it past the old 12 KB line),
   `demo-quiz.js` < 8 KB (v116).
 
@@ -366,5 +399,8 @@ analytics-events.json.
 - [x] Label overlay markers name only frame-verifiable surfaces, track
   the active shot across every deck navigation path, are pointer-transparent,
   and hide with the button when the live embed resolves (v146).
+- [x] Call-it card stores only on-device (`rw_calls_v1`), caps open calls,
+  never transmits call text (analytics carries the resident key only), and
+  states no-stakes/no-oracle in the copy (v176).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).

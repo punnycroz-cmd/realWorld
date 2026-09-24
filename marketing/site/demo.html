@@ -164,6 +164,7 @@
           <li>A guided watch narrating what a spectator would be looking for.</li>
           <li>A <b>Label the shot</b> overlay that names what each capture proves — the inspector, names over heads, the Wire HUD. Every marker points at something you can verify in the frame.</li>
           <li>A <b>Clip this frame</b> button that exports the capture you&rsquo;re looking at as a captioned PNG — &ldquo;development capture&rdquo; watermarked in, so anything you share carries its own honesty.</li>
+          <li>A <b>Call it</b> card that keeps your predictions about residents on this device — open calls survive between visits, and settling one is the reason to come back.</li>
         </ul>
       </div>
       <div class="demo-diff-col">
@@ -175,6 +176,7 @@
           <li>The guided watch retires. Live needs no narration — and no script.</li>
           <li>The label overlay retires with it — the live HUD names its own surfaces.</li>
           <li>Clipping moves inside the live view — same button idea, real frames, same watermark honesty.</li>
+          <li>The same card — but checking a call means opening the live Wire or the Archive under that resident&rsquo;s name, not guessing at captures.</li>
         </ul>
       </div>
     </div>
@@ -446,12 +448,69 @@
   </div>
 </section>
 
+<!-- CALL IT — the observer loop's prediction step, device-only -->
+<section id="calls">
+  <div class="wrap">
+    <p class="eyebrow">Call it</p>
+    <h2>Make a call. Come back and check.</h2>
+    <p class="muted">Watching pays off when you know the block well enough to
+    guess. Pick a resident, write down what you think they&rsquo;ll do — a
+    routine, a reaction, a small thing — and the card holds it on this device.
+    Tomorrow you check: open the Wire, or dig the Archive, and settle it
+    yourself. <b>No stakes, no wager, no leaderboard</b> — the call is the
+    reason to come back, nothing more.</p>
+    <div class="calls" id="callbox">
+      <div class="calls-form">
+        <label class="sim-field" for="call-who">About who?
+          <select id="call-who">
+            <option value="mars">Mars Delgado — Mudhaus</option>
+            <option value="jules">Jules Park — the runner</option>
+            <option value="dani">Dani Reyes — chalkboard hand</option>
+            <option value="priya">Priya Raman — RN on twelves</option>
+            <option value="marcus">Marcus Bell — courier</option>
+            <option value="carmen">Carmen Echeverría — the block&rsquo;s memory</option>
+            <option value="victor">Victor Auerbach — hardware &amp; landlord</option>
+            <option value="tomas">Tomás Herrera — lead cook</option>
+            <option value="block">Someone else on the block</option>
+          </select>
+        </label>
+        <label class="sim-field" for="call-text">Your call — one sentence
+          <input type="text" id="call-text" maxlength="140"
+                 placeholder="e.g. Jules skips the morning run if it&rsquo;s raining">
+        </label>
+        <div class="sim-actions">
+          <button class="btn btn-primary" id="call-log" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-call"}'>Log the call</button>
+          <button class="btn btn-ghost btn-sm" id="call-prompt" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-call-prompt"}'>Need a prompt?</button>
+        </div>
+      </div>
+      <div class="calls-list" id="call-rows" aria-live="polite">
+        <p class="muted" id="call-empty">No calls yet. One sentence is enough —
+        the card keeps up to a dozen open at once, on this device only.</p>
+      </div>
+      <p class="fieldcard-status calls-status"><span id="call-tally"></span>
+        <button class="btn btn-ghost btn-sm" id="call-clear" type="button" hidden>Settle &amp; clear finished calls</button>
+      </p>
+    </div>
+    <p class="muted" style="font-size:13px">Calls live in your browser&rsquo;s
+    local storage — nothing is sent, scored, or ranked. Settling is your call
+    too: <i>called it</i> / <i>missed it</i> is your read of the feed and the
+    Archive, not an oracle. At launch the same card stays; what changes is
+    that checking a call means opening the live Wire under that
+    resident&rsquo;s name.</p>
+    <noscript><p class="notice">The call card needs JavaScript. The
+    <a href="cast.html">cast page</a> has the same residents&rsquo; public
+    routines to make a call from.</p></noscript>
+  </div>
+</section>
+
 <!-- FIRST-WATCH FIELD CARD -->
 <section>
   <div class="wrap">
     <p class="eyebrow">Your first watch</p>
     <h2>A field card for the first hour.</h2>
-    <p class="muted">Eleven things worth doing on a first visit — every one
+    <p class="muted">Twelve things worth doing on a first visit — every one
     works today on this page&rsquo;s real surfaces (the capture deck, the
     Wire&rsquo;s demo stream, the simulator above). Checks save on this
     device only; nothing leaves your browser.</p>
@@ -468,8 +527,9 @@
         <li><label><input type="checkbox" data-fc="lifecycle"> Watch that filing&rsquo;s feed tag walk the real lifecycle — <i>requested</i> through <i>resolved</i> — in your simulated feed entries.</label></li>
         <li><label><input type="checkbox" data-fc="labels"> Toggle <i>Label the shot</i> on the capture deck — every marker names something a spectator can verify in the frame.</label></li>
         <li><label><input type="checkbox" data-fc="clip"> Hit <i>Clip this frame</i> — the exported PNG carries its own &ldquo;development capture&rdquo; watermark, so a shared clip can&rsquo;t be passed off as live.</label></li>
+        <li><label><input type="checkbox" data-fc="call"> Log a call in <i>Call it</i> above and leave it open — the card remembers it between visits; settling it is the reason to come back.</label></li>
       </ul>
-      <p class="fieldcard-status"><span id="fc-count">0 / 11</span>
+      <p class="fieldcard-status"><span id="fc-count">0 / 12</span>
         <button class="btn btn-ghost btn-sm" id="fc-reset" type="button">Reset the card</button>
       </p>
     </div>

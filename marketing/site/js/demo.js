@@ -572,4 +572,180 @@
     }
     fcSync();
   }
+
+  // "Call it" — a non-wager prediction card: the observer loop's prediction
+  // step (watch → call it → come back → settle). Calls are stored in
+  // localStorage rw_calls_v1 on this device only — nothing is sent, scored,
+  // or ranked, and settling (hit/miss) is the visitor's own read of the
+  // feed/Archive, not an oracle. Works in both modes; at launch checking a
+  // call means opening the live Wire under that resident's name.
+  var callBox = document.getElementById("callbox");
+  if (callBox) {
+    var CALL_KEY = "rw_calls_v1";
+    var CALL_MAX = 12;
+    var WHO = {
+      mars: "Mars", jules: "Jules", dani: "Dani", priya: "Priya",
+      marcus: "Marcus", carmen: "Carmen", victor: "Victor",
+      tomas: "Tomás", block: "The block"
+    };
+    var PROMPTS = [
+      "Jules skips the morning run if it's raining",
+      "Mars paints a new Mudhaus window line before Friday",
+      "Priya takes the same café seat after a night shift",
+      "Victor closes the hardware counter early on a sunny day",
+      "Tomás is on the supplier loop before the cafés open",
+      "Marcus's Thursday jam by the park draws a crowd",
+      "Carmen is out front when the fog burns off",
+      "Dani rewrites the chalkboard after a busy rush"
+    ];
+    var whoEl = document.getElementById("call-who");
+    var textEl = document.getElementById("call-text");
+    var logBtn = document.getElementById("call-log");
+    var promptBtn = document.getElementById("call-prompt");
+    var rowsEl = document.getElementById("call-rows");
+    var emptyEl = document.getElementById("call-empty");
+    var tallyEl = document.getElementById("call-tally");
+    var clearBtn = document.getElementById("call-clear");
+    var promptIdx = 0;
+
+    var callLoad = function () {
+      try {
+        var v = JSON.parse(localStorage.getItem(CALL_KEY) || "[]");
+        return (v && v.length !== undefined) ? v : [];
+      } catch (e) { return []; }
+    };
+    var callSave = function (list) {
+      try { localStorage.setItem(CALL_KEY, JSON.stringify(list)); } catch (e) {}
+    };
+    var calls = callLoad();
+
+    var callDate = function (ts) {
+      try {
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Los_Angeles",
+          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+        }).format(new Date(ts)) + " PT";
+      } catch (e) { return ""; }
+    };
+
+    var renderCalls = function () {
+      rowsEl.textContent = "";
+      var open = 0, hit = 0, miss = 0;
+      for (var i = 0; i < calls.length; i++) {
+        var c = calls[i];
+        if (c.st === "hit") hit++;
+        else if (c.st === "miss") miss++;
+        else open++;
+        var row = document.createElement("div");
+        row.className = "call-row" + (c.st !== "open" ? " is-settled" : "");
+        var who = WHO[c.who] || "The block";
+        var head = document.createElement("p");
+        head.className = "call-text";
+        head.textContent = c.text;
+        var meta = document.createElement("span");
+        meta.className = "call-meta";
+        meta.textContent = who + " · called " + callDate(c.ts);
+        row.appendChild(head);
+        row.appendChild(meta);
+        if (c.st === "open") {
+          var acts = document.createElement("span");
+          acts.className = "call-acts";
+          var mk = function (label, st, cta) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "call-btn";
+            b.textContent = label;
+            b.setAttribute("data-i", i);
+            b.setAttribute("data-st", st);
+            b.setAttribute("data-cta", cta);
+            acts.appendChild(b);
+          };
+          mk("Called it", "hit", "demo-call-hit");
+          mk("Missed it", "miss", "demo-call-miss");
+          mk("Drop it", "drop", "demo-call-drop");
+          row.appendChild(acts);
+        } else {
+          var st = document.createElement("span");
+          st.className = "call-verdict " + (c.st === "hit" ? "is-hit" : "is-miss");
+          st.textContent = c.st === "hit" ? "called it" : "missed it";
+          row.appendChild(st);
+        }
+        rowsEl.appendChild(row);
+      }
+      emptyEl.hidden = calls.length > 0;
+      if (!calls.length) rowsEl.appendChild(emptyEl);
+      var parts = [];
+      if (open) parts.push(open + " open");
+      if (hit) parts.push(hit + " called");
+      if (miss) parts.push(miss + " missed");
+      tallyEl.textContent = parts.length
+        ? "Your card: " + parts.join(" · ")
+        : "";
+      clearBtn.hidden = !(hit + miss > 0);
+    };
+
+    var trackCall = function (cta, who) {
+      if (window.rw && window.rw.track) {
+        window.rw.track("cta_click", { cta: cta, item: who });
+      }
+    };
+
+    if (logBtn && textEl && whoEl) {
+      logBtn.addEventListener("click", function () {
+        var t = textEl.value.replace(/\s+/g, " ").trim();
+        if (!t) {
+          textEl.focus();
+          textEl.placeholder = PROMPTS[promptIdx % PROMPTS.length];
+          promptIdx++;
+          return;
+        }
+        var open = 0;
+        for (var i = 0; i < calls.length; i++) if (calls[i].st === "open") open++;
+        if (open >= CALL_MAX) {
+          tallyEl.textContent = "Card's full — settle or drop a call first.";
+          return;
+        }
+        calls.push({ who: whoEl.value, text: t, ts: Date.now(), st: "open" });
+        callSave(calls);
+        textEl.value = "";
+        renderCalls();
+        trackCall("demo-call-log", whoEl.value);
+      });
+    }
+    if (promptBtn && textEl) {
+      promptBtn.addEventListener("click", function () {
+        textEl.value = PROMPTS[promptIdx % PROMPTS.length];
+        promptIdx++;
+        textEl.focus();
+      });
+    }
+    if (rowsEl) {
+      rowsEl.addEventListener("click", function (e) {
+        var b = e.target;
+        if (!b || !b.getAttribute || b.getAttribute("data-i") === null) return;
+        var i = parseInt(b.getAttribute("data-i"), 10);
+        var st = b.getAttribute("data-st");
+        if (!(i >= 0 && i < calls.length)) return;
+        var who = calls[i].who;
+        if (st === "drop") calls.splice(i, 1);
+        else calls[i].st = st;
+        callSave(calls);
+        renderCalls();
+        trackCall(b.getAttribute("data-cta"), who);
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function () {
+        var keep = [];
+        for (var i = 0; i < calls.length; i++) {
+          if (calls[i].st === "open") keep.push(calls[i]);
+        }
+        calls = keep;
+        callSave(calls);
+        renderCalls();
+        trackCall("demo-call-clear", "-");
+      });
+    }
+    renderCalls();
+  }
 })();
