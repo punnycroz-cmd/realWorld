@@ -1,9 +1,9 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v108 — Steam platform-feature decisions + festival/event stance +
-Steam announcement drafts + seasonal art-freshness rule + owner-decision
-register, 2026-09-23.**
-Supersedes v93.
+**Status: v123 — art rebase v55→v61 (aerial-camera build) + Steam markup
+variant + local store-page preview + post-launch page lifecycle,
+2026-09-23.**
+Supersedes v108.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -178,7 +178,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v55-A..D.png` (4 ready, autumn-turn build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v61-A..D.png` (4 ready, aerial-camera build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -192,9 +192,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v55-D (director view — the hook), v55-B
-(street level), v55-C (Dolores Park), v16-int-cafe (interior vignette),
-then v55-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v61-D (director view — the hook), v61-B
+(street level), v61-C (Dolores Park), v16-int-cafe (interior vignette),
+then v61-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -253,7 +253,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v55-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v61-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -356,16 +356,19 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v55-D "director view" → "Director
-mode over the rooftops under a clean autumn sky — REC cluster up top,
-dressed facades stepping with the block, turned crowns and leaves across
-the lens."; v55-B street level → "Street-level up the block past dressed
-storefronts — window boxes and stoop pots, a gust of leaves, parked cars
-on the curb, name tags overhead."; v55-C park → "Dolores Park from above
-in September — mow stripes following the lawn contours, the palm allée,
-crowns carrying the early leaf-turn."; v16-int-cafe → "Interior vignette
-behind the glass: the café venue from the street camera."; v1 pair →
-"Same engine, day one — the before/after that anchors the devlog series."
+`press-kit/captions.txt` as canonical): v61-D "director view" → "Director
+mode over the rooftops toward distant cumulus shower cells — REC cluster
+and DIRECTOR badge up top, wind-leaned rain shafts under the far cells.";
+v61-B street level → "Street-level up the block past dressed storefronts —
+window boxes, stoop pots, parked cars on the curb, name tags overhead,
+marine haze softening the far end."; v61-C park → "Dolores Park from
+overhead — perimeter streets, the palm allée, mow-striped lawns ringed by
+two rows of facades."; v61-A overhead → "The Mission block around 24th and
+Mission from the new aerial camera — rooftops and pawns leaning outward
+from the frame nadir, crowns in early leaf-turn, inspector open on a
+resident."; v16-int-cafe → "Interior vignette behind the glass: the café
+venue from the street camera."; v1 pair → "Same engine, day one — the
+before/after that anchors the devlog series."
 
 **Feed-vocabulary note for storefront copy:** if marketing ever quotes feed
 statuses on a store page, the canonical vocabulary is `world/requests.json`
@@ -388,7 +391,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v55-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v61-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -488,7 +491,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v55 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v61 build) | shipped |
 
 ---
 
@@ -838,6 +841,18 @@ than one — solstice/equinox trigger wired into §27), §33 owner-decision
 register (14-row consolidated table of every PLACEHOLDER/FLAG/PROPOSAL
 in the doc). No copy claims changed; §27 gained the seasonal trigger row.
 
+**v123 changes:** art rebase v55→v61 (real aerial camera — rooftops,
+trees, and pawns lean outward from the frame nadir; lateral chromatic
+aberration on the lens): §2.4/§2.5/§4 screenshot refs, §9 caption set
+rewritten to match `press-kit/captions.txt` v61 wording (cumulus shower
+cells, marine haze, re-framed park overlook), §10 media row, §14 ledger
+cite, §32 seasonal note. Capsules/keyart/og-card already rebaked on
+v61-D at v122 — no asset work needed. New §34 Steam markup (BBCode)
+about-section variant — paste-ready, since Steam takes no Markdown;
+§35 local store-page preview (`store/preview.html`) + preview-drift
+rule; §36 post-launch page lifecycle (day-7/30/90 copy states). §27 SOP
+unchanged; §33 register gained no new rows (preview is local-only).
+
 ---
 
 ## 26. itch.io complete field map (every project-edit field)
@@ -1011,7 +1026,7 @@ Cadence: announcements are events, not a drip — never post "stay tuned".
 
 ## 32. Seasonal store-art freshness rule
 
-The sim runs on the real calendar — the v55 captures are the September
+The sim runs on the real calendar — the v61 captures are the September
 turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
 crowns while the live block is in spring is a quiet lie.
 
@@ -1030,7 +1045,7 @@ crowns while the live block is in spring is a quiet lie.
 ## 33. Owner-decision register (everything gated, one table)
 
 Every PLACEHOLDER/FLAG/PROPOSAL/owner-gated item in this document,
-consolidated. Nothing in §1–§28 ships until its row here is decided.
+consolidated. Nothing in §1–§36 ships until its row here is decided.
 Cross-refs: LAUNCH-CHECKLIST.md gates, INFRASTRUCTURE.md §secrets.
 
 | # | Decision needed | Blocks | Where noted |
@@ -1054,3 +1069,131 @@ Two rules for this table: **a decided row gets executed, not re-opened**
 (change means editing the doc, not improvising at the form); and **no
 row may be decided by omission** — a store field left blank at the form
 is a decision the table should have recorded.
+
+---
+
+## 34. Steam "about this game" markup variant (paste-ready)
+
+Steam's description field is not Markdown — it uses Steam's own bracket
+markup (`[h2]`, `[b]`, `[list]`, `[*]`, `[url]`). Below is §1.3 + §2.2
+re-rendered verbatim in that dialect so the conditional page is still
+transcription, not translation. Keep both versions in sync: **edit §1.3
+first, then re-render this block** (it is derived, not canonical).
+
+```text
+[h2]Real World is a neighborhood, not a level.[/h2]
+
+Set on real streets around Dolores Park in San Francisco's Mission
+District, Real World is a persistent life simulation where twenty-eight
+fictional residents — eight main characters with full AI minds, twenty
+ambient neighbors — live, work, feud, and make up around the clock. The
+world runs whether you're watching or not.
+
+[h2]Watching is the free heart of the game.[/h2]
+
+Follow any resident through their day. Read the public request feed —
+every intervention anyone has bought, attributed and priced in the open.
+Catch up on the week's drama like a serial. Observation never costs
+anything.
+
+[h2]When watching isn't enough, buy a moment — not the world.[/h2]
+
+File a request: a declared action with a declared duration, priced
+upfront in credits and capped hard. Possess your own character for
+thirty minutes. Call for rain over the park. Nudge a neighbor — an ask,
+not mind-control; they can say no. Requests sort themselves into
+exclusive, compatible, or queued; expire unfired and you're
+auto-refunded. When time runs out, the AI takes the character back
+seamlessly.
+
+[h2]Or move in.[/h2]
+
+Hire a character onto the cast — the only one you'll ever control —
+rent a room in game dollars, work a job at Mudhaus or Auerbach
+Hardware, save toward a deed. The ladder is the Mission's oldest story:
+tenant, owner, landlord. Miss rent and you can be evicted, same as
+anyone.
+
+[h2]The one rule that matters[/h2]
+
+The eight mains can never be possessed — not by players, not by us.
+Their secrets stay theirs. What you watch is real because nobody can
+fake it.
+
+[h2]What we don't sell[/h2]
+
+[list]
+[*] No loot boxes, no gacha
+[*] No cash-out, no crypto
+[*] No voice lines
+[*] Credits are non-transferable and never redeemable for money
+[/list]
+
+[h2]The request menu (current proposal — finalized before launch)[/h2]
+
+[list]
+[*] Possess your own character — 1.5 cr/min, 15–120 min
+[*] Camera director (spectator-side only) — 10 cr / 30 min
+[*] NPC nudge (an ask — they can decline; 50% back if they do) — 40 cr
+[*] Weather block over the neighborhood — 40 / 70 / 100 cr for 1 / 2 / 4 h
+[*] Event trigger at a venue or the park — 200 cr
+[*] Hire a character onto the cast — 500 cr one-time, human name review
+[/list]
+
+Queued requests cost 15% less and auto-refund if they expire unfired.
+Exclusive actions get human review; surge pricing (×1.5–2.5) is always
+shown before you pay, and cooldowns are never purchasable. Denied
+requests never bill.
+
+[i]All characters, businesses-as-populated, and addresses in Real World
+are fictional or system-generated. The streets are real; the people are
+not.[/i]
+```
+
+Steam formatting notes: em-dashes and curly quotes render fine; tables
+do not exist (hence `[list]`); images are uploaded via Steam's own
+screenshot slots, never inlined with `[img]` — the about section stays
+text-only. If Steam's parser ever strips an em-dash, replace with `—`
+spaced hyphens; do not rewrite the sentences.
+
+---
+
+## 35. Local store-page preview (`store/preview.html`)
+
+`store/preview.html` is a local-only mock of the itch.io project page —
+banner, title, tagline, cover capsule, §2.2 body, screenshot strip in
+the §2.5 order, and the §26 "more information" sidebar — rendered on the
+§11 palette so the owner can review the page as it will read before a
+single field is pasted. Open it from disk; no server, no analytics, no
+outbound links (all `<domain>` URLs rendered as `#`, marked).
+
+**Preview-drift rule:** the preview is a render of this document, not a
+second source of truth. Any copy edit to §1–§2 or §26 must be mirrored
+into `store/preview.html` in the same commit — treat a stale preview the
+same as stale copy (§27 applies: it is part of the rebase drill's
+grep surface). The file carries a visible "LOCAL PREVIEW — nothing
+published" banner so it can never be mistaken for a real listing.
+
+**Steam variant:** none built. Steam's page chrome is not ours to mock
+accurately; the capsule set (§4) plus the §34 markup block is the honest
+preview for the conditional page.
+
+---
+
+## 36. Post-launch page lifecycle (day-7/30/90 copy states)
+
+The store page is not a fixed paste — it has four copy states, each
+with a trigger and an owner-visible diff. Nothing here is scheduled;
+each state is a §9-style packet applied by hand.
+
+| State | Trigger | What changes on the page |
+|---|---|---|
+| **S0 draft** | now → go-call | Page-only project (§2.5), "in development" status, devlog Post 1 staged. |
+| **S1 launch week** | visibility → public | First comment posted (§22 rule 1), devlog Post 1 live, follow ask (§23) at page bottom. No copy edits — launch-day pages stay stable for screenshot consistency in press coverage. |
+| **S2 day 7–30** | first real feed history | Devlog Posts 2–3 (§16). If the request feed has produced a genuinely quotable moment, ONE pull-quote may be added under the honesty box — sourced, attributed, dated; never invented. Tagline A/B rotation (§13) may begin only after week 1 baseline CTR exists. |
+| **S3 day 90+** | steady state / "in development" review | When the sim's public build is the product people actually use, the early-access label comes off — owner decision, one commit flipping §2.1/§26 status rows + the sidebar "Status" line together (never half-flipped). |
+
+Rules that never change across states: the §1.5 legal line is on every
+state's page; a state transition never removes the honesty box or the
+request menu; PROPOSAL pricing language leaves only when §33 row 4 is
+decided — at which point every state updates in one commit.
