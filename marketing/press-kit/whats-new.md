@@ -2,11 +2,11 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v71-*.png` = build v71). Everything below is
+the build (`screenshots/v75-*.png` = build v75). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v71** (September 2026).
+Current development build: **v75** (September 2026).
 
 ---
 
@@ -64,6 +64,33 @@ Since the v55 editorial set, ten more passes landed:
   an AO contact skirt at the base — culled against the view and gated
   by night, day, and cloud cover like everything else. Buildings stop
   floating on the map; the block reads planted.
+- **v72 — the walls declare a material.** Facades stopped being one
+  painted skin: a material registry now tags each wall — brick, painted
+  brick, clinker, scored stucco — and the street pass renders what the
+  bake declares: masonry bond joints, stone quoins and soldier-arch
+  lintels, wrought-iron balconies, canvas awnings, and ghost signs
+  faded into the brick. The fronts read like different buildings now,
+  not one texture with different colors.
+- **v73 — the sidewalk earned its scars.** The ground pass gains wear:
+  joint grids and mid-scores on the walk cells, gum-spot constellations
+  clustered at doors and crosswalk funnels, hairline cracks, threshold
+  polish where feet actually land, and trench-scar patches running
+  along the road. The pavement looks walked on because the sim knows
+  where people walk.
+- **v74 — wash day, simulated.** Sagging laundry lines on hashed
+  residential fronts, garments penduluming per-phase in the wind with
+  sun-shifted shade quads; open parlor sashes with breathing curtains;
+  cornice-pigeon roosts that ground themselves in rain and at night.
+  The v65 pennants and flags now swing per-phase instead of holding a
+  frozen wave.
+- **v75 — the fronts went green, and the wind learned to travel.**
+  Living walls: ivy and bougainvillea strands climb the residential
+  fronts — magenta bracts where the sun hits — with balcony gardens
+  trailing inside the balcony gate. Wildflower "meadow" decals stipple
+  poppy and lupine drifts across the free grass. And the breeze is now
+  a field: a gust crest advects downwind through trees and leaning
+  facades as one traveling wave instead of each element swaying to its
+  own phase.
 
 The v67 pass that came just before is worth its own line:
 
@@ -105,15 +132,18 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v71-A.png` (current) — same top-down framing of the
-  block, sixty-six iterations apart.
-- `screenshots/v71-C.png` is the Dolores Park overhead in its re-framed
-  form: the telling detail is the ring of streets and facades — a
-  maintained city park, not open field — plus the crown-genome trees,
-  no two alike.
-- `screenshots/v71-A.png` carries the v70 headline: the Mudhaus Coffee
-  dollhouse cutaway open on the overhead — the building ghosted, a real
+  `screenshots/v75-A.png` (current) — same top-down framing of the
+  block, seventy iterations apart.
+- `screenshots/v75-C.png` is the Dolores Park overhead: the telling
+  details are the ring of streets and facades — a maintained city park,
+  not open field — the crown-genome trees, no two alike, and the new
+  poppy/lupine meadow drifts stippled across the lawns.
+- `screenshots/v75-A.png` carries the dollhouse headline: the Mudhaus
+  Coffee cutaway open on the overhead — the building ghosted, a real
   floor plan inside the footprint, residents still tagged inside it.
+- `screenshots/v75-D.png` is the v72–v75 street-level arc in one frame:
+  declared wall materials, awnings and ghost signs, living-wall ivy and
+  bougainvillea, laundry lines riding the traveling gust field.
 
 ## Still true (unchanged by these passes)
 

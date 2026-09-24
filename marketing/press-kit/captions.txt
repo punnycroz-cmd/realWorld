@@ -13,7 +13,7 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v71-A.png       1440x900 (approx)
+screenshots/v75-A.png       1440x900 (approx)
   The Mission block around 24th and Mission from overhead on an autumn
   afternoon (in-world Day 22): leaves drifting over rooftops and parked
   cars, dressed facades, crowns in full turn. The resident inspector is
@@ -21,24 +21,27 @@ screenshots/v71-A.png       1440x900 (approx)
   mood, and recent thoughts are all spectator-readable. The HUD shown
   is the real spectator chrome of the development build.
 
-screenshots/v71-B.png       1440x900 (approx)
+screenshots/v75-B.png       1440x900 (approx)
   Street-level close view of Jules on the sidewalk with Priya and Dani
-  mid-block: dressed storefronts and stoops, window boxes, AC sleeves,
-  parked cars along the curb, leaves drifting — residents carrying
-  name tags overhead.
+  mid-block: dressed storefronts and stoops, canvas awnings, window
+  boxes, parked cars along the curb, leaves drifting — residents
+  carrying name tags overhead.
 
-screenshots/v71-C.png       1440x900 (approx)
-  Dolores Park from overhead in the re-framed overlook: crown-genome
-  trees in rust and gold across the mow-striped lawns — every crown
-  grown from a genome atlas and flipped per instance, so no two read
-  alike — tennis courts holding the south edge, perimeter streets and
+screenshots/v75-C.png       1440x900 (approx)
+  Dolores Park from overhead: crown-genome trees in rust and gold —
+  every crown grown from a genome atlas and flipped per instance, so no
+  two read alike — poppy and lupine meadow drifts stippled across the
+  lawns, tennis courts holding the south edge, perimeter streets and
   facades ringing the park.
 
-screenshots/v71-D.png       1440x900 (approx)
-  Director mode over the rooftops and laundry lines under a clean
-  autumn sky: REC cluster and DIRECTOR badge up top, the rebuilt lens
-  rendering one weather-driven visibility distance instead of stacked
-  effects — the camera treats the neighborhood like a film set.
+screenshots/v75-D.png       1440x900 (approx)
+  Director mode at street level: Victorian fronts climbing with ivy
+  and bougainvillea strands — sun-warmed magenta bracts where the light
+  hits — balcony gardens trailing, laundry lines overhead riding an
+  advecting gust field. REC cluster and DIRECTOR badge up top, the
+  rebuilt lens rendering one weather-driven visibility distance instead
+  of stacked effects — the camera treats the neighborhood like a film
+  set.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -48,10 +51,10 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v71-A / v71-B.
+  First art pass, for before/after coverage. Pair with v75-A / v75-B.
 
-screenshots/v71-A.webp / v71-B.webp / v71-C.webp / v71-D.webp
-  Lightweight web companions of the four v71 captures above — same
+screenshots/v75-A.webp / v75-B.webp / v75-C.webp / v75-D.webp
+  Lightweight web companions of the four v75 captures above — same
   frames, smaller files, for pages that prefer webp.
 
 logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.

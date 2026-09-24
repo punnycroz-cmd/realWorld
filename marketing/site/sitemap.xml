@@ -5,50 +5,50 @@
         xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
   <url>
     <loc>https://realworld-game.example/</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-cafe.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-flat.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/features.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/cast.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/how-it-works.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/demo.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>weekly</changefreq>
     <priority>0.9</priority>
     <image:image><image:loc>https://realworld-game.example/shots/v53-A.png</image:loc></image:image>
   </url>
   <url>
     <loc>https://realworld-game.example/gallery.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v71-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v75-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-A.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-B.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-C.png</image:loc></image:image>
@@ -78,79 +78,79 @@
   </url>
   <url>
     <loc>https://realworld-game.example/wire.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>weekly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/wire-archive.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/archive.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/community.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/journal.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>weekly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/pricing.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/faq.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/rules.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/brand.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/press-kit.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/terms.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/privacy.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
     <loc>https://realworld-game.example/refunds.html</loc>
-    <lastmod>2026-09-23</lastmod>
+    <lastmod>2026-09-24</lastmod>
 <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>

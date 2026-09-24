@@ -1,7 +1,24 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v71-* is the current development build).
+build they were captured from (v75-* is the current development build).
+
+## v151 — 2026-09-24
+- Screenshots rebased v71→**v75** (living walls — ivy and
+  bougainvillea strands on residential fronts with sun-warmed magenta
+  bracts and trailing balcony gardens; poppy/lupine meadow decal
+  drifts on free grass; and a traveling gust field — the wind crest
+  advects downwind through trees and facades as one wave; carries the
+  v72 declared-material facades, v73 sidewalk wear, v74 laundry-line
+  cloth sim underneath).
+  Site shots, kit screenshots, key art, og-card, banners, store
+  capsules rebaked on v75-D; captions, README, fact-sheet, index,
+  contact-sheet, deadline-desk, b-roll, one-sheet, embargo-briefing
+  refs updated.
+- `whats-new.md` extended: arc now covers v53→…→v71→v72→v73→v74→v75.
+- `screenshots/v75-C.png` (2.04MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
 
 ## v143 — 2026-09-24
 - Screenshots rebased v67→**v71** (the dollhouse pass + block
