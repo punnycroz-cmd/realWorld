@@ -1,6 +1,16 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v144 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v159 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v159 closed the funnel's last two holes: NEW `community/re-engagement.md`
+— the lapsed-member path: observable-only lapse signals, the honest hooks
+the world already produces (open rumors, watch-party triggers, credited
+fixes, seasonal beats), a never-do list applying the stay-small covenant
+to lapse (no re-engagement DMs, no streaks, no guilt), and the returning-
+poster health line for the scorecard; and NEW `community/request-clinic-kit.md`
+— the Wednesday clinic made runnable end-to-end: agenda, three worked
+examples (compatible ~$0.25 class / exclusive human-reviewed / denied+
+refunded), copy-ready answers to the recurring questions, quiet-week
+fallback, and its Stage 2→3 funnel wiring.)
 (v144 added the lifecycle layer: NEW `community/scale-plan.md` — the missing
 second half of the blueprint's "busy 6-channel" rule: stay-small covenant (no
 member-count goals, no growth levers that buy drive-by joins), growth tiers
@@ -118,6 +128,8 @@ numbers from the events capture + manual Discord counts).
 | Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
 | Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |
 | Scale plan — `community/scale-plan.md` | Server lifecycle: stay-small covenant, growth tiers T0–T3 (slow mode, channel splits, verification gate, mod ratio), quiet/dead-server path, sunset sequence | BUILT (v144), OWNER-GATED to run |
+| Request clinic kit — `community/request-clinic-kit.md` | Stage 2→3 in public: the Wednesday clinic runnable — agenda, worked examples (compatible/exclusive/denied), canned answers, quiet-week fallback | BUILT (v159), OWNER-GATED to run |
+| Re-engagement — `community/re-engagement.md` | The lapsed-member path: observable-only lapse signals, honest re-entry hooks (open rumors, watch parties, credited fixes), covenant never-do list, scorecard health line | BUILT (v159), OWNER-GATED to run |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -249,7 +261,7 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Launch day | Announcement thread | — | `social/drafts/launch-thread.md` |
 | Launch week | Seeded discussion questions | — | `social/drafts/seeded-questions.md` |
 | Sun 18:05 (with recap) | Open-rumor thread | recap's unconfirmed hook | `community/programming-calendar.md` §3 |
-| Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/programming-calendar.md` §3 |
+| Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/request-clinic-kit.md` (v159 — agenda, worked examples, canned answers) |
 | Monthly (1st Sat) | Town hall text AMA | — | `community/programming-calendar.md` §2/§3 |
 
 Every recurring slot lands on the single weekly grid in
@@ -389,7 +401,8 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 - **Day-14:** mod-recruitment need check per `community/mod-ramp.md` §1 —
   defer to day-30 if none of the triggers apply.
 - **Day-7:** first full recap + first open-rumor thread; first request
-  clinic if any request was filed (`programming-calendar.md` §1); first
+  clinic — run from `community/request-clinic-kit.md` (§3 worked examples
+  cover the nothing-filed case); first
   watch party if the feed qualifies
   (`community/watch-party-playbook.md` §1 triggers); creator-variant outreach
   draft; triage first `#feedback` batch via `feedback_router.py` into shared
