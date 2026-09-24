@@ -1,5 +1,30 @@
-# Memory Model Spec v5.55 — implementable human-like memory for RW characters
+# Memory Model Spec v5.56 — implementable human-like memory for RW characters
 
+> **v5.56 note (encoding-mechanics IX — the derived boundary and
+> the sloped gates):** `memory/encoding-mechanics.md` Part IX
+> (§§110–122) + spec §§6.273–6.280 retire the last informal
+> surfaces of the encoder. **Boundaries are now derived** — world
+> supplies per-event index-change magnitudes `dIdx` (time/space/
+> protagonist/causal/intent), the character mints boundaries by
+> `seg_gain·Σ idx_w·dIdx` scaled by trait `seg_sens` (Zwaan et al.
+> 1995; Kurby & Zacks 2008); `boundary:true` becomes an input,
+> never a command (`seg_hard_null`). **Two flat penalties gain
+> slopes** — alcohol myopia replaces the uniform intox field loss
+> with a salience-slope (`intox_periph_k`; Steele & Josephs 1990),
+> and arousal's peripheral loss splits into within-item edge gain
+> vs between-item/context edge loss (`ar_item_gain`/`ar_bind_loss`;
+> Mather 2007). **Four residual phenomena priced:** the Aha mark
+> (`insight:true`, self-generated only — Danek 2013), the
+> sustained-watch floor creep (`att_min_eff` rises under monitoring
+> Intentions — Mackworth 1948; See et al. 1995), impression-set
+> organization (`goal:"impression"` builds person clusters —
+> Hamilton et al. 1980), and the addressee/overhearer split
+> (`overhear_pen` — Schober & Clark 1989). Locked nulls:
+> `seg_hard_null`, `ins_told_null`, `vigil_retro_null`,
+> `myopia_equal_null`, `bind_flat_null`, `mem_goal_null`,
+> `overhear_equal_null`, `vivid_effect_null` (seventh negative
+> anchor — Taylor & Thompson 1982). Probes P1146–P1155.
+>
 > **v5.55 note (validation-design XI — the control diet and the
 > missing rows):** `memory/validation-design.md` §§220–223 + spec
 > §14.7 give every probe suite a registered negative/positive
@@ -3473,8 +3498,12 @@ Postman 1964; Hyde & Jenkins 1973).
   lapse_drop)` (0.6), drawn BEFORE the att_min gate — lapsed events often
   simply do not exist for the character (mind-wandering; Maillet & Rajah
   2013).
-- **Event segmentation (v1.2):** Event flag `boundary:true` (task
-  switch, arrival/departure, topic break) → `E += boundary_gain` (0.15)
+- **Event segmentation (v1.2; v5.56 derived alternative):** Event
+  flag `boundary:true` (task switch, arrival/departure, topic
+  break) → `E += boundary_gain` (0.15). v5.56: a boundary may be
+  world-flagged OR derived per-character via the §6.273 index-
+  change calculus — the flag is an input (`dIdx ≥ 0.8`), not an
+  output command.
   — boundary content is privileged (Zacks et al. 2007; Swallow et al.
   2009). Event flag `locShift:true` (venue/room change) → every record
   created within the last `lapse_window` (0.02 day, frozen) AND every
@@ -13875,6 +13904,109 @@ emission flagged `dejavu:true` — **locked `dejavu_know_
 null`:** no record minted, no source attributed; the
 character feels recognition and knows it is false (P1133).
 
+### 6.273 Derived boundaries — the index-change calculus (new in v5.56)
+
+EM§110; Zwaan, Langston & Graesser 1995; Zwaan & Radvansky 1998;
+Radvansky 2012; Speer, Reynolds & Zacks 2007; Kurby & Zacks 2008.
+World supplies `dIdx = {time, space, protagonist, causal, intent}
+∈[0,1]` per event (facts it already emits: speaker/location hops,
+goal switches, cause links). Per character:
+
+```
+boundary_p = (1 − exp(−seg_gain·Σ_i idx_w_i·dIdx_i)) · seg_sens
+idx_w = {time 0.30, space 0.35, protagonist 0.50, causal 0.40, intent 0.45}
+seg_gain ≈ 0.5;  seg_sens trait ∈ [0.7,1.4], default 1.0
+```
+
+A derived or flagged boundary feeds the v1.2 `boundary_gain` E
+term identically. **Locked `seg_hard_null`:** `boundary:true` is
+an input (≡ some `dIdx_i ≥ 0.8`), never an output command — low
+`seg_sens`×low attention may miss a flagged cut; a perceiver may
+mint an unflagged one (P1147). `seg_sens` scales boundary_p only —
+never E directly (Kurby & Zacks' trait → later recall runs through
+the boundary leg).
+
+### 6.274 The Aha mark — insight signature on self-generated solutions (new in v5.56)
+
+EM§111; Danek et al. 2013; Kizilirmak et al. 2016; Ludmer et al.
+2011; mechanism adjudicated by Danek & Wiley 2020 (correctness +
+certainty + pleasure, not restructuring). On `insight:true` events
+that are self-generated: `E += ins_gain` (0.10), mint meta field
+`aha:true`, mint confidence `+ins_conf` (0.05). **Locked
+`ins_told_null`:** told/shown solutions mint neither leg —
+insight is self-generated or nothing (P1148 three-step ordering).
+
+### 6.275 The watching floor — sustained-monitoring gate creep (new in v5.56)
+
+EM§112; Mackworth 1948; Parasuraman 1979; Davies & Parasuraman
+1982; See et al. 1995 (meta k=42, asymptotic decrement). While a
+monitoring Intention (watch/lookout/listen-for) is live:
+
+```
+att_min_eff = att_min·(1 + vigil_rise·(1 − exp(−watch_min/vigil_tau)))
+vigil_rise ≈ 0.6;  vigil_tau ≈ 25 min
+vigil_tau /= (1 + event_rate/evt_rate_norm)     // high-rate streams decay faster
+watch_min resets on detection, role change, or task switch
+```
+
+**Locked `vigil_retro_null`:** the creep taxes the NEXT encode
+only — never rewrites minted records (P1149).
+
+### 6.276 Alcohol myopia — salience-sloped intox field loss (new in v5.56)
+
+EM§113; Steele & Josephs 1990; Giancola 2000. Replaces the flat
+`vivid_detail·(1 − 0.4·intox)` leg:
+
+```
+field_write_p = vivid_detail·(1 − intox·intox_periph_k·(1 − salience))
+intox_periph_k ≈ 0.55;  salience = field's normalized cue weight
+```
+
+Salience-1.0 fields nearly preserved at intox 0.6; salience-0.2
+fields lose ~45%. Composes with `intox_encode_mult` (E0 leg) —
+myopia is field-width. **Locked `myopia_equal_null`** (P1150:
+loss gap across salience must be ≥3×).
+
+### 6.277 Arousal splits item from binding (new in v5.56)
+
+EM§114; Mather 2007; Mather & Nesmith 2008; Touryan et al. 2007.
+At `arousal ≥ ar_bind_arousal_min` (0.6): within-field/same-item
+edge write_p ×(1+`ar_item_gain`) (0.10); field↔context and
+record↔place edge write_p ×(1−`ar_bind_loss`) (0.15). Field width
+untouched — this is the edge dual of `arousal_narrowing`. **Locked
+`bind_flat_null`:** the two legs may not be averaged into one term
+(P1151 crossed-sign probe).
+
+### 6.278 The impression set — goal-driven person organization (new in v5.56)
+
+EM§115; Hamilton, Katz & Leirer 1980; Srull & Wyer 1989; STI
+signature reused (v0.8 `sti_prob`). On `aboutPerson:<id>` events
+while `goal:"impression"` (world tag — first meetings, rival
+sizing, interviews): `link_p` on person-cluster edges
+×(1+`impset_org_gain`) (0.3); items incongruent with the extant
+PersonModel mint within-cluster cross-links at `impset_incong_w`
+(0.5), feeding §48's incongruity leg. **Frozen `mem_goal_null`:**
+`goal:"memorize"` adds nothing past `intent_null` — the deliberate
+goal is the non-organizing one (P1152 asymmetry).
+
+### 6.279 Addressed vs overheard — participation status (new in v5.56)
+
+EM§116; Schober & Clark 1989; Wilkes-Gibbs & Clark 1992;
+Beaudouin & Blohm 2023. On `utterance`/`retell` events not
+addressed to the character: `E ×= (1 − overhear_pen)` (0.2),
+beyond the attention term. `eaves_intent` trait [0,1] halves the
+penalty when a monitoring Intention is live. **Locked
+`overhear_equal_null`** (P1153).
+
+### 6.280 Vividness — locked negative anchor (new in v5.56)
+
+EM§117; Taylor & Thompson 1982; Collins et al. 1988; Frey & Eagly
+1993. `vivid_effect_null = 0`: no E term for vividness per se —
+concreteness (`concrete_gain`), emotionality (`w_emo`),
+memorability (`memorab`), and interest (`value_select`) already
+carry its variance. P1154 asserts absence at |d| ≤ 0.1. Seventh
+negative anchor.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -15929,6 +16061,34 @@ MemoryParams = {
 //   `dejavu:true`; early-record field mix
 //   `sdmCat:"collective"` under high interdep. All
 //   snapshot-additive; absent = legacy.
+// v5.56 additions (encoding-mechanics IX — EM§§110–122)
+// trait (IndivTraits pin)
+"seg_sens": 1.0,                               // §6.273 [0.7–1.4]
+// pop constants
+"seg_gain": 0.5,                               // §6.273
+"idx_w": {"time":0.30,"space":0.35,"protagonist":0.50,
+          "causal":0.40,"intent":0.45},        // §6.273
+"ins_gain": 0.10, "ins_conf": 0.05,            // §6.274
+"vigil_rise": 0.6, "vigil_tau": 25,            // §6.275 (min)
+"intox_periph_k": 0.55,                        // §6.276
+"ar_item_gain": 0.10, "ar_bind_loss": 0.15,
+"ar_bind_arousal_min": 0.6,                    // §6.277
+"impset_org_gain": 0.3, "impset_incong_w": 0.5,// §6.278
+"overhear_pen": 0.2,                           // §6.279
+// trait (IndivTraits pin, [0,1])
+"eaves_intent": 0.3,                           // §6.279
+// v5.56 locked nulls: seg_hard_null (P1147); ins_told_null
+//   (P1148); vigil_retro_null (P1149); myopia_equal_null
+//   (P1150); bind_flat_null (P1151); overhear_equal_null
+//   (P1153); vivid_effect_null (P1154).
+// v5.56 frozen: mem_goal_null (goal:"memorize" adds nothing
+//   past intent_null — P1152).
+// v5.56 fields/state: Event `dIdx` {time,space,protagonist,
+//   causal,intent} ∈[0,1]; Event flags `insight:true`,
+//   `addressed_to_char`; record meta `aha:true`; char state
+//   `watch_min` on monitoring Intentions; Event/char flag
+//   `goal:"impression"`. All snapshot-additive; absent = legacy
+//   (dIdx absent → boundary:true behaves as v1.2 flag).
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -18736,6 +18896,42 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 13 named (19 scalars once knots
     expand) + 2 locked nulls + 2 frozen.
   - Probes P1055–P1064.
+- v5.56 additions (encoding-mechanics IX — EM§§110–122,
+  spec §§6.273–6.280 — the derived boundary and the sloped
+  gates):
+  - **Derived-boundary contract:** world supplies `dIdx`
+    {time, space, protagonist, causal, intent} ∈[0,1] per
+    event; `boundary:true` remains legal and is interpreted
+    as `dIdx_i ≥ 0.8` — it is an INPUT. Characters may mint
+    unflagged boundaries and miss flagged ones at low
+    `seg_sens`×attention (`seg_hard_null`). Absent `dIdx` →
+    v1.2 flag semantics unchanged.
+  - **Self-generation gate:** `insight:true` gains apply only
+    to self-generated solutions — told/shown answers mint
+    nothing (`ins_told_null`); `aha:true` is record meta,
+    render-visible.
+  - **Forward-only taxes:** `att_min_eff` vigilance creep and
+    `overhear_pen` apply at mint only — `vigil_retro_null`
+    (never rewrites records); `watch_min` resets on detection/
+    role change.
+  - **Slope contracts:** `intox_periph_k` field loss must vary
+    with field salience (`myopia_equal_null` — flat-loss
+    builds are spec violations, P1150 discriminates);
+    `ar_item_gain`/`ar_bind_loss` must keep crossed signs
+    (`bind_flat_null` — no merged arousal-loss term, P1151).
+  - **Goal-tag contract:** `goal:"impression"` is a world/
+    scene tag consumed at encode on `aboutPerson` events;
+    `goal:"memorize"` is frozen at zero gain (`mem_goal_null`).
+    `addressed_to_char` defaults true on direct utterances;
+    absent = legacy (no overhear penalty retro-applied).
+  - **Locked boundaries game-systems must honor:**
+    `seg_hard_null`, `ins_told_null`, `vigil_retro_null`,
+    `myopia_equal_null`, `bind_flat_null`, `mem_goal_null`,
+    `overhear_equal_null`, `vivid_effect_null`.
+  - **New params (§7):** 13 scalars + 1 weight-map +
+    2 traits (`seg_sens`, `eaves_intent`) + 7 locked nulls
+    + 1 frozen.
+  - Probes P1146–P1155.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

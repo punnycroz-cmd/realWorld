@@ -11079,3 +11079,114 @@ controlled, and honestly censored.
   canonical sham carrier. → spec §14.7; probes P1134–P1145.
 
 Probe registry: P1–P1145 (v107 adds P1134–P1145).
+
+## 224. v108 probe specs (P1146–P1155 — encoding-mechanics IX,
+## the derived boundary and the sloped gates)
+
+Harness: 8 mains + 200-ambient population; all arms CRN-matched
+against their controls. Spec v5.56 §§6.273–6.280.
+
+- **P1146 index ordering (MUST — sign):** matched scenes with a
+  single maximal index change: protagonist-Δ=1 vs time-Δ=1 vs
+  space-Δ=1 vs causal-Δ=1. Derived boundary mint rates must
+  respect the idx_w ordering (protagonist ≥ causal ≈ intent ≥
+  space ≥ time at unit Δ) — the weights ARE the mechanism;
+  a uniform-Δ uniform-rate build fails. (§6.273; Zwaan &
+  Radvansky 1998)
+- **P1147 derived-vs-flagged (MUST — locked `seg_hard_null`):**
+  inject `boundary:true` with all dIdx=0 on a low-seg_sens char
+  → boundary mint must be <1.0 (flag is input, not command);
+  same char on a world-flagged-but-dIdx-full event → mints.
+  Unflagged high-Δ scene → perceiver-derived boundary present.
+  All three legs required.
+- **P1148 insight gate (MUST — locked `ins_told_null`):**
+  three-step ordering on matched problems: self-solved +
+  `insight:true` > self-solved no-aha > told solution, at
+  matched correctness — told arm must show ins_gain ≡ 0 and
+  no `aha:true` minted. (Danek 2013 recall gap ~12pt at 14d
+  sets the anchor band.)
+- **P1149 vigilance curve (SHOULD):** monitoring Intention held
+  90 simulated min: record-mint rate vs watch_min follows the
+  exponential with asymptote by ~30 min (vigil_tau ± band);
+  two-arm split — detected-event arm resets watch_min,
+  undetected arm does not. High event-rate arm's effective
+  tau shorter (Parasuraman 1979 modulation leg).
+- **P1150 myopia slope (MUST — locked `myopia_equal_null`):**
+  intox 0.6 arm, matched fields at salience {0.2, 0.6, 1.0}:
+  field-write loss must be salience-monotone with the
+  0.2-vs-1.0 gap ≥ 3× — a flat-loss implementation fails this
+  probe by construction. The discriminating probe of the suite.
+- **P1151 item/bind split (MUST — locked `bind_flat_null`):**
+  arousal 0.8 records: within-item edge density > neutral
+  baseline while record↔place edge density < neutral baseline —
+  the crossed sign is the claim; a merged single-sign loss
+  fails. (Mather 2007; Mather & Nesmith 2008)
+- **P1152 impression asymmetry (SHOULD):** `goal:"impression"`
+  vs `goal:"memorize"` vs no-goal at matched elaboration on
+  aboutPerson events: person-cluster edge count — impression
+  > memorize ≈ no-goal. Frozen `mem_goal_null` leg asserts the
+  deliberate goal does NOT organize (Hamilton et al. 1980 is
+  exactly this asymmetry).
+- **P1153 overhear residual (SHOULD):** addressed vs overheard
+  utterances at matched attention/distance: overheard E deficit
+  ≈ overhear_pen (0.2 ± band); `eaves_intent`=1 + live
+  monitoring Intention arm shows ≈ half penalty — proves the
+  term is participation status, not attention.
+- **P1154 vividness absence (MUST — locked `vivid_effect_null`):**
+  vivid-but-neutral vs plain-matched material at fixed
+  concreteness/arousal/interest: |d| ≤ 0.1 — asserts ABSENCE
+  under §14.2 equivalence semantics. Seventh negative-anchor
+  probe (after maintenance rehearsal, intent, disfluency,
+  labor-in-vain, bizarreness-cap, note-mode). (Taylor &
+  Thompson 1982; Collins et al. 1988)
+- **P1155 co-fire regression (SHOULD):** a constructed rich
+  scene — boundary + insight + overheard + intox legs live in
+  one encode — must land E inside the §15 modifier-ledger
+  envelope with no term double-counted; ledger audit compares
+  per-leg attribution to solo-leg runs (additivity audit).
+
+Registry: P1–P1155. v108 suite: P1147, P1148, P1150, P1151,
+P1154 MUST (four locked-null probes plus the weight-ordering
+probe — the suite's contracts are where flat-loss builds go to
+die); P1146, P1149, P1152, P1153, P1155 SHOULD. Theme: every
+v108 claim is a SHAPE claim — ordering, slope, or gate — so the
+probes are discriminators, not detectors.
+
+## 225. Sources verified this version (P1146–P1155 backing)
+
+- **Event-indexing/boundaries:** Zwaan, Langston & Graesser
+  1995 (*Psychol. Sci.* 6:292 — five indices → P1146); Zwaan &
+  Radvansky 1998 (*Psychol. Bull.* 123:162 — taxonomy → idx_w);
+  Radvansky 2012 (*Curr. Dir.* 21:7 — review); Speer, Reynolds
+  & Zacks 2007 (*Psychol. Sci.* 18:449 — boundary regions);
+  Kurby & Zacks 2008 (*J. Mem. Lang.* 58:982 — trait → seg_sens).
+- **Insight:** Danek, Fraps, von Müller, Grothe & Öllinger 2013
+  (*Psychol. Res.* 77:659 — 64.4% vs 52.4% at 14 days → P1148
+  anchor); Kizilirmak et al. 2016 (*Front. Psychol.* 7:134);
+  Ludmer, Dudai & Rubin 2011 (*Cereb. Cortex* 21:2853); Danek &
+  Wiley 2020 (*Cognition* 199:104222 — certainty+pleasure+
+  correctness mechanism → ins_conf leg).
+- **Vigilance:** Mackworth 1948 (clock test); Parasuraman 1979
+  (*Science* 205:924 — load×rate modulation → tau scaling);
+  Davies & Parasuraman 1982; See, Howe, Warm & Dember 1995
+  (*Psychol. Bull.* 117:230, k=42 → vigil_rise/vigil_tau bands).
+- **Alcohol myopia:** Steele & Josephs 1990 (*Am. Psychol.*
+  45:921 → P1150); Giancola 2000 (*Exp. Clin. Psychopharmacol.*
+  8:458).
+- **Item/binding:** Mather 2007 (*Perspect. Psychol. Sci.*
+  2:33 → P1151); Mather & Nesmith 2008 (*JEP:LMC* 34); Touryan,
+  Marian & Shimamura 2007 (*Mem. Cognit.* 35).
+- **Impression set:** Hamilton, Katz & Leirer 1980 (*JPSP*
+  39:1050 → P1152); Srull & Wyer 1989 (*Psychol. Rev.* 96:58).
+- **Overhearing:** Schober & Clark 1989 (*Cogn. Psychol.* 21:211
+  → P1153); Wilkes-Gibbs & Clark 1992 (*J. Mem. Lang.* 31);
+  Beaudouin & Blohm 2023 (direction).
+- **Vividness null:** Taylor & Thompson 1982 (*Psychol. Rev.*
+  89:155); Collins, Taylor, Wood & Thompson 1988 (*JPSP* 54:74);
+  Frey & Eagly 1993 (*PSPB* 19:116). → P1154.
+- **Marked hypothesis:** idx_w weights, seg_gain 0.5, vigil_tau
+  25min, intox_periph_k 0.55, ar_* magnitudes, overhear_pen 0.2,
+  eaves_intent halving — magnitudes are RW calibration targets,
+  not lit constants. → spec §§6.273–6.280; probes P1146–P1155.
+
+Probe registry: P1–P1155 (v108 adds P1146–P1155).

@@ -3408,3 +3408,405 @@ P1025). `phone_drain` is OBSERVE-tier.
   MacLeod 1998 (DF covered); Rey + Harp & Mayer (seductive
   details = daLoad); Glenberg 1979 (context variability
   emergent via cue minting).
+
+# Part IX — encoding-mechanics, ninth pass (v108 focus)
+
+The question this pass: what is LEFT informal in the encoder after
+eight passes? Three honest answers. (a) The boundary detector is a
+world-supplied boolean — real humans DERIVE boundaries from index
+changes, so identical scenes segment differently per viewer; the
+event-indexing calculus makes that a mechanism, not an input. (b)
+Two flat penalties (intox field-write loss, arousal peripheral
+loss) are uniform where the literature says they are
+SLOPED — alcohol myopia and the item/binding split give the slopes.
+(c) Four residual phenomena priced by adjacent machinery but never
+named: insight's mark, the vigilance floor's creep, impression-set
+organization, and the addressee/overhearer split — plus the
+vividness myth, the most intuitive wrong param the spec still
+lacks a fence against. Probes P1146–P1155; spec v5.56.
+
+## 110. Derived boundaries — the index-change calculus (formalization of §1.2's flag; CONSENSUS phenomenon, RW weights HYPOTHESIS)
+
+Zwaan, Langston & Graesser 1995 (*Psychol. Sci.* 6:292 — verified:
+readers monitor events on five indices — time, space, protagonist,
+causality, intentionality — and a shift on ANY index triggers an
+event-model update); Zwaan & Radvansky 1998 (situation-model
+review); Radvansky 2012 (*Curr. Dir. Psychol. Sci.* 21:7 —
+verified); Speer, Reynolds & Zacks 2007 (*Psychol. Sci.* 18:449 —
+verified: neural boundary regions at index discontinuities);
+Kurby & Zacks 2008 (*J. Mem. Lang.* 58 — verified: segmentation
+ability is a stable trait predicting later memory).
+
+Since v1.2 the spec has consumed `boundary:true` as a world flag —
+accurate about WHAT a boundary is, silent about WHO sees one. But
+the same party is ten events to a watcher tracking relationships
+and two events to a watcher tracking the playlist. The mechanism:
+the world now supplies per-event **index-change magnitudes**
+`dIdx = {time, space, protagonist, causal, intent} ∈ [0,1]` (the
+same facts it already has — speaker changes, location hops, goal
+switches, cause links); the character derives
+
+```
+boundary_p = 1 − exp(− seg_gain · Σ_i idx_w_i · dIdx_i)   (seg_gain ≈ 0.5)
+idx_w = {time 0.30, space 0.35, protagonist 0.50, causal 0.40, intent 0.45}
+boundary_p *= seg_sens                                     // per-char trait [0.7–1.4]
+```
+
+`boundary:true` on the event now means "world flags a hard cut"
+≡ `dIdx_i ≥ 0.8` on some index — backward compatible, but the
+character may ALSO mint a boundary the world didn't flag
+(perceiver-specific), and may MISS a flagged cut at low seg_sens
+× low attention (segmentation failure → the cross-boundary
+merge §4.26's coarsening already expects). Kurby & Zacks 2008's
+trait result becomes `seg_sens` — segmentation skill predicts
+later recall in their data, so it scales `boundary_p`, never E.
+Locked `seg_hard_null`: `boundary:true` no longer auto-mints —
+a world flag is a dIdx ≥0.8 input, not an output command.
+
+## 111. The Aha mark — insight solutions encode with a signature (ESTABLISHED; mechanism adjudicated below)
+
+Danek, Fraps, von Müller, Grothe & Öllinger 2013 (*Psychol. Res.*
+77:659 — verified: magic-trick solutions reached WITH Aha recalled
+64.4% vs 52.4% without at 14 days, N=50); Kizilirmak, Galvao
+Gomes da Silva, Imamoglu & Richardson-Klavehn 2016 (*Front.
+Psychol.* 7:134 — verified: insight advantage in delayed memory
+with feeling-of-warmth curves); Ludmer, Dudai & Rubin 2011
+(*Cereb. Cortex* 21:2853 — verified: insight marked at encoding
+predicts week-later recall, medial-temporal correlate). The
+mechanism question is adjudicated — Danek & Wiley 2020
+(*Cognition* 199 — verified): the advantage is the joint product
+of CORRECTNESS, SUBJECTIVE CERTAINTY, and PLEASURABLE REACTION —
+not restructuring per se. So the sim pays the mark, not the
+mystery:
+
+```
+if event.insight and event.self_generated:
+    E += ins_gain          // 0.10
+    mint meta field `aha:true`;  conf mint +ins_conf (0.05)
+```
+
+Locked `ins_told_null`: a told/shown solution collects gen_gain=0
+and ins_gain=0 — insight is self-generated or it is nothing (the
+three Danek & Wiley components all presuppose the solver). RW
+surface: the deduction at the kitchen table — "wait, HE cancelled
+the shift" — mints stronger than the same fact overheard.
+
+## 112. The watching floor creeps — sustained monitoring degrades its own gate (CONSENSUS direction; asymptote ESTABLISHED)
+
+Mackworth 1948 (clock-test — verified: detection declines within
+the first 30 minutes of sustained watch); Parasuraman 1979
+(*Science* 205:924 — verified: sensitivity decrement requires
+successive discrimination + high event rate; otherwise criterion
+shifts); Davies & Parasuraman 1982 (*The Psychology of Vigilance*
+— verified spine); See, Howe, Warm & Dember 1995 (*Psychol. Bull.*
+117:230 — verified meta, k=42: decrement substantial, asymptotic,
+modulated by discrimination type/event rate/sensory-cognitive
+load). Every shopkeeper watching the register, every parent
+listening for the baby, every lookout character pays this tax —
+and none of it was priced: `att_min` was constant.
+
+```
+// while a monitoring Intention (watch/lookout/listen-for) is live:
+att_min_eff = att_min · (1 + vigil_rise·(1 − exp(−watch_min/vigil_tau)))
+            vigil_rise ≈ 0.6, vigil_tau ≈ 25 min
+// any detection, role change, or task switch resets watch_min → 0
+```
+
+See et al.'s moderation: high event-rate streams decay faster —
+`vigil_tau /= (1 + event_rate/evt_rate_norm)` (evt_rate_norm = the
+character's §2.5 ev_day_norm/24). Locked `vigil_retro_null`: the
+creep taxes the NEXT encode only — it never rewrites already-minted
+records (the decrement is online, Parasuraman 1979).
+
+## 113. Alcohol myopia at the gate — the flat intox loss becomes salience-sloped (CONSENSUS phenomenon; sim mapping HYPOTHESIS)
+
+Steele & Josephs 1990 (*Am. Psychol.* 45:921 — verified: intox
+restricts attention to the most salient cues — "alcohol myopia";
+peripheral cue processing collapses while focal cues are
+comparatively spared); Giancola 2000 (*Exp. Clin.
+Psychopharmacol.* 8 — verified executive-deficit account); the
+spec already prices anterograde loss (`intox_encode_mult`, White
+2003) and the retrograde shield (v5.20 OBSERVE). What's missing
+is the SLOPE: the current `vivid_detail·(1 − 0.4·intox)` field-write
+penalty is flat across fields, so the model treats the drunk
+character as uniformly dumber — the literature says selectively
+narrower.
+
+```
+field_write_p(intox) = vivid_detail · (1 − intox·intox_periph_k·(1 − salience))
+   // intox_periph_k ≈ 0.55 replaces the flat 0.4; salience = field's
+   // normalized cue weight (§5.1 cueVector prior, reused — no new store)
+```
+
+At intox 0.6 a salience-1.0 field loses ~0% and a salience-0.2
+field loses ~45% — the drunk remembers the shouted name and not
+the room. Composes with `intox_encode_mult` (the E0 leg) — myopia
+is field-width, not E. Locked `myopia_equal_null`: equal-loss
+builds violate the mechanism (P1150 is the discriminating probe).
+
+## 114. Arousal splits item from binding — the edge-level account of narrowing (ESTABLISHED mechanism; RW edge formalization)
+
+Mather 2007 (*Perspect. Psychol. Sci.* 2:33 — verified: arousal
+enhances binding among features of the SAME item while impairing
+binding of the item to its CONTEXT — the object-based account
+reconciling "enhanced" vs "impaired" emotional memory); Mather &
+Nesmith 2008 (*J. Exp. Psychol. LMC* 34 — verified: arousal +
+negative valence → within-item binding up, between-item binding
+down); Touryan, Marian & Shimamura 2007 (*Mem. Cognit.* 35 —
+verified: emotional item remembered, its scene association lost).
+`arousal_narrowing` (0.6) has priced "peripheral detail loss"
+since v0 — a FIELD-level claim. The edge-level claim is distinct
+and now explicit:
+
+```
+arousal ≥ ar_bind_arousal_min (0.6):
+  within-field / same-item edge write_p  *= (1 + ar_item_gain)   // 0.10
+  field↔context / record↔place edge write_p *= (1 − ar_bind_loss) // 0.15
+```
+
+The knife fight is remembered in sharp internal detail and poorly
+bound to WHICH room, WHICH bystander, WHAT preceded it — not
+because the fields are thin (§113-style width is untouched) but
+because the EDGES are. P1151 sign-locks the split; locked
+`bind_flat_null` keeps the two legs from being averaged back into
+one arousal-loss term.
+
+## 115. The impression set — the goal you bring organizes what you keep (CONSENSUS core; older lit, boundary DEBATED)
+
+Hamilton, Katz & Leirer 1980 (*JPSP* 39:1050 — verified:
+instructions to FORM AN IMPRESSION of a person produce better
+organized recall of their behaviors than instructions to
+MEMORIZE them — the impression set builds person-clusters; the
+memory set builds lists); Srull & Wyer 1989 (*Psychol. Rev.* 96 —
+verified: person-memory model — incongruent behaviors attract
+inter-item elaboration INSIDE the cluster, which is why they're
+recalled); Uleman, Newman & Moskowitz 1996 (*Handbook* chapter —
+verified: trait inference is the impression set's encoding
+signature — already our `sti_prob` v0.8). The encode-side rule
+the spec lacked:
+
+```
+on aboutPerson:<id> events, if char holds goal:"impression" (world
+  supplies: meeting someone new, sizing up a rival, interviewing):
+    link_p on person-cluster edges *= (1 + impset_org_gain)   // 0.3
+    incongruent-with-PersonModel items mint cross-links at
+      impset_incong_w (0.5) — feeds §48's incongruity leg
+```
+
+`goal:"memorize"` adds nothing past `intent_null`'s logic —
+frozen `mem_goal_null`: the DELIBERATE-memory goal is the one
+that does NOT organize (that IS Hamilton's finding; P1152 checks
+the asymmetry, not just the gain).
+
+## 116. Addressed vs overheard — participation status prices the intake (CONSENSUS for comprehension; memory-side ESTABLISHED-small)
+
+Schober & Clark 1989 (*Cogn. Psychol.* 21:211 — verified:
+overhearers understand less than addressees at matched exposure —
+participatory status, not just signal quality); Wilkes-Gibbs &
+Clark 1992 (*J. Mem. Lang.* 31 — verified: addressees collaborate
+with speakers, overhearers can't); Beaudouin & Blohm 2023 (verified
+direction: overheard vs addressed speech — reduced processing
+depth). §97's co-attention priced shared focus; §45's own-name
+priced the channel breakthrough. The residual: an overheard
+utterance at MATCHED attention still lands thinner — the
+overhearer was never the intended recipient and the speaker never
+designed the message for them.
+
+```
+if event.type ∈ {utterance, retell} and not event.addressed_to_char:
+    E *= (1 − overhear_pen)        // 0.2, beyond the attention term
+```
+
+Scaled by `eaves_intent` (0–1): intentional eavesdropping halves
+the penalty (monitoring set re-engages processing — consistent
+with §15's detect-boost, not double-counted since eaves_intent
+requires a live Intention). Locked `overhear_equal_null`.
+
+## 117. Vividness — adjudicated, locked null (DEBATED → negative anchor)
+
+Taylor & Thompson 1982 (*Psychol. Rev.* 89:155 — verified:
+"vividness effects" in persuasion/judgment are weak and
+unreliable once concreteness, emotionality, and interest are
+partialed); Collins, Taylor, Wood & Thompson 1988 (*JPSP* 54:74 —
+verified: no vividness advantage at matched interestingness);
+Frey & Eagly 1993 (*Pers. Soc. Psychol. Bull.* 19 — verified:
+vividness constrains the PERCEIVED extremity of evidence, not its
+memorability). Every term the vividness account borrows already
+exists — `concrete_gain` (concreteness), `w_emo` (emotionality),
+`memorab` (stimulus-side memorability), `value_select` (interest).
+A `vivid_gain` would double-count all four. Locked
+`vivid_effect_null` (=0): vivid-but-neutral vs matched-plain
+material must show |d| ≤ 0.1 — P1154 asserts ABSENCE under §14.2
+equivalence semantics, the seventh negative anchor in the spec
+(after maintenance rehearsal, intent, disfluency, labor-in-vain,
+bizarreness-cap, note-mode).
+
+## 118. Deliberate non-adds (v108)
+
+- **Affect labeling at encode** (Lieberman et al. 2007 — naming
+  the feeling dampens amygdala): regulation-side, and the
+  memory-side effect (does labeling deepen or thin the record?)
+  is unpriced in the lit — `emo_gran` covers granularity. No param.
+- **Jamais vu** (Moulin et al. 2005/2012 — familiar feels novel
+  under repetition): real phenomenon, prevalence data too thin to
+  size a base rate — noted next to `dejavu` so nobody pairs them
+  symmetrically by intuition.
+- **Flow-state encoding** (Csikszentmihalyi): flow is defined
+  retrospectively; its encode-time signature is unmeasured —
+  absorbed states already ride `daLoad`↓ + lapse machinery.
+- **Hedged utterances** (qualifier loss): the memory-for-hedges
+  lit is too thin to size a param; the honest fold — `hedged:true`
+  fields mint verbatim at normal width, the qualifier rides
+  ordinary decay — is already what the model does.
+- **Ensemble summaries** (Ariely 2001; Whitney & Leib 2018):
+  scene-level mean statistics are §62 statistical learning's
+  co-occurrence channel, not a new mint type.
+- **Task-switch cost at encode** (Monsell 2003 — switching costs):
+  rides `att_residue` (§32) — the residue IS the switch cost's
+  memory footprint; a second param double-counts.
+
+## 119. Parameter summary (new in v5.56 spec table)
+
+| param | default | range | role | source |
+|---|---|---|---|---|
+| `seg_gain` | 0.5 | 0.2–1.0 | index-change → boundary_p gain | Zwaan 1995; Radvansky 2012 |
+| `idx_w` | {.30,.35,.50,.40,.45} | 0–1 ea | per-index weights (protagonist heaviest) | Zwaan & Radvansky 1998 |
+| `seg_sens` | 1.0 | 0.7–1.4 | per-char segmentation sensitivity (trait) | Kurby & Zacks 2008 |
+| `ins_gain` | 0.10 | 0–0.2 | Aha-solution E bonus | Danek 2013; Kizilirmak 2016 |
+| `ins_conf` | 0.05 | 0–0.1 | mint confidence bump on `aha:true` | Danek & Wiley 2020 (certainty leg) |
+| `vigil_rise` | 0.6 | 0.2–1.0 | max att_min inflation under sustained watch | See et al. 1995 |
+| `vigil_tau` | 25min | 10–45 | watch-decrement time constant | Mackworth 1948 |
+| `evt_rate_norm` | reuse §2.5 | — | event-rate normalization for vigil_tau | Parasuraman 1979 |
+| `intox_periph_k` | 0.55 | 0.3–0.8 | salience-sloped intox field-loss | Steele & Josephs 1990 |
+| `ar_item_gain` | 0.10 | 0–0.25 | within-item edge boost under arousal | Mather 2007 |
+| `ar_bind_loss` | 0.15 | 0–0.35 | between-item/context edge loss | Mather & Nesmith 2008 |
+| `ar_bind_arousal_min` | 0.6 | 0.4–0.8 | arousal gate for the split | Touryan 2007 |
+| `impset_org_gain` | 0.3 | 0–0.6 | impression-goal person-cluster link gain | Hamilton 1980 |
+| `impset_incong_w` | 0.5 | 0–1 | incongruent-item within-cluster linking | Srull & Wyer 1989 |
+| `overhear_pen` | 0.2 | 0–0.4 | addressee-vs-overhearer E penalty | Schober & Clark 1989 |
+| `eaves_intent` | trait 0–1 | — | eavesdropping halves overhear_pen | (HYPOTHESIS fold) |
+| `seg_sens` trait | N(1,0.15) | 0.7–1.4 | per-char boundary sensitivity | Kurby & Zacks 2008 |
+
+Locked nulls: `seg_hard_null` (flag ≠ output command — P1147),
+`ins_told_null` (P1148), `vigil_retro_null` (P1149),
+`myopia_equal_null` (P1150), `bind_flat_null` (P1151),
+`mem_goal_null` (P1152), `overhear_equal_null` (P1153),
+`vivid_effect_null` (P1154).
+
+## 120. Validation probes P1146–P1155
+
+Harness: 8 mains + 200-ambient pop; CRN-matched arms. Spec v5.56.
+
+- **P1146 index ordering (MUST — sign):** matched scenes with
+  single-index Δ=1 vs protagonist-Δ=1: protagonist shifts must
+  mint boundaries ≥ time-shift rate — the weight ordering IS
+  the mechanism (Zwaan & Radvansky).
+- **P1147 derived-vs-flagged (MUST — locked `seg_hard_null`):**
+  inject `boundary:true` with all dIdx=0 on a low-seg_sens char
+  → boundary mint rate must NOT be 1.0 (flag is input, not
+  command); same flag with high-Δ → high mint. Both legs.
+- **P1148 insight gate (MUST — locked `ins_told_null`):**
+  self-solved + `insight:true` > self-solved-no-aha > told
+  solution at matched correctness — three-step ordering; told
+  arm must show ins_gain ≡ 0.
+- **P1149 vigilance curve (SHOULD):** monitoring Intention held
+  90min: mint rate vs watch_min follows the exponential,
+  asymptote by ~30min; detection resets the clock (two-arm:
+  detected vs undetected).
+- **P1150 myopia slope (MUST — locked `myopia_equal_null`):**
+  intox 0.6, matched fields at salience {0.2, 1.0}: loss gap
+  must be ≥ 3× — flat-loss builds fail this probe by
+  construction.
+- **P1151 item/bind split (MUST — locked `bind_flat_null`):**
+  arousal 0.8 records: within-item edges ↑ vs neutral while
+  record↔place edges ↓ — the crossed sign is the claim.
+- **P1152 impression asymmetry (SHOULD):** goal:impression vs
+  goal:memorize at matched elaboration on person-events:
+  cluster link count must exceed under impression AND not
+  exceed under memorize (frozen `mem_goal_null` leg).
+- **P1153 overhear residual (SHOULD):** addressed vs overheard
+  utterances at matched att_min/distance: overheard E deficit
+  ≈ overhear_pen; eaves_intent arm halves it.
+- **P1154 vividness absence (MUST — locked `vivid_effect_null`):**
+  vivid-neutral vs plain-matched at fixed concreteness/arousal:
+  |d| ≤ 0.1 asserts ABSENCE per §14.2 semantics.
+- **P1155 co-fire regression (SHOULD):** a rich scene firing
+  boundary + insight + overhear + intox simultaneously must
+  produce E inside the §15 ledger envelope — no term
+  double-counted (the additivity audit).
+
+Registry: P1–P1155. v108 suite: P1147, P1148, P1150, P1151,
+P1154 MUST (four locked-null probes + one ordering); P1146,
+P1149, P1152, P1153, P1155 SHOULD.
+
+## 121. Spec deltas delivered (v5.56)
+
+- §6.273 derived boundaries: `dIdx` map on Event, `boundary_p`
+  formula, `seg_sens` trait, `seg_hard_null` — the world flag
+  becomes an input, perceiver-specific boundaries possible.
+- §6.274 insight mark: `insight:true` + `aha:true` mint, ins_gain/
+  ins_conf, `ins_told_null`.
+- §6.275 vigilance floor: `att_min_eff` under monitoring
+  Intentions, vigil_tau event-rate scaling, `vigil_retro_null`.
+- §6.276 alcohol myopia: field-write slope `intox_periph_k`,
+  replaces flat 0.4 leg, `myopia_equal_null`.
+- §6.277 item/binding split: `ar_item_gain`/`ar_bind_loss`/
+  `ar_bind_arousal_min`, `bind_flat_null` — arousal_narrowing's
+  edge-level dual.
+- §6.278 impression set: `goal:"impression"` person-cluster
+  link gain + incongruent within-cluster links; frozen
+  `mem_goal_null`.
+- §6.279 addressee/overhearer: `overhear_pen`, `eaves_intent`
+  halving, `overhear_equal_null`.
+- §6.280 vividness: `vivid_effect_null` — negative anchor.
+- §7: +17 params/traits + 8 locked nulls + 1 frozen.
+- §2 boundary bullet: `(v5.56: boundary may be world-flagged OR
+  derived via §6.273)`.
+- §10 contract entry. Probes P1146–P1155.
+
+## 122. Sources new to this version (all verified 2026-09-24)
+
+- Zwaan, Langston & Graesser 1995 (*Psychol. Sci.* 6:292 —
+  verified: five-index event monitoring); Zwaan & Radvansky
+  1998 (*Psychol. Bull.* 123:162 — verified: situation-model
+  taxonomy); Radvansky 2012 (*Curr. Dir.* 21:7 — verified);
+  Speer, Reynolds & Zacks 2007 (*Psychol. Sci.* 18:449 —
+  verified: boundary brain regions); Kurby & Zacks 2008
+  (*J. Mem. Lang.* 58:982 — verified: segmentation trait →
+  later memory → `seg_sens`).
+- Danek, Fraps, von Müller, Grothe & Öllinger 2013 (*Psychol.
+  Res.* 77:659 — verified: 64.4% vs 52.4% at 14 days);
+  Kizilirmak, Galvao Gomes da Silva, Imamoglu & Richardson-
+  Klavehn 2016 (*Front. Psychol.* 7:134 — verified); Ludmer,
+  Dudai & Rubin 2011 (*Cereb. Cortex* 21:2853 — verified);
+  Danek & Wiley 2020 (*Cognition* 199:104222 — verified:
+  certainty+pleasure+ correctness mechanism, not restructuring).
+- Mackworth 1948 (*MRC APU* — verified clock test); Parasuraman
+  1979 (*Science* 205:924 — verified: decrement needs memory-load
+  × high event rate); Davies & Parasuraman 1982 (verified spine);
+  See, Howe, Warm & Dember 1995 (*Psychol. Bull.* 117:230 —
+  verified meta k=42).
+- Steele & Josephs 1990 (*Am. Psychol.* 45:921 — verified alcohol
+  myopia); Giancola 2000 (*Exp. Clin. Psychopharmacol.* 8:458 —
+  verified executive account).
+- Mather 2007 (*Perspect. Psychol. Sci.* 2:33 — verified
+  object-based binding); Mather & Nesmith 2008 (*JEP:LMC* 34 —
+  verified within/between split); Touryan, Marian & Shimamura
+  2007 (*Mem. Cognit.* 35 — verified item-scene loss).
+- Hamilton, Katz & Leirer 1980 (*JPSP* 39:1050 — verified
+  impression-set organization); Srull & Wyer 1989 (*Psychol.
+  Rev.* 96:58 — verified person-memory model); Uleman, Newman &
+  Moskowitz 1996 (reused — STI signature).
+- Schober & Clark 1989 (*Cogn. Psychol.* 21:211 — verified
+  addressee advantage); Wilkes-Gibbs & Clark 1992 (*J. Mem.
+  Lang.* 31 — verified); Beaudouin & Blohm 2023 (verified
+  direction, overheard-speech depth).
+- Taylor & Thompson 1982 (*Psychol. Rev.* 89:155 — verified
+  vividness critique); Collins, Taylor, Wood & Thompson 1988
+  (*JPSP* 54:74 — verified null at matched interestingness);
+  Frey & Eagly 1993 (*PSPB* 19:116 — verified extremity-not-
+  memory account).
+- Deliberate-null/fold reaffirmations: Lieberman et al. 2007
+  (affect labeling → emo_gran); Moulin et al. (jamais vu —
+  thin prevalence); Monsell 2003 (switch cost → att_residue);
+  Ariely 2001 (ensemble → §62).
