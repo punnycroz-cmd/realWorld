@@ -55,6 +55,18 @@ else
   ok "brand audit: $BRLINE"
 fi
 
+# ── 1d. UI-voice check (quoted product strings stay verbatim + in register) ──
+echo "[1d] ui-voice check"
+UV=$(./tools/ui_voice_check.py 2>&1)
+echo "$UV" | grep -E '^\s*FAIL' || true
+UVLINE=$(echo "$UV" | tail -1)
+echo "       $UVLINE"
+if echo "$UVLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "ui-voice check has failures (above)"
+else
+  ok "ui-voice check: $UVLINE"
+fi
+
 # ── 2. Secret scan — nothing key-shaped may ship in the static site ──
 echo "[2] secret scan (site/ + deploy/)"
 SECRETS=0

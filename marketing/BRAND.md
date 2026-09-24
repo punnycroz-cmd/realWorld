@@ -1,6 +1,10 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v175 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v190 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+v190 adds §22, the product-voice layer: the register the product's own
+surfaces speak in (statuses verbatim, facts-not-scores, decline is an
+ending) lives in `marketing/UI-VOICE.md`; `tools/ui_voice_check.py` is
+the mechanical gate and runs as preflight step 1d.
 v175 adds §21, the program-masthead layer: named formats (Class A surfaces
 and Class B programs) get sanctioned SVG mastheads — type + cornice rule +
 one lit window — so a program can never accidentally grow its own logo.
@@ -782,3 +786,39 @@ format, kept as an SVG master in `site/assets/` and mirrored into
 
 `tools/brand_audit.py` check 1 enforces that every masthead named in
 `brand-tokens.json` exists and that the press-kit mirrors are byte-identical.
+
+---
+
+## 22. Product voice — the register the product speaks in
+
+The brand doesn't stop at the browser chrome. The product's own strings —
+status chips, feed lines, card titles, toasts, empty states — speak in the
+same register, codified in `marketing/UI-VOICE.md`. Summary of the rules
+(the file is canonical):
+
+- **Statuses are verbatim and lowercase** — the `feed_vocabulary` strings
+  from `world/requests.json` (`requested`, `in_review`, `approved`,
+  `approved (modified)`, `running`, `queued`, `booked`, `resolved`,
+  `resolved · declined`, `refunded`, `not approved`, `denied`,
+  `admin action`, `player session ended`) are never title-cased,
+  paraphrased, or softened — in the product or in our quotes of it.
+- **Facts, not scores.** Endings report events; nothing grades the player
+  or the block. A declined nudge mints no artifact and reads as an ending,
+  not an error.
+- **Honesty lines print on the card**, never in tooltips or fine print.
+- **Decline carries no apology** — no "sorry", "unfortunately", no retry
+  pressure; "Your request: not approved." is the whole sentence.
+- **The audience is never a character** — in-world strings never address
+  viewers inside the fiction; attribution is filer handle + "posted at a
+  viewer's request".
+- **Empty states say what's true**; lapse is honest decay, not failure.
+
+Ownership: the world track owns shipped strings; this brand owns the
+register. When they disagree on a word, the shipped string wins and
+UI-VOICE.md updates in the same commit.
+
+Enforcement: `tools/ui_voice_check.py` lints `site/*.html`,
+`site/js/demo-sim.js`, `templates/`, and `social/drafts/` — every
+`·`-joined status sequence must use canonical tokens, no apology/hype word
+or `!` may share a line with a status, and `STATUS_CLS` keys must stay
+inside the canonical set. It runs as `tools/preflight.sh` step 1d.
