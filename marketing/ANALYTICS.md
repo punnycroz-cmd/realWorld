@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v141 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v156 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -348,6 +348,42 @@ python3 marketing/tools/analytics_history.py captures/*.ndjson
 python3 marketing/tools/analytics_history.py w38.ndjson w39.ndjson --json
 ```
 
+### Launch-day live monitor (v156)
+
+`tools/analytics_live.py` — the one tool in the stack that isn't batch.
+Everything else grades a finished capture; this tails the NDJSON file the
+sink is appending to and reprints a console block every `--interval`
+seconds (default 5): rolling-window rates (events/min, sessions, top
+events/referrers/utm), the session-joined funnel so far, a 404 radar, an
+optional pace line (`--target-sessions N` projects sessions/week vs the
+goal), and WARN lines the moment something drifts — event names the spec
+doesn't know, 404 share over `--notfound-pct` (default 2%), a funnel stall
+(≥ `--stall-sessions` sessions in the window with zero `watch_start`), and
+non-JSON lines, which are counted but never crash the reader. Rotation is
+handled: if the file shrinks, state resets and the window refills.
+
+```bash
+# day-0 war room — leave running next to the deploy terminal
+python3 tools/analytics_live.py /var/log/rw-events.ndjson --target-sessions 5000
+
+# cron-friendly snapshot — exits 1 if any WARN is firing
+python3 tools/analytics_live.py capture.ndjson --once --strict
+python3 tools/analytics_live.py capture.ndjson --json | jq .alerts
+```
+
+Rehearse it before launch with a fresh-timestamp fixture —
+`make_analytics_fixture.py --minutes 30` compresses the synthetic week into
+the last half hour (sorted output, ending at now) so the window panels and
+alerts have something real to read:
+
+```bash
+python3 tools/make_analytics_fixture.py --sessions 60 --minutes 30 > /tmp/live.ndjson
+python3 tools/analytics_live.py /tmp/live.ndjson --once
+```
+
+`analytics_e2e.sh` runs `--once --strict` on exactly that fixture — a WARN
+on clean synthetic data fails the pipeline, same as a validation FAIL.
+
 ### Experiment program (v96)
 
 A/B readouts are run through `tools/ab_compare.py`; which tests exist and
@@ -502,6 +538,12 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       writing — they are hypotheses, not contracts (v126)
 - [ ] Every A/B test registered in EXPERIMENTS.md before its tagged links
       go out; decision rules there are fixed, not per-test (v96)
+- [ ] Day-0: `tools/analytics_live.py` running against the production
+      capture for the whole launch window — the funnel-stall and 404-spike
+      WARNs are the earliest signal that the embed or a link broke (v156)
+- [ ] Day-0: pick `--target-sessions` for the pace line from the launch
+      projection in community/funnel-scorecard.md before the rush starts —
+      targets are still hypotheses, never edited mid-day to look good (v156)
 
 ## 10. Hard rules
 

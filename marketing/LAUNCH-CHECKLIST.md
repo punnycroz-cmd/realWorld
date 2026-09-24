@@ -95,7 +95,7 @@ every row in this table (the §3 counterpart to runofshow.sh) — read-only.
 | D0.7 | Send press kit link to owner-approved press list (angle templates in PRESS-OUTREACH.md) | ~30 min | `[~] DRAFTED` — 3 pitch angles ready |
 | D0.8 | Community posts where welcome (owner-approved subs/Discords only) | ~30 min | `[~] DRAFTED` — seeded-questions.md |
 | D0.8b | Open the house: run COMMUNITY-FUNNEL.md §3 — Discord live, `#the-feed` mirror started (manual curation per `community/feed-mirror.md` §1–§3), welcome post, rules pinned (verbatim from `rules.html` per MODERATION-PLAN.md §3.2), `#mod-log` private channel created, canned responses (`templates/mod-responses.md`) posted to mod channel; swap `community.html` "opens at launch" → invite link | ~45 min | `[ ] PENDING` — gated on G11 + G13 |
-| D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`) + onboarding hooks (`persona_chosen` split, `handle_taken_shown`, `decline_lesson_shown` — G16), request-feed health, review-queue depth | continuous | `[ ] PENDING` |
+| D0.9 | Monitor: uptime, analytics funnel (`visit→watch_start→request_submitted→character_created`) + onboarding hooks (`persona_chosen` split, `handle_taken_shown`, `decline_lesson_shown` — G16), request-feed health, review-queue depth. War-room view: `tools/analytics_live.py <capture.ndjson> --target-sessions <N>` tails the live capture — funnel-stall / 404-spike / spec-drift WARNs are the earliest break signal (ANALYTICS.md §5, v156) | continuous | `[ ] PENDING` |
 | D0.10 | Same-day retro note → MARKETINGLOG.md + shared inbox | ~15 min | `[ ] PENDING` |
 
 **Abort points (built in):** D0.5–D0.8 are spaced ≥20 min apart precisely so
@@ -313,6 +313,7 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | compare.html page added (v106) + gallery gains v54 facade set | 20th page wired into footers/sitemap/dry-run/prod-smoke/SEO-PLAN(§3,§13)/llms.txt + index cross-link; v54 A–D copied in + webp regen (ffmpeg), ImageGallery schema updated; seo_audit 95/40/0, staging_dryrun 40/2/0 |
 | 2026-09-23 | tools/accuracy_sweep.py (v113, first run) | caught 4 REAL-name FAILs: 750/744 Guerrero on cast.html ×2 + demo.html ×1 (→ parody 9457/9418 Guerrero St, canonical per world/businesses.md) + 1 false positive tuned (Teeth idiom → ambiguous tier); final 5 pass / 32 warn / 0 fail |
 | 2026-09-23 | NEW gate G18 (v113) | accuracy sweep wired into gonogo (AUTO) + preflight step 5c + command card + §6/§7-area counts; audit bumped G1..G18 throughout |
+| 2026-09-24 | tools/analytics_live.py (v156, first run) | PASS — `--once --strict` on a `--minutes 30` fixture: clean fixture exits 0 with funnel+window+pace blocks; doctored capture (unknown event + 3×404 + non-JSON line) fires spec-drift/404-spike/malformed WARNs and exits 1; wired into analytics_e2e.sh step 5 |
 | 2026-09-23 | checklist_audit.py world-contract refresh (v113) | caught live drift twice mid-version: playtest PT1–PT66→PT70→PT71→PT72 (world-v72→v76 harness — world track shipped four harness versions during this one); all pins + gonogo labels resynced; final 14 pass / 0 warn / 0 fail |
 | 2026-09-23 | gallery refresh v56→v59 (v113) + brand lint fix | v58 copied first, v59 published mid-version — rebased straight to it (cmp-verified, webp regen); gallery Latest section rewritten for the wet-afternoon pass (stringcourses, ponding, festoons); og:image + JSON-LD + sitemap image entries bumped; dist zip rebuilt (55 files); compare.html 'Smart Zoi' cell rephrased to satisfy lexicon NPC ban; brand_audit 0/0 |
 | 2026-09-23 | tools/bootstrap_host.sh (v119, first run) | plan mode prints contract + writes nothing; `--emit` produced a syntactically valid provision script (bash -n clean); `--check-local` correctly FAILed a fake host missing maintenance.html and PASSed once staged — the host-prep step + DR rebuild path are now code, not folklore |
@@ -368,7 +369,7 @@ it before citing the gate.
 | D0.5–D0.8 posts | `social/drafts/` — launch-thread, timeline, pitches, seeds | drafted, not sent |
 | D0.8b community | `COMMUNITY-FUNNEL.md` §3 + `community/feed-mirror.md` + `rules.html` + `templates/mod-responses.md` | spec complete |
 | §3 day-0 console | `tools/launch_day.sh` — per-row live status for D0.1–D0.10, incl. optional live prod_smoke/uptime rows when RW_DOMAIN is set | first run 2026-09-23 (v98): 4 done / 7 pending — all pendings owner/live-domain rows |
-| D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard | probe HEALTHY 2026-09-23 |
+| D0.9 monitoring | `tools/uptime_probe.sh` + `deploy/monitoring.example` + ANALYTICS dashboard + `tools/analytics_live.py` (live tail, WARN alerts — rehearsed on `--minutes 30` fixture 2026-09-24 v156) | probe HEALTHY 2026-09-23 |
 | §5 rollbacks | `deploy/maintenance.html` + Caddyfile block + incident-comms drafts + `tools/rehearse_host.sh` rollback flip + `tools/incident_drill.sh` (bad deploy detected, rollback restores green) | rollback flip exercised 2026-09-23 (v59); full incident loop 2026-09-23 (v89) |
 
 ## §12 Never-do list (load-bearing)

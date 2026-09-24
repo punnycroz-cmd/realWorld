@@ -26,7 +26,7 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer",
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|demo-labels|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer",
         "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms",
         "href": "raw href (same-site)",
         "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)",

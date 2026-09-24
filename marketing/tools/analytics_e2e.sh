@@ -92,6 +92,12 @@ python3 tools/analytics_history.py "$WORK/prev.ndjson" "$WORK/captured.ndjson" \
 grep -q "trends" "$WORK/history.md" \
   || { echo "[e2e] FAIL: history output missing trends block"; exit 1; }
 echo "[e2e] analytics_history -> $WORK/history.md"
+python3 tools/make_analytics_fixture.py --sessions 60 --minutes 30 > "$WORK/live.ndjson"
+python3 tools/analytics_live.py "$WORK/live.ndjson" --once --strict > "$WORK/live.txt" \
+  || { echo "[e2e] FAIL: analytics_live --strict fired on clean fixture"; exit 1; }
+grep -q "funnel" "$WORK/live.txt" \
+  || { echo "[e2e] FAIL: live monitor produced no funnel block"; exit 1; }
+echo "[e2e] analytics_live -> $WORK/live.txt"
 echo "[e2e] report head:"; head -8 "$WORK/report.md"
 
 echo "[e2e] 6/6 serving site on :$SITE_PORT (endpoint via ?rw_endpoint=)"
