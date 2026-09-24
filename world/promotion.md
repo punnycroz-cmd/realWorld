@@ -64,13 +64,28 @@ to the world ledger (still never player-facing), and the pawn keeps its
 name. Reverted characters keep the "was once more" quality — that's a
 feature, not data loss.
 
-## 5. First promotion candidates (ranked, non-binding)
+## 5. First promotion class — EXECUTED (world v126)
 
-1. **A14 Bex** — the art-underground link; promotion activates the
-   chalkboard/Clarion discovery path.
-2. **A05 Esther** — Carmen's peer; the lonelier retirement timeline and
-   the misremembered-history engine.
-3. **A09 Asha** — Priya's cohort; the ward's-eye view of the same
-   hospital.
+The top three candidates were promoted at v126, per the production-3
+direction ("two to four recurring supporting residents"). Their full
+bibles live in `world/characters/supporting/`; addresses minted per §2
+step 2 and registered in `jobs-housing.md` §3; routines kept per §2
+step 4 (same schedules, richer inner lives — the block notices nothing).
+
+| S id | Ambient | Bible | Minted address |
+|------|---------|-------|----------------|
+| S1 | A14 Bex | `characters/supporting/s1-bex-lindqvist.md` | 9641 Shotwell St, Unit B |
+| S2 | A05 Esther | `characters/supporting/s2-esther-goldman.md` | 9388 Dolores St, Unit 1 |
+| S3 | A09 Asha | `characters/supporting/s3-asha-nair.md` | 9519 South Van Ness Ave, Unit 4 |
+
+Ambient ids A05/A09/A14 stay frozen (§3). The remaining candidate:
+
 4. **A06 Kofe** — the gig-economy storyline with a built-in Marcus/Omar
-   triangle.
+   triangle. Next candidate if the supporting tier grows to four.
+
+## 6. Original candidate ranking (superseded by §5)
+
+Archived rationale, kept for the record: Bex = the art-underground
+link (chalkboard/Clarion discovery path); Esther = Carmen's peer and
+the misremembered-history engine; Asha = Priya's cohort, the ward's-eye
+view; Kofe = the gig-economy triangle.

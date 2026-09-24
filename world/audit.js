@@ -1857,7 +1857,86 @@ const PUB = Object.values(PT.surfaces)
       if (/SECRETS & SEEDS|detonating|money bomb|\$\d/i.test(em))
         add(g, 'fail', ens, null, 'ensemble.md carries seed vocabulary — it is observable-safe only');
     }
-    g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains · ${SECTIONS.length} required sections`;
+    /* v126 — supporting residents: promoted ambients with full bibles.
+       Same section order; interior keys ⊆ declared `knows`; promoted_from
+       must round-trip against ambients.json; minted address must appear in
+       jobs-housing.md §3. */
+    const sup = CJ.supporting || [];
+    const S_IDS = sup.map(s => s.id).sort();
+    if (S_IDS.join(',') !== 'S1,S2,S3')
+      add(g, 'fail', 'characters.json', null, `supporting ids ${S_IDS.join(',')} != S1,S2,S3`);
+    let amb = {};
+    try { for (const a of JSONF('ambients.json').ambients || []) amb[a.id] = a; }
+    catch (e) { add(g, 'fail', 'ambients.json', null, 'parse failure: ' + e.message); }
+    const jh = rd('jobs-housing.md');
+    const ALLIDS = IDS.concat(S_IDS).concat(Object.keys(amb));
+    for (const s of sup) {
+      const sid = s.id;
+      for (const k of CJ.conventions.roleplay_fields)
+        if (s[k] === undefined) add(g, 'fail', 'characters.json', null, `${sid}: roleplay field "${k}" missing`);
+      for (const k of CJ.conventions.briefing_safe_fields)
+        if (!(s.briefing_safe || {})[k]) add(g, 'fail', 'characters.json', null, `${sid}: briefing_safe.${k} missing`);
+      if (s.seed_lock !== true) add(g, 'fail', 'characters.json', null, `${sid}: seed_lock not true`);
+      if (s.tier !== 'supporting resident') add(g, 'fail', 'characters.json', null, `${sid}: tier != "supporting resident"`);
+      const pf = s.promoted_from, kn = s.knows || [];
+      if (!pf || !/^A\d{2}$/.test(pf)) add(g, 'fail', 'characters.json', null, `${sid}: promoted_from "${pf}" not an A-id`);
+      else if ((amb[pf] || {}).promoted_to !== sid)
+        add(g, 'fail', 'characters.json', null, `${sid}: ambients.json ${pf}.promoted_to = ${(amb[pf] || {}).promoted_to} (expected ${sid})`);
+      if (!Array.isArray(kn) || kn.length < 3)
+        add(g, 'fail', 'characters.json', null, `${sid}: knows needs ≥3 ids`);
+      for (const k of kn)
+        if (!ALLIDS.includes(k) || k === sid)
+          add(g, 'fail', 'characters.json', null, `${sid}: knows id "${k}" invalid or self`);
+      const iKeys = Object.keys(s.interior || {});
+      for (const k of iKeys)
+        if (!kn.includes(k)) add(g, 'fail', 'characters.json', null, `${sid}: interior key "${k}" not in knows`);
+      if (iKeys.length < 3) add(g, 'fail', 'characters.json', null, `${sid}: interior has ${iKeys.length} entries (<3)`);
+      const sw = s.wants || {};
+      for (const k of ['week', 'season', 'long'])
+        if (!sw[k]) add(g, 'fail', 'characters.json', null, `${sid}: wants.${k} missing`);
+      /* bible file: same 27-section order, secrets last, ≥5 beats, home cited */
+      if (!s.bible || !fs.existsSync(path.join(W, s.bible))) {
+        add(g, 'fail', s.bible || 'characters.json', null, `${sid}: bible file missing`);
+      } else {
+        const md = rd(s.bible);
+        let pos = -1;
+        for (const sec of SECTIONS) {
+          const i = md.indexOf(sec);
+          if (i < 0) add(g, 'fail', s.bible, null, `${sid}: section "${sec}" missing`);
+          else if (i < pos) add(g, 'fail', s.bible, null, `${sid}: section "${sec}" out of order`);
+          else pos = i;
+        }
+        const sec = md.indexOf('## SECRETS & SEEDS');
+        if (sec >= 0 && /(^|\n)## /.test(md.slice(sec + 1)))
+          add(g, 'fail', s.bible, null, `${sid}: a ## section follows SECRETS & SEEDS`);
+        const bs = md.slice(md.indexOf('## Backstory'), md.indexOf('## The room'));
+        if (((bs.match(/^- \*\*\d/gm) || []).length) < 5)
+          add(g, 'fail', s.bible, null, `${sid}: backstory has <5 dated beats`);
+        if (!md.includes((s.home || '').split(',')[0]))
+          add(g, 'fail', s.bible, null, `${sid}: home "${s.home}" not found in bible`);
+        if (!md.includes(pf))
+          add(g, 'fail', s.bible, null, `${sid}: bible never names its ambient id ${pf} (promotion provenance)`);
+      }
+      /* minted address registered in jobs-housing §3 */
+      if (s.home && !jh.includes(s.home.split(',')[0]))
+        add(g, 'fail', 'jobs-housing.md', null, `${sid}: home "${s.home.split(',')[0]}" not in registry`);
+      /* observable fields stay seed-free */
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes', 'listening', 'day_off', 'repairs', 'weather', 'helped', 'phone', 'first_impressions'])
+        if (s[k] && /secret|seed|briefing|never tell/i.test(typeof s[k] === 'string' ? s[k] : JSON.stringify(s[k])))
+          add(g, 'fail', 'characters.json', null, `${sid}.${k}: meta/seed vocabulary in an observable field`);
+    }
+    /* cast.html supporting strip agrees */
+    const sm = html.match(/const SUPPORTING=(\[[\s\S]*?\n\]);/);
+    if (!sm) add(g, 'fail', 'cast.html', null, 'inline SUPPORTING block not found');
+    else {
+      const SUP = eval(sm[1]);
+      if (SUP.map(x => x.id).sort().join(',') !== S_IDS.join(','))
+        add(g, 'fail', 'cast.html', null, `SUPPORTING ids != characters.json supporting ids`);
+      for (const s of SUP)
+        for (const k of ['id', 'init', 'name', 'arch', 'job', 'home', 'from', 'prof', 'look', 'voice', 'samp', 'ties', 'rout'])
+          if (!s[k]) add(g, 'fail', 'cast.html', null, `${s.id}: field "${k}" missing from supporting card`);
+    }
+    g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains + ${sup.length} supporting · ${SECTIONS.length} required sections`;
   } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }
 }
 

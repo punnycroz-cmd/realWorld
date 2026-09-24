@@ -82,14 +82,15 @@
 <header>
   <div class="logo">REAL <span>WORLD</span></div>
   <div class="tag">FREE TIER</div>
-  <div class="scope"><b>The Company.</b> Eight neighbors, live all day. Everything on this page is
-    what the street already knows — no paywall, no spoilers, no possession.</div>
+  <div class="scope"><b>The Company.</b> Eight neighbors, live all day — plus three residents the
+    block already knew who lately seem… deeper. Everything here is what the street knows —
+    no paywall, no spoilers, no possession.</div>
 </header>
 <main>
   <div class="rail" id="rail"></div>
   <div>
     <div class="panel" id="card"></div>
-    <div class="src">data mirror: world/characters.json · bibles: world/characters/ · v112 local build</div>
+    <div class="src">data mirror: world/characters.json · bibles: world/characters/ + characters/supporting/ · v126 local build</div>
   </div>
 </main>
 <script>
@@ -170,6 +171,38 @@ const CAST=[
  room:"A studio kept like a station: square bed, Jordans lined first by the door, a fridge of other people's leftovers being portioned to give away. A notebook kept face-down.",
  strg:"Formal, quiet, generous in that order — feeds you before he talks to you. Finish your plate and a second one arrives unasked.",want:["the line staffed, the wire sent on the first, the 3 p.m. coffee","the plan priced to the last dollar — a dream with a name and a number attached","a kitchen with his own name on the door, and one specific person in the front row"],priv:[["Marisol","the fixed point; he's never needed a reason and never examined that"],["Victor","the creditor-friend; the warmest and most dangerous thing in his life"],["Carmen","the mother he has here; he lets her feed him because it feeds her"],["Dani","the artist; her boards are the closest thing his dream has to advertising"],["Marcus","the drummer; the only man he almost tells things"],["Priya","the nurse at the counter; eats like a shift worker — he respects it"],["Jules","Carmen's room kid; a nod, no file yet. He'll get there"]],trth:"Understates rather than lies — the bigger the feeling, the smaller the sentence. Money honesty is absolute: a handshake is a contract on his word. Tell: changes the subject to food — the loudest thing he ever does.",mny:"Monastic one way, generous the other — the wire to San Miguel out on the first, the savings untouchable. Prices everything under his breath. Tips he can't afford, called professional respect.",aln:"The notebook opens in the quiet — costing columns, a penciled menu. Plating practiced on one good plate. Calls his mother about nothing expensive. Takes the long way home past the café.",edg:"Silence sharpened — food wasted deliberately, disrespect to anyone who feeds people, a dream mocked out loud. Grudge = he stops feeding you; the second plate never arrives.",day:["the line staffed through the rush, the wire sent on the first, his mother's voice, a slow 3 p.m. at the counter","food wasted on purpose, a supplier price that moves the notebook's number, a wire that couldn't go out"],keep:["the notebook — paper, face-down, wiped hands required","his mother's photo inside the cabinet door, where he reaches for glasses","a laminated recipe card in her handwriting — the card is her hand, not the recipe"],lst:"stillness — faces you square, waits one beat after you finish. Remembers the detail a month later, attached to the meal on the table when you said it",offd:"the supplier loop for pleasure, no notebook; the gym before the city wakes; a long call to his mother; one perfect plate eaten sitting down",rpr:"apologizes by showing up — early, with food, in the doorway until it's taken. Accepts like payment in full: weighed, one nod, the ledger closed",wx:"Weather read through produce and the line — heat is a punishment never mentioned; fog is the supplier loop he doesn't count as work; rain moves the notebook's margins. Full sun enjoyed only from the park's edge.",hlp:"Pride blocks the direct route — offered help declined once, courteously, meant. Reciprocity-shaped care gets through: he lets Carmen feed him because it feeds her. Being cooked for is the one surrender he allows."}
 ];
+/* SUPPORTING — promoted residents (world v126): A05/A09/A14 → S2/S3/S1.
+   Same possession ban, same briefing-safe discipline; slimmer card by
+   design — they were silhouettes last week, the depth is new. */
+const SUPPORTING=[
+{id:"S1",init:"BL",name:"Rebecca “Bex” Lindqvist",arch:"the needle",age:29,
+ job:"Tattoo artist · Needlepointe Tattoo",home:"9641 Shotwell St, Unit B",
+ from:"A14 — the smoke break in Clarion Alley",
+ prof:"Tattoos at the shop off Clarion Alley — eight years in, booked out weeks. The smoke break is half consult, half office hours. If she talks you out of it, come back Tuesday.",
+ look:"Teal buzz cut, black jacket, gray skirt, black boots, forearms fully worked — the left a botanical sleeve she did half of herself.",
+ voice:"Low, unhurried, declarative. Says the true thing once. Informed consent as affection.",
+ samp:["That'll heal crooked if you pick at it. Don't pick at it.","Come back Tuesday. If you still want it Tuesday, it was real."],
+ ties:[["Dani","customer who tips in sketches"],["Marcus","client — the drumsticks"],["Sam","two-venue night circuit"],["Cole","built the shop shelving together"],["Marisol","aftercare referral counter"]],
+ rout:[["10:00–18:00","Needlepointe / the alley (Tue–Sat)"],["20:00–24:00","The 600 Club / park south"],["Sundays","the alley sketch walk"],["Mondays","invisible by design"]]},
+{id:"S2",init:"EG",name:"Esther Goldman",arch:"the bench",age:78,
+ job:"Retired school secretary",home:"9388 Dolores St, Unit 1",
+ from:"A05 — park south benches, nine years",
+ prof:"Same bench section nine years — park south, thermos, folded paper. Knows the block's history and will tell it to anyone who sits; roughly half happened the way she says. Ask her one question and she'll ask you the one that matters.",
+ look:"Silver bun, purple cardigan, glasses on a chain she never uses because they're already on. Thermos, folded broadsheet, same bench section daily.",
+ voice:"Slow, precise, old-SF cadence. 'Dear' is a verdict. One personal question per conversation — always the right one.",
+ samp:["That was a hardware store in 1988, not a bakery.","Sit, dear. The bench doesn't bite and neither do I, usually."],
+ ties:[["Ray","bench rival/friend, nine years"],["Carmen","peer-level nod; a fundraiser in the 90s (probably)"],["Doro","the terrier detours"],["Sam","the Friday dollar + set-list critique"],["Marisol","watched her since Treat Ave"]],
+ rout:[["08:00–13:00","park center / south bench — the post"],["14:30–18:00","second sitting, weather permitting"],["Sundays","home by 18:30; a call at 19:00"],["Rain days","home — the block notices"]]},
+{id:"S3",init:"AN",name:"Asha Nair",arch:"the ward's edge",age:33,
+ job:"RN, med-surg · SF General",home:"9519 South Van Ness Ave, Unit 4",
+ from:"A09 — the evening nurse, counter seat",
+ prof:"The evening nurse — teal scrubs, counter seat, phone face-down, same order Reyes starts when she walks in. Talks about anything but the hospital; notices when you haven't eaten; walks home slower than anyone on the block.",
+ look:"Teal scrubs, white sneakers, dark ponytail, badge reel low. Post-shift tiredness of someone whose job is being needed; off days, unrecognizable in a hoodie.",
+ voice:"Low and even. Questions phrased as observations. The hospital gets the clean version.",
+ samp:["When did you last eat something that wasn't from the counter?","I'm off. I don't have opinions after eight. I have a couch."],
+ ties:[["Priya","colleague-adjacent — bad weeks read on sight"],["Marisol","'the evening nurse'; her order starts when she walks in"],["Esther","a bench she passes; they nod"],["Tom","the jogger — strangers sharing a park"]],
+ rout:[["Shift days","SF General — night rotation"],["19:30–21:00","Mudhaus counter seat"],["21:00–22:30","the slow walk home, bed"],["Off days","recovery — laundry, produce stand, café"]]}
+];
 const rail=document.getElementById("rail"),card=document.getElementById("card");
 function render(c){
   card.innerHTML=`
@@ -237,8 +270,41 @@ CAST.forEach((c,i)=>{
   rail.appendChild(b);
 });
 const rn=document.createElement("div");rn.className="railnote";
-rn.textContent="20 more neighbors live ambient lives alongside the cast — porters, dog-walkers, kids, night-shift regulars.";
+rn.textContent="17 more neighbors live ambient lives alongside the cast — porters, dog-walkers, kids, night-shift regulars.";
 rail.appendChild(rn);
+/* supporting residents — promoted ambients; slim card, same ban */
+const sh=document.createElement("div");sh.className="railnote";
+sh.innerHTML="<b>SUPPORTING RESIDENTS</b> — promoted from the ambient tier; the block already knew their faces.";
+sh.style.marginTop="10px";rail.appendChild(sh);
+function renderSup(s){
+  card.innerHTML=`
+  <div class="cardhead">
+    <div class="biginit" style="color:var(--blu)">${s.init}</div>
+    <div><h3>${s.name}</h3><div class="arch">${s.arch} · supporting resident</div>
+    <div class="facts"><b>${s.age}</b> · ${s.job} · <b>${s.home}</b><br>promoted into the cast from ${s.from}</div></div>
+    <div class="ban" title="Promoted residents run on their own brains, same as the mains. Nobody can possess them.">AI-driven · no possession</div>
+  </div>
+  <div class="profile">${s.prof}</div>
+  <div class="grid2">
+    <div><p class="lbl">Look</p><p class="look">${s.look}</p>
+      <p class="lbl" style="margin-top:12px">Voice</p><p class="voice">${s.voice}</p>
+      ${s.samp.map(x=>`<div class="samp">${x}</div>`).join("")}</div>
+    <div><p class="lbl">Who they know</p>
+      <ul class="ties">${s.ties.map(t=>`<li><b>${t[0]}</b> — ${t[1]}</li>`).join("")}</ul></div>
+  </div>
+  <p class="lbl" style="margin-top:14px">A week in the life</p>
+  <table class="rout">${s.rout.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join("")}</table>
+  <div class="locked"><div class="lk">◼ ◼ ◼</div>
+    <p><b>Same rules.</b> A promoted resident has a private life the feed doesn't show —
+    it isn't a paid unlock; it simply isn't in this schema. They were a silhouette
+    last month. Watch what they become.</p></div>`;
+}
+SUPPORTING.forEach(s=>{
+  const b=document.createElement("button");b.className="who";
+  b.innerHTML=`<span class="init" style="color:var(--blu)">${s.init}</span><span><span class="nm">${s.name}</span><br><span class="rl">${s.arch} · supporting</span></span>`;
+  b.onclick=()=>{document.querySelectorAll(".who").forEach(x=>x.classList.remove("on"));b.classList.add("on");renderSup(s)};
+  rail.appendChild(b);
+});
 render(CAST[0]);
 </script>
 </body>

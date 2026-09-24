@@ -1,6 +1,6 @@
 {
  "version": 57,
- "updated": "2026-09-23",
+ "updated": "2026-09-24",
  "spec": "Ambient cast registry for The Mission. Mirrors SF_AMBIENT_ROUTINES in src/sf/33_sf_cast.js — this JSON is the readable spec, the JS is the implementation; edit them together. 'poi' values use canonical parody names resolved by SF_WORLD_POIS in src/sf/30_sf_world.js; 'anchor' values are SF_MAP.anchors keys; 'home' is the hashed sfAmbientHome cell. v43 adds the ambient-week contract: per-ambient 'signature' (silhouette/gait/carry — the feed-legible read), 'week' day-keyed routine rows for days that differ from the base routine (off days, personal days), 'weather' alternate rows per condition that changes the day, and 'personal' recurring life-texture conditions. Variants are conditions, not scripts — the thin-AI resolver picks the day's row set; base 'routine' stays the fallback and the 33_sf_cast.js mirror. v57 adds the fog/wind variant answers — every ambient carries a fog entry (rows where the gray moves the day, a note where it doesn't); the stand, the pitch, and the paper-bag routines carry wind.",
  "conventions": {
   "hours": "game-local, decimal (19.5 = 19:30)",
@@ -970,7 +970,10 @@
      },
      "note": "parliament runs long on the 1st — everybody walks past the bench eventually"
     }
-   ]
+   ],
+   "promoted_to": "S2",
+   "promoted_at": "world v126",
+   "tier": "supporting resident"
   },
   {
    "id": "A06",
@@ -1870,7 +1873,10 @@
      },
      "note": "after a shift she takes the Mudhaus counter seat facing the door, phone down, one drink — this is the whole ritual"
     }
-   ]
+   ],
+   "promoted_to": "S3",
+   "promoted_at": "world v126",
+   "tier": "supporting resident"
   },
   {
    "id": "A10",
@@ -2792,7 +2798,10 @@
      ],
      "note": "fog is good skin weather; the shop door opens on time"
     }
-   }
+   },
+   "promoted_to": "S1",
+   "promoted_at": "world v126",
+   "tier": "supporting resident"
   },
   {
    "id": "A15",
@@ -3904,5 +3913,6 @@
     }
    }
   }
- ]
+ ],
+ "promotion_note": "v126: A05/A09/A14 promoted to supporting residents S2/S3/S1 (characters/supporting/); ids stay frozen, ambient-era cards remain the thin-era record. Roster slots remain A-ids — do not respawn."
 }

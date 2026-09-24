@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v112)
+# Main Cast Index — "The Mission" (world v126)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -152,6 +152,21 @@ enforces the section list and order mechanically.
 | C6 | c6-carmen-echeverria.md | Carmen Echeverría | 74 | Retired seamstress (cash hemming) | 9418 Guerrero St, Unit A |
 | C7 | c7-victor-auerbach.md | Victor Auerbach | 58 | Owner, Auerbach Hardware | 9102 Mission St, Unit 2 (above the store) |
 | C8 | c8-tomas-herrera.md | Tomás Herrera | 36 | Lead cook, El Farolote | 9344 Folsom St, Unit 1 |
+
+## Supporting residents (v126)
+
+The promoted tier: three ambients promoted to full brains + persistent
+memory at v126 under the production-3 direction — **S1 Bex, S2 Esther,
+S3 Asha** (from A14 / A05 / A09). Bibles live in `characters/supporting/`
+under the same 27-section discipline, with two adaptations documented in
+`supporting/_index.md` (interior ledger covers their real `knows` set;
+secrets are supporting-scale). Same possession ban; ambient ids frozen.
+
+| ID | File | Name | Age | Job | Home (9xxx fictional) |
+|----|------|------|-----|-----|------------------------|
+| S1 | supporting/s1-bex-lindqvist.md | Rebecca "Bex" Lindqvist | 29 | Tattoo artist, Needlepointe | 9641 Shotwell St, Unit B |
+| S2 | supporting/s2-esther-goldman.md | Esther Goldman | 78 | Retired school secretary | 9388 Dolores St, Unit 1 |
+| S3 | supporting/s3-asha-nair.md | Asha Nair | 33 | RN, SF General | 9519 South Van Ness Ave, Unit 4 |
 
 ## Landlord casting — TBD, do not decide here
 

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v125)
+# Playtest Harness — "Real World / The Mission" (world v126)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -437,6 +437,16 @@ One person can wear every hat; four real testers is the intended shape.
   era_seam / held_threads blocks, the ladder's youngest-brains-first
   rule, the two new demo events, the fifth pawn, and the
   rw_thinai_v125 key.
+  PT115 (cast v126) audits the supporting-resident bibles — the first
+  promotion class S1 Bex / S2 Esther / S3 Asha carrying the full
+  27-section mains contract with secrets last and supporting-scale
+  stakes (a drawer letter, a revised history, a submitted application);
+  the promoted_from ↔ promoted_to round-trip against ambients.json;
+  minted 9xxx addresses registered in jobs-housing.md §3; interior
+  ledgers bounded by each resident's declared knows set; and the
+  cast.html SUPPORTING strip rendering slim cards under the same
+  possession ban. The audit's v126 marks pin the supporting checks in
+  the bible gate (schema v126 · 8 mains + 3 supporting).
 
 ## 3. Running a session
 

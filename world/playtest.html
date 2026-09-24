@@ -34,7 +34,7 @@
   become a persisted re-test list (#verify / S.verify / 'still broken'
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
-  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era).
+  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2484,6 +2484,31 @@ const PTS=[
   ck:["Gate detail shows v125 / 5 pawns",
    "Unpromoted ambients still can never be degraded — the audit's a01/h01 bans hold; demotion and degrade never share a label",
    "wire() vocabulary still locked — promotion logs through the request-line channel as admin"]}
+]},
+{id:"PT115",title:"The Company v126 — the supporting residents' bibles (promoted class S1–S3)",min:9,
+ persona:"writer who has read the eight mains' bibles and wants to know whether a promoted ambient can carry the same roleplay contract — and whether the promotion was real plumbing, not a costume",
+ goal:"Verify the v126 character-bibles pass: three supporting-resident bibles (s1-bex, s2-esther, s3-asha) carry the fixed 27-section order with SECRETS & SEEDS last, five dated beats each, and secrets at supporting scale (a drawer letter, a revised history, a submitted application — no detonating bombs); characters.json gains a parallel supporting[] array with promoted_from/knows/interior contract (interior ⊆ knows, never the other-seven rule); addresses minted 9641 Shotwell B / 9388 Dolores 1 / 9519 South Van Ness 4 and registered in jobs-housing.md §3 table + registry seed; ambients.json A05/A09/A14 carry promoted_to and ids stay frozen; promotion.md §5 marks the class EXECUTED with A06 Kofe as the standing fourth candidate; cast.html renders a SUPPORTING strip (slim cards, same no-possession badge) without touching CAST; ensemble.md gains the supporting-tier seams as priors, never scripts.",
+ surfaces:["cast","audit"],steps:[
+ {do:"Read characters/supporting/_index.md, then open all three bibles and check the contract: 27 sections in the mains' order, SECRETS & SEEDS last, ≥5 dated beats, 'The cast, privately' covering a declared knows set rather than all seven mains.",
+  exp:"Each bible is a stranger-could-roleplay document: voice + sample lines, mannerisms, the room, wants as open questions on three clocks, an interior ledger of the people their ambient era actually touched. Secrets are supporting-scale — consequential but neighborhood-sized — and each names the ambient id it was promoted from (provenance).",
+  ck:["All three bibles pass the mains' section order with secrets last — promotion changed the tier, not the contract",
+   "Each SECRETS section is consequence-rich but bounded: shop succession letter / revised history + closet files / submitted clinic application",
+   "'The cast, privately' interior keys are subsets of each resident's knows list — Bex has no line for Priya, Asha has no line for Victor"]},
+ {do:"Cross-check the plumbing: characters.json supporting[] (promoted_from, knows, interior, briefing_safe, seed_lock), ambients.json A05/A09/A14 promoted_to round-trip, jobs-housing.md §3 table + registry seed rows, promotion.md §5, ensemble.md supporting-tier section.",
+  exp:"Every promoted_from A-id answers promoted_to the S-id; all three homes appear in the §3 table AND the JSON seed (buildings+units+leases); ids frozen — no A05/A09/A14 respawn; ensemble seams are priors (cold seams named, 'keep it cold' instructions), never scripted outcomes.",
+  ck:["promoted_from ↔ promoted_to round-trips on all three pairs; ambient ids stay frozen",
+   "Esther's lease start is 1974 (the mint backdated the registry honestly — tenancy predates it)",
+   "ensemble.md names cold seams deliberately (Bex×Victor, Bex×Asha) as content, not oversight"]},
+ {do:"Open cast.html (file://). Read the rail and click each supporting resident; check the mains rail is unchanged and the ban badge renders on supporting cards.",
+  exp:"Rail shows the 8 mains, a '17 more neighbors' ambient note, then a SUPPORTING RESIDENTS header with Bex/Esther/Asha. Each card is slimmer by design (profile/look/voice/ties/week) with 'AI-driven · no possession' and 'promoted into the cast from A14…' provenance. No possess affordance anywhere.",
+  ck:["Slim card is honest about the era seam — 'they were silhouettes last month' framing, never retconned intimacy",
+   "Header scope copy: eight mains + three promoted residents, still free-tier, still no possession",
+   "CAST ids remain exactly C1–C8 — the mains' contract untouched"]},
+ {do:"Run node world/audit.js and read the bible + harness gates.",
+  exp:"The bible gate passes with detail 'schema v126 · 8 mains + 3 supporting · 29 required sections' — every supporting check live (roleplay fields, briefing_safe, seed_lock, tier, promoted_from regex + round-trip, knows validity, interior ⊆ knows, section order, secrets-last, beats, home-in-registry, bible-names-ambient-id, seed-free observable fields, cast.html SUPPORTING mirror).",
+  ck:["Bible gate: schema v126 · 8 mains + 3 supporting · 0 fail",
+   "Dropping a supporting bible, an interior key outside knows, or the SUPPORTING block in cast.html would FAIL — spot-check",
+   "Harness gate: '115 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ];
 
