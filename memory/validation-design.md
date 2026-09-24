@@ -9460,3 +9460,96 @@ P989, P990, P992 SHOULD; P993 OBSERVE.
   (suggestibility–compliance dissociation → trait
   covariance); Unsworth 2019 (*Why Human Memory Fails* —
   individual-difference moments).
+
+## 192. v94 suite (P994–P1005) — social-memory X (the metaself)
+
+The metaself layer's probes: 4 MUST (three locked-null, one
+directional), 7 SHOULD, 1 OBSERVE. All comparative probes
+pair arms under CRN per v93's `crn_paired_null` discipline.
+
+- **P994 meta_mindread_null (MUST — locked-null):**
+  do(setState) perturbs alter's canonical RelEdge AND the
+  alter's PersonModel-of-ego with zero observable signal
+  events; every MetaModel field bit-identical pre/post. Any
+  diff = the metaself read a mind. This is the layer's load-
+  bearing wall: the metaself may be wrong, never informed.
+- **P995 liking-gap direction (MUST):** new-acquaintance
+  dyads, matched warm signal diets: mean(est_like −
+  true_like) < 0 pooled across the 8 mains (Boothby 2018).
+- **P996 gap attenuates with depth (MUST):** gap magnitude
+  vs tie_depth/evidence_n monotone-decreasing across
+  cohorts; still ≥ 0 at 90-day ties in high-`lgap_k`
+  profiles (dorm-mates arm — persists, doesn't vanish).
+- **P997 projection dominance (SHOULD):** do(setTrait,
+  self_est ±) moves est_like same-direction under thin
+  evidence (evidence_n < meta_ev_min) at r ≈ meta_proj;
+  effect shrinks as evidence accrues (Kenny & DePaulo .87
+  as asymptote, not constant).
+- **P998 reciprocity arm (SHOULD):** manipulating own_like
+  moves est_like ∝ meta_recip independent of signals; alter
+  stores untouched (companion check to P994 —
+  recip_truth_null).
+- **P999 compete channel is blind (SHOULD):** dyads with
+  hidden competitive-edge variance: est_traits.compete
+  meta-accuracy within `compete_blind` band of 0 while
+  est_like accuracy > 0 — the Eisenkraft 2017 dissociation,
+  enforced for EVERY profile (no rivalry detector exists).
+- **P1000 meta_episode_null (MUST — locked-null):**
+  MetaModel create/update/stale mints zero records; record
+  census identical layer-on vs layer-off under CRN.
+- **P1001 negative-signal weighting (SHOULD):** symmetric
+  diets (N warm + 1 cold vs N cold + 1 warm): single cold
+  moves est_like ≈ meta_neg_w× the single warm; slope
+  ×(1+rumin) present.
+- **P1002 beautiful-mess asymmetry (SHOULD):** identical
+  `vulnerable:true` event: actor-side update discounted vs
+  matched non-vulnerable warm event; observer-side
+  PersonModel eval updated positive — signs opposite
+  (bmess_invert_null checked alongside).
+- **P1003 staleness, not decay (SHOULD):** after
+  meta_stale_days with no retrieved signals, metaView
+  returns stale:true with est_like bit-unchanged; next
+  retrieved signal clears the flag and resumes §6.218
+  integration. A decaying est would be projection
+  manufacturing evidence — flagged as a regression.
+- **P1004 lgap_reverse_null (MUST — locked-null):** across
+  all mains + ambient archetype draws under CRN, no
+  profile yields mean gap < 0.
+- **P1005 cast spread (OBSERVE):** identical
+  new-acquaintance signal diet → publish per-main est_like
+  trajectories; expected ordering Jules lowest, Victor
+  flattest, Priya highest meta-accuracy. Report, don't
+  gate.
+
+Registry: P1–P1005. v94 suite: P994, P995, P996, P1000,
+P1004 MUST (incl. locked-null probes P994, P1000, P1004);
+P997, P998, P999, P1001, P1002, P1003 SHOULD; P1005
+OBSERVE.
+
+## 193. Sources verified this version (P994–P1005 backing)
+
+- **Metaperception accuracy:** Kenny & DePaulo 1993
+  (*Psychol Bull* 114:145 — verified): SRM meta of 8
+  studies; self→meta r ≈ .87; generalized meta-accuracy
+  ≈ .51, dyadic near 0 in strangers; cross-target
+  consistency overestimated.
+- **Reciprocity / channel specificity:** Elfenbein,
+  Eisenkraft & Ding 2009 (*Psychol Sci* 20:1081 —
+  verified): dyadic meta-accuracy for being valued runs
+  through reciprocity of liking; Eisenkraft, Elfenbein &
+  Kopelman 2017 (*Psychol Sci* 28:233 — verified): liking
+  channel accurate, competition channel blind.
+- **The liking gap:** Boothby, Cooney, Sandstrom & Clark
+  2018 (*Psychol Sci* 29:1742 — verified): 5 studies;
+  systematic underestimate of being liked; persists
+  months in dorm-mates, attenuates with relationship
+  development; mechanism = self-focused audit of own
+  performance.
+- **Vulnerability asymmetry:** Bruk, Scholl & Bless 2018
+  (*JPSP* 115:192 — verified): 7 studies; self-other
+  evaluation asymmetry on vulnerability displays;
+  construal-level account.
+- **Trait mechanism (reused):** Clark & Wells 1995 —
+  self-focused attention in social anxiety grounds
+  `lgap_k`'s trait loading; diag_moral_neg (SM§2) bounds
+  `meta_neg_w` below moral-diagnosticity weight.

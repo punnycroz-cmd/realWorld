@@ -1,5 +1,24 @@
-# Memory Model Spec v5.41 — implementable human-like memory for RW characters
+# Memory Model Spec v5.42 — implementable human-like memory for RW characters
 
+> **v5.42 note (social-memory X — the metaself layer):**
+> `memory/social-memory.md` Part X (§§141–150) adds the missing
+> half of social perception: what a character believes OTHERS
+> think of them. New store `MetaModel` (per alter, belief-only);
+> the **projection prior** (self-view substitutes for evidence —
+> Kenny & DePaulo 1993 self–meta r ≈ .87); **assumed
+> reciprocity** (liking believes itself returned — Elfenbein et
+> al. 2009) with a blind **compete** channel (Eisenkraft et al.
+> 2017); the **liking gap** (post-conversation underestimate of
+> being liked, tie-depth-moderated — Boothby et al. 2018);
+> **evidence-through-memory** integration (retrieved signal
+> fields only — `meta_mindread_null`); the **beautiful-mess**
+> asymmetry on `vulnerable:true` (Bruk et al. 2018); staleness
+> flag, no spontaneous decay. New traits `meta_proj`,
+> `meta_recip`, `lgap_k`, `meta_ev_w`, `meta_neg_w`, `bmess_k`;
+> +7 pop scalars, +6 traits, +5 locked nulls; §10 contract adds
+> `metaView`/`metaGap`. New §§6.214–6.220. SM Part X; probes
+> P994–P1005.
+>
 > **v5.41 note (formal-model IX — the cold start, the
 > intervention calculus, the population prior):**
 > `memory/formal-model.md` Part IX (§§70–80) formalizes the
@@ -11958,6 +11977,139 @@ Hershey & Bradlow 2006; Kim, Ferrin, Cooper & Dirks 2004;
 Tomlinson et al. 2004. Emission `trust_recover` milestone.
 SM§135; probe P980.
 
+### 6.214 The metaself store — `MetaModel` (new in v5.42)
+
+Per (character, alter): `{alter, est_like ∈[−1,1],
+est_traits{warm, competent, compete}, evidence_n, last_upd_day,
+stale, gap}` — what the character BELIEVES the alter thinks of
+them. Created lazily on first social event bearing a
+`signal:*` field toward alter. Sibling of PersonModel: a
+belief-only projection — it reads retrieved records and own
+self-model/person-model; it NEVER reads the alter's canonical
+RelEdge or the alter's stores (`meta_mindread_null`, §6.220).
+MetaModel mints no records (`meta_episode_null`) — it is a
+derived ledger, not an evidence channel.
+
+### 6.215 The projection prior — self-view stands in for feedback (new in v5.42)
+
+Kenny & DePaulo 1993: self-perception → metaperception r ≈ .87;
+generalized meta-accuracy ≈ .51 while dyadic meta-accuracy in
+strangers ≈ 0. Model: while `evidence_n < meta_ev_min` (4),
+
+```
+est_like    = meta_proj·self_soci_eval + (1−meta_proj)·S_mean
+est_traits  = meta_proj·self_traits   + (1−meta_proj)·S_trait_mean
+```
+
+where `self_soci_eval` = the character's own social self-
+evaluation from the SelfModel (`self_est`-anchored), `S_mean` =
+mean of retrieved `signal:warm|cold` fields toward alter.
+Default `meta_proj` 0.65 — below the .87 acquaintance asymptote
+so evidence can win (SM§148). Symmetric: projection amplifies a
+LOW self-view as faithfully as a high one — the
+low-`self_est` character's metaself is pessimistic prior-driven,
+which is the Kenny & DePaulo finding run backward, not a bias
+knob.
+
+### 6.216 Assumed reciprocity — and the blind compete channel (new in v5.42)
+
+```
+est_like += meta_recip · own_like(alter) · (1 − evidence_share)
+```
+
+`own_like` = the character's own PersonModel eval of alter —
+"I like them" becomes "they like me" (Elfenbein, Eisenkraft &
+Ding 2009 — the mechanism is introspection, so the pull runs on
+the BELIEF even when own_like is itself wrong). Reciprocity
+writes only to MetaModel — `recip_truth_null`: it never touches
+canonical or the alter's stores.
+
+`est_traits.compete` is a separate channel: Eisenkraft,
+Elfenbein & Kopelman 2017 — we know who likes us but NOT who
+competes with us. Compete estimates draw near-noise:
+`est_traits.compete ~ N(signal_mean, compete_blind⁻¹)` with
+`compete_blind` 0.1 — meta-accuracy ≈ 0 by construction, no
+reciprocity arm, no gap. (Hypervigilant threat-metaperception
+is a different mechanism — deferred, SM§150.)
+
+### 6.217 The liking gap — the conversation's underestimate (new in v5.42)
+
+Boothby, Cooney, Sandstrom & Clark 2018 (5 studies — verified):
+after conversations with new people, observers rate the actor
+as more liked than the actor believes. On each post-
+conversation update where `tie_depth < lgap_tie_cap` (0.5) or
+`evidence_n < lgap_ev_cap` (8):
+
+```
+S_eff = S_obs − lgap_k · (1 − tie_depth) · (1 − evid_frac)
+```
+
+`lgap_k` trait (default 0.4) scales with self-focus — shy,
+social-anx, low-`self_est`, newcomer-status (thin evidence)
+all raise effective gap. The `(1 − tie_depth)` term encodes
+the dorm-mates arm: the gap persists for months but attenuates
+as acquaintance develops. Signed one way only —
+`lgap_reverse_null`: no profile yields mean gap < 0; systematic
+overestimation of post-conversation liking is not a population
+phenomenon. Emissions: `felt_liked`/`felt_disliked` deltas on
+threshold crossings; `gap_close` milestone when evidence finally
+overcomes the gap (the "they actually liked me" beat —
+world-renderable).
+
+### 6.218 Evidence is memory — signals arrive through the store (new in v5.42)
+
+MetaModel integrates ONLY retrieved signal fields — the
+`signal:warm|cold|neutral` marks on records that survive the
+full pipeline. `meta_signal_p` (0.7) of social events mint a
+signal field at all. Consequences, all emergent:
+
+- An avoided greeting that decays unrecalled is evidence that
+  never lands — dense-day lives update their metaselves less
+  per unit experience (§4.40 throughput couples here).
+- Negative signals weigh `meta_neg_w` (default 1.3, ×(1+rumin)
+  — a cold shoulder re-rehearses); one cold day ≈ two warm
+  days, below `diag_moral_neg` (metaperception is milder than
+  morality).
+- `meta_ev_w` (trait, default 0.5) is the per-signal learning
+  rate: `est_like += meta_ev_w·(S_eff − est_like)`; evidence
+  share grows `evidence_n/(evidence_n + meta_ev_min)` until the
+  prior yields.
+
+### 6.219 Staleness without decay — the old impression holds (new in v5.42)
+
+Formed MetaModels do NOT drift back toward the prior — a decay
+term would silently manufacture projection inside the record
+layer (SM§150). Instead: no retrieved signal for
+`meta_stale_days` (90) → `stale:true` on read; est values
+persist unchanged; next retrieved signal clears the flag and
+resumes §6.218 integration. The character who last heard from
+someone in spring still believes spring's verdict in autumn —
+beliefs are durable, just old. Emission `meta_stale` audit
+flag on `metaView` reads.
+
+### 6.220 The beautiful mess — vulnerability, priced asymmetrically (new in v5.42)
+
+Bruk, Scholl & Bless 2018 (7 studies — verified): own
+vulnerability is judged more negatively than the same act in
+another (concrete vs abstract construal). On events tagged
+`vulnerable:true` (confession, apology-first, admitting a
+mistake, asking for help — world-supplied tag):
+
+```
+actor-side:    S_eff -= bmess_k      (default 0.2)
+observer-side: PersonModel eval of actor += bmess_obs  (0.15)
+```
+
+Signed and locked: `bmess_invert_null` — the self-side never
+receives the observer bonus. A character can apologize, be
+liked MORE for it by the room, and believe she lost face —
+both sides accurate perceiver-side. Locked nulls for the whole
+layer: `meta_mindread_null` (no canonical/alter-store reads —
+P994), `meta_episode_null` (mints zero records — P1000),
+`lgap_reverse_null` (P1004), `bmess_invert_null` (P1002),
+`recip_truth_null` (belief-write only — P998). SM§§141–150;
+probes P994–P1005.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -13871,6 +14023,31 @@ MemoryParams = {
 //   `anchor_keep:true` + `era_context:{ageLo,ageHi,
 //   place,occupation}` spans. All snapshot-additive;
 //   absent = legacy.
+// v5.42 additions (social-memory X — SM§§141–150)
+"meta_ev_min": 4, "lgap_tie_cap": 0.5, "lgap_ev_cap": 8,
+"meta_stale_days": 90, "bmess_obs": 0.15,
+"compete_blind": 0.1, "meta_signal_p": 0.7,     // §§6.214–6.219
+// v5.42 traits (all bible-pinnable): `meta_proj` [0,1]
+//   default 0.65 — projection weight (§6.215);
+//   `meta_recip` [0,1] default 0.5 — reciprocity pull
+//   (§6.216); `lgap_k` [0,1] default 0.4 — liking-gap
+//   susceptibility (§6.217); `meta_ev_w` [0.2,1] default 0.5
+//   — evidence learning rate (§6.218); `meta_neg_w`
+//   [0.5,2] default 1.3 — negative-signal weighting
+//   (§6.218); `bmess_k` [0,0.5] default 0.2 — self-
+//   vulnerability discount (§6.220).
+// v5.42 locked nulls: meta_mindread_null (P994);
+//   meta_episode_null (P1000); lgap_reverse_null (P1004);
+//   bmess_invert_null (P1002); recip_truth_null (P998).
+// v5.42 fields/state: store `MetaModel` per (char,alter)
+//   `{alter,est_like,est_traits{warm,competent,compete},
+//   evidence_n,last_upd_day,stale,gap}` — belief-only;
+//   record signal fields `signal:warm|cold|neutral`
+//   (existing social marks, now MetaModel-readable); Event
+//   tag `vulnerable:true` (world-supplied). Emissions
+//   `felt_liked`/`felt_disliked`, `gap_close` milestone,
+//   `meta_stale` audit. All snapshot-additive; absent =
+//   legacy.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -16058,6 +16235,40 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 14 scalars/enums + 4 locked
     nulls; 0 per-character.
   - Probes P982–P993.
+- v5.42 additions (social-memory.md Part X §§141–150):
+  - **New store:** `MetaModel` per (char, alter) —
+    `{alter, est_like, est_traits{warm, competent,
+    compete}, evidence_n, last_upd_day, stale, gap}`;
+    belief-only projection, sibling of PersonModel.
+    World must NEVER read it as fact — it is the
+    character's wrongness about their own reception
+    (§6.214).
+  - **New contract:** `metaView(charId, alterId)` →
+    `{est_like, est_traits, evidence_n, stale}` —
+    world-readable for dialogue ("I don't think she
+    likes me"); `metaGap(charId)` → per-alter gap
+    audit. Both snapshot-additive; absent = legacy.
+  - **New event tag (world-supplied):**
+    `vulnerable:true` — confession / apology-first /
+    admitting a mistake / asking for help; drives the
+    §6.220 asymmetry. `signal:warm|cold|neutral`
+    fields on social records become MetaModel
+    evidence (§6.218).
+  - **New traits:** `meta_proj`, `meta_recip`,
+    `lgap_k`, `meta_ev_w`, `meta_neg_w`, `bmess_k` —
+    all bible-pinnable (world may pin per bible).
+  - **New emissions (world-renderable):**
+    `felt_liked`/`felt_disliked` deltas, `gap_close`
+    milestone, `meta_stale` audit flag.
+  - **Locked boundaries game-systems must honor:**
+    `meta_mindread_null` (MetaModel inputs =
+    retrieved records + own stores only — never
+    canonical RelEdge or the alter's mind),
+    `meta_episode_null`, `lgap_reverse_null`,
+    `bmess_invert_null`, `recip_truth_null`.
+  - **New params (§7):** 7 pop scalars + 6 traits +
+    5 locked nulls.
+  - Probes P994–P1005.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

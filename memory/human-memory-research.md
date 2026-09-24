@@ -3883,3 +3883,58 @@ behind the plumbing.
   `pop_table_ver` may declare — and where the literature is
   silent, the table declares independence rather than
   inventing correlation.
+
+## 72. v94 adds — social-memory X (the metaself: what I believe you think of me)
+
+The survey gains the metaperception literature — the second
+half of social perception (the first half, person-perception,
+is already modeled as PersonModel). Key verified sources:
+
+- **Kenny & DePaulo 1993** (*Psychol Bull* 114:145 —
+  verified): the landmark SRM meta-analysis of
+  metaperception. Three findings the spec encodes: (a)
+  self-perception→metaperception correlation ≈ .87 —
+  people infer how others see them mostly from their own
+  self-view, NOT from feedback (the `meta_proj` prior);
+  (b) generalized meta-accuracy (how others *in general*
+  see me) ≈ .51 while dyadic meta-accuracy (how *this*
+  person sees me) is near zero among strangers — evidence
+  integration must be slow; (c) people overestimate
+  consistency across perceivers — the metaself assumes a
+  uniform audience.
+- **Elfenbein, Eisenkraft & Ding 2009** (*Psychol Sci*
+  20:1081 — verified): dyadic meta-accuracy for *being
+  valued* does exist and runs through reciprocity —
+  people introspect their own liking and infer its return
+  (`meta_recip`); Eisenkraft, Elfenbein & Kopelman 2017
+  (*Psychol Sci* 28:233 — verified) adds the channel
+  dissociation: we know who likes us but not who competes
+  with us (`compete_blind` ≈ 0 accuracy for everyone).
+- **Boothby, Cooney, Sandstrom & Clark 2018** (*Psychol
+  Sci* 29:1742 — verified): the liking gap — after
+  conversations with new people, observers rate the actor
+  as MORE liked than the actor estimates. Five studies;
+  persists months in developing relationships
+  (attenuating, not vanishing); mechanism is the actor's
+  self-focused performance audit — the actor sees her own
+  faults, the observer sees only the pleasant surface.
+  The directional asymmetry (never a reverse gap) becomes
+  `lgap_reverse_null`.
+- **Bruk, Scholl & Bless 2018** (*JPSP* 115:192 —
+  verified): the beautiful-mess effect — own
+  vulnerability (confession, apologizing first, admitting
+  error, asking help) is evaluated more negatively than
+  the same act observed in another; construal-level
+  account (concrete self vs abstract other). Encoded as
+  the signed `bmess_k`/`bmess_obs` asymmetry.
+- **Clark & Wells 1995** (reused): the cognitive model of
+  social anxiety — self-focused attention and
+  safety-seeking processing bias — grounds `lgap_k` and
+  `meta_neg_w` trait loadings.
+- **Honest limits marked:** the evidence-through-memory
+  pathway (metaperception inherits ALL distortion of the
+  underlying records) is our strong hypothesis, not
+  literature; staleness-without-decay is asserted from
+  retest stability, not measured drift; hypervigilant
+  threat-metaperception deferred as a different
+  mechanism. → SM Part X §§141–150.

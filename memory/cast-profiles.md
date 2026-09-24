@@ -1656,3 +1656,171 @@ passes RAISE estKnow; Dani's fast answers don't move it).
   not remembering; tellings retrieved over events.
 - Sachs 1967 (reused): verbatim wording dies sub-daily.
 - Bartlett 1932 (reused): effort after meaning.
+
+# Part VI — v94 pass: the metaself layer
+
+Spec refs: v5.42 §§6.214–6.220. Probes P994–P1005 filed to
+validation-design.md §192. This pass pins what each main
+believes OTHERS think of them — belief-layer traits only;
+the underlying records are untouched. MetaModel is the
+cast's most private wrongness: it never appears in canon,
+and the audience learns each character's self-underestimate
+(or self-monument) only through what the belief makes them
+DO.
+
+## 28. New mechanisms consumed (→ spec v5.42)
+
+- `MetaModel` store (§6.214) — per-alter belief record.
+- Projection prior (§6.215) — self-view stands in until
+  evidence accrues.
+- Reciprocity arm + blind compete channel (§6.216).
+- Liking gap (§6.217) — post-conversation underestimate.
+- Evidence-through-memory (§6.218) + staleness (§6.219).
+- Beautiful-mess asymmetry (§6.220) on `vulnerable:true`.
+
+## 29. Per-main meta pins (all six traits; prior passes stand)
+
+### C1 Marisol, 29 — `meta_proj 0.5` · `meta_recip 0.5` · `lgap_k 0.35` · `meta_ev_w 0.65` · `meta_neg_w 1.1` · `bmess_k 0.2`
+The floor manager's metaself is a working instrument: tips,
+turnover, and who-sits-where are signal-rich, so evidence
+accrues fast and the prior yields (high `meta_ev_w`, mid
+`meta_proj`). Modest gap — she's socially fluent but still
+audits her own performance after close conversations.
+Slightly-discounted cold-shoulder weight: a manager who
+took every chill personally couldn't run the room. Her
+vulnerability registers honest cost — asking staff for
+help feels like weakness at mid `bmess_k`.
+
+### C2 Jules, 26 — `meta_proj 0.55` · `meta_recip 0.65` · `lgap_k 0.8` · `meta_ev_w 0.45` · `meta_neg_w 1.5` · `bmess_k 0.3`
+The newcomer file, metaself edition: thin evidence
+(everything is a first conversation), high self-critical
+focus, high reciprocity — he likes the café crowd, so he
+half-believes they like him, and then the gap claws it
+back every night. THE `gap_close` character: months of
+small warmths must out-grind a 0.8 susceptibility. When a
+`vulnerable:true` moment finally lands (asking Mars for a
+shift change, admitting the Portland story), he will
+believe it cost him while the room liked him more —
+the asymmetry IS his arc.
+
+### C3 Dani, 24 — `meta_proj 0.6` · `meta_recip 0.5` · `lgap_k 0.5` · `meta_ev_w 0.5` · `meta_neg_w 1.6` · `bmess_k 0.1`
+The performer who narrates her own reception: mid
+projection, mid evidence — she believes the room reads
+her as charming because she TELLS it so (the §14.3
+fluent-liar file extends inward: her metaself is her
+first audience). High neg weight — one flat reaction
+outweighs an evening of smiles, and she re-runs the flat
+one (rumin-adjacent sensibility). Near-zero `bmess_k`:
+she confesses theatrically and registers no cost — the
+vulnerability the audience sees and the one she feels are
+different species.
+
+### C4 Priya, 31 — `meta_proj 0.4` · `meta_recip 0.3` · `lgap_k 0.25` · `meta_ev_w 0.75` · `meta_neg_w 1.2` · `bmess_k 0.15`
+The cast's calibrated instrument. Twenty years of reading
+faces for bad news buys the highest `meta_ev_w` in the
+cast and the lowest projection — her metaself is built
+from evidence, not self-image. Low reciprocity (she does
+not assume her liking is returned — clinical distance).
+The flat-affect clock (§14.4) shows here too: modest gap,
+honest vulnerability pricing. Emergent signature: she
+detects cooling before the cooler admits it — and never
+flatters herself, which the audience may misread as
+coldness she doesn't feel.
+
+### C5 Marcus, 34 — `meta_proj 0.5` · `meta_recip 0.7` · `lgap_k 0.15` · `meta_ev_w 0.35` · `meta_neg_w 0.8` · `bmess_k 0.1`
+The sunniest wrongness in the cast. Near-zero gap — he
+never audits a conversation in his life; high reciprocity
+— he likes everybody, so everybody must like him; and by
+the world's actual reciprocity he is *mostly right*: the
+belief outruns the fact by a margin nobody minds. Low
+evidence rate, low neg weight — a cold shoulder doesn't
+rehearse, it evaporates (§4.13 + §14.5). The one profile
+whose `meta_episode_null` does the least work: he needs
+no metaperceptual machinery because he never asks the
+question.
+
+### C6 Carmen, 74 — `meta_proj 0.75` · `meta_recip 0.4` · `lgap_k 0.2` · `meta_ev_w 0.4` · `meta_neg_w 0.9` · `bmess_k 0.25`
+Seventy-four years of stoop-reading has consolidated the
+prior: high projection — she assumes the room reads her
+as the fixture she knows herself to be, and the
+consistency-overestimate Kenny & DePaulo describe fits a
+woman whose self-concept stopped updating slowly. Low
+gap (past auditing her own banter), low neg weight
+(weathered enough slights to discount them), mid
+vulnerability cost — asking for help still stings; being
+*seen* needing it stings more than the need. Her stale
+MetaModels are the cast's most durable: an impression
+from 2019 is still the impression.
+
+### C7 Victor, 58 — `meta_proj 0.8` · `meta_recip 0.35` · `lgap_k 0.2` · `meta_ev_w 0.25` · `meta_neg_w 0.8` · `bmess_k 0.35`
+The monument. Highest projection in the cast: the room
+reads him as the-owner-who-shows-up because that is how
+he reads himself; evidence bounces (`meta_ev_w` lowest)
+— a season of cold shoulders lands as noise, not signal.
+Low reciprocity: he does not assume affection returned;
+he assumes *standing* — and standing is a projection, not
+a perception. Highest `bmess_k`: the industrial omitter
+cannot apologize first without believing it cost him
+standing — and since evidence can't reach him, he may
+never learn it bought him grace. The gap is low not
+because he's secure but because he never holds the
+post-conversation audit at all.
+
+### C8 Tomás, 36 — `meta_proj 0.55` · `meta_recip 0.7` · `lgap_k 0.35` · `meta_ev_w 0.55` · `meta_neg_w 1.3` · `bmess_k 0.25`
+Kitchen loyalty assumes itself returned: highest
+reciprocity in the cast alongside Marcus — the line crew
+that eats together likes each other, and he banks on it.
+Mid everything else — evidence accrues through service
+signals (a sent-back plate is a cold signal; a clean one
+is warm), mid gap, honest neg weight. `vulnerable:true`
+events run kitchen-currency: admitting a mistake to the
+crew costs him a little in his own ledger while the crew
+rates him higher — the beautiful-mess asymmetry playing
+in aprons.
+
+### Ambient tier — metaself template
+Ambients draw `meta_proj`~U(0.4,0.8), `meta_recip`~
+U(0.3,0.7), `lgap_k`~U(0.1,0.6), `meta_ev_w`~U(0.3,0.7),
+`meta_neg_w`~U(0.8,1.6), `bmess_k`~U(0.05,0.35) —
+population bands, no exotic corners. The crowd's
+metaselves must be as varied and as privately wrong as
+the cast's; an ambient whose `stale` flag never clears
+is not a bug — most people run on old impressions.
+
+## 30. Distinctness — sixth-pass notes
+The metaself axes are orthogonal to both prior social
+layers: Victor and Priya both carry low reciprocity, but
+Victor's is monument-indifference while Priya's is
+clinical distance; Jules and Dani share mid-high gaps,
+but Jules's is anxious self-audit while Dani's is
+thin-evidence theater; Marcus and Tomás share high
+reciprocity, but Marcus's is temperament while Tomás's
+is crew-bond. The same incoming warmth now lands eight
+different ways in eight private ledgers — and the
+audience can watch a character be wrong about being
+liked in real time.
+
+## 31. Probes filed
+P994–P1005 → validation-design.md §192. Signature checks:
+P995/P996 gap direction + attenuation (Jules highest,
+still ≥0); P994 mindread null; P999 compete channel
+≈0 accuracy for ALL profiles; P1005 cast spread
+ordering on identical signal diets.
+
+## 32. Sources added this version
+- Kenny & DePaulo 1993 (*Psychol Bull* 114:145 —
+  verified): SRM meta-analysis; self→meta r ≈ .87;
+  generalized > dyadic meta-accuracy.
+- Elfenbein, Eisenkraft & Ding 2009 (*Psychol Sci*
+  20:1081 — verified): dyadic meta-accuracy for being
+  valued runs on reciprocity.
+- Eisenkraft, Elfenbein & Kopelman 2017 (*Psychol Sci*
+  28:233 — verified): we know who likes us, not who
+  competes with us.
+- Boothby, Cooney, Sandstrom & Clark 2018 (*Psychol Sci*
+  29 — verified): the liking gap; five studies; persists
+  months, attenuates with acquaintance.
+- Bruk, Scholl & Bless 2018 (*JPSP* 115:192 — verified):
+  beautiful mess effect; construal-level account.
+- Clark & Wells 1995 (reused): self-focused processing
+  in social anxiety — lgap_k's trait mechanism.

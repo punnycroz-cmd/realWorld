@@ -4858,3 +4858,252 @@ writes nothing); `tie_delete_null` (faded ties never delete);
   closes absent new events is untested — `trust_full_null` is
   conservative, and the floor's erosion runs through ordinary §6.4
   experience so nothing is irreversible in principle.
+
+# Part X — v94 pass: the metaself layer (what I believe you think of me)
+
+Focus: character-profiles VIII. The social ledger so far models A's
+model of B (PersonModel), A's model of B's ties (SocialMap), and the
+venue's norms (NormModel). The missing half of the social-perception
+literature is **metaperception** — A's belief about how B sees A.
+Humans act on this constantly and are systematically WRONG about it in
+characteristic, per-person ways: the shy newcomer thinks she's
+tolerated when she's liked; the assured owner thinks respect follows
+his role. Spec v5.42 §§6.214–6.220; probes P994–P1005.
+
+## 141. Meta-accuracy is real but mostly generalized **[CONSENSUS]**
+
+Kenny & DePaulo 1993 (*Psychol Bull* 114:145 — verified, SRM meta of
+8 studies): people DO know how others *in general* see them
+(generalized meta-accuracy ≈ .51 in acquainted samples) but are far
+worse at knowing how a *specific* person sees them (dyadic
+meta-accuracy much lower and often ≈ 0 in strangers). Two engine
+findings drive the model: (a) self-perception → metaperception
+correlation ≈ **.87** — people determine how others view them mostly
+from their own self-view, not from feedback; (b) people overestimate
+consistency across targets — they assume different others see them
+more similarly than those others actually do.
+
+Consequence: the metaself is a *prior-dominated* store. Evidence moves
+it, but slowly — the default state of a human metaself is the
+self-concept wearing the other person's face.
+
+## 142. Assumed reciprocity — liking believes itself returned **[CONSENSUS direction; channel asymmetry CONSENSUS]**
+
+Elfenbein, Eisenkraft & Ding 2009 (*Psychol Sci* 20:1081 — verified):
+dyadic meta-accuracy for *being valued* is real and runs through
+**reciprocity** — people introspect "I value X" and infer "X values
+me," which works because liking is actually reciprocated in the world.
+Eisenkraft, Elfenbein & Kopelman 2017 (*Psychol Sci* 28:233 —
+verified): the same perceivers are essentially BLIND to who competes
+with them — the reciprocity heuristic has no traction on threat.
+Consequence: `est_like` gets a reciprocity arm; competitive/threat
+estimates are modeled as near-noise (`compete_blind`) — the mechanism
+that produces accuracy for warmth produces nothing for rivalry.
+
+## 143. The liking gap — the newest wrongness **[CONSENSUS; magnitudes context-bound]**
+
+Boothby, Cooney, Sandstrom & Clark 2018 (*Psychol Sci* 29:1742 —
+verified, 5 studies): after conversations with new people, people
+systematically UNDERESTIMATE how much the partner liked them — the
+partner's observer-rated liking exceeds the actor's estimate of it.
+Robust to conversation length, present for months in dorm-mate
+development, driven by self-focus: the actor is busy auditing her own
+performance ("my banter wasn't witty enough") while the observer sees
+only the pleasant surface. Mechanism per the authors: the actor's
+perspective includes faults invisible to the partner.
+
+Sim consequence: post-conversation updates toward a new acquaintance
+get a signed discount — `S_eff = S_obs − gap` — where gap shrinks with
+relationship depth (the gap persists but attenuates as acquaintance
+develops — the dorm study's months-long tail is our `tie_depth`
+moderation) and grows with self-focus traits (social anxiety, low
+self_est, newcomer status). The literature never reports a reversal —
+nobody systematically overestimates post-conversation liking — so the
+direction is locked (`lgap_reverse_null`).
+
+## 144. The beautiful mess — vulnerability is cheaper for the watcher **[CONSENSUS; asymmetry shape ours]**
+
+Bruk, Scholl & Bless 2018 (*JPSP* 115:192 — verified, 7 studies):
+people evaluate their OWN displays of vulnerability (confessing
+feelings, apologizing first, admitting a mistake, asking for help)
+more negatively than observers evaluate the same acts — construal-
+level asymmetry: own vulnerability is represented concretely (the
+mess), others' abstractly (the beauty). Sim consequence: a
+`vulnerable:true` event writes to both sides asymmetrically — the
+actor's MetaModel update gets a discount (`bmess_k`) while the
+observer's PersonModel update gets a bonus (`bmess_obs`). The
+asymmetry is signed and locked: the self-side never receives the
+observer bonus (`bmess_invert_null`). This is why a character can
+apologize sincerely, be liked MORE for it by the room, and still
+believe she lost face — both beliefs are accurate perceiver-side.
+
+## 145. Evidence is memory — MetaModel consumes the store, not the event **[HYPOTHESIS — our architectural commitment]**
+
+The literature measures metaperception as questionnaire judgments;
+nobody has decomposed it into stored evidence vs prior. Our modeling
+commitment (consistent with the whole spec): MetaModel updates are
+driven by *retrieved social-signal fields* — the `signal:warm|cold|
+neutral` marks on records that survive encoding, decay, distortion,
+and mnemic neglect — never by the event itself. Consequences that fall
+out for free and are probeable: (a) a greeting-avoidance memory that
+dies unrecalled is evidence that never lands — characters with high
+throughput lives (dense days, §4.40) update their metaselves less per
+unit social experience; (b) negative signals carry `meta_neg_w > 1`
+weight — consistent with negative-diagnosticity dominance
+(diag_moral_neg, §2) and with ruminative re-rehearsal keeping slights
+retrievable (rumin, §6.110); (c) metaperceptions persist past their
+evidence — once formed, est_like doesn't decay toward the prior, it
+just goes `stale` (persistence is our hypothesis — questionnaire
+metaperceptions are stable retest-to-retest but nobody has measured
+spontaneous drift; flagged).
+
+## 146. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121, 136)
+
+- **social_anx / shy:** `lgap_k` ↑ (the gap IS the anxious signature —
+  Boothby's mechanism is self-critical focus); `meta_neg_w` ↑; 
+  `meta_ev_w` ↓ on positive evidence only (the Clark & Wells 1995
+  processing bias — self-focused safety-seeking discounts warmth
+  signals).
+- **self_est low:** `meta_proj` ↑ effect is double-edged — projection
+  pulls est_like toward a negative self-view (Kenny & DePaulo's .87
+  works against the low-self-est character, not for her).
+- **neurot / rumin:** `meta_neg_w` ↑ — cold signals re-rehearse;
+  also `lgap_k` ↑ via the self-audit channel.
+- **narciss-adjacent / dominance:** `meta_proj` ↑, `meta_ev_w` ↓ —
+  the metaself is a monument; feedback bounces. Positive-direction
+  only where self_est is high (projection is symmetric — it
+  amplifies whatever self-view exists).
+- **consc / trained-signal-readers (nurse, manager):** `meta_ev_w` ↑
+  — years of reading faces-for-a-living buy faster evidence
+  integration; does NOT buy accuracy on `compete` (nobody's —
+  `compete_blind` is population).
+- **age:** older adults show the projection-consistency signature
+  more strongly (we hypothesize — the metaself's priors consolidate
+  with self-concept stability; McLean self-continuity work adjacent,
+  not direct evidence — flagged HYPOTHESIS).
+- **newcomer status:** not a trait — emerges from thin `evidence_n`:
+  the projection prior dominates when evidence is scarce, and
+  `lgap_k` bites hardest on shallow ties.
+
+## 147. Spec changes in v5.42 (summary)
+
+- **New store:** `MetaModel` per (char, alter) — belief-only
+  projection `{alter, est_like, est_traits{warm,competent,compete},
+  evidence_n, last_upd_day, gap}`; sibling of PersonModel, never a
+  fact channel.
+- **New mechanisms (§§6.214–6.220):** projection prior on thin
+  evidence; reciprocity arm on est_like + `compete_blind` threat
+  channel; post-conversation liking gap with tie-depth moderation;
+  retrieved-signal evidence integration with `meta_neg_w`; staleness
+  flag (no spontaneous decay — §145 honest limit); beautiful-mess
+  asymmetry on `vulnerable:true`; five locked nulls.
+- **New traits (§7 IndivTraits):** `meta_proj`, `meta_recip`,
+  `lgap_k`, `meta_ev_w`, `meta_neg_w`, `bmess_k` — all
+  bible-pinnable.
+- **New scalars (pop):** `meta_ev_min`, `lgap_tie_cap`,
+  `lgap_ev_cap`, `meta_stale_days`, `bmess_obs`, `compete_blind`,
+  `meta_signal_p`.
+- **Emissions:** `felt_liked` / `felt_disliked` deltas,
+  `gap_close` milestone, `meta_stale` audit flag.
+- **Contract:** `metaView(charId, alterId)` world-readable;
+  `metaGap(charId)` audit. Snapshot-additive; absent = legacy.
+- **Locked nulls:** `meta_mindread_null`, `meta_episode_null`,
+  `lgap_reverse_null`, `bmess_invert_null`, `recip_truth_null`.
+
+## 148. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+- `meta_proj` 0.65 — Kenny & DePaulo's .87 self–meta correlation is
+  an acquaintance asymptote; thin-evidence dominance set lower so
+  evidence CAN win (HYPOTHESIS split).
+- `meta_recip` 0.5 — half the warmth judgment rides the reflected
+  arm (Elfenbein 2009's reciprocity mechanism; magnitude sized).
+- `lgap_k` 0.4 — mean gap sized against Boothby's d ≈ 0.3–0.5 range
+  on liking scales; trait scales 0–1 with pop mean 0.4.
+- `meta_ev_w` 0.5 — learning rate per retrieved signal; sized so
+  evidence_n ≈ 8–12 signals can overcome a moderate prior within a
+  season of contact.
+- `meta_neg_w` 1.3 — one cold shoulder ≈ two warm days; below
+  diag_moral_neg's 1.6 (metaperception is milder than morality).
+- `bmess_k` 0.2 self-side / `bmess_obs` 0.15 observer-side.
+- `meta_ev_min` 4; `lgap_tie_cap` 0.5; `lgap_ev_cap` 8;
+  `meta_stale_days` 90; `compete_blind` 0.1; `meta_signal_p` 0.7
+  (fraction of social events whose signal field is retrievable as
+  evidence at all).
+
+## 149. Validation probes (P994–P1005)
+
+- **P994 meta_mindread_null (MUST — locked-null):** do() perturbs
+  alter's canonical RelEdge + PersonModel-of-ego with NO observable
+  signal; every MetaModel field bit-identical. This is the
+  belief-vs-fact wall — the metaself may be wrong, never informed.
+- **P995 liking-gap direction (MUST):** new-acquaintance dyads,
+  matched signal diets: mean(est_like − true_like) < 0; pooled
+  across the 8 mains.
+- **P996 gap attenuates with depth (MUST):** gap magnitude vs
+  tie_depth/evidence_n monotone-decreasing across cohorts
+  (Boothby's dorm-mates arm); still ≥0 at 90-day ties in
+  high-`lgap_k` profiles.
+- **P997 projection dominance (SHOULD):** do(setTrait, self_est ±)
+  moves est_like in the same direction under thin evidence
+  (evidence_n < meta_ev_min) at r ≈ meta_proj; effect shrinks as
+  evidence accrues.
+- **P998 reciprocity arm (SHOULD):** manipulating own liking of
+  alter moves est_like ∝ meta_recip, independent of observed
+  signals — and moves NOTHING in alter's stores (paired with P994).
+- **P999 compete channel is blind (SHOULD):** across dyads with
+  hidden competitive RelEdge variance, est_traits.compete
+  meta-accuracy ≈ 0 (within compete_blind band) while est_like
+  meta-accuracy > 0 — the Eisenkraft dissociation.
+- **P1000 meta_episode_null (MUST — locked-null):** MetaModel
+  create/update/stale operations mint zero records; record census
+  identical with the layer on/off under CRN.
+- **P1001 negative-signal weighting (SHOULD):** symmetric diets
+  (N warm + 1 cold vs N cold + 1 warm): the single cold signal moves
+  est_like ≈ meta_neg_w× the single warm one; ×(1+rumin) slope
+  present.
+- **P1002 beautiful-mess asymmetry (SHOULD):** identical
+  `vulnerable:true` event: actor-side est_like update negative or
+  discounted vs a matched non-vulnerable warm event; observer-side
+  PersonModel eval update positive — signed in opposite directions.
+- **P1003 staleness, not decay (SHOULD):** after meta_stale_days
+  without retrieved signals, `metaView` returns `stale:true` and
+  est_like unchanged (no drift toward prior); next retrieved signal
+  clears the flag and resumes integration.
+- **P1004 lgap_reverse_null (MUST — locked-null):** across all 8
+  mains + ambient archetype draws under CRN, no profile yields mean
+  gap < 0 (nobody systematically overestimates post-conversation
+  liking).
+- **P1005 cast spread (OBSERVE):** identical new-acquaintance
+  signal diet → publish per-main est_like trajectories; expected
+  ordering: Jules lowest (high lgap + thin evidence), Victor flat
+  (evidence-bounced projection), Priya highest meta-accuracy.
+  Report, don't gate — the ordering is the cast's signature.
+
+## 150. Honest limits (Part X)
+
+- **The evidence-through-memory pathway is our commitment.** The
+  literature treats metaperception as a judgment, not a store; the
+  claim that metaperception inherits ALL the distortion machinery of
+  the underlying records is a strong, falsifiable HYPOTHESIS — and
+  exactly the kind of claim this project exists to make.
+- **No spontaneous decay is asserted, not measured.** Questionnaire
+  metaperceptions are stable, but nobody has tracked unprompted
+  drift over sim-relevant timescales. We chose stale-flag-over-decay
+  because a decaying metaself silently manufactures its own evidence
+  (drift toward prior = projection leaking into the record layer).
+  If a reader shows real drift, `meta_stale_days` becomes a decay τ
+  instead.
+- **Liking-gap magnitudes are band-fits.** Boothby reports
+  significant gaps on bounded scales; `lgap_k` 0.4 mean is sized so
+  the effect is visible on RW's coarse [−1,1] ties without swallowing
+  evidence entirely. The direction is consensus; the size is ours.
+- **The compete-blind null is real but thin.** Eisenkraft 2017 is one
+  study in professional samples; we model threat-metaperception as
+  noise rather than assert a competing bias (paranoid accuracy would
+  need a different mechanism — hypervigilance is a hyperacusis
+  profile question, deferred).
+- **Reciprocity is an inference, not a law.** Elfenbein's mechanism
+  is introspection-about-own-liking; we implement it as a parametric
+  pull. Where own_liking is itself a belief (about an ambient), the
+  pull runs on the belief — consistent with the introspection
+  account.

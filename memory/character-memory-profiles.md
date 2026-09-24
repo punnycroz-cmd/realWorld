@@ -1187,6 +1187,10 @@ needs both.
 | norm_vocal_w / norm_conf_k / norm_check_tau | 0.8 / 0.05 / 14 | 2.0 / 0.4 / 180 | vocal-minority norm weight + confidence + check decay (v5.40) |
 | idea_self_bias / idea_pool_p | 0.0 / 0.2 | 0.4 / 0.9 | proposal attribution drift + pooling (v5.40) |
 | trust_recover_k / breach_floor / apology_floor_cut | 0.01 / 0.0 / 0.0 | 0.2 / 0.5 / 0.6 | breached-trust recovery + floor + apology cut (v5.40) |
+| meta_ev_min / lgap_tie_cap / lgap_ev_cap / meta_stale_days | 1 / 0.2 / 2 / 30 | 8 / 0.8 / 20 / 240 | metaself evidence gate + gap caps + staleness (v5.42) |
+| bmess_obs / compete_blind / meta_signal_p | 0.0 / 0.02 / 0.4 | 0.4 / 0.3 / 0.95 | observer-side vulnerability bonus + compete noise + signal-mint rate (v5.42) |
+| meta_proj / meta_recip / lgap_k | 0.0 / 0.0 / 0.0 | 1.0 / 1.0 / 1.0 | metaself traits — projection / reciprocity / gap (v5.42) |
+| meta_ev_w / meta_neg_w / bmess_k | 0.2 / 0.5 / 0.0 | 1.0 / 2.0 / 0.5 | metaself traits — evidence rate / neg weighting / self-vuln discount (v5.42) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4688,3 +4692,109 @@ infrastructure — but it changes *where profiles come from*:
 - **Never pin:** locked nulls `bible_contradict_null`,
   `synth_mark_null`, `past_fact_null`, `crn_paired_null` —
   probe-enforced (P982–P993).
+
+## 75. v5.42 note (social-memory X — the metaself layer)
+
+Four clamp rows added in §0. **Six new traits** (`meta_proj`,
+`meta_recip`, `lgap_k`, `meta_ev_w`, `meta_neg_w`, `bmess_k`)
+— the metaself pins. These shape the store that answers "what
+does she think OF ME?" — a belief layer that is wrong in
+specific, per-person ways. Nothing here mints records
+(`meta_episode_null`); everything reads the existing social
+evidence stream. Spec §§6.214–6.220; per-main pins in
+cast-profiles.md Part VI.
+
+- **`meta_proj` — the projection weight.** Kenny & DePaulo
+  1993's core finding: people judge how others see them mostly
+  from how they see themselves (r ≈ .87 in acquaintances).
+  Pin high on characters whose metaself is a monument —
+  Victor (0.8): he assumes the room reads him as he reads
+  himself, and a lifetime of being the-owner-who-shows-up
+  makes the prior feel like fact. Pin mid on readers-of-rooms
+  (Priya 0.4). WARNING: projection is symmetric — it
+  amplifies whatever self-view exists. A low-`self_est`
+  character with high `meta_proj` doesn't become paranoid;
+  she becomes *accurately pessimistic* — her metaself is bad
+  news delivered by her own self-concept. That is the
+  literature, not a bug.
+- **`meta_recip` — "I like them, so they like me."** The
+  reciprocity arm (Elfenbein et al. 2009). Pin high on warm,
+  trusting profiles (Tomás 0.7 — kitchen loyalty assumes
+  itself returned) and LOW on the guarded (Priya 0.3) or the
+  chronically-rebuffed. Never use it to manufacture
+  mutual-feeling storylines — it writes to MetaModel only
+  (`recip_truth_null`); the alter's real edge is untouched,
+  which is exactly why reciprocity errors hurt: the belief
+  outruns the fact.
+- **`lgap_k` — the liking-gap susceptibility.** Boothby et
+  al. 2018. Pin from self-critical social focus: the
+  newcomer who replays her own performance is the
+  high-`lgap_k` profile (Jules 0.8 — she thinks she's
+  tolerated when she's liked). The genuinely unbothered get
+  low pins (Marcus 0.15 — he never audits a conversation in
+  his life). The gap attenuates with tie depth — DO NOT
+  compensate by zeroing the trait on "secure" profiles; a
+  secure newcomer still carries some gap because the
+  mechanism is perspective, not pathology. The locked null
+  `lgap_reverse_null` means no bible can produce the
+  systematic overestimator — write a vain character via
+  `meta_proj` + high `self_est`, not via negative gap.
+- **`meta_ev_w` — how fast evidence beats the prior.**
+  Trained signal-readers earn high pins (Priya 0.75 —
+  twenty years of watching faces for bad news; Marisol 0.65
+  — a floor manager's metaself is calibrated by tips and
+  turnover). Evidence-immune profiles pin low (Victor 0.25 —
+  feedback bounces off a monument). Do not pin low just to
+  make a character "oblivious" — low `meta_ev_w` +
+  high `meta_proj` is a *stable wrongness*; if you want
+  comic obliviousness pair it with mid `meta_signal_p`
+  ecology (fewer signals minted).
+- **`meta_neg_w` — the cold-shoulder exchange rate.**
+  Default 1.3 (one cold day ≈ two warm ones). Rides
+  `rumin`/`neurot` — pin the upstream traits and let the
+  composite work; explicit pins only for extremes. Carmen
+  gets 0.9 — she has weathered enough slights to discount
+  them; a thin-skinned profile (Dani-adjacent sensibility)
+  pins 1.6+. Deliberately below `diag_moral_neg`'s 1.6 —
+  people discount rudeness faster than immorality.
+- **`bmess_k` — the vulnerability discount.** Bruk et al.
+  2018: own vulnerability reads as mess, others' as beauty.
+  Pin high on perfectionist/shame-adjacent profiles
+  (Victor 0.35 — he would die before apologizing first, and
+  the metaself prices that fear); low on the
+  practiced-vulnerable (Dani 0.1 — she confesses
+  theatrically and barely registers the risk). The locked
+  `bmess_invert_null` means the observer bonus can never
+  leak to the self-side — a character cannot learn "the
+  room loved my breakdown" through this channel; she has to
+  HEAR it said.
+- **Never pin (mechanism constants):** `meta_ev_min`,
+  `lgap_tie_cap`, `lgap_ev_cap`, `meta_stale_days`,
+  `bmess_obs`, `compete_blind`, `meta_signal_p` — population
+  scales all. In particular: no bible may raise
+  `meta_signal_p` to make a character "notice everything" —
+  signal-minting is the world's ecology; what differs per
+  person is what the evidence DOES after it lands.
+- **The compete channel is everyone's blind spot.**
+  `compete_blind` is pop machinery — every profile, from the
+  paranoid to the serene, estimates who-competes-with-them
+  at ≈0 meta-accuracy (Eisenkraft et al. 2017). A bible
+  wanting "she always knows who's gunning for her" must buy
+  it through observed-behavior accuracy (high `meta_ev_w`
+  on cold signals), not through this channel — the
+  literature gives nobody a rivalry detector.
+- **Emergent cast shadows:** (a) Jules leaves every good
+  conversation believing it went worse than it did — for
+  MONTHS, because the gap attenuates slowly and her
+  evidence is thin; (b) Victor's metaself is a statue —
+  neither warmth nor dislike updates it, and the room can
+  turn cold around him for a season before a retrieved
+  signal lands; (c) Priya's metaself is the cast's only
+  calibrated instrument — she notices the cooling before
+  the cooler does, and never flatters herself; (d) Dani's
+  theatrical vulnerability costs her nothing while
+  Victor's rare real one costs him twice — same event,
+  opposite ledgers; (e) Marcus believes everyone likes him
+  and is, by the reciprocity arm, mostly right — the
+  sunniest possible wrongness. Sources §72 of
+  human-memory-research.md; probes P994–P1005.
