@@ -8,15 +8,65 @@ function setupCanvas(){
   cv = document.getElementById('cv');
   ctx = cv.getContext('2d');
   function resize(){
-    dpr = window.devicePixelRatio || 1;
-    cv.width = window.innerWidth * dpr;
-    cv.height = (window.innerHeight - 44) * dpr;
+    dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const vv = window.visualViewport;
+    const w = (vv && vv.width) || window.innerWidth;
+    const h = (vv && vv.height) || window.innerHeight;
+    cv.width = Math.max(1, Math.round(w * dpr));
+    cv.height = Math.max(1, Math.round(h * dpr));
+    cv.style.width = w + 'px';
+    cv.style.height = h + 'px';
   }
   window.addEventListener('resize', resize);
+  window.addEventListener('orientationchange', resize);
+  if(window.visualViewport && window.visualViewport.addEventListener){
+    window.visualViewport.addEventListener('resize', resize);
+  }
   resize();
 
-  // Interactive Canvas Pointer: Select Villager / Click-to-Move
+  // Zoom: mouse wheel + two-finger pinch
+  const ZOOM_MIN = 0.5, ZOOM_MAX = 2.5;
+  function setZoom(z){ cam.zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z)); }
+  cv.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    setZoom(cam.zoom * (e.deltaY < 0 ? 1.1 : 1 / 1.1));
+  }, { passive: false });
+
+  const touches = new Map(), touchStart = new Map();
+  let pinchDist = 0, pinchZoom = 1, pinchActive = false;
   cv.addEventListener('pointerdown', (e) => {
+    if(e.pointerType === 'touch'){
+      touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      touchStart.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      if(touches.size === 2){
+        const [a, b] = [...touches.values()];
+        pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
+        pinchZoom = cam.zoom;
+        pinchActive = true;
+      }
+    }
+  });
+  cv.addEventListener('pointermove', (e) => {
+    if(e.pointerType !== 'touch' || !touches.has(e.pointerId)) return;
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if(touches.size === 2 && pinchDist > 0){
+      const [a, b] = [...touches.values()];
+      const d = Math.hypot(a.x - b.x, a.y - b.y);
+      setZoom(pinchZoom * (d / pinchDist));
+    }
+  });
+  const endTouch = (e) => {
+    if(e.pointerType !== 'touch') return;
+    touches.delete(e.pointerId);
+    if(touches.size === 0){ pinchDist = 0; setTimeout(() => { pinchActive = false; }, 50); }
+  };
+  cv.addEventListener('pointerup', endTouch);
+  cv.addEventListener('pointercancel', endTouch);
+
+  // Interactive Canvas Pointer: Select Villager / Click-to-Move
+  // (touch: fire on release so pinch gestures don't also select/walk)
+  const handleTap = (e) => {
+    if(pinchActive || touches.size > 1) return;
     const rect = cv.getBoundingClientRect();
     const clickX = (e.clientX - rect.left);
     const clickY = (e.clientY - rect.top);
@@ -51,6 +101,18 @@ function setupCanvas(){
         }
       }
     }
+  };
+  cv.addEventListener('pointerdown', (e) => {
+    if(e.pointerType === 'touch') return;
+    handleTap(e);
+  });
+  cv.addEventListener('pointerup', (e) => {
+    if(e.pointerType !== 'touch') return;
+    const start = touchStart.get(e.pointerId);
+    touchStart.delete(e.pointerId);
+    if(!start || pinchActive || touches.size > 0) return;
+    if(Math.hypot(e.clientX - start.x, e.clientY - start.y) > 14) return;
+    handleTap(e);
   });
 }
 
@@ -254,6 +316,8 @@ function isNight(){
 function renderChibiPawn(v, cw, ch){
   const sx = Math.round((v.x - cam.x) * cam.zoom + cw / 2);
   const sy = Math.round((v.y - cam.y) * cam.zoom + ch / 2);
+  const cullPad = 120 * cam.zoom;
+  if(sx < -cullPad || sx > cw + cullPad || sy < -cullPad || sy > ch + cullPad) return;
 
   // Water depth at character feet
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);

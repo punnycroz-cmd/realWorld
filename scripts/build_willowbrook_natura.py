@@ -60,7 +60,11 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#07090e">
 <title>Willowbrook Natura — Living World Simulation</title>
 <style>
   :root {
@@ -73,40 +77,47 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     --blue: #38bdf8;
     --green: #4ade80;
     --red: #f43f5e;
+    --top-h: 44px;
+    --safe-t: env(safe-area-inset-top, 0px);
+    --safe-b: env(safe-area-inset-bottom, 0px);
+    --safe-l: env(safe-area-inset-left, 0px);
+    --safe-r: env(safe-area-inset-right, 0px);
   }
   * { box-sizing: border-box; }
   html, body {
     margin: 0; padding: 0; width: 100%; height: 100%; overflow: hidden;
+    overscroll-behavior: none; -webkit-tap-highlight-color: transparent; touch-action: none;
     background: var(--bg); color: var(--text);
     font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
     user-select: none; -webkit-user-select: none;
   }
   #top {
-    position: fixed; top: 0; left: 0; right: 0; height: 44px;
+    position: fixed; top: 0; left: 0; right: 0; min-height: var(--top-h);
     background: rgba(10, 14, 23, 0.95); backdrop-filter: blur(8px);
     border-bottom: 1px solid var(--panel-border);
     display: flex; align-items: center; justify-content: space-between;
-    padding: 0 14px; z-index: 20; font-size: 13px;
+    padding: 0 14px; padding-top: var(--safe-t); z-index: 20; font-size: 13px; gap: 8px;
   }
   .top-left, .top-right, .top-center { display: flex; align-items: center; gap: 10px; }
-  .title { font-weight: 800; color: #86efac; letter-spacing: 0.5px; font-size: 14px; display: flex; align-items: center; gap: 6px; }
+  .title { font-weight: 800; color: #86efac; letter-spacing: 0.5px; font-size: 14px; display: flex; align-items: center; gap: 6px; white-space: nowrap; }
   .pill {
     background: #162032; border: 1px solid #283548; border-radius: 999px;
     padding: 3px 11px; font-size: 12px; color: #cbd5e1; font-weight: 500;
-    display: inline-flex; align-items: center; gap: 6px;
+    display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
   }
   .pill-weather { color: #38bdf8; border-color: rgba(56,189,248,0.3); }
   .pill-temp { color: #facc15; }
   .btn {
     background: #1e293b; border: 1px solid #334155; color: #f8fafc;
     border-radius: 6px; padding: 4px 10px; cursor: pointer; font-size: 12px;
-    font-family: inherit; transition: all 0.15s ease;
+    font-family: inherit; transition: all 0.15s ease; white-space: nowrap;
   }
   .btn:hover { background: #334155; border-color: #475569; }
+  .btn:active { background: #475569; }
   .btn.active { background: #047857; border-color: #10b981; color: #ecfdf5; font-weight: 600; }
   #cv {
-    position: fixed; top: 44px; left: 0; width: 100vw; height: calc(100vh - 44px);
-    display: block; cursor: crosshair; image-rendering: pixelated;
+    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+    display: block; cursor: crosshair; image-rendering: pixelated; touch-action: none;
   }
 
   /* RimWorld-Style Pawn Inspector */
@@ -117,7 +128,9 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     padding: 12px 14px; z-index: 25; box-shadow: 0 16px 36px rgba(0,0,0,0.65);
     display: flex; flex-direction: column; gap: 10px;
     transition: transform 0.2s ease, opacity 0.2s ease;
+    max-height: calc(100vh - var(--top-h) - 32px); overflow-y: auto;
   }
+  #pi-collapse { display: none; }
   .pi-header { display: flex; align-items: center; gap: 12px; }
   .pi-avatar-wrap {
     width: 44px; height: 52px; background: #0f172a; border-radius: 8px;
@@ -197,6 +210,38 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     padding: 6px 12px; font-size: 11.5px; color: var(--muted);
     display: flex; gap: 12px; z-index: 15;
   }
+  /* Touch controls (shown only on coarse-pointer devices) */
+  #touch-controls { display: none; }
+  body.touch #touch-controls { display: block; }
+  body.touch #help-bar { display: none; }
+  body.touch #pi-collapse { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; padding: 0; flex-shrink: 0; }
+  body.touch #pawn-inspector.collapsed { max-height: 88px; overflow: hidden; }
+  body.touch #pawn-inspector.collapsed > :not(.pi-header):not(.pi-act) { display: none; }
+  body.touch #pawn-inspector.hidden-mobile { transform: translateY(110%); opacity: 0; pointer-events: none; }
+  #joystick {
+    position: fixed; left: calc(18px + var(--safe-l)); bottom: calc(18px + var(--safe-b));
+    width: 120px; height: 120px; border-radius: 50%; z-index: 26;
+    background: rgba(15,23,42,0.45); border: 2px solid rgba(148,163,184,0.35);
+    touch-action: none;
+  }
+  #joystick-knob {
+    position: absolute; left: 50%; top: 50%; width: 52px; height: 52px; border-radius: 50%;
+    background: rgba(56,189,248,0.55); border: 2px solid #38bdf8;
+    transform: translate(-50%, -50%); pointer-events: none;
+  }
+  #joystick.hidden { display: none; }
+  #btn-interact {
+    position: fixed; right: calc(18px + var(--safe-r)); bottom: calc(18px + var(--safe-b));
+    width: 72px; height: 72px; border-radius: 50%; z-index: 26;
+    background: rgba(4,120,87,0.75); border: 2px solid #10b981; color: #ecfdf5;
+    font-size: 22px; font-weight: 800; touch-action: none; font-family: inherit;
+  }
+  #btn-interact:active { background: #059669; }
+  #btn-interact.hidden { display: none; }
+  #btn-inspector {
+    position: fixed; right: calc(18px + var(--safe-r)); bottom: calc(100px + var(--safe-b));
+    width: 44px; height: 44px; border-radius: 50%; z-index: 26; font-size: 18px; padding: 0;
+  }
   #help-bar kbd {
     background: #1e293b; border: 1px solid #475569; color: #e2e8f0;
     padding: 1px 5px; border-radius: 4px; font-size: 10.5px; font-weight: 700;
@@ -234,13 +279,65 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     padding: 12px; font-family: monospace; font-size: 11.5px; line-height: 1.5;
     color: #cbd5e1; overflow-y: auto; z-index: 999; display: none; white-space: pre-wrap;
   }
+
+  /* ---- Responsive: tablets & phones ---- */
+  @media (max-width: 1280px) {
+    .top-right .btn-label { display: none; }
+    .top-right .btn { padding: 4px 8px; }
+  }
+  @media (max-width: 900px) {
+    #top { flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none; justify-content: flex-start; }
+    #top::-webkit-scrollbar { display: none; }
+    .title .title-text { display: none; }
+    .pill { white-space: nowrap; }
+    .top-left, .top-center, .top-right { flex-shrink: 0; }
+    #help-bar { display: none; }
+    #debug-panel { width: 180px; }
+    #debug-feed { width: min(300px, calc(100vw - 32px)); max-height: 160px; }
+  }
+  @media (max-width: 640px) {
+    :root { --top-h: 40px; }
+    #top { padding: 0 8px; padding-top: var(--safe-t); }
+    .pill { padding: 2px 8px; font-size: 11px; }
+    .btn { padding: 6px 9px; font-size: 12px; min-height: 30px; }
+    .top-left, .top-center, .top-right { gap: 6px; flex-shrink: 0; }
+    #toast { top: calc(var(--top-h) + var(--safe-t) + 8px); max-width: calc(100vw - 24px); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    #pawn-inspector {
+      left: 0; right: 0; bottom: 0; width: 100%; border-radius: 14px 14px 0 0;
+      padding: 10px 12px calc(10px + var(--safe-b)); gap: 8px;
+      max-height: 55vh; overflow-y: auto; border-left: none; border-right: none; border-bottom: none;
+    }
+    .pi-thoughts-box { max-height: 70px; }
+    .pi-actions button { padding: 9px 0; font-size: 12px; }
+    #debug-panel { right: 8px; top: calc(var(--top-h) + var(--safe-t) + 8px); }
+    #debug-feed { right: 8px; bottom: auto; top: calc(var(--top-h) + var(--safe-t) + 170px); }
+    #autotest { right: 8px; left: 8px; width: auto; }
+    /* keep the touch controls clear of the bottom sheet */
+    #joystick, #btn-interact { bottom: calc(100px + var(--safe-b)); }
+    #btn-inspector { bottom: calc(184px + var(--safe-b)); }
+    #pawn-inspector.hidden-mobile ~ #touch-controls #joystick,
+    #pawn-inspector.hidden-mobile ~ #touch-controls #btn-interact { bottom: calc(18px + var(--safe-b)); }
+    #pawn-inspector.hidden-mobile ~ #touch-controls #btn-inspector { bottom: calc(100px + var(--safe-b)); }
+    #pawn-inspector:not(.collapsed):not(.hidden-mobile) ~ #touch-controls #joystick,
+    #pawn-inspector:not(.collapsed):not(.hidden-mobile) ~ #touch-controls #btn-interact { display: none; }
+    #pawn-inspector:not(.collapsed):not(.hidden-mobile) ~ #touch-controls #btn-inspector { bottom: calc(55vh + 10px); }
+  }
+  @media (max-height: 480px) and (orientation: landscape) {
+    #pawn-inspector { max-height: calc(100vh - var(--top-h) - 8px); width: 300px; left: auto; right: calc(8px + var(--safe-r)); bottom: 8px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25); padding: 10px 12px; }
+    body.touch #pawn-inspector.hidden-mobile { transform: translateX(120%); }
+    #joystick, #btn-interact { bottom: calc(18px + var(--safe-b)); display: block; }
+    #btn-interact { right: calc(330px + var(--safe-r)); }
+    #btn-inspector { right: calc(330px + var(--safe-r)); bottom: calc(100px + var(--safe-b)); }
+    #pawn-inspector.hidden-mobile ~ #touch-controls #btn-interact { right: calc(18px + var(--safe-r)); }
+    #pawn-inspector.hidden-mobile ~ #touch-controls #btn-inspector { right: calc(18px + var(--safe-r)); bottom: calc(100px + var(--safe-b)); }
+  }
 </style>
 </head>
 <body>
 
 <div id="top">
   <div class="top-left">
-    <span class="title">🌿 WILLOWBROOK NATURA</span>
+    <span class="title">🌿 <span class="title-text">WILLOWBROOK NATURA</span></span>
     <span class="pill" id="ui-clock">Day 1 · Spring · 08:00</span>
     <span class="pill pill-weather" id="ui-weather">⛅ Fair</span>
     <span class="pill pill-temp" id="ui-temp">21°C</span>
@@ -253,11 +350,12 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
     <button class="btn" id="btn-speed-16">16×</button>
   </div>
   <div class="top-right">
-    <button class="btn" id="btn-sound">🔊 Sound: ON</button>
-    <button class="btn" id="btn-spawn-visitor">✦ Invite Visitor</button>
-    <button class="btn" id="btn-save">💾 Save</button>
-    <button class="btn" id="btn-load">📂 Load</button>
-    <button class="btn" id="btn-debug">🛠 Debug</button>
+    <button class="btn" id="btn-sound">🔊<span class="btn-label"> Sound: ON</span></button>
+    <button class="btn" id="btn-spawn-visitor">✦<span class="btn-label"> Invite Visitor</span></button>
+    <button class="btn" id="btn-save">💾<span class="btn-label"> Save</span></button>
+    <button class="btn" id="btn-load">📂<span class="btn-label"> Load</span></button>
+    <button class="btn" id="btn-fullscreen" title="Fullscreen">⛶<span class="btn-label"> Full</span></button>
+    <button class="btn" id="btn-debug">🛠<span class="btn-label"> Debug</span></button>
   </div>
 </div>
 
@@ -271,6 +369,7 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
       <div class="pi-name-row">
         <span class="pi-name" id="pi-name">Marta</span>
         <span class="pi-badge controlled" id="pi-badge">Controlled</span>
+        <button class="btn" id="pi-collapse" title="Collapse / expand">▾</button>
       </div>
       <div class="pi-role" id="pi-role">Village Farmer</div>
       <div class="pi-trait-badge pi-trait-swimmer" id="pi-swim-badge">🏊 Swimmer (Skill 60%)</div>
@@ -342,6 +441,12 @@ HTML_TEMPLATE = r'''<!DOCTYPE html>
   <span><kbd>Click</kbd> Select / Walk</span>
   <span><kbd>Tab</kbd> Cycle Pawn</span>
   <span><kbd>E</kbd> Interact / Drink / Work</span>
+</div>
+
+<div id="touch-controls">
+  <div id="joystick"><div id="joystick-knob"></div></div>
+  <button id="btn-interact">E</button>
+  <button class="btn" id="btn-inspector" title="Show / hide inspector">👤</button>
 </div>
 
 <div id="debug-panel">

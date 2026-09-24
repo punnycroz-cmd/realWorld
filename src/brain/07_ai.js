@@ -68,6 +68,7 @@ function updateVillagerAI(v, dtH){
 }
 
 const keysDown = {};
+const touchMove = { dx: 0, dy: 0 };
 window.addEventListener('keydown', e => {
   keysDown[e.code] = true;
   if(e.code === 'Tab'){
@@ -103,6 +104,10 @@ function updatePlayerPawn(v, dtH){
   if(keysDown['KeyS'] || keysDown['ArrowDown']) dy += 1;
   if(keysDown['KeyA'] || keysDown['ArrowLeft']) dx -= 1;
   if(keysDown['KeyD'] || keysDown['ArrowRight']) dx += 1;
+  if(dx === 0 && dy === 0 && (touchMove.dx !== 0 || touchMove.dy !== 0)){
+    dx = touchMove.dx; dy = touchMove.dy;
+    v.targetX = null; v.targetY = null;
+  }
 
   // Also support click-to-move destination
   if(dx === 0 && dy === 0 && v.targetX != null && v.targetY != null){

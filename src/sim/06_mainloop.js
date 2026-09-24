@@ -2,6 +2,8 @@
    PART 7: MAIN LOOP & SIMULATION UPDATE
    --------------------------------------------------------------------- */
 let lastTime = 0;
+let lastHudTime = 0;
+const HUD_INTERVAL_MS = 100;
 function loop(timestamp){
   requestAnimationFrame(loop);
   const dt = Math.min(0.1, (timestamp - lastTime) / 1000 || 0.016);
@@ -15,7 +17,10 @@ function loop(timestamp){
   }
 
   renderWorld();
-  updateHUD();
+  if(timestamp - lastHudTime >= HUD_INTERVAL_MS){
+    lastHudTime = timestamp;
+    updateHUD();
+  }
 }
 
 function soulTick(v, dtH){
