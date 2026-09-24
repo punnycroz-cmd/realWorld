@@ -24,7 +24,11 @@
   read gsModMetrics, the flag card reads gsFlagStatus, the notebook reads
   gsRepLedger, and the character card reads gsPossessionBriefing — the same
   whitelist object possession briefings ship. Capability-detected per call;
-  an absent bridge is the seeded demo below.
+  an absent bridge is the seeded demo below. v134 adds the precedent layer —
+  "ruled alike": decided rulings are remembered and surfaced beside the open
+  request (same code, same face) so consistency is a check a reviewer can see;
+  departing from the record is noted on the audit line, never blocked, and
+  the record cites rulings — it never re-reads screened text.
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -372,6 +376,26 @@ var PRIOR = { window:'trailing 30 days (seeded demo)',
             'repeat-pattern':3, 'real-person-mention':1 },
   appeals_filed:14, appeals_reversed:3,
   median_decision_min:11, comp_cr:1260, flags_issued:31 };
+/* v134: the precedent layer — "ruled alike". The detailed record behind
+   PRIOR's aggregate counts: decided rulings a reviewer can stand next to.
+   A precedent row cites the RULING only — id, date, reviewer, code,
+   decision, target — never the screened request text and never the player
+   handle: the record remembers what was decided, not who asked or what
+   they wrote. Demo-mode only; on a live queue the layer reads this
+   session's AUDIT entries until the canonical-ledger merge lands. */
+var PRECEDENTS = [
+  { id:'rq-1017', when:'2026-09-22', who:'s.oha', decision:'denied',  code:'secret-extraction',   target:'c1' },
+  { id:'rq-1009', when:'2026-09-15', who:'m.chen', decision:'denied',  code:'secret-extraction',   target:'c1' },
+  { id:'rq-1011', when:'2026-09-16', who:'you',    decision:'denied',  code:'harm-targeting',      target:'c4' },
+  { id:'rq-1019', when:'2026-09-23', who:'s.oha',  decision:'approved',code:'surface-relationship',target:'c6' },
+  { id:'rq-1024', when:'2026-09-19', who:'m.chen', decision:'denied',  code:'surface-relationship',target:'c4' },
+  { id:'rq-1027', when:'2026-09-20', who:'you',    decision:'denied',  code:'venue-lock',          target:'mudhaus' },
+  { id:'rq-1029', when:'2026-09-21', who:'m.chen', decision:'denied',  code:'admin-domain',        target:'c6' },
+  { id:'rq-1030', when:'2026-09-23', who:'you',    decision:'denied',  code:'obfuscation-attempt', target:'c2' },
+  { id:'rq-0988', when:'2026-09-08', who:'s.oha',  decision:'denied',  code:'real-business',       target:'naming' },
+  { id:'rq-0995', when:'2026-09-10', who:'m.chen', decision:'denied',  code:'legal-backstop',      target:'club600' },
+  { id:'rq-1004', when:'2026-09-12', who:'s.oha',  decision:'approved',code:'pass',                target:'sky' }
+];
 var LANE = 'all';
 var SEL = null;
 /* v78: reviewer identity — the demo switcher stands in for SSO. Every claim,
@@ -453,6 +477,72 @@ function waitMin(q){
   return 0;
 }
 function sortKey(q){ return q.subMin!=null?q.subMin*60000:(q.submitted||0); }
+
+/* ================= v134: the precedent layer — "ruled alike" =================
+   Consistency memory for reviewers. For the open request, surface decided
+   rulings that match on charge (the screen code — for appeals, the original
+   denial code) or on face (the target). Sources: this session's AUDIT always;
+   the seeded PRECEDENTS record only in demo mode — on a live queue the
+   canonical-ledger lookup is the game-systems merge target, and the card
+   says so rather than pretending. A precedent INFORMS, never binds: nothing
+   here decides, caps, or vetoes — a ruling that departs from the record is
+   noted on the audit line and still lands. */
+function precCode(q){
+  if(!q) return null;
+  if(q.appeal_of && q.orig && q.orig.code) return q.orig.code;
+  var c=(q.bus&&q.bus.screen)||(q.verdict&&q.verdict.code);
+  return (c&&c!=='pass')?c:null;
+}
+function findPrecedents(q){
+  var code=precCode(q), rows=[];
+  /* session rulings — AUDIT entries carry {id,who,decision,code,target,t} */
+  AUDIT.forEach(function(a){
+    if(!a.id||a.id===q.id) return;
+    var dc=(a.decision==='deny'||a.decision==='escalate')?'denied':'approved';
+    var sameCode=code&&a.code===code, sameTarget=a.target&&a.target===q.target;
+    if(sameCode||sameTarget)
+      rows.push({id:a.id, when:'today '+a.t, who:a.who, decision:dc,
+        code:a.code||'—', target:a.target, sameCode:!!sameCode, sameTarget:!!sameTarget, session:true});
+  });
+  if(!q.bus){
+    PRECEDENTS.forEach(function(r){
+      if(r.id===q.id||r.id===q.appeal_of) return;
+      var sameCode=code&&r.code===code, sameTarget=r.target===q.target;
+      if(sameCode||sameTarget)
+        rows.push({id:r.id, when:r.when, who:r.who, decision:r.decision,
+          code:r.code, target:r.target, sameCode:!!sameCode, sameTarget:!!sameTarget});
+    });
+  }
+  rows.sort(function(a,b){return (b.sameCode-a.sameCode)||(b.sameTarget-a.sameTarget);});
+  return { code:code, rows:rows.slice(0,5),
+    sameCodeCount:rows.filter(function(r){return r.sameCode;}).length };
+}
+function renderPrecedents(q){
+  var P=findPrecedents(q);
+  var html='<div class="card" style="margin-top:8px"><h3>Ruled alike — the record so far</h3>';
+  if(!P.rows.length){
+    html+='<div class="redact-note" style="font-style:normal">Nothing on record — a first of its kind is decided on the text, not on a pattern.</div>';
+  }else{
+    P.rows.forEach(function(r){
+      var tl=(CHARS[r.target]&&CHARS[r.target].name)||r.target||'—';
+      html+='<div class="kv"><span>'+r.when+' · '+r.id+(r.session?' · this session':'')+'</span>'+
+        '<b style="max-width:62%;text-align:right;font-weight:400">'+r.decision+' · '+r.code+' · '+tl+(r.sameTarget&&!r.sameCode?' <span style="color:var(--blu)">· same face</span>':'')+' — '+r.who+'</b></div>';
+    });
+    html+='<div class="redact-note" style="font-style:normal;margin-top:6px">A precedent informs, never binds — judge this text on its own. The record cites rulings (id, code, outcome), never re-reads screened text and never names the player.'+
+      (q.bus?' Live queue: this session\u2019s rulings only — the canonical-ledger lookup is the game-systems merge target.':'')+'</div>';
+  }
+  return html+'</div>';
+}
+/* decision-class alignment for the audit note: matched same-code rulings all
+   went one way and this decision goes the other → noted, never blocked */
+function precedentCheck(q, kind){
+  var P=findPrecedents(q);
+  var mine=(kind==='deny'||kind==='escalate')?'denied':'approved';
+  var same=P.rows.filter(function(r){return r.sameCode;});
+  var n=same.length;
+  var against=n>0&&same.every(function(r){return r.decision!==mine;});
+  return {matched:n, against:against, code:P.code};
+}
 
 var $ = function(id){ return document.getElementById(id); };
 function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block';
@@ -591,6 +681,9 @@ function renderDetail(){
   if(q.lane==='legal'){
     html+='<div class="trace" style="color:var(--red)">LEGAL LANE — kill before run. Public wording is always \u201Crequest not approved\u201D. Flag account (+3). Notify owner. No appeal.</div>';
   }
+  /* v134: the precedent layer — decided rulings on the same charge or the
+     same face, surfaced before the decision bar. Informs, never binds. */
+  html+=renderPrecedents(q);
   /* actions — withheld entirely when the item is claimed by another reviewer
      or when the appeal's original reviewer is you */
   if(lockedOut){
@@ -727,11 +820,14 @@ function decide(kind){
     }
     if(kind==='modify') outcome='[modified → '+opts.modifyMin+' min] '+outcome;
     if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
+    var prec=precedentCheck(q, kind);
+    if(prec.against) outcome+=' | AGAINST THE RECORD — departs from '+prec.matched+' prior '+(prec.code||'same-code')+' ruling'+(prec.matched>1?'s':'')+' (noted, never blocked).';
     var t2=new Date();
     AUDIT.unshift({t:('0'+t2.getHours()).slice(-2)+':'+('0'+t2.getMinutes()).slice(-2),
       who:REVIEWER, id:q.id, outcome:outcome,
       decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
-      appeal_of:q.appeal_of||null, player:q.player, via:'bus'});
+      appeal_of:q.appeal_of||null, player:q.player, via:'bus',
+      target:q.target, precedent:{matched:prec.matched, against:prec.against}});
     delete CLAIMS[q.id];
     SEL=null; DECISIONS++;
     toast(q.id+' resolved through the bus — '+res.status+'.');
@@ -759,11 +855,14 @@ function decide(kind){
     rec.code=code; rec.flag_w=c.flag_w; rec.feed=c.feed;
   }
   if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
+  var prec2=precedentCheck(q, kind);
+  if(prec2.against) outcome+=' | AGAINST THE RECORD — departs from '+prec2.matched+' prior '+(prec2.code||'same-code')+' ruling'+(prec2.matched>1?'s':'')+' (noted, never blocked).';
   var t=new Date();
   AUDIT.unshift({t:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
     who:REVIEWER, id:q.id, outcome:outcome,
     decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
-    appeal_of:q.appeal_of||null, player:q.player});
+    appeal_of:q.appeal_of||null, player:q.player,
+    target:q.target, precedent:{matched:prec2.matched, against:prec2.against}});
   QUEUE=QUEUE.filter(function(x){return x.id!==SEL;});
   SEL=null; DECISIONS++;
   toast(q.id+' decided — '+kind+'. Logged to audit trail.');
@@ -916,6 +1015,10 @@ function renderReport(){
   /* v120 writers' docket — counted here, contents stay with the writers */
   html+='<div class="kv"><span>Incidents to the writers\u2019 room</span><b>'+(DOCKET.length+SESSION_WI.length)+
     ' — counted, contents stay with the writers; never a moderation action</b></div>';
+  /* v134 precedent layer — departures counted in aggregate, never which */
+  var dep=AUDIT.filter(function(a){return a.precedent&&a.precedent.against;}).length;
+  if(AUDIT.length) html+='<div class="kv"><span>Departures from the record</span><b>'+dep+' of '+AUDIT.length+
+    ' session rulings — noted on the audit line, never blocked; consistency is a check, not a veto</b></div>';
   html+='<h2 style="margin:12px 0 6px">Denials + reviews by code</h2>';
   Object.keys(s.by_code).sort(function(a,b){return s.by_code[b]-s.by_code[a];}).forEach(function(k){
     html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';
@@ -1015,7 +1118,8 @@ function exportLedger(){
   var recs=AUDIT.slice().reverse().map(function(a){
     return { rec:'mod_decision', ts:new Date().toISOString().slice(0,10)+' '+a.t,
       reviewer:a.who, request_id:a.id, player:a.player, decision:a.decision,
-      code:a.code, flag_w:a.flag_w, appeal_of:a.appeal_of, feed_line:a.feed };
+      code:a.code, flag_w:a.flag_w, appeal_of:a.appeal_of, feed_line:a.feed,
+      precedent:a.precedent||null };
   });
   var t=$('ledgerOut'); t.style.display='block';
   t.value=JSON.stringify({records:recs, contract:'moderation.json ledger_records',

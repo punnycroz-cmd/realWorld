@@ -6053,6 +6053,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT123",
+   "title": "The Precedent Layer v134 — 'ruled alike' in the Mod Console",
+   "minutes": 6,
+   "persona": "reviewer mid-shift — wants yesterday's rulings visible beside today's open request so two identical asks can't quietly land two rulings; facilitator checking the layer informs and never binds",
+   "goal": "Verify the v134 precedent layer on world/mod-console.html: the 'Ruled alike — the record so far' card renders on every request detail between the trace and the decision bar, matches decided rulings on charge (screen code; appeals use the original denial code) or face (target), cites rulings only (id/date/reviewer/outcome/code — never screened text, never the player), notes departures on the audit line without blocking, and renders the honest empty state on a first-of-its-kind.",
+   "surfaces": [
+    "mod",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open mod-console.html (file://) and select rq-1040 — pt's surface-relationship nudge on Priya. Read the 'Ruled alike' card under the trace. Then select rq-1039 (r0ok's admin-domain rent ask on Victor) and rq-1038 (the ghostline appeal).",
+     "expect": "rq-1040's card lists rq-1024 (denied · surface-relationship · Priya Raman) plus same-face rows like rq-1011 (denied · harm-targeting · Priya). rq-1039's card lists rq-1029 (denied · admin-domain). rq-1038's card matches on the ORIGINAL code (secret-extraction → rq-1009) and excludes rq-1017 — the appeal's own original, already in the appeal workspace. Every row cites id/date/reviewer/outcome/code only.",
+     "checkpoints": [
+      "No precedent row contains request text or a player handle — the record cites rulings, never re-reads screened text and never names the player",
+      "The card footer reads 'A precedent informs, never binds — judge this text on its own.'",
+      "Select rq-1042 (sky weather, pass verdict): the card shows rq-1004 (approved · pass · sky) — a pass-class charge still matches on face; nothing fabricates a charge where the screen saw none"
+     ]
+    },
+    {
+     "do": "On rq-1039 (admin-domain), Approve it instead of denying. Read the audit log line and the toast. Then open the shift report and find the departure line. Then 'export ledger records' and read the new record.",
+     "expect": "The decision lands normally — nothing blocks. The audit line ends '| AGAINST THE RECORD — departs from 1 prior admin-domain ruling (noted, never blocked).' The shift report gains 'Departures from the record: 1 of N session rulings — noted on the audit line, never blocked'. The ledger record carries precedent:{matched:1, against:true}.",
+     "checkpoints": [
+      "Approving against the record is not refused, requires no override, and shows no warning dialog — noted, never blocked",
+      "The precedent object rides the exported mod_decision record — {matched, against}, no text, no reasoning field",
+      "Decide rq-1040 as DENIED · surface-relationship (with the record): its audit line carries no AGAINST THE RECORD marker, and the next open surface-relationship request now lists it as a 'this session' row — session rulings join the record"
+     ]
+    },
+    {
+     "do": "Select rq-1034 (pt's fog burn-off — pass verdict, target sky). Then run node world/audit.js and read the mod gate.",
+     "expect": "rq-1034 shows only the same-face rq-1004 row — or, if the record were empty for a charge+face, the honest line 'Nothing on record — a first of its kind is decided on the text, not on a pattern.' The mod gate passes at v134: precedent_layer contract block present with informs-never-binds, PRECEDENTS rows field-locked to {id,when,who,decision,code,target} (a text or player key fails), and the affordance marks pinned.",
+     "checkpoints": [
+      "Mod gate: 0 fail — a merge that drops the card, un-locks the row shape, or makes precedent binding fails the gate",
+      "Live mode (if a bridge is stubbed): the card reads this session's rulings only and says the canonical-ledger lookup is the merge target — it never fabricates a seeded record on a live queue",
+      "Harness gate: '123 scenarios · N checkpoints'; mirror gate confirms the PT123 hand-sync"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

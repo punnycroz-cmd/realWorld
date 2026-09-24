@@ -537,6 +537,20 @@ One person can wear every hat; four real testers is the intended shape.
   the HOPES mirror grounding (at/who/near/job/open channels re-verified
   against the registries), the honesty strings, the params.hope seam,
   and the contract blocks.
+  PT123 (mod v134) audits the precedent layer — consistency memory for
+  reviewers. The request detail gains a "Ruled alike — the record so
+  far" card between the trace and the decision bar: decided rulings
+  matching on charge (screen code; appeals read the original denial
+  code) or face (target), each row citing the ruling only — id, date,
+  reviewer, outcome, code — never screened text, never the player.
+  A ruling departing from every matched same-code precedent lands
+  anyway and is noted on the audit line ("AGAINST THE RECORD — noted,
+  never blocked") and in the exported mod_decision's precedent field;
+  the shift report counts departures in aggregate. No matches renders
+  the honest "first of its kind" line — the panel never invents a
+  precedent. The audit's v134 marks pin the card, the field-locked
+  PRECEDENTS row shape, the informs-never-binds copy, and the
+  precedent_layer contract block.
 
 ## 3. Running a session
 

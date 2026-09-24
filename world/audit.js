@@ -4697,7 +4697,17 @@ const PUB = Object.values(PT.surfaces)
       [/contents stay with the writers/, 'v120 counted-not-read copy'],
       [/cannot cite a\s+secret you cannot see/, 'v120 whitelist-cite honesty'],
       [/exportDocket|export incident records/, 'v120 incident export'],
-      [/a different ledger for a different room/, 'v120 ledger-separation copy']
+      [/a different ledger for a different room/, 'v120 ledger-separation copy'],
+      /* v134 precedent layer — "ruled alike" */
+      [/Ruled alike/i, 'v134 precedent card'],
+      [/findPrecedents/, 'v134 precedent lookup'],
+      [/PRECEDENTS/, 'v134 seeded precedent record'],
+      [/informs, never binds/i, 'v134 informs-never-binds honesty'],
+      [/AGAINST THE RECORD/, 'v134 departure audit note'],
+      [/first of its kind is decided on the text/, 'v134 empty-state honesty'],
+      [/precedentCheck|precedent:\{/, 'v134 departure check + audit field'],
+      [/Departures from the record/, 'v134 aggregate departure count'],
+      [/never re-reads screened text|remembers what was decided/i, 'v134 rulings-not-text rule']
     ];
     for (const [re, label] of MUST)
       if (!re.test(mc)) add(g, 'fail', 'mod-console.html', null, `missing required copy/affordance: ${label}`);
@@ -4711,7 +4721,7 @@ const PUB = Object.values(PT.surfaces)
           `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
     /* 4b. v78 + v92 contract blocks present in moderation.json */
     for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats',
-                     'review_seam_v92', 'drift_report', 'writers_docket'])
+                     'review_seam_v92', 'drift_report', 'writers_docket', 'precedent_layer'])
       if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `contract block "${k}" missing`);
     if (MJ.review_seam_v92) {
       for (const fn of ['gsReviewQueue', 'gsReviewResolve', 'gsEscalateLegal',
@@ -4737,6 +4747,23 @@ const PUB = Object.values(PT.surfaces)
       const de = mc.match(/function exportDocket[\s\S]*?\n\}/);
       if (de && /rec:'mod_decision'|rec:"mod_decision"/.test(de[0]))
         add(g, 'fail', 'mod-console.html', null, 'exportDocket must never emit mod_decision — ledgers stay separate');
+    }
+    /* v134: the precedent record cites rulings only — never screened text,
+       never a player handle */
+    {
+      const pm = /var PRECEDENTS = (\[[\s\S]*?\]);/.exec(mc);
+      if (!pm) add(g, 'fail', 'mod-console.html', null, 'PRECEDENTS block not found');
+      else {
+        const PR = eval(pm[1]);
+        for (const r of PR)
+          for (const k of Object.keys(r))
+            if (!['id', 'when', 'who', 'decision', 'code', 'target'].includes(k))
+              add(g, 'fail', 'mod-console.html', null,
+                `PRECEDENTS row ${r.id} carries "${k}" — the record cites rulings, never text or players`);
+        if (!PR.length) add(g, 'fail', 'mod-console.html', null, 'PRECEDENTS is empty — the demo record must be seeded');
+      }
+      if (MJ.precedent_layer && !/never binds/.test(MJ.precedent_layer.informs_never_binds || ''))
+        add(g, 'fail', 'moderation.json', null, 'precedent_layer must state informs-never-binds');
     }
     /* seeded affordances the demo must keep reachable */
     if (!/claimed_by:'m\.chen'/.test(mc))

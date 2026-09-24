@@ -169,6 +169,16 @@
     "finding_v92": "23 permissive gaps on identical input: 13 missing normalization (leet/spaced/separator/accent evasions pass the bus), 10 lexicon drift (word-form stems 'humiliates', 'get <name> fired', parody-venue venue-lock, real-person names, obfuscation-attempt code absent), 6 player-history cases untestable in stub",
     "rule": "per testing.drift_gate the port may be stricter, never more permissive — the report is the merge artifact for game-systems; world cannot fix the port from this branch"
   },
+  "precedent_layer": {
+    "surface": "mod-console v11 (world v134) — 'ruled alike' card on the request detail, between the trace and the decision bar",
+    "purpose": "consistency memory for reviewers: decided rulings matching the open request on charge (screen code; for appeals, the original denial code) or on face (target) are surfaced before the decision is made. Consequence continuity for the review side of §11 — today's ruling visibly remembers yesterday's.",
+    "record_shape": "{ id, when, who, decision, code, target } — the RULING only. Never the screened request text, never the player handle: the record remembers what was decided, not who asked or what they wrote.",
+    "sources": "this session's audit entries always; the seeded PRECEDENTS record (the detailed rows behind the 30-day baseline) in demo mode only",
+    "informs_never_binds": "a precedent informs, never binds — precedents decide nothing: no cap, no veto, no auto-fill. A ruling that departs from every matched same-code precedent is noted on the audit line ('AGAINST THE RECORD — noted, never blocked') and still lands. The shift report counts departures in aggregate, never which.",
+    "empty_state": "no matches renders an honest line — 'a first of its kind is decided on the text, not on a pattern'; the panel never invents a precedent",
+    "appeal_note": "an appeal's own original decision is excluded from the card — it already renders in the appeal workspace",
+    "merge_target": "game-systems: the lookup becomes a query over canonical-ledger mod_decision records keyed (code, target); until it lands, a live queue shows this session's rulings only and the card says so"
+  },
   "writers_docket": {
     "surface": "mod-console 'writers\u2019 docket' panel (world v120) — the incident log for emergent AI behavior, the constructive half of the locked 'no report-the-AI' boundary",
     "purpose": "reviewers see emergent behavior all shift; when something is worth the writers' eyes it gets filed here. Spec §1 names it: 'a logged incident for the writers' room — not a moderation action.'",

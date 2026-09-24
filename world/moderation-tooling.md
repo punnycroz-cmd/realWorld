@@ -345,6 +345,7 @@ Reported, never judged — world cannot fix the port from this branch;
 the table is the merge artifact for game-systems.
 
 Contract: `moderation.json` gains `review_seam_v92` + `drift_report`.
+
 `devtools/smoke_mod_v92.js` (19 checks) drives the console bare and
 bridged: badge flip, verbatim bus ids, resolve calls carrying
 `{by, code, modifyMin}`, the `same_reviewer` refusal both directions,
@@ -428,3 +429,42 @@ opens the panel:
 Merge note: at merge the bus may carry a `writers_incident` sink for the
 writers' room intake — it must never join the `mod_decision` stream or
 the public feed. Contract: `moderation.json` gains `writers_docket`.
+
+## 12f. v134 — the precedent layer ("ruled alike", Mod Console v11)
+
+The console decided hundreds of requests and remembered none of them at the
+point of decision — the audit log existed *after* the fact, never *beside* it.
+The result a consistency reviewer would flag: two identical asks can land two
+rulings and nobody sees it. The precedent layer is the fix, built under the
+same honesty discipline as the rest of the surface.
+
+**The "ruled alike" card.** Between the classifier trace and the decision
+bar, the detail view now shows decided rulings matching the open request on
+**charge** (the screen code — for an appeal, the original denial code) or on
+**face** (the target). A row cites the ruling only — date, request id,
+reviewer, outcome, code — never the screened request text and never the
+player handle: *the record remembers what was decided, not who asked or what
+they wrote.* Sources: this session's audit entries always; the seeded
+`PRECEDENTS` record (the detailed rows behind the 30-day baseline's
+aggregates) in demo mode. On a live queue the card reads this session's
+rulings only and says so — the canonical-ledger lookup over `mod_decision`
+records keyed `(code, target)` is the game-systems merge target.
+
+**Informs, never binds.** Precedents decide nothing: no cap, no veto, no
+auto-fill on the deny-code picker. A ruling that departs from *every*
+matched same-code precedent is still allowed to land — it is noted on the
+audit line (`AGAINST THE RECORD — departs from N prior <code> rulings
+(noted, never blocked)`) and carried into the `mod_decision` export as
+`precedent:{matched, against}`. The shift report counts departures in
+aggregate ("N of M session rulings"), never which — consistency is a check,
+not a scoreboard. An appeal's own original decision is excluded from the
+card; it already renders in the appeal workspace.
+
+**Empty state.** No matches renders the honest line — *"Nothing on record —
+a first of its kind is decided on the text, not on a pattern."* The panel
+never invents a precedent.
+
+Contract: `moderation.json` gains `precedent_layer`. PT123 exercises it:
+deny `rq-1040` (surface-relationship on Priya) and watch `rq-1024` appear;
+approve `rq-1039`'s admin-domain class and watch the departure note land;
+open `rq-1042` (sky weather, pass) for the thin-record case.
