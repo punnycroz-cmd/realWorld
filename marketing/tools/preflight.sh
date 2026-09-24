@@ -122,6 +122,18 @@ else
   ok "checklist audit: $CLLINE"
 fi
 
+# ── 5c. Accuracy sweep — parody map, fabrication markers, claim-risk copy ──
+echo "[5c] accuracy sweep (G18)"
+AC=$(./tools/accuracy_sweep.py 2>&1)
+echo "$AC" | grep -E '^\s+FAIL' || true
+ACLINE=$(echo "$AC" | tail -1)
+echo "       $ACLINE"
+if echo "$ACLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "accuracy sweep has failures (above)"
+else
+  ok "accuracy sweep: $ACLINE"
+fi
+
 # ── 6. Tree state (informational) ──
 echo "[6] worktree"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -136,7 +148,7 @@ fi
 echo
 echo "=== PREFLIGHT RESULT: $PASS pass / $WARN warn / $FAIL fail ==="
 if [ "$FAIL" -eq 0 ]; then
-  echo "VERDICT: mechanically GO — owner gates (G1..G17) still apply."
+  echo "VERDICT: mechanically GO — owner gates (G1..G18) still apply."
   exit 0
 else
   echo "VERDICT: NO-GO — fix FAILs above before requesting owner sign-off."

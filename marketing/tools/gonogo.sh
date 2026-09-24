@@ -90,6 +90,14 @@ else
   auto_pend 12 "demo embed" "data-demo-src empty — fallback gallery until spectator build URL"
 fi
 
+# ── G18 — public-copy accuracy sweep ──
+ACC=$(./tools/accuracy_sweep.py 2>&1 | tail -1)
+if echo "$ACC" | grep -qE '[1-9][0-9]* fail'; then
+  auto_pend 18 "public-copy accuracy" "FAILED — $ACC"
+else
+  auto_ok 18 "public-copy accuracy" "$ACC"
+fi
+
 # ── Owner gates ──
 owner 1  "public launch approval in writing (§6)"
 track 2  "game build verified live + stable for spectators" "game-systems"
@@ -100,17 +108,18 @@ owner 13 "feed display-filter option A/B/C picked (MODERATION-PLAN §2.3)"
 owner 14 "infrastructure provisioned (INFRASTRUCTURE §5 runbook)"
 track 15 "feed vocab diff vs world/feed.json request_status" "world"
 track 16 "onboarding flow + 24 hooks verified on staging" "world-v67 contract + game emitters"
-owner 17 "human playtest: 0 open blockers on launch candidate (world/playtest.html PT1-PT64)"
+owner 17 "human playtest: 0 open blockers on launch candidate (world/playtest.html PT1-PT72)"
 
 echo
-echo "  AUTO green: $GREEN · pending (owner/track/auto): $PENDING of 17"
+echo "  AUTO green: $GREEN · pending (owner/track/auto): $PENDING of 18"
 echo
 echo "─── paste into the owner decision thread ───"
 cat <<EOF
 GO/NO-GO — Real World launch, <date>
-Gates: $GREEN/17 auto-green, $PENDING pending (see worksheet $(date '+%Y-%m-%d'))
+Gates: $GREEN/18 auto-green, $PENDING pending (see worksheet $(date '+%Y-%m-%d'))
 Blocking items: <list or none>
 Known warnings: <dry-run warns accepted as non-blocking>
+Accuracy sweep (G18): <0 fail>
 Feed display-filter option (G13): A / B / C — <pick>
 Onboarding hooks (G16): <staging run logged — 24-hook set incl. ?hired=1 return + four band paths>
 Human playtest (G17): <report logged — 0 open blockers, N majors dispositioned>
