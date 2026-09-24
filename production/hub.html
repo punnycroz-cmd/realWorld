@@ -28535,7 +28535,11 @@ function sfRenderWorld(cw, ch){
     }
   }
   for(const v of VILLAGERS){
-    if(v.inBuilding && v !== VILLAGERS[controlledPawnIdx]) continue;
+    // v70: everyone inside the dollhouse room is drawn in the plan —
+    // including the controlled/inspected pawn (whose world x,y is stale)
+    const _sv70 = VILLAGERS[inspectedPawnIdx];
+    if(v.inBuilding && (v !== VILLAGERS[controlledPawnIdx] ||
+        (_sv70 && _sv70.inBuilding && v.inside === _sv70.inside))) continue;
     drawables.push({ kind: 'pawn', y: v.y, v });
   }
   drawables.sort((a, b) => a.y - b.y);
@@ -28569,7 +28573,10 @@ function sfRenderWorld(cw, ch){
       ctx.save();
       sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2,
                 sfSY(b.by1, ch));
-      ctx.globalAlpha = cover ? 0.45 : 1;
+      // v70: dollhouse — the inspected pawn's own building lifts its
+      // roof; the plan is drawn over the ghosted sprite below
+      const doll = sv && sv.inBuilding && b.i === sfInsideBldIdx(sv.inside);
+      ctx.globalAlpha = cover ? 0.45 : (doll ? 0.22 : 1);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
       // v33: parapet sun-rim — the coping lip on every footprint edge
@@ -28605,6 +28612,7 @@ function sfRenderWorld(cw, ch){
         ctx.setLineDash([]);
       }
       ctx.restore();
+      if(doll) sfDollhouse(b, sv.inside, cw, ch);
       // production-1: label routed through canonical parody display name
       const dn = sfSignName(b);
       if(cam.zoom >= 0.9 && dn){
@@ -34936,6 +34944,309 @@ function sfRenderStreet(cw, ch){
   // v10: stash this frame for the temporal cache, then profiler chip
   sfStillStore(cw, ch, stillKey);
   sfPerfHud(cw, ch);
+}
+
+/* ---------------- v70: dollhouse interiors ----------------
+   Top view used to swallow everyone who walked indoors — the roof
+   sprite covered them and the map just stopped telling the story. Now
+   the inspected subject's building lifts its roof: the baked sprite
+   ghosts to a quarter alpha and the REAL floor plan draws inside the
+   footprint, oriented so the door edge is the room's front. The plan
+   shares sfRenderInterior's metric layout — same 7m room width, same
+   RM_D depth hash, same counter/table/rug coordinates — so the
+   dollhouse and the walk-in view are the same room seen two ways.
+   The floor sun-patch comes through whichever wall faces the real
+   solar bearing; lamp pools follow sfLampsLit(). */
+function sfInsideBldIdx(name){
+  const rec = SF_INTERIORS[name];
+  if(!rec) return -1;
+  if(rec.poi && rec.poi.bld != null) return rec.poi.bld;
+  return rec.bld != null ? rec.bld : -1;
+}
+function sfDollhouse(b, name, cw, ch){
+  const rec = SF_INTERIORS[name] || {};
+  const lab = rec.label || '';
+  const seed = sfIntSeed(name);
+  const shop = rec.poi ? true :
+    /caf|coffee|counter|aisle|salsa|park-edge|bins/i.test(lab + ' ' + name);
+  const arch = shop ? sfIntArch(name, lab) : 'flat';
+  const night = isNight(), lamps = sfLampsLit();
+  const karlK = sfKarlK();
+
+  /* room frame: the door edge is the front. The inward axis runs from
+     the door cell toward the centroid; the lateral axis is its
+     perpendicular. Room meters map into the footprint's (u,w) extents
+     with a wall-thickness inset. */
+  const dCell = rec.poi ? sfPoiDoor(rec.poi) : (rec.door || null);
+  let dxp = b.x, dyp = b.by1 + 8;
+  if(dCell){ dxp = dCell.wx * CS + 16; dyp = dCell.wy * CS + 16; }
+  const wL = Math.hypot(b.x - dxp, b.y - dyp) || 1;
+  const wvx = (b.x - dxp) / wL, wvy = (b.y - dyp) / wL;
+  const uvx = -wvy, uvy = wvx;
+  let uMin = 1e9, uMax = -1e9, wMin = 1e9, wMax = -1e9;
+  for(const [qx, qy] of b.px){
+    const du = (qx - b.x) * uvx + (qy - b.y) * uvy;
+    const dw = (qx - b.x) * wvx + (qy - b.y) * wvy;
+    if(du < uMin) uMin = du; if(du > uMax) uMax = du;
+    if(dw < wMin) wMin = dw; if(dw > wMax) wMax = dw;
+  }
+  const wallPx = Math.max(3, 0.45 * SF_PXM);
+  const RM_D = 8.4 + phash(seed, 0, 5200) * 1.6;
+  // uniform scale — a room is square-metered; a wide storefront building
+  // reads as the cafe hall with service wings left as plain floor
+  const su = Math.max(0.4, Math.min((uMax - uMin - wallPx * 2) / 7,
+                                  (wMax - wMin - wallPx * 2) / RM_D));
+  const sw = su;
+  // the unit sits on its door, clamped inside the footprint
+  const duDoor = (dxp - b.x) * uvx + (dyp - b.y) * uvy;
+  const uMid = clamp(duDoor,
+    uMin + wallPx + 3.5 * su, uMax - wallPx - 3.5 * su);
+  const rmP = (x, z) => {
+    const du = uMid + x * su, dw = wMin + wallPx + z * sw;
+    const gx = b.x + uvx * du + wvx * dw, gy = b.y + uvy * du + wvy * dw;
+    return [(gx - cam.x) * cam.zoom + cw / 2, sfSY(gy, ch)];
+  };
+  const rmQ = pts => {
+    ctx.beginPath(); ctx.moveTo(pts[0][0], pts[0][1]);
+    for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i][0], pts[i][1]);
+    ctx.closePath();
+  };
+  const rmRect = (x0, z0, x1, z1, f) => {
+    ctx.fillStyle = f;
+    rmQ([rmP(x0, z0), rmP(x1, z0), rmP(x1, z1), rmP(x0, z1)]); ctx.fill();
+  };
+  const rmDisc = (x, z, r, f) => {
+    const p = rmP(x, z);
+    ctx.fillStyle = f;
+    ctx.beginPath();
+    ctx.ellipse(p[0], p[1], r * su * cam.zoom, r * su * cam.zoom * SF_TILT,
+                0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+
+  /* floor plate: the footprint pulled one wall-thickness inward */
+  const fl = b.px.map(([qx, qy]) => {
+    const t = wallPx / Math.max(10, Math.hypot(qx - b.x, qy - b.y));
+    return [(qx + (b.x - qx) * t - cam.x) * cam.zoom + cw / 2,
+            sfSY(qy + (b.y - qy) * t, ch)];
+  });
+  ctx.fillStyle = night ? shade(SF_INT_FLOOR[arch][1], 0.7)
+                        : SF_INT_FLOOR[arch][0];
+  rmQ(fl); ctx.fill();
+  ctx.save(); rmQ(fl); ctx.clip();
+  // floor texture: taqueria checker tile, else plank seams across the
+  // room — both follow the room frame, not the screen
+  if(arch === 'taqueria'){
+    ctx.fillStyle = 'rgba(196,182,158,0.30)';
+    for(let zi = 0; zi < Math.ceil(RM_D); zi++)
+      for(let xi = -4; xi < 4; xi++){
+        if((xi + zi) % 2) continue;
+        rmQ([rmP(xi + 0.5, zi), rmP(xi + 1.5, zi),
+             rmP(xi + 1.5, zi + 1), rmP(xi + 0.5, zi + 1)]); ctx.fill();
+      }
+  } else {
+    ctx.strokeStyle = arch === 'hardware' ? 'rgba(30,32,34,0.4)'
+                                          : 'rgba(52,34,18,0.4)';
+    ctx.lineWidth = Math.max(0.6, cam.zoom);
+    ctx.beginPath();
+    for(let z = 0.8; z < RM_D; z += 0.8){
+      const a = rmP(-3.6, z), c2 = rmP(3.6, z);
+      ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+    }
+    for(let x = -3; x <= 3; x++){
+      const a = rmP(x, 0), c2 = rmP(x, RM_D);
+      ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+    }
+    ctx.stroke();
+  }
+  // party walls — in a footprint wider than the room (a whole row of
+  // shops shares one building record) the venue is one unit; walls at
+  // x=±3.5 keep it readable instead of a hall the size of the block
+  if(uMax - uMin > 7 * su * 1.35){
+    ctx.strokeStyle = 'rgba(30,22,14,0.55)';
+    ctx.lineWidth = wallPx * cam.zoom * 0.6;
+    ctx.beginPath();
+    for(const xs of [-3.5, 3.5]){
+      const a = rmP(xs, 0), c2 = rmP(xs, RM_D);
+      ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+    }
+    ctx.stroke();
+  }
+  /* sun patch: the wall whose outward normal faces the solar bearing
+     admits a bright parallelogram thrown along the real sun vector —
+     the same physics as the shafts in the walk-in view */
+  const sunK = SF_SUN.day * (1 - karlK * 0.75);
+  const sunIn = !night && sunK > 0.22;
+  if(sunIn){
+    const sdl = Math.hypot(SF_SUN.x, SF_SUN.y) || 1;
+    const sdx = SF_SUN.x / sdl, sdy = SF_SUN.y / sdl;
+    const throwPx = Math.min(2.4 * SF_PXM, (wMax - wMin) * 0.45);
+    ctx.fillStyle = `rgba(255,238,190,${(0.30 * sunK).toFixed(3)})`;
+    const nP = b.px.length;
+    for(let e = 0; e < nP; e++){
+      const a = b.px[e], c2 = b.px[(e + 1) % nP];
+      const ex = c2[0] - a[0], ey = c2[1] - a[1];
+      const el = Math.hypot(ex, ey) || 1;
+      let nx = -ey / el, ny = ex / el;
+      if(nx * ((a[0] + c2[0]) / 2 - b.x) + ny * ((a[1] + c2[1]) / 2 - b.y) < 0){
+        nx = -nx; ny = -ny;
+      }
+      if(nx * sdx + ny * sdy > -0.35) continue;
+      const q = [a, c2,
+        [c2[0] + sdx * throwPx, c2[1] + sdy * throwPx],
+        [a[0] + sdx * throwPx, a[1] + sdy * throwPx]]
+        .map(([qx, qy]) => [(qx - cam.x) * cam.zoom + cw / 2, sfSY(qy, ch)]);
+      rmQ(q); ctx.fill();
+    }
+  }
+  /* furniture — the same meter coordinates the walk-in room uses */
+  const fur = '#4a3626', furT = '#5a4530';
+  if(shop){
+    rmRect(0.9, 4.2, 3.3, 5.3, '#5a3a22');            // counter
+    rmRect(0.9, 4.2, 3.3, 4.45, '#c8b490');           // stone top edge
+    rmRect(1.05, 4.35, 1.7, 5.05, '#2c2c30');         // espresso machine
+    rmRect(2.5, 4.35, 3.15, 5.0, '#7a4a26');          // pastry case
+    rmRect(-3.5, 5.9, -3.15, 7.6, '#4a3626');         // back-bar shelves
+    if(arch === 'taqueria')
+      rmRect(-3.3, 4.8, -2.3, 6.0, '#8a2f24');        // salsa bar
+    if(arch === 'hardware')
+      rmRect(-3.3, 4.2, -2.0, 7.4, '#3c4048');        // aisle shelf
+    if(arch !== 'hardware'){
+      for(const [tx, tz] of [[-1.7, 4.7], [-0.3, 6.2], [-2.5, 6.9]]){
+        if(tz > RM_D - 0.9) continue;
+        rmDisc(tx, tz, 0.5, '#d8cba8');
+        rmRect(tx - 0.98, tz - 0.2, tx - 0.58, tz + 0.2, fur);
+        rmRect(tx + 0.58, tz - 0.2, tx + 0.98, tz + 0.2, fur);
+      }
+    }
+    if(arch === 'taqueria'){                          // papel picado rows
+      ctx.strokeStyle = 'rgba(40,30,20,0.7)';
+      ctx.lineWidth = Math.max(0.6, cam.zoom);
+      for(const z of [2.2, 3.6]){
+        const a = rmP(-3.2, z), c2 = rmP(3.2, z);
+        ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+        ctx.stroke();
+        for(let k = 0; k < 7; k++){
+          const p = rmP(-2.7 + k * 0.9, z);
+          ctx.fillStyle = ['#e04030', '#f0a020', '#30a0b0', '#d84a90',
+                           '#60a030'][k % 5];
+          ctx.fillRect(p[0] - 2 * cam.zoom, p[1],
+                       Math.max(1.5, 4 * cam.zoom), Math.max(1.5, 3 * cam.zoom));
+        }
+      }
+    }
+  } else {
+    rmDisc(0, 5.6, 1.35, '#8a4a42');                  // rug
+    rmDisc(0, 5.6, 0.95, '#7c443c');
+    rmRect(-3.4, 4.4, -2.35, 6.6, '#5a6a58');         // sofa
+    rmRect(-3.32, 4.95, -2.45, 5.7, '#c9a86a');
+    rmRect(-3.32, 5.75, -2.45, 6.5, '#a85a5a');
+    rmRect(2.55, 5.7, 3.42, Math.min(8.2, RM_D - 0.4), fur); // bookshelf
+    rmDisc(-1.2, 5.2, 0.16, '#2c241c');               // floor lamp
+    rmRect(-3.2, 7.4, -2.75, 7.85, '#8a5a3a');        // potted plant
+    rmDisc(-2.97, 7.6, 0.28, '#3e7a34');
+    rmRect(-3.5, 6.9, -3.35, 7.7, '#3a2c1c');         // wall art
+    rmRect(-3.5, 7.9, -3.35, 8.5, '#3a2c1c');
+    // sewing table by the window (Carmen's flat) / desk for the others
+    if(phash(seed, 2, 7100) < 0.5) rmRect(0.8, 7.6, 1.9, 8.2, furT);
+  }
+  // furniture mass shade — a soft block thrown away from the window sun
+  if(sunIn){
+    ctx.fillStyle = `rgba(24,16,9,${(0.16 * sunK).toFixed(3)})`;
+    const sdl = Math.hypot(SF_SUN.x, SF_SUN.y) || 1;
+    const sux = SF_SUN.x / sdl, suy = SF_SUN.y / sdl;
+    const bk = 0.35;                                  // ~counter height throw
+    for(const [x0, z0, x1, z1] of shop
+        ? [[0.9, 4.2, 3.3, 5.3]]
+        : [[-3.4, 4.4, -2.35, 6.6], [2.55, 5.7, 3.42, 7.6]]){
+      const sh = [rmP(x0, z0), rmP(x1, z0), rmP(x1, z1), rmP(x0, z1)]
+        .map(p => [p[0] + sux * bk * su * cam.zoom,
+                   p[1] + suy * bk * su * cam.zoom * SF_TILT]);
+      rmQ(sh); ctx.fill();
+    }
+  }
+  /* lamp pools — the same pendant positions the walk-in view hangs */
+  if(lamps || night){
+    for(const [lx, lz] of shop ? [[-1.5, 4.0], [0.2, 5.6], [1.8, 4.8]]
+                               : [[0, 5.2], [-1.2, 5.2]]){
+      const p = rmP(lx, lz), gr = 0.9 * su * cam.zoom;
+      const lg = ctx.createRadialGradient(p[0], p[1], 1,
+                                          p[0], p[1], Math.max(3, gr));
+      lg.addColorStop(0, 'rgba(255,208,130,0.35)');
+      lg.addColorStop(1, 'rgba(255,208,130,0)');
+      ctx.fillStyle = lg;
+      ctx.fillRect(p[0] - gr, p[1] - gr, gr * 2, gr * 2);
+    }
+  }
+  ctx.restore();                                      // unclip floor
+
+  /* wall band + door notch — the door gap reads as the threshold the
+     pawn actually stepped through */
+  ctx.lineWidth = wallPx * cam.zoom;
+  ctx.strokeStyle = shade(SF_INT_WALL[arch][0], 0.55);
+  rmQ(b.px.map(([qx, qy]) => [(qx - cam.x) * cam.zoom + cw / 2, sfSY(qy, ch)]));
+  ctx.stroke();
+  if(dCell){
+    const dxu = (dxp - b.x) * uvx + (dyp - b.y) * uvy;
+    const xd = clamp((dxu - uMid) / su, -3.0, 3.0);
+    rmRect(xd - 0.55, -0.35, xd + 0.55, 0.5,
+           night ? shade(SF_INT_FLOOR[arch][1], 0.7) : SF_INT_FLOOR[arch][0]);
+    // entry mat just inside the threshold
+    rmRect(xd - 0.5, 0.5, xd + 0.5, 1.0, 'rgba(60,50,40,0.8)');
+  }
+  // dashed x-ray rim so the lifted room reads as a cutaway, not a decal
+  ctx.strokeStyle = 'rgba(150,215,255,0.45)';
+  ctx.lineWidth = 1;
+  ctx.setLineDash([4, 4]);
+  rmQ(b.px.map(([qx, qy]) => [(qx - cam.x) * cam.zoom + cw / 2, sfSY(qy, ch)]));
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  /* occupants — the pawns inside this room, at their real room seats,
+     drawn with the same chibi sprites the street uses */
+  const occ = [];
+  {
+    let k = 0;
+    for(const o of VILLAGERS){
+      if(!(o.inBuilding && o.inside === name)) continue;
+      occ.push({ o,
+        x: o === VILLAGERS[inspectedPawnIdx] ? 0.4
+           : (phash(k, seed, 1920) * 2 - 1) * 2.3,
+        z: o === VILLAGERS[inspectedPawnIdx] ? 3.2
+           : 4.0 + phash(k, seed, 1921) * Math.max(1.5, RM_D - 5.2) });
+      k++;
+    }
+    occ.sort((a, b2) => a.z - b2.z);
+  }
+  for(const m of occ.slice(0, 6)){
+    const p = rmP(m.x, m.z);
+    ctx.fillStyle = 'rgba(16,10,6,0.35)';
+    ctx.beginPath();
+    ctx.ellipse(p[0], p[1] + 2 * cam.zoom, 8 * cam.zoom, 3.5 * cam.zoom,
+                0, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.save();
+    ctx.translate(p[0] - ((m.o.x - cam.x) * cam.zoom + cw / 2),
+                  p[1] - sfSY(m.o.y, ch));
+    renderChibiPawn(m.o, cw, ch);
+    ctx.restore();
+    sfSayBubble(m.o, p[0], p[1] - 26 * cam.zoom, Math.min(1, cam.zoom));
+  }
+  // room caption — name + parody display label over the lifted roof
+  const dn2 = (typeof sfDisplayName === 'function' && sfDisplayName(name)) || name;
+  if(cam.zoom >= 0.4){
+    const cx2 = (b.x - cam.x) * cam.zoom + cw / 2,
+          cy2 = sfSY(b.by0, ch) - b.hPx * cam.zoom - 26 * cam.zoom;
+    ctx.font = `bold ${Math.max(10, 11 * cam.zoom)}px sans-serif`;
+    ctx.textAlign = 'center';
+    const tw = ctx.measureText(dn2).width;
+    ctx.fillStyle = 'rgba(12,10,8,0.72)';
+    ctx.fillRect(cx2 - tw / 2 - 8, cy2 - 12, tw + 16, 18);
+    ctx.strokeStyle = 'rgba(230,210,170,0.5)'; ctx.lineWidth = 1;
+    ctx.strokeRect(cx2 - tw / 2 - 8, cy2 - 12, tw + 16, 18);
+    ctx.fillStyle = '#f8f4e8';
+    ctx.fillText(dn2, cx2, cy2 + 1);
+  }
 }
 
 /* ---------------- v16: real interiors ----------------
