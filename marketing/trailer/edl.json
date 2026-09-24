@@ -1441,6 +1441,131 @@
           "note": "End card. {{URL}} placeholder flips at ship."
         }
       ]
+    },
+    "briefing": {
+      "file": "animatic-briefing.mp4",
+      "captions": "captions-briefing.srt",
+      "shots": [
+        {
+          "id": "Q1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "09:17 — @wren's hire joined the roster: \"Rook\".",
+          "card": null,
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Cold open. A player-hired character lands on the roster — public feed, attributed."
+        },
+        {
+          "id": "Q2",
+          "t": 7.0,
+          "kind": "uicard",
+          "title": "possession briefing",
+          "sub": "hire: rook · 30 min",
+          "lines": [
+            ["routine", "Mudhaus open → park → home"],
+            ["surface ties", "Mars — boss · Vic — landlord"],
+            ["workplace", "counter shift, weekdays"],
+            ["secrets", "", "redacted"],
+            ["drama seeds", "", "redacted"]
+          ],
+          "stamp": "PUBLIC RECORD ONLY",
+          "tone": "accent",
+          "card": "Your briefing is public record. The secrets stay sealed.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "Design §7 verbatim: briefing = public profile + surface relationships + daily routine; own and others' secrets redacted. The sealed rows are the thesis."
+        },
+        {
+          "id": "Q3",
+          "t": 7.0,
+          "kind": "requestcard",
+          "fields": {
+            "action": "possess: rook (your hire)",
+            "duration": "30 min · hard cap",
+            "cost": "credits/min · declared upfront",
+            "status": "REVIEWED → live"
+          },
+          "verdict": "approved",
+          "card": "File the request. Take the wheel.",
+          "transition": "cut",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Action + duration + cost declared upfront, review step visible — same contract as hero S7."
+        },
+        {
+          "id": "Q4",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v64-B.png",
+          "zoom": [1.05, 1.16],
+          "pan": "right",
+          "chip": ["AI", "YOU"],
+          "card": "You're at the wheel — public knowledge only.",
+          "transition": "dip",
+          "recapture": true,
+          "crop": [330, 100, 1440, 794],
+          "redact": [[288, 232, 338, 256], [358, 262, 412, 288]],
+          "audio": "room",
+          "note": "Possession flip. Debug pawn name tags blurred (F7 rects) — the chip must never read as driving a main. Ship cut shows the hired character."
+        },
+        {
+          "id": "Q5",
+          "t": 6.0,
+          "kind": "feed",
+          "lines": [
+            "09:31  Rook fished for gossip at the counter. Mars changed the subject.",
+            "09:44  Rook clocked out early. The feed noticed.",
+            "09:52  Priya waved at Rook. They'd met before — the briefing said so."
+          ],
+          "card": "What you don't know, you find out like everyone else.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Discovery is played, not bought — a possessed hire learns secrets the viewer way: by watching them happen."
+        },
+        {
+          "id": "Q6",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v64-D.png",
+          "zoom": [1.02, 1.12],
+          "pan": "left",
+          "grade": "night",
+          "chip": ["YOU", "AI"],
+          "timer": true,
+          "card": "Time's up. The sim takes the wheel back. Nothing spilled.",
+          "transition": "dip",
+          "recapture": true,
+          "crop": [330, 100, 1440, 794],
+          "audio": "night",
+          "note": "Hard-cap handoff at dusk/night — the LLM brain resumes seamlessly on release (design §7)."
+        },
+        {
+          "id": "Q7",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "10:17 — Rook's window ended. The secrets stayed sealed.",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "Button. The window closes; the redaction held."
+        },
+        {
+          "id": "Q8",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Drive your hire. The secrets aren't for sale.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "End card. {{URL}} placeholder flips at ship."
+        }
+      ]
     }
   },
   "thumbnails": [

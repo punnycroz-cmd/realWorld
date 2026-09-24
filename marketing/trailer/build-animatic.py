@@ -288,10 +288,21 @@ class Build:
             tw = d.textlength(shot["sub"], font=self.f_mono)
             d.text((x0 + cw - tw - 28, y0 + 17), shot["sub"], font=self.f_mono, fill=self.c["muted"])
         reveal = min(int(f / (n * 0.12)) + 1, len(rows))
-        for i, (k, v) in enumerate(rows[:reveal]):
+        for i, row in enumerate(rows[:reveal]):
+            k, v = row[0], row[1]
             y = y0 + 112 + i * 66
             d.text((x0 + 32, y), k.upper(), font=self.f_reqb, fill=self.c["muted"])
-            d.text((x0 + 380, y), v, font=self.f_req, fill=self.c["text"])
+            if len(row) == 3 and row[2] == "redacted":
+                # sealed field: a black bar + tag, in the language of a
+                # redacted document — the possession briefing's whole point
+                d.rectangle((x0 + 380, y - 4, x0 + 700, y + 36), fill=(8, 9, 12),
+                            outline=self.c["accent3"], width=2)
+                d.text((x0 + 396, y + 4), "SEALED", font=self.f_reqb,
+                       fill=self.c["accent3"])
+                d.text((x0 + 712, y + 4), "redacted — discover in play",
+                       font=self.f_bug, fill=self.c["muted"])
+            else:
+                d.text((x0 + 380, y), v, font=self.f_req, fill=self.c["text"])
             d.line((x0 + 32, y + 44, x0 + cw - 32, y + 44), fill=self.c["border"])
         if shot.get("stamp") and f > n * 0.62:
             t = shot["stamp"]
@@ -565,7 +576,8 @@ class Build:
     # soft ceilings per program (seconds) — warn, not fail
     DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5,
                     "bumper": 6.5, "feed": 50.5, "movein": 60.5,
-                    "day": 45.5, "booking": 40.5}
+                    "day": 45.5, "booking": 40.5, "cast": 44.5,
+                    "briefing": 45.5}
     CARD_MAX = 80  # title-card readability ceiling
 
     def check(self):
@@ -635,8 +647,11 @@ class Build:
                         if len(s["lines"]) > 6:
                             warn(f"{sid}: {len(s['lines'])} rows crowds the card")
                         for row in s["lines"]:
-                            if not (isinstance(row, list) and len(row) == 2):
+                            if not (isinstance(row, list) and len(row) in (2, 3)):
                                 fail(f"{sid}: uicard row not a [label, value] pair")
+                            elif len(row) == 3:
+                                if row[2] != "redacted":
+                                    fail(f"{sid}: uicard row flag '{row[2]}' unknown")
                             elif len(row[1]) > 28:
                                 warn(f"{sid}: uicard value {len(row[1])}ch may overflow")
                     if s.get("tone") and s["tone"] not in ("good", "warn", "accent"):
