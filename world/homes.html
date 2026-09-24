@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Fridge Door (household layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Household-layer demo — "The Fridge Door" (world v101). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/homes.json
+  (mirrored inline below as HOMES — hand-synced, deep-compared by audit.js
+  homes gate). Shows what each registry unit is like to live inside —
+  occupants, shape, rota, kitchen rhythm, quiet hours, guest norms, the
+  house kit, one fridge-note voice line — plus the perks table (what every
+  jobs.json employer sends home). Vacant units render showing texture only.
+  Norms are CONDITIONS, never scripts. No dollar figures, no secrets.
+  INTERNAL tier — the fridge note is the only spectator-safe field.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --org:#d98e5f;
+    --paper:#f2ead2; --paper-ink:#4a4231;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim);flex-wrap:wrap}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  .tier{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  main{max-width:1280px;margin:0 auto;padding:16px 18px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+  .card{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .card.vacant{opacity:.8;border-style:dashed}
+  .chead{padding:8px 13px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .chead b{font-family:var(--mono);font-size:12.5px;color:var(--acc);letter-spacing:.04em}
+  .chip{font-family:var(--mono);font-size:9.5px;border:1px solid var(--line);border-radius:8px;padding:1px 7px;color:var(--blu)}
+  .chip.vac{color:var(--dim);border-style:dashed}
+  .occ{margin-left:auto;font-size:10px;color:var(--grn);font-family:var(--mono)}
+  .cbody{padding:8px 13px;font-size:11.5px}
+  .f{padding:2.5px 0}
+  .f b{color:var(--org);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
+  .note{margin:8px 0 2px;display:flex;justify-content:center}
+  .paper{background:var(--paper);color:var(--paper-ink);font-family:'Segoe Print','Bradley Hand',cursive;
+    font-size:13px;padding:10px 16px 12px;border-radius:2px;max-width:88%;transform:rotate(-1.4deg);
+    box-shadow:0 3px 8px rgba(0,0,0,.4);position:relative}
+  .paper::before{content:"";position:absolute;top:-6px;left:50%;width:12px;height:12px;border-radius:50%;
+    background:radial-gradient(circle at 35% 35%,#e87,#a33);transform:translateX(-50%);box-shadow:0 2px 3px rgba(0,0,0,.4)}
+  .nonote{font-family:var(--mono);font-size:10px;color:var(--dim);text-align:center;margin:8px 0 2px}
+  .showing{color:var(--dim);font-size:11.5px;padding:4px 0}
+  .pk{display:flex;flex-direction:column;gap:6px}
+  .p{display:flex;gap:10px;align-items:baseline;padding:7px 12px;background:#20242c;border:1px solid var(--line);border-radius:7px;font-size:12px}
+  .p .emp{font-weight:700;color:var(--blu);min-width:200px}
+  .p .bring{color:var(--ink)}
+  .p .pn{color:var(--dim);font-size:10.5px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> · The Fridge Door</div>
+  <div class="tgl" id="flt">shape:
+    <button data-s="all" class="on">all</button>
+    <button data-s="solo">solo</button>
+    <button data-s="couple">couple</button>
+    <button data-s="share">share</button>
+    <button data-s="owner">owner</button>
+    <button data-s="ambient">ambient</button>
+    <button data-s="vacant">vacant</button>
+  </div>
+  <div class="tier" id="tier"></div>
+</header>
+<main>
+  <h2>Occupied homes — the domestic layer</h2>
+  <div class="grid" id="homes"></div>
+  <h2>Vacant — the showing</h2>
+  <div class="grid" id="vac"></div>
+  <h2>The ambient ring</h2>
+  <div class="grid"><div class="card"><div class="cbody showing" id="ring"></div></div></div>
+  <h2>What work sends home — the perks table</h2>
+  <div class="pk" id="perks"></div>
+</main>
+<script>
+const HOMES = {
+ "doc": "The household layer (world v101) — machine-readable mirror of world/homes.md. What each registry unit is like to live inside: occupants, shape, rota, kitchen rhythm, quiet hours, guest norms, the house kit, and a fridge-note voice line. Plus the perks table — what each jobs.json employer sends home at the end of a shift. SURFACE knowledge: anything a regular visitor or a roommate would know. Conditions, never scripts — a rota is a norm that frays, not a schedule that fires. No secrets, no seeds, no dollar figures (splits live on the lease ledger, not the fridge). INTERNAL tier for machine surfaces; the fridge notes themselves are the only spectator-safe field.",
+ "version": 101,
+ "schema": "homes-v1",
+ "shapes": {
+  "solo": "one adult, whole unit — the rota is a list of one",
+  "couple": "two adults on one lease — splits are a standing negotiation",
+  "share": "housemates — a lease plus an informal room arrangement",
+  "owner": "owner-occupied — no rent run, the mortgage is elsewhere",
+  "ambient": "ambient household — mailbox names only, deliberately thin",
+  "vacant": "listed and empty — carries showing texture, never occupants"
+ },
+ "homes": [
+  {
+   "unit_id": "bld-g9418-A",
+   "address": "9418 Guerrero St, Unit A",
+   "shape": "share",
+   "occupants": ["c6-carmen", "c2-jules"],
+   "rota": "Carmen cooks weeknights; Jules does the dishes and takes Sunday breakfast. Garbage goes out Sunday night, whoever's home. Jules sweeps the stoop on their barista mornings because it is on the way out anyway.",
+   "kitchen": "The kitchen is Carmen's territory — the good pans hang, the cheap ones stack. Jules gets one shelf of the pantry and has learned which spatula is the spatula. Tamal leaves and masa take over the counter about once a month.",
+   "quiet": "Carmen keeps early hours; the flat goes quiet by ten on weeknights. Jules's late-shift Saturdays are the exception — the door is soft about it because the rent share is soft about it.",
+   "guests": "Carmen's ladies on Thursday afternoons — card table, coffee, the good cups. Jules's friends are welcome but learn fast that the living room is Carmen's front parlor, not a hangout.",
+   "kit": "The flat lends: extra chairs, a card table, the extension ladder in the basement (Victor's, technically). The flat borrows: nothing it can't return — Carmen's rule.",
+   "fridge_note": "Jules — the good towels are for guests. Your tire is in the tub. Eat something green. — C."
+  },
+  {
+   "unit_id": "bld-g9457-1",
+   "address": "9457 Guerrero St, Unit 1",
+   "shape": "ambient",
+   "occupants": ["ambient-household"],
+   "rota": "Unseen but reliable — garbage night is theirs by unspoken tradition, and the whole stair owes them cookies.",
+   "kitchen": "Smells of rice and whatever's on sale at Buy-Rite. Weekday dinners, not weekend projects.",
+   "quiet": "The quietest flat in the stack — they're the ones who hear everyone else through the floor.",
+   "guests": "Rare, and always gone by ten.",
+   "kit": "Nobody borrows from Unit 1 because nobody knows them well enough to ask — the mailbox names are the whole relationship.",
+   "fridge_note": null
+  },
+  {
+   "unit_id": "bld-g9457-3",
+   "address": "9457 Guerrero St, Unit 3",
+   "shape": "couple",
+   "occupants": ["c4-priya", "c5-marcus"],
+   "rota": "Written once, laminated, and quietly abandoned during Priya's 3-on runs — on her stretch days the flat runs on takeout and good intentions. Marcus does the bike-in-the-hall negotiation with the building so nobody has to.",
+   "kitchen": "Real kitchen, bay-window light, the best counter in the registry. Priya batch-cooks on her off days; Marcus eats standing up. The space heater lives in the kitchen doorway all winter because the radiator doesn't.",
+   "quiet": "Opposite schedules more than quiet hours — when one is home the other often isn't. The flat is loudest on Priya's first day off, when both are actually in it.",
+   "guests": "Hospital friends on Priya's off weeks; Marcus's courier crew collapses on the couch after rainy Saturdays and is forgiven by morning.",
+   "kit": "Lends: the good ladder, a crock pot, Marcus's floor pump (it comes back muddy). Borrows: Unit 1's patience, mostly.",
+   "fridge_note": "M — your share is on the counter AGAIN. Also the heater repair guy 'came by Tuesday.' Nobody let him in. — P"
+  },
+  {
+   "unit_id": "bld-c9127-C",
+   "address": "9127 Capp St, Unit C",
+   "shape": "solo",
+   "occupants": ["c1-marisol"],
+   "rota": "A one-woman rotation, kept like a shift schedule — laundry Thursday, deep clean Sunday after brunch, plants watered with the last of the French press.",
+   "kitchen": "Small and exact. Marisol cooks real food in a studio kitchen the way she runs a café — mise en place, everything labeled, one drawer of pure takeout menus she pretends not to have.",
+   "quiet": "The building's early riser — she's gone before most alarms. Evenings are hers and she guards them: phone down, records on.",
+   "guests": "Rare but prepared — the studio can host exactly two people comfortably and she knows it. Emergency-key holder for half the building's lockouts, which is its own kind of guest traffic.",
+   "kit": "Lends: the toolbox she maintains better than most shops, spare key envelopes labeled by unit. Borrows: nothing. Borrows nothing.",
+   "fridge_note": "DO NOT buy the cheap oat milk again. You were raised better. — M (to M)"
+  },
+  {
+   "unit_id": "bld-g9263-4",
+   "address": "9263 Geneva Ave, Unit 4",
+   "shape": "share",
+   "occupants": ["reyes-cousins", "c3-dani"],
+   "rota": "Three adults, one lease, one informal room — dinner nights rotate and are actually kept, because it's the one thing the flat actually keeps. Trash is whoever can't stand it anymore, which is usually the same cousin and he has stopped keeping score out loud.",
+   "kitchen": "Two households sharing one stove: the cousins' side runs family-recipe, Dani's shelf runs barista-hours — coffee gear, oat milk, and the good knife she bought herself and hides.",
+   "quiet": "Geneva is louder than the Mission so the flat's quiet is relative — the real rule is headphones after midnight, enforced by precedent.",
+   "guests": "The flat absorbs people — cousins' friends, Dani's Mudhaus strays, Sunday crowds that start as lunch and end as dinner. The couch has hosted more overnight guests than the lease knows about.",
+   "kit": "Lends: folding chairs by the stack, a rice cooker big enough for eight, jumper cables. Borrows: Wi-Fi patience from the downstairs neighbor nobody's met.",
+   "fridge_note": "whoever finished the pozole owes the pot. dani — your mom called the LANDLINE again. — the house"
+  },
+  {
+   "unit_id": "bld-f9344-1",
+   "address": "9344 Folsom St, Unit 1",
+   "shape": "solo",
+   "occupants": ["c8-tomas"],
+   "rota": "A cook's rota, which means there isn't one — the flat gets cleaned in bursts, usually after a shift that went long. Laundry happens when the hamper is a fire hazard.",
+   "kitchen": "One cast-iron pan, one knife worth anything, a spice shelf that costs more than the furniture. Tomás eats better than anyone in the registry and cleans worse. Family-meal leftovers from El Farolote rotate through the fridge in labeled quart containers.",
+   "quiet": "A cook's hours — out mid-morning, home after the neighborhood's already quiet. The studio is dark more than it's lit.",
+   "guests": "Few, and they get fed. The flat's hospitality is entirely culinary — there is nowhere comfortable to sit and nobody has ever complained.",
+   "kit": "Lends: the quart containers (always returned, that's the rule), a sharpening steel. Borrows: Carmen's sewing kit via Jules when a jacket loses a button.",
+   "fridge_note": "stock in the back — LABEL IT. pan is not for eggs. you know what you did."
+  },
+  {
+   "unit_id": "bld-m9102-2",
+   "address": "9102 Mission St, Unit 2",
+   "shape": "owner",
+   "occupants": ["c7-victor"],
+   "rota": "The flat over the shop runs on shop hours — swept when the shop is swept, quiet when the gate is down. The Tuesday repair loop starts and ends at this kitchen table, paperwork in the breadbox.",
+   "kitchen": "Functional and old — the flat's been his since before the neighborhood changed twice. Good knives, a radio on the sill, coffee made like it's a job.",
+   "quiet": "Set by the shop below and the street out front — Mission St doesn't do quiet, so the flat doesn't pretend to.",
+   "guests": "Family mostly. The flat hosts the kind of dinners where the table is a borrowed door on sawhorses and nobody thinks that's odd.",
+   "kit": "The lending library of the whole block: every tool that ever went missing from anyone's project is probably here, and Victor knows who has what and when it's due back.",
+   "fridge_note": "parts for the 9457 radiator in the back room — WRITE UP THE TICKET. tuesday list on the bench."
+  }
+ ],
+ "vacant": [
+  {
+   "unit_id": "bld-g9418-B",
+   "address": "9418 Guerrero St, Unit B",
+   "showing": "The lower flat shows clean and faintly of paint — Carmen waters the stoop plant out of habit even though nobody lives there. The showing trick is the kitchen window over the shared garden; every viewing lingers there."
+  },
+  {
+   "unit_id": "bld-g9457-2",
+   "address": "9457 Guerrero St, Unit 2",
+   "showing": "Shows honest — small, middle-flat dim, and the stair runs right past the door so you hear the building breathe. Agents sell it as 'the pink building for under market' and let the bay-window flat upstairs do the dreaming."
+  },
+  {
+   "unit_id": "bld-c9127-A",
+   "address": "9127 Capp St, Unit A",
+   "showing": "Best-lit studio in the building — morning sun, a view of the palm across the street. The showing script is short: it's a studio, it has a closet that isn't a lie, the rent is the rent."
+  }
+ ],
+ "ambient_ring": {
+  "note": "Ambient cast live one ring out from the park, off-registry — house shares, SRO rooms, a basement in-law, one lucky rent-control holdover. No unit_ids, no addresses, no fridge notes: a promotion mints a real address per address spec §6 and adds a homes row here first."
+ },
+ "perks": [
+  { "employer": "Mudhaus Coffee", "brings_home": "day-old pastries and beans at cost; the manager's comp cup travels", "note": "half the registry's kitchens run on Mudhaus day-olds — Jules's flat and Dani's shelf most of all" },
+  { "employer": "Taqueria El Farolote", "brings_home": "the 3pm family meal, and labeled quarts of rice and beans", "note": "a cook's fridge is a pantry extension — Tomás's quart-container rule is the household law" },
+  { "employer": "Flying Pannier Courier Co-op", "brings_home": "tube swaps and the communal parts bin", "note": "the perk is mechanical — Marcus's floor pump is already doing a second tour at 9457" },
+  { "employer": "MuleIt", "brings_home": "app coupons and the occasional honest mistake order", "note": "churn work, thin perk — a wrong-address burrito is a good day" },
+  { "employer": "Buy-Rite Market", "brings_home": "the dented-can and day-shelf at cost", "note": "the ambient households' kitchens run on this shelf more than anyone admits" },
+  { "employer": "Buy-Rite Creamery", "brings_home": "the staff scoop and freezer-burned pints", "note": "a summer perk with a winter half-life" },
+  { "employer": "Dolores Perk", "brings_home": "bottomless drip on shift, day-old bagels", "note": "small venue, small perk — the regulars tip better than the till pays" },
+  { "employer": "Baguette About It Bakery", "brings_home": "the day-old bread bag, first pick for staff", "note": "Hana leaves before dawn and still carries bread home — the baker's tax, gladly paid" },
+  { "employer": "Il Delfino", "brings_home": "family meal and the staff glass after close", "note": "a proper restaurant perk — the line eats like the dining room does" },
+  { "employer": "Auerbach Hardware", "brings_home": "the tool lending library itself", "note": "Victor's flat is the shed for the whole block — the ledger of who has what lives in his head" },
+  { "employer": "Marooned Records", "brings_home": "first look at trade-ins before they hit the bins", "note": "the counter person hears everything first — the perk is the collection" },
+  { "employer": "Golden Hour Laundromat", "brings_home": "free wash on shift nights, abandoned-lost-and-found rights", "note": "the attendant's own clothes are always clean — a quiet dignity" },
+  { "employer": "Folsom Auto & Sons", "brings_home": "the staff bay on Sunday", "note": "Gus's truck runs like new forever — the perk is the lift" },
+  { "employer": "Needlepointe Tattoo", "brings_home": "flash-trade ink and the shop's practice skins", "note": "Bex pays in skin time, not dollars — the perk is on the body" },
+  { "employer": "Bloom & Doom Flowers", "brings_home": "day-old stems", "note": "Ida's neighbors get casual bouquets that would cost real money — the block's best perk by aesthetics" },
+  { "employer": "Malik's Mini Mart", "brings_home": "nothing — owner-clerk, the till is the job", "note": "the honest null: Malik's perk is that the store is his" },
+  { "employer": "Frutería Las Palmas", "brings_home": "the stand's own produce at the end of the day", "note": "Luz's kitchen never sees a supermarket tomato" },
+  { "employer": "Mission Branch Library", "brings_home": "staff holds and first pick of the withdrawn shelf", "note": "Vera's flat is a weeding accident with good taste" },
+  { "employer": "SF General", "brings_home": "the cafeteria discount and the parking know-how", "note": "the real perk is invisible — Priya's flat never waits on hold with a doctor's office" },
+  { "employer": "Dog-walking (independent)", "brings_home": "the dogs, in a sense — Doro's clients are the neighborhood's", "note": "the perk is company" },
+  { "employer": "Construction (Folsom lot)", "brings_home": "scrap-wood pile permission", "note": "Cole's shelving and half the site's offcuts furnish the ring" },
+  { "employer": "Nimbus9 (remote)", "brings_home": "the snack boxes and the stipend chair", "note": "the only perk that arrives by mail — Nadia's kitchen reads like a breakroom" },
+  { "employer": "Busking (park corners)", "brings_home": "the pitch itself — a corner is a kind of income", "note": "Sam's perk is that the park keeps the seat warm" },
+  { "employer": "Hemming (word of mouth)", "brings_home": "the button tin and the fabric scrap bag", "note": "Carmen's hemming runs out of the front parlor — the work comes home because it never leaves" }
+ ],
+ "rules": [
+  "SURFACE knowledge only — a roommate or regular visitor could say every word; secrets and seeds live in bibles, never here",
+  "conditions, never scripts — rota/quiet/guests are norms that fray; nothing obliges anyone to do dishes",
+  "no money — splits and arrears live on the lease ledger (leases.json); the fridge carries texture, never figures",
+  "vacant units carry showing texture, never occupants; a signed lease moves a row from vacant[] to homes[]",
+  "ambient-ring stays a direction, not an address — promotion mints a real address per address spec §6",
+  "occupants[] holds cast/ambient ids and household lease ids (reyes-cousins, ambient-household); fridge_note is the only voice field — one note per occupied home, in the household's own register",
+  "perks[] employer strings match jobs.json verbatim; perks are texture, not compensation — the wage table still rules"
+ ]
+};
+const $=s=>document.querySelector(s);
+document.getElementById('tier').textContent='INTERNAL tier — fridge notes are the only spectator-safe field · homes v'+HOMES.version;
+
+let shape='all';
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function card(h){
+  const el=document.createElement('div');
+  el.className='card'+(h.shape==='ambient'?'':'')+(h.shape==='vacant'?' vacant':'');
+  el.innerHTML=`<div class="chead"><b>${esc(h.address)}</b><span class="chip">${h.shape}</span>
+    <span class="occ">${h.occupants.map(esc).join(' + ')}</span></div>
+    <div class="cbody">
+      <div class="f"><b>rota</b>${esc(h.rota)}</div>
+      <div class="f"><b>kitchen</b>${esc(h.kitchen)}</div>
+      <div class="f"><b>quiet</b>${esc(h.quiet)}</div>
+      <div class="f"><b>guests</b>${esc(h.guests)}</div>
+      <div class="f"><b>kit</b>${esc(h.kit)}</div>
+      ${h.fridge_note?`<div class="note"><div class="paper">${esc(h.fridge_note)}</div></div>`
+                    :`<div class="nonote">— no fridge note: nobody knows them well enough to read it —</div>`}
+    </div>`;
+  return el;
+}
+function render(){
+  const g=$('#homes'); g.innerHTML='';
+  HOMES.homes.filter(h=>shape==='all'||h.shape===shape).forEach(h=>g.appendChild(card(h)));
+  const v=$('#vac'); v.innerHTML='';
+  HOMES.vacant.forEach(u=>{
+    if(shape!=='all'&&shape!=='vacant')return;
+    const el=document.createElement('div'); el.className='card vacant';
+    el.innerHTML=`<div class="chead"><b>${esc(u.address)}</b><span class="chip vac">vacant · listed</span></div>
+      <div class="cbody showing"><b style="color:var(--org)">showing </b>${esc(u.showing)}</div>`;
+    v.appendChild(el);
+  });
+  $('#ring').textContent=HOMES.ambient_ring.note;
+}
+document.getElementById('flt').addEventListener('click',e=>{
+  if(!e.target.dataset.s)return;
+  shape=e.target.dataset.s;
+  document.querySelectorAll('#flt button').forEach(b=>b.classList.toggle('on',b===e.target));
+  render();
+});
+const pk=$('#perks');
+HOMES.perks.forEach(p=>{
+  const el=document.createElement('div'); el.className='p';
+  el.innerHTML=`<span class="emp">${esc(p.employer)}</span><span class="bring">${esc(p.brings_home)}</span><span class="pn">${esc(p.note)}</span>`;
+  pk.appendChild(el);
+});
+render();
+</script>
+</body>
+</html>

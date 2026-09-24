@@ -62,6 +62,10 @@
                 liquor only on liquor_venues, health_score only on
                 food_venues inside score_range; former names invented,
                 ghost_sign requires a former entry; no people, no money
+    homes     — homes.json ↔ homes.html HOMES mirror; home/vacant unit_ids
+                ⊆ registry seed units + ambient-ring; occupants ⊆ cast ids
+                ∪ household lease ids; perks employers ⊆ jobs.json;
+                vacant rows carry no occupants; no money, no secrets
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -262,7 +266,8 @@ const PUB = Object.values(PT.surfaces)
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
     'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
-    'exits.json', 'exit.html', 'permits.json', 'permit.html']);
+    'exits.json', 'exit.html', 'permits.json', 'permit.html',
+    'homes.json', 'homes.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2357,6 +2362,107 @@ const PUB = Object.values(PT.surfaces)
     }
     g.detail = `schema v${PJ.version} · ${doorIds.size} walls · ${nPapers} papers · ${nPend} pending · ${nFormer} former · ${nGhost} ghost signs`;
   } catch (e) { add(g, 'fail', 'permits.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15g homes — the household layer (v101) ============ */
+{
+  const g = gate('homes', 'household layer contract (homes.json ↔ homes.html HOMES mirror; unit_ids ⊆ registry; occupants ⊆ cast/lease ids; perks ⊆ jobs.json; vacant rows carry no occupants; no money, no secrets)');
+  try {
+    const HJ = JSONF('homes.json');
+    const JJ = JSONF('jobs.json');
+    const html = rd('homes.html');
+    const m = html.match(/const HOMES\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline HOMES not found in homes.html');
+    const HI = eval('(' + m[1] + ')');
+    /* inline mirror: HOMES must field-match homes.json */
+    if (HI.version !== HJ.version)
+      add(g, 'fail', 'homes.html', null, `HOMES version ${HI.version} != homes.json ${HJ.version}`);
+    for (const k of ['shapes', 'homes', 'vacant', 'ambient_ring', 'perks', 'rules'])
+      if (JSON.stringify(HI[k] ?? null) !== JSON.stringify(HJ[k] ?? null))
+        add(g, 'fail', 'homes.html', null, `HOMES.${k} drifted from homes.json`);
+    /* registry seed: parse the canonical JSON block in jobs-housing.md §3 */
+    const jh = rd('jobs-housing.md').match(/```json\n(\{[\s\S]*?\})\n```/);
+    if (!jh) throw new Error('registry seed block not found in jobs-housing.md');
+    const REG = JSON.parse(jh[1]);
+    const UNITS = new Set(REG.units.map(u => u.id));
+    const LEASEIDS = new Set(REG.leases.map(l => String(l.tenant_id)));
+    /* valid occupant ids: cast/ambient ids seen in jobs.json held_by,
+       plus the household lease ids the seed itself declares */
+    const IDS = new Set(LEASEIDS);
+    for (const j of JJ.jobs) {
+      const h = j.held_by;
+      (Array.isArray(h) ? h : h ? [h] : []).forEach(x => IDS.add(x));
+    }
+    const SHAPES = new Set(Object.keys(HJ.shapes || {}));
+    const TEXTF = ['rota', 'kitchen', 'quiet', 'guests', 'kit', 'fridge_note', 'showing', 'brings_home', 'note'];
+    const BANNED = [/unfiltered/i, /esperanza/i, /\bsecret/i, /possess/i, /\$\s?\d/, /\d[\d,]*\s*cr\b/, /unpermitted/i];
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)-[a-z]+\b/i;
+    const scan = (file, tag, s) => {
+      for (const re of BANNED)
+        if (re.test(s)) add(g, 'fail', file, null, `${tag}: "${String(s).slice(0, 70)}" breaches the surface bar (${re})`);
+    };
+    let nOcc = 0;
+    for (const h of HJ.homes || []) {
+      const tag = `homes.${h.unit_id}`;
+      if (!UNITS.has(h.unit_id)) add(g, 'fail', 'homes.json', null, `${tag}: not a registry unit`);
+      if (!SHAPES.has(h.shape)) add(g, 'fail', 'homes.json', null, `${tag}: shape "${h.shape}" not in shapes`);
+      if (h.shape === 'vacant') add(g, 'fail', 'homes.json', null, `${tag}: occupied homes never use the vacant shape`);
+      if (!Array.isArray(h.occupants) || !h.occupants.length)
+        add(g, 'fail', 'homes.json', null, `${tag}: occupied home needs occupants`);
+      for (const o of h.occupants || [])
+        if (!IDS.has(o)) { nOcc++; add(g, 'fail', 'homes.json', null, `${tag}: occupant "${o}" is not a cast/lease id`); }
+      for (const f of TEXTF.slice(0, 5))
+        if (!h[f]) add(g, 'fail', 'homes.json', null, `${tag}: missing ${f}`);
+      /* fridge note: required on named households, null on ambient —
+         and voice-only (no machine ids inside the text) */
+      if (h.shape === 'ambient') {
+        if (h.fridge_note !== null)
+          add(g, 'fail', 'homes.json', null, `${tag}: ambient household carries a fridge note — nobody knows them well enough`);
+      } else if (!h.fridge_note)
+        add(g, 'fail', 'homes.json', null, `${tag}: occupied named home needs a fridge_note`);
+      if (h.fridge_note && CASTID.test(h.fridge_note))
+        add(g, 'fail', 'homes.json', null, `${tag}: cast id inside fridge_note — ids live in occupants[], notes are voice`);
+      for (const f of TEXTF.slice(0, 6)) if (h[f]) scan('homes.json', tag, h[f]);
+    }
+    for (const v of HJ.vacant || []) {
+      const tag = `vacant.${v.unit_id}`;
+      if (!UNITS.has(v.unit_id)) add(g, 'fail', 'homes.json', null, `${tag}: not a registry unit`);
+      if (!v.showing) add(g, 'fail', 'homes.json', null, `${tag}: vacant home needs showing texture`);
+      if (v.occupants) add(g, 'fail', 'homes.json', null, `${tag}: vacant rows never carry occupants`);
+      if (v.showing) scan('homes.json', tag, v.showing);
+    }
+    /* every vacant row should be a unit the registry lists as empty —
+       tenant_id resolution is advisory: flag occupied units listed vacant */
+    const TENANTED = new Set(REG.leases.filter(l => l.status === 'active' || l.status === 'owner-occupied').map(l => l.unit_id));
+    for (const v of HJ.vacant || [])
+      if (TENANTED.has(v.unit_id))
+        add(g, 'fail', 'homes.json', null, `vacant.${v.unit_id}: lease seed shows an active tenant`);
+    for (const h of HJ.homes || [])
+      if (!TENANTED.has(h.unit_id))
+        add(g, 'fail', 'homes.json', null, `homes.${h.unit_id}: no active lease in the registry seed`);
+    /* perks resolve to real employers */
+    const EMP = new Set(JJ.jobs.map(j => j.employer));
+    const seen = new Set();
+    for (const p of HJ.perks || []) {
+      if (!EMP.has(p.employer)) add(g, 'fail', 'homes.json', null, `perk employer "${p.employer}" not on the job board`);
+      if (seen.has(p.employer)) add(g, 'fail', 'homes.json', null, `perk employer "${p.employer}" listed twice`);
+      seen.add(p.employer);
+      if (!p.brings_home) add(g, 'fail', 'homes.json', null, `perk ${p.employer}: missing brings_home`);
+      scan('homes.json', `perk.${p.employer}`, p.brings_home || '');
+      if (p.note) scan('homes.json', `perk.${p.employer}`, p.note);
+    }
+    /* ambient ring stays a direction — never a unit id, never an address */
+    const ring = JSON.stringify(HJ.ambient_ring || {});
+    if (/\bbld-/.test(ring) || /9\d{3}\s+\w+\s+(St|Ave|St\b)/.test(ring))
+      add(g, 'fail', 'homes.json', null, 'ambient_ring carries an address or unit id — the ring stays off-registry');
+    /* rules state the load-bearing contracts */
+    const rules = (HJ.rules || []).join(' ');
+    for (const re of [/surface knowledge/i, /conditions,? never scripts/i, /no money/i,
+                      /vacant.*showing|showing.*vacant/i, /ambient-ring|ambient ring/i])
+      if (!re.test(rules)) add(g, 'fail', 'homes.json', null, `rules missing contract: ${re}`);
+    g.detail = `schema v${HJ.version} · ${(HJ.homes || []).length} homes · ${(HJ.vacant || []).length} vacant · ` +
+      `${(HJ.perks || []).length} perks${nOcc ? ` · ${nOcc} bad occupant ids` : ''}`;
+  } catch (e) { add(g, 'fail', 'homes.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G16 market ============ */

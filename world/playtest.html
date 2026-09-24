@@ -240,6 +240,7 @@ const SURF={
   supply:{file:"supply.html",name:"The Back Door"},
   commute:{file:"commute.html",name:"The Getting There"},
   permits:{file:"permit.html",name:"The Permit Wall"},
+  homes:{file:"homes.html",name:"The Fridge Door"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
@@ -1979,6 +1980,26 @@ const PTS=[
  {do:"Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
   exp:"Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
   ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT92",title:"The Fridge Door v101 — the household layer (homes v101)",min:8,
+ persona:"continuity editor — wants proof the inside of each home is plausible, honest, and safe to put on camera",
+ goal:"Verify the v101 household layer: homes.json covers exactly the 7 actively-leased registry units plus the 3 vacant listings; occupants resolve to cast/lease ids, shapes stay in-key, ambient households carry null fridge notes and vacant rows carry showing texture not people; perks[] covers every jobs.json employer once with texture not compensation; homes.html renders 'The Fridge Door' with shape filters and pinned-note styling; the homes gate enforces the mirror and the no-money/no-secrets bar.",
+ surfaces:["homes","audit"],steps:[
+ {do:"Open world/homes.html (file://) and scan the occupied-homes grid. Then flip the shape filter to 'share'.",
+  exp:"Seven occupied cards render — address · shape chip · occupant ids · rota/kitchen/quiet/guests/kit fields · a pinned paper note per named household. The share filter narrows to 9418-A (Carmen + Jules) and 9263-4 (Reyes cousins + Dani). The ambient Unit 1 card shows '— no fridge note —' honestly.",
+  ck:["All 7 occupied registry units present; each fields all five texture rows",
+    "Fridge notes read as real pinned notes — voice, no machine ids inside the text",
+    "Ambient household carries a null note, never an invented voice"]},
+ {do:"Flip to 'vacant' and read the three showing cards; then scan the perks table and the ambient-ring row.",
+  exp:"Vacant grid shows the 3 LISTED units with showing texture (paint smell, the lingering window, the honest script) and zero occupants. Perks lists all 24 employers once — day-old bread, the dented-can shelf, the staff bay — with Malik's honest null. The ring row describes off-registry homes with no ids and no addresses.",
+  ck:["3 vacant cards = exactly the LISTED units; no occupants, no fridge notes",
+    "24 perks, one per jobs.json employer — texture, never a wage figure",
+    "Ambient ring stays a direction: no unit ids, no 9xxx addresses"]},
+ {do:"Run node world/audit.js and read the homes gate. Then open world/homes.json §rules and world/homes.md §§1–5.",
+  exp:"Homes gate passes at schema v101 with '7 homes · 3 vacant · 24 perks' in the detail; rules declare surface knowledge / conditions never scripts / no money / vacant-showings / ambient-ring. Prose spells the fridge-note rule and the lease-moves-the-row lifecycle.",
+  ck:["Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
+    "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
+    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
 ]}
 ];
 

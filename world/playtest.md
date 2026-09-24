@@ -285,6 +285,13 @@ One person can wear every hat; four real testers is the intended shape.
   to paint"; civic agency names stay real as facts; pending is a
   taped-up receipt, never a violation; papers carry no people and
   no money.
+  PT92 (The Fridge Door v101 / homes.json v101) walks the household
+  layer — what each actively-leased registry unit is like inside
+  (occupants, shape, rota, kitchen, quiet, guests, kit) plus one
+  pinned fridge-note voice line per named household; the ambient
+  household honestly carries none. Vacant listings show texture, never
+  people; the perks table covers every jobs.json employer once —
+  texture, never compensation; the ambient ring stays a direction.
 
 ## 3. Running a session
 

@@ -38,6 +38,14 @@
 > address empties). INTERNAL tier; spectators read anonymous street
 > texture only. Internal demo: `world/commute.html` ("The Getting There").
 >
+> **v101 depth layer:** `world/homes.md` + `world/homes.json` — the
+> household layer (what each registry unit is like inside: occupants,
+> shape, rota, kitchen rhythm, quiet hours, guest norms, the house kit,
+> one fridge-note voice line; vacant listings carry showing texture;
+> plus the perks table — what every employer sends home). INTERNAL tier;
+> the fridge note is the only spectator-safe field. Internal demo:
+> `world/homes.html` ("The Fridge Door").
+>
 > **v73 depth layer:** `world/exits.md` + `world/exits.json` — the exit
 > layer (how work ends and units empty: notice norms, who takes the news,
 > last-shift texture, reference worth; 30-day notice + 21-day deposit
