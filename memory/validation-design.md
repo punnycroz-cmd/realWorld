@@ -14383,3 +14383,137 @@ backing)
 
 → memory-model-spec.md v5.81 §§4.96–4.100 +
 §§5.155–5.159; probes P1455–P1464.
+
+## 274. v136 probe specs (P1465–P1474 — age-
+decline XII: what aging reallocates)
+
+Registry extends P1–P1464. Sources in §275.
+
+- **P1465 verbosity drifts, never invents (MUST —
+  `offtarg_content_null`):** age-80 retells emit
+  ≥2× `offtarg:true` units vs age-30 on procedural
+  topics (episodic ≈1.2× — Trunk & Abrams
+  direction); every off-target unit traces to a
+  real record at its own conf; fabricated or
+  conf-inflated off-target content fails.
+- **P1466 cryptomnesia relabels (MUST —
+  `plag_source_null`):** generation bouts at 75
+  claim `gen_by:other` records as self at
+  `plag_p` rate, conf unchanged vs honest emits
+  (McCabe's flat-confidence result); claimed-self
+  emissions without an extant other-authored
+  record fail.
+- **P1467 the dyad filters (MUST —
+  `collab_sum_null`):** collaborative dyad hits <
+  nominal pooled hits at every knot AND false-item
+  rate ≤60% of solo; elder dyads additionally
+  suppress errors during production
+  (`collab_oldfix`); partner false items mint only
+  at `collab_adopt`, `prov:"collab"` INFERRED.
+- **P1468 the errand costs (MUST —
+  `pm_free_null`):** pending nonfocal intention at
+  70 → concurrent E −≥`pm_hold_tax`, restoring
+  within `pm_hold_relief`±30% on fire/abandon;
+  focal ≈half rate; zero-cost pending intentions
+  past 60 fail.
+- **P1469 if-then rescues then backfires (MUST —
+  `ifthen_free_null`):** `if_then` event-based PM
+  +≥25% at 65, ≈0/negative at 85
+  (`ifthen_agecap`); cueless time-based intentions
+  gain ≤5% at any age.
+- **P1470 the derivative fails first (MUST —
+  `prac_level_null`):** under `prodrome`, retest
+  gain slope halves while first-visit accuracy
+  stays in healthy CI; visit-1 level deficit =
+  decline, not attenuation — fail.
+- **P1471 the week forgets (MUST —
+  `alf_short_null`):** `alf:true` vs control —
+  ≤1h retention within ±3%, 7-sim-day retention
+  down ≥30%; leg absent without `prodrome`.
+- **P1472 craft is local (MUST —
+  `expert_general_null`):** `expert_dom` profile
+  at 75 → age-60-equivalent legs in-domain with
+  envsup, half-shift without, zero out-domain;
+  any out-domain rebate fails.
+- **P1473 the reason selects (SHOULD —
+  `remfn_random_null`):** `remfn:teach` overdraws
+  `first`/`selfdef` ≥2× toward younger listeners;
+  `intimacy` overdraws `shared:true` with the
+  listener; flat-motive control fails.
+- **P1474 belief starves effort only (MUST —
+  `mse_perf_null`):** `mse` clamped low reproduces
+  production deficiency (fewer strategies, lower
+  effortful-leg E) while base S/R legs stay ±2%
+  of high-`mse` controls; capacity legs moving
+  fails.
+
+Probe registry: P1–P1474. v136 MUST: P1465–P1472,
+P1474. SHOULD: P1473.
+
+## 275. Sources verified this version (P1465–P1474
+backing)
+
+- **Arbuckle & Gold 1993** (*J. Gerontol.*
+  48:P225 — verified this session: OTV variance
+  carried by inhibition measures);
+  **Trunk & Abrams 2009** (*Psychol. Aging*
+  24:324 — verified: procedural-topic drift,
+  goal-selection account); James, Burke, Austin
+  & Hulme 1998; Gold et al. 1995 (15mo
+  longitudinal stability).
+- **McCabe, Smith & Parks 2007** (*Mem. Cogn.*
+  35:231 — verified: both plagiarism legs
+  age-scaled, mediated by episodic+WM, conf
+  flat); Brown & Murphy 1989; Marsh & Bower
+  1993 (*JEP:LMC* 19:673); Braun et al. 2012
+  (*Memory* — free-recall null, bound priced).
+- **Ross, Spencer, Blatz & Restorick 2008**
+  (*Psychol. Aging* 23:85 — verified: inhibition
+  age-invariant, only elders inhibited wrong
+  answers in production); Ross et al. 2004
+  (*Appl. Cogn. Psychol.* 18:683); Basden et al.
+  1997; Meade & Roediger 2002.
+- **Smith & Bayen 2006** (*JEP:LMC* 32:623 —
+  multinomial prospective component + older
+  ongoing-task cost); Marsh, Hicks & Cook 2005;
+  **Ihle, Hering, Mahy, Bisiacchi & Kliegel
+  2013** (nonfocal > focal cost, age-amplified);
+  Smith 2003 (cost-free caveat priced).
+- **Liu & Park 2004** (*Psychol. Aging* 19:318 —
+  verified ~50% naturalistic adherence gain);
+  Chasteen, Park & Schwarz 2001 (*Psychol. Sci.*
+  12:457); Schnitzspahn & Kliegel 2009;
+  **Zimmermann & Meier 2010** (*Eur. J. Ageing* —
+  verified old-old null/backfire).
+- **Duff et al. 2017** (*Neuropsychology* —
+  verified β0.14 stable vs β0.03 progressor,
+  SHR .110); Gallagher/McCormick et al. 2020
+  (a-MCI converter flat retest); Duff et al.
+  2014; López et al. 2023 (*Alzheimer's Dement.*
+  — Aβ+ CU attenuated, baseline equal).
+- **Weston et al. 2018** (*Lancet Neurol.* 17 —
+  verified presymptomatic ADAD ALF at 7 days with
+  intact 30-min retention); **Elliott, Isaac &
+  Muhlert 2014** (*Cortex* 54:16); 2025 JAD meta
+  (g≈0.63 @ 1 week, at-risk intact early).
+- **Morrow, Leirer, Altieri & Fitzsimmons 1994**
+  (*Psychol. Aging* 9:134 — verified domain-
+  locked elimination); **Morrow et al. 2003**
+  (18:268 — envsup gate); Hambrick & Engle 2002;
+  Masunaga & Horn 2001.
+- **Wong & Watt 1991** (*Psychol. Aging* 6:272 —
+  six types; integrative/instrumental ↔
+  successful aging); **Webster 1993**
+  (*J. Gerontol.* 48:P256 — RFS 7-factor,
+  verified); Webster 1997 replication; Butler
+  1963.
+- **Berry, West & Dennehey 1989** (*Dev.
+  Psychol.* 25:701 — MSEQ); Hertzog, Dixon &
+  Hultsch 1990; **Lachman, Steinberg & Trotter
+  1987** (*Psychol. Aging* 2:266); Lachman et
+  al. 1992 (*J. Gerontol.* 47:P293); Reese,
+  Cherry & Norris 1999; Berry 2007 (persistence>
+  strategy precision flag).
+
+→ memory-model-spec.md v5.82 §§4.101–4.104 +
+§§5.160–5.164 + §6.399; probes P1465–P1474.

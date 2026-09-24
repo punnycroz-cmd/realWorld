@@ -4547,3 +4547,479 @@ emissions/fields/state: `freq_count` class,
   simplest honest form; real cohort effects are
   domain-specific (education-weighted). ±8y range and
   the within-cohort null are the falsifiable edges.
+
+# Part XII — v136: the elder says more and owns less (the
+# mouth that wanders, the idea that changes owners, the
+# dyad that edits, the errand that taxes the hour, the plan
+# that binds the cue, the retest that stops paying, the
+# week that erases what the hour kept, the craft that holds
+# its own, the reason for retelling, and the belief that
+# starves the muscle)
+
+Parts I–XI priced what aging subtracts. Part XII prices
+what aging *reallocates*: the speaking self that drifts
+off-target as inhibition thins, authorship fields that
+decay faster than content so the elder claims others'
+ideas, collaborative recall that costs hits but buys error
+correction, an intention held open that taxes every
+concurrent encode, an if-then plan that rescues the
+young-old and can backfire on the old-old, two prodromal
+early-warning legs (practice attenuation, accelerated
+long-term forgetting) that move before the level does,
+expertise that buys years only inside its domain, a retell
+sampler driven by *why* elders reminisce, and the
+self-efficacy loop where low belief starves strategy and
+becomes self-confirming.
+
+## 167. The mouth wanders — off-target verbosity
+
+**Arbuckle & Gold 1993** (*J. Gerontol.* 48:P225 —
+verified: OTV variance in 61–90yo is carried by
+inhibition-task measures, not general cognition — a
+frontal/inhibitory signature); James, Burke, Austin &
+Hulme 1998 (*Psychol. Aging* 13:355); **Trunk & Abrams
+2009** (*Psychol. Aging* 24:324 — verified: elders' speech
+is comparably focused on episodic topics but less focused,
+less clear, more talkative on procedural ones — the drift
+is goal-selection, not pure deficit); Gold et al. 1995
+(longitudinal — OTV stable over 15mo, tracks life-change
+load + fluency). Human shape: the elder's story is longer
+and wanders; the dragged-in associates are real records,
+not inventions. Mechanism, spec §5.160: retell bouts draw
+`offtarg_p(age_eff)` per emitted clause — on fire, the
+next emitted unit is a topically-adjacent record
+(hyper-binding's neighbor set, §19) marked
+`offtarg:true`; `offtarg_len` scales clause count;
+`offtarg_goalw` keys drift on topic class (procedural >
+episodic per Trunk & Abrams). Locked
+`offtarg_content_null` (P1465): off-target units must be
+genuine records at their own R/conf — verbosity adds
+length and neighbors, never accurate new content.
+
+## 168. The idea changes owners — cryptomnesia
+
+**McCabe, Smith & Parks 2007** (*Mem. Cogn.* 35:231 —
+verified: older adults plagiarize more on both legs —
+generate-new (re-emitting others' items as new) and
+recall-own (claiming others' items as self-generated) —
+plus more false recall; age differences mediated by
+episodic recall + working memory; NO age difference in
+confidence on plagiarized items); Brown & Murphy 1989
+(cryptomnesia framework); Marsh & Bower 1993
+(*JEP:LMC* 19:673 — the puzzle-task elicitation);
+caution: Braun et al. 2012 (*Memory* — free-recall
+plagiarism showed no age leg; the deficit lives in
+source-tagged generation, not raw recall). Mechanism,
+spec §6.399: records mint `gen_by:{self|other:id}`
+alongside source fields; `gen_by` rides the source-memory
+decay leg (faster than content, §21) — when it decays
+below `plag_thresh`, a generation-context emit rolls
+`plag_p(age_eff)` to relabel `gen_by:self`, emitting the
+content as self-authored at unchanged confidence
+(`plag_conf` holds conf flat — McCabe's no-confidence-
+difference result). Locked `plag_source_null` (P1466):
+the claimed-self emission must trace to a real other-
+authored record — cryptomnesia relabels provenance, it
+never mints content.
+
+## 169. The dyad edits — collaborative inhibition and
+## correction
+
+**Ross, Spencer, Blatz & Restorick 2008** (*Psychol.
+Aging* 23:85 — verified in married couples mean 51y:
+collaborative recall < nominal pooled recall for BOTH
+ages (collaborative inhibition age-invariant) but
+collaboration *cut* self-generated and externally-
+planted false memories — only older adults inhibited
+wrong answers during production; partners eliminated
+errors in discussion); Ross et al. 2004 (*Appl. Cogn.
+Psychol.* 18:683 — shopping/landmark replication:
+collab fewer hits, consistently fewer errors, higher
+recognition criterion); Basden, Basden, Bryner & Thomas
+1997 (retrieval-strategy disruption mechanism);
+Johansson, Andersson & Rönnberg 2005 (older dyads;
+cross-cueing partial compensation); Meade & Roediger
+2002 (the contagion side — partner's false items get
+adopted, older more). The dyad is a *filter, not a
+sump*: fewer items, cleaner items. Mechanism, spec
+§5.161: `collab:true` retell bout — each partner's
+emission queue truncates by `collab_inhib` when the
+partner holds a stronger record on the same event
+(strategy disruption); each emitted claim rolls partner
+challenge `collab_errfix` — on challenge, the claim's
+beliefStatus drops toward `contested` rather than
+emitting; `collab_oldfix` adds an elder-only production-
+inhibition leg (Ross 2008's asymmetric finding); the
+dark side, `collab_adopt`, lets a partner's emitted false
+item mint into self's store at reduced conf (contagion,
+already §6.x rumor machinery, now age-scaled). Locked
+`collab_sum_null` (P1467): collaborative output must
+stay strictly below nominal pooled hits at every knot —
+no merge may make two rememberers a database join.
+
+## 170. The errand taxes the hour — ongoing-task cost
+
+**Marsh, Hicks & Cook 2005** (*JEP:LMC* — holding an
+intention slows the concurrent task; cost scales with
+monitoring demand); Smith & Bayen 2006 (*JEP:LMC*
+32:623 — multinomial: the age difference lives in the
+prospective component, and older adults' ongoing-task
+performance is *also* depressed — the resource draw is
+bigger for them); Marsh, Hancock & Hicks 2002; Ihle,
+Hering, Mahy, Bisiacchi & Kliegel 2013 (nonfocal cues →
+higher ongoing cost, amplified age effect); contra:
+Smith 2003 / multinomial "cost-free" results for focal
+cues. Human shape: while the elder carries "pick up
+medicine at 4," everything else that afternoon encodes
+worse — intention maintenance is a live tax, not a
+passive note. Mechanism, spec §4.101: pending intention
+records apply `pm_hold_tax(age_eff)` — a multiplier on
+concurrent encode E and retrieval latency for the
+duration of the pending window; magnitude scales with
+cue nonfocality (`pm_locus` nonfocal pays ~2× focal per
+Ihle 2013); tax drops to zero on fire/abandon.
+`pm_hold_relief` restores E gradually (~minutes).
+Locked `pm_free_null` (P1468): no build may let a
+pending nonfocal intention coexist with untaxed
+concurrent encoding past age 60 — the cost is the
+mechanism, not a side-effect.
+
+## 171. The plan binds the cue — implementation intentions
+
+**Liu & Park 2004** (*Psychol. Aging* 19:318 — verified:
+elders forming implementation intentions performed home
+glucose monitoring ~50% more often than rehearsal or
+deliberation controls over 3 weeks — the benefit rides
+automatic cue-action links that don't age); Chasteen,
+Park & Schwarz 2001 (*Psychol. Sci.* 12:457); Schnitz-
+spahn & Kliegel 2009 (*Appl. Cogn. Psychol.* 23 — the
+gain concentrates in the prospective component);
+**critical boundary — Zimmermann & Meier 2010** (*Eur.
+J. Ageing* 7 — verified: young-old 60–75 benefit;
+old-old 76–90 show NO benefit and even impairment on
+event-based tasks — the rescue has an age cap);
+Gollwitzer 1999 (mechanism: cue→action link passes to
+automatic control). Mechanism, spec §5.162: intention
+mint accepts `if_then:{cue, action}` — bound intentions
+reroute firing through the focal/automatic channel,
+cutting `pm_evt_pen` by `ifthen_boost`; but
+`ifthen_agecap(age_eff)` inverts the benefit past ~78
+(cost of rigid cue-binding in a slowing system — the
+Zimmermann & Meier backfire). Locked `ifthen_free_null`
+(P1469): `if_then` must not flatten the time-based PM
+leg — the mechanism is cue-binding, so cueless
+time-triggered intentions get nothing.
+
+## 172. The retest stops paying — practice attenuation as
+## prodrome
+
+**Duff et al. 2017** (*Neuropsychology* 31 — verified:
+CDR-0 progressors-to-AD showed β≈0.03 practice slope
+vs stable β≈0.14 over annual visits; within-subject
+practice gain inversely predicted conversion risk,
+SHR .110); **McCormick/Gallagher et al. 2020** (a-MCI:
+converters flat-to-down on retest while stable improved —
+retest slope out-classified baseline and follow-up
+levels); Duff et al. 2014 (composite practice effect
+~0.25 SD in healthy elders); López et al. 2023
+(*Alzheimer's Dement.* multicenter — Aβ+ cognitively-
+unimpaired show decreased practice effects while
+baseline scores are identical). The signature: **the
+slope of improvement fails before the level does** —
+a second leading indicator alongside `odor_id_eff`
+(§157) and IIV (§97). Mechanism, spec §4.102:
+equivalent-task re-encounters grant `practice_gain`
+— a level bonus accruing per prior equivalent mint;
+under `prodrome`, `prac_prod_tax` halves the gain while
+baseline legs are unchanged; the harness reads the
+gain-slope as a probe channel. Locked
+`prac_level_null` (P1470): practice attenuation must
+appear while same-task baseline accuracy is still
+within healthy band — a build that only lowers level
+fails; the *derivative* is the marker.
+
+## 173. The week erases what the hour kept — accelerated
+## long-term forgetting
+
+**Weston et al. 2018** (*Lancet Neurol.* 17 — verified
+ADAD: presymptomatic carriers retain normally at 30 min
+but lose disproportionately by 7 days; ALF associated
+with estimated years to onset and subjective complaint);
+Elliott, Isaac & Muhlert 2014 (*Cortex* 54:16 — the ALF
+methodology canon); **2025 meta** (*J. Alzheimer's Dis.*
+— verified: 1-week effect robust, g≈0.63, present in
+at-risk groups with INTACT early retention; recall and
+recognition both sensitive); Cassel & Kopelman 2019.
+Normal aging's Ebbinghaus curve is single-timescale
+(§7 machinery); prodrome adds a **second, slower burn**:
+the memory is genuinely there at dinner and gone by next
+week. Mechanism, spec §4.103: `prodrome`/`alf:true`
+state attaches `alf_tau` — a second exponential decay
+leg with onset gated `alf_delay_thr` (~1 sim-day) —
+records pass short-delay probes unchanged, then decay
+on the fast tau; leg applies to episodic mints only.
+Locked `alf_short_null` (P1471): 30-min/1-hour
+retention must be statistically identical between
+`alf:true` and control arms — a build that drops early
+retention has priced ordinary decline, not ALF.
+
+## 174. The craft holds its own — domain-locked expertise
+
+**Morrow, Leirer, Altieri & Fitzsimmons 1994** (*Psychol.
+Aging* 9:134 — verified: pilot expertise ELIMINATED age
+differences on domain-relevant readback and did NOT
+reduce them on less-relevant tasks — compensation is
+domain-locked); Morrow et al. 2001, 2003 (*Psychol.
+Aging* 16:31, 18:268 — expertise mitigation gated on
+environmental support: note-taking let experts dodge
+the age leg; without it, pilots aged like everyone);
+**Hambrick & Engle 2002** (*Psychol. Aging* 17 —
+domain knowledge + WM: knowledge buffers but does not
+abolish ability decline); contra/precision: Masunaga &
+Horn 2001 (expertise×age interactions are real but
+smaller than expertise main effects). Mechanism, spec
+§4.104: trait `expert_dom:[domainIds]` (authored —
+the chef's palate, the nurse's triage); records whose
+`domain ∈ expert_dom` compute legs at
+`age_eff − expert_shift` (up to ~15y); the shift is
+gated `expert_envsup` — in-domain tasks WITH
+environmental support (tools, notes, the workspace
+itself) get full shift, support-free in-domain gets
+half (Morrow 2003's gate), out-of-domain gets zero.
+Locked `expert_general_null` (P1472): the shift must
+never leak to out-domain records — expertise that
+generalizes is reserve (§8), a different account.
+
+## 175. The reason for retelling — reminiscence functions
+
+**Wong & Watt 1991** (*Psychol. Aging* 6:272 — verified:
+six reminiscence types; integrative and instrumental
+reminiscence track successful aging, obsessive tracks
+poor); **Webster 1993** (*J. Gerontol.* 48:P256 —
+verified: RFS 7-factor — Boredom Reduction, Death
+Preparation, Identity/Problem-Solving, Conversation,
+Intimacy Maintenance, Bitterness Revival, Teach/Inform;
+replication 1997: Death Preparation and Teach/Inform
+rise with age); Butler 1963 (life review — the
+canonical claim); Webster & McCall 1999 (functions
+predict which memories get rehearsed). Human shape:
+elders don't just retell *more* — they retell *for
+reasons*: to teach the grandkid, to hold a dead spouse,
+to make the life cohere. The reason selects the record.
+Mechanism, spec §5.163: retell sampler gains a motive
+field `remfn` per bout drawn from trait-weighted
+distribution `remfn_w` — identity/problem-solving and
+bitterness revival overdraw selfdef and unresolved-loss
+records; teach/inform overdraws bump-era `first`
+records toward younger listeners; intimacy maintenance
+overdraws records shared with the listener
+(`shared:true`); `remfn_deprep` (terminal-awareness
+gate) shifts weight to integrative review —
+high-coherence life-narrative passes. Locked
+`remfn_random_null` (P1473): the motive must shift
+*which* records rehearse, not merely how often — a
+sampler that ignores the function field is noise.
+
+## 176. The belief starves the muscle — memory
+## self-efficacy loop
+
+**Berry, West & Dennehey 1989** (*Dev. Psychol.* 25:701 —
+MSEQ; self-efficacy level + strength scales, age
+differences in self-evaluation); Hertzog, Dixon &
+Hultsch 1990 (predictions = task-specific MSE
+judgments); **Lachman, Steinberg & Trotter 1987**
+(*Psychol. Aging* 2:266 — control beliefs and
+attributions move self-assessment and performance);
+Lachman et al. 1992 (*J. Gerontol.* 47:P293 —
+restructuring beliefs + self-generated strategies
+improved performance); Reese, Cherry & Norris 1999
+(MSE declines with age); contra/precision: Berry 2007
+follow-ups — persistence mediates performance more
+than strategy use; the loop is real but leaky.
+Distinct from §142 stereotype threat (a context tax)
+and §41 metamemory split (a calibration error): MSE is
+a *state* that writes strategy selection — the elder
+who believes less tries less, encodes less, confirms
+the belief. Mechanism, spec §5.164: state `mse` ∈[0,1]
+per domain, authored seed + running update — observed
+encode/retrieve failures lower it (`mse_learn`),
+successes raise it slower; `mse` scales `effort_disc`'s
+willingness leg (§4.71) and strategy adoption
+probability at encode; a low-`mse` profile produces
+the production-deficiency pattern (§139) *without* an
+encoding lesion. Locked `mse_perf_null` (P1474):
+`mse` must move willingness/strategy only — clamped
+at zero it cannot zero the base S/R legs; belief is a
+thermostat on effort, never on capacity.
+
+## 177. Part XII knot rows (extends §163; age_eff unless
+## noted)
+
+| param | 55 | 65 | 75 | 85 | source |
+|---|---|---|---|---|---|
+| offtarg_p (§5.160) | 0.04 | 0.07 | 0.12 | 0.18 | Arbuckle & Gold 1993; James 1998 |
+| plag_p (§6.399) | 0.05 | 0.08 | 0.14 | 0.2 | McCabe et al. 2007 |
+| pm_hold_tax focal (§4.101) | 0.05 | 0.08 | 0.12 | 0.18 | Smith & Bayen 2006 |
+| pm_hold_tax nonfocal (§4.101) | 0.1 | 0.16 | 0.24 | 0.36 | Ihle 2013 (2× focal) |
+| ifthen_boost (§5.162) | +0.3 | +0.35 | +0.3 | −0.05 | Liu & Park 2004; Zimmermann & Meier 2010 |
+| practice_gain (§4.102) | 0.12 | 0.11 | 0.09 | 0.07 | Duff 2014 (~0.25 SD total) |
+
+State-gated (no pure-age knots): `collab_inhib` 0.25
+age-flat (Ross 2008 age-invariance); `collab_errfix`
+0.35; `collab_oldfix` +0.15 elder-only; `collab_adopt`
+0.1 young / 0.18 elder (Meade & Roediger); `pm_hold_relief`
+tau 10 sim-min; `ifthen_agecap` crossover 78y;
+`prac_prod_tax` 0.5 under `prodrome`; `alf_tau` 5
+sim-days, `alf_delay_thr` 1 sim-day, `alf:true` under
+`prodrome`; `expert_shift` ≤15y, `expert_envsup` gate
+halves without support; `remfn_w` authored vector +
+`remfn_deprep` +0.3 integrative under `terminal`;
+`mse` [0,1] state, `mse_learn` 0.08 down / 0.04 up.
+Locked nulls: `offtarg_content_null`,
+`plag_source_null`, `collab_sum_null`, `pm_free_null`,
+`ifthen_free_null`, `prac_level_null`,
+`alf_short_null`, `expert_general_null`,
+`remfn_random_null`, `mse_perf_null`. New fields/state:
+`offtarg:true`, `gen_by`, `collab:true` bout +
+`piq`-style partner state, `if_then` plan field,
+`alf:true`, `expert_dom` trait, `remfn` bout field,
+`mse` state.
+
+## 178. Spec changes v5.81 → v5.82 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| N1 | §5.160: `offtarg_*` retell drift — adjacent records emitted `offtarg:true`; locked `offtarg_content_null` | §167 |
+| N2 | §6.399: `gen_by` field + `plag_p` relabel on generation emits, conf flat; locked `plag_source_null` | §168 |
+| N3 | §5.161: `collab:true` bout — inhibition truncation + partner challenge + elder production-inhibition + age-scaled contagion adoption; locked `collab_sum_null` | §169 |
+| N4 | §4.101: `pm_hold_tax` pending-intention tax on concurrent E/latency, nonfocal 2×, relief tau; locked `pm_free_null` | §170 |
+| N5 | §5.162: `if_then` cue-binding cuts `pm_evt_pen` via `ifthen_boost`, inverts past `ifthen_agecap`; locked `ifthen_free_null` | §171 |
+| N6 | §4.102: `practice_gain` equivalent-task slope; `prac_prod_tax` halves under prodrome while level holds; locked `prac_level_null` | §172 |
+| N7 | §4.103: `alf_tau` second decay leg gated `alf_delay_thr`, prodrome-only; locked `alf_short_null` | §173 |
+| N8 | §4.104: `expert_dom` trait + `expert_shift` in-domain age_eff rebate, `expert_envsup` gate; locked `expert_general_null` | §174 |
+| N9 | §5.163: `remfn` bout motive + `remfn_w`/`remfn_deprep` resampling; locked `remfn_random_null` | §175 |
+| N10 | §5.164: `mse` state writes effort/strategy willingness, never capacity; locked `mse_perf_null` | §176 |
+
+New params: `offtarg_p` (knots), `offtarg_len`,
+`offtarg_goalw`, `plag_p` (knots), `plag_thresh`,
+`plag_conf`, `collab_inhib`, `collab_errfix`,
+`collab_oldfix`, `collab_adopt`, `pm_hold_tax` (knots
+× focal/nonfocal), `pm_hold_relief`, `ifthen_boost`
+(knots), `ifthen_agecap`, `practice_gain` (knots),
+`prac_prod_tax`, `alf_tau`, `alf_delay_thr`,
+`expert_dom`, `expert_shift`, `expert_envsup`,
+`remfn_w`, `remfn_deprep`, `mse`, `mse_learn` —
+25 named (~33 scalars once knots expand). Locked
+nulls: `offtarg_content_null`, `plag_source_null`,
+`collab_sum_null`, `pm_free_null`, `ifthen_free_null`,
+`prac_level_null`, `alf_short_null`,
+`expert_general_null`, `remfn_random_null`,
+`mse_perf_null`. New fields/state: `offtarg`,
+`gen_by`, `collab` bout, `if_then`, `alf`,
+`expert_dom`, `remfn`, `mse`.
+
+## 179. Validation probes P1465–P1474
+
+- **P1465 verbosity drifts, never invents (MUST —
+  `offtarg_content_null`):** age-80 retells emit ≥2×
+  `offtarg:true` units vs age-30 on procedural topics
+  (episodic topics ≈1.2×, Trunk & Abrams direction);
+  every off-target unit traces to a real record at its
+  own conf — a fabricated or conf-inflated unit fails.
+- **P1466 cryptomnesia relabels (MUST —
+  `plag_source_null`):** generation bouts at 75 claim
+  other-authored records as self at `plag_p` rate with
+  conf unchanged vs honest emits; every claimed-self
+  emission maps to an existing `gen_by:other` record —
+  content minted from nothing fails.
+- **P1467 the dyad filters (MUST —
+  `collab_sum_null` + correction):** collaborative
+  dyad output < nominal pooled hits at every knot AND
+  emits ≤60% of the solo false-item rate; elder dyads
+  additionally cut self-generated errors during
+  production (Ross 2008 asymmetry); partner false items
+  mint into self's store only at `collab_adopt` rate.
+- **P1468 the errand costs (MUST —
+  `pm_free_null`):** with a pending nonfocal intention
+  at 70, concurrent encode E drops ≥`pm_hold_tax` and
+  restores within `pm_hold_relief`±30% on fire/abandon;
+  focal cues tax at ~half the nonfocal rate; a build
+  where pending intentions ride free fails.
+- **P1469 if-then rescues then backfires (MUST —
+  `ifthen_free_null` + agecap):** `if_then` intentions
+  lift event-based PM hit rate ≥25% at 65, ≈0 or
+  negative at 85; time-based (cueless) intentions gain
+  ≤5% at any age — cue-binding only.
+- **P1470 the derivative fails first (MUST —
+  `prac_level_null`):** under `prodrome`, retest gain
+  slope halves while first-visit accuracy stays within
+  healthy CI; a build showing level deficit at visit 1
+  has priced decline, not practice attenuation.
+- **P1471 the week forgets (MUST —
+  `alf_short_null`):** `alf:true` arm vs control —
+  retention ratio at ≤1h within ±3%, at 7 sim-days
+  down ≥30%; leg absent without `prodrome`.
+- **P1472 craft is local (MUST —
+  `expert_general_null`):** `expert_dom` profile at 75
+  shows age-60-equivalent legs on in-domain supported
+  tasks, half-shift unsupported, zero shift out-domain;
+  any out-domain rebate fails.
+- **P1473 the reason selects (SHOULD —
+  `remfn_random_null`):** `remfn:teach` bouts overdraw
+  `first`/`selfdef` records ≥2× base rate toward
+  younger listeners; `intimacy` overdraws `shared:true`
+  with the current listener; flat-motive control fails.
+- **P1474 belief starves effort only (MUST —
+  `mse_perf_null`):** `mse` clamped low reproduces the
+  §139 production-deficiency pattern (fewer strategies,
+  lower E on effortful legs) while base S/R legs stay
+  within ±2% of `mse`-high controls; capacity legs
+  moving fails.
+
+## 180. Part XII honest limits
+
+- `offtarg_*` rides the inhibition account (Arbuckle &
+  Gold 1993) but Trunk & Abrams 2009 relocated part of
+  the effect to *goal selection* — elders choose
+  different communicative aims. We priced both (drift +
+  `offtarg_goalw`) but the split between deficit and
+  preference is unresolved in the literature.
+- `plag_*` rests on McCabe et al.'s group-generation
+  paradigm; Braun et al.'s free-recall null narrows
+  the claim to source-tagged generation — exactly what
+  we priced, but RW's free chat is closer to free
+  recall than generate-new; the knot values are our
+  extrapolation.
+- `collab_*` merges inhibition (hits down) and error
+  correction (false down) into one bout contract; the
+  Ross studies measured married couples — `collab_errfix`
+  for strangers is extrapolated, and Meade & Roediger's
+  contagion leg argues the dyad can also *import* error.
+- `pm_hold_tax` assumes the cost view (Marsh/Smith);
+  multinomial "cost-free" results for focal cues exist
+  (Smith 2003) — we honored that by pricing focal at
+  ~half, not zero, but the debate is live.
+- `ifthen_agecap`'s old-old backfire is one study
+  (Zimmermann & Meier 2010, n modest); the crossover
+  knot at 78 is our interpolation, flagged hypothesis.
+- `practice_gain`/`prac_prod_tax` model retest as a
+  level bonus with attenuated slope — real practice
+  effects include strategy learning and test-wiseness,
+  not just exposure; the prodrome halfing is a
+  simplified read of Duff's β-ratio (0.03/0.14).
+- `alf_*` is the strongest new mechanism this Part —
+  meta-analytic at 1 week — but human ALF is studied at
+  hours-days; our 1-day gate and 5-day tau are
+  compressed for sim time and flagged.
+- `expert_dom` treats domains as a flat list; real
+  expertise is graded and decays with disuse — the
+  envsup gate (Morrow 2003) is the sourced half, the
+  15y shift cap our bound.
+- `remfn_*` imports a self-report taxonomy (RFS) into a
+  sampler; functions are inferred from behavior in the
+  literature too — our motive-first implementation is a
+  modeling choice, not a measured pipeline.
+- `mse` as a single scalar per domain collapses level
+  and strength (Berry's two scales); the slow-up/fast-
+  down asymmetry is licensed by control-beliefs work
+  but the rates are ours.
