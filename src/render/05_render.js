@@ -37,7 +37,7 @@ function setupCanvas(){
   cv.addEventListener('pointerdown', (e) => {
     if(e.pointerType === 'touch'){
       touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
-      touchStart.set(e.pointerId, { x: e.clientX, y: e.clientY });
+      touchStart.set(e.pointerId, { x: e.clientX, y: e.clientY, moved: false });
       if(touches.size === 2){
         const [a, b] = [...touches.values()];
         pinchDist = Math.hypot(a.x - b.x, a.y - b.y);
@@ -49,6 +49,8 @@ function setupCanvas(){
   cv.addEventListener('pointermove', (e) => {
     if(e.pointerType !== 'touch' || !touches.has(e.pointerId)) return;
     touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    const start = touchStart.get(e.pointerId);
+    if(start && Math.hypot(e.clientX - start.x, e.clientY - start.y) > 14) start.moved = true;
     if(touches.size === 2 && pinchDist > 0){
       const [a, b] = [...touches.values()];
       const d = Math.hypot(a.x - b.x, a.y - b.y);
@@ -111,7 +113,7 @@ function setupCanvas(){
     const start = touchStart.get(e.pointerId);
     touchStart.delete(e.pointerId);
     if(!start || pinchActive || touches.size > 0) return;
-    if(Math.hypot(e.clientX - start.x, e.clientY - start.y) > 14) return;
+    if(start.moved || Math.hypot(e.clientX - start.x, e.clientY - start.y) > 14) return;
     handleTap(e);
   });
 }
