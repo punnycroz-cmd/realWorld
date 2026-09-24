@@ -2698,6 +2698,84 @@ function sfRenderWorld(cw, ch){
     }
   }
 
+  /* v71: BLOCK SHADOWS — the top view used to leave every building
+     shadowless: rooftops floated on uniformly lit pavement while pawns,
+     trees and props all threw real sun shadows. Now each footprint is
+     swept along the true solar throw (height · cot(el) through
+     SF_SUN.x/y, the same vector the street view's canyon pass and every
+     prop shadow obeys) and pooled on the ground in three penumbra
+     layers — one shared path per layer so overlapping sweeps never
+     double-darken. Drawn under the drawable pass, so a shadow crossing
+     a neighbor's lot is correctly occluded by that building's sprite,
+     and so pawns/props standing in the shade still layer their own
+     (physically separate) shadows on top. */
+  const _bldShade = !isNight() && SF_SUN.day > 0.08;
+  if(_bldShade){
+    const coverK = sfCloudCover();
+    const shA = 0.52 * Math.min(1, SF_SUN.day + 0.2) * (1 - coverK * 0.55);
+    if(shA > 0.03){
+      const z2 = cam.zoom,
+            vx0 = cam.x - cw / 2 / z2, vx1 = cam.x + cw / 2 / z2,
+            vy0 = cam.y - ch / 2 / z2 / SF_TILT,
+            vy1 = cam.y + ch / 2 / z2 / SF_TILT;
+      // throw can reach far — admit buildings whose SHADOW enters the
+      // frame even when their footprint lies outside it
+      const maxThrow = 2.6 * 26 * SF_PXM;   // cot cap × tallest massing
+      const list = [];
+      for(const b of SF_BLD){
+        if(Math.max(b.bx1, b.bx1 + Math.abs(SF_SUN.x) * maxThrow) < vx0 - 40 ||
+           Math.min(b.bx0, b.bx0 - Math.abs(SF_SUN.x) * maxThrow) > vx1 + 40 ||
+           Math.max(b.by1, b.by1 + Math.abs(SF_SUN.y) * maxThrow) < vy0 - 40 ||
+           Math.min(b.by0, b.by0 - Math.abs(SF_SUN.y) * maxThrow) > vy1 + 40)
+          continue;
+        list.push(b);
+      }
+      const sxp = (x) => (x - cam.x) * z2 + cw / 2;
+      const syp = (y) => sfSY(y, ch);
+      // contact skirt — a thin ambient-occlusion rim hugging the base on
+      // all sides, so walls read seated into the pavement even where the
+      // cast shadow points away
+      ctx.beginPath();
+      for(const b of list){
+        const P = b.px;
+        ctx.moveTo(sxp(P[0][0]), syp(P[0][1]));
+        for(let e = 1; e < P.length; e++)
+          ctx.lineTo(sxp(P[e][0]), syp(P[e][1]));
+        ctx.closePath();
+      }
+      ctx.strokeStyle = 'rgba(18,24,40,0.20)';
+      ctx.lineWidth = Math.max(1, 3.2 * z2);
+      ctx.lineJoin = 'round';
+      ctx.stroke();
+      // swept cast shadow — penumbra ring, full throw, umbra core
+      for(const [mul, al] of [[1.18, shA * 0.32], [1.0, shA * 0.62],
+                              [0.62, shA]]){
+        ctx.beginPath();
+        for(const b of list){
+          const P = b.px, nP = P.length,
+                ox = SF_SUN.x * (b.hPx / 4.2) * mul * SF_PXM,
+                oy = SF_SUN.y * (b.hPx / 4.2) * mul * SF_PXM;
+          // displaced roofprint — guarantees the far tip is solid shade
+          ctx.moveTo(sxp(P[0][0] + ox), syp(P[0][1] + oy));
+          for(let e = 1; e < nP; e++)
+            ctx.lineTo(sxp(P[e][0] + ox), syp(P[e][1] + oy));
+          ctx.closePath();
+          // edge quads — the sweep between wall base and roof shadow
+          for(let e = 0; e < nP; e++){
+            const a = P[e], c = P[(e + 1) % nP];
+            ctx.moveTo(sxp(a[0]), syp(a[1]));
+            ctx.lineTo(sxp(c[0]), syp(c[1]));
+            ctx.lineTo(sxp(c[0] + ox), syp(c[1] + oy));
+            ctx.lineTo(sxp(a[0] + ox), syp(a[1] + oy));
+            ctx.closePath();
+          }
+        }
+        ctx.fillStyle = `rgba(24,30,52,${al.toFixed(3)})`;
+        ctx.fill();
+      }
+    }
+  }
+
   // 2. collect drawables: buildings in view + props + pawns, y-sorted
   const drawables = [];
   const seen = new Set();
