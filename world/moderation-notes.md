@@ -263,3 +263,20 @@ the bar for touching the world is deliberately unreachable by drama.)
   note); obfuscation-attempt note generalized to separators.
 - `world/moderation-tooling.md` — §11 spec.
 - `world/audit.js` — mod gate engine-version pin v36 → v50.
+
+## 12. World-track tooling (v64 — roster & record layer)
+
+- `world/mod-console.html` — NEW **flag roster** panel (header toggle):
+  every account carrying flag weight, sorted by rolling score, with tier
+  effect, next threshold, next decay date, and log tail. Score ≥9 lifts
+  to an **owner docket** block ("account review — owner decision") — the
+  console recommends, it never executes an account action. Seed
+  `wren_404` (score 9) keeps the docket reachable. NEW **ledger export**:
+  "export ledger records" emits session decisions as canonical
+  `mod_decision` records (moderation.json `ledger_records` schema);
+  `decide()` now stores structured decision fields on audit entries.
+- `world/moderation.json` — new `flag_roster` + `ledger_records`
+  contract blocks (per-account fields, owner-docket rule, internal-only
+  visibility; record schema, neutral feed_line rule, merge target).
+- `world/audit.js` — mod gate +v64 affordance marks (roster, docket,
+  `mod_decision` export, internal-only copy).

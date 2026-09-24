@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Real World — "The Mission" — One-Sheet</title>
+<!-- Single-page printable sell sheet. Self-contained, relative links.
+     Print -> PDF produces the one-page leave-behind. -->
+<style>
+  :root{
+    --bg:#14161c; --panel:#1d2029; --border:#2c303c;
+    --text:#ece7dc; --muted:#788092; --accent:#e8a04c; --green:#4f9d69;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);
+       font-family:Georgia,"Times New Roman",serif;line-height:1.4}
+  .wrap{max-width:900px;margin:0 auto;padding:0 24px}
+  header{border-bottom:1px solid var(--border);padding:14px 0}
+  header .wrap{display:flex;align-items:center;gap:12px}
+  header img{height:34px;width:auto}
+  .t1{font-weight:700;letter-spacing:.06em;font-size:17px}
+  .t2{color:var(--accent);letter-spacing:.22em;font-size:10px;
+      text-transform:uppercase}
+  h1{font-size:30px;margin:22px 0 8px;line-height:1.15}
+  .eyebrow{color:var(--accent);text-transform:uppercase;letter-spacing:.2em;
+           font-size:11px;margin:20px 0 6px}
+  .lead{font-size:16px;max-width:640px;margin:0}
+  .hero{width:100%;border-radius:10px;border:1px solid var(--border);
+        margin:18px 0 6px;display:block}
+  .cap{font-size:12px;color:var(--muted);margin:0 0 8px}
+  h2{font-size:12px;text-transform:uppercase;letter-spacing:.16em;
+     color:var(--accent);margin:22px 0 10px}
+  .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+  .facts{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:12px}
+  .f{background:var(--panel);border:1px solid var(--border);
+     border-radius:8px;padding:10px 12px}
+  .n{font-size:22px;font-weight:700;color:var(--accent);display:block;line-height:1.1}
+  .l{font-size:11.5px;color:var(--muted)}
+  ul{margin:0;padding-left:18px;font-size:13.5px}
+  li{margin:4px 0}
+  .factsheet{font-size:13px}
+  .factsheet td{padding:3px 10px 3px 0;vertical-align:top}
+  .factsheet td:first-child{color:var(--muted);white-space:nowrap}
+  .footer{margin-top:22px;padding:14px 0 26px;border-top:1px solid var(--border);
+          font-size:12px;color:var(--muted)}
+  .slot{color:var(--accent);font-weight:700}
+  @media print{
+    body{background:#fff;color:#111}
+    header img{filter:invert(1)}
+    .f{background:#fff;border-color:#ccc}
+    .muted,.l,.cap,.footer{color:#555}
+    h2,.eyebrow,.n,.slot,.t2{color:#a05c14}
+    h1{font-size:24px}
+  }
+  @media (max-width:640px){.cols{grid-template-columns:1fr}.facts{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+  <img src="logos/logo-icon.svg" alt="Real World lit-window mark">
+  <div><div class="t1">REAL WORLD</div><div class="t2">The Mission — one-sheet</div></div>
+</div></header>
+
+<main class="wrap">
+  <p class="eyebrow">Persistent life sim · browser · pre-launch</p>
+  <h1>A neighborhood that's alive whether you're watching or not.</h1>
+  <p class="lead"><i>Real World</i> is a browser-based "Truman Show" on real
+  streets around Dolores Park in San Francisco's Mission District.
+  Twenty-eight fictional residents live around the clock. Watching is free,
+  always — players pay only for agency.</p>
+
+  <img class="hero" src="keyart/keyart-16x9.png" alt="Real World key art — Mission rooftops and laundry lines under a clean autumn sky, title overlay">
+  <p class="cap">Key art — development-build capture (renderer v76). "Real World (in development)".</p>
+
+  <div class="facts">
+    <div class="f"><span class="n">28</span><span class="l">fictional residents — 8 mains, 20 ambients</span></div>
+    <div class="f"><span class="n">24/7</span><span class="l">persistent world, runs unwatched</span></div>
+    <div class="f"><span class="n">$0</span><span class="l">to watch, always</span></div>
+    <div class="f"><span class="n">0</span><span class="l">main characters anyone can possess — never</span></div>
+    <div class="f"><span class="n">1</span><span class="l">real neighborhood — the Mission, SF</span></div>
+    <div class="f"><span class="n">2</span><span class="l">currencies, never convertible (credits / game dollars)</span></div>
+  </div>
+
+  <div class="cols">
+    <div>
+      <h2>How it works</h2>
+      <ul>
+        <li><b>Watch free.</b> The residents, the drama, the public request
+        feed — the spectator product is the core, not a demo.</li>
+        <li><b>Request.</b> Paid agency is time-boxed: declare an action and
+        duration, pay credits upfront, hit a hard cap, watch it land on a
+        public feed everyone can read.</li>
+        <li><b>Create a character.</b> Player characters rent, work, and
+        climb the ladder — tenant, owner, landlord of a second unit.</li>
+      </ul>
+      <h2>The hook</h2>
+      <ul>
+        <li>The eight mains can <b>never</b> be possessed — by players or by
+        the game's owner. Storylines stay authorial; secrets stay sealed.</li>
+        <li>Deliberate cuts: no voice/TTS, no loot boxes, no cash-out/RMT,
+        no crypto.</li>
+      </ul>
+    </div>
+    <div>
+      <h2>Fact sheet</h2>
+      <table class="factsheet">
+        <tr><td>Title</td><td>Real World — first neighborhood: "The Mission"</td></tr>
+        <tr><td>Genre</td><td>Persistent life simulation / spectator sim</td></tr>
+        <tr><td>Platform</td><td>Web browser (desktop-first)</td></tr>
+        <tr><td>Status</td><td>In active development — no public build yet</td></tr>
+        <tr><td>Model</td><td>Free to watch; paid requests, character slots,
+        subscription (all provisional)</td></tr>
+        <tr><td>Setting</td><td>Real Mission street geometry; all residents and
+        house numbers fictional</td></tr>
+        <tr><td>Developer</td><td>[STUDIO NAME — placeholder]</td></tr>
+        <tr><td>Release</td><td>TBD</td></tr>
+      </table>
+      <h2>In this kit</h2>
+      <ul>
+        <li>Screenshots (renderer v76) + key art — <code>screenshots/</code>, <code>keyart/</code></li>
+        <li>Logos, badges, social banners — <code>logos/</code>, <code>badges/</code>, <code>banners/</code></li>
+        <li>Full press hub — <code>index.html</code>; captions — <code>captions.txt</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="footer">
+    Contact: <span class="slot">[press@ — placeholder]</span> ·
+    <span class="slot">[studio name — placeholder]</span> ·
+    Pre-launch material; editorial use with attribution "Real World
+    (in development)". Full terms: LICENSE.txt.
+  </div>
+</main>
+</body>
+</html>

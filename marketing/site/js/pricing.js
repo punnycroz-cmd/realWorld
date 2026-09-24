@@ -157,6 +157,9 @@
   var elUsd    = root.querySelector("#sc-usd");
   var elPack   = root.querySelector("#sc-pack");
   var elNote   = root.querySelector("#sc-note");
+  var elShare  = root.querySelector("#sc-share");
+  var elShareN = root.querySelector("#sc-share-note");
+  var shareMsg = elShareN ? elShareN.textContent : "";
 
   function fmtUsd(x) {
     return x < 1 ? (x * 100).toFixed(0) + "¢" : "$" + x.toFixed(2);
@@ -273,6 +276,69 @@
     el.addEventListener("change", function () { render(); ping(); });
   });
 
+  // Shareable scene links — state rides in the URL hash as
+  // "#scene=<item>:<qty>,...|<q><s>" so a priced scene survives being sent.
+  // The hash carries ingredient picks only — never amounts, never identity.
+  function serialize() {
+    var items = [];
+    Object.keys(ITEMS).forEach(function (k) { if (qty[k]) items.push(k + ":" + qty[k]); });
+    if (!items.length) return "";
+    var flags = (elQueued.checked ? "q" : "") + (elSurge.checked ? "s" : "");
+    return "#scene=" + encodeURIComponent(items.join(",") + "|" + flags);
+  }
+
+  function restore() {
+    var h = location.hash || "";
+    if (h.indexOf("#scene=") !== 0) return false;
+    var parts = decodeURIComponent(h.slice(7)).split("|");
+    var ok = false;
+    (parts[0] || "").split(",").forEach(function (pair) {
+      var kv = pair.split(":");
+      var k = kv[0], n = parseInt(kv[1], 10);
+      if (ITEMS[k] && n > 0) { qty[k] = Math.min(ITEMS[k].max, n); ok = true; }
+    });
+    var f = parts[1] || "";
+    elQueued.checked = f.indexOf("q") !== -1;
+    elSurge.checked  = f.indexOf("s") !== -1;
+    if (ok) lastPreset = "link";
+    return ok;
+  }
+
+  function shareNote(text, copied) {
+    if (!elShareN) return;
+    elShareN.textContent = text;
+    elShareN.classList.toggle("copied", !!copied);
+  }
+
+  if (elShare) {
+    elShare.addEventListener("click", function () {
+      var frag = serialize();
+      if (!frag) { shareNote("Add ingredients first — then the link writes itself.", false); return; }
+      var url = location.origin + location.pathname + frag;
+      var method = "manual";
+      function done() {
+        window.rw && window.rw.track && window.rw.track("share_click", { method: method, surface: "scene" });
+      }
+      function fallback() {
+        method = "manual";
+        try { history.replaceState(null, "", frag); } catch (e) {}
+        shareNote("Link is in the address bar — copy it from there.", false);
+        done();
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(url).then(function () {
+          method = "clipboard";
+          shareNote("Copied — the link reloads this exact scene.", true);
+          done();
+        }, fallback);
+      } else {
+        fallback();
+      }
+      setTimeout(function () { shareNote(shareMsg, false); }, 6000);
+    });
+  }
+
+  restore();
   render();
 })();
 

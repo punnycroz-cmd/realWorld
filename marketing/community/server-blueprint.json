@@ -1,0 +1,48 @@
+{
+  "_doc": "Real World — The Mission · Discord server blueprint (COMMUNITY-FUNNEL.md §3 as data). Single source of truth for the create-at-go server: tools/server_blueprint.py --render prints the checklist from this file, --check verifies an export against it. LOCAL ONLY — nothing here creates anything; the owner runs the steps.",
+  "version": "v99",
+  "server": {
+    "name": "Real World — The Mission",
+    "community_features": ["MEMBERSHIP_SCREENING", "COMMUNITY"],
+    "rules_gate": {
+      "enabled": true,
+      "description": "Membership screening question shown before join. Copy from COMMUNITY-FUNNEL.md §4.1 — keep verbatim, it is also pinned in #the-block.",
+      "rules": [
+        "No real-person targeting — the characters are fictional; treat them as fiction, treat members as people.",
+        "No spoilers-by-doxxing — don't try to map fictional addresses onto real residents' doors.",
+        "No hate, harassment, spam, scams. No 'credit trading' offers — credits are non-transferable; anyone offering to sell them is scamming.",
+        "No AI-prompt-injection bragging rights: discussing request mechanics is fine; coordinating to grief the sim is a ban."
+      ]
+    },
+    "welcome_screen": {
+      "enabled": true,
+      "description": "You're watching a neighborhood that doesn't know it's being watched. Pick a door.",
+      "questions": [
+        {
+          "title": "What brought you to the block?",
+          "options": ["Just watching", "Filing requests", "Making a resident", "Press / creator"],
+          "assigns_role": "@resident"
+        }
+      ]
+    }
+  },
+  "roles": [
+    {"name": "owner", "mention": "@owner", "permissions": "administrator", "hoist": true, "note": "the owner — approves anything public (approval gate, COMMUNITY-FUNNEL.md §4.1)"},
+    {"name": "mod", "mention": "@mod", "permissions": "manage_messages+timeout", "hoist": true, "note": "volunteer, appointed post-launch only — see community/mod-ramp.md (day-14 need check, never before)"},
+    {"name": "resident", "mention": "@resident", "permissions": "none", "hoist": false, "note": "self-assign via rules acceptance — cosmetic, no gates"}
+  ],
+  "channels": [
+    {"name": "the-block", "type": "text", "topic": "The living room. Talk about who did what.", "posting": "everyone", "pins": ["the 4 rules (verbatim from blueprint.server.rules_gate.rules)", "feedback asks (COMMUNITY-FUNNEL.md §7 standing asks)", "how-it-works + pricing links"]},
+    {"name": "the-feed", "type": "text", "topic": "Read-only mirror of notable public request-feed entries. Discuss in #the-block.", "posting": "owner+mod", "readonly": true, "pins": ["mirror format + selection criteria (community/feed-mirror.md §1–§2)"]},
+    {"name": "watch-party", "type": "text", "topic": "Coordinate simultaneous viewing of big requests — weather events, showtime requests.", "posting": "everyone", "pins": ["watch-party triggers + announce format (community/watch-party-playbook.md §1–§2)"]},
+    {"name": "rooftop", "type": "voice", "topic": "Watch-party voice.", "posting": "everyone"},
+    {"name": "help-requests", "type": "text", "topic": "How do I file a request / what does compatible mean.", "posting": "everyone", "pins": ["how-it-works link", "pricing link", "'compatible' explained in one paragraph"]},
+    {"name": "feedback", "type": "text", "topic": "Bugs, suggestions. Feeds the weekly route into the dev tracks (COMMUNITY-FUNNEL.md §7).", "posting": "everyone", "pins": ["how feedback is routed (weekly batch → shared inbox)", "the two standing asks"]},
+    {"name": "announcements", "type": "text", "topic": "Owner posts only. Weekly recap lives here + socials.", "posting": "owner", "readonly": true},
+    {"name": "clips", "type": "text", "topic": "Member captures of the feed/neighborhood — the advocacy channel.", "posting": "everyone", "pins": ["clip rules (community/clips-and-highlights.md §2 — pin-ready)"]},
+    {"name": "mod-log", "type": "text", "topic": "Private. Ban/warn log — entry format in community/mod-ramp.md.", "posting": "owner+mod", "private": true}
+  ],
+  "bots": [],
+  "bots_note": "None required at launch. Only acceptable addition if raiding starts: a verification-gate bot — decide then, not now (COMMUNITY-FUNNEL.md §3 item 4). A feed-mirror bot is a post-launch decision gated by community/feed-mirror.md §5 + community/feed-mirror-bot-spec.md.",
+  "naming_honesty": "Site invite links stay labeled placeholders ('opens at launch') until this server exists and tools/server_blueprint.py --check passes on an export. Never link a server that doesn't exist."
+}

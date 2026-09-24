@@ -1,5 +1,20 @@
-# Parody Business Registry — "The Mission" (world v58)
+# Parody Business Registry — "The Mission" (world v100)
 
+> **v100 additions:** the **paper layer** — `world/permits.json` +
+> `world/permits.md` + `world/permit.html` ("The Permit Wall") register the
+> framed paper behind every door venue's counter (business license, health
+> score card, occupancy, liquor/entertainment/sidewalk permits where they
+> apply) and each door's lineage: former tenants plus the `ghost_sign` the
+> facade still carries — authored copy for the render-side ghost-sign pass.
+> Doors only; agency names are civic facts and stay real; no people, no
+> prices, conditions never scripts. See §9.
+
+> **v59 additions:** two offstage parody orgs registered — **Calle Justa
+> Workers' Table** (Thursday drop-in worker clinic) and **The Rent Table**
+> (Wednesday tenant counseling, library community room). They are the
+> rung-4 "table" of the grievance layer (`world/grievances.md`): recourse
+> texture with all affordances off — never request targets, never doors.
+>
 > **v58 additions:** the **regulars layer** — `world/regulars.json` +
 > `world/regulars.md` + `world/regulars.html` ("The House Knows") register,
 > per door-having venue, the people whose order starts before they sit down:
@@ -160,6 +175,17 @@ time in. Details beyond the name are world content — safe for briefings.
   secretly writes. In-world media, not a business with a door; its posts
   are a feed surface. SECRET-adjacent: the blog is public, the author is
   not.
+- **Calle Justa Workers' Table** — Thursday 18:00–20:00 drop-in worker
+  clinic (parody of Mission worker-center culture; the name riffs the
+  closed real-world org *Causa Justa*). Folding tables, a sign-in sheet,
+  volunteer shop stewards and a rotating law student. Reads check stubs,
+  writes demand letters workers deliver themselves. Rung 4 of the work
+  grievance ladder — `world/grievances.md`. No door, no camera target.
+- **The Rent Table** — Wednesday 18:30–20:30 tenant counseling in the
+  library community room (parody of tenant-counseling orgs). Notices,
+  habitability, deposit math, roommate shares; **A11 Vera** staffs the
+  sign-in most weeks as a public volunteer. Rung 4 of the housing
+  grievance ladder — `world/grievances.md`. No door.
 
 ### Reserved fictional names (claimed, not yet on the map)
 
@@ -441,3 +467,65 @@ internal demo: `world/storefront.html`.
   interior menu boards, and storefront glass (art v43 render boxes). The
   mapping layer (`sfDisplayName`) still owns POI→name resolution; this file
   authors what the resolved sign says.
+
+---
+
+## 8. The supply layer — the back door (v86)
+
+The registry says what a venue *is*; `world/suppliers.json` says where its
+*stock comes from*. Nineteen offstage wholesale/trade suppliers — Third
+Rail Roasters, Masa Madre Foods, Green Crate Produce, Fogline Beverage
+Distributors, Morning Catch Seafood, Golden Grain Mills, Two Beans Trading
+Co., Hot Off the Press Print Shop, Static Route Distribution, Remainder &
+Sons, Sterile Field Supply, The Brannan Shed, Sudspack Vending Supply,
+Crosstown Sundries, Chef's Closet Supply, Bay Tool & Fastener, Lombard
+Parts Co., Cold Gate Dairy, Fold & Freight Linen — run 44 delivery windows
+across the twenty door venues. Spec and rules: `world/suppliers.md`;
+internal demo: `world/supply.html` ("The Back Door").
+
+- **Offstage by contract.** Suppliers carry no door, no POI, no interior,
+  no registry entry, no card — they are vendors, not destinations, and they
+  never enter the web edge graph (the runs are the supply edge layer).
+- **Unstaffed by cast.** Drivers are unnamed extras — offscreen labor.
+- **Runs are conditions, never scripts.** A window may precede open by up
+  to three hours (pre-open drops are the norm) but must end before close,
+  and may only list days the venue opens. A missed run is a readable
+  anomaly, not a broken script.
+- **Coverage is enforced.** Every door venue is fed by at least one run —
+  except Valencia Growers, which is exempt because it *is* the supplier.
+- **The flyer circuit is physical.** Hot Off the Press's Thursday shoulder-
+  bag walk (Dusty Spine → Marooned → Needlepointe → Golden Hour → the 600
+  Club) is the substrate under the `gossip_route` edges and the flyer
+  boards the storefront layer paints.
+- **Feed-legible, never a story beat.** `feed_shapes` emits four templated
+  lines under kind `venue` only — a supplier is a name on a truck's flank.
+- **No prices.** Invoices stay offscreen; supply copy carries no game
+  dollars, no credits, no contract terms.
+
+---
+
+## 9. The paper layer — the permit wall + door lineage (v100)
+
+What the registry's doors hang behind the counter and what their facades
+remember. Spec: `world/permits.md`; machine mirror:
+`world/permits.json`; internal demo: `world/permit.html`.
+
+- **Doors only.** `walls` keys equal the anchor+street business ids
+  exactly — offstage orgs and reserved names have no counter to hang
+  paper behind.
+- **Civic names stay real.** SFDPH, CA ABC, CDTFA, BAR, SFFD, Public
+  Works — the permitting agencies are civic facts (§3c), same standing as
+  the library. Every *business* name in the layer is parody or invented,
+  including every former tenant.
+- **Kinds are a closed list** (`paper_keys`); `liquor_license` may appear
+  only on `rules.liquor_venues`, `health_score` only on
+  `rules.food_venues` with the number inside `score_range`. `pending` is
+  a taped-up application receipt — a readable condition, never a
+  violation or a script.
+- **Lineage.** `former` records prior tenants as `{name, years, note}` —
+  the note is the physical trace that survived. `ghost_sign` is the faded
+  painted sign still on the wall (null where there is no wall to paint)
+  and requires a former entry — the wall remembers a tenant, not a rumor.
+  Auerbach's former tenant is itself under an earlier trade.
+- **No people, no money.** Papers never name cast or regulars ("staff on
+  file" is the whole sentence) and carry no prices, fees, or credits.

@@ -1,0 +1,101 @@
+{
+  "$schema": "internal/real-world-analytics-goals/v1",
+  "comment": "Machine-readable launch goals for the Real World funnel. Graded by tools/analytics_goals.py against an NDJSON capture; rendered into the weekly file by metrics_weekly.sh and into dashboard.html's goals panel. Targets are PLANNING HYPOTHESES from community/funnel-scorecard.md §2 and the research report — revise at the day-30 retro only, in writing, never mid-week to make a number pass.",
+  "defaults": {
+    "min_n": 30,
+    "watch_frac": 0.8
+  },
+  "stages": {
+    "pageview": ["pageview"],
+    "engaged": ["cta_click", "scroll_depth", "screenshot_view", "share_click",
+                 "price_calc", "scene_calc", "sub_calc", "request_simulated"],
+    "community": ["community_join", "recap_open", "watch_party_rsvp"],
+    "watch_start": ["watch_start"],
+    "request_submitted": ["request_submitted"],
+    "character_created": ["character_created"]
+  },
+  "goals": [
+    {
+      "id": "visit-engaged",
+      "label": "visitors who engage (any CTA / scroll / shot / calc / sim)",
+      "metric": {"kind": "stage_conv", "from": "pageview", "to": "engaged"},
+      "direction": "at_least", "target": 0.40,
+      "source": "funnel-scorecard.md §2"
+    },
+    {
+      "id": "engaged-watch",
+      "label": "engaged sessions that start watching",
+      "metric": {"kind": "stage_conv", "from": "engaged", "to": "watch_start"},
+      "direction": "at_least", "target": 0.25,
+      "source": "funnel-scorecard.md §2 — the headline question: does watching convert to acting?"
+    },
+    {
+      "id": "visit-watch",
+      "label": "all visits that reach watch_start (top-of-funnel health)",
+      "metric": {"kind": "stage_reach", "stage": "watch_start", "per": "pageview"},
+      "direction": "at_least", "target": 0.15,
+      "severity": "info",
+      "source": "ANALYTICS.md §7 — optimize pageview→watch_start first"
+    },
+    {
+      "id": "watch-request",
+      "label": "watching sessions that file a request",
+      "metric": {"kind": "stage_conv", "from": "watch_start", "to": "request_submitted"},
+      "direction": "at_least", "target": 0.10,
+      "pending_ok": true,
+      "source": "funnel-scorecard.md §2 — game-side emitter, pending until the embed ships"
+    },
+    {
+      "id": "request-character",
+      "label": "requesters who go on to create a character",
+      "metric": {"kind": "stage_conv", "from": "request_submitted", "to": "character_created"},
+      "direction": "at_least", "target": 0.20,
+      "pending_ok": true,
+      "source": "funnel-scorecard.md §2 — game-side emitter"
+    },
+    {
+      "id": "calc-demand",
+      "label": "engaged sessions that run a calculator (price/scene/sub — purchase intent)",
+      "metric": {"kind": "event_session_rate", "events": ["price_calc", "scene_calc", "sub_calc"], "per_stage": "engaged"},
+      "direction": "at_least", "target": 0.10,
+      "source": "ANALYTICS.md §3 — pre-checkout demand signal"
+    },
+    {
+      "id": "sim-demand",
+      "label": "engaged sessions that simulate a request",
+      "metric": {"kind": "event_session_rate", "events": ["request_simulated"], "per_stage": "engaged"},
+      "direction": "at_least", "target": 0.10,
+      "source": "ANALYTICS.md §3 — which request type visitors try first"
+    },
+    {
+      "id": "share-rate",
+      "label": "engaged sessions that share (viral loop)",
+      "metric": {"kind": "event_session_rate", "events": ["share_click"], "per_stage": "engaged"},
+      "direction": "at_least", "target": 0.02,
+      "severity": "info",
+      "source": "ANALYTICS.md §7 panel 2"
+    },
+    {
+      "id": "bounce",
+      "label": "bounce rate (single-pageview sessions)",
+      "metric": {"kind": "bounce_rate"},
+      "direction": "at_most", "target": 0.60,
+      "source": "analytics_paths.py definition — single-page sessions / all sessions"
+    },
+    {
+      "id": "notfound",
+      "label": "404 share of pageviews (broken-link radar)",
+      "metric": {"kind": "notfound_pageview_share"},
+      "direction": "at_most", "target": 0.02,
+      "source": "ANALYTICS.md §7 panel 4"
+    },
+    {
+      "id": "index-attention",
+      "label": "median visible seconds on the landing page",
+      "metric": {"kind": "median_engaged_seconds", "page": "index"},
+      "direction": "at_least", "target": 30,
+      "unit": "s",
+      "source": "ANALYTICS.md §7 — honest attention metric (visible time only)"
+    }
+  ]
+}

@@ -23,6 +23,35 @@
 > — the actor-facing application layer (how a character asks for each live
 > opening or listing, who screens, what the trial/viewing tests, how a no
 > sounds). Player-facing demo: `world/apply.html` ("The Tryout").
+>
+> **v59 depth layer:** `world/grievances.md` + `world/grievances.json` —
+> the grievance layer (what happens when work or housing goes wrong: the
+> five-rung informal ladder, who holds the ear at every employer and
+> building, the two drop-in tables, feed shapes at rung 5). Content for
+> game-v11's dispute verbs. Internal demo: `world/grievance.html`
+> ("The Ear").
+>
+> **v87 depth layer:** `world/commute.md` + `world/commute.json` — the
+> getting-there layer (a route per working cast member: mode, legs,
+> leave/arrive windows, weather deltas; shared-route overlaps as
+> incidental-contact conditions; building pulse — when each registry
+> address empties). INTERNAL tier; spectators read anonymous street
+> texture only. Internal demo: `world/commute.html` ("The Getting There").
+>
+> **v101 depth layer:** `world/homes.md` + `world/homes.json` — the
+> household layer (what each registry unit is like inside: occupants,
+> shape, rota, kitchen rhythm, quiet hours, guest norms, the house kit,
+> one fridge-note voice line; vacant listings carry showing texture;
+> plus the perks table — what every employer sends home). INTERNAL tier;
+> the fridge note is the only spectator-safe field. Internal demo:
+> `world/homes.html` ("The Fridge Door").
+>
+> **v73 depth layer:** `world/exits.md` + `world/exits.json` — the exit
+> layer (how work ends and units empty: notice norms, who takes the news,
+> last-shift texture, reference worth; 30-day notice + 21-day deposit
+> clock per building, turnover scope, relist path; feed shapes print the
+> door, never the name). Internal demo: `world/exit.html`
+> ("The Last Shift").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

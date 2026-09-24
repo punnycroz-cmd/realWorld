@@ -60,8 +60,10 @@ function gsRateCheck(pid, now){
   for(const r of GS_REQ.reqs){
     if(r.playerId !== pid || r.submittedMin == null) continue;
     if(now - r.submittedMin <= GS_RATE_CFG.windowMin) filings++;
+    /* v14: a booked span still holds a seat — it counts against the
+       live cap like any live request (a calendar is not a loophole) */
     if(r.status === 'active' || r.status === 'queued' ||
-       r.status === 'in_review') live++;
+       r.status === 'in_review' || r.status === 'booked') live++;
   }
   if(live >= GS_RATE_CFG.liveMax) return 'too_many_live';
   if(filings >= GS_RATE_CFG.perHour) return 'rate_limited';
@@ -295,8 +297,11 @@ function gsRepScore(id, sinceMin){
 function gsEscalateLegal(id, nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
+  /* v14: the legal backstop reaches a booked span too — a calendar
+     promise is still killable pre-run, refunded in full like any lane */
   if(!r || (r.status !== 'queued' && r.status !== 'active' &&
-            r.status !== 'in_review')) return false;
+            r.status !== 'in_review' && r.status !== 'booked'))
+    return false;
   const wasActive = r.status === 'active';
   if(wasActive) gsFxDeactivate(r, now, 'legal');
   r.usedMin = wasActive
@@ -334,11 +339,22 @@ function gsResourceBoard(nowMin){
     }
   };
   for(const r of GS_REQ.reqs){
-    if(r.status !== 'active' && r.status !== 'queued') continue;
+    if(r.status !== 'active' && r.status !== 'queued' &&
+       r.status !== 'booked') continue;
     for(const c of gsClaimsOf(r)){
       if(r.status === 'active')
         mark(c.res, 'locked', { holder: r.id, player: r.playerId,
           leftMin: +((r.endMin != null ? r.endMin - now : 0)).toFixed(1) });
+      else if(r.status === 'booked'){
+        /* v14: a claimed future window shows on the board as a booked
+           marker — the resource reads free NOW but the promise is
+           public (state ranking unchanged; booked is additive) */
+        const b = board[c.res] ||
+          (board[c.res] = { res: c.res, state: 'free', depth: 0 });
+        (b.booked = b.booked || []).push({
+          req: r.id, holder: r.playerId,
+          startMin: r.bookedStart, min: r.durationMin });
+      }
       else mark(c.res, 'queued');
     }
   }
@@ -371,6 +387,16 @@ function gsPriceQuote(spec, nowMin){
     return { ok: false, deny: 'missing_target' };
   if(!(dur >= a.minMin && dur <= a.maxMin))
     return { ok: false, deny: 'bad_duration' };
+  /* v14: the receipt shows the window it will book — same normalization
+     and the same deny codes as the door, nothing billed either way */
+  var bookStart = null;
+  if(spec.start_slot != null || spec.startMin != null){
+    if(typeof gsBookWindowSpec === 'function'){
+      const bw = gsBookWindowSpec(spec, a, now);
+      if(bw && bw.err) return { ok: false, deny: bw.err };
+      if(bw) bookStart = bw.startMin;
+    }
+  }
   const gate = (!gsIsAdmin(pid) && typeof gsAccountGate === 'function')
     ? gsAccountGate(pid, now) : null;
   if(gate && gate.deny) return { ok: false, deny: gate.deny };
@@ -383,10 +409,19 @@ function gsPriceQuote(spec, nowMin){
   }
   if(!gsIsAdmin(pid) && gsFinalText(pid, spec))
     return { ok: false, deny: 'appeal_final' };
+  /* v15: the clerk never says 'no' without saying when — a time/space
+     denial on a bookable kind carries the soonest legal slots */
+  const altsCand = { playerId: pid, kind: spec.kind, target, params,
+                     durationMin: dur };
+  const altsFor = (why) =>
+    (typeof gsCivicAlts === 'function' && GS_BOOKABLE[spec.kind] &&
+     /rest|quiet|hold|tail|window/.test(why))
+      ? gsCivicAlts(altsCand, now, 3) : undefined;
   if(a.allow){
     const why = a.allow({ playerId: pid, target, kind: spec.kind,
-                          params }, now);
-    if(why !== true) return { ok: false, deny: why };
+                          params, bookedStart: bookStart,
+                          durationMin: dur }, now);
+    if(why !== true) return { ok: false, deny: why, alts: altsFor(why) };
   }
   if((GS_REQ.cdP[pid + '|' + spec.kind] || 0) > now)
     return { ok: false, deny: 'cooldown',
@@ -394,36 +429,94 @@ function gsPriceQuote(spec, nowMin){
   if((GS_REQ.cdG[spec.kind] || 0) > now)
     return { ok: false, deny: 'global_cooldown',
              untilMin: GS_REQ.cdG[spec.kind] };
+  /* v14: a slot inside a cooldown tail is refused on the receipt too —
+     the picker never quotes a window that cannot legally fire */
+  if(bookStart != null && typeof gsBookTailDeny === 'function'){
+    const tail = gsBookTailDeny(
+      { playerId: pid, kind: spec.kind, target, params,
+        bookedStart: bookStart, durationMin: dur }, bookStart, now);
+    if(tail) return { ok: false, deny: tail, alts: altsFor(tail) };
+  }
   const cand = { playerId: pid, kind: spec.kind, target, params,
-                 n: Infinity };
+                 n: Infinity, durationMin: dur };
+  if(bookStart != null) cand.bookedStart = bookStart;
   const claims = gsClaimsOf(cand);
-  const blockers = gsFindBlockers(cand);
+  /* v15: a city hold covering the claims and window refuses on the
+     receipt exactly as it does at the door */
+  if(typeof gsCivicHoldDeny === 'function' && gsCivicHoldDeny(cand, now))
+    return { ok: false, deny: 'city_hold',
+             alts: (typeof gsCivicAlts === 'function')
+                   ? gsCivicAlts(cand, now, 3) : [] };
+  const blockers = gsFindBlockers(cand, now);
   const wouldQueue = blockers.length > 0;
+  /* v15: the estimate the window gives — a queued ask's earliest legal
+     start is the latest of its blockers' ends and any covering hold's */
+  const holdEnds = (typeof gsLiveHolds === 'function')
+    ? gsLiveHolds(cand, now).map(h => h.endMin) : [];
+  const allEnds = blockers.map(b => gsReqWindow(b, now)[1])
+    .concat(holdEnds);
+  const estMin = allEnds.length ? Math.max.apply(null, allEnds) : null;
+  /* v15: a booking that would slide says where it lands — the book's
+     own next-free answer, before any money moves */
+  const slideTo = (bookStart != null &&
+                   typeof gsBookNextFree === 'function' &&
+                   !gsBookSlotFree(cand, bookStart, now))
+    ? gsBookNextFree(cand, now) : null;
   const lane = gsIsAdmin(pid) ? null :
     (screened ? 'screen' :
      a.review === 'always' ? 'exclusive' :
      (gate && gate.review) ? 'flagged' :
      (spec.kind === 'hire' && params && typeof params.name === 'string' &&
       params.name.trim()) ? 'naming' : null);
-  const surge = gsSurgeFactor(cand, now);
+  const surge = gsSurgeFactor(cand, now, bookStart);
   const base = Math.ceil(a.ratePerMin * dur);
   const list = Math.ceil(a.ratePerMin * dur * surge);
   const queueTotal = Math.ceil(list * (1 - GS_QUEUE_DISCOUNT));
+  /* a booking isn't queuing — no patience discount; the surge keys off
+     the WINDOW's local hour (primetime 18:00–23:00 PT) */
+  const discounted = wouldQueue && !lane && bookStart == null;
   return {
     ok: true, kind: spec.kind, target: target, minutes: dur,
     ratePerMin: a.ratePerMin, base: base,
-    surge: surge, surgePressure: gsSurgePressure(cand, now),
-    primetime: gsBusPrimetime(now),
+    surge: surge, surgePressure: gsSurgePressure(cand, now, bookStart),
+    primetime: gsBusPrimetime(bookStart != null ? bookStart : now),
     list: list,
-    queueDiscount: (wouldQueue && !lane) ? GS_QUEUE_DISCOUNT : 0,
-    total: (wouldQueue && !lane) ? queueTotal : list,
+    queueDiscount: discounted ? GS_QUEUE_DISCOUNT : 0,
+    total: discounted ? queueTotal : list,
     wouldQueue: wouldQueue,
     blockedBy: wouldQueue ? blockers.map(b => b.id) : [],
+    /* v15: the clerk's estimate — when a queued ask could earliest run
+       (blockers' ends + covering holds), and where a sliding booking
+       actually lands. Never a promise, always a number. */
+    estStartMin: (wouldQueue && estMin != null) ? estMin : null,
+    estStart: (wouldQueue && estMin != null &&
+               typeof gsBookHHMM === 'function')
+              ? gsBookHHMM(estMin) : null,
+    heldBy: holdEnds.length
+      ? (typeof gsLiveHolds === 'function'
+         ? gsLiveHolds(cand, now).map(h => h.id) : []) : [],
+    wouldBook: bookStart != null,
+    booked: bookStart != null
+      ? { startMin: bookStart,
+          start: (typeof gsBookHHMM === 'function')
+                 ? gsBookHHMM(bookStart) : null,
+          day: (typeof gsBookClock === 'function')
+               ? gsBookClock(bookStart).day : null,
+          slidesToMin: slideTo,
+          slidesTo: (slideTo != null &&
+                     typeof gsBookHHMM === 'function')
+                    ? gsBookHHMM(slideTo) : null }
+      : null,
     wouldReview: !!lane, lane: lane,
     adminFree: gsIsAdmin(pid),
-    refundNote: 'queued or in-review requests that never run refund in ' +
-      'full; a player-cancel refunds whole unused minutes; admin ' +
-      'overrides always compensate in full',
+    refundNote: bookStart != null
+      ? 'a booking cancelled before its window refunds in full; once ' +
+        'it fires, the live-exclusive rules apply — whole unused ' +
+        'minutes back on a player cancel, always full on an admin ' +
+        'override; a missed window refunds in full'
+      : 'queued or in-review requests that never run refund in ' +
+        'full; a player-cancel refunds whole unused minutes; admin ' +
+        'overrides always compensate in full',
   };
 }
 

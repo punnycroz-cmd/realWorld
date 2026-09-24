@@ -67,16 +67,20 @@ const api = eval(m[1] + `
   ok(bridge && typeof bridge.sfAgentState === 'function', 'bridge exposes sfAgentState');
 
   const mars = api.VILLAGERS.find(v => v._castId === 'C1');
-  // state snapshot: observable-only fields
+  // state snapshot: observable-only fields (v16: `routine` is gone — the
+  // interiority `mind` block + `directive` echo + honest `gap` replaced it)
   const st = bridge.sfAgentState('C1');
   ok(st && st.you && st.you.id === 'C1', 'sfAgentState returns C1 card');
   ok(st && typeof st.place === 'string' && st.place.length > 1, 'place resolves: ' + (st && st.place));
-  ok(st && Array.isArray(st.nearby) && Array.isArray(st.wire) && Array.isArray(st.routine),
-     'observable fields shaped right');
+  ok(st && Array.isArray(st.nearby) && Array.isArray(st.wire) &&
+     st.mind && typeof st.mind === 'object' && 'gap' in st,
+     'observable fields shaped right (nearby/wire/mind/gap)');
+  ok(st.routine === undefined, 'no code routine leaks into the brain\'s state');
 
   // MOVE order: park it, tick until done — the pawn must physically move
   const d0 = Math.hypot(mars.x, mars.y);
-  const r1 = bridge.sfAgentAct('C1', { verb: 'move', to: 'Dolores Park Cafe', holdH: 2 });
+  const r1 = bridge.sfAgentAct('C1', { verb: 'move', to: 'Dolores Park Cafe',
+    holdH: 2, why: 'walking the order off — the park air helps' });
   ok(r1 && r1.ok === true, 'move order accepted: ' + JSON.stringify(r1));
   ok(!!mars.sfAgent && mars.sfAgent.verb === 'move', 'order parked on v.sfAgent');
   let ticks = 0, doneSnap = null;
@@ -96,9 +100,15 @@ const api = eval(m[1] + `
      (doneSnap && doneSnap.inside) + ')');
   ok(!mars.sfAgent, 'order cleared after completion');
 
-  // TALK order: Marisol says a line — bubble props must land
+  // TALK order: perception-gated in v16 — Jules must be in Marisol's
+  // field (or a named `at`). Put her on the same spot the move ended.
   const jules = api.VILLAGERS.find(v => v._castId === 'C2');
-  const r2 = bridge.sfAgentAct('C1', { verb: 'talk', to: 'C2', text: 'Jules! The fog lifted — come see the line out the door.' });
+  jules.x = mars.x + api.CS; jules.y = mars.y;
+  jules.inside = mars.inside || null; jules.inBuilding = !!mars.inside;
+  jules.sfPath = null; jules.sfAgent = null; jules.state = 'idle';
+  const r2 = bridge.sfAgentAct('C1', { verb: 'talk', to: 'C2',
+    text: 'Jules! The fog lifted — come see the line out the door.',
+    why: 'she was right there — had to say it' });
   ok(r2 && r2.ok === true, 'talk order accepted: ' + JSON.stringify(r2));
   ticks = 0;
   while(mars.sfAgent && !mars.sayText && ticks++ < 6000){
@@ -116,7 +126,8 @@ const api = eval(m[1] + `
   // REQUEST order: files through the REAL bus as spectator agent-C1
   const r3 = bridge.sfAgentAct('C1', { verb: 'request', kind: 'street_event',
     event: 'block_party', at: 'dolores_park', durationMin: 30,
-    note: 'Marisol hosts a café anniversary on the green' });
+    note: 'Marisol hosts a café anniversary on the green',
+    why: 'the café turns a year — the block should hear it' });
   ok(r3 && r3.ok === true && r3.request && r3.request.id,
      'request filed: ' + JSON.stringify(r3 && r3.request && { id: r3.request.id, status: r3.request.status }));
   const req = api.GS_REQ.reqs[api.GS_REQ.reqs.length - 1];
@@ -124,11 +135,15 @@ const api = eval(m[1] + `
      'request landed on the real bus as spectator agent-C1 (status ' + (req && req.status) + ')');
   api.gsBusTick(api.gsNowMin() + 1);
 
-  // unknown verb / bad target fail honest
-  ok(bridge.sfAgentAct('C1', { verb: 'fly' }).ok === false, 'unknown verb refused');
-  ok(bridge.sfAgentAct('C9', { verb: 'idle' }).ok === false, 'unknown character refused');
-  ok(bridge.sfAgentAct('C1', { verb: 'move', to: 'Nowhere Real' }).ok === false,
-     'unknown place refused');
+  // unknown verb / bad target / missing why all fail honest at filing
+  ok(bridge.sfAgentAct('C1', { verb: 'fly', why: 'x' }).ok === false,
+     'unknown verb refused');
+  ok(bridge.sfAgentAct('C9', { verb: 'idle', why: 'x' }).ok === false,
+     'unknown character refused');
+  ok(bridge.sfAgentAct('C1', { verb: 'move', to: 'Nowhere Real',
+     why: 'x' }).ok === false, 'unknown place refused');
+  ok(bridge.sfAgentAct('C1', { verb: 'idle' }).ok === false,
+     'a why-less filing is refused');
 
   console.log('===== BRIDGE SMOKE: ' + pass + ' passed, ' + fail + ' failed =====');
   process.exit(fail ? 1 : 0);

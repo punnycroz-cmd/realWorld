@@ -1,10 +1,19 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v79 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v139 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
 community playtest night + Move-In Week arc + Limits arc + Parrot Watch
-arc + automated pre-send checker
-(`tools/social_check.py`), 2026-09-24.
+arc + Counter arc (request receipts) + milestone post layer
+(`social/drafts/milestone-posts.md` + `social/milestones.json` trigger
+table + `tools/milestone_check.py` unlock report) + automated pre-send
+checker (`tools/social_check.py`) + machine-readable calendar
+(`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export) +
+generated post-ready cards (`social/cards/` ← `tools/make_social_cards.py`)
++ community-amplification layer (`social/drafts/reshare-playbook.md` +
+`pinned-comments.md` + `social/post-review.md` weekly retro) + launch-day
+live-narration runbook (`social/drafts/launch-watchalong.md`) + viewer-clip
+intake series (`social/drafts/caught-on-the-block.md`),
+2026-09-24.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -97,7 +106,15 @@ its channel, timing slot, required asset, and character-count check.
 | `move-in-arc.md` | 6-post "Move-In Week" series on hiring a character onto the cast — the funnel's last step (v64; canon: world-v35 creation.json/creation-ui.md, design doc possession ban) | 6 |
 | `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
 | `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
-| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v40) | full asset set |
+| `counter-arc.md` | 4-post "every request leaves a receipt" series on the Counter — the board, the free wording check, the `rq-` receipt, co-sponsoring (v94; post-launch only, canon: world-v60 request-ui.md/requests.json live_seam) | 4 |
+| `milestone-posts.md` | 11 trigger-fired posts keyed to real counters (first request, 100 watchers, first hire, first decline, rent-cycle close, 1k/5k/10k requests, week-one numbers, first ruling, quiet-week card, first viewer reshare) — fires on truth, never schedule (v124, M11 v139) | 11 |
+| `reshare-playbook.md` | Viewer-UGC amplification: 4-gate permission rules, never-reshare list, permission templates, 6 reshare + 3 streamer captions, clip-of-the-week format, consent ledger (v139) | 6 templates + 9 captions |
+| `pinned-comments.md` | Pinned-comment / self-reply bank — the link + context slot TikTok/YouTube/X bury (v139) | 8 |
+| `launch-watchalong.md` | Launch-day live-narration runbook — one clock-stamped thread reporting what the block actually does all day; scheduled + event beats, silence rules, reusable for any big feed day (v154) | 7 spine + 4 event templates |
+| `caught-on-the-block.md` | "Caught on the Block" weekly UGC prompt — solicits viewer clips into the reshare-playbook 4-gate flow; feeds M11 + clip-of-the-week (v154, post-launch only) | 6 prompts + 1 caption |
+| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
+| `../post-review.md` | Weekly social retro: per-post scorecard, rerun/keep/kill rules, consent ledger, three-decision output feeding edits back into this bank (v139) | template |
+| `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
@@ -112,7 +129,7 @@ Goal: make the concept legible before asking for attention.
 
 | Day | Post | Channel |
 |---|---|---|
-| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v48-D evening shot, slow zoom) | TikTok, X, Shorts |
+| T-14 | Teaser clip: "Somewhere in the Mission, it's always Tuesday for somebody" (v50-D evening shot, slow zoom) | TikTok, X, Shorts |
 | T-12 | Cast spotlight 1: Jules Park (the newcomer = the viewer's stand-in) | X, Bluesky |
 | T-10 | Devlog clip 1: "How 28 characters share one block" | TikTok, X |
 | T-8  | Cast spotlight 2: Marisol (tease, don't confirm) | X, Bluesky |
@@ -136,6 +153,12 @@ Full timeline in `launch-thread.md` header. Skeleton:
 | 18:00 | Evening shot + "the block doesn't sleep" |
 | 21:00 | Day-one recap: first edition of "This Week on the Block" |
 
+Running parallel all day: the **launch watchalong** — one clock-stamped
+live-narration thread reporting what the block actually does, per
+`launch-watchalong.md`. The skeleton above is the broadcast; the
+watchalong is the ticker. Silence and honesty rules are in the file —
+quiet beats filler, always.
+
 ### Phase C — Post-launch (T+1 → T+30)
 Sustainable rhythm, fed by the product itself.
 
@@ -146,6 +169,9 @@ Sustainable rhythm, fed by the product itself.
 - **Devlog clips:** remaining 3 drip over weeks 1–3; then clip whatever the
   feed produces — the live-capture pipeline and the clip-worthy moment
   taxonomy are specced in `social/capture-plan.md`.
+- **Counter arc:** T+7 → T+13, the "every request leaves a receipt"
+  series (`counter-arc.md`) — runs parallel to Rent Week; that one is
+  the story, this one is the system. Post-launch only (live seam).
 - **Rent Week arc:** T+7 → T+13, the first in-world rent cycle gets its
   own 7-post series (`rent-week-arc.md`) — the most legible systems
   story the game tells; every post degrades gracefully if the feed is
@@ -164,14 +190,45 @@ Sustainable rhythm, fed by the product itself.
 - **Parrot Watch arc:** T+14 → T+16 or first quiet weekend — the wild-
   parakeet mini-series (`parrot-watch.md`). Prefers a live `{{PARROT_CLIP}}`
   capture post-launch; degrades to stills.
+- **Caught on the Block:** weekly Saturday prompt from T+3
+  (`caught-on-the-block.md`) — the intake half of viewer reshares:
+  asks spectators to clip what they catch, routes everything through
+  the reshare-playbook gates, feeds M11 and clip-of-the-week.
+- **Viewer reshares:** opportunistic from T+1 — when viewers clip the
+  block, amplify per `reshare-playbook.md` (4 gates first, caption bank
+  R1–R6, clip-of-the-week max 1/week). Reshares never displace the
+  weekly recap; they fill the gaps it can't.
+- **Weekly retro:** every week post-launch, `post-review.md` — scorecard,
+  rerun/keep/kill verdicts, consent ledger, three decisions. This is the
+  loop that keeps the bank honest.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
 
+### Triggered beats — any time (v124)
+
+Milestone posts fire on real counters, not the calendar — first request,
+first hire, first decline, 100 concurrent watchers, request-count
+thresholds, rent-cycle close, first public ruling, week-one numbers,
+quiet-week honesty card. The trigger table is machine-readable:
+`social/milestones.json`; run `python3 tools/milestone_check.py --show
+--counters <snapshot.json>` (or `--set counter=N`) to see which posts are
+currently unlocked, and pass `--fired` so fires-once posts don't re-fire.
+Rules: counter-verbatim numbers, attribution outward only (never
+@-mention players from the dev account), M5 holds until the appeal
+window closes, M8 is owner-gated, M10 max once/month and not before
+T+14. Full drafts + rules: `social/drafts/milestone-posts.md`. These sit
+*outside* `schedule.json` deliberately — they have no day offsets; they
+slot into whichever week the counter trips.
+
 ## 6. Launch-day runbook (operational)
 
 1. **T-1 evening:** owner confirms staging URL, loads `launch-thread.md`,
-   fills `{{URL}}`/`{{DATE}}` placeholders, queues or pre-drafts all T-0 posts.
+   fills `{{URL}}`/`{{DATE}}` placeholders, queues or pre-drafts all T-0
+   posts. The whole calendar is machine-readable: set `launch_date` in
+   `social/schedule.json` and run `python3 tools/social_schedule.py` to
+   emit `dist/social-queue.csv` (per-channel rows with UTMs baked) and
+   `dist/social-calendar.ics`.
 2. **09:00 go/no-go:** site loads, spectator view renders, request feed
    public. If any fails → post the *delay variant* in `launch-thread.md`,
    not silence.
@@ -202,6 +259,11 @@ The thin line between seeding and astroturf — we stay on the right side:
 - **Creators/streamers:** a watchable world is a streamable world. Outreach
   pitch lives in PRESS-OUTREACH §pitch-3; on social, the move is quote-
   posting creator streams with the live-link, not cold DMs.
+- **Viewer reshares:** amplifying viewer clips is earned media, but the
+  clip is theirs — permission first, credit in the first line, privacy
+  and spoiler gates apply, and anything on the never-reshare list stays
+  unamplified. Full rules, templates, and captions:
+  `drafts/reshare-playbook.md`.
 - **Comments:** answer questions about money with the pricing-post link —
   the credit model is defensible and we defend it in public.
 
@@ -240,7 +302,7 @@ Every link in every post carries UTMs so launch traffic is attributable:
 
 ```
 utm_source   = x | tiktok | youtube | bluesky | reddit | discord | itch
-utm_medium   = organic | bio | thread | clip | recap | spotlight
+utm_medium   = organic | bio | thread | clip | recap | spotlight | reshare
 utm_campaign = launch | week1 | ongoing
 ```
 

@@ -122,6 +122,42 @@ else
   ok "checklist audit: $CLLINE"
 fi
 
+# ── 5c. Accuracy sweep — parody map, fabrication markers, claim-risk copy ──
+echo "[5c] accuracy sweep (G18)"
+AC=$(./tools/accuracy_sweep.py 2>&1)
+echo "$AC" | grep -E '^\s+FAIL' || true
+ACLINE=$(echo "$AC" | tail -1)
+echo "       $ACLINE"
+if echo "$ACLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "accuracy sweep has failures (above)"
+else
+  ok "accuracy sweep: $ACLINE"
+fi
+
+# ── 5d. Press-kit integrity — manifest/disk/captions/links/zip parity ──
+echo "[5d] press-kit integrity"
+PK=$(./tools/press_kit_check.py 2>&1)
+echo "$PK" | grep -E '^\s+FAIL' || true
+PKLINE=$(echo "$PK" | tail -1)
+echo "       $PKLINE"
+if echo "$PKLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "press-kit integrity has failures (above)"
+else
+  ok "press-kit integrity: $PKLINE"
+fi
+
+# ── 5e. Store-copy integrity — field lengths, assets, preview drift ──
+echo "[5e] store-copy integrity"
+SC=$(./tools/store_copy_check.py 2>&1)
+echo "$SC" | grep -E '^\s+FAIL' || true
+SCLINE=$(echo "$SC" | tail -1)
+echo "       $SCLINE"
+if echo "$SCLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "store-copy integrity has failures (above)"
+else
+  ok "store-copy integrity: $SCLINE"
+fi
+
 # ── 6. Tree state (informational) ──
 echo "[6] worktree"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then
@@ -136,7 +172,7 @@ fi
 echo
 echo "=== PREFLIGHT RESULT: $PASS pass / $WARN warn / $FAIL fail ==="
 if [ "$FAIL" -eq 0 ]; then
-  echo "VERDICT: mechanically GO — owner gates (G1..G17) still apply."
+  echo "VERDICT: mechanically GO — owner gates (G1..G18) still apply."
   exit 0
 else
   echo "VERDICT: NO-GO — fix FAILs above before requesting owner sign-off."

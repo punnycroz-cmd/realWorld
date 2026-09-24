@@ -1,0 +1,63 @@
+{
+  "version": 109,
+  "schema": "social-cards/v1",
+  "note": "Post-ready cards for social/drafts/. All backgrounds are real published captures from site/shots/; receipt card carries a baked DEMO badge per the feed-honesty rule. LOCAL ONLY \u2014 nothing here has been posted.",
+  "cards": {
+    "spotlight-c1-marisol.png": {
+      "draft": "cast-spotlights.md C1",
+      "shot": "v52-INT-cafe.png"
+    },
+    "spotlight-c2-jules.png": {
+      "draft": "cast-spotlights.md C2",
+      "shot": "v55-B.png"
+    },
+    "spotlight-c3-dani.png": {
+      "draft": "cast-spotlights.md C3",
+      "shot": "v52-INT-flat.png"
+    },
+    "spotlight-c4-priya.png": {
+      "draft": "cast-spotlights.md C4",
+      "shot": "v53-A.png"
+    },
+    "spotlight-c5-marcus.png": {
+      "draft": "cast-spotlights.md C5",
+      "shot": "v55-A.png"
+    },
+    "spotlight-c6-carmen.png": {
+      "draft": "cast-spotlights.md C6",
+      "shot": "v55-C.png"
+    },
+    "spotlight-c7-victor.png": {
+      "draft": "cast-spotlights.md C7",
+      "shot": "v52-INT-hw.png"
+    },
+    "spotlight-c8-tomas.png": {
+      "draft": "cast-spotlights.md C8",
+      "shot": "v52-INT-taq.png"
+    },
+    "card-teaser-tomorrow.png": {
+      "draft": "launch-thread.md T-1",
+      "shot": "v55-D.png"
+    },
+    "card-teaser-tomorrow-sq.png": {
+      "draft": "launch-thread.md T-1 (square)",
+      "shot": "v55-D.png"
+    },
+    "card-recap.png": {
+      "draft": "recap-format.md",
+      "shot": "v55-C.png"
+    },
+    "card-receipt.png": {
+      "draft": "counter-arc.md",
+      "shot": "v55-A.png"
+    },
+    "card-empty-feed.png": {
+      "draft": "launch-thread.md feed-honesty slot",
+      "shot": "v53-C.png"
+    },
+    "card-watchfree.png": {
+      "draft": "evergreen CTA",
+      "shot": "v55-A.png"
+    }
+  }
+}

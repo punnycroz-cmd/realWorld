@@ -350,10 +350,18 @@ updateHUD = function(){
   __hud14();
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
   const se = document.getElementById('pi-skills');
+  const SF_ROW = typeof SF_MODE !== 'undefined' && SF_MODE;
   if(v && se){
-    ensureSkills(v);
-    const top = SKILLS.map(s => ({ s: s, l: v.skills[s].lvl })).sort((a, b) => b.l - a.l).slice(0, 3);
-    se.textContent = '🛠 ' + top.map(t => t.s + ' ' + t.l.toFixed(1)).join(' · ');
+    if(SF_ROW){
+      // v54: no medieval skill sheet on a barista — show cast role tags
+      const wk = v.equippedTool && v.equippedTool.kind && v.equippedTool.kind !== 'none'
+        ? ' · ' + v.equippedTool.kind : '';
+      se.textContent = '🏷 ' + (v._castId || 'resident') + wk;
+    } else {
+      ensureSkills(v);
+      const top = SKILLS.map(s => ({ s: s, l: v.skills[s].lvl })).sort((a, b) => b.l - a.l).slice(0, 3);
+      se.textContent = '🛠 ' + top.map(t => t.s + ' ' + t.l.toFixed(1)).join(' · ');
+    }
   }
   const ge = document.getElementById('pi-gear');
   if(v && ge){
@@ -363,7 +371,8 @@ updateHUD = function(){
       if(g) bits.push(g.type + ((g.dur || 1) < 0.3 ? '✂' : ''));
     }
     const w = (v.body && v.body.wounds || []).length;
-    ge.textContent = (bits.length ? '👕 ' + bits.join(', ') : '👕 ragged') +
+    ge.textContent = (bits.length ? '👕 ' + bits.join(', ')
+                                 : (SF_ROW ? '👕 everyday wear' : '👕 ragged')) +
       (w ? ' · 🤕 ' + w + ' wound(s)' : '') + (v.downed ? ' · DOWN (' + v.downed.cause + ')' : '');
   }
 };

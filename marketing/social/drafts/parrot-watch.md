@@ -23,7 +23,7 @@ the bank: birds, no discourse.
 > between trees; the rest hold down the crowns. Rain grounds them. Night
 > grounds them. Otherwise: look up.
 
-Attach: `{{PARROT_CLIP}}` if captured; else `site/shots/v48-D` still +
+Attach: `{{PARROT_CLIP}}` if captured; else `site/shots/v50-D` still +
 "development build" label and a text promise to clip the flock once the
 live view is up.
 
@@ -50,9 +50,9 @@ or history beyond what's in the post.
 ### Notes
 - `{{PARROT_CLIP}}` is the only unfilled asset in the draft bank: the
   published v49 shots exist in `your_files/sf-art-evolution/published/`
-  but were not swept into `site/shots/` (v48 stays the gallery base —
+  but were not swept into `site/shots/` (v50 stays the gallery base —
   art-feedback flagged the v49-D sunbeam render for rework, so we hold
-  at v48 until the art track republishes). A live capture beats a still
+  at v50 until the art track republishes). A live capture beats a still
   here anyway; grab it post-launch per `capture-plan.md`.
 - If the art track ever ships a dedicated parrot capture, drop it into
   `site/shots/` and replace the placeholder per the standing refresh

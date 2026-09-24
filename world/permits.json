@@ -1,0 +1,298 @@
+{
+  "_doc": "world/permits.md — v100 the paper layer: per-door permit walls (the framed paper behind the counter a camera can read) + door lineage (former tenants, ghost signs). Doors only. Agency names are civic facts (SFDPH, ABC, CDTFA, BAR, SFFD, Public Works) — they stay real per the naming rule; every business name in this file is parody or invented. Papers are conditions, never scripts; pending = an application receipt taped up, a readable state, never a drama beat.",
+  "version": 100,
+  "paper_keys": {
+    "business_license": "SF Treasurer & Tax Collector — Business Registration Certificate",
+    "health_score": "SFDPH — Food Facility Inspection Score Card",
+    "occupancy": "SFFD — Maximum Occupancy card",
+    "workers_notice": "CA labor-law poster block (minimum wage, sick leave, workers' comp)",
+    "resale": "CDTFA — Seller's Permit",
+    "liquor_license": "CA Dept. of Alcoholic Beverage Control — license type + conditions",
+    "entertainment": "SF Entertainment Commission — Limited Live Performance permit",
+    "sidewalk_seating": "SF Public Works — Tables & Chairs on the Sidewalk permit",
+    "food_handler": "Food Handler Cards — staff on file behind the counter",
+    "weights": "CA Weights & Measures — device seal on the scale",
+    "auto_repair": "Bureau of Automotive Repair — registration placard",
+    "tattoo_reg": "SFDPH — Body Art Practitioner Registrations",
+    "signage": "SF Planning — sign permit, fascia"
+  },
+  "status_keys": {
+    "posted": "the default — framed or taped, current",
+    "renewed": "reissued this cycle — the date is fresh",
+    "pending": "application filed; the receipt is what's taped up — a readable state, not a violation"
+  },
+  "rules": {
+    "doors_only": "walls keys == anchor+street tier business ids, exactly — offstage orgs and reserved names carry no wall",
+    "liquor_venues": ["el-farolote", "the-600-club", "il-delfino", "buy-rite-market", "maliks", "the-musket"],
+    "food_venues": ["mudhaus", "el-farolote", "dolores-perk", "buy-rite-market", "buy-rite-creamery", "il-delfino", "baguette-about-it", "dandy-lion", "valencia-growers", "maliks", "las-palmas", "the-musket"],
+    "score_range": [70, 100],
+    "ghost_rule": "ghost_sign is null or a string; a string requires at least one former entry — the wall remembers a tenant, not a rumor",
+    "no_people": "papers never name cast or regulars — 'staff on file' is the whole sentence",
+    "no_money": "no prices, no fees, no credit figures — the wall is framed paper, not a ledger"
+  },
+  "walls": {
+    "mudhaus": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Mudhaus Coffee · cert. on file"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 94 · posted by the register"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 38 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year, corner of the corkboard"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — two tables, four chairs, as drawn", "status": "renewed"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Pallet & Pine Home Goods", "years": "2010–2016", "note": "the reclaimed-wood shelf by the door is theirs"},
+        {"name": "Cielo Rojo Furniture", "years": "1988–2009", "note": "the brick under the counter paint is theirs"}
+      ],
+      "ghost_sign": "PALLET & PINE"
+    },
+    "el-farolote": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Taqueria El Farolote"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 91 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 46 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — bilingual, current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 41 — on-sale beer & wine, eating place"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "La Correa Shoe Repair", "years": "1974–2003", "note": "the awning anchors still carry its bolt holes"}
+      ],
+      "ghost_sign": "LA CORREA"
+    },
+    "auerbach": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Auerbach Hardware · third generation", "status": "renewed"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 24 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "weights", "text": "Weights & Measures seal — the bulk-nail scale, inspected"}
+      ],
+      "former": [
+        {"name": "Auerbach Radio & TV", "years": "1952–1978", "note": "same family — the repair counter never really left, it just changed what it fixes"}
+      ],
+      "ghost_sign": "AUERBACH RADIO · TV"
+    },
+    "dolores-perk": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Dolores Perk"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 96 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — park-edge row, as drawn"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Park Slope Delicatessen", "years": "1961–1998", "note": "the marble counter outlasted the deli"}
+      ],
+      "ghost_sign": "PARK SLOPE DELI"
+    },
+    "buy-rite-market": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Buy-Rite Market"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 89 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 74 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 20 — off-sale beer & wine"},
+        {"kind": "weights", "text": "Weights & Measures seal — produce scales, inspected"}
+      ],
+      "former": [
+        {"name": "Corona Grocery & Produce", "years": "1955–1989", "note": "the loading door still swings both ways"}
+      ],
+      "ghost_sign": "CORONA GROCERY"
+    },
+    "buy-rite-creamery": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Buy-Rite Creamery"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 95 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 12 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Sweet Relief Candy", "years": "1972–2001", "note": "the marble slab in the window is original"}
+      ],
+      "ghost_sign": "SWEET RELIEF"
+    },
+    "il-delfino": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Il Delfino"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 93 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 58 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 47 — on-sale general, eating place"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Trattoria Luna", "years": "1994–2011", "note": "the tile floor is the same — only the sign changed"}
+      ],
+      "ghost_sign": "TRATTORIA LUNA"
+    },
+    "baguette-about-it": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Baguette About It Bakery"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 92 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 20 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "sidewalk_seating", "text": "Tables & Chairs on the Sidewalk — application filed, receipt taped inside the glass", "status": "pending"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Pan del Barrio", "years": "1979–2008", "note": "the deck oven came with the lease"}
+      ],
+      "ghost_sign": "PAN DEL BARRIO"
+    },
+    "the-600-club": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The 600 Club"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 49 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — behind the bar, half under the specials"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 48 — on-sale general, public premises"},
+        {"kind": "entertainment", "text": "Limited Live Performance — one act, no dancing, doors at 10"}
+      ],
+      "former": [
+        {"name": "El Trovador Lounge", "years": "1963–1999", "note": "the back-bar mirror is older than the name"}
+      ],
+      "ghost_sign": "EL TROVADOR"
+    },
+    "dandy-lion": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Dandy Lion Chocolate Co."},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 97 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 18 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "The Cocoa Line", "years": "2002–2014", "note": "the tempering room is why the shop chose the door"}
+      ],
+      "ghost_sign": "THE COCOA LINE"
+    },
+    "valencia-growers": {
+      "papers": [
+        {"kind": "business_license", "text": "Market Operator Registration — Valencia Growers Market"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 90 · posted at the manager's stall"},
+        {"kind": "weights", "text": "Weights & Measures seals — every stall's scale, inspected"}
+      ],
+      "former": [
+        {"name": "The Saturday Table", "years": "1998–2006", "note": "the pop-up that grew into a permit"}
+      ],
+      "ghost_sign": null
+    },
+    "needlepointe": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Needlepointe Tattoo"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 10 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "tattoo_reg", "text": "Body Art Practitioner Registrations — SFDPH, posted by the flash wall"}
+      ],
+      "former": [
+        {"name": "Pins & Needles Dry Goods", "years": "1948–1985", "note": "the joke writes itself; the needle stayed"}
+      ],
+      "ghost_sign": "PINS & NEEDLES"
+    },
+    "folsom-auto": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Folsom Auto & Sons"},
+        {"kind": "auto_repair", "text": "Bureau of Automotive Repair — registration placard by the office door"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — inside the office, above the coffee"},
+        {"kind": "signage", "text": "Sign permit — fascia, as drawn"}
+      ],
+      "former": [
+        {"name": "Folsom Smog & Lube", "years": "1981–2007", "note": "Gus bought the lift, the pit, and the phone number"}
+      ],
+      "ghost_sign": "SMOG · LUBE · TUNE"
+    },
+    "maliks": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Malik's Mini Mart"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 88 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 15 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — behind the register"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 20 — off-sale beer & wine"}
+      ],
+      "former": [
+        {"name": "Corner Stop Grocery", "years": "1969–2002", "note": "the bell on the door is the same bell"}
+      ],
+      "ghost_sign": "CORNER STOP"
+    },
+    "las-palmas": {
+      "papers": [
+        {"kind": "business_license", "text": "Vendor Registration — Frutería Las Palmas, stand"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 93 · clipped to the till box"},
+        {"kind": "weights", "text": "Weights & Measures seal — the hanging scale, inspected"}
+      ],
+      "former": [
+        {"name": "El Puesto Verde", "years": "1991–2009", "note": "Luz bought the stand, the route, and the umbrella"}
+      ],
+      "ghost_sign": null
+    },
+    "bloom-and-doom": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Bloom & Doom Flowers"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 12 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"}
+      ],
+      "former": [
+        {"name": "Petals Flower Shop", "years": "1977–2012", "note": "same trade, darker sense of humor"}
+      ],
+      "ghost_sign": "PETALS"
+    },
+    "golden-hour": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Golden Hour Laundromat"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — by the change machine"},
+        {"kind": "signage", "text": "Sign permit — awning, as drawn"}
+      ],
+      "former": [
+        {"name": "Sud City Laundry", "years": "1984–2015", "note": "the machines were sold with the room — oldest drum is #9"}
+      ],
+      "ghost_sign": "SUD CITY"
+    },
+    "dusty-spine": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The Dusty Spine"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 25 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"}
+      ],
+      "former": [
+        {"name": "The Paper Pile", "years": "1971–2003", "note": "three owners, one shop, the same free box"}
+      ],
+      "ghost_sign": "THE PAPER PILE"
+    },
+    "marooned": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — Marooned Records"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 30 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "resale", "text": "Seller's Permit — CDTFA"},
+        {"kind": "entertainment", "text": "Limited Live Performance — in-store sets, acoustic only"}
+      ],
+      "former": [
+        {"name": "Groove Yard Records", "years": "1987–2008", "note": "the dollar bins are inherited furniture"}
+      ],
+      "ghost_sign": "GROOVE YARD"
+    },
+    "the-musket": {
+      "papers": [
+        {"kind": "business_license", "text": "Business Registration — The Musket"},
+        {"kind": "health_score", "text": "SFDPH Food Facility Score 95 · posted"},
+        {"kind": "occupancy", "text": "Maximum Occupancy 42 — SFFD"},
+        {"kind": "workers_notice", "text": "Labor-law poster block — current year"},
+        {"kind": "liquor_license", "text": "CA ABC License Type 47 — on-sale general, eating place"},
+        {"kind": "entertainment", "text": "Limited Live Performance — application filed, receipt taped to the glass", "status": "pending"},
+        {"kind": "food_handler", "text": "Food Handler Cards — staff on file"}
+      ],
+      "former": [
+        {"name": "Saffron & Rye", "years": "2009–2019", "note": "the copper rail came with the room"}
+      ],
+      "ghost_sign": "SAFFRON · RYE"
+    }
+  }
+}

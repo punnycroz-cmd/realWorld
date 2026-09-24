@@ -25,6 +25,61 @@
       immediate neighbors, clickable. Same rows, smaller window.
     - rumor "settled by" — outcome.by (optional event id) links the talk
       to the public record that settled it, when one exists.
+  v5 additions (the reading layer — still projections, and the shelf is
+  the reader's own device, not the world):
+    - YOUR SHELF — pin any record ('keep on the shelf'); pins live in
+      localStorage on this browser only, exportable as a transcript that
+      carries the source badge. The archive doesn't remember you.
+    - SEEN TOGETHER — a pair trail: two names, the events where both
+      appear in who/mentions. Public co-presence — never a claim about
+      the relationship.
+    - person 'seen with' chips + first/latest jumps — top co-occurring
+      names counted from the rows, linking into the pair view.
+    - venue rhythm — a 24-hour histogram of that corner's tags across
+      the whole record. Counted, not a promise.
+  v6 additions (the shape layer — same rule, projections only):
+    - THE SAME HOUR — pick an hour of day; every event the wire ever
+      wrote in that hour, across all days. A shape the wire happened
+      to draw, not a schedule.
+    - DAY VS DAY — two day pickers; counts, coverage spans, busiest
+      corners, and shared corners, side by side. Counted, not
+      explained — the archive doesn't editorialize the difference.
+    - person lens — a trail can be cut finer: all rows / followed
+      (who) / named in passing (mentions). Same scope, finer cut.
+    - copy record + j/k — the detail panel copies a single record as
+      a badged text line; j/k walk the day view's rows.
+  v7 pass (world v90) — THE REAL ARCHIVE SEAM: the live source now reads
+  the game-v14 wire the way 41_game_systems_feed actually writes it:
+    - id→day index — live ids may carry no day prefix ('w-NNNN') and any
+      year; the archive records each event's own day bucket, so record
+      permalinks and trail grouping resolve by index, never by parsing.
+    - person index — the pickers are built from the wire's own
+      named-people fields (mentions[]) unioned with the cast registry,
+      so live char ids the demo never knew are browsable verbatim.
+      Player handles stay ledger-side — they never appear in mentions.
+    - 'asked for — <kind>' on 'not approved' rows — the bus's attempt
+      field, the only piece of a denied ask that is public.
+    - kind vocabulary grows honestly — a kind outside the page's known
+      set (e.g. 'cast') earns its own filter chip, counted not curated.
+    - CATCH UP — on today in live mode, a manual re-pull of
+      gsWireArchiveDay merges new rows by id (additive only — the page
+      keeps rows it already served; a ring-capped bus dropping old
+      lines doesn't erase the reader's copy). No polling — the archive
+      stays a reading surface, the wire does the watching.
+  v8 additions (world v104) — THE ABSENCE + LIFECYCLE LAYER:
+    - OFF THE FEED — the uncovered-stretch map: every gap of two hours
+      or more between written rows, counted per day and across the
+      record. Absence is part of the record — counted, never filled.
+    - REQUEST TRAILS — one card per paid reach-in (req id): payer
+      verbatim, declared credits where attrs carry them, and the full
+      public lifecycle the wire wrote — queued → running → resolved,
+      in_review → refunded, however it ran. Open trails sort first.
+    - settled-the-talk — the reverse of outcome.by: when a public row
+      is the record a rumor settled against, its detail says so and
+      links the talk. Same rule as forward — the link only ever points
+      at rows that stood on the wire in their own right.
+    All three are still projections: nothing counted, cut, or linked
+    that wasn't already a public row.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -148,6 +203,7 @@
   .k.cast{background:#1f3038;color:#7fc4c4} .k.quiet{background:#1c2129;color:var(--dim)}
   .k.rumor{background:#2f2817;color:var(--rum)}
   .ev .who{color:var(--blu)}
+  .att{font-size:10px;color:var(--dim);font-style:italic}
   .unc{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--rum);
     border:1px dashed var(--rum);border-radius:8px;padding:0 6px;margin-left:6px}
   .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
@@ -277,12 +333,23 @@
         <div class="vchip on" data-v="day">by day<small>one block day, hour by hour</small></div>
         <div class="vchip" data-v="person">by person<small>a public trail across days</small></div>
         <div class="vchip" data-v="venue">by venue<small>one corner's whole record</small></div>
+        <div class="vchip" data-v="hour">the same hour<small>one hour of day, every day on record — a shape, not a schedule</small></div>
+        <div class="vchip" data-v="cmp">day vs day<small>two days side by side — counted, not explained</small></div>
         <div class="vchip" data-v="threads">threads<small>storylines the public record already tells</small></div>
         <div class="vchip" data-v="word">word on the block<small>the rumor board — all of it marked</small></div>
         <div class="vchip" data-v="ledger">the ledger<small>every paid reach-in, attributed</small></div>
+        <div class="vchip" data-v="reqs">request trails<small>one paid reach-in, all its public statuses in a row</small></div>
+        <div class="vchip" data-v="gaps">off the feed<small>the hours the wire never wrote — counted, never filled</small></div>
+        <div class="vchip" data-v="pair">seen together<small>two names, one public record — co-presence only</small></div>
+        <div class="vchip" data-v="shelf">your shelf<small>pins kept on this device — the archive doesn’t remember you</small></div>
       </div>
       <select class="pick" id="pickWho" style="display:none"></select>
       <select class="pick" id="pickVenue" style="display:none"></select>
+      <select class="pick" id="pickA" style="display:none"></select>
+      <select class="pick" id="pickB" style="display:none"></select>
+      <select class="pick" id="pickHour" style="display:none"></select>
+      <select class="pick" id="pickD1" style="display:none"></select>
+      <select class="pick" id="pickD2" style="display:none"></select>
     </section>
     <section class="panel">
       <h2>Days on record</h2>
@@ -493,40 +560,120 @@ var WDAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday
 var DAYS = {};           // date -> [events] (chronological)
 var TODAY = DEMO_TODAY;
 var LIVE = false;
+var ID2DAY = {};         // event id -> its own day bucket (v90: live ids
+                         // may carry no d<MMDD> prefix and any year —
+                         // resolve by index, never by parsing)
+var WHO_SET = {}, WHO_INDEX = [];   // person index: NAMES ∪ mentions ids
+var VENUE_INDEX = [];               // venue index: VENUES ∪ venue ids
 
+function nameOf(id){ return NAMES[id] || id; }
+function venueOf(id){ return VENUES[id] || id; }
+/* normDay accepts the real wire shape verbatim ({id,n,t,day,kind,text,
+   venue,who,req,status,reason_code,attempt,mentions,attrs,thread,src,
+   outcome}) — ordering is t with the bus's monotonic n as tiebreak so
+   same-minute sub-lines keep the order the wire wrote them. */
 function normDay(dateStr, obj){
   var evs = Array.isArray(obj) ? obj : (obj && obj.events) || [];
   return evs.filter(function(e){return e && typeof e.t==="number";})
-            .sort(function(a,b){return a.t-b.t;});
+            .sort(function(a,b){return (a.t-b.t) || ((a.n||0)-(b.n||0));});
+}
+function reindex(){
+  ID2DAY = {}; WHO_SET = {}; VENUE_INDEX = [];
+  var vset = {};
+  Object.keys(NAMES).forEach(function(id){ WHO_SET[id]=1; });
+  Object.keys(VENUES).forEach(function(id){ vset[id]=1; });
+  Object.keys(DAYS).forEach(function(d){
+    (DAYS[d]||[]).forEach(function(e){
+      if (e.id) ID2DAY[e.id]=d;
+      (e.mentions||[]).forEach(function(m){ if(m) WHO_SET[m]=1; });
+      if (e.venue) vset[e.venue]=1;
+    });
+  });
+  WHO_INDEX = Object.keys(WHO_SET).sort(function(a,b){
+    var ca = NAMES[a] ? (a[0]==='C'?0:1) : 2, cb = NAMES[b] ? (b[0]==='C'?0:1) : 2;
+    return ca-cb || nameOf(a).localeCompare(nameOf(b));
+  });
+  VENUE_INDEX = Object.keys(vset).sort(function(a,b){
+    return venueOf(a).localeCompare(venueOf(b));
+  });
+}
+function mergeDay(d, obj){
+  /* additive merge — the page keeps rows it already served. Returns the
+     count of genuinely new rows so catch-up can report honestly. */
+  if (obj && obj.threads) Object.keys(obj.threads).forEach(function(k){ THREADS[k]=obj.threads[k]; });
+  var evs = normDay(d, obj), have = {};
+  (DAYS[d]||[]).forEach(function(e){ have[e.id]=1; });
+  var fresh = evs.filter(function(e){ return !have[e.id]; });
+  if (fresh.length) DAYS[d] = (DAYS[d]||[]).concat(fresh)
+    .sort(function(a,b){ return (a.t-b.t) || ((a.n||0)-(b.n||0)); });
+  return fresh.length;
 }
 function loadArchive(){
   if (BRIDGE){
     try{
       var days = BRIDGE.gsWireDays() || [];
       if (days.length){
-        days.forEach(function(d){
-          var obj=BRIDGE.gsWireArchiveDay(d);
-          if (obj && obj.threads) Object.keys(obj.threads).forEach(function(k){ THREADS[k]=obj.threads[k]; });
-          DAYS[d]=normDay(d, obj);
-        });
-        if (Object.keys(DAYS).length){ LIVE=true; TODAY=days[days.length-1]; return; }
+        days.forEach(function(d){ mergeDay(d, BRIDGE.gsWireArchiveDay(d)); });
+        if (Object.keys(DAYS).length){
+          LIVE=true; TODAY=days[days.length-1]; reindex(); return;
+        }
       }
     }catch(e){}
   }
   DAYS = {}; Object.keys(DEMO_DAYS).forEach(function(d){ DAYS[d]=DEMO_DAYS[d].slice(); });
   TODAY = DEMO_TODAY;
+  reindex();
+}
+/* catch up — manual, on demand. The archive doesn't poll (that's the
+   wire's job); the reader asks for whatever the bus has written since
+   the page loaded. Additive by id; reports honestly either way. */
+function catchUp(){
+  if (!BRIDGE || !LIVE) return;
+  try{
+    var days = BRIDGE.gsWireDays() || [], added = 0;
+    days.forEach(function(d){ added += mergeDay(d, BRIDGE.gsWireArchiveDay(d)); });
+    if (days.length) TODAY = days[days.length-1];
+    reindex(); renderAll();
+    toast(added ? 'caught up — '+added+' new line'+(added===1?'':'s')+' on the record'
+                : 'already current — nothing new on the wire');
+  }catch(e){ toast('the live archive hiccuped — showing what it had'); }
 }
 loadArchive();
 if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live archive'; b.className='src'; }
 
 /* ================= state + hash routing ================= */
 var view="day", day=TODAY, selHour=-1, kindF="all", q="", who="", venue="", selId=null;
-var selTh=null, searchScope="day", payer="";
+var selTh=null, searchScope="day", payer="", pairA="", pairB="";
+var hourSel=15, cmpA="", cmpB="", personLens="all", visIds=[], rqSel="";
+
+/* ---- the shelf: pins kept in this browser's localStorage only.
+   Reader-side state, not world state — the archive doesn't remember
+   you; nothing is sent anywhere. Ids are stable, so a pin that outlives
+   a demo↔live source swap simply renders under whichever source serves
+   the id (or counts as 'not in this archive' until it does). */
+var SHELF_KEY='rw_archive_shelf';
+var shelf=(function(){
+  try{ var a=JSON.parse(localStorage.getItem(SHELF_KEY)||'[]');
+       return new Set(Array.isArray(a)?a:[]); }catch(e){ return new Set(); }
+})();
+function shelfSave(){
+  try{ localStorage.setItem(SHELF_KEY, JSON.stringify(Array.from(shelf))); }catch(e){}
+}
+function shelfToggle(id){
+  if (shelf.has(id)){ shelf.delete(id); toast('taken off the shelf'); }
+  else { shelf.add(id); toast('kept on the shelf — this device only'); }
+  shelfSave();
+}
 
 function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stKey(s){ return String(s).replace(/[ ()]/g,'_').toLowerCase(); }
-function dateOfId(id){ var m=/^d(\d{2})(\d{2})-/.exec(id||""); return m ? "2026-"+m[1]+"-"+m[2] : null; }
+function dateOfId(id){
+  /* the id's own day bucket is the truth (live ids needn't carry a
+     d<MMDD> prefix); the prefix parse is a demo-era fallback only */
+  if (ID2DAY[id]) return ID2DAY[id];
+  var m=/^d(\d{2})(\d{2})-/.exec(id||""); return m ? "2026-"+m[1]+"-"+m[2] : null;
+}
 function allEvents(){ var out=[]; Object.keys(DAYS).sort().forEach(function(d){
   DAYS[d].forEach(function(e){ out.push(e); }); }); return out; }
 function findEvent(id){
@@ -547,6 +694,10 @@ function setHash(){
   var h = view==='day' ? '#d='+day
         : view==='person' ? '#v=person&who='+who
         : view==='venue' ? '#v=venue&venue='+venue
+        : view==='pair' ? '#v=pair&a='+pairA+'&b='+pairB
+        : view==='hour' ? '#v=hour&h='+hourSel
+        : view==='cmp' ? '#v=cmp&d1='+cmpA+'&d2='+cmpB
+        : view==='reqs'&&rqSel ? '#v=reqs&rq='+encodeURIComponent(rqSel)
         : '#v='+view;
   if (view==='threads' && selTh) h+='&th='+selTh;
   if (selId) h += (h.indexOf('&')>=0||view!=='day'?'&':'&')+'e='+selId;
@@ -557,10 +708,16 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger','week'].indexOf(kv.v)>=0) view=kv.v;
-  if (kv.who && NAMES[kv.who]){ who=kv.who; view='person'; }
-  if (kv.venue && VENUES[kv.venue]){ venue=kv.venue; view='venue'; }
+  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.rq){ rqSel=kv.rq; view='reqs'; }
+  if (kv.h!==undefined){ var hi=parseInt(kv.h,10); if(hi>=0&&hi<24) hourSel=hi; }
+  if (kv.d1 && DAYS[kv.d1]) cmpA=kv.d1;
+  if (kv.d2 && DAYS[kv.d2]) cmpB=kv.d2;
+  if (kv.who){ who=kv.who; view='person'; }
+  if (kv.venue){ venue=kv.venue; view='venue'; }
   if (kv.th && THREADS[kv.th]){ selTh=kv.th; view='threads'; }
+  if (kv.a){ pairA=kv.a; if(kv.v==='pair')view='pair'; }
+  if (kv.b){ pairB=kv.b; if(kv.v==='pair')view='pair'; }
   if (kv.e && !kv.v && !kv.who && !kv.venue) view='day';
 }
 readHash();
@@ -586,17 +743,46 @@ function renderViewChips(){
     c.classList.toggle('on', c.dataset.v===view); });
   document.getElementById('pickWho').style.display = view==='person'?'':'none';
   document.getElementById('pickVenue').style.display = view==='venue'?'':'none';
+  document.getElementById('pickA').style.display = view==='pair'?'':'none';
+  document.getElementById('pickB').style.display = view==='pair'?'':'none';
+  document.getElementById('pickHour').style.display = view==='hour'?'':'none';
+  document.getElementById('pickD1').style.display = view==='cmp'?'':'none';
+  document.getElementById('pickD2').style.display = view==='cmp'?'':'none';
 }
 function buildPickers(){
   var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
-  Object.keys(NAMES).sort(function(a,b){return (a[0]===b[0])?NAMES[a].localeCompare(NAMES[b]):(a[0]==='C'?-1:1);})
-    .forEach(function(id){ var o=document.createElement('option'); o.value=id;
-      o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); cs.appendChild(o); });
+  /* the person index is the wire's own named-people fields — NAMES
+     (the cast registry) plus every id any event ever put in mentions[].
+     Player handles never appear: the wire only ever mentions people. */
+  WHO_INDEX.forEach(function(id){ var o=document.createElement('option'); o.value=id;
+      o.textContent=nameOf(id)+(id[0]==='C'&&NAMES[id]?' (main)':''); cs.appendChild(o); });
   cs.value=who; cs.onchange=function(){ who=cs.value; selId=null; renderAll(); };
   var vs=document.getElementById('pickVenue'); vs.innerHTML='<option value="">pick a place…</option>';
-  Object.keys(VENUES).forEach(function(id){ var o=document.createElement('option');
-    o.value=id; o.textContent=VENUES[id]; vs.appendChild(o); });
+  VENUE_INDEX.forEach(function(id){ var o=document.createElement('option');
+    o.value=id; o.textContent=venueOf(id); vs.appendChild(o); });
   vs.value=venue; vs.onchange=function(){ venue=vs.value; selId=null; renderAll(); };
+  [['pickA','first name…',function(v){pairA=v;}],['pickB','second name…',function(v){pairB=v;}]]
+    .forEach(function(cfg){
+      var el=document.getElementById(cfg[0]); el.innerHTML='<option value="">'+cfg[1]+'</option>';
+      WHO_INDEX.forEach(function(id){ var o=document.createElement('option'); o.value=id;
+          o.textContent=nameOf(id)+(id[0]==='C'&&NAMES[id]?' (main)':''); el.appendChild(o); });
+      el.onchange=function(){ cfg[2](el.value); selId=null; renderAll(); };
+    });
+  document.getElementById('pickA').value=pairA;
+  document.getElementById('pickB').value=pairB;
+  var hp=document.getElementById('pickHour'); hp.innerHTML='';
+  for(var hh=0;hh<24;hh++){ var ho=document.createElement('option'); ho.value=hh;
+    ho.textContent=('0'+hh).slice(-2)+':00 — the same hour, every day'; hp.appendChild(ho); }
+  hp.value=hourSel; hp.onchange=function(){ hourSel=parseInt(hp.value,10); selId=null; renderAll(); };
+  [['pickD1',function(v){cmpA=v;}],['pickD2',function(v){cmpB=v;}]].forEach(function(cfg){
+    var el=document.getElementById(cfg[0]); el.innerHTML='<option value="">pick a day…</option>';
+    Object.keys(DAYS).sort().reverse().forEach(function(d){
+      var o=document.createElement('option'); o.value=d;
+      o.textContent=daySepLabel(d)+(d===TODAY?' ●':''); el.appendChild(o); });
+    el.onchange=function(){ cfg[1](el.value); selId=null; renderAll(); };
+  });
+  document.getElementById('pickD1').value=cmpA;
+  document.getElementById('pickD2').value=cmpB;
 }
 
 /* ================= shared event row ================= */
@@ -606,6 +792,9 @@ function evRow(e, d){
   if ((e.kind==='request')&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.kind==='admin'&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.status) txt+=' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  /* the attempt is the one part of a denied ask that is public — the
+     kind reached for, never the screened text (game-v14 `attempt`) */
+  if (e.attempt) txt+=' <span class="att">asked for — '+esc(e.attempt)+'</span>';
   if (e.kind==='rumor') txt+=' <span class="unc">unconfirmed</span>';
   li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span>';
   li.onclick=function(){ selId=e.id; if(d) day=d; markSel(li); renderDet(); setHash(); };
@@ -635,6 +824,7 @@ function renderDayView(){
     '<h3>'+WDAYS[new Date(day+'T12:00:00').getDay()]+', '+day+'</h3>'+
     '<button class="dnav" id="dnext" '+(di<0||di>=ks.length-1?'disabled':'')+'>next day &rsaquo;</button>'+
     '<span class="keyhint">&larr; &rarr;</span>'+
+    (LIVE&&isToday?'<button class="dnav" id="catchup" title="pull whatever the wire has written since this page loaded — additive only">catch up</button>':'')+
     '<span class="meta">'+evs.length+' entries'+
     (evs.filter(function(e){return e.kind==='rumor';}).length?' · '+evs.filter(function(e){return e.kind==='rumor';}).length+' word-on-the-block':'')+
     ' · coverage: street-level only</span>'+
@@ -648,6 +838,12 @@ function renderDayView(){
       '<span class="chip'+(kindF==='request'?' on':'')+'" data-k="request">requests</span>'+
       '<span class="chip'+(kindF==='admin'?' on':'')+'" data-k="admin">admin</span>'+
       '<span class="chip'+(kindF==='press'?' on':'')+'" data-k="press">Mission Unfiltered</span>'+
+    /* a kind outside the page's known set earns its own chip — counted,
+       not interpreted. Live vocabulary (e.g. 'cast') shows up as itself. */
+    extraKinds(evs).map(function(k){
+      return '<span class="chip'+(kindF===k?' on':'')+'" data-k="'+esc(k)+
+        '" title="a kind the wire wrote — counted, not interpreted">'+esc(k)+'</span>';
+    }).join('')+
     '</div>'+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this day — names, places, \u201ccleanup\u201d, \u201cfog\u201d\u2026" value="'+esc(q)+'">'+
       '<span class="chip'+(searchScope==='all'?' on':'')+'" id="scopetgl" title="widen the search to every archived day">whole record</span>'+
@@ -672,6 +868,7 @@ function renderDayView(){
   var dp=document.getElementById('dprev'), dn=document.getElementById('dnext');
   if (dp) dp.onclick=function(){ stepDay(-1); };
   if (dn) dn.onclick=function(){ stepDay(1); };
+  var cu=document.getElementById('catchup'); if (cu) cu.onclick=catchUp;
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderDayList_rows(); };
   document.getElementById('scopetgl').onclick=function(){
     searchScope=(searchScope==='all'?'day':'all'); renderAll();
@@ -713,29 +910,36 @@ function legacyCopy(txt){
   document.body.removeChild(ta);
 }
 function haystack(e){
-  return (e.text+' '+(NAMES[e.who]||e.who||'')+' '+(VENUES[e.venue]||'')+
-    (e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase();
+  return (e.text+' '+(e.who?nameOf(e.who):'')+' '+(e.venue?venueOf(e.venue):'')+
+    (e.mentions||[]).map(nameOf).join(' ')).toLowerCase();
+}
+/* kinds the page already has a named filter for — anything else the
+   wire writes (live vocabulary, e.g. 'cast') gets a chip of its own */
+var KNOWN_KINDS={move:1,scene:1,venue:1,weather:1,request:1,admin:1,
+  press:1,housing:1,quiet:1,rumor:1};
+function extraKinds(evs){
+  var seen={};
+  evs.forEach(function(e){ if(e.kind && !KNOWN_KINDS[e.kind]) seen[e.kind]=1; });
+  return Object.keys(seen).sort();
+}
+function kindPass(e,k){
+  if (k==='all') return true;
+  if (k==='block') return e.kind!=='request'&&e.kind!=='admin'&&e.kind!=='rumor';
+  return e.kind===k;
 }
 function dayPass(e){
   if (selHour>=0 && Math.floor(e.t/60)!==selHour) return false;
-  if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
-  if (kindF==='rumor' && e.kind!=='rumor') return false;
-  if (kindF==='request' && e.kind!=='request') return false;
-  if (kindF==='admin' && e.kind!=='admin') return false;
-  if (kindF==='press' && e.kind!=='press') return false;
+  if (!kindPass(e,kindF)) return false;
   if (q && haystack(e).indexOf(q.toLowerCase())<0) return false;
   return true;
 }
 function renderDayList_rows(){
   var ul=document.getElementById('evs'); if(!ul) return; ul.innerHTML='';
+  visIds=[];
   /* whole-record scope: same match, every archived day, grouped like trails */
   if (searchScope==='all' && q){
     var hits=allEvents().filter(function(e){
-      if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
-      if (kindF==='rumor' && e.kind!=='rumor') return false;
-      if (kindF==='request' && e.kind!=='request') return false;
-      if (kindF==='admin' && e.kind!=='admin') return false;
-      if (kindF==='press' && e.kind!=='press') return false;
+      if (!kindPass(e,kindF)) return false;
       return haystack(e).indexOf(q.toLowerCase())>=0;
     });
     var hd=document.createElement('li'); hd.className='hoursep';
@@ -764,7 +968,7 @@ function renderDayList_rows(){
       ul.appendChild(g);
     }
     prevT=e.t;
-    ul.appendChild(evRow(e, day));
+    ul.appendChild(evRow(e, day)); visIds.push(e.id);
   });
   if (!evs.length){
     var li=document.createElement('li'); li.className='empty';
@@ -810,16 +1014,59 @@ function renderPersonView(){
   if(!who){ body.innerHTML='<div class="empty">Pick someone on the left — mains, ambients, anyone the camera has ever named.</div>'; return; }
   var evs=charEvents(who);
   var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
-  body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[who]||who)+'</h3>'+
+  /* 'seen with' — top co-occurring ids across this trail, counted from
+     who/mentions only; chips open the pair view. Co-presence on public
+     rows, never a claim about the relationship. */
+  var co={};
+  evs.forEach(function(e){
+    [e.who].concat(e.mentions||[]).forEach(function(id){
+      if (id && id!==who && WHO_SET[id]) co[id]=(co[id]||0)+1;
+    });
+  });
+  var topCo=Object.keys(co).sort(function(a,b){return co[b]-co[a] || nameOf(a).localeCompare(nameOf(b));}).slice(0,3);
+  /* person lens — the same trail cut finer. followed = the wire's row
+     is theirs (who); named = somebody else's row mentioned them
+     (mentions). Same scope either way — nothing is added, only cut. */
+  var lensEvs=evs.filter(function(e){
+    if (personLens==='who') return e.who===who;
+    if (personLens==='mentions') return e.who!==who && (e.mentions||[]).indexOf(who)>=0;
+    return true;
+  });
+  body.innerHTML='<div class="subhead"><h3>'+esc(nameOf(who))+'</h3>'+
     (ROLES[who]?'<span class="meta">'+esc(ROLES[who])+'</span>':'')+
     '<span class="pubonly">public whereabouts only</span>'+
     '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    (evs.length?'<div class="chiprow" id="jumpchips">'+
+      '<span class="chip" id="firstEv" title="the oldest row on this trail">first on record — '+fmt(evs[0].t)+' · '+daySepLabel(dateOfId(evs[0].id)||'')+'</span>'+
+      '<span class="chip" id="lastEv" title="the newest row on this trail">latest — '+fmt(evs[evs.length-1].t)+' · '+daySepLabel(dateOfId(evs[evs.length-1].id)||'')+'</span>'+
+      '</div>':'')+
+    (topCo.length?'<div class="chiprow" id="cochips"><span class="meta" style="font-size:11px;color:var(--dim);align-self:center">seen with — public rows only:</span></div>':'')+
+    '<div class="chiprow" id="lenschips">'+
+      '<span class="meta" style="font-size:11px;color:var(--dim);align-self:center">the trail, cut finer:</span>'+
+      '<span class="chip'+(personLens==='all'?' on':'')+'" data-l="all">all rows</span>'+
+      '<span class="chip'+(personLens==='who'?' on':'')+'" data-l="who" title="rows where the wire followed them">followed</span>'+
+      '<span class="chip'+(personLens==='mentions'?' on':'')+'" data-l="mentions" title="rows where somebody else\u2019s event named them">named in passing</span>'+
+    '</div>'+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this trail…" value="'+esc(q)+'"></div>'+
-    renderTrailDays(evs.filter(function(e){
+    renderTrailDays(lensEvs.filter(function(e){
       if(!q) return true;
-      return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+      return (e.text+' '+(e.venue?venueOf(e.venue):'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  document.querySelectorAll('#lenschips .chip').forEach(function(ch){
+    ch.onclick=function(){ personLens=ch.dataset.l; renderAll(); };
+  });
+  var fe=document.getElementById('firstEv'), le=document.getElementById('lastEv');
+  if (fe) fe.onclick=function(){ selId=evs[0].id; day=dateOfId(evs[0].id)||day; renderDet(); setHash(); toast('first on record'); };
+  if (le) le.onclick=function(){ selId=evs[evs.length-1].id; day=dateOfId(evs[evs.length-1].id)||day; renderDet(); setHash(); toast('latest on record'); };
+  var cc=document.getElementById('cochips');
+  if (cc) topCo.forEach(function(id){
+    var s=document.createElement('span'); s.className='chip';
+    s.innerHTML=esc(nameOf(id))+' <span class="n">×'+co[id]+'</span>';
+    s.title='open the shared public record';
+    s.onclick=function(){ pairA=who; pairB=id; view='pair'; selId=null; renderAll(); };
+    cc.appendChild(s);
+  });
   mountTrailDays();
 }
 function renderVenueView(){
@@ -827,15 +1074,323 @@ function renderVenueView(){
   if(!venue){ body.innerHTML='<div class="empty">Pick a place on the left — any corner the wire has ever written about.</div>'; return; }
   var evs=venueEvents(venue);
   var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
-  body.innerHTML='<div class="subhead"><h3>'+esc(VENUES[venue]||venue)+'</h3>'+
+  /* venue rhythm — a 24-hour histogram of this corner's tags across the
+     whole record. Counted, not a promise: the bars say where the wire
+     happened to look, not where the corner will be. */
+  var rh=new Array(24).fill(0); evs.forEach(function(e){rh[Math.floor(e.t/60)]++;});
+  var rmax=Math.max.apply(null,rh.concat([1]));
+  body.innerHTML='<div class="subhead"><h3>'+esc(venueOf(venue))+'</h3>'+
     '<span class="meta">'+evs.length+' entries · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    (evs.length?'<h2 style="margin:10px 0 0">the corner’s rhythm <span class="free">— counted across the whole record, not a promise</span></h2>'+
+    '<div class="hours" id="rhythm"></div><div class="hrlabels" id="rhlabels"></div>':'')+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this record…" value="'+esc(q)+'"></div>'+
     renderTrailDays(evs.filter(function(e){
       if(!q) return true;
-      return (e.text+' '+(NAMES[e.who]||e.who||'')+(e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
+      return (e.text+' '+(e.who?nameOf(e.who):'')+(e.mentions||[]).map(nameOf).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
+    }));
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  var rb=document.getElementById('rhythm'), rl=document.getElementById('rhlabels');
+  if (rb) for(var h=0;h<24;h++){
+    var s=document.createElement('div');
+    s.className='hr'; s.style.height=Math.max(3,rh[h]/rmax*32)+'px'; s.style.cursor='default';
+    s.title=('0'+h).slice(-2)+':00 — '+rh[h]+' across the record';
+    rb.appendChild(s);
+    var l=document.createElement('span'); l.textContent=('0'+h).slice(-2); rl.appendChild(l);
+  }
+  mountTrailDays();
+}
+
+/* ================= VIEW: seen together =================
+   Two names, one public record. Co-presence is structural — an event
+   counts only when both ids appear in who/mentions. The view asserts
+   nothing about the relationship; it is the same rows, arranged. */
+function evHas(e,id){ return e.who===id || (e.mentions&&e.mentions.indexOf(id)>=0); }
+function renderPairView(){
+  var body=document.getElementById('viewBody');
+  if (!pairA || !pairB){
+    body.innerHTML='<div class="empty">Pick two names on the left — the trail is every event '+
+      'where both appear in the public record. Co-presence only; the archive doesn\u2019t '+
+      'guess at relationships.</div>'; return;
+  }
+  if (pairA===pairB){
+    body.innerHTML='<div class="empty">Same name twice — a person\u2019s own trail lives under by person.</div>'; return;
+  }
+  var evs=allEvents().filter(function(e){return evHas(e,pairA)&&evHas(e,pairB);});
+  var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  body.innerHTML='<div class="subhead"><h3>'+esc(nameOf(pairA))+' &amp; '+esc(nameOf(pairB))+'</h3>'+
+    '<span class="pubonly">public co-presence — the wire\u2019s own rows, never a claim about the relationship</span>'+
+    '<span class="meta">'+evs.length+' shared event'+(evs.length===1?'':'s')+' · '+daysActive+' day'+(daysActive===1?'':'s')+'</span></div>'+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search the shared record…" value="'+esc(q)+'"></div>'+
+    renderTrailDays(evs.filter(function(e){
+      if(!q) return true;
+      return (e.text+' '+(e.venue?venueOf(e.venue):'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
   mountTrailDays();
+}
+
+/* ================= VIEW: the same hour =================
+   One hour of day, every day on record. A shape the wire happened to
+   draw — the counts say where the camera looked at that hour, never
+   where it will. Same rows, sliced vertically. */
+function renderHourView(){
+  var body=document.getElementById('viewBody');
+  var evs=allEvents().filter(function(e){ return Math.floor(e.t/60)===hourSel; });
+  var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
+  var bc=busiestCorner(evs);
+  var kc={}; evs.forEach(function(e){kc[e.kind]=(kc[e.kind]||0)+1;});
+  var kline=Object.keys(kc).sort(function(a,b){return kc[b]-kc[a];})
+    .map(function(k){return kc[k]+' '+k;}).join(' · ');
+  body.innerHTML='<div class="subhead"><h3>The block at '+('0'+hourSel).slice(-2)+':00</h3>'+
+    '<span class="pubonly">a shape the wire happened to draw — not a schedule</span>'+
+    '<span class="meta">'+evs.length+' row'+(evs.length===1?'':'s')+' · '+daysActive+' day'+(daysActive===1?'':'s')+' on record'+
+    (bc?' · most-tagged corner: '+esc(venueOf(bc.v))+' ('+bc.n+')':'')+'</span></div>'+
+    (kline?'<div class="meta" style="font-size:11.5px;color:var(--dim);margin:4px 0 8px">kinds counted — '+esc(kline)+'</div>':'')+
+    '<div class="controls"><input class="search" id="fsearch" placeholder="search this hour across days…" value="'+esc(q)+'"></div>'+
+    (evs.length?renderTrailDays(evs.filter(function(e){
+      if(!q) return true; return haystack(e).indexOf(q.toLowerCase())>=0;
+    })):'<div class="empty">Nothing public in this hour on any day — the block keeps some hours to itself.</div>');
+  document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  mountTrailDays();
+}
+
+/* ================= VIEW: day vs day =================
+   Two days, one table. Every cell is the count that day's own kind
+   filter would show — same rows, two columns. The archive doesn't
+   editorialize the difference. */
+function renderCmpView(){
+  var body=document.getElementById('viewBody');
+  var ks=Object.keys(DAYS).sort();
+  var a=cmpA||ks[ks.length-2]||ks[0], b=cmpB||ks[ks.length-1];
+  if (!a||!b){ body.innerHTML='<div class="empty">Pick two days on the left — the table counts each day\u2019s own rows, side by side.</div>'; return; }
+  if (a===b){ body.innerHTML='<div class="empty">Same day twice — pick two different days on the left.</div>'; return; }
+  var ea=DAYS[a]||[], eb=DAYS[b]||[];
+  var bca=busiestCorner(ea), bcb=busiestCorner(eb);
+  /* shared corners — venue ids tagged on both days; chips open the
+     venue view. Counted, not interpreted. */
+  var va={}, vb={};
+  ea.forEach(function(e){va[e.venue||'block']=1;});
+  eb.forEach(function(e){vb[e.venue||'block']=1;});
+  var shared=Object.keys(va).filter(function(v){return vb[v];});
+  var cell=function(d,k){ return '<td class="cell" data-d="'+d+'" data-k="'+k+'">'+wkCount(DAYS[d]||[],k)+'</td>'; };
+  var html='<div class="dayhead"><h3>'+daySepLabel(a)+' <span style="color:var(--dim)">vs</span> '+daySepLabel(b)+'</h3>'+
+    '<span class="meta">same rows, two columns — counted, not explained</span></div>'+
+    '<table class="wkgrid"><tr><th></th><th>'+daySepLabel(a)+(a===TODAY?' ●':'')+'</th><th>'+daySepLabel(b)+(b===TODAY?' ●':'')+'</th></tr>'+
+    '<tr><td>entries</td><td>'+ea.length+'</td><td>'+eb.length+'</td></tr>'+
+    '<tr><td>coverage span</td><td>'+(ea.length?fmt(ea[0].t)+' → '+fmt(ea[ea.length-1].t):'—')+'</td><td>'+(eb.length?fmt(eb[0].t)+' → '+fmt(eb[eb.length-1].t):'—')+'</td></tr>'+
+    '<tr><td>busiest corner</td><td>'+(bca?esc(venueOf(bca.v))+' ('+bca.n+')':'—')+'</td><td>'+(bcb?esc(venueOf(bcb.v))+' ('+bcb.n+')':'—')+'</td></tr>'+
+    WKCOLS.map(function(c){
+      return '<tr><td>'+c[1]+'</td>'+cell(a,c[0])+cell(b,c[0])+'</tr>';
+    }).join('')+
+    '</table>'+
+    '<h2>shared corners <span class="free">— venue ids the wire tagged on both days</span></h2>'+
+    '<div class="chiprow" id="sharedchips"></div>'+
+    '<div class="meta" style="font-size:11.5px;color:var(--dim);margin-top:10px">a kind cell opens that day pre-filtered — the number and the rows never disagree</div>';
+  body.innerHTML=html;
+  body.querySelectorAll('.wkgrid td.cell').forEach(function(td){
+    td.onclick=function(){ day=td.dataset.d; view='day'; selHour=-1; selId=null; kindF=td.dataset.k; renderAll(); };
+  });
+  var sc=document.getElementById('sharedchips');
+  if (!shared.length) sc.innerHTML='<span class="meta" style="font-size:11.5px;color:var(--dim)">no shared corners — the wire looked at different places</span>';
+  shared.forEach(function(v){
+    var s=document.createElement('span'); s.className='chip'; s.textContent=venueOf(v);
+    s.onclick=function(){ venue=v; view='venue'; selId=null; renderAll(); };
+    sc.appendChild(s);
+  });
+}
+
+/* ================= VIEW: off the feed =================
+   The uncovered-stretch map. The same ≥2h rule the day view uses for
+   its inline "— off the feed —" markers, enumerated across the whole
+   record. Absence is part of the record: counted, never filled —
+   no stretch is interpolated into "where somebody probably was". */
+var GAP_MIN=120;
+function gapList(){
+  var out=[];
+  Object.keys(DAYS).sort().forEach(function(d){
+    var evs=DAYS[d]||[];
+    for (var i=1;i<evs.length;i++){
+      var span=evs[i].t-evs[i-1].t;
+      if (span>=GAP_MIN) out.push({day:d, a:evs[i-1], b:evs[i], span:span});
+    }
+  });
+  return out;
+}
+function fmtSpan(min){
+  var h=Math.floor(min/60), m=min%60;
+  return h?h+' h'+(m?' '+m+' min':''):m+' min';
+}
+function renderGapsView(){
+  var body=document.getElementById('viewBody');
+  var gaps=gapList();
+  var longest=null, totMin=0, byDay={};
+  gaps.forEach(function(g){
+    totMin+=g.span; (byDay[g.day]=byDay[g.day]||[]).push(g);
+    if (!longest||g.span>longest.span) longest=g;
+  });
+  var days=Object.keys(byDay).sort().reverse();
+  body.innerHTML='<div class="dayhead"><h3>Off the feed</h3>'+
+    '<span class="meta">the hours the wire never wrote — counted, never filled</span></div>'+
+    '<div class="wksum">'+
+    '<div class="rs"><b>'+gaps.length+'</b><span>uncovered stretch'+(gaps.length===1?'':'es')+'</span></div>'+
+    '<div class="rs"><b>'+(longest?fmtSpan(longest.span):'—')+'</b><span>longest stretch'+(longest?' · '+daySepLabel(longest.day):'')+'</span></div>'+
+    '<div class="rs"><b>'+fmtSpan(totMin)+'</b><span>uncovered minutes on record</span></div>'+
+    '<div class="rs"><b>'+days.length+'</b><span>day'+(days.length===1?'':'s')+' with a gap</span></div>'+
+    '</div>'+
+    '<div class="meta" style="font-size:11.5px;color:var(--dim);margin:2px 0 10px">'+
+      'a stretch is ≥'+Math.floor(GAP_MIN/60)+' h between two written rows — the same rule '+
+      'the day view\u2019s \u201c— off the feed —\u201d markers use. Today counts only the rows '+
+      'already written; a quiet hour and an unwatched hour look the same, and the archive says so.</div>'+
+    '<div id="gapdays"></div>';
+  var box=document.getElementById('gapdays');
+  if (!gaps.length){ box.innerHTML='<div class="empty">No uncovered stretches on record — the wire never blinked. That\u2019s a count too.</div>'; return; }
+  days.forEach(function(d){
+    var sep=document.createElement('div'); sep.className='daysep';
+    sep.innerHTML=daySepLabel(d)+' <a data-day="'+d+'">open day →</a>';
+    box.appendChild(sep);
+    var ul=document.createElement('ul'); ul.className='evs'; box.appendChild(ul);
+    byDay[d].forEach(function(g){
+      var li=document.createElement('li'); li.className='ev';
+      li.style.cursor='default';
+      li.innerHTML='<span class="t">'+fmt(g.a.t)+'</span><span class="k quiet">gap</span><span>'+
+        '— off the feed ('+fmt(g.a.t)+' → '+fmt(g.b.t)+') — '+fmtSpan(g.span)+
+        ' <span class="thchip" data-ev="'+g.a.id+'" title="the last written row before the stretch">before</span>'+
+        ' <span class="thchip" data-ev="'+g.b.id+'" title="the first written row after the stretch">after</span></span>';
+      ul.appendChild(li);
+    });
+  });
+  box.querySelectorAll('.daysep a[data-day]').forEach(function(a){
+    a.onclick=function(){ view='day'; day=a.dataset.day; selHour=-1; renderAll(); };
+  });
+  box.querySelectorAll('[data-ev]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation(); var f=findEvent(c.dataset.ev); if(!f) return;
+      selId=f.e.id; if(f.day)day=f.day; renderDet(); setHash(); };
+  });
+}
+
+/* ================= VIEW: request trails =================
+   One paid reach-in, all its public statuses in a row. Requests share
+   a req id across lifecycle events (feed.json contract); the trail is
+   exactly the statuses the wire wrote — no inferred steps, no denied
+   text. Open trails (any member still in an open status) sort first. */
+var OPEN_ST={requested:1,in_review:1,approved:1,queued:1,running:1};
+function reqTrails(){
+  var groups={}, order=[];
+  allEvents().forEach(function(e){
+    if (e.kind!=='request'||!e.req) return;
+    if (!groups[e.req]){ groups[e.req]=[]; order.push(e.req); }
+    groups[e.req].push(e);
+  });
+  var trails=order.map(function(rq){
+    var mems=groups[rq].slice().sort(function(a,b){return (a.t-b.t)||((a.n||0)-(b.n||0));});
+    var payer=null, cr=0, open=false, days={};
+    mems.forEach(function(e){
+      if (e.who&&e.who!=='admin'&&!payer) payer=e.who;
+      if (e.attrs&&e.attrs.credits) cr+=e.attrs.credits;
+      if (e.status&&OPEN_ST[e.status]) open=true;
+      var d=dateOfId(e.id); if(d) days[d]=1;
+    });
+    return {id:rq, mems:mems, payer:payer, credits:cr, open:open,
+      days:Object.keys(days).sort(),
+      last:mems[mems.length-1]};
+  });
+  /* open first, then newest-first within each group */
+  trails.sort(function(a,b){
+    if (a.open!==b.open) return a.open?-1:1;
+    return (b.last.t-a.last.t) || (b.days[b.days.length-1]<a.days[a.days.length-1]?-1:1);
+  });
+  return trails;
+}
+function renderReqsView(){
+  var body=document.getElementById('viewBody');
+  var trails=reqTrails();
+  var openN=trails.filter(function(t){return t.open;}).length;
+  var payers={}, cr=0;
+  trails.forEach(function(t){ if(t.payer)payers[t.payer]=1; cr+=t.credits; });
+  body.innerHTML='<div class="dayhead"><h3>Request trails</h3>'+
+    '<span class="meta">one paid reach-in, all its public statuses in a row — the trail is what the wire wrote, nothing more</span></div>'+
+    '<div class="ledsum">'+
+    '<div class="rs"><b>'+trails.length+'</b><span>trail'+(trails.length===1?'':'s')+'</span></div>'+
+    '<div class="rs"><b>'+openN+'</b><span>still open</span></div>'+
+    '<div class="rs"><b>'+Object.keys(payers).length+'</b><span>payer'+(Object.keys(payers).length===1?'':'s')+'</span></div>'+
+    (cr?'<div class="rs"><b>'+cr+' cr</b><span>declared credits</span></div>':'')+
+    '</div>'+
+    '<div class="meta" style="font-size:11.5px;color:var(--dim);margin:2px 0 12px">'+
+      'a trail is every public status the wire wrote under one request id — queued, running, resolved, '+
+      'refunded, in_review, however it ran. Denied ask text was never written, so a trail can end at '+
+      '\u201cnot approved\u201d and no further. Open trails sort first.</div>'+
+    '<div id="reqlist"></div>';
+  var list=document.getElementById('reqlist');
+  if (!trails.length){ list.innerHTML='<div class="empty">No paid reach-ins on this record — the ledger is clean.</div>'; return; }
+  trails.forEach(function(t){
+    var c=document.createElement('div'); c.className='thcard'+(rqSel===t.id?' on':'');
+    if (rqSel===t.id) c.style.borderColor='var(--acc)';
+    var last=t.last;
+    c.innerHTML='<div class="thl"><span class="payer">'+esc(t.payer||'unattributed')+'</span>'+
+      (t.open?' <span class="stt" style="color:var(--acc)">· still open</span>':'')+'</div>'+
+      '<div class="thb">'+esc(last.text)+(last.status?' <span class="st '+stKey(last.status)+'">'+esc(last.status)+'</span>':'')+'</div>'+
+      '<div class="thm">'+t.mems.length+' public statuse'+(t.mems.length===1?'':'s')+' · '+
+      t.days.length+' day'+(t.days.length===1?'':'s')+' · req '+esc(t.id)+
+      (t.credits?' · '+t.credits+' cr declared':'')+'</div>'+
+      '<ul class="trail" style="margin-top:8px">';
+    t.mems.forEach(function(e){
+      var d=dateOfId(e.id)||TODAY;
+      c.innerHTML+='<li data-tid="'+e.id+'">'+fmt(e.t)+' · '+daySepLabel(d)+' · '+esc(e.status||e.kind)+
+        (e.attempt?' <span class="att">asked for — '+esc(e.attempt)+'</span>':'')+'</li>';
+    });
+    c.innerHTML+='</ul>';
+    c.onclick=function(){ rqSel=(rqSel===t.id?'':t.id); setHash(); };
+    c.querySelectorAll('.trail li[data-tid]').forEach(function(li){
+      li.onclick=function(ev){ ev.stopPropagation();
+        selId=li.dataset.tid; var f=findEvent(selId); if(f&&f.day)day=f.day;
+        renderDet(); setHash(); };
+    });
+    list.appendChild(c);
+  });
+}
+
+/* ================= VIEW: your shelf =================
+   Pins kept in this browser's localStorage — reader-side state, not
+   world state. Copy-shelf exports a transcript that carries the source
+   badge, same honesty rule as the day transcript. */
+function renderShelfView(){
+  var body=document.getElementById('viewBody');
+  var items=allEvents().filter(function(e){return shelf.has(e.id);});
+  var orphans=shelf.size-items.length;
+  var html='<div class="dayhead"><h3>Your shelf</h3>'+
+    '<span class="meta">the shelf lives in this browser — the archive doesn\u2019t remember you; nothing is sent anywhere</span></div>'+
+    '<div class="ledsum">'+
+    '<div class="rs"><b>'+items.length+'</b><span>pinned records</span></div>'+
+    (orphans?'<div class="rs"><b>'+orphans+'</b><span>pinned id'+(orphans===1?'':'s')+' not in this archive source</span></div>':'')+
+    '</div>'+
+    '<div class="controls"><button class="chip" id="shelftx" style="cursor:pointer" title="the shelf as plain text — badge line included">copy shelf</button>'+
+    '<button class="chip" id="shelfclr" style="cursor:pointer" title="remove every pin on this device">clear the shelf</button></div>'+
+    (items.length?renderTrailDays(items):
+      '<div class="empty">Nothing pinned — \u2018keep on the shelf\u2019 on any record puts it here. '+
+      'The shelf is this browser\u2019s, not the world\u2019s.</div>');
+  body.innerHTML=html;
+  document.getElementById('shelftx').onclick=function(){ copyShelf(items); };
+  document.getElementById('shelfclr').onclick=function(){
+    if(!shelf.size){ toast('the shelf is already empty'); return; }
+    shelf.clear(); shelfSave(); renderAll(); toast('shelf cleared — nothing was ever sent');
+  };
+  mountTrailDays();
+}
+function copyShelf(items){
+  var lines=['real world — the archive — your shelf ('+(LIVE?'live archive':'demo archive')+')',
+    'pins kept on this device only — spectator-layer record; homes are walls'];
+  items.forEach(function(e){
+    var d=dateOfId(e.id)||TODAY;
+    var txt=e.text;
+    if (e.kind==='rumor') txt='[unconfirmed] '+txt;
+    if (e.status) txt=txt+' ['+e.status+']';
+    lines.push(d+' '+fmt(e.t)+'  '+padK(e.kind)+'  '+txt+'  <'+e.id+'>');
+  });
+  var txt=lines.join('\n');
+  var done=function(){ toast('shelf copied — '+items.length+' line'+(items.length===1?'':'s')); };
+  if (navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(txt).then(done,function(){ legacyCopy(txt); done(); });
+  } else { legacyCopy(txt); done(); }
 }
 
 /* ================= VIEW: the week =================
@@ -913,7 +1468,7 @@ function renderWeekView(){
     var r=document.createElement('div'); r.className='wkrow';
     r.innerHTML='<span class="wn">'+(d===TODAY?'● ':'')+daySepLabel(d)+'</span>'+
       '<span class="wm">'+fmt(de[0].t)+' → '+fmt(de[de.length-1].t)+
-      (bc?' · busiest: '+esc(VENUES[bc.v]||bc.v)+' ('+bc.n+')':'')+
+      (bc?' · busiest: '+esc(venueOf(bc.v))+' ('+bc.n+')':'')+
       (d===TODAY?' · still being written':'')+'</span>'+
       '<span class="wc">'+de.length+'</span>';
     r.onclick=function(){ view='day'; day=d; selHour=-1; selId=null; kindF='all'; renderAll(); };
@@ -1014,7 +1569,7 @@ function renderWordView(){
     var state = e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
                           : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>';
     c.innerHTML='<div class="rt">'+esc(e.text)+' <span class="unc">unconfirmed</span></div>'+
-      '<div class="rm">'+fmt(e.t)+' · '+daySepLabel(d)+' · overheard near '+esc(VENUES[e.src]||'the block')+' · '+state+'</div>';
+      '<div class="rm">'+fmt(e.t)+' · '+daySepLabel(d)+' · overheard near '+esc(venueOf(e.src)||'the block')+' · '+state+'</div>';
     c.onclick=function(){ selId=e.id; view='day'; day=d; kindF='all'; renderAll();
       renderDet(); };
     list.appendChild(c);
@@ -1078,14 +1633,15 @@ function renderDet(){
   var bits=[];
   var html='<div><span class="k '+e.kind+'">'+e.kind+'</span><span class="dt">'+fmt(e.t)+' · '+daySepLabel(d)+'</span></div>'+
     '<div class="dtext">'+esc(e.text)+'</div>';
-  if (e.venue) bits.push('at <b>'+esc(VENUES[e.venue]||e.venue)+'</b>');
-  if (e.who && NAMES[e.who]) bits.push('who: <b>'+esc(NAMES[e.who])+'</b>');
-  else if (e.who) bits.push(e.kind==='admin'?'by <b>admin</b>':'player: <b>'+esc(e.who)+'</b>');
-  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return '<b>'+esc(NAMES[m]||m)+'</b>';}).join(', '));
+  if (e.venue) bits.push('at <b>'+esc(venueOf(e.venue))+'</b>');
+  if (e.who && WHO_SET[e.who]) bits.push('who: <b>'+esc(nameOf(e.who))+'</b>');
+  else if (e.who) bits.push((e.kind==='admin'||e.who==='admin')?'by <b>admin</b>':'player: <b>'+esc(e.who)+'</b>');
+  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return '<b>'+esc(nameOf(m))+'</b>';}).join(', '));
   if (e.status) bits.push('status: <b>'+esc(e.status)+'</b>');
+  if (e.attempt) bits.push('asked for — <b>'+esc(e.attempt)+'</b> (the only public piece of a denied ask)');
   if (e.reason_code) bits.push('why-class — <b>'+esc(e.reason_code)+'</b> (the screened text is never public)');
   if (e.kind==='rumor'){
-    bits.push('overheard near <b>'+esc(VENUES[e.src]||'the block')+'</b> — never sourced to a person');
+    bits.push('overheard near <b>'+esc(venueOf(e.src)||'the block')+'</b> — never sourced to a person');
     bits.push(e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
                         : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>');
     if (e.outcome && e.outcome.by && findEvent(e.outcome.by)){
@@ -1093,6 +1649,19 @@ function renderDet(){
       bits.push('settled by the public record — <span class="thchip" data-ev="'+e.outcome.by+'">'+
         fmt(be.t)+' · '+esc(be.kind)+'</span>');
     }
+  }
+  /* settled-the-talk (v104) — the reverse of outcome.by: when this row
+     is the public record some rumor settled against, the detail says so
+     and links the talk. The link only ever points at a row that stood
+     on the wire in its own right. */
+  var settledTalk=allEvents().filter(function(x){
+    return x.kind==='rumor' && x.outcome && x.outcome.by===e.id; });
+  if (settledTalk.length){
+    html+='<div class="meta"><b>settled the talk:</b> '+
+      settledTalk.map(function(x){
+        return '<span class="thchip" data-ev="'+x.id+'" title="'+esc(x.text)+'">'+
+          fmt(x.t)+' · word on the block</span>';
+      }).join(' ')+'</div>';
   }
   if (e.attrs&&e.attrs.compensated_cr) bits.push('affected players compensated <b>'+e.attrs.compensated_cr+' cr</b>');
   if (e.attrs&&e.attrs.credits) bits.push('declared <b>'+e.attrs.credits+' cr</b>');
@@ -1131,7 +1700,9 @@ function renderDet(){
   }
   html+='<div class="plink"><input readonly value="archive.html#e='+e.id+'" id="plinkIn">'+
     '<button id="plinkBtn">copy link</button>'+
-    '<button class="daylink" id="daylink">open day</button></div>'+
+    '<button class="daylink" id="reccopy">copy record</button>'+
+    '<button class="daylink" id="daylink">open day</button>'+
+    '<button class="daylink" id="shelfBtn">'+(shelf.has(e.id)?'on the shelf — take off':'keep on the shelf')+'</button></div>'+
     '<div class="meta" style="margin-top:8px">id <b>'+esc(e.id)+'</b> — stable; this event sat on the wire under the same id.</div>';
   det.innerHTML=html;
   document.getElementById('plinkBtn').onclick=function(){
@@ -1140,7 +1711,16 @@ function renderDet(){
       if(navigator.clipboard) navigator.clipboard.writeText(inp.value).then(function(){toast('link copied');});
     }
   };
+  document.getElementById('reccopy').onclick=function(){
+    var txt='real world — the archive — record '+e.id+' ('+(LIVE?'live archive':'demo archive')+')\n'+
+      d+' '+fmt(e.t)+'  '+padK(e.kind)+'  '+(e.kind==='rumor'?'[unconfirmed] ':'')+e.text+(e.status?' ['+e.status+']':'');
+    var done=function(){ toast('record copied — one line, badge included'); };
+    if (navigator.clipboard && navigator.clipboard.writeText){
+      navigator.clipboard.writeText(txt).then(done,function(){ legacyCopy(txt); done(); });
+    } else { legacyCopy(txt); done(); }
+  };
   document.getElementById('daylink').onclick=function(){ view='day'; day=d; selHour=-1; kindF='all'; renderAll(); };
+  document.getElementById('shelfBtn').onclick=function(){ shelfToggle(e.id); renderDet(); };
   det.querySelectorAll('.trail li[data-tid]').forEach(function(li){
     li.onclick=function(){ selId=li.dataset.tid; var ff=findEvent(selId); if(ff&&ff.day)day=ff.day; renderDet(); renderView(); setHash(); };
   });
@@ -1160,6 +1740,21 @@ document.addEventListener('keydown',function(ev){
   if (view!=='day') return;
   if (ev.key==='ArrowLeft') stepDay(-1);
   else if (ev.key==='ArrowRight') stepDay(1);
+  /* j/k walk the day view's visible rows — same rows, one keystroke */
+  else if (ev.key==='j'||ev.key==='k'){
+    if (!visIds.length) return;
+    var i=visIds.indexOf(selId)+(ev.key==='j'?1:-1);
+    if (i<0) i=0; if (i>=visIds.length) i=visIds.length-1;
+    selId=visIds[i]; renderDet(); setHash();
+    /* rows render in visIds order inside #evs — mark by position */
+    var rows=document.querySelectorAll('#evs li.ev'), selRow=null;
+    for (var r=0;r<rows.length;r++){
+      var on = visIds[r]===selId;
+      rows[r].classList.toggle('sel', on);
+      if (on) selRow=rows[r];
+    }
+    if (selRow&&selRow.scrollIntoView) selRow.scrollIntoView({block:'nearest'});
+  }
 });
 
 /* ================= render root ================= */
@@ -1171,6 +1766,12 @@ function renderView(){
   else if (view==='threads') renderThreadsView();
   else if (view==='word') renderWordView();
   else if (view==='ledger') renderLedgerView();
+  else if (view==='pair') renderPairView();
+  else if (view==='shelf') renderShelfView();
+  else if (view==='hour') renderHourView();
+  else if (view==='cmp') renderCmpView();
+  else if (view==='gaps') renderGapsView();
+  else if (view==='reqs') renderReqsView();
 }
 function renderAll(){
   renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();

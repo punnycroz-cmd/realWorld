@@ -1,11 +1,25 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v80 (2026-09-23);
-all stills/programs rebased to the art-v48 build in v78.
-Six cuts now exist as real mp4s — hero 85s, teaser 15s, the
+**Status:** production-ready plan + rendered animatics, v140 (2026-09-24);
+all stills on the **art-v64** build — the street-detail build
+(cast-iron tree grate wells + sidewalk utility lids over the v63
+wall-impostor atlas). v140 added a ninth cut: the 44s **"Cast Cut"** (§7.6)
+— the ensemble teaser that introduces all eight mains by their public
+routines and lands the possession ban as the thesis beat. Prior baseline:
+v128 rebase to art-v64 (re-pinned every `redact` rect) + the 40s
+**"Booking Cut"** (§7.5). The §4 sunbeam caveat stays closed
+(the v56 fix carried forward).
+Earlier baseline: v110 rebase to art-v56 (sunbeam fix build) + the 45s
+"One Day" cut and `dusk` grade; v95 rebase to art-v55 plus the art-v52
+metric-projection **interior stills** (v52-INT-{cafe,flat,hw,taq}) — the
+trailer goes indoors (hero S5b, Move-In M5, thumbnail #4, Day Y3).
+Nine cuts now exist as real mp4s — hero 90s, teaser 15s, the
 9:16 vertical 30s, a 6s bumper, the 50s "Feed Cut" alternate-concept
-trailer (§7.2, added v65), and the 60s "Move-In Cut" player-journey
-trailer (§7.3, added v80) — `trailer/out/animatic-*.mp4`, built by
+trailer (§7.2, added v65), the 60s "Move-In Cut" player-journey
+trailer (§7.3, added v80), the 45s "One Day" cut (§7.4, v110), the
+40s "Booking Cut" (§7.5, v125), and the 44s "Cast Cut" ensemble
+teaser (§7.6, v140) —
+`trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Upload-ready metadata (titles, descriptions,
 tags, chapter markers, thumbnail picks) lives in `trailer/metadata.json`.
@@ -57,12 +71,15 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Bumper | 6 s | 16:9 | pre-roll, Shorts end-screen, Discord embed — rendered (§7.1) |
 | Feed Cut (alt concept) | 50 s | 16:9 | A/B alternate hero, press embeds, streamer cold-open — rendered (§7.2) |
 | Move-In Cut (alt concept) | 60 s | 16:9 | how-it-works embed, store-page second video, onboarding ad — rendered (§7.3) |
-| Thumbnail stills | — | 16:9 | YouTube/itch — three concepts rendered (§8) |
+| One Day Cut (alt concept) | 45 s | 16:9 | second social slot, store ambience video, streamer interstitial — rendered (§7.4) |
+| Booking Cut (alt concept) | 40 s | 16:9 | feature-announce post, how-it-works embed, devlog on the request pipeline — rendered (§7.5) |
+| Cast Cut (alt concept) | 44 s | 16:9 | cast-announce posts, press-kit character embed, store page third video — rendered (§7.6) |
+| Thumbnail stills | — | 16:9 | YouTube/itch — four concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
 description until the game ships.
 
-## 3. Hero trailer — script + storyboard (80 s)
+## 3. Hero trailer — script + storyboard (90 s)
 
 Tone: quiet, warm, a little uncanny. We are *watching* a neighborhood that
 doesn't know it's watched — then the audience reaches in. No narration until
@@ -75,18 +92,19 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:12 | S2 | Top-down dawn over the Mudhaus block (v48-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:12–0:19 | S3 | Street-level follow behind a resident walking 24th St (v48-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:19–0:26 | S4 | Dolores Park overhead, palms and paths (v48-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:26–0:33 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v48-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
-| 6 | 0:33–0:40 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
-| 7 | 0:40–0:47 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
-| 8 | 0:47–0:54 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
-| 9 | 0:54–1:01 | S9 | Possession handoff: character card flips `AI → YOU`, street cam follows the pawn turning mid-block. | **[T]** "Drive the character you hired — only yours." |
-| 10 | 1:01–1:08 | S10 | Hard-cap moment: timer drains, card flips `YOU → AI`, pawn keeps walking without a stutter. | **[T]** "When time's up, the sim takes the wheel back." |
-| 11 | 1:08–1:14 | S11 | Montage on the public request feed: each intervention scrolls past **with attribution**. | **[T]** "Every move is public. The audience sees everything." |
-| 12 | 1:14–1:20 | S12 | Night falls fast over the block — sodium lamps pool on the sidewalks (v16 dusk look). One window lit. | Music resolves. Sound: distant bus, crickets. |
-| 13 | 1:20–1:25 | End card | Logo on black. | **[T]** "REAL WORLD — The Mission. Watch free. Move in when you're ready." **[VO]** (optional) "The neighborhood is live." + URL + "development build" bug. |
+| 2 | 0:05–0:11 | S2 | Top-down dawn over the Mudhaus block (v64-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:11–0:18 | S3 | Street-level follow behind a resident walking 24th St (v64-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:18–0:25 | S4 | Dolores Park overhead, palms and paths (v64-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:25–0:32 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v64-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 5b | 0:32–0:38 | S5b | **Interior:** inside Mudhaus Coffee (v52-INT-cafe, metric-projection rebuild) — pawns at the counter, HUD-free crop. | **[T]** "Inside, the day is already moving." Sound: espresso machine returns, room tone. |
+| 6 | 0:38–0:45 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
+| 7 | 0:45–0:52 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
+| 8 | 0:52–0:59 | S8 | Same park shot as S4, now raining — wet bake, dark pavement, pawns scatter. | **[T]** "Weather. Events. A character of your own." |
+| 9 | 0:59–1:06 | S9 | Possession handoff: character card flips `AI → YOU`, street cam follows the pawn turning mid-block. | **[T]** "Drive the character you hired — only yours." |
+| 10 | 1:06–1:13 | S10 | Hard-cap moment: timer drains, card flips `YOU → AI`, pawn keeps walking without a stutter. | **[T]** "When time's up, the sim takes the wheel back." |
+| 11 | 1:13–1:19 | S11 | Montage on the public request feed: each intervention scrolls past **with attribution**. | **[T]** "Every move is public. The audience sees everything." |
+| 12 | 1:19–1:25 | S12 | Night falls fast over the block — sodium lamps pool on the sidewalks (v16 dusk look). One window lit. | Music resolves. Sound: distant bus, crickets. |
+| 13 | 1:25–1:30 | End card | Logo on black. | **[T]** "REAL WORLD — The Mission. Watch free. Move in when you're ready." **[VO]** (optional) "The neighborhood is live." + URL + "development build" bug. |
 
 ### Script notes for the editor
 
@@ -109,10 +127,11 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v48-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v48-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v48-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v48-D.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v64-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v64-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v64-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v64-D.png` |
+| S5b | Interior, Mudhaus Coffee counter | day | matches `v52-INT-cafe.png` (art-v52 metric-projection interiors) |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
 | S8 | S4 framing repeated, wet bake + rain | rain override | `GS_WX_OVR` weather override exists in the sim |
@@ -121,25 +140,28 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S11 | Feed montage w/ attribution rows | n/a | every paid intervention is public |
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
-**Sunbeam caveat (art-feedback, 2026-09-23):** the v49-D Director-mode
-sunbeams were flagged for rework — hard-edged triangles that read as a
-glitch, not light. Do NOT frame any ship capture around the v49 sunbeam
-look; capture against v48-era renders or the post-rework build, whichever
-the art track marks fixed. The gallery/edl stills already hold at v48.
+**Sunbeam caveat — RESOLVED (art-v56, 2026-09-23):** the v49-D Director-mode
+sunbeam glitch (hard-edged triangles) was fixed in art-v56 — beams now emit
+only where real cloud-silhouette gaps sit near the sun's bearing, drawn under
+the deck. All trailer stills are rebased to v64, so no capture carries the
+broken look. If a future build regresses, re-check Director-mode frames only.
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v48 stills with slow push-ins (Ken Burns) and
+trailer against the existing v64/v52 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
-**S3, S6–S11** (UI + motion beats; `"recapture": true` in `edl.json`).
+**S3, S5b, S6–S11** (UI + motion beats; `"recapture": true` in `edl.json`).
 S2–S5 and S12 may ship from high-res stills in a pinch.
 
 **HUD caveat (found while building the animatic):** the published stills
 carry the full debug HUD — top bar with a legacy project title, left
 character card reading "Jules … CONTROLLED", bottom control strip. Showing a
 main marked CONTROLLED would directly contradict the possession ban, so the
-animatic crops every still to a HUD-free region (`[330,100,1440,794]`).
+animatic crops every exterior still to a HUD-free region
+(`[330,100,1440,794]`). The v52 **interior** stills carry the same HUD plus
+a venue plaque (parody name — keep it); their HUD-free crop is
+`[360,60,1440,825]` — tighter on the left to clear the character card.
 The ship capture must run with UI hidden — and the possession beats (S9/S10)
 must feature a **player-hired** character, never one of the 8 mains.
 
@@ -164,6 +186,7 @@ must feature a **player-hired** character, never one of the 8 mains.
 2. "Twenty-eight people live here."
 3. "They work. They fall in love. They keep secrets."
 4. "None of them know you're watching."
+4b. "Inside, the day is already moving." (S5b interior beat, v95)
 5. "Watching is free. Always."
 6. "Want to reach in? File a request."
 7. "Weather. Events. A character of your own."
@@ -287,7 +310,7 @@ ever approved.
 | 0:04–0:10 | M2 café block, slow drift | "Watching the block costs nothing." |
 | 0:10–0:18 | M3 `uicard` JOIN THE CAST | "Pick a handle. Land in the next window." |
 | 0:18–0:26 | M4 `uicard` LEASE — UNIT 3B | "Sign a lease like everybody else." |
-| 0:26–0:31 | M5 street follow | "Then it's your block too." |
+| 0:26–0:31 | M5 **flat interior** (v52-INT-flat — the leased top-floor unit, HUD-free crop) | "Then it's your block too." |
 | 0:31–0:38 | M6 request card: rain, APPROVED | "File a request. Your handle goes on it." |
 | 0:38–0:44 | M7 park goes wet | "Requests become weather." |
 | 0:44–0:51 | M8 attributed ledger incl. own handle + a DENIED row | "Every move is attributed. Yours too." |
@@ -319,25 +342,170 @@ pairs, ≤6), `stamp`, `tone` (`good`/`warn`/`accent`).
 - `nightowl_415` is a fictional handle for a *player* resident — not a
   cast-bible name; swap if it collides with a real roster entry at ship.
 
-## 8. Thumbnail concepts (v50 — rendered)
+### 7.4 The One Day Cut — 24/7-sim proof trailer (v110 — rendered)
 
-All three are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
+`edl.json` carries a seventh `"day"` program (45 s, 16:9) rendered to
+`out/animatic-day.mp4` + `captions-day.srt` + `board-day.png` (+ scratch
+bed). Fourth creative concept — the *world's* trailer in the literal sense:
+one full simulated day compressed to 45 seconds, dawn to dawn. Where the
+hero sells watching and Move-In sells joining, this cut sells the claim
+that is hardest to believe in a trailer: **it runs whether or not you
+watch.** The clock is the narrator — bare timecards instead of argument.
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | Y1 feedline cold open | `05:58 — Mars unlocked Mudhaus.` types on black |
+| 0:04–0:09 | Y2 café block, dawn drift | "06:01" |
+| 0:09–0:14 | Y3 Mudhaus interior (v52-INT-cafe) | "09:40 — the morning rush, unsupervised" |
+| 0:14–0:18 | Y4 Dolores Park, midday | "13:15" |
+| 0:18–0:23 | Y5 same park, wet grade | "15:02 — a request became rain" |
+| 0:23–0:28 | Y6 street level, `dusk` grade | "18:40" |
+| 0:28–0:33 | Y7 rooftops, `night` grade | "22:47" |
+| 0:33–0:38 | Y8 deepest night | "03:12 — nobody's watching. It's still running." |
+| 0:38–0:41 | Y9 feedline button | `05:58 — Mars unlocked Mudhaus.` — the loop closes |
+| 0:41–0:45 | Y10 end card | "REAL WORLD — THE MISSION. It doesn't stop when you look away. {{URL}}" |
+
+**New grade `dusk`** (build-animatic.py): warm amber dim between the plain
+day look and `night` — brightness 0.62, slight desat, amber blend. The cut
+needs four distinct light states (dawn/day/dusk/night) to read as time
+passing; `dusk` fills the gap the `wet`/`night` pair left.
+
+**Accuracy anchors:**
+
+- The thesis is design truth #1 — a 24/7 world that runs unwatched. No
+  mechanic is shown; Y5's rain beat is the same approved-request→weather
+  path the hero dramatizes, and it passes *through* the day rather than
+  stopping it — the point is the world absorbs interventions and continues.
+- Y8's "nobody's watching. It's still running." is a claim about the sim
+  loop, not about a camera feature — keep it.
+- No cast possession, no UI promises; only Y3 (interior still standing in
+  for live footage) carries `recapture: true`. All exteriors may ship from
+  stills in a pinch, like S2–S5/S12.
+
+**Placement:** the second social slot after the hero (the answer to
+"okay, but is it actually alive?"), the store page's ambience video, and
+a streamer interstitial. Also the strongest loop-able cut — Y9 is Y1's
+line verbatim, so a seamless-loop export is one ffmpeg trim away.
+
+### 7.5 The Booking Cut — scheduled-requests trailer (v125 — rendered)
+
+`edl.json` carries an eighth `"booking"` program (40 s, 16:9) rendered to
+`out/animatic-booking.mp4` + `captions-booking.srt` + `board-booking.png`
+(+ scratch bed). Fifth creative concept — the *planner's* trailer: it
+dramatizes the bookings seam that landed in game-v14 (world/bookings.json
+`live_seam` → `gsBookCalendar`/`gsBookableSlots`, `start_slot` window
+grammar, `booked` status, the public calendar strip). Where the hero says
+"reach in," this cut says "reach in *on schedule* — and everyone can see
+it coming."
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | K1 feedline cold open | `18:22 — @mara filed a request: a street party, tomorrow.` types on black |
+| 0:04–0:12 | K2 `uicard` BOOK THE BLOCK | "Some requests need a window." |
+| 0:12–0:19 | K3 public-calendar ledger | "The calendar is public. Everyone sees what's coming." |
+| 0:19–0:25 | K4 street level, day | "Tomorrow comes either way." |
+| 0:25–0:31 | K5 park overhead, event fires | "14:00 — it fires. The block shows up." |
+| 0:31–0:35 | K6 feedline button | `16:04 — Valencia St cleared. @mara's party ran — public.` |
+| 0:35–0:40 | K7 end card | "REAL WORLD — THE MISSION. Watch free. Move in when you're ready. {{URL}}" |
+
+**Accuracy anchors (verify before ship):**
+
+- **K2** mirrors the game-v14 booking contract: `start_slot` window
+  grammar, 30-minute snap, 24-hour horizon — which is why the card says
+  "tomorrow," never a date weeks out. Cost stays generic
+  (`credits/min · hard cap`) pending owner sign-off on numbers.
+  `booked` is a real request status — the stamp is verbatim.
+- **K3** mirrors `gsViewerState().calendar` exactly: day/time, attributed
+  handle, what — **no prices, no queue positions**. Keep it that way.
+- **K5** shows the firing beat only: bookable `event` maps to the sim's
+  `street_event` action — the world absorbs it like any other request.
+- No cast involvement, no exclusivity promises; the calendar rows are
+  public-information beats, same visibility class as the request feed.
+- All UI shots (K2, K3, K5) carry `recapture: true` — the animatic mocks
+  the seams; the ship cut recaptures them live.
+
+**Placement:** feature-announce posts when bookings ship publicly, the
+how-it-works page's request section, and a devlog clip on "the request
+pipeline grew a calendar." Not a hero candidate — it's a depth cut for
+viewers already sold on watching.
+
+### 7.6 The Cast Cut — ensemble teaser (v140 — rendered)
+
+`edl.json` carries a ninth `"cast"` program (44 s, 16:9) rendered to
+`out/animatic-cast.mp4` + `captions-cast.srt` + `board-cast.png`
+(+ scratch bed). Sixth creative concept — the *ensemble's* trailer: meet
+the eight mains through the public record of their routines, then land
+the thesis — they can't be hired, they can't be steered. Where the Feed
+Cut proved the rules and Move-In sold joining, this one sells *who you'd
+be watching* — the cut that answers "okay, but who lives there?"
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | C1 feedline cold open | `06:01 — Mars opened Mudhaus.` types on black |
+| 0:04–0:08 | C2 Mudhaus interior (v52-INT-cafe) | "Mars — the hub. Mudhaus opens when she says so." |
+| 0:08–0:12 | C3 taqueria interior (v52-INT-taq) | "Tomás — the patient planner. Lead cook at El Farolote." |
+| 0:12–0:16 | C4 hardware interior (v52-INT-hw) | "Vic — the landlord with two drawers." |
+| 0:16–0:20 | C5 Dolores Park overhead | "Priya — the caretaker triaging herself." |
+| 0:20–0:26 | C6 ambient feed ticking | "Jules. Dani. Carmen. Marcus. The rest of the eight." |
+| 0:26–0:32 | C7 request card: possess Mars (cast) — `× DENIED · REFUNDED` | "The cast can't be hired. Their drama is the sim's." |
+| 0:32–0:36 | C8 rooftops, `night` grade | "Eight mains. Twenty neighbors. Nobody steers them." |
+| 0:36–0:39 | C9 feedline button | `00:12 — Mars closed Mudhaus.` |
+| 0:39–0:44 | C10 end card | "REAL WORLD — THE MISSION. Watch free. Meet them on the feed. {{URL}}" |
+
+**Accuracy anchors (verify before ship):**
+
+- **Names and beats are public-record only.** Every card line mirrors
+  `world/characters.json` v56 cast fields — archetype + day job are
+  briefing-safe public facts (Mars manages Mudhaus, Tomás cooks at El
+  Farolote, Vic owns Auerbach Hardware and the Guerrero buildings, Priya
+  is an RN). No secrets, no interiority claims, no invented backstory.
+  "The caretaker triaging herself" / "the landlord with two drawers" are
+  the cast-bible archetype phrasings verbatim — flavor, not mechanics.
+- **C7 is the thesis and the ban's proof.** Same denied-possession beat
+  as the Feed Cut's F6 — `verdict: "denied"`, `DENIED — never ran`,
+  refund logged. In this cut it's not a counterexample; it's the point.
+- **"Nobody steers them"** is design truth #4 — the mains are authored
+  by the sim; requests inject as opportunities, never as puppeteering.
+  No shot implies player control of a cast member; the only possession
+  shown is refused.
+- **Feed lines stay in the real feed's voice** — `HH:MM — name did
+  thing` format, parody venue names only, Jules' Unit 3B line reused
+  verbatim from the hero S6 mock for consistency.
+- The end-card tagline rotates to "Watch free. Meet them on the feed." —
+  same promise as the hero, aimed at the character sheet.
+- Interior stills (C2–C4) and both UI mocks (C6–C7) carry
+  `recapture: true`; the exteriors may ship from stills in a pinch.
+  HUD-free crops: interiors `[360,60,1440,825]`, exteriors
+  `[330,100,1440,794]` — same rects as every other cut.
+
+**Placement:** cast-announce posts (one per main if the social calendar
+wants a drip), the press-kit character embed (journalists get the
+ensemble in 44 seconds), the store page's third video slot, and a
+bio-pin on social profiles — it's the best single answer to "who is
+this game about?"
+
+## 8. Thumbnail concepts (v95 — rendered)
+
+All four are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
 `python3 build-animatic.py --thumbs` from the top-level `thumbnails` spec
 in `edl.json` — same stills, brand palette, and redact machinery as the
 animatics:
 
-1. **The watcher** (`thumb-watcher.png`, style `rec`): v48-D director
+1. **The watcher** (`thumb-watcher.png`, style `rec`): v64-D director
    shot, vignette-darkened edges, red "REC · live — 24/7" cluster,
    title small at the bottom. The debug "DIRECTOR" badge is
    redact-blurred. Sells the Truman-Show premise instantly.
-2. **The handoff** (`thumb-handoff.png`, style `split`): v48-B street
+2. **The handoff** (`thumb-handoff.png`, style `split`): v64-B street
    shot split down the middle — left labeled `AI`, right `YOU` on a
    brightened half, orange seam. Pawn name tags are redact-blurred so
    the AI/YOU split can't read as possessing a main. Sells the hook
    mechanic.
-3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v48-D
+3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v64-D
    under the night grade, wordmark + accent rule only. Quietest option;
    best for press embeds.
+4. **The inside** (`thumb-inside.png`, style `rec`, v95): v52-INT-cafe
+   interior under the REC bug — the watcher premise extends indoors.
+   HUD-free crop; the Mudhaus plaque (parody name) stays readable.
 
 Thumbnails carry no `{{URL}}` and no dev-build bug (that label lives on
 the video footage itself). Pick one at upload; A/B test later. Reuse
@@ -350,7 +518,8 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
       Auerbach Hardware, Taqueria El Farolote, Buy-Rite …).
       Real streets/landmarks OK.
 - [ ] No debug HUD in frame (top bar, character card, controls strip) —
-      animatic crops to `[330,100,1440,794]`; ship captures hide the UI.
+      animatic crops exteriors to `[330,100,1440,794]` and v52 interiors
+      to `[360,60,1440,825]`; ship captures hide the UI.
 - [ ] Possession beat shows hired character only; duration + hard cap visible.
 - [ ] No voice/dialogue, no cash-out, no loot boxes, no "MMO" wording.
 - [ ] Credit numbers on screen match the monetization plan *or* are generic.
@@ -361,15 +530,20 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 - [ ] (Move-In) create/lease cards match the live contracts
       (world/creation.json + world/leases.json at ship date); handle is a
       fictional player handle, not a cast name.
-- [ ] No v49-D-era sunbeam renders in frame (art-feedback 2026-09-23) —
-      re-capture against the post-rework build.
+- [ ] (Cast Cut) card lines match `world/characters.json` cast fields at
+      ship date (archetype + day job only — no secrets); C7 denied
+      possession never runs; no beat implies steering a main.
+- [x] No v49-D-era sunbeam renders in frame — RESOLVED: all stills rebased
+      to art-v56 (the fix build) at v110, to art-v62 (aerial camera +
+      lens CA) at v125, and to art-v64 (street detail) at v128. Re-check only if the art track ships a
+      newer canonical build before capture day.
 - [ ] Owner sign-off recorded in LAUNCH-CHECKLIST.md before any upload.
 
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v48 series + v16
-interiors + v1 early-pass pair), brand assets in `site/assets/` +
+`marketing/trailer/` (§11), stills in `site/shots/` (v71 series + v65/v64/v62/v61/v59/v55 era sets + v52
+interior quartet + v16 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures
 for the recapture-flagged shots (game build), final credit numbers (owner).
@@ -380,13 +554,14 @@ Parody names are RESOLVED (`world/parody-names.json`).
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Six programs
-  (`hero` 85s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
+- **`edl.json`** — machine-readable edit decision list. Nine programs
+  (`hero` 90s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
   `feed` 50s — the §7.2 alternate concept, `movein` 60s — the §7.3
-  player-journey cut)
+  player-journey cut, `day` 45s — the §7.4 24/7-sim cut, `booking` 40s —
+  the §7.5 scheduled-requests cut, `cast` 44s — the §7.6 ensemble teaser)
   plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
-  (`wet`/`night` simulated the §8 beat and the night look), possession chip +
+  (`wet`/`night`/`dusk` — dusk added v110 for the One Day light arc), possession chip +
   draining timer overlays, `uicard` form mocks (v80 — join/lease cards),
   transition type, a `recapture` flag = the §4
   must-recapture list, and an `audio` preset naming the intended sound bed.

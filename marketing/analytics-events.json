@@ -17,7 +17,7 @@
       "when": "once per page load, auto",
       "props": {
         "title": "document.title",
-        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|brand|archive|wire|wire-archive|404",
+        "page": "body[data-page] slug: index|features|how-it-works|demo|cast|journal|community|rules|pricing|faq|press-kit|brand|archive|gallery|wire|wire-archive|compare|privacy|refunds|terms|404",
         "vw": "viewport width (for layout QA)",
         "lang": "navigator.language"
       },
@@ -26,9 +26,12 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-tour|demo-tour-done|demo-wire|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer",
-        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive",
-        "href": "raw href (same-site)"
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer",
+        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms",
+        "href": "raw href (same-site)",
+        "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)",
+        "item": "field-card item key — only on cta=demo-fieldcard (v101): deck|parody|routine|fog|wire|quiet|theater|sim",
+        "checked": "bool — only on cta=demo-fieldcard (v101)"
       },
       "funnel_stage": "visit → engaged"
     },
@@ -56,8 +59,11 @@
       "funnel_stage": "engaged"
     },
     "share_click": {
-      "when": "demo.html share button completes (v22)",
-      "props": { "method": "web-share|clipboard|manual" },
+      "when": "a share button completes — demo.html share button (v22); pricing.html scene-builder 'Copy a link to this scene' (v97)",
+      "props": {
+        "method": "web-share|clipboard|manual",
+        "surface": "demo|scene — which share surface; only present on v97+ emitters (demo.js predates it)"
+      },
       "funnel_stage": "engaged → viral"
     },
     "price_calc": {
@@ -78,7 +84,7 @@
         "items": "csv of item:qty pairs, e.g. 'compatible:4,event:1'; 'empty' when cleared",
         "queued": "bool — sessions queued at −15%",
         "surge": "bool — surge-window preview on",
-        "preset": "fog|hour|party|movein|reset|none — last preset tapped, or 'none' for manual edits"
+        "preset": "fog|hour|party|movein|reset|link|none — last preset tapped, 'link' when state arrived via #scene= share hash (v97), or 'none' for manual edits"
       },
       "funnel_stage": "engaged → purchase intent",
       "note": "carries NO credit/USD amounts — item mix and quantities only; reveals which bundled scenes visitors reach for"
@@ -108,10 +114,24 @@
       "funnel_stage": "engaged → request intent",
       "note": "local simulation only — no real request is filed; reveals which request types visitors reach for and how the toy screen classifies their wording"
     },
+    "screening_quiz": {
+      "when": "demo.html 'Would it air?' quiz answer or completion (v116)",
+      "props": {
+        "round": "int 1-7, or 'final' on the completion emit",
+        "pick": "run|review|deny — absent on 'final'",
+        "verdict": "the scenario's true verdict, or 'complete' on 'final'",
+        "code": "real moderation reason code, 'clean', or '—' on 'final'",
+        "correct": "bool — absent on 'final'",
+        "score": "int 0-7 — only on 'final'"
+      },
+      "funnel_stage": "engaged",
+      "note": "local quiz only — reveals whether visitors grasp the screening lines; carries no request text"
+    },
     "press_kit_download": {
       "when": "click on the kit zip link (data-rw-event on press-kit.html)",
       "props": { "file": "zip filename" },
-      "funnel_stage": "press"
+      "funnel_stage": "press",
+      "status": "PENDING — kit zip link is not yet on press-kit.html (build-press-kit.sh produces it locally; wire data-rw-event when the public link lands)"
     },
     "tour_started": {
       "when": "onboarding tour begins (game-side; world-v11 onboarding.json analytics_hooks)",
@@ -245,6 +265,83 @@
       "funnel_stage": "onboard",
       "status": "PENDING — game build",
       "note": "measures discovery of the history surface; stage + opt-out only"
+    },
+    "band_declared": {
+      "when": "account picks an age band at onboarding S2a (game-side; world-v67 eligibility layer — §30)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "eligibility is not funnel data — the band VALUE is never a prop (world-v67 §35); stage + opt-out only"
+    },
+    "ads_line_shown": {
+      "when": "the adults-only §2.7 sponsored-message line renders on the wallet card (game-side; world-v67 §33 — structural guard: band==='adult' only)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the opt-in ad affordance; its absence for teen/na/u13/unset bands is by construction, not an event"
+    },
+    "ad_demo_viewed": {
+      "when": "adult-band account watches one demo sponsored message for +2 cr, capped 5/day (game-side; world-v67 §33)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "opt-in rewarded path only — never pre-roll/mid-session; no countdown/cap-pressure props"
+    },
+    "admin_beat_seen": {
+      "when": "the onboarding beat anchored on a real admin feed event renders (game-side; world-v81 §42 — requires the `feed-admin` anchor on the real Wire at merge)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "teaches admin-attribution transparency; stage + opt-out only — never which admin action"
+    },
+    "coask_seen": {
+      "when": "the scripted compatible co-ask card surfaces on the onboarding feed (game-side; world-v81 — becomes a real spectator's compatible request at merge)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "measures the coexistence lesson's reach; no contention framing — only exclusives contend (world-v81 §43)"
+    },
+    "surge_line_shown": {
+      "when": "the surge-pricing disclosure line renders on the ask card (game-side; world-v81 — quotes the plan §2.2 range verbatim, never a specific multiplier)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the honesty line; surge never surfaces post-payment (world-v81 §43)"
+    },
+    "credit_rules_seen": {
+      "when": "the S3 credit-rules fine-print line renders — 'never run out, never cash out, never move between accounts' (game-side; world-v95 §44 — money-eligible bands only: adult/teen/na, u13 has no wallet)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "disclosure exposure, not a feature list — stated once, before first purchase (world-v95 §44)"
+    },
+    "subs_line_shown": {
+      "when": "the S3 subscription line renders — Resident $4.99/mo + Director $11.99/mo, stated once and never re-surfaced (game-side; world-v95 §45 — inherits S3 band guards)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the only place onboarding mentions subs; no best-value styling, no trial framing (world-v95 §45)"
+    },
+    "sub_stipend_previewed": {
+      "when": "the demo affordance 'preview Resident (demo) — the 600 cr stipend lands' is clicked; +600 cr once, idempotent (game-side; world-v95 §45 — demos the stipend mechanic only)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "labeled as stipend preview; second click is a no-op toast — never reads as granted spend (world-v95 §45/§49)"
+    },
+    "first_visit_filed": {
+      "when": "the S7 first-visit possession request is filed from the ?hired=1 first-day card — demo 15 min, 22 cr compatible minimum (game-side; world-v95 §46 — requires hired + balance ≥ 22, band-normalized)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "posts a real 'possession — first visit' feed entry; teaches possession = capped session, not ownership (world-v95 §46)"
+    },
+    "visit_ended": {
+      "when": "the S7 first visit exits — 'step out early' or the hard 15-min cap (game-side; world-v95 §46 — both exits hand back to the AI mid-motion, nothing metered back)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool", "exit": "cap|stepped_out" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "feed resolves as 'player session ended' either way — the locked neutral wording (world-v95 §46)"
     },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",

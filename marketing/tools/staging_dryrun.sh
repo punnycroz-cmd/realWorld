@@ -24,7 +24,7 @@ echo "[1] staging server up on $BASE (pid $SRV)"
 
 # 2. Page status + TTFB (seconds)
 echo "[2] pages: status + time_starttransfer"
-for p in index.html features.html cast.html how-it-works.html demo.html wire.html wire-archive.html archive.html community.html journal.html rules.html brand.html pricing.html faq.html press-kit.html 404.html; do
+for p in index.html features.html cast.html how-it-works.html demo.html wire.html wire-archive.html archive.html community.html journal.html rules.html brand.html pricing.html compare.html faq.html press-kit.html terms.html privacy.html refunds.html 404.html; do
   read -r code t < <(curl -s -o /dev/null -w '%{http_code} %{time_starttransfer}' "$BASE/$p")
   if [ "$code" = "200" ]; then ok "$p  $code  ${t}s"; else bad "$p  $code"; fi
 done
@@ -36,6 +36,7 @@ c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/no-such-page")
 echo "[3] sitemap.xml + robots.txt"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/sitemap.xml"); [ "$c" = 200 ] && ok "sitemap.xml 200" || bad "sitemap.xml $c"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/robots.txt");  [ "$c" = 200 ] && ok "robots.txt 200"  || bad "robots.txt $c"
+c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/feed.xml");    [ "$c" = 200 ] && ok "feed.xml 200"    || bad "feed.xml $c"
 n=$(grep -c '<loc>' "$SITE/sitemap.xml"); echo "       sitemap URLs: $n"
 
 # 4. Placeholder sweep — must be ZERO at launch

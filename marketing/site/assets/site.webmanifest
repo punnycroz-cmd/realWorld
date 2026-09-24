@@ -1,7 +1,7 @@
 {
   "name": "Real World — The Mission",
   "short_name": "Real World",
-  "description": "A persistent browser life-sim. A Mission District neighborhood of AI residents who keep living whether you watch or not. Watching is free.",
+  "description": "A persistent browser life-sim. A Mission District neighborhood of AIs who know what they are, deciding who to be. Watching is free.",
   "start_url": "/index.html",
   "scope": "/",
   "display": "browser",

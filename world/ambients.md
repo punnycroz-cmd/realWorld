@@ -51,7 +51,11 @@ Crowd choreography — who's where when, venue crowd profiles, weather and
 event modifiers, spectator-facing scenes — lives in `world/crowd-scenes.md`.
 The population model beneath it (named ambients + unnamed extras layer,
 density budgets, spawn rules, work zones, claimable resources) is
-`world/crowd-sim.md` + `world/crowd.json` (v43).
+`world/crowd-sim.md` + `world/crowd.json` (v43). v85 adds two layers there:
+`group_profile` (extras spawn as lone/duo/cluster social units; the
+`kid-backpack` silhouette is reachable only inside family clusters, never
+lone) and `courtesies` (named ambient ↔ anonymous extra gesture beats —
+the greeting matrix's downstairs neighbor; minors staff none).
 
 ## Signatures & the ambient week (v43)
 
@@ -119,6 +123,13 @@ cheap and safe:
 4. **Minors (A04 June, A20 Zee):** ambient co-star behavior is limited to
    public-space interactions; they are never request targets, never
    follow a player character out of their routine.
+5. **The bench (v99).** Borrowing an ambient is a *pull* — a 15–90 min
+   presence loan governed by `crowd.json §pull_protocol` (capacity,
+   bounds, states, pipeline) — and the hole it leaves is governed by
+   `crowd.json §coverage` (understudy extra / honest sign / honestly
+   empty post; minors' kind is `pack`, meaning never). Prose contract:
+   `world/crowd-sim.md` §§26–28. The pull is invisible on the wire;
+   the coverage read is the whole spectator-facing trace.
 
 ## Home bases
 
