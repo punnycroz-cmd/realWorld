@@ -27,9 +27,13 @@ let SF_CAM_SEQ = 0;
    (cells * CS), street sfCam.x/y are map meters. Dolores Park runs
    cy 131..297 (~262-594m); Haus Coffee sits at (1327, 1256)m. */
 const SF_CAM_PRESETS = {
+  /* v61: the overlook now frames the CITY park, not a meadow — centered
+     on the park's true centroid (303,262) at zoom 0.24 so the perimeter
+     streets, the palm allées, and two full rows of facades ring the
+     lawn in every shot (art-feedback: "reads as wilderness") */
   dolores_overlook: { label: 'Dolores Park overlook',
     mode: 'top', free: true,
-    cam: { x: 303 * CS, y: 213 * CS, zoom: 0.5 } },
+    cam: { x: 303 * CS, y: 262 * CS, zoom: 0.24 } },
   mission_street: { label: 'Street level — 18th & Guerrero',
     mode: 'street', free: true,
     // on the 18th St sidewalk, ~63m east of Haus Coffee's door (1332,1258),

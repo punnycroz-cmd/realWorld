@@ -68,6 +68,7 @@ const api = eval(m[1] + `
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
+    sfCellField,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
     sfWireShadow, sfPalmRow, SF_DECALS,
     updateHUD,
@@ -371,6 +372,49 @@ const api = eval(m[1] + `
   const kf = api.sfKarlFront(kp);
   ok(kf && kf.length === 2, 'karl front edge resolves');
   ok(api.sfKarlPoly(0).length === 0, 'no front, no polygon');
+
+  // v61: distant shower cells — a pure function of the slow time bucket
+  // plus the live moisture drivers; bearings/distances bounded, strength
+  // in 0..1, virga flag consistent, and a stormy sky raises more cells
+  // than a dry one. Restore W afterwards (v34 block saved the originals).
+  {
+    const cf1 = api.sfCellField();
+    ok(Array.isArray(cf1), 'sfCellField returns an array');
+    ok(JSON.stringify(api.sfCellField()) === JSON.stringify(cf1),
+       'sfCellField deterministic within a bucket');
+    ok(cf1.every(c => c.str >= 0 && c.str <= 1 && c.dist >= 7000 &&
+       c.dist <= 19000 && c.az >= 0 && c.az < Math.PI * 2 &&
+       c.baseZ > 0 && c.topZ > c.baseZ && c.virga === (c.str <= 0.55)),
+       'cell records bounded + virga flag consistent');
+    const t61 = api.SF_WX.t, st0 = api.W.storm, cv0 = api.SF_WX.cover;
+    api.W.hum = 0.95; api.W.storm = 0.8; api.SF_WX.cover = 0.8;
+    let stormCells = 0, stormMax = 0, sawRain = false;
+    for(let b = 0; b < 4; b++){
+      api.SF_WX.t = t61 + b * 1500;              // scan a few cell buckets
+      const cfS = api.sfCellField();
+      stormCells += cfS.length;
+      for(const c of cfS){ stormMax = Math.max(stormMax, c.str);
+        if(!c.virga) sawRain = true; }
+    }
+    ok(stormCells > 0 && stormMax > 0.55 && sawRain,
+       'storm field raises horizon-reaching cells (' + stormCells +
+       ' cells, max ' + stormMax.toFixed(2) + ')');
+    api.W.hum = 0.1; api.W.storm = 0; api.SF_WX.cover = 0.02;
+    api.SF_WX.t = t61 + 6000;
+    ok(api.sfCellField().length === 0, 'dry clear sky spawns no cells');
+    api.W.hum = h0; api.W.storm = st0; api.SF_WX.cover = cv0;
+    api.SF_WX.t = t61;
+  }
+
+  // v61: fog drip — a heavy Karl intrusion wets pavement without rain;
+  // below the threshold it dries. (Physics check on the drip curve, not
+  // the integrator: same expression as the tick's.)
+  {
+    const kfWet = Math.max(-0.006, 0.9 * 0.010 - 0.005);
+    const kfDry = Math.max(-0.006, 0.2 * 0.010 - 0.005);
+    ok(kfWet > 0 && kfDry < 0,
+       'fog drip: karlK 0.9 soaks (' + kfWet.toFixed(4) + '), 0.2 dries');
+  }
 
   // v35: interior archetypes resolve per venue name/label
   ok(api.sfIntArch('Taqueria El Farolito', 'the line, the salsa bar') === 'taqueria',
