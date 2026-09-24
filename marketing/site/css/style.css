@@ -717,6 +717,43 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .scene-share .muted { font-size: 12.5px; }
 .scene-share .copied { color: var(--accent-2); font-weight: 700; }
 
+/* ---------- pricing page v142: life-of-a-credit steps + $0-path math ---------- */
+.cpath {
+  list-style: none; counter-reset: cp; padding: 0;
+  display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px;
+  margin: 18px 0 8px;
+}
+.cpath li {
+  counter-increment: cp; position: relative;
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 14px 16px 14px 48px;
+  font-size: 14.5px; color: var(--muted); line-height: 1.5;
+}
+.cpath li::before {
+  content: counter(cp); position: absolute; left: 14px; top: 14px;
+  width: 22px; height: 22px; border-radius: 50%;
+  background: var(--accent); color: #fff;
+  font-weight: 800; font-size: 13px; display: grid; place-items: center;
+}
+.cpath li b { display: block; color: var(--text); margin-bottom: 3px; }
+.cpath li.cp-back { border-color: var(--accent-2); }
+.cpath li.cp-back::before { background: var(--accent-2); }
+@media (max-width: 860px) { .cpath { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 560px) { .cpath { grid-template-columns: 1fr; } }
+.zero-ledger { display: grid; gap: 0; margin: 14px 0 4px; }
+.zero-ledger .zr {
+  display: grid; grid-template-columns: 1fr auto; gap: 6px 18px;
+  padding: 10px 4px; border-top: 1px solid var(--border);
+  font-size: 14.5px; align-items: baseline;
+}
+.zero-ledger .zr:last-child { border-bottom: 1px solid var(--border); }
+.zero-ledger .zr b { color: var(--text); font-weight: 600; }
+.zero-ledger .zr span:last-child {
+  font-variant-numeric: tabular-nums; font-weight: 700; color: var(--accent-2);
+  white-space: nowrap;
+}
+@media (max-width: 560px) { .zero-ledger .zr { grid-template-columns: 1fr; gap: 0; } }
+
 /* Print: an honest price list should print clean. Interactive widgets and
    nav drop out; tables and (auto-opened) details carry the full math. */
 @media print {

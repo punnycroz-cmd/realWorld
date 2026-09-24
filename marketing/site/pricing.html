@@ -96,6 +96,14 @@
     },
     {
       "@type": "Question",
+      "name": "Can I play without paying anything?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — watching is free forever, and players can earn credits with opt-in rewarded ads: 2 credits a view, capped at 50 credits a week. That covers a couple of short sessions weekly; a character slot (500 credits) takes about ten weeks of daily views. The free path is real but slow."
+      }
+    },
+    {
+      "@type": "Question",
       "name": "What does an hour inside the world cost?",
       "acceptedAnswer": {
         "@type": "Answer",
@@ -182,6 +190,7 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#journey">A credit's life</a>
       <a href="#hourly">Per hour</a>
       <a href="#refunds">Refunds</a>
       <a href="#oneshots">One-shots</a>
@@ -195,10 +204,12 @@
       <a href="#cosmetics">Cosmetics</a>
       <a href="#month">A month, priced</a>
       <a href="#whopays">Who pays</a>
+      <a href="#zero">Play at $0</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
       <a href="#fineprint">The fine print</a>
       <a href="#history">Price ledger</a>
+      <a href="#terms">Vocabulary</a>
       <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
     </nav>
@@ -397,6 +408,32 @@
     <p class="muted">Same request at a quiet hour: 180 cr ≈ $1.69. Queued for
     next weekend: 153 cr ≈ $1.44 — and if the slot never frees, you pay
     nothing at all.</p>
+  </div>
+</section>
+
+<!-- LIFE OF A CREDIT -->
+<section id="journey">
+  <div class="wrap">
+    <h2>The life of a credit</h2>
+    <p class="muted">A credit can only ever be in two places — your balance,
+    or on its way back to it. The whole trip, start to finish:</p>
+    <ol class="cpath">
+      <li><b>You buy a pack.</b>Credits land in your balance and sit there.
+      No expiration, no dormancy fees, nothing that shrinks while you sleep.</li>
+      <li><b>You declare a request.</b>Action plus exact duration, typed on
+      the form. The price — surge included — is on the screen before you
+      commit.</li>
+      <li><b>Credits lock upfront.</b>The quoted amount leaves your balance
+      at confirm, and the cap is hard: that quote is the most the session
+      can ever cost.</li>
+      <li class="cp-back"><b>Or it comes back.</b>Queue expires → 100%.
+      Denied in review → 100%. Nudge declined in character → 50%. Admin
+      ends it early → pro-rated. Refunds are automatic, not a support
+      ticket.</li>
+    </ol>
+    <p class="muted">There is no fifth outcome. No credit can be lost to a
+    roll, a market, or another player — the loop is closed by design, which
+    is also why there's nothing to steal.</p>
   </div>
 </section>
 
@@ -877,6 +914,43 @@
   </div>
 </section>
 
+<!-- PLAYING AT $0 -->
+<section id="zero">
+  <div class="wrap">
+    <h2>Playing at $0 — the honest math</h2>
+    <p class="muted">The free tier isn't a demo and we won't pretend it's a
+    treadmill either. Here's exactly how far zero dollars goes — including
+    the part where we tell you it's slow.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>The show — $0, always</h3><p>Every camera, the
+      public request feed, recaps, the archive. No ad breaks, no paywall,
+      no "free trial" that expires. Most visitors only ever watch, and the
+      business model is built for that.</p></div>
+      <div class="card"><h3>Rewarded ads — opt-in, 18+</h3><p>Players can
+      earn 2 credits per completed view, capped at 5 views/day and
+      25/week — up to 50 cr ≈ $0.45 of free credits a week. They never
+      interrupt the spectator feed, and minors never see them.</p></div>
+      <div class="card"><h3>What that buys</h3><p>A 15-min compatible
+      session is ~22 cr (~19 queued), so a week of daily views covers
+      roughly two short sessions. A character slot — 500 cr — is about ten
+      weeks of the same. Real, but not fast.</p></div>
+    </div>
+    <div class="zero-ledger" role="table" aria-label="Free-path math at a glance">
+      <div class="zr" role="row"><b>Watching, forever</b><span role="cell">$0</span></div>
+      <div class="zr" role="row"><b>Max earnable via rewarded ads</b><span role="cell">50 cr / week ≈ $0.45</span></div>
+      <div class="zr" role="row"><b>≈ one 15-min compatible session every</b><span role="cell">~2–3 days of views</span></div>
+      <div class="zr" role="row"><b>≈ one character slot (500 cr) after</b><span role="cell">~10 weeks of views</span></div>
+      <div class="zr" role="row"><b>…or skip the grind — Starter pack, 550 cr</b><span role="cell">$4.99 once</span></div>
+      <div class="zr" role="row"><b>…first purchase bonus on that pack (+50%)</b><span role="cell">825 cr</span></div>
+    </div>
+    <p class="muted">What free never unlocks faster: reputation, tenure, and
+    landlord standing — those are earned in-world at the same speed for
+    everyone, money included. And there are no streaks or login bonuses to
+    grind; we don't pay you in credits to come back, so the $0 path is
+    exactly what it says and nothing it doesn't.</p>
+  </div>
+</section>
+
 <!-- REGIONAL PRICING -->
 <section id="regional">
   <div class="wrap">
@@ -1018,6 +1092,47 @@
   </div>
 </section>
 
+<!-- VOCABULARY -->
+<section id="terms">
+  <div class="wrap">
+    <h2>The vocabulary, defined</h2>
+    <p class="muted">Eight words this page keeps using — defined once, at
+    reading size, because a price list you can't parse is a price list that
+    isn't honest.</p>
+    <dl class="fineprint">
+      <div class="fp-row"><dt>Credit</dt>
+      <dd>The meta currency, roughly a cent each. Buys agency — requests,
+      one-shots, character slots, cosmetics. Never buys status, never
+      cashes out, never expires.</dd></div>
+      <div class="fp-row"><dt>Compatible</dt>
+      <dd>A request that fits the direction the world is already going.
+      The cheapest class: 1.5 cr/min, up to 120 min.</dd></div>
+      <div class="fp-row"><dt>Exclusive</dt>
+      <dd>A request that locks a shared resource for you — a venue, a
+      weather window. 6 cr/min, capped at 60 min so nobody squats.</dd></div>
+      <div class="fp-row"><dt>Queued</dt>
+      <dd>The same request, filed to fire when the resource frees. −15%,
+      held up to 24 h, auto-refunds in full if it never activates.</dd></div>
+      <div class="fp-row"><dt>Surge</dt>
+      <dd>A ×1.5–2.5 multiplier on resources that are hot — recent
+      exclusive use or prime-time. Always shown on the form before you
+      pay, never added after.</dd></div>
+      <div class="fp-row"><dt>Co-sponsor</dt>
+      <dd>Joining someone's <i>running</i> request when it's doing exactly
+      what you wanted — same flat block price (a queue-skip, not a
+      discount), cap 4 sponsors, every name on the feed.</dd></div>
+      <div class="fp-row"><dt>Stipend</dt>
+      <dd>The monthly credit allowance inside Resident (600 cr) and
+      Director (1,500 cr). Credits never expire, but the subscription
+      keeps charging either way — see <a href="#worthit">the math</a>.</dd></div>
+      <div class="fp-row"><dt>Game dollars</dt>
+      <dd>The in-world currency — earned at jobs ($16–50/hr), spent on
+      rent and living. Credits cannot buy or convert into them, in either
+      direction; that wall is what keeps money out of the simulation.</dd></div>
+    </dl>
+  </div>
+</section>
+
 <!-- QUICK ANSWERS -->
 <section id="quick">
   <div class="wrap">
@@ -1073,6 +1188,15 @@
         price, cap 4 sponsors, every name on the feed. For planning a night,
         the scene builder's share link carries the picks so each person buys
         their own.</p>
+      </details>
+      <details>
+        <summary>Can I play without paying anything?</summary>
+        <p>Yes — watching is free forever, and players can earn credits
+        with opt-in rewarded ads: 2 cr a view, capped at 50 cr a week.
+        That's a couple of short sessions weekly, and a character slot
+        (500 cr) at about ten weeks of daily views. The free path is real
+        but slow — the <a href="#zero">honest math</a> is on this page,
+        and the $0.99 Pocket pack exists for exactly that gap.</p>
       </details>
       <details>
         <summary>What does an hour inside the world cost?</summary>

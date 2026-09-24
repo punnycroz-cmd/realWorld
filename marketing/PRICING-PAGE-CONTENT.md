@@ -229,6 +229,35 @@ drift shows as wrong math, not wrong claims).
   credits are non-transferable so no literal splitting; co-sponsor is the
   same-price path; the scene link is the planning path. No new prices.
 
+## 1i. Page components (v142)
+
+- **The life of a credit** (`#journey`, `.cpath` in style.css) — a 4-step
+  ordered flow between `#receipt` and `#hourly`: buy → declare → lock
+  upfront → "or it comes back" (queue expiry/deny 100%, declined nudge 50%,
+  admin override pro-rated). The last step is styled `cp-back` (accent-2
+  border/counter) — the refund path is the visual destination, which is the
+  point. Closing line: "there is no fifth outcome" — the closed loop as the
+  anti-theft/anti-RMT feature. Pure HTML/CSS counters, no JS.
+- **Playing at $0 — the honest math** (`#zero`, `.zero-ledger`/`.zr`) —
+  between `#whopays` and `#regional`: three cards (the show $0 / rewarded
+  ads 2 cr·view 5/day·25/wk → ≤50 cr ≈$0.45/wk / what that buys) plus a
+  two-column ledger of free-path math: ~2 short sessions a week from ads,
+  ~10 weeks of daily views to a 500-cr character slot, and the $4.99
+  Starter (825 cr with the one-time +50% first-purchase bonus) as the
+  printed shortcut. Deliberately says "real, but not fast" — honest funnel
+  copy, not a guilt wall. Closing note restates that rep/tenure/landlord
+  standing is earn-only at equal speed for everyone.
+- **The vocabulary, defined** (`#terms`, reuses `.fineprint`/`.fp-row`) —
+  an 8-term glossary between `#history` and `#quick`: credit, compatible,
+  exclusive, queued, surge, co-sponsor, stipend, game dollars. Every
+  definition restates its canonical number; nothing new is priced.
+- **Quick answers +1** — "Can I play without paying anything?" in BOTH the
+  visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful,
+  pointing at `#zero`).
+- **TOC chips** — "A credit's life" (#journey), "Play at $0" (#zero),
+  "Vocabulary" (#terms). Section count now 24; all anchors verified to
+  resolve.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
