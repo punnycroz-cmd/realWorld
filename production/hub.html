@@ -32536,30 +32536,8 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v25: rain weeps off the cornice — drops fall from the parapet edge,
   // accelerating as they go, and burst on the sidewalk. Only near
   // facades resolve drips; beyond ~90m the rain field itself carries it.
-  if(W.rain > 0.1 && fwd < 90 && !SF_WALL_BAKE){
-    const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
-    for(let k = 0; k < nD; k++){
-      const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
-      const dxx = x1 + ex * u, dyy = y1 + ey * u;
-      const phase = (SF_WX.t * (1.2 + phash(k, i, 1881) * 0.9) +
-                     phash(i, k, 1882)) % 1;
-      const z = (hm - 0.1) * (1 - phase * phase);   // accelerating fall
-      const dp = pr(dxx, dyy, z), db = pr(dxx, dyy, 0.02);
-      if(!dp || !db) continue;
-      const streak = Math.max(2, 0.5 * F / dp[2]);
-      ctx.strokeStyle = `rgba(200,220,240,${clamp(W.rain, 0, 0.5)})`;
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      ctx.moveTo(dp[0], dp[1] - streak); ctx.lineTo(dp[0], dp[1]);
-      ctx.stroke();
-      if(phase > 0.92){ // splash star as the drop lands
-        ctx.fillStyle = `rgba(220,235,250,${(phase - 0.92) * 6})`;
-        ctx.beginPath();
-        ctx.arc(db[0], db[1], Math.max(1, 0.25 * F / db[2]), 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-  }
+  if(W.rain > 0.1 && fwd < 90 && !SF_WALL_BAKE)
+    sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F);
 
   /* v65: facade garnish — Calle 24 papel-picado strings and porch
      bracket flags. Both stand ~0.3m proud of the wall on real sag
@@ -32680,233 +32658,10 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
      facade opposite the sun's along-wall component. Rain takes the
      wash in: nothing hangs out wet in a storm. */
   if(det >= 1 && !mural && ny > 0.05 && W.windSpd != null &&
-     !SF_WALL_BAKE && W.rain < 0.35){
-    const wSpd = W.windSpd || 0, gust = SF_WX.gust || 0.5;
-    const wAl = wvx * ux + wvy * uy;              // wind along the wall
-    const wOut = -(wvx * nx + wvy * ny);          // wind pressing into the face
-    const sAl = SF_SUN.x * ux + SF_SUN.y * uy;    // sun throw along the wall
-    const shA = `rgba(18,14,10,${(0.13 * SF_SUN.day * dim).toFixed(3)})`;
-    // ---- laundry line ----
-    if(!isShop && floors >= 2 && L > 8 && phash(i, ei, 6100) < 0.44){
-      const lz = Math.min(hm * 0.62, hm + para - 2.0);
-      const lu0 = 0.14, lu1 = 0.86, lsag = 0.26, loff = 0.26;
-      const lp = t => {
-        const u = lu0 + (lu1 - lu0) * t;
-        return pr(x1 + ex * u + nx * loff, y1 + ey * u + ny * loff,
-                  lz - lsag * Math.sin(Math.PI * t));
-      };
-      // eye-bolt anchors + the sagging cord
-      const e0 = lp(0), e1 = lp(1);
-      if(e0 && e1){
-        ctx.strokeStyle = 'rgba(30,26,20,0.85)'; ctx.lineWidth = 1;
-        ctx.beginPath();
-        let cs = false;
-        for(let k = 0; k <= 8; k++){
-          const c = lp(k / 8); if(!c){ cs = false; continue; }
-          cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
-        }
-        ctx.stroke();
-        ctx.fillStyle = 'rgba(24,20,16,0.9)';
-        ctx.fillRect(e0[0] - 1, e0[1] - 1, 2, 2);
-        ctx.fillRect(e1[0] - 1, e1[1] - 1, 2, 2);
-      }
-      const nG = Math.max(2, Math.floor(L * (lu1 - lu0) / 3.4));
-      const GARM = ['#e6e2d4', '#d4dae2', '#5a6e8a', '#c8b89a',
-                    '#a8503e', '#7a8a6a', '#dcd6c8'];
-      for(let k = 0; k < nG; k++){
-        const tg = (k + 0.5 + (phash(i, k, 6102) - 0.5) * 0.6) / nG;
-        const u = lu0 + (lu1 - lu0) * tg;
-        const at = lp(tg); if(!at) continue;
-        const kind = phash(i, k, 6103);   // <0.42 tee · <0.8 sheet/towel · else socks
-        const ph = phash(i, k, 6104) * 6.283;
-        /* the swing: a slow pendulum about the cord anchor, gust-
-           amplitude scaled, plus a fast flutter ripple; wind blowing
-           INTO the face presses the cloth back, wind off it lifts it
-           out toward the street */
-        const amp = 0.05 + 0.11 * wSpd * (0.4 + 0.6 * gust);
-        const sw = Math.sin(SF_WX.t * (1.3 + wSpd * 0.8) + ph) * amp;
-        const bw = Math.max(0, wOut) *
-                   (0.10 + 0.16 * wSpd * gust) *
-                   (0.7 + 0.3 * Math.sin(SF_WX.t * (2.1 + wSpd) + ph * 1.7));
-        const fl = Math.sin(SF_WX.t * (3.6 + wSpd * 1.4) + ph * 2.3) *
-                   0.04 * Math.min(1.5, wSpd * gust);
-        const ax = x1 + ex * u + nx * loff, ay = y1 + ey * u + ny * loff;
-        const az = lz - lsag * Math.sin(Math.PI * tg);
-        const gCol = GARM[Math.floor(phash(i, k, 6105) * GARM.length)];
-        const gLit = Math.max(0.45, Math.min(1.15, lit * 1.05));
-        const drop = kind < 0.42 ? 0.62 : (kind < 0.8 ? 0.85 : 0.3);
-        const wid = kind < 0.42 ? 0.5 : (kind < 0.8 ? 1.15 : 0.16);
-        // shade on the paint behind — slides along the wall with the sun
-        if(!night && SF_SUN.day > 0.15){
-          quad([[ax - ux * wid * 0.5 - ux * sAl * loff * 1.6,
-                 ay - uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
-                [ax + ux * wid * 0.5 - ux * sAl * loff * 1.6,
-                 ay + uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
-                [ax + ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
-                 ay + uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15],
-                [ax - ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
-                 ay - uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15]],
-               shA);
-        }
-        const bx0 = ax - ux * wid * 0.5 + ux * sw + nx * bw,
-              by0 = ay - uy * wid * 0.5 + uy * sw + ny * bw,
-              bx1 = ax + ux * wid * 0.5 + ux * (sw + fl) + nx * (bw + fl * 0.6),
-              by1 = ay + uy * wid * 0.5 + uy * (sw + fl) + ny * (bw + fl * 0.6),
-              bz = az - drop * (1 - 0.25 * Math.abs(sw) - 0.3 * bw);
-        if(kind < 0.8){
-          // body: top pinned to the cord, hem swings free
-          quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
-                [ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
-                [bx1, by1, bz], [bx0, by0, bz]],
-               shade(gCol, gLit));
-          if(kind < 0.42){
-            // tee sleeves — two stubs pinned at the cord, angling out
-            const sgn = sw >= 0 ? 1 : -1;
-            quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
-                  [ax - ux * (wid * 0.5 + 0.22), ay - uy * (wid * 0.5 + 0.22), az - 0.05],
-                  [ax - ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
-                   ay - uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
-                  [ax - ux * wid * 0.5 + ux * sw * 0.3,
-                   ay - uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
-                 shade(gCol, gLit * 0.92));
-            quad([[ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
-                  [ax + ux * (wid * 0.5 + 0.22), ay + uy * (wid * 0.5 + 0.22), az - 0.05],
-                  [ax + ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
-                   ay + uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
-                  [ax + ux * wid * 0.5 + ux * sw * 0.3,
-                   ay + uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
-                 shade(gCol, gLit * 0.92));
-          }
-        } else {
-          // socks pair — two narrow danglers on one cord spot
-          for(let s = -1; s <= 1; s += 2){
-            quad([[ax + ux * (s * 0.09 - 0.07), ay + uy * (s * 0.09 - 0.07), az],
-                  [ax + ux * (s * 0.09 + 0.07), ay + uy * (s * 0.09 + 0.07), az],
-                  [ax + ux * (s * 0.09 + 0.06 + sw * 1.4) + nx * bw,
-                   ay + uy * (s * 0.09 + 0.06 + sw * 1.4) + ny * bw, az - drop],
-                  [ax + ux * (s * 0.09 - 0.06 + sw * 1.4) + nx * bw,
-                   ay + uy * (s * 0.09 - 0.06 + sw * 1.4) + ny * bw, az - drop]],
-                 shade(gCol, gLit));
-          }
-        }
-        // clothespin dots pinning the top edge
-        if(e0 && det === 2){
-          ctx.fillStyle = 'rgba(60,40,20,0.9)';
-          ctx.fillRect(at[0] - 1, at[1] - 2, 2, 3);
-        }
-      }
-    }
-    // ---- open parlor window, curtain breathing out ----
-    if(!isShop && floors >= 2 && L > 9 && phash(i, ei, 6110) < 0.24){
-      const wc = Math.floor(phash(i, ei, 6111) * Math.max(1, bays));
-      const cu = (wc + 0.5) / Math.max(1, bays);
-      const cz = Math.min(hm * 0.68, hm + para - 1.9);
-      const cx = x1 + ex * cu, cy = y1 + ey * cu;
-      // the raised sash reads as a darker slot in the window opening
-      quad([[cx - ux * 0.62, cy - uy * 0.62, cz - 0.7],
-            [cx + ux * 0.62, cy + uy * 0.62, cz - 0.7],
-            [cx + ux * 0.62, cy + uy * 0.62, cz + 0.2],
-            [cx - ux * 0.62, cy - uy * 0.62, cz + 0.2]],
-           'rgba(24,18,14,0.55)');
-      /* curtain panel pinned at the head of the opening: streams out
-         along the wind when the pressure sucks it off the face, drapes
-         against the paint in calm. Same ripple grammar as the shop
-         flag, weighted heavier near the free hem. */
-      let dxw = wvx, dyw = wvy;
-      const into = dxw * nx + dyw * ny;
-      if(into < -0.15){ dxw -= nx * (into + 0.15); dyw -= ny * (into + 0.15); }
-      dxw += nx * 0.55; dyw += ny * 0.55;   // panel always breathes OFF the wall
-      const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
-      const CL = 0.85, CW = 0.5,
-            cAmp = 0.05 + 0.13 * Math.min(1.5, wSpd) * gust,
-            cPh = SF_WX.t * (2.4 + wSpd * 1.5) + i;
-      const cCol = phash(i, ei, 6112) < 0.5 ? '#f0ece0' : '#e0d8c8';
-      // shade the cloth throws on the wall when it lifts off
-      if(!night && SF_SUN.day > 0.15){
-        quad([[cx - ux * CW * 0.5 - ux * sAl * 0.4, cy - uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
-              [cx + ux * CW * 0.5 - ux * sAl * 0.4, cy + uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
-              [cx + ux * CW * 0.5 - ux * sAl * 0.8, cy + uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9],
-              [cx - ux * CW * 0.5 - ux * sAl * 0.8, cy - uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9]],
-             shA);
-      }
-      for(let s2 = 0; s2 < 2; s2++){
-        ctx.fillStyle = shade(cCol, Math.max(0.5, Math.min(1.15,
-          lit * (s2 ? 0.94 : 1.06))));
-        ctx.beginPath();
-        let started = false;
-        for(let k = 0; k <= 3; k++){
-          const t = k / 3,
-                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
-          const q = pr(cx - ux * CW * 0.5 + ux * CW * s2 + dxw * CL * t - dyw * wave,
-                       cy - uy * CW * 0.5 + uy * CW * s2 + dyw * CL * t + dxw * wave,
-                       cz + 0.15 - 0.55 * t * t);
-          if(!q){ started = false; continue; }
-          started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
-          started = true;
-        }
-        for(let k = 3; k >= 0; k--){
-          const t = k / 3,
-                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
-          const q = pr(cx - ux * CW * 0.5 + ux * CW * (s2 + 1) + dxw * CL * t - dyw * wave,
-                       cy - uy * CW * 0.5 + uy * CW * (s2 + 1) + dyw * CL * t + dxw * wave,
-                       cz + 0.15 - 0.55 * t * t);
-          if(q) ctx.lineTo(q[0], q[1]);
-        }
-        ctx.closePath(); ctx.fill();
-      }
-    }
-    // ---- cornice pigeons — the Mission's ever-present ledge tenants.
-    //   A hashed handful of birds perches along the cornice lip just
-    //   under the parapet cap, each with its own puff/bow phase so the
-    //   row breathes instead of sitting frozen; every bird throws a
-    //   small sun-shifted blob on the paint behind it. Rain and night
-    //   empty the roost (birds go to cover like the real flock does).
-    if(L > 7 && hm > 4.5 && !isNight() && phash(i, ei, 6120) < 0.5){
-      const nB = 2 + Math.floor(phash(i, ei, 6121) * Math.min(5, L / 3));
-      const pzB = hm - 0.38 - phash(i, ei, 6122) * 0.2;
-      const pb0 = 0.10, pb1 = 0.90;
-      for(let k = 0; k < nB; k++){
-        const tb = pb0 + (pb1 - pb0) *
-                 ((k + 0.5 + (phash(i, k, 6123) - 0.5) * 0.7) / nB);
-        const bx = x1 + ex * tb + nx * 0.14,
-              by = y1 + ey * tb + ny * 0.14;
-        const q = pr(bx, by, pzB); if(!q) continue;
-        const s = Math.max(1.4, 0.42 * F / q[2]);   // ~0.28m bird
-        // breathing: slow puff of the chest feathers on its own phase
-        const puff = 1 + 0.10 * Math.sin(SF_WX.t * (0.9 + phash(i, k, 6124)) +
-                                         phash(i, k, 6125) * 6.28);
-        // shade the body throws on the paint, sun-shifted along the wall
-        if(!night && SF_SUN.day > 0.15){
-          quad([[bx - ux * 0.16 - ux * sAl * 0.3, by - uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
-                [bx + ux * 0.16 - ux * sAl * 0.3, by + uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
-                [bx + ux * 0.16 - ux * sAl * 0.55, by + uy * 0.16 - uy * sAl * 0.55, pzB - 0.3],
-                [bx - ux * 0.16 - ux * sAl * 0.55, by - uy * 0.16 - uy * sAl * 0.55, pzB - 0.3]],
-               shA);
-        }
-        const grey = phash(i, k, 6126) < 0.72,
-              body = grey ? '#7a7e88' : '#b8b2a6',
-              head = grey ? '#4e5460' : '#8a8478';
-        // tail stub angled back along the wall
-        const tailS = phash(i, k, 6127) < 0.5 ? 1 : -1;
-        ctx.fillStyle = shade(body, lit * 0.85);
-        ctx.beginPath();
-        ctx.moveTo(q[0], q[1]);
-        ctx.lineTo(q[0] + tailS * s * 1.6, q[1] - s * 0.5);
-        ctx.lineTo(q[0] + tailS * s * 1.4, q[1] - s * 1.1);
-        ctx.closePath(); ctx.fill();
-        // plump body
-        ctx.fillStyle = shade(body, Math.min(1.15, lit));
-        ctx.beginPath();
-        ctx.ellipse(q[0], q[1] - s * 0.8, s * 1.05, s * 0.8 * puff, 0,
-                    0, Math.PI * 2); ctx.fill();
-        // head tucked toward the wall's sun side
-        ctx.fillStyle = shade(head, Math.min(1.15, lit));
-        ctx.beginPath();
-        ctx.arc(q[0] - tailS * s * 0.55, q[1] - s * 1.7, s * 0.42,
-                0, Math.PI * 2); ctx.fill();
-      }
-    }
-  }
+     !SF_WALL_BAKE && W.rain < 0.35)
+    sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+              night, det, isShop, mural, floors, lit, dim, sunK,
+              wvx, wvy, ux, uy);
 
   /* v75: living walls — the street camera finally grows the same
      climbing vines the top-down bake has always painted (same hash keys
@@ -33236,6 +32991,279 @@ function sfBinsStreet(o, pr, F, night){
     F2([[-hw2, -hd, h], [hw2, -hd, h], [hw2, hd, h], [-hw2, hd, h]], shade(col, 1.18));
   }
 }
+function sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F){
+    const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
+    for(let k = 0; k < nD; k++){
+      const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
+      const dxx = x1 + ex * u, dyy = y1 + ey * u;
+      const phase = (SF_WX.t * (1.2 + phash(k, i, 1881) * 0.9) +
+                     phash(i, k, 1882)) % 1;
+      const z = (hm - 0.1) * (1 - phase * phase);   // accelerating fall
+      const dp = pr(dxx, dyy, z), db = pr(dxx, dyy, 0.02);
+      if(!dp || !db) continue;
+      const streak = Math.max(2, 0.5 * F / dp[2]);
+      ctx.strokeStyle = `rgba(200,220,240,${clamp(W.rain, 0, 0.5)})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      ctx.moveTo(dp[0], dp[1] - streak); ctx.lineTo(dp[0], dp[1]);
+      ctx.stroke();
+      if(phase > 0.92){ // splash star as the drop lands
+        ctx.fillStyle = `rgba(220,235,250,${(phase - 0.92) * 6})`;
+        ctx.beginPath();
+        ctx.arc(db[0], db[1], Math.max(1, 0.25 * F / db[2]), 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+}
+
+/* v78: wash-day garnish, extracted so the impostor path can replay
+   the live cloth AFTER blitting the baked sprite — the atlas only
+   carries static paint; laundry, curtains and cornice pigeons keep
+   breathing on top of it. Args mirror the sfStreetWall locals. */
+function sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+                   night, det, isShop, mural, floors, lit, dim, sunK,
+                   wvx, wvy, ux, uy){
+  const bays = Math.max(1, Math.floor(L / 3.2));
+  const quad = (pts, fill) => {
+    let started = false;
+    ctx.beginPath();
+    for(const [qx, qy, qz] of pts){
+      const p = pr(qx, qy, qz);
+      if(!p) return null;
+      started ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]);
+      started = true;
+    }
+    ctx.closePath();
+    if(fill){ ctx.fillStyle = fill; ctx.fill(); }
+    return true;
+  };
+    const wSpd = W.windSpd || 0, gust = SF_WX.gust || 0.5;
+    const wAl = wvx * ux + wvy * uy;              // wind along the wall
+    const wOut = -(wvx * nx + wvy * ny);          // wind pressing into the face
+    const sAl = SF_SUN.x * ux + SF_SUN.y * uy;    // sun throw along the wall
+    const shA = `rgba(18,14,10,${(0.13 * SF_SUN.day * dim).toFixed(3)})`;
+    // ---- laundry line ----
+    if(!isShop && floors >= 2 && L > 8 && phash(i, ei, 6100) < 0.44){
+      const lz = Math.min(hm * 0.62, hm + para - 2.0);
+      const lu0 = 0.14, lu1 = 0.86, lsag = 0.26, loff = 0.26;
+      const lp = t => {
+        const u = lu0 + (lu1 - lu0) * t;
+        return pr(x1 + ex * u + nx * loff, y1 + ey * u + ny * loff,
+                  lz - lsag * Math.sin(Math.PI * t));
+      };
+      // eye-bolt anchors + the sagging cord
+      const e0 = lp(0), e1 = lp(1);
+      if(e0 && e1){
+        ctx.strokeStyle = 'rgba(30,26,20,0.85)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        let cs = false;
+        for(let k = 0; k <= 8; k++){
+          const c = lp(k / 8); if(!c){ cs = false; continue; }
+          cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
+        }
+        ctx.stroke();
+        ctx.fillStyle = 'rgba(24,20,16,0.9)';
+        ctx.fillRect(e0[0] - 1, e0[1] - 1, 2, 2);
+        ctx.fillRect(e1[0] - 1, e1[1] - 1, 2, 2);
+      }
+      const nG = Math.max(2, Math.floor(L * (lu1 - lu0) / 3.4));
+      const GARM = ['#e6e2d4', '#d4dae2', '#5a6e8a', '#c8b89a',
+                    '#a8503e', '#7a8a6a', '#dcd6c8'];
+      for(let k = 0; k < nG; k++){
+        const tg = (k + 0.5 + (phash(i, k, 6102) - 0.5) * 0.6) / nG;
+        const u = lu0 + (lu1 - lu0) * tg;
+        const at = lp(tg); if(!at) continue;
+        const kind = phash(i, k, 6103);   // <0.42 tee · <0.8 sheet/towel · else socks
+        const ph = phash(i, k, 6104) * 6.283;
+        /* the swing: a slow pendulum about the cord anchor, gust-
+           amplitude scaled, plus a fast flutter ripple; wind blowing
+           INTO the face presses the cloth back, wind off it lifts it
+           out toward the street */
+        const amp = 0.05 + 0.11 * wSpd * (0.4 + 0.6 * gust);
+        const sw = Math.sin(SF_WX.t * (1.3 + wSpd * 0.8) + ph) * amp;
+        const bw = Math.max(0, wOut) *
+                   (0.10 + 0.16 * wSpd * gust) *
+                   (0.7 + 0.3 * Math.sin(SF_WX.t * (2.1 + wSpd) + ph * 1.7));
+        const fl = Math.sin(SF_WX.t * (3.6 + wSpd * 1.4) + ph * 2.3) *
+                   0.04 * Math.min(1.5, wSpd * gust);
+        const ax = x1 + ex * u + nx * loff, ay = y1 + ey * u + ny * loff;
+        const az = lz - lsag * Math.sin(Math.PI * tg);
+        const gCol = GARM[Math.floor(phash(i, k, 6105) * GARM.length)];
+        const gLit = Math.max(0.45, Math.min(1.15, lit * 1.05));
+        const drop = kind < 0.42 ? 0.62 : (kind < 0.8 ? 0.85 : 0.3);
+        const wid = kind < 0.42 ? 0.5 : (kind < 0.8 ? 1.15 : 0.16);
+        // shade on the paint behind — slides along the wall with the sun
+        if(!night && SF_SUN.day > 0.15){
+          quad([[ax - ux * wid * 0.5 - ux * sAl * loff * 1.6,
+                 ay - uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
+                [ax + ux * wid * 0.5 - ux * sAl * loff * 1.6,
+                 ay + uy * wid * 0.5 - uy * sAl * loff * 1.6, az - 0.1],
+                [ax + ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
+                 ay + uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15],
+                [ax - ux * wid * 0.5 - ux * sAl * (loff + 0.3) * 1.6,
+                 ay - uy * wid * 0.5 - uy * sAl * (loff + 0.3) * 1.6, az - drop - 0.15]],
+               shA);
+        }
+        const bx0 = ax - ux * wid * 0.5 + ux * sw + nx * bw,
+              by0 = ay - uy * wid * 0.5 + uy * sw + ny * bw,
+              bx1 = ax + ux * wid * 0.5 + ux * (sw + fl) + nx * (bw + fl * 0.6),
+              by1 = ay + uy * wid * 0.5 + uy * (sw + fl) + ny * (bw + fl * 0.6),
+              bz = az - drop * (1 - 0.25 * Math.abs(sw) - 0.3 * bw);
+        if(kind < 0.8){
+          // body: top pinned to the cord, hem swings free
+          quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
+                [ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
+                [bx1, by1, bz], [bx0, by0, bz]],
+               shade(gCol, gLit));
+          if(kind < 0.42){
+            // tee sleeves — two stubs pinned at the cord, angling out
+            const sgn = sw >= 0 ? 1 : -1;
+            quad([[ax - ux * wid * 0.5, ay - uy * wid * 0.5, az],
+                  [ax - ux * (wid * 0.5 + 0.22), ay - uy * (wid * 0.5 + 0.22), az - 0.05],
+                  [ax - ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
+                   ay - uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
+                  [ax - ux * wid * 0.5 + ux * sw * 0.3,
+                   ay - uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
+                 shade(gCol, gLit * 0.92));
+            quad([[ax + ux * wid * 0.5, ay + uy * wid * 0.5, az],
+                  [ax + ux * (wid * 0.5 + 0.22), ay + uy * (wid * 0.5 + 0.22), az - 0.05],
+                  [ax + ux * (wid * 0.5 + 0.18) + ux * sw * sgn * 0.4,
+                   ay + uy * (wid * 0.5 + 0.18) + uy * sw * sgn * 0.4, az - 0.3],
+                  [ax + ux * wid * 0.5 + ux * sw * 0.3,
+                   ay + uy * wid * 0.5 + uy * sw * 0.3, az - 0.34]],
+                 shade(gCol, gLit * 0.92));
+          }
+        } else {
+          // socks pair — two narrow danglers on one cord spot
+          for(let s = -1; s <= 1; s += 2){
+            quad([[ax + ux * (s * 0.09 - 0.07), ay + uy * (s * 0.09 - 0.07), az],
+                  [ax + ux * (s * 0.09 + 0.07), ay + uy * (s * 0.09 + 0.07), az],
+                  [ax + ux * (s * 0.09 + 0.06 + sw * 1.4) + nx * bw,
+                   ay + uy * (s * 0.09 + 0.06 + sw * 1.4) + ny * bw, az - drop],
+                  [ax + ux * (s * 0.09 - 0.06 + sw * 1.4) + nx * bw,
+                   ay + uy * (s * 0.09 - 0.06 + sw * 1.4) + ny * bw, az - drop]],
+                 shade(gCol, gLit));
+          }
+        }
+        // clothespin dots pinning the top edge
+        if(e0 && det === 2){
+          ctx.fillStyle = 'rgba(60,40,20,0.9)';
+          ctx.fillRect(at[0] - 1, at[1] - 2, 2, 3);
+        }
+      }
+    }
+    // ---- open parlor window, curtain breathing out ----
+    if(!isShop && floors >= 2 && L > 9 && phash(i, ei, 6110) < 0.24){
+      const wc = Math.floor(phash(i, ei, 6111) * Math.max(1, bays));
+      const cu = (wc + 0.5) / Math.max(1, bays);
+      const cz = Math.min(hm * 0.68, hm + para - 1.9);
+      const cx = x1 + ex * cu, cy = y1 + ey * cu;
+      // the raised sash reads as a darker slot in the window opening
+      quad([[cx - ux * 0.62, cy - uy * 0.62, cz - 0.7],
+            [cx + ux * 0.62, cy + uy * 0.62, cz - 0.7],
+            [cx + ux * 0.62, cy + uy * 0.62, cz + 0.2],
+            [cx - ux * 0.62, cy - uy * 0.62, cz + 0.2]],
+           'rgba(24,18,14,0.55)');
+      /* curtain panel pinned at the head of the opening: streams out
+         along the wind when the pressure sucks it off the face, drapes
+         against the paint in calm. Same ripple grammar as the shop
+         flag, weighted heavier near the free hem. */
+      let dxw = wvx, dyw = wvy;
+      const into = dxw * nx + dyw * ny;
+      if(into < -0.15){ dxw -= nx * (into + 0.15); dyw -= ny * (into + 0.15); }
+      dxw += nx * 0.55; dyw += ny * 0.55;   // panel always breathes OFF the wall
+      const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
+      const CL = 0.85, CW = 0.5,
+            cAmp = 0.05 + 0.13 * Math.min(1.5, wSpd) * gust,
+            cPh = SF_WX.t * (2.4 + wSpd * 1.5) + i;
+      const cCol = phash(i, ei, 6112) < 0.5 ? '#f0ece0' : '#e0d8c8';
+      // shade the cloth throws on the wall when it lifts off
+      if(!night && SF_SUN.day > 0.15){
+        quad([[cx - ux * CW * 0.5 - ux * sAl * 0.4, cy - uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
+              [cx + ux * CW * 0.5 - ux * sAl * 0.4, cy + uy * CW * 0.5 - uy * sAl * 0.4, cz - 0.1],
+              [cx + ux * CW * 0.5 - ux * sAl * 0.8, cy + uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9],
+              [cx - ux * CW * 0.5 - ux * sAl * 0.8, cy - uy * CW * 0.5 - uy * sAl * 0.8, cz - 0.9]],
+             shA);
+      }
+      for(let s2 = 0; s2 < 2; s2++){
+        ctx.fillStyle = shade(cCol, Math.max(0.5, Math.min(1.15,
+          lit * (s2 ? 0.94 : 1.06))));
+        ctx.beginPath();
+        let started = false;
+        for(let k = 0; k <= 3; k++){
+          const t = k / 3,
+                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
+          const q = pr(cx - ux * CW * 0.5 + ux * CW * s2 + dxw * CL * t - dyw * wave,
+                       cy - uy * CW * 0.5 + uy * CW * s2 + dyw * CL * t + dxw * wave,
+                       cz + 0.15 - 0.55 * t * t);
+          if(!q){ started = false; continue; }
+          started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+          started = true;
+        }
+        for(let k = 3; k >= 0; k--){
+          const t = k / 3,
+                wave = Math.sin(t * 3.8 + i * 1.3 - cPh) * cAmp * t;
+          const q = pr(cx - ux * CW * 0.5 + ux * CW * (s2 + 1) + dxw * CL * t - dyw * wave,
+                       cy - uy * CW * 0.5 + uy * CW * (s2 + 1) + dyw * CL * t + dxw * wave,
+                       cz + 0.15 - 0.55 * t * t);
+          if(q) ctx.lineTo(q[0], q[1]);
+        }
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // ---- cornice pigeons — the Mission's ever-present ledge tenants.
+    //   A hashed handful of birds perches along the cornice lip just
+    //   under the parapet cap, each with its own puff/bow phase so the
+    //   row breathes instead of sitting frozen; every bird throws a
+    //   small sun-shifted blob on the paint behind it. Rain and night
+    //   empty the roost (birds go to cover like the real flock does).
+    if(L > 7 && hm > 4.5 && !isNight() && phash(i, ei, 6120) < 0.5){
+      const nB = 2 + Math.floor(phash(i, ei, 6121) * Math.min(5, L / 3));
+      const pzB = hm - 0.38 - phash(i, ei, 6122) * 0.2;
+      const pb0 = 0.10, pb1 = 0.90;
+      for(let k = 0; k < nB; k++){
+        const tb = pb0 + (pb1 - pb0) *
+                 ((k + 0.5 + (phash(i, k, 6123) - 0.5) * 0.7) / nB);
+        const bx = x1 + ex * tb + nx * 0.14,
+              by = y1 + ey * tb + ny * 0.14;
+        const q = pr(bx, by, pzB); if(!q) continue;
+        const s = Math.max(1.4, 0.42 * F / q[2]);   // ~0.28m bird
+        // breathing: slow puff of the chest feathers on its own phase
+        const puff = 1 + 0.10 * Math.sin(SF_WX.t * (0.9 + phash(i, k, 6124)) +
+                                         phash(i, k, 6125) * 6.28);
+        // shade the body throws on the paint, sun-shifted along the wall
+        if(!night && SF_SUN.day > 0.15){
+          quad([[bx - ux * 0.16 - ux * sAl * 0.3, by - uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
+                [bx + ux * 0.16 - ux * sAl * 0.3, by + uy * 0.16 - uy * sAl * 0.3, pzB + 0.06],
+                [bx + ux * 0.16 - ux * sAl * 0.55, by + uy * 0.16 - uy * sAl * 0.55, pzB - 0.3],
+                [bx - ux * 0.16 - ux * sAl * 0.55, by - uy * 0.16 - uy * sAl * 0.55, pzB - 0.3]],
+               shA);
+        }
+        const grey = phash(i, k, 6126) < 0.72,
+              body = grey ? '#7a7e88' : '#b8b2a6',
+              head = grey ? '#4e5460' : '#8a8478';
+        // tail stub angled back along the wall
+        const tailS = phash(i, k, 6127) < 0.5 ? 1 : -1;
+        ctx.fillStyle = shade(body, lit * 0.85);
+        ctx.beginPath();
+        ctx.moveTo(q[0], q[1]);
+        ctx.lineTo(q[0] + tailS * s * 1.6, q[1] - s * 0.5);
+        ctx.lineTo(q[0] + tailS * s * 1.4, q[1] - s * 1.1);
+        ctx.closePath(); ctx.fill();
+        // plump body
+        ctx.fillStyle = shade(body, Math.min(1.15, lit));
+        ctx.beginPath();
+        ctx.ellipse(q[0], q[1] - s * 0.8, s * 1.05, s * 0.8 * puff, 0,
+                    0, Math.PI * 2); ctx.fill();
+        // head tucked toward the wall's sun side
+        ctx.fillStyle = shade(head, Math.min(1.15, lit));
+        ctx.beginPath();
+        ctx.arc(q[0] - tailS * s * 0.55, q[1] - s * 1.7, s * 0.42,
+                0, Math.PI * 2); ctx.fill();
+      }
+    }
+}
+
 /* ---------------- v63: WALL IMPOSTOR ATLAS ----------------
    The street pass used to re-trace every cornice bracket, bay sash and
    string course of every facing facade on every frame (~13k canvas ops
@@ -33250,7 +33278,15 @@ function sfBinsStreet(o, pr, F, night){
    per-frame on top. Rain (animated facade streaks) or a lens inside the
    near plane falls back to the full vector pass. */
 const SF_WIM = new Map();          // key -> {c,wpx,hpx,uPad,S,zTopL,zBotL}
-const SF_WIM_MAX = 150;
+/* v78: the atlas used to cap at 150 ENTRIES — but a single street frame
+   faces ~570 walls, so every lookup missed and every wall was rebaked
+   every frame (the impostor was slower than the vectors it replaced).
+   The working set is bounded by PIXELS now (~104MB of RGBA at the cap),
+   with a generous entry ceiling as a second belt. Map order is LRU:
+   hits re-insert at the tail, eviction always takes the head. */
+const SF_WIM_MAX = 1600;
+const SF_WIM_PX_MAX = 26e6;
+let SF_WIM_PX = 0;
 const SF_WIM_S = 11;               // bake px per meter
 let SF_WALL_BAKE = false;          // gates camera-ephemeral detail in the bake
 function sfWallBakeKey(b, ei, night){
@@ -33292,8 +33328,13 @@ function sfWallImpostor(b, ei, x1, y1, x2, y2, ux, uy, L, nx, ny, hm,
       sfCloudShadow = csF; sfKarlShade = ksF; sfSunGapK = gkF;
     }
     bk = { c, wpx, hpx, uPad, S, zTopL, zBotL };
-    if(SF_WIM.size >= SF_WIM_MAX)
-      SF_WIM.delete(SF_WIM.keys().next().value);
+    SF_WIM_PX += wpx * hpx;
+    while(SF_WIM_PX > SF_WIM_PX_MAX || SF_WIM.size >= SF_WIM_MAX){
+      const k0 = SF_WIM.keys().next().value,
+            v0 = SF_WIM.get(k0);
+      SF_WIM_PX -= v0.wpx * v0.hpx;
+      SF_WIM.delete(k0);
+    }
     SF_WIM.set(key, bk);
   }
   // slice fan: u sweeps a padded span so cornice returns survive
@@ -33358,6 +33399,37 @@ function sfWallImpostor(b, ei, x1, y1, x2, y2, ux, uy, L, nx, ny, hm,
     ctx.globalAlpha = 1;
   }
   return true;
+}
+
+/* v78: after an impostor blit, replay the camera-live garnish the bake
+   deliberately skips (SF_WALL_BAKE-gated): cornice drips in the rain,
+   and the wash-day layer — laundry lines, breathing curtains, cornice
+   pigeons. Derivation mirrors the top of sfStreetWall so the same
+   hashes pick the same garments on sprite and vector paths alike. */
+function sfWallLiveOver(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm,
+                        pr, F, night, fwd){
+  const i = b.i;
+  const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
+  const mural = sfMuralWall(i, ei, L, isShop);
+  const floors = Math.max(1, Math.round(hm / 3));
+  const para = 0.5 + phash(i, 17, 1406) * 0.35;
+  const ux = ex / L, uy = ey / L;
+  const det = fwd < 85 ? 2 : (fwd < 160 ? 1 : 0);
+  const dim = (night ? 0.4 : 1) *
+              (1 - 0.45 * sfCloudShadow(b.x / SF_PXM, b.y / SF_PXM)) *
+              (1 - 0.5 * sfKarlShade(b.x / SF_PXM, b.y / SF_PXM));
+  const sunK = sfSunFaceK(nx, ny);
+  const gapK = night ? 0 : sfSunGapK(b.x / SF_PXM, b.y / SF_PXM) * SF_SUN.day;
+  const lit = (0.55 + 0.5 * Math.max(0, sunK) * SF_SUN.day +
+               0.05 * Math.max(0, sunK)) * dim * (1 + 0.30 * gapK);
+  const wvx = Math.cos(W.windAng || 0), wvy = Math.sin(W.windAng || 0);
+  if(W.rain > 0.1 && fwd < 90)
+    sfCorniceDrips(i, ei, x1, y1, ex, ey, L, hm, pr, F);
+  if(det >= 1 && !mural && ny > 0.05 && W.windSpd != null &&
+     W.rain < 0.35)
+    sfWashDay(i, ei, x1, y1, ex, ey, L, nx, ny, hm, para, pr, F,
+              night, det, isShop, mural, floors, lit, dim, sunK,
+              wvx, wvy, ux, uy);
 }
 
 function sfRenderStreet(cw, ch){
@@ -34756,12 +34828,17 @@ function sfRenderStreet(cw, ch){
           if((s1 > lat1 && s2 > lat2) || (s1 < -lat1 && s2 < -lat2))
             continue;
         }
-        // v63: impostor atlas — the baked wall sprite re-projects as a
-        // slice fan; rain streaks + extreme near-plane stay on vectors
-        if(W.rain > 0.1 ||
-           !sfWallImpostor(b, e, x1, y1, x2, y2, ex / L, ey / L, L,
+        /* v63: impostor atlas — the baked wall sprite re-projects as a
+           slice fan; extreme near-plane stays on vectors. v78: rain no
+           longer forces the vector pass — the sprite stands and the
+           cornice drips replay as a live overlay via sfWallLiveOver,
+           which also carries the wash-day cloth the bake can't hold. */
+        if(!sfWallImpostor(b, e, x1, y1, x2, y2, ex / L, ey / L, L,
                            nx, ny, hm, pr, night, d.fwd, cw))
           sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
+        else
+          sfWallLiveOver(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm,
+                         pr, F, night, d.fwd);
         /* v23/v39: canyon shade band — the row across the street steals
            the low sun. v39: the shade line is now PROBED, not guessed —
            sfCanyonShade marches the sun ray at N points along the wall,
