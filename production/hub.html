@@ -26447,6 +26447,54 @@ function sfLampPool(cx, cy, r){
 /* umbra fraction for a cast shadow of horizontal throw `len` — the sun's
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
+/* ---------------- v69: canopy dapple --------------------------------
+   Foliage is a sieve, not a slab. Each leaf gap acts as a pinhole and
+   projects a soft disc of UNFILTERED sun inside the shade pool; the disc
+   rides the same throw vector as the shadow and stretches the same way
+   (a round gap images the sun elongated by cot(el) on the ground plane).
+   Flecks skate as the crown sways on the gust envelope. No direct beam —
+   a cloud overhead or the pool inside a building's canyon shade — means
+   no dapple: skylight alone is diffuse and draws no flecks. */
+function sfLeafGapK(kind, o){   // canopy transmittance by species
+  if(kind === 'sfTree') return o && o.big ? 1.0 : 0.85;
+  if(kind === 'sfStreetTree') return o && o.v === 0 ? 0.9 : 0.7;
+  if(kind === 'sfPalm') return 0.55;    // fronds sieve hard
+  if(kind === 'sfCypress') return 0.3;  // dense hedge foliage
+  return 0;
+}
+function sfDapple(cx, cy, rx, ry, rot, seed, a){
+  if(a <= 0.015 || rx < 3 || ry < 1.5) return;
+  ctx.save();
+  ctx.translate(cx, cy); ctx.rotate(rot || 0);
+  ctx.beginPath(); ctx.ellipse(0, 0, rx, ry, 0, 0, Math.PI * 2); ctx.clip();
+  const n = Math.max(4, Math.min(14, Math.round(rx * ry / 150)));
+  ctx.globalCompositeOperation = 'lighter';   // flecks ADD light, not paint
+  const wG = Math.round(234 - 34 * SF_SUN.warm),
+        wB = Math.round(186 - 70 * SF_SUN.warm);
+  for(let i = 0; i < n; i++){
+    const h1 = hash2(seed + i * 13, i * 7 + 1, 6901),
+          h2 = hash2(seed - i * 17, i * 11 + 3, 6902),
+          h3 = hash2(seed + i * 29, i * 5 + 2, 6903);
+    const fx = (h1 * 2 - 1) * rx * 0.82, fy = (h2 * 2 - 1) * ry * 0.82;
+    if(fx * fx / (rx * rx) + fy * fy / (ry * ry) > 0.9) continue;
+    // gust jitter — the crown sways and every fleck skates with it
+    const jx = (Math.sin(SF_WX.t * 1.4 + seed + i * 1.7) * 0.9 +
+                Math.sin(SF_WX.t * 4.3 + i * 2.3) * 0.35) *
+               SF_WX.gust * Math.min(6, rx * 0.06);
+    const fr = Math.max(1.3, (0.12 + h3 * 0.2) * Math.min(rx, ry * 2.5) *
+               (0.8 + SF_WX.gust * 0.25));
+    const fa = a * (0.45 + h3 * 0.55);
+    const g2 = ctx.createRadialGradient(fx + jx, fy + jx * 0.35, 0,
+                                        fx + jx, fy + jx * 0.35, fr);
+    g2.addColorStop(0, `rgba(255,${wG},${wB},${fa})`);
+    g2.addColorStop(1, `rgba(255,${wG},${wB},0)`);
+    ctx.fillStyle = g2;
+    ctx.beginPath();
+    ctx.ellipse(fx + jx, fy + jx * 0.35, fr, fr * 0.75, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  ctx.restore();
+}
 /* v64: street-tree well half-width in meters — the sidewalk cut-out a
    street tree stands in, ringed by a cast-iron grate. Ficus wells run
    larger than the gingko/trumpet pits. Shared by both views so the
@@ -28744,6 +28792,23 @@ function sfRenderWorld(cw, ch){
                             shadeR * cam.zoom * stretch,
                             shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), rot,
                             aS, um);
+            }
+            /* v69: leaf-gap sun flecks inside the pool — the canopy
+               transmits, so its shade is a mosaic. A cloud overhead or a
+               building's shade over the pool kills the beam -> no dapple. */
+            const tr = sfLeafGapK(o.kind, o);
+            if(tr){
+              const lm = hmPx * 0.5 / (SF_PXM * cam.zoom),
+                    lmx = o.x / SF_PXM + SF_SUN.x * lm,
+                    lmy = o.y / SF_PXM + SF_SUN.y * lm,
+                    dk = tr * SF_SUN.day *
+                         (1 - Math.min(1, sfCloudShadow(lmx, lmy))) *
+                         clamp(1 - sfCanyonShade(lmx, lmy, -1), 0, 1);
+              if(dk > 0.02)
+                sfDapple(sx + shx, sy + shy,
+                         shadeR * cam.zoom * stretch * 0.9,
+                         shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT) * 0.9,
+                         rot, (o.wx * 31 + o.wy * 57) | 0, 0.3 * dk);
             }
           }
         }
@@ -34372,6 +34437,18 @@ function sfRenderStreet(cw, ch){
                           shadowR * 0.3 * sc, ang + off * 0.16,
                           (vegK ? 0.19 : 0.32) * Math.min(1, SF_SUN.day + 0.3),
                           sfUmbra(len));
+          }
+          /* v69: same sieve in elevation — flecks skate inside the crown's
+             ground band; building shade or cloud over the pool kills them */
+          if(vegK){
+            const dk2 = sfLeafGapK(o.kind, o) * SF_SUN.day *
+                        (1 - Math.min(1, sfCloudShadow(txm, tym))) *
+                        clamp(1 - sfCanyonShade(txm, tym, -1), 0, 1);
+            if(dk2 > 0.02)
+              sfDapple((p[0] + tx) / 2, (p[1] + ty) / 2,
+                       shadowR * sc * 0.9 + len / 2,
+                       shadowR * 0.34 * sc, ang,
+                       (o.x * 31 + o.y * 57) | 0, 0.26 * dk2);
           }
         }
         if(vegK){
