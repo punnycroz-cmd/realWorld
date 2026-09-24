@@ -5931,3 +5931,90 @@ Research moved into the formal spec this version:
 
 → spec v5.75 §§6.378–6.385; formal-model.md Part
 XII; validation §§260–261 (P1380–P1391).
+
+## 105. The promoted tier — what a thin past is made of (v130 — character-profiles X)
+
+The Astra production-3 direction promotes 2–4 ambient residents to
+full persistent memory. This section is the literature spine for
+the machinery that makes a promoted resident's pre-promotion years
+*honestly thin* rather than retroactively rich — the difference
+between a real human's routine years and a database backfill.
+
+**The hierarchy claim (CONSENSUS).** Conway & Pleydell-Pearce 2000
+(*Psych Rev* 107:261–288, verified): autobiographical knowledge
+organizes as lifetime periods → general events → event-specific
+knowledge. Routine, repetitive life stores at the *general events*
+level — "the years at the shop," not "the Tuesday in March." This
+is the exact structure the ambient tier's typed records have, and
+it is why `class:"generic"` is the honest tag, not a budget hack:
+real adults in stable routines hold those years as types. Burt,
+Kemp & Conway 2003 (*Memory* 11:329) confirm the clustering
+structure empirically.
+
+**Repetition collapses (CONSENSUS).** Neisser 1981 (*Cognition*
+9:1 — John Dean's testimony): repeated events are recalled as the
+type, confidently, with invented episodic detail ("repisodic"
+memory — the type is real, the instance is constructed). Barsalou
+1988's generalized event representations (GERNs) and Robinson
+1992's repeated-event merging give the mechanism. Design read:
+ambient-era records merged at `generic_merge_thresh` below the
+main-tier merge threshold — the thin encoder merges aggressively
+because the events really were similar.
+
+**Remember vs know (CONSENSUS-adjacent, DEBATED mechanism).**
+Tulving 1985 (*Can Psych* 26:1) introduced the R/K distinction;
+Gardiner 1988 (*M&C* 16:309) operationalized it; Yonelinas 2002
+(*JML* 46:441 — verified) reviewed three decades of dual-process
+recollection/familiarity evidence. The single-process dissent
+(Wixted 2004; Dunn 2004) is live — whether R/K tracks two
+processes or confidence on one dimension is unresolved. **Our
+choice is declared, not hidden:** ambient-era records are born
+`rk:"know"` and rehearsal never flips them (`know_upgrade_null`)
+— era integrity is a design requirement even if the lab allows
+fluency-driven flips.
+
+**The diary asymmetries (CONSENSUS).** Wagenaar 1986 (*Cog Psych*
+18:225 — verified: 2400 self-recorded events over 6 years): "what"
+cues best, "who"/"where" next, "when" worst — temporal dating is
+the first casualty of an otherwise-recognized event. Linton 1975
+(*Explorations in Cognition*): recognition stays high for years
+while dating decays. Design read: `backfill:true` skeletons carry
+gist/eval/relationship fields and *no dated-scene fields* — that
+asymmetry is what a true sparse past looks like; a backfill record
+with a confident date is a forgery signature (`backfill_detail_null`).
+
+**Confident gap-filling (CONSENSUS).** Johnson, Hashtroudi &
+Lindsay 1993 (*Psych Bull* 114:3 — verified): source monitoring —
+when the record is thin, reconstruction fills from plausibility,
+and confidence does not track the fill. This is the `meta_gap`
+substrate: a promoted resident's SelfModel believes the ambient
+era at normal accessibility; the archive is sparse; `confab_fill`
+pours into the difference. Esther is the designed probe — the
+block historian whose half-true stories are a meta_gap phenotype,
+not a lying trait.
+
+**The constructed life story (CONSENSUS).** Habermas & Bluck 2000
+(*Psych Bull* 126:748 — verified): the coherent life narrative is
+assembled retrospectively, not stored prospectively. Backfill is
+therefore not a cheat against human memory — it is the mechanism's
+honest name for what every person's seeded past already is. What
+makes it honest in RW is `backfill_obs_null`: seeded records drive
+behavior but can never stand as ledger-OBSERVED sim events for the
+observation UI.
+
+**Others' events < own (CONSENSUS direction, HYPOTHESIS dose).**
+Symons & Johnson 1997 (*Psych Bull* 121:371 — verified
+meta-analysis): the self-reference effect — memory for others'
+affairs is weaker than one's own. `ambient_wit_gain` 0.5 prices
+the promoted resident's thin-witness ledger; the direction is
+consensus, the dose is ours.
+
+**Savings (CONSENSUS).** Ebbinghaus 1885: relearning is cheaper
+than learning — `demote_isle_gain` 1.5 gives the demoted-and-
+returned character a dense island that reactivates at savings
+rates, the mirror image of infantile amnesia.
+
+→ Implemented as spec v5.76 §§6.386–6.392 (+12 scalars, +8 locked
+nulls, fields `era`/`rk`/`backfill`/`guardian`, ops `promote`/
+`demote`); four compiled profiles in cast-profiles.md Part VIII;
+probes P1392–P1404.

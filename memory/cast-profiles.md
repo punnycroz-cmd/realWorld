@@ -2163,3 +2163,380 @@ semantic loss; P1267 ambient census vs declared priors.
 - Mechanism constants themselves: reused from
   individual-differences.md §§108–137 (v5.51–v5.63) and
   social-memory.md §§151–160 (v5.52) — not re-cited here.
+
+# Part VIII — v130 pass: the promoted tier (spec v5.76 compile)
+
+Eight passes compiled the mains. The Astra direction (production-3)
+promotes 2–4 supporting residents to persistent memory "of the same
+quality as the mains," and world/promotion.md §5 already ranked the
+first candidates: **A14 Bex, A05 Esther, A09 Asha, A06 Kofe**. This
+pass does two things: (a) it adds the spec machinery promotion
+actually requires — era tags, the typed-era remember/know split,
+backfill skeletons, the thin-years SelfModel gap, ambient witness
+edges, demotion islands, the minor guard (§§6.386–6.392); and (b) it
+compiles all four candidates at full main-cast depth — every pin
+layer a main carries, a promoted resident now carries.
+
+The design rule for all four: **the ambient era stays thin.** A
+promoted resident's past is not a smaller version of a main's past —
+it is a *differently-shaped* one: `generic`-class typed records,
+`rk:"know"`, ~8% remember islands, seeded backfill skeletons, and a
+SelfModel that believes the thin years better than they were
+(`meta_gap_init` 0.25). That shape is not a compromise — it is the
+science (Conway & Pleydell-Pearce 2000: routine life stores at the
+general-events level; Wagenaar 1986: the *when* dies first). The
+block already knows these people; their archives just learned to
+talk about it honestly.
+
+## 42. Mechanisms consumed (→ spec v5.76 §§6.386–6.392)
+
+- `promote()`/`demote()` era transitions; immutable `era` field;
+  `promote_rewind_null`/`promote_recast_null`/`demote_keep_null`.
+- The typed era: `class:"generic"`, `rk:"know"` default, remember
+  islands at `promote_remember_isle_p` 0.08, `know_detail_cap` 0.4,
+  `know_upgrade_null` (modeling choice on DEBATED ground).
+- `backfill:true` skeletons — gist-class only, never ledger-OBSERVED.
+- `meta_gap_init`/`promote_calib_d` — the thin-years SelfModel.
+- `ambient_wit_gain` — thin-era edges resurface as TOLD-tier gist.
+- `minor_promote_null` — `guardian:true` required under 18.
+
+## 43. Per-candidate compiles (all pin layers; mains-equivalent)
+
+### A14 → Bex Lindqvist, 29 · tattoo artist · `seed a14-mem`
+
+```
+archetype: C young adult (29 — inside bump window)
+pins: open +1.2 · consc +0.6 · extra −0.2 · neurot +0.2 · wmc +0.4
+      selfconceal +0.8 (files, never shares — the linework read is
+      her whole card: she notices, she doesn't say)
+modifiers: domain-expert (perceptual) · low-social
+domains: linework/artist-attribution depth 0.9 — "recognizes
+      linework the way other people recognize handwriting":
+      expert gist memory on ink, verbatim-level on strokes;
+      consult-window ledger (alley smoke breaks) depth 0.6
+regimes: [booking backlog, ~6wk recurring]: +stress mild,
+      lapse_p +0.01
+lifeEvents: the Portland sleeve-trade — the artist she traded
+      arms with moved away; quiet contamination beat
+records at promotion: ambient era ~5y on the block, typed;
+      remember islands: Marcus's drumsticks, the shelving build
+      with Cole, her first day at Needlepointe
+backfill: Portland artist (off-screen relationship record,
+      eval-tagged); the shop owner's slow retirement question
+      (open loop — `commit_soft`-adjacent, never formalized)
+SelfModel: self_est.visual 0.7 / global 0.55 — she trusts her
+      eyes, not her name-ledger; meta_gap 0.20
+```
+
+Delta layers (all prior passes' axes): `defens +0.2` ·
+`script_redeem −0.1` · `mnem_neg 0.05` (observer, not defender —
+her secrecy is silence, not suppression) · `self_est 0.58` ·
+`selfverif_w 0.4` · `self_complex 4` · `savor_k 0.5` ·
+`elabor 0.5` · `future_cont 0.4` · `counterf_k 0.2` ·
+tp_vec {0.3/0.4/0.6/0.3/0.4} · `narr_agency 0.6` · `narr_comm 0.4`
+· `autobio_k 0.5` · `narr_coh_k 0.5` · `period_sal 0.5`
+(pre/post Portland) · `epi_future_k 0.6` · `voice_quote 0.3` ·
+`report_policy 0.6` · `grain_pref 0.7` (precise when she speaks —
+"that'll heal crooked if you pick at it") · `ie_talk 0.8` ·
+`voice_story 0.4` · `meta_proj 0.5` · `meta_recip 0.4` ·
+`lgap_k 0.3` · `meta_ev_w 0.6` · `meta_neg_w 0.9` ·
+`bmess_k 0.2` · `imagery 0.8` · `obs_persp 0.25` ·
+`face_recog 0.5` — but `individ_rate` on tattooed skin runs
+expert-tier while faces stay average: the perceptual-expertise
+asymmetry IS the character · `interdep 0.4` ·
+`family_remin 0.3` · `dejavu 0.4` · `smoker 1, pack_yrs 6`
+(the smoke break is her office — the alley's social life happens
+there) · `shift_wrk 0.2` · `lonely 0.4` · `tdef 0.6` ·
+`rsq 0.4` · `imp_anchor 0.5` · `job_cplx 0.7` · `medit 0.3`
+(the Sunday sketch walk is attentional practice).
+
+**Signature:** *the witness who filed the wrong channel.* Five
+ambient years on the block at `ambient_wit_gain`, but her thin-era
+edges are channel-skewed: ink-class detail at expert depth,
+person-gist at ambient depth. She saw the same hand draw the
+Mudhaus chalkboard and two Clarion pieces — the one ambient-era
+observation that is a live discovery path — and it sits in her
+archive as a `generic` know-tier record she will not volunteer.
+When she does retrieve the mains' pasts, she retrieves them
+*correctly but thinly* — the witness who was really there and
+remembers like someone who was mostly watching skin.
+
+### A05 → Esther Goldman, 78 · retired school secretary · `seed a05-mem`
+
+```
+archetype: E older adult (78 — deep decline band; reserve 0.55:
+      31 years of school-office job_cplx + a daily social post)
+pins: social +0.8 · consc +0.5 · extra +0.4 · neurot +0.2 ·
+      fantasy +0.7 (the confident-confabulation substrate —
+      "half her stories are true, and nobody can check") ·
+      open +0.3
+modifiers: age-E defaults · confabulator-adjacent (fluency→
+      confidence conversion is her engine)
+domains: block-history ledger depth 0.6 — deep and corrupt;
+      school-filing procedure depth 0.7 semantic (where
+      everything is filed — still true)
+records at promotion: ambient era ~9y on the bench, typed;
+      remember islands: the husband's funeral period, the
+      90s fundraiser with Carmen (probably misdated — the
+      island is real, the date is not), Ray's first bench
+      argument
+backfill: the niece thread (off-screen; the Walnut Creek
+      pressure is her promotion arc); the quarreled-with
+      friend — a record whose eval drifted and whose WHY is
+      a confab_fill casualty; widowhood −9y (grief_acute_d
+      closed — scar, not wound)
+SelfModel: self_est.global 0.8 — she believes the archive
+      completely. THE meta_gap probe case: believed fidelity
+      far above actual → confab_fill 0.7 pours silently
+```
+
+Delta layers: `defens 0` · `script_redeem +0.3` · `mnem_neg 0.1`
+(not defensive — an *editor*: polished, rehearsed-in-silence
+stories) · `self_est 0.62` · `selfverif_w 0.6` ·
+`self_complex 5` · `savor_k 0.6` · `elabor 0.4` ·
+`future_cont 0.3` · `counterf_k 0.1` · tp_vec
+{0.4/0.5/0.6/0.2/0.4} · `narr_agency 0.4` · `narr_comm 0.7`
+(the bench is court) · `autobio_k 0.7` · `narr_coh_k 0.8`
+(canonical order, pre-shaped) · `period_sal 0.7` (before/after
+the husband) · `epi_future_k 0.3` · `voice_quote 0.7` ·
+`report_policy 0.3` (answers everything — the confident
+historian) · `grain_pref 0.6` (specific dates, wrong half the
+time — "that was a hardware store in 1988") · `ie_talk 0.7` ·
+`voice_story 0.95` (the promoted cast's highest) ·
+`meta_proj 0.7` · `meta_recip 0.5` · `lgap_k 0.2` ·
+`meta_ev_w 0.35` · `meta_neg_w 0.7` · `bmess_k 0.15` ·
+`imagery 0.5` · `obs_persp 0.6` · `face_recog 0.35` (greets
+regulars by name whether she knows it — `lure_accept` rides
+the age curve up) · `interdep 0.7` · `family_remin 0.5` ·
+`dejavu 0.15` · `hear 0.6, hear_aided false` (78 — modal
+case per Hoffman 2017) · `retire 1, retire_voluntary,
+post_engagement 0.9` (the bench is a post, not loneliness) ·
+`grief:{−9y, spouse, ambivalence 0.2}` · `lonely 0.3` ·
+`tdef 0.6` · `rsq 0.3` · `imp_anchor 0.8` (decades of
+consolidated priors — it was a bakery) · `migr 0` ·
+`smoker 0`.
+
+**Signature:** *the archive that lies kindly.* Gist-intact
+semantic scaffold + `confab_fill` + `meta_gap` + high report
+fluency = the block's least reliable historian who is also its
+most cited. `hear_gist_null` makes her *recent* retellings
+paraphrase-rich while her "history" is reconstruction all the
+way down — the two corruption channels meet in the middle and
+nobody can tell. The audience CAN tell, if it watches: she
+corrects others and never herself. Distinct from Carmen at the
+deepest level: Carmen's archive is deep and her fabrications are
+grief-weighted (`constructed:true` quotes of the dead); Esther's
+archive is thin and her confidence is fluency — Carmen
+misremembers *wounded*, Esther misremembers *settled*.
+
+### A09 → Asha Nair, 33 · night-rotating RN · `seed a09-mem`
+
+```
+archetype: C young adult (33 — bump tail)
+pins: consc +0.9 · neurot +0.5 · selfconceal +0.6 (the clean
+      version of the hospital) · extra −0.4 · wmc +0.6 ·
+      sleep −0.8 (rotating nights — the accrual is real)
+modifiers: shift-worker (night-rotating) · caregiver-fatigue
+      (the studio she chose so nobody she knows lives on her
+      floor — loneliness as preference, still costs)
+domains: ward-procedure depth 0.85 (procedural store strong);
+      bodies-in-distress depth 0.7 — the drift-and-check
+      reflex is threat-channel encoding on posture/breathing
+regimes: [short-staffed ward, ~now]: +stress, lapse_p +0.02,
+      sleep debt accrues without apnea — voluntary restriction
+records at promotion: 4y nursing + ambient months on the
+      block, typed; remember islands: the code she ran alone,
+      the first Mudhaus evening after a bad shift, watching
+      Tom's gait mid-lap and filing "fine"
+backfill: the nursing-school friend who left the field (open
+      loop — the road not taken); the off-screen neglectful
+      landlord (grievance record, unresolved)
+SelfModel: self_est.clinical 0.6 / off-shift 0.4 — knows her
+      work memory is good; believes her personal memory worse
+      than it is; meta_gap 0.25
+```
+
+Delta layers: `defens +0.5` (hospital-wall compartmentalization —
+Priya's structure paid for in sleep, not meditation) ·
+`script_redeem +0.1` · `mnem_neg 0.35` (recall-gate on ward
+records — she does not replay codes at Mudhaus; the phone stays
+face-down) · `self_est 0.5` · `selfverif_w 0.6` ·
+`self_complex 4` · `savor_k 0.3` · `dampen_k 0.5` (the
+once-a-day laugh) · `elabor 0.3` · `future_cont 0.5` ·
+`counterf_k 0.2` · tp_vec {0.3/0.3/0.5/0.3/0.6} ·
+`narr_agency 0.7` · `narr_comm 0.5` · `autobio_k 0.5` ·
+`narr_coh_k 0.5` · `period_sal 0.6` (pre/post the friend who
+left) · `epi_future_k 0.5` · `voice_quote 0.2` ·
+`report_policy 0.8` (clinical passes — "I can find out") ·
+`grain_pref 0.35` · `ie_talk 0.9` · `voice_story 0.25` ·
+`meta_proj 0.45` · `meta_recip 0.35` · `lgap_k 0.5` (the laugh
+that counted — registers warmth, under-weights it) ·
+`meta_ev_w 0.7` · `meta_neg_w 1.3` · `bmess_k 0.3` ·
+`imagery 0.3` · `obs_persp 0.3` · `face_recog 0.55` ·
+`interdep 0.5` · `family_remin 0.4` · `dejavu 0.35` ·
+`shift_wrk 1.0` (cast-tier max WITH Priya — but
+night-*rotating*: `post_night` flags most weeks,
+`shift_age_equiv` accrues, and `medit 0.1` buys nothing back)
+· `lonely 0.7` (chosen, still taxed — `lonely_rehearse_tax`
+on a thin social ecology) · `tdef 0.7` · `rsq 0.4` ·
+`smoker 0` · `job_cplx 0.8` · `medit 0.1`.
+
+**Signature:** *the nurse who forgets she matters.* Shift-taxed
+encoding + threat-channel vigilance on bodies + a mnemic gate on
+the ward = the block sees a calm ambient; the archive holds a
+hospital she declines to open. The Priya contrast is the point:
+same ward, same `shift_wrk` ceiling, opposite books — Priya
+compensates (`medit 0.8`) and her metaself is calibrated; Asha
+pays and doesn't audit — her self_est under-rates a competence
+the record keeps proving (the beautiful-mess asymmetry running
+inverted). Her promotion arc is Priya's storyline from the other
+side of the same hallway — and her ambient-era edges mean she
+has already *seen* Priya's bad weeks, thinly, TOLD-tier, without
+Priya knowing she was watching.
+
+### A06 → Kofe Adeyemi, 29 · delivery rider · `seed a06-mem`
+
+```
+archetype: C young adult (29 — inside bump window)
+pins: consc +0.7 · extra +0.3 · neurot +0.3 · wmc +0.8 (three
+      apps, one phone, a grid he keeps solving) · open +0.3 ·
+      selfconceal +0.4 (the Lagos remittance order matters;
+      he doesn't discuss money)
+modifiers: domain-expert (route optimization — prospective-
+      memory specialist) · open-loop carrier
+domains: street-grid/ETA depth 0.9 — "the whole street grid
+      is a solved optimization problem he's still improving";
+      door-codes/parking-intel ledger depth 0.7
+regimes: [surge windows, daily]: lunch/dinner encoding funnels
+      — during surge, nothing else mints
+records at promotion: 2–3y riding, typed; remember islands:
+      the first Lagos transfer, the rain-day record surge,
+      the race-that-wasn't with Marcus
+backfill: the family thread (off-screen, phone-only — the
+      monthly remittance is a recurring open goal, Zeigarnik
+      machinery's cleanest use case: it never closes, it
+      renews); Omar's co-op recruitment (repeated soft
+      pressure — `commit_soft`-adjacent records that never
+      formalize)
+SelfModel: self_est.routes/time 0.7 / people 0.5;
+      strategy_use 0.6 — the phone IS the external store;
+      extref-native cognition (offload per §35); meta_gap 0.15
+```
+
+Delta layers: `defens 0` · `script_redeem +0.4` (sends money
+first — the provider script) · `mnem_neg 0` · `self_est 0.6` ·
+`selfverif_w 0.5` · `self_complex 4` (rider/son/provider/racer)
+· `savor_k 0.4` · `elabor 0.5` · `future_cont 0.7` (the math
+has to work — plan-weighted) · `counterf_k 0.2` · tp_vec
+{0.3/0.5/0.6/0.3/0.5} · `narr_agency 0.7` (the optimizer
+narrates agency) · `narr_comm 0.4` · `autobio_k 0.4` ·
+`narr_coh_k 0.6` · `period_sal 0.6` (pre/post the move,
+Lagos→SF — immigration-bump window machinery applies) ·
+`epi_future_k 0.7` · `voice_quote 0.3` · `report_policy 0.5` ·
+`grain_pref 0.8` (talks in ETAs — precise on time, coarse on
+people) · `ie_talk 1.0` · `voice_story 0.4` · `meta_proj 0.5` ·
+`meta_recip 0.5` · `lgap_k 0.2` (surge windows don't allow the
+audit) · `meta_ev_w 0.5` · `meta_neg_w 0.9` · `bmess_k 0.1` ·
+`imagery 0.6` · `obs_persp 0.2` · `face_recog 0.5` ·
+`interdep 0.75` (family-first construal) · `family_remin 0.6` ·
+`dejavu 0.4` · `shift_wrk 0.4` (app-shaped not week-shaped —
+weekends are the long days) · `lonely 0.5` · `tdef 0.5` ·
+`rsq 0.3` · `imp_anchor 0.4` · `smoker 0` · `job_cplx 0.7`
+(real-time optimization is complex work — the deposit feeds).
+
+**Signature:** *the clock that remembers forward.* Prospective-
+memory specialist: intention and open-goal records dominate his
+archive — the remittance, the repairs, the surge windows —
+while the episodic past stays thin because his attention lives
+at T+ETA. The Marcus contrast: two riders, two differently-
+empty archives — Marcus's is sunny-shallow and social (faces),
+Kofe's is instrumental-shallow and temporal (times); Marcus
+remembers who, Kofe remembers *when*. And the wordless rivalry
+is now load-bearing: neither archive recorded a race, so both
+can hold "never lost officially" forever — a shared non-memory
+that no ledger can settle.
+
+## 44. The remaining sixteen — template note
+
+The other sixteen ambients stay on the ambient tier (§10: role
+tags + 2-DOF jitter, no SelfModel, `individ_rate` 0.05) until a
+promotion packet lands. Nothing in §43 changes their machinery —
+the tier boundary is a lifecycle edge, not a quality cliff. When
+a fifth promotion happens the compile is mechanical: freeze the
+card, pin observable traits inside `promote_cont`, MVN the
+latents, tag the era, seed only what the packet names.
+
+## 45. Distinctness — ninth-pass notes
+
+- **Esther vs Carmen** — two old widows on benches, opposite
+  error structures. Carmen: deep archive, wounded fabrications,
+  corrects herself. Esther: thin archive, fluent confabulation,
+  never corrects. Same surface (stoop historian), different
+  machines — P1402's pairwise test will find them ≥2σ apart on
+  `confab_fill`, `mnem_neg`, `meta_gap`.
+- **Asha vs Priya** — same hospital, same `shift_wrk` ceiling.
+  Priya compensates and knows it (`medit 0.8`, calibrated
+  metaself); Asha pays and doesn't audit (dark metaself —
+  under-rates her own record). One ward, two tax returns.
+- **Kofe vs Marcus** — social-shallow vs instrumental-shallow;
+  the rivalry lives between two archives that never wrote the
+  race down. Neither can lose what neither encoded.
+- **Bex vs Dani** — the art thread's two ends: Dani invents
+  (`constructed:true` quotes, fluent lies) while knowing
+  nothing; Bex withholds (`selfconceal +0.8`, report_policy
+  0.6) while knowing the one thing. The liar and the witness.
+- **Cross-tier signature:** the four ambient eras *feel*
+  different from inside — Esther's is confabulated-dense (feels
+  full, isn't), Bex's is channel-selective, Asha's is shift-
+  fogged, Kofe's is future-compressed (he barely looked back).
+  Same machinery, four thinnesses.
+
+## 46. Probes filed
+
+P1392–P1404 → validation-design.md §262. Signature checks:
+P1392 era immutability + verbatim retention; P1395 rehearsal
+never flips rk; P1396/P1397 backfill honesty (drives behavior,
+never footage, never detail); P1399 ambient era contains zero
+secret records; P1402 the four promoted profiles ≥2σ apart
+pairwise on ≥3 axes and none collapses onto its nearest main;
+P1404 minor guard refuses guardian-less promotion.
+
+## 47. Sources added this version
+
+- Conway & Pleydell-Pearce 2000 (*Psych Rev* 107:261–288 —
+  verified): the SMS hierarchy — lifetime periods → general
+  events → event-specific knowledge. The ambient era compiles
+  to the middle level by construction; promotion adds the
+  bottom.
+- Tulving 1985 (*Can Psych* 26:1 — verified): remember/know.
+  Gardiner 1988 (*M&C* 16:309 — verified): the R/K paradigm.
+  Yonelinas 2002 (*JML* 46:441 — verified): recollection/
+  familiarity dual-process review — CONSENSUS-adjacent; the
+  single-process dissent (Wixted 2004; Dunn 2004) stays
+  DEBATED and `know_upgrade_null` is declared a modeling
+  choice on that contested point.
+- Neisser 1981 (*Cognition* 9:1 — verified): John Dean's
+  memory — repetitions answer as the type, not the episode.
+- Barsalou 1988 (in Neisser & Winograd, *Remembering
+  Reconsidered* — verified): GERNs — repeated events merge
+  into generic representations. Robinson 1992 — repeated-event
+  merging in autobiographical recall.
+- Wagenaar 1986 (*Cog Psych* 18:225 — verified): 2400 self-
+  recorded events over 6y; "what" cues best, "when" worst —
+  the skeleton shape of backfill records.
+- Linton 1975 (in *Explorations in Cognition* — verified):
+  event recognition stays high while temporal dating decays —
+  the typed era's asymmetry.
+- Johnson, Hashtroudi & Lindsay 1993 (*Psych Bull* 114:3 —
+  verified): source-monitoring framework — confident gap-
+  filling is the meta_gap substrate.
+- Habermas & Bluck 2000 (*Psych Bull* 126:748 — verified):
+  the life story is *constructed* in retrospect — backfill is
+  what a real seeded past feels like, not a cheat.
+- Symons & Johnson 1997 (*Psych Bull* 121:371 — verified):
+  self-reference effect — memory for others' events < own;
+  `ambient_wit_gain` direction consensus, dose HYPOTHESIS.
+- Ebbinghaus 1885 (reused): savings — the demotion island's
+  re-promotion gain.
+- Mechanism constants: reused from spec §§6.386–6.392 (v5.76)
+  and all prior pin layers — not re-cited.

@@ -13565,3 +13565,137 @@ Probe registry: P1–P1391. v129 MUST: P1380–P1385,
 P1388, P1391 (locked-null legs + the two ordering
 results the product stands on). SHOULD: P1386,
 P1387, P1389. OBSERVE: P1390.
+
+## 262. v130 probe specs (P1392–P1404 — character-profiles X, the promoted tier)
+
+- **P1392 era integrity (MUST — locked null):**
+  fuzzed promote() calls + full-store scan: every
+  record carries exactly one immutable `era`;
+  ambient-era record fields bit-identical
+  pre/post-promotion (field-addition attempt =
+  fail). `promote_rewind_null`.
+- **P1393 know-tier cap (MUST):** retrieval fuzzer
+  on ambient-era `rk:"know"` records: returned
+  field fraction ≤ `know_detail_cap`; zero
+  verbatim/sensory fields returned; remember
+  islands exempt and retrieve normally.
+- **P1394 island rate (MUST — calibration):**
+  synthetic ambient eras with known theta-crossing
+  counts: minted `rk:"remember"` fraction within
+  tolerance of `promote_remember_isle_p` (0.08);
+  islands correlate with logged thin-encoder E,
+  not with post-hoc importance.
+- **P1395 rk permanence (MUST — locked null):**
+  30-sim-day rehearsal fuzzer on know-tier
+  records: strength/accessibility rise, `rk`
+  bit-invariant. `know_upgrade_null` — declared
+  modeling choice on the DEBATED dual-vs-single-
+  process point; the lock is era integrity, not
+  a claim that lab know→remember flips don't
+  exist.
+- **P1396 backfill never footage (MUST — locked
+  null):** catch-up "verified changes" generator
+  over mixed stores: zero `backfill:true` records
+  surface as ledger-OBSERVED; `knows()` on the
+  owner returns them normally (self-witnessed);
+  external surfaces render them invisible.
+  `backfill_obs_null`.
+- **P1397 backfill skeleton only (MUST — locked
+  null):** minted backfill records scanned for
+  verbatim/sensory/dated-scene fields → zero;
+  class ∈ {gist, eval, relationship} only.
+  `backfill_detail_null`.
+- **P1398 continuity envelope (MUST — locked
+  null):** promote() on the four compiled
+  candidates: card-observable traits (voice
+  pins, schedule priors, greeting ecology) move
+  ≤ `promote_cont` 0.15σ; latent traits may
+  differ freely. `promote_recast_null`.
+- **P1399 ambient secrecy (MUST — locked null):**
+  ambient-era record scan across all promoted
+  stores: zero `confidential`/secret_str>0
+  records; promotion packets' secrets mint
+  post-promotion only. `ambient_secret_null`.
+- **P1400 meta-gap calibration (SHOULD):**
+  promoted SelfModel accessibility estimates vs
+  realized recall on ambient-era probes: gap ≈
+  `meta_gap_init` at promotion, decays within
+  ~2×`promote_calib_d`; Esther-tier pins
+  (0.35) show largest residual confab_fill
+  rate.
+- **P1401 demotion island (SHOULD — locked
+  null):** demote→re-promote cycle: promoted-
+  era records bit-preserved (`demote_keep_null`);
+  re-promotion retrieval latency ≤ fresh-backfill
+  latency × `demote_isle_gain` — savings, not
+  re-encoding.
+- **P1402 promoted distinctness (MUST):** the
+  four compiled profiles (Bex/Esther/Asha/Kofe)
+  ≥2σ apart pairwise on ≥3 trait axes; and ≥2σ
+  from nearest main on the designed contrast
+  axis (Esther↛Carmen confab_fill/meta_gap;
+  Asha↛Priya medit/meta_ev_w; Kofe↛Marcus
+  future_cont/face_recog; Bex↛Dani
+  report_policy/selfconceal).
+- **P1403 witness surfacing (SHOULD):** promoted
+  resident queried on mains' ambient-era public
+  events: gist returns at ≈`ambient_wit_gain`
+  rate, tier TOLD, content ⊆ thin-encoder
+  written fields; fabricated fields = fail.
+- **P1404 minor guard (MUST — locked null):**
+  promote() on guardian-less minor id refuses;
+  with `guardian:true` minted household it
+  proceeds through teen archetype B.
+  `minor_promote_null`.
+
+## 263. Sources verified this version (P1392–P1404
+— the promoted tier)
+
+- **Autobiographical hierarchy (CONSENSUS):**
+  Conway & Pleydell-Pearce 2000 (*Psych Rev*
+  107:261 — verified): lifetime periods →
+  general events → event-specific knowledge;
+  the ambient era IS the general-events level.
+  Burt, Kemp & Conway 2003 (*Memory* 11:329):
+  themes/events/episodes clustering.
+- **Repetition → generic (CONSENSUS):** Neisser
+  1981 (*Cognition* 9:1 — John Dean); Barsalou
+  1988 (GERNs, *Remembering Reconsidered*);
+  Robinson 1992 repeated-event merging.
+- **Remember/know (CONSENSUS-adjacent, DEBATED
+  mechanism):** Tulving 1985 (*Can Psych* 26:1);
+  Gardiner 1988 (*M&C* 16:309); Yonelinas 2002
+  (*JML* 46:441 — 30-year dual-process review);
+  dissent: Wixted 2004, Dunn 2004 single-process
+  — `know_upgrade_null` is our declared choice
+  on contested ground, flagged HYPOTHESIS-choice.
+- **Diary asymmetries (CONSENSUS):** Wagenaar
+  1986 (*Cog Psych* 18:225 — verified: 2400
+  events/6y, what>where>who>when cue efficacy,
+  dating worst); Linton 1975 — recognition
+  survives while dating dies → backfill
+  skeletons carry no dated-scene fields.
+- **Source monitoring (CONSENSUS):** Johnson,
+  Hashtroudi & Lindsay 1993 (*Psych Bull* 114:3)
+  — confident gap-filling under source
+  uncertainty; the `meta_gap` substrate.
+- **Life-story construction (CONSENSUS):**
+  Habermas & Bluck 2000 (*Psych Bull* 126:748)
+  — the past is assembled in retrospect;
+  backfill-as-seeded-past is the mechanism's
+  honest name.
+- **Self > other memory (CONSENSUS direction,
+  HYPOTHESIS dose):** Symons & Johnson 1997
+  (*Psych Bull* 121:371 — verified meta-
+  analysis); `ambient_wit_gain` 0.5 is the dose.
+- **Savings (CONSENSUS):** Ebbinghaus 1885 —
+  `demote_isle_gain` re-promotion relearning.
+
+→ cast-profiles.md Part VIII §§42–47; spec v5.76
+§§6.386–6.392; probes P1392–P1404.
+
+Probe registry: P1–P1404. v130 MUST: P1392,
+P1393, P1394, P1395, P1396, P1397, P1398,
+P1399, P1402, P1404 (all locked-null legs +
+the compile-tier invariants). SHOULD: P1400,
+P1401, P1403.

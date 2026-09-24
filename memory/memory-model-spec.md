@@ -1,4 +1,44 @@
-# Memory Model Spec v5.75 — implementable human-like memory for RW characters
+# Memory Model Spec v5.76 — implementable human-like memory for RW characters
+
+> **v5.76 note (character-profiles X — the promoted
+> tier):** `memory/cast-profiles.md` Part VIII gives the
+> four ranked promotion candidates (world/promotion.md §5:
+> A14 Bex, A05 Esther, A09 Asha, A06 Kofe) full-quality
+> memory compiles, and the spec gains the promotion-era
+> mechanics they required. **`promote()`/`demote()`** —
+> era-transition ops; records carry immutable
+> `era:"ambient"|"promoted"`; ambient-era records kept
+> verbatim (`promote_rewind_null`), card-observable traits
+> frozen inside `promote_cont` (`promote_recast_null`).
+> **The typed era** — ambient-era records are
+> `class:"generic"` + `rk:"know"` (repetition-collapsed
+> GERNs; Conway & Pleydell-Pearce 2000 general-events
+> level; Neisser 1981; Barsalou 1988); ambient-era
+> theta-crossings mint `rk:"remember"` islands at
+> `promote_remember_isle_p`; know-tier retrieval caps
+> detail at `know_detail_cap` and rehearsal never flips
+> rk (`know_upgrade_null` — modeling choice on a DEBATED
+> dual-vs-single-process literature). **Backfill** —
+> world-seeded skeletons mint `backfill:true` gist-class
+> records (`backfill_detail_null`) that can never stand
+> as ledger-OBSERVED sim events (`backfill_obs_null` —
+> the honest-provenance primitive for seeded pasts).
+> **The thin-years SelfModel** — `meta_gap_init` 0.25:
+> the promoted SelfModel believes its ambient era better
+> than the record supports; calibration decay
+> `promote_calib_d` 21 (Johnson, Hashtroudi & Lindsay
+> 1993 source monitoring). **Ambient witness edges** —
+> thin-era `ambient:true` edges resurface as TOLD-tier
+> gist at `ambient_wit_gain` — promoted NPCs are
+> real-but-thin witnesses of the mains' public pasts.
+> **Demotion** — `demote()` freezes encoding to thin,
+> keeps every record (`demote_keep_null`) → a dense
+> promoted-era island that reactivates with savings on
+> re-promotion. **Minor guard** — `promote()` refuses
+> minors without `guardian:true` (`minor_promote_null`).
+> §§6.386–6.392; §7 +12 scalars +8 locked nulls +record
+> fields (`era`,`rk`,`backfill`,`guardian`) +2 ops;
+> §10 contract; probes P1392–P1404.
 
 > **v5.75 note (formal-model XII — the epistemic
 > layer):** `memory/formal-model.md` Part XII
@@ -17860,6 +17900,155 @@ decay. `promise_div(Δt)` must grow with lag,
 bounded `promise_div_max` (0.4); P1389 gates
 the ordering.
 
+### 6.386 `promote()`/`demote()` — the era
+transitions (new in v5.76)
+
+CP§42; world/promotion.md is the owner of *when*;
+this spec owns *what the archive does*. Every
+record gains immutable `era` ∈
+{`ambient`,`promoted`} at mint; the era field is
+the boundary, and it never moves. `promote(id)`:
+(a) full-MVN param sample conditioned on card
+pins — card-observable traits (voice, schedule
+priors, greeting ecology) held within
+`promote_cont` (0.15σ) of ambient values, locked
+by `promote_recast_null` (the block must not
+notice — promotion.md §2.4); (b) SelfModel +
+DomainTable + MetaModel minted per
+profile-generation §1; (c) every extant record
+retained byte-verbatim, `era:"ambient"` — locked
+`promote_rewind_null`: no field may be added,
+enriched, or re-derived for a pre-promotion
+record (the thin encoder wrote what it wrote;
+richness must be earned in-sim). `demote(id)`:
+encoding returns to thin-tier, ALL records
+persist (`demote_keep_null`) — a reverted
+character carries a dense `era:"promoted"`
+island inside its later ambient era, and
+re-promotion retrieves it at savings rates
+(`demote_isle_gain` 1.5 — Ebbinghaus relearning,
+not re-encoding).
+
+### 6.387 The typed era — `generic` records and
+the remember/know split (new in v5.76)
+
+CP§43. Ambient-era records are
+`class:"generic"` — repetition-collapsed general
+event representations (Conway & Pleydell-Pearce
+2000, *Psych Rev* 107:261 — the knowledge base's
+middle level; Neisser 1981 *Cognition* 9:1 —
+repetitions answer as the type; Barsalou 1988 —
+GERNs; Robinson 1992 — repeated events merge;
+all CONSENSUS). At promotion each ambient-era
+record is tagged `rk:"know"` — familiarity
+without recollection (Tulving 1985 *Can Psych*
+26:1; Gardiner 1988 *M&C* 16:309; Yonelinas 2002
+*JML* 46:441 — dual-process CONSENSUS-adjacent;
+single-process dissent Wixted/Dunn DEBATED). The
+exception: ambient-era events whose thin-encoder
+E crossed `theta` mint `rk:"remember"` islands,
+expected fraction `promote_remember_isle_p`
+(0.08) — the drumsticks tattoo, the first day,
+the storm shift. Retrieval asymmetry: know-tier
+records return gist/eval/relational fields
+capped at `know_detail_cap` (0.4) field fraction
+and never yield verbatim/sensory fields;
+remember islands retrieve normally. Locked
+`know_upgrade_null`: rehearsal raises strength
+and accessibility but never flips `rk` —
+recollection is a birth property here (our
+modeling choice ON the DEBATED point; fluency-
+driven know→remember shifts exist in lab data,
+we refuse them for era integrity — P1395).
+
+### 6.388 Backfill — the seeded past (new in
+v5.76)
+
+CP§44. World-builder supplies the promotion
+packet's relationships-to-seed and off-screen
+threads; `deriveParams` mints them as
+`backfill:true`, `prov:"backfill"` records —
+gist/eval/relationship class ONLY (locked
+`backfill_detail_null`: no verbatim, sensory,
+or dated-scene fields; Wagenaar 1986 — the
+when is the first casualty, so a skeleton is
+what a true seed looks like). Strength
+`backfill_E` (0.5) — they decay like any gist.
+Honest provenance: `backfill` records never
+satisfy ledger-OBSERVED (locked
+`backfill_obs_null`) — the catch-up edition's
+"verified changes" may cite only simulated
+events, so a seeded quarrel can drive behavior
+but can never be shown as footage. From the
+character's inside they are self-witnessed and
+display OBSERVED; from every other head and
+every camera they are invisible except through
+what the character does with them.
+
+### 6.389 The thin-years SelfModel —
+`meta_gap` (new in v5.76)
+
+CP§45. At promotion the minted SelfModel takes
+card-authored facet self_est but believes its
+ambient era at NORMAL accessibility — the human
+default is to trust one's past. Actual
+accessibility is sparse-typed, so
+`meta_gap = believed − actual` starts at
+`meta_gap_init` (0.25) and decays with τ =
+`promote_calib_d` (21d) as retrieval failures
+teach the instrument (metamemory is learned;
+Johnson, Hashtroudi & Lindsay 1993 *Psych Bull*
+114:3 — source monitoring fills confident gaps;
+CONSENSUS on the fill, our gap-dose HYPOTHESIS).
+A positive meta_gap is the confabulation
+substrate: `confab_fill` has somewhere to pour
+— Esther (CP§43) is the designed probe:
+confident block historian, half-true archive.
+
+### 6.390 Ambient witness edges — thin but
+real (new in v5.76)
+
+CP§46. The ambient tier was *present* for the
+mains' public lives; the thin encoder wrote
+`ambient:true` sparse edges (§5.x hyperbind
+edge). On promotion these edges become
+reachable: a promoted NPC asked about a main's
+ambient-era public event retrieves gist-tier
+content at `ambient_wit_gain` (0.5) — "I saw
+them argue last spring" — capped TOLD-tier
+content only (they witnessed; the fields the
+thin encoder never wrote stay unwritten —
+`promote_rewind_null` applies to edges too).
+This is unequal knowledge with honest limits:
+promoted residents carry a real, thin,
+non-authoritative witness ledger. Memory for
+others' events < own events (self-reference
+asymmetry — Symons & Johnson 1997 direction,
+dose HYPOTHESIS).
+
+### 6.391 The dense island — demotion and
+re-promotion (new in v5.76)
+
+CP§47. A demoted character's `era:"promoted"`
+records persist verbatim (`demote_keep_null`)
+and thin-era encoding resumes. The result is
+the mirror image of infantile amnesia: a rich
+island inside a thin sea. Re-promotion finds
+the island at `demote_isle_gain` (1.5) — savings
+(Ebbinghaus 1885 relearning), not new encoding.
+`rk` values survive demotion unchanged.
+
+### 6.392 The minor guard (new in v5.76)
+
+CP§48. `promote(id)` refuses any character
+whose profile lacks `guardian:true` (minted
+household lease held by off-registry
+parent/guardian — promotion.md §2.2) when
+`age_now < 18` — locked `minor_promote_null`.
+A04/A20 stay ambient until both conditions
+hold; teen archetype machinery (CP-band B) is
+ready, the door is gated, not absent.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -20308,6 +20497,25 @@ MemoryParams = {
 //   postop_young_null (P1364); mv_exec_null,
 //   mv_level_null + fast_* + glp1_* bans (P1365).
 //   All snapshot-additive; absent = legacy.
+// v5.76 additions (character-profiles X — CP§§42–48,
+//   the promoted tier)
+"promote_cont": 0.15, "promote_remember_isle_p": 0.08,
+"know_detail_cap": 0.4, "know_retell_gist": 0.7,
+"backfill_E": 0.5, "meta_gap_init": 0.25,
+"promote_calib_d": 21, "ambient_wit_gain": 0.5,
+"ambient_wit_hops": 1, "demote_isle_gain": 1.5,
+"generic_merge_thresh": 0.6, "guardian_req": true,
+// v5.76 record fields/ops: `era` ∈{ambient,promoted}
+//   immutable; `rk` ∈{remember,know}; `class:"generic"`;
+//   `backfill:true` + `prov:"backfill"`; `guardian:true`
+//   mint flag; ops `promote`, `demote`.
+// v5.76 locked nulls: promote_rewind_null (P1392);
+//   know_upgrade_null (P1395); backfill_obs_null +
+//   backfill_detail_null (P1396/P1397);
+//   promote_recast_null (P1398); ambient_secret_null
+//   (P1399); minor_promote_null (P1404);
+//   demote_keep_null (P1401). All snapshot-additive;
+//   absent = legacy.
 // v5.75 additions (formal-model XII — FM§§104–116,
 //   the epistemic layer)
 "si_early_gain": 1.2, "sc_retain": 0.7,
@@ -23320,6 +23528,46 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.76 additions (cast-profiles.md §§42–48 — the
+  promoted tier):
+  - **Era contract (§6.386):** `era` immutable at
+    mint; `promote()` retains every ambient-era record
+    byte-verbatim — `promote_rewind_null` (P1392);
+    card-observable traits held inside `promote_cont` —
+    `promote_recast_null` (P1398).
+  - **Typed-era contract (§6.387):** ambient-era
+    records are `generic`+`rk:"know"`; remember islands
+    at `promote_remember_isle_p`; know-tier detail
+    capped `know_detail_cap`; rehearsal never flips
+    rk — `know_upgrade_null` (P1395).
+  - **Backfill contract (§6.388):** `backfill:true`
+    skeletons are gist-class only
+    (`backfill_detail_null`, P1397) and never satisfy
+    ledger-OBSERVED (`backfill_obs_null`, P1396) —
+    seeded pasts drive behavior, not footage.
+  - **Meta-gap contract (§6.389):** promoted
+    SelfModel starts `meta_gap_init` over-confident on
+    the ambient era; decays at `promote_calib_d` —
+    confabulation substrate, not a bug.
+  - **Witness contract (§6.390):** thin-era
+    `ambient:true` edges resurface TOLD-tier at
+    `ambient_wit_gain`; unwritten fields stay
+    unwritten.
+  - **Island contract (§6.391):** `demote()` keeps
+    all records (`demote_keep_null`, P1401);
+    re-promotion retrieves the dense island at
+    savings rates.
+  - **Guard contract (§6.392):** minors need
+    `guardian:true` — `minor_promote_null` (P1404).
+  - **Locked boundaries game-systems must honor:**
+    `promote_rewind_null`, `promote_recast_null`,
+    `know_upgrade_null`, `backfill_obs_null`,
+    `backfill_detail_null`, `ambient_secret_null`,
+    `demote_keep_null`, `minor_promote_null`.
+  - **New params (§7):** 12 scalars + 8 locked
+    nulls; fields `era`,`rk`,`backfill`,`guardian`;
+    ops `promote`,`demote`.
+  - Probes P1392–P1404.
 - v5.75 additions (formal-model.md §§104–116 — the
   epistemic layer):
   - **Lattice contract (§6.378):** `display_tier`

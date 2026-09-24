@@ -5663,3 +5663,82 @@ Lin 2016, Chien & Lin 2012, Peppard 2013, Lipton 2007,
 Buse 2012, CDC NHIS 2022, Clarke 2018 — all pinned into
 human-memory-research.md §93. Mechanism constants unchanged
 and un-re-sourced (ID§§108–137, SM§§151–160 own them).
+
+## 88. v5.76 note (character-profiles X — the promoted tier:
+##    which dials promotion opens and which it seals)
+
+The Astra direction promotes 2–4 supporting residents to
+persistent memory "of the same quality as the mains." The
+ambient tier (§8.5-era template: role tags + 2-DOF jitter, no
+SelfModel, `individ_rate` 0.05) is a *compile tier*, not a
+person tier — a promoted resident needs every pin layer a main
+carries. cast-profiles.md Part VIII compiles the four ranked
+candidates (Bex, Esther, Asha, Kofe) at that depth; this note
+fixes the archetype-level rules for what promotion may and may
+not move.
+
+**What promotion freezes.** `promote_cont` (0.15σ) locks
+card-observable traits — voice register, schedule priors,
+greeting ecology, signature tells — because promotion.md's
+invariant is that the block doesn't notice (`promote_recast_null`,
+P1398). A promotion that re-samples how someone *sounds* has
+failed at the boundary, not the mechanism. Latent traits
+(everything the card couldn't show — `meta_*`, `narr_*`,
+`defens`, `self_complex`, `imagery`…) draw the full MVN
+conditioned on the card's observable pins — the standard
+profile-generation §1 step-3 conditioning, no special case.
+
+**What promotion seals.** Every pre-promotion record: verbatim,
+`era:"ambient"`, `class:"generic"`, `rk:"know"` except the
+~`promote_remember_isle_p` fraction that crossed the thin
+encoder's own theta — those mint `rk:"remember"` islands and
+are the ONLY episodic-grade records a promoted resident has of
+their ambient years. `promote_rewind_null` (P1392) bars the
+compiler from enriching a typed record into a scene — the
+temptation to "give the new character a real past" is exactly
+the cheat the era field exists to prevent. Backfill skeletons
+(`backfill:true`) mint gist/relationship class only and can
+never satisfy ledger-OBSERVED (`backfill_obs_null`, P1396) —
+a seeded quarrel drives behavior, never footage.
+
+**The meta_gap pin.** `meta_gap_init` 0.25 is the promoted
+tier's default — a SelfModel that believes its thin era at
+normal accessibility, decaying over `promote_calib_d` 21.
+Bibles may RAISE it (Esther 0.35 — the confident historian is
+a meta_gap phenotype) but never zero it: a promoted resident
+who accurately knows how thin their archive is would be the
+most unusual memory on the block. Human default is trust;
+calibration is learned (`promote_calib_d` is the learning
+timeconstant, not a switch).
+
+**Pin-range additions for the promoted tier** (all §0 clamps
+unchanged):
+
+| dial | promoted-resident range | notes |
+|---|---|---|
+| meta_gap_init | 0.15–0.35 | 0.25 default; Esther-tier confabulators 0.3+ |
+| ambient era span | = card tenure | years on the block pre-promotion, typed |
+| remember isles | 2–5 seeded | must be card-named events; never invented |
+| backfill records | 2–4 skeletons | promotion packet's relationships-to-seed only |
+| ambient_wit edges | thin-encoder actuals | no new edges minted at promotion |
+
+**The diversity rule, promoted-tier edition.** The four
+compiled residents must differ from each other AND from their
+nearest main on ≥3 trait axes at ≥2σ (P1402). The designed
+contrasts are error-structure contrasts, not surface ones:
+Esther vs Carmen (thin-fluent vs deep-wounded), Asha vs Priya
+(uncompensated-dark vs compensated-calibrated), Kofe vs Marcus
+(instrumental-shallow vs social-shallow), Bex vs Dani
+(withholding witness vs fluent liar). A fifth promotion
+compile that lands inside an existing pair's envelope fails
+review.
+
+**Minors stay gated.** A04/A20 carry teen-archetype-ready
+bands but `promote()` refuses without `guardian:true`
+(`minor_promote_null`, P1404) — the door exists, the lease
+comes first.
+
+Spec v5.75→v5.76: §§6.386–6.392, +12 scalars +8 locked nulls,
+fields `era`/`rk`/`backfill`/`guardian`, ops `promote`/`demote`.
+Probes P1392–P1404 (validation-design §262). Sources pinned
+to human-memory-research.md §105.
