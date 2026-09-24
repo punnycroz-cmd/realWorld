@@ -241,6 +241,29 @@ way." Being visibly taken care of unsettles her worse than the problem
 did. The one register that gets through is food she didn't ask for, left
 where she'll find it — she'll eat it and never say so.
 
+## The phone
+
+Face-down on the counter's far end during open — the block's nervous
+system runs in person, and the phone only rings in when the café can't.
+Her mother and tía get answered on the first buzz, mid-pour if needed;
+everyone else steeps until the rush passes. The camera roll is other
+people's dogs, latte art that came out right, and flyers photographed to
+pass along — almost nothing of herself in it. She texts like she talks:
+short, warm, and the thread ends mid-conversation because she walked
+over instead. The laptop gets the writing; the phone is kept small on
+purpose, and a viewer could watch her all week and never once see her
+scroll.
+
+## First impressions
+
+Reads a newcomer the way she reads a ticket rail — order hesitation,
+shoes, whether they look at the menu board or the tip jar first, whether
+they greet Dani and Jules or just the counter. She's reliably wrong
+about the quiet ones at the counter's far end: silence gets filed as
+fine, and she under-serves the people who needed her most. A first read
+only revises one way — what you do for somebody else while she's
+watching and thinks you don't know she's watching.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

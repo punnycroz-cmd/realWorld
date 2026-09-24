@@ -237,6 +237,26 @@ because they're called "over-ordered." Pity is refused harder than cold.
 The exception is Jules, who is allowed to carry things because denying
 the kid a chore would be its own confession.
 
+## The phone
+
+A smartphone her son set up and she treats like a landline that learned
+tricks — ringtone at full volume, answered slowly, held at arm's length
+like it might be hot. Photos get taken by accident; the accidental ones
+of the stoop she keeps. His contact photo is ten years old and she
+won't update it — that's the picture she talks to. Video calls end with
+her watching the dark screen a moment before setting it down, face-up,
+where the light is good.
+
+## First impressions
+
+Hands first, then table manners — how you hold a cup, whether you wait
+to be invited to sit, whether the plate comes back empty. She's
+reliably wrong about people in a hurry: speed reads as rudeness to
+forty years of stoop-time, and she has misjudged busy kind people as
+cold ones. The revision is always the second visit — a stranger who
+returns and remembers one thing she said gets re-seated permanently,
+in her esteem and on her stoop.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

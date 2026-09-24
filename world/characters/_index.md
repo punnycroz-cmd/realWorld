@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v98)
+# Main Cast Index — "The Mission" (world v112)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,7 +25,7 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14, deepened v28, v42, v56, v70, v84, v98)
+## Roleplay layer (v14, deepened v28, v42, v56, v70, v84, v98, v112)
 
 Added sections per bible — enough that a stranger could play the
 character consistently on day one. Field order is fixed:
@@ -109,8 +109,19 @@ character consistently on day one. Field order is fixed:
     gets refused. The complement to a caretaking-heavy cast. Written as
     habits, not rules — the brain weighs it; nothing here fires a
     behavior.
-25. Public profile · surface relationships · daily routine (briefing-safe)
-26. Secrets & seeds (never surfaces — always the LAST section)
+25. **The phone** — v112. The device register: calls vs texts, screen
+    face-up or face-down, ringer habits, the camera roll's contents,
+    what's answered instantly and what steeps. The most camera-legible
+    object a modern character owns — observable texture only; it may
+    orbit a seed (a thread reread, a call hung up before the ring)
+    without naming it.
+26. **First impressions** — v112. The evaluative read of a stranger in
+    the first minutes: what they clock first, what they're reliably
+    wrong about, and the one thing that revises the verdict. The
+    complement to "With strangers" (posture) and "Notices / misses"
+    (perception) — this section is judgment. Priors, never rules.
+27. Public profile · surface relationships · daily routine (briefing-safe)
+28. Secrets & seeds (never surfaces — always the LAST section)
 
 `world/characters/ensemble.md` (v70) is the companion between-layer file:
 topology, shared rituals, all 28 pair chemistries, and cold seams —
@@ -118,8 +129,8 @@ observable-safe only, priors not scripts.
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
 strangers/wants/interior/truth/money/alone/edges/day/keepsakes/listening/
-day_off/repairs/weather/helped fields and the briefing-safe block for the
-brain/prompt layer.
+day_off/repairs/weather/helped/phone/first_impressions fields and the
+briefing-safe block for the brain/prompt layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for
 thin-AI phrase kits per thinai.json), while "under pressure" and

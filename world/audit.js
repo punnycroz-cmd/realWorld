@@ -1599,6 +1599,7 @@ const PUB = Object.values(PT.surfaces)
       '## A good day / a bad day', '## Keepsakes',
       '## Listening', '## The day off', '## Repairs',
       '## Weather', '## Being helped',
+      '## The phone', '## First impressions',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -1645,7 +1646,7 @@ const PUB = Object.values(PT.surfaces)
       if (iKeys !== others)
         add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
       /* new v28/v42/v56 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes', 'listening', 'day_off', 'repairs', 'weather', 'helped'])
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes', 'listening', 'day_off', 'repairs', 'weather', 'helped', 'phone', 'first_impressions'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
       const extra = JSON.stringify([w, c.interior || {}]);
@@ -1661,7 +1662,7 @@ const PUB = Object.values(PT.surfaces)
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
       for (const c of CAST) {
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep', 'lst', 'offd', 'rpr', 'wx', 'hlp'])
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep', 'lst', 'offd', 'rpr', 'wx', 'hlp', 'phn', 'imp'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
         if (c.want && c.want.length !== 3)
           add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);

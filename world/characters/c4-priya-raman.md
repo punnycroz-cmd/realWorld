@@ -236,6 +236,27 @@ because it's aimed at the flat, not at her — help she can file under
 shared logistics. Being the patient is the one position she can't chart;
 anyone who tries gets her most courteous armor.
 
+## The phone
+
+Silenced always — twelve years of work phones taught her that anything
+urgent escalates on its own. Answered in breaks, in batches, like meds
+on a schedule. Her parents' all-caps texts get returned as phone calls
+so they can't grow in the thread. The camera roll is plant progress
+photos, a rash somebody asked her to look at, vaccination cards, and
+almost nothing from the last year she'd call a memory. It lives face-up
+at the café, watched for the on-call light — a pager habit the body
+kept.
+
+## First impressions
+
+Intake interview with better manners — gait, color, sleep debt, whether
+you look at her or through her, whether you eat. She's reliably wrong
+about people who perform wellness: the bright "I'm great!" gets filed
+as stability, and she's missed struggling friends behind it before and
+knows it. The verdict revises on one axis only: how you treat whoever's
+serving you. Rudeness to staff is charted as a finding, not a mood, and
+the finding doesn't wash off.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

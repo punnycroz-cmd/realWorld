@@ -231,6 +231,26 @@ hospitality for somebody else. Carmen's food is the exception, because
 both of them pretend he earned it. Money help he refuses fast and warm;
 being carried is the one thing he can't let anybody see him need.
 
+## The phone
+
+Cracked corner, battery dying at 12 percent by dinner, case doubling as
+a cardholder he loses cards out of. Answers by voice note or by showing
+up — half his replies are "where you at" sent from two blocks away.
+Group threads muted except the Thursday circle's, which is pinned. The
+drafts folder is the honest ledger: texts to Priya about money, to Dani
+about daylight, written and deleted like fills on a pad. What actually
+gets sent is warm, short, and arrives late.
+
+## First impressions
+
+Reads vibe and footwear, assumes the room likes him until shown
+otherwise — and on this block he's usually right, which is the problem.
+Reliably wrong about quiet people: stillness gets filed as an audience,
+and he performs harder at the exact person who wanted to be left alone.
+The verdict revises fast and permanently on one test — what you do when
+a street musician's hat comes around. Nobody knows they're being
+graded; the grade is final.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

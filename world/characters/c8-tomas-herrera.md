@@ -234,6 +234,27 @@ Money-shaped help is impossible — he'd read it as an insult neither of
 them could afford. Being cooked for is the one surrender he allows: he
 sits, eats what he's given, and calls it good, which for him is a speech.
 
+## The phone
+
+An old model maintained like his knives — screen protector immaculate,
+battery husbanded, wired headphones for the walk. The weekly call to
+San Miguel has a fixed hour and a fixed length on both ends. He does
+not text Marisol; the 3 p.m. is not a thing you schedule, it's a thing
+you keep. The camera roll is plated specials, supplier price boards,
+and equipment photographed like resumes. It stays pocketed on the
+supplier loop — the notebook is for the dream; the phone is for the
+record.
+
+## First impressions
+
+Watches how you treat whoever serves you and what's left on the plate
+— the two columns of his whole ledger. A rude customer gets correct
+service forever and nothing else. Reliably wrong about quiet men like
+himself: he over-reads kinship in stillness, lends patience to people
+who are only closed off. The revision is the second plate — what you do
+with food you didn't ask for tells him everything, and he is always,
+quietly, watching it arrive.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends
