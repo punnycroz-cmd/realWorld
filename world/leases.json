@@ -1,6 +1,6 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 110,
+  "version": 124,
   "power_map": {
     "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "request_assignment", "decide_buyout", "prepay_rent", "request_history_letter", "give_notice", "offer_to_buy", "decide_renewal_offer", "request_guarantor_release", "claim_abandoned_property", "respond_change_of_terms"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
@@ -231,7 +231,7 @@
     "turnover":        "Unit turning over — <address> back on the board",
     "sale":            "Sold — <address> changes hands",
     "eviction":        "admin action — tenancy ended at <address>",
-    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms", "entry notices", "renewal offers", "returned payments", "guarantor detail", "buyout_offers", "assignments", "prepayments", "history_letters", "utility_bills", "rent_board_passthrough", "abandoned_property", "change_of_terms"]
+    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms", "entry notices", "renewal offers", "returned payments", "guarantor detail", "buyout_offers", "assignments", "prepayments", "history_letters", "utility_bills", "rent_board_passthrough", "abandoned_property", "change_of_terms", "income_ratios", "stakes_mirrors"]
   },
   "utilities": {
     "rule": "every lease states who pays which service — a lease term, not a footnote; demo field utils lists tenant-paid services per unit",
@@ -270,9 +270,18 @@
     "notice_math": "the 30-day notice already names the end day; the proration is computed at the recorded move-out, never rounded up",
     "deposit": "untouched — the deposit clock and the itemized return run exactly as before"
   },
+  "stakes": {
+    "rule": "a lease is a commitment, not a bill — every lease row carries a stakes mirror: the same paper re-read through four dimensions. A read-layer only: it adds no mechanics, no new feed vocabulary, no ledger objects — it re-reads the paper that exists",
+    "capacity": "rent + utilities read against income — a standing claim on the month's hours; prepay/plan/assignment are capacity moves, not favors. Own-lease view computes the real burden percent; other files stay qualitative",
+    "interdependence": "who else the paper binds — co-tenants on one joint balance, guarantors liable but never occupants, the shared-wall neighbor, the landlord character whose file it is; a move-out, amendment, or eviction changes somebody else's month",
+    "unequal_knowledge": "three tiers, stated on every mirror: the file (tenant + that unit's landlord), the stairwell (neighbors half-know — a notice on a door, a moved couch), the feed (neutral lines only). Scar asymmetry is honest: the tenant remembers the month, the file keeps the scar, the block keeps a rumor",
+    "open_doors": "a listed or vacant unit may carry one grounded invitation — a garden-plot share, open-house hours, a move-in meal the block may organize. Conditions, never scripts: no RSVP, no attendance tracking, nothing on the record, may ignore — an empty table is still the story",
+    "never": ["a promised outcome", "an inferred motive", "amounts or names on the spectator tier", "a mechanic — the mirror is a read, not a verb"],
+    "demo_field": "STAKES — static mirror keyed by uid; stakesHtml() renders the stairwell tier for spectators and the full read otherwise"
+  },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
-    "storage_key": "rw_lease_v110",
+    "storage_key": "rw_lease_v124",
     "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2, income $4,600/mo game-$)",
     "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
     "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen",
@@ -280,6 +289,7 @@
     "v68_surfaces": "guarantor path on near-miss screening (9418-B at $2,100 is a near-miss on $4,600; 9127-A at $1,300 passes clean); service records on notices 2–4 (clock runs from service); move-out walkthrough doc; rent receipts",
     "v82_surfaces": "notices of entry (≥24h, stated reason + window, file-only); sale with a tenant in place (paper follows the deed — admin records it on an occupied unit, e.g. 9263-4); renewal offers inside months 10–12 of a fixed term (h01 at month 10, 9088-5 at month 11); returned payments (reversal + capped $25 fee, ladder unchanged); guarantor release after 12 on-time months",
     "v96_surfaces": "lease assignment (clean-ledger hand-off, deposit carries, file-only); buyout offers (active-only, 30-day re-offer cooldown, BUYOUT credit code); prepaid rent credit (3-month cap, draws down on the 1st before any balance); the rental history letter (one dated abstract per tenancy, file-only)",
-    "v110_surfaces": "tenant-paid utilities billed as their own itemized ledger line (utils per lease, beside rent never inside it); the Rent Board fee pass-through ($59/unit fee on the owner's file, up to half passed as an itemized RBF line, once a year, never folded into rent); abandoned property at move-out (itemized notice, 15-day claim window, disposal doc + cited storage deduction); change-of-terms docs (month-to-month only, ≥30 days out, house terms never rent); last-month proration on a mid-month move-out"
+    "v110_surfaces": "tenant-paid utilities billed as their own itemized ledger line (utils per lease, beside rent never inside it); the Rent Board fee pass-through ($59/unit fee on the owner's file, up to half passed as an itemized RBF line, once a year, never folded into rent); abandoned property at move-out (itemized notice, 15-day claim window, disposal doc + cited storage deduction); change-of-terms docs (month-to-month only, ≥30 days out, house terms never rent); last-month proration on a mid-month move-out",
+    "v124_surfaces": "the stakes layer — a per-lease stakes mirror (STAKES keyed by uid, stakesHtml render): who the paper binds (interdependence), what it costs against income (capacity — real burden percent on the viewer's own lease only), who knows what (file / stairwell / feed tiers), and open doors (grounded invitations on listed units — may ignore, never tracked). Read-layer only; spectator tier never prints amounts"
   }
 }

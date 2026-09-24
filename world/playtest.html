@@ -32,7 +32,9 @@
   pick-list / [world-playtest-plan] block),
   PT110 + harness v121 fix-verification layer: imported open findings
   become a persisted re-test list (#verify / S.verify / 'still broken'
-  follow-up / fix_checks export / [world-playtest-verify] block).
+  follow-up / fix_checks export / [world-playtest-verify] block),
+  PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
+  loop, PT113 + lease v124 stakes layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2437,6 +2439,26 @@ const PTS=[
   ck:["Onboard gate: 0 fail; detail reports 'schema v123 · 9 beats · key rw_onboard_v123'",
    "A prediction-scoring or prediction-pricing line on the page would FAIL — spot-check",
    "Harness gate: '112 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT113",title:"Lease v124 — the stakes layer: a commitment, not a bill",min:8,
+ persona:"spectator who just learned rent exists in this world — wants to know why anyone's lease matters, without ever seeing someone's private paper",
+ goal:"Verify the v124 lease pass: every rent-roll row renders a 'what this lease stakes' mirror with the four readings (who it binds / what it costs / who knows what / open door); the spectator tier is the stairwell read — no amounts, no ratios, no non-public names; open-door lines carry the may-ignore rule and track nothing; leases.json v124 carries the stakes contract + income_ratios/stakes_mirrors on the feed never-list under the rw_lease_v124 key; lease-ui.md §§62–64 is canonical.",
+ surfaces:["lease","audit"],steps:[
+ {do:"Read lease-ui.md §§62–64 and the leases.json stakes block, then open lease.html (file://) in tenant mode and click through the rent roll — 9457-2 (own), 9457-3 (the disputed joint lease), 9418-A (Carmen), 9418-B (listed), 9088-5 (licensed unit).",
+  exp:"Every lease detail carries a 'what this lease stakes' block with the same four readings. 9457-2's capacity line computes the real burden (rent + utilities ≈ $1,435 of $4,600 — about 31% of the wage, a standing claim); other rows stay qualitative. 9457-3 reads interdependence (one joint balance, the ledger never adjudicating halves); 9418-A reads scar-free longevity; 9418-B and 9476-B carry open-door lines with 'may ignore' attached; 9088-5 names the capped-toolbox asymmetry.",
+  ck:["All 12 demo rows render a stakes mirror — a row with no STAKES entry would FAIL the audit gate",
+   "Own lease shows the computed burden percent; every other file's cost line is qualitative — no invented income",
+   "No stakes block posts, tracks, or transacts — it is a read on existing paper, not a verb"]},
+ {do:"Switch to Spectator mode and re-inspect 9457-3, 9457-2, and 9418-B.",
+  exp:"The stakes mirror renders the stairwell tier only — 'the block half-knows; the file knows', the neutral-line reminder, and the open-door line where one exists. No rent figure, balance, burden percent, or non-public tenant name appears anywhere on the spectator stakes card.",
+  ck:["No $ amount, income ratio, or tenant name beyond the pub label reaches the spectator stakes card",
+   "Open-door lines still carry 'may ignore' and 'an empty table is still the story' — the invitation survives the tier drop",
+   "The stairwell read names knowledge tiers honestly (file / stairwell / feed) without becoming a rumor surface"]},
+ {do:"Run node world/audit.js from the repo root and read the lease + harness + mirror gates.",
+  exp:"The lease gate passes the v124 checks: key rw_lease_v124, stakes block with capacity/interdependence/unequal_knowledge/open_doors/never, open_doors stated as 'conditions, never scripts', both never-list entries, the spectator branch free of money()/l.rent/S.income/burden(), stakesHtml writing nothing, and every demo uid mirrored. Mirror gate agrees PT113 is in both files.",
+  ck:["Lease gate: 0 fail; detail reports 'schema v124 · 13 states · key rw_lease_v124'",
+   "A stakes card showing amounts to spectators, or an open door wired to an RSVP/attendance mechanic, would FAIL — spot-check",
+   "Harness gate: '113 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ];
 

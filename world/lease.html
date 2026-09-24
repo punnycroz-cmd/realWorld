@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — The Rent Book v7 (lease flow)</title>
+<title>Real World — The Rent Book v8 (lease flow)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Lease-flow demo — "The Rent Book" (world v110, v7).
+  Lease-flow demo — "The Rent Book" (world v124, v8).
   Self-contained: file://-safe, no network. Spec + copy deck:
   world/lease-ui.md. Machine mirror: world/leases.json.
   Registry numbers: world/jobs-housing.md §3 (canonical).
@@ -73,6 +73,19 @@
   post on month-to-month leases only, ≥30 days out, house terms never
   rent; a mid-month move-out prorates the last month — symmetric to
   the first-month rule.
+  v124 adds (the stakes layer): every lease row carries a stakes
+  mirror — the same paper re-read through the four dimensions that
+  make a lease a commitment instead of a bill. Capacity: rent +
+  utilities read against income (own lease shows the real burden
+  percent; other files stay qualitative). Interdependence: who else
+  the paper binds — co-tenants, guarantors, the shared-wall neighbor,
+  the landlord whose file it is. Unequal knowledge: three tiers —
+  the file, the stairwell (neighbors half-know), the feed (neutral
+  lines only). Open doors: listed/vacant units may carry one grounded
+  invitation (a garden share, an open house, a move-in meal the
+  block may ignore) — conditions, never scripts: no RSVP, nothing
+  tracked, nothing posts. The layer adds no mechanics; it re-reads
+  the paper that exists.
   Boundaries: game dollars only (credits never touch rent); eviction is
   admin-only and never automatic; 9457-3's dispute stays ambiguous;
   no surface offers possession or request-based lease powers.
@@ -198,7 +211,7 @@
 
 <script>
 /* ================= mirror of leases.json + jobs-housing §3 ================= */
-var LS='rw_lease_v110';
+var LS='rw_lease_v124';
 var STEPS=['listed','applied','approved','active','arrears','noticed','cured','disputed','evict_review','evicted','move_out','turnover','owner_occupied'];
 var RAISE_BAND=0.04; /* controlled-unit annual raise band (house rule, lease-ui §13) */
 var SCREEN_INCOME_X=2.5; /* published screening condition */
@@ -273,6 +286,44 @@ function firstMonth(rent){ /* mid-month signing prorates — lease-ui §29 */
 function isLand(){return S.mode==='landlord';}
 function myUnit(l){return l.ownedBy==='h02';}
 
+/* ================= stakes mirror (leases.json stakes, v124) =================
+   The same lease paper re-read as a commitment — four dimensions:
+   who it binds, what it costs, who knows what, and the open door it
+   may carry. Read-layer only: no new mechanics, no RSVP, nothing
+   tracked. Spectators get the stairwell tier — never amounts. */
+var STAKES={
+ 'bld-g9418-A':{share:'one tenant of record — Carmen, behind this door since 1989',cost:'a controlled rent is why the math still works after four landlords\u2019 worth of neighbors',knows:'the stairwell knows she\u2019s been here longest; the file knows the payments were never late — two different kinds of knowing',door:'stoop cafecito most mornings — an open invitation, may ignore'},
+ 'bld-g9418-B':{share:'whoever signs this shares a wall and a hallway with the block\u2019s memory',cost:'the posted rent against the published 2.5\u00d7 — the checklist does the honest math at the door',knows:'a listing is the most public a lease gets; once it fills, the block goes back to half-knowing',door:'a garden-plot share goes with the lease if the next tenant wants it — an offer, may ignore'},
+ 'bld-g9457-1':{share:'an ambient household under one lease — one balance, several lives',cost:'the rent against wages the file doesn\u2019t print',knows:'the file keeps a cured-arrears scar from 2024 — the block forgot; the paper didn\u2019t',door:null},
+ 'bld-g9457-2':{share:'one hired tenant — the lease is a single person\u2019s standing claim on the month',cost:null,knows:'a late fee and a reminder sit in the file; the block sees nothing — cure before the paper climbs and the stairwell never knows',door:'the neighbors noticed a new name on the door — a move-in meal is the kind of thing the block organizes; may ignore'},
+ 'bld-g9457-3':{share:'two co-tenants, one joint balance — the ledger records the household\u2019s number and never adjudicates whose half was late',cost:'the frozen posting is the stakes — the raise is a monthly argument about whose radiator works',knows:'the filing is on the feed; the amounts aren\u2019t. Neighbors half-know there\u2019s a dispute and a cold heater upstairs',door:null},
+ 'bld-c9127-C':{share:'Marisol\u2019s lease — hers since 2018',cost:'affordable the long way — a nurse\u2019s three twelves against a controlled rent',knows:'her standoff with her landlord lives in two kitchens\u2019 conversation, not on the feed',door:null},
+ 'bld-c9127-A':{share:'a studio over a shop — the smallest door on the board',cost:'uncontrolled — the cheaper door honest screening points a near-miss at',knows:'listed is public; signed is private',door:null},
+ 'bld-g9263-4':{share:'the Reyes cousins\u2019 household — one lease, pooled income, joint liability is how families fit',cost:'a household number, not a personal one',knows:'a sale would move the paper to a new owner and the tenants\u2019 file travels with it — the block would read one neutral line',door:null},
+ 'bld-f9344-1':{share:'Tom\u00e1s\u2019s lease — one tenant of record, month-to-month since 2021',cost:'a rent that stopped being news years ago',knows:'the file is clean; what the stairwell knows is the man, not the ledger',door:null},
+ 'bld-m9102-2':{share:'owner-occupied — the landlord character\u2019s own roof',cost:'tax + HOA in place of a rent line; ownership is a different monthly, not a free one',knows:'everyone knows whose desk the notices come from; the ledger is public record in the other direction',door:null},
+ 'bld-d9476-B':{share:'a door that could be a tenancy or a deed — listed to rent or buy',cost:'the progression fork in one listing — rent or the purchase price plus the deed fee',knows:'the listing is public; an offer would be a file doc, not a feed line',door:'open-house hours posted on the listing — an invitation, may ignore'},
+ 'bld-f9088-5':{share:'a licensed landlord\u2019s one unit — a capped toolbox meeting a tenant\u2019s month',cost:'the day-1 balance is somebody else\u2019s month, not the landlord\u2019s lever',knows:'the landlord sees this ledger and no other; the tenant\u2019s late month is file-only',door:null}
+};
+function burden(l){ /* capacity line — own lease only, real numbers */
+  var mo=l.rent+(l.utils?l.utils.amt:0); if(!S.income||!mo)return '';
+  return mo.toLocaleString()+' of $'+S.income.toLocaleString()+' a month — about '+Math.round(100*mo/S.income)+'% of the wage, a standing claim on the month\u2019s hours';}
+function stakesHtml(l,pub,depth){
+  var st=STAKES[l.uid]; if(!st)return '';
+  var h='<div class="notice med"><b>what this lease stakes</b>';
+  if(pub){
+    h+='The stairwell read: '+(st.knows||'the status word, the door, the comings and goings.')+
+      (st.door?'<br>Open door: '+st.door+' — nothing is tracked and nothing posts; an empty table is still the story.':'')+
+      '<br><span style="color:var(--dim)">The block half-knows; the file knows. The feed prints the neutral line only — amounts, names, and paper stay off it.</span>';
+  } else {
+    h+='Who it binds: '+st.share+'.<br>What it costs: '+
+      ((depth&&l.mine&&S.income)?('$'+burden(l)+'.'):((st.cost||'a rent line against a wage — the standing claim is the stakes')+'.'))+
+      '<br>Who knows what: '+st.knows+'.'+
+      (st.door?'<br>Open door: '+st.door+' — may ignore; nothing is tracked, nothing posts.':'');
+  }
+  return h+'</div>';
+}
+
 /* ================= view ================= */
 function renderDay(){$('dayline').innerHTML='Day '+S.day+' <small>of the month · block time</small>';}
 
@@ -319,6 +370,7 @@ function renderDetail(){
 
   if(pub){
     h+='<div class="note">Public view. What a neighbor could verify: the address, the posted rent if listed, the status word. Balances, tenants, and documents are not a spectator surface — neighbors half-know; the feed never announces.</div>';
+    h+=stakesHtml(l,true,false);
   } else {
     var depth = (S.mode==='admin') || l.mine || (isLand()&&myUnit(l));
     if(depth && l.ledger.length){
@@ -395,6 +447,7 @@ function renderDetail(){
          ' · household facts: '+(l.tenant||'—')+', '+(l.term||'term unrecorded')+
          '<br>A human decides — nothing auto-evicts. The feed will read a neutral line either way.</div>';
 
+    h+=stakesHtml(l,false,depth);
     /* ---- actions ---- */
     h+='<div class="actions">';
     if(S.mode==='tenant' && l.mine){

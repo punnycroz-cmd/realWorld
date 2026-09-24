@@ -1290,7 +1290,8 @@ const PUB = Object.values(PT.surfaces)
        change-of-terms docs (month-to-month only, house terms never
        rent), last-month proration on a recorded move-out */
     if (LJ.version >= 110) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v110')
+      const k110 = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (k110 < 110)
         add(g, 'fail', 'leases.json', null, 'v110 schema on an old storage key');
       for (const [re, label] of [
         [/utilities — |utilities billed|tenant-paid/i, 'utility billing surface'],
@@ -1332,6 +1333,52 @@ const PUB = Object.values(PT.surfaces)
       const rmo = html.match(/window\.recordMoveOut=function[\s\S]*?^\};/m);
       if (rmo && !/prorateOut/.test(rmo[0]))
         add(g, 'fail', 'lease.html', null, 'recordMoveOut lacks last-month proration');
+    }
+    /* v124 additions — the stakes layer: each lease re-read as a
+       commitment (capacity / interdependence / unequal knowledge /
+       open doors). Read-layer only — no mechanics, no feed
+       vocabulary; spectator tier never prints amounts */
+    if (LJ.version >= 124) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v124')
+        add(g, 'fail', 'leases.json', null, 'v124 schema on an old storage key');
+      for (const [re, label] of [
+        [/what this lease stakes/i, 'stakes mirror surface'],
+        [/may ignore/i, 'open-door may-ignore rule'],
+        [/half-know/i, 'stairwell knowledge tier'],
+        [/standing claim|what it costs/i, 'capacity framing'],
+        [/empty table is still the story/i, 'may-ignore honesty line']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v124 surface missing: ${label}`);
+      if (!LJ.stakes || !LJ.stakes.capacity || !LJ.stakes.interdependence ||
+          !LJ.stakes.unequal_knowledge || !LJ.stakes.open_doors || !LJ.stakes.never)
+        add(g, 'fail', 'leases.json', null, 'v124 stakes block missing (capacity/interdependence/unequal_knowledge/open_doors/never)');
+      if (LJ.stakes && LJ.stakes.open_doors &&
+          !/conditions, never scripts/i.test(LJ.stakes.open_doors))
+        add(g, 'fail', 'leases.json', null, 'open_doors must stay conditions, never scripts');
+      for (const nm of ['income_ratios', 'stakes_mirrors'])
+        if (!LJ.feed_wording.never.includes(nm))
+          add(g, 'fail', 'leases.json', null, `feed_wording.never missing "${nm}" — the stakes layer is file/private`);
+      /* the spectator branch of the stakes mirror must never read
+         ledger figures — the stairwell sees no amounts, no ratios */
+      const sh = html.match(/function stakesHtml[\s\S]*?^\}/m);
+      if (!sh) add(g, 'fail', 'lease.html', null, 'stakesHtml missing');
+      else {
+        const pubBr = sh[0].match(/if\(pub\)\{[\s\S]*?\} else/);
+        if (!pubBr) add(g, 'fail', 'lease.html', null, 'stakesHtml lacks a spectator branch');
+        else if (/money\(|l\.rent|S\.income|burden\(/.test(pubBr[0]))
+          add(g, 'fail', 'lease.html', null, 'spectator stakes branch reads ledger figures — the stairwell never sees amounts');
+      }
+      /* the mirror is a read-layer: it must not carry a verb */
+      if (/wires\.push|ledger\.push|docs\.push/.test(sh ? sh[0] : ''))
+        add(g, 'fail', 'lease.html', null, 'stakesHtml writes state — the stakes layer is read-only');
+      /* every demo lease row carries a mirror */
+      const sm = html.match(/var STAKES=\{[\s\S]*?\};/);
+      if (!sm) add(g, 'fail', 'lease.html', null, 'STAKES mirror not found');
+      else {
+        const covered = new Set([...sm[0].matchAll(/'(bld-[^']+)'/g)].map(m => m[1]));
+        const uids = [...html.matchAll(/uid:'(bld-[^']+)'/g)].map(m => m[1]);
+        for (const u of uids)
+          if (!covered.has(u)) add(g, 'fail', 'lease.html', null, `lease ${u} lacks a stakes mirror`);
+      }
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }

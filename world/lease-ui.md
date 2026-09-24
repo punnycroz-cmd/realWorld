@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v110; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer + v110 meter & leftovers layer)
+# Lease Flow — spec & copy deck (world v124; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer + v110 meter & leftovers layer + v124 stakes layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v7), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v8), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v110`.
+  9088-5 only) / admin. localStorage `rw_lease_v124`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -1045,3 +1045,71 @@ same arithmetic:
   (utilities line, RBF pass-through, abandoned-property window,
   change-of-terms gate, last-month proration) and fails on the old
   storage key.
+
+## 62. The stakes layer (v124) — the lease re-read as a commitment
+
+Everything above is *how the paper moves*. This section is what the
+paper **means** — the same lease row read through the four dimensions
+that make a lease a commitment instead of a bill. The layer adds **no
+mechanics**: no new states, no new ledger objects, no feed vocabulary.
+It is a read on the paper that already exists, and it exists so the
+lease file answers "why does this matter to a life" as plainly as it
+answers "what is owed."
+
+Every lease row carries a **stakes mirror** — demo field `STAKES`
+keyed by uid — with four readings:
+
+| Dimension | The read | Demo shape |
+|---|---|---|
+| **Capacity** | Rent + utilities read against income — a standing claim on the month's hours. Prepay, a payment plan, an assignment are capacity moves, not favors | own lease (h01) computes the real burden — rent + utils ÷ the wage, "about N% of the wage"; other files stay qualitative |
+| **Interdependence** | Who else the paper binds — co-tenants on one joint balance (9457-3), guarantors liable but never occupants, the shared-wall neighbor (9418-B), the landlord character whose file it is. A move-out, amendment, or eviction changes somebody else's month | `share` line per unit |
+| **Unequal knowledge** | Three tiers stated on every mirror: **the file** (tenant + that unit's landlord), **the stairwell** (neighbors half-know — a notice on a door, a moved couch, half an argument), **the feed** (neutral lines only). Scar asymmetry is honest: the tenant remembers the month, the file keeps the scar, the block keeps a rumor | `knows` line per unit; spectator mode renders the stairwell tier only |
+| **Open doors** | A listed or vacant unit may carry **one grounded invitation** — a garden-plot share with the lease, posted open-house hours, a move-in meal the block may organize. Conditions, never scripts: no RSVP, no attendance tracking, nothing on the record | `door` line where one exists; the may-ignore rule is always attached |
+
+Honesty rules for the mirror (same spine as every other layer):
+
+- **Spectator tier never prints amounts.** A neighbor sees the
+  stairwell read — "the block half-knows; the file knows" — never a
+  rent figure, an income ratio, or a name the pub label doesn't carry.
+- **The mirror never promises an outcome.** An open door is an
+  invitation the block may ignore; an empty table is still the story.
+- **No inferred motive.** The mirror says who the paper binds and who
+  knows what — it does not say what anyone feels about it.
+- **The burden figure is private math.** The viewer's own lease shows
+  the percent; nobody else's ratio renders anywhere — income_ratios
+  and stakes_mirrors are on the feed's never-list by contract.
+
+## 63. Copy deck additions (v124)
+
+|| Moment | Copy |
+|---|---|---|
+|| Stakes header | "What this lease stakes" |
+|| Capacity (own lease) | "$N of $M a month — about N% of the wage, a standing claim on the month's hours." |
+|| Interdependence | "Who it binds: two co-tenants, one joint balance — the ledger records the household's number and never adjudicates whose half was late." |
+|| Knowledge tiers | "Who knows what: the filing is on the feed; the amounts aren't. Neighbors half-know there's a dispute and a cold heater upstairs." |
+|| Stairwell (spectator) | "The stairwell read: … The block half-knows; the file knows. The feed prints the neutral line only — amounts, names, and paper stay off it." |
+|| Open door | "Open door: a garden-plot share goes with the lease if the next tenant wants it — may ignore; nothing is tracked, nothing posts." |
+|| Scar asymmetry | "The file keeps a cured-arrears scar from 2024 — the block forgot; the paper didn't." |
+
+## 64. Merge notes (v124)
+
+- New demo field: `STAKES` (static mirror keyed by uid — `share`,
+  `cost`, `knows`, `door`, all strings-or-null); `stakesHtml()` renders
+  the stairwell tier for spectators, the full read otherwise. LS key
+  rolled `rw_lease_v110` → `rw_lease_v124` (old saves ignored by
+  design).
+- leases.json v124 adds: `stakes` (rule + capacity + interdependence +
+  unequal_knowledge + open_doors + never + demo_field);
+  `feed_wording.never` gains `income_ratios`, `stakes_mirrors`.
+  Feed templates unchanged — the mirror is a read-layer, not a verb;
+  nothing in it posts, tracks, or transacts.
+- Engine contract at merge: the stakes mirror is display content on the
+  lease detail — spectator render must never include amounts, income
+  ratios, or non-public names; open-door lines are bounded
+  opportunities (conditions, never scripts — drama.json
+  bounded_opportunities agrees; creation.json OPENS is the sister
+  instance on the join side). The burden figure exists only where a
+  viewer's own lease and income are both on screen.
+- `node world/audit.js` G11 now also requires the v124 surfaces
+  (stakes mirror, may-ignore open doors, stairwell tier, capacity
+  framing) and fails on the old storage key.

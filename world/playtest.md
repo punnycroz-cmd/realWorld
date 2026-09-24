@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v123)
+# Playtest Harness — "Real World / The Mission" (world v124)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -417,6 +417,15 @@ One person can wear every hat; four real testers is the intended shape.
   'an empty table is still the story'. The audit's v123 marks pin
   the eight honesty strings, the makePred/predCheck handlers, the
   four contract blocks, and the rw_onboard_v123 key.
+  PT113 (lease v124) audits the stakes layer — every rent-roll row
+  rendering a 'what this lease stakes' mirror (who it binds / what it
+  costs / who knows what / open door), the spectator tier held to the
+  stairwell read with no amounts or non-public names, open doors
+  carrying 'may ignore' with nothing tracked, and the burden percent
+  computed on the viewer's own lease only. The audit's v124 marks pin
+  the stakes contract block, both never-list entries, the spectator
+  branch's figure-freedom, the read-only check, the per-uid mirror
+  coverage, and the rw_lease_v124 key.
 
 ## 3. Running a session
 
