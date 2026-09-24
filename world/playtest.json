@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 76,
+ "version": 93,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -4372,6 +4372,53 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT84",
+   "title": "Harness v93 — the triage layer (surface filter, finding status, per-finding copy, step n/a)",
+   "minutes": 8,
+   "persona": "facilitator running a post-change regression pass — the harness itself is the surface under test",
+   "goal": "Verify the v93 triage affordances: the rail's surface filter narrows scenarios to those touching a picked surface and composes with smoke + hide-finished; findings carry a triage status (open / fixed / wontfix / deferred) that persists, rides both exports, and gates the handoff's open-findings list; each finding row emits its own [world-playtest-finding] paste block; a step sweeps to n/a in one click and un-sweeps the same way.",
+   "surfaces": [
+    "harness",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Pick a surface in the rail's new surface dropdown (e.g. 'lease'), then stack the smoke and hide-finished filters on and off, and walk with [ / ].",
+     "expect": "The rail narrows to exactly the scenarios declaring that surface; the progress line's denominator, the scenario walk, and Copy run sheet all honor the narrowed list; the pick persists across reload (S.surf).",
+     "checkpoints": [
+      "Surface filter options come from Object.keys(SURF) — only declared surfaces, and it narrows honestly: no scenario appears that doesn't touch the pick",
+      "Composes with smoke + hide-finished — neither filter eats the others' meaning, progress line denominator narrows with it",
+      "The pick persists across reload and clears back to 'all surfaces'"
+     ]
+    },
+    {
+     "do": "Log two findings, set one to 'fixed' and one to 'deferred' on the row's status chip; reload; then export JSON, copy Markdown, and Copy handoff.",
+     "expect": "Status persists on the finding (f.status, default open); the statline and both exports carry it; the handoff's open-findings list excludes fixed/wontfix and labels deferred honestly.",
+     "checkpoints": [
+      "f.status persists across reload; findings logged before v93 read as open",
+      "Markdown export prints the status per finding; handoff drops fixed/wontfix from 'open findings' and marks deferred",
+      "Statline reads 'findings: N (M open)'"
+     ]
+    },
+    {
+     "do": "Click 'copy' on one finding and read the clipboard; then hit 'n/a step' on a step with several checkpoints — and again on the same step.",
+     "expect": "Copy emits a [world-playtest-finding] block — severity, ref, owner, title, detail, repro, and the #pt= deep link — pasteable into a per-track note as-is. n/a step marks every checkpoint in that step n/a; pressed again on an all-n/a step it clears them; a partially-verdicted step sweeps to all-n/a without touching other steps.",
+     "checkpoints": [
+      "The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
+      "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js from the repo root.",
+     "expect": "harness gate passes at key rw_playtest_v93 / build 'world v93 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+     "checkpoints": [
+      "Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall",
+      "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -4379,7 +4426,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v76 local",
+   "build": "world v93 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
@@ -4402,7 +4449,8 @@
     "ref": "PT#, PT#·sN, or null — auto-tagged with the open scenario at log time; ·sN added when a step is picked in the fStep dropdown (v37)",
     "title": "string",
     "detail": "string",
-    "steps_to_repro": "string"
+    "steps_to_repro": "string",
+    "status": "open|fixed|wontfix|deferred — facilitator triage state on the finding row (v93); default open; fixed/wontfix drop out of the handoff's open-findings list"
    }
   ],
   "cohort": "Import report merges exported session JSONs; the harness renders a per-scenario verdict matrix across sessions, flags checkpoint disagreements (pass vs fail on the same ref), and merges findings with tester attribution.",
@@ -4413,10 +4461,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v76 local",
- "harness_ui_v76": {
-  "storage_key": "rw_playtest_v76",
-  "build_tag_prefix": "world v76 local",
+ "build": "world v93 local",
+ "harness_ui_v93": {
+  "storage_key": "rw_playtest_v93",
+  "build_tag_prefix": "world v93 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -4440,6 +4488,10 @@
   "revisit_flags": "a ⚑ toggle on each rail card flags the scenario for revisit (S.flags, persisted across reload); flagged ids ride the handoff note under 'flagged for revisit' (v76)",
   "regression_view": "cohort panel gains a Regressions card (#regr) — refs verdicted pass by an imported session but fail in the current session list as 'regressed', imported-fail → current-pass list as 'recovered'; directional, never averaged; also rides the Markdown cohort section (v76)",
   "run_sheet": "Copy run sheet (exSheet) emits a [world-playtest-runsheet] Markdown block for the filtered scenario list — header + per-scenario persona/goal + per-step checkbox lines; honors the smoke and hide-finished filters (v76)",
+  "surface_filter": "surfFilter dropdown in the rail lists the declared surfaces (populated from Object.keys(SURF) — cannot drift); S.surf narrows the rail to scenarios touching the pick; composes with smoke + hide-finished on the rail, the [ / ] walk, and Copy run sheet; persisted (v93)",
+  "finding_status": "each finding row carries a status select (open|fixed|wontfix|deferred) — f.status, default open; persisted; rides JSON + Markdown exports; fixed/wontfix drop out of the handoff's open-findings list; statline counts open (v93)",
+  "finding_copy": "every finding row carries a 'copy' button emitting a [world-playtest-finding] block — severity, ref, owner, title, detail, repro, and the #pt= deep link — the single-finding paste for an owning track (v93)",
+  "step_na_sweep": "an 'n/a step' toggle on each step header sweeps every checkpoint in that step to n/a; pressed again on an all-n/a step it clears them; never touches other steps (v93)",
   "required_marks": [
    "rw_playtest_v57",
    "rw_playtest_v62",
@@ -4479,7 +4531,16 @@
    "S.flags",
    "toggleFlag",
    "world-playtest-runsheet",
-   "flagged for revisit"
+   "flagged for revisit",
+   "rw_playtest_v93",
+   "id=\"surfFilter\"",
+   "S.surf",
+   "Object.keys(SURF)",
+   "class=\"fStat\"",
+   "setFStat",
+   "copyFinding",
+   "world-playtest-finding",
+   "naStep"
   ]
  }
 }

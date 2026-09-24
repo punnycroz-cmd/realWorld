@@ -2990,10 +2990,14 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G22 harness ============ */
 {
-  const g = gate('harness', 'playtest harness self-contract (v51+v65+v76 marks, LS/build agreement, scenario integrity, surface coverage)');
+  const g = gate('harness', 'playtest harness self-contract (v51+v65+v76+v93 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v76 || {};
+    /* newest harness_ui_vNN block wins — the key rolls only on harness
+       affordance changes, not per scenario */
+    const hk = Object.keys(PT).filter(k => /^harness_ui_v\d+$/.test(k))
+      .sort((a, b) => +a.match(/\d+/)[0] - +b.match(/\d+/)[0]).pop();
+    const H = PT[hk] || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

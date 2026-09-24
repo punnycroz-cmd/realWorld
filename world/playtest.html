@@ -22,7 +22,11 @@
   regression view / run sheet, PT73 + onboarding v6 house & other hands,
   PT74 + lease v82 doorstep & deed layer / lease gate v82,
   PT75 + thin-AI v83 fallback-surface layer,
-  PT76 + crowd v6 company & courtesy layer / crowd gate v85).
+  PT76 + crowd v6 company & courtesy layer / crowd gate v85,
+  PT77–PT83 + the real-seam passes (supply v86, commute v87, request v88,
+  wire v89, archive v90, create v91, mod v92),
+  PT84 + harness v93 triage layer: surface filter / finding status /
+  per-finding copy block / step n/a sweep).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -143,6 +147,9 @@
       <input type="checkbox" id="smk"> smoke set only <span style="font-family:var(--mono)">(PT1·PT4·PT7·PT21)</span></label>
     <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
       <input type="checkbox" id="hideDone"> hide finished <span style="font-family:var(--mono)">(every checkpoint verdicted)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      surface <select id="surfFilter" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font:inherit;font-size:11px"><option value="">all surfaces</option></select>
+      <span style="font-family:var(--mono)">(regression pass)</span></label>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -1797,13 +1804,36 @@ const PTS=[
   {do:"Switch the reviewer picker to the appeal's origReviewer and open the appeal; then open the legal item and confirm the flag; then run node devtools/screen_drift.js.",
    exp:"As the original reviewer the decision bar is withheld AND gsReviewResolve returns {error:'same_reviewer'} — the bus enforces the rule, the console just shows it. Confirm legal flag calls gsEscalateLegal and the item dies. The drift report prints corpus green + a PORT-GAP table (23 gaps: 13 missing normalization, 10 lexicon drift, 6 history untestable) — a merge artifact for game-systems, never a world failure.",
    ck:["same_reviewer is enforced twice: the UI withholds the bar, the bus refuses the resolve","Legal kills go through gsEscalateLegal — public wording stays 'request not approved'","screen_drift.js exits 0 with the corpus green; gaps are reported, not judged from this branch"]}
+]},
+{id:"PT84",title:"Harness v93 — the triage layer (surface filter, finding status, per-finding copy, step n/a)",min:8,
+ persona:"facilitator running a post-change regression pass — the harness itself is the surface under test",
+ goal:"Verify the v93 triage affordances: the rail's surface filter narrows scenarios to those touching a picked surface and composes with smoke + hide-finished; findings carry a triage status (open / fixed / wontfix / deferred) that persists, rides both exports, and gates the handoff's open-findings list; each finding row emits its own [world-playtest-finding] paste block; a step sweeps to n/a in one click and un-sweeps the same way.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Pick a surface in the rail's new surface dropdown (e.g. 'lease'), then stack the smoke and hide-finished filters on and off, and walk with [ / ].",
+  exp:"The rail narrows to exactly the scenarios declaring that surface; the progress line's denominator, the scenario walk, and Copy run sheet all honor the narrowed list; the pick persists across reload (S.surf).",
+  ck:["Surface filter options come from Object.keys(SURF) — only declared surfaces, and it narrows honestly: no scenario appears that doesn't touch the pick",
+    "Composes with smoke + hide-finished — neither filter eats the others' meaning, progress line denominator narrows with it",
+    "The pick persists across reload and clears back to 'all surfaces'"]},
+ {do:"Log two findings, set one to 'fixed' and one to 'deferred' on the row's status chip; reload; then export JSON, copy Markdown, and Copy handoff.",
+  exp:"Status persists on the finding (f.status, default open); the statline and both exports carry it; the handoff's open-findings list excludes fixed/wontfix and labels deferred honestly.",
+  ck:["f.status persists across reload; findings logged before v93 read as open",
+    "Markdown export prints the status per finding; handoff drops fixed/wontfix from 'open findings' and marks deferred",
+    "Statline reads 'findings: N (M open)'"]},
+ {do:"Click 'copy' on one finding and read the clipboard; then hit 'n/a step' on a step with several checkpoints — and again on the same step.",
+  exp:"Copy emits a [world-playtest-finding] block — severity, ref, owner, title, detail, repro, and the #pt= deep link — pasteable into a per-track note as-is. n/a step marks every checkpoint in that step n/a; pressed again on an all-n/a step it clears them; a partially-verdicted step sweeps to all-n/a without touching other steps.",
+  ck:["The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
+    "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"]},
+ {do:"Run node world/audit.js from the repo root.",
+  exp:"harness gate passes at key rw_playtest_v93 / build 'world v93 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall",
+    "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"]}
 ]}];
 
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75 */
-const LS="rw_playtest_v76";
-const BUILD="world v76 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76 (world v77–v92 added scenarios only — the key held at v76; no rw_playtest_v77…v92 ever existed) */
+const LS="rw_playtest_v93";
+const BUILD="world v93 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -1814,7 +1844,7 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",audit:"world",harness:"world",supply:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
 S.flags=S.flags||{};
 const $=id=>document.getElementById(id);
@@ -1836,6 +1866,7 @@ const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
    for the rail, the [ / ] walk, and the run sheet (v76) */
 const curList=()=>{let l=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
   if(S.hideDone)l=l.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
+  if(S.surf)l=l.filter(p=>p.surfaces.includes(S.surf));
   return l;};
 /* revisit flags (v76) — a ⚑ mark on the rail card, persisted, rides the handoff */
 window.toggleFlag=(e,id)=>{e.stopPropagation();
@@ -1871,6 +1902,7 @@ function renderBody(){
     <div class="goal"><em>Persona:</em> ${esc(p.persona)}<br><em>Goal:</em> ${esc(p.goal)}</div>
     <div class="surflinks">${p.surfaces.map(s=>`<button onclick="openSurf('${s}')">▶ ${SURF[s].name}</button>`).join("")}</div>
     ${p.steps.map((st,si)=>`<div class="step"><span class="n">STEP ${si+1}</span>
+      <span class="vbtn na" style="float:right;font-size:9.5px" title="sweep every checkpoint in this step to n/a — press again on an all-n/a step to clear" onclick="naStep('${p.id}',${si})">n/a step</span>
       <div class="do">${esc(st.do)}</div><div class="exp">expect: ${esc(st.exp)}</div>
       ${st.ck.map((c,ci)=>{const k=p.id+"-"+si+"-"+ci,v=S.ck[k]||{};flat++;
         return `<div class="ck ${flat===S.sel?'sel':''}"><div class="txt">${esc(c)}
@@ -1883,6 +1915,12 @@ function renderBody(){
 }
 window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();renderCohort();};
 window.noteCk=(k,n)=>{S.ck[k]=S.ck[k]||{};S.ck[k].note=n;save();renderStats();};
+/* step n/a sweep (v93) — all-na clears, anything else sets the whole step */
+window.naStep=(pid,si)=>{const p=PTS.find(x=>x.id===pid);if(!p)return;
+  const keys=p.steps[si].ck.map((_,ci)=>pid+"-"+si+"-"+ci);
+  const allNa=keys.every(k=>S.ck[k]&&S.ck[k].v==="na");
+  keys.forEach(k=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=allNa?null:"na";});
+  save();renderBody();renderList();renderStats();renderCohort();};
 window.openSurf=s=>{const f=SURF[s];$("viewer").style.display="block";$("vName").textContent=f.name;
   $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;
   if(f.tool){$("vFrame").removeAttribute("src");$("vFrame").style.display="none";
@@ -1899,6 +1937,9 @@ function renderFindings(){
     <span class="del" onclick="delF(${i})">✕</span>
     <span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
     <span style="color:var(--dim)"> · ${f.surface}${f.ref?` · ${f.ref}`:""} · →${f.owner||"world"}</span>
+    <select class="fStat" style="font-size:10px;background:var(--panel2);color:${(f.status||"open")==="open"?"var(--acc)":f.status==="fixed"?"var(--grn)":"var(--dim)"};border:1px solid var(--line);border-radius:5px;padding:0 4px" title="triage status — fixed/wontfix drop out of the handoff" onchange="setFStat(${i},this.value)">
+      ${["open","fixed","wontfix","deferred"].map(s=>`<option ${s===(f.status||"open")?"selected":""}>${s}</option>`).join("")}</select>
+    <span class="vbtn" style="float:right;font-size:9.5px" title="copy a [world-playtest-finding] block for this finding" onclick="copyFinding(${i})">copy</span>
     ${f.ref?`<span class="vbtn" style="float:right;font-size:9.5px" title="copy a deep link back to this scenario" onclick="copyRef('${f.ref}')">link</span>`:""}
     <div style="color:var(--dim);margin-top:3px">${esc(f.detail)}</div>
     ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}</div>`).join("");
@@ -1907,6 +1948,16 @@ function renderFindings(){
 window.delF=i=>{S.findings.splice(i,1);save();renderFindings();renderStats();};
 window.copyRef=r=>{const pt=(r||"").split("·")[0];
   navigator.clipboard.writeText("playtest.html#pt="+pt).then(()=>toast("repro link copied"),()=>toast("copy failed"));};
+/* finding triage status (v93) — rides the finding object; fixed/wontfix
+   close it for the handoff, deferred stays listed but labeled */
+window.setFStat=(i,v)=>{S.findings[i].status=v;save();renderFindings();renderStats();};
+/* per-finding paste block (v93) — the single-finding note for an owning track */
+window.copyFinding=i=>{const f=S.findings[i];if(!f)return;
+  const md=`## [world-playtest-finding | ${new Date().toISOString().slice(0,10)} | ${S.name||"?"}]\n`+
+    `- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) [${f.status||"open"}] ${f.title}\n`+
+    `  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}`+
+    `${f.ref?"\n  repro link: playtest.html#pt="+f.ref.split("·")[0]:""}\n`;
+  navigator.clipboard.writeText(md).then(()=>toast("finding block copied"),()=>toast("copy failed"));};
 /* finding templates (v65) — seed the form for the five boundary breaks; never auto-log */
 const FTEMPLATES={
  possess:{sev:"blocker",title:"surface offers possessing a main (C1–C8)",
@@ -1950,7 +2001,8 @@ window.debNote=(id,n)=>{S.debrief[id]=S.debrief[id]||{};S.debrief[id].note=n;sav
 /* ---- stats + export ---- */
 function renderStats(){
   let p=0,f=0,n=0;Object.values(S.ck).forEach(v=>{if(v.v==="pass")p++;else if(v.v==="fail")f++;else if(v.v==="na")n++;});
-  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length}`;
+  const open=S.findings.filter(x=>(x.status||"open")==="open"||x.status==="deferred").length;
+  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`;
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
@@ -2049,7 +2101,7 @@ $("exMd").onclick=()=>{const r=report();
   if(r.session.time_to_first_request_min!=null)md+=` · ttfr: ${r.session.time_to_first_request_min} min`;
   md+=`\n\n## Boundary checklist\n- No surface may offer possessing C1–C8 (incl. the landlord).\n- Moderation touches player request text only — no "report the AI".\n- Parody business names only; real streets/landmarks fine.\n- All denies: neutral "request not approved" + full refund.\n- Prices = monetization-plan §2 PROPOSAL verbatim.\n\n## Checkpoints\n`;
   r.results.forEach(x=>md+=`- [${x.verdict||"?"}] ${x.ref}${x.note?" — "+x.note:""}\n`);
-  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
+  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) [${f.status||"open"}] ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
   const debs=Object.entries(r.session.debrief||{});
   if(debs.length){md+="\n## Debrief\n";debs.forEach(([k,v])=>md+=`- ${k}: ${v.v||"—"}${v.note?" — "+v.note:""}\n`);}
   if(S.cohort.length){md+="\n## Cohort\n";S.cohort.forEach(c=>md+=`- ${c.session.tester||"?"} (${c.session.role}): ${c.results.filter(x=>x.verdict==="pass").length} pass / ${c.results.filter(x=>x.verdict==="fail").length} fail, ${c.findings.length} findings\n`);
@@ -2086,9 +2138,10 @@ $("exHandoff").onclick=()=>{
   md+=rem.length?" "+rem.join(" · "):" none — every checkpoint verdicted";
   const fl=Object.keys(S.flags||{});
   if(fl.length)md+=`\n- flagged for revisit: ${fl.join(" · ")}`;
-  if(S.findings.length)md+="\n- open findings:\n"+S.findings.map(f=>
-    `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}`).join("\n");
-  else md+="\n- no findings logged";
+  const openF=S.findings.filter(f=>(f.status||"open")==="open"||f.status==="deferred");
+  if(openF.length)md+="\n- open findings:\n"+openF.map(f=>
+    `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}${f.status==="deferred"?" (deferred)":""}`).join("\n");
+  else md+="\n- no open findings";
   navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
 /* run sheet (v76) — a blank Markdown artifact for the next session's paper
    run; honors the filtered rail (smoke + hide-finished), carries no verdicts */
@@ -2102,7 +2155,7 @@ $("exSheet").onclick=()=>{
       st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
   navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -2140,6 +2193,10 @@ $("sRole").value=S.role||"spectator";$("sRole").onchange=e=>{S.role=e.target.val
 $("sTtfr").value=S.ttfr??"";$("sTtfr").onchange=e=>{S.ttfr=e.target.value===""?null:+e.target.value;save();};
 $("smk").checked=!!S.smoke;$("smk").onchange=e=>{S.smoke=e.target.checked;save();renderList();};
 $("hideDone").checked=!!S.hideDone;$("hideDone").onchange=e=>{S.hideDone=e.target.checked;save();renderList();};
+/* surface filter (v93) — options derive from SURF itself, so the dropdown
+   can never cite an undeclared surface */
+Object.keys(SURF).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;$("surfFilter").appendChild(o);});
+$("surfFilter").value=S.surf||"";$("surfFilter").onchange=e=>{S.surf=e.target.value||null;save();renderList();};
 /* deep link: #pt=<id> boots straight into a scenario; unknown ids ignored */
 const _hm=location.hash.match(/^#pt=(\w+)$/);
 if(_hm&&PTS.some(p=>p.id===_hm[1])){S.cur=_hm[1];S.cur_since=Date.now();}

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v69)
+# Playtest Harness — "Real World / The Mission" (world v93)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -223,6 +223,12 @@ One person can wear every hat; four real testers is the intended shape.
   card is the gsPossessionBriefing whitelist object itself. Reference
   stub + 19-check run: devtools/smoke_mod_v92.js; the classifier drift
   gate is executable at devtools/screen_drift.js (23 port gaps reported).
+  PT84 (harness v93) is a facilitator audit — the rail's surface filter
+  (SURF-derived options, composes with smoke + hide-finished, persisted),
+  per-finding triage status (open/fixed/wontfix/deferred — persists,
+  rides both exports, gates the handoff list), the per-finding
+  [world-playtest-finding] copy block, the step n/a sweep, and the
+  harness gate's v93 marks at key rw_playtest_v93.
 
 ## 3. Running a session
 
@@ -328,6 +334,27 @@ v76 harness affordances (PT72 exercises all of them):
   session, not a report. Honors smoke + hide-finished, which now also
   compose on the `[` / `]` walk (previously smoke-only).
 
+v93 harness affordances (PT84 exercises all of them):
+
+- **Surface filter** — a `surface` dropdown in the rail lists every
+  declared surface (options built from `Object.keys(SURF)` — it can
+  never cite a phantom). `S.surf` narrows the rail to scenarios that
+  touch the pick, composing with `smoke set only` and `hide finished`;
+  the progress line, the `[` / `]` walk, and Copy run sheet all honor
+  the narrowed list. Persisted; built for post-change regression passes.
+- **Finding triage status** — each logged finding carries a status
+  chip (`open` / `fixed` / `wontfix` / `deferred`, default `open`),
+  persisted on the finding and exported in JSON + Markdown. `fixed` and
+  `wontfix` drop out of the handoff's open-findings list; `deferred`
+  stays listed but labeled. The statline reads `findings: N (M open)`.
+- **Copy finding** — a `copy` button on every finding row emits a
+  `[world-playtest-finding]` block (severity, ref, owner, status, title,
+  detail, repro, `#pt=` deep link) — the single-finding paste for
+  routing to an owning track without exporting the whole session.
+- **n/a step** — a toggle on each step header sweeps every checkpoint
+  in that step to n/a; pressed again on an all-n/a step it clears them.
+  Mixed steps go all-n/a; other steps are never touched.
+
 v66 content under test (PT61 exercises it): the drama-direction board's
 new permission structures — fuse interference matrix (§31, all 15 pairs
 carry exactly one of interlocked/adjacent/independent/masked), audience
@@ -362,7 +389,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Twenty-two gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirty gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -419,7 +446,22 @@ LS key + build tag agree with the contract version, every
 harness_ui_vNN mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
-surfaces).
+surfaces), **regs** (regulars.json ↔ regulars.html: REG mirror, every
+door venue covered, standing orders/held seats/name basis, windows
+agree with posted hours, surface-knowledge bar), **menus** (menus.json ↔
+menus.html: MENUS mirror, doors only, board-price agreement, game
+dollars only), **supply** (suppliers.json ↔ supply.html: SUP mirror,
+door coverage incl. the self-supply exemption, [open-3h, close] windows,
+no prices), **apply** (applications.json ↔ apply.html: live-opening
+coverage, channel agreement with the market layer, decline voices, game
+dollars only), **griev** (grievances.json ↔ grievance.html:
+employer/building coverage, the five-rung ladder, door-not-name feed
+shapes, surface bar), **exits** (exits.json ↔ exit.html:
+employer/building coverage, door-not-name feed shapes, game dollars
+only), **book** (bookings.json ↔ book.html ↔ request.html BOOKW: no
+repricing, feed-vocabulary reuse, seeded windows), **commute**
+(commute.json ↔ commute.html: route/employer/home integrity, minors
+never routed, weather deltas are suggestions, no prices).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and
