@@ -238,6 +238,11 @@
    "file": "rules.html",
    "name": "The Fine Print",
    "tier": "internal"
+  },
+  "firsts": {
+   "file": "firsts.html",
+   "name": "The First Week",
+   "tier": "internal"
   }
  },
  "smoke_set": [
@@ -5230,6 +5235,46 @@
       "Rules gate: 0 fail",
       "A dollar figure on a sign (other than the card minimum), a 'secret' in sign copy, or a cash_only door with no posted CASH sign would FAIL — spot-check",
       "Harness gate: '103 scenarios · N checkpoints'; mirror gate confirms the PT103 hand-sync"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT104",
+   "title": "The first-week layer v115 — first shifts + move-in texture after the yes",
+   "minutes": 8,
+   "persona": "systems reviewer — wants proof the seam between 'hired' and 'working' (and between 'signed' and 'living there') is real content: every live opening has a first week, every vacancy has a move-in, and the public render never names a person",
+   "goal": "Verify the v115 firsts layer on world/firsts.html: first_shifts covers every live jobs.json opening exactly (openings != 0, one row per employer+role); trainer is null or a cast id held_by that employer; move_ins covers the three registry vacancies plus all five ladder tiers (keys = unit_id or tier:<tier>); walkthroughs carry ≥2 honest quirks and anchors pin mail/trash/laundry; feed_shapes print the door, never the name; no dollar figures, no cast ids in texture fields.",
+   "surfaces": [
+    "firsts",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Read firsts.md §§1–5 and firsts.json against the layers it seams (applications upstream, shifts/homes downstream): the row shapes, the trainer rule (cast id only when held_by the same employer), and the lifecycle rules in §5.",
+     "expect": "Every statement resolves to texture a coworker or a new tenant could report — day_one/kit/the_test/first_mistake/not_new_when are conditions, not scheduled beats; trainer nulls carry a role in trainer_note instead (the binder at Golden Hour, nobody at MuleIt); §5 declares that a closing opening retires its row and a new vacancy adds one.",
+     "checkpoints": [
+      "first_shifts has exactly 16 rows — one per live jobs.json opening; the MuleIt always-hiring row is present with trainer null",
+      "The four cast trainers (c1-marisol at Mudhaus, c8-tomas twice at El Farolote, a18-ida at Bloom & Doom) are all held_by that employer in jobs.json; Auerbach's trainer is null — Victor owns the shop and sits in trainer_note, not on the board",
+      "move_ins has exactly 8 rows — bld-g9418-B, bld-g9457-2, bld-c9127-A plus tier:room/studio/1br/flat/house; no tenanted unit carries a row"
+     ]
+    },
+    {
+     "do": "Open firsts.html (file://). Run the filter chips (first shifts / move-ins / feed shapes) and spot-read three cards end to end — e.g. Mudhaus Barista, 9457-2, tier:room.",
+     "expect": "The First Week renders each opening as a card with trainer chip and the eight texture fields; each move-in shows key handoff, walkthrough bullets, first night, the three anchors, first knock, first rent; the feed section shows the door-never-name contract, work/housing shapes with <venue>/<address> placeholders, and the never list; the header carries the internal posture line.",
+     "checkpoints": [
+      "9457-2's walkthrough discloses the stair noise and notes 'your radiator works — the flat upstairs is the one with the known heater problem': texture, not the dispute",
+      "tier:room's first_rent reads 'a person you cook next to' — paper texture, no figure; no card anywhere carries a dollar amount or a credit figure",
+      "A feed shape naming a person, a day count, or a pay term would be a fail — the never list holds"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and read the firsts gate.",
+     "expect": "Firsts gate passes at version 115: FIRSTS mirror deep-equals firsts.json (version, first_shifts, move_ins, feed_shapes, rules); bidirectional coverage both ways (a live opening with no row fails, a row with no live opening fails); trainer ids resolve to held_by; move-in keys ⊆ vacant units ∪ ladder tiers with tenanted units rejected; surface bar sweep clean.",
+     "checkpoints": [
+      "Firsts gate: 0 fail",
+      "A cast id inside a texture field, a dollar figure, or a tenanted unit in move_ins would FAIL — spot-check the gate list",
+      "Harness gate: '104 scenarios · N checkpoints'; mirror gate confirms the PT104 hand-sync"
      ]
     }
    ]

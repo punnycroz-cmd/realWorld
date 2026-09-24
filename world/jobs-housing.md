@@ -52,6 +52,15 @@
 > clock per building, turnover scope, relist path; feed shapes print the
 > door, never the name). Internal demo: `world/exit.html`
 > ("The Last Shift").
+>
+> **v115 depth layer:** `world/firsts.md` + `world/firsts.json` — the
+> first-week layer (what happens after the yes: one first-shift card per
+> live opening — trainer, kit, the informal test, the first mistake, when
+> you stop being new, the pay paper, the break spot; and one move-in card
+> per vacant unit + ladder tier — key handoff, honest walkthrough, first
+> night, mail/trash/laundry anchors, first knock, first rent). Feed
+> shapes print the door, never the name. Internal demo:
+> `world/firsts.html` ("The First Week").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).

@@ -72,6 +72,11 @@
                 ⊆ registry seed units + ambient-ring; occupants ⊆ cast ids
                 ∪ household lease ids; perks employers ⊆ jobs.json;
                 vacant rows carry no occupants; no money, no secrets
+    firsts    — firsts.json ↔ firsts.html FIRSTS mirror; first_shifts ==
+                live jobs.json openings (bidirectional); trainer ids work
+                at that employer; move_ins keys == vacant units ∪ ladder
+                tiers; feed shapes print the door, never the name; no
+                money, no secrets
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -273,7 +278,8 @@ const PUB = Object.values(PT.surfaces)
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
     'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
     'exits.json', 'exit.html', 'permits.json', 'permit.html',
-    'homes.json', 'homes.html', 'house-rules.json', 'rules.html']);
+    'homes.json', 'homes.html', 'house-rules.json', 'rules.html',
+    'firsts.json', 'firsts.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2806,6 +2812,131 @@ const PUB = Object.values(PT.surfaces)
     g.detail = `schema v${HJ.version} · ${(HJ.homes || []).length} homes · ${(HJ.vacant || []).length} vacant · ` +
       `${(HJ.perks || []).length} perks${nOcc ? ` · ${nOcc} bad occupant ids` : ''}`;
   } catch (e) { add(g, 'fail', 'homes.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15i firsts — the first-week layer (v115) ============ */
+{
+  const g = gate('firsts', 'first-week layer contract (firsts.json ↔ firsts.html FIRSTS mirror; first_shifts == live openings; trainers work there; move_ins == vacant units ∪ ladder tiers; door-never-name feed shapes; no money, no secrets)');
+  try {
+    const FJ = JSONF('firsts.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const html = rd('firsts.html');
+    const m = html.match(/const FIRSTS\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline FIRSTS not found in firsts.html');
+    const FI = eval('(' + m[1] + ')');
+    /* inline mirror: FIRSTS must field-match firsts.json */
+    if (FI.version !== FJ.version)
+      add(g, 'fail', 'firsts.html', null, `FIRSTS version ${FI.version} != firsts.json ${FJ.version}`);
+    for (const k of ['first_shifts', 'move_ins', 'feed_shapes', 'rules'])
+      if (JSON.stringify(FI[k] ?? null) !== JSON.stringify(FJ[k] ?? null))
+        add(g, 'fail', 'firsts.html', null, `FIRSTS.${k} drifted from firsts.json`);
+    if (FJ.schema !== 'firsts-v1')
+      add(g, 'fail', 'firsts.json', null, `schema "${FJ.schema}" != firsts-v1`);
+    /* surface bar: no money, no secrets, no seeds vocabulary in texture */
+    const BANNED = [/unfiltered/i, /esperanza/i, /\bsecret/i, /possess/i, /\$\s?\d/, /\d[\d,]*\s*cr\b/, /unpermitted/i];
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)-[a-z]+\b/i;
+    const scan = (tag, s) => {
+      for (const re of BANNED)
+        if (re.test(s)) add(g, 'fail', 'firsts.json', null, `${tag}: "${String(s).slice(0, 70)}" breaches the surface bar (${re})`);
+    };
+    /* first_shifts == live openings exactly (openings !== 0), one row each */
+    const openJobs = JJ.jobs.filter(j => j.openings !== 0);
+    /* employer staff set: anyone held_by any row of that employer */
+    const staff = {};
+    for (const j of JJ.jobs)
+      for (const x of (Array.isArray(j.held_by) ? j.held_by : j.held_by ? [j.held_by] : []))
+        (staff[j.employer] = staff[j.employer] || new Set()).add(x);
+    const seen = new Set();
+    const JOBF = ['trainer_note', 'day_one', 'kit', 'the_test', 'first_mistake', 'not_new_when', 'pay_setup', 'break_spot'];
+    for (const fs of FJ.first_shifts || []) {
+      const key = fs.employer + '|' + fs.role;
+      const tag = `first_shifts.${key}`;
+      if (seen.has(key)) add(g, 'fail', 'firsts.json', null, `duplicate first_shift ${key}`);
+      seen.add(key);
+      const job = openJobs.find(j => j.employer === fs.employer && j.role === fs.role);
+      if (!job) { add(g, 'fail', 'firsts.json', null, `${tag}: no live jobs.json opening`); continue; }
+      /* trainer: null, or a cast id that is held_by this employer */
+      if (fs.trainer != null) {
+        if (!CASTID.test(fs.trainer))
+          add(g, 'fail', 'firsts.json', null, `${tag}: trainer "${fs.trainer}" is not a cast id or null`);
+        else if (!(staff[fs.employer] || new Set()).has(fs.trainer))
+          add(g, 'fail', 'firsts.json', null, `${tag}: trainer "${fs.trainer}" does not work at ${fs.employer}`);
+      }
+      for (const f of JOBF) {
+        if (!fs[f]) add(g, 'fail', 'firsts.json', null, `${tag}: missing ${f}`);
+        else scan(`${tag}.${f}`, fs[f]);
+      }
+      /* cast ids live in the trainer field only — voice fields stay faceless */
+      for (const f of JOBF)
+        if (fs[f] && CASTID.test(fs[f]))
+          add(g, 'fail', 'firsts.json', null, `${tag}.${f}: cast id inside texture — ids live in trainer`);
+    }
+    for (const j of openJobs)
+      if (!seen.has(j.employer + '|' + j.role))
+        add(g, 'fail', 'firsts.json', null, `live opening ${j.employer} — ${j.role} has no first_shift row`);
+    /* move_ins: every listings_live unit + every ladder tier, nothing else */
+    const REGM = rd('jobs-housing.md').match(/```json\n(\{[\s\S]*?\})\n```/);
+    if (!REGM) throw new Error('registry seed block not found in jobs-housing.md');
+    const REG = JSON.parse(REGM[1]);
+    const UNITS = new Set(REG.units.map(u => u.id));
+    const TENANTED = new Set(REG.leases.filter(l => l.status === 'active' || l.status === 'owner-occupied').map(l => l.unit_id));
+    const want = new Set(HJ.listings_live.map(l => l.unit_id)
+      .concat(HJ.listings_ladder.map(t => 'tier:' + t.tier)));
+    const MOVEF = ['key_handoff', 'first_night', 'first_knock', 'first_rent'];
+    const mseen = new Set();
+    for (const mi of FJ.move_ins || []) {
+      const tag = `move_ins.${mi.key}`;
+      if (mseen.has(mi.key)) add(g, 'fail', 'firsts.json', null, `duplicate move_in ${mi.key}`);
+      mseen.add(mi.key);
+      if (!want.has(mi.key)) {
+        if (mi.key.startsWith('tier:'))
+          add(g, 'fail', 'firsts.json', null, `${tag}: not a listings_ladder tier`);
+        else if (!UNITS.has(mi.key))
+          add(g, 'fail', 'firsts.json', null, `${tag}: not a registry unit`);
+        else if (TENANTED.has(mi.key))
+          add(g, 'fail', 'firsts.json', null, `${tag}: unit has an active lease — move-ins are for vacancies`);
+        else
+          add(g, 'fail', 'firsts.json', null, `${tag}: unit not on the live listings board`);
+      }
+      if (!mi.label) add(g, 'fail', 'firsts.json', null, `${tag}: missing label`);
+      for (const f of MOVEF) {
+        if (!mi[f]) add(g, 'fail', 'firsts.json', null, `${tag}: missing ${f}`);
+        else scan(`${tag}.${f}`, mi[f]);
+      }
+      if (!Array.isArray(mi.walkthrough) || mi.walkthrough.length < 2)
+        add(g, 'fail', 'firsts.json', null, `${tag}: walkthrough needs ≥2 honest items`);
+      else mi.walkthrough.forEach(w => scan(`${tag}.walkthrough`, w));
+      for (const a of ['mail', 'trash', 'laundry'])
+        if (!(mi.anchors || {})[a]) add(g, 'fail', 'firsts.json', null, `${tag}: anchors missing ${a}`);
+        else scan(`${tag}.anchors.${a}`, mi.anchors[a]);
+      /* no people ids anywhere in move-in texture */
+      for (const f of MOVEF.concat(['label']))
+        if (mi[f] && CASTID.test(mi[f]))
+          add(g, 'fail', 'firsts.json', null, `${tag}.${f}: cast id inside move-in texture`);
+    }
+    for (const k of want)
+      if (!mseen.has(k)) add(g, 'fail', 'firsts.json', null, `move_ins missing ${k}`);
+    /* feed shapes: the door, never the name */
+    const fs = FJ.feed_shapes || {};
+    if (!/door/i.test(fs.contract || ''))
+      add(g, 'fail', 'firsts.json', null, 'feed_shapes.contract missing the door-never-name contract');
+    for (const l of (fs.work || []).concat(fs.housing || [])) {
+      if (!/<venue>|<address>/.test(l))
+        add(g, 'fail', 'firsts.json', null, `feed line lacks a door placeholder: "${l}"`);
+      if (CASTID.test(l))
+        add(g, 'fail', 'firsts.json', null, `feed line carries a cast id: "${l}"`);
+    }
+    if (!Array.isArray(fs.never) || !fs.never.length)
+      add(g, 'fail', 'firsts.json', null, 'feed_shapes.never missing — the layer must say what stays ledger-held');
+    /* rules state the load-bearing contracts */
+    const rules = (FJ.rules || []).join(' ');
+    for (const re of [/conditions,? never scripts/i, /openings/i, /trainer/i, /no money/i,
+                      /no secrets/i, /door, never the name|never the name/i, /internal/i])
+      if (!re.test(rules)) add(g, 'fail', 'firsts.json', null, `rules missing contract: ${re}`);
+    g.detail = `schema v${FJ.version} · ${(FJ.first_shifts || []).length} first shifts · ` +
+      `${(FJ.move_ins || []).length} move-ins · ${(fs.work || []).length + (fs.housing || []).length} feed shapes`;
+  } catch (e) { add(g, 'fail', 'firsts.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G16 market ============ */
