@@ -744,6 +744,10 @@ function gsWirePush(e){
 function gsWireOnEvent(evt){
   if(!evt || evt.n == null) return;
   if(evt.n <= GS_WIRE_CURSOR.n) return;
+  /* commit the cursor BEFORE pushing: gsWirePush -> gsWirePanelSync ->
+     gsWireTail -> gsWireSync re-enters and would re-dispatch this same
+     event forever (stack overflow on the live panel) */
+  GS_WIRE_CURSOR.n = evt.n;
   const lines = gsWireFormat(evt);
   if(lines.length){
     for(const e of lines) gsWirePush(e);
@@ -755,7 +759,6 @@ function gsWireOnEvent(evt){
     const k = evt.type + ':' + (evt.action || evt.kind || '');
     GS_WIRE_SUP.by[k] = (GS_WIRE_SUP.by[k] || 0) + 1;
   }
-  GS_WIRE_CURSOR.n = evt.n;
 }
 if(typeof gsBusOnEvent === 'function') gsBusOnEvent(gsWireOnEvent);
 

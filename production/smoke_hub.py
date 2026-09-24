@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
-"""production-1 smoke: boot production/hub.html in Chromium, assert zero
-console errors, screenshot every rail view + a camera preset + the front
-door. Output: production/shots/*.png
+"""production-2 smoke: boot production/hub.html in Chromium, assert zero
+console errors, screenshot the front door + pitch site, every rail view,
+camera presets, the request flow (file -> review -> resolve), and the
+Wire. Output: production/smoke/*.png
 
   /home/hatch/workspace/village-game/tmp/.venv/bin/python production/smoke_hub.py
 """
@@ -11,7 +12,8 @@ from playwright.sync_api import sync_playwright
 HERE = pathlib.Path(__file__).resolve().parent
 HUB = 'file://' + str(HERE / 'hub.html')
 DOOR = 'file://' + str(HERE / 'index.html')
-OUT = HERE / 'shots'
+PITCH = 'file://' + str(HERE.parent / 'marketing' / 'site' / 'index.html')
+OUT = HERE / 'smoke'
 OUT.mkdir(exist_ok=True)
 
 PIN = """(() => {
@@ -38,9 +40,11 @@ def main():
                  '"precipitation":0,"cloud_cover":18,"wind_speed_10m":8,'
                  '"wind_direction_10m":250,"weather_code":1}}'))
 
-        # front door
+        # front door + the marketing pitch site (local front door #2)
         pg.goto(DOOR); pg.wait_for_timeout(400)
-        pg.screenshot(path=str(OUT / 'hub-index.png'))
+        pg.screenshot(path=str(OUT / 'front-door.png'))
+        pg.goto(PITCH); pg.wait_for_timeout(400)
+        pg.screenshot(path=str(OUT / 'pitch-site.png'))
 
         # hub — wait for the SF world
         pg.goto(HUB)
@@ -63,16 +67,60 @@ def main():
             pg.screenshot(path=str(OUT / f'hub-{tab}.png'))
             print('shot', tab)
 
-        # camera presets through the real rail buttons
+        # request flow on the real bus: file -> review lane -> resolve
+        # -> Wire line. grant credits, file a street_event, approve at the
+        # desk, then shoot each stage.
+        pg.evaluate("""(() => {
+          gsCreditGrant('spectator-1', 500, 'smoke grant');
+          document.querySelector('#rwTabs button[data-t="req"]').click();
+          document.getElementById('rqKind').value = 'street_event';
+          document.getElementById('rqKind').onchange();
+          document.getElementById('rqNote').value = 'smoke: mural tour on the green';
+          document.getElementById('rqGo').click();
+        })()""")
+        pg.wait_for_timeout(500); pg.evaluate(PIN)
+        pg.screenshot(path=str(OUT / 'req-filed.png'))
+        filed = pg.evaluate("""(() => {
+          const r = GS_REQ.reqs[GS_REQ.reqs.length - 1];
+          return r ? { id: r.id, status: r.status, kind: r.kind } : null;
+        })()""")
+        print('filed:', filed)
+        pg.evaluate("""(() => {
+          const r = GS_REQ.reqs[GS_REQ.reqs.length - 1];
+          if(r && r.status === 'in_review')
+            __aiBridge.gsReviewResolve(r.id, true, { by: 'smoke-desk' });
+          document.querySelector('#rwTabs button[data-t="wire"]').click();
+        })()""")
+        pg.wait_for_timeout(500); pg.evaluate(PIN)
+        pg.screenshot(path=str(OUT / 'wire-after-request.png'))
+        resolved = pg.evaluate("""(() => {
+          const r = GS_REQ.reqs[GS_REQ.reqs.length - 1];
+          const w = GS_WIRE.slice(-3).map(e => e.kind + ':' + (e.status || ''));
+          return { status: r && r.status, wire: w };
+        })()""")
+        print('resolved:', resolved)
+
+        # possession ban on a main — the direct bus call must refuse
+        ban = pg.evaluate("""(() => {
+          const r = __aiBridge.gsSubmitRequest({ playerId: 'spectator-1',
+            kind: 'possess', target: 'C1', durationMin: 10,
+            params: { note: 'smoke: must be denied' } });
+          return r && { status: r.status, reason: r.reason || r.reason_code };
+        })()""")
+        print('possess-on-main:', ban)
+
+        # camera presets through the real rail buttons. NOTE: the overlook
+        # runs the far-LOD massing path (zoom 0.24 over ~5.8k buildings) —
+        # frames are heavy (~10s real canvas), so shots get a long timeout.
         pg.evaluate("""(() => {
           document.querySelector('#rwTabs button[data-t="watch"]').click();
           document.querySelector('button[data-cam="overlook"]').click();
         })()""")
         pg.wait_for_timeout(800); pg.evaluate(PIN)
-        pg.screenshot(path=str(OUT / 'hub-cam-overlook.png'))
+        pg.screenshot(path=str(OUT / 'hub-cam-overlook.png'), timeout=90000)
         pg.evaluate("document.querySelector('button[data-cam=\"streetlv\"]').click()")
         pg.wait_for_timeout(800); pg.evaluate(PIN)
-        pg.screenshot(path=str(OUT / 'hub-cam-street.png'))
+        pg.screenshot(path=str(OUT / 'hub-cam-street.png'), timeout=90000)
 
         # PiP monitor
         pg.evaluate("""(() => {
@@ -80,7 +128,7 @@ def main():
           s.value = 'overlook'; s.onchange();
         })()""")
         pg.wait_for_timeout(800); pg.evaluate(PIN)
-        pg.screenshot(path=str(OUT / 'hub-pip.png'))
+        pg.screenshot(path=str(OUT / 'hub-pip.png'), timeout=90000)
 
         br.close()
 

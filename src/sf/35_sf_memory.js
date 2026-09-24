@@ -21,10 +21,12 @@
      drift_p, confab_fill, sleepFactor, bump_windows, and every per-main
      discriminative (sti_prob, cred_step, share_k, self_share_pen,
      secret_mindwander, vivid_detail, imagine_gain, attach_encode_loss,
-     pm_monitor_p, mnem_neg, defens, script_redeem …). The sfNpcTick
-     schedule brain does not run observe() for ordinary routine events —
-     epistemic records form only where code calls observe()/witnessEvent()
-     (hire arrival beats, playtest 'talk' actions, medieval-path verbs).
+     pm_monitor_p, mnem_neg, defens, script_redeem …). Epistemic
+     records form only where code calls observe()/witnessEvent() — under
+     the v16 contract that is talk-contact (36), convo speech (38),
+     reflection insights + endSay archival (36), hire arrival beats, and
+     medieval-path verbs. Routine order steps (walking, idling, working a
+     shift) still write nothing — memory is event-shaped, not lifelogged.
    ===================================================================== */
 
 /* Age-band archetypes — character-memory-profiles.md §1 verbatim values
