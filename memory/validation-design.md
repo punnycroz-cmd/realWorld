@@ -7558,3 +7558,158 @@ P843 (passive), P844 (dominant language).
   navab_interf_k (DEBATED); all magnitudes, window widths,
   pointer-field mechanics, and orphan_recall are RW
   HYPOTHESES.
+
+## 160. v80 probe specs (P847–P858 — social-memory VIII)
+
+- **P847 the trapdoor (MUST — sign-locked):** ambient-channel
+  events (channel:ambient) referencing the listener:
+  capture rate 0.35±0.10; post-capture, next ≤capture_tail
+  ambient events encode at ambient_spill gain; ambient
+  events not referencing the listener mint NOTHING
+  (name_memory_null — any record from uncaptured ambient
+  FAILS). Constrains name_capture_p, captured_mult,
+  capture_tail, ambient_spill.
+- **P848 addressed stays king (MUST):** identical content
+  addressed vs captured vs ambient: E ordering addressed >
+  captured > ambient≈0; captured cells reuse §59
+  thin-eavesdrop decay legs. FAIL if captured ≥ addressed
+  or ambient mints.
+- **P849 the paradox (MUST — emergent):** held-secret
+  records vs matched non-secret records over 60d: content
+  E decays SLOWER in the secret arm (intrusion
+  reconsolidation) while secret_str decays at
+  identical schedule (secret_intr_tag_null — any tag
+  refresh FAILS); leak events at day-50+ carry full
+  content detail.
+- **P850 one hop only (MUST):** A (sourceCredibility high)
+  vouches B; B vouches C. C's vouch_prior = f(B's cred)
+  only — the A² term must be absent (vouch_chain_null);
+  C's PersonModel carries prior and ZERO records
+  (vouch_only_null — any episodic mint FAILS);
+  vouch_prior halves in ~14d.
+- **P851 the ledger that isn't (MUST):** matched favor
+  streams into exchange vs communal dyads: exchange arm
+  resolves "who owes" at ledger accuracy; communal arm at
+  near-chance on itemized detail (ledger_gate_communal),
+  with noticed-absence compensation on gross neglect;
+  communal tracking ≥ exchange FAILS.
+- **P852 anchor topology (SHOULD):** relationship-history
+  recall retrieves turning_point hubs first (latency and
+  frequency advantage); non-hub period records drift
+  hub-consistent; a 90-day no-hub dyad retrieves generic/
+  "fine". FAIL if hubs show no retrieval advantage.
+- **P853 the prior writes the gray zone (MUST):**
+  ambiguous first-encounter fields (|v|<assim_band) shift
+  toward vouch_prior/hearsay valence by ~prior_assim_k;
+  |Δ|>contrast_band flips sign (contrast); ambiguous
+  field with no perception mints nothing
+  (prior_create_null); unconditional assimilation FAILS.
+- **P854 the seat by the door (SHOULD):** final:true
+  records out-retrieve matched mid-relationship records
+  at 30d; intrusion pulse ≤~30d (final_intr); content
+  drift identical to unflagged records and pre-final
+  history unchanged (final_rewrite_null).
+- **P855 pain glue (MUST):** adversity:true co-present
+  events raise each witness RelEdge.bond by
+  ~adversity_bond_k·|arousal| vs matched no-adversity
+  co-presence; solo adversity raises no edge
+  (adversity_solo_null); later recall reinstates
+  ~adversity_reinstate of edge decay.
+- **P856 the plural subject (SHOULD):** plural:true
+  records cue on partner presence at ~we_spill_k of the
+  partner's cue weight; credit attribution starts ~50/50
+  and drifts self-serving per retell; partner_lost routes
+  them through §27/§79 orphan machinery.
+- **P857 whose story (OBSERVE):** story_own retells —
+  owner-absent trespass ~own_trespass; owner-present
+  no-deference ~2× that; deference yields +own_yield;
+  retelling never blocked (own_block_null — a hard block
+  FAILS).
+- **P858 divergence (MUST — composite):** two profiles
+  differing only on wmc and rumin show different ambient
+  capture rates (P847 cells) AND different secret-intrusion
+  frequencies (P849 cells) — same scene, different books.
+
+Registry: P1–P858. v80 suite: P847–P858 — P847–P851, P853,
+P855, P858 MUST; P852, P854, P856 SHOULD; P857 OBSERVE.
+Locked-null arms: P847 (memory), P849 (tag), P850 (chain +
+record), P851 (communal ledger), P853 (create), P854
+(rewrite), P855 (solo), P857 (block).
+
+## 161. Sources verified this version (P847–P858 backing)
+
+- **Own-name capture (P847–P848):** Cherry 1953
+  (selective listening; unattended channel yields ~nothing);
+  Moray 1959 (~33% name detection); Wood & Cowan 1995
+  (*JEP:G* 124:243 — verified: 34.6% recall of own name in
+  ignored channel, attention shifts confined to ~2 items
+  following, NO indirect memory for unattended content);
+  Conway, Cowan & Bunting 2001 (low-WMC detects more —
+  filter-leakage account). Anchors name_capture_p,
+  captured_mult, capture_tail, ambient_spill,
+  name_memory_null.
+- **Secret preoccupation (P849):** Slepian, Chun & Mason
+  2017 (*JPSP* 113:1–33 — verified: mind-wandering to
+  secrets >> active concealment, ~2×; intrusion, not
+  concealment, predicts harm; >13k secrets); Slepian,
+  Kirby & Kalokerinos 2020 (*Emotion* — verified: shame ↑
+  mind-wandering, guilt ↓); Liu, Kalokerinos & Slepian
+  2023 (*PSPB* — replication); Slepian, Camp & Masicampo
+  2015 (*JEP:G* 144:e31 — burden, used for mechanism only).
+  Anchors secret_intr_p, shame_gate, secret_intr_tag_null.
+- **Vouching (P850):** De Houwer, Thomas & Baeyens 2001
+  (*Psych Bull* 127:853 — evaluative-conditioning meta,
+  ~d=0.35); spillover direction CONSENSUS, transitive
+  credibility transfer is RW composite (trust-transitivity
+  lit is formal/ABM). Anchors vouch_k, vouch_halflife,
+  vouch_chain_null, vouch_only_null.
+- **Conditional ledgers (P851):** Clark & Mills 1979
+  (*JPSP* 37:12 — exchange vs communal); Clark 1984
+  (*JPSP* 47:549 — record-keeping experiment: exchange
+  expectation → better contribution tracking); Clark &
+  Mills 1993 review (norm violations memorable both
+  directions). Migration threshold flagged HYPOTHESIS.
+  Anchors ledger_gate_*, norm_breach_e.
+- **Turning points (P852):** Baxter & Bullis 1986 (*HCR*
+  12:469 — verified: relationship histories reconstruct
+  from ~15–25 turning points, ~10 categories); Baxter &
+  Erbert 1999; Surra relational-history method. Hub
+  mechanics RW composite. Anchors tp_e_mult,
+  tp_drift_shield.
+- **Prior assimilation (P853):** Jones 1990
+  (*Interpersonal Perception* — expectancy assimilation
+  default); Nickerson 1998 (confirmation bias review);
+  Biernat shifting-standards program + Dunning & Sherman
+  1997 (assimilation→contrast boundary at unambiguous
+  extremity — the band's justification). Anchors
+  prior_assim_k, assim_band, contrast_band, contrast_k,
+  prior_create_null.
+- **Final encounter (P854):** Fredrickson & Kahneman 1993
+  + Kahneman et al. 1993 (peak-end — CONSENSUS leg);
+  Davis & Lehman 1995 (counterfactual replay in
+  bereavement — nearest direct evidence, about rumination
+  not encoding — hence composite HYPOTHESIS). Anchors
+  final_e_mult, final_intr, final_rewrite_null.
+- **Shared adversity (P855):** Bastian, Jetten & Ferris
+  2014 (*Psych Sci* 25:2079 — verified: shared pain →
+  bonding + cooperation, 3 experiments incl. control for
+  task/effort); Whitehouse & Lanman 2014, Whitehouse et
+  al. 2017 (dysphoric-fusion mechanism). Anchors
+  adversity_bond_k, adversity_reinstate,
+  adversity_solo_null.
+- **Plural subject (P856):** Aron et al. 1991
+  (self-expansion/other-in-self); Mashek, Cannaday &
+  Tangney 2007 (inclusion measures); Wegner transactive
+  line (cueing leg CONSENSUS); record-level "we" store is
+  RW composite. Anchors we_spill_k.
+- **Story ownership (P857):** Stone 1988 + family-lore
+  work (ownership phenomenon exists; magnitudes unmeasured
+  → OBSERVE-grade). Anchors own_trespass, own_yield,
+  own_block_null.
+- **Established vs hypothesis summary:** capture rate,
+  mind-wander>conceal, shame/guilt split, exchange>
+  communal tracking, anchor sparsity, shared-pain bonding
+  — CONSENSUS. Assimilation-vs-contrast boundary placement,
+  prior mechanics, final-encounter privilege, vouch
+  transitivity, we-record mechanics, ownership magnitudes —
+  RW HYPOTHESES, all probe-gated.

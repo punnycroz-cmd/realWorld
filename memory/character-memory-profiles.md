@@ -1094,6 +1094,16 @@ needs both.
 | hypnot_gain / hypnot_yield / hypnot_conf | 0.0 / 0.0 / 0.0 | 0.6 / 0.15 / 0.15 | gated-to-guided-imagery hypnotizability legs (v5.27) |
 | mnem_link_k / mnem_beta_k / mnem_place_k / mnem_search_k | 0.0 / 0.0 / 0.0 / 0 | 0.6 / 0.4 / 0.3 / 3 | deliberate-context mnemonic gains (v5.27) |
 | tot_nondom_k / tot_cognate_rescue | 0.0 / 0.0 | 0.1 / 0.05 | nondominant-language TOT tax + cognate rescue (v5.27) |
+| name_capture_p / captured_mult / capture_tail / ambient_spill | 0.15 / 0.3 / 1 / 0.0 | 0.55 / 0.9 / 4 / 0.4 | ambient-channel own-name trapdoor + post-capture window (v5.28) |
+| secret_intr_p / shame_gate | 0.02 / 0.5 | 0.25 / 3.0 | held-secret idle intrusion rate + shame appraisal multiplier (v5.28) |
+| vouch_k / vouch_halflife | 0.1 / 5 | 0.7 / 30 | endorsement→prior transfer strength + prior half-life days (v5.28) |
+| ledger_gate_exchange / ledger_gate_courtship / ledger_gate_communal / norm_breach_e | 0.8 / 0.4 / 0.05 / 0.0 | 1.0 / 0.9 / 0.5 / 0.3 | relKind gates on favor/promise bookkeeping + breach encode bump (v5.28) |
+| tp_e_mult / tp_drift_shield | 1.0 / 0.2 | 2.0 / 0.8 | turning-point hub encode boost + drift shield (v5.28) |
+| prior_assim_k / assim_band / contrast_band / contrast_k | 0.05 / 0.15 / 0.5 / 0.0 | 0.35 / 0.5 / 0.9 / 0.25 | pre-meeting reputation assimilation window + contrast flip (v5.28) |
+| final_e_mult / final_intr | 1.0 / 0.0 | 1.8 / 0.1 | last-encounter encode boost + intrusion pulse per day (v5.28) |
+| adversity_bond_k / adversity_reinstate | 0.1 / 0.0 | 0.4 / 0.25 | shared-adversity bond increment + recall-triggered edge reinstate (v5.28) |
+| we_spill_k | 0.1 | 0.5 | plural-record partner-cue fraction (v5.28) |
+| own_trespass / own_trespass_present / own_yield | 0.05 / 0.1 / 0.0 | 0.5 / 0.6 / 0.3 | story-ownership breach costs + deference bonus (v5.28) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3922,3 +3932,64 @@ Twelve clamp rows added in §0. **Eight new traits**
 - **The tip of which tongue (§86):** bilingual mains pay a
   TOT tax only in their nondominant language — the fluent
   abuela blanks on English names, not Spanish ones.
+
+## 62. v5.28 note (social-memory VIII — the gate and the books)
+
+Eleven clamp rows added in §0. **No new traits** — all
+loadings ride existing axes; the new surface is relational
+fields (`relKind`, `vouch_prior`, `bond`) and event tags
+(`channel`, `turning_point`, `final`, `adversity`,
+`plural`, `story_own`). Bible-facing notes:
+
+- **Somebody always hears their name (§111):** the ambient
+  channel is mostly closed — but a main's own name breaks
+  in at ~35%, and low-`wmc` characters hear it MORE (the
+  weak filter leaks). Bibles: the distractible barista
+  catches her name across the café more reliably than the
+  focused novelist does. This is also the world team's
+  license to let background chatter name-drop.
+- **The secret keeps the keeper (§112):** `secret_intr_p`
+  drives idle mind-wandering to held secrets; shame-appraised
+  secrets intrude ~2.5× more than guilt-appraised ones. The
+  emergent behavior to write toward: the character remembers
+  the secret CONTENT perfectly for months while forgetting
+  it was confidential — the leak is fresh-sharp, not vague.
+- **Vouches decay in two weeks (§113):** an endorsement
+  buys a warm prior for ~14d, one hop only. The regular
+  who says "trust me, she's good people" buys the newcomer
+  one favorable first meeting — nothing more. After that
+  the record must earn itself.
+- **Some relationships keep books; some don't (§114):**
+  `relKind` decides whether the favor ledger exists.
+  Exchange ties (landlord-tenant, new acquaintances,
+  shopkeeper) itemize; communal ties (the sister, the old
+  friend) notice only gross neglect — as absence, not debt.
+  Bibles choose `relKind` per dyad, not per character, and
+  new ties start exchange and migrate.
+- **Relationships are remembered as anchors (§115):** a
+  dyad's history retrieves AS its turning points — firsts,
+  the big fight, the crisis survived. A main whose
+  relationship has had no turning point in a season
+  remembers it as "fine, I guess" — write that flatness as
+  accurate, not a sim gap.
+- **Reputation arrives early (§116):** `prior_assim_k`
+  bends only ambiguous first-impression fields toward the
+  heard reputation; blatant contradiction flips to
+  contrast ("nothing like they said"). A character can be
+  pre-sold or pre-poisoned before a single handshake.
+- **The last conversation stays warm ~30d (§117):** a
+  departed friend's final encounter intrudes for about a
+  month and anchors the edge — salience, not content:
+  the goodbye itself still drifts and distorts.
+- **Shared misery is glue (§118):** co-endured adversity
+  raises bond even when the event was pure bad — the
+  blackout, the flood, the shift from hell. Solo suffering
+  builds no edge: the glue is the witnesses.
+- **"We did it" is a real record (§119):** plural events
+  cue on the partner and start credit-splitting at 50/50 —
+  the self-serving boast is acquired one retell at a time.
+  Widowhood orphans them hardest.
+- **Whose story is it (§120):** telling someone's
+  self-defining story costs a small trespass (doubled if
+  they're present without being handed the mic); deference
+  pays a small bond. Ownership prices, never blocks.

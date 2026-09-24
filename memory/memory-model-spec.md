@@ -1,4 +1,45 @@
-# Memory Model Spec v5.27 — implementable human-like memory for RW characters
+# Memory Model Spec v5.28 — implementable human-like memory for RW characters
+
+> **v5.28 note (social-memory VIII — the gate and the
+> books):** `memory/social-memory.md` Part VIII (§§111–125)
+> models what the social channel lets IN and what the
+> relational ledger keeps. **Own-name trapdoor** —
+> ambient-channel events referencing the listener roll
+> `name_capture_p` (0.35, Wood & Cowan 1995) → `captured`
+> channel + ~2-turn `ambient_spill` window; Cherry's null
+> locks: uncaptured ambient mints nothing — §111.
+> **Secret preoccupation** — held secrets roll idle
+> intrusion (Slepian 2017: mind-wander >> conceal;
+> `appraisal:shame` boosts via `shame_gate`, Slepian &
+> Kirby 2020); intrusion reconsolidates content but NEVER
+> refreshes `secret_str` (`secret_intr_tag_null`) — §112.
+> **Vouching** — `endorsed_by` seeds `vouch_prior` on the
+> target PersonModel; one-hop only (`vouch_chain_null`),
+> prior-only (`vouch_only_null`), ~14d half-life — §113.
+> **Conditional ledgers** — `relKind` ∈
+> {communal,exchange,courtship} gates §97/§67 bookkeeping
+> (Clark & Mills 1979; Clark 1984); `norm_breach` tags —
+> §114. **Turning-point hubs** — `turning_point` records
+> become retrieval attractors, canonize at half threshold,
+> shield drift (`tp_drift_shield`; Baxter & Bullis 1986) —
+> §115. **Prior assimilation** — pre-meeting reputation
+> bends ambiguous first-encounter fields (`prior_assim_k`
+> inside `assim_band`), flips to contrast past
+> `contrast_band` (Dunning & Sherman 1997; locked
+> `prior_create_null`) — §116. **Final-encounter
+> privilege** — `final:true` retro-tag joins the anchor
+> set with a ~30d intrusion pulse; salience protected,
+> content not (`final_rewrite_null`) — §117.
+> **Adversity glue** — co-endured `adversity` events raise
+> witness RelEdge.bond (`adversity_bond_k`; Bastian,
+> Jetten & Ferris 2014); solo adversity builds no edge
+> (`adversity_solo_null`) — §118. **We-records** —
+> `plural:true` joint events carry pair `who`, cue on
+> partner at `we_spill_k`, start credit equal and drift
+> self-serving — §119. **Story ownership** —
+> `story_own:<charId>` prices trespass/deference
+> (`own_trespass`/`own_yield`), never blocks
+> (`own_block_null`) — §120. Probes P847–P858.
 
 > **v5.27 note (individual-differences VII — where the memory
 > lives):** `memory/individual-differences.md` Part VII
@@ -11636,6 +11677,44 @@ MemoryParams = {
 //   `guided_imagery`, `authoritative`, `reportLang`,
 //   `cognate_ok`; ops `lookup`, `askPartner`; emission
 //   `orphan_recall`; bump window union rule (§78).
+// v5.28 additions (social-memory VIII — SM§§111–120)
+"name_capture_p": 0.35, "captured_mult": 0.6,
+"capture_tail": 2, "ambient_spill": 0.2,             // §111
+"secret_intr_p": 0.08, "shame_gate": 1.5,            // §112
+"vouch_k": 0.4, "vouch_halflife": 14,                // §113
+"ledger_gate_exchange": 1.0, "ledger_gate_courtship": 0.6,
+"ledger_gate_communal": 0.2, "norm_breach_e": 0.1,   // §114
+"tp_e_mult": 1.4, "tp_drift_shield": 0.5,            // §115
+"prior_assim_k": 0.15, "assim_band": 0.3,
+"contrast_band": 0.7, "contrast_k": 0.1,             // §116
+"final_e_mult": 1.3, "final_intr": 0.03,             // §117
+"adversity_bond_k": 0.25, "adversity_reinstate": 0.1,// §118
+"we_spill_k": 0.3,                                   // §119
+"own_trespass": 0.15, "own_trespass_present": 0.3,
+"own_yield": 0.1,                                    // §120
+// v5.28 locked nulls: name_memory_null (uncaptured
+//   ambient mints nothing — Cherry, P847); captured
+//   channel reuses §59 thin-eavesdrop legs at
+//   captured_mult, never addressed strength (P848);
+//   secret_intr_tag_null (intrusion reconsolidates
+//   content, never refreshes secret_str — P849);
+//   vouch_chain_null (one hop — P850);
+//   vouch_only_null (prior, never record — §113);
+//   adversity_solo_null (sharing is the glue — P855);
+//   prior_create_null (priors bend, never mint — P853);
+//   final_rewrite_null (salience, not content — P854);
+//   own_block_null (ownership prices, never blocks —
+//   P857).
+// v5.28 fields: Event `channel` ∈{addressed,ambient,
+//   captured}, `appraisal:shame|guilt`, `endorsed_by`,
+//   `vouch` kind, `norm_breach`, `turning_point`,
+//   `final` (retro-tag allowed), `adversity` +
+//   `witnesses`, `plural` + pair `who`,
+//   `story_own:<charId>`; PersonModel `vouch_prior`
+//   {val,str,day}, `relKind`, record flag
+//   `imprinted_by_prior`; cueContext `secret_idle`;
+//   ops `vouch`, `depart`; emissions `name_capture`,
+//   `secret_intrude`, `trespass`, `deference`.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13271,6 +13350,55 @@ not resolved (DEBATED magnitude). P509/P511.
     `tot_dom_null`.
   - All snapshot-additive, absent = legacy; probes
     P835–P846.
+- v5.28 additions (social-memory.md Part VIII §§111–125):
+  - **Event fields:** `channel` ∈ {addressed, ambient,
+    captured} — world emits `addressed` by default,
+    `ambient` for overheard (§59) speech; `captured` is
+    minted by the §111 trapdoor only; `appraisal:shame|guilt`
+    on secret-minting events (§112); `endorsed_by:<charId>`
+    + `vouch` kind (§113); `norm_breach` (§§114, 120);
+    `turning_point:true` (§115); `final:true` — retro-tag
+    allowed via `depart` op (§117); `adversity:true` +
+    `witnesses:<ids>` (§118); `plural:true` + pair `who`
+    (§119); `story_own:<charId>` (§120).
+  - **PersonModel fields:** `vouch_prior:{val,str,day}`
+    (§113 — ~14d half-life, consumed by §116 assimilation);
+    `relKind` ∈ {communal, exchange, courtship} — default
+    by tie strength at mint; exchange→communal migration
+    on intimacy threshold flagged HYPOTHESIS (§114);
+    `bond` accumulates §118/§120 increments.
+  - **Record fields:** `imprinted_by_prior:true` (§116 —
+    lets §75 revision price the prior's contribution);
+    `witnesses` list on adversity records (§118);
+    pair-valued `verbatim.who` on plural records (§119);
+    `story_own` on third-party self-defining material
+    (§120).
+  - **cueContext:** `secret_idle` (§112 — intrusion rolls
+    in idle contexts only, §5.7 machinery).
+  - **Ops:** `vouch` (§113), `depart` (§117 — applies the
+    `final` retro-tag to the last substantive encounter
+    on a departed/estranged edge).
+  - **Emissions:** `name_capture{turn,source}` (§111),
+    `secret_intrude{recordId}` (§112), `trespass{owner,
+    present:bool}` / `deference{owner}` (§120).
+  - **Locked nulls:** `name_memory_null`,
+    `secret_intr_tag_null`, `vouch_chain_null`,
+    `vouch_only_null`, `adversity_solo_null`,
+    `prior_create_null`, `final_rewrite_null`,
+    `own_block_null`.
+  - **New params (§7):** 24 knobs — name_capture_p,
+    captured_mult, capture_tail, ambient_spill,
+    secret_intr_p, shame_gate, vouch_k, vouch_halflife,
+    ledger_gate_{exchange,courtship,communal},
+    norm_breach_e, tp_e_mult, tp_drift_shield,
+    prior_assim_k, assim_band, contrast_band, contrast_k,
+    final_e_mult, final_intr, adversity_bond_k,
+    adversity_reinstate, we_spill_k, own_trespass,
+    own_trespass_present, own_yield.
+  - All snapshot-additive, absent = legacy; no new traits
+    (loads on wmc, vigil, neurot, rumin, social, distrust,
+    attach_anx, trans_dep, consc, suggs, checker, g_mem —
+    all existing); probes P847–P858.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

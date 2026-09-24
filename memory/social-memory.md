@@ -3948,3 +3948,484 @@ loadings; `sex` trait parameterizes the §104 split.
   co-ownership disputes** (whose story is it to tell —
   the "that's MY story" offense) is behavior-layer
   territory noted for world-builder.
+
+# Part VIII (v80) — the social gate at encoding: whose name, whose favor, whose story
+
+This part picks up the channel side of social memory — what gets IN
+(addressed vs ambient speech, secrets that intrude, endorsements that
+travel ahead of the person) — and the relational bookkeeping side:
+whose ledgers exist at all, which events become the relationship's
+anchors, and whose name is on the story. Throughout: "Event" and
+"PersonModel" refer to the spec schemas; new fields listed in §122.
+
+## 111. Own-name capture — the ambient channel has a trapdoor **[CONSENSUS effect; rate meta-stable]**
+
+Cherry's (1953) classic selective-listening result — almost nothing
+survives from the unattended channel — has exactly one reliable
+exception: your own name. Moray (1959) reported ~33% detection;
+Wood & Cowan (1995, *JEP:G* 124:243–262) replicated under proper
+controls at **34.6%**, with attention shifts confined to roughly the
+two items *following* the name — the name breaks in, then the channel
+closes. Conway, Cowan & Bunting (2001) tied detection to working-memory
+capacity (low-WMC detects MORE — the filter is porous precisely where
+it's weakest). §59 already encodes overheard speech as thin; the
+correction is that "self-mentioned in the ambient channel" is a
+trapdoor that briefly re-opens it.
+
+Implement: on an Event with `channel:ambient` (§59's overheard flag)
+whose content references the listener (`target:self`), roll
+`name_capture_p` (default 0.35 — the Wood & Cowan rate, clamped
+±0.15). Success → the event re-encodes at `captured_mult` of the
+addressed-channel E (≈0.6 — a real encoding but degraded), AND the
+next `capture_tail` events in that channel (≈2 turns) encode at a
+small `ambient_spill` gain (≈0.2) — the attention window stays cracked
+open briefly. Failure → no record at all (Cherry's null result: no
+indirect memory for unattended content). `name_capture_p` loads
+−wmc (Conway et al.: the weak filter leaks more), +vigil (SM§24:
+self-relevance monitoring), flat on age — detection survives into
+older adulthood as well as anything does, which is to say imperfectly
+(Röer et al.: auditory distraction preserved-ish; mark age-flat as
+HYPOTHESIS — direct data thin).
+
+```text
+if channel=ambient and references(listener):
+    if rand() < name_capture_p(listener):
+        channel → captured;   E *= captured_mult
+        listener.ambient_spill_turns = capture_tail   // ≈2
+    else: drop   // Cherry null — no indirect memory
+```
+
+This also fixes a small tell in the sim: characters should be able to
+hear their own name across the café and turn around. The trapdoor is
+what makes crowds feel inhabited.
+
+## 112. Secret preoccupation — the secret thinks about YOU **[CONSENSUS; composite mechanics HYPOTHESIS]**
+
+Slepian, Chun & Mason (2017, *JPSP* 113:1–33) split the secret
+experience in two and found the surprising half dominates: people
+mind-wander to their secrets FAR more often than they actively conceal
+them (≈2× rate across 13,000+ secrets), and it is the mind-wandering —
+not the concealment — that predicts the harm. Slepian, Kirby &
+Kalokerinos (2020, *Emotion*) add the valence gate: **shame**
+appraisals increase intrusion frequency, **guilt** appraisals decrease
+it. Liu, Kalokerinos & Slepian (2023, *PSPB*) replicate the shame
+leg. The 2015 "secrecy burden" result (Slepian, Camp & Masicampo,
+*JEP:G* 144:e31 — hills look steeper while keeping secrets) is a
+perceptual judgment effect; we take only the intrusion engine, not the
+hill slope.
+
+This changes what §23's `secret_str` decay means. The tag rots on
+schedule, but the CONTENT gets involuntary rehearsal — a held secret
+is a rumination target, and every intrusion is a §5.9 reconsolidation
+pass. So the paradox a real character should show: **the secret she
+can't stop thinking about is the secret whose content stays sharpest
+while its "don't tell" flag quietly expires** — she remembers
+perfectly what she was never supposed to know. That is the most human
+leak path in the whole spec.
+
+Implement: each live secret record gets a per-day intrusion roll
+`P(intrude) = secret_intr_p · (1 + shame_gate·shameTag)` (default
+`secret_intr_p` 0.08/day while idle — Slepian's mind-wandering rate
+scaled to sim ticks; `shame_gate` ≈ 1.5 on `appraisal:shame`, −0.5 on
+`appraisal:guilt`, world tags or falls back to content valence). An
+intrusion = an involuntary recall event (§5.7) that reconsolidates
+content E at full reboost but does NOT touch `secret_str` — locked
+null `secret_intr_tag_null`: thinking about the secret never
+refreshes the secrecy flag. Intrusion frequency decays with
+`beta_episodic`-family schedule and stops when the tag is spent.
+
+## 113. Vouching — credibility travels one hop and no further **[HYPOTHESIS composite; evaluative spillover CONSENSUS]**
+
+§9 gave sources learned credibility; §37 gave gossip a discounted
+trait-update weight. Missing: the endorsement itself as an event.
+When A — whose `sourceCredibility` the listener already trusts —
+says "you'll like her, she's solid," that is a directed transfer: some
+of A's credibility attaches to B before B has said a word. The
+components are consensus-grade: evaluative conditioning transfers
+valence along associations robustly (De Houwer, Thomas & Baeyens
+2001 meta, *Psych Bull* 127:853 — average effect ~d=0.35); attitude
+generalization across associated targets is textbook. What is NOT
+established is transitive *credibility* transfer in social networks
+(the trust-transitivity literature is mostly formal/ABM work) — so
+the mechanism is ours.
+
+Implement: a `vouch` Event (world emits when a character endorses a
+third party: `endorsed_by:<charId>`) writes a `vouch_prior` on the
+listener's PersonModel[target] seeded at `vouch_k · A's
+sourceCredibility · vouch_valence` (default `vouch_k` 0.4 — weaker
+than §37's gossip update because it's attitude-only, no evidence).
+Two locked constraints: `vouch_chain_null` — vouching does NOT
+compose (if B vouches for C after A vouched for B, C inherits only
+the direct vouch, not A²·B — transitive trust collapses at one hop);
+and `vouch_only_null` — a vouch seeds an impression prior, never a
+record (B has done nothing yet; there is nothing to remember).
+`vouch_prior` decays fast (half-life ~14d) and is consumed by §116's
+assimilation on first meeting.
+
+## 114. Exchange ledgers are conditional — communal relationships keep no books **[CONSENSUS distinction; age trajectory HYPOTHESIS]**
+
+Clark & Mills (1979, *JPSP* 37:12–24) established the exchange/
+communal split: exchange relationships track inputs and outputs —
+repayment is the grammar — while communal relationships respond to
+need, not debt. Clark (1984, *JPSP* 47:549–557) ran the decisive
+memory experiment: participants expecting an *exchange* relationship
+kept significantly better track of who contributed what in a joint
+task than participants expecting a *communal* one — the ledger is a
+property of the relationship TYPE, not of the person. Clark & Mills
+(1993) review: norm violations (repaying a communal partner, failing
+to repay an exchange one) are themselves memorable offenses.
+
+This rescopes §97's favor ledger and §67's promise ledger: the
+asymmetries are real but apply only where the ledger exists.
+Implement: `PersonModel.relKind ∈ {communal, exchange, courtship}`
+(default `communal` for close ties, `exchange` for
+acquaintances/landlord-tenant/shopkeeper relations — world supplies
+or defaults by tie strength at mint; the classic finding is that new
+relationships START exchange and migrate communal — a `relKind`
+transition on intimacy threshold is our extension, marked HYPOTHESIS).
+Favor/promise bookkeeping multiplies by `ledger_gate(relKind)`:
+exchange → 1.0, courtship → 0.6, communal → 0.2 (not zero — communal
+partners still notice gross neglect; Clark's tracking difference was
+a reduction, not an absence). Neglect in a communal tie shows up as
+§100's noticed absence, not as ledger debt — the same event, a
+different bookkeeping machine. Norm-violation encodings (repaying a
+communal favor with cash, keeping score aloud) get `norm_breach`
+encoding bump ~+0.1 E.
+
+## 115. Turning points — the relationship is remembered as a handful of events **[CONSENSUS existence; hub mechanics HYPOTHESIS]**
+
+Baxter & Bullis (1986, *HCR* 12:469–493) asked couples to recount
+their relationship as turning points and found the whole trajectory
+reconstructs from ~15–25 discrete events clustered into ~10
+categories (first meeting, first "I love you", the big fight, the
+crisis survived, the trip, the reconciliation); commitment level maps
+onto turning-point structure far better than onto steady-state
+sampling. Follow-up work (Baxter & Erbert 1999; Surra's relational
+history interview) replicates the sparse-anchor structure: what is
+RETAINED of a relationship is its turning points plus the recent
+state — the connective months mostly fall out. This is §99's
+relationship bump seen from the other end: the bump is not a window,
+it's a topology — the first ninety days are dense in turning points.
+
+Implement: Event field `turning_point:true` (world tags relational
+transitions — firsts, fights with resolution, crisis co-endured §118,
+defining disclosures). Turning-point records become **cluster hubs**
+in the §5.4 cluster machinery: they (a) get `tp_e_mult` ≈ 1.4 encoding
+boost, (b) act as retrieval attractors — recalling anything about
+that PersonModel adds `w_people`-weighted cue overlap to the hub
+first, so relationship history retrieves AS the turning points then
+reconstructs outward, (c) get `tp_drift_shield` ≈ 0.5 — hubs drift
+slowly and attract §24 canonization faster (`retellCount` threshold
+halved). Non-hub relationship records referencing the period drift
+toward hub-consistent content (Bartlett-style assimilation to the
+anchor — composite, marked HYPOTHESIS). A relationship with no
+turning points in 90+ days retrieves as smooth/unmemorable — the
+"it's fine, I guess" relationship, a real phenomenon (Baxter's
+"steady" trajectories were the ones with the fewest anchors).
+
+## 116. The prior arrives first — pre-meeting reputation assimilates the gray zone **[CONSENSUS direction; assimilation-vs-contrast boundary DEBATED]**
+
+By the time a neighbor meets someone, they have usually already met
+them — in gossip. §22's interpret bias operates at encoding; the
+question here is the FIRST encounter, where the person model is a
+prior with no data. Expectancy-consistent assimilation in person
+perception is the default lab finding (summarized in Jones 1990,
+*Interpersonal Perception*; Nickerson 1998 on confirmation bias);
+the boundary condition — established in the stereotype-assimilation
+literature — is that assimilation flips to CONTRAST when the
+encountered behavior is unambiguously extreme (Biernat's shifting-standards
+work; Dunning & Sherman 1997): mild ambiguity bends toward the
+prior, blatant contradiction rebounds away from it. That is exactly
+the §6.x ambiguity-band shape, and it means reputation doesn't just
+predict the first impression — it participates in writing it.
+
+Implement: if `PersonModel[target]` holds a nonzero `vouch_prior`
+(§113) or accumulated `hearCount`-weighted gossip valence, and the
+first encounter's field evidence is ambiguous (|field_valence| <
+`assim_band` ≈ 0.3 — the §6 ambiguity window), the recorded field
+value bends toward the prior by `prior_assim_k` (≈0.15). If
+|field_valence − prior| > `contrast_band` ≈ 0.7, flip sign: encode at
+field_valence + `contrast_k`·sign(field−prior)·0.1 — "nothing like
+they said" is itself salient. Locked null `prior_create_null`: the
+prior only bends what is perceived; an ambiguous field with NO
+perception mints nothing. First impressions then carry the mark —
+`imprinted_by_prior:true` so later revision (§75) can price it.
+
+## 117. The last encounter keeps the seat — final-contact privilege **[HYPOTHESIS composite; peak-end CONSENSUS]**
+
+Peak-end is consensus for episodes (Fredrickson & Kahneman 1993;
+Kahneman et al. 1993): the end of an experience weights memory
+disproportionately. Applied to relationships — a composite the
+literature supports piecemeal but nobody has measured directly —
+the last substantive encounter with a departed person (moved away,
+died, relationship ended) should retain disproportionate recency and
+detail, functioning as the period at the end of the §115 anchor set.
+Supporting components: recency in free recall is robust; bereavement
+research documents vivid last-conversation recall (the "if only I'd
+known" counterfactual replay — Davis & Lehman 1995 on undoing
+replays is the closest direct evidence, and it is about
+counterfactual rumination, not encoding advantage — hence
+HYPOTHESIS).
+
+Implement: world flags `final:true` on the last encounter before a
+departure/estrangement it knows about (or the record gets the flag
+retroactively when a `departed`/`estranged` status lands — retro-tag,
+marked as our mechanism). `final` records get `final_e_mult` ≈ 1.3
+and join the PersonModel's anchor set alongside §115 hubs, plus a
+small involuntary-recall weight `final_intr` ≈ +0.03/day for ~30d
+(the replay window). Locked null `final_rewrite_null`: the flag
+protects salience, not content — the last encounter drifts like any
+record; what it can't do is retroactively recolor the relationship
+prior to it (that's §58's reconstruction job, gated separately).
+
+## 118. Shared adversity bonds the witnesses **[CONSENSUS direction; gain HYPOTHESIS]**
+
+Bastian, Jetten & Ferris (2014, *Psych Sci* 25:2079 — three
+experiments, ice water / squats / chili) found shared pain — versus
+the same activity painless — produced bonding AND economic-game
+cooperation among strangers; the effect survived controlling group
+size and task. The mechanism literature (identity fusion:
+Whitehouse & Lanman 2014; Whitehouse et al. 2017 shared-ordeal
+fusion meta) points the same direction: dysphoric shared experience
+fuses identity to the co-sufferers specifically. This is NOT just
+arousal tagging (§2's arousal_gain already covers the event) — the
+bond attaches to the PEOPLE, not the episode.
+
+Implement: Event field `adversity:true` (world tags co-endured
+negative events — the blackout, the flood, the awful shift, the
+funeral). On encoding, all co-present PersonModels get
+`RelEdge.bond += adversity_bond_k · |arousal|` (default
+`adversity_bond_k` 0.25, clamp 0.1–0.4) — a bond increment
+independent of valence: the shared bad thing makes them closer even
+if it made everyone miserable. The event record itself gets a
+`witnesses:<charIds>` list; later, recalling the event restores a
+fraction `adversity_reinstate` ≈ 0.1 of each witness edge's decay —
+the story of the bad night keeps the bond warm. Boundary (locked
+`adversity_solo_null`): alone-endured adversity encodes hot but
+builds no edge — the glue is the sharing. Age flat (fusion shows no
+reliable age gradient); trait loading +attach_anx (adversity bonding
+is the anxious-attacher's fast lane), +social.
+
+## 119. "We" records — the plural subject is a real store **[HYPOTHESIS composite; transactive components CONSENSUS]**
+
+Aron's self-expansion work (Aron et al. 1991) and Mashek, Cannaday &
+Tangney's (2007) inclusion-of-other measures establish that close
+others are cognitively merged into the self; transactive memory (§8,
+§27, v5.27 §79) establishes that dyads partition storage. The
+composite we add: joint accomplishments are encoded under a plural
+subject — "we did it" is a distinct record type, not "I did it with
+her nearby." Consequences humans actually show: we-records cue on the
+PARTNER's presence more than solo records (transactive cueing,
+CONSENSUS); they retrieve with first-person-plural framing that makes
+contribution attribution fuzzy (feeds §51's >100% dyad — the
+self-serving split happens at RE-telling, not encoding); and losing
+the partner orphans them (§27's machinery applies).
+
+Implement: Event field `plural:true` on joint-goal events (world
+tags; default rule: co-actors with shared outcome). `plural` records
+(a) carry `verbatim.who = [self, partner]` pair, (b) add partner
+presence as a strong cueContext match (`we_spill_k` ≈ 0.3 of the
+partner's own cue weight — hearing the partner reminisce re-fetches
+your copy), (c) on §51-style credit splitting, start at equal-share
+then drift self-serving at `drift_p` per retell — the record was
+plural; the boast is acquired, and (d) on `partner_lost` (v5.27) they
+route through §27's loss machinery at full strength — we-records are
+the transactive store's crown jewels and its biggest orphans.
+
+## 120. Whose story is it — the ownership tag and the trespass offense **[HYPOTHESIS — thin direct evidence; components CONSENSUS]**
+
+§110 flagged this as leftover; here is the model. Components are
+solid: people feel ownership of their autobiographical material;
+audience tuning (§5) means the teller rewrites toward listeners;
+canonization (§24) means a story told often enough freezes. Compose:
+a record whose content is self-defining for ANOTHER person carries
+`story_own:<charId>`; when a non-owner retells it to new listeners
+without the owner present, the owner's later discovery encodes a
+small `norm_breach` (§114's flag reused — the offense class is
+identical: someone treated communal material as exchangeable). When
+the owner IS present, non-owner telling without deference ("and then
+she — you tell it") costs the same breach at higher magnitude; WITH
+deference it produces a small positive bond update — handing the mic
+is a favor. Direct evidence for the offense magnitude is thin
+(family-communication folklore studies, e.g., Stone 1988 on family
+stories, establish the phenomenon of ownership but not parameter
+values) — magnitudes are ours.
+
+Implement: `story_own` minted when record content has
+selfRelevance:high for a charId ≠ teller (the §2 self_relevance
+machinery identifies whose defining material it is). Breach magnitudes:
+`own_trespass` ≈ 0.15 bond decrement owner-absent, 0.3
+owner-present-no-deference; `own_yield` ≈ +0.1 deference bonus.
+Locked null `own_block_null`: ownership never blocks retelling —
+people tell each other's stories constantly; it prices them.
+
+## 121. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106)
+
+| param | trait loadings | age note |
+|---|---|---|
+| name_capture_p | −wmc · +vigil | flat (mark: thin direct data — Conway et al. argue the leak is a WMC symptom) |
+| captured_mult | +g_mem (weak) | mild − (episodic floor) |
+| secret_intr_p | +neurot · +rumin | flat — intrusion is appraisal-driven, not age-driven |
+| shame_gate | +neurot · +self_est(−) | flat |
+| vouch_k | +social · −distrust | flat |
+| ledger_gate (communal) | −consc? no — gate is relational not trait; consc loads the ledger CONTENTS not the gate | older adults shift communal earlier (Carstensen-narrowing — HYPOTHESIS tag) |
+| tp_e_mult / tp_drift_shield | +extra? no — flat; hubs are structural | flat (anchors work in aging — preserved gist) |
+| prior_assim_k / contrast_k | +suggs · −checker | +older (prior reliance rises as episodic detail falls — §33 attribution-correction asymmetry) |
+| final_e_mult / final_intr | +neurot · +attach_anx | flat |
+| adversity_bond_k | +attach_anx · +social | flat |
+| we_spill_k | +trans_dep · +attach(−avoid) | flat |
+| own_trespass / own_yield | +distrust (trespass) · +consc (yield recognized) | flat |
+
+New trait candidates considered and rejected: none needed — every
+loading lands on existing axes. `relKind` is a RELATIONSHIP field,
+not a trait — a person can run exchange books with the shopkeeper and
+communal ones with their sister, and the same person drifts communal
+with age.
+
+## 122. Spec changes in v5.28 (summary)
+
+- Event fields: `channel:ambient|addressed|captured` (§111 —
+  `captured` minted by the trapdoor), `appraisal:shame|guilt` on
+  secret-minting events (§112), `endorsed_by:<charId>` + `vouch`
+  kind (§113), `relKind` on PersonModel mint + `norm_breach` event
+  tag (§§114, 120), `turning_point:true` (§115), `final:true`
+  (retro-tag allowed, §117), `adversity:true` + `witnesses:<ids>`
+  (§118), `plural:true` + pair `who` (§119), `story_own:<charId>`
+  (§120).
+- PersonModel fields: `vouch_prior:{val,str,day}` (§113),
+  `relKind` (§114 — default by tie strength; exchange→communal
+  migration on intimacy threshold is flagged HYPOTHESIS),
+  `imprinted_by_prior` record-field (§116), `bond` increments from
+  §§118, 120.
+- §4 additions: `vouch_prior` fast decay (~14d half-life);
+  `secret_str` unchanged — §112 intrusion touches content E only
+  (locked null `secret_intr_tag_null`); `final` records' intrusion
+  pulse `final_intr` ~30d.
+- §5 additions: `name_capture_p` trapdoor + `ambient_spill_turns`;
+  turning-point hubs as retrieval attractors (`tp_drift_shield` also
+  halves §24 canon threshold); secret-intrusion involuntary recall
+  (idle-context §5.7 with `secret_idle` cueContext).
+- §6 additions: `prior_assim_k`/`assim_band`/`contrast_band`/
+  `contrast_k` first-encounter assimilation (§116); we-record
+  self-serving credit drift (§119); `own_trespass`/`own_yield`
+  breach book entries (§120).
+- §7 +22 params, +7 locked nulls (see §123).
+- §10 contract: ops `vouch`, `depart` (final-encounter retro-tag);
+  emissions `name_capture`, `secret_intrude`, `trespass`,
+  `deference`; ambient channel now needs a per-turn `channel` tag —
+  world emits `addressed` by default, `ambient` for overheard.
+
+## 123. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| param | default | range | basis |
+|---|---|---|---|
+| name_capture_p | 0.35 | 0.15–0.55 | Wood & Cowan 1995 (34.6%); Moray ~33% |
+| captured_mult | 0.6 | 0.3–0.9 | degraded-but-real — modeling choice |
+| capture_tail | 2 | 1–4 | Wood & Cowan: ~2 items post-name |
+| ambient_spill | 0.2 | 0.0–0.4 | window stays cracked — HYPOTHESIS |
+| secret_intr_p | 0.08/d | 0.02–0.25/d | Slepian 2017 mind-wander >> conceal |
+| shame_gate | 1.5 | 0.5–3.0 | Slepian & Kirby 2020 (Emotion) |
+| vouch_k | 0.4 | 0.1–0.7 | below §37 gossip weight — evidence-free attitude |
+| vouch_halflife | 14d | 5–30d | fast — prior is scaffolding not ledger |
+| ledger_gate | 1.0/0.6/0.2 | fixed triplet | Clark 1984 record-keeping (exchange > communal) |
+| tp_e_mult / tp_drift_shield | 1.4 / 0.5 | 1.0–2.0 / 0.2–0.8 | Baxter & Bullis anchors — magnitude ours |
+| prior_assim_k / assim_band | 0.15 / 0.3 | 0.05–0.35 / 0.15–0.5 | assimilation lit — magnitude ours |
+| contrast_band / contrast_k | 0.7 / 0.1 | 0.5–0.9 / 0.0–0.25 | Biernat shifting standards; Dunning & Sherman 1997 |
+| final_e_mult / final_intr | 1.3 / 0.03 | 1.0–1.8 / 0.0–0.1 | peak-end composite — HYPOTHESIS |
+| adversity_bond_k / adversity_reinstate | 0.25 / 0.1 | 0.1–0.4 / 0.0–0.25 | Bastian 2014 direction; magnitude ours |
+| we_spill_k | 0.3 | 0.1–0.5 | transactive cueing fraction — ours |
+| own_trespass / own_yield | 0.15/0.3 / 0.1 | 0.05–0.5 / 0.0–0.3 | folklore-lit composite — ours |
+| secret_idle weight | reuse w_people+w_topic | — | intrusion cueContext |
+
+Locked nulls (all falsifiable): `name_memory_null` (ambient channel
+mints nothing absent capture — Cherry null, no indirect memory);
+`secret_intr_tag_null` (intrusion never refreshes secret_str);
+`vouch_chain_null` (no transitive composition past one hop);
+`vouch_only_null` (vouch seeds a prior, never a record);
+`adversity_solo_null` (solo suffering builds no edge);
+`prior_create_null` (priors bend perception, never mint);
+`final_rewrite_null` (final protects salience, not content/history);
+`own_block_null` (ownership prices, never blocks).
+
+## 124. Validation probes (P847–P858)
+
+- **P847 the trapdoor (MUST):** ambient-channel events referencing
+  the listener detect at 0.35±0.10 with next-2-turn spillover gain;
+  non-self ambient content mints nothing (name_memory_null). FAIL
+  if all ambient mints, or capture <0.15.
+- **P848 addressed stays king (MUST):** same content addressed vs
+  ambient vs captured — E ordering addressed > captured > ambient≈0.
+  FAIL if captured ≥ addressed.
+- **P849 the paradox (MUST — emergent):** held secrets show content
+  E decaying slower than matched non-secret records (intrusion
+  reconsolidation) while `secret_str` decays identical-schedule —
+  old secrets leak at full content strength. FAIL if intrusion
+  refreshes the tag or if content decays at baseline.
+- **P850 one hop only (MUST):** A(trusted) vouches B; B vouches C —
+  C's prior = f(B's cred) only; A² term must be absent
+  (vouch_chain_null). FAIL on any compounding.
+- **P851 the ledger that isn't (MUST):** exchange vs communal dyads,
+  identical favor stream — exchange PersonModel resolves "who owes"
+  recall at ledger accuracy; communal resolves at chance-on-details
+  with noticed-absence compensation on gross neglect. FAIL if
+  communal tracks itemized debt ≥ exchange.
+- **P852 anchor topology (SHOULD):** relationship recall tasks
+  retrieve turning-point hubs first (lower latency, higher
+  frequency) and non-hub records drift hub-consistent; a 90-day
+  no-hub relationship retrieves generic. FAIL if hubs don't
+  attract.
+- **P853 the prior writes the gray zone (MUST):** ambiguous
+  first-encounter fields (|v|<assim_band) record shifted toward
+  prior valence by ~prior_assim_k; blatant contradiction
+  (|Δ|>contrast_band) records contrasted; no-prior ambiguous fields
+  mint nothing (prior_create_null). FAIL on unconditional
+  assimilation.
+- **P854 the seat by the door (SHOULD):** final:true records
+  out-retrieve same-content mid-relationship records at 30d;
+  intrusion pulse ~30d; content drift unaffected
+  (final_rewrite_null — history prior stays put).
+- **P855 pain glue (MUST):** co-present adversity events raise
+  witness RelEdge.bond vs matched no-adversity co-presence; solo
+  adversity raises no edge (adversity_solo_null); recalling the
+  event reinstates edge decay partially.
+- **P856 the plural subject (SHOULD):** plural records cue on
+  partner presence at we_spill_k fraction; credit attribution
+  starts equal and drifts self-serving per retell; partner_lost
+  routes them through orphan machinery.
+- **P857 whose story (OBSERVE):** owner-present no-deference
+  retells cost ~2× the owner-absent trespass; deference produces
+  positive yield; retelling never blocked (own_block_null).
+- **P858 divergence (MUST — composite):** two profiles differing
+  only on wmc and rumin show different ambient-capture rates AND
+  different secret-intrusion frequencies — the same scene writes
+  different books.
+
+## 125. Honest limits (Part VIII)
+
+- **The 34.6% is a lab number.** Wood & Cowan's rate is a
+  dichotic-listening figure with motivated undergrads; a café's
+  real capture rate depends on acoustic salience the world layer
+  supplies. We clamp the param ±0.15 rather than re-derive.
+- **Secret intrusion magnitudes are scaled, not measured.** Slepian
+  establishes mind-wander >> conceal and the shame/guilt split;
+  nobody reports per-day intrusion rates convertible to sim ticks.
+  `secret_intr_p` 0.08/d is calibrated to "a held secret surfaces a
+  few times a month" — plausible, unverified, probe-gated.
+- **Vouching is our composite.** Evaluative conditioning is
+  consensus; transitive credibility in social nets is ABM folklore.
+  The two locked nulls (no chains, no records) are the honest half.
+- **`relKind` migration is asserted, not timed.** Clark & Mills show
+  new relationships start exchange; the intimacy threshold at which
+  the ledger dissolves is unmeasured. We expose the transition and
+  flag it HYPOTHESIS.
+- **Turning-point hub mechanics are topology invented on consensus
+  content.** Baxter & Bullis proves sparse anchors; that they act as
+  retrieval attractors is standard spreading-activation machinery
+  applied by us.
+- **Final-encounter privilege is the weakest section.** Peak-end is
+  real; its application to departed relationships is extrapolation.
+  `final_rewrite_null` keeps the claim small.
+- **`story_own` magnitudes are invented.** The phenomenon is
+  ethnographically solid (family-lore work, Stone 1988); the
+  0.15/0.3/0.1 numbers are sized against §114's norm_breach and need
+  probe P857 to earn their range.

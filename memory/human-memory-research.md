@@ -2970,3 +2970,80 @@ Sources backing Part VII of `individual-differences.md`
   30:246 — verified: more TOTs on noncognates, cognate
   rescue, per-language activation mechanism); Gollan &
   Silverberg 2001.
+
+## 58. Addendum — v80 anchors (social-memory VIII, spec v5.28)
+
+Sources backing Part VIII of `social-memory.md` (§§111–120)
+and probes P847–P858.
+
+- **Own-name capture (§111):** Cherry 1953 (selective
+  listening — unattended channel yields ~nothing, the null
+  that anchors `name_memory_null`); Moray 1959 (~33% name
+  detection in ignored channel); Wood & Cowan 1995
+  (*JEP:G* 124:243 — verified this pass: **34.6%** detected
+  under proper controls, attention shifts limited to ~2
+  items post-name, NO indirect memory for unattended
+  phrases); Conway, Cowan & Bunting 2001 (low-WMC detects
+  MORE — the filter leaks where it is weakest).
+  CONSENSUS effect + rate; channel-capture mechanics RW.
+- **Secret preoccupation (§112):** Slepian, Chun & Mason
+  2017 (*JPSP* 113:1–33 — verified: >13,000 secrets;
+  mind-wandering roughly doubles concealment frequency and
+  is the leg that predicts harm); Slepian, Kirby &
+  Kalokerinos 2020 (*Emotion* — verified: shame-appraised
+  secrets intrude more, guilt-appraised less); Liu,
+  Kalokerinos & Slepian 2023 (*PSPB* — appraisal
+  replication); Slepian, Camp & Masicampo 2015 (*JEP:G*
+  144:e31 — secrecy burden; mechanism citation only).
+  CONSENSUS on intrusion>concealment and the shame/guilt
+  split; per-day intrusion rate mapping is RW HYPOTHESIS.
+- **Endorsement transfer / vouching (§113):** De Houwer,
+  Thomas & Baeyens 2001 (*Psych Bull* 127:853 —
+  evaluative conditioning meta, ~d=0.35). The
+  spillover-across-association leg is CONSENSUS;
+  transitive *credibility* transfer and the one-hop cap
+  are RW composites (trust-transitivity literature is
+  formal, not behavioral).
+- **Exchange vs communal ledgers (§114):** Clark & Mills
+  1979 (*JPSP* 37:12 — the distinction); Clark 1984
+  (*JPSP* 47:549 — record-keeping experiment: exchange
+  expectation produces better who-contributed tracking);
+  Clark & Mills 1993 (norm-violation memorability both
+  directions). CONSENSUS distinction; communal>0 residual
+  gate and the migration threshold are RW HYPOTHESES.
+- **Relationship turning points (§115):** Baxter & Bullis
+  1986 (*HCR* 12:469 — verified: dyadic histories
+  reconstruct from ~15–25 turning points, ~10 categories);
+  Baxter & Erbert 1999; Surra relational-history
+  methodology. CONSENSUS sparse-anchor structure; hub
+  retrieval mechanics RW.
+- **Pre-meeting reputation assimilation (§116):** Jones
+  1990 (*Interpersonal Perception* — assimilation
+  default); Nickerson 1998 (confirmation-bias review);
+  Dunning & Sherman 1997 + Biernat's shifting-standards
+  program (assimilation→contrast boundary at unambiguous
+  extremity). Direction CONSENSUS; band placement and
+  magnitudes RW.
+- **Final-encounter privilege (§117):** Fredrickson &
+  Kahneman 1993; Kahneman et al. 1993 (peak-end leg,
+  CONSENSUS); Davis & Lehman 1995 (bereavement
+  counterfactual replay — nearest direct evidence, about
+  rumination, not encoding). Weakest section of the part;
+  composite HYPOTHESIS.
+- **Shared-adversity bonding (§118):** Bastian, Jetten &
+  Ferris 2014 (*Psych Sci* 25:2079 — verified: three
+  experiments, shared pain → perceived bonding +
+  cooperation, controlling task/effort); Whitehouse &
+  Lanman 2014; Whitehouse et al. 2017 (identity-fusion
+  mechanism). Direction CONSENSUS; bond magnitude and the
+  reinstate leg are RW.
+- **Plural-subject records (§119):** Aron et al. 1991
+  (other-in-self); Mashek, Cannaday & Tangney 2007;
+  Wegner transactive line (partner cueing leg). The
+  "we"-record store is RW composite on CONSENSUS parts.
+- **Story ownership (§120):** Stone 1988 (*The Festival
+  of American Folklife* proceedings / family-lore
+  scholarship) establishes ownership and teller-rights as
+  real social phenomena; no quantitative magnitudes exist —
+  all trespass/yield numbers are RW, probe P857 is
+  deliberately OBSERVE-grade.
