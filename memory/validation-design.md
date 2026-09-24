@@ -12977,3 +12977,154 @@ falsify the gate.
 
 → emotional-memory.md Part XI §§140–153; spec v5.71
 §§6.330–6.339; probes P1331–P1340.
+
+## 254. v126 probe specs (P1341–P1351 — false-memory XI, the social-credit layer)
+
+Harness conventions unchanged (paired CRN runs, matched
+records, locked-null legs as dissociation tests).
+
+- **P1341 trivial-detail credibility (MUST, honesty-lock):**
+  paired emissions from identical records, one seeded with
+  k extra `peripheral` fields. Perceiver PersonModel
+  `cred_est` must rise ≈`cred_triv_w·Δdensity`; the source
+  record's fields + measured accuracy distribution
+  bit-identical across arms (`triv_acc_null`). A harness
+  that finds density-rich emitters' records stronger or
+  more accurate fails. Bell & Loftus 1989.
+- **P1342 memory distrust (SHOULD, dissociation-lock):**
+  force k disconfirmed §6.5 contradictions against a
+  probe-own field; `md_state` must equal `min(1,k·md_acc_k)`;
+  subsequent external adoption on new contradictions +
+  `md_yield_w·d`, own-account emission −`md_under_p·d`;
+  own-record strength bit-identical (`md_str_null`).
+  Trait arm marked DEBATED (Otgaar 2023): probe asserts
+  the STATE leg unconditionally and reports the trait
+  leg as an effect-size readout, not a gate.
+- **P1343 secondhand adoption (MUST, gate-lock):** `told`
+  records below `sh_vivid_gate` never convert; above it,
+  conversion CDF must match `1−exp(−sh_credit·ln2/sh_hl)`
+  (±tol); `observed→witnessed` never fires on single-teller
+  credit; `experienced` records never convert
+  (`sh_free_null`). Converted records must carry
+  `sh_migrated:true`.
+- **P1344 self-generation advantage (SHOULD,
+  specificity-lock):** identical wrong candidates, arms
+  `origin:"self_guess"` vs `origin:"supplied"`: adoption
+  ratio ≈`selfgen_mult` (CI reported); supplied-arm rate
+  equal to unsupplied baseline (`sg_ext_null`).
+- **P1345 conformity split (MUST, privacy-lock):** a
+  normative-only context (high `status_asym`, audience
+  present, own_field_conf high) must produce
+  `conform_public` emissions with the private record
+  bit-identical (`conf_priv_null`); private re-test
+  reverts at `conf_revert_p`; after ≥2 public retells the
+  field converts at ≈`p_info·0.5` (public-rehearsal leg).
+- **P1346 confidence contract (MUST, honesty-lock):**
+  (a) within-person: emitted `conf_emit` ranks own records
+  by `strength_eff` at slope ≈`conf_res_k`; (b) across-
+  person: Spearman(conf_emit, measured accuracy) must be
+  within CI of the value implied by `conf_trait_off·
+  conf_trait` alone — i.e., `conf_cross_null`: harness
+  must not be able to rank characters' accuracy by their
+  confidence beyond the declared trait term. Brewer &
+  Wells 2006; Koriat & Goldsmith 1996.
+- **P1347 correction reach (MUST, asymmetry-lock):**
+  matched rumor+correction pairs: realized correction
+  reach must be strictly less than rumor reach, ratio
+  ≈`corr_reach_mult`; `corr_seen` overlap with rumor
+  audience ≈`corr_seen_p`; the exposed-uncorrected
+  residue must be nonzero across seeds
+  (`corr_equal_null`). Vosoughi et al. 2018.
+- **P1348 metamemory (SHOULD, null-lock):** `ret_pred`
+  mints at `R0 + meta_bias·(1−meta_mem)` and decays with
+  `tau·(1+meta_bias)`; planning/decision harness reads
+  `ret_pred` only; strength, decay, and adoption legs
+  statistically identical to a `meta_mem=1` control
+  (`meta_store_null`). Kornell & Bjork 2009.
+- **P1349 contagion floor (MUST, floor-lock):** narrator
+  `cred=0` arm still contaminates at ≈`contag_floor·base`;
+  credibility sweeps must shift adoption only within the
+  (1−floor) band (`contag_zero_null`). Roediger, Meade &
+  Bergman 2001.
+- **P1350 commitment hardening (SHOULD, audience-lock):**
+  identical contradiction arriving after a `public:true`
+  emission vs after a private emission: adoption ratio
+  ≈`(1−commit_freeze_k)` during `commit_freeze_hl`, →1
+  after; sub-threshold audiences flat
+  (`commit_priv_null`); `conform_public` emissions must
+  NOT freeze. Wells & Bradfield; Bregman & McAllister.
+- **P1351 self-contribution (MUST, sum-lock):** k-member
+  `joint:true` events: Σ emitted `s_rep` across members
+  >1.0, mean ≈1+`selfcontrib_boost·(1−s_true)`; partner-
+  share fields decay ≈`contrib_partner_hl`×; any harness
+  normalization pass on emitted shares fails
+  (`contrib_sum_null`); `s_true` appears in no emission.
+  Ross & Sicoly 1979; Caruso et al. 2006.
+
+Probe registry: P1–P1351. v126 MUST: P1341, P1343,
+P1345, P1346, P1347, P1349, P1351 (all locked-null legs).
+SHOULD: P1342, P1344, P1348, P1350. P1342's trait arm is
+a DEBATED-literature readout — failure on the trait arm
+downgrades `mem_distrust` to state-only, not a harness
+fail.
+
+## 255. Sources verified this version (P1341–P1351 backing)
+
+- **Trivial persuasion (CONSENSUS effect):** **Bell &
+  Loftus 1989** (*JPSP* 56:214 — peripheral detail ↑
+  judged credibility); Bell & Loftus 1988; Borckardt,
+  Sprohge & Nash 2003. → `cred_triv_*`, `triv_acc_null`.
+- **Memory distrust (trait DEBATED, state CONSENSUS-
+  leaning):** **Gudjonsson & MacKeith 1982**; **van
+  Bergen, Horselenberg, Merckelbach, Jeličic & Beckers
+  2009** (*Appl. Cogn. Psychol.* 24:885); van Bergen,
+  Jeličic & Merckelbach 2008 (*Psychol. Crime Law*
+  14:425 — "suggesting memory problems" strongest
+  distrust induction); counter **Otgaar et al. 2023**
+  (registered report, N=306+316 — trait link not
+  confirmed in misinformation paradigm). → `md_*`,
+  `md_str_null`, P1342 dual-arm design.
+- **Secondhand adoption (CONSENSUS direction):**
+  **Pynoos & Nader 1989**; **Lindner, Echterhoff,
+  Davidson & Brand 2010** (*Psychol. Sci.* 21:1491 —
+  observation inflation ≈ imagination inflation in
+  strength); Roediger, Jacoby & McDermott 1996.
+  → `sh_*`, `sh_free_null`.
+- **Generation advantage (CONSENSUS):** **Slamecka &
+  Graf 1978**; **Zaragoza, Payment, Ackil, Drivdahl &
+  Beck 2001**; Pezdek, Sperry & Owens 2007. →
+  `selfgen_mult`, `sg_ext_null`.
+- **Conformity split (CONSENSUS split, magnitude
+  ours):** **Gabbert, Memon & Allan 2003** (~71%
+  convergence); **Wright, Self & Justice 2000**;
+  **Skagerberg & Wright 2008**; **French, Garry &
+  Mori 2008/2011**. → `conf_info_w`, `conf_norm_*`,
+  `conform_public`, `conf_priv_null`.
+- **Confidence resolution vs calibration (CONSENSUS):**
+  **Brewer & Wells 2006**; **Koriat & Goldsmith
+  1996**; Sauerland & Sporer. → `conf_res_k`,
+  `conf_trait_off`, `conf_cross_null` (the Astra
+  INFERRED-labeling primitive made numeric).
+- **Correction asymmetry (CONSENSUS direction, scalar
+  ours):** **Vosoughi, Roy & Aral 2018** (*Science*
+  359:1146); Bordia et al. 2005; DiFonzo rumor
+  correction. → `corr_reach_mult`, `corr_seen`,
+  `corr_equal_null`.
+- **Metamemory overprediction (CONSENSUS):**
+  **Kornell & Bjork 2009** (stability bias); Koriat,
+  Lichtenstein & Fischhoff 1980; Magnussen et al.
+  2006. → `meta_mem`, `ret_pred`, `meta_store_null`.
+- **Contagion floor (CONSENSUS floor>0, height ours):**
+  **Roediger, Meade & Bergman 2001** (*Psychon.
+  Bull. Rev.*); **Meade & Roediger 2002**. →
+  `contag_floor`, `contag_zero_null`.
+- **Commitment/consistency (direction CONSENSUS,
+  magnitude DEBATED):** **Wells & Bradfield 1998/1999**;
+  Bregman & McAllister 1982. → `commit_freeze_*`,
+  `commit_priv_null`.
+- **Self-contribution bias (CONSENSUS):** **Ross &
+  Sicoly 1979**; **Caruso, Epley & Bazerman 2006**.
+  → `selfcontrib_*`, `contrib_sum_null`.
+
+→ false-memory.md Part XI §§129–139; spec v5.72
+§§6.340–6.350; probes P1341–P1351.

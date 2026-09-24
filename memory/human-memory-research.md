@@ -5652,3 +5652,66 @@ P1321–P1330.
 
 → emotional-memory.md §§140–153; spec v5.71
 §§6.330–6.339; probes P1331–P1340.
+
+## 101. The social-credit layer — judging other people's memory, and your own (v126, false-memory XI)
+
+Parts of this doc previously priced distortion
+channels; §101 prices the *meta* layer — mechanisms
+where the error is about memory rather than in it, and
+where asymmetry makes the lie structurally faster than
+the correction. All entries feed spec §§6.340–6.350,
+probes P1341–P1351.
+
+- **Trivial persuasion [CONSENSUS]:** peripheral-detail-
+  rich accounts are judged MORE credible despite equal
+  or worse accuracy (Bell & Loftus 1989). Perceiver-side
+  error — store on the listener's PersonModel
+  (`cred_est`), never the record.
+- **Memory distrust [trait DEBATED / state
+  CONSENSUS-leaning]:** distrust syndrome (Gudjonsson &
+  MacKeith 1982); van Bergen 2009 misinfo acceptance;
+  2008 induction ("suggesting memory problems");
+  Otgaar 2023 registered-report counter. Model as
+  trait+state `d` on adoption and emission legs only.
+- **Secondhand adoption [CONSENSUS direction]:**
+  absent children "remembered" the attack (Pynoos &
+  Nader 1989); watching → believing you did it
+  (Lindner et al. 2010). `told→observed→witnessed`
+  migration gated on vividness + independent tellers.
+- **Generation advantage [CONSENSUS]:** self-produced
+  errors stick better than supplied ones (Slamecka &
+  Graf 1978; Zaragoza et al. 2001) — `selfgen_mult`
+  on self_guess candidates only.
+- **Conformity split [CONSENSUS]:** normative (public
+  assent, private record intact) vs informational
+  adoption (Gabbert 2003; French, Garry & Mori;
+  Skagerberg & Wright 2008 status asymmetry).
+  `conform_public` is an emission flag, not a record.
+- **Confidence contract [CONSENSUS]:** within-person
+  resolution real; between-person ordering ~useless
+  (Brewer & Wells 2006; Koriat & Goldsmith 1996).
+  `conf_emit` is a REPORT/INFERRED field — the
+  numeric form of the Astra honesty primitive.
+- **Correction reach [CONSENSUS direction, scalar
+  ours]:** false cascades outrun corrections
+  (Vosoughi et al. 2018); exposed-uncorrected residue
+  is a designed invariant (`corr_equal_null`).
+- **Metamemory [CONSENSUS]:** retention overpredicted
+  (Kornell & Bjork 2009 stability bias); `ret_pred`
+  is a plan/report field decorrelated from R(t) by
+  contract (`meta_store_null`).
+- **Contagion floor [CONSENSUS floor>0]:** discredited
+  narrators still contaminate (Roediger, Meade &
+  Bergman 2001) — `contag_floor` makes rumor
+  un-stoppable by discrediting alone; intended.
+- **Commitment hardening [direction CONSENSUS]:**
+  public accounts resist later contradiction (Wells &
+  Bradfield; Bregman & McAllister 1982) — audience ≥
+  `commit_aud_min` is the operational line.
+- **Self-contribution bias [CONSENSUS]:** reported
+  shares sum >100% (Ross & Sicoly 1979; Caruso et
+  al. 2006) — the overshoot is report-side by design;
+  `s_true` stays ledger-only for probe scoring.
+
+→ false-memory.md Part XI §§129–142; spec v5.72
+§§6.340–6.350; validation §§254–255.

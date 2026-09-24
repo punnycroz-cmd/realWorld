@@ -1,4 +1,58 @@
-# Memory Model Spec v5.71 — implementable human-like memory for RW characters
+# Memory Model Spec v5.72 — implementable human-like memory for RW characters
+
+> **v5.72 note (false-memory XI — the social-credit
+> layer):** `memory/false-memory.md` Part XI (§§129–139)
+> prices the meta-level: how characters judge each
+> other's memory and their own, and why the lie
+> outtravels the correction. **Trivial-detail
+> credibility** — peripheral-detail density inflates the
+> *listener's* `cred_est` of the speaker (perceiver-
+> side EMA, feeds future `sourceCredibility`); locked
+> `triv_acc_null` — accuracy untouched (Bell & Loftus
+> 1989). **Memory distrust** — trait `mem_distrust` +
+> state `md_state` accrued per disconfirmed
+> contradiction; boosts external adoption, mutes own
+> emission; locked `md_str_null` (Gudjonsson & MacKeith
+> 1982; van Bergen 2008/2009; Otgaar 2023 counter —
+> trait leg DEBATED). **Secondhand adoption** — vivid
+> `told` records migrate `told→observed→witnessed` via
+> retell credit + `sh_hl` hazard; locked `sh_free_null`
+> (Pynoos & Nader 1989; Lindner et al. 2010).
+> **Self-generation advantage** — `self_guess`
+> candidates adopted ×`selfgen_mult`; locked
+> `sg_ext_null` (Slamecka & Graf 1978; Zaragoza et al.
+> 2001). **Conformity split** — normative leg writes
+> `conform_public` emission flags only (status +
+> audience), informational leg keeps §6.3 writes;
+> public rehearsal converts at p_info·0.5; locked
+> `conf_priv_null` (Gabbert et al. 2003; French et
+> al.). **Confidence contract** — `conf_emit` =
+> within-person resolution slope + trait offset;
+> report field, INFERRED surface; locked
+> `conf_cross_null` — between-person confidence
+> carries no accuracy rank (Brewer & Wells 2006;
+> Koriat & Goldsmith 1996). **Correction reach** —
+> corrections propagate at `corr_reach_mult` with
+> `corr_seen` exposure-biased audience; locked
+> `corr_equal_null` — residue is permanent (Vosoughi
+> et al. 2018). **Metamemory** — `ret_pred` report
+> field biased high by `meta_bias·(1−meta_mem)`;
+> planning reads it, decay never does; locked
+> `meta_store_null` (Kornell & Bjork 2009).
+> **Contagion floor** — adoption credibility factor
+> becomes `floor+(1−floor)·cred`; locked
+> `contag_zero_null` (Roediger, Meade & Bergman
+> 2001). **Commitment hardening** — `public:true`
+> emissions freeze fields vs contradiction for
+> `commit_freeze_hl`; locked `commit_priv_null`
+> (Wells & Bradfield; Bregman & McAllister 1982).
+> **Self-contribution bias** — `joint:true` records
+> inflate self-share at emission, partner shares decay
+> faster, sums unnormalized; locked `contrib_sum_null`
+> — the >100% sum is the finding (Ross & Sicoly 1979;
+> Caruso et al. 2006). §§6.340–6.350; §7 +22 scalars
+> +3 authored traits +1 knot curve +11 locked nulls;
+> §10 contract; probes P1341–P1351.
 
 > **v5.71 note (emotional-memory XI — the affect that
 > reaches behavior):** `memory/emotional-memory.md` Part XI
@@ -16931,6 +16985,192 @@ person-model — INFERRED display, feeds §§141–142 inputs.
 Locked `spot_fact_null` (P1340): neither the witness's
 record nor the own record's stored fields move.
 
+### 6.340 Peripheral detail sells the teller — `cred_triv_*` (new in v5.72)
+
+FM§129; **Bell & Loftus 1989** (*JPSP* — trivial
+persuasion): peripheral-detail-rich accounts judged
+more credible though not more accurate.
+
+On receiving an emission, perceiver updates the
+speaker's PersonModel:
+`cred_est += cred_triv_w · detail_density`
+(`cred_triv_w` 0.15; `detail_density` =
+peripheral/total emitted fields), EMA decaying toward
+baseline at `cred_triv_decay` 0.5/day. `cred_est`
+enters `sourceCredibility` on later §6.3/§6.344
+adoptions from that speaker. Locked `triv_acc_null`
+(P1341): `cred_est` lives on the perceiver only —
+speaker records and accuracy distributions
+bit-identical regardless of emitted density.
+
+### 6.341 Distrusting your own record — `md_*` (new in v5.72)
+
+FM§130; **Gudjonsson & MacKeith 1982** (memory
+distrust syndrome); **van Bergen et al. 2009**
+(distrust → misinfo acceptance); van Bergen et al.
+2008 (interrogation induces state distrust); counter:
+**Otgaar et al. 2023** registered report — trait leg
+DEBATED, state leg retained.
+
+Authored trait `mem_distrust` ∈[0,1]; state `md_state`
+∈[0,1]: `+= md_acc_k` (0.1) per disconfirmed
+contradiction where own field lost a §6.5 merge; decays
+`md_decay_tau` 30d. `d = 1−(1−trait)(1−state)`. On
+contradiction vs own recall: external adoption bonus
+`md_yield_w(age_eff)·d`; own-account emission
+probability ×(1−`md_under_p·d`) (0.2). Locked
+`md_str_null` (P1342): own-record strength fields
+bit-identical — distrust moves adoption and reporting
+legs only.
+
+### 6.342 Told becomes witnessed — `sh_*` (new in v5.72)
+
+FM§131; **Pynoos & Nader 1989** (absent children
+"remembered" the attack); **Lindner, Echterhoff,
+Davidson & Brand 2010** (observation inflation —
+watching → believing you did it).
+
+A `source.kind:"told"` record at/above `sh_vivid_gate`
+(0.5) accrues `sh_credit += sh_retell_w` (0.3) per
+received retelling. Once `sh_credit>0`, daily
+conversion hazard `1−exp(−sh_credit·ln2/sh_hl)`
+(`sh_hl` 14d): first conversion `told→observed`;
+`observed→witnessed` requires credit from a SECOND
+independent teller. §6.2 `confab_fill` owns the missing
+sensory fields; record keeps `sh_migrated:true`.
+Locked `sh_free_null` (P1343): `source:"experienced"`
+records never convert — the channel re-dates told
+records only.
+
+### 6.343 Self-made errors stick — `selfgen_*` (new in v5.72)
+
+FM§132; **Slamecka & Graf 1978** (generation effect);
+**Zaragoza et al. 2001** (self-generated wrongs
+outlast supplied wrongs).
+
+In §13 candidate competition, `origin:"self_guess"`
+candidates (forced confab, voiced speculation,
+self-produced fills) get adoption/retention legs
+×`selfgen_mult` (1.5) vs identical `supplied`
+candidates. Per-candidate, not per-field. Locked
+`sg_ext_null` (P1344): supplied candidates get zero
+generation bonus.
+
+### 6.344 Saying yes isn't believing it — `conf_norm_*`/`conf_info_*` (new in v5.72)
+
+FM§133; **Gabbert, Memon & Allan 2003** (co-witness
+convergence); **Skagerberg & Wright 2008** (status
+asymmetry directs the winner); **French, Garry & Mori
+2008/2011** (normative/informational split).
+
+At §6.5 merge, split the adoption:
+- informational: `p_info = conf_info_w · cred_factor ·
+  (1−own_field_conf)` (0.5) — the §6.3 record write.
+- normative: `p_norm = conf_norm_w · (1+conf_status_k·
+  status_asym) · audience_factor` (0.4/0.3) — sets
+  `conform_public:true` on the emission; record
+  UNCHANGED.
+A `conform_public` account re-emitted ≥2 times
+converts to a record write at `p_info·0.5` (public
+rehearsal → private drift). Private re-test reverts
+the assent at `conf_revert_p` (0.6). Locked
+`conf_priv_null` (P1345): normative-only adoption
+leaves the record bit-identical — said, not believed.
+
+### 6.345 Confidence resolves, doesn't calibrate — `conf_res_*` (new in v5.72)
+
+FM§134; **Brewer & Wells 2006** (weak postdiction,
+r≈.3 at best, feedback-inflated); **Koriat &
+Goldsmith 1996** (within-person resolution real,
+between-person ordering swamp).
+
+`conf_emit = conf_base·(1+conf_res_k·(strength_eff −
+mean_strength)) + conf_trait_off·conf_trait`
+(`conf_res_k` 0.4; `conf_trait_off` 0.2; authored
+trait `conf_trait` ∈[0,1] shifts level, never slope).
+`conf_emit` is a REPORT field — INFERRED surface;
+may feed §6.340 credibility perception; must never
+enter adoption gates as an accuracy proxy. Locked
+`conf_cross_null` (P1346): cross-character accuracy
+ordering by `conf_emit` is a violation.
+
+### 6.346 The correction arrives late to a smaller room — `corr_*` (new in v5.72)
+
+FM§135; **Vosoughi, Roy & Aral 2018** (*Science* —
+false cascades outrun true); Bordia/DiFonzo rumor-
+correction asymmetry.
+
+Correction/denial records minted against a spread
+record propagate at `spread_w·corr_reach_mult` (0.5);
+audience sampled `corr_seen_p` (0.6) from the
+original's `corr_seen` exposure edges, rest random.
+Locked `corr_equal_null` (P1347): realized correction
+reach must stay strictly below the original's —
+exposed-but-uncorrected residue is a designed
+invariant, not a tuning failure.
+
+### 6.347 The retention you planned on — `meta_mem`/`ret_pred` (new in v5.72)
+
+FM§136; **Kornell & Bjork 2009** (stability bias —
+systematic overprediction); Koriat et al. 1980 (FOK
+anchored on current accessibility).
+
+Authored trait `meta_mem` ∈[0,1] — decorrelated from
+real accuracy by contract. At encode mint report field
+`ret_pred = R0 + meta_bias·(1−meta_mem)` (`meta_bias`
+0.2); `ret_pred` decays with `tau·(1+meta_bias)` —
+always lagging the true curve. Disclosure/commitment
+planning reads `ret_pred`, never R(t). Locked
+`meta_store_null` (P1348): `ret_pred` never feeds
+strength, decay, or adoption legs.
+
+### 6.348 Discredit cuts the band, not the floor — `contag_floor` (new in v5.72)
+
+FM§137; **Roediger, Meade & Bergman 2001** (social
+contagion persists at near-zero partner credibility);
+Meade & Roediger 2002.
+
+Every adoption leg multiplying by `sourceCredibility`
+(§6.3, §6.5, §6.344-info, §6.340-fed) uses
+`(contag_floor + (1−contag_floor)·cred)`,
+`contag_floor` 0.1. Locked `contag_zero_null`
+(P1349): `cred=0` sources contaminate at the floor —
+credibility may never zero the channel.
+
+### 6.349 The audience is the fixative — `commit_freeze_*` (new in v5.72)
+
+FM§138; **Wells & Bradfield 1998/1999** (public
+identification resists later contradiction); Bregman
+& McAllister 1982; consistency-motive literature
+(direction CONSENSUS, magnitude DEBATED).
+
+Emissions flagged `public:true` (audience ≥
+`commit_aud_min` 2, or broadcast channel) freeze the
+emitted fields: contradiction adoption
+×(1−`commit_freeze_k`) (0.4) for `commit_freeze_hl`
+7d (halving tail). `conform_public` accounts do not
+freeze — no private backing exists to protect. Locked
+`commit_priv_null` (P1350): sub-threshold and private
+emissions freeze nothing.
+
+### 6.350 Two honest witnesses, 130% of the work — `selfcontrib_*` (new in v5.72)
+
+FM§139; **Ross & Sicoly 1979** (reported
+contributions sum >100%); **Caruso, Epley & Bazerman
+2006** (availability-driven; listing others' work
+shrinks it).
+
+On `joint:true` records, emitted self-share
+`s_rep = s_true + selfcontrib_boost·(1−s_true)`
+(`selfcontrib_boost` 0.25, clamp ≤1); partner-share
+fields decay at `contrib_partner_hl` (0.7× nominal
+half-life). Emitted shares are NEVER normalized.
+Locked `contrib_sum_null` (P1351): reported shares
+across members must be able to exceed 1.0 — a
+normalization pass is a contract violation; `s_true`
+exists only in the canonical ledger for probe
+scoring, never emitted.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -19274,6 +19514,53 @@ MemoryParams = {
 //   P1337); flu_acc_null (ease ≠ accuracy — P1338);
 //   stress_ep_fact_null (substrate shift only — P1339);
 //   spot_fact_null (estimate moves no records — P1340).
+// v5.72 additions (false-memory XI — FM§§129–139)
+"cred_triv_w": 0.15, "cred_triv_decay": 0.5,        // §6.340
+"md_acc_k": 0.1, "md_decay_tau": 30,
+"md_under_p": 0.2,                                // §6.341
+"sh_vivid_gate": 0.5, "sh_retell_w": 0.3,
+"sh_hl": 14,                                      // §6.342
+"selfgen_mult": 1.5,                              // §6.343
+"conf_info_w": 0.5, "conf_norm_w": 0.4,
+"conf_status_k": 0.3, "conf_revert_p": 0.6,       // §6.344
+"conf_res_k": 0.4, "conf_trait_off": 0.2,         // §6.345
+"corr_reach_mult": 0.5, "corr_seen_p": 0.6,       // §6.346
+"meta_bias": 0.2,                                 // §6.347
+"contag_floor": 0.1,                              // §6.348
+"commit_freeze_k": 0.4, "commit_aud_min": 2,
+"commit_freeze_hl": 7,                            // §6.349
+"selfcontrib_boost": 0.25,
+"contrib_partner_hl": 0.7,                        // §6.350
+// v5.72 authored traits: `mem_distrust` ∈[0,1]
+//   (bible-level; DEBATED trait leg — Otgaar 2023);
+//   `meta_mem` ∈[0,1] (decorrelated from accuracy by
+//   contract); `conf_trait` ∈[0,1] (level shift only).
+// v5.72 knot curves (piecewise, lerp between):
+//   md_yield_w(age_eff): 0.4@30 → 0.5@65 → 0.6@85
+//     (§6.341; HYPOTHESIS — direct aging evidence thin)
+// v5.72 fields/state: per-char state `md_state` ∈[0,1];
+//   emission flag `conform_public:true`; record flag
+//   `sh_migrated:true`; spread edge-list `corr_seen`;
+//   report field `ret_pred`; PersonModel `cred_est`
+//   (INFERRED); `joint:true` records carry contribution
+//   fields `s_true`(ledger)/`s_rep`(emitted); emission
+//   flag `public:true` reused for §6.349. All
+//   snapshot-additive; absent = legacy.
+// v5.72 locked nulls: triv_acc_null (density ≠
+//   accuracy — P1341); md_str_null (distrust moves
+//   legs not records — P1342); sh_free_null
+//   (experienced records never convert — P1343);
+//   sg_ext_null (supplied candidates unboosted —
+//   P1344); conf_priv_null (normative-only adoption
+//   writes nothing — P1345); conf_cross_null
+//   (cross-person confidence ≠ accuracy rank —
+//   P1346); corr_equal_null (correction reach <
+//   original — P1347); meta_store_null (ret_pred
+//   feeds no store leg — P1348); contag_zero_null
+//   (cred=0 still contaminates — P1349);
+//   commit_priv_null (private emissions don't freeze
+//   — P1350); contrib_sum_null (reported shares may
+//   exceed 1.0 — P1351).
 // v5.70 additions (age-decline XI — AgD§§153–162)
 "auto_freq_flat": true,                               // §4.84
 "selfrel_keep": 1.0,                                  // §4.85
@@ -22230,6 +22517,75 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.72 additions (false-memory.md §§129–139 — the
+  social-credit layer):
+  - **Credibility contract (§6.340):** `cred_est` is a
+    perceiver-side PersonModel scalar fed by emitted
+    peripheral-detail density; it may only enter
+    `sourceCredibility` on later adoptions.
+    `triv_acc_null` (P1341): density-rich emissions are
+    bit-identical in accuracy to sparse ones.
+  - **Distrust contract (§6.341):** `md_state` accrues
+    ONLY on disconfirmed contradictions where an own
+    field lost; `d` moves external adoption up and
+    own-account emission down. `md_str_null` (P1342):
+    the own record is untouched — trait leg DEBATED
+    (Otgaar 2023).
+  - **Secondhand contract (§6.342):** only
+    `source:"told"` records may convert, only after
+    `sh_vivid_gate`, and `witnessed` requires a second
+    teller. `sh_free_null` (P1343): experienced records
+    are permanently ineligible.
+  - **Generation contract (§6.343):** `selfgen_mult`
+    multiplies `self_guess` candidates only.
+    `sg_ext_null` (P1344): supplied candidates carry
+    no bonus.
+  - **Conformity contract (§6.344):** the normative leg
+    writes `conform_public` on emissions — never the
+    record; conversion requires ≥2 public retells at
+    p_info·0.5. `conf_priv_null` (P1345): said ≠
+    believed.
+  - **Confidence contract (§6.345):** `conf_emit` is a
+    REPORT field — INFERRED surface for UI; it feeds
+    credibility perception only. `conf_cross_null`
+    (P1346): cross-person confidence carries no
+    accuracy rank.
+  - **Correction contract (§6.346):** corrections
+    propagate at `corr_reach_mult` with `corr_seen_p`
+    exposure-biased audience. `corr_equal_null`
+    (P1347): correction reach strictly < original
+    reach — residue is invariant.
+  - **Metamemory contract (§6.347):** `ret_pred` is
+    minted biased high, lags the true curve, and is
+    read by planning only. `meta_store_null` (P1348):
+    never feeds strength/decay/adoption.
+  - **Contagion contract (§6.348):** all adoption legs
+    use `(contag_floor+(1−contag_floor)·cred)` for
+    credibility. `contag_zero_null` (P1349): cred=0
+    still contaminates at floor.
+  - **Commitment contract (§6.349):** `public:true`
+    emissions (audience ≥`commit_aud_min` or broadcast)
+    freeze emitted fields vs contradiction for
+    `commit_freeze_hl`. `commit_priv_null` (P1350):
+    private emissions freeze nothing.
+  - **Contribution contract (§6.350):** `joint:true`
+    records emit inflated self-share; partner shares
+    decay faster; emitted shares never normalized.
+    `contrib_sum_null` (P1351): the >100% sum is the
+    finding — `s_true` is ledger-only, never emitted.
+  - **Locked boundaries game-systems must honor:**
+    `triv_acc_null`, `md_str_null`, `sh_free_null`,
+    `sg_ext_null`, `conf_priv_null`, `conf_cross_null`,
+    `corr_equal_null`, `meta_store_null`,
+    `contag_zero_null`, `commit_priv_null`,
+    `contrib_sum_null`.
+  - **New params (§7):** 22 scalars + 3 authored traits
+    (`mem_distrust`, `meta_mem`, `conf_trait`) + 1 knot
+    curve (`md_yield_w(age_eff)`) + 11 locked nulls +
+    fields (`md_state`, `conform_public`,
+    `sh_migrated`, `corr_seen`, `ret_pred`, `cred_est`,
+    contribution fields on `joint:true`).
+  - Probes P1341–P1351.
 - v5.70 additions (age-decline.md §§153–162 — what still
   works, what lies about it, what bends last):
   - **Automaticity contract (§4.84):** `freq_count` is a
