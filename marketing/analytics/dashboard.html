@@ -148,6 +148,28 @@ function render(evts, fname){
   var reached=function(stage){var c=0;for(var s in sids)if(sids[s][stage])c++;return c;};
   var nVisit=reached("pageview");
 
+  // --- journeys (v111): per-sid pageview trails --------------------------
+  var trails={}, landings={}, exits={}, trans={}, jLen={one:0,few:0,many:0};
+  var bySid={};
+  evts.forEach(function(e){ if(e.sid) (bySid[e.sid]=bySid[e.sid]||[]).push(e); });
+  Object.keys(bySid).forEach(function(sid){
+    var seq=bySid[sid].sort(function(a,b){return (a.ts||0)-(b.ts||0);});
+    var pages=[];
+    seq.forEach(function(e){
+      if(e.event!=="pageview") return;
+      var p=(e.props&&e.props.page)||(e.path||"?").replace(/^\//,"").replace(/\.html$/,"")||"index";
+      if(!pages.length||pages[pages.length-1]!==p) pages.push(p);
+    });
+    if(!pages.length) return;
+    landings[pages[0]]=(landings[pages[0]]||0)+1;
+    exits[pages[pages.length-1]]=(exits[pages[pages.length-1]]||0)+1;
+    var t=pages.join(" → "); trails[t]=(trails[t]||0)+1;
+    for(var i=0;i<pages.length-1;i++){
+      var k=pages[i]+" → "+pages[i+1]; trans[k]=(trans[k]||0)+1; }
+    if(pages.length===1) jLen.one++; else if(pages.length<=3) jLen.few++; else jLen.many++;
+  });
+  var nJ=jLen.one+jLen.few+jLen.many;
+
   var h='';
   h+='<div class="grid">';
 
@@ -190,6 +212,19 @@ function render(evts, fname){
   }
   fun+='</div>';
   h+=fun;
+
+  // Panel 5 — journeys
+  if(nJ){
+    h+='<div class="panel"><h2>5 · Journeys — how sessions move</h2>'
+      +'<p class="note" style="margin-top:0">length: 1 page '+jLen.one
+      +' · 2–3 '+jLen.few+' · 4+ '+jLen.many
+      +' · bounce '+Math.round(100*jLen.one/nJ)+'%</p>'
+      +'<p class="note">top landings</p>'+kvs(landings,6)
+      +'<p class="note">top exits</p>'+kvs(exits,6)
+      +'<p class="note">top transitions</p>'+kvs(trans,8)
+      +'<p class="note">common trails</p>'+kvs(trails,8)
+      +'</div>';
+  }
 
   // Panel 2 — engagement
   h+='<div class="panel"><h2>2 · Site engagement</h2>'

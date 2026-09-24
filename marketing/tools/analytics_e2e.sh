@@ -71,6 +71,19 @@ python3 tools/analytics_coverage.py >/dev/null \
 echo "[e2e] coverage audit: clean"
 python3 tools/ab_compare.py "$WORK/captured.ndjson" > "$WORK/ab.md" \
   && echo "[e2e] ab_compare -> $WORK/ab.md"
+python3 tools/analytics_paths.py "$WORK/captured.ndjson" > "$WORK/paths.md" \
+  || { echo "[e2e] FAIL: analytics_paths.py crashed"; exit 1; }
+grep -q "watch_start" "$WORK/paths.md" \
+  || { echo "[e2e] FAIL: paths output missing watch_start analysis"; exit 1; }
+grep -q "journeys" "$WORK/paths.md" \
+  || { echo "[e2e] FAIL: paths output missing journeys block"; exit 1; }
+echo "[e2e] analytics_paths -> $WORK/paths.md"
+python3 tools/make_analytics_fixture.py --sessions 120 --seed 7 > "$WORK/prev.ndjson"
+python3 tools/analytics_watch.py "$WORK/captured.ndjson" "$WORK/prev.ndjson" \
+    --strict > "$WORK/wow.md" || true  # strict flags real deltas on random data — informational in e2e
+grep -q "wow check" "$WORK/wow.md" \
+  || { echo "[e2e] FAIL: analytics_watch.py produced no output"; exit 1; }
+echo "[e2e] analytics_watch -> $WORK/wow.md"
 echo "[e2e] report head:"; head -8 "$WORK/report.md"
 
 echo "[e2e] 6/6 serving site on :$SITE_PORT (endpoint via ?rw_endpoint=)"

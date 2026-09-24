@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v96 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v111 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -237,17 +237,49 @@ the site but missing from `analytics-events.json`, and `press_kit_download`
 was marked live though the kit zip link isn't published yet. All fixed in
 the spec. `analytics_e2e.sh` and `metrics_weekly.sh` both gate on it.
 
-### Weekly metrics run — one command (v96)
+### Weekly metrics run — one command (v96, extended v111)
 
 ```bash
-./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv]
+./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson]
 ```
 
 Validates the capture → audits coverage → renders the §8 block + §7 detail
-labelled with the ISO week of the newest event → writes
+labelled with the ISO week of the newest event → appends a **journeys**
+section (`analytics_paths.py`) and, when `prev.ndjson` is given, a
+**wow check** section (`analytics_watch.py`) → writes
 `marketing/analytics/weekly-<ISOweek>.md` (gitignored — the committed
 reference output stays `sample-report.md`). Fill "action taken", paste the
-block into MARKETINGLOG.md.
+block into MARKETINGLOG.md. Keep last week's capture around — the prev arg
+is what turns a report into a trend.
+
+### Session journeys (v111)
+
+`tools/analytics_paths.py` — the missing "in what order" half of the stack.
+Groups a capture by `sid`, sorts by `ts`, and reads the pageview trail:
+landing pages + bounce rate, exit pages, most common journeys, top
+page→page transitions, and a per-target conversion readout (`--target`,
+default `watch_start`/`request_simulated`/`request_submitted`/
+`character_created`): sessions reaching it, median pages before the first
+hit, the page it fired on, and **assist pages** — pages over-represented in
+converting sessions (lift ≥1.15×, n≥3 — correlation, not causation; a
+high-lift page is a hypothesis for EXPERIMENTS.md, not a verdict).
+
+```bash
+python3 marketing/tools/analytics_paths.py /tmp/rw-events.ndjson --top 8
+```
+
+### Week-over-week watch (v111)
+
+`tools/analytics_watch.py` — diffs two captures and prints a delta table +
+WARN lines: sessions/pageviews moved ≥ ±25% (`--threshold`), any funnel
+stage rate down ≥ threshold, 404s up ≥ +50% or new 404 paths, event names
+missing from `analytics-events.json` (drift caught in the *data*, not just
+the site), median engaged-seconds drop. `--strict` exits 1 on any WARN for
+a cron/CI hook at launch.
+
+```bash
+python3 marketing/tools/analytics_watch.py thisweek.ndjson lastweek.ndjson
+```
 
 ### Experiment program (v96)
 
@@ -276,10 +308,14 @@ one week's z-score.
 
 `marketing/analytics/dashboard.html` — a standalone, file://-safe page.
 Drop any NDJSON capture on it (or pick the file) and it renders the §7
-four panels in-browser: acquisition, engagement, funnel (+ onboarding
-sub-funnel when the events are present), health. No server, no upload —
+panels in-browser: acquisition, engagement, funnel (+ onboarding
+sub-funnel when the events are present), health, and a **journeys** panel
+(v111 — landing/exit pages, bounce, top transitions and trails from the
+same per-sid logic as `analytics_paths.py`). No server, no upload —
 parsing is local JS. Internal tool, marked `noindex`; do not deploy to
-the public site. Try it with `analytics/sample-week.ndjson`.
+the public site. Try it with `analytics/sample-week.ndjson` (regenerated
+v111 — fixture sessions now navigate multi-page journeys, so the panel
+has real trails to render).
 
 Smoke test without a browser:
 
@@ -325,6 +361,10 @@ One dashboard, four panels — everything derivable from the event spec:
    when the game embed emits.
 4. **Health:** 404 pageviews by path (broken-link radar), `?nocollect` rate
    (privacy-conscious audience share — worth knowing, not optimizing).
+5. **Journeys (v111):** landing pages + bounce, exit pages, top
+   transitions and trails, per-target conversion paths with assist-page
+   lift. Rendered by `analytics_paths.py` in the weekly file and by the
+   fifth panel in `dashboard.html`.
 
 **Targets (honest, from the research report):** the free-watch top of funnel is
 the whole business — optimize `pageview → watch_start` first. TPP-class
@@ -373,7 +413,13 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       (or run our sink with `--uniques`); `analytics_report.py --uniques`
       renders the per-day counts
 - [ ] `tools/analytics_coverage.py` clean after any page/emitter change —
-      also gated inside `analytics_e2e.sh` and `metrics_weekly.sh` (v96)
+      also gated inside `analytics_e2e.sh` and `metrics_weekly.sh` (v96;
+      v111 fixed the compare/privacy/refunds/terms drift it caught)
+- [ ] Keep each week's NDJSON capture after reporting — it's the `prev`
+      arg that makes `analytics_watch.py` diff work in `metrics_weekly.sh`
+      (v111)
+- [ ] At launch, wire `analytics_watch.py --strict` into a weekly cron/CI
+      step so funnel-stage collapses and 404 spikes page someone (v111)
 - [ ] Every A/B test registered in EXPERIMENTS.md before its tagged links
       go out; decision rules there are fixed, not per-test (v96)
 
