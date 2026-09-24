@@ -1,5 +1,42 @@
-# Memory Model Spec v5.57 — implementable human-like memory for RW characters
+# Memory Model Spec v5.58 — implementable human-like memory for RW characters
 
+> **v5.58 note (retrieval-cues X — the voice, the body, the
+> premature answer, the poisoned hint, and the direction of
+> travel):** `memory/retrieval-cues.md` Part X (§§100–107) +
+> spec §§5.116–5.120. **The person cascade gains a voice
+> tier** — `voicePrint` field, exposure-gated, steep
+> unfamiliar-print decay to ~chance at 5 months (McGehee
+> 1937/1944), distinctiveness and accent-match modifiers
+> (Stevenage, Clarke & McNeill 2012), telephone degradation
+> (Kerstholt et al. 2006), listener-age main effect only;
+> `voice_face_null` locks voice-only cues out of visual
+> detail. **Posture becomes a context feature** — coarse
+> `posture` tag minted at encode; `posture_w` (0.05, the
+> spec's smallest context weight) on episodic drive plus
+> latency and re-encode dividends (Dijkstra, Kaschak & Zwaan
+> 2007); `posture_sem_null` confines it to episodic.
+> **Retrieval gains a pre-search stage** — `fok_pre` computed
+> from cue-term familiarity in <1s, BEFORE any candidate scan
+> (Reder & Ritter 1992); below `bout_enter` the question dies
+> as an instant "dunno". The §5.21 accessibility FOK now
+> cascades behind it (Koriat & Levy-Sadot 2001's measured
+> interaction). `fok_pre_acc_null` keeps the gate decorrelated
+> from record existence — familiar questions with no answers
+> still feel known. **Supplied features can be wrong** —
+> `supplied:true` features enter C at `hint_w`·w_j regardless
+> of truth; wrong ones capture matching records and linger
+> `hint_linger_hl` (Smith & Blankenship 1991); the
+> phonological leg ages DOWN (Maylor 1990 — older adults are
+> less captured, more simply inaccessible); `hint_mint_null`
+> keeps supplied features from ever writing content. **Chains
+> get a direction** — `chain_fwd_w`/`chain_bwd_pen` price
+> Kahana 1996's ~2:1 forward asymmetry on reminding chains;
+> backward queries run Thomas, Milner & Haberlandt 2003's
+> covert-forward passes at `bwd_cycle_cost`; `pair_cue:true`
+> restores symmetry. Locked nulls: `voice_face_null`,
+> `posture_sem_null`, `fok_pre_acc_null`, `hint_mint_null`.
+> Probes P1166–P1175.
+>
 > **v5.57 note (forgetting-curves X — the average that lies, the
 > decay that was paroled, and forgetting that pays):**
 > `memory/forgetting-curves.md` Part X (§§46–50) + spec
@@ -8725,6 +8762,145 @@ interference — `drive' = drive·(1 − oi_bout_k·k_emitted)`,
 `oi_perm_null`:** writes nothing to records — session-local
 interference, distinct from the RIF suppression ledger.
 
+### 5.116 The voice tier — `voicePrint` (new in v5.58)
+
+RC§100; McGehee 1937 (*J. Gen. Psychol.* 17:249 — 83%→13%
+at 5mo, closed set); McGehee 1944 (*JGP* 31:53 — ~45–48%
+plateau at 8wk); Clifford 1980 (review — exposure duration
+beats retention interval); Stevenage, Clarke & McNeill 2012
+(other-accent, TP+TA); Kerstholt et al. 2006 (telephone).
+
+Person records gain a `voicePrint` field, minted at encode
+when `C` contains audible speech: strength ∝
+`min(seconds_exposure·aud_attn, vp_cap)` — Clifford's
+exposure-dominates rule. When `C` carries `voice` (phone
+call, overheard speech, doorway voice) the §5.10 cascade
+runs a voice tier alongside face:
+
+```
+voice_drive = w_voice·match(C.voice, m.voicePrint)
+            ·(1 + voice_distinct_gain·m.voicePrint.distinct)
+            ·(1 + accent_match_gain·[accent_i == own_accent])
+            ·(telephone_pen if C.channel:"phone")
+            ·(1 − voice_age_pen·max(0, age_now−60))
+```
+
+`voicePrint` on uses < `voice_fam_min` (3) decays at
+`voice_decay_mult` (2.0)× the episodic-field hazard —
+unfamiliar voices go to ~chance inside ~5 months; uses≥3
+prints take the normal person-field hazard (familiar voices
+near-ceiling). `voice→name` links mint at `voice_name_w`
+(0.4) — weaker than face→name: "I know the voice" without
+the name is common, the reverse is not. **Locked
+`voice_face_null`:** a voice-only cue never emits visual/
+face fields — the auditory tier supplies identity strength,
+never a face.
+
+### 5.117 The posture field — `posture_w` (new in v5.58)
+
+RC§101; Dijkstra, Kaschak & Zwaan 2007 (*Cognition* 102:139).
+encodeEvent stamps `ctx.posture ∈ {stand, sit, recline,
+walk}` (world supplies). Episodic records only:
+
+```
+drive += posture_w·[C.posture == m.ctx.posture]   // 0.05
+latency *= (1 − posture_lat_gain) if matched      // 0.10
+reencode s_gain *= (1 + posture_recall_gain)      // 0.10
+```
+
+**Locked `posture_sem_null`:** semantic/procedural retrieval
+takes no posture term — the Dijkstra result is
+autobiographical; lying down does not help you know
+capital cities. Deliberately the spec's smallest context
+weight — single-lab evidence, same tier as §5.113's
+`arousal_match_w`.
+
+### 5.118 The question answers first — `fok_pre` (new in v5.58)
+
+RC§102; Reder & Ritter 1992 (*JEP:LMC* 18:435 — know/don't-
+know decision <850ms, driven by QUESTION familiarity);
+Metcalfe, Schwartz & Joaquim 1993 (cue priming moves FKJs
+not recall; target priming the reverse); Koriat & Levy-Sadot
+2001 (*JEP:LMC* 27:34 — cascaded: familiarity early,
+accessibility only when familiarity is high).
+
+Before any candidate scan, a voluntary query computes:
+
+```
+fok_pre = logistic(k_fp·(fp_w·fam(C.terms) − fok_pre_theta))  // θ 0.45
+```
+
+`fok_pre < bout_enter` (0.25) → the bout never runs: emit
+`"dunno"` at `fok_pre_ms` (~0.5s) — the instant "no idea",
+distinct from a searched failure. `fok_pre ≥ bout_enter`
+gates the normal bout AND the §5.21 accessibility `fok`:
+accessibility terms modulate effort only behind the gate
+(K&L-S's interaction, not additivity). `fok_pre` is the
+cheap compute saving and the human truth in one: questions
+whose terms are unfamiliar are not searched. **Locked
+`fok_pre_acc_null`:** `fok_pre` must be decorrelated from
+record existence (P1170) — cue familiarity predicts the
+feeling of knowing, never the knowing.
+
+### 5.119 The supplied feature can lie — `hint_*` (new in v5.58)
+
+RC§103; Smith & Blankenship 1991 (misleading cue sets block
+— capture is the mechanism §5.102's fresh-sample relies on);
+Jones & Langford 1987 + Jones 1989 (phonological interlopers
+raise TOTs — DEBATED: Meyer & Bock 1992 matched-control
+null); Maylor 1990 (blocking DECREASES with age).
+
+Features arriving from another character's utterance carry
+`supplied:true` and join C at `hint_w·w_j` (0.5) regardless
+of truth — the character cannot unhear a detail. A supplied
+feature that matches no field of the target record:
+
+```
+capture:  records matching the wrong feature gain drive
+          normally (it is a cue); target diagnosticity
+          dilutes under §5.71's joint-fan rule
+linger:   suppression on the target persists into the next
+          same-topic bout, decaying hl = hint_linger_hl (0.3d)
+phonological-field supplied features only:
+  hint_eff *= (1 − hint_phon_age·max(0, age_now−30))  // 0.006/yr
+```
+
+— older profiles are LESS captured by wrong phonological
+hints while being more TOT-prone at baseline (Maylor:
+capture and access are different failures). **Locked
+`hint_mint_null`:** supplied features never write to any
+record — the cue gate is read-only; content-level corruption
+belongs to §6's misinformation operators.
+
+### 5.120 Forward is downhill — `chain_fwd_w`/`chain_bwd_pen` (new in v5.58)
+
+RC§104; Kahana 1996 (*Mem. Cognit.* 24:103 — forward
+transitions ~2× backward at |lag|1; cued pairs symmetric);
+Thomas, Milner & Haberlandt 2003 (*Psychol. Sci.* 14:170 —
+backward recall = repeated covert forward passes; latency
+decreases across output); Howard & Kahana 2002 + Kahana et
+al. 2002 (contiguity declines with age).
+
+Reminding chains (§5.17) and burst transitions (§5.73) take
+a direction weight:
+
+```
+P(transition to m') ∝ drive'(m') · dir_w
+dir_w = chain_fwd_w (1.0)  if m'.t > lastEmitted.t
+      = chain_bwd_pen (0.5) otherwise
+pair_cue:true queries ("which came first, X or Y?") → dir_w = 1.0
+chain_age_pen (0.003/yr past 60) flattens BOTH directions'
+  lag-concentration toward uniform (older transitions are
+  less temporally organized, not just fewer)
+```
+
+Backward narration ("what happened before lunch?") does not
+traverse backward — it runs covert forward passes: each
+emitted backward item costs `bwd_cycle_cost` (0.15) per
+skipped earlier item, producing Thomas's signature for free:
+slow first backward item, accelerating thereafter. The
+character replays the morning to find what came before noon.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -16231,6 +16407,29 @@ MemoryParams = {
 //   past uses_cap); emission tag `epist`; session accumulator
 //   `oi_bout_acc` (bout-local, never persisted). All snapshot-
 //   additive; absent = legacy.
+// v5.58 additions (retrieval-cues X — RC§§100–107)
+"voice_decay_mult": 2.0, "voice_fam_min": 3,
+"voice_distinct_gain": 0.3, "accent_match_gain": 0.15,
+"telephone_pen": 0.85, "voice_age_pen": 0.002,
+"voice_name_w": 0.4, "vp_cap": 1.0, "w_voice": 0.6, // §5.116
+"posture_w": 0.05, "posture_lat_gain": 0.10,
+"posture_recall_gain": 0.10,                      // §5.117
+"fok_pre_theta": 0.45, "bout_enter": 0.25,
+"fok_pre_ms": 0.5, "fp_w": 1.0, "k_fp": 6.0,      // §5.118
+"hint_w": 0.5, "hint_linger_hl": 0.3,
+"hint_phon_age": 0.006,                           // §5.119
+"chain_fwd_w": 1.0, "chain_bwd_pen": 0.5,
+"bwd_cycle_cost": 0.15, "chain_age_pen": 0.003,   // §5.120
+// v5.58 locked nulls: voice_face_null (boundary, unprobed);
+//   posture_sem_null (P1169); fok_pre_acc_null (P1170);
+//   hint_mint_null (supplied features read-only).
+// v5.58 fields/state: record field `voicePrint` {strength,
+//   distinct, uses}; ctx field `posture`; context `C` gains
+//   `voice`, `channel`, `posture`, `terms`; feature flag
+//   `supplied:true`; query flag `pair_cue:true`; bout state
+//   `fok_pre`; lingering suppression tag `hint_linger` on
+//   target+bout-topic pair. All snapshot-additive; absent =
+//   legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -19113,6 +19312,48 @@ not resolved (DEBATED magnitude). P509/P511.
     `rk_tone`, buffer `decay_true`=1.0.
   - **New params (§7):** 15 scalars + 5 locked nulls +
     3 frozen. Probes P1156–P1165.
+
+- v5.58 additions (retrieval-cues X — RC§§100–107, spec
+  §§5.116–5.120):
+  - **Voice contract:** person records gain `voicePrint`
+    {strength, distinct, uses} minted only when `C` contains
+    audible speech; strength ∝ exposure·attention capped at
+    `vp_cap`. `C.voice` + `C.channel` drive the §5.10 voice
+    tier; a voice-only cue emits NO visual/face fields
+    (`voice_face_null`). Unfamiliar prints (uses <
+    `voice_fam_min`) decay at `voice_decay_mult`× the
+    episodic-field hazard — front-loaded to ~chance by ~5
+    months (P1166 locks the shape, not the point values).
+  - **Posture contract:** `ctx.posture` ∈ {stand, sit,
+    recline, walk} is minted at encode from the world;
+    `C.posture` adds `posture_w` to EPISODIC drive only
+    (`posture_sem_null` — semantic and procedural retrieval
+    take no posture term) plus latency and re-encode
+    dividends.
+  - **Pre-search contract:** `fok_pre` is computed from
+    `C.terms` familiarity BEFORE any candidate scan, at
+    `fok_pre_ms` latency; below `bout_enter` the query
+    terminates as a fast "dunno" with no bout. §5.21's
+    accessibility `fok` modulates effort only when the gate
+    passed (Koriat & Levy-Sadot cascade — interaction, not
+    additivity, P1171). `fok_pre` must stay decorrelated from
+    record existence (`fok_pre_acc_null`, P1170).
+  - **Supplied-feature contract:** features flagged
+    `supplied:true` enter C at `hint_w·w_j` regardless of
+    truth; they are cue material ONLY (`hint_mint_null` —
+    never stored, never emitted as content). Wrong-supplied
+    suppression lingers `hint_linger_hl` across same-topic
+    bouts; the phonological leg is age-discounted
+    (`hint_phon_age` — older profiles less captured, P1173).
+  - **Direction contract:** chain/burst transitions are
+    weighted by `chain_fwd_w`/`chain_bwd_pen` on emission
+    timestamp order; `pair_cue:true` queries bypass the
+    asymmetry; `chain_age_pen` flattens lag-concentration at
+    old age. Backward narration runs covert forward passes
+    (`bwd_cycle_cost` per skipped item) — the inverse-U
+    latency profile is the Thomas 2003 signature (P1175).
+  - **New params (§7):** 21 scalars + 4 locked nulls +
+    7 field/state additions. Probes P1166–P1175.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

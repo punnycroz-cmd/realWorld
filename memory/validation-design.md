@@ -11288,3 +11288,103 @@ hard-coding what must be emergent.
   §§5.114–5.115, §14.8; probes P1156–P1165.
 
 Probe registry: P1–P1165 (v109 adds P1156–P1165).
+
+## 228. v110 suite — retrieval-cues X (P1166–P1175)
+
+- **P1166 unfamiliar-voice decay (MUST — §5.116):** five-voice
+  closed-set lineup on voicePrints with uses<3 → identification
+  ≥0.75 at 1d, ≤0.35 at 150d; front-loaded curve (McGehee 1937
+  shape): the 1d→30d drop exceeds the 30d→150d drop. A linear
+  or slow-decay voice tier FAILs.
+- **P1167 voice familiarity and distinctiveness (SHOULD):**
+  prints with uses≥`voice_fam_min` hold ≥0.8 at 60d; high-
+  `distinct` prints ≥1.3× typical at 14d.
+- **P1168 accent and channel (SHOULD):** accent-mismatch
+  speakers misidentified ≥1.3× own-accent rate;
+  `C.channel:"phone"` measurably lowers voice_drive vs
+  face-to-face.
+- **P1169 posture congruence (MUST):** congruent `C.posture` →
+  retrieval latency −≥8% AND 14d free-recall +≥5% vs
+  incongruent; semantic recall delta ≈0 — `posture_sem_null`
+  locked (a posture gain on a fact-recall probe is a FAIL).
+- **P1170 pre-search gate (MUST — locked-null class):**
+  unfamiliar-term questions terminate ≥60% at `fok_pre` with
+  no candidate scan, latency < half the median bout latency;
+  corr(`fok_pre`, record existence) ∈ [−0.1, 0.1]
+  (`fok_pre_acc_null`) while corr(`fok_pre`, cue-term
+  familiarity) > 0.5.
+- **P1171 cascaded FOK (SHOULD):** accessibility-leg
+  manipulations (partial-emission mass) shift reported fok
+  only in the `fok_pre ≥ bout_enter` arm — the Koriat &
+  Levy-Sadot interaction, not additivity.
+- **P1172 wrong-hint capture (MUST):** supplied wrong feature
+  → correct-target recall below matched no-hint control within
+  the bout; suppression concentrated on targets the wrong
+  feature mismatches diagnostically; a same-topic bout inside
+  `hint_linger_hl` retains ≥50% of the suppression; an
+  unrelated-topic bout retains none.
+- **P1173 hint age interaction (SHOULD):** phonological-field
+  wrong hints suppress LESS at age 70 than age 30 (Maylor
+  1990) while baseline TOT rate is higher at 70; semantic-field
+  wrong hints show no attenuation.
+- **P1174 forward asymmetry (MUST):** chain transition
+  probability at |lag|=1 forward ≥1.5× backward;
+  `pair_cue:true` probes symmetric within ±10%.
+- **P1175 backward latency profile (SHOULD):** first backward-
+  direction emission slower than forward; per-emission latency
+  decreasing across a backward narration — the Thomas et al.
+  2003 covert-forward signature.
+
+Registry: P1–P1175. v110 suite MUSTs: P1166, P1169, P1170,
+P1172, P1174; SHOULDs: P1167, P1168, P1171, P1173, P1175.
+Locked-null legs exercised: `posture_sem_null` (P1169),
+`fok_pre_acc_null` (P1170); `voice_face_null`,
+`hint_mint_null` boundary-checked by emission audit.
+
+## 229. Sources verified this version (P1166–P1175 backing)
+
+- **Earwitness/voice:** McGehee 1937 (*J. Gen. Psychol.*
+  17:249 — 83%@1d → 13%@5mo, five-voice closed set → P1166);
+  McGehee 1944 (*JGP* 31:53 — ~85%@2d → 45–48% plateau @8wk —
+  the disagreement is why P1166 locks shape not points);
+  Clifford 1980 (*Bull. Br. Psychol. Soc.* 33:339 — review:
+  earwitness < eyewitness, exposure > interval → §5.116 mint
+  rule); Stevenage, Clarke & McNeill 2012 (*J. Cogn. Psychol.*
+  24:647 — other-accent effect TP+TA → accent_match_gain);
+  Kerstholt, Jansen, Van Amelsvoort & Broeders 2006 (*Appl.
+  Cogn. Psychol.* 20:187 — accent × retention × telephone →
+  telephone_pen); *Psychologica Belgica* 2017 own-age voice
+  age-estimation + *Cogn. Res. Princ. Implic.* 2025 speaker
+  discrimination (older listeners worse overall; no clean
+  own-age interaction → `voice_age_pen` main effect only).
+- **Embodied cue:** Dijkstra, Kaschak & Zwaan 2007
+  (*Cognition* 102:139 — posture congruence speeds AM
+  retrieval, improves 2wk free recall, young+old → §5.117).
+- **Pre-search FOK:** Reder & Ritter 1992 (*JEP:LMC* 18:435 —
+  <850ms know/don't-know from question-term familiarity →
+  §5.118); Metcalfe, Schwartz & Joaquim 1993 (*JEP:LMC*
+  19:1074 — cue priming moves FKJs not recall, target priming
+  the reverse → `fok_pre_acc_null`); Koriat & Levy-Sadot 2001
+  (*JEP:LMC* 27:34 — cascaded familiarity→accessibility →
+  P1171's interaction requirement).
+- **Contaminated cue:** Smith & Blankenship 1991 (*Mem.
+  Cognit.* 19:311 — misleading cue sets block → capture);
+  Jones & Langford 1987 (*Cognition* 26:115) + Jones 1989
+  (*Mem. Cognit.* 17:69 — phonological interlopers → TOTs;
+  DEBATED: Meyer & Bock 1992 *Bull. Psychon. Soc.* 30:373
+  matched-control null — `hint_w` kept modest); Maylor 1990
+  (*Br. J. Psychol.* 81:449 — phonological blocking decreases
+  with age → `hint_phon_age`, P1173).
+- **Serial direction:** Kahana 1996 (*Mem. Cognit.* 24:103 —
+  ~2× forward asymmetry at |lag|1, cued pairs symmetric →
+  `chain_bwd_pen`, `pair_cue`); Thomas, Milner & Haberlandt
+  2003 (*Psychol. Sci.* 14:170 — backward = covert forward
+  passes, RT decreases across output → `bwd_cycle_cost`,
+  P1175); Howard & Kahana 2002 (*JML* 46:998) + Kahana et al.
+  2002 (lifespan decline of contiguity → `chain_age_pen`).
+- **Marked hypothesis:** all magnitudes (voice_*,
+  posture_*, fok_pre_*, hint_*, chain_*, bwd_*) are RW
+  calibration targets; literature supplies direction, shape,
+  and ordering. → spec §§5.116–5.120; probes P1166–P1175.
+
+Probe registry: P1–P1175 (v110 adds P1166–P1175).

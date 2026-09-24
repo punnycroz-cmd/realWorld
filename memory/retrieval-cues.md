@@ -3382,3 +3382,287 @@ matters more than how long:
   not duration; 2d is a guess bounded by diary phenomenology. The
   locked-null probe P1042 is the falsifiable part: persistence must
   never mint access.
+
+---
+
+# Part X — the cue that isn't a place, a smell, or a word
+
+Parts I–IX priced cue fields, contexts, mechanics, ownership,
+direction, sampling, and persistence. Part X prices what was
+left: **cue modalities outside the visual-verbal core** (the
+voice, the body), **the metacognitive cue that fires before the
+search** (the question's own familiarity), **the cue supplied by
+someone else that is wrong** (contamination), and **the
+direction of travel** (forward vs backward traversal of a
+sequence). Spec changes land in `memory-model-spec.md` v5.58
+§§5.116–5.120; probes P1166–P1175.
+
+## 100. The voice at the door — earwitness cuing
+
+- **McGehee 1937** (*J. Gen. Psychol.* 17:249): listeners picked
+  one target voice from a five-voice set after delays of 1 day
+  to 5 months — 83% at 1 day → ~13% (chance) at 5 months.
+  **McGehee 1944** (*J. Gen. Psychol.* 31:53): similar task, a
+  shallower curve — ~85% at 2 days decaying to a ~45–48%
+  plateau at 8 weeks. **[CONSENSUS that unfamiliar-voice
+  identification is error-prone and decays steeply in the first
+  weeks; the exact long-run floor is DEBATED — the two McGehee
+  curves disagree and Clifford's 1980 review calls later
+  studies equivocal on delay.]**
+- **Clifford 1980** (review, *Bull. Br. Psychol. Soc.* 33:339):
+  earwitness identification is consistently weaker and more
+  error-prone than eyewitness identification; duration of
+  exposure at encoding dominates retention interval as a
+  predictor. **[CONSENSUS]**
+- **Stevenage, Clarke & McNeill 2012** (*J. Cogn. Psychol.*
+  24:647, the "other-accent" effect): sequential voice lineups —
+  listeners are more accurate AND more confident on own-accent
+  voices, under both target-present and target-absent
+  conditions. **[CONSENSUS, effect size moderate.]**
+- **Kerstholt, Jansen, Van Amelsvoort & Broeders 2006** (*Appl.
+  Cogn. Psychol.* 20:187): accent, retention interval and
+  telephone bandwidth all degrade earwitness performance —
+  the channel is part of the cue. **[CONSENSUS]**
+- Own-age in voices: an own-age bias exists in *estimating*
+  speaker age (older listeners preserved on own-age voices,
+  impaired on younger voices — 2017, *Psychologica Belgica*);
+  for *discrimination*, a 2025 speaker-discrimination study
+  (*Cogn. Res. Princ. Implic.*) found older listeners worse
+  overall with a "same"-bias toward younger and female voices
+  but no clean own-age interaction. **[DEBATED — weaker than
+  the face own-age bias §5.36; we price only the main-effect
+  listener-age penalty.]**
+- **Familiarity rescues it:** the lab literature is almost
+  entirely about strangers' voices; everyday phenomenology and
+  the forensics literature agree familiar voices (family,
+  partners, the neighbor through the wall) are recognized at
+  near-ceiling and resist decay. **[CONSENSUS direction;
+  magnitudes are [HYPOTHESIS].]**
+- Model consequence (§5.116): person records gain a
+  `voicePrint` field; a voice in `C` runs a separate cascade
+  tier with a lower ceiling, exposure-gated mint, steep early
+  decay on unfamiliar prints, distinctiveness and accent-match
+  modifiers, and a voice→name link weaker than face→name.
+- RW texture: the phone caller whose voice a character half-
+  recognizes ("is that... Rita? — no, wait"); the landlord's
+  voice through a door; the scam-call vulnerability of an old
+  profile whose voice discrimination is already degraded.
+
+## 101. The body keeps a copy — posture and proprioceptive cuing
+
+- **Dijkstra, Kaschak & Zwaan 2007** (*Cognition* 102:139):
+  autobiographical retrieval is faster when the rememberer's
+  body position matches the posture of the original episode;
+  two-week-delayed free recall is also better for
+  posture-congruent retrievals. Younger and older adults both
+  show it (only the accuracy ceiling differed).
+  **[CONSENSUS direction; single-lab, moderate size.]**
+- Mechanism is the embodied version of encoding specificity:
+  body state is a context feature that was stored with the
+  record. It is NOT the same as enactment (§5.41 — the motor
+  trace of doing the task) or mood/state-dependence (§5.3,
+  §5.113 — arousal and pharmacological state); posture is
+  cheaper, quieter, and non-pharmacological.
+- Model consequence (§5.117): records carry a coarse `posture`
+  tag in ctx {stand, sit, recline, walk}; `C.posture` adds a
+  small drive term `posture_w` to EPISODIC records only
+  (locked `posture_sem_null` — semantic recall is unaffected),
+  a congruent-posture latency discount `posture_lat_gain`, and
+  a small re-encode dividend `posture_recall_gain` — the
+  2-week free-recall benefit means congruent retrieval
+  consolidates better.
+- RW texture: lying down to sleep is when the fight from the
+  couch comes back; standing at the sink returns kitchen
+  memories. The effect is small — deliberately sub-`w_msd`,
+  in the same tier as `arousal_match_w` (§5.113).
+
+## 102. The question answers itself first — the pre-search FOK
+
+- **Reder & Ritter 1992** (*JEP:LMC* 18:435): people decide
+  whether they know an answer in <850 ms — far faster than the
+  answer can be retrieved — and the decision is driven by
+  familiarity of the QUESTION terms, not by retrievability of
+  the answer. Priming the cue raises FOK without raising
+  recall; priming the target raises recall without raising FOK
+  (Metcalfe, Schwartz & Joaquim 1993, *JEP:LMC* 19:1074 —
+  "cue familiarity but not target retrievability").
+  **[CONSENSUS — one of the most replicable dissociations in
+  metamemory.]**
+- **Koriat & Levy-Sadot 2001** (*JEP:LMC* 27:34): the two
+  heuristics are CASCADED — cue familiarity operates early;
+  Koriat's accessibility (partial-retrieval products, our
+  §5.21 `fok`) contributes later, and mostly only when cue
+  familiarity is high enough to drive the interrogation.
+  **[CONSENSUS as ordering; the interaction is the measured
+  signature.]**
+- Model consequence (§5.118): retrieval gains a cheap
+  pre-search stage — `fok_pre` from the familiarity of the cue
+  vector's TERMS alone (does this question sound like
+  something I'd know?), computed before any candidate scan.
+  Below `bout_enter` the character answers instantly "I have
+  no idea" and no bout runs. This is a compute saving AND a
+  human truth: instant "dunno" is a different phenomenon from
+  a searched "hmm, can't place it". The §5.21 accessibility
+  FOK then only modulates effort when `fok_pre` opened the
+  door — the cascade.
+- **Locked `fok_pre_acc_null`:** `fok_pre` is decorrelated
+  from record existence BY CONSTRUCTION — a familiar question
+  with no answer still feels known (the Reder-Ritter
+  dissociation is load-bearing). Same doctrine as P194's
+  accuracy-blind FOK, one stage earlier.
+
+## 103. The supplied wrong cue — contaminated cue vectors
+
+- A cue from another character is not always true. "It was
+  Tuesday, right?" / "his name starts with K" / "you were
+  sitting over there." The asker's wrong feature joins the
+  search anyway — humans cannot unhear a supplied detail.
+- **Smith & Blankenship 1991** (*Mem. Cognit.* 19:311):
+  misleading initial cues block problem resolution, and
+  removing the misleading cue set is a large part of what
+  incubation buys (already §96's mechanism for the loaded
+  question — §103 generalizes it: the wrong cue doesn't just
+  fail to help, it captures).
+- **Jones & Langford 1987** (*Cognition* 26:115) and Jones
+  1989 (*Mem. Cognit.* 17:69): phonologically related
+  interloper words raise TOT incidence — Woodworth's blocking
+  account. **[DEBATED — Meyer & Bock's matched-control
+  replications (1992, *Bull. Psychon. Soc.* 30:373) found NO
+  interloper effect once item difficulty was matched; we keep
+  the effect small and confined to the phonological field.]**
+- **Maylor 1990** (*Br. J. Psychol.* 81:449): the phonological
+  blocking effect DECREASES with age — older adults suffer
+  more TOTs overall but are LESS captured by supplied
+  phonological blockers (their failure is access, not
+  capture). **[CONSENSUS direction, single study.]**
+- Model consequence (§5.119): externally supplied features
+  carry `supplied:true` and enter C at weight `hint_w·w_j`
+  regardless of truth. A wrong supplied feature (a) raises
+  drive of records matching IT (the capture), (b) dilutes the
+  target's diagnosticity in the conjunction (§5.71), and (c)
+  lingers `hint_linger_hl` into the next same-topic bout —
+  fixation survives the immediate search. Phonological-field
+  wrong hints take the age-discounted `hint_phon_age` slope.
+- **Locked `hint_mint_null`:** supplied features are CUE
+  material only — they never write to any record. Whatever
+  they distort arrives through §6's normal misinformation
+  channels, not through the cue gate.
+- RW texture: the character who can't remember the name
+  because a partner confidently said the wrong one; the
+  witness whose search is poisoned by the interviewer's
+  detail; the TOT that survives because "it starts with K"
+  keeps pulling K.
+
+## 104. Forward is downhill — serial-direction cue asymmetry
+
+- **Kahana 1996** (*Mem. Cognit.* 24:103): lag-CRP analysis of
+  free recall — after recalling item i, subjects are ~2× as
+  likely to recall item i+1 as i−1, and faster doing it. The
+  forward asymmetry holds at all output positions; in CUED
+  (pair) recall, retrieval is nearly symmetric.
+  **[CONSENSUS — among the most robust regularities in
+  recall.]**
+- **Thomas, Milner & Haberlandt 2003** (*Psychol. Sci.*
+  14:170): backward recall isn't a backward search — it is
+  repeated covert FORWARD passes (walk the list from the start
+  each time, stop one earlier). Signature: forward RTs flat
+  after the first item; backward RTs start slow and SPEED UP
+  across output positions as the residual list shrinks.
+  **[CONSENSUS as dynamics; accounts differ on the
+  implementation.]**
+- **Howard & Kahana 2002** (*JML* 46:998) and Kahana et al.
+  2002: temporal contiguity itself declines across the
+  lifespan — older adults' transitions are less
+  lag-concentrated. **[CONSENSUS direction.]**
+- Model consequence (§5.120): reminding chains (§5.17) and
+  burst transitions (§5.73) are direction-weighted —
+  `chain_fwd_w` 1.0 vs `chain_bwd_pen` 0.5. "What happened
+  next?" flows; "what happened before that?" pays
+  `bwd_cycle_cost` per skipped item — backward narration runs
+  the covert-forward mechanic, producing the inverse-U
+  latency profile for free. Direct pair queries
+  ("X and Y — which came first?") set `pair_cue:true` and
+  bypass the asymmetry (cued recall is symmetric).
+- RW texture: telling the day backwards is work; telling it
+  forwards is story. The old character asked "what did you do
+  before lunch?" silently replays breakfast→lunch to find out.
+
+## 105. Cue hierarchy — v110 additions to the §97 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| voice in C | separate cascade tier; unfamiliar prints decay ~2× episodic fields → chance at ~5mo; familiar near-ceiling; accent match +, telephone −; voice→name weaker than face→name | §100 McGehee; Stevenage 2012; Kerstholt 2006 |
+| posture match | +0.05 episodic drive, latency −10%, congruent re-encode +10%; semantic flat | §101 Dijkstra 2007 |
+| question-term familiarity | pre-search fok_pre <850ms; below bout_enter → instant "dunno", no bout; decorrelated from existence | §102 Reder & Ritter; K&L-S 2001 |
+| supplied wrong feature | enters C at half weight; captures matching records, dilutes target diagnosticity, lingers 0.3d; phonological leg ages DOWN | §103 Smith & Blankenship; Jones & Langford; Maylor |
+| chain direction | forward transitions 2× backward; backward = covert forward passes with per-item cost; pair cues symmetric | §104 Kahana 1996; Thomas 2003 |
+
+## 106. Validation probes P1166–P1175 (v110 suite)
+
+- **P1166 unfamiliar-voice decay (MUST):** 5-voice lineup on
+  prints with uses<3 → ID ≥0.75 at 1d, ≤0.35 at 150d; the
+  curve must be front-loaded (McGehee 1937 shape, not linear).
+- **P1167 voice familiarity/distinctiveness (SHOULD):**
+  voicePrints with uses≥3 hold ≥0.8 at 60d; high-distinctiveness
+  voices ≥1.3× typical at 14d.
+- **P1168 accent and channel (SHOULD):** accent-mismatch
+  speakers misidentified ≥1.3× own-accent; `telephone_pen`
+  measurably lowers voice-tier drive.
+- **P1169 posture congruence (MUST):** congruent posture →
+  retrieval latency −≥8% and delayed free-recall +≥5% vs
+  incongruent; semantic recall delta ≈0 (`posture_sem_null`).
+- **P1170 pre-search gate (MUST — locked-null class):**
+  unfamiliar-cue questions terminate ≥60% without a bout, at
+  latency < bout latency/2; corr(`fok_pre`, record existence)
+  ≈0 (`fok_pre_acc_null`) while corr(fok_pre, cue-term
+  familiarity) > 0.5.
+- **P1171 cascaded FOK (SHOULD):** accessibility manipulations
+  shift the reported FOK only when fok_pre ≥ bout_enter —
+  interaction reproduces Koriat & Levy-Sadot's pattern, not
+  additivity.
+- **P1172 wrong-hint capture (MUST):** a supplied wrong
+  feature lowers correct-target recall vs matched no-hint
+  control within the bout; suppression concentrates on
+  records matching the wrong feature; a same-topic bout within
+  `hint_linger_hl` retains ≥50% of the suppression.
+- **P1173 hint age interaction (SHOULD):** phonological-field
+  wrong hints suppress LESS at 70 than at 30 (Maylor 1990)
+  while baseline TOT rate is higher; semantic-field wrong
+  hints show no such attenuation.
+- **P1174 forward asymmetry (MUST):** chain transition
+  probability at |lag|=1, forward ≥1.5× backward; `pair_cue`
+  probes show symmetric transitions ±10%.
+- **P1175 backward latency profile (SHOULD):** first backward-
+  direction emission is slower than forward; per-emission
+  latency DECREASES across a backward narration (covert-forward
+  traversal) — the Thomas signature.
+
+## 107. Honest limits (v110 additions)
+
+- The McGehee curves disagree with each other (13% vs ~45% at
+  long delay); `voice_decay_mult` 2.0 splits the difference and
+  P1166 locks the SHAPE (front-loaded, sub-chance asymptote
+  banned) rather than the point values. Closed-set lineup
+  accuracy is also not RW identification — the real task is
+  open-set naming, likely worse; we err conservative.
+- Familiar-voice near-ceiling recognition is phenomenology plus
+  forensics, not a priced lab curve; `voice_fam_min` 3 uses is
+  our floor.
+- The 2017 own-age voice result is age ESTIMATION, not
+  identification; the 2025 discrimination study found only the
+  listener-age main effect — we priced the main effect only.
+- Posture effect is single-lab; `posture_w` 0.05 is deliberately
+  the smallest context weight in the spec, and the semantic
+  null is our extrapolation (Dijkstra tested autobiographical
+  only).
+- `fok_pre` cue-term familiarity is implemented as cue-vector
+  familiarity — Reder & Ritter used question terms; mapping
+  "terms" to C features is our formalization.
+- Interloper blocking is DEBATED (Meyer & Bock 1992 found no
+  effect at matched difficulty); we keep `hint_w` modest and
+  P1172 measures the capture as suppression-vs-control, not a
+  blocking mechanism.
+- `chain_bwd_pen` 0.5 prices Kahana's ~2:1; `bwd_cycle_cost`
+  prices Thomas's covert passes — both applied to REMINDING
+  chains, our analog of lag transitions, not literal list
+  recall.

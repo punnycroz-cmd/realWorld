@@ -4589,3 +4589,55 @@ this version.
   relief_min, rk_*, oi_*) are RW calibration targets — the
   literature supplies direction and ordering, the spec
   supplies the numbers, the probes police the boundary.
+
+## 85. v110 sources — retrieval-cues X (RC Part X → spec v5.58)
+
+- **The voice as a cue:** McGehee 1937 (*J. Gen. Psychol.*
+  17:249 — verified: five-voice lineup 83%@1d → 13%@5mo) and
+  McGehee 1944 (*JGP* 31:53 — verified: ~45–48% plateau @8wk;
+  the two curves disagree, so the spec locks the front-loaded
+  SHAPE); Clifford 1980 (verified review — earwitness weaker
+  than eyewitness, exposure duration dominates); Stevenage,
+  Clarke & McNeill 2012 (*J. Cogn. Psychol.* 24:647 — verified
+  other-accent effect); Kerstholt et al. 2006 (*Appl. Cogn.
+  Psychol.* 20:187 — telephone degradation); own-age voice
+  findings mixed (2017 estimation bias; 2025 discrimination
+  main-effect only — priced as `voice_age_pen`). Spec §5.116
+  `voicePrint` tier; `voice_face_null` (no visual detail from
+  voice-only); `voice_name_w` < face→name.
+- **The body as a cue:** Dijkstra, Kaschak & Zwaan 2007
+  (*Cognition* 102:139 — verified: congruent posture → faster
+  AM retrieval + better 2wk free recall, both age groups).
+  Spec §5.117 `posture_w` 0.05 (smallest context weight) +
+  latency/re-encode dividends; `posture_sem_null` — our
+  episodic-only extrapolation.
+- **The question knows first:** Reder & Ritter 1992
+  (*JEP:LMC* 18:435 — verified: <850ms know/don't-know driven
+  by question-term familiarity, orthogonal to answer
+  retrievability); Metcalfe, Schwartz & Joaquim 1993
+  (*JEP:LMC* 19:1074 — cue priming ↔ FOK, target priming ↔
+  recall dissociation); Koriat & Levy-Sadot 2001 (*JEP:LMC*
+  27:34 — verified cascade: familiarity early, accessibility
+  gated behind it). Spec §5.118 `fok_pre`/`bout_enter` pre-
+  search gate; `fok_pre_acc_null` — the gate must stay
+  accuracy-blind.
+- **The poisoned cue:** Smith & Blankenship 1991 (verified —
+  misleading cue sets block resolution); Jones & Langford 1987
+  + Jones 1989 (phonological interlopers raise TOTs —
+  DEBATED: Meyer & Bock 1992 matched-control null; effect
+  kept small); Maylor 1990 (*Br. J. Psychol.* 81:449 —
+  verified: phonological blocking DECREASES with age — capture
+  ≠ access). Spec §5.119 `supplied:true` features at `hint_w`,
+  `hint_linger_hl`, `hint_phon_age`; `hint_mint_null` —
+  supplied features never write content.
+- **The direction of travel:** Kahana 1996 (*Mem. Cognit.*
+  24:103 — verified ~2:1 forward asymmetry, cued pairs
+  symmetric); Thomas, Milner & Haberlandt 2003 (*Psychol.
+  Sci.* 14:170 — verified: backward recall = covert forward
+  passes, latency decreases across output); Howard & Kahana
+  2002 + Kahana et al. 2002 (contiguity declines with age).
+  Spec §5.120 `chain_fwd_w`/`chain_bwd_pen` on reminding
+  chains, `pair_cue` bypass, `bwd_cycle_cost` covert-pass
+  latency, `chain_age_pen`.
+- **Marked hypothesis:** all magnitudes RW calibration
+  targets; probes P1166–P1175 police the boundary.
