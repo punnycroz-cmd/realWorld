@@ -12300,3 +12300,99 @@ both, "forgotten" and "erased" are the same observable, and
 the battery must say so. The NE-vs-GONE split is a model
 artifact (real minds don't have provenance chains); it exists
 to catch phantom mints, not as a psychological claim.
+
+## 242. v120 probe specs (P1281–P1290 — encoding-mechanics X, the backward-looking encoder)
+
+- **P1281 retro-reward ordering (MUST — sign):** neutral-tag
+  events, then an unexpected reward event (r ≥ rew_thresh,
+  PE>0): related-tag records in `post_rew_win` > unrelated
+  in-window > post-window, all at ≥24h-equivalent recall.
+  Both legs required — relatedness gate (Patil 2017) AND
+  proximity gradient (Braun 2018).
+- **P1282 immediate-test null (MUST — locked
+  `rew_inst_null`):** the P1281 probe re-run at same-day
+  recall must show no retro-reward benefit; the delta
+  appears only after a sleep tick. A build showing
+  immediate benefit fails by construction.
+- **P1283 direction lock (MUST — locked
+  `rew_ant_only_null`):** records minted AFTER the reward
+  event take zero sweep strength; any forward benefit must
+  trace to §99 anticipation machinery, not the retro leg.
+- **P1284 blink refractory (SHOULD):** trigger mint at
+  E ≥ `blink_trigger`, then matched-salience events at
+  0.5/1.5/3.5 sim-min: E deficit inside `blink_win`,
+  ≈linear recovery, zero outside; refractory chains legal.
+- **P1285 blink self-exemption (MUST — locked
+  `blink_self_null`):** trigger record E byte-identical
+  with blink machinery on vs off (CRN-matched).
+- **P1286 run attenuation + release (SHOULD):** seven
+  same-`categoryTag` events then one different-tag event:
+  monotone E decline across the run (≈(1−pi_run_k)^n to the
+  `run_cap` floor), then the `pi_rel_gain` bump on the
+  switch. Retention-side PI pools must show no parallel
+  write (no double PI — the contract's second half).
+- **P1287 relabel sham (MUST — locked `pi_relabel_null`):**
+  same underlying stream re-tagged cosmetically earns no
+  release; genuine tag change does (Gardiner 1972's
+  condition made a spec law).
+- **P1288 observer-birth content split (SHOULD):**
+  dissoc × arousal ≥ `persp_obs_arousal` mints: somatic/
+  affective fields thin vs field-birth matched records,
+  layout/self-visible thick (the McIsaac & Eich 2004
+  signature); emission bias toward observer via
+  `persp_birth_bias`.
+- **P1289 birth-vantage immutability (MUST — locked
+  `persp_birth_null`):** forced observer emission on a
+  field-birth record flips presentation only; `perspBirth`
+  unchanged on re-read; scan all write paths — none may
+  touch the field post-mint.
+- **P1290 boundary ante-direction (MUST — locked
+  `bound_ante_null`):** boundary mint bumps prior-segment
+  records graded toward the cut; incoming-segment first
+  records show zero ante gain; `bound_bridge` may mint the
+  seam link but adds no strength.
+
+Probe registry: P1–P1290 (v120 adds P1281–P1290). MUST:
+P1281, P1282, P1283, P1285, P1287, P1289, P1290 (five
+locked-null probes + two ordering/direction). SHOULD:
+P1284, P1286, P1288.
+
+## 243. Sources verified this version (P1281–P1290 backing)
+
+- **Retroactive reward (ESTABLISHED):** Patil, Murty,
+  Dunsmoor, Phelps & Davachi 2017 (*Learn. Mem.* 24:65 —
+  verified: relatedness-gated retro benefit, 24h not
+  immediate); Braun, Wimmer et al. 2018 (*Nat. Commun.*
+  9:4886 — verified: graded proximity, rest-interval
+  interaction, six datasets); Dunsmoor, Murty, Davachi &
+  Phelps 2015 (*Nature* 523:345 — verified: aversive arm).
+- **Attentional blink (CONSENSUS phenomenon; sim-scale
+  mapping HYPOTHESIS):** Raymond, Shapiro & Arnell 1992
+  (*JEP:HPP* 18:849); Chun & Potter 1995 (*JEP:HPP* 21:109);
+  Shapiro, Arnell & Raymond 1997 (*Curr. Opin. Neurobiol.*
+  7); Martens & Wyble 2010 (*Front. Psychol.* 1). The
+  lab window is ~400 ms; `blink_win` in sim-minutes is our
+  scene-scale analog — the claim survives only as a
+  mint-level refractory, not a sub-second one.
+- **PI buildup/release (CONSENSUS; encode-side split is
+  RW formalization):** Underwood 1957 (*Psychol. Rev.*
+  64:49); Keppel & Underwood 1962 (*JVLVB* 1:153);
+  Wickens 1970 (*JVLVB* 9); Gardiner, Craik & Birtwistle
+  1972 (*JVLVB* 11:778 — release needs semantic change,
+  grounds `pi_relabel_null`).
+- **Vantage at birth (content split ESTABLISHED;
+  `perspBirth` tag HYPOTHESIS):** McIsaac & Eich 2004
+  (*Psychol. Sci.* 15:248); McIsaac & Eich 2002
+  (*Psychon. Bull. Rev.* 9:146); Berntsen, Willert & Rubin
+  2003 (*Mem. Cognit.* 31); Nigro & Neisser 1983. Lit
+  measures vantage at recall — whether dissociative
+  encoding writes it at birth is open; P1288 probes the
+  signature, not the tag.
+- **Boundary reinstatement (ESTABLISHED neural finding;
+  E-side mapping HYPOTHESIS):** Sols, DuBrow, Davachi &
+  Fuentemilla 2017 (*Curr. Biol.* 27:3499 — ~200–800 ms
+  reinstatement of the just-closed sequence, predicts
+  cross-event linking); DuBrow & Davachi 2013; Swallow,
+  Zacks & Abrams 2009; Gold, Zacks & Flores 2017;
+  Radvansky & Zacks 2017 (*Curr. Opin. Behav. Sci.* —
+  review).

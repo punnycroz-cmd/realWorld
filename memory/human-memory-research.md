@@ -5249,3 +5249,72 @@ implicit last) is our operationalization.
   catch phantom mints, not as psychology.
 
 → VA-ABS (validation-design §239); probes P1269–P1280.
+
+## 95. v120 source block — the backward-looking encoder (encoding-mechanics X)
+
+New primary sources, all verified 2026-09-24:
+
+- **Retroactive reward prioritization (ESTABLISHED):**
+  **Patil, Murty, Dunsmoor, Phelps & Davachi 2017**
+  (*Learn. Mem.* 24:65 — verified: reward retroactively
+  enhances memory for conceptually RELATED pre-reward
+  items; at 24h, not immediate → post-encoding
+  consolidation locus); **Braun, Wimmer et al. 2018**
+  (*Nat. Commun.* 9:4886 — verified across six datasets:
+  graded retroactive prioritization by proximity to
+  reward, stronger with post-encoding rest — replay-
+  mediated); **Dunsmoor, Murty, Davachi & Phelps 2015**
+  (*Nature* 523:345 — verified: fear-conditioning arm —
+  aversive outcomes retroactively rescue related neutral
+  items). Complements §99's anticipatory window with the
+  backward sweep; the two are disjoint by contract
+  (`rew_ant_only_null`).
+- **Attentional blink (CONSENSUS phenomenon):**
+  **Raymond, Shapiro & Arnell 1992** (*JEP:HPP* 18:849 —
+  verified: T2 drops 200–500 ms after T1 in RSVP);
+  **Chun & Potter 1995** (*JEP:HPP* 21:109 — verified:
+  two-stage model — T1 consolidation occupies the
+  bottleneck); **Shapiro, Arnell & Raymond 1997**
+  (*Curr. Opin. Neurobiol.* 7 — verified review);
+  **Martens & Wyble 2010** (*Front. Psychol.* 1 —
+  verified). **HYPOTHESIS (ours):** the sim-minute
+  refractory `blink_win` is a scene-scale analog of a
+  sub-second lab window — claimed only at mint
+  granularity, flagged.
+- **Proactive interference buildup + release (CONSENSUS
+  phenomenon; encode-side placement is RW
+  formalization):** **Underwood 1957** (*Psychol. Rev.*
+  64:49 — verified: proactive dominance in everyday
+  forgetting); **Keppel & Underwood 1962** (*JVLVB*
+  1:153 — verified: PI accrues over successive same-class
+  trials); **Wickens 1970** (*JVLVB* 9 — verified:
+  release on category shift); **Gardiner, Craik &
+  Birtwistle 1972** (*JVLVB* 11:778 — verified: release
+  needs semantic, not superficial, change →
+  `pi_relabel_null`). The spec priced PI at retention
+  already; v120 adds the mint-side attenuation.
+- **Field vs observer vantage (content split
+  ESTABLISHED; birth-tag HYPOTHESIS):** **McIsaac & Eich
+  2004** (*Psychol. Sci.* 15:248 — verified: observer
+  trauma memories carry more self-visible/layout, less
+  affective/somatic/psychological content; experienced as
+  less emotional); **McIsaac & Eich 2002** (*Psychon.
+  Bull. Rev.* 9:146 — verified lab analogue);
+  **Berntsen, Willert & Rubin 2003** (*Mem. Cognit.* 31 —
+  verified vantage split); Nigro & Neisser 1983 (reused —
+  §5.39 anchor). Flagged: the lit is recall-side; whether
+  dissociative encoding writes the vantage at birth is
+  open — `perspBirth` is our formalization.
+- **Boundary-triggered reinstatement (ESTABLISHED neural
+  finding; E-side mapping HYPOTHESIS):** **Sols, DuBrow,
+  Davachi & Fuentemilla 2017** (*Curr. Biol.* 27:3499 —
+  verified: ~200–800 ms reinstatement of the just-closed
+  episode at boundary onset; predicts cross-event
+  linking); DuBrow & Davachi 2013 (reused); Swallow,
+  Zacks & Abrams 2009 (reused); **Gold, Zacks & Flores
+  2017** (*Mem. Cognit.* — verified: event boundary
+  advantage); **Radvansky & Zacks 2017** (*Curr. Opin.
+  Behav. Sci.* — verified review).
+
+→ encoding-mechanics.md §§123–132; spec v5.66
+§§6.318–6.322; probes P1281–P1290.

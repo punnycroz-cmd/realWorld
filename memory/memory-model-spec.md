@@ -1,4 +1,30 @@
-# Memory Model Spec v5.65 — implementable human-like memory for RW characters
+# Memory Model Spec v5.66 — implementable human-like memory for RW characters
+
+> **v5.66 note (encoding-mechanics X — the backward-
+> looking encoder):** `memory/encoding-mechanics.md` Part X
+> (§§123–132) prices five encode-side forces the ledger had
+> one-directional or unpriced. **Retroactive reward** —
+> unexpected reward sweeps backward `post_rew_win` 45 sim-min,
+> graded by proximity (`post_rew_tau`) and gated by
+> relatedness (`post_rew_cat_w`), materializing only through
+> the sleep leg (Patil 2017; Braun 2018; Dunsmoor 2015);
+> locked `rew_inst_null` + `rew_ant_only_null`. **The blink** —
+> a high-E mint opens a `blink_win` refractory that taxes the
+> NEXT event's E, sequential and content-blind (Raymond 1992;
+> Chun & Potter 1995); locked `blink_self_null`. **PI at the
+> mint** — successive same-`categoryTag` events attenuate E
+> `(1−pi_run_k)^run_n`; a genuine tag switch earns
+> `pi_rel_gain` (Underwood 1957; Wickens 1970); locked
+> `pi_relabel_null`. **Birth vantage** — dissoc × high arousal
+> mints `perspBirth:"observer"` records with the McIsaac &
+> Eich 2004 content split (affective thin, layout thick);
+> emission bias via §5.39; locked `persp_birth_null`.
+> **Boundary reinstatement** — a minted boundary sweeps the
+> closing segment `bound_ante_gain` graded toward the cut plus
+> a `bound_bridge` seam-link rescue (Sols 2017); locked
+> `bound_ante_null` (backward only). Spec §§6.318–6.322, §7
+> +18 scalars +6 locked nulls +2 record fields, §10 contract;
+> probes P1281–P1290.
 
 > **v5.65 note (formal-model XI — the deferral algebra,
 > the version lattice, the equivalence contract):**
@@ -15841,6 +15867,96 @@ seeded by accumulated eval_tag. **Locked
 `hh_trait_null`:** pre-abstraction eval writes never
 mint `traits{}` fields.
 
+### 6.318 The retroactive purse — `post_rew_*` (new in v5.66)
+
+EM§123; Patil, Murty, Dunsmoor, Phelps & Davachi 2017
+(*Learn. Mem.* 24:65 — verified: retroactive reward benefit
+for related pre-reward items at 24h, NOT immediate test);
+Braun, Wimmer et al. 2018 (*Nat. Commun.* 9:4886 —
+verified: graded proximity, rest-interval interaction);
+Dunsmoor et al. 2015 (*Nature* 523:345 — aversive arm).
+
+On an event with reward `r ≥ rew_thresh` (0.4) and positive
+prediction error (§98): sweep live records minted within
+`post_rew_win` (45 sim-min) BEFORE the event; each takes
+`strength *= 1 + post_rew_gain·(post_rew_cat_w·rel +
+(1−post_rew_cat_w))·exp(−Δt/post_rew_tau)` and
+`rew_tagged:true`. The benefit lands at the next
+consolidation leg — **never same-day**. Locked
+`rew_inst_null` (P1282) and `rew_ant_only_null` — the sweep
+is backward-only; forward reward is §99's anticipatory
+window (P1283).
+
+### 6.319 The blink at the mint — `blink_*` (new in v5.66)
+
+EM§124; Raymond, Shapiro & Arnell 1992 (*JEP:HPP* 18:849);
+Chun & Potter 1995 (*JEP:HPP* 21:109 — two-stage); Martens
+& Wyble 2010.
+
+A mint with `E ≥ blink_trigger` (0.65) opens a refractory
+`blink_win` (2 sim-min, 0.5–4): events minted inside take
+`E *= (1 − blink_loss·(1 − Δt/blink_win))` — linear
+recovery, `blink_loss` 0.35. Sequential and content-blind —
+distinct from the v0.5 `emo_blink` halo (which suppresses
+cue-UNRELATED records around an arousal spike). Locked
+`blink_self_null`: the trigger is byte-identical with the
+machinery off (P1285). Sim-scale mapping flagged
+HYPOTHESIS (lab window ~400 ms).
+
+### 6.320 Same-kind runs — `pi_run_*` (new in v5.66)
+
+EM§125; Underwood 1957 (*Psychol. Rev.* 64:49); Keppel &
+Underwood 1962 (*JVLVB* 1:153 — PI builds over successive
+same-class trials); Wickens 1970 (*JVLVB* 9 — release on
+category shift); Gardiner, Craik & Birtwistle 1972
+(*JVLVB* 11 — release needs semantic change).
+
+Per-char run state `{lastMintTag, run_n}`: on a mint with
+`categoryTag == lastMintTag`, `run_n += 1` and
+`E *= (1 − pi_run_k)^min(run_n, run_cap)` (0.05, cap 6);
+on a genuine tag change `run_n` resets and the next mint
+takes `E *= (1 + pi_rel_gain)` (0.08 — the Wickens
+release). Orthogonal to retention-side PI pools and to
+§38 varied-context cue minting. Locked `pi_relabel_null`:
+cosmetic retitling earns no release (P1287).
+
+### 6.321 Birth vantage — `perspBirth` (new in v5.66)
+
+EM§126; McIsaac & Eich 2004 (*Psychol. Sci.* 15:248 —
+verified content split: observer memories carry more
+self-visible/layout, less affective/somatic content and
+read as less emotional); McIsaac & Eich 2002; Berntsen,
+Willert & Rubin 2003; Nigro & Neisser 1983 (§5.39 anchor).
+
+At mint, if `arousal ≥ persp_obs_arousal` (0.75) and
+(trait `dissoc ≥ 0.5` or `ctx.persp == "observer"`):
+`record.perspBirth = "observer"`; somatic/affective field
+write_p `×(1 − persp_obs_field_loss)` (0.30);
+spatial/self-visible write_p `×(1 + persp_obs_layout_gain)`
+(0.20). §5.39 emission gains `+persp_birth_bias` (0.35)
+toward observer when the record carries the tag. Locked
+`persp_birth_null`: mint-fixed, no write path (P1289).
+Birth-tag itself flagged HYPOTHESIS — source lit is
+recall-side (P1288 tests the signature, not the tag).
+
+### 6.322 The boundary looks back — `bound_ante_*` (new in v5.66)
+
+EM§127; Sols, DuBrow, Davachi & Fuentemilla 2017 (*Curr.
+Biol.* 27:3499 — verified: boundary onset reinstates the
+just-encoded sequence within ~200–800 ms; reinstatement
+predicts cross-event linking); Gold, Zacks & Flores 2017;
+Radvansky & Zacks 2017 (review).
+
+On any boundary mint (§110 derived or flagged): the just-
+closed segment's records (≤ `bound_ante_n` 5) take
+`strength *= 1 + bound_ante_gain·(1 − i/len)` graded toward
+the cut (0.08 max); the seam link
+`link_p(seg.last, seg'.first) ×= bound_bridge` (0.6) —
+partial rescue against `boundary_order_loss`, the Sols
+linking function. Locked `bound_ante_null`: backward only —
+the incoming segment's first records get zero ante gain
+(P1290).
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -18139,6 +18255,29 @@ MemoryParams = {
 //   entry; op catalog gains `evalClass` column
 //   (§16.1). All snapshot-additive; absent = legacy
 //   (evaluatedAt absent → treat as createdDay).
+// v5.66 additions (encoding-mechanics X — EM§§123–127)
+"rew_thresh": 0.4, "post_rew_win": 45, "post_rew_gain": 0.10,
+"post_rew_tau": 15, "post_rew_cat_w": 0.5,        // §6.318
+"blink_trigger": 0.65, "blink_win": 2, "blink_loss": 0.35,
+                                                  // §6.319
+"pi_run_k": 0.05, "run_cap": 6, "pi_rel_gain": 0.08,
+                                                  // §6.320
+"persp_obs_arousal": 0.75, "persp_obs_field_loss": 0.30,
+"persp_obs_layout_gain": 0.20, "persp_birth_bias": 0.35,
+                                                  // §6.321
+"bound_ante_gain": 0.08, "bound_ante_n": 5,
+"bound_bridge": 0.6,                              // §6.322
+// v5.66 locked nulls: rew_inst_null (no same-day gain —
+//   P1282); rew_ant_only_null (backward sweep only —
+//   P1283); blink_self_null (trigger exempt — P1285);
+//   pi_relabel_null (release needs real tag change —
+//   P1287); persp_birth_null (birth vantage immutable —
+//   P1289); bound_ante_null (prior segment only — P1290).
+// v5.66 fields: record `perspBirth` ("field"|"observer",
+//   mint-fixed); record flag `rew_tagged`; per-char run
+//   state {lastMintTag, run_n} (harness-side, snapshot-
+//   persisted); event ctx `persp:"observer"` accepted at
+//   encode. All snapshot-additive; absent = legacy.
 // v5.63 additions (individual-differences X — ID§§125–137)
 "hear_effort_tax": 0.2, "hear_src_tax": 0.15,
 "hear_social_drag": 0.3, "hear_aid_rescue": 0.4,
@@ -20873,6 +21012,45 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.66 additions (encoding-mechanics.md §§123–127 — the
+  backward-looking encoder):
+  - **Retro-reward contract:** the sweep fires only on
+    reward events carrying `r ≥ rew_thresh` AND positive PE
+    (§98); targets are records minted BEFORE the event
+    within `post_rew_win` (`rew_ant_only_null`); tagged
+    records benefit only via the next consolidation leg
+    (`rew_inst_null` — same-day recall shows zero effect,
+    P1282). `rew_tagged` is a bookkeeping flag — it must
+    never feed retrieval weights or report confidence.
+  - **Blink contract:** refractory is mint-time only and
+    forward-only — it taxes events INSIDE `blink_win`,
+    never the trigger (`blink_self_null`, P1285), and a
+    trigger minted while itself inside a prior blink still
+    opens its own window (refractory chains are legal).
+    Content-blind: no relatedness test — that's `emo_blink`.
+  - **PI-run contract:** `{lastMintTag, run_n}` is per-char
+    snapshot-persisted state updated at mint only;
+    `pi_rel_gain` fires on genuine `categoryTag` changes
+    only (`pi_relabel_null`, P1287). The attenuation is an
+    E-side term — it must NOT also feed the retention-side
+    competition pools (no double PI).
+  - **Birth-vantage contract:** `perspBirth` is set once at
+    mint and immutable (`persp_birth_null`, P1289);
+    §5.39 emission may still flip presentation, and
+    `persp_birth_bias` is the ONLY channel by which the
+    tag reaches output. Absent tag → field, legacy.
+  - **Boundary-ante contract:** the graded sweep targets
+    the CLOSING segment only (`bound_ante_null`, P1290);
+    `bound_bridge` may add the seam link but never adds
+    strength to incoming-segment records.
+  - **Locked boundaries game-systems must honor:**
+    `rew_inst_null`, `rew_ant_only_null`, `blink_self_null`,
+    `pi_relabel_null`, `persp_birth_null`, `bound_ante_null`.
+  - **New params (§7):** 18 scalars + 6 locked nulls +
+    1 record field (`perspBirth`) + 1 record flag
+    (`rew_tagged`) + per-char run state.
+  - Probes P1281–P1290.
+
 - v5.65 additions (formal-model.md §§92–103 — the deferral
   algebra, the version lattice, the equivalence contract):
   - **Eval-timing contract (FM§92/§95):** every op in the §38
