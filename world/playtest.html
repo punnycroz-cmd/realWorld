@@ -1874,6 +1874,31 @@ const PTS=[
   exp:"onboard gate passes at 'schema v95 · 8 beats · key rw_onboard_v95' — all v95 honesty strings found, S7 reachable + hired-gated + in PAID_STAGES, subscription_line/first_visit values pinned to the plan, deal-framing and early-release-refund sweeps clean.",
   ck:["Onboard gate: 0 fail; detail reports schema v95 at key rw_onboard_v95",
     "A missing credit rule, an invented sub price, or S7 outside PAID_STAGES would FAIL — spot-check"]}
+]}
+,{id:"PT87",title:"Rent Book v6 — the counter-paper layer (assignment, buyout, prepaid, history letter)",min:11,
+ persona:"tenant-rights reviewer — wants the v96 layer verified as paper that protects the tenant, not new levers for the landlord",
+ goal:"Verify the v96 lease pass: lease assignment (clean-ledger gate, assignee screened on the published checklist, deposit carries, outgoing liability ends, file-only); buyout offers (offerable only while active, stated amount, tenant decides, 30-day re-offer cooldown on decline, BUYOUT credit code on accept); prepaid rent (3-month cap, draws down on the 1st before any balance, never required); the rental history letter (one dated abstract, neutral scars); all four file-only — the feed hears at most the neutral turnover line.",
+ surfaces:["lease","audit"],steps:[
+ {do:"Open lease.html (file://) as tenant h01. Try 'Request lease assignment' while the day-6 balance still stands; pay the rent, then file it and switch to admin.",
+  exp:"The request is refused while a balance stands — 'the ledger must be clean to hand over.' Once paid, the request writes a file doc naming the assignee and the published checklist; admin sees the approve/decline pair. Approving renames the tenant to D. Park, carries the deposit, keeps the term and the scars on the unit's file — and posts nothing to the wire.",
+  ck:["Balance gate blocks the request before it files — toast names the rule",
+    "Approval carries deposit + term + hist verbatim; mine flag clears (h01 is off the lease)",
+    "No wire line on request, approval, or decline — assignment is file-only"]},
+ {do:"As admin, 'Offer buyout' on an active lease; then as tenant, decline it. Try to offer again. On a second lease (or after stepping days past the cooldown), accept one.",
+  exp:"The offer posts a stated-amount doc and the tenant decides. Decline writes a free decline — no fee, no mark — and locks re-offer 30 days; the offer button is gone until the cooldown lapses. Accept posts a 'buyout credit — BUYOUT' ledger line, runs ordinary move-out paper (walkthrough + 21-day deposit clock), credits the tenant bank, and the wire shows only 'Unit turning over — <addr>'. Offering under a live rung (arrears/noticed/disputed) is refused outright.",
+  ck:["offerBuyout refuses any state but active — buyout is not a ladder shortcut",
+    "Decline is free and sets buyoutCool = day+30; re-offer is gated",
+    "Accept writes BUYOUT-coded credit + depPending + walkthrough; feed sees only the neutral turnover template"]},
+ {do:"As tenant, 'Prepay a month' twice on 9457-2, then step days to cross the 1st and watch the rollover. Then 'Request rental history letter' twice.",
+  exp:"Each prepay posts a 'prepaid rent credit' line and the file shows the running credit (cap: three months — a fourth click refuses). At the month rollover the rent charge posts and a 'prepaid credit applied' line covers it before any balance exists — no day-6 fee accrues on the covered month. The history letter writes once: dated, term stated, payment-line count, scars stated as scars; a second click is a no-op toast.",
+  ck:["prepaid credit draws down on the 1st — balance never forms on the covered month",
+    "Cap enforced at 3× rent; prepay is never framed as required or as leverage",
+    "Letter is one-per-tenancy, neutral, and names scars without editorializing"]},
+ {do:"Run node world/audit.js from the repo root and read the lease gate.",
+  exp:"The lease gate passes the v96 checks: key rw_lease_v96, all five html surfaces (assignment/buyout/prepaid/history letter/BUYOUT code), the four json blocks, active-only offerability + 30-day cooldown, the four feed_wording.never additions, own-unit guards on assignDecide/offerBuyout, file-only wiring on the five request/decide functions, the clean-ledger gate, and the 3× cap.",
+  ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
+    "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
+    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
 ]}];
 
 

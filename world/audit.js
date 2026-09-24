@@ -1020,8 +1020,9 @@ const PUB = Object.values(PT.surfaces)
        sale-with-tenant paper, renewal offers, returned payments,
        guarantor release */
     if (LJ.version >= 82) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v82')
-        add(g, 'fail', 'leases.json', null, 'v82 schema on an old storage key');
+      const k82 = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (k82 < 82)
+        add(g, 'fail', 'leases.json', null, 'v82+ schema on an old storage key');
       for (const [re, label] of [
         [/entry notice|notice of entry/i, 'notice of entry surface'],
         [/entry_violation/i, 'entry-violation dispute ground'],
@@ -1059,6 +1060,53 @@ const PUB = Object.values(PT.surfaces)
         if (fb && /wires\.push/.test(fb[0]))
           add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
       }
+    }
+    /* v96 additions — the counter-paper layer: lease assignment
+       (clean-ledger hand-off, deposit carries, file-only), buyout
+       offers (active-only, 30-day re-offer cooldown, BUYOUT code),
+       prepaid rent credit (3-mo cap, draws down on the 1st), and the
+       rental history letter (one dated abstract per tenancy) */
+    if (LJ.version >= 96) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v96')
+        add(g, 'fail', 'leases.json', null, 'v96 schema on an old storage key');
+      for (const [re, label] of [
+        [/assignment/i, 'lease assignment flow'],
+        [/buyout|cash-for-keys/i, 'buyout offer surface'],
+        [/prepaid/i, 'prepaid rent credit'],
+        [/rental history/i, 'rental history letter'],
+        [/BUYOUT/i, 'BUYOUT ledger code']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v96 surface missing: ${label}`);
+      if (!LJ.assignments || !LJ.buyouts || !LJ.prepaid_rent || !LJ.history_letter)
+        add(g, 'fail', 'leases.json', null, 'v96 blocks missing (assignments/buyouts/prepaid_rent/history_letter)');
+      if (!/active only/.test(LJ.buyouts && LJ.buyouts.offerable_when || ''))
+        add(g, 'fail', 'leases.json', null, 'buyouts must be offerable in good standing (active) only');
+      if ((LJ.buyouts.cooldown || '').indexOf('30') < 0)
+        add(g, 'fail', 'leases.json', null, 'buyout re-offer cooldown drifted');
+      for (const nm of ['buyout_offers', 'assignments', 'prepayments', 'history_letters'])
+        if (!LJ.feed_wording.never.includes(nm))
+          add(g, 'fail', 'leases.json', null, `feed_wording.never missing "${nm}" — v96 paper is file-only`);
+      /* own-unit guards on the new licensed tools */
+      for (const fn of ['assignDecide', 'offerBuyout']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (!fb) add(g, 'fail', 'lease.html', null, `${fn} missing`);
+        else if (!/myUnit/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} lacks the own-unit guard`);
+      }
+      /* file-only surfaces: assignment / buyout offer / prepay /
+         history letter never reach the feed (buyoutDecide may post the
+         neutral turnover line — the generic tx: scan gates its wording) */
+      for (const fn of ['reqAssign', 'assignDecide', 'offerBuyout', 'prepayMonth', 'reqHistLetter']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (fb && /wires\.push/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
+      }
+      /* clean-ledger gate on assignment + 3-month prepaid cap */
+      const ra = html.match(/window\.reqAssign=function[\s\S]*?^\};/m);
+      if (ra && !/bal>0/.test(ra[0]))
+        add(g, 'fail', 'lease.html', null, 'reqAssign lacks the clean-ledger gate');
+      const pm = html.match(/window\.prepayMonth=function[\s\S]*?^\};/m);
+      if (pm && !/3\*l\.rent/.test(pm[0]))
+        add(g, 'fail', 'lease.html', null, 'prepayMonth lacks the three-month cap');
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }

@@ -245,6 +245,13 @@ One person can wear every hat; four real testers is the intended shape.
   and the S7 first visit: a guided 22-cr 15-min possession off the
   first-day card, both exits (step out / hard cap) handing back
   mid-motion with no refund promised, one-time lesson then settle.
+  PT87 (Rent Book v6 / leases v96) walks the counter-paper layer —
+  lease assignment behind the clean-ledger gate (deposit carries,
+  outgoing liability ends at signature, file-only), buyout offers
+  (active-only, tenant decides, free decline + 30-day re-offer lock,
+  BUYOUT credit code on accept), prepaid rent (3-month cap, draws down
+  on the 1st before any balance exists), and the one-per-tenancy
+  rental history letter.
 
 ## 3. Running a session
 

@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v82; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer)
+# Lease Flow — spec & copy deck (world v96; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v5), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v6), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v82`.
+  9088-5 only) / admin. localStorage `rw_lease_v96`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -792,3 +792,124 @@ A payment can come back — bank reversed it, the check didn't clear:
 - `node world/audit.js` G11 now also requires the v82 surfaces (entry
   notice, sale-with-tenant, renewal, returned payment, guarantor
   release) and fails on the old storage key.
+
+## 49. Lease assignment (the name on the paper changes)
+
+A sublet (§25) is temporary and the tenant stays liable; an **assignment**
+is the permanent hand-off — the lease itself changes names:
+
+```
+tenant files (named assignee — screened on the same published checklist)
+  → approved | declined (landlord file / admin; licensed on own units)
+  → approved: assignment doc + the assignee becomes tenant of record,
+    same terms, same rent-control flag, same file; the deposit carries
+    to the new name (no second deposit, no reset)
+```
+
+- **The ledger must be clean to hand over.** A lease carrying a balance
+  can't assign — settle it, run a plan to completion, or let the new
+  name apply to a cheaper door. The file says so plainly.
+- The assignee is screened on the §12 checklist like any applicant —
+  income, references. Approval **not unreasonably withheld**; a decline
+  names the reason on the file.
+- Assignment is **file-only, never a feed event** — tenant names never
+  reach the wire; the block sees at most that the door stayed occupied.
+- The outgoing tenant's liability ends at signing — unlike a sublet,
+  there is no residual string. The file records the hand-off date; the
+  scars stay with the *unit's* file, not the departing name.
+- Demo: `reqAssign` → `assignReq` → `assignDecide` — "D. Park" takes
+  over 9457-2's lease, deposit carried, term unchanged.
+
+## 50. Buyout offers (cash-for-keys, offered only in good standing)
+
+A landlord may want a unit back without cause — the lawful way is an
+offer the tenant can refuse:
+
+- **Offerable only while `active`** — never under a live rung (arrears,
+  noticed), never while a dispute is open, never inside 30 days of a
+  declined offer (`buyoutCool`). A buyout is not a shortcut around the
+  ladder; offering one under pressure is the abuse the rule exists to
+  read.
+- The offer is a stated amount on the file (demo: two months' rent).
+  **The tenant decides.** Accept → ordinary `move_out` paper plus a
+  `BUYOUT` credit line (distinct code, same legibility rule as
+  `NOFAULT`) — deposit still returns separately, itemized, 21-day clock.
+- Decline → a file doc and the cooldown. Declining is free: no fee, no
+  mark, no retaliation leg — and a later rent raise the same quarter
+  would still need its stated basis like any other.
+- Licensed landlords offer on their own units only; the paper is
+  identical to admin's. The feed sees at most the neutral turnover line
+  if accepted — the offer, the amount, and the decline never post.
+- Demo: `offerBuyout` → `buyoutDecide(true|false)`.
+
+## 51. Prepaid rent (a credit, not a favor)
+
+A tenant with a good month can pay ahead — but prepay is a ledger
+mechanic, not a relationship move:
+
+- "Prepay a month" posts a `prepaid rent credit` line (a:-rent); the
+  file tracks `prepaid` as a running credit, **capped at three months**
+  on the file — enough to bridge a gap job, never a deposit substitute
+  or a favor economy.
+- The 1st draws down: the rent charge posts, then `prepaid credit
+  applied` covers it oldest-first before any balance exists — a
+  prepaid month never sees a day-6 fee.
+- Prepay is **never required** — offering it buys nothing but the
+  credit; screening, notices, and rulings read the same. And it is
+  never a waiver: a prepaid tenant keeps every protection on the file.
+- File-only — prepayments join the never-feed list.
+- Demo: `prepayMonth` credits 9457-2; the month rollover draws it down.
+
+## 52. The rental history letter (the file the tenant carries)
+
+Move-out settles the unit — the tenant still needs their paper:
+
+- Any tenant may request a **rental history letter** — a dated file doc
+  summarizing the tenancy in neutral ledger terms: term dates, months
+  paid, scars stated as scars ("arrears — cured day 12"), deposit
+  disposition. One letter per tenancy; it writes once.
+- The letter is **portable evidence for the next screening** — the same
+  numbers the ledger keeps, formatted to hand to the next landlord file.
+  It editorializes nothing: a clean file reads clean, a scarred file
+  reads scarred.
+- File doc, never a feed event. Demo: `reqHistLetter` counts the
+  payment lines and writes the abstract.
+
+## 53. Copy deck additions (v96)
+
+|| Moment | Copy |
+|---|---|---|
+| Assignment request | "Assignment filed — the named assignee screens like any applicant. The ledger must be clean to hand over." |
+| Assignment signed | "Signed — the lease reads a new name from day N. Same terms, same deposit, same file; your liability ends at the signature." |
+| Assignment declined | "Declined — reason stated on the file. A document, not a door closing." |
+| Assignment, balance | "The ledger must be clean to hand over — settle the balance or finish the plan first." |
+| Buyout offered | "An offer, not an instruction — the number is on the file, the decision is yours. Declining costs nothing." |
+| Buyout refused while under ladder | "Not while a notice runs — a buyout is offered in good standing or not at all." |
+| Buyout accepted | "Accepted — ordinary move-out paper plus the BUYOUT credit line. The deposit still returns separately, itemized." |
+| Buyout declined | "Declined on the record — no fee, no mark. The door can't be knocked again for 30 days." |
+| Prepay | "Prepaid — the 1st draws the credit before any balance exists. Never required; the cap is three months on the file." |
+| History letter | "Dated and itemized, the same numbers as the ledger — the paper the next door asks for." |
+
+## 54. Merge notes (v96)
+
+- New demo fields: `assignReq`, `assignee`, `buyout` {amt,day,decided},
+  `buyoutCool`, `prepaid`, `histLetter` — all optional, all documented
+  above. LS key rolled `rw_lease_v82` → `rw_lease_v96` (old saves
+  ignored by design).
+- leases.json v96 adds: `assignments`, `buyouts`, `prepaid_rent`,
+  `history_letter`; `power_map` gains `request_assignment`,
+  `decide_buyout`, `prepay_rent`, `request_history_letter` (tenant),
+  `decide_assignments` / `offer_buyouts` / `issue_history_letters`
+  (licensed, own units);
+  `feed_wording.never` gains `buyout_offers`, `assignments`,
+  `prepayments`, `history_letters`. Feed templates unchanged —
+  assignment and buyout paper is file-only; an accepted buyout posts at
+  most the neutral `Unit turning over —` line.
+- Engine contract at merge: assignment requires a zero balance and
+  carries deposit + term + scars verbatim (no resets); buyouts are
+  offerable only in `active` and carry a 30-day re-offer cooldown;
+  prepaid credit draws down on the 1st before any balance exists and
+  caps at 3× rent; the history letter writes once per tenancy.
+- `node world/audit.js` G11 now also requires the v96 surfaces
+  (assignment, buyout, prepaid credit, history letter) and fails on the
+  old storage key.
