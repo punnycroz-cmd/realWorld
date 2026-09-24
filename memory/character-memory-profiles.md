@@ -1027,6 +1027,19 @@ needs both.
 | conf_beta_mult | 0.3 | 0.9 | confidence-channel decay vs content (v5.21) |
 | dur_ev_w / dur_trans_w | 0.0 / 0.0 | 0.9 / 2.0 | remembered-duration density + transition weights (v5.21) |
 | dow_snap | 0.0 | 0.4 | weekday-report midward regression (v5.21) |
+| sem_cue_pen | 0.2 | 0.7 | semantic-mode sensory mute (v5.22) |
+| w_valcue / valmismatch_gen | 0.0 / 0.0 | 0.4 / 0.8 | cue-carried valence weight / negative-cue overgeneral arm (v5.22) |
+| config_gain | 0.0 | 0.2 | conjunctive joint-fan bonus (v5.22) |
+| clust_mint_p / clust_cap | 0.0 / 4 | 0.5 / 16 | event-cluster formation rate / size cap (v5.22) |
+| clust_gain / clust_date_blur | 0.0 / 0.0 | 0.6 / 1.0 | cluster-mate emission gain / within-cluster dating smear (v5.22) |
+| lat_pulse / pulse_len | 0.2 / 1 | 0.8 / 6 | within-pulse latency scale / emissions per pulse (v5.22) |
+| pulse_floor / lat_gap / pulse_oi_reset | 0.4 / 1.0 / 0.0 | 1.0 / 4.0 / 0.8 | pulse-end threshold (×θ) / inter-pulse latency / OI reset (v5.22) |
+| w_struct / reminder_chance | 0.0 / 0.0 | 0.3 / 0.1 | structural cue weight / pure-structural reminding rate (v5.22) |
+| ctx_thresh / ctx_gain | 2 / 0.0 | 8 / 0.4 | cfg repetitions to competence / discount (v5.22) |
+| ctx_hl / ctx_cap | 7 / 10 | 60 / 120 | ctxcue decay half-life days / config table size (v5.22) |
+| search_base / search_persist | 2 / 0.5 | 15 / 3.0 | bout budget in candidate-evals / FOK scaling (v5.22) |
+| da_giveup_pen / search_age_pen | 0.0 / 0.0 | 0.8 / 0.6 | load and age search-shortening (v5.22) |
+| fok_reprobe / fok_win | 0.0 / 0.1 | 0.8 / 2.0 | high-FOK re-fire rate / window in days (v5.22) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3533,3 +3546,44 @@ flag, or a report-side estimator. Bible-facing notes:
   never touch stores — a character who "always" exaggerates
   frequencies does so through `avail_freq_k` (salience-weighted
   counts), not through a bigger number dial.
+
+## 56. v5.22 note (retrieval-cues VII — mode, clusters, pulses, and the quitting bet)
+
+Thirteen clamp rows added in §0 for the v5.22 machinery. **Zero new
+trait pins** — every new param is a mechanism constant or a report-
+side flag; differentiation enters through existing traits (checker
+extends searches; imagery/narr_agency raise `reminder_chance`;
+neurot+depr arm the negative-cue overgeneral arm; ageScale shortens
+`search_budget`). Bible-facing notes:
+
+- **Orient is phrasing, not personality (§5.69):** a bible can't
+  make a character "more semantic" — but *how characters ask each
+  other* now matters: "do you know if she came by?" vs "do you
+  remember when she came by?" are different probes. Writers of
+  interrogation-adjacent scenes (the landlord checking on a
+  tenant) should know the factual phrasing gets the thinner answer.
+- **Clusters are the storyteller's unit (§5.72):** `evClust` is
+  minted from world events — a bible that seeds "the feud with
+  the upstairs neighbor" as a continuing thread literally builds
+  the character a cue structure: poke one episode, the arc
+  surfaces; ask when any episode happened, get a vaguer answer.
+  Story-shaped lives are now the memorable AND the blurry-dated
+  ones — both at once, by the same mechanism.
+- **Pulses make reminiscence legible (§5.73):** emissions carry a
+  `pulse` index — scene direction can pace a character's
+  recollection ("…and then — " pause " — the letter, that's what
+  it was about") without scripting content. The pause is where
+  another character's cue can steer.
+- **Structure is felt, not retrieved (§5.74):** `struct` tags are
+  world-supplied; a main with high `imagery`+`narr_agency` gets
+  the rare pure-structural reminding — "watching her sign felt
+  like the day I—". Keep it rare or it reads as authorial.
+- **ctxcue is the spared floor (§5.75):** age-flat, record-free
+  configural competence — the profile-degraded character who
+  can't tell you what they did still navigates their own kitchen.
+  Nothing to pin in a bible; it's what survives.
+- **The give-up is a tell (§5.76):** `giveUp:{fok}` distinguishes
+  "don't know" from "it's right there" — and the high-fok arm
+  (`fok_reprobe`) is the "it came to me later" event. Checker
+  characters re-search; everyone else quits on the metacognitive
+  bet. No pin — `checker` already exists.

@@ -2592,3 +2592,49 @@ This version's sources are methodological — they discipline the
   consensus or better; every magnitude is an RW fit flagged
   HYPOTHESIS. Probes P779–P786 (3–4 MUST, 4 SHOULD — see
   validation-design §146).
+
+## 52. Addendum — v74 anchors (retrieval-cues VII, spec v5.22)
+
+- **Retrieval mode (§5.69):** the cue lands in a frame.
+  `orient ∈ {episodic, semantic}` is set by phrasing — "remember
+  when" vs "do you know" — and changes what the same cue can
+  return (scene detail vs gist; TOT reachable only episodic).
+  Tulving 1983's ecphory triad; Herron & Rugg 2003; Rugg &
+  Wilding 2000. [CONSENSUS existence; binary gate HYPOTHESIS.]
+- **Cue valence (§5.70):** cues carry their own valence
+  (`w_valcue` 0.15 — weak); mood still beats cue. The vulnerable
+  arm: negative cue → overgeneral answer for neurot/depr-high
+  profiles (Williams & Broadbent 1986). [CONSENSUS direction.]
+- **Conjunctive cues (§5.71):** ecphory's algebra is
+  interactive — `config_gain` priced by JOINT fan means "the
+  place AND the person" retrieves what neither alone can. Locked
+  `config_oracle_null`: conjunction counts encoded fields only.
+  Watkins 1979; Tulving 1983; Rubin & Wallace 1989.
+- **Event clusters (§5.72):** the autobiographical chunk is a
+  causal bundle (`evClust`), not a clock span — cluster-mates
+  surface together and date worse. Brown & Schopflocher
+  1998a/b; Brown 2005; Brown, Shevell & Rips 1986.
+- **Burst emission (§5.73):** recall arrives in pulses riding
+  reinstated context — `pulse` index marks the steering points
+  where a listener's cue can redirect the next vein.
+  Gruenewald & Lockhead 1980; Barsalou 1988.
+- **Analogical reminding (§5.74):** structural similarity
+  re-orders but never creates candidates (surface gate —
+  Gentner, Rattermann & Forbus 1993); pure-structural
+  remindings are rare (`reminder_chance` 0.03) and flagged
+  `reminding:true`. Wharton et al. 1994; Schank 1982.
+- **Contextual cuing (§5.75):** `ctxcue` — record-free
+  configural competence, age-flat (Howard et al. 2004),
+  hippocampus-dependent (Chun & Phelps 1999). The ambient
+  tier's habit memory and the spared floor of degraded
+  episodic profiles. Chun & Jiang 1998.
+- **The give-up rule (§5.76):** bouts end on a metacognitive
+  bet — `search_budget` scales with FOK_running; exhaustion
+  emits `giveUp:{fok}`; high-fok terminations arm
+  `fok_reprobe` — the "it came to me later" event is emergent.
+  Koriat 1993; Costermans et al. 1992; Singer & Tiede 2008;
+  Nelson & Narens 1990.
+- Probes P787–P794: 5 MUST (mode gating, conjunctive cue,
+  cluster two-arm, record-free ctxcue, metacognitive quitting)
+  + 3 SHOULD. All magnitudes RW HYPOTHESES; all directions
+  established.

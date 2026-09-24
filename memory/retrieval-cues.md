@@ -2259,3 +2259,481 @@ search reset on a fresh angle (§66). Spec changes land in
   population statistics.
 - `restart_overlap` is a threshold we chose; the CI literature
   supports the direction, not the number.
+
+# PART VII (v74, 2026-09-23) — the cue's mode, company, and quitting time
+
+Six parts priced what a cue IS (diagnosticity, direction, ownership,
+loudness, reach). This part prices the stance the rememberer brings,
+the company cues keep, and the search's end. Eight mechanisms:
+retrieval mode (the frame the cue lands in), cue-carried valence,
+conjunctive cues (ecphory's real algebra), event clusters (the
+autobiographical chunk), burst emission (recall arrives in pulses,
+not a stream), analogical reminding (the structural cue), implicit
+contextual cuing (the cue nobody remembers), and the give-up rule
+(every bout has a termination criterion, and it is metacognitive,
+not mechanical).
+
+## 70. Retrieval mode — the cue lands in a frame
+
+**Tulving (1983,** *Elements of Episodic Memory*): ecphory is a
+three-term product — cue × trace × **retrieval mode**. A person in
+"episodic mode" treats incoming stimulation as cues to past
+experience; the same stimulation in "semantic mode" (knowing,
+not remembering) is processed for fact content and never starts an
+episodic search at all. **Herron & Rugg (2003)** *J. Cogn.
+Neurosci.* 15:843 and Rugg & Wilding (2000, *Trends Cogn. Sci.*
+4:108) showed retrieval orientation is a real, separable brain
+state — the same physical cue word elicits different cortical
+processing depending on whether the task is set to episodic or
+non-episodic ends. **[CONSENSUS that modes exist; the gating
+strength is DEBATED.]**
+
+The v0 spec has `cueContext.mode ∈ {recall, recognition}` — a
+match-mode, not a search-mode. They are orthogonal: you can
+recognize a face (recognition match) while in semantic mode
+("I know that face" — no episode retrieved), and you can run an
+episodic search that ends in a familiarity answer. The missing
+term is **orientation**: what the character is trying to do when
+the cue arrives.
+
+Model consequence (new §5.69): `cueContext` gains
+`orient ∈ {episodic, semantic}`, defaulting by cue provenance:
+- Questions phrased as "remember when…", "what was it like…",
+  self-directed reminiscence, sensory/odor/music cues → `episodic`.
+- "Do you know…", factual queries, schedule checks → `semantic`.
+- Ambient/involuntary scan runs `episodic` (involuntary memory is
+  definitionally episodic — Berntsen 1996).
+
+In `semantic` mode: sensory/scene cue fields contribute ×
+`sem_cue_pen` (≈0.4 — the odor still works but muted); verbatim
+detail fields are not emitted (gist only — you "know" without the
+scene); TOT and `familiar_only` states are unreachable (TOTs are
+episodic-search states); latency floor drops (no search descent —
+semantic answers are fast or absent, §5.25's floor halves). In
+`episodic` mode all existing machinery runs unchanged. A mode flip
+mid-bout (asker rephrases "no — do you remember it?") costs one
+restart (§66 applies — new orient = new cue set).
+
+RW texture: the difference between a character who can tell you
+*that* Marisol works Tuesdays and one who *remembers the morning
+she told them* — same record, different orientation, different
+surface detail. Dialogue systems that never set `orient` default
+everything through episodic — the honest default, since casual
+conversation is episodic-leaning (Berntsen's diary studies: most
+spontaneous retrievals are episodic).
+
+## 71. Cue valence — the cue carries a mood of its own
+
+The spec has mood-dependence (C.mood ↔ record valence, §2/§35)
+and mood bleed on report (§5.5). Both assume the valence lives in
+the *person*. But cues carry valence too: the word "wedding" is
+a positive cue regardless of the hearer's mood. The AMT
+literature's standard observation — valenced cue words retrieve
+same-valence autobiographical memories faster and more often
+(Galton 1879's breakfast-table method already showed it; Crovitz
+& Schiffman 1974's norms formalized it; Schlagman, Schulz &
+Kvavilashvili 2006 *Memory* 14 — involuntary memories are cued by
+matched content AND valence) — is a cue-side effect, not a
+mood-side one. **[CONSENSUS direction; magnitude small-moderate.]**
+
+Model consequence (new §5.70): `cueVector`/`cueContext` gain
+`valence ∈ [-1,1]` (world tags cue words/objects/places; people
+cues inherit the referent's current eval). Per-record:
+
+```
+c_valence = w_valcue · (1 − |cue.valence − m.valence|/2)
+w_valcue ≈ 0.15 — below w_people/w_place, above w_when
+```
+
+Valence match is a *weak* cue — it never gates alone (§5.1 floor:
+a valence-only context can't cross θ on a cold record) but tilts
+competition inside the bout. Interaction with mood: `c_valence`
+and the §2 mood-match term multiply — a sad character handed a
+happy cue still retrieves mostly sad material (mood beats cue;
+the mood channel is stronger, `w_mood` > `w_valcue` — consistent
+with mood-congruence metastasizing under depression while cue
+valence effects stay modest in normals).
+
+The interaction worth a probe: **negative cue + positive record**
+is the mismatch with the most suppressive asymmetry — negative
+cues disproportionately surface overgeneral/semantic responses in
+vulnerable profiles (Williams & Broadbent 1986's cue-valence
+finding on the AMT). Implement: on valence-mismatched recall of a
+negative-cued probe, `specificity_eff` additionally ×
+`(1 − valmismatch_gen·(neurot+depr)/2)` — the vulnerable profile
+answers "tell me something bad" with a summary, not a scene.
+
+## 72. Conjunctive cues — ecphory's real algebra is not noisy-OR
+
+§5.2 combines cue fields by noisy-OR: independent evidences,
+subadditive at the top. The ecphory literature says that's the
+wrong algebra for *jointly configural* matches. **Watkins (1979,**
+"Engrams as cuegrams and forgetting as cue overload," in Cermak &
+Craik eds., *Levels of Processing in Human Memory*): the cue and
+the trace are the same kind of thing — retrieval is the overlap of
+two *cuegrams*, and what matters is the joint configuration, not
+the count of matching features. **Tulving (1983):** ecphoric
+information is *interactive* — a name plus a place can retrieve
+what neither retrieves alone, not because two votes beat one but
+because the conjunction specifies a unique event. Empirical floor:
+**Rubin & Wallace (1989)** *Cog. Psychol.* 21:513 — rhyme+meaning
+conjoined cues produced effects neither cue class predicted
+additively; and the everyday fact that "the place AND the person"
+narrows to one memory where each alone fans out to dozens —
+this IS the fan effect's other face (§20): fan is computed per
+field, but the joint (place ∧ person) may have fan ≈ 1 even when
+each marginal fan is huge. **[CONSENSUS mechanism; our
+implementation is a HYPOTHESIS form.]**
+
+Model consequence (new §5.71): after the noisy-OR mass is computed,
+add a conjunction bonus:
+
+```
+config_bonus = config_gain · max(0, nJoint − 1) / (1 + fan(C_joint))
+nJoint = #fields with c_j ≥ 0.5·w_j AND diagnosticity_j ≥ diag_mid
+fan(C_joint) = records matching ALL qualifying fields jointly
+config_gain ≈ 0.08 (≤ a half-field's worth — conjunction helps,
+never dominates)
+```
+
+`fan(C_joint)` is the load-bearing term: a rare conjunction
+("Mudhaus" + "the landlord") is nearly fan-free even though each
+field alone is a crowded bucket; a common conjunction ("home" +
+"partner") earns almost nothing. This is where the oddball shield
+(§42) and diagnosticity (§20) pay off together — singleton buckets
+stay immune, but now rare PAIRS earn their own immunity.
+
+Locked null `config_oracle_null`: the conjunction bonus may only
+be computed over fields the character actually encoded — no
+"the place must have been X" inference backwards into cueVector.
+
+## 73. Event clusters — the autobiographical chunk is bigger than the record
+
+The spec's contiguity term (§5.4) lets a recalled record cue its
+temporal neighbors. The event-cueing literature says the
+autobiographical chunk is not defined by clock adjacency.
+**Brown & Schopflocher (1998a)** *Psychol. Sci.* 9:470 + **(1998b)**
+*Appl. Cogn. Psychol.* 12:305 — the event-cueing paradigm: give
+people their own event descriptions as cues and ask for a related
+event; the retrieved pairs reveal **event clusters** — groups of
+personally-experienced events bound by causal relatedness, temporal
+proximity, and content similarity, structured "like episodes in a
+story," found regardless of event age or importance, and — the
+load-bearing finding — **clusters need not be narrated to exist**
+(narrative processes may shape but are not necessary for cluster
+formation). Brown (2005, *Memory* 13 — "On the prevalence of
+event clusters") replicated with transitions: cluster formation
+concentrates at life transitions. Companion result:
+clustered memories are **dated worse** than unclustered ones
+(Brown, Shevell & Rips 1986's dating work; Brown 2005) — the
+cluster protects the content while smearing the calendar.
+**[CONSENSUS on existence; structure sizes are HYPOTHESIS.]**
+
+Model consequence (new §5.72): records mint an `evClust` id —
+assigned at encode when an incoming event shares causal/temporal/
+thematic continuity with a live cluster (world-supplied
+`continues:eventId` preferred; else `clust_mint_p` ≈ 0.2 when
+place+people+topic all overlap an open cluster — "the apartment
+search," "the feud," "the trial"). Clusters cap at `clust_cap`
+(≈8 members; older members roll off as cluster-mates only, they
+keep their solo records). Retrieval:
+
+```
+on hit m:  cluster-mates get  C-share × clust_gain (≈0.25)
+           inside a bout, cluster-mates are preferentially next
+           emissions (feeds §73's burst structure below)
+dating:    when-field reports on clustered records get
+           when_err × (1 + clust_date_blur)  (≈0.5 — the cluster
+           protects content, smears calendar)
+```
+
+This is NOT §5.4 contiguity (clock neighbors) and NOT §4.18
+periods (era segmentation): clusters are causal-narrative bundles
+that can span a period boundary ("the dispute" outlives the move)
+or sit inside an afternoon. Emergent: asking about one fight
+surfaces the whole feud; asking "when was that" gets vaguer
+answers precisely for the best-remembered arcs.
+
+## 74. Burst emission — recall arrives in pulses, not a stream
+
+§5.25 prices latency per emission; §61's recue passes chain
+fragments. What's missing is the *shape* of the output stream.
+**Gruenewald & Lockhead (1980)** *JEP:HLM* 6:225 — free recall of
+category members arrives in bursts: inter-response times are
+bimodal, with within-burst items arriving fast and between-burst
+gaps marking a strategy/region switch. **Barsalou (1988**, in
+Neisser & Winograd eds., *Remembering Reconsidered*) showed
+autobiographical recall has the same granular structure —
+emissions cluster by event type and period, with extended-event
+summaries ("when I worked at the café") punctuating the flow.
+Howard & Kahana's retrieved-context machinery (§5.4's basis)
+predicts exactly this: each emitted item reinstates its own
+context, which preferentially cues its neighbors — the burst is
+the contiguity engine's visible exhaust. **[CONSENSUS
+phenomenon; our pulse parameters are HYPOTHESIS.]**
+
+Model consequence (new §5.73): a recall bout emits in **pulses**:
+- Within a pulse: emissions share the cue neighborhood (cluster,
+  period, or field-overlap of the pulse-head); inter-emission
+  latency at `lat_pulse` × latency_ms (≈0.4 — fast, riding the
+  reinstated context); output interference accrues normally.
+- Pulse break: after `pulse_len` emissions (≈3±1, jittered) or
+  when the best candidate drops below `pulse_floor` (≈0.7·θ),
+  the bout re-searches with a **shifted** cue emphasis (rotate
+  the dominant cue field — place → people → topic); the
+  inter-pulse gap costs `lat_gap` × latency_ms (≈2.0) and
+  partially resets output interference (§66's restart logic,
+  smaller magnitude: `pulse_oi_reset` ≈ 0.4).
+- A bout ends when a pulse yields zero emissions, or `search_budget`
+  (§76) is spent.
+
+Emergent dialogue texture: a character answering "tell me about
+that summer" produces "the fire escape … the night Léo locked
+himself out … the landlord's letter — " then a pause, then a new
+vein. The pauses are where a listener's own cue ("didn't you say
+something about a letter?") can steer the next pulse — §52's
+cross-cueing now has a temporal insertion point.
+
+## 75. Analogical reminding — the structural cue that surfaces similarity hides
+
+Every cue field so far is *surface*: place, people, topic,
+sensory, era. The analogical-reminding literature documents a
+second axis — **structural** similarity (same relational
+configuration: "a protégé betraying a mentor," "a lie discovered
+in stages"). **Schank (1982**, *Dynamic Memory*): remindings are
+the memory system's indexing backbone — new experiences are
+stored by their differences from remindings. But the experimental
+verdict is sharp: **Gentner, Rattermann & Forbus (1993)** *Cogn.
+Psychol.* 25:524 — separating retrievability from inferential
+soundness: people almost never retrieve remote analogs on
+structural similarity alone; retrieval is dominated by surface
+("object-level") matches, while *judged* similarity, once the pair
+is in front of you, is dominated by structure. **Wharton et al.
+(1994)** *Mem&Cogn.* 22 — diary/lab remindings: spontaneous
+reminding on structure alone is rare but real, elevated in
+domain-rich contexts. **[CONSENSUS: structure weak at retrieval,
+strong at judgment.]**
+
+Model consequence (new §5.74): records gain a `struct` tag —
+a coarse relational schema (`betrayal`, `discovery`, `exchange`,
+`rescue`, `humiliation`, `escape` — the world layer tags event
+kinds; ~12 labels, bible-stable). Cues:
+
+```
+c_struct = w_struct · match(C.struct, m.struct)
+w_struct ≈ 0.12 — the weakest priced field
+match = 1 if identical tag; simOp over a small hand-set
+        similarity matrix otherwise (betrayal~discovery 0.6 etc.)
+```
+
+Gate: `c_struct` counts toward θ only when ≥1 surface field also
+matches (surface-gated structure — Gentner's asymmetry made
+literal). A pure-structural match never emits on its own; it
+contributes only to ordering among surface-matched candidates.
+When a struct-matched record does emit (surface support present,
+structural match high), it emits with `reminding:true` — the
+dialogue render is "that reminds me of…", and §15's reminding
+machinery applies: the emitted memory becomes a cue.
+
+Emergent: "watching the new tenant sign the lease" (surface:
+papers, landlord) can surface "the day she signed hers" —
+same-place, same-act retrieval — while `struct` quietly biases
+*which* signing surfaces: a `rescue`-tagged signing beats a
+`routine` one when the cue event was itself a rescue. Pure
+structural remindings (no surface overlap) are reachable only via
+`reminder_chance` (≈0.03 — rare, reserved for high-`imagery`/
+high-`narr_agency` profiles) — the novelist's "suddenly it felt
+like…", deliberately uncommon.
+
+## 76. Contextual cuing — the cue nobody remembers
+
+Every mechanism above mints or reads a record. **Chun & Jiang
+(1998)** *Cogn. Psychol.* 36:28 — contextual cuing: repeated
+spatial configurations speed visual search even though observers
+cannot recognize which configurations they've seen — a learned
+cue→target guidance with *no retrievable record*. Chun & Phelps
+(1999, *Nat. Neurosci.* 2:844) showed hippocampal amnesics fail
+it (it is memory, not priming-of-perception); **Howard, Howard,
+Dennis, Yankovich & Vaidya (2004)** *Neuropsychology* 18:124 —
+contextual cuing is **spared in healthy aging** while sequence
+learning in the same subjects declines. **[CONSENSUS — one of
+the cleanest implicit/explicit dissociations in the literature.]**
+
+This is the ambient-NPC memory: the barista who reaches for the
+right cup before the order finishes, the resident whose feet
+find the staircase in the dark — competence with no episode
+behind it. The spec's `impl_str` channel (§5.35) is the nearest
+rail but it hangs off *records*; contextual cuing has no record.
+
+Model consequence (new §5.75): a `ctxcue` layer — per character,
+a small table keyed by `cfg_id` (a hash of the current cue
+*configuration*: place × present-people × activity, quantized).
+Each repeated encounter with the same cfg_id increments
+`ctx_n`; once `ctx_n ≥ ctx_thresh` (≈4 exposures), the cfg
+grants `ctx_gain` (≈0.15 latency/attention discount) on actions
+and scans *inside that configuration* — faster orientation, no
+emission, no report. `ctx_n` decays on `ctx_hl` (≈21d); age-flat
+(`ctx_age_pen = 0` — Howard 2004, locked); capacity-capped
+(`ctx_cap` ≈40 configs, LRU). Zero record surface: probes must
+assert the cfg table never mints, never enters cueVector, never
+produces a Reconstruction.
+
+This is the mechanism that lets ambient NPCs feel habitual
+without burning episodic storage — and the honest answer to
+"why does the grandmother still navigate her own kitchen" when
+episodic access is failing.
+
+## 77. The give-up rule — every bout ends on a metacognitive bet
+
+Every prior part priced how a bout runs; none priced how it
+*stops*. The metamemory literature's answer: search termination
+is a decision, not a timeout. **Nelson & Narens (1990**,
+*Psychology of Learning and Motivation* 26) — monitoring drives
+control: the search continues while expected-yield stays above
+its cost. The yield signal is **FOK**: **Koriat (1993)** *Psych.
+Rev.* 100:609 — accessibility model: FOK tracks the *amount of
+partial information retrieved*, not trace strength — which is
+why high-FOK failures (lots of fragments, no answer) still feel
+"almost there." And FOK changes behavior: **Costermans, Lories
+& Ansay (1992)** *Acta Psychol.* 80 — FOK magnitude predicts
+search persistence; **Singer & Tiede (2008)** *Mem&Cogn.*
+36:588 — people keep searching longer under higher FOK, and
+truncated search is the metacognitive call. **[CONSENSUS that
+FOK gates persistence; the stopping function is ours.]**
+
+The spec already emits `fok` as an instrument on TOT/failed
+recall (§5.16, built from accessibility). What's missing is that
+fok *does* anything: currently a bout ends on candidate
+exhaustion or `lat_cap`. Model consequence (new §5.76):
+
+```
+search_budget = search_base · (1 + search_persist·FOK_running)
+              · (1 − da_giveup_pen·daLoad)
+              · (1 − search_age_pen·ageScale)   // shorter searches
+              · (1 + 0.3·checker)               // the checker re-searches
+search_base ≈ 6 candidate-evaluations (bout scale, not ms)
+search_persist ≈ 1.5, da_giveup_pen ≈ 0.4, search_age_pen ≈ 0.3
+FOK_running = accumulated partial emissions / denom —
+              the instrument, now load-bearing
+```
+
+When the budget empties: the bout ends with a **quitting
+verdict** emitted for dialogue/metamemory — `giveUp:{fok}` —
+the difference between "I don't know" (low FOK, clean
+termination) and "I know it, I can't get it" (high FOK,
+frustrated termination — eligible for §14 TOT-recurrence on a
+later cue). **High-FOK terminations are the important output:**
+they're what makes a character say "give me a second, it's
+coming" and *return* to the topic unprompted twenty minutes
+later — the armed involuntary re-probe (`fok_reprobe` ≈ 0.4
+chance the pending cue re-fires within `fok_win` ≈ 0.5d when a
+new related cue arrives).
+
+Asymmetry worth a probe: involuntary bouts have `search_budget`
+≈ 1 (one shot, cue-dependent — an involuntary memory either
+arrives or doesn't); voluntary bouts spend the full budget. The
+"tip-of-the-tongue twenty minutes later" is a high-FOK voluntary
+failure whose re-probe landed — not a delayed success.
+
+## 78. Cue hierarchy — v74 additions to the §67 table
+
+| Cue/mechanism | v74 status |
+|---|---|
+| retrieval mode | NEW — orient{episodic,semantic} gates the search mode before the match mode; semantic mutes sensory fields, kills TOT (§70) |
+| cue valence | NEW — `w_valcue` weak field; mood-channel still dominates; negative-cue → overgeneral for vulnerable profiles (§71) |
+| conjunctive cue | NEW — `config_gain` on ≥2 diagnostic fields, priced by JOINT fan — rare pairs are nearly fan-free (§72) |
+| event cluster | NEW — `evClust` causal bundle; emission gain + dating blur inside cluster (§73) |
+| burst emission | NEW — pulses on reinstated context; pulse break = cue-field rotation + partial OI reset (§74) |
+| structural cue | NEW — `w_struct`, surface-gated; pure-structural reminding rare via `reminder_chance` (§75) |
+| implicit config | NEW — `ctxcue` table, record-free competence, age-flat, capacity-capped (§76) |
+| quitting rule | NEW — `search_budget` scaled by FOK_running; `giveUp` verdict; `fok_reprobe` armed (§77) |
+
+## 79. Validation probes P787–P794 (v74 suite)
+
+- **P787 mode gating (MUST — sign-locked):** same record, same
+  cue mass — `orient:semantic` emits zero verbatim/scene fields
+  and never produces `tot:true`; `orient:episodic` emits both;
+  a mid-bout rephrase semantic→episodic recovers detail with a
+  restart signature (Tulving 1983; Herron & Rugg 2003).
+- **P788 cue valence (SHOULD):** at matched mood, a positive cue
+  retrieves positive records ≥1.15× vs a valence-flipped cue on
+  the same store; a negative cue against a neurot/depr-high
+  profile raises the generic-record share (overgeneral arm —
+  Williams & Broadbent sign). Mood held fixed: the effect must
+  NOT vanish (it's cue-side, not mood-side).
+- **P789 conjunctive cue (MUST):** two cues each with marginal
+  fan ≥10 but joint fan ≤2 retrieve their joint target at
+  ≥1.3× the sum-vs-noisy-OR prediction WITHOUT the bonus, and
+  beat a same-mass single-field cue; `config_oracle_null`
+  structure-checked — conjunction never reaches into unencoded
+  fields.
+- **P790 event cluster (MUST — two arms):** cuing with one
+  cluster member retrieves a cluster-mate at ≥1.3× a
+  non-cluster record matched on temporal distance; AND
+  clustered records' when-field error exceeds unclustered
+  controls at equal R (cluster protects content, smears
+  calendar — Brown & Schopflocher 1998; Brown 2005).
+- **P791 burst structure (SHOULD):** emission inter-arrival
+  times within a bout are bimodal — within-pulse gaps <
+  between-pulse gaps by ≥3×; a pulse break predicts a shift in
+  the dominant cue field of subsequent emissions (Gruenewald &
+  Lockhead signature).
+- **P792 analogical reminding (SHOULD — gated):** struct-matched
+  records with zero surface overlap emit ≤`reminder_chance` of
+  the time and always carry `reminding:true`; with surface
+  support present, struct-match raises emission ordering among
+  candidates (Gentner 1993's asymmetry: judgment yes, retrieval
+  gated).
+- **P793 contextual cuing (MUST — record-free):** an ambient
+  character in a cfg seen `ctx_thresh`+ times orients/acts
+  faster than in a novel cfg — AND the store shows no mint, no
+  cueVector entry, no Reconstruction; at age 75+ the gain is
+  undiminished (`ctx_age_pen = 0`, Howard 2004, structure-
+  checked).
+- **P794 give-up rule (MUST — metacognitive):** identical
+  failing searches, partial-info manipulated — high-FOK
+  failures run longer (more candidate evaluations) than low-FOK
+  ones AND re-fire within `fok_win` at `fok_reprobe` rate; a
+  forced interruption at budget=0 emits `giveUp` with the fok
+  tag, distinguishable in the emission log from "not found"
+  (Singer & Tiede 2008 persistence arm).
+
+## 80. Honest limits (v74 additions)
+
+- `orient` is binary in the spec; the literature treats mode as a
+  graded attentional set. Binary keeps the contract shippable;
+  `sem_cue_pen` softens the edge. If the dialogue layer can't
+  classify phrasing, default `episodic` — the honest bias.
+- `w_valcue` is small on purpose. Cue-valence effects are real
+  but the mood channel is stronger in every study that measured
+  both; inverting them would produce characters more moved by
+  words than by feelings.
+- `config_gain`'s joint-fan computation costs a second pass over
+  the candidate set — acceptable at bout scale, forbidden inside
+  the ambient scan (ambient runs noisy-OR only; conjunction is a
+  voluntary-search luxury, which matches the literature's
+  strategic-search framing).
+- `evClust` assignment leans on world-supplied `continues:` tags
+  for the hard cases; `clust_mint_p` handles the rest. Cluster
+  boundaries are known to be fuzzy in humans (Brown 2005's own
+  coding reliabilities); a slightly wrong cluster is truer than
+  no cluster.
+- `pulse_len`/`lat_pulse`/`pulse_oi_reset` are fits to the burst
+  phenomenology, not to IRT distributions — no human IRT corpus
+  exists for autobiographical bouts. P791 tests the qualitative
+  signature (bimodality + field rotation), not the constants.
+- `w_struct` is deliberately the weakest priced field and the
+  `reminder_chance` pure-structural path is deliberately rare —
+  Gentner's retrievability/judgment split is the strongest
+  sign-lock in this part. If P792 shows struct-matches
+  competing with surface matches, the gate failed.
+- `ctxcue` is a performance layer, not memory — it must never
+  surface in dialogue or probes as reportable content. The
+  amnesia evidence (Chun & Phelps) means it should ALSO survive
+  on profiles whose episodic machinery is degraded — that's the
+  honest use, and why it's age-locked flat.
+- `search_budget` in candidate-evaluations (not wall time) keeps
+  the quitting rule implementation-agnostic; `fok_reprobe` gives
+  the sim its "it came to me later" — the single most
+  human-recognizable retrieval event in the document, and it
+  emerges from a budget and a flag, not a scripted timer.

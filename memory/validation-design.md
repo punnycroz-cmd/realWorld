@@ -6747,3 +6747,117 @@ P783 — four MUST counting P783), 4 SHOULD (P780, P784, P785, P786).
   directions are established or better; every magnitude (ghost
   half-life, resp weights, inhib constant, conf slope, duration
   weights, snap rate) is an RW HYPOTHESIS fitted to consensus shape.
+
+## 148. New probes P787–P794 (v74 suite — retrieval-cues VII)
+
+- **P787 mode gating (MUST — sign-locked):** same record, same
+  cue mass — `orient:semantic` emits zero verbatim/scene fields
+  and never produces `tot:true`; `orient:episodic` emits both;
+  a mid-bout rephrase semantic→episodic recovers detail with a
+  §66-restart signature (Tulving 1983; Herron & Rugg 2003).
+- **P788 cue valence (SHOULD):** at matched mood, a positive cue
+  retrieves positive records ≥1.15× vs a valence-flipped cue on
+  the same store; a negative cue against a neurot/depr-high
+  profile raises the generic-record share (Williams & Broadbent
+  sign). Mood held fixed — the effect must NOT vanish (cue-side,
+  not mood-side).
+- **P789 conjunctive cue (MUST):** two cues each with marginal
+  fan ≥10 but joint fan ≤2 retrieve their joint target at ≥1.3×
+  the noisy-OR prediction without the bonus, and beat a
+  same-mass single-field cue; `config_oracle_null`
+  structure-checked — conjunction never reaches into unencoded
+  fields.
+- **P790 event cluster (MUST — two arms):** cuing with one
+  cluster member retrieves a cluster-mate at ≥1.3× a
+  non-cluster record matched on temporal distance; AND clustered
+  records' when-field error exceeds unclustered controls at
+  equal R (content protected, calendar smeared — Brown &
+  Schopflocher 1998; Brown 2005).
+- **P791 burst structure (SHOULD):** emission inter-arrival
+  times within a bout are bimodal — within-pulse gaps <
+  between-pulse gaps by ≥3×; a pulse break predicts a shift in
+  the dominant cue field of subsequent emissions (Gruenewald &
+  Lockhead signature).
+- **P792 analogical reminding (SHOULD — gated):** struct-matched
+  records with zero surface overlap emit ≤`reminder_chance` and
+  always carry `reminding:true`; with surface support present,
+  struct-match raises emission ordering (Gentner et al. 1993's
+  retrievability/judgment split as a sign-lock).
+- **P793 contextual cuing (MUST — record-free):** an ambient
+  character in a cfg seen `ctx_thresh`+ times orients/acts
+  faster than in a novel cfg — AND the store shows no mint, no
+  cueVector entry, no Reconstruction; at age 75+ the gain is
+  undiminished (`ctx_age_pen = 0`, structure-checked — Howard
+  et al. 2004).
+- **P794 give-up rule (MUST — metacognitive):** identical
+  failing searches with manipulated partial info — high-FOK
+  failures run longer (more candidate evaluations) AND re-fire
+  within `fok_win` at `fok_reprobe` rate; a forced interruption
+  emits `giveUp` with the fok tag, log-distinguishable from
+  "not found" (Singer & Tiede 2008 persistence arm).
+
+Registry: P1–P794. v74 suite: P787–P794 — 5 MUST (P787, P789,
+P790, P793, P794), 3 SHOULD (P788, P791, P792).
+
+## 149. Sources verified this version (P787–P794 backing)
+
+- **Retrieval mode — CONSENSUS existence, DEBATED gate strength:**
+  Tulving 1983 (*Elements of Episodic Memory* — ecphory triad);
+  Herron & Rugg 2003 (*J. Cogn. Neurosci.* 15:843 — verified:
+  orientation dissociable from cue content); Rugg & Wilding 2000
+  (*Trends Cogn. Sci.* 4:108 — verified). Binary `orient` is our
+  reduced form of a graded attentional set — HYPOTHESIS form.
+- **Cue valence — CONSENSUS direction:** Crovitz & Schiffman
+  1974 (*JEP* — word-cue norms incl. valence effects); Schlagman,
+  Schulz & Kvavilashvili 2006 (*Memory* 14 — verified:
+  involuntary AMs match cue content AND valence); Williams &
+  Broadbent 1986 (negative cues → overgeneral in vulnerable —
+  verified). `w_valcue` magnitude HYPOTHESIS; mood-channel
+  dominance is the established ordering.
+- **Conjunctive cues — CONSENSUS mechanism, HYPOTHESIS form:**
+  Watkins 1979 (cuegrams — cue and trace same kind);
+  Tulving 1983 (interactive ecphory); Rubin & Wallace 1989
+  (*Cogn. Psychol.* 21:513 — conjoined-cue non-additivity,
+  verified). `config_gain`/joint-fan pricing is our
+  operationalization of the fan effect's other face.
+- **Event clusters — CONSENSUS existence:** Brown & Schopflocher
+  1998a (*Psychol. Sci.* 9:470 — verified: clusters regardless of
+  age/importance, causally+temporally+thematically bound,
+  narration not necessary) + 1998b (*ACP* 12:305 — verified);
+  Brown 2005 (*Memory* 13 — transitions concentrate cluster
+  formation); dating-blur per Brown, Shevell & Rips 1986.
+  `clust_*` magnitudes HYPOTHESIS.
+- **Burst emission — CONSENSUS phenomenon:** Gruenewald &
+  Lockhead 1980 (*JEP:HLM* 6:225 — verified bimodal IRTs);
+  Barsalou 1988 (in Neisser & Winograd eds. — verified: AM
+  output chunked by event type/period). Pulse constants are
+  fits to phenomenology, not to an IRT corpus — flagged.
+- **Analogical reminding — CONSENSUS asymmetry:** Gentner,
+  Rattermann & Forbus 1993 (*Cogn. Psychol.* 25:524 — verified:
+  surface dominates retrieval, structure dominates judgment);
+  Wharton et al. 1994 (*Mem&Cogn.* 22 — verified: structure-
+  only remindings rare but real); Schank 1982 (*Dynamic
+  Memory*). The surface gate IS the literature; `w_struct` and
+  `reminder_chance` are fits.
+- **Contextual cuing — CONSENSUS, clean dissociation:** Chun &
+  Jiang 1998 (*Cogn. Psychol.* 36:28 — verified); Chun & Phelps
+  1999 (*Nat. Neurosci.* 2:844 — verified: hippocampal amnesics
+  fail); Howard, Howard, Dennis, Yankovich & Vaidya 2004
+  (*Neuropsychology* 18:124 — verified: spared in healthy aging
+  while sequence learning declines). The record-free layer and
+  `ctx_*` constants are HYPOTHESIS plumbing on a consensus
+  dissociation.
+- **Search termination — CONSENSUS that FOK gates persistence:**
+  Nelson & Narens 1990 (monitor→control framework); Koriat 1993
+  (*Psych. Rev.* 100:609 — accessibility account); Costermans,
+  Lories & Ansay 1992 (*Acta Psychol.* 80 — FOK predicts
+  persistence); Singer & Tiede 2008 (*Mem&Cogn.* 36:588 —
+  verified: FOK scales search duration). Budget algebra,
+  `fok_reprobe`, and the giveUp verdict are our construction —
+  "it came to me later" emerges, never scripted.
+- **Established vs hypothesis summary:** all eight mechanism
+  directions are established or better (mode, valence,
+  conjunction, clusters, bursts, structure-gating, record-free
+  configural learning, FOK-gated persistence); every magnitude
+  and the ctxcue/giveUp plumbing are RW HYPOTHESES fitted to
+  consensus shape.

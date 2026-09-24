@@ -1,4 +1,33 @@
-# Memory Model Spec v5.21 — implementable human-like memory for RW characters
+# Memory Model Spec v5.22 — implementable human-like memory for RW characters
+
+> **v5.22 note (retrieval-cues VII — the cue's mode, company, and
+> quitting time):** `memory/retrieval-cues.md` Part VII (§§70–80)
+> prices the stance, the company, and the stop. **Retrieval mode** —
+> `cueContext.orient ∈ {episodic, semantic}` gates the search before
+> the match mode: semantic mutes sensory fields, emits gist only,
+> kills TOT (Tulving 1983; Herron & Rugg 2003) — §5.69. **Cue
+> valence** — `w_valcue` ≈0.15 weak field; mood channel still
+> dominates; negative-cue → overgeneral arm for neurot/depr-high
+> profiles (Williams & Broadbent 1986; Schlagman et al. 2006) —
+> §5.70. **Conjunctive cues** — `config_gain` bonus priced by JOINT
+> fan: rare pairs are nearly fan-free (Watkins 1979 cuegrams;
+> Tulving 1983 ecphory); locked `config_oracle_null` — §5.71.
+> **Event clusters** — `evClust` causal bundles: cluster-mate
+> emission gain + dating blur inside the cluster (Brown &
+> Schopflocher 1998a/b; Brown 2005) — §5.72. **Burst emission** —
+> recall arrives in pulses on reinstated context; pulse break =
+> cue-field rotation + partial OI reset (Gruenewald & Lockhead 1980;
+> Barsalou 1988) — §5.73. **Analogical reminding** — `w_struct`,
+> surface-gated (Gentner, Rattermann & Forbus 1993; Wharton et al.
+> 1994; Schank 1982); pure-structural reminding rare via
+> `reminder_chance` — §5.74. **Contextual cuing** — `ctxcue` layer:
+> record-free configural competence, age-flat, capacity-capped
+> (Chun & Jiang 1998; Chun & Phelps 1999; Howard et al. 2004) —
+> §5.75. **The give-up rule** — `search_budget` scaled by
+> FOK_running; `giveUp` verdict + `fok_reprobe` re-fire (Koriat
+> 1993; Costermans et al. 1992; Singer & Tiede 2008) — §5.76.
+> +25 params, +2 locked nulls; §10 contract adds. Registry
+> P787–P794.
 
 > **v5.21 note (forgetting-curves VII — below the record, above the
 > list):** `memory/forgetting-curves.md` Part VII (§§32–36) fills the
@@ -5777,6 +5806,143 @@ transition counts inside the interval. The retrospective mirror of
 the remembered span — the packed fortnight blurs per-event and
 looms per-interval; the idle month "flew by." Report-side only.
 
+### 5.69 Retrieval mode — the frame the cue lands in (new in v5.22)
+
+(RC§70; Tulving 1983 ecphory = cue × trace × mode; Herron & Rugg
+2003; Rugg & Wilding 2000.) `cueContext.orient ∈ {episodic,
+semantic}` — orthogonal to `mode:{recall,recognition}` (which is
+the match rule). Defaults by provenance: "remember when"/
+reminiscence/sensory cues → `episodic`; "do you know"/factual
+queries → `semantic`; `ambientMemoryScan` always `episodic`.
+`semantic` mode: sensory/scene fields × `sem_cue_pen` (0.4);
+verbatim detail suppressed (gist only); TOT and `familiar_only`
+unreachable; §5.25 latency floor halves. A mid-bout orient flip
+counts as a new cue set (§5.62 restart applies). Default when
+unset: `episodic`.
+
+### 5.70 Cue valence — the cue's own mood (new in v5.22)
+
+(RC§71; Schlagman, Schulz & Kvavilashvili 2006; Crovitz &
+Schiffman 1974 norms; Williams & Broadbent 1986.) cueContext/
+cueVector gain `valence ∈ [-1,1]` (world-tagged; person cues
+inherit the referent's current eval):
+
+```
+c_valence = w_valcue · (1 − |cue.valence − m.valence|/2)
+w_valcue = 0.15   // weakest-but-one field; never gates alone
+```
+
+Multiplies with — never replaces — the §2 mood-match term
+(`w_mood` > `w_valcue` always). Vulnerable-profile arm: on
+valence-mismatched recall under a negative cue,
+`specificity_eff ×= (1 − valmismatch_gen·(neurot+depr)/2)`,
+`valmismatch_gen` ≈ 0.4 — negative cues get summaries, not
+scenes, from the vulnerable.
+
+### 5.71 Conjunctive cues — the joint fan (new in v5.22)
+
+(RC§72; Watkins 1979 cuegrams; Tulving 1983; Rubin & Wallace
+1989.) After §5.2's noisy-OR mass, add:
+
+```
+config_bonus = config_gain · max(0, nJoint − 1) / (1 + fan(C_joint))
+nJoint = #fields with c_j ≥ 0.5·w_j AND diagnosticity_j ≥ diag_mid
+fan(C_joint) = count of records matching ALL qualifying fields
+config_gain = 0.08
+```
+
+A rare conjunction ("Mudhaus" + "the landlord") is nearly
+fan-free even when each marginal fan is huge; a common
+conjunction earns ~nothing. Computed only in voluntary bouts —
+the ambient scan runs noisy-OR only. **Locked null
+`config_oracle_null`:** the conjunction counts only fields the
+character encoded — no backward inference into cueVector.
+
+### 5.72 Event clusters — the autobiographical chunk (new in v5.22)
+
+(RC§73; Brown & Schopflocher 1998a *Psychol. Sci.* 9:470, 1998b
+*ACP* 12:305; Brown 2005; dating blur per Brown, Shevell & Rips
+1986.) Records mint `evClust` — assigned at encode from
+world-supplied `continues:eventId`, else `clust_mint_p` (0.2)
+when place+people+topic all overlap an open cluster. Cluster cap
+`clust_cap` = 8 members. On hit: cluster-mates get
+`C-share × clust_gain` (0.25) and are preferential next
+emissions inside the pulse (§5.73). When-field reports on
+clustered records pay `when_err × (1 + clust_date_blur)` (0.5).
+Distinct from §5.4 contiguity (clock neighbors) and §4.18
+periods (era walls): clusters are causal bundles that may span
+a transition or fill an afternoon.
+
+### 5.73 Burst emission — recall arrives in pulses (new in v5.22)
+
+(RC§74; Gruenewald & Lockhead 1980 bimodal IRTs; Barsalou 1988.)
+A recall bout emits in pulses: within-pulse, emissions share the
+pulse-head's cue neighborhood at `lat_pulse`·latency_ms (0.4);
+the pulse ends after `pulse_len` (3±1 jittered) emissions or
+when best-candidate < `pulse_floor` (0.7·θ). Pulse break: rotate
+the dominant cue field (place→people→topic), pay `lat_gap` (2.0)·
+latency_ms, reset output interference ×`pulse_oi_reset` (0.4 —
+§5.66/§11 restart logic at smaller magnitude). Bout ends on an
+empty pulse or spent `search_budget` (§5.76). Reconstructions
+carry `pulse` index — the cross-cue insertion point for §6.x
+co-teller steering.
+
+### 5.74 Analogical reminding — the surface-gated structural cue (new in v5.22)
+
+(RC§75; Gentner, Rattermann & Forbus 1993 retrievability/
+judgment split; Wharton et al. 1994; Schank 1982.) Records carry
+`struct` — a coarse relational tag from a ~12-label set
+(`betrayal|discovery|exchange|rescue|humiliation|escape|…`,
+world-tagged, bible-stable):
+
+```
+c_struct = w_struct · structSim(C.struct, m.struct)   // w_struct 0.12
+```
+
+`c_struct` counts toward θ ONLY when ≥1 surface field also
+matches; pure-structural matches emit at `reminder_chance`
+(0.03 — imagery/narr_agency-scaled) and always carry
+`reminding:true`, feeding §15's reminding machinery. Structural
+match re-orders candidates; it does not create them.
+
+### 5.75 Contextual cuing — competence without a record (new in v5.22)
+
+(RC§76; Chun & Jiang 1998; Chun & Phelps 1999 hippocampal
+dependence; Howard, Howard, Dennis, Yankovich & Vaidya 2004
+age-spared.) A `ctxcue` layer per character: keyed by `cfg_id`
+(hash of place × present-people × activity, quantized). Each
+repeat encounter increments `ctx_n`; at `ctx_thresh` (4) the cfg
+grants `ctx_gain` (0.15) latency/orientation discount inside that
+configuration. `ctx_n` decays on `ctx_hl` (21d); `ctx_age_pen`
+= 0 (locked — Howard 2004); `ctx_cap` 40, LRU. **The layer never
+mints a record, never enters cueVector, never produces a
+Reconstruction** — implicit guidance only. This is the ambient
+tier's habit memory and the profile-degraded character's spared
+floor.
+
+### 5.76 The give-up rule — termination is a metacognitive bet (new in v5.22)
+
+(RC§77; Nelson & Narens 1990 monitor→control; Koriat 1993
+accessibility; Costermans, Lories & Ansay 1992; Singer & Tiede
+2008.) Voluntary bouts run against a budget:
+
+```
+search_budget = search_base · (1 + search_persist·FOK_running)
+              · (1 − da_giveup_pen·daLoad)
+              · (1 − search_age_pen·ageScale)
+              · (1 + 0.3·checker)
+search_base = 6 candidate-evaluations; search_persist 1.5;
+da_giveup_pen 0.4; search_age_pen 0.3
+```
+
+`FOK_running` = accumulated partial-emission mass (the §5.16 fok
+instrument, now load-bearing). Budget exhaustion emits
+`giveUp:{fok}` — low-fok = clean "don't know," high-fok =
+frustrated termination that arms `fok_reprobe` (0.4) — a pending
+re-fire within `fok_win` (0.5d) on the next related cue, the
+"it came to me later" event. Involuntary bouts get budget ≈1 —
+an involuntary memory arrives or doesn't.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -10587,6 +10753,28 @@ MemoryParams = {
 //   `jointRecall(charIds, cue)`, `recallDuration(charId, interval)`;
 //   emission field `aud_resp:{attentive,neutral,distracted}`;
 //   `stim` ghost class (non-record).
+// v5.22 additions (retrieval-cues VII — RC Part VII §§70–80)
+"sem_cue_pen": 0.4,                               // §5.69 orient
+"w_valcue": 0.15, "valmismatch_gen": 0.4,         // §5.70
+"config_gain": 0.08,                              // §5.71
+"clust_mint_p": 0.2, "clust_cap": 8,              // §5.72
+"clust_gain": 0.25, "clust_date_blur": 0.5,
+"lat_pulse": 0.4, "pulse_len": 3,                 // §5.73
+"pulse_floor": 0.7, "lat_gap": 2.0,
+"pulse_oi_reset": 0.4,
+"w_struct": 0.12, "reminder_chance": 0.03,        // §5.74
+"ctx_thresh": 4, "ctx_gain": 0.15, "ctx_hl": 21,  // §5.75
+"ctx_cap": 40,
+"search_base": 6, "search_persist": 1.5,          // §5.76
+"da_giveup_pen": 0.4, "search_age_pen": 0.3,
+"fok_reprobe": 0.4, "fok_win": 0.5,
+// v5.22 locked nulls: config_oracle_null (conjunction counts only
+//   encoded fields — P789); ctx_age_pen = 0 (contextual cuing is
+//   age-flat — P793, Howard et al. 2004).
+// v5.22 fields: cueContext.orient{episodic,semantic} + valence;
+//   record evClust + struct; ctxcue cfg table (non-record);
+//   emission fields `pulse`, `reminding:true`, `giveUp:{fok}`;
+//   Event `continues:eventId` cluster hint.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -12035,6 +12223,30 @@ not resolved (DEBATED magnitude). P509/P511.
   - **Locked `spacing_opt_null`:** no retell scheduling from
     lag_opt_ratio (§4.13).
   - All snapshot-additive, absent = legacy; no new traits.
+- v5.22 additions (retrieval-cues.md Part VII §§70–80):
+  - **`cueContext.orient ∈ {episodic, semantic}`** (§5.69) —
+    optional; absent → `episodic`. Semantic emits gist only,
+    mutes sensory fields ×`sem_cue_pen`, and cannot produce
+    `tot:true`/`familiar_only` — dialogue phrasing chooses it
+    ("do you know" vs "remember when").
+  - **Cue fields:** `cueContext.valence` ∈[−1,1] (§5.70);
+    `cueContext.struct` relational tag (§5.74); `struct` is
+    surface-gated — it re-orders, never creates, candidates.
+  - **Record fields:** `evClust` id (§5.72 — minted from Event
+    `continues:eventId` or `clust_mint_p` overlap) and `struct`
+    tag (~12-label set, world-supplied).
+  - **Emission fields:** `pulse` (§5.73 burst index — the
+    co-teller steering point), `reminding:true` (§5.74),
+    `giveUp:{fok}` (§5.76 quitting verdict — low-fok clean,
+    high-fok arms `fok_reprobe` within `fok_win`).
+  - **`ctxcue` layer** (§5.75) — cfg-keyed implicit competence;
+    never mints, never enters cueVector, never emits; world
+    supplies `cfg_id` (place × present-people × activity).
+    `ctx_age_pen` locked at 0.
+  - **Locked `config_oracle_null`** (§5.71) — the conjunctive
+    bonus counts encoded fields only.
+  - All snapshot-additive, absent = legacy; no new traits
+    (checker, imagery, narr_agency, neurot, depr already exist).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
