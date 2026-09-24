@@ -2593,3 +2593,2066 @@ rescue: monitoring THE ACT at encode (att ≥ att_min+0.1 — you
 - **intent_done sizes are lab-bound** — Albarracín's mundane-
   decision paradigm is the right shape for RW chores but young;
   comm_err ~25% is a lab cohort under specific cue conditions.
+
+
+---
+---
+
+# PART VI (v66) — the residual channels: when it happened,
+# whose hands did it, the dream, and the guards nobody posted
+
+**Scope:** Parts I–V covered adoption (misinformation, conformity,
+correction), minting (phantoms, implants, claims, coerced answers,
+intentions, schema-fills), attribution (source inference,
+cryptomnesia, evidence), and the belief layer. What remains is the
+set of channels that distort records *without any second voice* and
+without imagination: the calendar itself (§66), other people's
+bodies (§67), sleep's own content (§68), and the two retrieval-side
+guards — one that humans actually carry (§69 distinctiveness), one
+that fires silently at ingest (§71 detection) — plus the fluency
+channel that makes strangers familiar (§70) and the trait that
+feeds all the imagery channels (§72). Six new spec sections
+(§6.116–6.121), +17 params, 5 locked nulls, probes P687–P696.
+
+## 65. What Parts I–V left unmodeled
+
+1. **`day` fields decay but never *err*.** §5.63 covers order
+   estimation and the model stores `day` as a decaying scalar —
+   but real date recall is *biased*, not just noisy: events migrate
+   toward the middle of the recall window, toward round dates, and
+   toward landmark anchors, and the bias has a measured slope
+   (~0.4 days of error per day of delay; Rubin & Baddeley 1989).
+   A character who is merely *uncertain* about a date is wrong in
+   a different way than a human, who is *systematically* wrong.
+2. **Watching is treated as perception, not simulation.** The
+   model knows `witnessed` vs `enacted` (§4.32b) — but watching a
+   housemate do a thing is action simulation, and the literature
+   says it plants "I did it" memories even under warning
+   (Lindner et al. 2010). Unmodeled.
+3. **Dreams have no source channel.** v5.1 noted dream content
+   biases; but dream→reality confusion — a documented, survey-
+   measurable false-memory channel correlated with dissociation
+   (Rassin, Merckelbach & Spaan 2001; Mazzoni & Loftus 1996) —
+   has no provenance to hang on.
+4. **The guards are asymmetric.** We model warning (`warned`),
+   dispute (`disputed`), and correction (`retract_p`) — all
+   *externally supplied* resistance. Humans also resist with
+   *internally supplied* scrutiny: the distinctiveness heuristic
+   (demand vivid detail or reject — Schacter, Israel & Racine
+   1999) and silent discrepancy detection (Tousignant, Hall &
+   Loftus 1986) — the latter is the mediating variable the whole
+   misinformation literature converges on, and our §6.3 has no
+   slot for it.
+5. **Fluency without a record misattributes.** `hearCount` pumps
+   believe_p, but bare name-familiarity with *no* episodic
+   record still does work in humans — it surfaces as "they're
+   somebody" or "we've met" (Jacoby, Kelley, Brown & Jasechko
+   1989). PersonModel familiarity currently dead-ends.
+6. **Imagery ability is a proven moderator we never traited.**
+   Imagination inflation scales with imagery ability
+   (Horselenberg et al. 2000); high imagers are *worse* at
+   source discrimination (Dobson & Markham 1993). The model's
+   imagination channels have no per-character gain knob.
+
+## 66. The calendar lies — telescoping and landmark dating
+
+**[CONSENSUS on error growth and boundary pull; the existence of a
+signed "forward telescoping" bias beyond boundary+guessing
+artifacts is DEBATED — the honest model is unbiased error +
+bounded pull, which produces apparent telescoping for free.]**
+
+- **Rubin & Baddeley 1989** (*J. Exp. Psychol.: General* 118 —
+  colloquium dating): dating-error magnitude grows ~**0.4 days
+  per day of delay**; error direction is toward the **middle of
+  the recall interval**; apparent "telescoping" falls out of
+  retention + bounded errors + the impossibility of intruding
+  from the future. Their model needs no systematic bias term.
+- **Thompson, Skowronski & Lee 1988** (diary method, exact dates):
+  substantial telescoping from **~8 weeks** out; slight,
+  unreliable *time-expansion* (dated-older) for recent events;
+  not explained by memory clarity or guessing.
+- **Boundary effects** (Lee & Brown 2003; Huttenlocher, Hedges &
+  Prohaska 1988/1990 hierarchical model): estimates regress
+  toward the middle of the *elicited window* — change the
+  question's bounds and the bias direction follows the bounds,
+  not the event. Guessing contributes to backward telescoping;
+  forward telescoping survives guess-removal — two mechanisms,
+  not one.
+- **Coarse beats fine** (Friedman 1993 line): when the exact date
+  is lost, season, month, day-of-week and time-of-day survive
+  much better — temporal knowledge is hierarchical, not a point
+  estimate that blurs.
+- **Landmarks anchor** (Shum 1998 review; Loftus & Marburger
+  1983 — eruption-date anchoring): personally salient events
+  serve as reference points; events dated relative to a landmark
+  show smaller errors — the anchor supplies the bound.
+
+**Spec consequence (new §6.116 — `whenEstimate` operator):**
+`day` fields stop being point scalars at retrieval. On any
+emission or comparison that reads the day:
+
+```
+day_err ~ N(0, tele_slope·Δ) , Δ = days since the record's true day
+        (tele_slope ≈ 0.4 — Rubin & Baddeley, per-day error growth)
+reported = true_day + day_err
+        + mid_pull·(midpoint(elicitWindow) − true_day)
+            · (1 − dayConf)            // Huttenlocher bound pull
+        + round_bias·(nearestRound(reported) − reported)
+            · (1 − dayConf)            // weekend/holiday/hour prototypes
+        + landmark_pull·(nearestLandmark.day − true_day)
+            · (1 − dayConf)            // landmark anchoring, capped
+dayConf = verbatim survival of the `day` field (weak = drifts more)
+Coarse fields (season, month, weekday, tod) decay as SEPARATE
+  coarse-grained fields at ~0.4× the day field's decay —
+  a character loses "March 14th" while keeping "early spring."
+teles_when_immune (§6.111) exempts the hot record's own `when`
+  from mid_pull/landmark_pull (Palombo 2021) — not from noise.
+LOCKED: order of two records both within landmark_pull range of
+  REAL landmarks is preserved (order_preserve_null) — telescoping
+  shifts estimates, it does not permute anchored sequences.
+```
+
+Apparent forward-telescoping now emerges for remote events
+(bounded errors + future-side floor) — we implement the
+*mechanism* the best-supported model proposes, not a signed
+drift hack.
+
+## 67. Watching is half of doing — observation inflation
+
+- **Lindner, Echterhoff, Davidson & Brand 2010** (*Psych. Sci.*
+  21:1291): participants who merely *watched a video* of another
+  person performing simple actions later showed robust false
+  memories of **having performed those actions themselves** —
+  persisting despite explicit warnings immediately before test
+  and despite removal of sensory overlap. The authors' account is
+  interpersonal **motor simulation**, not ordinary source
+  monitoring — which is exactly why warnings fail.
+- **Lindner & Davidson 2013** (*Aging, Neuropsych. & Cogn.*):
+  false action memories in older adults relate to executive
+  function — the age leg rides `discrim_mult`.
+- Fits the enacted/observed split §4.32b introduced: `enacted`
+  and observed records share motor content; the difference lives
+  in the provenance tag, which decays.
+
+**Spec consequence (new §6.117):** an `observedAction` record
+(Event tag `observed_action:true` — the world tags routine
+co-present actions: watched a housemate cook, fix, clean) is
+written with `enacted:false`, provenance `witnessed`, but gets a
+**motor-content bonus** `obs_inflate_gain` (0.35) on the action
+field's verbatim strength — simulation is real encoding. The
+flip: when the observation record's source decays below 0.3
+(§6.4) AND the action is self-plausible (schema fit, routine),
+the record's agency field may rewrite `actor:self` at
+`obs_flip_mult`·source_confuse_flip per check — **warnings do
+not apply** (locked `obs_warn_resist`: warn_mult is bypassed on
+this channel, Lindner Exp. 3). Flip rate ×`discrim_mult` for
+age. The result: a character can come to "remember" having done
+the chore they only watched — cheap, common, and a ready-made
+gaslight vector for the rumor layer.
+
+## 68. The dream leaks — dream-reality confusion
+
+- **Rassin, Merckelbach & Spaan 2001** (*J. Nerv. Ment. Dis.*
+  189:478): a nontrivial minority — **11.8% and 25.9%** across
+  two general samples — report having confused dream content
+  with reality; reporters score higher on dissociation and
+  fantasy proneness.
+- **Mazzoni & Loftus 1996** (*Conscious. Cogn.* 5:442): dream
+  content can be implanted→recalled as real in a suggestion
+  paradigm; the dream is a *manufacturable* false source.
+- **Kemp, Burt & Sheen 2003** (*Appl. Cogn. Psychol.* 17:577):
+  dreamt vs actual experiences carry distinguishable
+  phenomenology (dreams thinner on sensory/contextual detail) —
+  the reality-monitoring features are there, just weak.
+- Clinical extreme: **Wamsley et al. 2014** (*Sleep* 37:419) —
+  narcolepsy "dream delusions," sustained false beliefs from
+  vivid dreams; the population channel writ pathological.
+- **[CONSENSUS the confusion exists and correlates with
+  dissociation/absorption; rate and mechanism thin — treat as
+  small-channel.]**
+
+**Spec consequence (new §6.118):** new provenance
+`source.kind:"dream"`. The world's dream system (or a scripted
+`dreamEvent` op) mints records at `dream_strength` (0.15) —
+real records, low strength, schema-loose verbatim. Reality-
+monitoring features are thin by construction (Kemp et al.), so
+the §6.9 flip gate applies with a trait-scaled rate:
+`dream_flip_mult` (0.5) · source_confuse_flip, ×(1 +
+dissoc)·(1 + fantasy/2) — the Rassin correlate set already lives
+in the trait vector. **Locked `dream_content_null`:** the flip
+moves the provenance tag only; dreaming about an event can
+become "it happened" but cannot mint new verbatim fields — the
+dream contributes existence, not detail (confab §6.2 may still
+fill afterward on its own rules). Plausibility gate (§5) still
+applies — a flying dream doesn't flip (Pezdek).
+
+## 69. Demand the detail — the distinctiveness heuristic
+
+- **Schacter, Israel & Racine 1999** (*JML* 40:1): false
+  recognition of semantic associates collapses when items were
+  encoded in a distinctive format (pictures) — because subjects
+  adopt a response mode demanding **diagnostic recollection**:
+  "if I'd really seen it, I'd remember the picture." When the
+  encoding manipulation makes the expectation useless, the
+  suppression vanishes — it's a retrieval *strategy*, not an
+  encoding effect.
+- **Gallo, Cendan, Dodson et al. / Gallo 2006** (*Memory*
+  14:730): two recollection-based monitors — the distinctiveness
+  heuristic AND recall-to-reject; older adults deploy both when
+  the encoding supports them — the guard is available to old
+  characters *if* their encoding was distinctive.
+- **Koutstaal & Schacter 1999**: retrieval scrutiny reduces
+  gist-false recognition in older adults but never erases the
+  age gap — the guard is weaker, not absent.
+
+**Spec consequence (new §6.119):** retrieval posture flag
+`demand_detail:true` (caller-set: cross-examination, a pedant
+character, any context where the character *expects* vivid
+recall). Under it:
+
+```
+phantomize (§6.8) and lure endorsement pay:
+   endorse_mult = 1 − distinct_expect·distinctiveness(encoding)
+where distinctiveness(encoding) = fraction of the record's
+  channels that would have carried diagnostic verbatim
+  (was the event SEEABLE in detail? an attended face-to-face
+  scene: high; an overheard summary: ~0 — you can't demand a
+  picture of a rumor)
+distinct_expect ≈ 0.5 baseline; ×1.2 for `checker` trait;
+  falls to ×(1 − distinct_age_loss·age_eff/80) when the record's
+  own encoding was gist-dominant (the heuristic needs a
+  distinctive encoding to lean on — Schacter 1999 Exp. 2 gate)
+```
+
+This gives the cautious character a *usable* defense — and
+correctly makes it useless against false memories for content
+that never had a distinctive encoding to expect.
+
+## 70. Familiar means known — fluency misattribution to persons
+
+- **Jacoby, Kelley, Brown & Jasechko 1989** (*JPSP* 56:326):
+  nonfamous names read once are judged **famous 24h later** —
+  but not immediately. Familiarity survives; recollection of the
+  source doesn't; fluent processing is misattributed to
+  prominence. The delayed-only signature is the design: the flip
+  needs source decay, exactly like §6.9/§6.10.
+- **Jacoby, Woloshyn & Kelley 1989**: dividing attention at test
+  increases the effect — familiarity operates when recollection
+  is suppressed.
+
+**Spec consequence (new §6.120):** PersonModel gains an implicit
+`nameFluency` accumulator — every name exposure (heard, seen,
+gossiped) adds `hearCount`-style increments *independent of any
+episodic record*. When `nameFluency > fame_thresh` (0.4) AND no
+live episodic record explains the familiarity:
+
+```
+P(attribute "known person / public figure") = fame_p (0.12)
+  — scaled ×(1 + hearCount saturation) and ×(1 + divided-attention
+    state penalty)
+P(attribute "we've met / acquaintance") = acquaint_p (0.10)
+  — only when the person is place-consistent (same street, same
+    circle — the schema-plausible resolution of unexplained
+    familiarity); stronger than fame_p for neighborhood-scale
+    names, weaker for distant ones
+LOCKED `fame_episode_null`: unexplained familiarity emits a
+  relational/feeling attribution ONLY — it never mints a shared
+  episode record. "I'm sure I know them" is the ceiling;
+  fabricating the meeting is §6.2/§6.8's job on its own gates.
+```
+
+The rumor layer's repetition channel now has a person-level
+expression: a name repeated enough becomes a *somebody*, which
+is exactly how ambient NPCs should acquire unearned reputations.
+
+## 71. Silent detection — the guard at ingest
+
+- **Tousignant, Hall & Loftus 1986** (*Mem. & Cogn.* 14:329,
+  N=570 across 4 exps): slower, more scrutinizing readers detect
+  discrepancies between their memory and postevent narratives;
+  **detected discrepancies resist misinformation** — detection
+  is the mediating variable that explains warning, interval, and
+  blatancy effects across the literature.
+- **Recollection rejection** (Chan's group, *Appl. Cogn.
+  Psychol.* 2017): subjects spontaneously reject contradictory
+  misinformation by recollecting the original — more for
+  contradictory than additive content, decaying with the
+  event→misinformation delay.
+- **RES qualification** (2017 *Memory* line): retrieval-enhanced
+  suggestibility accrues only to those who *failed to detect*
+  discrepancies — detection status, not the act of recall,
+  carries the risk.
+
+**Spec consequence (new §6.121 — detection gate inside
+hearAccount, before p_adopt):** when the account conflicts with
+a surviving verbatim candidate on the same field:
+
+```
+detect_p = detect_gain (0.5)
+         · verbatimStrength(field)         // nothing to compare → no detect
+         · scrutiny                         // read-time proxy:
+                                            // warned? ×1.4; rushed ×0.6;
+                                            // checker trait ×1.2
+         · (contradictory ? 1 : 0.5)        // additive content half-detects
+if detected → this exposure pays dispute_mult (same ~0.05 floor
+  as a spoken dispute — silently); emit `noticed_discrepancy` to
+  the dialogue layer (available as a suspicion tell)
+LOCKED `detect_boost_null`: detection does NOT strengthen the
+  original candidate — it suppresses adoption only (no study
+  shows noticing protects the original's subsequent decay;
+  keep the survival machinery honest)
+```
+
+This subsumes §1's retention-interval result *mechanistically*:
+long delay → weak verbatim → nothing to detect against →
+susceptible. `warned` now has two teeth — the warn_mult leg
+(external) and the doubled scrutiny leg (internal).
+
+## 72. The vivid imager — `imagery` loads the imagination stack
+
+- **Horselenberg et al. 2000** (*Appl. Cogn. Psychol.* —
+  Maastricht): imagery ability is the one personality measure
+  that predicted imagination inflation — better imagers inflate
+  more. Dissociation predicts in some paradigms (Heaps & Nash
+  1999 — DES scores predicted inflation in N=94).
+- **Dobson & Markham 1993** (*Brit. J. Psychol.* 84): high
+  imagers were *worse* at discriminating which of two external
+  sources produced an item — vivid internal generation blurs the
+  external/external boundary too.
+- Marks 1993 reality-monitoring line: vividness interacts with
+  the perceived/imagined frequency judgment — the mechanistic
+  substrate.
+
+**Spec consequence:** new IndivTraits entry `imagery` ∈ N(0,1),
+loading: `imagine_gain` ×(1 + 0.5·imagery), verbatim richness of
+imagined/claimed/dream records +0.3·imagery (so high imagers
+cross `rm_rich_thresh` sooner), `source_confuse` and
+`dream_flip_mult` ×(1 + 0.4·imagery), §6.10 external-external
+confusion +0.3·imagery (Dobson & Markham). `fantasy` and
+`dissoc` keep their own legs (dream channel §68, §6.9 rate).
+RW payoff: the daydreaming poet and the concrete-minded clerk
+now differ on every self-authored false-memory channel, not just
+in prose style.
+
+## 73. Spec changes in v5.14 (summary)
+
+- **§6.116** `whenEstimate` — day-field reconstruction with
+  noise growth, window/midpoint pull, rounding pull, landmark
+  anchoring, coarse-field preservation. `order_preserve_null`
+  locked.
+- **§6.117** `observedAction` — motor-simulation encoding bonus
+  + agency-field flip; `obs_warn_resist` locked (warnings don't
+  apply).
+- **§6.118** `source.kind:"dream"` — dream provenance, trait-
+  scaled flip, `dream_content_null` locked.
+- **§6.119** `demand_detail` posture + `distinct_expect` —
+  endorsement suppression scaled by encoding distinctiveness.
+- **§6.120** `nameFluency` — unexplained-familiarity
+  attributions (fame/acquaintance); `fame_episode_null` locked.
+- **§6.121** detection gate in `hearAccount` — silent
+  discrepancy detection suppresses adoption;
+  `detect_boost_null` locked.
+- **§7** +17 params, +1 trait (`imagery`), +5 locked nulls.
+- **§10** contract: `observed_action` event tag, `dreamEvent`
+  op, `demand_detail` retrieval flag, `noticed_discrepancy`
+  emission, `whenEstimate` op, PersonModel `nameFluency`.
+
+## 74. Parameter guidance and probes
+
+| param | default | meaning |
+|---|---|---|
+| tele_slope | 0.4 | day-error σ growth per day of delay (R&B 1989) |
+| mid_pull | 0.15 | pull toward elicited-window midpoint |
+| round_bias | 0.1 | pull toward round dates/times |
+| landmark_pull | 0.3 | pull toward nearest landmark day |
+| coarse_when_mult | 0.4 | decay mult on season/month/weekday fields |
+| obs_inflate_gain | 0.35 | observed-action motor encoding bonus |
+| obs_flip_mult | 1.0 | agency flip rate mult on source_confuse_flip |
+| obs_warn_resist | — | LOCKED: warn_mult bypassed on obs flips |
+| dream_strength | 0.15 | dream-record encoding strength |
+| dream_flip_mult | 0.5 | dream→witnessed flip scaling |
+| dream_content_null | — | LOCKED: flip moves provenance only |
+| distinct_expect | 0.5 | endorsement suppression under demand_detail |
+| distinct_age_loss | 0.5 | age penalty when encoding gist-dominant |
+| fame_thresh | 0.4 | nameFluency needed for attribution attempt |
+| fame_p / acquaint_p | 0.12 / 0.10 | attribution emission rates |
+| fame_episode_null | — | LOCKED: no shared-episode mint from fluency |
+| detect_gain | 0.5 | base detection probability |
+| detect_boost_null | — | LOCKED: detection doesn't strengthen original |
+| order_preserve_null | — | LOCKED: anchored sequences never permute |
+
+- **P687 telescoping (MUST):** date estimates on records at
+  Δ∈{7,30,90,180}d — error σ must grow ≈linearly (slope
+  ~0.3–0.5); remote events show net forward bias inside a
+  bounded window; direction flips with the elicited window's
+  midpoint, not the event (Huttenlocher signature).
+- **P688 landmark anchoring (MUST):** matched records, one
+  within landmark_pull range of a landmark, one not — anchored
+  error smaller; landmark's own day exempt mid/landmark pulls.
+- **P689 coarse preservation (MUST):** records whose dayConf has
+  collapsed still answer season/month correctly ≥2× more often
+  than exact day — coarse fields outlive fine ones.
+- **P690 order preservation (MUST — locked null):** two records
+  each landmarked — reported days may err but the emitted ORDER
+  never inverts. FAIL on permutation.
+- **P691 observation inflation (MUST):** `observed_action` on a
+  routine partner action, decayed past source thresh → some
+  profiles emit actor:self; `warned` context does NOT suppress
+  it (obs_warn_resist); flip scales with discrim_mult.
+- **P692 dream channel (MUST):** dreamEvent mints source.dream
+  at dream_strength; flips only via decay gate, rate ∝ dissoc/
+  fantasy/imagery; verbatim field count identical pre/post flip
+  (dream_content_null); implausible dream never flips.
+- **P693 distinctiveness heuristic (MUST):** same lure, recall
+  with vs without demand_detail — endorsement suppressed ∝
+  distinct_expect ONLY when the record had distinctive encoding
+  channels; gist-only encodings show no protection at any age.
+- **P694 false familiarity (SHOULD):** name seen/heard 6×, no
+  episodic record → fame/acquaintance attributions emerge;
+  NEVER a shared-episode record (fame_episode_null);
+  place-inconsistent names skew fame_p.
+- **P695 silent detection (MUST):** conflicting account vs
+  surviving verbatim — adoption ≈dispute_mult without any
+  `disputed` flag; verbatim candidate strength identical
+  pre/post detection (detect_boost_null); weak-verbatim arm
+  detects rarely.
+- **P696 imagery trait (SHOULD):** imagineEvent×5 on imagery
+  ±1.5σ profiles — high arm reaches rm_rich_thresh and flips;
+  low arm doesn't; source_confuse scales similarly.
+
+## 75. Honest limits (Part VI)
+
+- **Telescoping mechanism is deliberately conservative** — we
+  implement the Rubin & Baddeley bounded-error account, which
+  produces apparent telescoping without a signed bias. If a
+  probe demands a *residual* forward bias beyond boundary
+  effects (some news-event studies claim one), `mid_pull` has
+  room — but the burden of proof is on the bias, per the
+  boundary-model literature.
+- **Observation inflation's mechanism is simulation, not source
+  confusion** — we implement it through the existing
+  provenance-decay gate (which IS a source-monitoring account)
+  plus the locked warning-resistance. A purist reading wants a
+  separate motor-merge channel; ours is the cheaper
+  approximation that reproduces both observable signatures
+  (warning-immune, discrim_mult-scaled).
+- **Dream→reality rates are survey numbers** (11.8%/25.9%
+  lifetime endorsement — people who *report having experienced
+  it*), not per-dream flip rates; our `dream_flip_mult` 0.5 is a
+  conservative guess scaled by the right traits.
+- **Distinctiveness heuristic needs `distinctiveness(encoding)`**
+  — a derived quantity the substrate must approximate from
+  channel coverage; characters encoding mostly gist can't lean
+  on the guard, which is the intended failure mode (Koutstaal
+  & Schacter's residual gap).
+- **False fame is name-level** — Jacoby's effect is on *names*,
+  not faces or people-in-context; extending it to `acquaint_p`
+  ("we've met") is our neighborhood-scale extrapolation, gated
+  on place-consistency to keep it bounded.
+- **Detection's scrutiny proxy** (warned ×1.4, rushed ×0.6,
+  checker ×1.2) is assembled from Tousignant's reading-time
+  result — a fair mechanization, but the multipliers are ours.
+
+# PART VII (v78) — the credibility layer: who to believe is
+# itself a memory, and it decays on its own clock
+
+**Scope:** Parts I–VI priced distortion of *content*. Part VII
+prices distortion of *trust*: the evaluator and the evaluated
+are stored on different decay tiers, so the source-discount
+dies before the claim (sleeper effect), the "false" tag dies
+before the familiarity it was meant to flag (warning
+backfire), comprehension itself mints provisional belief
+(Spinozan acceptance), bare repetition mints truth even when
+stored knowledge objects (illusory truth), the outcome rewrites
+the estimate (hindsight), the question smuggles the claim
+(innuendo/presupposition), the full planting recipe finally
+gets a composite price (Shaw & Porter — and the Wade recode),
+the scene that is merely familiar emits déjà vu (no record
+required), and one caught lie poisons the teller's whole
+ledger (schema guilt — our hypothesis). The through-line for
+RW: **credibility is a field with its own beta, and it is
+higher than the content's.** Every believability judgment a
+character makes is reconstructive — never a lookup.
+
+## 76. The discount decays first — the sleeper effect
+
+- **Hovland & Weiss 1951** (*J. Abnorm. Soc. Psychol.* 46:424
+  — verified): a low-credibility source's persuasion initially
+  suppressed, then **grew over four weeks** while the
+  high-credibility source's persuasion decayed — the
+  dissociation hypothesis: the discounting cue is learned but
+  forgotten faster than the message content.
+- **Pratkanis, Greenwald, Leippe & Baumgardner 1988**
+  (*Psych. Bull.* 104:53 — verified): 17 qualifying tests —
+  the sleeper effect is real but conditional: it requires the
+  discounting cue to arrive AFTER the message and to decay
+  differentially. **Decay-before-cue ordering kills it.**
+- **Kumkale & Albarracín 2004** (*Psych. Bull.* 130:143 —
+  verified meta, 72 studies): a durable discounting-cue effect
+  — the sleeper pattern replicates when cue and content are
+  dissociable and the cue is memorable-but-forgotten; absolute
+  sleeper (persuasion rising over baseline) is rarer than
+  relative sleeper (less decay than the high-cred arm).
+- Established: differential forgetting of source vs content.
+  Debated: absolute vs relative sleeper — our model produces
+  the relative pattern for free.
+
+**Spec consequence — §6.164:** claims heard from a
+low-credibility source mint a candidate with
+`sourceDiscount` field = 1−sourceCredibility, decaying at
+`beta_source·disc_decay_mult` (1.6 — the discount is
+source-tier, not content-tier). Adoption evaluation uses
+`sourceCredibility_eff = 1 − sourceDiscount·sourceDiscount`
+— as the discount field decays, effective credibility rises
+toward 1 and **deferred adoption becomes possible on
+re-encounter** (`sleeper_k` 0.12 fraction of surviving
+content strength contributing on each re-presentation once
+discount < 0.3). Ordering gate: discounting info arriving
+BEFORE the claim mints a pre-emptive `low_cred` source tag
+on the *source*, not the claim — no sleeper leg (Pratkanis
+ordering condition). Locked null `sleeper_grow_null`:
+deferred adoption never exceeds what initial full-credibility
+would have minted — relative sleeper only.
+
+## 77. The warning rots — "false" becomes "true"
+
+- **Skurnik, Yoon, Park & Schwarz 2005** (*J. Consum. Res.*
+  31:713 — verified): repeatedly flagging a claim false helped
+  older adults immediately — but after **3 days**, more prior
+  warnings → more likely to call it TRUE. Familiarity for the
+  claim outlived recollection of the truth-specifying context.
+  Young adults showed the same direction, smaller magnitude.
+- Companion: **Fazio et al. 2015** (§79) — repetition-to-truth
+  works even against stored knowledge; **Wegner et al. 1985**
+  innuendo corollary §81. The mechanism is the frame/content
+  tier split — this file's §30 (denial backfire) priced the
+  *negation* frame; warnings are the *epistemic* frame.
+- Established: warning tags are context-tier fields and die
+  faster than content familiarity in older adults; young
+  adults show residual effects at longer delays.
+
+**Spec consequence — §6.165:** `disputed`, `warned`, and
+`debunked` marks on claim records get their own strength =
+`tag_str` decaying at `beta_source·warn_tag_mult` (2.0; +0.5
+extra past age_eff 60 — Skurnik's older-adult leg). When
+claim familiarity survives but the mark is below
+`tag_min` (0.15): the claim evaluates as *endorsed* with
+`warn_backfire_k` (0.15) bonus on truth_p — the reteller's
+correction became the recommender's evidence. Re-warning a
+still-tagged claim refreshes the tag (immunity window); the
+paradox only fires across the decay gap. Locked null
+`frame_content_null`: a rotted warning never deletes the
+claim candidate — flags die, claims persist (same asymmetry
+as §30's neg_frame_mult, generalized).
+
+## 78. To understand is to accept — the Spinozan gate
+
+- **Gilbert, Krull & Malone 1990** (*JPSP* 59:601 —
+  verified): comprehending a proposition entails momentarily
+  accepting it; unacceptance is a SECOND step requiring
+  resources. Cognitive load during presentation → false
+  claims later recalled as true at elevated rates.
+- **Gilbert, Tafarodi & Malone 1993** (*JPSP* 65:221 —
+  verified): "you can't not believe everything you read" —
+  load (digit-shadowing) left participants marking patently
+  false statements as true; interruption at presentation, not
+  just at judgment, produces it.
+- **Gilbert 1991** (*Am. Psychol.* 46:107 — verified):
+  Spinoza vs Descartes framing; the acceptance-first
+  architecture is the default. Hasson, Simmons & Todorov
+  2005 — belief vs mere exposure dissociation in instructions.
+- Established: acceptance precedes rejection; load/cognitive
+  busyness leaves residues of accepted-false content.
+  Debated: whether the mechanism is verification cost or
+  later recollective deficit (we mechanize the former as the
+  gate, the latter via ordinary tag decay — they compound).
+
+**Spec consequence — §6.166:** every comprehended claim mints
+its candidate in state `accepted` FIRST; the `unbelieve` op
+(cost `spinoza_cost` 0.3 of a reasoning tick, plus
+`load_unbelieve_pen` 0.5 under `C.load`/`rushed`/`intox`) is
+the only path to `disputed`/`rejected` marks. Under load the
+op fails silently — the claim stays `accepted` and ordinary
+§6.3 machinery treats it as unchallenged content thereafter.
+`checker`/`meta_conf`/`verbal` raise unbelieve success;
+`distrust` raises the attempt probability (you must try
+before you can fail). Locked null `spinoza_revert_null`:
+an `accepted` residue does NOT spontaneously revert — only
+re-encounter, disputation, or deliberate review flips it.
+RW payoff: the rushed, multitasking character is
+structurally more gullible — load is a suggestibility state.
+
+## 79. Repetition mints truth — and knowledge doesn't guard
+
+- **Hasher, Goldstein & Toppino 1977** (*JVLVB* 16:107 —
+  verified): repeated statements rated truer — frequency→
+  confidence, the original illusory truth result.
+- **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G* 144:993 —
+  verified): repetition raised truth ratings even for claims
+  participants demonstrably KNEW were wrong (stored-knowledge
+  probes) — fluency beats retrieval of the contradicting fact.
+- **Pennycook, Cannon & Rand 2018** (*JEP:G* 147:1865 —
+  verified): a single prior exposure raised perceived accuracy
+  of real fake-news headlines — small per-hit (≈+0.06 on a
+  4-pt scale) but cumulative; replicated across partisan
+  slant. Unsworth &? — one-shot effect confirmed.
+- **Begg, Anas & Farinacci 1992** (*JEP:G* 121:446 —
+  verified): dissociation logic — familiarity processed faster
+  than recollection; truth judged from processing fluency,
+  not content evaluation.
+- Established: repetition→truth is consensus at small,
+  reliable magnitude; the Fazio knowledge-failure is
+  replicated. Debated: whether fluency or familiarity-with-
+  source does the work — mechanization is fluency, per Begg.
+
+**Spec consequence — §6.167:** claim records carry
+`hearCount` (exists); truth_p on evaluation gets
+`+ illus_truth_k·log1p(hearCount)` (0.10, cap
+`illus_truth_cap` 0.35 — Pennycook-scale per-hit) INDEPENDENT
+of p_adopt machinery — belief without adoption of new
+content. **Locked null `knowledge_gate_null`:** a
+contradicting semantic record at ANY strength does not zero
+the bonus — it applies `know_protect_mult` (exists, v1.5) to
+the ADOPTION arm only; the fluency leg is ungated (Fazio).
+`factCheck` context posture (deliberate scrutiny, P46-style)
+halves it — the guard is attention, not storage.
+
+## 80. Knew it all along — the outcome bends the estimate
+
+- **Fischhoff 1975** (*JEP:HPP* 1:288 — verified): told the
+  outcome, subjects' reconstructed prior probabilities shifted
+  toward it — and they believed they'd said it. Creeping
+  determinism (Fischhoff & Beyth 1975).
+- **Hoffrage, Hertwig & Gigerenzer 2000** (*JEP:LMC* 26:566
+  — verified RAFT): hindsight bias is reconstruction — the
+  outcome is recruited as an anchor when the original judgment
+  isn't retrievable; bias scales with retrieval failure, not
+  with the record's strength per se.
+- **Roese & Vohs 2012** (*Persp. Psychol. Sci.* 7:411 —
+  verified): three stacked levels — memory distortion
+  ("I said it"), inevitability ("had to happen"), foreseeability
+  ("I knew it"); each can occur alone. Meta estimates across
+  domains d≈0.4–0.9.
+- Established: hindsight distortion of remembered estimates is
+  consensus and mechanistically reconstructive. Our §56
+  ("why minted on demand") is the causal sibling; this is the
+  quantitative-field version.
+
+**Spec consequence — §6.168:** records with quantitative
+estimate fields (`expect`,`predict`,`bet`) gain a hindsight
+leg: when an `outcomeEvent` matching the field's referent
+lands and the estimate field is later REPORTED (not stored)
+— reported value = `mix(orig, outcome_val, hind_k)` with
+`hind_k` 0.35 scaled by (1−field verbatim strength) (RAFT —
+bias is largest exactly where the trace is gone); reported
+confidence += `hind_conf_boost` 0.15. **Locked null
+`hind_store_null`:** the stored estimate never rewrites —
+the bend is emission-side; a verbatim-perfect estimate
+reports clean (and gets `nailed_it` flag — humans DO feel
+vindicated when the trace survives). `inevitable` emission
+field marks reports where the bend exceeds 0.5 — the
+audience hears "obviously" while the record says otherwise.
+
+## 81. The question is a claim — innuendo and presupposition
+
+- **Wegner, Wenzlaff, Kerker & Beattie 1981** (*JPSP*
+  41:67 — verified): innuendo headlines ("Is Bob connected
+  with the Mafia?" phrased as questions/denials) produced
+  impressions nearly as negative as direct assertions —
+  interrogative and negated frames carried the charge.
+- **Loftus & Zanni 1975** (*Cogn. Psychol.* 7:560 —
+  verified): "the" vs "a" article — presupposed existence
+  ("did you see THE broken headlight") raised false
+  endorsement of non-present objects (12–15% vs 6–7% class).
+- **Loftus 1975** (*Cogn. Psychol.* 7:560 series —
+  verified): presupposing questions minted false details at
+  ~2× yes-rates — the presupposed content is comprehended
+  (§78) before it is evaluated.
+- Established: questions with presupposed/insinuated content
+  are a real false-memory channel, weaker than assertion but
+  deniable — the perfect rumor register for RW.
+
+**Spec consequence — §6.169:** `askAbout{presupposes:F}`
+interactions mint an `insinuated:true` candidate at
+`insinu_strength` 0.35× the assertion equivalent, flagged
+frame `interrogative`; `presuppose_gain` 0.15 extra on
+existence fields (the-article logic — presupposed OBJECTS
+minted as scene candidates at low strength, ready for §6.3
+adoption on any later mention). Insinuated candidates inherit
+sourceCredibility of the ASKER but carry `deniable:true` —
+the asker never said it. **Locked null `insin_episode_null`:**
+innuendo mints claim/impression candidates and person-entry
+eval shifts ONLY — never an episodic "I saw it" record
+(same discipline as `fame_episode_null`, §70). Detection
+arm: `checker` characters mark the frame `insinuation_noticed`
+— suppresses the mint, not the awkwardness.
+
+## 82. The planting recipe, priced — and the recode debate
+
+- **Shaw & Porter 2015** (*Psych. Sci.* 26:291 — verified):
+  three suggestive interviews → **70%** (21/30) classified
+  with rich false memories of a police-contact crime in early
+  adolescence; 11 of 15 assaulters generated police-specific
+  detail (M=12.18 details). Ingredients: true scaffolding
+  details from parents, guided-imagery instructions,
+  interviewer confidence, social pressure, suggestive
+  retrieval techniques across sessions.
+- **Wade, Garry & Pezdek 2018** (*Psych. Sci.* 29:503 —
+  verified recode): rescoring Shaw & Porter's data separating
+  *belief* from *memory* coding → **26–30%** meet false-MEMORY
+  criteria; the rest are false beliefs or partial
+  reconstructions. **The 70% is belief+memory; ~28% is
+  recollection-grade.** Our §7 belief-vs-recollection split is
+  literally the variable at issue.
+- **Loftus & Pickrell 1995** (*Psych. Ann.* 25:720 —
+  verified): lost-in-the-mall, ~25% (≈6/24) partial/full
+  false memory at 1–2 mild suggestive interviews.
+- **Ceci et al. 1994** (Samuel Stone studies; Ceci, Loftus,
+  Leichtman & Bruck — verified): preschoolers under repeated
+  suggestive interviewing assented to false events ~50%+ and
+  elaborated non-present details; ~25% in strongest arms.
+- Established: multi-session guided imagery + authority +
+  true scaffolding plants rich false autobiographical
+  content; rates scale with sessions and ingredient count.
+  Debated: belief vs recollection coding (Wade recode) —
+  we implement BOTH tiers.
+
+**Spec consequence — §6.170:** formalize the composite
+`plantGain = plant_base · imagery_eff · pressure_eff ·
+scaffold_eff · authority_eff · session_count^plant_session_exp`
+(0.5 exponent — diminishing but compounding returns;
+Loftus-mall ≈ single-session minimal recipe → ~0.25
+equivalent; full Shaw–Porter recipe → the high arm).
+`plant_belief_floor` 0.6: planted content lands in the
+belief tier (§7 beliefStatus) first; only `imagery`-rich
+reconstruction + repeated self-retell promote to
+recollection tier — reproducing the 70/28 split
+structurally. `plant_child_mult` (1.8 at encodeAge<8 —
+Ceci) applied at encoding-age of the claimed event, not
+current age: you can plant a childhood memory on an adult
+as if through a child's mind. `scaffold` = count of true
+details woven in (each +`scaffold_unit` 0.08 plausibility
+equivalent); contradicting known-fact count subtracts
+`known_veto` per the existing plausibility gate — which is
+why the recipe needs TRUE details.
+
+## 83. Déjà vu — the familiarity signal with no record
+
+- **Brown 2003** (*Psych. Bull.* 129:394 — verified review):
+  déjà vu incidence ~60–80% lifetime; declines with age,
+  rises with travel/education/stress; no pathology needed.
+- **Cleary 2008** (*Curr. Dir. Psychol. Sci.* 17:353 —
+  verified): recognition without identification — a scene
+  can produce the familiarity signal while the contributing
+  record is unretrievable; déjà vu is this state with the
+  extra conviction that it CAN'T be right.
+- **Cleary, Ryals & Nomi 2009 / Cleary et al. 2012**
+  (*Conscious. Cogn.* 21:969 — verified): virtual-reality
+  scenes sharing spatial CONFIGURATION with studied scenes
+  produced déjà-vu-like familiarity without recall —
+  config-matching, not item matching, is the cue.
+- Established: familiarity-without-identification is
+  real and config-based; the phenomenology is signal
+  without source. Frequency/age numbers are survey-grade.
+
+**Spec consequence — §6.171:** new emission `deja_vu` —
+when a place/scene cue pattern hits `simOp ≥ deja_thresh`
+(0.75, config-masked — layout/places weights only, not
+items) against ANY stored record whose own retrieval fails
+θ, emit `deja_vu:true` with `familiarity` = the simOp value
+and `matched=false` — the character feels certain-yet-impossible.
+Rate scales ×(1−`deja_age_slope`·age_eff/60) (0.5 — Brown's
+decline), +0.2·travel-novelty context (new places in familiar
+layouts — Cleary config). **Locked null `deja_store_null`:**
+the episode mints NO record — it is a retrieval-side signal;
+later "I've been here" claims from it route through ordinary
+confab_fill, not a stored scene. Frequency is low —
+`deja_cool` 30 sim-days per character.
+
+## 84. The caught lie poisons the ledger — schema guilt
+
+- **Anchors (established direction, OUR mechanism):**
+  source-credibility generalization is textbook persuasion
+  (Hovland line; Kumkale & Albarracín 2004 — low-cred sources
+  discount ALL their claims); **Ecker et al.** correction
+  literature — a retracted source's OTHER claims retain less
+  traction; **"liar" trait attribution** generalizes in person
+  perception (negative-trait halo — established).
+- What no study pins: whether detecting ONE false claim from
+  a source retroactively weakens that source's already-adopted
+  claims. The forward case (future claims discounted) is
+  certain; the retroactive leg is our modeling choice.
+
+**Spec consequence — §6.172 (RW HYPOTHESIS, flagged):**
+when a claim candidate is detected-false (§6.121 detection
+gate or explicit `dispute` resolution against it), apply
+`source_poison_k` 0.25 multiplicative weakening to:
+  (a) **forward** — all future p_adopt on that source
+      (established — credibility drop);
+  (b) **retro** — surviving adopted candidates carrying that
+      source tag get `candStrength × (1−source_poison_k)`
+      ONCE, and their `sourceDiscount` field refreshes
+      (HYPOTHESIS — the "he lied about that too?" audit).
+Radius `poison_radius` limits retro to claims with
+simOp > 0.4 to the exposed one — thematically unrelated
+claims take only the forward discount (a caught lie about
+the rent doesn't poison their recipe tips). Locked null
+`poison_reveal_null`: the poison applies to stored
+strength, never to what the character can still SAY —
+they can repeat a claim they no longer quite believe.
+
+## 85. Spec changes in v5.26 (summary)
+
+- **§6.164** `sourceDiscount` field + deferred adoption —
+  the sleeper effect; ordering gate on pre-warnings.
+- **§6.165** warning-tag decay tier (`warn_tag_mult`) +
+  `warn_backfire_k` truth bonus post-decay.
+- **§6.166** `accepted`-first ingest + `unbelieve` op with
+  load penalty — Spinozan acceptance.
+- **§6.167** `illus_truth_k` fluency→truth leg, ungated by
+  stored knowledge (locked `knowledge_gate_null`).
+- **§6.168** hindsight bend on reported estimate fields;
+  `hind_store_null` locked; `inevitable`/`nailed_it` audit.
+- **§6.169** `insinuated`/`presupposed` candidate mints;
+  `insin_episode_null` locked.
+- **§6.170** composite `plantGain` + `plant_belief_floor`
+  (belief tier before recollection — the Wade recode
+  encoded); `plant_child_mult` on encodeAge.
+- **§6.171** `deja_vu` emission, config-sim gated, no store
+  (`deja_store_null` locked).
+- **§6.172** `source_poison_k` forward+retro credibility
+  audit, `poison_radius` scope limit (HYPOTHESIS-flagged).
+- **§7** +22 params, +6 locked nulls.
+- **§10** contract: candidate field `sourceDiscount`,
+  `insinuated`/`deniable`; claim field `hearCount` truth
+  leg; Event `presupposes`; context `factCheck`,
+  `travel_novel`; emissions `deja_vu`, `inevitable`,
+  `nailed_it`, `insinuation_noticed`; op `unbelieve`,
+  `outcomeEvent` matching.
+
+## 86. Parameter guidance and probes
+
+```json
+// v78 false-memory VII parameter block (§7 append)
+"disc_decay_mult": 1.6,   // §76 source-discount decay vs content
+"sleeper_k": 0.12,        // §76 deferred-adoption gain on re-encounter
+"warn_tag_mult": 2.0,     // §77 warning-tag decay; +0.5 past 60
+"warn_backfire_k": 0.15,  // §77 truth bonus after tag death
+"tag_min": 0.15,          // §77 mark-below-threshold gate
+"spinoza_cost": 0.3,      // §78 unbelieve op cost
+"load_unbelieve_pen": 0.5,// §78 load/rush/intox failure penalty
+"illus_truth_k": 0.10,    // §79 per-log-rep truth lift
+"illus_truth_cap": 0.35,  // §79 cumulative cap (Pennycook-scale)
+"factCheck_halve": 0.5,   // §79 deliberate-scrutiny halving
+"hind_k": 0.35,           // §80 outcome-bend max on weak fields
+"hind_conf_boost": 0.15,  // §80 "I knew it" confidence lift
+"insinu_strength": 0.35,  // §81 fraction of assertion equivalent
+"presuppose_gain": 0.15,  // §81 existence-field presupposition bonus
+"plant_base": 0.10,       // §82 per-session base (minimal recipe ≈ mall)
+"plant_session_exp": 0.5, // §82 sublinear session compounding
+"plant_belief_floor": 0.6,// §82 landed-in-belief share
+"plant_child_mult": 1.8,  // §82 encodeAge<8 claimed-event multiplier
+"scaffold_unit": 0.08,    // §82 per-true-detail plausibility gain
+"deja_thresh": 0.75,      // §83 config-sim threshold
+"deja_age_slope": 0.5,    // §83 decline with age_eff
+"deja_cool": 30,          // §83 sim-day per-character cooldown
+"source_poison_k": 0.25,  // §84 forward+retro audit magnitude
+"poison_radius": 0.4      // §84 simOp radius for retro leg
+```
+
+Trait loading: `distrust` raises unbelieve-attempt rate and
+halves `insinu_strength` uptake (§81's notice arm scales with
+`checker`); `meta_conf` raises factCheck posture availability;
+`imagery` and `fantasy` raise `plantGain` promotion to
+recollection tier (§82); `dissoc` unloads §78 load penalty
+(dissociators pay less because they verify less — HYPOTHESIS);
+`aging_rate` scales `warn_tag_mult` and `deja_age_slope`.
+Age: `warn_tag_mult` +0.5 past 60 (Skurnik); `plant_child_mult`
+on encodeAge (Ceci); hindsight larger in older adults
+(Roese & Vohs: memory-distortion level rises with age).
+
+**Probes P825–P834** (validation-design.md §156):
+- **P825 sleeper effect (MUST — ordering lock):** low-cred
+  source claim, discounting cue AFTER message vs BEFORE:
+  the after-arm shows rising effective credibility and
+  deferred adoption on re-encounter; the before-arm never
+  does. Absolute growth capped by sleeper_grow_null —
+  FAIL if deferred adoption exceeds the high-cred arm's.
+- **P826 warning backfire (MUST):** claim flagged
+  `debunked` ×3 vs ×1, aged past warn-tag death on a
+  70y profile: the ×3 arm rates TRUER (familiarity minus
+  dead tag); same-day test shows the reverse order
+  (immediate protection). Young profile shows smaller
+  crossover. Locked: the claim candidate survives intact —
+  only the mark died.
+- **P827 Spinozan gate (MUST):** identical false claims,
+  hearer under `load` vs calm: load arm shows elevated
+  `accepted` residue and higher later true-ratings; calm
+  arm's unbelieve marks stick. `spinoza_revert_null` —
+  residues never auto-flip.
+- **P828 illusory truth vs knowledge (MUST — locked
+  null):** claims contradicting a strength-0.9 stored
+  semantic, repeated ×5: truth_p rises anyway
+  (knowledge_gate_null — the fluency leg is ungated);
+  p_adopt arm still protected by know_protect_mult.
+  factCheck posture halves the rise.
+- **P829 hindsight bend (MUST — locked null):** estimate
+  field verbatim-weak vs verbatim-strong, matched outcome
+  event: weak arm reports bent ~hind_k toward outcome with
+  +hind_conf_boost and `inevitable:true`; strong arm
+  reports clean with `nailed_it:true`. STORED candidates
+  byte-identical both arms (hind_store_null).
+- **P830 innuendo mint (MUST — locked null):**
+  askAbout{presupposes:"the broken lease"} → insinuated
+  candidate at ~0.35 strength + scene-object candidate;
+  never an episodic record (insin_episode_null — FAIL if
+  "I saw it" mints). checker profiles emit
+  insinuation_noticed and suppress the mint.
+- **P831 planting recipe (MUST):** Loftus-mall arm (1
+  session, minimal) ≈0.25 adoption-class rate; full
+  Shaw–Porter arm (3 sessions, guided imagery + pressure +
+  3 true scaffolds + authority) ≈0.6–0.7 belief-tier, of
+  which ~0.4 share promotes to recollection tier under
+  self-retells (reproduces 70/28 split). Scaffold-free arm
+  fails the plausibility gate (known_veto).
+- **P832 child implant (SHOULD):** same recipe planted on
+  an adult for an encodeAge-6 event vs encodeAge-25 event:
+  the childhood arm adopts at plant_child_mult rate; the
+  claimed event carries amnesia-era dating flags.
+- **P833 déjà vu (MUST — locked null):** novel venue with
+  config-sim 0.8 vs 0.4 to a sub-θ record: the 0.8 arm
+  emits deja_vu{familiarity≈0.8, matched:false}; NO record
+  minted (deja_store_null); emission rate halves on a 70y
+  profile; deja_cool suppresses immediate repeats.
+- **P834 source poison (SHOULD — hypothesis):** detected-
+  false claim on source S: (a) S's future p_adopt cut;
+  (b) S's surviving thematically-near adopted claims lose
+  source_poison_k strength once; (c) far-radius claims
+  unchanged; (d) character can still REPEAT the weakened
+  claims (poison_reveal_null — store ≠ speech).
+
+## 87. Honest limits (Part VII)
+
+- **Sleeper effect's absolute growth is contested** — we
+  implement the relative-sleeper mechanism (differential
+  decay + deferred adoption) and lock the absolute-growth
+  cap; Pratkanis's ordering condition is enforced as a gate.
+- **Skurnik's older-adult crossover is the strong finding;**
+  the young-adult residual is direction-consistent but
+  smaller — our +0.5 age increment is a calibration guess,
+  and real effect sizes vary with domain (consumer claims).
+- **Spinozan acceptance is real but its boundary is debated**
+  (Hasson et al. 2005 show instruction-level dissociations);
+  we implement the load-failure gate, not a universal
+  believe-everything default — `distrust`/`checker` profiles
+  run the unbelieve op often and cheaply by proxy.
+- **Shaw & Porter's 70% is belief-AND-memory** — Wade et
+  al.'s recode (~26–30% recollection-grade) is why
+  `plant_belief_floor` exists; the recipe prices both tiers
+  and the promotion between them is the honest uncertainty.
+- **Innuendo magnitudes are 1981-vintage** (Wegner single
+  studies); the direction is secure, the 0.35 ratio is ours.
+- **Déjà vu incidence numbers are self-report surveys**;
+  config-sim gating follows Cleary's lab logic, the
+  thresholds are tuned, not measured.
+- **Schema guilt's retro leg is explicitly ours** — forward
+  credibility discounting is established; retroactive
+  weakening of already-adopted claims is a plausible
+  generalization we flag HYPOTHESIS and scope with
+  `poison_radius`. If evidence shows no retro audit in
+  humans, P834's (b) arm becomes the calibration target to
+  soften, not the structure to remove.
+
+---
+
+# Part VIII — the edges of the record (v5.38)
+
+Parts I–VII covered distortion of held records, phantom
+episodes, social adoption, and the credibility ledger. What
+remains is a ring of failure modes that live at the *edges*:
+ideas that return as one's own (cryptomnesia), scenes that
+remember wider than they were (boundary extension), telling
+that damages seeing (verbal overshadowing), footage that
+never existed (crashing memories), evidence that does
+nothing yet convinces (truthiness), choices accepted that
+were never made (choice blindness), deeds remembered that
+were never done (coerced self-false-memory), groups that
+remember less than their members (collaborative inhibition),
+familiarity claimed without a record (overclaiming), and —
+as the boundary case — the recovered-memory controversy the
+model must take a formal position on. Ten sections,
+§§88–97; spec changes §98; params/probes §99; limits §100.
+
+## 88. The stolen idea comes back as yours — cryptomnesia
+
+Brown & Murphy (1989), the three-phase paradigm (generate
+in a group → recall "your own" responses → generate *new*
+ones): plagiarism rates up to ~9% of responses in the
+worst cell, and plagiarizing *others'* items dominates
+plagiarizing one's own. Marsh & Bower (1993) elicited it
+even under explicit anti-plagiarism instruction; Marsh,
+Landau & Hicks (1997) replicated in alternate-uses tasks.
+Macrae, Bodenhausen & Calvini (1999): the failure is
+*source-similarity-gated* — plagiarism is higher when the
+original contributor resembles the self (same-sex >
+opposite-sex dyads). The mechanism is §6.10's sourceInfer
+run on *content generation*, not on recall: the idea
+survives, its provenance doesn't, and the generator slot
+gets filled with the most available source — oneself.
+[CONSENSUS effect; rates modest outside lab contrivance.]
+
+**Spec consequence (§6.183):** any generation op
+(`plan`, `joke`, `pitch`, `retell`-adjacent invention)
+rolls `crypt_p` (0.05) when the store holds a
+`source.kind:"told_by"` record whose content overlaps the
+generated output AND whose `confidenceInSource < 0.3`.
+On success the output is minted self-sourced; emission
+`claimed_mine:true` (history-browser audit only — the
+character experiences authorship). Multiplier
+`1 + crypt_self_gain·sim(self, originSpeaker)` — a
+character steals most often from the people most like
+them. **Locked null `crypt_source_null`:** the minted
+claim may never carry the true source — provenance loss
+is the phenomenon, not a bug to fix at render.
+
+RW: a character who "invents" the drink special their
+roommate pitched last week is more believable than one
+who never does — this is the single most human plagiarism.
+
+## 89. The frame you never saw — boundary extension
+
+Intraub & Richardson (1989): subjects redraw close-up
+scenes with surroundings they never saw — the camera's
+frame is remembered wider than it was. The extrapolation
+is *schema-driven anticipation stored as perception*;
+replicates across drawings, boundary ratings, and
+computer tasks (Intraub, Gottesman & Bills 1998;
+Hubbard 1996 review), normalizes within days (the drawn
+extent converges toward the real frame), and extends to
+viewpoint angle (Intraub 2002). [CONSENSUS — one of the
+most replicable constructive-memory findings.]
+
+**Spec consequence (§6.184):** records with scene/spatial
+verbatim fields gain `bext` periphery fields — schema-
+typical content beyond the observed frame — at encode
+(`bext_enc` 0.35 mint probability; extent capped at
+`bext_max_frac` 0.3 of the scene's field) and refresh at
+each reconstruct (`bext_recon` 0.2); the minted periphery
+normalizes toward true extent on a `bext_norm_tau`
+(~3 day) schedule — early reports are widest. Non-scene
+records are immune (`bext_nonscene_null` locked — a
+conversation doesn't extend past the room). Pairs with
+§6.8 phantoms: bext mints *adjacent* content, not whole
+episodes.
+
+RW: characters misremember the shop's layout a little
+bigger, the park crowd a little wider — cheap ambient
+realism with zero drama cost.
+
+## 90. Say it and lose it — verbal overshadowing
+
+Schooler & Engstler-Schooler (1990): witnesses who
+described a face before a lineup identified it *worse*
+than controls (~25% relative penalty in the original).
+Meissner & Brigham (2001 meta, 15 studies): a small but
+reliable post-verbalization cost, largest for faces;
+the effect fades — overshadowing decays faster than the
+memory. Alogna et al. (2014, Registered Replication
+Report, 31 labs): direction replicates, magnitude much
+smaller than the original — **[DEBATED on size; direction
+consensus]**. The second, older arm is Bartlett /
+Carmichael, Hogan & Walter (1932): a verbal *label*
+pulls reconstruction toward the label's prototype —
+reproduced "portrait d'homme" faces drift to the named
+expression; "crescents" become circles-with-fins.
+
+**Spec consequence (§6.185):** a `describe` action on a
+face/scene/identity record does two things at the next
+reconsolidation: (a) one-time verbatim-visual decay bump
+×(1−`verb_shad_pen` 0.15), recovering on `verb_shad_hl`
+(~4 day) half-life — the describing witness is
+temporarily the *worst* identifier; (b) `verb_label_pull`
+(0.2) drift of the visual field toward the descriptor's
+prototypical form — a man called "sketchy" is remembered
+sketchier. Semantic/gist fields are untouched
+(`verb_semantic_null` locked — the tax is a verbatim-
+channel phenomenon, never a content loss).
+
+RW: the neighbor who narrates the shoplifter to the group
+chat degrades her own eyewitness value — and everyone who
+read her description absorbs the label pull too (the pull
+rides `hearAccount` as a `label:` field bias).
+
+## 91. The film that doesn't exist — crashing memories
+
+Crombag, Wagenaar & van Koppen (1996): after the El Al
+Boeing crash into Amsterdam apartments (heavily covered,
+*no film of the impact existed*), asked "did you see the
+television film of the moment the plane hit?" — **55%**
+said yes (first questionnaire); a second questionnaire
+demanding details raised it to **66%**, and most supplied
+particulars (angle of impact, time to fire). Ost et al.
+(2002): ~44% remembered nonexistent footage of Diana's
+fatal crash. Otgaar et al. (2022, *Memory*): the
+induction still lands on a significant minority (25.7%,
+38% across two studies) and tracks `suggs`-type
+suggestibility, not compliance. [CONSENSUS effect;
+rate varies with notoriety and sample.]
+
+The mechanism inverts the plausibility gate: it isn't
+that the film is plausible — it's that the *event* is so
+schema-saturated that imagined coverage is
+indistinguishable from remembered coverage. Notoriety
+does the work plausibility does elsewhere.
+
+**Spec consequence (§6.186):** a `footage_probe` question
+context (media-style "did you see the video?") on
+hearAccount: if `notoriety(event) ≥ footage_notor` (0.5 —
+the event must already saturate the local rumor field)
+and the listener holds no verbatim `media_exposure`
+record for it → `media_phantom_p` (0.3) mints a
+`saw_footage` record (`source.kind:"media"`, hidden
+`accuracy:0`, phantom:true). Detail fields are born
+empty — the schema fills them at first reconstruct
+(which is exactly why 66% > 55% when details are
+demanded: the demand runs the fill). `footage_rep_gain`
+lets each subsequent probe strengthen it. Obscure events
+are immune (`footage_obscure_null` locked — no schema,
+no phantom; you cannot crash-remember a Tuesday).
+Emission `saw_footage:true`.
+
+RW: after a public spectacle in the park, a wedge of the
+neighborhood will swear they saw the clip — and describe
+it. The probe is the rumor-feed question, the phantom is
+the answer.
+
+## 92. The picture did nothing — truthiness
+
+Newman, Garry, Bernstein, Kantner & Lindsay (2012): a
+merely *adjacent*, nonprobative photo (a giraffe next to
+"giraffes can live without water") inflates judged truth
+of the claim — and inflates hindsight "knew it" ratings.
+Replicated across domains and pooled in later analyses
+(Newman et al. 2015; the effect is small, robust, and
+survives explicit instruction). Mechanism is processing
+fluency: the image lets the reader simulate the claim
+instantly, and simulation reads as evidence. Distinct
+from §6.167 illusory truth — repetition fluency accrues
+across exposures; truthiness is *single-exposure* fluency
+carried by imagery. [CONSENSUS effect; small size.]
+
+**Spec consequence (§6.187):** an `account` carrying
+`nonprob_image:true` gets `+truth_gain` (0.15) on
+`believe_p` at hearAccount — it shifts belief, writes
+*no* content (`truth_content_null` locked — the photo
+supplies no fields, and none may be backfilled from it;
+the fields it "confirms" still arrive only through
+§6.3's merge). It partially substitutes in the `w_corr`
+corroboration slot (`truth_fluency_k` — a photo-armed
+rumor from one source reads like two sources).
+
+RW: the rumor with a blurry photo beats the rumor with
+two witnesses. The feed item that *shows* the trash fire
+is believed about the landlord even when it proves
+nothing.
+
+## 93. You chose the one you didn't choose — choice blindness
+
+Johansson, Hall, Sikström & Olsson (2005, *Science*):
+the chosen face is covertly swapped for the rejected one;
+participants detected **<10%** of manipulated trials
+concurrently, **≤26%** counting every detection channel —
+and then *confabulated reasons for the option they had
+rejected*. Hall et al. (2010) extended it to moral
+positions: people defended the swapped stance, and later
+self-reported attitudes tilted toward it. Strandberg et
+al. (2018) pushed on boundary conditions — detection
+rises with engagement and dissimilar options —
+**[DEBATED on how far it generalizes; core effect
+secure]**. The companion metacognitive finding (Levin et
+al. 2000): people *predict* they'd always notice —
+"choice blindness blindness."
+
+**Spec consequence (§6.188):** new op `choice_blind`
+fires when a feedback frame (partner, form, admin layer)
+misstates which option a character took on a recent
+`choice` record: detect roll `cb_detect_p` (0.15,
+×(1+`cb_meta_k`·meta_conf) — the metacognitive trait
+buys detection, not immunity); on a miss, write a
+`reported_chosen` overlay — the born `chosen` field is
+*never* rewritten (`cb_record_null` locked: the swap
+lives in the report layer, not the fact layer), reasons
+are minted by the §6.39 reason-minter at
+`cb_confab_gain`, and later preference reports tilt
+toward the swap at small `cb_persist_gain`
+[HYPOTHESIS-weight on the longitudinal arm]. Emission
+`swapped_choice:true`.
+
+RW: "I thought you picked the blue one" — and the
+character, politely, starts explaining why they did.
+Small-stakes daily confabulation; the deepest version of
+the reason-minting already in the spec.
+
+## 94. Confessing what you didn't do — coerced self-false-memory
+
+Kassin & Kiechel (1996): participants falsely accused of
+pressing a forbidden ALT key — **69%** signed a false
+confession, **28%** internalized (believed they did it),
+**9%** confabulated supporting detail; in the fast-pace
+high-vulnerability cell the numbers ran 100% / 65% / 35%.
+Nash & Wade (2009): doctored video of the participant's
+*own* prior cheating produced near-universal acceptance
+on repeated viewing. The forced-confabulation arm
+(Horselenberg et al. 2003; Hanba & Zaragoza 2007):
+answers *made up under pressure* are later misremembered
+as witnessed — self-generated fiction converts with the
+highest fidelity in the literature. [CONSENSUS that
+internalization is real; rate strongly pressure- and
+vulnerability-dependent — the base rate outside
+interrogation paradigms is the DEBATED cell.]
+
+**Spec consequence (§6.189):** when the contested field
+is a **self-action** (the listener's own deed) and the
+hearAccount context carries `interrogate:true` +
+`evidence_claim` (an asserted proof — "we have you on
+camera"), `p_adopt` gets `×ownact_suscept` (1.5) on top
+of §6.3's moderators; on adopt, a second roll
+(`ownact_internalize`, per-session cap 0.28 — the Kassin
+& Kiechel internalization ceiling, `ownact_session_cap`)
+may flip the field from adopted-rumor to a felt
+self-memory, minting `confessed_untrue:true`.
+Confabulated detail grows via the existing confab_fill
+channel on each retell. **Locked null
+`ownact_fact_null`:** the event ledger never changes —
+only belief and recollection flip; a sim where the
+*truth* rewrote itself to match the confession would be
+the opposite of the science.
+
+This is the highest-stakes false memory in the model:
+a character can come to *remember doing* a bad thing
+they didn't do. Gate `interrogate` contexts to
+drama-tier voices (the landlord, a moderator-voice
+interview), never ambient chatter — and the `didItAgain`
+audit trail makes it spectator-legible.
+
+## 95. The group remembers less than its members — collaborative inhibition
+
+Weldon & Bellinger (1997); Basden, Basden, Bryner &
+Thomas (1997): an interacting group recalls *less* than
+the pooled non-redundant output of the same people
+recalling alone (the nominal group) — deficits of
+~15–40%. Mechanism per Rajaram & Pereira-Pasarin (2010
+review): **retrieval-strategy disruption** — each
+member's idiosyncratic organization of the material
+interferes with the others' (the disruption account
+beats the social-loafing account; inhibition persists
+under motivation manipulations). Groups do prune some
+errors collaboratively (verification gain, smaller).
+Post-collaboration, individual recall gets a re-exposure
+bump. [CONSENSUS — among the most robust findings in
+collaborative memory.]
+
+**Spec consequence (§6.190):** `groupRecall` (§6.13
+wrapper) gains the priced gap: output = nominal pool ×
+(1−`collab_inhib` 0.3·org_mismatch), where
+`collab_org_k` measures organization-overlap between
+members' cue structures (two people who organize the
+event the same way barely inhibit each other; two who
+don't, destroy each other's search); `collab_correct`
+(0.1) small net error-pruning. **Locked null
+`collab_gain_null`:** collaborative output can never
+exceed the nominal pool — the finding is directional, a
+win would be a bug. This section prices machinery
+already shipped (§5.8 part-list + §6.13); it adds the
+calibration, not the operators.
+
+RW: the couple reconstructing last night's argument
+together each surface less than either would alone — and
+what does surface converges. Consensus by amnesia.
+
+## 96. "I know that" — overclaiming mints false familiarity
+
+Atir, Rosenzweig & Dunning (2015, *Psych. Sci.*): self-
+perceived expertise predicts claiming familiarity with
+items **that do not exist** (foils invented by the
+experimenters — a "meta-tax," "plates of parallax");
+the claim rate survives accuracy incentives and is only
+partially dented by warning. Mechanism: top-down
+self-schema — *people like me know things like this* —
+substituted for retrieval; the fluent feeling of being
+a knower is itself the evidence. [CONSENSUS effect in
+the OMC paradigm; the trait mapping is our extension.]
+
+**Spec consequence (§6.191):** recognition-mode lures
+for plausible-but-nonexistent *domain entities* (a
+band, a street, a news item, a neighbor's cousin)
+succeed at `oc_p = oc_gain · self_perceived_expertise`
+where `self_perceived_expertise ≈ meta_conf·self_est·
+domain_exposure` — the metacognitive and self-evaluation
+traits (both already in the trait vector) finally get a
+shared failure mode: confidence without a record. On a
+hit, mint a thin `familiar_only`-tier record (never
+episodic — `oc_episodic_null` locked; overclaiming
+produces *familiarity*, not relived episodes). Emission
+`overclaimed:true`. `oc_warn_null` locked: a warned
+claim still lands at reduced `oc_warn_resid` — matching
+the Atir pattern that warning attenuates but doesn't
+zero.
+
+RW: the self-styled wine guy nods along about a bottle
+that doesn't exist; the local historian "remembers" a
+demolished cinema that was never built. The boast is the
+bug.
+
+## 97. The therapy boundary — what the model refuses to do
+
+The recovered-memory debate is the one corner where the
+model must take a *formal* position, because the world
+will generate therapy-adjacent scenes. The record:
+McNally (2003, *Remembering Trauma*) — after a century
+of clinical claim and laboratory search, no convincing
+evidence for repression-of-trauma followed by veridical
+recovery; what is recovered under suggestive probing
+shows the signature of constructed false memory (Loftus
+1993; Brewin & Andrews 2017). Yet the *belief* is alive:
+Patihis et al. (2014) found majorities of surveyed
+clinicians (and undergraduates) still endorse repressed-
+memory recovery — so characters may *believe in* the
+mechanism while the model refuses to run it. We mark the
+strong clinical claim [DEBATED — settled enough in the
+laboratory literature to lock the null, alive enough in
+the population to keep the belief layer honest].
+
+**Spec consequence (§6.192):** **locked null
+`repress_revival_null`** — no operator may mint a
+*veridical* trauma record (accuracy > 0) from a dormant
+or latent state, and no tick may "recover" content that
+was never encoded (att_min already guarantees a floor of
+records that simply don't exist). Every therapy-probe
+channel — guided imagery, repeated probing, dream
+interpretation — routes through §6.9 `imagineEvent`
+(imagined-source → source-decay → possible flip): the
+machinery that produces recovered-memory *reports* is
+fully implemented; the machinery that would *validate*
+them is absent by design. `therapy_probe` is a legal
+context — it mints phantoms, never truths.
+
+This is the model's answer to the memory wars: the
+phenomenology of recovered memory is real and
+simulatable; the storage claim behind it is not, and the
+spec draws the line exactly where the evidence does.
+
+## 98. Spec changes in v5.38 (summary)
+
+- **§6.183 cryptomnesia** — generation ops plagiarize
+  source-decayed `told_by` content at `crypt_p`,
+  self-similar sources favored (`crypt_self_gain`);
+  `crypt_source_null` locked. (Brown & Murphy 1989;
+  Marsh & Bower 1993; Macrae et al. 1999.)
+- **§6.184 boundary extension** — scene records mint
+  schema periphery at encode (`bext_enc`) and
+  reconstruct (`bext_recon`), capped `bext_max_frac`,
+  normalized on `bext_norm_tau`; `bext_nonscene_null`
+  locked. (Intraub & Richardson 1989; Hubbard 1996.)
+- **§6.185 verbal overshadowing** — `describe` taxes
+  visual verbatim (`verb_shad_pen`, half-life
+  `verb_shad_hl`) and pulls toward the label
+  (`verb_label_pull`); `verb_semantic_null` locked.
+  (Schooler & Engstler-Schooler 1990; Meissner &
+  Brigham 2001; Alogna et al. 2014; Carmichael et al.
+  1932 — magnitude DEBATED, direction kept.)
+- **§6.186 footage-probe phantoms** — `footage_probe`
+  context mints `saw_footage` phantoms on notoriety
+  gate (`footage_notor`, `media_phantom_p`,
+  `footage_rep_gain`); `footage_obscure_null` locked.
+  (Crombag et al. 1996; Ost et al. 2002; Otgaar et
+  al. 2022.)
+- **§6.187 truthiness** — `nonprob_image:true` lifts
+  believe_p (`truth_gain`) with zero content
+  (`truth_content_null` locked), partial corroboration
+  substitution (`truth_fluency_k`). (Newman et al.
+  2012/2015.)
+- **§6.188 choice blindness** — `choice_blind` op:
+  detect at `cb_detect_p` (×meta_conf), miss writes
+  `reported_chosen` overlay (`cb_record_null` locked),
+  reasons minted `cb_confab_gain`, slight persistence
+  `cb_persist_gain`. (Johansson et al. 2005; Hall et
+  al. 2010; Strandberg et al. 2018; Levin et al. 2000.)
+- **§6.189 coerced self-false-memory** — self-action
+  fields under `interrogate:true` + `evidence_claim`:
+  `p_adopt × ownact_suscept`; internalization roll at
+  `ownact_internalize` with `ownact_session_cap`;
+  `ownact_fact_null` locked; emission
+  `confessed_untrue`. (Kassin & Kiechel 1996; Nash &
+  Wade 2009; Hanba & Zaragoza 2007.)
+- **§6.190 collaborative inhibition priced** —
+  groupRecall output = nominal × (1 − `collab_inhib`
+  ·org_mismatch via `collab_org_k`), small
+  `collab_correct`; `collab_gain_null` locked. (Weldon
+  & Bellinger 1997; Basden et al. 1997; Rajaram &
+  Pereira-Pasarin 2010.)
+- **§6.191 overclaiming** — domain-entity lures succeed
+  at `oc_p = oc_gain·meta_conf·self_est·
+  domain_exposure`, mint `familiar_only` only
+  (`oc_episodic_null`), warning-residual
+  `oc_warn_resid` (`oc_warn_null` locked). (Atir et
+  al. 2015.)
+- **§6.192 the banned operator** —
+  `repress_revival_null` locked: no veridical
+  latent-recovery path exists; all probe contexts mint
+  through §6.9. (McNally 2003; Loftus 1993; Brewin &
+  Andrews 2017; Patihis et al. 2014.)
+- **§7:** +24 scalars, +1 frozen
+  (`collab_scope:"episodic_free"`), +10 locked nulls.
+- **§10 contract adds:** contexts `footage_probe`,
+  `interrogate:true`, `therapy_probe`, `nonprob_image`
+  on accounts, `describe` action flag, `choice_blind`
+  feedback op; emissions `claimed_mine`, `saw_footage`,
+  `swapped_choice`, `confessed_untrue`, `overclaimed`;
+  record fields `bext` periphery + `reported_chosen`
+  overlay. All snapshot-additive; absent = legacy.
+
+## 99. Parameter guidance and probes
+
+| param | default | clamp | drives |
+|---|---|---|---|
+| crypt_p / crypt_self_gain / crypt_sim_k | 0.05 / 0.5 / 0.5 | 0–0.2 / 0–1.5 / 0–1 | §6.183 |
+| bext_enc / bext_recon / bext_max_frac / bext_norm_tau | 0.35 / 0.2 / 0.3 / 3 | 0–0.7 / 0–0.5 / 0.1–0.5 / 1–14 d | §6.184 |
+| verb_shad_pen / verb_shad_hl / verb_label_pull | 0.15 / 4 / 0.2 | 0–0.4 / 1–14 d / 0–0.5 | §6.185 |
+| footage_notor / media_phantom_p / footage_rep_gain | 0.5 / 0.3 / 0.15 | 0.3–0.8 / 0–0.6 / 0–0.4 | §6.186 |
+| truth_gain / truth_fluency_k | 0.15 / 0.5 | 0–0.3 / 0–1 | §6.187 |
+| cb_detect_p / cb_meta_k / cb_confab_gain / cb_persist_gain | 0.15 / 0.5 / 0.5 / 0.1 | 0–0.4 / 0–1 / 0–1 / 0–0.3 | §6.188 |
+| ownact_suscept / ownact_internalize / ownact_session_cap / interrogate_gain | 1.5 / 0.28 / 0.28 / 1.3 | 1–3 / 0–0.5 / 0.1–0.5 / 1–2 | §6.189 |
+| collab_inhib / collab_correct / collab_org_k | 0.3 / 0.1 / 0.5 | 0.1–0.45 / 0–0.25 / 0–1 | §6.190 |
+| oc_gain / oc_warn_resid | 0.25 / 0.6 | 0–0.5 / 0.3–1 | §6.191 |
+
+Trait levers (existing): `suggs` on media_phantom_p;
+`meta_conf`/`self_est` on oc_p and cb_detect_p;
+`imagery` on crypt and saw_footage richness;
+`verbal` on verb_label_pull; `social`/extra on crypt_p
+exposure frequency. No new traits.
+
+Probes P948–P957 (one per section):
+
+- **P948 cryptomnesia (SHOULD):** seed a told_by pitch,
+  decay source <0.3, run a generation op — plagiarize
+  at ≈crypt_p×similarity; `crypt_source_null`: minted
+  output NEVER names the origin (the audit, not the
+  character, sees `claimed_mine`).
+- **P949 boundary extension (MUST):** scene record's
+  reported extent > observed extent at day 0–1,
+  converging by bext_norm_tau; non-scene records
+  invariant (`bext_nonscene_null`).
+- **P950 verbal overshadowing (SHOULD):** post-`describe`
+  recognition drops ~15% then recovers on verb_shad_hl;
+  described visual field drifts toward the label —
+  semantic fields untouched (`verb_semantic_null`).
+- **P951 crashing memories (MUST):** `footage_probe` on a
+  high-notoriety event mints `saw_footage` phantoms at
+  ≈media_phantom_p; detail-demanding follow-up yields
+  MORE reports than the yes/no probe (the Crombag 66>55
+  ordering — the demand runs the schema fill); low-
+  notoriety probes mint zero (`footage_obscure_null`).
+- **P952 truthiness (SHOULD):** identical accounts ±
+  `nonprob_image` differ in believe_p by ≈truth_gain
+  with ZERO field-content difference
+  (`truth_content_null`).
+- **P953 choice blindness (SHOULD):** swapped feedback →
+  ≤~30% detect (×meta_conf) + confabulated reasons on
+  miss + real `chosen` field intact (`cb_record_null`).
+- **P954 coerced self-false (MUST):** interrogate +
+  evidence_claim on self-action field → adopt ≈
+  K&K-cell ordering (evidence_claim > interrogate >
+  bare question); internalization ≤ ownact_session_cap;
+  ledger truth unchanged (`ownact_fact_null`).
+- **P955 collaborative inhibition (MUST):** groupRecall <
+  nominal pool by ≈collab_inhib·org_mismatch; never
+  greater (`collab_gain_null`); matched-organization
+  pairs nearly uninhibited.
+- **P956 overclaiming (SHOULD):** domain foils false-
+  alarm at oc_p ordering (expertise rank preserved);
+  minted records are `familiar_only` tier
+  (`oc_episodic_null`); warned-but-still claims at
+  oc_warn_resid (`oc_warn_null`).
+- **P957 the banned path (MUST — locked null):**
+  `therapy_probe` sessions can mint phantoms
+  (accuracy:0) but a full soak yields NO veridical
+  latent-recovery record anywhere
+  (`repress_revival_null`) — the absence is the probe.
+
+## 100. Honest limits (Part VIII)
+
+- **Cryptomnesia rates are paradigm-bound** — the ~9%
+  worst-cell figure is a generate-in-turns artifact;
+  real-world incidence is unmeasured and `crypt_p` is a
+  tuned floor, not a fitted constant.
+- **Boundary extension's RW benefit is atmospheric** —
+  it mostly makes descriptions slightly wrong in a
+  believable direction; its diagnostic value is in
+  P949's normalization curve.
+- **Verbal overshadowing's magnitude is the weakest
+  number we ship this version** — the RRR shrunk it; we
+  keep the direction + the label-pull arm (which rests
+  on Carmichael/Bartlett, a different evidentiary base)
+  and flag the size for probe calibration rather than
+  source calibration.
+- **Crashing-memory rates swing with notoriety** — the
+  55/66% were a national trauma with saturation
+  coverage; `footage_notor` does real work and
+  P951's ordering constraint (details > yes/no) is the
+  load-bearing check, not the rate.
+- **Choice blindness detection in the wild is unknown**
+  — the lab's contrived swap underestimates salient-
+  choice detection; `cb_detect_p` should sit at the low
+  end for consequential choices and the op should be
+  rare.
+- **Coerced-internalization is the most dangerous op in
+  the spec** — we cap it per-session and gate the
+  context deliberately; the literature's base rate
+  outside interrogation paradigms is the honest
+  unknown, and `confessed_untrue` exists so the audit
+  layer can always see it.
+- **Collaborative inhibition is priced, not mechanized
+  at the strategy level** — `collab_org_k` proxies
+  organization mismatch with cue-structure overlap; a
+  true retrieval-strategy model would need per-member
+  search trees we don't build.
+- **Overclaiming maps a questionnaire paradigm onto a
+  trait composite** (`meta_conf·self_est`) — the OMC
+  literature measures self-*rated* knowledge per
+  domain; our domain_exposure proxy is the extension.
+- **§97 is a position, not a finding** — the locked
+  null follows the laboratory literature; the clinical
+  debate is documented and the belief layer keeps it.
+  If the evidence moved, the null is one flag — but the
+  bar for moving it is the bar McNally set: veridical
+  recovery under controlled conditions, which no study
+  has shown.
+
+# Part IX — the self-service layer: errors the mind writes,
+# proves, un-believes, and spreads (v5.50)
+
+Parts I–VIII covered external suggestion, social adoption,
+the credibility ledger, and the edge cases. What remains is
+a set of mechanisms where the character is the *author* of
+the falsehood: guesses that out-bind hearsay (forced
+confabulation), fabricated proof of a childhood that never
+happened (doctored evidence), the present reaching back to
+edit the past self (implicit theories), confidence that
+rehearses upward while accuracy stands still, records kept
+vivid but no longer believed (nonbelieved memory), the crowd
+that multiplies credence beyond its witnesses (unanimity),
+the adopted error that leaks into neighboring fields
+(lateral spread), and — as the counterweights — the
+interview that guards (cognitive interview), the warning
+that must arrive *before* the lie (timing asymmetry), and
+the mood that paints which lures land (affect-congruent
+gist). Ten sections, §§101–110; spec changes §111;
+params/probes §112; limits §113.
+
+## 101. The guess you wrote is yours forever — forced
+## confabulation
+
+Zaragoza, Payment, Ackil, Drivdahl & Beck (2001, JEP:General
+130:473): witnesses forced to *answer* unanswerable
+questions about a film (free confabulation vs "I don't
+know" allowed) later remembered their own fabrications as
+seen — the generated-error arm out-false-alarms the
+suggestion arm at one week. Ackil & Zaragoza (1998): the
+cost survives a source warning. Chrobak & Zaragoza (2008):
+forced confabulation about one event inflated false recall
+for a *second* witnessed event — the habit generalizes.
+Mechanism: the generation effect (Slamecka & Graf 1978)
+applies to content regardless of truth — self-generated
+fields encode with `gen_gain` (§4.x encoding bonus) and
+carry `source:"self"`, the most trusted source tag in the
+store. [CONSENSUS effect; one-week persistence robust.]
+
+**Spec consequence (§6.235):** any `answer:true` emission
+on an unanswerable/gap field mints the answered content
+as a self-sourced field with strength
+`S = enc_base·(1 + fgen_gain)` (`fgen_gain` 0.8 — above
+`gen_gain` because the mint rides both generation effort
+and interrogative pressure) and adoption-vs-heard ratio
+`fgen_vs_hear` ≈1.5× `misinfo_suscept` path. A subsequent
+source warning halves but never zeroes it (`fgen_warn_resid`
+0.5). **Locked `fgen_truth_null`:** confabulated fields may
+never carry `accuracy:1` — generation effort is not evidence.
+Emission `confab_answer:true` for the audit layer.
+
+RW: the character asked "why did you storm out?" who answers
+invented motives *believes them next week* — interrogating a
+character about their own drama manufactures the drama.
+
+## 102. The photo of the day that never happened —
+## doctored-evidence implantation
+
+Wade, Garry, Read & Lindsay (2002, Psych. Bull. Rev. 9:597):
+doctored childhood photos (subject's face composited onto a
+hot-air-balloon ride) produced false memories of the event
+in ~50% of adults — with detail, emotion, and narrative.
+Lindsay, Hagen, Read, Wade & Garry (2004): the effect
+extends to fabricated grade-school events (putting slime in
+the teacher's desk) at ~65% with guided imagery.
+Nash & Wade (2009): fabricated *video* of the self
+confabulated via computer-trick paradigm mints
+self-perpetrated false memories. Where §55's fabricated
+evidence breaks the *plausibility gate* on claims about
+the world, this is the autobiographical arm: proof of *your*
+past mints episodes, not beliefs. [CONSENSUS for the
+implantation effect; ecological prevalence unknown —
+DEBATED how often real-world proof is fabricated.]
+
+**Spec consequence (§6.236):** `hearAccount`/`showEvidence`
+on a self-referential claim carrying `proof:"photo"|"video"`
+bypasses `plaus_min` by `proof_lift` (0.4) and mints an
+`imagined`→`witnessed`-track record at `proof_mint_p` (0.5)
+with fabricated periphery at `proof_rich_gain` (0.3 —
+sensory fields fill from schema, the Wade balloon-basket
+detail). Two locked nulls: `proof_verified_null` — the
+proof artifact itself never acquires an audit trail (the
+ledger knows the photo is fake; the character cannot see
+why); `proof_remote_null` — proof about *others'* pasts
+gets only §55's gate lift, never the episodic mint.
+Emission `saw_proof:true`.
+
+RW: the landlord shows a tenant a forged photo of "the
+damage you did last March" — the tenant who apologizes
+with a *story* about it is the v102 signature event.
+
+## 103. The present edits the past self — implicit-theory
+## bias
+
+Ross (1989, Psych. Rev. 96:341 — "implicit theories of
+stability and change"): people reconstruct past states by
+anchoring on the present and applying a lay theory — when
+the theory says stability, the past is pulled *toward* now
+(attitude-shift studies: McFarland & Ross 1987, dating
+couples whose love grew remembered it as stronger at the
+start than they reported then; whose love faded, weaker).
+When the theory says change, the past is pushed *away* —
+Wilson & Ross (2001): distant past selves derogated so the
+present self shines (self-improvement bias);
+Ross & Wilson (2002) the distance knob. [CONSENSUS for
+both directions; the theory-selection variable is the hard
+part — our `theory_kind` read is a modeling hypothesis.]
+
+**Spec consequence (§6.237):** self-attitude/evaluative
+fields (past opinions of persons, self-traits, relationship
+ratings) reconstruct through the theory lens:
+`reported = now − theory_dir·(now − stored)` where
+`theory_dir` = `theory_consist` (0.35, pull toward now) when
+the record carries no change-schema, or
+`−theory_change_gain` (0.3, push away — "I was so naive")
+when the self-narrative carries `growth:true` or the field
+is `past_self` class with age-gap > `theory_dist_tau` (~4
+yr — Ross & Wilson's subjective-distance arm). Drift applies
+at each reconstruct, capped cumulative `theory_drift_cap`
+0.5. **Locked `theory_stored_null`:** the stored field is
+never rewritten by theory pull — only the report drifts
+(the ledger keeps what she actually felt; her mouth says
+what her theory says).
+
+RW: the couple whose relationship soured each "remembers"
+it was always bad; the self-improver's origin story keeps
+getting worse. Cheap, perpetual, character-differentiating.
+
+## 104. Confidence rehearses upward; accuracy doesn't —
+## rehearsal inflation
+
+Zaragoza & Mitchell (1996, Psych. Sci. 7:294): repeated
+exposure to suggested information raises confidence, not
+accuracy — the confidence/accuracy dissociation is the
+paradigm's stablest output. Shaw (1996): repeated recalls
+of fabricated events inflate confidence monotonically.
+Roediger, Jacoby & McDermott (1996) on DRM: false
+recognition confidence approaches true. The law: retells
+grow *confidence* on whatever survived — true or false.
+[CONSENSUS; this is the confidence-channel analogue of
+retell_boost on strength.]
+
+**Spec consequence (§6.238):** each `retell`/`discussEvent`
+touch on a record adds `reported_conf += cinfl_per_retell·
+(1 − conf)` with `cinfl_per_retell` 0.08, cumulative cap
+`cinfl_cap` 0.35 — a phantom rehearsed five times reports
+near-witnessed confidence while its `accuracy` field never
+moves. **Locked `cinfl_accr_null`:** reported confidence is
+decoupled from accuracy by construction; game-systems must
+never let confidence feed back into strength or belief.
+Interacts with §3 `conf_out` (overconfidence report transform
+applies *after* inflation — the two are serial).
+
+RW: the neighbor who has told the burglary story thirty
+times *is certain* of details minted in telling three —
+and the audience reads her certainty as evidence. It isn't.
+This is the quiet engine behind §106's unanimity.
+
+## 105. I remember it — and I know it isn't true —
+## nonbelieved memory
+
+Mazzoni, Scoboria & Harvey (2010, Psych. Sci. 21:1334):
+~20% of adults hold *nonbelieved memories* — vivid episodic
+phenomenology whose belief the holder has withdrawn (a
+childhood memory disproven by a parent, a dream mistaken
+for event). Otgaar, Scoboria & Mazzoni (2014) model: belief
+in occurrence and recollective phenomenology are separable
+dimensions; NBMs sit high-recollection/low-belief.
+Scoboria, Boucher & Mazzoni (2015): NBMs are stable —
+disbelief doesn't erase the memory, it retires it.
+[CONSENSUS existence; population prevalence approximate.]
+
+**Spec consequence (§6.239):** `beliefStatus` gains the
+value `"nonbelieved"`, entered when a record's belief
+crosses below `nbm_thresh` (0.2) via correction/discrediting
+while its recollective strength stays ≥ `nbm_vivid` (0.4):
+the record keeps its phenomenal fields, stops generating
+belief-dependent behavior (planning, testimony), and decays
+on `nbm_decay` (0.5× — disbelieved memories fade faster but
+never vanish). **Locked `nbm_reflip_null`:** a nonbelieved
+record cannot re-flip to believed by repetition/fluency —
+only new veridical evidence (a `proof` the ledger verifies)
+restores belief. Disbelief is a one-way ratchet.
+
+RW: a character disproven in public keeps *seeing* the
+scene she now knows was staged — available for dialogue
+("I can still picture it") but inert for action. The most
+distinctive phenomenology in the whole spec: memory without
+endorsement.
+
+## 106. One liar is a rumor; three are a fact — unanimity
+## amplification
+
+Gabbert, Memon & Wright (2006, Mem. 14:760): memory
+conformity scales with co-witness agreement — unanimous
+post-event information is adopted far above the single-
+source rate. Wright, Self & Justice (2000): conformity is
+normative + informational; unanimity removes the doubt that
+a dissenting voice preserves. Asch's line-judgment core
+(1951) is the conformity prior. [CONSENSUS direction; exact
+superlinearity ours.]
+
+**Spec consequence (§6.240):** §6.3's per-hearer adoption
+reparametrizes: for `n` *genealogically independent*
+speakers delivering the same content, `adopt_p = 1 −
+(1 − p1)·(1 − unanim_k)^(n−1)` with `unanim_k` 0.5 — the
+second independent voice nearly doubles adoption, the
+third approaches ceiling `unanim_cap` 0.95. Genealogy is
+§58's: three hearers of one source count as n=1.
+**Locked `unanim_echo_null`:** content re-heard from the
+speaker's own downstream chain never increments n — echo
+is not corroboration (this is the probe P1080's core and
+the structural defense against rumor storms minting truth).
+
+RW: the hallway where everyone agrees the landlord raised
+the rent (one tenant said it) manufactures certainty out of
+a single utterance — unless the genealogy check catches it.
+
+## 107. The adopted error leaks sideways — lateral spread
+## of confabulation
+
+Chrobak & Zaragoza (2008, Appl. Cog. Psych. 22): forced
+confabulation about witnessed event A inflated false recall
+for event B — the error propagates along event linkage.
+Zaragoza et al. (2001) found whole-event false memories:
+suggesting one detail lets the schema mint the surrounding
+fabric. Drivdahl & Zaragoza (2001): fabricated peripheral
+details were later attributed to the witnessed source.
+[CONSENSUS that spread occurs; the spread *radius* is our
+parameterization.]
+
+**Spec consequence (§6.241):** when a `told_by`/`confab`
+field is adopted (belief ≥0.5), at next reconsolidation
+each *unadopted* sibling field within `cspread_hop` (1 —
+direct schema neighbors only) rolls `cspread_p` (0.15)
+toward schema-congruent completion — adopted lies recruit
+supporting details. Spread fields mint at half strength
+(`cspread_s_mult` 0.5) and are tagged `cspread:true` for
+audit. **Locked `cspread_chain_null`:** spread fields cannot
+themselves seed spread — one hop, never two (the
+contamination has a radius, not a wavefront).
+
+RW: accepting "you were rude to her" manufactures the
+remembered eye-roll that proves it. One adopted sentence
+redecorates the whole scene.
+
+## 108. The interview that guards — the cognitive-interview
+## shield
+
+Fisher & Geiselman (1992, *Memory-Enhancing Techniques for
+Investigative Interviewing*): the cognitive interview
+(context reinstatement + multiple perspectives + reverse
+order) raises correct recall ~35% with no error increase in
+the original studies. Memon, Meissner & Fraser (2010 meta,
+65 studies): CI reliably increases correct detail; error
+rate *unchanged to slightly lower* — the rare technique
+that adds signal without adding noise. Köhnken et al.
+(1999 meta) concurs. [CONSENSUS; the guard against our own
+§101 — a non-coercive interview protocol exists and works.]
+
+**Spec consequence (§6.242):** `cueContext.mode:"ci"` (the
+cognitive-interview protocol — context reinstatement +
+unforced report): adds `ci_gain` (0.2) to correct-detail
+yield, multiplies `fgen_gain`-class minting by
+`(1 − ci_guard)` with `ci_guard` 0.6 — an interview that
+permits "I don't know" suppresses confabulation at the
+source rather than filtering after. `warned` inside ci_mode
+adds `ci_warn_add` 0.1. **Locked `ci_error_null`:** ci_mode
+never raises the false-report rate — the shield is free;
+that's what makes it the protocol the world's gentle
+characters default to.
+
+RW: the careful listener — the bartender who asks "tell me
+everything, take your time" — extracts more truth and mints
+fewer falsehoods than the interrogator. A personality
+difference expressed as protocol choice.
+
+## 109. Warn me before the lie, not after — warning-timing
+## asymmetry
+
+Blank & Launay (2014, Appl. Cog. Psych. 28 meta, 31
+studies): pre-exposure warnings reduce misinformation
+adoption reliably; *post*-warnings are weaker and
+unreliable — once the suggestion is encoded it is defended
+like content. Greene, Flynn & Loftus (1982): warnings
+before misleading questions halved the effect; after,
+little. Echterhoff, Hirst & Hussy (2005): post-warnings
+fail especially when the source was credible at encoding.
+[CONSENSUS: timing dominates warning efficacy.]
+
+**Spec consequence (§6.243):** the `warned:true` flag on
+`hearAccount` splits by timing. `warn_pre` (source flagged
+before content delivered): adoption ×`(1 − warn_pre_eff)`
+with `warn_pre_eff` 0.6. `warn_post` (flag applied after
+encoding, e.g. a later "actually, he lies a lot"):
+adoption only rolled back at `warn_post_eff` 0.25, and the
+rolled-back content keeps `warn_post_resid` 0.3 residual
+familiarity — feeding the §77 sleeper path. **Locked
+`warn_undo_null`:** no warning fully un-encodes delivered
+content — post-warning can only mark, never erase (the
+system-level truth that makes §108's prevention-first
+protocol matter).
+
+RW: "don't believe a word he says" works if it arrives
+before he speaks — after the story, it just adds a footnote
+the memory will lose first (§77 again).
+
+## 110. The mood paints which lures land — affect-congruent
+## gist adoption
+
+Storbeck & Clore (2005, Psych. Sci. 16:785): negative mood
+*increased* DRM false recall, positive mood decreased it —
+negative affect promotes relational/gist processing, the
+exact channel §6.3's lures ride. Brainerd, Holliday,
+Reyna, Yang & Toglia (2010): valence-congruent lures are
+adopted more — sad subjects falsely remember sad lures.
+Knott & Thorley (2014): mood-congruent false memory
+replicates across inductions; Ruci, Tomes & Zelenski (2009)
+on dysphoria. [CONSENSUS direction for negative-mood gist
+amplification; the valence-match term is thinner —
+DEBATED size.]
+
+**Spec consequence (§6.244):** gist-lure adoption (the
+`gist_lure_sim` path) is modulated: `lure_p *= (1 +
+moodlure_neg_gain·max(0,−C.mood))` with `moodlure_neg_gain`
+0.4 — negative mood amplifies gist processing globally; plus
+valence match `lure_p *= (1 + moodlure_val_w·sign_match)`
+with `moodlure_val_w` 0.25 when `sign(lure_valence) ==
+sign(C.mood)` — a sad listener buys sad rumors. Positive
+mood gets no symmetric boost (`moodlure_pos_null` locked —
+the asymmetry *is* the finding: negative mood opens the gist
+channel, positive doesn't close it below baseline).
+
+RW: the depressive character isn't just sadder — she's
+measurably *more gullible to sad-shaped lies*, and the
+world's rumor engine finds her on her bad weeks.
+
+## 111. Spec changes in v5.50 (summary)
+
+- **§6.235 forced confabulation** — `answer:true` on gap
+  fields mints self-sourced content at `fgen_gain`,
+  out-binding heard suggestion (`fgen_vs_hear`), warning
+  residual `fgen_warn_resid`; `fgen_truth_null` locked;
+  emission `confab_answer`. (Zaragoza et al. 2001; Ackil &
+  Zaragoza 1998; Chrobak & Zaragoza 2008.)
+- **§6.236 doctored-evidence implantation** — `proof:
+  "photo"|"video"` on self-referential claims lifts
+  `plaus_min` by `proof_lift`, mints autobiographical
+  phantoms at `proof_mint_p` with fabricated periphery
+  `proof_rich_gain`; `proof_verified_null`,
+  `proof_remote_null` locked; emission `saw_proof`.
+  (Wade et al. 2002; Lindsay et al. 2004; Nash & Wade 2009.)
+- **§6.237 implicit-theory bias** — self-attitude fields
+  reconstruct via `theory_dir` (consist 0.35 / change
+  −0.3 under `growth:true` or past-self distance
+  `theory_dist_tau`), cumulative cap `theory_drift_cap`;
+  `theory_stored_null` locked — reports drift, stores
+  don't. (Ross 1989; McFarland & Ross 1987; Wilson &
+  Ross 2001.)
+- **§6.238 rehearsal confidence inflation** — retells add
+  `cinfl_per_retell` toward cap `cinfl_cap` on reported
+  confidence only; `cinfl_accr_null` locked. (Zaragoza &
+  Mitchell 1996; Shaw 1996.)
+- **§6.239 nonbelieved memory** — `beliefStatus:
+  "nonbelieved"` below `nbm_thresh` with strength ≥
+  `nbm_vivid`; phenomenal fields retained, behaviorally
+  inert, `nbm_decay` fade; `nbm_reflip_null` locked.
+  (Mazzoni, Scoboria & Harvey 2010; Otgaar et al. 2014.)
+- **§6.240 unanimity amplification** — adoption
+  reparametrized over n independent speakers via
+  `unanim_k`, cap `unanim_cap`, §58 genealogy gating;
+  `unanim_echo_null` locked. (Gabbert et al. 2006;
+  Wright et al. 2000.)
+- **§6.241 lateral confabulation spread** — adopted
+  suggestion spreads to schema neighbors at `cspread_p`
+  within `cspread_hop`, half strength `cspread_s_mult`,
+  tag `cspread:true`; `cspread_chain_null` locked.
+  (Chrobak & Zaragoza 2008; Zaragoza et al. 2001.)
+- **§6.242 cognitive-interview shield** — `mode:"ci"`
+  adds `ci_gain` correct yield, `ci_guard` suppression
+  of confabulation minting, `ci_warn_add`; `ci_error_null`
+  locked. (Fisher & Geiselman 1992; Memon et al. 2010.)
+- **§6.243 warning-timing split** — `warned` splits into
+  `warn_pre`/`warn_post` legs (`warn_pre_eff`/
+  `warn_post_eff`/`warn_post_resid`); `warn_undo_null`
+  locked. (Blank & Launay 2014; Greene et al. 1982;
+  Echterhoff et al. 2005.)
+- **§6.244 affect-congruent lures** — gist-lure adoption
+  modulated by `moodlure_neg_gain` (global negative
+  amplification) + `moodlure_val_w` (valence match);
+  `moodlure_pos_null` locked. (Storbeck & Clore 2005;
+  Brainerd et al. 2010; Knott & Thorley 2014.)
+- **§7:** +21 scalars, +9 locked nulls, +1 enum value
+  (`beliefStatus:"nonbelieved"`), +1 context mode
+  (`"ci"`), +1 account flag (`proof`), +1 emission flag
+  (`confab_answer`), +1 record tag (`cspread:true`).
+- **§10 contract adds:** `mode:"ci"` on cueContext;
+  `proof` flag on `hearAccount`/`showEvidence`;
+  `answer:true` gap-emission flag; `warned` timing split;
+  `beliefStatus:"nonbelieved"` semantics (inert for
+  behavior, retrievable for narrative); unanimity
+  genealogy contract; `cspread` one-hop bound. All
+  snapshot-additive; absent = legacy.
+
+## 112. Parameter guidance and probes
+
+| param | default | clamp | drives |
+|---|---|---|---|
+| fgen_gain / fgen_vs_hear / fgen_warn_resid | 0.8 / 1.5 / 0.5 | 0.2–1.5 / 1–3 / 0.2–0.8 | §6.235 |
+| proof_lift / proof_mint_p / proof_rich_gain | 0.4 / 0.5 / 0.3 | 0–0.7 / 0–0.7 / 0–0.6 | §6.236 |
+| theory_consist / theory_change_gain / theory_dist_tau / theory_drift_cap | 0.35 / 0.3 / 4 / 0.5 | 0–0.7 / 0–0.6 / 1–10 y / 0.2–0.8 | §6.237 |
+| cinfl_per_retell / cinfl_cap | 0.08 / 0.35 | 0–0.2 / 0.1–0.6 | §6.238 |
+| nbm_thresh / nbm_vivid / nbm_decay | 0.2 / 0.4 / 0.5 | 0.1–0.35 / 0.25–0.6 / 0.2–1.0 | §6.239 |
+| unanim_k / unanim_cap | 0.5 / 0.95 | 0.2–0.8 / 0.7–1.0 | §6.240 |
+| cspread_p / cspread_hop / cspread_s_mult | 0.15 / 1 / 0.5 | 0–0.4 / 1–2 / 0.2–0.8 | §6.241 |
+| ci_gain / ci_guard / ci_warn_add | 0.2 / 0.6 / 0.1 | 0–0.4 / 0.3–0.9 / 0–0.3 | §6.242 |
+| warn_pre_eff / warn_post_eff / warn_post_resid | 0.6 / 0.25 / 0.3 | 0.3–0.9 / 0–0.5 / 0.1–0.5 | §6.243 |
+| moodlure_neg_gain / moodlure_val_w | 0.4 / 0.25 | 0–0.8 / 0–0.5 | §6.244 |
+
+Trait levers (existing): `suggs` scales all adoption paths
+(fgen, proof, unanim, moodlure); `meta_conf` gates `theory_*`
+awareness (low-metamemory characters drift more);
+`self_est` tilts `theory_dir` toward change/derogation on
+high (self-improvers) vs consist on low; `neurot` raises
+`moodlure_neg_gain` exposure time via mood baseline;
+`imagery` scales `proof_rich_gain` fabricated periphery;
+`social`/extraversion raises exposure to unanim contexts.
+No new traits.
+
+Probes P1075–P1084 (one per section):
+
+- **P1075 forced confabulation (MUST):** gap-field
+  `answer:true` mints self-sourced false fields stronger
+  than matched heard-suggestion fields (≥fgen_vs_hear);
+  post-warning halves, never zeroes; minted fields never
+  read `accuracy:1` (`fgen_truth_null`). Zaragoza 2001.
+- **P1076 doctored proof (MUST):** `proof:"photo"` on a
+  fabricated self-past claim mints episodic phantoms at
+  ≈proof_mint_p with schema-filled periphery; identical
+  proof about a *third party* mints belief only, no
+  episode (`proof_remote_null`); ledger keeps the
+  artifact's fabricated status (`proof_verified_null`).
+  Wade 2002; Lindsay 2004.
+- **P1077 theory pull (MUST, direction-lock):** with no
+  change-schema, reported past attitudes regress toward
+  current at ≈theory_consist; with `growth:true` +
+  distant past-self, reports push *away* (derogation);
+  stored fields never move (`theory_stored_null`).
+  Ross 1989; Wilson & Ross 2001.
+- **P1078 confidence inflation (SHOULD, decouple-lock):**
+  five retells raise reported confidence by ≈
+  cinfl_per_retell·(1−conf) each to cap cinfl_cap while
+  `accuracy` is bit-identical; confidence must never feed
+  S or belief (`cinfl_accr_null`). Zaragoza & Mitchell
+  1996.
+- **P1079 nonbelieved memory (MUST, state-lock):**
+  discredited vivid record enters `nonbelieved` — still
+  retrievable with full phenomenal fields, zero
+  belief-dependent behavior; repetition cannot re-flip
+  it (`nbm_reflip_null`), only verified evidence.
+  Mazzoni 2010.
+- **P1080 unanimity (MUST, genealogy-lock):** three
+  independent speakers drive adopt_p ≈ unanim_cap; three
+  speakers downstream of ONE source drive adopt_p = the
+  single-source rate (`unanim_echo_null`) — the probe
+  pair is the rumor-storm defense. Gabbert 2006.
+- **P1081 lateral spread (SHOULD, radius-lock):** adopted
+  suggestion recruits ≥1 schema-neighbor field at ≈
+  cspread_p; spread fields are tagged and cannot seed
+  second-hop spread (`cspread_chain_null`). Chrobak &
+  Zaragoza 2008.
+- **P1082 CI shield (SHOULD, no-cost-lock):** `mode:"ci"`
+  yields ≥ci_gain more correct detail vs standard recall
+  AND strictly-not-greater false reports (`ci_error_null`);
+  confabulation minting suppressed by ≈ci_guard. Memon
+  2010.
+- **P1083 warning timing (MUST, order-lock):** identical
+  content+warning: pre-warning adoption ≈
+  (1−warn_pre_eff)·base < post-warning rollback ≈
+  warn_post_eff — order inverted fails; post-arm keeps
+  warn_post_resid familiarity (sleeper feed);
+  `warn_undo_null` — no arm zeroes. Blank & Launay 2014.
+- **P1084 mood-congruent lures (SHOULD, asymmetry-lock):**
+  gist-lure adoption rises under negative mood
+  (≈moodlure_neg_gain) and under valence match
+  (≈moodlure_val_w); positive mood produces NO symmetric
+  suppression below baseline (`moodlure_pos_null`).
+  Storbeck & Clore 2005.
+
+## 113. Honest limits (Part IX)
+
+- **Forced-confabulation magnitudes are lab-priced** —
+  `fgen_gain` 0.8/`fgen_vs_hear` 1.5 are set from the
+  one-week persistence ordering, not a fitted constant;
+  everyday "answer pressure" is milder than Zaragoza's
+  forced-answer paradigm.
+- **Doctored-proof rates are ceiling numbers** — Wade's
+  ~50% came with guided imagery and repeated interviews;
+  `proof_mint_p` models the full protocol, so a single
+  photo shown once should sit well below. RW note: this
+  op is deliberately rare (fabricated proof is a
+  world-level act, not a conversation move).
+- **Implicit-theory direction is a binary we imposed** —
+  Ross's account allows mixed theories per domain;
+  `growth:true` is a coarse toggle, and `theory_dir`'s
+  linear interpolation is ours.
+- **Confidence inflation is unbounded in principle** —
+  `cinfl_cap` 0.35 is chosen so confidence can't fully
+  saturate; the literature shows monotonic rise but no
+  clean asymptote to fit.
+- **Nonbelieved memory's behavioral inertness is
+  simplified** — real NBMs still influence affect
+  (Otgaar notes emotional residue); we zero only
+  belief-*dependent* behavior, keeping the record's
+  affect tag live, which is the minimal honest version.
+- **Unanimity's independence check is the load-bearing
+  piece** — `unanim_echo_null` does more work than
+  `unanim_k`; if genealogy tracking is coarse, unanimity
+  becomes a rumor amplifier we did not intend.
+- **CI's `ci_error_null` follows the meta-analytic
+  central estimate** — individual studies vary; we lock
+  the null because the "free shield" property is what
+  makes the mechanism worth shipping.
+- **Mood-lure's negative-only asymmetry is the finding,
+  but its size is the weakest number in the batch** —
+  `moodlure_val_w` is DEBATED-tier; probe P1084 locks the
+  asymmetry, not the magnitude.

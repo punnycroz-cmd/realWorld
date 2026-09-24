@@ -1987,3 +1987,1682 @@ rehearsed, and the first decent cue brings it all back.
   stronger inhibitory claims are intentionally NOT adopted —
   §24's TNT is the strong leg already.
 
+# PART VI (v62, 2026-09-23) — the cue's direction, echo, and keeper
+
+v50 asked what a cue is worth; v62 asks the questions the bout itself
+raised: is a cue reversible (§60), does a partial hit feed back as a
+new cue (§61), can an OBJECT carry a cue the brain never encoded
+(§62), does a loud cue do a quiet cue's job in prospective memory
+(§63), who gives the searcher permission to stop guessing (§64), does
+asking the same question twice wear a path (§65), and does a failed
+search reset on a fresh angle (§66). Spec changes land in
+`memory-model-spec.md` v5.10 §5.57–5.62; probes P647–P656.
+
+## 60. Directional cues — associations do not run both ways
+
+- **Kahana & Caplan (2002)** JML 46:111 and the surrounding
+  paired-associate record: forward recall (cue→target in study
+  order) reliably exceeds backward recall (target→cue) under matched
+  conditions; asymmetric-association models fit the data, symmetric
+  ones do not. Rizzuto & Kahana (2001, JML 44) made the same point
+  computationally — the autoassociator can add links it cannot
+  reverse for free. **[CONSENSUS for directionality; the size of the
+  asymmetry is paradigm-dependent — DEBATED]**
+- The social-memory version is older than the lab version: a face is
+  a strong cue for the episode ("I know I've seen him — at the
+  hearing"), while the episode is a weaker cue for the face — and the
+  name leg is weakest of all (§47 Baker paradox already owns the
+  name tier). Person↔event links are likewise directional: "who was
+  at the party?" (event→people) and "when did you last see Jules?"
+  (person→event) are not the same query.
+- Model consequence (§5.57): cue match is now direction-weighted.
+  cueVector entries mint at encoding with an implicit forward
+  orientation (context→content); a reverse query (content cue asks
+  for context) contributes `backcue_mult` ≈ 0.6. Person→event and
+  event→person are the same link read in both directions —
+  `dir_asym` applies per queried field pair, not per record.
+  Recognition mode is exempt (copy cues have no direction).
+
+## 61. Iterated cuing — the fragment is the next cue
+
+- **Norman & Bobrow (1979)** Cog Psych 11:107–123 — "Descriptions":
+  retrieval proceeds through intermediate partial descriptions; a
+  retrieved fragment becomes the next probe's specification.
+- **Williams & Hollan (1981)** Cog Sci 5:87–119 — think-aloud
+  protocols of long-term search: rememberers visibly cycle —
+  retrieve a context, use it to ask a better question, retrieve
+  again. The "meta-knowledge" loop is the mechanism behind §49/§5.42
+  generative descent; v62 generalizes it beyond the period
+  hierarchy.
+- **Koriat & Levy-Sadot (2001)** JEP:G 130:395 — accessibility
+  accrues with each pass: partial products change the FOK and the
+  next search move. This is also why "let me think about it" works —
+  the second pass runs on a richer C.
+- **[CONSENSUS as protocol description; pass-counts are our
+  parameterization — HYPOTHESIS]**
+- Model consequence (§5.58): after a generative bout that emitted
+  partial fields but no target, the emitted fragment set F folds
+  back into C for `recue_passes` ≤ 2 further scans at reduced
+  breadth (`recue_breadth` ≈ 0.6). Each pass re-runs §5.2 with F as
+  additional cue fields (self-origin, so `selfcue_mult` applies —
+  the character generated them). Termination: a pass that adds no
+  new field ends the loop (marginal-productivity stop — pairs with
+  §5.22's failure stop; the two bound effort from above and below).
+  The loop is why a character can say "wait — it was raining that
+  night... and the power was out... it was the storm week" and land
+  on the record three probes late.
+
+## 62. Evocative objects — the cue outside the head
+
+- **Heersmink (2015)** Rev Phil Psych 6:321 ("Dimensions of
+  integration in embedded and extended cognitive systems") + Turkle
+  (2007, *Evocative Objects*): keepsakes, instruments, and rooms
+  function as standing retrieval cues — distributed memory, not
+  metaphor. **[CONSENSUS as phenomenon; quantitative weights are
+  ours — HYPOTHESIS]**
+- **Henkel (2014)** Psych Sci 25:396 ("point-and-shoot memories",
+  verified): photographing an object whole *impaired* later memory
+  for it vs observing — the camera offloads attention; zooming to
+  frame a detail eliminated the impairment (attention re-engaged).
+  **Barasch, Diehl, Silverman & Zauberman (2017)** JPSP 112:741
+  found the complement: photo-taking *can* enhance visual memory
+  through the attention mechanism when the photographer stays
+  engaged; the impairment is the offloading leg, not the act.
+  **[DEBATED — sign depends on engagement; we model both arms]**
+- Review side: Koutstaal et al. (1998/1999) and the autobiographical
+  photo-cueing literature — reviewing photos reinstates; the photo
+  is a durable external cueVector.
+- Model consequence (§5.59): the world gains `artifact` cue anchors.
+  An Event flagged `photographed:true` with `photoMode:"whole"`
+  takes `photo_offload_pen` (×≈0.85 on E — encoding side, attested);
+  `photoMode:"detail"` takes none (locked null `photo_detail_null`).
+  The artifact mints an `objLink` on the record — a standing cue
+  field with `obj_cue_w` ≈ 0.15 that does NOT decay with place:
+  seeing the keepsake cues the event from anywhere, years later
+  (sensory_age_slope applies — old objects reach old memories).
+  Rehearsing with the artifact present (showing the photo while
+  retelling) counts as a §5.9 retrieval for the linked record.
+
+## 63. Pop-out cues — the loud nonfocal cue
+
+- **McDaniel & Einstein (1993)** Memory 1:23–41 (verified):
+  unfamiliar and *context-distinctive* PM target cues significantly
+  improved prospective remembering — distinctiveness partially
+  substitutes for focality.
+- **Brandimonte & Passolunghi (1994)** QJEP 47A:565: cue-
+  distinctiveness benefits grow with retention interval — the odd
+  cue survives the delay that kills the ordinary one.
+- Einstein & McDaniel (2005, Curr Dir 14:286) multiprocess framing:
+  a distinctive cue in a sparse field earns spontaneous retrieval
+  without full monitoring. **[CONSENSUS for direction; magnitude
+  SINGLE-paradigm anchored]**
+- Model consequence (§5.60): PM cues gain a `popout` grade computed
+  from the ambient distinctiveness the game already tracks — a cue
+  event whose novelty ≥ `distinct_gate` (reused — the isolation
+  shield's threshold) in its context gets `pm_popout_gain` ≈ 0.2
+  added to `pm_monitor_p`, bridging nonfocal→focal: "hand the parcel
+  to the man in the parrot suit" needs less monitoring than "hand it
+  to Jules." The benefit grows with arming delay —
+  `pm_popout_gain·(1 + log1p(delayDays/7))` — matching Brandimonte &
+  Passolunghi's interval interaction.
+
+## 64. The asker's license — report option is part of the cue
+
+- **Koriat & Goldsmith (1996)** PBR 103:490 — the monitoring-and-
+  control model: memory report = retrieval accuracy × report policy.
+  Forced responding raises quantity and lowers accuracy; the free-
+  report option lets rememberers withhold. The accuracy/quantity
+  trade-off is a response-decision variable, not a trace property.
+  **[CONSENSUS — one of the best-replicated effects in the field]**
+- Demand characteristics (Orne 1962; eyewitness forced-choice
+  paradigms): a direct question from a present person obliges a
+  search AND pressures emission — "do you remember?" answered with
+  silence costs face. The rapport literature (cognitive-interview
+  follow-ups; Vallano & Schreiber Compo 2011) adds the cooperative
+  leg: a trusted asker lowers the emission threshold productively
+  (more volunteered detail, not more confabulation), a hostile or
+  demanding asker lowers it unproductively.
+- Model consequence (§5.61): a retrieval context carries
+  `asker:{rel, forced}`. `forced:true` probes (interrogation, a
+  pointed "well?") switch emission to forced mode — emit the best
+  candidate above `forced_floor` ≈ 0.25 rather than the honest θ,
+  flagging it `hedged:true` (the "I think so?" answer — quantity up,
+  accuracy down, P653 sign-locks the trade-off). A trusted asker
+  (rel ≥ close) adds `rapport_gain` ≈ 0.1 to search breadth — the
+  character digs deeper for a friend, not harder for a stranger.
+
+## 65. Route practice — the probe wears a path
+
+- Retrieval practice literature, read cue-side: what strengthens in
+  repeated testing is the *cue→target route*, not an abstract trace
+  (Karpicke & Roediger 2008's massed-versus-tested asymmetry;
+  Carpenter & DeLosh 2006, Applied Cog Psych 20:123 — poor cues gain
+  the most from retrieval practice; cue elaboration under weak
+  cues). Re-asking the SAME question is a different operation from
+  asking a DIFFERENT question about the same memory.
+- **[CONSENSUS that repeated retrieval strengthens; the cue-route
+  decomposition is our operationalization — HYPOTHESIS]**
+- Model consequence (§5.62): cueVector field keys mint
+  `routeHeat[j]` — each successful recall via field j adds
+  `route_gain` ≈ 0.05 to that field's w_j for that record (capped at
+  `route_cap` ≈ 1.5× base; decays at `route_hl` ≈ 30d — worn paths
+  fade, they are not grooves). Consequences: the question a
+  character has answered six times comes out fast and polished
+  (route-rehearsed — the "party story" quality); a novel question
+  about the same event starts cold. Combined with §5.22 sampling
+  this produces the human asymmetry: high-route fields dominate the
+  bout, crowding out the details nobody ever asks about.
+
+## 66. Fresh-angle restart — a failed search resets on a new cue
+
+- **Geiselman & Fisher** cognitive-interview mnemonics (Fisher &
+  Geiselman 1992, *Memory-Enhancing Techniques for Investigative
+  Interviewing*): "recall in different order" and "recall from
+  another perspective" are instructed *restart* operations —
+  changing the retrieval path recovers items the first pass missed.
+  CI meta-analyses (Köhnken et al. 1999; Memon, Meissner & Fraser
+  2010, Psych Bull 136:340 — d ≈ 1.2 correct-detail gain, small
+  error cost) place a large share of the CI benefit in the
+  varied-retrieval mnemonics.
+- Mechanistically this is cue-freshness: a second bout on the SAME
+  cue vector inherits §5.13 output interference — the emitted items
+  suppress the rest. A genuinely different cue vector starts a new
+  bout on a new partition of the search set.
+- **[CONSENSUS that varied retrieval helps; the restart-not-
+  continuation operationalization is ours — HYPOTHESIS]**
+- Model consequence (§5.62 tail): when a voluntary bout ends in the
+  §5.22 failure stop, a subsequent bout whose cue keys overlap the
+  failed bout's keys by < `restart_overlap` ≈ 0.4 is a RESTART —
+  output-interference counters reset, kmax restored. Overlap ≥ the
+  gate is a CONTINUATION — counters persist (re-asking the same
+  question immediately is the worst probe, matching the interview
+  literature's warning against repeated identical questioning).
+
+## 67. Cue hierarchy — v62 additions to the §57 table
+
+| Cue/mechanism | v62 status |
+|---|---|
+| cue direction | NEW — forward full-weight, reverse ×backcue_mult (§60) |
+| iterated recue | NEW — emitted fragments re-enter C, ≤2 passes (§61) |
+| artifact/object | NEW — objLink standing cue, age-scaled; photo offload pen at encode (§62) |
+| PM pop-out | NEW — distinctive nonfocal cue ≈ focal, delay-growing (§63) |
+| asker license | NEW — forced probes drop floor + hedge flag; trusted askers widen breadth (§64) |
+| route heat | NEW — per-field practiced-cue weight, capped + decaying (§65) |
+| bout restart | NEW — low-overlap new cues reset output interference (§66) |
+
+## 68. Validation probes P647–P656 (v62 suite)
+
+- **P647 directionality (MUST — sign-locked):** at matched overlap
+  and df, forward queries (context→content) out-recall reverse
+  queries by ≥1.3× on sparse cue sets; recognition-mode probes show
+  no asymmetry (Kahana & Caplan 2002).
+- **P648 iterated cuing (SHOULD):** a generative bout allowed
+  recue passes surfaces strictly more targets than one capped at
+  direct-only; the marginal yield of pass 2 < pass 1 (diminishing —
+  Norman & Bobrow descriptions).
+- **P649 evocative object (MUST):** presence of a linked artifact
+  raises recall of the linked record vs a matched unlinked record at
+  equal cue overlap; the lift is preserved at old record ages where
+  place reinstatement is the only rival cue (sensory-age scaling —
+  the keepsake outlasts the apartment).
+- **P650 photo offload (MUST — two arms):** `photographed:"whole"`
+  events encode weaker (lower E) than matched observed events;
+  `photographed:"detail"` events show NO deficit (locked null —
+  Henkel 2014 zoom arm); photo review strengthens the linked record
+  (Koutstaal arm).
+- **P651 PM pop-out (SHOULD):** a nonfocal PM cue with ambient
+  novelty ≥ `distinct_gate` fires at ≥0.8× the focal rate, vs ≤0.6×
+  for matched ordinary nonfocal cues; the advantage grows with
+  arming delay (Brandimonte & Passolunghi interval arm).
+- **P652 asker license (MUST — sign-locked):** forced probes emit
+  more total fields AND lower field accuracy than free probes on the
+  same store (Koriat & Goldsmith trade-off); trusted askers raise
+  search breadth without raising the error share.
+- **P653 hedged flag (SHOULD):** forced-mode emissions carry
+  `hedged:true` and downstream hearsay propagation (§6.x) inherits
+  the flag at reduced confidence — forced answers enter the rumor
+  ledger marked weak, not clean.
+- **P654 route practice (SHOULD):** a field probed ≥5× on the same
+  record recalls at ≥1.2× its base-field rate while an equally-
+  encoded never-probed field stays at base; route heat decays —
+  re-probe after `route_hl` shows regression toward base.
+- **P655 restart vs continuation (SHOULD):** after a failed bout, a
+  low-overlap cue set yields higher recall than a re-asked identical
+  set on the same records (CI varied-retrieval; Köhnken 1999).
+- **P656 cue-ecology regression (MUST):** P9/P10/P16 (gating,
+  saturation, recognition-failure) still pass — direction weighting,
+  recue passes, and route heat all route through §5.1/§5.2, never
+  around them.
+
+## 69. Honest limits (v62 additions)
+
+- `backcue_mult` is direction-anchored (Kahana & Caplan) but the
+  magnitude is list-paradigm — autobiographical links may be nearer
+  symmetric; flagged.
+- `recue_passes` = 2 is a compute choice; Williams & Hollan's
+  protocols showed longer chains in motivated rememberers. The
+  marginal-stop rule bounds cost; pass depth is clamped, not fitted.
+- `obj_cue_w` has no direct experimental calibration — evocative-
+  objects work is qualitative; we anchor it below place reinstatement
+  and let P649 test the ordering.
+- The photo literature is split: Henkel (impairment) and Barasch
+  (attention benefit) are reconciled by the engagement moderator —
+  our `photoMode` split is the honest version; a world that only
+  ever flags `whole` still runs.
+- `pm_popout_gain` inherits SINGLE-grade replication — effect real,
+  magnitude ours.
+- `rapport_gain` and `forced_floor` operationalize report-option
+  theory; the honest implementation emits the SAME candidates with a
+  lower floor — the pressure is on the report, never on the store.
+- `route_gain` is the smallest effect in the part; it exists to make
+  rehearsed anecdotes distinct from fresh recall, not to move
+  population statistics.
+- `restart_overlap` is a threshold we chose; the CI literature
+  supports the direction, not the number.
+
+# PART VII (v74, 2026-09-23) — the cue's mode, company, and quitting time
+
+Six parts priced what a cue IS (diagnosticity, direction, ownership,
+loudness, reach). This part prices the stance the rememberer brings,
+the company cues keep, and the search's end. Eight mechanisms:
+retrieval mode (the frame the cue lands in), cue-carried valence,
+conjunctive cues (ecphory's real algebra), event clusters (the
+autobiographical chunk), burst emission (recall arrives in pulses,
+not a stream), analogical reminding (the structural cue), implicit
+contextual cuing (the cue nobody remembers), and the give-up rule
+(every bout has a termination criterion, and it is metacognitive,
+not mechanical).
+
+## 70. Retrieval mode — the cue lands in a frame
+
+**Tulving (1983,** *Elements of Episodic Memory*): ecphory is a
+three-term product — cue × trace × **retrieval mode**. A person in
+"episodic mode" treats incoming stimulation as cues to past
+experience; the same stimulation in "semantic mode" (knowing,
+not remembering) is processed for fact content and never starts an
+episodic search at all. **Herron & Rugg (2003)** *J. Cogn.
+Neurosci.* 15:843 and Rugg & Wilding (2000, *Trends Cogn. Sci.*
+4:108) showed retrieval orientation is a real, separable brain
+state — the same physical cue word elicits different cortical
+processing depending on whether the task is set to episodic or
+non-episodic ends. **[CONSENSUS that modes exist; the gating
+strength is DEBATED.]**
+
+The v0 spec has `cueContext.mode ∈ {recall, recognition}` — a
+match-mode, not a search-mode. They are orthogonal: you can
+recognize a face (recognition match) while in semantic mode
+("I know that face" — no episode retrieved), and you can run an
+episodic search that ends in a familiarity answer. The missing
+term is **orientation**: what the character is trying to do when
+the cue arrives.
+
+Model consequence (new §5.69): `cueContext` gains
+`orient ∈ {episodic, semantic}`, defaulting by cue provenance:
+- Questions phrased as "remember when…", "what was it like…",
+  self-directed reminiscence, sensory/odor/music cues → `episodic`.
+- "Do you know…", factual queries, schedule checks → `semantic`.
+- Ambient/involuntary scan runs `episodic` (involuntary memory is
+  definitionally episodic — Berntsen 1996).
+
+In `semantic` mode: sensory/scene cue fields contribute ×
+`sem_cue_pen` (≈0.4 — the odor still works but muted); verbatim
+detail fields are not emitted (gist only — you "know" without the
+scene); TOT and `familiar_only` states are unreachable (TOTs are
+episodic-search states); latency floor drops (no search descent —
+semantic answers are fast or absent, §5.25's floor halves). In
+`episodic` mode all existing machinery runs unchanged. A mode flip
+mid-bout (asker rephrases "no — do you remember it?") costs one
+restart (§66 applies — new orient = new cue set).
+
+RW texture: the difference between a character who can tell you
+*that* Marisol works Tuesdays and one who *remembers the morning
+she told them* — same record, different orientation, different
+surface detail. Dialogue systems that never set `orient` default
+everything through episodic — the honest default, since casual
+conversation is episodic-leaning (Berntsen's diary studies: most
+spontaneous retrievals are episodic).
+
+## 71. Cue valence — the cue carries a mood of its own
+
+The spec has mood-dependence (C.mood ↔ record valence, §2/§35)
+and mood bleed on report (§5.5). Both assume the valence lives in
+the *person*. But cues carry valence too: the word "wedding" is
+a positive cue regardless of the hearer's mood. The AMT
+literature's standard observation — valenced cue words retrieve
+same-valence autobiographical memories faster and more often
+(Galton 1879's breakfast-table method already showed it; Crovitz
+& Schiffman 1974's norms formalized it; Schlagman, Schulz &
+Kvavilashvili 2006 *Memory* 14 — involuntary memories are cued by
+matched content AND valence) — is a cue-side effect, not a
+mood-side one. **[CONSENSUS direction; magnitude small-moderate.]**
+
+Model consequence (new §5.70): `cueVector`/`cueContext` gain
+`valence ∈ [-1,1]` (world tags cue words/objects/places; people
+cues inherit the referent's current eval). Per-record:
+
+```
+c_valence = w_valcue · (1 − |cue.valence − m.valence|/2)
+w_valcue ≈ 0.15 — below w_people/w_place, above w_when
+```
+
+Valence match is a *weak* cue — it never gates alone (§5.1 floor:
+a valence-only context can't cross θ on a cold record) but tilts
+competition inside the bout. Interaction with mood: `c_valence`
+and the §2 mood-match term multiply — a sad character handed a
+happy cue still retrieves mostly sad material (mood beats cue;
+the mood channel is stronger, `w_mood` > `w_valcue` — consistent
+with mood-congruence metastasizing under depression while cue
+valence effects stay modest in normals).
+
+The interaction worth a probe: **negative cue + positive record**
+is the mismatch with the most suppressive asymmetry — negative
+cues disproportionately surface overgeneral/semantic responses in
+vulnerable profiles (Williams & Broadbent 1986's cue-valence
+finding on the AMT). Implement: on valence-mismatched recall of a
+negative-cued probe, `specificity_eff` additionally ×
+`(1 − valmismatch_gen·(neurot+depr)/2)` — the vulnerable profile
+answers "tell me something bad" with a summary, not a scene.
+
+## 72. Conjunctive cues — ecphory's real algebra is not noisy-OR
+
+§5.2 combines cue fields by noisy-OR: independent evidences,
+subadditive at the top. The ecphory literature says that's the
+wrong algebra for *jointly configural* matches. **Watkins (1979,**
+"Engrams as cuegrams and forgetting as cue overload," in Cermak &
+Craik eds., *Levels of Processing in Human Memory*): the cue and
+the trace are the same kind of thing — retrieval is the overlap of
+two *cuegrams*, and what matters is the joint configuration, not
+the count of matching features. **Tulving (1983):** ecphoric
+information is *interactive* — a name plus a place can retrieve
+what neither retrieves alone, not because two votes beat one but
+because the conjunction specifies a unique event. Empirical floor:
+**Rubin & Wallace (1989)** *Cog. Psychol.* 21:513 — rhyme+meaning
+conjoined cues produced effects neither cue class predicted
+additively; and the everyday fact that "the place AND the person"
+narrows to one memory where each alone fans out to dozens —
+this IS the fan effect's other face (§20): fan is computed per
+field, but the joint (place ∧ person) may have fan ≈ 1 even when
+each marginal fan is huge. **[CONSENSUS mechanism; our
+implementation is a HYPOTHESIS form.]**
+
+Model consequence (new §5.71): after the noisy-OR mass is computed,
+add a conjunction bonus:
+
+```
+config_bonus = config_gain · max(0, nJoint − 1) / (1 + fan(C_joint))
+nJoint = #fields with c_j ≥ 0.5·w_j AND diagnosticity_j ≥ diag_mid
+fan(C_joint) = records matching ALL qualifying fields jointly
+config_gain ≈ 0.08 (≤ a half-field's worth — conjunction helps,
+never dominates)
+```
+
+`fan(C_joint)` is the load-bearing term: a rare conjunction
+("Mudhaus" + "the landlord") is nearly fan-free even though each
+field alone is a crowded bucket; a common conjunction ("home" +
+"partner") earns almost nothing. This is where the oddball shield
+(§42) and diagnosticity (§20) pay off together — singleton buckets
+stay immune, but now rare PAIRS earn their own immunity.
+
+Locked null `config_oracle_null`: the conjunction bonus may only
+be computed over fields the character actually encoded — no
+"the place must have been X" inference backwards into cueVector.
+
+## 73. Event clusters — the autobiographical chunk is bigger than the record
+
+The spec's contiguity term (§5.4) lets a recalled record cue its
+temporal neighbors. The event-cueing literature says the
+autobiographical chunk is not defined by clock adjacency.
+**Brown & Schopflocher (1998a)** *Psychol. Sci.* 9:470 + **(1998b)**
+*Appl. Cogn. Psychol.* 12:305 — the event-cueing paradigm: give
+people their own event descriptions as cues and ask for a related
+event; the retrieved pairs reveal **event clusters** — groups of
+personally-experienced events bound by causal relatedness, temporal
+proximity, and content similarity, structured "like episodes in a
+story," found regardless of event age or importance, and — the
+load-bearing finding — **clusters need not be narrated to exist**
+(narrative processes may shape but are not necessary for cluster
+formation). Brown (2005, *Memory* 13 — "On the prevalence of
+event clusters") replicated with transitions: cluster formation
+concentrates at life transitions. Companion result:
+clustered memories are **dated worse** than unclustered ones
+(Brown, Shevell & Rips 1986's dating work; Brown 2005) — the
+cluster protects the content while smearing the calendar.
+**[CONSENSUS on existence; structure sizes are HYPOTHESIS.]**
+
+Model consequence (new §5.72): records mint an `evClust` id —
+assigned at encode when an incoming event shares causal/temporal/
+thematic continuity with a live cluster (world-supplied
+`continues:eventId` preferred; else `clust_mint_p` ≈ 0.2 when
+place+people+topic all overlap an open cluster — "the apartment
+search," "the feud," "the trial"). Clusters cap at `clust_cap`
+(≈8 members; older members roll off as cluster-mates only, they
+keep their solo records). Retrieval:
+
+```
+on hit m:  cluster-mates get  C-share × clust_gain (≈0.25)
+           inside a bout, cluster-mates are preferentially next
+           emissions (feeds §73's burst structure below)
+dating:    when-field reports on clustered records get
+           when_err × (1 + clust_date_blur)  (≈0.5 — the cluster
+           protects content, smears calendar)
+```
+
+This is NOT §5.4 contiguity (clock neighbors) and NOT §4.18
+periods (era segmentation): clusters are causal-narrative bundles
+that can span a period boundary ("the dispute" outlives the move)
+or sit inside an afternoon. Emergent: asking about one fight
+surfaces the whole feud; asking "when was that" gets vaguer
+answers precisely for the best-remembered arcs.
+
+## 74. Burst emission — recall arrives in pulses, not a stream
+
+§5.25 prices latency per emission; §61's recue passes chain
+fragments. What's missing is the *shape* of the output stream.
+**Gruenewald & Lockhead (1980)** *JEP:HLM* 6:225 — free recall of
+category members arrives in bursts: inter-response times are
+bimodal, with within-burst items arriving fast and between-burst
+gaps marking a strategy/region switch. **Barsalou (1988**, in
+Neisser & Winograd eds., *Remembering Reconsidered*) showed
+autobiographical recall has the same granular structure —
+emissions cluster by event type and period, with extended-event
+summaries ("when I worked at the café") punctuating the flow.
+Howard & Kahana's retrieved-context machinery (§5.4's basis)
+predicts exactly this: each emitted item reinstates its own
+context, which preferentially cues its neighbors — the burst is
+the contiguity engine's visible exhaust. **[CONSENSUS
+phenomenon; our pulse parameters are HYPOTHESIS.]**
+
+Model consequence (new §5.73): a recall bout emits in **pulses**:
+- Within a pulse: emissions share the cue neighborhood (cluster,
+  period, or field-overlap of the pulse-head); inter-emission
+  latency at `lat_pulse` × latency_ms (≈0.4 — fast, riding the
+  reinstated context); output interference accrues normally.
+- Pulse break: after `pulse_len` emissions (≈3±1, jittered) or
+  when the best candidate drops below `pulse_floor` (≈0.7·θ),
+  the bout re-searches with a **shifted** cue emphasis (rotate
+  the dominant cue field — place → people → topic); the
+  inter-pulse gap costs `lat_gap` × latency_ms (≈2.0) and
+  partially resets output interference (§66's restart logic,
+  smaller magnitude: `pulse_oi_reset` ≈ 0.4).
+- A bout ends when a pulse yields zero emissions, or `search_budget`
+  (§76) is spent.
+
+Emergent dialogue texture: a character answering "tell me about
+that summer" produces "the fire escape … the night Léo locked
+himself out … the landlord's letter — " then a pause, then a new
+vein. The pauses are where a listener's own cue ("didn't you say
+something about a letter?") can steer the next pulse — §52's
+cross-cueing now has a temporal insertion point.
+
+## 75. Analogical reminding — the structural cue that surfaces similarity hides
+
+Every cue field so far is *surface*: place, people, topic,
+sensory, era. The analogical-reminding literature documents a
+second axis — **structural** similarity (same relational
+configuration: "a protégé betraying a mentor," "a lie discovered
+in stages"). **Schank (1982**, *Dynamic Memory*): remindings are
+the memory system's indexing backbone — new experiences are
+stored by their differences from remindings. But the experimental
+verdict is sharp: **Gentner, Rattermann & Forbus (1993)** *Cogn.
+Psychol.* 25:524 — separating retrievability from inferential
+soundness: people almost never retrieve remote analogs on
+structural similarity alone; retrieval is dominated by surface
+("object-level") matches, while *judged* similarity, once the pair
+is in front of you, is dominated by structure. **Wharton et al.
+(1994)** *Mem&Cogn.* 22 — diary/lab remindings: spontaneous
+reminding on structure alone is rare but real, elevated in
+domain-rich contexts. **[CONSENSUS: structure weak at retrieval,
+strong at judgment.]**
+
+Model consequence (new §5.74): records gain a `struct` tag —
+a coarse relational schema (`betrayal`, `discovery`, `exchange`,
+`rescue`, `humiliation`, `escape` — the world layer tags event
+kinds; ~12 labels, bible-stable). Cues:
+
+```
+c_struct = w_struct · match(C.struct, m.struct)
+w_struct ≈ 0.12 — the weakest priced field
+match = 1 if identical tag; simOp over a small hand-set
+        similarity matrix otherwise (betrayal~discovery 0.6 etc.)
+```
+
+Gate: `c_struct` counts toward θ only when ≥1 surface field also
+matches (surface-gated structure — Gentner's asymmetry made
+literal). A pure-structural match never emits on its own; it
+contributes only to ordering among surface-matched candidates.
+When a struct-matched record does emit (surface support present,
+structural match high), it emits with `reminding:true` — the
+dialogue render is "that reminds me of…", and §15's reminding
+machinery applies: the emitted memory becomes a cue.
+
+Emergent: "watching the new tenant sign the lease" (surface:
+papers, landlord) can surface "the day she signed hers" —
+same-place, same-act retrieval — while `struct` quietly biases
+*which* signing surfaces: a `rescue`-tagged signing beats a
+`routine` one when the cue event was itself a rescue. Pure
+structural remindings (no surface overlap) are reachable only via
+`reminder_chance` (≈0.03 — rare, reserved for high-`imagery`/
+high-`narr_agency` profiles) — the novelist's "suddenly it felt
+like…", deliberately uncommon.
+
+## 76. Contextual cuing — the cue nobody remembers
+
+Every mechanism above mints or reads a record. **Chun & Jiang
+(1998)** *Cogn. Psychol.* 36:28 — contextual cuing: repeated
+spatial configurations speed visual search even though observers
+cannot recognize which configurations they've seen — a learned
+cue→target guidance with *no retrievable record*. Chun & Phelps
+(1999, *Nat. Neurosci.* 2:844) showed hippocampal amnesics fail
+it (it is memory, not priming-of-perception); **Howard, Howard,
+Dennis, Yankovich & Vaidya (2004)** *Neuropsychology* 18:124 —
+contextual cuing is **spared in healthy aging** while sequence
+learning in the same subjects declines. **[CONSENSUS — one of
+the cleanest implicit/explicit dissociations in the literature.]**
+
+This is the ambient-NPC memory: the barista who reaches for the
+right cup before the order finishes, the resident whose feet
+find the staircase in the dark — competence with no episode
+behind it. The spec's `impl_str` channel (§5.35) is the nearest
+rail but it hangs off *records*; contextual cuing has no record.
+
+Model consequence (new §5.75): a `ctxcue` layer — per character,
+a small table keyed by `cfg_id` (a hash of the current cue
+*configuration*: place × present-people × activity, quantized).
+Each repeated encounter with the same cfg_id increments
+`ctx_n`; once `ctx_n ≥ ctx_thresh` (≈4 exposures), the cfg
+grants `ctx_gain` (≈0.15 latency/attention discount) on actions
+and scans *inside that configuration* — faster orientation, no
+emission, no report. `ctx_n` decays on `ctx_hl` (≈21d); age-flat
+(`ctx_age_pen = 0` — Howard 2004, locked); capacity-capped
+(`ctx_cap` ≈40 configs, LRU). Zero record surface: probes must
+assert the cfg table never mints, never enters cueVector, never
+produces a Reconstruction.
+
+This is the mechanism that lets ambient NPCs feel habitual
+without burning episodic storage — and the honest answer to
+"why does the grandmother still navigate her own kitchen" when
+episodic access is failing.
+
+## 77. The give-up rule — every bout ends on a metacognitive bet
+
+Every prior part priced how a bout runs; none priced how it
+*stops*. The metamemory literature's answer: search termination
+is a decision, not a timeout. **Nelson & Narens (1990**,
+*Psychology of Learning and Motivation* 26) — monitoring drives
+control: the search continues while expected-yield stays above
+its cost. The yield signal is **FOK**: **Koriat (1993)** *Psych.
+Rev.* 100:609 — accessibility model: FOK tracks the *amount of
+partial information retrieved*, not trace strength — which is
+why high-FOK failures (lots of fragments, no answer) still feel
+"almost there." And FOK changes behavior: **Costermans, Lories
+& Ansay (1992)** *Acta Psychol.* 80 — FOK magnitude predicts
+search persistence; **Singer & Tiede (2008)** *Mem&Cogn.*
+36:588 — people keep searching longer under higher FOK, and
+truncated search is the metacognitive call. **[CONSENSUS that
+FOK gates persistence; the stopping function is ours.]**
+
+The spec already emits `fok` as an instrument on TOT/failed
+recall (§5.16, built from accessibility). What's missing is that
+fok *does* anything: currently a bout ends on candidate
+exhaustion or `lat_cap`. Model consequence (new §5.76):
+
+```
+search_budget = search_base · (1 + search_persist·FOK_running)
+              · (1 − da_giveup_pen·daLoad)
+              · (1 − search_age_pen·ageScale)   // shorter searches
+              · (1 + 0.3·checker)               // the checker re-searches
+search_base ≈ 6 candidate-evaluations (bout scale, not ms)
+search_persist ≈ 1.5, da_giveup_pen ≈ 0.4, search_age_pen ≈ 0.3
+FOK_running = accumulated partial emissions / denom —
+              the instrument, now load-bearing
+```
+
+When the budget empties: the bout ends with a **quitting
+verdict** emitted for dialogue/metamemory — `giveUp:{fok}` —
+the difference between "I don't know" (low FOK, clean
+termination) and "I know it, I can't get it" (high FOK,
+frustrated termination — eligible for §14 TOT-recurrence on a
+later cue). **High-FOK terminations are the important output:**
+they're what makes a character say "give me a second, it's
+coming" and *return* to the topic unprompted twenty minutes
+later — the armed involuntary re-probe (`fok_reprobe` ≈ 0.4
+chance the pending cue re-fires within `fok_win` ≈ 0.5d when a
+new related cue arrives).
+
+Asymmetry worth a probe: involuntary bouts have `search_budget`
+≈ 1 (one shot, cue-dependent — an involuntary memory either
+arrives or doesn't); voluntary bouts spend the full budget. The
+"tip-of-the-tongue twenty minutes later" is a high-FOK voluntary
+failure whose re-probe landed — not a delayed success.
+
+## 78. Cue hierarchy — v74 additions to the §67 table
+
+| Cue/mechanism | v74 status |
+|---|---|
+| retrieval mode | NEW — orient{episodic,semantic} gates the search mode before the match mode; semantic mutes sensory fields, kills TOT (§70) |
+| cue valence | NEW — `w_valcue` weak field; mood-channel still dominates; negative-cue → overgeneral for vulnerable profiles (§71) |
+| conjunctive cue | NEW — `config_gain` on ≥2 diagnostic fields, priced by JOINT fan — rare pairs are nearly fan-free (§72) |
+| event cluster | NEW — `evClust` causal bundle; emission gain + dating blur inside cluster (§73) |
+| burst emission | NEW — pulses on reinstated context; pulse break = cue-field rotation + partial OI reset (§74) |
+| structural cue | NEW — `w_struct`, surface-gated; pure-structural reminding rare via `reminder_chance` (§75) |
+| implicit config | NEW — `ctxcue` table, record-free competence, age-flat, capacity-capped (§76) |
+| quitting rule | NEW — `search_budget` scaled by FOK_running; `giveUp` verdict; `fok_reprobe` armed (§77) |
+
+## 79. Validation probes P787–P794 (v74 suite)
+
+- **P787 mode gating (MUST — sign-locked):** same record, same
+  cue mass — `orient:semantic` emits zero verbatim/scene fields
+  and never produces `tot:true`; `orient:episodic` emits both;
+  a mid-bout rephrase semantic→episodic recovers detail with a
+  restart signature (Tulving 1983; Herron & Rugg 2003).
+- **P788 cue valence (SHOULD):** at matched mood, a positive cue
+  retrieves positive records ≥1.15× vs a valence-flipped cue on
+  the same store; a negative cue against a neurot/depr-high
+  profile raises the generic-record share (overgeneral arm —
+  Williams & Broadbent sign). Mood held fixed: the effect must
+  NOT vanish (it's cue-side, not mood-side).
+- **P789 conjunctive cue (MUST):** two cues each with marginal
+  fan ≥10 but joint fan ≤2 retrieve their joint target at
+  ≥1.3× the sum-vs-noisy-OR prediction WITHOUT the bonus, and
+  beat a same-mass single-field cue; `config_oracle_null`
+  structure-checked — conjunction never reaches into unencoded
+  fields.
+- **P790 event cluster (MUST — two arms):** cuing with one
+  cluster member retrieves a cluster-mate at ≥1.3× a
+  non-cluster record matched on temporal distance; AND
+  clustered records' when-field error exceeds unclustered
+  controls at equal R (cluster protects content, smears
+  calendar — Brown & Schopflocher 1998; Brown 2005).
+- **P791 burst structure (SHOULD):** emission inter-arrival
+  times within a bout are bimodal — within-pulse gaps <
+  between-pulse gaps by ≥3×; a pulse break predicts a shift in
+  the dominant cue field of subsequent emissions (Gruenewald &
+  Lockhead signature).
+- **P792 analogical reminding (SHOULD — gated):** struct-matched
+  records with zero surface overlap emit ≤`reminder_chance` of
+  the time and always carry `reminding:true`; with surface
+  support present, struct-match raises emission ordering among
+  candidates (Gentner 1993's asymmetry: judgment yes, retrieval
+  gated).
+- **P793 contextual cuing (MUST — record-free):** an ambient
+  character in a cfg seen `ctx_thresh`+ times orients/acts
+  faster than in a novel cfg — AND the store shows no mint, no
+  cueVector entry, no Reconstruction; at age 75+ the gain is
+  undiminished (`ctx_age_pen = 0`, Howard 2004, structure-
+  checked).
+- **P794 give-up rule (MUST — metacognitive):** identical
+  failing searches, partial-info manipulated — high-FOK
+  failures run longer (more candidate evaluations) than low-FOK
+  ones AND re-fire within `fok_win` at `fok_reprobe` rate; a
+  forced interruption at budget=0 emits `giveUp` with the fok
+  tag, distinguishable in the emission log from "not found"
+  (Singer & Tiede 2008 persistence arm).
+
+## 80. Honest limits (v74 additions)
+
+- `orient` is binary in the spec; the literature treats mode as a
+  graded attentional set. Binary keeps the contract shippable;
+  `sem_cue_pen` softens the edge. If the dialogue layer can't
+  classify phrasing, default `episodic` — the honest bias.
+- `w_valcue` is small on purpose. Cue-valence effects are real
+  but the mood channel is stronger in every study that measured
+  both; inverting them would produce characters more moved by
+  words than by feelings.
+- `config_gain`'s joint-fan computation costs a second pass over
+  the candidate set — acceptable at bout scale, forbidden inside
+  the ambient scan (ambient runs noisy-OR only; conjunction is a
+  voluntary-search luxury, which matches the literature's
+  strategic-search framing).
+- `evClust` assignment leans on world-supplied `continues:` tags
+  for the hard cases; `clust_mint_p` handles the rest. Cluster
+  boundaries are known to be fuzzy in humans (Brown 2005's own
+  coding reliabilities); a slightly wrong cluster is truer than
+  no cluster.
+- `pulse_len`/`lat_pulse`/`pulse_oi_reset` are fits to the burst
+  phenomenology, not to IRT distributions — no human IRT corpus
+  exists for autobiographical bouts. P791 tests the qualitative
+  signature (bimodality + field rotation), not the constants.
+- `w_struct` is deliberately the weakest priced field and the
+  `reminder_chance` pure-structural path is deliberately rare —
+  Gentner's retrievability/judgment split is the strongest
+  sign-lock in this part. If P792 shows struct-matches
+  competing with surface matches, the gate failed.
+- `ctxcue` is a performance layer, not memory — it must never
+  surface in dialogue or probes as reportable content. The
+  amnesia evidence (Chun & Phelps) means it should ALSO survive
+  on profiles whose episodic machinery is degraded — that's the
+  honest use, and why it's age-locked flat.
+- `search_budget` in candidate-evaluations (not wall time) keeps
+  the quitting rule implementation-agnostic; `fok_reprobe` gives
+  the sim its "it came to me later" — the single most
+  human-recognizable retrieval event in the document, and it
+  emerges from a budget and a flag, not a scripted timer.
+
+# PART VIII (v86, 2026-09-23) — the cueless pop, the song, the date that isn't, the word that is
+
+Eight prior parts priced the cue: its weight, its owner, its fan, its
+valence, its company, its quitting time. This part prices the residual
+cases the cue tables couldn't see — the surface with NO cue (mind pops),
+the cue modality the spec never priced (music), the cue humans famously
+can't use (calendar dates), the cue the lab uses anyway (the Galton
+word), the thinnest cue in dialogue (the pronoun), the cue a partner
+builds for you (elaborative scaffolding), the cue the LAST emission
+hands the next (temporal contiguity), and the cue a warm-up bout lends
+the cold one (specificity induction). Every section ends at the spec:
+new params, new nulls, new probes P908–P917.
+
+## 81. Mind pops — the surface with no cue
+
+The involuntary-memory stack (§5, §25) assumes a cue — Berntsen's
+diaries found identifiable cues for most involuntary episodic memories.
+**Kvavilashvili & Mandler (2004**, *Cognitive Psychology* 48:47–94 —
+verified) isolated the harder case: **involuntary SEMANTIC memories**
+("mind-popping," Mandler 1994's coinage) — a word, a name, a tune that
+arrives with NO episode, NO self-reference, and no identifiable trigger,
+most often during automatic activity (walking, washing dishes — the
+autopilot state the spec already tracks for involuntary draws). Their
+diary studies: pops are common (most respondents reported several per
+week), often delayed by hours-to-days from an unnoticed encounter with
+the content (very-long-term priming), and frequently resist a
+retrospective cue search entirely — the subject cannot say why the
+fragment surfaced. **[CONSENSUS that the phenomenon exists and is
+cue-opaque; the priming mechanism is their hypothesis, ours is a decayed
+seed. See also Berntsen 2021 *Wiley Interdiscip. Rev.* 12 for the
+involuntary/episodic boundary.]**
+
+Model consequence (new §5.84): encoding mints not only the record but a
+`pop_seed` — a non-record token carrying the gist word/name/melody and a
+match-key back to the source record, decaying on `pop_seed_hl` ≈ 48h
+(hours-to-days delay is the paper's signature). On each ambient tick in
+`autopilot` activity, a seed surfaces at
+
+```
+pop_p = pop_rate · pop_auto_mult · (seed_r / seed_r + seed_half)
+        · (1 + 0.3·open − 0.3·mindful)
+pop_rate ≈ 0.03/hr, pop_auto_mult ≈ 2.0 during automatic activities
+        (≈0.4 during focused work — K&M's activity effect)
+```
+
+The surfaced emission is a **fragment**: `pop:{gist_term}` — no verbatim
+fields, no episode link by default. With probability `pop_link_p` ≈ 0.2
+the pop routes to its source record as a weak involuntary cue (the
+"…and THAT's why I'm humming this" resolution); `pop_episodic_null`
+locks the rest: a pop never emits episode content directly. RW use:
+ambient NPCs muttering a name mid-dishes; a main character's "why am I
+thinking about apricots?" — the most human-recognizable retrieval event
+that ISN'T a memory.
+
+## 82. The song cue — music is a time machine with a bias
+
+**Janata, Tomic & Rakowski (2007**, *Memory* 15:845 — verified): ~30%
+of familiar-song presentations evoke an autobiographical memory; the
+evoked emotions skew positive (nostalgia was the third most common);
+both general and specific AM levels appear. **El Haj, Fasotti & Allain
+(2012**, *Conscious. Cogn.* 21 — verified) found MEAMs arise mostly
+involuntarily and degrade more slowly than word-cued AMs in aging.
+**Jakubowski & Ghosh (2021**, diary study — verified): 83% of
+music-evoked everyday memories were rated spontaneously retrieved, a
+higher involuntary share than food cues. **Belfi et al. (2022**,
+*Psychology of Music* — verified) report MEAMs are episodically RICHER
+(more perceptual detail) than face-evoked memories even when both are
+involuntary — the richness is a stimulus property, not a retrieval-mode
+artifact. **[CONSENSUS that music is a strong, involuntary-leaning,
+positive-biased cue; the mechanism (consolidated pairing vs arousal)
+is debated.]**
+
+Model consequence (new §5.85): `cueMod:"music"` joins the sensory cue
+class with three priced properties —
+
+```
+w_music = w_sensory · (1 + meam_gain)            meam_gain ≈ 0.5
+invol_share = meam_invol ≈ 0.8   // music cues route to the
+        involuntary draw (§5), not the search bout, unless a
+        voluntary orient is already armed
+valence_pull = meam_pos ≈ 0.6    // candidate ordering nudged
+        toward positive records at equal match — the Janata bias
+emit_detail += meam_rich ≈ 0.25  // Belfi richness: perceptual
+        fields pass the richness gate more often
+```
+
+Gate: all four terms scale by trait `music` (v5.15 trait, 0–1) — a
+low-music character treats a song as wallpaper (Janata's familiarity
+dependence: unfamiliar songs evoked almost nothing). Frozen
+`meam_scope:"familiar-music"` — novel music is no cue at all.
+
+## 83. Landmark cues — the date is dead, the transition lives
+
+**Wagenaar (1986**, *Cognitive Psychology* 18 — verified, his own
+diary): of the who/what/where/when cues, `when` was the ONLY one that
+never worked alone. **Barsalou (1988**, *Psych. Rev.* 95 — verified):
+people cannot retrieve autobiographical events from bare date cues —
+"what did you do on March 3rd?" draws a blank where "the day the pipe
+burst" retrieves instantly; retrieval runs through **extended event
+structures** (trips, jobs, relationships), not the calendar.
+**Kurbat, Shevell & Rips (1998**, *Mem&Cogn* 26 — verified): subjects
+date events by locating them relative to personal landmark events and
+calendar reference points — the landmark, not the date, is the index.
+**Shum (1998**, *Appl. Cogn. Psychol.* 12 — verified): temporal
+landmarks (transitions, firsts, holidays) anchor autobiographical
+search. **[CONSENSUS — one of the best-replicated dissociations in the
+AM literature.]**
+
+The spec already prices `when` as the weakest cue field (§7 hierarchy);
+this section makes the dissociation STRUCTURAL (new §5.86):
+
+- `date_cue_null` (LOCKED): a cue whose only content is a `when` field
+  contributes 0 to the episodic match for records past
+  `childhood cutoff` — the query reroutes to `lm_route`: nearest
+  landmark → its event cluster (§5.72) → normal match inside. A date
+  question therefore succeeds by indirection or fails honestly.
+- Transition events (moves, job starts/ends, relationship boundaries,
+  births/deaths — world tags `transition:true`, else minted at
+  `lm_mint_p` ≈ 0.6 scaled by `period_sal`) carry `landmark:true` and a
+  `lm_gain` ≈ 0.5 weight bonus when used AS cues or route entries.
+- Dating a recalled event = emit nearest landmark + offset ("a few
+  weeks after I moved"), with error growing in landmark distance —
+  Kurbat et al.'s telescoping lands on the landmark grid, not the
+  calendar.
+
+RW consequence: an NPC asked "when did you last see her?" answers "must
+have been before the lease ran out" — the landmark does the indexing the
+date can't.
+
+## 84. The cue-word probe — Galton's instrument, and its biases
+
+The oldest AM technique is a bare word. **Galton (1879**) walked his own
+associations; **Crovitz & Schiffman (1974**, *Bull. Psychon. Soc.* 4 —
+verified) formalized the word-cue method and showed the recall-age
+distribution decays as a power of retention interval — the function
+Ebbinghaus never had a cue for. **Rubin & Schulkind (1997**, *Mem&Cogn*
+25 — verified) used word cues to map the lifespan distribution (the bump
+instrument itself). **Robinson (1976**, *Cognitive Psychology* 8 —
+verified): word class matters — activity/emotion words retrieve faster
+and younger-adult memories than object words; object words pull older,
+more semanticized content. **[CONSENSUS on the instrument and the
+class effect; the mechanism (imagery value vs typicality) is debated —
+concreteness mediates (Williams, Healy & Ellis 1999).]**
+
+Model consequence (new §5.87): a bare-word cue gets a `cueword_class`
+∈{activity, affect, object, person} tag (world/dialogue supplies it,
+default `object`):
+
+```
+w_cw = {activity: 1 + cw_act_gain(≈0.4),   // verbs cue best —
+        affect:  1 + cw_aff_gain(≈0.25),    // Robinson 1976
+        person:  1.0,
+        object:  1.0}
+age_pull(object) += cw_obj_age ≈ 0.3       // object words bias the
+        sampled era older + semanticized (generic records)
+```
+
+Locked `cw_verbatim_null`: a bare word can select a record but never
+mints verbatim fields — the probe is a selector, not a source. RW use:
+the history browser's word search, a "tell me about money" prompt —
+the instrument the lab uses is now the instrument the world has.
+
+## 85. Referential poverty — the pronoun is a thin cue
+
+**Ariel (1990**, *Accessing Noun-Phrase Antecedents* — verified):
+referring expressions encode the speaker's ASSUMED accessibility of the
+referent — full names mark low assumed accessibility, pronouns high,
+zero anaphora highest. **Gundel, Hedberg & Zacharski (1993**, *Language*
+69 — verified): the givenness hierarchy ranks expression types by the
+cognitive status they presuppose. The retrieval consequence the
+literature implies but rarely measures directly: a pronoun carries
+almost no intrinsic cue content — "she" matches every woman in the
+store; resolution falls entirely on the discourse focus stack, and
+misresolution is a real, common comprehension error. **[CONSENSUS on
+the accessibility marking; the pronoun-as-thin-cue formalization is
+ours.]**
+
+Model consequence (new §5.88): dialogue tokens classed
+`ref_type` ∈{name, desc, pronoun, zero}. Cue weight multiplies by
+
+```
+ref_w = {name: 1.0, desc: 0.8, pronoun: ref_thin(≈0.5),
+         zero: ref_thin·0.6}
+```
+
+and candidate restriction falls to a `ref_focus` stack (last
+`ref_focus_win` ≈ 3 salient referents in discourse) BEFORE the memory
+match runs. When two focus-stack referents match equally, misresolution
+fires at `ref_mis_p` ≈ 0.15 and the emission carries `refError:true` —
+the character remembers the wrong person with normal confidence (a
+documented comprehension error, not a memory defect — which is why it
+needs no accuracy debit). Locked `ref_boost_null`: a pronoun can never
+add cue mass — "she" can only spend what the focus stack supplies.
+RW use: "did you tell her?" — the engine now knows *her* is a coin flip
+over the last three mentioned women, not a database join.
+
+## 86. The scaffolding cue — the partner who asks better
+
+**Fivush & Fromhoff (1988**, *J. Exp. Child Psychol.* 45 — verified)
+and **Reese, Haden & Fivush (1993**, *Cognitive Development* 8 —
+verified): mothers with a high-elaborative reminiscing style — open
+wh-questions, new information, confirmations — raise children who
+produce richer autobiographical reports, and the style effect on the
+child's recall outlasts the conversation (Nelson & Fivush 2004,
+*Psych. Rev.* 111 review — verified). **Vygotsky's** scaffolding logic
+generalizes: a good interlocutor's question IS a cue the partner's
+search couldn't build alone. **[CONSENSUS for the developmental dyad;
+adult-adult extension is our extrapolation, grounded in §41's interview
+protocol (open questions > closed).]**
+
+Model consequence (new §5.89): when a speaker's prompt is classed
+`elaborative:true` (open wh-question or statement adding novel
+information — the dialogue layer's tag; trait `elabor`, spec §5.6,
+drives production), the TARGET's search gains
+
+```
+scaf_boost = scaf_gain ≈ 0.35   // on search_budget and candidate
+        drive — the partner's question behaves like a self-generated
+        cue (§33 mechanism, social source)
+        × scaf_child_mult ≈ 1.8 for targets under ~12 — the
+          developmental knot the effect was built on
+scaf_repeat_pen ≈ 0.5           // nth repetition of the same
+        elaborative prompt decays — Reese et al.: it is the NEW
+        information that cues, not the asking
+```
+
+Distinct from §41 (the interview protocol is a fixed forensic script);
+§86 is a per-utterance, partner-dependent property of ordinary talk —
+which is why it keys off `elabor` and not a protocol flag. RW use: a
+high-`elabor` character literally makes the people around them remember
+better — the landlady who asks "what were you doing before you heard
+it?" gets real answers.
+
+## 87. Temporal contiguity — the next recall leans on the last
+
+**Kahana (1996**, *Mem&Cogn* 24 — verified) and **Howard & Kahana
+(2002**, *J. Math. Psychol.* 46 — verified): in free recall, the
+conditional-probability-of-next-item peaks for items encoded adjacent
+to the just-recalled one (lag-CRP), with a reliable **forward
+asymmetry** — forward neighbors roughly twice as likely as backward.
+**Kahana, Howard, Zaromb & Wingfield (2002**, *Psychol. Aging* 17 —
+verified): the contiguity effect shrinks with age — older adults'
+successive recalls are less temporally chained. **Moreton & Ward
+(2010**, *QJEP* 63 — verified): contiguity is much weaker in
+autobiographical recall than in list recall — event clusters (§73), not
+raw adjacency, dominate AM transitions. **[CONSENSUS for list recall;
+the AM down-weight is the honest caveat we encode.]**
+
+Model consequence (new §5.90): within a recall bout, each emitted
+record activates its encode-order neighbors (`lag ∈ ±contig_lag_win`,
+≈2 records) as zero-cost candidates:
+
+```
+contig_w = contig_gain ≈ 0.35 · contig_fwd(≈1.6 forward, 1.0 back)
+         · (1 − contig_age_pen ≈ 0.4 · ageScale)   // Kahana 2002
+         · (1 − am_att)                            // am_att ≈ 0.6
+           when the bout is autobiographical (evClust routing
+           active) — Moreton & Ward down-weight
+```
+
+Mechanically distinct from §61 iterated cuing: that section re-enters a
+retrieved FRAGMENT as a semantic cue; §87 is pure order statistics —
+the record at encode-index i±1 needs no content overlap at all. The
+pair produces the human signature: recall drifts forward through a day
+("and then… and then…") until a cluster boundary cuts the chain.
+
+## 88. The warm-up induction — specificity begets specificity
+
+**Madore, Gaesser & Schacter (2014**, *PNAS* 111 — verified): an
+**episodic specificity induction** — recalling a recent event with
+prompted episodic detail — increases the specificity of SUBSEQUENT,
+unrelated recalls. **Madore & Schacter (2016**, *Memory* 24 review —
+verified): the induction flexibly boosts episodic detail across
+remembering, imagining, and problem-solving — a retrieval ORIENTATION,
+not content transfer. **Jing, Madore & Schacter (2016**, *J. Gerontol.
+B* 71 — verified): the induction lifts detail production in older
+adults specifically — the population whose spontaneous specificity is
+lowest. **[CONSENSUS that the induction works; whether it is a
+temporary mindset or a learned strategy is debated — we model the
+temporary version, which the data supports.]**
+
+Model consequence (new §5.91): after any bout whose emission detail
+passes `esi_thresh` (≈0.7 richness gate), the character carries a
+`esi_state` — half-life `esi_hl_bout` ≈ 2 bouts — that adds
+
+```
+spec += esi_gain ≈ 0.25   // specificity/detail emission, all
+        subsequent bouts while the state is alive
+```
+
+Locked `esi_learn_null` (P917): the state decays to zero and never
+accumulates — induction is a performance lift, not training; frozen
+`esi_scope:"bout-window"`. RW use: the therapist-character's "walk me
+through it, what did you see?" genuinely sharpens the next answer —
+and an old character's detail deficit is partially recoverable in
+conversation, which is exactly the human finding.
+
+## 89. Cue hierarchy — v86 additions to the §78 table
+
+| Cue/mechanism | v86 status |
+|---|---|
+| mind pop | NEW — `pop_seed` non-record token; fragment-only emission; `pop_link_p` rare episode route; `pop_episodic_null` locked (§81) |
+| music cue | NEW — `cueMod:"music"`; involuntary-leaning (`meam_invol`), positive-biased (`meam_pos`), detail-rich (`meam_rich`); trait-`music` gated; `meam_scope` frozen (§82) |
+| landmark | NEW — `landmark:true` minted on transitions; `lm_route` replaces date matching; `date_cue_null` locked (§83) |
+| cue word | NEW — `cueword_class` pricing (activity>affect>person>object); `cw_obj_age` era pull; `cw_verbatim_null` locked (§84) |
+| referential form | NEW — `ref_type` weight ladder + `ref_focus` stack gate + `ref_mis_p` misresolution; `ref_boost_null` locked (§85) |
+| elaborative prompt | NEW — `scaf_boost` on partner search; child knot `scaf_child_mult`; `scaf_repeat_pen`; trait-`elabor` sourced (§86) |
+| temporal contiguity | NEW — encode-neighbor activation `contig_w`, forward-biased, age- and AM-attenuated (§87) |
+| specificity induction | NEW — `esi_state` post-high-detail bout; `esi_gain` temporary; `esi_learn_null` locked, `esi_scope` frozen (§88) |
+
+## 90. Validation probes P908–P917 (v86 suite)
+
+- **P908 mind pop (MUST — structure-locked):** seeds minted at encode
+  decay on `pop_seed_hl`; pops fire preferentially in `autopilot`
+  (`pop_auto_mult` arm) and emit `pop:{gist_term}` with ZERO verbatim
+  or episode fields (`pop_episodic_null` structure-checked); ≤
+  `pop_link_p` of pops route to the source record (K&M 2004).
+- **P909 MEAM (MUST — two arms):** a familiar-music cue retrieves AMs
+  with involuntary share ≥ `meam_invol`·0.9 and emitted perceptual
+  detail ≥ `meam_rich`·0.8 above matched face cues; an unfamiliar
+  (novel) song cues ≈0 (`meam_scope`, Janata familiarity arm).
+- **P910 date null (MUST — sign-locked):** "what happened on <date>?"
+  as sole cue retrieves nothing beyond chance from episodic store
+  (`date_cue_null`), while the same event via its landmark cluster
+  retrieves normally; the report phrases dating as landmark+offset
+  (Kurbat 1998), never bare calendar.
+- **P911 cue-word class (SHOULD):** activity words retrieve ≥1.2×
+  object words at matched frequency; object-word hits skew older and
+  more generic-record than activity-word hits (`cw_obj_age`,
+  Robinson 1976).
+- **P912 referential poverty (MUST):** replacing a name cue with a
+  pronoun on the same referent drops recall probability by ≥
+  (1−`ref_thin`)·0.8 UNLESS the referent is alone in `ref_focus`;
+  with two matched referents in stack, `refError:true` emissions fire
+  at `ref_mis_p`±20% (Ariel 1990).
+- **P913 scaffolding (SHOULD — dyadic):** an elaborative prompt from a
+  high-`elabor` speaker raises partner emission detail/count by ≥
+  `scaf_gain`·0.8 vs a closed prompt; the boost on child targets is ≥
+  `scaf_child_mult`·0.8× the adult boost (Reese et al. 1993); prompt
+  repetition decays per `scaf_repeat_pen`.
+- **P914 contiguity (MUST — order statistics):** within a bout,
+  next-emission records come from encode-index ±`contig_lag_win` at ≥
+  2× chance, forward ≥ `contig_fwd`·0.9 × backward; the effect
+  attenuates on high-ageScale profiles (`contig_age_pen`) and in
+  cluster-routed autobiographical bouts (`am_att`) — both arms
+  required (Kahana 1996; Kahana et al. 2002; Moreton & Ward 2010).
+- **P915 ESI (SHOULD):** after a bout with emission richness ≥
+  `esi_thresh`, the next bout's specificity rises ≥ `esi_gain`·0.8;
+  after `esi_hl_bout` bouts the lift is gone AND cumulative —
+  `esi_learn_null` structure-checked (no permanent specificity gain,
+  Madore & Schacter 2016).
+- **P916 pop aging (COULD):** pop frequency declines on old-age
+  profiles at no less than the episodic-intrusion decline rate (K&M's
+  diary age gradient was shallow — a null-ish arm, logged not
+  asserted).
+- **P917 scaffolding independence (MUST — negative):** `scaf_boost`
+  changes NO record state — the partner's memory strengthens only via
+  the normal re-encode of its own emission; a scaffolded recall that
+  is not emitted leaves the store identical (scaffolding is a
+  retrieval-side gift, not a consolidation lever).
+
+## 91. Honest limits (v86 additions)
+
+- `pop_seed` is our stand-in for K&M's very-long-term priming — the
+  48h half-life is a guess; their diaries report delays up to weeks.
+  P908 locks the *shape* (delay distribution + autopilot), not the τ.
+- `meam_invol` 0.8 comes from a diary study (Jakubowski & Ghosh 2021)
+  where "spontaneous" is self-rated — the honest number probably sits
+  between Janata's lab-share and the diary's 83%; we took the diary
+  because RW's ecology is the diary's ecology.
+- `date_cue_null` is deliberately absolute: humans DO answer date
+  questions — by landmark reconstruction, which is exactly the
+  `lm_route` reroute. If a character answers "March 3rd" fluently,
+  that's a bug, not a feature (Wagenaar's `when` never worked alone).
+- `ref_mis_p` misresolution has no accuracy debit — comprehension
+  errors are not memory errors. The risk: `refError` emissions could
+  mask genuine source confusions in probe scoring; the tag exists so
+  raters don't double-count.
+- `scaf_child_mult` rests on the mother-child dyad literature; the
+  adult-adult extension is extrapolation from §41's open-question
+  advantage, marked hypothesis in the spec.
+- `contig_w`'s `am_att` down-weight encodes Moreton & Ward's null —
+  if a future corpus shows strong AM contiguity, the attenuation, not
+  the mechanism, is the part to cut.
+- `esi_state` models the induction as a decaying orientation (Madore &
+  Schacter's "flexible orientation" reading). The alternative — a
+  learned strategy that persists — is real but unsupported by their
+  decay data; `esi_learn_null` makes the choice falsifiable (P917).
+
+# PART IX (v98, 2026-09-23) — the sample, the overlap, the gate, the pause, the echo
+
+v86 and before priced which cues work, how they combine, who they reach,
+and when a search quits. Left unpriced: the retrieval context `C` was
+treated as a deterministic readout of the scene — the same room produces
+the same `C`, so identical contexts could only differ via the output-side
+Bernoulli. That puts all retrieval variability in the die roll and none in
+the *searcher*, which is backwards: the sampling models (Estes; SAM) put
+the variance in what gets SAMPLED. Four consequences cascade: the same
+place legitimately reminds on Tuesday and not Wednesday (§92); a
+renovated or lookalike place partially reinstates — `place_reinstate`'s
+binary `==` was too coarse (§93); when a cue matches two records
+almost-equally the outcome is a discrimination DECISION, not an argmax
+(§94); a search interrupted mid-bout loses its un-emitted candidates in a
+similarity-graded way (§95); and a failed voluntary search doesn't die —
+it arms a latent query that a later cue can trip (§96). Spec changes land
+in `memory-model-spec.md` v5.46 §§5.98–5.102; probes P1035–P1044.
+
+## 92. The searcher samples the scene — retrieval-context resampling
+
+- **Raaijmakers & Shiffrin (1981), SAM** (*Psych. Review* 88:93):
+  retrieval is a sampling-with-recovery process over a cue-conditioned
+  image set; the SAME cue set yields different sampled images across
+  attempts. Probabilistic recall is not output noise — it is sampling
+  variance.
+- **Estes (1955)** stimulus fluctuation — already in the spec for the
+  memory side (state-context drift, §4.22/FC§12.6); v98 adds the missing
+  half: the *searcher's* context is also a fluctuating sample. The room
+  supplies N candidate cue features; the searcher's `C` retains each with
+  `ctx_keep_p` (≈0.7), independently, per retrieval bout.
+- **Perceptual load gates the sample** — Lavie (1995, 2005) perceptual
+  load theory: under high perceptual/cognitive load, task-irrelevant
+  stimuli are not processed (inattentional blindness is the extreme).
+  **[CONSENSUS]** — a busy character literally does not sample peripheral
+  cues: `ctx_keep_p_eff = ctx_keep_p·(1 − ctx_load_pen·load)` — the same
+  mechanism that §34 prices on retrieval-time latency/breadth now also
+  narrows WHICH features enter `C` in the first place.
+- Consequences, all lawful: (a) a re-probe immediately after a failed
+  probe shares most of the sampled `C` — outcomes correlate (~0.6), so
+  "ask again right now" is nearly a re-roll of the same die; (b) a probe
+  hours later re-samples from scratch — outcomes are near-independent —
+  the lawful engine of "I couldn't remember at lunch, it came to me at
+  dinner"; (c) involuntary retrieval (§5.7) inherits the sample: a
+  character in a high-load scene simply doesn't notice the smell that
+  would have reminded them.
+- Model consequence (§5.98): `C` is minted per bout by per-feature
+  Bernoulli(`ctx_keep_p_eff`) over the scene's feature set; identical
+  scenes produce correlated-but-different `C`s. `ctx_tau` (context
+  persistence, ~30 sim-min) sets the decorrelation horizon: within it,
+  the same sample persists (fixations), beyond it, resample.
+
+## 93. Reinstatement is a vector, not a boolean — graded place match
+
+`place_reinstate` fired only on `C.place == m.cueVector.place` — a
+name equality. But Smith & Vela's (2001) meta-analysis found the
+reinstatement benefit *graded* by how much of the encoding context is
+reinstated, and everyday life supplies the intermediate cases the binary
+gate throws away: the renovated kitchen, the apartment re-furnished by
+the next tenant, the café across town with the same espresso smell.
+
+- Model consequence (§5.99): `place_reinstate` becomes
+  `ctx_overlap` — a weighted feature-overlap score over place
+  sub-fields {structure/layout, props, occupants, sensory signature},
+  `reinstate_eff = place_reinstate·ctx_overlap·(1+log1p(ageDays/30))`
+  (age interaction kept). `ctx_overlap`=1 recovers the old binary win;
+  ~0.5 (renovated room) reinstates at half; ~0.35 (lookalike café)
+  still cues — this is the lawful machinery of *mis-reminding*: the
+  wrong place pulling up the right memory.
+- **Changed-place flag** — when `C.place_id == m.cueVector.place` but
+  `ctx_overlap` ∈ `changed_place_band` [0.3, 0.8]: emit `changed_place`
+  — the metacognitive "it's not how I remember it." HYPOTHESIS
+  (reconsolidation §6.1 + schema drift §6.4): the mismatch ALSO nudges
+  the record's stored place-detail toward the current scene —
+  remembering the old café as it looks now; `ctx_drift_pull` 0.02 per
+  changed-place visit.
+- **Gaze reinstatement** (Johansson & Johansson 2014, *Psych. Sci.*
+  25:236 — verified: looking at the encoding-congruent blank locus
+  improves retrieval; incongruent locus does not; spatial-relational
+  detail benefits most): `gaze_rein_gain` ≈ 0.05 additive cue mass when
+  the character's attention rests on the encoding-relevant sub-location —
+  micro-mechanism for "I walked back to where it happened and it came
+  back." Within-location, not between-location.
+- **[CONSENSUS: reinstatement is real, modest, graded. HYPOTHESIS:
+  the changed-place distortion pull and the lookalike mis-reminding
+  rate — direction is literature, magnitudes ours.]**
+
+## 94. Completion or separation — the retrieval gate on near-twins
+
+The spec prices lure rejection at the discrimination task (§4.x,
+Stark/Yassa) but retrieval-time competition was argmax: highest
+cueMatch wins. When two records sit within `sep_band` (≈0.15) of each
+other, humans face a different computation:
+
+- **Pattern completion** — the cue pattern is close enough to one stored
+  trace that the whole trace is reactivated (CA3 auto-association;
+  McClelland, McNaughton & O'Reilly 1995). The wrong twin can be the
+  completed one → lawful misretrieval ("no, that was the OTHER
+  birthday").
+- **Pattern separation** — mismatch detected, two representations kept
+  distinct (DG; Clelland et al. 2009 *Hippocampus* 19:34 — verified;
+  Yassa & Stark 2011 *Trends Neurosci.*). Emission is `mixed_up`: "I'm
+  conflating two different times."
+- **Aging completes** — Kirwan & Stark (2007, *Learn. Mem.* 14:625 —
+  verified): older adults' false alarms to similar lures reflect
+  over-completion; Yassa, Lacy et al. (2011) link it to CA3/DG
+  imbalance. Children complete too (AD§mnemonic-discrimination
+  inverted-U; Ngo et al. 2019) — separation peaks in the middle of
+  life, completion dominates at both ends.
+- **[CONSENSUS: completion/separation trade-off and its age profile.
+  HYPOTHESIS: `sep_band` width and the completion-vs-`mixed_up` split.]**
+- Model consequence (§5.100): when the top-two candidate cueMatches
+  differ by < `sep_band`, roll the gate: with P = `sep_bias(age)` the
+  search separates — emits `mixed_up` plus BOTH candidates at reduced
+  confidence; else completes — argmax wins and `borrow_details`
+  (probability `comp_merge_p` ≈ 0.3) pulls a verbatim field from the
+  loser into the winner's reconstruction (a new distortion operator on
+  the retrieve path — near-twin fields migrate, the mechanism behind
+  "the two parties blur together"). Separation requires the
+  discriminating feature be §5.1-encoded — a character who never encoded
+  WHICH year's party cannot separate; they can only complete.
+
+## 95. The suspended bout — what interruption does to an un-emitted recall
+
+§77 priced when a search gives up; nothing priced what happens to the
+search that gets cut off mid-bout. The interruption literature says the
+suspended search doesn't just pause — it degrades, and *what* interrupts
+matters more than how long:
+
+- **Gillie & Broadbent (1989)** *Psych. Res.* 50:243 — verified: an
+  interruption's length was NOT the disruptor; SIMILARITY of the
+  interpolated material to the suspended task was, as was its working-
+  memory demand (complex arithmetic). The suspended item survives in a
+  non-articulatory store — but competing similar content displaces it.
+- **Monk, Trafton & Boehm-Davis (2008)** *JEP:A* 14:299 — verified:
+  resumption lag grows with interruption duration — Altmann & Trafton's
+  (2002) goal-activation decay: a suspended goal's activation decays
+  while another goal occupies the buffer; resuming requires
+  reactivation, priced in seconds.
+- Model consequence (§5.101): a retrieval bout holds a sorted pending
+  queue; on interruption the queue's head becomes `pending_cand` with
+  activation `A`. Each tick suspended: `A *= susp_decay` (≈0.85); an
+  interruption whose topics OVERLAP the pending candidate's applies
+  `susp_sim_pen` (≈0.6) multiplicatively per tick — a same-topic
+  interruption kills the pending line almost surely ("I was about to
+  say something about the rent" dies when the other person starts on
+  the rent — Gillie & Broadbent's similarity result as the mechanism of
+  "it was on the tip of my tongue, gone"). Resumption: if `A >
+  susp_floor` (≈0.15) AND a cue reinstates, the bout restarts at the
+  pending head with resumption lag ∝ suspension duration; below floor,
+  `pending_cand` evaporates — the character emits "I lost it — it'll
+  come back" (see §96: it might).
+- **[CONSENSUS: similarity > duration for disruption; duration > 0 for
+  lag. HYPOTHESIS: the decay constants and the non-articulatory
+  survival window `susp_keep_p` ≈0.35.]**
+
+## 96. The loaded question — a failed search arms a latent query
+
+- **Yaniv & Meyer (1987)** *J. Mem. Lang.* 26:187 — unresolved TOT items
+  remain in a heightened state of accessibility ("latent memory" for
+  inaccessible targets): the failed search is not erased, it stays
+  loaded.
+- **Incubation** — Sio & Ormerod (2009) meta (*Psych. Bull.* 135:94):
+  putting down an unsolved problem and returning yields real gains
+  (small-to-moderate); Smith & Blankenship (1991): removal of the
+  initial misleading cue set is part of the mechanism — the fresh
+  sample (§92) is what a later attempt buys.
+- Rubin's "memory of the search" diaries and everyday phenomenology
+  agree: "what WAS her name?" resolves hours later, in the shower, on
+  an unrelated cue. **[CONSENSUS that unresolved searches persist and
+  resolve on later cues; DEBATED whether incubation is cue-set decay,
+  unconscious work, or both — we take the cheap, defensible leg: cue-set
+  resampling.]**
+- Model consequence (§5.102): a voluntary search that ends in
+  `giveUp`/`tot` arms an `openQuery` record {cueVector snapshot, armedAt,
+  hl `openq_hl` ≈ 2d} with probability `openq_arm` ≈ 0.5 (higher for
+  self-relevant questions, lower for asked-and-answered-by-someone-else).
+  The §5.7 involuntary scan checks `openQuery` like a nonfocal
+  intention: on cueMatch > `openq_fire` (≈0.3 — low bar, the question
+  primes its own answer) the query fires → emits `popped` ("it just
+  came to me") and re-runs the original search against the NEW sampled
+  `C` — which is why it succeeds: new sample, not new memory.
+- Locked null `openq_solve_null`: firing an openQuery never retrieves a
+  record that the normal threshold wouldn't — the pop uses the same
+  machinery; persistence buys a second lottery ticket, not a better
+  memory.
+
+## 97. Cue hierarchy — v98 additions to the §89 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| sampled C | per-bout Bernoulli feature keep; load narrows — same scene ≠ same C | §92 SAM/Estes/Lavie |
+| graded place overlap | reinstate ∝ ctx_overlap; lookalikes cue at ~⅓; changed places flag + drift-pull | §93 Smith & Vela; HYP |
+| gaze locus | +0.05 spatial-detail cue mass, within-location only | §93 J&J 2014 |
+| near-twin band | <sep_band → separate (`mixed_up`, both out) or complete (wrong pick + field borrow); age completes | §94 Kirwan & Stark; Yassa & Stark |
+| suspension | pending head decays; same-topic interrupt multiplies decay ×0.6; resume needs re-cue + lag ∝ duration | §95 Gillie & Broadbent; Monk |
+| open query | failed search arms 2d latent query; involuntary scan fires it at low threshold; pop = re-run on new C | §96 Yaniv & Meyer; Sio & Ormerod |
+
+## 98. Validation probes P1035–P1044 (v98 suite)
+
+- **P1035 sampling variance (MUST):** identical scene, N=200 probes
+  across decorrelated bouts → recall outcomes vary; immediate re-probe
+  outcome correlation ∈ [0.5, 0.9] — bounded, not 1.0 (would be
+  double-dipping) and not 0 (would deny the shared scene).
+- **P1036 load narrows the sample (SHOULD):** high-load scene vs low-load
+  same scene → involuntary retrieval count and peripheral-cue recall
+  both drop; central-topic recall ~flat (Lavie: load spares focal).
+- **P1037 graded reinstatement (MUST):** place overlap 1.0 / 0.5 /
+  lookalike-0.35 / 0 → monotone decreasing cueMatch; changed_place
+  emitted only in the band; ≥1 lookalike false-cue event in N runs.
+- **P1038 gaze locus (SHOULD):** congruent-locus attention recovers
+  spatial-relational verbatim fields at +≥5% vs incongruent; object-
+  feature fields ~flat (J&J's asymmetry preserved).
+- **P1039 separation gate (MUST):** a near-twin pair (Δ cueMatch <
+  sep_band): `mixed_up` rate > 0.1; wrong-pick rate > 0.05;
+  70yo profile's completion rate ≥ 1.5× the 30yo's; a third record
+  outside the band is unaffected.
+- **P1040 suspended bout (MUST):** same-topic interruption kills
+  pending_cand at ≥ `susp_sim_pen`-consistent rate; unrelated-topic
+  interruption survives at ≥ susp_keep_p; below-floor candidate emits
+  "lost it" and leaves no retrievable trace (no free rehearsal).
+- **P1041 resumption lag (SHOULD):** resume latency scales monotonically
+  with suspension duration; length-of-interruption at fixed similarity
+  affects lag but NOT survival (Gillie & Broadbent's asymmetry).
+- **P1042 loaded question (MUST — locked-null class):** failed search →
+  within openq_hl, a matched cue produces `popped` + successful re-run;
+  after expiry, rate ≈ baseline; `openq_solve_null` — popped retrievals
+  obey the normal threshold exactly.
+- **P1043 re-probe decorrelation (SHOULD):** immediate re-probe
+  correlation > next-day re-probe correlation by ≥0.3.
+- **P1044 changed-place pull (SHOULD):** after K changed-place visits,
+  record's stored place-detail drifts toward the visited state vs
+  no-visit control; pull per visit ≤ ctx_drift_pull cap.
+
+## 99. Honest limits (v98 additions)
+
+- `ctx_keep_p` 0.7 is our stand-in for stimulus-sampling theory — SAM
+  assumes sampling but never prices a scene-feature keep rate; P1035
+  locks the observable (outcome variance + re-probe correlation), not
+  the constant.
+- `ctx_overlap` sub-feature weights are uniform in v5.46; the literature
+  grades overlap only qualitatively. The lookalike mis-reminding rate is
+  a free prediction — real, but unpriced in humans.
+- `ctx_drift_pull` is a modeling hypothesis built on reconsolidation +
+  schema drift; no direct human measure of place-record updating by
+  changed-place visits. Kept small (0.02/visit) and capped by probe.
+- `sep_band`/`sep_bias(age)` translate a neuro-computational account
+  (DG/CA3) to a decision threshold; the age asymmetry direction is
+  Kirwan & Stark consensus, the 1.5× completion ratio in P1039 is ours.
+- `susp_decay`/`susp_sim_pen` quantify Gillie & Broadbent's qualitative
+  similarity result; `susp_keep_p` models their non-articulatory store
+  as survival probability — the store's real capacity is unknown.
+- `openq_arm`/`openq_hl` — Yaniv & Meyer's latency data show persistence,
+  not duration; 2d is a guess bounded by diary phenomenology. The
+  locked-null probe P1042 is the falsifiable part: persistence must
+  never mint access.
+
+---
+
+# Part X — the cue that isn't a place, a smell, or a word
+
+Parts I–IX priced cue fields, contexts, mechanics, ownership,
+direction, sampling, and persistence. Part X prices what was
+left: **cue modalities outside the visual-verbal core** (the
+voice, the body), **the metacognitive cue that fires before the
+search** (the question's own familiarity), **the cue supplied by
+someone else that is wrong** (contamination), and **the
+direction of travel** (forward vs backward traversal of a
+sequence). Spec changes land in `memory-model-spec.md` v5.58
+§§5.116–5.120; probes P1166–P1175.
+
+## 100. The voice at the door — earwitness cuing
+
+- **McGehee 1937** (*J. Gen. Psychol.* 17:249): listeners picked
+  one target voice from a five-voice set after delays of 1 day
+  to 5 months — 83% at 1 day → ~13% (chance) at 5 months.
+  **McGehee 1944** (*J. Gen. Psychol.* 31:53): similar task, a
+  shallower curve — ~85% at 2 days decaying to a ~45–48%
+  plateau at 8 weeks. **[CONSENSUS that unfamiliar-voice
+  identification is error-prone and decays steeply in the first
+  weeks; the exact long-run floor is DEBATED — the two McGehee
+  curves disagree and Clifford's 1980 review calls later
+  studies equivocal on delay.]**
+- **Clifford 1980** (review, *Bull. Br. Psychol. Soc.* 33:339):
+  earwitness identification is consistently weaker and more
+  error-prone than eyewitness identification; duration of
+  exposure at encoding dominates retention interval as a
+  predictor. **[CONSENSUS]**
+- **Stevenage, Clarke & McNeill 2012** (*J. Cogn. Psychol.*
+  24:647, the "other-accent" effect): sequential voice lineups —
+  listeners are more accurate AND more confident on own-accent
+  voices, under both target-present and target-absent
+  conditions. **[CONSENSUS, effect size moderate.]**
+- **Kerstholt, Jansen, Van Amelsvoort & Broeders 2006** (*Appl.
+  Cogn. Psychol.* 20:187): accent, retention interval and
+  telephone bandwidth all degrade earwitness performance —
+  the channel is part of the cue. **[CONSENSUS]**
+- Own-age in voices: an own-age bias exists in *estimating*
+  speaker age (older listeners preserved on own-age voices,
+  impaired on younger voices — 2017, *Psychologica Belgica*);
+  for *discrimination*, a 2025 speaker-discrimination study
+  (*Cogn. Res. Princ. Implic.*) found older listeners worse
+  overall with a "same"-bias toward younger and female voices
+  but no clean own-age interaction. **[DEBATED — weaker than
+  the face own-age bias §5.36; we price only the main-effect
+  listener-age penalty.]**
+- **Familiarity rescues it:** the lab literature is almost
+  entirely about strangers' voices; everyday phenomenology and
+  the forensics literature agree familiar voices (family,
+  partners, the neighbor through the wall) are recognized at
+  near-ceiling and resist decay. **[CONSENSUS direction;
+  magnitudes are [HYPOTHESIS].]**
+- Model consequence (§5.116): person records gain a
+  `voicePrint` field; a voice in `C` runs a separate cascade
+  tier with a lower ceiling, exposure-gated mint, steep early
+  decay on unfamiliar prints, distinctiveness and accent-match
+  modifiers, and a voice→name link weaker than face→name.
+- RW texture: the phone caller whose voice a character half-
+  recognizes ("is that... Rita? — no, wait"); the landlord's
+  voice through a door; the scam-call vulnerability of an old
+  profile whose voice discrimination is already degraded.
+
+## 101. The body keeps a copy — posture and proprioceptive cuing
+
+- **Dijkstra, Kaschak & Zwaan 2007** (*Cognition* 102:139):
+  autobiographical retrieval is faster when the rememberer's
+  body position matches the posture of the original episode;
+  two-week-delayed free recall is also better for
+  posture-congruent retrievals. Younger and older adults both
+  show it (only the accuracy ceiling differed).
+  **[CONSENSUS direction; single-lab, moderate size.]**
+- Mechanism is the embodied version of encoding specificity:
+  body state is a context feature that was stored with the
+  record. It is NOT the same as enactment (§5.41 — the motor
+  trace of doing the task) or mood/state-dependence (§5.3,
+  §5.113 — arousal and pharmacological state); posture is
+  cheaper, quieter, and non-pharmacological.
+- Model consequence (§5.117): records carry a coarse `posture`
+  tag in ctx {stand, sit, recline, walk}; `C.posture` adds a
+  small drive term `posture_w` to EPISODIC records only
+  (locked `posture_sem_null` — semantic recall is unaffected),
+  a congruent-posture latency discount `posture_lat_gain`, and
+  a small re-encode dividend `posture_recall_gain` — the
+  2-week free-recall benefit means congruent retrieval
+  consolidates better.
+- RW texture: lying down to sleep is when the fight from the
+  couch comes back; standing at the sink returns kitchen
+  memories. The effect is small — deliberately sub-`w_msd`,
+  in the same tier as `arousal_match_w` (§5.113).
+
+## 102. The question answers itself first — the pre-search FOK
+
+- **Reder & Ritter 1992** (*JEP:LMC* 18:435): people decide
+  whether they know an answer in <850 ms — far faster than the
+  answer can be retrieved — and the decision is driven by
+  familiarity of the QUESTION terms, not by retrievability of
+  the answer. Priming the cue raises FOK without raising
+  recall; priming the target raises recall without raising FOK
+  (Metcalfe, Schwartz & Joaquim 1993, *JEP:LMC* 19:1074 —
+  "cue familiarity but not target retrievability").
+  **[CONSENSUS — one of the most replicable dissociations in
+  metamemory.]**
+- **Koriat & Levy-Sadot 2001** (*JEP:LMC* 27:34): the two
+  heuristics are CASCADED — cue familiarity operates early;
+  Koriat's accessibility (partial-retrieval products, our
+  §5.21 `fok`) contributes later, and mostly only when cue
+  familiarity is high enough to drive the interrogation.
+  **[CONSENSUS as ordering; the interaction is the measured
+  signature.]**
+- Model consequence (§5.118): retrieval gains a cheap
+  pre-search stage — `fok_pre` from the familiarity of the cue
+  vector's TERMS alone (does this question sound like
+  something I'd know?), computed before any candidate scan.
+  Below `bout_enter` the character answers instantly "I have
+  no idea" and no bout runs. This is a compute saving AND a
+  human truth: instant "dunno" is a different phenomenon from
+  a searched "hmm, can't place it". The §5.21 accessibility
+  FOK then only modulates effort when `fok_pre` opened the
+  door — the cascade.
+- **Locked `fok_pre_acc_null`:** `fok_pre` is decorrelated
+  from record existence BY CONSTRUCTION — a familiar question
+  with no answer still feels known (the Reder-Ritter
+  dissociation is load-bearing). Same doctrine as P194's
+  accuracy-blind FOK, one stage earlier.
+
+## 103. The supplied wrong cue — contaminated cue vectors
+
+- A cue from another character is not always true. "It was
+  Tuesday, right?" / "his name starts with K" / "you were
+  sitting over there." The asker's wrong feature joins the
+  search anyway — humans cannot unhear a supplied detail.
+- **Smith & Blankenship 1991** (*Mem. Cognit.* 19:311):
+  misleading initial cues block problem resolution, and
+  removing the misleading cue set is a large part of what
+  incubation buys (already §96's mechanism for the loaded
+  question — §103 generalizes it: the wrong cue doesn't just
+  fail to help, it captures).
+- **Jones & Langford 1987** (*Cognition* 26:115) and Jones
+  1989 (*Mem. Cognit.* 17:69): phonologically related
+  interloper words raise TOT incidence — Woodworth's blocking
+  account. **[DEBATED — Meyer & Bock's matched-control
+  replications (1992, *Bull. Psychon. Soc.* 30:373) found NO
+  interloper effect once item difficulty was matched; we keep
+  the effect small and confined to the phonological field.]**
+- **Maylor 1990** (*Br. J. Psychol.* 81:449): the phonological
+  blocking effect DECREASES with age — older adults suffer
+  more TOTs overall but are LESS captured by supplied
+  phonological blockers (their failure is access, not
+  capture). **[CONSENSUS direction, single study.]**
+- Model consequence (§5.119): externally supplied features
+  carry `supplied:true` and enter C at weight `hint_w·w_j`
+  regardless of truth. A wrong supplied feature (a) raises
+  drive of records matching IT (the capture), (b) dilutes the
+  target's diagnosticity in the conjunction (§5.71), and (c)
+  lingers `hint_linger_hl` into the next same-topic bout —
+  fixation survives the immediate search. Phonological-field
+  wrong hints take the age-discounted `hint_phon_age` slope.
+- **Locked `hint_mint_null`:** supplied features are CUE
+  material only — they never write to any record. Whatever
+  they distort arrives through §6's normal misinformation
+  channels, not through the cue gate.
+- RW texture: the character who can't remember the name
+  because a partner confidently said the wrong one; the
+  witness whose search is poisoned by the interviewer's
+  detail; the TOT that survives because "it starts with K"
+  keeps pulling K.
+
+## 104. Forward is downhill — serial-direction cue asymmetry
+
+- **Kahana 1996** (*Mem. Cognit.* 24:103): lag-CRP analysis of
+  free recall — after recalling item i, subjects are ~2× as
+  likely to recall item i+1 as i−1, and faster doing it. The
+  forward asymmetry holds at all output positions; in CUED
+  (pair) recall, retrieval is nearly symmetric.
+  **[CONSENSUS — among the most robust regularities in
+  recall.]**
+- **Thomas, Milner & Haberlandt 2003** (*Psychol. Sci.*
+  14:170): backward recall isn't a backward search — it is
+  repeated covert FORWARD passes (walk the list from the start
+  each time, stop one earlier). Signature: forward RTs flat
+  after the first item; backward RTs start slow and SPEED UP
+  across output positions as the residual list shrinks.
+  **[CONSENSUS as dynamics; accounts differ on the
+  implementation.]**
+- **Howard & Kahana 2002** (*JML* 46:998) and Kahana et al.
+  2002: temporal contiguity itself declines across the
+  lifespan — older adults' transitions are less
+  lag-concentrated. **[CONSENSUS direction.]**
+- Model consequence (§5.120): reminding chains (§5.17) and
+  burst transitions (§5.73) are direction-weighted —
+  `chain_fwd_w` 1.0 vs `chain_bwd_pen` 0.5. "What happened
+  next?" flows; "what happened before that?" pays
+  `bwd_cycle_cost` per skipped item — backward narration runs
+  the covert-forward mechanic, producing the inverse-U
+  latency profile for free. Direct pair queries
+  ("X and Y — which came first?") set `pair_cue:true` and
+  bypass the asymmetry (cued recall is symmetric).
+- RW texture: telling the day backwards is work; telling it
+  forwards is story. The old character asked "what did you do
+  before lunch?" silently replays breakfast→lunch to find out.
+
+## 105. Cue hierarchy — v110 additions to the §97 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| voice in C | separate cascade tier; unfamiliar prints decay ~2× episodic fields → chance at ~5mo; familiar near-ceiling; accent match +, telephone −; voice→name weaker than face→name | §100 McGehee; Stevenage 2012; Kerstholt 2006 |
+| posture match | +0.05 episodic drive, latency −10%, congruent re-encode +10%; semantic flat | §101 Dijkstra 2007 |
+| question-term familiarity | pre-search fok_pre <850ms; below bout_enter → instant "dunno", no bout; decorrelated from existence | §102 Reder & Ritter; K&L-S 2001 |
+| supplied wrong feature | enters C at half weight; captures matching records, dilutes target diagnosticity, lingers 0.3d; phonological leg ages DOWN | §103 Smith & Blankenship; Jones & Langford; Maylor |
+| chain direction | forward transitions 2× backward; backward = covert forward passes with per-item cost; pair cues symmetric | §104 Kahana 1996; Thomas 2003 |
+
+## 106. Validation probes P1166–P1175 (v110 suite)
+
+- **P1166 unfamiliar-voice decay (MUST):** 5-voice lineup on
+  prints with uses<3 → ID ≥0.75 at 1d, ≤0.35 at 150d; the
+  curve must be front-loaded (McGehee 1937 shape, not linear).
+- **P1167 voice familiarity/distinctiveness (SHOULD):**
+  voicePrints with uses≥3 hold ≥0.8 at 60d; high-distinctiveness
+  voices ≥1.3× typical at 14d.
+- **P1168 accent and channel (SHOULD):** accent-mismatch
+  speakers misidentified ≥1.3× own-accent; `telephone_pen`
+  measurably lowers voice-tier drive.
+- **P1169 posture congruence (MUST):** congruent posture →
+  retrieval latency −≥8% and delayed free-recall +≥5% vs
+  incongruent; semantic recall delta ≈0 (`posture_sem_null`).
+- **P1170 pre-search gate (MUST — locked-null class):**
+  unfamiliar-cue questions terminate ≥60% without a bout, at
+  latency < bout latency/2; corr(`fok_pre`, record existence)
+  ≈0 (`fok_pre_acc_null`) while corr(fok_pre, cue-term
+  familiarity) > 0.5.
+- **P1171 cascaded FOK (SHOULD):** accessibility manipulations
+  shift the reported FOK only when fok_pre ≥ bout_enter —
+  interaction reproduces Koriat & Levy-Sadot's pattern, not
+  additivity.
+- **P1172 wrong-hint capture (MUST):** a supplied wrong
+  feature lowers correct-target recall vs matched no-hint
+  control within the bout; suppression concentrates on
+  records matching the wrong feature; a same-topic bout within
+  `hint_linger_hl` retains ≥50% of the suppression.
+- **P1173 hint age interaction (SHOULD):** phonological-field
+  wrong hints suppress LESS at 70 than at 30 (Maylor 1990)
+  while baseline TOT rate is higher; semantic-field wrong
+  hints show no such attenuation.
+- **P1174 forward asymmetry (MUST):** chain transition
+  probability at |lag|=1, forward ≥1.5× backward; `pair_cue`
+  probes show symmetric transitions ±10%.
+- **P1175 backward latency profile (SHOULD):** first backward-
+  direction emission is slower than forward; per-emission
+  latency DECREASES across a backward narration (covert-forward
+  traversal) — the Thomas signature.
+
+## 107. Honest limits (v110 additions)
+
+- The McGehee curves disagree with each other (13% vs ~45% at
+  long delay); `voice_decay_mult` 2.0 splits the difference and
+  P1166 locks the SHAPE (front-loaded, sub-chance asymptote
+  banned) rather than the point values. Closed-set lineup
+  accuracy is also not RW identification — the real task is
+  open-set naming, likely worse; we err conservative.
+- Familiar-voice near-ceiling recognition is phenomenology plus
+  forensics, not a priced lab curve; `voice_fam_min` 3 uses is
+  our floor.
+- The 2017 own-age voice result is age ESTIMATION, not
+  identification; the 2025 discrimination study found only the
+  listener-age main effect — we priced the main effect only.
+- Posture effect is single-lab; `posture_w` 0.05 is deliberately
+  the smallest context weight in the spec, and the semantic
+  null is our extrapolation (Dijkstra tested autobiographical
+  only).
+- `fok_pre` cue-term familiarity is implemented as cue-vector
+  familiarity — Reder & Ritter used question terms; mapping
+  "terms" to C features is our formalization.
+- Interloper blocking is DEBATED (Meyer & Bock 1992 found no
+  effect at matched difficulty); we keep `hint_w` modest and
+  P1172 measures the capture as suppression-vs-control, not a
+  blocking mechanism.
+- `chain_bwd_pen` 0.5 prices Kahana's ~2:1; `bwd_cycle_cost`
+  prices Thomas's covert passes — both applied to REMINDING
+  chains, our analog of lag transitions, not literal list
+  recall.

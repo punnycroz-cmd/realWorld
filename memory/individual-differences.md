@@ -2457,3 +2457,2462 @@ birth_order·*       0.0      (mandated — see §58)
 - The birth-order null is the strongest finding in the part —
   three national panels, null across five traits — and it is the
   only axis where "do nothing" IS the model.
+
+---
+
+# Part VI — v67: the sixth axis of difference (the two tails of
+# autobiographical memory, the motivated and elaborative minds,
+# the body history nobody chose, and the second mandated null)
+
+The earlier parts covered the clinical phenotypes and the
+everyday pharmacopeia. Part VI closes the remaining gaps a cast
+bible actually reaches for: what if a character never forgets
+*their own life* (HSAM) or can't re-live it at all (SDAM)?
+What about the character who simply *thinks harder* (need for
+cognition), the one whose self-esteem edits what gets kept
+(mnemic neglect), the one carrying an old concussion or an
+invisible gene, the synesthete, the ruminator — and one more
+bible-visible field that must do *nothing* (learning styles).
+Each axis below gets the same treatment: literature, mechanism
+choice, loadings, and the explicit null that keeps it honest.
+
+## 63. `hsam` — the calendar that never fades (the upper tail)
+
+Highly Superior Autobiographical Memory: Parker, Cahill &
+McGaugh 2006 (case "A.J."/Jill Price — first scientific
+description, diary-verified date recall); LePort et al. 2012
+(Neurobiol Learn Mem 98:78, N=11 — verified: superior recall of
+public AND personal events *with the days and dates*, but
+**comparable to matched controls on most standard laboratory
+memory tests**); LePort et al. 2016/2017 follow-ups (N≈33–60;
+elevated obsessive-compulsive spectrum traits; misinformation
+susceptibility NOT reduced — Patihis et al. 2013, PNAS 110:20947,
+HSAM participants showed DRM/misinformation false memories at
+control rates).
+
+The phenomenon is channel-specific, not general. That is the
+finding that makes it modelable: it is NOT "beta → 0
+everywhere." An HSAM character is not better at remembering
+grocery lists — they are better at remembering *their life*,
+date-stamped. The mechanism the literature points at is
+rehearsal compulsion: HSAM individuals report habitual, near-
+constant review of their own days (Parker 2006; LePort 2016 —
+the OC correlation), which in our machinery is a retell/
+reminiscence rate, not a storage miracle.
+
+**Mechanism (HYPOTHESIS-parameterization over CONSENSUS facts):**
+- `hsam` ∈ [0,1] — rare flag, ~1 per cast at most; bible-set,
+  never sampled (prevalence ~1/500 claimants confirmed, i.e.
+  effectively rarer).
+- Personal-episodic records (self-present, first-person) get
+  `beta_episodic` ×(1 − `hsam_decay_cut`·hsam), cut ≈0.85 —
+  near-permastored own-life records after ~age 10 (LePort's
+  10½-year onset boundary rides `amnesia_exit`/bump_lo — the
+  ability does NOT reach into childhood amnesia, locked).
+- `remin_w` / rehearsal sampling: own-day review bias
+  `hsam_rehearse` ≈ +0.4·hsam — the compulsion is the engine.
+- `whenEstimate` σ ×(1 − `hsam_date_acc`·hsam), acc ≈0.9:
+  date-linked recall is their signature; coarse telescoping
+  nearly absent on own-life records.
+- **Locked nulls** (the falsifiable edge): `hsam_lab_null` —
+  zero loading on enc_base, semantic, procedural, non-self
+  episodic; `hsam_misinfo_null` — zero reduction of
+  misinfo_suscept/source_confuse/DRM-style lures (Patihis 2013
+  is the anchor: false memories at control rates).
+
+## 64. `sdam` — a life story told in headlines (the lower tail)
+
+Palombo et al. 2015 (Neuropsychologia 72:105, N=3 — verified:
+lifelong inability to vividly recollect personally experienced
+events, corroborated by absent recollection biomarkers; learning
+and memory intact whenever a task "could be accomplished by
+non-episodic processes"); Palombo et al. 2018 review;
+Wan et al. 2024 — SDAM covaries with aphantasia/low imagery but
+is not identical to it. These people function normally — they
+*know* their lives without *re-living* them.
+
+**Mechanism:** `sdam` ∈ [0,1], bible-set, ~1 cast member max.
+- Encoding unchanged — records are written (they behaved
+  normally on learning tasks). The deficit is retrieval-side:
+  first-person episodic detail. Model: `specificity` effective
+  ×(1 − `sdam_thin`·sdam), thin ≈0.7 — episodic queries return
+  the generic/semantic form; `rk_thresh` shift toward `know`
+  (reportMode:"know" dominant — fluent content, thin detail).
+- `persp_obs` forced +1 equivalent on ALL records — SDAM
+  reports are third-person ("living life in the third person"
+  is the group's own description, verified in the 2015 paper's
+  reception).
+- Semantic records, skills, routines, prospective memory:
+  untouched (locked nulls). `vivid` correlates (−0.4 in R) but
+  is not required — aphantasia overlap is partial.
+- Locked nulls: `sdam_enc_null` (enc_base/E terms = 0);
+  `sdam_sem_null` (semantic/fact recall = 0); `sdam_conf_null`
+  (confidence reports may stay fluent — SDAM adults are not
+  chronically uncertain; they narrate facts about themselves).
+
+## 65. `nfc` — the mind that turns things over
+
+Need for cognition (Cacioppo & Petty 1982, JPSP 42:116 — the
+trait scale; Cacioppo, Petty, Feinstein & Jarvis 1996, Psych
+Bull 119:197 meta — verified: high-NFC people elaborate more,
+remember more *relevant* material, and — critically — show a
+bigger memory gap between strong and weak arguments; Cohen,
+Stotland & Wolfe 1955 is the grandfather study). NFC is not
+intelligence (r≈0.3 with gc) — it is *disposition to engage*.
+
+**Mechanism:** `nfc` N(0,1). Loads on encoding of
+`elaborable` content — discussions, arguments, pitches,
+explanations (Event field `arg_quality ∈ {strong,weak,mixed}`
+when the world tags persuasive content):
+- E on elaborable events ×(1 + `nfc_elab_gain`·nfc),
+  gain ≈0.15.
+- The argument-quality *split*: strong-argument fields keep
+  the bonus, weak-argument fields get ×(1 −
+  `nfc_arg_split`·nfc), split ≈0.15 — high-nfc characters
+  remember why a case was good, and remember the good cases.
+- `gist` quality on elaborable records +0.1·nfc (elaboration
+  writes better gist, not just more verbatim).
+- Locked nulls: non-elaborable events (routines, scenes,
+  faces) = 0; decay rates = 0 (NFC is an encoding disposition);
+  PM = 0.
+
+## 66. `mnemic` — the feedback the self declines to keep
+
+Mnemic neglect (Sedikides & Green 2000, JPSP 79:168; Sedikides,
+Green & Pinter 2004; Green, Sedikides & Gregg 2008, JESP
+44:547 — verified core: **poorer *recall*, unimpaired
+*recognition*, of self-threatening feedback** — negative,
+self-central, self-referent — vs self-affirming or
+other-referent feedback; the memories are "forgotten but not
+gone"; Sedikides & Green 2009 review — moderated by closeness
+of source, modifiability beliefs, and absent under ego-
+inflation; repressors show enhanced mnemic neglect).
+
+This is NOT `self_srv` (contribution bookkeeping on shared
+work) and NOT `repress` (v5.6's derived access suppression —
+mnemic neglect is its *feedback-specific* arm and the two
+share the family but not the code path). Mechanism is
+encoding-side shallow processing: the feedback that would
+hurt is "not-thought" (Sedikides & Green 2006, BBS — the
+effect is equivalent to inhibitory repression *instigated at
+encoding*).
+
+**Mechanism:** `mnemic` N(0,1), correlated with `defens`
+(+0.4) and `self_srv` (+0.25). Event field
+`self_feedback ∈ {affirm, threaten, neutral}` (world tags
+evaluative feedback events — reviews, reprimands, compliments):
+- threaten + self-referent: E ×(1 − `mnemic_shallow`·mnemic),
+  shallow ≈0.35 — the record is born thin.
+- Retrieval: recall-mode effective θ ×(1 +
+  `mnemic_theta`·mnemic) on threaten-self records;
+  recognition mode **exempt** (locked `mnemic_recog_null` —
+  the Green 2008 finding is the lock).
+- affirm-self fields: no penalty, small boost
+  ×(1 + 0.1·mnemic) — the ledger is asymmetric by design.
+- Moderator (spec §6.123): `close:true` source or
+  `modifiable:true` framing averts the effect (Green et al.
+  2009 — close others' hard feedback IS retained).
+- other-referent feedback: locked null at all trait values.
+
+## 67. `tbi` — the injury that took the week before
+
+Remote traumatic brain injury. Two real legs, both modeled:
+1. **The retrograde gap.** Ribot's gradient — injury erases
+   the hours-to-weeks *before* it while sparing remote
+   records (Russell & Nathan 1946, war-injury series —
+   classic consensus; post-traumatic amnesia duration is the
+   standard severity index).
+2. **The persistent tax.** Belanger et al. 2005
+   (Neuropsychology 19:595 meta, mild TBI — small persisting
+   effect concentrated in working memory/processing speed;
+   sports-concussion arm largely resolved by ~90 days);
+   moderate-severe TBI leaves durable episodic deficits
+   (Dikmen et al. 2009 dose-response by PTA length).
+
+**Mechanism:** `tbi` ∈ [0,2] severity trait (bible field —
+who had the crash). World mints `tbi_event:{severity}` at the
+injury day (backstory or live):
+- At mint: records with createdDay ∈ [injury − `ribot_win`,
+  injury] get strength ×(1 − `ribot_loss`), win scales with
+  severity (0.5d mild → ~30d severe) — a graduated erasure,
+  never a clean cut.
+- Persistent: `wmc`-side loadings at 0.1·tbi (plist_suppress,
+  source_confuse, stress_retrieve_loss — same target set as
+  early_adv, smaller coefficient), `pspeed` −0.1·tbi.
+- Locked nulls: `tbi_sem_null` (semantic store untouched);
+  `tbi_prog_null` (the deficit does NOT grow — remote TBI is
+  a step, not a slope; any accelerating decline belongs to
+  `apoe`/disease, not this field).
+
+## 68. `apoe` — the card dealt that nobody sees
+
+APOE ε4 carrier status. Caselli et al. 2009 (NEJM 361:255,
+N=815 longitudinal — verified: cognitively normal ε4 carriers'
+memory decline *begins before age 60* and accelerates faster
+than noncarriers, allele-dose effect; weaker effects on
+visuospatial/general status — it is a memory-specific early
+slope). Bookheimer et al. 2000 — midlife subtle differences in
+ε4 carriers; Nilsson et al. 2006 — detectable from ~50s on
+episodic measures. Modifier evidence (exercise/education
+attenuation) exists but is DEBATED (head 2020s meta-split).
+
+**Mechanism:** `apoe ∈ {e2,e3,e4}` — enum, not continuous;
+`e4_dose` ∈ {0,1,2} derived (homozygous accelerates most,
+Caselli p=0.008). Bible-invisible: characters do not know
+their genotype — this is a fate parameter, and the fix board
+of the mind has no test for it in-world.
+- Episodic-decline age curve: `decline_onset` shifts earlier
+  by `apoe_shift`·e4_dose years (≈4y/allele), and the
+  decline-slope params (beta_episodic drift, discrim_mult,
+  sws_mult) steepen ×(1 + `apoe_slope`·e4_dose) post-onset.
+- Locked nulls: below onset — EVERYTHING = 0 (a 30-year-old
+  ε4 carrier is memory-identical to e3); semantic/procedural/
+  PM channels = 0 at all ages; encoding params = 0 (the
+  allele moves decline, not learning).
+
+## 69. `synesth` — a small honest advantage
+
+Synesthesia. The 2019 multi-level meta-analysis (Rothen et al.,
+Memory — verified: enhanced long-term/episodic memory at
+medium effect d̂≈0.61, smaller but real WM effect d̂≈0.36;
+**pervasive across stimuli** — which the authors note is hard
+to reconcile with a direct-cue account). Rothen & Meier 2010
+group study: advantage real but "ordinary rather than
+extraordinary" — within normal range. Consensus: a modest,
+broad episodic advantage; NOT a mnemonic superpower (the
+case-study giants were selection bias, Rothen & Meier 2009).
+
+**Mechanism:** `synesth` ∈ [0,2] (0 absent; 1 grapheme-color
+typical; 2 strong multi-type). Loads: E on all episodic
+channels ×(1 + `syn_gain`·synesth), gain ≈0.08 — broad and
+small (the meta's pervasiveness, honestly priced);
+`w_sensory` cue weight +0.05·synesth (extra concurrent =
+extra cue handle). Locked nulls: decay rates = 0; a
+superhuman arm is a calibration failure (Rothen & Meier 2010
+"ordinary" bound — P703 caps observable benefit).
+
+## 70. `rumin` — the needle that returns to the same groove
+
+Response-styles trait (Nolen-Hoeksema 1991, JPSP 60:115 —
+ruminative responses prolong negative mood; Watkins 2008,
+Psych Bull 134:163 — verified the constructive/unconstructive
+split: *brooding* = passive dwelling, maladaptive; *reflection*
+= problem-focused, can be adaptive; Lyubomirsky & Tkach 2004 —
+ruminators recall more negative autobiographical content and
+negative interpretations). Distinct from `neurot` (R +0.4 —
+dispositional negative affect), which feeds mood; `rumin` is
+the *rehearsal allocation* policy.
+
+**Mechanism:** `rumin` N(0,1) — positive side = brooding.
+- Rehearsal sampler bias: negative self-referent records
+  re-sampled at base rate ×(1 + `rumin_sel`·rumin+), sel ≈0.4
+  — negative records get retell/refresh cycles their valence
+  would not earn them.
+- `neg_affect_decay` toward 1 by ×(1 − 0.12·rumin+) — the
+  unfaded negative (FAB reduction, parallel to alexith's leg
+  but rehearsal-mediated, not affect-flat).
+- `intrusion_thresh` −0.1·rumin+ on negative-cued records
+  (involuntary returns).
+- The reflection side: rumin− (below 0) gets a *small*
+  positive-resolution bonus `rumin_refl_gain` ≈0.05 on
+  problem-framed retells (Watkins 2008 — reflection can help).
+- Locked nulls: positive/neutral records' rehearsal rate = 0
+  delta; encoding params = 0 (rumination is a post-encoding
+  habit — the record is born normally, it just never rests).
+
+## 71. `learn_style` — the second mandated null
+
+Learning styles. Pashler, McDaniel, Rohrer & Bjork 2008 (Psych
+Sci Public Interest 9:105 — verified: no credible evidence for
+the meshing hypothesis; the studies that would support it
+lacked the required crossover design; Rogowsky, Calhoun &
+Tallal 2015 RCT null — matching "auditory/visual learner"
+instruction to preference did nothing for comprehension).
+A "visual learner" encoding preference is folk psychology,
+not memory science — the modal channel of a *good teacher* is
+the content's own channel, not the learner's.
+
+**Mechanism:** `learn_style ∈ {visual,verbal,auditory,kinesth}`
+exists as a bible field — characters believe in it, mention it,
+even self-sort by it — with every loading locked at 0.0 and
+the R-row zeroed. Like `birth_order` (§58): the field's
+purpose is to make "no effect" a *first-class representable
+outcome*. A future "meshing bonus" lands as a decision with a
+probe failure attached, not as silent drift (P705).
+
+## 72. Cross-version interactions (audit)
+
+- `hsam` × `sdam`: mutually exclusive — the projection clamps
+  hsam·sdam ≈ 0 (cannot be both tails); if both sampled, keep
+  the larger, zero the other.
+- `hsam` × age curves: hsam_decay_cut applies multiplicatively
+  INSIDE the age machinery — an 80-year-old HSAM still
+  outremembers peers but does not freeze decline (LePort
+  cohort is middle-aged; extension is HYPOTHESIS, bounded).
+- `sdam` × `persp_obs` (v4.2): sdam forces observer
+  perspective independent of the persp_obs trait — additive
+  clamp, never both stacked beyond the field's range.
+- `mnemic` × `repress` (v5.6 §6.102): shared family, distinct
+  gates — repress suppresses *access* on negative-self records
+  broadly; mnemic thins *encoding* of feedback events
+  specifically. A high-defens character shows both; they
+  compose, never double-count (P700 checks the recognition
+  exemption which is mnemic-specific).
+- `mnemic` × `depr` (v4.2): depressed characters show REDUCED
+  mnemic neglect (Sedikides & Green 2009 — dysphoria
+  attenuates self-protection) — depr>0.5 halves
+  mnemic_shallow.
+- `tbi` × `early_adv` (v5.3): additive on the shared wmc-side
+  target set; cap the joint multiplier at 1.3× — tails compose
+  sublinearly.
+- `apoe` × `fitness` (v1.9): fitness reserve mitigation is
+  DEBATED — no loading shipped; flagged for a future pass
+  when the human meta-analysis settles.
+- `rumin` × `neurot`: R +0.4 carries the comorbidity; loading
+  targets are disjoint (neurot feeds state mood/w_state; rumin
+  feeds rehearsal policy) — a correlation, not a coupling.
+- `nfc` × `gc`: R +0.3 (disposition vs ability, Cacioppo 1996);
+  nfc moves encoding effort on elaborable content, gc moves
+  general accuracy — orthogonal in the loading table.
+- `learn_style` × everything: 0.0 — the R-row is all zeros.
+
+## 73. Extended trait vector, R additions, loading table (Part VI)
+
+```json
+IndivTraits += {
+  "hsam":      0.0,   // autobiographical upper tail [0,1], bible-set
+  "sdam":      0.0,   // autobiographical lower tail [0,1], bible-set
+  "nfc":       0.0,   // need for cognition — disposition to elaborate
+  "mnemic":    0.0,   // mnemic-neglect self-protection amplitude
+  "tbi":       0.0,   // remote head-injury severity [0,2], bible-set
+  "apoe":      "e3",  // enum {e2,e3,e4}; e4_dose derived; hidden field
+  "synesth":   0.0,   // synesthesia [0,2] — small broad advantage
+  "rumin":     0.0,   // response style: + brooding / − reflection
+  "learn_style": "visual"  // DOCUMENTED NULL — all loadings 0 (§71)
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+hsam·sdam         −1.0   (exclusive tails — hard clamp, §72)
+hsam·rumin        +0.35  (the rehearsal compulsion IS the overlap
+                          — LePort 2016 OC-spectrum correlation,
+                          CONSENSUS direction)
+hsam·vivid        +0.2   (richer phenomenology — DEBATED)
+sdam·vivid        −0.4   (aphantasia overlap — CONSENSUS dir.,
+                          Wan 2024; partial, not identical)
+sdam·g_mem        −0.2   (episodic factor loads — CONSENSUS dir.)
+nfc·gc            +0.3   (Cacioppo 1996 — CONSENSUS)
+nfc·open          +0.3   (disposition shares novelty-seeking)
+mnemic·defens     +0.4   (repressors show enhanced neglect —
+                          Sedikides & Green 2009, CONSENSUS dir.)
+mnemic·self_srv   +0.25  (self-protective family)
+mnemic·depr       −0.3   (dysphoria attenuates it — CONSENSUS dir.)
+tbi·early_adv     +0.25  (sampling corr: adversity co-travels)
+apoe·*            0.0    (genotype is independent — CONSENSUS)
+synesth·vivid     +0.25  (concurrents enrich imagery — DEBATED)
+synesth·asd       +0.15  (co-occurrence reported — DEBATED)
+rumin·neurot      +0.4   (comorbidity — CONSENSUS dir.)
+rumin·depr        +0.35  (same)
+learn_style·*     0.0    (mandated — see §71)
+```
+
+### Loading table additions (rows beyond §60)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| hsam | beta_episodic on self-present records | ×(1 − 0.85·h) | CONSENSUS dir. (LePort 2012) |
+| hsam | remin_w (own-day review bias) | +0.4·h | CONSENSUS dir. (LePort 2016 OC link) |
+| hsam | whenEstimate σ (own-life) | ×(1 − 0.9·h) | CONSENSUS (date recall signature) |
+| sdam | specificity (episodic queries) | ×(1 − 0.7·s) | CONSENSUS (Palombo 2015) |
+| sdam | rk_thresh → reportMode know | +0.3·s | CONSENSUS dir. |
+| sdam | persp_obs forced observer | +1 (clamp) | CONSENSUS ("third person") |
+| nfc | E on elaborable events | ×(1 + 0.15·n) | CONSENSUS (Cacioppo 1996) |
+| nfc | arg-quality split | weak fields ×(1 − 0.15·n) | CONSENSUS (meta: strong/weak gap) |
+| nfc | gist on elaborable records | +0.1·n | HYPOTHESIS |
+| mnemic | E on self_feedback:threaten | ×(1 − 0.35·m) | CONSENSUS (Sedikides & Green 2000) |
+| mnemic | θ (recall mode) threaten-self | ×(1 + 0.4·m) | CONSENSUS |
+| mnemic | E on self_feedback:affirm | ×(1 + 0.1·m) | CONSENSUS dir. |
+| tbi | ribot retrograde window | 0.5–30d by severity | CONSENSUS (Russell & Nathan 1946) |
+| tbi | wmc-side params | ×(1 + 0.1·t) | CONSENSUS dir. (Belanger 2005) |
+| tbi | pspeed | −0.1·t | CONSENSUS dir. |
+| apoe | decline_onset / decline slopes | −4y·dose / ×(1+0.15·dose) | CONSENSUS (Caselli 2009) |
+| synesth | E all episodic channels | ×(1 + 0.08·s) | CONSENSUS (2019 meta d̂≈0.61, priced low) |
+| synesth | w_sensory | +0.05·s | HYPOTHESIS (concurrent-as-cue) |
+| rumin | negative-record rehearsal rate | ×(1 + 0.4·r⁺) | CONSENSUS dir. (Watkins 2008) |
+| rumin | neg_affect_decay | ×(1 − 0.12·r⁺) | CONSENSUS dir. |
+| rumin | intrusion_thresh (neg-cued) | −0.1·r⁺ | CONSENSUS dir. (Lyubomirsky & Tkach) |
+| rumin | problem-framed retell gain (r⁻) | +0.05·|r⁻| | CONSENSUS dir. (Watkins reflection) |
+| learn_style | ALL | **0.0 — locked** | CONSENSUS NULL (Pashler 2008) |
+
+## 74. New explicit nulls (Part VI's falsifiable edge)
+
+- `hsam` → enc_base, semantic, procedural, non-self episodic = 0;
+  misinfo_suscept/source_confuse/lure = 0 (P697 — the lab null
+  and the Patihis null are the famous finding's other half).
+- `sdam` → encoding, semantic, PM, confidence = 0 (P698).
+- `nfc` → non-elaborable material, decay, PM = 0 (P699).
+- `mnemic` → recognition mode, other-referent feedback = 0
+  (P700 — "forgotten but not gone" is the lock).
+- `tbi` → semantic store, progressive worsening = 0 (P701 —
+  a step, not a slope).
+- `apoe` → everything below onset age; semantic/procedural at
+  all ages; encoding = 0 (P702).
+- `synesth` → decay = 0; observable benefit capped "ordinary"
+  (P703).
+- `rumin` → positive/neutral rehearsal, encoding = 0 (P704).
+- `learn_style` → EVERYTHING = 0 (P705 — second honesty lock).
+
+## 75. Falsifiable probes (P697–P708; validation-design §127)
+
+- **P697 the calendar mind (MUST — two nulls locked):** hsam=1
+  vs 0, same 90-day event diet: self-present records show
+  near-flat retention + whenEstimate σ ≤ ~10% of control;
+  non-self word-list-equivalent records, misinfo_suscept, and
+  DRM-style lure acceptance IDENTICAL within jitter — a
+  general memory advantage or a false-memory shield fails.
+- **P698 the third person (MUST):** sdam=1 episodic queries
+  return generic/know-mode reconstructions ~70% more often,
+  persp_obs forced observer; semantic queries, skill
+  retention, and PM hit-rate match control; confidence
+  reports stay fluent (no chronic-uncertainty arm).
+- **P699 elaboration is choosy (MUST — sign-locked):**
+  discussion events tagged arg_quality: nfc=+1.5 shows
+  strong−weak field-retention gap ≈2× the nfc=−1.5 gap;
+  matched non-elaborable events identical; beta_* unchanged.
+- **P700 forgotten but not gone (MUST — recognition lock):**
+  matched threaten-self vs affirm-self feedback events:
+  mnemic=+1.5 recalls ~30% fewer threaten fields; recognition-
+  mode cueContext recovers them at control rate; other-
+  referent feedback identical across traits; close-source
+  threaten events exempt at all levels.
+- **P701 Ribot's window (MUST — sign-locked):** tbi_event
+  minted mid-timeline: retrograde erasure graded by severity
+  (mild ≈ hours, severe ≈ weeks), remote records spared;
+  persistent wmc-side tax present at +90d and STABLE — any
+  year-over-year growth of the deficit fails.
+- **P702 the invisible allele (MUST — onset lock):** apoe=e4
+  vs e3, age_eff curves compared: identical at 30/40; diverging
+  only past onset on episodic-side params (beta drift,
+  discrim_mult, sws_mult); semantic/procedural identical at
+  every age; homozygous > heterozygous ordering holds.
+- **P703 the ordinary advantage (SHOULD — ceiling-locked):**
+  synesth=2 shows episodic E advantage ≈5–15% across channel
+  types INCLUDING synesthesia-irrelevant material (the meta's
+  pervasiveness); >25% advantage fails — the trait is honest,
+  not cinematic.
+- **P704 the groove (MUST):** rumin=+1.5 negative records show
+  elevated rehearsal counts + slowed neg_affect_decay +
+  lowered intrusion_thresh on negative cues; positive/neutral
+  rehearsal and all encoding params identical; rumin=−1.5
+  shows the small reflection gain on problem-framed retells.
+- **P705 meshing null (MUST — honesty lock):** 200 draws
+  pinned learn_style vs randomized: modality-matched vs
+  modality-mismatched encode contexts produce identical
+  recall within jitter; ANY systematic interaction fails
+  (Pashler 2008; the field exists for bibles, not mechanics).
+- **P706 tail exclusivity (MUST):** joint sampler with
+  hsam·sdam both nonzero never emits; ordering resolves to
+  the larger magnitude; composite records show only one
+  tail's signature.
+- **P707 rehearsal is the engine (SHOULD):** ablate remin_w
+  on an hsam=1 profile (removal of the compulsion leg) —
+  the advantage collapses toward control; the ablation, not
+  the flag, carries the effect (mechanism-audit probe).
+- **P708 feedback ledger asymmetry (SHOULD):** mnemic=+1.5 ×
+  self_srv=+1.5 character gets criticized after a shared task:
+  own-effort fields stay dense (self_srv arm) while threat
+  fields thin (mnemic arm) — both operators visible in one
+  record, no interaction term.
+
+## 76. Part VI honest limits
+
+- `hsam`'s mechanism is contested in the literature — LePort
+  2016's OC-correlation supports the rehearsal account, but
+  neuroanatomical differences (9 structures) suggest
+  constitutional contributions we do not model; we chose the
+  rehearsal engine because it is implementable and P707 makes
+  the choice falsifiable.
+- `sdam` rests on N=3 (2015) plus small follow-ups — the
+  prevalence, boundaries, and aphantasia overlap are all
+  early-stage science; the strongest claim we make is the
+  episodic/semantic dissociation, which the biomarkers support.
+- `mnemic`'s effect sizes come from list-feedback paradigms
+  (trait-word feedback), extrapolated to naturalistic feedback
+  events; the recognition exemption is solid, the 0.35
+  magnitude is calibration judgment.
+- `tbi`'s ribot window compresses graded retrograde amnesia
+  into a two-parameter model; real PTA curves are messier.
+  Belanger's persistent effect is small — our 0.1 coefficient
+  sits at the strong end for mild, appropriate for moderate.
+- `apoe` models asymptomatic decline ONLY — the MCI/dementia
+  cliff is deliberately out of scope (disease trait owns that
+  door); the fitness-mitigation literature is too split to
+  price, so we shipped the null.
+- `synesth`'s pervasiveness finding (2019 meta) conflicts with
+  the direct-cue intuition; we priced the meta's pooled
+  effect, not the mechanism — if future work shows
+  stimulus-locked effects, the loading should narrow.
+- `rumin`'s brooding/reflection split is real in self-report
+  factor structure; our single-axis ± implementation is the
+  standard simplification (RRS subscales correlate ~0.6).
+- The two mandated nulls (birth_order, learn_style) now
+  bracket the trait layer: it can represent "everything" and
+  "nothing," and the nothing is load-bearing.
+
+---
+
+# Part VII — v79: the seventh axis of difference (where the
+# remembering lives — offloaded, shared, shifted; and the
+# coping styles that refuse the channel)
+
+Parts I–VI built the trait layer from ability, affect,
+metacognition, neurodivergence, clinical phenotypes, and the
+two tails. Part VII attacks the dimension all six skirted:
+**where the memory physically lives**. Human memory is
+distributed — into other people (transactive systems),
+devices (cognitive offloading), geography (navigation
+ability, the immigrant's re-anchored bump), and practice
+(trained mnemonics, per-sleep consolidation yield). The
+remaining axes cover the two ways a mind can *refuse* a
+channel (blunting vs vigilance's hypervigilance; the
+schizotypal reality-monitoring leak; the contested
+hypnotizability link) and one bilingual cost that was never
+priced.
+
+New traits: `blunt`, `trans_dep`, `offload`, `consol`,
+`nav_ab`, `schizotyp`, `hypnot`, `mnem`. New demographic
+fields (bible-set, not σ-traits): `immig_age`, `grew_rural`.
+No deletions.
+
+## 77. `blunt` — the coping style that looks away
+
+Miller's monitoring-blunting construct (Miller 1980 —
+"When is a little information a dangerous thing?"; Miller &
+Mangan 1983 — blunters under monitored vs distracting
+conditions) is the missing mirror of `vigil` (§24). Vigil is
+threat-channel *hypervigilance*; blunters are the documented
+opposite pole: they self-select OUT of threat information —
+less intake, less arousal, less memory for threat-relevant
+material, WITHOUT being low-anxious people. The distinction
+that matters for RW: neurot is how loudly the alarm rings;
+blunt/vigil is whether the person faces the siren or the
+wall.
+
+- `blunt` σ ∈ [−3, +3] (+ = blunting pole; −σ degenerates
+  toward monitoring/vigil behavior — the scale is bipolar in
+  the literature). r(vigil) −0.5 (the same axis's two poles —
+  CONSENSUS direction: the MBS scale was built bipolar);
+  r(neurot) ≈ −0.1 (orthogonal to distress level — the
+  construct's whole point).
+- Loadings: on records the event layer tags
+  `anticipThreat:true` (warnings, medical news, "we need to
+  talk"): `w_emo_neg ×(1 − blunt_avoid_k·blunt)` (0.12 —
+  intake is shallow); `intrusion_thresh += 0.04·blunt` on
+  threat-cued records (the trace exists but doesn't
+  spontaneously resurface); retell_omit ↑ on threat topics
+  for +blunt characters (they don't bring it up — behavior,
+  not storage). Recall-side drive: Mitte's recall bias
+  (§24) is *reversed* for +blunt — `vigil_recall_bias` term
+  uses `(vigil − 0.8·blunt)` as its effective operand.
+- Explicit nulls: `blunt → beta_*` = 0; `blunt → E` on
+  non-threat records = 0; `blunt → suggs` = 0 (avoidance is
+  not compliance). A blunter who DOES encode a threat record
+  keeps it normally — the filter is at the door.
+
+## 78. `immig_age` — the bump that moved
+
+The reminiscence bump is not nailed to adolescence.
+Schrauf & Rubin (1998, JML 39:437 — verified: 12 adult
+immigrants, bump followed age at immigration and settlement,
+not ages 10–30) and Schrauf & Rubin (2000, ACP — life-story
+narratives: recall increase centered on immigration age;
+immigration memories themselves not rated more emotional or
+detailed — the effect is distribution, not tagging) show a
+*second* bump anchored to the life transition. The cognitive
+account (novelty + effort-after-meaning + release from
+proactive interference at settlement) is exactly what our
+bump machinery already prices — we just let it anchor twice.
+
+- `immig_age` ∈ {null, 10..70} — bible-set demographic field
+  (null = native-born; the Mission's immigrant cast members
+  get a real, documented memory-distribution signature).
+- Model: the bump window becomes the UNION of
+  [bump_lo, bump_hi] and [immig_age − 3, immig_age + 12] —
+  the second window carries the same `bump_beta_mult` and
+  `bump_self_thresh` gates. `lang` field (§11) does the
+  split: pre-immigration records overwhelmingly in L1,
+  post-immigration increasingly in L2 — so the
+  `lang_mismatch` cost (v1.9) partitions the character's
+  own past by language, and Marian & Neisser-style probes
+  (§11/P174) hit a real boundary. [CONSENSUS that the bump
+  relocates; window width ±3/+12 is our HYPOTHESIS fit.]
+- Explicit nulls: `immig_age → beta_*` = 0 outside windows;
+  `immig_age → valence/arousal tagging` = 0 (Schrauf & Rubin
+  2000's own null — the era is dense, not hotter).
+
+## 79. `trans_dep` — the memory that lives in the partner
+
+Wegner's transactive memory (Wegner 1987; Wegner, Erber &
+Raymond 1991 — verified: couples outperform impromptu pairs
+only when left to their natural division of memory labor;
+assigned structure *hurts* real couples) is the strongest
+existence proof that "where information lives" is a
+person-level parameter, not a fact about the world. The
+counterweight is collaborative inhibition (Weldon &
+Bellinger 1997 — verified: collaborative dyads recall LESS
+than pooled-nominal dyads — retrieval strategy disruption);
+the two effects coexist: partners store pointers to each
+other AND recall-alone beats recall-together.
+
+- `trans_dep` σ ∈ [−3, +3]; r(attach_anx) +0.2, r(extra)
+  +0.15, r(social) +0.25. Trait = habitual reliance on a
+  designated partner as external store.
+- Model: a profile may carry `trans_partner:<charId>`
+  (world-builder sets on couples/long roommates). On events
+  tagged `shared:true` with partner present, content fields
+  encode at `×(1 − trans_shift·trans_dep)` (0.15) while a
+  `pointer` field mints at `+0.3·trans_dep` — "she'll
+  remember the reservation." Pointer fields cue
+  `askPartner` retrieval: joint-recall (`cueContext.
+  partnerPresent:true`) restores the deficit with bonus
+  `joint_boost` (0.1); solo recall gets the content penalty
+  bare.
+- Collaborative inhibition leg: `cueContext.recallTogether`
+  applies `collab_inhibit` (0.12) drive penalty to BOTH
+  members — but its variance-reduction is a benefit the
+  spec prices as `collab_stab` (drift_p ↓ on agreed fields —
+  Weldon's "group recall more stable over time").
+- **Bereavement/breakup edge (the drama):** partner exit
+  (`trans_partner` cleared or `partner_lost:true` event)
+  leaves orphaned pointer fields — records whose content was
+  never written. These produce the signature emission
+  `orphan_recall` ("I keep reaching for her half of the
+  memory"): retrieval attempts that resolve pointers to
+  absent partners emit sparse content + high FOK with no
+  resolution. The widower's amnesia is structural, not
+  psychodynamic. [CONSENSUS for transactive storage; the
+  orphan-recall phenotype is documented bereavement folklore
+  formalized — HYPOTHESIS.]
+
+## 80. `offload` — the phone remembers so you don't have to
+
+Sparrow, Liu & Wegner (2011, Science 333:776 — verified:
+expecting future access to information lowers recall of the
+information and raises recall of WHERE to get it) plus the
+offloading literature (Risko & Gilbert 2016 — intention
+offloading to external store reduces internal memory;
+camera/photo work: Henkel 2014 "point-and-shoot" memory
+impairment for photographed objects) establish a modern,
+Mission-plausible axis: habitual externalization.
+
+- `offload` σ ∈ [−3, +3]; r(inattn) +0.2, r(consc) −0.15
+  (weak — offloaders are not less conscientious, differently
+  conscientious).
+- Model: events the world tags `externalized:true` (photo
+  taken, address saved, message sent) get `E_content
+  ×(1 − offload_k·offload)` (0.2) but mint a durable
+  `ext_pointer` field (where it's stored — photo roll, chat
+  thread, contact card) at `+0.3·offload`. The pointer is a
+  semantic-tier fact, not episodic — it survives beta_episodic
+  decay.
+- Retrieval: `ext_pointer` resolves via `lookup` op (world-
+  mediated, cheap, perfect recall of the EXTERNAL content —
+  the phone doesn't misremember); but records consulted via
+  lookup gain NO retell_boost rehearsal credit on first
+  lookup — the familiar finding that looking something up
+  is not remembering it. Second+ lookups of the same pointer
+  DO start accruing rehearsal (repeated consultation
+  internalizes — HYPOTHESIS but the only sane rule).
+- **Loss edge:** `pointer_dead:true` (phone lost, account
+  deleted, chat history wiped) orphans ext_pointers — same
+  orphan_recall machinery as §79, device flavor. The
+  character knows there WAS a photo and nothing more.
+  [CONSENSUS for the where-vs-what split; loss-edge
+  phenomenology is HYPOTHESIS.]
+- Explicit nulls: `offload → enc_base` = 0 on non-
+  externalized events (Sparrow: the deficit is conditional
+  on expected access, not global); `offload → beta_*` = 0;
+  `offload → misinfo_suscept` = 0.
+
+## 81. `consol` — sleep yield, not sleep quantity
+
+`sleep` (§2.10) is how well a character sleeps; `consol` is
+how much memory a unit of sleep buys. The literature
+separates them: sleep spindle density/activity correlates
+with overnight memory retention beyond sleep duration
+(Gais, Mölle, Helms & Born 2002 — spindle activity after
+learning predicts retention; Schabus et al. 2004 — spindles
+differ between good and poor declarative-memory sleepers);
+and nappers/non-nappers differ in nap benefit (Mednick's
+lab). Two characters on identical 7-hour nights bank
+different amounts of yesterday.
+
+- `consol` σ ∈ [−3, +3]; r(sleep) +0.35 (good sleepers tend
+  to consolidate better — partial, not identical);
+  r(aging_rate) −0.15 (consolidation yield is an aging
+  slope component).
+- Loadings: `consol_beta_mult ×(1 − 0.12·consol)` (the
+  decay rate during the consolidation window — high-consol
+  records emerge from the first sleep already tougher);
+  `sleepFactor` gain per unit `sleepQuality` rescaled
+  `×(1 + 0.1·consol)` (same night, more yield); small
+  `link_p ·+0.05/σ` on records born one sleep ago (the
+  overnight integration leg — HYPOTHESIS).
+- Explicit nulls: `consol → E` = 0 (encoding is the same
+  before the first sleep); `consol → theta` = 0;
+  `consol → wake-time params` = 0 — it operates only inside
+  consol_window_days machinery (v0.1). The trait is
+  invisible in evening behavior; it shows up as what
+  survived the night.
+
+## 82. `nav_ab` / `grew_rural` — the map in the head
+
+v76 gave records a `nav_mode` (allo/ego style). This is the
+ability axis underneath the style. Coutrot et al. (2018,
+Curr. Biol. — Sea Hero Quest, ~2.5M players: navigation
+ability declines with age from early adulthood, male
+advantage, national differences) and Coutrot et al. (2022,
+Nature — verified: 397k participants; grew-up-outside-
+cities advantage; people navigate best in environments
+topologically similar to where they grew up — grid-city
+kids ace grids, organic-city kids ace entropic layouts) give
+the largest-N individual-differences dataset in cognition.
+The Mission District is a *grid* — a rural-raised main and
+a Manhattan-raised main literally differ in which
+neighborhoods their memories encode cleanly.
+
+- `nav_ab` σ ∈ [−3, +3]; r(sex=m) ≈ +0.15 (small male
+  advantage — CONSENSUS direction, Coutrot 2018), r(gc) ≈
+  +0.1, uncorrelated with face_ability (route memory ≠
+  face memory).
+- `grew_rural` ∈ {0,1} bible field + `home_layout ∈
+  {grid, organic}` (the childhood street topology): match
+  bonus `nav_layout_match` (0.08) on place-cue weights when
+  current venue topology matches home_layout — the
+  Mission's grids reward the grid-raised.
+- Loadings: `w_place +0.08/σ` and `place_reinstate
+  ×(1 + 0.15·nav_ab)` (better navigators get more out of
+  matched-place cues — reinstatement is the use of the
+  map); `link_p` on route/journey records +0.08/σ;
+  `whenEstimate` σ ×(1 − 0.1·nav_ab) on route-anchored
+  records (the map carries a timeline — HYPOTHESIS);
+  retroactive `interf_k` on NEW-route records `−0.02/σ`
+  (good navigators assimilate remapped streets — DEBATED).
+- Explicit nulls: `nav_ab → face/people params` = 0;
+  `nav_ab → beta_*` = 0 on non-place records; `nav_ab →
+  episodic E` = 0 — a lost character still remembers the
+  evening; she just can't retell where it happened.
+
+## 83. `schizotyp` — the reality-monitoring leak
+
+`fantasy` (§2.9) is imagination *inflation* — imagined
+things gain believed-past status. Positive schizotypy is a
+different defect: reality/source monitoring itself leaks —
+performed-vs-imagined and self-vs-other confusions in BOTH
+directions (Peters, Smeets, Giesbrecht, Jelicic &
+Merckelbach 2007 — verified: high schizotypy scorers
+falsely claimed to have PERFORMED acts they only imagined;
+Larøi, Collignon & Van der Linden 2005; 2022 meta-analysis
+44 studies: internal source-monitoring and imagined-stimuli
+SM specifically impaired, SMD ~0.5–0.7; Steel et al. 2005 —
+intrusion-proneness account). Importantly, WMC deficits do
+NOT explain it (Peters 2007 controlled) — so `schizotyp`
+loads on source_confuse, not on wmc.
+
+- `schizotyp` σ ∈ [0, +3] (one-tailed — the literature is
+  on the positive dimension); r(fantasy) +0.4, r(dissoc)
+  +0.3, r(neurot) +0.2.
+- Loadings: `source_confuse += schz_src_k·schizotyp` (0.08)
+  — and crucially `source_confuse_flip` operates
+  BIDIRECTIONALLY here: imagined→performed flips AND
+  said→thought, heard→imagined reverse flips (internal SM
+  deficit — the "did I say that out loud?" character);
+  `intrusion_thresh −0.04·schizotyp` (Steel's intrusion
+  vulnerability); `deja_thresh −= 0.05·schizotyp` (familiarity
+  without identification is a documented schizotypal
+  experience channel — Steel 2005); `phantom_p +0.008/σ`
+  small.
+- Explicit nulls: `schizotyp → wmc` = 0 (Peters 2007's own
+  control); `schizotyp → beta_*` = 0; `schizotyp → E` = 0.
+  Storage is fine; the attribution layer is porous.
+- Boundary vs `asd` (§22): asd's source_confuse is
+  self/other-detail confusion with *reduced* gist phantoms;
+  schizotyp is internal/external reality monitoring with
+  *normal-to-elevated* phantoms. The two signatures are
+  deliberately distinguishable in probes.
+
+## 84. `hypnot` — the contested channel (priced, flagged)
+
+Hypnotic susceptibility's link to false memory is REAL but
+messier than folklore: imagination inflation correlates with
+hypnotic (not interrogative) suggestibility (Heaps & Nash
+1999 — verified: inflation associated with hypnotic
+suggestibility and dissociativity, NOT imagery vividness or
+interrogative suggestibility); Barnier & McConkey 1992 and
+Sheehan, Statham & Jamieson 1991 report more false memories
+in highs under hypnosis-era procedures. BUT: Wagstaff's
+sociocognitive line (verified: when accuracy is emphasized,
+high hypnotizables can be MORE resistant), and the large
+"no false-memory trait" result (Patihis et al. line —
+correlations between false-memory tasks are near-null) cap
+the loading hard. We price a *context-locked* effect only:
+guided-imagery + authoritative framing is where the trait
+shows.
+
+- `hypnot` σ ∈ [0, +3] (scale is one-tailed); r(fantasy)
+  +0.45, r(suggs) +0.15 (hypnotic ≠ interrogative
+  suggestibility — Heaps & Nash's own dissociation),
+  r(dissoc) +0.3.
+- Loadings (ALL gated to `cueContext.guided_imagery:true`
+  or `authoritative:true` accounts — outside those contexts
+  the trait is inert): `imagine_gain ×(1 +
+  hypnot_gain·hypnot)` (0.25 under guidance only);
+  `misinfo_suscept += hypnot_yield·hypnot` (0.05, gated);
+  `conf_out += 0.06·hypnot` on guided-imagery-derived
+  reconstructions (highs report the production confidently).
+- Explicit nulls (this is where we bank the controversy):
+  `hypnot → misinfo_suscept` outside gated contexts = 0;
+  `hypnot → beta_*` = 0; `hypnot → E` = 0;
+  `hypnot → suggs-channel Shift` = 0 (Heaps & Nash
+  dissociation is load-bearing).
+- If the literature continues to weaken, the fix is to
+  zero `hypnot_gain` — the field remains as a bible pin
+  with mandated-null semantics, joining birth_order and
+  learn_style. [DEBATED — the most contested loading we
+  ship.]
+
+## 85. `mnem` — trained memory is a skill, not a brain
+
+Memory athletes are made, not born: Maguire et al. (2003 —
+memory champions show no superior general memory or brain
+anatomy; they use spatial/navigational strategies) and
+Dresler et al. (2017, Neuron — verified: 6-week
+method-of-loci training in naive subjects produced
+athlete-like network changes and durable gains at 4 months;
+Wagner et al. 2021, Sci. Adv. — verified: training enhanced
+DURABLE memory formation specifically) say the advantage is
+a *strategy* that can be acquired and is bound to the
+practiced material. So `mnem` is a training flag that
+re-routes encoding through spatial channels — cheap, honest,
+and it gives world-builder "the character who memorizes the
+regulars' orders" without superpowers.
+
+- `mnem` σ ∈ [0, +2] (acquired dose, bible-set; 0 = naive);
+  r(gc) +0.15, r(consc) +0.2 (training adherence),
+  r(nav_ab) +0.2 (the technique IS spatial).
+- Loadings (gated to `deliberate:true` encoding contexts —
+  studying, rehearsing a list, memorizing the specials):
+  `link_p ×(1 + 0.25·mnem)` on deliberate records;
+  `w_place cue contribution +0.1·mnem` at retrieval of
+  deliberate records (route reinstatement is the technique);
+  `beta_episodic ×(1 − 0.15·mnem)` on deliberate records only
+  (Wagner 2021's durability leg); `search_breadth +1·mnem`
+  (systematic search replaces hopping).
+- Explicit nulls: `mnem → incidental encoding` = 0 (the
+  strategy must be deployed — athletes at breakfast are
+  ordinary); `mnem → theta` = 0; `mnem → misinfo_suscept` =
+  0; `mnem → face/name learning absent deliberate effort`
+  = 0. The champion's grocery list is mighty; her drunk
+  Tuesday is not.
+
+## 86. The bilingual tax that was never priced — TOTs
+
+Gollan & Acenas (2004, JEP:LMC 30:246 — verified: bilinguals
+suffer MORE tip-of-the-tongue states than monolinguals on
+non-cognate targets; cognate/translation rescue effects;
+mechanism = weaker language-specific activation, NOT cross-
+language interference) document the one reliable bilingual
+memory *cost*. It was absent from §11 (which modeled only
+encoding-language cue match).
+
+- No new trait — `langs ≥ 2` gains a loading row:
+  `tot_rate += 0.03` when the retell/report channel is the
+  character's NONDOMINANT language (world supplies
+  `cueContext.reportLang` + profile `dominantLang`); cognate-
+  dense content partially rescues (`tot_rate −= 0.01` when
+  `cueContext.cognate_ok:true` — a fiction-safe flag the
+  world can set on Spanish/English name-adjacent content).
+- Explicit nulls: `langs≥2 → tot_rate` in the DOMINANT
+  language = 0 (the deficit is language-specific — Gollan's
+  mechanism is per-language activation); `langs≥2 →
+  tot_resolution` = 0 (TOTs resolve at normal rates; the
+  tax is incidence, not duration).
+
+## 87. Extended trait vector and R additions (Part VII)
+
+```json
+IndivTraits += {
+  "blunt":     0.0,   // §77 — monitoring(−)/blunting(+) pole
+  "trans_dep": 0.0,   // §79 — reliance on partner-as-store
+  "offload":   0.0,   // §80 — digital externalization habit
+  "consol":    0.0,   // §81 — per-sleep consolidation yield
+  "nav_ab":    0.0,   // §82 — spatial navigation ability
+  "schizotyp": 0.0,   // §83 — reality-monitoring leak [0,3]
+  "hypnot":    0.0,   // §84 — hypnotic susceptibility [0,3]
+  "mnem":      0.0,   // §85 — acquired mnemonic skill [0,2]
+  // demographic fields (bible-set, not σ-traits):
+  "immig_age":  null, // §78 — age at immigration, null=born-here
+  "grew_rural": 0,    // §82 — childhood outside cities
+  "home_layout": "grid" // §82 — {grid, organic} street topology
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+blunt·vigil        −0.50  (bipolar scale — CONSENSUS dir., MBS)
+blunt·neurot       −0.10  (avoidance ≠ calm — near-orthogonal)
+trans_dep·attach_anx +0.20
+trans_dep·extra    +0.15
+trans_dep·social   +0.25
+offload·inattn     +0.20
+offload·consc      −0.15
+consol·sleep       +0.35  (sleep quantity ↔ yield — partial)
+consol·aging_rate  −0.15
+nav_ab·sex         +0.15  (m direction — CONSENSUS, Coutrot 2018)
+nav_ab·mnem        +0.20  (the technique is spatial)
+schizotyp·fantasy  +0.40
+schizotyp·dissoc   +0.30
+schizotyp·neurot   +0.20
+hypnot·fantasy     +0.45  (CONSENSUS direction — Heaps & Nash)
+hypnot·suggs       +0.15  (deliberately small — dissociation)
+hypnot·dissoc      +0.30
+mnem·consc         +0.20
+mnem·gc            +0.15
+immig_age·*        0.0    (demographic — no σ correlations)
+grew_rural·nav_ab  +0.25  (Coutrot 2022 — CONSENSUS direction)
+```
+
+## 88. Loading table additions (rows beyond §73)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| blunt | w_emo_neg on anticipThreat records | ·−0.12/σ | CONSENSUS dir. (Miller 1980/1983) |
+| blunt | intrusion_thresh on threat-cued | +0.04/σ | CONSENSUS dir. |
+| blunt | vigil_recall_bias operand | uses (vigil − 0.8·blunt) | HYPOTHESIS form |
+| blunt | retell_omit on threat topics | +0.05/σ | HYPOTHESIS |
+| immig_age | bump window | + [a−3, a+12] second window | CONSENSUS (Schrauf & Rubin 1998/2000) |
+| trans_dep | content-E on shared w/ partner | ·−0.15/σ | CONSENSUS dir. (Wegner 1991) |
+| trans_dep | pointer-field mint | +0.3/σ | CONSENSUS dir. |
+| trans_dep | joint_boost (partnerPresent) | +0.1/σ | CONSENSUS dir. |
+| (all) | collab_inhibit (recallTogether) | 0.12 flat | CONSENSUS (Weldon & Bellinger 1997) |
+| (all) | collab_stab (drift ↓ on agreed) | −0.05 flat | CONSENSUS dir. |
+| offload | E_content on externalized | ·−0.20/σ | CONSENSUS (Sparrow 2011) |
+| offload | ext_pointer mint | +0.3/σ | CONSENSUS (Sparrow 2011) |
+| offload | first-lookup rehearsal credit | 0 (no retell_boost) | HYPOTHESIS rule |
+| consol | consol_beta_mult | ·−0.12/σ | CONSENSUS dir. (Gais 2002; Schabus 2004) |
+| consol | sleepFactor gain rescale | ×(1+0.1·consol) | CONSENSUS dir. |
+| consol | link_p (records born ≤1 sleep) | ·+0.05/σ | HYPOTHESIS |
+| nav_ab | w_place | +0.08/σ | CONSENSUS dir. |
+| nav_ab | place_reinstate | ·+0.15/σ | CONSENSUS dir. |
+| nav_ab | link_p on route/journey | +0.08/σ | CONSENSUS dir. |
+| nav_ab | whenEstimate σ on route-anchored | ·−0.10/σ | HYPOTHESIS |
+| nav_ab | interf_k on new-route records | −0.02/σ | DEBATED |
+| home_layout | w_place on matching topology | +0.08 (nav_layout_match) | CONSENSUS (Coutrot 2022) |
+| schizotyp | source_confuse | +0.08/σ | CONSENSUS (Peters 2007; 2022 meta) |
+| schizotyp | source_confuse_flip | BIDIRECTIONAL +0.06/σ | CONSENSUS (internal SM arm) |
+| schizotyp | intrusion_thresh | −0.04/σ | CONSENSUS dir. (Steel 2005) |
+| schizotyp | deja_thresh | −0.05/σ | CONSENSUS dir. |
+| schizotyp | phantom_p | +0.008/σ | DEBATED |
+| hypnot | imagine_gain (guided only) | ·+0.25/σ | CONSENSUS dir. (Heaps & Nash 1999) |
+| hypnot | misinfo_suscept (guided/auth only) | +0.05/σ | DEBATED (Wagstaff counterevidence) |
+| hypnot | conf_out on guided reconstructions | +0.06/σ | DEBATED |
+| mnem | link_p (deliberate:true) | ·+0.25/σ | CONSENSUS (Dresler 2017) |
+| mnem | beta_episodic (deliberate only) | ·−0.15/σ | CONSENSUS dir. (Wagner 2021) |
+| mnem | w_place cue at retrieval (deliberate) | +0.1/σ | CONSENSUS (Maguire 2003) |
+| mnem | search_breadth (deliberate recall) | +1/σ | HYPOTHESIS |
+| langs≥2 | tot_rate (nondominant reportLang) | +0.03 | CONSENSUS (Gollan & Acenas 2004) |
+| langs≥2 | tot_rate rescue (cognate_ok) | −0.01 | CONSENSUS (same) |
+
+## 89. New explicit nulls (Part VII's falsifiable edge)
+
+- `blunt → beta_*`, `blunt → E` on non-threat, `blunt →
+  suggs` = 0 (P835 — avoidance at the door, not the store).
+- `immig_age → beta_*` outside windows, `→ valence/arousal`
+  = 0 (P836 — distribution, not tagging).
+- `trans_dep → solo encoding`, `→ non-shared events` = 0
+  (P837 — the store split needs a partner to exist).
+- `offload → enc_base` on non-externalized, `→ misinfo` = 0
+  (P838 — the deficit is conditional on expected access).
+- `consol → E`, `→ theta`, `→ wake-time` = 0 (P839 —
+  invisible at night, visible in the morning).
+- `nav_ab → face/people`, `→ non-place beta_*` = 0 (P840).
+- `schizotyp → wmc` = 0 (Peters 2007's own null is our
+  lock), `→ beta_*`, `→ E` = 0 (P841).
+- `hypnot → anything outside guided/authoritative context`
+  = 0 (P842 — the contested channel stays in its cage).
+- `mnem → incidental encoding`, `→ theta`, `→ misinfo` = 0
+  (P843 — strategy must be deployed).
+- `langs≥2 → tot_rate` in dominant language = 0 (P844 —
+  the tax is language-specific).
+
+## 90. Falsifiable probes (P835–P846; validation-design §158)
+
+- **P835 the blunter's door (MUST — sign-locked):**
+  blunt=+1.5 vs −1.5 on matched anticipThreat events:
+  +blunt encodes fewer threat-field details and shows fewer
+  spontaneous threat-cued intrusions; recognition-mode
+  recovery of what WAS encoded is equal; non-threat events
+  identical in both arms (Miller's intake filter — a
+  difference on already-stored records FAILS).
+- **P836 the second bump (MUST):** immig_age=28 vs null
+  profiles, identical 70y lifespan event diet: recall
+  density shows a secondary mode at [25, 40] encodeAge only
+  in the immigrant arm; valence/arousal distributions of
+  the mode's records match the lifespan baseline (Schrauf &
+  Rubin 2000's own null); L1-cued retrieval of pre-28
+  records ≥1.4× L2-cued (the lang partition rides along).
+- **P837 borrowed halves (MUST):** trans_dep=+1.5 with
+  trans_partner set, on shared vs solo events: shared-event
+  content sparser + pointer fields minted; partnerPresent
+  recall restores content recall to ≥ solo-encode control;
+  partner_lost clears trans_partner → shared records emit
+  orphan_recall with high FOK and sparse content. A
+  trans_dep=−1.5 character on the same diet shows NO
+  pointer mints.
+- **P838 the camera ate the memory (MUST — conditional
+  lock):** offload=+1.5 vs −1.5, externalized vs
+  non-externalized event cells: the E deficit appears ONLY
+  in the externalized×high-offload cell; ext_pointer
+  survives +90d while sibling content fields decay;
+  lookup-mediated reports of the content are accurate but
+  first-lookup grants no retell_boost; pointer_dead →
+  orphan_recall.
+- **P839 the night's yield (MUST):** consol=+1.5 vs −1.5,
+  identical encoding day + identical sleepQuality: same-day
+  recall identical (E untouched), +1d recall diverges by
+  the consol_beta_mult loading, +7d ordering preserved;
+  wake-side params identical (the trait only operates
+  inside the consolidation window).
+- **P840 the wrong grid (SHOULD):** nav_ab=+1.5
+  home_layout=grid vs nav_ab=−1.5 home_layout=organic, both
+  living in the Mission's grid: place-cued recall and
+  place_reinstate gains favor the grid-matched profile;
+  route-anchored whenEstimate tighter in +nav_ab;
+  people/face recall identical across all four cells.
+- **P841 the leaky monitor (MUST — wmc null locked):**
+  schizotyp=+2 vs 0 at matched wmc: bidirectional
+  source_confuse_flip errors rise (imagined→performed AND
+  said→thought), intrusion and deja_vu rates rise; enc_base,
+  beta_*, and wmc-side params identical (Peters 2007's
+  control is the falsifier).
+- **P842 the gated channel (MUST — context lock):**
+  hypnot=+2 vs 0: under guided_imagery+authoritative arms,
+  imagine_gain and adoption diverge as priced; under plain
+  hearAccount arms the two profiles are IDENTICAL within
+  jitter — any ungated difference FAILS (the Wagstaff
+  hedge is structural).
+- **P843 the deployed strategy (MUST — gate-locked):**
+  mnem=+1.5 vs 0: deliberate-encode records show the
+  link_p/beta/w_place gains; incidental records from the
+  same session identical; deliberate gains persist at +120d
+  (Wagner durability); a mnem=+1.5 character who never
+  receives deliberate:true events is indistinguishable
+  from mnem=0.
+- **P844 the tip of which tongue (SHOULD):** langs={es,en}
+  dominantLang=es profile reporting in en vs es: tot_rate
+  elevated only in the nondominant arm; cognate_ok context
+  partially rescues; TOT resolution rate equal in both arms
+  (incidence tax, not duration tax).
+- **P845 pointer ecology (SHOULD):** a trans_dep=+1.5 AND
+  offload=+1.5 profile distributes a 100-event diet across
+  {full-encode, partner-pointer, ext-pointer} buckets; total
+  internally-held content is LOWER than either single-trait
+  profile, but joint/lookup-supported report accuracy is
+  comparable — the character is a router, not a store.
+- **P846 blunter vs vigil pole (OBSERVE):** the bipolar
+  blunt/vigil axis on threat events produces opposite
+  intrusion signatures (−pole hypervigilant texture per
+  §24, +pole silent texture per §77) with matched
+  non-threat behavior — report-only, no band.
+
+## 91. Part VII honest limits
+
+- The transactive and offloading legs model *storage
+  location* with pointer fields — the real phenomena include
+  directory-update and coordination-cost dynamics (Wegner's
+  three TMS components) we compress into one trait +
+  one partner field. The orphan_recall phenotype is our
+  formalization of bereavement reports, not a measured
+  quantity.
+- `consol`'s loadings ride the v0.1 consolidation window;
+  real spindle physiology interacts with age and sleep
+  staging in ways we flatten into two multipliers.
+- The hypnot channel is the weakest evidence we have ever
+  priced — the loading is small, context-locked, and one
+  replication verdict from becoming a third mandated null.
+  It stays because the dissociation (hypnotic ≠
+  interrogative suggestibility) is itself a documented
+  individual difference worth representing.
+- `immig_age`'s second window width (a−3 to a+12) is a fit
+  to Schrauf & Rubin's small-n distributions; the mechanism
+  (novelty + PI release) suggests the leading edge should
+  be sharper than the trailing — we did not model the
+  asymmetry.
+- `blunt` bipolarizes a construct the literature sometimes
+  treats as two separable dimensions (monitoring and
+  blunting subscales correlate imperfectly); the −0.5
+  vigil correlation encodes the bipolar reading. If
+  playtests want a high-monitor high-avoider, split the
+  axis — don't stretch it.
+- Pointer fields create a new record-shape the drift
+  catalog (§13.1) must classify: pointer/ext_pointer are
+  T-tier (tags) with write-once pointer targets — they
+  decay like verbatim but are never rewritten.
+
+
+# Part VIII — v91: the eighth axis of difference (the chemistry
+# and the crowd — intoxication tails, the medicated mind, the
+# pressurized choke, the worried well, the face from the other
+# group, the imagined future, the pregnant pause, the caffeine
+# clock, the gamer's attention, and the third mandated null)
+
+Parts I–VII built the trait layer from ability, affect, clinical
+phenotypes, autobiographical tails, ego bookkeeping, and storage
+location. Part VIII turns to the axes the earlier parts skipped
+because they live in the *state* more than the trait — the
+pharmacology of the evening (§92, §93, §100), the situational
+pressure that interacts with the trait (§94, §95), and the
+complaint that outruns the record (§96, §99). Two axes are
+social-structural (§97 cross-group exposure, §101 gaming
+history), one is the imagination that shares the remembering
+machinery (§98), and §102 is the third mandated null — a trait
+the model keeps in the vector *only* to record that training
+it doesn't transfer. Every section cites its sources, marks
+CONSENSUS / DEBATED / HYPOTHESIS, prices its levers in §7-
+compatible params, and ends falsifiable (§106 probes
+P958–P969; §105 nulls are the part that can be killed).
+
+Convention reminder: σ-traits are N(0,1) unless noted; [0,2]
+traits are one-tailed severities; demographic fields are
+bible-set. `state` fields are context, not traits.
+
+## 92. `blackout` — the evening with holes in it (alcohol's
+## individual tail)
+
+The acute intoxication *params* exist since v1.9
+(`intox_encode_mult`, `intox_state_dep`, and v5.20's
+`intox_retro_shield` OBSERVE leg) — but the trait layer never
+priced WHY two people at matched BAC leave the party with
+different nights. The alcohol-administration literature is
+unusually direct: at matched blood-alcohol concentrations,
+only *some* drinkers black out (Hartzler & Fromme 2003,
+*Alcohol.: Clin. Exp. Res.* 27:628 — placebo-controlled;
+Nelson et al. 2004). Fragmentary blackouts — cue-rescuable
+gaps — outnumber en bloc (total, permanent) episodes ~3:1 in
+heavy-drinking young adults (Hartzler & Fromme 2003, *J. Stud.
+Alcohol* 64:547, TLFB). The fragmentary deficit is a
+*contextual/source-memory* failure: FB-history drinkers show
+differential dlPFC/parietal BOLD under alcohol at matched
+task performance (Wetherill & Fromme 2011, *Addict. Behav.*
+36:886; Wetherill et al. 2011) — an inherent retrieval
+vulnerability, not a bigger dose.
+
+Model — trait `blackout` [0,2] (bible-settable, correlates
+with drinking history, NOT with g_mem): under intox ≥
+`blackout_bac` (0.6 on the v1.9 intox scale), records are
+minted with two failure modes:
+
+- **fragmentary** (default, p = `blackout_frag_p`·blackout):
+  the record survives but its source/context fields are
+  written thin (source-tier strength ×`blackout_ctx_pen`),
+  voluntary retrieval θ is raised by `blackout_theta_pen`,
+  and the record carries `frag:true`. The gap is a retrieval
+  gap: sufficient cue support (`blackout_cue_rescue` 0.7 —
+  other drinkers' accounts, photos, place reinstatement)
+  partially rescues it, matching Hartzler & Fromme's "poor
+  retrieval" conclusion. Reconstructed fragments carry
+  `reconstructed` provenance — a rescued fragment is told-
+  back memory, not relived memory.
+- **en bloc** (p = `blackout_enbloc_p`·blackout, requires
+  intox ≥ `blackout_enbloc_bac` 0.8): the record is never
+  minted — att_min fails at encode. No cue rescues it;
+  `blackout_rescue_null` locked (en-bloc gaps are gone, not
+  hidden — White 2003 NIAAA review). What remains is the
+  *inference* of the gap: morning-after narrators routinely
+  confabulate into it via §6.9 imagineEvent — which is
+  exactly the documented phenomenology.
+
+Locked null `blackout_retro_null`: blackout is anterograde —
+records born before intox-onset are never erased by the
+drinking that follows. (The *facilitation* leg — post-
+encoding alcohol shielding prior learning from interference
+— already rides `intox_retro_shield`, OBSERVE tier, v5.20;
+Parker et al. 1980/81; Carlyle et al. 2017.)
+
+[CONSENSUS for the trait's existence, the fragmentary/en-bloc
+distinction, and the anterograde-only direction; DEBATED for
+exact BAC gates and the rescue fraction — cue-rescue in the
+lab is assisted recall, and the field's "rescue" is ours by
+analogy.]
+
+## 93. `med_burden` — the pill that taxes tomorrow (sedative /
+## anticholinergic load)
+
+Two pharmacologies, one trait, because both produce the same
+signature — a clean anterograde tax with preserved retrieval
+of pre-medication records. Benzodiazepines produce dose-
+related *anterograde* amnesia: acquisition impaired, retrieval
+of pre-drug material intact or even slightly improved (Curran
+1991, *Psychopharmacology* review; Buffett-Jerrott & Stewart
+2002 — the retrograde-facilitation cousin of §92's shield).
+Cumulative anticholinergic burden predicts incident cognitive
+impairment in community-dwelling elders (Gray et al. 2015,
+*JAMA Intern. Med.* — ≥3y cumulative use, adjusted dementia
+HR ~1.5; Fox et al. 2011 — anticholinergic burden score
+predicts 2y memory decline; Campbell et al. 2009).
+
+Model — trait `med_burden` [0,2] (bible-set; 0 = none,
+1 = nightly sleep-aid / anxiolytic regular, 2 = high
+anticholinergic load): while `med_burden > 0`, records are
+born with E ×(1 − `med_antro_tax`·med_burden) and source-tier
+strength ×(1 − `med_source_pen`·med_burden). Both effects are
+anterograde only — locked null `med_retro_null`: no operator
+may degrade a record that predates the medication window.
+Loadings additionally tax `search_breadth` (−1·0.1/σ scaled
+by burden — sedation, not aging) and `ret_noise` (+0.02/σ).
+Critically the burden is *state-shaped*: a character who
+stops the medication recovers the encoding side within the
+med-washout window (`med_washout` 3d), matching the acute-
+vs-chronic dissociation (Curran 1991 acute; Gray 2015's
+cumulative leg we price as a slow `aging_rate` addend
++0.05·med_burden — DEBATED causal).
+
+[CONSENSUS anterograde-direction and preserved-retrieval
+dissociation; DEBATED the cumulative → dementia path (HR
+associational); HYPOTHESIS the washout window.]
+
+## 94. `eval_press` — the choke that picks on the strong
+## (pressure × ability interaction, not a trait)
+
+The surprise of the pressure literature is the sign. High-
+working-memory individuals choke *more* under evaluative
+pressure — the very people the task normally favors lose
+their advantage precisely when the stakes rise (Beilock &
+Carr 2005, *JEP:General* 134 — high-pressure math splits the
+WMC groups; DeCaro, Thomas, Albert & Beilock 2011 — pressure
+degrades high-WMC performance on strategy-demanding tasks;
+Gimmig et al. 2006). The mechanism-priced reading: pressure
+doesn't shrink capacity, it *spends* it — worry and
+situation-monitoring occupy the same wmc the task needs
+(Eysenck, Derakshan, Santos & Calvo 2007, *Emotion* 7:336 —
+attentional control theory; Beilock 2008 math-anxiety
+mediation).
+
+Model — context flag `eval_press:true` on events (auditions,
+public confrontations, observed performance — world-supplied;
+never ambient): during eval_press events, all wmc-driven
+loadings are taxed ∝ the character's OWN wmc level:
+`choke_k`·wmc⁺ — the regression-to-mean paradox. A wmc=+1.5
+character loses more discrimination, source-monitoring, and
+interference-resistance than a wmc=−1 character, who had less
+to lose. Param `choke_wmc_k` (0.5) scales the interaction;
+`choke_gate` (0.6) is the minimum stake/novelty the world must
+supply. Locked null `choke_lowstake_null`: below the gate the
+interaction is zero — pressure without stakes doesn't choke
+anyone (the effect needs the evaluation, not the arousal —
+arousal narrowing already lives in `arousal_narrowing`).
+
+[CONSENSUS for the high-WMC paradox direction and the
+attentional-control mechanism; DEBATED for the transfer to
+*memory encoding* specifically — most choke studies price
+performance, not storage; our loading is the hypothesis
+extension, flagged.]
+
+## 95. `att_ctl` — the trait underneath the anxiety
+## (control as its own axis)
+
+Attentional control theory's individual-difference payload is
+that anxiety's memory cost is *mediated by control*, not by
+worry directly: trait attentional control (Attentional Control
+Scale; Derryberry & Reed 2002) predicts how much of one's wmc
+survives under load, and low att_ctl is the channel through
+which trait anxiety reaches performance (Eysenck et al. 2007;
+Berggren & Derakshan 2013 review). Two people at identical
+`neurot` differ in whether the worry actually lands on the
+encoding.
+
+Model — trait `att_ctl` N(0,1), positively correlated with
+wmc but distinct (r +0.5 — control is measured by self-
+regulation, not capacity). Loadings: `att_min` resilience
+under `stress`-state and `anx`-state events (+0.06/σ — the
+floor moves less); `ret_noise` under eval_press (−0.02/σ);
+`plist_suppress` resistance small; `search_breadth` under
+load retained. `att_ctl` is the buffer `wmc` lacks: wmc is
+how much you hold, att_ctl is whether worry gets into it.
+
+[CONSENSUS that att_ctl moderates anxiety's cognitive cost;
+HYPOTHESIS per-param routing — the literature prices task
+performance, our split is the model's guess.]
+
+## 96. `scd` — the worried well (complaint without deficit)
+
+Subjective cognitive decline is a formal phenotype: self-
+reported memory worsening *with objective performance in the
+normal range* (Jessen et al. 2014, *Alzheimers Dement.*
+SCD-I criteria; Rabin et al. 2017, *Alzheimers Dement.* —
+SCD prevalence ~1 in 4 older adults; associated with worry/
+depressive affect more than with measured decline; small but
+real elevated conversion risk — the phenotype is real even
+when the deficit isn't). The memory-sim lesson: complaint
+and accuracy are *different channels*, and a whole class of
+character lives in the gap.
+
+Model — trait `scd` [0,1] (bible-set; correlates neurot +
+0.4, meta_conf −0.5, checker +0.3): `scd_complaint_gain`
+(0.6) multiplies the complaint surface (self-report snippets,
+worry mentions); `scd_worry_intr` (0.1) adds a light
+intrusion weight on health/evaluative-cued involuntary
+recall; and the hard boundary — locked null `scd_obj_null`:
+`scd` may NOT touch E, β, θ, or any accuracy-side param. The
+character *feels* worse without performing worse. (When the
+bible wants real decline it pins `aging_rate`/`reserve` —
+scd is the phenotype where they don't.) The interaction
+that matters: scd × eval_press raises `choke` cost via the
+worry channel — the worried well can spend their way into a
+real deficit on stage, which is exactly Berggren &
+Derakshan's point.
+
+[CONSENSUS the complaint-accuracy dissociation and its
+affective correlates; DEBATED the conversion-risk size —
+we price zero objective signal, which is the phenotype's
+definition, not a bet against the risk.]
+
+## 97. `cross_exp` — the face from the other group (own-group
+## bias as an exposure trait)
+
+The own-race bias is one of face memory's most replicated
+findings: own-group faces are remembered better than other-
+group faces (Meissner & Brigham 2001, *Psychol. Public Policy
+Law* 7:3 meta — ORB ~1.4× recognition advantage across 39
+studies), with a matching out-group false-alarm cost. The
+malleable part is *exposure*: cross-group contact/experience
+attenuates the bias (Meissner & Brigham 2001 — contact
+hypothesis support moderate; Rhodes, Hayward & Winkler 2006;
+Wright, Boyd & Tredoux 2003 — own-group bias grows with
+segregation). The own-age bias is the smaller sibling
+(Rhodes & Anastasi 2012, *Psychol. Bull.* meta — own-age
+recognition advantage, smaller and less consistent than
+own-race; we price it at half strength).
+
+Model — trait `cross_exp` [0,2] (bible-set from biography —
+neighborhood composition, workplace, relationships; Mission
+District characters get honest distributions): face/identity
+records on out-group targets are encoded with familiarity
+accrual ×(1 − `orb_face_pen`·(1 − `orb_expo_k`·cross_exp)),
+out-group false-alarms +`orb_fa_gain`·(1 − same rescale).
+The exposure term is the trait's point: `orb_expo_k` 0.6 —
+a maximally cross-exposed character keeps ~60% of the bias
+reduction the literature reports. Locked null
+`orb_content_null`: ORB touches face/identity tiers ONLY —
+episodic content, actions, and verbatim fields are
+unaffected (the bias is in face processing, not in what
+people did — Meissner & Brigham's tasks are recognition
+tasks). `orb_age` flag (0.5 weight) rides the same loadings
+for age-group mismatches (Rhodes & Anastasi 2012).
+
+[CONSENSUS for ORB existence and direction incl. the FA
+asymmetry; DEBATED for the contact-attenuation size —
+correlational; the [0,2] exposure scaling is HYPOTHESIS.]
+
+## 98. `sim` — the imagination that shares the machinery
+## (episodic simulation trait)
+
+Remembering and imagining the future are the same system:
+episodic detail in recalled events and in constructed future
+events correlate within person (Addis, Wong & Schacter 2007,
+*Neuropsychologia* — older adults' episodic-detail loss hits
+memory AND future simulation together; Schacter & Addis
+2007 constructive episodic simulation hypothesis; Race,
+Keane & Verfaellie 2011 — amnesics impoverished in both).
+The individual-difference consequence: a character rich in
+episodic detail should also construct rich plans, fears,
+and daydreams — and the deficit direction holds too (§64
+sdam already produces thin futures; `sim` generalizes it).
+
+Model — trait `sim` N(0,1), correlated with vivid +0.4 and
+g_mem +0.3 (shared episodic substrate): future-oriented
+records (plan, anticipate, dread, daydream — minted via
+existing imagineEvent with `future:true`) inherit detail
+density ∝ `sim` — `sim_detail_link` (0.5) is the coupling
+coefficient between a character's specificity and their
+future-detail. The esi coupling (v5.34 `esi_gain`) is the
+bridge: episodic-specificity-induction effects ride the
+same axis (Madore & Schacter 2014 — ESI lifts BOTH recall
+detail and simulation detail; a single substrate move).
+Locked null `sim_content_null`: simulation detail cannot
+manufacture *content accuracy* — a high-sim character
+imagines richly and is wrong richly (the system shares
+machinery, not truth — Schacter & Addis's own adaptive-
+error argument).
+
+[CONSENSUS the memory-simulation coupling; DEBATED whether
+trait sim exists apart from episodic ability — we price it
+separable-but-correlated, falsifiable via P965's partial-
+correlation arm.]
+
+## 99. `preg_state` — the pause that's smaller than the
+## complaint (baby brain, priced honestly)
+
+The complaint is real and the deficit is real — but the
+deficit is *small*, trimester-shaped, and stays inside the
+normal range. The meta-analysis is the honest source:
+Davies, Lum, Skouteris, Byrne & Hayden 2018 (*Med. J.
+Aust.* 208:35 — 20 studies, 709 pregnant / 521 control:
+overall SMD 0.52 [0.07–0.97]; third-trimester memory SMD
+~1.47 cross-sectionally, but longitudinal declines develop
+T1→T2 and the authors stress performance remains within
+normal ranges; ~4/5 women report subjective changes).
+Complaint ≫ effect — the subjective-objective gap is the
+phenomenon, like §96 and like v5.36's mt_complaint for the
+menopause transition (Greendale et al. 2009 SWAN).
+
+Model — state field `preg_state` ∈ {0,1,2,3} (world-set;
+trimester): records born in trimester t encode with E
+×(1 − `preg_enc_dip`·preg_trim_w[t]) where
+preg_trim_w = [0, 0.6, 1.0] (T1, T2, T3 weighting — the
+meta-analytic shape, not a linear ramp); executive-side
+params tax `preg_exec_dip` on search_breadth and att_min
+resilience only in T3. Complaint surface rides
+`preg_complaint` (0.8 — the 4/5 subjective share),
+independent of whether any objective tax fired — the
+character who encodes normally still *reports* fog.
+Locked nulls: `preg_perm_null` — no permanent deficit
+parameter; the dip ends with the state (postpartum
+resolution; long-term gray-matter findings — Hoekzema
+2017 — exist but do not map to measurable memory loss in
+our sources, so we don't pay for them); `preg_theta_null`
+— retrieval of pre-pregnancy records untouched (the dip
+is at the door, like §93).
+
+[CONSENSUS the effect is real, small, T3-weighted, and
+complaint-heavy; DEBATED mechanism (hormonal vs sleep vs
+load — we don't adjudicate); the exact weights are
+HYPOTHESIS-fitted to the meta-analytic shape.]
+
+## 100. `caff` — the clock in the cup (dependence, not boost)
+
+Caffeine's honest memory story is the withdrawal-reversal
+account: habitual consumers don't get a boost — they get a
+*penalty while abstinent*, and the "benefit" of the morning
+cup is removing a self-imposed tax (Rogers & Dernoncourt
+1998, *Pharmacol. Biochem. Behav.*; James & Rogers 2005;
+Rogers et al. 2013). Acute caffeine state-dependency for
+memory is weak and contested (Kelemen & Creeley 2003 found
+state-dependent effects; larger literatures mostly null —
+DEBATED, we price tiny).
+
+Model — trait `caff` [0,2] (habitual dependence level):
+- `caff_wd` state (world-set: >18h since habitual dose):
+  `ret_noise` +`caff_wd_tax`·caff, `theta` +0.03·caff,
+  `search_breadth` −1·0.05·caff — the withdrawal tax that
+  IS the dependence effect.
+- `caff_state_dep` (0.02): tiny w_msd-style bonus for
+  caffeinated-state matching — deliberately near the floor,
+  flagged DEBATED.
+- Locked null `caff_ability_null`: `caff` never touches
+  E0/β/θ baselines while dosed — habitual caffeine is
+  baseline-neutral (Rogers' reversal logic: on-drug
+  performance is the reference, not an enhancement).
+
+[CONSENSUS withdrawal-reversal is the dominant account;
+DEBATED the residual state-dependency — priced near zero
+on purpose.]
+
+## 101. `gamer` — the reflexes that don't carry (small, and
+## told to stay small)
+
+Action-video-game experience is the strongest candidate in
+the "habit shapes cognition" literature and the honest
+verdict is *small and channel-locked*: habitual action
+gamers outperform on top-down attention and spatial
+cognition (Bediou, Adams, Mayer, Tipton, Green & Bavelier
+2018, *Psychol. Bull.* 144:77 — cross-sectional g≈0.55,
+intervention g≈0.34, with publication-bias inflation ~30%
+and the boot/Simons critique hanging over causal claims —
+Boot, Blakely & Simons 2011; Hilgard, Engelhardt & Rouder
+2017 Bayesian re-analyses). What the literature does NOT
+support is a general episodic-memory advantage.
+
+Model — trait `gamer` [0,2] (habitual action-gaming):
+loadings restricted to the channels the meta-analysis
+endorses — `att_min` −0.01·gamer (slightly easier floor
+on fast visual events), `w_place` +0.02·gamer (spatial
+cue weight), `sensory` visual-field detail +`gamer_vis_k`
+(0.03). Locked null `gamer_episodic_null`: no loading may
+touch E0, β, θ, link_p, or any episodic-content param —
+the attention advantage does not buy a better store
+(Bediou's own domain map puts episodic memory outside the
+gains; the episodic store doesn't know about your K/D).
+
+[CONSENSUS direction on attention/spatial, small effects;
+DEBATED causality — we price as correlation (trait, not
+treatment); HYPOTHESIS which of our params best maps their
+domains.]
+
+## 102. `braintrain` — the third mandated null (training that
+## doesn't travel)
+
+The verdict on cognitive training is unusually clean for
+this field: practice on memory tasks improves performance
+*on those tasks*, and transfer to untrained abilities —
+"far transfer," the thing a general `g_mem` loading would
+be — is not supported (Simons, Boot, Charness, Gathercole,
+Chabris, Hambrick & Stine-Morrow 2016, *Psychol. Sci.
+Public Interest* 17:103 — the definitive review: brain-
+game claims outrun evidence; Melby-Lervåg & Hulme 2013,
+*Dev. Psychol.* — WM training: near transfer yes, far
+transfer no, no maintenance; Shipstead, Redick & Engle
+2012; Owen et al. 2010, *Nature* — 11,430-participant
+RCT: trained gains, zero transfer). This joins
+`birth_order` (§58) and `learn_style` (§71) as a documented
+null kept *in the vector* on purpose — because bibles and
+players will reach for it.
+
+Model — `braintrain` ∈ [0,2] exists in IndivTraits with
+**every loading fixed 0.0** except a single frozen near-
+transfer channel: `nt_xfer` (0.15) may boost performance
+on the *specific trained task family* only — mnemonic
+drill improves the drill, never the store. Locked null
+`braintrain_far_null`: no parameter may be raised by
+`braintrain` except through `nt_xfer`'s task-locked gate.
+A character who does memory exercises every morning is
+indistinguishable from one who doesn't — except at the
+exercises. P969 probes the absence.
+
+[CONSENSUS — this is among the best-documented nulls in
+the applied literature.]
+
+## 103. Cross-version interactions (audit)
+
+- **blackout × intox_* (v1.9/v5.20):** the trait scales,
+  the params gate — `blackout` without intox ≥ bac is
+  inert; intox without `blackout` yields the population
+  floor rates only. `intox_retro_shield` is untouched
+  (anterograde-direction consistency: shield and blackout
+  never overlap on a record).
+- **med_burden × sleep/consol (§81):** sedative load often
+  *improves* reported sleep while taxing encoding — corr
+  med_burden·sleep −0.1 is intentionally small; the
+  trade-off is the point (subjective rest, objective tax).
+- **eval_press × stereo_suscept (v? age-decline §):
+  stereotype threat already exists — eval_press is the
+  STAKES gate; stereo_salience is the IDENTITY gate. They
+  multiply on an elder being publicly evaluated — both
+  gates required for the full documented effect, either
+  alone yields its own half. No param shared; check P961
+  keeps them separable.
+- **att_ctl × neurot (§2.3):** neurot supplies the worry,
+  att_ctl decides if it lands — corr +0.5 to wmc, −0.3 to
+  neurot; identical neurot, split att_ctl = split outcomes.
+- **scd × meta_conf (§17):** scd is the phenotype-level
+  expression — meta_conf −0.5 is the population pull; a
+  bible may pin high scd with neutral meta_conf for a
+  specifically-memory-anxious character. Aging real
+  decline rides aging_rate/reserve, never scd.
+- **cross_exp × face_ability (§20):** ability is the
+  store, exposure is the bias — a super-recognizer can
+  still show ORB; the loadings multiply on out-group
+  targets only. `orb_content_null` keeps them tier-clean.
+- **sim × sdam/hsam (§63–64):** sim is the continuous
+  axis, the tails clamp it — hsam sim is high by
+  construction (shared substrate); sdam sim is low
+  (thin futures documented, §"thin futures" v87 — this
+  formalizes the earlier qualitative claim).
+- **preg_state × task_load (§55):** the dip is
+  *additive* with busy-day load — pregnancy taxes are
+  encoded on top of, not instead of, state load. Watch
+  the sum vs clamps.
+- **caff × chronotype (§2):** withdrawal compounds a
+  mismatched morning — the params are independent
+  (state vs phase) and both fire; no special-casing.
+- **gamer × media_m (§51):** media_m is the *cost* axis
+  (split-attention habit), gamer the *trained-attention*
+  axis — correlating +0.15 only; a character can be
+  both (the literature's multitasking gamers are not a
+  contradiction).
+- **braintrain × mnem (§85):** the mandated null and
+  the priced skill are NOT in tension — mnem prices
+  *strategy deployment on real material* (Wagner 2021
+  durability), braintrain-null prices *far transfer
+  from drill*. Both are simultaneously true in the
+  literature; P969 vs P843 is the check.
+
+## 104. Extended trait vector, R additions, loading table
+## (Part VIII)
+
+```json
+IndivTraits += {
+  "blackout":   0.0,   // §92 — alcohol-vulnerability tail [0,2]
+  "med_burden": 0.0,   // §93 — sedative/anticholinergic load [0,2]
+  "att_ctl":    0.0,   // §95 — attentional control (ACS)
+  "scd":        0.0,   // §96 — subjective-decline phenotype [0,1]
+  "cross_exp":  0.0,   // §97 — cross-group exposure [0,2]
+  "sim":        0.0,   // §98 — episodic simulation ability
+  "caff":       0.0,   // §100 — habitual caffeine level [0,2]
+  "gamer":      0.0,   // §101 — action-gaming history [0,2]
+  "braintrain": 0.0,   // §102 — DOCUMENTED NULL (near-xfer only)
+  // state fields (not traits):
+  //   preg_state {0,1,2,3}, caff_wd 0|1, eval_press ctx flag
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+blackout·stress      +0.15  (drinking-history composite — sampling)
+blackout·early_adv   +0.20  (co-traveling risk — sampling corr)
+med_burden·aging_rate +0.15 (medicated skews older — sampling)
+med_burden·sleep     −0.10  (sedated rest ≠ good sleep)
+att_ctl·wmc          +0.50  (control vs capacity — CONSENSUS dir.)
+att_ctl·neurot       −0.30  (anxiety cost mediated — Eysenck 2007)
+scd·neurot           +0.40  (Rabin 2017 — CONSENSUS dir.)
+scd·meta_conf        −0.50
+scd·checker          +0.30
+cross_exp·social     +0.20  (exposure tracks contact — sampling)
+sim·vivid            +0.40  (shared imagery — CONSENSUS dir.)
+sim·g_mem            +0.30  (shared episodic substrate — Addis)
+sim·open             +0.20
+caff·chronotype      +0.15  (evening types lean on the cup — sampling)
+gamer·media_m        +0.15  (habit overlap — sampling)
+gamer·nav_ab         +0.15  (spatial channel — CONSENSUS dir.)
+braintrain·*         0.0    (mandated — see §102)
+```
+
+### Loading table additions (rows beyond §88)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| blackout | frag-mint p under intox≥gate | ·+0.6·b | CONSENSUS (Hartzler & Fromme 2003) |
+| blackout | source-tier ×(1−ctx_pen), θ+pen | ctx 0.4, θ 0.15 | CONSENSUS dir. (Wetherill 2011) |
+| blackout | en-bloc mint p (intox≥0.8) | ·+0.15·b | CONSENSUS (3:1 frag:enbloc) |
+| med_burden | E ×(1−antro_tax·m), src ×(1−pen·m) | tax 0.25, pen 0.3 | CONSENSUS (Curran 1991; Gray 2015) |
+| med_burden | search_breadth / ret_noise | −0.1/σ, +0.02/σ | CONSENSUS dir. (sedation) |
+| med_burden | aging_rate addend | +0.05·m | DEBATED (Gray 2015 associational) |
+| eval_press | wmc-loadings ×(1−choke_k·wmc⁺) | k 0.4·gate | CONSENSUS dir. (Beilock & Carr 2005) |
+| att_ctl | att_min under stress/anx ctx | −0.06/σ tax-reduction | CONSENSUS dir. (Derryberry 2002) |
+| att_ctl | ret_noise under eval_press | −0.02/σ | CONSENSUS dir. |
+| scd | complaint surface / worry intr | +0.6·s / +0.1·s | CONSENSUS (Jessen 2014; Rabin 2017) |
+| scd | (all accuracy params) | 0.0 — LOCKED | CONSENSUS (phenotype def.) |
+| cross_exp | orb rescale (1−expo_k·x) | expo_k 0.6 | DEBATED (contact lit.) |
+| (orb mech) | out-group fam ×(1−pen)/fa +gain | pen 0.3, gain 0.15 | CONSENSUS (Meissner & Brigham 2001) |
+| sim | future-record detail ∝ specificity | link 0.5 | CONSENSUS (Addis 2007; Madore 2014) |
+| preg_state | E ×(1−dip·w[t]), exec T3 | dip 0.15, exec 0.1 | CONSENSUS shape (Davies 2018) |
+| preg_state | complaint share | 0.8 | CONSENSUS (4/5 subjective) |
+| caff | caff_wd state: noise/θ/breadth | tax 0.08·c | CONSENSUS (Rogers 1998) |
+| caff | state-dep w_msd add | +0.02·c | DEBATED (Kelemen 2003) |
+| gamer | att_min / w_place / vis detail | −0.01/+0.02/+0.03 | CONSENSUS dir., small (Bediou 2018) |
+| gamer | (episodic params) | 0.0 — LOCKED | CONSENSUS domain-map |
+| braintrain | nt_xfer task-locked only | +0.15 frozen | CONSENSUS (Simons 2016) |
+| braintrain | (all else) | 0.0 — LOCKED | CONSENSUS (Melby-Lervåg 2013) |
+
+## 105. New explicit nulls (Part VIII's falsifiable edge)
+
+- `blackout_retro_null`, `blackout_rescue_null` (en-bloc
+  arm): the drinking erases forward only; en-bloc gaps
+  are gone, not archived (P958).
+- `med_retro_null`: the pill taxes tomorrow, never
+  yesterday (P960).
+- `choke_lowstake_null`: pressure without stakes chokes
+  no one (P961).
+- `scd_obj_null`: complaint may never touch accuracy
+  (P963).
+- `orb_content_null`: group bias lives in the face tiers
+  only (P964).
+- `sim_content_null`: rich imagination buys detail, not
+  truth (P965).
+- `preg_perm_null`, `preg_theta_null`: the dip ends with
+  the state, and it never reaches backward (P966).
+- `caff_ability_null`: dosed performance is reference,
+  never enhanced (P967).
+- `gamer_episodic_null`: attention doesn't buy a store
+  (P968).
+- `braintrain_far_null`: drill improves the drill — the
+  third mandated null (P969).
+
+## 106. Falsifiable probes (P958–P969; validation-design §186)
+
+- **P958 the holes in the evening (MUST — rescue
+  split):** blackout=+1.5 vs 0, intox=0.7 identical
+  nights: fragmentary records carry frag:true, source
+  fields thin, θ up — and cue-supported recall rescues
+  ~`blackout_cue_rescue` fraction as `reconstructed`;
+  en-bloc records absent under ANY cue (rescue_null);
+  pre-drinking records identical across arms
+  (retro_null); sober-history performance identical
+  (the trait only operates under intox).
+- **P959 the shield beside the hole (OBSERVE):** events
+  encoded pre-drinking in intox≥0.3 nights accrue less
+  next-day interference than sober-night controls
+  (v5.20's Parker leg) WHILE the same night's
+  intox-encoded events carry the gap — the two effects
+  must coexist on one timeline.
+- **P960 the honest pill (MUST — direction-lock):**
+  med_burden=1.5 vs 0: records born during burden show
+  the E/source tax; records born pre-burden identical
+  (retro_null); post-washout (≥med_washout) encode arms
+  converge; aging_rate addend drifts only the long
+  slope.
+- **P961 the expensive advantage (MUST — interaction):
+  ** wmc=+1.5 vs −1.5 at matched g_mem, eval_press on
+  vs off: high-wmc loses MORE discrimination/source/
+  interference performance under pressure; below
+  choke_gate both arms identical (lowstake_null);
+  arousal_narrowing unchanged (the choke is not the
+  arousal).
+- **P962 the landing pad (SHOULD):** neurot=+1.5 held,
+  att_ctl −1.5 vs +1.5: stress-state encoding tax and
+  eval_press noise both diverge; baseline (no stress,
+  no pressure) arms identical — att_ctl buffers only
+  under load.
+- **P963 the worried well (MUST — locked null):**
+  scd=1 vs 0 at identical g_mem/aging_rate/reserve:
+  complaint surface and worry intrusions rise, ALL
+  accuracy-side measures identical within jitter —
+  any E/β/θ difference FAILS (scd_obj_null). Bonus
+  arm: scd × eval_press spends real wmc via choke —
+  the felt deficit can self-fulfill on stage.
+- **P964 whose face (SHOULD — tier-lock):** cross_exp=0
+  vs +2: out-group face familiarity gap and out-group
+  FA rate both shrink by ~orb_expo_k; episodic content
+  about out-group people identical (orb_content_null);
+  own-age arm shows the half-weight effect.
+- **P965 the shared machinery (SHOULD):** sim=+1.5 vs
+  −1.5: future:true records' detail density tracks
+  recall specificity (partial corr with vivid/g_mem
+  controlled); content accuracy identical across arms
+  (sim_content_null) — detail and truth must decouple.
+- **P966 the third-trimester shape (SHOULD):**
+  preg_state 0→1→2→3 sequence: E-dip follows
+  preg_trim_w shape (T3-weighted, not linear);
+  complaint surface fires in T1–T3 independently of
+  any objective tax; post-state records recover
+  (perm_null); pre-pregnancy retrieval identical
+  (theta_null).
+- **P967 the morning reference (SHOULD — reversal
+  account):** caff=1.5: caff_wd state taxes noise/θ/
+  breadth; dosed state returns all three to baseline —
+  never above (caff_ability_null); state-dep bonus arm
+  measured and expected small (DEBATED).
+- **P968 the trained reflex (SHOULD — channel-lock):**
+  gamer=+2 vs 0: fast-visual att floor and spatial cue
+  weight shift, episodic E/β/θ identical within jitter
+  (gamer_episodic_null); any link_p or specificity
+  difference FAILS.
+- **P969 the drill that doesn't travel (MUST — locked
+  null):** a 30-session training:mem regimen on
+  braintrain=+1.5: trained-task performance improves
+  (nt_xfer), EVERY other measure identical to the
+  no-training arm within jitter (braintrain_far_null)
+  — and P843's mnem comparison runs in the same suite
+  to prove the skill/null distinction holds.
+
+## 107. Part VIII honest limits
+
+- The blackout trait compresses two literatures:
+  Hartzler & Fromme's etiology work says fragmentary
+  blackouts are *retrieval* failure — our model writes
+  thin source fields + raised θ, which is a storage-
+  flavored implementation of a retrieval claim. The
+  behavioral signature matches; the mechanism label
+  is ours.
+- `choke`'s extension from task performance to memory
+  encoding is a hypothesis, not a citation — Beilock's
+  math studies don't measure what gets stored. P961
+  can falsify the extension.
+- `med_burden` merges two pharmacologies (benzo +
+  anticholinergic) that differ in receptor and
+  phenomenology; the shared anterograde signature
+  justifies one trait at our granularity, but a bible
+  wanting *benzodiazepine specifically* should note it
+  — the cumulative `aging_rate` leg (Gray 2015) is
+  associational and stays DEBATED.
+- `cross_exp` treats exposure as one axis; the contact
+  literature distinguishes quality vs quantity and the
+  own-age bias is thinner (Rhodes & Anastasi's meta is
+  half the size of the own-race one). The expo_k=0.6
+  rescale is a fit, not a finding.
+- `sim` is priced separable-but-correlated with g_mem —
+  the constructive-episodic-simulation literature
+  *itself* is split on whether they're one factor.
+  P965's partial-correlation arm is the honest test.
+- `preg_state`'s weights are meta-analytic SHAPE
+  (T3-weighted, complaint-heavy); the mechanism could
+  be sleep disruption (which would argue for routing
+  through the `sleep` trait instead) — we kept a
+  dedicated state because the complaint-accuracy
+  decoupling needs its own lever.
+- `caff`'s state-dependency arm is priced near zero
+  against a mostly-null literature — if future work
+  revives it, the param is already there at the floor.
+- `gamer` and `braintrain` together encode the field's
+  two-sided verdict: genre-matched habits move their
+  channels a little (Bediou), generic drill moves
+  nothing (Simons). If the next big meta-analysis
+  flips the causality verdict on action games, `gamer`
+  is one commit away from joining `braintrain` as a
+  fourth null — the trait slot stays either way.
+
+
+# Part IX — v103: the ninth axis of difference (the tax and the
+# step — states that rent the machinery, injuries that reset it,
+# the bookkeeping quirks, and the fourth mandated null)
+
+Eight parts have built the trait vector outward — capacity,
+personality, language, neurodivergence, clinical phenotypes,
+lived-in bookkeeping, offloading, chemistry. What remains
+uncovered is a specific class: **circumstantial states that tax
+or step the machine without changing who the character IS**,
+plus a handful of bookkeeping traits that survived every prior
+audit, plus one more popular enhancement claim the evidence
+refuses. A broke month, a checking habit, an interrupted night,
+a week in the ICU, a mood swing, a newborn, a chemo course, a
+felt age, a camera habit, a wandering mind, a savoring streak,
+and a dosing regimen that does nothing — thirteen ways two
+characters with identical trait vectors still won't remember
+the same week.
+
+## 108. `scarc` — the bandwidth tax that tunnels (state, not trait)
+
+**Consensus:** scarcity consumes cognitive control, measurably
+and reversibly. Mani, Mullainathan, Shafir & Zhao 2013
+(*Science* 341:976 — verified): sugarcane farmers' fluid
+performance drops **before** harvest (poor) and recovers after
+(rich) — the same person, ~13-IQ-point equivalent swing; a New
+Jersey mall arm: contemplating an expensive car-repair bill
+degraded poor shoppers' performance, a cheap one did not.
+Shah, Mullainathan & Shafir 2012 (*Science* 338:682): scarcity
+doesn't just tax — it **tunnels**: focus on the scarce
+commodity improves while everything outside the tunnel pays
+the fare (attentional capture, neglect of the periphery).
+
+**Model:** `scarc` ∈ [0,1] — a **world-supplied state**
+(ledger-side financial strain; the substrate mints it from
+rent-shortfall/debt events, not the bible). Two legs:
+(a) tax — all wmc-loadings (encoding depth under
+`div_attention`-class contexts, PM self-initiation,
+search_breadth) ×(1 − `scarc_wmc_tax`·scarc), `scarc_wmc_tax`
+0.2; PM self-initiation takes an extra `scarc_pm_tax` (0.15)
+— the unpaid bill eats the intention buffer first.
+(b) tunnel — events carrying `stressor:true` (the scarce
+domain itself: the bill, the shift, the pawnshop) encode
+×(1 + `scarc_tunnel_gain`·scarc), gain 0.25. The broke
+character remembers the *debt* vividly and drops the
+conversation held next to it.
+
+**Locked `scarc_trait_null`:** `scarc` is state-gated —
+identity never enters. Same character, `scarc` 0.9→0.1 →
+wmc-loadings recover fully (the farmers). No bible pins it.
+
+## 109. `chk_loop` — the checking paradox (mechanism on `checker`)
+
+**Consensus:** the `checker` trait (Part IV) prices *who*
+checks; the literature also prices what checking *does to the
+record*. van den Hout & Kindt 2003 (*Behav. Res. Ther.*
+41:301 — verified, two experiments on the virtual stove):
+repeated checking leaves memory **accuracy intact** but
+degrades its vividness, detail, and the checker's confidence
+in it — familiarity promotes conceptual processing, which
+inhibits perceptual re-encoding. 2004 (*J. Behav. Ther. Exp.
+Psychiatry* 35:165 — five experiments): the shift is
+remember→know — "the memory is there, but it isn't definite."
+Hermans et al. 2008; Radomsky et al. 2014 — the loop feeds
+itself: eroded confidence motivates the next check.
+
+**Model:** when a character re-verifies a self-action record
+(re-checks the stove, re-asks the partner, re-reads the sent
+message — world supplies `recheck` events referencing the
+record id), the record's **reported** vividness/detail decay
+×(1 − `chk_vivid_erosion`·checker) per check (0.15),
+reported confidence ×(1 − `chk_conf_erosion`·checker) (0.2),
+and the remember/know tag drifts toward `know` at
+`chk_know_shift`·checker (0.3/check, asymptotic).
+`accuracy` never moves. The checker's urge to re-check
+scales with the *eroded* confidence — the loop is emergent,
+not scripted.
+
+**Locked `chk_acc_null`:** no number of rechecks changes
+field accuracy — erosion is phenomenal/metacognitive only.
+This is the finding (accuracy stayed intact across all vdH&K
+experiments), and it is the cleanest confidence-accuracy
+decoupling in the model since `cinfl_*`.
+
+## 110. `apnea` — the night that never consolidates (trait)
+
+**Consensus direction, magnitudes debated:** obstructive
+sleep apnea fragments sleep architecture and adds intermittent
+hypoxia; the memory signature is impaired episodic
+consolidation plus executive/pspeed drag, partially reversible
+with CPAP. Canessa et al. 2011 (*J. Sleep Res.* 20 — gray-
+matter reduction in hippocampal/executive regions, partially
+reversed after 3 months CPAP); Djonlagic et al. 2021 (*JAMA
+Netw. Open* 4:e212537 — sleep-disordered breathing associated
+with Alzheimer's biomarker burden); Leng et al. 2017;
+Bubu et al. 2020 meta. This is a **trait**, not the `sleep`
+state: apnea is every night, untreated-or-treated, for years.
+
+**Model:** `apnea` ∈ [0,2], bible-set (body-type/age
+correlated; ~1/3 of older male mains at clinical levels).
+Three legs: (a) `consol_beta_mult` ×(1 +
+`apnea_consol_tax`·a) (0.15) — nightly consolidation yields
+less; (b) `sws_mult` ×(1 − `apnea_sws_cut`·a) (0.2) — the SWS
+channel specifically, which is the episodic one;
+(c) `ret_noise`/`iiv_sigma` += `apnea_iiv`·a (0.02) —
+daytime sleepiness is inconsistency, not flat loss.
+Treatment state `apnea_treated:true` rescues ~half the legs
+(`apnea_cpap_rescue` 0.5) — Canessa's partial reversal,
+never full.
+
+**Locked `apnea_overnight_null`:** a single treated night
+repairs nothing — the rescue is cumulative over ~90 days
+(Canessa's timescale). The acute `sleep` state stays
+orthogonal: an apneic with a good subjective night still
+consolidates poorly.
+
+## 111. `delirium` — the step nobody prices (state → residue)
+
+**Consensus:** age-decline.md §95 already prices
+`hosp_step` (hospitalization accelerates decline) but
+explicitly flags the gap: "no delirium/acute-confusion state
+under hospitalization." The literature says the step is
+mediated by *delirium duration*. Pandharipande et al. 2013
+(*NEJM* 369:1306 — BRAIN-ICU, verified): delirium duration in
+ICU independently predicted global-cognition deficit at 3 and
+12 months — ~40% of survivors at ~1.5 SD below age norms at 3
+months; Girard et al. 2010; Marcantonio 2017 review.
+Delirium is also **encoding silence**: the episode itself
+writes almost no records (phenomenology of the ICU — patients
+report fragments, delusions, or nothing).
+
+**Model:** world supplies `delirium:{onset, offset, severity}`
+on top of `hosp` events. Two legs: (a) **window** — encoding
+during delirium mints only `frag:true` fragments at
+`delir_enc_floor` (0.05) of normal E, source fields empty;
+delusional fragments mint at `delir_dream_p` (0.15) with
+`fuzzy:true` provenance (ICU delusion memories are real —
+patients remember nightmares, not procedures). (b)
+**residue** — at offset, `age_eff += delir_step·days`
+(`delir_step` 0.15 age-years per delirious day, cap
+`delir_step_cap` 3y) — dose-ordered, permanent, stackable
+with `hosp_step` (delirium is the mediator, not the
+alternative).
+
+**Locked `delir_retro_null`:** pre-admission records are
+untouched — the step is forward-only like `tbi`'s Ribot
+gradient is backward-only.
+
+## 112. `bipolar` — the swing phenotype (clinical trait)
+
+**Consensus direction:** euthymic bipolar patients carry a
+moderate, persistent verbal-memory/executive deficit
+(Bourne et al. 2013, *Acta Psychiatr. Scand.* 128:149 meta —
+d ≈ 0.4–0.7 across domains; Cullen et al. 2016 UK Biobank);
+episodes add state legs — manic encoding is fast, social,
+thin-contextualized; depressive encoding inherits `depr`'s
+overgeneral shape (§34). Inter-episode impairment correlates
+with episode *count*, not current symptoms (Robinson &
+Ferrier 2006 — each episode accrues a small residue).
+
+**Model:** `bipolar` ∈ [0,2], bible-set, max ~1 per cast
+(prevalence honesty). Baseline leg: episodic E and
+`search_breadth` ×(1 − `bip_euthymic_tax`·b) (0.1 — the
+euthymic residue, present between episodes).
+State legs consume `C.mood` extremes: `C.mood ≥ +0.7`
+(hypomanic ctx) → `w_nov`/`w_people` ×(1 +
+`bip_mania_reach`·b) (0.3) while `w_topic`/source-field
+completeness ×(1 − `bip_mania_thin`·b) (0.2) — wide but
+shallow records, the party remembered as light not content.
+`episode_count` (world/bible-supplied integer) adds
+`bip_ep_residue`·n (0.02 each, cap 0.2) to the euthymic tax —
+the scar tissue is cumulative.
+
+**Locked `bip_creat_null`:** the romantic claim —
+bipolar→creative advantage — gets no encoding or retrieval
+bonus. The phenotype costs; it does not compensate
+(CONSENSUS direction; the creativity association is real in
+population data but is not a *memory* parameter).
+
+## 113. `newpar_state` — the newborn months (state, honest size)
+
+**Established shape, debated mechanism:** postpartum memory
+complaint is common (~80% self-report in some surveys) while
+objective deficits are small and sleep-mediated. Hoekzema et
+al. 2017 (*Nat. Neurosci.* 20:287 — pregnancy produces
+long-lasting gray-matter changes, present at 2 years);
+Workman, Barha & Galea 2012 review; Logan et al. 2014
+(prospective — self-report deficit >> measured). The honest
+reading, same as `preg_state` (§99): real dip, smaller than
+the complaint, largely *sleep-frag routed* — which the model
+can finally express, since `sleep` is a state channel.
+
+**Model:** `newpar_state` ∈ {0,1} (first ~6 postpartum
+months; applies to either parent at `night_duty` share —
+world supplies). Legs: `sleepQuality` ceiling ×(1 −
+`newpar_sleep_cap`·state) (0.25 — fragmented, not short);
+`iiv_sigma` += `newpar_iiv` (0.03 — every night differs);
+`att_min` += `newpar_att` (0.03 — the monitor is always on).
+Complaint leg: `newpar_complaint` (0.6 — self-report bias,
+same pricing as preg). **Locked `newpar_flat_null`:** no
+independent E/θ/β terms — all memory cost routes through
+sleep/attention channels. If a probe shows the sleep-mediation
+accounting for <80% of the measured dip, the null fails and
+a direct term gets added — that's the falsifiable edge.
+
+## 114. `crci_state` — the treatment fog (state, complaint-heavy)
+
+**Established shape, debated etiology:** cancer-related
+cognitive impairment is real but *domain-narrow* — processing
+speed, executive, working memory — with objective deficit
+consistently smaller than subjective complaint. Ahles & Root
+2018 (*CA: Cancer J. Clin.* 68 review); Wefel et al. 2015;
+Janelsins et al. 2014 (longitudinal — inflammation,
+not just chemotherapy, correlates). Like `scd` (§96) the
+pattern is complaint>store; unlike `scd` there IS an
+objective leg, just thin and domain-specific.
+
+**Model:** `crci_state` ∈ [0,1] during active treatment ±3
+months. Legs: `pspeed`/`ret_lat_mult` and wmc-loadings
+×(1 − `crci_exec_tax`·s) (0.15 — executive-side only);
+complaint surface ×`crci_complaint` (1.2 — exceeds the tax,
+the signature). **Locked `crci_epi_null`:** episodic
+`enc_base`/`beta_episodic`/`theta` untouched — the fog is in
+the control layer, not the store (CONSENSUS direction —
+episodic memory is the *least* affected domain in the meta-
+analyses). `crci_fatigue` mediation: `task_load` interactions
+scale the tax by 0.5 — fatigue is the honest mediator.
+
+## 115. `subj_age` — felt age is a parameter (trait)
+
+**Consensus direction, mechanism debated:** subjective age —
+how old someone feels — predicts memory performance
+independent of chronological age. Stephan, Sutin &
+Terracciano (2018–2023 series — younger felt age → better
+episodic memory, slower decline); Weiss & Lang 2012; Hughes
+& Lachman 2018 review. Adjacent mechanism: **stereotype
+threat** — activating the "old = forgetful" stereotype
+degrades older adults' recall in the moment (Hess et al.
+2003; Mazerolle et al. 2017 meta). Two legs, one trait.
+
+**Model:** `subj_age` ∈ [−1,+1] (felt-minus-chronological,
+N(0.1, 0.4) — population skews felt-younger). Trait leg:
+`age_eff` gains `subj_age_shift`·subj_age years on
+performance-side legs only (`subj_age_shift` 3.0 — HYPOTHESIS
+magnitude; the cohort effects are real but mediated by
+depression/activity, which we already price — residual
+leg stays small). State leg: cueContext
+`age_cue:true` (world-supplied — birthday, being called
+"sir," a memory test) taxes wmc-loadings ×(1 −
+`stereo_tax`) (0.1) when age_now ≥ 60 AND subj_age > 0 —
+the stereotype bites only people who believe it applies.
+
+**Locked `subj_age_store_null`:** felt age never moves
+encoding or decay — it's a performance/report parameter
+(the Stephan correlations are performance-side; no evidence
+it changes what's stored). Keeps `subj_age` honest against
+`reserve`.
+
+## 116. `photo_habit` — the camera tax (trait × act)
+
+**Consensus direction, size debated:** taking a photo
+*impairs* memory for the photographed event — the
+photo-taking impairment effect (Henkel 2014, *Psych. Sci.*
+25:396 — museum study, photographed objects recalled worse
+than observed ones; Soares & Storm 2018 — the impairment
+holds even when photos are never reviewed; Barasch et al.
+2017 — a countervailing *attentional* boost to visual
+detail at the cost of nonvisual detail). Distinct from
+`offload` (§80): offloading is the expectation that the
+device stores it; the camera tax applies *at the shutter*
+even when review never happens.
+
+**Model:** `photo_habit` ∈ [0,2] trait (how reflexively the
+camera comes out). When an event carries `photographed:true`
+(world flag): E for nonvisual/gist fields ×(1 −
+`photo_tax`·min(1,habit)) (0.15); visual-detail fields
+×(1 + `photo_vis_gain`·habit) (0.1 — Barasch's
+countervailing leg); source `context.external` gets a
+`camera:true` provenance tag enabling the offload pathway at
+retrieval (the photo becomes a `resurrect`-class cue —
+records revive on review, which is why people don't notice
+the tax). **Locked `photo_review_null`:** the impairment
+does not require never-reviewing — deleting the photo
+post-hoc does not restore the untaken E. The tax is at
+encoding, not at review.
+
+## 117. `mw` — the wandering mind (trait, the encoding gap)
+
+**Consensus:** mind-wandering propensity is a stable trait
+that costs encoding in proportion to task demand — the
+absent-minded error profile. Cheyne, Carriere & Smilek 2006
+(ARCES — attention-related cognitive errors scale);
+Schooler et al. 2011 review; Kane & McVay 2012 —
+mind-wandering competes with wmc for the same control
+resource (correlated with wmc ~ −0.3). Distinct from
+`media_m` (external task-switching) and `att_ctl` (control
+under threat): `mw` is *stimulus-independent* internal
+capture — the mind leaves without a trigger.
+
+**Model:** `mw` N(0,1). Mechanism: per-tick attention
+sampling gains an internal-capture event at rate
+`mw_rate`·(1+0.3·mw) (0.02/tick baseline): during capture
+windows (~seconds), `att` drops to `att_min` floor and
+event fields encoded in the window carry `mw_gap:true` —
+thin verbatim, intact gist-of-place (you were there, you
+just weren't *there*). Retrieval-side: `mw` adds
+`mw_replay` (0.1) to spontaneous-intrusion rate — the same
+channel that eats encoding returns unbidden content.
+**Locked `mw_deliberate_null`:** `mw` never raises
+deliberate-recall accuracy or cue weights — capture is a
+cost with an intrusion dividend, not a retrieval style.
+
+## 118. `savor` — the deliberate keeper (trait)
+
+**Consensus direction:** savoring — deliberate attention to
+and prolonging of positive experience — is a measurable
+trait (Bryant & Veroff 2007 Savoring Beliefs Inventory) that
+maintains positive affect and, for memory purposes, acts as
+*positive-channel rehearsal*. Distinct from `rosy` (§57 —
+retrospective kindness, a report-layer trait) and from
+`extra`'s sunniness: `savor` is an *act* — it changes what
+positive records get worked on after minting.
+
+**Model:** `savor` N(0,1). Legs: (a) at encoding, positive-
+valence records gain `savor_attend`·sav (0.15) on
+detail/peripheral fields — the savorer is literally attending
+longer (Bryant's "marveling"); (b) post-encoding, positive
+records enter the rehearsal pool with weight
+×(1 + `savor_rehearse`·sav) (0.3) — the savorer re-lives
+good events deliberately; (c) the affect-side: positive
+affect tags decay ×(1 − `savor_fade_buf`·sav) (0.2 — the
+FAB's positive side is *propped*, local to positive records
+only — §4.5's `neg_affect_decay` asymmetry unchanged).
+**Locked `savor_neg_null`:** no effect on negative records —
+savoring is not rumination (that's `rumin`'s job); a
+high-`savor` high-`rumin` character keeps both ledgers.
+
+## 119. `microdose` — the fourth mandated null (the popular claim
+the placebo keeps eating)
+
+**Consensus after controlled trials:** anecdotal reports
+claim microdosing psychedelics improves memory, focus,
+creativity. The placebo-controlled record refuses: Cavanna
+et al. 2022 (*Transl. Psychiatry* 12:148 — verified: only
+participants who *correctly guessed* their condition showed
+effects; all other measures null or slightly impaired);
+van Elk et al. 2021 (two double-blind longitudinal RCTs —
+null across cognitive control, memory, social cognition);
+Murphy et al. 2023 (*Biol. Psychiatry* — verified: LSD
+microdose RCT, transient mood ratings on dose days, no
+enduring cognitive change); Marschall et al. 2022. The
+belief effects are real; the ability effects are not.
+
+**Model:** `microdose` ∈ {0,1} habit flag. Permitted leg:
+`mdose_expect_conf` (0.1) — expectancy raises *reported*
+clarity/performance confidence on dose days (the Cavanna
+finding is an expectancy effect — price it where the data
+put it). **Locked `mdose_enhance_null`:** every objective
+parameter — E, β, θ, WMC-loadings, intrusion rates —
+identical to non-dosing self. The character *believes* the
+regimen works; the store does not care. Joins `birth_order`
+(§58), `learn_style` (§71), `braintrain` (§102): the
+mandated-null shelf exists so that a bible asking for the
+folk-psychology effect gets the evidence instead.
+
+## 120. Cross-version interactions (audit)
+
+- `scarc` × `stress` (Part I): scarcity is not modeled as
+  arousal — the tax is bandwidth, not the §2 stress gate.
+  `scarc` events may co-mint stress; the `scarc_wmc_tax`
+  leg does not require it. Keeps the farmers' null result
+  (stress measured, didn't account for the dip).
+- `chk_loop` × `distrust`/`meta_conf`: `distrust` is the
+  *baseline* doubt; `chk_loop` is the *acquired* doubt,
+  self-inflicted per record. Both write confidence;
+  neither writes accuracy. A high-`distrust` non-`checker`
+  doubts globally; a `checker` erodes per-act.
+- `apnea` × `sleep` state: `sleep` prices the night's
+  quality; `apnea` prices the disorder underneath it. They
+  multiply, not substitute — an apneic's best night still
+  underconsolidates.
+- `delirium` × `hosp_step`: stacked, not merged —
+  `hosp_step` prices hospitalization generally (§95);
+  `delirium` prices the acute-confusion dose specifically.
+  A sedated non-delirious admission pays only `hosp_step`.
+- `bipolar` × `depr`: `depr` (§34) owns the pole's
+  overgeneral shape; `bipolar` owns the between-episode
+  residue and the manic encoding signature. A `depr`-only
+  character never gets `bip_mania_reach` legs.
+- `crci_state` × `scd`: same complaint>store shape,
+  different basis — `scd` is the worried well (objective
+  null locked); `crci` has a real but narrow executive
+  tax. The complaint decoupling is the shared mechanism;
+  the store-side difference is the diagnostic.
+- `subj_age` × `reserve`: `reserve` (v0.4) shifts what the
+  brain can take before decline shows; `subj_age` shifts
+  performance-side legs only, store untouched — the two
+  must not double-count (P1093 partial-correlation arm).
+- `photo_habit` × `offload`: `offload` is expectation
+  (§80 — "the phone remembers"); `photo_habit` is the act
+  at the shutter. Non-`offload` characters still pay the
+  camera tax; `offload` characters pay both.
+- `mw` × `media_m`/`att_ctl`: `media_m` is external split
+  attention, `att_ctl` is control under load, `mw` is
+  untriggered internal capture. R-corr ~+0.3 between
+  `mw`/`media_m` (habit overlap) but separate levers.
+- `savor` × `rosy` × `fab`: `rosy` is report-layer
+  kindness, `fab` is the affect-fade asymmetry (§4.5),
+  `savor` is rehearsal selection. Three different layers
+  that all lean positive — the audit exists so a bible
+  doesn't stack all three into a saccharine main.
+- `microdose` × `fantasy`/`suggs`: the expectancy leg
+  (`mdose_expect_conf`) may load +0.1 on `fantasy` —
+  the believer's prior — but the null is unconditional.
+
+## 121. Extended trait vector, R additions, loading table
+## (Part IX)
+
+```json
+IndivTraits += {
+  "apnea":      0.0,   // §110 — sleep-disordered breathing [0,2]
+  "bipolar":    0.0,   // §112 — the swing phenotype [0,2], ≤1/cast
+  "subj_age":   0.0,   // §115 — felt-minus-chronological [-1,+1]
+  "photo_habit":0.0,   // §116 — camera reflex [0,2]
+  "mw":         0.0,   // §117 — mind-wandering propensity
+  "savor":      0.0,   // §118 — deliberate positive rehearsal
+  "microdose":  0.0,   // §119 — DOCUMENTED NULL (expectancy only)
+  // state fields (not traits):
+  //   scarc [0,1] world-supplied (§108);
+  //   recheck events on self-action records (§109);
+  //   delirium:{onset,offset,severity} (§111);
+  //   newpar_state {0,1} + night_duty share (§113);
+  //   crci_state [0,1] (§114); age_cue ctx flag (§115);
+  //   photographed:true event flag (§116);
+  //   episode_count int (§112); apnea_treated (§110)
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+scarc·stress         +0.30  (strain arrives with arousal — sampling)
+scarc·(−consc)       +0.20  (precarity correlation — sampling, not causal)
+apnea·age            +0.35  (prevalence rises steeply — CONSENSUS)
+apnea·(male sex)     +0.25  (2:1 clinical skew — CONSENSUS)
+bipolar·neurot       +0.30  (affective comorbidity — sampling)
+subj_age·depr        −0.30  (felt-old tracks dysphoria — CONSENSUS dir.)
+subj_age·self_est    +0.20
+photo_habit·offload  +0.35  (device-reliance cluster — sampling)
+photo_habit·extra    +0.15
+mw·media_m           +0.30  (attention-habit cluster — sampling)
+mw·adhd              +0.40  (shared mechanism — CONSENSUS dir.)
+mw·att_ctl           −0.30  (Kane & McVay 2012 — CONSENSUS dir.)
+savor·extra          +0.20  (sampling)
+savor·rosy           +0.25  (both lean positive — sampling; layers differ)
+savor·depr           −0.25  (savoring deficits in dysphoria — CONSENSUS dir.)
+microdose·fantasy    +0.10  (expectancy prior only — DEBATED)
+crci_state·(depr)    +0.20  (complaint inflation co-travels — sampling)
+```
+
+### Loading table additions (rows beyond §104)
+
+| trait/state | param | loading | tier / source |
+|---|---|---|---|
+| scarc | wmc-loadings/PM-self ×(1−tax·s) | tax 0.2, pm 0.15 | CONSENSUS (Mani 2013) |
+| scarc | stressor:true E ×(1+tunnel·s) | tunnel 0.25 | CONSENSUS dir. (Shah 2012) |
+| chk_loop | recheck→vivid/conf erosion, R→K | 0.15/0.2/0.3 per chk | CONSENSUS (vdH&K 2003/04) |
+| chk_loop | accuracy (all fields) | 0.0 — LOCKED | CONSENSUS (vdH&K) |
+| apnea | consol_beta_mult / sws_mult | +0.15·a / −0.2·a | CONSENSUS dir. (Canessa 2011) |
+| apnea | iiv_sigma + / treated rescue | 0.02·a / 0.5 | CONSENSUS dir. / DEBATED |
+| delirium | in-window E floor / frag mint | 0.05, dream_p 0.15 | CONSENSUS (ICU phenomenol.) |
+| delirium | age_eff += step·days (cap 3y) | step 0.15/d | CONSENSUS dose (Pandharipande) |
+| bipolar | euthymic E/breadth tax | −0.1·b | CONSENSUS (Bourne 2013) |
+| bipolar | mania ctx: reach +0.3, thin −0.2 | per b | CONSENSUS dir. (HYPOTHESIS map) |
+| bipolar | per-episode residue | +0.02/count, cap 0.2 | CONSENSUS dir. (Robinson 2006) |
+| newpar_state | sleep cap / iiv / att_min | 0.25 / 0.03 / 0.03 | CONSENSUS dir. (sleep-routed) |
+| newpar_state | direct E/θ/β terms | 0.0 — LOCKED | CONSENSUS (Logan 2014) |
+| crci_state | exec/pspeed tax, complaint | 0.15·s / 1.2 | CONSENSUS (Ahles & Root 2018) |
+| crci_state | episodic params | 0.0 — LOCKED | CONSENSUS (domain-narrow) |
+| subj_age | perf-side age_eff shift | 3.0y at ±1 | HYPOTHESIS (Stephan; mediated) |
+| age_cue ctx | wmc-loadings ×(1−stereo_tax) | 0.1, age≥60 | CONSENSUS dir. (Hess 2003) |
+| photo_habit | nonvisual E −0.15, visual +0.1 | per min(1,h) | CONSENSUS (Henkel; Barasch) |
+| photo_habit | post-hoc review repair | 0.0 — LOCKED | CONSENSUS (Soares & Storm 2018) |
+| mw | capture rate, intrusion dividend | 0.02 base / +0.1 | CONSENSUS dir. (Cheyne; Schooler) |
+| mw | deliberate-recall params | 0.0 — LOCKED | CONSENSUS (encoding deficit) |
+| savor | pos detail/rehearse/fade-buf | 0.15 / 0.3 / 0.2 | CONSENSUS dir. (Bryant 2007) |
+| savor | negative records (all) | 0.0 — LOCKED | CONSENSUS (not rumination) |
+| microdose | expectancy confidence | +0.1 dose-days | CONSENSUS (Cavanna 2022) |
+| microdose | ALL objective params | 0.0 — LOCKED | CONSENSUS (van Elk; Murphy) |
+
+## 122. New explicit nulls (Part IX's falsifiable edge)
+
+- `scarc_trait_null`: bandwidth tax is state-gated; identity
+  never carries it (P1085).
+- `chk_acc_null`: rechecking erodes the *felt* memory, never
+  the fields (P1086).
+- `apnea_overnight_null`: one treated night repairs nothing
+  — cumulative rescue only (P1087).
+- `delir_retro_null`: delirium steps forward only (P1088).
+- `bip_creat_null`: the phenotype costs, never compensates
+  (P1089).
+- `newpar_flat_null`: newborn months cost through sleep/
+  attention only (P1090).
+- `crci_epi_null`: the treatment fog stays in the control
+  layer (P1091).
+- `subj_age_store_null`: felt age is performance-side only
+  (P1092).
+- `photo_review_null`: the camera tax happens at the
+  shutter; no review pattern restores it (P1094).
+- `mw_deliberate_null`: wandering buys intrusions, never
+  deliberate-recall gains (P1095).
+- `savor_neg_null`: savoring never touches negative records
+  (P1096 — and distinguishes savor from rumin).
+- `mdose_enhance_null`: the fourth mandated null —
+  expectancy leg only, every objective param identical
+  (P1097).
+
+## 123. Falsifiable probes (P1085–P1097; validation-design §212)
+
+- **P1085 the broke month (MUST — state-lock):** scarc
+  0→0.9 on a fixed character: wmc-loadings and PM
+  self-initiation drop ≈`scarc_wmc_tax`; `stressor:true`
+  events encode STRONGER (tunnel leg); scarc→0 restores
+  all loadings fully (`scarc_trait_null` — the farmers).
+- **P1086 the tenth check (MUST — accuracy-lock):**
+  checker=+1.5 self-action record rechecked ×10:
+  reported vividness/confidence erode ≈`chk_*_erosion`,
+  R→K tag drifts `know`-ward; `accuracy` bit-identical
+  (`chk_acc_null`); urge-to-recheck rises as confidence
+  falls (emergent loop). van den Hout & Kindt 2003/2004.
+- **P1087 the machine on the nightstand (SHOULD —
+  timescale-lock):** apnea=1.5 with `apnea_treated` from
+  day 0: consol/sws legs recover toward
+  `apnea_cpap_rescue` asymptote over ~90 days; a single
+  treated night moves nothing (`apnea_overnight_null`).
+- **P1088 the ICU week (MUST — dose-lock):** delirium
+  0/3/7-day arms under identical `hosp`: age_eff step
+  ∝ days (`delir_step`, cap `delir_step_cap`); in-window
+  records mint only `frag:true`/`fuzzy:true` fragments;
+  pre-admission records bit-identical
+  (`delir_retro_null`). Pandharipande 2013.
+- **P1089 the swing's residue (SHOULD — count-lock):**
+  bipolar=1.5, `episode_count` 0 vs 5: euthymic tax
+  rises ≈`bip_ep_residue`·count (cap); mania-ctx
+  records wider-thinner; no arm shows any encoding or
+  retrieval advantage (`bip_creat_null`).
+- **P1090 the newborn months (MUST — channel-lock):**
+  newpar_state=1 at night_duty=0.7: all measured dip
+  routes through sleep/iiv/att channels; direct E/θ/β
+  identical (`newpar_flat_null`); complaint surface
+  exceeds measured dip (`newpar_complaint` shape).
+- **P1091 the treatment fog (SHOULD — domain-lock):**
+  crci_state=1: exec/pspeed legs tax ≈`crci_exec_tax`;
+  episodic E/β/θ identical (`crci_epi_null`); complaint
+  surface ≈1.2× the objective dip.
+- **P1092 the felt decade (SHOULD — layer-lock):**
+  subj_age=+0.8 vs −0.8 at fixed chronological:
+  performance-side legs shift ≈`subj_age_shift`;
+  encoding/decay identical (`subj_age_store_null`);
+  `age_cue` arm taxes the felt-old only.
+- **P1093 the double-count guard (MUST — partial-corr
+  arm):** reserve=1 & subj_age=+1 factorial: legs stay
+  separable — reserve on capacity floor, subj_age on
+  performance; joint cell shows no superadditive
+  collapse (guard against double-counting the mediated
+  pathway). Stephan 2018; Stern 2002.
+- **P1094 the shutter (MUST — act-lock):**
+  `photographed:true` events on photo_habit=+1.5:
+  nonvisual/gist E down ≈`photo_tax`, visual detail up
+  ≈`photo_vis_gain`; photo deletion post-hoc restores
+  nothing (`photo_review_null`); `offload`− arm still
+  pays the tax (mechanisms separable). Henkel 2014;
+  Soares & Storm 2018; Barasch 2017.
+- **P1095 the absent tick (SHOULD — channel-lock):**
+  mw=+1.5 vs −1.5 on identical event streams:
+  `mw_gap:true` field-thinning scales with capture rate;
+  intrusion rate gains `mw_replay`; deliberate-recall
+  measures identical (`mw_deliberate_null`). Cheyne
+  2006; Schooler 2011.
+- **P1096 the deliberate keeper (SHOULD — valence-
+  lock):** savor=+1.5: positive records gain
+  detail/rehearsal/fade-buffer legs; negative records
+  bit-identical (`savor_neg_null`); high-savor
+  high-rumin co-manipulation keeps both ledgers
+  separable. Bryant & Veroff 2007.
+- **P1097 the fourth null (MUST — locked):** microdose=1
+  regimen vs matched non-dosing: every objective measure
+  identical within jitter (`mdose_enhance_null`);
+  dose-day reported confidence gains ≈`mdose_expect_conf`
+  only when the character believes they dosed
+  (expectancy leg = the Cavanna finding).
+
+## 124. Part IX honest limits
+
+- `scarc`'s 0.2 wmc-loading tax is our mapping of the
+  13-IQ-point equivalent; Mani's effect was measured on
+  Raven's and cognitive-control tasks — converting to
+  *memory encoding* loadings is a HYPOTHESIS bridge
+  (the direction is solid, the magnitude is ours).
+- `chk_loop` inherits vdH&K's mechanism claim (familiarity
+  → conceptual processing → perceptual starvation) but we
+  implement it as report-layer erosion — the field values
+  we degrade are phenomenal, matching the null on
+  accuracy. Whether a recheck is a retrieval that ALSO
+  consolidates (testing effect fights the erosion) is
+  unresolved; we priced erosion on reported channels only
+  to keep the locked null clean.
+- `apnea`'s `sws_mult` leg assumes SWS-episodic coupling —
+  our own §consolidation machinery; the apnea literature
+  reports REM-fragmentation effects too, which our model
+  routes through the same consolidated channels.
+  `apnea_cpap_rescue`=0.5 is mid-range; Canessa suggests
+  partial reversal at 3 months, trajectories unclear.
+- `delirium`'s 0.15y/day step is linearized from
+  Pandharipande's duration association (an odds-gradient,
+  not a slope); the cap is ours. The `delir_dream_p`
+  delusional-fragment minting is ICU-phenomenology priced
+  as confabulation-adjacent — the closest existing
+  machinery (§6.235 `fgen_*`) — flagged HYPOTHESIS.
+- `bipolar`'s manic encoding signature is our
+  extrapolation — the episode literature measures mood and
+  impairment, not field-level encoding geometry. The
+  euthymic tax and episode-count residue are CONSENSUS-
+  direction; `bip_mania_thin` shape is HYPOTHESIS.
+- `newpar_state` bets on the sleep-mediation account
+  (CONSENSUS direction but causally unresolved — Hoekzema's
+  structural changes could carry a direct leg). The locked
+  null is the falsifier: if direct terms are real, P1090
+  fails *loudly*.
+- `crci_state`'s "control layer not store" mapping follows
+  the meta-analytic domain pattern but etiology is
+  multi-causal (inflammation, fatigue, endocrine); the
+  `task_load` mediation split is our simplification.
+- `subj_age`'s store-null is the model being honest:
+  cohort correlations are real but likely mediated by
+  depression/activity (already priced); the 3y shift is
+  the residual we believe survives mediation — a
+  HYPOTHESIS, and small by design.
+- `photo_habit` merges Henkel's tax and Barasch's visual
+  boost — two labs' rival findings coexist as two legs
+  (impairment for the nonvisual whole, boost for visual
+  detail); whether the net autobiographical effect in the
+  wild is negative is DEBATED. `camera:true` provenance
+  is ours.
+- `mw`'s capture-as-gap implementation assumes mind-
+  wandering during encoding produces field-thin records
+  rather than absent ones — supported direction (absent-
+  minded errors), but the `mw_replay` intrusion dividend
+  (the same channel returns content) is a HYPOTHESIS
+  bridge from the spontaneous-thought literature.
+- `savor` is priced as three positive-channel legs because
+  the savoring literature is affect-outcome-based, not
+  memory-field-based — the mapping to detail/rehearsal/
+  fade-buffer is our decomposition, direction CONSENSUS,
+  weights HYPOTHESIS.
+- `microdose` joins the mandated-null shelf on the strength
+  of three null RCTs + one expectancy-moderated RCT; the
+  belief-leg is real (expectancy and correct-guess
+  effects replicate), so the flag carries
+  `mdose_expect_conf` rather than being a pure no-op —
+  the honestest null we can write.
