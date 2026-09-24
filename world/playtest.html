@@ -15,7 +15,8 @@
   PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery,
   PT62 + onboarding v5 eligibility layer / onboard gate v67,
   PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
-  PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73).
+  PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73,
+  PT67 + book v74 / book gate v74).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -157,7 +158,7 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>exits</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>exits</option><option>apply</option><option>book</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
         <select id="fTmpl" style="max-width:130px" title="prefill from a boundary-break template — seeds the form, never logs by itself">
@@ -200,6 +201,7 @@
 const SURF={
   feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire (v3)"},
   request:{file:"request.html",name:"Requests"},
+  book:{file:"book.html",name:"The Book"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast (v4)"},
   lab:{file:"screen-lab.html",name:"Screen Lab"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
@@ -1439,12 +1441,36 @@ const PTS=[
   exp:"The exits gate reports schema v73 — 24 work + 7 housing rows — with bidirectional employer coverage vs jobs.json, building coverage vs housing.json keys + ambient-ring, 30/21-day registry norms, banned-vocab sweep, door-not-name feed shapes, and the EXITS inline mirror deep-compared. Harness gate reports 66 scenarios at the v70 key.",
   ck:["exits gate detail: 'schema v73 · 24 work · 7 housing' — PASS",
     "A missing employer row, a 25-day notice on a registry unit, or a named feed line would FAIL — spot-check the gate code",
-    "Harness gate: '66 scenarios · N checkpoints · key rw_playtest_v70'; 0 fail overall"]}]}];
+    "Harness gate: '66 scenarios · N checkpoints · key rw_playtest_v70'; 0 fail overall"]}]}
+,{id:"PT67",title:"The Book — scheduled exclusives (pick a window, not just a what)",min:10,
+ persona:"player with credits — wants the park at dusk, not whenever it frees",
+ goal:"Verify the v74 booking layer: the When picker offers only slots that can legally fire (≥30 min out, past lock/cooldown tails, never overlapping a booked span); a booked request files/screens/reviews like any exclusive but lands on the calendar (approved · booked for HH:MM), counts down, fires on the feed with attribution, and resolves; cancel-until-start refunds in full; a time slot never reprices.",
+ surfaces:["book","request","audit"],steps:[
+ {do:"Open book.html (file://). Read the four claim strips and click a blue span.",
+  exp:"A 24 h strip per bookable claim (sky, openair, Mudhaus Coffee, The 600 Club): free / booked / locked / cooldown, hour ticks, a now line. Clicking a booked span names the holder, the window, and what it is for. No prices anywhere — a time slot is not an upgrade.",
+  ck:["4 strips, each with a seeded booked window carrying a handle (marina_w, leaf, dvh, okfm)",
+    "Locked and cooldown tails render at the left edge; the legend says cooldowns are never skippable",
+    "No credit or dollar figure anywhere on the page — the Book never shows a price"]},
+ {do:"Open request.html, pick Event trigger → The 600 Club. Open the When picker and compare its options against book.html's club600 strip.",
+  exp:"The picker lists 'soonest free window (queue if busy)' plus up to six half-hour slots that avoid the running lock, any cooldown tail, and the 22:30 birthday window. The quote gains 'Window — booked for HH:MM · cancel free until it starts'; the button reads 'Book it — HH:MM'; the flat 200 cr is unchanged (surge only when the window's own hour is primetime).",
+  ck:["No offered slot overlaps the 22:30–23:30 booked span or opens inside the lock tail",
+    "'A time slot is not an upgrade — same flat price' sits under the picker",
+    "A primetime slot shows the surge line keyed to the window's hour, before payment"]},
+ {do:"File a booked event and let it run: watch the card count down, fire ('booked window arrived'), lock the claim, and end. Then file a second booking and cancel it before the window.",
+  exp:"After human review the card reads approved with 'booked for HH:MM — fires when the window arrives' and a live countdown; the feed gains 'approved · booked for HH:MM'. On arrival the claim locks, the feed shows 'booked window arrived — <event> fired' (running), then '<event> ended' (resolved). Cancel-before-start refunds in full with the neutral feed line.",
+  ck:["The booked card is cancellable until the window starts — after that the cancel affordance is gone",
+    "The picker stops offering the span you booked while it is held",
+    "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
+ {do:"Run `node world/audit.js` and read the book + request + harness gates.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 67 scenarios at the v71 key.",
+  ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
+    "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
+    "Harness gate: '67 scenarios · N checkpoints · key rw_playtest_v71'; 0 fail overall"]}]}];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v70";
-const BUILD="world v70 local";
+const LS="rw_playtest_v71";
+const BUILD="world v71 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

@@ -135,6 +135,24 @@
     "hard cap — no overrun; forced graceful handoff at zero",
     "queued expiry auto-refunds",
     "admin overrides compensate affected players",
-    "no auctions for slots; FCFS within class"
-  ]
+    "no auctions for slots; FCFS within class",
+    "a time slot is not an upgrade — booking never reprices"
+  ],
+  "booking": {
+    "doc": "v74 — the Book: scheduled exclusives. Spec world/bookings.md; machine mirror world/bookings.json; public calendar surface world/book.html; the When picker in request.html.",
+    "spec": "world/bookings.md",
+    "bookable": ["weather", "event"],
+    "horizon_h": 24, "slot_min": 30,
+    "window_min": { "event": 60, "weather": "the block you bought is the window (60/120/240)" },
+    "review": "human review at filing — exclusives always get eyes; a booked request is already approved when its window arrives",
+    "price": "same flat block price — a time slot is not an upgrade; surge keys off the window's local hour, shown before payment",
+    "cancel": "full refund until the window starts — after that it is a live exclusive",
+    "conflict": "a booked window claims the resource for that span; overlapping asks queue FCFS — never auctioned",
+    "cooldown": "bookings never skip cooldowns — the picker never offers a slot that opens inside a cooldown tail",
+    "feed_status": "approved",
+    "live_seam": {
+      "reads": "gsViewerState().calendar (optional) → picker avoidance set, deduped by claim+start",
+      "write": "gsRequestSubmit gains start_slot (minutes-from-now) when a window was picked"
+    }
+  }
 }

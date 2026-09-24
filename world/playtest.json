@@ -1,11 +1,13 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 70,
+ "version": 71,
  "scope": {
   "under_test": [
    "world/feed.html",
    "world/wire.html",
    "world/request.html",
+   "world/book.html",
+   "world/bookings.json",
    "world/mod-console.html",
    "world/create.html",
    "world/board.html",
@@ -78,6 +80,11 @@
    "file": "request.html",
    "name": "Requests",
    "tier": "paid"
+  },
+  "book": {
+   "file": "book.html",
+   "name": "The Book",
+   "tier": "free"
   },
   "mod": {
    "file": "mod-console.html",
@@ -3503,6 +3510,56 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT67",
+   "title": "The Book — scheduled exclusives (pick a window, not just a what)",
+   "minutes": 10,
+   "persona": "player with credits — wants the park at dusk, not whenever it frees",
+   "surfaces": [
+    "book",
+    "request",
+    "audit"
+   ],
+   "goal": "Verify the v74 booking layer: the When picker offers only slots that can legally fire (≥30 min out, past lock/cooldown tails, never overlapping a booked span); a booked request files/screens/reviews like any exclusive but lands on the calendar (approved · booked for HH:MM), counts down, fires on the feed with attribution, and resolves; cancel-until-start refunds in full; a time slot never reprices.",
+   "steps": [
+    {
+     "do": "Open book.html (file://). Read the four claim strips and click a blue span.",
+     "expect": "A 24 h strip per bookable claim (sky, openair, Mudhaus Coffee, The 600 Club): free / booked / locked / cooldown, hour ticks, a now line. Clicking a booked span names the holder, the window, and what it is for. No prices anywhere — a time slot is not an upgrade.",
+     "checkpoints": [
+      "4 strips, each with a seeded booked window carrying a handle (marina_w, leaf, dvh, okfm)",
+      "Locked and cooldown tails render at the left edge; the legend says cooldowns are never skippable",
+      "No credit or dollar figure anywhere on the page — the Book never shows a price"
+     ]
+    },
+    {
+     "do": "Open request.html, pick Event trigger → The 600 Club. Open the When picker and compare its options against book.html's club600 strip.",
+     "expect": "The picker lists 'soonest free window (queue if busy)' plus up to six half-hour slots that avoid the running lock, any cooldown tail, and the 22:30 birthday window. The quote gains 'Window — booked for HH:MM · cancel free until it starts'; the button reads 'Book it — HH:MM'; the flat 200 cr is unchanged (surge only when the window's own hour is primetime).",
+     "checkpoints": [
+      "No offered slot overlaps the 22:30–23:30 booked span or opens inside the lock tail",
+      "'A time slot is not an upgrade — same flat price' sits under the picker",
+      "A primetime slot shows the surge line keyed to the window's hour, before payment"
+     ]
+    },
+    {
+     "do": "File a booked event and let it run: watch the card count down, fire ('booked window arrived'), lock the claim, and end. Then file a second booking and cancel it before the window.",
+     "expect": "After human review the card reads approved with 'booked for HH:MM — fires when the window arrives' and a live countdown; the feed gains 'approved · booked for HH:MM'. On arrival the claim locks, the feed shows 'booked window arrived — <event> fired' (running), then '<event> ended' (resolved). Cancel-before-start refunds in full with the neutral feed line.",
+     "checkpoints": [
+      "The booked card is cancellable until the window starts — after that the cancel affordance is gone",
+      "The picker stops offering the span you booked while it is held",
+      "Every feed line uses the existing vocabulary — booking mints no new status chip"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the book + request + harness gates.",
+     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 67 scenarios at the v71 key.",
+     "checkpoints": [
+      "book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
+      "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
+      "Harness gate: '67 scenarios · N checkpoints · key rw_playtest_v71'; 0 fail overall"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -3544,10 +3601,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v70 local",
- "harness_ui_v70": {
-  "storage_key": "rw_playtest_v70",
-  "build_tag_prefix": "world v70 local",
+ "build": "world v71 local",
+ "harness_ui_v71": {
+  "storage_key": "rw_playtest_v71",
+  "build_tag_prefix": "world v71 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3595,7 +3652,8 @@
    "rw_playtest_v67",
    "rw_playtest_v68",
    "rw_playtest_v69",
-   "rw_playtest_v70"
+   "rw_playtest_v70",
+   "rw_playtest_v71"
   ]
  }
 }

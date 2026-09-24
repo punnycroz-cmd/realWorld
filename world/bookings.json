@@ -1,0 +1,63 @@
+{
+  "doc": "world/bookings.md is canonical for behavior + copy. This file is the machine-readable mirror: bookable claims, slot rules, seeded windows, feed shapes. The Book is the public calendar the request form reads before any money moves — prices live in requests.json / the monetization plan PROPOSAL, never here.",
+  "schema": "book-v1",
+  "version": 74,
+
+  "rules": {
+    "horizon_h": 24,
+    "slot_min": 30,
+    "bookable": ["weather", "event"],
+    "window_min": { "event": 60, "weather": "the block you bought is the window (60/120/240)" },
+    "review": "human review at filing — exclusives always get eyes; a booked request is already approved when its window arrives",
+    "price": "same flat block price — a time slot is not an upgrade; surge keys off the window's local hour and is shown before payment",
+    "cancel": "full refund until the window starts — after that it is a live exclusive",
+    "conflict": "a booked window claims the resource for that span; an overlapping ask queues for the next free window — FCFS, never auctioned",
+    "cooldown": "bookings never skip cooldowns — the picker never offers a slot that opens inside a cooldown tail",
+    "one_per": "one event per place per 24 h — unchanged",
+    "horizon_note": "the book shows the next 24 h only — farther out is a queue's job, and queued slots already hold ≤24 h"
+  },
+
+  "resources": [
+    { "claim": "sky",            "name": "Sky (weather)",                          "bookable": ["weather"] },
+    { "claim": "openair",        "name": "Open air (Dolores Park, alleys, blocks)","bookable": ["event"] },
+    { "claim": "venue:mudhaus",  "name": "Mudhaus Coffee",                         "bookable": ["event"] },
+    { "claim": "venue:club600",  "name": "The 600 Club",                           "bookable": ["event"] }
+  ],
+
+  "windows": [
+    { "claim": "sky",           "start": "07:30", "min": 60,  "who": "marina_w", "what": "fog burn-off for the morning crowd", "state": "booked" },
+    { "claim": "openair",       "start": "09:00", "min": 90,  "who": "leaf",     "what": "park cleanup — Dolores, Saturday",   "state": "booked" },
+    { "claim": "venue:club600", "start": "22:30", "min": 60,  "who": "dvh",      "what": "birthday window — the back corner",   "state": "booked" },
+    { "claim": "venue:mudhaus", "start": "16:00", "min": 60,  "who": "okfm",     "what": "poetry hour — corner tables",          "state": "booked" }
+  ],
+
+  "feed_shapes": {
+    "doc": "the book adds no new status — it reuses the live feed vocabulary (requests.json feed_vocabulary)",
+    "statuses": ["approved", "running", "resolved", "refunded"],
+    "lines": [
+      "<action> approved · booked for HH:MM",
+      "booked window arrived — <action> fired",
+      "<action> ended",
+      "booked request cancelled before the window — refunded"
+    ],
+    "never": [
+      "a new status chip — booking is a schedule, not a state",
+      "a price on a slot — a time slot is not an upgrade",
+      "a queue position or an auction"
+    ]
+  },
+
+  "live_seam": {
+    "doc": "merge seam — same pattern as requests.json live_seam",
+    "reads": {
+      "gsViewerState().calendar": "optional — [{claim, start_min, min, who, what}] booked windows render on the strip beside demo seeds, deduped by claim+start"
+    },
+    "write": "gsRequestSubmit gains start_slot (minutes-from-now) when the filer picked a window — the bus books it like any exclusive; absent the field, behavior is today",
+    "fallback": "seeded windows stand in for bookings the bus doesn't name; the strip never lies about what it can't see"
+  },
+
+  "demo": {
+    "tick_min": 30,
+    "note": "book.html renders the next 24 h live; a seeded window whose start already passed today rolls to tomorrow. In request.html a filed booking counts down at 30 min/tick so the fire path is reachable."
+  }
+}

@@ -2489,7 +2489,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v70 || {};
+    const H = PT.harness_ui_v71 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2808,13 +2808,93 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'exits.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G24 book ============ */
+{
+  const g = gate('book', 'booking layer contract (bookings.json ↔ book.html ↔ request.html BOOKW; no repricing; feed-vocabulary reuse)');
+  try {
+    const BJ = JSONF('bookings.json');
+    const bhtml = rd('book.html');
+    const rhtml = rd('request.html');
+    const RJ = JSONF('requests.json');
+    /* deep mirror: inline BOOK == bookings.json (doc keys exempt anywhere) */
+    const m = bhtml.match(/const BOOK = (\{[\s\S]*?\n\});/);
+    if (!m) throw new Error('inline BOOK block not found in book.html');
+    const INL = eval('(' + m[1] + ')');
+    const strip = o => JSON.parse(JSON.stringify(o, (k, v) => k === 'doc' ? undefined : v));
+    if (JSON.stringify(strip(INL)) !== JSON.stringify(strip(BJ)))
+      add(g, 'fail', 'book.html', null, 'inline BOOK != bookings.json (hand-sync drift)');
+    if (BJ.schema !== 'book-v1')
+      add(g, 'fail', 'bookings.json', null, `schema "${BJ.schema}" != book-v1`);
+    /* no prices on the Book — a time slot is not an upgrade */
+    for (const [f, txt] of [['bookings.json', rd('bookings.json')], ['book.html', bhtml]])
+      for (const mm of txt.matchAll(/\b\d[\d,]*\s*cr\b|\$\d/gi))
+        add(g, 'fail', f, null, `price figure on the Book: "${mm[0]}"`);
+    /* bookable ⊆ exclusive actions; booking block agreement in requests.json */
+    const excl = new Set((RJ.actions || []).filter(a => a.class === 'exclusive').map(a => a.id));
+    for (const b of BJ.rules.bookable || [])
+      if (!excl.has(b)) add(g, 'fail', 'bookings.json', null, `bookable "${b}" is not an exclusive action`);
+    const BK = RJ.booking || {};
+    if (JSON.stringify(BK.bookable) !== JSON.stringify(BJ.rules.bookable) ||
+        BK.horizon_h !== BJ.rules.horizon_h || BK.slot_min !== BJ.rules.slot_min)
+      add(g, 'fail', 'requests.json', null, 'booking block drifted from bookings.json rules');
+    /* claim keys resolve: resources ⊆ request.html CLAIMS keys */
+    const resClaims = new Set();
+    for (const r of BJ.resources || []) {
+      resClaims.add(r.claim);
+      if (!rhtml.includes(`'${r.claim}':`))
+        add(g, 'fail', 'bookings.json', null, `resource claim "${r.claim}" has no CLAIMS key in request.html`);
+      for (const b of r.bookable || [])
+        if (!excl.has(b)) add(g, 'fail', 'bookings.json', null, `resource "${r.claim}" bookable "${b}" not exclusive`);
+    }
+    for (const w of BJ.windows || []) {
+      if (!resClaims.has(w.claim)) add(g, 'fail', 'bookings.json', null, `window on undeclared claim "${w.claim}"`);
+      if (!/^\d{2}:\d{2}$/.test(w.start)) add(g, 'fail', 'bookings.json', null, `window start "${w.start}" off HH:MM`);
+      if (!(w.min > 0)) add(g, 'fail', 'bookings.json', null, `window "${w.what}" has no positive min`);
+      if (!w.who || !w.what) add(g, 'fail', 'bookings.json', null, 'window missing holder handle or label');
+    }
+    /* request.html BOOKW mirrors bookings.windows (claim/start/min/who/what) */
+    const wm = rhtml.match(/var BOOKW = (\[[\s\S]*?\]);/);
+    if (!wm) add(g, 'fail', 'request.html', null, 'BOOKW block not found');
+    else {
+      const W = eval('(' + wm[1] + ')');
+      const key = w => [w.claim, w.start, w.min, w.who, w.what].join('|');
+      const a = W.map(key).sort(), b = (BJ.windows || []).map(key).sort();
+      if (JSON.stringify(a) !== JSON.stringify(b))
+        add(g, 'fail', 'request.html', null, 'BOOKW != bookings.json windows (hand-sync drift)');
+    }
+    /* feed shapes reuse the locked vocabulary — booking mints no status */
+    const vocab = new Set(RJ.feed_vocabulary || []);
+    for (const s of (BJ.feed_shapes || {}).statuses || [])
+      if (!vocab.has(s)) add(g, 'fail', 'bookings.json', null, `feed status "${s}" not in feed_vocabulary`);
+    if (!Array.isArray(BJ.feed_shapes.never) || !BJ.feed_shapes.never.length)
+      add(g, 'fail', 'bookings.json', null, 'feed_shapes.never list missing');
+    /* honesty copy + picker surfaces */
+    for (const [f, txt, musts] of [
+      ['book.html', bhtml, [/the book is public/i, /not an upgrade/i, /never skippable/i,
+                            /full refund/i, /first-come-first-served|FCFS/i]],
+      ['request.html', rhtml, [/whenRow/, /\bwsel\b/, /bkSlots/, /soonest free window/i,
+                               /not an upgrade/i, /cancel free until it starts/i,
+                               /Book it —/, /booked window arrived/i, /startMin/, /gsViewerState\(\)\.calendar|vs\.calendar/]]
+    ]) for (const re of musts)
+      if (!re.test(txt)) add(g, 'fail', f, null, `missing booking surface ${re}`);
+    /* dark-pattern sweep on the calendar surface */
+    for (const re of [/only \d+ (slots?|left)/i, /\bhurry\b/i, /act now/i, /premium slot/i,
+                      /don'?t miss/i, /offer ends/i, /\bbid(?:ding)?\b/i])
+      bhtml.split('\n').forEach((ln, i) => {
+        if (re.test(ln)) add(g, 'fail', 'book.html', i + 1,
+          `dark-pattern vocabulary ${re}: ${ln.trim().slice(0, 100)}`);
+      });
+    g.detail = `schema v${BJ.version} · ${(BJ.resources || []).length} claims · ${(BJ.windows || []).length} seeded windows`;
+  } catch (e) { add(g, 'fail', 'bookings.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v73 local';
+out.build = 'world v74 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

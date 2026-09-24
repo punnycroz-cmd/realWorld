@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -297,7 +297,59 @@ player can always reconcile their private card against the public record.
 ||| Live file toast | "Filed live — the request bus carries it from here." |
 ||| Receipt ref | "rq-<id> — mirrors the public feed lines" |
 
-## 11. Demo limits (what's simulated)
+## 11. v74 — the booking layer (the Book)
+
+Exclusive requests can name **when** they run, not just what they do. Plan
+§2.3 already says event triggers are "scheduled into world calendar" — the
+Book (`world/book.html`, `world/bookings.json`, spec `world/bookings.md`)
+is that calendar, public like the resource board: every claimed window
+carries the holder's handle.
+
+**The When picker.** Weather and event actions grow a "When" row:
+`soonest free window (queue if busy)` — today's behavior — or a named
+half-hour slot in the next 24 h. The picker only offers slots that can
+legally fire: ≥30 min out, past any lock or cooldown tail on the claim,
+never overlapping a booked span. Cooldown-blocked spans don't appear —
+a slot that can't fire doesn't exist.
+
+**Booking is scheduling, not a new state.** A booked request files,
+screens, and goes to human review exactly like any exclusive; approval
+lands on the calendar (`approved` chip, `booked for HH:MM` on the feed).
+When the window arrives the claim locks and it fires with attribution.
+The feed vocabulary gains nothing — booking reuses
+`approved · running · resolved · refunded`.
+
+**Honesty rules.** A time slot is not an upgrade — same flat block price,
+never a premium tier, never an auction. Surge keys off the *window's*
+local hour (18:00–23:00 primetime) and shows in the quote before payment.
+Cancel until the window starts = full refund; after the start it's a live
+exclusive. Bookings never skip cooldowns; a queued overlapping ask waits
+for the next free window, FCFS. One event per place per 24 h, unchanged.
+
+**Live seam.** `gsViewerState().calendar` (optional) supplies live booked
+windows to the picker's avoidance set, deduped by claim+start;
+`gsRequestSubmit` gains `start_slot` (minutes-from-now) when a window was
+picked. Off the bus, seeded windows + the local pipeline stay the contract
+reference.
+
+### v74 copy deck additions
+
+|||| Moment | Copy |
+||||---|---|
+|||| When label | "When — the book is public: pick a window or take the soonest" |
+|||| Soonest option | "soonest free window (queue if busy)" |
+|||| Slot option | "book 21:30 → 22:30 (tonight)" |
+|||| Quote line | "Window — booked for 21:30 · cancel free until it starts" |
+|||| Submit | "Book it — 21:30" |
+|||| Booked card | "starts 21:30 · in ~4 h · cancel free until it starts" |
+|||| Booked stage | "fires 21:30 — approved now, runs when the window arrives" |
+|||| Feed: booked | "&lt;action&gt; approved · booked for 21:30" |
+|||| Feed: fires | "booked window arrived — &lt;action&gt; fired" (`running`) |
+|||| Feed: ends | "&lt;action&gt; ended" (`resolved`) |
+|||| Booked cancel | "booked request cancelled before the window — refunded" |
+|||| Surge (window) | "primetime window — surge keys off the window's hour, shown before you pay" |
+
+## 12. Demo limits (what's simulated)
 
 `request.html` ships without the game request bus (it lives on
 `sf/game-systems`): off the bus, classification, review, sessions, and

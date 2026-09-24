@@ -34,6 +34,12 @@
   runs the same RWScreen screen before money moves (a deny preview, not a
   shadow ban), and every request card opens into a receipt — declared terms,
   upfront charge, claim, and the status trail that mirrors the feed.
+  v74 adds: the booking layer — exclusive actions (weather, event) grow a
+  "When" picker: "soonest free window" or a named half-hour slot off the
+  public Book (world/book.html, bookings.json). A booked request files,
+  screens, and human-reviews like any exclusive; approval lands on the
+  calendar and fires when the window arrives. A time slot is not an
+  upgrade — same flat price; cancel free until the window starts.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -180,6 +186,7 @@
   .session .ext:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
   .st.appeal{background:#332a1e;color:var(--acc)}
   .st.modified{background:#3a3220;color:var(--acc)}
+  .st.approved{background:#22384f;color:var(--blu)}
   .myreq .acc{color:var(--grn);cursor:pointer}
   .myreq .dec{color:var(--dim);cursor:pointer}
   .myreq .acc:hover,.myreq .dec:hover{color:var(--ink)}
@@ -230,6 +237,13 @@
         <label for="dur">Duration — <span id="durLbl">30 min</span></label>
         <input type="range" id="dur" min="15" max="120" step="5" value="30" style="width:100%">
       </div>
+    </div>
+
+    <div id="whenRow" style="display:none">
+      <label for="wsel">When — the book is public: pick a window or take the soonest</label>
+      <select id="wsel"></select>
+      <div class="note" id="wnote">A time slot is not an upgrade — same flat price.
+        Cooldown-blocked spans are never offered. Cancel free until it starts.</div>
     </div>
 
     <label for="intent">What should happen? <span class="note" style="display:inline">(your intent — characters decide how)</span></label>
@@ -422,7 +436,46 @@ var FEED = [
   {t:'18:02', who:'dvh', txt:'possess — own baker, 45 min', st:'resolved', tail:'player session ended'}
 ];
 
-var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin, intent, trail}
+/* ================= the booking layer (v74) =================
+   Exclusive actions may name a start window off the public Book. BOOKW is
+   the inline mirror of bookings.json.windows (the audit gate deep-compares
+   it); CLAIMS supplies the live lock/cooldown tails the picker avoids. */
+var BOOK_SLOT_MIN = 30, BOOK_HORIZON_H = 24, BOOK_TICK_MIN = 30;
+var BOOKW = [
+  {claim:'sky',           start:'07:30', min:60,  who:'marina_w', what:'fog burn-off for the morning crowd'},
+  {claim:'openair',       start:'09:00', min:90,  who:'leaf',     what:'park cleanup — Dolores, Saturday'},
+  {claim:'venue:club600', start:'22:30', min:60,  who:'dvh',      what:'birthday window — the back corner'},
+  {claim:'venue:mudhaus', start:'16:00', min:60,  who:'okfm',     what:'poetry hour — corner tables'}
+];
+function bkNowMin(){ var d=new Date(); return d.getHours()*60+d.getMinutes(); }
+function bkHHMM(abs){ var m=((abs%1440)+1440)%1440;
+  return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2); }
+/* absolute start of a seeded window in the next-24h frame (rolls past-today) */
+function bkWinAbs(w){ var p=w.start.split(':'), s=(+p[0])*60+(+p[1]);
+  return s < bkNowMin() ? s+1440 : s; }
+/* free slots on claim ck for a lenMin window: next 24 h, ≥30 min out, past
+   any lock/cool tail, never overlapping a booked span — cooldown-blocked
+   spans are simply not offered */
+function bkSlots(ck, lenMin){
+  var now=bkNowMin(), tail=0, c=ck&&CLAIMS[ck];
+  if (c && (c.state==='locked'||c.state==='cool')) tail=c.left||0;
+  var out=[];
+  for (var s=Math.ceil((now+30)/BOOK_SLOT_MIN)*BOOK_SLOT_MIN;
+       s<=now+BOOK_HORIZON_H*60-lenMin && out.length<6; s+=BOOK_SLOT_MIN){
+    if (s < now + tail) continue;
+    var clash=false;
+    for (var i=0;i<BOOKW.length;i++){ var w=BOOKW[i]; if (w.claim!==ck) continue;
+      var ws=bkWinAbs(w); if (s < ws+w.min && ws < s+lenMin){ clash=true; break; } }
+    if (!clash) out.push(s);
+  }
+  return out;
+}
+function bkLabel(abs){ var day = abs >= bkNowMin()+1440 ? ' (day after)' :
+  (Math.floor(abs/1440) > Math.floor(bkNowMin()/1440) ? ' (tomorrow)' : ' (tonight)');
+  return bkHHMM(abs)+day; }
+function bkLen(a, dm){ return a.id==='event' ? 60 : dm; }  /* event window fixed 60; weather = the block bought */
+
+var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin, intent, trail, startMin, winMin, winLbl}
 var reqSeq = 100;
 function trail(r, what){ (r.trail = r.trail || []).push({ t:new Date().toTimeString().slice(0,5), what:what }); }
 
@@ -532,6 +585,37 @@ setInterval(function(){
       } } }
   var qChanged=false;
   MYREQ.forEach(function(r){
+    /* v74 — booked windows: the card counts down (demo: 30 min/tick) and
+       fires when its window arrives, locking the claim for the window's
+       length; when the claim releases the run resolves on the feed */
+    if (r.st==='approved' && r.startMin!=null){
+      qChanged=true; r.winLeft -= BOOK_TICK_MIN;
+      if (r.winLeft<=0){
+        r.st='running'; r.canCancel=false;
+        trail(r,'window arrived — fired'); r.sub+=' · window arrived — fired';
+        r.mini='running — the world is rendering it';
+        feedAdd('you','booked window arrived — '+r.label+' fired','running');
+        var bc = r.claim && CLAIMS[r.claim];
+        if (bc){ bc.state='locked'; bc.left=Math.min(r.winMin||60,15); bc.by='you';
+          bc.note='booked window running';
+          if (r.action==='weather') bc.wx={what:r.intent||'the booked call', block_min:r.winMin||60, cr:r.paid, sponsors:['you']}; }
+        for (var bi=0;bi<BOOKW.length;bi++) if (BOOKW[bi].mine){ BOOKW.splice(bi,1); break; }
+        toast('Your booked window arrived — '+r.label+' fired.');
+      } else {
+        r.mini='starts '+bkHHMM(r.startMin)+' · in ~'+fmtMin(r.winLeft)+' · cancel free until it starts';
+      }
+      return;
+    }
+    if (r.st==='running' && r.booked){
+      var ec = r.claim && CLAIMS[r.claim];
+      if (ec && ec.state!=='locked'){
+        r.st='resolved'; r.booked=false; qChanged=true;
+        trail(r,'ended — the window closed'); r.sub+=' · ended';
+        r.mini='window complete — the Book shows it as done';
+        feedAdd('you', r.label+' ended','resolved');
+      }
+      return;
+    }
     if (r.st!=='queued' || !r.holdMin) return;
     r.holdMin -= HOLD_TICK_MIN; qChanged=true;
     if (r.holdMin<=0){
@@ -602,6 +686,17 @@ function livePoll(){
         CLAIMS[ck].wx = CLAIMS[ck].wx || {what:cos[ck].what||'the running call', block_min:cos[ck].block_min||60, cr:cos[ck].cr||40, sponsors:[]},
         CLAIMS[ck].wx.sponsors = cos[ck].sponsors || CLAIMS[ck].wx.sponsors;
     }
+    /* v74 — booked windows the bus knows land on the picker's avoidance
+       set, deduped by claim+start (bookings.json live_seam.reads) */
+    var cal = (vs && vs.calendar) || [];
+    cal.forEach(function(w){
+      if (!w || !w.claim) return;
+      var st = typeof w.start_min==='number' ? bkHHMM(w.start_min) : w.start;
+      for (var i=0;i<BOOKW.length;i++)
+        if (BOOKW[i].claim===w.claim && BOOKW[i].start===st) return;
+      BOOKW.push({claim:w.claim, start:st, min:w.min||60,
+                  who:w.who||'—', what:w.what||'booked window'});
+    });
     renderBoard();
   }catch(err){ /* bridge hiccup — keep last good frame, badge stays live */ }
 }
@@ -666,15 +761,15 @@ function claimBusy(ck){
 }
 
 /* ================= pricing ================= */
-function surgeFor(a, ck){
+function surgeFor(a, ck, atHour){
   var c = ck && CLAIMS[ck];
   if (c && c.lastExclusiveH !== undefined && c.lastExclusiveH < 6) return 1.5;
-  var h = new Date().getHours();
+  var h = atHour!=null ? atHour : new Date().getHours();
   return (h >= 18 && h < 23 && a.cls==='exclusive') ? 1.5 : 1;
 }
-function quote(a, t, durMin, queued){
+function quote(a, t, durMin, queued, atHour){
   var ck = claimOf(a,t);
-  var surge = surgeFor(a, ck);
+  var surge = surgeFor(a, ck, atHour);
   var q = { cls: queued ? 'queued' : a.cls, surge: surge, lines: [], total: 0 };
   if (a.per === 'min'){
     var rate = RATES[a.cls];
@@ -694,7 +789,9 @@ function quote(a, t, durMin, queued){
     q.lines.push(['Queue −15%', 'held ≤24 h · expiry auto-refunds','qdisc']);
     q.total *= (1 - QUEUE_DISCOUNT);
   }
-  if (surge > 1) q.lines.push(['Surge ×'+surge, 'this resource was booked recently — shown before you pay']);
+  if (surge > 1) q.lines.push(['Surge ×'+surge, atHour!=null ?
+    'primetime window — surge keys off the window\u2019s hour, shown before you pay' :
+    'this resource was booked recently — shown before you pay']);
   q.total = Math.ceil(q.total);
   return q;
 }
@@ -742,12 +839,42 @@ function refreshQuote(){
     return;
   }
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  /* v74 — the When picker: bookable exclusives (weather/event) may name a
+     start window off the public Book. Slots the picker offers can legally
+     fire — past lock/cooldown tails, never overlapping a booked span. A
+     named window is a scheduled claim, so the busy-resource queue path
+     doesn't gate it; "soonest" keeps today's now-or-queued behavior. */
+  var bookable = (a.id==='weather' || a.id==='event');
+  var wrow=$('whenRow'), wsel=$('wsel'), winAbs=null;
+  if (bookable){
+    var wlen = bkLen(a, dm);
+    var tailc = ck && CLAIMS[ck];
+    var sig = ck+':'+wlen+':'+Math.floor(bkNowMin()/BOOK_TICK_MIN)+':'+
+      (tailc ? tailc.state+':'+Math.ceil((tailc.left||0)/BOOK_SLOT_MIN)*BOOK_SLOT_MIN : '')+':'+BOOKW.length;
+    wrow.style.display='';
+    if (wsel._sig!==sig){
+      var keep=wsel.value;
+      wsel._sig=sig; wsel.innerHTML='';
+      var o0=document.createElement('option'); o0.value='';
+      o0.textContent='soonest free window (queue if busy)'; wsel.appendChild(o0);
+      bkSlots(ck, wlen).forEach(function(s){
+        var o=document.createElement('option'); o.value=s;
+        o.textContent='book '+bkLabel(s)+' → '+bkHHMM(s+wlen);
+        wsel.appendChild(o); });
+      for (var oi=0;oi<wsel.options.length;oi++)
+        if (wsel.options[oi].value===keep){ wsel.value=keep; break; }
+    }
+    if (wsel.value!=='') winAbs=+wsel.value;
+  } else wrow.style.display='none';
+  var coOK = winAbs==null && busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
   coopt.style.display = coOK ? 'block' : 'none';
   if (coOK) $('coWho').textContent = CLAIMS[ck].wx.sponsors.join(' + ');
-  qopt.style.display = (busy && a.cls==='exclusive' && !co) ? 'block' : 'none';
-  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, busy && !co && queueMe.checked);
+  qopt.style.display = (winAbs==null && busy && a.cls==='exclusive' && !co) ? 'block' : 'none';
+  var q = co ? coQuote(a, CLAIMS[ck]) :
+    quote(a, t, dm, winAbs==null && busy && !co && queueMe.checked,
+          winAbs!=null ? Math.floor((winAbs%1440)/60) : null);
+  if (winAbs!=null) q.lines.push(['Window', 'booked for '+bkHHMM(winAbs)+' · cancel free until it starts']);
   var badge = '<span class="badge '+q.cls+'">'+q.cls+'</span>' +
     (co ? ' <span class="badge">co-sponsor · auto-run on pass</span>' :
      q.cls==='exclusive' ? ' <span class="badge">human review</span>' :
@@ -758,12 +885,14 @@ function refreshQuote(){
     (CLAIMS[ck].state==='free'?'free':CLAIMS[ck].state==='cool'?'cooldown '+fmtMin(CLAIMS[ck].left):'locked '+fmtMin(CLAIMS[ck].left))+'</b></div>';
   q.lines.forEach(function(l){ html += '<div class="line'+(l[2]?' '+l[2]:'')+'"><span>'+l[0]+'</span><b>'+l[1]+'</b></div>'; });
   html += '<div class="line total"><span>Charged upfront · hard cap</span><b>'+q.total+' cr</b></div>';
-  if (busy && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
+  if (busy && winAbs==null && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
+  if (winAbs!=null) html += '<div class="warn" style="color:var(--dim)">Booked windows are already approved when they arrive — cancel free until '+bkHHMM(winAbs)+'.</div>';
   if (a.note) html += '<div class="warn" style="color:var(--dim)">'+a.note+'</div>';
   if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="openWallet()">open wallet</span> first.</div>';
   quoteBox.innerHTML = html;
-  go.disabled = q.total > BAL || (busy && !queueMe.checked && !co && a.cls==='exclusive');
+  go.disabled = q.total > BAL || (winAbs==null && busy && !queueMe.checked && !co && a.cls==='exclusive');
   go.textContent = co ? 'Co-sponsor — join the running call' :
+    winAbs!=null ? 'Book it — '+bkHHMM(winAbs) :
     (busy && a.cls==='exclusive' && !queueMe.checked) ? 'Resource busy — queue to file' : 'Submit request';
 }
 /* co-sponsor quote: same flat block price as the running request — you buy
@@ -779,6 +908,7 @@ function coQuote(a, c){
 actSel.onchange = refreshTargets;
 tgtSel.onchange = function(){ renderBrief(curTarget()); refreshQuote(); };
 durIn.oninput = refreshQuote; queueMe.onchange = refreshQuote;
+$('wsel').onchange = refreshQuote;
 coMe.onchange = function(){ if (coMe.checked) queueMe.checked=false; refreshQuote(); };
 queueMe.addEventListener('change', function(){ if (queueMe.checked) coMe.checked=false; refreshQuote(); });
 
@@ -907,6 +1037,17 @@ function liveExplain(r){
 function cancelReq(id){
   var r=findReq(id); if(!r||!r.canCancel) return;
   r.canCancel=false;
+  /* v74 — a booked window cancels free until it starts: full refund, the
+     Book releases the span, and the feed line stays neutral */
+  if (r.startMin!=null && r.st==='approved'){
+    for (var bi=0;bi<BOOKW.length;bi++) if (BOOKW[bi].mine){ BOOKW.splice(bi,1); break; }
+    chg(r.paid, 'cancel — '+r.label+' (booked window, pre-start)');
+    trail(r,'cancelled before the window — '+r.paid+' cr back');
+    r.st='refunded'; r.sub+=' · cancelled before the window — '+r.paid+' cr returned';
+    feedAdd('you', r.label+' — booked request cancelled before the window','refunded');
+    toast('Cancelled — '+r.paid+' cr back. Bookings refund in full until the window starts.');
+    renderMine(); renderBoard(); refreshQuote(); return;
+  }
   if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
   chg(r.paid, 'cancel — '+r.label+' (queued cancel refund)');
   trail(r,'cancelled before activation — '+r.paid+' cr back');
@@ -993,6 +1134,7 @@ function acceptMod(id){
   var off=r.modOffer; r.modOffer=null; $('modcard').style.display='none';
   trail(r,'accepted modified terms'+(off.refund>0?' — '+off.refund+' cr refunded':''));
   if (off.refund>0) chg(off.refund,'approve-modified — unused credits auto-refund');
+  if (r.startMin!=null) r.winMin=off.dm;   /* a trimmed booking keeps its start, shortens its window */
   r.sub+=' · accepted';
   stage('Accepted modified terms','done',off.total+' cr'+(off.refund>0?' · '+off.refund+' cr refunded':''));
   run(off.run.a, off.run.t, off.run.q, off.dm, off.run.text, off.run.label, r);
@@ -1017,16 +1159,23 @@ go.onclick = function(){
   var text = $('intent').value.trim();
   if (a.per==='route'){ location.href='create.html'; return; }
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  /* v74 — a picked Book window turns this filing into a scheduled exclusive */
+  var winAbs = null;
+  if ((a.id==='weather'||a.id==='event') && $('wsel').value!=='') winAbs=+$('wsel').value;
+  var coOK = winAbs==null && busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
-  var queued = busy && a.cls==='exclusive' && !co && queueMe.checked;
-  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, queued);
+  var queued = winAbs==null && busy && a.cls==='exclusive' && !co && queueMe.checked;
+  var q = co ? coQuote(a, CLAIMS[ck]) :
+    quote(a, t, dm, queued, winAbs!=null ? Math.floor((winAbs%1440)/60) : null);
+  if (winAbs!=null) q.lines.push(['Window','booked for '+bkHHMM(winAbs)]);
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
   $('modcard').style.display='none';
   go.disabled = true;
 
   var label = a.label.toLowerCase()+' — '+(text||t.label);
-  var mine = { id:++reqSeq, label:label, st:'requested', intent:text,
+  var mine = { id:++reqSeq, label:label, st:'requested', intent:text, action:a.id,
+    startMin:winAbs, winMin:winAbs!=null?bkLen(a,dm):null,
+    winLbl:winAbs!=null?bkLabel(winAbs):null,
     declared:a.label+' · '+t.label+(dm?' · '+fmtMin(dm):''),
     sub:q.cls+' · '+q.total+' cr upfront · hard cap', paid:q.total,
     claim:ck, canCancel:false, mini:'declared '+new Date().toTimeString().slice(0,5) };
@@ -1041,8 +1190,10 @@ go.onclick = function(){
   var liveFile = LIVE && BRIDGE.gsRequestSubmit ? BRIDGE.gsRequestSubmit : null;
   if (liveFile){
     try{
-      var rid = liveFile({ action:a.id, target:t.id, duration_min:dm,
-        text:text, queued:queued, co_sponsor:co, quote_cr:q.total });
+      var payload = { action:a.id, target:t.id, duration_min:dm,
+        text:text, queued:queued, co_sponsor:co, quote_cr:q.total };
+      if (winAbs!=null) payload.start_slot = winAbs - bkNowMin();  /* bookings.json live_seam */
+      var rid = liveFile(payload);
       mine.busId = rid || null;
       trail(mine, 'filed to the request bus'+(rid?' — '+rid:''));
       mine.mini+=' · filed live';
@@ -1129,6 +1280,22 @@ go.onclick = function(){
 };
 
 function run(a, t, q, dm, text, label, mine){
+  /* v74 — booked exclusive: approval lands on the calendar, not on the
+     claim. The card counts down (demo tick = 30 min of book time); at the
+     window the exclusive locks and fires — see the demo tick above. */
+  if (mine.startMin!=null){
+    stage('Booked on the calendar','done',
+      'fires '+mine.winLbl+' — approved now, runs when the window arrives');
+    mine.st='approved'; mine.booked=true; mine.canCancel=true;
+    mine.winLeft = Math.max(BOOK_TICK_MIN, mine.startMin - bkNowMin());
+    mine.sub+=' · booked for '+mine.winLbl+' — already approved; fires when the window arrives';
+    mine.mini='starts '+bkHHMM(mine.startMin)+' · in ~'+fmtMin(mine.winLeft)+' · cancel free until it starts';
+    BOOKW.push({claim:mine.claim, start:bkHHMM(mine.startMin), min:mine.winMin,
+                who:'you', what:text||t.label, mine:true});
+    trail(mine,'booked for '+bkHHMM(mine.startMin)+' — '+fmtMin(mine.winMin)+' window · cancel free until it starts');
+    feedAdd('you', label+' approved · booked for '+bkHHMM(mine.startMin), 'approved');
+    renderMine(); renderBoard(); go.disabled=false; return;
+  }
   var nudgeDeclined = (a.id==='nudge' && /decline|refuse|no thanks/i.test($('intent').value)) ||
                       (a.id==='nudge' && Math.random() < 0.3);
   /* credits already left at declare — see the upfront charge in the ledger */
