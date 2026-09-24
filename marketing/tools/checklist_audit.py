@@ -25,6 +25,8 @@ less boring than it should be. This tool mechanically verifies:
      row lives inside §10 (rows pasted at end-of-file get orphaned under
      later sections and become invisible to gate_freshness.sh). Also:
      every D0.x task in §3 has a §11 proof-row mention.
+ 10. §18 first-hour table: every backticked snake_case token must be a
+     real event spec'd in analytics-events.json.
 
 Usage: ./tools/checklist_audit.py   (run from marketing/ or repo root)
 Exit:  0 = no FAILs (warns allowed), 1 = any FAIL.
@@ -241,6 +243,27 @@ if missing_d0:
     bad(f"§3 day-0 tasks with no §11 proof-row mention: {missing_d0}")
 else:
     ok(f"all {len(d0_ids)} D0.x tasks are mentioned in §11")
+
+# ── 10. §18 first-hour event names must be real ──
+# Every backticked snake_case token in §18 is a measurement claim; a beat
+# citing an event that isn't spec'd is an unmeasurable hypothesis.
+s18 = re.search(r"## §18.*?(?=\n## |\Z)", text, re.S)
+if not s18:
+    bad("§18 first-hour table not found")
+else:
+    try:
+        spec = json.load(open(os.path.join(ROOT, "analytics-events.json"),
+                              encoding="utf-8"))["events"]
+        tokens = {t for t in re.findall(r"`([a-z][a-z0-9_]+)`", s18.group(0))
+                  if "_" in t}
+        unspec = sorted(t for t in tokens if t not in spec)
+        if unspec:
+            bad(f"§18 cites events not in analytics-events.json: {unspec}")
+        else:
+            ok(f"§18 event names all spec'd in analytics-events.json "
+               f"({len(tokens)} cited)")
+    except Exception as e:
+        warn(f"analytics-events.json unreadable for §18 check: {e}")
 
 print(f"\nchecklist audit: {PASS} pass / {WARN} warn / {FAIL} fail")
 sys.exit(1 if FAIL else 0)
