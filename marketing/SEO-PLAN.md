@@ -1,6 +1,16 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v120 · 2026-09-23 (eighth pass — SERP re-validation §21:
+**Version:** v135 · 2026-09-23 (ninth pass — SERP re-validation §23:
+inZOI's multiplayer is converging on *director-mode* roleplay (Canvastown
+role assignment, "cast your actors") — the biggest budget in the genre is
+circling our spectator fantasy; Phase-5 still an Oct 2026 *target*.
+LIVORA added in-life "Digital Life & Online Presence" — still no shared
+or spectator surface. Truman-Show orphan demand uncontested a fifth pass.
+Raster debt: gallery v65 refresh pushed two PNG fallbacks over the 2MB
+ceiling — recompressed losslessly this pass (2.06/2.07 → 1.94/1.95MB).
+Tier-3 gains the sitcom/direct cluster from the still-orphaned Burbank
+pitch.)
+**v120** (eighth pass — SERP re-validation §21:
 LIVORA is iterating *fast* (three September updates incl. a landlord
 system), inZOI Phase-5 still targets Oct 2026 unshipped, orphan demand
 intact; NEW query-ops pipeline §22 — `seo/query-register.csv` +
@@ -108,6 +118,7 @@ first week post-launch; re-score tiers at day-30.
 | AI character job / NPC with a real job | how-it-works, faq (jobs Q, v60) |
 | hire an AI character | how-it-works (#move-in), faq |
 | become a landlord game / landlord sim | how-it-works (ladder), journal |
+| make your own tv show game / sitcom sim | journal (Burbank lineage essay) — never how-it-works; requests *suggest* scenes, they don't direct them |
 
 ### Avoid list (never target, never imply)
 
@@ -341,6 +352,7 @@ Two pages must never compete for the same query. Current assignments:
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
+| tv show / sitcom / direct the show | journal (Burbank lineage essay) | how-it-works owns the request mechanic — never implies directing (§23) |
 | screenshots / real gameplay captures | gallery | index/features embed shots but link the gallery; neither re-pitches "screenshots" queries |
 
 Rule: if a new page/post wants a keyword already in this table, it links to
@@ -372,13 +384,17 @@ the owner instead of competing — same rule as internal-link §6.
 - Day 60/90: review cannibalization register vs. actual query→page mapping;
   fold learnings into the calendar's next 12 weeks.
 
-**Debt register (carried, honest):** *(v120: audit baseline 97 pass /
-43 warn / 0 fail — warns = 20 placeholder-canonical + 23 raster-size;
-the demo/brand missing img-dims and thin 404 description warns were
-fixed this pass.)*
-1. `shots/v53-C.png` is 2.0MB and `v53-A.png` is 1.9MB (accepted — webp
-   companions serve modern browsers; PNGs are fallback only). At the 2MB
-   ceiling now — recompress or drop the PNG fallback if CWV flags LCP.
+**Debt register (carried, honest):** *(v135: audit baseline 97 pass /
+49 warn / 0 fail — warns = 20 placeholder-canonical + 29 raster-size;
+warn count rose 43→49 because the gallery refresh moved shots to the
+v65 set.)*
+1. `shots/v65-A.png` (2.06MB) and `v65-C.png` (2.07MB) breached the 2MB
+   PNG-fallback ceiling after the v53→v65 gallery refresh — **fixed this
+   pass:** lossless PNG re-encode (compress_level 9) → 1.94MB / 1.95MB.
+   `v65-B.png` (1.43MB) and `v65-D.png` (1.60MB) remain accepted raster
+   debt — webp companions serve modern browsers; PNGs are fallback only.
+   Recheck on the next art rebase; if a future refresh pushes past 2MB
+   again, drop the PNG fallback rather than shipping a heavier page.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
    gallery copy until then; expect a CTR jump at G12 flip.
 3. Article JSON-LD still pending (§5) — journal posts need their own URLs
@@ -619,9 +635,61 @@ The §13 cannibalization register is now executable, not just a table.
   the day-30 tier re-score (§15).
 - **`--validate-register`** lints the CSV alone: every owner_page must
   exist under `site/`, tiers 1–3, no duplicate queries. Runs clean at
-  v120 (48 rows).
+  v135 (50 rows).
 - **Workflow:** GSC → export queries → `tools/query_map.py export.csv`
   → cannibalization hits get fixed via internal links / §4 variants,
   never by retargeting the page → unseen queries get sorted into the
   register or the §16 question bank. Week-1 cadence is in
   LAUNCH-CHECKLIST §8; day-30 re-score in §9.
+
+## 23. SERP re-validation (v135) — the director-mode convergence
+
+Re-ran the carried §21 check (inZOI Phase-5 October status, LIVORA
+cadence, landlord-cluster promotion). Three findings, all sourced:
+
+1. **inZOI is converging on the spectator/director fantasy — from the
+   player side.** The September 18, 2026 dev update (simscommunity.info
+   recap + forum roadmap post) details the multiplayer test build:
+   ~20+ players co-residing in one town, multi-story housing, door
+   locking/visitor eviction, and — the important part for us —
+   Canvastown's explicit **role-assignment / "like a movie director,
+   you can assign roles and cast your actors"** framing (PC Gamer,
+   Sept 11 preview). KRAFTON is spending the genre's biggest budget
+   teaching players that *directing a cast* is a life-sim verb. That's
+   free category education for our request mechanic — and a threat:
+   if Canvastown markets "be the director," our copy must sharpen on
+   the thing they can't offer: **our cast is AI — the show runs itself;
+   you don't host it, you watch it.** Player-hosted roleplay ≠ an
+   authored persistent world; the compare page's verbs-contrast already
+   covers this (direct/host vs. witness/request). Phase-5 dedicated
+   servers (hundreds–thousands/server) remain an October 2026 *target* —
+   the roadmap itself is now labeled "R&D-driven, dates may shift," and
+   Kjun still calls Canvastown a "side project" with "a very long way
+   to go." Keep the cluster; don't build launch timing on it.
+2. **LIVORA added "Digital Life & Online Presence" (Sep 10)** — an
+   in-life online-presence system — alongside deeper childcare/growing-up.
+   Still strictly single-protagonist, single-player: no shared world,
+   no spectator surface, nothing to change in the compare table. The
+   "landlord" Tier-3 cluster stays put — zero impressions is expected
+   pre-launch; promotion decision waits for real GSC data per §15.
+3. **Truman-Show orphan demand: fifth consecutive pass uncontested.**
+   The only claimant is still Burbank — cancelled, and its farewell
+   coverage (Eurogamer/IGN/RPS, Feb 2026) is now the top SERP result
+   for the phrase. That press proved the *sitcom-director* query exists
+   too ("make your own TV show," "Sims meets The Truman Show"), and it
+   currently lands on a eulogy. §2 Tier-3 gains the sitcom/direct
+   cluster — but owned by the journal lineage essay, never by
+   how-it-works: our requests *suggest* a scene the cast may refuse;
+   Burbank promised literal direction. Cannibalization row added in §13.
+
+**Actions taken this pass:** §2 Tier-3 +1 row (sitcom/direct cluster);
+§13 +1 register row; `seo/query-register.csv` +2 rows (50 total);
+`shots/v65-A.png` + `v65-C.png` recompressed losslessly under the 2MB
+ceiling (§15 item 1); §15 debt register resynced v53→v65 filenames;
+audit baseline refreshed to 97/49/0.
+
+**Carried to next pass:** did inZOI Phase-5 actually ship in October,
+and did Canvastown's marketing adopt "director" language (if so, brief
+compare.html on the AI-cast-vs-hosted-RP distinction)? Watch LIVORA for
+any shared/spectator surface. Landlord + sitcom clusters promote on
+first real impressions, per §15 cadence.
