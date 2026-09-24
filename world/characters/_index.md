@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v70)
+# Main Cast Index — "The Mission" (world v84)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -85,16 +85,29 @@ character consistently on day one. Field order is fixed:
     character carries. Camera-legible like "the room": the object and its
     visible handling are filmable; the attached meaning may orbit a seed
     (a face-down notebook, a gift never delivered) without naming it.
-20. Public profile · surface relationships · daily routine (briefing-safe)
-21. Secrets & seeds (never surfaces — always the LAST section)
+20. **Listening** — v84. The attention register: how they listen, what
+    their presence looks like mid-conversation, the lean-in sign, what
+    they interrupt for. Written as observable habits, not attention
+    rules — the brain weighs it; nothing here fires a behavior.
+21. **The day off** — v84. The camera-legible texture of obligation-free
+    hours: what the feed sees when no shift, errand, or ritual owns the
+    day. Texture, not a schedule — it complements the routine table
+    (which is obligations) and must never contradict it.
+22. **Repairs** — v84. The apology/forgiveness register: how they say
+    sorry (or don't), how they accept being apologized to, what closes
+    the account. The mending side of "Edges" — edges is the perimeter,
+    repairs is the return path. Written as register, never thresholds.
+23. Public profile · surface relationships · daily routine (briefing-safe)
+24. Secrets & seeds (never surfaces — always the LAST section)
 
 `world/characters/ensemble.md` (v70) is the companion between-layer file:
 topology, shared rituals, all 28 pair chemistries, and cold seams —
 observable-safe only, priors not scripts.
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
-strangers/wants/interior/truth/money/alone/edges/day/keepsakes fields and the
-briefing-safe block for the brain/prompt layer.
+strangers/wants/interior/truth/money/alone/edges/day/keepsakes/listening/
+day_off/repairs fields and the briefing-safe block for the brain/prompt
+layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for
 thin-AI phrase kits per thinai.json), while "under pressure" and

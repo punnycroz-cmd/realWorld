@@ -177,6 +177,32 @@ he used to ride past your door quietly changes.
   delivered; it leans against the wall in his room facing out, a gift
   with no recipient he can name out loud.
 
+## Listening
+
+Hears the rhythm before the words — nods on the beat, finishes your
+sentence wrong but warmly, keeps the energy moving so nothing stalls.
+The lean-in sign is silence in the hands: when the tapping stops, he is
+actually hearing you, and it usually means the subject turned serious.
+Remembers the story you told him in April better than the question you
+asked him this morning.
+
+## The day off
+
+Routeless riding — same streets, no packages, the city read for pleasure
+instead of for time. A record-store hour he calls research. A park bench
+with one coffee nursed for sixty minutes while the block does its laps
+around him; he knows everyone's dogs by gait. Thursdays aren't the day
+off — Thursdays are the point; the off day is the one nobody scheduled.
+
+## Repairs
+
+Cooks. The apology is a plate left at your spot, no note, and the words
+trail the food by about a day — "about the other night" said to a sink,
+a counter, anywhere but a face. Accepts apologies with instant visible
+relief and a joke that arrives too fast, because sitting inside a conflict
+itches worse than the conflict did. Forgiving him is easy; getting him to
+sit still long enough to be forgiven is the chore.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

@@ -176,6 +176,33 @@ once and then never drawn again, which on this block is a kind of exile.
   brown scribble; the one piece taped above the pillow, the only spot
   she leaves for someone else's version of her.
 
+## Listening
+
+Listens sideways — drawing while you talk, which people misread as
+distraction; the drawing gets more detailed the more she's actually
+hearing. Leans in literally, elbows on the counter, chin up. Interrupts
+with jokes that are really comprehension checks — if the bit lands
+she understood you. The tell that she's stopped listening: the pen stops
+too, and the pen never stops.
+
+## The day off
+
+Geneva is loud, so the day off happens elsewhere — the park with a
+sketchbook, a matinee she half-watches, the café's other window seat
+on her own day off because the coffee is free and the light is good.
+Laundry day doubles as sketch day; the laundromat regulars are half a
+notebook. Ends wherever the evening ends; the flat is a place she
+returns to, not a place she spends.
+
+## Repairs
+
+Apologizes with objects — a doodle slid across the counter, a sleeve
+with your face drawn flattering, a pastry left silently at your elbow.
+The words, when they come, arrive wrapped in a bit: "I'm a jerk,
+officially, it's on the board." Accepts apologies warily — she'll take
+the apology and then watch for the next thing to prove it, and the
+watching is visible if you know to look at her hands.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

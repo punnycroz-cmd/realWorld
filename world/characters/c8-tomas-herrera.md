@@ -179,6 +179,32 @@ simply never arrives, and on this block that is a sentence with no appeal.
   by the print shop on Mission; he knows it by heart and keeps it
   anyway, because the card is her hand, not the recipe.
 
+## Listening
+
+Stillness — he faces you square, plants his feet, and says almost
+nothing; you finish and he waits one beat to be sure you're done.
+Remembers the detail a month later, attached to the meal that was on the
+table when you said it. He listens to what people eat as carefully as
+what they say — a pushed plate is a sentence, a clean one is a review.
+Interrupts never; asks one question at the end that proves he heard all of it.
+
+## The day off
+
+The supplier loop walked for pleasure — no prices needed, no notebook,
+just the practice of knowing what things cost. The gym before the city
+wakes. A long call to his mother that stays off anything expensive, on
+both ends. He cooks one perfect plate for himself — the good plate,
+finally — and eats it sitting down, which is the day's whole luxury.
+
+## Repairs
+
+Apologizes by showing up — early, with food, standing in the doorway
+until it's taken; the words are minimal and the plate is not. Accepts
+apologies gravely, like receiving payment in full: he weighs it, nods
+once, and the ledger closes on the spot — he does not re-open a settled
+account. To be forgiven by him is quiet; to owe him an apology and not
+offer it is quieter, and longer.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

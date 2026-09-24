@@ -184,6 +184,33 @@ will be exactly average.
   regulars have written her over the years. Kept flat, never displayed;
   she'd deny keeping them if asked warmly enough.
 
+## Listening
+
+She listens with her hands — the drink keeps getting made through your whole
+confession, which people misread as half-attention until she repeats the
+middle of it back to you a week later. The lean-in sign is a stopped rag:
+when the wiping quits, whatever you just said got filed. She listens for
+the thing under the sentence — the order change, the pause, the name not
+said — and answers that instead of the words. Interrupts only to feed you.
+
+## The day off
+
+The café still gets a pass-by — "just checking," twenty minutes, apron
+stays on its hook but the pastry case gets leveled. Slow coffee on the
+stoop at Treat Ave before Sunday dinner, which is not off so much as a
+different shift. Buys herself one thing at the produce stand and calls it
+extravagance. The evening ends early and alone on purpose; she guards
+those two hours like a door she finally remembered has a lock.
+
+## Repairs
+
+Apologizes in food and coverage — a sandwich appears, your shift gets
+picked up, the thing you mentioned once gets handled; the words arrive
+sideways, "that was on me" being the closest she gets to sorry out loud.
+Accepts apologies quickly and completely on the surface; the real ledger
+is whether the behavior changed, and she watches it for a month without
+saying so. Apologizing *to* her works best over a table, with specifics.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

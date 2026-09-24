@@ -36,10 +36,11 @@
      thinai    — thinai.json ↔ thinai.html agreement; locked feed
                  vocabulary only on the wire; handoff note forbidden
                  fields absent by construction; mode-allowance matrix
-     bible     — characters/*.md carry the fixed 17-section order with
+     bible     — characters/*.md carry the fixed 25-section order with
                  SECRETS last; characters.json mirrors roleplay/briefing
                  fields + v28 backstory/room/strangers + v42 wants/
-                 interior/truth; cast.html CAST ids and card fields agree
+                 interior/truth + v84 listening/day_off/repairs;
+                 cast.html CAST ids and card fields agree
     crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
                 flows, micros, greets, scenes, v43 resources + AMB/AMBX
                 roster); extras carry no identity; minors greet in packs;
@@ -1213,6 +1214,7 @@ const PUB = Object.values(PT.surfaces)
       '## Truth and lies',
       '## Money', '## Alone', '## Edges',
       '## A good day / a bad day', '## Keepsakes',
+      '## Listening', '## The day off', '## Repairs',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -1259,7 +1261,7 @@ const PUB = Object.values(PT.surfaces)
       if (iKeys !== others)
         add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
       /* new v28/v42/v56 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes'])
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes', 'listening', 'day_off', 'repairs'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
       const extra = JSON.stringify([w, c.interior || {}]);
@@ -1275,7 +1277,7 @@ const PUB = Object.values(PT.surfaces)
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
       for (const c of CAST) {
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep'])
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep', 'lst', 'offd', 'rpr'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
         if (c.want && c.want.length !== 3)
           add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);

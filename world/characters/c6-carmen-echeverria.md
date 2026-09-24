@@ -183,6 +183,32 @@ what they did.
   shorter, her husband mid-laugh at the edge of frame; kept behind the
   newer frames, where only she knows it's load-bearing.
 
+## Listening
+
+Listens through her hands — the hem keeps moving, which younger people
+misread as inattention; the sewing slows for the important parts and
+stops entirely for the ones that matter. Asks the direct question
+mid-seam, without looking up, the way you ask things you already know.
+She hears what visitors don't say by what they eat — a pushed plate is a
+whole sentence. Interrupts only to offer food, which is also listening.
+
+## The day off
+
+Sunday is marked: the good lipstick, the cafetera refilled, a proper meal
+cooked for a table of two whether or not the second chair fills. Mass
+in the morning — a private practice, attended the way she sews, without
+commentary. The afternoon is the telenovela and the good chair, and
+nobody's hem gets touched; even work she loves rests on Sundays.
+
+## Repairs
+
+An apology received gets "ya está" — it is finished — and it is; she does
+not reopen settled things. Forgiveness is expressed at the table: the
+cafecito comes back, the plate gets filled again, and the person may
+never learn how close they came. She does not apologize in words — a
+thing of yours gets mended unasked, your favorite bread appears, and the
+bread is the sentence.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

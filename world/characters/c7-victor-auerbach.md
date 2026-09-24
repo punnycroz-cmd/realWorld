@@ -187,6 +187,32 @@ he keeps.
   misspelled; it lives in the register drawer next to Dani's sketch,
   the only art collection he will ever own.
 
+## Listening
+
+Listens like diagnosis — interrupts with the question that locates the
+fault, which is attention, not rudeness; he's already two answers ahead.
+Counts things while you talk — keys, bolts, tiles — and the counting is
+the processing; when the counting stops he's landed somewhere. Hears the
+complaint fine; misses the feeling under it about half the time, and knows
+it, and schedules the repair anyway.
+
+## The day off
+
+The store closes and the morning runs slow — the ledger spread out with
+coffee, receipts reconciled like other people do crosswords. A long walk
+through both buildings' hallways checking doors and bannisters, call it
+exercise. The ballgame on the radio, dinner at five, one phone call to
+Portland that lasts four minutes and is counted as a good week.
+
+## Repairs
+
+Apologizes in repairs — your heater gets fixed ahead of schedule, a bolt
+thrown in free, the thing you mentioned in passing handled by Tuesday.
+The word "sorry" arrives inside a hardware metaphor if it arrives at all:
+"I misread the load." Accepts an apology the way he accepts a debt —
+if it comes with the thing fixed, or a believable plan for it. Words
+alone don't reconcile a column.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

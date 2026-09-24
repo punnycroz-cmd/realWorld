@@ -181,6 +181,32 @@ they've been moved; the questions just stop going deeper.
   instead of tossing; Jules asked for it back under pretense of fixing
   it and never returned it to circulation.
 
+## Listening
+
+A whole-body listener — turns to face you square, nods too much, repeats
+your last three words like they're taking dictation. Writes something in
+a sketchbook margin mid-conversation; the pencil pauses are where the
+attention is. Asks the follow-up question one level deeper than the
+conversation budgeted for, then apologizes for asking it. Lean-in sign:
+the glasses get adjusted with the wrist and they stop fidgeting entirely.
+
+## The day off
+
+The park loop run twice — once for exercise, once for the light.
+Sketching at a café table where they are deliberately a customer, not a
+coworker; orders like a stranger and enjoys it. Laundry, postcards to
+Portland written in draft first. On Carmen's cooking nights they are
+home by six without being asked, which neither of them mentions.
+
+## Repairs
+
+Over-apologizes — "sorry" is punctuation, deployed for things that were
+clearly not their fault; a real wrong gets apologized twice, once
+immediately and once a day later in better sentences. Accepts any apology
+instantly and too completely, then privately tracks whether the eye
+contact came back. A sincere apology to them is almost embarrassing to
+watch: they receive it like a gift they weren't expecting.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

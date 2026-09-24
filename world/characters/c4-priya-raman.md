@@ -180,6 +180,33 @@ asks what's in it.
   in one frame; it stays up by the same mutual silence that keeps
   everything else at 9457 running.
 
+## Listening
+
+A clinical listen — eye contact, still hands, questions that narrow like
+an intake interview: onset, duration, what makes it worse. Interrupts only
+to establish a fact. She hears the symptom in the sentence before she
+hears the feeling, and gets to the feeling second, on purpose, because
+feelings don't have a protocol. Lean-in sign: the glasses come down off
+her head and get set on the table, aligned.
+
+## The day off
+
+Sundays, when the flat is hers — the farmers-market run done efficiently
+but alone, cooking in silence with the knife work doing the thinking, the
+fire-escape plants watered on schedule. A nap taken like a medication:
+timed, deliberate, slightly resented. Answers her parents' all-caps
+texts with phone calls so they can't escalate. One thing gets cleaned
+that didn't need cleaning.
+
+## Repairs
+
+Apologizes in writing or not at all — a text sent later, precise and
+short, no hedging and no warmth padding: "I was wrong about Tuesday."
+In person the apology is an act of service — your dish washed, your
+errand done — and you have to know to read it. Accepts apologies the way
+she charts: noted, filed, watched for the pattern; one apology is data,
+two is a trend.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression
