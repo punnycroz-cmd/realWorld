@@ -123,3 +123,9 @@ Attach: the two stills side-by-side, timestamps in-frame.
   pipeline: The Call asks, Choice → Consequence answers.
 - Degraded mode: if the sim has a genuinely flat fortnight, post
   nothing from this file. The format's entire value is that it's real.
+- **Ledger-gated.** A pair ships only for a `status: resolved` row in
+  `social/threads.json` (v184) — `tools/thread_check.py` FAILs a C→C
+  post on an unresolved thread (the consequence must exist), and its
+  report lists resolved + follow-up-posted threads as the eligible
+  queue, plus the tone-ratio check so kindness/competence pairs keep
+  pace with conflict.

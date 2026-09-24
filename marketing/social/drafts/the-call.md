@@ -108,3 +108,9 @@ no prizes, and no skin except being right in public.
   follow" step of the loop.
 - Degraded mode: if no thread is pending, don't post. A Call about
   nothing is astrology.
+- **Register before posting.** Every Call is a row in
+  `social/threads.json` (v184) *before* it goes out — id, residents,
+  `thread_url`, `call.posted`. `tools/thread_check.py --report` is the
+  audit: it FAILs a resolved called thread with no follow-up, sweeps
+  threads open >14d, flags polls that outlived their deadline, and
+  keeps the audience scoreboard countable.

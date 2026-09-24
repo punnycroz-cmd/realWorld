@@ -1,0 +1,50 @@
+{
+ "version": 184,
+ "schema": "social-threads/v1",
+ "notes": "The open-loops ledger — the spine of the Call -> Choice->Consequence pipeline. One row per story thread the audience can follow: an observable situation with a genuinely undecided outcome. A Call post (the-call.md) OPENS the loop socially; the feed resolves it; a follow-up post (TF-*) CLOSES it; a verified pair makes it eligible for a Choice -> Consequence clip (choice-and-consequence.md). LOCAL ONLY: this file is an audit trail, never a queue — nothing here posts itself. Populate from the public feed once live; until launch it stays empty on purpose.",
+ "field_spec": {
+  "id": "t<N> — stable, never reused, even after resolution",
+  "title": "one-line human description ('Dani's extra shift cover')",
+  "residents": ["cast ids (c1..c8, s1..s3, a*) — first named = POV"],
+  "opened": "YYYY-MM-DD the thread became watchable (feed-visible)",
+  "source": "observed | request:rq-<id> | viewer-clip:<handle>",
+  "status": "open | resolved | stale | closed-quiet",
+  "tone": "kindness | competence | conflict | humor | mixed — used for the C->C ratio rule (>=1 kind/competent/funny per conflict pair)",
+  "thread_url": "feed permalink — REQUIRED before any post cites the thread; no permalink = no post (the permalink IS the 'that's scripted' rebuttal)",
+  "call": {
+   "draft": "TC1-TC5 id from the-call.md, or null",
+   "posted": "bool — a Call must be registered BEFORE posting",
+   "post_url": "URL of the posted Call, or null",
+   "posted_date": "YYYY-MM-DD or null",
+   "deadline": "YYYY-MM-DD or null — null means 'no deadline' wording was used; polls cap at 48h",
+   "tally": {"yes_pct": "0-100 int, or null until poll closes"},
+   "audience_right": "true | false | null — filled at resolution; feeds the scoreboard ('the audience is X-Y against the block')"
+  },
+  "resolution": {
+   "resolved_date": "YYYY-MM-DD or null",
+   "evidence_url": "feed permalink of the resolving event — REQUIRED when status=resolved",
+   "followup_draft": "TF-yes | TF-no | TF-wild, or null",
+   "followup_posted": "bool — false on a resolved called thread is a BROKEN PROMISE (thread_check FAILs)",
+   "followup_url": "or null"
+  },
+  "cc_pair": {
+   "draft": "CC1-CC6 id from choice-and-consequence.md, or null",
+   "posted": "bool — may ONLY be true when status=resolved (consequence must exist)",
+   "post_url": "or null"
+  }
+ },
+ "status_vocab": {
+  "open": "outcome genuinely undecided — Calls and follow-writes live here",
+  "resolved": "the feed stamped an outcome; evidence_url required",
+  "stale": "open > 14 days with no movement — revisit weekly or retire with honesty wording",
+  "closed-quiet": "the thread ended without a legible outcome — no post, but keep the row (history is useful)"
+ },
+ "rules": [
+  "every Call post registers here before it goes out — an unregistered Call is unauditable",
+  "every resolved called thread owes a follow-up post (win, loss, AND wild variants pre-drafted in the-call.md)",
+  "a thread with no consequence yet is a Call candidate, never a C->C post",
+  "viewer-request-caused threads are allowed and better — source=request:rq-<id> makes the attribution explicit",
+  "rows are append-only; retire via status, never delete"
+ ],
+ "threads": []
+}

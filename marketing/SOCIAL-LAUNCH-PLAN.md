@@ -1,6 +1,11 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v169 — production-3 direction absorbed: return visits are the
+**Status: v184 — the open-loops ledger: `social/threads.json` +
+`tools/thread_check.py` are now the machine-readable spine connecting
+The Call (opens loops) to the follow-up posts and Choice → Consequence
+(closes them) — broken-promise detector, stale-thread sweep, C→C tone
+ratio, audience scoreboard. Earlier: production-3 direction absorbed;
+return visits are the
 north star, the flagship clip format is Choice → Consequence
 (`social/drafts/choice-and-consequence.md`), and non-wager prediction
 prompts (`social/drafts/the-call.md`) make the free observer loop
@@ -128,6 +133,7 @@ its channel, timing slot, required asset, and character-count check.
 | `caught-on-the-block.md` | "Caught on the Block" weekly UGC prompt — solicits viewer clips into the reshare-playbook 4-gate flow; feeds M11 + clip-of-the-week (v154, post-launch only) | 6 prompts + 1 caption |
 | `choice-and-consequence.md` | THE flagship format (production-3): an unexpected choice, the honest gap, the later consequence, a thread link — verified pairs only, never staged (v169) | 6 drafts + format spec |
 | `the-call.md` | Non-wager prediction prompts — the "predict" step of the observer loop; opens loops that Choice → Consequence closes (v169) | 5 calls + 3 follow-ups |
+| `../threads.json` | The open-loops ledger — one row per watchable thread; every Call registers before posting, every resolution cites a feed permalink, every resolved called thread owes a follow-up (v184; audited by `tools/thread_check.py`) | registry (empty until launch) |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
 | `../post-review.md` | Weekly social retro: per-post scorecard, rerun/keep/kill rules, consent ledger, three-decision output feeding edits back into this bank (v139) | template |
 | `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
@@ -245,6 +251,34 @@ T+14. Full drafts + rules: `social/drafts/milestone-posts.md`. These sit
 *outside* `schedule.json` deliberately — they have no day offsets; they
 slot into whichever week the counter trips.
 
+### The open-loops ledger — `social/threads.json` (v184)
+
+The Call and Choice → Consequence are one pipeline; the ledger is its
+audit trail. One row per watchable thread — an observable situation
+whose outcome is genuinely undecided. Lifecycle:
+
+1. **Open** — a thread surfaces on the feed; add a row (`status: open`,
+   `thread_url` required — no permalink, no post).
+2. **Call** — a TC1–TC5 post registers in the row *before* it goes out.
+   Polls cap at 48h or use "no deadline" wording.
+3. **Resolve** — the feed stamps an outcome: `status: resolved` +
+   `evidence_url`. A called thread now owes a TF-* follow-up post;
+   `tools/thread_check.py --report` FAILs on any resolved called
+   thread without one (the-call.md: an unanswered Call is a broken
+   promise).
+4. **Close the loop** — follow-up posted; the resolved pair is now a
+   verified C→C candidate. `cc_pair.posted` may only be true on
+   resolved threads — the checker enforces consequence-before-clip.
+5. **Retire** — `stale` (open >14d, swept weekly) or `closed-quiet`
+   (ended without a legible outcome — no post, keep the row).
+
+`python3 tools/thread_check.py --report` prints the pipeline: Call
+candidates, overdue polls, C→C-eligible pairs, the tone-ratio check
+(≥1 non-conflict pair per conflict pair), and the audience scoreboard
+("the audience is X–Y against the block" — the recurring meta-post the
+ledger makes countable). Rows are append-only; retire via status,
+never delete. Fixture for a dry run: `social/threads.example.json`.
+
 ## 6. Launch-day runbook (operational)
 
 1. **T-1 evening:** owner confirms staging URL, loads `launch-thread.md`,
@@ -321,6 +355,9 @@ Pre-send checklist (every post):
       "development build" pre-launch; every image post carries alt text
       from `social/alt-text.md`.
 - [ ] Marisol/season-one secrets teased, not confirmed (§4 spoiler rule).
+- [ ] Call/C→C posts: the thread row exists in `social/threads.json`
+      and `python3 tools/thread_check.py --report` is clean (no broken
+      promises, no C→C on unresolved threads).
 - [ ] `python3 tools/social_check.py` is clean for the file being sent
       (0 FAIL; every WARN read and accepted — the checker automates the
       mechanical half of this list: banned words, real business names,

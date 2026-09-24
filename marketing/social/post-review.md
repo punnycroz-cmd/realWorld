@@ -45,6 +45,16 @@ Absolute floors that override the quartile rules:
 - Any reshare (R-bank) underperforming plain replies three weeks
   running → prefer replying; note it in `reshare-playbook.md` §6.
 
+## 2b. Open-loops sweep (v184)
+
+Run `python3 tools/thread_check.py --report` during the retro and copy
+its output into the week block: unresolved broken promises get fixed
+*this week* (post the TF-* follow-up late and say so — honesty beats
+pretending the Call never happened), open >14d threads get a revisit
+or a `stale`/`closed-quiet` status, and the scoreboard line feeds the
+"audience vs the block" meta-post. The C→C tone ratio it prints is the
+kindness-vs-conflict tally this file used to track by hand.
+
 ## 3. Consent ledger (reshare permissions)
 
 | Date | Handle | Post link | Scope (this post / standing) | Status |
