@@ -6964,6 +6964,15 @@ function initControls(){
 
   document.getElementById('btn-toggle-ctrl').onclick = () => {
     const v = VILLAGERS[inspectedPawnIdx];
+    if(!v) return;
+    /* v16: possession ban on the 8 mains is absolute — Take Control
+       refuses any sfAgentDriven pawn (owner included) */
+    if(v.sfAgentDriven ||
+       (typeof sfIsMain === 'function' && sfIsMain(v))){
+      if(typeof showToast === 'function')
+        showToast('Their mind is their own.');
+      return;
+    }
     if(v === VILLAGERS[controlledPawnIdx]){
       v.isNPC = true;
       controlledPawnIdx = -1;
@@ -7331,7 +7340,10 @@ function survivalGuard(v){
 }
 /* Routine self-care so the scripted village sustains itself between bells. */
 function routineNeeds(v){
-  if(v.dead || v.brainControlled || (v.plan && v.plan.length)) return;
+  /* v16: no injected self-care plans for driven mains — routine
+     self-care is the brain's own directive policy (design §6.5) */
+  if(v.dead || v.brainControlled || v.sfAgentDriven ||
+     (v.plan && v.plan.length)) return;
   const b = ensureBody(v);
   if(b.hydration < 0.45) v.plan = [{ verb: 'go', place: 'well' }, { verb: 'drink' }];
   else if(b.satiety < 0.40) v.plan = [{ verb: 'eat' }];
@@ -9465,7 +9477,11 @@ function socialTick(h){
     __roleCheckDay = dayNow;
     checkRoleVacancies();
   }
+  /* v16: driven mains are excluded — autonomous chats, bond writes and
+     gossip are code-authored social behavior; a main's every word is
+     its brain's (design §6.3/§6.4) */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
@@ -12289,7 +12305,10 @@ function countNearbyVillagers(v, cells){
   return n;
 }
 function rescueInstinct(v, dtH){
-  if(v.brainControlled || v.dead || v.downed) return;
+  /* v16: a driven main is never voluntold into a rescue — choosing to
+     help is the brain's call; only the bounded collapse reflex may
+     touch a main's body */
+  if(v.brainControlled || v.dead || v.downed || v.sfAgentDriven) return;
   if(v.plan && v.plan.length) return;
   for(const o of VILLAGERS){
     if(o === v || !o.downed || o.dead) continue;
@@ -14008,7 +14027,10 @@ downedTick = function(v, dtH){
 const __socialTick15 = socialTick;
 socialTick = function(h){
   __socialTick15(h);
+  /* v16: driven mains are excluded — code-authored insults/fights on a
+     main are banned (design §6.4); friction between ambients stays */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled && !v.outsider &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
@@ -14268,7 +14290,8 @@ simTick = function(dtH){
 const __uv15 = updateVillagerAI;
 updateVillagerAI = function(v, dtH){
   __uv15(v, dtH);
-  if(v.dead || v.downed || v.brainControlled || v.outsider) return;
+  if(v.dead || v.downed || v.brainControlled || v.outsider ||
+     v.sfAgentDriven) return;   // v16: no code-authored fire duty on mains
   if(v.plan && v.plan.length) return;
   // daytime 'work' state included: routine labor yields to a threatening fire
   if(bestFireTarget(v)){
@@ -21256,6 +21279,17 @@ function applySaveState(s){
     const n = VILLAGERS.length;
     controlledPawnIdx = n ? clamp(s.ui ? (s.ui.controlledPawnIdx | 0) : 0, 0, n - 1) : 0;
     inspectedPawnIdx = n ? clamp(s.ui ? (s.ui.inspectedPawnIdx | 0) : 0, 0, n - 1) : 0;
+    /* v16: the possession ban on the 8 mains survives a save round-trip —
+       a save written mid-possession must not restore control of a main */
+    for(let i = 0; i < VILLAGERS.length; i++){
+      const pv = VILLAGERS[i];
+      if(pv && (pv.sfAgentDriven ||
+               (typeof sfIsMain === 'function' && sfIsMain(pv)))){
+        pv.isNPC = true;
+        pv.brainControlled = false;
+        if(i === controlledPawnIdx) controlledPawnIdx = -1;
+      }
+    }
     if(typeof G !== 'undefined' && G) G.inspectedVillager = VILLAGERS[inspectedPawnIdx] || null;
 
     return { ok: true };
@@ -32684,72 +32718,21 @@ function sfHomeCell(spec){
   return { wx: 300, wy: 200 }; // Dolores Park fallback
 }
 
-/* schedule blocks: {h0,h1, to:spec, state, inside, stops:[specs]} */
-const SF_CORE_ROUTINES = {
-  C1: [ // Marisol: opens the café, afternoon rounds
-    { h0: 0, h1: 5.5, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-    { h0: 5.5, h1: 14, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 14, h1: 18, state: 'walk',
-      stops: [{ poi: 'Taqueria El Farolito' }, { anchor: 'g744' },
-              { anchor: 'park_center' }, { poi: 'Bi-Rite Market' }] },
-    { h0: 18, h1: 21.5, to: { poi: 'Haus Coffee' }, state: 'chat' },
-    { h0: 21.5, h1: 24, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-  ],
-  C2: [ // Jules: morning run, café shift, evening sketching
-    { h0: 0, h1: 6.5, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 8, state: 'run',
-      stops: [{ anchor: 'park_north' }, { anchor: 'park_center' }] },
-    { h0: 8, h1: 15, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 15, h1: 19, state: 'sit',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g744' }] },
-    { h0: 19, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C3: [ // Dani: café six days, nights she won't explain
-    { h0: 0, h1: 8, to: { latlon: [37.7495, -122.4200] }, state: 'sleep', inside: true },
-    { h0: 8, h1: 17, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 17, h1: 21, state: 'walk',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g750' },
-              { poi: 'Clarion Alley' }] },
-    { h0: 21, h1: 24, to: { latlon: [37.7495, -122.4200] }, state: 'idle', inside: true },
-  ],
-  C4: [ // Priya: three 12s at SF General; café decompresses
-    { h0: 0, h1: 6.5, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 19.5, state: 'work',
-      stops: [{ poi: 'SF General' }, { poi: 'Haus Coffee' }] },
-    { h0: 19.5, h1: 21, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C5: [ // Marcus: courier loops; Thursday park jams
-    { h0: 0, h1: 8, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'carry',
-      stops: [{ poi: 'Bi-Rite Market' }, { poi: 'Dolores Park Cafe' },
-              { poi: 'Tartine Bakery' }, { poi: '500 Club' },
-              { poi: 'Dandelion Chocolate' }] },
-    { h0: 18, h1: 21, to: { anchor: 'park_center' }, state: 'play' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C6: [ // Carmen: stoop cafecito, her palm in the park
-    { h0: 0, h1: 7, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 7, h1: 10, to: { anchor: 'g744' }, state: 'sit' },
-    { h0: 10, h1: 16.5, to: { anchor: 'park_center' }, state: 'sit' },
-    { h0: 16.5, h1: 21, to: { anchor: 'g744' }, state: 'idle', inside: true },
-    { h0: 21, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C7: [ // Victor: hardware counter 9-6; Tuesdays he fixes the buildings himself
-    { h0: 0, h1: 8, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'work',
-      stops: [{ poi: 'Auerbach Hardware' }, { anchor: 'g744' }, { anchor: 'g750' }] },
-    { h0: 18, h1: 22, to: { poi: 'Auerbach Hardware' }, state: 'idle', inside: true },
-    { h0: 22, h1: 24, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-  ],
-  C8: [ // Tomás: supplier loop by day, El Farolito line by night, 3pm coffee
-    { h0: 0, h1: 9, to: { latlon: [37.7570, -122.4165] }, state: 'sleep', inside: true },
-    { h0: 9, h1: 14.5, state: 'walk',
-      stops: [{ poi: 'Auerbach Hardware' }, { poi: 'Bi-Rite Market' },
-              { poi: 'Valencia Farmers Market' }] },
-    { h0: 14.5, h1: 16, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 16, h1: 24, to: { poi: 'Taqueria El Farolito' }, state: 'work' },
-  ],
+/* v16 — the becoming brain: the 8 mains are driven pawns from spawn.
+   There is NO code-authored routine for them — SF_CORE_ROUTINES is gone.
+   The bibles' "Daily routine" prose lives in each brain's BRIEF as life
+   context (circumstances, never a schedule the engine runs). What the
+   engine keeps is only the home cell: where the body sleeps is a fact of
+   the world, not an intention. */
+const SF_CORE_HOMES = {
+  C1: { latlon: [37.7540, -122.4186] },   // Mars — 9127 Capp St studio
+  C2: { anchor: 'g744' },                 // Jules — 9418 Guerrero, Unit A
+  C3: { latlon: [37.7495, -122.4200] },   // Dani — 9263 Geneva Ave
+  C4: { anchor: 'g750' },                 // Priya — 9457 Guerrero, Unit 3
+  C5: { anchor: 'g750' },                 // Marcus — same flat as Priya
+  C6: { anchor: 'g744' },                 // Carmen — 9418 Guerrero, Unit A
+  C7: { poi: 'Auerbach Hardware' },       // Victor — 9102 Mission, over the store
+  C8: { latlon: [37.7570, -122.4165] },   // Tomás — 9344 Folsom studio
 };
 
 /* ambient role -> routine template */
@@ -32910,10 +32893,16 @@ function sfInitCast(){
   const cast = buildCastChars();           // id -> frameset
   PA.chars = NV_CAST.map(c => cast[c.id]); // index-aligned with NV_CAST
   NV_CAST.forEach((c, i) => {
-    const sched = c.tier === 'core' ? SF_CORE_ROUTINES[c.id] : sfAmbientRoutine(c);
-    const homeBlock = (sched || []).find(b => b.inside) || (sched || [])[0];
-    const hc = sfHomeCell(homeBlock && homeBlock.to ? homeBlock.to
-                         : (homeBlock && homeBlock.stops ? homeBlock.stops[0] : null));
+    const isMain = c.tier === 'core';
+    const sched = isMain ? null : sfAmbientRoutine(c);
+    /* home cell: mains keep only WHERE they sleep (a world fact, from
+       the bible's Home line); ambients derive it from block.inside as
+       before. No schedule is ever built or stored for a main. */
+    const homeSpec = isMain
+      ? SF_CORE_HOMES[c.id]
+      : (function(){ const b = (sched || []).find(b => b.inside) || (sched || [])[0];
+          return b && (b.to || (b.stops && b.stops[0])); })();
+    const hc = sfHomeCell(homeSpec || null);
     const v = createVillager(c.name || c.id, c.role || 'Resident', null,
                              hc.wx, hc.wy, {
       sex: /C2/.test(c.id) ? 'nb' : (['C1','C3','C4','C6'].includes(c.id) ? 'f' : 'm'),
@@ -32925,67 +32914,97 @@ function sfInitCast(){
     // production-1: compiled memory profile (35_sf_memory.js) — wired into
     // decayEpistemic/observe where the sim has a real mechanism
     if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
-    v.sfSched = sched || [];
-    v.sfStopIdx = 0;
-    v.sfStopT = 0;
+    if(isMain){
+      /* v16 becoming brain: a main is AI-driven from birth. It owns every
+         intention; the engine owns the body. It wakes into the
+         intention_gap and waits for its brain's first filing — there is
+         no sfSched to fall back to, ever, and no possession carve-out. */
+      v.sfAgentDriven = true;
+      v.sfGap = true;
+      v.sfMind = null;             // populated by sfMindScan on first state read
+      v.sfConvo = null;
+      v.sfLastConvo = null;
+      v.sfIntents = [];
+      v.sfDisp = null;             // dispatch ledger (38_sf_brain.js)
+    } else {
+      v.sfSched = sched || [];
+      v.sfStopIdx = 0;
+      v.sfStopT = 0;
+    }
     v.sfHome = hc;
     v.equippedTool = { kind: workFor(c.id) !== 'idle' ? workFor(c.id) : 'none',
                        name: '', icon: '', desc: '' };
     if(v.body){ v.body.satiety = 0.9; v.body.hydration = 0.9; v.body.fatigue = 0.1; }
     VILLAGERS.push(v);
   });
-  // audience surrogate: Jules (the newcomer)
+  /* possession ban on mains is absolute (v16): no audience surrogate, no
+     controlled pawn. The camera inspects Jules's patch at boot purely so
+     the opening frame lands on a familiar corner — it does NOT control
+     the pawn and the pawn stays isNPC/sfAgentDriven. */
   const j = VILLAGERS.findIndex(v => v._castId === 'C2');
-  controlledPawnIdx = j >= 0 ? j : 0;
-  inspectedPawnIdx = controlledPawnIdx;
-  VILLAGERS[controlledPawnIdx].isNPC = false;
-  if(VILLAGERS[controlledPawnIdx])
-    cam.x = VILLAGERS[controlledPawnIdx].x, cam.y = VILLAGERS[controlledPawnIdx].y;
+  inspectedPawnIdx = j >= 0 ? j : 0;
+  controlledPawnIdx = -1;
+  if(VILLAGERS[inspectedPawnIdx])
+    cam.x = VILLAGERS[inspectedPawnIdx].x, cam.y = VILLAGERS[inspectedPawnIdx].y;
 }
 
-/* ---- thin-AI schedule follower ---- */
+/* ---- driven ladder (mains) + thin-AI schedule follower (ambients) ---- */
 function sfNpcTick(v, dtH){
   if(v.state === 'sleep' && v.inBuilding){ v.moving = false; }
-  // keep the Truman cast alive: offscreen meals & rest are assumed
-  if(v.body){
+  /* v16: silent needs top-ups are gone for DRIVEN pawns — a main's body
+     decays honestly and its brain decides what to do about it; the only
+     code override is the bounded collapse reflex below. Ambients keep
+     the Truman assumption (offscreen meals & rest) — they are furniture,
+     and starving furniture would be a broken set, not a broken fiction. */
+  if(v.body && !v.sfAgentDriven){
     if(v.body.satiety < 0.35) v.body.satiety = 0.6;
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
-  // production-1: a parked agent order (36_sf_agent.js, the playtest
-  // bridge) drives this pawn through real sim calls until done/expired.
-  // Order channel, not possession. v13 ladder (ai-town §5.3):
-  //   reflex → live order → brain-authored directive → intention_gap.
-  // Once a brain files an act the pawn is "driven" and NEVER falls back
-  // to code-authored sfSched — a lapsed will leaves a visible gap
-  // (state 'idle', sfGap true on sfAgentState), not an invented routine.
-  if(v.sfAgent || v.sfAgentDriven){
-    /* survival reflex preempts a live order AND a pending will — it is
-       code, always wins, and is never authored by a brain */
+  // v16 ladder (design §5): a driven main NEVER reaches sfSched.
+  //   collapse reflex → live order → brain-authored directive → gap.
+  // The gap is a first-class visible state: the pawn stands, its
+  // sfGap flag is true, and sfAgentState reports it to the brain.
+  if(v.sfAgentDriven || v.sfAgent){
+    /* genuine survival reflex: a collapse is a body event, not an
+       intention. It interrupts the order, is written as 'interrupted'
+       with the reflex named, and leaves the pawn downed until the
+       body recovers or a brain filing takes over. */
     const rf = (typeof sfReflexNow === 'function') ? sfReflexNow(v) : null;
-    if(rf && (v.sfAgent || v.sfDirective)){
+    if(rf){
       if(v.sfAgent && !v.sfAgent.done)
         v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
           interruptedBy: 'survival:' + rf, at: W.tod, day: W.day };
       v.sfAgent = null;
-      v.sfReflex = { kind: rf, at: W.tod, day: W.day };
-      v.sfPath = null; v.moving = false;
+      if(!v.sfReflex || v.sfReflex.kind !== rf)
+        v.sfReflex = { kind: rf, at: W.tod, day: W.day };
+      /* bounded, honest: the body drifts back to the band EDGE (never
+         topped up) — "someone got them upright"; the next move is the
+         brain's */
+      if(typeof sfReflexDrift === 'function') sfReflexDrift(v, dtH);
+      v.sfPath = null; v.moving = false; v.state = 'downed';
       return;
     }
     v.sfReflex = null;
     if(v.sfAgent){
       const a = v.sfAgent;
       if(a.done || sfAbsNow() > a.until){
-        /* §5.4 — every order ends with a reported outcome the brain
-           reads next turn: completed | expired | failed (interrupted
-           is written where the interruption happens) */
+        /* every order ends with a reported outcome the brain reads next
+           turn: completed | expired | failed (interrupted is written
+           where the interruption happens) — §5.4 outcome contract */
         v.sfAgentResult = { verb: a.verb,
-          status: a.fail ? 'failed' : (a.done ? 'completed' : 'expired'),
-          err: a.fail || null, at: W.tod, day: W.day };
+          status: a.fail ? 'failed'
+                : a.interrupted ? 'interrupted'
+                : (a.done ? 'completed' : 'expired'),
+          err: a.fail || (a.waitingOutside ? 'waiting_outside' : null),
+          interruptedBy: a.interrupted || null,
+          seq: a.seq != null ? a.seq : null,
+          at: W.tod, day: W.day };
         /* a promoted directive starts the same tick — no gap frame */
         v.sfAgent = (typeof sfAgentNext === 'function')
           ? sfAgentNext(v) : null;
         if(v.sfAgent && typeof sfAgentTick === 'function'){
+          v.sfGap = false;
           sfAgentTick(v, v.sfAgent, dtH);
           return;
         }
@@ -32994,7 +33013,7 @@ function sfNpcTick(v, dtH){
       else v.sfAgent = null;
     }
     /* no live order: the standing will gets one shot (it may have
-       lapsed mid-order or after a reflex). Else the intention gap
+       lapsed mid-order or after a collapse). Else the intention gap
        stands — empty, visible, honest. */
     const nxt = (typeof sfAgentNext === 'function') ? sfAgentNext(v) : null;
     if(nxt){
@@ -33257,32 +33276,46 @@ if(typeof window !== 'undefined' && window.__aiBridge){
 }
 
 /* =====================================================================
-   PART 36 — SF AGENT ACTIONS (production-1 playtest bridge)
+   PART 36 — SF AGENT ACTIONS (v16 "the becoming brain" contract)
 
-   External minds (the 8-agent visual playtest, dev tools) act through
-   sfAgentAct(cid, action) — real sim calls (sfGoTo/sfFollowPath/
-   sfEnterPOI), never direct motor writes. An agent order parks on
-   v.sfAgent and sfNpcTick honors it until done/expired, then the
-   brain's own standing directive (v.sfDirective) promotes — or the
-   pawn stands in a visible intention_gap. A driven main NEVER resumes
-   the code-authored schedule. This is the character's brain, not
-   player possession: the production UI exposes no control of the
-   8 mains.
+   External minds act through sfAgentAct(cid, act, meta) — real sim calls
+   (sfGoTo/sfFollowPath/sfEnterPOI), never direct motor writes. An order
+   parks on v.sfAgent and sfNpcTick honors it until done/expired/failed,
+   then the brain's standing directive (v.sfDirective) promotes — or the
+   pawn stands in a visible intention_gap. A driven main NEVER resumes a
+   code-authored schedule. This is the character's brain, not player
+   possession: the production UI exposes no control of the 8 mains.
 
-   Verbs: move <poi> | talk <castId|name> <text> | work | rest | idle |
-          request <kind> <note>   (request files through the REAL bus as
-          spectator 'agent-<cid>' — screen → review → ledger)
+   VERBS (design §2.1):  move | talk | work | rest | idle | sleep |
+                         say | leave | reflect | request
+   Per-act fields: to · at · text · holdH(≤2) · lingerH(≤2) · why(REQ)
+                   do · mood · intent · concerns · endSay · insights
+   Standing will: meta.directive — same verbs minus request/say/leave/
+                  reflect; why always required; untilH ≤ 6; restated
+                  EVERY turn or it lapses.
+   Outcomes: completed | expired | failed | interrupted (new_order /
+             survival:* / target_left / convo_ended / no_answer).
 
-   sfAgentState(cid) returns ONLY what a passerby could observe:
-   senses, felt time, place, nearby cast, needs bars, recent public
-   Wire lines, and the character's own public routine — no secrets, no
-   private state, and no pushed clock (exact time is pulled via
-   opts.glance — see 41_game_systems_timepiece.js).
+   sfAgentState(cid, opts) returns ONLY what a passerby could observe:
+   senses, felt time, place, nearby cast, needs bars, wire tail — plus
+   the interiority surface (mind/convo/lastConvo) and, with
+   opts.reflect, the reflection archive. No pushed clock (glance pulls),
+   no routine field (the brain's BRIEF carries life context).
    ===================================================================== */
 
 function sfPawnOf(cid){
   return VILLAGERS.find(v => v._castId === cid) ||
          VILLAGERS.find(v => v.name && v.name.toLowerCase() === String(cid).toLowerCase());
+}
+
+/* one-of-C1..C8 check — the possession-ban + injection-filter predicate.
+   GS_CORE_CAST is the canonical set (systems/41_game_systems_requests.js);
+   the regex fallback keeps the predicate true before that module loads. */
+function sfIsMain(v){
+  if(!v) return false;
+  const cid = v._castId || '';
+  if(typeof GS_CORE_CAST !== 'undefined' && GS_CORE_CAST[cid]) return true;
+  return /^C[1-8]$/.test(cid);
 }
 
 function sfSay(v, text){
@@ -33291,7 +33324,139 @@ function sfSay(v, text){
   v.sayAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 }
 
-/* per-tick driver for an active agent order */
+/* absolute sim-hour clock — orders and wills must not un-lapse when
+   tod wraps past midnight */
+function sfAbsNow(){ return W.day * 24 + W.tod; }
+
+/* ---- perception ----
+   A pawn perceives another when they share a space (same venue, or both
+   outdoors) within ~8 cells — the same bound sfAgentState uses for the
+   `nearby` list. God-mode VILLAGERS scans are gone from the contract:
+   talk resolves targets through this field or a brain-named `at`. */
+function sfSameSpace(a, b){
+  if(!a || !b) return false;
+  if(a.inBuilding || b.inBuilding)
+    return a.inBuilding && b.inBuilding && a.inside === b.inside;
+  return true;
+}
+function sfPerceived(v, t){
+  return sfSameSpace(v, t) && Math.hypot(v.x - t.x, v.y - t.y) <= CS * 8;
+}
+
+/* a venue is private (a home, a flat) when it isn't a registered public
+   POI — SF_POIS only carries venues with a public kind. Private homes
+   are never auto-entered: the seeker waits at the door. */
+function sfIsPublicVenue(name){
+  if(!name) return false;
+  const p = sfFindPOI(name);
+  return !!(p && p.bld != null && p.bld >= 0);
+}
+
+/* 'home' (and 'my home'/'my flat') resolves to the pawn's own home cell;
+   returning there is the one interior a pawn may always enter. */
+function sfResolvePlace(v, ref){
+  if(!ref) return null;
+  const s = String(ref).trim();
+  if(/^my\s+(home|flat|place|stoop|room|bed)$/i.test(s) || /^home$/i.test(s)){
+    return { label: 'home', cell: v.sfHome, home: true };
+  }
+  const p = sfFindPOI(s);
+  if(p) return { label: p.name, cell: sfPoiDoor(p), poi: p.name,
+                 public: true };
+  const cell = sfAnchorCell(s);
+  if(cell){
+    /* an anchor that resolves to a building door is that building's
+       interior if it has a name (e.g. g744 -> '744 Guerrero') */
+    const al = (SF_MAP.anchors || {})[s];
+    let inside = null, pub = false;
+    if(al && al.bld >= 0){
+      const b = SF_BLD[al.bld];
+      if(b && b.name) inside = b.name;
+      else if(SF_INTERIORS[s]) inside = s;
+      pub = !!(inside && sfFindPOI(inside));
+    }
+    return { label: inside || s, cell, inside, public: pub };
+  }
+  if(typeof gsParseAddress === 'function'){
+    const pa = gsParseAddress(s);
+    if(pa && pa.bld && pa.bld.bld_idx != null &&
+       SF_DOOR_OF.has(pa.bld.bld_idx)){
+      const b = SF_BLD[pa.bld.bld_idx];
+      return { label: pa.address, cell: SF_DOOR_OF.get(pa.bld.bld_idx),
+               inside: (b && b.name) || null, public: !!(b && b.name &&
+               sfFindPOI(b.name)) };
+    }
+  }
+  return null;
+}
+
+/* the verb registry — orders and directives share it, except that a
+   directive may not hold request/say/leave/reflect: a will that
+   refiles public requests or speaks on its own is not a will */
+const SF_AGENT_VERBS = ['move', 'talk', 'work', 'rest', 'idle', 'sleep',
+                        'say', 'leave', 'reflect', 'request'];
+const SF_DIR_VERBS   = ['move', 'talk', 'work', 'rest', 'idle', 'sleep'];
+
+/* ---------------- survival reflex (design §2.4 — code, always wins) --
+   Genuine emergencies only. SF's set is deliberately thin: the lethal-
+   needs COLLAPSE band. Sleep is a state, not an emergency (removed);
+   there is no weather veto anywhere in the contract (dissolved
+   2026-09-23). The reflex saves the body — downed, needs drift back to
+   the band EDGE (never topped up) — and releases; the next move is the
+   brain's. */
+function sfReflexNow(v){
+  if(!v || v.dead) return null;
+  const b = v.body;
+  if(b){
+    if((b.hydration != null ? b.hydration : 1) < 0.05)
+      return 'collapse:hydration';
+    if((b.satiety != null ? b.satiety : 1) < 0.05)
+      return 'collapse:satiety';
+    if((b.fatigue != null ? b.fatigue : 0) > 0.98)
+      return 'collapse:fatigue';
+  }
+  return null;
+}
+
+/* while the collapse reflex holds, the body drifts back toward the band
+   edge (the fiction: someone got them upright, water, a shaded step) —
+   honest partial recovery, never a top-up */
+function sfReflexDrift(v, dtH){
+  const b = v.body;
+  if(!b) return;
+  if(b.satiety   != null && b.satiety   < 0.10) b.satiety   = Math.min(0.10, b.satiety   + 0.05 * dtH);
+  if(b.hydration != null && b.hydration < 0.10) b.hydration = Math.min(0.10, b.hydration + 0.05 * dtH);
+  if(b.fatigue   != null && b.fatigue   > 0.92) b.fatigue   = Math.max(0.92, b.fatigue   - 0.04 * dtH);
+}
+
+/* ---- presence-verb grounding: "at <to>, do <verb>" — navigate to the
+   named place first, enter it when it's public (or the pawn's own
+   home), then hold the verb until the order lapses. */
+function sfGroundStep(v, a, dtH){
+  const cell = a.cell;
+  const tx = cell.wx * CS + 16, ty = cell.wy * CS + 16;
+  if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
+    v.sfPath = null; v.moving = false;
+    if(a.enter && !v.inBuilding){
+      if(a.enter === 'home'){
+        v.inBuilding = true; v.inside = a.enterLabel || 'home';
+      } else {
+        const p = sfFindPOI(a.enter);
+        if(p) sfEnterPOI(v, p.name);
+        else { v.inBuilding = true; v.inside = a.enterLabel || a.enter; }
+      }
+    }
+    a.phase = 'hold';
+    return true;
+  }
+  if(v.inside || v.inBuilding) sfExitPOI(v);
+  if(!v.sfPath || !v.sfPath.length) sfGoTo(v, cell.wx, cell.wy);
+  if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+  else { a.phase = 'hold'; }  // unreachable door — hold where standing
+  return false;
+}
+
+/* ---------------- per-tick driver for an active agent order -------- */
 function sfAgentTick(v, a, dtH){
   if(a.verb === 'move'){
     const cell = a.cell;
@@ -33299,7 +33464,12 @@ function sfAgentTick(v, a, dtH){
     const tx = cell.wx * CS + 16, ty = cell.wy * CS + 16;
     if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
       v.sfPath = null; v.moving = false;
-      if(a.poi){ const p = sfFindPOI(a.poi); if(p) sfEnterPOI(v, p.name); }
+      if(a.poi){
+        const p = sfFindPOI(a.poi);
+        if(p) sfEnterPOI(v, p.name);
+        else if(a.enter){ v.inBuilding = true; v.inside = a.enter; }
+        else if(a.home){ v.inBuilding = true; v.inside = 'home'; }
+      }
       v.state = 'idle'; a.done = true;
       return;
     }
@@ -33309,90 +33479,100 @@ function sfAgentTick(v, a, dtH){
     else { v.state = 'idle'; a.fail = 'unreachable'; a.done = true; }
     return;
   }
+
   if(a.verb === 'talk'){
     const t = sfPawnOf(a.to);
     if(!t){ a.fail = 'gone'; a.done = true; return; }
-    // leave whatever venue we're in — unless the target is inside it too
-    if((v.inside || v.inBuilding) && !(t.inBuilding && v.inside === t.inside))
-      sfExitPOI(v);
-    const d = Math.hypot(v.x - t.x, v.y - t.y);
-    if(d > CS * 2){
-      if(!v.sfPath || !v.sfPath.length)
-        sfGoTo(v, Math.floor(t.x / CS), Math.floor(t.y / CS));
-      if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
-    } else {
-      // at their door: if they're indoors, step into the venue so the
-      // exchange happens in the same rendered space (interior pass shows
-      // both occupants + the bubble)
-      if(t.inBuilding && t.inside && v.inside !== t.inside)
-        sfEnterPOI(v, t.inside);
-      v.sfPath = null; v.moving = false; v.state = 'idle';
-      v.faceTo = { x: t.x, y: t.y };
-      if(!a.said){
-        a.said = true;
-        sfSay(v, a.text || 'hey');
-        // real memory hooks: both parties record the exchange
-        if(typeof observe === 'function'){
-          observe(v, 'spoke with ' + (t.name || a.to), { topic: 'talk_' + t._castId,
-            source: 'direct', confidence: 0.95, salience: 0.7, bypassAttention: true });
-          observe(t, (v.name || 'someone') + ' said: "' + (a.text || 'hey') + '"',
-            { topic: 'talk_' + v._castId, source: 'direct', confidence: 0.9,
-              salience: 0.7, bypassAttention: true });
-        }
-      }
-    }
-    return;
-  }
-  /* v13 timepiece: rest/sleep shelter phase — walk to the door first,
-     then go inside and actually rest. Outdoors in the rain never gets
-     this far (sfAgentAct refuses it). */
-  if((a.verb === 'rest' || a.verb === 'sleep') && a.shelter &&
-     !v.inBuilding){
-    const c = a.shelter.cell;
-    const tx = c.wx * CS + 16, ty = c.wy * CS + 16;
-    if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
-      v.sfPath = null; v.moving = false;
-      if(a.shelter.poi){
-        const p = sfFindPOI(a.shelter.poi);
-        if(p) sfEnterPOI(v, p.name);
-      }
-      if(!v.inBuilding){
-        v.inBuilding = true;
-        v.inside = a.shelter.inside || a.shelter.poi || 'home';
-      }
-      v.state = 'rest';
+    if(a.phase === 'linger'){
+      /* contact made — hold the linger window; the convo itself lives on
+         v.sfConvo and outlives the order */
+      if(sfAbsNow() >= a.lingerUntil){ a.done = true; v.state = 'idle'; }
+      else { v.state = 'chat'; v.faceTo = { x: t.x, y: t.y }; }
       return;
     }
-    if(!v.sfPath || !v.sfPath.length) sfGoTo(v, c.wx, c.wy);
-    if(v.sfPath && v.sfPath.length){ sfFollowPath(v, dtH); return; }
-    a.shelter = null;      // unreachable door — rest where you stand
+    /* seek phase */
+    const canSee = sfPerceived(v, t);
+    if(!canSee && a.seenAt && !a.at){
+      /* was perceived at filing, gone now — the target left the field;
+         an interruption, not a failure */
+      a.interrupted = 'target_left'; a.done = true;
+      return;
+    }
+    let dest = null;
+    if(canSee) dest = { wx: Math.floor(t.x / CS), wy: Math.floor(t.y / CS) };
+    else if(a.atCell) dest = a.atCell;
+    else if(t.inBuilding && sfIsPublicVenue(t.inside) && sfFindPOI(t.inside))
+      dest = sfPoiDoor(sfFindPOI(t.inside));   // perceived inside a venue
+    if(!dest){ a.fail = "can't find them"; a.done = true; return; }
+
+    /* same-space + adjacent: the line lands */
+    const near = sfSameSpace(v, t) &&
+                 Math.hypot(v.x - t.x, v.y - t.y) <= CS * 2;
+    if(near){ sfTalkContact(v, t, a); return; }
+
+    /* target inside a PRIVATE home: never auto-enter — wait at the door;
+       if they step out mid-wait the line still lands */
+    if(t.inBuilding && t.inside && !sfIsPublicVenue(t.inside)){
+      const door = a.atCell || dest;
+      const dx = door.wx * CS + 16, dy = door.wy * CS + 16;
+      if(Math.hypot(v.x - dx, v.y - dy) < CS * 1.5){
+        v.sfPath = null; v.moving = false; v.state = 'idle';
+        a.waitingOutside = true;
+        v.faceTo = { x: dx, y: dy };
+        return;   // holds until holdH lapses -> expired+waiting_outside
+      }
+    }
+    /* leave our own venue unless the target shares it */
+    if((v.inside || v.inBuilding) && !(t.inBuilding && v.inside === t.inside))
+      sfExitPOI(v);
+    if(!v.sfPath || !v.sfPath.length) sfGoTo(v, dest.wx, dest.wy);
+    if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+    else { a.fail = 'unreachable'; a.done = true; }
+    return;
   }
-  // work | rest | idle — presence states, renderer shows them in place
+
+  /* say / leave / reflect — the act lands at filing; the order is
+     already done and resolves 'completed' on the end-write */
+  if(a.verb === 'say' || a.verb === 'leave' || a.verb === 'reflect'){
+    v.sfPath = null; v.moving = false;
+    v.state = 'idle'; a.done = true;
+    return;
+  }
+
+  /* work | rest | idle | sleep — presence verbs; `to` grounds them:
+     "there, doing this" */
+  if(a.cell && a.phase !== 'hold'){
+    sfGroundStep(v, a, dtH);
+    return;
+  }
   v.sfPath = null; v.moving = false;
-  v.state = (a.verb === 'rest' || a.verb === 'sleep') ? 'rest'
+  v.state = (a.verb === 'rest' || a.verb === 'sleep') ? a.verb
     : (a.verb === 'work' ? 'work' : 'idle');
 }
 
-/* ---------------- survival reflex (spec §5.3 — code, always wins) ----
-   SF's reflex set is deliberately thin today: a pawn the schedule left
-   asleep indoors cannot act (a fresh order arriving wakes it — see
-   sfAgentAct). The needs-floor top-ups in sfNpcTick are bookkeeping,
-   not reflexes — they never displace an order. Fire/flood/lightning
-   handlers land here the day SF grows them. */
-function sfReflexNow(v){
-  if(v && v.state === 'sleep' && v.inBuilding) return 'asleep';
-  return null;
+/* contact! — the opener lands: bubble, mutual observe, convo opens.
+   Speaker holds participating with the floor passed; target is
+   invited. The talk order then lingers (lingerH window). */
+function sfTalkContact(v, t, a){
+  v.sfPath = null; v.moving = false; v.state = 'chat';
+  v.faceTo = { x: t.x, y: t.y };
+  if(!a.said){
+    a.said = true;
+    sfSay(v, a.text);
+    if(typeof observe === 'function'){
+      observe(v, 'spoke with ' + (t.name || a.to), { topic: 'talk_' + t._castId,
+        source: 'direct', confidence: 0.95, salience: 0.7, bypassAttention: true });
+      observe(t, (v.name || 'someone') + ' said: "' + a.text + '"',
+        { topic: 'talk_' + v._castId, source: 'direct', confidence: 0.9,
+          salience: 0.7, bypassAttention: true });
+    }
+    if(typeof sfConvoOpen === 'function') sfConvoOpen(v, t, a.text);
+    if(typeof sfDispatchTrig === 'function')
+      sfDispatchTrig(t, 'convo_invite', 'T1', { from: v._castId || v.name });
+  }
+  a.phase = 'linger';
+  a.lingerUntil = sfAbsNow() + (a.lingerH || 0.5);
 }
-
-/* the verb registry — orders and directives share it, except that a
-   directive may not hold 'request': a will that auto-refiles public
-   requests is a pay-per-action spam loop, not a behavior */
-const SF_AGENT_VERBS = ['move', 'talk', 'work', 'rest', 'idle', 'sleep',
-                        'request'];
-
-/* absolute sim-hour clock — orders and wills must not un-lapse when
-   tod wraps past midnight */
-function sfAbsNow(){ return W.day * 24 + W.tod; }
 
 /* normalize a filed directive (or a chain entry) into the durable
    will shape. `until` inherits the root's horizon on chain hops. */
@@ -33407,21 +33587,63 @@ function sfAgentDirNorm(d, until){
 }
 
 /* validate a directive filing — walks the whole .then chain so a bad
-   verb is named at filing, not discovered mid-gap */
+   verb is named at filing, not discovered mid-gap. why is required on
+   every link now (design §2.1: every act carries an in-fiction reason). */
 function sfAgentDirCheck(d){
   let cur = d, depth = 0;
   while(cur && typeof cur === 'object' && depth++ < 8){
     const dv = String(cur.verb || '').toLowerCase();
-    if(SF_AGENT_VERBS.indexOf(dv) < 0)
-      return 'unknown directive verb ' + dv;
-    if(dv === 'request')
-      return 'a directive cannot file requests — standing wills do ' +
-             'not spend';
-    if(['rest', 'sleep', 'idle'].indexOf(dv) >= 0 &&
-       !String(cur.why || '').trim())
-      return 'rest/idle directive needs a "why" (fatigue, night, ' +
-             'rain — what justifies it)';
+    if(SF_DIR_VERBS.indexOf(dv) < 0)
+      return 'verb ' + (dv || '?') + ' cannot be a standing will ' +
+             '(no request/say/leave/reflect)';
+    if(!String(cur.why || '').trim())
+      return 'directive needs a "why" — one in-fiction sentence';
     cur = cur.then;
+  }
+  return null;
+}
+
+/* validate a live act filing — syntax only, never semantics */
+function sfAgentActCheck(v, act){
+  const verb = String(act.verb || '').toLowerCase();
+  if(SF_AGENT_VERBS.indexOf(verb) < 0)
+    return 'unknown verb ' + (verb || '?');
+  if(!String(act.why || '').trim())
+    return 'every act needs a "why" — one in-fiction sentence a watcher ' +
+           'could overhear';
+  if(verb === 'move' && !act.to)
+    return 'move needs "to" — a place name, an address, or "home"';
+  if(verb === 'talk'){
+    if(!act.to) return 'talk needs "to" — who';
+    if(!String(act.text || '').trim())
+      return 'talk needs "text" — there is no default hey';
+    const t = sfPawnOf(act.to);
+    if(t === v) return 'cannot talk to self';
+  }
+  if(verb === 'say'){
+    if(!String(act.text || '').trim())
+      return 'say needs "text" — code never invents a line';
+    if(!v.sfConvo || v.sfConvo.state === 'ended' ||
+       v.sfConvo.state === 'dropped')
+      return 'no active conversation — say lives on the channel';
+  }
+  if(verb === 'leave'){
+    if(!v.sfConvo || v.sfConvo.state === 'ended' ||
+       v.sfConvo.state === 'dropped')
+      return 'no active conversation to leave';
+  }
+  if(verb === 'reflect'){
+    if(!Array.isArray(act.insights) || !act.insights.length ||
+       !act.insights.every(s => String(s || '').trim()))
+      return 'reflect needs insights[] — 1–3 first-person sentences';
+  }
+  if(verb === 'request'){
+    if(act.kind !== 'weather' && act.kind !== 'street_event')
+      return 'request needs kind: "weather" | "street_event"';
+    if(act.kind === 'weather' && !act.wx)
+      return 'weather request needs wx (e.g. "clear"|"rain")';
+    if(act.kind === 'street_event' && !act.event)
+      return 'street_event request needs event (e.g. "block_party")';
   }
   return null;
 }
@@ -33436,71 +33658,83 @@ function sfAgentIssue(v, act){
   const holdH = Math.min(2, Math.max(0.25, +(act.holdH || 1.25))); // ≤2 sim-hrs
 
   if(verb === 'move'){
-    /* resolve: POI name -> anchor key (g744, park_center...) ->
-       street address ("744 Guerrero") via the registry */
-    let cell = null, label = null;
-    const p = sfFindPOI(act.to);
-    if(p){ cell = sfHomeCell({ poi: p.name }); label = p.name; }
-    else{
-      cell = sfAnchorCell(act.to);
-      if(!cell && typeof gsParseAddress === 'function'){
-        const pa = gsParseAddress(act.to);
-        if(pa && pa.bld && pa.bld.bld_idx != null &&
-           SF_DOOR_OF.has(pa.bld.bld_idx)){
-          cell = SF_DOOR_OF.get(pa.bld.bld_idx);
-          label = pa.address;
-        }
-      } else if(cell) label = String(act.to);
-    }
-    if(!cell) return { ok: false, err: 'unknown place: ' + act.to };
-    return { ok: true, going: label,
-             order: { verb: 'move', poi: label, cell,
+    const pl = sfResolvePlace(v, act.to);
+    if(!pl || !pl.cell) return { ok: false, err: 'unknown place: ' + act.to };
+    return { ok: true, going: pl.label,
+             order: { verb: 'move', poi: pl.public ? pl.label : null,
+                      enter: pl.inside || (pl.home ? 'home' : null),
+                      home: !!pl.home, cell: pl.cell,
                       until: sfAbsNow() + holdH } };
   }
+
   if(verb === 'talk'){
     const t = sfPawnOf(act.to);
     if(!t) return { ok: false, err: 'unknown person: ' + act.to };
-    if(t === v) return { ok: false, err: 'cannot talk to self' };
+    /* perception gate (design §2.2): the target must be in the pawn's
+       perceptual field, OR the brain names where to look ("at"). A bare
+       unperceived target is still filed — the seek fails honestly at
+       tick with "can't find them" rather than pretending knowledge. */
+    const seen = sfPerceived(v, t);
+    const atPl = act.at ? sfResolvePlace(v, act.at) : null;
+    if(!seen && !atPl){
+      /* nowhere to seek: honest fast-fail at filing, suggest if the
+         pawn has a last-known spot for them */
+      const sug = (t.inside && sfIsPublicVenue(t.inside)) ? t.inside : null;
+      return { ok: true, order: { verb: 'talk', to: act.to, text: act.text,
+        phase: 'seek', until: sfAbsNow() + Math.min(holdH, 0.75),
+        lingerH: Math.min(2, Math.max(0.25, +(act.lingerH || 0.5))),
+        prefail: "can't find them", suggest: sug } };
+    }
     return { ok: true, talking: t.name,
-             order: { verb: 'talk', to: act.to, text: act.text || 'hey',
+             order: { verb: 'talk', to: act.to, text: act.text,
+                      phase: 'seek', seenAt: seen ? { x: t.x, y: t.y } : null,
+                      at: act.at || null,
+                      atCell: atPl ? atPl.cell : null,
+                      atLabel: atPl ? atPl.label : null,
+                      until: sfAbsNow() + holdH,
+                      lingerH: Math.min(2, Math.max(0.25, +(act.lingerH || 0.5))) } };
+  }
+
+  if(verb === 'say' || verb === 'leave' || verb === 'reflect'){
+    /* the utterance/gesture resolves at filing — the parked order is a
+       done marker that reports 'completed' on the next tick */
+    return { ok: true,
+             order: { verb, done: true,
                       until: sfAbsNow() + Math.min(holdH, 0.5) } };
   }
+
   if(verb === 'work' || verb === 'rest' || verb === 'idle' ||
      verb === 'sleep'){
-    /* v13 timepiece: rest is a sheltered act. Outdoors it routes home
-       (or the nearest interior) first; in rain it's refused outright
-       with a suggestion — nobody naps on a wet sidewalk. */
-    const napping = (verb === 'rest' || verb === 'sleep');
-    if(napping && !v.inBuilding && typeof gsTimeShelter === 'function'){
-      const shel = gsTimeShelter(v);
-      if((W.rain || 0) > 0.05)
-        return { ok: false,
-          err: 'resting outdoors in the rain — ' +
-            (shel ? 'head for ' + shel.label + ' first'
-                  : 'find a roof first'),
-          suggest: shel ? shel.label : 'indoors' };
-      if(shel){
-        return { ok: true, state: 'rest', sheltering: shel.label,
-                 order: { verb: 'rest', until: sfAbsNow() + holdH,
-                          shelter: shel } };
-      }
+    /* presence verbs: "at <to>, do <verb>". The old rain veto and auto-
+       shelter are gone — outdoors executes, consequences are the body's. */
+    let cell = null, enter = null, label = null;
+    if(act.to){
+      const pl = sfResolvePlace(v, act.to);
+      if(!pl || !pl.cell)
+        return { ok: false, err: 'unknown place: ' + act.to };
+      cell = pl.cell; label = pl.label;
+      if(pl.public) enter = pl.label;
+      else if(pl.home) { enter = 'home'; }
+      else if(pl.inside) enter = pl.inside;
     }
-    return { ok: true, state: napping ? 'rest' : verb,
-             order: { verb: napping ? 'rest' : verb,
+    return { ok: true, state: verb, going: label,
+             order: { verb, cell, enter,
+                      enterLabel: label,
+                      phase: cell ? 'go' : 'hold',
                       until: sfAbsNow() + holdH } };
   }
+
   if(verb === 'request'){
     /* the agent steps out of the fiction and files as a spectator —
-       the real bus: screen → lane → bill → review. Public-good kinds
-       only: no possess (mains are banned), no hire/buy/listing. */
+       the real bus: screen → lane → bill → review. Params are required
+       (checked in sfAgentActCheck); standing wills may never carry it. */
     if(typeof gsSubmitRequest !== 'function')
       return { ok: false, err: 'request bus unavailable' };
-    const kind = (act.kind === 'weather') ? 'weather' : 'street_event';
-    const spec = { playerId: 'agent-' + v._castId, kind,
+    const spec = { playerId: 'agent-' + v._castId, kind: act.kind,
                    durationMin: Math.min(180, Math.max(15, +(act.durationMin || 30))),
                    params: { note: act.note || undefined } };
-    if(kind === 'weather') spec.params.wx = act.wx || 'clear';
-    else { spec.params.event = act.event || 'block_party';
+    if(act.kind === 'weather') spec.params.wx = act.wx;
+    else { spec.params.event = act.event;
            if(act.at) spec.params.at = act.at; }
     const r = gsSubmitRequest(spec);
     return { ok: true, request: r };
@@ -33508,34 +33742,79 @@ function sfAgentIssue(v, act){
   return { ok: false, err: 'unknown verb ' + verb };
 }
 
-/* one action from an external mind. The POST may carry a STANDING
-   DIRECTIVE (spec §5.2 — the brain's durable last will for the gap
-   between its turns): `directive` as a sibling field (driver), or
-   `act.directive` / `act.then` (spellings accepted). Code executes it
-   at order end, never invents it (user decision 2026-09-23). */
+/* one action from an external mind. The POST carries an immediate
+   `order` plus a STANDING DIRECTIVE (the brain's durable last will for
+   the gap between turns) — `directive` as a sibling field (driver), or
+   `act.directive` / `act.then` spellings accepted. Code executes it at
+   order end, never invents it. */
 function sfAgentAct(cid, act, meta){
   const v = sfPawnOf(cid);
   if(!v) return { ok: false, err: 'no character ' + cid };
   act = act || {}; meta = meta || {};
-  /* stale-order guard (pitfall §5.7.8): a late turn must not stomp a
-     newer filing — seq is the driver's monotonic turn id */
+  /* stale-order guard: a late turn must not stomp a newer filing —
+     seq is the driver's monotonic turn id */
   const seq = (meta.seq != null) ? meta.seq
             : (act.seq != null ? act.seq : null);
   if(seq != null && v._agentSeq != null && seq < v._agentSeq)
     return { ok: false, err: 'stale order — turn ' + seq +
            ' already superseded by turn ' + v._agentSeq };
+
+  const bad = sfAgentActCheck(v, act);
+  if(bad) return { ok: false, err: bad };
+
   const r = sfAgentIssue(v, act);
   if(r.ok){
     if(seq != null) v._agentSeq = seq;
+    r.order && (r.order.seq = seq);
+    /* ---- interiority fields ride every filing (design §2.1) ---- */
+    if(act.mood != null && String(act.mood).trim())
+      v.sfMood = { text: String(act.mood).slice(0, 60),
+                   since: sfAbsNow(), day: W.day };
+    if(Array.isArray(act.concerns) && act.concerns.length)
+      v.sfConcerns = act.concerns.slice(0, 5).map(s => String(s).slice(0, 80));
+    if(act.do && String(act.do).trim()){
+      v.doText = String(act.do).slice(0, 60);   // ≤8-word gesture caption
+      v.doUntil = W.tod + 0.3;
+    }
+    if(act.intent && typeof act.intent === 'object' &&
+       typeof sfIntentArm === 'function')
+      r.intentArmed = sfIntentArm(v, act.intent);
+    if(act.endSay && String(act.endSay).trim() &&
+       typeof observe === 'function')
+      observe(v, String(act.endSay), { kind: 'convo', source: 'memory',
+        topic: 'convo_' + ((v.sfLastConvo && v.sfLastConvo.with) || 'self'),
+        confidence: 0.85, salience: 0.7, bypassAttention: true });
+    if(Array.isArray(act.insights) && act.insights.length &&
+       typeof observe === 'function'){
+      for(const ins of act.insights.slice(0, 3))
+        observe(v, String(ins), { kind: 'reflection', source: 'memory',
+          topic: 'reflection', confidence: 0.9, salience: 0.8,
+          bypassAttention: true });
+      v.sfLastReflectAt = sfAbsNow();
+    }
+    v.sfLastWhy = act.why || meta.reason || null;
+
+    /* ---- conversation verbs resolve at filing ---- */
+    const verb = String(act.verb || '').toLowerCase();
+    if(verb === 'say' && typeof sfConvoSay === 'function')
+      sfConvoSay(v, act.text);
+    if(verb === 'leave' && typeof sfConvoLeave === 'function')
+      r.left = sfConvoLeave(v, 'left');
+    /* a non-say brain turn while holding the floor still passes it —
+       the pause IS the reply; a `do` gesture rides the tail */
+    if(v.sfConvo && v.sfConvo.yourTurn && verb !== 'say' &&
+       verb !== 'leave' && typeof sfConvoPass === 'function')
+      sfConvoPass(v, act.do);
+
     /* the standing will is processed on ANY accepted filing — a
        request-only act may still restate (or intentionally lapse) it */
     const d = meta.directive || act.directive || act.then;
     if(d && typeof d === 'object'){
-      const bad = sfAgentDirCheck(d);
-      if(bad){ r.thenDropped = bad; v.sfDirective = null; }
+      const badD = sfAgentDirCheck(d);
+      if(badD){ r.thenDropped = badD; v.sfDirective = null; }
       else{
         /* three identical standing wills in a row = the brain coasting
-           — flagged on the reply + the record, never vetoed (§5.6) */
+           — flagged on the reply + the record, never vetoed */
         const sig = String(d.verb || '').toLowerCase() + '|' +
                     String(d.to || '');
         v._dirStreak = (v._dirSig === sig) ? (v._dirStreak || 0) + 1 : 1;
@@ -33545,34 +33824,47 @@ function sfAgentAct(cid, act, meta){
           r.dirFlag = 'directive_repeat x' + v._dirStreak;
       }
     } else {
-      /* §5.5 — no silent carry-over: a turn that doesn't restate the
-         will lets it lapse. The gap state makes the lapse visible. */
+      /* no silent carry-over: a turn that doesn't restate the will lets
+         it lapse. The gap state makes the lapse visible. */
       v.sfDirective = null;
       v._dirStreak = 0; v._dirSig = null;
+    }
+
+    if(r.order && r.order.prefail){
+      /* unlocatable talk: accepted, fails on the first tick into
+         lastOrder — the brain reads "can't find them" next turn */
+      r.order.fail = r.order.prefail; r.order.done = true;
+      r.order.err = r.order.prefail;
+      if(r.order.suggest) r.suggest = r.order.suggest;
+      delete r.order.prefail;
     }
     if(r.order){
       /* a live order replaced mid-flight ends 'interrupted' — the
          brain reads the outcome next turn (interruption ≠ expiry) */
       if(v.sfAgent && !v.sfAgent.done && sfAbsNow() <= v.sfAgent.until)
         v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
-          interruptedBy: 'new_order', at: W.tod, day: W.day };
+          interruptedBy: 'new_order', seq: v.sfAgent.seq,
+          at: W.tod, day: W.day };
       r.order.why = act.why || meta.reason || null;  // why travels
       v.sfAgent = r.order;
       v.sfAgentDriven = true;
       v.sfGap = false;
       /* a fresh order is the brain deciding to wake — honest exit */
-      if(v.state === 'sleep') v.state = 'idle';
+      if(v.state === 'sleep' && verb !== 'sleep' && verb !== 'rest')
+        v.state = 'idle';
     }
+    /* the dispatch ledger: this filing IS the brain call — record it,
+       clear the served triggers (38_sf_brain.js) */
+    if(typeof sfDispatchServed === 'function') sfDispatchServed(v);
   }
   return r;
 }
 
 /* order end → the standing directive becomes the new order. It re-
    issues through the SAME interpreter, so a stale 'move' resolves
-   against the live world and a rainy-day 'rest' fails honest (the pawn
-   then stands in the honest gap — never a code-invented behavior).
-   Freshness + repeat budget gate promotion; a chained directive
-   inherits the root's horizon. */
+   against the live world and presence verbs ground "at <to>, do <verb>"
+   through the same navigate-then-hold path. Freshness + repeat budget
+   gate promotion; a chained directive inherits the root's horizon. */
 function sfAgentNext(v){
   const d = v && v.sfDirective;
   if(!d || typeof d !== 'object') return null;
@@ -33598,18 +33890,19 @@ function sfAgentNext(v){
 }
 
 /* observable state only — the playtest briefing rule.
-   v13: no pushed clock. `senses` + `felt` are generated per-pawn;
-   exact time is pulled via opts.glance ('phone'|'wallclock'|'ask'). */
+   No pushed clock (glance pulls), no routine field (the BRIEF carries
+   life context — audit site 18). `mind` is the interiority surface;
+   `convo`/`lastConvo` carry the channel; `archive` appears on
+   ?reflect=1. */
 function sfAgentState(cid, opts){
   const v = sfPawnOf(cid);
   if(!v) return null;
   opts = opts || {};
-  const poi = v.inside ? sfFindPOI(v.inside) : null;
   const here = v.inside ? ('inside ' + v.inside)
     : (function(){
         let best = null, bd = 60;
         for(const p of SF_POIS){
-          const c = sfHomeCell({ poi: p.name });
+          const c = sfPoiDoor(p);
           const d = Math.hypot(v.x - (c.wx * CS + 16), v.y - (c.wy * CS + 16));
           if(d < bd){ bd = d; best = p; }
         }
@@ -33620,13 +33913,16 @@ function sfAgentState(cid, opts){
     if(o === v || !o._castId) continue;
     const d = Math.hypot(v.x - o.x, v.y - o.y);
     if(d >= CS * 8) continue;
-    // a passerby sees only their own space: street sees street, venue
-    // sees venue
+    /* a passerby sees only their own space: street sees street, venue
+       sees venue */
     const sameSpace = v.inBuilding ? (o.inBuilding && o.inside === v.inside)
                                    : !o.inBuilding;
     if(!sameSpace) continue;
-    near.push({ id: o._castId, name: o.name, dist: Math.round(d / CS * 2) + 'm',
-                doing: o.state, says: (o.sayUntil > W.tod ? o.sayText : null) });
+    near.push({ id: o._castId, name: o.name,
+                dist: Math.round(d / CS * 2) + 'm',
+                doing: o.state,
+                says: (o.sayUntil > W.tod ? o.sayText : null),
+                do: (o.doUntil > W.tod ? o.doText : null) });
   }
   /* wire lines keep their text but drop the '[HH:MM]' stamp — a
      bystander hears the neighborhood, not a clock face */
@@ -33634,7 +33930,7 @@ function sfAgentState(cid, opts){
     .map(e => (e.who ? e.who + ': ' : '') + e.text);
   const b = v.body || {};
   const st = {
-    /* spec §3: the "now" sentence goes FIRST — LLMs weight early tokens */
+    /* the "now" sentence goes FIRST — LLMs weight early tokens */
     senses: (typeof gsTimeSenses === 'function')
       ? gsTimeSenses(v) : null,
     felt: (typeof gsTimeFelt === 'function')
@@ -33646,14 +33942,16 @@ function sfAgentState(cid, opts){
              fatigue: +(b.fatigue || 0).toFixed(2) },
     nearby: near, wire,
     order: v.sfAgent ? { verb: v.sfAgent.verb,
-                         target: v.sfAgent.poi || v.sfAgent.to || null,
+                         target: v.sfAgent.poi || v.sfAgent.to ||
+                                 v.sfAgent.atLabel || null,
                          status: 'active',
+                         phase: v.sfAgent.phase || null,
                          untilH: +((v.sfAgent.until - sfAbsNow()).toFixed(2)),
                          why: v.sfAgent.why || null } : null,
-    /* §5.4 — outcome reporting: the brain reads lastOrder every turn;
-       a live gap means "your will ran out, we did not invent one" */
+    /* outcome reporting: the brain reads lastOrder every turn; a live
+       gap means "your will ran out, we did not invent one" */
     lastOrder: v.sfAgentResult || null,
-    /* the brain can see its own standing will persisted (§5.2) */
+    /* the brain can see its own standing will persisted */
     directive: v.sfDirective ? { verb: v.sfDirective.verb,
                                  to: v.sfDirective.to || null,
                                  why: v.sfDirective.why || null,
@@ -33664,12 +33962,17 @@ function sfAgentState(cid, opts){
                                    ? 'repeated_default' : null } : null,
     gap: !!v.sfGap,
     reflex: v.sfReflex || null,
-    /* numeric hours, never 'HH:MM' — the spec's clock-regex stays clean */
-    routine: (v.sfSched || []).map(s => ({ start: s.h0, end: s.h1,
-      at: (s.to && s.to.poi ? s.to.poi : (s.to && s.to.anchor) || 'around') })),
+    /* v16 interiority surface (design §4.2–4.3) — computed per read so
+       what surfaces is always the pawn's CURRENT mind */
+    mind: (typeof sfMindScan === 'function') ? sfMindScan(v) : null,
+    convo: (typeof sfConvoState === 'function') ? sfConvoState(v) : null,
+    lastConvo: (v.sfLastConvo &&
+                sfAbsNow() - v.sfLastConvo.at < 1.0) ? v.sfLastConvo : null,
   };
   if(opts.glance && typeof gsTimeGlance === 'function')
     st.glance = gsTimeGlance(v, opts.glance, opts);
+  if(opts.reflect && typeof sfReflectArchive === 'function')
+    st.archive = sfReflectArchive(v);
   return st;
 }
 
@@ -33871,6 +34174,651 @@ if(typeof window !== 'undefined'){
   window.__aiBridge.sfCamList = sfCamList;
   window.__aiBridge.sfCamRender = sfCamRender;
   window.__aiBridge.sfCamWatch = sfCamWatch;
+}
+
+/* =====================================================================
+   PART 38 — SF BRAIN: interiority surface + conversation channel +
+   event-driven dispatch (v16 "the becoming brain")
+
+   The engine owns logistics and the sensorium; the brain owns every
+   intention. This module provides:
+
+   - sfDispatchTick / sfDispatchPoll: the per-main trigger queue the
+     driver drains. Triggers (cost-research B1): order_end, gap,
+     directive_expiry, convo_invite / convo_floor / convo_end, salient,
+     intent_fired, needs, env, heartbeat, sleep_refile. Tier routing:
+     T0 = cheap refills on unchanged context (directive_expiry, mild
+     needs, quiet heartbeat, obvious gap), T1 = the cast model (all
+     decisions/speech/intents/recovery), T2 = reflect offer only.
+     Rate caps: min spacing 0.25 sim-h per main EXCEPT inside convos
+     (floor pass ~0.04 sim-h); max 10 calls/sim-h hard stop. Heartbeat
+     floor ~3.5 waking sim-h. Sleepers queue event triggers for wake;
+     only cueType:"time" intents + ONE mid-sleep refile fire in sleep.
+
+   - Conversation channel (design §4.3): invited → participating →
+     ended|dropped. Floor bookkeeping (yourTurn), '?'-line obligations,
+     caps (16 utterances / 1.5 sim-h), asymmetric leave, per-party POV
+     endSay memory writes, thinned overhear records.
+
+   - Armed intentions (design §2.1 act.intent / §4.1): v.sfIntents[],
+     cue-matched each brain tick — event cues on perceived `who`/
+     place, time cues as alarms (the only intents that fire in sleep).
+
+   - sfMindScan (design §4.2): the `mind` block — mood echo, concerns,
+     surface (fired intentions, open loops, cue-matched recalls —
+     intrinsic weight order, never curated), people models, lastTurn.
+
+   - sfReflectArchive (design §4.4): ?reflect=1 raw material — top
+     salient records since last reflect + open obligations + intents.
+   ===================================================================== */
+
+/* ---------------- dispatch ledger ---------------- */
+
+const SF_MIN_SPACE_H  = 0.25;   // min sim-h between brain calls per main
+const SF_MAX_CALLS_H  = 10;     // hard stop per sim-hour
+const SF_HEARTBEAT_H  = 3.5;    // waking floor: ~1 pulse per 3–4 sim-h
+const SF_CONVO_FLOOR_H = 0.04;  // ~2.4 sim-min per floor pass
+const SF_DIR_EARLY_H  = 0.25;   // directive expiry lookahead
+const SF_INVITE_TTL_H = 0.5;    // ~30 sim-min to answer an invitation
+const SF_CONVO_MAX_UTT = 16;
+const SF_CONVO_MAX_H   = 1.5;
+
+function sfDispOf(v){
+  if(!v.sfDisp)
+    v.sfDisp = { pending: [], callsAt: [], lastCallAt: null,
+                 sleepStart: null, sleepRefiled: false,
+                 needsBand: false, envSig: -1, viewSet: [] };
+  return v.sfDisp;
+}
+
+/* enqueue a trigger (deduped by kind); tier is the routing decision —
+   the driver reads it to pick the model */
+function sfDispatchTrig(v, kind, tier, detail){
+  const d = sfDispOf(v);
+  for(const p of d.pending) if(p.kind === kind) return;
+  d.pending.push({ kind, tier, detail: detail || null,
+                   at: sfAbsNow(), dispatchedAt: null });
+}
+
+/* a brain filing IS the call — record it, clear the served triggers */
+function sfDispatchServed(v){
+  const d = sfDispOf(v);
+  const now = sfAbsNow();
+  d.lastCallAt = now;
+  d.callsAt.push(now);
+  d.callsAt = d.callsAt.filter(t => now - t < 1);
+  d.pending = [];
+}
+
+/* does the current moment carry anything a T0 shouldn't decide on? —
+   fresh non-completed outcome, live convo, freshly fired intent, or
+   needs already in the felt band */
+function sfSurfaceBusy(v){
+  const r = v.sfAgentResult;
+  if(r && !r._disp && (r.status === 'failed' || r.status === 'interrupted'))
+    return true;
+  if(v.sfConvo && v.sfConvo.state !== 'ended' && v.sfConvo.state !== 'dropped')
+    return true;
+  const now = sfAbsNow();
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt && now - it.firedAt < 0.5) return true;
+  const b = v.body || {};
+  if((b.satiety != null && b.satiety < 0.35) ||
+     (b.hydration != null && b.hydration < 0.35) ||
+     (b.fatigue != null && b.fatigue > 0.7)) return true;
+  return false;
+}
+
+/* ---------------- per-main trigger scan (runs on the sim tick) ------ */
+function sfDispatchTick(v, dtH){
+  const d = sfDispOf(v);
+  const now = sfAbsNow();
+  const asleep = v.state === 'sleep';
+
+  if(asleep){
+    if(d.sleepStart == null){ d.sleepStart = now; d.sleepRefiled = false; }
+    /* exactly one mid-sleep refile per night — the untilH≤6 bound makes
+       a 7–9h sleep outlive its will; the refile is the honest fix */
+    if(!d.sleepRefiled && now - d.sleepStart >= 2){
+      d.sleepRefiled = true;
+      sfDispatchTrig(v, 'sleep_refile', 'T0', null);
+    }
+    /* only cueType:"time" intents fire in sleep — the alarm clock */
+    sfIntentScan(v, true);
+    return;   // event triggers queue until wake — never wake a sleeper
+  }
+  d.sleepStart = null;
+
+  /* 1 — order ended badly: interruption/failure forces a re-decide.
+     A 'new_order' interruption is the brain's own filing superseding
+     itself — it already knows; no re-dispatch. */
+  const r = v.sfAgentResult;
+  if(r && !r._disp && (r.status === 'failed' || r.status === 'interrupted')){
+    r._disp = true;
+    if(r.interruptedBy !== 'new_order')
+      sfDispatchTrig(v, 'order_end', 'T1',
+        { verb: r.verb, status: r.status,
+          interruptedBy: r.interruptedBy || null, err: r.err || null });
+  }
+  if(r && !r._disp && r.status === 'completed' && !v.sfAgent &&
+     !v.sfDirective) r._disp = true;   // quiet completion → gap covers it
+
+  /* 2 — the intention gap: the will lapsed publicly */
+  if(v.sfGap)
+    sfDispatchTrig(v, 'gap', sfSurfaceBusy(v) ? 'T1' : 'T0', null);
+
+  /* 3 — the will is about to lapse while it should keep running */
+  if(v.sfDirective){
+    const left = v.sfDirective.until - now;
+    if(left > 0 && left <= SF_DIR_EARLY_H)
+      sfDispatchTrig(v, 'directive_expiry', 'T0',
+        { verb: v.sfDirective.verb, leftH: +left.toFixed(2) });
+  }
+
+  /* 4 — conversation channel: invite, floor pass, end/drop */
+  const cv = v.sfConvo;
+  if(cv){
+    if(cv.state === 'invited')
+      sfDispatchTrig(v, 'convo_invite', 'T1', { from: cv.partner });
+    else if(cv.state === 'participating' && cv.yourTurn &&
+            (d.lastCallAt == null || now - d.lastCallAt >= SF_CONVO_FLOOR_H))
+      sfDispatchTrig(v, 'convo_floor', 'T1', { with: cv.partner });
+  }
+
+  /* 5 — salient perception: a bonded main or armed-intent `who` entering
+     view, or someone collapsing in view */
+  const seen = [];
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId || !sfIsMain(o)) continue;
+    if(sfPerceived(v, o)) seen.push(o._castId);
+  }
+  for(const cid of seen){
+    if(d.viewSet.indexOf(cid) >= 0) continue;
+    const o = sfPawnOf(cid);
+    const bond = (v.bonds && o && v.bonds[o.name]) || 0;
+    const isIntentWho = (v.sfIntents || []).some(it =>
+      !it.firedAt && it.cueType !== 'time' && it.who &&
+      (it.who === cid || (o && it.who === o.name)));
+    if(bond >= 0.4 || isIntentWho)
+      sfDispatchTrig(v, 'salient', 'T1',
+        { kind: 'arrival', who: cid });
+  }
+  d.viewSet = seen;
+  for(const o of VILLAGERS){
+    if(o === v || o.dead) continue;
+    if(o.state === 'downed' && sfPerceived(v, o)){
+      sfDispatchTrig(v, 'salient', 'T1',
+        { kind: 'collapse', who: o._castId || o.name });
+      break;
+    }
+  }
+
+  /* 6 — armed intentions firing (event + time cues while awake) */
+  sfIntentScan(v, false);
+
+  /* 7 — needs crossing the felt band (mild → T0, severe → T1) */
+  const b = v.body || {};
+  const inBand = (b.satiety != null && b.satiety < 0.35) ||
+                 (b.hydration != null && b.hydration < 0.35) ||
+                 (b.fatigue != null && b.fatigue > 0.7);
+  const severe = (b.satiety != null && b.satiety < 0.15) ||
+                 (b.hydration != null && b.hydration < 0.15) ||
+                 (b.fatigue != null && b.fatigue > 0.9);
+  if(inBand && !d.needsBand)
+    sfDispatchTrig(v, 'needs', severe ? 'T1' : 'T0',
+      { satiety: +(b.satiety || 0).toFixed(2),
+        hydration: +(b.hydration || 0).toFixed(2),
+        fatigue: +(b.fatigue || 0).toFixed(2) });
+  if(!inBand) d.needsBand = false;
+  else d.needsBand = true;
+
+  /* environment is a TRIGGER CLASS, never a behavior: weather/crowd
+     transitions surface salience — the brain decides what to do */
+  const envSig = (W.rain > 0.15 ? 1 : 0) | (W.storm > 0.2 ? 2 : 0);
+  if(d.envSig >= 0 && envSig !== d.envSig)
+    sfDispatchTrig(v, 'env', 'T1',
+      { rain: +(W.rain || 0).toFixed(2), storm: +(W.storm || 0).toFixed(2) });
+  d.envSig = envSig;
+
+  /* 9 — heartbeat floor: ~1 pulse per 3–4 waking sim-h. Honest: the
+     brain refiles the will or files a real why/do — never fake-busy */
+  if(d.lastCallAt == null || now - d.lastCallAt >= SF_HEARTBEAT_H)
+    sfDispatchTrig(v, 'heartbeat', sfSurfaceBusy(v) ? 'T1' : 'T0', null);
+}
+
+/* the driver-facing dispatch surface: per main, the next due trigger
+   (rate-capped), the queued kinds, and why a pending head is blocked */
+function sfDispatchPoll(){
+  const out = { now: +sfAbsNow().toFixed(3), tod: +W.tod.toFixed(2),
+                day: W.day, per: {} };
+  for(const v of VILLAGERS){
+    if(!sfIsMain(v)) continue;
+    const cid = v._castId || v.name;
+    const d = sfDispOf(v);
+    const now = sfAbsNow();
+    d.callsAt = d.callsAt.filter(t => now - t < 1);
+    const inConvo = !!(v.sfConvo && v.sfConvo.state !== 'ended' &&
+                       v.sfConvo.state !== 'dropped');
+    const minSpace = inConvo ? SF_CONVO_FLOOR_H : SF_MIN_SPACE_H;
+    const spacingOk = d.lastCallAt == null || (now - d.lastCallAt) >= minSpace;
+    const capOk = d.callsAt.length < SF_MAX_CALLS_H;
+    let due = null, blocked = null;
+    for(const p of d.pending){
+      /* already dispatched and the brain hasn't answered — re-surface
+         after ~0.75 sim-h (dead-brain recovery) */
+      if(p.dispatchedAt != null && now - p.dispatchedAt < 0.75) continue;
+      if(!spacingOk){ blocked = 'spacing'; break; }
+      if(!capOk){ blocked = 'cap'; break; }
+      p.dispatchedAt = now;
+      due = { kind: p.kind, tier: p.tier, detail: p.detail, at: p.at };
+      break;
+    }
+    out.per[cid] = { due, queued: d.pending.map(p => p.kind),
+                     blocked,
+                     lastCallAgoH: d.lastCallAt == null ? null
+                       : +(now - d.lastCallAt).toFixed(2),
+                     callsLastH: d.callsAt.length,
+                     asleep: v.state === 'sleep', gap: !!v.sfGap };
+  }
+  return out;
+}
+
+/* ---------------- the conversation channel (design §4.3) ------------ */
+
+const SF_CONVOS = {};
+let SF_CONVO_N = 0;
+
+function sfConvoGet(v){
+  if(!v.sfConvo) return null;
+  return SF_CONVOS[v.sfConvo.id] || null;
+}
+
+/* talk contact opens the channel: speaker participates with the floor
+   passed; the target is invited (their say/talk accepts, leave declines,
+   silence drops it in ~0.5 sim-h) */
+function sfConvoOpen(v, t, openerText){
+  /* one convo per pawn — a fresh opener ends a stale one honestly */
+  if(v.sfConvo) sfConvoLeave(v, 'superseded');
+  if(t.sfConvo) sfConvoLeave(t, 'superseded');
+  const id = 'cv-' + W.day + '-' + (++SF_CONVO_N);
+  const aId = v._castId || v.name, bId = t._castId || t.name;
+  const cv = { id, a: aId, b: bId, since: sfAbsNow(), sinceDay: W.day,
+               tail: [{ who: aId, text: String(openerText).slice(0, 90),
+                        at: sfAbsNow() }],
+               obligations: [], utt: 1, turns: 1, endedHow: null };
+  SF_CONVOS[id] = cv;
+  v.sfConvo = { id, partner: bId, state: 'participating',
+                yourTurn: false, since: cv.since };
+  t.sfConvo = { id, partner: aId, state: 'invited',
+                yourTurn: true, since: cv.since };
+  if(/\?\s*$/.test(String(openerText).trim()))
+    cv.obligations.push({ from: aId, to: bId,
+      gist: String(openerText).trim().slice(-70), at: sfAbsNow(),
+      satisfied: false });
+  return cv;
+}
+
+/* a `say` filing: the utterance lands — bubble, tail, floor pass,
+   obligation bookkeeping, overhear thinning */
+function sfConvoSay(v, text){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return false;
+  const cid = v._castId || v.name;
+  if(mine.state === 'invited') mine.state = 'participating';
+  const partner = sfPawnOf(mine.partner);
+  const partnerSlot = partner && partner.sfConvo &&
+                      partner.sfConvo.id === cv.id ? partner : null;
+
+  cv.tail.push({ who: cid, text: String(text).slice(0, 90), at: sfAbsNow() });
+  if(cv.tail.length > 12) cv.tail = cv.tail.slice(-12);
+  cv.utt++; cv.turns++;
+  /* the floor passes on every utterance */
+  mine.yourTurn = false;
+  if(partnerSlot) partnerSlot.sfConvo.yourTurn = true;
+  /* a '?' opens an obligation on the partner */
+  if(/\?\s*$/.test(String(text).trim()))
+    cv.obligations.push({ from: cid, to: mine.partner,
+      gist: String(text).trim().slice(-70), at: sfAbsNow(),
+      satisfied: false });
+  /* speaking settles obligations the partner put on me */
+  for(const ob of cv.obligations)
+    if(ob.to === cid && !ob.satisfied) ob.satisfied = true;
+
+  sfSay(v, text);
+  if(typeof observe === 'function'){
+    observe(v, 'I said to ' + (partner ? partner.name : mine.partner) +
+      ': "' + String(text).slice(0, 70) + '"',
+      { kind: 'convo', topic: 'convo_' + cv.id, source: 'direct',
+        confidence: 0.95, salience: 0.6, bypassAttention: true });
+    if(partner)
+      observe(partner, (v.name || cid) + ' said: "' +
+        String(text).slice(0, 70) + '"',
+        { kind: 'convo', topic: 'convo_' + cv.id, source: 'direct',
+          confidence: 0.9, salience: 0.65, bypassAttention: true });
+    /* overhearers in earshot get the thinned version — presence, not
+       transcript */
+    for(const o of VILLAGERS){
+      if(o === v || o === partner || !o._castId) continue;
+      if(sfPerceived(v, o) && Math.hypot(v.x - o.x, v.y - o.y) <= CS * 5)
+        observe(o, 'heard ' + (v.name || cid) + ' and ' +
+          (partner ? partner.name : mine.partner) + ' talking',
+          { kind: 'convo', topic: 'overheard_' + cv.id, source: 'direct',
+            confidence: 0.5, salience: 0.25 });
+    }
+  }
+  /* the floor pass is itself a dispatch trigger on the partner */
+  if(partnerSlot && typeof sfDispatchTrig === 'function')
+    sfDispatchTrig(partner, 'convo_floor', 'T1', { with: cid });
+  /* caps: ≤16 utterances or ~1.5 sim-h — then it ends, cleanly */
+  if(cv.utt >= SF_CONVO_MAX_UTT || sfAbsNow() - cv.since >= SF_CONVO_MAX_H)
+    sfConvoEnd(cv, 'cap');
+  return true;
+}
+
+/* a served brain turn while holding the floor but not saying anything:
+   the pause IS the reply — the floor still passes, and a `do` beat
+   rides the tail so the partner sees the gesture */
+function sfConvoPass(v, doText){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return;
+  const cid = v._castId || v.name;
+  const partner = sfPawnOf(mine.partner);
+  mine.yourTurn = false;
+  if(partner && partner.sfConvo && partner.sfConvo.id === cv.id)
+    partner.sfConvo.yourTurn = true;
+  cv.turns++;
+  if(doText)
+    cv.tail.push({ who: cid, do: String(doText).slice(0, 60),
+                   at: sfAbsNow() });
+}
+
+/* asymmetric leave — always allowed, by either party, from any state */
+function sfConvoLeave(v, how){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine) return null;
+  if(cv) sfConvoEnd(cv, how || 'left');
+  else v.sfConvo = null;   // dangling slot — record already gone
+  return cv ? cv.id : mine.id;
+}
+
+/* shared convo teardown: both parties get lastConvo + open obligations
+   carry into mind.surface urges; a partner's live talk order reports
+   'convo_ended' */
+function sfConvoEnd(cv, how){
+  if(!cv || cv.endedHow) return;
+  cv.endedHow = how;
+  const now = sfAbsNow();
+  for(const pid of [cv.a, cv.b]){
+    const p = sfPawnOf(pid);
+    if(!p) continue;
+    p.sfConvo = null;
+    p.sfLastConvo = { with: pid === cv.a ? cv.b : cv.a,
+                     turns: cv.turns, endedHow: how, at: now };
+    /* unsatisfied obligations owed TO me become open loops */
+    p.sfObligations = (p.sfObligations || []).concat(
+      cv.obligations.filter(ob => ob.to === pid && !ob.satisfied)
+        .map(ob => ({ from: ob.from, gist: ob.gist, at: ob.at,
+                      satisfied: false })));
+    p.sfObligations = (p.sfObligations || []).slice(-6);
+    if(p.sfAgent && !p.sfAgent.done &&
+       (p.sfAgent.verb === 'talk' || p.sfAgent.verb === 'say')){
+      /* the parked order is interrupted, not silently completed — tag
+         it so the natural end-write reports the same interruption */
+      p.sfAgent.done = true;
+      p.sfAgent.interrupted =
+        how === 'no_answer' ? 'no_answer' : 'convo_ended';
+      p.sfAgentResult = { verb: p.sfAgent.verb, status: 'interrupted',
+        interruptedBy: p.sfAgent.interrupted,
+        seq: p.sfAgent.seq, at: W.tod, day: W.day };
+    }
+    if(typeof sfDispatchTrig === 'function')
+      sfDispatchTrig(p, 'convo_end', 'T1', { with: p.sfLastConvo.with,
+                                             how });
+  }
+  delete SF_CONVOS[cv.id];
+}
+
+/* per-tick convo maintenance: invited expiry, proximity gate, caps */
+function sfConvoTick(v, dtH){
+  const mine = v.sfConvo;
+  if(!mine) return;
+  const cv = sfConvoGet(v);
+  if(!cv){ v.sfConvo = null; return; }
+  const now = sfAbsNow();
+  if(mine.state === 'invited' && now - mine.since > SF_INVITE_TTL_H){
+    sfConvoEnd(cv, 'no_answer');   // inviter's order interrupts no_answer
+    return;
+  }
+  const partner = sfPawnOf(mine.partner);
+  if(!partner || partner.dead || partner.state === 'downed'){
+    sfConvoEnd(cv, 'dropped'); return;
+  }
+  if(mine.state === 'participating' || mine.state === 'invited'){
+    /* proximity gates the channel — a partner who walks off ends it,
+       after a short grace so a doorway shuffle doesn't kill it */
+    const near = sfSameSpace(v, partner) &&
+                 Math.hypot(v.x - partner.x, v.y - partner.y) <= CS * 10;
+    mine.apartH = near ? 0 : (mine.apartH || 0) + dtH;
+    if(mine.apartH > 0.15){ sfConvoEnd(cv, 'dropped'); return; }
+  }
+}
+
+/* the state-facing convo view (design §4.3 shape) */
+function sfConvoState(v){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return null;
+  const cid = v._castId || v.name;
+  return {
+    id: cv.id, state: mine.state,
+    partner: mine.partner,
+    yourTurn: !!mine.yourTurn,
+    tail: cv.tail.slice(-4).map(e =>
+      e.who + ': ' + (e.text ? '"' + e.text + '"' : '(' + e.do + ')')),
+    obligations: cv.obligations.filter(ob => ob.to === cid && !ob.satisfied)
+      .map(ob => ob.gist),
+    since: 'd' + cv.sinceDay + ' t' + (cv.since % 24).toFixed(1),
+    turns: cv.turns };
+}
+
+/* ---------------- armed intentions (design §2.1 intent / §4.1) ------ */
+
+function sfIntentArm(v, spec){
+  v.sfIntents = v.sfIntents || [];
+  if(v.sfIntents.length >= 8) v.sfIntents.shift();
+  let when = null;
+  if(typeof spec.when === 'number') when = spec.when;
+  else if(typeof spec.when === 'string'){
+    const m = spec.when.trim().match(/^(\d{1,2})(?::(\d{2}))?/);
+    if(m) when = (+m[1]) + (m[2] ? (+m[2]) / 60 : 0);
+  }
+  const it = { id: 'i' + Math.floor(sfAbsNow() * 100) + '-' +
+                   (v.sfIntents.length + 1),
+    deed: String(spec.deed || '').slice(0, 90),
+    condition: String(spec.condition || '').slice(0, 90),
+    cueType: spec.cueType === 'time' ? 'time' : 'event',
+    when, who: spec.who || null,
+    armedAt: sfAbsNow(), armedDay: W.day, firedAt: null };
+  v.sfIntents.push(it);
+  return it.id;
+}
+
+/* cue-match armed intentions. timeOnly=true while asleep (alarms only);
+   event cues need the target in the perceptual field. Returns the
+   intents that fired this scan. */
+function sfIntentScan(v, timeOnly){
+  const now = sfAbsNow();
+  const fired = [];
+  for(const it of (v.sfIntents || [])){
+    if(it.firedAt != null) continue;
+    if(it.cueType === 'time'){
+      if(it.when != null && W.tod >= it.when && W.tod < it.when + 0.5){
+        it.firedAt = now; fired.push(it);
+      }
+      continue;
+    }
+    if(timeOnly) continue;   // event cues queue until wake
+    if(it.who){
+      const t = sfPawnOf(it.who);
+      if(t && sfPerceived(v, t)){ it.firedAt = now; fired.push(it); }
+      continue;
+    }
+    /* no anchor — a place-named condition fires on arrival at a venue
+       whose name appears in the condition text */
+    if(it.condition && v.inside){
+      const nm = String(v.inside).toLowerCase();
+      const cond = String(it.condition).toLowerCase();
+      if(nm.split(/\s+/).some(w => w.length > 3 && cond.includes(w))){
+        it.firedAt = now; fired.push(it);
+      }
+    }
+  }
+  if(fired.length && typeof sfDispatchTrig === 'function')
+    sfDispatchTrig(v, 'intent_fired', 'T1',
+      { deeds: fired.map(i => i.deed) });
+  return fired;
+}
+
+/* ---------------- the mind surface (design §4.2) ------------------- */
+
+function sfMindScan(v){
+  const now = sfAbsNow();
+  const cid = v._castId || v.name;
+  const surface = [];
+
+  /* fired intentions — prospective memory surfacing, freshest first */
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt != null && now - it.firedAt < 1.0)
+      surface.push({ kind: 'fired_intention', deed: it.deed,
+                     condition: it.condition, w: 0.9 });
+
+  /* open loops — unanswered obligations carried out of convos */
+  for(const ob of (v.sfObligations || []))
+    if(!ob.satisfied && now - ob.at < 24)
+      surface.push({ kind: 'urge', about: ob.gist, who: ob.from,
+                     w: 0.7 });
+
+  /* stale armed intents nag — armed >6 sim-h ago, never fired */
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt == null && now - it.armedAt > 6)
+      surface.push({ kind: 'urge', about: it.deed,
+                     condition: it.condition, w: 0.5 });
+
+  /* recalls — recent-salient epistemic records cue-matched to what's
+     actually around: a nearby name/id in the record, or this place */
+  const nearNames = new Set();
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId) continue;
+    if(sfPerceived(v, o)){ nearNames.add(o._castId);
+      if(o.name) nearNames.add(o.name); }
+  }
+  if(v.epistemic && v.epistemic.memories){
+    const dayNow = W.day + W.tod / 24;
+    const hits = [];
+    for(const m of v.epistemic.memories){
+      if(m.superseded) continue;
+      if(dayNow - (m.when || 0) > 2) continue;
+      const hay = (String(m.topic || '') + ' ' +
+                   (typeof m.content === 'string' ? m.content : '') + ' ' +
+                   String(m.who || '')).toLowerCase();
+      let cue = null;
+      for(const nm of nearNames)
+        if(hay.includes(String(nm).toLowerCase())){ cue = nm; break; }
+      if(!cue && v.inside && hay.includes(String(v.inside).toLowerCase()))
+        cue = v.inside;
+      if(!cue) continue;
+      hits.push({ kind: 'recall',
+        gist: (typeof m.content === 'string' ? m.content : m.topic)
+              .slice(0, 80),
+        about: m.topic, w: +(m.salience * (m.confidence || 0.5)).toFixed(3) });
+    }
+    hits.sort((a, b) => b.w - a.w);
+    for(const h of hits.slice(0, 2)) surface.push(h);
+  }
+
+  /* intrinsic weight order, capped — never ranked for drama */
+  surface.sort((a, b) => (b.w || 0) - (a.w || 0));
+  const surf = surface.slice(0, 4).map(s => { delete s.w; return s; });
+
+  /* nearby-person models — bonds + open obligations, nothing invented */
+  const people = {};
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId || !sfIsMain(o)) continue;
+    if(!sfPerceived(v, o)) continue;
+    const bond = (v.bonds && o.name && v.bonds[o.name]) || 0;
+    const open = (v.sfObligations || [])
+      .filter(ob => !ob.satisfied && (ob.from === o._castId || ob.from === o.name))
+      .map(ob => ob.gist)[0] || null;
+    people[o._castId] = {
+      stance: bond >= 0.65 ? 'close' : bond >= 0.4 ? 'warm'
+            : bond >= 0.15 ? 'easy' : bond > 0 ? 'familiar' : 'a stranger',
+      open, vibe: +bond.toFixed(2) };
+  }
+
+  return {
+    mood: v.sfMood ? { text: v.sfMood.text,
+      since: 'd' + v.sfMood.day + ' t' + (v.sfMood.since % 24).toFixed(1) }
+      : null,
+    concerns: (v.sfConcerns || []).slice(0, 5),
+    surface: surf,
+    people,
+    lastTurn: v.sfLastWhy || null,
+    intentions: (v.sfIntents || [])
+      .filter(i => i.firedAt == null)
+      .map(i => ({ deed: i.deed, condition: i.condition,
+                   cueType: i.cueType })) };
+}
+
+/* ---------------- reflection archive (design §4.4) ----------------- */
+
+function sfReflectArchive(v){
+  const nowDay = W.day + W.tod / 24;
+  const sinceDay = (v.sfLastReflectAt != null)
+    ? v.sfLastReflectAt / 24 : nowDay - 1;
+  const records = [];
+  if(v.epistemic && v.epistemic.memories){
+    for(const m of v.epistemic.memories){
+      if(m.superseded) continue;
+      if((m.when || 0) < sinceDay) continue;
+      records.push({ kind: m.kind, topic: m.topic,
+        gist: (typeof m.content === 'string' ? m.content
+              : JSON.stringify(m.content)).slice(0, 90),
+        salience: m.salience, when: +(m.when || 0).toFixed(2) });
+    }
+    records.sort((a, b) => (b.salience || 0) - (a.salience || 0));
+  }
+  return {
+    since: 'd' + Math.floor(sinceDay) + ' t' +
+           ((sinceDay % 1) * 24).toFixed(1),
+    records: records.slice(0, 6),
+    obligations: (v.sfObligations || [])
+      .filter(o => !o.satisfied)
+      .map(o => ({ from: o.from, gist: o.gist })),
+    intentions: (v.sfIntents || []).map(i => ({
+      deed: i.deed, condition: i.condition,
+      fired: i.firedAt != null })) };
+}
+
+/* ---------------- the brain tick ----------------------------------
+   Runs on the sim tick (registered, never wrapped): per main, convo
+   maintenance + dispatch trigger scan. Detection is code; every
+   decision is the brain's. */
+function sfBrainTick(dtH){
+  if(typeof SF_MODE === 'undefined' || !SF_MODE) return;
+  for(const v of VILLAGERS){
+    if(!sfIsMain(v)) continue;
+    sfConvoTick(v, dtH);
+    sfDispatchTick(v, dtH);
+  }
+}
+if(typeof registerSimTick === 'function') registerSimTick(sfBrainTick);
+
+/* bridge surface for the driver + probes */
+if(typeof window !== 'undefined'){
+  window.__aiBridge = window.__aiBridge || {};
+  window.__aiBridge.sfDispatchPoll = sfDispatchPoll;
+  window.__aiBridge.sfMindScan = sfMindScan;
+  window.__aiBridge.sfConvoState = sfConvoState;
+  window.__aiBridge.sfReflectArchive = sfReflectArchive;
 }
 
 /* =====================================================================
@@ -34710,6 +35658,52 @@ function gsLedgerLoad(json){
      clashing claims); gsExplainRequest gives the plain-English reason;
      gsConflictRules lists the matrix for the debug panel.
 
+   v14: THE BOOK — scheduled exclusives (world/bookings.json, v74).
+   An exclusive-class request may name WHEN it runs, not just WHAT:
+   - Bookable kinds: weather + street_event. Sessions (possess/camera)
+     stay now-or-queued; paperwork (hire/listing/buy) stays paperwork.
+   - spec.start_slot (minutes-from-now, the world contract) or
+     spec.startMin (absolute) declare the window. The start snaps UP to
+     the next half-hour slot; the book's horizon is the next 24 h.
+   - A time slot is not an upgrade: same price math; surge keys off the
+     WINDOW's local hour, shown in the quote before payment.
+   - A cleared booking lands on the public calendar (status 'booked')
+     and fires when the window arrives — already approved by then.
+     Cancel before the start refunds in full; after it, the live
+     exclusive refunds whole unused minutes.
+   - The book never skips cooldowns: a window opening inside a venue
+     rest or a sky/player cooldown tail is refused at the door — the
+     picker can't offer a slot that can't legally fire.
+   - FCFS, never auctioned: an overlapping ask queues, and a queued
+     booking that reaches the front with its window taken slides to the
+     soonest free slot (or refunds in full past the horizon).
+   - The running lock always wins — a live exclusive can't be booked
+     over; and a booked span is honored the other way too: a queued
+     request that would run into it either fits before it (clipped,
+     difference refunded) or waits for after it.
+
+   v15: THE MUNICIPAL CODE — conflicts grow a second dimension (see
+   41_game_systems_civic.js for the civic state; this file carries the
+   matrix math it hooks into):
+   - Venue claims may carry ZONES — 'venue:<place>@<zone>' occupies a
+     named area of a subdividable venue (the table lives in 41P); two
+     permits at the same place clash only when their areas touch
+     (gsVenueResTouch: same zone, or either side the whole place).
+   - Amplified event kinds claim the place's airspace 'noise:<place>'
+     on top of their ground — the noise floor clashes with EVERY venue
+     claim there — and rest 22:00-06:00 PT (the noise ordinance); the
+     door, the picker, and promotion all enforce the same clock.
+   - Co-hosting: two identical events on touching ground at overlapping
+     times are one party with two permits — the claims don't clash and
+     the event lives till its last sponsor's window ends.
+   - City holds (41P): an admin-declared closure on any claim res beats
+     every request — bumps live claims with full compensation at
+     declaration, denies overlapping filings 'city_hold', and holds
+     queued/booked requests until it lifts or they slide past it.
+   - The clerk answers honestly: gsReqOutlook gives any request its
+     not-before estimate; gsPriceQuote denies with 'alts' — the soonest
+     legal slots — and queues with an earliest-start estimate.
+
    RATE CARD (design §9.3 — honest pricing tracks real compute cost):
      possess      4 cr/min — interactive session relay; the character's
                    LLM brain is SUSPENDED while possessed, so compute cost
@@ -34923,27 +35917,72 @@ function gsApplyWxOverride(){
 /* permitted civic events — Mission-plausible. venue:1 = occupies its
    location (one permit per venue); venue:0 = roving (a walking tour
    passes through, it does not occupy). outdoor flags exposure to the
-   sky — severe weather may not run over a permitted outdoor event. */
+   sky — severe weather may not run over a permitted outdoor event.
+   v15 flags: amplified = the permit carries amplified sound — it claims
+   the place's noise floor AND rests 22:00-06:00 PT (the ordinance in
+   41P); zoned = the permit may name an area of a zoned venue instead of
+   the whole place. */
 const GS_EVENT_KINDS = {
-  block_party:     { outdoor: 1, venue: 1 },
-  street_fair:     { outdoor: 1, venue: 1 },
+  block_party:     { outdoor: 1, venue: 1, amplified: 1 },
+  street_fair:     { outdoor: 1, venue: 1, amplified: 1 },
+  parade:          { outdoor: 1, venue: 1, amplified: 1 },
+  movie_night:     { outdoor: 1, venue: 1, amplified: 1, zoned: 1 },
   farmers_market:  { outdoor: 1, venue: 1 },
-  parade:          { outdoor: 1, venue: 1 },
-  movie_night:     { outdoor: 1, venue: 1 },
-  park_cleanup:    { outdoor: 1, venue: 1 },
+  park_cleanup:    { outdoor: 1, venue: 1, zoned: 1 },
+  fitness_class:   { outdoor: 1, venue: 1, zoned: 1 },
   mural_tour:      { outdoor: 1, venue: 0 },
 };
 function gsFxEventOn(r, now){
   const kind = r.params && r.params.event;
   if(!GS_EVENT_KINDS[kind]) return { ok: false, reason: 'bad_event' };
-  GS_EVENTS.push({ id: 'evt-' + (++GS_FX_SEQ.n), event: kind,
-    at: (r.params && r.params.at) || null, sinceMin: now, untilMin: r.endMin,
-    reqId: r.id, playerId: r.playerId });
+  const at = (r.params && r.params.at) || null;
+  const claims = gsClaimsOf(r);
+  const res = (claims[0] && claims[0].cls === 'venue')
+    ? claims[0].res : null;
+  /* v15 co-hosting: an identical live event on touching ground absorbs
+     this permit as a second sponsor — one party, two names on the
+     paper. The event lives until its LAST sponsor's window ends (the
+     sky's own rule), and the wire prints the join. */
+  if(res && typeof gsVenueResTouch === 'function'){
+    const host = GS_EVENTS.find(e => e.event === kind && e.atRes &&
+      gsVenueResTouch(e.atRes, res));
+    if(host){
+      (host.sponsors = host.sponsors || {})[r.id] =
+        { endMin: r.endMin, playerId: r.playerId };
+      host.untilMin = Math.max.apply(null,
+        Object.keys(host.sponsors).map(k => host.sponsors[k].endMin));
+      host.reqId = r.id;
+      host.co = Object.keys(host.sponsors).length;
+      gsBusEmit('cohost', r, { event: kind, at: at, co: host.co });
+      return true;
+    }
+  }
+  const rec = { id: 'evt-' + (++GS_FX_SEQ.n), event: kind, at: at,
+    atRes: res, sinceMin: now, untilMin: r.endMin,
+    reqId: r.id, playerId: r.playerId, co: 1 };
+  (rec.sponsors = {})[r.id] = { endMin: r.endMin, playerId: r.playerId };
+  GS_EVENTS.push(rec);
   return true;
 }
 function gsFxEventOff(r){
-  const i = GS_EVENTS.findIndex(e => e.reqId === r.id);
-  if(i >= 0) GS_EVENTS.splice(i, 1);
+  const i = GS_EVENTS.findIndex(e => e.reqId === r.id ||
+    (e.sponsors && e.sponsors[r.id]));
+  if(i < 0) return;
+  const ev = GS_EVENTS[i];
+  if(ev.sponsors && ev.sponsors[r.id]){
+    delete ev.sponsors[r.id];
+    const left = Object.keys(ev.sponsors);
+    if(left.length){
+      /* the party outlives any one sponsor — the remaining permits
+         carry it until their own windows end */
+      ev.untilMin = Math.max.apply(null,
+        left.map(k => ev.sponsors[k].endMin));
+      ev.reqId = left[left.length - 1];
+      ev.co = left.length;
+      return;
+    }
+  }
+  GS_EVENTS.splice(i, 1);
 }
 
 function gsFxHire(r, now){
@@ -35057,14 +36096,42 @@ gsDefineAction('street_event', {
   allow: (r, now) => {
     if(!(r.params && GS_EVENT_KINDS[r.params.event])) return 'bad_event';
     const meta = GS_EVENT_KINDS[r.params.event];
-    const at = gsNormVenue(r.params.at);
-    if(meta.venue && at &&
-       (GS_REQ.cdClaim['venue:' + at] || 0) > (now || 0))
-      return 'venue_rest';
+    const nowM = (now != null) ? now : gsNowMin();
+    /* v15: the permit names real ground — a zone the venue doesn't have
+       (or a zone on a whole-venue kind) is a structural deny, never
+       billed */
+    const parsed = (typeof gsVenueZoneParse === 'function')
+      ? gsVenueZoneParse(r) : { place: gsNormVenue(r.params.at) };
+    if(parsed.err) return parsed.err;
+    /* v14: a booking's venue-rest check keys off the WINDOW start, not
+       filing time — the permit office stamps the slot it will use */
+    const atMin = (r.bookedStart != null) ? r.bookedStart : nowM;
+    /* v15: the noise ordinance — amplified permits rest 22:00-06:00 PT.
+       The check keys off the whole window the filing would run, so a
+       loud event ending exactly at 22:00 is legal and one minute over
+       is not. */
+    if(meta.amplified && typeof gsQuietOverlap === 'function' &&
+       gsQuietOverlap(atMin, atMin + (r.durationMin || 0)))
+      return 'quiet_hours';
+    /* v15: venue rest is zone-aware — a resting lawn refuses its own
+       zone and whole-venue filings; a resting venue refuses every zone.
+       The one exemption is the live identical event this filing would
+       co-host (its ground stays open to its own party). */
+    if(meta.venue && parsed.place){
+      const res = 'venue:' + parsed.place +
+                  (parsed.zone ? '@' + parsed.zone : '');
+      if(gsVenueRestAt(res, atMin) &&
+         !(typeof gsCoSponsorLive === 'function' &&
+           gsCoSponsorLive(r, nowM)))
+        return 'venue_rest';
+    }
     return true;
   },
   activate: gsFxEventOn, deactivate: gsFxEventOff,
   claims: (r) => {
+    /* v15: the municipal module writes the real claims — zones on the
+       venue res, a noise floor for amplified kinds */
+    if(typeof gsEventClaims === 'function') return gsEventClaims(r);
     const meta = GS_EVENT_KINDS[(r.params && r.params.event)] || {};
     const at = gsNormVenue(r.params && r.params.at);
     const out = meta.outdoor ? 1 : 0;
@@ -35202,6 +36269,68 @@ function gsNormVenue(at){
   return (at == null) ? '' :
     String(at).trim().toLowerCase().replace(/\s+/g, ' ');
 }
+/* v15: venue claims may name an AREA — 'venue:<place>@<zone>' occupies
+   a named zone of a subdividable venue (the zone table lives in 41P;
+   this is the pure res-string math the matrix runs on). 'noise:<place>'
+   is the place's airspace — the amplified-sound claim a loud permit
+   files alongside its ground. */
+function gsVenueResParts(res){
+  let m = /^venue:(.+?)(?:@(.+))?$/.exec(res);
+  if(m) return { cls: 'venue', place: m[1], zone: m[2] || null };
+  m = /^noise:(.+)$/.exec(res);
+  if(m) return { cls: 'noise', place: m[1], zone: null };
+  return null;
+}
+/* do two place claims share ground? Same place, and for venue claims
+   same zone or either side the whole place; the noise floor is the
+   place's airspace — an amplified permit fills it everywhere, so a
+   noise claim touches EVERY claim on the place, zoned or whole (a
+   loud party and a quiet cleanup can't share a lawn, or any lawn
+   under the same permit office's sky). */
+function gsVenueResTouch(a, b){
+  const pa = gsVenueResParts(a), pb = gsVenueResParts(b);
+  if(!pa || !pb || pa.place !== pb.place) return false;
+  if(pa.cls === 'noise' || pb.cls === 'noise') return true;
+  return !pa.zone || !pb.zone || pa.zone === pb.zone;
+}
+/* a venue res rests while ANY stamped rest key touches it — a zone's
+   day off refuses the whole place too, the whole place's day off
+   refuses every zone */
+function gsVenueRestAt(res, atMin){
+  for(const k in GS_REQ.cdClaim)
+    if((GS_REQ.cdClaim[k] || 0) > atMin && gsVenueResTouch(k, res))
+      return true;
+  return false;
+}
+/* v15 co-hosting: two identical events sharing the same ground at
+   overlapping times are one party with two permits — the sky's own
+   co-sponsor rule extended to event permits. Each sponsor pays their
+   own span; the event lives till the last sponsor ends. A same-kind
+   filing for a NON-overlapping window is a new event — venue_rest
+   judges it, not the matrix. */
+function gsCoSponsor(ra, rb){
+  return ra.kind === 'street_event' && rb.kind === 'street_event' &&
+    !!(ra.params && rb.params && ra.params.event === rb.params.event);
+}
+/* the live identical event a filing would join — the venue_rest
+   exemption: a running party's ground stays open to its own co-hosts */
+function gsCoSponsorLive(r, now){
+  if(r.kind !== 'street_event' || !r.params) return null;
+  for(const x of GS_REQ.reqs){
+    if(x.status !== 'active' || x === r || (r.id && x.id === r.id))
+      continue;
+    if(x.kind !== 'street_event' || !x.params ||
+       x.params.event !== r.params.event) continue;
+    let share = false;
+    for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(x))
+      if(ca.cls === 'venue' && cb.cls === 'venue' &&
+         gsVenueResTouch(ca.res, cb.res)) share = true;
+    if(!share) continue;
+    if(gsWindowsOverlap(gsReqWindow(r, now), gsReqWindow(x, now)))
+      return x;
+  }
+  return null;
+}
 function gsClaimsOf(r){
   const a = GS_REQ.actions[r.kind];
   if(a && a.claims){
@@ -35213,8 +36342,28 @@ function gsClaimsOf(r){
             excl: !a || a.exclusive !== false }];
 }
 /* one claim pair, both requests for context (the sky cares WHICH
-   forecast, events care whether they're outdoors) */
-function gsClaimClash(ca, ra, cb, rb){
+   forecast, events care whether they're outdoors). v15 passes each
+   request's window (wa/wb) so co-hosting can prove the two parties
+   share ground at the same TIME — overlap shares, distance re-files. */
+function gsClaimClash(ca, ra, cb, rb, wa, wb){
+  /* v15 co-hosting: identical events on touching ground at overlapping
+     times are one party — every claim pair shares, never clashes. */
+  if(gsCoSponsor(ra, rb) && wa && wb && gsWindowsOverlap(wa, wb))
+    return false;
+  /* v15: two permits at the same place clash only when their areas
+     touch — same zone, or either side claims the whole place */
+  if(ca.cls === 'venue' && cb.cls === 'venue')
+    return gsVenueResTouch(ca.res, cb.res);
+  /* v15 the noise floor: an amplified permit fills the place's
+     airspace — it clashes with EVERY venue claim on that ground,
+     zoned or whole (a loud party and a quiet cleanup can't share a
+     lawn, and a loud zone does reach the whole place's quiet) */
+  if(ca.cls === 'noise' || cb.cls === 'noise'){
+    const n = ca.cls === 'noise' ? ca : cb;
+    const o = ca.cls === 'noise' ? cb : ca;
+    if(o.cls !== 'venue' && o.cls !== 'noise') return false;
+    return gsVenueResTouch(n.res, o.res);
+  }
   if(ca.cls === cb.cls){
     if(ca.res !== cb.res) return false;
     if(ca.excl === false && cb.excl === false) return false; // two sharers
@@ -35232,39 +36381,64 @@ function gsClaimClash(ca, ra, cb, rb){
   const s2 = skyVsEvent(cb, ca); if(s2 !== null) return s2;
   return false;
 }
-function gsRequestsConflict(ra, rb){
+function gsRequestsConflict(ra, rb, now){
   if(ra === rb || (ra.id && rb.id && ra.id === rb.id)) return false;
   const A = gsClaimsOf(ra), B = gsClaimsOf(rb);
-  for(const ca of A) for(const cb of B)
-    if(gsClaimClash(ca, ra, cb, rb)) return true;
-  return false;
+  /* v14/v15: bookings hold their claims for a DECLARED span and
+     co-hosting judges overlap — compute both windows once so every
+     claim pair judges the same clock */
+  let wa = null, wb = null;
+  let clash = false;
+  for(const ca of A) for(const cb of B){
+    if(!wa){
+      if(now == null) now = gsNowMin();
+      wa = gsReqWindow(ra, now); wb = gsReqWindow(rb, now);
+    }
+    if(gsClaimClash(ca, ra, cb, rb, wa, wb)){ clash = true; break; }
+  }
+  if(!clash) return false;
+  if(ra.bookedStart != null || rb.bookedStart != null)
+    return gsWindowsOverlap(wa, wb);
+  return true;
 }
 /* live requests filed BEFORE r that clash with it — its blockers.
    FCFS-fair: a request may never activate while an earlier live request
    it clashes with is still in line or running, so no leapfrogging and
    no starvation (every blocker has a hard endMin cap). A not-yet-filed
-   candidate passes n:Infinity — everything live is earlier. */
-function gsFindBlockers(r){
+   candidate passes n:Infinity — everything live is earlier. v14 adds
+   'booked' to the live set: a calendar span is a real claim. */
+function gsFindBlockers(r, now){
   const n = (r.n != null) ? r.n : Infinity;
+  if(now == null) now = gsNowMin();
   return GS_REQ.reqs.filter(x => x.n < n &&
     (x.status === 'active' || x.status === 'queued' ||
+     x.status === 'booked' ||
      /* v7: an exclusive request parked for review AT its activation
         still holds the FCFS slot it earned — nothing leapfrogs while a
         human decides (requests.json: review on activation) */
      (x.status === 'in_review' && x.holdsLine)) &&
-    gsRequestsConflict(x, r));
+    gsRequestsConflict(x, r, now));
 }
-/* the clashing claim resources on r's side — for feed/viewer display */
+/* the clashing claim resources on BOTH sides — for feed/viewer display.
+   r's own res names what it filed; the blocker's res names what it
+   waits on (the noise floor is the blocker's claim, not the filer's) */
 function gsLiveClashes(r){
   const seen = {};
-  for(const b of gsFindBlockers(r))
+  const now = gsNowMin();
+  for(const b of gsFindBlockers(r, now)){
+    const wa = gsReqWindow(r, now), wb = gsReqWindow(b, now);
     for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(b))
-      if(gsClaimClash(ca, r, cb, b)) seen[ca.res] = 1;
+      if(gsClaimClash(ca, r, cb, b, wa, wb)){
+        seen[ca.res] = 1; seen[cb.res] = 1; }
+  }
   return Object.keys(seen);
 }
 function gsClaimLabel(res){
   if(res === 'sky') return 'the sky';
-  let m = res.match(/^venue:(.+)$/);   if(m) return m[1] + ' (permitted venue)';
+  let m = res.match(/^venue:(.+?)@(.+)$/);
+  if(m) return m[1] + ' — ' + m[2] + ' (permitted area)';
+  m = res.match(/^venue:(.+)$/);   if(m) return m[1] + ' (permitted venue)';
+  m = res.match(/^noise:(.+)$/);   if(m) return 'amplified sound at ' + m[1];
   m = res.match(/^char:(.+)$/);       if(m) return 'character ' + m[1];
   m = res.match(/^paper:(.+)$/);      if(m) return 'registry paperwork on ' + m[1];
   m = res.match(/^listing:(.+)$/);    if(m) return 'the listing on ' + m[1];
@@ -35279,13 +36453,30 @@ function gsExplainRequest(id){
   if(r.status === 'queued'){
     const act = [], line = [];
     for(const b of gsFindBlockers(r))
-      (b.status === 'active' ? act : line).push(b.id);
+      (b.status === 'active' || b.status === 'booked' ? act : line)
+        .push(b.id);
     o.blockedBy = act; o.behind = line;
     o.on = gsLiveClashes(r).map(gsClaimLabel);
+    /* v15: a request with no request-blockers may still be parked by a
+       city hold — the explanation names the hold, not an empty line */
+    const held = (typeof gsLiveHolds === 'function')
+      ? gsLiveHolds(r) : [];
+    if(held.length){
+      o.held = held.map(h => h.id);
+      o.on = o.on.concat(held.map(h => gsHoldLabel(h.res)));
+    }
     o.queuePos = gsQueuePosition(id);
     o.note = act.length
       ? 'waiting for ' + act.join(', ') + ' to finish (' + o.on.join('; ') + ')'
-      : 'in line behind ' + line.join(', ');
+      : held.length
+        ? 'held by the city until ' +
+          gsBookHHMM(Math.max.apply(null, held.map(h => h.endMin)))
+        : 'in line behind ' + line.join(', ');
+  } else if(r.status === 'booked'){
+    o.booked = gsBookHHMM(r.bookedStart);
+    o.day = gsBookClock(r.bookedStart).day;
+    o.note = 'on the book for ' + o.booked +
+             (o.day ? ' (' + o.day + ')' : '') + ' — fires at the window';
   } else if(r.status === 'in_review'){
     o.code = r.screen || null;
     o.note = 'awaiting human review' + (o.code ? ' (' + o.code + ')' : '');
@@ -35306,9 +36497,19 @@ function gsConflictRules(){
     'sky × outdoor event — severe weather never runs over a permitted ' +
       'outdoor event, and no outdoor permits are issued into a storm hold',
     'venue — one permitted event per location at a time',
+    'venue zones — a zoned permit occupies its named area; the whole ' +
+      'place touches every zone and vice versa',
+    'noise — amplified permits claim the place\'s airspace and rest ' +
+      '22:00-06:00 PT under the noise ordinance',
+    'co-hosting — identical events sharing the same ground at the same ' +
+      'time are one party with two permits',
+    'city holds — the city may close a claim window; live claims are ' +
+      'bumped with full compensation and filings wait or slide',
     'paper — one registry change per unit at a time (hire and buy serialize)',
     'listing — one live listing per unit',
     'queued requests are never leapfrogged by later conflicting requests',
+    'the book — weather and event permits may claim a declared window ' +
+      'up to 24h out; booked spans block overlaps and never run early',
   ];
 }
 /* co-possession overlaps between DIFFERENT players — the compatible-
@@ -35336,6 +36537,329 @@ function gsQueuePosition(id){
   return ahead + 1;
 }
 
+/* ================= v14: THE BOOK — scheduled exclusives =================
+   world/bookings.json (world-v74): a booked span claims the resource for
+   that span; an overlapping ask queues for the next free window — FCFS,
+   never auctioned. Bookable kinds are the flat-rate exclusives. The book
+   is public: gsBookCalendar feeds gsViewerState().calendar. */
+const GS_BOOK_CFG = { horizonMin: 1440, slotMin: 30 };
+const GS_BOOKABLE = { weather: 1, street_event: 1 };
+
+function gsIsBooking(r){ return r != null && r.bookedStart != null; }
+function gsBookSnap(min){
+  return Math.ceil(min / GS_BOOK_CFG.slotMin) * GS_BOOK_CFG.slotMin;
+}
+function gsBookP2(x){ return (x < 10 ? '0' : '') + x; }
+function gsBookClock(min){
+  return (typeof gsWireClock === 'function') ? gsWireClock(min)
+    : { t: ((Math.floor(min) % 1440) + 1440) % 1440, day: null };
+}
+function gsBookHHMM(min){
+  const t = gsBookClock(min).t;
+  return gsBookP2(Math.floor(t / 60)) + ':' + gsBookP2(t % 60);
+}
+/* the span a request holds (or would hold) its claims on the world:
+   bookings hold their declared window; an active holds its run; a queued,
+   parked, or not-yet-filed request could run from now for its duration. */
+function gsReqWindow(r, now){
+  if(r.bookedStart != null)
+    return [r.bookedStart, r.bookedStart + r.durationMin];
+  if(r.status === 'active')
+    return [r.startMin != null ? r.startMin : now,
+            r.endMin != null ? r.endMin : Infinity];
+  return [now, now + (r.durationMin || 0)];
+}
+function gsWindowsOverlap(a, b){ return a[0] < b[1] && b[0] < a[1]; }
+
+/* normalize a filing's declared window — {startMin} or {err}; null when
+   the spec carries no time field at all (an ordinary now-or-queued ask) */
+function gsBookWindowSpec(spec, a, now){
+  const rel = spec.start_slot, abs = spec.startMin;
+  if(rel == null && abs == null) return null;
+  if(!GS_BOOKABLE[spec.kind]) return { err: 'not_bookable' };
+  const want = (abs != null) ? abs : now + (+rel || 0);
+  if(!isFinite(want)) return { err: 'bad_window' };
+  const start = gsBookSnap(want);
+  if(start < now) return { err: 'bad_window' };          // the past is gone
+  if(start > now + GS_BOOK_CFG.horizonMin)
+    return { err: 'beyond_horizon' };                    // the book is 24 h
+  return { startMin: start };
+}
+
+/* a slot that opens inside a cooldown tail can never legally fire —
+   the picker never offers it (bookings.json honesty rules). Covers the
+   standing claim rests + kind/player cooldowns on the clock AND the
+   implied tails of anything booked or running now. Overlap itself is a
+   clash matter (queue), never a tail denial. */
+function gsBookTailDeny(r, s, now){
+  const a = GS_REQ.actions[r.kind];
+  for(const c of gsClaimsOf(r)){
+    if((GS_REQ.cdClaim[c.res] || 0) > s) return 'slot_rest';
+    /* v15: a zone's rest touches its whole place and vice versa — the
+       tail check uses the same touch math as the matrix */
+    if(c.cls === 'venue' && gsVenueRestAt(c.res, s)) return 'slot_rest';
+  }
+  if((GS_REQ.cdG[r.kind] || 0) > s) return 'cooldown_tail';
+  if((GS_REQ.cdP[r.playerId + '|' + r.kind] || 0) > s)
+    return 'cooldown_tail';
+  for(const b of GS_REQ.reqs){
+    if(b === r || (r.id && b.id === r.id)) continue;
+    if(b.status !== 'booked' && b.status !== 'active') continue;
+    const bEnd = gsReqWindow(b, now)[1];
+    if(s < bEnd) continue;                 // overlapping the run is a clash
+    if(b.kind === r.kind){
+      if(a.cdGlobalMin && s < bEnd + a.cdGlobalMin) return 'cooldown_tail';
+      if(a.cdPlayerMin && b.playerId === r.playerId &&
+         s < bEnd + a.cdPlayerMin) return 'cooldown_tail';
+    }
+    const bCd = (GS_REQ.actions[b.kind] || {}).cdClaimMin;
+    if(bCd && s < bEnd + bCd){
+      for(const cb of gsClaimsOf(b))
+        for(const c of gsClaimsOf(r))
+          if(cb.res === c.res ||
+             (cb.cls === 'venue' && c.cls === 'venue' &&
+              gsVenueResTouch(cb.res, c.res)))
+            return 'slot_rest';
+    }
+  }
+  return null;
+}
+
+/* is [s, s+r.durationMin) claimable for r right now — no booked span or
+   live lock on a clashing claim, no cooldown tail contains the start,
+   and (v15) the noise ordinance + city holds fence the slot the same
+   way they fence the door */
+function gsBookSlotFree(r, s, now){
+  const w = [s, s + r.durationMin];
+  if(typeof gsCivicSlotDeny === 'function' &&
+     gsCivicSlotDeny(r, s, now)) return false;
+  for(const b of GS_REQ.reqs){
+    if(b === r || (r.id && b.id === r.id)) continue;
+    if(b.status !== 'booked' && b.status !== 'active') continue;
+    if(!gsWindowsOverlap(w, gsReqWindow(b, now))) continue;
+    let hit = false;
+    for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(b))
+      if(gsClaimClash(ca, r, cb, b, w, gsReqWindow(b, now))){
+        hit = true; break; }
+    if(hit) return false;
+  }
+  return !gsBookTailDeny(r, s, now);
+}
+/* the soonest grid slot at/after r's declared start (never before the
+   snapped present) where the whole window is free — the slide target */
+function gsBookNextFree(r, now){
+  let s = Math.max(gsBookSnap(now),
+                   r.bookedStart != null ? r.bookedStart : gsBookSnap(now));
+  const lastStart = now + GS_BOOK_CFG.horizonMin;
+  for(; s <= lastStart; s += GS_BOOK_CFG.slotMin)
+    if(gsBookSlotFree(r, s, now)) return s;
+  return null;
+}
+/* every on-calendar span whose claims clash with r's prospective run —
+   later-filed bookings count too: once a span is on the book it is a
+   promise, whatever the filing order was */
+function gsBookedOverlaps(r, now){
+  const w = gsReqWindow(r, now), out = [];
+  for(const b of GS_REQ.reqs){
+    if(b === r || (r.id && b.id === r.id)) continue;
+    if(b.status !== 'booked') continue;
+    if(!gsWindowsOverlap(w, gsReqWindow(b, now))) continue;
+    let hit = false;
+    for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(b))
+      if(gsClaimClash(ca, r, cb, b, w, gsReqWindow(b, now))){
+        hit = true; break; }
+    if(hit) out.push(b);
+  }
+  return out;
+}
+/* the clip rule: when the ONLY thing ahead of r is booked span(s), r may
+   run NOW if its minimum duration fits before the first booked window —
+   its endMin clips to the window's edge and the un-run minutes refund at
+   completion. Returns {endMin, by} or null (wait in line instead). */
+function gsBookingClip(r, blockers, now){
+  if(r.bookedStart != null) return null;      // bookings never clip
+  const bookd = gsBookedOverlaps(r, now);
+  if(!bookd.length) return null;
+  for(const b of blockers) if(b.status !== 'booked') return null;
+  const a = GS_REQ.actions[r.kind];
+  const first = Math.min.apply(null, bookd.map(b => b.bookedStart));
+  if(first - now < ((a && a.minMin) || 1)) return null;
+  return { endMin: first,
+           by: bookd.filter(b => b.bookedStart === first)[0].id };
+}
+/* approval (or promotion) lands a booking on the calendar — the public
+   promise. A window still ahead becomes 'booked'; a window in progress
+   fires its remainder; a window fully past ends it with a full refund. */
+function gsBookLand(r, now){
+  const s = r.bookedStart, e = s + r.durationMin;
+  r.holdsLine = false;
+  if(now >= e){
+    r.status = 'expired'; r._now = now; r.reason = 'window_missed';
+    if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'window missed');
+                      r.refunded = (r.refunded || 0) + r.billed; }
+    gsBusEmit('expire', r, { refund: r.billed, via: 'window' });
+    return r;
+  }
+  r.expireMin = null; r._now = now;
+  if(now >= s){
+    /* approval landed inside the window — fire the remainder; the
+       un-run minutes come back at completion (shortRun honesty) */
+    r.status = 'active'; r.startMin = now; r.endMin = e;
+    r.shortRun = now > s;
+    gsBusEmit('fire', r, { price: r.billed, booked: s,
+                           hhmm: gsBookHHMM(s), late: now > s });
+    gsFxActivate(r, now);
+    return r;
+  }
+  r.status = 'booked';
+  r.startMin = null; r.endMin = null;   // a promise, not a run — yet
+  gsBusEmit('approve', r, { price: r.billed, booked: s,
+    hhmm: gsBookHHMM(s),
+    slid: r.slidFrom != null ? gsBookHHMM(r.slidFrom) : null,
+    surge: r.surge > 1 ? r.surge : null });
+  return r;
+}
+/* a queued booking reaching the front of the line: wait behind earlier
+   speculative (queued) blockers; slide past hard claims on its window;
+   review before it lands (a booked request is already approved); then
+   land it. Returns true when the line should move on to the next. */
+function gsBookPlace(next, blockers, now){
+  const soft = blockers.filter(b => b.status === 'queued' ||
+    (b.status === 'in_review' && b.holdsLine));
+  if(soft.length) return true;                 // earlier line — wait it out
+  /* v15: a city hold on the declared window slides the booking past the
+     closure, same as a taken slot — the book only promises legal time */
+  const held = (typeof gsLiveHolds === 'function')
+    ? gsLiveHolds(next, now).length > 0 : false;
+  if(blockers.length || held ||
+     now >= next.bookedStart + next.durationMin){
+    /* the declared window is taken or gone — the ask queues for the
+       next free window (never an auction) */
+    const s = gsBookNextFree(next, now);
+    if(s == null){
+      next.status = 'expired'; next._now = now; next.reason = 'window_missed';
+      if(next.billed > 0){ gsCreditRefund(next.playerId, next.billed,
+                                           'window missed');
+                           next.refunded = (next.refunded || 0) +
+                                           next.billed; }
+      gsBusEmit('expire', next, { refund: next.billed, via: 'window' });
+      return true;
+    }
+    if(s !== next.bookedStart){
+      next.slidFrom = next.bookedStart; next.bookedStart = s;
+    }
+  }
+  const a = GS_REQ.actions[next.kind];
+  if(!gsIsAdmin(next.playerId) && a && a.review === 'always' &&
+     next.reviewedMin == null){
+    next.status = 'in_review'; next.holdsLine = true;
+    next.expireMin = null;
+    next.reviewExpireMin = now + GS_REVIEW_TTL_MIN;
+    next.lane = next.lane || 'exclusive';
+    gsBusEmit('review', next, { action: 'in_review',
+      code: next.screen || null, lane: 'exclusive',
+      booked: gsBookHHMM(next.bookedStart),
+      expiresInMin: GS_REVIEW_TTL_MIN });
+    return true;
+  }
+  gsBookLand(next, now);
+  return true;
+}
+/* the public strip (bookings.json live seam): every claimed window with
+   the holder's handle — attribution is the payoff and the anti-grief
+   surface. Shapes the world's 24 h book view. */
+function gsBookClaimLabel(r){
+  if(r.kind === 'weather') return 'sky';
+  const c = gsClaimsOf(r)[0];
+  if(!c) return r.kind;
+  if(c.cls === 'venue'){
+    const vid = (typeof gsWireVenueId === 'function')
+      ? gsWireVenueId(r.params && r.params.at) : null;
+    /* v15: the calendar keeps the zone — 'venue:park@north lawn' */
+    const parts = (typeof gsVenueResParts === 'function')
+      ? gsVenueResParts(c.res) : null;
+    return 'venue:' + (vid || (parts && parts.place) || c.res.slice(6)) +
+           (parts && parts.zone ? '@' + parts.zone : '');
+  }
+  return 'openair';
+}
+/* a booking's window arrives: fire it unless a live lock still holds a
+   clashing claim — a running exclusive is never booted mid-scene, so the
+   booking waits, fires late (un-run minutes refund at completion), or
+   expires 'window_missed' with a full refund if the run outlasts it. */
+function gsFireBooking(r, now){
+  const e = r.bookedStart + r.durationMin;
+  if(now >= e){
+    r.status = 'expired'; r._now = now; r.reason = 'window_missed';
+    if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed, 'window missed');
+                      r.refunded = (r.refunded || 0) + r.billed; }
+    gsBusEmit('expire', r, { refund: r.billed, via: 'window' });
+    return 'missed';
+  }
+  const w = [r.bookedStart, e];
+  for(const x of GS_REQ.reqs){
+    if(x === r || x.status !== 'active') continue;
+    if(!gsWindowsOverlap(w, gsReqWindow(x, now))) continue;
+    for(const ca of gsClaimsOf(r)) for(const cb of gsClaimsOf(x))
+      if(gsClaimClash(ca, r, cb, x, w, gsReqWindow(x, now)))
+        return 'held';
+  }
+  /* v15: a city hold covering the window keeps the permit unfired —
+     if the closure outlasts the slot the booking expires missed and
+     refunds in full, same honesty as a running lock */
+  if(typeof gsLiveHolds === 'function' && gsLiveHolds(r, now).length)
+    return 'held';
+  r.status = 'active'; r.startMin = now; r.endMin = e; r._now = now;
+  r.shortRun = now > r.bookedStart;
+  gsBusEmit('fire', r, { price: r.billed, booked: r.bookedStart,
+    hhmm: gsBookHHMM(r.bookedStart), late: r.shortRun || null });
+  gsFxActivate(r, now);
+  return 'fired';
+}
+function gsBookWhat(r){
+  const p = r.params || {};
+  if(r.kind === 'weather') return 'weather — ' + (p.wx || 'a sky change');
+  const lbl = p.event ? String(p.event).replace(/_/g, ' ') : 'an event';
+  return 'event — ' + lbl + (p.at ? ' at ' + p.at : '');
+}
+function gsBookCalendar(nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  return GS_REQ.reqs.filter(r => r.status === 'booked')
+    .sort((a, b) => a.bookedStart - b.bookedStart || a.n - b.n)
+    .map(r => ({
+      req: r.id, claim: gsBookClaimLabel(r),
+      res: gsClaimsOf(r).map(c => c.res),
+      start_min: r.bookedStart, min: r.durationMin,
+      start: gsBookHHMM(r.bookedStart),
+      day: gsBookClock(r.bookedStart).day,
+      who: (typeof gsWireWho === 'function')
+        ? gsWireWho(r.playerId) : r.playerId,
+      what: gsBookWhat(r),
+    }));
+}
+/* the picker's free-slot list: the next `count` half-hour windows where
+   this filing could legally run — free spans, no cooldown tails. */
+function gsBookableSlots(spec, nowMin, count){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const a = spec && GS_REQ.actions[spec.kind];
+  if(!a || !GS_BOOKABLE[spec.kind])
+    return { ok: false, err: 'not_bookable', slots: [] };
+  const dur = spec.durationMin;
+  if(!(dur >= a.minMin && dur <= a.maxMin))
+    return { ok: false, err: 'bad_duration', slots: [] };
+  const r = { playerId: spec.playerId, kind: spec.kind,
+              target: spec.target || null, params: spec.params || null,
+              durationMin: dur };
+  const slots = [];
+  for(let s = gsBookSnap(now);
+      s <= now + GS_BOOK_CFG.horizonMin && slots.length < (count || 24);
+      s += GS_BOOK_CFG.slotMin)
+    if(gsBookSlotFree(r, s, now))
+      slots.push({ startMin: s, start: gsBookHHMM(s),
+                   day: gsBookClock(s).day });
+  return { ok: true, slots: slots };
+}
+
 /* ================= v7: SURGE — the cover charge goes up when there's a
    line (requests.json surge + monetization §2.3) =================
    Pressure = recent (6h) non-denied requests sharing a claim resource.
@@ -35359,7 +36883,7 @@ function gsBusPrimetime(now){
   const t = gsBusPtMin(now);
   return t >= 18 * 60 && t < 23 * 60;
 }
-function gsSurgePressure(cand, now){
+function gsSurgePressure(cand, now, atMin){
   const res = {};
   for(const c of gsClaimsOf(cand)) res[c.res] = 1;
   if(!Object.keys(res).length) return 0;
@@ -35371,13 +36895,23 @@ function gsSurgePressure(cand, now){
        (now - r.submittedMin) > GS_SURGE_CFG.windowMin) continue;
     if(r.status === 'denied' || r.status === 'failed') continue;
     if(!worldAsk && r.playerId === cand.playerId) continue;
-    for(const c of gsClaimsOf(r)) if(res[c.res]){ n++; break; }
+    for(const c of gsClaimsOf(r)){
+      /* v15: a zoned permit contends for its whole place's demand —
+         pressure counts any prior claim TOUCHING the filing's ground */
+      let shares = !!res[c.res];
+      if(!shares && c.cls === 'venue')
+        for(const k in res)
+          if(gsVenueResTouch(k, c.res)){ shares = true; break; }
+      if(shares){ n++; break; }
+    }
   }
-  if(worldAsk && gsBusPrimetime(now)) n++;
+  /* v14: for a booking the window's own hour is what matters — a 21:30
+     slot in primetime prices at primetime, even filed at noon */
+  if(worldAsk && gsBusPrimetime(atMin != null ? atMin : now)) n++;
   return n;
 }
-function gsSurgeFactor(cand, now){
-  const p = gsSurgePressure(cand, now);
+function gsSurgeFactor(cand, now, atMin){
+  const p = gsSurgePressure(cand, now, atMin);
   if(p <= 0) return 1;
   return Math.min(GS_SURGE_CFG.cap,
                   GS_SURGE_CFG.base + GS_SURGE_CFG.step * (p - 1));
@@ -35450,7 +36984,9 @@ function gsPromoteAll(now){
     const a = GS_REQ.actions[next.kind];
     if(a && a.allow){
       const why = a.allow({ playerId: next.playerId, target: next.target,
-                            kind: next.kind, params: next.params }, now);
+                            kind: next.kind, params: next.params,
+                            bookedStart: next.bookedStart,
+                            durationMin: next.durationMin }, now);
       if(why !== true){
         next.status = 'failed'; next._now = now; next.failReason = why;
         if(next.billed > 0){ gsCreditRefund(next.playerId, next.billed,
@@ -35462,7 +36998,27 @@ function gsPromoteAll(now){
         continue;                                // FCFS: try the next in line
       }
     }
-    if(gsFindBlockers(next).length) continue;    // still blocked — hold the line
+    const blockers = gsFindBlockers(next, now);
+    /* v15: a city hold covering the prospective window parks the line —
+       the request waits for the hold to lift (booked requests slide
+       past the closure inside gsBookPlace) */
+    const held = (typeof gsLiveHolds === 'function')
+      ? gsLiveHolds(next, now).length > 0 : false;
+    /* v14: a queued booking reaching the front waits behind earlier
+       speculative (queued) line-holders but slides past hard claims on
+       its declared window — FCFS, never an auction, never a leapfrog. */
+    if(next.bookedStart != null){
+      if(gsBookPlace(next, blockers, now)) continue;
+    } else if(held) continue;
+    /* v14 the clip rule: when the ONLY thing ahead is booked span(s), a
+       now-or-queued request runs NOW if its minimum duration fits before
+       the first booked window — its endMin clips to the window's edge
+       and the un-run minutes refund at completion. */
+    var clipTo = null;
+    if(blockers.length){
+      clipTo = gsBookingClip(next, blockers, now);
+      if(!clipTo) continue;                      // still blocked — hold the line
+    }
     /* v7: the exclusive class reviews AT ACTIVATION (requests.json:
        "review happens on activation, not while waiting"). The request
        leaves the queue but keeps holding its earned FCFS slot via
@@ -35480,9 +37036,13 @@ function gsPromoteAll(now){
       continue;
     }
     next.status = 'active'; next.startMin = now;
-    next.endMin = now + next.durationMin; next.expireMin = null;
+    next.endMin = clipTo ? clipTo.endMin : now + next.durationMin;
+    if(clipTo){ next.clippedBy = clipTo.by; next.clipEndMin = clipTo.endMin; }
+    next.expireMin = null;
     next._now = now;
     gsBusEmit('approve', next, { promoted: true, price: next.billed,
+      clipped: clipTo ? gsBookHHMM(clipTo.endMin) : null,
+      clippedBy: clipTo ? clipTo.by : null,
       surge: next.surge > 1 ? next.surge : null,
       discount: next.discount || null });
     if(!gsFxActivate(next, now)) continue;       // activation failed: next
@@ -35510,6 +37070,15 @@ function gsSubmitRequest(spec, nowMin){
   if(!a) return deny('unknown_action');
   if(a.scope === 'target' && !target) return deny('missing_target');
   if(!(dur >= a.minMin && dur <= a.maxMin)) return deny('bad_duration');
+  /* v14 the Book: an exclusive filing may declare its start window.
+     Normalize it before anything else reads the spec — a malformed or
+     out-of-horizon window is a structural deny, never a billed one. */
+  var bookStart = null;
+  if(spec.start_slot != null || spec.startMin != null){
+    const bw = gsBookWindowSpec(spec, a, now);
+    if(bw && bw.err) return deny(bw.err);
+    if(bw) bookStart = bw.startMin;
+  }
   /* v7 door policy (41G): the account exists from its first knock on the
      door; suspended/held accounts are refused before content is even
      read, and flagged accounts route every filing through the human
@@ -35548,18 +37117,35 @@ function gsSubmitRequest(spec, nowMin){
   if(!gsIsAdmin(pid) && typeof gsFinalText === 'function' &&
      gsFinalText(pid, spec))
     return deny('appeal_final');
-  if(a.allow){ const why = a.allow({ playerId: pid, target, kind, params },
-                                   now);
+  if(a.allow){ const why = a.allow({ playerId: pid, target, kind, params,
+                                    bookedStart: bookStart,
+                                    durationMin: dur }, now);
                if(why !== true) return deny(why); }
   if((GS_REQ.cdP[pid + '|' + kind] || 0) > now) return deny('cooldown');
   if((GS_REQ.cdG[kind] || 0) > now) return deny('global_cooldown');
+  /* v14: a slot inside a rest/cooldown tail can never legally fire —
+     denied at the door, no money moves (the picker's own rule). */
+  if(bookStart != null){
+    const tail = gsBookTailDeny(
+      { playerId: pid, kind, target, params,
+        bookedStart: bookStart, durationMin: dur }, bookStart, now);
+    if(tail) return deny(tail);
+  }
 
   /* v2 pairwise conflicts: the request queues iff ANY earlier live
      request (active or queued) clashes with one of its claims — a
-     queued blocker counts too, so nobody leapfrogs the line. */
-  const cand = { playerId: pid, kind, target, params, n: Infinity };
+     queued blocker counts too, so nobody leapfrogs the line. v14:
+     clash is window-aware when either side is a booking. */
+  const cand = { playerId: pid, kind, target, params, n: Infinity,
+    durationMin: dur };
+  if(bookStart != null) cand.bookedStart = bookStart;
   const claims = gsClaimsOf(cand);
-  const blockers = gsFindBlockers(cand);
+  /* v15: the city's hand — a hold covering this filing's claims and
+     window denies at the door without billing, whatever the line
+     looks like behind it */
+  if(typeof gsCivicHoldDeny === 'function' && gsCivicHoldDeny(cand, now))
+    return deny('city_hold');
+  const blockers = gsFindBlockers(cand, now);
   const conflict = blockers.length > 0;
   /* v7 lane decision BEFORE billing: screening hits, flagged accounts,
      player-authored naming strings, and UNBLOCKED exclusive-class asks
@@ -35573,10 +37159,14 @@ function gsSubmitRequest(spec, nowMin){
        (a.review === 'always' && !conflict));
   /* v7 pricing: base rate x minutes x surge; the surge is computed BEFORE
      payment and disclosed via gsPriceQuote. A filing that joins the line
-     immediately bills at -15% — patience is cheaper (queue discount). */
-  const surge = gsSurgeFactor(cand, now);
+     immediately bills at -15% — patience is cheaper (queue discount).
+     v14: booking primetime keys off the WINDOW's hour; a time slot is
+     not an upgrade (same math) and a booking takes no queue discount —
+     it isn't queuing. */
+  const surge = gsSurgeFactor(cand, now, bookStart);
   const price = Math.ceil(a.ratePerMin * dur * surge);
-  const discounted = conflict && !parked && !gsIsAdmin(pid);
+  const discounted = conflict && !parked && !gsIsAdmin(pid) &&
+                     bookStart == null;
   const billed = discounted ? Math.ceil(price * (1 - GS_QUEUE_DISCOUNT))
                             : price;
   /* v8 deferred billing: an action with billOnApproval (the hire — a
@@ -35604,6 +37194,7 @@ function gsSubmitRequest(spec, nowMin){
     endMin: conflict ? null : now + dur,
     expireMin: conflict ? now + a.ttlMin : null,
     usedMin: 0, refunded: 0, fxOn: false, _now: now };
+  if(bookStart != null) r.bookedStart = bookStart;
   if(screened){ r.screen = screened.code; r.lane = 'screen'; }
   else if(named) r.lane = 'naming';
   else if(a.review === 'always'){
@@ -35626,6 +37217,7 @@ function gsSubmitRequest(spec, nowMin){
   if(parked){
     gsBusEmit('review', r, { action: 'in_review', code: r.screen || null,
       lane: r.lane || null, price: r.billed, surge: surge > 1 ? surge : null,
+      booked: bookStart != null ? gsBookHHMM(bookStart) : null,
       expiresInMin: GS_REVIEW_TTL_MIN });
     return r;
   }
@@ -35634,7 +37226,11 @@ function gsSubmitRequest(spec, nowMin){
     gsBusEmit('queue', r, { price: r.billed, pos: gsQueuePosition(r.id),
       blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(cand),
       surge: surge > 1 ? surge : null,
-      discount: r.discount || null });
+      discount: r.discount || null,
+      booked: bookStart != null ? gsBookHHMM(bookStart) : null });
+  } else if(bookStart != null){
+    /* v14: a cleared booking lands on the calendar — never fires early */
+    gsBookLand(r, now);
   } else {
     gsBusEmit('approve', r, { price: r.billed,
       surge: surge > 1 ? surge : null });
@@ -35652,6 +37248,12 @@ function gsSubmitRequest(spec, nowMin){
 function gsBusTick(nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   for(const r of GS_REQ.reqs.slice()){
+    /* v14: a booked window that has arrived fires — or waits behind a
+       still-running lock, or expires missed with a full refund */
+    if(r.status === 'booked'){
+      if(now >= r.bookedStart) gsFireBooking(r, now);
+      continue;
+    }
     /* an unreviewed request lapses out of the lane with a full refund —
        it never ran, so it never should have kept the money */
     if(r.status === 'in_review' && r.reviewExpireMin != null &&
@@ -35673,11 +37275,22 @@ function gsBusTick(nowMin){
     if(r.status === 'active' && now >= r.endMin){
       gsFxDeactivate(r, now, 'completed');
       r.status = 'completed'; r._now = now;
-      r.usedMin = r.durationMin;
+      r.usedMin = Math.max(0, Math.min(r.durationMin,
+                                     r.endMin - (r.startMin || now)));
+      /* v14: a clipped run or a late-fired booking ran fewer minutes
+         than billed — the un-run whole minutes come back at the paid
+         rate, same honesty rule as an early cancel */
+      const unrun = r.durationMin - r.usedMin;
+      if(unrun > 0 && r.billed > 0){
+        const back = Math.min(r.billed, Math.floor(r.rateApplied * unrun));
+        if(back > 0){ gsCreditRefund(r.playerId, back, 'short run');
+                      r.refunded = (r.refunded || 0) + back; }
+      }
       const a = GS_REQ.actions[r.kind];
       if(a.cdPlayerMin) GS_REQ.cdP[r.playerId + '|' + r.kind] = now + a.cdPlayerMin;
       if(a.cdGlobalMin) GS_REQ.cdG[r.kind] = now + a.cdGlobalMin;
-      gsBusEmit('complete', r, { usedMin: r.usedMin });
+      gsBusEmit('complete', r, { usedMin: r.usedMin,
+        clipped: r.clipEndMin != null || r.shortRun ? true : null });
     }
   }
   gsPromoteAll(now);
@@ -35688,6 +37301,9 @@ function gsBusTick(nowMin){
   /* v9: the quiet-hours beat — linger expiries drop brains, the seam
      drains, the ladder re-evaluates, needs + compute accrue */
   if(typeof gsOffTick === 'function') gsOffTick(now);
+  /* v15: the city's hand — lapsed holds lift themselves on the same
+     beat (the lift promotes the line it was parking) */
+  if(typeof gsCivicTick === 'function') gsCivicTick(now);
 }
 
 /* cancel a queued/active request.
@@ -35700,23 +37316,28 @@ function gsCancelRequest(id, nowMin, by){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
   if(!r || (r.status !== 'queued' && r.status !== 'active' &&
-            r.status !== 'in_review')) return false;
+            r.status !== 'in_review' && r.status !== 'booked'))
+    return false;
   const isAdmin = (by === 'admin' || by === 'owner');
   let refund;
-  /* queued or still-parked requests never ran — the full bill comes back */
-  if(r.status === 'queued' || r.status === 'in_review' || isAdmin){
+  /* queued, still-parked, or not-yet-fired bookings never ran — the
+     full bill comes back (cancel before the window = full refund) */
+  if(r.status === 'queued' || r.status === 'in_review' ||
+     r.status === 'booked' || isAdmin){
     refund = r.billed;
   } else {
     const unusedWholeMin = Math.max(0, Math.floor(r.endMin - now));
     refund = Math.min(r.billed, Math.floor(r.rateApplied * unusedWholeMin));
   }
+  const wasBooked = r.status === 'booked';
   r.usedMin = r.status === 'active'
     ? Math.max(0, Math.min(r.durationMin, now - (r.startMin || now))) : 0;
   r.status = 'cancelled'; r._now = now; r.by = by || 'player';
   gsFxDeactivate(r, now, 'cancelled');
   if(refund > 0){ gsCreditRefund(r.playerId, refund, 'cancelled');
                   r.refunded = (r.refunded || 0) + refund; }
-  gsBusEmit('cancel', r, { by: r.by, refund, usedMin: r.usedMin });
+  gsBusEmit('cancel', r, { by: r.by, refund, usedMin: r.usedMin,
+    pre_window: wasBooked || null });
   /* v2 fix: freeing a resource (or a queue slot, when a queued request
      is cancelled) must promote — v1 waited for a natural completion and
      could let a queued request expire while its resource sat idle.
@@ -35731,7 +37352,8 @@ function gsAdminRevoke(id, reason, nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
   if(!r || (r.status !== 'queued' && r.status !== 'active' &&
-            r.status !== 'in_review')) return false;
+            r.status !== 'in_review' && r.status !== 'booked'))
+    return false;
   gsBusEmit('admin', { playerId: 'owner', kind: 'admin', id: null, _now: now },
             { action: 'revoke', target: id, reason: reason || 'revoked',
               compensated_cr: r.billed });
@@ -35831,7 +37453,9 @@ function gsReviewResolve(id, approve, opts){
   r.reviewedMin = now;
   if(a && a.allow){
     const why = a.allow({ playerId: r.playerId, target: r.target,
-                          kind: r.kind, params: r.params }, now);
+                          kind: r.kind, params: r.params,
+                          bookedStart: r.bookedStart,
+                          durationMin: r.durationMin }, now);
     if(why !== true){
       r.status = 'failed'; r.failReason = why;
       if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
@@ -35842,7 +37466,7 @@ function gsReviewResolve(id, approve, opts){
       return r;
     }
   }
-  const blockers = gsFindBlockers(r);
+  const blockers = gsFindBlockers(r, now);
   /* v8: a deferred-billed request (the hire) pays ONCE here — screening
      passed, the reviewer approved, now the flat fee lands. A request
      that still has to queue pays the discounted patience rate instead
@@ -35858,8 +37482,45 @@ function gsReviewResolve(id, approve, opts){
       return r;
     }
     r.billed = want; r.deferred = false;
-    if(blockers.length) r.discount = GS_QUEUE_DISCOUNT;
+    if(blockers.length && r.bookedStart == null)
+      r.discount = GS_QUEUE_DISCOUNT;
     r.rateApplied = r.durationMin > 0 ? r.billed / r.durationMin : 0;
+  }
+  /* v14: an approved booking goes to the CALENDAR, not the run floor.
+     It waits in line only behind earlier speculative claims; hard claims
+     on its window make it slide to the soonest free slot — a booked
+     span is a promise whoever filed first. */
+  if(r.bookedStart != null){
+    const soft = blockers.filter(b => b.status === 'queued' ||
+      (b.status === 'in_review' && b.holdsLine));
+    if(soft.length){
+      r.status = 'queued'; r.holdsLine = false;
+      r.expireMin = now + (a.ttlMin || 60);
+      r.queuedBehind = blockers.map(b => b.id);
+      gsBusEmit('queue', r, { price: r.billed, pos: gsQueuePosition(r.id),
+        blockedBy: r.queuedBehind.slice(), on: gsLiveClashes(r),
+        reviewed: true, booked: gsBookHHMM(r.bookedStart) });
+      return r;
+    }
+    if(blockers.length ||
+       now >= r.bookedStart + r.durationMin){
+      const s = gsBookNextFree(r, now);
+      if(s == null){
+        r.status = 'expired'; r.reason = 'window_missed';
+        if(r.billed > 0){ gsCreditRefund(r.playerId, r.billed,
+                                         'window missed');
+                          r.refunded = (r.refunded || 0) + r.billed; }
+        gsBusEmit('expire', r, { refund: r.billed, via: 'window' });
+        if(r.holdsLine){ r.holdsLine = false; gsPromoteAll(now); }
+        return r;
+      }
+      if(s !== r.bookedStart){ r.slidFrom = r.bookedStart;
+                               r.bookedStart = s; }
+    }
+    r.holdsLine = false;
+    gsBookLand(r, now);
+    gsPromoteAll(now);
+    return r;
   }
   if(blockers.length){
     r.status = 'queued';
@@ -35917,8 +37578,20 @@ function gsRequestMeter(id, nowMin){
   if(r.status === 'queued'){
     m.queuePos = gsQueuePosition(id);
     m.blockedBy = gsFindBlockers(r)
-      .filter(b => b.status === 'active').map(b => b.id);
+      .filter(b => b.status === 'active' || b.status === 'booked')
+      .map(b => b.id);
     m.on = gsLiveClashes(r).map(gsClaimLabel);
+    if(r.bookedStart != null){
+      m.booked = gsBookHHMM(r.bookedStart);
+      m.day = gsBookClock(r.bookedStart).day;
+    }
+  }
+  /* v14: an on-calendar span shows its window, not a running meter */
+  if(r.status === 'booked'){
+    m.booked = gsBookHHMM(r.bookedStart);
+    m.day = gsBookClock(r.bookedStart).day;
+    m.startsInMin = +(r.bookedStart - now).toFixed(1);
+    m.on = gsClaimsOf(r).map(c => gsClaimLabel(c.res));
   }
   if(r.status === 'in_review'){
     m.reviewCode = r.screen || null;
@@ -35964,6 +37637,10 @@ function gsViewerState(nowMin){
       ? gsListingsPublic() : JSON.parse(JSON.stringify(GS_LISTINGS)),
     events: GS_EVENTS.map(e => Object.assign({}, e)),
     sessions: gsCoSessions(),
+    /* v14: THE BOOK — the public 24 h calendar of claimed exclusive
+       windows (world/bookings.json live seam). Booked spans only;
+       attribution by spectator handle; nothing private. */
+    calendar: gsBookCalendar(now),
     weather: GS_WX_OVR.wx ? { wx: GS_WX_OVR.wx, untilMin: GS_WX_OVR.untilMin,
       sponsors: Object.keys(GS_WX_OVR.sponsors || {}).length } : null,
     /* v7: the resource board (requests.json) — per-claim state for every
@@ -35975,6 +37652,9 @@ function gsViewerState(nowMin){
        a float bar, never a private ledger line */
     reputation: (typeof gsCharRepBoard === 'function')
       ? gsCharRepBoard() : [],
+    /* v15: the city's posted closures — a hold is a public fact (the
+       admin line that declared it already aired on the wire) */
+    holds: (typeof gsHoldList === 'function') ? gsHoldList(now) : [],
   };
 }
 function gsActiveSessions(now){
@@ -36044,7 +37724,9 @@ function gsBusSnapshot(){
     onb: (typeof gsOnbSnapshot === 'function')
          ? gsOnbSnapshot() : null,            // v12 welcome wagon
     econ: (typeof gsEconSnapshot === 'function')
-          ? gsEconSnapshot() : null });        // v13 Friday payroll
+          ? gsEconSnapshot() : null,          // v13 Friday payroll
+    civic: (typeof gsCivicSnapshot === 'function')
+           ? gsCivicSnapshot() : null });     // v15 municipal code
 }
 function gsBusLoad(json){
   try{
@@ -36090,6 +37772,9 @@ function gsBusLoad(json){
     /* v13: payroll/nut marks + the audit index — restored so a loaded
        world never double-pays a Friday */
     if(typeof gsEconLoad === 'function' && d.econ) gsEconLoad(d.econ);
+    /* v15: declared city holds ride back verbatim — the closure a save
+       carried still fences the same claims */
+    if(typeof gsCivicLoad === 'function') gsCivicLoad(d.civic);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -36128,6 +37813,7 @@ function gsBusReset(){
   if(typeof gsCrepReset === 'function') gsCrepReset();       // v11
   if(typeof gsOnbReset === 'function') gsOnbReset();         // v12
   if(typeof gsEconReset === 'function') gsEconReset();       // v13
+  if(typeof gsCivicReset === 'function') gsCivicReset();     // v15
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
@@ -36149,6 +37835,23 @@ if(typeof window !== 'undefined' && window.__aiBridge){
     (typeof gsPriceQuote === 'function') ? gsPriceQuote(spec) : null;
   window.__aiBridge.gsResourceBoard = () =>
     (typeof gsResourceBoard === 'function') ? gsResourceBoard() : {};
+  /* v14 the Book (world/bookings.json live seam): the public calendar
+     rides gsViewerState().calendar; the slot picker asks what's free */
+  window.__aiBridge.gsBookCalendar = () => gsBookCalendar();
+  window.__aiBridge.gsBookableSlots = (spec, count) =>
+    gsBookableSlots(spec, null, count);
+  /* v15 the municipal code: holds are admin verbs; the zone list and
+     the clerk's outlook are the read side */
+  window.__aiBridge.gsAdminHold = (spec) =>
+    (typeof gsAdminHold === 'function') ? gsAdminHold(spec) : null;
+  window.__aiBridge.gsLiftHold = (id) =>
+    (typeof gsLiftHold === 'function') ? gsLiftHold(id) : false;
+  window.__aiBridge.gsHoldList = () =>
+    (typeof gsHoldList === 'function') ? gsHoldList() : [];
+  window.__aiBridge.gsVenueZoneList = (at) =>
+    (typeof gsVenueZoneList === 'function') ? gsVenueZoneList(at) : null;
+  window.__aiBridge.gsReqOutlook = (id) =>
+    (typeof gsReqOutlook === 'function') ? gsReqOutlook(id) : null;
   window.__aiBridge.gsWatchAd = (pid) =>
     (typeof gsWatchAd === 'function') ? gsWatchAd(pid) : null;
   window.__aiBridge.gsAdStatus = (pid) =>
@@ -39278,6 +40981,7 @@ const GS_WIRE_EVENT_LABEL = {
   farmers_market: 'a farmers market', parade: 'a parade',
   movie_night: 'a movie night', park_cleanup: 'a park cleanup',
   mural_tour: 'a mural tour',
+  fitness_class: 'a fitness class',          /* v15 zoned permit kind */
 };
 /* v9 co-star asks — plain words for the bounded favors */
 const GS_WIRE_COSTAR_LABEL = {
@@ -39300,6 +41004,9 @@ const GS_WIRE_ADMIN_LABEL = {
   registry: 'registry paperwork moved',
   foreclose: 'title transferred',          /* v10: holder takes the deed */
   license: 'a landlord license was issued',
+  /* v15: the city's hand — a declared closure and its lift */
+  hold: 'a city closure was declared',
+  hold_lift: 'a city closure lifted',
 };
 
 /* player-authored text may name a real business; on the wire those names
@@ -39631,14 +41338,29 @@ function gsWireFormat(evt){
   switch(evt.type){
 
     case 'approve': {
-      const out = [mk('request', sum() + gsWireNoteSuffix(r, 'running'),
-        { status: 'running', who: evt.player, credits: evt.price,
+      /* v14: a cleared booking reads as the promise it is — the window
+         and any slide land on the wire in the contract's own words
+         ('approved · booked for HH:MM'), never as a live run. The book
+         adds no new status chip — 'approved' is the word. */
+      const bookedTxt = evt.hhmm
+        ? ' — approved · booked for ' + evt.hhmm +
+          (evt.slid ? ' (slid from ' + evt.slid + ')' : '')
+        : null;
+      const clipTxt = (!bookedTxt && evt.clipped)
+        ? ' — runs until ' + evt.clipped + ' (the book holds the rest)'
+        : '';
+      const out = [mk('request',
+        sum() + gsWireNoteSuffix(r, 'running') + (bookedTxt || clipTxt),
+        { status: bookedTxt ? 'approved' : 'running', who: evt.player,
+          credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
       /* player-called sky: the weather change itself is a feed kind,
-         always attributed (feed.json event_kinds). */
-      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+         always attributed (feed.json event_kinds). A booking prints it
+         when the window FIRES, not when it's filed. */
+      if(evt.kind === 'weather' && !bookedTxt &&
+         r && r.params && r.params.wx){
         const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
         out.push(mk('weather', wl + ' over the Mission — called by ' +
           gsWireWho(evt.player), { who: evt.player }));
@@ -39665,12 +41387,32 @@ function gsWireFormat(evt){
     }
 
     case 'queue':
+      /* v14: a queued booking still names its window on the wire —
+         'in line for 21:30' reads exactly as exposed as 'in line' */
       return [mk('request', sum() + gsWireNoteSuffix(r, 'queued') +
-        ' — in line (#' + (evt.pos || '?') + ')',
+        ' — in line' + (evt.booked ? ' for ' + evt.booked : '') +
+        ' (#' + (evt.pos || '?') + ')',
         { status: 'queued', who: evt.player, credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
+
+    case 'fire': {
+      /* v14: a booked window arrives — the contract line is
+         'booked window arrived — <action> fired' (running) */
+      const out = [mk('request',
+        'booked window arrived — ' + sum() + ' fired' +
+        (evt.late ? ' (window ran late)' : ''),
+        { status: 'running', who: evt.player, credits: evt.price,
+          venue: gsWireReqVenue(evt, r),
+          mentions: gsWireReqMentions(evt, r) })];
+      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+        const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
+        out.push(mk('weather', wl + ' over the Mission — called by ' +
+          gsWireWho(evt.player), { who: evt.player }));
+      }
+      return out;
+    }
 
     case 'deny':
       /* verbatim contract wording — never the note, never the detail.
@@ -39681,7 +41423,11 @@ function gsWireFormat(evt){
           attempt: evt.kind })];
 
     case 'expire':
-      return [mk('request', sum() + ' — lapsed, fully refunded',
+      /* v14: a booked window that passed unfired reads differently from
+         an ordinary queue lapse — the promise is what missed */
+      return [mk('request', sum() + (evt.via === 'window'
+          ? ' — window missed, fully refunded'
+          : ' — lapsed, fully refunded'),
         { status: 'refunded', who: evt.player, credits: evt.refund })];
 
     case 'fail':
@@ -39692,8 +41438,13 @@ function gsWireFormat(evt){
       /* v9: a declined co-star ask resolves honestly — the pawn said
          no, half the bill came back, and the wire says exactly that */
       const declined = evt.declined || (r && r.declined);
+      /* v14: a clipped or late-fired run still wrapped — the wire owns
+         that the un-run minutes came back */
+      const shortTxt = (!declined && evt.clipped)
+        ? ' — wrapped early · un-run minutes refunded' : null;
       const out = [mk('request', sum() + gsWireNoteSuffix(r, 'resolved') +
-        (declined ? ' — resolved · declined' : ' — wrapped'),
+        (declined ? ' — resolved · declined'
+                  : shortTxt || ' — wrapped'),
         { status: 'resolved', who: evt.player,
           credits: declined ? evt.refund : null,
           venue: gsWireReqVenue(evt, r),
@@ -39708,9 +41459,13 @@ function gsWireFormat(evt){
 
     case 'cancel': {
       const admin = (evt.by === 'admin' || evt.by === 'owner');
+      /* v14: a pre-window cancel is a booking coming off the calendar —
+         the wire says which kind of promise ended */
+      const preWin = evt.pre_window;
       return [mk('request', sum() + (admin
           ? ' — ended by admin, player compensated'
-          : ' — cancelled, refunded'),
+          : preWin ? ' — cancelled before the window, refunded'
+                   : ' — cancelled, refunded'),
         { status: 'refunded', who: evt.player,
           credits: evt.refund,
           compensated: admin ? evt.refund : null })];
@@ -39718,7 +41473,10 @@ function gsWireFormat(evt){
 
     case 'review':
       if(evt.action === 'in_review')
-        return [mk('request', sum() + ' — in human review',
+        /* v14: a booked filing in review still names its window —
+           the calendar ask is public even before it's a promise */
+        return [mk('request', sum() + ' — in human review' +
+          (evt.booked ? ' · for ' + evt.booked : ''),
           { status: 'in_review', who: evt.player,
             reason: gsWireReason(evt.code) })];
       if(evt.action === 'approved')
@@ -39747,6 +41505,17 @@ function gsWireFormat(evt){
         ' sharing the block',
         { who: (evt.players || [])[0] || null,
           mentions: evt.chars || null })];
+
+    case 'cohost':
+      /* v15: a second permit joins a running event — one party on the
+         ground, two names on the paper (the sky's co-sponsor rule) */
+      return [mk('request', 'one party, ' + (evt.co || 2) +
+        ' permits — ' +
+        (GS_WIRE_EVENT_LABEL[evt.event] || evt.event || 'an event') +
+        (evt.at ? ' at ' + gsWireDispName(evt.at) : '') +
+        ' gains a co-host',
+        { status: 'running', who: evt.player,
+          venue: gsWireVenueId(evt.at) })];
 
     case 'hire':
       if(evt.action === 'release')
@@ -40222,8 +41991,10 @@ function gsRateCheck(pid, now){
   for(const r of GS_REQ.reqs){
     if(r.playerId !== pid || r.submittedMin == null) continue;
     if(now - r.submittedMin <= GS_RATE_CFG.windowMin) filings++;
+    /* v14: a booked span still holds a seat — it counts against the
+       live cap like any live request (a calendar is not a loophole) */
     if(r.status === 'active' || r.status === 'queued' ||
-       r.status === 'in_review') live++;
+       r.status === 'in_review' || r.status === 'booked') live++;
   }
   if(live >= GS_RATE_CFG.liveMax) return 'too_many_live';
   if(filings >= GS_RATE_CFG.perHour) return 'rate_limited';
@@ -40457,8 +42228,11 @@ function gsRepScore(id, sinceMin){
 function gsEscalateLegal(id, nowMin){
   const now = (nowMin != null) ? nowMin : gsNowMin();
   const r = gsRequestById(id);
+  /* v14: the legal backstop reaches a booked span too — a calendar
+     promise is still killable pre-run, refunded in full like any lane */
   if(!r || (r.status !== 'queued' && r.status !== 'active' &&
-            r.status !== 'in_review')) return false;
+            r.status !== 'in_review' && r.status !== 'booked'))
+    return false;
   const wasActive = r.status === 'active';
   if(wasActive) gsFxDeactivate(r, now, 'legal');
   r.usedMin = wasActive
@@ -40496,11 +42270,22 @@ function gsResourceBoard(nowMin){
     }
   };
   for(const r of GS_REQ.reqs){
-    if(r.status !== 'active' && r.status !== 'queued') continue;
+    if(r.status !== 'active' && r.status !== 'queued' &&
+       r.status !== 'booked') continue;
     for(const c of gsClaimsOf(r)){
       if(r.status === 'active')
         mark(c.res, 'locked', { holder: r.id, player: r.playerId,
           leftMin: +((r.endMin != null ? r.endMin - now : 0)).toFixed(1) });
+      else if(r.status === 'booked'){
+        /* v14: a claimed future window shows on the board as a booked
+           marker — the resource reads free NOW but the promise is
+           public (state ranking unchanged; booked is additive) */
+        const b = board[c.res] ||
+          (board[c.res] = { res: c.res, state: 'free', depth: 0 });
+        (b.booked = b.booked || []).push({
+          req: r.id, holder: r.playerId,
+          startMin: r.bookedStart, min: r.durationMin });
+      }
       else mark(c.res, 'queued');
     }
   }
@@ -40533,6 +42318,16 @@ function gsPriceQuote(spec, nowMin){
     return { ok: false, deny: 'missing_target' };
   if(!(dur >= a.minMin && dur <= a.maxMin))
     return { ok: false, deny: 'bad_duration' };
+  /* v14: the receipt shows the window it will book — same normalization
+     and the same deny codes as the door, nothing billed either way */
+  var bookStart = null;
+  if(spec.start_slot != null || spec.startMin != null){
+    if(typeof gsBookWindowSpec === 'function'){
+      const bw = gsBookWindowSpec(spec, a, now);
+      if(bw && bw.err) return { ok: false, deny: bw.err };
+      if(bw) bookStart = bw.startMin;
+    }
+  }
   const gate = (!gsIsAdmin(pid) && typeof gsAccountGate === 'function')
     ? gsAccountGate(pid, now) : null;
   if(gate && gate.deny) return { ok: false, deny: gate.deny };
@@ -40545,10 +42340,19 @@ function gsPriceQuote(spec, nowMin){
   }
   if(!gsIsAdmin(pid) && gsFinalText(pid, spec))
     return { ok: false, deny: 'appeal_final' };
+  /* v15: the clerk never says 'no' without saying when — a time/space
+     denial on a bookable kind carries the soonest legal slots */
+  const altsCand = { playerId: pid, kind: spec.kind, target, params,
+                     durationMin: dur };
+  const altsFor = (why) =>
+    (typeof gsCivicAlts === 'function' && GS_BOOKABLE[spec.kind] &&
+     /rest|quiet|hold|tail|window/.test(why))
+      ? gsCivicAlts(altsCand, now, 3) : undefined;
   if(a.allow){
     const why = a.allow({ playerId: pid, target, kind: spec.kind,
-                          params }, now);
-    if(why !== true) return { ok: false, deny: why };
+                          params, bookedStart: bookStart,
+                          durationMin: dur }, now);
+    if(why !== true) return { ok: false, deny: why, alts: altsFor(why) };
   }
   if((GS_REQ.cdP[pid + '|' + spec.kind] || 0) > now)
     return { ok: false, deny: 'cooldown',
@@ -40556,36 +42360,94 @@ function gsPriceQuote(spec, nowMin){
   if((GS_REQ.cdG[spec.kind] || 0) > now)
     return { ok: false, deny: 'global_cooldown',
              untilMin: GS_REQ.cdG[spec.kind] };
+  /* v14: a slot inside a cooldown tail is refused on the receipt too —
+     the picker never quotes a window that cannot legally fire */
+  if(bookStart != null && typeof gsBookTailDeny === 'function'){
+    const tail = gsBookTailDeny(
+      { playerId: pid, kind: spec.kind, target, params,
+        bookedStart: bookStart, durationMin: dur }, bookStart, now);
+    if(tail) return { ok: false, deny: tail, alts: altsFor(tail) };
+  }
   const cand = { playerId: pid, kind: spec.kind, target, params,
-                 n: Infinity };
+                 n: Infinity, durationMin: dur };
+  if(bookStart != null) cand.bookedStart = bookStart;
   const claims = gsClaimsOf(cand);
-  const blockers = gsFindBlockers(cand);
+  /* v15: a city hold covering the claims and window refuses on the
+     receipt exactly as it does at the door */
+  if(typeof gsCivicHoldDeny === 'function' && gsCivicHoldDeny(cand, now))
+    return { ok: false, deny: 'city_hold',
+             alts: (typeof gsCivicAlts === 'function')
+                   ? gsCivicAlts(cand, now, 3) : [] };
+  const blockers = gsFindBlockers(cand, now);
   const wouldQueue = blockers.length > 0;
+  /* v15: the estimate the window gives — a queued ask's earliest legal
+     start is the latest of its blockers' ends and any covering hold's */
+  const holdEnds = (typeof gsLiveHolds === 'function')
+    ? gsLiveHolds(cand, now).map(h => h.endMin) : [];
+  const allEnds = blockers.map(b => gsReqWindow(b, now)[1])
+    .concat(holdEnds);
+  const estMin = allEnds.length ? Math.max.apply(null, allEnds) : null;
+  /* v15: a booking that would slide says where it lands — the book's
+     own next-free answer, before any money moves */
+  const slideTo = (bookStart != null &&
+                   typeof gsBookNextFree === 'function' &&
+                   !gsBookSlotFree(cand, bookStart, now))
+    ? gsBookNextFree(cand, now) : null;
   const lane = gsIsAdmin(pid) ? null :
     (screened ? 'screen' :
      a.review === 'always' ? 'exclusive' :
      (gate && gate.review) ? 'flagged' :
      (spec.kind === 'hire' && params && typeof params.name === 'string' &&
       params.name.trim()) ? 'naming' : null);
-  const surge = gsSurgeFactor(cand, now);
+  const surge = gsSurgeFactor(cand, now, bookStart);
   const base = Math.ceil(a.ratePerMin * dur);
   const list = Math.ceil(a.ratePerMin * dur * surge);
   const queueTotal = Math.ceil(list * (1 - GS_QUEUE_DISCOUNT));
+  /* a booking isn't queuing — no patience discount; the surge keys off
+     the WINDOW's local hour (primetime 18:00–23:00 PT) */
+  const discounted = wouldQueue && !lane && bookStart == null;
   return {
     ok: true, kind: spec.kind, target: target, minutes: dur,
     ratePerMin: a.ratePerMin, base: base,
-    surge: surge, surgePressure: gsSurgePressure(cand, now),
-    primetime: gsBusPrimetime(now),
+    surge: surge, surgePressure: gsSurgePressure(cand, now, bookStart),
+    primetime: gsBusPrimetime(bookStart != null ? bookStart : now),
     list: list,
-    queueDiscount: (wouldQueue && !lane) ? GS_QUEUE_DISCOUNT : 0,
-    total: (wouldQueue && !lane) ? queueTotal : list,
+    queueDiscount: discounted ? GS_QUEUE_DISCOUNT : 0,
+    total: discounted ? queueTotal : list,
     wouldQueue: wouldQueue,
     blockedBy: wouldQueue ? blockers.map(b => b.id) : [],
+    /* v15: the clerk's estimate — when a queued ask could earliest run
+       (blockers' ends + covering holds), and where a sliding booking
+       actually lands. Never a promise, always a number. */
+    estStartMin: (wouldQueue && estMin != null) ? estMin : null,
+    estStart: (wouldQueue && estMin != null &&
+               typeof gsBookHHMM === 'function')
+              ? gsBookHHMM(estMin) : null,
+    heldBy: holdEnds.length
+      ? (typeof gsLiveHolds === 'function'
+         ? gsLiveHolds(cand, now).map(h => h.id) : []) : [],
+    wouldBook: bookStart != null,
+    booked: bookStart != null
+      ? { startMin: bookStart,
+          start: (typeof gsBookHHMM === 'function')
+                 ? gsBookHHMM(bookStart) : null,
+          day: (typeof gsBookClock === 'function')
+               ? gsBookClock(bookStart).day : null,
+          slidesToMin: slideTo,
+          slidesTo: (slideTo != null &&
+                     typeof gsBookHHMM === 'function')
+                    ? gsBookHHMM(slideTo) : null }
+      : null,
     wouldReview: !!lane, lane: lane,
     adminFree: gsIsAdmin(pid),
-    refundNote: 'queued or in-review requests that never run refund in ' +
-      'full; a player-cancel refunds whole unused minutes; admin ' +
-      'overrides always compensate in full',
+    refundNote: bookStart != null
+      ? 'a booking cancelled before its window refunds in full; once ' +
+        'it fires, the live-exclusive rules apply — whole unused ' +
+        'minutes back on a player cancel, always full on an admin ' +
+        'override; a missed window refunds in full'
+      : 'queued or in-review requests that never run refund in ' +
+        'full; a player-cancel refunds whole unused minutes; admin ' +
+        'overrides always compensate in full',
   };
 }
 
@@ -45432,6 +47294,393 @@ function gsTimeShelter(v){
       ? sfDisplayName(best.name) : best.name,
     cell: door || { wx: best.wx, wy: best.wy },
     poi: best.name };
+}
+
+/* =====================================================================
+   PART 41P: GAME SYSTEMS — THE MUNICIPAL CODE (v15: conflicts, pass two)
+
+   v2 gave the request bus a pairwise claims matrix and v14 put the
+   claims on a calendar. What was missing is everything a real permit
+   office knows that a flat resource key can't say:
+
+   1. THE ZONE MAP (space) — a venue claim 'venue:<place>' was one blob.
+      A real permit names an AREA. Venues that genuinely subdivide carry
+      a zone table (Dolores Park is the canonical one — it hosts a dozen
+      permitted things at once, and the city writes permits by area). A
+      zoned filing claims 'venue:<place>@<zone>'; a bare venue filing is
+      the whole place and touches every zone. Zone relations live in the
+      matrix (gsVenueResTouch, requests.js) — same place + same zone or
+      either side whole = the same ground.
+
+   2. THE NOISE ORDINANCE (time) — amplified-sound permits rest
+      22:00-06:00 PT (SF PD Article 29's own shape). An event kind's
+      'amplified' flag makes it claim 'noise:<place>' on top of its
+      ground — the noise floor is the place's airspace and clashes with
+      EVERY venue claim there (a loud party and a quiet cleanup can't
+      share a lawn). The check keys off the RUN window — declared for
+      bookings, prospective for now-or-queued asks — so the door, the
+      picker, and promotion all enforce the same clock.
+
+   3. THE CITY'S HAND (holds) — admin may place a duration-bounded HOLD
+      on any claimable resource: 'sky' (airspace), 'venue:<place>' /
+      'venue:<place>@<zone>' (a closure), 'noise:<place>' (a quiet
+      rule), 'openair' (roving permits grounded), 'char:<id>',
+      'paper:<id>', 'listing:<id>'. The city always wins: declaring a
+      hold sweeps every live claim that overlaps its window and pays the
+      standing admin compensation (full refund, public line); filings
+      into a hold are denied 'city_hold' without billing; a queued or
+      booked request that reaches a held window waits or slides past it,
+      never fires into it.
+
+   4. CO-HOSTING (shared permits) — two identical events on the same
+      ground at the same time are ONE event with two permits (the sky's
+      own co-sponsor rule). The claims don't clash; each sponsor pays
+      their own span; the event record lives until its last sponsor's
+      window ends; the wire prints the second permit as a co-host.
+
+   5. THE CLERK'S ANSWERS (explainability) — gsReqOutlook gives any
+      request its honest outlook (queue position + not-before estimate,
+      booked window, review TTL); gsCivicAlts feeds gsPriceQuote's
+      'alts' — a denied or would-queue filing answers with the soonest
+      legal slots instead of a bare no.
+
+   Everything is a claim-space fact: no new currencies, no mind control,
+   no real addresses. Municipal realism only.
+   ===================================================================== */
+
+/* ---- the map beneath the map: venue zones ----
+   A place gets a zone table only when it genuinely subdivides in real
+   life. Streets stay whole-segment — a 'Valencia Street' closure is the
+   street face as named (no invented block numbers on real streets). */
+const GS_VENUE_ZONES = {
+  'dolores park':  ['north lawn', 'south lawn', 'playground',
+                    'tennis courts', 'church street edge'],
+  'precita park':  ['the lawn', 'the plaza'],
+};
+
+function gsVenueZoneList(at){
+  const place = (typeof gsNormVenue === 'function')
+    ? gsNormVenue(at) : String(at || '').toLowerCase();
+  const z = GS_VENUE_ZONES[place];
+  return z ? z.slice() : null;
+}
+
+/* parse an event filing's ground: params.zone wins, then 'at' suffixes —
+   'Dolores Park (north lawn)', 'Dolores Park — north lawn', or a bare
+   trailing zone name ('dolores park north lawn'). Returns
+   {place, zone, err} — err 'bad_zone' when the named zone isn't real or
+   the event kind doesn't take zones at all (a fair is whole-venue). */
+function gsVenueZoneParse(r){
+  const p = (r && r.params) || {};
+  const meta = (typeof GS_EVENT_KINDS !== 'undefined')
+    ? (GS_EVENT_KINDS[p.event] || {}) : {};
+  let at = (typeof gsNormVenue === 'function')
+    ? gsNormVenue(p.at) : String(p.at || '').toLowerCase();
+  let zone = (typeof p.zone === 'string' && p.zone.trim())
+    ? gsNormVenue(p.zone) : null;
+  let m = at.match(/^(.*?)\s*\(([^()]*)\)\s*$/);          // 'place (zone)'
+  if(!m) m = at.match(/^(.*?)\s*[–—]\s*(.+)$/);          // 'place — zone'
+  if(m){ at = gsNormVenue(m[1]); if(!zone) zone = gsNormVenue(m[2]); }
+  if(!zone){
+    /* bare suffix: 'dolores park north lawn' */
+    for(const place in GS_VENUE_ZONES)
+      if(at.length > place.length && at.indexOf(place + ' ') === 0){
+        const cand = at.slice(place.length + 1);
+        if(GS_VENUE_ZONES[place].indexOf(cand) >= 0){
+          at = place; zone = cand; break;
+        }
+      }
+  }
+  const zones = GS_VENUE_ZONES[at] || null;
+  let err = null;
+  if(zone && (!zones || zones.indexOf(zone) < 0)) err = 'bad_zone';
+  if(zone && !meta.zoned) err = 'bad_zone';
+  return { place: at, zone: err ? null : zone, err: err };
+}
+
+/* the claims an event filing holds on the world (v15 replaces the
+   requests.js fallback): a zoned venue filing claims 'venue:P@Z';
+   amplified kinds also claim the place's airspace 'noise:P' — the
+   permit office writes both lines on one permit. */
+function gsEventClaims(r){
+  const meta = GS_EVENT_KINDS[(r.params && r.params.event)] || {};
+  const parsed = gsVenueZoneParse(r);
+  const out = meta.outdoor ? 1 : 0;
+  if(meta.venue && parsed.place){
+    const claims = [{ cls: 'venue',
+      res: 'venue:' + parsed.place + (parsed.zone ? '@' + parsed.zone : ''),
+      outdoor: out }];
+    if(meta.amplified)
+      claims.push({ cls: 'noise', res: 'noise:' + parsed.place });
+    return claims;
+  }
+  return [{ cls: 'openair', outdoor: out, excl: false,
+            res: 'openair:' + r.playerId + ':' + (r.params && r.params.event) }];
+}
+
+/* ---- the noise ordinance: amplified sound rests 22:00-06:00 PT ----
+   The window is judged per-minute — a permit that would run ANY of its
+   minutes inside quiet hours is refused; one ending exactly at 22:00
+   runs clean. gsBusPtMin is the wire's own SF wall clock. */
+const GS_NOISE_ORDINANCE = { quietFrom: 22 * 60, quietTo: 6 * 60 };
+function gsQuietMin(pt){
+  return pt >= GS_NOISE_ORDINANCE.quietFrom ||
+         pt <  GS_NOISE_ORDINANCE.quietTo;
+}
+/* does [sMin,eMin) touch quiet hours? The window's covered PT minutes
+   are [pt0, pt0+dur) in unwrapped space (pt0 = PT minute-of-day at the
+   start); the quiet band is the continuous [22:00, 30:00) = 22:00-06:00
+   across midnight. A window starting INSIDE the early half of the band
+   is the same interval shifted a day forward — check both placements.
+   O(1): the picker runs this once per grid slot. */
+function gsQuietOverlap(sMin, eMin){
+  if(!(eMin > sMin)) return false;
+  const dur = Math.min(eMin - sMin, 1440);
+  const a = gsBusPtMin(sMin), b = a + dur;
+  const qf = GS_NOISE_ORDINANCE.quietFrom,
+        qt = GS_NOISE_ORDINANCE.quietTo + 1440;
+  return (a < qt && qf < b) || (a + 1440 < qt && qf < b + 1440);
+}
+function gsQuietDeny(sMin, eMin){
+  return gsQuietOverlap(sMin, eMin) ? 'quiet_hours' : null;
+}
+/* does this request's kind carry an amplified permit? */
+function gsCivicLoud(r){
+  return r && r.kind === 'street_event' && r.params &&
+    !!(GS_EVENT_KINDS[r.params.event] || {}).amplified;
+}
+
+/* ---- the city's hand: administrative holds ----
+   A hold is a duration-bounded closure on claim-space. It is not a
+   request — it has no billing, no queue slot, and it always wins. */
+const GS_HOLDS = [];
+const GS_HOLD_SEQ = { n: 0 };
+const GS_HOLD_CFG = { minMin: 15, maxMin: 1440 };
+
+/* does a hold on res cover the claim? Place-level relations reuse the
+   matrix's zone math: a whole-place hold covers every zone and the
+   noise floor; a zone hold covers its zone AND whole-venue filings
+   (you can't permit the whole park with a lawn closed); a noise hold
+   is a quiet rule — it silences loud permits, it does not close the
+   venue itself. */
+function gsHoldCover(holdRes, claimRes){
+  if(holdRes === 'sky') return claimRes === 'sky';
+  if(holdRes === 'openair') return claimRes.indexOf('openair:') === 0;
+  if(holdRes.indexOf('noise:') === 0) return claimRes === holdRes;
+  const hp = (typeof gsVenueResParts === 'function')
+    ? gsVenueResParts(holdRes) : null;
+  if(hp && hp.cls === 'venue'){
+    if(claimRes === ('noise:' + hp.place)) return !hp.zone; // whole-place
+    return gsVenueResTouch(holdRes, claimRes);              // only quiets
+  }
+  return claimRes === holdRes;                              // char/paper/
+}                                                           // listing
+function gsHoldsOver(claims, w, now){
+  const out = [];
+  for(const h of GS_HOLDS){
+    if(h.endMin <= now) continue;                            // swept
+    if(!gsWindowsOverlap(w, [h.startMin, h.endMin])) continue;
+    for(const c of claims)
+      if(gsHoldCover(h.res, c.res)){ out.push(h); break; }
+  }
+  return out;
+}
+/* live holds clashing with r over its prospective/declared window */
+function gsLiveHolds(r, now){
+  return GS_HOLDS.length
+    ? gsHoldsOver(gsClaimsOf(r), gsReqWindow(r, now), now) : [];
+}
+function gsCivicHoldDeny(r, now){
+  return gsLiveHolds(r, now).length ? 'city_hold' : null;
+}
+/* the picker-side legality check: a slot can't be offered when the
+   ordinance or a hold would fence the whole window */
+function gsCivicSlotDeny(r, s, now){
+  if(gsCivicLoud(r) && gsQuietOverlap(s, s + r.durationMin))
+    return 'quiet_hours';
+  if(gsHoldsOver(gsClaimsOf(r), [s, s + r.durationMin], now).length)
+    return 'city_hold';
+  return null;
+}
+
+/* normalize + validate a hold's claim target. Accepts raw claim res
+   strings ('sky', 'venue:dolores park', 'venue:dolores park@north
+   lawn', 'noise:dolores park', 'openair', 'char:H3', 'paper:u..',
+   'listing:u..') or a {place, zone} spec for venue holds. */
+function gsHoldResNorm(res, spec){
+  let s = (typeof res === 'string' ? res : '').toLowerCase()
+    .trim().replace(/\s+/g, ' ');
+  if(!s && spec && spec.place){
+    s = 'venue:' + gsNormVenue(spec.place) +
+        (spec.zone ? '@' + gsNormVenue(spec.zone) : '');
+  }
+  if(!s) return null;
+  if(s === 'sky' || s === 'openair') return s;
+  if(s.indexOf('venue:') === 0){
+    const p = gsVenueResParts(s);
+    if(!p || !p.place) return null;
+    if(p.zone &&
+       (GS_VENUE_ZONES[p.place] || []).indexOf(p.zone) < 0)
+      return null;                          // the city permits real areas
+    return s;
+  }
+  if(/^(noise|char|paper|listing):.+/.test(s)) return s;
+  return null;
+}
+function gsHoldLabel(res){
+  if(res === 'sky') return 'the sky';
+  if(res === 'openair') return 'the open air';
+  const p = gsVenueResParts(res);
+  if(p){
+    const disp = (typeof gsWireDispName === 'function')
+      ? gsWireDispName(p.place) : p.place;
+    if(p.cls === 'noise') return 'quiet at ' + (disp || p.place);
+    return (disp || p.place) + (p.zone ? ' — ' + p.zone : ' (all areas)');
+  }
+  return res;
+}
+
+/* admin verb: declare a hold. The sweep is the honest part — every live
+   claim overlapping the window is bumped with the standing admin
+   compensation (full refund) and the public line says so. */
+function gsAdminHold(spec, nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const by = (spec && spec.by) || 'owner';
+  if(!gsIsAdmin(by)) return { ok: false, err: 'admin_only' };
+  const res = gsHoldResNorm(spec && spec.res, spec);
+  if(!res) return { ok: false, err: 'bad_claim' };
+  const s = (spec && spec.startMin != null) ? +spec.startMin : now;
+  const dur = (spec && spec.durationMin != null) ? +spec.durationMin : 60;
+  if(!isFinite(s) || !isFinite(dur)) return { ok: false, err: 'bad_window' };
+  if(!(dur >= GS_HOLD_CFG.minMin && dur <= GS_HOLD_CFG.maxMin))
+    return { ok: false, err: 'bad_duration' };
+  if(s + dur <= now) return { ok: false, err: 'window_past' };
+  const h = { id: 'hold-' + (++GS_HOLD_SEQ.n), res: res,
+    startMin: s, endMin: s + dur,
+    reason: (spec && spec.reason) || 'city work',
+    by: by, sinceMin: now };
+  const bumped = [];
+  let comp = 0;
+  for(const r of GS_REQ.reqs.slice()){
+    if(r.status !== 'active' && r.status !== 'queued' &&
+       r.status !== 'in_review' && r.status !== 'booked') continue;
+    if(!gsWindowsOverlap(gsReqWindow(r, now), [h.startMin, h.endMin]))
+      continue;
+    let hit = false;
+    for(const c of gsClaimsOf(r))
+      if(gsHoldCover(res, c.res)){ hit = true; break; }
+    if(!hit) continue;
+    const back = r.billed || 0;
+    if(gsCancelRequest(r.id, now, 'admin')){
+      bumped.push(r.id); comp += back;
+    }
+  }
+  h.bumped = bumped;
+  GS_HOLDS.push(h);
+  gsBusEmit('admin', { playerId: 'owner', kind: 'admin', id: null,
+    _now: now }, { action: 'hold', hold: h.id, res: res,
+    address: gsHoldLabel(res), detail: h.reason,
+    startMin: h.startMin, endMin: h.endMin, until: gsBookHHMM(h.endMin),
+    bumped: bumped.length || null, compensated_cr: comp || null });
+  if(typeof gsRepNote === 'function')
+    gsRepNote('owner', 'hold', 0,
+      { res: res, bumped: bumped.length }, now);
+  return { ok: true, hold: h, bumped: bumped };
+}
+function gsLiftHold(id, nowMin, via){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const i = GS_HOLDS.findIndex(h => h.id === id);
+  if(i < 0) return false;
+  const h = GS_HOLDS.splice(i, 1)[0];
+  gsBusEmit('admin', { playerId: 'owner', kind: 'admin', id: null,
+    _now: now }, { action: 'hold_lift', hold: h.id, res: h.res,
+    address: gsHoldLabel(h.res),
+    detail: via === 'expire' ? 'window ended' : 'released early' });
+  /* freed ground hands off in the same beat — the line moves */
+  gsPromoteAll(now);
+  return true;
+}
+/* the public board — live and future holds, display-safe */
+function gsHoldList(nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  return GS_HOLDS.filter(h => h.endMin > now).map(h => ({
+    id: h.id, res: h.res, label: gsHoldLabel(h.res),
+    startMin: h.startMin, endMin: h.endMin,
+    start: gsBookHHMM(h.startMin), until: gsBookHHMM(h.endMin),
+    reason: (typeof gsWireRedact === 'function')
+      ? gsWireRedact(h.reason) : h.reason,
+    bumped: (h.bumped || []).length,
+    live: h.startMin <= now,
+  }));
+}
+/* the bus beat: expired holds lift themselves (and say so) */
+function gsCivicTick(now){
+  for(const h of GS_HOLDS.slice())
+    if(h.endMin <= now) gsLiftHold(h.id, now, 'expire');
+}
+
+/* ---- the clerk's answers ----
+   An honest outlook for any request: queue position + the earliest the
+   blockers and holds could clear, booked windows, review TTLs. */
+function gsReqOutlook(id, nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const r = (typeof gsRequestById === 'function') ? gsRequestById(id) : null;
+  if(!r) return null;
+  const o = { id: r.id, kind: r.kind, player: r.playerId,
+              status: r.status };
+  if(r.status === 'queued'){
+    o.pos = gsQueuePosition(id);
+    o.on = gsLiveClashes(r).map(gsClaimLabel);
+    const ends = gsFindBlockers(r).map(b => gsReqWindow(b, now)[1]);
+    const holds = gsLiveHolds(r, now);
+    const all = ends.concat(holds.map(h => h.endMin));
+    o.notBeforeMin = all.length ? Math.max.apply(null, all) : null;
+    o.notBefore = o.notBeforeMin != null
+      ? gsBookHHMM(o.notBeforeMin) : null;
+    o.held = holds.length ? holds.map(h => h.id) : null;
+  } else if(r.status === 'booked'){
+    o.startMin = r.bookedStart; o.start = gsBookHHMM(r.bookedStart);
+    o.day = gsBookClock(r.bookedStart).day;
+    o.firesInMin = +(r.bookedStart - now).toFixed(1);
+  } else if(r.status === 'active'){
+    o.endsAtMin = r.endMin; o.remainingMin = +(r.endMin - now).toFixed(1);
+  } else if(r.status === 'in_review'){
+    o.reviewCode = r.screen || null;
+    o.reviewExpiresInMin = r.reviewExpireMin != null
+      ? +(r.reviewExpireMin - now).toFixed(1) : null;
+  } else {
+    o.note = r.status + (r.reason || r.failReason
+      ? ': ' + (r.reason || r.failReason) : '');
+  }
+  return o;
+}
+/* a denied or waiting filing's next legal slots — the clerk never says
+   'no' without saying when. Bookable kinds scan the grid; the answer
+   is honest because gsBookSlotFree already knows every law. */
+function gsCivicAlts(r, now, count){
+  if(!GS_BOOKABLE[r.kind]) return [];
+  const out = [];
+  const lim = now + GS_BOOK_CFG.horizonMin;
+  for(let s = gsBookSnap(now); s <= lim && out.length < (count || 3);
+      s += GS_BOOK_CFG.slotMin)
+    if(gsBookSlotFree(r, s, now))
+      out.push({ startMin: s, start: gsBookHHMM(s),
+                 day: gsBookClock(s).day });
+  return out;
+}
+
+/* ---- persistence: holds ride the bus snapshot ---- */
+function gsCivicSnapshot(){
+  return { holds: GS_HOLDS, holdSeq: GS_HOLD_SEQ.n };
+}
+function gsCivicLoad(d){
+  GS_HOLDS.length = 0;
+  if(d && Array.isArray(d.holds))
+    GS_HOLDS.push.apply(GS_HOLDS, d.holds);
+  GS_HOLD_SEQ.n = (d && d.holdSeq) || 0;
+}
+function gsCivicReset(){
+  GS_HOLDS.length = 0; GS_HOLD_SEQ.n = 0;
 }
 
 /* Boot entry hook. Kept in the LAST module of _order.txt so that even a

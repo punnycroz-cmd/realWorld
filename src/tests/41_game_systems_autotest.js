@@ -4844,12 +4844,23 @@ runAutoTest = async function(){
             keepDS = pv._dirStreak, keepDg = pv._dirSig;
       const keepLC = new Map();
       VILLAGERS.forEach(o => keepLC.set(o, o.lastClockCheck));
+      /* v16 fields ride along — a dirty mind/convo/dispatch here would
+         poison the v16 suite that runs after */
+      const keepV16 = {
+        convo: pv.sfConvo, lastConvo: pv.sfLastConvo,
+        intents: pv.sfIntents, obs: pv.sfObligations,
+        mood: pv.sfMood, concerns: pv.sfConcerns,
+        why: pv.sfLastWhy, disp: pv.sfDisp, mind: pv.sfMind,
+        fat: pv.body ? pv.body.fatigue : null };
       try{
         W.tod = 15.8; W.rain = 0; W.storm = 0;
         pv.lastClockCheck = null; pv.sfAgent = null;
         pv.sfAgentDriven = false; pv.sfDirective = null;
         pv.sfGap = false; pv.sfAgentResult = null; pv.sfReflex = null;
         pv._agentSeq = null; pv._dirStreak = 0; pv._dirSig = null;
+        pv.sfConvo = null; pv.sfLastConvo = null; pv.sfIntents = [];
+        pv.sfObligations = []; pv.sfMood = null; pv.sfConcerns = null;
+        pv.sfLastWhy = null; pv.sfDisp = null;
         const s0 = sfAgentState(cid, { turn: 1 });
         log(!('time' in s0) &&
             !JSON.stringify(s0).includes('15:48'),
@@ -4903,30 +4914,39 @@ runAutoTest = async function(){
             'gs: v13 senses read light and weather and venue hours — ' +
             'never a clock');
 
-        /* the Jules fix: rain refuses, shelter routes, door delivers */
+        /* v16: the rain veto is gone — environment is a trigger class,
+           never code-authored behavior. Rest in the rain files and
+           executes; consequences belong to the body. */
         W.rain = 0.6;
-        const rr = sfAgentAct(cid, { verb: 'rest' });
-        log(rr.ok === false && /rain/.test(rr.err || ''),
-            'gs: v13 outdoor rest in the rain is refused with a ' +
-            'redirect');
-        W.rain = 0;
-        const rs = sfAgentAct(cid, { verb: 'rest' });
-        log(rs.ok === true && pv.sfAgent && pv.sfAgent.shelter &&
-            rs.sheltering != null,
-            'gs: v13 outdoor rest routes to shelter first');
-        if(pv.sfAgent && pv.sfAgent.shelter){
-          const c = pv.sfAgent.shelter.cell;
+        const rr = sfAgentAct(cid, { verb: 'rest', holdH: 0.25,
+                                     why: 'bone tired' });
+        log(rr.ok === true && pv.sfAgent && pv.sfAgent.verb === 'rest',
+            'gs: v16 no weather veto — rest in the rain files and runs');
+        sfNpcTick(pv, 0.016);
+        log(pv.state === 'rest' && pv.inBuilding === false,
+            'gs: v16 the rest executes outdoors — the body keeps score');
+        W.rain = 0; pv.sfAgent = null; pv.sfAgentResult = null;
+        /* presence verbs ground "at <to>, do <verb>": rest at home
+           navigates to her own door and goes inside */
+        const rs = sfAgentAct(cid, { verb: 'rest', to: 'home',
+                                     holdH: 0.5, why: 'off feet' });
+        log(rs.ok === true && pv.sfAgent && pv.sfAgent.cell &&
+            pv.sfAgent.enter === 'home',
+            'gs: v16 rest at "home" resolves to the pawn\'s own door');
+        if(pv.sfAgent && pv.sfAgent.cell){
+          const c = pv.sfAgent.cell;
           pv.x = c.wx * CS + 16; pv.y = c.wy * CS + 16; pv.sfPath = null;
-          sfNpcTick(pv, 0.016);
+          sfNpcTick(pv, 0.016); sfNpcTick(pv, 0.016);
           log(pv.inBuilding === true && pv.state === 'rest',
-              'gs: v13 she goes inside and actually rests');
+              'gs: v16 she goes inside her own place and rests');
         }
         pv.inBuilding = false; pv.inside = null; pv.sfAgent = null;
 
         /* standing directive: the brain's durable last will fills the
            gap — filed as `directive` (sibling), `act.directive`, or the
            legacy `act.then` spelling, all landing on v.sfDirective */
-        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'catching a breath' },
           { directive: { verb: 'work', untilH: 6,
                          then: { verb: 'idle', why: 'between shifts' },
                          why: 'shift at the café' } });
@@ -4972,11 +4992,11 @@ runAutoTest = async function(){
             'gs: v13 the gap is visible on the state, not hidden');
         /* outcome: interrupted — a fresh filing replaces the live
            order and says so */
-        sfAgentAct(cid, { verb: 'idle', holdH: 1 },
+        sfAgentAct(cid, { verb: 'idle', holdH: 1, why: 'waiting' },
           { directive: { verb: 'work', untilH: 2,
                          why: 'shift at the café' } });
         sfAgentAct(cid, { verb: 'move', to: 'Haus Coffee',
-                          holdH: 1 });
+                          holdH: 1, why: 'coffee first' });
         log(pv.sfAgentResult && pv.sfAgentResult.status === 'interrupted'
             && pv.sfAgentResult.interruptedBy === 'new_order' &&
             pv.sfAgent && pv.sfAgent.verb === 'move',
@@ -4984,29 +5004,39 @@ runAutoTest = async function(){
             '"interrupted"');
         /* seq guard: a stale turn cannot stomp the newer filing */
         pv.sfAgent = null; pv.sfAgentDriven = true;
-        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
-                                { seq: 40 });
-        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25 },
-                                { seq: 39 });
+        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'waiting' }, { seq: 40 });
+        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25,
+                                     why: 'clock in' }, { seq: 39 });
         log(sNew.ok === true && sOld.ok === false &&
             /stale/.test(sOld.err || '') &&
             pv.sfAgent && pv.sfAgent.verb === 'idle',
             'gs: v13 a late stale-seq filing is rejected, not applied');
+        /* v16: a why-less ACT never reaches the directive check at
+           all — why is required on every filing */
+        const noWhy = sfAgentAct(cid, { verb: 'idle' });
+        log(noWhy.ok === false && /why/.test(noWhy.err || ''),
+            'gs: v16 every act needs a why — none filed, none run');
         /* bad directives are named at filing — unknown verb, missing
-           why on rest, and requests (standing wills never spend) */
-        const bad = sfAgentAct(cid, { verb: 'idle' },
-          { directive: { verb: 'fly' } });
-        const badWhy = sfAgentAct(cid, { verb: 'idle' },
+           why, and requests (standing wills never spend, speak, or
+           leave) */
+        const bad = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'fly', why: 'x' } });
+        const badWhy = sfAgentAct(cid, { verb: 'idle', why: 'x' },
           { directive: { verb: 'rest' } });
-        const badReq = sfAgentAct(cid, { verb: 'idle' },
-          { directive: { verb: 'request', kind: 'weather' } });
-        log(!!bad.thenDropped && /why/.test(badWhy.thenDropped || '') &&
+        const badSay = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'say', text: 'hi', why: 'x' } });
+        const badReq = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'request', kind: 'weather', why: 'x' } });
+        log(!!bad.thenDropped && /verb/.test(bad.thenDropped || '') &&
+            /why/.test(badWhy.thenDropped || '') &&
+            /say/.test(badSay.thenDropped || '') &&
             /request/.test(badReq.thenDropped || ''),
-            'gs: v13 nonsense, why-less, and spending directives are ' +
-            'named at filing');
+            'gs: v16 nonsense, why-less, speech, and spending ' +
+            'directives are named at filing');
         /* repeat:false — the will fires exactly once */
         pv.sfAgent = null; pv.sfDirective = null;
-        sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+        sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'waiting' },
           { directive: { verb: 'work', holdH: 0.25, repeat: false,
                          why: 'cover the rush' } });
         W.tod += 0.5; sfNpcTick(pv, 0.016);
@@ -5014,20 +5044,28 @@ runAutoTest = async function(){
         W.tod += 0.5; sfNpcTick(pv, 0.016);
         log(firedOnce && pv.sfAgent === null && pv.sfGap === true,
             'gs: v13 a repeat:false directive fires once, then gaps');
-        /* survival reflex preempts the live order — and reports it */
-        pv.state = 'sleep'; pv.inBuilding = true;
-        pv.sfAgent = { verb: 'work', until: W.day * 24 + W.tod + 1,
-                       done: false };
+        /* survival reflex preempts the live order — and reports it.
+           v16's reflex set is the lethal band only: collapse, never
+           sleep-as-emergency. The drift is honest — edge-bound, never
+           a top-up — and it releases; the next move is the brain's. */
+        pv.sfAgent = { verb: 'work', until: sfAbsNow() + 1, done: false };
+        if(pv.body) pv.body.fatigue = 0.99;
         sfNpcTick(pv, 0.016);
-        log(pv.sfReflex && pv.sfReflex.kind === 'asleep' &&
+        log(pv.sfReflex && /collapse/.test(pv.sfReflex.kind) &&
             pv.sfAgent === null && pv.sfAgentResult &&
             pv.sfAgentResult.status === 'interrupted' &&
-            /survival/.test(pv.sfAgentResult.interruptedBy || ''),
-            'gs: v13 a survival reflex preempts the order and says why');
-        pv.inBuilding = false; pv.state = 'idle';
+            /survival/.test(pv.sfAgentResult.interruptedBy || '') &&
+            pv.state === 'downed',
+            'gs: v16 a collapse reflex preempts the order and says why');
+        for(let i = 0; i < 240 && pv.sfReflex; i++) sfNpcTick(pv, 0.016);
+        log(pv.sfReflex === null && pv.state === 'idle' &&
+            pv.sfGap === true,
+            'gs: v16 the reflex releases at the band edge into the gap');
+        if(pv.body) pv.body.fatigue = 0.3;
         /* a fresh act while the pawn is asleep wakes it honestly */
         pv.state = 'sleep';
-        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 });
+        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                       why: 'up early' });
         log(woke.ok === true && pv.state === 'idle' &&
             pv.sfAgent && pv.sfAgent.verb === 'idle',
             'gs: v13 a new order is the brain deciding to wake');
@@ -5039,6 +5077,12 @@ runAutoTest = async function(){
         pv.sfGap = keepGap; pv.sfAgentResult = keepRes;
         pv.sfReflex = keepRfx; pv._agentSeq = keepSeq;
         pv._dirStreak = keepDS; pv._dirSig = keepDg;
+        pv.sfConvo = keepV16.convo; pv.sfLastConvo = keepV16.lastConvo;
+        pv.sfIntents = keepV16.intents; pv.sfObligations = keepV16.obs;
+        pv.sfMood = keepV16.mood; pv.sfConcerns = keepV16.concerns;
+        pv.sfLastWhy = keepV16.why; pv.sfDisp = keepV16.disp;
+        pv.sfMind = keepV16.mind;
+        if(pv.body && keepV16.fat != null) pv.body.fatigue = keepV16.fat;
         pv.sfPath = null; pv.moving = false;
         keepLC.forEach((lc, o) => { o.lastClockCheck = lc; });
       }

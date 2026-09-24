@@ -6958,6 +6958,15 @@ function initControls(){
 
   document.getElementById('btn-toggle-ctrl').onclick = () => {
     const v = VILLAGERS[inspectedPawnIdx];
+    if(!v) return;
+    /* v16: possession ban on the 8 mains is absolute — Take Control
+       refuses any sfAgentDriven pawn (owner included) */
+    if(v.sfAgentDriven ||
+       (typeof sfIsMain === 'function' && sfIsMain(v))){
+      if(typeof showToast === 'function')
+        showToast('Their mind is their own.');
+      return;
+    }
     if(v === VILLAGERS[controlledPawnIdx]){
       v.isNPC = true;
       controlledPawnIdx = -1;
@@ -7325,7 +7334,10 @@ function survivalGuard(v){
 }
 /* Routine self-care so the scripted village sustains itself between bells. */
 function routineNeeds(v){
-  if(v.dead || v.brainControlled || (v.plan && v.plan.length)) return;
+  /* v16: no injected self-care plans for driven mains — routine
+     self-care is the brain's own directive policy (design §6.5) */
+  if(v.dead || v.brainControlled || v.sfAgentDriven ||
+     (v.plan && v.plan.length)) return;
   const b = ensureBody(v);
   if(b.hydration < 0.45) v.plan = [{ verb: 'go', place: 'well' }, { verb: 'drink' }];
   else if(b.satiety < 0.40) v.plan = [{ verb: 'eat' }];
@@ -9459,7 +9471,11 @@ function socialTick(h){
     __roleCheckDay = dayNow;
     checkRoleVacancies();
   }
+  /* v16: driven mains are excluded — autonomous chats, bond writes and
+     gossip are code-authored social behavior; a main's every word is
+     its brain's (design §6.3/§6.4) */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
@@ -12536,7 +12552,10 @@ function countNearbyVillagers(v, cells){
   return n;
 }
 function rescueInstinct(v, dtH){
-  if(v.brainControlled || v.dead || v.downed) return;
+  /* v16: a driven main is never voluntold into a rescue — choosing to
+     help is the brain's call; only the bounded collapse reflex may
+     touch a main's body */
+  if(v.brainControlled || v.dead || v.downed || v.sfAgentDriven) return;
   if(v.plan && v.plan.length) return;
   for(const o of VILLAGERS){
     if(o === v || !o.downed || o.dead) continue;
@@ -14432,7 +14451,10 @@ downedTick = function(v, dtH){
 const __socialTick15 = socialTick;
 socialTick = function(h){
   __socialTick15(h);
+  /* v16: driven mains are excluded — code-authored insults/fights on a
+     main are banned (design §6.4); friction between ambients stays */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled && !v.outsider &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
@@ -14692,7 +14714,8 @@ simTick = function(dtH){
 const __uv15 = updateVillagerAI;
 updateVillagerAI = function(v, dtH){
   __uv15(v, dtH);
-  if(v.dead || v.downed || v.brainControlled || v.outsider) return;
+  if(v.dead || v.downed || v.brainControlled || v.outsider ||
+     v.sfAgentDriven) return;   // v16: no code-authored fire duty on mains
   if(v.plan && v.plan.length) return;
   // daytime 'work' state included: routine labor yields to a threatening fire
   if(bestFireTarget(v)){
@@ -23656,6 +23679,17 @@ function applySaveState(s){
     const n = VILLAGERS.length;
     controlledPawnIdx = n ? clamp(s.ui ? (s.ui.controlledPawnIdx | 0) : 0, 0, n - 1) : 0;
     inspectedPawnIdx = n ? clamp(s.ui ? (s.ui.inspectedPawnIdx | 0) : 0, 0, n - 1) : 0;
+    /* v16: the possession ban on the 8 mains survives a save round-trip —
+       a save written mid-possession must not restore control of a main */
+    for(let i = 0; i < VILLAGERS.length; i++){
+      const pv = VILLAGERS[i];
+      if(pv && (pv.sfAgentDriven ||
+               (typeof sfIsMain === 'function' && sfIsMain(pv)))){
+        pv.isNPC = true;
+        pv.brainControlled = false;
+        if(i === controlledPawnIdx) controlledPawnIdx = -1;
+      }
+    }
     if(typeof G !== 'undefined' && G) G.inspectedVillager = VILLAGERS[inspectedPawnIdx] || null;
 
     return { ok: true };
@@ -38364,72 +38398,21 @@ function sfHomeCell(spec){
   return { wx: 300, wy: 200 }; // Dolores Park fallback
 }
 
-/* schedule blocks: {h0,h1, to:spec, state, inside, stops:[specs]} */
-const SF_CORE_ROUTINES = {
-  C1: [ // Marisol: opens the café, afternoon rounds
-    { h0: 0, h1: 5.5, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-    { h0: 5.5, h1: 14, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 14, h1: 18, state: 'walk',
-      stops: [{ poi: 'Taqueria El Farolito' }, { anchor: 'g744' },
-              { anchor: 'park_center' }, { poi: 'Bi-Rite Market' }] },
-    { h0: 18, h1: 21.5, to: { poi: 'Haus Coffee' }, state: 'chat' },
-    { h0: 21.5, h1: 24, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-  ],
-  C2: [ // Jules: morning run, café shift, evening sketching
-    { h0: 0, h1: 6.5, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 8, state: 'run',
-      stops: [{ anchor: 'park_north' }, { anchor: 'park_center' }] },
-    { h0: 8, h1: 15, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 15, h1: 19, state: 'sit',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g744' }] },
-    { h0: 19, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C3: [ // Dani: café six days, nights she won't explain
-    { h0: 0, h1: 8, to: { latlon: [37.7495, -122.4200] }, state: 'sleep', inside: true },
-    { h0: 8, h1: 17, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 17, h1: 21, state: 'walk',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g750' },
-              { poi: 'Clarion Alley' }] },
-    { h0: 21, h1: 24, to: { latlon: [37.7495, -122.4200] }, state: 'idle', inside: true },
-  ],
-  C4: [ // Priya: three 12s at SF General; café decompresses
-    { h0: 0, h1: 6.5, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 19.5, state: 'work',
-      stops: [{ poi: 'SF General' }, { poi: 'Haus Coffee' }] },
-    { h0: 19.5, h1: 21, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C5: [ // Marcus: courier loops; Thursday park jams
-    { h0: 0, h1: 8, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'carry',
-      stops: [{ poi: 'Bi-Rite Market' }, { poi: 'Dolores Park Cafe' },
-              { poi: 'Tartine Bakery' }, { poi: '500 Club' },
-              { poi: 'Dandelion Chocolate' }] },
-    { h0: 18, h1: 21, to: { anchor: 'park_center' }, state: 'play' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C6: [ // Carmen: stoop cafecito, her palm in the park
-    { h0: 0, h1: 7, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 7, h1: 10, to: { anchor: 'g744' }, state: 'sit' },
-    { h0: 10, h1: 16.5, to: { anchor: 'park_center' }, state: 'sit' },
-    { h0: 16.5, h1: 21, to: { anchor: 'g744' }, state: 'idle', inside: true },
-    { h0: 21, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C7: [ // Victor: hardware counter 9-6; Tuesdays he fixes the buildings himself
-    { h0: 0, h1: 8, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'work',
-      stops: [{ poi: 'Auerbach Hardware' }, { anchor: 'g744' }, { anchor: 'g750' }] },
-    { h0: 18, h1: 22, to: { poi: 'Auerbach Hardware' }, state: 'idle', inside: true },
-    { h0: 22, h1: 24, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-  ],
-  C8: [ // Tomás: supplier loop by day, El Farolito line by night, 3pm coffee
-    { h0: 0, h1: 9, to: { latlon: [37.7570, -122.4165] }, state: 'sleep', inside: true },
-    { h0: 9, h1: 14.5, state: 'walk',
-      stops: [{ poi: 'Auerbach Hardware' }, { poi: 'Bi-Rite Market' },
-              { poi: 'Valencia Farmers Market' }] },
-    { h0: 14.5, h1: 16, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 16, h1: 24, to: { poi: 'Taqueria El Farolito' }, state: 'work' },
-  ],
+/* v16 — the becoming brain: the 8 mains are driven pawns from spawn.
+   There is NO code-authored routine for them — SF_CORE_ROUTINES is gone.
+   The bibles' "Daily routine" prose lives in each brain's BRIEF as life
+   context (circumstances, never a schedule the engine runs). What the
+   engine keeps is only the home cell: where the body sleeps is a fact of
+   the world, not an intention. */
+const SF_CORE_HOMES = {
+  C1: { latlon: [37.7540, -122.4186] },   // Mars — 9127 Capp St studio
+  C2: { anchor: 'g744' },                 // Jules — 9418 Guerrero, Unit A
+  C3: { latlon: [37.7495, -122.4200] },   // Dani — 9263 Geneva Ave
+  C4: { anchor: 'g750' },                 // Priya — 9457 Guerrero, Unit 3
+  C5: { anchor: 'g750' },                 // Marcus — same flat as Priya
+  C6: { anchor: 'g744' },                 // Carmen — 9418 Guerrero, Unit A
+  C7: { poi: 'Auerbach Hardware' },       // Victor — 9102 Mission, over the store
+  C8: { latlon: [37.7570, -122.4165] },   // Tomás — 9344 Folsom studio
 };
 
 /* ambient role -> routine template */
@@ -38590,10 +38573,16 @@ function sfInitCast(){
   const cast = buildCastChars();           // id -> frameset
   PA.chars = NV_CAST.map(c => cast[c.id]); // index-aligned with NV_CAST
   NV_CAST.forEach((c, i) => {
-    const sched = c.tier === 'core' ? SF_CORE_ROUTINES[c.id] : sfAmbientRoutine(c);
-    const homeBlock = (sched || []).find(b => b.inside) || (sched || [])[0];
-    const hc = sfHomeCell(homeBlock && homeBlock.to ? homeBlock.to
-                         : (homeBlock && homeBlock.stops ? homeBlock.stops[0] : null));
+    const isMain = c.tier === 'core';
+    const sched = isMain ? null : sfAmbientRoutine(c);
+    /* home cell: mains keep only WHERE they sleep (a world fact, from
+       the bible's Home line); ambients derive it from block.inside as
+       before. No schedule is ever built or stored for a main. */
+    const homeSpec = isMain
+      ? SF_CORE_HOMES[c.id]
+      : (function(){ const b = (sched || []).find(b => b.inside) || (sched || [])[0];
+          return b && (b.to || (b.stops && b.stops[0])); })();
+    const hc = sfHomeCell(homeSpec || null);
     const v = createVillager(c.name || c.id, c.role || 'Resident', null,
                              hc.wx, hc.wy, {
       sex: /C2/.test(c.id) ? 'nb' : (['C1','C3','C4','C6'].includes(c.id) ? 'f' : 'm'),
@@ -38605,67 +38594,97 @@ function sfInitCast(){
     // production-1: compiled memory profile (35_sf_memory.js) — wired into
     // decayEpistemic/observe where the sim has a real mechanism
     if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
-    v.sfSched = sched || [];
-    v.sfStopIdx = 0;
-    v.sfStopT = 0;
+    if(isMain){
+      /* v16 becoming brain: a main is AI-driven from birth. It owns every
+         intention; the engine owns the body. It wakes into the
+         intention_gap and waits for its brain's first filing — there is
+         no sfSched to fall back to, ever, and no possession carve-out. */
+      v.sfAgentDriven = true;
+      v.sfGap = true;
+      v.sfMind = null;             // populated by sfMindScan on first state read
+      v.sfConvo = null;
+      v.sfLastConvo = null;
+      v.sfIntents = [];
+      v.sfDisp = null;             // dispatch ledger (38_sf_brain.js)
+    } else {
+      v.sfSched = sched || [];
+      v.sfStopIdx = 0;
+      v.sfStopT = 0;
+    }
     v.sfHome = hc;
     v.equippedTool = { kind: workFor(c.id) !== 'idle' ? workFor(c.id) : 'none',
                        name: '', icon: '', desc: '' };
     if(v.body){ v.body.satiety = 0.9; v.body.hydration = 0.9; v.body.fatigue = 0.1; }
     VILLAGERS.push(v);
   });
-  // audience surrogate: Jules (the newcomer)
+  /* possession ban on mains is absolute (v16): no audience surrogate, no
+     controlled pawn. The camera inspects Jules's patch at boot purely so
+     the opening frame lands on a familiar corner — it does NOT control
+     the pawn and the pawn stays isNPC/sfAgentDriven. */
   const j = VILLAGERS.findIndex(v => v._castId === 'C2');
-  controlledPawnIdx = j >= 0 ? j : 0;
-  inspectedPawnIdx = controlledPawnIdx;
-  VILLAGERS[controlledPawnIdx].isNPC = false;
-  if(VILLAGERS[controlledPawnIdx])
-    cam.x = VILLAGERS[controlledPawnIdx].x, cam.y = VILLAGERS[controlledPawnIdx].y;
+  inspectedPawnIdx = j >= 0 ? j : 0;
+  controlledPawnIdx = -1;
+  if(VILLAGERS[inspectedPawnIdx])
+    cam.x = VILLAGERS[inspectedPawnIdx].x, cam.y = VILLAGERS[inspectedPawnIdx].y;
 }
 
-/* ---- thin-AI schedule follower ---- */
+/* ---- driven ladder (mains) + thin-AI schedule follower (ambients) ---- */
 function sfNpcTick(v, dtH){
   if(v.state === 'sleep' && v.inBuilding){ v.moving = false; }
-  // keep the Truman cast alive: offscreen meals & rest are assumed
-  if(v.body){
+  /* v16: silent needs top-ups are gone for DRIVEN pawns — a main's body
+     decays honestly and its brain decides what to do about it; the only
+     code override is the bounded collapse reflex below. Ambients keep
+     the Truman assumption (offscreen meals & rest) — they are furniture,
+     and starving furniture would be a broken set, not a broken fiction. */
+  if(v.body && !v.sfAgentDriven){
     if(v.body.satiety < 0.35) v.body.satiety = 0.6;
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
-  // production-1: a parked agent order (36_sf_agent.js, the playtest
-  // bridge) drives this pawn through real sim calls until done/expired.
-  // Order channel, not possession. v13 ladder (ai-town §5.3):
-  //   reflex → live order → brain-authored directive → intention_gap.
-  // Once a brain files an act the pawn is "driven" and NEVER falls back
-  // to code-authored sfSched — a lapsed will leaves a visible gap
-  // (state 'idle', sfGap true on sfAgentState), not an invented routine.
-  if(v.sfAgent || v.sfAgentDriven){
-    /* survival reflex preempts a live order AND a pending will — it is
-       code, always wins, and is never authored by a brain */
+  // v16 ladder (design §5): a driven main NEVER reaches sfSched.
+  //   collapse reflex → live order → brain-authored directive → gap.
+  // The gap is a first-class visible state: the pawn stands, its
+  // sfGap flag is true, and sfAgentState reports it to the brain.
+  if(v.sfAgentDriven || v.sfAgent){
+    /* genuine survival reflex: a collapse is a body event, not an
+       intention. It interrupts the order, is written as 'interrupted'
+       with the reflex named, and leaves the pawn downed until the
+       body recovers or a brain filing takes over. */
     const rf = (typeof sfReflexNow === 'function') ? sfReflexNow(v) : null;
-    if(rf && (v.sfAgent || v.sfDirective)){
+    if(rf){
       if(v.sfAgent && !v.sfAgent.done)
         v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
           interruptedBy: 'survival:' + rf, at: W.tod, day: W.day };
       v.sfAgent = null;
-      v.sfReflex = { kind: rf, at: W.tod, day: W.day };
-      v.sfPath = null; v.moving = false;
+      if(!v.sfReflex || v.sfReflex.kind !== rf)
+        v.sfReflex = { kind: rf, at: W.tod, day: W.day };
+      /* bounded, honest: the body drifts back to the band EDGE (never
+         topped up) — "someone got them upright"; the next move is the
+         brain's */
+      if(typeof sfReflexDrift === 'function') sfReflexDrift(v, dtH);
+      v.sfPath = null; v.moving = false; v.state = 'downed';
       return;
     }
     v.sfReflex = null;
     if(v.sfAgent){
       const a = v.sfAgent;
       if(a.done || sfAbsNow() > a.until){
-        /* §5.4 — every order ends with a reported outcome the brain
-           reads next turn: completed | expired | failed (interrupted
-           is written where the interruption happens) */
+        /* every order ends with a reported outcome the brain reads next
+           turn: completed | expired | failed (interrupted is written
+           where the interruption happens) — §5.4 outcome contract */
         v.sfAgentResult = { verb: a.verb,
-          status: a.fail ? 'failed' : (a.done ? 'completed' : 'expired'),
-          err: a.fail || null, at: W.tod, day: W.day };
+          status: a.fail ? 'failed'
+                : a.interrupted ? 'interrupted'
+                : (a.done ? 'completed' : 'expired'),
+          err: a.fail || (a.waitingOutside ? 'waiting_outside' : null),
+          interruptedBy: a.interrupted || null,
+          seq: a.seq != null ? a.seq : null,
+          at: W.tod, day: W.day };
         /* a promoted directive starts the same tick — no gap frame */
         v.sfAgent = (typeof sfAgentNext === 'function')
           ? sfAgentNext(v) : null;
         if(v.sfAgent && typeof sfAgentTick === 'function'){
+          v.sfGap = false;
           sfAgentTick(v, v.sfAgent, dtH);
           return;
         }
@@ -38674,7 +38693,7 @@ function sfNpcTick(v, dtH){
       else v.sfAgent = null;
     }
     /* no live order: the standing will gets one shot (it may have
-       lapsed mid-order or after a reflex). Else the intention gap
+       lapsed mid-order or after a collapse). Else the intention gap
        stands — empty, visible, honest. */
     const nxt = (typeof sfAgentNext === 'function') ? sfAgentNext(v) : null;
     if(nxt){
@@ -38937,32 +38956,46 @@ if(typeof window !== 'undefined' && window.__aiBridge){
 }
 
 /* =====================================================================
-   PART 36 — SF AGENT ACTIONS (production-1 playtest bridge)
+   PART 36 — SF AGENT ACTIONS (v16 "the becoming brain" contract)
 
-   External minds (the 8-agent visual playtest, dev tools) act through
-   sfAgentAct(cid, action) — real sim calls (sfGoTo/sfFollowPath/
-   sfEnterPOI), never direct motor writes. An agent order parks on
-   v.sfAgent and sfNpcTick honors it until done/expired, then the
-   brain's own standing directive (v.sfDirective) promotes — or the
-   pawn stands in a visible intention_gap. A driven main NEVER resumes
-   the code-authored schedule. This is the character's brain, not
-   player possession: the production UI exposes no control of the
-   8 mains.
+   External minds act through sfAgentAct(cid, act, meta) — real sim calls
+   (sfGoTo/sfFollowPath/sfEnterPOI), never direct motor writes. An order
+   parks on v.sfAgent and sfNpcTick honors it until done/expired/failed,
+   then the brain's standing directive (v.sfDirective) promotes — or the
+   pawn stands in a visible intention_gap. A driven main NEVER resumes a
+   code-authored schedule. This is the character's brain, not player
+   possession: the production UI exposes no control of the 8 mains.
 
-   Verbs: move <poi> | talk <castId|name> <text> | work | rest | idle |
-          request <kind> <note>   (request files through the REAL bus as
-          spectator 'agent-<cid>' — screen → review → ledger)
+   VERBS (design §2.1):  move | talk | work | rest | idle | sleep |
+                         say | leave | reflect | request
+   Per-act fields: to · at · text · holdH(≤2) · lingerH(≤2) · why(REQ)
+                   do · mood · intent · concerns · endSay · insights
+   Standing will: meta.directive — same verbs minus request/say/leave/
+                  reflect; why always required; untilH ≤ 6; restated
+                  EVERY turn or it lapses.
+   Outcomes: completed | expired | failed | interrupted (new_order /
+             survival:* / target_left / convo_ended / no_answer).
 
-   sfAgentState(cid) returns ONLY what a passerby could observe:
-   senses, felt time, place, nearby cast, needs bars, recent public
-   Wire lines, and the character's own public routine — no secrets, no
-   private state, and no pushed clock (exact time is pulled via
-   opts.glance — see 41_game_systems_timepiece.js).
+   sfAgentState(cid, opts) returns ONLY what a passerby could observe:
+   senses, felt time, place, nearby cast, needs bars, wire tail — plus
+   the interiority surface (mind/convo/lastConvo) and, with
+   opts.reflect, the reflection archive. No pushed clock (glance pulls),
+   no routine field (the brain's BRIEF carries life context).
    ===================================================================== */
 
 function sfPawnOf(cid){
   return VILLAGERS.find(v => v._castId === cid) ||
          VILLAGERS.find(v => v.name && v.name.toLowerCase() === String(cid).toLowerCase());
+}
+
+/* one-of-C1..C8 check — the possession-ban + injection-filter predicate.
+   GS_CORE_CAST is the canonical set (systems/41_game_systems_requests.js);
+   the regex fallback keeps the predicate true before that module loads. */
+function sfIsMain(v){
+  if(!v) return false;
+  const cid = v._castId || '';
+  if(typeof GS_CORE_CAST !== 'undefined' && GS_CORE_CAST[cid]) return true;
+  return /^C[1-8]$/.test(cid);
 }
 
 function sfSay(v, text){
@@ -38971,7 +39004,139 @@ function sfSay(v, text){
   v.sayAt = (typeof performance !== 'undefined' ? performance.now() : Date.now());
 }
 
-/* per-tick driver for an active agent order */
+/* absolute sim-hour clock — orders and wills must not un-lapse when
+   tod wraps past midnight */
+function sfAbsNow(){ return W.day * 24 + W.tod; }
+
+/* ---- perception ----
+   A pawn perceives another when they share a space (same venue, or both
+   outdoors) within ~8 cells — the same bound sfAgentState uses for the
+   `nearby` list. God-mode VILLAGERS scans are gone from the contract:
+   talk resolves targets through this field or a brain-named `at`. */
+function sfSameSpace(a, b){
+  if(!a || !b) return false;
+  if(a.inBuilding || b.inBuilding)
+    return a.inBuilding && b.inBuilding && a.inside === b.inside;
+  return true;
+}
+function sfPerceived(v, t){
+  return sfSameSpace(v, t) && Math.hypot(v.x - t.x, v.y - t.y) <= CS * 8;
+}
+
+/* a venue is private (a home, a flat) when it isn't a registered public
+   POI — SF_POIS only carries venues with a public kind. Private homes
+   are never auto-entered: the seeker waits at the door. */
+function sfIsPublicVenue(name){
+  if(!name) return false;
+  const p = sfFindPOI(name);
+  return !!(p && p.bld != null && p.bld >= 0);
+}
+
+/* 'home' (and 'my home'/'my flat') resolves to the pawn's own home cell;
+   returning there is the one interior a pawn may always enter. */
+function sfResolvePlace(v, ref){
+  if(!ref) return null;
+  const s = String(ref).trim();
+  if(/^my\s+(home|flat|place|stoop|room|bed)$/i.test(s) || /^home$/i.test(s)){
+    return { label: 'home', cell: v.sfHome, home: true };
+  }
+  const p = sfFindPOI(s);
+  if(p) return { label: p.name, cell: sfPoiDoor(p), poi: p.name,
+                 public: true };
+  const cell = sfAnchorCell(s);
+  if(cell){
+    /* an anchor that resolves to a building door is that building's
+       interior if it has a name (e.g. g744 -> '744 Guerrero') */
+    const al = (SF_MAP.anchors || {})[s];
+    let inside = null, pub = false;
+    if(al && al.bld >= 0){
+      const b = SF_BLD[al.bld];
+      if(b && b.name) inside = b.name;
+      else if(SF_INTERIORS[s]) inside = s;
+      pub = !!(inside && sfFindPOI(inside));
+    }
+    return { label: inside || s, cell, inside, public: pub };
+  }
+  if(typeof gsParseAddress === 'function'){
+    const pa = gsParseAddress(s);
+    if(pa && pa.bld && pa.bld.bld_idx != null &&
+       SF_DOOR_OF.has(pa.bld.bld_idx)){
+      const b = SF_BLD[pa.bld.bld_idx];
+      return { label: pa.address, cell: SF_DOOR_OF.get(pa.bld.bld_idx),
+               inside: (b && b.name) || null, public: !!(b && b.name &&
+               sfFindPOI(b.name)) };
+    }
+  }
+  return null;
+}
+
+/* the verb registry — orders and directives share it, except that a
+   directive may not hold request/say/leave/reflect: a will that
+   refiles public requests or speaks on its own is not a will */
+const SF_AGENT_VERBS = ['move', 'talk', 'work', 'rest', 'idle', 'sleep',
+                        'say', 'leave', 'reflect', 'request'];
+const SF_DIR_VERBS   = ['move', 'talk', 'work', 'rest', 'idle', 'sleep'];
+
+/* ---------------- survival reflex (design §2.4 — code, always wins) --
+   Genuine emergencies only. SF's set is deliberately thin: the lethal-
+   needs COLLAPSE band. Sleep is a state, not an emergency (removed);
+   there is no weather veto anywhere in the contract (dissolved
+   2026-09-23). The reflex saves the body — downed, needs drift back to
+   the band EDGE (never topped up) — and releases; the next move is the
+   brain's. */
+function sfReflexNow(v){
+  if(!v || v.dead) return null;
+  const b = v.body;
+  if(b){
+    if((b.hydration != null ? b.hydration : 1) < 0.05)
+      return 'collapse:hydration';
+    if((b.satiety != null ? b.satiety : 1) < 0.05)
+      return 'collapse:satiety';
+    if((b.fatigue != null ? b.fatigue : 0) > 0.98)
+      return 'collapse:fatigue';
+  }
+  return null;
+}
+
+/* while the collapse reflex holds, the body drifts back toward the band
+   edge (the fiction: someone got them upright, water, a shaded step) —
+   honest partial recovery, never a top-up */
+function sfReflexDrift(v, dtH){
+  const b = v.body;
+  if(!b) return;
+  if(b.satiety   != null && b.satiety   < 0.10) b.satiety   = Math.min(0.10, b.satiety   + 0.05 * dtH);
+  if(b.hydration != null && b.hydration < 0.10) b.hydration = Math.min(0.10, b.hydration + 0.05 * dtH);
+  if(b.fatigue   != null && b.fatigue   > 0.92) b.fatigue   = Math.max(0.92, b.fatigue   - 0.04 * dtH);
+}
+
+/* ---- presence-verb grounding: "at <to>, do <verb>" — navigate to the
+   named place first, enter it when it's public (or the pawn's own
+   home), then hold the verb until the order lapses. */
+function sfGroundStep(v, a, dtH){
+  const cell = a.cell;
+  const tx = cell.wx * CS + 16, ty = cell.wy * CS + 16;
+  if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
+    v.sfPath = null; v.moving = false;
+    if(a.enter && !v.inBuilding){
+      if(a.enter === 'home'){
+        v.inBuilding = true; v.inside = a.enterLabel || 'home';
+      } else {
+        const p = sfFindPOI(a.enter);
+        if(p) sfEnterPOI(v, p.name);
+        else { v.inBuilding = true; v.inside = a.enterLabel || a.enter; }
+      }
+    }
+    a.phase = 'hold';
+    return true;
+  }
+  if(v.inside || v.inBuilding) sfExitPOI(v);
+  if(!v.sfPath || !v.sfPath.length) sfGoTo(v, cell.wx, cell.wy);
+  if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+  else { a.phase = 'hold'; }  // unreachable door — hold where standing
+  return false;
+}
+
+/* ---------------- per-tick driver for an active agent order -------- */
 function sfAgentTick(v, a, dtH){
   if(a.verb === 'move'){
     const cell = a.cell;
@@ -38979,7 +39144,12 @@ function sfAgentTick(v, a, dtH){
     const tx = cell.wx * CS + 16, ty = cell.wy * CS + 16;
     if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
       v.sfPath = null; v.moving = false;
-      if(a.poi){ const p = sfFindPOI(a.poi); if(p) sfEnterPOI(v, p.name); }
+      if(a.poi){
+        const p = sfFindPOI(a.poi);
+        if(p) sfEnterPOI(v, p.name);
+        else if(a.enter){ v.inBuilding = true; v.inside = a.enter; }
+        else if(a.home){ v.inBuilding = true; v.inside = 'home'; }
+      }
       v.state = 'idle'; a.done = true;
       return;
     }
@@ -38989,90 +39159,100 @@ function sfAgentTick(v, a, dtH){
     else { v.state = 'idle'; a.fail = 'unreachable'; a.done = true; }
     return;
   }
+
   if(a.verb === 'talk'){
     const t = sfPawnOf(a.to);
     if(!t){ a.fail = 'gone'; a.done = true; return; }
-    // leave whatever venue we're in — unless the target is inside it too
-    if((v.inside || v.inBuilding) && !(t.inBuilding && v.inside === t.inside))
-      sfExitPOI(v);
-    const d = Math.hypot(v.x - t.x, v.y - t.y);
-    if(d > CS * 2){
-      if(!v.sfPath || !v.sfPath.length)
-        sfGoTo(v, Math.floor(t.x / CS), Math.floor(t.y / CS));
-      if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
-    } else {
-      // at their door: if they're indoors, step into the venue so the
-      // exchange happens in the same rendered space (interior pass shows
-      // both occupants + the bubble)
-      if(t.inBuilding && t.inside && v.inside !== t.inside)
-        sfEnterPOI(v, t.inside);
-      v.sfPath = null; v.moving = false; v.state = 'idle';
-      v.faceTo = { x: t.x, y: t.y };
-      if(!a.said){
-        a.said = true;
-        sfSay(v, a.text || 'hey');
-        // real memory hooks: both parties record the exchange
-        if(typeof observe === 'function'){
-          observe(v, 'spoke with ' + (t.name || a.to), { topic: 'talk_' + t._castId,
-            source: 'direct', confidence: 0.95, salience: 0.7, bypassAttention: true });
-          observe(t, (v.name || 'someone') + ' said: "' + (a.text || 'hey') + '"',
-            { topic: 'talk_' + v._castId, source: 'direct', confidence: 0.9,
-              salience: 0.7, bypassAttention: true });
-        }
-      }
-    }
-    return;
-  }
-  /* v13 timepiece: rest/sleep shelter phase — walk to the door first,
-     then go inside and actually rest. Outdoors in the rain never gets
-     this far (sfAgentAct refuses it). */
-  if((a.verb === 'rest' || a.verb === 'sleep') && a.shelter &&
-     !v.inBuilding){
-    const c = a.shelter.cell;
-    const tx = c.wx * CS + 16, ty = c.wy * CS + 16;
-    if(Math.hypot(v.x - tx, v.y - ty) < CS * 1.2){
-      v.sfPath = null; v.moving = false;
-      if(a.shelter.poi){
-        const p = sfFindPOI(a.shelter.poi);
-        if(p) sfEnterPOI(v, p.name);
-      }
-      if(!v.inBuilding){
-        v.inBuilding = true;
-        v.inside = a.shelter.inside || a.shelter.poi || 'home';
-      }
-      v.state = 'rest';
+    if(a.phase === 'linger'){
+      /* contact made — hold the linger window; the convo itself lives on
+         v.sfConvo and outlives the order */
+      if(sfAbsNow() >= a.lingerUntil){ a.done = true; v.state = 'idle'; }
+      else { v.state = 'chat'; v.faceTo = { x: t.x, y: t.y }; }
       return;
     }
-    if(!v.sfPath || !v.sfPath.length) sfGoTo(v, c.wx, c.wy);
-    if(v.sfPath && v.sfPath.length){ sfFollowPath(v, dtH); return; }
-    a.shelter = null;      // unreachable door — rest where you stand
+    /* seek phase */
+    const canSee = sfPerceived(v, t);
+    if(!canSee && a.seenAt && !a.at){
+      /* was perceived at filing, gone now — the target left the field;
+         an interruption, not a failure */
+      a.interrupted = 'target_left'; a.done = true;
+      return;
+    }
+    let dest = null;
+    if(canSee) dest = { wx: Math.floor(t.x / CS), wy: Math.floor(t.y / CS) };
+    else if(a.atCell) dest = a.atCell;
+    else if(t.inBuilding && sfIsPublicVenue(t.inside) && sfFindPOI(t.inside))
+      dest = sfPoiDoor(sfFindPOI(t.inside));   // perceived inside a venue
+    if(!dest){ a.fail = "can't find them"; a.done = true; return; }
+
+    /* same-space + adjacent: the line lands */
+    const near = sfSameSpace(v, t) &&
+                 Math.hypot(v.x - t.x, v.y - t.y) <= CS * 2;
+    if(near){ sfTalkContact(v, t, a); return; }
+
+    /* target inside a PRIVATE home: never auto-enter — wait at the door;
+       if they step out mid-wait the line still lands */
+    if(t.inBuilding && t.inside && !sfIsPublicVenue(t.inside)){
+      const door = a.atCell || dest;
+      const dx = door.wx * CS + 16, dy = door.wy * CS + 16;
+      if(Math.hypot(v.x - dx, v.y - dy) < CS * 1.5){
+        v.sfPath = null; v.moving = false; v.state = 'idle';
+        a.waitingOutside = true;
+        v.faceTo = { x: dx, y: dy };
+        return;   // holds until holdH lapses -> expired+waiting_outside
+      }
+    }
+    /* leave our own venue unless the target shares it */
+    if((v.inside || v.inBuilding) && !(t.inBuilding && v.inside === t.inside))
+      sfExitPOI(v);
+    if(!v.sfPath || !v.sfPath.length) sfGoTo(v, dest.wx, dest.wy);
+    if(v.sfPath && v.sfPath.length) sfFollowPath(v, dtH);
+    else { a.fail = 'unreachable'; a.done = true; }
+    return;
   }
-  // work | rest | idle — presence states, renderer shows them in place
+
+  /* say / leave / reflect — the act lands at filing; the order is
+     already done and resolves 'completed' on the end-write */
+  if(a.verb === 'say' || a.verb === 'leave' || a.verb === 'reflect'){
+    v.sfPath = null; v.moving = false;
+    v.state = 'idle'; a.done = true;
+    return;
+  }
+
+  /* work | rest | idle | sleep — presence verbs; `to` grounds them:
+     "there, doing this" */
+  if(a.cell && a.phase !== 'hold'){
+    sfGroundStep(v, a, dtH);
+    return;
+  }
   v.sfPath = null; v.moving = false;
-  v.state = (a.verb === 'rest' || a.verb === 'sleep') ? 'rest'
+  v.state = (a.verb === 'rest' || a.verb === 'sleep') ? a.verb
     : (a.verb === 'work' ? 'work' : 'idle');
 }
 
-/* ---------------- survival reflex (spec §5.3 — code, always wins) ----
-   SF's reflex set is deliberately thin today: a pawn the schedule left
-   asleep indoors cannot act (a fresh order arriving wakes it — see
-   sfAgentAct). The needs-floor top-ups in sfNpcTick are bookkeeping,
-   not reflexes — they never displace an order. Fire/flood/lightning
-   handlers land here the day SF grows them. */
-function sfReflexNow(v){
-  if(v && v.state === 'sleep' && v.inBuilding) return 'asleep';
-  return null;
+/* contact! — the opener lands: bubble, mutual observe, convo opens.
+   Speaker holds participating with the floor passed; target is
+   invited. The talk order then lingers (lingerH window). */
+function sfTalkContact(v, t, a){
+  v.sfPath = null; v.moving = false; v.state = 'chat';
+  v.faceTo = { x: t.x, y: t.y };
+  if(!a.said){
+    a.said = true;
+    sfSay(v, a.text);
+    if(typeof observe === 'function'){
+      observe(v, 'spoke with ' + (t.name || a.to), { topic: 'talk_' + t._castId,
+        source: 'direct', confidence: 0.95, salience: 0.7, bypassAttention: true });
+      observe(t, (v.name || 'someone') + ' said: "' + a.text + '"',
+        { topic: 'talk_' + v._castId, source: 'direct', confidence: 0.9,
+          salience: 0.7, bypassAttention: true });
+    }
+    if(typeof sfConvoOpen === 'function') sfConvoOpen(v, t, a.text);
+    if(typeof sfDispatchTrig === 'function')
+      sfDispatchTrig(t, 'convo_invite', 'T1', { from: v._castId || v.name });
+  }
+  a.phase = 'linger';
+  a.lingerUntil = sfAbsNow() + (a.lingerH || 0.5);
 }
-
-/* the verb registry — orders and directives share it, except that a
-   directive may not hold 'request': a will that auto-refiles public
-   requests is a pay-per-action spam loop, not a behavior */
-const SF_AGENT_VERBS = ['move', 'talk', 'work', 'rest', 'idle', 'sleep',
-                        'request'];
-
-/* absolute sim-hour clock — orders and wills must not un-lapse when
-   tod wraps past midnight */
-function sfAbsNow(){ return W.day * 24 + W.tod; }
 
 /* normalize a filed directive (or a chain entry) into the durable
    will shape. `until` inherits the root's horizon on chain hops. */
@@ -39087,21 +39267,63 @@ function sfAgentDirNorm(d, until){
 }
 
 /* validate a directive filing — walks the whole .then chain so a bad
-   verb is named at filing, not discovered mid-gap */
+   verb is named at filing, not discovered mid-gap. why is required on
+   every link now (design §2.1: every act carries an in-fiction reason). */
 function sfAgentDirCheck(d){
   let cur = d, depth = 0;
   while(cur && typeof cur === 'object' && depth++ < 8){
     const dv = String(cur.verb || '').toLowerCase();
-    if(SF_AGENT_VERBS.indexOf(dv) < 0)
-      return 'unknown directive verb ' + dv;
-    if(dv === 'request')
-      return 'a directive cannot file requests — standing wills do ' +
-             'not spend';
-    if(['rest', 'sleep', 'idle'].indexOf(dv) >= 0 &&
-       !String(cur.why || '').trim())
-      return 'rest/idle directive needs a "why" (fatigue, night, ' +
-             'rain — what justifies it)';
+    if(SF_DIR_VERBS.indexOf(dv) < 0)
+      return 'verb ' + (dv || '?') + ' cannot be a standing will ' +
+             '(no request/say/leave/reflect)';
+    if(!String(cur.why || '').trim())
+      return 'directive needs a "why" — one in-fiction sentence';
     cur = cur.then;
+  }
+  return null;
+}
+
+/* validate a live act filing — syntax only, never semantics */
+function sfAgentActCheck(v, act){
+  const verb = String(act.verb || '').toLowerCase();
+  if(SF_AGENT_VERBS.indexOf(verb) < 0)
+    return 'unknown verb ' + (verb || '?');
+  if(!String(act.why || '').trim())
+    return 'every act needs a "why" — one in-fiction sentence a watcher ' +
+           'could overhear';
+  if(verb === 'move' && !act.to)
+    return 'move needs "to" — a place name, an address, or "home"';
+  if(verb === 'talk'){
+    if(!act.to) return 'talk needs "to" — who';
+    if(!String(act.text || '').trim())
+      return 'talk needs "text" — there is no default hey';
+    const t = sfPawnOf(act.to);
+    if(t === v) return 'cannot talk to self';
+  }
+  if(verb === 'say'){
+    if(!String(act.text || '').trim())
+      return 'say needs "text" — code never invents a line';
+    if(!v.sfConvo || v.sfConvo.state === 'ended' ||
+       v.sfConvo.state === 'dropped')
+      return 'no active conversation — say lives on the channel';
+  }
+  if(verb === 'leave'){
+    if(!v.sfConvo || v.sfConvo.state === 'ended' ||
+       v.sfConvo.state === 'dropped')
+      return 'no active conversation to leave';
+  }
+  if(verb === 'reflect'){
+    if(!Array.isArray(act.insights) || !act.insights.length ||
+       !act.insights.every(s => String(s || '').trim()))
+      return 'reflect needs insights[] — 1–3 first-person sentences';
+  }
+  if(verb === 'request'){
+    if(act.kind !== 'weather' && act.kind !== 'street_event')
+      return 'request needs kind: "weather" | "street_event"';
+    if(act.kind === 'weather' && !act.wx)
+      return 'weather request needs wx (e.g. "clear"|"rain")';
+    if(act.kind === 'street_event' && !act.event)
+      return 'street_event request needs event (e.g. "block_party")';
   }
   return null;
 }
@@ -39116,71 +39338,83 @@ function sfAgentIssue(v, act){
   const holdH = Math.min(2, Math.max(0.25, +(act.holdH || 1.25))); // ≤2 sim-hrs
 
   if(verb === 'move'){
-    /* resolve: POI name -> anchor key (g744, park_center...) ->
-       street address ("744 Guerrero") via the registry */
-    let cell = null, label = null;
-    const p = sfFindPOI(act.to);
-    if(p){ cell = sfHomeCell({ poi: p.name }); label = p.name; }
-    else{
-      cell = sfAnchorCell(act.to);
-      if(!cell && typeof gsParseAddress === 'function'){
-        const pa = gsParseAddress(act.to);
-        if(pa && pa.bld && pa.bld.bld_idx != null &&
-           SF_DOOR_OF.has(pa.bld.bld_idx)){
-          cell = SF_DOOR_OF.get(pa.bld.bld_idx);
-          label = pa.address;
-        }
-      } else if(cell) label = String(act.to);
-    }
-    if(!cell) return { ok: false, err: 'unknown place: ' + act.to };
-    return { ok: true, going: label,
-             order: { verb: 'move', poi: label, cell,
+    const pl = sfResolvePlace(v, act.to);
+    if(!pl || !pl.cell) return { ok: false, err: 'unknown place: ' + act.to };
+    return { ok: true, going: pl.label,
+             order: { verb: 'move', poi: pl.public ? pl.label : null,
+                      enter: pl.inside || (pl.home ? 'home' : null),
+                      home: !!pl.home, cell: pl.cell,
                       until: sfAbsNow() + holdH } };
   }
+
   if(verb === 'talk'){
     const t = sfPawnOf(act.to);
     if(!t) return { ok: false, err: 'unknown person: ' + act.to };
-    if(t === v) return { ok: false, err: 'cannot talk to self' };
+    /* perception gate (design §2.2): the target must be in the pawn's
+       perceptual field, OR the brain names where to look ("at"). A bare
+       unperceived target is still filed — the seek fails honestly at
+       tick with "can't find them" rather than pretending knowledge. */
+    const seen = sfPerceived(v, t);
+    const atPl = act.at ? sfResolvePlace(v, act.at) : null;
+    if(!seen && !atPl){
+      /* nowhere to seek: honest fast-fail at filing, suggest if the
+         pawn has a last-known spot for them */
+      const sug = (t.inside && sfIsPublicVenue(t.inside)) ? t.inside : null;
+      return { ok: true, order: { verb: 'talk', to: act.to, text: act.text,
+        phase: 'seek', until: sfAbsNow() + Math.min(holdH, 0.75),
+        lingerH: Math.min(2, Math.max(0.25, +(act.lingerH || 0.5))),
+        prefail: "can't find them", suggest: sug } };
+    }
     return { ok: true, talking: t.name,
-             order: { verb: 'talk', to: act.to, text: act.text || 'hey',
+             order: { verb: 'talk', to: act.to, text: act.text,
+                      phase: 'seek', seenAt: seen ? { x: t.x, y: t.y } : null,
+                      at: act.at || null,
+                      atCell: atPl ? atPl.cell : null,
+                      atLabel: atPl ? atPl.label : null,
+                      until: sfAbsNow() + holdH,
+                      lingerH: Math.min(2, Math.max(0.25, +(act.lingerH || 0.5))) } };
+  }
+
+  if(verb === 'say' || verb === 'leave' || verb === 'reflect'){
+    /* the utterance/gesture resolves at filing — the parked order is a
+       done marker that reports 'completed' on the next tick */
+    return { ok: true,
+             order: { verb, done: true,
                       until: sfAbsNow() + Math.min(holdH, 0.5) } };
   }
+
   if(verb === 'work' || verb === 'rest' || verb === 'idle' ||
      verb === 'sleep'){
-    /* v13 timepiece: rest is a sheltered act. Outdoors it routes home
-       (or the nearest interior) first; in rain it's refused outright
-       with a suggestion — nobody naps on a wet sidewalk. */
-    const napping = (verb === 'rest' || verb === 'sleep');
-    if(napping && !v.inBuilding && typeof gsTimeShelter === 'function'){
-      const shel = gsTimeShelter(v);
-      if((W.rain || 0) > 0.05)
-        return { ok: false,
-          err: 'resting outdoors in the rain — ' +
-            (shel ? 'head for ' + shel.label + ' first'
-                  : 'find a roof first'),
-          suggest: shel ? shel.label : 'indoors' };
-      if(shel){
-        return { ok: true, state: 'rest', sheltering: shel.label,
-                 order: { verb: 'rest', until: sfAbsNow() + holdH,
-                          shelter: shel } };
-      }
+    /* presence verbs: "at <to>, do <verb>". The old rain veto and auto-
+       shelter are gone — outdoors executes, consequences are the body's. */
+    let cell = null, enter = null, label = null;
+    if(act.to){
+      const pl = sfResolvePlace(v, act.to);
+      if(!pl || !pl.cell)
+        return { ok: false, err: 'unknown place: ' + act.to };
+      cell = pl.cell; label = pl.label;
+      if(pl.public) enter = pl.label;
+      else if(pl.home) { enter = 'home'; }
+      else if(pl.inside) enter = pl.inside;
     }
-    return { ok: true, state: napping ? 'rest' : verb,
-             order: { verb: napping ? 'rest' : verb,
+    return { ok: true, state: verb, going: label,
+             order: { verb, cell, enter,
+                      enterLabel: label,
+                      phase: cell ? 'go' : 'hold',
                       until: sfAbsNow() + holdH } };
   }
+
   if(verb === 'request'){
     /* the agent steps out of the fiction and files as a spectator —
-       the real bus: screen → lane → bill → review. Public-good kinds
-       only: no possess (mains are banned), no hire/buy/listing. */
+       the real bus: screen → lane → bill → review. Params are required
+       (checked in sfAgentActCheck); standing wills may never carry it. */
     if(typeof gsSubmitRequest !== 'function')
       return { ok: false, err: 'request bus unavailable' };
-    const kind = (act.kind === 'weather') ? 'weather' : 'street_event';
-    const spec = { playerId: 'agent-' + v._castId, kind,
+    const spec = { playerId: 'agent-' + v._castId, kind: act.kind,
                    durationMin: Math.min(180, Math.max(15, +(act.durationMin || 30))),
                    params: { note: act.note || undefined } };
-    if(kind === 'weather') spec.params.wx = act.wx || 'clear';
-    else { spec.params.event = act.event || 'block_party';
+    if(act.kind === 'weather') spec.params.wx = act.wx;
+    else { spec.params.event = act.event;
            if(act.at) spec.params.at = act.at; }
     const r = gsSubmitRequest(spec);
     return { ok: true, request: r };
@@ -39188,34 +39422,79 @@ function sfAgentIssue(v, act){
   return { ok: false, err: 'unknown verb ' + verb };
 }
 
-/* one action from an external mind. The POST may carry a STANDING
-   DIRECTIVE (spec §5.2 — the brain's durable last will for the gap
-   between its turns): `directive` as a sibling field (driver), or
-   `act.directive` / `act.then` (spellings accepted). Code executes it
-   at order end, never invents it (user decision 2026-09-23). */
+/* one action from an external mind. The POST carries an immediate
+   `order` plus a STANDING DIRECTIVE (the brain's durable last will for
+   the gap between turns) — `directive` as a sibling field (driver), or
+   `act.directive` / `act.then` spellings accepted. Code executes it at
+   order end, never invents it. */
 function sfAgentAct(cid, act, meta){
   const v = sfPawnOf(cid);
   if(!v) return { ok: false, err: 'no character ' + cid };
   act = act || {}; meta = meta || {};
-  /* stale-order guard (pitfall §5.7.8): a late turn must not stomp a
-     newer filing — seq is the driver's monotonic turn id */
+  /* stale-order guard: a late turn must not stomp a newer filing —
+     seq is the driver's monotonic turn id */
   const seq = (meta.seq != null) ? meta.seq
             : (act.seq != null ? act.seq : null);
   if(seq != null && v._agentSeq != null && seq < v._agentSeq)
     return { ok: false, err: 'stale order — turn ' + seq +
            ' already superseded by turn ' + v._agentSeq };
+
+  const bad = sfAgentActCheck(v, act);
+  if(bad) return { ok: false, err: bad };
+
   const r = sfAgentIssue(v, act);
   if(r.ok){
     if(seq != null) v._agentSeq = seq;
+    r.order && (r.order.seq = seq);
+    /* ---- interiority fields ride every filing (design §2.1) ---- */
+    if(act.mood != null && String(act.mood).trim())
+      v.sfMood = { text: String(act.mood).slice(0, 60),
+                   since: sfAbsNow(), day: W.day };
+    if(Array.isArray(act.concerns) && act.concerns.length)
+      v.sfConcerns = act.concerns.slice(0, 5).map(s => String(s).slice(0, 80));
+    if(act.do && String(act.do).trim()){
+      v.doText = String(act.do).slice(0, 60);   // ≤8-word gesture caption
+      v.doUntil = W.tod + 0.3;
+    }
+    if(act.intent && typeof act.intent === 'object' &&
+       typeof sfIntentArm === 'function')
+      r.intentArmed = sfIntentArm(v, act.intent);
+    if(act.endSay && String(act.endSay).trim() &&
+       typeof observe === 'function')
+      observe(v, String(act.endSay), { kind: 'convo', source: 'memory',
+        topic: 'convo_' + ((v.sfLastConvo && v.sfLastConvo.with) || 'self'),
+        confidence: 0.85, salience: 0.7, bypassAttention: true });
+    if(Array.isArray(act.insights) && act.insights.length &&
+       typeof observe === 'function'){
+      for(const ins of act.insights.slice(0, 3))
+        observe(v, String(ins), { kind: 'reflection', source: 'memory',
+          topic: 'reflection', confidence: 0.9, salience: 0.8,
+          bypassAttention: true });
+      v.sfLastReflectAt = sfAbsNow();
+    }
+    v.sfLastWhy = act.why || meta.reason || null;
+
+    /* ---- conversation verbs resolve at filing ---- */
+    const verb = String(act.verb || '').toLowerCase();
+    if(verb === 'say' && typeof sfConvoSay === 'function')
+      sfConvoSay(v, act.text);
+    if(verb === 'leave' && typeof sfConvoLeave === 'function')
+      r.left = sfConvoLeave(v, 'left');
+    /* a non-say brain turn while holding the floor still passes it —
+       the pause IS the reply; a `do` gesture rides the tail */
+    if(v.sfConvo && v.sfConvo.yourTurn && verb !== 'say' &&
+       verb !== 'leave' && typeof sfConvoPass === 'function')
+      sfConvoPass(v, act.do);
+
     /* the standing will is processed on ANY accepted filing — a
        request-only act may still restate (or intentionally lapse) it */
     const d = meta.directive || act.directive || act.then;
     if(d && typeof d === 'object'){
-      const bad = sfAgentDirCheck(d);
-      if(bad){ r.thenDropped = bad; v.sfDirective = null; }
+      const badD = sfAgentDirCheck(d);
+      if(badD){ r.thenDropped = badD; v.sfDirective = null; }
       else{
         /* three identical standing wills in a row = the brain coasting
-           — flagged on the reply + the record, never vetoed (§5.6) */
+           — flagged on the reply + the record, never vetoed */
         const sig = String(d.verb || '').toLowerCase() + '|' +
                     String(d.to || '');
         v._dirStreak = (v._dirSig === sig) ? (v._dirStreak || 0) + 1 : 1;
@@ -39225,34 +39504,47 @@ function sfAgentAct(cid, act, meta){
           r.dirFlag = 'directive_repeat x' + v._dirStreak;
       }
     } else {
-      /* §5.5 — no silent carry-over: a turn that doesn't restate the
-         will lets it lapse. The gap state makes the lapse visible. */
+      /* no silent carry-over: a turn that doesn't restate the will lets
+         it lapse. The gap state makes the lapse visible. */
       v.sfDirective = null;
       v._dirStreak = 0; v._dirSig = null;
+    }
+
+    if(r.order && r.order.prefail){
+      /* unlocatable talk: accepted, fails on the first tick into
+         lastOrder — the brain reads "can't find them" next turn */
+      r.order.fail = r.order.prefail; r.order.done = true;
+      r.order.err = r.order.prefail;
+      if(r.order.suggest) r.suggest = r.order.suggest;
+      delete r.order.prefail;
     }
     if(r.order){
       /* a live order replaced mid-flight ends 'interrupted' — the
          brain reads the outcome next turn (interruption ≠ expiry) */
       if(v.sfAgent && !v.sfAgent.done && sfAbsNow() <= v.sfAgent.until)
         v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
-          interruptedBy: 'new_order', at: W.tod, day: W.day };
+          interruptedBy: 'new_order', seq: v.sfAgent.seq,
+          at: W.tod, day: W.day };
       r.order.why = act.why || meta.reason || null;  // why travels
       v.sfAgent = r.order;
       v.sfAgentDriven = true;
       v.sfGap = false;
       /* a fresh order is the brain deciding to wake — honest exit */
-      if(v.state === 'sleep') v.state = 'idle';
+      if(v.state === 'sleep' && verb !== 'sleep' && verb !== 'rest')
+        v.state = 'idle';
     }
+    /* the dispatch ledger: this filing IS the brain call — record it,
+       clear the served triggers (38_sf_brain.js) */
+    if(typeof sfDispatchServed === 'function') sfDispatchServed(v);
   }
   return r;
 }
 
 /* order end → the standing directive becomes the new order. It re-
    issues through the SAME interpreter, so a stale 'move' resolves
-   against the live world and a rainy-day 'rest' fails honest (the pawn
-   then stands in the honest gap — never a code-invented behavior).
-   Freshness + repeat budget gate promotion; a chained directive
-   inherits the root's horizon. */
+   against the live world and presence verbs ground "at <to>, do <verb>"
+   through the same navigate-then-hold path. Freshness + repeat budget
+   gate promotion; a chained directive inherits the root's horizon. */
 function sfAgentNext(v){
   const d = v && v.sfDirective;
   if(!d || typeof d !== 'object') return null;
@@ -39278,18 +39570,19 @@ function sfAgentNext(v){
 }
 
 /* observable state only — the playtest briefing rule.
-   v13: no pushed clock. `senses` + `felt` are generated per-pawn;
-   exact time is pulled via opts.glance ('phone'|'wallclock'|'ask'). */
+   No pushed clock (glance pulls), no routine field (the BRIEF carries
+   life context — audit site 18). `mind` is the interiority surface;
+   `convo`/`lastConvo` carry the channel; `archive` appears on
+   ?reflect=1. */
 function sfAgentState(cid, opts){
   const v = sfPawnOf(cid);
   if(!v) return null;
   opts = opts || {};
-  const poi = v.inside ? sfFindPOI(v.inside) : null;
   const here = v.inside ? ('inside ' + v.inside)
     : (function(){
         let best = null, bd = 60;
         for(const p of SF_POIS){
-          const c = sfHomeCell({ poi: p.name });
+          const c = sfPoiDoor(p);
           const d = Math.hypot(v.x - (c.wx * CS + 16), v.y - (c.wy * CS + 16));
           if(d < bd){ bd = d; best = p; }
         }
@@ -39300,13 +39593,16 @@ function sfAgentState(cid, opts){
     if(o === v || !o._castId) continue;
     const d = Math.hypot(v.x - o.x, v.y - o.y);
     if(d >= CS * 8) continue;
-    // a passerby sees only their own space: street sees street, venue
-    // sees venue
+    /* a passerby sees only their own space: street sees street, venue
+       sees venue */
     const sameSpace = v.inBuilding ? (o.inBuilding && o.inside === v.inside)
                                    : !o.inBuilding;
     if(!sameSpace) continue;
-    near.push({ id: o._castId, name: o.name, dist: Math.round(d / CS * 2) + 'm',
-                doing: o.state, says: (o.sayUntil > W.tod ? o.sayText : null) });
+    near.push({ id: o._castId, name: o.name,
+                dist: Math.round(d / CS * 2) + 'm',
+                doing: o.state,
+                says: (o.sayUntil > W.tod ? o.sayText : null),
+                do: (o.doUntil > W.tod ? o.doText : null) });
   }
   /* wire lines keep their text but drop the '[HH:MM]' stamp — a
      bystander hears the neighborhood, not a clock face */
@@ -39314,7 +39610,7 @@ function sfAgentState(cid, opts){
     .map(e => (e.who ? e.who + ': ' : '') + e.text);
   const b = v.body || {};
   const st = {
-    /* spec §3: the "now" sentence goes FIRST — LLMs weight early tokens */
+    /* the "now" sentence goes FIRST — LLMs weight early tokens */
     senses: (typeof gsTimeSenses === 'function')
       ? gsTimeSenses(v) : null,
     felt: (typeof gsTimeFelt === 'function')
@@ -39326,14 +39622,16 @@ function sfAgentState(cid, opts){
              fatigue: +(b.fatigue || 0).toFixed(2) },
     nearby: near, wire,
     order: v.sfAgent ? { verb: v.sfAgent.verb,
-                         target: v.sfAgent.poi || v.sfAgent.to || null,
+                         target: v.sfAgent.poi || v.sfAgent.to ||
+                                 v.sfAgent.atLabel || null,
                          status: 'active',
+                         phase: v.sfAgent.phase || null,
                          untilH: +((v.sfAgent.until - sfAbsNow()).toFixed(2)),
                          why: v.sfAgent.why || null } : null,
-    /* §5.4 — outcome reporting: the brain reads lastOrder every turn;
-       a live gap means "your will ran out, we did not invent one" */
+    /* outcome reporting: the brain reads lastOrder every turn; a live
+       gap means "your will ran out, we did not invent one" */
     lastOrder: v.sfAgentResult || null,
-    /* the brain can see its own standing will persisted (§5.2) */
+    /* the brain can see its own standing will persisted */
     directive: v.sfDirective ? { verb: v.sfDirective.verb,
                                  to: v.sfDirective.to || null,
                                  why: v.sfDirective.why || null,
@@ -39344,12 +39642,17 @@ function sfAgentState(cid, opts){
                                    ? 'repeated_default' : null } : null,
     gap: !!v.sfGap,
     reflex: v.sfReflex || null,
-    /* numeric hours, never 'HH:MM' — the spec's clock-regex stays clean */
-    routine: (v.sfSched || []).map(s => ({ start: s.h0, end: s.h1,
-      at: (s.to && s.to.poi ? s.to.poi : (s.to && s.to.anchor) || 'around') })),
+    /* v16 interiority surface (design §4.2–4.3) — computed per read so
+       what surfaces is always the pawn's CURRENT mind */
+    mind: (typeof sfMindScan === 'function') ? sfMindScan(v) : null,
+    convo: (typeof sfConvoState === 'function') ? sfConvoState(v) : null,
+    lastConvo: (v.sfLastConvo &&
+                sfAbsNow() - v.sfLastConvo.at < 1.0) ? v.sfLastConvo : null,
   };
   if(opts.glance && typeof gsTimeGlance === 'function')
     st.glance = gsTimeGlance(v, opts.glance, opts);
+  if(opts.reflect && typeof sfReflectArchive === 'function')
+    st.archive = sfReflectArchive(v);
   return st;
 }
 
@@ -39551,6 +39854,651 @@ if(typeof window !== 'undefined'){
   window.__aiBridge.sfCamList = sfCamList;
   window.__aiBridge.sfCamRender = sfCamRender;
   window.__aiBridge.sfCamWatch = sfCamWatch;
+}
+
+/* =====================================================================
+   PART 38 — SF BRAIN: interiority surface + conversation channel +
+   event-driven dispatch (v16 "the becoming brain")
+
+   The engine owns logistics and the sensorium; the brain owns every
+   intention. This module provides:
+
+   - sfDispatchTick / sfDispatchPoll: the per-main trigger queue the
+     driver drains. Triggers (cost-research B1): order_end, gap,
+     directive_expiry, convo_invite / convo_floor / convo_end, salient,
+     intent_fired, needs, env, heartbeat, sleep_refile. Tier routing:
+     T0 = cheap refills on unchanged context (directive_expiry, mild
+     needs, quiet heartbeat, obvious gap), T1 = the cast model (all
+     decisions/speech/intents/recovery), T2 = reflect offer only.
+     Rate caps: min spacing 0.25 sim-h per main EXCEPT inside convos
+     (floor pass ~0.04 sim-h); max 10 calls/sim-h hard stop. Heartbeat
+     floor ~3.5 waking sim-h. Sleepers queue event triggers for wake;
+     only cueType:"time" intents + ONE mid-sleep refile fire in sleep.
+
+   - Conversation channel (design §4.3): invited → participating →
+     ended|dropped. Floor bookkeeping (yourTurn), '?'-line obligations,
+     caps (16 utterances / 1.5 sim-h), asymmetric leave, per-party POV
+     endSay memory writes, thinned overhear records.
+
+   - Armed intentions (design §2.1 act.intent / §4.1): v.sfIntents[],
+     cue-matched each brain tick — event cues on perceived `who`/
+     place, time cues as alarms (the only intents that fire in sleep).
+
+   - sfMindScan (design §4.2): the `mind` block — mood echo, concerns,
+     surface (fired intentions, open loops, cue-matched recalls —
+     intrinsic weight order, never curated), people models, lastTurn.
+
+   - sfReflectArchive (design §4.4): ?reflect=1 raw material — top
+     salient records since last reflect + open obligations + intents.
+   ===================================================================== */
+
+/* ---------------- dispatch ledger ---------------- */
+
+const SF_MIN_SPACE_H  = 0.25;   // min sim-h between brain calls per main
+const SF_MAX_CALLS_H  = 10;     // hard stop per sim-hour
+const SF_HEARTBEAT_H  = 3.5;    // waking floor: ~1 pulse per 3–4 sim-h
+const SF_CONVO_FLOOR_H = 0.04;  // ~2.4 sim-min per floor pass
+const SF_DIR_EARLY_H  = 0.25;   // directive expiry lookahead
+const SF_INVITE_TTL_H = 0.5;    // ~30 sim-min to answer an invitation
+const SF_CONVO_MAX_UTT = 16;
+const SF_CONVO_MAX_H   = 1.5;
+
+function sfDispOf(v){
+  if(!v.sfDisp)
+    v.sfDisp = { pending: [], callsAt: [], lastCallAt: null,
+                 sleepStart: null, sleepRefiled: false,
+                 needsBand: false, envSig: -1, viewSet: [] };
+  return v.sfDisp;
+}
+
+/* enqueue a trigger (deduped by kind); tier is the routing decision —
+   the driver reads it to pick the model */
+function sfDispatchTrig(v, kind, tier, detail){
+  const d = sfDispOf(v);
+  for(const p of d.pending) if(p.kind === kind) return;
+  d.pending.push({ kind, tier, detail: detail || null,
+                   at: sfAbsNow(), dispatchedAt: null });
+}
+
+/* a brain filing IS the call — record it, clear the served triggers */
+function sfDispatchServed(v){
+  const d = sfDispOf(v);
+  const now = sfAbsNow();
+  d.lastCallAt = now;
+  d.callsAt.push(now);
+  d.callsAt = d.callsAt.filter(t => now - t < 1);
+  d.pending = [];
+}
+
+/* does the current moment carry anything a T0 shouldn't decide on? —
+   fresh non-completed outcome, live convo, freshly fired intent, or
+   needs already in the felt band */
+function sfSurfaceBusy(v){
+  const r = v.sfAgentResult;
+  if(r && !r._disp && (r.status === 'failed' || r.status === 'interrupted'))
+    return true;
+  if(v.sfConvo && v.sfConvo.state !== 'ended' && v.sfConvo.state !== 'dropped')
+    return true;
+  const now = sfAbsNow();
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt && now - it.firedAt < 0.5) return true;
+  const b = v.body || {};
+  if((b.satiety != null && b.satiety < 0.35) ||
+     (b.hydration != null && b.hydration < 0.35) ||
+     (b.fatigue != null && b.fatigue > 0.7)) return true;
+  return false;
+}
+
+/* ---------------- per-main trigger scan (runs on the sim tick) ------ */
+function sfDispatchTick(v, dtH){
+  const d = sfDispOf(v);
+  const now = sfAbsNow();
+  const asleep = v.state === 'sleep';
+
+  if(asleep){
+    if(d.sleepStart == null){ d.sleepStart = now; d.sleepRefiled = false; }
+    /* exactly one mid-sleep refile per night — the untilH≤6 bound makes
+       a 7–9h sleep outlive its will; the refile is the honest fix */
+    if(!d.sleepRefiled && now - d.sleepStart >= 2){
+      d.sleepRefiled = true;
+      sfDispatchTrig(v, 'sleep_refile', 'T0', null);
+    }
+    /* only cueType:"time" intents fire in sleep — the alarm clock */
+    sfIntentScan(v, true);
+    return;   // event triggers queue until wake — never wake a sleeper
+  }
+  d.sleepStart = null;
+
+  /* 1 — order ended badly: interruption/failure forces a re-decide.
+     A 'new_order' interruption is the brain's own filing superseding
+     itself — it already knows; no re-dispatch. */
+  const r = v.sfAgentResult;
+  if(r && !r._disp && (r.status === 'failed' || r.status === 'interrupted')){
+    r._disp = true;
+    if(r.interruptedBy !== 'new_order')
+      sfDispatchTrig(v, 'order_end', 'T1',
+        { verb: r.verb, status: r.status,
+          interruptedBy: r.interruptedBy || null, err: r.err || null });
+  }
+  if(r && !r._disp && r.status === 'completed' && !v.sfAgent &&
+     !v.sfDirective) r._disp = true;   // quiet completion → gap covers it
+
+  /* 2 — the intention gap: the will lapsed publicly */
+  if(v.sfGap)
+    sfDispatchTrig(v, 'gap', sfSurfaceBusy(v) ? 'T1' : 'T0', null);
+
+  /* 3 — the will is about to lapse while it should keep running */
+  if(v.sfDirective){
+    const left = v.sfDirective.until - now;
+    if(left > 0 && left <= SF_DIR_EARLY_H)
+      sfDispatchTrig(v, 'directive_expiry', 'T0',
+        { verb: v.sfDirective.verb, leftH: +left.toFixed(2) });
+  }
+
+  /* 4 — conversation channel: invite, floor pass, end/drop */
+  const cv = v.sfConvo;
+  if(cv){
+    if(cv.state === 'invited')
+      sfDispatchTrig(v, 'convo_invite', 'T1', { from: cv.partner });
+    else if(cv.state === 'participating' && cv.yourTurn &&
+            (d.lastCallAt == null || now - d.lastCallAt >= SF_CONVO_FLOOR_H))
+      sfDispatchTrig(v, 'convo_floor', 'T1', { with: cv.partner });
+  }
+
+  /* 5 — salient perception: a bonded main or armed-intent `who` entering
+     view, or someone collapsing in view */
+  const seen = [];
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId || !sfIsMain(o)) continue;
+    if(sfPerceived(v, o)) seen.push(o._castId);
+  }
+  for(const cid of seen){
+    if(d.viewSet.indexOf(cid) >= 0) continue;
+    const o = sfPawnOf(cid);
+    const bond = (v.bonds && o && v.bonds[o.name]) || 0;
+    const isIntentWho = (v.sfIntents || []).some(it =>
+      !it.firedAt && it.cueType !== 'time' && it.who &&
+      (it.who === cid || (o && it.who === o.name)));
+    if(bond >= 0.4 || isIntentWho)
+      sfDispatchTrig(v, 'salient', 'T1',
+        { kind: 'arrival', who: cid });
+  }
+  d.viewSet = seen;
+  for(const o of VILLAGERS){
+    if(o === v || o.dead) continue;
+    if(o.state === 'downed' && sfPerceived(v, o)){
+      sfDispatchTrig(v, 'salient', 'T1',
+        { kind: 'collapse', who: o._castId || o.name });
+      break;
+    }
+  }
+
+  /* 6 — armed intentions firing (event + time cues while awake) */
+  sfIntentScan(v, false);
+
+  /* 7 — needs crossing the felt band (mild → T0, severe → T1) */
+  const b = v.body || {};
+  const inBand = (b.satiety != null && b.satiety < 0.35) ||
+                 (b.hydration != null && b.hydration < 0.35) ||
+                 (b.fatigue != null && b.fatigue > 0.7);
+  const severe = (b.satiety != null && b.satiety < 0.15) ||
+                 (b.hydration != null && b.hydration < 0.15) ||
+                 (b.fatigue != null && b.fatigue > 0.9);
+  if(inBand && !d.needsBand)
+    sfDispatchTrig(v, 'needs', severe ? 'T1' : 'T0',
+      { satiety: +(b.satiety || 0).toFixed(2),
+        hydration: +(b.hydration || 0).toFixed(2),
+        fatigue: +(b.fatigue || 0).toFixed(2) });
+  if(!inBand) d.needsBand = false;
+  else d.needsBand = true;
+
+  /* environment is a TRIGGER CLASS, never a behavior: weather/crowd
+     transitions surface salience — the brain decides what to do */
+  const envSig = (W.rain > 0.15 ? 1 : 0) | (W.storm > 0.2 ? 2 : 0);
+  if(d.envSig >= 0 && envSig !== d.envSig)
+    sfDispatchTrig(v, 'env', 'T1',
+      { rain: +(W.rain || 0).toFixed(2), storm: +(W.storm || 0).toFixed(2) });
+  d.envSig = envSig;
+
+  /* 9 — heartbeat floor: ~1 pulse per 3–4 waking sim-h. Honest: the
+     brain refiles the will or files a real why/do — never fake-busy */
+  if(d.lastCallAt == null || now - d.lastCallAt >= SF_HEARTBEAT_H)
+    sfDispatchTrig(v, 'heartbeat', sfSurfaceBusy(v) ? 'T1' : 'T0', null);
+}
+
+/* the driver-facing dispatch surface: per main, the next due trigger
+   (rate-capped), the queued kinds, and why a pending head is blocked */
+function sfDispatchPoll(){
+  const out = { now: +sfAbsNow().toFixed(3), tod: +W.tod.toFixed(2),
+                day: W.day, per: {} };
+  for(const v of VILLAGERS){
+    if(!sfIsMain(v)) continue;
+    const cid = v._castId || v.name;
+    const d = sfDispOf(v);
+    const now = sfAbsNow();
+    d.callsAt = d.callsAt.filter(t => now - t < 1);
+    const inConvo = !!(v.sfConvo && v.sfConvo.state !== 'ended' &&
+                       v.sfConvo.state !== 'dropped');
+    const minSpace = inConvo ? SF_CONVO_FLOOR_H : SF_MIN_SPACE_H;
+    const spacingOk = d.lastCallAt == null || (now - d.lastCallAt) >= minSpace;
+    const capOk = d.callsAt.length < SF_MAX_CALLS_H;
+    let due = null, blocked = null;
+    for(const p of d.pending){
+      /* already dispatched and the brain hasn't answered — re-surface
+         after ~0.75 sim-h (dead-brain recovery) */
+      if(p.dispatchedAt != null && now - p.dispatchedAt < 0.75) continue;
+      if(!spacingOk){ blocked = 'spacing'; break; }
+      if(!capOk){ blocked = 'cap'; break; }
+      p.dispatchedAt = now;
+      due = { kind: p.kind, tier: p.tier, detail: p.detail, at: p.at };
+      break;
+    }
+    out.per[cid] = { due, queued: d.pending.map(p => p.kind),
+                     blocked,
+                     lastCallAgoH: d.lastCallAt == null ? null
+                       : +(now - d.lastCallAt).toFixed(2),
+                     callsLastH: d.callsAt.length,
+                     asleep: v.state === 'sleep', gap: !!v.sfGap };
+  }
+  return out;
+}
+
+/* ---------------- the conversation channel (design §4.3) ------------ */
+
+const SF_CONVOS = {};
+let SF_CONVO_N = 0;
+
+function sfConvoGet(v){
+  if(!v.sfConvo) return null;
+  return SF_CONVOS[v.sfConvo.id] || null;
+}
+
+/* talk contact opens the channel: speaker participates with the floor
+   passed; the target is invited (their say/talk accepts, leave declines,
+   silence drops it in ~0.5 sim-h) */
+function sfConvoOpen(v, t, openerText){
+  /* one convo per pawn — a fresh opener ends a stale one honestly */
+  if(v.sfConvo) sfConvoLeave(v, 'superseded');
+  if(t.sfConvo) sfConvoLeave(t, 'superseded');
+  const id = 'cv-' + W.day + '-' + (++SF_CONVO_N);
+  const aId = v._castId || v.name, bId = t._castId || t.name;
+  const cv = { id, a: aId, b: bId, since: sfAbsNow(), sinceDay: W.day,
+               tail: [{ who: aId, text: String(openerText).slice(0, 90),
+                        at: sfAbsNow() }],
+               obligations: [], utt: 1, turns: 1, endedHow: null };
+  SF_CONVOS[id] = cv;
+  v.sfConvo = { id, partner: bId, state: 'participating',
+                yourTurn: false, since: cv.since };
+  t.sfConvo = { id, partner: aId, state: 'invited',
+                yourTurn: true, since: cv.since };
+  if(/\?\s*$/.test(String(openerText).trim()))
+    cv.obligations.push({ from: aId, to: bId,
+      gist: String(openerText).trim().slice(-70), at: sfAbsNow(),
+      satisfied: false });
+  return cv;
+}
+
+/* a `say` filing: the utterance lands — bubble, tail, floor pass,
+   obligation bookkeeping, overhear thinning */
+function sfConvoSay(v, text){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return false;
+  const cid = v._castId || v.name;
+  if(mine.state === 'invited') mine.state = 'participating';
+  const partner = sfPawnOf(mine.partner);
+  const partnerSlot = partner && partner.sfConvo &&
+                      partner.sfConvo.id === cv.id ? partner : null;
+
+  cv.tail.push({ who: cid, text: String(text).slice(0, 90), at: sfAbsNow() });
+  if(cv.tail.length > 12) cv.tail = cv.tail.slice(-12);
+  cv.utt++; cv.turns++;
+  /* the floor passes on every utterance */
+  mine.yourTurn = false;
+  if(partnerSlot) partnerSlot.sfConvo.yourTurn = true;
+  /* a '?' opens an obligation on the partner */
+  if(/\?\s*$/.test(String(text).trim()))
+    cv.obligations.push({ from: cid, to: mine.partner,
+      gist: String(text).trim().slice(-70), at: sfAbsNow(),
+      satisfied: false });
+  /* speaking settles obligations the partner put on me */
+  for(const ob of cv.obligations)
+    if(ob.to === cid && !ob.satisfied) ob.satisfied = true;
+
+  sfSay(v, text);
+  if(typeof observe === 'function'){
+    observe(v, 'I said to ' + (partner ? partner.name : mine.partner) +
+      ': "' + String(text).slice(0, 70) + '"',
+      { kind: 'convo', topic: 'convo_' + cv.id, source: 'direct',
+        confidence: 0.95, salience: 0.6, bypassAttention: true });
+    if(partner)
+      observe(partner, (v.name || cid) + ' said: "' +
+        String(text).slice(0, 70) + '"',
+        { kind: 'convo', topic: 'convo_' + cv.id, source: 'direct',
+          confidence: 0.9, salience: 0.65, bypassAttention: true });
+    /* overhearers in earshot get the thinned version — presence, not
+       transcript */
+    for(const o of VILLAGERS){
+      if(o === v || o === partner || !o._castId) continue;
+      if(sfPerceived(v, o) && Math.hypot(v.x - o.x, v.y - o.y) <= CS * 5)
+        observe(o, 'heard ' + (v.name || cid) + ' and ' +
+          (partner ? partner.name : mine.partner) + ' talking',
+          { kind: 'convo', topic: 'overheard_' + cv.id, source: 'direct',
+            confidence: 0.5, salience: 0.25 });
+    }
+  }
+  /* the floor pass is itself a dispatch trigger on the partner */
+  if(partnerSlot && typeof sfDispatchTrig === 'function')
+    sfDispatchTrig(partner, 'convo_floor', 'T1', { with: cid });
+  /* caps: ≤16 utterances or ~1.5 sim-h — then it ends, cleanly */
+  if(cv.utt >= SF_CONVO_MAX_UTT || sfAbsNow() - cv.since >= SF_CONVO_MAX_H)
+    sfConvoEnd(cv, 'cap');
+  return true;
+}
+
+/* a served brain turn while holding the floor but not saying anything:
+   the pause IS the reply — the floor still passes, and a `do` beat
+   rides the tail so the partner sees the gesture */
+function sfConvoPass(v, doText){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return;
+  const cid = v._castId || v.name;
+  const partner = sfPawnOf(mine.partner);
+  mine.yourTurn = false;
+  if(partner && partner.sfConvo && partner.sfConvo.id === cv.id)
+    partner.sfConvo.yourTurn = true;
+  cv.turns++;
+  if(doText)
+    cv.tail.push({ who: cid, do: String(doText).slice(0, 60),
+                   at: sfAbsNow() });
+}
+
+/* asymmetric leave — always allowed, by either party, from any state */
+function sfConvoLeave(v, how){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine) return null;
+  if(cv) sfConvoEnd(cv, how || 'left');
+  else v.sfConvo = null;   // dangling slot — record already gone
+  return cv ? cv.id : mine.id;
+}
+
+/* shared convo teardown: both parties get lastConvo + open obligations
+   carry into mind.surface urges; a partner's live talk order reports
+   'convo_ended' */
+function sfConvoEnd(cv, how){
+  if(!cv || cv.endedHow) return;
+  cv.endedHow = how;
+  const now = sfAbsNow();
+  for(const pid of [cv.a, cv.b]){
+    const p = sfPawnOf(pid);
+    if(!p) continue;
+    p.sfConvo = null;
+    p.sfLastConvo = { with: pid === cv.a ? cv.b : cv.a,
+                     turns: cv.turns, endedHow: how, at: now };
+    /* unsatisfied obligations owed TO me become open loops */
+    p.sfObligations = (p.sfObligations || []).concat(
+      cv.obligations.filter(ob => ob.to === pid && !ob.satisfied)
+        .map(ob => ({ from: ob.from, gist: ob.gist, at: ob.at,
+                      satisfied: false })));
+    p.sfObligations = (p.sfObligations || []).slice(-6);
+    if(p.sfAgent && !p.sfAgent.done &&
+       (p.sfAgent.verb === 'talk' || p.sfAgent.verb === 'say')){
+      /* the parked order is interrupted, not silently completed — tag
+         it so the natural end-write reports the same interruption */
+      p.sfAgent.done = true;
+      p.sfAgent.interrupted =
+        how === 'no_answer' ? 'no_answer' : 'convo_ended';
+      p.sfAgentResult = { verb: p.sfAgent.verb, status: 'interrupted',
+        interruptedBy: p.sfAgent.interrupted,
+        seq: p.sfAgent.seq, at: W.tod, day: W.day };
+    }
+    if(typeof sfDispatchTrig === 'function')
+      sfDispatchTrig(p, 'convo_end', 'T1', { with: p.sfLastConvo.with,
+                                             how });
+  }
+  delete SF_CONVOS[cv.id];
+}
+
+/* per-tick convo maintenance: invited expiry, proximity gate, caps */
+function sfConvoTick(v, dtH){
+  const mine = v.sfConvo;
+  if(!mine) return;
+  const cv = sfConvoGet(v);
+  if(!cv){ v.sfConvo = null; return; }
+  const now = sfAbsNow();
+  if(mine.state === 'invited' && now - mine.since > SF_INVITE_TTL_H){
+    sfConvoEnd(cv, 'no_answer');   // inviter's order interrupts no_answer
+    return;
+  }
+  const partner = sfPawnOf(mine.partner);
+  if(!partner || partner.dead || partner.state === 'downed'){
+    sfConvoEnd(cv, 'dropped'); return;
+  }
+  if(mine.state === 'participating' || mine.state === 'invited'){
+    /* proximity gates the channel — a partner who walks off ends it,
+       after a short grace so a doorway shuffle doesn't kill it */
+    const near = sfSameSpace(v, partner) &&
+                 Math.hypot(v.x - partner.x, v.y - partner.y) <= CS * 10;
+    mine.apartH = near ? 0 : (mine.apartH || 0) + dtH;
+    if(mine.apartH > 0.15){ sfConvoEnd(cv, 'dropped'); return; }
+  }
+}
+
+/* the state-facing convo view (design §4.3 shape) */
+function sfConvoState(v){
+  const mine = v.sfConvo, cv = sfConvoGet(v);
+  if(!mine || !cv) return null;
+  const cid = v._castId || v.name;
+  return {
+    id: cv.id, state: mine.state,
+    partner: mine.partner,
+    yourTurn: !!mine.yourTurn,
+    tail: cv.tail.slice(-4).map(e =>
+      e.who + ': ' + (e.text ? '"' + e.text + '"' : '(' + e.do + ')')),
+    obligations: cv.obligations.filter(ob => ob.to === cid && !ob.satisfied)
+      .map(ob => ob.gist),
+    since: 'd' + cv.sinceDay + ' t' + (cv.since % 24).toFixed(1),
+    turns: cv.turns };
+}
+
+/* ---------------- armed intentions (design §2.1 intent / §4.1) ------ */
+
+function sfIntentArm(v, spec){
+  v.sfIntents = v.sfIntents || [];
+  if(v.sfIntents.length >= 8) v.sfIntents.shift();
+  let when = null;
+  if(typeof spec.when === 'number') when = spec.when;
+  else if(typeof spec.when === 'string'){
+    const m = spec.when.trim().match(/^(\d{1,2})(?::(\d{2}))?/);
+    if(m) when = (+m[1]) + (m[2] ? (+m[2]) / 60 : 0);
+  }
+  const it = { id: 'i' + Math.floor(sfAbsNow() * 100) + '-' +
+                   (v.sfIntents.length + 1),
+    deed: String(spec.deed || '').slice(0, 90),
+    condition: String(spec.condition || '').slice(0, 90),
+    cueType: spec.cueType === 'time' ? 'time' : 'event',
+    when, who: spec.who || null,
+    armedAt: sfAbsNow(), armedDay: W.day, firedAt: null };
+  v.sfIntents.push(it);
+  return it.id;
+}
+
+/* cue-match armed intentions. timeOnly=true while asleep (alarms only);
+   event cues need the target in the perceptual field. Returns the
+   intents that fired this scan. */
+function sfIntentScan(v, timeOnly){
+  const now = sfAbsNow();
+  const fired = [];
+  for(const it of (v.sfIntents || [])){
+    if(it.firedAt != null) continue;
+    if(it.cueType === 'time'){
+      if(it.when != null && W.tod >= it.when && W.tod < it.when + 0.5){
+        it.firedAt = now; fired.push(it);
+      }
+      continue;
+    }
+    if(timeOnly) continue;   // event cues queue until wake
+    if(it.who){
+      const t = sfPawnOf(it.who);
+      if(t && sfPerceived(v, t)){ it.firedAt = now; fired.push(it); }
+      continue;
+    }
+    /* no anchor — a place-named condition fires on arrival at a venue
+       whose name appears in the condition text */
+    if(it.condition && v.inside){
+      const nm = String(v.inside).toLowerCase();
+      const cond = String(it.condition).toLowerCase();
+      if(nm.split(/\s+/).some(w => w.length > 3 && cond.includes(w))){
+        it.firedAt = now; fired.push(it);
+      }
+    }
+  }
+  if(fired.length && typeof sfDispatchTrig === 'function')
+    sfDispatchTrig(v, 'intent_fired', 'T1',
+      { deeds: fired.map(i => i.deed) });
+  return fired;
+}
+
+/* ---------------- the mind surface (design §4.2) ------------------- */
+
+function sfMindScan(v){
+  const now = sfAbsNow();
+  const cid = v._castId || v.name;
+  const surface = [];
+
+  /* fired intentions — prospective memory surfacing, freshest first */
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt != null && now - it.firedAt < 1.0)
+      surface.push({ kind: 'fired_intention', deed: it.deed,
+                     condition: it.condition, w: 0.9 });
+
+  /* open loops — unanswered obligations carried out of convos */
+  for(const ob of (v.sfObligations || []))
+    if(!ob.satisfied && now - ob.at < 24)
+      surface.push({ kind: 'urge', about: ob.gist, who: ob.from,
+                     w: 0.7 });
+
+  /* stale armed intents nag — armed >6 sim-h ago, never fired */
+  for(const it of (v.sfIntents || []))
+    if(it.firedAt == null && now - it.armedAt > 6)
+      surface.push({ kind: 'urge', about: it.deed,
+                     condition: it.condition, w: 0.5 });
+
+  /* recalls — recent-salient epistemic records cue-matched to what's
+     actually around: a nearby name/id in the record, or this place */
+  const nearNames = new Set();
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId) continue;
+    if(sfPerceived(v, o)){ nearNames.add(o._castId);
+      if(o.name) nearNames.add(o.name); }
+  }
+  if(v.epistemic && v.epistemic.memories){
+    const dayNow = W.day + W.tod / 24;
+    const hits = [];
+    for(const m of v.epistemic.memories){
+      if(m.superseded) continue;
+      if(dayNow - (m.when || 0) > 2) continue;
+      const hay = (String(m.topic || '') + ' ' +
+                   (typeof m.content === 'string' ? m.content : '') + ' ' +
+                   String(m.who || '')).toLowerCase();
+      let cue = null;
+      for(const nm of nearNames)
+        if(hay.includes(String(nm).toLowerCase())){ cue = nm; break; }
+      if(!cue && v.inside && hay.includes(String(v.inside).toLowerCase()))
+        cue = v.inside;
+      if(!cue) continue;
+      hits.push({ kind: 'recall',
+        gist: (typeof m.content === 'string' ? m.content : m.topic)
+              .slice(0, 80),
+        about: m.topic, w: +(m.salience * (m.confidence || 0.5)).toFixed(3) });
+    }
+    hits.sort((a, b) => b.w - a.w);
+    for(const h of hits.slice(0, 2)) surface.push(h);
+  }
+
+  /* intrinsic weight order, capped — never ranked for drama */
+  surface.sort((a, b) => (b.w || 0) - (a.w || 0));
+  const surf = surface.slice(0, 4).map(s => { delete s.w; return s; });
+
+  /* nearby-person models — bonds + open obligations, nothing invented */
+  const people = {};
+  for(const o of VILLAGERS){
+    if(o === v || !o._castId || !sfIsMain(o)) continue;
+    if(!sfPerceived(v, o)) continue;
+    const bond = (v.bonds && o.name && v.bonds[o.name]) || 0;
+    const open = (v.sfObligations || [])
+      .filter(ob => !ob.satisfied && (ob.from === o._castId || ob.from === o.name))
+      .map(ob => ob.gist)[0] || null;
+    people[o._castId] = {
+      stance: bond >= 0.65 ? 'close' : bond >= 0.4 ? 'warm'
+            : bond >= 0.15 ? 'easy' : bond > 0 ? 'familiar' : 'a stranger',
+      open, vibe: +bond.toFixed(2) };
+  }
+
+  return {
+    mood: v.sfMood ? { text: v.sfMood.text,
+      since: 'd' + v.sfMood.day + ' t' + (v.sfMood.since % 24).toFixed(1) }
+      : null,
+    concerns: (v.sfConcerns || []).slice(0, 5),
+    surface: surf,
+    people,
+    lastTurn: v.sfLastWhy || null,
+    intentions: (v.sfIntents || [])
+      .filter(i => i.firedAt == null)
+      .map(i => ({ deed: i.deed, condition: i.condition,
+                   cueType: i.cueType })) };
+}
+
+/* ---------------- reflection archive (design §4.4) ----------------- */
+
+function sfReflectArchive(v){
+  const nowDay = W.day + W.tod / 24;
+  const sinceDay = (v.sfLastReflectAt != null)
+    ? v.sfLastReflectAt / 24 : nowDay - 1;
+  const records = [];
+  if(v.epistemic && v.epistemic.memories){
+    for(const m of v.epistemic.memories){
+      if(m.superseded) continue;
+      if((m.when || 0) < sinceDay) continue;
+      records.push({ kind: m.kind, topic: m.topic,
+        gist: (typeof m.content === 'string' ? m.content
+              : JSON.stringify(m.content)).slice(0, 90),
+        salience: m.salience, when: +(m.when || 0).toFixed(2) });
+    }
+    records.sort((a, b) => (b.salience || 0) - (a.salience || 0));
+  }
+  return {
+    since: 'd' + Math.floor(sinceDay) + ' t' +
+           ((sinceDay % 1) * 24).toFixed(1),
+    records: records.slice(0, 6),
+    obligations: (v.sfObligations || [])
+      .filter(o => !o.satisfied)
+      .map(o => ({ from: o.from, gist: o.gist })),
+    intentions: (v.sfIntents || []).map(i => ({
+      deed: i.deed, condition: i.condition,
+      fired: i.firedAt != null })) };
+}
+
+/* ---------------- the brain tick ----------------------------------
+   Runs on the sim tick (registered, never wrapped): per main, convo
+   maintenance + dispatch trigger scan. Detection is code; every
+   decision is the brain's. */
+function sfBrainTick(dtH){
+  if(typeof SF_MODE === 'undefined' || !SF_MODE) return;
+  for(const v of VILLAGERS){
+    if(!sfIsMain(v)) continue;
+    sfConvoTick(v, dtH);
+    sfDispatchTick(v, dtH);
+  }
+}
+if(typeof registerSimTick === 'function') registerSimTick(sfBrainTick);
+
+/* bridge surface for the driver + probes */
+if(typeof window !== 'undefined'){
+  window.__aiBridge = window.__aiBridge || {};
+  window.__aiBridge.sfDispatchPoll = sfDispatchPoll;
+  window.__aiBridge.sfMindScan = sfMindScan;
+  window.__aiBridge.sfConvoState = sfConvoState;
+  window.__aiBridge.sfReflectArchive = sfReflectArchive;
 }
 
 /* =====================================================================
@@ -52494,6 +53442,404 @@ runAutoTest = async function(){
 };
 
 /* =====================================================================
+   v16 — THE BECOMING BRAIN: contract + dispatch + interiority suite.
+   Runs only under SF_MODE (?sf&test). Wraps runAutoTest like every test
+   module — appends `brain:` lines and a `==== BRAIN x/y ====` summary.
+
+   What's asserted:
+   - spawn: all 8 mains driven + isNPC + sfGap, NO sfSched; ambients
+     keep their thin schedules; no possessed pawn at boot
+   - contract: unknown verb / missing why / say-leave-reflect gates /
+     request params / directive exclusions all named at filing
+   - ladder: order → directive → visible gap; mains never wander
+   - interiority: mood/concerns/do/intent/endSay/insights ride a filing
+   - conversation channel: invite → floor pass → obligations → caps →
+     leave/drop/no_answer, per-party POV records
+   - intents: arm, event-cue fire, time-cue fire, sleep alarm-only
+   - dispatch: trigger queue, tiers, spacing + hourly caps, heartbeat,
+     sleep refile-once, stale re-dispatch
+   - save/load: possession of a main cannot be resurrected
+   ===================================================================== */
+const __runAutoTest38 = runAutoTest;
+runAutoTest = async function(){
+  let baseErr = null;
+  try { await __runAutoTest38(); } catch(e){ baseErr = e; }
+  const out = document.getElementById('autotest');
+  if(out) out.style.display = 'block';
+  const res = [];
+  function log(ok, name, detail){
+    res.push({ ok, name });
+    const line = (ok ? 'PASS: ' : 'FAIL: ') + name + (detail ? ' — ' + detail : '');
+    try { console.log(line); } catch(e){}
+    if(out) out.textContent += line + '\n';
+  }
+  if(baseErr) log(false, 'brain: inner autotest threw',
+    String(baseErr && baseErr.message || baseErr));
+
+  if(!(typeof SF_MODE !== 'undefined' && SF_MODE) ||
+     typeof sfAgentAct !== 'function' || typeof sfBrainTick !== 'function'){
+    const passed = res.filter(r => r.ok).length;
+    if(out) out.textContent += '\n==== BRAIN ' + passed + '/' + res.length +
+      ' passed ====\n';
+    return;
+  }
+
+  const pv0 = VILLAGERS.find(v => v._castId === 'C2');   // Jules
+  const pt0 = VILLAGERS.find(v => v._castId === 'C6');   // Carmen
+  const cid = 'C2', tid = 'C6';
+  const keepTod = W.tod, keepRain = W.rain, keepStorm = W.storm;
+  /* snapshot every mutable field the suite touches — both pawns and the
+     dispatch/convok registries */
+  const snap = new Map();
+  const snapV = v => snap.set(v, {
+    x: v.x, y: v.y, inB: v.inBuilding, ins: v.inside, st: v.state,
+    ag: v.sfAgent, drv: v.sfAgentDriven, dir: v.sfDirective,
+    gap: v.sfGap, res: v.sfAgentResult, rfx: v.sfReflex,
+    seq: v._agentSeq, ds: v._dirStreak, dg: v._dirSig,
+    convo: v.sfConvo, lastConvo: v.sfLastConvo, intents: v.sfIntents,
+    obs: v.sfObligations, mood: v.sfMood, concerns: v.sfConcerns,
+    why: v.sfLastWhy, disp: v.sfDisp, mind: v.sfMind,
+    fat: v.body ? v.body.fatigue : null, npc: v.isNPC,
+    bonds: v.bonds ? Object.assign({}, v.bonds) : v.bonds,
+    memN: v.epistemic && v.epistemic.memories
+      ? v.epistemic.memories.length : 0,
+    sayT: v.sayText, sayU: v.sayUntil });
+  const resetV = v => {
+    v.sfAgent = null; v.sfDirective = null; v.sfGap = false;
+    v.sfAgentResult = null; v.sfReflex = null; v.sfConvo = null;
+    v.sfDisp = null; v.sfPath = null; v.moving = false;
+    v.sfAgentDriven = true;
+  };
+  try{
+    /* ---------- spawn contract (Phase 1) ---------- */
+    const mains = VILLAGERS.filter(v => /^C[1-8]$/.test(v._castId || ''));
+    const ambients = VILLAGERS.filter(v => !/^C[1-8]$/.test(v._castId || ''));
+    log(mains.length === 8 && mains.every(v =>
+        v.sfAgentDriven === true && v.isNPC === true &&
+        !v.sfSched && v.sfGap === true),
+        'brain: all 8 mains spawn driven, unpossessable, schedule-free, in the gap');
+    log(ambients.length === 20 && ambients.every(v =>
+        Array.isArray(v.sfSched) && v.sfSched.length > 0 &&
+        v.sfAgentDriven !== true),
+        'brain: the 20 ambients keep thin schedules — furniture stays lit');
+    log(controlledPawnIdx === -1,
+        'brain: no pawn is player-controlled at boot');
+    log(mains.every(v => sfIsMain(v)) && ambients.every(v => !sfIsMain(v)),
+        'brain: sfIsMain splits the cast cleanly');
+
+    /* ---------- filing contract ---------- */
+    const pv = pv0, pt = pt0;
+    snapV(pv); snapV(pt);
+    resetV(pv); resetV(pt);
+    W.tod = 14; W.rain = 0; W.storm = 0;
+
+    const rej = [
+      sfAgentAct(cid, { verb: 'fly', why: 'x' }),
+      sfAgentAct(cid, { verb: 'idle' }),
+      sfAgentAct(cid, { verb: 'say', text: 'hi', why: 'x' }),
+      sfAgentAct(cid, { verb: 'leave', why: 'x' }),
+      sfAgentAct(cid, { verb: 'reflect', why: 'x' }),
+      sfAgentAct(cid, { verb: 'request', why: 'x' }),
+      sfAgentAct(cid, { verb: 'request', kind: 'weather', why: 'x' }),
+      sfAgentAct(cid, { verb: 'move', why: 'x' }) ];
+    log(rej.every(r => r.ok === false && r.err),
+        'brain: bad verb, why-less, convo-less, reflect-less, ' +
+        'param-less, to-less filings all name their error',
+        rej.map(r => r.err).filter(Boolean)[0]);
+
+    const okIdle = sfAgentAct(cid, { verb: 'idle', holdH: 0.5,
+                                     why: 'watching the street' });
+    log(okIdle.ok === true && pv.sfAgent && pv.sfAgent.verb === 'idle' &&
+        pv.sfAgent.why === 'watching the street',
+        'brain: a well-formed filing parks the order with its why');
+
+    /* ---------- the ladder: order → directive → gap ---------- */
+    pv.sfAgent = null; pv.sfDirective = null; pv.sfGap = false;
+    const px = pv.x, pyv = pv.y;
+    sfNpcTick(pv, 0.016);
+    log(pv.sfGap === true && pv.state === 'idle' &&
+        pv.x === px && pv.y === pyv,
+        'brain: a will-less main stands in the gap — never wanders');
+
+    /* ---------- interiority fields ride a filing ---------- */
+    const inr = sfAgentAct(cid, { verb: 'idle', holdH: 0.5,
+      why: 'needed a minute', mood: 'wired and tired',
+      concerns: ['rent friday', 'carmen\'s cough'],
+      do: 'rubs her temples',
+      insights: ['i keep dodging the landlord talk'],
+      endSay: 'i said too much at the door' });
+    log(inr.ok === true && pv.sfMood && pv.sfMood.text === 'wired and tired' &&
+        pv.sfConcerns[0] === 'rent friday' && pv.doText === 'rubs her temples' &&
+        pv.sfLastWhy === 'needed a minute',
+        'brain: mood/concerns/do/why land on the pawn');
+    const memKinds = (pv.epistemic.memories || []).slice(-3).map(m => m.kind);
+    log(memKinds.indexOf('reflection') >= 0 && memKinds.indexOf('convo') >= 0,
+        'brain: insights + endSay write real POV memory records',
+        memKinds.join(','));
+
+    /* ---------- intent arming + firing ---------- */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS * 40; pt.y = pv.y;    // carmen NOT in view yet
+    pt.inBuilding = false; pv.inBuilding = false;
+    pv.inside = null; pt.inside = null;
+    const armR = sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'wait',
+      intent: { deed: 'ask carmen about the notice',
+                condition: 'when carmen is around', who: 'C6',
+                cueType: 'event' } });
+    log(armR.ok === true && pv.sfIntents.length === 1 &&
+        armR.intentArmed,
+        'brain: act.intent arms an implementation intention');
+    /* not yet perceived → not fired */
+    sfIntentScan(pv, false);
+    log(pv.sfIntents[0].firedAt == null,
+        'brain: an event intent stays armed while its cue is absent');
+    /* bring carmen into view → fires */
+    pt.x = pv.x + CS; pt.y = pv.y; pt.inBuilding = false;
+    pv.inBuilding = false; pv.inside = null; pt.inside = null;
+    const fired = sfIntentScan(pv, false);
+    log(fired.length === 1 && pv.sfIntents[0].firedAt != null &&
+        sfDispOf(pv).pending.some(p => p.kind === 'intent_fired'),
+        'brain: perceiving the cue-who fires the intent + dispatches T1');
+    const mindNow = sfMindScan(pv);
+    log(mindNow.surface.some(s => s.kind === 'fired_intention' &&
+        /carmen/i.test(s.deed)),
+        'brain: the fired intention surfaces on mind.surface');
+
+    /* time-cued intent = alarm; event intents do NOT fire in sleep */
+    pv.sfIntents = [];
+    pv.state = 'sleep';
+    sfIntentArm(pv, { deed: 'meet jules', condition: 'when jules is near',
+                      who: 'C1', cueType: 'event' });
+    sfIntentArm(pv, { deed: 'wake for the shift', condition: 'alarm',
+                      cueType: 'time', when: (W.tod + 0.2) });
+    sfIntentScan(pv, true);   // the asleep path scans time-only
+    log(pv.sfIntents[0].firedAt == null,
+        'brain: event intents stay parked while asleep');
+    W.tod += 0.3;
+    sfIntentScan(pv, true);
+    log(pv.sfIntents[1].firedAt != null,
+        'brain: a cueType:time intent fires in sleep — the alarm');
+    pv.state = 'idle'; pv.sfIntents = [];
+
+    /* ---------- conversation channel ---------- */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS; pt.y = pv.y;   // perceived, adjacent
+    const t0 = sfAgentAct(cid, { verb: 'talk', to: tid,
+      text: 'carmen — did the notice say friday?',
+      why: 'the rent notice', holdH: 0.5 });
+    log(t0.ok === true && pv.sfAgent && pv.sfAgent.verb === 'talk',
+        'brain: a perceived talk files and seeks');
+    sfNpcTick(pv, 0.016);
+    log(pv.sfConvo && pv.sfConvo.state === 'participating' &&
+        pt.sfConvo && pt.sfConvo.state === 'invited' &&
+        pt.sfConvo.yourTurn === true &&
+        pv.sayText === 'carmen — did the notice say friday?',
+        'brain: contact opens the channel — invitee holds the floor');
+    /* '?' opened an obligation on carmen */
+    const cv1 = SF_CONVOS[pv.sfConvo.id];
+    log(cv1.obligations.length === 1 && cv1.obligations[0].to === tid,
+        'brain: a question opens an obligation on the listener');
+    /* invitee answers → both participating, floor passes back */
+    const s1 = sfAgentAct(tid, { verb: 'say', text: 'friday, yeah',
+                                 why: 'answering jules' });
+    log(s1.ok === true && pt.sfConvo.state === 'participating' &&
+        pv.sfConvo.yourTurn === true &&
+        cv1.utt === 2,
+        'brain: the reply accepts the convo and passes the floor');
+    /* her reply settled the obligation — it did not, she asked nothing;
+       jules's question obligation on carmen is satisfied by her speech */
+    log(cv1.obligations.every(o => o.satisfied || o.to !== tid),
+        'brain: answering speech settles the obligation');
+    /* the inviter's lingering talk order ends at lingerH, convo lives on */
+    log(pv.sfAgent && pv.sfAgent.phase === 'linger',
+        'brain: contact parks the talk order in linger — convo outlives it');
+
+    /* leave is asymmetric and always available */
+    sfAgentAct(tid, { verb: 'leave', why: 'soup\'s boiling over' });
+    log(pt.sfConvo === null && pv.sfConvo === null &&
+        pt.sfLastConvo && pt.sfLastConvo.endedHow === 'left' &&
+        pv.sfLastConvo && pv.sfLastConvo.with === tid,
+        'brain: leave ends the channel for both, lastConvo recorded');
+
+    /* invitation expiry → no_answer interrupts the inviter's order */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS; pt.y = pv.y;
+    sfAgentAct(cid, { verb: 'talk', to: tid, text: 'got a sec?',
+                      why: 'checking in', holdH: 1 });
+    sfNpcTick(pv, 0.016);
+    const cvId2 = pv.sfConvo.id;
+    W.tod += 0.6;                 // past the 0.5h invite TTL
+    sfConvoTick(pt, 0.016);
+    log(pt.sfConvo === null && pv.sfConvo === null &&
+        pv.sfAgentResult && pv.sfAgentResult.status === 'interrupted' &&
+        pv.sfAgentResult.interruptedBy === 'no_answer',
+        'brain: an unanswered invite drops — the inviter reads no_answer');
+    log(!!SF_CONVOS[cvId2] === false,
+        'brain: dropped convos are torn down');
+
+    /* proximity gates participation — partner walking off drops it */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS; pt.y = pv.y;
+    sfAgentAct(cid, { verb: 'talk', to: tid, text: 'walk with me',
+                      why: 'company', holdH: 1 });
+    sfNpcTick(pv, 0.016);
+    sfAgentAct(tid, { verb: 'say', text: 'sure', why: 'why not' });
+    pt.x = pv.x + CS * 30;        // carmen leaves the field
+    for(let i = 0; i < 12 && pv.sfConvo; i++) sfConvoTick(pv, 0.016);
+    log(pv.sfConvo === null && pv.sfLastConvo &&
+        pv.sfLastConvo.endedHow === 'dropped',
+        'brain: a partner out of proximity drops the channel');
+
+    /* utterance cap ends a live convo */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS; pt.y = pv.y;
+    sfAgentAct(cid, { verb: 'talk', to: tid, text: 'one more thing',
+                      why: 'lingering', holdH: 1 });
+    sfNpcTick(pv, 0.016);
+    sfAgentAct(tid, { verb: 'say', text: 'go on', why: 'listening' });
+    const cv3 = SF_CONVOS[pt.sfConvo.id];
+    cv3.utt = SF_CONVO_MAX_UTT - 1;
+    sfAgentAct(cid, { verb: 'say', text: 'nevermind', why: 'drops it' });
+    log(cv3.endedHow === 'cap' && pt.sfConvo === null &&
+        pv.sfConvo === null,
+        'brain: the utterance cap ends a convo cleanly');
+
+    /* ---------- dispatch engine ---------- */
+    resetV(pv); resetV(pt);
+    pv.sfGap = true;   // the ladder's honest empty state
+    /* gap trigger fires at first scan; heartbeat rides after spacing */
+    sfDispatchTick(pv, 0.016);
+    let d = sfDispOf(pv);
+    log(d.pending.some(p => p.kind === 'gap'),
+        'brain: the intention gap dispatches a brain call');
+    /* served filing clears the queue and starts the ledger */
+    sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'settling' });
+    log(d.lastCallAt != null && d.pending.length === 0 &&
+        d.callsAt.length === 1,
+        'brain: a filing is the call — served, queued, ledgered');
+    /* spacing: a fresh trigger inside 0.25h reports blocked, not lost */
+    sfDispatchTrig(pv, 'gap', 'T0');
+    let poll = sfDispatchPoll();
+    log(poll.per[cid].due === null && poll.per[cid].blocked === 'spacing',
+        'brain: sub-0.25h re-dispatch is capped, the trigger survives');
+    W.tod += 0.3;
+    poll = sfDispatchPoll();
+    log(poll.per[cid].due && poll.per[cid].due.kind === 'gap' &&
+        poll.per[cid].due.tier === 'T0',
+        'brain: the trigger re-surfaces after spacing — quiet gap → T0');
+    /* hourly hard cap — a fresh trigger behind a full ledger */
+    d.callsAt = new Array(10).fill(sfAbsNow());
+    sfDispatchTrig(pv, 'heartbeat', 'T0');
+    poll = sfDispatchPoll();
+    log(poll.per[cid].blocked === 'cap' && poll.per[cid].due === null,
+        'brain: 10 calls/sim-h is a hard stop');
+    d.callsAt = [];
+    /* order_end: a failed order dispatches a T1 re-decide — carmen
+       beyond perception with no `at` fails honestly at tick */
+    resetV(pv); d = sfDispOf(pv);
+    pt.x = pv.x + CS * 60; pt.y = pv.y; pt.inBuilding = false;
+    sfAgentAct(cid, { verb: 'talk', to: tid, why: 'looking',
+                      text: 'carmen?', holdH: 0.25 });
+    sfNpcTick(pv, 0.016);
+    log(pv.sfAgentResult && pv.sfAgentResult.status === 'failed',
+        'brain: an unlocatable talk fails honestly at tick');
+    sfDispatchTick(pv, 0.016);
+    sfDispatchTick(pv, 0.016);
+    log(d.pending.some(p => p.kind === 'order_end' && p.tier === 'T1'),
+        'brain: a failed order dispatches an order_end T1');
+    /* heartbeat after ~3.5 waking sim-h */
+    resetV(pv); d = sfDispOf(pv); d.lastCallAt = sfAbsNow() - 3.6;
+    sfDispatchTick(pv, 0.016);
+    log(d.pending.some(p => p.kind === 'heartbeat'),
+        'brain: the heartbeat floor fires ~1 pulse per 3.5 waking h');
+    /* directive nearing expiry → T0 refile trigger */
+    resetV(pv); d = sfDispOf(pv);
+    sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'x' },
+      { directive: { verb: 'work', untilH: 0.5, why: 'the shift' } });
+    W.tod += 0.3;   // inside the 0.25h lookahead of the 0.5h will
+    sfDispatchTick(pv, 0.016);
+    log(d.pending.some(p => p.kind === 'directive_expiry' &&
+                            p.tier === 'T0'),
+        'brain: a lapsing will dispatches a cheap T0 refile');
+    /* sleep: exactly one mid-sleep T0 refile per night */
+    resetV(pv); d = sfDispOf(pv);
+    pv.state = 'sleep';
+    sfDispatchTick(pv, 0.016);                    // sleepStart marks
+    W.tod += 2.2;
+    sfDispatchTick(pv, 0.016);
+    const nRef = d.pending.filter(p => p.kind === 'sleep_refile').length;
+    W.tod += 2;
+    sfDispatchTick(pv, 0.016);
+    log(nRef === 1 &&
+        d.pending.filter(p => p.kind === 'sleep_refile').length === 1,
+        'brain: exactly one mid-sleep refile per night — never two');
+    pv.state = 'idle';
+    /* env transition is a trigger class, never a behavior */
+    resetV(pv); d = sfDispOf(pv); d.envSig = 0;
+    W.rain = 0.5;
+    sfDispatchTick(pv, 0.016);
+    log(d.pending.some(p => p.kind === 'env' && p.tier === 'T1' &&
+                            p.detail.rain > 0),
+        'brain: weather onset dispatches env — the brain decides');
+    W.rain = 0;
+
+    /* ---------- mind surface ---------- */
+    resetV(pv); resetV(pt);
+    pt.x = pv.x + CS; pt.y = pv.y;
+    pv.bonds = pv.bonds || {}; pv.bonds[pt.name] = 0.7;
+    pv.sfObligations = [{ from: tid, gist: 'did you sign the lease?',
+                          at: sfAbsNow(), satisfied: false }];
+    const m1 = sfMindScan(pv);
+    log(m1.people[tid] && m1.people[tid].stance === 'close' &&
+        m1.people[tid].open === 'did you sign the lease?' &&
+        m1.surface.some(s => s.kind === 'urge'),
+        'brain: mind.people models stance + open loops; urges surface');
+    const st1 = sfAgentState(cid, {});
+    log(st1.mind && st1.convo === null && st1.gap !== undefined &&
+        st1.directive !== undefined && !st1.routine,
+        'brain: state carries mind/convo/gap/directive — no routine field');
+
+    /* ---------- save/load: possession cannot be resurrected ---------- */
+    const sv = collectSaveState();
+    const jIdx = VILLAGERS.findIndex(v => v._castId === 'C2');
+    sv.ui = sv.ui || {}; sv.ui.controlledPawnIdx = jIdx;
+    if(sv.villagers[jIdx]) sv.villagers[jIdx].isNPC = false;
+    const ap = applySaveState(sv);
+    const pvR = VILLAGERS.find(v => v._castId === 'C2');
+    log(ap.ok === true && controlledPawnIdx === -1 &&
+        pvR.isNPC === true && pvR.sfAgentDriven === true,
+        'brain: save/load cannot resurrect possession of a main');
+
+  }catch(e){
+    log(false, 'brain: suite threw', String(e && e.message || e));
+  }finally{
+    W.tod = keepTod; W.rain = keepRain; W.storm = keepStorm;
+    for(const [v, s] of snap){
+      v.x = s.x; v.y = s.y; v.inBuilding = s.inB; v.inside = s.ins;
+      v.state = s.st; v.sfAgent = s.ag; v.sfAgentDriven = s.drv;
+      v.sfDirective = s.dir; v.sfGap = s.gap; v.sfAgentResult = s.res;
+      v.sfReflex = s.rfx; v._agentSeq = s.seq; v._dirStreak = s.ds;
+      v._dirSig = s.dg; v.sfConvo = s.convo; v.sfLastConvo = s.lastConvo;
+      v.sfIntents = s.intents; v.sfObligations = s.obs;
+      v.sfMood = s.mood; v.sfConcerns = s.concerns; v.sfLastWhy = s.why;
+      v.sfDisp = s.disp; v.sfMind = s.mind; v.isNPC = s.npc;
+      if(s.bonds) v.bonds = Object.assign({}, s.bonds);
+      if(v.epistemic && v.epistemic.memories)
+        v.epistemic.memories.length = s.memN;
+      v.sayText = s.sayT; v.sayUntil = s.sayU;
+      if(v.body && s.fat != null) v.body.fatigue = s.fat;
+      v.sfPath = null; v.moving = false;
+    }
+    /* tear down any convo records the suite left */
+    for(const k of Object.keys(SF_CONVOS)) delete SF_CONVOS[k];
+  }
+
+  const passed = res.filter(r => r.ok).length;
+  if(out) out.textContent += '\n==== BRAIN ' + passed + '/' + res.length +
+    ' passed ====\n';
+};
+
+/* =====================================================================
    PART 41 AUTOTEST — game-systems v0 registry/ledger/bus + v1 request
    lifecycle (real catalogue, effect dispatch, per-minute billing) +
    v2 conflicts (pairwise claims matrix, shared skies, venue permits,
@@ -57339,12 +58685,23 @@ runAutoTest = async function(){
             keepDS = pv._dirStreak, keepDg = pv._dirSig;
       const keepLC = new Map();
       VILLAGERS.forEach(o => keepLC.set(o, o.lastClockCheck));
+      /* v16 fields ride along — a dirty mind/convo/dispatch here would
+         poison the v16 suite that runs after */
+      const keepV16 = {
+        convo: pv.sfConvo, lastConvo: pv.sfLastConvo,
+        intents: pv.sfIntents, obs: pv.sfObligations,
+        mood: pv.sfMood, concerns: pv.sfConcerns,
+        why: pv.sfLastWhy, disp: pv.sfDisp, mind: pv.sfMind,
+        fat: pv.body ? pv.body.fatigue : null };
       try{
         W.tod = 15.8; W.rain = 0; W.storm = 0;
         pv.lastClockCheck = null; pv.sfAgent = null;
         pv.sfAgentDriven = false; pv.sfDirective = null;
         pv.sfGap = false; pv.sfAgentResult = null; pv.sfReflex = null;
         pv._agentSeq = null; pv._dirStreak = 0; pv._dirSig = null;
+        pv.sfConvo = null; pv.sfLastConvo = null; pv.sfIntents = [];
+        pv.sfObligations = []; pv.sfMood = null; pv.sfConcerns = null;
+        pv.sfLastWhy = null; pv.sfDisp = null;
         const s0 = sfAgentState(cid, { turn: 1 });
         log(!('time' in s0) &&
             !JSON.stringify(s0).includes('15:48'),
@@ -57398,30 +58755,39 @@ runAutoTest = async function(){
             'gs: v13 senses read light and weather and venue hours — ' +
             'never a clock');
 
-        /* the Jules fix: rain refuses, shelter routes, door delivers */
+        /* v16: the rain veto is gone — environment is a trigger class,
+           never code-authored behavior. Rest in the rain files and
+           executes; consequences belong to the body. */
         W.rain = 0.6;
-        const rr = sfAgentAct(cid, { verb: 'rest' });
-        log(rr.ok === false && /rain/.test(rr.err || ''),
-            'gs: v13 outdoor rest in the rain is refused with a ' +
-            'redirect');
-        W.rain = 0;
-        const rs = sfAgentAct(cid, { verb: 'rest' });
-        log(rs.ok === true && pv.sfAgent && pv.sfAgent.shelter &&
-            rs.sheltering != null,
-            'gs: v13 outdoor rest routes to shelter first');
-        if(pv.sfAgent && pv.sfAgent.shelter){
-          const c = pv.sfAgent.shelter.cell;
+        const rr = sfAgentAct(cid, { verb: 'rest', holdH: 0.25,
+                                     why: 'bone tired' });
+        log(rr.ok === true && pv.sfAgent && pv.sfAgent.verb === 'rest',
+            'gs: v16 no weather veto — rest in the rain files and runs');
+        sfNpcTick(pv, 0.016);
+        log(pv.state === 'rest' && pv.inBuilding === false,
+            'gs: v16 the rest executes outdoors — the body keeps score');
+        W.rain = 0; pv.sfAgent = null; pv.sfAgentResult = null;
+        /* presence verbs ground "at <to>, do <verb>": rest at home
+           navigates to her own door and goes inside */
+        const rs = sfAgentAct(cid, { verb: 'rest', to: 'home',
+                                     holdH: 0.5, why: 'off feet' });
+        log(rs.ok === true && pv.sfAgent && pv.sfAgent.cell &&
+            pv.sfAgent.enter === 'home',
+            'gs: v16 rest at "home" resolves to the pawn\'s own door');
+        if(pv.sfAgent && pv.sfAgent.cell){
+          const c = pv.sfAgent.cell;
           pv.x = c.wx * CS + 16; pv.y = c.wy * CS + 16; pv.sfPath = null;
-          sfNpcTick(pv, 0.016);
+          sfNpcTick(pv, 0.016); sfNpcTick(pv, 0.016);
           log(pv.inBuilding === true && pv.state === 'rest',
-              'gs: v13 she goes inside and actually rests');
+              'gs: v16 she goes inside her own place and rests');
         }
         pv.inBuilding = false; pv.inside = null; pv.sfAgent = null;
 
         /* standing directive: the brain's durable last will fills the
            gap — filed as `directive` (sibling), `act.directive`, or the
            legacy `act.then` spelling, all landing on v.sfDirective */
-        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'catching a breath' },
           { directive: { verb: 'work', untilH: 6,
                          then: { verb: 'idle', why: 'between shifts' },
                          why: 'shift at the café' } });
@@ -57467,11 +58833,11 @@ runAutoTest = async function(){
             'gs: v13 the gap is visible on the state, not hidden');
         /* outcome: interrupted — a fresh filing replaces the live
            order and says so */
-        sfAgentAct(cid, { verb: 'idle', holdH: 1 },
+        sfAgentAct(cid, { verb: 'idle', holdH: 1, why: 'waiting' },
           { directive: { verb: 'work', untilH: 2,
                          why: 'shift at the café' } });
         sfAgentAct(cid, { verb: 'move', to: 'Haus Coffee',
-                          holdH: 1 });
+                          holdH: 1, why: 'coffee first' });
         log(pv.sfAgentResult && pv.sfAgentResult.status === 'interrupted'
             && pv.sfAgentResult.interruptedBy === 'new_order' &&
             pv.sfAgent && pv.sfAgent.verb === 'move',
@@ -57479,29 +58845,39 @@ runAutoTest = async function(){
             '"interrupted"');
         /* seq guard: a stale turn cannot stomp the newer filing */
         pv.sfAgent = null; pv.sfAgentDriven = true;
-        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
-                                { seq: 40 });
-        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25 },
-                                { seq: 39 });
+        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'waiting' }, { seq: 40 });
+        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25,
+                                     why: 'clock in' }, { seq: 39 });
         log(sNew.ok === true && sOld.ok === false &&
             /stale/.test(sOld.err || '') &&
             pv.sfAgent && pv.sfAgent.verb === 'idle',
             'gs: v13 a late stale-seq filing is rejected, not applied');
+        /* v16: a why-less ACT never reaches the directive check at
+           all — why is required on every filing */
+        const noWhy = sfAgentAct(cid, { verb: 'idle' });
+        log(noWhy.ok === false && /why/.test(noWhy.err || ''),
+            'gs: v16 every act needs a why — none filed, none run');
         /* bad directives are named at filing — unknown verb, missing
-           why on rest, and requests (standing wills never spend) */
-        const bad = sfAgentAct(cid, { verb: 'idle' },
-          { directive: { verb: 'fly' } });
-        const badWhy = sfAgentAct(cid, { verb: 'idle' },
+           why, and requests (standing wills never spend, speak, or
+           leave) */
+        const bad = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'fly', why: 'x' } });
+        const badWhy = sfAgentAct(cid, { verb: 'idle', why: 'x' },
           { directive: { verb: 'rest' } });
-        const badReq = sfAgentAct(cid, { verb: 'idle' },
-          { directive: { verb: 'request', kind: 'weather' } });
-        log(!!bad.thenDropped && /why/.test(badWhy.thenDropped || '') &&
+        const badSay = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'say', text: 'hi', why: 'x' } });
+        const badReq = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'request', kind: 'weather', why: 'x' } });
+        log(!!bad.thenDropped && /verb/.test(bad.thenDropped || '') &&
+            /why/.test(badWhy.thenDropped || '') &&
+            /say/.test(badSay.thenDropped || '') &&
             /request/.test(badReq.thenDropped || ''),
-            'gs: v13 nonsense, why-less, and spending directives are ' +
-            'named at filing');
+            'gs: v16 nonsense, why-less, speech, and spending ' +
+            'directives are named at filing');
         /* repeat:false — the will fires exactly once */
         pv.sfAgent = null; pv.sfDirective = null;
-        sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+        sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'waiting' },
           { directive: { verb: 'work', holdH: 0.25, repeat: false,
                          why: 'cover the rush' } });
         W.tod += 0.5; sfNpcTick(pv, 0.016);
@@ -57509,20 +58885,28 @@ runAutoTest = async function(){
         W.tod += 0.5; sfNpcTick(pv, 0.016);
         log(firedOnce && pv.sfAgent === null && pv.sfGap === true,
             'gs: v13 a repeat:false directive fires once, then gaps');
-        /* survival reflex preempts the live order — and reports it */
-        pv.state = 'sleep'; pv.inBuilding = true;
-        pv.sfAgent = { verb: 'work', until: W.day * 24 + W.tod + 1,
-                       done: false };
+        /* survival reflex preempts the live order — and reports it.
+           v16's reflex set is the lethal band only: collapse, never
+           sleep-as-emergency. The drift is honest — edge-bound, never
+           a top-up — and it releases; the next move is the brain's. */
+        pv.sfAgent = { verb: 'work', until: sfAbsNow() + 1, done: false };
+        if(pv.body) pv.body.fatigue = 0.99;
         sfNpcTick(pv, 0.016);
-        log(pv.sfReflex && pv.sfReflex.kind === 'asleep' &&
+        log(pv.sfReflex && /collapse/.test(pv.sfReflex.kind) &&
             pv.sfAgent === null && pv.sfAgentResult &&
             pv.sfAgentResult.status === 'interrupted' &&
-            /survival/.test(pv.sfAgentResult.interruptedBy || ''),
-            'gs: v13 a survival reflex preempts the order and says why');
-        pv.inBuilding = false; pv.state = 'idle';
+            /survival/.test(pv.sfAgentResult.interruptedBy || '') &&
+            pv.state === 'downed',
+            'gs: v16 a collapse reflex preempts the order and says why');
+        for(let i = 0; i < 240 && pv.sfReflex; i++) sfNpcTick(pv, 0.016);
+        log(pv.sfReflex === null && pv.state === 'idle' &&
+            pv.sfGap === true,
+            'gs: v16 the reflex releases at the band edge into the gap');
+        if(pv.body) pv.body.fatigue = 0.3;
         /* a fresh act while the pawn is asleep wakes it honestly */
         pv.state = 'sleep';
-        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 });
+        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                       why: 'up early' });
         log(woke.ok === true && pv.state === 'idle' &&
             pv.sfAgent && pv.sfAgent.verb === 'idle',
             'gs: v13 a new order is the brain deciding to wake');
@@ -57534,6 +58918,12 @@ runAutoTest = async function(){
         pv.sfGap = keepGap; pv.sfAgentResult = keepRes;
         pv.sfReflex = keepRfx; pv._agentSeq = keepSeq;
         pv._dirStreak = keepDS; pv._dirSig = keepDg;
+        pv.sfConvo = keepV16.convo; pv.sfLastConvo = keepV16.lastConvo;
+        pv.sfIntents = keepV16.intents; pv.sfObligations = keepV16.obs;
+        pv.sfMood = keepV16.mood; pv.sfConcerns = keepV16.concerns;
+        pv.sfLastWhy = keepV16.why; pv.sfDisp = keepV16.disp;
+        pv.sfMind = keepV16.mind;
+        if(pv.body && keepV16.fat != null) pv.body.fatigue = keepV16.fat;
         pv.sfPath = null; pv.moving = false;
         keepLC.forEach((lc, o) => { o.lastClockCheck = lc; });
       }

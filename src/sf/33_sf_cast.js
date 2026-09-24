@@ -43,72 +43,21 @@ function sfHomeCell(spec){
   return { wx: 300, wy: 200 }; // Dolores Park fallback
 }
 
-/* schedule blocks: {h0,h1, to:spec, state, inside, stops:[specs]} */
-const SF_CORE_ROUTINES = {
-  C1: [ // Marisol: opens the café, afternoon rounds
-    { h0: 0, h1: 5.5, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-    { h0: 5.5, h1: 14, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 14, h1: 18, state: 'walk',
-      stops: [{ poi: 'Taqueria El Farolito' }, { anchor: 'g744' },
-              { anchor: 'park_center' }, { poi: 'Bi-Rite Market' }] },
-    { h0: 18, h1: 21.5, to: { poi: 'Haus Coffee' }, state: 'chat' },
-    { h0: 21.5, h1: 24, to: { latlon: [37.7540, -122.4186] }, state: 'sleep', inside: true },
-  ],
-  C2: [ // Jules: morning run, café shift, evening sketching
-    { h0: 0, h1: 6.5, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 8, state: 'run',
-      stops: [{ anchor: 'park_north' }, { anchor: 'park_center' }] },
-    { h0: 8, h1: 15, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 15, h1: 19, state: 'sit',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g744' }] },
-    { h0: 19, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C3: [ // Dani: café six days, nights she won't explain
-    { h0: 0, h1: 8, to: { latlon: [37.7495, -122.4200] }, state: 'sleep', inside: true },
-    { h0: 8, h1: 17, to: { poi: 'Haus Coffee' }, state: 'serve' },
-    { h0: 17, h1: 21, state: 'walk',
-      stops: [{ anchor: 'park_center' }, { anchor: 'g750' },
-              { poi: 'Clarion Alley' }] },
-    { h0: 21, h1: 24, to: { latlon: [37.7495, -122.4200] }, state: 'idle', inside: true },
-  ],
-  C4: [ // Priya: three 12s at SF General; café decompresses
-    { h0: 0, h1: 6.5, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 6.5, h1: 19.5, state: 'work',
-      stops: [{ poi: 'SF General' }, { poi: 'Haus Coffee' }] },
-    { h0: 19.5, h1: 21, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C5: [ // Marcus: courier loops; Thursday park jams
-    { h0: 0, h1: 8, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'carry',
-      stops: [{ poi: 'Bi-Rite Market' }, { poi: 'Dolores Park Cafe' },
-              { poi: 'Tartine Bakery' }, { poi: '500 Club' },
-              { poi: 'Dandelion Chocolate' }] },
-    { h0: 18, h1: 21, to: { anchor: 'park_center' }, state: 'play' },
-    { h0: 21, h1: 24, to: { anchor: 'g750' }, state: 'sleep', inside: true },
-  ],
-  C6: [ // Carmen: stoop cafecito, her palm in the park
-    { h0: 0, h1: 7, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-    { h0: 7, h1: 10, to: { anchor: 'g744' }, state: 'sit' },
-    { h0: 10, h1: 16.5, to: { anchor: 'park_center' }, state: 'sit' },
-    { h0: 16.5, h1: 21, to: { anchor: 'g744' }, state: 'idle', inside: true },
-    { h0: 21, h1: 24, to: { anchor: 'g744' }, state: 'sleep', inside: true },
-  ],
-  C7: [ // Victor: hardware counter 9-6; Tuesdays he fixes the buildings himself
-    { h0: 0, h1: 8, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-    { h0: 8, h1: 18, state: 'work',
-      stops: [{ poi: 'Auerbach Hardware' }, { anchor: 'g744' }, { anchor: 'g750' }] },
-    { h0: 18, h1: 22, to: { poi: 'Auerbach Hardware' }, state: 'idle', inside: true },
-    { h0: 22, h1: 24, to: { poi: 'Auerbach Hardware' }, state: 'sleep', inside: true },
-  ],
-  C8: [ // Tomás: supplier loop by day, El Farolito line by night, 3pm coffee
-    { h0: 0, h1: 9, to: { latlon: [37.7570, -122.4165] }, state: 'sleep', inside: true },
-    { h0: 9, h1: 14.5, state: 'walk',
-      stops: [{ poi: 'Auerbach Hardware' }, { poi: 'Bi-Rite Market' },
-              { poi: 'Valencia Farmers Market' }] },
-    { h0: 14.5, h1: 16, to: { poi: 'Haus Coffee' }, state: 'drink' },
-    { h0: 16, h1: 24, to: { poi: 'Taqueria El Farolito' }, state: 'work' },
-  ],
+/* v16 — the becoming brain: the 8 mains are driven pawns from spawn.
+   There is NO code-authored routine for them — SF_CORE_ROUTINES is gone.
+   The bibles' "Daily routine" prose lives in each brain's BRIEF as life
+   context (circumstances, never a schedule the engine runs). What the
+   engine keeps is only the home cell: where the body sleeps is a fact of
+   the world, not an intention. */
+const SF_CORE_HOMES = {
+  C1: { latlon: [37.7540, -122.4186] },   // Mars — 9127 Capp St studio
+  C2: { anchor: 'g744' },                 // Jules — 9418 Guerrero, Unit A
+  C3: { latlon: [37.7495, -122.4200] },   // Dani — 9263 Geneva Ave
+  C4: { anchor: 'g750' },                 // Priya — 9457 Guerrero, Unit 3
+  C5: { anchor: 'g750' },                 // Marcus — same flat as Priya
+  C6: { anchor: 'g744' },                 // Carmen — 9418 Guerrero, Unit A
+  C7: { poi: 'Auerbach Hardware' },       // Victor — 9102 Mission, over the store
+  C8: { latlon: [37.7570, -122.4165] },   // Tomás — 9344 Folsom studio
 };
 
 /* ambient role -> routine template */
@@ -269,10 +218,16 @@ function sfInitCast(){
   const cast = buildCastChars();           // id -> frameset
   PA.chars = NV_CAST.map(c => cast[c.id]); // index-aligned with NV_CAST
   NV_CAST.forEach((c, i) => {
-    const sched = c.tier === 'core' ? SF_CORE_ROUTINES[c.id] : sfAmbientRoutine(c);
-    const homeBlock = (sched || []).find(b => b.inside) || (sched || [])[0];
-    const hc = sfHomeCell(homeBlock && homeBlock.to ? homeBlock.to
-                         : (homeBlock && homeBlock.stops ? homeBlock.stops[0] : null));
+    const isMain = c.tier === 'core';
+    const sched = isMain ? null : sfAmbientRoutine(c);
+    /* home cell: mains keep only WHERE they sleep (a world fact, from
+       the bible's Home line); ambients derive it from block.inside as
+       before. No schedule is ever built or stored for a main. */
+    const homeSpec = isMain
+      ? SF_CORE_HOMES[c.id]
+      : (function(){ const b = (sched || []).find(b => b.inside) || (sched || [])[0];
+          return b && (b.to || (b.stops && b.stops[0])); })();
+    const hc = sfHomeCell(homeSpec || null);
     const v = createVillager(c.name || c.id, c.role || 'Resident', null,
                              hc.wx, hc.wy, {
       sex: /C2/.test(c.id) ? 'nb' : (['C1','C3','C4','C6'].includes(c.id) ? 'f' : 'm'),
@@ -284,67 +239,97 @@ function sfInitCast(){
     // production-1: compiled memory profile (35_sf_memory.js) — wired into
     // decayEpistemic/observe where the sim has a real mechanism
     if(typeof sfMemProfileFor === 'function') v.memProfile = sfMemProfileFor(c.id);
-    v.sfSched = sched || [];
-    v.sfStopIdx = 0;
-    v.sfStopT = 0;
+    if(isMain){
+      /* v16 becoming brain: a main is AI-driven from birth. It owns every
+         intention; the engine owns the body. It wakes into the
+         intention_gap and waits for its brain's first filing — there is
+         no sfSched to fall back to, ever, and no possession carve-out. */
+      v.sfAgentDriven = true;
+      v.sfGap = true;
+      v.sfMind = null;             // populated by sfMindScan on first state read
+      v.sfConvo = null;
+      v.sfLastConvo = null;
+      v.sfIntents = [];
+      v.sfDisp = null;             // dispatch ledger (38_sf_brain.js)
+    } else {
+      v.sfSched = sched || [];
+      v.sfStopIdx = 0;
+      v.sfStopT = 0;
+    }
     v.sfHome = hc;
     v.equippedTool = { kind: workFor(c.id) !== 'idle' ? workFor(c.id) : 'none',
                        name: '', icon: '', desc: '' };
     if(v.body){ v.body.satiety = 0.9; v.body.hydration = 0.9; v.body.fatigue = 0.1; }
     VILLAGERS.push(v);
   });
-  // audience surrogate: Jules (the newcomer)
+  /* possession ban on mains is absolute (v16): no audience surrogate, no
+     controlled pawn. The camera inspects Jules's patch at boot purely so
+     the opening frame lands on a familiar corner — it does NOT control
+     the pawn and the pawn stays isNPC/sfAgentDriven. */
   const j = VILLAGERS.findIndex(v => v._castId === 'C2');
-  controlledPawnIdx = j >= 0 ? j : 0;
-  inspectedPawnIdx = controlledPawnIdx;
-  VILLAGERS[controlledPawnIdx].isNPC = false;
-  if(VILLAGERS[controlledPawnIdx])
-    cam.x = VILLAGERS[controlledPawnIdx].x, cam.y = VILLAGERS[controlledPawnIdx].y;
+  inspectedPawnIdx = j >= 0 ? j : 0;
+  controlledPawnIdx = -1;
+  if(VILLAGERS[inspectedPawnIdx])
+    cam.x = VILLAGERS[inspectedPawnIdx].x, cam.y = VILLAGERS[inspectedPawnIdx].y;
 }
 
-/* ---- thin-AI schedule follower ---- */
+/* ---- driven ladder (mains) + thin-AI schedule follower (ambients) ---- */
 function sfNpcTick(v, dtH){
   if(v.state === 'sleep' && v.inBuilding){ v.moving = false; }
-  // keep the Truman cast alive: offscreen meals & rest are assumed
-  if(v.body){
+  /* v16: silent needs top-ups are gone for DRIVEN pawns — a main's body
+     decays honestly and its brain decides what to do about it; the only
+     code override is the bounded collapse reflex below. Ambients keep
+     the Truman assumption (offscreen meals & rest) — they are furniture,
+     and starving furniture would be a broken set, not a broken fiction. */
+  if(v.body && !v.sfAgentDriven){
     if(v.body.satiety < 0.35) v.body.satiety = 0.6;
     if(v.body.hydration < 0.35) v.body.hydration = 0.6;
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
-  // production-1: a parked agent order (36_sf_agent.js, the playtest
-  // bridge) drives this pawn through real sim calls until done/expired.
-  // Order channel, not possession. v13 ladder (ai-town §5.3):
-  //   reflex → live order → brain-authored directive → intention_gap.
-  // Once a brain files an act the pawn is "driven" and NEVER falls back
-  // to code-authored sfSched — a lapsed will leaves a visible gap
-  // (state 'idle', sfGap true on sfAgentState), not an invented routine.
-  if(v.sfAgent || v.sfAgentDriven){
-    /* survival reflex preempts a live order AND a pending will — it is
-       code, always wins, and is never authored by a brain */
+  // v16 ladder (design §5): a driven main NEVER reaches sfSched.
+  //   collapse reflex → live order → brain-authored directive → gap.
+  // The gap is a first-class visible state: the pawn stands, its
+  // sfGap flag is true, and sfAgentState reports it to the brain.
+  if(v.sfAgentDriven || v.sfAgent){
+    /* genuine survival reflex: a collapse is a body event, not an
+       intention. It interrupts the order, is written as 'interrupted'
+       with the reflex named, and leaves the pawn downed until the
+       body recovers or a brain filing takes over. */
     const rf = (typeof sfReflexNow === 'function') ? sfReflexNow(v) : null;
-    if(rf && (v.sfAgent || v.sfDirective)){
+    if(rf){
       if(v.sfAgent && !v.sfAgent.done)
         v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
           interruptedBy: 'survival:' + rf, at: W.tod, day: W.day };
       v.sfAgent = null;
-      v.sfReflex = { kind: rf, at: W.tod, day: W.day };
-      v.sfPath = null; v.moving = false;
+      if(!v.sfReflex || v.sfReflex.kind !== rf)
+        v.sfReflex = { kind: rf, at: W.tod, day: W.day };
+      /* bounded, honest: the body drifts back to the band EDGE (never
+         topped up) — "someone got them upright"; the next move is the
+         brain's */
+      if(typeof sfReflexDrift === 'function') sfReflexDrift(v, dtH);
+      v.sfPath = null; v.moving = false; v.state = 'downed';
       return;
     }
     v.sfReflex = null;
     if(v.sfAgent){
       const a = v.sfAgent;
       if(a.done || sfAbsNow() > a.until){
-        /* §5.4 — every order ends with a reported outcome the brain
-           reads next turn: completed | expired | failed (interrupted
-           is written where the interruption happens) */
+        /* every order ends with a reported outcome the brain reads next
+           turn: completed | expired | failed (interrupted is written
+           where the interruption happens) — §5.4 outcome contract */
         v.sfAgentResult = { verb: a.verb,
-          status: a.fail ? 'failed' : (a.done ? 'completed' : 'expired'),
-          err: a.fail || null, at: W.tod, day: W.day };
+          status: a.fail ? 'failed'
+                : a.interrupted ? 'interrupted'
+                : (a.done ? 'completed' : 'expired'),
+          err: a.fail || (a.waitingOutside ? 'waiting_outside' : null),
+          interruptedBy: a.interrupted || null,
+          seq: a.seq != null ? a.seq : null,
+          at: W.tod, day: W.day };
         /* a promoted directive starts the same tick — no gap frame */
         v.sfAgent = (typeof sfAgentNext === 'function')
           ? sfAgentNext(v) : null;
         if(v.sfAgent && typeof sfAgentTick === 'function'){
+          v.sfGap = false;
           sfAgentTick(v, v.sfAgent, dtH);
           return;
         }
@@ -353,7 +338,7 @@ function sfNpcTick(v, dtH){
       else v.sfAgent = null;
     }
     /* no live order: the standing will gets one shot (it may have
-       lapsed mid-order or after a reflex). Else the intention gap
+       lapsed mid-order or after a collapse). Else the intention gap
        stands — empty, visible, honest. */
     const nxt = (typeof sfAgentNext === 'function') ? sfAgentNext(v) : null;
     if(nxt){

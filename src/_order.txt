@@ -75,6 +75,7 @@ sf/34_sf_live.js
 sf/35_sf_memory.js
 sf/36_sf_agent.js
 sf/37_sf_cameras.js
+sf/38_sf_brain.js
 systems/41_game_systems_registry.js
 systems/41_game_systems_ledger.js
 systems/41_game_systems_requests.js
@@ -92,5 +93,6 @@ systems/41_game_systems_economy.js
 systems/41_game_systems_timepiece.js
 systems/41_game_systems_civic.js
 tests/30_sf_autotest.js
+tests/38_sf_brain_autotest.js
 tests/41_game_systems_autotest.js
 sim/99_boot_hook.js

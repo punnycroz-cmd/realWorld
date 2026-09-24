@@ -606,7 +606,11 @@ function socialTick(h){
     __roleCheckDay = dayNow;
     checkRoleVacancies();
   }
+  /* v16: driven mains are excluded — autonomous chats, bond writes and
+     gossip are code-authored social behavior; a main's every word is
+     its brain's (design §6.3/§6.4) */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
