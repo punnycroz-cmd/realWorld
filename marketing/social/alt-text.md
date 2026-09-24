@@ -5,15 +5,16 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v75 current; v71/v65/v61/v59/v55/v54/v53 kept for era posts)
+## Published shots (`site/shots/`, development build v76 current; v75/v71/v65/v61/v59/v55/v54/v53 kept for era posts)
 
 | File | Alt text |
-| `v75-A` | Top-down view of the Mission block with the Mudhaus Coffee dollhouse cutaway open — the building ghosted to a real floor plan, Jules inside, Marcus and Victor at the door, inspector card showing. Development build. |
-| `v75-B` | Street-level close view of Jules on the sidewalk with Priya and Dani mid-block — dressed facades with canvas awnings and parked cars behind, leaves drifting. Development build. |
-| `v75-C` | Dolores Park from overhead — crown-genome trees in rust and gold, no two alike, poppy and lupine meadow drifts stippled across the lawns, tennis courts holding the south edge. Development build. |
-| `v75-D` | Director-mode street view of Victorian fronts climbing with ivy and bougainvillea — magenta bracts in the sun, balcony gardens trailing, laundry lines overhead riding the gust field. REC cluster and DIRECTOR badge. Development build. |
+| `v76-A` | Top-down view of the Mission block with the Mudhaus Coffee dollhouse cutaway open — the building ghosted to a real floor plan, Jules inside, Marcus and Victor at the door, inspector card showing. Development build. |
+| `v76-B` | Street-level close view of Jules on the sidewalk with Priya and Dani mid-block — dressed facades with canvas awnings and parked cars behind, leaves drifting. Development build. |
+| `v76-C` | Dolores Park from overhead — crown-genome trees in rust and gold, poppy and lupine meadow drifts across the lawns, a crepuscular light lane landing on the grass between cloud shadows, tennis courts holding the south edge. Development build. |
+| `v76-D` | Director-mode street view of Victorian fronts climbing with ivy and bougainvillea — laundry lines overhead, autumn crowns, cumulus carrying sun-side silver linings. REC cluster and DIRECTOR badge. Development build. |
+| `v75-A`–`v75-D` | The living-walls build — ivy and bougainvillea fronts, meadow stipple drifts, the traveling gust field. Kept for era posts; v76 is the current build. |
 |---|---|
-| `v71-A`–`v71-D` | The dollhouse-and-shadows build — buildings throwing real swept shadows, the Mudhaus cutaway, the re-framed park overlook. Kept for era posts; v75 is the current build. |
+| `v71-A`–`v71-D` | The dollhouse-and-shadows build — buildings throwing real swept shadows, the Mudhaus cutaway, the re-framed park overlook. Kept for era posts; v76 is the current build. |
 | `v65-A` | Top-down view of the Mission block under patchy Karl fog — autumn crowns turning, a cast-iron grate well under every street tree, the resident inspector open on Jules between things on Guerrero. Development build. |
 | `v65-B` | Street-level view past dressed facades — window boxes, parked cars, a tree grate and utility lids at the curb, Jules mid-block on the sidewalk, marine haze softening the far end. Development build. |
 | `v65-C` | Dolores Park from overhead in the re-framed overlook — perimeter streets, the palm allée, and two rows of facades ringing the lawns. Development build. |
@@ -23,12 +24,12 @@ site, the short for X/Bluesky/Mastodon.
 | `v61-B` | Street-level view past dressed facades — window boxes, parked cars, Jules mid-block on the sidewalk, marine haze softening the far end. Development build. |
 | `v61-C` | Dolores Park from overhead in the re-framed overlook — perimeter streets, the palm allée, and two rows of facades ringing the lawns; the park reads as a park inside a neighborhood. Development build. |
 | `v61-D` | Director-mode street view over rooftops toward distant cumulus shower cells on the skyline — REC cluster and DIRECTOR badge, wind-leaned rain shafts. Development build. |
-| `v59-A`–`v59-D` | The wet-after-rain build — speckled damp pavement, ponding on flat roofs, stringcourses catching light at every floor line. Kept for era posts; v75 is the current build. |
+| `v59-A`–`v59-D` | The wet-after-rain build — speckled damp pavement, ponding on flat roofs, stringcourses catching light at every floor line. Kept for era posts; v76 is the current build. |
 | `v55-A` | Top-down view of the Mission block in late September — street grid, crosswalks, parked cars, ginkgo crowns turning gold, leaf litter on the sidewalks; the resident inspector is open on Jules. Development build. |
 | `v55-B` | Street-level view up the block past dressed facades — window boxes, stoop pots, parked cars at the curb, a gust of leaves, residents named overhead. Development build. |
 | `v55-C` | Dolores Park from overhead in September — mow stripes following the lawn contours, the tightened palm allée, crowns carrying the early leaf-turn. Development build. |
 | `v55-D` | Director-mode street view under a clean autumn sky — REC cluster and DIRECTOR badge, dressed facades stepping with the block, turned crowns and leaves across the lens. Development build. |
-| `v54-A`–`v54-D` | The facade-pass build — window boxes, AC sleeves, Juliet rails, house numbers, stoop pots on every frontage. Kept for era/before-after posts; v75 is the current build. |
+| `v54-A`–`v54-D` | The facade-pass build — window boxes, AC sleeves, Juliet rails, house numbers, stoop pots on every frontage. Kept for era/before-after posts; v76 is the current build. |
 | `v53-A` | Top-down view of the Mission block around 24th and Mission on an autumn afternoon — street grid, crosswalks, parked cars, and curb-edge props read clearly; the resident inspector is open on Jules with needs, mood, and recent thoughts. Development build. |
 | `v53-B` | Street-level view up the block past storefront facades and stoops — parked cars at the curb, residents (Dani, Priya, Jules) named overhead, Karl's haze softening the far end of the street. Development build. |
 | `v53-C` | Dolores Park from overhead under thinning fog — tree crowns, worn paths, tennis courts, and picnic blankets scattered across the lawns; the marine layer pools at the frame's edges. Development build. |

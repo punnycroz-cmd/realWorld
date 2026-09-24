@@ -2,17 +2,17 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v75-*.png` = build v75). Everything below is
+the build (`screenshots/v76-*.png` = build v76). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v75** (September 2026).
+Current development build: **v76** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, ten more passes landed:
+Since the v55 editorial set, eleven more passes landed:
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -91,6 +91,13 @@ Since the v55 editorial set, ten more passes landed:
   a field: a gust crest advects downwind through trees and leaning
   facades as one traveling wave instead of each element swaying to its
   own phase.
+- **v76 — the clouds learned to give the light back.** Crepuscular
+  lanes: each cloud in the top view now throws a warm volumetric
+  streak from its body down to the sun-gap it shades, so light
+  visibly lands on the lawns between the shadows. In director mode
+  the same rays track to the facades and die in a warm splash where
+  the beam foot hits. And every cloud dome carries a silver lining —
+  a sun-facing rim arc, brighter on warm afternoons.
 
 The v67 pass that came just before is worth its own line:
 
@@ -132,18 +139,20 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v75-A.png` (current) — same top-down framing of the
+  `screenshots/v76-A.png` (current) — same top-down framing of the
   block, seventy iterations apart.
-- `screenshots/v75-C.png` is the Dolores Park overhead: the telling
+- `screenshots/v76-C.png` is the Dolores Park overhead: the telling
   details are the ring of streets and facades — a maintained city park,
-  not open field — the crown-genome trees, no two alike, and the new
-  poppy/lupine meadow drifts stippled across the lawns.
-- `screenshots/v75-A.png` carries the dollhouse headline: the Mudhaus
+  not open field — the crown-genome trees, no two alike, the poppy/lupine meadow drifts
+  stippled across the lawns, and a crepuscular light lane landing on
+  the grass between the cloud shadows.
+- `screenshots/v76-A.png` carries the dollhouse headline: the Mudhaus
   Coffee cutaway open on the overhead — the building ghosted, a real
   floor plan inside the footprint, residents still tagged inside it.
-- `screenshots/v75-D.png` is the v72–v75 street-level arc in one frame:
+- `screenshots/v76-D.png` is the v72–v76 street-level arc in one frame:
   declared wall materials, awnings and ghost signs, living-wall ivy and
-  bougainvillea, laundry lines riding the traveling gust field.
+  bougainvillea, laundry lines riding the traveling gust field, silver-lined
+  cumulus overhead.
 
 ## Still true (unchanged by these passes)
 

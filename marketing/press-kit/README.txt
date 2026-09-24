@@ -35,7 +35,7 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75, for "what's new" coverage and
+                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76, for "what's new" coverage and
                      update posts
   one-sheet.html     Single-page printable sell sheet — the whole pitch
                      on one page; Print → PDF works
@@ -46,6 +46,14 @@ Contents
   contact-sheet.html Printable visual index of every image asset in the
                      kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
+  quotes-boilerplate.md  Approved first-party team quotes (usable
+                     verbatim, attributed "the Real World team") +
+                     boilerplate in 25/50/100 words
+  pitch-emails.md    Outreach email drafts by desk — games press,
+                     tech/AI press, creators, podcasts. TEMPLATES ONLY:
+                     nothing has been sent; send rules inside.
+  awards-festivals.md  Awards & festival submission target calendar —
+                     fit notes, what each needs, verify-dates warning
   coverage-log.md    Post-launch coverage tracker — who covered us,
                      what they used, accuracy check, corrections sent
                      (empty template until coverage begins)
@@ -67,7 +75,7 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v75-* = current renderer (the lens rebuild —
+                     v76-* = current renderer (the lens rebuild —
                      chromatic fringing, scanline blur, and film grain
                      retired; one weather-driven visibility number now
                      drives the haze, the horizon marine band, and the

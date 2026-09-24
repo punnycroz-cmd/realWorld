@@ -1,6 +1,6 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v151 — screenshots rebase v71→v75 (living walls + meadow drifts + traveling gust field), Steam library
+**Status: v152 — screenshots rebase v75→v76 (crepuscular lanes + silver-lining cloud rims + director-mode beam landings, on the v75 living-walls/gust-field base), Steam library
 hero generated (§4 FLAG closed), store_copy_check wired into preflight,
 2026-09-23.**
 Supersedes v136.
@@ -179,7 +179,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v75-A..D.png` (4 ready, living-walls build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v76-A..D.png` (4 ready, v76 crepuscular-lanes build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -193,9 +193,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v75-D (director view — the hook), v75-B
-(street level), v75-C (Dolores Park), v16-int-cafe (interior vignette),
-then v75-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v76-D (director view — the hook), v76-B
+(street level), v76-C (Dolores Park), v16-int-cafe (interior vignette),
+then v76-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -254,7 +254,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v75-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v76-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -357,15 +357,15 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v75-D "director view" → "Director
-mode over the rooftops and laundry lines under a clean autumn sky — REC
-cluster and DIRECTOR badge up top, the rebuilt lens rendering one
-weather-driven visibility distance."; v75-B street level → "Street-level
+`press-kit/captions.txt` as canonical): v76-D "director view" → "Director
+mode over the rooftops and laundry lines under silver-lined cumulus —
+REC cluster and DIRECTOR badge up top, the rebuilt lens rendering one
+weather-driven visibility distance."; v76-B street level → "Street-level
 close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
-storefronts, parked cars, leaves drifting, name tags overhead."; v75-C
+storefronts, parked cars, leaves drifting, name tags overhead."; v76-C
 park → "Dolores Park from overhead — crown-genome trees in rust and gold
-across the mow-striped lawns, no two alike, tennis courts on the south
-edge."; v75-A overhead → "The Mission block around 24th and Guerrero from
+across meadow-drifted lawns, a crepuscular light lane landing between
+the shadows, tennis courts on the south edge."; v76-A overhead → "The Mission block around 24th and Guerrero from
 overhead on an autumn afternoon — leaves drifting over rooftops and
 parked cars, dressed facades, inspector open on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
 venue from the street camera."; v1 pair → "Same engine, day one — the
@@ -392,7 +392,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v75-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v76-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -492,7 +492,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v75 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v76 build) | shipped |
 
 ---
 
@@ -1027,7 +1027,7 @@ Cadence: announcements are events, not a drip — never post "stay tuned".
 
 ## 32. Seasonal store-art freshness rule
 
-The sim runs on the real calendar — the v75 captures are the autumn
+The sim runs on the real calendar — the v76 captures are the autumn
 turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
 crowns while the live block is in spring is a quiet lie.
 
@@ -1207,7 +1207,7 @@ Two housekeeping rules now have teeth.
 
 **Library hero provenance.** `steam-library-hero-3840x1240.png` is a
 generated composite, not a capture: blurred wings stretched from the
-v75-D frame, a crisp center panel (~1.6× source), and the standard
+v76-D frame, a crisp center panel (~1.6× source), and the standard
 lockup in the left safe zone. It is honest Steam library art (logo only,
 no text — per the §4 text rule) and ship-able as-is, but it is flagged
 **interim**: if the conditional Steam page ever becomes real, commission

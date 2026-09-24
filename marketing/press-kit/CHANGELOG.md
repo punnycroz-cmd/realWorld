@@ -1,7 +1,28 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v75-* is the current development build).
+build they were captured from (v76-* is the current development build).
+
+## v152 — 2026-09-24
+- Screenshots rebased v75→**v76** (crepuscular lanes — each cloud
+  throws a warm volumetric streak from its body to the sun-gap it
+  shades, landing on lawns in the top view and dying in a warm splash
+  on facades in director mode; silver-lining rim arcs on every cloud
+  dome; carries v75 living walls + meadow drifts + gust field
+  underneath). Site shots, kit screenshots, key art, og-card, banners,
+  store capsules rebaked on v76-D; captions, README, manifest,
+  fact-sheet, index, contact-sheet, deadline-desk, b-roll, one-sheet,
+  embargo-briefing refs updated; v75 shots demoted to the gallery
+  archive section (files kept in site/shots/).
+- NEW kit documents: `quotes-boilerplate.md` (approved first-party
+  team quotes + boilerplate in three lengths), `pitch-emails.md`
+  (per-desk outreach drafts — templates only, nothing sent),
+  `awards-festivals.md` (submission target calendar).
+- `whats-new.md` extended: arc now covers v53→…→v74→v75→v76.
+- `screenshots/v76-C.png` (2.25MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
+
 
 ## v151 — 2026-09-24
 - Screenshots rebased v71→**v75** (living walls — ivy and

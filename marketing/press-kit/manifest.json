@@ -2,7 +2,7 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v75 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v76 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
@@ -17,12 +17,15 @@
     "guided-tour.md": "10-minute press-preview run sheet + presenter rules",
     "b-roll-shotlist.md": "video-press capture guide — essential b-roll shots, camera keys, capture rules",
     "deadline-desk.md": "the 15-minute coverage path — three facts, a verbatim paragraph, three images, mistakes to avoid",
-    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71→v72→v73→v74→v75, for 'what's new' coverage",
+    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71→v72→v73→v74→v75→v76, for 'what's new' coverage",
     "one-sheet.html": "single-page printable sell sheet (Print -> PDF)",
     "embargo-briefing.md": "long-lead pre-brief book for embargoed coverage — session plan, on/off-record lists, embargo terms",
     "review-guide.md": "self-guided review plan for a spectator sim — 30/90-minute/evening watch paths",
     "contact-sheet.html": "printable visual index of every image asset in the kit",
     "captions.txt": "per-asset captions and credit lines",
+    "quotes-boilerplate.md": "approved first-party team quotes + boilerplate in 25/50/100 words",
+    "pitch-emails.md": "tailored outreach email drafts by desk — templates only, nothing sent",
+    "awards-festivals.md": "awards/festival submission target calendar with fit notes",
     "coverage-log.md": "post-launch coverage tracker — outlet/piece/assets/accuracy/corrections ledger (empty until launch)",
     "manifest.json": "this file — checked by tools/press_kit_check.py",
     "LICENSE.txt": "press asset usage terms",
@@ -40,8 +43,8 @@
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v75-A.png", "v75-B.png", "v75-C.png", "v75-D.png",
-      "v75-A.webp", "v75-B.webp", "v75-C.webp", "v75-D.webp",
+      "v76-A.png", "v76-B.png", "v76-C.png", "v76-D.png",
+      "v76-A.webp", "v76-B.webp", "v76-C.webp", "v76-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },

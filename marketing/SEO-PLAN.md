@@ -410,14 +410,15 @@ v71-C now serves webp directly with no PNG `<img>` fallback.)*
 *(v151: gallery rebase v71→v75 — living walls,
 meadow drifts, traveling gust field; v71 section demoted to archive.
 Same webp-only rule reapplied to v75-C.)*
-1. `shots/v75-C.png` (2.04MB) breaches the 2MB
-   PNG-fallback ceiling — lossless re-encode was already optimal this
-   time (source files are per-row filtered, zlib-9; a re-filter +
-   re-deflate pass produced byte-identical output). Per the rule set at
+*(v152: gallery rebase v75→v76 — crepuscular lanes,
+silver-lining cloud rims, director-mode beam landings; v75 section
+demoted to archive. Same webp-only rule reapplied to v76-C.)*
+1. `shots/v76-C.png` (2.25MB) breaches the 2MB
+   PNG-fallback ceiling. Per the rule set at
    v135, **the PNG fallback is dropped for this shot:** its
    `<img>` tag serves `.webp` directly (all modern browsers; the PNG
-   remains on disk as a "Full size" download only). `v75-A.png` (1.91MB),
-   `v75-B.png` (1.06MB), and `v75-D.png` (1.09MB) keep the normal PNG
+   remains on disk as a "Full size" download only). `v76-A.png` (1.90MB),
+   `v76-B.png` (1.06MB), and `v76-D.png` (1.09MB) keep the normal PNG
    fallback. Recheck on
    the next art rebase.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
