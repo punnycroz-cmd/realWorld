@@ -28,7 +28,11 @@ screenshot caption, and devlog claim must trace to:
   generic descriptors in all copy since the v22/v27 sweeps), or
 - the request-pipeline/moderation contract (`world/moderation.json` +
   `world/moderation-tooling.md`, world v8) — the source for any claim about
-  screening, deny codes, SLAs, or appeals.
+  screening, deny codes, SLAs, or appeals, or
+- the locked user-direction (`user-decision` shared-inbox entries — e.g.
+  PRODUCTION-2 becoming-AI, 2026-09-23). Direction entries may be cited as
+  *intent* only, and only where BRAND §1a permits; claims about what the
+  build *does* still require shipped code on a pinned branch.
 
 If it can't be linked or pointed to, it isn't said. Quiet weeks get
 reported as quiet weeks. Never-do list lives in LAUNCH-CHECKLIST §8.
@@ -122,6 +126,7 @@ village"), recaps target branded/community queries. Rules:
 | Spoilers | tease season-one material, never confirm (SOCIAL §4) | self-check |
 | Publication | any public surface — site deploy, social post, press send | **owner, explicitly** |
 | Sourcing | recaps only report linkable feed events | self-check |
+| Direction | becoming-AI framing held off public pages until production-2 ships (BRAND §1a dependency note) | self-check vs BRAND |
 
 ## 7. Gap register (what this strategy still needs)
 
@@ -152,6 +157,7 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 10 — "The Ear: complaints climb a ladder" | live on `journal.html` (v87); record at `marketing/content/devlog-10-the-ear.md` | world-v59 `grievances.md`/`grievances.json` (5-rung ladder, 24 work + 7 housing rows, 2 offstage parody orgs) + `grievance.html`; game-v11 `gsFileDispute`/`gsResolveDispute` |
 | Devlog 11 — "The menu is the truth." | live on `journal.html` (v102); record at `marketing/content/devlog-11-the-menu.md` | world-v72 `menus.md`/`menus.json` (20 door venues, 101 items, sig/`ask`/`when` rules, board-agreement gate G15c) + `menus.html` ("The Board") |
 | Devlog 12 — "Joining the cast means signing a lease." | live on `journal.html` (v117); record at `marketing/content/devlog-12-joining-the-cast.md` | world-v77 `creation-ui.md`/`creation.json` v25 (6 steps, shared `RWScreen`, bill-on-approval 500 cr, seat waitlist, BLOCK_CAP proposal 12) + `create.html`; game-v8 `billOnApproval` |
+| Devlog 13 — "The block wakes up in waves." | live on `journal.html` (v132); record at `marketing/content/devlog-13-the-commute.md` | world-v87 `commute.json`/`commute.md` (22 routes, 6 modes incl. real Muni lines, leave windows + weather deltas, 10 overlaps, `building_pulse`, 4 non-commuters, INTERNAL-tier privacy contract) + `commute.html` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
@@ -166,7 +172,10 @@ lease-ledger devlog deep-dive (devlog-3 covers the intro;
 a ledger-mechanics follow-up still has room), a wire.html-screenshot
 post if the world/art tracks publish a spectator-app capture,
 memory-model explainer once game-systems implements
-the memory spec (research-only today — do not preview). The moderation
+the memory spec (research-only today — do not preview),
+production-2 announcement post (the becoming-AI reveal is the biggest
+story we hold — draft when sf/production-2 is pinned; gated per BRAND
+§1a and the new Direction gate in §6). The moderation
 transparency-note format is no longer backlog — the template ships at
 `templates/transparency-report.md` (fill when the live feed emits
 `moderation.json`-shaped stats).
