@@ -1,11 +1,12 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v153 — NEW §38 in-product purchase microcopy (wallet sheet,
-ads opt-in, checkout cards, state cards, session strings, co-sponsor,
-money-UI deny-list — every string mapped to `world/requests.json`
-contract blocks); store/preview.html screenshot drift fixed (v71→v76,
-caught by store_copy_check — 4 fails now clean), 2026-09-24.**
-Supersedes v152.
+**Status: v168 — production-shell surfaces added to the store record:
+§1.3/§1.4 now sell the shipped spectator HUD (preset cameras + PiP
+follow-cam + six-tab rail), §14 claim ledger gains the shell rows,
+§2.4 screenshot bench gains the production-smoke UI captures, NEW §39
+(rail/camera/PiP surface copy) + §40 (UI-proof screenshot bench);
+store/README.md hero-shot drift fixed (v71→v81), 2026-09-24.**
+Supersedes v153.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — with v138 the full §4 set including the
@@ -65,10 +66,12 @@ residents — eight main characters with full AI minds, twenty ambient
 neighbors — live, work, feud, and make up around the clock. The world runs
 whether you're watching or not.
 
-**Watching is the free heart of the game.** Follow any resident through their
-day. Read the public request feed — every intervention anyone has bought,
-attributed and priced in the open. Catch up on the week's drama like a
-serial. Observation never costs anything.
+**Watching is the free heart of the game.** Channel-surf preset cameras —
+the Dolores Park overlook, street level on 18th & Guerrero, a rooftop over
+the park — or follow any resident through their day with a
+picture-in-picture second feed. Read the public request feed — every
+intervention anyone has bought, attributed and priced in the open. Catch
+up on the week's drama like a serial. Observation never costs anything.
 
 **When watching isn't enough, buy a moment — not the world.** File a request:
 a declared action with a declared duration, priced upfront in credits and
@@ -100,6 +103,9 @@ voice lines. Credits are non-transferable and never redeemable for money.
   relationships, and secrets. Protected from everyone, including the dev.
 - **Free to watch, forever** — the spectator experience is the product's
   core, not a trial.
+- **A spectator HUD, not a spectator mode** — named camera presets, a
+  follow-cam on any resident, and a PiP second feed; the block is your
+  channel lineup.
 - **Time-boxed paid agency** — requests declare action + duration upfront,
   are auto-classified (exclusive/compatible/queued), hard-capped, and
   auto-refunded on expiry.
@@ -198,6 +204,8 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 Screenshots order on the page: v81-D (director view — the hook), v81-B
 (street level), v81-C (Dolores Park), v16-int-cafe (interior vignette),
 then v81-A and the v1 before/after pair lower down for dev-minded readers.
+Second tier — UI-proof captures from `production/smoke/` (the shipped
+shell, real UI): see §40 for the bench and ordering.
 
 ---
 
@@ -504,6 +512,9 @@ source contract changes, the claim changes — never the reverse.
 | Low-balance toast ≤15 min, extend at class rate within cap | `requests.json` session_controls/session_extend | shipped contract |
 | Briefing card = public profile only; secrets absent by schema | `requests.json` possession_briefing | shipped contract |
 | Co-sponsor same-price, ≤4, named on feed | `requests.json` co_sponsor | shipped contract |
+| Named camera presets (overlook / street / rooftop) + follow + free | `src/sf/37_sf_cameras.js` SF_CAM_PRESETS + `production/shell.html` data-cam rail | shipped UI |
+| PiP second feed follows a picked resident | `production/shell.html` rwPip/pipSel | shipped UI |
+| Six-tab spectator rail (watch/wire/requests/ledger/cast/housing) | `production/shell.html` rwTabs | shipped UI |
 
 ---
 
@@ -882,6 +893,19 @@ strings to their `requests.json` blocks. Also fixed real drift:
 rebased to v76 with §9 caption wording (store_copy_check 4→0 fails).
 No store-page copy (§1–§3) changed; §33 register unchanged (pack
 prices remain under the existing PROPOSAL row 4).
+
+**v168 changes:** post-merge baseline `sf/production-2` brought the
+shipped spectator shell (`production/shell.html` → `hub.html`) inside
+the store-copy claim surface — §1.3 long description gains the
+preset-camera/PiP sentence, §1.4 gains the "spectator HUD" bullet,
+§14 ledger gains three shipped-UI rows (camera presets, PiP, six-tab
+rail — all sourced to `37_sf_cameras.js`/`shell.html`), §2.4 gains the
+UI-proof second-tier pointer, NEW §39 (rail tab + camera strip + PiP
+surface copy and the rail's own never-says list) and §40 (production
+smoke captures as the UI-proof screenshot bench, with re-shoot and
+compression rules). `store/README.md` hero-shot cite fixed v71→v81 —
+the capsules were already rebaked at v81 in v167; only the doc text
+lagged. §33 register unchanged: no new owner decisions introduced.
 
 ---
 
@@ -1394,3 +1418,72 @@ checker's banned-word scan):
 Same-commit rule: a change to `world/requests.json` wallet/session/
 appeal blocks invalidates the matching string here — §27 trigger row 2
 covers it; grep `requests.json` block names against §38.
+
+---
+
+## 39. Spectator HUD — store-visible surfaces (production shell)
+
+The merged production build (`production/shell.html` → `hub.html`) ships
+a real spectator HUD. Store copy may sell it — every surface below is
+live, not mocked. The rail is the store's "what you actually do" answer.
+
+### 39.1 The rail (six tabs, verbatim labels)
+
+| Tab | What the viewer gets | Store-facing one-liner |
+|---|---|---|
+| WATCH | Camera strip + spectator feed | "Your channel lineup is a city block." |
+| WIRE | Public request resolutions | "Every intervention, attributed, in the open." |
+| REQUESTS | File → review → resolve | "Ask the world for a moment; the queue is public." |
+| LEDGER | Credits vs. game dollars | "Two wallets, no bridge between them." |
+| CAST | Mains + hires + hire flow | "Meet the eight you can never possess." |
+| HOUSING | Units, leases, listings | "Rent first. The deed is the long game." |
+
+### 39.2 Camera strip (verbatim from `data-cam` rail)
+
+- **Dolores Park overlook** — the whole park, perimeter streets, palm allées.
+- **Street level — 18th & Guerrero** — sidewalk height, storefront row.
+- **Rooftop — over the park** — the aerial postcard.
+- **Follow ▸** — pick any resident; the camera walks their day with them.
+- **Free pan + zoom** — the viewer's own framing.
+- **Release** — hands the camera back to the follow card.
+
+### 39.3 PiP monitor
+
+A second live feed, picture-in-picture, that follows a picked resident —
+labeled `FOLLOW — {name}`. Sell as: "keep one eye on your favorite while
+the block runs wide."
+
+### 39.4 What the rail never says
+
+- No tab or button implies possession of a main — the CAST tab opens a
+  hire flow, never a hijack (possession ban, §14).
+- The LEDGER shows both currencies side by side precisely so the no-
+  conversion rule is visible, not just stated.
+- REQUESTS shows review states in feed vocabulary — no promise of
+  approval anywhere on the filing surface (the banned-word scan covers
+  the rest).
+
+## 40. UI-proof screenshot bench (production smoke captures)
+
+`production/smoke/` holds real captures of the shipped shell — the only
+screenshots that show the actual UI a buyer gets. Art shots (§2.4) sell
+the look; these prove the loop. Use them as the second screenshot tier
+on itch (after the four art shots) and as Steam's "gameplay" row if the
+conditional page ever goes live.
+
+| File | Shows | Caption for the store page |
+|---|---|---|
+| `hub-cam-overlook.png` | Overlook preset + rail | "The overlook — one click, always on." |
+| `hub-cam-street.png` | Street-level preset | "Street level on 18th & Guerrero." |
+| `hub-watch.png` | WATCH tab + feed | "Watching is free. The feed is everyone's." |
+| `hub-wire.png` | WIRE resolutions | "Every request resolves in public." |
+| `hub-req.png` / `req-filed.png` | REQUESTS filing flow | "Declared action, declared duration, declared price." |
+| `hub-pip.png` | PiP follow-cam | "Follow a resident while the block runs wide." |
+| `hub-cast.png` | CAST tab | "Eight mains. None of them yours." |
+| `hub-house.png` | HOUSING tab | "The ladder starts at a lease." |
+| `wire-after-request.png` | Filed → resolved arc | "Sunlight is the moderation model." |
+
+Rules: captures must be re-taken after any shell re-skin (§27 trigger);
+never crop the rail off a "UI" shot — the rail is the claim; file sizes
+are large (~2 MB) — downscale to ≤1600 px wide and recompress before
+upload, keep originals referenced by path here.
