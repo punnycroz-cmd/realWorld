@@ -1,6 +1,13 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v163 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v178 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v178: aligned to the PRODUCTION-3 direction — user-locked 2026-09-24,
+`astra-concept-review-2026-09-24.md`. Monetization now follows PROOF, so
+moderation build order follows it too: new §10 stages the plan against
+the three proof gates, §6 gains the moderation-load-per-sim-day metric
+the review demands be measured *now*, §7 gains observer-loop and
+sponsorship-terms rows, §9 gains the reorder note. Earlier history
+below is unchanged.)
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -1011,6 +1018,9 @@ not policy discretion.
 || Spectator flag intake | human-review queue arrivals from the S4g flag affordance (world-v109) | nonzero but small; a flood means community copy implies flags punish characters — re-teach "flags attach to asks only"; a ~0 rate at launch means the affordance isn't discoverable |
 || Appeal aggregates | `gsAppealStats` line on the Counter (world-v102) — filed/reversed counts | published verbatim in §6a; reversal rate should track the per-reviewer drift metric — a rising reversal rate is reviewer drift, not a louder appeal lane |
 || Request-trail completeness | archive `#v=reqs` trails vs feed lifecycle events (world-v104) | every request id yields a complete trail; gaps = a `req` link missing on lifecycle emit — file as a game-track defect, since the public trail is the accountability record |
+||| Moderation load per simulated day | reviewer-minutes + flag-handling-minutes ÷ sim-days in the window | measured from week 1, before any paid surface opens — the production-3 review names this a step-1 number alongside cost-per-sim-day; rising load before revenue exists is a proof-gate input, not a back-office stat |
+||| Prediction-lane abuse | prediction surface (§10.1) — wager/offering language hits + brigade coordination signals | ~zero; predictions are non-wager by design, so any wager framing is a copy defect — fix the UI copy, never build a betting surface around it |
+||| Sponsorship attribution completeness | feed `sponsors[]` chips vs settled sponsorship ledger (stage 3 only) | 100% attributed; an unattributed sponsored opportunity is the same class of failure as an unattributed paid request — the whole stage-3 promise is that sponsorship is visible |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -1060,6 +1070,10 @@ the counters.
 || "If the desk turns down your character application, it tells you which field tripped — fix it and refile, free" | "Denied applications can appeal endlessly" — the second look is one look; identical text is refused, and unappealable codes stay unappealable |
 || "The feed audits itself — it shows a count of what it's holding back and a self-check you can read" | "The feed shows literally everything" — the display filter still applies; the audit and withheld-count are disclosure, not absence of filtering |
 || "A request's whole story — filed, reviewed, run, refunded — is one page in the archive you can link" | "We keep permanent public dossiers on players" — trails are request records, not player profiles; nothing about the requester beyond the handle ever appears |
+|| "Predictions are for bragging rights — there is no wager and nothing to win" | "Bet on what happens" / any odds or payout framing — predictions are explicitly non-wager in the production-3 observer loop, and copy must never imply a stake |
+|| "Watching and catching up are free" | "Free forever, everything" — stage-2 subscriptions for archival depth and creator tools are the designed next step; the promise is the *loop* stays free, not that nothing ever costs |
+|| "Sponsored opportunities are always labeled with who paid" (stage 3 only) | "Support the world" framing that hides the sponsor — attribution is a hard term, not a style choice |
+|| "A sponsored invitation can be delivered, refused, or refunded — the terms are public before you pay" (stage 3 only) | "Sponsor a moment" / implying a bought outcome — no guaranteed delivery, no bought affection, no escalating disruption auctions; refusal is a legitimate, public result |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -1245,3 +1259,97 @@ pages + this table update in the same commit.
   observation/rumor channels consume it, moderation copy inherits the
   same rule as `present()`: citeable facts, never minds. No new
   policy needed — the boundary is already the plan's.
+- Build-order note (production-3, v178) — every §9 queue/refund/ledger
+  item above stays contractual, but its staffing deadline moved: the
+  request pipeline moderates *paid asks*, and under the proof order
+  paid asks only exist at stage 3. Nothing in §9 is deleted or
+  descoped; the gate that opens the lane is now "retention proven →
+  subscriptions live → sponsorship terms published," per §10.
+
+## 10. Proof-stage moderation (production-3 direction — user-locked 2026-09-24)
+
+The Astra review (`astra-concept-review-2026-09-24.md`) reordered the
+business: **monetization follows proof, in three gates, never skipped.**
+This plan's request-pipeline machinery (§2) is real and stays designed —
+but the order in which it must be *operational* changes. Moderation build
+order now mirrors the money order, because each stage's load is different.
+
+### 10.1 Stage 1 — return-visit proof (free watching only)
+
+What exists: free watching, catch-up, follow-a-character, non-wager
+predictions, the public feed, and community spaces. No payment rail is
+open, so §2's queue, refund, and appeal machinery is **designed, not
+staffed** — do not hire a review shift for a surface that can't take
+money yet.
+
+What moderates:
+
+- **Community spaces** — §3 unchanged. This is the entire live surface.
+- **The prediction lane** — non-wager by design. Moderation duty is
+  copy-level: any surface that drifts toward stakes ("call it and win…")
+  is a bug report, not a policy debate. Coordinated prediction brigades
+  aiming to pressure the fiction get the §3.3 ladder, same as feed
+  gaming.
+- **Flags** — the spectator flag (world-v109) attaches to asks; in
+  stage 1 with no paid asks filed, flags route to the same human-review
+  queue the day it opens. Until then a flag is recorded, not actioned —
+  and copy must never promise otherwise.
+- **The measurement** — moderation load per simulated day (§6) is
+  captured from week 1. The review says business arithmetic is not
+  postponed; moderator-minutes per sim-day is part of that arithmetic.
+
+What is explicitly NOT built at this stage: elaborate credit-economy
+tooling (hard no — user-locked), sponsorship intake, subscription
+billing disputes. Do not let a stage-1 incident retrofit stage-3
+machinery; log it in §9 instead.
+
+### 10.2 Stage 2 — subscriptions (archival depth, creator tools)
+
+Opens only after retention exists. New moderation surfaces:
+
+- **Billing disputes** — subscription refunds/cancellations are a
+  support lane, not the §2 request-appeal lane. One queue, different
+  canned responses (§4): money-back policy per PRICING-PAGE-CONTENT.md,
+  never reason codes.
+- **Archive access tiers** — if archival depth is the paid feature,
+  the moderation question is *what paying eyes may see that free eyes
+  may not*. Rule: the §2.3 display filter and the §2.6 door-not-name
+  boundary apply at every tier — depth means more history, never more
+  privacy violation. A tier that exposes screened text or named filers
+  is a policy breach, not a perk.
+- **Creator/export tools** — exported clips inherit the accuracy rule:
+  an export may not be framed to claim outcomes the design doesn't
+  produce. Misuse (fake "the AI did X" edits attributed to us) is a
+  §3.2 rules-of-the-block issue on our spaces, a takedown-evaluation
+  issue elsewhere.
+
+### 10.3 Stage 3 — attributed sponsorship of opportunities
+
+Opens only after stage 2. This is where the existing §2 request
+pipeline becomes the live moderation surface — sponsored opportunities
+*are* screened asks with extra terms. The user-locked terms are
+moderation-enforceable policy:
+
+- **Capped** — a sponsorship cap is a `credit_rules`-class contract
+  value; moderation enforces it like any other bound, and §4 treats a
+  cap bypass attempt as an obfuscation-adjacent review, not a sale.
+- **Publicly attributed** — every sponsored opportunity names its
+  sponsor on the feed (`sponsors[]` chips already exist). An
+  unattributed sponsorship is a launch-blocking defect class, same as
+  an unattributed paid request.
+- **Explicit delivery/refusal/refusal-refund terms** — the character
+  can refuse; refusal is a public result, not a failed delivery. Terms
+  are shown before payment; moderation's job is that no UI, mod, or
+  canned response ever implies a guaranteed outcome.
+- **Hard exclusions (user-locked):** no bought affection, no
+  guaranteed outcomes, no escalating disruption auctions. These map to
+  existing deny classes — an auction-format ask or an affection-targeted
+  ask is a deny, full refund, ordinary wording.
+
+### 10.4 What did not change
+
+The possession ban, the no-retcon archive rule, flags-attach-to-asks,
+and "we moderate what players ask for, never what characters decide"
+are stage-independent. The review's observer loop (catch up → follow →
+predict → inspect → revise → return) adds moderation surfaces; it does
+not soften any LOCKED rule.
