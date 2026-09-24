@@ -100,7 +100,7 @@ recap-format.md production notes).
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
 - RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
-  per published devlog (12 today), placeholder domain swept by
+  per published devlog (14 today), placeholder domain swept by
   `tools/swap_domain.sh` like every other URL; journal.html carries the
   `rel=alternate` link. Rule: item count must equal devlog count on the
   page — add an item in the same commit as the post.
@@ -158,6 +158,8 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 11 — "The menu is the truth." | live on `journal.html` (v102); record at `marketing/content/devlog-11-the-menu.md` | world-v72 `menus.md`/`menus.json` (20 door venues, 101 items, sig/`ask`/`when` rules, board-agreement gate G15c) + `menus.html` ("The Board") |
 | Devlog 12 — "Joining the cast means signing a lease." | live on `journal.html` (v117); record at `marketing/content/devlog-12-joining-the-cast.md` | world-v77 `creation-ui.md`/`creation.json` v25 (6 steps, shared `RWScreen`, bill-on-approval 500 cr, seat waitlist, BLOCK_CAP proposal 12) + `create.html`; game-v8 `billOnApproval` |
 | Devlog 13 — "The block wakes up in waves." | live on `journal.html` (v132); record at `marketing/content/devlog-13-the-commute.md` | world-v87 `commute.json`/`commute.md` (22 routes, 6 modes incl. real Muni lines, leave windows + weather deltas, 10 overlaps, `building_pulse`, 4 non-commuters, INTERNAL-tier privacy contract) + `commute.html` |
+| Devlog 14 — "The paper cuts both ways." | live on `journal.html` (v147); record at `marketing/content/devlog-14-the-counter-paper.md` | world-v96 `leases.json`/`lease-ui.md` §§49–54 (`rw_lease_v96`: assignments w/ clean-ledger gate + deposit carry, buyouts as offers w/ 30-day cooldown + BUYOUT code, prepaid credit cap 3× w/ oldest-first drawdown, history letter once-per-tenancy; `feed_wording.never` +4) + `lease.html` v6 |
+| Devlog 15 — "The bench takes requests." | live on `journal.html` (v147); record at `marketing/content/devlog-15-the-bench.md` | world-v99 `crowd.json` (`pull_protocol`: 15–90 min, ≤3/day, ≤2 concurrent, ≥60 min cooldown, one-zone-step bounds, role-bound, minors never pullable, wire-invisible) + `coverage` A01–A20 (understudy/sign/open/pack reads) + `crowd-sim.md` §§26–28, `crowd.html` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
@@ -168,8 +170,10 @@ draft once the render draws the authored copy so the post can show it);
 commerce-layer devlog (devlog-11 covered the catalog; the "order-
 something" request type + character commerce are gated on the game
 track consuming `menus.json` — draft when it lands);
-lease-ledger devlog deep-dive (devlog-3 covers the intro;
-a ledger-mechanics follow-up still has room), a wire.html-screenshot
+lease-ledger deep-dive is now PARTIALLY covered — devlog-14
+shipped the counter-paper instruments; a pure ledger-mechanics
+follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room,
+a wire.html-screenshot
 post if the world/art tracks publish a spectator-app capture,
 memory-model explainer once game-systems implements
 the memory spec (research-only today — do not preview),

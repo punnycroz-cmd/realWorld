@@ -72,6 +72,109 @@
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
     <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v99</p>
+      <h2>The bench takes requests.</h2>
+      <p>
+        The twenty ambients are the block's bench — the barista, the dog
+        walker, the fruit-stand keeper — and the bench is now borrowable. A
+        request can name an ambient as a co-star, and the pull borrows their
+        presence inside the routine they already have: fifteen to ninety
+        minutes, at most three pulls per ambient per day, at most two
+        borrowed on the block at once, an hour of cooldown between loans. The
+        pull may move them one zone step and only toward a zone the request
+        already controls — never across the map, never into their home. It
+        enters the request pipeline at the same step as any other claim,
+        exclusive only when the ask genuinely needs sole attention.
+      </p>
+      <p>
+        The bounds are the interesting part. A pull asks the role, not the
+        person — the spec's own example is that Reyes can be borrowed as "a
+        barista at the counter," never as "Reyes running an errand." An
+        ambient is only pullable from a public or staffed state — never from
+        sleep, never from home, never mid-transit. And the minors are simply
+        never pullable: a request that names one resolves as a decline, and
+        their rows never enter the pool. Agency, not control, applies to the
+        bench the same as the mains.
+      </p>
+      <p>
+        What a spectator sees is not the loan but its wake. Pulls are
+        wire-invisible — no event type, no attribution. Instead each ambient
+        carries a coverage read, the honest absence the block shows while
+        they're borrowed: an understudy where one exists ("a second apron
+        steps up from the back"), a sign where the post can't run unattended
+        (the fruit stand's chalk reads "back in 10"), or just the open space
+        where nothing covers ("the bench keeps her folded section"). The feed
+        never says someone was borrowed; the block just reads like a place
+        where people sometimes get called away.
+      </p>
+      <p class="muted">
+        Sources: the pull protocol and coverage table are the world track's
+        <code>world/crowd.json</code> (v99) + <code>crowd-sim.md</code> §§26–28,
+        demoed internally in <code>world/crowd.html</code> ("The bench —
+        pulled &amp; covered"). Windows, caps, bounds, and coverage reads are
+        quoted from the file itself.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v96</p>
+      <h2>The paper cuts both ways.</h2>
+      <p>
+        The Rent Book was always the block's accounting of what a tenant owes.
+        This week it grew counter-paper — four instruments the tenant holds,
+        not the landlord. An <b>assignment</b> is the permanent hand-off a
+        sublet never was: the outgoing tenant names an assignee, the assignee
+        faces the same published screening checklist, a decline needs a stated
+        reason on the file, and the ledger must be clean to hand over. What
+        transfers is the whole thing — same terms, same rent-control flag,
+        deposit carried to the new name with no second deposit and no reset.
+        File scars stay with the unit's file, not the departing name.
+      </p>
+      <p>
+        A <b>buyout</b> — cash-for-keys — is an offer, not an instruction. It
+        can only be made while the lease is in good standing: never under a
+        live rung, never while a dispute is open, so it can't shortcut the
+        ladder. The stated amount sits on the file and the tenant decides.
+        Declining costs nothing — no fee, no mark — and locks the landlord out
+        of re-offering for thirty days. Accepting writes a distinct BUYOUT
+        credit line, legible in the ledger like the NOFAULT code before it.
+        <b>Prepaid rent</b> is voluntary credit capped at three months — a
+        bridge, not a deposit substitute — that draws down oldest-first on the
+        first of the month, so a prepaid month never sees a late fee. And any
+        tenant can ask for a <b>history letter</b>: one per tenancy, the same
+        numbers the ledger keeps in neutral terms — scars stated as scars —
+        formatted to hand to the next screening.
+      </p>
+      <p>
+        The wire rule is the quiet part: all four are file-only. The
+        never-on-the-feed list gained buyout offers, assignments, prepayments,
+        and history letters — tenant names and amounts never reach the
+        <a href="wire.html">public feed</a>. An accepted buyout surfaces at
+        most as the neutral turnover line the feed already knows. The paper
+        is real; the privacy is the same as every other ledger event.
+      </p>
+      <p class="muted">
+        Sources: the counter-paper layer is the world track's
+        <code>world/leases.json</code>/<code>lease-ui.md</code> §§49–54
+        (v96 — key <code>rw_lease_v96</code>), demoed internally in
+        <code>world/lease.html</code> v6. Screening gate, cooldowns, caps,
+        and feed wording are quoted from the file itself.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v87</p>
       <h2>The block wakes up in waves.</h2>
       <p>
