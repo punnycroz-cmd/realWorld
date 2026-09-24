@@ -111,6 +111,46 @@
     return (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m;
   }
 
+  // Lifecycle walk — each simulated feed row steps through the feed's real
+  // request_status vocabulary (world/feed.json), not a staged animation.
+  // The sequences mirror the pipeline branches the verdict card reports.
+  var STATUS_CLS = {
+    "requested": "tag-queue", "in_review": "tag-queue", "queued": "tag-queue",
+    "approved": "tag-run", "approved (modified)": "tag-run", "running": "tag-run",
+    "resolved": "tag-done", "player session ended": "tag-done",
+    "not approved": "tag-refund", "refunded": "tag-refund"
+  };
+  var walkCount = 0;
+  function lifecycleFor(opts) {
+    if (opts.denied) return ["requested", "not approved", "refunded"];
+    if (opts.review) {
+      // Alternates deterministically so both real outcomes get shown.
+      var mod = (walkCount % 2 === 1);
+      return ["requested", "in_review",
+        mod ? "approved (modified)" : "approved", "running", "resolved"];
+    }
+    if (opts.queuedPath) return ["requested", "queued", "running", "resolved"];
+    // Every third clean possession ends the way some real ones do — the
+    // viewer steps away mid-session and the feed logs it.
+    if (opts.action === "possess" && walkCount % 3 === 2) {
+      return ["requested", "approved", "running", "player session ended"];
+    }
+    return ["requested", "approved", "running", "resolved"];
+  }
+  function walkRow(row, seq) {
+    var tag = row.querySelector(".feed-tag");
+    var step = 0;
+    var tick = function () {
+      step++;
+      if (!row.isConnected || step >= seq.length) return;
+      var s = seq[step];
+      tag.className = "feed-tag " + (STATUS_CLS[s] || "tag-kind");
+      tag.textContent = "request · " + s;
+      setTimeout(tick, 1500);
+    };
+    setTimeout(tick, 1500);
+  }
+
   function screenText() {
     var t = (elText.value || "").trim();
     if (!t) return null;
@@ -181,10 +221,16 @@
     row.className = "feed-row";
     row.innerHTML =
       '<span class="feed-time">' + stamp() + '</span>' +
-      '<span class="feed-tag ' + clsTag + '">' + status + '</span>' +
+      '<span class="feed-tag tag-queue">request · requested</span>' +
       '<p>' + a.feed.replace("{min}", min) + ' — filed by <b>you</b> (simulated), ' + quote + '.</p>';
     elRows.insertBefore(row, elRows.firstChild);
     while (elRows.children.length > 4) elRows.removeChild(elRows.lastChild);
+    walkRow(row, lifecycleFor({
+      denied: denied, review: review,
+      queuedPath: !denied && !review && elQueued.checked && a.cls !== "flat",
+      action: elAction.value
+    }));
+    walkCount++;
 
     if (window.rw && window.rw.track) {
       window.rw.track("request_simulated", {

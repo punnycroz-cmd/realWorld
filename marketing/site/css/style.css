@@ -330,6 +330,29 @@ ul.clean li { margin: 6px 0; }
 .sim-feed .feed-row:last-child { border-bottom: 1px solid var(--border); border-radius: 0 0 var(--radius) var(--radius); }
 .sim-feed .feed-row:first-child { border-radius: var(--radius) var(--radius) 0 0; }
 @media (max-width: 860px) { .sim-controls { grid-template-columns: 1fr; } }
+
+/* demo page v131: request lifecycle ribbon */
+.req-life {
+  list-style: none; display: flex; flex-wrap: wrap; gap: 18px 34px;
+  margin: 18px 0 8px; padding: 0;
+}
+.req-life li {
+  position: relative; display: flex; flex-direction: column;
+  gap: 8px; max-width: 176px;
+}
+.req-life li::after {
+  content: "→"; position: absolute; right: -27px; top: 1px;
+  color: var(--muted); font-size: 15px;
+}
+.req-life li:last-child::after { content: ""; }
+.req-life p { margin: 0; font-size: 13.5px; color: var(--muted); line-height: 1.5; }
+.req-side .card > .feed-tag { display: inline-block; margin-bottom: 10px; }
+.req-side .card p { font-size: 14px; }
+@media (max-width: 720px) {
+  .req-life { flex-direction: column; gap: 14px; }
+  .req-life li { max-width: none; }
+  .req-life li::after { content: "↓"; right: auto; left: 40px; top: auto; bottom: -14px; }
+}
 .day-strip .card { padding-top: 16px; }
 .day-time {
   font-variant-numeric: tabular-nums; font-weight: 700; font-size: 13px;

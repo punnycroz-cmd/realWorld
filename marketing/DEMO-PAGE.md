@@ -7,12 +7,13 @@ real app embeds (v61) + guided watch, routine-aware cast chips,
 keyboard deck control, today-vs-launch block (v71) + clickable camera
 presets (v86) + #shot deep links, first-watch field card, sim example
 cycler (v101) + "Would it air?" screening quiz + streamer embed
-snippet (v116); live
+snippet (v116) + request-lifecycle ribbon + simulated feed rows that
+walk the real `request_status` vocabulary (v131); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
-seventh pass v86; eighth pass v101; ninth pass v116.
+seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -47,8 +48,9 @@ same-origin path) in demo.html. One attribute; no other page changes required.
 An **illustrative** `.feed-preview` block (rewritten v41) uses the canonical
 vocabulary verbatim from `world/feed.json`: event kinds `move · scene ·
 venue · weather · request · admin · press · housing · cast · quiet` and
-`request_status` labels (`in_review`, `approved`, `running`, `queued`,
-`resolved`, `refunded`, `not approved`, `player session ended`). Rows quote
+`request_status` labels — the full set since v131 (`requested`, `in_review`,
+`approved`, `approved (modified)`, `running`, `queued`, `resolved`,
+`refunded`, `not approved`, `player session ended`). Rows quote
 the feed's own demo seeds where they exist; the `not approved` row shows
 only the outcome (never screened text), the `admin` row carries
 `compensated_cr`, and the `quiet` marker demonstrates the honest-empty rule.
@@ -224,6 +226,34 @@ spectator game build; the wire embed is a separate, already-real surface.
   without re-embedding. Copy button (`#embed-copy`, handled in demo.js)
   degrades to select-then-copy; emits `cta_click{cta:"demo-embed"}`.
 
+## 4a-viii. v131 — the request's whole life
+
+- **Lifecycle ribbon** (`"The whole life of a request"`, new section
+  between the feed preview and the Wire embed) — the `request_status`
+  vocabulary drawn as a map: `.req-life` ordered chain
+  `requested → in_review → approved → running → resolved` plus four
+  `.req-side` cards for the side doors (`queued`, `not approved`,
+  `refunded`, `player session ended`). Every label verbatim from
+  `world/feed.json`; the copy's only claim is that the path is public —
+  the screened text stays private, per the feed's own rules.
+- **Feed preview completion** — the illustrative block now shows all ten
+  statuses, adding `requested`, `running`, and `approved (modified)`
+  rows; the footnote lists the full verbatim set.
+- **Sim rows walk the lifecycle** (`demo-sim.js`) — each simulated feed
+  row now posts as `request · requested` and steps through the real
+  status sequence for its branch (~1.5 s/step): denied → `not approved` →
+  `refunded`; review → `in_review` → `approved`/`approved (modified)`
+  (alternating) → `running` → `resolved`; queued → `queued` → `running` →
+  `resolved`; clean compatible/flat → `approved` → `running` →
+  `resolved`, with every third clean possession ending
+  `player session ended` (the real label for a viewer stepping away —
+  demonstrated, not randomized). The verdict card is unchanged — it
+  reports the screening answer while the feed row walks on.
+- **Field card** grows to nine items (`data-fc="lifecycle"`); count is
+  `boxes.length`-derived so JS needed no change. Key stays
+  `rw_watchcard_v1` — existing cards just show 8/9 until the new item
+  is checked (honest, no migration).
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -249,8 +279,8 @@ persistent world. No liveness implied.
   zero game payload for fallback viewers.
 - No frameworks, no webfonts, no third-party requests. `demo.js` < 20 KB
   (raised v116 — embed-copy handler; was < 16 KB at v86, < 14 KB at v71,
-  < 6 KB pre-v56), `demo-sim.js` < 12 KB (raised v116 — screen table +
-  modifiers grew it past the old 10 KB line), `demo-quiz.js` < 8 KB (v116).
+  < 6 KB pre-v56), `demo-sim.js` < 16 KB (raised v131 — lifecycle walk +
+  status map grew it past the old 12 KB line), `demo-quiz.js` < 8 KB (v116).
 
 ## 6. Analytics hooks
 
@@ -306,5 +336,7 @@ analytics-events.json.
   them; score screen restates intent-not-keywords + deny-refunds (v116).
 - [x] Embed snippet is placeholder-domain, labeled, and degrades to
   manual copy where clipboard is unavailable (v116).
+- [x] Lifecycle ribbon + sim feed rows use only the ten verbatim
+  `request_status` labels; walk timers stop on detached rows (v131).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).
