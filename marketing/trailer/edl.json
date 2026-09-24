@@ -37,7 +37,7 @@
      "id": "S2",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.0,
       1.1
@@ -59,7 +59,7 @@
      "id": "S3",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.05,
       1.14
@@ -81,7 +81,7 @@
      "id": "S4",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.08
@@ -103,7 +103,7 @@
      "id": "S5",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-D.png",
+     "src": "v64-D.png",
      "zoom": [
       1.02,
       1.15
@@ -181,7 +181,7 @@
      "id": "S8",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.1
@@ -204,7 +204,7 @@
      "id": "S9",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.1,
       1.18
@@ -230,7 +230,7 @@
      "id": "S10",
      "t": 7.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.18,
       1.1
@@ -273,7 +273,7 @@
      "id": "S12",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-D.png",
+     "src": "v64-D.png",
      "zoom": [
       1.05,
       1.0
@@ -315,7 +315,7 @@
      "id": "T1",
      "t": 4.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.0,
       1.12
@@ -335,7 +335,7 @@
      "id": "T2",
      "t": 4.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.08,
       1.0
@@ -356,7 +356,7 @@
      "id": "T3",
      "t": 4.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.05,
       1.15
@@ -412,7 +412,7 @@
      "id": "V2",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.0,
       1.12
@@ -434,7 +434,7 @@
      "id": "V3",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.06,
       1.0
@@ -457,7 +457,7 @@
      "id": "V4",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.05,
       1.16
@@ -497,7 +497,7 @@
      "id": "V5",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-D.png",
+     "src": "v64-D.png",
      "zoom": [
       1.05,
       1.0
@@ -538,7 +538,7 @@
      "id": "B1",
      "t": 3.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.0,
       1.12
@@ -621,7 +621,7 @@
      "id": "F4",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.1
@@ -677,7 +677,7 @@
      "id": "F7",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.05,
       1.16
@@ -755,7 +755,7 @@
      "id": "M2",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.0,
       1.1
@@ -879,7 +879,7 @@
      "id": "M7",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.1
@@ -957,7 +957,7 @@
      "id": "Y2",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-A.png",
+     "src": "v64-A.png",
      "zoom": [
       1.06,
       1.0
@@ -1000,7 +1000,7 @@
      "id": "Y4",
      "t": 4.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.1
@@ -1021,7 +1021,7 @@
      "id": "Y5",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.0,
       1.08
@@ -1043,7 +1043,7 @@
      "id": "Y6",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.05,
       1.0
@@ -1065,7 +1065,7 @@
      "id": "Y7",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-D.png",
+     "src": "v64-D.png",
      "zoom": [
       1.0,
       1.1
@@ -1087,7 +1087,7 @@
      "id": "Y8",
      "t": 5.0,
      "kind": "still",
-     "src": "v62-D.png",
+     "src": "v64-D.png",
      "zoom": [
       1.08,
       1.0
@@ -1195,7 +1195,7 @@
      "id": "K4",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-B.png",
+     "src": "v64-B.png",
      "zoom": [
       1.0,
       1.08
@@ -1216,7 +1216,7 @@
      "id": "K5",
      "t": 6.0,
      "kind": "still",
-     "src": "v62-C.png",
+     "src": "v64-C.png",
      "zoom": [
       1.02,
       1.12
@@ -1263,7 +1263,7 @@
  "thumbnails": [
   {
    "id": "watcher",
-   "src": "v62-D.png",
+   "src": "v64-D.png",
    "crop": [
     344,
     104,
@@ -1289,7 +1289,7 @@
   },
   {
    "id": "handoff",
-   "src": "v62-B.png",
+   "src": "v64-B.png",
    "crop": [
     344,
     104,
@@ -1317,7 +1317,7 @@
   },
   {
    "id": "dusk",
-   "src": "v62-D.png",
+   "src": "v64-D.png",
    "crop": [
     344,
     104,

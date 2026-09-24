@@ -11,24 +11,24 @@ exists locally, unpublished.
 
 **One-command rehearsal:** `./tools/staging_dryrun.sh` — serves `site/` on
 127.0.0.1, checks every page/asset/meta/budget item, prints pass/warn/fail.
-Last run **2026-09-23 (v113): 40 pass / 2 warn / 0 fail** (warns = placeholder
+Last run **2026-09-23 (v128): 41 pass / 2 warn / 0 fail** (warns = placeholder
 domain not yet swapped ×2 — expected pre-launch).
 **One-command go-gate:** `./tools/preflight.sh` wraps the dry-run plus secret
 scan, sitemap parity, press-kit freshness, checklist self-audit, accuracy
-sweep (5c), and flip-flag status. Last run **2026-09-23 (v113): 8 pass /
+sweep (5c), and flip-flag status. Last run **2026-09-23 (v128): 8 pass /
 5 warn / 0 fail** — all warns are owner-gated flags (G3/G4/G8/G12 +
 uncommitted work-in-progress).
 **One-command gate worksheet:** `./tools/gonogo.sh` prints all 18 gates with
 live AUTO status for the mechanical ones and a pre-filled §6 block for the
-owner decision thread. Last run **2026-09-23 (v113): 3/18 auto-green** — G5
-(gallery at published v59), G9 (zip fresh), G18 (accuracy sweep clean); the
+owner decision thread. Last run **2026-09-23 (v128): 3/18 auto-green** — G5
+(gallery at published v65), G9 (zip fresh), G18 (accuracy sweep clean); the
 rest await owner/track triggers, as expected pre-launch.
 **Checklist self-audit:** `./tools/checklist_audit.py` mechanically verifies
 the checklist against the tree it describes — gate contiguity, every gate has
 a §11 proof row, every command-card path exists, owner gates have §7 sign-off
 rows, gate-count references agree with `gonogo.sh`, and (since v83) the
 world-contract pins quoted in G13/G15/G16/G17 are diffed against the live
-world-sim-world worktree. Last run **2026-09-23 (v113): 14 pass / 0 warn /
+world-sim-world worktree. Last run **2026-09-23 (v128): 14 pass / 0 warn /
 0 fail**.
 
 **Change control:** after any content edit to `site/`, re-run the dry-run and
@@ -56,7 +56,7 @@ log the result in §10 before the checklist may cite it.
 | G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; host prep = `tools/bootstrap_host.sh` (`deploy/host-contract.md`); est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, approved (modified), running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
 | G16 | Onboarding contract: the shipped build runs the world-v81 flow (persona fork watch/play, handle format + reserved-name check, age-band fork S2a → under-13 spectator account S3u / under-18 limits line / adults-only §2.7 sponsored-message card, declined-ask refund lesson, human-review lesson S4c scripted "not approved — refunded", queued-ask lesson S4e, archive-link beat S7, opt-in low-balance sim → "player session ended", post-hire return via `?hired=1` → first-day card S6, admin-attribution beat on the `feed-admin` anchor, scripted compatible co-ask, surge-range disclosure line, parked/returning states — `world/onboarding-ui.md` + `onboarding.json` schema v81, storage key `rw_onboard_v81`) and emits the full `analytics_hooks` contract to the endpoint configured in G8 — all 27 hooks (`tour_started`/`tour_beat`/`tour_completed`/`tour_skipped`, `persona_chosen`, `handle_set`/`handle_taken_shown`, `wallet_explained`/`topup_shown`, `first_request_filed`, `decline_lesson_shown`, `onboard_dismissed`, `returning_session`, `review_lesson_shown`/`review_outcome_seen`, `low_balance_simulated`, `handoff_seen`, `hired_return`, `queue_lesson_shown`/`queue_outcome_seen`, `archive_beat_seen`, `band_declared`, `ads_line_shown`, `ad_demo_viewed`, `admin_beat_seen`, `coask_seen`, `surge_line_shown`) are spec'd in `analytics-events.json`. Verify on staging with a scripted watch-persona and play-persona run including a `?hired=1` return AND the four band paths (u13 → S3u, teen/na → limits line, adult → ads line) | owner + game/world track | `[ ] PENDING` — marketing sink/report/dashboard accept all 27 hooks; the game-side emitters are the missing half |
-| G17 | Human playtest: owner (or designate) runs the world-v86 playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT77 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness now at world-v86 (PT1–PT77); run owed on the launch candidate build |
+| G17 | Human playtest: owner (or designate) runs the live playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT82 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness pinned live by checklist_audit (PT1–PT82); run owed on the launch candidate build |
 | G18 | Public-copy accuracy: `tools/accuracy_sweep.py` → **0 FAIL**. Hard-fail checks: any real business name from the live 155-key `world/parody-names.json` map in public copy, fabricated quotes/testimonials/named-outlet coverage on `site/` pages. Human-read WARNs: cut-feature and possession/cash-out/loot-box mentions without a negation cue (negated phrasing like "never possessed" passes automatically). Caught and fixed 3 real-address leaks at first run (cast.html ×2, demo.html ×1). Wired into `preflight.sh` step 5c so the mechanical go-gate carries it | mkt | `[x] REHEARSED` — first run 2026-09-23 (v113): 0 fail / 32 warn (all human-verified contexts) |
 
 ## §2 Run of show — T-minus schedule
@@ -67,7 +67,7 @@ The ordered countdown. Each line is owner-visible; nothing executes early.
 |------|------|-----------|
 | T-7d | Content freeze on `site/` (bugfixes only); social drafts re-read against BRAND.md voice; press list re-confirmed with owner | G6 |
 | T-5d | Full local rehearsal: dry-run + press-kit rebuild + animatic review + checklist_audit; log results in §10 | G9, G10 |
-| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT77 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
+| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT82 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
 | T-3d | Staging deploy at placeholder domain; run `tools/prod_smoke.sh` against staging; OG card validated in a share-preview tool | G14 (staging half) |
 | T-48h | Go/No-Go issued (§6 template); if GO, flip G4 pricing + G15 vocab sync in ONE commit on `sf/marketing`; confirm G16 staging verification is logged | all gates |
 | T-24h | Final dry-run on the exact commit that will ship; press kit zip rebuilt and staged; day-0 posts loaded into drafts folder in send order | G9, G10 |
@@ -143,6 +143,8 @@ grep -n 'data-demo-src' site/demo.html          # must show the live embed URL (
 grep -n 'data-pricing' site/pricing.html        # must show "final" post-G4
 ./tools/analytics_e2e.sh                        # G8 — localhost sink e2e, no args
 ./tools/gonogo.sh                               # all-18-gate worksheet + pre-filled §6 block
+./tools/gate_freshness.sh                       # §13 — are the logged proofs still inside their windows?
+./tools/gate_freshness.sh --at 2026-10-01 --strict  # age every proof vs a target launch date; exit 1 on stale
 ./tools/checklist_audit.py                      # checklist self-consistency — run before citing §10
 ./tools/accuracy_sweep.py                       # G18 — parody-map + fabrication + claim-risk scan
 ```
@@ -214,7 +216,7 @@ the checklist exists so a GO is boring.
 | Infrastructure (G14) | | | domain + host + Stripe + analytics + uptime |
 | Feed vocabulary sync (G15) | | | labels match `world/feed.json` |
 | Onboarding contract (G16) | | | world-v81 flow + 27 hooks on staging |
-| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT77 |
+| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT82 |
 
 ## §8 Day 7 — first week
 
@@ -313,6 +315,11 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | tools/staging_dryrun.sh (v113, shots v59) | 40 pass / 2 warn / 0 fail — warns: domain ×2 only |
 | 2026-09-23 | tools/preflight.sh (v113, +accuracy step 5c) | 8 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted) |
 | 2026-09-23 | tools/gonogo.sh (v113, 18 gates) | 3/18 auto-green (G5 gallery v59, G9 zip fresh, G18 accuracy clean) — first version where the copy itself is a mechanical gate |
+| 2026-09-23 | checklist_audit.py world-contract refresh (v128) | caught live drift twice mid-version: playtest PT1–PT77→PT80→PT82 (world-v89→v91 harness — two world versions shipped during this one); all pins + gonogo labels resynced; final 14 pass / 0 warn / 0 fail |
+| 2026-09-23 | NEW §13 + tools/gate_freshness.sh (v128, first run) | proof-freshness windows now code: ages every §10 proof vs its window + structural drift (gallery vs published, zip vs sources, site-edits, uncommitted tree); first run correctly flagged gallery v62<v64 → drove the refresh below; final 13 fresh / 1 stale (uncommitted tree — resolves at commit) / 0 never |
+| 2026-09-23 | gallery refresh v61→v65 (v128) | art published twice mid-version — rebased straight past v64 to v65 (parklets, papel-picado garlands, porch flags, tree grate wells, utility lids; v63 impostor atlas underneath); shots + kit screenshots swapped (cmp-verified, webp regen), captions/alt-text rewritten, keyart/banners/capsules/og-card rebaked; trailer EDL rebased to v64 stills (v65 rebase deferred — stills on disk), all 8 animatics rebuilt; dist zip rebuilt (58 files) |
+| 2026-09-23 | staging_dryrun.sh (v128, shots v65) | 41 pass / 2 warn / 0 fail — warns: domain ×2 only |
+| 2026-09-23 | tools/preflight.sh (v128) | 8 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted); accuracy_sweep 5/32/0, seo_audit 97/49/0, brand_audit 0/0, trailer --check 8 programs/62 shots 0 fail |
 
 ## §11 Rehearsal coverage matrix
 
@@ -339,9 +346,10 @@ it before citing the gate.
 | G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/incident_drill.sh` (detect→rollback→verify) + `tools/release_manifest.py` (release.json provenance, prod_smoke §5b) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) + `tools/dns_check.sh` (DNS verify) + `tools/runofshow.sh` (countdown status) + `tools/bootstrap_host.sh` (host provision + contract check + DR rebuild) | 2026-09-23 ship.sh + rehearse_host green; dns_check + runofshow rehearsed 2026-09-24 (v74); incident_drill PASS 2026-09-23 (v89); bootstrap emit+check-local rehearsed 2026-09-23 (v119) |
 | G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
 | G16 onboarding | `analytics-events.json` — all 27 world-v81 onboarding hooks spec'd incl. band_declared/ads_line_shown/ad_demo_viewed + v81's admin_beat_seen/coask_seen/surge_line_shown (verified by checklist_audit §8) + sink/report/dashboard support; staging run incl. `?hired=1` + four band paths owed | spec complete — needs game build |
-| G17 human playtest | `world/playtest.html` harness (world-v86: PT1–PT77 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
+| G17 human playtest | `world/playtest.html` harness (live: PT1–PT82 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
 | G18 accuracy sweep | `tools/accuracy_sweep.py` — 155-key parody map + fabrication markers are hard FAILs, claim-risk-without-negation are human-read WARNs; wired into preflight step 5c | first run 2026-09-23 (v113): 0 fail after 3 real-address fixes |
 | Checklist integrity | `tools/checklist_audit.py` — gates↔§11↔§7↔command-card↔gonogo consistency + live world-contract freshness (§8) | 2026-09-23 (v83): 14/0/0 |
+| Proof freshness (§13) | `tools/gate_freshness.sh` — ages every §10 proof against its window + structural drift (gallery/zip/site-edits/uncommitted); `--strict` for cron | first run 2026-09-23 (v128): flagged gallery v62<v64 + stale zip pre-refresh |
 | D0.1 deploy | `deploy/deploy-site.sh` (dry-run rehearsed) | 2026-09-23 |
 | D0.2 prod smoke | `tools/prod_smoke.sh` vs localhost staging | rehearsed |
 | D0.3/D0.3b flips | documented attributes (`data-pricing`, `data-demo-src`) | attribute greps in §4 |
@@ -360,3 +368,41 @@ it before citing the gate.
 - No claims the game is playable before a live build exists.
 - No real SF business names — parody names only (per user-decision 2026-09-22; canonical list `world/parody-names.json`).
 - No spectator copy that leaks character secrets — public surfaces quote SURFACE-tier facts only (design §7; world building-card convention).
+
+## §13 Proof freshness windows — the re-go procedure
+
+A §10 entry is evidence about the tree *as it stood that day*. Proofs decay:
+a dry-run logged last month says nothing about the tree at T-48h, and after a
+NO-GO or a slipped date the §6 block must not cite stale evidence. Each proof
+has a window — how long its result may be quoted before it must be re-run.
+`./tools/gate_freshness.sh` reads the §10 log and the live tree, then reports
+each proof FRESH / STALE / NEVER against today (or `--at YYYY-MM-DD` against a
+target launch date; `--strict` exits 1 on any stale row — cron-safe).
+
+| Proof | Window | Re-run command |
+|-------|--------|----------------|
+| staging dry-run | 1 day | `./tools/staging_dryrun.sh` |
+| preflight go-gate | 2 days | `./tools/preflight.sh` |
+| accuracy sweep (G18) | 7 days | `./tools/accuracy_sweep.py` |
+| checklist self-audit | 7 days | `./tools/checklist_audit.py` |
+| flip-flags round-trip | 30 days | `./tools/flip_flags.sh --check` then set/revert |
+| analytics e2e | 30 days | `./tools/analytics_e2e.sh` |
+| ship.sh rehearsal | 30 days | `./tools/ship.sh` |
+| host deploy drill | 30 days | `./tools/rehearse_host.sh` |
+| incident drill | 60 days | `./tools/incident_drill.sh` |
+| domain-swap round-trip | 90 days | `./tools/swap_domain.sh <domain>` then `--revert` |
+
+Structural checks (drift, not time — the tool reports these too): gallery vs
+`published/VERSION` (G5), press-kit zip vs its sources (G9), `site/` edits
+since the last logged dry-run, and uncommitted work under `site/`/`deploy/`/
+`tools/` — **a logged proof cannot cite an uncommitted tree**, because the
+deployed artifact would differ from the rehearsed one.
+
+**Re-go procedure** (after a NO-GO, a slipped date, or any STALE row):
+1. `./tools/gate_freshness.sh --at <new launch date>` — list what expired.
+2. Re-run each STALE/NEVER row; append results to §10 (newest last, dates verbatim).
+3. Re-run `./tools/checklist_audit.py` — world-contract pins (G13/G15/G16/G17)
+   may have drifted upstream while the date slipped.
+4. Re-issue the §6 block from `gonogo.sh` — never edit a stale block by hand.
+The windows here are also compiled into `tools/gate_freshness.sh` — change one,
+change the other.

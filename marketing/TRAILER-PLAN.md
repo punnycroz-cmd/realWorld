@@ -1,9 +1,9 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v125 (2026-09-23);
-all stills rebased to the **art-v62** build — the aerial-camera build
-(`sfTopLean` relief displacement + lateral chromatic aberration in the
-lens pass), current latest published. The v62 rebase re-pinned every
+**Status:** production-ready plan + rendered animatics, v128 (2026-09-23);
+all stills rebased to the **art-v64** build — the street-detail build
+(cast-iron tree grate wells + sidewalk utility lids over the v63
+wall-impostor atlas), current latest published. The v64 rebase re-pinned every
 `redact` rect (pawn name tags + the DIRECTOR badge moved between builds)
 and added an eighth cut: the 40s **"Booking Cut"** (§7.5) dramatizing
 the game-v14 bookings/calendar seam. The §4 sunbeam caveat stays closed
@@ -89,10 +89,10 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:11 | S2 | Top-down dawn over the Mudhaus block (v62-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:11–0:18 | S3 | Street-level follow behind a resident walking 24th St (v62-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:18–0:25 | S4 | Dolores Park overhead, palms and paths (v62-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:25–0:32 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v62-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 2 | 0:05–0:11 | S2 | Top-down dawn over the Mudhaus block (v64-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:11–0:18 | S3 | Street-level follow behind a resident walking 24th St (v64-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:18–0:25 | S4 | Dolores Park overhead, palms and paths (v64-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:25–0:32 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v64-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
 | 5b | 0:32–0:38 | S5b | **Interior:** inside Mudhaus Coffee (v52-INT-cafe, metric-projection rebuild) — pawns at the counter, HUD-free crop. | **[T]** "Inside, the day is already moving." Sound: espresso machine returns, room tone. |
 | 6 | 0:38–0:45 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
 | 7 | 0:45–0:52 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
@@ -124,10 +124,10 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v62-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v62-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v62-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v62-D.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v64-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v64-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v64-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v64-D.png` |
 | S5b | Interior, Mudhaus Coffee counter | day | matches `v52-INT-cafe.png` (art-v52 metric-projection interiors) |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
@@ -140,11 +140,11 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 **Sunbeam caveat — RESOLVED (art-v56, 2026-09-23):** the v49-D Director-mode
 sunbeam glitch (hard-edged triangles) was fixed in art-v56 — beams now emit
 only where real cloud-silhouette gaps sit near the sun's bearing, drawn under
-the deck. All trailer stills are rebased to v62, so no capture carries the
+the deck. All trailer stills are rebased to v64, so no capture carries the
 broken look. If a future build regresses, re-check Director-mode frames only.
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v62/v52 stills with slow push-ins (Ken Burns) and
+trailer against the existing v64/v52 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
@@ -433,16 +433,16 @@ All four are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
 in `edl.json` — same stills, brand palette, and redact machinery as the
 animatics:
 
-1. **The watcher** (`thumb-watcher.png`, style `rec`): v62-D director
+1. **The watcher** (`thumb-watcher.png`, style `rec`): v64-D director
    shot, vignette-darkened edges, red "REC · live — 24/7" cluster,
    title small at the bottom. The debug "DIRECTOR" badge is
    redact-blurred. Sells the Truman-Show premise instantly.
-2. **The handoff** (`thumb-handoff.png`, style `split`): v62-B street
+2. **The handoff** (`thumb-handoff.png`, style `split`): v64-B street
    shot split down the middle — left labeled `AI`, right `YOU` on a
    brightened half, orange seam. Pawn name tags are redact-blurred so
    the AI/YOU split can't read as possessing a main. Sells the hook
    mechanic.
-3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v62-D
+3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v64-D
    under the night grade, wordmark + accent rule only. Quietest option;
    best for press embeds.
 4. **The inside** (`thumb-inside.png`, style `rec`, v95): v52-INT-cafe
@@ -473,15 +473,15 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
       (world/creation.json + world/leases.json at ship date); handle is a
       fictional player handle, not a cast name.
 - [x] No v49-D-era sunbeam renders in frame — RESOLVED: all stills rebased
-      to art-v56 (the fix build) at v110 and again to art-v62 (aerial
-      camera + lens CA) at v125. Re-check only if the art track ships a
+      to art-v56 (the fix build) at v110, to art-v62 (aerial camera +
+      lens CA) at v125, and to art-v64 (street detail) at v128. Re-check only if the art track ships a
       newer canonical build before capture day.
 - [ ] Owner sign-off recorded in LAUNCH-CHECKLIST.md before any upload.
 
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v62 series + v61/v59/v55 era sets + v52
+`marketing/trailer/` (§11), stills in `site/shots/` (v65 series + v64/v62/v61/v59/v55 era sets + v52
 interior quartet + v16 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures

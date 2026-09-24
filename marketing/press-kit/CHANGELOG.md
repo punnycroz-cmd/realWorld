@@ -1,7 +1,19 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v61-* is the current development build).
+build they were captured from (v65-* is the current development build).
+
+## v128 — 2026-09-23
+- Screenshots rebased v61→**v65** (the street dresses up: parklets in
+  the parking lane, bin rows, papel-picado garlands and porch flags on
+  the facades — all wind-driven; carries v64's cast-iron tree grate
+  wells + sidewalk utility lids and the v63 wall-impostor atlas
+  underneath — same painted facades, roughly half the canvas-ops per
+  frame).
+  Site shots, kit screenshots, key art, og-card, banners, store capsules
+  rebaked; captions, README, fact-sheet, index, contact-sheet,
+  deadline-desk, b-roll, one-sheet, embargo-briefing refs updated.
+- `whats-new.md` extended: arc now covers v53→v55→v56→v59→v61→v65.
 
 ## v122 — 2026-09-23
 - Screenshots rebased v55→**v61** (weather you can see coming: patchy

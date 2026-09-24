@@ -1,6 +1,6 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v123 — art rebase v55→v61 (aerial-camera build) + Steam markup
+**Status: v123 — art rebase v61→v65 (street-dressing build) + Steam markup
 variant + local store-page preview + post-launch page lifecycle,
 2026-09-23.**
 Supersedes v108.
@@ -178,7 +178,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v61-A..D.png` (4 ready, aerial-camera build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v65-A..D.png` (4 ready, aerial-camera build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -192,9 +192,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v61-D (director view — the hook), v61-B
-(street level), v61-C (Dolores Park), v16-int-cafe (interior vignette),
-then v61-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v65-D (director view — the hook), v65-B
+(street level), v65-C (Dolores Park), v16-int-cafe (interior vignette),
+then v65-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -253,7 +253,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v61-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v65-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -356,14 +356,14 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v61-D "director view" → "Director
+`press-kit/captions.txt` as canonical): v65-D "director view" → "Director
 mode over the rooftops toward distant cumulus shower cells — REC cluster
 and DIRECTOR badge up top, wind-leaned rain shafts under the far cells.";
-v61-B street level → "Street-level up the block past dressed storefronts —
+v65-B street level → "Street-level up the block past dressed storefronts —
 window boxes, stoop pots, parked cars on the curb, name tags overhead,
-marine haze softening the far end."; v61-C park → "Dolores Park from
+marine haze softening the far end."; v65-C park → "Dolores Park from
 overhead — perimeter streets, the palm allée, mow-striped lawns ringed by
-two rows of facades."; v61-A overhead → "The Mission block around 24th and
+two rows of facades."; v65-A overhead → "The Mission block around 24th and
 Mission from the new aerial camera — rooftops and pawns leaning outward
 from the frame nadir, crowns in early leaf-turn, inspector open on a
 resident."; v16-int-cafe → "Interior vignette behind the glass: the café
@@ -391,7 +391,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v61-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v65-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no

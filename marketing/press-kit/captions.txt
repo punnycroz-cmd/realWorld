@@ -13,7 +13,7 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v61-A.png       1440x900 (approx)
+screenshots/v65-A.png       1440x900 (approx)
   The Mission block around 24th and Mission from overhead on a late-
   September afternoon, under patchy Karl fog: street grid, parked cars,
   crosswalks, curb-edge props, crowns in early leaf-turn. The resident
@@ -22,19 +22,20 @@ screenshots/v61-A.png       1440x900 (approx)
   spectator-readable. The HUD shown is the real spectator chrome of
   the development build.
 
-screenshots/v61-B.png       1440x900 (approx)
+screenshots/v65-B.png       1440x900 (approx)
   Street-level view up the block past dressed storefronts and stoops:
   window boxes, AC sleeves, stoop pots, parked cars along the curb,
+  a cast-iron tree grate and sidewalk utility lids at the curb line,
   residents carrying name tags overhead — marine haze softening the
   far end of the street.
 
-screenshots/v61-C.png       1440x900 (approx)
+screenshots/v65-C.png       1440x900 (approx)
   Dolores Park from overhead in the re-framed overlook: perimeter
   streets, the palm allée, and two rows of facades ring the mow-striped
   lawns. The park finally reads as a park inside a neighborhood, not
   open field.
 
-screenshots/v61-D.png       1440x900 (approx)
+screenshots/v65-D.png       1440x900 (approx)
   Director mode over the rooftops toward distant cumulus shower cells
   on the skyline: REC cluster and DIRECTOR badge up top, wind-leaned
   rain shafts under the far cells. Weather you can see coming — the
@@ -48,7 +49,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v61-A / v61-B.
+  First art pass, for before/after coverage. Pair with v65-A / v65-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

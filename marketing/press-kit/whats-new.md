@@ -2,17 +2,17 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v61-*.png` = build v61). Everything below is
+the build (`screenshots/v65-*.png` = build v65). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v61** (September 2026).
+Current development build: **v65** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, three more passes landed:
+Since the v55 editorial set, four more passes landed:
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -27,6 +27,18 @@ Since the v55 editorial set, three more passes landed:
   And the Dolores Park overlook was re-framed: perimeter streets and
   two rows of facades now ring the lawns, so the park reads as a park
   inside a neighborhood.
+- **v64 — the sidewalk gets its furniture.** Cast-iron tree grate
+  wells — frame, soil slot, grate bars, a sun-side rim glint — under
+  every street tree in both views, plus round water-meter covers and
+  rectangular vault panels set into the sidewalk decal cells. This set
+  also carries the v63 wall-impostor atlas: facades bake to a cached
+  atlas and draw from it on the street pass, same painted fronts at
+  roughly half the per-frame canvas work.
+- **v65 — the street dresses up.** Parklets in the parking lane by
+  select doorways, bin rows on a sixth of the frontages, papel-picado
+  catenary garlands and wall-bracket porch flags on the facades — all
+  of it wind-driven off the same W.windAng/W.windSpd the weather uses,
+  so the bunting flutters when the wind picks up.
 
 Earlier arc (still in the before/after shots):
 
@@ -54,12 +66,12 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v61-A.png` (current) — same top-down framing of the
+  `screenshots/v65-A.png` (current) — same top-down framing of the
   block, sixty iterations apart.
-- `screenshots/v61-C.png` is the Dolores Park overhead in its re-framed
+- `screenshots/v65-C.png` is the Dolores Park overhead in its re-framed
   form: the telling detail is the ring of streets and facades — a
   maintained city park, not open field.
-- `screenshots/v61-D.png` carries the v61 headline: director mode over
+- `screenshots/v65-D.png` carries the v61-era headline: director mode over
   the rooftops with shower cells working the skyline.
 
 ## Still true (unchanged by these passes)
