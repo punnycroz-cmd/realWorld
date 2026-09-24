@@ -134,6 +134,33 @@
     "surface": "mod-console v4 — shift report gains 'decisions this session, by reviewer' (count only)",
     "rule": "aggregate-per-reviewer counts are fine inside the studio report; they never leave it — the public recap stays counts-of-decisions only, no reviewer attribution, per appeal_flow.feed_visibility"
   },
+  "review_seam_v92": {
+    "surface": "mod-console.html v9 — the real review seam (game-v14 alignment)",
+    "bridge_reads": {
+      "queue": "gsReviewQueue() → bus records parked in_review (id, playerId, kind, target, durationMin, params, price, billed, screen, lane, submittedMin, reviewExpireMin, appealOf, origReviewer) — mapped verbatim, never simulated",
+      "claims": "gsExplainRequest(id) → blockedBy/on/queuePos on the detail card",
+      "clock": "gsViewerState().nowMin — wait times count bus minutes, not wall clock",
+      "metrics": "gsModMetrics() → reviewDepth/oldestWaitMin/medianDecisionMin/denialsByCode/appeals/compensatedCr/suppressedFeed, verbatim on the strip and in the shift report",
+      "flags": "gsFlagStatus(pid) → score/reviewUntil/suspendedUntil/ownerHold/flags — internal only, owner-console surface",
+      "notebook": "gsRepLedger(pid) → dated weighted notes on the player card",
+      "character_card": "gsPossessionBriefing(cid) → the SAME whitelist object possession briefings ship (name/role/home/routine/possessedBy) — secrets absent by construction"
+    },
+    "bridge_writes": {
+      "decide": "gsReviewResolve(id, approve, {by:<reviewer handle>, code, modifyMin}) — approve re-enters the line at approval time with a fresh sequence (no leapfrog), re-runs standing validity, may land queued at the -15% patience rate, may fail honestly (insufficient_credits / conditions changed); deny refunds in full",
+      "legal": "gsEscalateLegal(id) — kill pre-run or mid-flight, ledger legal-deny, public wording identical to any deny",
+      "claims": "SESSION-scoped local CLAIMS map only — bus-side review locks are the review_locks.merge_target TODO; the console keeps one-reviewer-per-request semantics locally until then",
+      "notes": "handoff notes stay local/internal — never written to the bus"
+    },
+    "bus_enforced": "the different-reviewer rule is enforced BY THE BUS — gsReviewResolve returns {error:'same_reviewer'} when opts.by === r.origReviewer; the console also withholds the decision bar pre-flight, belt and suspenders",
+    "verdict_source": "the bus's own screen code (r.screen) is authoritative on a live item; the RWScreen trace in the detail view is the reference-engine read of the same text — a mismatch files a port drift note, it is not a veto",
+    "badge": "header 'data source' metric reads 'live queue' bridged, 'demo queue' bare; live mode pulls on demand (refresh link), never polls"
+  },
+  "drift_report": {
+    "tool": "devtools/screen_drift.js — runs the golden corpus through BOTH world/screen.js and the bus port (gsIntentScreen in src/systems/41_game_systems_possession.js, loaded with stubs)",
+    "method": "identical authored strings as spec.note; gaps diagnosed by re-screening the normalized text — 'missing normalization layer' vs 'lexicon drift'; player-history cases flagged untestable in stub (they need a seeded GS_REQ log)",
+    "finding_v92": "23 permissive gaps on identical input: 13 missing normalization (leet/spaced/separator/accent evasions pass the bus), 10 lexicon drift (word-form stems 'humiliates', 'get <name> fired', parody-venue venue-lock, real-person names, obfuscation-attempt code absent), 6 player-history cases untestable in stub",
+    "rule": "per testing.drift_gate the port may be stricter, never more permissive — the report is the merge artifact for game-systems; world cannot fix the port from this branch"
+  },
   "ledger_records": {
     "surface": "mod-console audit log 'export ledger records' (v64)",
     "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },

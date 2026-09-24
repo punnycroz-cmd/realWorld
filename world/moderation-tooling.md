@@ -286,3 +286,68 @@ approvals) — never reviewer free text. `decide()` now stores structured
 decision fields on audit entries instead of the export re-parsing prose.
 The seeded 30-day baseline stays aggregate and is never exported as
 records.
+
+## 12c. v92 — the real review seam (game-v14 alignment)
+
+The console grew its production seam. When `window.__aiBridge` carries the
+review surface (game-v14's `41_game_systems_*`), the page stops simulating:
+
+- **Queue = `gsReviewQueue()`** — real bus records parked `in_review`,
+  mapped verbatim: `id`, `playerId`, `kind`, `target`, `durationMin`,
+  `params` (authored text reassembled the way `gsSpecText` reads it),
+  `price`/`billed` (a `billed:0` appeal shows "billed on approval"),
+  `screen` (the bus's own code — authoritative), `lane`, `submittedMin`,
+  `reviewExpireMin` (renders as a TTL chip), `appealOf`, `origReviewer`.
+  Wait times count **bus minutes** off `gsViewerState().nowMin`, not wall
+  clock. Manual "refresh" pull — never a poll.
+- **Decisions write through the bus.** Approve → `gsReviewResolve(id,
+  true, {by, modifyMin?})`; the bus re-enters the request at approval
+  time with a fresh sequence (no leapfrog), re-runs standing validity,
+  and may land it `queued` at the −15% patience rate or `failed`
+  honestly — the audit line reports the real landing, never "approved".
+  Deny → `gsReviewResolve(id, false, {by, code})`, full refund bus-side.
+  Legal → `gsEscalateLegal(id)`. A stale item returns `null` and the
+  queue re-pulls — the console never pretends a decision stuck.
+- **The different-reviewer rule is bus-enforced.** `gsReviewResolve`
+  returns `{error:'same_reviewer'}` when `opts.by === r.origReviewer`;
+  the console also withholds the bar pre-flight. Belt and suspenders.
+- **Context is the door policy's own ledgers:** `gsFlagStatus` (score,
+  reviewUntil, suspendedUntil, ownerHold, log — internal only) and
+  `gsRepLedger` on the player card; the flag roster enumerates every
+  account the queue or the session touched, `ownerHold` lifts to the
+  docket. The character card is `gsPossessionBriefing` itself — the same
+  whitelist object possession briefings ship; secrets absent by
+  construction.
+- **Metrics = `gsModMetrics()` verbatim** on the strip and in the shift
+  report (reviewDepth, oldestWaitMin, medianDecisionMin vs the 15-min
+  target, denialsByCode, appeals aggregate, compensatedCr,
+  suppressedFeed — "privacy screens, counted not read").
+- **Claims stay session-local** (`CLAIMS` map) until bus-side review
+  locks land — `review_locks.merge_target`. Notes stay local always.
+- **Verdict source honesty:** on a live item the bus's `screen` code is
+  authoritative; the RWScreen trace is labeled "reference" — the
+  reference-engine read of the same text. A disagreement files a port
+  drift note (below), it is not a veto.
+
+**Classifier drift report (NEW `devtools/screen_drift.js`).** The
+`testing.drift_gate` — "the port may be stricter, never more permissive"
+— is now executable. The tool runs all 94 corpus cases through both
+`RWScreen` and the bus's `gsIntentScreen` (loaded with stubs; history
+signals read an empty `GS_REQ`). v92 finding: **23 permissive gaps** —
+13 the missing v22/v36/v50 normalization layer (leet, spaced/separated
+runs, accent folds pass the bus untouched), 10 lexicon drift on plain
+text (`humiliates`, `get <name> fired`, parody-venue venue-lock,
+real-person names, and the absent `obfuscation-attempt` code), plus 6
+player-history cases the stub can't exercise. Diagnosis is mechanical:
+each gap is re-screened with normalized text — a match means the hole
+is normalization, a miss means the port's lexicon itself is older.
+Reported, never judged — world cannot fix the port from this branch;
+the table is the merge artifact for game-systems.
+
+Contract: `moderation.json` gains `review_seam_v92` + `drift_report`.
+`devtools/smoke_mod_v92.js` (19 checks) drives the console bare and
+bridged: badge flip, verbatim bus ids, resolve calls carrying
+`{by, code, modifyMin}`, the `same_reviewer` refusal both directions,
+legal escalation through `gsEscalateLegal`, live flag roster and
+`gsModMetrics` report — and the audit's `mod` gate enforces the seam
+keys plus the ledger-record `via:'bus'` marker.

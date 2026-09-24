@@ -13,7 +13,14 @@
   that turns session decisions into canonical mod_decision records; v78 adds
   the second-eyes layer — reviewer identity, claim/release locks (one
   reviewer per request), the appeal different-reviewer rule enforced as a
-  hard block, internal handoff notes, and the appeal workspace card).
+  hard block, internal handoff notes, and the appeal workspace card; v92 adds
+  the real review seam — when __aiBridge carries the production surface the
+  queue IS gsReviewQueue(), decisions write through gsReviewResolve /
+  gsEscalateLegal (the bus itself enforces same_reviewer on appeals), metrics
+  read gsModMetrics, the flag card reads gsFlagStatus, the notebook reads
+  gsRepLedger, and the character card reads gsPossessionBriefing — the same
+  whitelist object possession briefings ship. Capability-detected per call;
+  an absent bridge is the seeded demo below.
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -113,6 +120,7 @@
     in-world consequences handle everything else. You see public-profile fields;
     secrets aren't redacted here, they're absent.</div>
   <div class="metrics">
+    <div class="metric"><b id="srcBadge">demo queue</b><span>data source</span></div>
     <div class="metric"><b><select id="revSel" onchange="setReviewer(this.value)" style="font-family:var(--mono);font-size:12px;padding:2px 4px">
       <option value="you">you</option><option value="s.oha">s.oha</option><option value="m.chen">m.chen</option>
     </select></b><span>reviewer (demo)</span></div>
@@ -342,10 +350,84 @@ var REVIEWER = 'you';
 function setReviewer(h){ REVIEWER=h; toast('Reviewing as '+h+' — claims, notes, and decisions attribute to this handle.'); renderAll(); }
 var LANES = [['all','All'],['exclusive','Exclusive'],['review','Gray-zone'],['appeal','Appeals'],['naming','Naming'],['legal','Legal']];
 
+/* ================= v92: the real review seam (game-v14 alignment) =========
+   When window.__aiBridge carries the production review surface the console
+   stops simulating: the queue IS gsReviewQueue() — bus records parked
+   in_review; decisions write through gsReviewResolve / gsEscalateLegal (the
+   bus enforces the different-reviewer rule itself — a resolve by the original
+   reviewer comes back {error:'same_reviewer'}); metrics read gsModMetrics;
+   the flag card reads gsFlagStatus; the notebook reads gsRepLedger; the
+   character card reads gsPossessionBriefing — the same whitelist object
+   possession briefings ship. Every call is capability-detected; an absent
+   bridge is the seeded demo below, which stays the contract reference. */
+var BR=(typeof window!=='undefined'&&window.__aiBridge)||null;
+var LIVE=!!(BR&&typeof BR.gsReviewQueue==='function'&&typeof BR.gsReviewResolve==='function');
+var NOWMIN=null;
+/* live-mode session claims — moderation.json review_locks.merge_target:
+   bus-side claim locks are a game-systems TODO; until then the console
+   keeps the same one-reviewer-per-request semantics locally, per session */
+var CLAIMS={};
+function liveNowMin(){
+  try{ if(BR&&BR.gsViewerState){var vs=BR.gsViewerState(); if(vs&&vs.nowMin!=null)return vs.nowMin;} }catch(e){}
+  return null;
+}
+function busText(r){
+  var p=(r&&r.params)||{};
+  return [r&&r.note,p.note,p.intent,p.text,p.plan,p.goal,p.name]
+    .filter(function(s){return typeof s==='string'&&s.trim();}).join('\n');
+}
+function busLane(r){
+  if(r.screen==='legal-backstop')return'legal';
+  if(r.appealOf||r.lane==='appeal')return'appeal';
+  if(r.lane==='naming')return'naming';
+  if(r.lane==='exclusive')return'exclusive';
+  return'review';
+}
+function busItem(r){
+  var ch=CHARS[r.target];
+  return {
+    id:r.id, lane:busLane(r), player:r.playerId, action:r.kind,
+    target:r.target,
+    target_label:ch?ch.name.split(' \u2014 ')[0]:(r.target||'—'),
+    dur:r.durationMin!=null?r.durationMin+' min':'one-shot',
+    credits:(r.billed>0?r.billed:r.price)||0,
+    deferred:!(r.billed>0),
+    cls:(r.claims&&r.claims.length)?'exclusive':'compatible',
+    claims:'—',
+    text:busText(r)||'(no authored text on the record)',
+    subMin:r.submittedMin,
+    expiresInMin:(NOWMIN!=null&&r.reviewExpireMin!=null)
+      ?+(r.reviewExpireMin-NOWMIN).toFixed(1):null,
+    verdict:{v:'review',code:r.screen||'review'},
+    bus:r,
+    appeal_of:r.appealOf||null,
+    orig_reviewer:r.origReviewer||null
+  };
+}
+function refreshQueue(){
+  if(!LIVE)return;
+  NOWMIN=liveNowMin();
+  var q=[]; try{ q=BR.gsReviewQueue()||[]; }catch(e){}
+  QUEUE=q.map(busItem);
+  QUEUE.forEach(function(it){
+    var c=CLAIMS[it.id];
+    if(c){ it.claimed_by=c.by; it.claimed_at=c.at; }
+  });
+}
+/* unified wait in minutes: live items count bus minutes vs NOWMIN;
+   demo items count wall-clock ms vs NOW */
+function waitMin(q){
+  if(q.subMin!=null&&NOWMIN!=null)return Math.max(0,NOWMIN-q.subMin);
+  if(q.submitted!=null)return (NOW-q.submitted)/60000;
+  return 0;
+}
+function sortKey(q){ return q.subMin!=null?q.subMin*60000:(q.submitted||0); }
+
 var $ = function(id){ return document.getElementById(id); };
 function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block';
   clearTimeout(t._h); t._h=setTimeout(function(){t.style.display='none';},4000); }
-function fmtWait(ts){ var m=Math.max(0,Math.round((NOW-ts)/60000)); return Math.floor(m/60)+':'+('0'+(m%60)).slice(-2); }
+function fmtWait(ts){ return fmtWaitMin((NOW-ts)/60000); }
+function fmtWaitMin(mm){ var m=Math.max(0,Math.round(mm)); return Math.floor(m/60)+':'+('0'+(m%60)).slice(-2); }
 
 /* ================= render: tabs ================= */
 function renderTabs(){
@@ -363,18 +445,21 @@ function renderTabs(){
 function renderQueue(){
   var el=$('queue'); el.innerHTML='';
   var items=QUEUE.filter(function(q){return LANE==='all'||q.lane===LANE;});
-  items.sort(function(a,b){return a.submitted-b.submitted;});
-  if(!items.length){ el.innerHTML='<div class="empty">Queue clear in this lane.</div>'; }
+  items.sort(function(a,b){return sortKey(a)-sortKey(b);});
+  if(LIVE) el.innerHTML='<div class="trace" style="margin-bottom:8px">live — gsReviewQueue() · <span style="cursor:pointer;color:var(--blu);text-decoration:underline" onclick="refreshQueue();renderAll()">refresh</span> (no polling — pull when you sit down)</div>';
+  if(!items.length){ el.innerHTML+='<div class="empty">Queue clear in this lane.</div>'; }
   items.forEach(function(q){
     var d=document.createElement('div');
     d.className='qitem'+(SEL===q.id?' sel':'');
-    var waitM=(NOW-q.submitted)/60000;
+    var waitM=waitMin(q);
     var wcls=waitM>30?'hot':(waitM>15?'warm':'');
     var laneBadge = q.lane==='appeal'?'appeal':(q.lane==='legal'?'legal':(q.lane==='naming'?'naming':q.cls));
     d.innerHTML='<div class="top"><span>'+q.id+' · <span class="who">'+q.player+'</span></span>'+
-      '<span class="wait '+wcls+'">'+fmtWait(q.submitted)+'</span></div>'+
+      '<span class="wait '+wcls+'">'+fmtWaitMin(waitM)+'</span></div>'+
       '<div class="what">'+q.action+' → '+q.target_label+' <span class="badge '+laneBadge+'">'+q.lane+'</span></div>'+
       '<div class="sub">'+q.verdict.v+' · '+(q.verdict.code||'—')+' · '+q.credits+' cr'+
+      (q.deferred?' · billed on approval':'')+
+      (q.expiresInMin!=null?' · ttl '+Math.round(q.expiresInMin)+'m':'')+
       (q.claimed_by?' · <span style="color:var(--blu)">claimed by '+(q.claimed_by===REVIEWER?'you':q.claimed_by)+'</span>':'')+
       ((q.notes&&q.notes.length)?' · '+q.notes.length+' note'+(q.notes.length>1?'s':''):'')+'</div>';
     d.onclick=function(){SEL=q.id; renderAll();};
@@ -384,14 +469,17 @@ function renderQueue(){
 
 /* ================= render: metrics ================= */
 function renderMetrics(){
-  $('mDepth').querySelector('b').textContent=QUEUE.length;
-  var oldest=QUEUE.length?Math.max.apply(null,QUEUE.map(function(q){return NOW-q.submitted;})):0;
-  var om=Math.round(oldest/60000);
+  var mm=null;
+  if(LIVE&&BR.gsModMetrics){ try{ mm=BR.gsModMetrics(); }catch(e){} }
+  $('mDepth').querySelector('b').textContent = mm?mm.reviewDepth:QUEUE.length;
+  var om=Math.round(mm?mm.oldestWaitMin:(QUEUE.length?Math.max.apply(null,QUEUE.map(waitMin)):0));
   var mol=$('mOldest'); mol.querySelector('b').textContent=Math.floor(om/60)+':'+('0'+(om%60)).slice(-2);
   mol.className='metric'+(om>30?' bad':(om>15?' warn':''));
-  var md=$('mDepth'); md.className='metric'+(QUEUE.length>20?' bad':(QUEUE.length>10?' warn':''));
+  var depth=mm?mm.reviewDepth:QUEUE.length;
+  var md=$('mDepth'); md.className='metric'+(depth>20?' bad':(depth>10?' warn':''));
   $('mDec').querySelector('b').textContent=DECISIONS;
-  $('mMed').querySelector('b').textContent = DECISIONS? '8:12':'—';
+  $('mMed').querySelector('b').textContent = (mm&&mm.medianDecisionMin!=null)
+    ? fmtWaitMin(mm.medianDecisionMin) : (DECISIONS?'8:12':'—');
 }
 
 /* ================= render: detail ================= */
@@ -405,17 +493,30 @@ function renderDetail(){
   var lockedOut = q.claimed_by && q.claimed_by!==REVIEWER;
   var appealBlocked = q.appeal_of && q.orig_reviewer===REVIEWER;
   var html='';
-  html+='<div class="kv"><span>Request</span><b>'+q.id+'</b></div>';
-  html+='<div class="kv"><span>Player</span><b>'+q.player+' · acct '+(p.acct_age_d||'?')+'d · '+q.credits+' cr paid</b></div>';
+  html+='<div class="kv"><span>Request</span><b>'+q.id+(q.bus?' · <span style="color:var(--grn)">bus record</span>':'')+'</b></div>';
+  html+='<div class="kv"><span>Player</span><b>'+q.player+(p.acct_age_d?' · acct '+p.acct_age_d+'d':'')+' · '+q.credits+' cr'+(q.deferred?' (billed on approval)':' paid')+'</b></div>';
   html+='<div class="kv"><span>Class</span><b>'+q.cls+'</b></div>';
-  html+='<div class="kv"><span>Claims</span><b style="max-width:60%;text-align:right">'+q.claims+'</b></div>';
+  var claimsTxt=q.claims;
+  if(LIVE&&q.bus&&BR.gsExplainRequest){
+    try{ var ex=BR.gsExplainRequest(q.id);
+      if(ex) claimsTxt=(ex.blockedBy&&ex.blockedBy.length?('blocked by '+ex.blockedBy.join(', ')):'claims clear')+
+        (ex.on&&ex.on.length?(' · on '+ex.on.join(', ')):'')+
+        (ex.queuePos!=null?(' · pos '+ex.queuePos):'');
+    }catch(e){}
+  }
+  html+='<div class="kv"><span>Claims</span><b style="max-width:60%;text-align:right">'+claimsTxt+'</b></div>';
   html+='<div class="reqtext">\u201C'+q.text+'\u201D</div>';
   if(q.appeal_text){
     html+='<div class="reqtext" style="border-left-color:var(--pink)"><b>Appeal</b> (original reviewer '+q.orig_reviewer+' — you must not be them): \u201C'+q.appeal_text+'\u201D</div>';
   }
   /* appeal workspace: the original decision, side by side — the reviewer's
      only question is whether the new text is substantially different */
-  if(q.appeal_of && q.orig){
+  if(q.appeal_of && q.bus){
+    html+='<div class="card" style="border-color:var(--pink);margin-top:8px"><h3>Appeal workspace — original decision</h3>'+
+      '<div class="kv"><span>Original request</span><b>'+q.appeal_of+'</b></div>'+
+      '<div class="kv"><span>Original reviewer</span><b>'+(q.orig_reviewer||'—')+'</b></div>'+
+      '<div class="redact-note" style="font-style:normal">The denied original lives on the request record — pull it up in the archive before deciding. Is the new text substantially different? If it isn\u2019t, a second denial is final for this request text; if it is, judge it on its own merits. Appeals never re-charge the player — approval re-bills the original price once.</div></div>';
+  } else if(q.appeal_of && q.orig){
     html+='<div class="card" style="border-color:var(--pink);margin-top:8px"><h3>Appeal workspace — original decision</h3>'+
       '<div class="kv"><span>Original request</span><b>'+q.appeal_of+' · denied '+q.orig.when+'</b></div>'+
       '<div class="kv"><span>Original code / reviewer</span><b>'+q.orig.code+' · '+q.orig.reviewer+'</b></div>'+
@@ -441,12 +542,21 @@ function renderDetail(){
     html+='</div>';
   }
   html+='<div class="denyrow show" id="noterow" style="margin-top:8px"><input type="text" id="notetext" placeholder="note for the next reviewer — internal only, never the feed or the ledger" style="flex:1"><button class="ghost" onclick="addNote()">leave note</button></div>';
-  /* classifier trace — run live through the shared engine to show the mechanics */
+  /* classifier trace — run live through the shared engine to show the mechanics.
+     Live mode: the bus's own verdict (r.screen) is authoritative; the RWScreen
+     trace below is the reference-engine read of the same text — the drift gate
+     (moderation.json testing.drift_gate) lets a port be stricter, never more
+     permissive, so a mismatch here is a port bug to file, not a veto. */
   var res=RWScreen.screenRequest({action:q.action,target_id:q.target,target_label:q.target_label,text:q.text,player:{acct_age_d:p.acct_age_d,denied_30d:p.denied_30d,same_target_7d:p.same_target_7d,appeal_of:q.appeal_of},exclusive:q.cls==='exclusive'});
   var hits=res.trace.filter(function(t){return t.matched;});
-  html+='<div class="trace">screen → verdict <span class="verdict-chip '+res.verdict+'">'+res.verdict+'</span>'+
+  if(q.bus){
+    html+='<div class="trace">bus verdict → <span class="verdict-chip review">in_review</span>'+
+      ' code '+(q.bus.screen||'—')+(q.bus.lane?' · lane '+q.bus.lane:'')+'</div>';
+  }
+  html+='<div class="trace">'+(q.bus?'reference ':'')+'screen → verdict <span class="verdict-chip '+res.verdict+'">'+res.verdict+'</span>'+
     ' route: '+res.route+(res.code!=='pass'?' · code '+res.code:'')+
-    (hits.length?' · hit \u201C'+hits[0].hit+'\u201D':'')+'</div>';
+    (hits.length?' · hit \u201C'+hits[0].hit+'\u201D':'')+
+    (q.bus&&q.bus.screen&&res.code!==q.bus.screen&&res.code!=='pass'?' · <span style="color:var(--acc)">Δ vs bus — file a port drift note</span>':'')+'</div>';
   if(q.lane==='legal'){
     html+='<div class="trace" style="color:var(--red)">LEGAL LANE — kill before run. Public wording is always \u201Crequest not approved\u201D. Flag account (+3). Notify owner. No appeal.</div>';
   }
@@ -465,7 +575,7 @@ function renderDetail(){
       '</div>';
   }
   html+='<div class="modrow" id="modrow"><span style="color:var(--dim);font-size:12px">Trim duration/scope to</span>'+
-    '<input type="text" id="modto" placeholder="e.g. 60 min, park section only" style="flex:1">'+
+    '<input type="text" id="modto" placeholder="e.g. 60 min'+(q.bus?', under '+q.bus.durationMin+' declared':'')+', park section only" style="flex:1">'+
     '<button class="modify" onclick="decide(\'modify\')">Confirm</button></div>';
   html+='<div class="denyrow" id="denyrow"><select id="dcode">';
   RWScreen.REVIEWER_DENY_CODES.forEach(function(c){
@@ -499,13 +609,15 @@ function claim(){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q||q.claimed_by) return;
   q.claimed_by=REVIEWER; q.claimed_at=NOW;
-  toast(q.id+' claimed — one reviewer per request.');
+  if(q.bus) CLAIMS[q.id]={by:REVIEWER,at:NOW};
+  toast(q.id+' claimed — one reviewer per request.'+(q.bus?' (session claim — bus locks are the merge TODO)':''));
   renderAll();
 }
 function releaseClaim(){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q||q.claimed_by!==REVIEWER) return;
   delete q.claimed_by; delete q.claimed_at;
+  if(q.bus) delete CLAIMS[q.id];
   toast(q.id+' released back to the queue.');
   renderAll();
 }
@@ -519,6 +631,14 @@ function addNote(){
   toast('Note left on '+q.id+' — internal only. Never the feed, never the ledger.');
   renderAll();
 }
+/* approve-modified trim: the bus takes modifyMin in minutes, must be inside
+   the action's min and under the declared duration — parse the reviewer's
+   trim line for a minute count */
+function parseModMin(q){
+  var v=($('modto')&&$('modto').value)||'';
+  var m=v.match(/(\d+)\s*m(in)?/i);
+  return m?+m[1]:null;
+}
 function decide(kind){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q) return;
@@ -527,7 +647,65 @@ function decide(kind){
     toast(q.id+' is claimed by '+q.claimed_by+' — their call.'); return; }
   if(q.appeal_of && q.orig_reviewer===REVIEWER){
     toast('Different-reviewer rule — you decided the original. Back to the queue.'); return; }
-  if(!q.claimed_by){ q.claimed_by=REVIEWER; q.claimed_at=NOW; }
+  if(!q.claimed_by){ q.claimed_by=REVIEWER; q.claimed_at=NOW; if(q.bus) CLAIMS[q.id]={by:REVIEWER,at:NOW}; }
+  /* ---- live path: the decision writes through the bus, never a local
+     pretend. The bus re-runs standing validity on approve and enforces
+     the different-reviewer rule itself (same_reviewer). ---- */
+  if(q.bus){
+    var res=null;
+    if(kind==='escalate'){
+      res=BR.gsEscalateLegal?BR.gsEscalateLegal(q.id):null;
+      if(res===true) res={status:'denied',reason:'legal-backstop',id:q.id};
+    }else if(kind==='deny'){
+      res=BR.gsReviewResolve(q.id,false,{by:REVIEWER,code:$('dcode').value});
+    }else{
+      var opts={by:REVIEWER};
+      if(kind==='modify'){
+        var mm=parseModMin(q);
+        if(mm==null){ toast('Trim needs a minute count — e.g. "60 min".'); return; }
+        if(q.bus.durationMin!=null&&mm>=q.bus.durationMin){
+          toast('Trim must be under the declared '+q.bus.durationMin+' min — modifications narrow, never widen.'); return; }
+        opts.modifyMin=mm;
+      }
+      res=BR.gsReviewResolve(q.id,true,opts);
+    }
+    if(res&&res.error==='same_reviewer'){
+      toast('same_reviewer — the bus refuses: you decided the original. Appeals route to a second pair of eyes.');
+      return;
+    }
+    if(!res){
+      toast(q.id+' is no longer in review — the bus already moved it.');
+      delete CLAIMS[q.id]; refreshQueue(); renderAll(); return;
+    }
+    var outcome, rec={decision:kind,code:res.reason||null,flag_w:0,feed:null};
+    if(res.status==='denied'){
+      outcome='DENIED · '+(res.reason||'review_denied')+' — refunded in full by the bus.';
+      rec.decision=kind==='escalate'?'escalate':'deny'; rec.code=res.reason; rec.feed='request not approved';
+    }else if(res.status==='active'){
+      outcome='APPROVED — live now on the bus (fresh sequence at approval; no leapfrog).';
+      rec.decision='approve'; rec.feed='request approved (attributed)';
+    }else if(res.status==='queued'){
+      outcome='APPROVED — queued behind '+(res.queuedBehind||[]).length+' claim(s); the −15% patience rate applies if it waited.';
+      rec.decision='approve'; rec.feed='request approved (attributed)';
+    }else if(res.status==='failed'){
+      outcome='APPROVED but the bus failed it on re-check — '+(res.failReason||'conditions changed')+'. Nothing billed into a failure.';
+      rec.decision='approve'; rec.code=res.failReason; rec.feed='request failed — '+(res.failReason||'conditions changed');
+    }else{
+      outcome='RESOLVED — bus status '+res.status+'.';
+      rec.decision=kind;
+    }
+    if(kind==='modify') outcome='[modified → '+opts.modifyMin+' min] '+outcome;
+    if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
+    var t2=new Date();
+    AUDIT.unshift({t:('0'+t2.getHours()).slice(-2)+':'+('0'+t2.getMinutes()).slice(-2),
+      who:REVIEWER, id:q.id, outcome:outcome,
+      decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
+      appeal_of:q.appeal_of||null, player:q.player, via:'bus'});
+    delete CLAIMS[q.id];
+    SEL=null; DECISIONS++;
+    toast(q.id+' resolved through the bus — '+res.status+'.');
+    refreshQueue(); renderAll(); return;
+  }
   var p=PLAYERS[q.player]||{};
   var outcome, rec={decision:kind, code:null, flag_w:0, feed:null};
   if(kind==='approve'){
@@ -567,7 +745,30 @@ function renderContext(){
   var q=QUEUE.filter(function(x){return x.id===SEL;})[0];
   if(!q){ el.innerHTML='<div class="empty">Player + involved characters appear here.</div>'; return; }
   var p=PLAYERS[q.player]||{};
-  var html='<div class="card"><h3>Player — '+q.player+'</h3>';
+  /* v92 live context: the door policy's own ledgers — gsFlagStatus (never
+     public, owner-console surface only) + gsRepLedger notes */
+  var liveFlag=null, liveRep=null;
+  if(q.bus){
+    if(BR.gsFlagStatus){ try{ liveFlag=BR.gsFlagStatus(q.player); }catch(e){} }
+    if(BR.gsRepLedger){ try{ liveRep=BR.gsRepLedger(q.player); }catch(e){} }
+  }
+  var html='<div class="card"><h3>Player — '+q.player+(liveFlag?' · live flags':'')+'</h3>';
+  if(liveFlag){
+    var tier2=flagTier(liveFlag.score), nxt2=nextTier(liveFlag.score);
+    html+='<div class="kv"><span>Flag score</span><b>'+liveFlag.score+(tier2?' — TIER '+tier2.score+': '+tier2.effect:' — clean')+'</b></div>';
+    html+='<div class="kv"><span>Gate</span><b>'+(liveFlag.ownerHold?'owner hold — account review':(liveFlag.suspendedUntil?'suspended until +'+(liveFlag.suspendedUntil-(NOWMIN||0)).toFixed(0)+'m':(liveFlag.reviewUntil?'human-review until +'+(liveFlag.reviewUntil-(NOWMIN||0)).toFixed(0)+'m':'open')))+'</b></div>';
+    html+='<div class="kv"><span>Next threshold</span><b>'+(nxt2?('score '+nxt2.score+' → '+nxt2.effect):'—')+' · decays −1 / clean 30d</b></div>';
+    (liveFlag.flags||[]).slice(-3).forEach(function(f){
+      html+='<div class="kv"><span>flag</span><b>+'+f.w+' · '+f.code+'</b></div>';
+    });
+    if(liveRep&&liveRep.length){
+      html+='<div class="kv"><span>Notebook</span><b>'+liveRep.length+' note(s)</b></div>';
+      liveRep.slice(-3).forEach(function(n){
+        html+='<div class="kv"><span>'+n.kind+'</span><b style="max-width:60%;text-align:right">w'+n.w+(n.detail&&n.detail.code?' · '+n.detail.code:'')+'</b></div>';
+      });
+    }
+    html+='</div>';
+  } else {
   html+='<div class="kv"><span>Account age</span><b>'+(p.acct_age_d||'?')+' days</b></div>';
   html+='<div class="kv"><span>Tier</span><b>'+(p.spend_tier||'none')+'</b></div>';
   html+='<div class="kv"><span>Denials (30d)</span><b>'+(p.denied_30d||0)+'</b></div>';
@@ -582,6 +783,24 @@ function renderContext(){
   });
   if(p.flags&&p.flags.length) html+='<div style="margin-top:6px">'+p.flags.map(function(f){return '<span class="flag">'+f+'</span>';}).join('')+'</div>';
   html+='</div>';
+  }
+  /* v92 live: the character card IS the possession-briefing whitelist object
+     — gsPossessionBriefing never carries secrets, so nothing needs hiding */
+  var liveBrief=null;
+  if(q.bus&&BR.gsPossessionBriefing){
+    try{ liveBrief=BR.gsPossessionBriefing(q.target); }catch(e){}
+  }
+  if(liveBrief){
+    html+='<div class="card"><h3>Character — briefing whitelist (live)</h3>';
+    html+='<div class="kv"><span>Name</span><b>'+(liveBrief.name||q.target)+'</b></div>';
+    if(liveBrief.role) html+='<div class="kv"><span>Role</span><b>'+liveBrief.role+'</b></div>';
+    if(liveBrief.home) html+='<div class="kv"><span>Home</span><b>'+liveBrief.home+'</b></div>';
+    if(liveBrief.routine) html+='<div class="kv"><span>Routine</span><b style="max-width:60%;text-align:right">'+liveBrief.routine+'</b></div>';
+    if(liveBrief.possessedBy) html+='<div class="kv"><span>Possessed by</span><b>'+liveBrief.possessedBy+'</b></div>';
+    html+='<div class="kv"><span>Secrets</span><b><span class="redact">████████████</span></b></div>';
+    html+='<div class="redact-note">Not redacted — absent. This is the same object possession briefings ship; secret fields don\u2019t exist in it.</div>';
+    html+='</div>';
+  } else {
   var ch=CHARS[q.target];
   if(ch){
     html+='<div class="card"><h3>Character — whitelist fields only</h3>';
@@ -595,7 +814,9 @@ function renderContext(){
     html+='<div class="redact-note">Not redacted — absent. This card is built on the same schema whitelist as possession briefings; secret fields don\u2019t exist here.</div>';
     html+='</div>';
   } else {
-    html+='<div class="card"><h3>Target</h3><div class="kv"><span>Resource</span><b>'+q.target_label+'</b></div></div>';
+    html+='<div class="card"><h3>Target</h3><div class="kv"><span>Resource</span><b>'+q.target_label+'</b></div>'+
+      (q.bus?'<div class="redact-note">No briefing on the bridge for this target — it\u2019s a resource, not a person.</div>':'')+'</div>';
+  }
   }
   el.innerHTML=html;
 }
@@ -633,7 +854,22 @@ function toggleReport(){
 function renderReport(){
   var s=shiftStats();
   var decided=s.approved+s.modified+s.denied;
-  var html='<div class="kv"><span>Window</span><b>'+PRIOR.window+' + this session</b></div>';
+  var html='';
+  /* v92 live: the door policy's own dashboard — gsModMetrics verbatim,
+     aggregate only. The seeded baseline stays the demo fallback. */
+  var mm=null;
+  if(LIVE&&BR.gsModMetrics){ try{ mm=BR.gsModMetrics(); }catch(e){} }
+  if(mm){
+    html+='<div class="kv"><span>Window</span><b>live — gsModMetrics() + this session</b></div>';
+    html+='<div class="kv"><span>Review depth / oldest wait</span><b>'+mm.reviewDepth+' · '+fmtWaitMin(mm.oldestWaitMin||0)+'</b></div>';
+    html+='<div class="kv"><span>Median decision</span><b>'+(mm.medianDecisionMin!=null?fmtWaitMin(mm.medianDecisionMin)+' (SLA target 15m)':'—')+'</b></div>';
+    html+='<div class="kv"><span>Denials by code (bus)</span><b style="max-width:60%;text-align:right">'+
+      Object.keys(mm.denialsByCode||{}).map(function(k){return k+' '+mm.denialsByCode[k];}).join(' · ')+'</b></div>';
+    html+='<div class="kv"><span>Appeals (aggregate)</span><b>'+mm.appeals.filed+' filed · '+mm.appeals.overturned+' overturned · '+mm.appeals.denied+' upheld · '+mm.appeals.refused+' refused'+(mm.appeals.reversalRate!=null?' · rate '+mm.appeals.reversalRate:'')+'</b></div>';
+    html+='<div class="kv"><span>Compensation paid</span><b>'+mm.compensatedCr+' cr — admin overrides auto-refund</b></div>';
+    if(mm.suppressedFeed!=null) html+='<div class="kv"><span>Withheld wire entries</span><b>'+mm.suppressedFeed+' — privacy screens, counted not read</b></div>';
+  } else {
+  html+='<div class="kv"><span>Window</span><b>'+PRIOR.window+' + this session</b></div>';
   html+='<div class="kv"><span>Requests screened</span><b>'+s.requests+'</b></div>';
   html+='<div class="kv"><span>Approved / modified / denied</span><b>'+s.approved+' / '+s.modified+' / '+s.denied+
     ' ('+(decided?Math.round(100*s.denied/decided):0)+'% deny rate)</b></div>';
@@ -642,6 +878,7 @@ function renderReport(){
   html+='<div class="kv"><span>Median decision</span><b>'+PRIOR.median_decision_min+' min (SLA target 15)</b></div>';
   html+='<div class="kv"><span>Compensation paid</span><b>'+PRIOR.comp_cr+' cr — admin overrides auto-refund</b></div>';
   html+='<div class="kv"><span>Flag weight issued</span><b>+'+s.flags_issued+' across all accounts · thresholds at 3/6/9</b></div>';
+  }
   var rws=Object.keys(s.by_reviewer);
   if(rws.length) html+='<div class="kv"><span>Decisions this session, by reviewer</span><b>'+
     rws.map(function(r){return r+': '+s.by_reviewer[r];}).join(' · ')+'</b></div>';
@@ -685,19 +922,33 @@ function toggleRoster(){
   if(p.style.display==='block'){ renderRoster(); p.scrollIntoView(); }
 }
 function renderRoster(){
-  var rows=Object.keys(PLAYERS).map(function(h){
-    var p=PLAYERS[h]; return {h:h, p:p, s:p.flag_score||0};
-  }).filter(function(r){return r.s>0 || (r.p.flag_log||[]).length;});
+  var rows;
+  if(LIVE&&BR.gsFlagStatus){
+    /* live: the door ledger is authoritative — ask it about every account
+       the queue or this session's decisions have touched */
+    var pids={};
+    QUEUE.forEach(function(q){ pids[q.player]=1; });
+    AUDIT.forEach(function(a){ if(a.player) pids[a.player]=1; });
+    rows=Object.keys(pids).map(function(h){
+      var f=null; try{ f=BR.gsFlagStatus(h); }catch(e){}
+      return {h:h, live:f, s:f?f.score:0};
+    }).filter(function(r){return r.s>0||(r.live&&r.live.flags&&r.live.flags.length)||(r.live&&r.live.ownerHold);});
+  } else {
+    rows=Object.keys(PLAYERS).map(function(h){
+      var p=PLAYERS[h]; return {h:h, p:p, s:p.flag_score||0};
+    }).filter(function(r){return r.s>0 || (r.p.flag_log||[]).length;});
+  }
   rows.sort(function(a,b){return b.s-a.s;});
-  var docket=rows.filter(function(r){return r.s>=9;});
+  var docket=rows.filter(function(r){return r.s>=9||(r.live&&r.live.ownerHold);});
   var html='';
   if(docket.length){
     html+='<h2 style="margin:0 0 8px;color:var(--red)">Owner docket — score 9+, owner decision required</h2>';
     docket.forEach(function(r){
       html+='<div class="card" style="border-color:var(--red)"><h3>'+r.h+' — score '+r.s+'</h3>'+
         '<div class="kv"><span>Standing</span><b>account review — owner decision</b></div>'+
-        '<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>'+
-        '<div class="kv"><span>Flag log</span><b style="max-width:60%;text-align:right">'+(r.p.flag_log||[]).map(function(f){return f.d+' +'+f.w+' '+f.why;}).join(' · ')+'</b></div>'+
+        (r.live?'<div class="kv"><span>Flag log</span><b style="max-width:60%;text-align:right">'+(r.live.flags||[]).map(function(f){return '+'+f.w+' '+f.code;}).join(' · ')+'</b></div>'
+               :'<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>'+
+                '<div class="kv"><span>Flag log</span><b style="max-width:60%;text-align:right">'+(r.p.flag_log||[]).map(function(f){return f.d+' +'+f.w+' '+f.why;}).join(' · ')+'</b></div>')+
         '<div class="redact-note">The console recommends; it never executes an account action. The owner reads the log and decides.</div></div>';
     });
   }
@@ -706,12 +957,20 @@ function renderRoster(){
     var tier=flagTier(r.s), nxt=nextTier(r.s);
     html+='<div class="card"><h3>'+r.h+'</h3>'+
       '<div class="kv"><span>Flag score</span><b>'+r.s+(tier?' — TIER '+tier.score+': '+tier.effect:'')+'</b></div>'+
-      '<div class="kv"><span>Next threshold</span><b>'+(nxt?('score '+nxt.score+' → '+nxt.effect):'—')+'</b></div>'+
-      '<div class="kv"><span>Next decay</span><b>'+decayDate(r.p)+' (−1 per clean 30 d)</b></div>'+
-      '<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>';
-    (r.p.flag_log||[]).slice(-3).forEach(function(f){
-      html+='<div class="kv"><span>'+f.d+'</span><b>+'+f.w+' · '+f.why+'</b></div>';
-    });
+      '<div class="kv"><span>Next threshold</span><b>'+(nxt?('score '+nxt.score+' → '+nxt.effect):'—')+'</b></div>';
+    if(r.live){
+      html+='<div class="kv"><span>Gate</span><b>'+(r.live.ownerHold?'owner hold':(r.live.suspendedUntil?'suspended (until +'+(r.live.suspendedUntil-(NOWMIN||0)).toFixed(0)+'m)':(r.live.reviewUntil?'human-review (until +'+(r.live.reviewUntil-(NOWMIN||0)).toFixed(0)+'m)':'open')))+'</b></div>'+
+        '<div class="kv"><span>Decay</span><b>−1 per clean 30 d (bus-side)</b></div>';
+      (r.live.flags||[]).slice(-3).forEach(function(f){
+        html+='<div class="kv"><span>flag</span><b>+'+f.w+' · '+f.code+'</b></div>';
+      });
+    } else {
+      html+='<div class="kv"><span>Next decay</span><b>'+decayDate(r.p)+' (−1 per clean 30 d)</b></div>'+
+        '<div class="kv"><span>History</span><b style="max-width:60%;text-align:right">'+(r.p.history||'—')+'</b></div>';
+      (r.p.flag_log||[]).slice(-3).forEach(function(f){
+        html+='<div class="kv"><span>'+f.d+'</span><b>+'+f.w+' · '+f.why+'</b></div>';
+      });
+    }
     html+='</div>';
   });
   $('rosterBody').innerHTML=html;
@@ -736,15 +995,23 @@ function renderAudit(){
   if(!AUDIT.length){ el.innerHTML='<li>No decisions yet this session.</li>'; return; }
   AUDIT.forEach(function(a){
     var li=document.createElement('li');
-    li.innerHTML='<span class="t">'+a.t+'</span><b>'+a.id+'</b> '+a.outcome+' <i>— '+a.who+'</i>';
+    li.innerHTML='<span class="t">'+a.t+'</span><b>'+a.id+'</b> '+a.outcome+' <i>— '+a.who+(a.via==='bus'?' · via bus':'')+'</i>';
     el.appendChild(li);
   });
 }
 
 function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); }
+/* v92 seam boot: live mode pulls the bus once and marks the badge; the demo
+   keeps its seeded queue as the contract reference. */
+if(LIVE){
+  refreshQueue();
+  $('srcBadge').textContent='live queue';
+  $('srcBadge').style.color='var(--grn)';
+  document.querySelector('#revSel').parentNode.nextElementSibling.textContent='reviewer (SSO stand-in)';
+}
 renderAll();
-/* demo clock so wait times tick */
-setInterval(function(){ NOW+=30000; renderQueue(); renderMetrics(); }, 30000);
+/* demo clock so wait times tick — live mode pulls on demand instead */
+if(!LIVE) setInterval(function(){ NOW+=30000; renderQueue(); renderMetrics(); }, 30000);
 </script>
 </body>
 </html>

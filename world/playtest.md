@@ -214,6 +214,15 @@ One person can wear every hat; four real testers is the intended shape.
   in the naming lane with the bus record id — never a fake approval —
   and withdraws through gsCancelRequest. Reference stub + 27-check run:
   devtools/smoke_create_v91.js.
+  PT83 (mod v92) audits the real review seam — the Mod Console queue IS
+  gsReviewQueue() (bus records mapped verbatim, bus-minute waits, TTL
+  chip), decisions write through gsReviewResolve/gsEscalateLegal with
+  {by,code,modifyMin} and report the bus's real landing, the
+  same_reviewer refusal is honored twice (UI + bus), metrics read
+  gsModMetrics, flags read gsFlagStatus/gsRepLedger, and the character
+  card is the gsPossessionBriefing whitelist object itself. Reference
+  stub + 19-check run: devtools/smoke_mod_v92.js; the classifier drift
+  gate is executable at devtools/screen_drift.js (23 port gaps reported).
 
 ## 3. Running a session
 

@@ -2917,7 +2917,21 @@ const PUB = Object.values(PT.surfaces)
       [/revSel|setReviewer/, 'v78 reviewer identity switcher'],
       [/by_reviewer/, 'v78 per-reviewer session stats'],
       [/screen\.js/, 'shared engine script tag'],
-      [/RWScreen\.screenRequest/, 'shared engine call']
+      [/RWScreen\.screenRequest/, 'shared engine call'],
+      /* v92 real review seam */
+      [/gsReviewQueue/, 'v92 live queue read'],
+      [/gsReviewResolve/, 'v92 decision write-through'],
+      [/gsEscalateLegal/, 'v92 legal kill write-through'],
+      [/gsModMetrics/, 'v92 live metrics'],
+      [/gsFlagStatus/, 'v92 live flag card'],
+      [/gsRepLedger/, 'v92 rep notebook read'],
+      [/gsPossessionBriefing/, 'v92 whitelist briefing card'],
+      [/same_reviewer/, 'v92 bus-enforced different-reviewer refusal'],
+      [/live queue|demo queue/, 'v92 data-source badge'],
+      [/refreshQueue/, 'v92 pull-not-poll refresh'],
+      [/via bus|via:'bus'/, 'v92 audit via-bus marker'],
+      [/CLAIMS/, 'v92 session-claim map (bus locks = merge TODO)'],
+      [/billed on approval/, 'v92 deferred-billing honesty chip']
     ];
     for (const [re, label] of MUST)
       if (!re.test(mc)) add(g, 'fail', 'mod-console.html', null, `missing required copy/affordance: ${label}`);
@@ -2929,9 +2943,16 @@ const PUB = Object.values(PT.surfaces)
       for (const k of Object.keys(ch))
         if (!WL.has(k)) add(g, 'fail', 'mod-console.html', null,
           `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
-    /* 4b. v78 contract blocks present in moderation.json */
-    for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats'])
-      if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `v78 contract block "${k}" missing`);
+    /* 4b. v78 + v92 contract blocks present in moderation.json */
+    for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats',
+                     'review_seam_v92', 'drift_report'])
+      if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `contract block "${k}" missing`);
+    if (MJ.review_seam_v92) {
+      for (const fn of ['gsReviewQueue', 'gsReviewResolve', 'gsEscalateLegal',
+                        'gsModMetrics', 'gsFlagStatus', 'gsRepLedger', 'gsPossessionBriefing'])
+        if (!JSON.stringify(MJ.review_seam_v92).includes(fn))
+          add(g, 'fail', 'moderation.json', null, `review_seam_v92 missing bridge fn ${fn}`);
+    }
     if (MJ.appeal_workspace && !/ENFORCED/.test(MJ.appeal_workspace.different_reviewer_rule || ''))
       add(g, 'fail', 'moderation.json', null, 'appeal_workspace must state the different-reviewer rule is enforced');
     /* seeded affordances the demo must keep reachable */
@@ -2951,10 +2972,15 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of LMUST)
       if (!re.test(lab)) add(g, 'fail', 'screen-lab.html', null, `missing required affordance: ${label}`);
-    /* 6. internal surfaces make no world-mutation calls */
+    /* 6. internal surfaces make no world-mutation calls OUTSIDE the review
+       lane. v92: the console's job IS the review lane — the declared seam
+       fns (queue/metrics/flags/rep/briefing reads + review-resolve/legal
+       writes) are allowlisted; anything else world-touching still fails. */
+    const SEAM_OK = /gsReviewQueue|gsReviewResolve|gsEscalateLegal|gsModMetrics|gsFlagStatus|gsRepLedger|gsPossessionBriefing|gsViewerState|gsExplainRequest|gsRequestMeter/g;
     for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab]])
       src.split('\n').forEach((ln, i) => {
-        if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)/i.test(ln))
+        const scrubbed = ln.replace(SEAM_OK, '');
+        if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)|gsSubmitRequest|gsCreditSpend|gsCancelRequest/i.test(scrubbed))
           add(g, 'fail', f, i + 1, `world-mutation call on an internal surface: ${ln.trim().slice(0, 100)}`);
       });
     g.detail = `${mjCodes.size} taxonomy codes · ${LC.length} mirrored cases · ` +

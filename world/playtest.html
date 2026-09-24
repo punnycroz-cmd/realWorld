@@ -1783,6 +1783,20 @@ const PTS=[
   {do:"Force a denied filing (taken name through the stub) and check the deny surface.",
    exp:"The pipeline shows 'the office refused — name_collision' and 'no charge — a refused filing never bills'; the deny box shows the real reason code and DENY_COPY line. The live name check refuses the gate on a collision before the bus is even asked.",
    ck:["A denied record renders its real reason code — never a softened generic","Nothing is billed on a bus denial — pre-billing refusal","Run devtools/smoke_create_v91.js — 27/27 green; the creation gate in audit.js enforces the v91 seam keys"]}
+ ]},
+ {id:"PT83",title:"The Real Review Seam — Mod Console meets the production bus (v92)",min:7,
+  persona:"reviewer on the internal mod bench — running the queue twice: bare (seeded demo contract) and bridged to a stub review surface shaped like 41_game_systems_requests.js + 41_game_systems_antigrief.js",
+  goal:"Verify the v92 real-review-seam alignment on mod-console.html: the queue IS gsReviewQueue() (bus records parked in_review mapped verbatim — screen code, lane, submittedMin, reviewExpireMin TTL chip, billed:0 'billed on approval'); decisions write through gsReviewResolve({by,code,modifyMin}) and gsEscalateLegal, never a local pretend; the bus's same_reviewer refusal on appeals is honored both directions; metrics read gsModMetrics verbatim; the player card reads gsFlagStatus + gsRepLedger; the character card is the gsPossessionBriefing whitelist object; claims stay session-local until bus locks land; the drift tool (devtools/screen_drift.js) runs the corpus through both engines.",
+  surfaces:["mod","audit","harness"],steps:[
+  {do:"Open world/mod-console.html bare (badge 'demo queue'), pick an item, approve it, and read the audit log.",
+   exp:"The seeded queue is the contract reference: lanes, whitelist card ('Not redacted — absent'), claim/release, handoff notes, the RWScreen trace, and the seeded 30-day shift report all still work. The decide lands an audit entry.",
+   ck:["Badge reads 'demo queue' — the seeded path is the fallback, not the product","Every v78 affordance intact: claims, appeal workspace, notes, flag roster, ledger export"]},
+  {do:"Bridge a stub __aiBridge (devtools/smoke_mod_v92.js is the reference stub — gsReviewQueue returning in_review records incl. an appeal with origReviewer and a legal-backstop screen, gsReviewResolve, gsEscalateLegal, gsModMetrics, gsFlagStatus, gsRepLedger, gsPossessionBriefing, gsExplainRequest, gsViewerState.nowMin) and work the queue.",
+   exp:"The badge flips to 'live queue'; bus ids render verbatim with the bus's own screen code and a TTL chip; a billed:0 appeal shows 'billed on approval'; wait counts bus minutes. Deciding calls gsReviewResolve with {by:<active reviewer>} and the item leaves the queue; the audit entry carries 'via bus'; an approve that lands queued/failed is reported as the real landing, never 'approved'.",
+   ck:["The bus spec is the real shape — {by} is the reviewer handle, deny carries {code}, modify carries {modifyMin} under the declared duration","No fake approval: the audit line reports the bus's landing status verbatim","Wait times and the metrics strip count bus minutes / gsModMetrics, not wall clock"]},
+  {do:"Switch the reviewer picker to the appeal's origReviewer and open the appeal; then open the legal item and confirm the flag; then run node devtools/screen_drift.js.",
+   exp:"As the original reviewer the decision bar is withheld AND gsReviewResolve returns {error:'same_reviewer'} — the bus enforces the rule, the console just shows it. Confirm legal flag calls gsEscalateLegal and the item dies. The drift report prints corpus green + a PORT-GAP table (23 gaps: 13 missing normalization, 10 lexicon drift, 6 history untestable) — a merge artifact for game-systems, never a world failure.",
+   ck:["same_reviewer is enforced twice: the UI withholds the bar, the bus refuses the resolve","Legal kills go through gsEscalateLegal — public wording stays 'request not approved'","screen_drift.js exits 0 with the corpus green; gaps are reported, not judged from this branch"]}
 ]}];
 
 
