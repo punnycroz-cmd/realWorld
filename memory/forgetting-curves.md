@@ -2785,3 +2785,268 @@ Locked nulls: `sav_recall_null` (shadows never surface),
   debated, so the term is deliberately tiny and episodic-scoped; if
   playtests show busy characters implausibly blank, halve before
   doubting the sign.
+
+---
+
+# Part IX — v97 deepening: the one-trial immortal, the clock that reads
+strength, the flat forecast, series edges, and two emergent failure modes
+
+Eight passes priced the curve's shape, modifiers, ecology, variance, and
+substrates. This pass adds the last unpriced *classes* of retention —
+the aversion that binds in one trial and outlives the episode that
+formed it — plus three properties of the *estimates* and *structures*
+that sit on the curve: recency inferred from residual strength, the
+character's own (flat) forecast of their forgetting, and the serial
+structure of repeated-event series. Two closing sections are
+emergence analyses — predicted behavior from existing machinery,
+each with a probe rather than a parameter.
+
+Claims tagged [CONSENSUS] / [DEBATED] / [HYPOTHESIS] as before.
+
+## 41. New primary sources
+
+### 41.1 The one-trial immortal — conditioned taste aversion — Garcia & Koelling 1966; Bernstein & Webster 1980; Logue et al. 1981; Scalera 2002
+
+The sharpest counter-example to everything Part I calibrated: learning
+that violates every standard encoding rule. Garcia & Koelling 1966
+established taste-illness conditioning with CS–US delays of **hours** —
+no other association tolerates that gap. Bernstein & Webster 1980
+(*Physiol. Behav.* 25:363 — verified) gave adults a single pairing of a
+novel ice-cream flavor with chemotherapy: **one trial** produced
+measurable aversion. Bernstein 1978 (*Science* 200:1302 — verified)
+showed the same in children, and that a novel "scapegoat" food absorbs
+the aversion and *protects the normal diet* — targeting is
+novelty-weighted. Logue, Ophir & Strauss 1981 (*Behav. Res. Ther.* —
+verified): questionnaire evidence that most adults carry at least one
+food aversion, typically formed in one episode, persisting **years**.
+[CONSENSUS: one-trial, long-delay, novelty-targeted food aversions are
+real; DURATION in humans is variable — clinical chemo studies find many
+aversions remit within months, so "immortal" is the folk tail, not the
+median.]
+
+**Spec consequence:** Event flag `illness_onset:{somatic:true}` triggers
+a backward-bind scan: episodic records tagged `food` within
+`cta_window` (0.35d ≈ 8h — the only legal look-back in the model) are
+candidate targets, selection weighted by `(1 − familiarity)` of the
+food referent (`cta_novel_w` 0.7) — the scapegoat arm. A hit mints
+(a) an `aversion` episodic record at `cta_strength` (0.6 — the mint is
+associative, not attentional; it ignores `att_min`) riding `cta_beta`
+(0.1 — long, deliberately *not* permastore), and (b) a durable `avoid`
+tag on the food/venue semantic referent decaying on `cta_avoid_hl`
+(730d). The two products dissociate: the `avoid` tag survives the
+episode's archival — "doesn't eat there anymore, can't quite say why"
+is the Logue phenotype. Venue/spillover: the taste binds, the room
+mostly doesn't — non-food co-occurring fields gain at most `cta_spill`
+(0.15). Locked `cta_somatic_null`: non-GI illness (dizziness, injury)
+binds no food — the association is canalized to the gut (Garcia's own
+specificity result). Locked `cta_birth_null`: the `avoid` tag is
+appetitive machinery, never a content record — it surfaces as
+behavioral aversion, not recallable narrative.
+
+### 41.2 The clock that reads strength — recency by inference — Hintzman 2004/2010; Brown, Rips & Shevell 1985
+
+When a record's `verbatim.when` is dead (§2.5 — source/time tags die
+first), a character asked "when did you last see her?" does not abstain
+— they *estimate*, and the estimator is trace strength. Hintzman 2004
+(*Memory & Cognition*) showed recency judgments track memory strength
+with a log-like compression; Brown, Rips & Shevell 1985 established the
+inference route for public events — subjects date events by how well
+they are remembered [CONSENSUS direction; our log-map is HYPOTHESIS].
+This is also the lawful source of the "I just ran into her — actually
+it was months ago" error: a recently *rehearsed* old memory reads as
+recent, because the estimator cannot distinguish old+strong from
+young+strong.
+
+**Spec consequence:** new read op `recencyEstimate(charId, recordId)`:
+when `verbatim.when` strength ≥ `rec_floor` (0.02) the stored date
+serves; below it,
+
+```
+est_days = rec_scale · (−ln R_norm),   R_norm = R / E_birth
+```
+
+`rec_scale` 30 — compressive (a 100× strength loss reads as ~4.6
+rec_scale days, matching §27.6's compressive telescoping in sign).
+Dialogue "when did you last…" and the §5.14 trigger layer route through
+this when the tag is dead. Locked `rec_verbatim_null`: the estimate is
+an inference emitted *as* an inference ("a while back" / "just the
+other day"), never back-written into `verbatim.when` — the record does
+not gain a fake date.
+
+### 41.3 The flat forecast — stability bias — Koriat, Bjork, Sheffer & Bar 2004; Kornell & Bjork 2009
+
+Koriat, Bjork, Sheffer & Bar 2004 (*PNAS* 101:1100 — verified):
+subjects asked to predict recall at different retention intervals give
+nearly **interval-insensitive** JOLs while their actual accuracy
+declines steeply — they over-predict long-term retention because
+predictions are made from *current* encoding strength, which says
+nothing about forgetting. Kornell & Bjork 2009 (*JEP:LMC* — verified)
+named it the stability bias and showed it survives practice:
+experiencing one's own forgetting barely corrects the next forecast
+[CONSENSUS — one of the most robust metacognitive findings].
+
+**Spec consequence — contract, not mechanism.** The §5.21 `jol`
+formula (E + fluency, no horizon term) is already stability-biased by
+construction; v5.45 promotes the absence to a locked invariant:
+`jol_horizon_null` — `jol` must not load the query's retention horizon
+beyond `jol_horizon_w` (0.05, clamped ≤0.15). Even a character
+explicitly asked "will you remember this next month vs tomorrow?"
+answers from the same strength. `jol_exp_gain` (0.05) caps how much
+repeated experience of one's own archival events shifts `jol_bias` —
+Koriat's finding that the bias outlives practice. The RW behavior this
+buys: every character is systematically overconfident about their own
+durability — they promise to remember, and the spec already knows they
+won't.
+
+### 41.4 Series edges — the first and last instances hold the doors — Dilevski et al. 2021; Paterson et al.; Danby et al. 2022
+
+Repeated-event memory is not a flat blur with one instance standing
+for all: **boundary instances are privileged**. Dilevski, Paterson &
+colleagues' re-analysis of five repeated-event studies (*JARMAC* 2021
+— verified): details of the FIRST and LAST instances were recalled
+more accurately and consistently than middle instances, and
+misattributions of details across instances were widespread. Danby,
+Sharman & Paterson 2022 (*Memory & Cognition* — verified): confusions
+are **proximity-graded** — details migrate mostly between *adjacent*
+instances, decaying with ordinal distance; boundary instances act as
+anchors. The recency/primacy balance shifts with delay: at short
+retention intervals the last instance dominates; at longer delays the
+first is best retained (Deck et al. 2021, *Memory* — verified in the
+repeated-stressor paradigm) [CONSENSUS pattern across the
+repeated-event literature].
+
+**Spec consequence:** repeated-event encodings of a §4.3 genericized
+series carry `series:{id, idx, n}`. The FIRST instance gets a permanent
+`series_edge_gain` (0.15) intercept — it is the schema anchor
+(script-formation needs a founder). The LAST instance needs no bonus:
+it wins at short delay *for free* through t (youngest record, least
+decayed) — and its advantage decays along the same curve, so the
+first-instance dominance emerges at long delay exactly as observed:
+the crossover is emergent, not parametrized. Misattribution draws
+among series members weight candidates by adjacency:
+`w ∝ series_prox_w^|Δidx|` (`series_prox_w` 0.5) — details hop to the
+neighboring instance far more often than to a distant one. RW texture:
+"last Tuesday's lunch meeting" confuses this week's details with last
+week's, but rarely with the first-ever meeting's.
+
+### 41.5 Emergence note — the mislaid thing
+
+No new machinery; a predicted failure mode worth pinning as a probe.
+`placed_item` events (where the character put the keys, the letter,
+the good scissors) are the worst case in the model's own terms:
+enacted (enact_gain helps) but low-salience, single-field, and
+maximally cue-similar — every placement shares cues with all previous
+ones, so `n_sim` piles up (§4.2) and each new placement retroactively
+buries the last. Predicted behavior: recall of the *latest* location
+dominates but is itself fragile under routine repetition; when it
+fails, the reconstructive guess is not random — the §4.20 script-node
+location (the hook by the door, the usual drawer) surfaces as the
+confident wrong answer. Older profiles degrade faster via the §4.25
+binding tax. All emergent from existing parameters — the probe (P1033)
+exists to catch a future "fix" that would break it.
+
+### 41.6 Emergence note — the quiet decades
+
+The third component of the lifespan curve is usually presented
+positively (the bump); its complement is the **trough**: Rubin &
+Schulkind 1997's three-component fit and Janssen, Chessa & Murre's
+recency-removal work (verified) imply that midlife decades (~30–50 in
+a 70-year-old's distribution) are underrepresented relative to any
+smooth interpolation — neither bump fuel nor recency lift reaches
+them. In our model the trough must be *emergent*, not fitted: era
+encoding weight already rides firsts/transitions density
+(age-development §23) and routine life produces fewer distinctive
+records, fewer retells (§4.13 ecology is salience-driven). Probe
+P1034: hold firsts density uniform and the trough must collapse — if
+it survives as a parameter-shaped dip instead, the emergence claim
+fails and a `trough_gain` fallback is the honest repair. Flagged now
+rather than discovered later.
+
+## 42. What changed in the spec (v5.44 → v5.45)
+
+| # | Change | Grounding |
+|---|---|---|
+| C-fc9-1 | New §4.46 conditioned taste aversion: `illness_onset` backward-bind over `cta_window`, novelty-weighted targeting, one-trial `aversion` mint at `cta_strength`/`cta_beta`, durable `avoid` semantic tag surviving the episode | §41.1 |
+| C-fc9-2 | New §4.47 series edges: `series:{id,idx,n}` on repeated-event records; `series_edge_gain` on idx=0 only; `series_prox_w` adjacency-weighted misattribution; last-instance dominance + crossover emergent | §41.4 |
+| C-fc9-3 | New §5.96 `recencyEstimate` — strength→recency log-map when `verbatim.when` is dead; inference emits hedged language, never a date | §41.2 |
+| C-fc9-4 | New §5.97 flat-forecast contract: `jol` horizon-blind by locked invariant; `jol_exp_gain` caps practice correction | §41.3 |
+| C-fc9-5 | Emergence probes only (no params): mislaid-item PI burial + script-default guess; midlife trough via firsts density | §41.5, §41.6 |
+
+New params: `cta_window 0.35 [0.15–0.75]`, `cta_novel_w 0.7 [0–1]`,
+`cta_strength 0.6 [0.3–0.9]`, `cta_beta 0.1 [0.02–0.3]`,
+`cta_avoid_hl 730 [90–2000]`, `cta_spill 0.15 [0–0.4]`,
+`series_edge_gain 0.15 [0–0.4]`, `series_prox_w 0.5 [0.2–0.8]`,
+`rec_scale 30 [5–90]`, `rec_floor 0.02 [0.005–0.1]`,
+`jol_horizon_w 0.05 [0–0.15]`, `jol_exp_gain 0.05 [0–0.2]`.
+Locked nulls: `cta_somatic_null`, `cta_birth_null`,
+`rec_verbatim_null`, `jol_horizon_null`, `jol_exper_null`.
+Frozen: `cta_bind="food-only"`, `series_edge_leg="first-only"`
+(the recency arm is owned by t, not by a second gain).
+
+## 43. Retention table — added rows (defaults, game days)
+
+| record class | half-life | R@1d | R@7d | R@30d | R@365d |
+|---|---|---|---|---|---|
+| aversion episode (cta, E .6) | ~6d | .57 | .50 | .43 | .34 |
+| avoid tag (semantic ref) | 730d | — | — | ~.97 | ~.71 |
+| series first instance | as class +0.15E anchor | — | — | — | — |
+| series last instance | youngest → wins short delay | — | — | — | — |
+| series middle instance | full PI burial | — | ~half of edge | — | — |
+
+Reading: the aversion's *episode* decays like a slow semantic while
+its *avoidance* outlives it — the behavioral residue is the durable
+product. The series rows have no single curve: position within the
+series, not age, sets survival — the middle instances are the ones
+that blur.
+
+## 44. Validation probes (P1027–P1034)
+
+- **P1027 CTA mint + novelty (MUST):** a somatic `illness_onset` with
+  one novel and one familiar food in-window averts to the novel food
+  ≥70% of runs; the mint ignores `att_min` (one-trial, associative).
+- **P1028 avoidance outlives episode (SHOULD):** after the aversion
+  record archives, the `avoid` tag still drives rejection behavior;
+  no narrative content is recoverable (cta_birth_null leg).
+- **P1029 somatic gate (MUST — locked-null class):** non-GI illness
+  onset binds zero food records across all profiles (cta_somatic_null).
+- **P1030 series edges (MUST):** in a 4-instance repeated-event
+  series, boundary-instance detail accuracy > middle at both short
+  (last-first ordering) and long (first-last ordering) delays —
+  the crossover must be produced by the decay itself; misattributions
+  land on adjacent instances ≥2× distant ones.
+- **P1031 recency-from-strength (SHOULD):** a rehearsed 90d-old record
+  and an unrehearsed 7d-old record at equal residual R produce
+  recency estimates within noise of each other — and the estimate is
+  emitted hedged, with `verbatim.when` untouched (rec_verbatim_null).
+- **P1032 flat forecast (MUST — locked-null class):** jol across a
+  1d/30d/180d horizon sweep is flat within `jol_horizon_w` while the
+  hit-rate curve declines; `jol_bias` drift under repeated archival
+  exposure stays ≤ `jol_exp_gain` per exposure.
+- **P1033 mislaid-item emergence (SHOULD):** after 3 relocations of
+  one item, recall returns the latest location > earlier ones, and on
+  failure the emitted guess is the script-node location, not uniform.
+- **P1034 trough emergence (SHOULD):** a 70yo profile's era
+  distribution dips below power-interpolation at encodeAge 30–50;
+  with firsts density held uniform the dip must collapse ≥75%.
+
+## 45. Honest limits (additions)
+
+- Human CTA duration is genuinely uncertain — clinical data (many
+  aversions remit in months) and folk data (decades) disagree, so
+  `cta_beta` sits mid-range rather than at the claimed-immortal
+  extreme; the *durable* product is the avoid tag, which is where
+  the behavioral claim lives anyway.
+- The recency log-map is a convenience fit — Hintzman's strength–
+  recency relation is real but no published functional form pins
+  `rec_scale`; the probe tests the *behavioral* consequence
+  (rehearsal makes old feel recent), not the constant.
+- The series crossover is deliberately emergent — if P1030's
+  long-delay first-instance dominance fails, the likely bug is
+  `series_edge_gain` being swamped by n_sim burial, not the theory.
+- The trough is asserted as emergence, not data-fit: if P1034 fails,
+  `trough_gain` is the named fallback — the honest thing is that the
+  literature's "trough" may itself be a residual of the three-
+  component fit rather than a real dip.
+- jol horizon-blindness is the one place the spec *requires* a wrong
+  answer: a future "improvement" that lets jol load the horizon is a
+  bug by this spec, however rational it looks.

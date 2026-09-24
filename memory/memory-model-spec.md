@@ -1,5 +1,37 @@
-# Memory Model Spec v5.44 — implementable human-like memory for RW characters
+# Memory Model Spec v5.45 — implementable human-like memory for RW characters
 
+> **v5.45 note (forgetting-curves IX — the one-trial
+> immortal, the clock that reads strength, and the flat
+> forecast):** `memory/forgetting-curves.md` Part IX
+> (§§41–45) adds four mechanisms and two emergence
+> contracts. (a) **Conditioned taste aversion** —
+> `illness_onset:{somatic:true}` backward-binds food
+> records inside `cta_window` (~8h, the only legal
+> look-back), novelty-weighted targeting, one-trial mint
+> that ignores `att_min`; the durable product is an
+> `avoid` semantic tag that outlives the episode
+> (`cta_somatic_null`, `cta_birth_null` — Garcia &
+> Koelling 1966; Bernstein & Webster 1980). (b) **Series
+> edges** — repeated-event records carry `series:{id,idx,
+> n}`; `series_edge_gain` anchors idx=0 only, the
+> last-instance arm is owned by t (crossover emergent);
+> misattribution weights adjacency `series_prox_w`
+> (Dilevski/Paterson JARMAC 2021; Danby 2022). (c)
+> **Recency inference** — `recencyEstimate` reads
+> residual strength as a date when `verbatim.when` is
+> dead (`rec_verbatim_null` — hedged emission, never a
+> back-written date; Hintzman 2004; Brown, Rips & Shevell
+> 1985). (d) **Flat forecast** — `jol` is horizon-blind
+> by LOCKED contract (`jol_horizon_null`,
+> `jol_horizon_w` ≤0.15, `jol_exp_gain` 0.05) — every
+> character over-promises their own durability (Koriat
+> et al. 2004 PNAS; Kornell & Bjork 2009). (e)+(f)
+> Emergence probes only: mislaid-item PI burial with
+> script-default guesses; the midlife trough must fall
+> out of firsts density, not a parameter. New §§4.46–4.47,
+> §§5.96–5.97; +12 scalars +5 locked nulls; §10 contract
+> adds Event flag + read op. Probes P1027–P1034.
+>
 > **v5.44 note (encoding-mechanics VIII — what the stimulus,
 > the room, and the past error bring):**
 > `memory/encoding-mechanics.md` Part VIII (§§96–109) adds
@@ -5172,6 +5204,78 @@ notices and is right (contrast §5.78b worried-well). Locked
 `mt_recall_null`: pre-dip records untouched. Frozen
 `mt_scope="encode-only"`.
 
+### 4.46 Conditioned taste aversion — the one-trial
+class (new in v5.45)
+
+FC§41.1; Garcia & Koelling 1966; Bernstein & Webster
+1980 (*Physiol. Behav.* 25:363 — verified one-trial
+adult aversion); Bernstein 1978 (*Science* 200:1302 —
+verified, scapegoat arm); Logue, Ophir & Strauss 1981.
+
+Event flag `illness_onset:{somatic:true}` triggers a
+backward-bind scan over the character's episodic store:
+records tagged `food` within `cta_window` (0.35d ≈ 8h —
+the only legal retroactive window in the model) are
+candidate targets, selection weighted by
+`cta_novel_w·(1 − foodFamiliarity)` — the novel dish
+takes the blame and the usual lunch is protected (the
+scapegoat arm). A hit mints:
+
+- an `aversion` episodic record at `cta_strength`
+  (0.6) riding `cta_beta` (0.1). The mint IGNORES
+  `att_min` — the association is not attentional
+  encoding; it is canalized to the gut.
+- a durable `avoid` tag on the food/venue semantic
+  referent, decaying on `cta_avoid_hl` (730d). The tag
+  binds to the REFERENT, not the episode — it survives
+  the record's archival (Logue's phenotype: avoids the
+  thing, can't say why).
+
+Spillover: non-food co-occurring fields of the same
+event gain at most `cta_spill` (0.15) aversion weight —
+the taste binds, the room mostly doesn't.
+
+Locked nulls: `cta_somatic_null` — non-GI illness
+(dizziness, injury, fever-without-nausea) binds zero
+food records; `cta_birth_null` — the `avoid` tag is
+appetitive machinery, never a content record: it
+surfaces as behavioral rejection, never as recallable
+narrative. Frozen `cta_bind="food-only"`: the backward
+scan selects on the `food` tag, not on cue similarity.
+
+### 4.47 Series edges — the first and last instances
+hold the doors (new in v5.45)
+
+FC§41.4; Dilevski, Paterson et al. 2021 (*JARMAC* —
+verified boundary advantage + cross-instance
+confusion); Danby, Sharman & Paterson 2022 (*Mem. &
+Cogn.* — verified proximity-graded misattribution);
+Deck et al. 2021 (*Memory* — verified delay-ordered
+crossover).
+
+Records minted into a §4.3 genericized repeated-event
+series carry `series:{id, idx, n}`. Boundary instances
+are privileged asymmetrically:
+
+- **idx=0** gets a permanent `series_edge_gain` (0.15)
+  intercept — the founder anchors the schema.
+- **idx=n−1** gets NO bonus: it wins short-delay recall
+  for free through t (youngest, least decayed), and
+  that advantage decays on the same curve — so the
+  observed first-dominant-at-long-delay crossover is
+  emergent. Frozen `series_edge_leg="first-only"`: the
+  recency arm is owned by the decay itself, never by a
+  second gain.
+- Misattribution draws among series members weight
+  candidates by ordinal adjacency:
+  `w ∝ series_prox_w^|Δidx|` (`series_prox_w` 0.5) —
+  details hop to the neighboring instance far more
+  often than to a distant one.
+
+RW texture: "last Tuesday's lunch" confuses this
+week's details with last week's, rarely with the
+first-ever meeting's.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -7607,6 +7711,56 @@ here); `test_nofb_gain` declines 1.15@30 → 1.0@60 →
 0.7@80 vs `study_gain` 1.0 passive re-exposure. The
 crossover is the spec: uncorrected old-age misrecall
 consolidates the error.
+
+### 5.96 recencyEstimate — the clock that reads
+strength (new in v5.45)
+
+FC§41.2; Hintzman 2004 (*Mem. & Cogn.* — strength–
+recency regularity); Brown, Rips & Shevell 1985
+(recency by inference for public events).
+
+Read op `recencyEstimate(charId, recordId) -> daysEst`:
+when `verbatim.when` strength ≥ `rec_floor` (0.02) the
+stored date serves; below it the estimate is derived
+from residual strength,
+
+```
+est_days = rec_scale · (−ln R_norm),   R_norm = R / E_birth
+```
+
+`rec_scale` 30 — compressive, sign-consistent with
+§27.6 telescoping. The estimator cannot distinguish
+old+strong from young+strong: a recently rehearsed old
+memory reads as recent — the lawful source of "I just
+ran into her — actually it was months ago." Dialogue
+"when did you last…" and the §5.14 trigger layer route
+through it. Locked `rec_verbatim_null`: the estimate is
+emitted AS an inference (hedged — "a while back",
+"just the other day") and is never back-written into
+`verbatim.when`; the record gains no fake date.
+
+### 5.97 The flat forecast — jol is horizon-blind
+by contract (new in v5.45)
+
+FC§41.3; Koriat, Bjork, Sheffer & Bar 2004 (*PNAS*
+101:1100 — verified interval-insensitive JOLs vs
+declining accuracy); Kornell & Bjork 2009 (*JEP:LMC* —
+verified bias survives practice); Rhodes & Tauber 2011.
+
+The §5.21 `jol` formula (E + fluency, no horizon term)
+was stability-biased by construction; v5.45 promotes
+the absence to a locked invariant. `jol_horizon_null`:
+`jol` must not load the query's retention horizon
+beyond `jol_horizon_w` (0.05, clamped ≤0.15) — a
+character asked "will you remember this next month vs
+tomorrow?" answers from the same strength, and is
+systematically overconfident about their own
+durability. `jol_exp_gain` (0.05) caps how much
+repeated exposure to one's own archival events drifts
+`jol_bias` — Koriat's finding that the bias outlives
+practice. A future "improvement" that lets jol load
+the horizon is a bug by this spec, however rational it
+looks.
 
 ---
 
@@ -14280,6 +14434,29 @@ MemoryParams = {
 //   record edge `coSeen`, record field `err_strength`
 //   on TOT-marked records; engagement enum gains
 //   `gestured`. All snapshot-additive; absent = legacy.
+// v5.45 additions (forgetting-curves IX — FC§§41–45)
+"cta_window": 0.35, "cta_novel_w": 0.7,
+"cta_strength": 0.6, "cta_beta": 0.1,
+"cta_avoid_hl": 730, "cta_spill": 0.15,        // §4.46
+"series_edge_gain": 0.15, "series_prox_w": 0.5,// §4.47
+"rec_scale": 30, "rec_floor": 0.02,            // §5.96
+"jol_horizon_w": 0.05, "jol_exp_gain": 0.05,   // §5.97
+// v5.45 locked nulls: cta_somatic_null (non-GI
+//   illness binds no food — P1029); cta_birth_null
+//   (avoid tag never mints narrative — P1028);
+//   rec_verbatim_null (estimate never back-writes a
+//   date — P1031); jol_horizon_null (P1032);
+//   jol_exper_null (practice correction capped —
+//   P1032 leg).
+// v5.45 frozen: cta_bind="food-only";
+//   series_edge_leg="first-only" (the recency arm is
+//   owned by t — P1030 crossover leg).
+// v5.45 fields/state: Event `illness_onset:{somatic}`
+//   (world-supplied); record class `aversion` +
+//   referent `avoid` tag (semantic-store field, hl
+//   clock); record `series:{id,idx,n}` on
+//   genericized-series members. All snapshot-additive;
+//   absent = legacy.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -16543,6 +16720,29 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 14 scalars + 1 trait (`device_dep`)
     + 8 locked nulls + 1 observe param.
   - Probes P1017–P1026.
+- v5.45 additions (forgetting-curves.md §§41–45):
+  - **New Event flag (world-supplied):**
+    `illness_onset:{somatic:true}` — triggers the §4.46
+    backward-bind (novelty-weighted food targeting inside
+    `cta_window`); non-somatic values are ignored by
+    contract (`cta_somatic_null`).
+  - **New read op:** `recencyEstimate(charId, recordId)
+    -> daysEst` — §5.96 strength→recency map; dialogue
+    "when did you last…" and the §5.14 trigger layer may
+    route through it when `verbatim.when` is dead. Emits
+    hedged language, never writes the record.
+  - **New record fields:** `aversion` class mint;
+    `avoid` tag on food/venue semantic referents
+    (survives the episode's archival — drives rejection
+    behavior only); `series:{id,idx,n}` on
+    genericized-series members (§4.47).
+  - **Locked boundaries game-systems must honor:**
+    `cta_somatic_null`, `cta_birth_null`,
+    `rec_verbatim_null`, `jol_horizon_null`,
+    `jol_exper_null`; frozen `cta_bind="food-only"`,
+    `series_edge_leg="first-only"`.
+  - **New params (§7):** 12 scalars + 5 locked nulls.
+  - Probes P1027–P1034.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

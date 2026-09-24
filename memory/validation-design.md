@@ -9907,3 +9907,87 @@ P1023 SHOULD; P1026 OBSERVE.
   recurrence/durability facts are literature; the ledger
   mechanics are ours); device_dep default 0.5 (Ward's
   moderator direction, our scale).
+
+## 202. v97 suite (P1027–P1034) — forgetting-curves IX
+
+- **P1027 CTA mint + novelty (MUST):** a somatic
+  `illness_onset` with one novel and one familiar food
+  in `cta_window` averts to the novel food ≥70% of runs;
+  the mint ignores `att_min` (one-trial, associative).
+- **P1028 avoidance outlives episode (SHOULD):** after
+  the `aversion` record archives, the `avoid` tag still
+  drives rejection behavior; no narrative content is
+  recoverable (cta_birth_null leg — output-scanned).
+- **P1029 somatic gate (MUST — locked-null class):**
+  non-GI illness onsets (dizziness, injury) bind zero
+  food records across all profiles (cta_somatic_null).
+- **P1030 series edges (MUST):** in a 4-instance
+  repeated-event series, boundary-instance detail
+  accuracy > middle at short delay (last-dominant) and
+  at long delay (first-dominant) — the crossover must
+  be produced by the decay itself (frozen
+  series_edge_leg="first-only"); misattributions land
+  on adjacent instances ≥2× as often as distant ones.
+- **P1031 recency-from-strength (SHOULD):** a rehearsed
+  90d-old record and an unrehearsed 7d-old record at
+  equal residual R produce recency estimates within
+  noise of each other; the emission is hedged and
+  `verbatim.when` is untouched (rec_verbatim_null).
+- **P1032 flat forecast (MUST — locked-null class):**
+  `jol` across a 1d/30d/180d horizon sweep is flat
+  within `jol_horizon_w` while hit-rate declines;
+  `jol_bias` drift under repeated archival exposure
+  stays ≤ `jol_exp_gain` per exposure (jol_exper_null).
+- **P1033 mislaid-item emergence (SHOULD):** after 3
+  relocations of one item, recall returns the latest
+  location > earlier ones, and on failure the emitted
+  guess is the §4.20 script-node location, not uniform.
+- **P1034 trough emergence (SHOULD):** a 70yo profile's
+  era distribution dips below power-interpolation at
+  encodeAge 30–50; with firsts density held uniform the
+  dip must collapse ≥75% — else adopt `trough_gain`.
+
+Registry: P1–P1034. v97 suite: P1027, P1029, P1030,
+P1032 MUST (P1029, P1032 locked-null class); P1028,
+P1031, P1033, P1034 SHOULD.
+
+## 203. Sources verified this version (P1027–P1034 backing)
+
+- **Conditioned taste aversion:** Garcia & Koelling 1966
+  (long-delay CS–US canonical); Bernstein & Webster 1980
+  (*Physiol. Behav.* 25:363 — verified one-trial adult
+  aversion); Bernstein 1978 (*Science* 200:1302 —
+  verified scapegoat arm, children); Logue, Ophir &
+  Strauss 1981 (*Behav. Res. Ther.* — verified: most
+  adults carry ≥1 aversion, persisting years); Scalera
+  2002. Human duration genuinely variable — clinical
+  chemo aversions often remit in months → `cta_beta`
+  mid-range, `avoid` tag carries the durable product.
+- **Series edges:** Dilevski, Paterson et al. 2021
+  (*JARMAC* — verified: first/last accuracy > middle,
+  cross-instance confusion widespread); Danby, Sharman
+  & Paterson 2022 (*Mem. & Cogn.* — verified
+  proximity-graded misattribution, boundary anchors);
+  Deck et al. 2021 (*Memory* — verified delay-ordered
+  crossover: last-dominant ≤1wk, first-dominant 3wk);
+  Connolly et al. 2016 (child arm — verified).
+- **Recency by strength:** Hintzman 2004 (*Mem. &
+  Cogn.* — verified strength–recency regularity);
+  Hintzman 2010; Brown, Rips & Shevell 1985 (inference
+  route for public events); Friedman 1993 (reused:
+  date reconstruction is inference-heavy).
+- **Stability bias:** Koriat, Bjork, Sheffer & Bar 2004
+  (*PNAS* 101:1100 — verified interval-insensitive JOL);
+  Kornell & Bjork 2009 (*JEP:LMC* — verified survives
+  practice); Rhodes & Tauber 2011 (meta — verified).
+- **Trough:** Rubin & Schulkind 1997 (*Mem. & Cogn.*
+  25:859 — verified three-component fit); Janssen,
+  Chessa & Murre (recency-removal model — verified);
+  asserted EMERGENT (firsts density), `trough_gain`
+  named fallback only.
+- **RW HYPOTHESES marked:** `cta_avoid_hl` 730d
+  (folk-duration tail — clinical data say shorter);
+  `rec_scale` log-map constant (regularity real, form
+  ours); `series_prox_w` 0.5 (proximity direction is
+  literature, coefficient ours); `cta_spill` 0.15 (venue
+  generalization unpriced in humans — conservative).

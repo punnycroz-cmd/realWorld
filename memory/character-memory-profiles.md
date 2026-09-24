@@ -1198,6 +1198,11 @@ needs both.
 | gest_gain / gest_iconic_w | 0.0 / 0.0 | 0.25 / 1.0 | gesture engagement arm + representational share (v5.44) |
 | tot_learn / tot_res_gain | 0.0 / 0.2 | 0.3 / 0.9 | TOT error learning + resolution repair (v5.44) |
 | phone_drain | 0.0 | 0.15 | mere-presence daLoad add — OBSERVE tier (v5.44) |
+| cta_window / cta_novel_w / cta_strength | 0.15 / 0.0 / 0.3 | 0.75 / 1.0 / 0.9 | aversion bind window, novelty targeting, mint E (v5.45) |
+| cta_beta / cta_avoid_hl / cta_spill | 0.02 / 90 / 0.0 | 0.3 / 2000 / 0.4 | aversion decay, avoid-tag half-life, venue spill (v5.45) |
+| series_edge_gain / series_prox_w | 0.0 / 0.2 | 0.4 / 0.8 | boundary anchor + adjacency confusion weight (v5.45) |
+| rec_scale / rec_floor | 5 / 0.005 | 90 / 0.1 | strength→recency map + date-tag floor (v5.45) |
+| jol_horizon_w / jol_exp_gain | 0.0 / 0.0 | 0.15 / 0.2 | horizon load (locked-small) + practice correction cap (v5.45) |
 | device_dep | 0.0 | 1.0 | offload-adoption + phone-drain trait (v5.44) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
@@ -4878,3 +4883,49 @@ trait pins:
   recurring name-blank trains until the day she finally
   pulls it unassisted — a tiny private victory the ledger
   now models. Sources EM§109; probes P1017–P1026.
+
+## 77. v5.45 note (forgetting-curves IX — aversions, the
+strength-clock, series edges, the flat forecast)
+
+Four mechanisms + two emergence contracts (FC Part IX,
+spec §§4.46–4.47, §§5.96–5.97); all mechanism constants,
+none trait-pinnable:
+
+- **`cta_*` — biology, not biography.** Aversion binding
+  is canalized to the gut: no bible may declare a
+  character "never forms food aversions" (the mint
+  ignores `att_min` and traits alike) or "averse to
+  everything." What a bible CAN pin is diet novelty —
+  a habitually adventurous eater simply exposes more
+  candidate targets (`cta_novel_w` does the rest), and
+  the world supplies `illness_onset` events. The
+  `avoid` tag is behavioral, never narrative: a
+  character who stopped going somewhere after one bad
+  meal *cannot* be scripted to explain it — the episode
+  is gone; only the avoidance remains.
+- **`rec_scale`/`rec_floor` — population constants.**
+  Do not pin per-character; the strength→recency map is
+  the lawful source of "I just saw her — actually,
+  months ago." Profiles that rehearse a lot (gossip,
+  retell_boost) systematically under-date their own
+  records — the error is emergent, free.
+- **`jol_horizon_w` — locked-small for everyone.**
+  Every profile is overconfident about its own
+  durability; no bible buys foresight. `jol_bias`
+  remains the only legal personality dial on the
+  forecast (and `jol_exp_gain` caps how much even it
+  can learn).
+- **`series_*` — structure, not soul.** The boundary
+  advantage and adjacency confusion are properties of
+  repeated-event series, not of characters; a
+  high-routine character just generates more series.
+- **Emergent cast shadows:** (a) the 70yo who tells the
+  same four stories flatters the trough — their 40s
+  genuinely held fewer firsts; (b) the character who
+  mislays things weekly emits script-default guesses
+  ("it's always on the hook") that are confidently,
+  legally wrong; (c) the novel-food casualty: one
+  `illness_onset` event and the parody taqueria loses a
+  regular forever, without the character ever being
+  able to testify to the night itself. Sources FC§41;
+  probes P1027–P1034.

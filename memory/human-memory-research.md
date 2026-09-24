@@ -4031,3 +4031,46 @@ Part VIII / spec v5.44:
   err_strength ledger mechanics are ours (the recurrence/
   durability facts are literature); phone_drain observe-tier
   on a contested base. → EM Part VIII §§96–109.
+
+## §75. Ninth forgetting-curves pass — the aversion, the strength-clock, the flat forecast (v97)
+
+- **Garcia & Koelling 1966** + **Bernstein & Webster 1980**
+  (*Physiol. Behav.* 25:363) + **Bernstein 1978** (*Science*
+  200:1302) + **Logue, Ophir & Strauss 1981** (*Behav. Res.
+  Ther.* — all verified): conditioned taste aversion breaks
+  the standard rules — one trial, hours of CS–US delay,
+  novelty-weighted targeting (scapegoat protects the familiar
+  diet), avoidance that outlives the episode. → spec §4.46
+  (`illness_onset` backward-bind, `cta_somatic_null`,
+  `cta_birth_null`); FC§41.1.
+- **Dilevski, Paterson et al. 2021** (*JARMAC*) + **Danby,
+  Sharman & Paterson 2022** (*Mem. & Cogn.*) + **Deck et al.
+  2021** (*Memory* — verified): repeated-event series show
+  boundary-instance advantage, proximity-graded detail
+  confusion, and a delay-ordered first/last crossover → spec
+  §4.47 (`series:{id,idx,n}`, first-only edge gain, adjacency
+  misattribution); FC§41.4.
+- **Hintzman 2004** (*Mem. & Cogn.*) + **Brown, Rips &
+  Shevell 1985** (verified): when temporal tags fail, recency
+  is INFERRED from residual strength — the lawful source of
+  "I just saw her — actually months ago" after a retell →
+  spec §5.96 (`recencyEstimate` log-map,
+  `rec_verbatim_null`); FC§41.2.
+- **Koriat, Bjork, Sheffer & Bar 2004** (*PNAS* 101:1100) +
+  **Kornell & Bjork 2009** (*JEP:LMC*) + **Rhodes & Tauber
+  2011** (verified): the stability bias — JOLs are nearly
+  horizon-insensitive while accuracy declines, and practice
+  barely corrects it → spec §5.97 (locked `jol_horizon_null`,
+  `jol_exp_gain`); FC§41.3.
+- **Rubin & Schulkind 1997** (*Mem. & Cogn.* 25:859) +
+  **Janssen, Chessa & Murre** (recency-removal — verified):
+  the midlife "trough" is the complement of bump+recency —
+  asserted EMERGENT from firsts density, `trough_gain` as
+  named fallback → FC§41.6, probe P1034.
+- **Emergence note:** mislaid-item PI burial + script-default
+  guesses (FC§41.5, P1033) — no new params.
+- **Honest limits marked:** human CTA duration variable
+  (clinical remission vs folk decades → `cta_beta` mid-range,
+  `avoid` tag carries durability); `rec_scale` log-map is our
+  form; `series_prox_w` coefficient ours. → FC Part IX
+  §§41–45; probes P1027–P1034.
