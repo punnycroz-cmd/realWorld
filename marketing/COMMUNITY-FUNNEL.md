@@ -1,6 +1,15 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v99 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v114 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+(v114 rebuilt `site/community.html` end-to-end: the v9 page predated the
+whole ops kit, so it now carries the real offer — the fixed weekly
+programming grid (recap 18:00 / open-rumor 18:05 / clinic Wed 19:00 /
+town hall 1st Sat / watch parties event-driven / feed mirrors daily, from
+`programming-calendar.md`), the full 8-channel map rendered from
+`server-blueprint.json` with the honest invite placeholder kept, a
+"what a recap contains" beats section sourced from `build_recap.py`'s
+structure, and a fourth ladder rung (Bring someone → #clips). Every
+public claim on the page now traces to a runnable file in `community/`.)
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
 and shipped `tools/build_recap.py`. v40 added the runnable ops kit under
@@ -79,7 +88,7 @@ numbers from the events capture + manual Discord counts).
 | Surface | Job in funnel | Status |
 |---|---|---|
 | `site/` landing pages | Stage 0→1: explain, show real captures | BUILT |
-| `site/community.html` | Stage 1→2: describe the community offer honestly pre-launch | BUILT (v9) |
+| `site/community.html` | Stage 1→2: describe the community offer honestly pre-launch | REBUILT (v114) — weekly grid + channel map mirror §5/`server-blueprint.json`; invite placeholder kept, `community_join` event wires onto the real link at go |
 | `site/demo.html` | Stage 0→1 front door: spectator view stub + fallback | BUILT (v11) — go-live is one `data-demo-src` attribute |
 | The Wire — `world/feed.html` (world track) | Stage 1 surface: live spectator feed UI demo | EXISTS on sf/world — borrow as contract, not as an asset |
 | The Archive — `world/history.html` + `world/history.json` (world track) | Stage 1→2: free back-catalog; recap source data | EXISTS on sf/world — `history.json` is the recap input format |
