@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v108 · mirrors <code>world/drama.json</code> (schema drama-v7) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v122 · mirrors <code>world/drama.json</code> (schema drama-v8) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -132,6 +132,12 @@
   <ul class="never" id="objectrules"></ul>
   <h2>Composition rule <span style="text-transform:none;color:var(--dim)">(§47 — one shadow per frame; binds the display ceiling, never the characters)</span></h2>
   <ul class="never" id="compose"></ul>
+  <h2>Consequence continuity <span style="text-transform:none;color:var(--dim)">(§49 — the missed-meal doctrine: protect the possibility of consequence, never the consequence)</span></h2>
+  <ul class="never" id="continuity"></ul>
+  <h2>Supporting-resident dramaturgy <span style="text-transform:none;color:var(--dim)">(§50 — promotion follows recurring relationships, never camera popularity)</span></h2>
+  <ul class="never" id="supporting"></ul>
+  <h2>Bounded opportunities <span style="text-transform:none;color:var(--dim)">(§51 — invitations the block may ignore; ignored is honest texture, never rescued)</span></h2>
+  <ul class="never" id="opps"></ul>
   <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
   <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
@@ -250,7 +256,11 @@ const PCAT=[
  ["P-27","Delivery morning — supplier crates and invoices on the wholesale-row sidewalk","the supplier loop's own delivery cadence","F1 · S6","Tomás counting crates; a clipboard invoice; prices in the air","per the loop's real cadence — crates are props of the route, never planted"],
  ["P-28","The borrowed-key errand — watering plants, feeding a cat while someone's away","the block's mutual-favor texture","F5 · F2","a key on a hook that isn't yours; a door opened for somebody","rare — keys exist because absences do; a lent key that engineers proximity is staging"],
  ["P-29","The shared-dessert appearance — a birthday or small win producing a plate that travels","the block's ordinary occasions","F4 · F3","a candle in a pastry; who carries the plate, who takes the first slice","real dates only — a celebration invented for pressure is a prop department"],
- ["P-30","Rain-day ritual transfer — cafecito hour or a park ritual relocating indoors","the weather layer + the rituals' own elasticity","F5","the plants alone in the rain; Carmen's chair inside the café","the ritual may move, never cancel for pressure; weather is flat (identical-twin)"]];
+ ["P-30","Rain-day ritual transfer — cafecito hour or a park ritual relocating indoors","the weather layer + the rituals' own elasticity","F5","the plants alone in the rain; Carmen's chair inside the café","the ritual may move, never cancel for pressure; weather is flat (identical-twin)"],
+ ["P-31","The make-good route — a voluntary repair gesture crossing shared space (a carried plate, a covered shift, a second invitation in person)","the characters' own repair behavior under §49 — direction keeps the route walkable, never walks it","F3 · F4 · F5","the gesture seen before it's read: a plate carried the long way; a shift taken without being asked","rare by definition — the gesture is never produced, only allowed to be seen"],
+ ["P-32","The standing invitation — a posted open call (study table, workbench hours, garden plot) staying up week over week","the bounded-opportunity layer (§51)","F2 · F3","the sheet itself — names appearing or not; the table that exists whether or not anyone sits","spends nothing while ignored; adopted becomes routine texture — pressure spent by becoming ordinary"],
+ ["P-33","Second-shift overlap — a promoted resident's recurring routine crossing a main's habitual hour","the promotion layer's kept schedules (§50)","F4 · F6","the same two people in the same frame across weeks; recognition texture — 'the usual'","per the residents' real cadence — overlap is a rhythm; promotion makes it legible, never creates it"],
+ ["P-34","The commitment artifact — evidence of a plan made earlier (a chalked date, ingredients bought, a borrowed chair count)","characters' own planning acts","F5 · F3","the artifact outliving the plan — chairs stacked for a meal that didn't happen; a date rubbed off the board","one per plan — exists because the plan did; planted to remind the audience it's a prop, not a shadow"]];
 const EVID=[
  ["dormant → pressured","a ledger event traceable to a listed pressure_route within ~3 block days","manager intent · spectator chatter · a near-miss with no ledger event · another seed already pressured"],
  ["pressured → surfaced","the fact crossing to a must-not-know via a listed reveal vector, with a legible shadow","a rumor (can't mint seed facts) · interior realization · player hope"],
@@ -446,6 +456,27 @@ const COMPOSE=[
  "triangulation happens across scenes, not within them — the audience does the synthesis, the render never does it for them",
  "the rule binds the display ceiling, not the characters — ordinary lives intersecting is just the neighborhood",
  "a crowded frame is a review flag (crowded_frame, §45) — logged at drift review like a stacked week, never retro-scrubbed"];
+const CONSEQ=[
+ "a missed commitment is canon — the no-show, the waiting, the food going cold are ledger events; never smoothed over, never retconned, never replayed for a better take",
+ "all three outcomes are legal — a miss may tighten a relationship, loosen it, or pass unremarked; the drift review records which in notes, a posture never steers it",
+ "repair is a character act — a make-good gesture is produced by the character, never scheduled; direction may only keep the conditions for repair alive (shared spaces, recurring contact)",
+ "disappointment has no direction-set expiry — 'still carrying it' is a legitimate drift-record observation; a posture demanding the carrying end is an outcome claim (§19.5)",
+ "the double ledger stays double — misser and missed may remember differently; direction never reconciles the two memories",
+ "a declined invitation is not a wound — an ignored opportunity (§51) carries no residue and is never treated as pressure"];
+const SUPPORT=[
+ "promotion follows recurring relationships, never camera popularity — the case is built from observed recurring contact in the ledger; §37 fences viewership out of casting too",
+ "pre-promotion shadows are venue texture — a not-yet-promoted resident is a teller-bias carrier (§24); the audience must never be taught to read a pawn as a fuse",
+ "secrets mint at promotion, never retroactively — surface knowledge stays surface; a resident never arrives knowing seed facts 'they would have overheard'",
+ "new seeds meet the seed bar — disjoint holders/suspects/must_not_know, a three-rung tell ladder, a suspicion-calibration row, or the seed doesn't enter the registry",
+ "casting is not pacing — never promote to fill a slow week; never hold a promotion back to protect a venue's texture (the coverage hole is a crowd-sim problem)",
+ "reversion keeps residue — a departed resident's resolved interactions stay ledger canon; direction never unwinds them"];
+const OPPS=[
+ "opportunities are conditions, never fuses — a standing invitation is at most a pressure-catalog producer (P-32); never a seed, never a fuse, never a promise someone must keep",
+ "uptake belongs to the characters — direction may post, maintain, and keep an opportunity legible; never tracks attendance as a score, never escalates an ignored invitation into pressure, never refreshes a stale one to force uptake",
+ "ignored is honest texture — the sign-up sheet stays up with blank lines; the drift review may write cold_opportunity in notes, observed, never flagged for rescue",
+ "adopted becomes ordinary — an opportunity taken up joins routines and produces shadows by the normal rules; no exemption from the quiet floor, no pressure spend",
+ "the organizer's act is theirs — a character independently organizing around an opportunity (the shared meal) creates commitment consequences per §49; the opportunity itself never carries the consequence",
+ "requests may create opportunities, never obligations — a sponsored invitation enters with identical pressure to an organic one (§17 identical-twin test)"];
 const LEGAL=[
  "Is it a disposition, condition, weight, or protection?",
  "Could the feed falsify it in a week? (outcome claim → rewrite)",
@@ -515,6 +546,9 @@ document.querySelector('#objects tbody').innerHTML=OBJECTS.map(r=>
  `<tr><td><b>${r[0]}</b></td><td class="c">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
 document.getElementById('objectrules').innerHTML=OBJECTRULES.map(n=>`<li>${n}</li>`).join('');
 document.getElementById('compose').innerHTML=COMPOSE.map(n=>`<li>${n}</li>`).join('');
+document.getElementById('continuity').innerHTML=CONSEQ.map(n=>`<li>${n}</li>`).join('');
+document.getElementById('supporting').innerHTML=SUPPORT.map(n=>`<li>${n}</li>`).join('');
+document.getElementById('opps').innerHTML=OPPS.map(n=>`<li>${n}</li>`).join('');
 document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>

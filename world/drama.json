@@ -1,6 +1,6 @@
 {
- "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare, cooling grammar, double-surface contingency, fair misfires, posture vocabulary, drift record, object dramaturgy, composition rule. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
- "schema_version": "drama-v7",
+ "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare, cooling grammar, double-surface contingency, fair misfires, posture vocabulary, drift record, object dramaturgy, composition rule, consequence continuity, supporting-resident dramaturgy, bounded opportunities. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
+ "schema_version": "drama-v8",
  "seed_states": [
   "dormant",
   "pressured",
@@ -989,6 +989,51 @@
    ],
    "legible_shadow": "the plants alone in the rain; Carmen's chair inside the café",
    "exhaustion": "the ritual may move, never cancel for pressure; weather is flat (§17 identical-twin)"
+  },
+  {
+   "id": "P-31",
+   "condition": "the make-good route — a character's voluntary repair gesture crossing shared space (a carried plate, a covered shift, a second invitation delivered in person)",
+   "produced_by": "the characters' own repair behavior under §49 — direction keeps the route walkable, never walks it",
+   "feeds": [
+    "F3",
+    "F4",
+    "F5"
+   ],
+   "legible_shadow": "the gesture seen before it's read: a plate carried the long way; a shift taken without being asked",
+   "exhaustion": "rare by definition — the gesture is never produced, only allowed to be seen; a route kept open is a condition, a gesture is an act"
+  },
+  {
+   "id": "P-32",
+   "condition": "the standing invitation — a posted open call (study table, workbench hours, garden plot) staying up week over week",
+   "produced_by": "the bounded-opportunity layer (§51)",
+   "feeds": [
+    "F2",
+    "F3"
+   ],
+   "legible_shadow": "the sheet itself — names appearing or not appearing; the table that exists whether or not anyone sits",
+   "exhaustion": "spends nothing while ignored; an adopted invitation becomes routine texture — its pressure is spent by becoming ordinary"
+  },
+  {
+   "id": "P-33",
+   "condition": "second-shift overlap — a promoted resident's recurring routine crossing a main's habitual hour",
+   "produced_by": "the promotion layer's kept schedules (§50; promotion.md §2.4)",
+   "feeds": [
+    "F4",
+    "F6"
+   ],
+   "legible_shadow": "the same two people in the same frame across weeks; recognition texture — 'the usual'",
+   "exhaustion": "per the residents' real cadence — overlap is a rhythm, not an arrangement; promotion makes it legible, never creates it"
+  },
+  {
+   "id": "P-34",
+   "condition": "the commitment artifact — evidence of a plan made earlier (a chalked date, ingredients bought, a borrowed chair count)",
+   "produced_by": "characters' own planning acts",
+   "feeds": [
+    "F5",
+    "F3"
+   ],
+   "legible_shadow": "the artifact outliving the plan — chairs stacked for a meal that didn't happen; a date rubbed off the board",
+   "exhaustion": "one per plan — the artifact exists because the plan did; planted to remind the audience it's a prop, not a shadow"
   }
  ],
  "state_evidence": {
@@ -1919,6 +1964,39 @@
    "recovery outranks every other posture and cancels any prefer on contact",
    "a posture that reads as a plan is a violation — 'prefer F2 until it surfaces' names an outcome (§19.5); the legal form is re-decided every review",
    "postures are the audit trail — the budget ledger records posture + spend per window; 'emergence' is also a recorded answer"
+  ]
+ },
+ "consequence_continuity": {
+  "doc": "drama-notes §49 — the missed-meal doctrine: protect the possibility of consequence, never the consequence",
+  "rules": [
+   "a missed commitment is canon — the no-show, the waiting, the food going cold are ledger events; never smoothed over, never retconned, never replayed for a better take",
+   "all three outcomes are legal — a miss may tighten a relationship, loosen it, or pass unremarked; the drift review records which in notes, a posture never steers it",
+   "repair is a character act — a make-good gesture is produced by the character, never scheduled; direction may only keep the conditions for repair alive (shared spaces, recurring contact)",
+   "disappointment has no direction-set expiry — 'still carrying it' is a legitimate drift-record observation; a posture demanding the carrying end is an outcome claim (§19.5)",
+   "the double ledger stays double — misser and missed may remember differently; direction never reconciles the two memories",
+   "a declined invitation is not a wound — an ignored opportunity (§51) carries no residue and is never treated as pressure"
+  ]
+ },
+ "supporting_dramaturgy": {
+  "doc": "drama-notes §50 — promoted ambients enter the seed architecture; promotion follows recurring relationships, never camera popularity",
+  "rules": [
+   "promotion follows recurring relationships, never camera popularity — the case is built from observed recurring contact in the ledger; §37 fences viewership out of casting too",
+   "pre-promotion shadows are venue texture — a not-yet-promoted resident is a teller-bias carrier (§24); the audience must never be taught to read a pawn as a fuse",
+   "secrets mint at promotion, never retroactively — surface knowledge stays surface; a resident never arrives knowing seed facts 'they would have overheard'",
+   "new seeds meet the seed bar — disjoint holders/suspects/must_not_know, a three-rung tell ladder, a suspicion-calibration row, or the seed doesn't enter the registry",
+   "casting is not pacing — never promote to fill a slow week; never hold a promotion back to protect a venue's texture (the coverage hole is a crowd-sim problem)",
+   "reversion keeps residue — a departed resident's resolved interactions stay ledger canon; direction never unwinds them"
+  ]
+ },
+ "bounded_opportunities": {
+  "doc": "drama-notes §51 — public invitations, shared workspace, community projects as may-ignore conditions; an ignored invitation is honest texture, never rescued",
+  "rules": [
+   "opportunities are conditions, never fuses — a standing invitation is at most a pressure-catalog producer (P-32); never a seed, never a fuse, never a promise someone must keep",
+   "uptake belongs to the characters — direction may post, maintain, and keep an opportunity legible; never tracks attendance as a score, never escalates an ignored invitation into pressure, never refreshes a stale one to force uptake",
+   "ignored is honest texture — the sign-up sheet stays up with blank lines; the drift review may write cold_opportunity in notes, observed, never flagged for rescue",
+   "adopted becomes ordinary — an opportunity taken up joins routines and produces shadows by the normal rules; no exemption from the quiet floor, no pressure spend",
+   "the organizer's act is theirs — a character independently organizing around an opportunity (the shared meal) creates commitment consequences per §49; the opportunity itself never carries the consequence",
+   "requests may create opportunities, never obligations — a sponsored invitation enters with identical pressure to an organic one (§17 identical-twin test)"
   ]
  }
 }

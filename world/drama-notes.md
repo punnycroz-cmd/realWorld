@@ -1,4 +1,4 @@
-# Drama Direction Notes — "The Mission" (world v108)
+# Drama Direction Notes — "The Mission" (world v122)
 
 *v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
 week shapes, and substrate handoff; v38 added evidence standards, drift review,
@@ -15,7 +15,15 @@ register, the drift-review posture vocabulary, and pressure catalog fifth
 tranche; v108 adds the drift record (what a review actually writes — the
 §43 audit trail given a schema), the object dramaturgy registry (the
 secret-objects' custody rules), the composition rule (one shadow per
-frame), and pressure catalog sixth tranche.*
+frame), and pressure catalog sixth tranche; v122 adds the
+consequence-continuity doctrine (the missed-meal test — a miss is
+canon, repair is a character act, direction only keeps the conditions
+for repair alive), supporting-resident dramaturgy (promoted ambients
+enter the seed architecture — promotion follows recurring
+relationships, never camera popularity), bounded-opportunity direction
+(public invitations as may-ignore conditions — an ignored invitation
+is honest texture, never rescued), and pressure catalog seventh
+tranche.*
 
 **Audience:** the character AI brains (via their system context), the future
 drama-pacing manager (game-systems substrate item 9), reviewers of this
@@ -1367,3 +1375,122 @@ pressure. `drama.json` mirrors.
 | P-28 | The borrowed-key errand — watering plants, feeding a cat while someone's away | the block's mutual-favor texture | F5, F2 | a key on a hook that isn't yours; a door opened for somebody | rare — keys exist because absences do; a key lent to engineer proximity is staging |
 | P-29 | The shared-dessert appearance — a birthday or small win producing a plate that travels between counters | the block's ordinary occasions | F4, F3 | a candle in a pastry; who carries the plate and who takes the first slice | real dates only — a celebration invented for pressure is a prop department |
 | P-30 | Rain-day ritual transfer — cafecito hour or a park ritual relocating indoors under weather | the weather layer + the rituals' own elasticity | F5 | the plants alone in the rain; Carmen's chair inside the café | the ritual may move, never cancel for pressure; weather is flat (§17 identical-twin) |
+
+## 49. Consequence continuity — the missed-meal doctrine
+
+The product's one deep corner is a choice today visibly changing a
+relationship tomorrow. For the direction layer that reduces to a single
+doctrine: **protect the possibility of consequence, never the
+consequence.** `drama.json` mirrors it as `consequence_continuity`.
+
+- **A missed commitment is canon.** The no-show, the waiting, the food
+  going cold — if it happened it is a ledger event like any other.
+  It is never smoothed over, never replayed for a better take, never
+  retro-doctored into "they were both late." The sim owns what the
+  miss meant; direction owns nothing downstream of it.
+- **All three outcomes are legal.** A miss may tighten a relationship
+  (disappointment remembered), loosen it (quiet distance), or pass
+  unremarked — the characters' engines decide. A drift review records
+  which way it went in `notes`; a posture may never be set to steer it.
+- **Repair is a character act.** A make-good gesture — a second
+  invitation, a covered shift, the apology pastry — is produced by the
+  character, not scheduled. Direction may keep the *conditions* for
+  repair alive (shared spaces, recurring contact, P-31's route staying
+  walkable) and may never produce the gesture itself.
+- **Disappointment has no direction-set expiry.** How long a miss is
+  carried belongs to the remembering character. "Still carrying it" is
+  a legitimate drift-record observation; a posture demanding the
+  carrying end is an outcome claim (§19.5).
+- **The double ledger stays double.** What the misser remembers and
+  what the missed remembers may diverge — unequal knowledge is the
+  content, not a bug. Direction never reconciles the two memories, and
+  never pressures the character holding the smaller version to "catch
+  up."
+- **A declined invitation is not a wound.** A missed commitment and an
+  ignored opportunity (§51) are different objects: the first is a
+  promise between people, the second is a flyer nobody took. Refusal
+  of an open door carries no residue and must not be treated as
+  pressure.
+
+## 50. Supporting-resident dramaturgy — promotion follows relationship
+
+When an ambient promotes per `world/promotion.md`, the block gains a
+recurring resident with persistent memory and brain-authored
+consequential interactions — the cast grows from eight mains toward
+eight plus a few. `drama.json` mirrors it as `supporting_dramaturgy`.
+
+- **Promotion follows recurring relationships, never camera
+  popularity.** A candidate's case is built from observed recurring
+  contact in the ledger — who keeps crossing whose routine — never
+  from viewer attention (§37 fences viewership out of pressure; it
+  fences it out of casting too).
+- **Pre-promotion shadows are venue texture.** A not-yet-promoted
+  resident appears exactly as teller-bias carriers do (§24): texture
+  with a name. The audience must never be taught to read a pawn as a
+  fuse — a resident whose ambient shadows ran at tell-grade arrives at
+  promotion pre-leaked, and that's a §12 violation.
+- **Secrets mint at promotion, never retroactively.** The promoted
+  resident's SECRETS section is authored fresh at promotion
+  (promotion.md §2.3): the knowledge matrix gains a row; their surface
+  knowledge stays surface. A resident may not arrive knowing seed
+  facts "they would have overheard."
+- **New seeds meet the seed bar.** Any seed authored for a promoted
+  resident gets the full registry treatment — disjoint
+  holders/suspects/must_not_know, a three-rung tell ladder, a
+  suspicion-calibration row — or it doesn't enter the registry.
+- **Casting is not pacing.** Direction never promotes to fill a slow
+  week (the stall doctrine applies: a quiet block is correct content),
+  and never holds a promotion back to protect a venue's texture — the
+  coverage hole is a crowd-sim problem (promotion.md §1), not a drama
+  lever.
+- **Reversion keeps residue.** If a promoted resident's role ends,
+  their resolved interactions stay ledger canon. Direction never
+  unwinds them — a departed resident is a name the block remembers,
+  not a plot hole to scrub.
+
+## 51. Bounded-opportunity direction — invitations the block may ignore
+
+The Astra direction's second half: public invitations, shared
+workspace, community projects — real content the characters may walk
+past. `drama.json` mirrors it as `bounded_opportunities`.
+
+- **Opportunities are conditions, never fuses.** A standing invitation
+  (the study table, workbench hours, the garden plot) is at most a
+  pressure-catalog producer (P-32). It is never a seed, never a fuse,
+  never a promise someone must keep.
+- **Uptake belongs to the characters.** Direction may post an
+  opportunity, maintain it, and keep it legible. It may never track
+  attendance as a score, never escalate an ignored invitation into
+  pressure, and never refresh a stale one to force uptake — an
+  invitation re-posted because nobody came is a script wearing a
+  flyer.
+- **Ignored is honest texture.** The sign-up sheet stays up with its
+  blank lines. The drift review may write `cold_opportunity` in
+  `notes` — observed, never flagged for rescue. A block where every
+  invitation lands is a block where invitations mean nothing.
+- **Adopted becomes ordinary.** Once characters take an opportunity
+  up it joins their routines and produces shadows by the normal rules
+  — it earns no exemption from the quiet floor, and its adoption
+  spends no pressure budget.
+- **The organizer's act is theirs.** If a character independently
+  organizes around an opportunity — the shared meal, the work party —
+  attendance and absence consequences follow §49. The opportunity
+  itself never carries the consequence; the promise between people
+  does.
+- **Requests may create opportunities, never obligations.** A
+  sponsored invitation enters with identical pressure to an organic
+  one (§17's identical-twin test) — the player's hope is weather,
+  not a lever.
+
+## 52. Pressure catalog — seventh tranche
+
+Same legality as §14/§26/§35/§39/§44/§48: a producing system that
+already exists, a legible shadow, an exhaustion rule — or it's a
+wish, not a pressure. `drama.json` mirrors.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-31 | The make-good route — a character's voluntary repair gesture crossing shared space (a carried plate, a covered shift, a second invitation delivered in person) | the characters' own repair behavior under §49 — direction keeps the route walkable, never walks it | F3, F4, F5 | the gesture seen before it's read: a plate carried the long way; a shift taken without being asked | rare by definition — the gesture is never produced, only allowed to be seen; a route kept open is a condition, a gesture is an act |
+| P-32 | The standing invitation — a posted open call (study table, workbench hours, garden plot) staying up week over week | the bounded-opportunity layer (§51) | F2, F3 | the sheet itself — names appearing or not appearing; the table that exists whether or not anyone sits | spends nothing while ignored; an adopted invitation becomes routine texture — its pressure is spent by becoming ordinary |
+| P-33 | Second-shift overlap — a promoted resident's recurring routine crossing a main's habitual hour | the promotion layer's kept schedules (§50; promotion.md §2.4) | F4, F6 | the same two people in the same frame across weeks; recognition texture — "the usual" | per the residents' real cadence — overlap is a rhythm, not an arrangement; promotion makes it legible, never creates it |
+| P-34 | The commitment artifact — evidence of a plan made earlier (a chalked date, ingredients bought, a borrowed chair count) | characters' own planning acts | F5, F3 | the artifact outliving the plan — chairs stacked for a meal that didn't happen; a date rubbed off the board | one per plan — the artifact exists because the plan did; planted to remind the audience it's a prop, not a shadow |

@@ -399,7 +399,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G9 drama ============ */
 {
-  const g = gate('drama', 'drama registry invariants (states, fuses, knowledge disjointness, internal-only; v108 drift-record/object/composition contracts)');
+  const g = gate('drama', 'drama registry invariants (states, fuses, knowledge disjointness, internal-only; v108 drift-record/object/composition + v122 continuity/supporting/opportunity contracts)');
   try {
     const D = JSONF('drama.json');
     const states = new Set(D.seed_states);
@@ -727,6 +727,46 @@ const PUB = Object.values(PT.surfaces)
           add(g, 'fail', 'drama.html', null, 'OBJECTRULES count != object_dramaturgy.rules');
         if (!CMP || CMP.length !== CMPR.length)
           add(g, 'fail', 'drama.html', null, 'COMPOSE count != composition_rule.rules');
+      }
+      /* ---- v122 blocks (schema drama-v8 or later) ---- */
+      if (/^drama-v[8-9]\d*$/.test(D.schema_version || '')) {
+        /* consequence_continuity: canon + character-act repair + no reconciliation (§49) */
+        const CC = (D.consequence_continuity || {}).rules || [];
+        if (!CC.length) add(g, 'fail', 'drama.json', null, 'consequence_continuity.rules empty');
+        if (!CC.some(r => /canon|retconned/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'consequence_continuity must declare a missed commitment canon, never retconned');
+        if (!CC.some(r => /character act|never scheduled/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'consequence_continuity must keep repair a character act, never scheduled');
+        if (!CC.some(r => /not a wound|declined invitation/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'consequence_continuity must separate a declined invitation from a missed commitment');
+        /* supporting_dramaturgy: relationship-not-popularity + minted secrets + casting≠pacing (§50) */
+        const SD = (D.supporting_dramaturgy || {}).rules || [];
+        if (!SD.length) add(g, 'fail', 'drama.json', null, 'supporting_dramaturgy.rules empty');
+        if (!SD.some(r => /never camera popularity/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'supporting_dramaturgy must fence viewership out of casting');
+        if (!SD.some(r => /mint at promotion|never retroactiv/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'supporting_dramaturgy must keep secrets minted at promotion, never retroactive');
+        if (!SD.some(r => /venue texture|teller/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'supporting_dramaturgy must cap pre-promotion shadows at venue texture');
+        /* bounded_opportunities: conditions-not-fuses + may-ignore + identical-twin (§51) */
+        const BO = (D.bounded_opportunities || {}).rules || [];
+        if (!BO.length) add(g, 'fail', 'drama.json', null, 'bounded_opportunities.rules empty');
+        if (!BO.some(r => /never fuses|never a seed/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'bounded_opportunities must fence invitations out of the seed/fuse architecture');
+        if (!BO.some(r => /never escalates|never refreshes|uptake belongs/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'bounded_opportunities must keep uptake with the characters (no escalation, no refresh-to-force)');
+        if (!BO.some(r => /identical.twin/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'bounded_opportunities must carry the §17 identical-twin test for sponsored invitations');
+        /* drama.html mirror: new sections render, rule counts agree */
+        for (const id of ['continuity', 'supporting', 'opps'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const CQ = grab('CONSEQ'), SP2 = grab('SUPPORT'), OPP = grab('OPPS');
+        if (!CQ || CQ.length !== CC.length)
+          add(g, 'fail', 'drama.html', null, 'CONSEQ count != consequence_continuity.rules');
+        if (!SP2 || SP2.length !== SD.length)
+          add(g, 'fail', 'drama.html', null, 'SUPPORT count != supporting_dramaturgy.rules');
+        if (!OPP || OPP.length !== BO.length)
+          add(g, 'fail', 'drama.html', null, 'OPPS count != bounded_opportunities.rules');
       }
     }
     /* seeds must never be reachable from spectator contracts */

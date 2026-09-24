@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v121)
+# Playtest Harness — "Real World / The Mission" (world v122)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -397,6 +397,17 @@ One person can wear every hat; four real testers is the intended shape.
   line on the handoff, and the [world-playtest-verify] paste block.
   The audit's v121 marks pin the affordances (id=verify, S.verify,
   vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify).
+  PT111 (drama board v122) audits the consequence-continuity pass —
+  drama.json drama-v8 carrying the missed-meal doctrine (a miss is
+  canon, all three outcomes legal, repair a character act, the double
+  ledger stays double, a declined invitation is not a wound),
+  supporting-resident dramaturgy (promotion follows recurring
+  relationships, never camera popularity; secrets mint at promotion;
+  casting is not pacing), bounded opportunities (conditions never
+  fuses; ignored is honest texture; identical-twin for sponsored
+  invitations), and the seventh pressure tranche (P-31–P-34). The
+  audit's v122 marks pin the contract blocks and the CONSEQ/SUPPORT/
+  OPPS mirror counts.
 
 ## 3. Running a session
 
