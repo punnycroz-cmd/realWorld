@@ -5208,3 +5208,44 @@ trait, at what base rate.
   Rouch 2005 shift-work cognitive aging; Wilson/Goveas
   loneliness-memory work; Anstey smoking meta; Sabia —
   see ID§§108–137.
+
+## 94. v119 sources — validation-design XII (the absence audit; spec unchanged)
+
+The forgetting-verdict ladder (VA-ABS) needs instruments that
+separate "not retrievable" from "not stored." All are textbook
+consensus; the *ordering* (L0→L5, savings deepest-explicit,
+implicit last) is our operationalization.
+
+- **Savings method (CONSENSUS):** **Ebbinghaus 1885/1964** —
+  relearning-to-criterion as residual-trace measure; replicated
+  at 20min–31d by **Murre & Dros 2015** (*PLoS ONE*
+  10:e0120644 — verified). → L4 leg + SHADOW verdict.
+- **Availability vs accessibility (CONSENSUS):** **Tulving &
+  Pearlstone 1966** (*JVLVB* 5:381) — failed recall is
+  ambiguous between the two; the audit's founding split.
+- **Encoding specificity (CONSENSUS):** **Tulving & Thomson
+  1973** (*Psychol Rev* 80:352); **Watkins & Tulving 1975**
+  (*JEP:G* 104:5) — recognition can fail where recall later
+  succeeds and vice versa; fixes the L3>L0 sign in P1270.
+- **RESLA (CONSENSUS):** **Nelson 1978** (*JVLVB* 17:453) —
+  savings for nonrecognized items; **Nelson 1985** (*JEP:LMC*
+  11:472) — savings is the most sensitive measure at 4wk;
+  basis of the spec's existing `savings` shadow (§4).
+- **Implicit/explicit dissociation (CONSENSUS):** **Tulving,
+  Schacter & Stark 1982** (*JEP:LMC* 8:336) — priming
+  independent of recognition; **Graf & Schacter 1985**
+  (*JEP:LMC* 11:501). → L5 leg, P1273 floor.
+- **Metamemory instruments (CONSENSUS on existence; the
+  accessibility mechanism is Koriat's reading, well-
+  supported):** **Hart 1965** (*JEP* 70:208); **Koriat 1993**
+  (*Psychol Rev* 100:609); **Koriat & Levy-Sadot 2001**
+  (*JEP:G* 130:395) — FOK/TOT drive search termination;
+  **Nelson & Dunlosky 1991** (*Psychol Sci* 2:267) —
+  delayed-JOL accuracy. → P1274/P1275/P1279.
+- **HYPOTHESIS (ours, flagged):** the four-state verdict
+  matrix (NE/SUB/SHADOW/GONE), `sav_detect` floor, and
+  `cue_coverage` logging are harness epistemics — real minds
+  have no provenance chains; the NE-vs-GONE split exists to
+  catch phantom mints, not as psychology.
+
+→ VA-ABS (validation-design §239); probes P1269–P1280.

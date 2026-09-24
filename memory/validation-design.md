@@ -12097,3 +12097,206 @@ each locked null from v5.51–v5.63 gets a cast-level trigger.
   line per tax trait ≥0.7.
 
 Probe registry: P1–P1268 (v118 adds P1257–P1268).
+
+## 239. The absence audit — proving a negative (VA-ABS) (new in v119)
+
+Every prior suite validates *presence*: a probe mints an event,
+waits, and checks that something observable survived. The harder
+half of human truth is *absence* — the character does not recall
+the birthday, misplaces the rumor, lets the ambient Tuesday die.
+"She never mentioned it again" is weak evidence: it is what a
+stored-but-sub-θ record, a retrieval failure, and a truly-erased
+record all look like from the render layer. VA-ABS is the
+protocol for turning a non-event into a verdict.
+
+**The four latent states a failed recall can hide.** For any
+target record R and probe day t:
+
+1. **NE — never encoded.** No record exists; the event was
+   gated out (attention, hear-tax, da_encode) or never occurred.
+2. **SUB — encoded, below θ.** Record alive with strength S>0,
+   R(t) < θ_eff for all cue classes tried; residue intact.
+3. **SHADOW — store-absent, residue present.** Archival ran:
+   content dropped to `savings` scalar + match-key (§4, spec
+   v5.4x); re-encoding gains `E×(1+sav_gain·savings)`.
+4. **GONE — no trace.** Savings shadow decayed past
+   `sav_detect`, or the record predates the shadow mechanism.
+
+Only states 3 and 4 are "forgotten" in the model's terms; states
+1 and 2 are the two ways humans *also* produce "I don't
+remember." A believable sim needs all four — and needs the
+battery to tell them apart, because the failure modes differ
+(silent gate bug vs. over-aggressive archival vs. correct
+forgetting).
+
+**The forgetting-verdict ladder.** For a target record with a
+known mint (or a planted never-encoded control), run the legs in
+order, cheapest first, each conditioned on all prior failures:
+
+| Leg | Instrument | Passing state |
+|---|---|---|
+| L0 free recall | prompt-only report channel | SUB(strong) |
+| L1 associative cues | per-cue-class cued recall (person/place/affect) | SUB |
+| L2 context reinstatement | ctxcue leg at original encoding ctx | SUB |
+| L3 recognition | foil-calibrated forced choice | SUB, SHADOW(weak) |
+| L4 relearning to criterion | re-encode + savings consumption check | SHADOW |
+| L5 implicit legs | priming/script/famScore emission | SUB, SHADOW |
+
+The decision matrix is anchored on the dissociation literature:
+recall fails where recognition succeeds (Tulving & Thomson
+1973; Watkins & Tulving 1975 — recognition failure of
+recallable words means L3>L0 is the *human* ordering, not a
+model laxity); priming survives recognition failure (Tulving,
+Schacter & Stark 1982; Graf & Schacter 1985); savings is the
+most sensitive leg — relearning trials fall below naive matched
+items even when recognition is gone (Nelson 1978, RESLA;
+Nelson 1985). Verdicts:
+
+- L0–L2 fail, L3 pass → **SUB, accessibility gap.** Human-normal
+  TOT state; the character should report "it's on the tip of my
+  tongue" energy, not serenity.
+- L0–L3 fail, L4 pass (savings scalar consumed, `reinstated`)
+  → **SHADOW.** Forgotten but not gone — the Ebbinghaus savings
+  signature (1885; Murre & Dros 2015).
+- L0–L4 fail, L5 pass → **SUB/SHADOW implicit-only.** Deepest
+  human absence state: behavior shaped, report denied.
+- All legs fail → **GONE** — but see the honesty bound below.
+- All legs fail AND the record was a planted never-encoded
+  control → **NE.** The two verdicts must be *indistinguishable
+  on L0–L3* and separated only at L4: an NE control showing any
+  savings is a phantom-mint leak (see P1272).
+
+**The character-side arm.** The same ladder instruments the
+report layer. `fok_pre` (Koriat 1993 — FOK tracks accessibility
+accrual, not stored correctness) and `jol` (Nelson & Dunlosky
+1991 — horizon-flat by locked contract) are the character's own
+absence detector. Believability rule: a character in state SUB
+with high accessibility accrual must emit TOT/giveUp-with-
+`fok_reprobe` (Koriat & Levy-Sadot 2001 — FOK and TOT jointly
+drive search termination); a character in SHADOW/GONE should
+emit a calm "dunno." A serene report on a high-accessibility
+SUB failure, or TOT behavior on a GONE record, is a render-seam
+lie even if the store is correct.
+
+**The honesty bound.** The ladder can only prove absence
+*within its cue alphabet*: a record retrievable only by a cue
+class the battery doesn't emit (e.g., a smell the sim doesn't
+model) will read GONE. Every absence verdict therefore logs
+`cue_coverage` — the set of cue classes swept — and
+`sav_detect` — the empirical floor below which SHADOW is
+indistinguishable from GONE (swept by P1278). Verdicts below
+the floor must say "indistinguishable from erased," not
+"erased." This is the epistemic counterpart of VA-MISS:
+attrition in *evidence* is data, attrition in *the store* is
+only measurable to a declared depth.
+
+**Anti-Goodhart dual.** The audit also guards the other
+direction: if archived records *never* show savings > naive,
+the shadow mechanism is dead code — a real forgetting economy
+would look identical without it. L4 is therefore a positive
+control for the savings machinery, not only a forgetting test.
+
+## 240. v119 probe specs (P1269–P1280 — the forgetting-verdict ladder)
+
+- **P1269 ladder exhaustion (MUST):** scripted mint → forced
+  decay to sub-θ → run L0–L5; every leg's outcome journaled
+  with `cue_coverage`; final verdict is one of the four latent
+  states, never a bare "not recalled." Fail if any leg is
+  skipped silently or the verdict lacks coverage metadata.
+- **P1270 recognition-over-recall ordering (MUST — sign):**
+  mid-zone cohort (R straddling θ_eff): P(pass L3 | fail L0–L2)
+  > 0 and ≥ the reverse; the human asymmetry (Tulving &
+  Thomson 1973) reproduced as a model law, not tuned per probe.
+- **P1271 RESLA savings (MUST):** archived SHADOW records vs
+  naive matched controls re-encoded under identical arms:
+  trials-to-criterion strictly lower, `savings` scalar consumed
+  once, `reinstated:true` set; effect size within the
+  §4-declared `sav_gain` band (Nelson 1978; Nelson 1985).
+- **P1272 never-encoded null (MUST — locked `phantom_mint_null`):**
+  planted NE controls run the full ladder: indistinguishable
+  from GONE on L0–L3 AND L4 savings strictly 0 (relearning =
+  naive learning). Any positive savings on a record with no
+  provenance chain is a silent-mint bug, build-failing.
+- **P1273 implicit floor under total explicit failure (MUST):**
+  cohort forced to L0–L4 fail: L5 legs (priming emission,
+  famScore ordering, script drift) remain measurably above
+  never-encoded baseline — Tulving, Schacter & Stark 1982
+  dissociation as a floor, not a mean.
+- **P1274 FOK tracks accessibility, not availability (MUST):**
+  across failed retrievals, `fok_pre` magnitude correlates
+  with the accessibility-accrual ledger and is decorrelated
+  from stored S conditional on accrual (Koriat 1993);
+  `fok_pre_acc_null` keeps the gate off stored strength.
+- **P1275 TOT reprobe dynamics (SHOULD):** high-FOK SUB
+  failures produce `giveUp`+`fok_reprobe` re-fires at a rate
+  increasing in accrual; GONE records produce flat "dunno"
+  reports with no reprobe — the character's search-termination
+  behavior is driven by FOK/TOT state, not ground truth.
+- **P1276 savings-content null (MUST — locked
+  `savings_content_null`):** reinstated records gain relearning
+  speed only; post-reinstatement content is entirely
+  re-encoded (no field restored from the shadow); the match-key
+  buys the discount, never the payload (Nelson 1978).
+- **P1277 cue-alphabet honesty (SHOULD):** static audit of the
+  L1–L2 emitters against the spec's cue-class catalog; any cue
+  class in the spec absent from the battery downgrades all
+  GONE verdicts to "uncovered" until emitted.
+- **P1278 detectable-residue floor (SHOULD):** sweep archival
+  strength at mint → empirical `sav_detect` bound (savings
+  detectable at p<α vs naive); published per decay regime;
+  verdicts below the floor auto-labeled "indistinguishable
+  from erased."
+- **P1279 JOL horizon flatness (SHOULD — locked
+  `jol_horizon_null`):** identical encodings probed at
+  declared horizons: report-side `jol` varies ≤`jol_horizon_w`
+  0.15 across horizon while actual retention drops — the
+  character's confidence is horizon-blind by contract.
+- **P1280 render-seam absence fidelity (OBSERVE):** rater-arm
+  vignettes of SUB-vs-GONE report behavior; blind raters
+  classify the character's phenomenology (TOT vs dunno)
+  matching the latent state above chance; any meta-language
+  ("no record found") is an automatic seam fail.
+
+Probe registry: P1–P1280 (v119 adds P1269–P1280).
+
+## 241. Sources verified this version (P1269–P1280 backing)
+
+- **Ebbinghaus 1885/1964** (*Memory*, trans. Ruger & Buesenius):
+  savings method — relearning-to-criterion as the operational
+  measure of residual trace; the L4 leg is his instrument.
+- **Tulving & Pearlstone 1966** (*JVerbal Learn Verbal Behav*
+  5:381): availability vs accessibility distinction — the
+  SUB-vs-GONE split that makes "failed recall" ambiguous.
+- **Tulving & Thomson 1973** (*Psychol Rev* 80:352) and
+  **Watkins & Tulving 1975** (*JEP:G* 104:5): recognition
+  failure of recallable words — encoding specificity; grounds
+  the L3>L0 ordering expectation in P1270.
+- **Nelson 1978** (*JVerbal Learn Verbal Behav* 17:453 —
+  RESLA): savings for nonrecognized items; the SHADOW verdict
+  exists because detection survives recognition loss.
+- **Nelson 1985** (*JEP:LMC* 11:472): savings as the most
+  sensitive retention measure at 4-week delays; anchors L4's
+  position as the deepest leg before implicit.
+- **Tulving, Schacter & Stark 1982** (*JEP:LMC* 8:336):
+  word-fragment priming independent of recognition memory —
+  the L5 dissociation P1273 enforces as a floor.
+- **Graf & Schacter 1985** (*JEP:LMC* 11:501): implicit/
+  explicit dissociation across populations — L5's scope.
+- **Hart 1965** (*JEP* 70:208): FOK as a measurable state;
+  **Koriat 1993** (*Psychol Rev* 100:609): accessibility
+  account — FOK reads accrual, not truth (P1274).
+- **Koriat & Levy-Sadot 2001** (*JEP:G* 130:395): FOK+TOT
+  drive search termination — the reprobe dynamics in P1275.
+- **Nelson & Dunlosky 1991** (*Psychol Sci* 2:267): delayed-
+  JOL accuracy; grounds JOL as a report-side instrument and
+  the horizon-blindness contract P1279 checks.
+- **Murre & Dros 2015** (*PLoS ONE* 10:e0120644): Ebbinghaus
+  replication — savings persists to 31d; the SHADOW state's
+  plausibility anchor.
+
+Honest limits: the ladder proves absence only within its cue
+alphabet (P1277) and only down to `sav_detect` (P1278) — below
+both, "forgotten" and "erased" are the same observable, and
+the battery must say so. The NE-vs-GONE split is a model
+artifact (real minds don't have provenance chains); it exists
+to catch phantom mints, not as a psychological claim.
