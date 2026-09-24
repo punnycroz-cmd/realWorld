@@ -1,5 +1,46 @@
-# Memory Model Spec v5.58 — implementable human-like memory for RW characters
+# Memory Model Spec v5.59 — implementable human-like memory for RW characters
 
+> **v5.59 note (age-development X — the accidental edges, the
+> missing binding, the nap gate, the chronotype, the blur,
+> the dying words, the bought years, the partner's cues, the
+> familiar lie, and the leak):** `memory/age-development.md`
+> Part X (§§112–125) + spec §§4.64–4.69, §§5.121–5.123,
+> §6.281. **The old mint spurious edges** — `hyperbind_p`/
+> `hyperbind_str` bind ambient co-occurrences at encode
+> (Campbell, Hasher & Thomas 2010); locked
+> `hyperbind_aware_null` — implicit-only, awareness collapses
+> it (2012 replication). **Binding is developmental** —
+> `bind_dev_mult(encodeAge)` prices item-before-binding to
+> ~10 (Sluzenski, Newcombe & Kovacs 2006). **Infant records
+> are nap-gated** — `nap_win`/`nap_min`/`nap_cap` hard gate
+> under `nap_req_age`, softening ramp to 6 (Seehagen et al.
+> 2015); locked `nap_cont_null`. **Chronotype drifts** —
+> `chron_age_shift` + `chron_ado_dip` + `sync_pen_*` encode/
+> retrieve penalties, age-amplified (May, Hasher & Stoltzfus
+> 1993). **Categories blur** — `dediff_w` coarsens simOp
+> mask granularity with age → cross-item merges (Park et al.
+> 2004); locked `dediff_item_null` (within-record fidelity
+> untouched). **Verbatim dies first** — `verb_hl_mult` on
+> the verbatim field class, child arm down to 0.25 (Brainerd
+> & Reyna FTT). **Reserve buys delay, not slope** —
+> `reserve_delay` shifts old-side `age_eff` knots,
+> `reserve_steep` compresses post-cliff (Stern 2002;
+> Zahodne 2011, DEBATED); locked `reserve_skill_null`.
+> **Dyads cross-cue** — `crosscue_w` scaled by
+> `shared_years`/15 × intimacy; `collab_inhib` shrinks with
+> `transact_years_gain` (Weldon & Bellinger 1997; Harris et
+> al. 2011) — partner loss measurably degrades shared-topic
+> recall. **Familiarity substitutes for recollection** —
+> `fam_rely_gain` R→K substitution + confidence lift +
+> attribution-error channel (Jennings & Jacoby 1997; Prull
+> et al. 2006); locked `fam_age_null` (fam strength flat to
+> 80 — reliance, not signal, is what ages). **Intended
+> forgetting leaks** — `df_old_leak` on LIST-method
+> suppression only; item-method spared (Titz & Verhaeghen
+> 2010). Locked nulls: `hyperbind_aware_null`,
+> `nap_cont_null`, `dediff_item_null`, `reserve_skill_null`,
+> `fam_age_null`. Probes P1176–P1185.
+>
 > **v5.58 note (retrieval-cues X — the voice, the body, the
 > premature answer, the poisoned hint, and the direction of
 > travel):** `memory/retrieval-cues.md` Part X (§§100–107) +
@@ -5968,6 +6009,115 @@ Generalization dividend stays emergent (§4.3 genericize feeds
 schema queries after verbatim death — P1162 asserts, no new
 params).
 
+### 4.64 The edges the old mint by accident — `hyperbind_*` (new in v5.59)
+
+AD§112; Campbell, Hasher & Thomas 2010 (*Psychol. Sci.*
+21:399 — verified: implicit paired-associate transfer of
+irrelevant target↔distractor pairs in old, none in young);
+Campbell, Hasher & Thomas 2012 (implicit-only boundary —
+awareness of the link removes the effect in old too).
+At encode, ambient co-occurring items (salience ≥ ambient
+floor, below attention floor) mint spurious edges:
+
+```
+P(ambient edge) = hyperbind_p(age_eff)
+  0.02@30 → 0.05@55 → 0.15@65 → 0.30@75 → 0.40@85
+edge: `ambient:true`, S = hyperbind_str·E (0.35)
+```
+
+Ambient edges act as weak cues AND source-leak channels.
+**Locked `hyperbind_aware_null`:** `attn:ambient` flag or
+explicit relevance instruction collapses minting to the
+young rate — suppression failure, not strategy.
+
+### 4.65 The binding the child never made — `bind_dev_mult` (new in v5.59)
+
+AD§113; Sluzenski, Newcombe & Kovacs 2006 (*J. Exp. Child
+Psychol.* 93:193 — item adult-like by ~6, bound pairs still
+lagging at 8); Ngo, Newcombe & Olson 2018 (incidental
+binding gap persists to ~10). Edge-field mint E:
+
+```
+edge_E_eff = edge_E · bind_dev_mult(encodeAge)
+  0.4@4 → 0.55@6 → 0.75@8 → 0.9@10 → 1.0@13
+```
+
+Content fields take no leg. Stacks multiplicatively with
+§4.48's `child_forget_mult` — child records are relationally
+thin AND fast-decaying. The early autobiography reads as a
+bag of snapshots, not a lattice.
+
+### 4.66 The nap the record needs — `nap_*` (new in v5.59)
+
+AD§114; Seehagen, Konrad, Herbert & Schneider 2015 (*PNAS*
+112:1625 — verified: only infants napping ≥30min within 4h
+retained at 4h and 24h; no-nap arms at chance); Friedrich
+et al. 2015 (*Nat. Commun.* — nap sleep builds semantic
+categories).
+
+```
+if record.encodeAge < nap_req_age (2y):
+  consolidation requires a sleep episode ≥ nap_min (30min)
+  beginning within nap_win (4h) of encoding; else S pinned
+  ≤ nap_cap (0.15) — same-day retrievable, dies next sleep
+nap_req_soft: hard@<1.5 → nap_win 8h@2 → 24h@4 → adult@6
+```
+
+**Locked `nap_cont_null`:** gate covers episodic/procedural
+consolidation only — semantic minting happens IN sleep, is
+not gated by it.
+
+### 4.67 The clock the profile runs on — `sync_*` (new in v5.59)
+
+AD§115; May, Hasher & Stoltzfus 1993 (*Psychol. Sci.* 4:326
+— synchrony effect, cost asymmetric old>>young); May &
+Hasher 1998; May 1999 (chronotype shifts morningward with
+age). Profiles carry `chronotype` ∈ [0,1] drifting:
+
+```
+chronotype_eff = chronotype_0 + 0.4·(age_now−20)/60
+               − 0.25·bump(age_now, 17, 6)   // adolescent dip
+sync_mis = |hour_now − peak_hour| / 12
+E_eff *= 1 − 0.10·sync_mis·(1 + max(0, age_eff−50)/35)
+drive *= 1 − 0.15·sync_mis·(same leg)
+PM: evening-scheduled intentions −sync_pm_pen (0.15) at ≥65
+```
+
+The young pay a little off-peak; the old pay double.
+
+### 4.68 The verbatim trace dies first — `verb_hl_mult` (new in v5.59)
+
+AD§117; Brainerd & Reyna 1995 (*Dev. Psychol.* 31:467 — FTT
+dual traces, verbatim faster-decaying); Brainerd, Reyna &
+Howe 2009 (child verbatim lives in days-to-weeks). The
+verbatim field class's half-life:
+
+```
+hl_verbatim_eff = hl_verbatim · verb_hl_mult(encodeAge)
+  0.25@5 → 0.4@8 → 0.6@12 → 0.8@16 → 1.0
+```
+
+Gist-class fields unchanged — the child keeps WHAT, loses
+the words, inside days.
+
+### 4.69 The slope education buys — `reserve_*` (new in v5.59)
+
+AD§118; Stern 2002 (*JINS* 8:448 — reserve framework);
+Zahodne et al. 2011 (*Neurology* — verified counter: high-
+reserve declines FASTER post-onset — DEBATED; we price the
+compressive version). Profile scalar `reserve` ∈ [0,1]
+(education/complexity proxy, minted by world-builder):
+
+```
+age_eff_enc = age_now − 6·reserve        // old-side knots only
+beyond reserve_cliff (75 + 6·reserve):
+  decline slope ×(1 + 0.4·reserve)
+```
+
+Reserve rents ~6 years, then compresses the fall. **Locked
+`reserve_skill_null`:** never enters child/adolescent legs
+or procedural/skill fields — decline-phase modulator only.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -8900,6 +9050,67 @@ emitted backward item costs `bwd_cycle_cost` (0.15) per
 skipped earlier item, producing Thomas's signature for free:
 slow first backward item, accelerating thereafter. The
 character replays the morning to find what came before noon.
+
+### 5.121 The partner who remembers for you — `crosscue_*` (new in v5.59)
+
+AD§119; Weldon & Bellinger 1997 (*JEP:LMC* 23:1160 —
+collaborative inhibition: nominal > collaborative dyad);
+Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Mem. Stud.*
+4:267 — long-married older couples can EXCEED nominal on
+shared-expertise topics); Wegner 1987; Barnier et al. 2008.
+
+Dyadic recall (`discussEvent`/`remind` between two
+characters):
+
+```
+partner cue weight += crosscue_w (0.3)
+  ·min(1, shared_years/15)·intimacy
+collab_inhib_eff = 0.10·(1 − 0.8·shared_years/15)  // floor 0
+```
+
+The 40-year couple's collaborative loss shrinks toward zero
+and cross-cues can net-positive; a stranger dyad keeps the
+inhibition. Partner removal degrades the survivor's shared-
+topic recall — a priced grief channel that isn't sadness.
+
+### 5.122 The familiar lie — `fam_rely_*` (new in v5.59)
+
+AD§120; Jennings & Jacoby 1997 (*Mem. Cognit.* 25:352 —
+older adults substitute familiarity); Prull, Dawes, Martin,
+Rosenberg & Light 2006 (*Psychol. Bull.* 132:539 — meta:
+recollection declines, familiarity ~flat to ~60s); Jacoby
+1999 (familiarity without recollection → false-fame class
+errors).
+
+On emit (§5.114 `epist`):
+
+```
+fam_rely = 0.4·max(0, age_eff−50)/35
+emitted "know" record with fam ≥ fam_floor (0.5):
+  confidence += fam_rely·(1−conf) — reported as if remembered
+  source-attribution error p += fam_rely·0.3
+```
+
+**Locked `fam_age_null`:** baseline familiarity strength is
+age-flat below 80 — what ages is RELIANCE, not the signal.
+Retrieval-side substrate of the old-age misinfo leg.
+
+### 5.123 The forgetting the old can't intend — `df_old_leak` (new in v5.59)
+
+AD§121; Titz & Verhaeghen 2010 (*Psychol. Aging* 25:431 —
+verified meta: item-method DF intact in old age, list-method
+impaired); Zacks, Radvansky & Hasher 1996.
+
+```
+item-method (per-record forget_intent): unchanged — intact
+list-method (class/range forget):
+  S_supp_eff = S_supp·(1 − df_old_leak·max(0, age_eff−55)/30)
+  df_old_leak 0.5 — suppressed drive leaks back; intrusive
+  re-entry rides the leak
+```
+
+Boundary: the item-method arm must stay age-flat (P1185) —
+the failure is control of a SET, not the per-record brake.
 
 ---
 
@@ -14304,6 +14515,31 @@ memorability (`memorab`), and interest (`value_select`) already
 carry its variance. P1154 asserts absence at |d| ≤ 0.1. Seventh
 negative anchor.
 
+### 6.281 The categories that blur — `dediff_*` (new in v5.59)
+
+AD§116; Park, Polk, Park, Minear, Savage & Smith 2004
+(*Psychol. Aging* 19:100 — ventral visual category
+selectivity declines with age); Koen & Rugg 2019 (*TiCS*
+22:545 — neural dedifferentiation tracks memory aging);
+Baltes & Lindenberger 1997 (common-cause).
+
+simOp's field masks coarsen with age — between-record
+similarity rises for same-category/different-item pairs:
+
+```
+mask granularity g(age_eff): 1.0@40 → 0.9@60 → 0.8@75 → 0.7@90
+cross-category sim floor += dediff_w·(1 − g)   // dediff_w 0.15
+```
+
+Consequences ride existing operators: `merge_thresh` is met
+sooner by same-category wrong-item pairs (the 80yo merges
+two different dentists' visits); §6.3 gist-lure acceptance
+rises for semantic neighbors. The records keep their fields;
+the SPACE between them compresses. **Locked
+`dediff_item_null`:** dedifferentiation never lowers
+within-record field fidelity — between-record similarity
+only; a record's own content decays on its own clocks.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -16430,6 +16666,47 @@ MemoryParams = {
 //   `fok_pre`; lingering suppression tag `hint_linger` on
 //   target+bout-topic pair. All snapshot-additive; absent =
 //   legacy.
+// v5.59 additions (age-development X — AD§§112–125)
+"hyperbind_str": 0.35,                           // §4.64
+"bind_dev_mult_floor": 0.4,                      // §4.65 @4
+"nap_req_age": 2, "nap_win": 4, "nap_min": 30,
+"nap_cap": 0.15,                                 // §4.66
+"chron_age_shift": 0.4, "chron_ado_dip": 0.25,
+"sync_pen_enc": 0.10, "sync_pen_ret": 0.15,
+"sync_pm_pen": 0.15,                             // §4.67
+"verb_hl_mult_floor": 0.25,                      // §4.68 @5
+"reserve_delay": 6, "reserve_steep": 0.4,
+"reserve_cliff": 75,                             // §4.69
+"crosscue_w": 0.3, "collab_inhib": 0.10,
+"transact_years_gain": 0.8,                      // §5.121
+"fam_rely_gain": 0.4, "fam_floor": 0.5,
+"fam_err_k": 0.3,                                // §5.122
+"df_old_leak": 0.5,                              // §5.123
+"dediff_w": 0.15,                                // §6.281
+// v5.59 knot tables (functions, not scalars):
+//   hyperbind_p(age_eff): 0.02@30 → 0.05@55 → 0.15@65 →
+//     0.30@75 → 0.40@85                          (§4.64)
+//   bind_dev_mult(encodeAge): 0.4@4 → 0.55@6 → 0.75@8 →
+//     0.9@10 → 1.0@13                            (§4.65)
+//   nap_req_soft: hard@<1.5 → win 8h@2 → 24h@4 → adult@6
+//                                                (§4.66)
+//   verb_hl_mult(encodeAge): 0.25@5 → 0.4@8 → 0.6@12 →
+//     0.8@16 → 1.0                               (§4.68)
+//   mask granularity g(age_eff): 1.0@40 → 0.9@60 →
+//     0.8@75 → 0.7@90                            (§6.281)
+// v5.59 locked nulls: hyperbind_aware_null (attn:ambient
+//   collapses minting to young rate — P1176 leg);
+//   nap_cont_null (semantic minting ungated — P1178 leg);
+//   reserve_skill_null (no child legs / skill fields —
+//   P1182 leg); fam_age_null (fam strength flat <80 —
+//   P1184 leg); dediff_item_null (within-record fidelity
+//   untouched — P1180 leg).
+// v5.59 fields/state: record flag `ambient:true` on spurious
+//   edges; profile scalar `chronotype` ∈[0,1] +
+//   `reserve` ∈[0,1] (world-builder mints); `shared_years` +
+//   `intimacy` on character-pair state (world supplies);
+//   event field `attn:"ambient"` flag. All snapshot-
+//   additive; absent = legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -19354,6 +19631,59 @@ not resolved (DEBATED magnitude). P509/P511.
     latency profile is the Thomas 2003 signature (P1175).
   - **New params (§7):** 21 scalars + 4 locked nulls +
     7 field/state additions. Probes P1166–P1175.
+
+- v5.59 additions (age-development X — AD§§112–125, spec
+  §§4.64–4.69, §§5.121–5.123, §6.281):
+  - **Ambient-edge contract:** `hyperbind_p(age_eff)` mints
+    `ambient:true` edges at encode for below-attention-floor
+    co-occurrences; edges are weak cues AND source-leak
+    channels; `attn:"ambient"` on the event collapses
+    minting to young rate (`hyperbind_aware_null` — P1176).
+  - **Binding-dev contract:** edge-field E takes
+    `bind_dev_mult(encodeAge)` (0.4@4 → 1.0@13); content
+    fields take NO leg — the item/binding dissociation is
+    mandatory at P1177.
+  - **Nap contract:** encodeAge < `nap_req_age` records
+    consolidate ONLY with a sleep episode ≥ `nap_min` within
+    `nap_win`; else pinned ≤ `nap_cap` and die next sleep;
+    `nap_req_soft` widens the window to 6; semantic minting
+    ungated (`nap_cont_null` — P1178).
+  - **Chronotype contract:** profile `chronotype` drifts
+    morningward with `chron_age_shift` plus adolescent
+    evening dip; `sync_pen_enc`/`sync_pen_ret` apply at off-
+    peak hours, age-amplified; `sync_pm_pen` on evening
+    intentions ≥65 (P1179).
+  - **Verbatim-halflife contract:** `verb_hl_mult(encodeAge)`
+    scales the verbatim field class only — gist fields keep
+    adult clocks (P1181's dissociation is the test).
+  - **Reserve contract:** profile `reserve` ∈[0,1] shifts
+    old-side `age_eff` knots by `reserve_delay` and
+    STEEPENS post-`reserve_cliff` decline by `reserve_steep`
+    (compressive pricing, DEBATED — P1182's post-cliff leg
+    is the falsifiable part); child legs and skill fields
+    untouched (`reserve_skill_null`).
+  - **Dyadic contract:** `crosscue_w`·min(1,`shared_years`/15)
+    ·`intimacy` on partner-supplied cues; `collab_inhib`
+    shrinks with `transact_years_gain`; partner removal must
+    measurably degrade shared-topic recall (P1183 — the
+    widow cost is a REQUIRED observable).
+  - **Familiarity contract:** `fam_rely` converts "know"
+    emissions at `fam ≥ fam_floor` into remembered-style
+    reports with an attribution-error channel; familiarity
+    strength itself is age-flat below 80 (`fam_age_null` —
+    P1184).
+  - **DF-leak contract:** `df_old_leak` applies to LIST-
+    method suppression only; the item-method arm must stay
+    age-flat (P1185) — control of a set, not the brake.
+  - **Dediff contract:** `dediff_w` coarsens simOp mask
+    granularity → between-record merges; within-record
+    fidelity NEVER touched (`dediff_item_null` — P1180).
+  - **Locked boundaries game-systems must honor:**
+    `hyperbind_aware_null`, `nap_cont_null`,
+    `reserve_skill_null`, `fam_age_null`, `dediff_item_null`.
+  - **New params (§7):** 17 scalars + 5 locked nulls +
+    5 knot functions + 4 field/state additions. Probes
+    P1176–P1185.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

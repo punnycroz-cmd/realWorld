@@ -11388,3 +11388,129 @@ Locked-null legs exercised: `posture_sem_null` (P1169),
   and ordering. → spec §§5.116–5.120; probes P1166–P1175.
 
 Probe registry: P1–P1175 (v110 adds P1166–P1175).
+
+## 230. v111 suite — age-development X (P1176–P1185)
+
+Ten probes for the AD Part X mechanisms (spec §§4.64–4.69,
+§§5.121–5.123, §6.281). MUST tier on every effect with a
+replicated base-rate signature; SHOULD where the literature
+supplies direction but not magnitude.
+
+- **P1176 hyper-binding (MUST):** distractor-cooccurrence
+  batteries mint `ambient:true` edges at ≥3× young rate at
+  age_eff≥70; minted edges function as weak cues AND as
+  source-leak channels; `attn:"ambient"` collapses the
+  differential to ≤1.2× (`hyperbind_aware_null` leg —
+  implicit-only is the phenomenon's signature).
+- **P1177 binding lag (MUST, dissociation):** encodeAge-
+  graded batteries show item recall adult-flat by 6 while
+  bound-pair recall <0.75 adult at 8 and <0.95 at 10 — the
+  dissociation is the test, not either arm's level.
+- **P1178 nap gate (MUST):** encodeAge<2 records with no
+  qualifying sleep episode inside `nap_win` never exceed
+  `nap_cap` and die at next sleep; matched records with a
+  ≥`nap_min` nap consolidate normally; semantic-class
+  minting unaffected (`nap_cont_null`); `nap_req_soft` ramp
+  orderings at 2/4/6.
+- **P1179 synchrony asymmetry (SHOULD):** off-peak encode/
+  retrieval cost at 70 ≥2× the 25yo cost at matched
+  `sync_mis`; adolescent arm's peak lands EVENING (sign
+  check on `chron_ado_dip`); evening PM lapses at ≥65 show
+  the `sync_pm_pen` bump.
+- **P1180 dedifferentiation (MUST):** same-category/
+  different-item record pairs at age_eff≥80 merge ≥1.5× the
+  40yo rate at matched encoding; within-record field
+  fidelity unchanged (`dediff_item_null` — emission audit
+  on a per-field basis).
+- **P1181 verbatim-gist split (MUST, dissociation):**
+  verbatim-class field loss at encodeAge 5 ≥2× the adult
+  verbatim rate at fixed interval while gist-class fields
+  match adult within ±25% — the two traces dissociate.
+- **P1182 reserve shape (SHOULD, two-leg):** reserve=1 at
+  75 performs ≤6y-equivalent better than reserve=0 (delay
+  leg); reserve=1 at 85 declines STEEPER past
+  `reserve_cliff` (compression leg — falsifies the naive
+  protective version); `reserve_skill_null` boundary-checked
+  on procedural fields.
+- **P1183 transactive dyad (MUST):** shared_years=30 dyad
+  recall ≥ nominal sum on shared-expertise topics;
+  strangers dyad retains collaborative inhibition ≥8%;
+  removing the partner degrades the survivor's shared-topic
+  recall by a measurable margin (the widow cost).
+- **P1184 familiarity substitution (MUST):** R→K emission
+  mix shifts toward K with age_eff; `fam_rely` reports carry
+  source-attribution errors ≥1.3× young at matched fam;
+  baseline fam strength at 70 within ±10% of 30
+  (`fam_age_null`).
+- **P1185 intended-forget leak (SHOULD, method split):**
+  list-method forget at 75 leaves ≥40% residual drive vs
+  ≤10% at 30; item-method arm within ±15% across ages — the
+  method split is mandatory, a uniform leak fails.
+
+Registry: P1–P1185. v111 suite MUSTs: P1176, P1177, P1178,
+P1180, P1181, P1183, P1184; SHOULDs: P1179, P1182, P1185.
+Locked-null legs exercised: `hyperbind_aware_null` (P1176),
+`nap_cont_null` (P1178), `dediff_item_null` (P1180),
+`reserve_skill_null` (P1182), `fam_age_null` (P1184).
+
+## 231. Sources verified this version (P1176–P1185 backing)
+
+- **Hyper-binding:** Campbell, Hasher & Thomas 2010
+  (*Psychol. Sci.* 21:399 — verified via DOI/PMC: 1-back on
+  pictures + irrelevant words → old adults bound
+  distractor↔target, preserved-pair advantage AND
+  re-paired disadvantage, young null → §4.64); Campbell,
+  Hasher & Thomas 2012 replication (implicit-only; aware→
+  gone → `hyperbind_aware_null`).
+- **Developmental binding:** Sluzenski, Newcombe & Kovacs
+  2006 (*J. Exp. Child Psychol.* 93:193 — item adult-like
+  early, bound pairs lag to ~8 → §4.65); Ngo, Newcombe &
+  Olson 2018 (incidental binding gap to ~10); Ofen et al.
+  2007 (subsequent-memory activation mature ~8, detail
+  binding lagging).
+- **Infant nap gate:** Seehagen, Konrad, Herbert & Schneider
+  2015 (*PNAS* 112:1625 — verified abstract: ≥30min nap
+  within 4h; only nappers retained at 4h AND 24h → §4.66);
+  Friedrich, Wilhelm, Born & Friederici 2015 (*Nat. Commun.*
+  — nap builds semantic categories → `nap_cont_null`).
+- **Synchrony:** May, Hasher & Stoltzfus 1993 (*Psychol.
+  Sci.* 4:326 — synchrony effect, old >> young cost);
+  May & Hasher 1998 (*Psychol. Sci.* 9:20); Intons-Peterson
+  et al. 1998; May 1999 (chronotype morningward shift →
+  `chron_age_shift`); adolescent evening dip follows the
+  Carskadon phase-delay literature (§52 sibling).
+- **Dedifferentiation:** Park, Polk, Park, Minear, Savage &
+  Smith 2004 (*Psychol. Aging* 19:100 — category selectivity
+  declines → §6.281); Koen & Rugg 2019 (*TiCS* 22:545 —
+  review); Baltes & Lindenberger 1997 (common-cause).
+- **Verbatim/gist:** Brainerd & Reyna 1995 (*Dev. Psychol.*
+  31:467 — FTT dual-trace, verbatim faster decay → §4.68);
+  Brainerd, Reyna & Howe 2009 (child verbatim in
+  days-to-weeks); Marche & Brainerd 2012.
+- **Cognitive reserve:** Stern 2002 (*JINS* 8:448 —
+  framework → §4.69); Tucker & Stern 2011 (onset over
+  slope); Zahodne, Glymour, Sparks et al. 2011 (*Neurology*
+  — faster post-onset decline in high-reserve →
+  `reserve_steep`, DEBATED); Opdebeeck, Martyr & Clare 2016
+  (*BMC Med.* meta — incidence real, slope inconsistent).
+- **Dyadic memory:** Weldon & Bellinger 1997 (*JEP:LMC*
+  23:1160 — collaborative inhibition → `collab_inhib`);
+  Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Mem.
+  Stud.* 4:267 — older couples exceed nominal on shared
+  topics → `crosscue_w`); Wegner 1987; Barnier, Sutton,
+  Harris & Wilson 2008; Johansson, Andersson & Rönnberg 2000.
+- **Familiarity reliance:** Jennings & Jacoby 1997 (*Mem.
+  Cognit.* 25:352 — reliance shift → §5.122); Prull, Dawes,
+  Martin, Rosenberg & Light 2006 (*Psychol. Bull.* 132:539 —
+  meta: recollection ↓ steep, familiarity ~flat →
+  `fam_age_null`); Yonelinas 2002; Jacoby 1999; Mantyla 1993.
+- **Intended forgetting:** Titz & Verhaeghen 2010 (*Psychol.
+  Aging* 25:431 — verified meta: item-method intact,
+  list-method impaired in old → §5.123 method split);
+  Zacks, Radvansky & Hasher 1996; Zellner & Bäuml 2006.
+- **Marked hypothesis:** all magnitudes are RW calibration
+  targets; the literature supplies directions, splits, and
+  boundaries (method split, implicit-only, dissociations) —
+  the probes test those structures, not the knots.
+
+Probe registry: P1–P1185 (v111 adds P1176–P1185).

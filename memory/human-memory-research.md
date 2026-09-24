@@ -4641,3 +4641,71 @@ this version.
   latency, `chain_age_pen`.
 - **Marked hypothesis:** all magnitudes RW calibration
   targets; probes P1166–P1175 police the boundary.
+
+## 86. v111 sources — age-development X (AD Part X → spec v5.59)
+
+- **The old bind what shouldn't be bound:** Campbell, Hasher
+  & Thomas 2010 (*Psychol. Sci.* 21:399 — verified via
+  PMC/DOI: older adults bound irrelevant target↔distractor
+  pairs under implicit test; preserved-pair advantage +
+  re-paired disadvantage; young null) and Campbell, Hasher &
+  Thomas 2012 (*Psychol. Aging* 27:1 — verified: implicit-
+  only; awareness removes the effect in old too, young never
+  hyper-bind). Spec §4.64 `hyperbind_p`/`hyperbind_str` +
+  locked `hyperbind_aware_null`.
+- **Binding is a developmental skill:** Sluzenski, Newcombe
+  & Kovacs 2006 (*J. Exp. Child Psychol.* 93:193 — item
+  memory adult-like early, bound-pair memory still
+  developing at 8); Ngo, Newcombe & Olson 2018 (gap persists
+  to ~10 incidental); Ofen et al. 2007. Spec §4.65
+  `bind_dev_mult` — the ADH's developmental mirror.
+- **Infant consolidation is nap-gated:** Seehagen, Konrad,
+  Herbert & Schneider 2015 (*PNAS* 112:1625 — verified:
+  ≥30min nap within 4h required for retention at 4h and
+  24h; no-nap arms at chance); Friedrich, Wilhelm, Born &
+  Friederici 2015 (*Nat. Commun.* — nap builds categories).
+  Spec §4.66 `nap_*` + locked `nap_cont_null`.
+- **Chronotype drifts across the lifespan:** May, Hasher &
+  Stoltzfus 1993 (*Psychol. Sci.* 4:326 — synchrony effect,
+  cost asymmetric old >> young); May & Hasher 1998;
+  Intons-Peterson et al. 1998; May 1999 (morningward shift).
+  Spec §4.67 `sync_*` + `chron_ado_dip` (Carskadon sibling).
+- **Categories dedifferentiate:** Park, Polk, Park, Minear,
+  Savage & Smith 2004 (*Psychol. Aging* 19:100 — ventral
+  visual selectivity declines); Koen & Rugg 2019 (*TiCS*
+  22:545); Baltes & Lindenberger 1997 (common-cause).
+  Spec §6.281 `dediff_w` mask coarsening + locked
+  `dediff_item_null`.
+- **Verbatim dies before gist:** Brainerd & Reyna 1995
+  (*Dev. Psychol.* 31:467 — FTT dual traces, verbatim
+  faster-decaying); Brainerd, Reyna & Howe 2009 (child
+  verbatim in days-to-weeks). Spec §4.68 `verb_hl_mult`.
+- **Reserve buys delay, not immunity:** Stern 2002 (*JINS*
+  8:448 — framework); Tucker & Stern 2011 (onset over
+  slope); Zahodne et al. 2011 (*Neurology* — verified
+  counter: faster post-onset decline in high-reserve —
+  DEBATED, we price compressive); Opdebeeck et al. 2016
+  (*BMC Med.* meta — slope inconsistent). Spec §4.69
+  `reserve_*` + locked `reserve_skill_null`.
+- **Partners remember for each other:** Weldon & Bellinger
+  1997 (*JEP:LMC* 23:1160 — collaborative inhibition);
+  Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Mem.
+  Stud.* 4:267 — long-married older couples exceed nominal
+  on shared topics); Wegner 1987 (transactive memory);
+  Barnier et al. 2008; Johansson et al. 2000. Spec §5.121
+  `crosscue_*` + `transact_years_gain` — widow cost priced.
+- **Familiarity substitutes for recollection:** Jennings &
+  Jacoby 1997 (*Mem. Cognit.* 25:352 — older adults rely on
+  familiarity); Prull, Dawes, Martin, Rosenberg & Light 2006
+  (*Psychol. Bull.* 132:539 — meta: recollection steep ↓,
+  familiarity ~flat to ~60s); Jacoby 1999; Yonelinas 2002.
+  Spec §5.122 `fam_rely_*` + locked `fam_age_null`.
+- **The old can't intend to forget:** Titz & Verhaeghen 2010
+  (*Psychol. Aging* 25:431 — verified meta: item-method DF
+  intact, list-method impaired); Zacks, Radvansky & Hasher
+  1996; Zellner & Bäuml 2006. Spec §5.123 `df_old_leak`,
+  method-split mandatory.
+- **Marked hypothesis:** all magnitudes/knots are RW
+  calibration targets; probes P1176–P1185 test the
+  literature's structures (dissociations, method splits,
+  implicit-only boundary), not the fitted numbers.
