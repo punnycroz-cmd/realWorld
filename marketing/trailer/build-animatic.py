@@ -565,7 +565,7 @@ class Build:
     # soft ceilings per program (seconds) — warn, not fail
     DURATION_MAX = {"hero": 90, "teaser": 15.5, "vertical": 30.5,
                     "bumper": 6.5, "feed": 50.5, "movein": 60.5,
-                    "day": 45.5}
+                    "day": 45.5, "booking": 40.5}
     CARD_MAX = 80  # title-card readability ceiling
 
     def check(self):

@@ -1,114 +1,129 @@
 {
-  "_comment": "Upload-ready metadata for every trailer cut. LOCAL ONLY \u2014 nothing here is posted. At ship: owner signs off (LAUNCH-CHECKLIST gate), replace {{URL}} via tools/swap_domain.sh flow, verify TRAILER-PLAN \u00a79 checklist. 'title'/'description' strings stay within field limits (YouTube title 100ch, description 5000ch).",
-  "common": {
-    "tags": [
-      "AI life sim",
-      "Truman Show game",
-      "AI villagers",
-      "simulation game",
-      "San Francisco game",
-      "watchable world",
-      "indie game"
-    ],
-    "default_language": "en",
-    "captions": "ship the matching out/captions-<program>.srt",
-    "thumbnail_dir": "out/",
-    "disclosure_line": "Development-build footage.",
-    "license_note": "Score is unlicensed scratch audio \u2014 do NOT upload the -scratch.mp4 beds; the ship cut needs a cleared track (TRAILER-PLAN \u00a75)."
+ "_comment": "Upload-ready metadata for every trailer cut. LOCAL ONLY — nothing here is posted. At ship: owner signs off (LAUNCH-CHECKLIST gate), replace {{URL}} via tools/swap_domain.sh flow, verify TRAILER-PLAN §9 checklist. 'title'/'description' strings stay within field limits (YouTube title 100ch, description 5000ch).",
+ "common": {
+  "tags": [
+   "AI life sim",
+   "Truman Show game",
+   "AI villagers",
+   "simulation game",
+   "San Francisco game",
+   "watchable world",
+   "indie game"
+  ],
+  "default_language": "en",
+  "captions": "ship the matching out/captions-<program>.srt",
+  "thumbnail_dir": "out/",
+  "disclosure_line": "Development-build footage.",
+  "license_note": "Score is unlicensed scratch audio — do NOT upload the -scratch.mp4 beds; the ship cut needs a cleared track (TRAILER-PLAN §5)."
+ },
+ "cuts": {
+  "hero": {
+   "file": "out/animatic-hero.mp4",
+   "length_s": 90,
+   "title": "Real World — The Mission | Official Trailer",
+   "thumbnail": "thumb-watcher.png",
+   "description": "A real San Francisco Mission block, simulated around the clock. Twenty-eight fictional characters live, work, and keep secrets — and watching them is free. When you want to reach in, file a request: drive your own hired character, change the weather, join the cast. Every intervention is public.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "chapters": [
+    "0:00 the block wakes",
+    "0:11 twenty-eight residents",
+    "0:25 none of them know",
+    "0:32 inside Mudhaus",
+    "0:38 watching is free",
+    "0:45 file a request",
+    "0:52 requests become weather",
+    "0:59 drive your hire",
+    "1:06 the sim takes the wheel back",
+    "1:13 every move is public",
+    "1:25 end card"
+   ],
+   "use": "site hero, YouTube, press kit, store page"
   },
-  "cuts": {
-    "hero": {
-      "file": "out/animatic-hero.mp4",
-      "length_s": 90,
-      "title": "Real World \u2014 The Mission | Official Trailer",
-      "thumbnail": "thumb-watcher.png",
-      "description": "A real San Francisco Mission block, simulated around the clock. Twenty-eight fictional characters live, work, and keep secrets \u2014 and watching them is free. When you want to reach in, file a request: drive your own hired character, change the weather, join the cast. Every intervention is public.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "chapters": [
-        "0:00 the block wakes",
-        "0:11 twenty-eight residents",
-        "0:25 none of them know",
-        "0:32 inside Mudhaus",
-        "0:38 watching is free",
-        "0:45 file a request",
-        "0:52 requests become weather",
-        "0:59 drive your hire",
-        "1:06 the sim takes the wheel back",
-        "1:13 every move is public",
-        "1:25 end card"
-      ],
-      "use": "site hero, YouTube, press kit, store page"
-    },
-    "teaser": {
-      "file": "out/animatic-teaser.mp4",
-      "length_s": 15,
-      "title": "Real World \u2014 The Mission | Teaser",
-      "thumbnail": "thumb-dusk.png",
-      "description": "A neighborhood that doesn't know it's watched. Watching is free \u2014 reaching in costs credits.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "use": "social launch day, paid placements if approved"
-    },
-    "vertical": {
-      "file": "out/animatic-vertical.mp4",
-      "length_s": 30,
-      "title": "Real World \u2014 The Mission",
-      "thumbnail": null,
-      "description": "A neighborhood that doesn't know it's watched. Watching is free \u2014 reaching in costs credits.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "use": "TikTok / Reels / Shorts"
-    },
-    "bumper": {
-      "file": "out/animatic-bumper.mp4",
-      "length_s": 6,
-      "title": "Real World \u2014 The Mission | Watch free.",
-      "thumbnail": null,
-      "description": "Watch free. {{URL}}\n\nDevelopment-build footage.",
-      "use": "non-skippable pre-roll, Shorts end-screen, Discord embed"
-    },
-    "feed": {
-      "file": "out/animatic-feed.mp4",
-      "length_s": 50,
-      "title": "Real World \u2014 The Mission | The Feed Cut",
-      "thumbnail": "thumb-watcher.png",
-      "description": "The whole story, told through the public feed \u2014 including the requests we refuse. Watching is free; every intervention is attributed.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "use": "A/B alternate hero, press embeds, streamer cold-open"
-    },
-    "movein": {
-      "file": "out/animatic-movein.mp4",
-      "length_s": 60,
-      "title": "Real World \u2014 The Mission | Move In",
-      "thumbnail": "thumb-handoff.png",
-      "description": "Watching is free. Moving in is a handle, a landing window, and a lease \u2014 prorated first month, deposit on a 21-day clock, your name on the paperwork like everybody else. Then your requests hit the public feed with your handle on them.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "chapters": [
-        "0:00 the feed was already running",
-        "0:04 watching costs nothing",
-        "0:10 join the cast",
-        "0:18 sign the lease",
-        "0:26 your block too",
-        "0:31 first request",
-        "0:38 requests become weather",
-        "0:44 attributed \u2014 even yours",
-        "0:51 the feed writes back",
-        "0:55 end card"
-      ],
-      "use": "how-it-works page embed, store page second video, onboarding ad if approved"
-    },
-    "day": {
-      "file": "out/animatic-day.mp4",
-      "length_s": 45,
-      "title": "Real World — The Mission | One Day",
-      "thumbnail": "thumb-dusk.png",
-      "description": "One full day on the block in 45 seconds — dawn to dawn. It runs whether or not you watch.\n\n{{URL}}\n\nDevelopment-build footage.",
-      "chapters": [
-        "0:00 05:58 — first unlock",
-        "0:04 06:01",
-        "0:09 09:40 — morning rush",
-        "0:14 13:15",
-        "0:18 15:02 — a request became rain",
-        "0:23 18:40",
-        "0:28 22:47",
-        "0:33 03:12 — still running",
-        "0:38 the loop closes",
-        "0:41 end card"
-      ],
-      "use": "second social slot, store page ambience video, streamer interstitial — the 24/7-sim proof cut"
-    }
+  "teaser": {
+   "file": "out/animatic-teaser.mp4",
+   "length_s": 15,
+   "title": "Real World — The Mission | Teaser",
+   "thumbnail": "thumb-dusk.png",
+   "description": "A neighborhood that doesn't know it's watched. Watching is free — reaching in costs credits.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "use": "social launch day, paid placements if approved"
+  },
+  "vertical": {
+   "file": "out/animatic-vertical.mp4",
+   "length_s": 30,
+   "title": "Real World — The Mission",
+   "thumbnail": null,
+   "description": "A neighborhood that doesn't know it's watched. Watching is free — reaching in costs credits.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "use": "TikTok / Reels / Shorts"
+  },
+  "bumper": {
+   "file": "out/animatic-bumper.mp4",
+   "length_s": 6,
+   "title": "Real World — The Mission | Watch free.",
+   "thumbnail": null,
+   "description": "Watch free. {{URL}}\n\nDevelopment-build footage.",
+   "use": "non-skippable pre-roll, Shorts end-screen, Discord embed"
+  },
+  "feed": {
+   "file": "out/animatic-feed.mp4",
+   "length_s": 50,
+   "title": "Real World — The Mission | The Feed Cut",
+   "thumbnail": "thumb-watcher.png",
+   "description": "The whole story, told through the public feed — including the requests we refuse. Watching is free; every intervention is attributed.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "use": "A/B alternate hero, press embeds, streamer cold-open"
+  },
+  "movein": {
+   "file": "out/animatic-movein.mp4",
+   "length_s": 60,
+   "title": "Real World — The Mission | Move In",
+   "thumbnail": "thumb-handoff.png",
+   "description": "Watching is free. Moving in is a handle, a landing window, and a lease — prorated first month, deposit on a 21-day clock, your name on the paperwork like everybody else. Then your requests hit the public feed with your handle on them.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "chapters": [
+    "0:00 the feed was already running",
+    "0:04 watching costs nothing",
+    "0:10 join the cast",
+    "0:18 sign the lease",
+    "0:26 your block too",
+    "0:31 first request",
+    "0:38 requests become weather",
+    "0:44 attributed — even yours",
+    "0:51 the feed writes back",
+    "0:55 end card"
+   ],
+   "use": "how-it-works page embed, store page second video, onboarding ad if approved"
+  },
+  "day": {
+   "file": "out/animatic-day.mp4",
+   "length_s": 45,
+   "title": "Real World — The Mission | One Day",
+   "thumbnail": "thumb-dusk.png",
+   "description": "One full day on the block in 45 seconds — dawn to dawn. It runs whether or not you watch.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "chapters": [
+    "0:00 05:58 — first unlock",
+    "0:04 06:01",
+    "0:09 09:40 — morning rush",
+    "0:14 13:15",
+    "0:18 15:02 — a request became rain",
+    "0:23 18:40",
+    "0:28 22:47",
+    "0:33 03:12 — still running",
+    "0:38 the loop closes",
+    "0:41 end card"
+   ],
+   "use": "second social slot, store page ambience video, streamer interstitial — the 24/7-sim proof cut"
+  },
+  "booking": {
+   "file": "out/animatic-booking.mp4",
+   "length_s": 40,
+   "title": "Real World — The Mission | Book the Block",
+   "thumbnail": "thumb-dusk.png",
+   "description": "Some requests need a window. File it, pick a slot, and the whole block sees it coming on the public calendar. Bookings in Real World — The Mission: declared upfront, attributed to your handle, fired on schedule.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "chapters": [
+    "0:00 a request with a window",
+    "0:04 book the block",
+    "0:12 the public calendar",
+    "0:25 it fires",
+    "0:35 watch free"
+   ],
+   "slot": "feature-announce post, how-it-works embed, request-pipeline devlog"
   }
+ }
 }

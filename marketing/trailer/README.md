@@ -7,7 +7,7 @@ should be published without owner approval (see `../TRAILER-PLAN.md` §9).
 
 | File | Purpose |
 |------|---------|
-| `edl.json` | Machine-readable edit decision list — the source of truth for all seven cuts (hero 90s, teaser 15s, vertical 30s, bumper 6s, feed 50s, movein 60s, day 45s) plus the thumbnail specs. Shots, timing, cards, motion, grades (`wet` | `night` | `dusk`), recapture flags, audio presets, per-program `canvas`, `requestcard` `verdict` (`approved`/`denied`), `uicard` form mocks (`stamp`/`tone`). |
+| `edl.json` | Machine-readable edit decision list — the source of truth for all eight cuts (hero 90s, teaser 15s, vertical 30s, bumper 6s, feed 50s, movein 60s, day 45s, booking 40s) plus the thumbnail specs. Shots, timing, cards, motion, grades (`wet` | `night` | `dusk`), recapture flags, audio presets, per-program `canvas`, `requestcard` `verdict` (`approved`/`denied`), `uicard` form mocks (`stamp`/`tone`). |
 | `metadata.json` | Upload-ready metadata per cut — title, description, tags, chapter markers, thumbnail pick. `{{URL}}` placeholders; owner-gated. |
 | `out/animatic-feed.mp4` | Rendered 50s "Feed Cut" — alternate-concept trailer told entirely through the public feed, incl. a denied-and-refunded possession request (TRAILER-PLAN §7.2). |
 | `build-animatic.py` | Renders every frame with PIL and pipes to ffmpeg. Produces the mp4s, `.srt` caption files, scratch-audio variants, and `--board` contact sheets. |
@@ -17,6 +17,7 @@ should be published without owner approval (see `../TRAILER-PLAN.md` §9).
 | `out/animatic-bumper.mp4` | Rendered 6s bumper (pre-roll / Shorts end-screen). |
 | `out/animatic-movein.mp4` | Rendered 60s "Move-In Cut" — player-journey trailer (watch → join the cast → sign the lease → first attributed request), TRAILER-PLAN §7.3. |
 | `out/animatic-day.mp4` | Rendered 45s "One Day" cut — a full simulated day dawn-to-dawn on timecards; the 24/7-sim proof trailer, TRAILER-PLAN §7.4. |
+| `out/animatic-booking.mp4` | Rendered 40s "Booking Cut" — scheduled-requests trailer on the game-v14 calendar seam (window pick → public calendar → it fires), TRAILER-PLAN §7.5. |
 | `out/thumb-{watcher,handoff,dusk,inside}.png` | The four thumbnail concepts from TRAILER-PLAN §8, rendered at 1280×720 via `--thumbs`. HUD badges and pawn name tags are redact-blurred per the `thumbnails` specs in `edl.json`. |
 | `out/animatic-*-scratch.mp4` | Same cuts with a procedural temp-audio bed (room tone, swell, rain, crickets — synthesized in `synth()`). Mood/timing reference only; the ship score is a licensing task (TRAILER-PLAN §5). |
 | `out/board-*.png` | Storyboard contact sheets — one frame per shot + timing/kind/recapture label. |
