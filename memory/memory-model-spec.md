@@ -1,4 +1,46 @@
-# Memory Model Spec v5.70 — implementable human-like memory for RW characters
+# Memory Model Spec v5.71 — implementable human-like memory for RW characters
+
+> **v5.71 note (emotional-memory XI — the affect that
+> reaches behavior):** `memory/emotional-memory.md` Part XI
+> (§§140–149) closes the loop from stored affect to
+> observable behavior and other minds. **Social sharing**
+> — emotional records mint a sharing drive ∝ arousal
+> (`share_*`), spent in trust-gated discussEvent bouts,
+> shame/guilt damped; locked `share_cool_null` — telling
+> never cools the tag (Rimé et al. 1991/1992; Zech & Rimé
+> 2005). **Two-layer avoidance** — deliberate
+> `sit_sel_w` option bias plus procedural `avoid_habit`
+> records that outlive extinction; locked `habit_aff_null`
+> (Salkovskis 1991; de Wit et al. 2018). **Somatic
+> choice bias** — `choice_aff_w` bounded affect term on
+> option scoring; locked `choice_fact_null` (Bechara et
+> al. 1997). **Rumination splits** — `brooding`
+> re-stamps arousal only (`brood_content_null`);
+> `reflect` buys coherence (Treynor et al. 2003; Watkins
+> 2008). **PE-gated reconsolidation** — the §5.9 window
+> opens only on prediction error or disconfirmation;
+> routine retell = strength only (`recon_routine_null`;
+> DEBATED — Sevenster, Beckers & Kindt 2012 vs Luyten &
+> Beckers 2017). **Attachment bundles** — `attach_anx`/
+> `attach_avo` authored traits remap existing knobs;
+> emitted-vs-stored asymmetry for avoidance;
+> `attach_content_null` (Mikulincer & Shaver 2007).
+> **Transference** — resemblance ≥`transf_thresh` leaks
+> an `affect_prior` onto new PersonModels flagged
+> `provenance:"inferred"`; locked `transf_fact_null`
+> (Andersen & Cole 1990). **Fluency heuristic** —
+> retrieval ease inflates emitted confidence + reported
+> arousal (`flu_*`), age-knotted; locked `flu_acc_null`
+> (Koriat 1993; Jacoby & Rhodes 2006). **Stress substrate
+> shift** — acute stress under the §118 two-factor gate
+> reweights deliberative→habitual choice substrates
+> (`stress_habit_*`); locked `stress_ep_fact_null`
+> (Schwabe & Wolf 2009). **Spotlight** — estimated
+> other-retention of own embarrassment ×`spotlight_k`;
+> locked `spot_fact_null` (Gilovich, Medvec & Savitsky
+> 2000). §§6.330–6.339; §7 +20 scalars +4 traits +3 knot
+> curves +10 locked nulls; §10 contract; probes
+> P1331–P1340.
 
 > **v5.70 note (age-decline XI — what still works, what
 > lies about it, what bends last):** `memory/age-decline.md`
@@ -16724,6 +16766,171 @@ drift. Locked `choicesup_val_neutral_null` (P1322):
 valence-neutral features of both options unmoved; the
 bias is evaluative, never additive noise.
 
+### 6.330 Almost every feeling gets told — `share_*` (new in v5.71)
+
+EM§140; **Rimé, Mesquita, Philippot & Boca 1991**;
+Rimé, Philippot, Boca & Mesquita 1992 (8 studies, 1,384
+episodes: 80–96% shared, ~60% same-day, extent ∝
+intensity r .21–.35); Finkenauer & Rimé 1998 (shame/
+guilt damped + delayed); **Zech & Rimé 2005** (sharing
+does NOT reduce residual intensity).
+
+At mint of any record with `|valence| ≥ share_thresh`
+(0.3) or `arousal ≥ 0.4`: mint a sharing intention with
+`drive0 = min(share_cap, share_base + share_k·arousal)`
+(shame/guilt §26 tag: ×`share_shame`). Drive decays
+`drive0·2^(−t/share_tau)` (7d). When drive exceeds the
+emission threshold and an eligible addressee is present,
+run a discussEvent bout under the §41 epistemic-trust
+audience gate; each bout `share_count++` and spends
+`share_spend` of drive. Locked `share_cool_null`
+(P1331): sharing bouts move strength and `told_to`
+edges only — the stored affect tag never cools.
+
+### 6.331 Avoidance, two ways — `sit_sel_*`, `avoid_habit_*` (new in v5.71)
+
+EM§141; Gross 1998/2015 (situation selection);
+Salkovskis 1991 (safety behaviors maintain anxiety);
+de Wit et al. 2018 (habit transfer).
+
+Deliberate leg: plan/schedule option scores gain
+`sit_sel_w·Σ valence·strength_eff` over matching
+CondEntries — reads §6 entries, no second store; lifts
+with extinction.
+
+Procedural leg: an avoid action taken on CondEntry fire
+≥`avoid_habit_n` times mints `{kind:"avoid_habit", cue,
+action:"avoid", strength}` — fires cue-driven at
+`habit_p` WITHOUT consulting `strength_eff`; decays on
+`avoid_habit_tau_mult`·episodic tau; immune to
+safeCount suppression. Locked `habit_aff_null` (P1332):
+the habit fires at the entry's extinction floor — the
+two legs MUST diverge.
+
+### 6.332 The gut in the option list — `choice_aff_*` (new in v5.71)
+
+EM§142; **Bechara, Damasio, Tranel & Damasio 1997**
+(Iowa Gambling Task — affect biases choice before
+declarative access); Damasio 1994; mechanism DEBATED
+(Dunn, Dalgleish & Lawrence 2006).
+
+At decision scoring: `choice_bias(option) =
+choice_aff_w · Σ valence·strength_eff·simOp` over
+CondEntries sharing cueVector fields with the option;
+bounded by `choice_aff_cap`. Bias only — locked
+`choice_fact_null` (P1333): never mints content or
+belief fields; surfaced to the observation UI as
+INFERRED affect, never as stated reason.
+
+### 6.333 The two ruminations — `brood_*`, `reflect_*` (new in v5.71)
+
+EM§143; **Treynor, Gonzalez & Nolen-Hoeksema 2003**
+(brooding/reflection factor split); Watkins 2008
+(*Psychol. Bull.* — processing-mode account);
+Nolen-Hoeksema, Wisco & Lyubomirsky 2008.
+
+The §64 ruminative rehearsal draw routes per authored
+traits `brooding`/`reflect` ∈[0,1]: a brooding bout
+re-stamps `emotional.arousal` ≥0.7 (§7 intrusion
+channel) and applies `rumin_k` negative drift; a
+reflection bout applies `narr_coher` gain at
+`reflect_coher_gain` plus §135 `reapp_tag_k` drift.
+Locked `brood_content_null` (P1334): brooding never
+rewrites content fields — affect re-stamp only.
+
+### 6.334 The window opens for surprise — `recon_pe_*` (new in v5.71)
+
+EM§144; Sevenster, Beckers & Kindt 2012/2013
+(reconsolidation requires prediction error); Fernández,
+Boccia & Pedreira 2016; Pedreira et al. 2004.
+**DEBATED — Luyten & Beckers 2017 boundary failure;
+adopted as modeling hypothesis.**
+
+At retrieval/retell: `pe = |reconstructed expectation −
+observed|` over valence/outcome/cue fields. If
+`pe ≥ recon_pe_gate` (0.2) OR novel/disconfirming
+input enters → open the §5.9 window. Else retell_boost
+only. Locked `recon_routine_null` (P1335): routine
+retell leaves all fields bit-identical — strength
+rises, nothing rewrites.
+
+### 6.335 Attachment is a bundle — `attach_*`, `avo_emit_damp` (new in v5.71)
+
+EM§145; Hazan & Shaver 1987; Brennan, Clark & Shaver
+1998 (ECR two dimensions); **Mikulincer & Shaver 2007**
+(hyperactivating/deactivating strategies); Fraley 2002
+(rank-order stability — traits, not knots).
+
+`attach_anx` ∈[0,1]: `intrusion_thresh −
+attach_anx_w·attach_anx`, `cond_gain +`, `extinct_suppress·
+(1−0.5·attach_anx)`, `share_drive0 +`. `attach_avo`
+∈[0,1]: suppression trait +, `share_drive0·(1−attach_avo)`,
+emitted affect magnitude `·(1−avo_emit_damp)` — stored
+tags intact. Locked `attach_content_null` (P1336):
+dynamics and emission only; content untouched.
+
+### 6.336 You remind me of someone — `transf_*` (new in v5.71)
+
+EM§146; **Andersen & Cole 1990**; Andersen, Glassman,
+Chen & Cole 1995 (significant-other transference:
+inferred traits + affect transfer).
+
+At new PersonModel mint: simOp of observable cue fields
+vs existing person cue-profiles; if max overlap ≥
+`transf_thresh` (0.6), strongest matching CondEntry
+leaks `affect_prior += transf_k·overlap·valence·
+strength`, flagged `transf:{from:personId,
+provenance:"inferred"}`. The prior biases ambiguous-
+behavior interpretation (§130 lens channel) and MUST be
+labeled INFERRED in any observation surface. Locked
+`transf_fact_null` (P1337): zero content/fact fields —
+expectation only.
+
+### 6.337 Easy means it mattered — `flu_*` (new in v5.71)
+
+EM§147; **Koriat 1993**; Koriat & Ma'ayan 2005;
+Tversky & Kahneman 1973; age leg Jacoby & Rhodes 2006.
+Intensity extension HYPOTHESIS.
+
+At bout resolution, `ease = 1 − failedCandidates/
+search_breadth`: emitted confidence +=
+`flu_conf_gain(age)·ease`; reported arousal +=
+`flu_int_gain·ease`. Report-layer only; locked
+`flu_acc_null` (P1338): stored fields and accuracy
+unmoved — ease inflates certainty and felt intensity,
+never correctness.
+
+### 6.338 Under stress the habit answers — `stress_habit_*` (new in v5.71)
+
+EM§148; **Schwabe & Wolf 2009** (*J. Neurosci.* —
+stress abolishes outcome-devaluation sensitivity);
+Schwabe et al. 2008/2010; blocked by propranolol
+(Schwabe et al. 2011) — the same glucocorticoid +
+noradrenergic co-activation as §118's gate.
+
+At decision time, when `C.stress > stress_habit_thresh`
+(0.6) AND §118 two-factor gate holds: episodic/
+deliberative evaluation weight ×(1−`stress_habit_w`·
+C.stress); CondEntry/procedural weight ×(1+
+`stress_habit_w`·C.stress). Locked
+`stress_ep_fact_null` (P1339): substrate reweighting
+only — stored content untouched.
+
+### 6.339 The spotlight on your own shame — `spotlight_*` (new in v5.71)
+
+EM§149; **Gilovich, Medvec & Savitsky 2000** (~2×
+overestimation of others' noticing); Savitsky, Epley &
+Gilovich 2001. Embarrassment-retention extension
+HYPOTHESIS.
+
+When estimating another's retention of a record where
+self carried a shame/embarrassment §26 tag:
+`estimated_other_retention = own_effective_strength ·
+spotlight_k` (1.8, clamp ≤1). Lives on the estimator's
+person-model — INFERRED display, feeds §§141–142 inputs.
+Locked `spot_fact_null` (P1340): neither the witness's
+record nor the own record's stored fields move.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -19022,6 +19229,51 @@ MemoryParams = {
 //   entry; op catalog gains `evalClass` column
 //   (§16.1). All snapshot-additive; absent = legacy
 //   (evaluatedAt absent → treat as createdDay).
+// v5.71 additions (emotional-memory XI — EM§§140–149)
+"share_base": 0.15, "share_k": 0.75, "share_cap": 0.95,
+"share_tau": 7, "share_spend": 0.25, "share_shame": 0.7,
+"share_thresh": 0.3,                                  // §6.330
+"sit_sel_w": 0.4,                                     // §6.331
+"avoid_habit_n": 3, "avoid_habit_tau_mult": 3.0,
+"habit_p": 0.8,                                       // §6.331
+"choice_aff_w": 0.5, "choice_aff_cap": 0.6,           // §6.332
+"reflect_coher_gain": 0.15,                           // §6.333
+"recon_pe_gate": 0.2,                                 // §6.334
+"attach_anx_w": 0.4, "avo_emit_damp": 0.35,           // §6.335
+"transf_thresh": 0.6,                                 // §6.336
+"flu_int_gain": 0.10,                                 // §6.337
+"stress_habit_w": 0.5, "stress_habit_thresh": 0.6,    // §6.338
+"spotlight_k": 1.8,                                   // §6.339
+// v5.71 authored traits: `brooding` ∈[0,1], `reflect`
+//   ∈[0,1] (correlate with `neuro`, sampled);
+//   `attach_anx` ∈[0,1], `attach_avo` ∈[0,1] (authored
+//   bible traits — Fraley 2002 stability; never knotted).
+// v5.71 knot curves (piecewise, lerp between):
+//   flu_conf_gain(age_eff): 0.12@55 → 0.18@75 → 0.25@85
+//     (§6.337; Jacoby & Rhodes 2006)
+//   transf_k(age_eff): 0.5@55 → 0.6@75 → 0.7@85
+//     (§6.336; Hess direction — HYPOTHESIS)
+//   stress_habit_w(age_eff): 0.5@55 → 0.6@75 → 0.7@85
+//     (§6.338; HYPOTHESIS — direct aging evidence thin)
+// v5.71 fields/state: procedural record
+//   `{kind:"avoid_habit", cue, action:"avoid", strength}`;
+//   PersonModel `transf:{from:personId, provenance:
+//   "inferred"}` + `affect_prior`; record fields
+//   `shared:true`, `share_count`; report scalars
+//   `flu_conf_gain·ease`, `flu_int_gain·ease`;
+//   person-model estimate `estimated_other_retention`.
+//   All snapshot-additive; absent = legacy.
+// v5.71 locked nulls: share_cool_null (telling never
+//   cools the stored tag — P1331); habit_aff_null
+//   (habit fires at the extinction floor — P1332);
+//   choice_fact_null (bias writes no content — P1333);
+//   brood_content_null (re-stamp only — P1334);
+//   recon_routine_null (routine retell bit-identical —
+//   P1335); attach_content_null (dynamics/emission only
+//   — P1336); transf_fact_null (expectation only —
+//   P1337); flu_acc_null (ease ≠ accuracy — P1338);
+//   stress_ep_fact_null (substrate shift only — P1339);
+//   spot_fact_null (estimate moves no records — P1340).
 // v5.70 additions (age-decline XI — AgD§§153–162)
 "auto_freq_flat": true,                               // §4.84
 "selfrel_keep": 1.0,                                  // §4.85
@@ -21919,6 +22171,65 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.71 additions (emotional-memory.md §§140–149 — the
+  affect that reaches behavior):
+  - **Sharing contract (§6.330):** the sharing intention
+    mints at encode, decays on `share_tau`, and is spent
+    only through §41-gated discussEvent bouts — never a
+    side channel that bypasses audience trust.
+    `share_cool_null` (P1331): bouts move strength and
+    `told_to` edges; stored affect tags bit-identical.
+  - **Avoidance contract (§6.331):** `sit_sel_w` reads
+    CondEntry `strength_eff` (lifts with extinction);
+    `avoid_habit` procedural records do NOT (fire on cue,
+    `habit_aff_null` P1332). The legs must diverge — a
+    merge that routes both through one strength fails.
+  - **Choice-bias contract (§6.332):** `choice_aff_*` is
+    a bounded scoring bias; `choice_fact_null` (P1333)
+    bars it from minting content/belief fields, and the
+    UI surfaces it as INFERRED.
+  - **Rumination contract (§6.333):** `brooding`/
+    `reflect` are authored traits routing the §64 draw;
+    `brood_content_null` (P1334) — brooding re-stamps
+    affect only, reflection gains coherence.
+  - **Reconsolidation contract (§6.334):** the §5.9
+    window opens on `pe ≥ recon_pe_gate` or disconfirming
+    input; `recon_routine_null` (P1335) — routine retells
+    raise strength with fields bit-identical. DEBATED
+    literature; the gate is a hypothesis under test.
+  - **Attachment contract (§6.335):** `attach_anx`/
+    `attach_avo` remap existing knobs only;
+    `avo_emit_damp` hits EMITTED affect — stored tags
+    intact; `attach_content_null` (P1336).
+  - **Transference contract (§6.336):** `affect_prior`
+    on new PersonModels carries
+    `provenance:"inferred"` and biases interpretation
+    only; `transf_fact_null` (P1337) — zero fact fields.
+    Art/UI must render it as inference, not fact.
+  - **Fluency contract (§6.337):** `flu_*` are report-
+    layer gains on emitted confidence + reported arousal;
+    `flu_acc_null` (P1338) — stored fields and accuracy
+    unmoved.
+  - **Stress-shift contract (§6.338):** `stress_habit_*`
+    reweights deliberative↔habitual substrates at choice
+    under the §118 two-factor gate;
+    `stress_ep_fact_null` (P1339) — records untouched.
+  - **Spotlight contract (§6.339):** the ×`spotlight_k`
+    estimate lives on the estimator's person-model;
+    `spot_fact_null` (P1340) — it alters no record on
+    either side.
+  - **Locked boundaries game-systems must honor:**
+    `share_cool_null`, `habit_aff_null`,
+    `choice_fact_null`, `brood_content_null`,
+    `recon_routine_null`, `attach_content_null`,
+    `transf_fact_null`, `flu_acc_null`,
+    `stress_ep_fact_null`, `spot_fact_null`.
+  - **New params (§7):** 23 scalars + 4 authored traits +
+    3 knot curves + 10 locked nulls; procedural
+    `avoid_habit` record kind; PersonModel
+    `transf`/`affect_prior` fields with INFERRED
+    provenance; `share_count`/`shared:true` fields.
+  - Probes P1331–P1340.
 - v5.70 additions (age-decline.md §§153–162 — what still
   works, what lies about it, what bends last):
   - **Automaticity contract (§4.84):** `freq_count` is a

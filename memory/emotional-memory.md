@@ -6187,3 +6187,572 @@ P1204 inherits the report-vs-store discipline of P1192.
   our strict reading — the honest bound is "much less tag
   change than reappraisal," and `distract_tag_null` locks
   the strong version so P1205 can falsify it.
+
+---
+
+# Part XI — the affect that reaches behavior: sharing, avoidance, choice, resemblance
+
+Parts I–X priced how emotion gets in, survives, and surfaces.
+Part XI closes the loop the Astra direction made load-bearing:
+emotional memory must *reach behavior and other people* — what a
+character tells, avoids, chooses, and misreads. Ten legs:
+(140) social sharing propensity, (141) two-layer avoidance,
+(142) the somatic choice bias, (143) brooding vs reflection,
+(144) the prediction-error gate on reconsolidation, (145)
+attachment-style parameter bundles, (146) transference onto new
+persons, (147) the fluency→intensity heuristic, (148) the
+stress-driven substrate shift at decision time, (149) the
+spotlight on one's own embarrassments. Then the spec delta
+(v5.70→v5.71), age guidance, probes P1331–P1340, honest limits.
+
+## 140. Almost every feeling gets told — the social-sharing channel
+
+Rimé's corpus is the most under-used lever in the model: the
+emotional event is *defined* by its spreading. Rimé, Mesquita,
+Philippot & Boca 1991; Rimé, Philippot, Boca & Mesquita 1992
+(eight studies, 1,384 episodes): **80–96% of emotional episodes
+are socially shared**; ~60% shared the same day; extent of
+sharing (repetitions × recipients) correlates with intensity
+(r≈.21–.35 autobiographic, higher in lab). Shame/guilt episodes
+shared somewhat less and later (Finkenauer & Rimé 1998).
+Sharing is repetitive — the same episode is told to several
+addressees over days-to-weeks. **[CONSENSUS on existence and
+the intensity slope; the therapeutic-recovery claim is NOT
+supported — sharing doesn't measurably reduce residual
+emotional intensity (Zech & Rimé 2005) — we must not let
+sharing cool the tag.]**
+
+**Spec consequence (§6.330 — `share_*`):** at mint of any
+record with `|valence| ≥ share_thresh` (0.3) or `arousal ≥
+0.4`, a sharing intention is minted:
+
+```
+share_drive0 = min(share_cap, share_base + share_k·arousal)
+               // share_base 0.15, share_k 0.75, share_cap 0.95
+shame/guilt discrete tag (§26): share_drive0 *= share_shame (0.7)
+drive decays: share_drive(t) = share_drive0 · 2^(−t/share_tau)
+               // share_tau ≈ 7 days — the urge outlives the sting
+when drive > theta_share and an eligible addressee is present:
+    run a discussEvent bout (retell machinery, §5.x) with the
+    §41 epistemic-trust audience gate on; each bout increments
+    share_count and spends drive by share_spend (0.25)
+```
+
+Each share is a *retell bout* — it inherits retell_boost,
+drift, and §20 contagion automatically. Critical null:
+sharing does **not** reduce the stored affect tag —
+`share_cool_null` (Zech & Rimé 2005 verified). What sharing
+changes is *strength and network*: more rehearsal, more
+`told_to` edges, more rumor surface — not less feeling. (P1331)
+
+## 141. Avoidance, two ways — the chosen detour and the procedural rut
+
+Avoidance has two substrates the model must keep apart:
+
+1. **Deliberate (Gross's situation selection — the earliest
+   regulation stage, Gross 1998/2015 process model):** when
+   constructing a plan/schedule, each candidate place/person
+   draws `C.affect` contributions from matching CondEntries
+   (§6) and the option score shifts by `sit_sel_w·Σ(valence·
+   strength_eff)` (sit_sel_w ≈ 0.4). This is *evaluative* —
+   the character can explain why they don't want to go.
+   **[CONSENSUS as regulation stage; implementation is ours]**
+2. **Proceduralized (habit):** avoidance repeated becomes
+   automatic — stimulus–response, not evaluated. Extinction-
+   resistant habits persist after the fear is gone and block
+   disconfirmation, which is why avoidance *maintains* anxiety
+   (Salkovskis 1991 safety behaviors; Bouton's context-bound
+   extinction, §6; de Wit et al. 2018 habit transfer).
+   **[CONSENSUS direction; the mint count is our pricing]**
+
+**Spec consequence (§6.331 — `sit_sel_*`, `avoid_habit_*`):**
+
+```
+deliberate: option.score += sit_sel_w · Σ_CondEntries valence·strength_eff
+            // reads the SAME entries as §6 fire — no second store
+procedural: if a place/person-cued avoidance action is taken
+            ≥ avoid_habit_n (3) times on CondEntry fire:
+            mint procedural record {kind:"avoid_habit",
+            cue, action:"avoid", strength}
+            — fires at habit_p WITHOUT consulting strength_eff;
+            decays on procedural tau (≈3× episodic — habits are
+            slow), NOT suppressed by safeCount/extinction
+```
+
+Locked null `habit_aff_null` (P1332): the habit fires even
+when the CondEntry's effective strength hits its extinction
+floor — the character keeps taking the long way around the
+park years after they've stopped feeling afraid of it, and
+can't say why. That asymmetry (reportable feeling gone,
+behavioral rut intact) is exactly what a spectator should be
+able to *see* in the pathing without being told.
+
+## 142. The gut in the option list — the somatic choice bias
+
+Bechara et al. 1995/1997 (Iowa Gambling Task): conditioned
+affective signals bias choice *before and without* declarative
+knowledge — participants avoid bad decks before they can say
+why; Damasio's somatic-marker account (Damasio 1994).
+**[CONSENSUS that affect guides choice under uncertainty;
+somatic-marker specifics DEBATED (Dunn et al. 2006)]**
+
+**Spec consequence (§6.332 — `choice_aff_*`):** at decision
+scoring, in addition to explicit/episodic evidence:
+
+```
+choice_bias(option) = choice_aff_w · Σ_entries valence·strength_eff·simOp
+                      // choice_aff_w ≈ 0.5; simOp over shared
+                      // cueVector fields between option and entry
+```
+
+Two disciplines: (a) it's a *bias term*, bounded by
+`choice_aff_cap` (0.6) so episodic evidence can override it;
+(b) it writes nothing — locked `choice_fact_null` (P1333):
+the bias never mints content fields or beliefs; it produces
+leanings with honest provenance. The option the character
+*can't justify avoiding* but avoids anyway is this mechanism
+at work — and the UI may show the lean as INFERRED-affect
+(§16 honesty contract), never as a stated reason unless the
+character confabulates one (§93 felt-vs-believed).
+
+## 143. The two ruminations — brooding preserves, reflection repairs
+
+§64 gave rumination one trait (`rumin_k` skew on rehearsal).
+Treynor, Gonzalez & Nolen-Hoeksema 2003 factor-split it into
+two components with opposite consequences: **brooding**
+("why can't I handle things") predicts worse mood, more
+intrusion, no progress; **reflection** ("analyze recent
+events") predicts resolution. Watkins 2008 (Psychol. Bull.)
+grounded the split in processing mode — abstract-evaluative
+vs concrete-experiential rumination; Nolen-Hoeksema, Wisco &
+Lyubomirsky 2008 review. **[CONSENSUS split; magnitudes
+ours]**
+
+**Spec consequence (§6.333 — `brood_*`, `reflect_*`):** the
+depressive/ruminative modifier's involuntary re-encode draws
+are routed per trait mix `brooding` vs `reflect` (both
+∈[0,1], sampled per profile, correlate with `neuro`):
+
+```
+brooding bout (p ∝ brooding): re-stamps emotional.arousal ≥0.7
+    (§7 intrusion reconsolidation), applies rumin_k neg drift,
+    writes NO coherence — the wound is rehearsed, not processed
+reflection bout (p ∝ reflect): applies narr_coher gain (§32)
+    at reflect_coher_gain (0.15) and reapp_tag_k drift (§135)
+    — the event is re-contextualized, affect cools at
+    extinction-ish rates
+```
+
+Locked null `brood_content_null` (P1334): brooding re-stamps
+the affect tag only — it never rewrites content fields (the
+dwelling is repetitive, not reconstructive). Emergent: two
+characters with the same bad breakup diverge — the brooder is
+still hot at day 90, the reflector has a cooler, more
+coherent version; both remember. (P1334)
+
+## 144. The window only opens for a surprise — the PE gate on reconsolidation
+
+§5.9/§21 let every retrieval open a reconsolidation window.
+The boundary literature says that's too generous: memory
+destabilization requires **prediction error** at retrieval —
+a mismatch between what the trace predicts and what happens
+(Sevenster, Beckers & Kindt 2012, 2013 — fear memory
+reconsolidation gated on PE; Fernández, Boccia & Pedreira
+2016 review; Pedreira, Pérez-Cuesta & Maldonado 2004). A
+retelling that lands exactly as expected rehearses
+(strengthens) but doesn't *open* — which is why repeated
+identical retellings stabilize a story rather than rewriting
+it. **[DEBATED — boundary conditions contested, replication
+mixed (e.g., Luyten & Beckers 2017 failures); we adopt the
+gate as a modeling hypothesis with the null locked so P1335
+can falsify it]**
+
+**Spec consequence (§6.334 — `recon_pe_gate`):**
+
+```
+at retrieval/retell: expected_outcome = the record's stored
+    outcome/valence fields as reconstructed
+pe = |expected − observed|  over valence/outcome/cue fields
+if pe ≥ recon_pe_gate (0.2) OR a novel cue/disconfirming
+    listener response enters:
+    open reconsolidation window (§5.9 ops apply)
+else:
+    retell_boost only — strength rises, fields bit-identical
+    (locked recon_routine_null, P1335)
+```
+
+Emergent consequence for consequence-continuity: an apology
+or repair event only rewrites the grievance record when it
+*disconfirms* — a perfunctory sorry matching expectations
+rehearses the grudge instead of healing it. Effortless repair
+fails; surprising repair works. That asymmetry is the Astra
+"voluntary repair" test made mechanistic.
+
+## 145. Attachment style is a parameter bundle, not a new system
+
+Mikulincer & Shaver's two dimensions map cleanly onto knobs
+the spec already has — no new machinery needed, just an
+authored bundle (Hazan & Shaver 1987; Mikulincer & Shaver
+2003/2007; Brennan, Clark & Shaver 1998 ECR — anxiety and
+avoidance as near-orthogonal dimensions):
+
+- **Attachment anxiety (hyperactivating):** threat cues
+  over-monitored, affect amplified, bids for proximity:
+  `intrusion_thresh − attach_anx_w·attach_anx`,
+  `cond_gain + attach_anx_w·attach_anx`,
+  `extinct_suppress · (1 − 0.5·attach_anx)` (safety never
+  sticks), `share_drive0 +` (reassurance-seeking disclosure),
+  `emo_inertia +` (§64).
+- **Attachment avoidance (deactivating):** suppress strategy
+  (§17) elevated, emitted affect dampened — but the *stored*
+  tag is NOT dampened (avoidant adults show intact
+  physiological response with suppressed expression —
+  Mikulincer et al.):
+  `suppress trait +`, `share_drive0 · (1 − attach_avo)`,
+  emitted affect/report magnitude `· (1 − avo_emit_damp)`
+  (0.35).
+
+**[CONSENSUS dimensions and strategy direction; the exact
+knob mapping is our decomposition. The emit-dampen-with-
+stored-intact asymmetry has psychophysiology support and is
+the behaviorally important leg: the avoidant character
+*looks* unaffected and *carries* it.]**
+
+**Spec consequence (§6.335):** `attach_anx`, `attach_avo`
+∈[0,1] authored traits (world-builder bibles; e.g., a
+character who clings after conflict vs one who goes quiet
+and leaves early). Locked `attach_content_null` (P1336):
+both dimensions move dynamics and emission only — never
+content fields. Same fight, two profiles: the anxious one
+retells it to everyone and never extinguishes; the avoidant
+one tells nobody, looks fine, and quietly re-weights the
+relationship.
+
+## 146. You remind me of someone — transference onto new persons
+
+Andersen & Cole 1990; Andersen, Glassman, Chen & Cole 1995
+(significant-other representations): meeting someone who
+resembles a significant other triggers **transference** —
+inferred traits and affective response appropriate to the
+*other* person transfer onto the new one, including false
+recognition of unobserved traits and biased evaluation.
+**[CONSENSUS that representation-triggered transfer occurs;
+magnitude in naturalistic settings ours]**
+
+**Spec consequence (§6.336 — `transf_*`):** when a new
+PersonModel mints (first meeting), compute simOp of the new
+person's observable cue fields against existing person
+cue-profiles:
+
+```
+if max overlap ≥ transf_thresh (0.6):
+    strongest CondEntry affect toward that old person leaks:
+    new_model.affect_prior += transf_k · overlap · entry.valence·strength
+    flag new_model.transf = {from: personId, provenance:"inferred"}
+```
+
+Two honesty disciplines, serving the Astra UI mandate
+directly: (a) `affect_prior` is an *expectation* — it biases
+interpretation of ambiguous behavior (§130 lens channel) but
+must be labeled `provenance:"inferred"` wherever the
+observation UI surfaces it; (b) locked `transf_fact_null`
+(P1337): transference writes zero content/fact fields — the
+character may *feel* the new neighbor is untrustworthy "for
+no reason," but no belief about deeds is minted. This is the
+cleanest mechanism for realistic misreading: the new
+supporting resident who gets a cold reception from day one
+because they have the ex-friend's laugh. (P1337)
+
+## 147. If it came back easily, it must still matter — the fluency heuristic
+
+Ease of retrieval is used as evidence (Koriat's
+self-consistency/fluency work, Koriat 1993; Koriat &
+Ma'ayan 2005; the availability heuristic, Tversky &
+Kahneman 1973). For emotional records specifically: a
+record that resurfaces *fluently* feels more significant —
+confidence and *reported* intensity inflate with retrieval
+ease. This is the quiet amplifier behind §144's stability:
+old well-rehearsed grievances feel fresh partly because
+they're easy to recall. **[CONSENSUS on fluency→confidence;
+the intensity leg is our extension — DEBATED]**
+
+**Spec consequence (§6.337 — `flu_*`):** when a bout
+resolves with search ease `ease` = 1 − (failedCandidates/
+search_breadth):
+
+```
+emitted confidence += flu_conf_gain · ease      // ≈0.12
+reported_arousal   += flu_int_gain  · ease      // ≈0.10
+```
+
+Report-layer only: stored fields untouched, and locked
+`flu_acc_null` (P1338) — ease inflates certainty and felt
+intensity, never accuracy. Emergent: the oft-retold slight
+feels *bigger* each time — not because it grew (stored tag
+stable), but because it surfaces so smoothly.
+
+## 148. Under stress, the habit answers — the substrate shift at choice
+
+§4 priced stress on encoding and retrieval of *records*.
+Schwabe & Wolf add the decision-side leg: acute stress
+shifts behavioral control from hippocampal/PFC
+goal-directed (episodic, deliberative) systems to dorsal
+striatal stimulus–response **habit** systems — and it
+requires the same glucocorticoid + noradrenergic
+co-activation as §118's two-factor gate (Schwabe & Wolf
+2009 J. Neurosci. — stressed participants insensitive to
+outcome devaluation; Schwabe et al. 2008, 2010;
+propranolol blocks the shift, Schwabe et al. 2011).
+**[CONSENSUS — among the best-replicated stress effects]**
+
+**Spec consequence (§6.338 — `stress_habit_*`):** at
+decision time, when `C.stress > stress_habit_thresh` (0.6)
+AND the two-factor gate (arousal co-activation, §118) holds:
+
+```
+weight on episodic/deliberative option evaluation: ×(1 − stress_habit_w·C.stress)
+weight on CondEntry/procedural responses (§§141–142): ×(1 + stress_habit_w·C.stress)
+                    // stress_habit_w ≈ 0.5
+```
+
+Locked `stress_ep_fact_null` (P1339): the shift changes
+*which machinery answers*, never what records contain.
+Emergent and production-relevant: a stressed character
+reverts to ruts — avoids the usual place, gives the
+practiced cold answer, doesn't do the repair they'd choose
+on a calm day. Stress visibly narrows behavioral repertoire
+in the observation layer without any scripted behavior.
+
+## 149. The spotlight on your own shame — overestimating what others keep
+
+Gilovich, Medvec & Savitsky 2000 (spotlight effect): people
+overestimate how much others notice and remember their
+actions — roughly 2×; Savitsky, Epley & Gilovich 2001
+(illusion of transparency). For *embarrassing* self-records
+the consequence is asymmetric knowledge: I carry my cringe
+hot and assume you do too — but you forgot it.
+**[CONSENSUS on overestimation magnitude ~2×; the specific
+embarrassment-retention inflation is our extension —
+HYPOTHESIS]**
+
+**Spec consequence (§6.339 — `spotlight_*`):** when a
+character estimates *another's* retention of a record in
+which self was the embarrassed actor (`motiv`-tagged shame/
+embarrassment, §26):
+
+```
+estimated_other_retention = own_effective_strength · spotlight_k
+                            // spotlight_k ≈ 1.8, clamped ≤1
+```
+
+Uses: (a) behavior — avoidance/awkwardness toward
+"witnesses" persists as if they remembered (feeds §141/§142
+inputs via estimated state, not stored fact); (b) honest
+labeling — the estimate lives on the estimator's model, a
+perfect INFERRED-not-OBSERVED display case. Locked
+`spot_fact_null` (P1340): the estimate never alters the
+other character's actual record or the own record's stored
+fields — it's a mistaken *model of a model*, which is
+exactly what makes it human. (P1340)
+
+## 150. Spec delta (v5.70 → v5.71)
+
+- **§6.330** `share_*`: sharing intention minted at
+  encode; drive ∝ arousal (cap 0.95), shame/guilt ×0.7,
+  decays 2^(−t/7d); each share is a discussEvent bout
+  under the §41 trust gate; `share_cool_null` locked.
+- **§6.331** `sit_sel_*` + `avoid_habit_*`: deliberate
+  option-score bias from CondEntries; procedural
+  `avoid_habit` records mint after 3 avoidances, fire
+  cue-driven at habit_p, decay on ~3× episodic tau,
+  immune to extinction; `habit_aff_null` locked.
+- **§6.332** `choice_aff_*`: bounded somatic-marker bias
+  on option scoring; `choice_fact_null` locked.
+- **§6.333** `brood_*`/`reflect_*`: rumination split;
+  brood re-stamps arousal (no coherence, no content
+  rewrite — `brood_content_null`), reflect applies
+  coherence + reappraisal drift. Traits `brooding`,
+  `reflect`.
+- **§6.334** `recon_pe_gate`: reconsolidation opens only
+  on prediction error or novel/disconfirming input;
+  routine retell = strength only (`recon_routine_null`).
+- **§6.335** `attach_anx`/`attach_avo` authored traits +
+  `avo_emit_damp`: parameter-bundle mapping onto existing
+  knobs; `attach_content_null`.
+- **§6.336** `transf_*`: resemblance ≥0.6 leaks affect
+  prior onto new PersonModels, flagged
+  `provenance:"inferred"`; `transf_fact_null`.
+- **§6.337** `flu_*`: retrieval ease inflates emitted
+  confidence + reported arousal; `flu_acc_null`.
+- **§6.338** `stress_habit_*`: acute stress + two-factor
+  gate reweights deliberative→habitual substrates at
+  choice; `stress_ep_fact_null`.
+- **§6.339** `spotlight_*`: estimated other-retention of
+  own-embarrassment records ×1.8; `spot_fact_null`.
+- **§7 params:** +16 scalars (`share_base`, `share_k`,
+  `share_cap`, `share_tau`, `share_spend`, `share_shame`,
+  `sit_sel_w`, `avoid_habit_n`, `avoid_habit_tau_mult`,
+  `choice_aff_w`, `choice_aff_cap`, `recon_pe_gate`,
+  `avo_emit_damp`, `transf_thresh`, `transf_k`,
+  `flu_conf_gain`, `flu_int_gain`, `stress_habit_w`,
+  `stress_habit_thresh`, `spotlight_k`) +4 authored
+  traits (`brooding`, `reflect`, `attach_anx`,
+  `attach_avo`) +2 knot curves (`flu_conf_gain(age)`,
+  `transf_k(age)`) +10 locked nulls; fields: procedural
+  `avoid_habit:true`, PersonModel `transf:{from,
+  provenance}`, record `share_count`/`shared:true`,
+  report scalars `flu_*`.
+- **§10 contract block** added.
+
+## 151. Age guidance (extends §§10/23/37/53/67/81/95/109/123/137)
+
+- `share_drive0`/`share_tau`: approximately flat — Rimé's
+  corpus found sharing proportions independent of age
+  (12–72 range); keep flat, no knots. (Hypothesis-flagged
+  for very old / socially narrowed profiles — the drive is
+  flat, the *addressee supply* shrinks via world, not via
+  this param.)
+- `brooding`/`reflect`: brooding declines ≥65 (§137
+  inertia knots — rumination declines); reflection
+  roughly flat (life-review keeps it alive —
+  HYPOTHESIS).
+- `attach_*`: stable authored traits — adult attachment
+  shows moderate rank-order stability (Fraley 2002); do
+  NOT knot, let biography carry it.
+- `transf_k`: mild rise ≥65 — older adults lean more on
+  schema/familiarity-based inference (Hess direction —
+  HYPOTHESIS): knot 0.5@55 → 0.6@75 → 0.7@85.
+- `flu_*`: rises with age — fluency reliance is
+  amplified in older adults (Jacoby & Rhodes 2006):
+  `flu_conf_gain` 0.12@55 → 0.18@75 → 0.25@85.
+- `stress_habit_w`: slightly amplified with age under
+  the §4 stress stack (older retrieval is already
+  taxed): knot 0.5@55 → 0.6@75 → 0.7@85 (HYPOTHESIS —
+  direct aging evidence thin).
+- `spotlight_k`: flat — spotlight persists across
+  adulthood (Gilovich et al. 2000); aging data thin,
+  flag HYPOTHESIS.
+- `sit_sel_w`/`avoid_habit_*`: habits form on the same
+  counts at all ages (procedural spared, §65/§161
+  consistent); deliberate selection flat.
+- `recon_pe_gate`: flat — boundary-condition literature
+  is young-adult; no age leg until evidence.
+- `choice_aff_w`: mild rise ≥65 with the positivity
+  profile (`w_emo_pos` already knots — the bias term
+  rides the same aged affect landscape; no new knot
+  needed — reads the aged entries as-is).
+
+## 152. Validation probes (P1331–P1340; registry continues)
+
+- **P1331 sharing channel (MUST, scope-lock):** minted
+  emotional records emit a discussEvent bout on ≥60% of
+  same-day opportunities at arousal ≥0.6; share count ∝
+  arousal (monotone); stored affect tag unchanged by
+  sharing — `share_cool_null` (Zech & Rimé 2005);
+  shame/guilt episodes share at ≈0.7× and later.
+  Rimé et al. 1991/1992; Finkenauer & Rimé 1998.
+- **P1332 two-layer avoidance (MUST, dissociation):**
+  after extinction drives a CondEntry to its floor, a
+  proceduralized `avoid_habit` still fires at habit_p —
+  `habit_aff_null`; the deliberate `sit_sel` leg reads
+  strength_eff so it lifts with extinction — the two
+  legs MUST diverge (feeling says fine, feet say no).
+  Salkovskis 1991; de Wit et al. 2018.
+- **P1333 somatic bias (SHOULD):** options sharing cues
+  with strong negative CondEntries are chosen less at
+  matched episodic evidence, bounded by
+  `choice_aff_cap`; no content/belief minted —
+  `choice_fact_null`. Bechara et al. 1997.
+- **P1334 rumination split (MUST):** matched negative
+  records under `brooding`-high vs `reflect`-high
+  profiles diverge on stored arousal at day 30 (brooded
+  ≥1.5× reflected) and on coherence (reflected higher);
+  brooding bouts leave content fields bit-identical —
+  `brood_content_null`. Treynor et al. 2003; Watkins
+  2008.
+- **P1335 PE gate (SHOULD — contested literature):**
+  identical retellings raise strength but leave fields
+  bit-identical — `recon_routine_null`; a disconfirming
+  outcome (pe ≥ gate) opens the window and permits
+  §5.9 ops. Sevenster, Beckers & Kindt 2012; Luyten &
+  Beckers 2017 (counter-evidence noted).
+- **P1336 attachment bundles (SHOULD):** `attach_anx`
+  raises intrusion rate and slows extinction-to-floor;
+  `attach_avo` damps *emitted* affect magnitude while
+  stored tags stay intact — emit-vs-store dissociation;
+  neither touches content — `attach_content_null`.
+  Mikulincer & Shaver 2007.
+- **P1337 transference (MUST, honesty-lock):** new
+  PersonModel with overlap ≥0.6 inherits
+  `affect_prior` scaled `transf_k·overlap`, labeled
+  `provenance:"inferred"`; zero content fields minted —
+  `transf_fact_null`. Andersen & Cole 1990.
+- **P1338 fluency inflation (SHOULD):** high-ease
+  retrievals emit confidence +`flu_conf_gain·ease` and
+  reported arousal +`flu_int_gain·ease`; stored fields
+  and accuracy unchanged — `flu_acc_null`; the gain is
+  age-knotted (older ≥ younger at matched ease).
+  Koriat 1993; Jacoby & Rhodes 2006.
+- **P1339 stress substrate shift (MUST):** under
+  C.stress>0.6 + two-factor gate, choices weight
+  CondEntry/procedural legs ≥1.5× episodic legs vs
+  unstressed control; records' stored content
+  unaffected — `stress_ep_fact_null`. Schwabe & Wolf
+  2009.
+- **P1340 spotlight (SHOULD):** a character's estimated
+  other-retention of own embarrassment records ≥1.5×
+  the witness's actual retention at day 14; own record
+  and witness record stored fields unmoved by the
+  estimate — `spot_fact_null`. Gilovich, Medvec &
+  Savitsky 2000.
+
+Registry: P1–P1340. v125 suite: P1331, P1332, P1334,
+P1337, P1339 MUST (all carry locked-null legs); P1333,
+P1335, P1336, P1338, P1340 SHOULD. P1335 is gated SHOULD
+because the underlying claim is contested — the probe
+exists to falsify the gate, not to enshrine it.
+
+## 153. Honest limits (Part XI)
+
+- **Social sharing**: the 80–96% figures are
+  autobiography- and diary-based; the *drive* decay tau
+  and `share_spend` are ours. The strongest verified
+  claim is the null — sharing does not cool affect —
+  which is why it's locked.
+- **Avoidance**: the deliberate/procedural split is real;
+  `avoid_habit_n`=3 and the 3× episodic tau are unpriced.
+  Real habit formation varies wildly (Lally et al. 2010,
+  ~66-day median for everyday habits) — treat the count
+  as a tuning dial, not a fact.
+- **Somatic choice bias**: somatic-marker theory is
+  contested as mechanism (Dunn, Dalgleish & Lawrence
+  2006); the *behavioral* claim (affect biases choice
+  before declarative access) is solid enough to ship.
+- **Brooding/reflection**: the factor split is real, but
+  the mapping "brooding = tag re-stamp, reflection =
+  coherence gain" is our operationalization — Watkins's
+  processing-mode account could equally price brooding
+  as *abstract* rehearsal vs our valence-selective one.
+- **PE gate**: genuinely contested — Luyten & Beckers
+  2017 failed to find the boundary; the gate is adopted
+  because it produces the right emergent shape (routine
+  retellings stabilize, surprises rewrite), and P1335 is
+  the designated falsifier.
+- **Attachment bundle**: dimensions are consensus; the
+  knob mapping is a decomposition, and the deactivating
+  "looks fine / carries it" asymmetry rests on
+  psychophysiology studies with modest n.
+- **Transference**: lab paradigm (sentence-memory +
+  evaluation); extending to multi-week acquaintance
+  formation is a leap — magnitude ours, direction theirs.
+- **Fluency→intensity**: fluency→confidence is Koriat-
+  solid; fluency→*felt intensity* is our extension —
+  flagged, P1338 tests only direction.
+- **Stress substrate shift**: human evidence is
+  instrument-learning paradigms; mapping to
+  "episodic-deliberative vs CondEntry-habit" is our
+  architecture reading of Schwabe's two-system account.
+- **Spotlight**: the ~2× overestimation is consensus;
+  the specific claim that *embarrassment retention in
+  others* is what's overestimated is an extension —
+  the honest bound is "self-relevant social records."

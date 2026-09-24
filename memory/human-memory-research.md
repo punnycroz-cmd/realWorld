@@ -5602,3 +5602,53 @@ probes P1291–P1300.
 → age-decline.md Part XI §§153–166; spec v5.70
 §§4.84–4.91 + §§5.145–5.146 + §6.329; probes
 P1321–P1330.
+
+## 100. v125 source block — the affect that reaches behavior (emotional-memory XI)
+
+- **Social sharing (CONSENSUS; the null is the load):**
+  Rimé, Mesquita, Philippot & Boca 1991; Rimé et al.
+  1992 (80–96% of episodes shared, ~60% same-day, extent
+  ∝ intensity r .21–.35); Finkenauer & Rimé 1998 (shame
+  damped); **Zech & Rimé 2005 — sharing does NOT reduce
+  residual intensity**. → `share_*`, `share_cool_null`.
+- **Two-layer avoidance (CONSENSUS direction):** Gross
+  1998/2015 situation selection; Salkovskis 1991 safety
+  behaviors; de Wit et al. 2018 habit transfer; Lally et
+  al. 2010 (~66d median formation). → `sit_sel_*`,
+  `avoid_habit_*`, `habit_aff_null`.
+- **Somatic choice bias (CONSENSUS behavior, DEBATED
+  mechanism):** Bechara et al. 1997 IGT; Damasio 1994;
+  Dunn, Dalgleish & Lawrence 2006 counter. →
+  `choice_aff_*`, `choice_fact_null`.
+- **Brooding vs reflection (CONSENSUS split):** Treynor,
+  Gonzalez & Nolen-Hoeksema 2003; Watkins 2008;
+  Nolen-Hoeksema, Wisco & Lyubomirsky 2008. →
+  `brooding`/`reflect`, `brood_content_null`.
+- **PE-gated reconsolidation (DEBATED):** Sevenster,
+  Beckers & Kindt 2012/2013; Fernández et al. 2016;
+  counter Luyten & Beckers 2017. → `recon_pe_gate`,
+  `recon_routine_null`, P1335 falsifier.
+- **Attachment as parameter bundle (CONSENSUS
+  dimensions; mapping ours):** Hazan & Shaver 1987;
+  Brennan, Clark & Shaver 1998; Mikulincer & Shaver
+  2007; Fraley 2002 stability. → `attach_anx`,
+  `attach_avo`, `avo_emit_damp`, `attach_content_null`.
+- **Transference (CONSENSUS lab; field magnitude
+  ours):** Andersen & Cole 1990; Andersen, Glassman,
+  Chen & Cole 1995. → `transf_*`, `transf_fact_null`,
+  `provenance:"inferred"` — honest-labeling primitive.
+- **Fluency heuristic (CONSENSUS confidence; intensity
+  leg ours):** Koriat 1993; Koriat & Ma'ayan 2005;
+  Tversky & Kahneman 1973; age leg Jacoby & Rhodes 2006.
+  → `flu_*`, `flu_acc_null`.
+- **Stress→habit substrate shift (CONSENSUS):** Schwabe
+  & Wolf 2009; Schwabe et al. 2008/2010/2011
+  (two-factor gate, propranolol-blocked). →
+  `stress_habit_*`, `stress_ep_fact_null`.
+- **Spotlight (CONSENSUS ~2×; retention extension
+  ours):** Gilovich, Medvec & Savitsky 2000; Savitsky,
+  Epley & Gilovich 2001. → `spotlight_k`,
+  `spot_fact_null`.
+
+→ emotional-memory.md §§140–153; spec v5.71
+§§6.330–6.339; probes P1331–P1340.

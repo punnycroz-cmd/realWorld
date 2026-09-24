@@ -12833,3 +12833,147 @@ P1326, P1327, P1330. SHOULD: P1323, P1325, P1328, P1329.
 
 → age-decline.md §§153–166; spec v5.70 §§4.84–4.91 +
 §§5.145–5.146 + §6.329; probes P1321–P1330.
+
+## 252. v125 probe specs (P1331–P1340 — emotional-memory XI, the affect that reaches behavior)
+
+- **P1331 sharing channel (MUST, scope-lock):** emotional
+  records (arousal ≥0.6) emit a discussEvent sharing bout
+  on ≥60% of same-day addressee opportunities; share
+  count monotone in arousal; stored affect tag
+  bit-identical before/after sharing — `share_cool_null`;
+  shame/guilt-tagged episodes share at ≈`share_shame`×
+  and with longer first-share delay. Rimé et al.
+  1991/1992; Finkenauer & Rimé 1998; Zech & Rimé 2005.
+- **P1332 two-layer avoidance (MUST, dissociation):**
+  drive a place-cue CondEntry to its extinction floor via
+  safe exposures: the deliberate `sit_sel` leg lifts
+  (option score returns toward neutral) while a
+  proceduralized `avoid_habit` (minted at 3 prior
+  avoidances) keeps firing at `habit_p` — legs MUST
+  diverge; `habit_aff_null`. Salkovskis 1991; de Wit et
+  al. 2018.
+- **P1333 somatic bias (SHOULD):** two options with
+  identical episodic evidence but one sharing cueVector
+  fields with a strong negative CondEntry: the negative-
+  cued option is chosen less, bounded by
+  `choice_aff_cap`; zero content/belief fields minted —
+  `choice_fact_null`. Bechara et al. 1997.
+- **P1334 rumination split (MUST):** matched negative
+  records, `brooding`-high vs `reflect`-high profiles:
+  day-30 stored arousal brooded ≥1.5× reflected;
+  coherence higher under reflection; brooding bouts
+  leave content fields bit-identical —
+  `brood_content_null`. Treynor et al. 2003; Watkins
+  2008.
+- **P1335 PE gate (SHOULD — contested):** N identical
+  retellings raise strength but leave all fields
+  bit-identical — `recon_routine_null`; a retell with
+  outcome mismatch ≥`recon_pe_gate` opens §5.9 ops.
+  Sevenster, Beckers & Kindt 2012; counter-evidence
+  Luyten & Beckers 2017 — probe designated falsifier.
+- **P1336 attachment bundles (SHOULD):** `attach_anx`
+  profiles show higher intrusion rate and slower
+  extinction-to-floor; `attach_avo` profiles emit damped
+  affect reports while stored tags match controls —
+  the emit-vs-store dissociation; content fields
+  identical — `attach_content_null`. Mikulincer &
+  Shaver 2007; Fraley 2002.
+- **P1337 transference (MUST, honesty-lock):** new
+  PersonModel with cue overlap ≥`transf_thresh` to an
+  affect-laden known person inherits `affect_prior` ∝
+  `transf_k·overlap`, flagged `provenance:"inferred"`;
+  zero fact/content fields minted — `transf_fact_null`;
+  UI surfaces it as INFERRED only. Andersen & Cole 1990.
+- **P1338 fluency inflation (SHOULD):** high-ease bouts
+  emit confidence +`flu_conf_gain·ease` and reported
+  arousal +`flu_int_gain·ease`; stored fields and scored
+  accuracy unchanged — `flu_acc_null`; older profiles
+  show larger `flu_conf_gain` at matched ease (knot
+  leg). Koriat 1993; Jacoby & Rhodes 2006.
+- **P1339 stress substrate shift (MUST):** under
+  C.stress>0.6 with the §118 two-factor gate satisfied,
+  choices weight CondEntry/procedural legs ≥1.5×
+  episodic legs vs unstressed controls; stored record
+  content untouched — `stress_ep_fact_null`. Schwabe &
+  Wolf 2009.
+- **P1340 spotlight (SHOULD):** estimated
+  other-retention of own embarrassment-tagged records
+  ≥1.5× the witness's actual retention at day 14;
+  neither record's stored fields move —
+  `spot_fact_null`. Gilovich, Medvec & Savitsky 2000.
+
+Probe registry: P1–P1340. v125 MUST: P1331, P1332,
+P1334, P1337, P1339 (all locked-null legs). SHOULD:
+P1333, P1335, P1336, P1338, P1340. P1335 gated SHOULD —
+the underlying claim is contested; the probe exists to
+falsify the gate.
+
+## 253. Sources verified this version (P1331–P1340 backing)
+
+- **Social sharing of emotion (CONSENSUS existence +
+  intensity slope; recovery claim NOT supported):**
+  **Rimé, Mesquita, Philippot & Boca 1991** (*Cognition
+  & Emotion* — six studies); Rimé, Philippot, Boca &
+  Mesquita 1992 (80–96% of episodes shared, ~60%
+  same-day, independent of age/gender); Finkenauer &
+  Rimé 1998 (shame/guilt less + later); **Zech & Rimé
+  2005** (sharing does not reduce residual intensity —
+  the load-bearing null). → `share_*` (§6.330),
+  `share_cool_null`.
+- **Avoidance two-layer (CONSENSUS direction; counts
+  ours):** Gross 1998/2015 (situation selection =
+  earliest regulation stage); Salkovskis 1991 (safety
+  behaviors prevent disconfirmation); de Wit et al.
+  2018 (*Curr. Opin. Behav. Sci.* — habit transfer);
+  Lally et al. 2010 (habit formation ~66d median —
+  flags `avoid_habit_n`=3 as a dial). → `sit_sel_*`,
+  `avoid_habit_*` (§6.331), `habit_aff_null`.
+- **Somatic markers (CONSENSUS behavior; mechanism
+  DEBATED):** **Bechara, Damasio, Tranel & Damasio
+  1997** (*Science* 275:1293 — IGT); Damasio 1994;
+  counter-analysis Dunn, Dalgleish & Lawrence 2006.
+  → `choice_aff_*` (§6.332), `choice_fact_null`.
+- **Brooding vs reflection (CONSENSUS split):**
+  **Treynor, Gonzalez & Nolen-Hoeksema 2003** (*Cognitive
+  Therapy and Research* — factor split); Watkins 2008
+  (*Psychol. Bull.* 134:163 — processing mode);
+  Nolen-Hoeksema, Wisco & Lyubomirsky 2008.
+  → `brooding`/`reflect` traits (§6.333),
+  `brood_content_null`.
+- **PE-gated reconsolidation (DEBATED — adopted as
+  hypothesis):** Sevenster, Beckers & Kindt 2012/2013;
+  Pedreira, Pérez-Cuesta & Maldonado 2004; Fernández,
+  Boccia & Pedreira 2016; **counter-evidence Luyten &
+  Beckers 2017** (boundary-condition failures).
+  → `recon_pe_gate` (§6.334), `recon_routine_null`,
+  P1335 designated falsifier.
+- **Attachment bundles (CONSENSUS dimensions; mapping
+  ours):** Hazan & Shaver 1987; Brennan, Clark & Shaver
+  1998 (ECR anxiety/avoidance); **Mikulincer & Shaver
+  2007** (hyper/deactivating strategies); Fraley 2002
+  (rank-order stability → traits not knots).
+  → `attach_anx`/`attach_avo`/`avo_emit_damp` (§6.335),
+  `attach_content_null`.
+- **Transference (CONSENSUS lab effect; field magnitude
+  ours):** **Andersen & Cole 1990** (*JPSP*); Andersen,
+  Glassman, Chen & Cole 1995. → `transf_*` (§6.336),
+  `transf_fact_null`, `provenance:"inferred"`.
+- **Fluency heuristic (CONSENSUS for confidence;
+  intensity leg ours):** **Koriat 1993** (*JEP:LMC* —
+  self-consistency); Koriat & Ma'ayan 2005; Tversky &
+  Kahneman 1973; age leg Jacoby & Rhodes 2006.
+  → `flu_*` (§6.337), `flu_acc_null`.
+- **Stress→habit shift (CONSENSUS, best-replicated):**
+  **Schwabe & Wolf 2009** (*J. Neurosci.* 29:7191 —
+  stress abolishes devaluation sensitivity); Schwabe et
+  al. 2008/2010 (glucocorticoid+noradrenergic
+  co-activation required — §118 gate); propranolol
+  blocks it (Schwabe et al. 2011). → `stress_habit_*`
+  (§6.338), `stress_ep_fact_null`.
+- **Spotlight (CONSENSUS ~2×; retention extension
+  ours):** **Gilovich, Medvec & Savitsky 2000** (*JPSP*
+  78:211); Savitsky, Epley & Gilovich 2001.
+  → `spotlight_k` (§6.339), `spot_fact_null`.
+
+→ emotional-memory.md Part XI §§140–153; spec v5.71
+§§6.330–6.339; probes P1331–P1340.
