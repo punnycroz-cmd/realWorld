@@ -1,6 +1,19 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v174 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v189 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v189 closed the observer loop's last unsurfaced steps: NEW
+`community/thread-following.md` — the `#beats` forum spec covering
+*follow* and *revise* (the recap owns catch-up, `prediction-ledger.md`
+owns predict/inspect). One forum post = one open, observable situation
+with a falsifier ("we'd know this mattered if…"); observable-evidence
+only, guesses labeled, "went quiet" an honest close, closing posts end
+with "what we got wrong." Hard firewall written in: follow counts never
+steer the world — resident promotion follows recurring relationships,
+not community popularity (Production-3 direction). Wired: blueprint
+gains the `#beats` forum channel (v99→v189), programming-calendar gains
+the Sun 18:15 beat sweep, scorecard gains `open_beats`/`beats_resolved`/
+`repeat_beat_followers` manual counts (proxy for `thread_followed` until
+it ships), `site/community.html` renders the ninth channel + sweep row.)
 (v174 added the observer-loop ritual layer: NEW `community/prediction-ledger.md`
 — the stakeless weekly "calls" thread that gives the Production-3 free
 observer loop (catch up → follow → predict → inspect → revise → return) a
@@ -144,6 +157,7 @@ numbers from the events capture + manual Discord counts).
 | Request clinic kit — `community/request-clinic-kit.md` | Stage 2→3 in public: the Wednesday clinic runnable — agenda, worked examples (compatible/exclusive/denied), canned answers, quiet-week fallback | BUILT (v159), OWNER-GATED to run |
 | Re-engagement — `community/re-engagement.md` | The lapsed-member path: observable-only lapse signals, honest re-entry hooks (open rumors, watch parties, credited fixes), covenant never-do list, scorecard health line | BUILT (v159), OWNER-GATED to run |
 | Prediction ledger — `community/prediction-ledger.md` | Stage 1→2 observer-loop ritual: weekly stakeless "calls" on open beats — observable outcomes only, evidence-linked resolution, misses published, `repeat_callers` as the return-visit proxy until `prediction_made`/`outcome_inspected` ship | BUILT (v174), OWNER-GATED to run — activates with the Sunday recap slot |
+| Beats forum — `community/thread-following.md` | Stage 1→2 follow + revise: `#beats` forum — one post per open observable situation, falsifier in the opening post, "went quiet" is honest, closing posts state what the thread got wrong; follow counts never feed the world | BUILT (v189), OWNER-GATED to run — channel is in `server-blueprint.json`; 2–5 open beats max |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -190,6 +204,11 @@ prints this from the blueprint):**
    - `#clips` — member captures of the feed/neighborhood; the Stage-5
      advocacy surface. Pin-ready rules + upstream flow in
      `community/clips-and-highlights.md`.
+   - `#beats` — forum channel: one thread per open, observable situation
+     (a standing offer, a landed invitation, an open rumor). The follow +
+     revise surface of the observer loop. Rules, post formats, sweep
+     cadence, and the never-steer-the-world firewall in
+     `community/thread-following.md`.
 4. Bots: none required at launch. (If raid protection becomes needed: a
    verification-gate bot is the only acceptable addition — decide then.)
 5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
@@ -276,6 +295,7 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Launch week | Seeded discussion questions | — | `social/drafts/seeded-questions.md` |
 | Sun 18:05 (with recap) | Open-rumor thread | recap's unconfirmed hook | `community/programming-calendar.md` §3 |
 | Sun 18:10 (with recap) | Weekly calls thread | the week's open beats | `community/prediction-ledger.md` (v174 — rules, resolution, failure modes) |
+| Sun 18:15 (with recap) | Beat sweep | the week's record vs. open beats | `community/thread-following.md` (v189 — §4; quiet week posts nothing) |
 | Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/request-clinic-kit.md` (v159 — agenda, worked examples, canned answers) |
 | Monthly (1st Sat) | Town hall text AMA | — | `community/programming-calendar.md` §2/§3 |
 

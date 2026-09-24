@@ -1,6 +1,6 @@
 {
   "_doc": "Real World — The Mission · Discord server blueprint (COMMUNITY-FUNNEL.md §3 as data). Single source of truth for the create-at-go server: tools/server_blueprint.py --render prints the checklist from this file, --check verifies an export against it. LOCAL ONLY — nothing here creates anything; the owner runs the steps.",
-  "version": "v99",
+  "version": "v189",
   "server": {
     "name": "Real World — The Mission",
     "community_features": ["MEMBERSHIP_SCREENING", "COMMUNITY"],
@@ -40,6 +40,7 @@
     {"name": "feedback", "type": "text", "topic": "Bugs, suggestions. Feeds the weekly route into the dev tracks (COMMUNITY-FUNNEL.md §7).", "posting": "everyone", "pins": ["how feedback is routed (weekly batch → shared inbox)", "the two standing asks"]},
     {"name": "announcements", "type": "text", "topic": "Owner posts only. Weekly recap lives here + socials.", "posting": "owner", "readonly": true},
     {"name": "clips", "type": "text", "topic": "Member captures of the feed/neighborhood — the advocacy channel.", "posting": "everyone", "pins": ["clip rules (community/clips-and-highlights.md §2 — pin-ready)"]},
+    {"name": "beats", "type": "forum", "topic": "Follow one open situation on the block over weeks. Observable outcomes only — the record, never the mind-reading.", "posting": "everyone", "pins": ["the 6 beat rules + post format (community/thread-following.md §2–§3 — pin-ready)"]},
     {"name": "mod-log", "type": "text", "topic": "Private. Ban/warn log — entry format in community/mod-ramp.md.", "posting": "owner+mod", "private": true}
   ],
   "bots": [],

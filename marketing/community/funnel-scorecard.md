@@ -59,8 +59,8 @@ escalate to a named fix proposal in the recap/retro, not a quiet tweak.
 ## 3. Community-health rows (manual counts, same report)
 
 The events file can't see inside Discord. Each week the owner records
-three numbers in a JSON file (shape below) and the scorecard prints them
-alongside the computed rows:
+the manual counts in a JSON file (shape below) and the scorecard prints
+them alongside the computed rows:
 
 ```json
 {
@@ -72,7 +72,10 @@ alongside the computed rows:
   "recap_mentions_of_members": 2,
   "calls_posted": 8,
   "calls_resolved": 5,
-  "repeat_callers": 3
+  "repeat_callers": 3,
+  "open_beats": 4,
+  "beats_resolved": 1,
+  "repeat_beat_followers": 6
 }
 ```
 
@@ -83,6 +86,7 @@ alongside the computed rows:
 | `watch_party_rsvps` | >0 within first month; qualifies event per playbook §1 | `watch-party-playbook.md` |
 | `recap_mentions_of_members` | ≥1/wk once members exist — the cheapest retention mechanic | `first-100.md` §3, funnel §7.4 |
 | `repeat_callers` (calls ritual) | >0 by W2; trending up — community-side proxy for the return-visit metric until `prediction_made`/`outcome_inspected` ship | `prediction-ledger.md` §5 |
+| `repeat_beat_followers` (`#beats` forum) | >0 by W3; trending up — community-side proxy for `thread_followed` until it ships; `open_beats` held at 2–5, never a growth target | `thread-following.md` §4–§5 |
 
 Anti-vanity rule (unchanged): member count is reported *only* as the
 denominator of the activity ratio. Never headline the raw number
