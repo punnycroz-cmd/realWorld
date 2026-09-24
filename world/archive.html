@@ -95,6 +95,21 @@
     Both are still projections: replay hides unreached rows only while
     it runs; the edition reads a mark the reader set on this device.
 
+  v10 additions (world v132) — THE CONSEQUENCE LAYER:
+    - FOLLOWING — 'follow' on a person or a thread (rw_archive_follow,
+      this device only) marks it; the follow view reports each marked
+      thing's public trail with lines-since-your-mark and honest quiet
+      ("the record went quiet on X — that's a count too"). Rows touching
+      a follow carry a small mark. Following never reaches the world.
+    - AFTER THIS — the record detail names the next written row on each
+      edge the row carries (same thread / next sighting of the person /
+      next at the venue). The wire's own rows; a next line is not a
+      caused line.
+    - SEEN THIS BEFORE — the record detail counts earlier rows with the
+      same public shape (same kind at the same corner, or same kind on
+      the same name). A count, not a pattern claim.
+    All three are still projections — the record itself is untouched.
+
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
     - LIVE  — if window.__aiBridge exposes the wire archive
@@ -218,6 +233,13 @@
   .k.rumor{background:#2f2817;color:var(--rum)}
   .ev .who{color:var(--blu)}
   .att{font-size:10px;color:var(--dim);font-style:italic}
+  .ev.fol{box-shadow:inset 2px 0 0 var(--acc)}
+  .fmark{color:var(--acc);font-size:9px;margin-left:6px}
+  .folcard{border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin:8px 0;
+    background:var(--panel2)}
+  .folcard .fl{font-weight:600;font-size:13.5px}
+  .folcard .fm{font-size:11.5px;color:var(--dim);margin-top:3px}
+  .folcard .fq{font-size:11.5px;color:var(--dim);font-style:italic;margin-top:3px}
   .unc{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--rum);
     border:1px dashed var(--rum);border-radius:8px;padding:0 6px;margin-left:6px}
   .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
@@ -362,6 +384,7 @@
         <div class="vchip" data-v="pair">seen together<small>two names, one public record — co-presence only</small></div>
         <div class="vchip" data-v="shelf">your shelf<small>pins kept on this device — the archive doesn’t remember you</small></div>
         <div class="vchip" data-v="edition">the edition<small>everything the wire wrote since your mark — a window, never a cut</small></div>
+        <div class="vchip" data-v="follow">following<small>names + threads you marked — this browser only; following never reaches the world</small></div>
       </div>
       <select class="pick" id="pickWho" style="display:none"></select>
       <select class="pick" id="pickVenue" style="display:none"></select>
@@ -715,6 +738,38 @@ function markRead(){
   toast('mark set — the edition counts from here');
 }
 
+/* ---- following (v132): names + threads the reader marked. Same law
+   as the shelf and the mark — localStorage on this device only; the
+   archive doesn't remember you and following never reaches the world.
+   Keys are 'p:<personId>' and 't:<threadId>'. */
+var FOL_KEY='rw_archive_follow';
+var follows=(function(){
+  try{ var a=JSON.parse(localStorage.getItem(FOL_KEY)||'[]');
+    return new Set(a.filter(function(k){return typeof k==='string';}));
+  }catch(e){ return new Set(); }
+})();
+function folSave(){
+  try{ localStorage.setItem(FOL_KEY, JSON.stringify(Array.from(follows))); }catch(e){}
+}
+function folToggle(k){
+  if (follows.has(k)){ follows.delete(k); toast('unfollowed — this device only'); }
+  else { follows.add(k); toast('following — the mark lives in this browser'); }
+  folSave();
+}
+/* does a row touch a followed person (p:<id> via who/mentions) or a
+   followed thread (t:<id>)? Structural — the same fields the person
+   and thread views read. */
+function evTouchesFollow(e){
+  if (e.who && follows.has('p:'+e.who)) return true;
+  if ((e.mentions||[]).some(function(m){ return follows.has('p:'+m); })) return true;
+  if ((e.thread||[]).some(function(t){ return follows.has('t:'+t); })) return true;
+  return false;
+}
+function folNewCount(){
+  var ed=editionList(); if(!ed) return 0;
+  return ed.list.filter(evTouchesFollow).length;
+}
+
 /* ---- the replay clock (v118). The day view's second clock: the
    day's own rows dealt back in timestamp order at a chosen speed.
    Display state only — nothing is fetched, written, or scored; the
@@ -822,7 +877,7 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs','edition'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs','edition','follow'].indexOf(kv.v)>=0) view=kv.v;
   if (kv.rq){ rqSel=kv.rq; view='reqs'; }
   if (kv.h!==undefined){ var hi=parseInt(kv.h,10); if(hi>=0&&hi<24) hourSel=hi; }
   if (kv.d1 && DAYS[kv.d1]) cmpA=kv.d1;
@@ -870,6 +925,13 @@ function renderViewChips(){
       ? ed.list.length+' line'+(ed.list.length===1?'':'s')+' since your mark — a window, never a cut'
       : 'everything the wire wrote since your mark — a window, never a cut';
   }
+  /* the follow chip reports its own honest count once follows exist */
+  var fcc=document.querySelector('.vchip[data-v="follow"] small');
+  if (fcc){
+    fcc.textContent = follows.size
+      ? follows.size+' followed · '+folNewCount()+' line'+(folNewCount()===1?'':'s')+' since your mark — this browser only'
+      : 'names + threads you marked — this browser only; following never reaches the world';
+  }
 }
 function buildPickers(){
   var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
@@ -909,7 +971,10 @@ function buildPickers(){
 
 /* ================= shared event row ================= */
 function evRow(e, d){
-  var li=document.createElement('li'); li.className='ev'+(e.id===selId?' sel':'');
+  var li=document.createElement('li');
+  var fol=evTouchesFollow(e);
+  li.className='ev'+(e.id===selId?' sel':'')+(fol?' fol':'');
+  if (fol) li.title='touches something you follow';
   var txt=esc(e.text);
   if ((e.kind==='request')&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.kind==='admin'&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
@@ -918,6 +983,7 @@ function evRow(e, d){
      kind reached for, never the screened text (game-v14 `attempt`) */
   if (e.attempt) txt+=' <span class="att">asked for — '+esc(e.attempt)+'</span>';
   if (e.kind==='rumor') txt+=' <span class="unc">unconfirmed</span>';
+  if (fol) txt+=' <span class="fmark" title="touches something you follow">◆</span>';
   li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span>';
   li.onclick=function(){ selId=e.id; if(d) day=d; markSel(li); renderDet(); setHash(); };
   return li;
@@ -1165,7 +1231,9 @@ function renderPersonView(){
   body.innerHTML='<div class="subhead"><h3>'+esc(nameOf(who))+'</h3>'+
     (ROLES[who]?'<span class="meta">'+esc(ROLES[who])+'</span>':'')+
     '<span class="pubonly">public whereabouts only</span>'+
-    '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
+    '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span>'+
+    '<span class="chip" id="folWho" title="mark this name — the follow lives in this browser; following never reaches the world">'+
+      (follows.has('p:'+who)?'following — unfollow':'follow '+esc(nameOf(who)))+'</span></div>'+
     (evs.length?'<div class="chiprow" id="jumpchips">'+
       '<span class="chip" id="firstEv" title="the oldest row on this trail">first on record — '+fmt(evs[0].t)+' · '+daySepLabel(dateOfId(evs[0].id)||'')+'</span>'+
       '<span class="chip" id="lastEv" title="the newest row on this trail">latest — '+fmt(evs[evs.length-1].t)+' · '+daySepLabel(dateOfId(evs[evs.length-1].id)||'')+'</span>'+
@@ -1183,6 +1251,7 @@ function renderPersonView(){
       return (e.text+' '+(e.venue?venueOf(e.venue):'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
+  document.getElementById('folWho').onclick=function(){ folToggle('p:'+who); renderAll(); };
   document.querySelectorAll('#lenschips .chip').forEach(function(ch){
     ch.onclick=function(){ personLens=ch.dataset.l; renderAll(); };
   });
@@ -1534,6 +1603,95 @@ function renderEditionView(){
   mountTrailDays();
 }
 
+/* ================= VIEW: following (v132) =================
+   Names + threads the reader marked. Same law as the shelf and the
+   mark: reader-side localStorage, this device only; following never
+   reaches the world — nobody is notified and nothing is counted for
+   anyone but the reader. "Since your mark" rides the edition mark —
+   follows without a mark just report their whole public trail. */
+function folItems(){
+  var items=[];
+  follows.forEach(function(k){
+    var id=k.slice(2);
+    if (k.slice(0,2)==='p:' && WHO_SET[id])
+      items.push({k:k, kind:'person', id:id, label:nameOf(id), evs:charEvents(id)});
+    else if (k.slice(0,2)==='t:' && THREADS[id])
+      items.push({k:k, kind:'thread', id:id, label:THREADS[id].label, evs:threadMembers(id)});
+    else items.push({k:k, kind:'lost', id:id, label:id, evs:[]});
+  });
+  items.sort(function(a,b){
+    var rank={person:0,thread:1,lost:2};
+    return rank[a.kind]-rank[b.kind] || a.label.localeCompare(b.label);
+  });
+  return items;
+}
+function renderFollowView(){
+  var body=document.getElementById('viewBody');
+  var items=folItems();
+  var ed=editionList(), edIds={};
+  if (ed) ed.list.forEach(function(e){ edIds[e.id]=1; });
+  var quiet=0, lost=0;
+  items.forEach(function(it){
+    it.since = it.evs.filter(function(e){ return edIds[e.id]; }).length;
+    if (it.kind==='lost') lost++;
+    else if (ed && !it.since) quiet++;
+  });
+  var html='<div class="dayhead"><h3>Following</h3>'+
+    '<span class="meta">names + threads you marked — the follows live in this browser; '+
+    'the archive doesn\u2019t remember you; following never reaches the world</span></div>';
+  if (!items.length){
+    body.innerHTML=html+
+      '<div class="empty">Nothing followed — \u2018follow\u2019 on a person or a thread puts it here. '+
+      'Follows are this browser\u2019s, not the world\u2019s: nobody is notified, and nothing '+
+      'is counted for anyone but you.</div>';
+    return;
+  }
+  html+='<div class="ledsum">'+
+    '<div class="rs"><b>'+(items.length-lost)+'</b><span>follow'+(items.length-lost===1?'':'s')+' on record</span></div>'+
+    (ed?'<div class="rs"><b>'+folNewCount()+'</b><span>line'+(folNewCount()===1?'':'s')+' since your mark</span></div>'
+       :'<div class="rs"><b>—</b><span>no mark set — the edition hasn\u2019t started</span></div>')+
+    (ed?'<div class="rs"><b>'+quiet+'</b><span>quiet since your mark</span></div>':'')+
+    (lost?'<div class="rs"><b>'+lost+'</b><span>not in this archive source</span></div>':'')+
+    '</div><div id="follist"></div>';
+  body.innerHTML=html;
+  var list=document.getElementById('follist');
+  items.forEach(function(it){
+    var c=document.createElement('div'); c.className='folcard';
+    if (it.kind==='lost'){
+      c.innerHTML='<div class="fl">'+esc(it.label)+'</div>'+
+        '<div class="fq">isn\u2019t in this archive source — the follow is yours, kept; '+
+        'the record never invents a name for it.</div>'+
+        '<div class="fm"><span class="chip" data-unfol="'+esc(it.k)+'">unfollow</span></div>';
+      list.appendChild(c); return;
+    }
+    var last=it.evs.length?it.evs[it.evs.length-1]:null;
+    c.innerHTML='<div class="fl">'+esc(it.label)+' <span class="k '+(it.kind==='person'?'move':'scene')+'" style="width:auto">'+it.kind+'</span></div>'+
+      '<div class="fm">'+it.evs.length+' row'+(it.evs.length===1?'':'s')+' on record'+
+        (ed ? ' · <b style="color:var(--ink)">'+it.since+'</b> since your mark' : ' · no mark set — counts wait for the edition')+'</div>'+
+      (ed && !it.since && it.evs.length
+        ? '<div class="fq">the record went quiet on '+esc(it.label)+' since your mark — that\u2019s a count too.</div>' : '')+
+      (!it.evs.length ? '<div class="fq">no public rows yet — the archive only holds what a spectator could have seen.</div>' : '')+
+      '<div class="fm" style="margin-top:6px">'+
+        (last?'<span class="thchip" data-ev="'+last.id+'" title="the newest row on this trail">latest — '+fmt(last.t)+' · '+daySepLabel(dateOfId(last.id)||'')+'</span> ':'')+
+        '<span class="chip" data-open="'+esc(it.k)+'">open '+(it.kind==='person'?'trail':'thread')+' →</span> '+
+        '<span class="chip" data-unfol="'+esc(it.k)+'">unfollow</span></div>';
+    list.appendChild(c);
+  });
+  list.querySelectorAll('[data-unfol]').forEach(function(ch){
+    ch.onclick=function(ev){ ev.stopPropagation(); folToggle(ch.dataset.unfol); renderAll(); };
+  });
+  list.querySelectorAll('[data-open]').forEach(function(ch){
+    ch.onclick=function(ev){ ev.stopPropagation(); var k=ch.dataset.open;
+      if (k.slice(0,2)==='p:'){ who=k.slice(2); view='person'; }
+      else { selTh=k.slice(2); view='threads'; }
+      selId=null; renderAll(); };
+  });
+  list.querySelectorAll('[data-ev]').forEach(function(ch){
+    ch.onclick=function(ev){ ev.stopPropagation(); var f=findEvent(ch.dataset.ev); if(!f) return;
+      selId=f.e.id; if(f.day)day=f.day; renderDet(); setHash(); };
+  });
+}
+
 /* ================= VIEW: your shelf =================
    Pins kept in this browser's localStorage — reader-side state, not
    world state. Copy-shelf exports a transcript that carries the source
@@ -1723,10 +1881,13 @@ function renderThreadView(tid){
     '<div class="subhead"><h3>'+esc(th.label)+'</h3>'+
     '<span class="meta">'+mems.length+' public events · '+ds.length+' day'+(ds.length===1?'':'s')+
     ' · '+(open?'still open':'settled')+'</span>'+
-    '<span class="pubonly">arrangement only — every line was already public</span></div>'+
+    '<span class="pubonly">arrangement only — every line was already public</span>'+
+    '<span class="chip" id="folTh" title="mark this thread — the follow lives in this browser; following never reaches the world">'+
+      (follows.has('t:'+tid)?'following — unfollow':'follow this thread')+'</span></div>'+
     '<div class="meta" style="font-size:12px;color:var(--dim);margin-bottom:8px">'+esc(th.blurb)+'</div>'+
     renderTrailDays(mems);
   document.getElementById('thback').onclick=function(){ selTh=null; renderAll(); };
+  document.getElementById('folTh').onclick=function(){ folToggle('t:'+tid); renderAll(); };
   mountTrailDays();
 }
 
@@ -1883,6 +2044,58 @@ function renderDet(){
       html+='</ul>';
     }
   }
+  /* v132 — after this: the next written row on each edge this record
+     carries (same thread / next sighting of the person / next at the
+     venue). The wire's own rows, record order; a next line on an edge
+     is not a caused line — the detail says so. */
+  var all=allEvents(), ai=-1;
+  for (var ai2=0;ai2<all.length;ai2++) if(all[ai2].id===e.id){ ai=ai2; break; }
+  if (ai>=0 && ai<all.length-1){
+    var after=[], aused={};
+    for (var aj=ai+1; aj<all.length && after.length<3; aj++){
+      var x=all[aj];
+      if (aused[x.id]) continue;
+      var label=null;
+      if (e.thread && e.thread.length && (x.thread||[]).some(function(t){return e.thread.indexOf(t)>=0;}))
+        label='on the same thread';
+      else if (e.who && WHO_SET[e.who] && (x.who===e.who||(x.mentions||[]).indexOf(e.who)>=0))
+        label='next sighting of '+nameOf(e.who);
+      else if (e.venue && x.venue===e.venue)
+        label='next at '+venueOf(e.venue);
+      if (label){ aused[x.id]=1; after.push({x:x,label:label}); }
+    }
+    if (after.length){
+      html+='<div class="meta" style="margin-top:8px"><b>after this</b> — what the record shows next '+
+        'on the edges this row carries; a next line is not a caused line</div><ul class="trail">';
+      after.forEach(function(a){
+        var xd=dateOfId(a.x.id)||d;
+        html+='<li data-tid="'+a.x.id+'">'+fmt(a.x.t)+' · '+esc(a.x.kind)+' · '+esc(a.label)+
+          (xd!==d?' · '+daySepLabel(xd):'')+'</li>';
+      });
+      html+='</ul>';
+    }
+  }
+  /* v132 — seen this before: earlier rows with the same public shape —
+     same kind at the same corner, or same kind on the same name when
+     the row carries no venue. Counted, not a pattern claim. */
+  if (ai>0){
+    var before=[], btot=0;
+    for (var bj=ai-1; bj>=0; bj--){
+      var y=all[bj];
+      var same = e.venue ? (y.kind===e.kind && y.venue===e.venue)
+                         : (y.kind===e.kind && e.who && y.who===e.who);
+      if (same){ btot++; if (before.length<3) before.push(y); }
+    }
+    if (btot){
+      html+='<div class="meta" style="margin-top:8px"><b>seen this before</b> — the wire has seen '+
+        'this shape '+btot+' time'+(btot===1?'':'s')+' before · a count, not a pattern claim</div><ul class="trail">';
+      before.forEach(function(y){
+        var yd=dateOfId(y.id)||d;
+        html+='<li data-tid="'+y.id+'">'+fmt(y.t)+' · '+esc(y.kind)+(yd!==d?' · '+daySepLabel(yd):'')+'</li>';
+      });
+      html+='</ul>';
+    }
+  }
   html+='<div class="plink"><input readonly value="archive.html#e='+e.id+'" id="plinkIn">'+
     '<button id="plinkBtn">copy link</button>'+
     '<button class="daylink" id="reccopy">copy record</button>'+
@@ -1961,6 +2174,7 @@ function renderView(){
   else if (view==='gaps') renderGapsView();
   else if (view==='reqs') renderReqsView();
   else if (view==='edition') renderEditionView();
+  else if (view==='follow') renderFollowView();
 }
 function renderAll(){
   renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();

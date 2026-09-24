@@ -35,7 +35,7 @@
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
   loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer,
-  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer).
+  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer, PT121 + archive v132 consequence layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2618,6 +2618,26 @@ const PTS=[
   ck:["wire gate: 0 fail — a merge that drops the 3-cap, wires a call to gsWireFollow, or adds a score FAILs the gate",
    "spectator_ui_v131 present in feed.json with catchup_edition / calls / call_terminal_map / keyboard",
    "the call functions contain no BRIDGE/gsWire reference — a call is pure viewer-side state like a watch"]}
+]},
+{id:"PT121",title:"The Consequence Layer v132 — following, after-this, seen-before (Archive v10)",min:8,
+ persona:"a regular spectator who already follows the block loosely and wants the archive to answer two honest questions: 'what did the record show after that?' and 'has the wire seen this shape before?' — without the page pretending adjacency is causation",
+ goal:"Verify the v132 consequence layer on archive.html: the following view (#v=follow, rw_archive_follow) lets a reader mark names and threads, reports each follow's rows on record + lines since the edition mark with honest quiet lines, keeps unserved follows stated-not-dropped, and never reaches the world; rows touching a follow carry the ◆ mark; the record detail gains 'after this' (next written row on each shared edge — thread/person/venue, 'a next line is not a caused line') and 'seen this before' (earlier same-shape rows, 'a count, not a pattern claim'); the archive audit gate's v132 marks pass.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open archive.html. Open a person's trail (e.g. Jules Park) and click 'follow Jules Park'; open a thread detail and click 'follow this thread'. Then open #v=follow.",
+  exp:"Each follow renders a card: label + kind tag, 'N rows on record', a latest-row chip that opens that record, and 'unfollow'. With no edition mark set, cards read 'no mark set — counts wait for the edition'. The header states the law: 'the follows live in this browser; the archive doesn't remember you; following never reaches the world'. The rail chip now counts your follows.",
+  ck:["follow toggles persist across reload (rw_archive_follow) and unfollow works from the card and from the person/thread chip",
+   "the empty state ('Nothing followed — …') shows before any follow exists and disappears after",
+   "grep the page: no follow function references BRIDGE/gsWire — following is pure reader-side state"]},
+ {do:"Back on the day view, watch rows for the ◆ mark and the accent edge; then open any record mid-day and read 'after this' and 'seen this before'.",
+  exp:"Rows touching a followed name or thread carry the ◆ 'touches something you follow' mark on every view that renders rows. The record detail lists up to three 'after this' rows labeled by shared edge ('on the same thread' / 'next sighting of <name>' / 'next at <venue>') with the honesty line 'a next line is not a caused line', and a 'seen this before' block counting earlier same-shape rows ('a count, not a pattern claim'). Every listed row is clickable.",
+  ck:["after-this edges are real shared fields — no inferred causation, no 'led to' wording anywhere",
+   "seen-before only counts same kind + same venue (or same kind + same name when venueless) — spot-check one count by hand",
+   "rows in 'after this' appear in record order and may cross days (day label shows when they do)"]},
+ {do:"Set an edition mark ('mark the record read' on the edition view), then reopen the following view; then hand-edit localStorage to add a bogus follow key like p:NOPE and reload.",
+  exp:"With a mark, cards report 'M since your mark'; a follow with nothing new reads 'the record went quiet on <name> since your mark — that's a count too.' The bogus key renders as 'isn't in this archive source — the follow is yours, kept' with only an unfollow chip — kept, stated, never invented. node world/audit.js archive gate passes all v132 marks.",
+  ck:["quiet follows are counted in the summary strip ('K quiet since your mark'), not hidden",
+   "unserved follow keys are kept and stated — the archive never silently resets reader state",
+   "archive gate: 0 fail on the v132 marks (data-v=\"follow\", rw_archive_follow, honesty strings, no-bus check on fol* functions); history.json carries archive_ui_v132"]}
 ]}
 ];
 

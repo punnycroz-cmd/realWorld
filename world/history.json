@@ -171,6 +171,24 @@
     "first visit starts the edition explicitly ('start the edition here') — the page never pretends it watched a visit it didn't",
     "the mark is this browser's localStorage — same law as the shelf; the copy says 'the archive doesn't remember you'"
    ]
+  },
+  "archive_ui_v132": {
+   "doc": "world v132 — The Archive v10: the consequence layer. Following (names + threads marked in this browser, reported against the edition mark with honest quiet), 'after this' next-edge trails and 'seen this before' shape counts on the record detail, and ◆ marks on rows touching a follow. All projections of public rows — the record itself is untouched.",
+   "views_added": {
+    "follow": "#v=follow — cards for every marked name (p:<id>) and thread (t:<id>): rows on record, lines since your mark (edition mark), latest-row jump, honest quiet lines; follows a source doesn't serve are kept and stated, never invented. rw_archive_follow localStorage, this device only.",
+    "after_this": "record detail — the next written row on each edge the row carries (same thread / next sighting of the person / next at the venue), capped at 3, record order. Copy says a next line is not a caused line.",
+    "seen_before": "record detail — count + up to 3 earlier rows with the same public shape (same kind at same venue, else same kind on same who). A count, not a pattern claim.",
+    "follow_row_marks": "any rendered row touching a followed person (who/mentions) or thread carries .fol + a ◆ mark — display state only"
+   },
+   "permalinks_added": [
+    "#v=follow"
+   ],
+   "honesty": [
+    "follows live in the reader's localStorage — following never reaches the world; nobody is notified, nothing is counted for anyone but the reader",
+    "follow chips resolve only WHO_SET person ids and THREADS ids the source serves — unserved keys render as 'not in this archive source', never invented",
+    "after-this names shared edges only (thread/who/venue) — adjacency is never presented as causation",
+    "seen-before counts identical public shapes — it asserts repetition the wire wrote, never a routine or an intention"
+   ]
   }
  },
  "days": {

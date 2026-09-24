@@ -509,6 +509,19 @@ One person can wear every hat; four real testers is the intended shape.
   marks pin the 3-row cap, the open-status gate on makeCall, the
   never-a-bus-write rule on call functions, and the no-scoring
   vocabulary ban.
+  PT121 (archive v132) audits the consequence layer — the observer
+  loop's follow + inspect legs on the history browser. Following marks
+  names and threads (rw_archive_follow, this browser only) and reports
+  each follow's rows on record plus lines since the edition mark, with
+  honest quiet lines ("the record went quiet on <name> — that's a count
+  too") and kept-not-invented handling for follows a source doesn't
+  serve; rows touching a follow carry the ◆ mark. The record detail
+  gains "after this" (the next written row on each shared edge —
+  thread/person/venue — "a next line is not a caused line") and "seen
+  this before" (earlier same-shape rows — "a count, not a pattern
+  claim"). The audit's v132 marks pin the view switch, storage key,
+  both honesty lines, the follow toggles, and the never-a-bus-write
+  rule on every fol* function.
 
 ## 3. Running a session
 

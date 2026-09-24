@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104; v9 pass v118)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104; v9 pass v118; v10 pass v132)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -500,7 +500,64 @@ Copy deck additions:
 | Edition caught up | "Nothing new since your mark — the record is caught up. A quiet stretch is a count too." |
 | Mark set | "mark set — the edition counts from here" |
 
-## 19. Merge notes (for the game track)
+## 19. v132 — The Archive v10 — the consequence layer
+
+The production-3 direction's free observer loop is catch up → follow →
+predict → inspect → revise. v9 shipped the catch-up edition and the
+second clock; wire v131 shipped the prediction (stakeless calls). v10
+ships the follow + inspect legs on the archive side — under the same
+law as every pass: projections of rows that were already public, plus
+the shelf rule (reader-side state lives on the reader's device).
+
+- **Following** (`#v=follow`, `rw_archive_follow` localStorage).
+  `follow <name>` on the person head and `follow this thread` on a
+  thread detail mark it — keys are `p:<personId>` / `t:<threadId>`.
+  The view renders one card per follow: total rows on record, lines
+  since your mark (the edition mark — `rw_archive_seen`), a `latest`
+  jump chip, and an `unfollow`. Quiet is reported, never papered:
+  "the record went quiet on \<name\> since your mark — that's a count
+  too." A follow whose id the current source doesn't serve is kept and
+  stated ("isn't in this archive source — the follow is yours, kept"),
+  matching the shelf's orphan rule. The header says the law plainly:
+  "following never reaches the world — nobody is notified, nothing is
+  counted for anyone but you." Without a mark, cards show total rows
+  and say the counts wait for the edition. The rail chip carries its
+  own count once follows exist.
+- **Row marks.** Any rendered row touching a followed person
+  (`who`/`mentions`) or thread carries a `.fol` accent + a ◆ glyph —
+  "touches something you follow." Display state only; the record is
+  untouched.
+- **After this** (record detail). The next written row on each edge
+  the selected row carries — `on the same thread`, `next sighting of
+  \<name\>`, `next at \<venue\>` — capped at three in record order,
+  each clickable. The label names the shared edge, and the block says
+  "a next line is not a caused line": adjacency is observable,
+  causation is not.
+- **Seen this before** (record detail). The count plus up to three
+  earlier rows sharing the same public shape — same `kind` at the same
+  `venue`, or same `kind` on the same `who` when the row has no venue.
+  "A count, not a pattern claim" — repetition the wire wrote is a
+  fact; a routine or an intention is not asserted.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Follow chip | "following" — "names + threads you marked — this browser only; following never reaches the world" |
+| Follow chip (marked) | "N followed · M lines since your mark — this browser only" |
+| Follow head | "names + threads you marked — the follows live in this browser; the archive doesn't remember you; following never reaches the world" |
+| Follow empty | "Nothing followed — 'follow' on a person or a thread puts it here. Follows are this browser's, not the world's: nobody is notified, and nothing is counted for anyone but you." |
+| Follow card meta | "N rows on record · M since your mark" / "no mark set — counts wait for the edition" |
+| Follow quiet | "the record went quiet on \<label\> since your mark — that's a count too." |
+| Follow lost | "isn't in this archive source — the follow is yours, kept; the record never invents a name for it." |
+| Person toggle | "follow \<name\>" / "following — unfollow" |
+| Thread toggle | "follow this thread" / "following — unfollow" |
+| Row mark | ◆ + "touches something you follow" |
+| After-this head | "after this — what the record shows next on the edges this row carries; a next line is not a caused line" |
+| After-this labels | "on the same thread" / "next sighting of \<name\>" / "next at \<venue\>" |
+| Seen-before head | "seen this before — the wire has seen this shape N times before · a count, not a pattern claim" |
+
+## 20. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -564,3 +621,14 @@ note: the edition counts "lines since the mark" in global record order
 (day, then `t`+`n`), so a live source must keep serving stable ids —
 an id the bus later drops reads honestly as "not in this archive
 source" rather than silently resetting the reader's mark.
+
+v132: no schema change — following, after-this, and seen-before all
+project `who`/`mentions`/`thread`/`venue`/`kind` over the same
+day-objects, and `rw_archive_follow` is reader-side localStorage like
+`rw_archive_shelf`/`rw_archive_seen`. One contract note: follows key
+on `WHO_SET` person ids (the NAMES ∪ mentions index) and `THREADS`
+ids — a live source that emits a person id only in display text (never
+in `who`/`mentions`) can't be followed; keep `mentions[]` canonical and
+follows stay honest automatically. A follow key the source doesn't
+serve renders "not in this archive source" — correct behavior, no
+repair path needed.

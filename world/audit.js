@@ -4159,8 +4159,36 @@ const PUB = Object.values(PT.surfaces)
       [/the live clock stays on the wire/, 'replay second-clock honesty copy'],
       [/the day.{0,8}own rows, dealt back at speed/, 'replay projection copy'],
       [/data-spd/, 'replay speed chips'],
-      [/ev\.key==='r'/, 'r replay toggle']
+      [/ev\.key==='r'/, 'r replay toggle'],
+      /* v132 — the consequence layer */
+      [/data-v="follow"/, 'follow view switch'],
+      [/rw_archive_follow/, 'follow storage key'],
+      [/renderFollowView/, 'follow view renderer'],
+      [/folToggle/, 'follow toggle fn'],
+      [/folNewCount/, 'follow since-mark count fn'],
+      [/evTouchesFollow/, 'follow row-touch fn'],
+      [/following never reaches the world/, 'follow honesty copy'],
+      [/the follows live in this browser/, 'follow locality copy'],
+      [/went quiet/, 'follow quiet-line honesty copy'],
+      [/id="folWho"/, 'person follow toggle'],
+      [/id="folTh"/, 'thread follow toggle'],
+      [/touches something you follow/, 'follow row mark'],
+      [/after this/, 'after-this affordance'],
+      [/not a caused line/, 'after-this honesty copy'],
+      [/seen this before/, 'seen-before affordance'],
+      [/a count, not a pattern claim/, 'seen-before honesty copy'],
+      [/isn.{0,8}t in this archive source — the follow is yours/, 'lost-follow honesty copy']
     ];
+    /* follow affordances are reader-side only — same law as calls on the
+       wire: none of the follow functions may reach the bus */
+    for (const fn of ['folToggle', 'folSave', 'evTouchesFollow', 'folNewCount', 'renderFollowView']) {
+      const fb = html.match(new RegExp('function ' + fn + '[\\s\\S]*?\\n\\}'));
+      if (!fb) { add(g, 'fail', 'archive.html', null, `follow fn ${fn} not found`); continue; }
+      if (/BRIDGE|gsWire|gsRequest|gsPossess|gsAdmin/.test(fb[0]))
+        add(g, 'fail', 'archive.html', null, `${fn} reaches the bus — a follow is pure reader-side state`);
+    }
+    if (!HJ.archive_ui?.archive_ui_v132)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v132 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v118)
       add(g, 'fail', 'history.json', null, 'archive_ui_v118 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v104)
