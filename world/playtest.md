@@ -201,6 +201,11 @@ One person can wear every hat; four real testers is the intended shape.
   counts the withheld honestly, and writes only the viewer's own pin
   (gsWireFollow). Reference stub + 15-check run:
   devtools/smoke_wire_v89.js.
+  PT81 (archive v90) audits the real archive seam — The Archive reads
+  game-v14 day-objects (id→day index for w- ids, person index from
+  mentions, attempt on denials, honest kind-growth chips, n tiebreak)
+  and 'catch up' merges new rows by id, additive only, no polling.
+  Reference stub + 20-check run: devtools/smoke_archive_v90.js.
 
 ## 3. Running a session
 

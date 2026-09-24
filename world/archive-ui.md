@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -353,7 +353,58 @@ Copy deck additions:
 | Record transcript head | "real world — the archive — record <id> (<source badge>)" |
 | Row walk | "j / k" (in-page; no separate chip — the ← → keyhint already marks day-view keys) |
 
-## 14. Merge notes (for the game track)
+## 15. v90 — The Archive v7 — the real archive seam
+
+Same job v88 did for request.html and v89 did for wire.html: the live
+source now reads the game-v14 wire the way `41_game_systems_feed`
+actually writes it — `gsWireDays()` day keys, `gsWireArchiveDay(d)`
+day-objects, entries
+`{id, n, t, day, kind, text, venue, who, req, status, reason_code,
+attempt, mentions, attrs, thread, src, outcome}`.
+
+- **id→day index.** Live ids may carry no `d<MMDD>` prefix (`w-NNNN`
+  when the bus clock has no PT date) and any year; the demo-era
+  prefix-parse is now a fallback only. `ID2DAY` records each event's own
+  day bucket at load/merge — permalinks, trail grouping, whole-record
+  hit counts, and `outcome.by` jumps all resolve through it.
+- **Person index.** The pickers (`pickWho`, `pickA`, `pickB`) are built
+  from `WHO_INDEX` = `NAMES` (the cast registry) ∪ every id any event
+  ever put in `mentions[]`. Live char ids the demo never knew are
+  browsable verbatim (`nameOf` = `NAMES[id] || id`). Player handles
+  never appear — the wire only ever mentions people; handles stay
+  ledger-side, same as demo. The venue picker likewise is `VENUES` ∪
+  every venue id the wire tagged.
+- **`asked for — <kind>`** on denied rows and in the record detail —
+  the bus's `attempt` field, the only public piece of a denied ask.
+  The screened text was never written and cannot be found here
+  (unchanged law).
+- **Kind vocabulary grows honestly.** A kind outside the page's known
+  set (`KNOWN_KINDS`) earns its own filter chip on the day view —
+  counted, not interpreted. `kindPass` is now generic: `all` /
+  `block` (everything not request/admin/rumor) / exact kind.
+- **Catch up.** On today, live mode only: a manual `catch up` button
+  re-pulls `gsWireDays`/`gsWireArchiveDay` and merges by id via
+  `mergeDay` — additive only. The page keeps rows it already served; a
+  ring-capped bus (`GS_WIRE_CAP`) dropping old lines doesn't erase the
+  reader's copy. No polling — the archive stays a reading surface; the
+  wire does the watching. Reports both ways.
+- **`n` tiebreak.** Within a day, rows sort by `t` then the bus's
+  monotonic `n` — same-minute sub-lines keep the wire's own order.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Catch-up button | `catch up` — "pull whatever the wire has written since this page loaded — additive only" |
+| Catch-up toast (new) | "caught up — N new line(s) on the record" |
+| Catch-up toast (none) | "already current — nothing new on the wire" |
+| Catch-up toast (error) | "the live archive hiccuped — showing what it had" |
+| Denied attempt (row) | `asked for — <kind>` (dim italic suffix) |
+| Denied attempt (detail) | "asked for — \<kind\> (the only public piece of a denied ask)" |
+| Extra kind chip | `<kind>` — "a kind the wire wrote — counted, not interpreted" |
+| Unknown person/venue label | the id itself, verbatim — "the archive never invents a display name" |
+
+## 16. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -391,3 +442,14 @@ lens is a display filter, not a field. `copy record` carries the source
 badge like every transcript. Nothing new for the bridge to emit; the
 two views degrade gracefully on a one-day record (compare asks for two
 days; the hour view just counts fewer rows).
+
+v90: no schema change — the seam hardening reads fields the bus already
+emits (`n`, `attempt`, `mentions`, `reason_code`, `status`). Two
+contract notes for the game track: (1) the archive now resolves events
+to their day via the day-object's own bucket, not the id prefix — ids
+may stay `w-NNNN` or `d<MMDD>-…` freely; (2) the person index treats
+`mentions[]` as the canonical named-people field — keep putting char
+ids there (never player handles) and the archive's person/venue/pair
+views stay honest automatically. `catch up` calls `gsWireDays` +
+`gsWireArchiveDay` again on demand; both must stay cheap and
+idempotent.

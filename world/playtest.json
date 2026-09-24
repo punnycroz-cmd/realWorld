@@ -4250,6 +4250,47 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT81",
+   "title": "The Real Archive Seam — history browser meets game-v14 (v90)",
+   "minutes": 6,
+   "persona": "tester on the internal spectator bench — bridging a stub game bus to watch The Archive read day-objects the way 41_game_systems_feed actually archives them",
+   "goal": "Verify the v90 live-seam alignment on archive.html: live day-objects ingest in the real wire shape ({id,n,t,day,kind,text,venue,who,req,status,reason_code,attempt,mentions,attrs}); events resolve to days via an id→day index (w- ids and any year, not just d<MMDD> prefixes); the person index is NAMES ∪ mentions ids (live char ids browsable, player handles excluded); denied rows show 'asked for — <kind>'; unknown kinds earn their own chip; 'catch up' merges new rows by id, additive only, no polling.",
+   "surfaces": [
+    "archive",
+    "audit",
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "Open world/archive.html twice: once bare (badge 'demo archive') and once with a stub __aiBridge carrying gsWireDays + gsWireArchiveDay returning game-v14-shaped day-objects (devtools/smoke_archive_v90.js is the reference stub — w- and d<MMDD>- ids, mentions with unknown char ids, attempt + reason_code on a denial, a 'cast' kind, 'player session ended' status).",
+     "expect": "Bare, the page is the demo week as contract reference. Bridged, the badge reads 'live archive', only live days list, today is flagged and capped 'still being written', and same-minute rows keep the bus's n order (queued before running).",
+     "checkpoints": [
+      "An event with a w- id (no day prefix) resolves its day and record through the id→day index",
+      "Same-minute sub-lines sort by the bus's monotonic n, not arrival luck",
+      "The 'player session ended' status renders as a canonical chip"
+     ]
+    },
+    {
+     "do": "On the bridged page, open a denied request's record, then the person picker, then the day view's kind chips.",
+     "expect": "The denied record shows 'asked for — <kind>' and the why-class only — the screened text was never written and cannot be found. The person index lists mentions-only live ids (h01, h02) verbatim next to the cast registry; player handles (dvh, ghostline) never appear — they stay ledger-side. A kind outside the page's known set ('cast') earns its own chip labeled 'counted, not interpreted' and filters exactly.",
+     "checkpoints": [
+      "Denied rows show the attempt class — the only public piece of a denied ask",
+      "Person index = NAMES ∪ mentions ids; handles excluded structurally",
+      "Unknown ids render verbatim — the archive never invents a display name"
+     ]
+    },
+    {
+     "do": "On today (live), click 'catch up' twice — once after the stub grows a new event, once with nothing new.",
+     "expect": "First pull reports 'caught up — 1 new line on the record' and the new row appears; second reports 'already current — nothing new on the wire'. The merge is additive by id — rows the page already served are never dropped, and nothing polls in the background.",
+     "checkpoints": [
+      "catch up exists only on today, live mode only — the archive doesn't poll",
+      "mergeDay is additive: a ring-capped bus dropping old lines doesn't erase the reader's copy",
+      "Run devtools/smoke_archive_v90.js — 20/20 green; the archive gate in audit.js enforces the v90 seam keys"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

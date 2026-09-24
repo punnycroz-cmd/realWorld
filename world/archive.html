@@ -48,6 +48,24 @@
       (who) / named in passing (mentions). Same scope, finer cut.
     - copy record + j/k — the detail panel copies a single record as
       a badged text line; j/k walk the day view's rows.
+  v7 pass (world v90) — THE REAL ARCHIVE SEAM: the live source now reads
+  the game-v14 wire the way 41_game_systems_feed actually writes it:
+    - id→day index — live ids may carry no day prefix ('w-NNNN') and any
+      year; the archive records each event's own day bucket, so record
+      permalinks and trail grouping resolve by index, never by parsing.
+    - person index — the pickers are built from the wire's own
+      named-people fields (mentions[]) unioned with the cast registry,
+      so live char ids the demo never knew are browsable verbatim.
+      Player handles stay ledger-side — they never appear in mentions.
+    - 'asked for — <kind>' on 'not approved' rows — the bus's attempt
+      field, the only piece of a denied ask that is public.
+    - kind vocabulary grows honestly — a kind outside the page's known
+      set (e.g. 'cast') earns its own filter chip, counted not curated.
+    - CATCH UP — on today in live mode, a manual re-pull of
+      gsWireArchiveDay merges new rows by id (additive only — the page
+      keeps rows it already served; a ring-capped bus dropping old
+      lines doesn't erase the reader's copy). No polling — the archive
+      stays a reading surface, the wire does the watching.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -171,6 +189,7 @@
   .k.cast{background:#1f3038;color:#7fc4c4} .k.quiet{background:#1c2129;color:var(--dim)}
   .k.rumor{background:#2f2817;color:var(--rum)}
   .ev .who{color:var(--blu)}
+  .att{font-size:10px;color:var(--dim);font-style:italic}
   .unc{font-size:9.5px;font-weight:700;letter-spacing:.06em;color:var(--rum);
     border:1px dashed var(--rum);border-radius:8px;padding:0 6px;margin-left:6px}
   .st{font-size:9.5px;font-weight:600;letter-spacing:.05em;padding:1px 6px;border-radius:8px;
@@ -525,28 +544,83 @@ var WDAYS=["Sunday","Monday","Tuesday","Wednesday","Thursday","Friday","Saturday
 var DAYS = {};           // date -> [events] (chronological)
 var TODAY = DEMO_TODAY;
 var LIVE = false;
+var ID2DAY = {};         // event id -> its own day bucket (v90: live ids
+                         // may carry no d<MMDD> prefix and any year —
+                         // resolve by index, never by parsing)
+var WHO_SET = {}, WHO_INDEX = [];   // person index: NAMES ∪ mentions ids
+var VENUE_INDEX = [];               // venue index: VENUES ∪ venue ids
 
+function nameOf(id){ return NAMES[id] || id; }
+function venueOf(id){ return VENUES[id] || id; }
+/* normDay accepts the real wire shape verbatim ({id,n,t,day,kind,text,
+   venue,who,req,status,reason_code,attempt,mentions,attrs,thread,src,
+   outcome}) — ordering is t with the bus's monotonic n as tiebreak so
+   same-minute sub-lines keep the order the wire wrote them. */
 function normDay(dateStr, obj){
   var evs = Array.isArray(obj) ? obj : (obj && obj.events) || [];
   return evs.filter(function(e){return e && typeof e.t==="number";})
-            .sort(function(a,b){return a.t-b.t;});
+            .sort(function(a,b){return (a.t-b.t) || ((a.n||0)-(b.n||0));});
+}
+function reindex(){
+  ID2DAY = {}; WHO_SET = {}; VENUE_INDEX = [];
+  var vset = {};
+  Object.keys(NAMES).forEach(function(id){ WHO_SET[id]=1; });
+  Object.keys(VENUES).forEach(function(id){ vset[id]=1; });
+  Object.keys(DAYS).forEach(function(d){
+    (DAYS[d]||[]).forEach(function(e){
+      if (e.id) ID2DAY[e.id]=d;
+      (e.mentions||[]).forEach(function(m){ if(m) WHO_SET[m]=1; });
+      if (e.venue) vset[e.venue]=1;
+    });
+  });
+  WHO_INDEX = Object.keys(WHO_SET).sort(function(a,b){
+    var ca = NAMES[a] ? (a[0]==='C'?0:1) : 2, cb = NAMES[b] ? (b[0]==='C'?0:1) : 2;
+    return ca-cb || nameOf(a).localeCompare(nameOf(b));
+  });
+  VENUE_INDEX = Object.keys(vset).sort(function(a,b){
+    return venueOf(a).localeCompare(venueOf(b));
+  });
+}
+function mergeDay(d, obj){
+  /* additive merge — the page keeps rows it already served. Returns the
+     count of genuinely new rows so catch-up can report honestly. */
+  if (obj && obj.threads) Object.keys(obj.threads).forEach(function(k){ THREADS[k]=obj.threads[k]; });
+  var evs = normDay(d, obj), have = {};
+  (DAYS[d]||[]).forEach(function(e){ have[e.id]=1; });
+  var fresh = evs.filter(function(e){ return !have[e.id]; });
+  if (fresh.length) DAYS[d] = (DAYS[d]||[]).concat(fresh)
+    .sort(function(a,b){ return (a.t-b.t) || ((a.n||0)-(b.n||0)); });
+  return fresh.length;
 }
 function loadArchive(){
   if (BRIDGE){
     try{
       var days = BRIDGE.gsWireDays() || [];
       if (days.length){
-        days.forEach(function(d){
-          var obj=BRIDGE.gsWireArchiveDay(d);
-          if (obj && obj.threads) Object.keys(obj.threads).forEach(function(k){ THREADS[k]=obj.threads[k]; });
-          DAYS[d]=normDay(d, obj);
-        });
-        if (Object.keys(DAYS).length){ LIVE=true; TODAY=days[days.length-1]; return; }
+        days.forEach(function(d){ mergeDay(d, BRIDGE.gsWireArchiveDay(d)); });
+        if (Object.keys(DAYS).length){
+          LIVE=true; TODAY=days[days.length-1]; reindex(); return;
+        }
       }
     }catch(e){}
   }
   DAYS = {}; Object.keys(DEMO_DAYS).forEach(function(d){ DAYS[d]=DEMO_DAYS[d].slice(); });
   TODAY = DEMO_TODAY;
+  reindex();
+}
+/* catch up — manual, on demand. The archive doesn't poll (that's the
+   wire's job); the reader asks for whatever the bus has written since
+   the page loaded. Additive by id; reports honestly either way. */
+function catchUp(){
+  if (!BRIDGE || !LIVE) return;
+  try{
+    var days = BRIDGE.gsWireDays() || [], added = 0;
+    days.forEach(function(d){ added += mergeDay(d, BRIDGE.gsWireArchiveDay(d)); });
+    if (days.length) TODAY = days[days.length-1];
+    reindex(); renderAll();
+    toast(added ? 'caught up — '+added+' new line'+(added===1?'':'s')+' on the record'
+                : 'already current — nothing new on the wire');
+  }catch(e){ toast('the live archive hiccuped — showing what it had'); }
 }
 loadArchive();
 if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live archive'; b.className='src'; }
@@ -578,7 +652,12 @@ function shelfToggle(id){
 function fmt(t){ return ('0'+Math.floor(t/60)).slice(-2)+':'+('0'+(t%60)).slice(-2); }
 function esc(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stKey(s){ return String(s).replace(/[ ()]/g,'_').toLowerCase(); }
-function dateOfId(id){ var m=/^d(\d{2})(\d{2})-/.exec(id||""); return m ? "2026-"+m[1]+"-"+m[2] : null; }
+function dateOfId(id){
+  /* the id's own day bucket is the truth (live ids needn't carry a
+     d<MMDD> prefix); the prefix parse is a demo-era fallback only */
+  if (ID2DAY[id]) return ID2DAY[id];
+  var m=/^d(\d{2})(\d{2})-/.exec(id||""); return m ? "2026-"+m[1]+"-"+m[2] : null;
+}
 function allEvents(){ var out=[]; Object.keys(DAYS).sort().forEach(function(d){
   DAYS[d].forEach(function(e){ out.push(e); }); }); return out; }
 function findEvent(id){
@@ -616,11 +695,11 @@ function readHash(){
   if (kv.h!==undefined){ var hi=parseInt(kv.h,10); if(hi>=0&&hi<24) hourSel=hi; }
   if (kv.d1 && DAYS[kv.d1]) cmpA=kv.d1;
   if (kv.d2 && DAYS[kv.d2]) cmpB=kv.d2;
-  if (kv.who && NAMES[kv.who]){ who=kv.who; view='person'; }
-  if (kv.venue && VENUES[kv.venue]){ venue=kv.venue; view='venue'; }
+  if (kv.who){ who=kv.who; view='person'; }
+  if (kv.venue){ venue=kv.venue; view='venue'; }
   if (kv.th && THREADS[kv.th]){ selTh=kv.th; view='threads'; }
-  if (kv.a && NAMES[kv.a]){ pairA=kv.a; if(kv.v==='pair')view='pair'; }
-  if (kv.b && NAMES[kv.b]){ pairB=kv.b; if(kv.v==='pair')view='pair'; }
+  if (kv.a){ pairA=kv.a; if(kv.v==='pair')view='pair'; }
+  if (kv.b){ pairB=kv.b; if(kv.v==='pair')view='pair'; }
   if (kv.e && !kv.v && !kv.who && !kv.venue) view='day';
 }
 readHash();
@@ -654,20 +733,21 @@ function renderViewChips(){
 }
 function buildPickers(){
   var cs=document.getElementById('pickWho'); cs.innerHTML='<option value="">pick someone…</option>';
-  Object.keys(NAMES).sort(function(a,b){return (a[0]===b[0])?NAMES[a].localeCompare(NAMES[b]):(a[0]==='C'?-1:1);})
-    .forEach(function(id){ var o=document.createElement('option'); o.value=id;
-      o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); cs.appendChild(o); });
+  /* the person index is the wire's own named-people fields — NAMES
+     (the cast registry) plus every id any event ever put in mentions[].
+     Player handles never appear: the wire only ever mentions people. */
+  WHO_INDEX.forEach(function(id){ var o=document.createElement('option'); o.value=id;
+      o.textContent=nameOf(id)+(id[0]==='C'&&NAMES[id]?' (main)':''); cs.appendChild(o); });
   cs.value=who; cs.onchange=function(){ who=cs.value; selId=null; renderAll(); };
   var vs=document.getElementById('pickVenue'); vs.innerHTML='<option value="">pick a place…</option>';
-  Object.keys(VENUES).forEach(function(id){ var o=document.createElement('option');
-    o.value=id; o.textContent=VENUES[id]; vs.appendChild(o); });
+  VENUE_INDEX.forEach(function(id){ var o=document.createElement('option');
+    o.value=id; o.textContent=venueOf(id); vs.appendChild(o); });
   vs.value=venue; vs.onchange=function(){ venue=vs.value; selId=null; renderAll(); };
   [['pickA','first name…',function(v){pairA=v;}],['pickB','second name…',function(v){pairB=v;}]]
     .forEach(function(cfg){
       var el=document.getElementById(cfg[0]); el.innerHTML='<option value="">'+cfg[1]+'</option>';
-      Object.keys(NAMES).sort(function(a,b){return NAMES[a].localeCompare(NAMES[b]);})
-        .forEach(function(id){ var o=document.createElement('option'); o.value=id;
-          o.textContent=NAMES[id]+(id[0]==='C'?' (main)':''); el.appendChild(o); });
+      WHO_INDEX.forEach(function(id){ var o=document.createElement('option'); o.value=id;
+          o.textContent=nameOf(id)+(id[0]==='C'&&NAMES[id]?' (main)':''); el.appendChild(o); });
       el.onchange=function(){ cfg[2](el.value); selId=null; renderAll(); };
     });
   document.getElementById('pickA').value=pairA;
@@ -694,6 +774,9 @@ function evRow(e, d){
   if ((e.kind==='request')&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.kind==='admin'&&e.who) txt='<span class="who">'+esc(e.who)+'</span> — '+txt;
   if (e.status) txt+=' <span class="st '+stKey(e.status)+'">'+esc(e.status)+'</span>';
+  /* the attempt is the one part of a denied ask that is public — the
+     kind reached for, never the screened text (game-v14 `attempt`) */
+  if (e.attempt) txt+=' <span class="att">asked for — '+esc(e.attempt)+'</span>';
   if (e.kind==='rumor') txt+=' <span class="unc">unconfirmed</span>';
   li.innerHTML='<span class="t">'+fmt(e.t)+'</span><span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span>';
   li.onclick=function(){ selId=e.id; if(d) day=d; markSel(li); renderDet(); setHash(); };
@@ -723,6 +806,7 @@ function renderDayView(){
     '<h3>'+WDAYS[new Date(day+'T12:00:00').getDay()]+', '+day+'</h3>'+
     '<button class="dnav" id="dnext" '+(di<0||di>=ks.length-1?'disabled':'')+'>next day &rsaquo;</button>'+
     '<span class="keyhint">&larr; &rarr;</span>'+
+    (LIVE&&isToday?'<button class="dnav" id="catchup" title="pull whatever the wire has written since this page loaded — additive only">catch up</button>':'')+
     '<span class="meta">'+evs.length+' entries'+
     (evs.filter(function(e){return e.kind==='rumor';}).length?' · '+evs.filter(function(e){return e.kind==='rumor';}).length+' word-on-the-block':'')+
     ' · coverage: street-level only</span>'+
@@ -736,6 +820,12 @@ function renderDayView(){
       '<span class="chip'+(kindF==='request'?' on':'')+'" data-k="request">requests</span>'+
       '<span class="chip'+(kindF==='admin'?' on':'')+'" data-k="admin">admin</span>'+
       '<span class="chip'+(kindF==='press'?' on':'')+'" data-k="press">Mission Unfiltered</span>'+
+    /* a kind outside the page's known set earns its own chip — counted,
+       not interpreted. Live vocabulary (e.g. 'cast') shows up as itself. */
+    extraKinds(evs).map(function(k){
+      return '<span class="chip'+(kindF===k?' on':'')+'" data-k="'+esc(k)+
+        '" title="a kind the wire wrote — counted, not interpreted">'+esc(k)+'</span>';
+    }).join('')+
     '</div>'+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this day — names, places, \u201ccleanup\u201d, \u201cfog\u201d\u2026" value="'+esc(q)+'">'+
       '<span class="chip'+(searchScope==='all'?' on':'')+'" id="scopetgl" title="widen the search to every archived day">whole record</span>'+
@@ -760,6 +850,7 @@ function renderDayView(){
   var dp=document.getElementById('dprev'), dn=document.getElementById('dnext');
   if (dp) dp.onclick=function(){ stepDay(-1); };
   if (dn) dn.onclick=function(){ stepDay(1); };
+  var cu=document.getElementById('catchup'); if (cu) cu.onclick=catchUp;
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderDayList_rows(); };
   document.getElementById('scopetgl').onclick=function(){
     searchScope=(searchScope==='all'?'day':'all'); renderAll();
@@ -801,16 +892,26 @@ function legacyCopy(txt){
   document.body.removeChild(ta);
 }
 function haystack(e){
-  return (e.text+' '+(NAMES[e.who]||e.who||'')+' '+(VENUES[e.venue]||'')+
-    (e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase();
+  return (e.text+' '+(e.who?nameOf(e.who):'')+' '+(e.venue?venueOf(e.venue):'')+
+    (e.mentions||[]).map(nameOf).join(' ')).toLowerCase();
+}
+/* kinds the page already has a named filter for — anything else the
+   wire writes (live vocabulary, e.g. 'cast') gets a chip of its own */
+var KNOWN_KINDS={move:1,scene:1,venue:1,weather:1,request:1,admin:1,
+  press:1,housing:1,quiet:1,rumor:1};
+function extraKinds(evs){
+  var seen={};
+  evs.forEach(function(e){ if(e.kind && !KNOWN_KINDS[e.kind]) seen[e.kind]=1; });
+  return Object.keys(seen).sort();
+}
+function kindPass(e,k){
+  if (k==='all') return true;
+  if (k==='block') return e.kind!=='request'&&e.kind!=='admin'&&e.kind!=='rumor';
+  return e.kind===k;
 }
 function dayPass(e){
   if (selHour>=0 && Math.floor(e.t/60)!==selHour) return false;
-  if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
-  if (kindF==='rumor' && e.kind!=='rumor') return false;
-  if (kindF==='request' && e.kind!=='request') return false;
-  if (kindF==='admin' && e.kind!=='admin') return false;
-  if (kindF==='press' && e.kind!=='press') return false;
+  if (!kindPass(e,kindF)) return false;
   if (q && haystack(e).indexOf(q.toLowerCase())<0) return false;
   return true;
 }
@@ -820,11 +921,7 @@ function renderDayList_rows(){
   /* whole-record scope: same match, every archived day, grouped like trails */
   if (searchScope==='all' && q){
     var hits=allEvents().filter(function(e){
-      if (kindF==='block' && (e.kind==='request'||e.kind==='admin'||e.kind==='rumor')) return false;
-      if (kindF==='rumor' && e.kind!=='rumor') return false;
-      if (kindF==='request' && e.kind!=='request') return false;
-      if (kindF==='admin' && e.kind!=='admin') return false;
-      if (kindF==='press' && e.kind!=='press') return false;
+      if (!kindPass(e,kindF)) return false;
       return haystack(e).indexOf(q.toLowerCase())>=0;
     });
     var hd=document.createElement('li'); hd.className='hoursep';
@@ -905,10 +1002,10 @@ function renderPersonView(){
   var co={};
   evs.forEach(function(e){
     [e.who].concat(e.mentions||[]).forEach(function(id){
-      if (id && id!==who && NAMES[id]) co[id]=(co[id]||0)+1;
+      if (id && id!==who && WHO_SET[id]) co[id]=(co[id]||0)+1;
     });
   });
-  var topCo=Object.keys(co).sort(function(a,b){return co[b]-co[a] || NAMES[a].localeCompare(NAMES[b]);}).slice(0,3);
+  var topCo=Object.keys(co).sort(function(a,b){return co[b]-co[a] || nameOf(a).localeCompare(nameOf(b));}).slice(0,3);
   /* person lens — the same trail cut finer. followed = the wire's row
      is theirs (who); named = somebody else's row mentioned them
      (mentions). Same scope either way — nothing is added, only cut. */
@@ -917,7 +1014,7 @@ function renderPersonView(){
     if (personLens==='mentions') return e.who!==who && (e.mentions||[]).indexOf(who)>=0;
     return true;
   });
-  body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[who]||who)+'</h3>'+
+  body.innerHTML='<div class="subhead"><h3>'+esc(nameOf(who))+'</h3>'+
     (ROLES[who]?'<span class="meta">'+esc(ROLES[who])+'</span>':'')+
     '<span class="pubonly">public whereabouts only</span>'+
     '<span class="meta">'+evs.length+' sightings · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
@@ -935,7 +1032,7 @@ function renderPersonView(){
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this trail…" value="'+esc(q)+'"></div>'+
     renderTrailDays(lensEvs.filter(function(e){
       if(!q) return true;
-      return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+      return (e.text+' '+(e.venue?venueOf(e.venue):'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
   document.querySelectorAll('#lenschips .chip').forEach(function(ch){
@@ -947,7 +1044,7 @@ function renderPersonView(){
   var cc=document.getElementById('cochips');
   if (cc) topCo.forEach(function(id){
     var s=document.createElement('span'); s.className='chip';
-    s.innerHTML=esc(NAMES[id])+' <span class="n">×'+co[id]+'</span>';
+    s.innerHTML=esc(nameOf(id))+' <span class="n">×'+co[id]+'</span>';
     s.title='open the shared public record';
     s.onclick=function(){ pairA=who; pairB=id; view='pair'; selId=null; renderAll(); };
     cc.appendChild(s);
@@ -964,14 +1061,14 @@ function renderVenueView(){
      happened to look, not where the corner will be. */
   var rh=new Array(24).fill(0); evs.forEach(function(e){rh[Math.floor(e.t/60)]++;});
   var rmax=Math.max.apply(null,rh.concat([1]));
-  body.innerHTML='<div class="subhead"><h3>'+esc(VENUES[venue]||venue)+'</h3>'+
+  body.innerHTML='<div class="subhead"><h3>'+esc(venueOf(venue))+'</h3>'+
     '<span class="meta">'+evs.length+' entries · '+daysActive+' day'+(daysActive===1?'':'s')+' on record</span></div>'+
     (evs.length?'<h2 style="margin:10px 0 0">the corner’s rhythm <span class="free">— counted across the whole record, not a promise</span></h2>'+
     '<div class="hours" id="rhythm"></div><div class="hrlabels" id="rhlabels"></div>':'')+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this record…" value="'+esc(q)+'"></div>'+
     renderTrailDays(evs.filter(function(e){
       if(!q) return true;
-      return (e.text+' '+(NAMES[e.who]||e.who||'')+(e.mentions||[]).map(function(m){return NAMES[m]||m;}).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
+      return (e.text+' '+(e.who?nameOf(e.who):'')+(e.mentions||[]).map(nameOf).join(' ')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
   var rb=document.getElementById('rhythm'), rl=document.getElementById('rhlabels');
@@ -1002,13 +1099,13 @@ function renderPairView(){
   }
   var evs=allEvents().filter(function(e){return evHas(e,pairA)&&evHas(e,pairB);});
   var daysActive=Object.keys(evs.reduce(function(m,e){var d=dateOfId(e.id);if(d)m[d]=1;return m;},{})).length;
-  body.innerHTML='<div class="subhead"><h3>'+esc(NAMES[pairA])+' &amp; '+esc(NAMES[pairB])+'</h3>'+
+  body.innerHTML='<div class="subhead"><h3>'+esc(nameOf(pairA))+' &amp; '+esc(nameOf(pairB))+'</h3>'+
     '<span class="pubonly">public co-presence — the wire\u2019s own rows, never a claim about the relationship</span>'+
     '<span class="meta">'+evs.length+' shared event'+(evs.length===1?'':'s')+' · '+daysActive+' day'+(daysActive===1?'':'s')+'</span></div>'+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search the shared record…" value="'+esc(q)+'"></div>'+
     renderTrailDays(evs.filter(function(e){
       if(!q) return true;
-      return (e.text+' '+(VENUES[e.venue]||'')).toLowerCase().indexOf(q.toLowerCase())>=0;
+      return (e.text+' '+(e.venue?venueOf(e.venue):'')).toLowerCase().indexOf(q.toLowerCase())>=0;
     }));
   document.getElementById('fsearch').oninput=function(){ q=this.value; renderAll(); };
   mountTrailDays();
@@ -1029,7 +1126,7 @@ function renderHourView(){
   body.innerHTML='<div class="subhead"><h3>The block at '+('0'+hourSel).slice(-2)+':00</h3>'+
     '<span class="pubonly">a shape the wire happened to draw — not a schedule</span>'+
     '<span class="meta">'+evs.length+' row'+(evs.length===1?'':'s')+' · '+daysActive+' day'+(daysActive===1?'':'s')+' on record'+
-    (bc?' · most-tagged corner: '+esc(VENUES[bc.v]||bc.v)+' ('+bc.n+')':'')+'</span></div>'+
+    (bc?' · most-tagged corner: '+esc(venueOf(bc.v))+' ('+bc.n+')':'')+'</span></div>'+
     (kline?'<div class="meta" style="font-size:11.5px;color:var(--dim);margin:4px 0 8px">kinds counted — '+esc(kline)+'</div>':'')+
     '<div class="controls"><input class="search" id="fsearch" placeholder="search this hour across days…" value="'+esc(q)+'"></div>'+
     (evs.length?renderTrailDays(evs.filter(function(e){
@@ -1063,7 +1160,7 @@ function renderCmpView(){
     '<table class="wkgrid"><tr><th></th><th>'+daySepLabel(a)+(a===TODAY?' ●':'')+'</th><th>'+daySepLabel(b)+(b===TODAY?' ●':'')+'</th></tr>'+
     '<tr><td>entries</td><td>'+ea.length+'</td><td>'+eb.length+'</td></tr>'+
     '<tr><td>coverage span</td><td>'+(ea.length?fmt(ea[0].t)+' → '+fmt(ea[ea.length-1].t):'—')+'</td><td>'+(eb.length?fmt(eb[0].t)+' → '+fmt(eb[eb.length-1].t):'—')+'</td></tr>'+
-    '<tr><td>busiest corner</td><td>'+(bca?esc(VENUES[bca.v]||bca.v)+' ('+bca.n+')':'—')+'</td><td>'+(bcb?esc(VENUES[bcb.v]||bcb.v)+' ('+bcb.n+')':'—')+'</td></tr>'+
+    '<tr><td>busiest corner</td><td>'+(bca?esc(venueOf(bca.v))+' ('+bca.n+')':'—')+'</td><td>'+(bcb?esc(venueOf(bcb.v))+' ('+bcb.n+')':'—')+'</td></tr>'+
     WKCOLS.map(function(c){
       return '<tr><td>'+c[1]+'</td>'+cell(a,c[0])+cell(b,c[0])+'</tr>';
     }).join('')+
@@ -1078,7 +1175,7 @@ function renderCmpView(){
   var sc=document.getElementById('sharedchips');
   if (!shared.length) sc.innerHTML='<span class="meta" style="font-size:11.5px;color:var(--dim)">no shared corners — the wire looked at different places</span>';
   shared.forEach(function(v){
-    var s=document.createElement('span'); s.className='chip'; s.textContent=VENUES[v]||v;
+    var s=document.createElement('span'); s.className='chip'; s.textContent=venueOf(v);
     s.onclick=function(){ venue=v; view='venue'; selId=null; renderAll(); };
     sc.appendChild(s);
   });
@@ -1203,7 +1300,7 @@ function renderWeekView(){
     var r=document.createElement('div'); r.className='wkrow';
     r.innerHTML='<span class="wn">'+(d===TODAY?'● ':'')+daySepLabel(d)+'</span>'+
       '<span class="wm">'+fmt(de[0].t)+' → '+fmt(de[de.length-1].t)+
-      (bc?' · busiest: '+esc(VENUES[bc.v]||bc.v)+' ('+bc.n+')':'')+
+      (bc?' · busiest: '+esc(venueOf(bc.v))+' ('+bc.n+')':'')+
       (d===TODAY?' · still being written':'')+'</span>'+
       '<span class="wc">'+de.length+'</span>';
     r.onclick=function(){ view='day'; day=d; selHour=-1; selId=null; kindF='all'; renderAll(); };
@@ -1304,7 +1401,7 @@ function renderWordView(){
     var state = e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
                           : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>';
     c.innerHTML='<div class="rt">'+esc(e.text)+' <span class="unc">unconfirmed</span></div>'+
-      '<div class="rm">'+fmt(e.t)+' · '+daySepLabel(d)+' · overheard near '+esc(VENUES[e.src]||'the block')+' · '+state+'</div>';
+      '<div class="rm">'+fmt(e.t)+' · '+daySepLabel(d)+' · overheard near '+esc(venueOf(e.src)||'the block')+' · '+state+'</div>';
     c.onclick=function(){ selId=e.id; view='day'; day=d; kindF='all'; renderAll();
       renderDet(); };
     list.appendChild(c);
@@ -1368,14 +1465,15 @@ function renderDet(){
   var bits=[];
   var html='<div><span class="k '+e.kind+'">'+e.kind+'</span><span class="dt">'+fmt(e.t)+' · '+daySepLabel(d)+'</span></div>'+
     '<div class="dtext">'+esc(e.text)+'</div>';
-  if (e.venue) bits.push('at <b>'+esc(VENUES[e.venue]||e.venue)+'</b>');
-  if (e.who && NAMES[e.who]) bits.push('who: <b>'+esc(NAMES[e.who])+'</b>');
-  else if (e.who) bits.push(e.kind==='admin'?'by <b>admin</b>':'player: <b>'+esc(e.who)+'</b>');
-  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return '<b>'+esc(NAMES[m]||m)+'</b>';}).join(', '));
+  if (e.venue) bits.push('at <b>'+esc(venueOf(e.venue))+'</b>');
+  if (e.who && WHO_SET[e.who]) bits.push('who: <b>'+esc(nameOf(e.who))+'</b>');
+  else if (e.who) bits.push((e.kind==='admin'||e.who==='admin')?'by <b>admin</b>':'player: <b>'+esc(e.who)+'</b>');
+  if (e.mentions&&e.mentions.length) bits.push('seen: '+e.mentions.map(function(m){return '<b>'+esc(nameOf(m))+'</b>';}).join(', '));
   if (e.status) bits.push('status: <b>'+esc(e.status)+'</b>');
+  if (e.attempt) bits.push('asked for — <b>'+esc(e.attempt)+'</b> (the only public piece of a denied ask)');
   if (e.reason_code) bits.push('why-class — <b>'+esc(e.reason_code)+'</b> (the screened text is never public)');
   if (e.kind==='rumor'){
-    bits.push('overheard near <b>'+esc(VENUES[e.src]||'the block')+'</b> — never sourced to a person');
+    bits.push('overheard near <b>'+esc(venueOf(e.src)||'the block')+'</b> — never sourced to a person');
     bits.push(e.outcome ? '<span class="outcome-'+e.outcome.state+'">'+e.outcome.state+'</span> — '+esc(e.outcome.note)
                         : '<span class="outcome-open">still open — the block hasn\u2019t settled it</span>');
     if (e.outcome && e.outcome.by && findEvent(e.outcome.by)){

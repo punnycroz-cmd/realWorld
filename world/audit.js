@@ -2536,8 +2536,27 @@ const PUB = Object.values(PT.surfaces)
       [/id="reccopy"/, 'copy-record control'],
       [/copy record/, 'copy-record affordance'],
       [/ev\.key==='j'/, 'j/k row walk'],
-      [/visIds/, 'row-walk id track']
+      [/visIds/, 'row-walk id track'],
+      /* v90 — the real archive seam (game-v14 alignment) */
+      [/ID2DAY/, 'id→day index (live ids need no d<MMDD> prefix)'],
+      [/WHO_INDEX/, 'person index (NAMES ∪ mentions ids)'],
+      [/WHO_SET/, 'person-index membership set'],
+      [/VENUE_INDEX/, 'venue index (VENUES ∪ tagged ids)'],
+      [/nameOf/, 'verbatim name resolution'],
+      [/mergeDay/, 'additive day merge'],
+      [/catchUp/, 'catch-up control fn'],
+      [/id="catchup"/, 'catch-up button'],
+      [/already current — nothing new on the wire/, 'catch-up honest empty'],
+      [/caught up — /, 'catch-up honest count'],
+      [/asked for — /, 'denied-attempt affordance'],
+      [/KNOWN_KINDS/, 'known-kind vocabulary set'],
+      [/extraKinds/, 'honest kind-growth chips'],
+      [/kindPass/, 'generic kind filter'],
+      [/counted, not interpreted/, 'extra-kind honesty copy'],
+      [/a\.t-b\.t\)\s*\|\|\s*\(\(a\.n/, 'bus-n tiebreak on same-minute rows']
     ];
+    if (!HJ.archive_ui?.archive_ui_v90)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v90 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v48)
       add(g, 'fail', 'history.json', null, 'archive_ui_v48 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v62)
