@@ -1191,6 +1191,14 @@ needs both.
 | bmess_obs / compete_blind / meta_signal_p | 0.0 / 0.02 / 0.4 | 0.4 / 0.3 / 0.95 | observer-side vulnerability bonus + compete noise + signal-mint rate (v5.42) |
 | meta_proj / meta_recip / lgap_k | 0.0 / 0.0 / 0.0 | 1.0 / 1.0 / 1.0 | metaself traits — projection / reciprocity / gap (v5.42) |
 | meta_ev_w / meta_neg_w / bmess_k | 0.2 / 0.5 / 0.0 | 1.0 / 2.0 / 0.5 | metaself traits — evidence rate / neg weighting / self-vuln discount (v5.42) |
+| memorab_gain / memorab_resid | 0.0 / 0.2 | 0.4 / 0.6 | stimulus memorability E leg + unexplained share (v5.44) |
+| coattend_gain / coattend_ingroup | 0.0 / 0.0 | 0.3 / 1.0 | co-attention boost + stranger fraction (v5.44) |
+| pe_gain / pe_win | 0.0 / 0.3 | 0.4 / 1.0 | link-level PE boost + split threshold (v5.44) |
+| antic_gain / antic_win | 0.0 / 0.002 | 0.4 / 0.05 | anticipatory-window boost + reach days (v5.44) |
+| gest_gain / gest_iconic_w | 0.0 / 0.0 | 0.25 / 1.0 | gesture engagement arm + representational share (v5.44) |
+| tot_learn / tot_res_gain | 0.0 / 0.2 | 0.3 / 0.9 | TOT error learning + resolution repair (v5.44) |
+| phone_drain | 0.0 | 0.15 | mere-presence daLoad add — OBSERVE tier (v5.44) |
+| device_dep | 0.0 | 1.0 | offload-adoption + phone-drain trait (v5.44) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4798,3 +4806,75 @@ cast-profiles.md Part VI.
   and is, by the reciprocity arm, mostly right — the
   sunniest possible wrongness. Sources §72 of
   human-memory-research.md; probes P994–P1005.
+
+## 76. v5.44 note (encoding-mechanics VIII — what the stimulus, the room, and the past error bring)
+
+New machinery is nine encode-side mechanisms (EM Part VIII,
+spec §§6.221–6.229); all but one are mechanism constants, not
+trait pins:
+
+- **`memorab_*` — stimulus, not soul.** `memorab_gain` and
+  `memorab_resid` are pop constants: memorability is a
+  property of the EVENT (Isola's cross-observer consistency),
+  so no bible may claim a character "finds everything
+  memorable" or "remembers nothing" through this leg. What a
+  bible CAN pin is the character's attention to the world —
+  the memorab term is small against the attention terms.
+  Locked `memorab_attr_null` means world-builder may not
+  cheat the residual away by tagging only high-arousal events.
+- **`coattend_*` — the shared-gaze gain.** `coattend_gain`
+  pop constant; `coattend_ingroup` is an OPEN gate (stranger
+  co-attention sufficiency is under registered replication —
+  do not pin it to 0 or 1 for any character; it is a world
+  parameter pending the verdict, not a personality).
+  Emergent: the two mains who watch the same sunset mint
+  `coSeen` edges — later, each treats the other as witness,
+  not just hearer.
+- **`pe_*` — surprise you can narrate.** `pe_gain`/`pe_win`
+  constants. Profiles differ through schema density (sparse-
+  schema characters ×1.4 — emergent from the semantic store,
+  not a pin). A worldly character gets FEWER pe boosts — she
+  has less left to violate.
+- **`antic_*` — waiting is an encoding state.** Constants.
+  World supplies `antic:true` when a pre-event cue promised
+  an outcome (the held parcel, the tipped race, the
+  almost-confession). `antic_retro_null` is locked —
+  anticipation never rescues what already happened.
+- **`gest_*` — the hands remember.** Constants; engagement
+  variant world may tag on dialogue events. The gesturer
+  archetype pins nothing here — gesture happens or doesn't;
+  a bible can only make a character someone who TALKS with
+  their hands (world-side behavior).
+- **`device_dep` — the ONE trait this pass adds.** [0,1],
+  bible-pinnable, shared by the offload-adoption leg and
+  OBSERVE-tier `phone_drain`. Pin high on the phone-first
+  profiles (Dani ≈0.8 — the feed is her diary and she
+  encodes parties hollow); pin low on the analog (Victor
+  ≈0.15 — paper ledger, paper memory); mid on everyone
+  else. Do not use it as a generic "distracted" knob —
+  it governs offloading adoption and presence-drain only.
+- **`tot_*` — the trained blank.** `tot_learn`/`tot_res_gain`
+  constants. Emergent: a character who repeatedly almost-
+  retrieves a neighbor's name trains the blank (`err_strength`
+  accumulates) until a self-resolution repairs it — the
+  recurring-TOT resident is now mechanical, not scripted.
+  `tot_rescue_null` is locked: someone telling them the name
+  fixes the moment, not the memory.
+- **`labor_vain_null` — locked for everyone.** No profile
+  earns E by trying harder. Bibles that want a "diligent"
+  rememberer must buy it through strategy traits
+  (`consc` → org/ei draws, `wmc` → attention ordering),
+  never through effort.
+- **`phone_drain` — OBSERVE tier.** Direction-only; do not
+  pin characters against it pending the replication verdict.
+- **Emergent cast shadows:** (a) the co-watcher remembers
+  the block party better than the solo viewer — and holds a
+  witness-edge that makes their later retelling to each
+  other converge; (b) Dani's hollow photo-album memory —
+  strong on where-it-lives, thin on what-it-was — vs
+  Victor's full-fat paper memory of the same event; (c)
+  Priya's schema-dense world gives her the fewest pe boosts
+  — surprise rarely survives her priors; (d) Jules'
+  recurring name-blank trains until the day she finally
+  pulls it unassisted — a tiny private victory the ledger
+  now models. Sources EM§109; probes P1017–P1026.

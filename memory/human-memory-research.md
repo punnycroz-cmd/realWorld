@@ -3972,3 +3972,62 @@ of memory is right. Sources behind validation-design.md §§194–199:
 - **Oberkampf & Trucano 2002** (*Prog Aerospace Sci* 38:209 —
   verified): verification vs validation distinction — our L0/SBC/
   golden layers verify; anchors/MRs/raters validate.
+
+## §74. Eighth encoding-mechanics pass — stimulus, room, and past error (v96)
+
+New sources and adjudications behind encoding-mechanics.md
+Part VIII / spec v5.44:
+
+- **Isola, Parikh, Torralba & Oliva 2011** + **Bainbridge,
+  Isola & Oliva 2013 / Bainbridge, Dilks & Oliva 2017**
+  (*NeuroImage* — verified): memorability is a stimulus
+  property, consistent across observers (ρ≈0.7), ~50%
+  unexplained by measured attributes. Encoded as the
+  `memorab` event field + mandatory residual
+  (`memorab_attr_null`). The sim's first encoder-INDEPENDENT
+  E leg.
+- **Shteynberg 2010** (JPSP) + **Eskenazi et al. 2013** +
+  **Shteynberg 2015** (*Perspect. Psychol. Sci.* 10:579 —
+  verified): believed co-attention deepens processing under
+  matched exposure; minimal conditions under registered
+  replication → `coattend_ingroup` is an open gate.
+- **Greve et al. 2017** (*NeuroImage*) + **Quent, Henson &
+  Greve 2021** + **Brod, Werkle-Bergner & Shing 2013**
+  (verified): prediction error boosts the item–context
+  ASSOCIATION for connectable mismatches — `pe_gain`/`pe_win`
+  + `pe_conflate_null` (link-targeted only); schema-sparse
+  encoders gain more.
+- **Adcock et al. 2006** (*Neuron* 50:507) + **Wittmann et
+  al. 2005** + **Murty & Adcock 2014** (verified): reward
+  anticipation is a pre-stimulus encoding window, distinct
+  from post-hoc value — `antic`/`antic_win` reopens the v40
+  fold with the correct temporal structure
+  (`antic_retro_null`).
+- **Cook, Duffy & Fenn 2013** (*Psychol. Sci.* 24:1734) +
+  **So et al. 2012** + Goldin-Meadow thread (verified):
+  self-produced representational gesture at encoding —
+  fourth engagement arm, smallest motor gain,
+  `gest_beat_null`.
+- **Henkel 2014** (*Psychol. Sci.* 25:396) + **Risko &
+  Gilbert 2016** (*Trends Cogn. Sci.* — verified): the
+  offloading impairment requires expecting the external copy
+  to persist — `offloadTransient` gate on the v3.5 channel +
+  `offload_noexp_null`; adoption scales with `device_dep`.
+- **Warriner & Humphreys 2008** (*QJEP*) + **D'Angelo &
+  Humphreys 2015** (*Cognition* 142:166–190 — verified):
+  unresolved TOT dwell trains the error (~2× recurrence,
+  one-week durability); self/cued resolution repairs, told
+  answers don't — `err_strength` ledger + `tot_rescue_null`.
+- **Nelson & Leonesio 1988** (*Am. Psychol.* 43) + **Cuevas &
+  Dawson 2018** (verified): effort at fixed strategy moves
+  JOL, not memory — `labor_vain_null`, third member of the
+  negative-anchor class (with `intention`, `disfluency`).
+- **Ward, Duke, Gneezy & Bos 2017** (*J. Assoc. Consumer
+  Res.* — verified; replication record mixed): mere phone
+  presence drains capacity — OBSERVE-tier `phone_drain`.
+- **Honest limits marked:** co-attention minimal conditions
+  openly debated (gate, not law); pe_win and antic_win
+  magnitudes are RW formalization of directional findings;
+  err_strength ledger mechanics are ours (the recurrence/
+  durability facts are literature); phone_drain observe-tier
+  on a contested base. → EM Part VIII §§96–109.

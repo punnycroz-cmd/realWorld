@@ -1,5 +1,36 @@
-# Memory Model Spec v5.43 — implementable human-like memory for RW characters
+# Memory Model Spec v5.44 — implementable human-like memory for RW characters
 
+> **v5.44 note (encoding-mechanics VIII — what the stimulus,
+> the room, and the past error bring):**
+> `memory/encoding-mechanics.md` Part VIII (§§96–109) adds
+> nine encode-side mechanisms. (a) **Intrinsic memorability** —
+> `memorab` event field, a stimulus property with a mandatory
+> unexplained residual (`memorab_attr_null`; Isola 2011,
+> Bainbridge 2017). (b) **Co-attention** — believed shared
+> focus boosts E and mints `coSeen` edges for the rumor
+> pipeline (Shteynberg; `coattend_ingroup` is an open gate —
+> minimal conditions under registered replication). (c)
+> **Prediction error** — connectable mismatch boosts the
+> item–context LINK only (`pe_conflate_null`); beyond
+> `pe_win` the item splits into a new record. (d)
+> **Anticipatory window** — `antic:true` events inside
+> `antic_win` gain E; reopening the v40 reward fold with the
+> correct temporal structure (`antic_retro_null`). (e)
+> **Gesture** — fourth engagement arm, smallest motor gain,
+> beat-gesture null. (f) **Offloading boundary** — Henkel's
+> deletion arm: the v3.5 hollow+pointer cost applies only
+> when the external copy is expected to persist
+> (`offloadTransient` flag + `offload_noexp_null`); adoption
+> scales with new trait `device_dep` (Risko & Gilbert 2016).
+> (g) **TOT error learning** —
+> `err_strength` ledger makes TOTs recur; self/cued
+> resolution repairs, told answers don't (`tot_rescue_null`).
+> (h) **Labor in vain** — `labor_vain_null` locks effort out
+> of E permanently. (i) **Phone drain** — OBSERVE-tier
+> `phone_drain` on mixed replication base. New §§6.221–6.229;
+> +14 scalars +1 trait, +8 locked nulls, +1 observe param;
+> §10 contract adds Event/record fields. Probes P1017–P1026.
+>
 > **v5.43 note (validation-design X — the battery audits its
 > own blind spots):** `memory/validation-design.md` §§194–199
 > adds the fourth governance layer — the instruments that check
@@ -12132,6 +12163,145 @@ P994), `meta_episode_null` (mints zero records — P1000),
 `recip_truth_null` (belief-write only — P998). SM§§141–150;
 probes P994–P1005.
 
+### 6.221 Intrinsic memorability — the stimulus-side E leg (new in v5.44)
+
+Isola et al. 2011; Bainbridge, Dilks & Oliva 2017 (verified):
+memorability is a stimulus property consistent across
+observers with ~50% unexplained by measured attributes.
+
+```
+E += memorab_gain · memorab      // memorab ∈ [0,1], birth-time only
+memorab = 0.4·distinctiveness + 0.25·concreteness +
+          memorab_resid·(world tag or 1)
+```
+
+`memorab_attr_null` — the residual component is mandatory;
+memorab never enters β (encoding locus only). EM§96; P1017.
+
+### 6.222 Co-attention — believed shared focus deepens encoding (new in v5.44)
+
+Shteynberg 2010; Eskenazi et al. 2013 (verified): believed
+co-attention boosts recall under matched exposure; actual
+partner attention not required. Minimal conditions DEBATED
+(registered replication open → `coattend_ingroup` is an open
+gate, default 0.5).
+
+```
+if Event.coAttending ≥ 1:
+   E += coattend_gain · (1 | coattend_ingroup)   // ingroup |
+   record gains coSeen edge → co-attender        // stranger
+```
+
+`coattend_expose_null` — gain applies to attended fields only.
+coSeen edges feed the §6.204 rumor pipeline (higher initial
+credibility to the co-attender). EM§97; P1018–P1019.
+
+### 6.223 Prediction error — connectable mismatch binds the link (new in v5.44)
+
+Greve et al. 2017; Quent, Henson & Greve 2021 (verified): PE
+boosts the item–context ASSOCIATION, not whole-item E; the
+mismatch must remain connectable to the active schema.
+
+```
+pe = |Event.expected[field] − actual[field]| per salient field
+pe ≤ pe_win:  link strength += pe_gain·pe (schema-sparse ×1.4)
+pe > pe_win:  mint separate record — schema split, no boost
+```
+
+`pe_conflate_null` — PE never boosts non-link fields.
+age-development `schema_violation` handles the recall-side
+assimilation; this is the encode-side arm. EM§98; P1020.
+
+### 6.224 The anticipatory window — reward before, value at (new in v5.44)
+
+Adcock et al. 2006; Wittmann et al. 2005; Murty & Adcock 2014
+(verified): pre-stimulus incentive cues give a selective,
+narrow-window encoding boost — distinct from post-hoc
+`value_select` and from reward-history VDAC (§6.x v5.32 arm).
+
+```
+Event.antic:true + event within antic_win of the cue:
+   E += antic_gain     // multiplicative composition with
+                       // value_select — independent terms
+```
+
+`antic_retro_null` — zero retroactive reach (contrast
+`post_stress_gain`, which IS retrograde). EM§99; P1021.
+
+### 6.225 Gesture — the fourth engagement arm (new in v5.44)
+
+Cook, Duffy & Fenn 2013; So et al. 2012 (verified):
+self-produced representational gesture during encoding aids
+recall; beat gestures weak-to-null.
+
+```
+engagement:"gestured" → E += gest_gain·(gest_iconic_w | 1−w)
+motor-budget cap: enacted ≥ gestured+spoken stack (additive
+   to enacted level, never beyond)
+```
+
+`gest_beat_null` — at gest_iconic_w ≤0.3 gain ≤0.03. EM§100;
+P1023.
+
+### 6.226 The offloading boundary — persistence-expectation gate (new in v5.44)
+
+Henkel 2014; Risko & Gilbert 2016 (verified): the v3.5
+offload hollow+pointer cost (`offload_cost` + `extref` +
+`offloadAttend` — unchanged) applies ONLY when the character
+expects the external copy to persist.
+
+```
+Event.offload:true + offloadTransient:true → offload_cost
+   does not apply (record encodes full)
+adoption p(offload) ∝ device_dep  // new trait, shared §6.229
+```
+
+`offload_noexp_null` — no impairment without expected
+persistence (Henkel's deletion arm). Gate on the existing
+channel, not a second channel. EM§101; P1022.
+
+### 6.227 TOT error learning and resolution repair (new in v5.44)
+
+Warriner & Humphreys 2008; D'Angelo & Humphreys 2015
+(verified): unresolved TOT dwell strengthens the blocking
+state (recurrence ~2×); self/cued resolution corrects;
+told-answer does not.
+
+```
+TOT-marked record field err_strength:
+   unresolved: err_strength += tot_learn·dwell_ticks
+   self-resolved: err_strength ×= (1−tot_res_gain); S += it
+   cued-resolved: err_strength ×= (1−0.8·tot_res_gain)
+err_strength adds to future TOT probability on the record
+```
+
+`tot_rescue_null` — full-disclosure answers bypass the repair
+(resolution must run the character's own search). EM§102;
+P1024.
+
+### 6.228 Labor in vain — effort is not an E term (locked null, new in v5.44)
+
+Nelson & Leonesio 1988; Cuevas & Dawson 2018 (verified):
+effort at fixed strategy moves JOL, not memory. Locked null
+`labor_vain_null` — no param may translate effort/dwell/
+tryHard flags into E; effort acts only through named levers
+(attention ordering, strategy draws, re-encode count). Same
+negative-anchor class as `intention` and `disfluency`.
+EM§103; P1025.
+
+### 6.229 Phone presence drain — OBSERVE tier (new in v5.44)
+
+Ward et al. 2017 (verified; replication record mixed):
+mere device presence drains available capacity, scaled by
+device dependence.
+
+```
+context.phone_present → daLoad += phone_drain·(0.5 + device_dep)
+```
+
+OBSERVE-tier param — direction-only audit (P1026); folds to
+0 and promotes `phone_null` if the replication base fails.
+EM§104.
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -14088,6 +14258,28 @@ MemoryParams = {
 //   registry rows gain `touched[]`, `detect_set`,
 //   `cover_why?`; verdict ledger gains `rebaseline`
 //   row kind. No Event/record/PersonModel changes.
+// v5.44 additions (encoding-mechanics VIII — EM§§96–109)
+"memorab_gain": 0.15, "memorab_resid": 0.35,       // §6.221
+"coattend_gain": 0.1, "coattend_ingroup": 0.5,   // §6.222
+"pe_gain": 0.12, "pe_win": 0.6,                  // §6.223
+"antic_gain": 0.15, "antic_win": 0.01,           // §6.224
+"gest_gain": 0.1, "gest_iconic_w": 0.7,          // §6.225
+"device_dep": 0.5,                               // §§6.226/6.229 trait
+"tot_learn": 0.1, "tot_res_gain": 0.5,           // §6.227
+"phone_drain": 0.05,                             // §6.229 OBSERVE
+// v5.44 locked nulls: memorab_attr_null (P1017);
+//   coattend_expose_null (P1018); pe_conflate_null
+//   (P1020); antic_retro_null (P1021);
+//   offload_noexp_null (P1022); gest_beat_null
+//   (P1023); tot_rescue_null (P1024);
+//   labor_vain_null (P1025).
+// v5.44 fields/state: Event `memorab` ∈[0,1],
+//   `coAttending` count, `expected` {field:value} map,
+//   `antic:true`, `offloadTransient:true` on the v3.5
+//   offload flag, ctx `phone_present`;
+//   record edge `coSeen`, record field `err_strength`
+//   on TOT-marked records; engagement enum gains
+//   `gestured`. All snapshot-additive; absent = legacy.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -16329,6 +16521,28 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 8 pop/harness scalars + 4
     locked nulls. Zero psychology moved.
   - Probes P1006–P1016.
+- v5.44 additions (encoding-mechanics.md §§96–109):
+  - **New Event fields (world-supplied):** `memorab ∈[0,1]`
+    (or derived — §6.221 formula); `coAttending` count +
+    per-record `coSeen` edge output; `expected` {field:value}
+    map for PE computation; `antic:true` + window bookkeeping;
+    `offloadTransient:true` on the existing v3.5 offload flag
+    (persistence-expectation gate — §6.226); context flag
+    `phone_present`; engagement enum gains `gestured`.
+  - **New record field:** `err_strength` on TOT-marked
+    records — the error-learning ledger (§6.227); adds to
+    future TOT probability on that record.
+  - **Locked boundaries game-systems must honor:**
+    `memorab_attr_null`, `coattend_expose_null`,
+    `pe_conflate_null`, `antic_retro_null`,
+    `offload_noexp_null`, `gest_beat_null`,
+    `tot_rescue_null`, `labor_vain_null`.
+  - **OBSERVE-tier param:** `phone_drain` — direction-only
+    audit (P1026); folds to 0 → `phone_null` on replication
+    collapse.
+  - **New params (§7):** 14 scalars + 1 trait (`device_dep`)
+    + 8 locked nulls + 1 observe param.
+  - Probes P1017–P1026.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

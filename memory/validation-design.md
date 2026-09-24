@@ -9800,3 +9800,110 @@ P1016 OBSERVE.
   ours); gold_tol 0.02 (regression tolerance ours, sized to
   seed-noise floor); live canary latency 500 ticks (ops
   choice). All probe-gated, none claimed as science.
+
+## 200. v96 suite (P1017–P1026) — encoding-mechanics VIII
+
+- **P1017 intrinsic memorability (MUST):** at matched attention,
+  arousal, and distinctiveness, high-memorab events out-recall
+  low; inter-profile variance on this leg is LOW (Isola
+  consistency — variance audit, not just mean); `memorab_attr_null`
+  TOST (residual-free build fails); no β interaction.
+  `touched:[memorab_gain, memorab_resid]`, `detect_set:
+  {memorab_gain∈{0,0.4}, memorab_resid∈{0.2,0.6}}`.
+- **P1018 co-attention (MUST):** coAttending≥1 > solo at matched
+  exposure/attention; stranger arm gated by `coattend_ingroup`;
+  `coattend_expose_null` — unattended fields gain nothing.
+  `touched:[coattend_gain, coattend_ingroup]`.
+- **P1019 co-seen substrate (SHOULD):** coSeen edges feed the
+  §6.204 rumor pass — co-attended events propagate to the
+  co-attender with higher initial credibility (shared witness,
+  not shared telling).
+- **P1020 prediction error (MUST — structure):** moderate PE
+  raises link strength with item-E unchanged
+  (`pe_conflate_null` TOST); pe > pe_win splits a new record;
+  sparse-schema ×1.4 arm (Brod direction).
+  `touched:[pe_gain, pe_win]`.
+- **P1021 anticipation window (MUST):** boost inside antic_win
+  only; `antic_retro_null` — pre-cue events never boosted;
+  multiplicative composition with value_select (anticipated-
+  but-worthless keeps the anticipation leg only).
+  `touched:[antic_gain, antic_win]`.
+- **P1022 offloading boundary (MUST):** offload:true takes the
+  v3.5 hollow+pointer profile unchanged (regression);
+  offloadTransient:true takes NO offload_cost
+  (`offload_noexp_null` TOST — Henkel deletion arm);
+  device_dep orders adoption across profiles (capture-count
+  divergence, not per-event E).
+- **P1023 gesture (SHOULD):** gestured > silent-watch < enacted
+  (ordering); gest_iconic_w=0 → gain ≤0.03 (`gest_beat_null`
+  TOST); gestured+spoken caps at enacted level (motor budget).
+  `touched:[gest_gain, gest_iconic_w]`.
+- **P1024 TOT ledger (MUST):** unresolved TOTs recur ≥1.5×
+  after long dwell (Warriner 2008); self-resolved recur ≤
+  baseline (`tot_res_gain` repair); told-answers do NOT repair
+  (`tot_rescue_null`); error learning durable ≥7 sim-days.
+  `touched:[tot_learn, tot_res_gain, err_strength]`.
+- **P1025 labor in vain (MUST — locked-null class):** dwell/
+  effort-flag manipulations at fixed strategy give ΔE ≤ 0.02
+  (TOST); only named levers may raise E — regression wall for
+  future "try harder" params.
+- **P1026 phone drain (OBSERVE):** phone_present reduces
+  effective encoding per `phone_drain`·(0.5 + device_dep);
+  direction-only, no band — observe pending replication.
+
+Registry: P1–P1026. v96 suite: P1017, P1018, P1020, P1021,
+P1022, P1024, P1025 MUST (P1025 locked-null class); P1019,
+P1023 SHOULD; P1026 OBSERVE.
+
+## 201. Sources verified this version (P1017–P1026 backing)
+
+- **Intrinsic memorability:** Isola, Parikh, Torralba & Oliva
+  2011 (verified: cross-observer consistency ρ≈0.7);
+  Bainbridge, Isola & Oliva 2013; Bainbridge, Dilks & Oliva
+  2017 (*NeuroImage* — verified: residual after attribute
+  controls); Khosla et al. 2015; Rust & Mehrpour 2020.
+- **Co-attention:** Shteynberg 2010 (JPSP — verified);
+  Eskenazi, Doerrfeld, Logan, Knoblich & Sebanz 2013
+  (verified: believed co-attention suffices); Shteynberg 2015
+  (*Perspect. Psychol. Sci.* 10:579 — verified); minimal-
+  conditions registered replication open (marks the
+  `coattend_ingroup` gate DEBATED — not a law).
+- **Prediction error:** Greve, Cooper, Kaula, Anderson &
+  Henson 2017 (*NeuroImage* — verified: associative locus);
+  Quent, Henson & Greve 2021 (verified: formal account +
+  connectable-mismatch bound); Brod, Werkle-Bergner & Shing
+  2013 (child arm — verified).
+- **Anticipation:** Adcock, Thangavel, Whitfield-Gabrieli,
+  Knutson & Gabrieli 2006 (*Neuron* 50:507 — verified);
+  Wittmann et al. 2005 (verified); Murty & Adcock 2014
+  (verified: window specificity).
+- **Gesture:** Cook, Duffy & Fenn 2013 (*Psychol. Sci.*
+  24:1734 — verified); So, Sim Chen-Hsing & Low Shuang 2012
+  (verified); Goldin-Meadow thread (WM-lightening direction —
+  verified).
+- **Offloading boundary:** Henkel 2014 (*Psychol. Sci.* 25:396
+  — verified: impairment requires expected persistence;
+  zoom/deletion arms); Risko & Gilbert 2016 (*Trends Cogn.
+  Sci.* — verified: rational allocation); Sparrow, Liu &
+  Wegner 2011 (*Science* 333:776 — reused: the v3.5 channel
+  this gates).
+- **TOT learning:** Warriner & Humphreys 2008 (*QJEP* —
+  verified: ~2× recurrence after longer dwell); D'Angelo &
+  Humphreys 2015 (*Cognition* 142:166–190 — verified: one-week
+  durability; self-resolution and orthographic-cue resolution
+  correct; told-answer arm; effort-required).
+- **Labor in vain:** Nelson & Leonesio 1988 (*Am. Psychol.* 43
+  — verified); Hyde & Jenkins 1973 (reused); Cuevas & Dawson
+  2018 (effort → JOL not memory — verified direction).
+- **Phone drain:** Ward, Duke, Gneezy & Bos 2017 (*J. Assoc.
+  Consumer Res.* — verified: mere-presence drain, device-
+  dependence moderator; replication record mixed → OBSERVE).
+- **RW HYPOTHESES marked:** memorab residual weighting 0.35
+  (Bainbridge's unexplained share, our split); coattend_ingroup
+  default 0.5 (open gate, not evidence); pe_win 0.6 (our
+  connectability bound — Quent gives the shape, not the
+  number); antic_win 0.01 days (Murty's "narrow window," our
+  seconds→sim-days mapping); err_strength ledger form (the
+  recurrence/durability facts are literature; the ledger
+  mechanics are ours); device_dep default 0.5 (Ward's
+  moderator direction, our scale).

@@ -2940,3 +2940,471 @@ Dunlosky 2013), `gum_gain = 0` (fold).
 - Deliberate-null/fold sources: Wilkinson et al. 2002 + Tucha
   (gum inconsistency); Sünram-Lea (glucose, state-dependent);
   Bavelier (AVG transfer — trait not event).
+
+# Part VIII — encoding-mechanics, eighth pass (v96 focus)
+
+The question this pass: what does the STIMULUS bring, what does the
+ROOM bring, and what does the ENCODER'S OWN PAST ERROR bring — the
+three legs the store had been treating as encoder-internal. New
+machinery: an intrinsic-memorability field, a co-attention gain, a
+prediction-error encoding window, an anticipatory reward window
+(reopening the v40 fold — correctly, with the anticipation arm
+separated), gesture as a fourth engagement variant, cognitive
+offloading with the pointer-for-fact trade, TOT error learning and
+its resolution repair, the labor-in-vain negative anchor, and the
+phone-drain observation tier. Probes P1017–P1026; spec v5.44.
+
+## 96. Intrinsic memorability — the stimulus carries its own E (CONSENSUS phenomenon; mechanism DEBATED)
+
+Isola, Parikh, Torralba & Oliva 2011 (CVPR/NeurIPS line —
+verified): face and scene images have memorability that is
+**consistent across observers** (split-half ρ ≈ 0.68–0.75) —
+memorability is a property of the stimulus, not the perceiver.
+Bainbridge, Isola & Oliva 2013; Bainbridge, Dilks & Oliva 2017
+(*NeuroImage* — verified): memorability survives controlling for
+every measured attribute (color, aesthetics, arousal, valence,
+distinctiveness) — a residual ~50% is unexplained by the standard
+feature list. Khosla et al. 2015: memorability-ranked images
+predict forgetting order.
+
+§76 already gives faces a memorability term; this generalizes the
+axis to ALL event records. The stimulus-side term is
+**independent of encoder state**: a memorable event encodes
+deeper for the distracted AND the attentive (Isola's consistency
+means low inter-encoder variance on this leg — deliberately
+small interaction terms).
+
+```
+E += memorab_gain · memorab        // memorab ∈ [0,1] event field
+memorab derivation (world may supply directly):
+  0.4·distinctiveness + 0.25·concreteness + 0.35·(world tag / residual)
+```
+
+**Locked null `memorab_attr_null`:** memorab may NOT be reduced
+to the existing arousal + distinctiveness + concreteness terms —
+the residual component is mandatory (Bainbridge 2017's
+unexplained half). A build where memorab = w·arousal +
+w·distinctiveness with no residual fails P1017.
+
+Boundary: the field is birth-time only — memorab does not make
+the record more durable (no β interaction; memorability is
+encoding, not consolidation — Rust & Mehrpour 2020 discussion).
+
+## 97. Co-attention — "we are looking at this" deepens the trace (ESTABLISHED direction; minimal conditions DEBATED)
+
+Shteynberg 2010 (JPSP — verified): stimuli believed co-attended
+with an ingroup member are recalled better than stimuli believed
+attended alone or by an outgroup — under matched exposure.
+Eskenazi, Doerrfeld, Logan, Knoblich & Sebanz 2013 (verified):
+words thought attended-with-partner > words thought unattended —
+the belief suffices; actual partner attention not required.
+Shteynberg 2015 (*Perspect. Psychol. Sci.* 10:579 — verified):
+the mechanism claim — co-attention deepens processing by treating
+the stimulus as socially relevant. DEBATED boundary: a 2026
+registered replication (Psychol. Res. — open) asks whether mere
+passive co-attention with a stranger suffices or whether
+ingroup/coordination is required; treat `coattend_ingroup` as an
+open gate, not a law.
+
+```
+if coAttending ≥ 1:                 // field set by world — others
+   E += coattend_gain               //   verifiably watching the
+   cueEdges += partner_view_link    //   same referent
+gate: coattend_ingroup (default 0.5)
+   [ingroup co-attender] → full gain
+   [stranger]          → gain × coattend_ingroup   // open question
+```
+
+The minted record also gains a `coSeen` edge to the co-attender —
+shared-attention events become the natural "we both saw it"
+rumor substrate (social-memory §6.204 pipeline reads them).
+Locked null `coattend_expose_null`: co-attention cannot raise E
+on fields nobody attended — the gain rides attended fields only.
+
+## 98. Prediction error at encoding — the violation mints the link (CONSENSUS direction; the shape is RW formalization)
+
+Greve, Cooper, Kaula, Anderson & Henson 2017 (*NeuroImage* —
+verified): memory for items benefits when they violate the active
+schema's predictions — prediction error (not novelty, not
+distinctiveness) drives the encoding boost, and the effect is
+on the **item–context association**, not item memory alone.
+Quent, Henson & Greve 2021 (verified): predictive-coding formal
+account — PE strength scales the associative encoding; extreme
+unpredictability is NOT better (the violating item must remain
+connectable to the schema — "mismatch you can narrate").
+Brod, Werkle-Bergner & Shing 2013: children's PE benefit is
+larger — schema-weak encoders get more violation mileage.
+
+age-development's `schema_violation` machinery covers the
+assimilation side (violation → schema-tag at recall). This is
+the ENCODING arm:
+
+```
+pe = |expected − actual|  per salient field (world may tag
+     expectation directly: Event.expected:{field:value})
+if pe ≤ pe_win:   E_link += pe_gain · pe      // moderate PE:
+if pe > pe_win:   mint separate record        //   binds tighter
+                  (schema-split, no link boost) // extreme PE:
+                                                //   new context
+pe_gain scaled ×(1 + 0.4·[schema sparse])     // Brod child arm
+```
+
+Locked null `pe_conflate_null`: PE boost never lands on the
+item's OTHER fields — it is link-targeted (Greve's associative
+locus); a build where pe boosts whole-record E fails P1020.
+
+## 99. The anticipatory window — reward BEFORE the event, not value AT it (ESTABLISHED; reopens the v40 fold, correctly)
+
+Adcock, Thangavel, Whitfield-Gabrieli, Knutson & Gabrieli 2006
+(*Neuron* 50:507 — verified): incentive cues presented BEFORE a
+scene engage midbrain–hippocampal circuitry and selectively
+improve later memory for the anticipated scene — the gain accrues
+to the ANTICIPATION state, not the post-hoc value judgment.
+Wittmann et al. 2005 (verified): reward anticipation activates
+SN/VTA + hippocampus during encoding. Murty & Adcock 2014:
+the anticipation benefit is specific to the rewarded category/
+window — dopaminergic timing is narrow (seconds, not minutes).
+
+v40 folded reward-encoding into `value_select` (importance).
+That fold is CORRECT for post-hoc value but misses the temporal
+structure: anticipation precedes the stimulus; VDAC (§84)
+covers reward-history capture of attention, which is
+retrospective. The missing piece is the prospective window:
+
+```
+Event.antic:true  →  // world sets when a pre-event cue promised
+                     // outcome (bet placed, tip expected, news
+                     // teased, doorbell during a wait)
+antic_win days (default 0.01 ≈ 15 min): events landing inside
+   the window after the cue take E += antic_gain
+locked null antic_retro_null: events BEFORE the cue are never
+   boosted — anticipation has no retroactive reach (separate
+   channel from post_stress_gain, which IS retrograde)
+```
+
+The anticipation and post-hoc value legs compose
+multiplicatively, never substituting: a character can
+anticipate a reward (`antic`) and judge it worthless on
+arrival (low `value_select`) — the trace keeps the
+anticipation gain anyway (Murty & Adcock's timing account).
+
+## 100. Gesture at encoding — the fourth engagement variant (ESTABLISHED; smaller than enacted)
+
+Cook, Duffy & Fenn 2013 (*Psychol. Sci.* 24:1734 — verified):
+children who gestured during encoding recalled more than those
+who only watched — gesture is a learning instrument, not just a
+display. So, Sim Chen-Hsing & Low Shuang 2012 (verified):
+gesturing while learning improves subsequent recall for the
+gestured content. Goldin-Meadow thread: gesture lightens the
+encoder's own working-memory load AND binds a motor trace.
+Iconic/representational gestures carry the effect; beat gestures
+are weak-to-null on the memory measure.
+
+Fourth entry in the engagement catalog (after `enacted`,
+`drawn`, `written`) — deliberately the smallest of the motor
+arms because it is typically co-occurent with speech, not
+replacement of the material:
+
+```
+engagement:"gestured" → E += gest_gain (0.1, smallest motor arm)
+gest_iconic_w ∈ [0,1] (default 0.7): representational share;
+   pure-beat events take gest_gain × (1 − gest_iconic_w) ≈ 0.03
+```
+
+Composition: gestured + spoken ≠ enacted — a character who
+gestures while telling a story is not performing the story;
+the arms stack additively with a cap at the enacted level
+(`min(enacted_total, E)` — the engaged arms share one motor
+budget). Locked null `gest_beat_null` below gest_iconic_w=0.3
+threshold is P1023's job.
+
+## 101. The offloading boundary — impairment requires expected persistence (ESTABLISHED; deepens the v3.5 channel)
+
+The offloading channel already exists (v3.5: `offload:true` →
+`offload_cost` hollow + `extref` pointer + `offloadAttend` zoom
+rescue — Henkel 2014's engaged-capture arm). This pass adds the
+arm that was missing — Henkel 2014's second condition: the
+impairment requires **expecting the offloaded copy to persist**.
+Photographing while believing the photo will be deleted
+produces NO impairment — the brain only offloads what it
+expects to keep. Risko & Gilbert 2016 (*Trends Cogn. Sci.* —
+verified): offloading is a rational allocation policy —
+reliance grows with external-store trustworthiness (the
+phone-dependent resident offloads habitually; the scrap-paper
+skeptic does not).
+
+```
+Event.offload:true + offloadTransient:true   // the character
+     // knows the copy is temporary (about to delete, scrap
+     // paper for the moment, voice memo to self-destruct)
+     → offload_cost does NOT apply (record encodes full)
+trait device_dep ∈ [0,1] (shared with §104 phone_drain):
+     offload adoption probability ∝ device_dep — heavy
+     offloaders treat capture as reflexive
+```
+
+Locked null `offload_noexp_null`: no impairment without
+expected persistence. The v3.5 `extref`/`offloadAttend`
+machinery is untouched — this is a gate on the existing cost,
+not a second channel. The new behavioral surface: a resident
+who live-posts the block party (expects the feed to persist)
+encodes it hollow; the one shooting a throwaway snap for a
+friend encodes it whole — same phone, different expectation,
+opposite memory.
+
+## 102. The TOT that teaches the error — and the resolution that repairs it (ESTABLISHED; encoding consequence of failed retrieval)
+
+Warriner & Humphreys 2008 (*QJEP* — verified): a
+tip-of-the-tongue state is itself an encoding event — an
+unsuccessful-but-effortful retrieval strengthens the WRONG
+mapping, and the TOT recurs (~2× likelihood at 48h after a
+longer unresolved dwell). D'Angelo & Humphreys 2015
+(*Cognition* 142:166 — verified): error learning is durable
+(one week), BUT spontaneous self-resolution corrects it —
+and externally cued resolutions (orthographic hint) correct
+nearly as well. Effort is required: brief TOTs teach less
+error than long ones.
+
+This is the retrieval→encoding loop the store was missing —
+§58's pretest potentiation warms the landing for NEW targets;
+this arms the FAILED search for KNOWN items:
+
+```
+on TOT_state(record):               // failed access, felt-knowing
+   err_strength += tot_learn·dwell  // unresolved dwell trains
+                                   //   the blocking state
+on TOT_resolved(self):   // spontaneous resolution:
+   err_strength ×= (1 − tot_res_gain);   S += tot_res_gain
+on TOT_resolved(cued):   // orthographic/semantic hint:
+   err_strength ×= (1 − 0.8·tot_res_gain)
+```
+
+The `err_strength` ledger makes TOTs recur — a character's name
+blank that resolves on its own is REPAIRED; one that is
+abandoned trains the blank (the friend's-name-on-the-tongue
+loop is now mechanically real). Locked null `tot_rescue_null`:
+external answer-giving without the hint path (someone just says
+the name — full disclosure, not a cue) does NOT repair —
+resolution must run through the character's own search
+(D'Angelo 2015's cued-resolution condition).
+
+## 103. Labor in vain — effort is not depth (NEGATIVE ANCHOR; adjudicated, locked)
+
+Nelson & Leonesio 1988 (*Am. Psychol.* 43 — verified): in the
+classic "labor in vain" finding, study effort per item (longer,
+harder processing at matched strategy) did NOT improve recall —
+encoding gain tracks the STRATEGY (deeper processing, tests,
+organization), not the felt exertion. Hyde & Jenkins 1973's
+intention null (§1) is the cousin: wanting harder doesn't
+encode harder. Cuevas & Dawson 2018: self-perceived effort
+predicts JOL, not memory — effort is a metacognitive input,
+not an encoding lever.
+
+Locked null `labor_vain_null`: no param may translate raw
+effort (dwell, arousal-neutral strain, `tryHard` flags) into E.
+Effort can only act through the existing levers: attentional
+allocation (wm_cap ordering), strategy selection
+(rpl_focus/ei/org draws), and dwell-as-more-encodes (massed
+re-encoding). A build where `effort` is an E term fails P1025 —
+this is the same class of negative anchor as `disfluency` (§65)
+and `intention` (§1): the sim keeps a locked record of the
+levers that DON'T exist so nobody adds them later.
+
+## 104. The phone in the pocket — mere presence as a drain (DEBATED → OBSERVE tier)
+
+Ward, Duke, Gneezy & Bos 2017 (*J. Assoc. Consumer Res.* —
+verified): the mere presence of one's own smartphone (even off,
+face-down) reduces available cognitive capacity on
+attention-demanding tasks — "brain drain." Partial
+replication record is mixed (small/conditional effects in some
+replications; device-dependence moderates). For RW this is the
+modern resident condition — phones at the kitchen table, on the
+bar, in the pocket during the conversation:
+
+```
+context.phone_present → daLoad += phone_drain  (0.05 — half the
+   size Ward measured, hedged to the contested replication base)
+   scaled by device_dep (trait, default 0.5 — heavy users drain
+   more, per Ward's moderator)
+```
+
+OBSERVE tier: the param exists but is flagged `observe` in the
+registry — P1026 audits direction only, no magnitude band. If
+the replication base collapses, the param folds to 0 and the
+locked null `phone_null` gets promoted.
+
+## 105. Deliberate non-adds (v96)
+
+- **Item-method directed forgetting**: already machinery —
+  `df_loss` (v2.4, encoding arm) + `df_theta` (retrieval arm) +
+  Rupprecht & Bäuml age scaling + the child report-cue gates.
+  Nothing new to mechanize.
+- **Seductive details**: reaffirmed folded into daLoad (v40
+  note stands — it is attention split, not a separate channel).
+- **Test-format expectancy** (expecting recall vs recognition
+  changes encoding — Balota & Neely line): folded into
+  `teach_expect`/expect fields; the format-expectation arm is
+  too thin to earn a param at current evidence.
+- **Contextual variability** (Glenberg varied-context benefit):
+  emergent — varied encoding contexts already mint distinct
+  place/state cue edges through the existing cue-minting; no
+  separate gain needed (the mechanism is cue diversity, which
+  the store does natively).
+- **Positive-mood attentional broadening** (Rowe et al.): stays
+  in emotional-memory scope; the encoding-side term would
+  double `w_emo_pos`.
+- **Emotional trade-off** (center detail vs periphery cost):
+  already `arousal_narrowing` + weapon-focus machinery.
+
+## 106. Parameter summary (new in v5.44 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `memorab_gain` | 0.15 | 0–0.4 | stimulus memorability E leg | Isola 2011; Bainbridge 2017 |
+| `memorab_resid` | 0.35 | 0.2–0.6 | unexplained-attribute share | Bainbridge, Dilks & Oliva 2017 |
+| `coattend_gain` | 0.1 | 0–0.3 | co-attention E boost | Shteynberg 2010; Eskenazi 2013 |
+| `coattend_ingroup` | 0.5 | 0–1 | stranger-co-attender fraction | minimal-conditions debate |
+| `pe_gain` | 0.12 | 0–0.4 | link-level PE encoding boost | Greve 2017; Quent 2021 |
+| `pe_win` | 0.6 | 0.3–1.0 | connectable-mismatch ceiling | Quent 2021 formal bound |
+| `antic_gain` | 0.15 | 0–0.4 | anticipatory-window E boost | Adcock 2006; Wittmann 2005 |
+| `antic_win` | 0.01 | 0.002–0.05 | post-cue window (days) | Murty & Adcock 2014 timing |
+| `gest_gain` | 0.1 | 0–0.25 | gestured-content E bonus | Cook, Duffy & Fenn 2013 |
+| `gest_iconic_w` | 0.7 | 0–1 | representational-gesture share | So et al. 2012 |
+| `device_dep` | 0.5 | 0–1 | offload-adoption + phone-drain trait | Ward 2017 moderator |
+| `tot_learn` | 0.1 | 0–0.3 | unresolved-TOT error learning | Warriner & Humphreys 2008 |
+| `tot_res_gain` | 0.5 | 0.2–0.9 | resolution repair share | D'Angelo & Humphreys 2015 |
+| `phone_drain` | 0.05 | 0–0.15 | presence-only daLoad add | Ward 2017 (OBSERVE) |
+
+**Locked nulls:** `memorab_attr_null` (memorab keeps its
+residual — P1017), `coattend_expose_null` (gain rides attended
+fields only — P1019), `pe_conflate_null` (PE is link-targeted
+— P1020), `antic_retro_null` (no retroactive reach — P1021),
+`gest_beat_null` (beat gestures ≈ no gain — P1023),
+`offload_noexp_null` (no impairment without expected
+persistence — P1022), `tot_rescue_null` (told answers don't
+repair — P1024), `labor_vain_null` (effort is not an E term —
+P1025). `phone_drain` is OBSERVE-tier.
+
+## 107. Validation probes P1017–P1026
+
+- **P1017 (MUST) intrinsic memorability:** at matched attention,
+  matched arousal, matched distinctiveness, high-memorab events
+  out-recall low-memorab (Isola consistency = low inter-profile
+  variance on this leg — audit variance, not just mean);
+  `memorab_attr_null` TOST-enforced (a residual-free build
+  fails); memorab has NO β interaction (durability audit).
+- **P1018 (MUST) co-attention:** coAttending≥1 events out-recall
+  solo-attended at matched exposure and matched attention; the
+  ingroup fraction gates the stranger arm via `coattend_ingroup`;
+  `coattend_expose_null` — unattended fields gain nothing.
+- **P1019 (SHOULD) co-seen rumor substrate:** minted coSeen edges
+  are consumed by the social-memory rumor pass; a co-attended
+  event propagates with higher initial credibility to the
+  co-attender (shared witnessing, not shared telling).
+- **P1020 (MUST — structure) prediction error:** moderate PE
+  raises item–context link strength with item-E unchanged
+  (`pe_conflate_null` TOST); pe > pe_win splits to a new record
+  (no link boost, no merge with the schema record); sparse-schema
+  profiles show larger gain (Brod direction).
+- **P1021 (MUST) anticipation window:** antic:true events inside
+  antic_win take the boost; outside the window do not;
+  `antic_retro_null` — pre-cue events never boosted; composes
+  multiplicatively with value_select (an anticipated-but-
+  worthless event keeps the anticipation gain and loses the
+  value gain — two independent terms).
+- **P1022 (MUST) offloading boundary:** offload:true events
+  take the v3.5 hollow+pointer profile UNCHANGED (regression
+  audit); offloadTransient:true events take NO offload_cost
+  (`offload_noexp_null` TOST — Henkel's deletion arm);
+  device_dep orders adoption frequency across profiles
+  (heavy-offloader vs scrap-paper profiles diverge on
+  capture count, not per-event E).
+- **P1023 (SHOULD) gesture:** gestured > silent-watch at matched
+  exposure, smaller than enacted (ordering); gest_iconic_w=0
+  collapses the gain to ≤0.03 (`gest_beat_null` TOST);
+  gestured+spoken stack caps at enacted level (shared motor
+  budget audit).
+- **P1024 (MUST) TOT ledger:** unresolved TOTs recur at ≥1.5×
+  baseline after long dwell (Warriner 2008 arm); self-resolved
+  TOTs recur at ≤ baseline (`tot_res_gain` repair); told-
+  answers do NOT repair (`tot_rescue_null`); error learning
+  is durable ≥7 sim-days (D'Angelo 2015).
+- **P1025 (MUST — locked-null class) labor in vain:** dwell and
+  effort-flag manipulations at fixed strategy produce
+  ΔE ≤ 0.02 (TOST); the ONLY paths to higher E are the named
+  levers (strategy, attention allocation, re-encoding count);
+  probe is the regression wall for future "try harder" params.
+- **P1026 (OBSERVE) phone drain:** phone_present reduces
+  effective encoding resources per `phone_drain`·(0.5 +
+  device_dep); direction-only audit, no band — flagged observe
+  pending replication verdict.
+
+## 108. Spec deltas delivered (v5.44)
+
+- `memory-model-spec.md` → v5.44: §§6.221–6.229 (memorab field,
+  co-attention + coSeen edge, PE link-boost + pe_win split,
+  anticipatory window, gesture engagement arm, offloading
+  persistence gate, TOT err_strength ledger, labor-
+  in-vain locked null, phone-drain observe tier); §7 +14
+  scalars +1 trait, +8 locked nulls (+1 observe flag);
+  §10 contract adds — Event fields `memorab`,
+  `coAttending`/`coSeen`, `expected`, `antic`,
+  `offloadTransient`, `phone_present` ctx; record field
+  `err_strength` on TOT-marked records; engagement enum
+  +`gestured`; trait `device_dep` (shared by §§101/104).
+- `character-memory-profiles.md`: §0 +16 clamp rows; §76 v5.44
+  note — all are mechanism constants; emergent shadows
+  (the phone-offloader knows WHERE not WHAT; the chronic TOT
+  has a trained blank until it self-resolves; the co-watcher
+  remembers the show better than the solo one).
+- `validation-design.md`: §§200–201 — probes P1017–P1026 +
+  sources. Registry P1–P1026.
+- `human-memory-research.md`: §74 v96 summary appended.
+
+## 109. Sources new to this version (all verified 2026-09-23)
+
+- Isola, Parikh, Torralba & Oliva 2011 (verified: cross-observer
+  memorability consistency ρ≈0.7); Bainbridge, Isola & Oliva
+  2013; Bainbridge, Dilks & Oliva 2017 (*NeuroImage* — verified:
+  memorability residual after attribute controls); Khosla et
+  al. 2015; Rust & Mehrpour 2020 (memorability review —
+  encoding locus).
+- Shteynberg 2010 (JPSP — verified: co-attention with ingroup →
+  memory); Eskenazi, Doerrfeld, Logan, Knoblich & Sebanz 2013
+  (verified: believed co-attention suffices); Shteynberg 2015
+  (*Perspect. Psychol. Sci.* 10:579 — verified); 2026 registered
+  replication on minimal conditions (open — marks the
+  `coattend_ingroup` gate DEBATED).
+- Greve, Cooper, Kaula, Anderson & Henson 2017 (*NeuroImage* —
+  verified: PE → associative encoding); Quent, Henson & Greve
+  2021 (verified: formal predictive-coding account, connectable-
+  mismatch bound); Brod, Werkle-Bergner & Shing 2013 (child PE
+  advantage — verified).
+- Adcock, Thangavel, Whitfield-Gabrieli, Knutson & Gabrieli 2006
+  (*Neuron* 50:507 — verified: pre-stimulus incentive →
+  selective memory); Wittmann et al. 2005 (verified: SN/VTA +
+  hippocampus co-activation); Murty & Adcock 2014 (verified:
+  anticipation-window specificity).
+- Cook, Duffy & Fenn 2013 (*Psychol. Sci.* 24:1734 — verified:
+  gesture during encoding → recall); So, Sim Chen-Hsing & Low
+  Shuang 2012 (verified); Goldin-Meadow thread (gesture
+  lightens WM — verified direction).
+- Sparrow, Liu & Wegner 2011 (*Science* 333:776 — verified:
+  expected-access → content loss, location preserved); Henkel
+  2014 (*Psychol. Sci.* 25:396 — verified: photo impairment,
+  zoom rescue, deletion arm); Risko & Gilbert 2016 (*Trends
+  Cogn. Sci.* — verified: offloading as rational allocation).
+- Warriner & Humphreys 2008 (*QJEP* — verified: TOT error
+  learning, ~2× recurrence); D'Angelo & Humphreys 2015
+  (*Cognition* 142:166–190 — verified: one-week durability,
+  self/cued resolution corrects, effort-required).
+- Nelson & Leonesio 1988 (*Am. Psychol.* 43 — verified: labor-
+  in-vain); Hyde & Jenkins 1973 (reused); Cuevas & Dawson 2018
+  (effort → JOL, not memory — verified direction).
+- Ward, Duke, Gneezy & Bos 2017 (*J. Assoc. Consumer Res.* —
+  verified: mere-presence drain, device-dependence moderator;
+  replication record mixed → OBSERVE tier).
+- Deliberate-null/fold reaffirmations: Basden & Basden +
+  MacLeod 1998 (DF covered); Rey + Harp & Mayer (seductive
+  details = daLoad); Glenberg 1979 (context variability
+  emergent via cue minting).
