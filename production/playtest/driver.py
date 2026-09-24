@@ -53,11 +53,14 @@ STATE = {'seq': {}, 'last_reflect_day': {}}
 class H(BaseHTTPRequestHandler):
     def _reply(self, code, obj):
         body = json.dumps(obj).encode()
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(code)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass   # the brain's curl already hung up — nothing to tell it
     def log_message(self, *a):
         pass
     def do_GET(self):
@@ -70,7 +73,7 @@ class H(BaseHTTPRequestHandler):
             ev = threading.Event(); box = {}
             jobs.put(('state', cid, box, ev, {'glance': glance,
                                              'reflect': reflect}))
-            if not ev.wait(30):
+            if not ev.wait(75):
                 self._reply(504, {'err': 'world busy'}); return
             self._reply(200, box.get('res', {'err': 'no state'}))
             return
@@ -86,7 +89,7 @@ class H(BaseHTTPRequestHandler):
                 self._reply(400, {'err': 'bad json: %s' % e}); return
             ev = threading.Event(); box = {}
             jobs.put(('act', body, box, ev, None))
-            if not ev.wait(30):
+            if not ev.wait(75):
                 self._reply(504, {'err': 'world busy'}); return
             self._reply(200, box.get('res', {'err': 'no result'}))
             return
@@ -403,21 +406,43 @@ def main():
                 if not due:
                     continue
                 # failure-honesty probe (user order): once per main,
-                # withhold the brain turn AT the directive boundary —
-                # the will lapses into a visible intention_gap, never
-                # silent busyness, never sfSched.
+                # withhold the brain turn — at a directive_expiry boundary
+                # when one comes due; otherwise the first non-convo
+                # trigger while a directive is live stands in (the will
+                # still lapses at its untilH, unrefiled). Either way the
+                # sim must show a visible intention_gap — never silent
+                # busyness, never sfSched.
                 if (not args.no_withhold and cid not in withheld
-                        and due['kind'] == 'directive_expiry'):
-                    withheld.add(cid)
-                    turn_n[0] += 1
-                    shot, cam = take_turn_shot(cid, 'withheld')
-                    log(turn=turn_n[0], cid=cid, withheld='directive_expiry',
-                        tier=due.get('tier'), cam=cam, shot=shot,
-                        detail=due.get('detail'),
-                        note='brain turn withheld at directive boundary')
-                    print(f'[driver] {cid} withheld at directive boundary',
-                          flush=True)
-                    continue
+                        and due['kind'] not in ('convo_floor',
+                                                'convo_invite')):
+                    has_dir = pg.evaluate(
+                        '(c) => { const v = VILLAGERS.find('
+                        'x => x._castId === c); return !!(v && '
+                        'v.sfDirective && v.sfDirective.until > '
+                        'sfAbsNow()); }', cid)
+                    if due['kind'] == 'directive_expiry' or has_dir:
+                        withheld.add(cid)
+                        # mark the pending head as dispatched — the dead-
+                        # brain recovery path re-surfaces it after ~0.75
+                        # sim-h, so the will really does run unrefiled
+                        # into the gap (a one-iteration skip isn't an
+                        # absence, it's a blink)
+                        pg.evaluate(
+                            """(c) => { const v = VILLAGERS.find(
+                               x => x._castId === c);
+                               const d = v && v.sfDisp;
+                               if(d && d.pending[0])
+                                 d.pending[0].dispatchedAt = sfAbsNow(); }""",
+                            cid)
+                        turn_n[0] += 1
+                        shot, cam = take_turn_shot(cid, 'withheld')
+                        log(turn=turn_n[0], cid=cid, withheld=due['kind'],
+                            tier=due.get('tier'), cam=cam, shot=shot,
+                            detail=due.get('detail'), had_directive=has_dir,
+                            note='brain turn withheld at directive boundary')
+                        print(f'[driver] {cid} withheld at boundary '
+                              f'({due["kind"]})', flush=True)
+                        continue
                 turn_n[0] += 1
                 shot, cam = take_turn_shot(cid, due['kind'])
                 seq2turn[(cid, seq_of.get(cid, 0) + 1)] = turn_n[0]
@@ -425,8 +450,22 @@ def main():
                 log(turn=turn_n[0], cid=cid, dispatched=due['kind'],
                     tier=due.get('tier'), detail=due.get('detail'),
                     cam=cam, shot=shot)
+                # the engine surfacing a 'gap' trigger for a withheld
+                # main IS the confirmation — the lapse is real state
+                if (due['kind'] == 'gap' and cid in withheld
+                        and cid not in gap_ok):
+                    gap_ok.add(cid)
+                    log(turn=turn_n[0], cid=cid, gap_confirmed=True,
+                        note='engine dispatched gap — withheld will '
+                             'lapsed into a visible intention_gap')
+                    print(f'[driver] {cid} intention_gap CONFIRMED '
+                          '(dispatch)', flush=True)
                 if r.get('proc') is not None:
                     pending_procs[cid] = r['proc']
+                # screenshots serialize the loop — drain any waiting
+                # /state and /act jobs before the next dispatch's shot
+                while pump(0):
+                    pass
             # retire finished devin sessions
             for cid, p in list(pending_procs.items()):
                 if p.poll() is not None:
@@ -442,7 +481,10 @@ def main():
                     VILLAGERS.filter(v => v._castId).map(v => [v._castId, {
                       x: Math.round(v.x), y: Math.round(v.y),
                       st: v.state, gap: !!v.sfGap,
-                      inside: v.inside || null }]))""")
+                      inside: v.inside || null,
+                      order: v.sfAgent ? v.sfAgent.verb : null,
+                      dir: v.sfDirective ? v.sfDirective.verb : null,
+                      convo: v.sfConvo ? v.sfConvo.state : null }]))""")
                 gaps = [c for c, s in pos.items()
                         if s.get('gap') and c in CAST]
                 for c in gaps:
