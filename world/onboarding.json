@@ -1,13 +1,14 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 95,
-  "storage_key": "rw_onboard_v95",
+  "version": 109,
+  "storage_key": "rw_onboard_v109",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
     { "id": "S1_orient",   "tier": "free", "gate": "offered by welcome/fork card; self-dismisses once the viewer has scrolled the feed" },
     { "id": "S1w_watch_done", "tier": "free", "gate": "watcher-fork landing after the tour: 'you're set' card; setup steps remain available but unpushed" },
     { "id": "S2_name",     "tier": "free", "gate": "optional — handle required only for request attribution + wallet; one field, no email in this build; live availability + reserved-name check" },
+    { "id": "S2b_privacy", "tier": "free", "gate": "v109 — 'what this page keeps', stated once between handle and band: browser-local state only, nothing sent anywhere, no email/account in this build; asks public, watching private" },
     { "id": "S2a_band",    "tier": "free", "gate": "one-question age band before any money surface — under 13 / 13–17 / 18 or older / rather not say; fronts every paid stage, never gates the feed or the tour" },
     { "id": "S3u_under13", "tier": "free", "gate": "under-13 landing instead of the wallet — 'the watching account': spectator-only, no packs, no asks, nothing framed as missing" },
     { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever; adult band also sees the rewarded-ads line (2 cr/view, 5/day, opt-in)" },
@@ -17,6 +18,7 @@
     { "id": "lowbal_sim",  "tier": "paid", "gate": "opt-in affordance on the running-ask card only — simulates the wallet hitting zero inside the cap: warning toast → 'player session ended' feed line → AI resumes, no debt" },
     { "id": "S4e_queue",   "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask filed while the sky is claimed, lands 'queued' at tier −15% (34 cr held); scripted to lapse unactivated → 'queued request expired before activation' + full auto-refund" },
     { "id": "S4f_shared",  "tier": "free", "gate": "optional teaching beat after the queue resolves — 'the other hands': compatible asks run alongside, scripted co-ask lands from a second handle; files nothing, needs no balance, still behind the band normalizer so the watching account never sees ask mechanics" },
+    { "id": "S4g_flag",    "tier": "free", "gate": "v109 — 'the viewer's one hand': flagging an ask is free, files nothing, silent on the feed; sends a flagged player ask to the same human review queue; flags attach to asks, never to residents; behind the band normalizer like every ask-context card" },
     { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight; the ownership arc is named as context, no funnel" },
     { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" },
     { "id": "S7_visit",    "tier": "paid", "gate": "optional teaching beat off the S6 card — requires hired + band + balance ≥22; a guided 15-min first possession at the compatible minimum billable; 'step out early' and 'jump ahead' exits both hand back to the AI mid-motion with no refund promised" }
@@ -34,9 +36,10 @@
     { "n": 3, "anchor": "feed-cast",    "copy_key": "tour.possession_ban", "note": "v25 beat — the honest limit up front: mains unpossessable by anyone, at any tier" },
     { "n": 4, "anchor": "feed-request", "copy_key": "tour.public_agency" },
     { "n": 5, "anchor": "feed-follow",  "copy_key": "tour.follow" },
-    { "n": 6, "anchor": "feed-reachin", "copy_key": "tour.reach_in" },
-    { "n": 7, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" },
-    { "n": 8, "anchor": "feed-admin",   "copy_key": "tour.admin",   "note": "v81 beat — the house acts in the open: every admin action lands on this feed, attributed, with automatic compensation when it bumps a player's plans" }
+    { "n": 6, "anchor": "feed-anon",    "copy_key": "tour.privacy",  "note": "v109 beat — watching leaves no mark: no viewer list, presence is private, only asks carry names" },
+    { "n": 7, "anchor": "feed-reachin", "copy_key": "tour.reach_in" },
+    { "n": 8, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" },
+    { "n": 9, "anchor": "feed-admin",   "copy_key": "tour.admin",   "note": "v81 beat — the house acts in the open: every admin action lands on this feed, attributed, with automatic compensation when it bumps a player's plans" }
   ],
   "tour_rules": {
     "skippable": "every beat — Skip ends the whole tour",
@@ -182,6 +185,22 @@
     "card": "one-time 'first day' card: briefing = public profile + surface relationships + routine only (secrets redacted even for the hirer); rent owed in game dollars; possession = compatible 1.5 cr/min, a visit not ownership; closing the tab drops the character to thin AI — present but sleeping — with no 'miss you' nag",
     "rule": "dismisses into the checklist — never a second funnel; renders fine with no handle set"
   },
+  "privacy_beat": {
+    "where": "tour beat 6 — anchored to the feed's '(free, always)' line (feed-anon), right after the follow beat: you learn watching is a lens before you learn it's invisible",
+    "copy_promise": "watching leaves no mark — no viewer list, nobody on the feed can see who's looking, the block keeps no count of you; the only thing that ever carries a name is an ask — agency is public, presence is private",
+    "never": "no viewer list, presence count, or 'who's watching' surface anywhere — the beat would be a lie the moment one existed"
+  },
+  "data_card": {
+    "where": "S2b — a free card between the handle step and the age band; stated once, closable, no funnel",
+    "copy_promise": "this build keeps checklist state in this browser's storage — nothing is sent anywhere, no email, no account exists; deleting site data forgets you entirely; when accounts arrive at launch the shape stays: asks are public, watching is private",
+    "rule": "disclosure, not reassurance theater — it states what is kept and where, never claims more or less than the build does"
+  },
+  "flag_lesson": {
+    "where": "S4g — after the other-hands beat; optional, free, files nothing, needs no balance; behind the band normalizer like every ask-context card",
+    "demo": "'flag an ask on the feed (demo)' marks the lesson once (S.flagged, idempotent) — the feed entry does NOT change; a flag is silent on the public surface and review happens off-stage",
+    "copy_promise": "every ask is flaggable; flagging costs nothing, files nothing, and routes to the same human review queue exclusive asks already pass through; the feed never shows who flagged — a flag is not a public vote; flags attach to player asks only, never to the residents (design §11: moderation scopes to player requests)",
+    "never": "no flag count or flagger identity on the feed; no vocabulary invented — a pulled ask resolves with the same neutral wording as any review; never offer flagging as a response to disliked drama — in-world consequences handle the cast"
+  },
   "exit_states": {
     "completed": "all chosen items done — collapses permanently",
     "dismissed": "one-click don't-show; no confirm-shame, no snooze timer",
@@ -221,7 +240,11 @@
     "invent subscription terms the plan doesn't set — no trial, no cancellation promises, no perk beyond §2.5's list",
     "promise a refund on early release — declared blocks are bought up front, nothing is metered back",
     "frame the first visit as owning, keeping, or unlocking the character — a capped session, briefing redacted throughout",
-    "let the stipend demo read as granted spend — it previews the standing order's mechanics, labeled, once"
+    "let the stipend demo read as granted spend — it previews the standing order's mechanics, labeled, once",
+    "keep a viewer list or surface presence on the feed — watching leaves no mark; only asks are attributed",
+    "let a flag attach to a resident — flags route player asks to human review; the cast's lives are never moderated",
+    "show who flagged or frame a flag as a public vote — flagging is free, silent on the feed, and sends no verdict",
+    "claim the build collects data it doesn't — the data card states device-local storage, no email, no account, verbatim"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -236,7 +259,8 @@
     "admin_beat_seen", "coask_seen", "surge_line_shown",
     "credit_rules_seen", "subs_line_shown", "sub_stipend_previewed",
     "first_visit_filed", "visit_ended (cap|stepped_out)",
+    "privacy_beat_seen", "data_card_seen", "flag_lesson_shown", "flag_demo_sent",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
-  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + age band + wallet (+ demo ad views) + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', the queued ask is scripted to lapse, and the co-ask is a scripted second handle — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, the reserved-name list is generated from characters.json + ambients.json, and the market-board pointer binds to market.html"
+  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + age band + wallet (+ demo ad views) + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', the queued ask is scripted to lapse, the co-ask is a scripted second handle, and the flag demo marks state without touching the feed — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, the reserved-name list is generated from characters.json + ambients.json, and the market-board pointer binds to market.html"
 }

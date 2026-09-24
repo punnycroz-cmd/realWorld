@@ -939,6 +939,43 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v95 schema still on an old storage key');
     }
+    /* ---- v109 blocks: the quiet contract ---- */
+    if (OB.version >= 109) {
+      const MUST109 = [
+        [/leaves no mark/i, 'privacy beat: watching leaves no mark'],
+        [/no viewer list/i, 'privacy beat: no viewer list stated'],
+        [/presence is private/i, 'privacy promise: presence private, asks public'],
+        [/browser\u2019s storage|browser's storage/i, 'data card: device-local storage stated'],
+        [/no email/i, 'data card: no email stated'],
+        [/no account/i, 'data card: no account stated'],
+        [/never shows? who flagged|never show who flagged/i, 'flag anonymity stated'],
+        [/player asks only/i, 'flag scope: player asks only'],
+        [/never to the residents/i, 'flag scope: residents unreachable — cast unmoderated'],
+        [/not a public vote/i, 'flag is not a public vote']
+      ];
+      for (const [re, label] of MUST109)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v109 honesty copy: ${label}`);
+      if (!new RegExp(`["']feed-anon["']`).test(html))
+        add(g, 'fail', 'onboarding.html', null, 'feed-anon anchor missing — the privacy beat has nothing to point at');
+      if (!html.includes("'S2b'"))
+        add(g, 'fail', 'onboarding.html', null, 'S2b stage not reachable in page source');
+      if (!html.includes("'S4g'"))
+        add(g, 'fail', 'onboarding.html', null, 'S4g stage not reachable in page source');
+      if (!/S4g:1/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'S4g not in PAID_STAGES — the band normalizer does not front it');
+      if (!/window\.flagDemo/.test(html) || !/S\.flagged/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'flag demo affordance missing or not state-guarded');
+      /* a flag is silent on the feed — the demo must not invent flag feed vocabulary */
+      if (/flagged for review|flagged by|flag count|\d+ flags/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'flag surfaced on the feed — flags are silent, review happens off-stage');
+      for (const k of ['privacy_beat', 'data_card', 'flag_lesson'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v109 contract block '${k}' missing`);
+      const priv = (OB.tour_beats || []).find(b => b.copy_key === 'tour.privacy');
+      if (!priv || priv.anchor !== 'feed-anon')
+        add(g, 'fail', 'onboarding.json', null, 'privacy beat missing or anchored off feed-anon');
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81', 'rw_onboard_v95'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v109 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }

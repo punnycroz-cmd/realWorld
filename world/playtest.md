@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v108)
+# Playtest Harness — "Real World / The Mission" (world v109)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -346,6 +346,14 @@ One person can wear every hat; four real testers is the intended shape.
   capping one shadow per frame with brink exclusivity; the pressure
   catalog's sixth tranche brings it to P-30 and drama.html renders
   all three new sections with mirrored counts.
+  PT100 (onboarding v8, v109) audits the quiet contract — the
+  privacy beat (tour beat 6 on feed-anon: watching leaves no mark,
+  no viewer list, presence is private), the S2b data card (browser-
+  local state only, no email, no account — free-tier, seen by every
+  band including u13), and the S4g flag lesson (free, files nothing,
+  silent on the feed, routes to the same human review, attaches to
+  player asks only — never the residents). The audit's v109 block
+  enforces the silence: flag vocabulary on the feed is a FAIL.
 
 ## 3. Running a session
 

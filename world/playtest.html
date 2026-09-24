@@ -2151,6 +2151,27 @@ const PTS=[
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 30 pressure rows · schema drama-v7'",
     "A missing drift field, an object holder off the C-id pattern, or an html count mismatch would FAIL — spot-check",
     "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+]},
+{id:"PT100",title:"Onboarding v8 — the quiet contract (privacy beat, the data card, flagging)",min:10,
+ persona:"privacy-skeptical first-time viewer — wants to know what watching costs in data, and whether the 'flag' button is a real check or theater",
+ goal:"Verify the v109 onboarding pass: tour beat 6 (anchored feed-anon) states watching leaves no mark — no viewer list, presence is private, only asks carry names; S2b states the page keeps browser-local state only (nothing sent anywhere, no email, no account) and the forward clause is only the asks-public/watching-private shape; S4g teaches flagging — free, files nothing, silent on the feed, routes to the same human review queue, and attaches to player asks only, never to the residents.",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§50–55 and onboarding.json's privacy_beat / data_card / flag_lesson blocks against the never-list additions.",
+  exp:"Every v109 statement resolves to a disclosure or a boundary — the privacy beat bans any viewer list outright, the data card claims only device-local storage (no more, no less than the build does), and flag scope is design §11 verbatim: moderation scopes to player requests, the cast's lives are never moderated.",
+  ck:["Privacy beat anchored to feed-anon (the feed's 'free, always' line), ordered after follow, admin still last at beat 9",
+    "Data card is free-tier and outside the band normalizer — the watching account sees it too",
+    "flag_lesson states the two edges verbatim: silent on the feed + player asks only, never residents"]},
+ {do:"Open onboarding.html (file://), pick 'I might reach in', run the tour to beat 6, set a handle, read S2b, pick the adult band, fund the demo wallet, file the camera ask, and walk S4f → S4g. Click 'Flag an ask on the feed (demo)' twice.",
+  exp:"Beat 6 anchors the '(free, always)' line and reads the privacy promise verbatim. S2b renders after the handle step and before the band question, closable, with 'Got it' continuing to S2a. S4g is reached from S4f; flagging marks the lesson once — the feed entry does NOT change (a flag is silent); the second click toasts 'flagged already — review has it'. Reset and pick under-13: S2b still renders but S4g redirects to S3u.",
+  ck:["No feed mutation on flag — nothing on the public surface shows a flag happened",
+    "flagDemo is idempotent and state-guarded (S.flagged persists across reload at key rw_onboard_v109)",
+    "S4g sits in PAID_STAGES — the band normalizer fronts it like every ask-context card",
+    "No viewer list / presence count / 'who's watching' surface anywhere on the page"]},
+ {do:"Run node world/audit.js from the repo root and read the onboard gate.",
+  exp:"Onboard gate passes at 'schema v109 · 9 beats · key rw_onboard_v109' — all ten v109 honesty strings found, feed-anon anchor present, S2b/S4g reachable, S4g in PAID_STAGES, flagDemo state-guarded, the silent-flag sweep clean, and the three contract blocks present in the mirror.",
+  ck:["Onboard gate: 0 fail; detail reports schema v109 at key rw_onboard_v109",
+    "A flag surfaced on the feed (flagged-for-review wording, flag counts) would FAIL — the sweep enforces silence",
+    "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT100 hand-sync"]},
 ]}
 ];
 

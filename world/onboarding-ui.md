@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49; v109 adds §50–55)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -831,3 +831,124 @@ running`, attributed) and opens the visit card:
   briefing stays redacted throughout.
 - Never let the stipend demo read as granted spend — it previews the
   standing order's mechanics, labeled as such, once.
+
+---
+
+## v109 — the eighth pass: the quiet contract
+
+v11–v95 taught a stranger the world's grammar — every ask class, every
+honest "no," the house's visibility, the arc, the first visit. What the
+journey still hadn't said: **what watching costs you in data (nothing)**
+and **what the viewer's one hand on the world is** (a flag). Three
+additions, all quiet by design.
+
+### 50. Watching is invisible (tour beat 6)
+
+A new coach-mark inserted between the follow beat and the reach-in beat —
+you learn watching is a lens before you learn it's invisible — anchored to
+the feed header's "(free, always)" line (`feed-anon`):
+
+> "Watching leaves no mark. There's no viewer list, nobody on the feed
+> can see who's looking, and the block keeps no count of you. The only
+> thing that ever carries a name is an ask — agency is public, presence
+> is private."
+
+The admin beat stays last (v81's ordering rationale stands); privacy
+belongs early — it's a promise about the product, not a feature of it.
+The promise is structural: any future "viewers watching" surface would
+falsify the beat, so the never-list now bans it outright.
+
+### 51. What this page keeps (S2b) — the data card
+
+One free card between the handle step and the age band, stated once:
+
+> "This build keeps your place in this checklist in **this browser's
+> storage** — nothing is sent anywhere, and there's no email and no
+> account to attach it to. Delete your site data and it forgets you
+> entirely. When accounts arrive at launch the shape stays the same:
+> **asks are public, watching is private.** The feed attributes every
+> request to a handle; it never lists who's looking."
+
+- Free-tier, outside the band normalizer — the u13 watching account sees
+  it too (it says nothing about money).
+- Disclosure, not reassurance theater: it states what is kept and where.
+  It never claims the build collects less than it does, and it never
+  promises what the launch build hasn't built — "the shape stays the
+  same" is the only forward claim, and it's a design constraint, not a
+  feature.
+- Closable like every card; "Got it" continues to S2a.
+
+### 52. Flagging an ask (S4g) — the viewer's one hand
+
+After the other-hands beat, the last teaching card closes the loop:
+public asks imply a public check. Copy:
+
+> "Every ask on the feed is public — and every ask is flaggable. If a
+> request reads wrong to you, flagging it **costs nothing, files
+> nothing**, and sends it to the same human review the exclusive asks
+> already pass through.
+>
+> Two honest edges: a flag is silent on the feed — it never shows who
+> flagged, and the entry itself doesn't change; review happens
+> off-stage. A flag is not a public vote, and nobody can be shamed for
+> one. And flags attach to **player asks only, never to the residents**
+> — the cast's lives aren't moderated; what they do is the story, and
+> the world answers it in-world."
+
+- The demo affordance (*"flag an ask on the feed (demo)"*) marks
+  `S.flagged` once and deliberately **does not touch the feed** — the
+  flag's silence is the lesson; the toast says so. At merge it calls the
+  same human-review queue; a pulled ask resolves with the same neutral
+  feed vocabulary as any review — no flag-specific wording is invented.
+- Scope is design §11 verbatim: moderation applies to player requests.
+  The card says so by teaching that flags can't reach the residents —
+  emergent AI behavior is inviolable, and onboarding says it out loud.
+- Free card, files nothing, needs no balance — but it lives in
+  ask-context, so it sits behind the band normalizer like S4f: the
+  watching account never sees flag mechanics framed at it.
+
+### 53. Edge cases (v109 additions)
+
+| Case | Behavior |
+|------|----------|
+| Tour skipped before beat 6 | the privacy promise isn't tour-gated — the data card (S2b) restates "asks public, watching private" for everyone |
+| Flag clicked twice | idempotent — `S.flagged` guards; second click toasts "flagged already — review has it" |
+| Flag card reached on u13 | `normalizeStage()` redirects to S3u like every ask-context card — the watching account never sees flag mechanics |
+| S2b parked | parked like every card; reopens only via the footer link; no state is lost — that's the card's own point |
+| `localStorage` blocked | the data card's promise degrades gracefully — nothing persisted is the existing v25 rule; the card's claim stays true (nothing sent anywhere regardless) |
+| Flag with no requests on feed | affordance still works — it marks the lesson, not a specific entry; at merge the affordance binds per-entry |
+
+### 54. v109 merge notes
+
+- `storage_key` → `rw_onboard_v109` (`S.flagged` added; v95/v109 states
+  coexist harmlessly; the demo reads only its own key).
+- New anchors required on the real Wire at merge: `feed-anon` (the
+  feed's "free, always" header line) joins the v25/v53/v81 set.
+- Tour order changed: privacy is beat 6, reach-in/archive/admin renumber
+  to 7/8/9 — admin stays deliberately last per §37.
+- No feed vocabulary invented — a flag is silent on the public feed; if
+  review pulls a flagged ask it resolves with existing neutral wording.
+- New analytics hooks (v109): `privacy_beat_seen`, `data_card_seen`,
+  `flag_lesson_shown`, `flag_demo_sent` — same envelope, stage +
+  opted_out props only.
+- At merge: `flagDemo` binds to the real per-entry flag affordance →
+  human-review queue; the demo's mark-the-lesson behavior stays
+  demo-only. `S2b`'s "browser's storage" claim must be re-verified
+  against whatever account system lands — if launch adds real accounts,
+  the card's forward clause ("asks are public, watching is private")
+  stays verbatim.
+
+### 55. What v109 still must never do
+
+- Never keep a viewer list or surface presence anywhere on the feed —
+  the privacy beat would be a lie the moment one existed.
+- Never let a flag attach to a resident — flags route player asks to
+  human review; the cast's lives are never moderated (design §11).
+- Never show who flagged, a flag count, or frame a flag as a public
+  vote — flagging is free, silent, and sends no verdict.
+- Never claim the build collects data it doesn't — the data card states
+  device-local storage, no email, no account, verbatim.
+- Never teach flagging as a response to disliked drama — in-world
+  consequences handle the cast; review handles asks.
+- Never let the flag affordance cost credits or require a wallet — the
+  viewer's check on agency is free or it isn't a check.

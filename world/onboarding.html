@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v7)</title>
+<title>Real World — Onboarding (first session, v8)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v95, v7 of the v11 demo).
+  Onboarding flow — first-session journey (world v109, v8 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
@@ -29,6 +29,12 @@
     → S7 the first visit (guided 15-min possession of the hired
       character — step out early or let the hard cap end it; either
       way the AI resumes mid-motion, nothing metered back)
+    → S2b what this page keeps (free card after the handle step:
+      device-local state only, no email, no account; asks are
+      public, watching is private)
+    → S4g flagging an ask (the viewer's one hand — free, files
+      nothing, sends a flagged ask to the same human review;
+      flags attach to player asks, never to the residents)
 
   New in v53 — the time layer: the Archive joins the tour (catching up
   is free), the queued class gets its own honest lesson (hold ≤24 h,
@@ -61,6 +67,13 @@
   stepping into their character for the first time — 15 min at the
   compatible minimum (22 cr), briefing still redacted, both exits
   hand back mid-motion with no refund promised.
+  New in v109 — the quiet contract: tour beat 6 (privacy, anchored to
+  the feed's "free, always" line) says watching leaves no mark — no
+  viewer list, presence is private, only asks carry names; S2b states
+  what the page keeps (browser-local state, nothing sent anywhere, no
+  email or account in this build); and S4g teaches flagging — any
+  viewer can send a player ask to human review for free, unattributed,
+  and flags attach to asks, never to the residents.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -198,7 +211,7 @@
         by anyone, at any tier.</div>
     </div>
     <div class="panel">
-      <h2>The Wire — public feed <span style="color:var(--grn);text-transform:none;letter-spacing:.03em">(free, always)</span></h2>
+      <h2>The Wire — public feed <span id="feed-anon" style="color:var(--grn);text-transform:none;letter-spacing:.03em">(free, always)</span></h2>
       <ul class="feed" id="stream"></ul>
       <div class="note" style="margin-top:8px"><a id="feed-archive" href="archive.html"
         style="color:var(--blu)">Yesterday on the block → the Archive</a></div>
@@ -265,9 +278,9 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v95';
+var LS='rw_onboard_v109';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
-  band:null,adViews:0,coask:false,sub:null,visited:false,
+  band:null,adViews:0,coask:false,sub:null,visited:false,flagged:false,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
 try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=Object.assign(S,s);}catch(e){}
@@ -299,7 +312,7 @@ function renderCk(){
     S.done=true; save(); toast('Settled. The block keeps running — see you around.');
   }
 }
-var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin','feed-cast','feed-archive','feed-admin'];
+var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-anon','feed-reachin','feed-cast','feed-archive','feed-admin'];
 function anchor(id){ ANCHORS.forEach(function(a){
   var el=$(a); if(el) el.classList.toggle('anchored', a===id); }); }
 
@@ -318,6 +331,7 @@ var BEATS=[
   ['feed-cast',"One honest limit up front: the eight mains can't be possessed — not by you, not by the people who run this. Their lives are theirs. If you want a person in the world, you hire a new one."],
   ['feed-request',"Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone."],
   ['feed-follow',"Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash."],
+  ['feed-anon',"Watching leaves no mark. There's no viewer list, nobody on the feed can see who's looking, and the block keeps no count of you. The only thing that ever carries a name is an ask — agency is public, presence is private."],
   ['feed-reachin',"Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else."],
   ['feed-archive',"Nobody can watch twenty-four hours a day — you're not meant to. The Archive keeps the block's week: every public event, every thread, scrubbed by day. Catching up is free, always."],
   ['feed-admin',"The people who run the block act on this same feed. Every admin action lands here — attributed, and when it bumps a player's plans, compensation is automatic. Nobody's hand is invisible, including ours."]
@@ -367,7 +381,7 @@ function card(tag,body,btns,closable){
 
 /* paid stages — the band question fronts these; it gates the wallet and the
    asks, never the feed, the tour, or the free cards */
-var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1,S4f:1,S7:1};
+var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1,S4f:1,S4g:1,S7:1};
 function normalizeStage(){
   if(!S.band && PAID_STAGES[S.stage]) S.stage='S2a';
   if(S.band==='u13' && PAID_STAGES[S.stage]) S.stage='S3u';
@@ -434,8 +448,23 @@ function render(){
       '<div class="note">Residents\u2019 names are reserved — you can\u2019t be \u201cVictor\u201d on the feed. '+
       'Watching needs no name and never will. Skip freely.</div>',
       '<button class="go" onclick="setHandle()">That\u2019s me</button>'+
-      '<button class="ghost" onclick="skipTo(\'handle\',\'S2a\')">Skip</button>');
+      '<button class="ghost" onclick="skipTo(\'handle\',\'S2b\')">Skip</button>');
     setTimeout(function(){ if($('handle')) window.onHandleInput(); },0);
+  } else if(S.stage==='S2b'){
+    /* what this page keeps — a free card, stated once, before the band
+       question fronts the money surfaces. Nothing here is sent
+       anywhere in this build: onboarding state lives in this
+       browser's storage; no email, no account exists yet. */
+    h=card('What this page keeps — stated once',
+      '<p>This build keeps your place in this checklist in <b>this '+
+      'browser\u2019s storage</b> — nothing is sent anywhere, and there\u2019s '+
+      'no email and no account to attach it to. Delete your site data '+
+      'and it forgets you entirely.</p>'+
+      '<p>When accounts arrive at launch the shape stays the same: '+
+      '<b>asks are public, watching is private.</b> The feed attributes '+
+      'every request to a handle; it never lists who\u2019s looking.</p>',
+      '<button class="go" onclick="stage(\'S2a\')">Got it</button>', true);
+    anchor(null);
   } else if(S.stage==='S2a'){
     h=card('Who\u2019s asking — one question',
       '<p>Money features differ by age. Pick the band that fits this account — '+
@@ -616,6 +645,28 @@ function render(){
       (S.coask
         ?'<button class="ghost" disabled>— marlo_v is on the feed</button>'
         :'<button class="go" onclick="coAsk()">Watch one land (demo)</button>')+
+      '<button class="ghost" onclick="stage(\'S4g\')">One last thing — flagging</button>'+
+      '<button class="ghost" onclick="stage(\'S5\')">Settle in</button>');
+  } else if(S.stage==='S4g'){
+    /* flagging an ask — the viewer's one hand. Free, files nothing,
+       unattributed on the feed; sends a flagged player ask to the same
+       human review queue exclusive asks already pass through. Flags
+       attach to asks, never to the residents — the cast's lives aren't
+       moderated (design §11: moderation scopes to player requests). */
+    h=card('Flagging an ask — optional',
+      '<p>Every ask on the feed is public — and every ask is flaggable. '+
+      'If a request reads wrong to you, flagging it <b>costs nothing, '+
+      'files nothing</b>, and sends it to the same human review the '+
+      'exclusive asks already pass through.</p>'+
+      '<p>Two honest edges: a flag is silent on the feed — '+
+      'it never shows who flagged, and the entry itself doesn\u2019t change; review '+
+      'happens off-stage. A flag is not a public vote, and nobody can '+
+      'be shamed for one. And flags attach to <b>player asks only, '+
+      'never to the residents</b> — the cast\u2019s lives aren\u2019t moderated; '+
+      'what they do is the story, and the world answers it in-world.</p>',
+      (S.flagged
+        ?'<button class="ghost" disabled>— flagged; review has it</button>'
+        :'<button class="go" onclick="flagDemo()">Flag an ask on the feed (demo)</button>')+
       '<button class="ghost" onclick="stage(\'S5\')">Settle in</button>');
   } else if(S.stage==='S6'){
     h=card('First day with your character',
@@ -721,7 +772,7 @@ window.endTour=function(){S.ck.tour=true;
 window.setHandle=function(){
   var v=$('handle').value.trim(), r=handleCheck(v);
   if(!r.ok){toast(r.msg);return;}
-  S.handle=v;S.ck.handle=true;stage('S2a');save();
+  S.handle=v;S.ck.handle=true;stage('S2b');save();
   toast('Welcome, '+v+'.');
 };
 window.skipTo=function(item,st){S.skipped[item]=true;S.stage=st;save();render();};
@@ -812,6 +863,19 @@ window.coAsk=function(){
   feedAdd('request','<b class="who">marlo_v</b> — camera director, 30 min','running');
   render();
   toast('marlo_v filed at the same time — alongside you, never behind you.');
+};
+window.flagDemo=function(){
+  /* scripted demo beat: flag a request event already on the feed —
+     idempotent (flags once); at merge this calls the same human-review
+     queue exclusive asks pass through. The feed never shows who
+     flagged, and the flag attaches to the ask, never to a resident. */
+  if(S.flagged){toast('Flagged already — review has it.');return;}
+  S.flagged=true; save();
+  /* a flag is silent on the feed — the entry doesn't change; review
+     happens off-stage and any pull resolves with the same neutral
+     feed vocabulary as any review */
+  render();
+  toast('Flagged — a human looks at it. Nothing on the feed changed; that\u2019s the point.');
 };
 window.lowBal=function(){
   /* opt-in only, and only while a session is live: drop the balance under
