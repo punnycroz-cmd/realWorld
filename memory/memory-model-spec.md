@@ -1,5 +1,40 @@
-# Memory Model Spec v5.33 — implementable human-like memory for RW characters
+# Memory Model Spec v5.34 — implementable human-like memory for RW characters
 
+> **v5.34 note (retrieval-cues VIII — the cueless pop and
+> the cue that isn't):** eight residual cue mechanisms.
+> **Mind pops** — encoding mints a non-record `pop_seed`
+> (decay `pop_seed_hl`); in `autopilot` activity it surfaces
+> as a gist fragment at `pop_rate·pop_auto_mult`, episode
+> link only via `pop_link_p`; locked `pop_episodic_null`
+> (Kvavilashvili & Mandler 2004). **Music cues** —
+> `cueMod:"music"` gains `meam_gain`, routes involuntary at
+> `meam_invol`≈0.8, positive-biased `meam_pos`, detail-rich
+> `meam_rich`; trait-`music` gated; frozen
+> `meam_scope:"familiar-music"` (Janata 2007; Belfi 2022).
+> **Landmark cues** — locked `date_cue_null`: `when`-only
+> cues contribute 0 to episodic match; queries reroute
+> `lm_route` through transition-minted `landmark:true`
+> records (`lm_gain`, `lm_mint_p`) — dating emits
+> landmark+offset (Wagenaar 1986; Kurbat 1998). **Cue-word
+> probes** — `cueword_class` pricing
+> (activity>affect>person>object), `cw_obj_age` era pull,
+> locked `cw_verbatim_null` (Crovitz & Schiffman 1974;
+> Robinson 1976). **Referential poverty** — `ref_type`
+> weight ladder (`ref_thin`), `ref_focus` stack gate,
+> `ref_mis_p` misresolution tagged `refError:true`; locked
+> `ref_boost_null` (Ariel 1990). **Elaborative
+> scaffolding** — `elaborative:true` prompts boost partner
+> search `scaf_gain`, child knot `scaf_child_mult`,
+> `scaf_repeat_pen`; trait `elabor` sourced (Reese et al.
+> 1993). **Temporal contiguity** — emit order activates
+> encode-neighbors `contig_w`, forward-biased
+> `contig_fwd`, age- and AM-attenuated (`contig_age_pen`,
+> `am_att`) (Kahana 1996; Moreton & Ward 2010).
+> **Specificity induction** — high-detail bout mints
+> `esi_state` (`esi_hl_bout`), +`esi_gain` specificity;
+> locked `esi_learn_null`, frozen `esi_scope:"bout-window"`
+> (Madore et al. 2014). +28 params, +5 locked nulls, +2
+> frozen. Probes P908–P917.
 > **v5.33 note (forgetting-curves VIII — the fate of the
 > fade):** four properties of the fade itself.
 > **Savings shadow** — archival no longer deletes: the
@@ -6753,6 +6788,211 @@ the memory — is NOT new machinery: the retell-encode event
 story-shaped tellings drift the record on schedule without
 a special path.
 
+### 5.84 Mind pops — the cueless fragment (new in v5.34)
+
+Kvavilashvili & Mandler 2004 (*Cognitive Psychology* 48:47 —
+verified): involuntary SEMANTIC memories — a word, name, or
+tune surfacing with no episode, no self-reference, no
+identifiable cue — occur mostly during automatic activity,
+with encoding-to-pop delays of hours to days (very-long-term
+priming, mechanism DEBATED). Berntsen 2021 for the episodic
+boundary.
+
+At encode, mint a `pop_seed` — non-record token {gist_term,
+match_key, r} decaying on `pop_seed_hl` ≈ 48h. Ambient tick
+in `autopilot` activity:
+
+```
+pop_p = pop_rate ≈ 0.03/hr · pop_auto_mult (2.0 autopilot,
+        0.4 focused) · r/(r+seed_half) · (1 + 0.3·open
+        − 0.3·mindful)
+```
+
+Surfacing emits `pop:{gist_term}` — fragment only. With
+`pop_link_p` ≈ 0.2 the seed's match-key routes a weak
+involuntary cue to the source record; `pop_episodic_null`
+(LOCKED, P908): pops never emit episode fields directly.
+Seeds are non-record state (snapshot-additive, like savings
+shadows).
+
+### 5.85 Music cues — the MEAM leg (new in v5.34)
+
+Janata, Tomic & Rakowski 2007 (*Memory* 15:845 — verified):
+~30% of familiar-song presentations evoke AMs; positive
+emotion skew; nostalgia third-most-common. Jakubowski &
+Ghosh 2021 (diary — verified): 83% of music-evoked everyday
+memories rated spontaneous. Belfi et al. 2022 (verified):
+MEAMs carry more perceptual detail than face-evoked memories
+even involuntary-vs-involuntary. El Haj, Fasotti & Allain
+2012 (verified): MEAMs preserved longer in aging.
+
+`cueMod:"music"` (world supplies when the cue is a familiar
+song — jukebox, passing car, playlist):
+
+```
+w_music   = w_sensory · (1 + meam_gain ≈ 0.5)
+route:    involuntary draw with p = meam_invol ≈ 0.8 unless
+          voluntary orient armed
+ordering: positive-valence pull meam_pos ≈ 0.6 at equal match
+emission: emit_detail += meam_rich ≈ 0.25 (richness gate
+          pass for perceptual fields)
+```
+
+All terms × trait `music`. Frozen `meam_scope:"familiar-
+music"` — an unfamiliar song contributes w=0, not a weak
+cue (Janata's familiarity arm).
+
+### 5.86 Landmark cues — dates don't retrieve (new in v5.34)
+
+Wagenaar 1986 (*Cognitive Psychology* 18 — verified, own
+diary): `when` was the only cue that never worked alone.
+Barsalou 1988 (*Psych. Rev.* 95 — verified): bare date cues
+fail; retrieval runs through extended event structures.
+Kurbat, Shevell & Rips 1998 (*Mem&Cogn* 26 — verified):
+dating is landmark-relative. Shum 1998 (*Appl. Cogn.
+Psychol.* 12 — verified): temporal landmarks anchor AM
+search. CONSENSUS.
+
+- `date_cue_null` (LOCKED, P910): a cue whose only content
+  is a `when` field contributes 0 to the episodic match
+  (post-childhood records). The query reroutes `lm_route`:
+  nearest landmark record → its `evClust` (§5.72) → normal
+  match within. Date questions answer by indirection or not
+  at all.
+- `landmark:true` minted at `lm_mint_p` ≈ 0.6 ·(1+period_sal)
+  on `transition:true` events (moves, job boundaries,
+  relationship on/off, births/deaths); landmark records get
+  `lm_gain` ≈ 0.5 weight bonus when used as cues or route
+  entries.
+- Date emission = nearest landmark + offset ("a few weeks
+  after I moved"), error ∝ landmark distance — telescoping
+  on the landmark grid.
+
+### 5.87 Cue-word probes — Galton's instrument (new in v5.34)
+
+Crovitz & Schiffman 1974 (*Bull. Psychon. Soc.* 4 —
+verified): word-cue method; recall-age decays as a power of
+retention interval. Rubin & Schulkind 1997 (*Mem&Cogn* 25 —
+verified): word cues map the lifespan bump. Robinson 1976
+(*Cognitive Psychology* 8 — verified): activity/affect words
+retrieve faster than object words; objects pull older,
+semanticized content.
+
+Bare-word cues carry `cueword_class` ∈{activity, affect,
+person, object} (dialogue/history-browser supplies; default
+object):
+
+```
+w_cw = activity: 1+cw_act_gain(0.4) | affect: 1+cw_aff_gain
+       (0.25) | person: 1.0 | object: 1.0
+object hits: era pull older + generic-record bias
+       cw_obj_age ≈ 0.3
+```
+
+`cw_verbatim_null` (LOCKED, P911): a word cue selects but
+never mints verbatim content.
+
+### 5.88 Referential poverty — the pronoun leg (new in v5.34)
+
+Ariel 1990 (*Accessing Noun-Phrase Antecedents* — verified):
+expression form marks assumed accessibility — name < desc <
+pronoun < zero. Gundel, Hedberg & Zacharski 1993 (*Language*
+69 — verified): givenness hierarchy.
+
+Dialogue cue tokens carry `ref_type` ∈{name, desc, pronoun,
+zero}:
+
+```
+ref_w = name:1.0 | desc:0.8 | pronoun: ref_thin(0.5) |
+        zero: ref_thin·0.6
+```
+
+Pronoun/zero candidates are restricted to the `ref_focus`
+stack — last `ref_focus_win` ≈ 3 discourse-salient referents
+— BEFORE the memory match. Two equally-matched stack
+referents → misresolution at `ref_mis_p` ≈ 0.15, emission
+tagged `refError:true` with NO accuracy debit
+(comprehension error, not memory error). `ref_boost_null`
+(LOCKED, P912): pronouns never add cue mass — they spend
+what the focus stack supplies.
+
+### 5.89 Elaborative scaffolding — the partner's cue (new in v5.34)
+
+Fivush & Fromhoff 1988 (*J. Exp. Child Psychol.* 45 —
+verified); Reese, Haden & Fivush 1993 (*Cognitive
+Development* 8 — verified); Nelson & Fivush 2004 (*Psych.
+Rev.* 111 review — verified): high-elaborative interlocutors
+(open wh-questions, novel information, confirmations)
+produce richer partner/child recall; the child's gain
+outlasts the conversation. Adult-adult extension is
+HYPOTHESIS grounded in §41's open-question advantage.
+
+When a speaker's prompt is tagged `elaborative:true`
+(production rate driven by trait `elabor`), the target's
+bout gains
+
+```
+search_budget ×= (1 + scaf_gain ≈ 0.35 · scaf_child_mult
+                 ≈ 1.8 if target age <12)
+cue drive   += scaf_gain on the prompt's fields — treated
+              as selfcue_mult-family boost (§33 mechanism,
+              social source)
+repetition: nth same elaborative prompt ×= scaf_repeat_pen
+            ≈ 0.5^(n−1)
+```
+
+P913/P917: scaffolding is retrieval-side — zero record-state
+delta on the target; any strengthening comes through normal
+re-encode of the target's own emission.
+
+### 5.90 Temporal contiguity — order statistics of recall (new in v5.34)
+
+Kahana 1996 (*Mem&Cogn* 24 — verified) and Howard & Kahana
+2002 (*J. Math. Psychol.* 46 — verified): next-recall
+probability peaks for items encoded adjacent to the
+just-recalled; forward ≈ 2× backward (lag-CRP). Kahana et
+al. 2002 (*Psychol. Aging* 17 — verified): contiguity
+shrinks with age. Moreton & Ward 2010 (*QJEP* 63 —
+verified): much weaker in autobiographical recall —
+clusters, not adjacency, drive AM transitions.
+
+Within a bout, each emitted record activates its
+encode-order neighbors (lag ≤ `contig_lag_win` ≈ 2) as
+zero-cost candidates weighted
+
+```
+contig_w = contig_gain ≈ 0.35 · (fwd: contig_fwd ≈ 1.6,
+           back: 1.0) · (1 − contig_age_pen ≈ 0.4·ageScale)
+           · (1 − am_att ≈ 0.6 if bout is evClust-routed)
+```
+
+Distinct from §61 iterated cuing: no content overlap needed
+— pure encode-index adjacency. Produces the "and then… and
+then…" forward drift until a cluster boundary cuts it.
+
+### 5.91 Specificity induction — the warm-up state (new in v5.34)
+
+Madore, Gaesser & Schacter 2014 (*PNAS* 111 — verified):
+detailed recall of one event raises specificity of
+subsequent unrelated recalls (ESI). Madore & Schacter 2016
+(*Memory* 24 review — verified): induction = flexible
+retrieval orientation. Jing, Madore & Schacter 2016
+(*J. Gerontol. B* 71 — verified): lifts older-adult detail
+production specifically.
+
+After a bout whose emission richness ≥ `esi_thresh` ≈ 0.7,
+mint `esi_state` (per-character, non-record, hl
+`esi_hl_bout` ≈ 2 bouts):
+
+```
+specificity/detail emission += esi_gain ≈ 0.25 while alive
+```
+
+`esi_learn_null` (LOCKED, P917): the state decays to zero
+and never accumulates across sessions — performance lift,
+not training. Frozen `esi_scope:"bout-window"` — the lift
+applies only to recall specificity, never to encoding E.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -12232,6 +12472,43 @@ MemoryParams = {
 //   flag `reinstated:true`; per-char `needRate[class]` EMA
 //   stat (non-record); `encodeCount_day` daily counter;
 //   `arch_mode` mode enum. No Event schema changes.
+// v5.34 additions (retrieval-cues VIII — RC§§81–88)
+"pop_rate": 0.03, "pop_auto_mult": 2.0, "pop_seed_hl": 48,
+"pop_link_p": 0.2, "seed_half": 0.4,                 // §5.84
+"meam_gain": 0.5, "meam_invol": 0.8, "meam_pos": 0.6,
+"meam_rich": 0.25,                                  // §5.85
+"lm_gain": 0.5, "lm_mint_p": 0.6,                   // §5.86
+"cw_act_gain": 0.4, "cw_aff_gain": 0.25,
+"cw_obj_age": 0.3,                                  // §5.87
+"ref_thin": 0.5, "ref_focus_win": 3, "ref_mis_p": 0.15,
+                                                    // §5.88
+"scaf_gain": 0.35, "scaf_child_mult": 1.8,
+"scaf_repeat_pen": 0.5,                             // §5.89
+"contig_gain": 0.35, "contig_fwd": 1.6,
+"contig_lag_win": 2, "contig_age_pen": 0.4,
+"am_att": 0.6,                                      // §5.90
+"esi_gain": 0.25, "esi_thresh": 0.7,
+"esi_hl_bout": 2,                                   // §5.91
+// v5.34 locked nulls: pop_episodic_null (pops emit
+//   gist fragments only — P908); date_cue_null
+//   (`when`-only cue contributes 0 to episodic match —
+//   P910); cw_verbatim_null (word cues select, never
+//   mint — P911); ref_boost_null (pronouns add no mass —
+//   P912); esi_learn_null (induction never persists —
+//   P917).
+// v5.34 frozen: meam_scope="familiar-music" (novel songs
+//   contribute w=0 — Janata 2007); esi_scope="bout-window"
+//   (specificity lift is recall-side only).
+// v5.34 fields/state: `pop_seed` non-record token
+//   (gist_term + match-key + r, snapshot-additive);
+//   `cueMod:"music"` cue tag; `landmark:true` record flag
+//   + `transition:true` Event tag (world supplies);
+//   `cueword_class` ∈{activity,affect,person,object} on
+//   bare-word cues; `ref_type` ∈{name,desc,pronoun,zero} +
+//   `ref_focus` stack + `refError:true` emission tag;
+//   `elaborative:true` prompt tag; `esi_state` per-char
+//   non-record scalar. Event schema: `transition:true`
+//   only — additive.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -14041,6 +14318,55 @@ not resolved (DEBATED magnitude). P509/P511.
     changes; `reinstated` + shadow state + needRate are
     hidden/harness-readable like other state. Probes
     P899–P907.
+- v5.34 additions (retrieval-cues.md Part VIII §§81–88):
+  - **`pop_seed`** (§5.84): non-record encode-side token
+    {gist_term, match_key, r} decaying `pop_seed_hl`;
+    surfaces in `autopilot` as `pop:{gist_term}` fragment;
+    `pop_link_p` routes to source record.
+    `pop_episodic_null`.
+  - **`cueMod:"music"`** (§5.85): cue tag on familiar-song
+    cues; `meam_gain`/`meam_invol`/`meam_pos`/`meam_rich`,
+    all ×trait `music`; frozen `meam_scope` — novel songs
+    contribute w=0.
+  - **`landmark:true` + `lm_route`** (§5.86): `when`-only
+    cues hit locked `date_cue_null` and reroute through
+    transition-minted landmark records; dating emits
+    landmark+offset. Event schema gains `transition:true`
+    (additive — world tags moves/job bounds/relationship
+    bounds/births/deaths; `lm_mint_p`·(1+period_sal)
+    fallback mint).
+  - **`cueword_class`** (§5.87): {activity,affect,person,
+    object} pricing on bare-word cues; `cw_obj_age` era
+    pull; `cw_verbatim_null`.
+  - **`ref_type`/`ref_focus`** (§5.88): pronoun/zero cues
+    are `ref_thin`-weighted and restricted to the last
+    `ref_focus_win` referents; equal-match misresolution
+    emits `refError:true` at `ref_mis_p` with no accuracy
+    debit; `ref_boost_null`.
+  - **`elaborative:true` prompts** (§5.89): partner bout
+    gains `scaf_gain` (child knot `scaf_child_mult`,
+    `scaf_repeat_pen`); speaker production via trait
+    `elabor`. Retrieval-side only — P917 null-checks
+    record-state delta.
+  - **Temporal contiguity** (§5.90): encode-order neighbors
+    within `contig_lag_win` become zero-cost candidates at
+    `contig_w` — forward-biased, `contig_age_pen` and
+    `am_att` attenuated.
+  - **`esi_state`** (§5.91): post-`esi_thresh`-bout
+    non-record scalar adding `esi_gain` specificity for
+    `esi_hl_bout` bouts; locked `esi_learn_null`, frozen
+    `esi_scope`.
+  - **New params (§7):** 28 — pop_rate, pop_auto_mult,
+    pop_seed_hl, pop_link_p, seed_half, meam_gain,
+    meam_invol, meam_pos, meam_rich, lm_gain, lm_mint_p,
+    cw_act_gain, cw_aff_gain, cw_obj_age, ref_thin,
+    ref_focus_win, ref_mis_p, scaf_gain, scaf_child_mult,
+    scaf_repeat_pen, contig_gain, contig_fwd,
+    contig_lag_win, contig_age_pen, am_att, esi_gain,
+    esi_thresh, esi_hl_bout + 5 locked nulls + 2 frozen.
+  - All snapshot-additive, absent = legacy; `pop_seed` +
+    `esi_state` + `ref_focus` are hidden/harness-readable
+    like other non-record state. Probes P908–P917.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

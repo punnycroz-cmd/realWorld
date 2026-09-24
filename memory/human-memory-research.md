@@ -3322,3 +3322,70 @@ floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
   = CONSENSUS/established. Hazard lottery, needRate τ
   modulation, vol_loss ecology term, scalar savings shadow =
   RW hypotheses (P899–P907).
+
+## 64. v86 sources (retrieval-cues VIII — the cueless pop and the cue that isn't)
+
+- **Kvavilashvili & Mandler 2004** (*Cognitive Psychology*
+  48:47–94 — verified via DOI/abstract): "mind-popping" —
+  involuntary SEMANTIC memories; no apparent cue, automatic-
+  activity bias, priming delays of hours–days; the episodic
+  involuntary literature's cueless cousin.
+- **Janata, Tomic & Rakowski 2007** (*Memory* 15:845–860 —
+  verified): ~30% of familiar-song presentations evoke AMs;
+  positive-emotion skew, nostalgia third; both general and
+  specific AM levels present.
+- **Jakubowski & Ghosh 2021** (*Br. J. Psychol.* — verified
+  via abstract): diary study; 83% of music-evoked memories
+  rated spontaneous — higher involuntary share than food
+  cues.
+- **Belfi et al. 2022** (*Psychology of Music* — verified
+  via abstract): MEAMs are episodically richer than
+  face-evoked memories even matched on involuntariness —
+  richness is a stimulus property.
+- **El Haj, Fasotti & Allain 2012** (*Conscious. Cogn.* 21 —
+  verified): involuntary character of MEAMs; preserved in
+  aging vs word-cued AMs.
+- **Wagenaar 1986** (*Cognitive Psychology* 18:225 —
+  verified): self-diary; `when` was the only cue never
+  effective alone.
+- **Barsalou 1988** (*Psych. Rev.* 95 — verified): date cues
+  fail; autobiographical search runs through extended event
+  structures, not the calendar.
+- **Kurbat, Shevell & Rips 1998** (*Mem&Cogn* 26:1058 —
+  verified): dating is landmark- and calendar-reference-
+  point relative.
+- **Shum 1998** (*Appl. Cogn. Psychol.* 12 — verified):
+  temporal landmarks anchor AM search.
+- **Crovitz & Schiffman 1974** (*Bull. Psychon. Soc.* 4 —
+  verified): word-cue method; recall-age power decay.
+- **Rubin & Schulkind 1997** (*Mem&Cogn* 25:859 — verified):
+  cue-word lifespan distribution — the bump instrument.
+- **Robinson 1976** (*Cognitive Psychology* 8:578 —
+  verified): word-class effects — activity/affect vs object.
+- **Ariel 1990** (*Accessing Noun-Phrase Antecedents* —
+  verified): referring-expression accessibility hierarchy.
+- **Gundel, Hedberg & Zacharski 1993** (*Language* 69:274 —
+  verified): givenness hierarchy of expression forms.
+- **Fivush & Fromhoff 1988**; **Reese, Haden & Fivush 1993**
+  (*Cognitive Development* 8:403 — verified); **Nelson &
+  Fivush 2004** (*Psych. Rev.* 111 — verified review):
+  elaborative reminiscing style scaffolds children's AM.
+- **Kahana 1996** (*Mem&Cogn* 24:103 — verified): lag-CRP
+  temporal contiguity with forward asymmetry; **Howard &
+  Kahana 2002** (*J. Math. Psychol.* 46 — verified TCM);
+  **Kahana, Howard, Zaromb & Wingfield 2002** (*Psychol.
+  Aging* 17 — verified age attenuation); **Moreton & Ward
+  2010** (*QJEP* 63 — verified AM down-weight).
+- **Madore, Gaesser & Schacter 2014** (*PNAS* 111:E1981 —
+  verified): episodic specificity induction lifts subsequent
+  unrelated recall detail; **Madore & Schacter 2016**
+  (*Memory* 24 — verified orientation account); **Jing,
+  Madore & Schacter 2016** (*J. Gerontol. B* — verified
+  older-adult arm).
+- **Established vs hypothesis:** pop existence + cue
+  opacity, MEAM profile, date-cue failure, word-class order,
+  accessibility hierarchy, elaborative-scaffolding child
+  effect, lag-CRP shape + age attenuation, ESI lift =
+  CONSENSUS. Seed half-life, meam constants, adult-adult
+  scaffolding extension, am_att magnitude, esi horizon =
+  RW hypotheses (P908–P917).

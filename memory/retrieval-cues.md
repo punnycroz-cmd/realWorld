@@ -2737,3 +2737,392 @@ failure whose re-probe landed — not a delayed success.
   the sim its "it came to me later" — the single most
   human-recognizable retrieval event in the document, and it
   emerges from a budget and a flag, not a scripted timer.
+
+# PART VIII (v86, 2026-09-23) — the cueless pop, the song, the date that isn't, the word that is
+
+Eight prior parts priced the cue: its weight, its owner, its fan, its
+valence, its company, its quitting time. This part prices the residual
+cases the cue tables couldn't see — the surface with NO cue (mind pops),
+the cue modality the spec never priced (music), the cue humans famously
+can't use (calendar dates), the cue the lab uses anyway (the Galton
+word), the thinnest cue in dialogue (the pronoun), the cue a partner
+builds for you (elaborative scaffolding), the cue the LAST emission
+hands the next (temporal contiguity), and the cue a warm-up bout lends
+the cold one (specificity induction). Every section ends at the spec:
+new params, new nulls, new probes P908–P917.
+
+## 81. Mind pops — the surface with no cue
+
+The involuntary-memory stack (§5, §25) assumes a cue — Berntsen's
+diaries found identifiable cues for most involuntary episodic memories.
+**Kvavilashvili & Mandler (2004**, *Cognitive Psychology* 48:47–94 —
+verified) isolated the harder case: **involuntary SEMANTIC memories**
+("mind-popping," Mandler 1994's coinage) — a word, a name, a tune that
+arrives with NO episode, NO self-reference, and no identifiable trigger,
+most often during automatic activity (walking, washing dishes — the
+autopilot state the spec already tracks for involuntary draws). Their
+diary studies: pops are common (most respondents reported several per
+week), often delayed by hours-to-days from an unnoticed encounter with
+the content (very-long-term priming), and frequently resist a
+retrospective cue search entirely — the subject cannot say why the
+fragment surfaced. **[CONSENSUS that the phenomenon exists and is
+cue-opaque; the priming mechanism is their hypothesis, ours is a decayed
+seed. See also Berntsen 2021 *Wiley Interdiscip. Rev.* 12 for the
+involuntary/episodic boundary.]**
+
+Model consequence (new §5.84): encoding mints not only the record but a
+`pop_seed` — a non-record token carrying the gist word/name/melody and a
+match-key back to the source record, decaying on `pop_seed_hl` ≈ 48h
+(hours-to-days delay is the paper's signature). On each ambient tick in
+`autopilot` activity, a seed surfaces at
+
+```
+pop_p = pop_rate · pop_auto_mult · (seed_r / seed_r + seed_half)
+        · (1 + 0.3·open − 0.3·mindful)
+pop_rate ≈ 0.03/hr, pop_auto_mult ≈ 2.0 during automatic activities
+        (≈0.4 during focused work — K&M's activity effect)
+```
+
+The surfaced emission is a **fragment**: `pop:{gist_term}` — no verbatim
+fields, no episode link by default. With probability `pop_link_p` ≈ 0.2
+the pop routes to its source record as a weak involuntary cue (the
+"…and THAT's why I'm humming this" resolution); `pop_episodic_null`
+locks the rest: a pop never emits episode content directly. RW use:
+ambient NPCs muttering a name mid-dishes; a main character's "why am I
+thinking about apricots?" — the most human-recognizable retrieval event
+that ISN'T a memory.
+
+## 82. The song cue — music is a time machine with a bias
+
+**Janata, Tomic & Rakowski (2007**, *Memory* 15:845 — verified): ~30%
+of familiar-song presentations evoke an autobiographical memory; the
+evoked emotions skew positive (nostalgia was the third most common);
+both general and specific AM levels appear. **El Haj, Fasotti & Allain
+(2012**, *Conscious. Cogn.* 21 — verified) found MEAMs arise mostly
+involuntarily and degrade more slowly than word-cued AMs in aging.
+**Jakubowski & Ghosh (2021**, diary study — verified): 83% of
+music-evoked everyday memories were rated spontaneously retrieved, a
+higher involuntary share than food cues. **Belfi et al. (2022**,
+*Psychology of Music* — verified) report MEAMs are episodically RICHER
+(more perceptual detail) than face-evoked memories even when both are
+involuntary — the richness is a stimulus property, not a retrieval-mode
+artifact. **[CONSENSUS that music is a strong, involuntary-leaning,
+positive-biased cue; the mechanism (consolidated pairing vs arousal)
+is debated.]**
+
+Model consequence (new §5.85): `cueMod:"music"` joins the sensory cue
+class with three priced properties —
+
+```
+w_music = w_sensory · (1 + meam_gain)            meam_gain ≈ 0.5
+invol_share = meam_invol ≈ 0.8   // music cues route to the
+        involuntary draw (§5), not the search bout, unless a
+        voluntary orient is already armed
+valence_pull = meam_pos ≈ 0.6    // candidate ordering nudged
+        toward positive records at equal match — the Janata bias
+emit_detail += meam_rich ≈ 0.25  // Belfi richness: perceptual
+        fields pass the richness gate more often
+```
+
+Gate: all four terms scale by trait `music` (v5.15 trait, 0–1) — a
+low-music character treats a song as wallpaper (Janata's familiarity
+dependence: unfamiliar songs evoked almost nothing). Frozen
+`meam_scope:"familiar-music"` — novel music is no cue at all.
+
+## 83. Landmark cues — the date is dead, the transition lives
+
+**Wagenaar (1986**, *Cognitive Psychology* 18 — verified, his own
+diary): of the who/what/where/when cues, `when` was the ONLY one that
+never worked alone. **Barsalou (1988**, *Psych. Rev.* 95 — verified):
+people cannot retrieve autobiographical events from bare date cues —
+"what did you do on March 3rd?" draws a blank where "the day the pipe
+burst" retrieves instantly; retrieval runs through **extended event
+structures** (trips, jobs, relationships), not the calendar.
+**Kurbat, Shevell & Rips (1998**, *Mem&Cogn* 26 — verified): subjects
+date events by locating them relative to personal landmark events and
+calendar reference points — the landmark, not the date, is the index.
+**Shum (1998**, *Appl. Cogn. Psychol.* 12 — verified): temporal
+landmarks (transitions, firsts, holidays) anchor autobiographical
+search. **[CONSENSUS — one of the best-replicated dissociations in the
+AM literature.]**
+
+The spec already prices `when` as the weakest cue field (§7 hierarchy);
+this section makes the dissociation STRUCTURAL (new §5.86):
+
+- `date_cue_null` (LOCKED): a cue whose only content is a `when` field
+  contributes 0 to the episodic match for records past
+  `childhood cutoff` — the query reroutes to `lm_route`: nearest
+  landmark → its event cluster (§5.72) → normal match inside. A date
+  question therefore succeeds by indirection or fails honestly.
+- Transition events (moves, job starts/ends, relationship boundaries,
+  births/deaths — world tags `transition:true`, else minted at
+  `lm_mint_p` ≈ 0.6 scaled by `period_sal`) carry `landmark:true` and a
+  `lm_gain` ≈ 0.5 weight bonus when used AS cues or route entries.
+- Dating a recalled event = emit nearest landmark + offset ("a few
+  weeks after I moved"), with error growing in landmark distance —
+  Kurbat et al.'s telescoping lands on the landmark grid, not the
+  calendar.
+
+RW consequence: an NPC asked "when did you last see her?" answers "must
+have been before the lease ran out" — the landmark does the indexing the
+date can't.
+
+## 84. The cue-word probe — Galton's instrument, and its biases
+
+The oldest AM technique is a bare word. **Galton (1879**) walked his own
+associations; **Crovitz & Schiffman (1974**, *Bull. Psychon. Soc.* 4 —
+verified) formalized the word-cue method and showed the recall-age
+distribution decays as a power of retention interval — the function
+Ebbinghaus never had a cue for. **Rubin & Schulkind (1997**, *Mem&Cogn*
+25 — verified) used word cues to map the lifespan distribution (the bump
+instrument itself). **Robinson (1976**, *Cognitive Psychology* 8 —
+verified): word class matters — activity/emotion words retrieve faster
+and younger-adult memories than object words; object words pull older,
+more semanticized content. **[CONSENSUS on the instrument and the
+class effect; the mechanism (imagery value vs typicality) is debated —
+concreteness mediates (Williams, Healy & Ellis 1999).]**
+
+Model consequence (new §5.87): a bare-word cue gets a `cueword_class`
+∈{activity, affect, object, person} tag (world/dialogue supplies it,
+default `object`):
+
+```
+w_cw = {activity: 1 + cw_act_gain(≈0.4),   // verbs cue best —
+        affect:  1 + cw_aff_gain(≈0.25),    // Robinson 1976
+        person:  1.0,
+        object:  1.0}
+age_pull(object) += cw_obj_age ≈ 0.3       // object words bias the
+        sampled era older + semanticized (generic records)
+```
+
+Locked `cw_verbatim_null`: a bare word can select a record but never
+mints verbatim fields — the probe is a selector, not a source. RW use:
+the history browser's word search, a "tell me about money" prompt —
+the instrument the lab uses is now the instrument the world has.
+
+## 85. Referential poverty — the pronoun is a thin cue
+
+**Ariel (1990**, *Accessing Noun-Phrase Antecedents* — verified):
+referring expressions encode the speaker's ASSUMED accessibility of the
+referent — full names mark low assumed accessibility, pronouns high,
+zero anaphora highest. **Gundel, Hedberg & Zacharski (1993**, *Language*
+69 — verified): the givenness hierarchy ranks expression types by the
+cognitive status they presuppose. The retrieval consequence the
+literature implies but rarely measures directly: a pronoun carries
+almost no intrinsic cue content — "she" matches every woman in the
+store; resolution falls entirely on the discourse focus stack, and
+misresolution is a real, common comprehension error. **[CONSENSUS on
+the accessibility marking; the pronoun-as-thin-cue formalization is
+ours.]**
+
+Model consequence (new §5.88): dialogue tokens classed
+`ref_type` ∈{name, desc, pronoun, zero}. Cue weight multiplies by
+
+```
+ref_w = {name: 1.0, desc: 0.8, pronoun: ref_thin(≈0.5),
+         zero: ref_thin·0.6}
+```
+
+and candidate restriction falls to a `ref_focus` stack (last
+`ref_focus_win` ≈ 3 salient referents in discourse) BEFORE the memory
+match runs. When two focus-stack referents match equally, misresolution
+fires at `ref_mis_p` ≈ 0.15 and the emission carries `refError:true` —
+the character remembers the wrong person with normal confidence (a
+documented comprehension error, not a memory defect — which is why it
+needs no accuracy debit). Locked `ref_boost_null`: a pronoun can never
+add cue mass — "she" can only spend what the focus stack supplies.
+RW use: "did you tell her?" — the engine now knows *her* is a coin flip
+over the last three mentioned women, not a database join.
+
+## 86. The scaffolding cue — the partner who asks better
+
+**Fivush & Fromhoff (1988**, *J. Exp. Child Psychol.* 45 — verified)
+and **Reese, Haden & Fivush (1993**, *Cognitive Development* 8 —
+verified): mothers with a high-elaborative reminiscing style — open
+wh-questions, new information, confirmations — raise children who
+produce richer autobiographical reports, and the style effect on the
+child's recall outlasts the conversation (Nelson & Fivush 2004,
+*Psych. Rev.* 111 review — verified). **Vygotsky's** scaffolding logic
+generalizes: a good interlocutor's question IS a cue the partner's
+search couldn't build alone. **[CONSENSUS for the developmental dyad;
+adult-adult extension is our extrapolation, grounded in §41's interview
+protocol (open questions > closed).]**
+
+Model consequence (new §5.89): when a speaker's prompt is classed
+`elaborative:true` (open wh-question or statement adding novel
+information — the dialogue layer's tag; trait `elabor`, spec §5.6,
+drives production), the TARGET's search gains
+
+```
+scaf_boost = scaf_gain ≈ 0.35   // on search_budget and candidate
+        drive — the partner's question behaves like a self-generated
+        cue (§33 mechanism, social source)
+        × scaf_child_mult ≈ 1.8 for targets under ~12 — the
+          developmental knot the effect was built on
+scaf_repeat_pen ≈ 0.5           // nth repetition of the same
+        elaborative prompt decays — Reese et al.: it is the NEW
+        information that cues, not the asking
+```
+
+Distinct from §41 (the interview protocol is a fixed forensic script);
+§86 is a per-utterance, partner-dependent property of ordinary talk —
+which is why it keys off `elabor` and not a protocol flag. RW use: a
+high-`elabor` character literally makes the people around them remember
+better — the landlady who asks "what were you doing before you heard
+it?" gets real answers.
+
+## 87. Temporal contiguity — the next recall leans on the last
+
+**Kahana (1996**, *Mem&Cogn* 24 — verified) and **Howard & Kahana
+(2002**, *J. Math. Psychol.* 46 — verified): in free recall, the
+conditional-probability-of-next-item peaks for items encoded adjacent
+to the just-recalled one (lag-CRP), with a reliable **forward
+asymmetry** — forward neighbors roughly twice as likely as backward.
+**Kahana, Howard, Zaromb & Wingfield (2002**, *Psychol. Aging* 17 —
+verified): the contiguity effect shrinks with age — older adults'
+successive recalls are less temporally chained. **Moreton & Ward
+(2010**, *QJEP* 63 — verified): contiguity is much weaker in
+autobiographical recall than in list recall — event clusters (§73), not
+raw adjacency, dominate AM transitions. **[CONSENSUS for list recall;
+the AM down-weight is the honest caveat we encode.]**
+
+Model consequence (new §5.90): within a recall bout, each emitted
+record activates its encode-order neighbors (`lag ∈ ±contig_lag_win`,
+≈2 records) as zero-cost candidates:
+
+```
+contig_w = contig_gain ≈ 0.35 · contig_fwd(≈1.6 forward, 1.0 back)
+         · (1 − contig_age_pen ≈ 0.4 · ageScale)   // Kahana 2002
+         · (1 − am_att)                            // am_att ≈ 0.6
+           when the bout is autobiographical (evClust routing
+           active) — Moreton & Ward down-weight
+```
+
+Mechanically distinct from §61 iterated cuing: that section re-enters a
+retrieved FRAGMENT as a semantic cue; §87 is pure order statistics —
+the record at encode-index i±1 needs no content overlap at all. The
+pair produces the human signature: recall drifts forward through a day
+("and then… and then…") until a cluster boundary cuts the chain.
+
+## 88. The warm-up induction — specificity begets specificity
+
+**Madore, Gaesser & Schacter (2014**, *PNAS* 111 — verified): an
+**episodic specificity induction** — recalling a recent event with
+prompted episodic detail — increases the specificity of SUBSEQUENT,
+unrelated recalls. **Madore & Schacter (2016**, *Memory* 24 review —
+verified): the induction flexibly boosts episodic detail across
+remembering, imagining, and problem-solving — a retrieval ORIENTATION,
+not content transfer. **Jing, Madore & Schacter (2016**, *J. Gerontol.
+B* 71 — verified): the induction lifts detail production in older
+adults specifically — the population whose spontaneous specificity is
+lowest. **[CONSENSUS that the induction works; whether it is a
+temporary mindset or a learned strategy is debated — we model the
+temporary version, which the data supports.]**
+
+Model consequence (new §5.91): after any bout whose emission detail
+passes `esi_thresh` (≈0.7 richness gate), the character carries a
+`esi_state` — half-life `esi_hl_bout` ≈ 2 bouts — that adds
+
+```
+spec += esi_gain ≈ 0.25   // specificity/detail emission, all
+        subsequent bouts while the state is alive
+```
+
+Locked `esi_learn_null` (P917): the state decays to zero and never
+accumulates — induction is a performance lift, not training; frozen
+`esi_scope:"bout-window"`. RW use: the therapist-character's "walk me
+through it, what did you see?" genuinely sharpens the next answer —
+and an old character's detail deficit is partially recoverable in
+conversation, which is exactly the human finding.
+
+## 89. Cue hierarchy — v86 additions to the §78 table
+
+| Cue/mechanism | v86 status |
+|---|---|
+| mind pop | NEW — `pop_seed` non-record token; fragment-only emission; `pop_link_p` rare episode route; `pop_episodic_null` locked (§81) |
+| music cue | NEW — `cueMod:"music"`; involuntary-leaning (`meam_invol`), positive-biased (`meam_pos`), detail-rich (`meam_rich`); trait-`music` gated; `meam_scope` frozen (§82) |
+| landmark | NEW — `landmark:true` minted on transitions; `lm_route` replaces date matching; `date_cue_null` locked (§83) |
+| cue word | NEW — `cueword_class` pricing (activity>affect>person>object); `cw_obj_age` era pull; `cw_verbatim_null` locked (§84) |
+| referential form | NEW — `ref_type` weight ladder + `ref_focus` stack gate + `ref_mis_p` misresolution; `ref_boost_null` locked (§85) |
+| elaborative prompt | NEW — `scaf_boost` on partner search; child knot `scaf_child_mult`; `scaf_repeat_pen`; trait-`elabor` sourced (§86) |
+| temporal contiguity | NEW — encode-neighbor activation `contig_w`, forward-biased, age- and AM-attenuated (§87) |
+| specificity induction | NEW — `esi_state` post-high-detail bout; `esi_gain` temporary; `esi_learn_null` locked, `esi_scope` frozen (§88) |
+
+## 90. Validation probes P908–P917 (v86 suite)
+
+- **P908 mind pop (MUST — structure-locked):** seeds minted at encode
+  decay on `pop_seed_hl`; pops fire preferentially in `autopilot`
+  (`pop_auto_mult` arm) and emit `pop:{gist_term}` with ZERO verbatim
+  or episode fields (`pop_episodic_null` structure-checked); ≤
+  `pop_link_p` of pops route to the source record (K&M 2004).
+- **P909 MEAM (MUST — two arms):** a familiar-music cue retrieves AMs
+  with involuntary share ≥ `meam_invol`·0.9 and emitted perceptual
+  detail ≥ `meam_rich`·0.8 above matched face cues; an unfamiliar
+  (novel) song cues ≈0 (`meam_scope`, Janata familiarity arm).
+- **P910 date null (MUST — sign-locked):** "what happened on <date>?"
+  as sole cue retrieves nothing beyond chance from episodic store
+  (`date_cue_null`), while the same event via its landmark cluster
+  retrieves normally; the report phrases dating as landmark+offset
+  (Kurbat 1998), never bare calendar.
+- **P911 cue-word class (SHOULD):** activity words retrieve ≥1.2×
+  object words at matched frequency; object-word hits skew older and
+  more generic-record than activity-word hits (`cw_obj_age`,
+  Robinson 1976).
+- **P912 referential poverty (MUST):** replacing a name cue with a
+  pronoun on the same referent drops recall probability by ≥
+  (1−`ref_thin`)·0.8 UNLESS the referent is alone in `ref_focus`;
+  with two matched referents in stack, `refError:true` emissions fire
+  at `ref_mis_p`±20% (Ariel 1990).
+- **P913 scaffolding (SHOULD — dyadic):** an elaborative prompt from a
+  high-`elabor` speaker raises partner emission detail/count by ≥
+  `scaf_gain`·0.8 vs a closed prompt; the boost on child targets is ≥
+  `scaf_child_mult`·0.8× the adult boost (Reese et al. 1993); prompt
+  repetition decays per `scaf_repeat_pen`.
+- **P914 contiguity (MUST — order statistics):** within a bout,
+  next-emission records come from encode-index ±`contig_lag_win` at ≥
+  2× chance, forward ≥ `contig_fwd`·0.9 × backward; the effect
+  attenuates on high-ageScale profiles (`contig_age_pen`) and in
+  cluster-routed autobiographical bouts (`am_att`) — both arms
+  required (Kahana 1996; Kahana et al. 2002; Moreton & Ward 2010).
+- **P915 ESI (SHOULD):** after a bout with emission richness ≥
+  `esi_thresh`, the next bout's specificity rises ≥ `esi_gain`·0.8;
+  after `esi_hl_bout` bouts the lift is gone AND cumulative —
+  `esi_learn_null` structure-checked (no permanent specificity gain,
+  Madore & Schacter 2016).
+- **P916 pop aging (COULD):** pop frequency declines on old-age
+  profiles at no less than the episodic-intrusion decline rate (K&M's
+  diary age gradient was shallow — a null-ish arm, logged not
+  asserted).
+- **P917 scaffolding independence (MUST — negative):** `scaf_boost`
+  changes NO record state — the partner's memory strengthens only via
+  the normal re-encode of its own emission; a scaffolded recall that
+  is not emitted leaves the store identical (scaffolding is a
+  retrieval-side gift, not a consolidation lever).
+
+## 91. Honest limits (v86 additions)
+
+- `pop_seed` is our stand-in for K&M's very-long-term priming — the
+  48h half-life is a guess; their diaries report delays up to weeks.
+  P908 locks the *shape* (delay distribution + autopilot), not the τ.
+- `meam_invol` 0.8 comes from a diary study (Jakubowski & Ghosh 2021)
+  where "spontaneous" is self-rated — the honest number probably sits
+  between Janata's lab-share and the diary's 83%; we took the diary
+  because RW's ecology is the diary's ecology.
+- `date_cue_null` is deliberately absolute: humans DO answer date
+  questions — by landmark reconstruction, which is exactly the
+  `lm_route` reroute. If a character answers "March 3rd" fluently,
+  that's a bug, not a feature (Wagenaar's `when` never worked alone).
+- `ref_mis_p` misresolution has no accuracy debit — comprehension
+  errors are not memory errors. The risk: `refError` emissions could
+  mask genuine source confusions in probe scoring; the tag exists so
+  raters don't double-count.
+- `scaf_child_mult` rests on the mother-child dyad literature; the
+  adult-adult extension is extrapolation from §41's open-question
+  advantage, marked hypothesis in the spec.
+- `contig_w`'s `am_att` down-weight encodes Moreton & Ward's null —
+  if a future corpus shows strong AM contiguity, the attenuation, not
+  the mechanism, is the part to cut.
+- `esi_state` models the induction as a decaying orientation (Madore &
+  Schacter's "flexible orientation" reading). The alternative — a
+  learned strategy that persists — is real but unsupported by their
+  decay data; `esi_learn_null` makes the choice falsifiable (P917).

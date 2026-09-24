@@ -1124,6 +1124,14 @@ needs both.
 | arch_k / arch_exp / hazard_band | 0.1 / 1.0 / 1.1 | 1.5 / 4.0 / 3.0 | archival lottery rate/exponent/band (v5.33) |
 | need_tau_gain / need_ema_k | 0.0 / 0.02 | 0.6 / 0.3 | need-prior τ shift + EMA rate (v5.33) |
 | vol_loss / vol_norm | 0.0 / 6 | 0.4 / 30 | throughput tax + daily encode norm (v5.33) |
+| pop_rate / pop_auto_mult / pop_seed_hl / pop_link_p / seed_half | 0.0 / 0.5 / 6 / 0.0 / 0.1 | 0.15 / 4.0 / 168 / 0.6 / 0.8 | mind-pop rate, autopilot multiplier, seed half-life (h), episode-link prob, seed r-midpoint (v5.34) |
+| meam_gain / meam_invol / meam_pos / meam_rich | 0.0 / 0.3 / 0.0 / 0.0 | 1.2 / 1.0 / 1.0 / 0.6 | music-cue weight gain, involuntary share, positive pull, richness bonus — all ×trait music (v5.34) |
+| lm_gain / lm_mint_p | 0.0 / 0.0 | 1.0 / 1.0 | landmark cue/route bonus + transition-mint prob (v5.34) |
+| cw_act_gain / cw_aff_gain / cw_obj_age | 0.0 / 0.0 / 0.0 | 0.8 / 0.6 / 0.7 | cue-word class gains + object-word era pull (v5.34) |
+| ref_thin / ref_focus_win / ref_mis_p | 0.2 / 1 / 0.0 | 0.9 / 7 / 0.5 | pronoun weight multiplier, focus stack size, misresolution rate (v5.34) |
+| scaf_gain / scaf_child_mult / scaf_repeat_pen | 0.0 / 1.0 / 0.2 | 0.8 / 3.0 / 0.9 | elaborative-prompt partner boost, child knot, repeat decay (v5.34) |
+| contig_gain / contig_fwd / contig_lag_win / contig_age_pen / am_att | 0.0 / 1.0 / 1 / 0.0 / 0.0 | 0.8 / 3.0 / 5 / 0.8 / 1.0 | encode-neighbor activation, forward asymmetry, lag window, age + AM attenuation (v5.34) |
+| esi_gain / esi_thresh / esi_hl_bout | 0.0 / 0.3 / 1 | 0.6 / 0.95 / 6 | specificity-induction gain, triggering richness, bout half-life (v5.34) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4207,3 +4215,53 @@ pins**.
   `sav_recall_null`, `sav_verbatim_null`, `arch_valence_null`,
   `hazard_conf_null`, `need_mint_null`, `need_retrieve_null`
   are probe-enforced (P899–P907).
+
+## 67. v5.34 note (retrieval-cues VIII — the cueless pop and the cue that isn't)
+
+Spec v5.34; retrieval-cues.md Part VIII §§81–88. Twenty-eight
+params; **no new trait pins** — all traits used (`music`,
+`elabor`, `open`, `mindful`, `period_sal`) already exist.
+
+- **`pop_*` are pop constants.** Mind-pop RATE may differ
+  emergently (an `open`+low-`mindful` dreamer pops more; a
+  high-throughput life mints more seeds), but a bible may not
+  declare "she never gets random songs stuck in her head" by
+  zeroing `pop_rate` — the phenomenon is universal; the
+  *content* is what differs, and content comes from the
+  encode stream, not a param.
+- **`meam_*` ride trait `music`.** Pin the trait, never the
+  params — a musician character gets high `music` in the
+  bible and the four MEAM terms follow. `meam_scope` is
+  frozen: familiarity is supplied by the world (the jukebox
+  either knows the song or doesn't).
+- **`lm_*` are ecology-shaped.** `period_sal` (v5.19 trait)
+  already moves `lm_mint_p`; a peripatetic character accrues
+  more transition tags because the WORLD supplies more
+  transitions. Do not pin `lm_gain` on a "rooted" bible —
+  landmark value is structural.
+- **`ref_*` are competence-adjacent but pop-level.**
+  Misresolution is a comprehension error, not a memory
+  defect — `ref_mis_p` must NOT be pinned on a "ditsy"
+  profile (the error needs no accuracy debit; everyone does
+  it). What may vary is `ref_focus_win` via `wmc` — that's
+  already the working-memory loading's job, so leave the
+  window flat and let wmc run upstream.
+- **`scaf_*` are partner-side.** `elabor` pins WHO produces
+  elaborative prompts (bible-visible: the reminiscing
+  grandmother archetype legitimately runs high `elabor`);
+  `scaf_gain` itself is the listener-side constant — never
+  pin "she's unscaffoldable."
+- **`contig_*`/`am_att` are order statistics.** Age
+  attenuation is already in `contig_age_pen` (Kahana 2002);
+  the AM down-weight (`am_att`, Moreton & Ward) is
+  population physics. No pins.
+- **`esi_*` are warm-up constants.** The induction lift is
+  real for every profile and matters most where spontaneous
+  specificity is lowest (old-age profiles benefit most in
+  absolute terms via the same `esi_gain` — do not boost it
+  further; Jing et al. 2016's lift is on the standard
+  constant).
+- **Never pin:** locked nulls `pop_episodic_null`,
+  `date_cue_null`, `cw_verbatim_null`, `ref_boost_null`,
+  `esi_learn_null` are probe-enforced (P908–P917); frozen
+  `meam_scope`, `esi_scope`.

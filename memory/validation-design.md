@@ -8414,3 +8414,106 @@ MUST; P903, P904, P905, P906 SHOULD.
   CONSENSUS/established; hazard-as-mechanism, per-class τ
   shift, vol_loss magnitude, savings-as-scalar-shadow are
   RW modeling hypotheses, probe-gated P899–P907.
+
+## 176. v86 suite (P908–P917) — retrieval-cues VIII
+
+Full prose specs in retrieval-cues.md §90. Harness signatures:
+
+- **P908 mind pop (MUST, structure):** encode → `pop_seed`
+  minted; seeds decay `pop_seed_hl`; pops cluster in
+  `autopilot` (pop_auto_mult arm, ≥1.5× focused-rate);
+  emissions are `pop:{gist_term}` with zero verbatim fields
+  (`pop_episodic_null` structure-checked); ≤pop_link_p
+  episode routes.
+- **P909 MEAM (MUST, two arms):** familiar-song cue —
+  involuntary share ≥0.72 (`meam_invol`·0.9), perceptual
+  detail +meam_rich·0.8 over matched face cues; novel song
+  → w=0 (`meam_scope` structure-check).
+- **P910 date null (MUST, sign):** `when`-only cue → chance
+  episodic recall; same event via `lm_route` landmark →
+  normal recall; emitted datings are landmark+offset form,
+  never bare-calendar (string-level check on reports).
+- **P911 cue-word class (SHOULD):** activity words ≥1.2×
+  object words; object hits older era + higher
+  generic-record share (`cw_obj_age`); `cw_verbatim_null`
+  structure-checked.
+- **P912 referential poverty (MUST):** name→pronoun swap
+  drops recall ≥(1−ref_thin)·0.8 unless referent alone in
+  `ref_focus`; dual-referent stacks emit `refError:true` at
+  ref_mis_p±20%; refError carries no accuracy debit
+  (field-check).
+- **P913 scaffolding (SHOULD, dyadic):** elaborative prompt
+  raises partner detail ≥scaf_gain·0.8 vs closed prompt;
+  child-target boost ≥1.44× adult (scaf_child_mult·0.8);
+  repeat prompts decay scaf_repeat_pen.
+- **P914 contiguity (MUST, order):** next-emission lag ∈
+  ±contig_lag_win at ≥2× chance; fwd/bwd ratio ≥
+  contig_fwd·0.9; attenuation on high-ageScale AND on
+  evClust-routed bouts — both arms.
+- **P915 ESI (SHOULD):** post-esi_thresh bout → next-bout
+  specificity +esi_gain·0.8; lift gone after esi_hl_bout;
+  no cumulative gain across sessions (esi_learn_null).
+- **P916 pop aging (COULD, null-ish):** old-age pop rate
+  declines ≥ episodic-intrusion decline rate; logged not
+  asserted (K&M age gradient shallow).
+- **P917 scaffolding independence (MUST, negative):**
+  scaffolded-vs-control target stores identical when the
+  scaffolded recall is not emitted (no record-state delta
+  from the partner's prompt).
+
+Registry: P1–P917. v86 suite: P908, P909, P910, P912, P914,
+P917 MUST; P911, P913, P915 SHOULD; P916 COULD.
+
+## 177. Sources verified this version (P908–P917 backing)
+
+- **Mind pops:** Kvavilashvili & Mandler 2004 (*Cognitive
+  Psychology* 48:47–94 — verified via DOI + abstract:
+  cue-opaque semantic pops, automatic-activity bias,
+  hours-to-days priming delay); Mandler 1994 (coinage);
+  Berntsen 2021 (*WIREs Cogn. Sci.* 12 — involuntary AM
+  boundary).
+- **MEAMs:** Janata, Tomic & Rakowski 2007 (*Memory*
+  15:845–860 — verified via abstract: ~30% evoke rate,
+  positive skew, nostalgia third); Jakubowski & Ghosh 2021
+  (*BJOP* — verified: 83% spontaneous); Belfi, Bai et al.
+  2022 (*Psychology of Music* — verified: episodic richness
+  vs face cues); El Haj, Fasotti & Allain 2012 (*Conscious.
+  Cogn.* 21 — verified).
+- **Landmarks/dates:** Wagenaar 1986 (*Cognitive
+  Psychology* 18:225 — verified `when` failure); Barsalou
+  1988 (*Psych. Rev.* 95 — verified); Kurbat, Shevell &
+  Rips 1998 (*Mem&Cogn* 26:1058 — verified landmark
+  reference-point dating); Shum 1998 (*Appl. Cogn.
+  Psychol.* 12 — verified).
+- **Cue words:** Crovitz & Schiffman 1974 (*Bull. Psychon.
+  Soc.* 4:517 — verified); Galton 1879; Rubin & Schulkind
+  1997 (*Mem&Cogn* 25:859 — verified); Robinson 1976
+  (*Cognitive Psychology* 8:578 — verified word-class
+  effect); Williams, Healy & Ellis 1999 (concreteness
+  mediation).
+- **Referential form:** Ariel 1990 (*Accessing Noun-Phrase
+  Antecedents*, Routledge — verified accessibility
+  hierarchy); Gundel, Hedberg & Zacharski 1993 (*Language*
+  69:274 — verified givenness hierarchy).
+- **Scaffolding:** Fivush & Fromhoff 1988 (*J. Exp. Child
+  Psychol.* 45 — verified); Reese, Haden & Fivush 1993
+  (*Cognitive Development* 8:403 — verified); Nelson &
+  Fivush 2004 (*Psych. Rev.* 111 — verified review).
+- **Contiguity:** Kahana 1996 (*Mem&Cogn* 24:103 —
+  verified lag-CRP + forward asymmetry); Howard & Kahana
+  2002 (*J. Math. Psychol.* 46:269 — verified TCM);
+  Kahana, Howard, Zaromb & Wingfield 2002 (*Psychol.
+  Aging* 17:125 — verified age attenuation); Moreton &
+  Ward 2010 (*QJEP* 63 — verified AM down-weight).
+- **ESI:** Madore, Gaesser & Schacter 2014 (*PNAS*
+  111:E1981 — verified); Madore & Schacter 2016 (*Memory*
+  24:150 — verified review); Jing, Madore & Schacter 2016
+  (*J. Gerontol. B* 71 — verified aging arm).
+- **Established vs hypothesis:** cue-opacity of mind pops,
+  MEAM involuntary/positive/rich profile, date-cue failure,
+  word-class ordering, accessibility hierarchy, maternal
+  elaboration, lag-CRP + forward asymmetry + age
+  attenuation, ESI lift are CONSENSUS/established;
+  pop_seed half-life, meam constants, adult-adult
+  scaffolding, `am_att` magnitude, esi decay horizon are RW
+  modeling hypotheses, probe-gated P908–P917.
