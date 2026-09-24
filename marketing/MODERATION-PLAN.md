@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v103 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v118 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -18,7 +18,14 @@ request seam + receipts, world-v63's screened `goes_by` + never-billed
 application queue, world-v64's flag roster + canonical `mod_decision`
 record, world-v67's age-band contract, world-v69's co-star ask classes +
 blackout floor, and game-v12's canonical write verb + spectator handles —
-new §2.7, §4 +4 rows, §6 +2 rows, §7 +3 rows, §8/§9 re-struck.)
+new §2.7, §4 +4 rows, §6 +2 rows, §7 +3 rows, §8/§9 re-struck; v118:
+aligned to world-v78's Mod Console v4 second-eyes layer (review locks,
+enforced different-reviewer appeals, handoff notes, per-reviewer
+stats), world-v80's offscreen doctrine, world-v81's admin-transparency
++ coexistence onboarding beats, world-v82's file-only lease layer,
+game-v13's econ feed fence, and the FIXED C1–C8 possession-ban UI hole
+(art-v57 rebuild) — §2.0, §2.2, §4 +3 rows, §6 +1 row, §7 +3 rows,
+§8/§9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -269,6 +276,71 @@ Delivered since v88 (world-v60/v61/v63/v64/v67/v69, game-v12):
   kind through the same screened pipeline; it files at the Counter, never
   on the wire itself (world-v61's gate).
 
+Delivered since v103 (world-v78/v80/v81/v82, game-v13, art-v57):
+
+- **`world/mod-console.html` v4 + `moderation.json` v78 (the second-eyes
+  layer)** — the review queue is now multi-reviewer-safe:
+  - **Review locks** (`moderation.json.review_locks`): reviewers claim an
+    item (`claimed_by`/`claimed_at`), `decide()` auto-claims unclaimed
+    items and **refuses foreign claims** — two reviewers can never
+    double-decide one request. Locks are short-lived queue locks keyed
+    to reviewer SSO, release on decide/release/reviewer-offline, and
+    never touch the request's own expiry/refund clock.
+  - **Different-reviewer appeals are enforced, not advisory.** Appeal
+    decisions require `orig_reviewer` identity at merge — the console
+    refuses same-reviewer appeals outright. §5's 72 h/different-reviewer
+    promise is now code, not convention; the appeal workspace shows the
+    original-decision card next to the appeal.
+  - **Handoff notes** (`handoff_notes`): internal-only notes per request
+    — a reviewer's scratchpad that is contractually never player-facing
+    or feed-facing. Moderation relevance: private deliberation gets a
+    sanctioned channel instead of side-channel DMs that would leak into
+    public copy.
+  - **Per-reviewer stats** (`reviewer_stats`): the shift report gains
+    `by_reviewer` counts — reviewer drift (§6 appeal-reversal metric)
+    is now attributable per person, not just aggregate.
+  - Headless smoke `devtools/smoke_mod_v78.js` 17/17; corpus still
+    94/94 green; `screen.js` engine unchanged.
+- **`world/drama.json` v5 `offscreen_doctrine` (world-v80)** — the
+  dramaturgy registry declares **viewership is never a pressure input**:
+  unwatched brinks still exhaust, no prime-time steering, characters
+  never feel watched. Moderation relevance is copy, not code: the
+  strongest anti-surveillance line we can publish (§7) is now backed by
+  a contractual world-side rule, not just our say-so.
+- **`world/onboarding.html` v6 + `onboarding.json` v81 (world-v81)** —
+  two new moderation-relevant lessons: **beat 8 admin transparency**
+  (a scripted admin event with a `feed-admin` anchor teaches new players
+  that admin actions are feed-public and compensated — §2.4 item 7 made
+  pedagogical) and **stage S4f compatible-coexistence** (a scripted
+  co-ask teaches that compatible requests share the world instead of
+  queuing). Surge disclosure lands on S4c — players see the ×1.5–×2.5
+  contested-resource range before they file, not after. The never-list
+  grew +5; the scripted co-ask is demo-only (at merge a real
+  spectator's compatible request surfaces naturally).
+- **`world/lease.html` v5 + `leases.json` v82 (world-v82)** — entry
+  notices (≥24 h, stated reason), sale-with-tenant carryover, renewals,
+  returned payments, guarantor release: **all file-only**. Feed
+  vocabulary unchanged — `Sold —` already existed. Moderation
+  relevance: the landlord layer's most sensitive actions (entering a
+  tenant's home, selling the building) deliberately produce *no* feed
+  spectacle — a designed privacy boundary our copy can quote.
+- **`41_game_systems_economy.js` + `econ` feed category (game-v13)** —
+  the money layer shipped with a hard fence: `gsEconTick/Books/Arrears/
+  Payroll/Stub/Audit` are **owner-side, INTERNAL — never wired to
+  spectator surfaces**, and on the wire **payday is the only public
+  econ beat**. Moderation relevance: spectator-visible money events are
+  a closed category — a feed can't leak a tenant's arrears because the
+  category never carries them.
+- **C1–C8 possession-ban UI hole — FIXED (art-v57 rebuild).** The
+  `production-feedback` item resolved: root cause was a *stale build*
+  (hub bundled at art v51), not missing code — the v54 realignment had
+  already removed the button and made the handler a hard no-op under
+  SF_MODE. The rebuilt `production/hub.html` hides the control
+  entirely, badges read MAIN CAST/RESIDENT, and a new sf-harness
+  assertion clicks the hidden control programmatically on a main and an
+  ambient and asserts the ban holds. §8's day-0 launch blocker is now a
+  regression check, not a blocker.
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -330,7 +402,12 @@ shopping list is now mostly built by world-v8:
    (trim only, never expand, unused credits refund) / deny / escalate-legal.
    Note: the v13 "deny-no-refund" option is GONE from the shipped contract —
    every deny refunds; repeat abuse is handled by account flags (§2.4a), not
-   by keeping money.
+   by keeping money. world-v78 hardened the lane mechanics for a real
+   multi-reviewer shift: claim/release locks (`moderation.json
+   .review_locks`) mean `decide()` auto-claims unclaimed items and
+   refuses foreign claims, and same-reviewer appeals are refused
+   outright — the different-reviewer rule in §5 is enforced, not
+   advisory.
 2. **Context panel — DELIVERED.** Player card (history, deny count,
    same-target count, flags, tier) + character card built from the reviewer
    whitelist — the SAME schema as possession briefings (`name, age, job,
@@ -355,9 +432,12 @@ shopping list is now mostly built by world-v8:
    *recommends* — it never executes a ban itself.
 
 Still PENDING (game-systems plumbing at merge): the live queue data model,
-classifier wiring into `41_game_systems_requests.js`, SLA timers, and
+classifier wiring into `41_game_systems_requests.js`, SLA timers,
 `mod_decision` ledger writes (record shape now fixed by world-v64's
-`ledger_records` — no schema invention left on the game side). Delivered since v28: the feed display filter
+`ledger_records` — no schema invention left on the game side), and the
+v78 queue mechanics — `review_locks` claim/release and `orig_reviewer`
+enforcement on appeals (both contractual in `moderation.json`, honored
+by the console demo). Delivered since v28: the feed display filter
 (§2.3) and admin-compensation ledgering (`compensated_cr` on
 `gsAdminRevoke`, game-v6); since v43: the player-facing appeal path
 (world-v32), request permalinks + mention/sponsor attribution chips
@@ -455,7 +535,10 @@ Decay: −1 per clean 30 days. Rules: flags are never shown publicly, never
 monetized around, never appear on the feed. (world-v64 delivered the
 reviewer-facing side: the flag roster panel renders live scores, and the
 owner docket recommends score-≥9 accounts to the owner — it never executes
-on its own.) The marketing-relevant property:
+on its own. world-v78 added per-reviewer shift stats
+(`reviewer_stats.by_reviewer`) and internal-only `handoff_notes` —
+deliberation has a sanctioned private channel, contractually never
+player-facing or feed-facing.) The marketing-relevant property:
 **repeat grief costs the griefer privileges, not refunds** — a cleaner story
 than "we keep your money," and it removes the worst possible headline
 ("game fines players for denied requests").
@@ -599,6 +682,9 @@ not policy discretion.
 | Feed text-filter bypass | Profanity/PII renders on public feed | Option-A redact retroactively if supported; else owner hide; fix filter | Yes |
 | Coordinated raid on Discord | Mass join + spam | Verification gate (pre-approved addition), timeouts, recap honesty next post | No |
 | Press asks "can players do anything horrible?" | Interview question | Answer with the pipeline: screened intent, human review, attribution, hard caps — pitch is transparency, not promises | Prepared quote in PRESS-OUTREACH.md |
+| Two reviewers collide on one queue item | Second reviewer can't decide a claimed item | Working as designed — `review_locks` (world-v78): claims are short-lived SSO-keyed locks; `decide()` auto-claims unclaimed items and refuses foreign claims; locks release on decide/release/offline and never touch the request's refund clock. Wait, or hand off via `handoff_notes` | No |
+| Appeal lands on the original reviewer's desk | Console refuses the appeal decision | Working as designed — `orig_reviewer` is enforced at merge (world-v78); §5's different-reviewer rule is code, not convention. Reassign to a different reviewer; never override the refusal | No |
+| Payday shows on the wire; member asks "why is money public?" | Feed `econ` line confuses a watcher | Working as designed — payday is the ONLY public econ beat (game-v13); rents, arrears, deposits, lease actions are file-only by contract. Point to the category rule, never enumerate a tenant's finances | No |
 | Member files/wants a "report" on a character | "How do I report what she did to my tenant?" | Not a moderation case — the in-world channel is the dispute ladder (world-v59): aside → named ask → third ear → table → filing, all character-run. Mods point at the world and stop; never open a ticket | No |
 | Dispute feed line misread as a mod notice | "a housing dispute filed — 9457 Guerrero St" read as a strike against a player | Explain the door-not-name rule: the address is the whole public record by design; it's world paper, not a moderation action; nobody may attach names to it — doing so in community spaces trips rule 2 | No |
 | Pre-flight check "rejected my wording" | Player ran the free check, got a would-deny verdict | Working as designed — the check is the same classifier a reviewer runs; rephrase and re-check for free, no credits moved and nothing was filed. Never tell the player which rule tripped beyond the shown code | No |
@@ -654,6 +740,7 @@ not policy discretion.
 | Costar decline rate | feed `— resolved · declined` lines (game-v9) | exists, low; a ~0% rate means declines aren't reaching the feed, ~100% means pricing/scoping is off |
 | Modified-offer decline rate | offer-card accept/decline counts (world-v46 contract) | some declines are healthy — proof trims are real offers; a ~0% decline rate means trims are too timid to notice |
 | Boundary-confusion rate | mod tickets/DMs asking to "report" a character vs. feed dispute lines (`a housing dispute filed — <addr>`) | low; a rising ticket rate means public copy blurs the §2.6 boundary — fix copy, never open the ticket |
+| Per-reviewer decision mix | shift report `by_reviewer` counts (world-v78 `reviewer_stats`) | reviewers' approve/deny/trim mixes stay within shouting distance of each other; one reviewer diverging is drift or training debt — retrain, never publicly name |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -691,6 +778,9 @@ the counters.
 | "Watching is identical for every age band — the paid stages are gated, and under-13s are redirected out of them" | "Family-friendly" / "safe for kids" framing — the policy is eligibility gates, not a content rating we haven't earned |
 | "Co-star requests are small by design — be present, hold space, walk with, carry an item — and the character can still say no" | Implying co-star is open-ended puppeteering — the four-class taxonomy is closed, and a decline resolves with half refund |
 | "Your spectator handle is checked before it's set — no cast, neighbor, or real-person names" | "Handles are moderated by hand" — `gsHandleCheck` is code, like `gsHireNameCheck` |
+| "Appeals go to a different reviewer — the console won't let the same person decide twice" | "Appeals are always reversed if the first reviewer was wrong" — enforcement is procedural, outcomes still differ per case |
+| "The world doesn't perform for you — viewership is never an input to the drama" | "Characters can't tell you're watching" as a mechanics claim — they can't be steered by an audience, but copy must not promise perception rules the design doesn't state |
+| "Your rent, deposit, and lease are private — the only money event on the public feed is payday" | "Nothing financial is ever public" — payday is the designed public beat; the fence is category-level, not absolute |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -703,13 +793,15 @@ pages + this table update in the same commit.
   demo flip (G12). `rules.html` copy stays option-neutral — it already is.
 - **Day-0:** pin verbatim rules in Discord; verify `#mod-log` exists;
   confirm canned responses posted to mod channel; run `gsWireAudit()` once
-  on live data and record `{ok:true}` in the rehearsal log. **Launch
-  blocker:** verify the production shell exposes no possession affordance
-  on C1–C8 — the OPEN `production-feedback` item found the "Take Control"
-  button bypassing the mains ban and the "Controlled" badge mislabeling
-  AI-driven cast. Until that lands, no copy quoting "the 8 mains can't be
-  possessed" may run — the claim is true of the rules and must be true of
-  the build.
+  on live data and record `{ok:true}` in the rehearsal log. **Regression
+  check (was a launch blocker, FIXED at art-v57):** the "Take Control"
+  bypass is resolved — the rebuilt `production/hub.html` hides the
+  control under SF_MODE, badges read MAIN CAST/RESIDENT, and an
+  sf-harness assertion clicks the hidden button programmatically on a
+  main and an ambient asserting `isNPC`/`controlledPawnIdx` never move.
+  Root cause was a stale bundle, not missing code — so day-0 keeps one
+  cheap check: confirm the launch build's hub is a post-v57 bundle, then
+  the possession-ban copy is cleared to run verbatim.
 - **Day-7:** review queue health + denial-rate first look; confirm the
   recap can quote aggregate moderation stats.
 - **Day-30:** publish first transparency report
@@ -769,11 +861,21 @@ pages + this table update in the same commit.
   `ledger_records` shape. Write verb is `gsSubmitRequest` (game-v12);
   the world-side `live_seam.never` doc still names `gsRequestSubmit` —
   flagged by the game track for world to align, not a code defect.
-- Possession-ban UI hole — OPEN `production-feedback` item: the spectator
-  shell's "Take Control" button is unguarded against C1–C8 and the
-  "Controlled" badge mislabels AI-driven mains. Production-blocking fix
-  owned by the art/UI realignment brief; marketing treats it as a launch
-  gate (§8 day-0) since our headline copy asserts the ban.
+- ~~Possession-ban UI hole~~ — FIXED (`production-feedback` resolved):
+  stale-bundle root cause; art-v57 rebuilt `production/hub.html` with
+  the control hidden, badges corrected, and a harness assertion that
+  the ban holds even against a programmatic click on the hidden
+  control. §8 day-0 downgraded to a regression check.
+- Review-queue merge contract — `moderation.json.review_locks`
+  (world-v78): claims are SSO-keyed, short-lived, auto-claimed by
+  `decide()`, and never touch the request's expiry/refund clock;
+  `orig_reviewer` identity is required on appeal decisions. At merge
+  the game-side queue must honor both — no schema invention needed, the
+  blocks are already contractual.
+- Economy feed fence — game-v13's `econ` category makes payday the only
+  public money beat and marks `gsEcon*` owner-side INTERNAL. At merge,
+  no spectator surface may wire `gsEconTick/Books/Arrears/Payroll/Stub/
+  Audit` — same class of gate as world-v61's no-buy-verb wire rule.
 - Age-band merge — `onboarding.json.age_band` bands exist in the world
   contract (v67); at merge the band must come from the account record,
   not per-session self-pick (world's own merge note). Marketing's
