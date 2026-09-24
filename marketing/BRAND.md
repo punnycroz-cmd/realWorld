@@ -141,7 +141,7 @@ experiment):
 | A neighborhood that never stops performing. | Primary alt | Store tagline field (44 chars, fits everything) |
 | Watch free. Pay to reach in. | **Punchy/short** | Square key art, social banners, trailer end card |
 | The Truman Show you can visit. | Descriptive | FAQ, press one-pager — always in quotes; it's an analogy, not a title |
-| They know they're AI. The rest is up to them. | **Vision-era** | The becoming-AI tagline (§1a). Approved for key art, hero support, and press once production-2 ships; hold on public pages until then |
+| They know they're AI. The rest is up to them. | **Live** | The becoming-AI tagline (§1a). Production-2 shipped (v177, `1980949`) — approved for public pages, key art, hero support, and press; first public use: devlog 18 |
 
 Rules: sentence case, period included. Never append "!" — the brand is calm,
 not hyped. Never pair a tagline with a claim we can't ship ("possess anyone",
