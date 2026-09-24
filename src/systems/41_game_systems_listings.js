@@ -496,6 +496,10 @@ function gsListingBuy(r, now){
     if(oldDeed.mortgage) oldDeed.mortgage.status = 'closed';
   }
   GS_DEEDS[key] = deed;
+  /* v17: a change of ownership rebases the parcel — real CA
+     reassessment. A unit sale carves its condo parcel off the
+     building's roll first (its own APN, its own bill). */
+  if(typeof gsAssessSale === 'function') gsAssessSale(key, price, closeDay);
   GS_DEED_LOG.push({ n: ++GS_LST_SEQ.n, id: key, scope: deed.scope,
     from: seller, to: buyer, price, day: closeDay,
     quiet: !!l.quiet, financed: !!f.fin });

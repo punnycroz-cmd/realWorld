@@ -79,8 +79,9 @@ function gsRegistryReset(){
   GS_REG.retired.length = 0; GS_REG.seq.bld = 0; GS_REG.seq.unit = 0;
   gsRegIndex();
   /* lease-lifecycle sidecar (applications, sequences) resets with the
-     registry it annotates */
+     registry it annotates; v17: so does the county's parcel map */
   if(typeof gsLeaseReset === 'function') gsLeaseReset();
+  if(typeof gsAssessorReset === 'function') gsAssessorReset();
 }
 
 /* Register a building on a street. The generated number is deterministic
@@ -413,6 +414,10 @@ function gsConvertGarage(bldId, opts){
   if(!u) return null;
   gsMintLogAdd('garage conversion: Unit ' + code, b,
              { action: 'convert', unit: u.id });
+  /* v17: new construction adds a base-year segment to the parcel (Prop
+     13's real rule — the improvement gets its own basis) */
+  if(typeof gsAssessImprove === 'function')
+    gsAssessImprove(bldId, null, null);
   return u;
 }
 /* merge two vacant units in one building into a new flat (the other
@@ -450,6 +455,8 @@ function gsRetireUnit(unitId, reason){
   gsMintLogAdd('retired unit: ' + (u.unit_code || u.id) +
     (reason ? ' — ' + reason : ''), GS_REG_BLD.get(u.bld_id),
     { action: 'retire_unit', unit: unitId });
+  /* v17: a sold door's condo parcel retires with it (APN never reused) */
+  if(typeof gsParcelRetire === 'function') gsParcelRetire(unitId);
   return true;
 }
 /* Retire a building (demolition): the number is never reused because
@@ -481,6 +488,12 @@ function gsRetireBuilding(bldId, opts){
   b.status = 'retired';
   GS_REG.retired.push(bldId);
   gsMintLogAdd('retired: ' + (opts.reason || ''), b, { action: 'retire' });
+  /* v17: the parcel map retires with the building — its APN and any
+     carved condo numbers are dead forever */
+  if(typeof gsParcelRetire === 'function'){
+    gsParcelRetire(bldId);
+    for(const uid of b.units) gsParcelRetire(uid);
+  }
   return true;
 }
 

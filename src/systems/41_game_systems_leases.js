@@ -666,6 +666,12 @@ function gsRaiseRent(unitId, newRent, opts){
     return { ok: false, reason: 'raise_too_soon', lastOn: anchor };
   if(newRent > maxRent)
     return { ok: false, reason: 'raise_over_cap', max: maxRent, cap };
+  /* v17: the county's Rent Board fee must be paid through the current
+     fiscal year — an unregistered rent-controlled unit can't take an
+     increase (the real SF rule: registration precedes the allowance) */
+  if(u && u.rent_controlled && typeof gsRentBoardCurrent === 'function' &&
+     !gsRentBoardCurrent(u.id, date))
+    return { ok: false, reason: 'rentboard_unregistered' };
   l.pendingRaise = { amt: newRent, servedOn: date,
     effectiveOn: date ? gsDateAdd(date, GS_RAISE_NOTICE_DAYS) : null };
   gsLeaseFeed('rent_raise_served', l, { from: l.monthly_rent, to: newRent,

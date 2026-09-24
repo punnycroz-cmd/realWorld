@@ -123,6 +123,13 @@ const GS_WIRE_WX_LABEL = {
   rain: 'Rain', storm: 'A storm', clear: 'Clear skies',
   fog: 'Fog', heatwave: 'A heatwave',
 };
+/* v17: the county's beats — delinquent tax lists really are published;
+   address only, never the amount (money stays off housing lines). */
+const GS_WIRE_COUNTY = {
+  tax_delinquent: 'a county tax bill went past due',
+  tax_defaulted: "the county's book shows a tax default",
+  tax_redeemed: 'a tax default cleared',
+};
 const GS_WIRE_ADMIN_LABEL = {
   revoke: 'a running request was ended',
   mint: 'an address was minted',
@@ -590,10 +597,12 @@ function gsWireFormat(evt){
     case 'cancel': {
       const admin = (evt.by === 'admin' || evt.by === 'owner');
       /* v14: a pre-window cancel is a booking coming off the calendar —
-         the wire says which kind of promise ended */
+         the wire says which kind of promise ended. v18: 'system' is the
+         body calling it — the wire names the honest ender. */
       const preWin = evt.pre_window;
       return [mk('request', sum() + (admin
           ? ' — ended by admin, player compensated'
+          : evt.by === 'system' ? ' — called short, refunded'
           : preWin ? ' — cancelled before the window, refunded'
                    : ' — cancelled, refunded'),
         { status: 'refunded', who: evt.player,
@@ -688,12 +697,33 @@ function gsWireFormat(evt){
       if(evt.action === 'end')
         return [mk('request', gsWireCharLabel(evt.char) +
           ' is back on their own two feet' +
-          (evt.endReason === 'admin_revoked' ? ' (admin handoff)' : ''),
+          (evt.endReason === 'admin_revoked' ? ' (admin handoff)'
+           : evt.endReason === 'exhausted' ? ' — the body called it' : ''),
           { status: 'player session ended', who: evt.player,
             mentions: evt.char ? [evt.char] : null })];
       if(evt.action === 'winddown')
         return [mk('request', 'handoff soon — ' + gsWireCharLabel(evt.char) +
           ' back to themselves in ~' + Math.ceil(evt.leftMin || 5) + ' min',
+          { who: evt.player, mentions: evt.char ? [evt.char] : null })];
+      /* v18: the errand beats — a purchase or a hello is a scene beat the
+         audience can see anyway; both stay attributed to the driver. The
+         venue name is a parody board name, the amount stays off-text for
+         goods (posted prices are public, the line stays light). */
+      if(evt.action === 'buy')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' picked up ' + (evt.item || 'something') +
+          (evt.venue ? ' — ' + gsWireDispName(evt.venue) : ''),
+          { who: evt.player, mentions: evt.char ? [evt.char] : null,
+            venue: gsWireVenueId(evt.venue) })];
+      if(evt.action === 'greet')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' trades a hello with ' +
+          gsWireCharLabel(evt.to || 'a neighbor'),
+          { who: evt.player,
+            mentions: [evt.char, evt.to].filter(Boolean) })];
+      if(evt.action === 'bodywarn')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' looks worn out — the body is asking for a break',
           { who: evt.player, mentions: evt.char ? [evt.char] : null })];
       if(evt.action === 'spend')
         /* the character's own dollars moving IS camera-visible (the
@@ -708,6 +738,15 @@ function gsWireFormat(evt){
 
     case 'lease':
       return gsWireLeaseLines(evt, mk);
+
+    case 'county': {
+      /* v17 the roll — only the public-record beats print (a bill
+         posting is routine paperwork, withheld like rent_paid) */
+      const cl = GS_WIRE_COUNTY[evt.action];
+      if(!cl) return [];
+      return [mk('housing', cl + ' — ' +
+        (evt.address || 'a Mission address'))];
+    }
 
     case 'econ':
       /* v13: payroll Friday is a beat the whole block feels — one

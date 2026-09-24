@@ -122,6 +122,10 @@ if(typeof gsDefineAction === 'function')
   gsDefineAction('camera', {
     scope: 'global', exclusive: false, ratePerMin: 1 / 3,
     minMin: 15, maxMin: 120, ttlMin: 30,
+    /* v18: +30 blocks at the session's own rate — requests.json sells
+       camera extends uncapped (the class cap binds the filing, not the
+       renewal); a clip wall still bounds it when the book holds the hour */
+    extendMin: 30, extendUncapped: true,
     effect: 'maintained',
     /* the director's view is always permitted — it touches nothing */
     allow: () => true,

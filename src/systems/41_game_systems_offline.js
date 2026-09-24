@@ -213,12 +213,17 @@ function gsBrainTransition(cid, from, to, atMin, tid, opts){
   const v = (typeof gsVillagerForChar === 'function')
     ? gsVillagerForChar(cid) : null;
   if(!opts.force && v && !gsSeamReady(cid)){
-    /* mid-beat — queue it; the tick drains at the seam or the deadline */
+    /* mid-beat — queue it; the tick drains at the seam or the deadline.
+       v18: the caller's doing/errands context rides the queue so a
+       deferred handoff still writes the real story */
     GS_SEAM[cid] = { to: to, tid: tid, atMin: atMin, from: from,
-                     deadlineMin: atMin + GS_SEAM_MAX_MIN };
+                     deadlineMin: atMin + GS_SEAM_MAX_MIN,
+                     doing: opts.doing || null,
+                     errands: opts.errands || null };
     return { ok: true, queued: true };
   }
-  gsBrainApply(cid, to, tid, atMin, { from: from });
+  gsBrainApply(cid, to, tid, atMin,
+    { from: from, doing: opts.doing, errands: opts.errands });
   return { ok: true, queued: false };
 }
 function gsBrainApply(cid, to, tid, atMin, o){
@@ -228,7 +233,7 @@ function gsBrainApply(cid, to, tid, atMin, o){
   /* 'thin'/'full'/'possessed' are derived — applying them is just the
      handoff note; the mode was already correct the moment presence or
      possession changed. */
-  gsHandoffWrite(cid, o.from || null, to, atMin, tid);
+  gsHandoffWrite(cid, o.from || null, to, atMin, tid, o);
 }
 
 /* ---------------- handoff notes ----------------
@@ -239,7 +244,8 @@ const GS_NOTES_ARCH = [];          // read/stale notes, capped
 const GS_NOTES_ARCH_CAP = 200;
 const GS_NOTE_STALE_MIN = 1440;    // 24h
 
-function gsHandoffWrite(cid, from, to, atMin, tid){
+function gsHandoffWrite(cid, from, to, atMin, tid, opts){
+  opts = opts || {};
   const clock = (typeof gsWireClock === 'function')
     ? gsWireClock(atMin) : { t: null, day: null };
   const v = (typeof gsVillagerForChar === 'function')
@@ -274,8 +280,13 @@ function gsHandoffWrite(cid, from, to, atMin, tid){
     char: cid, from: from || 'full', to: to,
     at_min: clock.t, at_day: clock.day || null,
     place: place,
-    doing: (v && v.state) || (blk && blk.state) || 'their day',
+    doing: opts.doing || (v && v.state) || (blk && blk.state) ||
+           'their day',
     pending: pending,
+    /* v18: a released session's errand tail — public beats only, the
+       receiving brain's honest "what just happened" */
+    errands: Array.isArray(opts.errands) ? opts.errands.slice(0, 6)
+                                         : null,
     near: near.slice(0, 6),
     mood_hint: needs && needs.rest < 0.15 ? 'tired'
              : needs && needs.hunger > 0.75 ? 'hungry' : 'fine',
@@ -711,7 +722,8 @@ function gsOffTick(nowMin){
     const s = GS_SEAM[cid];
     if(now >= s.deadlineMin || gsSeamReady(cid)){
       delete GS_SEAM[cid];
-      gsBrainApply(cid, s.to, s.tid, now, { from: s.from });
+      gsBrainApply(cid, s.to, s.tid, now,
+        { from: s.from, doing: s.doing, errands: s.errands });
     }
   }
   /* the ladder re-derives — capacity moves get answered the same pass */
