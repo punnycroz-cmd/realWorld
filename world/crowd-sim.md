@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -512,3 +512,80 @@ season, events, annual)` — `annual` resolves after `season` and
 suppresses `shade` when it matches; `postureFor(zone_kind, pair_ok)`
 draws from the palette; `idleLabel(state)` reads `labels` and is the
 only legal idle read on the wire.
+
+## 23. The company layer (v85)
+
+Until now every extra spawned solo — a sidewalk of lone particles, which
+no real block ever is. `crowd.json §group_profile` makes extras arrive in
+**social units**: `lone` (1), `duo` (2), `cluster` (3–4). A unit is one
+spawn, one edge entry, one despawn — it never splits mid-frame, never
+merges with another unit, and a unit walking a flow chain keeps its
+shape end to end.
+
+- **Mix resolution.** `mix(zone, daypart) = normalize(kind_mix[kind] ×
+  daypart_mix[daypart])` — element-wise product, renormalized. The kind
+  carries the venue's social grammar (a bar leans duo/cluster; a clinic
+  corridor leans lone); the daypart carries the hour's (commute is lone
+  business; evening is accompanied). Overnight is lone-only by
+  construction — a cluster at 3 a.m. reads wrong, so the math makes it
+  impossible.
+- **Budgets still count bodies.** A cluster is 3–4 bodies toward the
+  zone band; the +N tail counts heads, not units. The ≤3-interactive
+  cap counts a unit *once* — a family at the counter is one
+  interaction, not four.
+- **Family shape.** A cluster may roll `shape: family` (share per zone
+  kind in `family_share`): ≥1 adult-anchor silhouette plus a `stroller`
+  or `kid-backpack`. Family clusters exist only in
+  open_air/shop/cafe/civic/stand/restaurant zones, never in bars, never
+  overnight or night. **Kid-scale silhouettes never appear lone, never
+  pair with a lone adult unit, and never enter a bar.** The kid is a
+  shape in a group, never a pawn anyone could follow.
+- **Same anonymity.** Units carry the full extras exclusions — no id,
+  no ledger, no feed read, no memory encoding. Costume cohesion, not
+  identity: the linked-elbows pair is a read, not a relationship.
+
+Spawner contract addition: `groupUnit(day, zone, spawnIndex) ->
+{size, shape, gait}` — deterministic under the same hash as
+`extraLook`; the spawn draws the unit first, then the silhouettes.
+
+## 24. The counter courtesies (v85)
+
+The greeting matrix says which *named* pawns nod to each other. The
+block's warmer texture is what passes between a named ambient and the
+anonymous crowd — the cup slid across, the door held. `crowd.json
+§courtesies` declares seventeen beats, each a **condition**, never a
+dispatch: it can render only while (a) the ambient's resolved row sits
+in a listed `during` state, (b) ≥1 extra dwells within arm's reach in
+the zone, and (c) the per-ambient cooldown (15–45 min) has elapsed.
+
+The beats are gesture vocabulary — 2–6 seconds, zero dialogue, zero
+ledger. Reyes slides a cup rather than handing it; Luz offers the slice
+before the sale; Malik counts change into an open palm; Hana wraps the
+heel of the loaf a coin lower; Esther passes a newspaper section
+sideways to whoever sat down; Kofe braces the box on a hip to hold a
+door. Every beat counts as one interactive pawn toward the ≤3 cap, and
+beats are suppressed automatically wherever a claim or venue lock
+zeroes the extras budget — you cannot hold a door for a cleared room.
+
+Hard bounds, same as everywhere:
+
+- **Minors have no counter.** June and Zee appear in no beat — there is
+  no courtesy a teenager can be asked to perform for the camera.
+- **The extra stays an extra.** A courtesy creates no handle, no name,
+  no memory, no rumor witness. If someone asks "who did Reyes serve?",
+  the honest answer is the band word.
+- **No beat moves a routine.** Sam's `ctr-chord` can only fire while
+  his row already says pitch-work; it never summons him to the corner.
+
+## 25. Boundary additions (v85)
+
+- Unit mix, shapes, and courtesy ids are **internal vocabulary** — the
+  wire still says band words and scene labels. A spectator sees a
+  stroller pair, never "family cluster"; sees the cup slide, never
+  "ctr-cup".
+- Groups and courtesies change nothing about persistence: extras
+  (alone or in units) are excluded from save state, and a courtesy beat
+  writes no history — the Archive never records who held the door.
+- The `kid-backpack` silhouette is the only kid-scale vocabulary in the
+  palette and it is reachable only through `group_profile.shapes.family`.
+  No spawn path produces a lone kid.

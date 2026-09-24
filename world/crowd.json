@@ -1,7 +1,7 @@
 {
- "version": 71,
+ "version": 85,
  "updated": "2026-09-23",
- "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully').",
+ "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor).",
  "conventions": {
   "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
   "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
@@ -32,7 +32,9 @@
   "ambient_resources": "claimable sub-venue resources (v43) — a request claims the resource, not the venue; extras budget inside the resource radius → 0 for the window, staff ambient stays on routine",
   "work_zones": "v43 zones for ambient workplaces; small budgets — most of the crowd inside is staff, not extras",
   "annual_shades": "v71 calendar-window layer — resolves season → annual (suppresses day shades when active) → weather",
-  "posture_palette": "v71 dwell vocabulary — extras and idle ambients hold labeled postures instead of freezing; honest labels map is the content fix for idle-label lies"
+  "posture_palette": "v71 dwell vocabulary — extras and idle ambients hold labeled postures instead of freezing; honest labels map is the content fix for idle-label lies",
+  "group_profile": "v85 company layer — extras spawn in social units (lone/duo/cluster), resolved as normalize(kind_mix × daypart_mix); a unit is one spawn, one edge, one despawn; budgets still count bodies",
+  "courtesies": "v85 counter-courtesy layer — named ambient ↔ anonymous extra pose exchanges gated on resolved state + extra presence + cooldown; gesture only, no dialogue, no ledger"
  },
  "dayparts": [
   {
@@ -1757,7 +1759,8 @@
    "jersey-cap",
    "marigold-bag",
    "folding-chair",
-   "umbrella-up"
+   "umbrella-up",
+   "kid-backpack"
   ],
   "gaits": [
    "purposeful",
@@ -1767,7 +1770,7 @@
    "dog-paced",
    "loaded"
   ],
-  "note": "28 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face. v71 adds calendar telltales (jersey-cap, marigold-bag, folding-chair, umbrella-up) — a silhouette can hint the date, never a name."
+  "note": "29 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face. v71 adds calendar telltales (jersey-cap, marigold-bag, folding-chair, umbrella-up) — a silhouette can hint the date, never a name. v85 adds kid-backpack — kid-scale vocabulary that exists only inside family clusters under group_profile.shapes.family; it can never spawn lone, pair with a lone adult, or enter a bar or the overnight/night dayparts."
  },
  "greeting_matrix": {
   "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only",
@@ -1983,7 +1986,9 @@
   "resources": "a resource claim never touches the staff ambient's routine and never turns an ambient into a protagonist; minors have no claimable resources",
   "weather_vocab": "fog/wind/season ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees a gray morning, never 'fog_season'",
   "civic_vocab": "annual shade ids and posture ids are internal vocabulary — the wire still says band words and scene labels; a spectator sees jerseys and marigolds, never 'muertos'",
-  "postures": "postures are dwell conditions, not scripts — nobody is dispatched into one; minors never pair-posture outside the pack"
+  "postures": "postures are dwell conditions, not scripts — nobody is dispatched into one; minors never pair-posture outside the pack",
+  "groups": "a unit is costume cohesion, not identity — duos/clusters share a spawn, an edge, and a despawn, then stop existing together; kid-scale silhouettes exist only inside family clusters with an adult anchor, never lone, never in bars or overnight",
+  "courtesies": "a courtesy beat can render only while its conditions obtain — it is never dispatched; it carries gesture vocabulary only (no dialogue), the extra stays anonymous and ledgerless, and minors have no counter — June and Zee appear in no beat"
  },
  "ambient_resources": {
   "rule": "sub-venue resources a player request can claim for a declared window without locking the venue (design §11 compatible/exclusive classes still apply — a resource claim is an exclusive-class request on the resource, human-reviewed like any exclusive). The claim zeros the extras budget inside the resource radius for the window; the staff ambient keeps their routine — the venue works, the people stay background. Minors never staff or neighbor a claimable resource.",
@@ -2492,5 +2497,74 @@
    }
   ],
   "ambient_idle": "when a named ambient's resolved state is idle/sit/rest in a public zone, the renderer picks a legal posture by hash(id, daypart, zone) — honest label from labels[]; never inside 'home', never while sleeping"
+ },
+ "group_profile": {
+  "rule": "extras spawn in social units, not as lone particles — a real sidewalk is about a third accompanied. A unit is {size, shape, gait, intent}: one spawn, one edge entry, one despawn; it never splits mid-frame and never merges with another unit. Zone budgets still count bodies (a cluster is 3–4 bodies toward the band); the ≤3-interactive-pawns cap counts the unit once. Units are as anonymous as lone extras — same off-camera lifecycle, same exclusions, no feed read.",
+  "units": {
+   "lone": 1,
+   "duo": 2,
+   "cluster": [3, 4]
+  },
+  "resolution": "mix(zone, daypart) = normalize(kind_mix[kind] * daypart_mix[daypart]) — element-wise product, renormalized; a zero row falls back to the kind row alone",
+  "kind_mix": {
+   "cafe": {"lone": 0.55, "duo": 0.35, "cluster": 0.10},
+   "open_air": {"lone": 0.60, "duo": 0.28, "cluster": 0.12},
+   "bar": {"lone": 0.40, "duo": 0.35, "cluster": 0.25},
+   "shop": {"lone": 0.62, "duo": 0.30, "cluster": 0.08},
+   "stand": {"lone": 0.66, "duo": 0.28, "cluster": 0.06},
+   "restaurant": {"lone": 0.42, "duo": 0.36, "cluster": 0.22},
+   "civic": {"lone": 0.70, "duo": 0.24, "cluster": 0.06}
+  },
+  "daypart_mix": {
+   "overnight": {"lone": 1.0, "duo": 0.0, "cluster": 0.0},
+   "predawn": {"lone": 0.95, "duo": 0.05, "cluster": 0.0},
+   "commute": {"lone": 0.88, "duo": 0.11, "cluster": 0.01},
+   "rush": {"lone": 0.80, "duo": 0.16, "cluster": 0.04},
+   "midday": {"lone": 0.70, "duo": 0.24, "cluster": 0.06},
+   "lunch": {"lone": 0.60, "duo": 0.30, "cluster": 0.10},
+   "afternoon": {"lone": 0.55, "duo": 0.30, "cluster": 0.15},
+   "evening": {"lone": 0.50, "duo": 0.32, "cluster": 0.18},
+   "night": {"lone": 0.60, "duo": 0.28, "cluster": 0.12}
+  },
+  "shapes": {
+   "adults": "default — any silhouettes from appearance_palette",
+   "family": "cluster units only; requires ≥1 adult-anchor silhouette plus a stroller or kid-backpack silhouette; zone kinds open_air/shop/cafe/civic/stand/restaurant only — never bar; never overnight or night; kid-scale silhouettes never appear lone and never pair with a lone adult unit"
+  },
+  "family_share": {
+   "open_air": 0.35,
+   "civic": 0.20,
+   "shop": 0.15,
+   "cafe": 0.10,
+   "stand": 0.10,
+   "restaurant": 0.15
+  },
+  "note": "duos walk abreast and read as 'together' — the linked-elbows pair, the stroller pushed two-handed. A unit that walks a chain keeps its shape; despawn takes the whole unit at once. A silhouette may hint a family, never a name."
+ },
+ "courtesies": {
+  "rule": "the greeting matrix's downstairs neighbor — named ambient ↔ anonymous extra pose exchanges. A beat is a condition, not a dispatch: it can render only while the ambient's resolved row sits in a listed state, ≥1 extra dwells within arm's reach in the zone, and the cooldown since that ambient's last beat has elapsed. Gesture vocabulary only — 2–6 s, zero dialogue, zero ledger; the extra stays an extra (no handle, no name, no memory). Beats are suppressed automatically wherever a claim or lock zeroes the extras budget, and a beat counts as one interactive pawn toward the ≤3 cap. Minors have no counter — June and Zee appear in no beat.",
+  "shared": {
+   "dur_s": [2, 6],
+   "cooldown_min": [15, 45],
+   "cap": "counts as one interactive pawn toward the ≤3 rule"
+  },
+  "beats": [
+   {"id": "ctr-cup", "amb": "A01", "zones": ["mudhaus"], "during": ["serve"], "form": "the cup across the counter — slid, not handed; the regular's order already started"},
+   {"id": "ctr-change", "amb": "A03", "zones": ["minimart"], "during": ["serve"], "form": "change counted into the open palm, small bills first"},
+   {"id": "ctr-mango", "amb": "A07", "zones": ["fruteria"], "during": ["serve"], "form": "the slice before the sale — a taste off the knife tip"},
+   {"id": "ctr-heel", "amb": "A16", "zones": ["bakery"], "during": ["serve"], "form": "the heel of the loaf, wrapped separate, priced a coin lower"},
+   {"id": "ctr-stem", "amb": "A18", "zones": ["bloomdoom"], "during": ["serve"], "form": "a stem re-cut and paper-wrapped while they wait"},
+   {"id": "ctr-stamp", "amb": "A11", "zones": ["library"], "during": ["work"], "form": "stamp, slide, one tap on the due date"},
+   {"id": "ctr-hood", "amb": "A10", "zones": ["folsom"], "during": ["work"], "form": "rag down first, then the finger pointing under the hood"},
+   {"id": "ctr-flash", "amb": "A14", "zones": ["needlepointe", "clarion"], "during": ["work"], "form": "the flash book opened to the right page first try"},
+   {"id": "ctr-chord", "amb": "A08", "zones": ["park", "club600"], "during": ["work", "chat"], "form": "the nod that opens a set — hat forward, first chord for whoever stopped"},
+   {"id": "ctr-leash", "amb": "A02", "zones": ["park"], "during": ["walk"], "form": "the leash handed over mid-stride — a sit-stay that almost holds"},
+   {"id": "ctr-door", "amb": "A06", "zones": ["streets", "mudhaus", "elfarolote"], "during": ["carry"], "form": "the door held with the box braced on a hip"},
+   {"id": "ctr-lobby", "amb": "A15", "zones": ["streets"], "during": ["carry"], "form": "ten seconds of courier patience — the lobby door held"},
+   {"id": "ctr-tape", "amb": "A17", "zones": ["auerbach"], "during": ["work"], "form": "the tape measure lent — it comes back hooked, unasked"},
+   {"id": "ctr-outlet", "amb": "A13", "zones": ["mudhaus"], "during": ["phone"], "form": "the charger pushed across the corner table — the outlet shared"},
+   {"id": "ctr-section", "amb": "A05", "zones": ["park", "doloresperk"], "during": ["sit"], "form": "the offered section — paper passed sideways to a benchmate"},
+   {"id": "ctr-crumbs", "amb": "A19", "zones": ["park", "doloresperk"], "during": ["sit"], "form": "a pinch of crumbs spared for a stranger's bold pigeon"},
+   {"id": "ctr-stool", "amb": "A09", "zones": ["mudhaus"], "during": ["idle"], "form": "the stool yielded — scrubs buy nothing extra, the seat does the talking"}
+  ]
  }
 }

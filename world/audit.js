@@ -1619,7 +1619,55 @@ const PUB = Object.values(PT.surfaces)
       if (!jLbl[st]) add(g, 'fail', 'crowd.json', null, `posture_palette.labels missing "${st}" — no state may fall back to a lie`);
     for (const st of Object.keys(jLbl)) if (!PLB[st])
       add(g, 'fail', 'crowd.html', null, `PLABELS missing "${st}"`);
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures`;
+    /* v85: the company layer + counter courtesies — mirror + integrity */
+    const GP = CJ.group_profile || {}, GMX = pull('GMIX', '{}'), CTY = pull('COURTESY', '[]');
+    const mixOk = m => m && ['lone','duo','cluster'].every(k => typeof m[k] === 'number' && m[k] >= 0) &&
+      (m.lone + m.duo + m.cluster) > 0.999 && (m.lone + m.duo + m.cluster) < 1.001;
+    for (const [k, m] of Object.entries(GP.kind_mix || {})) {
+      if (!kinds.has(k)) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix: unknown zone kind "${k}"`);
+      if (!mixOk(m)) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix.${k}: weights don't sum to 1`);
+    }
+    for (const k of kinds)
+      if (GP.kind_mix && !GP.kind_mix[k]) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix missing kind "${k}" — every zone kind needs a social grammar`);
+    for (const [d, m] of Object.entries(GP.daypart_mix || {})) {
+      if (!dpIds.includes(d)) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix: unknown daypart "${d}"`);
+      if (!mixOk(m)) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix.${d}: weights don't sum to 1`);
+      if ((d === 'overnight' || d === 'predawn') && m.cluster > 0)
+        add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix.${d}: clusters before dawn read wrong — lone-only by construction`);
+    }
+    for (const d of dpIds)
+      if (GP.daypart_mix && !GP.daypart_mix[d]) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix missing daypart "${d}"`);
+    /* family shape: kid-scale only inside clusters, never bar/overnight/night */
+    const famKinds = Object.keys(GP.family_share || {});
+    for (const k of famKinds)
+      if (k === 'bar' || !kinds.has(k)) add(g, 'fail', 'crowd.json', null, `group_profile.family_share: illegal kind "${k}"`);
+    if (!/never bar/.test((GP.shapes || {}).family || '') || !/never.*(overnight|night)/.test((GP.shapes || {}).family || ''))
+      add(g, 'fail', 'crowd.json', null, 'group_profile.shapes.family lost the bar/overnight safeguards');
+    if (!(CJ.appearance_palette || {}).silhouettes.includes('kid-backpack'))
+      add(g, 'fail', 'crowd.json', null, 'kid-backpack missing from appearance_palette — the family shape has no kid-scale vocabulary');
+    if (JSON.stringify(GMX.kind || {}) !== JSON.stringify(GP.kind_mix || {}) ||
+        JSON.stringify(GMX.dp || {}) !== JSON.stringify(GP.daypart_mix || {}) ||
+        JSON.stringify(GMX.fam || {}) !== JSON.stringify(GP.family_share || {}))
+      add(g, 'fail', 'crowd.html', null, 'GMIX mirror drifted from group_profile');
+    /* courtesies: ids mirror, ambients real + non-minor, zones real, states legal, no meta vocab */
+    const jCty = (CJ.courtesies || {}).beats || [];
+    if (JSON.stringify(CTY.map(c => c.id).sort()) !== JSON.stringify(jCty.map(c => c.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'COURTESY ids != courtesies.beats ids');
+    for (const b of jCty) {
+      const amb = AMB.ambients.find(a => a.id === b.amb);
+      if (!amb) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: "${b.amb}" is not an ambient`);
+      if (amb && amb.minor) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: minors have no counter — ${b.amb} may not staff a beat`);
+      for (const z of b.zones || [])
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: unknown zone "${z}"`);
+      for (const st of b.during || [])
+        if (!LEGAL_ST.has(st)) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: during state "${st}" not in declared states`);
+      if (!b.form || /secret|seed|briefing|must_not_know/i.test(JSON.stringify(b)))
+        add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: missing form or meta vocabulary`);
+      const H = CTY.find(x => x.id === b.id);
+      if (H && (H.amb !== b.amb || JSON.stringify(H.z.sort()) !== JSON.stringify([...b.zones].sort())))
+        add(g, 'fail', 'crowd.html', null, `COURTESY ${b.id}: amb/zone drifted`);
+    }
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 

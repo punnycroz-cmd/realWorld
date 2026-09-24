@@ -26,6 +26,11 @@
   resolve season → annual → weather and suppress the day shades; plus
   the posture palette — the honest dwell vocabulary extras and idle
   ambients hold (the content answer to "Resting peacefully").
+  v85 adds: the company layer — extras spawn as lone/duo/cluster
+  social units (normalize(kind × daypart), family-shape safeguards,
+  kid-backpack silhouette reachable only inside family clusters); and
+  the counter courtesies — named ambient ↔ anonymous extra gesture
+  beats gated on resolved state + extra presence + cooldown.
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -129,6 +134,12 @@
     <div class="panel"><h2>Dwell postures — <span id="pvz">Mudhaus Coffee</span></h2><div id="postures"></div>
       <div class="fine">What standing-still looks like: extras inside a zone budget hold one legal posture on a 45–180s dwell timer; an idle ambient's chip reads the honest label, never a nap. Conditions, not dispatches.</div>
     </div>
+    <div class="panel"><h2>Company mix — <span id="cvz2">Mudhaus Coffee</span></h2><div id="company"></div>
+      <div class="fine">Extras arrive in social units, not as lone particles: mix = normalize(kind × daypart). A unit is one spawn, one edge, one despawn — it never splits. Family clusters (stroller / kid-backpack + adult anchor) exist only in daytime public kinds — never bars, never overnight, and kid-scale never spawns lone.</div>
+    </div>
+    <div class="panel"><h2>Counter courtesies — conditions now</h2><div id="courtesies"></div>
+      <div class="fine">Named ambient ↔ anonymous extra gesture beats — the greeting matrix's downstairs neighbor. A beat is live only while the ambient's resolved state matches, an extra dwells in reach, and the cooldown has passed. 2–6s, no dialogue, no ledger. Minors have no counter.</div>
+    </div>
     <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
       <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
     </div>
@@ -150,6 +161,8 @@
       <li><b>Fog is a depth profile,</b> not a weather binary — it thins the west edge first and burns by ~10:30. An all-day fog sends the bench parliament to Dolores Perk; nobody runs, nobody shelters.</li>
       <li><b>The calendar owns its days.</b> An annual shade (Carnaval, muertos, a home game) suppresses the day shades, never a routine — Ida still opens Bloom & Doom; the line just forms.</li>
       <li><b>Idle has an honest name.</b> Postures are dwell conditions on zone kind and pair availability — nobody is dispatched into one, and no label may imply sleep. Minors pair only within the pack.</li>
+      <li><b>Extras arrive with company.</b> Lone/duo/cluster units share one spawn and one despawn; budgets still count bodies. Kid-scale silhouettes live only inside family clusters — never lone, never bars, never overnight.</li>
+      <li><b>Courtesies are conditions.</b> A beat renders only while its ambient's state, an extra's presence, and the cooldown all hold — gesture only, no dialogue, no ledger. Minors appear in no beat.</li>
     </ul></div>
   </div>
 </main>
@@ -255,6 +268,42 @@ const POSTURES=[
   {id:"stretch-look",kinds:["open_air","civic"],pair:0,read:"stops mid-block, arches, scans"},
   {id:"read-folded",kinds:["cafe","civic","open_air"],pair:0,read:"a paper folded to one column"},
   {id:"leash-tangle",kinds:["open_air"],pair:1,read:"two dog leads braided"}];
+/* v85 mirrors: the company layer (group_profile) + the counter courtesies */
+const GMIX={
+ kind:{cafe:{lone:.55,duo:.35,cluster:.10},open_air:{lone:.6,duo:.28,cluster:.12},
+  bar:{lone:.4,duo:.35,cluster:.25},shop:{lone:.62,duo:.3,cluster:.08},
+  stand:{lone:.66,duo:.28,cluster:.06},restaurant:{lone:.42,duo:.36,cluster:.22},
+  civic:{lone:.7,duo:.24,cluster:.06}},
+ dp:{overnight:{lone:1,duo:0,cluster:0},predawn:{lone:.95,duo:.05,cluster:0},
+  commute:{lone:.88,duo:.11,cluster:.01},rush:{lone:.8,duo:.16,cluster:.04},
+  midday:{lone:.7,duo:.24,cluster:.06},lunch:{lone:.6,duo:.3,cluster:.1},
+  afternoon:{lone:.55,duo:.3,cluster:.15},evening:{lone:.5,duo:.32,cluster:.18},
+  night:{lone:.6,duo:.28,cluster:.12}},
+ fam:{open_air:.35,civic:.2,shop:.15,cafe:.1,stand:.1,restaurant:.15}};
+/* demo raw states → legal states (ambients.json vocabulary) for the during gate */
+const STMAP={serve:"serve","bake/serve":"serve",work:"work",site:"work","shop/alley":"work",
+ pitch:"work",shift:"work",walk:"walk",riding:"carry","paper run":"carry",carry:"carry",
+ bench:"sit",sit:"sit",counter:"idle",laptop:"phone",phone:"phone",rest:"rest",idle:"idle",
+ errands:"walk","park/café":"play",perimeter:"play","class":"work",laps:"run",run:"run",
+ chat:"chat",drink:"drink",corner:"chat"};
+const COURTESY=[
+ {id:"ctr-cup",amb:"A01",z:["mudhaus"],st:["serve"],form:"the cup across the counter — slid, not handed"},
+ {id:"ctr-change",amb:"A03",z:["minimart"],st:["serve"],form:"change counted into the open palm, small bills first"},
+ {id:"ctr-mango",amb:"A07",z:["fruteria"],st:["serve"],form:"the slice before the sale — a taste off the knife tip"},
+ {id:"ctr-heel",amb:"A16",z:["bakery"],st:["serve"],form:"the heel of the loaf, wrapped separate, priced lower"},
+ {id:"ctr-stem",amb:"A18",z:["bloomdoom"],st:["serve"],form:"a stem re-cut and paper-wrapped while they wait"},
+ {id:"ctr-stamp",amb:"A11",z:["library"],st:["work"],form:"stamp, slide, one tap on the due date"},
+ {id:"ctr-hood",amb:"A10",z:["folsom"],st:["work"],form:"rag down first, then the finger under the hood"},
+ {id:"ctr-flash",amb:"A14",z:["needlepointe","clarion"],st:["work"],form:"the flash book opened to the right page first try"},
+ {id:"ctr-chord",amb:"A08",z:["park","club600"],st:["work","chat"],form:"the nod that opens a set — hat forward, first chord"},
+ {id:"ctr-leash",amb:"A02",z:["park"],st:["walk"],form:"the leash handed over mid-stride — a sit-stay that almost holds"},
+ {id:"ctr-door",amb:"A06",z:["streets","mudhaus","elfarolote"],st:["carry"],form:"the door held with the box braced on a hip"},
+ {id:"ctr-lobby",amb:"A15",z:["streets"],st:["carry"],form:"ten seconds of courier patience — the lobby door held"},
+ {id:"ctr-tape",amb:"A17",z:["auerbach"],st:["work"],form:"the tape measure lent — it comes back hooked, unasked"},
+ {id:"ctr-outlet",amb:"A13",z:["mudhaus"],st:["phone"],form:"the charger pushed across the corner table"},
+ {id:"ctr-section",amb:"A05",z:["park","doloresperk"],st:["sit"],form:"the offered section — paper passed sideways"},
+ {id:"ctr-crumbs",amb:"A19",z:["park","doloresperk"],st:["sit"],form:"a pinch of crumbs spared for a stranger's bold pigeon"},
+ {id:"ctr-stool",amb:"A09",z:["mudhaus"],st:["idle"],form:"the stool yielded — the seat does the talking"}];
 const GREETS=[
   {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
@@ -499,6 +548,26 @@ function postureOf(a,z,st){
   const p=legal[hsh%legal.length];
   return` · <span title="${p.read}">holding: ${p.id}</span>`;
 }
+/* v85: company mix — normalize(kind × daypart), element-wise */
+function groupMix(kind,dp){
+  const k=GMIX.kind[kind]||{lone:1,duo:0,cluster:0},d=GMIX.dp[dp]||{lone:1,duo:0,cluster:0};
+  const p={lone:k.lone*d.lone,duo:k.duo*d.duo,cluster:k.cluster*d.cluster};
+  const t=p.lone+p.duo+p.cluster;
+  if(t<=0)return{lone:1,duo:0,cluster:0};
+  return{lone:p.lone/t,duo:p.duo/t,cluster:p.cluster/t};
+}
+/* v85: a courtesy beat is live while ambient state + zone + extra presence hold;
+   deterministic pseudo-cooldown shows the 15–45 min gate (hash of beat+halfhour) */
+function courtesyState(c){
+  const a=AMB.find(x=>x[0]===c.amb);
+  const[z,st]=ambWhere(a,S.h,S.day,S.wx);
+  const legal=STMAP[st]||st;
+  if(!c.z.includes(z)||!c.st.includes(legal))return["off",z,legal];
+  if(bandOf(z)==="closed"||Math.round(budgetMid(z,S.h,S.day,S.wx,S.shade))<1)return["off",z,legal];
+  if(S.ev==="lock"&&z==="mudhaus")return["off",z,legal];
+  let hsh=0;for(const ch of c.id+Math.floor(S.h*2))hsh=(hsh*31+ch.charCodeAt(0))>>>0;
+  return[hsh%4===0?"cooling":"live",z,legal];
+}
 function render(){
   const h=S.h,dp=daypart(h);
   const hh=Math.floor(h),mm=h%1?"30":"00";
@@ -515,6 +584,24 @@ function render(){
     const ok=p.kinds.includes(zk);
     return `<span class="mic ${ok?'':'off'}" title="${p.read}">${p.id}${p.pair?" ·2":""}</span>`;}).join("")+
     `<div class="fine">dwell 45–180s · zone kind "${zk}" · pairs need a second dweller — never dispatched</div>`;
+  /* v85 company mix: resolved lone/duo/cluster for the selected zone + unit math */
+  const gmx=groupMix(zk,dp);
+  document.getElementById("cvz2").textContent=ZONES[S.sel].label;
+  const gmid=Math.round(budgetMid(S.sel,S.h,S.day,S.wx,S.shade));
+  const avgSize=gmx.lone*1+gmx.duo*2+gmx.cluster*3.5;
+  const units=gmid>0?Math.max(1,Math.round(gmid/avgSize)):0;
+  const famOK=["open_air","shop","cafe","civic","stand","restaurant"].includes(zk)&&!["overnight","night"].includes(dp);
+  document.getElementById("company").innerHTML=
+    `<div class="flow"><span class="arr">lone ${Math.round(gmx.lone*100)}% · duo ${Math.round(gmx.duo*100)}% · cluster ${Math.round(gmx.cluster*100)}%</span>
+      <span class="n">${gmid>0?"~"+units+" units ("+gmid+" bodies)":"no budget"}</span></div>`+
+    `<div class="fine">kind "${zk}" × "${dp}"${famOK&&GMIX.fam[zk]?` · family share ${Math.round(GMIX.fam[zk]*100)}% of clusters`:" · family clusters not legal here"} — despawn takes the whole unit; the feed never reports any of this.</div>`;
+  /* v85 courtesies: every beat's condition state right now */
+  document.getElementById("courtesies").innerHTML=COURTESY.map(c=>{
+    const a=AMB.find(x=>x[0]===c.amb);
+    const[cs,cz,legal]=courtesyState(c);
+    return `<div class="scene ${cs==="live"?'live':''}"><span class="dot" style="${cs==="cooling"?"background:var(--acc)":""}"></span>
+      <b>${c.id}</b><span style="color:var(--dim);font-size:11px">${a[1]} · ${c.form}</span>
+      <span class="why">${cs==="live"?"LIVE — ":""}${cs==="cooling"?"cooldown — ":""}${ZLABEL[cz]||cz} · ${legal}</span></div>`;}).join("");
   document.getElementById("micros").innerHTML=MICROS.map(m=>
     `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
   document.getElementById("res").innerHTML=RESOURCES.map(r=>{

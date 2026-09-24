@@ -173,6 +173,11 @@ One person can wear every hat; four real testers is the intended shape.
   asks on a degraded main with locked vocabulary, the held press
   backlog and its ≤1/daypart recovery trickle, and the deterministic
   ±15-min day-hash jitter on cell edges.
+  PT76 (crowd v85) audits the company & courtesy layer — the
+  kind×daypart social-unit mix with lone-only pre-dawn hours and
+  family-cluster safeguards (kid-backpack never lone, never bars), the
+  17 counter-courtesy beats gated on state + extra presence + cooldown,
+  and the crowd gate's v85 mirror/integrity checks.
 
 ## 3. Running a session
 

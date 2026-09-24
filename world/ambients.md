@@ -51,7 +51,11 @@ Crowd choreography — who's where when, venue crowd profiles, weather and
 event modifiers, spectator-facing scenes — lives in `world/crowd-scenes.md`.
 The population model beneath it (named ambients + unnamed extras layer,
 density budgets, spawn rules, work zones, claimable resources) is
-`world/crowd-sim.md` + `world/crowd.json` (v43).
+`world/crowd-sim.md` + `world/crowd.json` (v43). v85 adds two layers there:
+`group_profile` (extras spawn as lone/duo/cluster social units; the
+`kid-backpack` silhouette is reachable only inside family clusters, never
+lone) and `courtesies` (named ambient ↔ anonymous extra gesture beats —
+the greeting matrix's downstairs neighbor; minors staff none).
 
 ## Signatures & the ambient week (v43)
 

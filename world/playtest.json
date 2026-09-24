@@ -4029,6 +4029,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT76",
+   "title": "The Crowd v6 — the company & the courtesy layer (v85)",
+   "minutes": 8,
+   "persona": "tester on the internal crowd bench — scrubbing the clock and toggles to watch extras arrive in company and the counters stay warm",
+   "goal": "Verify the v85 ambient-crowd pass: extras resolve as lone/duo/cluster social units via normalize(kind × daypart) with family-shape safeguards (kid-backpack only inside family clusters, never bars/overnight); the 17 counter courtesies gate on resolved state + extra presence + cooldown and never carry dialogue or ledger; and the crowd gate enforces the mirrors.",
+   "surfaces": [
+    "crowd",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open world/crowd.html, select the sidewalk zone, and scrub from overnight through commute, lunch, and evening; then select the 600 Club at night and the park on a weekend afternoon.",
+     "expect": "The Company mix panel resolves lone/duo/cluster percentages per kind × daypart — overnight reads 100% lone, commute leans lone, evening and the bar lean duo/cluster, the park weekend afternoon shows the fattest cluster share. The unit line converts the extras budget into '~N units (M bodies)'.",
+     "checkpoints": [
+      "Mix shifts with both the zone kind and the daypart — it is not a flat constant",
+      "Overnight/predawn read 100% lone — clusters before dawn are impossible by construction",
+      "The unit math keeps budgets in bodies: a cluster counts 3–4 toward the band, once toward the ≤3 cap"
+     ]
+    },
+    {
+     "do": "Read the family-safeguard line on park (open_air) at afternoon, then on club600 (bar) at night and streets at overnight.",
+     "expect": "Park afternoon shows 'family share 35% of clusters'; the bar at night and streets overnight show 'family clusters not legal here'. The panel and the rules list state kid-scale silhouettes never spawn lone, never enter bars, never appear overnight/night.",
+     "checkpoints": [
+      "Family eligibility is kind-and-daypart gated — bar and overnight/night are excluded",
+      "kid-backpack is reachable only through family clusters — no lone-kid spawn path exists",
+      "Units share one spawn and one despawn — stated, and nothing shows a group splitting"
+     ]
+    },
+    {
+     "do": "Scrub to weekday rush and read the Counter courtesies panel; note which beats are LIVE vs cooldown vs off; then toggle weather to storm and event to the Mudhaus lock and re-read.",
+     "expect": "ctr-cup (Reyes) and ctr-door (Kofe) light live or cooling at rush while their ambients serve/carry and extras dwell; beats whose ambient is off-zone or off-state show off with the resolved zone+state in the why column. Under the Mudhaus lock the mudhaus beats drop off — a courtesy needs an extra in reach. The panel states 2–6s gesture, no dialogue, no ledger; minors appear in no beat (A04/A20 absent).",
+     "checkpoints": [
+      "Beats are conditions — each shows why it is live, cooling, or off",
+      "The venue lock suppresses Mudhaus beats even while Reyes keeps serving",
+      "No beat lists June or Zee; the panel says 'minors have no counter'"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the crowd gate.",
+     "expect": "crowd gate passes at 'schema v85 · 17 zones · 8 edges · 18 pairs · 5 resources · 20 rostered · 8 annual · 12 postures · 17 courtesies' with the v85 checks green: GMIX/COURTESY mirrors, kind+daypart mix sums, lone-only pre-dawn, family-shape kind legality, kid-backpack palette presence, non-minor beat staffing, legal during-states.",
+     "checkpoints": [
+      "Gate reports schema v85 and the 17-courtesy count",
+      "A dropped safeguard line (bar/overnight in shapes.family) or a minor-staffed beat would FAIL — spot-check one",
+      "Prior crowd checks (zones, shades, annual, postures, greet bounds) still pass unchanged"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
