@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 27,
+  "version": 28,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -158,6 +158,13 @@
     "desk_status": {
       "doc": "a live filing parked in the naming lane resolves through gsExplainRequest instead of waiting blind — pulled on render and on 'check the desk' (pull, never poll): approved → the approval tail (the bus minted the hire; the page renders its mirror); denied → the repair bench; cancelled/expired/refunded → an honest closed line. The page still never fakes an approval on a live filing."
     }
+  },
+  "welcome_layer_v119": {
+    "doc": "v119 — the open-doors layer: bounded open invitations the block runs anyway, shown to a new hire as conditions they may walk into or walk past. The OPENS mirror is grounded in the ensemble rituals and the registries: `at` tokens must be job-board employers (JOBS mirror), `near` tokens must be 9xxx building prefixes already on the card (HOMES/PEOPLE.b), `who` must be a face on the PEOPLE mirror, `always` = park-wide (every new face gets those). opensFor() orders them work-adjacent → building-adjacent → park-wide; the display caps and hands the rest to the corkboard.",
+    "renders": ["OPEN DOORS row on the first-week step (next to FACES)", "OPEN DOORS line on the day-one keys card"],
+    "honesty": "open invitations, not plans — 'the block does these anyway; they can walk past every one; nobody's assigned to notice a new face. An open door isn't a welcome — the welcome, if it comes, is theirs to give.'",
+    "never": ["no RSVP field anywhere in the flow", "no attendance tracking or follow-up ledger", "nothing written to the registry record", "no scripted greeting — the block decides who notices a new face", "never a briefing field (the whitelist stays public profile / surface relationships / routine)"],
+    "source": "characters/ensemble.md shared-rituals table + jobs.json venues + the PEOPLE mirror — internal ritual names stay internal; only public-observable surface renders"
   },
   "multi_hire": {
     "doc": "v77 — a second hired character is a stranger to the first, stated verbatim on the review step ('<name> is on the card too — a stranger to them; they meet on the block like anyone else') and in the briefing's surface-relationships line (a stranger, not a contact). What the player knows, neither character does — the briefing whitelist is unchanged."

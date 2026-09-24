@@ -5,12 +5,32 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v8 (world v105; v7 was v91,
-  v6 was v77, v5 was v63, v4 was v49, v3 was v35, v2 was v21, wizard v1
-  was v7).
+  Character creation flow — "Join the Cast" v9 (world v119; v8 was v105,
+  v7 was v91, v6 was v77, v5 was v63, v4 was v49, v3 was v35, v2 was v21,
+  wizard v1 was v7).
   Self-contained demo: file://-safe, no network. The pipeline (screen →
   human review → charge → registry write → lease → briefing) is simulated
   locally; when __aiBridge is up the filing goes to the real request bus.
+
+  v119 changes — the welcome layer (open doors, never a welcome script):
+    - THE OPEN DOORS — a grounded OPENS mirror lists the block's bounded
+      open invitations (the stoop cafecito, the 3 p.m. counter seat, the
+      Thursday drum circle, the park cleanup, the corkboard by the
+      market door…) — things the block does anyway, sourced from the
+      ensemble rituals and the real venue/people registries. opensFor()
+      filters them by the picker's own job and door: work-adjacent first,
+      then building-adjacent, then the park-wide ones everybody gets.
+    - WHERE IT RENDERS — step 5 (the first week) gains an OPEN DOORS row
+      next to FACES, and the day-one keys card gains an OPEN DOORS line.
+      Same list both places, same honesty: "the block does these anyway —
+      they can walk past every one; nobody's assigned to notice a new
+      face." An open door is not a welcome; the welcome, if it comes, is
+      theirs to give. There is no RSVP field, no attendance tracking,
+      nothing on the registry record — conditions, never a script.
+    - THE AUDIT re-verifies the mirror: every `at` token must be a real
+      job-board employer, every `near` a real 9xxx building prefix on the
+      card, every `who` a real face on the PEOPLE mirror — the doors
+      can't drift from the block.
 
   v105 changes — the desk's answer layer (repair + second look + live status):
     - THE REPAIR BENCH — a refused filing (bus 'denied', engine deny, or a
@@ -642,6 +662,79 @@ function peopleCard(title, list, emptyTxt){
   return h+'</div>';
 }
 
+/* ================= the welcome layer (world v119) =================
+   OPEN DOORS — the block's bounded open invitations: things the block
+   does anyway that a new face can walk into or walk past. Grounded in
+   the ensemble rituals and the real registries — `at` tokens are
+   job-board employers, `near` tokens are 9xxx building prefixes on the
+   card, `who` is a face on the PEOPLE mirror, `always` means park-wide
+   (every new face gets those). The audit gate re-verifies every token
+   so the doors can't drift from the block.
+   Conditions, never a script: there is no RSVP field, no attendance
+   tracking, nothing written to the record. An open door is not a
+   welcome — the welcome, if it comes, is theirs to give. */
+var OPENS = [
+  {id:'cafecito', what:'the stoop cafecito — open office hours for whoever stops',
+   when:'mornings, 07:00–10:00', where:'the 9418 Guerrero stoop',
+   who:'Carmen Echeverría', near:['9418 Guerrero']},
+  {id:'threepm', what:'the 3 p.m. coffee — a standing seat at the counter, nobody scheduled it',
+   when:'daily at 15:00', where:'Mudhaus Coffee', who:'Tomás Herrera', at:['Mudhaus Coffee']},
+  {id:'decomp', what:'the after-shift table — hospital folks land here after evenings',
+   when:'around 19:40 on shift days', where:'Mudhaus Coffee', who:'Priya Raman',
+   at:['SF General','Mudhaus Coffee']},
+  {id:'drums', what:'the Thursday drum circle — the circle takes whoever shows up',
+   when:'Thursday evenings', where:'Dolores Park', who:'Marcus Bell', always:true},
+  {id:'poetry', what:'poetry hour at the corner tables — bring one or just listen',
+   when:'weekday afternoons', where:'Mudhaus Coffee', at:['Mudhaus Coffee']},
+  {id:'cleanup', what:'the Saturday park cleanup — gloves and bags at the gate',
+   when:'Saturday mornings', where:'Dolores Park', always:true},
+  {id:'hemming', what:'hemming drop-offs — Carmen\u2019s work, routed through the counter apron',
+   when:'counter hours', where:'Mudhaus Coffee', who:'Carmen Echeverría', at:['Mudhaus Coffee']},
+  {id:'laundro', what:'the evening machines — the slow hours are the social ones',
+   when:'evenings till close', where:'Golden Hour Laundromat', at:['Golden Hour Laundromat']},
+  {id:'benches', what:'the benches by the bridge — Esther and Ray hold court most afternoons',
+   when:'afternoons', where:'Dolores Park', who:'Esther Goldman', always:true},
+  {id:'fruitstand', what:'the fruit stand — Luz samples whatever\u2019s ripe',
+   when:'daytime', where:'Frutería Las Palmas', who:'Luz Cárdenas', always:true},
+  {id:'plancha', what:'the plancha window — the kitchen feeds the room before anyone talks',
+   when:'dinners', where:'Taqueria El Farolote', who:'Tomás Herrera',
+   at:['Taqueria El Farolote','MuleIt']},
+  {id:'hardware', what:'the hardware counter — keys cut, advice free',
+   when:'daytime', where:'Auerbach Hardware', who:'Victor Auerbach', at:['Auerbach Hardware']},
+  {id:'records', what:'the record-shop counter — word of mouth, never a posted card',
+   when:'weekends', where:'Marooned Records', at:['Marooned Records']},
+  {id:'library', what:'the return cart — the librarian knows what the block is reading',
+   when:'library hours', where:'Mission Branch Library', who:'Vera Osei', at:['Mission Branch Library']},
+  {id:'bakery', what:'the day-old rack after the lunch rush — the bakers set it aside',
+   when:'afternoons', where:'Baguette About It Bakery', who:'Hana Lindgren', at:['Baguette About It Bakery']},
+  {id:'corkboard', what:'the index-card board by the market door — rooms, favors, lost cats',
+   when:'always up', where:'Buy-Rite Market', at:['Buy-Rite Market','Buy-Rite Creamery']},
+  {id:'riders', what:'the rider bench by the taqueria — couriers trade the day\u2019s routes',
+   when:'between runs', where:'Taqueria El Farolote', at:['Flying Pannier Courier Co-op','MuleIt']}
+];
+/* opensFor: relevance-ordered doors for the picked job + door —
+   work-adjacent first, then the building, then the park-wide ones every
+   new face gets. Capped for display; the rest live on the corkboard. */
+function opensFor(j, hm){
+  var bp = hm ? bldgPrefix(hm.address) : '', emp = j && j.employer;
+  var work=[], near=[], wide=[];
+  OPENS.forEach(function(o){
+    if (o.at && emp && o.at.indexOf(emp)>=0) work.push(o);
+    else if (o.near && bp && o.near.indexOf(bp)>=0) near.push(o);
+    else if (o.always) wide.push(o);
+  });
+  return {all:work.concat(near,wide), work:work, near:near, wide:wide};
+}
+function opensLine(j, hm, cap){
+  var l = opensFor(j,hm).all, n = Math.min(cap||4, l.length);
+  var s = l.slice(0,n).map(function(o){
+    return o.what + ' <i style="color:var(--dim)">(' + o.when +
+      (o.who ? ' · ' + o.who : '') + ')</i>';
+  }).join(' · ');
+  if (l.length > n) s += ' · <i style="color:var(--dim)">+'+(l.length-n)+' more on the corkboard by the market door</i>';
+  return s;
+}
+
 /* structured look pickers — creation.json record_schema look field:
    rendering data, not text. No free text here = nothing to screen. */
 var LOOK = {
@@ -1243,7 +1336,11 @@ function render(){
           ? 'the card already has '+faces.join(', ')+' where they\u2019re landing — surface ties, not friendships yet'
           : 'nobody on the card where they\u2019re landing — a genuinely new face')+'</span>';
       })() +
+      '<span class="d">OPEN DOORS</span><span>'+opensLine(j, hm, 4)+'</span>' +
     '</div>' +
+    '<div class="note">Open invitations, not plans — the block does these anyway. ' +
+    'They can walk past every one; nobody\u2019s assigned to notice a new face. ' +
+    'An open door isn\u2019t a welcome — the welcome, if it comes, is theirs to give.</div>' +
     '<div class="note">Who they meet, what they hide, who they become — none of that is in this form. ' +
     'It happens on the feed, in front of everyone.</div>';
   } else {
@@ -1616,7 +1713,11 @@ function briefing(){
       ? 'the counter expects them '+j.shift+' at '+j.employer+' — late on day one is a story, not a fine'
       : 'no shift yet — the board posts openings daily; the runway number above is the clock')+'</span></div>' +
     '<div class="kl"><span class="k">THE WIRE</span><span>what posts: a new face on the block — '+esc(f.name)+(f.goes_by?', goes by \u201c'+esc(f.goes_by)+'\u201d':'')+' · lands '+esc(f.landing)+'</span></div>' +
-    '<div class="note" style="margin-top:6px">Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs.</div>';
+    '<div class="kl"><span class="k">OPEN DOORS</span><span>'+opensLine(j, hm, 3)+'</span></div>' +
+    '<div class="note" style="margin-top:6px">Open invitations the block runs anyway — ' +
+    'walk into one or walk past them all; nobody\u2019s assigned to notice a new face. ' +
+    'There\u2019s no RSVP to file and no attendance to keep — an open door isn\u2019t a welcome. ' +
+    'Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs.</div>';
 
   var r=$('record'); r.style.display='block';
   r.innerHTML='<h3>Registry entry — '+hidFor(created)+'</h3>' +

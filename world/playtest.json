@@ -5398,6 +5398,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT108",
+   "title": "The welcome layer v119 — open doors on the creation flow",
+   "minutes": 7,
+   "persona": "new player writing their first hire — wants to know what the block is already doing when their character lands; facilitator checking that every open door is a real, grounded invitation and that nobody's welcome is scripted",
+   "goal": "Verify the v119 open-doors layer on world/create.html: the OPENS mirror lists bounded invitations sourced from the real registries, opensFor() orders them work-adjacent → building-adjacent → park-wide, step 5 gains an OPEN DOORS row and the keys card an OPEN DOORS line — with the may-ignore honesty and nothing written to the record.",
+   "surfaces": [
+    "create",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open create.html (file://), fill a hire: any fresh name, pick 'Barista — Mudhaus Coffee' on step 3 and '9418 Guerrero St, Unit B' on step 4. Continue to step 5 (the first week) and read the OPEN DOORS row under FACES.",
+     "expect": "The row leads with work-adjacent doors (the 3 p.m. coffee, poetry hour, hemming drop-offs — Mudhaus items first), then the building's door (the stoop cafecito — 9418 Guerrero only appears when the pick lands behind that building), then the park-wide ones (drum circle, cleanup, benches, fruit stand). At most 4 render plus '+N more on the corkboard by the market door'. The note under the grid reads 'Open invitations, not plans — the block does these anyway. They can walk past every one; nobody's assigned to notice a new face. An open door isn't a welcome — the welcome, if it comes, is theirs to give.'",
+     "checkpoints": [
+      "Switch the job pick to 'Delivery rider — MuleIt' and re-read step 5: the rider bench and plancha window lead instead of the Mudhaus items — the list follows the picker's own choices, never a fixed ranking",
+      "Switch the home to 9127 Capp St: the cafecito drops off the row (it was the building's door, not a park-wide one)",
+      "'Arrives without work' still shows the park-wide doors — an unemployed hire is never doorless"
+     ]
+    },
+    {
+     "do": "Continue to step 6 and sign. Let the pipeline run to the approval tail. Read the keys card's OPEN DOORS line, then the possession briefing and the registry entry.",
+     "expect": "The keys card carries an OPEN DOORS line (3 items + corkboard tail) followed by 'no RSVP to file and no attendance to keep — an open door isn't a welcome.' The briefing still renders exactly the three whitelist fields (public profile / surface relationships / daily routine) — open doors never became a briefing field. The registry entry lists the same record_schema fields as always; nothing about invitations is written on the record.",
+     "checkpoints": [
+      "The same doors appear in step 5 and the keys card — one list, two renderings",
+      "No RSVP, accept, or decline affordance exists anywhere in the flow — conditions, never a script",
+      "The registry record carries no 'doors'/'invitations' field — the file stays whole-file-honest"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and read the creation gate.",
+     "expect": "The creation gate passes at v119: the OPENS mirror is re-verified against the registries (every at a real job-board employer, every near a 9xxx building on the card, every who a PEOPLE face, every entry carrying a reach channel), the welcome_layer_v119 contract block is present, and the honesty copy is pinned on the page.",
+     "checkpoints": [
+      "Creation gate: 0 fail — '30 board rows · 4 homes · 28 people · schema v28'",
+      "Editing an OPENS at-token to a fake employer (or a who to a name not on the card) fails the gate — the doors can't drift from the block",
+      "Harness gate: '108 scenarios · N checkpoints'; mirror gate confirms the PT108 hand-sync"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

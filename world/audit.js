@@ -3616,7 +3616,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G20 creation ============ */
 {
-  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam; v105 repair bench + second look + desk answers)');
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam; v105 repair bench + second look + desk answers; v119 open-doors welcome layer)');
   try {
     const CJ = JSONF('creation.json');
     const JJ = JSONF('jobs.json');
@@ -3629,7 +3629,8 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
                      'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
                      'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
-                     'seat_waitlist', 'multi_hire', 'hire_seam_v91', 'repair_desk_v105'])
+                     'seat_waitlist', 'multi_hire', 'hire_seam_v91', 'repair_desk_v105',
+                     'welcome_layer_v119'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -3793,6 +3794,34 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'create.html', null, 'TAKEN_NAMES.cast must list every main');
     if ((TN.faces || []).length !== AJ.ambients.length)
       add(g, 'fail', 'create.html', null, 'TAKEN_NAMES.faces must list every ambient first name');
+    /* v119 OPENS mirror — every token re-verified against the registries:
+       at → a real job-board employer (DJOBS); near → a real 9xxx building
+       prefix on the card (DHOMES addresses or a PEOPLE.b); who → a face on
+       the PEOPLE mirror. Every entry needs at least one reach channel. */
+    const om = /var OPENS = (\[[\s\S]*?\]);/.exec(html);
+    const DOPENS = om ? eval(om[1]) : [];
+    if (!om || !DOPENS.length) add(g, 'fail', 'create.html', null, 'OPENS block not found or empty');
+    const empSet = new Set(DJOBS.map(j2 => j2.employer));
+    const bldSet = new Set(DHOMES.map(h3 => h3.address.split(',')[0].match(/^(\d+\s+\w+)/)).filter(Boolean).map(m2 => m2[1]));
+    DPEOPLE.forEach(p2 => { if (p2.b) bldSet.add(p2.b); });
+    const whoSet = new Set(DPEOPLE.map(p2 => p2.n));
+    for (const o of DOPENS) {
+      if (!o.id || !o.what || !o.when || !o.where)
+        add(g, 'fail', 'create.html', null, `OPENS entry ${o.id || '?'} missing id/what/when/where`);
+      if (!o.always && !(o.at || []).length && !(o.near || []).length)
+        add(g, 'fail', 'create.html', null, `OPENS ${o.id}: no reach channel (always/at/near)`);
+      for (const e2 of o.at || [])
+        if (!empSet.has(e2)) add(g, 'fail', 'create.html', null, `OPENS ${o.id}: at "${e2}" is not a job-board employer`);
+      for (const n2 of o.near || [])
+        if (!bldSet.has(n2)) add(g, 'fail', 'create.html', null, `OPENS ${o.id}: near "${n2}" is not a 9xxx building on the card`);
+      if (o.who && !whoSet.has(o.who))
+        add(g, 'fail', 'create.html', null, `OPENS ${o.id}: who "${o.who}" is not a face on the PEOPLE mirror`);
+    }
+    if (!/opensFor/.test(html) || !/opensLine/.test(html))
+      add(g, 'fail', 'create.html', null, 'v119 opensFor/opensLine relevance fns missing');
+    const wl = CJ.welcome_layer_v119 || {};
+    if (!/walk past every one/.test(wl.honesty || '') || !/RSVP/.test(JSON.stringify(wl.never || [])))
+      add(g, 'fail', 'creation.json', null, 'welcome_layer_v119 honesty/never terms missing');
     /* honesty strings the surface MUST carry */
     const MUST = [
       [/charged on approval/i, 'bill-on-approval wording'],
@@ -3894,7 +3923,14 @@ const PUB = Object.values(PT.surfaces)
       [/FIELD_FIX/, 'v105: field→step map'],
       [/appealable/, 'v105: appeal gate fn'],
       [/secondLook/, 'v105: second-look handler'],
-      [/gsAppealRequest/, 'v105: live appeal verb']
+      [/gsAppealRequest/, 'v105: live appeal verb'],
+      [/OPEN DOORS/, 'v119: open-doors label'],
+      [/var OPENS =/, 'v119: opens mirror'],
+      [/opensFor/, 'v119: relevance fn'],
+      [/walk past every one/, 'v119: may-ignore honesty'],
+      [/assigned to notice a new face/, 'v119: no-assigned-welcome honesty'],
+      [/open door isn\\u2019t a welcome|open door isn't a welcome/, 'v119: open-door-is-not-a-welcome honesty'],
+      [/theirs to give/, 'v119: welcome-is-theirs honesty']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
