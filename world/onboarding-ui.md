@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -574,3 +574,128 @@ only,
 - Never quote a minor spend-cap figure the plan doesn't set.
 - Never treat the band answer as targeting data — it decides which card
   renders, nothing else.
+
+---
+
+## v81 — the sixth pass: the house & the other hands
+
+v11–v67 taught a stranger everything about *their own* path — watch, name,
+fund, ask, settle — and every honest "no" on it. What the journey still
+hadn't said: **the player is not the only hand on the world, and the people
+who run it are visible too.** Three additions, all transparency-first, plus
+the one piece of map a settled viewer deserves: where the arc goes from here.
+
+### 37. The house acts in the open (tour beat 8)
+
+A final coach-mark, anchored to an `admin` event in the stream
+(`feed-admin` — every demo seed set carries one):
+
+> "The people who run the block act on this same feed. Every admin action
+> lands here — attributed, and when it bumps a player's plans, compensation
+> is automatic. Nobody's hand is invisible, including ours."
+
+This is the transparency rule (design §3 — the public request feed lists
+every admin action) made legible in the tour, and it deliberately comes
+**last**: you teach the viewer their own ask is public before you show them
+the house is too. The beat's demo anchor is a seed event with a
+compensation note (`admin action — venue window reset · players
+compensated 90 cr`) — wording verbatim from `feed.json` event seeds; no new
+vocabulary invented.
+
+### 38. The other hands (S4f) — compatible coexistence, taught
+
+The queue lesson taught "wait"; nothing yet taught "together." After the
+queued ask resolves, one more optional card closes the request teachings:
+
+- A **"watch one land"** demo affordance drops a second handle's compatible
+  ask onto the feed (`marlo_v — camera director, 30 min · running`) — not
+  the player's, not queued behind theirs. The card states the rule:
+  compatible asks run **alongside** each other; nobody waits behind a
+  compatible session. That overlap *is* the multiplayer — two players, two
+  characters, one block.
+- Copy promise, verbatim: *"Your session never held anyone else's. Reach in
+  at the same time as a stranger and the block just gets busier — the feed
+  shows both, attributed to both."*
+- The card also draws the boundary honestly: exclusivity is about the
+  *resource* (the sky, a venue window), never about the player — you cannot
+  buy another player's session away, and nobody can buy yours.
+- Requires no balance and files nothing — it's a free teaching card; it
+  still sits behind the band normalizer (paid-stage context) so the
+  watching account never sees ask mechanics framed at it.
+
+### 39. Surge honesty, stated where it applies (S4c)
+
+The exclusive-ask card gains one disclosure line, verbatim-faithful to
+plan §2.2:
+
+> "If the sky ran exclusive in the last 6 h, the request form shows a surge
+> multiplier — ×1.5 to ×2.5 — **before** you pay. The price you see is the
+> price filed; nothing is added after."
+
+Quoted as a range exactly as the plan states it — no specific multiplier is
+invented for the demo. The rule that matters to a new player is the
+ordering: **disclosed upfront, never a surprise after.** The card does not
+demonstrate surge (the demo's guided ask is fixed-price); it teaches that
+the form itself is honest.
+
+### 40. The long arc, named at settle (S5 + S6)
+
+Settling in is the right place to show the map without pushing it. The S5
+card (all non-u13 bands) gains one line:
+
+> "And if watching ever turns into staying: tenants here can buy — listings
+> on the block's market board read like normal listings, priced in game
+> dollars plus a deed fee in credits — and owners can rent out a second
+> unit. That's the whole arc: tenant → owner → landlord. It's not a step of
+> setup; it's just what the block has."
+
+The S6 first-day card gains the parallel line for a new hirer:
+
+> "The listings on the market board are real places in this world — your
+> character rents like everyone, and the path from there (save, buy, one
+> day rent out a place of your own) runs entirely in game dollars plus a
+> deed fee."
+
+Both lines are **context, not funnel**: no button leads to the market, the
+market link isn't moved into the card, and the u13 settle card stays
+unchanged (no money surfaces). The arc is named because a viewer deserves
+to know the world has a depth axis — the same reason the tour names the
+Archive.
+
+### 41. Edge cases (v81 additions)
+
+|| Case | Behavior |
+||------|----------|
+|| Band unset / u13 reaches S4f | `normalizeStage()` redirects like any paid-context card — the watching account never sees ask mechanics |
+|| "Watch one land" clicked twice | idempotent — the scripted co-ask posts once; later clicks are a no-op toast |
+|| Co-ask card parked | parked like every card; the feed entry it would have added simply never posts — nothing dangles |
+|| Admin beat anchor missing at merge | audit fails — the beat teaches a real feed kind; a demo without an admin event can't carry it |
+|| Surge line vs queued discount | both quoted verbatim from plan §2.2 — surge as a range, queue as −15%; no derived figure anywhere |
+
+### 42. v81 merge notes
+
+- `storage_key` → `rw_onboard_v81` (v67/v81 states coexist harmlessly; the
+  demo reads only its own key).
+- New anchors required on the real Wire at merge: `feed-admin` (any admin
+  event in the stream) joins the v25/v53 set.
+- Feed vocabulary the demo renders: `admin action` + the compensation note
+  — already in `feed.json`/`requests.json` vocabulary; nothing invented.
+- New analytics hooks (v81): `admin_beat_seen`, `coask_seen`,
+  `surge_line_shown` — same envelope, stage + opted_out props only.
+- At merge: the scripted co-ask becomes a real spectator's compatible
+  request surfacing naturally on the feed — the demo's fixed handle stays
+  demo-only. The market-board pointer binds to `market.html`'s real link.
+
+### 43. What v81 still must never do
+
+- Never render an admin action without attribution — the house is public
+  or the promise is broken.
+- Never let a surge multiplier surface after payment, or quote a specific
+  multiplier the plan doesn't set (the range ×1.5–2.5 only).
+- Never frame coexistence as contention — no "someone else got there
+  first" framing on compatible asks; only exclusives contend, and only on
+  the resource.
+- Never present the ownership arc as a setup step or a next funnel — it's
+  named context at settle, with no button attached.
+- Never imply a player can buy out, preempt, or see inside another
+  player's session — attribution is public, interiors are not.

@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v5)</title>
+<title>Real World — Onboarding (first session, v6)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v67, v5 of the v11 demo).
+  Onboarding flow — first-session journey (world v81, v6 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
@@ -22,7 +22,10 @@
     → S4e the patient ask (guided queued request at tier −15%, scripted
       to lapse unactivated → "queued request expired before activation"
       + full auto-refund — the queue is a real path, not a consolation)
-    → S5 settle → S6 hired return (?hired=1 first-day card)
+    → S4f the other hands (a scripted second handle's compatible ask
+      lands alongside yours — coexistence is the multiplayer; no filing)
+    → S5 settle (the ownership arc named as context, not funnel)
+    → S6 hired return (?hired=1 first-day card)
 
   New in v53 — the time layer: the Archive joins the tour (catching up
   is free), the queued class gets its own honest lesson (hold ≤24 h,
@@ -39,6 +42,14 @@
   limits disclosure and no ads affordance. 18+ sees the plan §2.7
   rewarded path verbatim: 2 cr per opt-in sponsored message, 5/day,
   never inside the stream. The band never gates the feed or the tour.
+  New in v81 — the house & the other hands: tour beat 8 anchors to an
+  admin event ("the people who run the block act on this same feed —
+  attributed, compensated automatically when it bumps a player's
+  plans"); S4f teaches compatible coexistence (a scripted co-ask from
+  a second handle lands alongside, never behind); the exclusive card
+  states surge is shown before you pay (×1.5–×2.5 range, verbatim from
+  plan §2.2); and settle names the tenant → owner → landlord arc as
+  context, no funnel.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -221,6 +232,7 @@ var EVENTS = [
   {t:"14:18", k:"request",tx:"<b class='who'>okfm</b> — camera director, 30 min", st:"resolved"},
   {t:"14:22", k:"venue",  tx:"Bench parliament in session — Esther and Ray, adjacent sections"},
   {t:"14:26", k:"weather",tx:"Fog burned off over the park — full sun"},
+  {t:"14:28", k:"admin",  tx:"admin action — venue window reset at The 600 Club · players compensated 90 cr"},
   {t:"14:30", k:"press",  tx:"Mission Unfiltered posted: \u201cThe Salsa-Bar Ledger\u201d — anonymous, as always"},
   {t:"14:31", k:"housing",tx:"Listing filled — 9457 Guerrero St, Unit 2 comes off the board"}
 ];
@@ -228,7 +240,7 @@ var feedMin = 14*60+32;
 function hhmm(m){return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+m%60).slice(-2);}
 function renderStream(){
   document.getElementById('stream').innerHTML = EVENTS.map(function(e){
-    return '<li id="'+(e.k==='request'?'feed-request':'')+'">'+
+    return '<li id="'+(e.k==='request'?'feed-request':(e.k==='admin'?'feed-admin':''))+'">'+
       '<span class="t">'+e.t+'</span><span class="kind '+e.k+'">'+e.k+'</span>'+e.tx+
       (e.st?' <span class="st">· '+e.st+'</span>':'')+'</li>';
   }).join('');
@@ -242,9 +254,9 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v67';
+var LS='rw_onboard_v81';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
-  band:null,adViews:0,
+  band:null,adViews:0,coask:false,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
 try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=Object.assign(S,s);}catch(e){}
@@ -276,7 +288,7 @@ function renderCk(){
     S.done=true; save(); toast('Settled. The block keeps running — see you around.');
   }
 }
-var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin','feed-cast','feed-archive'];
+var ANCHORS=['feed-clock','feed-venues','feed-request','feed-follow','feed-reachin','feed-cast','feed-archive','feed-admin'];
 function anchor(id){ ANCHORS.forEach(function(a){
   var el=$(a); if(el) el.classList.toggle('anchored', a===id); }); }
 
@@ -296,7 +308,8 @@ var BEATS=[
   ['feed-request',"Everything a player does is public. This line is someone paying to reach in — attributed, priced, and visible to everyone."],
   ['feed-follow',"Follow a face to filter the stream. Watching closer is always free — following is a lens, never a leash."],
   ['feed-reachin',"Watching is free forever. If you ever want to act — call weather, nudge a neighbor, hire your own character — that's what credits buy. No action is hidden behind anything else."],
-  ['feed-archive',"Nobody can watch twenty-four hours a day — you're not meant to. The Archive keeps the block's week: every public event, every thread, scrubbed by day. Catching up is free, always."]
+  ['feed-archive',"Nobody can watch twenty-four hours a day — you're not meant to. The Archive keeps the block's week: every public event, every thread, scrubbed by day. Catching up is free, always."],
+  ['feed-admin',"The people who run the block act on this same feed. Every admin action lands here — attributed, and when it bumps a player's plans, compensation is automatic. Nobody's hand is invisible, including ours."]
 ];
 
 /* ================= handle rules ================= */
@@ -343,7 +356,7 @@ function card(tag,body,btns,closable){
 
 /* paid stages — the band question fronts these; it gates the wallet and the
    asks, never the feed, the tour, or the free cards */
-var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1};
+var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1,S4f:1};
 function normalizeStage(){
   if(!S.band && PAID_STAGES[S.stage]) S.stage='S2a';
   if(S.band==='u13' && PAID_STAGES[S.stage]) S.stage='S3u';
@@ -527,7 +540,10 @@ function render(){
         'evening block, 60 min, 40 cr. This one is scripted to come back <b>not '+
         'approved</b> so you can see the wording and watch the refund land. Real reviews '+
         'are never scripted, and the card never shows a reason — that lives in the '+
-        'moderation layer, not the feed.</p>',
+        'moderation layer, not the feed.</p>'+
+        '<p class="note" id="surgeline">If the sky ran exclusive in the last 6 h, the '+
+        'request form shows a surge multiplier — ×1.5 to ×2.5 — <b>before</b> you pay. '+
+        'The price you see is the price filed; nothing is added after.</p>',
         '<button class="go" onclick="fileWeather()">File the weather ask — 40 cr</button>'+
         '<button class="ghost" onclick="stage(\'S4e\')">One more: the patient ask</button>'+
         '<button class="ghost" onclick="stage(\'S5\')">Skip to settling in</button>');
@@ -557,6 +573,25 @@ function render(){
         (S.bal>0?'<button class="go" onclick="fileQueue()">File the queued ask — 34 cr</button>':'')+
         '<button class="ghost" onclick="stage(\'S5\')">Skip to settling in</button>');
     }
+  } else if(S.stage==='S4f'){
+    /* the other hands — compatible coexistence, taught. A scripted second
+       handle's ask lands alongside yours; it files nothing and needs no
+       balance. The demo's fixed handle stays demo-only — at merge this is
+       a real spectator's compatible request surfacing naturally. */
+    h=card('The other hands — optional',
+      '<p>Everything you filed ran alone, but it never had to. <b>Compatible '+
+      'asks run alongside each other</b> — nobody waits behind a compatible '+
+      'session. Your session never held anyone else\u2019s.</p>'+
+      '<p>Reach in at the same time as a stranger and the block just gets '+
+      'busier — the feed shows both, attributed to both. That overlap is the '+
+      'multiplayer: two players, two characters, one block.</p>'+
+      '<p class="note">Exclusivity is about the <i>resource</i> — the sky, a '+
+      'venue window — never about the player. You can\u2019t take another '+
+      'player\u2019s session away, and nobody can take yours.</p>',
+      (S.coask
+        ?'<button class="ghost" disabled>— marlo_v is on the feed</button>'
+        :'<button class="go" onclick="coAsk()">Watch one land (demo)</button>')+
+      '<button class="ghost" onclick="stage(\'S5\')">Settle in</button>');
   } else if(S.stage==='S6'){
     h=card('First day with your character',
       '<p><b>They\u2019re yours to visit, not to own.</b> The briefing card is all you '+
@@ -569,6 +604,10 @@ function render(){
       '<p>And when you close the tab, they don\u2019t wait — they go back to their '+
       'own brain, thinner but present, and wake to full when you return. The block '+
       'sends no \u201cmiss you\u201d notes. It\u2019s just here when you come back.</p>'+
+      '<p class="note">The listings on the market board are real places in this '+
+      'world — your character rents like everyone, and the path from there (save, '+
+      'buy, one day rent out a place of your own) runs in game dollars plus a '+
+      'deed fee.</p>'+
       (S.handle?'':'<p class="note">No handle yet — requests attribute by it, so it\u2019s '+
       'worth picking one. Skippable, as always.</p>'),
       (S.handle?'':'<button class="ghost" onclick="stage(\'S2\');S.hired=false">Pick a handle</button>')+
@@ -585,7 +624,12 @@ function render(){
       h=card('Settle in',
         '<p><b>Want a person of your own?</b> Hiring a character is 500 cr — they arrive '+
         'owing rent like everyone. You set who they are; who they become is theirs.</p>'+
-        '<p>Or just keep watching — the feed never asks for anything.</p>',
+        '<p>Or just keep watching — the feed never asks for anything.</p>'+
+        '<p class="note">And if watching ever turns into staying: tenants here can '+
+        'buy — listings on the block\u2019s market board read like normal listings, '+
+        'priced in game dollars plus a deed fee in credits — and owners can rent out '+
+        'a second unit. That\u2019s the whole arc: tenant → owner → landlord. It\u2019s '+
+        'not a step of setup; it\u2019s just what the block has.</p>',
         '<button class="go" onclick="location.href=\'create.html\'">Join the Cast →</button>'+
         '<button class="ghost" onclick="settle()">Just keep watching</button>');
     }
@@ -693,8 +737,18 @@ window.resolveQueue=function(){
   $('bal').textContent=S.bal.toLocaleString();
   feedMin+=4;
   feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — weather: rain, tomorrow evening · queued request expired before activation','refunded 34 cr');
+  S.stage='S4f';
   render();
   toast('The slot lapsed — all 34 cr came back on its own.');
+};
+window.coAsk=function(){
+  /* scripted demo beat: a second handle's compatible ask lands alongside —
+     idempotent (posts once); at merge this is a real spectator's request */
+  if(S.coask){toast('Already on the feed — compatible asks don\u2019t wait.');return;}
+  S.coask=true; save();
+  feedAdd('request','<b class="who">marlo_v</b> — camera director, 30 min','running');
+  render();
+  toast('marlo_v filed at the same time — alongside you, never behind you.');
 };
 window.lowBal=function(){
   /* opt-in only, and only while a session is live: drop the balance under

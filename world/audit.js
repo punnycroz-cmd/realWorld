@@ -749,6 +749,41 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v67 schema still on an old storage key');
     }
+    /* ---- v81 blocks: the house & the other hands ---- */
+    if (OB.version >= 81) {
+      const MUST81 = [
+        [/admin action/i, 'admin transparency on the feed ("admin action")'],
+        [/compensat/i, 'automatic compensation on admin actions stated'],
+        [/nobody's hand is invisible|nobody\u2019s hand is invisible/i, 'beat-8 house-visibility copy'],
+        [/surge/i, 'surge multiplier disclosure'],
+        [/before.{0,12}you pay/i, 'surge shown before payment, never after'],
+        [/×1\.5.{0,10}×2\.5|1\.5.{0,10}2\.5/, 'surge range verbatim (×1.5–×2.5)'],
+        [/tenant.{0,30}owner.{0,30}landlord/i, 'ownership arc named at settle'],
+        [/alongside/i, 'compatible coexistence taught'],
+        [/deed fee/i, 'arc cost shape (game dollars + deed fee) stated']
+      ];
+      for (const [re, label] of MUST81)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v81 honesty copy: ${label}`);
+      /* the admin beat needs a real anchor element */
+      if (!/feed-admin/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'feed-admin anchor missing — beat 8 has nothing to point at');
+      /* S4f reachable + the scripted co-ask exists and is idempotent */
+      if (!html.includes("'S4f'"))
+        add(g, 'fail', 'onboarding.html', null, 'S4f stage not reachable in page source');
+      if (!/window\.coAsk/.test(html) || !/S\.coask/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'co-ask demo affordance missing or not state-guarded');
+      /* surge must never read as a post-payment surprise or a specific invented figure */
+      if (/surge.{0,40}(added|charged) (after|at checkout)/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'surge framed as post-payment — disclosure must be upfront');
+      /* coexistence must never read as contention-for-sale */
+      if (/outbid|buy.{0,10}(their|another player)/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'coexistence framed as contention you can buy out');
+      /* contract blocks must exist in the mirror */
+      for (const k of ['admin_beat', 'coask_lesson', 'surge_disclosure', 'ownership_arc'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v81 contract block '${k}' missing`);
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v81 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }

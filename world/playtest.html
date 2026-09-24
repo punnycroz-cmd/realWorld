@@ -1611,7 +1611,31 @@ const PTS=[
   exp:"The harness gate passes at key rw_playtest_v76 / build 'world v76 local' with the v76 marks present (exSheet, regr, S.flags, toggleFlag, world-playtest-runsheet, flagged for revisit) and reports 72 scenarios; the mirror gate confirms the PT72 hand-sync.",
   ck:["Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
     "Mirror gate reports 72 inline vs 72 contract — PT72 hand-synced",
-    "A missing exSheet/regr mark or the old LS key would FAIL — spot-check"]}]}];
+    "A missing exSheet/regr mark or the old LS key would FAIL — spot-check"]}]},
+ {id:"PT73",title:"Onboarding v6 — the house & the other hands (v81)",min:8,
+ persona:"first-session viewer who picked 'I might reach in' — walks the full tour and the whole ask-lesson chain",
+ goal:"Verify the v81 onboarding pass: tour beat 8 anchors to an admin event and teaches that the house acts on the same public feed (attributed, automatic compensation); S4f teaches compatible coexistence via a scripted co-ask that lands alongside (never behind) and is idempotent; the exclusive card states surge is shown before payment (×1.5–×2.5 range, verbatim); S5/S6 name the tenant→owner→landlord arc as context with no funnel; and the u13 band still redirects S4f to the watching account.",
+ surfaces:["onboard", "audit"],
+ steps:[
+ {do:"Reset onboarding (footer link), pick 'I might reach in', and walk the tour to its last beat.",
+  exp:"The tour now runs 8 beats; the final coach-mark anchors to the admin event in the stream ('admin action — venue window reset … players compensated 90 cr') and reads: the people who run the block act on this same feed — attributed, compensation automatic, nobody's hand is invisible.",
+  ck:["Beat counter reads 8/8 on the last beat", "The admin event's <li> carries the feed-admin anchor highlight", "The admin seed event text matches feed.json vocabulary verbatim — attribution + compensation note"]},
+ {do:"Set a handle, declare 18 or older, top up (demo), and walk S4 → S4b → S4c. Read the exclusive card's new line before filing.",
+  exp:"The S4c card carries the surge disclosure: if the sky ran exclusive in the last 6 h the form shows ×1.5 to ×2.5 BEFORE you pay — the price you see is the price filed. File the weather ask, watch 'in review' → 'not approved · refunded 40 cr', then the queued ask → 'queued request expired before activation' · refunded 34 cr; resolving the queue routes onward to S4f automatically.",
+  ck:["Surge is quoted as the plan's range only — no specific multiplier invented for the demo", "Nothing about surge appears after payment anywhere — the line is on the pre-file card", "resolveQueue lands on S4f, not S5"]},
+ {do:"On the S4f card, click 'Watch one land (demo)' twice.",
+  exp:"A feed entry 'marlo_v — camera director, 30 min · running' posts once; the second click is a no-op toast ('Already on the feed'). The card teaches that compatible asks run alongside, attributed to both, and that exclusivity is about the resource, never the player.",
+  ck:["The co-ask is attributed to a different handle — not 'you'", "Copy frames coexistence as the multiplayer, never as contention", "S4f filed nothing and needed no balance"]},
+ {do:"Continue to S5 and read the settle card; then reload with ?hired=1 and read the S6 card.",
+  exp:"S5 names the arc in one context line — tenants can buy, listings read like normal listings (game dollars + deed fee in credits), owners can rent out a second unit, tenant → owner → landlord — with NO button to the market. S6 carries the parallel listings line for a new hirer.",
+  ck:["The arc is a note, not a funnel — no market link inside the card", "u13's settle card is unchanged (no money surfaces)"]},
+ {do:"Reset, pick the fork, and at S2a choose 'Under 13'; then force stage S4f via the co-ask path (or verify in code).",
+  exp:"normalizeStage redirects S4f to S3u — the watching account never sees ask mechanics framed at it; S3u still reads as the whole product, not a restriction.",
+  ck:["S4f is in PAID_STAGES despite filing nothing — band-fronted like every ask-context card", "The watching-account copy carries no packs, asks, or arc"]},
+ {do:"Run `node world/audit.js` and read the onboard gate.",
+  exp:"onboard gate passes: 'schema v81 · 8 beats · key rw_onboard_v81', zero fails — admin-action copy, compensation wording, surge disclosure, arc naming, feed-admin anchor, S4f reachability, and the coAsk state guard all verified.",
+  ck:["The gate reports 8 beats (was 7) and the v81 storage key", "The contention-for-sale sweep stays clean — coexistence copy never offers to buy another player's session"]}
+ ]}];
 
 
 /* ---- state ---- */

@@ -161,7 +161,9 @@ One person can wear every hat; four real testers is the intended shape.
   Book, wire v6, archive v6, create v77, mod v78). PT72 (harness v76
   relay layer) is a facilitator audit — the revisit flags, the
   directional Regressions card, the run sheet, and the doubly-filtered
-  scenario walk.
+  scenario walk. PT73 (onboarding v6) audits the house-&-other-hands
+  pass — admin-transparency tour beat, the S4f coexistence lesson,
+  surge disclosure ordering, and the settle-time ownership arc.
 
 ## 3. Running a session
 
