@@ -3763,3 +3763,428 @@ New emissions/fields: `name_block`, `debunk_flipped`,
 - Frozen nulls (`spacing_age_null`, `savings_age_null`) are
   preservation claims game-systems could quietly violate;
   P1060/P1061 exist to catch exactly that.
+
+# Part X — v112: the engagement-and-clock layer (what the old
+# don't try, what the routine never wrote down, and how the
+# calendar shrinks behind them)
+
+Parts I–IX priced capacity, trajectory, event-shaped losses,
+and control operations. What remains is the layer above
+capacity and below it at once: **willingness and routine**.
+Old age doesn't just weaken the machinery — it changes what
+the character *attempts* (production deficiency, effort
+discounting, internalized beliefs), how the watch runs
+(proactive control retires first), what routine never writes
+(action slips), and what the felt calendar reports (telescoping,
+the years that fly). Several findings are again asymmetric:
+reactive cue-driven retrieval holds while proactive monitoring
+falls; instructed strategies rescue most of the spontaneous
+gap; and two report-level distortions — telescoping and
+hindsight — grow while the underlying records barely move.
+
+## 139. The strategy nobody reaches for — production deficiency
+
+Reese 1962 coined the production/mediational deficiency split;
+Dunlosky & Hertzog 1998 (*Psychol. Aging* 13:597 — verified)
+showed the old side is specifically *production*-deficient:
+spontaneous use of elaborative and organizational encoding
+strategies declines, but when the strategy is supplied or the
+task affords it, older adults deploy it and recover most of
+the gap. Kausler's paired-associate program and
+Hertzog, Kidder, Powell-Moman & Dunlosky 2002 converge: the
+mediation channel works once used. **[CONSENSUS: spontaneous
+strategy use declines; instructed benefit largely preserved —
+the residual instructed gap exists but is small.]**
+
+Mechanism: `strat_spont(age_eff)` `1.0@55 → 0.85@65 →
+0.7@75 → 0.6@85` multiplies the elaboration/organization
+component of E (the `w_self`/`w_pred`/`assoc` construction
+terms — not the passive `w_emo`/`w_nov` legs). When an
+instructional affordance arrives (`study:true` event flag,
+a character *told* "repeat it back"), `strat_spont_eff =
+max(strat_spont, strat_instruct_floor)` (0.85) — the supplied
+strategy nearly closes the gap. **Locked `strat_teach_null`:**
+instruction never produces *worse* encoding than the
+spontaneous baseline — the gap is one-directional. The
+spectator sees it as: the 80yo doesn't rehearse the shopping
+list until someone says "say it back to me" — and then it
+works.
+
+## 140. The watch retires first — proactive→reactive shift
+
+Paxton, Barch, Racine & Braver 2008 (*Cerebral Cortex* 18:1010
+— verified): older adults show impaired sustained proactive
+control (maintaining goal representations ahead of demand)
+with relatively intact reactive control (responding when the
+cue arrives); Braver 2012 (*TiCS* — dual-mechanisms review)
+generalizes the dissociation. This is the control-side
+explanation of §87's event-vs-time PM split: time-based PM
+needs a watch; event-based PM needs a tripwire.
+**[CONSENSUS: proactive declines before reactive; the
+parameterization is ours.]**
+
+Mechanism: `proac_mult(age_eff)` `1.0@55 → 0.8@65 → 0.6@75 →
+0.45@85` multiplies every *sustained-monitoring* channel in
+the substrate: `pm_self` (time-based), `eaves_intent`
+background monitoring, the §6.275 vigilance floor's holding
+cost, and prospective `pending_cand` refresh between cues.
+**Locked `reac_null`:** no reactive path takes the leg —
+cue-triggered retrieval, event-based PM, and recognition
+stay off `proac_mult`. The 78yo doesn't stop noticing the
+neighbor at the door; she stops *watching for* the neighbor.
+If game-systems previously paid time-based PM decline as a
+flat probability cut, this relocates it to the monitoring
+channel — which is also why §2351's if-then rescue works:
+the intention off-loads the watch onto the environment.
+
+## 141. Worth it or not — selective engagement, effort
+discounting
+
+Hess 2014 (*Psychol. Aging* 29:529 — verified): the selective-
+engagement framework — older adults' participation in
+demanding cognition drops as subjective costs rise, and the
+drop is *mitigated by personal relevance/meaning*, not by
+raw stakes. Ennis, Hess & Smith 2013 (*Psychol. Aging* 28:931
+— verified): older participants expended less effort on
+memory tasks unless motivation was high. Hess, Smith &
+Sharifian 2016: the engagement decline is motivational in
+origin, not pure resource. **[Direction CONSENSUS; the
+relevance-vs-stakes split is Hess's account — flagged.]**
+
+Mechanism: `effort_disc(age_eff)` `0@55 → 0.1@65 → 0.25@75 →
+0.4@85` discounts effort spend (bout duration willingness,
+encoding `attn` top-up, §5.x search-depth requests) as a
+function of expected payoff — cheap heuristic: payoff ∝
+`goal_value` + `self_rel`. `relevance_rescue` (0.7) exempts
+the top relevance band: an elder will burn effort for the
+family record that a stranger's equivalent event doesn't
+get. This is the supply side of §128's SOC narrowing —
+SOC allocates the rehearsal budget; `effort_disc` decides
+whether the bout starts at all.
+
+## 142. The stereotype inside — the internalized-belief tax
+
+Lineweaver & Hertzog 1998 (PAAS — verified instrument):
+older adults endorse more pessimistic beliefs about memory
+aging, and the beliefs correlate with strategy reports.
+Levy 1996 (*Psychol. Sci.* 7:332 — verified): subliminal
+aging stereotypes primed *before* a memory task worsened
+recall in old participants (and primed cardiovascular
+stress markers). Hess, Auman, Colcombe & Rahhal 2003
+(*Psychol. Aging* 18:625): stereotype impact flows through
+strategy/effort mediation, not direct capacity damage.
+§§24/88 priced the *situational* threat; this is the
+*chronic trait* — the belief the character carries when no
+one is watching. **[Direction replicated; magnitude and the
+belief→performance causal path DEBATED.]**
+
+Mechanism: profile trait `memself` ∈ [0,1] (internalized-
+aging-belief strength, minted by world-builder from
+personality/health history; population prior rises with age
+~+0.15/20y). `belief_tax = memself·belief_tax_max` (0.3)
+multiplies `strat_spont` and `effort_disc` channels only.
+**Locked `belief_decay_null`:** `memself` never enters decay
+rates, half-lives, or `S` directly — belief changes what the
+character *does*, not what the record *is*. The 76yo who
+says "I have a terrible memory" rehearses less, encodes
+thinner, and thereby manufactures the complaint's evidence —
+a self-fulfilling loop the substrate can price honestly
+because the tax sits upstream of the trace.
+
+## 143. Autopilot writes nothing — action slips
+
+Reason 1984 established the absent-mindedness taxonomy;
+Einstein & McDaniel 1990 (*J. Gerontol.* 45:P717 — verified)
+and Einstein, McDaniel, Smith & Shaw 1998 (*Psychol. Sci.*
+9:284 — verified, and counterintuitive: *habitual* PM is
+spared in aging) bound the phenomenon: routine actions run
+on low attention and encode thinly for everyone, but older
+adults' monitoring layer (§140) catches fewer slips and
+their reality-monitoring check (§38) resolves the doubt
+worse. The signature is not the slip but the *verification
+behavior* — the returned-to stove, the re-opened door.
+**[Slip-rate age leg DEBATED (diary self-report confounds);
+the thin-encoding + poor-verification structure is solid.]**
+
+Mechanism: `slip_p(age_eff)` `0.02@30 → 0.05@65 → 0.12@85`
+per routine (`script:true`, low-attn) action record mints a
+`slip:true` flag — performed but encoded at `att_min` floor,
+retrievable only at high cue overlap. A `slip:true` record
+that fails a later self-check emits `slip_check` (a world-
+visible verify intent — she walks back to look). Because
+Einstein 1998 spares *habitual intentions*, `slip_p` must
+NOT stack on `pm_focal` intentions — locked
+`slip_intent_null`: the errand intended every Tuesday fires
+fine; it's the record of *having done it* that's thin.
+Distinguishes from §51 (deactivation residue) — that was
+the intention outliving its need; this is the performance
+outliving its record.
+
+## 144. The third identical afternoon — within-day PI
+accumulation
+
+Underwood 1957 priced proactive interference as forgetting's
+main driver; Lustig, May & Hasher 2001 (*JEP:G* 130:199 —
+verified) showed PI builds faster and bites harder in old
+age; May, Hasher & Foong 2005 (*Psychol. Sci.* 16:96 —
+verified) showed older adults' PI load is reduced at peak
+times — the synchrony machinery (§4.67) gates it.
+**[CONSENSUS: PI susceptibility ↑ with age; the overnight
+clearing fraction is our modeling choice — flagged.]**
+
+Mechanism: `pi_n` is a per-character per-day counter of same-
+category/context record encodings (same venue + same
+participants + same topic class via §6.281's dediff mask).
+Each new similar record adds interference to the day's
+earlier siblings: `interf_eff += pi_w(age_eff)·pi_n`,
+`pi_w` `0.02@30 → 0.05@65 → 0.09@85`. `pi_clear` (0.7)
+fraction clears at each sleep consolidation pass; a strong
+`boundary:true` event clears the current context cell.
+Consequence the spec didn't have before: repetition hurts
+*within* the day — the third café chat about the rent merges
+into its predecessors for the elder more than for the 30yo,
+while spaced repeats across days still benefit (§130's
+frozen `spacing_age_null` is untouched — PI is the massed
+side of that coin).
+
+## 145. It can't be that long — forward telescoping
+
+Thompson, Skowronski & Lee 1988 (*Mem. Cognit.* 16:461 —
+verified): event dating systematically telescopes forward —
+people report events as more recent than they are. Janssen,
+Chessa & Murre 2006 (*Mem. Cognit.* 34:138 — verified)
+modeled news-event dating: the error grows with true
+distance, roughly a compressive function, and is amplified
+in older adults in Crawley & Pring 2000 (*Memory* 8:49).
+Rubin & Baddeley 1989: telescoping survives every retrieval
+correction — it is a *reporting* distortion, not a decay.
+**[Direction CONSENSUS; magnitudes vary with dating method —
+the knot values are ours.]**
+
+Mechanism: at `when`-field emission,
+`est_elapsed = elapsed^(1 − tele_gain·age_leg)` with
+`tele_gain` 0.05 and `age_leg` `0@55 → 0.3@65 → 0.6@75 →
+1.0@85`, capped `tele_cap` 0.25 (reported elapsed ≥ 75% of
+true). Emits `tele_shift` on dated recalls. The record's
+stored timestamp is untouched — she *says* "that was maybe
+two years ago" about the five-year-old flood, and the ledger
+still knows. This is the cheapest legible age cue in
+dialogue: compressed pasts, constant present.
+
+## 146. The years run faster — passage-of-time speedup
+(derived)
+
+Lemlich 1975 first formalized age-related time acceleration;
+Wittmann & Lehnhoff 2005 (*Psychol. Reports* 97:921 —
+verified) found older adults underestimate long intervals;
+Friedman & Janssen 2010 (*Acta Psychol.* 134:130 — verified)
+showed the "time flies" reports scale with age and are
+predicted by memory-landmark density — sparse years *feel*
+short in retrospect. **[Phenomenon CONSENSUS; deriving it
+from the archive's own retrievable density is our mechanism
+— flagged HYPOTHESIS.]**
+
+Mechanism: no new decay — a report-level function.
+`pot_report(interval_days)` computes `landmark_density =
+retrievable_count(interval)/interval_days` over the
+character's own archive, then
+`felt = interval·(1 − pot_k·(1 − min(1, density/d_norm)))`,
+`pot_k` 0.3, `d_norm` = the character's young-adult median
+density (snapshot field). The elder's thinned 2029 *weighs*
+less than her dense 1987 — not because the records were
+forgotten differently, but because the report counts what's
+left. Emergent property worth the section: every prior Part's
+decline compounds into this single sentence — "this year went
+by so fast" is the archive talking.
+
+## 147. Which came first — order fields decay extra
+
+Old & Naveh-Benjamin 2008 (*Psychol. Bull.* 134:21 —
+verified meta): age deficits are larger for associative
+information — including temporal order and recency
+judgments — than for items; order memory is among the
+steepest cells in the meta-analysis. Parkin, Walter &
+Hunkin 1995 found the same for within-list order.
+**[CONSENSUS direction; order-vs-item ratio knots ours.]**
+
+Mechanism: the `order`/sequence-link field class (arrival
+index, before/after links) gets `order_hl_mult(age_eff)`
+`1.0@55 → 0.85@65 → 0.7@75 → 0.55@85` on its half-life —
+steeper than item fields, shallower than source fields
+(§21's Spencer & Raz leg stays steepest: source < order <
+item). Failed order retrieval with both item memories intact
+emits `order_confused:true` and the substrate's natural
+repair — a swapped-sequence retell ("we argued, then the
+letter came" → letter first). Pairs with §145 telescoping:
+the elder's timeline is both *compressed* and *misordered* —
+the two distortions compose but never rewrite the stored
+fields.
+
+## 148. I knew it all along, more each year — the hindsight
+leg
+
+Bayen, Erdfelder, Bearden & Lozito 2006 (*Psychol. Aging*
+21:41 — verified): hindsight bias is larger in older adults,
+mediated by their lower recollection — when you can't
+retrieve what you believed before the outcome, the outcome
+fills the gap. Bayen, Pohl, Erdfelder & Auer 2007 replicate
+and tie it to source monitoring. **[CONSENSUS direction; the
+magnitude transfers from lab trivia to life events —
+flagged.]**
+
+Mechanism: `hind_mult(age_eff)` `1.0@55 → 1.2@65 → 1.4@75 →
+1.6@85` on the existing hindsight operator's `knew_prior`
+field inflation — when an outcome is known and the prior-
+belief field is unretrievable, the emitted confidence-in-
+prior-knowledge scales up. **Locked `hind_recall_null`:**
+inflation requires the prior-belief field to be absent or
+below `theta` — a character who actually retrieves her old
+prediction is immune; hindsight can't overwrite a live
+record, only forge a missing one. Social consequence: in
+the rumor substrate, the eldest residents are the most
+certain they "always said so" — confidence that reads as
+credibility to listeners and is, structurally, the cheapest
+false-memory the game can show.
+
+## 149. Part X knot rows (extends §135; age_eff unless noted)
+
+| param | 55 | 65 | 75 | 85 | source |
+|---|---|---|---|---|---|
+| strat_spont (§4.70) | 1.0 | 0.85 | 0.7 | 0.6 | Dunlosky & Hertzog 1998 |
+| proac_mult (§5.124) | 1.0 | 0.8 | 0.6 | 0.45 | Paxton 2008; Braver 2012 |
+| effort_disc (§4.71) | 0 | 0.1 | 0.25 | 0.4 | Hess 2014; Ennis 2013 |
+| slip_p (§4.73) | 0.02 | 0.05 | 0.08 | 0.12 | Einstein & McDaniel (param ours) |
+| pi_w (§5.125) | 0.02 | 0.05 | 0.07 | 0.09 | Lustig 2001 |
+| tele age_leg (§6.282) | 0 | 0.3 | 0.6 | 1.0 | Crawley & Pring 2000 (param ours) |
+| order_hl_mult (§6.283) | 1.0 | 0.85 | 0.7 | 0.55 | Old & Naveh-Benjamin 2008 |
+| hind_mult (§6.284) | 1.0 | 1.2 | 1.4 | 1.6 | Bayen 2006 |
+
+Scalars: `strat_instruct_floor` 0.85; `relevance_rescue` 0.7;
+`belief_tax_max` 0.3; `memself` trait [0,1] prior
++0.15/20y; `slip_check_p` 0.5; `pi_clear` 0.7;
+`pot_k` 0.3; `tele_gain` 0.05; `tele_cap` 0.25;
+`order_confuse` emission flag. Locked nulls:
+`strat_teach_null`, `reac_null`, `belief_decay_null`,
+`slip_intent_null`, `hind_recall_null`. New emissions/fields:
+`slip:true`, `slip_check` intent, `tele_shift`,
+`order_confused:true`, `pi_n` daily counter, `memself`
+profile trait, `d_norm` snapshot.
+
+## 150. Spec changes v5.59 → v5.60 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| M1 | §4.70: `strat_spont`/`strat_instruct_floor` on elaborative E; locked `strat_teach_null` | §139 |
+| M2 | §5.124: `proac_mult` on all sustained-monitoring channels; locked `reac_null` | §140 |
+| M3 | §4.71: `effort_disc` on bout-start/attn spend vs payoff; `relevance_rescue` exempts top band | §141 |
+| M4 | §4.72: `memself` trait + `belief_tax` on strategy/effort only; locked `belief_decay_null` | §142 |
+| M5 | §4.73: `slip_p` floor-encodes routine actions; `slip_check` verify intent; locked `slip_intent_null` | §143 |
+| M6 | §5.125: `pi_n`/`pi_w`/`pi_clear` within-day PI, boundary- and sleep-cleared | §144 |
+| M7 | §5.126: `pot_report`/`pot_k` — derived passage-of-time from archive density | §146 |
+| M8 | §6.282: `tele_gain`/`age_leg`/`tele_cap` on when-emission; `tele_shift`; stored time untouched | §145 |
+| M9 | §6.283: `order_hl_mult` on order-field class; `order_confused` repair emission | §147 |
+| M10 | §6.284: `hind_mult` on `knew_prior` inflation; locked `hind_recall_null` | §148 |
+
+New params: `strat_spont`, `strat_instruct_floor`,
+`proac_mult`, `effort_disc`, `relevance_rescue`, `memself`,
+`belief_tax_max`, `slip_p`, `slip_check_p`, `pi_w`,
+`pi_clear`, `pot_k`, `tele_gain`, `tele_cap`,
+`order_hl_mult`, `hind_mult` — 16 named (24 scalars once
+knots expand). Locked nulls: `strat_teach_null`,
+`reac_null`, `belief_decay_null`, `slip_intent_null`,
+`hind_recall_null`. New emissions/fields: `slip`,
+`slip_check`, `tele_shift`, `order_confused`, `pi_n`,
+`memself`, `d_norm`.
+
+## 151. Validation probes P1186–P1195
+
+- **P1186 production deficiency (MUST — rescue shape):**
+  spontaneous elaborative-encoding E at 80 ≤ 0.65 of the
+  30yo at matched attention; an `study:true` affordance
+  recovers ≥85% of the gap (`strat_instruct_floor`); no
+  instructed arm underperforms its spontaneous control
+  (`strat_teach_null`). Dunlosky & Hertzog 1998.
+- **P1187 proactive-reactive split (MUST — dissociation):**
+  time-based PM lapses rise with `proac_mult` while matched
+  event-based PM and cue-driven recognition stay within
+  ±10% across the 55–85 sweep (`reac_null`); sustained-
+  monitoring metrics (eaves/vigilance) degrade on the same
+  leg. Paxton 2008.
+- **P1188 effort discounting (SHOULD — relevance gate):**
+  bout-initiation rate on low-payoff queries falls with
+  `effort_disc`; top-relevance-band queries are exempt
+  within `relevance_rescue` tolerance; a relevance-matched
+  young control shows no exemption asymmetry. Hess 2014;
+  Ennis 2013.
+- **P1189 belief tax (SHOULD — channel-lock):** `memself`=1
+  vs 0 at fixed profile lowers spontaneous strategy use and
+  effort spend ~30% while decay curves/half-lives are
+  IDENTICAL (`belief_decay_null` — the audit runs on the
+  decay table, not behavior). Levy 1996; Hess 2003.
+- **P1190 action slips (COULD — structure):** routine
+  `script:true` records mint `slip:true` at the age-graded
+  rate; slip records emit `slip_check` verifies; habitual
+  (`pm_focal`) intentions show NO slip penalty
+  (`slip_intent_null`). Einstein & McDaniel.
+- **P1191 within-day PI (MUST — clearance):** three same-
+  context records in one day show monotonic sibling
+  interference scaled by `pi_w`; ≥60% of the accumulated PI
+  clears after a sleep pass (`pi_clear`); a `boundary:true`
+  event resets the context cell. Lustig 2001; May 2005.
+- **P1192 telescoping (MUST — report-only):** emitted
+  elapsed estimates compress toward the present with
+  `tele_gain·age_leg` and respect `tele_cap`; the stored
+  timestamp field is bit-identical before and after
+  emission (report-distortion invariant). Janssen 2006;
+  Crawley & Pring 2000.
+- **P1193 passage-of-time (COULD — derived):** `pot_report`
+  felt-duration output tracks retrievable density, not
+  wall-clock; two profiles at the same age with different
+  archive densities report different felt intervals —
+  the age leg is EMERGENT (zero direct age term; assert).
+  Friedman & Janssen 2010.
+- **P1194 order decay (MUST — dissociation):** order-field
+  survival at 80 falls below item fields at matched strength
+  and interval, and stays above source fields — ordering
+  source < order < item mandatory; `order_confused`
+  emissions carry intact item fields. Old & Naveh-Benjamin
+  2008.
+- **P1195 hindsight leg (SHOULD — null-lock):** with the
+  prior-belief field below `theta`, `knew_prior` inflation
+  rises with `hind_mult`; with the field retrievable,
+  inflation is zero at ALL ages (`hind_recall_null`).
+  Bayen 2006.
+
+## 152. Part X honest limits
+
+- `strat_spont` compresses a family of strategies (imagery,
+  organization, elaboration) into one scalar; the literature
+  shows strategy-specific aging (organization declines more
+  than elaboration). Acceptable at this granularity; the
+  rescue null is the load-bearing claim.
+- `proac_mult` unifies sustained-monitoring channels that
+  the literature prices separately (PM monitoring, vigilance,
+  goal maintenance); Braver's framework licenses the lump,
+  the shared knot table is ours.
+- `effort_disc`'s payoff heuristic (`goal_value`+`self_rel`)
+  is RW convenience; Hess's experiments manipulate relevance
+  directly. The exemption shape is the finding; the formula
+  is ours.
+- `memself`/`belief_tax`: the belief→performance causal path
+  is DEBATED (correlational PAAS data vs Levy's priming);
+  we price it small and channel-locked so it can't masquerade
+  as capacity.
+- `slip_p`'s age knots are the weakest-sourced in this Part —
+  diary slip data is self-report confounded; the structure
+  (thin encode → verify loop) is solid, magnitudes flagged.
+- `pi_clear` 0.7 overnight is a modeling decision; Underwood's
+  PI persists in principle. The probe's ≥60% bound is the
+  contract — the true clearing fraction is unknown.
+- `pot_report` is deliberately derived (no age term); if
+  validation shows age variance beyond what density predicts,
+  the mechanism is incomplete — that's the honest failure
+  mode P1193 is built to catch.
+- Telescoping and hindsight are report-level distortions
+  that never touch stored fields — game-systems must honor
+  the bit-identical invariant (P1192) or the ledger can't
+  arbitrate "what actually happened."

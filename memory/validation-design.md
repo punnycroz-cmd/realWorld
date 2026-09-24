@@ -11514,3 +11514,139 @@ Locked-null legs exercised: `hyperbind_aware_null` (P1176),
   the probes test those structures, not the knots.
 
 Probe registry: P1–P1185 (v111 adds P1176–P1185).
+
+## 232. v112 suite — age-decline X (P1186–P1195)
+
+Ten probes for the AD Part X mechanisms (spec §§4.70–4.73,
+§§5.124–5.126, §§6.282–6.284). MUST tier on replicated
+dissociations (production-vs-mediation, proactive-vs-
+reactive, report-vs-store); SHOULD where the literature
+gives direction without magnitude; COULD on derived or
+diary-confounded cells.
+
+- **P1186 production deficiency (MUST — rescue shape):**
+  spontaneous elaborative-encoding E at age_eff 80 ≤ 0.65
+  of the 30yo at matched attention; a `study:true`
+  affordance recovers ≥85% of the gap via
+  `strat_instruct_floor`; no instructed arm underperforms
+  its spontaneous control (`strat_teach_null`); `w_emo`/
+  `w_nov` passive legs show no `strat_spont` modulation.
+  Dunlosky & Hertzog 1998.
+- **P1187 proactive-reactive split (MUST — dissociation):**
+  time-based PM lapse rate and sustained-monitoring metrics
+  rise with `proac_mult` across the 55–85 sweep while
+  event-based PM, cue-driven recall, and recognition stay
+  within ±10% (`reac_null`); a parametrization that leaks
+  the leg into reactive paths FAILs. Paxton 2008; Braver
+  2012.
+- **P1188 effort discounting (SHOULD — relevance gate):**
+  bout-initiation rate on low-payoff queries falls with
+  `effort_disc`; top-`relevance_rescue`-band queries exempt
+  within tolerance; young controls show flat effort across
+  payoff. Hess 2014; Ennis, Hess & Smith 2013.
+- **P1189 belief tax (SHOULD — channel-lock):** `memself`=1
+  vs 0 at fixed age/profile lowers spontaneous strategy use
+  and effort spend ~`belief_tax_max` while the decay table,
+  half-lives, and S trajectories are bit-identical
+  (`belief_decay_null` — audit the table, not the
+  behavior). Levy 1996; Hess et al. 2003.
+- **P1190 action slips (COULD — structure):** routine
+  `script:true` records mint `slip:true` at the graded
+  rate and emit `slip_check` verifies at `slip_check_p`;
+  `pm_focal`/habitual intentions show NO slip penalty
+  (`slip_intent_null` — Einstein 1998's spared-habitual
+  arm is mandatory).
+- **P1191 within-day PI (MUST — clearance):** three same-
+  context encodings in one day show monotonic sibling
+  interference scaled by `pi_w`; ≥60% of accumulated PI
+  clears per sleep pass (`pi_clear`); `boundary:true`
+  resets the cell; `sync_mis` modulation present at ≥60.
+  Lustig, May & Hasher 2001; May, Hasher & Foong 2005.
+- **P1192 telescoping (MUST — report-only invariant):**
+  emitted elapsed estimates compress per
+  `tele_gain·age_leg` within `tele_cap`; the stored `when`
+  field is bit-identical before and after emission — any
+  write-through to the record FAILs. Janssen et al. 2006;
+  Crawley & Pring 2000.
+- **P1193 passage-of-time (COULD — derived):** `pot_report`
+  felt duration tracks retrievable-landmark density, not
+  wall-clock; same-age profiles with different densities
+  report different felt intervals; any direct age term in
+  `pot_report` FAILs (emergence assert). Friedman &
+  Janssen 2010.
+- **P1194 order decay (MUST — dissociation):** order-field
+  survival at 80 falls below item fields at matched
+  strength/interval and above source fields — source <
+  order < item ordering mandatory; `order_confused`
+  emissions carry intact item fields. Old & Naveh-Benjamin
+  2008.
+- **P1195 hindsight leg (SHOULD — null-lock):** with the
+  prior-belief field below `theta`, `knew_prior` inflation
+  rises with `hind_mult`; with the field retrievable,
+  inflation is zero at ALL ages (`hind_recall_null`).
+  Bayen et al. 2006.
+
+Registry: P1–P1195. v112 suite MUSTs: P1186, P1187, P1191,
+P1192, P1194; SHOULDs: P1188, P1189, P1195; COULDs: P1190,
+P1193. Locked-null legs exercised: `strat_teach_null`
+(P1186), `reac_null` (P1187), `belief_decay_null` (P1189),
+`slip_intent_null` (P1190), `hind_recall_null` (P1195).
+
+## 233. Sources verified this version (P1186–P1195 backing)
+
+- **Production deficiency:** Dunlosky & Hertzog 1998
+  (*Psychol. Aging* 13:597 — strategy production declines,
+  mediation/instructed use preserved → §4.70); Reese 1962
+  (production/mediational split); Hertzog, Kidder,
+  Powell-Moman & Dunlosky 2002 (associative strategy
+  mediation in old).
+- **Proactive→reactive:** Paxton, Barch, Racine & Braver
+  2008 (*Cerebral Cortex* 18:1010 — proactive control
+  impaired, reactive intact → §5.124); Braver 2012 (*TiCS*
+  dual-mechanisms-of-control review).
+- **Selective engagement:** Hess 2014 (*Psychol. Aging*
+  29:529 — selective-engagement framework, relevance
+  mitigates → §4.71); Ennis, Hess & Smith 2013 (*Psychol.
+  Aging* 28:931 — effort expenditure ↓ absent motivation);
+  Hess, Smith & Sharifian 2016.
+- **Internalized belief:** Lineweaver & Hertzog 1998 (PAAS —
+  aging-belief instrument, beliefs→strategy reports → §4.72);
+  Levy 1996 (*Psychol. Sci.* 7:332 — subliminal aging
+  stereotypes ↓ old-adult recall); Hess, Auman, Colcombe &
+  Rahhal 2003 (*Psychol. Aging* 18:625 — strategy/effort
+  mediation → `belief_decay_null`).
+- **Action slips:** Reason 1984 (absent-mindedness taxonomy);
+  Einstein & McDaniel 1990 (*J. Gerontol.* 45:P717);
+  Einstein, McDaniel, Smith & Shaw 1998 (*Psychol. Sci.*
+  9:284 — habitual PM SPARED in aging → `slip_intent_null`).
+  Slip-rate age leg DEBATED (diary self-report confounds).
+- **Within-day PI:** Underwood 1957 (PI as forgetting's
+  driver); Lustig, May & Hasher 2001 (*JEP:G* 130:199 —
+  PI buildup faster/heavier in old → §5.125); May, Hasher &
+  Foong 2005 (*Psychol. Sci.* 16:96 — old-adult PI reduced
+  at peak time → `sync_mis` leg).
+- **Telescoping:** Thompson, Skowronski & Lee 1988 (*Mem.
+  Cognit.* 16:461 — forward telescoping in event dating);
+  Janssen, Chessa & Murre 2006 (*Mem. Cognit.* 34:138 —
+  compressive dating-error model → §6.282); Rubin &
+  Baddeley 1989; Crawley & Pring 2000 (*Memory* 8:49 —
+  amplified in old).
+- **Passage of time:** Lemlich 1975 (formalization);
+  Wittmann & Lehnhoff 2005 (*Psychol. Reports* 97:921 —
+  long-interval underestimation in old); Friedman & Janssen
+  2010 (*Acta Psychol.* 134:130 — felt passage scales with
+  age via landmark density → §5.126 derived report).
+- **Order memory:** Old & Naveh-Benjamin 2008 (*Psychol.
+  Bull.* 134:21 — meta: associative incl. order fields age
+  worse than items → §6.283); Parkin, Walter & Hunkin 1995.
+- **Hindsight:** Bayen, Erdfelder, Bearden & Lozito 2006
+  (*Psychol. Aging* 21:41 — hindsight ↑ in old,
+  recollection-mediated → §6.284); Bayen, Pohl, Erdfelder &
+  Auer 2007 (source-monitoring tie → `hind_recall_null`).
+- **Marked hypothesis:** all magnitudes are RW calibration
+  targets; the literature supplies directions, dissociations,
+  and boundaries (rescue shape, reactive flat, report-vs-
+  store invariants) — the probes test those structures, not
+  the knots.
+
+Probe registry: P1–P1195 (v112 adds P1186–P1195).

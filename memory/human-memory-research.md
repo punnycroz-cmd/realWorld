@@ -4709,3 +4709,59 @@ this version.
   calibration targets; probes P1176–P1185 test the
   literature's structures (dissociations, method splits,
   implicit-only boundary), not the fitted numbers.
+
+## 87. v112 additions — the engagement-and-clock sources (age-decline X)
+
+- **Production deficiency:** Dunlosky & Hertzog 1998
+  (*Psychol. Aging* 13:597 — spontaneous strategy use ↓,
+  instructed/mediated use preserved); Reese 1962; Hertzog,
+  Kidder, Powell-Moman & Dunlosky 2002. Spec §4.70
+  `strat_spont`/`strat_instruct_floor` + locked
+  `strat_teach_null`.
+- **Proactive→reactive control:** Paxton, Barch, Racine &
+  Braver 2008 (*Cerebral Cortex* 18:1010 — proactive ↓,
+  reactive preserved); Braver 2012 (*TiCS* dual mechanisms).
+  Spec §5.124 `proac_mult` + locked `reac_null` — reframes
+  the §87 time-based PM leg as watch-retirement.
+- **Selective engagement / effort discounting:** Hess 2014
+  (*Psychol. Aging* 29:529); Ennis, Hess & Smith 2013
+  (*Psychol. Aging* 28:931); Hess, Smith & Sharifian 2016 —
+  effort spend ↓ with age unless personally relevant. Spec
+  §4.71 `effort_disc`/`relevance_rescue`.
+- **Internalized aging beliefs:** Lineweaver & Hertzog 1998
+  (PAAS); Levy 1996 (*Psychol. Sci.* 7:332 — primed
+  self-stereotypes ↓ recall); Hess, Auman, Colcombe & Rahhal
+  2003 (belief→strategy mediation). Spec §4.72 `memself`/
+  `belief_tax` + locked `belief_decay_null` (behavior, never
+  the trace). DEBATED causal path — priced small.
+- **Action slips:** Reason 1984; Einstein & McDaniel 1990
+  (*J. Gerontol.* 45:P717); Einstein, McDaniel, Smith & Shaw
+  1998 (*Psychol. Sci.* 9:284 — habitual PM spared →
+  `slip_intent_null`). Spec §4.73 `slip_p`/`slip_check`;
+  slip-rate knots flagged (diary confounds).
+- **Within-day PI:** Underwood 1957; Lustig, May & Hasher
+  2001 (*JEP:G* 130:199 — PI faster/heavier in old); May,
+  Hasher & Foong 2005 (*Psychol. Sci.* 16:96 — peak-time
+  reduction). Spec §5.125 `pi_n`/`pi_w`/`pi_clear` —
+  `pi_clear` fraction is a modeling decision.
+- **Telescoping:** Thompson, Skowronski & Lee 1988 (*Mem.
+  Cognit.* 16:461); Janssen, Chessa & Murre 2006 (*Mem.
+  Cognit.* 34:138); Rubin & Baddeley 1989; Crawley & Pring
+  2000 (*Memory* 8:49 — amplified in old). Spec §6.282
+  `tele_*` — emission-only, stored timestamps invariant.
+- **Passage of time:** Lemlich 1975; Wittmann & Lehnhoff
+  2005 (*Psychol. Reports* 97:921); Friedman & Janssen 2010
+  (*Acta Psychol.* 134:130 — landmark-density account).
+  Spec §5.126 `pot_report` — DERIVED, zero age term.
+- **Order memory:** Old & Naveh-Benjamin 2008 (*Psychol.
+  Bull.* 134:21 — meta, associative/order > item decline);
+  Parkin, Walter & Hunkin 1995. Spec §6.283
+  `order_hl_mult` — source < order < item mandatory.
+- **Hindsight:** Bayen, Erdfelder, Bearden & Lozito 2006
+  (*Psychol. Aging* 21:41 — recollection-mediated ↑);
+  Bayen, Pohl, Erdfelder & Auer 2007. Spec §6.284
+  `hind_mult` + locked `hind_recall_null`.
+- **Marked hypothesis:** magnitudes are RW calibration
+  targets; probes P1186–P1195 test the literature's
+  structures (rescue shape, dissociations, report-vs-store
+  invariants), not the fitted numbers.
