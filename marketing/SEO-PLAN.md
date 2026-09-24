@@ -1,6 +1,14 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v105 · 2026-09-23 (seventh pass — SERP re-validation §20:
+**Version:** v120 · 2026-09-23 (eighth pass — SERP re-validation §21:
+LIVORA is iterating *fast* (three September updates incl. a landlord
+system), inZOI Phase-5 still targets Oct 2026 unshipped, orphan demand
+intact; NEW query-ops pipeline §22 — `seo/query-register.csv` +
+`tools/query_map.py` turn the §13 register into an executable check on
+real Search Console exports; site warns 46→43 — the three actionable
+ones fixed (img dims on demo/brand, thin 404 description), rest are
+placeholder-domain + accepted raster debt).
+**v105** (seventh pass — SERP re-validation §20:
 the "Paralives alternative" SERP is now *contested* — LIVORA (shipped
 Jul 3 2026), OurLife (May 2026), VirtualSociety (in dev) all surfaced in
 one live query, plus a Guardian mainstream feature; inZOI Online hits
@@ -99,6 +107,7 @@ first week post-launch; re-score tiers at day-30.
 | NPC daily schedule simulation | features |
 | AI character job / NPC with a real job | how-it-works, faq (jobs Q, v60) |
 | hire an AI character | how-it-works (#move-in), faq |
+| become a landlord game / landlord sim | how-it-works (ladder), journal |
 
 ### Avoid list (never target, never imply)
 
@@ -353,14 +362,20 @@ the owner instead of competing — same rule as internal-link §6.
 ## 15. Re-score cadence & debt register (v30)
 
 **Cadence (post-launch, all owner-gated tooling):**
-- Day 7: Search Console baseline — impressions/CTR per Tier-1 query; fix any
-  page with <1% CTR and >200 impressions via §4 variant bank (one variable).
-- Day 30: re-score keyword tiers against real volumes; retire Tier-3 terms
-  with zero impressions; promote any surprise query into §2.
+- Day 7: Search Console baseline — export queries→CSV, run
+  `tools/query_map.py export.csv` (§22); fix any page with <1% CTR and
+  >200 impressions via §4 variant bank (one variable).
+- Day 30: re-score keyword tiers against real volumes (same export —
+  the owner-page share table is the tier re-score input); retire Tier-3
+  terms with zero impressions; promote any surprise query into §2 by
+  adding it to `seo/query-register.csv` first.
 - Day 60/90: review cannibalization register vs. actual query→page mapping;
   fold learnings into the calendar's next 12 weeks.
 
-**Debt register (carried, honest):**
+**Debt register (carried, honest):** *(v120: audit baseline 97 pass /
+43 warn / 0 fail — warns = 20 placeholder-canonical + 23 raster-size;
+the demo/brand missing img-dims and thin 404 description warns were
+fixed this pass.)*
 1. `shots/v53-C.png` is 2.0MB and `v53-A.png` is 1.9MB (accepted — webp
    companions serve modern browsers; PNGs are fallback only). At the 2MB
    ceiling now — recompress or drop the PNG fallback if CWV flags LCP.
@@ -538,3 +553,75 @@ October land? empty or alive?); check whether "LIVORA" or "OurLife"
 queries are showing impressions in any channel; if the comparison Q
 graduates, extend the faq comparison block — one row per shipped
 competitor, verbs-contrast only, never disparage.
+
+## 21. SERP re-validation (v120) — the fast follower problem
+
+Re-ran the carried §20 check (inZOI Phase-5 status, LIVORA/OurLife
+traction). Three findings:
+
+1. **LIVORA is iterating at sprint velocity.** Three updates in
+   September alone: 4.0 "Five Major New Life Systems" (Sep 6 — business,
+   pets, driving, community), 4.3 "Deeper Life" (Sep 13 — passions,
+   traditions, politics), and "Property, Justice & Business" (Sep 19 —
+   **property portfolios and landlord play**, crime/justice, business
+   expansion). Read: the "consequences for years" pitch now includes the
+   property/landlord fantasy — convergent evolution on our landlord
+   layer. But it's still one protagonist in a single-player life; there
+   is no block to watch, no shared cast, no spectators. §2 Tier-3 gains
+   the "become a landlord game / landlord sim" cluster — our angle is
+   "climb from tenant to landlord of your own unit," which is exactly
+   what the design doc's progression arc promises (tenant → owner →
+   landlord of a second unit; the neighborhood's admin landlord is
+   never a playable role — copy rule: never say "run the neighborhood").
+   Journal essay candidate: "the landlord you earn, not the one you
+   buy" — verbs-contrast only, per the compare rule.
+2. **inZOI Phase-5 is still a target, not a product.** The October 2026
+   dedicated-servers phase (hundreds–thousands/server) remains on the
+   roadmap but has not shipped as of Sep 23 — and Kjun himself calls
+   Canvastown a "side project" with "a very long way to go" while
+   insisting multiplayer won't take resources from single-player. Temper
+   the §20 expectation: the free demand-priming may arrive late or land
+   soft. Keep the cluster; don't build launch timing around it. If
+   Phase-5 slips publicly, "persistent shared town" queries stay open
+   longer — good for us either way.
+3. **OurLife is small but alive** (41 reviews, Mostly Positive,
+   23 languages) — a text-forward solo sim, not a shared world. No map
+   change; it stays a Tier-2 listicle peer, not a keyword fight.
+   **Truman-Show orphan demand: fourth straight pass uncontested.**
+
+**Actions taken this pass:** §2 Tier-3 +1 row (landlord cluster);
+`seo/query-register.csv` seeded with all 48 mapped queries (§22); three
+site warns fixed (§15); audit baseline refreshed to 97/43/0.
+
+**Carried to next pass:** check whether inZOI Phase-5 actually shipped
+in October (and its reception — a buggy launch is the "scale isn't the
+hard part" essay); watch LIVORA's update cadence — if it adds any
+shared/spectator surface, the comparison table needs a new column; the
+"landlord" cluster's first real impressions decide whether it promotes
+to Tier 2.
+
+## 22. Query-ops pipeline (v120)
+
+The §13 cannibalization register is now executable, not just a table.
+
+- **`seo/query-register.csv`** — the canonical query→owner map. 48 rows:
+  every §2 keyword + §13 cluster, with cluster, tier, source (plan /
+  serp-vN), and notes. This file is the single source of truth —
+  SEO-PLAN tables summarize it, not duplicate it. Adding a keyword to
+  §2 or §16 means adding a CSV row first.
+- **`tools/query_map.py`** — ingests a Search Console CSV export
+  (columns `query,page,clicks,impressions,ctr,position`; paths or full
+  URLs both fine) and reports: (a) **cannibalization hits** — queries
+  that landed on a page other than their register owner (exit code 1,
+  so it can gate); (b) **unregistered queries** with a best-guess
+  owner via cluster hints — the intake queue for §16 / new register
+  rows; (c) **owner-page share** — impressions per page, the input for
+  the day-30 tier re-score (§15).
+- **`--validate-register`** lints the CSV alone: every owner_page must
+  exist under `site/`, tiers 1–3, no duplicate queries. Runs clean at
+  v120 (48 rows).
+- **Workflow:** GSC → export queries → `tools/query_map.py export.csv`
+  → cannibalization hits get fixed via internal links / §4 variants,
+  never by retargeting the page → unseen queries get sorted into the
+  register or the §16 question bank. Week-1 cadence is in
+  LAUNCH-CHECKLIST §8; day-30 re-score in §9.

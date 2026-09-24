@@ -221,6 +221,7 @@ the checklist exists so a GO is boring.
 - [ ] PENDING — First "This Week on the Block" recap post (from public feed; labels per G15)
 - [ ] PENDING — Launch metrics review: visits→watch sessions→credit purchases; funnel leaks → MARKETINGLOG.md
 - [ ] PENDING — Search Console coverage check; fix indexing issues
+- [ ] PENDING — First query map: export GSC queries CSV → `tools/query_map.py export.csv` — cannibalization hits → internal-link fixes; unregistered queries → `seo/query-register.csv` or SEO-PLAN §16 bank (§22)
 - [ ] PENDING — Triage community questions; recurring ones → `faq.html`; sanitized feedback batch → shared inbox per COMMUNITY-FUNNEL.md §7
 - [ ] PENDING — First creator-outreach variant drafted from PRESS-OUTREACH.md angles (COMMUNITY-FUNNEL.md §6); owner approves before any send
 - [ ] PENDING — Second devlog post (honest post-launch retrospective)
@@ -234,7 +235,7 @@ the checklist exists so a GO is boring.
 
 - [ ] PENDING — Month-1 report: MAU, watcher→requester conversion, payer rate, credit burn vs. projections, top entry pages, top queries (render via `tools/analytics_report.py`)
 - [ ] PENDING — Pricing review: provisional figures holding? Changes proposed to owner (never silent)
-- [ ] PENDING — Content calendar retro: which posts earned traffic/links; adjust SEO-PLAN tiers with real query data
+- [ ] PENDING — Content calendar retro: which posts earned traffic/links; adjust SEO-PLAN tiers with real query data (`tools/query_map.py` owner-page share = the re-score input, §15/§22)
 - [ ] PENDING — Community funnel check: Discord health, cadence retro, mod-recruitment decision, subreddit revisit — per COMMUNITY-FUNNEL.md §9 day-30 list
 - [ ] PENDING — Press kit v1.1: real earned quotes (attributed), final pricing, launch screenshots, trailer link if produced
 - [ ] PENDING — Roadmap review: re-rank remaining marketing focuses against month-1 data; update MARKETING_ROADMAP.md
