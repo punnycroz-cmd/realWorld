@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v126 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v141 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -31,6 +31,24 @@ would contradict the brand. So:
 
 This posture is itself a marketing asset — one line on the privacy page / FAQ at
 launch: *"We measure the funnel, not you: no cookies, no cross-site tracking."*
+
+**The contract is enforced, not just written (v141).**
+`tools/analytics_privacy.py` statically audits `marketing/site/` for violations:
+tracker domains and vendor account-id literals (GA/GTM/UA/AW, Meta/Mixpanel/
+Amplitude/Hotjar/PostHog/Umami-id patterns), banned APIs (`document.cookie`,
+`indexedDB`, `RTCPeerConnection`, canvas readback, `enumerateDevices`,
+`getBattery`, `navigator.plugins`), identifier-shaped `localStorage` keys
+(sessionStorage is session-scoped and allowed; a small allowlist covers
+legitimate user-facing state like `rw_watchcard_v1`), literal remote egress in
+network calls, and — critically — a **committed live endpoint** (the repo must
+ship inert; `data-endpoint` is set at deploy time, §4). Exit 1 on any FAIL.
+It runs inside `analytics_e2e.sh` and `metrics_weekly.sh`, so a privacy
+regression blocks the weekly report the same way spec drift does.
+
+```bash
+python3 marketing/tools/analytics_privacy.py            # audit the shipped site
+python3 marketing/tools/analytics_privacy.py --site DIR # audit a staging copy
+```
 
 ## 2. Tool choice
 
@@ -314,6 +332,22 @@ a cron/CI hook at launch.
 python3 marketing/tools/analytics_watch.py thisweek.ndjson lastweek.ndjson
 ```
 
+### Season trendline (v141)
+
+`tools/analytics_history.py` — the third time axis. `analytics_report.py`
+reads one capture, `analytics_watch.py` diffs two; this lines up **N** kept
+captures and renders one table (sessions, pageviews, engaged/watch/request/
+character reach, bounce, median attention, 404 share) labelled by the ISO
+week of each file's newest event — same rule `metrics_weekly.sh` uses —
+plus ASCII sparklines per metric so a slow decline shows up before a
+`--strict` alarm ever fires. Keep each week's NDJSON (it's also the `prev`
+arg for `analytics_watch.py`) and the whole launch season becomes:
+
+```bash
+python3 marketing/tools/analytics_history.py captures/*.ndjson
+python3 marketing/tools/analytics_history.py w38.ndjson w39.ndjson --json
+```
+
 ### Experiment program (v96)
 
 A/B readouts are run through `tools/ab_compare.py`; which tests exist and
@@ -452,6 +486,11 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] `tools/analytics_coverage.py` clean after any page/emitter change —
       also gated inside `analytics_e2e.sh` and `metrics_weekly.sh` (v96;
       v111 fixed the compare/privacy/refunds/terms drift it caught)
+- [ ] `tools/analytics_privacy.py` clean before every deploy — it is the
+      §1 contract made executable: tracker domains, account-id literals,
+      banned APIs, persistent-identifier storage, literal remote egress,
+      and committed live endpoints all FAIL (v141; gated inside
+      `analytics_e2e.sh` and `metrics_weekly.sh`)
 - [ ] Keep each week's NDJSON capture after reporting — it's the `prev`
       arg that makes `analytics_watch.py` diff work in `metrics_weekly.sh`
       (v111)

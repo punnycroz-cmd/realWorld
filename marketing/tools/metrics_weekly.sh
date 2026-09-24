@@ -7,7 +7,8 @@
 #   1. validate the capture against analytics-events.json (hard gate —
 #      a dirty capture never produces a report)
 #   2. audit site↔spec coverage (drift gate — catches emitters/pages that
-#      changed since the spec was written)
+#      changed since the spec was written) + privacy contract
+#      (analytics_privacy.py — §1 made executable, v141)
 #   3. render the ANALYTICS.md §8 weekly block + §7 detail, labelled with
 #      the ISO week of the newest event in the file
 #   4. append a "### journeys" section (analytics_paths.py — landing/exit
@@ -39,6 +40,10 @@ echo "[weekly] 2/4 auditing site↔spec coverage"
 python3 tools/analytics_coverage.py >/dev/null || {
   echo "[weekly] FAIL: site/spec drift — fix before trusting the numbers"; exit 1; }
 echo "[weekly] coverage clean"
+
+python3 tools/analytics_privacy.py >/dev/null || {
+  echo "[weekly] FAIL: privacy-contract violation in site — see analytics_privacy.py"; exit 1; }
+echo "[weekly] privacy audit clean"
 
 WEEK=$(python3 - "$NDJSON" <<'PY'
 import json, sys, datetime
