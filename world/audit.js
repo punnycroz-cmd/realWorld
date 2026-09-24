@@ -4234,7 +4234,7 @@ const PUB = Object.values(PT.surfaces)
                      'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
                      'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
                      'seat_waitlist', 'multi_hire', 'hire_seam_v91', 'repair_desk_v105',
-                     'welcome_layer_v119'])
+                     'welcome_layer_v119', 'hope_layer_v133', 'time_budget_v133'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -4423,6 +4423,40 @@ const PUB = Object.values(PT.surfaces)
     }
     if (!/opensFor/.test(html) || !/opensLine/.test(html))
       add(g, 'fail', 'create.html', null, 'v119 opensFor/opensLine relevance fns missing');
+    /* v133 HOPES mirror — the carried-in layer. Same grounding law as
+       OPENS: every entry needs a reach channel the registries can
+       re-verify (at → job-board employer, who → PEOPLE face, near → a
+       9xxx prefix on the card, job → the picker's own post, open →
+       needs nothing). The pick is structured data — it must never
+       appear as screened text, a briefing line, or a tracked goal. */
+    const hm133 = /var HOPES = (\[[\s\S]*?\]);/.exec(html);
+    const DHOPES = hm133 ? eval(hm133[1]) : [];
+    if (!hm133 || !DHOPES.length) add(g, 'fail', 'create.html', null, 'HOPES block not found or empty');
+    for (const hp of DHOPES) {
+      if (!hp.id || !hp.label || !hp.line)
+        add(g, 'fail', 'create.html', null, `HOPES ${hp.id || '?'} missing id/label/line`);
+      if (!hp.open && !hp.job && !(hp.at || []).length && !(hp.near || []).length && !hp.who)
+        add(g, 'fail', 'create.html', null, `HOPES ${hp.id}: no grounding channel (open/job/at/near/who)`);
+      for (const e2 of hp.at || [])
+        if (!empSet.has(e2)) add(g, 'fail', 'create.html', null, `HOPES ${hp.id}: at "${e2}" is not a job-board employer`);
+      for (const n2 of hp.near || [])
+        if (!bldSet.has(n2)) add(g, 'fail', 'create.html', null, `HOPES ${hp.id}: near "${n2}" is not a 9xxx building on the card`);
+      if (hp.who && !whoSet.has(hp.who))
+        add(g, 'fail', 'create.html', null, `HOPES ${hp.id}: who "${hp.who}" is not a face on the PEOPLE mirror`);
+    }
+    if (!/hopeFor|hopeLine|hopeNote/.test(html) || !/id="phope"/.test(html))
+      add(g, 'fail', 'create.html', null, 'v133 hope picker + helpers missing');
+    if (!/hoursLine|hrsHi/.test(html))
+      add(g, 'fail', 'create.html', null, 'v133 HOURS time-budget derivation missing');
+    if (!/hope:\s*f\.hope/.test(html))
+      add(g, 'fail', 'create.html', null, 'v133 hope must ride params on the bus filing');
+    const hl = CJ.hope_layer_v133 || {};
+    if (!/initial condition/.test(hl.honesty || '') || !/nobody was asked/.test(hl.honesty || ''))
+      add(g, 'fail', 'creation.json', null, 'hope_layer_v133 honesty terms missing');
+    if (!/quest|progress|tracked/i.test(JSON.stringify(hl.never || [])))
+      add(g, 'fail', 'creation.json', null, 'hope_layer_v133 never-list must forbid tracking/quest machinery');
+    if (!/public profile/.test(JSON.stringify(hl.never || [])))
+      add(g, 'fail', 'creation.json', null, 'hope_layer_v133 never-list must keep the briefing whitelist');
     const wl = CJ.welcome_layer_v119 || {};
     if (!/walk past every one/.test(wl.honesty || '') || !/RSVP/.test(JSON.stringify(wl.never || [])))
       add(g, 'fail', 'creation.json', null, 'welcome_layer_v119 honesty/never terms missing');
@@ -4534,7 +4568,20 @@ const PUB = Object.values(PT.surfaces)
       [/walk past every one/, 'v119: may-ignore honesty'],
       [/assigned to notice a new face/, 'v119: no-assigned-welcome honesty'],
       [/open door isn\\u2019t a welcome|open door isn't a welcome/, 'v119: open-door-is-not-a-welcome honesty'],
-      [/theirs to give/, 'v119: welcome-is-theirs honesty']
+      [/theirs to give/, 'v119: welcome-is-theirs honesty'],
+      [/var HOPES =/, 'v133: hopes mirror'],
+      [/What they carried in/, 'v133: hope picker label'],
+      [/arrives open/, 'v133: open-arrival default'],
+      [/initial condition, not a promise/, 'v133: hope-is-not-a-promise honesty'],
+      [/nothing tracks the difference/, 'v133: no-quest-tracking honesty'],
+      [/nobody was asked/, 'v133: named-face-no-obligation honesty'],
+      [/Carried in/, 'v133: review-quote line'],
+      [/CARRIED IN/, 'v133: keys-card line'],
+      [/never a tracked goal/, 'v133: registry-entry honesty'],
+      [/HOURS/, 'v133: week-cost row'],
+      [/a hope competes with sleep/, 'v133: heavy-shift honesty'],
+      [/the catch is the pay, not the clock/, 'v133: variable-hours honesty'],
+      [/every hour is theirs/, 'v133: no-work hours honesty']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);

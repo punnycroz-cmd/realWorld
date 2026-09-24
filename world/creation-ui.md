@@ -1,9 +1,47 @@
-# Character Creation — spec & copy deck (world v119; v8 was v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v133; v9 was v119; v8 was v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v133 — the carried-in layer: a new face can arrive wanting something, and the
+week's cost is printed where the commitment is made:**
+
+- **What they carried in.** Step 5 gains an optional single pick off a
+  `HOPES` mirror: a self-chosen direction the character arrives carrying —
+  a trade to learn, people to eat with, a crew, to be good at the work, a
+  place that's theirs someday, to be known a little, a quiet year — plus
+  the honest default **"arrives open"**. Production-3's self-chosen-
+  projects dimension: an intention seed, never an assigned destiny. The
+  pick is structured (data, not text) so it adds zero screening surface.
+- **Grounded like the open doors.** Every HOPES entry carries at least
+  one reach channel the audit re-verifies: `at` → a job-board employer,
+  `who` → a face on the PEOPLE mirror, `near` → a 9xxx prefix on the
+  card, `job` → the picker's own post, `open` → needs nothing. The hopes
+  can't drift from the block.
+- **A hope is not a promise.** The copy says it verbatim: an initial
+  condition the brain may keep, revise, or quietly drop — *and nothing
+  tracks the difference*. No quest log, progress meter, check-in, or
+  score exists anywhere. A hope that names a face (Tomás's patience,
+  Carmen's table, Marcus's circle, Sam's pitch) names them **without
+  asking** — nobody was asked; the block keeps its own counsel. An
+  abandoned hope is a legitimate outcome, not a failed quest.
+- **Where it rides.** `params.hope` on the real bus filing (recorded,
+  unread — same posture as `goes_by`, flagged for the game track), the
+  step-6 review quote ("Carried in"), the day-one keys card ("CARRIED IN"
+  — on the file as an initial condition; the block was never asked to
+  deliver it), and the registry entry ("initial condition, never a
+  tracked goal"). It is **never a briefing line** — the whitelist stays
+  public profile / surface relationships / routine.
+- **The week's cost.** The first-week grid gains a `HOURS` row derived
+  from the picked job's posted hours — not authored copy: a 40-hour card
+  eats evenings ("a hope competes with sleep"), a 30-hour card leaves
+  thin evenings, a side shift leaves the week open but the money thin,
+  `variable` reads "the catch is the pay, not the clock", and arriving
+  without work owns every hour while watching every dollar. Limited
+  capacity stated where the commitment is made — the same hours a hope
+  would need.
 
 **v119 — the welcome layer: the block's open doors render next to the arrival,
 and nobody is assigned to knock:**

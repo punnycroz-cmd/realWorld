@@ -35,7 +35,7 @@
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
   loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer,
-  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer, PT121 + archive v132 consequence layer).
+  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer, PT121 + archive v132 consequence layer, PT122 + create v133 carried-in layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2638,6 +2638,31 @@ const PTS=[
   ck:["quiet follows are counted in the summary strip ('K quiet since your mark'), not hidden",
    "unserved follow keys are kept and stated — the archive never silently resets reader state",
    "archive gate: 0 fail on the v132 marks (data-v=\"follow\", rw_archive_follow, honesty strings, no-bus check on fol* functions); history.json carries archive_ui_v132"]}
+]},
+{id:"PT122",title:"The Carried-In Layer v133 — a hope, not a plan; and what the week costs",min:8,
+ persona:"a player mid-application who wants the form to ask one honest question — 'what does this person want?' — without it turning into a quest log or a promise the block has to keep",
+ goal:"Verify the v133 carried-in layer on create.html: step 5 gains an optional structured HOPES pick (a trade to learn / people to eat with / a crew / good at the work / a place that's theirs / to be known a little / a quiet year) with 'arrives open' as the honest default; the note states 'a hope is an initial condition, not a promise … nothing tracks the difference' and named-face hopes add 'nobody was asked'; the HOURS row derives the week's time cost from the picked job's posted hours; the hope rides the review quote, the keys card, the registry entry, and params.hope on the bus filing — never the briefing; the creation audit gate's v133 marks pass.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open create.html (fresh profile or clear rw_create_* keys). Walk the wizard with a real pick set — name, bio, build/palette/signature, a posted job (try Mudhaus barista, 30–38 h/wk), and an affordable door (the Treat Ave room — the Guerrero studio should refuse at ~56% of income). On step 5, read the week grid and the new picker before touching anything.",
+  exp:"The week grid ends with an HOURS row derived from the posted hours — 'the shift takes ~30–38 h of the week — afternoons and evenings exist; thin ones, but theirs'. Below it, 'What they carried in — a hope, not a plan (optional)' shows the HOPES picks plus 'arrives open' pre-selected, and the note reads 'Arrives open — most people do.' plus the no-promise honesty.",
+  ck:["HOURS is derived, not authored — switch the job pick (back a step) and the line changes: a 40 h card says 'a hope competes with sleep', a variable gig says 'the catch is the pay, not the clock', 'arrives without work' says 'every hour is theirs — and every dollar watched'",
+   "'arrives open' is selected by default and is a real, complete choice — picking nothing is not an error state",
+   "the picker adds no free-text field — the screened surface is unchanged (still name/goes_by/bio/arrival)"]},
+ {do:"Pick 'a crew' (or 'a trade to learn'), read the note, then pick 'good at the work' and read it again.",
+  exp:"A named-face hope (crew → Marcus Bell, trade → Tomás Herrera, table → Carmen, known → Sam) appends the obligation honesty: 'It names a face without asking them — nobody was asked; the block keeps its own counsel.' The 'good at the work' hope drops that clause entirely — and with no job picked it appends 'No job picked — the hunt is the work for now.'",
+  ck:["the note states verbatim: 'A hope is an initial condition, not a promise — the brain may keep it, revise it, or quietly drop it, and nothing tracks the difference'",
+   "no RSVP/progress/score affordance exists anywhere near the pick — it's a chip, not a tracker",
+   "the no-obligation clause appears only on who-grounded hopes — 'good at the work' and 'a quiet year' carry none"]},
+ {do:"Continue to review & sign, read the quote, submit, and let the demo reviewer clear. Read the keys card and the registry entry. Reload the page mid-draft once to confirm the pick persists in rw_create_draft_v27.",
+  exp:"The step-6 quote carries a 'Carried in' line with the hope's line verbatim. After approval the keys card gains 'CARRIED IN — on the file as an initial condition; the block was never asked to deliver it' and the registry entry gains 'carried in … initial condition, never a tracked goal'. The possession briefing is unchanged — the whitelist stays public profile / surface relationships / routine. A reload mid-flow restores the pick.",
+  ck:["the hope appears on quote + keys + record but NOT in the briefing's four lines — it is inner life the player authored, not a public fact",
+   "with 'arrives open' the same surfaces render 'nothing picked — they arrive open' / 'arrives open' — the empty state is stated, not blank",
+   "grep the submit path: params.hope rides busSpec() like goes_by — recorded, and the personnel file doesn't read it yet"]},
+ {do:"Read creation.json hope_layer_v133 + time_budget_v133 against the page, then run node world/audit.js and devtools/smoke_create_v133.js.",
+  exp:"Both contract blocks exist: grounding law (at/who/near/job/open channels re-verified like OPENS), renders list, honesty + never list (no quest log, no obligation on named faces, never a briefing line, never screened text, never a paid hope). The audit's creation gate passes the v133 marks; the smoke test reports ALL PASS.",
+  ck:["creation gate: 0 fail — a merge that drops the HOPES mirror, ungrounds an entry, screens the pick as text, or adds tracking vocabulary FAILs",
+   "record_schema.hope is present and says 'never a tracked goal'; hire_seam_v91 spec.params lists hope",
+   "HOPES 'at'/'who' tokens re-verify against jobs.json employers and the PEOPLE mirror — a drifted name fails the gate"]}
 ]}
 ];
 

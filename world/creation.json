@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 28,
+  "version": 29,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -23,6 +23,7 @@
       "signature": ["windbreaker, always", "paint-flecked work boots", "loud prints, louder laugh", "cardigans and a paperback", "running gear at dawn", "denim jacket, pins on the collar"]
     },
     "arrival": "one-line 'first day on the block' context — screened text",
+    "hope": "v133 — optional structured pick from the HOPES mirror (or null = 'arrives open'); an initial condition, never a tracked goal; data not text, so it adds no screening surface and never becomes a briefing field",
     "job_id": "jobs.json row with openings, or 'seeking'",
     "unit_id": "housing.json listings_live unit, or a room tier",
     "bank_game_dollars": "starting balance — rent comes out of this, not credits",
@@ -84,10 +85,10 @@
   "hire_seam_v91": {
     "doc": "the production bus shape create.html files when bridged",
     "spec": { "playerId": "you", "kind": "hire", "target": "<unit id>", "durationMin": 5,
-      "params": ["name", "goes_by", "age", "pronouns", "bio", "arrival", "look{build,palette,signature}", "job", "moveInDate", "resubmit_n"] },
+      "params": ["name", "goes_by", "age", "pronouns", "bio", "arrival", "look{build,palette,signature}", "job", "moveInDate", "resubmit_n", "hope"] },
     "record": "denied → pre-billing refusal, real reason code shown; in_review + lane 'naming' → deferred billing, charge lands at approval; the office stamps one hire per account per 24 h (cdPlayerMin 1440)",
     "deny_codes": ["needs_housing", "unknown_unit", "unit_not_livable", "unit_offmap", "unit_occupied", "hire_cap", "cast_cap", "needs_name", "name_too_short", "name_too_long", "name_collision", "underage", "bad_age", "bad_look", "unknown_job", "job_filled", "out_of_reach", "cooldown", "appeal_final", "insufficient_credits"],
-    "note": "goes_by rides params on the record but 41_game_systems_possession's screen haystack doesn't read it yet — flagged for the game track"
+    "note": "goes_by rides params on the record but 41_game_systems_possession's screen haystack doesn't read it yet — flagged for the game track; v133's params.hope is the same posture (recorded, unread)"
   },
   "people_layer": {
     "doc": "v49 — the block's actual names, mirrored from characters.json (cast, k:'cast') and ambients.json (faces, k:'face'). Every row re-verified by the audit gate: w employer tokens resolve into the person's job/venue field, b building prefixes resolve into cast home fields, owns prefixes resolve into the landlord's job field. Ambient homes are not addresses, so faces never carry b.",
@@ -165,6 +166,17 @@
     "honesty": "open invitations, not plans — 'the block does these anyway; they can walk past every one; nobody's assigned to notice a new face. An open door isn't a welcome — the welcome, if it comes, is theirs to give.'",
     "never": ["no RSVP field anywhere in the flow", "no attendance tracking or follow-up ledger", "nothing written to the registry record", "no scripted greeting — the block decides who notices a new face", "never a briefing field (the whitelist stays public profile / surface relationships / routine)"],
     "source": "characters/ensemble.md shared-rituals table + jobs.json venues + the PEOPLE mirror — internal ritual names stay internal; only public-observable surface renders"
+  },
+  "hope_layer_v133": {
+    "doc": "v133 — the carried-in layer. Step 5 gains an optional single pick from the HOPES mirror: a self-chosen direction the character arrives carrying (a trade to learn, people to eat with, a crew, good at the work, a place that's theirs, to be known a little, a quiet year) plus the honest default 'arrives open'. Production-3 dimension (a): self-chosen projects — an intention seed, never an assigned destiny.",
+    "grounding": "every HOPES entry carries at least one reach channel the audit re-verifies: `at` = a job-board employer, `who` = a face on the PEOPLE mirror, `near` = a 9xxx prefix on the card, `job` = the picker's own job, `open` = needs nothing",
+    "renders": ["picker + hopeNote on step 5 (the first week)", "Carried in line on the step-6 review quote", "CARRIED IN line on the day-one keys card", "carried in row on the registry entry", "params.hope on the bus filing (recorded; the personnel file doesn't read it yet)"],
+    "honesty": "a hope is an initial condition, not a promise — the brain may keep it, revise it, or quietly drop it, and nothing tracks the difference; a hope that names a face doesn't oblige them — nobody was asked",
+    "never": ["no quest log, progress meter, or check-in anywhere", "no obligation written for named faces — the block keeps its own counsel", "never a briefing line — the whitelist stays public profile / surface relationships / routine", "never screened text — the pick is structured data", "never a paid or privileged hope — all picks cost the same nothing"]
+  },
+  "time_budget_v133": {
+    "doc": "v133 — the first-week grid gains a HOURS row derived from the picked job's posted hrs string: the week's honest cost in time, stated where the commitment is made. Production-3 dimension (d): limited capacity — a hope competes with the shift for the same hours.",
+    "rules": ["~N–M h/wk rendered verbatim from the posted hours", ">=40 h/wk → 'a hope competes with sleep'", "30–39 → thin evenings, but theirs", "16–29 → the hours are theirs; the money is the constraint", "<16 → a side shift, not a living", "variable → the catch is the pay, not the clock", "seeking → every hour theirs, every dollar watched"]
   },
   "multi_hire": {
     "doc": "v77 — a second hired character is a stranger to the first, stated verbatim on the review step ('<name> is on the card too — a stranger to them; they meet on the block like anyone else') and in the briefing's surface-relationships line (a stranger, not a contact). What the player knows, neither character does — the briefing whitelist is unchanged."

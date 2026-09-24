@@ -522,6 +522,21 @@ One person can wear every hat; four real testers is the intended shape.
   claim"). The audit's v132 marks pin the view switch, storage key,
   both honesty lines, the follow toggles, and the never-a-bus-write
   rule on every fol* function.
+  PT122 (create v133) audits the carried-in layer — the creation flow's
+  self-chosen-projects + limited-capacity legs. Step 5 gains an optional
+  HOPES pick ("a trade to learn" / "people to eat with" / "a crew" /
+  "good at the work" / "a place that's theirs" / "to be known a little"
+  / "a quiet year") with "arrives open" as the honest default; the note
+  states "a hope is an initial condition, not a promise … nothing
+  tracks the difference" and who-grounded hopes append "nobody was
+  asked". The week grid gains a HOURS row derived from the picked job's
+  posted hours ("a hope competes with sleep" on a 40-hour card; "the
+  catch is the pay, not the clock" on a variable gig). The hope rides
+  the review quote, the keys card, the registry entry, and params.hope
+  on the bus filing — never the briefing. The audit's v133 marks pin
+  the HOPES mirror grounding (at/who/near/job/open channels re-verified
+  against the registries), the honesty strings, the params.hope seam,
+  and the contract blocks.
 
 ## 3. Running a session
 
