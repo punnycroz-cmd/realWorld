@@ -1,4 +1,4 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
@@ -321,3 +321,73 @@ is the whole monetization surface).
 | Replay footer | "the feed, replayed — the world itself kept running." |
 | Pass pointer | "The Director pass — multi-cam, PiP, scrub inside the sim view — is 10 cr / 30 min, filed at the Counter like any request. Watching costs nothing either way." |
 | Live record line | "live record — \<status · claim · declared · trail count\> (gsExplainRequest — the bus's own explainer)" |
+
+## 12. v75 — the schedule + the person layer (world v75)
+
+Two new answers for the two questions a settled-in viewer asks next —
+*"what's already promised?"* and *"what has she been up to today?"* —
+plus one comfort feature and one honesty counter. All view-layer, as ever:
+the wire reads the world's public records; nothing here writes them.
+
+### "on the book" — the wire shows the schedule
+
+- `#bookbar` sits between the reaching-in-now strip and the missed bar.
+  It lists the booked windows still ahead of the block clock
+  (`HH:MM · claim · what · holder handle`), newest-first, max five.
+  A window that already fired is a wire event, not a strip row — the
+  strip only ever shows promises not yet kept.
+- Source: an inline `BOOKW` mirror of `bookings.json` windows (the audit
+  deep-compares them field-for-field — same rule as request.html's own
+  BOOKW). Live mode merges `gsViewerState().calendar` (the v74 seam),
+  deduped by `claim+start`, accepting `start_min` or `HH:MM`.
+- Collapses on its header, the `b` key, persisted `rw_wire_book`. Footer
+  links `book.html`. **No prices, no slot-picker, no claim affordance**
+  on the wire — a viewer who wants a window files at the Counter.
+  Copy: *"a booked window is a promise the world already made — the
+  whole day's calendar lives at the Book."*
+
+### "their wire today" — the person card
+
+- `#cday`, a right-rail card under the event detail. Two ways in: click
+  a name in the cast strip, or the "their wire today — \<name\>" button
+  on any event whose `who` is a rostered character (C/A/h ids).
+- The card lists every event today whose `who` or `attrs.mentions`
+  touched that id — newest eight, then an honest *"…and N earlier"* —
+  plus the same free pin affordance and the standing honesty line:
+  *"public whereabouts only — homes are walls; off-the-feed stretches
+  stay off."* An empty card says so: *"Nothing yet today — the wire
+  only knows what a camera could see."*
+- It is the wire counted per person — never a dossier. No invented
+  activity, no inferred mood, no coverage the feed didn't already have.
+
+### Thread mute — your screen, not the record
+
+- A request event's detail gains **mute this thread**. That `req`'s
+  lines drop out of the stream and the reaching-in-now strip for this
+  viewer only (`rw_wire_mute`, persisted, reversible). The Following
+  panel lists muted threads with one-click unmute.
+- The honesty contract is explicit everywhere the feature appears:
+  *"muted on your screen only — the wire's record is unchanged and The
+  Archive keeps everything."* The day-so-far card still counts muted
+  rows — it counts the wire, not your view of it. A mute is a reader's
+  preference, never a moderation act; it cannot hide a paid
+  intervention from anyone but the muter.
+
+### Search match count
+
+- The search box gains `#qcount` — a live *"N matching"* over the whole
+  feed (text + `who` + resolved names + venue names). An honest count,
+  never a ranking: the wire does not sort results by salience.
+
+### Copy deck — v75 strings
+
+| Moment | Copy |
+|---|---|
+| Book strip label | "on the book — N windows ahead — scheduled claims, public" |
+| Book strip footer | "a booked window is a promise the world already made — the whole day's calendar lives at the Book." |
+| Char card empty | "Nothing yet today — the wire only knows what a camera could see." |
+| Char card honesty | "public whereabouts only — homes are walls; off-the-feed stretches stay off." |
+| Char card remainder | "…and N earlier — the stream has them all." |
+| Mute button / note | "mute this thread" · "muted on your screen only — the wire's record is unchanged and The Archive keeps everything." |
+| Muted list label | "muted threads" |
+| Search count | "N matching" |

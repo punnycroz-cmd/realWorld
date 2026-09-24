@@ -2015,6 +2015,30 @@ const PUB = Object.values(PT.surfaces)
       'replay_scrub', 'live_receipt', 'live_occupancy', 'pass_pointer',
       'keyboard'])
       if (!V61[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v61.${k} missing`);
+    /* v75 affordances + contract keys (the schedule + person layer) */
+    for (const s of ['id="bookbar"', 'id="cday"', 'id="mutelist"', 'id="qcount"',
+      'BOOKW', 'renderBook', 'renderCharDay', 'openCharDay', 'toggleMute',
+      'rw_wire_mute', 'rw_wire_book', 'on the book', 'their wire today',
+      'muted on your screen', "'b'"])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v75 affordance "${s}" absent`);
+    const V75 = (FJ.spectator_ui || {}).spectator_ui_v75 || {};
+    for (const k of ['book_strip', 'char_day', 'thread_mute',
+      'search_count', 'keyboard'])
+      if (!V75[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v75.${k} missing`);
+    /* wire BOOKW mirrors bookings.json windows — same five-field key as
+       request.html's own BOOKW check in the book gate */
+    {
+      const wm = html.match(/var BOOKW = (\[[\s\S]*?\]);/);
+      if (!wm) add(g, 'fail', 'wire.html', null, 'wire BOOKW block not found');
+      else {
+        const BJ = JSONF('bookings.json');
+        const W = eval('(' + wm[1] + ')');
+        const key = w => [w.claim, w.start, w.min, w.who, w.what].join('|');
+        const a = W.map(key).sort(), b = (BJ.windows || []).map(key).sort();
+        if (JSON.stringify(a) !== JSON.stringify(b))
+          add(g, 'fail', 'wire.html', null, 'wire BOOKW != bookings.json windows (hand-sync drift)');
+      }
+    }
     /* declared-cost attrs must be exercised: ≥1 seed carries credits */
     if (!(FJ.demo_seeds || []).some(e => e.attrs && e.attrs.credits))
       add(g, 'fail', 'feed.json', null, 'no demo seed exercises attrs.credits — declared-cost display untested');
@@ -2043,7 +2067,8 @@ const PUB = Object.values(PT.surfaces)
     });
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
-      `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'}`;
+      `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'} · ` +
+      `v75 keys: ${Object.keys(V75).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -2489,7 +2514,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v71 || {};
+    const H = PT.harness_ui_v72 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2894,7 +2919,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v74 local';
+out.build = 'world v75 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

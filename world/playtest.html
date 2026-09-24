@@ -16,7 +16,7 @@
   PT62 + onboarding v5 eligibility layer / onboard gate v67,
   PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
   PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73,
-  PT67 + book v74 / book gate v74).
+  PT67 + book v74 / book gate v74, PT68 + wire v6 schedule/person layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1462,15 +1462,40 @@ const PTS=[
     "The picker stops offering the span you booked while it is held",
     "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
  {do:"Run `node world/audit.js` and read the book + request + harness gates.",
-  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 67 scenarios at the v71 key.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 68 scenarios at the v72 key.",
   ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
     "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
-    "Harness gate: '67 scenarios · N checkpoints · key rw_playtest_v71'; 0 fail overall"]}]}];
+    "Harness gate: '68 scenarios · N checkpoints · key rw_playtest_v72'; 0 fail overall"]}]}
+,{id:"PT68",title:"The Wire v6 — the schedule + the person layer",min:10,
+ persona:"daily spectator — knows the wire, wants the day's shape",
+ goal:"Verify the v75 spectator-feed pass: the on-the-book strip shows only windows still ahead and never sells one; 'their wire today' counts the wire per person without inventing coverage; thread mute hides a request from your display only; the search match count is honest; every addition stays view-layer.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open wire.html (file://). Read the 'on the book' strip under the filters; click its header, then press b.",
+  exp:"A collapsible bar lists booked windows still ahead of the block clock — 'HH:MM · claim · what · @handle' (e.g. 16:00 poetry hour at Mudhaus Coffee, 22:30 birthday window at The 600 Club). Past windows are absent — a fired window is already a wire event. No price, slot-picker, or claim button appears; the footer links the Book.",
+  ck:["Only upcoming windows render — the 07:30 and 09:00 seeded windows are already behind the 15:04 clock and do not show",
+    "The strip carries zero credit figures and zero 'book it' affordances — the wire reads the calendar, never writes it",
+    "Collapse persists across reload (rw_wire_book) and the b key toggles it"]},
+ {do:"Click 'Mars' in the cast strip, then open a move event's record and use 'their wire today — <name>'.",
+  exp:"The right-rail 'Their wire today' card lists every event whose who/mentions touched that character — newest eight plus an honest '…and N earlier' remainder — with a pin button and 'public whereabouts only — homes are walls; off-the-feed stretches stay off'. A character with no events shows 'Nothing yet today — the wire only knows what a camera could see.'",
+  ck:["The card counts only wire events — no inferred mood, no coverage the feed lacks",
+    "The pin affordance on the card is the same free follows system (public whereabouts only)",
+    "Dani's card can honestly show an 'off the feed' stretch event — never invented coverage"]},
+ {do:"Open a running request's record, 'mute this thread', watch its lines leave the stream and the reaching-in-now strip; unmute from the Following panel. Then type 'park' in search.",
+  exp:"Muting drops that req's lines from your display only; the Following panel gains a 'muted threads' list with the note 'muted on your screen only — the wire's record is unchanged and The Archive keeps everything' and unmute restores it. The day-so-far card still counts the muted rows. Search shows a live 'N matching' counter beside the box.",
+  ck:["Muted threads persist (rw_wire_mute) and unmute brings the whole trail back",
+    "Muted events still count in 'the day so far' — the recap counts the wire, not your view",
+    "'N matching' counts text + who + resolved names + venue names across the whole feed"]},
+ {do:"Run `node world/audit.js` and read the wire + harness gates.",
+  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 68 scenarios at the v72 key.",
+  ck:["wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
+    "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
+    "Harness gate: '68 scenarios · N checkpoints · key rw_playtest_v72'; 0 fail overall"]}]}];
 
 
 /* ---- state ---- */
-const LS="rw_playtest_v71";
-const BUILD="world v71 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71 */
+const LS="rw_playtest_v72";
+const BUILD="world v72 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

@@ -55,6 +55,14 @@
       "live_occupancy": "venue cards read BRIDGE.gsOccupancy() or gsViewerState().occupancy when offered ({mains,labels,count} per venue); absent, the public-routine picture stands",
       "pass_pointer": "the Director pass (10 cr/30 min, plan §2.3 PROPOSAL) is pointed at, never sold — 'filed at the Counter like any request' links to request.html",
       "keyboard": "adds `v` — toggle the director bar; esc closes it before clearing selection"
+    },
+    "spectator_ui_v75": {
+      "doc": "world v75 — the schedule + the person layer on wire.html (v6). Still strictly view-layer: a booked window is read, never filed here; a mute is the viewer's own display, never the record; a character card counts the wire, never the person.",
+      "book_strip": "collapsible 'on the book' bar (#bookbar, `b` key, persisted rw_wire_book) between the live strip and the missed bar — upcoming booked windows (HH:MM · claim · what · holder handle) from an inline BOOKW mirror of bookings.json windows plus, live, gsViewerState().calendar merged deduped by claim+start (start_min or HH:MM accepted). Only windows still ahead of the block clock render — a fired window is already a wire event. Footer links the Book; no prices, no slot-claim affordance — the wire reads the calendar, it never writes it",
+      "char_day": "'their wire today' card (#cday, right rail) — click a cast-strip name or the button on a character's event record; lists every event whose who/attrs.mentions touched them today (newest 8 + an honest remainder count), with the same pin affordance and the standing honesty line 'public whereabouts only — homes are walls; off-the-feed stretches stay off'. Counted from the wire — no invented activity",
+      "thread_mute": "request detail gains 'mute this thread' — that req's lines drop out of the stream and the live-now strip on this viewer's screen only (rw_wire_mute, reversible from the muted list in the Following panel); copy states the wire's record is unchanged and The Archive keeps everything. Muted rows still count in the day card — the recap counts the wire, not your view of it",
+      "search_count": "the search box gains a live 'N matching' counter (#qcount) over the whole feed (text + who + resolved names + venue names) — an honest count, never a ranking",
+      "keyboard": "adds `b` — collapse/expand the on-the-book strip"
     }
   },
   "event_kinds": [

@@ -58,6 +58,20 @@
       line on request detail when the bus is present, and venue cards
       read gsOccupancy()/viewer-state occupancy when offered —
       capability-checked, demo falls back to public routines.
+  New in v6 (world v75) — the schedule + the person layer:
+    - "on the book" strip — upcoming booked windows (v74's public
+      calendar) rendered on the wire itself: HH:MM · what · holder ·
+      claim, collapsible (`b` key, persisted rw_wire_book). A booked
+      window is a promise the world already made; the wire shows it.
+    - "their wire today" — a per-character card (click a cast name, or
+      the button on a character's event record): every event that
+      touched them today, counted from the wire — public whereabouts
+      only, homes stay walls.
+    - thread mute — a request's detail gains "mute this thread": its
+      future lines drop out of YOUR display only (rw_wire_mute), with
+      the honest note that the wire's record is unchanged and The
+      Archive keeps everything.
+    - search gains a live match count — "N matching" beside the box.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -273,6 +287,29 @@
   .dirbar .dfoot a{color:var(--blu)}
   .wire li.camhl{box-shadow:inset 2px 0 0 var(--acc)}
   body.zen .dirbar{display:none !important}
+
+  /* ---- v75: the book strip + char day + thread mute + search count ---- */
+  .bookbar{display:none;margin:0 0 10px;border:1px solid var(--line);border-radius:8px;
+    background:var(--panel2);padding:6px 12px;font-size:12px}
+  .bookbar .bhead{display:flex;align-items:baseline;gap:8px;cursor:pointer}
+  .bookbar .bhead b{color:var(--blu);letter-spacing:.08em;text-transform:uppercase;font-size:10.5px}
+  .bookbar .bhead .arrow{margin-left:auto;color:var(--acc)}
+  .bookbar .brow{display:flex;gap:8px;align-items:baseline;padding:3px 0 0;
+    color:var(--dim);font-size:12px}
+  .bookbar .brow .t{font-family:var(--mono);font-size:11px;color:var(--ink)}
+  .bookbar .brow .who{color:var(--blu)}
+  .bookbar .brow .claim{flex:none;color:var(--dim);font-size:10.5px}
+  .bookbar .bfoot{margin-top:5px;font-size:10.5px;color:var(--dim)}
+  .bookbar .bfoot a{color:var(--blu)}
+  .qcount{font-size:10.5px;color:var(--acc);font-family:var(--mono);flex:none}
+  .cp b{cursor:pointer}
+  .cp b:hover{color:var(--acc)}
+  .cday .ev2{padding:3px 0;border-bottom:1px solid var(--line);font-size:12px;color:var(--dim)}
+  .cday .ev2:last-child{border-bottom:0}
+  .cday .ev2 .t{font-family:var(--mono);font-size:10.5px;margin-right:7px}
+  .cday .fnote{margin-top:8px;color:var(--dim);font-size:11px}
+  .mutelist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .mutelist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -313,9 +350,11 @@
       <button class="chip" data-f="admin">admin</button>
       <button class="chip" data-f="followed" id="chipf" style="display:none">following <span class="n" id="fn"></span></button>
       <input class="search" id="q" placeholder="search the wire…" aria-label="search the wire">
+      <span class="qcount" id="qcount"></span>
       <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
     <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
+    <div class="bookbar" id="bookbar" aria-label="on the book — upcoming booked windows"></div>
     <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
     <div class="daybar" id="daybar" role="button" tabindex="0" aria-label="toggle the day-so-far recap"></div>
     <div class="daycard" id="daycard"></div>
@@ -351,11 +390,18 @@
       <div id="detBody"><div class="detempty">Select any wire line for its record —
         id, permalink, and (for requests) the whole status trail.</div></div>
     </section>
+    <section class="panel cday" id="cdayPanel">
+      <h2>Their wire today</h2>
+      <div id="cday" style="font-size:12.5px;color:var(--dim)">Click a name in the cast
+        strip (or "their wire today" on an event) for everything the wire saw of them
+        today — public whereabouts only.</div>
+    </section>
     <section class="panel">
       <h2>Following</h2>
       <div id="folllist" style="font-size:12.5px;color:var(--dim)">Nothing pinned. Follow a
         venue or a character on the left — free, instant, reversible. It filters the wire;
         it never touches the world.</div>
+      <div class="mutelist" id="mutelist" style="display:none"></div>
     </section>
   </div>
 </main>
@@ -384,6 +430,7 @@
       <tr><td class="k">h</td><td>hold the display — the world keeps running</td></tr>
       <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
       <tr><td class="k">v</td><td>director preview — cam presets, follow-cam, replay scrub</td></tr>
+      <tr><td class="k">b</td><td>on the book — upcoming booked windows</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -507,6 +554,107 @@ function camMatch(e){
   return false;
 }
 
+/* ---- v75: the schedule + the person layer (all view-layer) ----
+   The book strip reads today's booked windows — a booked window is a
+   promise the world already made, so the wire shows it. BOOKW mirrors
+   world/bookings.json windows (the audit compares them field-for-field);
+   live mode merges vs.calendar on top, deduped by claim+start. */
+var BOOKW = [
+  {claim:'sky',           start:'07:30', min:60,  who:'marina_w', what:'fog burn-off for the morning crowd'},
+  {claim:'openair',       start:'09:00', min:90,  who:'leaf',     what:'park cleanup — Dolores, Saturday'},
+  {claim:'venue:club600', start:'22:30', min:60,  who:'dvh',      what:'birthday window — the back corner'},
+  {claim:'venue:mudhaus', start:'16:00', min:60,  who:'okfm',     what:'poetry hour — corner tables'}
+];
+var LIVE_BOOK=[];           /* bus-side calendar rows, same shape */
+var bookOpen=true;
+try{ bookOpen = localStorage.getItem('rw_wire_book')!=='0'; }catch(e){}
+function hm(s){ var p=String(s).split(':'); return (+p[0])*60+(+p[1]); }
+function claimName(c){
+  if (c.indexOf('venue:')===0) return VENUE_NAME[c.slice(6)]||c;
+  if (c==='sky') return 'the sky';
+  if (c==='openair') return 'the open air';
+  return c;
+}
+function bookRows(){
+  var rows=[];
+  BOOKW.forEach(function(w){ rows.push({claim:w.claim, t:hm(w.start), min:w.min, who:w.who, what:w.what}); });
+  var seen={}; rows.forEach(function(r){ seen[r.claim+'|'+r.t]=1; });
+  LIVE_BOOK.forEach(function(w){
+    var t = w.start_min!=null ? w.start_min : hm(w.start||'0:00');
+    if (!seen[w.claim+'|'+t]) rows.push({claim:w.claim, t:t, min:w.min, who:w.who, what:w.what});
+  });
+  /* the strip is what's still ahead — past windows already fired on the wire */
+  return rows.filter(function(r){ return r.t>T && r.t<T+1440; })
+             .sort(function(a,b){return a.t-b.t;}).slice(0,5);
+}
+function renderBook(){
+  var bar=document.getElementById('bookbar');
+  var rows=bookRows();
+  if (!rows.length){ bar.style.display='none'; return; }
+  bar.style.display='block';
+  var h='<div class="bhead" id="bookhead"><b>on the book</b>'+
+    '<span style="color:var(--dim)">'+rows.length+' window'+(rows.length===1?'':'s')+
+    ' ahead — scheduled claims, public</span><span class="arrow">'+(bookOpen?'▾':'▸')+'</span></div>';
+  if (bookOpen){
+    rows.forEach(function(r){
+      h+='<div class="brow"><span class="t">'+fmt(r.t)+'</span>'+
+        '<span class="claim">'+esc(claimName(r.claim))+'</span>'+
+        '<span style="flex:1">'+esc(r.what)+'</span>'+
+        '<span class="who">'+esc(r.who)+'</span></div>';
+    });
+    h+='<div class="bfoot">a booked window is a promise the world already made — '+
+      'the whole day\u2019s calendar lives at <a href="book.html">the Book</a>.</div>';
+  }
+  bar.innerHTML=h;
+  document.getElementById('bookhead').onclick=toggleBook;
+}
+function toggleBook(){
+  bookOpen=!bookOpen;
+  try{ localStorage.setItem('rw_wire_book',bookOpen?'1':'0'); }catch(e){}
+  renderBook();
+}
+
+/* thread mute — drops a request's lines from YOUR display only.
+   The wire's record is unchanged; The Archive keeps everything. */
+var muted={};
+try{ muted=JSON.parse(localStorage.getItem('rw_wire_mute')||'{}'); }catch(e){}
+function saveMuted(){ try{ localStorage.setItem('rw_wire_mute',JSON.stringify(muted)); }catch(e){} }
+function toggleMute(req){
+  if (muted[req]) delete muted[req]; else muted[req]=true;
+  saveMuted(); renderFollows(); renderWire(); renderDetail();
+}
+
+/* their wire today — a per-character card counted from the wire itself */
+var cdayId=null;
+function renderCharDay(){
+  var box=document.getElementById('cday');
+  if (!cdayId){
+    box.innerHTML='Click a name in the cast strip (or "their wire today" on an event) '+
+      'for everything the wire saw of them today — public whereabouts only.';
+    return;
+  }
+  var name=CHAR_NAME[cdayId]||cdayId;
+  var evs=FEED.filter(function(e){
+    return e.who===cdayId || (e.attrs && e.attrs.mentions && e.attrs.mentions.indexOf(cdayId)>=0);
+  });
+  var h='<b style="color:var(--ink)">'+esc(name)+'</b> — '+evs.length+
+    ' event'+(evs.length===1?'':'s')+' on the wire today';
+  evs.slice(0,8).forEach(function(e){
+    h+='<div class="ev2"><span class="t">'+fmt(e.t)+'</span>'+esc(e.text)+'</div>';
+  });
+  if (evs.length>8) h+='<div class="ev2" style="font-style:italic">…and '+(evs.length-8)+' earlier — the stream has them all.</div>';
+  if (!evs.length) h+='<div class="ev2" style="font-style:italic">Nothing yet today — the wire only knows what a camera could see.</div>';
+  var k='c:'+cdayId;
+  h+='<div class="fnote"><button class="dbtn'+(follows[k]?' on':'')+'" data-k="'+k+'">'+
+    (follows[k]?'pinned':'pin')+' '+esc(name)+'</button> '+
+    'public whereabouts only — homes are walls; off-the-feed stretches stay off.</div>';
+  box.innerHTML=h;
+  box.querySelectorAll('.dbtn').forEach(function(c){
+    c.onclick=function(){ toggleFollow(c.dataset.k); renderCharDay(); };
+  });
+}
+function openCharDay(id){ cdayId=id; renderCharDay(); }
+
 function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
 function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
 function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
@@ -523,6 +671,7 @@ function followsMatch(e){
   return false;
 }
 function kindVisible(e){
+  if (e.req && muted[e.req]) return false;   /* v75 — viewer-side thread mute */
   var ok;
   if (filter==='all') ok = true;
   else if (filter==='request') ok = e.kind==='request';
@@ -578,7 +727,18 @@ function renderWire(){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
-  renderLiveNow(); renderDayBar();
+  renderLiveNow(); renderDayBar(); renderBook(); renderQCount();
+  if (cdayId) renderCharDay();
+}
+function renderQCount(){
+  var el=document.getElementById('qcount');
+  if (!query){ el.textContent=''; return; }
+  var n=0, q=query.toLowerCase();
+  FEED.forEach(function(e){
+    var hay=(e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
+    if (hay.indexOf(q)>=0) n++;
+  });
+  el.textContent=n+' matching';
 }
 
 /* ================= reaching-in-now strip =================
@@ -592,7 +752,7 @@ function renderLiveNow(){
   var box=document.getElementById('livenow');
   var latest={}, order=[];
   FEED.forEach(function(e){
-    if (e.kind!=='request' || !e.req) return;
+    if (e.kind!=='request' || !e.req || muted[e.req]) return;
     if (!(e.req in latest)){ latest[e.req]={status:e.status, who:e.who, req:e.req, id:e.id}; order.push(e.req); }
   });
   var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
@@ -871,7 +1031,16 @@ function renderDetail(){
         (follows[p.k]?'pinned':'pin')+' '+esc(p.label)+'</button>';
     }).join(' ') + '</div>';
   }
+  /* v75 — jump to a character's day on the wire (public whereabouts only) */
+  if (e.who && CHAR_NAME[e.who] && /^[CAh]/.test(e.who))
+    h+='<div class="meta"><button class="dbtn" data-cd="'+e.who+'">their wire today — '+
+      esc(CHAR_NAME[e.who])+'</button></div>';
   if (e.req){
+    /* v75 — thread mute: viewer-side only, the wire's record is unchanged */
+    h+='<div class="meta"><button class="dbtn'+(muted[e.req]?' on':'')+'" data-mute="'+esc(e.req)+'">'+
+      (muted[e.req]?'unmute this thread':'mute this thread')+'</button>'+
+      ' <span style="color:var(--dim)">muted on your screen only — the wire\u2019s record '+
+      'is unchanged and The Archive keeps everything.</span></div>';
     var tr=trailFor(e.req);
     h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
     tr.forEach(function(x){
@@ -903,8 +1072,14 @@ function renderDetail(){
     try{ document.execCommand('copy'); toast('link copied'); }
     catch(_){ toast('permalink: '+permalink(e)); }
   };
-  box.querySelectorAll('.mchip,.dbtn').forEach(function(c){
+  box.querySelectorAll('.mchip,.dbtn[data-k]').forEach(function(c){
     c.onclick=function(){ toggleFollow(c.dataset.k); renderDetail(); };
+  });
+  box.querySelectorAll('.dbtn[data-mute]').forEach(function(c){
+    c.onclick=function(){ toggleMute(c.dataset.mute); };
+  });
+  box.querySelectorAll('.dbtn[data-cd]').forEach(function(c){
+    c.onclick=function(){ openCharDay(c.dataset.cd); };
   });
 }
 
@@ -926,6 +1101,20 @@ function renderFollows(){
   }).join('');
   list.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete follows[p.dataset.k]; saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire(); };
+  });
+  /* v75 — muted threads live here too: viewer-side only, reversible */
+  var mk=Object.keys(muted), ml=document.getElementById('mutelist');
+  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; return; }
+  ml.style.display='block';
+  ml.innerHTML='<div class="mlab">muted threads</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">muted on your screen only — '+
+    'the wire\u2019s record is unchanged; The Archive keeps everything.</div>'+
+    mk.map(function(r){
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        ' <span class="pin" data-m="'+esc(r)+'" style="float:right">unmute</span></div>';
+    }).join('');
+  ml.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete muted[p.dataset.m]; saveMuted(); renderFollows(); renderWire(); renderDetail(); };
   });
 }
 function toggleFollow(k){
@@ -972,12 +1161,13 @@ function renderCast(){
   MAINS.forEach(function(m){
     var cur=whereIs(m,T), k='c:'+m.id;
     var d=document.createElement('div'); d.className='cp';
-    d.innerHTML='<b>'+m.name.split(' ')[0]+'</b><span class="at">'+esc(cur[2])+'</span>'+
+    d.innerHTML='<b data-cd="'+m.id+'" title="their wire today">'+m.name.split(' ')[0]+'</b><span class="at">'+esc(cur[2])+'</span>'+
       '<span class="ban">UNPOSSESSABLE</span>'+
       '<button class="pin'+(follows[k]?' on':'')+'" data-k="'+k+'">'+(follows[k]?'pinned':'pin')+'</button>';
     c.appendChild(d);
   });
   c.querySelectorAll('.pin').forEach(function(p){ p.onclick=function(){ toggleFollow(p.dataset.k); }; });
+  c.querySelectorAll('b[data-cd]').forEach(function(b){ b.onclick=function(){ openCharDay(b.dataset.cd); }; });
 }
 
 /* ================= demo generators ================= */
@@ -1114,6 +1304,9 @@ function livePoll(){
     if (BRIDGE.gsOccupancy) occ = BRIDGE.gsOccupancy();
     else if (vs && vs.occupancy) occ = vs.occupancy;
     if (occ && occ!==LIVE_OCC){ LIVE_OCC=occ; renderVenues(); }
+    /* v75 — booked windows ride the same calendar seam the Counter writes */
+    var cal = (vs && vs.calendar) || [];
+    if (cal.length !== LIVE_BOOK.length){ LIVE_BOOK=cal.slice(); renderBook(); }
     if (BRIDGE.gsWireStats){
       var s=BRIDGE.gsWireStats();
       if (s && s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
@@ -1196,6 +1389,7 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='h'){ toggleHold(); }
   else if (ev.key==='d'){ toggleDay(); }
   else if (ev.key==='v'){ toggleDir(); }
+  else if (ev.key==='b'){ toggleBook(); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
