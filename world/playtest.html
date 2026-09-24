@@ -2060,6 +2060,26 @@ const PTS=[
   ck:["Archive gate: 0 fail; v104 block present in history.json",
     "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
     "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT96",title:"The desk's answer layer v105 — repair bench + second look + live status",min:8,
+ persona:"refused applicant — got a no and wants to know exactly what to fix, what a second read costs, and what the live desk actually said",
+ goal:"Verify the v105 desk's-answer layer on world/create.html: every refusal path (bus denied record, engine deny, live desk refusal) lands on the same repair card with field-level fix chips (FIELD_FIX) and persisted returned state (rw_create_return_v105); text-judgment refusals offer one second look that files gsAppealRequest live and never fakes a reversal in demo; registry-fact refusals carry no appeal button; a live pending filing resolves through gsExplainRequest — approved → approval tail, denied → repair bench, cancelled/expired → closed line — via 'check the desk' pull, never poll.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open world/create.html, fill a draft, and force refusals — a taken name (name-collision), then an engine-denied bio text. Read each denial card.",
+  exp:"Both refusals render 'The desk sent it back — <code>' with the charge line 'nothing — a refused filing never bills', a 'fix it — back to <step>' chip that jumps to the owning step, and a resubmission-count line. The name-collision card offers NO second look ('a different reviewer reads words, not the registry'); the text-judgment card offers 'ask for a second look — the same words, a different reviewer'. Reload the page: the repair card returns from rw_create_return_v105 with the draft intact.",
+  ck:["FIELD_FIX jumps land on the owning step (name/age → arrival, look → appearance, job → work, door codes → home)",
+    "Registry-fact refusals show no appeal button; text refusals show exactly one",
+    "rw_create_return_v105 persists the return; resubmit/withdraw/approval clears it"]},
+ {do:"Take the second look on a text refusal (demo, off-bridge) and wait for the desk's answer.",
+  exp:"'Second look filed' shows immediately; after the demo clock the card answers 'Second look — same answer' with appeal_final honesty ('That was the second read — reword it into a new filing') and a rework chip. Nothing bills at any point; the same text cannot take a third read. Bridged, the same button files gsAppealRequest(busId) and a refused appeal renders the bus's real reason code.",
+  ck:["The demo second look never fakes a reversal — identical text gets the same refusal, final",
+    "appeal_final blocks a further appeal on identical text only — the copy says a new draft starts the count over",
+    "No charge copy appears at every stage of the appeal"]},
+ {do:"Read renderQueue's v105 live-status block and the 'check the desk' button; run node world/audit.js and read the creation gate.",
+  exp:"renderQueue pulls gsExplainRequest on render and on the button (no interval, no poll loop): approved → approval tail with 'the bus minted the hire', denied → showRepair with the record's reason, cancelled/expired/refunded → 'Closed — the desk is done with it'. Creation gate passes with all v105 checks green (return key, showRepair/FIELD_FIX, gsAppealRequest, second-look + appeal_final honesty, check-the-desk pull, liveRec.status resolution, never-fakes-a-reversal).",
+  ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
+    "No setInterval/poll loop on the desk check — pull only",
+    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
 ]}
 ];
 

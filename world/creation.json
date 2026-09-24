@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 26,
+  "version": 27,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -110,11 +110,11 @@
     "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
   },
   "draft": {
-    "storage": "localStorage rw_create_draft_v26 — fields + step + resubmit count + landing pick + goes_by",
+    "storage": "localStorage rw_create_draft_v27 — fields + step + resubmit count + landing pick + goes_by",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
   },
   "pending_queue": {
-    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v26: fields + submitted timestamp + resubmit count + busId when filed live); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
+    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v27: fields + submitted timestamp + resubmit count + busId when filed live); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
     "withdraw": "a pending application can be withdrawn — never billed; the withdrawal posts to the feed like everything else and the draft survives for editing",
     "resolve": "the demo reviewer clears the queue on return; at merge the real human-review desk resolves it — the card is a status view, never a faster lane",
     "never": "no queue position is sold, no expedite exists, resubmissions go to a different reviewer not a faster one"
@@ -134,9 +134,30 @@
   },
   "seat_waitlist": {
     "doc": "v77 — when the card is full, signing joins the seat waitlist instead of the review pipeline: free, first-come-first-served. Screened at join AND re-screened when a seat offer lands. An offer holds 48 h — unclaimed it passes on. Waiting never bills; leaving is free and posts to the feed like every withdrawal.",
-    "storage": "localStorage rw_create_wait_v26 — fields + joined timestamp + resubmit count; survives a closed page like pending_queue",
+    "storage": "localStorage rw_create_wait_v27 — fields + joined timestamp + resubmit count; survives a closed page like pending_queue",
     "never": "no expedite, no seat auction, no paid position — there is no way to pay for a sooner seat",
     "demo": "the demo seat opens on a clock (~40 s), the way the demo reviewer clears the queue; at merge the real roster state decides"
+  },
+  "repair_desk_v105": {
+    "doc": "v105 — the desk's answer layer. A refused filing comes back as a returned application — a repair card, not a dead end: reason code verbatim, field-level 'fix the X' affordances that jump to the owning step (FIELD_FIX), draft never cleared. Returned state persists (rw_create_return_v105) exactly like pending_queue — a closed page reopens to the repair card.",
+    "storage": "localStorage rw_create_return_v105 — {f, code, field, submits, at, busId}; cleared on resubmit, withdraw, or approval",
+    "field_fix": {
+      "name-collision/needs_name/name_*/name_collision → step 'arrival' (name/goes_by/age fields)": true,
+      "underage/bad_age → arrival": true,
+      "bad_look → appearance": true,
+      "unknown_job/job_filled → work": true,
+      "needs_housing/unknown_unit/unit_*/unit_occupied/out_of_reach → home": true,
+      "engine text codes → the flagged screened field, defaulting to appearance (bio/arrival text)": true
+    },
+    "second_look": {
+      "doc": "a text-judgment refusal gets ONE appeal — 'ask for a second look': the same words, a different reviewer, never faster, never guaranteed. A second refusal is final for that text (appeal_final — reword into a new application). Registry-fact refusals (taken names, occupied doors, caps, cooldowns, credit balance, engine faults) offer no second look — a different reviewer reads words, not the registry.",
+      "live": "gsAppealRequest(busId) — the bus's appeal verb; a live refusal of the appeal renders its real reason code, never a fabricated one",
+      "demo": "the demo desk re-reads on a clock and answers honestly — identical text gets the same refusal, final. It never fakes a reversal.",
+      "never": "no expedite, no paid appeal, no third read on identical text"
+    },
+    "desk_status": {
+      "doc": "a live filing parked in the naming lane resolves through gsExplainRequest instead of waiting blind — pulled on render and on 'check the desk' (pull, never poll): approved → the approval tail (the bus minted the hire; the page renders its mirror); denied → the repair bench; cancelled/expired/refunded → an honest closed line. The page still never fakes an approval on a live filing."
+    }
   },
   "multi_hire": {
     "doc": "v77 — a second hired character is a stranger to the first, stated verbatim on the review step ('<name> is on the card too — a stranger to them; they meet on the block like anyone else') and in the briefing's surface-relationships line (a stranger, not a contact). What the player knows, neither character does — the briefing whitelist is unchanged."

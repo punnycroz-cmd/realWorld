@@ -1,9 +1,41 @@
-# Character Creation — spec & copy deck (world v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v105 — the desk's answer layer: a refusal is a repair card, an appeal is one
+more read, and a live filing resolves instead of waiting blind:**
+
+- **The repair bench.** Every refusal path — the bus's pre-billing `denied`
+  record, the shared engine's deny, a live desk refusal surfaced through
+  `gsExplainRequest` — now lands on the same returned-application card
+  (`showRepair`): the reason code verbatim, the charge line ("nothing — a
+  refused filing never bills"), and **field-level fix affordances**
+  (`FIELD_FIX`): name/age codes jump back to the arrival step, look codes to
+  appearance, job codes to the work board, door codes (occupied, off-map,
+  out-of-reach…) to the home board. The draft never clears itself — the
+  returned state persists under `rw_create_return_v105` exactly like the
+  queue card, so a closed page reopens on the repair bench.
+- **The second look.** A *text-judgment* refusal can be appealed once:
+  "ask for a second look — the same words, a different reviewer." Live it
+  files `gsAppealRequest(busId)` and the queue card waits again; a refused
+  appeal renders the bus's real reason code. Registry-fact refusals —
+  taken names, occupied doors, caps, cooldowns, credit balance — carry no
+  second-look button, with the honest line: *a different reviewer reads
+  words, not the registry.* A second refusal is final for that text
+  (`appeal_final`): reword it into a new application. The demo desk
+  answers a second look on a clock with the **same** refusal — it never
+  fakes a reversal.
+- **The desk answers.** A live filing parked in the naming lane used to
+  wait blind forever. Now `renderQueue` pulls `gsExplainRequest` on render
+  and on a "check the desk" button — pull, never poll — and resolves what
+  it finds: `approved` → the full approval tail (the bus minted the hire;
+  the page renders its mirror, honestly labeled); `denied` → the repair
+  bench; `cancelled`/`expired`/`refunded` → a closed line with the refund
+  where the record carries one. The page still never fakes an approval on
+  a live filing — it renders the one the desk actually wrote.
 
 **v91 — the real hire seam: the page files the bus's own shape, and the
 move-in math is the production truth:**

@@ -3064,7 +3064,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G20 creation ============ */
 {
-  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam)');
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam; v105 repair bench + second look + desk answers)');
   try {
     const CJ = JSONF('creation.json');
     const JJ = JSONF('jobs.json');
@@ -3077,7 +3077,7 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
                      'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
                      'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
-                     'seat_waitlist', 'multi_hire', 'hire_seam_v91'])
+                     'seat_waitlist', 'multi_hire', 'hire_seam_v91', 'repair_desk_v105'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -3178,6 +3178,24 @@ const PUB = Object.values(PT.surfaces)
     for (const dc of ['out_of_reach', 'cast_cap', 'unit_occupied', 'job_filled', 'cooldown'])
       if (!((seam.deny_codes || []).includes(dc)))
         add(g, 'fail', 'creation.json', null, `hire_seam_v91.deny_codes missing "${dc}"`);
+    /* v105 — the desk's answer layer: repair persistence key + maps + appeal verb */
+    const rk = ((CJ.repair_desk_v105.storage || '').match(/rw_create_return_v\d+/) || [])[0];
+    if (!rk || !html.includes(rk)) add(g, 'fail', 'create.html', null, `return key "${rk}" not in page`);
+    if (!/showRepair/.test(html) || !/FIELD_FIX/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 repair bench (showRepair/FIELD_FIX) missing');
+    if (!/gsAppealRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 second look must file gsAppealRequest when bridged');
+    if (!/second look/.test(html) || !/appeal_final/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 second-look + appeal_final honesty missing');
+    if (!/check the desk/.test(html) || !/pull, never poll|never polls/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 desk-check pull-not-poll affordance missing');
+    if (!/deskStatus|desk answers|liveRec\.status/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 live desk-status resolution missing');
+    const rd105 = CJ.repair_desk_v105;
+    if (!rd105.field_fix || !rd105.second_look || !rd105.desk_status)
+      add(g, 'fail', 'creation.json', null, 'repair_desk_v105 must carry field_fix/second_look/desk_status');
+    if (!/never fakes a reversal|never fake a reversal/i.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 demo second-look must promise never to fake a reversal');
     /* v49 PEOPLE mirror — every row re-verified against the registries:
        cast rows must match characters.json names exactly (w tokens → job,
        b → home, owns → landlord field); face rows match ambients by
@@ -3308,7 +3326,23 @@ const PUB = Object.values(PT.surfaces)
       [/moveInDate/, 'v91: declared move-in date'],
       [/live — the personnel office/, 'v91: live quote card'],
       [/the office refused/, 'v91: pre-billing refusal copy'],
-      [/hired faces — seats remain|hired faces · the seat waitlist/, 'v91: seat-count copy']
+      [/hired faces — seats remain|hired faces · the seat waitlist/, 'v91: seat-count copy'],
+      [/The desk sent it back/, 'v105: repair card head'],
+      [/fix it — back to/, 'v105: fix-it chip'],
+      [/ask for a second look/, 'v105: second-look affordance'],
+      [/the same words, a different reviewer/, 'v105: second-look honesty'],
+      [/second refusal is final/, 'v105: appeal_final honesty'],
+      [/a different reviewer reads words, not the registry/, 'v105: registry-fact no-appeal honesty'],
+      [/the draft never clears itself/, 'v105: draft-survives honesty'],
+      [/rw_create_return_v\d+/, 'v105: return persistence key'],
+      [/check the desk/, 'v105: pull-the-record affordance'],
+      [/The desk answers/, 'v105: live-outcome vocabulary'],
+      [/the bus minted the hire/, 'v105: live-approval honesty'],
+      [/Closed — the desk is done with it/, 'v105: closed-filing line'],
+      [/FIELD_FIX/, 'v105: field→step map'],
+      [/appealable/, 'v105: appeal gate fn'],
+      [/secondLook/, 'v105: second-look handler'],
+      [/gsAppealRequest/, 'v105: live appeal verb']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);

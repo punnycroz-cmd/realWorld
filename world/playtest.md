@@ -312,6 +312,15 @@ One person can wear every hat; four real testers is the intended shape.
   req id, the wire's own statuses only, open trails first, 'not
   approved' can be the last step) — plus the settled-the-talk reverse
   edge on records a rumor's outcome.by points at.
+  PT96 (The desk's answer layer v105 / create.html v8) audits the
+  creation flow's refusal surfaces — the repair bench (one card for
+  every refusal path, FIELD_FIX chips to the owning step, persisted
+  rw_create_return_v105), the second look (one appeal on text-judgment
+  refusals only, gsAppealRequest live, the demo desk never fakes a
+  reversal, appeal_final on identical text), and the live desk-status
+  resolution (gsExplainRequest pull on render + 'check the desk',
+  approved → approval tail, denied → repair bench, closed → honest
+  line).
 
 ## 3. Running a session
 

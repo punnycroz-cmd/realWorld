@@ -5,11 +5,39 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v7 (world v91; v6 was v77,
-  v5 was v63, v4 was v49, v3 was v35, v2 was v21, wizard v1 was v7).
+  Character creation flow — "Join the Cast" v8 (world v105; v7 was v91,
+  v6 was v77, v5 was v63, v4 was v49, v3 was v35, v2 was v21, wizard v1
+  was v7).
   Self-contained demo: file://-safe, no network. The pipeline (screen →
   human review → charge → registry write → lease → briefing) is simulated
   locally; when __aiBridge is up the filing goes to the real request bus.
+
+  v105 changes — the desk's answer layer (repair + second look + live status):
+    - THE REPAIR BENCH — a refused filing (bus 'denied', engine deny, or a
+      live desk refusal surfaced through gsExplainRequest) becomes a
+      returned-application card, not a dead end: the office's reason code
+      verbatim, field-level "fix the X" affordances that jump to the step
+      that owns the field (FIELD_FIX map: name/age codes → the arrival
+      step, look → appearance, job → work, door codes → home), and the draft
+      never clears itself. The returned state persists
+      (rw_create_return_v105) — a closed page reopens to the repair card
+      exactly like the queue card does.
+    - THE SECOND LOOK — a text-judgment refusal can be appealed once:
+      "ask for a second look" files gsAppealRequest when bridged, and the
+      copy stays honest — a different reviewer reads the SAME words,
+      never faster, never guaranteed, and a second refusal is final for
+      that text (appeal_final — reword it into a new application).
+      Registry-fact refusals (taken names, occupied units, caps,
+      cooldowns, credit balance) offer no second look — a different
+      reviewer reads words, not the registry. The demo desk answers a
+      second look on a clock with the same refusal — it never fakes a
+      reversal.
+    - THE DESK ANSWERS — a live filing parked in the naming lane (busId)
+      now resolves through gsExplainRequest instead of waiting blind:
+      approved → the approval tail runs (the bus minted the hire; the
+      page renders its mirror); denied → the repair bench; cancelled /
+      expired / refunded → an honest closed line. A "check the desk"
+      button re-pulls on demand — pull, never poll.
 
   v91 changes — the real hire seam (production alignment):
     - THE REAL DOOR — signing now capability-detects the request bus and
@@ -235,6 +263,16 @@
   .nextsteps a{color:var(--blu)}
   .denybox{margin-top:12px;border:1px solid var(--red);border-radius:6px;padding:10px 14px;display:none;font-size:13px}
   .denybox b{color:var(--red)}
+  /* ---- v105: the desk's answer layer — repair bench + second look ---- */
+  .fixrow{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .fixchip{background:none;border:1px solid var(--acc);color:var(--acc);border-radius:12px;
+    padding:5px 12px;font-size:12px;cursor:pointer;font-family:inherit}
+  .fixchip:hover{background:var(--acc);color:#0e1013}
+  .fixchip.look{border-color:var(--blu);color:var(--blu)}
+  .fixchip.look:hover{background:var(--blu);color:#0e1013}
+  .fixchip:disabled{opacity:.45;cursor:default;background:none}
+  .denybox .ql{display:flex;justify-content:space-between;gap:12px;padding:3px 0;color:var(--dim)}
+  .denybox .ql b{color:var(--ink);font-weight:600;text-align:right}
   .toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:var(--panel2);
     border:1px solid var(--acc);color:var(--ink);border-radius:6px;padding:10px 18px;font-size:13px;
     display:none;box-shadow:0 4px 18px rgba(0,0,0,.5);z-index:9}
@@ -378,9 +416,9 @@ var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per chara
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
 var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
-var DRAFT_KEY = 'rw_create_draft_v26';
-var APP_KEY = 'rw_create_app_v26';   // v63: a submitted application keeps its place
-var WAIT_KEY = 'rw_create_wait_v26'; // v77: a seat-waitlist spot keeps its place too
+var DRAFT_KEY = 'rw_create_draft_v27';
+var APP_KEY = 'rw_create_app_v27';   // v63: a submitted application keeps its place
+var WAIT_KEY = 'rw_create_wait_v27'; // v77: a seat-waitlist spot keeps its place too
 var created = 0;
 var submits = 0;                   // resubmissions route to a different reviewer
 
@@ -791,6 +829,135 @@ function loadWait(){
   try{ return JSON.parse(localStorage.getItem(WAIT_KEY)||'null'); }catch(e){ return null; }
 }
 function clearWait(){ try{localStorage.removeItem(WAIT_KEY);}catch(e){} }
+
+/* ================= the desk's answer layer (world v105) =================
+   A refused filing comes back as a returned application — a repair card,
+   not a dead end. The office's reason code renders verbatim; FIELD_FIX
+   maps registry/logic codes to the step that owns the field; the draft
+   never clears itself. The returned state persists like the queue does.
+   A text-judgment refusal can take ONE second look — a different
+   reviewer reads the same words, never faster; a second refusal is
+   final for that text (appeal_final). Registry facts (taken names,
+   occupied doors, caps, cooldowns, balance) get no second look — a
+   different reviewer reads words, not the registry. Live, the appeal is
+   gsAppealRequest and the desk's status is gsExplainRequest — pulled on
+   demand ("check the desk"), never polled. */
+var RETURN_KEY='rw_create_return_v105';
+function saveReturn(code,field,busId){
+  try{ localStorage.setItem(RETURN_KEY, JSON.stringify({f:f,code:code,field:field||null,submits:submits,at:Date.now(),busId:busId||null})); }catch(e){}
+}
+function loadReturn(){
+  try{ return JSON.parse(localStorage.getItem(RETURN_KEY)||'null'); }catch(e){ return null; }
+}
+function clearReturn(){ try{localStorage.removeItem(RETURN_KEY);}catch(e){} }
+
+/* reason code → the step that owns the field (stepnames: arrival /
+   appearance / work / home / first week / sign) */
+var FIELD_FIX = {
+  'name-collision':0, needs_name:0, name_too_short:0, name_too_long:0, name_collision:0,
+  underage:0, bad_age:0,
+  bad_look:1,
+  unknown_job:2, job_filled:2,
+  needs_housing:3, unknown_unit:3, unit_not_livable:3, unit_offmap:3, unit_occupied:3,
+  out_of_reach:3
+};
+var STEP_NAME = ['the arrival step','the appearance step','the work board','the door board','the first week','the sign card'];
+/* registry-fact refusals — a second look can't argue with the registry */
+var REG_FACT = { 'name-collision':1, name_collision:1, unknown_unit:1, unit_not_livable:1,
+  unit_offmap:1, unit_occupied:1, needs_housing:1, unknown_job:1, job_filled:1, out_of_reach:1 };
+/* no-appeal refusals — clocks, caps, balance, engine faults, finality */
+var NO_APPEAL = { underage:1, bad_age:1, bad_look:1, insufficient_credits:1, cooldown:1,
+  rate_limited:1, cast_cap:1, hire_cap:1, appeal_final:1, 'engine-missing':1, review_lapsed:1 };
+function appealable(code, sub){
+  return (sub||0)<2 && !NO_APPEAL[code] && !REG_FACT[code];
+}
+function fixStep(code, field){
+  if (field==='name' || field==='goes_by') return 0;
+  return FIELD_FIX[code]!=null ? FIELD_FIX[code] : 1; /* engine text codes → the screened text steps */
+}
+
+/* the repair bench — shared by every refusal path (bus deny, engine deny,
+   live desk refusal). Writes the denybox, persists the returned state. */
+function showRepair(code, msg, field, busId){
+  var db=$('denybox'); db.style.display='block';
+  var st = fixStep(code, field);
+  var fixable = FIELD_FIX[code]!=null || field!=null || !NO_APPEAL[code];
+  var canAppeal = appealable(code, submits);
+  saveReturn(code, field, busId);
+  db.innerHTML='<b>The desk sent it back — '+esc(code)+'.</b> '+esc(msg||denyCopy(code))+
+    '<div class="ql"><span>charged</span><b>nothing — a refused filing never bills</b></div>'+
+    '<div class="ql"><span>the fix</span><b>'+(fixable
+      ? 'edit the flagged fields and resubmit — the draft never clears itself'
+      : 'no field to fix — this one is a clock, a cap, or the registry')+'</b></div>'+
+    '<div class="ql"><span>resubmission</span><b>#'+(submits+1)+' lands with a different reviewer, not a faster one</b></div>'+
+    '<div class="fixrow">'+
+      (fixable? '<button class="fixchip" id="fixstep">fix it — back to '+STEP_NAME[st]+'</button>':'')+
+      (canAppeal? '<button class="fixchip look" id="secondlook">ask for a second look — the same words, a different reviewer</button>':'')+
+    '</div>'+
+    '<div class="note" style="font-style:normal">'+
+      (canAppeal
+        ? 'A second look never hurries the desk — the same words get one more read. ' +
+          'A second refusal is final for that text (appeal_final); reword it into a new application.'
+        : (code==='appeal_final'
+          ? 'That text has had its two reads — reword it into a new application.'
+          : (REG_FACT[code]
+            ? 'No second look on a registry fact — a different reviewer reads words, not the registry. Fix the field, not the reviewer.'
+            : 'No second look on this one — the honest fix is the clock, the cap, or the field.')))+
+    '</div>';
+  var fb=$('fixstep');
+  if (fb) fb.onclick=function(){
+    STEP=st; $('next').disabled=false; $('back').disabled=false;
+    db.style.display='none'; render(); toast('Back at '+STEP_NAME[st]+' — the draft kept everything.');
+  };
+  var sl=$('secondlook');
+  if (sl) sl.onclick=function(){ secondLook(code, msg, field, busId); };
+  $('next').disabled=false; $('back').disabled=false;
+}
+
+/* one second look: live → gsAppealRequest on the record; demo → the desk
+   re-reads on a clock and answers honestly — it never fakes a reversal. */
+function secondLook(code, msg, field, busId){
+  var db=$('denybox');
+  if (busId && BRIDGE && BRIDGE.gsAppealRequest){
+    try{
+      var r = BRIDGE.gsAppealRequest(busId);
+      if (r && (r.ok===false || r.status==='denied' || r.refused)){
+        var rc = r.reason || r.code || 'denied';
+        db.innerHTML='<b>Second look refused — '+esc(rc)+'.</b> '+esc(denyCopy(rc))+
+          '<div class="note" style="font-style:normal">Nothing was charged — the appeal never bills either. ' +
+          'Reword the application into a new filing.</div>';
+        saveReturn(rc, field, busId);
+        return;
+      }
+      clearReturn();
+      stage('Second look filed','wait',(r&&r.id?esc(r.id)+' · ':'')+'a different reviewer reads the same words');
+      feedAdd('you','hire — second look filed on the bus','same words · different reviewer · still unbilled');
+      savePending(busId);
+      renderQueue(loadPending());
+      return;
+    }catch(e){ /* fall through to the honest line */ }
+  }
+  /* demo desk: the same words get their second read on a clock — and the
+     honest answer to identical text is the same refusal, final this time */
+  db.innerHTML='<b>Second look filed.</b> A different reviewer reads the same words — ' +
+    'never faster, never guaranteed. Nothing was or will be billed while it waits.';
+  feedAdd('you','hire — second look filed','same words · different reviewer · still unbilled');
+  setTimeout(function(){
+    var r2=loadReturn(); if (!r2) return;
+    db.style.display='block';
+    db.innerHTML='<b>Second look — same answer.</b> '+esc(msg||denyCopy(code))+
+      '<div class="ql"><span>charged</span><b>nothing — a refused filing never bills</b></div>'+
+      '<div class="note" style="font-style:normal">That was the second read — appeal_final for this text. ' +
+      'Reword the application into a new filing; a genuinely new draft starts the count over.</div>'+
+      '<div class="fixrow"><button class="fixchip" id="fixstep">rework it — back to '+STEP_NAME[fixStep(code,field)]+'</button></div>';
+    saveReturn('appeal_final', field, busId);
+    var fb=$('fixstep');
+    if (fb) fb.onclick=function(){ STEP=fixStep(code,field); db.style.display='none';
+      $('next').disabled=false; $('back').disabled=false; render();
+      toast('Back at '+STEP_NAME[fixStep(code,field)]+' — make it a new application, not the same words.'); };
+    toast('Second look — same answer. That text is done; reword it.');
+  }, 2600);
+}
 function renderWait(p){
   wiz.innerHTML='<div class="queue"><h3>Seat waitlist — in line, not in review</h3>'+
     '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
@@ -833,10 +1000,54 @@ function renderQueue(p){
      v91: a live filing carries its bus record id; status reads through
      gsExplainRequest when the bridge offers it, withdraws through
      gsCancelRequest — and the demo auto-reviewer never fakes an
-     approval on a live filing. */
+     approval on a live filing.
+     v105: the desk answers — a live filing resolves here instead of
+     waiting blind. gsExplainRequest is pulled on render and on the
+     'check the desk' button (pull, never poll): approved → the approval
+     tail (the bus minted the hire; the page renders its mirror),
+     denied → the repair bench, cancelled/expired/refunded → an honest
+     closed line. */
   var liveRec = null;
   if (p.busId && BRIDGE && BRIDGE.gsExplainRequest){
     try{ liveRec = BRIDGE.gsExplainRequest(p.busId); }catch(e){}
+  }
+  /* v105 — live outcomes resolve, they don't sit */
+  if (p.busId && liveRec && liveRec.status){
+    var lst = String(liveRec.status).toLowerCase();
+    if (/^(approved|completed|resolved|active|done)$/.test(lst)){
+      f=p.f; submits=p.submits||0;
+      var pipe0=$('pipe'); pipe0.style.display='block'; pipe0.innerHTML='';
+      wiz.innerHTML='';
+      stage('Intent screen — name, bio, arrival','done','pass');
+      stage('Human review','done','the desk approved it — record '+p.busId+' · the bus minted the hire');
+      approveHire();
+      return;
+    }
+    if (/denied|refused|rejected/.test(lst)){
+      f=p.f; submits=p.submits||0;
+      wiz.innerHTML=''; $('next').disabled=false; $('back').disabled=false;
+      var rc = liveRec.reason || 'denied';
+      var pipe1=$('pipe'); pipe1.style.display='block'; pipe1.innerHTML='';
+      stage('The desk answered — '+String(rc).replace(/_/g,' '),'fail','record '+p.busId);
+      feedAdd('you','hire — application not approved',rc);
+      clearPending();
+      showRepair(rc, denyCopy(rc), liveRec.field||null, p.busId);
+      render();
+      return;
+    }
+    if (/cancel|withdraw|expire|refund|lapsed/.test(lst)){
+      f=p.f; submits=p.submits||0;
+      wiz.innerHTML='<div class="queue"><h3>Closed — the desk is done with it</h3>'+
+        '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
+        '<div class="ql"><span>bus record</span><b>'+esc(p.busId)+' · '+esc(liveRec.status)+'</b></div>'+
+        '<div class="ql"><span>charged</span><b>nothing'+(liveRec.refunded!=null?' · '+esc(liveRec.refunded)+' cr refunded':'')+'</b></div>'+
+        '<div class="note" style="font-style:normal">The draft is still here if you want to file again — '+
+        'a new filing starts fresh, first-come-first-served like everyone\u2019s.</div></div>';
+      clearPending();
+      $('next').disabled=false; $('back').disabled=false;
+      feedAdd('you','hire — filing closed on the bus',liveRec.status);
+      return;
+    }
   }
   wiz.innerHTML='<div class="queue"><h3>Application in review — it keeps its place</h3>'+
     '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
@@ -847,8 +1058,12 @@ function renderQueue(p){
     '<div class="note" style="font-style:normal">You can close this page — the application keeps its place. '+
     'The desk reads in order; resubmissions go to a different reviewer, not a faster one.</div>'+
     '<button class="wd" id="withdraw">withdraw the application — never billed</button>'+
-    '<div class="note">withdrawn applications post to the feed like everything else; nothing was ever charged.</div></div>';
+    ((p.busId && BRIDGE && BRIDGE.gsExplainRequest)? ' <button class="fixchip look" id="deskcheck" style="margin-top:10px">check the desk — pull the record\u2019s status</button>':'')+
+    '<div class="note">withdrawn applications post to the feed like everything else; nothing was ever charged.'+
+    (p.busId? ' The desk answers when it answers — checking pulls the record once, never polls.':'')+'</div></div>';
   $('next').disabled=true; $('back').disabled=true;
+  var dc=$('deskcheck');
+  if (dc) dc.onclick=function(){ renderQueue(loadPending()||p); toast('Pulled the record — the desk answers when it answers.'); };
   $('withdraw').onclick=function(){
     f=p.f; submits=p.submits||0;
     if (p.busId && BRIDGE && BRIDGE.gsCancelRequest){
@@ -1255,7 +1470,7 @@ function busSpec(){
 
 function submit(){
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
-  $('denybox').style.display='none';
+  $('denybox').style.display='none'; clearReturn();
   $('next').disabled=true; $('back').disabled=true;
   var scr = screenFields();
 
@@ -1273,12 +1488,8 @@ function submit(){
         stage('The office refused — ' + code.replace(/_/g,' '), 'fail', denyCopy(code));
         stage('No charge','done','a refused filing never bills — pre-billing denial');
         feedAdd('you','hire — application not approved', code);
-        var db0=$('denybox'); db0.style.display='block';
-        db0.innerHTML='<b>Not approved — '+esc(code)+'.</b> '+esc(denyCopy(code))+
-          '<div class="note" style="font-style:normal">Nothing was charged — the bus refused before billing. ' +
-          'Edit the flagged fields and resubmit; resubmissions land with a different reviewer.</div>';
+        showRepair(code, denyCopy(code), rec.field||null, rec.id||null);
         toast(denyCopy(code));
-        $('next').disabled=false; $('back').disabled=false;
         return;
       }
       if (rec && rec.id){
@@ -1307,12 +1518,8 @@ function submit(){
         stage('Application not approved','fail',scr.msg);
         stage('No charge','done','denied applications never bill — waiting or not');
         feedAdd('you','hire — application not approved');
-        var db=$('denybox'); db.style.display='block';
-        db.innerHTML='<b>Not approved — '+esc(scr.code)+'.</b> '+esc(scr.msg)+
-          '<div class="note" style="font-style:normal">Nothing was charged — the waitlist never bills anyway. ' +
-          'Edit the flagged fields and resubmit; the line reads in order.</div>';
+        showRepair(scr.code, scr.msg, scr.field||null, null);
         toast(scr.msg);
-        $('next').disabled=false; $('back').disabled=false;
         return;
       }
       s1.className='stage done'; s1.querySelector('.why').textContent='pass — joins the line';
@@ -1331,12 +1538,8 @@ function submit(){
       stage('Application not approved','fail',scr.msg);
       stage('No charge','done','denied applications never bill');
       feedAdd('you','hire — application not approved');
-      var db=$('denybox'); db.style.display='block';
-      db.innerHTML='<b>Not approved — '+esc(scr.code)+'.</b> '+esc(scr.msg)+
-        '<div class="note" style="font-style:normal">Nothing was charged. Edit the flagged fields and resubmit — ' +
-        'resubmissions land with a different reviewer, so fix it rather than resend it.</div>';
+      showRepair(scr.code, scr.msg, scr.field||null, null);
       toast(scr.msg);
-      $('next').disabled=false; $('back').disabled=false;
       return;
     }
     s1.className='stage done'; s1.querySelector('.why').textContent='pass';
@@ -1358,7 +1561,7 @@ function hidFor(n){ return 'h' + (n < 10 ? '0' : '') + n; }
 
 /* the approval tail — shared by the live submit and the queue's return */
 function approveHire(){
-  clearPending(); clearWait();
+  clearPending(); clearWait(); clearReturn();
   submits++;
   BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
   createdNames.push(f.name); renderSeats();
@@ -1443,9 +1646,16 @@ function briefing(){
 
 loadDraft();
 renderSeats();
-var _wait = loadWait(), _pend = loadPending();
+var _wait = loadWait(), _pend = loadPending(), _ret = loadReturn();
 if (_wait && _wait.f) renderWait(_wait);
 else if (_pend && _pend.f) renderQueue(_pend);
+else if (_ret && _ret.f){
+  /* v105 — a returned application reopens on the repair bench, draft
+     intact, at whatever step it left off */
+  f=_ret.f; submits=_ret.submits||0;
+  render();
+  showRepair(_ret.code, denyCopy(_ret.code), _ret.field, _ret.busId);
+}
 else render();
 </script>
 </body>
