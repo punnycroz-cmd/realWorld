@@ -26,7 +26,10 @@ PIN = """(() => {
 def main():
     errors = []
     with sync_playwright() as pw:
-        br = pw.chromium.launch(executable_path='/opt/meta-chromium/chrome',
+        import glob
+        chrome = (glob.glob('/opt/.devin/chrome/chrome/linux-*/chrome-linux64/chrome') or
+                  ['/usr/bin/google-chrome-stable'])[0]
+        br = pw.chromium.launch(executable_path=chrome,
                                 args=['--no-sandbox'])
         pg = br.new_page(viewport={'width': 1600, 'height': 950})
         pg.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
@@ -60,7 +63,8 @@ def main():
         print('rwShell mounted:', ok)
 
         # each rail view
-        for tab in ['watch', 'wire', 'req', 'led', 'cast', 'house']:
+        for tab in ['watch', 'wire', 'req', 'led', 'cast', 'house',
+                    'drive', 'archive']:
             pg.evaluate(f'document.querySelector("#rwTabs button[data-t=\'{tab}\']").click()')
             pg.wait_for_timeout(350)
             pg.evaluate(PIN)
