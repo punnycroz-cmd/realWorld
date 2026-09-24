@@ -187,6 +187,26 @@ drift shows as wrong math, not wrong claims).
   `#hourly`), added to BOTH the visible `<details>` list and the FAQPage
   JSON-LD so they stay verbatim-faithful.
 
+## 1g. Page components (v112)
+
+- **"The fine print — set in type you can actually read"** (`#fineprint`,
+  `.fineprint` / `.fp-row` in style.css) — a `<dl>` of ten rows that reprints
+  every catch, cap, and asterisk from the page at body size: provisional
+  state (flip-aware prov/final copy), closed-loop credits, spend caps, ad
+  caps + adults-only, sell-the-ask-not-the-outcome, public-feed attribution,
+  subscription caveats, non-purchasable fairness, regional method, and the
+  ledger-first change rule. Nothing new is disclosed here — every row is a
+  restatement of a rule printed elsewhere on the page, which is the point.
+  Placed between `#promise` and `#history`; TOC chip added.
+- **Missing anchors fixed** — the property-ladder and cosmetics sections
+  gained `id="ladder"` / `id="cosmetics"` and TOC chips; they were the only
+  two major sections unreachable by anchor.
+- **OfferCatalog JSON-LD** — a second structured-data block listing all six
+  packs + both subscriptions as `Offer`s with `price`/`priceCurrency`,
+  marked `"availability": "PreOrder"` so crawlers see the pre-launch state
+  rather than live prices. At the launch flip, change PreOrder → InStock in
+  this block in the same commit as the body attribute.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)

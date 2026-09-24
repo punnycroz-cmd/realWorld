@@ -576,6 +576,18 @@ ul.clean li { margin: 6px 0; }
 body[data-pricing="final"] .final-only { display: revert; }
 body[data-pricing="final"] .prov-only { display: none !important; }
 
+/* fine print at reading size (pricing.html #fineprint) */
+.fineprint { display: grid; gap: 0; margin: 18px 0 4px; }
+.fp-row {
+  display: grid; grid-template-columns: 220px 1fr; gap: 8px 22px;
+  padding: 14px 4px; border-top: 1px solid var(--border);
+}
+.fp-row:last-child { border-bottom: 1px solid var(--border); }
+.fp-row dt { font-weight: 700; color: var(--text); font-size: 15px; }
+.fp-row dd { margin: 0; color: var(--muted); font-size: 15px; line-height: 1.55; }
+.fp-row dd a { color: var(--accent); }
+@media (max-width: 640px) { .fp-row { grid-template-columns: 1fr; gap: 4px; } }
+
 /* ---------- footer ---------- */
 .site-footer { border-top: 1px solid var(--border); margin-top: 40px; padding: 36px 0 44px; }
 .foot-grid { display: flex; gap: 36px; flex-wrap: wrap; }

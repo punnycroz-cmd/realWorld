@@ -97,6 +97,24 @@
   ]
 }
 </script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OfferCatalog",
+  "name": "Real World — credits & subscriptions",
+  "description": "Pre-launch planning price list for Real World: The Mission. All offers are provisional until launch; watching the simulation is always free.",
+  "itemListElement": [
+    {"@type": "Offer", "name": "Pocket pack — 100 credits", "price": "0.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Starter pack — 550 credits", "price": "4.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Regular pack — 1,150 credits", "price": "9.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Plus pack — 2,500 credits", "price": "19.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Pro pack — 6,750 credits", "price": "49.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Mogul pack — 14,000 credits", "price": "99.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Resident subscription (monthly)", "price": "4.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Director subscription (monthly)", "price": "11.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"}
+  ]
+}
+</script>
 </head>
 <!--
   ════════════════════════════════════════════════════════════════════
@@ -164,10 +182,13 @@
       <a href="#worthit">Worth it?</a>
       <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
+      <a href="#ladder">Property ladder</a>
+      <a href="#cosmetics">Cosmetics</a>
       <a href="#month">A month, priced</a>
       <a href="#whopays">Who pays</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
+      <a href="#fineprint">The fine print</a>
       <a href="#history">Price ledger</a>
       <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
@@ -695,7 +716,7 @@
 </section>
 
 <!-- PROPERTY LADDER -->
-<section>
+<section id="ladder">
   <div class="wrap">
     <h2>The property ladder</h2>
     <div class="tbl-wrap">
@@ -714,7 +735,7 @@
 </section>
 
 <!-- COSMETICS -->
-<section>
+<section id="cosmetics">
   <div class="wrap">
     <h2>Cosmetics — direct purchase only</h2>
     <p class="muted">Outfits 150–400 cr, premium sets 600–900 cr, furniture
@@ -841,6 +862,64 @@
       changes are announced here before they take effect — the same honesty
       rule as surge.</p></div>
     </div>
+  </div>
+</section>
+
+<!-- THE FINE PRINT, AT READING SIZE -->
+<section id="fineprint">
+  <div class="wrap">
+    <h2>The fine print — set in type you can actually read</h2>
+    <p class="muted">Most stores shrink the part you should read twice. This is
+    every catch, limit, and asterisk on this page, reprinted at body size.
+    If it's not here and it's not above, it doesn't exist.</p>
+    <dl class="fineprint">
+      <div class="fp-row"><dt>Provisional until launch <span class="provisional prov-only">· current state</span></dt>
+      <dd><span class="prov-only">Every figure on this page is a pre-launch planning
+      number anchored to published competitor pricing. Final prices are set at
+      launch; the flip happens once and is recorded in the
+      <a href="#history">ledger</a>.</span><span class="final-only">These are the
+      live launch prices — the provisional state was retired at launch, once, as
+      recorded in the <a href="#history">ledger</a>.</span></dd></div>
+      <div class="fp-row"><dt>Credits are a closed loop</dt>
+      <dd>Non-transferable, non-redeemable, no cash-out, no gifting, no exchange
+      for game dollars in either direction. They never expire and carry no
+      dormancy fee.</dd></div>
+      <div class="fp-row"><dt>Spend is capped</dt>
+      <dd>$200/day per account by default, $500 on verified accounts, hard caps
+      on minor accounts. Caps can't be raised by buying anything.</dd></div>
+      <div class="fp-row"><dt>Rewarded ads are opt-in, adults only</dt>
+      <dd>2 credits per view, 5 views/day and 25/week maximum — ≈$0.45 of free
+      credits a week. A taste, not a wage; they never interrupt the spectator
+      feed.</dd></div>
+      <div class="fp-row"><dt>Requests are sold, outcomes aren't</dt>
+      <dd>You declare the action and the exact duration and pay upfront, capped.
+      A nudge can be declined in character — 50% back. Human review can deny a
+      request — 100% back. Surge (×1.5–2.5) is shown on the form before you
+      pay, never after.</dd></div>
+      <div class="fp-row"><dt>Everything is public</dt>
+      <dd>Every request and every world change posts to the public feed with
+      your handle attached. There is no anonymous spend and no invisible
+      intervention — buying a moment means owning it in the open.</dd></div>
+      <div class="fp-row"><dt>Subscriptions are monthly and cancelable</dt>
+      <dd>Resident $4.99 / Director $11.99. Stipend credits never expire but
+      don't roll demand into next month — the sub keeps charging either way,
+      and the <a href="#worthit">breakeven widget</a> will tell you when packs
+      beat subscribing.</dd></div>
+      <div class="fp-row"><dt>Cooling-off and fairness aren't for sale</dt>
+      <dd>Cooldowns on contested resources can't be skipped with money.
+      Reputation, tenure, and landlord standing are earned in-world only.
+      The eight mains can't be possessed at any price — by anyone, including
+      us.</dd></div>
+      <div class="fp-row"><dt>Local prices differ, the ladder doesn't</dt>
+      <dd>Packs sell in local currency on a published purchasing-power table
+      (EU/UK tax-inclusive). The table publishes at launch; until then local
+      figures are provisional like everything else here.</dd></div>
+      <div class="fp-row"><dt>Changes move through the ledger first</dt>
+      <dd>No price changes at checkout before it changes on this page.
+      Purchases keep the terms they were bought under. That's the whole
+      <a href="#promise">promise</a>, restated in the fine print so it counts
+      twice.</dd></div>
+    </dl>
   </div>
 </section>
 
