@@ -325,6 +325,44 @@
   </div>
 </section>
 
+<!-- WOULD IT AIR — screening quiz on the real moderation taxonomy -->
+<section id="quiz">
+  <div class="wrap">
+    <p class="eyebrow">Would it air?</p>
+    <h2>Call the screen yourself.</h2>
+    <p class="muted">Seven requests, three verdicts each — the same calls the
+    real pipeline makes. Every outcome below maps to an actual reason code in
+    the screening taxonomy; nothing here was invented for the quiz. The
+    shipped screen reads intent, not keywords — and gray zones go to a human.</p>
+    <div class="quiz" id="screen-quiz"></div>
+    <noscript><p class="notice">The screening quiz needs JavaScript. The
+    <a href="rules.html">rules page</a> lists the same categories it tests.</p></noscript>
+  </div>
+</section>
+
+<!-- EMBED THE BLOCK — streamer/creator snippet -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">For streams &amp; overlays</p>
+    <h2>Put the block on your stream.</h2>
+    <p class="muted">One iframe is the whole embed — point it at this page
+    and it shows the labeled capture fallback today, the live world the day
+    the build ships. Same frame, no re-embed needed.</p>
+    <div class="embed-box">
+      <input type="text" id="embed-snippet" readonly
+             value='<iframe src="https://realworld-game.example/demo.html#watch" title="Real World — watch the block" width="960" height="720" loading="lazy" allowfullscreen></iframe>'
+             aria-label="Embed code for the spectator view">
+      <button class="btn btn-ghost btn-sm" id="embed-copy" type="button"
+              data-rw-event="cta_click" data-rw-props='{"cta":"demo-embed"}'>Copy embed code</button>
+      <span class="muted demo-toolbar-note" id="embed-copy-status" role="status" aria-live="polite"></span>
+    </div>
+    <p class="muted" style="font-size:13px">Placeholder domain — swap
+    <code>realworld-game.example</code> for the launch domain when it&rsquo;s
+    chosen. Coverage rules for creators live in the
+    <a href="press-kit.html">press kit</a>.</p>
+  </div>
+</section>
+
 <!-- WHO YOU MIGHT SEE -->
 <section>
   <div class="wrap">
@@ -496,5 +534,6 @@
 <script src="js/main.js"></script>
 <script src="js/demo.js"></script>
 <script src="js/demo-sim.js"></script>
+<script src="js/demo-quiz.js"></script>
 </body>
 </html>

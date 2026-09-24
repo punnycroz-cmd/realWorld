@@ -399,6 +399,43 @@ ul.clean li { margin: 6px 0; }
 .demo-diff-col li { margin: 5px 0; }
 @media (max-width: 720px) { .demo-diff { grid-template-columns: 1fr; } }
 
+/* demo page v116: screening quiz + embed snippet */
+.quiz {
+  border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--panel); padding: 20px 22px; max-width: 720px;
+}
+.quiz-step {
+  font-size: 11.5px; font-weight: 700; letter-spacing: .08em;
+  text-transform: uppercase; color: var(--accent); margin: 0 0 10px;
+}
+.quiz-ask {
+  margin: 0 0 16px; padding: 0 0 0 14px; border-left: 3px solid var(--accent);
+  font-size: 17px; line-height: 1.5; color: var(--text);
+}
+.quiz-picks { display: flex; gap: 10px; flex-wrap: wrap; }
+.quiz-pick {
+  font: inherit; font-size: 14px; font-weight: 600; cursor: pointer;
+  padding: 8px 16px; border-radius: 999px; background: none;
+  border: 1px solid var(--border); color: var(--muted);
+  transition: border-color .15s, color .15s;
+}
+.quiz-pick:hover, .quiz-pick:focus-visible { border-color: var(--accent); color: var(--text); }
+.quiz-pick:disabled { cursor: default; opacity: .55; }
+.quiz-pick.is-right { border-color: var(--accent-2); color: var(--accent-2); opacity: 1; }
+.quiz-pick.is-wrong { border-color: var(--accent-3); color: var(--accent-3); opacity: 1; }
+.quiz-verdict { margin-top: 14px; }
+.quiz-verdict p { margin: 8px 0; font-size: 14.5px; }
+.quiz-call { font-weight: 600; }
+.quiz-verdict code { font-size: 12.5px; color: var(--accent); }
+.quiz-score { font-size: 34px; font-weight: 800; margin: 0 0 8px; }
+.embed-box { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.embed-box input {
+  flex: 1; min-width: 280px; font-family: ui-monospace, monospace;
+  font-size: 12.5px; padding: 10px 12px; border: 1px solid var(--border);
+  border-radius: var(--radius); background: var(--panel); color: var(--muted);
+}
+.embed-box input:focus { outline: none; border-color: var(--accent); }
+
 /* ---------- journal (journal.html) ---------- */
 .journal-post { padding: 26px 28px; }
 .journal-post h2, .journal-post h3 { margin-top: 4px; }

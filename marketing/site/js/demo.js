@@ -88,6 +88,28 @@
     });
   }
 
+  // Embed-the-block snippet — copies the iframe code for streamers/creators.
+  var embBtn = document.getElementById("embed-copy");
+  var embStatus = document.getElementById("embed-copy-status");
+  if (embBtn) {
+    embBtn.addEventListener("click", function () {
+      var src = document.getElementById("embed-snippet");
+      var done = function (msg) {
+        if (embStatus) { embStatus.textContent = msg; setTimeout(function () { embStatus.textContent = ""; }, 4000); }
+      };
+      var text = src ? src.value : "";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { done("Embed code copied."); },
+          function () { done("Copy failed — select the snippet and copy it by hand."); }
+        );
+      } else if (src && src.select) {
+        src.select();
+        done("Snippet selected — copy it with Ctrl/Cmd+C.");
+      }
+    });
+  }
+
   // Theater mode — fullscreen the stage (works for fallback and live embed).
   var fsBtn = document.getElementById("demo-fs");
   if (fsBtn && stage.requestFullscreen) {

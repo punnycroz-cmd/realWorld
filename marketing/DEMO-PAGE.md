@@ -6,12 +6,13 @@ rotating dev captures + time-aware viewing guide + cast strip (v56) +
 real app embeds (v61) + guided watch, routine-aware cast chips,
 keyboard deck control, today-vs-launch block (v71) + clickable camera
 presets (v86) + #shot deep links, first-watch field card, sim example
-cycler (v101); live
+cycler (v101) + "Would it air?" screening quiz + streamer embed
+snippet (v116); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
-seventh pass v86; eighth pass v101.
+seventh pass v86; eighth pass v101; ninth pass v116.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -202,6 +203,27 @@ spectator game build; the wire embed is a separate, already-real surface.
 - **share_click** on demo.html now carries `surface:"demo"` (spec'd since
   v97; demo.js predated the prop).
 
+## 4a-vii. v116 — screening quiz + embed snippet
+
+- **"Would it air?"** (`#screen-quiz` + `js/demo-quiz.js`) — a 7-scenario
+  quiz that puts the visitor on the screening desk. Each scenario is a
+  plausible request text; the three picks (`Runs` / `In review` /
+  `Not approved`) map 1:1 onto the real pipeline outcomes, and every
+  verdict card names its actual `world/moderation.json` reason code
+  (clean run, `exclusive`→human review, `surface-relationship`,
+  `secret-extraction`, `harm-targeting`, `admin-domain`, `venue-lock`).
+  The score screen restates the honest rules: intent not keywords, gray
+  zones to a human, denies always refund, attribution always public.
+  Local-only — nothing is filed, nothing is scored server-side. Emits
+  `screening_quiz` per answer (+ a `round:"final"` completion emit with
+  `score`); the "Run it again" button carries `cta_click{cta:"demo-quiz"}`.
+- **"Put the block on your stream"** — a copyable iframe snippet for
+  streamers/creators. Points at `demo.html#watch` on the placeholder
+  domain (swap at launch, same as every other placeholder); honest copy:
+  the frame shows the labeled fallback today and the live world at launch
+  without re-embedding. Copy button (`#embed-copy`, handled in demo.js)
+  degrades to select-then-copy; emits `cta_click{cta:"demo-embed"}`.
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -225,16 +247,18 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 16 KB
-  (raised v86 — camera preset bar; was < 14 KB at v71, < 6 KB pre-v56),
-  `demo-sim.js` < 10 KB (raised v41 — screen table + modifiers).
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 20 KB
+  (raised v116 — embed-copy handler; was < 16 KB at v86, < 14 KB at v71,
+  < 6 KB pre-v56), `demo-sim.js` < 12 KB (raised v116 — screen table +
+  modifiers grew it past the old 10 KB line), `demo-quiz.js` < 8 KB (v116).
 
 ## 6. Analytics hooks
 
 `watch_start` (live|fallback), `cta_click` on hero/share/fullscreen/ladder/
 sim/wire/tour CTAs (`demo-tour` + `demo-tour-done` added v71),
 `request_simulated` from the request widget (+`queued`, `surge`,
-`screened` props in v41), `screenshot_view` via the shared gallery handler.
+`screened` props in v41), `screening_quiz` from the quiz (v116),
+`screenshot_view` via the shared gallery handler.
 All inert until an endpoint is configured — see ANALYTICS.md and
 analytics-events.json.
 
@@ -278,5 +302,9 @@ analytics-events.json.
   every item is completable on today's surfaces (v101).
 - [x] Sim example cycler only loads asks the toy screen + pipeline actually
   produce (clean / in_review / deny) (v101).
+- [x] Quiz scenarios map 1:1 onto real reason codes; verdict cards name
+  them; score screen restates intent-not-keywords + deny-refunds (v116).
+- [x] Embed snippet is placeholder-domain, labeled, and degrades to
+  manual copy where clipboard is unavailable (v116).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).
