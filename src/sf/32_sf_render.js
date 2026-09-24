@@ -111,8 +111,15 @@ window.addEventListener('keydown', e => {
   if(e.code === 'KeyL'){
     SF_LENS.on = !SF_LENS.on;
     if(typeof showToast === 'function')
-      showToast(SF_LENS.on ? '◎ LENS rig — tilt-shift / depth of field'
+      showToast(SF_LENS.on ? '◎ LENS rig — metered optics / bokeh'
                            : 'Lens rig off — raw render');
+  }
+  // v77: J swaps the objective — rectilinear gate <-> fisheye element
+  if(e.code === 'KeyJ'){
+    SF_LENS.lens = SF_LENS.lens === 'fish' ? 'recti' : 'fish';
+    if(typeof showToast === 'function')
+      showToast(SF_LENS.lens === 'fish' ? '◉ FISHEYE element — barrel gate'
+                                      : 'Rectilinear gate');
   }
   // v27: G = cutaway (ghost whatever blocks the lens from the subject),
   //      T = track (director aims at the inspected pawn),
@@ -186,6 +193,7 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>WASD</kbd> Fly camera</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
     '<span><kbd>L</kbd> Lens</span>' +
+    '<span><kbd>J</kbd> Fisheye</span>' +
     '<span><kbd>G</kbd> Cutaway</span>' +
     '<span><kbd>T</kbd> Track</span>' +
     '<span><kbd>1-9</kbd> Marks</span>';
@@ -235,7 +243,12 @@ if(SF_MODE && typeof document !== 'undefined'){
    the pre-lens frame, and the lens pass itself is ~3 canvas blits. */
 const SF_LENS = { on: true, mode: 'flat', horizon: 0, camHF: 1, foc: 24,
                   frame: null, fg: null, blur: null, bg: null,
-                  noise: null, pat: null, saveCtx: null };
+                  noise: null, pat: null, saveCtx: null,
+                  // v77: metered exposure + real optics
+                  ev: 0,                 // smoothed exposure offset (stops)
+                  lens: 'recti',         // 'recti' | 'fish' — projection model
+                  probe: null, pg: null, // 20x12 metering probe
+                  mask: null, mg: null }; // bokeh depth-mask composite
 /* v51: world-space lens position, published once per street frame so any
    painter can answer view-dependent light questions (specular glass) —
    a glint is a property of the eye, not of the wall. */
@@ -253,10 +266,16 @@ function sfLensBegin(cw, ch){
     SF_LENS.fg = SF_LENS.frame.getContext('2d');
     SF_LENS.blur = document.createElement('canvas');
     SF_LENS.bg = SF_LENS.blur.getContext('2d');
+    SF_LENS.probe = document.createElement('canvas');
+    SF_LENS.probe.width = 20; SF_LENS.probe.height = 12;
+    SF_LENS.pg = SF_LENS.probe.getContext('2d', { willReadFrequently: true });
+    SF_LENS.mask = document.createElement('canvas');
+    SF_LENS.mg = SF_LENS.mask.getContext('2d');
   }
   if(SF_LENS.frame.width !== W || SF_LENS.frame.height !== H){
     SF_LENS.frame.width = W; SF_LENS.frame.height = H;
     SF_LENS.blur.width = W; SF_LENS.blur.height = H;
+    SF_LENS.mask.width = W; SF_LENS.mask.height = H;
     SF_LENS.pat = null;
   }
   SF_LENS.saveCtx = ctx;
@@ -264,21 +283,57 @@ function sfLensBegin(cw, ch){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return true;
 }
+/* v77: fisheye projection — a real short lens maps the world through
+   r' = f·tan⁻¹(r/f) instead of r' = f·r, so magnification is highest at
+   the optical center and squeezes toward the gate edge. Approximated
+   per scanline strip: each output row samples a source row scaled by
+   f(v) = 1 + k(1 − v²) — center rows pull a narrower source window
+   (magnified), edge rows near unity. J toggles the element. */
+function sfFishBlit(g2, F, W, H){
+  const k = 0.34, N = 56, sh = H / N;
+  for(let i = 0; i < N; i++){
+    const yd = i * sh;
+    const v = (yd + sh / 2 - H / 2) / (H / 2);
+    const f = 1 + k * (1 - v * v);
+    const sw = W / f, shS = sh / f * 1.06;
+    const ys = H / 2 + (yd + sh / 2 - H / 2) / f;
+    g2.drawImage(F, (W - sw) / 2, ys - shS / 2, sw, shS,
+                 0, yd, W, sh + 0.5);
+  }
+}
+
 function sfLensEnd(cw, ch){
   const g = SF_LENS.fg;
   ctx = SF_LENS.saveCtx;                 // back to the real canvas
   if(!g || !ctx) return;
   const F = SF_LENS.frame, B = SF_LENS.blur, bg = SF_LENS.bg;
+  const M = SF_LENS.mask, mg = SF_LENS.mg;
   const W = F.width, H = F.height;
   ctx.save();
   ctx.setTransform(1, 0, 0, 1, 0, 0);    // device pixels
   ctx.imageSmoothingEnabled = true;
+  /* v77: ONE blurred plate per frame serves every soft-optics consumer —
+     the bokeh depth mask, the sun-in-gate veiling glare and the new
+     halation bloom all read the same defocused image instead of each
+     paying for their own blur. Radius scales with the gate, not the
+     effect: the optics don't know why they're defocused. */
+  let bOk = false;
+  if(B && typeof bg.filter !== 'undefined'){
+    bg.setTransform(1, 0, 0, 1, 0, 0);
+    bg.clearRect(0, 0, W, H);
+    bg.filter = `blur(${Math.max(3, Math.round(H * 0.014))}px)`;
+    bg.drawImage(F, 0, 0);
+    bg.filter = 'none';
+    bOk = true;
+  }
   // v36: dutch roll — pan-rate cants the gate a fraction of a degree;
   // settled cameras roll to zero so locked shots stay level
   if(SF_LENS.roll && Math.abs(SF_LENS.roll) > 0.0004){
     ctx.translate(W / 2, H / 2); ctx.rotate(SF_LENS.roll);
     ctx.drawImage(F, -W / 2, -H / 2);
     ctx.rotate(-SF_LENS.roll); ctx.translate(-W / 2, -H / 2);
+  } else if(SF_LENS.lens === 'fish'){
+    sfFishBlit(ctx, F, W, H);
   } else {
     /* v67: the plate lands clean — the camera-artifact stack (chromatic
        aberration, scanline DOF/tilt-shift, film grain) is gone. In a real
@@ -288,6 +343,72 @@ function sfLensEnd(cw, ch){
        band). The frame now stays optically honest so those physically-
        driven effects are the only softening the eye ever sees. */
     ctx.drawImage(F, 0, 0);
+  }
+  /* v77: depth-keyed bokeh — the street camera finally USES its focus
+     distance. The follow-focus rig already publishes SF_LENS.foc (meters)
+     and camHF (lens height × focal factor), so the focal plane lands at
+     screen y_f = horizon + camHF/foc — the ground point the lens is
+     focused on. A depth mask built from that plane defocuses everything
+     beyond it: background near the horizon melts most, the foreground
+     past the subject softens gently, and the focal band stays tack
+     sharp. Aperture follows the real focal length (Z/X lens): a longer
+     lens throws a shallower plane, like glass does. Drawn BEFORE the
+     lens-surface passes — ghosts, droplets and glare live on the front
+     element and stay sharp. */
+  if(bOk && M && mg){
+    mg.clearRect(0, 0, W, H);
+    /* depth-keyed bokeh — the street camera finally USES its focus
+       distance. The follow-focus rig already publishes SF_LENS.foc
+       (meters) and camHF (lens height × focal factor), so the focal
+       plane lands at screen y_f = horizon + camHF/foc — the ground
+       point the lens is focused on. A depth band built from that plane
+       defocuses everything beyond it: background near the horizon melts
+       most, the foreground past the subject softens gently, and the
+       focal band stays tack sharp. Aperture follows the real focal
+       length (Z/X lens): a longer lens throws a shallower plane, like
+       glass does. */
+    if(SF_LENS.mode === 'street'){
+      const fov = (typeof SF_CAM !== 'undefined' && SF_CAM.fov) || 1;
+      const foc = Math.max(4, SF_LENS.foc);
+      // long focus (director aimed at distance) stops the aperture down —
+      // a 400m plane barely defocuses anything; a 5m portrait melts the
+      // street behind the subject
+      const bokeK = clamp(0.30 + (fov - 0.55) * 0.45, 0.15, 0.55) *
+                    clamp(120 / foc, 0.45, 1);
+      const hy = SF_LENS.horizon * dpr;
+      const yF = clamp(hy + (SF_LENS.camHF / foc) * dpr, hy + 2, H * 0.9);
+      // defocus is a DEPTH band, not a screen wash: the far field ends a
+      // short way below the horizon (standing subjects stay sharp), and
+      // only the nearest foreground past the plane softens
+      const yFar = Math.min(hy + 0.12 * H, yF);
+      const yNear0 = Math.max(yF + 0.18 * H, yFar + 1);
+      const gr = mg.createLinearGradient(0, 0, 0, H);
+      gr.addColorStop(0, `rgba(255,255,255,${bokeK})`);
+      gr.addColorStop(clamp(hy / H, 0.01, 0.6),
+                    `rgba(255,255,255,${bokeK * 0.75})`);
+      gr.addColorStop(clamp(yFar / H, 0.02, 0.9), 'rgba(255,255,255,0)');
+      gr.addColorStop(clamp(yNear0 / H, 0.05, 0.95), 'rgba(255,255,255,0)');
+      gr.addColorStop(1, `rgba(255,255,255,${bokeK * 0.22})`);
+      mg.fillStyle = gr;
+      mg.fillRect(0, 0, W, H);
+    }
+    /* edge falloff — every real objective resolves softer toward the
+       gate corners (field curvature + MTF roll-off). A radial band adds
+       gentle corner softness in EVERY mode; in street it stacks on the
+       depth band. This is what makes an aerial diorama frame read as a
+       photograph instead of a render. */
+    const rMax = Math.hypot(W, H) * 0.5;
+    const eg = mg.createRadialGradient(W / 2, H * 0.5, rMax * 0.52,
+                                       W / 2, H * 0.5, rMax * 1.02);
+    eg.addColorStop(0, 'rgba(255,255,255,0)');
+    eg.addColorStop(1, 'rgba(255,255,255,0.32)');
+    mg.globalCompositeOperation = 'lighter';
+    mg.fillStyle = eg;
+    mg.fillRect(0, 0, W, H);
+    mg.globalCompositeOperation = 'source-in';   // keep B only under mask
+    mg.drawImage(B, 0, 0);
+    mg.globalCompositeOperation = 'source-over';
+    ctx.drawImage(M, 0, 0);
   }
   /* v27: lens ghosts — internal element reflections of the sun disc.
      Real ghosts mirror about the optical center: each ghost sits on the
@@ -335,13 +456,7 @@ function sfLensEnd(cw, ch){
        the glare fades exactly as the disc leaves the gate.
        v67: the plate is built on demand — it only exists while the sun
        is in the gate, so clear off-axis frames pay nothing. */
-    if(B && typeof bg.filter !== 'undefined'){
-      const R = Math.max(3, Math.round(H * 0.007));
-      bg.setTransform(1, 0, 0, 1, 0, 0);
-      bg.clearRect(0, 0, W, H);
-      bg.filter = `blur(${R}px)`;
-      bg.drawImage(F, 0, 0);
-      bg.filter = 'none';
+    if(bOk){   // v77: reuses the shared defocused plate — no second blur
       ctx.globalCompositeOperation = 'screen';
       // v56: glare falls off quadratically — a dry clear afternoon stays
       // crisp off-axis instead of the whole frame milking over
@@ -393,6 +508,64 @@ function sfLensEnd(cw, ch){
     ctx.globalCompositeOperation = 'screen';
     ctx.fillStyle = `rgba(255,182,110,${nK ? 0.02 : 0.05 + warmK * 0.09})`;
     ctx.fillRect(0, 0, W, H);
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  /* v77: center-weighted metering — a real camera doesn't paint at a
+     fixed gain, it measures the frame. The plate is downsampled into a
+     20x12 probe; mean luminance drives an exposure offset toward
+     18%-gray-ish midtone (0.47) that adapts smoothly (~8 frames to
+     converge — a meter needle, not a snap). Positive EV screens light
+     back in, negative EV multiplies down, so a gray marine-layer morning
+     lifts its shadows while a hard noon keeps its highlights. */
+  if(SF_LENS.pg){
+    const pg = SF_LENS.pg;
+    pg.clearRect(0, 0, 20, 12);
+    pg.drawImage(F, 0, 0, 20, 12);
+    const dd = pg.getImageData(0, 0, 20, 12).data;
+    let lum = 0;
+    for(let i = 0; i < dd.length; i += 4)
+      lum += dd[i] * 0.2126 + dd[i + 1] * 0.7152 + dd[i + 2] * 0.0722;
+    lum /= (dd.length / 4) * 255;
+    const evT = clamp((0.46 - lum) * 0.9, -0.18, 0.18);
+    SF_LENS.ev += (evT - SF_LENS.ev) * 0.12;
+    const ev = SF_LENS.ev;
+    if(ev > 0.006){
+      ctx.globalCompositeOperation = 'screen';
+      ctx.fillStyle = `rgba(255,250,238,${ev * 0.4})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    } else if(ev < -0.006){
+      const gg2 = Math.round(255 * (1 + ev * 0.55));
+      ctx.globalCompositeOperation = 'multiply';
+      ctx.fillStyle = `rgb(${gg2},${gg2},${gg2})`;
+      ctx.fillRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'source-over';
+    }
+  }
+  /* v77: halation — bright light scatters inside the emulsion/glass and
+     bleeds a soft bloom around highlights. The shared defocused plate
+     screen-composited at low gain IS that scatter; strength follows
+     daylight (lamplight blooms less than sun) and drops under heavy
+     overcast where nothing in frame is truly hot. */
+  if(bOk){
+    const nK2 = typeof isNight === 'function' && isNight();
+    const covK = typeof sfCloudCover === 'function' ? sfCloudCover() : 0.3;
+    ctx.globalCompositeOperation = 'screen';
+    ctx.globalAlpha = nK2 ? 0.035 : 0.025 + 0.03 * (1 - covK) *
+                      (typeof SF_SUN !== 'undefined' ? SF_SUN.day : 0.5);
+    ctx.drawImage(B, 0, 0);
+    ctx.globalAlpha = 1;
+    ctx.globalCompositeOperation = 'source-over';
+  }
+  /* v77: micro-contrast — the plate soft-lighted over its own defocused
+     self is an unsharp mask: local contrast rises, large-scale tone
+     stays put. The physical parallel is acutance; the visible result is
+     brick, trim and pavement texture reading crisply through the haze. */
+  if(bOk){
+    ctx.globalCompositeOperation = 'soft-light';
+    ctx.globalAlpha = 0.12;
+    ctx.drawImage(F, 0, 0);
+    ctx.globalAlpha = 1;
     ctx.globalCompositeOperation = 'source-over';
   }
   // lens vignette — light falls off toward the corners of the frame.
