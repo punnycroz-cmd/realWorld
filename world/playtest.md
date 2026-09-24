@@ -354,6 +354,14 @@ One person can wear every hat; four real testers is the intended shape.
   silent on the feed, routes to the same human review, attaches to
   player asks only — never the residents). The audit's v109 block
   enforces the silence: flag vocabulary on the feed is a FAIL.
+  PT101 (The Understudy v8, v111) audits the unobserved tick —
+  observation tiers watched → shadowed → dark coarsening the thin
+  tick, lazy resolve on return (identical to continuous ticking,
+  no catch-up pop), obligations staying eager, mode-blind witness
+  seen-facts deduped per place per hour, and the compute soak
+  splitting thin_min so thin cost scales with observation, not
+  population. The audit's v111 block fails a witness schema that
+  carries a mode/mood field or a lazy rule that permits a pop.
 
 ## 3. Running a session
 

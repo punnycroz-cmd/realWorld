@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83; sixth pass v97)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83; sixth pass v97; seventh pass v111)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -137,7 +137,7 @@ serve."
 
 ## 8. Demo & playtest
 
-`world/thinai.html` — "The Understudy" (v6, world v83): four pawns
+`world/thinai.html` — "The Understudy" (v8, world v111): four pawns
 (A01 always thin; h01 cycling thin→possessed→handoff; C2 *and* C6
 showing the salience-ordered degrade ladder — Carmen alone at home
 thins before Jules mid-scene), a clock stepper, service-capacity
@@ -152,10 +152,15 @@ rotation swaps, a split log marking which lines are feed-public
 vs seam-internal, and the v83 fallback-surface layer: a per-surface
 posture panel (unaffected / hold / static) with the held press
 backlog + recovery trickle, and the day-hash jitter shown on each
-pawn's next cell edge. The page carries a LIVE SEAM badge: when
+pawn's next cell edge; and the v111 unobserved-tick layer: a
+per-pawn observation tier (watched / shadowed / dark) shown on
+each card, camera-pull-back / return / whip-pan events driving
+lazy resolve with no catch-up pop, a witness-record panel listing
+mode-blind seen-facts, and the compute soak splitting thin_min by
+tier. The page carries a LIVE SEAM badge: when
 `window.__aiBridge` exposes the game-v9 offline surfaces it reads
 them; otherwise it runs on the inline mirror. Playtests: PT11 + PT25
-+ PT37 + PT64 + PT75 in `world/playtest.json`.
++ PT37 + PT64 + PT75 + PT101 in `world/playtest.json`.
 
 ## 9. Degrade ladder (mains, brain-service capacity)
 
@@ -974,3 +979,133 @@ scene request naming two thin pawns declines `resolved · declined` +
 50% refund); and the encounter panel showing who's awake in the room
 — the count of live minds, which is the only thing the split ever
 keys on.
+
+## 47. The unobserved tick — observation tiers (v111)
+
+Everything before this pass assumed thin ticks every minute for every
+pawn. It doesn't need to: a schedule + reflexes pawn is a function of
+time, not a process that must run. Three tiers, per pawn, driven by
+spectator attention:
+
+| tier | trigger | thin tick |
+|------|---------|-----------|
+| `watched` | a camera or venue view on the pawn, or a live feed/ledger query touching it | per game-minute |
+| `shadowed` | recently watched, still warm | at cell edges only |
+| `dark` | unwatched | none — state resolves lazily on next observation |
+
+- Transitions: watched → shadowed on attention loss; shadowed → dark
+  at the first unwatched cell edge; dark → watched resolves lazily at
+  the next seam, never mid-cell.
+- **The tier follows attention, never population.** Twenty ambients
+  dark cost ~nothing no matter how many exist — this is what keeps
+  the ambient layer honest at scale.
+- Tiers are seam-internal like everything else in this file: no
+  badge, no feed line, no spectator tell. A watcher never learns a
+  pawn was dark — the state they land on is the state continuous
+  ticking would have produced.
+
+## 48. Lazy thin — resolve on read (v111)
+
+A dark pawn's state is a closed-form function of its resolved routine
+and elapsed time — not a simulation to rewind:
+
+- **Resolve:** place + cell + needs = f(resolved routine rows,
+  elapsed min). The state a watcher lands on is *identical* to what
+  continuous ticking produced — observational equivalence, not
+  approximation. If a watcher could tell, the layer failed.
+- **Eager:** scheduled obligations settle at their minute regardless
+  of tier — wages, autopays, co-star windows draft on time whether
+  anyone is watching or not. The ledger is eager even when the
+  animation is lazy. Reflex-relevant conditions (rain, dusk) also
+  evaluate at their minute — posture correctness is part of state,
+  not of animation.
+- **Never:** a catch-up pop, a skipped obligation, a re-simulation
+  on return. The past was already correct; there is nothing to
+  replay.
+- **Mode changes inside a dark interval** still land at a seam when
+  next resolved — never mid-cell (§2 outranks laziness).
+- A whip pan onto a dark pawn mid-cell resolves instantly at cell
+  state — cell edges are the unit of resolution, so a mid-cell
+  landing can never pop.
+
+## 49. The witness record — seen-facts (v111)
+
+§5 says thin "can only be seen." This pass names what a watcher —
+spectator feed, another character's observation channel — may keep:
+
+```json
+{ "char": "A01", "place": "Mudhaus Coffee",
+  "doing": "pulling the shift", "posture": "rush-tempo",
+  "at_min": 797, "day": 4 }
+```
+
+- **Place + doing + posture only.** Never intent, never a mood
+  inference, never anything seed-adjacent (thin has none), never
+  interiority. A seen-fact is only what a camera could show.
+- **Mode-blind by construction.** The schema is identical for thin,
+  degraded, full, and possessed pawns — a watcher never records a
+  mode, so the record itself can't betray the seam. A degraded main
+  seen at her palm produces the same shape of fact as a full one.
+- **Dedupe:** one record per pawn per place per hour — co-presence
+  is already noted; the log doesn't stutter.
+- **Use:** seen-facts feed observation and rumor channels at most as
+  "X was at Y." Never "X seemed," never a storyline — witness is
+  presence, not interpretation.
+
+## 50. Compute soak — the honest split, deepened (v111)
+
+§18's three buckets get a subdivision inside `thin_min`:
+
+| bucket | cost shape |
+|--------|-----------|
+| `watched_min` | per-minute thin ticks |
+| `shadowed_min` | per-edge checks only |
+| `dark_min` | ~zero — obligation + edge checks only |
+
+The product's cost story sharpens: **thin cost scales with
+observation, not population.** A blackout day and a fully dark day
+both land in `thin_min`, but dark costs less than watched — the
+ledger keeps them honest separately. Surfaced on `gsComputeStats()`
+with the rest; internal/owner tooling, never a spectator surface.
+
+## 51. Failure matrix — the unobserved cases (v111)
+
+Extends §§15/28/35/40/45. Decided, not deferred:
+
+- **Whip pan to a dark pawn mid-cell:** resolves at cell state
+  instantly — cell edges are the unit of resolution; there is no
+  mid-cell animation to catch up to.
+- **A pawn dark through an entire obligation:** the obligation
+  drafts at its minute — the ledger is eager even when the
+  animation is lazy; a dark tenant still pays rent on time.
+- **A pawn dark through a mode change:** the transition lands at
+  a seam when next resolved, never mid-cell — §2 outranks
+  laziness, and no watcher ever saw the pawn in between.
+- **Rain during a fully dark block:** reflex conditions still
+  evaluate at their minute (posture is state, not animation); a
+  watcher arriving mid-rain lands on already-sheltered postures.
+- **Two watchers, one record:** dedupe by pawn + place + hour —
+  co-presence doesn't double-write.
+- **Witness record on a degraded main:** identical schema to a
+  full main — the record is mode-blind, so it can't leak the
+  degrade.
+- **A scene request judged on a dark room:** the split (§44) keys
+  on live minds, not tiers — a dark pawn is still thin; darkness
+  doesn't change what it can accept.
+- **24 h fully dark:** the block runs obligations + edge checks
+  only; a spectator arriving at dawn lands on a correct morning —
+  nobody was simulated into being somewhere they wouldn't be.
+
+## 52. What the demo v8 proves
+
+The Understudy v8 adds, on top of v7's encounter layer: the
+per-pawn observation badge; Cameras pull back / Cameras return /
+Whip pan to C6 events driving watched → shadowed → dark and the
+lazy resolve back (every return logs the landed cell with the
+identical-to-continuous rule, never a pop); the witness-record
+panel accumulating mode-blind seen-facts on watched pawns, deduped
+per place per hour; and the compute soak splitting thin_min into
+watched / shadowed / dark minutes — the visible claim that thin
+costs scale with observation, not population. The §47 promise
+holds end to end: unwatched, the block doesn't run less
+*correctly* — it runs the same day at less cost.

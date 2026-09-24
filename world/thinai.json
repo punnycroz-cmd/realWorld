@@ -1,36 +1,108 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), encounter layer — thin-to-thin nod economy + player contact + world-bound request split under degrade (v97), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 97,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), encounter layer — thin-to-thin nod economy + player contact + world-bound request split under degrade (v97), the unobserved tick — observation tiers + lazy resolve + witness record + compute soak (v111), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 111,
   "brain_modes": {
-    "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
-    "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
-    "possessed": { "who": "h## during an approved session only",     "llm": "suspended — player drives" },
-    "degraded":  { "who": "C1–C8 during brain-service stall",        "llm": false, "posture": "public routine only; no seed access" }
+    "thin": {
+      "who": "A01–A20 always; h## while owner offline",
+      "llm": false
+    },
+    "full": {
+      "who": "C1–C8 always; h## while owner online",
+      "llm": true
+    },
+    "possessed": {
+      "who": "h## during an approved session only",
+      "llm": "suspended — player drives"
+    },
+    "degraded": {
+      "who": "C1–C8 during brain-service stall",
+      "llm": false,
+      "posture": "public routine only; no seed access"
+    }
   },
   "transitions": [
-    { "id": "offline_drop", "from": "full",      "to": "thin",      "when": "owner offline", "grace_s": 90, "feed": null, "note": "linger covers refresh/disconnect blips" },
-    { "id": "wake",         "from": "thin",      "to": "full",      "when": "owner online",  "grace_s": 0,  "feed": null, "note": "full brain resumes with handoff note as context" },
-    { "id": "possess",      "from": "full|thin", "to": "possessed", "when": "request approved + running", "feed": "request running", "note": "brain suspends for the session" },
-    { "id": "handoff",      "from": "possessed", "to": "full|thin", "when": "cap | end | revoke", "feed": "player session ended", "note": "graceful — current micro-beat finishes first (≤90 s)" },
-    { "id": "degrade",      "from": "full",      "to": "degraded",  "when": "brain-service stall", "feed": null, "mains_only": true },
-    { "id": "recover",      "from": "degraded",  "to": "full",      "when": "service restored", "feed": null }
+    {
+      "id": "offline_drop",
+      "from": "full",
+      "to": "thin",
+      "when": "owner offline",
+      "grace_s": 90,
+      "feed": null,
+      "note": "linger covers refresh/disconnect blips"
+    },
+    {
+      "id": "wake",
+      "from": "thin",
+      "to": "full",
+      "when": "owner online",
+      "grace_s": 0,
+      "feed": null,
+      "note": "full brain resumes with handoff note as context"
+    },
+    {
+      "id": "possess",
+      "from": "full|thin",
+      "to": "possessed",
+      "when": "request approved + running",
+      "feed": "request running",
+      "note": "brain suspends for the session"
+    },
+    {
+      "id": "handoff",
+      "from": "possessed",
+      "to": "full|thin",
+      "when": "cap | end | revoke",
+      "feed": "player session ended",
+      "note": "graceful — current micro-beat finishes first (≤90 s)"
+    },
+    {
+      "id": "degrade",
+      "from": "full",
+      "to": "degraded",
+      "when": "brain-service stall",
+      "feed": null,
+      "mains_only": true
+    },
+    {
+      "id": "recover",
+      "from": "degraded",
+      "to": "full",
+      "when": "service restored",
+      "feed": null
+    }
   ],
   "seam_rule": {
     "beat_budget_s": 90,
     "text": "mode swaps land between micro-beats, never mid-action; spectators cannot tell; the feed shows only the already-locked possession vocabulary (running / player session ended)"
   },
   "presence": {
-    "states": ["online", "lingering", "offline"],
+    "states": [
+      "online",
+      "lingering",
+      "offline"
+    ],
     "linger_s": 90,
     "seen_on_filing": "filing any request stamps presence — a filed request is a sign of life (gsPresenceSeen)",
     "billing_rule": "possession requires the owner online to bill and to drive; deny code 'owner_offline' at file and at promote",
     "disconnect_order": "a live session holds the connection open — disconnect ends the session first (cap semantics), then linger applies to the now-full brain"
   },
   "handoff_note_schema": {
-    "char": "id", "from": "mode", "to": "mode", "at_min": "int, game-local",
-    "place": "POI/anchor", "doing": "current micro-action",
-    "pending": "one open thread or null", "near": ["char ids"], "mood_hint": "one phrase",
-    "forbidden_fields": ["secrets", "seeds", "relationship_deltas"]
+    "char": "id",
+    "from": "mode",
+    "to": "mode",
+    "at_min": "int, game-local",
+    "place": "POI/anchor",
+    "doing": "current micro-action",
+    "pending": "one open thread or null",
+    "near": [
+      "char ids"
+    ],
+    "mood_hint": "one phrase",
+    "forbidden_fields": [
+      "secrets",
+      "seeds",
+      "relationship_deltas"
+    ]
   },
   "note_lifecycle": {
     "write": "on every exit into thin|full — one note per pawn, newest wins",
@@ -42,17 +114,33 @@
   "degrade_ladder": {
     "metric": "brain-service capacity %",
     "tiers": [
-      { "min_pct": 60, "posture": "all mains full" },
-      { "min_pct": 30, "posture": "mains degrade lowest scene-salience first" },
-      { "min_pct": 0,  "posture": "all mains degraded" }
+      {
+        "min_pct": 60,
+        "posture": "all mains full"
+      },
+      {
+        "min_pct": 30,
+        "posture": "mains degrade lowest scene-salience first"
+      },
+      {
+        "min_pct": 0,
+        "posture": "all mains degraded"
+      }
     ],
     "salience": {
-      "factors": ["watchers on the venue/scene", "a live scene in progress", "mid-conversation"],
+      "factors": [
+        "watchers on the venue/scene",
+        "a live scene in progress",
+        "mid-conversation"
+      ],
       "tie_break": "deterministic — fewer watchers, then longer idle, then id order; never random, never alphabetic",
       "rule": "degrade lowest salience first; recovery restores in the same order as capacity returns"
     },
     "order": "salience-ranked (watchers/live scene), never alphabetic, never player-visible",
-    "unaffected": ["ambients (never on the service)", "possessed pawns (the player is the compute)"],
+    "unaffected": [
+      "ambients (never on the service)",
+      "possessed pawns (the player is the compute)"
+    ],
     "feed": null
   },
   "needs_model": {
@@ -65,15 +153,49 @@
     "register": "weather / queues / the game on the bar TV / generic greetings",
     "rule": "interchangeable across characters — a line only Reyes could say does not belong",
     "lines": {
-      "greeting": ["morning", "hey", "how's it"],
-      "queue": ["big line today", "they're backed up again", "worth the wait, probably"],
-      "weather": ["fog came in early", "sun finally burned through", "supposed to clear up later", "cold for September"],
-      "game": ["heard the game last night", "they blew it in the ninth", "big one this weekend"],
-      "closing": ["take it easy", "see you around", "have a good one"],
-      "deflect": ["can't complain", "you know how it is", "we'll see"],
-      "silence": ["a nod", "a half-wave", "a shrug and a smile"]
+      "greeting": [
+        "morning",
+        "hey",
+        "how's it"
+      ],
+      "queue": [
+        "big line today",
+        "they're backed up again",
+        "worth the wait, probably"
+      ],
+      "weather": [
+        "fog came in early",
+        "sun finally burned through",
+        "supposed to clear up later",
+        "cold for September"
+      ],
+      "game": [
+        "heard the game last night",
+        "they blew it in the ninth",
+        "big one this weekend"
+      ],
+      "closing": [
+        "take it easy",
+        "see you around",
+        "have a good one"
+      ],
+      "deflect": [
+        "can't complain",
+        "you know how it is",
+        "we'll see"
+      ],
+      "silence": [
+        "a nod",
+        "a half-wave",
+        "a shrug and a smile"
+      ]
     },
-    "never": ["character-voice catchphrases", "opinions on named characters", "references to events not on the public feed", "answers to direct questions — generic deflect instead"],
+    "never": [
+      "character-voice catchphrases",
+      "opinions on named characters",
+      "references to events not on the public feed",
+      "answers to direct questions — generic deflect instead"
+    ],
     "at_cap": "thin goes quiet — nod, gesture, silence",
     "repetition_guard": {
       "rule": "no line repeats within its 60-min window per pawn; no identical consecutive lines even across hours; the kit rotates categories before repeating a word",
@@ -83,25 +205,60 @@
   },
   "reflex_registry": {
     "shared": [
-      { "id": "rain-shelter",  "when": "rain starts",          "posture": "covered routes, awnings, indoors where the cell allows" },
-      { "id": "dusk-home",     "when": "streetlights on",      "posture": "drift toward home cells; evening cells tighten" },
-      { "id": "commotion-look","when": "sirens / crowd noise", "posture": "pause, look, resume — rubberneck, never investigate" },
-      { "id": "cold-hunch",    "when": "cold snap",            "posture": "hunched walk, hands in pockets, shorter outdoor cells" }
+      {
+        "id": "rain-shelter",
+        "when": "rain starts",
+        "posture": "covered routes, awnings, indoors where the cell allows"
+      },
+      {
+        "id": "dusk-home",
+        "when": "streetlights on",
+        "posture": "drift toward home cells; evening cells tighten"
+      },
+      {
+        "id": "commotion-look",
+        "when": "sirens / crowd noise",
+        "posture": "pause, look, resume — rubberneck, never investigate"
+      },
+      {
+        "id": "cold-hunch",
+        "when": "cold snap",
+        "posture": "hunched walk, hands in pockets, shorter outdoor cells"
+      }
     ],
     "per_card": "per-character reflexes live on the ambient cards (ambients.json `reflexes`) — condition → posture, never scripts",
     "rule": "a reflex can veto a co-star ask (off-shift, sleep cell, past shift end); it can never create an obligation"
   },
   "co_star": {
-    "who": ["ambients", "offline hired pawns"],
+    "who": [
+      "ambients",
+      "offline hired pawns"
+    ],
     "check": "bounded compliance — accept iff ask fits the role card AND no reflex vetoes; routine obligations win",
     "time_box": "bounded to the request window; role card releases mid-beat-clean at expiry; nothing persists",
     "decline": "feed reads 'resolved · declined' + 50% auto-refund (plan §2.3)",
     "not": "possession — player directs a situation, never dialogue or limbs",
     "ask_classes": {
-      "be-present":  { "ask": "be at V for N min (default class)", "bounds": "venue fits the current or next routine cell", "veto": "sleep cell, off-shift elsewhere" },
-      "hold-space":  { "ask": "keep the table / spot", "bounds": "inside a venue cell, window ≤ cell end", "veto": "window past shift end" },
-      "walk-with":   { "ask": "come along a while", "bounds": "route stays inside the pawn's current route/loop", "veto": "off-route destination" },
-      "carry-item":  { "ask": "take this to X", "bounds": "X is on the routine route within the window", "veto": "destination off-route; sealed/unknown parcel" }
+      "be-present": {
+        "ask": "be at V for N min (default class)",
+        "bounds": "venue fits the current or next routine cell",
+        "veto": "sleep cell, off-shift elsewhere"
+      },
+      "hold-space": {
+        "ask": "keep the table / spot",
+        "bounds": "inside a venue cell, window ≤ cell end",
+        "veto": "window past shift end"
+      },
+      "walk-with": {
+        "ask": "come along a while",
+        "bounds": "route stays inside the pawn's current route/loop",
+        "veto": "off-route destination"
+      },
+      "carry-item": {
+        "ask": "take this to X",
+        "bounds": "X is on the routine route within the window",
+        "veto": "destination off-route; sealed/unknown parcel"
+      }
     },
     "closed_taxonomy": "an ask matching no class declines — thin never improvises a new class; a co-star window spanning a mode change still runs to its box"
   },
@@ -114,8 +271,8 @@
   },
   "compute_ledger": {
     "buckets": {
-      "llm_min":    "minutes a pawn ran `full` — paid compute",
-      "thin_min":   "minutes a pawn ran `thin` or `degraded` — schedule + reflexes, ~free",
+      "llm_min": "minutes a pawn ran `full` — paid compute",
+      "thin_min": "minutes a pawn ran `thin` or `degraded` — schedule + reflexes, ~free",
       "player_min": "minutes a pawn ran `possessed` — the human is the compute, ~free"
     },
     "rule": "the honest split is the product's cost story: possession minutes are nearly cost-free to serve; degraded mains still count as thin_min (resilience, not a feature)",
@@ -123,14 +280,34 @@
   },
   "owner_report": {
     "who": "a player sees their own hired pawns only — never another player's, never a main, never an ambient",
-    "fields": ["mode-agnostic place + doing", "wages accrued since last visit (baseline)", "scheduled obligations met/lapsed", "open co-star windows"],
-    "never": ["handoff-note contents verbatim", "other characters' state", "any seed/secret-adjacent field (absent by construction)"],
+    "fields": [
+      "mode-agnostic place + doing",
+      "wages accrued since last visit (baseline)",
+      "scheduled obligations met/lapsed",
+      "open co-star windows"
+    ],
+    "never": [
+      "handoff-note contents verbatim",
+      "other characters' state",
+      "any seed/secret-adjacent field (absent by construction)"
+    ],
     "tone": "a ledger, not a diary — 'your courier worked the loop, rent drafted, one favor-thread pending' is mechanics, not narration"
   },
   "live_seam": {
     "bridge": "window.__aiBridge (game-v9 offline module)",
-    "reads": ["gsBrainMode(cid)", "gsThinScheduleView(cid,day)", "gsNeedsView(cid)", "gsObligations(cid)", "gsComputeStats()", "gsServiceEval()", "gsOfflineReport(pid)"],
-    "never_calls": ["gsHandoffRead — one-time read reserved for the receiving brain; the demo mirrors notes instead", "any gs* mutator — the demo is a mirror, never a driver"],
+    "reads": [
+      "gsBrainMode(cid)",
+      "gsThinScheduleView(cid,day)",
+      "gsNeedsView(cid)",
+      "gsObligations(cid)",
+      "gsComputeStats()",
+      "gsServiceEval()",
+      "gsOfflineReport(pid)"
+    ],
+    "never_calls": [
+      "gsHandoffRead — one-time read reserved for the receiving brain; the demo mirrors notes instead",
+      "any gs* mutator — the demo is a mirror, never a driver"
+    ],
     "fallback": "when the bridge is absent the demo runs on the inline mirror and the badge says so"
   },
   "thin_can": [
@@ -148,16 +325,38 @@
     "be possessed (ambients) or hold admin power (anyone)"
   ],
   "feed_visibility": {
-    "public": ["request running", "player session ended"],
-    "never_public": ["offline_drop", "wake", "degrade", "recover", "handoff internals"],
+    "public": [
+      "request running",
+      "player session ended"
+    ],
+    "never_public": [
+      "offline_drop",
+      "wake",
+      "degrade",
+      "recover",
+      "handoff internals"
+    ],
     "rule": "brain-mode transitions are not admin actions; the seam stays invisible to spectators"
   },
   "coverage": {
     "rule": "thin resolution is a total function — every character, every game minute resolves to a routine cell; the floor is 'home · idle', never a freeze",
     "ladders": {
-      "ambient": ["today's variant row set (week/weather/personal on the card)", "base routine rows", "role template", "home · idle"],
-      "main":    ["main_routines registry (SF_CORE_ROUTINES mirror)", "home · idle"],
-      "hired":   ["creation-authored routine", "owner's last-set routine", "role template", "home · idle"]
+      "ambient": [
+        "today's variant row set (week/weather/personal on the card)",
+        "base routine rows",
+        "role template",
+        "home · idle"
+      ],
+      "main": [
+        "main_routines registry (SF_CORE_ROUTINES mirror)",
+        "home · idle"
+      ],
+      "hired": [
+        "creation-authored routine",
+        "owner's last-set routine",
+        "role template",
+        "home · idle"
+      ]
     },
     "variant_contract": "a variant row set covers the full 24 h or is ignored whole — never spliced mid-cell; a partial variant is a build error (coverage gate fails it)",
     "corrupt_row": "malformed row / unknown venue / unresolvable anchor falls to the next rung at the next seam — finish the micro-beat, then follow the fallback cell; seam line only",
@@ -166,11 +365,18 @@
   },
   "flap_guard": {
     "why": "real services flap; without hysteresis the degrade ladder would churn mode transitions, and churn is how seams show",
-    "deadband": { "degrade_below_pct": 60, "recover_at_or_above_pct": 70, "inside_band": "60–69% holds current posture — no re-evaluation" },
+    "deadband": {
+      "degrade_below_pct": 60,
+      "recover_at_or_above_pct": 70,
+      "inside_band": "60–69% holds current posture — no re-evaluation"
+    },
     "min_dwell_min": 30,
     "dwell_rule": "a degraded main stays degraded ≥30 game-min before it is eligible to recover, even at healthy capacity",
     "step_per_beat": "one pawn per evaluation tick in each direction — degrade lowest-salience-first, recover in the same order (§20)",
-    "skipped": ["possessed pawns (the player is the compute)", "ambients (never on the service)"],
+    "skipped": [
+      "possessed pawns (the player is the compute)",
+      "ambients (never on the service)"
+    ],
     "feed": null
   },
   "wake_parity": {
@@ -190,7 +396,10 @@
     "tolerance": 1,
     "swap_is_not_recovery": "a swap is not a recovery — the main stepping down starts a fresh 30-min dwell; the main stepping up already served theirs",
     "tie_break": "deterministic §20 order — fewer watchers, then longer idle, then id; never random",
-    "untracked": ["possessed pawns", "ambients"],
+    "untracked": [
+      "possessed pawns",
+      "ambients"
+    ],
     "feed": null
   },
   "scene_yield": {
@@ -203,7 +412,13 @@
   "blackout_floor": {
     "at_pct": 0,
     "posture": "all mains degraded; the block runs on schedule + reflexes — a quiet day, never an outage screen",
-    "still_true": ["routines resolve (coverage contract)", "reflexes fire", "wages + autopays draft", "the feed shows nothing", "possessed sessions finish — the player is the compute"],
+    "still_true": [
+      "routines resolve (coverage contract)",
+      "reflexes fire",
+      "wages + autopays draft",
+      "the feed shows nothing",
+      "possessed sessions finish — the player is the compute"
+    ],
     "convergence": "one pawn per beat down and back up; rotation spreads bench time past a dwell",
     "ledger": "a blackout is a thin_min day on the compute ledger"
   },
@@ -211,57 +426,338 @@
     "canonical": "readable mirror of SF_CORE_ROUTINES (src/sf/33_sf_cast.js) — the public routine a degraded main runs; edit implementation + mirror + the bible's 'Daily routine' section together",
     "naming": "parody names only — venues resolve via parody-names.json; anchors (g744/g750/park_*) resolve via the address registry (9418/9457 Guerrero St)",
     "ceiling": "degraded means public — the registry is also the ceiling; no seed state exists at thin level",
-    "C1": { "name": "Marisol", "rows": [
-      { "h0": 0,    "h1": 5.5,  "state": "sleep", "where": "home — 9127 Capp St, Unit C", "inside": true },
-      { "h0": 5.5,  "h1": 14,   "state": "serve", "where": "Mudhaus Coffee — opens the café" },
-      { "h0": 14,   "h1": 18,   "state": "walk",  "where": "afternoon rounds", "stops": ["Taqueria El Farolote", "9418 Guerrero St", "park_center", "Buy-Rite Market"] },
-      { "h0": 18,   "h1": 21.5, "state": "chat",  "where": "Mudhaus Coffee — holds the counter" },
-      { "h0": 21.5, "h1": 24,   "state": "sleep", "where": "home — 9127 Capp St, Unit C", "inside": true } ],
-      "degrade_reflexes": ["counter-wipe tell when idle", "afternoon rounds shorten in rain — covered stops only"] },
-    "C2": { "name": "Jules", "rows": [
-      { "h0": 0,    "h1": 6.5,  "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true },
-      { "h0": 6.5,  "h1": 8,    "state": "run",   "where": "morning run", "stops": ["park_north", "park_center"] },
-      { "h0": 8,    "h1": 15,   "state": "serve", "where": "Mudhaus Coffee — shift" },
-      { "h0": 15,   "h1": 19,   "state": "sit",   "where": "park — sketching", "stops": ["park_center", "9418 Guerrero St"] },
-      { "h0": 19,   "h1": 24,   "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true } ],
-      "degrade_reflexes": ["shortens the run in rain, never skips it"] },
-    "C3": { "name": "Dani", "rows": [
-      { "h0": 0,    "h1": 8,    "state": "sleep", "where": "home — 9263 Geneva Ave, Unit 4", "inside": true },
-      { "h0": 8,    "h1": 17,   "state": "serve", "where": "Mudhaus Coffee — shift + chalkboards" },
-      { "h0": 17,   "h1": 21,   "state": "walk",  "where": "evening wander", "stops": ["park_center", "9457 Guerrero St", "Clarion Alley"] },
-      { "h0": 21,   "h1": 24,   "state": "idle",  "where": "home — 9263 Geneva Ave, Unit 4", "inside": true } ],
-      "degrade_reflexes": ["evening wander drops Clarion Alley in rain — park awning instead"] },
-    "C4": { "name": "Priya", "rows": [
-      { "h0": 0,    "h1": 6.5,  "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true },
-      { "h0": 6.5,  "h1": 19.5, "state": "work",  "where": "SF General — three twelves", "stops": ["SF General", "Mudhaus Coffee"] },
-      { "h0": 19.5, "h1": 21,   "state": "drink", "where": "Mudhaus Coffee — decompresses, same seat" },
-      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true } ],
-      "degrade_reflexes": ["off-shift days are the card's week-variant — the registry row is a shift day"] },
-    "C5": { "name": "Marcus", "rows": [
-      { "h0": 0,    "h1": 8,    "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true },
-      { "h0": 8,    "h1": 18,   "state": "carry", "where": "courier loop", "stops": ["Buy-Rite Market", "Dolores Perk", "Baguette About It Bakery", "The 600 Club", "Dandy Lion Chocolate Co."] },
-      { "h0": 18,   "h1": 21,   "state": "play",  "where": "park_center — drum circle nights" },
-      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9457 Guerrero St, Unit 3", "inside": true } ],
-      "degrade_reflexes": ["rain covers the loop — awnings and doorways, parcels stay dry"] },
-    "C6": { "name": "Carmen", "rows": [
-      { "h0": 0,    "h1": 7,    "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true },
-      { "h0": 7,    "h1": 10,   "state": "sit",   "where": "her stoop — cafecito, watching the block" },
-      { "h0": 10,   "h1": 16.5, "state": "sit",   "where": "Dolores Park, her palm — sewing, receiving" },
-      { "h0": 16.5, "h1": 21,   "state": "idle",  "where": "home — dinner, telenovelas, sewing" },
-      { "h0": 21,   "h1": 24,   "state": "sleep", "where": "home — 9418 Guerrero St, Unit A", "inside": true } ],
-      "degrade_reflexes": ["weather-gated day — cafecito moves inside in rain", "dusk-home — evening cells tighten when the lights come on"] },
-    "C7": { "name": "Victor", "rows": [
-      { "h0": 0,  "h1": 8,  "state": "sleep", "where": "home — 9102 Mission St, Unit 2 (above the shop)", "inside": true },
-      { "h0": 8,  "h1": 18, "state": "work",  "where": "Auerbach Hardware — counter 9–6; Tuesdays the buildings", "stops": ["Auerbach Hardware", "9418 Guerrero St", "9457 Guerrero St"] },
-      { "h0": 18, "h1": 22, "state": "idle",  "where": "Auerbach Hardware — back office", "inside": true },
-      { "h0": 22, "h1": 24, "state": "sleep", "where": "home — 9102 Mission St, Unit 2 (above the shop)", "inside": true } ],
-      "degrade_reflexes": ["Tuesday repair rounds move indoor-first in rain"] },
-    "C8": { "name": "Tomás", "rows": [
-      { "h0": 0,    "h1": 9,    "state": "sleep", "where": "home — 9344 Folsom St, Unit 1", "inside": true },
-      { "h0": 9,    "h1": 14.5, "state": "walk",  "where": "supplier loop", "stops": ["Auerbach Hardware", "Buy-Rite Market", "Valencia Growers Market"] },
-      { "h0": 14.5, "h1": 16,   "state": "drink", "where": "Mudhaus Coffee — the 3 p.m. coffee" },
-      { "h0": 16,   "h1": 24,   "state": "work",  "where": "Taqueria El Farolote — the line" } ],
-      "degrade_reflexes": ["supplier loop keeps to awnings in rain — the 3 p.m. coffee never moves"] }
+    "C1": {
+      "name": "Marisol",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 5.5,
+          "state": "sleep",
+          "where": "home — 9127 Capp St, Unit C",
+          "inside": true
+        },
+        {
+          "h0": 5.5,
+          "h1": 14,
+          "state": "serve",
+          "where": "Mudhaus Coffee — opens the café"
+        },
+        {
+          "h0": 14,
+          "h1": 18,
+          "state": "walk",
+          "where": "afternoon rounds",
+          "stops": [
+            "Taqueria El Farolote",
+            "9418 Guerrero St",
+            "park_center",
+            "Buy-Rite Market"
+          ]
+        },
+        {
+          "h0": 18,
+          "h1": 21.5,
+          "state": "chat",
+          "where": "Mudhaus Coffee — holds the counter"
+        },
+        {
+          "h0": 21.5,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9127 Capp St, Unit C",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "counter-wipe tell when idle",
+        "afternoon rounds shorten in rain — covered stops only"
+      ]
+    },
+    "C2": {
+      "name": "Jules",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 6.5,
+          "state": "sleep",
+          "where": "home — 9418 Guerrero St, Unit A",
+          "inside": true
+        },
+        {
+          "h0": 6.5,
+          "h1": 8,
+          "state": "run",
+          "where": "morning run",
+          "stops": [
+            "park_north",
+            "park_center"
+          ]
+        },
+        {
+          "h0": 8,
+          "h1": 15,
+          "state": "serve",
+          "where": "Mudhaus Coffee — shift"
+        },
+        {
+          "h0": 15,
+          "h1": 19,
+          "state": "sit",
+          "where": "park — sketching",
+          "stops": [
+            "park_center",
+            "9418 Guerrero St"
+          ]
+        },
+        {
+          "h0": 19,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9418 Guerrero St, Unit A",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "shortens the run in rain, never skips it"
+      ]
+    },
+    "C3": {
+      "name": "Dani",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 8,
+          "state": "sleep",
+          "where": "home — 9263 Geneva Ave, Unit 4",
+          "inside": true
+        },
+        {
+          "h0": 8,
+          "h1": 17,
+          "state": "serve",
+          "where": "Mudhaus Coffee — shift + chalkboards"
+        },
+        {
+          "h0": 17,
+          "h1": 21,
+          "state": "walk",
+          "where": "evening wander",
+          "stops": [
+            "park_center",
+            "9457 Guerrero St",
+            "Clarion Alley"
+          ]
+        },
+        {
+          "h0": 21,
+          "h1": 24,
+          "state": "idle",
+          "where": "home — 9263 Geneva Ave, Unit 4",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "evening wander drops Clarion Alley in rain — park awning instead"
+      ]
+    },
+    "C4": {
+      "name": "Priya",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 6.5,
+          "state": "sleep",
+          "where": "home — 9457 Guerrero St, Unit 3",
+          "inside": true
+        },
+        {
+          "h0": 6.5,
+          "h1": 19.5,
+          "state": "work",
+          "where": "SF General — three twelves",
+          "stops": [
+            "SF General",
+            "Mudhaus Coffee"
+          ]
+        },
+        {
+          "h0": 19.5,
+          "h1": 21,
+          "state": "drink",
+          "where": "Mudhaus Coffee — decompresses, same seat"
+        },
+        {
+          "h0": 21,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9457 Guerrero St, Unit 3",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "off-shift days are the card's week-variant — the registry row is a shift day"
+      ]
+    },
+    "C5": {
+      "name": "Marcus",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 8,
+          "state": "sleep",
+          "where": "home — 9457 Guerrero St, Unit 3",
+          "inside": true
+        },
+        {
+          "h0": 8,
+          "h1": 18,
+          "state": "carry",
+          "where": "courier loop",
+          "stops": [
+            "Buy-Rite Market",
+            "Dolores Perk",
+            "Baguette About It Bakery",
+            "The 600 Club",
+            "Dandy Lion Chocolate Co."
+          ]
+        },
+        {
+          "h0": 18,
+          "h1": 21,
+          "state": "play",
+          "where": "park_center — drum circle nights"
+        },
+        {
+          "h0": 21,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9457 Guerrero St, Unit 3",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "rain covers the loop — awnings and doorways, parcels stay dry"
+      ]
+    },
+    "C6": {
+      "name": "Carmen",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 7,
+          "state": "sleep",
+          "where": "home — 9418 Guerrero St, Unit A",
+          "inside": true
+        },
+        {
+          "h0": 7,
+          "h1": 10,
+          "state": "sit",
+          "where": "her stoop — cafecito, watching the block"
+        },
+        {
+          "h0": 10,
+          "h1": 16.5,
+          "state": "sit",
+          "where": "Dolores Park, her palm — sewing, receiving"
+        },
+        {
+          "h0": 16.5,
+          "h1": 21,
+          "state": "idle",
+          "where": "home — dinner, telenovelas, sewing"
+        },
+        {
+          "h0": 21,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9418 Guerrero St, Unit A",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "weather-gated day — cafecito moves inside in rain",
+        "dusk-home — evening cells tighten when the lights come on"
+      ]
+    },
+    "C7": {
+      "name": "Victor",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 8,
+          "state": "sleep",
+          "where": "home — 9102 Mission St, Unit 2 (above the shop)",
+          "inside": true
+        },
+        {
+          "h0": 8,
+          "h1": 18,
+          "state": "work",
+          "where": "Auerbach Hardware — counter 9–6; Tuesdays the buildings",
+          "stops": [
+            "Auerbach Hardware",
+            "9418 Guerrero St",
+            "9457 Guerrero St"
+          ]
+        },
+        {
+          "h0": 18,
+          "h1": 22,
+          "state": "idle",
+          "where": "Auerbach Hardware — back office",
+          "inside": true
+        },
+        {
+          "h0": 22,
+          "h1": 24,
+          "state": "sleep",
+          "where": "home — 9102 Mission St, Unit 2 (above the shop)",
+          "inside": true
+        }
+      ],
+      "degrade_reflexes": [
+        "Tuesday repair rounds move indoor-first in rain"
+      ]
+    },
+    "C8": {
+      "name": "Tomás",
+      "rows": [
+        {
+          "h0": 0,
+          "h1": 9,
+          "state": "sleep",
+          "where": "home — 9344 Folsom St, Unit 1",
+          "inside": true
+        },
+        {
+          "h0": 9,
+          "h1": 14.5,
+          "state": "walk",
+          "where": "supplier loop",
+          "stops": [
+            "Auerbach Hardware",
+            "Buy-Rite Market",
+            "Valencia Growers Market"
+          ]
+        },
+        {
+          "h0": 14.5,
+          "h1": 16,
+          "state": "drink",
+          "where": "Mudhaus Coffee — the 3 p.m. coffee"
+        },
+        {
+          "h0": 16,
+          "h1": 24,
+          "state": "work",
+          "where": "Taqueria El Farolote — the line"
+        }
+      ],
+      "degrade_reflexes": [
+        "supplier loop keeps to awnings in rain — the 3 p.m. coffee never moves"
+      ]
+    }
   },
   "surface_fallback": {
     "doc": "v83 — every spectator/player-facing surface declares its posture at 0% brain service: template vocabulary, authored backlog, or honest absence. The matrix is closed — 'the model writes it and there is no fallback' is not an allowed answer. Never labeled in-world; there is no 'the AI is down' surface anywhere.",
@@ -298,7 +794,12 @@
     "boundary_jitter_min": 15,
     "jitter_rule": "a cell edge shifts ±≤15 min applied to the shared boundary — both neighbors move together; coverage stays contiguous; the authored card remains the contract",
     "stop_rotation": "multi-stop cells rotate visit order by H mod len(stops) — same errands, different order",
-    "never_jittered": ["scheduled-obligation minutes (ledgers don't jitter)", "cell kind (a sleep edge can't become a work edge)", "co-star window bounds (windows bind the authored cell)", "anything a reflex or ask-class keys on"],
+    "never_jittered": [
+      "scheduled-obligation minutes (ledgers don't jitter)",
+      "cell kind (a sleep edge can't become a work edge)",
+      "co-star window bounds (windows bind the authored cell)",
+      "anything a reflex or ask-class keys on"
+    ],
     "stacking": "ambients: jitter applies over whichever row set resolved; mains: jitter applies to the main_routines registry rows; the coverage gate checks authored 0–24 coverage — jitter can never produce a partial day",
     "honesty": "jitter is honesty, not a variety promise — an identical stop order two days running is allowed"
   },
@@ -329,23 +830,164 @@
   "world_requests": {
     "doc": "v97 — the split matrix (§44): some requests were never brain products; at 0% service the world still answers",
     "classes": {
-      "world-bound":  { "kinds": ["weather/ambience", "venue + open-air claims (bookings, hold-space on a place)"], "needs_brain": false, "at_zero_pct": "delivers in full — thin reflexes are the reaction layer (rain-shelter fires block-wide); booked world windows still bind" },
-      "thin-bounded": { "kinds": ["co-star on ambient/offline hire", "routine-fit ask on a degraded main"], "needs_brain": "bounded", "at_zero_pct": "delivers posture-only per §13/§32/§37" },
-      "brain-bound":  { "kinds": ["scene-dependent asks — anything needing a carried scene"], "needs_brain": true, "at_zero_pct": "declines when every participant is thin/degraded — 'resolved · declined' + 50% auto-refund" },
-      "possession":   { "kinds": ["possess own hired pawn"], "needs_brain": "the owner is the brain", "at_zero_pct": "unaffected — mains unpossessable; hired sessions need owner online (§17)" }
+      "world-bound": {
+        "kinds": [
+          "weather/ambience",
+          "venue + open-air claims (bookings, hold-space on a place)"
+        ],
+        "needs_brain": false,
+        "at_zero_pct": "delivers in full — thin reflexes are the reaction layer (rain-shelter fires block-wide); booked world windows still bind"
+      },
+      "thin-bounded": {
+        "kinds": [
+          "co-star on ambient/offline hire",
+          "routine-fit ask on a degraded main"
+        ],
+        "needs_brain": "bounded",
+        "at_zero_pct": "delivers posture-only per §13/§32/§37"
+      },
+      "brain-bound": {
+        "kinds": [
+          "scene-dependent asks — anything needing a carried scene"
+        ],
+        "needs_brain": true,
+        "at_zero_pct": "declines when every participant is thin/degraded — 'resolved · declined' + 50% auto-refund"
+      },
+      "possession": {
+        "kinds": [
+          "possess own hired pawn"
+        ],
+        "needs_brain": "the owner is the brain",
+        "at_zero_pct": "unaffected — mains unpossessable; hired sessions need owner online (§17)"
+      }
     },
     "scene_test": "a scene needs at least one full brain or one player — thin pawns can be watched together, never directed together into dialogue",
     "declaration": "the class is declared per request kind at build time (requests.json kind → class), never inferred at runtime; an undeclared kind defaults to brain-bound — the conservative side",
     "feed": "ordinary locked vocabulary throughout — nothing announces the outage underneath"
   },
-  "demo": {
-    "storage_key": "rw_thinai_v97",
-    "pawns": [
-      { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
-      { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
-      { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" },
-      { "id": "C6",  "name": "Carmen", "kind": "main", "modes": ["full", "degraded"], "venue": "her stoop / her palm / home" }
+  "observation_tiers": {
+    "doc": "v111 — who the sim is spending on. Tier is per pawn, driven by spectator attention; internal only, never a spectator surface, never a feed line.",
+    "tiers": {
+      "watched": "a camera or venue view on the pawn, or a live feed/ledger query touching it — thin ticks per game-minute",
+      "shadowed": "recently watched, still warm — thin ticks at cell edges only",
+      "dark": "unwatched — no per-minute tick; state resolves lazily on next observation"
+    },
+    "rule": "tier follows attention, never population — 20 ambients dark cost ~nothing no matter how many exist",
+    "transitions": "watched → shadowed on attention loss; shadowed → dark at the first unwatched cell edge; dark → watched resolves lazily at the next seam, never mid-cell",
+    "never": "tiers are invisible in-world like every other seam — no badge, no feed line, no spectator tell"
+  },
+  "lazy_thin": {
+    "doc": "v111 — a dark pawn's state is a closed-form function of its resolved routine and elapsed time, resolved on read",
+    "resolve": "place + cell + needs = f(resolved routine rows, elapsed min) — the state a watcher lands on is identical to what continuous ticking would have produced",
+    "eager": [
+      "scheduled obligations settle at their minute regardless — wages, autopays, co-star windows: the ledger is eager even when the animation is lazy",
+      "reflex-relevant conditions (rain, dusk) still evaluate at their minute for the coverage contract — posture, not animation"
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "req_c6_fit", "req_c6_off", "service_100", "service_70", "service_60", "service_55", "service_30", "service_0", "scene_c6", "corrupt_c6", "encounter_a15", "player_press_a01", "wx_rain_req", "scene_req_thin", "reset"]
+    "never": [
+      "a catch-up pop",
+      "a skipped obligation",
+      "re-simulation on return — the past was already correct"
+    ],
+    "mode_changes": "a mode transition inside a dark interval still lands at a seam when next resolved — never mid-cell",
+    "claim": "observational equivalence, not approximation — if a watcher could tell, the layer failed"
+  },
+  "witness_record": {
+    "doc": "v111 — §5's 'thin can only be seen' made concrete: what observing a thin pawn may record",
+    "schema": {
+      "char": "id",
+      "place": "venue/anchor",
+      "doing": "cell posture phrase",
+      "posture": "optional active reflex",
+      "at_min": "int, game-local",
+      "day": "int"
+    },
+    "never": [
+      "intent",
+      "mood inference — posture only",
+      "anything seed-adjacent (thin has none)",
+      "interiority — a seen-fact is only what a camera could show"
+    ],
+    "mode_blind": "the schema is identical for thin, degraded, full, possessed — a watcher never records a mode, so the record can't betray the seam",
+    "dedupe": "one record per pawn per place per hour — co-presence already noted",
+    "use": "seen-facts feed observation/rumor channels at most as 'X was at Y' — never 'X seemed', never a storyline"
+  },
+  "compute_soak": {
+    "doc": "v111 — the honest cost shape: thin cost scales with observation, not population",
+    "split": "thin_min subdivides into watched_min / shadowed_min / dark_min — watched_min is per-minute, shadowed_min is per-edge, dark_min is ~zero (obligation + edge checks only)",
+    "surface": "gsComputeStats() gains the split; still internal/owner tooling, never a spectator surface",
+    "rule": "a blackout day and a fully dark day both land in thin_min — but dark costs less than watched; the ledger keeps them honest separately"
+  },
+  "demo": {
+    "storage_key": "rw_thinai_v111",
+    "pawns": [
+      {
+        "id": "A01",
+        "name": "Reyes",
+        "kind": "ambient",
+        "modes": [
+          "thin"
+        ],
+        "venue": "Mudhaus Coffee"
+      },
+      {
+        "id": "h01",
+        "name": "the courier (hired)",
+        "kind": "hired",
+        "modes": [
+          "thin",
+          "full",
+          "possessed"
+        ],
+        "venue": "Flying Pannier loop"
+      },
+      {
+        "id": "C2",
+        "name": "Jules",
+        "kind": "main",
+        "modes": [
+          "full",
+          "degraded"
+        ],
+        "venue": "park / cafe circuit"
+      },
+      {
+        "id": "C6",
+        "name": "Carmen",
+        "kind": "main",
+        "modes": [
+          "full",
+          "degraded"
+        ],
+        "venue": "her stoop / her palm / home"
+      }
+    ],
+    "events": [
+      "owner_off",
+      "owner_on",
+      "possess",
+      "cap_hit",
+      "rain",
+      "press_a01",
+      "ask_a01",
+      "co_star_a01",
+      "req_c6_fit",
+      "req_c6_off",
+      "service_100",
+      "service_70",
+      "service_60",
+      "service_55",
+      "service_30",
+      "service_0",
+      "scene_c6",
+      "corrupt_c6",
+      "encounter_a15",
+      "player_press_a01",
+      "wx_rain_req",
+      "scene_req_thin",
+      "reset",
+      "cam_pullback",
+      "cam_return",
+      "whip_pan_c6"
+    ]
   }
 }

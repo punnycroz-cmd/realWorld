@@ -1529,6 +1529,56 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST97)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v97 copy: ${label}`);
+    /* ---- v111 unobserved-tick pass ---- */
+    for (const blk of ['observation_tiers', 'lazy_thin', 'witness_record', 'compute_soak'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v111 block "${blk}" missing`);
+    if (TJ.observation_tiers) {
+      for (const t of ['watched', 'shadowed', 'dark'])
+        if (!(TJ.observation_tiers.tiers || {})[t])
+          add(g, 'fail', 'thinai.json', null, `observation_tiers.tiers.${t} missing`);
+      if (!/attention, never population/.test(TJ.observation_tiers.rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'observation_tiers lost the attention-not-population rule');
+    }
+    if (TJ.lazy_thin) {
+      if (!/identical/.test(TJ.lazy_thin.resolve || ''))
+        add(g, 'fail', 'thinai.json', null, 'lazy_thin lost the identical-to-continuous rule');
+      if (!/catch-up pop/.test((TJ.lazy_thin.never || []).join(' ')))
+        add(g, 'fail', 'thinai.json', null, 'lazy_thin.never must forbid a catch-up pop');
+      if (!/settle at their minute/.test((TJ.lazy_thin.eager || []).join(' ')))
+        add(g, 'fail', 'thinai.json', null, 'lazy_thin lost the eager-obligation rule');
+    }
+    if (TJ.witness_record) {
+      const wn = (TJ.witness_record.never || []).join(' ');
+      if (!/intent/.test(wn) || !/seed/.test(wn))
+        add(g, 'fail', 'thinai.json', null, 'witness_record.never must bar intent + seed-adjacent');
+      if (!TJ.witness_record.mode_blind)
+        add(g, 'fail', 'thinai.json', null, 'witness_record lost the mode-blind rule');
+      const WS = TJ.witness_record.schema || {};
+      for (const f of ['char', 'place', 'doing', 'at_min'])
+        if (!WS[f]) add(g, 'fail', 'thinai.json', null, `witness_record.schema.${f} missing`);
+      for (const f of ['mode', 'mood', 'intent'])
+        if (WS[f]) add(g, 'fail', 'thinai.json', null, `witness_record.schema carries forbidden field "${f}" — seen-facts are mode-blind`);
+    }
+    if (TJ.compute_soak && !/scales with observation/.test(TJ.compute_soak.doc || ''))
+      add(g, 'fail', 'thinai.json', null, 'compute_soak lost the scales-with-observation claim');
+    for (const ev of ['cam_pullback', 'cam_return', 'whip_pan_c6'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v111 surfaces */
+    const MUST111 = [
+      [/rw_thinai_v111/, 'v111 storage key'],
+      [/unobserved tick/i, 'unobserved-tick panel copy'],
+      [/shadowed/, 'shadowed tier'],
+      [/lazy/i, 'lazy-resolve copy'],
+      [/identical to continuous|identical to what continuous/i, 'observational-equivalence copy'],
+      [/seen-fact|seen-facts/i, 'witness seen-fact copy'],
+      [/mode-blind/i, 'witness mode-blind copy'],
+      [/scales with observation/i, 'compute-soak copy'],
+      [/cell edges are the unit/i, 'whip-pan mid-cell rule'],
+      [/S\.soak|S\.obs/, 'soak/obs state']
+    ];
+    for (const [re, label] of MUST111)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v111 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }

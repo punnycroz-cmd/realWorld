@@ -5107,6 +5107,47 @@
           ]
         }
       ]
+    },
+    {
+      "id": "PT101",
+      "title": "The unobserved tick v111 — lazy thin, witness records, compute soak",
+      "minutes": 8,
+      "persona": "cost-minded infra reviewer — wants proof that 20 ambients plus offline hires stay cheap when nobody is watching, without the block ever looking simulated",
+      "goal": "Verify the v111 seventh thin-AI pass on world/thinai.html: observation tiers watched/shadowed/dark coarsen the tick; a dark pawn resolves lazily on return, identical to continuous ticking with no catch-up pop; obligations stay eager; witness records are mode-blind seen-facts (place + doing + posture, deduped per place per hour); the compute soak splits thin_min by tier so thin cost scales with observation, not population.",
+      "surfaces": [
+        "thinai",
+        "audit"
+      ],
+      "steps": [
+        {
+          "do": "Read thin-ai.md §§47–52 and thinai.json's observation_tiers / lazy_thin / witness_record / compute_soak blocks.",
+          "expect": "Every statement resolves to a bookkeeping or posture rule — tiers follow attention never population; lazy resolve is observational equivalence (state a watcher lands on is identical to continuous ticking), never a re-simulation; obligations settle eager at their minute; the witness schema is mode-blind and bars intent/mood/seed fields by construction; the soak split keeps dark_min honest at ~zero.",
+          "checkpoints": [
+            "lazy_thin.never forbids a catch-up pop AND a skipped obligation AND re-simulation on return",
+            "witness_record.schema carries char/place/doing/at_min and NO mode, mood, or intent field",
+            "observation_tiers transitions land dark only at a cell edge and resolve watched only at a seam — never mid-cell"
+          ]
+        },
+        {
+          "do": "Open thinai.html (file://). Press 'Cameras pull back', then step +15 min twice — watch pawns land shadowed then dark. Press 'Cameras return' and 'Whip pan to C6'. Step +1 h and read the witness record and the soak line.",
+          "expect": "Pull-back logs a seam line dropping all watched pawns to shadowed; the next tick lands them dark with a seam line each. Cameras return logs one lazy-resolve seam per pawn naming the landed cell with the identical-to-continuous rule — no catch-up pop. Whip pan resolves C6 mid-cell instantly. The soak line shows dark minutes accruing under dark; the witness panel lists seen-facts only for watched pawns, deduped per place per hour, and the rent autopay still drafts at 09:00 whether or not anyone watched.",
+          "checkpoints": [
+            "Shadowed → dark lands at the first unwatched edge — one seam line per pawn, then silence",
+            "Cameras return logs 'identical to what continuous ticking produced. No catch-up pop.'",
+            "Witness records carry place + doing only — no mode, no mood, no interiority",
+            "Soak buckets move: watched_min stops accruing while dark, dark_min accumulates — thin cost tracks observation"
+          ]
+        },
+        {
+          "do": "Run node world/audit.js and read the thinai gate.",
+          "expect": "Thinai gate passes at 'schema v111 · 4 pawns · key rw_thinai_v111' — all four v111 contract blocks present, the storage key agrees, the three new demo events are declared, the v111 html marks pass, and the wire-vocabulary + mode-matrix sweeps still hold.",
+          "checkpoints": [
+            "Thinai gate: 0 fail; detail reports schema v111 at key rw_thinai_v111",
+            "A witness schema carrying a mode/mood field or lazy_thin permitting a catch-up pop would FAIL — spot-check",
+            "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT101 hand-sync"
+          ]
+        }
+      ]
     }
   ],
   "session_report_schema": {

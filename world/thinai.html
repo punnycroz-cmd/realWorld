@@ -59,6 +59,17 @@
   naming two thin pawns resolves declined + 50% refund. The
   encounter panel shows who's awake in the room — the only thing
   the split keys on.
+  v111 — the unobserved tick: observation tiers (watched → shadowed →
+  dark) coarsen the thin tick — watched pawns tick per minute,
+  shadowed tick at cell edges, dark pawns don't tick at all and
+  resolve lazily on next observation, identical to what continuous
+  ticking produced (observational equivalence, never a catch-up pop);
+  obligations settle eager at their minute regardless. The witness
+  record makes "thin can only be seen" concrete — a mode-blind
+  seen-fact schema (place + doing + posture, never intent, never
+  seed-adjacent, deduped per place per hour). And the compute soak
+  splits thin_min honestly: thin cost scales with observation, not
+  population.
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -177,6 +188,12 @@
     <div class="panel"><h2>Encounters — who's awake in the room</h2><div class="ledger" id="enc"></div>
       <div class="fine">The nod economy: thin-to-thin is gesture register — a scene needs at least one full brain or one player. Requests split world-bound (deliver at 0%) from brain-bound (decline without a live mind).</div>
     </div>
+    <div class="panel"><h2>The unobserved tick — lazy thin</h2><div class="ledger" id="obs"></div>
+      <div class="fine">Observation tiers coarsen the tick: <b>watched</b> ticks per minute, <b>shadowed</b> ticks at cell edges, <b>dark</b> doesn't tick — it resolves lazily on the next observation, and the landed state is identical to continuous ticking. Obligations are eager: wages and autopays settle at their minute whether anyone is watching or not. Thin cost scales with observation, not population.</div>
+    </div>
+    <div class="panel"><h2>Witness record — what a watcher may keep</h2><div class="arch" id="saw"></div>
+      <div class="fine">A seen-fact is place + doing + posture, mode-blind and deduped per place per hour — never intent, never a mood word, never seed-adjacent. The same schema records a full brain and a thin one, so the record itself can't betray the seam.</div>
+    </div>
     <div class="panel"><h2>Surface fallback — what a stall does</h2><div class="ledger" id="surf"></div>
       <div class="fine">Three postures, closed matrix: <b>unaffected</b> (template vocabulary — never model text), <b>hold</b> (authored backlog — Mission Unfiltered goes quiet, trickles back ≤1/daypart), <b>static</b> (the card ships without prose — briefings, thread labels). Honest absence beats filler; nothing is labeled in-world.</div>
     </div>
@@ -205,8 +222,9 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v97) */
-var LS='rw_thinai_v97';
+/* mirror of thinai.json demo scenario (schema v111) */
+/* prior session keys, kept for the audit mark list: rw_thinai_v97 (v97–v110 added spec only — no intervening keys existed) */
+var LS='rw_thinai_v111';
 var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
@@ -229,6 +247,8 @@ function seed(){return {
   paidToday:false, c6src:'authored', degMin:{c2:0,c6:0},
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
+  obs:{a01:'watched',h01:'watched',c2:'watched',c6:'watched'},
+  soak:{watched:0,shadowed:0,dark:0}, saw:[], sawKey:{},
   needs:{a01:{hunger:40,rest:70},h01:{hunger:40,rest:70},c2:{hunger:40,rest:70},c6:{hunger:40,rest:70}},
   pawns:{
     a01:{id:'A01',name:'Reyes',kind:'ambient',mode:'thin',venue:'Mudhaus Coffee'},
@@ -351,7 +371,8 @@ function render(){
       '<span class="mode '+modeLabel(p)+'">'+modeLabel(p)+'</span></div>'+
       '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+
       (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+
-      ' · <span class="sal">routine: '+srcLabel(id)+'</span></div>'+
+      ' · <span class="sal">routine: '+srcLabel(id)+'</span>'+
+      ' · <span class="sal">obs '+S.obs[id]+'</span></div>'+
       (function(){var e=nextEdge(id,h);if(e===null)return '';
         var j=jit(id,e);return '<div class="cell">next edge '+hhmm(e)+' → '+(j>=0?'+':'')+j+'m = '+hhmm(e+j)+' <small>(day-hash jitter — shared edge, coverage stays contiguous)</small></div>';})()+
       '<div class="needs">hunger <span class="bar"><i style="width:'+Math.min(100,n.hunger)+'%"></i></span>'+
@@ -394,6 +415,17 @@ function render(){
     'co-presence: '+(S.a15?'<b>A15 sharing A01\'s counter cell</b> — nod economy: gesture register only, cap unchanged, no conversation staged':'A01 holds the counter alone')+'<br>'+
     'request split — <b>world-bound</b> (weather, venue claims): delivers at 0% · <b>thin-bounded</b> (co-star, routine-fit): posture-only · <b>brain-bound</b> (carried scenes): needs ≥1 live mind, else resolved · declined + 50% refund<br>'+
     '<small>a scene needs at least one full brain or one player — thin pawns can be watched together, never directed together into dialogue</small>';
+  /* v111 unobserved tick — tiers, soak, lazy resolve. Watched ticks
+     per minute; shadowed ticks at cell edges; dark doesn't tick —
+     it resolves lazily, identical to continuous ticking. */
+  var tiers={watched:0,shadowed:0,dark:0};
+  ['a01','h01','c2','c6'].forEach(function(k){tiers[S.obs[k]]++;});
+  $('obs').innerHTML='tiers — watched <b>'+tiers.watched+'</b> · shadowed <b>'+tiers.shadowed+'</b> · dark <b>'+tiers.dark+'</b><br>'+
+    'thin_min soak — watched <b>'+S.soak.watched+'</b> · shadowed <b>'+S.soak.shadowed+'</b> · dark <b>'+S.soak.dark+'</b> <small>min</small><br>'+
+    '<small>thin cost scales with observation, not population — a block of 20 dark ambients costs ~nothing. The ledger stays eager: obligations settle at their minute, watched or not.</small>';
+  $('saw').innerHTML=S.saw.slice().reverse().map(function(w){
+    return '<div>d'+w.day+' '+hhmm(w.at_min)+' — '+w.char+' at '+w.place+' · '+w.doing+'</div>';
+  }).join('')||'<div>No seen-facts yet — a watcher records place + doing + posture only, deduped per place per hour. The schema is mode-blind: it can\'t tell a thin pawn from a full one.</div>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
     'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
@@ -545,6 +577,30 @@ var EV=[
  ['Service 55%',function(){setCap(55);}],
  ['Service 30%',function(){setCap(30);}],
  ['Service 0% · blackout',function(){setCap(0);}],
+ ['Cameras pull back',function(){
+   /* v111 — attention loss drops every watched pawn to shadowed;
+      one unwatched cell edge later they land dark and stop ticking */
+   var moved=[];
+   ['a01','h01','c2','c6'].forEach(function(k){if(S.obs[k]==='watched'){S.obs[k]='shadowed';moved.push(k.toUpperCase());}});
+   if(!moved.length){toast('Nobody is watched right now — the block is already dark.');return;}
+   seam('attention lost — '+moved.join(', ')+' drop watched → shadowed: thin ticks coarsen to cell edges; one unwatched edge lands dark');}],
+ ['Cameras return',function(){
+   /* v111 lazy resolve — a dark/shadowed pawn's landed state is
+      f(routine, elapsed): identical to continuous ticking, never a
+      catch-up pop, never a re-simulation of minutes nobody saw */
+   var back=[];
+   ['a01','h01','c2','c6'].forEach(function(k){if(S.obs[k]!=='watched'){S.obs[k]='watched';back.push(k);}});
+   if(!back.length){toast('All four pawns already watched.');return;}
+   back.forEach(function(k){
+     var c=cell(k,S.min/60);
+     seam(k.toUpperCase()+' → watched: lazy resolve reads "'+c[0]+'" — one pass over the resolved routine, not re-simulation; the state is identical to what continuous ticking produced. No catch-up pop.');});}],
+ ['Whip pan to C6',function(){
+   /* v111 — a mid-cell landing on a dark pawn resolves at cell
+      state instantly; cell edges are the unit of resolution */
+   if(S.obs.c6==='watched'){toast('C6 is already watched.');return;}
+   S.obs.c6='watched';
+   var c=cell('c6',S.min/60);
+   seam('whip pan lands on C6 mid-cell — lazy resolve reads "'+c[0]+'" instantly; cell edges are the unit of resolution, so a mid-cell landing never pops');}],
  ['Corrupt C6 routine',function(){
    if(S.c6src==='authored'){S.c6src='template';
      seam('C6 authored routine dropped mid-day — resolver falls a rung: role template at the next seam. Finish the beat, then follow the fallback cell — the pawn never freezes.');}
@@ -631,6 +687,25 @@ function tick(mins){
       /* v69 outage credit — degraded mains accrue deg_min (rolling
          24-h ledger; rotation spends it as swaps, not recoveries) */
       if(p.mode==='degraded'&&S.degMin[id]!==undefined)S.degMin[id]+=15;
+      /* v111 lazy thin — the tier coarsens the tick; the ledger
+         stays eager. Shadowed pawns go dark at the first unwatched
+         edge; dark pawns hold state as f(routine, elapsed). */
+      if(p.mode==='thin'||p.mode==='degraded'){
+        S.soak[S.obs[id]]+=15;
+        if(S.obs[id]==='shadowed'){S.obs[id]='dark';
+          seam(id.toUpperCase()+' shadowed → dark — an unwatched cell edge passed; per-minute ticking stops, obligations still settle at their minute');}
+      }
+      /* v111 witness record — watched pawns leave seen-facts:
+         place + doing + posture, deduped per place per hour,
+         mode-blind (the same schema records any brain). */
+      if(S.obs[id]==='watched'){
+        var wk=id+'|'+p.venue+'|'+Math.floor(h);
+        if(S.sawKey[id]!==wk){
+          S.sawKey[id]=wk;
+          S.saw.push({char:p.id,place:p.venue,doing:cell(id,h)[0],at_min:S.min,day:S.day});
+          if(S.saw.length>24)S.saw.shift();
+        }
+      }
       /* baseline auto-shift wages: work cells pay $18/h → $4.50/15min */
       if((kind==='serve'||kind==='carry')&&(id==='a01'||id==='h01')){
         S.ledger[id]+=4.5;
