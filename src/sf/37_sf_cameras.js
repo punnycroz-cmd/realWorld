@@ -177,10 +177,22 @@ function sfCamWatch(id){
   if(!view) return null;
   if(view.mode === 'street'){
     SF_VIEW = 'street';
+    /* v81: keep the screen's live smoothed pose (_sx/_syaw/...) — the
+       view record persisted its own, and restoring it would teleport the
+       rig to where the feed was parked instead of gliding there from
+       where the spectator is looking now. */
+    const keepS = {};
+    for(const k in SF_CAM) if(k[0] === '_') keepS[k] = SF_CAM[k];
     Object.assign(SF_CAM, view.sfCam);
+    for(const k in keepS) SF_CAM[k] = keepS[k];
     SF_CAM.director = !!view.sfCam.director;
     if(view.follow != null) inspectedPawnIdx = view.follow;
-    sfCamSnap();
+    /* v81: no snap — switching feeds is a camera MOVE, not a teleport.
+       The spring rig glides from the current pose to the parked feed's
+       framing (~0.5s at kRig 6.5), like a director's cut handled by a
+       jib instead of a hard cut. First-time rigs still snap internally
+       (the _sx == null branch) so there's no fly-through-the-map on a
+       cold start. */
   } else {
     SF_VIEW = 'top';
     if(view.follow != null){ inspectedPawnIdx = view.follow; SF_CAM_FREE = false; }
