@@ -6756,3 +6756,470 @@ exists to falsify the gate, not to enshrine it.
   the specific claim that *embarrassment retention in
   others* is what's overestimated is an extension —
   the honest bound is "self-relevant social records."
+
+
+# Part XII — v137: the blind beat, the wound that re-lives, the ping that feeds the fear, the camera move that sticks, the warm-faint day, the bored reach backward, the sleep that sells the background, their feeling that fades first, and the forecast that draws the reachable (2026-09-24, twelfth pass)
+
+Nine mechanisms left standing after eleven passes — each one a
+verified effect that changes a number in the spec, plus the
+honest-limit ledger. Unifying theme: emotion is not a scalar on
+the record; it re-prices what surrounds the event in time, in
+space, in other people's heads, and in the future the character
+imagines.
+
+## 154. The blind beat, then the warm half-hour — the biphasic post-emotion window
+
+The spec already has the warm half-hour (§4.57 `hangover_*`,
+Tambini et al. 2017: post-arousal encoding enhanced ~30 min).
+What it lacks is the *first beat* — emotion-induced blindness
+(EIB): a high-arousal stimulus suppresses perception of what
+follows it for ~0.5 s (**Most, Chun, Widders & Zald 2005**,
+*Psychol. Sci.*; replicated robustly — Most & Wang 2011;
+Kennedy & Most 2012 spatiotemporal-competition account;
+Kennedy, Rawding, Most & Hoffman 2014 shows it is perceptual,
+not a memory-maintenance artifact). At event granularity the
+effect reads: **the event minted immediately after a hot event
+is born weak** — attention was still on the burn.
+
+Second half of the same window: the retrograde direction is
+**priority-split, not uniform**. Knight & Mather 2009
+(*Emotion* 9:763) and **Sakaki, Fryer & Mather 2014**
+(*Psychol. Sci.* — verified, three studies): arousal
+*enhances* the immediately preceding neutral item when it was
+goal-prioritized, *impairs* it when unprioritized — arousal
+amplifies top-down priority in both directions (arousal-biased
+competition, Mather & Sutherland 2011). And Mather et al. 2006
+(*J. Cogn. Neurosci.* 18:614): arousal impairs feature binding
+in working memory — the within-event coherence tax §71 already
+prices has a WM-level cousin.
+
+**[CONSENSUS]** that emotional events distort their temporal
+neighborhood; **[CONSENSUS]** that the retrograde sign is
+priority-dependent; **[DEBATED]** whether EIB is perceptual
+vs memorial (2014 data favor perceptual — we price it at
+encoding either way).
+
+**Spec consequence (§4.105):**
+
+```
+on mint of record m with arousal ≥ hangover_arm (0.65):
+  // blind beat — the NEXT mint carries the cost
+  state.blind_until = next event mint only (one-shot)
+  next mint's E0 *= (1 − eib_pen)      // eib_pen 0.4
+  // priority-split retrograde on the PREVIOUS mint
+  prev.E0 += retro_prio_gain·(2·prev.priority − 1)
+          // retro_prio_gain 0.3, priority ∈[0,1]
+          // prioritized prev gains up to +0.3,
+          // unprioritized loses up to −0.3
+```
+
+The sequence reads hot-event → blind beat → hangover warmth:
+three windows, three different signs. Locked `eib_free_null`
+(the blind beat must cost) + `retro_flat_null` (the retrograde
+leg must split on priority — a uniform boost or uniform tax
+both fail).
+
+## 155. Social pain re-lives; the bruise doesn't — rejection records
+
+**Meyer, Williams & Eisenberger 2015** (*PLoS ONE* — verified):
+reliving a *social* pain memory re-experiences ≈ the initial
+pain and recruits mentalizing cortex (dmPFC → dACC/AI
+correlation); reliving *physical* pain does not — it routes
+through sensory-discriminative cortex and the reported pain
+does NOT track the relived signal. Dumas's line they quote:
+moral wounds — wronged, betrayed, excluded — do not easily
+heal and re-live with little effort. Ostracism registers even
+when the exclusion is trivial and meaningless (Williams's
+Cyberball corpus — excluded by a computer, for nothing, still
+hurts).
+
+**[CONSENSUS]** that social exclusion is painful and
+re-liveable well beyond physical-pain norms;
+**[single-lab, n=17 fMRI arm — flag modest]** for the exact
+relive ratio.
+
+**Spec consequence (§4.106):** records minted with
+`emo_tag:"rejection"` (kinds: excluded, dismissed, stood-up,
+betrayed-lite — and appraised rejections via §6.400) carry:
+
+```
+relived_affect = affTag · rej_relive        // rej_relive 0.85
+                 // vs default relive leg  ~0.5 (§4.5 arm)
+physical-pain records use pain_relive      // pain_relive 0.3
+rejection records: fab_mult = 1.0          // exempt from the
+                 // fading-affect bias — fades at positive rate
+```
+
+Emergent: the character who was left off the invitation list
+re-feels it near-whole when the cue returns, years on, while
+the sprained ankle has gone flat. Locked `rej_flat_null`
+(P1477): rejection relive must outlast physical-pain relive
+at matched tag intensity.
+
+## 156. The appraisal mints the wound — rejection sensitivity (distortion side)
+
+Where §155 stores the wound, this mints it from ambiguity.
+**Downey & Feldman 1996** (*JPSP* 70:1327 — the RSQ):
+rejection-sensitive people anxiously expect rejection and
+*perceive* it in ambiguous behavior — the unread reply, the
+flat greeting, the uninvited party. The RS construct is
+stable, measurable, and predicts real interpersonal damage
+(self-fulfilling: rejection perceived → defensive hostility
+→ actual rejection, Downey et al. 1998).
+
+**[CONSENSUS]** for the appraisal bias and its self-fulfilling
+loop; the sim needs only the mint-side.
+
+**Spec consequence (§6.400):** on a social event with an
+ambiguous-outcome field (unanswered, uninvited, lukewarm —
+`ambiguity ≥ rej_cue_thresh` 0.4), roll the authored trait
+`rej_sens` [0,1] → the record mints `emo_tag:"rejection"`
+with `prov:"appraisal"` (INFERRED tier — the world didn't
+reject them; their read did). High `rej_sens` also scales the
+tag's intrusion weight (the ambiguous evening comes back at
+night). Locked `rej_amb_null` (P1478): `rej_sens` may not
+mint rejection-tagged records from unambiguous affiliation
+events — the bias needs fog to work.
+
+## 157. The ping that feeds the fear — incubation vs extinction
+
+§4.9 assumes every unreinforced cue fire is a safeCount tick —
+extinction. **Eysenck 1968** (*Behav. Res. Ther.* 6:309, the
+Napalkov phenomenon): when the original conditioning was
+intense, *brief* unreinforced CS exposures can **increase**
+the CR rather than extinguish it — the glimpse that keeps
+the fear alive. Human replication is mixed: Sandin & Chorot
+1989 found no incubation; partial support in high-UCS +
+short-CS heart-rate paradigms. **[DEBATED]** — we adopt it as
+a gated mechanic because it produces the right emergent shape
+(fears fed by passing mentions die only on real visits) and
+P1479 is the designated falsifier.
+
+**Spec consequence (§4.107):** a CondEntry with
+`|valence|·strength ≥ incub_thresh` (0.6) distinguishes
+exposure *depth*:
+
+```
+brief exposure (cue present, dwell < ext_min_dur ticks —
+              passing mention, glimpse, one-line retell):
+    strength += incub_gain·(1 − strength)   // incub_gain 0.04
+    safeCount unchanged                     // NOT a safe day
+full exposure (dwell ≥ ext_min_dur):
+    safeCount += 1  as before (§4.9)
+```
+
+Emergent: the trauma cue glimpsed in a headline feeds the
+entry; only a full uneventful encounter earns suppression.
+Locked `incub_mild_null` (P1479): entries below
+`incub_thresh` may never incubate — mild associations
+extinguish on any exposure.
+
+## 158. The camera move that sticks — perspective shift plasticity
+
+§5.39 already emits `persp` (field/observer) and dampens
+reported affect on observer reconstructions (`persp_affect_
+loss`; Nigro & Neisser 1983; shame records run observer-biased
+per §60). What the spec lacks: **the shift is plastic and
+one-way.** **Sekiguchi & Nonaka 2014** (*Emotion* 24:375 —
+verified): an instructed field→observer shift reduces the
+memory's emotional intensity **and the reduction persists to
+retells four weeks later**; observer→field does NOT restore
+intensity. Vantage point is also the most *reliable* memory
+characteristic in test-retest (Sutin & Robins-adjacent work,
+*Memory* 2015 — perspective correlates with recall intensity,
+not with objective accuracy).
+
+**[CONSENSUS]** that observer retells dampen felt intensity;
+**[DEBATED→small-n]** that the shift permanently rewrites the
+tag — adopted, direction verified.
+
+**Spec consequence (§5.165):**
+
+```
+persp_shift op (deliberate or audience-requested retell
+                from observer):
+  record.persp_persist = "observer"   // sticky: subsequent
+       // emissions run observer at persp_stick 0.7
+  affTag relive *= (1 − persp_cool)   // persp_cool 0.35,
+       // one-way valve — applied once, never refunded
+field→observer only; observer→field emits at current
+       // intensity (no reheat)
+```
+
+Locked `persp_reheat_null` (P1480): an observer→field retell
+may restore ≤20% of the cooled intensity — the camera move
+that cools cannot be un-moved by will.
+
+## 159. Warm but faint — the low-arousal positive class
+
+**Kensinger 2004** and the arousal-vs-valence literature the
+whole doc rests on: enhancement tracks **arousal**, not
+valence. Ergo serenity, contentment, a quiet good afternoon —
+valence-positive, arousal-low — encode at **neutral rates**.
+Yet the rest of the machine treats them as positive: §105's
+positivity effect overdraws them ≥60, the FAB files them on
+the slow leg, `pos_spare` spares them on specificity loss.
+That is a coherent phenotype: **the warm day you barely
+notice accruing, that the older self keeps finding.**
+**[CONSENSUS]** on the encoding side; **[HYPOTHESIS]** that
+the retrieval-side positive treatment survives intact —
+theory-consistent, untested directly.
+
+**Spec consequence (§5.167):** mints with `valence > 0.3 AND
+arousal < calm_arm` (0.35) flag `calm:true` — no `w_emo` leg
+at encode (arousal below arm contributes ~0 anyway; the flag
+makes the class explicit), but `calm:true` records remain
+eligible for `pos_spare` and positivity-effect overdraw —
+`calm_pos_spare` 1.0 (full eligibility; the character's first
+weekday-of-a-good-year is not a deficit case). Locked
+`calm_boost_null` (P1481): calm-positive records must not
+out-retain neutral records at matched delay — the warmth is
+retrieval-side only.
+
+## 160. Boredom reaches backward — the idle mind draws the warm archive
+
+**van Tilburg & Igou 2013** (*Emotion* 13 — verified, six
+studies): state and dispositional boredom **increase**
+nostalgia, mediated by meaning-seeking; nostalgia in turn
+restores felt meaning. Boredom is a trigger for the §34/§62
+nostalgia channel that the spec currently fires only on
+distress. (Encode side needs nothing new — bored encoding is
+just `att`-starved minting.)
+
+**[CONSENSUS]** for the boredom→nostalgia path.
+
+**Spec consequence (§5.166):** state `bored:true` (no engaged
+event for `bored_win` ~45 sim-min) adds a retrieval-weight
+term `bored_nost` (0.2) on §34-qualifying nostalgic records
+(`valence>0.3 ∧ selfRelevance≥0.6 ∧ era-matched`) — idle
+characters drift to the warm archive on their own, and
+memory-track observers see a character *use* the past to
+regulate the present. Locked `nost_rand_null` (P1482): the
+bored draw must concentrate on bond/meaning records, not
+arbitrary positives.
+
+## 161. Sleep sells the background twice — the trade-off deepens overnight
+
+§15 priced the emotional-memory trade-off at **encoding**
+(arousal buys the item, sells the context). **Payne,
+Stickgold, Swanberg & Kensinger 2008** (*Psychol. Sci.*
+19:781 — verified): across 12 h *awake*, negative objects and
+their backgrounds decay together; across 12 h *including
+sleep*, objects are preserved (68% vs 44% wake) while
+backgrounds gain **nothing** (38% vs 38%). Sleep re-executes
+the trade-off — it is a second selling of the background, not
+a blanket save.
+
+**[CONSENSUS]** direction (replicated pattern; nap studies
+agree — Nishida et al. 2009).
+
+**Spec consequence (§4.109):** during the sleep tick, records
+with `arousal ≥ strade_arm` (0.5) take the existing
+`emo_consol_gain` on central content **and** decay their
+context/peripheral fields at `sleep_ctx_mult` (1.3×) — the
+background erodes *through* sleep even as the center is
+saved. Wake ticks keep them coupled. Locked `sleep_ctx_null`
+(P1483): backgrounds of emotional records must show zero
+sleep benefit — a merge that sleeps the whole scene fails
+the probe.
+
+## 162. Their feeling fades first — the self/other affect persistence split
+
+A character's own emotional state mints an `affTag` that
+persists (§4.9, selfRelevance-gated). A *partner's* expressed
+emotion mints a thinner thing — observed affect, not felt
+affect — and it should die faster unless it was attended
+(§127 already gates the encode on attention). Direct
+evidence: the self-reference effect (Rogers, Kuiper & Kirker
+1977) prices self > other encoding; empathic-accuracy work
+(Ickes) bounds how much of another's state is ever captured;
+and Levine's remembered-emotion program shows even *own*
+remembered emotion is rebuilt through current appraisal —
+another's gets rebuilt through twice the fog.
+**[HYPOTHESIS]** on the magnitude — the direction is
+self-reference consensus, the decay split is ours.
+
+**Spec consequence (§4.108):** records minted from observed
+other-affect flag `oth_emo:true` and decay
+`β·oth_emo_mult` (1.4) — unless the observer's own affect was
+co-active (§117 shared-arousal witness bond), in which case
+the record re-flags self-relevant and rides the normal leg.
+Emergent: "she was furious that day" fades faster than "I was
+furious" — the promise the *other* person made emotionally
+is exactly the knowledge that goes unequal first. Locked
+`oth_free_null` (P1484a→ merged into P1477 block — see
+registry): other-affect records cannot persist at self-affect
+rates.
+
+## 163. The forecast draws the reachable — accessibility-weighted prediction
+
+§50 priced the impact bias (focalism + immune neglect). The
+mechanism underneath is sampling: **Morewedge, Gilbert &
+Wilson 2005** (*PSPB* — "the least likely of times"): people
+predict future experience from remembered instances, and the
+remembered instances are **unrepresentative** — they are the
+intense, recent, available ones. The forecast error is a
+retrieval error.
+
+**Spec consequence (§5.168):** the `forecast` op does not
+average the domain — it draws `fc_sample_n` (3) records by
+the ordinary cue-driven R-weighted sampler and predicts
+intensity off the **max** of the sample (peak rule already
+in §13): a character whose strongest breakup record is a
+catastrophe predicts catastrophe, whatever the average
+breakup looked like. Locked `fc_mean_null` (P1484): when the
+top-R record is atypical, forecast error vs the domain mean
+must exceed `fc_dev` — predicting the mean is the failure
+mode, not the success.
+
+## 164. Spec delta (v5.82 → v5.83)
+
+- **§4.105** `eib_pen`/`retro_prio_gain`: biphasic post-
+  emotion window — next mint taxed (blind beat), previous
+  mint split on priority; `eib_free_null` + `retro_flat_null`.
+- **§4.106** `rej_relive`/`pain_relive`/`rej` FAB exemption:
+  rejection-tagged records relive near-initial, physical-pain
+  records don't; `rej_flat_null`.
+- **§4.107** `incub_thresh`/`incub_gain`/`ext_min_dur`: brief
+  sub-threshold cue exposures strengthen intense CondEntries
+  instead of accruing safeCount (DEBATED, Eysenck);
+  `incub_mild_null`.
+- **§4.108** `oth_emo:true` + `oth_emo_mult`: observed
+  other-affect decays 1.4× unless shared-arousal re-flags it
+  self-relevant; `oth_free_null`.
+- **§4.109** `strade_arm`/`sleep_ctx_mult`: sleep re-runs the
+  emotional trade-off — center saved, context eroded;
+  `sleep_ctx_null`.
+- **§5.165** `persp_stick`/`persp_cool`/`persp_persist`:
+  field→observer shift is plastic and one-way (Sekiguchi &
+  Nonaka); `persp_reheat_null`.
+- **§5.166** `bored_win`/`bored_nost` + `bored` state:
+  boredom opens the §34 nostalgia draw (van Tilburg & Igou);
+  `nost_rand_null`.
+- **§5.167** `calm:true`/`calm_arm`/`calm_pos_spare`: low-
+  arousal positive class — neutral encode, positive retrieve;
+  `calm_boost_null`.
+- **§5.168** `fc_sample_n`/`fc_dev`: forecasts sample top-R
+  records, predict off max (Morewedge et al.);
+  `fc_mean_null`.
+- **§6.400** `rej_sens` trait + `rej_cue_thresh`: ambiguous
+  social cues mint appraisal-tier rejection records (Downey &
+  Feldman); `rej_amb_null`.
+- **§7 params:** +14 scalars (`eib_pen`, `retro_prio_gain`,
+  `rej_relive`, `pain_relive`, `incub_thresh`, `incub_gain`,
+  `ext_min_dur`, `oth_emo_mult`, `strade_arm`,
+  `sleep_ctx_mult`, `persp_stick`, `persp_cool`, `bored_win`,
+  `bored_nost`, `calm_arm`, `calm_pos_spare`, `fc_sample_n`,
+  `fc_dev`, `rej_cue_thresh`) +1 authored trait (`rej_sens`)
+  +4 record fields (`calm`, `oth_emo`, `persp_persist`,
+  `rej`-tag via `emo_tag`) +1 state (`bored`) +10 locked
+  nulls.
+
+## 165. Age guidance (extends §§10/23/37/53/67/81/95/109/123/137/151)
+
+- `eib_pen`: knots *down* ≥65 — older adults show reduced
+  emotional-distraction capture (socioemotional selectivity;
+  Mather lab aging work) — `knot:0.4@55,0.35@65,0.28@75,
+  0.2@85` (HYPOTHESIS on magnitude).
+- `rej_sens`: mild decline ≥60 — rejection sensitivity
+  attenuates with age under SST (HYPOTHESIS; knot the trait
+  read ≥60 at ×0.85, not the authored value).
+- `incub_*`: flat — anxiety-linked, no lifespan data;
+  HYPOTHESIS, hold constant.
+- `persp_*`: rides existing `persp_age_gain` knots; the
+  stick/cool legs assumed age-flat (no data — HYPOTHESIS).
+- `bored_nost`: rises with age — nostalgia is more available
+  and more used ≥65 (consistent with the §151
+  `nostalgia_gain` knot): `0.15@55 → 0.22@70 → 0.3@85`.
+- `calm_pos_spare`: already covered by `pos_spare`/`w_emo_pos`
+  age knots — no new leg.
+- `sleep_ctx_mult`: flat — the re-executed trade-off has no
+  age data; the sleep-fragility story lives in `sws_mult`.
+- `oth_emo_mult`: flat; plausible interaction with
+  source-aging (whose feeling? is a source problem) — flag,
+  no leg until evidence.
+- `fc_*`: flat — forecasting biases appear age-robust
+  (HYPOTHESIS).
+
+## 166. Validation probes (P1475–P1484; registry continues)
+
+- **P1475 blind beat (MUST):** neutral event minted
+  immediately after an `arousal ≥ hangover_arm` event carries
+  E0 reduced by ≥`eib_pen` vs matched control —
+  `eib_free_null`.
+- **P1476 priority-split retrograde (MUST):** pre-emotion
+  high-priority neutral gains vs control while low-priority
+  loses; a flat retrograde leg fails — `retro_flat_null`.
+- **P1477 rejection relive (SHOULD):** rejection-tagged
+  record relives ≥0.8·initial tag at day 30 vs physical-pain
+  ≤0.4; `rej_flat_null`. (`oth_emo` folded: other-affect
+  record fades ≥1.3× self-affect rate — `oth_free_null` leg
+  on same probe.)
+- **P1478 appraisal mint (MUST):** ambiguous social cue
+  mints `rej`-tagged `prov:"appraisal"` record only at
+  `rej_sens ≥ 0.4`; unambiguous affiliation mints none at any
+  `rej_sens` — `rej_amb_null`.
+- **P1479 incubation (SHOULD, DEBATED-gated):** brief pings
+  on an `≥incub_thresh` entry raise strength across 5
+  exposures; sub-threshold entries extinguish —
+  `incub_mild_null`. Probe exists to falsify the gate.
+- **P1480 perspective valve (MUST):** field→observer retell
+  cuts emitted intensity ≥`persp_cool` and persists ≥28
+  sim-days; observer→field restores ≤20% —
+  `persp_reheat_null`.
+- **P1481 calm class (MUST):** `calm:true` R ≈ neutral at
+  matched delay (±5%); positivity-overdraw eligibility ≥60
+  unchanged — `calm_boost_null`.
+- **P1482 bored reach (SHOULD):** `bored` state raises
+  nostalgic-record draw rate by ≥`bored_nost` relative term,
+  draws concentrated on bond/meaning records —
+  `nost_rand_null`.
+- **P1483 sleep re-trade (MUST):** post-sleep, central
+  fields of `arousal≥strade_arm` records preserved while
+  their context fields decay ≥1.25× wake rate —
+  `sleep_ctx_null`.
+- **P1484 reachable forecast (SHOULD):** with an atypical
+  top-R record, predicted intensity error vs domain mean
+  exceeds `fc_dev`; mean-prediction fails —
+  `fc_mean_null`.
+
+Registry: P1–P1484. v137 suite: P1475, P1476, P1478, P1480,
+P1481, P1483 MUST (all carry locked-null legs); P1477, P1479,
+P1482, P1484 SHOULD — P1479 is the designated falsifier for
+the incubation gate.
+
+## 167. Honest limits (Part XII)
+
+- **EIB at event granularity**: the lab effect is ~500 ms of
+  perceptual suppression in an RSVP stream. Mapping it to
+  "the next event mint is weak" is our granularity call —
+  direction right, magnitude ours (`eib_pen` 0.4).
+- **Retrograde priority**: verified direction, but the lab
+  operationalizes "priority" via task goals; mapping to the
+  sim's `priority` field assumes the deliberation layer marks
+  goal-relevance — assumption, flagged.
+- **Rejection relive**: single-lab fMRI (n=17) plus the
+  ostracism corpus; the *decay* asymmetry (rej FAB exemption)
+  is our inference from "re-lives near-initial," not a
+  measured tau.
+- **Incubation**: genuinely contested — Eysenck's claim has
+  partial human replication at best. Shipped behind
+  `incub_thresh` + DEBATED flag with P1479 as falsifier; if
+  the probe fails the gate should go.
+- **Perspective stick**: verified at 4 weeks, one lab, n≈50;
+  permanence beyond that is extrapolation — `persp_stick`
+  0.7 leaves it mostly-sticky, not absolute.
+- **Calm class**: encode side is solid (arousal≠valence);
+  the *retrieval*-side claim that calm-positives keep full
+  positive treatment is theory-consistent HYPOTHESIS.
+- **Boredom→nostalgia**: six-study package, but the mediator
+  is "search for meaning" — our `bored_win` is a proxy for
+  disengagement, not a measured meaning deficit.
+- **Other-affect decay**: direction is self-reference
+  consensus; `oth_emo_mult` 1.4 is unpriced by data — tuning
+  dial, marked.
+- **Forecast sampling**: Morewedge et al. show the sample is
+  unrepresentative; "predict off max of top-3" is our
+  operationalization — a pure availability model might use
+  mean-of-sample; the peak rule is the more defensible read
+  of §13.

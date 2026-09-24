@@ -14517,3 +14517,138 @@ backing)
 
 → memory-model-spec.md v5.82 §§4.101–4.104 +
 §§5.160–5.164 + §6.399; probes P1465–P1474.
+
+## 276. v137 probe specs (P1475–P1484 — emotional-
+memory XII: what the feeling re-prices)
+
+Registry extends P1–P1474. Sources in §277.
+
+- **P1475 the blind beat costs (MUST —
+  `eib_free_null`):** the event minted immediately
+  after an `arousal ≥ hangover_arm` mint carries
+  E0 reduced by ≥`eib_pen(age_eff)` vs matched
+  control; untaxed next-mint fails.
+- **P1476 the retrograde leg splits on priority
+  (MUST — `retro_flat_null`):** pre-emotion
+  high-priority neutral gains vs control while
+  low-priority loses (Sakaki/Fryer/Mather
+  direction); uniform boost or uniform tax both
+  fail.
+- **P1477 social pain re-lives (SHOULD —
+  `rej_flat_null` + `oth_free_null`):** `rej`-
+  tagged record relives ≥0.8·initial tag at day
+  30 vs physical-pain ≤0.4; folded leg —
+  `oth_emo` record fades ≥1.3× self-affect rate.
+- **P1478 the appraisal needs fog (MUST —
+  `rej_amb_null`):** ambiguous social cue mints
+  `rej`-tagged `prov:"appraisal"` record only at
+  `rej_sens ≥ 0.4`; unambiguous affiliation mints
+  none at any `rej_sens`; appraisal records must
+  never surface OBSERVED-tier.
+- **P1479 the ping feeds only the strong
+  (SHOULD, DEBATED-gated — `incub_mild_null`):**
+  brief sub-`ext_min_dur` pings on an
+  `≥incub_thresh` entry raise strength across 5
+  exposures and accrue no safeCount; sub-threshold
+  entries extinguish on any exposure. Designated
+  falsifier for the incubation gate.
+- **P1480 the camera move sticks (MUST —
+  `persp_reheat_null`):** field→observer
+  `persp_shift` cuts emitted intensity ≥`persp_cool`
+  and persists ≥28 sim-days; observer→field
+  restores ≤20%.
+- **P1481 calm stays faint at birth (MUST —
+  `calm_boost_null`):** `calm:true` R ≈ neutral
+  at matched delay (±5%); positivity-overdraw
+  eligibility ≥60 unchanged.
+- **P1482 the bored reach is for meaning
+  (SHOULD — `nost_rand_null`):** `bored` state
+  raises §34-qualifying nostalgic draw ≥`bored_nost`
+  relative term; draws concentrate on bond/meaning
+  records; flat positive draw fails.
+- **P1483 sleep re-runs the trade (MUST —
+  `sleep_ctx_null`):** post-sleep, central fields
+  of `arousal≥strade_arm` records preserved while
+  their context fields decay ≥1.25× wake rate;
+  backgrounds showing any sleep benefit fails.
+- **P1484 the forecast reads the reachable
+  (SHOULD — `fc_mean_null`):** with an atypical
+  top-R record, predicted intensity error vs
+  domain mean exceeds `fc_dev`; a mean-tracking
+  forecast fails.
+
+Probe registry: P1–P1484. v137 MUST: P1475,
+P1476, P1478, P1480, P1481, P1483. SHOULD:
+P1477, P1479, P1482, P1484.
+
+## 277. Sources verified this version (P1475–P1484
+backing)
+
+- **Most, Chun, Widders & Zald 2005** (*Psychol.
+  Sci.* — emotion-induced blindness, verified);
+  Most & Wang 2011; **Kennedy, Rawding, Most &
+  Hoffman 2014** (*JEP:G* — perceptual, not
+  memorial, verified abstract); Kennedy & Most
+  2012 (spatiotemporal competition).
+- **Sakaki, Fryer & Mather 2014** (*Psychol.
+  Sci.* 25:313 — verified, three studies:
+  arousal enhances prioritized / impairs
+  unprioritized preceding items, both valences);
+  **Knight & Mather 2009** (*Emotion* 9:763);
+  Anderson, Wais & Gabrieli 2006; Mather et al.
+  2006 (*J. Cogn. Neurosci.* 18:614 — arousal
+  impairs WM feature binding); Mather &
+  Sutherland 2011 (ABC account).
+- **Meyer, Williams & Eisenberger 2015**
+  (*PLoS ONE* — verified: social-pain relive ≈
+  initial, recruits dmPFC/mentalizing; physical-
+  pain relive sensory-discriminative, no affect
+  correlation; n=17 fMRI arm flagged); Williams
+  Cyberball corpus; Chen & Williams reliving
+  program.
+- **Downey & Feldman 1996** (*JPSP* 70:1327 —
+  RSQ, anxious expectation + perception of
+  rejection in ambiguity); Downey, Freitas,
+  Michaelis & Khouri 1998 (self-fulfilling
+  loop).
+- **Eysenck 1968** (*Behav. Res. Ther.* 6:309 —
+  Napalkov-phenomenon incubation theory,
+  verified); **Sandin & Chorot 1989** (*Behav.
+  Res. Ther.* — verified null on CS-duration
+  incubation); human HR partial support
+  (phobia-relevant CS + intense UCS + short
+  CS-only). DEBATED, gated, P1479 falsifies.
+- **Sekiguchi & Nonaka 2014** (*Emotion* 24:375
+  — verified: field→observer intensity cut
+  persists to S3 at ~4wk; observer→field no
+  reheat); **Nigro & Neisser 1983** (*Cogn.
+  Psychol.* 15:467); Robinson & Swanson 1993
+  (observer adopted because less distress);
+  *Memory* 2015 vantage-point reliability study
+  (perspective most reliable characteristic,
+  uncorrelated with objective accuracy).
+- **Kensinger 2004** (arousal, not valence,
+  drives enhancement — consensus anchor for the
+  calm class); SST positivity-effect corpus
+  (Mather & Carstensen 2005) for the retrieval
+  side — split marked HYPOTHESIS.
+- **van Tilburg & Igou 2013** (*Emotion* 13:450
+  — verified, six studies: boredom → meaning
+  search → nostalgia → restored meaning).
+- **Payne, Stickgold, Swanberg & Kensinger
+  2008** (*Psychol. Sci.* 19:781 — verified:
+  sleep preserves negative objects 68% vs 44%
+  wake; backgrounds 38%/38% flat); Nishida et
+  al. 2009 (nap agreement).
+- **Rogers, Kuiper & Kirker 1977** (*JPSP* —
+  self-reference effect); Ickes (empathic-
+  accuracy bounds); Levine remembered-emotion
+  program — other-affect decay magnitude marked
+  HYPOTHESIS.
+- **Morewedge, Gilbert & Wilson 2005** (*PSPB*
+  — "the least likely of times": remembered
+  instances unrepresentative); Gilbert & Wilson
+  affective-forecasting program (§50 anchor).
+
+→ memory-model-spec.md v5.83 §§4.105–4.109 +
+§§5.165–5.168 + §6.400; probes P1475–P1484.

@@ -1,4 +1,51 @@
-# Memory Model Spec v5.82 — implementable human-like memory for RW characters
+# Memory Model Spec v5.83 — implementable human-like memory for RW characters
+
+> **v5.83 note (emotional-memory XII — the blind
+> beat, the wound that re-lives, the ping that
+> feeds the fear, the camera move that sticks,
+> the warm-faint day, the bored reach backward,
+> the sleep that sells the background, their
+> feeling that fades first, and the forecast that
+> draws the reachable):** `memory/emotional-
+> memory.md` Part XII (§§154–163) prices nine
+> affect mechanisms. **Biphasic window** — hot
+> mints tax the NEXT mint (`eib_pen`) and split
+> the previous on priority (`retro_prio_gain`)
+> (Most et al. 2005; Sakaki/Fryer/Mather 2014,
+> verified); `eib_free_null`+`retro_flat_null`.
+> **Social pain re-lives** — `rej`-tagged records
+> relive at `rej_relive` 0.85, FAB-exempt;
+> physical pain 0.3 (Meyer et al. 2015,
+> verified); `rej_flat_null`. **Incubation** —
+> brief cue pings strengthen intense CondEntries
+> instead of safeCount (Eysenck 1968, DEBATED);
+> `incub_mild_null`. **Perspective is plastic
+> one-way** — field→observer shift persists and
+> cools (`persp_stick`/`persp_cool`), no reheat
+> (Sekiguchi & Nonaka 2014, verified);
+> `persp_reheat_null`. **Warm but faint** —
+> `calm:true` (pos valence, low arousal) encodes
+> neutral but keeps positive retrieval treatment
+> (Kensinger 2004); `calm_boost_null`. **Boredom
+> reaches backward** — `bored` state opens the
+> nostalgia draw (van Tilburg & Igou 2013,
+> verified); `nost_rand_null`. **Sleep re-runs
+> the trade** — `sleep_ctx_mult` erodes hot
+> records' context fields while centers save
+> (Payne et al. 2008, verified);
+> `sleep_ctx_null`. **Their feeling fades
+> first** — `oth_emo` records decay 1.4× unless
+> shared-arousal re-flags; `oth_free_null`.
+> **Forecast draws the reachable** — top-R sample
+> × max, not domain mean (Morewedge et al.
+> 2005); `fc_mean_null`. **The appraisal mints
+> the wound** — `rej_sens` trait mints appraisal-
+> tier rejection records from ambiguous cues
+> (Downey & Feldman 1996); `rej_amb_null`.
+> §§4.105–4.109 + §§5.165–5.168 + §6.400; §7 +20
+> scalars +1 trait +4 fields +1 state +10 locked
+> nulls; probes P1475–P1484.
+> (Prior notes v4.x–v5.82 in the version log.)
 
 > **v5.82 note (age-decline XII — the mouth that
 > wanders, the idea that changes owners, the dyad
@@ -7695,6 +7742,81 @@ half shift without (`expert_envsup` gate). Locked
 out-domain — a leaking shift is reserve (§4.69),
 a different account.
 
+### 4.105 The blind beat, then the warmth — `eib_*` / `retro_prio` (new in v5.83)
+
+EM§154; **Most, Chun, Widders & Zald 2005**
+(*Psychol. Sci.* — EIB, verified); **Sakaki, Fryer
+& Mather 2014** (*Psychol. Sci.* 25:313 — verified
+priority-split retrograde); Knight & Mather 2009;
+Mather et al. 2006 (WM binding). On mint of a
+record with `arousal ≥ hangover_arm` (0.65):
+(a) set `blind_until` — the next event minted
+takes `E0·(1 − eib_pen)` (knot:
+0.4@55,0.35@65,0.28@75,0.2@85), one-shot, cleared
+after one mint; (b) the *previous* mint gets
+`E0 += retro_prio_gain·(2·prev.priority − 1)`
+(0.3) — prioritized gains, unprioritized loses.
+§4.57 hangover then runs unchanged — three
+windows, three signs. Locked `eib_free_null`
+(P1475): the beat must cost. Locked
+`retro_flat_null` (P1476): a uniform retrograde
+leg fails.
+
+### 4.106 Social pain re-lives — `rej_relive` / `pain_relive` (new in v5.83)
+
+EM§155; **Meyer, Williams & Eisenberger 2015**
+(*PLoS ONE* — verified: social-pain relive ≈
+initial, physical-pain relive discounted);
+Williams Cyberball corpus. Records with
+`emo_tag:"rejection"` (excluded/dismissed/stood-
+up kinds, or §6.400 appraisals) relive at
+`affTag·rej_relive` (0.85) vs the default leg
+(~0.5); physical-pain records use `pain_relive`
+(0.3); rejection records take `fab_mult = 1.0` —
+exempt from the §4.5 fading-affect bias. Locked
+`rej_flat_null` (P1477): rejection relive must
+outlast physical-pain relive at matched tag.
+
+### 4.107 The ping feeds the fear — `incub_*` (new in v5.83)
+
+EM§157; **Eysenck 1968** (*Behav. Res. Ther.*
+6:309 — Napalkov phenomenon; DEBATED — Sandin &
+Chorot 1989 null, partial HR support). CondEntry
+with `|valence|·strength ≥ incub_thresh` (0.6):
+cue exposure with dwell < `ext_min_dur` (1 tick)
+adds `incub_gain·(1 − strength)` (0.04) to
+strength and accrues NO safeCount; dwell ≥
+`ext_min_dur` accrues safeCount per §4.9. Locked
+`incub_mild_null` (P1479): sub-threshold entries
+never incubate.
+
+### 4.108 Their feeling fades first — `oth_emo_*` (new in v5.83)
+
+EM§162; Rogers, Kuiper & Kirker 1977 (self-
+reference); Ickes (empathic-accuracy bounds);
+Levine (remembered-emotion rebuild). HYPOTHESIS
+on magnitude. Records minted from observed
+other-affect flag `oth_emo:true` and decay
+`β·oth_emo_mult` (1.4); if observer affect was
+co-active (§117 witness bond), re-flag self-
+relevant → normal leg. Locked `oth_free_null`
+(P1477 leg): `oth_emo` cannot persist at
+self-affect rates.
+
+### 4.109 Sleep sells the background twice — `strade_*` (new in v5.83)
+
+EM§161; **Payne, Stickgold, Swanberg &
+Kensinger 2008** (*Psychol. Sci.* 19:781 —
+verified: sleep preserves negative objects 68%
+vs 44% wake, backgrounds flat 38%/38%). During
+the sleep tick, records with
+`arousal ≥ strade_arm` (0.5) take the existing
+`emo_consol_gain` on central content AND decay
+context/peripheral fields at `sleep_ctx_mult`
+(1.3×); wake ticks keep them coupled. Locked
+`sleep_ctx_null` (P1483): backgrounds of
+emotional records show zero sleep benefit.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -11476,6 +11598,60 @@ reproduces production deficiency (AD§139) with
 intact capacity. Locked `mse_perf_null` (P1474):
 `mse`=0 cannot move base S/R legs >±2% — a
 thermostat on effort, never on capacity.
+
+### 5.165 The camera move sticks — `persp_*` plasticity (new in v5.83)
+
+EM§158; **Sekiguchi & Nonaka 2014** (*Emotion*
+24:375 — verified: field→observer shift cuts
+intensity, persists ≥4wk, one-way); Nigro &
+Neisser 1983; extends §5.39 `persp`. The
+`persp_shift` op (deliberate or requested
+observer retell) writes `persp_persist:"observer"`
+— subsequent emissions run observer at
+`persp_stick` (0.7) — and applies
+`affTag relive *= (1 − persp_cool)` (0.35) once,
+never refunded. Observer→field emits at current
+intensity. Locked `persp_reheat_null` (P1480):
+reverse shifts restore ≤20% of cooled intensity.
+
+### 5.166 Boredom reaches backward — `bored_*` (new in v5.83)
+
+EM§160; **van Tilburg & Igou 2013** (*Emotion*
+13:450 — verified, six studies, meaning-search
+mediator). State `bored:true` (no engaged event
+for `bored_win` 45 sim-min) adds retrieval weight
+`bored_nost` (knot 0.15@55,0.22@70,0.3@85) on
+§34-qualifying nostalgic records
+(`valence>0.3 ∧ selfRelevance≥0.6 ∧ era-match`).
+Locked `nost_rand_null` (P1482): the draw must
+concentrate on bond/meaning records, not
+arbitrary positives.
+
+### 5.167 Warm but faint — `calm_*` (new in v5.83)
+
+EM§159; **Kensinger 2004** (enhancement tracks
+arousal, not valence — CONSENSUS); SST/positivity
+side HYPOTHESIS. Mints with `valence>0.3 ∧
+arousal < calm_arm` (0.35) flag `calm:true` — no
+arousal leg at encode, full eligibility for
+`pos_spare` and positivity-effect overdraw at
+`calm_pos_spare` (1.0). Locked `calm_boost_null`
+(P1481): calm-positive must not out-retain
+neutral at matched delay — warmth is
+retrieval-side only.
+
+### 5.168 The forecast draws the reachable — `fc_*` (new in v5.83)
+
+EM§163; **Morewedge, Gilbert & Wilson 2005**
+(*PSPB* — remembered instances unrepresentative);
+extends §50 impact bias. The `forecast` op draws
+`fc_sample_n` (3) records via the ordinary
+R·cue-weighted sampler and predicts intensity off
+the sample **max** (§13 peak rule), never the
+domain mean. Locked `fc_mean_null` (P1484): with
+an atypical top-R record, forecast error vs the
+mean must exceed `fc_dev` (0.2) — mean-prediction
+is the failure mode.
 
 ---
 
@@ -18950,6 +19126,23 @@ Locked `plag_source_null` (P1466): every claimed-
 self emission must trace to an extant
 `gen_by:other` record — relabel, never mint.
 
+### 6.400 The appraisal mints the wound — `rej_sens` (new in v5.83)
+
+EM§156; **Downey & Feldman 1996** (*JPSP*
+70:1327 — RSQ, verified construct); Downey et
+al. 1998 (self-fulfilling loop). On a social
+event with `ambiguity ≥ rej_cue_thresh` (0.4 —
+unanswered, uninvited, lukewarm fields), roll
+the authored trait `rej_sens` [0,1]: on fire the
+record mints `emo_tag:"rejection"` with
+`prov:"appraisal"` (INFERRED tier — the world
+didn't reject them; the read did) and the tag's
+intrusion weight scales with `rej_sens`. Feeds
+§4.106 relive leg. Locked `rej_amb_null`
+(P1478): `rej_sens` may not mint rejection from
+unambiguous affiliation events — the bias needs
+fog to work.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -21456,6 +21649,36 @@ MemoryParams = {
 "mse_learn_dn": 0.08, "mse_learn_up": 0.04,   // §5.164
 "plag_p": "knot:0.05@55,0.08@65,0.14@75,0.2@85",
 "plag_thresh": 0.3, "plag_conf": 1.0,         // §6.399
+// v5.83 additions (emotional-memory XII v137 —
+//   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
+//   §6.400)
+"eib_pen": "knot:0.4@55,0.35@65,0.28@75,0.2@85",
+"retro_prio_gain": 0.3,                      // §4.105
+"rej_relive": 0.85, "pain_relive": 0.3,       // §4.106
+"incub_thresh": 0.6, "incub_gain": 0.04,
+"ext_min_dur": 1,                             // §4.107
+"oth_emo_mult": 1.4,                          // §4.108
+"strade_arm": 0.5, "sleep_ctx_mult": 1.3,     // §4.109
+"persp_stick": 0.7, "persp_cool": 0.35,       // §5.165
+"bored_win": 45,
+"bored_nost": "knot:0.15@55,0.22@70,0.3@85",  // §5.166
+"calm_arm": 0.35, "calm_pos_spare": 1.0,      // §5.167
+"fc_sample_n": 3, "fc_dev": 0.2,              // §5.168
+"rej_cue_thresh": 0.4,                        // §6.400
+// v5.83 traits/fields/state: authored trait
+//   `rej_sens` [0,1]; record fields `calm`,
+//   `oth_emo`, `persp_persist`, `emo_tag:
+//   "rejection"`; state `bored`; one-shot
+//   `blind_until` on the character record.
+// v5.83 locked nulls: eib_free_null (P1475);
+//   retro_flat_null (P1476); rej_flat_null +
+//   oth_free_null (P1477); rej_amb_null
+//   (P1478); incub_mild_null (P1479);
+//   persp_reheat_null (P1480); calm_boost_null
+//   (P1481); nost_rand_null (P1482);
+//   sleep_ctx_null (P1483); fc_mean_null
+//   (P1484). All snapshot-additive; absent =
+//   legacy.
 // v5.82 traits/fields/state: `expert_dom`
 //   [domainIds] + `remfn_w` vector authored
 //   traits; record fields `offtarg`, `gen_by`,
