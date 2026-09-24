@@ -391,3 +391,85 @@ the wire reads the world's public records; nothing here writes them.
 | Mute button / note | "mute this thread" · "muted on your screen only — the wire's record is unchanged and The Archive keeps everything." |
 | Muted list label | "muted threads" |
 | Search count | "N matching" |
+
+## 13. v89 — the real wire seam (world v89)
+
+The v6 live seam was written against the game track's *documented* feed
+contract; game-v14 shipped the real one. This version aligns the page to
+what `41_game_systems_feed` actually emits — same honesty rules, real
+names.
+
+### The bus's own entry shape
+
+`gsWireTail()` entries carry `{id, n, t, day, kind, text, venue, who,
+req, status, reason_code, attempt, mentions, attrs}`. The page now
+reads them as they are:
+
+- `n` is the monotonic feed sequence — it becomes the event's `seq`, so
+  ordering, the missed bar, and request trails follow bus order exactly.
+- `day` (PT date) drives **multi-day separators** — the stream no longer
+  assumes everything is today; each day gets its own `wednesday, sep 23`
+  style divider.
+- `mentions` is top-level (not under `attrs`) — folded into
+  `attrs.mentions` for the renderers that already speak that shape.
+- `attempt` on denied entries renders an "asked for — \<kind\>" line:
+  the *class* of ask is public, the screened text never is.
+- `booked` (scheduled-window status on bus-forwarded entries, the v88
+  seam) gets a chip and counts as open on the reaching-in-now strip.
+
+### Incremental sync + real paging
+
+- After the join handshake (`vs.feed` tail), polls prefer
+  `BRIDGE.gsWireSince(maxN)` — a 50-line tail can drop events on a busy
+  day; the cursor can't.
+- **load older** calls `BRIDGE.gsWirePage({before:oldestN, limit:60})`
+  live — paging the bus's own archive projection, not just the local
+  array. `oldest:true` ends the stream at "the top of the record —
+  earlier days live in The Archive."
+
+### The clock is real when live
+
+The block clock follows PT wall time (`America/Los_Angeles`) the moment
+the bus attaches — the daypart label, the book strip's "still ahead"
+filter, and the admin-recency window stop being demo math.
+
+### The permit board (new right-rail panel)
+
+`vs.board` / `gsResourceBoard()` render as a read-only claim board:
+each contended resource (`sky`, `venue:<id>`, `char:<id>`, `openair`,
+`paper:<unit>`, `listing:<unit>`) with its public state —
+free / cool / locked / queued — honest times, queue depth, booked
+markers. A spectator can see a resource is claimed; claims are filed at
+the Counter, never here.
+
+### Co-sessions + sponsored skies + the withheld count
+
+- `vs.sessions` / `gsCoSessions()` pairs ride the reaching-in-now strip
+  as "a + b · one scene" cards — the compatible-multiplayer overlaps the
+  bus itself logs `session` events for.
+- `vs.weather` sets the header line "player-called sky — \<wx\> until
+  HH:MM · N sponsors" while a called sky holds.
+- `gsWireStats()`'s real shape (`total`, `suppressed`, `displayFilter`)
+  feeds a day-card line: "withheld from the wire — N, privacy screens,
+  not downtime." The viewer counter only displays when the bus reports
+  one — no invented audience.
+- `gsExplainRequest` renders its real shape (`note`, `queuePos`,
+  `blockedBy`, `behind`, `on` claim labels, review `code`) as
+  "the bus says — \<note\>" plus waiting-on/blocked-by lines.
+- Pins write through to `BRIDGE.gsWireFollow` with bus keys
+  (`v:<venue>` / `m:<char>`) — the only write a spectator surface ever
+  makes, and it's the viewer's own pin.
+
+### Copy deck — v89 strings
+
+| Moment | Copy |
+|---|---|
+| Permit board header | "the permit board — what's claimed, publicly" |
+| Permit board footer | "the bus's own claim states … Read-only: claims are filed at the Counter, never here." |
+| Top of record | "the top of the record — earlier days live in The Archive." |
+| Withheld line | "withheld from the wire — N, privacy screens, not downtime" |
+| Co-session card | "\<a\> + \<b\> · one scene" |
+| Player-called sky | "player-called sky — \<wx\> until HH:MM · N sponsors" |
+| Denied attempt | "asked for — \<kind\> (the class of ask only — the screened text is never public)" |
+| Explainer | "the bus says — \<note\>" · "waiting on — \<claims\>" · "blocked by — \<reqs\>" |
+| Queue discount | "filed queued — −15% (the queue discount, declared at filing)" |

@@ -63,6 +63,19 @@
       "thread_mute": "request detail gains 'mute this thread' — that req's lines drop out of the stream and the live-now strip on this viewer's screen only (rw_wire_mute, reversible from the muted list in the Following panel); copy states the wire's record is unchanged and The Archive keeps everything. Muted rows still count in the day card — the recap counts the wire, not your view of it",
       "search_count": "the search box gains a live 'N matching' counter (#qcount) over the whole feed (text + who + resolved names + venue names) — an honest count, never a ranking",
       "keyboard": "adds `b` — collapse/expand the on-the-book strip"
+    },
+    "spectator_ui_v89": {
+      "doc": "world v89 — the real wire seam on wire.html (v7). The page now reads the bus's own wire shape (41_game_systems_feed / gsWireTail) instead of a guessed v6 contract; every read is capability-detected and the demo pipeline stands when the bus is absent.",
+      "live_shape": "entries carry {id, n (monotonic feed order — used as seq), t (PT minute-of-day), day (PT date → multi-day separators), kind, text, venue, who, req, status, reason_code, attempt (denied asks show the class only), mentions (top-level — folded into attrs.mentions for the renderers), attrs:{credits, compensated_cr, surge, discount}}",
+      "incremental_sync": "after the join tail, polls prefer BRIDGE.gsWireSince(maxN) — a 50-line tail can't drop events on a busy day; 'load older' calls BRIDGE.gsWirePage({before:oldestN, limit}) and ends at an honest 'top of the record' line",
+      "live_clock": "the block clock follows real PT wall time (America/Los_Angeles) live — daypart label, book-strip 'still ahead' filter, and admin-recency are true",
+      "permit_board": "right-rail panel reads vs.board / gsResourceBoard() — per-claim public state (free/cool/locked/queued + honest times + booked[] markers); read-only, claims are filed at the Counter never here",
+      "co_sessions": "vs.sessions / gsCoSessions() pairs ride the reaching-in-now strip as 'a + b · one scene' cards — the same overlaps the bus logs 'session' feed events for",
+      "wx_sponsors": "vs.weather {wx, untilMin, sponsors} sets the header line 'player-called sky — <wx> until HH:MM · N sponsors'",
+      "wire_stats": "gsWireStats() real shape {total, suppressed, displayFilter, byKind...}: suppressed count renders in the day card as 'withheld — privacy screens, not downtime'; the viewer counter only displays if the bus reports one (no invented audience)",
+      "explain": "gsExplainRequest real shape {note, queuePos, blockedBy[], behind[], on[] claim labels, code} renders as 'the bus says — <note>' + waiting-on/blocked-by lines",
+      "booked_status": "'booked' (a scheduled-window status on bus-forwarded entries, v88 seam) gets a chip style and counts as open on the live strip; the 10 canonical request_status values are unchanged",
+      "follow_sync": "pins write through to BRIDGE.gsWireFollow with bus keys (v:<venue> / m:<char>) — the ONLY write a spectator surface ever makes, and it's the viewer's own pin"
     }
   },
   "event_kinds": [

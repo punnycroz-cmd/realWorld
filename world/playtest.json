@@ -4208,6 +4208,48 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT80",
+   "title": "The Real Wire Seam — spectator feed meets game-v14 (v89)",
+   "minutes": 6,
+   "persona": "tester on the internal spectator bench — bridging a stub game bus to watch The Wire read the feed the way 41_game_systems_feed actually writes it",
+   "goal": "Verify the v89 live-seam alignment on wire.html: bus entries ingest in the real shape (top-level mentions, monotonic n as seq, day → multi-day separators, attempt on denied lines, 'booked' chip); incremental sync uses gsWireSince(maxN) and 'load older' pages via gsWirePage to an honest top-of-record; the permit board renders vs.board/gsResourceBoard read-only; co-sessions, player-called sky sponsors, and the gsWireStats withheld count all surface; pins write through to gsWireFollow (v:/m: keys) — the page's only write.",
+   "surfaces": [
+    "wire",
+    "audit",
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "Open world/wire.html twice: once bare (badge 'demo stream') and once with a stub __aiBridge shaped like game-v14 (devtools/smoke_wire_v89.js is the reference stub — gsViewerState with feed/sessions/board/weather/calendar plus gsWireSince/gsWirePage/gsWireStats/gsCoSessions/gsExplainRequest/gsWireFollow).",
+     "expect": "Bare, the page is unchanged — the local stream runs as the contract reference. Bridged, the badge reads 'live', bus entries land with top-level mentions folded in, a 'booked' status renders its chip and counts as open on the reaching-in-now strip, and entries carrying a different PT day get their own day separator.",
+     "checkpoints": [
+      "An entry's bus n becomes its seq — request trails and the missed bar follow bus order",
+      "'booked' rides the live strip alongside requested/queued/running",
+      "A sep-22 entry sits under a 'tuesday, sep 22' divider even when today's entries surround it in the tail"
+     ]
+    },
+    {
+     "do": "On the bridged page, read the right rail and the reaching-in-now strip; open a queued request's event record.",
+     "expect": "The permit board panel lists vs.board claim states (locked with minutes-left and holder, queued with depth, booked[] markers) — read-only, footer points at the Counter. Co-session pairs render 'a + b · one scene' cards. The detail panel's live record shows gsExplainRequest's real shape: 'the bus says — <note>', #N in line, waiting-on claim labels, blocked-by/behind ids; denied events show 'asked for — <kind>' and the reason class, never the screened text.",
+     "checkpoints": [
+      "The permit board is absent (not empty) when the bus reports no claims",
+      "Queued filings show 'filed queued — −15%' when attrs.discount rides along",
+      "Denied detail shows the attempt class + reason_code only — screened text never renders"
+     ]
+    },
+    {
+     "do": "Let a few polls run (or call livePoll()), click 'load older', pin a character, open the day-so-far card, and watch the header.",
+     "expect": "Polls switch to gsWireSince(maxN) after the join tail — the 50-line tail can't drop events. 'load older' calls gsWirePage({before:oldest n}) and ends at 'the top of the record — earlier days live in The Archive'. The pin writes gsWireFollow('m:<id>') — the page's only write, the viewer's own. The day card gains 'withheld — N, privacy screens, not downtime' from gsWireStats; the viewer counter hides when the bus reports none. A vs.weather override prints 'player-called sky — rain until HH:MM · 2 sponsors'.",
+     "checkpoints": [
+      "gsWireSince is called with the max n seen — never re-reads the tail once a cursor exists",
+      "liveExhausted flips only on the bus's own oldest flag",
+      "No viewer count renders when gsWireStats omits it — honest metrics, no invented audience",
+      "Run devtools/smoke_wire_v89.js — 15/15 green; the wire gate in audit.js enforces the v89 seam keys"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

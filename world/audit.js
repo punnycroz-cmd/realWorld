@@ -2341,6 +2341,20 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['book_strip', 'char_day', 'thread_mute',
       'search_count', 'keyboard'])
       if (!V75[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v75.${k} missing`);
+    /* v89 affordances + contract keys (the real wire seam, game-v14) */
+    for (const s of ['id="pboard"', 'renderBoard', 'liveOlder', 'wireIngest',
+      'wireClock', 'America/Los_Angeles', 'gsWireSince', 'gsWirePage',
+      'gsWireFollow', 'gsCoSessions', 'gsResourceBoard', 'liveExhausted',
+      'LIVE_SESS', 'LIVE_STATS', '.st.booked', 'the permit board',
+      'the top of the record', 'privacy screens, not downtime',
+      'player-called sky', 'the bus says', 'asked for — ', 'one scene',
+      'attempt', 'dayLabel'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v89 affordance "${s}" absent`);
+    const V89 = (FJ.spectator_ui || {}).spectator_ui_v89 || {};
+    for (const k of ['live_shape', 'incremental_sync', 'live_clock',
+      'permit_board', 'co_sessions', 'wx_sponsors', 'wire_stats',
+      'explain', 'booked_status', 'follow_sync'])
+      if (!V89[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v89.${k} missing`);
     /* wire BOOKW mirrors bookings.json windows — same five-field key as
        request.html's own BOOKW check in the book gate */
     {
@@ -2384,7 +2398,7 @@ const PUB = Object.values(PT.surfaces)
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
       `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'} · ` +
-      `v75 keys: ${Object.keys(V75).join(',') || 'none'}`;
+      `v75 keys: ${Object.keys(V75).join(',') || 'none'} · v89 keys: ${Object.keys(V89).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 

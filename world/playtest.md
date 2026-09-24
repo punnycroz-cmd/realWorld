@@ -194,6 +194,13 @@ One person can wear every hat; four real testers is the intended shape.
   (denied short-circuits before any charge), board/calendar/slots/
   price-quote reads, and the 'booked' feed chip. Reference stub +
   13-check run: devtools/smoke_request_v88.js.
+  PT80 (wire v89) audits the real wire seam — The Wire reads the bus's
+  own entry shape (top-level mentions, n as seq, day → multi-day
+  separators, attempt on denials, 'booked' chip), syncs via
+  gsWireSince / gsWirePage, renders the permit board and co-sessions,
+  counts the withheld honestly, and writes only the viewer's own pin
+  (gsWireFollow). Reference stub + 15-check run:
+  devtools/smoke_wire_v89.js.
 
 ## 3. Running a session
 

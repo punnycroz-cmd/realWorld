@@ -72,6 +72,25 @@
       the honest note that the wire's record is unchanged and The
       Archive keeps everything.
     - search gains a live match count — "N matching" beside the box.
+  New in v7 (world v89) — the real wire seam (game-v14 alignment):
+    - live ingest reads the bus's own wire shape (41_game_systems_feed):
+      top-level `mentions`, stable `n` ordering, `day` for multi-day
+      separators, `attempt` on denied lines, `booked` status chip.
+    - incremental sync prefers gsWireSince(maxN) over re-reading the
+      50-line tail; "load older" pages the bus via gsWirePage and ends
+      honestly at the top of the record.
+    - the block clock follows real PT wall time (America/Los_Angeles),
+      so daypart, the book strip, and admin-recency are true live.
+    - "the permit board" right-rail panel reads vs.board /
+      gsResourceBoard — public claim states (free/cool/locked/queued),
+      never a write.
+    - co-session cards from vs.sessions / gsCoSessions join the
+      reaching-in-now strip; player-called sky shows sponsor count.
+    - gsExplainRequest renders the real shape (note, queuePos,
+      blockedBy/behind, on-claims, review code); gsWireStats feeds the
+      day card's withheld-count honesty line (privacy, not downtime).
+    - follow pins sync to the bus endpoint gsWireFollow (v:/m: keys) —
+      the only write this page makes is the viewer's own pin.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -162,6 +181,7 @@
   .st.resolved,.st.refunded,.st.approved,.st.approved__modified_,.st.player_session_ended{background:#2b2b28;color:var(--dim)}
   .st.in_review,.st.requested{background:#3a3220;color:var(--acc)}
   .st.not_approved{background:#33222c;color:var(--pink)}
+  .st.booked{background:#22303f;color:var(--blu)}
   .daysep{display:flex;align-items:center;gap:10px;margin:14px 0 4px;color:var(--dim);
     font-size:10.5px;letter-spacing:.12em;text-transform:uppercase}
   .daysep::before,.daysep::after{content:"";flex:1;border-top:1px solid var(--line)}
@@ -222,6 +242,7 @@
   .lncard .who{color:var(--blu)}
   .lncard .st{margin-left:0}
   .lncard.admin{border-color:var(--pink)}
+  .lncard.sess{border-color:var(--blu)}
   .holdbar{display:none;margin:0 0 10px;border:1px solid var(--acc);border-radius:8px;
     background:#2a2618;color:var(--ink);font-size:12px;padding:6px 12px;cursor:pointer}
   .mchip{display:inline-block;font-size:10.5px;border:1px solid var(--line);border-radius:10px;
@@ -310,6 +331,21 @@
   .cday .fnote{margin-top:8px;color:var(--dim);font-size:11px}
   .mutelist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
   .mutelist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+
+  /* ---- v89: the permit board (live claim states, read-only) ---- */
+  .pboard .pb{display:flex;align-items:baseline;gap:8px;padding:4px 0;
+    border-bottom:1px solid var(--line);font-size:12px}
+  .pboard .pb:last-child{border-bottom:0}
+  .pboard .pb .res{color:var(--ink);font-weight:600;min-width:110px}
+  .pboard .pb .pst{font-size:9.5px;font-weight:700;letter-spacing:.06em;
+    text-transform:uppercase;border-radius:8px;padding:1px 7px;flex:none}
+  .pboard .pst.free{background:#1e3a2c;color:var(--grn)}
+  .pboard .pst.cool{background:#2b2b28;color:var(--dim)}
+  .pboard .pst.locked{background:#33261e;color:var(--acc)}
+  .pboard .pst.queued{background:#22303f;color:var(--blu)}
+  .pboard .pb .pnote{color:var(--dim);flex:1;font-size:11.5px}
+  .pboard .pb .pwho{color:var(--blu);flex:none;font-size:11px}
+  .pboard .pfoot{margin-top:8px;color:var(--dim);font-size:11px}
 </style>
 </head>
 <body>
@@ -389,6 +425,13 @@
       <h2>Event</h2>
       <div id="detBody"><div class="detempty">Select any wire line for its record —
         id, permalink, and (for requests) the whole status trail.</div></div>
+    </section>
+    <section class="panel pboard" id="pboardPanel" style="display:none">
+      <h2>The permit board <span class="free">— what's claimed, publicly</span></h2>
+      <div id="pboard"></div>
+      <div class="pfoot">the bus's own claim states — free / cool / locked /
+        queued, with honest times. Read-only: claims are filed at
+        <a href="request.html" style="color:var(--blu)">the Counter</a>, never here.</div>
     </section>
     <section class="panel cday" id="cdayPanel">
       <h2>Their wire today</h2>
@@ -572,7 +615,12 @@ function hm(s){ var p=String(s).split(':'); return (+p[0])*60+(+p[1]); }
 function claimName(c){
   if (c.indexOf('venue:')===0) return VENUE_NAME[c.slice(6)]||c;
   if (c==='sky') return 'the sky';
-  if (c==='openair') return 'the open air';
+  if (c==='openair' || c.indexOf('openair:')===0) return 'the open air';
+  /* v89 — the rest of the pairwise claim vocabulary (41_game_systems_requests) */
+  if (c.indexOf('char:')===0){ var cid=c.slice(5);
+    return 'character '+(CHAR_NAME[cid]||cid); }
+  if (c.indexOf('paper:')===0) return 'registry paperwork — '+c.slice(6);
+  if (c.indexOf('listing:')===0) return 'the listing on '+c.slice(8);
   return c;
 }
 function bookRows(){
@@ -656,7 +704,15 @@ function renderCharDay(){
 function openCharDay(id){ cdayId=id; renderCharDay(); }
 
 function eid(){ return 'd0923-'+(++feedN); }   // demo ids; live feed supplies its own
-function push(e){ e.id = e.id || eid(); e.seq = feedN; FEED.unshift(e); return e; }
+function push(e){ e.id = e.id || eid();
+  /* v89 — bus entries carry their own monotonic n; it IS the seq */
+  e.seq = (e.n!=null) ? e.n : feedN;
+  /* v89 — real wire shape: top-level mentions fold into attrs for the
+     renderers that already speak attrs.mentions */
+  if (e.mentions && !(e.attrs && e.attrs.mentions)){
+    e.attrs = e.attrs || {}; e.attrs.mentions = e.mentions;
+  }
+  FEED.unshift(e); return e; }
 function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
 function trailFor(req){ return FEED.filter(function(e){return e.req===req;}).sort(function(a,b){return a.seq-b.seq;}); }
 
@@ -700,16 +756,31 @@ function rowHtml(e){
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
     '<span class="k '+e.kind+'">'+e.kind+'</span><span>'+txt+'</span></li>';
 }
+/* v89 — live entries carry a PT `day` ('YYYY-MM-DD'); the stream shows a
+   separator per day, newest first. Demo entries have no day — one sep. */
+function dayLabel(day){
+  if (!day) return LIVE ? 'today' : 'today — wednesday, sep 23';
+  try{
+    var d=new Date(day+'T12:00:00');
+    var wd=['sunday','monday','tuesday','wednesday','thursday','friday','saturday'][d.getDay()];
+    var mo=['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'][d.getMonth()];
+    return wd+', '+mo+' '+d.getDate();
+  }catch(e){ return day; }
+}
 function renderWire(){
   var w=document.getElementById('wire'); w.innerHTML='';
-  var n=0, cap=page*PAGE;
+  var n=0, cap=page*PAGE, lastDay=null;
   for (var i=0;i<FEED.length && n<cap;i++){
     var e=FEED[i]; if(!kindVisible(e)) continue;
+    var d=e.day||'';
+    if (d!==lastDay){
+      w.insertAdjacentHTML('beforeend',
+        '<li class="daysep" style="cursor:default">'+esc(dayLabel(e.day))+'</li>');
+      lastDay=d;
+    }
     w.insertAdjacentHTML('beforeend', rowHtml(e));
     n++;
   }
-  if (n) w.insertAdjacentHTML('afterbegin',
-    '<li class="daysep" style="cursor:default">today — wednesday, sep 23</li>');
   if (!n){
     var li2=document.createElement('li'); li2.className='empty';
     li2.textContent = (T<240||T>=1440)
@@ -717,11 +788,13 @@ function renderWire(){
       : 'Nothing on this filter right now.';
     w.appendChild(li2);
   }
-  var more = FEED.filter(kindVisible).length > n;
+  var more = LIVE ? !liveExhausted
+                  : FEED.filter(kindVisible).length > n;
   document.getElementById('older').style.display = more?'':'none';
   document.getElementById('foot').textContent = more
     ? ''
-    : (n ? 'You\u2019re caught up — nothing older than this today.'
+    : (n ? (LIVE ? 'the top of the record — earlier days live in The Archive.'
+                 : 'You\u2019re caught up — nothing older than this today.')
          : 'The wire is quiet. The Archive holds earlier days.');
   w.querySelectorAll('.ev').forEach(function(li){
     li.onclick=function(){ select(li.dataset.id); };
@@ -747,7 +820,9 @@ function renderQCount(){
    running), plus recent admin actions. Attribution is the point —
    the strip answers "who is reaching into the world right now?"
    without the viewer digging for it. Never shows denied text. */
-var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1, queued:1, running:1};
+var LIVE_STATUSES = {requested:1, in_review:1, approved:1, 'approved (modified)':1,
+  queued:1, running:1, booked:1};   /* v89 — 'booked' rides the strip (v88 seam) */
+var LIVE_SESS = [];               /* v89 — vs.sessions / gsCoSessions pairs */
 function renderLiveNow(){
   var box=document.getElementById('livenow');
   var latest={}, order=[];
@@ -767,6 +842,15 @@ function renderLiveNow(){
     if (e.kind==='admin' && (T - e.t) <= 45)
       cards.unshift('<span class="lncard admin" data-id="'+e.id+'" title="admin action — always attributed">'+
         '<span class="who">admin</span><span>⚙</span></span>');
+  });
+  /* v89 — compatible multiplayer, visible: co-possession pairs between
+     different players (the same overlaps the bus logs 'session' for) */
+  LIVE_SESS.forEach(function(p){
+    var a=(p.a&&p.a.player)||'?', b=(p.b&&p.b.player)||'?';
+    cards.push('<span class="lncard sess" title="two players steering two '+
+      'hired characters through one scene — compatible, not a conflict">'+
+      '<span class="who">'+esc(a)+' + '+esc(b)+'</span>'+
+      '<span>one scene</span></span>');
   });
   if (!cards.length){ box.style.display='none'; return; }
   box.style.display='flex';
@@ -847,6 +931,11 @@ function renderDayBar(){
       (s.comp?' · '+s.comp+' cr compensated to affected players':'')+'</b></div>';
     h+='<div class="stat"><span>you tuned in</span><b>'+fmt(joinT)+
       ' — dimmed timestamps ran earlier</b></div>';
+    /* v89 — the bus counts what the privacy policy withheld: visible so
+       "quiet" never reads as downtime. A count, never the content. */
+    if (LIVE_STATS && LIVE_STATS.suppressed)
+      h+='<div class="stat"><span>withheld from the wire</span><b>'+
+        LIVE_STATS.suppressed+' — privacy screens, not downtime</b></div>';
     h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
       'no ranking, nothing extra a camera couldn’t see.</div>';
     card.innerHTML=h; card.classList.add('open');
@@ -1006,6 +1095,8 @@ function renderDetail(){
   if (e.attrs && e.attrs.credits) h+='<div class="meta">declared — <b>'+e.attrs.credits+' cr'+
     (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</b>'+
     ' <span style="color:var(--dim)">(paid upfront, hard cap — shown at filing)</span></div>';
+  if (e.attempt) h+='<div class="meta">asked for — <b>'+esc(e.attempt)+'</b>'+
+    ' <span style="color:var(--dim)">(the class of ask only — the screened text is never public)</span></div>';
   if (e.reason_code) h+='<div class="meta">why-class — <b>'+esc(e.reason_code)+'</b> <span style="color:var(--dim)">(the screened text is never public)</span></div>';
   if (e.attrs && e.attrs.compensated_cr) h+='<div class="meta">compensation — <b>'+e.attrs.compensated_cr+' cr</b> credited to affected players</div>';
   if (e.attrs && e.attrs.sponsors && e.attrs.sponsors.length)
@@ -1013,6 +1104,9 @@ function renderDetail(){
        ' <span style="color:var(--dim)">(same world event, not a discount)</span></div>';
   if (e.attrs && e.attrs.surge)
     h+='<div class="meta">surge — <b>priced at surge</b> <span style="color:var(--dim)">(contested resource, disclosed at filing)</span></div>';
+  if (e.attrs && e.attrs.discount)
+    h+='<div class="meta">filed queued — <b>−'+Math.round(e.attrs.discount*100)+'%</b>'+
+      ' <span style="color:var(--dim)">(the queue discount, declared at filing)</span></div>';
   if (e.attrs && e.attrs.mentions && e.attrs.mentions.length){
     h+='<div class="meta">also seen — ' + e.attrs.mentions.map(function(c){
       var k='c:'+c, on=follows[k];
@@ -1047,18 +1141,30 @@ function renderDetail(){
       h+='<li class="'+(x.id===e.id?'cur':'')+'">'+fmt(x.t)+' — '+esc(x.status||x.kind)+(x.id===e.id?' ·':'')+'</li>';
     });
     h+='</ul>';
-    /* v61 live receipt — the bus-side explainer, capability-checked */
+    /* v61/v89 live receipt — the bus-side explainer, capability-checked.
+       Real shape (game-v14): {id,kind,player,status, queuePos, blockedBy[],
+       behind[], on[] (claim labels), note, code} — note is the
+       plain-English "why is this waiting". */
     if (LIVE && BRIDGE.gsExplainRequest){
       try{
         var ex=BRIDGE.gsExplainRequest(e.req);
         if (ex){
           var bits=[];
           if (ex.status) bits.push('status '+ex.status);
-          if (ex.claim) bits.push('claim '+ex.claim);
+          if (ex.queuePos) bits.push('#'+ex.queuePos+' in line');
+          if (ex.kind) bits.push(ex.kind);
+          if (ex.claim) bits.push('claim '+ex.claim);   /* legacy shape */
           if (ex.credits!=null) bits.push(ex.credits+' cr'+(ex.minutes?' · '+ex.minutes+' min':''));
           if (ex.trail && ex.trail.length) bits.push(ex.trail.length+' trail entries on the bus');
           if (bits.length) h+='<div class="meta">live record — <b>'+esc(bits.join(' · '))+'</b>'+
             ' <span style="color:var(--dim)">(gsExplainRequest — the bus\u2019s own explainer)</span></div>';
+          if (ex.note) h+='<div class="meta">the bus says — <b>'+esc(ex.note)+'</b></div>';
+          if (ex.on && ex.on.length)
+            h+='<div class="meta">waiting on — <b>'+ex.on.map(esc).join(' · ')+'</b>'+
+              ' <span style="color:var(--dim)">(the clashing claims, in plain words)</span></div>';
+          if (ex.blockedBy && ex.blockedBy.length)
+            h+='<div class="meta">blocked by — <b>'+ex.blockedBy.map(esc).join(', ')+'</b>'+
+              (ex.behind&&ex.behind.length?' <span style="color:var(--dim)">· in line behind '+esc(ex.behind.join(', '))+'</span>':'')+'</div>';
         }
       }catch(_){}
     }
@@ -1120,6 +1226,12 @@ function renderFollows(){
 function toggleFollow(k){
   if (follows[k]) delete follows[k]; else follows[k]=true;
   saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire();
+  /* v89 — sync the pin to the bus's own follow endpoint when offered.
+     The wire bus keys follows v:<venue> / m:<char>; this is the ONLY
+     write a spectator surface ever makes — the viewer's own pin. */
+  if (LIVE && BRIDGE.gsWireFollow){
+    try{ BRIDGE.gsWireFollow(k[0]==='v' ? k : 'm:'+k.slice(2), !!follows[k]); }catch(_){}
+  }
 }
 
 /* ================= left rail ================= */
@@ -1287,17 +1399,88 @@ function seedFeed(){
         text:'queued request expired before activation — refunded', status:'refunded'});
 }
 
-/* ================= live ingest (merge seam, game-v6) ================= */
+/* ================= live ingest (merge seam, game-v14) =================
+   The bus wire (41_game_systems_feed gsWireTail) already speaks the
+   feed.json schema: {id, n, t, day, kind, text, venue, who, req, status,
+   reason_code, attempt, mentions, attrs:{credits,compensated_cr,surge,
+   discount}}. n is monotonic feed order; day is the PT date and drives
+   the day separators. We never mutate — the page reads, the bus writes. */
 var liveSeen = {};
+var liveExhausted = false;     /* gsWirePage said we've hit the top */
+var LIVE_STATS = null;         /* gsWireStats snapshot (suppressed, etc.) */
+function wireClock(min){       /* mirrors gsWireClock — PT wall time */
+  try{
+    var p={};
+    new Intl.DateTimeFormat('en-US',{timeZone:'America/Los_Angeles',
+      hour12:false,hour:'numeric',minute:'numeric'})
+      .formatToParts(new Date(min*60000)).forEach(function(q){p[q.type]=q.value;});
+    return ((+p.hour)%24)*60+(+p.minute);
+  }catch(e){ return Math.floor(((min%1440)+1440)%1440); }
+}
+function wireIngest(list){
+  var any=false;
+  (list||[]).forEach(function(e){
+    if (liveSeen[e.id]) return; liveSeen[e.id]=true;
+    push(e); applyWx(e); any=true;
+  });
+  if (any) FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
+  return any;
+}
+/* load older — in live mode this pages the bus's own archive projection,
+   not just the local array. Ends honestly at the top of the record. */
+function liveOlder(){
+  if (!(LIVE && BRIDGE.gsWirePage)) return false;
+  var oldest=null;
+  FEED.forEach(function(e){ if(e.n!=null&&(oldest==null||e.n<oldest)) oldest=e.n; });
+  var p;
+  try{ p=BRIDGE.gsWirePage({before:oldest==null?1e15:oldest, limit:PAGE}); }
+  catch(_){ return false; }
+  if (!p || !p.entries) return false;
+  wireIngest(p.entries);
+  if (p.oldest) liveExhausted=true;
+  return true;
+}
+/* the permit board — vs.board / gsResourceBoard, the bus's public claim
+   states. Read-only: a viewer can see a resource is claimed, never why
+   beyond the public board's own words. */
+function renderBoard(board){
+  var panel=document.getElementById('pboardPanel'), box=document.getElementById('pboard');
+  var keys=board?Object.keys(board):[];
+  if (!keys.length){ panel.style.display='none'; return; }
+  panel.style.display='';
+  var h='';
+  keys.sort().forEach(function(res){
+    var b=board[res]||{};
+    var st=b.state||'free';
+    var note='';
+    if (b.leftMin!=null) note+=Math.ceil(b.leftMin)+' min left';
+    if (b.depth!=null) note+=(note?' · ':'')+b.depth+' queued';
+    if (b.qa!=null) note+=(note?' · ':'')+b.qa+' queued';
+    if (b.booked && b.booked.length)
+      note+=(note?' · ':'')+'booked '+b.booked.map(function(w){
+        return (w.start||'')+(w.who?' · '+w.who:''); }).join(', ');
+    h+='<div class="pb"><span class="res">'+esc(claimName(res))+'</span>'+
+      '<span class="pst '+stKey(st)+'">'+esc(st)+'</span>'+
+      '<span class="pnote">'+esc(note||'open')+'</span>'+
+      (b.by?'<span class="pwho">'+esc(b.by)+'</span>':'')+'</div>';
+  });
+  box.innerHTML=h;
+}
 function livePoll(){
   try{
     var vs = BRIDGE.gsViewerState();
-    var feed = (vs && vs.feed) || [];
-    /* feed entries already match feed.json schema — normalize + dedupe */
-    feed.forEach(function(e){
-      if (!liveSeen[e.id]){ liveSeen[e.id]=true; push(e); applyWx(e); }
-    });
-    FEED.sort(function(a,b){ return (b.t-a.t) || (b.seq-a.seq); });
+    /* the block clock is real PT wall time when the bus is attached */
+    var nowT = wireClock(Date.now()/60000);
+    if (nowT!==T){ T=nowT; renderClock(); renderVenues(); renderCast(); }
+    /* v89 — incremental sync: gsWireSince(max n) beats re-reading the
+       50-line tail on busy days; the tail remains the join handshake */
+    var maxN=null; FEED.forEach(function(e){ if(e.n!=null&&(maxN==null||e.n>maxN)) maxN=e.n; });
+    var feed;
+    if (maxN!=null && BRIDGE.gsWireSince){
+      try{ feed=BRIDGE.gsWireSince(maxN); }catch(_){ feed=null; }
+    }
+    if (!feed) feed = (vs && vs.feed) || [];
+    wireIngest(feed);
     renderWire(); if (dirOpen) renderReplay();
     /* v61 — live occupancy: capability-checked, demo keeps routines */
     var occ = null;
@@ -1307,9 +1490,33 @@ function livePoll(){
     /* v75 — booked windows ride the same calendar seam the Counter writes */
     var cal = (vs && vs.calendar) || [];
     if (cal.length !== LIVE_BOOK.length){ LIVE_BOOK=cal.slice(); renderBook(); }
+    /* v89 — the permit board: public claim states from the bus itself */
+    var board = (vs && vs.board) ||
+      (BRIDGE.gsResourceBoard ? BRIDGE.gsResourceBoard() : null);
+    renderBoard(board);
+    /* v89 — compatible multiplayer, visible */
+    var sess = (vs && vs.sessions) ||
+      (BRIDGE.gsCoSessions ? BRIDGE.gsCoSessions() : []);
+    var sessKey = JSON.stringify(sess||[]);
+    if (sessKey !== JSON.stringify(LIVE_SESS)){ LIVE_SESS=sess||[]; renderLiveNow(); }
+    /* v89 — a player-called sky names its sponsors on the header line;
+       the newest weather event still wins when it's fresher copy */
+    if (vs && vs.weather && vs.weather.wx){
+      var until = vs.weather.untilMin!=null ? fmt(wireClock(vs.weather.untilMin)) : null;
+      document.getElementById('wx').textContent='🌦 player-called sky — '+
+        vs.weather.wx+(until?' until '+until:'')+
+        ' · '+(vs.weather.sponsors||1)+' sponsor'+((vs.weather.sponsors||1)===1?'':'s');
+    }
+    /* v89 — gsWireStats's real shape: total / suppressed / displayFilter.
+       The viewer counter only moves if the bus actually reports one —
+       honest metrics means no invented audience. */
     if (BRIDGE.gsWireStats){
       var s=BRIDGE.gsWireStats();
-      if (s && s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
+      if (s){
+        LIVE_STATS=s;
+        if (s.viewers) document.getElementById('vcount').textContent = s.viewers.toLocaleString();
+        else document.querySelector('.viewers').style.display='none';
+      }
     }
   }catch(err){ /* bridge hiccup — keep last good frame */ }
 }
@@ -1343,7 +1550,12 @@ document.getElementById('filters').addEventListener('click', function(ev){
   renderWire();
 });
 document.getElementById('q').addEventListener('input', function(ev){ query=ev.target.value.trim(); page=1; renderWire(); });
-document.getElementById('older').onclick=function(){ page++; renderWire(); };
+document.getElementById('older').onclick=function(){
+  /* v89 — live mode asks the bus for the page before our oldest n;
+     demo mode just widens the local window */
+  if (LIVE && liveOlder()){ renderWire(); return; }
+  page++; renderWire();
+};
 document.getElementById('dir').onclick=function(){ toggleDir(); };
 document.getElementById('hold').onclick=toggleHold;
 document.getElementById('holdbar').onclick=toggleHold;
