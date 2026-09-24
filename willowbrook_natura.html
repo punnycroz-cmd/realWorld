@@ -26234,6 +26234,11 @@ function sfLampPool(cx, cy, r){
 /* umbra fraction for a cast shadow of horizontal throw `len` — the sun's
    ~0.5° disc makes the penumbra grow with distance from the occluder */
 function sfUmbra(len){ return clamp(0.72 - len * 0.004, 0.3, 0.72); }
+/* v64: street-tree well half-width in meters — the sidewalk cut-out a
+   street tree stands in, ringed by a cast-iron grate. Ficus wells run
+   larger than the gingko/trumpet pits. Shared by both views so the
+   top-down grate and the street-level pit agree on the footprint. */
+function sfTreeWellM(o){ return o && o.v === 0 ? 1.05 : 0.8; }
 /* v46: crown-true shadows — look up the baked crown lobe set for a prop
    (declared in SF_CROWN beside the sprites in 31_sf_art.js) so the plan
    view can cast the tree's real outline. Same variant hashes as the
@@ -27473,6 +27478,41 @@ function sfDecalChunk(g, cx, cy){
         if(sfTile(wx, wy + 1) === 10){ const c2 = edgeCol('s', near16(0, 1, 1, 0)); if(c2) paint('s', c2); }
         if(sfTile(wx - 1, wy) === 10){ const c2 = edgeCol('w', near16(-1, 0, 0, 1)); if(c2) paint('w', c2); }
         if(sfTile(wx + 1, wy) === 10){ const c2 = edgeCol('e', near16(1, 0, 0, 1)); if(c2) paint('e', c2); }
+        /* v64: utility lids — Mission sidewalks are paved over services:
+           round water-meter covers and rectangular utility vault panels
+           sit flush in the concrete, one per block-face at most, kept
+           off the curb band so the painted edge still reads. */
+        const uh = phash(wx, wy, 5810);
+        if(uh < 0.10){
+          const ux = sx + 5 + phash(wx, wy, 5811) * (csz - 14),
+                uy = sy + 5 + phash(wy, wx, 5812) * (sh - 14);
+          if(uh < 0.05){
+            // round water-meter lid: iron disc, rim ring, off-center
+            // sweep highlight where the sun catches the casting
+            const lr = Math.max(2, csz * 0.11);
+            g.fillStyle = '#4e5258';
+            g.beginPath();
+            g.ellipse(ux + lr, uy + lr, lr, Math.max(1.5, lr * SF_TILT),
+                      0, 0, Math.PI * 2);
+            g.fill();
+            g.strokeStyle = '#3a3e44'; g.lineWidth = 1;
+            g.stroke();
+            g.fillStyle = 'rgba(200,204,210,0.3)';
+            g.fillRect(ux + lr * 0.6, uy + lr * 0.4, Math.max(1, lr * 0.5), 1);
+          } else {
+            // rectangular vault panel: lid plate + two seam scores
+            const pw2 = Math.max(4, csz * 0.34),
+                  ph2 = Math.max(2.5, pw2 * 0.55 * SF_TILT + 2);
+            g.fillStyle = '#6a675e';
+            g.fillRect(ux, uy, pw2, ph2);
+            g.strokeStyle = '#45423c'; g.lineWidth = 1;
+            g.strokeRect(ux + 0.5, uy + 0.5, pw2 - 1, ph2 - 1);
+            g.beginPath();
+            g.moveTo(ux + pw2 / 3, uy + 1); g.lineTo(ux + pw2 / 3, uy + ph2 - 1);
+            g.moveTo(ux + pw2 * 2 / 3, uy + 1); g.lineTo(ux + pw2 * 2 / 3, uy + ph2 - 1);
+            g.stroke();
+          }
+        }
       } else if(t === 10){
         /* v44: arterial dressing off the road-width map (built once in
            sfInitWorld). Mission/Guerrero-class streets (7-9 cells) carry
@@ -28431,6 +28471,46 @@ function sfRenderWorld(cw, ch){
                             shadeR * cam.zoom * stretch,
                             shadeR * 0.42 * cam.zoom * Math.max(0.4, SF_TILT), rot,
                             aS, um);
+            }
+          }
+        }
+        /* v64: the street tree stands in a sidewalk well — a cast-iron
+           grate frame over a bare soil slot, flush with the paving
+           (SFDPW standard cut-out; park trees keep their mulch collar).
+           Drawn before the AO disc so the trunk's contact shade sits
+           inside the pit. */
+        if(o.kind === 'sfStreetTree' && cam.zoom >= 0.3){
+          const wr = sfTreeWellM(o) * SF_PXM * cam.zoom,
+                wyc = sy + cam.zoom,
+                wl = Math.round(sx - wr),
+                wt = Math.round(wyc - wr * SF_TILT),
+                ww = Math.max(2, Math.round(wr * 2)),
+                wh = Math.max(1, Math.round(wr * 2 * SF_TILT));
+          ctx.fillStyle = isNight() ? '#1c1e22' : '#32363b';
+          ctx.fillRect(wl, wt, ww, wh);
+          const ir = wr * 0.62,
+                il = Math.round(sx - ir),
+                it = Math.round(wyc - ir * SF_TILT),
+                iw = Math.max(1, Math.round(ir * 2)),
+                ih = Math.max(1, Math.round(ir * 2 * SF_TILT));
+          ctx.fillStyle = isNight() ? '#221a12' : '#4a3524';
+          ctx.fillRect(il, it, iw, ih);
+          // grate bars across the slot
+          ctx.fillStyle = isNight() ? 'rgba(12,13,16,0.85)'
+                                  : 'rgba(20,23,27,0.8)';
+          const bw = Math.max(1, 0.9 * cam.zoom);
+          for(let gi = -1; gi <= 1; gi++)
+            ctx.fillRect(Math.round(sx + gi * wr * 0.45 - bw / 2), wt, bw, wh);
+          // sun-side rim glint — the iron lip catches the same sun that
+          // throws the crown shadow, on the edge facing it
+          if(!isNight() && SF_SUN.day > 0.15){
+            ctx.fillStyle = `rgba(226,212,180,${(0.4 * SF_SUN.day).toFixed(3)})`;
+            if(Math.abs(SF_SUN.x) > Math.abs(SF_SUN.y)){
+              const gx2 = SF_SUN.x < 0 ? wl : wl + ww - bw;
+              ctx.fillRect(gx2, wt, bw, wh);
+            } else {
+              const gy3 = SF_SUN.y < 0 ? wt : wt + wh - bw;
+              ctx.fillRect(wl, gy3, ww, bw);
             }
           }
         }
@@ -33645,6 +33725,67 @@ function sfRenderStreet(cw, ch){
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);
+        /* v64: street-tree well — the trunk rises from a sidewalk cut-out
+           ringed by cast iron, not poured concrete. The pit's four
+           corners project through sfGroundZ so it shears with the slope
+           and foreshortens with distance exactly like the pavement
+           around it; the trunk's contact shade lands inside the pit. */
+        if(o.kind === 'sfStreetTree' && p[2] < 110){
+          const mx = o.x / SF_PXM, my = o.y / SF_PXM,
+                wr = sfTreeWellM(o), ir = wr * 0.62;
+          const gq = (dx, dy) =>
+            pr(mx + dx, my + dy, sfGroundZ(mx + dx, my + dy) + 0.012);
+          const A = gq(-wr, -wr), B = gq(wr, -wr),
+                C = gq(wr, wr), D = gq(-wr, wr);
+          if(A && B && C && D){
+            ctx.fillStyle = night ? '#181a1d' : '#2e3236';
+            ctx.beginPath();
+            ctx.moveTo(A[0], A[1]); ctx.lineTo(B[0], B[1]);
+            ctx.lineTo(C[0], C[1]); ctx.lineTo(D[0], D[1]);
+            ctx.closePath(); ctx.fill();
+            const a2 = gq(-ir, -ir), b2 = gq(ir, -ir),
+                  c2 = gq(ir, ir), d2 = gq(-ir, ir);
+            if(a2 && b2 && c2 && d2){
+              ctx.fillStyle = night ? '#241a10' : '#4a3524';
+              ctx.beginPath();
+              ctx.moveTo(a2[0], a2[1]); ctx.lineTo(b2[0], b2[1]);
+              ctx.lineTo(c2[0], c2[1]); ctx.lineTo(d2[0], d2[1]);
+              ctx.closePath(); ctx.fill();
+              // grate bars spanning the slot along the well's x axis
+              ctx.strokeStyle = 'rgba(16,18,22,0.8)';
+              ctx.lineWidth = Math.max(1, 0.03 * sc);
+              for(const tt of [-0.34, 0.34]){
+                const lx0 = a2[0] + (d2[0] - a2[0]) * (tt + 0.5),
+                      ly0 = a2[1] + (d2[1] - a2[1]) * (tt + 0.5),
+                      lx1 = b2[0] + (c2[0] - b2[0]) * (tt + 0.5),
+                      ly1 = b2[1] + (c2[1] - b2[1]) * (tt + 0.5);
+                ctx.beginPath(); ctx.moveTo(lx0, ly0); ctx.lineTo(lx1, ly1);
+                ctx.stroke();
+              }
+            }
+            // sun-side lip glint: the frame edge facing the sun catches
+            // a warm line — same sun that throws the crown streak
+            if(!night && SF_SUN.day > 0.15){
+              const sdx = -SF_SUN.x, sdy = -SF_SUN.y;
+              const edges = [[A, B, 0, -wr], [D, C, 0, wr],
+                             [A, D, -wr, 0], [B, C, wr, 0]];
+              let best = null, bs = -1e9;
+              for(const e of edges){
+                const s = e[2] * sdx + e[3] * sdy;
+                if(s > bs){ bs = s; best = e; }
+              }
+              if(best){
+                ctx.strokeStyle =
+                  `rgba(226,212,180,${(0.45 * SF_SUN.day).toFixed(3)})`;
+                ctx.lineWidth = Math.max(1, 0.045 * sc);
+                ctx.beginPath();
+                ctx.moveTo(best[0][0], best[0][1]);
+                ctx.lineTo(best[1][0], best[1][1]);
+                ctx.stroke();
+              }
+            }
+          }
+        }
         // v19: contact AO — every prop presses a tight dark disc into the
         // pavement at its feet, so nothing floats when the sun is buried
         const fr = (shadowR || Math.max(0.3, hm * 0.3)) * sc;

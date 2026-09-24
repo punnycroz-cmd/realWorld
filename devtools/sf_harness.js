@@ -71,7 +71,7 @@ const api = eval(m[1] + `
     sfCellField, sfTopLean, sfTopLeanShift, SF_TOP_ALT_M, cam,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
     sfWireShadow, sfPalmRow, SF_DECALS, sfWallImpostor, sfWallBakeKey,
-    SF_WIM,
+    SF_WIM, sfTreeWellM, SF_PROP_CELL,
     updateHUD,
     setInsp: (i2) => { inspectedPawnIdx = i2; },
     getCtrl: () => controlledPawnIdx })`);
@@ -472,6 +472,23 @@ const api = eval(m[1] + `
     ok(api.sfWallImpostor(b0, 0, 0, 0, 20, 0, 1, 0, 20,
                           0, -1, 12, prNear, false, 40, 1440) === false,
        'impostor refuses a lens inside the near plane');
+  }
+
+  // v64: street-tree wells — every sidewalk tree sits in a grate-ringed
+  // cut-out; the ficus well runs wider than the small-crown pits and the
+  // sizing helper is pure so both views draw the same footprint
+  {
+    ok(typeof api.sfTreeWellM === 'function', 'sfTreeWellM exported');
+    const wF = api.sfTreeWellM({ kind: 'sfStreetTree', v: 0 }),
+          wS = api.sfTreeWellM({ kind: 'sfStreetTree', v: 1 });
+    ok(wF > wS, 'ficus well wider than small-crown pit (' + wF + ' vs ' + wS + ')');
+    ok(api.sfTreeWellM({ v: 1 }) === wS, 'sfTreeWellM deterministic');
+    ok(api.sfTreeWellM(null) > 0, 'sfTreeWellM tolerates a bare prop');
+    // street trees actually exist on the grid to receive wells
+    let nTree = 0;
+    for(const [, lst] of api.SF_PROP_CELL || [])
+      for(const o of lst) if(o.kind === 'sfStreetTree') nTree++;
+    ok(nTree > 0, 'street trees present for wells (' + nTree + ')');
   }
 
   // v35: interior archetypes resolve per venue name/label
