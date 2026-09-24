@@ -2843,3 +2843,436 @@ repetition multiplier]**
   frequency makes the daily incident rate emergent, and the
   repetition multiplier is fitted from Bugg & Scullin's
   condition ordering, not their magnitudes.
+
+# Part IX — v99 deepening (2026-09-24): the child who forgets FASTER not just earlier, the rehearsal nobody taught yet, the script that eats the instance twice, the false memory that GROWS with age, the association that dies before the item, the positive filter, sleep's shrinking dividend, the bump a life change buys you, and the interference the old can't block
+
+Part VIII priced the child's encode gates (self, recollection,
+attention, source, bump sign) and the zombie intention. What was
+still missing, in order of what the record asked for: (a) we priced
+the childhood-amnesia CLIFF (§4.14 latent layer, amnesia_exit) but
+never the childhood-amnesia SLOPE — Bauer & Larkina's prospective
+work shows children lose autobiographical events at a higher RATE
+than adults at every age tested, with the loss best fit by an
+exponential (constant-rate) rather than the adult power function;
+(b) §4.13 retell ecology assumed the character self-initiates
+rehearsal — but spontaneous rehearsal is a STRATEGY that has to
+develop (Flavell, Beach & Chinsky 1966; Keeney, Cannizzo & Flavell
+1967: a production deficiency, not a mediation deficiency — the
+5yo CAN rehearse when told to, she just never thinks of it);
+(c) §4.20 script nodes treated the swallow as age-flat — Farrar &
+Goodman's schema-confirmation-deployment work says the child arm
+is where the swallow lives; (d) our false-memory family priced
+age as protective — the DRM developmental reversal (Brainerd,
+Reyna & Ceci 2008) says meaning-connected false memories INCREASE
+from childhood to adulthood; (e) the old-age decline priced decay
+globally, but the associative-deficit meta-analysis (Old &
+Naveh-Benjamin 2008, 90 studies) says EDGES die faster than
+items — the 75yo keeps the face and loses whose it is;
+(f) positivity was priced at encode only (v1.6 `positivity_gain`)
+— Reed, Chan & Mikels's 100-study meta puts a second leg at
+retrieval sampling, gated by processing freedom; (g) sleep's
+consolidation dividend had child knots but no old-side decay
+(Mander, Winer & Walker 2017); (h) the bump was fixed at
+encodeAge 15–25 — Schrauf & Rubin's immigrants show the bump
+FOLLOWS the life transition, it isn't glued to the calendar;
+(i) §4.2 interference had no age asymmetry — the Hasher–Zacks
+line says the old suffer proactive interference the young filter
+out; (j) procedural records shared the episodic decay engine —
+Fleischman et al. say skills ride a flat floor.
+
+## 98. Childhood forgetting is faster — `child_forget_mult(encodeAge)`
+
+Bauer & Larkina 2014 (*Memory* 22:907 — verified: prospective,
+children tracked 5→9, 5–7yos retained ≥60% of early-life events,
+8–9yos <40% — the amnesia wall goes up IN childhood); Bauer &
+Larkina 2013 (*JEP:G* 143:597 — verified: child distributions fit
+exponential, adult fit power); Bauer & Larkina 2016 (*Memory* —
+verified 4-year prospective: all child groups forget faster than
+adults; 4–6yos faster than 8yos; differences largest in open-ended
+recall).
+
+**Mechanism:** records carry encodeAge; for encodeAge < 11 the
+decay clock's exponent softens toward constant-rate:
+
+```
+beta_eff = beta · child_forget_mult(encodeAge)
+child_forget_mult: 1.7@4 → 1.5@6 → 1.2@8 → 1.0@11
+```
+
+This is a legal β modulator under the §4.1 slope-invariance axiom's
+age clause — it reads encodeAge (era), not E. The exponential-vs-
+power distinction we approximate: constant-rate = higher effective
+β on the early part of the curve, which the multiplier supplies.
+Thematic coherence as a survival predictor (Bauer & Larkina 2016)
+is already carried by `narr_coh_k`-adjacent retell weighting —
+flagged, not re-priced.
+**[CONSENSUS: children forget autobiographical events faster;
+HYPOTHESIS: the β-multiplier form and knots]**
+
+## 99. The rehearsal nobody taught yet — `rehearse_spont_p(encodeAge)`
+
+Flavell, Beach & Chinsky 1966 (*Child Dev.* — verified: overt
+verbalization rare at 5, common at 10); Keeney, Cannizzo & Flavell
+1967 (*J. Exp. Psychol.* — verified: production deficiency —
+induced rehearsal works but isn't spontaneously adopted); Cowan &
+collab synthesis (cumulative rehearsal ~10); Elliott et al. 2021
+(*RRR* multilab replication — verified: direction holds, more
+5–6yo verbalizers than the original, continuous ramp 7→10 not
+consistent → we take a ramp, not a cliff).
+
+**Mechanism:** the §4.13 retell ecology's self-initiation draw is
+gated:
+
+```
+retell_selfinit_p_eff = retell_selfinit_p · rehearse_spont_p(encodeAge)
+rehearse_spont_p: 0.05@5 → 0.3@7 → 0.6@10 → 1.0@15
+```
+
+Other-initiated retells (parent retells the trip; teacher reviews;
+a friend brings it up — the `scaffold` path) bypass the gate
+entirely. **Locked `rehearse_scaffold_null`:** prompted/social
+rehearsal of an encodeAge≤8 record yields ≥0.8 of adult-arm
+refresh gain — the deficit is in PRODUCTION, never in benefit.
+RW texture: the 6yo's day survives only in the retellings the
+household does for her; the loner child's early years are the
+thinnest archive in the cast.
+**[CONSENSUS: production-deficiency account and the 5→10 ramp;
+HYPOTHESIS: knot values]**
+
+## 100. The script eats the instance twice — `script_swallow_child`
+
+Nelson 1986 (event knowledge — the young child's autobiographical
+system is script-first); Farrar & Goodman 1990/1992 (schema-
+confirmation-deployment: children default-report the schema;
+deviations encode only when salient — verified paradigm); Fivush
+1984 (script reports at preschool age).
+
+**Mechanism:** §4.20's script-node merge gains an encodeAge leg:
+
+```
+merge_rate_eff = merge_rate · (1 + (script_swallow_child − 1)
+                                · child_gate(encodeAge))
+child_gate: 1.0@≤6 → 0.5@8 → 0@11
+script_swallow_child: 1.5
+```
+
+And the deviation arm: deviation records at encodeAge ≤8 get the
+survival bonus ONLY when `selfRelevance ≥ dev_self_gate` (0.4) or
+arousal ≥0.7 — the child remembers the birthday where SHE cried,
+not the one where the cake was different. **[CONSENSUS: script
+dominance in preschool reportage; HYPOTHESIS: the multiplier and
+the self-relevance gate]**
+
+## 101. The false memory that GROWS with age — `gist_false_p(encodeAge)`
+
+Brainerd, Reyna & Ceci 2008 (*Psychol. Bull.* 134:343 — verified:
+meaning-connected false memory increases childhood→adulthood);
+Brainerd & Reyna 2007 (*Psychol. Sci.* — verified complementarity:
+adults both falsely accept similar lures AND correctly reject
+them more); Brainerd, Reyna & Forrest 2002 (*Child Dev.* —
+verified: DRM near floor in young children — they fail to "get
+the gist"); Metzger et al. 2008 (55-experiment developmental DRM
+synthesis — verified increase).
+
+**Mechanism:** the §6.3 misinformation/lure-adoption path splits
+its susceptibility by lure type:
+
+- `gist_false_p(encodeAge)`: 0.25@6 → 0.55@10 → 0.8@14 → 1.0 adult —
+  applied to meaning-connected lures (paraphrases, inference
+  completions, "she must have said…" reconstructions).
+- Suggestion lures keep the existing child-elevated
+  `misinfo_suscept` curve (both literatures are real — the split
+  is BY LURE TYPE, which is the whole FTT point).
+- Complementarity surface: the same gist maturity that mints the
+  false acceptance also mints correct rejections of verbatim
+  mismatches — implemented as `gist_false_p` entering ONLY when
+  the lure shares gist (simOp ≥ `gist_lure_sim` 0.6), never when
+  it is merely assertive.
+
+The child is MORE wrong about what was suggested and LESS wrong
+about what was implied — both directions must coexist or the
+mechanism is wrong. **[CONSENSUS: the reversal is among the most
+replicated counterintuitive results in the literature; the simOp
+gate is our operationalization]**
+
+## 102. The association dies before the item — `assoc_mult(age_eff)`
+
+Naveh-Benjamin 2000 (*JEP:LMC* 26:1170 — verified ADH: components
+memorized, bindings weak); Old & Naveh-Benjamin 2008 (*Psychol.
+Aging* 23:104 — verified meta, 90 studies: age deficit LARGER for
+associative than item across source/context/order/location/
+pairing; pronounced under intentional encoding, attenuated
+incidental); Spencer & Raz 1995 (context>content — already
+priced via `ctx_loss`; this is the GENERALIZATION to all edge
+classes).
+
+**Mechanism:** edge and binding fields (who-was-there links,
+source tags, place bindings, pairings, order marks) decay under
+an age-leg multiplier that item/content fields never see:
+
+```
+edge_decay_mult = assoc_mult(age_eff)
+assoc_mult: 1.0@50 → 1.2@60 → 1.4@70 → 1.7@85
+```
+
+**Locked `assoc_item_null`:** `assoc_mult` may never touch
+item/content strength — a profile that loses the binding and the
+item at the same rate is a broken profile (the meta's core
+result is the DIFFERENTIAL, not the level). RW texture: the 78yo
+landlord knows the tenant's face, knows she knows her, cannot
+attach the name or the floor — the record survives, its edges
+don't. **[CONSENSUS: the differential; HYPOTHESIS: knots and the
+edge-class list]**
+
+## 103. The positive filter — `pos_retrieve_bias(age_eff)`
+
+Mather & Carstensen 2005 (*TiCS* — verified mechanism claim:
+emotion-regulation goal, control-dependent); Reed, Chan & Mikels
+2014 (*Psychol. Aging* meta, 100 studies, N=7129 — verified:
+overall d_PE≈0.26 reliable; older adults +bias d≈0.13, younger
+NEGATIVE bias d≈−0.12; effect LARGER when processing is
+unconstrained — naturalistic sampling, not interrogation);
+Murphy & Isaacowitz 2008 (attention meta — same gate).
+
+**Mechanism:** voluntary-recall candidate sampling (§5.x weight
+draw) adds a valence term:
+
+```
+sample_w ∝ base_w · (1 + pos_retrieve_bias(age_eff) · valence
+                       · free_recall_gate)
+pos_retrieve_bias: 0@40 → 0.10@60 → 0.20@70 → 0.30@85
+free_recall_gate = 1 − eval_press   // interrogation kills it
+```
+
+Distinct from v1.6 `positivity_gain` (encode/select leg) — this is
+the retrieval-sampling leg the meta's "unconstrained processing"
+moderator demands. `eval_press` (v5.39 state field) is the lawful
+gate: a character being grilled by another character loses the
+bias. **Locked `pos_involuntary_null`:** the §5.7 involuntary scan
+and cue-driven recall never carry the valence term — the meta's
+effect lives in deliberate, self-directed remembering.
+**[CONSENSUS: reliable small effect, unconstrained-only;
+DEBATED: SST-motivational vs capacity accounts — we price the
+observable and stay neutral on mechanism]**
+
+## 104. Sleep's shrinking dividend — `sws_mult` old knots + `sws_var_gain`
+
+Mander, Winer & Walker 2017 (*Neuron* — verified: SWS and its
+memory-consolidation dividend decline with age; ~60–70% SWS loss
+by old age in the extremes); Spencer, Gouw & Ivry 2007; Backhaus
+et al. 2008 (child nap benefit — already priced §4.15); Mander et
+al. 2013 (*Nat. Neurosci.* — verified: medial-PFC gray-matter loss
+predicts SWS loss predicts overnight retention loss).
+
+**Mechanism:** existing `sws_mult` (child knots 1.2@6 → 1.0@14,
+v1.5) extends old-side:
+
+```
+sws_mult: 1.0@50 → 0.85@65 → 0.7@80 → 0.6@90   (age_eff)
+sws_var_gain: 0.15 — per-night jitter on the sleep multiplier,
+              scaling ×(age_eff/80) — old sleep is noisier night
+              to night, so the dividend is a lottery, not a floor
+```
+
+A bad night at 78 costs more than a bad night at 28 because the
+good nights were doing more work. **[CONSENSUS: SWS decline and
+its memory correlate; HYPOTHESIS: knots and the jitter term]**
+
+## 105. The bump a life change buys you — `trans_bump`
+
+Schrauf & Rubin 1998 (*JML* 39:437 — verified: bilingual
+immigrants' bump follows age of immigration, not 15–25; internal-
+language split on the recalled subset); Schrauf & Rubin 2001
+(*Appl. Cogn. Psychol.* — verified: recall increase tracks
+immigration age groups 20–22/24–28/34–35); Enz, Pillemer &
+Johnson 2016 ("relocation bump" — verified: ~40% of move-window
+memories cluster at the relocation); Berntsen & Rubin 2004
+(cultural life script — the default window when no transition).
+
+**Mechanism:** a `life_transition` event (world-supplied flag:
+migration, career change, bereavement, relocation; `immig_age`
+trait auto-mints one) opens a window:
+
+```
+trans_bump: encode gain trans_bump_gain (0.25) on selfRelevant
+            records for [t_transition, t_transition + trans_bump_win]
+            where trans_bump_win = 3y, applied REGARDLESS of age
+trans_pi_relief: 0.2 — interference relief at the stable end of
+            the window (the "release from proactive interference"
+            mechanism Schrauf & Rubin propose: the new life's
+            early records compete with the old life's, and the
+            settled era that follows rehearses the window)
+```
+
+The bump is where the self is being rebuilt, and a move rebuilds
+the self at 35 as surely as adolescence does at 16 — the calendar
+version is just the modal transition. **[CONSENSUS: migration
+shifts the bump; HYPOTHESIS: generalizing the flag to non-
+migration transitions and the PI-relief form]**
+
+## 106. The interference the old can't block — `pi_suscept(age_now)`
+
+Hasher & Zacks 1988 (inhibitory-deficit framework); Lustig, May &
+Hasher 2001 (*Psychol. Sci.* — verified: PI susceptibility
+elevated in older adults); Ikier & Hasher 2006; child side: the
+developmental-interference literature (Dempster; Bjorklund &
+Harnishfeger — inefficient inhibition in children, CONSENSUS on
+direction, thin on coefficients).
+
+**Mechanism:** §4.2's interference term gains an age leg evaluated
+at the record-ENCODER's current age (interference is a live
+processing failure, so age_now — not encodeAge):
+
+```
+interference_eff = interference · pi_suscept(age_now)
+pi_suscept: 1.3@6 → 1.0@15 → 1.0@45 → 1.25@60 → 1.5@80
+```
+
+Two ends, one cause in the model (inhibitory gate thinness),
+different literatures. This is also the cheap engine behind the
+mislaid-item PI burial (FC§41.5): the old character's keys are
+buried under every previous place the keys have ever been —
+and now the burial rate is age-graded. **[CONSENSUS: elevated PI
+in aging; DEBATED-magnitude in childhood → child knots carry a
+wider probe tolerance]**
+
+## 107. The procedural floor — `proc_decay_mult`
+
+Fleischman et al. 2004 (procedural/skills preserved in aging —
+verified direction across motor/cognitive skill retention);
+Gabrieli 1998 (implicit memory intact in aging and even in
+amnesia); childhood: motor-skill acquisition robust from infancy
+(Adolph).
+
+**Mechanism:** procedural-class records (skill, route, recipe,
+craft) decay under `proc_decay_mult` 0.3 applied to β — flat,
+age-insensitive, exempt from `assoc_mult` (skills bind nothing —
+they ARE the binding) and from `pi_suscept` (interference hits
+declarative retrieval; the hands don't confuse two ways of
+kneading). **Frozen `proc_flat_null`:** no age curve on this
+param — a procedural decline leg would double-count the motor
+decline the world already renders in the body.
+**[CONSENSUS: procedural preservation is among the strongest
+aging regularities; the 0.3 coefficient is ours]**
+
+## 108. Knot-table revision summary (v5.47)
+
+| param | knots | source |
+|---|---|---|
+| child_forget_mult | 1.7@4 → 1.5@6 → 1.2@8 → 1.0@11 (encodeAge, on β) | Bauer & Larkina 2014/2016 |
+| rehearse_spont_p | 0.05@5 → 0.3@7 → 0.6@10 → 1.0@15 (encodeAge, on retell self-init) | Flavell 1966; Keeney 1967; Elliott 2021 |
+| script_swallow_child | 1.5 flat × child_gate(≤6 1.0 → 8 0.5 → 11 0) | Farrar & Goodman 1990; Nelson 1986 |
+| dev_self_gate | 0.4 selfRelevance floor for child deviation survival | Farrar & Goodman (HYPOTHESIS pricing) |
+| gist_false_p | 0.25@6 → 0.55@10 → 0.8@14 → 1.0 adult (encodeAge) | Brainerd, Reyna & Ceci 2008 |
+| gist_lure_sim | 0.6 simOp floor for the gist-lure class | operationalization, ours |
+| assoc_mult | 1.0@50 → 1.2@60 → 1.4@70 → 1.7@85 (age_eff, edges only) | Naveh-Benjamin 2000; Old & N-B 2008 |
+| pos_retrieve_bias | 0@40 → 0.10@60 → 0.20@70 → 0.30@85 (age_eff) | Reed, Chan & Mikels 2014 |
+| sws_mult | +0.85@65 → 0.7@80 → 0.6@90 old-side knots | Mander, Winer & Walker 2017 |
+| sws_var_gain | 0.15 ×(age_eff/80) | HYPOTHESIS |
+| trans_bump_gain / _win / pi_relief | 0.25 / 3y / 0.2 | Schrauf & Rubin 1998/2001; Enz 2016 |
+| pi_suscept | 1.3@6 → 1.0@15 → 1.0@45 → 1.25@60 → 1.5@80 (age_now) | Lustig, May & Hasher 2001 |
+| proc_decay_mult | 0.3 flat, no age leg | Fleischman 2004; Gabrieli 1998 |
+
+## 109. Spec changes (v5.46 → v5.47) — delta table
+
+| change | where | type |
+|---|---|---|
+| `child_forget_mult(encodeAge)` on β | §4.48 | knot |
+| `rehearse_spont_p` gate on §4.13 self-init | §5.103 | knot + gate |
+| `script_swallow_child` + `dev_self_gate` on §4.20 | §4.49 | knot |
+| `gist_false_p` lure-type split in §6.3 | §6.3 note | knot + class |
+| `assoc_mult(age_eff)` on edge fields | §4.50 | knot + locked `assoc_item_null` |
+| `pos_retrieve_bias` + `free_recall_gate` on sampling | §5.104 | knot + locked `pos_involuntary_null` |
+| `sws_mult` old knots + `sws_var_gain` | §4.51 | knot + scalar |
+| `trans_bump` window + `trans_pi_relief` | §4.52 | mechanism + flag |
+| `pi_suscept(age_now)` on §4.2 | §4.53 | knot |
+| `proc_decay_mult` flat + frozen `proc_flat_null` | §4.54 | scalar + frozen |
+| locked: `rehearse_scaffold_null` | §5.103 | null |
+
+## 110. Validation probes (P1045–P1054; registry continues P1–P1044)
+
+- **P1045 child forgetting rate (MUST):** matched-E events at
+  encodeAge 5/8/12 vs adult lose strength in the ordering
+  5>8>12>adult at fixed retention intervals; child-era loss fits
+  constant-rate better than the adult-era power fit (fit-shape
+  check, tolerance: ordering strict, magnitudes ±25%).
+- **P1046 rehearsal ramp (MUST):** self-initiated retell count
+  at age_now 5 ≤10% of adult arm at matched record stats;
+  other-initiated retells at 5 produce ≥0.8× adult refresh
+  (`rehearse_scaffold_null` locked-null class).
+- **P1047 script swallow (SHOULD):** routine-instance records
+  at encodeAge≤7 merge into script nodes ≥1.4× adult rate;
+  deviation records survive iff selfRelevant ≥ dev_self_gate —
+  the two-arm structure is the test, not the level.
+- **P1048 developmental reversal (MUST, two-sign):** gist-
+  connected lure adoption rises from encodeAge 6→adult while
+  assertive/suggestion lure adoption falls across the same
+  range — OPPOSITE signs on one battery or the mechanism is
+  wrong (this is the complementarity the meta requires).
+- **P1049 assoc differential (MUST):** at age_eff≥70 edge-field
+  loss ≥1.4× content-field loss on matched records;
+  `assoc_item_null` structure-checked (item curve untouched by
+  the param).
+- **P1050 positivity gate (SHOULD):** free-recall valence skew
+  shifts net-positive past age_eff 60 and net-negative below 40
+  (sign flip, per the meta's two-sided result); under
+  `eval_press≥0.6` and on the involuntary scan the skew
+  collapses to baseline (`pos_involuntary_null`).
+- **P1051 sleep dividend (SHOULD):** overnight consolidation
+  benefit orders child > adult > 80yo at matched encodes;
+  `sws_var_gain` widens the old arm's variance, not its mean
+  beyond the knots.
+- **P1052 transition bump (SHOULD):** era histogram of a
+  `life_transition`-flagged profile shows a secondary peak at
+  transition_age+0..win; unflagged control shows none;
+  `immig_age`-pinned profiles auto-show the peak at that age.
+- **P1053 PI susceptibility (MUST):** competing-event density
+  batteries (N similar events same week) show R-loss ratio
+  80yo/mid-adult ≥1.3; child arm ≥1.1 with ±40% tolerance.
+- **P1054 procedural floor (COULD):** procedural records lose
+  ≤30% of episodic loss rate at every age knot; adding any age
+  leg to `proc_decay_mult` must FAIL the frozen check.
+
+## 111. Honest limits, ninth pass
+
+- `child_forget_mult` prices a RATE difference whose mechanism
+  (failed consolidation vs retrieval-side immaturity) Bauer
+  herself declines to settle — we chose the decay-side pricing
+  because the sim already owns β; a consolidation-side version
+  would reach the same observable through S. Either is
+  defensible; the probe checks the observable only.
+- `rehearse_spont_p`'s 1.0@15 adult-arity endpoint extrapolates
+  free-recall strategy findings to the autobiographical retell
+  ecology — lab list-rehearsal and dinner-table retelling are
+  different beasts; the production-deficiency lock (the scaffold
+  arm) is the part the literature actually proves.
+- `script_swallow_child` rides the §4.20 merge machinery, which
+  already conflates storage-merge with report-default; Farrar &
+  Goodman's deployment account is a REPORT mechanism — our
+  pricing lets a merged instance still carry a low-strength
+  verbatim ghost, which is closer to the truth than pure
+  deletion but is our construction.
+- `gist_false_p`'s simOp gate operationalizes "meaning-connected"
+  as similarity ≥0.6 — FTT never gave a threshold; the class
+  split (gist lures up, suggestion lures down, same age range)
+  is the consensus content; the number is ours.
+- `assoc_mult` inherits ADH's boundary disputes: the meta's own
+  moderators (intentional vs incidental, test format) mean the
+  differential is context-dependent — we price the main effect
+  and let the incidental-encoding attenuation stay unmodeled
+  (a second-order term).
+- `pos_retrieve_bias` is DEBATED at the mechanism level (SST's
+  motivated account vs the cognitive-control-deficit account —
+  which predict the same observable under free recall and
+  diverge only under cognitive load; our `eval_press` gate
+  picks the motivated account's prediction as the working one).
+- `trans_bump` generalizes the migration finding to all flagged
+  transitions — the relocation replication (Enz 2016) supports
+  the generalization for moves; bereavement/divorce are our
+  extension. The window length (3y) and gain are fitted.
+- `pi_suscept`'s child knots are the weakest in this version —
+  the developmental-PI literature is real but coefficient-thin;
+  the probe tolerance reflects that honestly.
+- `proc_decay_mult` 0.3 is a placeholder coefficient for a
+  CONSENSUS direction — procedural aging studies measure
+  performance, not trace decay, so the mapping is loose.

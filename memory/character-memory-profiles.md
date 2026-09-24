@@ -1209,6 +1209,11 @@ needs both.
 | susp_decay / susp_sim_pen / susp_floor / susp_keep_p | 0.6 / 0.3 / 0.05 / 0.1 | 0.97 / 0.95 / 0.4 / 0.7 | suspended-bout decay, same-topic kill, floor, store survival (v5.46) |
 | openq_arm / openq_hl / openq_fire | 0.1 / 0.5 | 0.9 / 7 / 0.6 | latent-query arming, half-life days, fire threshold (v5.46) |
 | device_dep | 0.0 | 1.0 | offload-adoption + phone-drain trait (v5.44) |
+| script_swallow_child / dev_self_gate | 1.0 / 0.2 | 2.0 / 0.7 | child script-merge mult + deviation selfRelevance floor (v5.47) |
+| gist_lure_sim | 0.4 | 0.8 | gist-lure class boundary for §6.3 split (v5.47) |
+| sws_var_gain | 0.0 | 0.4 | per-night sleep-multiplier jitter, age-scaled (v5.47) |
+| trans_bump_gain / trans_bump_win / trans_pi_relief | 0.0 / 1 / 0.0 | 0.5 / 6 / 0.5 | transition-window encode gain, width yrs, post-window PI relief (v5.47) |
+| proc_decay_mult | 0.1 | 0.6 | procedural-class β multiplier, flat — no age leg (v5.47, frozen proc_flat_null) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4987,3 +4992,48 @@ added in §0 for all ten param groups:
   "it'll come back to me" character — high `openq_arm`,
   and it does, two days later, in the shower. Sources
   RC§§92–99; probes P1035–P1044.
+## 79. v5.47 note (age-development IX — the age curves got a second spine)
+
+Nine mechanisms (AD Part IX, spec §§4.48–4.54, §§5.103–5.104,
+§6.3 split); clamp rows added in §0. What a bible may and may not
+buy:
+
+- **`child_forget_mult` / `rehearse_spont_p` / `script_swallow_child`
+  / `gist_false_p` — era params, not personality.** All four read
+  encodeAge; a bible cannot pin a 6yo who "remembers like an
+  adult" — the childhood archive is thin by construction, and the
+  variability lives in what the household retells (scaffold arm),
+  not in the knots. `rehearse_scaffold_null` is locked for
+  everyone: the lonely child's years are thin because nobody
+  retold them — that is the mechanism, and it is legible.
+- **`assoc_mult` — the old-age dial that isn't a knob.** Edges
+  die faster than items at ≥60; `assoc_item_null` is locked so no
+  profile can flatten the differential. The legible signature:
+  recognizes the tenant, can't attach the name, floor, or which
+  conversation. A bible pins `aging_rate`/`reserve` (existing
+  traits) and this follows — nothing new to pin.
+- **`pos_retrieve_bias` — retrieval's leg of positivity.** The
+  encode-side `positivity_gain` (v1.6) is the bible-pinnable
+  dial; the retrieval leg is population-level and `eval_press`-
+  gated — a character under interrogation loses the rosy filter
+  even if her bible bought the rosy encode. `pos_involuntary_null`
+  locked: the rosy filter never fires on the involuntary scan.
+- **`trans_bump` — the bump the world hands you.** `immig_age`
+  (v5.27 bible field) auto-mints the window; other transitions
+  need the world-supplied `life_transition` flag — bibles cannot
+  mint bumps directly, they can only set the ages where life
+  actually turned. `trans_bump_win` clamped ≤6y.
+- **`pi_suscept` / `sws_var_gain` / `proc_decay_mult` —
+  population-level.** No bible pins: PI susceptibility is
+  age_now-driven for everyone, old sleep is noisy sleep for
+  everyone, and `proc_flat_null` freezes the skill floor — the
+  80yo's hands remember what her dates never will.
+- **Emergent cast shadows:** (a) the 7yo NPC whose week is a
+  rumor of itself — `child_forget_mult` + `script_swallow_child`
+  leave script reports and self-relevant scars; (b) the
+  grandmother who accepts the neighbor's paraphrase as fact but
+  rejects the leading question — `gist_false_p` up,
+  suggestion-curve down, same head; (c) the immigrant whose
+  second life out-densities her youth — `immig_age` bumps her
+  arrival years, not her teens. Sources AD§§98–107; probes
+  P1045–P1054.

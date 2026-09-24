@@ -4074,3 +4074,63 @@ Part VIII / spec v5.44:
   `avoid` tag carries durability); `rec_scale` log-map is our
   form; `series_prox_w` coefficient ours. → FC Part IX
   §§41–45; probes P1027–P1034.
+
+## 76. v99 sources — age-development IX (AD Part IX → spec v5.47)
+
+- **Bauer & Larkina 2014** (*Memory* 22:907) + **Bauer & Larkina
+  2013** (*JEP:G* 143:597) + **Bauer & Larkina 2016** (4-yr
+  prospective — all verified): childhood amnesia is made IN
+  childhood — children forget autobiographical events at a higher
+  constant rate (exponential) than adults (power) → spec §4.48
+  `child_forget_mult(encodeAge)` on β; probe P1045.
+- **Flavell, Beach & Chinsky 1966** (*Child Dev.*) + **Keeney,
+  Cannizzo & Flavell 1967** + **Elliott et al. 2021** (multilab
+  RRR — verified): spontaneous rehearsal is a learned strategy
+  (production deficiency — inducible but not self-initiated,
+  ramping 5→10) → spec §5.103 `rehearse_spont_p` gate on
+  self-initiated retells; locked `rehearse_scaffold_null`; P1046.
+- **Nelson 1986** + **Farrar & Goodman 1990/1992** (verified
+  schema-confirmation-deployment): the child's report IS the
+  script; deviations survive only when salient → spec §4.49
+  `script_swallow_child` + `dev_self_gate`; P1047.
+- **Brainerd, Reyna & Ceci 2008** (*Psychol. Bull.* 134:343) +
+  **Brainerd & Reyna 2007** + **Brainerd, Reyna & Forrest 2002**
+  + **Metzger et al. 2008** (all verified): the developmental
+  reversal — gist-connected false memory INCREASES 6→adult while
+  suggestion susceptibility falls → spec §6.3 lure-type split
+  `gist_false_p(encodeAge)` × `gist_lure_sim`; P1048 (two-sign).
+- **Naveh-Benjamin 2000** (*JEP:LMC* 26:1170) + **Old &
+  Naveh-Benjamin 2008** (*Psychol. Aging* 23:104, 90-study meta —
+  verified): the associative deficit — edges (source/context/
+  order/location/pairing) die faster than items → spec §4.50
+  `assoc_mult(age_eff)` edge-only; locked `assoc_item_null`;
+  P1049.
+- **Mather & Carstensen 2005** (*TiCS*) + **Reed, Chan & Mikels
+  2014** (100-study meta — verified d≈0.26, unconstrained-only,
+  young negative) + **Murphy & Isaacowitz 2008**: the positivity
+  effect → spec §5.104 `pos_retrieve_bias` on voluntary sampling,
+  `eval_press`-gated; locked `pos_involuntary_null`; P1050.
+- **Mander, Winer & Walker 2017** (*Neuron*) + **Mander et al.
+  2013** (*Nat. Neurosci.* — verified): SWS decline shrinks the
+  consolidation dividend → spec §4.51 `sws_mult` old knots +
+  `sws_var_gain`; P1051.
+- **Schrauf & Rubin 1998** (*JML* 39:437) + **Schrauf & Rubin
+  2001** (*ACP*) + **Enz, Pillemer & Johnson 2016** + **Berntsen
+  & Rubin 2004** (all verified): the bump tracks life
+  transitions, not the calendar → spec §4.52 `life_transition`
+  flag + `trans_bump` window + `trans_pi_relief`; P1052.
+- **Hasher & Zacks 1988** + **Lustig, May & Hasher 2001**
+  (*Psychol. Sci.* — verified): inhibitory deficit → elevated
+  proactive interference in aging → spec §4.53
+  `pi_suscept(age_now)` U-curve; P1053.
+- **Fleischman et al. 2004** + **Gabrieli 1998** (verified
+  preservation): procedural memory rides a flat floor → spec
+  §4.54 `proc_decay_mult`; frozen `proc_flat_null`; P1054.
+- **Honest limits marked:** knot magnitudes are HYPOTHESIS
+  throughout (consensus covers directions and differentials);
+  `child_forget_mult` prices rate via β (mechanism-neutral on
+  consolidation-vs-retrieval); `trans_bump` generalizes migration
+  to all flagged transitions; `pos_retrieve_bias` adopts the
+  motivated account's gate (DEBATED); `proc_decay_mult` 0.3 is a
+  placeholder for a consensus direction. → AD Part IX §§98–111;
+  probes P1045–P1054.

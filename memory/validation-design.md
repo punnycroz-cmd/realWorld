@@ -9991,3 +9991,89 @@ P1031, P1033, P1034 SHOULD.
   ours); `series_prox_w` 0.5 (proximity direction is
   literature, coefficient ours); `cta_spill` 0.15 (venue
   generalization unpriced in humans — conservative).
+
+## 204. v99 probes (P1045–P1054 — age-development IX)
+
+- **P1045 child forgetting rate (MUST):** matched-E events at
+  encodeAge 5/8/12 vs adult lose strength ordered 5>8>12>adult at
+  fixed retention intervals; child-era loss fits constant-rate
+  better than adult power fit (ordering strict; magnitudes ±25%).
+- **P1046 rehearsal ramp (MUST, locked-null class):**
+  self-initiated retell count at age_now 5 ≤10% adult arm at
+  matched record stats; other-initiated retells refresh ≥0.8×
+  adult (`rehearse_scaffold_null`).
+- **P1047 script swallow (SHOULD):** routine-instance records
+  encodeAge≤7 merge ≥1.4× adult rate; deviation survival gated by
+  `dev_self_gate`/arousal — two-arm structure asserted, not level.
+- **P1048 developmental reversal (MUST, two-sign):** gist lure
+  adoption rises encodeAge 6→adult while suggestion lures fall on
+  the same battery — opposite signs or the mechanism is wrong.
+- **P1049 assoc differential (MUST, locked-null class):**
+  age_eff≥70 edge-field loss ≥1.4× content-field loss;
+  `assoc_item_null` structure-checked.
+- **P1050 positivity gate (SHOULD):** free-recall valence skew
+  net-positive past 60, net-negative below 40; collapses under
+  `eval_press≥0.6` and on the involuntary scan
+  (`pos_involuntary_null`).
+- **P1051 sleep dividend (SHOULD):** overnight consolidation
+  benefit child > adult > 80yo; `sws_var_gain` widens variance
+  without moving mean beyond knots.
+- **P1052 transition bump (SHOULD):** `life_transition`-flagged
+  era histogram peaks at transition_age+0..win; unflagged control
+  flat; `immig_age` profiles peak at that age.
+- **P1053 PI susceptibility (MUST):** dense competing-event
+  batteries: 80yo/mid-adult R-loss ratio ≥1.3; child arm ≥1.1
+  (±40%).
+- **P1054 procedural floor (COULD, frozen check):** procedural
+  records ≤30% of episodic loss at every knot; any age leg on
+  `proc_decay_mult` FAILS.
+
+Registry: P1–P1054. v99 suite: P1045, P1046, P1048, P1049, P1053
+MUST (P1046, P1049 locked-null class); P1047, P1050, P1051,
+P1052 SHOULD; P1054 COULD.
+
+## 205. Sources verified this version (P1045–P1054 backing)
+
+- **Child accelerated forgetting:** Bauer & Larkina 2014
+  (*Memory* 22:907 — verified prospective onset: 5–7yos ≥60%
+  retention, 8–9yos <40%); Bauer & Larkina 2013 (*JEP:G* 143:597 —
+  verified exponential child vs power adult distribution); Bauer
+  & Larkina 2016 (*Memory* — verified 4-yr prospective, all child
+  groups faster, open-ended recall most).
+- **Rehearsal development:** Flavell, Beach & Chinsky 1966
+  (*Child Dev.* 37:283); Keeney, Cannizzo & Flavell 1967
+  (production deficiency — verified); Elliott et al. 2021
+  (multilab RRR — verified direction, ramp not cliff); Cowan/
+  Ornstein & Naus (cumulative rehearsal ~10).
+- **Script dominance:** Nelson 1986; Farrar & Goodman 1990/1992
+  (schema-confirmation-deployment — verified); Fivush 1984.
+- **Developmental reversal:** Brainerd, Reyna & Ceci 2008
+  (*Psychol. Bull.* 134:343 — verified); Brainerd & Reyna 2007
+  (complementarity — verified both-directions claim); Brainerd,
+  Reyna & Forrest 2002 (DRM floor in young children); Metzger et
+  al. 2008 (55-experiment synthesis).
+- **Associative deficit:** Naveh-Benjamin 2000 (*JEP:LMC*
+  26:1170); Old & Naveh-Benjamin 2008 (*Psychol. Aging* 23:104 —
+  verified meta, 90 studies, item-vs-associative differential);
+  Spencer & Raz 1995.
+- **Positivity:** Mather & Carstensen 2005 (*TiCS*); Reed, Chan
+  & Mikels 2014 (meta 100 studies N=7129 — verified d≈0.26,
+  unconstrained-processing moderator, young negative bias);
+  Murphy & Isaacowitz 2008.
+- **Sleep:** Mander, Winer & Walker 2017 (*Neuron*); Mander et
+  al. 2013 (*Nat. Neurosci.* — PFC→SWS→retention chain);
+  Backhaus et al. 2008 (child naps — reuses §4.15).
+- **Transition bump:** Schrauf & Rubin 1998 (*JML* 39:437 —
+  verified bump tracks immigration age); Schrauf & Rubin 2001
+  (*ACP* — verified age-grouped immigration recall); Enz,
+  Pillemer & Johnson 2016 (relocation bump ~40% window share —
+  verified); Berntsen & Rubin 2004.
+- **PI susceptibility:** Hasher & Zacks 1988; Lustig, May &
+  Hasher 2001 (*Psychol. Sci.* — verified); Ikier & Hasher 2006.
+- **Procedural floor:** Fleischman et al. 2004; Gabrieli 1998.
+- **RW HYPOTHESES marked:** all knot magnitudes (consensus is on
+  directions/orderings/differentials — the probe suite asserts
+  those, tolerances carry the honest uncertainty); `dev_self_gate`
+  0.4; `gist_lure_sim` 0.6 operationalization; `trans_bump`
+  generalization beyond migration/moves; `sws_var_gain` jitter
+  form; `proc_decay_mult` 0.3 coefficient.

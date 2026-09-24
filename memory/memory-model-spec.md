@@ -1,5 +1,35 @@
-# Memory Model Spec v5.46 — implementable human-like memory for RW characters
+# Memory Model Spec v5.47 — implementable human-like memory for RW characters
 
+> **v5.47 note (age-development IX — the faster child clock, the
+> untaught rehearsal, the twice-eaten instance, the false memory
+> that grows, the edge that dies first, the positive filter, the
+> shrinking dividend, the bought bump, the unblocked interference
+> — AD§§98–107):** nine mechanisms across encode/decay/retrieve/
+> distort. (a) **Child forgetting is faster** — `child_forget_mult
+> (encodeAge)` raises β for encodeAge<11 records (Bauer & Larkina:
+> exponential child loss vs adult power) — §4.48. (b) **Rehearsal
+> is learned** — `rehearse_spont_p(encodeAge)` gates §4.13 self-
+> initiated retells; social/scaffolded retells bypass it
+> (production deficiency — locked `rehearse_scaffold_null`) —
+> §5.103. (c) **Script swallow ×2 in childhood** —
+> `script_swallow_child` + `dev_self_gate` on §4.20 — §4.49.
+> (d) **False memory GROWS with age** — §6.3 lures split by type:
+> gist-connected adoption rides `gist_false_p(encodeAge)` UP
+> 6→adult while suggestion keeps its child-elevated curve
+> (Brainerd/Reyna/Ceci reversal) — §6.3 note. (e) **Edges die
+> before items** — `assoc_mult(age_eff)` on binding/edge decay
+> only; locked `assoc_item_null` — §4.50. (f) **Positivity at
+> retrieval** — `pos_retrieve_bias(age_eff)` on voluntary sampling
+> gated by `eval_press`; locked `pos_involuntary_null` — §5.104.
+> (g) **Sleep dividend declines** — `sws_mult` old knots +
+> `sws_var_gain` jitter — §4.51. (h) **The bump follows the
+> transition** — `life_transition` flag opens `trans_bump` window
+> + `trans_pi_relief` (Schrauf & Rubin) — §4.52. (i) **PI
+> susceptibility U-curve** — `pi_suscept(age_now)` on §4.2 —
+> §4.53; plus **procedural floor** `proc_decay_mult` flat, frozen
+> `proc_flat_null` — §4.54. §7 +14 scalars +3 locked nulls +1
+> frozen; §10 contract adds; probes P1045–P1054.
+>
 > **v5.46 note (retrieval-cues IX — the sample, the
 > overlap, the gate, the pause, the echo — RC§§92–99):**
 > the retrieval context `C` was a deterministic readout;
@@ -5306,6 +5336,123 @@ RW texture: "last Tuesday's lunch" confuses this
 week's details with last week's, rarely with the
 first-ever meeting's.
 
+### 4.48 The child forgets faster — `child_forget_mult` (new in v5.47)
+
+AD§98; Bauer & Larkina 2014 (*Memory* 22:907 — verified); Bauer &
+Larkina 2013 (*JEP:G* 143:597 — verified exponential child fit vs
+adult power); Bauer & Larkina 2016 (4-yr prospective — verified).
+
+Records with encodeAge < 11 decay under a raised exponent:
+
+```
+beta_eff = beta · child_forget_mult(encodeAge)
+child_forget_mult: 1.7@4 → 1.5@6 → 1.2@8 → 1.0@11
+```
+
+Legal under the §4.1 slope axiom's age clause (era term, not E).
+Distinct from the §4.14 amnesia wall: the wall gates ACCESS for
+the earliest years; this prices the steeper LOSS RATE for
+everything encoded before ~11. The 7yo who remembers the beach
+today is measurably likelier to lose it by next year than the
+adult who encoded the same day.
+
+### 4.49 The script eats the instance twice — `script_swallow_child` (new in v5.47)
+
+AD§100; Nelson 1986; Farrar & Goodman 1990/1992 (verified:
+schema-confirmation-deployment — children report the schema;
+deviations encode only when salient).
+
+§4.20 script-node merge gains a child leg:
+
+```
+merge_rate_eff = merge_rate · (1 + (script_swallow_child−1)
+                                · child_gate(encodeAge))
+child_gate: 1.0@≤6 → 0.5@8 → 0@11
+script_swallow_child: 1.5
+```
+
+Deviation records at encodeAge ≤8 keep their survival bonus ONLY
+when `selfRelevance ≥ dev_self_gate` (0.4) or arousal ≥0.7 — the
+child files "how breakfast goes," keeps "the breakfast where I
+spilled it on my dress," drops "the breakfast with the other jam."
+
+### 4.50 The edge dies before the item — `assoc_mult` (new in v5.47)
+
+AD§102; Naveh-Benjamin 2000 (*JEP:LMC* — verified ADH); Old &
+Naveh-Benjamin 2008 (*Psychol. Aging* meta, 90 studies —
+verified: associative deficit > item deficit across source/
+context/order/location/pairing).
+
+Edge and binding fields — `who`/`coSeen` links, `source:` tags,
+place bindings, pairings, order marks — decay under:
+
+```
+edge_decay_mult = assoc_mult(age_eff)
+assoc_mult: 1.0@50 → 1.2@60 → 1.4@70 → 1.7@85
+```
+
+**Locked `assoc_item_null`:** `assoc_mult` may never touch
+content/item fields. The differential is the finding — a profile
+whose items and edges decay together has ADH backwards. Generalizes
+(but does not replace) `ctx_loss`/`src_child_mult`, which price
+specific channels; this prices the edge class as a whole.
+
+### 4.51 Sleep's shrinking dividend — `sws_mult` old knots + `sws_var_gain` (new in v5.47)
+
+AD§104; Mander, Winer & Walker 2017 (*Neuron* — verified SWS
+decline); Mander et al. 2013 (*Nat. Neurosci.* — verified the
+PFC→SWS→retention chain).
+
+`sws_mult` (child knots 1.2@6 → 1.0@14, v1.5) extends old-side:
+`1.0@50 → 0.85@65 → 0.7@80 → 0.6@90` (age_eff). `sws_var_gain`
+(0.15) scales per-night jitter on the sleep multiplier by
+×(age_eff/80): old sleep's dividend is a lottery, not a floor —
+the bad night at 78 costs more because the good nights were
+carrying more.
+
+### 4.52 The bump follows the transition — `trans_bump` (new in v5.47)
+
+AD§105; Schrauf & Rubin 1998 (*JML* — verified: bump tracks
+immigration age); Schrauf & Rubin 2001 (*ACP* — verified);
+Enz, Pillemer & Johnson 2016 (relocation bump — verified);
+Berntsen & Rubin 2004 (life script = the no-transition default).
+
+A `life_transition` event flag (world-supplied: migration,
+relocation, career change, bereavement; trait `immig_age`
+auto-mints one at that age) opens a window `[t, t + trans_bump_win]`
+(3y) in which selfRelevant records encode at +`trans_bump_gain`
+(0.25), any age. The era AFTER the window reads
+`trans_pi_relief` (0.2) reduced interference on window records —
+the settled period rehearses the transition (Schrauf & Rubin's
+release-from-PI account). The 15–25 bump is the modal case where
+the transitions come pre-scheduled; this flag is what the
+immigrant, the late divorcee, and the midlife career-changer add
+on top.
+
+### 4.53 The interference the old can't block — `pi_suscept(age_now)` (new in v5.47)
+
+AD§106; Hasher & Zacks 1988; Lustig, May & Hasher 2001
+(*Psychol. Sci.* — verified elevated PI in older adults);
+child side CONSENSUS-direction, coefficient-thin.
+
+§4.2's interference term multiplies by `pi_suscept(age_now)`:
+`1.3@6 → 1.0@15 → 1.0@45 → 1.25@60 → 1.5@80`. age_now, not
+encodeAge — interference is a live inhibitory failure, priced at
+the encoder's current gate. Drives the old character's every
+prior parking spot competing with today's.
+
+### 4.54 The procedural floor — `proc_decay_mult` (new in v5.47)
+
+AD§107; Fleischman et al. 2004; Gabrieli 1998 (verified:
+procedural/implicit preserved in aging and even in amnesia).
+
+Procedural-class records (skill, route, recipe, craft) decay at
+β·`proc_decay_mult` (0.3), flat — exempt from `assoc_mult` (a
+skill binds nothing; it IS the binding) and from `pi_suscept`
+(the hands don't confuse two ways of kneading). **Frozen
+`proc_flat_null`:** no age leg may be added — motor decline is
+the world's job, not the trace's.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -7919,6 +8066,38 @@ popped retrieval obeys the normal threshold exactly —
 persistence buys a lottery ticket, never access. Query
 armed by someone else answering first is disarmed.
 
+### 5.103 The rehearsal nobody taught yet — `rehearse_spont_p` (new in v5.47)
+
+AD§99; Flavell, Beach & Chinsky 1966 (verified); Keeney,
+Cannizzo & Flavell 1967 (verified production deficiency);
+Elliott et al. 2021 RRR (verified: ramp, not cliff).
+
+§4.13's self-initiated retell draw is gated by
+`rehearse_spont_p(encodeAge)`: `0.05@5 → 0.3@7 → 0.6@10 →
+1.0@15`. Other-initiated retells (a parent retells the trip, a
+friend brings it up — the scaffold path) bypass the gate.
+**Locked `rehearse_scaffold_null`:** scaffolded rehearsal of an
+encodeAge≤8 record yields ≥0.8× adult refresh — the deficit is
+in production, never benefit. The 6yo's day survives in the
+retellings her household does for her.
+
+### 5.104 The positive filter — `pos_retrieve_bias` (new in v5.47)
+
+AD§103; Mather & Carstensen 2005 (*TiCS*); Reed, Chan & Mikels
+2014 meta (100 studies — verified: reliable d≈0.26,
+unconstrained-processing moderated, young show NEGATIVE bias).
+
+Voluntary-recall candidate sampling adds a valence term:
+`sample_w ∝ base_w · (1 + pos_retrieve_bias(age_eff)·valence·
+free_recall_gate)` where `free_recall_gate = 1 − eval_press` and
+`pos_retrieve_bias`: `0@40 → 0.10@60 → 0.20@70 → 0.30@85`.
+Distinct from encode-side `positivity_gain` (v1.6). **Locked
+`pos_involuntary_null`:** the §5.7 scan and cue-driven recall
+never carry the term — the effect lives in deliberate
+self-directed remembering; being grilled removes it.
+
+### 5.105 (reserved — §5.104 completes the v5.47 retrieval set)
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -7947,6 +8126,20 @@ affect recruits conceptual/gist processing (Storbeck & Clore 2005;
 emotional-memory.md §3).
 
 ### 6.3 Misinformation merge (rumor interface) — calibrated in v0.6
+
+**v5.47 lure-type split (AD§101):** the adoption multiplier now
+reads the lure's type. For **gist-connected** lures — heard
+accounts whose simOp against the record ≥ `gist_lure_sim` (0.6),
+i.e. meaning-connected paraphrases/inference completions —
+`misinfo_suscept` is scaled by `gist_false_p(encodeAge)`:
+`0.25@6 → 0.55@10 → 0.8@14 → 1.0` adult. Meaning-connected false
+memories GROW from childhood to adulthood (Brainerd, Reyna &
+Ceci 2008 *Psychol. Bull.* 134:343 — verified; Brainerd, Reyna &
+Forrest 2002 — young children near DRM floor, they don't yet
+extract the gist). **Suggestion/assertive lures** (simOp <
+`gist_lure_sim`) keep the existing child-elevated curve — the
+child is more wrong about what was suggested and less wrong
+about what was implied; both directions must coexist (P1048).
 
 When character hears an account of an event they have a memory of:
 ```
@@ -14616,6 +14809,37 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.47 additions (age-development IX — AD§§98–107)
+"script_swallow_child": 1.5, "dev_self_gate": 0.4, // §4.49
+"gist_lure_sim": 0.6,                            // §6.3 v5.47 split
+"sws_var_gain": 0.15,                            // §4.51
+"trans_bump_gain": 0.25, "trans_bump_win": 3,
+"trans_pi_relief": 0.2,                          // §4.52
+"proc_decay_mult": 0.3,                          // §4.54
+// v5.47 knot-table updates (existing params, new age knots):
+//   beta_eff: ×child_forget_mult(encodeAge)
+//     1.7@4 → 1.5@6 → 1.2@8 → 1.0@11          (§4.48)
+//   retell_selfinit_p: ×rehearse_spont_p(encodeAge)
+//     0.05@5 → 0.3@7 → 0.6@10 → 1.0@15         (§5.103)
+//   misinfo_suscept gist-lure leg: ×gist_false_p(encodeAge)
+//     0.25@6 → 0.55@10 → 0.8@14 → 1.0          (§6.3)
+//   edge/binding fields: ×assoc_mult(age_eff)
+//     1.0@50 → 1.2@60 → 1.4@70 → 1.7@85        (§4.50)
+//   voluntary sample_w: +pos_retrieve_bias(age_eff)·valence·gate
+//     0@40 → 0.10@60 → 0.20@70 → 0.30@85       (§5.104)
+//   sws_mult old-side: 1.0@50 → 0.85@65 → 0.7@80 → 0.6@90 (§4.51)
+//   §4.2 interference: ×pi_suscept(age_now)
+//     1.3@6 → 1.0@15 → 1.0@45 → 1.25@60 → 1.5@80 (§4.53)
+// v5.47 locked nulls: rehearse_scaffold_null
+//   (scaffolded child retells refresh ≥0.8× adult — P1046);
+//   assoc_item_null (assoc_mult never touches item/content
+//   fields — P1049); pos_involuntary_null (involuntary scan
+//   carries no valence term — P1050).
+// v5.47 frozen: proc_flat_null (no age leg on
+//   proc_decay_mult — P1054).
+// v5.47 flags: Event flag `life_transition:true` (world
+//   supplies; trait `immig_age` auto-mints) — §4.52. All
+//   snapshot-additive; absent = legacy.
 // v5.45 locked nulls: cta_somatic_null (non-GI
 //   illness binds no food — P1029); cta_birth_null
 //   (avoid tag never mints narrative — P1028);
@@ -16953,6 +17177,30 @@ not resolved (DEBATED magnitude). P509/P511.
     threshold — P1042).
   - **New params (§7):** 16 scalars + 1 locked null.
   - Probes P1035–P1044.
+- v5.47 additions (age-development.md §§98–107):
+  - **New event flag (world-supplied):** `life_transition:true`
+    (migration, relocation, career change, bereavement) — opens
+    the §4.52 `trans_bump` window; bible trait `immig_age`
+    auto-mints one at that age. Absent = no transition bumps.
+  - **Record class note:** procedural-class records (skill,
+    route, recipe, craft) decay under `proc_decay_mult` and are
+    exempt from `assoc_mult`/`pi_suscept` (§4.54) — world
+    already owns these record classes.
+  - **Field-class contract:** `assoc_mult` (§4.50) applies to
+    edge/binding fields ONLY (`who`/`coSeen` links, `source:`
+    tags, place bindings, pairings, order marks); item/content
+    fields are unreachable by contract (`assoc_item_null`).
+  - **Lure typing (§6.3):** heard accounts are classified by
+    simOp ≥ `gist_lure_sim` into gist-connected (scaled by
+    `gist_false_p(encodeAge)`) vs assertive/suggestion (legacy
+    child-elevated curve) — game-systems supplies no new field;
+    the classification is internal.
+  - **Locked boundaries game-systems must honor:**
+    `rehearse_scaffold_null`, `assoc_item_null`,
+    `pos_involuntary_null`; frozen `proc_flat_null`.
+  - **New params (§7):** 7 scalars + knot legs on 7 existing
+    params + 3 locked nulls + 1 frozen.
+  - Probes P1045–P1054.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
