@@ -36,6 +36,7 @@ c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/no-such-page")
 echo "[3] sitemap.xml + robots.txt"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/sitemap.xml"); [ "$c" = 200 ] && ok "sitemap.xml 200" || bad "sitemap.xml $c"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/robots.txt");  [ "$c" = 200 ] && ok "robots.txt 200"  || bad "robots.txt $c"
+c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/feed.xml");    [ "$c" = 200 ] && ok "feed.xml 200"    || bad "feed.xml $c"
 n=$(grep -c '<loc>' "$SITE/sitemap.xml"); echo "       sitemap URLs: $n"
 
 # 4. Placeholder sweep — must be ZERO at launch

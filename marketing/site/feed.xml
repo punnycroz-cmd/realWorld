@@ -1,0 +1,101 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- The Dispatch — RSS 2.0. PLACEHOLDER DOMAIN: realworld-game.example is
+     swept to the production domain by tools/swap_domain.sh at launch
+     (site/** is in scope). Items mirror journal.html — one <item> per
+     published devlog, newest first; add recap items when the live feed
+     exists. Keep item count == devlog count on journal.html. -->
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+<channel>
+  <title>The Dispatch — Real World journal</title>
+  <link>https://realworld-game.example/journal.html</link>
+  <atom:link href="https://realworld-game.example/feed.xml" rel="self" type="application/rss+xml"/>
+  <description>Devlogs from the build now; a weekly recap of the public request feed after launch. Only real events — a quiet week gets reported as a quiet week.</description>
+  <language>en-us</language>
+  <lastBuildDate>Thu, 24 Sep 2026 00:00:00 -0700</lastBuildDate>
+
+  <item>
+    <title>Joining the cast means signing a lease.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-12</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>Hiring a character is the funnel's third step — six steps of real paperwork: screened name and bio, the live job board, a lease signed at creation, 500 credits charged on approval only, and a stated block carry limit with a free seat waitlist.</description>
+  </item>
+  <item>
+    <title>The menu is the truth.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-11</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>All twenty door-having venues now carry a written catalog: 101 items with real game-dollar prices, availability conditions, and counter voice — the ledger behind the signage.</description>
+  </item>
+  <item>
+    <title>The Ear: complaints climb a ladder.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-10</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>Every employer and landlord on the block now answers a five-rung grievance ladder — and the feed prints the door, never the name.</description>
+  </item>
+  <item>
+    <title>Every door has a tryout.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-09</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>Sixteen job arcs and eight housing rows get application flows with decline banks and a never-list — the block says no like a place, not a form.</description>
+  </item>
+  <item>
+    <title>The wallet shows its math.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-08</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>Requests, appeals, co-sponsorship, and session extensions now render their credit math line by line — the same numbers the ledger keeps.</description>
+  </item>
+  <item>
+    <title>Now hiring: the block posts real jobs.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-07</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>A job market with finite openings, wages, and a hire row on the request pipeline — work on the block is posted, not conjured.</description>
+  </item>
+  <item>
+    <title>The Archive: the block keeps its receipts.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-06</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>A public history browser where every day the feed ran is a page — uncovered time is stated, never smoothed over.</description>
+  </item>
+  <item>
+    <title>The Wire: every event gets a permalink.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-04</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The spectator feed now issues stable, linkable ids for every event — the citation format for recaps, press, and players.</description>
+  </item>
+  <item>
+    <title>Meet the venues.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-05</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The canonical parody-venue directory: twenty-five live venues with a relationship mesh, and the naming rule the whole block follows.</description>
+  </item>
+  <item>
+    <title>Rent is due on the first.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-03</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The lease ledger: game-dollar rent, deposits, and the first-of-the-month rhythm every resident — hired characters included — lives under.</description>
+  </item>
+  <item>
+    <title>Every request knocks before it enters.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-02</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The request pipeline's screening contract: intent screening, human review for the gray zone, denies that always refund, and public attribution on everything.</description>
+  </item>
+  <item>
+    <title>How the block learned to look like the Mission.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-01</guid>
+    <pubDate>Wed, 23 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The render history behind the neighborhood — what twenty-eight versions of sun, fog, and rooflines did to one San Francisco block.</description>
+  </item>
+</channel>
+</rss>

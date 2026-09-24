@@ -27,6 +27,7 @@ c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/no-such-page-smoke")
 echo "[2] sitemap/robots"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/sitemap.xml"); [ "$c" = 200 ] && ok "sitemap.xml" || bad "sitemap.xml $c"
 c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/robots.txt");  [ "$c" = 200 ] && ok "robots.txt"  || bad "robots.txt $c"
+c=$(curl -s -o /dev/null -w '%{http_code}' "$BASE/feed.xml");    [ "$c" = 200 ] && ok "feed.xml"    || bad "feed.xml $c"
 
 # 3. Security headers on /
 echo "[3] security headers (/)"

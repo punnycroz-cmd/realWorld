@@ -24,6 +24,7 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
 <link rel="stylesheet" href="css/style.css">
+<link rel="alternate" type="application/rss+xml" title="The Dispatch — Real World journal" href="feed.xml">
 </head>
 <body data-page="journal">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -70,6 +71,60 @@
 <section>
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v77</p>
+      <h2>Joining the cast means signing a lease.</h2>
+      <p>
+        The third step of the funnel — after watching, after requesting — is
+        hiring a character, and the flow now behaves like the block itself:
+        six steps, and the paperwork is real. Step one is a name checked
+        against the registry on every keystroke, with the whole taken-names
+        list on the table (eight cast, twenty faces, three role words) so a
+        collision is never a surprise denial. Step two's bio is the public
+        profile spectators will read — and it's screened by the same engine
+        the <a href="how-it-works.html">request pipeline</a> runs. The look
+        pickers are structured data, not prose: a casting-office sketch draws
+        your picks, because rendering data doesn't need screening.
+      </p>
+      <p>
+        Then the sim's math, out loud. The job step reads the real board —
+        wages, projected income, payday cadence — and the posts that are
+        already filled sit behind a labeled fold ("13 posts are filled")
+        instead of vanishing. The home step signs a lease at creation: first
+        month plus deposit leave the $1,600 arrival bank on day one, and when
+        the bank can't carry both, a stated payment plan rides the first
+        paychecks — never a waived deposit presented as paid. "Arrives
+        without work" stays selectable; the honesty is the runway number,
+        not a locked door.
+      </p>
+      <p>
+        The price is flat and the timing is the promise: <b>500 credits,
+        charged on approval only</b> — denied applications never bill, and a
+        post-review denial auto-refunds in full. Accounts carry one slot
+        (two on Resident, three on Director — three is the hard max), and the
+        block itself states its carry limit on the roster — the demo runs
+        the proposal number, twelve hired faces. When the card is full, the
+        sign button becomes a free seat waitlist: a 48-hour offer when a
+        seat opens, and no way to pay for a sooner one. And a second
+        character is a stranger to your first — said out loud on the review
+        step, because what you know, neither of them does.
+      </p>
+      <p class="muted">
+        Sources: the creation flow is the world track's
+        <code>world/creation-ui.md</code>/<code>creation.json</code> (v77 —
+        the sketch &amp; the seats layer), demoed in
+        <code>world/create.html</code>; billing rides the game track's
+        bill-on-approval seam. Pricing is the published proposal — see
+        <a href="pricing.html">pricing</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
     <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v72</p>
       <h2>The menu is the truth.</h2>
@@ -646,7 +701,7 @@
       <div class="card"><h3>This Week on the Block</h3><p>Sundays, post-launch. Sourced from the public request feed; every claim links to its entry. Quiet weeks stay quiet on the page.</p></div>
       <div class="card"><h3>Launch notes</h3><p>At launch and at each major update: what changed, what it costs, what we cut and why. The honesty section on the homepage applies here too.</p></div>
     </div>
-    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. An RSS feed ships with the live site.</p>
+    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. RSS: <a href="feed.xml">feed.xml</a> — it resolves with the production domain at launch.</p>
   </div>
 </section>
 

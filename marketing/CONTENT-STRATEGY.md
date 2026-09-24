@@ -95,8 +95,11 @@ recap-format.md production notes).
   style; `post-meta` line carries type + date + build tag.
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
-- RSS: declared intent on the page ("ships with the live site") — add
-  `feed.xml` when the domain lands; it's a static file, same pipeline.
+- RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
+  per published devlog (12 today), placeholder domain swept by
+  `tools/swap_domain.sh` like every other URL; journal.html carries the
+  `rel=alternate` link. Rule: item count must equal devlog count on the
+  page — add an item in the same commit as the post.
 
 ## 5. SEO role of the journal
 
@@ -148,6 +151,7 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 9 — "Every door has a tryout" | live on `journal.html` (v72); record at `marketing/content/devlog-09-every-door-has-a-tryout.md` | world-v45 `applications.md`/`applications.json` (16 job arcs, 8 housing rows, decline bank, never-list) + `apply.html` |
 | Devlog 10 — "The Ear: complaints climb a ladder" | live on `journal.html` (v87); record at `marketing/content/devlog-10-the-ear.md` | world-v59 `grievances.md`/`grievances.json` (5-rung ladder, 24 work + 7 housing rows, 2 offstage parody orgs) + `grievance.html`; game-v11 `gsFileDispute`/`gsResolveDispute` |
 | Devlog 11 — "The menu is the truth." | live on `journal.html` (v102); record at `marketing/content/devlog-11-the-menu.md` | world-v72 `menus.md`/`menus.json` (20 door venues, 101 items, sig/`ask`/`when` rules, board-agreement gate G15c) + `menus.html` ("The Board") |
+| Devlog 12 — "Joining the cast means signing a lease." | live on `journal.html` (v117); record at `marketing/content/devlog-12-joining-the-cast.md` | world-v77 `creation-ui.md`/`creation.json` v25 (6 steps, shared `RWScreen`, bill-on-approval 500 cr, seat waitlist, BLOCK_CAP proposal 12) + `create.html`; game-v8 `billOnApproval` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
