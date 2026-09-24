@@ -1,7 +1,23 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v76-* is the current development build).
+build they were captured from (v80-* is the current development build).
+
+## v166 — 2026-09-24
+- Screenshots rebased v76→**v80** (art shipped two passes mid-version:
+  v79 rooftop murals + wind-blown roofscape, then v80 — a raymarched
+  sky-visibility field through building masses and crown volumes:
+  building-scale shade pools on the park's east edge, crown-shadow
+  dapple on the lawns, props/residents self-shadow and pick up skylight
+  fill only from open sky). Site shots, kit screenshots, key art,
+  og-card, banners rebaked on v80-D; captions, README, manifest,
+  fact-sheet, index, contact-sheet, deadline-desk, b-roll, one-sheet,
+  embargo-briefing, whats-new, alt-text, store-copy refs updated; v76
+  shots demoted to the gallery archive section (files kept in
+  site/shots/).
+- `screenshots/v80-C.png` (2.24MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
 
 ## v152 — 2026-09-24
 - Screenshots rebased v75→**v76** (crepuscular lanes — each cloud

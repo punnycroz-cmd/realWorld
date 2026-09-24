@@ -181,7 +181,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v76-A..D.png` (4 ready, v76 crepuscular-lanes build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v80-A..D.png` (4 ready, v80 rooftop-murals build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -195,9 +195,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v76-D (director view — the hook), v76-B
-(street level), v76-C (Dolores Park), v16-int-cafe (interior vignette),
-then v76-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v80-D (director view — the hook), v80-B
+(street level), v80-C (Dolores Park), v16-int-cafe (interior vignette),
+then v80-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -256,7 +256,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v76-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v80-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -359,17 +359,18 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v76-D "director view" → "Director
-mode over the rooftops and laundry lines under silver-lined cumulus —
-REC cluster and DIRECTOR badge up top, the rebuilt lens rendering one
-weather-driven visibility distance."; v76-B street level → "Street-level
+`press-kit/captions.txt` as canonical): v80-D "director view" → "Director
+mode at street level: fronts climbing with ivy and bougainvillea,
+balcony gardens trailing, laundry lines overhead riding the gust field —
+REC cluster and DIRECTOR badge up top."; v80-B street level → "Street-level
 close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
-storefronts, parked cars, leaves drifting, name tags overhead."; v76-C
+storefronts, parked cars, leaves drifting, name tags overhead."; v80-C
 park → "Dolores Park from overhead — crown-genome trees in rust and gold
 across meadow-drifted lawns, a crepuscular light lane landing between
-the shadows, tennis courts on the south edge."; v76-A overhead → "The Mission block around 24th and Guerrero from
+the shadows, tennis courts on the south edge."; v80-A overhead → "The Mission block around 24th and Mission from
 overhead on an autumn afternoon — leaves drifting over rooftops and
-parked cars, dressed facades, inspector open on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
+parked cars, dressed facades, a sunburst rooftop mural, inspector open
+on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
 venue from the street camera."; v1 pair → "Same engine, day one — the
 before/after that anchors the devlog series."
 

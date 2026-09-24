@@ -12,7 +12,7 @@
 - Personalize the first line — reference a specific piece the writer
   published. If you can't name one, this outlet isn't ready.
 - Attach nothing. Link the press-kit zip path and the two strongest
-  screenshots (`screenshots/v76-D.png`, `screenshots/v76-A.png`).
+  screenshots (`screenshots/v80-D.png`, `screenshots/v80-A.png`).
 - Always include the credit line: "Real World (in development)".
 - Offer the embargo pre-brief (`embargo-briefing.md`) to long-lead
   outlets only; same-day coverage gets the deadline desk

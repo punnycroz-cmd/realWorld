@@ -8,10 +8,10 @@
     <lastmod>2026-09-24</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-cafe.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-flat.png</image:loc></image:image>
   </url>
@@ -45,10 +45,10 @@
     <lastmod>2026-09-24</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v76-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v80-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-A.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-B.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v65-C.png</image:loc></image:image>

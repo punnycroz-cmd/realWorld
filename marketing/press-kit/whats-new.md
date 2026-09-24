@@ -2,17 +2,17 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v76-*.png` = build v76). Everything below is
+the build (`screenshots/v80-*.png` = build v80). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v76** (September 2026).
+Current development build: **v80** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, eleven more passes landed:
+Since the v55 editorial set, sixteen more passes landed:
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -91,6 +91,18 @@ Since the v55 editorial set, eleven more passes landed:
   a field: a gust crest advects downwind through trees and leaning
   facades as one traveling wave instead of each element swaying to its
   own phase.
+- **v80 — the light learned what's in the way.** A sky-visibility field
+  is marched through the building masses and the tree crowns' real
+  volumes and baked into the ground: building-scale shade pools on the
+  park's east edge, crown-shadow dapple lands on the lawns, and every
+  resident, car and prop self-shadows against the same field and gets
+  skylight fill only where the sky is actually open.
+- **v79 — the rooftops woke up.** Big flat roofs now carry murals —
+  serape stripes and sunbursts painted where only the roof cameras and
+  the pigeons see them — and the roofscape animates: chimney smoke
+  leans with the wind, turbine fans spin up in the gusts, laundry
+  swings on its lines, and pigeon flocks flush off the parapets on a
+  flush schedule, trailing sun-vector shadows.
 - **v76 — the clouds learned to give the light back.** Crepuscular
   lanes: each cloud in the top view now throws a warm volumetric
   streak from its body down to the sun-gap it shades, so light
@@ -139,17 +151,18 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v76-A.png` (current) — same top-down framing of the
+  `screenshots/v80-A.png` (current) — same top-down framing of the
   block, seventy iterations apart.
-- `screenshots/v76-C.png` is the Dolores Park overhead: the telling
+- `screenshots/v80-C.png` is the Dolores Park overhead: the telling
   details are the ring of streets and facades — a maintained city park,
   not open field — the crown-genome trees, no two alike, the poppy/lupine meadow drifts
   stippled across the lawns, and a crepuscular light lane landing on
   the grass between the cloud shadows.
-- `screenshots/v76-A.png` carries the dollhouse headline: the Mudhaus
+- `screenshots/v80-A.png` carries the dollhouse headline: the Mudhaus
   Coffee cutaway open on the overhead — the building ghosted, a real
   floor plan inside the footprint, residents still tagged inside it.
-- `screenshots/v76-D.png` is the v72–v76 street-level arc in one frame:
+- `screenshots/v80-D.png` is the v72–v80 street-level arc in one frame
+  (v80 itself is a lighting change, most legible in the park overhead):
   declared wall materials, awnings and ghost signs, living-wall ivy and
   bougainvillea, laundry lines riding the traveling gust field, silver-lined
   cumulus overhead.
