@@ -139,6 +139,13 @@ window.addEventListener('keydown', e => {
     const n = +e.code.slice(5);
     if(e.shiftKey) sfCamMarkSave(n); else sfCamMarkGo(n);
   }
+  // v68: P = picture-in-picture — cycles the parked rig feeds
+  //      (rooftop cam -> overlook cam -> street cam -> off)
+  if(e.code === 'KeyP' && typeof sfCamPipCycle === 'function'){
+    const st = sfCamPipCycle();
+    if(typeof showToast === 'function')
+      showToast(st ? `▣ ${st}` : 'Picture-in-picture off');
+  }
 });
 if(SF_MODE && typeof window !== 'undefined'){
   let sfDrag = null;
@@ -2393,12 +2400,12 @@ function sfStillKey(cw, ch, view, pose){
           .concat(pose).join(',');
 }
 function sfStillHit(key){
-  if(SF_STILL.key !== key || !SF_STILL.c) return false;
+  if(SF_STILL.skip || SF_STILL.key !== key || !SF_STILL.c) return false;
   ctx.drawImage(SF_STILL.c, 0, 0);
   return true;
 }
 function sfStillStore(cw, ch, key){
-  if(typeof document === 'undefined' || !ctx.canvas) return;
+  if(SF_STILL.skip || typeof document === 'undefined' || !ctx.canvas) return;
   if(!SF_STILL.c){
     SF_STILL.c = document.createElement('canvas');
     SF_STILL.g = SF_STILL.c.getContext('2d');
@@ -7586,6 +7593,26 @@ function sfRenderStreet(cw, ch){
       const b = d.b;
       const gh = SF_GHOST && SF_GHOST.has(b.i);
       if(gh) ctx.globalAlpha = 0.30;
+      /* v68: near-plane dissolve — a footprint the lens sits inside of,
+         or that straddles the near plane, can't be photographed whole:
+         its roof used to hang in the gate as a floating wedge while the
+         near wall culled behind the camera. It ghosts like a cutaway
+         occluder instead, so the mass reads as x-ray, not artifact. */
+      let nearGh = false;
+      if(!gh && d.fwd < 90){
+        const Pn = sfBldMPoly(b), bb = b._pbb;
+        let bh = false, fr = false;
+        for(const [qx, qy] of Pn){
+          if((qx - camX) * DX + (qy - camY) * DY < 0.7) bh = true;
+          else fr = true;
+          if(bh && fr) break;
+        }
+        nearGh = (bh && fr) ||
+          (camX > bb[0] - 1.5 && camX < bb[2] + 1.5 &&
+           camY > bb[1] - 1.5 && camY < bb[3] + 1.5 &&
+           sfPtInPoly(Pn, camX, camY));
+        if(nearGh) ctx.globalAlpha = 0.24;
+      }
       const hm = b.hPx / 4.2; // meters
       // v37: the whole massing rides the lot datum — walls, roofs and
       // trim all project from the terrain at the building centroid
@@ -8262,7 +8289,7 @@ function sfRenderStreet(cw, ch){
           ctx.fillStyle = '#fff'; ctx.fillText(dn, p[0], p[1]);
         }
       }
-      if(gh){
+      if(gh || nearGh){
         /* v27: the ghosted mass keeps a cool wire rim — parapet loop +
            ground loop + corner drops, so the cutaway reads as camera
            x-ray rather than a rendering hole */

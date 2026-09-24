@@ -86,6 +86,8 @@ function renderWorld(){
     else sfRenderWorld(cw, ch);
     if(lens) sfLensEnd(cw, ch);
     renderWeatherAtmosphere(cw, ch);
+    // v68: parked rig feed composites into the corner of the main frame
+    if(typeof sfCamPipDraw === 'function') sfCamPipDraw(cw, ch);
     return;
   }
 

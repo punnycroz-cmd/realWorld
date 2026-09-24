@@ -6020,6 +6020,8 @@ function renderWorld(){
     else sfRenderWorld(cw, ch);
     if(lens) sfLensEnd(cw, ch);
     renderWeatherAtmosphere(cw, ch);
+    // v68: parked rig feed composites into the corner of the main frame
+    if(typeof sfCamPipDraw === 'function') sfCamPipDraw(cw, ch);
     return;
   }
 
@@ -31616,6 +31618,13 @@ window.addEventListener('keydown', e => {
     const n = +e.code.slice(5);
     if(e.shiftKey) sfCamMarkSave(n); else sfCamMarkGo(n);
   }
+  // v68: P = picture-in-picture — cycles the parked rig feeds
+  //      (rooftop cam -> overlook cam -> street cam -> off)
+  if(e.code === 'KeyP' && typeof sfCamPipCycle === 'function'){
+    const st = sfCamPipCycle();
+    if(typeof showToast === 'function')
+      showToast(st ? `▣ ${st}` : 'Picture-in-picture off');
+  }
 });
 if(SF_MODE && typeof window !== 'undefined'){
   let sfDrag = null;
@@ -33870,12 +33879,12 @@ function sfStillKey(cw, ch, view, pose){
           .concat(pose).join(',');
 }
 function sfStillHit(key){
-  if(SF_STILL.key !== key || !SF_STILL.c) return false;
+  if(SF_STILL.skip || SF_STILL.key !== key || !SF_STILL.c) return false;
   ctx.drawImage(SF_STILL.c, 0, 0);
   return true;
 }
 function sfStillStore(cw, ch, key){
-  if(typeof document === 'undefined' || !ctx.canvas) return;
+  if(SF_STILL.skip || typeof document === 'undefined' || !ctx.canvas) return;
   if(!SF_STILL.c){
     SF_STILL.c = document.createElement('canvas');
     SF_STILL.g = SF_STILL.c.getContext('2d');
@@ -39063,6 +39072,26 @@ function sfRenderStreet(cw, ch){
       const b = d.b;
       const gh = SF_GHOST && SF_GHOST.has(b.i);
       if(gh) ctx.globalAlpha = 0.30;
+      /* v68: near-plane dissolve — a footprint the lens sits inside of,
+         or that straddles the near plane, can't be photographed whole:
+         its roof used to hang in the gate as a floating wedge while the
+         near wall culled behind the camera. It ghosts like a cutaway
+         occluder instead, so the mass reads as x-ray, not artifact. */
+      let nearGh = false;
+      if(!gh && d.fwd < 90){
+        const Pn = sfBldMPoly(b), bb = b._pbb;
+        let bh = false, fr = false;
+        for(const [qx, qy] of Pn){
+          if((qx - camX) * DX + (qy - camY) * DY < 0.7) bh = true;
+          else fr = true;
+          if(bh && fr) break;
+        }
+        nearGh = (bh && fr) ||
+          (camX > bb[0] - 1.5 && camX < bb[2] + 1.5 &&
+           camY > bb[1] - 1.5 && camY < bb[3] + 1.5 &&
+           sfPtInPoly(Pn, camX, camY));
+        if(nearGh) ctx.globalAlpha = 0.24;
+      }
       const hm = b.hPx / 4.2; // meters
       // v37: the whole massing rides the lot datum — walls, roofs and
       // trim all project from the terrain at the building centroid
@@ -39739,7 +39768,7 @@ function sfRenderStreet(cw, ch){
           ctx.fillStyle = '#fff'; ctx.fillText(dn, p[0], p[1]);
         }
       }
-      if(gh){
+      if(gh || nearGh){
         /* v27: the ghosted mass keeps a cool wire rim — parapet loop +
            ground loop + corner drops, so the cutaway reads as camera
            x-ray rather than a rendering hole */
@@ -42148,7 +42177,13 @@ function sfCamRender(id, target){
     if(!view._rigged){ SF_CAM._snap = true; view._rigged = true; }
     // a spectator's keys never steer a parked feed
     if(svKeys) for(const k of svKeys) keysDown[k] = false;
-    renderWorld();
+    /* v68: a rig render must neither read nor write the main screen's
+       temporal still cache — different camera, different frame. Skipping
+       it keeps the main frame's cache intact AND stops a cached
+       full-size frame blitting into a small PiP canvas. */
+    const svSkip = SF_STILL.skip;
+    SF_STILL.skip = true;
+    try{ renderWorld(); } finally { SF_STILL.skip = svSkip; }
     /* persist rig state back into the view — follow-cam smoothing and
        director position stay continuous between renders */
     view.cam = { x: cam.x, y: cam.y, zoom: cam.zoom,
@@ -42186,6 +42221,76 @@ function sfCamWatch(id){
   return { watching: view.id, label: view.label };
 }
 
+/* ---------------- v68: PICTURE-IN-PICTURE — the rig on screen ---------
+   The multi-camera rig shipped with production-1 but only drove the
+   spectator shell; the game screen itself still showed one lens. Now a
+   parked feed composites into the corner of the main frame: a small
+   live window rendered through sfCamRender at ~5 Hz into its own
+   canvas, chromed like a broadcast return (label + LIVE tally). P
+   cycles rooftop -> overlook -> street -> off. Reentrancy is guarded —
+   a PiP render never draws a PiP inside itself — and the temporal
+   still-cache is skipped inside rig renders (see sfCamRender) so the
+   small frame can't poison the main frame's cache key. */
+const SF_PIP = {
+  on: true,
+  feeds: ['rooftop_park', 'dolores_overlook', 'mission_street'],
+  fi: 0,
+  view: null, cv: null, tLast: -1e9,
+};
+
+function sfCamPipCycle(){
+  SF_PIP.fi++;
+  if(SF_PIP.fi >= SF_PIP.feeds.length){
+    SF_PIP.fi = -1; SF_PIP.on = false; return null;
+  }
+  SF_PIP.on = true;
+  if(SF_PIP.view){ sfCamDrop(SF_PIP.view.id); SF_PIP.view = null; }
+  SF_PIP.tLast = -1e9;
+  const p = SF_CAM_PRESETS[SF_PIP.feeds[SF_PIP.fi]];
+  return p ? p.label : null;
+}
+
+/* draw the parked feed into the main frame's corner. Called once per
+   main-screen frame from renderWorld (SF branch only). */
+function sfCamPipDraw(cw, ch){
+  if(!SF_PIP.on || SF_PIP._in) return;
+  if(typeof document === 'undefined') return;
+  if(!SF_PIP.cv){
+    SF_PIP.cv = document.createElement('canvas');
+    SF_PIP.cv.width = 384; SF_PIP.cv.height = 216;
+  }
+  if(!SF_PIP.view)
+    SF_PIP.view = sfCamMake({ id: 'pip', preset: SF_PIP.feeds[SF_PIP.fi], dpr: 1 });
+  if(!SF_PIP.view) return;
+  /* ~5 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
+     but never costs more than one fifth of the frame budget. The chrome
+     draws every frame — only the feed inside is throttled. */
+  const tNow = (typeof SF_WX !== 'undefined' && SF_WX.t) || 0;
+  if(tNow - SF_PIP.tLast >= 0.2){
+    SF_PIP.tLast = tNow;
+    SF_PIP._in = true;
+    try{ sfCamRender(SF_PIP.view, SF_PIP.cv); } finally { SF_PIP._in = false; }
+  }
+
+  const pw = SF_PIP.cv.width, ph2 = SF_PIP.cv.height;
+  const x = Math.round(cw - pw - 14), y = 54;
+  ctx.save();
+  ctx.imageSmoothingEnabled = true;
+  ctx.fillStyle = 'rgba(6,9,14,0.88)';
+  ctx.fillRect(x - 3, y - 22, pw + 6, ph2 + 28);
+  ctx.strokeStyle = 'rgba(148,196,255,0.5)'; ctx.lineWidth = 1.5;
+  ctx.strokeRect(x - 3.5, y - 22.5, pw + 7, ph2 + 29);
+  ctx.drawImage(SF_PIP.cv, x, y, pw, ph2);
+  // broadcast chrome: feed label + LIVE tally
+  ctx.font = 'bold 10px monospace'; ctx.textAlign = 'left';
+  ctx.fillStyle = '#ff4d4d';
+  ctx.beginPath(); ctx.arc(x + 4, y - 11, 3, 0, Math.PI * 2); ctx.fill();
+  ctx.fillStyle = '#cfe0f4';
+  const lbl = (SF_CAM_PRESETS[SF_PIP.feeds[SF_PIP.fi]] || {}).label || 'CAM';
+  ctx.fillText('LIVE · ' + lbl.toUpperCase(), x + 12, y - 8);
+  ctx.restore();
+}
+
 /* bridge surface for the production shell + playtest driver */
 if(typeof window !== 'undefined'){
   window.__aiBridge = window.__aiBridge || {};
@@ -42196,6 +42301,8 @@ if(typeof window !== 'undefined'){
   window.__aiBridge.sfCamList = sfCamList;
   window.__aiBridge.sfCamRender = sfCamRender;
   window.__aiBridge.sfCamWatch = sfCamWatch;
+  window.__aiBridge.sfCamPipDraw = sfCamPipDraw;
+  window.__aiBridge.sfCamPipCycle = sfCamPipCycle;
 }
 
 /* =====================================================================
