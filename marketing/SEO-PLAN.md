@@ -1,6 +1,20 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v165 · 2026-09-24 (eleventh pass — SERP re-validation §25:
+**Version:** v180 · 2026-09-24 (twelfth pass — SERP re-validation §26:
+**the "truman show game" SERP is occupied for the first time** — Truman
+World (trumanworld.live, everyone-directs cover-up sim: "You cannot
+control his thoughts") and Truman AI (truman.gg, AI reality show +
+*prediction markets*) are live claimant pages; the orphan-demand era is
+over after six clean passes. Contrast is structural: one Truman vs. a
+28-resident block, and *no wagers anywhere in our loop* (observer
+predictions are free, private, unscored per the world-v123 contract).
+Tier-1 stands but the copy rules tighten again. EmemeTown's status is
+genuinely murky (Steam TBA vs. aggregator claims of a June 2025 EA
+release after two postponements — logged as unresolved). inZOI Phase-5
+still an Oct 2026 *target*; LIVORA's weekly sprint continued through
+5.0. New Tier-3 observer-loop cluster (predict/emergent-story) joins
+the map straight from the production-3 direction.)
+**v165** (eleventh pass — SERP re-validation §25:
 fact-correction pass. American Arcadia was logged at v150 as *upcoming* —
 it actually **shipped November 15, 2023** (Very Positive, ~1.8k Steam
 reviews; consoles May 2025); the compare card and register notes are
@@ -106,7 +120,7 @@ first week post-launch; re-score tiers at day-30.
 
 | Keyword | Intent | Landing page | Why we win |
 |---|---|---|---|
-| truman show game | High — the pitch itself | index | Phrase does our explaining; no *persistent-sim* incumbent — American Arcadia (shipped 2023, scripted escape) and EmemeTown (TBA, fave-nudging) now share the SERP, so copy must say "a neighborhood that never ends" and "the cast can say no," never imply an escape story or direct control (§24, §25) |
+| truman show game | High — the pitch itself | index | SERP now has *live* claimants (§26): Truman World (everyone-directs one man) and Truman AI (prediction-market show). Copy must contrast: 28 residents, not one Truman; asks are public/moderated/refusable, not steering; predictions are free and private, **never bets**. Still no *persistent neighborhood* incumbent — Arcadia/EmemeTown copy rules also apply (§24, §25) |
 | AI life sim / AI life simulation game | High | index, features | InZOI mainstreamed the term; ride the wake |
 | watch AI villagers / AI villagers game | High | demo, features | Smallville/AI-Town interest never got a product |
 | persistent AI world | Medium | features, how-it-works | "Runs 24/7 whether you watch or not" |
@@ -146,6 +160,8 @@ first week post-launch; re-score tiers at day-30.
 | hire an AI character | how-it-works (#move-in), faq |
 | become a landlord game / landlord sim | how-it-works (ladder), journal |
 | make your own tv show game / sitcom sim | journal (Burbank lineage essay) — never how-it-works; requests *suggest* scenes, they don't direct them |
+| predict what happens next game | how-it-works — the observer loop's prediction step is free, private, unscored (world-v123); **never** bet/wager language — that's the truman.gg contrast (§26) |
+| emergent story game / emergent narrative | journal recaps + choice-and-consequence essays — the production-3 audience term; clips link into a thread, never an empty camera |
 
 ### Avoid list (never target, never imply)
 
@@ -377,6 +393,8 @@ Two pages must never compete for the same query. Current assignments:
 | cast / characters | cast | features names roles only |
 | sims/inzoi/paralives alternative | compare (long-form table) + faq (comparison Q links over) | journal essays link back, don't re-rank; index/features name competitors never |
 | livora / canvastown / american arcadia / burbank / ememetown / watchable ai town | compare (second-ring block) + faq comparison | journal essays link back; index/features name competitors never (v150, v165) |
+| truman world / truman ai live / ai reality show prediction | compare (second-ring card, v180) | index keeps the generic phrase; faq may answer "do you bet on outcomes" only if the query appears (§16) |
+| predict what happens / emergent story | how-it-works (prediction step) + journal (emergent-story essays) | demo owns "watch"; never framed as wagering anywhere |
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
@@ -491,6 +509,7 @@ already owns the cluster.
 | is it like American Arcadia / the Truman Show escape game | faq comparison block | QUEUE — v150 SERP finding (shipped 2023 per v165 correction); contrast is escape-story vs. live-in-block; graduate on first real query |
 | is it like EmemeTown / can I talk a character into things | faq comparison block | QUEUE — v165 SERP finding; answer contrasts direct chat-nudging with our public, moderated, refusable request feed; graduate on first real query |
 | can I watch with other people / is the watch shared | faq | QUEUE — co-sponsor Q covers shared asks; a shared-*spectating* Q waits for a real query |
+| is it like Truman World / Truman AI — do you bet on what happens | faq comparison block | QUEUE — v180 SERP finding; answer: one Truman vs. a whole block, and predictions are free/private/never wagers; graduate on first real query |
 
 Rules: a question graduates to faq.html only when (a) a real channel shows the
 query (Search Console, press email, community post) or (b) the answer removes a
@@ -893,3 +912,76 @@ hard part" essay's tone. LIVORA — keep the ~weekly watch; any shared or
 spectator surface triggers same-day compare review per §24 rule 4.
 Landlord + sitcom + arcadia + watchable clusters promote on first real
 impressions per §15.
+
+## 26. SERP re-validation (v180) — the orphan era ends
+
+Re-ran the standing §24 battery (`truman show game` · `paralives
+alternative` · `LIVORA update` · `inZOI Phase-5 / Canvastown` ·
+`new life sim 2026` · `watch AI villagers` · `american arcadia` ·
+`ememetown`). Four findings, all sourced:
+
+1. **"Truman Show game" is occupied — twice.** After six consecutive
+   passes of confirmed orphan demand, two live claimant pages now sit on
+   the head SERP: **Truman World** (trumanworld.live — "One world.
+   Everyone directs." A cover-up sim: change the surroundings, hide the
+   clues, keep Truman believing — "You cannot control his thoughts") and
+   **Truman AI Live Show** (truman.gg — "Live AI Reality Show": watch,
+   predict, and *influence* through "prediction markets" — betting on
+   outcomes). The phrase's commercial gravity is proven beyond the
+   Burbank eulogy now — real products are spending on it. Our contrast
+   is structural, not rhetorical, and it's strong: (a) they orbit **one
+   Truman** — we are a neighborhood of 28 residents; (b) Truman World's
+   verb is *deceive him so the show survives* — our asks are public,
+   attributed, and the cast can refuse; (c) Truman AI's verb is *bet on
+   the outcome* — our observer predictions are free, private, unscored,
+   and **never wagers** (the world-v123 `prediction_lesson` contract;
+   the production-3 direction locks non-wager as a hard rule). Copy
+   rules: never say "everyone directs," never borrow "predict" adjacent
+   to money words, and the "28 residents, one block" line becomes the
+   Tier-1 differentiator.
+2. **EmemeTown status: unresolved — log it honestly.** Steam still
+   shows release "To be announced," while Steam aggregators
+   (Steambase, GameBrain) record a June 24, 2025 release and the
+   developer's own news post documents an EA postponement
+   (Sep 25, 2024 → Jun 25, 2025 JST). Likely a region-locked or
+   stalled EA. Register keeps the row; the compare card's "(Steam,
+   date TBA)" wording stays until the Steam page itself resolves —
+   per the v165 lesson, we cite the storefront, not the aggregators.
+3. **inZOI Phase-5: still an October 2026 target, now days away.**
+   The roadmap Part 2 language is unchanged ("hundreds–thousands per
+   server," "R&D-driven, dates may shift"), and the Sept 18 dev update
+   frames multiplayer as *small-scale tests* to "evaluate whether the
+   experience offers genuine value" — a walk-back hedge worth noting.
+   The October window is the next pass's live check: ship/slip +
+   reception decides the "scale isn't the hard part" essay's tone
+   (carried since §20).
+4. **LIVORA's sprint held through 5.0** (Sep 23 — countries/visas/
+   education, on top of the Sep 19 landlord update and the early-Sep
+   "12,000+ scenarios" health/family wave). Still one protagonist,
+   private save, zero spectator surface. The compare card copy is
+   already accurate; cadence watch continues per §24 rule 4. The
+   `paralives alternative` SERP meanwhile keeps accreting listicle
+   peers (Tiny Life, Yooca multiplayer) — genre crowding is now
+   permanent table stakes, not news.
+
+**Actions taken this pass:** §2 Tier-1 truman row rewritten (contested,
+with the three structural contrasts); §2 Tier-3 +2 rows (NEW
+observer-loop cluster — `predict what happens next game` →
+how-it-works, `emergent story game` → journal — straight from the
+production-3 direction's free-observer-loop language); §13 +2 register
+rows (truman-branded cluster → compare; predict/emergent split across
+how-it-works + journal, never wagering); §16 +1 queued question
+("is it like Truman World — do you bet"); `seo/query-register.csv` +5
+rows net (61 total — truman head-term note updated to CONTESTED);
+compare.html second ring 5→6 cards (NEW "Truman World & Truman AI")
+with the lead count fixed; `query_map.py --validate-register` clean;
+audit baseline 97 pass / 48 warn / 0 fail (warns = placeholder-canonical
++ accepted gallery-archive raster debt).
+
+**Carried to next pass:** inZOI Phase-5 — October is *this* window;
+ship/no-ship and reception decide the essay's tone. EmemeTown —
+re-check the Steam page itself (not aggregators) for an EA date.
+Truman World / Truman AI — if either gains press traction or a real
+player count, the Tier-1 row gets a full rethink, not a note. Any
+competitor surfacing a *shared or spectator* surface triggers the
+§24 same-day compare review.

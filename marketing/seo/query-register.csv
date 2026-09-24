@@ -1,5 +1,5 @@
 query,cluster,owner_page,tier,source,first_seen,notes
-truman show game,truman-show,index.html,1,plan,2026-09-22,orphan demand — Burbank cancelled; verified v75/v90/v105/v120
+truman show game,truman-show,index.html,1,plan,2026-09-22,orphan v75–v165; CONTESTED v180 — Truman World + Truman AI Live occupy SERP; copy rules §26
 ai life sim,ai-life-sim,index.html,1,plan,2026-09-22,features supports; never re-leads
 ai life simulation game,ai-life-sim,index.html,1,plan,2026-09-22,
 watch ai villagers,watch,demo.html,1,plan,2026-09-22,demo owns watch/live queries
@@ -55,3 +55,8 @@ truman show escape game,arcadia,compare.html,3,serp-v150,2026-09-24,never imply 
 ememetown,watchable,compare.html,2,serp-v165,2026-09-24,Steam TBA — fave-upload + chat-nudge; closest claimant on watchable fantasy
 ai reality show game,watchable,compare.html,2,serp-v165,2026-09-24,EmemeTown pitch phrase; contrast = public request feed, cast can refuse
 watchable ai town,watchable,compare.html,3,serp-v165,2026-09-24,Tokenbury-scale hobby projects; second-ring card owns
+truman world game,truman-show,compare.html,2,serp-v180,2026-09-24,live claimant — everyone-directs cover-up sim (trumanworld.live); one Truman vs our 28
+truman ai live show,truman-show,compare.html,2,serp-v180,2026-09-24,live claimant — AI reality show + prediction markets (truman.gg); we never take bets
+ai reality show prediction,watchable,compare.html,3,serp-v180,2026-09-24,truman.gg mechanic; our predictions are free/private/never wagers
+predict what happens next game,observer-loop,how-it-works.html,3,serp-v180,2026-09-24,observer-loop prediction step (world-v123 contract) — non-wager only
+emergent story game,observer-loop,journal.html,3,serp-v180,2026-09-24,production-3 audience: emergent-story fans; recap/choice-and-consequence essays own
