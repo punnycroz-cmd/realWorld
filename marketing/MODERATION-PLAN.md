@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v133 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v148 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -29,7 +29,14 @@ game-v13's econ feed fence, and the FIXED C1–C8 possession-ban UI hole
 count honesty line, permit board), world-v90's durable archive seam,
 world-v92's Mod Console v5 live review seam + executable screen-drift
 gate, and game-v15's civic code (city holds, quiet hours, zones) —
-§2.0, §4 +3 rows, §6 +2 rows, §7 +2 rows, §9 re-struck.)
+§2.0, §4 +3 rows, §6 +2 rows, §7 +2 rows, §9 re-struck; v148: aligned
+to world-v93's playtest triage status, world-v95's onboarding v7 stay
+stage + committed subscription mirror, world-v96's lease counter-paper
+(feed-never +4), world-v97's request-class split + encounter scene
+rule, world-v98's observable-safe bible fields, world-v99's ambient
+pull protocol + coverage surface, world-v100's permit wall, and
+memory-v105's `present()` surfacing contract + `opLog` audit journal —
+§2.0, §2.5, §4 +3 rows, §6 +2 rows, §7 +3 rows, §9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -393,6 +400,79 @@ Delivered since v118 (world-v89/v90/v92, game-v15):
   documented below, but public copy must not quote civic vocabulary
   until merge (same gate as DEMO-PAGE.md §7 / marketing-v131).
 
+Delivered since v133 (world-v93–v100, memory-v105):
+
+- **`world/playtest.json` v93 (the triage layer)** — harness findings now
+  carry a `status` field (`open|fixed|wontfix|deferred`) and export as
+  `[world-playtest-finding]` paste blocks. Moderation relevance: a
+  moderation-surface defect found in playtest (a screen hole, a feed
+  wording leak, a refund edge) now has a canonical tracked-finding shape
+  instead of a hallway mention — §9 items can cite findings by status.
+- **`world/onboarding.html` v7 + `onboarding.json` v95 (the stay)** —
+  new stage **S7_visit** (first-visit filing affordance), `credit_rules`
+  + `subscription_line` blocks (the first committed mirror of plan §2.5:
+  Resident $4.99/600 cr · Director $11.99/1,500 cr), an idempotent
+  Resident stipend preview on S3, and a never-list grown +6 with an
+  audit sweep on deal-framing and early-release-refund honesty strings.
+  Moderation relevance: the honesty sweep is now *gate-enforced* — copy
+  that overpromises refunds or frames the stipend as a deal fails the
+  world audit, not just our style guide.
+- **`world/leases.json` v96 (counter-paper)** — `feed_wording.never`
+  grows +4: `buyout_offers`, `assignments`, `prepayments`,
+  `history_letters`. Buyouts are active-only with a 30-day re-offer
+  cooldown; assignments require zero balance and carry deposit + term +
+  scars verbatim; prepaid credit caps at 3× rent. Moderation relevance:
+  the lease privacy boundary keeps widening *deliberately* — the
+  landlord layer's most negotiable moments stay file-only, and `BUYOUT`
+  joins `NOFAULT` as a legibility-coded ledger line (§7's "your rent is
+  private" row now covers four more action classes).
+- **`world/thinai.json` v97 (the encounter layer)** — two contracts the
+  plan now relies on: **`world_requests.classes`**, a per-request-kind
+  split (world-bound / thin-bounded / brain-bound / possession) — at
+  merge each kind declares its class at build time and an undeclared
+  kind defaults to brain-bound (conservative); and
+  **`thin_encounters.scene_rule`** — a scene needs ≥1 full brain or one
+  player. Moderation relevance: during a degraded window the world can't
+  host a world-bound ask — an approved request that lands mid-outage is
+  a *class boundary* problem with a built-in answer, not a broken
+  promise. §4 gets a row; §9 gets the declaration dependency.
+- **`world/characters.json` v98 (bibles +`weather`/`helped`)** — every
+  cast record gains two observable-safe, briefing-shapeable fields
+  (how each main reads fog/rain/heat through work/body/routine; the
+  how-they-take-care register). Moderation relevance: reviewer context
+  cards and possession briefings may surface these fields — they're
+  authored to be shown — while bible SECRETS remain last-section and
+  tier-gated (memory-v105 below makes that mechanical).
+- **`world/crowd.json` v99 (the bench — `pull_protocol` + `coverage`)** —
+  named ambients become borrowable request co-stars: **15–90 min, ≤3/day
+  each, ≤2 concurrent, ≥60 min cooldown, one-step bounds, public/staffed
+  states only, role-bound, exclusive-class at the §11 claim step** — a
+  pull claims the ambient id like a resource id. The spectator-facing
+  surface is **`coverage`** (per-ambient absence read
+  `understudy|sign|open|pack`, keyed A01–A20): **no feed event names the
+  loan — the coverage read is the only public trace**. Minors' coverage
+  kind is `pack` = never pullable. Moderation relevance: a new exclusive
+  surface with a designed attribution *floor* — see §4 row and §7 row.
+- **`world/permits.json` v100 (the Permit Wall)** — 20 venue walls, 102
+  posted papers, 21 former tenants, 18 ghost signs; civic agency names
+  stay real, papers carry no people and no money. Moderation relevance:
+  minor — civic-paper texture for copy; the "no people, no money" rule
+  is itself a designed privacy stance we can quote.
+- **`memory/memory-model-spec.md` v5.53 (memory-v105, the exposure
+  discipline)** — the strongest possession-ban evidence yet:
+  **`present(charId, C, path, budget)` is the sole legal consumer of
+  `recall` output** — any module surfacing record content (prompts,
+  dialogue, possession briefings, spectator feed, probes) must route
+  through `present` with a declared `path`, and possession briefings
+  receive **surface-tier fields only** — the §7 possession ban is now
+  enforced *at the field level* (probe P1113), not by convention.
+  Silent reads are a spec violation detectable in the new hash-chained
+  **`opLog`** journal; `canon_day_bound` caps the permastore; replay and
+  attribution theorems ship with it. Moderation relevance: "secrets
+  aren't redacted, they're absent" graduates from schema argument to
+  audited mechanism — §2.5 and §7 updated; §9 carries the merge
+  contract. Degraded = missing audit, never wrong behavior.
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -604,7 +684,12 @@ before reuse:
   member, or the landlord. The 8 mains are unpossessable by anyone including
   the owner.
 - Possession never reveals secrets — briefings carry public profile, surface
-  relationships, routine only.
+  relationships, routine only. Since memory-v105 (spec v5.53) this is
+  enforced at the field level: `present()` is the sole legal consumer of
+  `recall`, possession briefings receive surface-tier fields only (probe
+  P1113), and every surfacing read is journaled in the hash-chained
+  `opLog` — a silent read is a detectable spec violation, not a policy
+  preference. Degraded enforcement = missing audit, never wrong fields.
 - Offline player-characters drop to thin AI; possession is a session, not an
   ownership stake in a mind.
 - Moderation relevance: a possession request is still a *request* — duration
@@ -746,6 +831,9 @@ not policy discretion.
 | City hold closes a block (game-v15, post-merge) | `hold`/`hold_lift` admin lines on the feed | Working as designed — a bounded `gsAdminHold` with a full-compensation sweep; admin actions are feed-public like every other (§2.4 item 7). Never treat as a player punishment or a crash; the `city_hold` deny is the player-facing side while a hold is active | No |
 | Quiet-hours denial confusion (game-v15, post-merge) | Amplified request denied `quiet_hours` overnight | Working as designed — the 22:00–06:00 PT noise band is a civic rule, not a reviewer call; the denial auto-refunds like every deny. Refile for daytime or drop the amplified class. Public copy holds this vocabulary until merge | No |
 | Screen-drift gate goes red | `devtools/screen_drift.js` reports permissive gaps vs `screen.js` | Merge blocker, not an incident — the gate's rule is stricter-ok/never-more-permissive (world-v92 report: 23 gaps open). Do not flip the live queue onto a looser port; escalate to owner + game track | Yes — before any merge flip |
+|| "Where did Rosa go?" — ambient absent mid-scene | Coverage read shows `understudy`/`sign` instead of the ambient | Working as designed — `pull_protocol` (world-v99): a named ambient can be borrowed as a co-star 15–90 min, ≤3/day, ≥60 min cooldown. The coverage line is the ONLY public trace — no feed event names the loan, so mods must never "reveal" who filed the pull (there's nothing to cite). Minors' coverage kind `pack` is never pullable — a kid's absence is never a loan | No |
+|| Request filed during a thin-AI window | World-bound ask can't run while mains are degraded | Check the request's declared class (world-v97 `world_requests.classes`): world-bound waits for a live scene (≥1 full brain or one player per `scene_rule`); thin-bounded may proceed; brain-bound/possession are owner-side. Undeclared kinds default brain-bound. Refile or wait — never promise the outage lifts on a schedule | No |
+|| "A briefing leaked something private" claim | Player alleges a possession briefing showed non-public info | Take seriously, verify mechanically — memory-v105: briefings receive surface-tier fields only via `present()`, and the hash-chained `opLog` journals every surfacing read with a declared path. Pull the opLog for the character; if a non-surface field surfaced, it's a spec violation — escalate to owner + memory/game tracks immediately | Yes — on confirmed violation |
 
 ## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
@@ -798,6 +886,8 @@ not policy discretion.
 | Per-reviewer decision mix | shift report `by_reviewer` counts (world-v78 `reviewer_stats`) | reviewers' approve/deny/trim mixes stay within shouting distance of each other; one reviewer diverging is drift or training debt — retrain, never publicly name |
 | Screen-drift gate | `devtools/screen_drift.js` permissive-gap count (world-v92) | 0 permissive gaps at merge flip; stricter gaps are tolerated, permissive ones block — currently 23 open on the game-side port |
 | Hold compensation paid | ledger `compensated_cr` on `gsAdminHold` sweeps (game-v15, post-merge) | low and fully ledgered; a spike means holds are being used casually — owner reviews hold reasons, never silently |
+|| Ambient pull saturation | `crowd.json.pull_protocol` claims vs caps (≤3/day each, ≤2 concurrent, ≥60 min cooldown — world-v99) | low-to-moderate; sustained saturation on one ambient = a fixation signal → `repeat-pattern` lane; coverage reads should be mostly `open`/`sign`, chronic `understudy` means the bench is over-pulled |
+|| Surfacing-path audit | `opLog` journal coverage vs `present()` declared paths (memory-v105 spec v5.53) | 100% of surfaced reads carry a declared path; any unjournaled `recall` consumer is a spec violation — treat like a wire-audit fail (merge blocker, not a ticket) |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -840,6 +930,9 @@ the counters.
 | "Your rent, deposit, and lease are private — the only money event on the public feed is payday" | "Nothing financial is ever public" — payday is the designed public beat; the fence is category-level, not absolute |
 | "The feed tells you when it's holding something back — suppressed entries have a count, not a secret" | "The feed shows literally everything" — the display filter (§2.3) still applies; the withheld-count line discloses it, never the screened text |
 | "Denials and disputes stay on the record — you can look them up in the history browser after they scroll off the live feed" | "History is editable / we can correct the record" — the archive is append-only canon; no retcon exists (§2.4) |
+|| "The bench can join your scene — a named neighbor can be borrowed as a co-star for 15–90 minutes, a few times a day each" | "You can book any character" — pulls are ambients only (mains are never pullable), role-bound, and no feed event names the loan; the absence note is the whole public trace |
+|| "Kids in the fiction can't be pulled into anyone's request" | Implying pullable coverage is a content rating — `pack` coverage is a hard boundary, not a parental-control setting |
+|| "Secrets aren't filtered out of possession briefings — the briefing can only ask for surface-tier fields, and every read is journaled" | "We audit every character's mind" — `opLog` journals what was *surfaced*, not what a character thinks; the discipline is about exposure, not surveillance |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -961,3 +1054,33 @@ pages + this table update in the same commit.
   the production-1 baseline (game pinned v11). Internal runbook rows
   and metrics documented (§4, §6); §7 public copy deliberately has no
   civic claims — add them only post-merge, same gate as the demo page.
+- Surfacing-path merge contract (memory-v105, spec v5.53) — at merge,
+  `present(charId, C, path, budget)` must be the ONLY consumer of
+  `recall` output for any surfaced content (prompts, dialogue,
+  possession briefings, spectator feed, probes); each call declares its
+  `path`, and possession briefings receive surface-tier fields only.
+  `opLog` is the hash-chained audit journal; `canon_day_bound` caps the
+  permastore. Missing implementation degrades to missing audit, never
+  wrong behavior — but §7's journaled-reads copy line stays quoted to
+  spec until the journal actually ships.
+- Request-class declarations (world-v97) — every game-side request kind
+  must declare its `world_requests.classes` class at build time
+  (world-bound / thin-bounded / brain-bound / possession); undeclared
+  defaults to brain-bound. Marketing §7 must not promise any request
+  kind "always runs" until classes are declared — a world-bound ask can
+  legitimately wait out a degraded window.
+- Ambient pull claims (world-v99) — a `pull_protocol` pull claims an
+  ambient id shaped like the existing resource claims and files through
+  the §11 exclusive lane; game-systems must honor the caps (15–90 min,
+  ≤3/day each, ≤2 concurrent, ≥60 min cooldown, `pack` never pullable)
+  and the feed-silence rule (no event names the loan — coverage is the
+  only trace). §7's bench copy is safe now; any future feed-visible
+  pull would retire the "absence note is the whole trace" clause.
+- Lease counter-paper (world-v96) — `feed_wording.never` +4
+  (`buyout_offers`/`assignments`/`prepayments`/`history_letters`) and
+  ledger legibility codes `BUYOUT`/`NOFAULT` must be kept verbatim at
+  merge; §7's rent-privacy row now covers those four classes.
+- Playtest-finding pipeline (world-v93) — moderation-surface defects
+  (screen holes, feed wording leaks, refund edges) should be filed as
+  `[world-playtest-finding]` blocks with a triage status so §9 items
+  can cite findings, not vibes. No code dependency — a convention.
