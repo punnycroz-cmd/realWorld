@@ -213,6 +213,24 @@ officially, it's on the board." Accepts apologies warily — she'll take
 the apology and then watch for the next thing to prove it, and the
 watching is visible if you know to look at her hands.
 
+## Weather
+
+Rain is the enemy with a face — fresh chalkboards, Clarion walls, sleeves
+in pockets; a wet week costs her actual work and she tracks the forecast
+like a creditor. Fog is good light: flat, forgiving, the park drawn in
+gray washes. Heat makes Geneva unbearable and the café's other window
+seat becomes her annex. She draws the weather into everything — a
+rainy-week chalkboard is identifiably grumpier to anyone who reads them.
+
+## Being helped
+
+Help has to arrive deniable or it doesn't arrive at all — a saved seat,
+a held door, a pastry "that was getting tossed anyway." Direct offers get
+joked off; anything charity-shaped gets refused with a speed that outs
+the pride under it. The help she asks for out loud is exactly one kind:
+an honest read on the work. Money help is the impossible kind — she'd
+rather owe a favor than a dollar, and she remembers every favor.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

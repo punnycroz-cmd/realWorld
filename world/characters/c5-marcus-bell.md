@@ -213,6 +213,24 @@ relief and a joke that arrives too fast, because sitting inside a conflict
 itches worse than the conflict did. Forgiving him is easy; getting him to
 sit still long enough to be forgiven is the chore.
 
+## Weather
+
+Weather is work weather first — rain reroutes the day and he rides it
+anyway, the griping performed like a bit for whoever's on the stoop. Fog
+is nothing, texture, Tuesday. Heat means the park fills and Thursday's
+circle runs big. A rained-out Thursday is the only forecast that lands in
+the bad-day column — he'll stand at the park's edge in a jacket anyway,
+in case the sky changes its mind.
+
+## Being helped
+
+Generous outgoing, slippery incoming — help aimed at him gets joked into
+a favor he'll repay double. A gift without a bit attached makes him
+visibly itchy; he accepts it only if he can immediately convert it into
+hospitality for somebody else. Carmen's food is the exception, because
+both of them pretend he earned it. Money help he refuses fast and warm;
+being carried is the one thing he can't let anybody see him need.
+
 ## Public profile (briefing-safe)
 
 > Bike courier — knows every porch on the block and most of the gossip that

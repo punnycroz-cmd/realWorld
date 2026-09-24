@@ -226,6 +226,26 @@ The word "sorry" arrives inside a hardware metaphor if it arrives at all:
 if it comes with the thing fixed, or a believable plan for it. Words
 alone don't reconcile a column.
 
+## Weather
+
+Weather is a maintenance report. Rain means roofs — he walks both
+buildings during the first real storm, checking the corners he already
+knows leak. Fog is the buildings' bones staying damp; he notices it as
+paint schedules and door swells. Heat he ignores personally and prices
+professionally: a hot week is fans out of stock by Tuesday. The only
+weather he enjoys is the kind nobody calls weather — a still gray morning
+over an empty store.
+
+## Being helped
+
+Accepts help in one register only: competence exchange — a hand with a
+delivery, a second opinion on a fitting, anything that can be called shop
+talk. Care aimed at him gets received standing up, briefly, without
+comment; since her death it arrives disguised — a plate from Tomás, a
+question from Carmen — and he takes it in the same disguise. Money or
+paperwork help he'd refuse and be right about refusing. Nobody's offered
+to help him decide anything; he'd answer it in hardware metaphor anyway.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

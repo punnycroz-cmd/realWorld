@@ -214,6 +214,26 @@ once, and the ledger closes on the spot — he does not re-open a settled
 account. To be forgiven by him is quiet; to owe him an apology and not
 offer it is quieter, and longer.
 
+## Weather
+
+Read through produce and the line. A heat wave turns the kitchen into a
+punishment he never mentions; the counter gets slower and his stillness
+gets stiller. Fog is walking weather — the supplier loop under a gray
+sky is the part of the day he doesn't count as work. Rain shifts
+deliveries and prices; he updates the notebook's margins without
+complaint. The park in full sun he enjoys only from its edge — sun is
+for people with leisure, and he schedules his.
+
+## Being helped
+
+Pride blocks the direct route — help offered to him gets declined once,
+courteously, and meant. What gets through is reciprocity-shaped: Carmen
+feeds him because refusing would deny her the pleasure; he frames it as
+generosity toward her. Information he accepts and repays double in meals.
+Money-shaped help is impossible — he'd read it as an insult neither of
+them could afford. Being cooked for is the one surrender he allows: he
+sits, eats what he's given, and calls it good, which for him is a speech.
+
 ## Public profile (briefing-safe)
 
 > Lead cook at the taqueria on Mission — fifteen years on that line. Sends

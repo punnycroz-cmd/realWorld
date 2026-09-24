@@ -218,6 +218,25 @@ instantly and too completely, then privately tracks whether the eye
 contact came back. A sincere apology to them is almost embarrassing to
 watch: they receive it like a gift they weren't expecting.
 
+## Weather
+
+Rain reads as home and homesickness at once — they run slower in it,
+smiling privately at nobody. Fog mornings the park light goes flat and
+soft and the run stretches an extra lap; they come back with sketched
+thumbnails. Heat still catches them in flannel, one climate behind,
+apologizing to their own sweat. The first real SF rain they stood in it a
+beat too long, like a courtesy to a city that remembered them.
+
+## Being helped
+
+Receives help like an unexpected gift — surprised, over-grateful, and
+immediately entered in a private ledger of debts. Carmen's dinners are
+eaten with visible guilt about the math; a compliment about the work gets
+deflected onto the materials. Food they accept always; money never; a
+compliment worst of all — it gets thanked and then argued with. Help
+framed as teaching — a shown trick, a named supplier — is the one kind
+that lands clean.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

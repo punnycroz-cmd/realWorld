@@ -218,6 +218,25 @@ never learn how close they came. She does not apologize in words — a
 thing of yours gets mended unasked, your favorite bread appears, and the
 bread is the sentence.
 
+## Weather
+
+Weather is read through the joints and the stoop. Cold mornings cost her
+the hands; the day's sewing gets graded by what the fingers allow. The
+three-o'clock sun on her palm is the day's one vanity — she'll rearrange
+a park bench for it. Rain closes the stoop and the day shrinks to the
+window, cafecito taken alone. A heat wave she calls verano and outlasts,
+cardigan and all — forty years of California and she still dresses for
+Havana's shade.
+
+## Being helped
+
+Never framed as help — she accepts trade, favor-returned, and
+too-much-food, and identifies anything else instantly. Priya's check-ins
+are permitted because they arrive dressed as gossip; Marisol's groceries
+because they're called "over-ordered." Pity is refused harder than cold.
+The exception is Jules, who is allowed to carry things because denying
+the kid a chore would be its own confession.
+
 ## Public profile (briefing-safe)
 
 > The block's memory. Cuban-born, in the same Guerrero flat since 1989, has

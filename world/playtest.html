@@ -1924,6 +1924,26 @@ const PTS=[
   ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
     "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
     "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]}
+,{id:"PT89",title:"The Company v98 — the receiving register (weather, being helped)",min:8,
+ persona:"cast-bible reviewer — wants the new v98 sections to read like the characters and stay seed-free",
+ goal:"Verify the v98 roleplay pass: all 8 bibles carry 'Weather' and 'Being helped' between Repairs and the briefing-safe block; cast.html renders both fields on every card; characters.json mirrors them as weather/helped with no seed vocabulary; the bible gate counts 27 required sections.",
+ surfaces:["cast","audit"],steps:[
+ {do:"Open cast.html (file://) and click all 8 rail cards. On each card, find the 'Weather, as it lands on them' and 'How they take help' rows below the repairs line.",
+  exp:"Both rows render populated on every card — weather written through each character's own work/body/routine (Carmen's joints and stoop, Victor's roofs, Tomás's line), and the helped register is a distinct posture per character (Marisol nearly unhelpable, Jules's gratitude-ledger, Tomás's cooked-for surrender). Nothing on either row names or teases a private storyline.",
+  ck:["All 8 cards carry both new rows — no empty labels",
+    "Weather copy is per-character texture, not interchangeable preference",
+    "No row states or teases a hidden fact — orbit only, never the seed"]},
+ {do:"Open two bibles in an editor — characters/c6-carmen-echeverria.md and characters/c8-tomas-herrera.md. Confirm '## Weather' and '## Being helped' sit after '## Repairs' and before '## Public profile', and read both sections.",
+  exp:"Placement is fixed-order compliant on both files. Each section is camera-legible register — the feed could film every line — and gestures at blind spots without stating them (Carmen's charity-refusal, Tomás's pride) while the SECRETS block remains last.",
+  ck:["Section order: Repairs → Weather → Being helped → Public profile on both bibles",
+    "Voice differs per bible — Carmen's is joints/stoop/verano, Tomás's is produce/line/leisure",
+    "SECRETS & SEEDS remains the final ## section in both files"]},
+ {do:"Run node world/audit.js from the repo root and read the bible gate.",
+  exp:"The bible gate passes at schema v98: 27 required sections enforced, characters.json roleplay_fields gains weather/helped with the v98_fields convention, cast.html wx/hlp keys checked per card, and both new fields swept by the observable-safe vocabulary check.",
+  ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
+    "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
+    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
 ]}];
 
 

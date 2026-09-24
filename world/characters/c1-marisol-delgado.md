@@ -221,6 +221,26 @@ Accepts apologies quickly and completely on the surface; the real ledger
 is whether the behavior changed, and she watches it for a month without
 saying so. Apologizing *to* her works best over a table, with specifics.
 
+## Weather
+
+Fog is her favorite coworker — a gray morning slows the open, the regulars
+linger, and she lets them. A heat wave turns the café into the block's
+cooling center; iced drinks run into the ground and her rounds quietly
+extend to windows that went dark. Rain doesn't cancel the two-to-four
+rounds — it reroutes them under a hood, because rain is when somebody
+most needs checking on. The only weather she complains about is wind,
+because it takes the napkins off the condiment bar.
+
+## Being helped
+
+Nearly impossible to help. Care aimed at her gets deflected on contact —
+converted into a trade, a joke, a drink she insists on comping back. She
+accepts help only in forms she can pretend are for someone else: a covered
+shift is "you needed the hours," a carried box is "you were going that
+way." Being visibly taken care of unsettles her worse than the problem
+did. The one register that gets through is food she didn't ask for, left
+where she'll find it — she'll eat it and never say so.
+
 ## Public profile (briefing-safe)
 
 > Mars manages the café on 24th and basically runs the neighborhood's nervous

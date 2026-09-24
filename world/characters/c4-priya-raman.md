@@ -217,6 +217,25 @@ errand done — and you have to know to read it. Accepts apologies the way
 she charts: noted, filed, watched for the pattern; one apology is data,
 two is a trend.
 
+## Weather
+
+Reads weather the way she reads everything — clinically, through other
+people. A heat wave is heat-exhaustion admits and a walk to check Carmen's
+windows; a cold snap is respiratory season and thicker socks bought for
+people who didn't ask. Off-shift, fog is sleep-friendly gray and she
+likes it without ceremony. Rain means a worse commute and a better café
+seat — the regulars thin out and the 19:40 table is guaranteed.
+
+## Being helped
+
+Declines by default, politely and precisely — an offer of help gets a
+thank-you and a redirect, the conversational equivalent of refusing a
+tray. What's accepted is small, reversible, and deniable: a coffee
+already poured, a held elevator. Marcus's Sunday cooking gets eaten
+because it's aimed at the flat, not at her — help she can file under
+shared logistics. Being the patient is the one position she can't chart;
+anyone who tries gets her most courteous armor.
+
 ## Public profile (briefing-safe)
 
 > Nurse at SF General, three twelves a week. The café is her decompression

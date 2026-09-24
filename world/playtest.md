@@ -259,6 +259,14 @@ One person can wear every hat; four real testers is the intended shape.
   question; attention never wakes a mode), and the request split:
   world-bound asks (rain) deliver at 0% service while brain-bound
   scene asks decline `resolved · declined` + 50% refund.
+  PT89 (The Company v98 / characters.json v98) walks the receiving
+  register — the two new bible sections: **Weather** (fog/heat/rain
+  read through each main's own work, body, and routine) and **Being
+  helped** (how each of the eight takes help, care, and gifts — the
+  complement to a caretaking cast). Both render on every cast.html
+  card, sit between Repairs and the briefing-safe block in all eight
+  bibles, mirror as `weather`/`helped` in characters.json, and stay
+  inside the observable-safe sweep — orbit, never seed.
 
 ## 3. Running a session
 
@@ -436,7 +444,7 @@ eviction is file-only — no evictConfirm path from the landlord mode),
 **thinai** (thinai.json ↔ thinai.html: storage key, inline MODES matrix matches
 the json pawn modes, every wire push on locked feed vocabulary, handoff-note
 writer carries no forbidden field, degrade mains-only, ambients always thin),
-**bible** (characters/*.md carry the fixed 14-section order with SECRETS last,
+**bible** (characters/*.md carry the fixed 27-section order with SECRETS last,
 five dated backstory beats each; characters.json mirrors roleplay/briefing
 fields + v28 backstory/room/strangers; cast.html CAST ids and card fields
 agree), **crowd** (crowd.json ↔ crowd.html mirror — zones, budgets, shades,
