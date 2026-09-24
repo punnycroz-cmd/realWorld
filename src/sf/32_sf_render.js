@@ -2886,7 +2886,11 @@ function sfTerrChunk(cx, cy, wetQ){
         const sk = -((e10 + e11 - e00 - e01) / (2 * cm2) * SF_SUN.toX +
                      (e01 + e11 - e00 - e10) / (2 * cm2) * SF_SUN.toY) *
                    (0.35 + 0.65 * SF_SUN.day);
-        const aa = clamp(sk * 4.5, -0.22, 0.26);
+        /* v86: the Dolores bowl must read as LAND at diorama zoom —
+           grass takes a stronger hillshade gain so the sun-facing slope
+           warms and the shying slope cools hard enough to see the bowl. */
+        const aa = tt === 13 ? clamp(sk * 9.0, -0.34, 0.40)
+                             : clamp(sk * 4.5, -0.22, 0.26);
         if(aa > 0.02){
           g.fillStyle = `rgba(255,246,220,${aa.toFixed(3)})`;
           g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
@@ -9252,7 +9256,7 @@ function sfRenderStreet(cw, ch){
           e3 = sfElevM(wxm + c, wym + c), e4 = sfElevM(wxm, wym + c);
     const p1 = pr(wxm, wym, e1), p2 = pr(wxm + c, wym, e2),
           p3 = pr(wxm + c, wym + c, e3), p4 = pr(wxm, wym + c, e4);
-    if(!p1 || !p2 || !p3 || !p4) continue;
+    if(!p1 || !p2 || !p3 || !p4){ if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).pr++; continue; }
     /* v50: near-field gate — a cell whose nearest corner sits within the
        hidden under-lens distance (closer than the ground the frame's own
        bottom edge can resolve) projects that corner to tens of thousands
@@ -9262,9 +9266,12 @@ function sfRenderStreet(cw, ch){
        nothing the lens could have shown. */
     {
       const fN = camH * F / Math.max(1, ch - horizon) * 0.55;
-      if(Math.min(p1[2], p2[2], p3[2], p4[2]) < Math.max(1.2, fN))
+      if(Math.min(p1[2], p2[2], p3[2], p4[2]) < Math.max(1.2, fN)){
+        if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).fn++;
         continue;
+      }
     }
+    if(cfwd < 20) (window._dbg || (window._dbg = {pr:0, fn:0, ok:0})).ok++;
     P[0] = p1[0]; P[1] = p1[1]; P[2] = p2[0]; P[3] = p2[1];
     P[4] = p3[0]; P[5] = p3[1]; P[6] = p4[0]; P[7] = p4[1];
     // slab top: pr() is linear in z — top corner = z0 corner lifted by gz*F/fwd
