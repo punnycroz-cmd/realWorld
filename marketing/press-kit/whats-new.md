@@ -2,17 +2,27 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v80-*.png` = build v80). Everything below is
+the build (`screenshots/v81-*.png` = build v81). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v80** (September 2026).
+Current development build: **v81** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, sixteen more passes landed:
+Since the v55 editorial set, seventeen more passes landed:
+
+- **v81 — the camera learned coverage grammar.** The spectator rig got
+  a director's vocabulary: the follow-cam pans into a subject's
+  look-room off smoothed lateral velocity, composes a two-shot when a
+  second resident joins the conversation — the boom widens, amber
+  partner brackets come up, a 2-SHOT flag lights — and gusts buffet
+  the lens scaled by exposure and crosswind. A director's thirds grid
+  and center cross ride on the H key (on by default), the viewfinder
+  strip reads EV, compass, and height, and switching to a parked
+  camera feed now glides instead of snapping.
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -151,21 +161,22 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v80-A.png` (current) — same top-down framing of the
-  block, seventy iterations apart.
-- `screenshots/v80-C.png` is the Dolores Park overhead: the telling
+  `screenshots/v81-A.png` (current) — same top-down framing of the
+  block, eighty iterations apart.
+- `screenshots/v81-C.png` is the Dolores Park overhead: the telling
   details are the ring of streets and facades — a maintained city park,
-  not open field — the crown-genome trees, no two alike, the poppy/lupine meadow drifts
-  stippled across the lawns, and a crepuscular light lane landing on
-  the grass between the cloud shadows.
-- `screenshots/v80-A.png` carries the dollhouse headline: the Mudhaus
-  Coffee cutaway open on the overhead — the building ghosted, a real
-  floor plan inside the footprint, residents still tagged inside it.
-- `screenshots/v80-D.png` is the v72–v80 street-level arc in one frame
-  (v80 itself is a lighting change, most legible in the park overhead):
-  declared wall materials, awnings and ghost signs, living-wall ivy and
-  bougainvillea, laundry lines riding the traveling gust field, silver-lined
-  cumulus overhead.
+  not open field — the crown-genome trees, no two alike, the meadow
+  drifts stippled across the lawns, and building-scale shade pooling
+  on the east edge.
+- `screenshots/v81-A.png` carries the dollhouse headline plus the
+  picture-in-picture rig: the Mudhaus Coffee cutaway open on the
+  overhead — the building ghosted, a real floor plan inside the
+  footprint, residents still tagged inside it — while the Wire's
+  rooftop-over-park feed runs live in the corner monitor.
+- `screenshots/v81-D.png` is the coverage-grammar headline: director
+  mode with the thirds grid and center cross up, the viewfinder strip
+  reading lens, EV, compass, and height — the block staged like a
+  film set.
 
 ## Still true (unchanged by these passes)
 

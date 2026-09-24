@@ -1,7 +1,28 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v80-* is the current development build).
+build they were captured from (v81-* is the current development build).
+
+## v167 — 2026-09-24
+- Screenshots rebased v80→**v81** (art's coverage-grammar pass:
+  follow-cam look-room pan off smoothed lateral velocity, two-shot
+  composer with boom widen + amber partner brackets + 2-SHOT flag,
+  gust buffeting scaled by lens exposure × crosswind, director thirds
+  grid + center cross on `SF_CAM.guides` (H key), viewfinder strip
+  reading EV/compass/height, feed switching that glides instead of
+  snapping). Site shots, kit screenshots swapped; captions, README,
+  manifest, fact-sheet, index, contact-sheet, deadline-desk, b-roll,
+  one-sheet, embargo-briefing, awards-festivals, pitch-emails,
+  whats-new, alt-text, store-copy, store preview, checklist refs
+  updated; `make_brand_assets.py` SHOT pin repointed to v81-D; v80
+  shots demoted to the gallery archive (files kept in site/shots/).
+- `screenshots/v81-C.png` (2.23MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
+- NEW `ai-transparency.md` — AI disclosure one-pager: what's
+  AI-driven (resident minds, request classification), what isn't
+  (visuals, writing, audio, your data), the control rules, storefront
+  AI-disclosure field answers, and red lines for coverage.
 
 ## v166 — 2026-09-24
 - Screenshots rebased v76→**v80** (art shipped two passes mid-version:

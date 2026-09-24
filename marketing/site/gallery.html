@@ -11,13 +11,13 @@
 <meta property="og:title" content="Real World — Gallery">
 <meta property="og:description" content="Every capture on this page is a real frame from the development build. No renders, no mockups.">
 <meta property="og:url" content="https://realworld-game.example/gallery.html"><!-- PLACEHOLDER domain -->
-<meta property="og:image" content="shots/v80-D.png">
+<meta property="og:image" content="shots/v81-D.png">
 <meta property="og:image:width" content="1440">
 <meta property="og:image:height" content="900">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Real World — Gallery">
 <meta name="twitter:description" content="Real development-build captures of the Mission block: overhead, street level, director mode, interiors.">
-<meta name="twitter:image" content="shots/v80-D.png">
+<meta name="twitter:image" content="shots/v81-D.png">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -32,6 +32,10 @@
   "url": "https://realworld-game.example/gallery.html",
   "description": "Real screenshots from the Real World development build, all captures of the in-browser simulation.",
   "image": [
+    "shots/v81-A.png",
+    "shots/v81-B.png",
+    "shots/v81-C.png",
+    "shots/v81-D.png",
     "shots/v80-A.png",
     "shots/v80-B.png",
     "shots/v80-C.png",
@@ -118,7 +122,30 @@
 <!-- LATEST BUILD -->
 <section>
   <div class="wrap">
-    <p class="eyebrow">Latest — art pass v80, the light learned what's in the way</p>
+    <p class="eyebrow">Latest — art pass v81, the rig learned coverage grammar</p>
+    <h2>The camera shoots like a crew now.</h2>
+    <p class="muted">The follow-cam got a director's vocabulary: it pans
+    into a subject's look-room off smoothed lateral velocity, composes a
+    two-shot when a second resident enters the conversation — the boom
+    widens, amber partner brackets come up, a 2-SHOT flag lights — and
+    gusts buffet the lens scaled by exposure and crosswind. A director's
+    thirds grid and center cross ride on <code>SF_CAM.guides</code>
+    (H key, on by default), and the viewfinder strip now reads
+    EV, compass, and height. Underneath: the v80 sky-visibility shade
+    field, the rooftop murals, the rebuilt lens.</p>
+    <div class="gallery">
+      <figure><picture><source srcset="shots/v81-A.webp" type="image/webp"><img src="shots/v81-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view of the Mission block with the Mudhaus Coffee dollhouse cutaway open — Jules inside, Marcus and Victor at the door — with the live rooftop-over-park picture-in-picture monitor and viewfinder strip, development build"></picture><figcaption>Overhead — the Mudhaus dollhouse open, Jules inside, the Wire rooftop feed live in the corner. <a href="shots/v81-A.png">Full size</a></figcaption></figure>
+      <figure><picture><source srcset="shots/v81-B.webp" type="image/webp"><img src="shots/v81-B.png" width="1440" height="900" loading="lazy" decoding="async" alt="Street-level close view of Jules on the sidewalk with Priya and Dani mid-block, dressed facades and parked cars behind, leaves drifting, development build"></picture><figcaption>Street level — Jules up close, Priya and Dani mid-block. <a href="shots/v81-B.png">Full size</a></figcaption></figure>
+      <figure><img src="shots/v81-C.webp" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view over Dolores Park — crown-genome trees in rust and gold across lawns dotted with poppy and lupine meadow drifts, building shade pooling on the east edge, tennis courts at the south edge, development build"><figcaption>The park — building shade pools on the east edge, courts holding the south. <a href="shots/v81-C.png">Full size</a></figcaption></figure>
+      <figure><picture><source srcset="shots/v81-D.webp" type="image/webp"><img src="shots/v81-D.png" width="1440" height="900" loading="lazy" decoding="async" alt="Director-mode street view with the thirds grid and center cross guides over rooftops, dressed fronts below, REC overlay and viewfinder strip shown, development build"></picture><figcaption>Director mode, v81 — the thirds grid up, viewfinder reading EV and compass. <a href="shots/v81-D.png">Full size</a></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- V80 BUILD -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Art pass v80 — the light learned what's in the way</p>
     <h2>Shade knows what the sky can see.</h2>
     <p class="muted">The ground now answers a real question — how much sky
     does this spot actually see? A visibility field is marched through the

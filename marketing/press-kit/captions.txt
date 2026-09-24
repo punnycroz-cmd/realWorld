@@ -13,37 +13,36 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v80-A.png       1440x900 (approx)
-  The Mission block around 24th and Mission from overhead on an autumn
-  afternoon (in-world Day 22): leaves drifting over rooftops and parked
-  cars, dressed facades, crowns in full turn. The resident inspector is
-  open on Jules, a hired resident, between things on Guerrero — needs,
-  mood, and recent thoughts are all spectator-readable. The HUD shown
-  is the real spectator chrome of the development build.
+screenshots/v81-A.png       1440x900 (approx)
+  The Mission block from overhead on an autumn afternoon (in-world
+  Day 22): the Mudhaus Coffee dollhouse cutaway open on the block —
+  the building ghosted, a real floor plan drawn inside the footprint,
+  Jules tagged inside it, Marcus and Victor at the door. The Wire's
+  rooftop camera feed composites live into the corner monitor with
+  DIRECTOR chrome and a viewfinder strip reading lens, EV, compass,
+  and height. The HUD shown is the real spectator chrome of the
+  development build.
 
-screenshots/v80-B.png       1440x900 (approx)
+screenshots/v81-B.png       1440x900 (approx)
   Street-level close view of Jules on the sidewalk with Priya and Dani
-  mid-block: dressed storefronts and stoops, canvas awnings, window
-  boxes, parked cars along the curb, leaves drifting — residents
-  carrying name tags overhead.
+  mid-block: dressed storefronts and stoops, parked cars along the
+  curb, leaves drifting — residents carrying name tags overhead, the
+  rooftop-over-park monitor live in the corner.
 
-screenshots/v80-C.png       1440x900 (approx)
+screenshots/v81-C.png       1440x900 (approx)
   Dolores Park from overhead: crown-genome trees in rust and gold —
   every crown grown from a genome atlas and flipped per instance, so no
-  two read alike — poppy and lupine meadow drifts stippled across the
-  lawns, tennis courts holding the south edge, perimeter streets and
-  facades ringing the park. A crepuscular lane — a warm volumetric
-  streak from a cloud body to the sun-gap it shades — lands on the
-  lawns between the shadows.
+  two read alike — meadow drifts stippled across the lawns, tennis
+  courts holding the south edge, perimeter streets ringing the park,
+  building-scale shade pooling on the east edge where the sky-visibility
+  field says the sky is closed.
 
-screenshots/v80-D.png       1440x900 (approx)
-  Director mode at street level: Victorian fronts climbing with ivy
-  and bougainvillea strands — sun-warmed magenta bracts where the light
-  hits — balcony gardens trailing, laundry lines overhead riding an
-  advecting gust field, cumulus overhead carrying sun-side silver
-  linings. REC cluster and DIRECTOR badge up top, the rebuilt lens
-  rendering one weather-driven visibility distance instead of stacked
-  effects — the camera treats the neighborhood like a film set.
+screenshots/v81-D.png       1440x900 (approx)
+  Director mode at street level: the thirds grid and center cross up on
+  the composition guides (H key), REC cluster and DIRECTOR badge, the
+  viewfinder strip reading 50mm, f2.0, EV+0.0, compass and height —
+  dressed fronts and rooftops below a clean sky. The camera rig treats
+  the neighborhood like a film set because, to a spectator, it is one.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -53,10 +52,10 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v80-A / v80-B.
+  First art pass, for before/after coverage. Pair with v81-A / v81-B.
 
-screenshots/v80-A.webp / v80-B.webp / v80-C.webp / v80-D.webp
-  Lightweight web companions of the four v80 captures above — same
+screenshots/v81-A.webp / v81-B.webp / v81-C.webp / v81-D.webp
+  Lightweight web companions of the four v81 captures above — same
   frames, smaller files, for pages that prefer webp.
 
 logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.

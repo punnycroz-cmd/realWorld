@@ -437,12 +437,16 @@ wind-blown roofscape) and v80 (sky-visibility field: building-scale
 shade, crown-shadow dapple, skylight fill) mid-version; rebased
 straight to v80, v76 section demoted to archive. webp-only rule
 reapplied to v80-C; v80-A fell back under the ceiling.)*
-1. `shots/v80-C.png` (2.24MB) breaches the 2MB
+*(v167: gallery rebase v80→v81 — coverage grammar (look-room pan,
+two-shot composer, gust buffeting, thirds-grid guides, viewfinder
+strip); v80 section demoted to archive. Same webp-only rule reapplied
+to v81-C.)*
+1. `shots/v81-C.png` (2.23MB) breaches the 2MB
    PNG-fallback ceiling. Per the rule set at
    v135, **the PNG fallback is dropped for this shot:** its
    `<img>` tag serves `.webp` directly (all modern browsers; the PNG
-   remains on disk as a "Full size" download only). `v80-A.png` (1.99MB),
-   `v80-B.png` (1.15MB), and `v80-D.png` (1.23MB) keep the normal PNG
+   remains on disk as a "Full size" download only). `v81-A.png` (1.85MB),
+   `v81-B.png` (1.13MB), and `v81-D.png` (1.11MB) keep the normal PNG
    fallback. Recheck on
    the next art rebase.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on

@@ -35,8 +35,12 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76 → v80, for "what's new" coverage and
+                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76 → v80 → v81, for "what's new" coverage and
                      update posts
+  ai-transparency.md  AI disclosure sheet — what's AI-driven, what
+                     isn't, where the data goes, the control rules.
+                     For "is this AI slop?" questions and AI-desk
+                     coverage.
   one-sheet.html     Single-page printable sell sheet — the whole pitch
                      on one page; Print → PDF works
   embargo-briefing.md  Long-lead pre-brief book for coverage under
@@ -75,15 +79,14 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v80-* = current renderer (the lens rebuild —
-                     chromatic fringing, scanline blur, and film grain
-                     retired; one weather-driven visibility number now
-                     drives the haze, the horizon marine band, and the
-                     skyline veil; crown-genome trees turned by the
-                     in-world calendar, autumn leaf-fall; carries the
-                     v65 street dressing, v64 sidewalk ironwork, the
-                     v61 weather field, and the re-framed Dolores
-                     overlook underneath);
+                     v81-* = current renderer (coverage grammar — the
+                     follow-cam pans into look-room, composes two-shots
+                     with amber partner brackets, gusts buffet the lens;
+                     director thirds grid + center cross on H, viewfinder
+                     strip reads EV/compass/height; carries the v80
+                     sky-visibility shade field, the lens rebuild,
+                     crown-genome trees in autumn turn, and the re-framed
+                     Dolores overlook underneath);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

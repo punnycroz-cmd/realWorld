@@ -2,7 +2,7 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v80 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v81 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
@@ -17,7 +17,8 @@
     "guided-tour.md": "10-minute press-preview run sheet + presenter rules",
     "b-roll-shotlist.md": "video-press capture guide — essential b-roll shots, camera keys, capture rules",
     "deadline-desk.md": "the 15-minute coverage path — three facts, a verbatim paragraph, three images, mistakes to avoid",
-    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71→v72→v73→v74→v75→v76→v80, for 'what's new' coverage",
+    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71→v72→v73→v74→v75→v76→v79→v80→v81, for 'what's new' coverage",
+    "ai-transparency.md": "AI disclosure sheet — what's AI-driven, what isn't, where data goes, the control rules; for 'is this AI slop?' questions",
     "one-sheet.html": "single-page printable sell sheet (Print -> PDF)",
     "embargo-briefing.md": "long-lead pre-brief book for embargoed coverage — session plan, on/off-record lists, embargo terms",
     "review-guide.md": "self-guided review plan for a spectator sim — 30/90-minute/evening watch paths",
@@ -43,8 +44,8 @@
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v80-A.png", "v80-B.png", "v80-C.png", "v80-D.png",
-      "v80-A.webp", "v80-B.webp", "v80-C.webp", "v80-D.webp",
+      "v81-A.png", "v81-B.png", "v81-C.png", "v81-D.png",
+      "v81-A.webp", "v81-B.webp", "v81-C.webp", "v81-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },
