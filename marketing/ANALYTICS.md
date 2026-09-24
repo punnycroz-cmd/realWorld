@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v111 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v126 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -237,7 +237,7 @@ the site but missing from `analytics-events.json`, and `press_kit_download`
 was marked live though the kit zip link isn't published yet. All fixed in
 the spec. `analytics_e2e.sh` and `metrics_weekly.sh` both gate on it.
 
-### Weekly metrics run — one command (v96, extended v111)
+### Weekly metrics run — one command (v96, extended v111 + v126)
 
 ```bash
 ./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson]
@@ -245,12 +245,45 @@ the spec. `analytics_e2e.sh` and `metrics_weekly.sh` both gate on it.
 
 Validates the capture → audits coverage → renders the §8 block + §7 detail
 labelled with the ISO week of the newest event → appends a **journeys**
-section (`analytics_paths.py`) and, when `prev.ndjson` is given, a
-**wow check** section (`analytics_watch.py`) → writes
+section (`analytics_paths.py`), a **goals** section (`analytics_goals.py`,
+v126), and, when `prev.ndjson` is given, a **wow check** section
+(`analytics_watch.py`) → writes
 `marketing/analytics/weekly-<ISOweek>.md` (gitignored — the committed
 reference output stays `sample-report.md`). Fill "action taken", paste the
 block into MARKETINGLOG.md. Keep last week's capture around — the prev arg
 is what turns a report into a trend.
+
+### Goals gate — what "good week" means (v126)
+
+`analytics/goals.json` is the machine-readable answer to "did the funnel
+hit plan?" — every launch KPI as a graded metric: funnel transitions
+(visit→engaged ≥40%, engaged→watch ≥25%, watch→request ≥10%,
+request→character ≥20% — the funnel-scorecard hypotheses), demand signals
+(calculator use, request simulator, shares), and health guardrails (bounce
+≤60%, 404 share ≤2%, median index attention ≥30s).
+
+```bash
+python3 marketing/tools/analytics_goals.py /tmp/rw-events.ndjson [--strict] [--json]
+```
+
+Each goal grades **PASS / WATCH / MISS / LOW-N / NO-DATA** against a fixed
+target + watch band (default: within 80% of target = WATCH). `LOW-N`
+(denominator < 30 sessions — the same guardrail as `ab_compare.py`) and
+`NO-DATA` (emitter not live yet, e.g. pending game-side events) never grade
+red: a small or quiet week is data quality, not failure. `--strict` exits 1
+on any MISS — wire it into the weekly cron next to
+`analytics_watch.py --strict`.
+
+**Honesty rule:** targets are planning hypotheses sourced from
+`community/funnel-scorecard.md` §2 and the research report. They may be
+revised at the day-30 retro only, in writing — never edited mid-week to
+make a number pass. The same rule governs the funnel scorecard; the two
+files share stage definitions by design.
+
+The local **dashboard** (`analytics/dashboard.html`) renders the same table
+as its "0 · Goals" panel — drop `goals.json` onto the page alongside the
+capture (either order) and it re-grades in-browser, same metric kinds, no
+server.
 
 ### Session journeys (v111)
 
@@ -365,6 +398,10 @@ One dashboard, four panels — everything derivable from the event spec:
    transitions and trails, per-target conversion paths with assist-page
    lift. Rendered by `analytics_paths.py` in the weekly file and by the
    fifth panel in `dashboard.html`.
+6. **Goals (v126):** the capture graded against `analytics/goals.json` —
+   PASS/WATCH/MISS/LOW-N/NO-DATA per KPI. Rendered by
+   `analytics_goals.py` in the weekly file and by the "0 · Goals" panel in
+   `dashboard.html` (drop goals.json on the page to enable it).
 
 **Targets (honest, from the research report):** the free-watch top of funnel is
 the whole business — optimize `pageview → watch_start` first. TPP-class
@@ -419,7 +456,11 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
       arg that makes `analytics_watch.py` diff work in `metrics_weekly.sh`
       (v111)
 - [ ] At launch, wire `analytics_watch.py --strict` into a weekly cron/CI
-      step so funnel-stage collapses and 404 spikes page someone (v111)
+      step so funnel-stage collapses and 404 spikes page someone (v111);
+      run `analytics_goals.py --strict` in the same job so a MISS pages
+      too (v126)
+- [ ] Review `analytics/goals.json` targets at the day-30 retro, in
+      writing — they are hypotheses, not contracts (v126)
 - [ ] Every A/B test registered in EXPERIMENTS.md before its tagged links
       go out; decision rules there are fixed, not per-test (v96)
 

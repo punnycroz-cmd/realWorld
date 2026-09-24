@@ -11,9 +11,11 @@
 #   3. render the ANALYTICS.md §8 weekly block + §7 detail, labelled with
 #      the ISO week of the newest event in the file
 #   4. append a "### journeys" section (analytics_paths.py — landing/exit
-#      pages, top trails, conversion assists) and, when prev.ndjson is
-#      given, a "### wow check" section (analytics_watch.py — week-over-
-#      week deltas + anomaly WARN lines)
+#      pages, top trails, conversion assists), a "### goals" section
+#      (analytics_goals.py — the capture graded against analytics/
+#      goals.json: PASS/WATCH/MISS/LOW-N/NO-DATA), and, when prev.ndjson
+#      is given, a "### wow check" section (analytics_watch.py — week-
+#      over-week deltas + anomaly WARN lines)
 #   5. write it to marketing/analytics/weekly-<ISOweek>.md and print the
 #      path — drop the block into MARKETINGLOG.md after filling
 #      "action taken"
@@ -63,10 +65,12 @@ else
   python3 tools/analytics_report.py "$NDJSON" --week "$WEEK" > "$OUT"
 fi
 
-echo "[weekly] 4/4 journey analysis${PREV:+ + wow check}"
+echo "[weekly] 4/4 journey analysis${PREV:+ + wow check} + goals"
 {
   echo ""
   python3 tools/analytics_paths.py "$NDJSON" --top 8
+  echo ""
+  python3 tools/analytics_goals.py "$NDJSON"
 } >> "$OUT"
 if [ -n "$PREV" ]; then
   { echo ""; python3 tools/analytics_watch.py "$NDJSON" "$PREV"; } >> "$OUT"
