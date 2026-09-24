@@ -8747,3 +8747,186 @@ P934, P937 MUST; P931, P932, P935, P936 SHOULD.
   compressed leads (gait_lead 4y vs 12y, mt_learn 0.5 vs
   0.07 learning rate) = RW hypotheses, probe-gated
   P928–P937.
+
+## 182. v89 suite (P938–P947) — emotional-memory VIII
+
+Suite focus: the quiet uses of feeling — present-state
+pull on past-feeling reports, suppression's aftereffects,
+narrative schemas, the invisible repair, and three
+edge-mechanisms (dissociation, boundaries, the camera)
+(spec v5.37, EM§§98–107).
+
+- **P938 consistency direction (MUST, sign-lock):** a
+  dyad whose bond rises +0.4 over 60 days emits
+  past-feeling reports bent positive by ≥
+  `consist_floor`; a falling dyad bends negative; a
+  STABLE-unhappy dyad bends < floor (Δ-drives, not
+  level). Stored tags unchanged on refire;
+  `consist_fact_null` — event content identical in
+  emitted reports. McFarland & Ross 1987; Karney &
+  Coombs 2000.
+- **P939 msd conditions (SHOULD, dissociation):** at
+  fixed cue strengths, self-generated recalls show
+  mood-match effect ≥3× externally-cued; neutral records
+  ≤`msd_neutral_mult` of charged; `msd_store_null` —
+  mismatched records never archive/delete. Eich &
+  Macaulay 2000; Smith & Vela 2001.
+- **P940 SIF dent-and-rebound (MUST, dissociation):**
+  15 successful suppressions → below-baseline recall on
+  same-cue AND novel-cue probes (independence is the
+  load-bearing cell — cue-blocking explanations fail
+  it); `C.load`≥0.6 attempts produce MORE intrusions
+  than baseline within 2 ticks; `sif_del_null` — record
+  never archives, resurrect path fires it. Anderson &
+  Green 2001; Anderson & Huddleston 2012; Wegner 1994.
+- **P941 sequence drift (SHOULD, sign-lock):**
+  narr_seq +0.8 vs −0.8 twins retell the same negative
+  record 5×: redemptive arm cools ≥`redempt_cool`-
+  scaled beyond §16 dampen; contam arm drifts reported
+  valence toward 0/negative; CONTENT fields identical
+  (`narr_truth_null`). McAdams 2001/2006.
+- **P942 immune blind (SHOULD):** resolved negative
+  record (peak 0.7, 21d recovery) → matched-event
+  forecast overshoots stored recovery by ≥`heal_gap_k`
+  and emits `heal_gap:true`; `immune_blind_null` — no
+  recovery-rate term exists anywhere to correct it.
+  Wilson & Gilbert 2003; Gilbert et al. 1998.
+- **P943 choice migration (MUST, interaction):** 30d
+  post-`choice`, feature reports misattribute positive
+  features to the chosen option ≥4× reverse direction;
+  day-2 < day-30 (grows as `opt_src` rots); 80yo >
+  30yo (`choice_age_gain`); option set + choice fact
+  intact (`choice_content_null`). Henkel & Mather
+  2007; Gilbert & Ebert 2002 (irrevocability arm).
+- **P944 boundary split (MUST, dissociation):** one
+  3-beat event, affect_shift ≥`bound_thresh` at beat 2:
+  across-seam order errors ≥2× within-seam; across-seam
+  `felt_dt` ≥1.3×; cross-seam proactive interference
+  reduced; strong cross-seam cue still retrieves —
+  order lost, access kept (`bound_del_null`). Heusser
+  2022; Clewett 2020.
+- **P945 positivity reversal (MUST, sign-lock):** 70yo
+  vs 30yo twins, mixed pos/neg event: full-attention
+  arm — older recall skews positive (`pos_enc_gain`-
+  scaled share shift); divided-attention arm — older
+  skews NEGATIVE relative to young. Both arms
+  required; `pos_youth_null` in the young;
+  `pos_appraisal_null` — threat fields encode
+  regardless. Mather & Knight 2005; Knight et al.
+  2007. (A sim showing old-positivity under
+  distraction has the wrong mechanism.)
+- **P946 dissociation split (SHOULD, dissociation):**
+  dissoc 0.9 vs 0.1 twins, arousal 0.75 event: high-
+  dissoc record shows link density <60% low + intrusion
+  rate > low + voluntary θ surcharge — three-way;
+  content fields present in both
+  (`dissoc_content_null`); `trauma_n` raises the roll
+  (`kindle_gain`). Ozer et al. 2003; van der Kolk &
+  Fisler 1995.
+- **P947 camera asymmetry (COULD):** photographing arm
+  vs control: visual recall +, auditory −; photographed
+  beats > unphotographed; positive tag
+  +`photo_engage_gain`, negative −same; total E parity
+  (`photo_offload_null`); `photo_review` refreshes only
+  `photographed:true` fields. Barasch 2017; Diehl 2016.
+
+Registry: P1–P947. v89 suite: P938, P940, P943, P944,
+P945 MUST; P939, P941, P942, P946 SHOULD; P947 COULD.
+
+## 183. Sources verified this version (P938–P947 backing)
+
+- **Consistency bias:** McFarland & Ross 1987 (*JPSP*
+  53:934 — dating couples, recall tracks current
+  evaluation); Karney & Coombs 2000 (*Pers. Soc.
+  Psychol. Rev.* 4:123 — newlywed trajectories:
+  Δ-satisfaction drives direction); Scharfe &
+  Bartholomew 1995; Holmberg & Holmes 1994 (premarital
+  narrative reconstruction correlates with current,
+  not initial, satisfaction).
+- **Mood-state-dependence:** Bower, Monteiro & Gilligan
+  1978; Bower 1981 (proposal); Eich & Macaulay 2000
+  (*Memory & Cognition* — verdict: real, small, needs
+  self-generated cues + genuine mood at both ends);
+  Smith & Vela 2001 (*Psychon. Bull. Rev.* meta —
+  context-dependency; mood the weakest context term);
+  Ucros 1989.
+- **Suppression-induced forgetting:** Anderson & Green
+  2001 (*Nature* 410:366 — TNT, independent-probe
+  deficit); Anderson & Huddleston 2012 (*Nebraska
+  Symposium* — ~10% below-baseline over 47
+  experiments); Levy & Anderson 2008 (affect quiets
+  with the fact); Wegner 1987/1994 + Wenzlaff & Wegner
+  2000 (ironic rebound under load, hyperaccessibility
+  in dysphoria); 2024 multilevel meta (small SIF,
+  same-probe > independent-probe, valence-neutral —
+  bounds honored).
+- **Narrative sequences:** McAdams et al. 1997 +
+  McAdams 2001/2006 (redemption ↔ generativity/
+  well-being; contamination sequences); Adler et al.
+  2015/2017 (sequence shifts track symptom change);
+  Pasupathi 2001 (retell stabilizes the told version).
+- **Immune neglect:** Gilbert, Pinel, Wilson, Blumberg
+  & Wheatley 1998 (*JPSP* 75:617); Wilson, Meyers &
+  Gilbert 2001; Wilson & Gilbert 2003 review — people
+  under-credit their own recovery machinery.
+- **Choice-supportive memory:** Henkel & Mather 2007
+  (*Psych Sci* — feature reattribution to chosen,
+  delay-dependent, OLDER adults more biased); Mather &
+  Johnson 2000; Mather, Shafir & Johnson 2000; Benney
+  & Henkel 2006; Gilbert & Ebert 2002 (irrevocability
+  recruits the rationalizer); Svenson & Benthorn 1992.
+- **Affect boundaries:** Clewett & Davachi 2017;
+  Clewett, Schoene & Davachi 2020 (*Nat Comms* —
+  pupil-linked arousal bursts at boundaries organize
+  temporal memory); Heusser, Poeppel, Ezzyat & Davachi
+  2022 (*Nat Comms* — within-event order improved /
+  across impaired + temporal-context reset model —
+  implemented literally); Rouhani et al. 2020 (RPE
+  surprise mints boundaries, backward binding);
+  2023 *Cognition & Emotion* dissociation (emotion
+  enhances own-item order, boundaries impair across;
+  segmentation boosts item-context binding, emotion
+  impairs it).
+- **Positivity effect:** Mather & Carstensen 2005
+  (*TICS*); Kennedy, Mather & Carstensen 2004
+  (*Psych Sci*); Reed, Chan & Mikels 2014 meta;
+  Mather & Knight 2005 (*Psych & Aging* — control-
+  dependent; DA eliminates AND reverses); Knight,
+  Seymour, Gaunt, Baker, Nesmith & Mather 2007
+  (*Emotion* — eye-tracking reversal under
+  distraction); Murphy & Isaacowitz 2008 (weaker
+  attention-side meta — DEBATED frame honored by
+  keeping it on the regulation pathway).
+- **Peritraumatic dissociation:** Ozer, Best, Lipsey &
+  Weiss 2003 (*Psych Bull* 129:52 meta, 68 studies —
+  strongest during-event PTSD predictor, r≈.35);
+  van der Kolk & Fisler 1995 (fragmentary encoding);
+  Marmar et al. 1994; Putnam 1997 (trait dissociative
+  capacity); Ehlers & Clark 2000 (intrusive-↑/
+  voluntary-↓ phenomenology).
+- **Photo-mediated memory:** Barasch, Diehl, Silverman
+  & Zauberman 2017 (*Psych Sci* 28:1050 — visual+/
+  auditory−, photographed>unphotographed, mental-photo
+  arm proves attentional mechanism); Diehl, Zauberman
+  & Barasch 2016 (*JPSP* 111:119 — engagement→
+  enjoyment positive, worse negative); Henkel 2014
+  (offload deficit under expected delegation —
+  reconciled via `photographing:"archive"`); St.
+  Jacques & Schacter 2013 (reactivation-selectivity
+  reading for the photo-cue preservation arm —
+  HYPOTHESIS extension).
+
+New sources verified this version: McFarland & Ross
+1987, Karney & Coombs 2000, Eich & Macaulay 2000,
+Smith & Vela 2001, Anderson & Green 2001, Anderson &
+Huddleston 2012, Levy & Anderson 2008, Wegner 1987/
+1994, Wenzlaff & Wegner 2000, 2024 SIF multilevel
+meta, McAdams 1997/2001/2006, Adler 2015/2017,
+Pasupathi 2001, Gilbert et al. 1998, Wilson & Gilbert
+2003, Henkel & Mather 2007, Gilbert & Ebert 2002,
+Clewett 2020, Heusser 2022, Rouhani 2020, Mather &
+Carstensen 2005, Kennedy 2004, Reed/Chan/Mikels 2014,
+Mather & Knight 2005, Knight et al. 2007, Ozer et al.
+2003, van der Kolk & Fisler 1995, Ehlers & Clark
+2000, Barasch et al. 2017, Diehl et al. 2016,
+Henkel 2014 — probes P938–P947.

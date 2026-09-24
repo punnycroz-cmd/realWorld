@@ -1,5 +1,53 @@
-# Memory Model Spec v5.36 — implementable human-like memory for RW characters
+# Memory Model Spec v5.37 — implementable human-like memory for RW characters
 
+> **v5.37 note (emotional-memory VIII — the quiet uses of
+> feeling):** `memory/emotional-memory.md` Part VIII
+> (§§98–107) prices how the feeling of NOW re-edits the
+> feeling of THEN — all bends emission/re-encode-side,
+> born tags never silently rewritten. **Consistency
+> bias** — reported past feelings toward a person bend
+> toward Δbond (`rel_consist_k`, verbatim-gated,
+> person-scoped; McFarland & Ross 1987; Karney & Coombs
+> 2000) — §6.173. **Mood-state-dependence** — `w_msd`
+> conditioned: ×(1+`msd_selfgen_gain`) on internal
+> search, halved per external-cue share, charged-
+> material gate (Eich & Macaulay 2000; Smith & Vela
+> 2001) — §6.174. **Suppression-induced forgetting** —
+> `sup_n` dents R cue-independently
+> (`sif_pen·log1p(sup_n)`); load-failures rebound as
+> intrusions; `sif_del_null` (Anderson & Green 2001;
+> Anderson & Huddleston 2012; Wegner rebound arm) —
+> §6.175. **Redemption/contamination** — trait
+> `narr_seq` retells cool/warm tags per schema,
+> `narr_truth_null` (McAdams 2001/2006) — §6.176.
+> **Immune neglect** — recovery micro-events mint thin
+> (`resolve_thin`); forecasts read peak not healing
+> (`immune_blind_null`; Wilson & Gilbert 2003) —
+> §6.177. **Choice-supportive memory** — option-feature
+> `opt_src` rots, reattribution favors the chosen,
+> ×`choice_age_gain` at 80, `choice_content_null`
+> (Henkel & Mather 2007) — §6.178. **Affect boundaries**
+> — `affect_shift ≥ bound_thresh` mints `seg_boundary`:
+> across-seam order `bound_order_pen`, distance
+> `bound_dist_gain`, within-seam `bound_within_gain`,
+> `bound_del_null` (Heusser 2022; Clewett 2020; Rouhani
+> 2020) — §6.179. **Positivity effect** — `pos_eff`
+> ramps past `pos_onset` 55, control-scaled, REVERSES
+> to negativity under load (`neg_rebound`; Mather &
+> Knight 2005; Knight et al. 2007 — the reversal is the
+> load-bearing cell) — §6.180. **Peritraumatic
+> dissociation** — existing `dissoc` trait × `kindle`
+> on prior trauma mints `dissociated:true`: binding
+> loss not content loss, voluntary θ up / intrusion
+> thresh down, `dissoc_time_warp` both directions
+> (Ozer et al. 2003) — §6.181. **Photo-mediated
+> memory** — `photographing` context boosts visual /
+> taxes auditory / engagement-boosts the tag both
+> valences; `photo_review` refreshes only
+> `photographed:true` fields; `photo_offload_null`
+> (Barasch 2017; Diehl 2016) — §6.182. +26 scalars,
+> +1 trait, +15 locked nulls, +1 frozen; §10 contract
+> adds. Probes P938–P947.
 > **v5.36 note (age-decline VIII — decline is a ledger of
 > losses, not just a slope):** the overlay layer — event
 > steps, protective slopes, reversible dips, and channels a
@@ -11113,6 +11161,178 @@ null `poison_reveal_null`:** poison moves stored strength,
 never reportability — the character can still repeat a claim
 they no longer quite believe.
 
+### 6.173 Consistency bias — today's bond rewrites yesterday's feeling (new in v5.37)
+
+Reports of past feelings toward a person bend toward the
+*trajectory* of the current bond (McFarland & Ross 1987;
+Karney & Coombs 2000 — Δbond drives direction, not bond
+level): `reported_affect = stored + rel_consist_k·
+(1−field_verbatim)·sign(Δbond)·min(1,|Δbond|)` with
+`rel_consist_k` 0.3, emitted only when |Δbond| ≥
+`consist_floor` 0.1. Person-scoped (`consist_scope:
+"person"` — affect fields whose object is a §31 person
+CondEntry only). `consist_gain` scales down with stable
+`self_concept`; `rumin` adds bend on deteriorations.
+Bend > `consist_audit` 0.4 emits `rewrote_feelings:true`.
+**Locked null `consist_fact_null`:** non-affect content
+never bends — what happened is fact; only how it felt
+re-reports. The stored tag does not rewrite — next
+strong-cue refire returns the born affect.
+
+### 6.174 Mood as internal context — conditioned state-dependence (new in v5.37)
+
+`w_msd` (v0.2) is no longer flat: `w_msd_eff = w_msd·
+(1 + msd_selfgen_gain·selfGenerated)·(1 − msd_extcue_pen·
+env_cue_share)·charge`, `msd_selfgen_gain` 2.0,
+`msd_extcue_pen` 0.5, `charge` = 1 if candidate |valence|
+≥ `msd_charge_gate` 0.3 else `msd_neutral_mult` 0.3
+(Eich & Macaulay 2000 — real, small, largest on
+self-generated internal search; Smith & Vela 2001 —
+external cues crush it). **Locked null `msd_store_null`:**
+mismatch never deletes — cueMatch-side only. Frozen
+`msd_scope:"cueMatch"` — never enters S, strength, or
+confab fill rates.
+
+### 6.175 Suppression leaves dents — SIF and the ironic rebound (new in v5.37)
+
+`suppress:true` reflect mode or repeated cue-avoidance of
+one record accrues `sup_n`. Each success: record's
+effective R (ALL cue channels — independent-probe
+discipline, Anderson & Green 2001) decays
+`sif_pen·log1p(sup_n)`, `sif_pen` 0.04 (small per the
+2024 multilevel meta — valence-neutral, honored).
+Failed attempt under `C.load ≥ sif_load_rebound` 0.6:
+record fires as intrusion next ticks (`rebound:true`),
+failure odds up `sif_rebound_gain` 0.2 per `rumin`/
+dysphoric mood (Wegner ironic arm — separate footing
+from inhibition). Suppressed records' tags cool extra
+`sif_tag_decay` 0.35 on later recalls (Levy & Anderson
+2008). **Locked null `sif_del_null`:** dent in
+reachability only — never archives; resurrect path
+intact.
+
+### 6.176 The story's grammar — redemption and contamination sequences (new in v5.37)
+
+Trait `narr_seq` ∈[−1,1] (bible-pinnable; rewritable only
+by world events: `resolve:true` +`narr_seq_shift` 0.05,
+witnessed betrayal −; never on retells themselves).
+Negative-record retells: `redempt_reframe_p =
+max(0,narr_seq)·redempt_k` (0.5) appends a resolution
+beat + extra `redempt_cool` 0.15 tag cool beyond §16
+dampen; `contam_gain = max(0,−narr_seq)·contam_k` (0.6)
+cuts the dampen and can flip reported valence on
+positive records ("the night before it all went wrong").
+Emission marks `seq_redempt`/`seq_contam` (McAdams 2001,
+2006; Adler et al. 2015). **Locked null
+`narr_truth_null`:** sequence reframes tag + framing
+only — content fields never mint, mint away, or
+re-valence beyond the report layer.
+
+### 6.177 The repair that leaves no trace — immune neglect (new in v5.37)
+
+Post-event recovery micro-events mint at `E×resolve_thin`
+(0.3) — ordinary coping is ordinary, and ordinary is
+forgettable. Resolved records keep `resolved:true`; the
+duration-to-recover field decays at verbatim rate (the
+scar outlives the convalescence — Wilson & Gilbert 2003;
+Gilbert et al. 1998). §50 impact-bias forecasts read
+peak tag + stored duration, never a learned recovery
+rate: `heal_gap:true` emits when a voiced forecast
+exceeds the character's own stored recovery by >
+`heal_gap_k` 2×. **Locked null `immune_blind_null`:**
+no recovery-rate term exists — the neglect is the
+mechanism, not a tunable bias.
+
+### 6.178 The road not taken gets uglier — choice-supportive memory (new in v5.37)
+
+`choice` events mint option-feature fields with `opt_src`
+source tags decaying at `beta_source·choice_src_mult`
+(1.4). On report/recall: sub-θ `opt_src` features
+reattribute at `choice_bias_k·(1−opt_src)` (0.25) —
+positive → chosen, negative → rejected; confab fills
+land chosen-side at `choice_fill_gain` 0.5 (Henkel &
+Mather 2007; delay-dependent — the bias grows as source
+rots). ×`choice_age_gain` ramp to 1.4 at 80 (older >
+younger — Henkel & Mather); +`choice_irrevocable_gain`
+0.3 on irreversible choices (Gilbert & Ebert 2002).
+Reattributed emission marks `rationalized:true`.
+**Locked null `choice_content_null`:** the option set
+and the choice itself never drift. `choice_rev_null`:
+reversible choices bias less, never zero.
+
+### 6.179 Affect shifts mint event boundaries (new in v5.37)
+
+Beat-level `affect_shift ≥ bound_thresh` (0.4) within an
+Event mints `seg_boundary:true` on the post-shift
+record; negative-valence shifts amplify `bound_neg_amp`
+0.15. Across-seam field order pays `bound_order_pen`
+0.3; within-seam order gains `bound_within_gain` 0.15
+(local primacy); across-seam `felt_dt ×(1+bound_dist_
+gain)` 0.35; cross-seam proactive interference reduced
+`bound_interf_res` 0.25 (Heusser et al. 2022 reset
+model — the mechanism implemented literally; Clewett
+et al. 2020 — the boundary is an arousal burst; Rouhani
+2020 — surprise mints it). **Locked null
+`bound_del_null`:** organizational metadata only — a
+strong cue still bridges the seam; order is lost,
+access is not.
+
+### 6.180 The positivity effect — and the distraction that kills it (new in v5.37)
+
+For `age_eff ≥ pos_onset` (55): `pos_eff` ramps
+`pos_ramp` 0.02/yr capped 0.5, scaled by `control_eff`
+(reserve × (1−load) — Mather & Knight 2005's control
+dependence). Encode: `E_pos ×(1+pos_enc_gain·pos_eff)`
+0.3, `E_neg ×(1−pos_enc_pen·pos_eff)` 0.2; retrieval:
+positive broadening §6.160 gains `pos_broaden_gain` 0.3,
+negative records pay `pos_theta` 0.05 θ-surcharge at
+full attention. **Reversal:** under `C.daLoad`/
+`C.load ≥ 0.6`, `pos_eff` signs negative —
+`E_neg ×(1+neg_rebound·|pos_eff|)` 1.0 and §6.159
+threat-priority doubles: the distracted elder is the
+most negativity-biased mind in the room (Knight et al.
+2007). **Locked nulls:** `pos_youth_null` (below onset,
+identically zero); `pos_appraisal_null` (threat-relevant
+fields exempt — SST redirects gratification attention,
+not survival attention).
+
+### 6.181 Checked out while it happened — peritraumatic dissociation (new in v5.37)
+
+Existing trait `dissoc` (v1.9 block) gates a roll on
+events with arousal ≥ `dissoc_arousal_gate` 0.6:
+`dissoc_p = dissoc·(1+kindle_gain·trauma_n)`,
+`kindle_gain` 0.3 cap ×1.9 (Ozer et al. 2003 —
+strongest during-event PTSD predictor). A
+`dissociated:true` record mints with §7 phenotype
+rotated: `link_p ×(1−dissoc_frame_pen)` 0.5 (binding
+loss), `narr_coherence` starts `dissoc_coh_start` 0.2,
+voluntary θ surcharge `dissoc_vol_pen` 0.1, intrusion
+threshold drops `dissoc_intru_gain` 0.15, `felt_dt`
+warps ±`dissoc_time_warp` 0.4 either direction (van der
+Kolk & Fisler 1995). **Locked null
+`dissoc_content_null`:** binding, not content — details
+exist orphaned; strong cues still emit accurate
+fragments.
+
+### 6.182 The camera in the hand — photo-mediated memory (new in v5.37)
+
+Context `photographing` (mains trait-gated by `social`/
+extra): `visual`/`scene` fields ×(1+`photo_vis_gain`
+0.3), `verbal`/`auditory` ×(1−`photo_aud_pen` 0.25),
+`photographed:true` beats an extra `photo_frame_gain`
+0.2 (Barasch et al. 2017). Tag: positive events
++`photo_engage_gain` 0.1, negative −same (Diehl et al.
+2016 — engagement cuts both ways; `photo_neg_null`
+prohibits positive-only). `photographed:true` fields
+decay verbatim `photo_verbatim_resist` 0.4 slower; a
+`photo_review` re-encounter refreshes ONLY those fields
+(the fixed face of a drifting event; drift-vs-photo
+mismatch audits `photo_gap:true`). **Locked null
+`photo_offload_null`:** volitional framing never lowers
+total E — the offload arm is reserved for
+`photographing:"archive"` context (Henkel 2014
+reconciled via expected-delegation, not camera use).
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -12898,6 +13118,57 @@ MemoryParams = {
 //   `perseverate:true`, `gaitSlow:true`; re-encode
 //   `feedback:true` routing (§5.95d). Event schema:
 //   +2 event kinds, additive.
+// v5.37 additions (emotional-memory VIII — EM§§98–107)
+"rel_consist_k": 0.3, "consist_floor": 0.1,
+"consist_audit": 0.4,                          // §6.173
+"msd_selfgen_gain": 2.0, "msd_extcue_pen": 0.5,
+"msd_charge_gate": 0.3, "msd_neutral_mult": 0.3, // §6.174
+"sif_pen": 0.04, "sif_load_rebound": 0.6,
+"sif_rebound_gain": 0.2, "sif_tag_decay": 0.35, // §6.175
+"redempt_k": 0.5, "redempt_cool": 0.15,
+"contam_k": 0.6, "narr_seq_shift": 0.05,       // §6.176
+"resolve_thin": 0.3, "heal_gap_k": 2.0,        // §6.177
+"choice_src_mult": 1.4, "choice_bias_k": 0.25,
+"choice_fill_gain": 0.5, "choice_age_gain": 1.4,
+"choice_irrevocable_gain": 0.3,                // §6.178
+"bound_thresh": 0.4, "bound_neg_amp": 0.15,
+"bound_order_pen": 0.3, "bound_within_gain": 0.15,
+"bound_dist_gain": 0.35, "bound_interf_res": 0.25, // §6.179
+"pos_onset": 55, "pos_ramp": 0.02,
+"pos_enc_gain": 0.3, "pos_enc_pen": 0.2,
+"neg_rebound": 1.0, "pos_theta": 0.05,
+"pos_broaden_gain": 0.3,                       // §6.180
+"dissoc_arousal_gate": 0.6, "kindle_gain": 0.3,
+"dissoc_frame_pen": 0.5, "dissoc_coh_start": 0.2,
+"dissoc_vol_pen": 0.1, "dissoc_intru_gain": 0.15,
+"dissoc_time_warp": 0.4,                       // §6.181
+"photo_vis_gain": 0.3, "photo_aud_pen": 0.25,
+"photo_frame_gain": 0.2, "photo_engage_gain": 0.1,
+"photo_verbatim_resist": 0.4,                  // §6.182
+// v5.37 trait: `narr_seq` ∈[−1,1] (bible-pinnable,
+//   event-rewritable only — resolve:+ / betrayal:−,
+//   never ticked, EM§101); `dissoc` reuses the v1.9
+//   trait — §6.181 gives it its encode roll.
+// v5.37 locked nulls: consist_fact_null +
+//   consist_scope:"person" (P938); msd_store_null
+//   (P939); sif_del_null (P940); narr_truth_null
+//   (P941); resolve_thin (magnitude-locked) +
+//   immune_blind_null (P942); choice_content_null +
+//   choice_rev_null (P943); bound_del_null (P944);
+//   pos_youth_null + pos_appraisal_null (P945);
+//   dissoc_content_null (P946); photo_neg_null +
+//   photo_offload_null (P947).
+// v5.37 frozen: msd_scope="cueMatch".
+// v5.37 fields/state: record `seg_boundary`,
+//   `dissociated`, `sup_n`, `resolved`,
+//   `photographed:true` per-field, `opt_src` on
+//   option features; event kinds `choice` +
+//   `resolve:true` + `photo_review` cue-carrier;
+//   context `photographing` (+:"archive"),
+//   `suppress:true` reflect mode; emissions
+//   `rewrote_feelings`, `rebound`, `seq_redempt`/
+//   `seq_contam`, `heal_gap`, `rationalized`,
+//   `photo_gap`. All snapshot-additive.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -12930,7 +13201,9 @@ storage-location and channel axes `blunt`, `trans_dep`,
 `offload`, `consol`, `nav_ab`, `schizotyp`, `hypnot`, `mnem`
 plus bible-set demographic fields `immig_age`, `grew_rural`,
 `home_layout`, `dominantLang`, `trans_partner` — ID Part VII
-§87) — sampled MVN(0, R) with the sparse correlation matrix in
+§87; v5.37 adds `narr_seq` — redemption↔contamination
+sequence schema, bible-pinnable, event-rewritable only —
+EM Part VIII §101) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60/§73/§87 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17/§88 there) onto these params, plus ±5% residual jitter. This replaces
@@ -14834,6 +15107,38 @@ not resolved (DEBATED magnitude). P509/P511.
     remote_ie, net_ema_tau, net_slope, test_gain,
     test_nofb_80, study_gain + 4 locked nulls + 2 frozen.
   - Probes P928–P937.
+- v5.37 additions (emotional-memory.md Part VIII §§98–107):
+  - **New event kind** `choice` (world-supplied):
+    `options:[{id, features…}], chosen:id` — mints
+    `opt_src` source-tagged option-feature fields
+    (§6.178). `resolve:true` flag on any event marks a
+    recovery/resolution beat (§§6.176–6.177: feeds
+    `narr_seq` + once, mints thin).
+  - **New contexts:** `photographing` (world-minted;
+    `photographing:"archive"` selects the offload arm —
+    §6.182); `suppress:true` reflect mode on
+    cue-avoidance runs (§6.175); `photo_review` is a new
+    cue-carrier kind refreshing only
+    `photographed:true` fields.
+  - **New trait:** `narr_seq` ∈[−1,1] bible-pinnable;
+    event-rewritable only (resolve +`narr_seq_shift`,
+    witnessed betrayal −). `dissoc` (v1.9) gains its
+    encode roll — §6.181.
+  - **New record fields:** `seg_boundary`,
+    `dissociated:true`, `sup_n`, `resolved:true`,
+    `photographed:true` (per-field), `opt_src` — all
+    snapshot-additive.
+  - **New emissions (world-renderable):**
+    `rewrote_feelings:true` (§6.173 audit — narration
+    diverges from born tag), `rebound:true` (§6.175
+    failed suppression → intrusion), `seq_redempt`/
+    `seq_contam` retell marks, `heal_gap:true`
+    (§6.177 forecast-vs-recovery audit),
+    `rationalized:true` (§6.178 reattribution),
+    `photo_gap:true` (§6.182 drift-vs-photo audit).
+  - **New params (§7):** 26 scalars + 1 trait +
+    15 locked nulls + 1 frozen (`msd_scope`).
+  - Probes P938–P947.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

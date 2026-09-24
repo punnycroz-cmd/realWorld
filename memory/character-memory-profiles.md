@@ -1148,6 +1148,16 @@ needs both.
 | gait_lead | 0.0 | 8.0 | decline-arm motor lead over memory (y) (v5.36) |
 | remote_ie / net_ema_tau / net_slope | 0.0 / 0.25 / 0.0 | 0.8 / 4.0 / 0.4 | remote-record semanticization + structural-network slope (v5.36) |
 | test_gain / test_nofb_80 / study_gain | 1.0 / 0.3 / 0.8 | 1.6 / 1.3 / 1.3 | feedback-gated relearning crossover (v5.36) |
+| rel_consist_k / consist_floor / consist_audit | 0.0 / 0.0 / 0.2 | 0.6 / 0.3 / 0.8 | current-bond pull on reported past feelings (v5.37) |
+| msd_selfgen_gain / msd_extcue_pen / msd_charge_gate / msd_neutral_mult | 0.0 / 0.0 / 0.1 / 0.0 | 4.0 / 1.0 / 0.6 / 0.6 | conditioned mood-state-dependence (v5.37) |
+| sif_pen / sif_load_rebound / sif_rebound_gain / sif_tag_decay | 0.0 / 0.3 / 0.0 / 0.0 | 0.12 / 0.9 / 0.5 / 0.7 | suppression-induced forgetting dent + ironic rebound (v5.37) |
+| redempt_k / redempt_cool / contam_k / narr_seq_shift / narr_seq | 0.0 / 0.0 / 0.0 / 0.0 / −1.0 | 1.0 / 0.4 / 1.0 / 0.15 / 1.0 | redemption↔contamination retell schema + trait (v5.37) |
+| resolve_thin / heal_gap_k | 0.1 | 0.6 / 4.0 | recovery-trace thinness + immune-neglect audit (v5.37) |
+| choice_src_mult / choice_bias_k / choice_fill_gain / choice_age_gain / choice_irrevocable_gain | 0.8 / 0.0 / 0.0 / 1.0 / 0.0 | 2.0 / 0.5 / 0.8 / 2.0 / 0.6 | choice-supportive feature reattribution (v5.37) |
+| bound_thresh / bound_neg_amp / bound_order_pen / bound_within_gain / bound_dist_gain / bound_interf_res | 0.2 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.7 / 0.3 / 0.6 / 0.4 / 0.7 / 0.5 | affect-shift event boundaries (v5.37) |
+| pos_onset / pos_ramp / pos_enc_gain / pos_enc_pen / neg_rebound / pos_theta / pos_broaden_gain | 45 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 65 / 0.05 / 0.6 / 0.4 / 2.0 / 0.15 / 0.6 | positivity effect + distraction reversal (v5.37) |
+| dissoc_arousal_gate / kindle_gain / dissoc_frame_pen / dissoc_coh_start / dissoc_vol_pen / dissoc_intru_gain / dissoc_time_warp | 0.4 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.85 / 0.6 / 0.8 / 0.4 / 0.3 / 0.3 / 0.6 | peritraumatic dissociation record phenotype (v5.37) |
+| photo_vis_gain / photo_aud_pen / photo_frame_gain / photo_engage_gain / photo_verbatim_resist | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.6 / 0.5 / 0.4 / 0.25 / 0.7 | photo-mediated encode + photo cue (v5.37) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4367,3 +4377,55 @@ Pinning guidance:
   `hosp_level_null`, `mt_recall_null`, `gait_channel_null`;
   frozen `biling_scope`, `mt_scope` — probe-enforced
   (P928–P937).
+
+## 70. v5.37 note (emotional-memory VIII — the quiet uses of feeling)
+
+Ten clamp rows added in §0. **One new trait:** `narr_seq`
+∈[−1,1] (redemption↔contamination retell schema). `dissoc`
+(v1.9) gains its encode roll — no new trait needed.
+
+Pinning guidance:
+
+- **`narr_seq` is a story habit, not optimism.** It answers:
+  when this character tells a bad memory, does the story
+  resolve upward (bad→growth) or rot downward (good→ruined)?
+  Pin from how the bible's *voice* narrates the past, not
+  from mood. Near-zero is the honest default — most people
+  lack a strong sequence signature; ±0.8 is a distinct
+  narrative identity. Event-rewritable only: a real
+  resolution event pushes it up once; a witnessed betrayal
+  pushes it down. Never tick it.
+- **`dissoc` was already pinnable (v1.9) — now it costs
+  something.** Characters with high `dissoc` roll a
+  dissociative encode on arousal ≥0.6 events: the record
+  comes out bound-poor (low link density, low starting
+  coherence, voluntary θ up, intrusion rate up, time-warp
+  either direction). A bible that sets dissoc>0.6 is
+  buying a character whose worst days return as
+  fragments that won't come when called.
+- **`pos_onset`/`pos_ramp` are population machinery — do
+  not pin positivity per-character.** The lever a bible
+  controls is `reserve` (cognitive control): high-control
+  elders get the positivity preference; distracted or
+  low-control elders get the REVERSAL — more negative
+  bias than any adult in the room. A sweet-old-lady
+  profile with low reserve is a contradiction the probe
+  (P945) will expose under load.
+- **`consist_*`, `choice_*`, `bound_*`, `sif_*`, `photo_*`,
+  `msd_*`, `resolve_*` are shared machinery — never pinned
+  per-character. Per-person variance arrives through
+  `rumin` (consist bend, SIF rebound), `self_concept`
+  (consist resistance), `social`/extra (photographing
+  gate), and `trauma_n` (dissoc kindling).
+- **`photographing` is a world/context flag.** Bibles may
+  note camera-habit characters (feeds the world's event
+  minting), but the encode asymmetry itself is fixed
+  population math.
+- **Never pin:** locked nulls `consist_fact_null`,
+  `consist_scope`, `msd_store_null`, `sif_del_null`,
+  `narr_truth_null`, `immune_blind_null`,
+  `choice_content_null`, `choice_rev_null`,
+  `bound_del_null`, `pos_youth_null`, `pos_appraisal_null`,
+  `dissoc_content_null`, `photo_neg_null`,
+  `photo_offload_null`; frozen `msd_scope` —
+  probe-enforced (P938–P947).

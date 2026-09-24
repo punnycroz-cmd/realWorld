@@ -3508,3 +3508,90 @@ Kim 2019, Bialystok 2007/2010, Zahodne 2014, Mukadam 2017,
 Mielke 2013, Buracchio 2010, Tian 2020, Greendale
 2009/2010, Sekeres 2018, Piolino 2006, Bennett 2006,
 Crooks 2008, James 2011, Tse 2010, Meyer & Logan 2013.
+
+## 67. v89 adds — emotional-memory VIII (the quiet uses of feeling)
+
+Part VIII of emotional-memory.md (§§98–107) prices the
+places where the feeling of NOW re-edits the feeling of
+THEN — the direction of the bends, not just their
+existence:
+
+- **Present-pull on the past.** McFarland & Ross 1987 and
+  Karney & Coombs 2000 make the most consequential
+  dyadic finding concrete: recalled past feelings track
+  the CURRENT bond *trajectory*, not the stored record.
+  The honest subtleties the model keeps: it is Δ that
+  drives direction (a stable-unhappy marriage does not
+  produce "never loved you"), verbatim-gated (the
+  letter's words survive while its reported warmth
+  shifts), and emission-side (the born tag refires on a
+  strong cue — `consist_fact_null`/`felt_write_null`
+  discipline). RW payoff: post-breakup "I never felt
+  anything" is now a *mechanism with an audit flag*
+  (`rewrote_feelings:true`), not flavor text.
+- **Two small effects, kept small on purpose.** Mood-
+  state-dependence (Eich & Macaulay 2000 — real, weakest
+  of the context terms, self-generated-search-bound)
+  and SIF (Anderson & Green 2001 → 2024 multilevel
+  meta: real, ~small, valence-neutral) are both
+  literature-famous and both routinely oversold. The
+  spec now prices the CONDITIONS (internal search,
+  external-cue share, charge gate; load-dependent
+  rebound) rather than the raw effect — the
+  implementation encodes where the effects live, which
+  is what survived the replication era.
+- **The narrative layer gets a personality.** `narr_seq`
+  imports McAdams' redemption/contamination finding as
+  a *trait* — the first emotional-memory mechanism that
+  is a story-grammar rather than a store-process. It
+  drifts tags on retell (never content —
+  `narr_truth_null`) and is itself rewritable only by
+  world events: a person who keeps getting betrayed
+  literally becomes a contamination narrator.
+- **Recovery is unmemorable.** Immune neglect (Wilson &
+  Gilbert) reframed as a *storage* claim: coping days
+  mint thin, the duration-to-recover field decays
+  verbatim-fast, and the forecasting arm (§50) is left
+  with peak pain and no learning rate — `immune_blind_
+  null` makes the neglect structural. The `heal_gap`
+  audit is our operationalization, flagged invented.
+- **The one distortion that grows with age.** Choice-
+  supportive bias (Henkel & Mather 2007) is the
+  rare find where OLDER adults distort MORE — routed
+  through `opt_src` source decay, so the bias literally
+  strengthens as the feature→option binding rots.
+  Paired with the positivity effect (Mather & Knight
+  2005), whose load-bearing cell is the DA REVERSAL:
+  distraction doesn't merely erase old-age positivity,
+  it flips it — P945 tests both arms.
+- **Structure, not just strength.** Affect boundaries
+  (Heusser 2022's reset model implemented literally;
+  Clewett 2020's arousal-burst boundary) give Event
+  records internal seams — order breaks across the
+  seam, distance dilates, interference drops. And
+  peritraumatic dissociation (Ozer 2003 meta —
+  strongest during-event PTSD predictor) finally gives
+  the existing `dissoc` trait its encode roll: binding
+  loss, never content loss.
+- **The camera is an attention machine, not an
+  offload machine.** Barasch 2017's mental-photo arm
+  proves the mechanism is attentional; the spec
+  reconciles Henkel 2014 by scoping offload to
+  `photographing:"archive"` — volitional framing boosts
+  the seen and taxes the heard, and a `photo_review`
+  later preserves only what the frame held.
+
+New sources verified this version: McFarland & Ross
+1987, Karney & Coombs 2000, Eich & Macaulay 2000,
+Smith & Vela 2001, Anderson & Green 2001, Anderson &
+Huddleston 2012, Levy & Anderson 2008, Wegner 1987/
+1994, Wenzlaff & Wegner 2000, 2024 SIF multilevel
+meta, McAdams 1997/2001/2006, Adler 2015/2017,
+Pasupathi 2001, Gilbert et al. 1998, Wilson & Gilbert
+2003, Henkel & Mather 2007, Gilbert & Ebert 2002,
+Clewett 2020, Heusser 2022, Rouhani 2020, Mather &
+Carstensen 2005, Kennedy 2004, Reed/Chan/Mikels 2014,
+Mather & Knight 2005, Knight et al. 2007, Ozer et al.
+2003, van der Kolk & Fisler 1995, Ehlers & Clark
+2000, Barasch et al. 2017, Diehl et al. 2016,
+Henkel 2014, St. Jacques & Schacter 2013.

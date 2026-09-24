@@ -4401,3 +4401,707 @@ Registry now P1–P824; numbering stable.
   boundary; the mix weights (self_belief vs script vs bleed) are
   unspecified by the model — we price them equal-ish and flag
   the weighting as the main open parameter.
+
+# Part VIII — v89: the quiet uses of feeling — how now bends then, how choosing rewrites options, and how suppressing leaves dents (2026-09-23, eighth pass)
+
+Parts I–VII priced what emotion does to records at mint,
+decay, cue, retell, and repair. Part VIII prices the
+remaining asymmetries where the FEELING OF NOW silently
+re-edits the FEELING OF THEN — the biases a spectator
+actually watches for: the partner who "never loved you"
+after the breakup, the option you didn't pick getting
+uglier in hindsight, the boundary where an evening splits
+in two. Plus three edge-mechanisms the earlier passes left
+informal: mood-state-dependent retrieval, deliberate
+suppression's aftereffects, and peritraumatic dissociation.
+The spine throughout: **bends are emission- or
+re-encode-side; the born tag is never silently rewritten
+by current state** (felt_write_null / hotcold_store_null
+discipline, §§93/88).
+
+## 98. Consistency bias — today's bond rewrites yesterday's feeling
+
+The most consequential single bias for a relationship sim.
+McFarland & Ross 1987 (dating couples, 2-month longitudinal):
+partners whose relationships *improved* recalled their earlier
+feelings as more positive than they had reported at the time;
+partners whose relationships deteriorated recalled them as
+more negative — recalled past tracked the PRESENT evaluation,
+not the stored one. Karney & Coombs 2000 (newlyweds, 4y):
+satisfaction trajectory, not satisfaction level, drove the
+direction of bias; women showed it more. Scharfe &
+Bartholomew 1995; Sprecher 1999 same direction for
+attachment. Holmberg & Holmes 1994: reconstructed premarital
+narratives correlate with current, not initial, satisfaction.
+This is *not* mood-congruent confabulation (§63 — a fill
+on absent content): it is a systematic re-valence of
+surviving affect reports on an intact relationship.
+
+Mechanics (spec §6.173). Emission of past-feeling reports
+toward a person (§6.163 believed channel AND the felt
+channel's *reported* tag — the stored tag still does not
+rewrite): `reported_affect = stored + rel_consist_k·
+(1−field_verbatim)·signΔ·|bond_now − bond_then|` where
+bond_then is the stored bond field, `rel_consist_k` 0.3.
+- **Gate 1 — person-scoped:** only applies to affect fields
+  whose object is a CondEntry person (§31). Events with no
+  person-field are exempt — locked `consist_scope:"person"`.
+- **Gate 2 — direction matters:** sign of the bend follows
+  Δbond, not bond level (Karney & Coombs). A stable-unhappy
+  marriage does NOT produce "never loved" reports; a
+  deteriorating one does. `consist_floor` 0.1 |Δ| minimum.
+- **Gate 3 — verbatim survives:** verbatim-rated fields
+  (§2's verbatim track) bend at `(1−field_verbatim)` — a
+  remembered letter keeps its wording even when its reported
+  warmth shifts. Locked `consist_fact_null`: non-affect
+  content (what was done/said) never bends — only how it
+  felt. Fischhoff-style discipline (§6.168 hind_store_null).
+- **Audit:** bend > `consist_audit` 0.4 emits
+  `rewrote_feelings:true` — spectator-visible when a
+  character narrates a past a viewer watched live.
+
+Personality: `consist_gain` scales with `self_concept`
+stability (high = less bend — a strong self-theory resists
+present-pull); `rumin` adds bend on deteriorations only
+(rehearsal of the grievance consolidates the revised
+feeling — §60 gate).
+
+## 99. Mood is an internal context — state-dependent retrieval, priced small
+
+Bower, Monteiro & Gilligan 1978; Bower 1981 proposed mood
+as an encoding-retrieval context. The honest verdict after
+two decades: real but SMALL and fragile — Eich & Macaulay
+2000 review puts it well below place/context reinstatement,
+largest when cues are *self-generated* and material is
+affectively charged; near-absent when the environment
+supplies strong external cues (Smith & Vela 2001
+meta-analysis: context-dependency generally; mood
+specifically is the weakest of the context terms). Ucros
+1989 review same: effect requires the mood to be genuinely
+installed at both ends. We already carry `w_msd` (v0.2
+clamp ≤0.25 — deliberately weak). Part VIII prices the
+*conditions* under which that weak term matters, so the
+substrate doesn't apply it flatly.
+
+Mechanics (spec §6.174). `w_msd_eff = w_msd·
+(1 + msd_selfgen_gain·selfGenerated)·(1 − msd_extcue_pen·
+env_cue_share)`:
+- `selfGenerated` — the recall was spontaneous/internally
+  cued (no Event cue, no conversational prompt): the msd
+  term roughly triples (`msd_selfgen_gain` 2.0). Internal
+  search is where mood-as-context lives (Eich & Macaulay).
+- `env_cue_share` — fraction of cueMatch from place/people/
+  topic (external channels): each unit halves the term
+  (`msd_extcue_pen` 0.5); a Dolores-Park cue makes today's
+  mood nearly irrelevant.
+- Affective-charge gate: term applies full when the
+  candidate record |valence| ≥ `msd_charge_gate` 0.3, else
+  at `msd_neutral_mult` 0.3 — mood context binds emotional
+  material, barely touches neutral (Bower's own boundary).
+- Locked `msd_store_null`: mismatch never *erases* — the
+  term is cueMatch-side only; a mismatched-mood record is
+  harder to reach, never deleted.
+
+Distinct from mood-congruent *content* selection (§63,
+§8): congruence picks WHICH record wins among matched
+candidates; state-dependency is a match-strength term that
+helps or hurts ALL candidates whose encode-mood differs
+from now. Keep them separate — they compose.
+
+## 100. "Don't think about it" leaves dents — suppression-induced forgetting
+
+Anderson & Green 2001 (Think/No-Think): deliberately
+preventing a cued memory from entering awareness, repeated
+~16×, reduces later recall of the suppressed item —
+INCLUDING on independent probes (cues never paired with it
+in training), which rules out simple cue-blocking and
+argues for inhibition of the representation itself.
+Anderson & Huddleston 2012 (Nebraska Symposium): ~10%
+below-baseline effect aggregated over 47 experiments;
+grows with suppression repetitions; valence-neutral in
+aggregate (the 2024 multilevel meta re-confirms: small
+SIF, larger on same-probe than independent-probe tests,
+unaffected by emotional content — honest bound: SIF is a
+*retrieval-control* phenomenon, not an emotion one).
+Levy & Anderson 2008: suppression also quiets the
+emotional response on later recall — the feeling fades
+with the fact. Rebound side: Wegner's ironic-process work
+(1987, 1994) — suppression under cognitive load produces
+the intrusions it prevents; Wenzlaff & Wegner 2000:
+suppressed thoughts become hyper-accessible afterward,
+especially in dysphoria.
+
+Mechanics (spec §6.175). A `suppress:true` reflect-mode
+(§6.156 sibling) or repeated cue-avoidance of the same
+record mints `sup_n` on the record:
+- Each successful suppression (cue presented, record NOT
+  emitted) adds `sup_n += 1`; record's effective R for
+  *all* cue channels decays by `sif_pen·log1p(sup_n)` —
+  cue-independent because the meta says independent probes
+  still fail (0.04/log — deliberately small, ~10% at
+  sup_n 15).
+- `sif_load_rebound`: if `C.load` ≥ 0.6 during a suppress
+  attempt, the attempt FAILS and instead mints an
+  intrusion (`rebound:true` emission, fires the record at
+  intrusion_thresh×(1−0.2) next ticks) — Wegner's ironic
+  arm; `rumin` and dysphoric `C.mood` each add
+  `sif_rebound_gain` to failure odds.
+- `sif_tag_decay` 0.35: suppressed records' affect tags
+  cool slightly faster on later successful recalls (Levy
+  & Anderson) — the relief pathway that is NOT just
+  extinction: applies on top of §16's verbal dampen, not
+  instead of it.
+- Locked `sif_del_null`: suppression never archives or
+  deletes — it is a dent in reachability, and every
+  suppressed record keeps its full latent match-key; a
+  strong enough cue (resurrect path §retrieval) still
+  fires it. The white bear keeps its claws.
+- Honest bound: SIF magnitude is small and contested at
+  the individual-study level; implement as a slow lever,
+  flag `sif_pen` magnitude HYPOTHESIS — the probe gates
+  sign and order, not the exact slope.
+
+## 101. The story you choose to tell — redemption and contamination sequences
+
+McAdams 2001, 2006 (life-narrative research): when people
+narrate autobiographical episodes, a stable *sequence
+schema* shapes the retell — REDEMPTION (bad → good: the
+negative scene is narrated as yielding growth, relief,
+insight) vs CONTAMINATION (good → bad: a positive scene
+narrated as ruined, poisoned, foreshadowing loss). The
+schema is a personality-stable narrative habit (McAdams
+et al. 1997: redemptive narrators score higher on
+generativity and well-being; Adler et al. 2015, 2017:
+sequence shifts in therapy track symptom change) — and
+each retell that follows the schema *drifts the record's
+tag* in the schema's direction (Pasupathi 2001 +
+§16 verbal-dampen machinery: the retold version is the
+version that keeps getting stronger).
+
+Mechanics (spec §6.176). Trait `narr_seq` ∈ [−1,+1]
+(contam ↔ redempt, bible-pinnable, near-zero for most):
+- On jointRecall/self-retell of a NEGATIVE record:
+  redemptive narrators mint the retell with
+  `redempt_reframe_p = max(0, narr_seq)·redempt_k` (0.5)
+  — the emitted account appends a `resolution` beat
+  (world-supplied or generated), and the tag cools an
+  extra `redempt_cool` 0.15 on top of §16 dampen.
+  Contam narrators: `contam_gain = max(0,−narr_seq)·
+  contam_k` — the tag *warms* back (cools less:
+  dampen ×(1−contam_gain), and on POSITIVE records a
+  contam retell can flip reported valence negative —
+  "that was the night before everything went wrong").
+- **Event-rewrite side (new in VIII):** a resolution
+  event the world actually delivers (apology accepted,
+  recovery milestone — `resolve:true` on the linked
+  record) feeds `narr_seq` once: +`narr_seq_shift` 0.05.
+  Witnessed betrayals feed −. The trait drifts only on
+  real world events, never on retells themselves —
+  same discipline as `purpose` (§4.45d).
+- Locked `narr_truth_null`: a redemptive retell changes
+  the TAG and the FRAMING, never the content fields —
+  "it made me who I am" does not erase what happened;
+  a contam retell cannot invent new negative content
+  fields, only re-valence reported affect.
+- Emission marker `seq_redempt` / `seq_contam` on the
+  emitted account — the spectator sees the schema at work.
+
+## 102. The repair that leaves no trace — immune neglect on the memory side
+
+Wilson & Gilbert (immune neglect, Gilbert et al. 1998;
+Wilson, Meyers & Gilbert 2001; Wilson & Gilbert 2003
+review): people recover from negative events faster and
+more completely than they predict — and crucially for a
+memory model, they *under-credit the recovery itself*.
+The rationalization machinery (§101's redemptive frame,
+§61 forgiveness, §72 rival tags) works largely
+unconsciously, so what gets stored is the WOUND, not the
+healing process. Consequence already documented in §50's
+impact bias (forecasts overshoot); the memory-side result
+is that the record of HOW one healed is thin: the
+event ends in the ledger at peak pain + a thin resolved
+flag, while the days of gradual recovery — dozens of
+small ordinary mornings — consolidate as nothing.
+
+Mechanics (spec §6.177).
+- `resolve_thin_null` (locked): post-event recovery
+  micro-events mint at baseline E×`resolve_thin` 0.3 —
+  ordinary-coping days are ordinary, and ordinary is
+  forgettable (distinctiveness confound §47 cuts the
+  other way too: nothing about "another normal Tuesday"
+  competes for space).
+- Resolved negative records (forgiven, counterconditioned,
+  redemptively retold) keep `resolved:true` but the
+  *duration-to-recover* field decays verbatim-fast —
+  the remembered wound outlives the remembered convalescence.
+- **Forecast seam:** §50 impact-bias reads peak tag and
+  stored duration; it does NOT read an adaptive recovery
+  rate — `immune_blind_null` (locked): characters forecast
+  from the scar, not from their own demonstrated healing
+  speed. This is the mechanism-level source of durable
+  forecasting error — a character who healed from the
+  last breakup in 3 weeks still predicts months of pain
+  for the next one.
+- Spectator seam: `heal_gap:true` emission when a
+  character voices a forecast that exceeds their own
+  stored (thin) recovery record by > `heal_gap_k` 2× —
+  the world can *show* the neglect.
+
+## 103. The road not taken gets uglier — choice-supportive memory
+
+Henkel & Mather 2007 (Psych Sci; Mather & Johnson 2000;
+Mather, Shafir & Johnson 2000): after choosing between
+options, memory migrates option features to favor the
+chosen — positive features are misattributed TO the
+chosen option, negative features to the rejected, and
+invented positive features get "remembered" as belonging
+to what you picked. Critically delay-dependent: the bias
+GROWS over days as feature-source tags rot (§source
+machinery — feature→option binding is exactly a source
+tag). Henkel & Mather's older adults showed MORE bias,
+not less — choice-supportive distortion is a positivity
+mechanism for the chosen self (§105 link). Benney &
+Henkel 2006: the bias is reliable even at short delay
+when source memory is weak; Svenson & Benthorn 1992:
+post-decision differentiation begins immediately.
+
+Mechanics (spec §6.178). `decision` records (Event kind
+`choice` with `options:[{id, features…}], chosen:id`):
+- Each non-chosen option's affect-valued features carry a
+  source tag `opt_src`; tag decays at `beta_source·
+  choice_src_mult` (1.4 — option-feature binding is
+  fragile). On report/recall of the decision, feature
+  fields with `opt_src` below θ get re-attributed with
+  probability `choice_bias_k·(1−opt_src)` (0.25): positive
+  → chosen, negative → rejected; invented positive fills
+  (§confab machinery) land on the chosen side at
+  `choice_fill_gain` 0.5.
+- Age gradient: `choice_age_gain` — at age_eff 80 the bias
+  ×1.4 (Henkel & Mather), the positivity pathway again.
+- `choice_irrevocable_gain` 0.3 extra on irreversible
+  choices (lease signed, job quit): commitment needs the
+  distorting (Gilbert & Ebert 2002 — the immune system
+  works hardest on unchangeable outcomes; locked
+  `choice_rev_null`: reversible choices still bias, just
+  less — never zero).
+- Audit `rationalized:true` when a re-attributed feature
+  is emitted — the spectator watched the actual options.
+- Locked `choice_content_null`: the option SET and the
+  choice itself never reattribute — what was chosen is
+  fact; only feature *ownership* drifts.
+
+## 104. The evening splits in two — affect shifts mint event boundaries
+
+Event segmentation (Zacks lab; Ezzyat & Davachi 2011;
+Clewett & Davachi 2017): continuous experience is chunked
+into episodes at context changes, and boundaries *organize*
+later memory — within-event order is preserved, across-
+event order degrades, and across-boundary pairs feel
+farther apart in time (temporal-distance dilation:
+Heusser, Poeppel, Ezzyat & Davachi 2022, Nat Comms — the
+"reset" model). Clewett et al. 2020 (Nat Comms): the
+boundary itself is an arousal burst (pupil dilation) —
+and arousal peaks index where the mind decides a new
+event began. Rouhani & Niv-adjacent 2020 (Princeton):
+reward-prediction-error spikes mint boundaries
+retroactively — the surprising scene binds backward,
+splitting the stream. The 2023 Cognition & Emotion
+dissociation (Clewett-group replication family): emotion
+and segmentation pull in OPPOSITE directions on order
+vs item-context binding — emotion *enhances* temporal
+order for its own items while boundaries *impair* order
+across the seam. RW consequence: an affect swing inside
+one "scene" (the dinner that turned into a fight) is
+where the record splits, and the split is legible in
+later recall errors.
+
+Mechanics (spec §6.179). Within an Event, tracked
+`affect_shift = |arousal/valence delta between scene
+beats|` (world supplies beat boundaries or the mint
+infers from beat-level arousal fields):
+- `affect_shift ≥ bound_thresh` (0.4) mints
+  `seg_boundary:true` on the post-shift beat's record;
+  negative-valence shifts add `bound_neg_amp` (0.15) —
+  the aversive turn splits deeper (2023 CE finding).
+- **Order:** recalled order of fields ACROSS a
+  `seg_boundary` pays `bound_order_pen` (0.3) — "did the
+  toast come before the fight?" becomes genuinely hard;
+  WITHIN-segment order gets `bound_within_gain` (0.15,
+  local-primacy leg of the reset model — items early in
+  a segment order best).
+- **Distance:** across-boundary pairs emit
+  `felt_dt ×(1+bound_dist_gain)` (0.35) — "the calm part
+  feels like a different night" (§46 machinery carries
+  the emission).
+- **Interference:** records in different segments accrue
+  less mutual proactive interference (`bound_interf_res`
+  0.25 reduction) — segmentation protects (Ezzyat &
+  Davachi's original result); records in the same segment
+  merge/interfere normally.
+- Locked `bound_del_null`: the boundary is organizational
+  metadata — it never prevents a strong cue from bridging
+  the seam (the fight can still bring back the toast;
+  it just won't come back *in order*).
+
+## 105. The positivity effect — and the distraction that kills it
+
+Mather & Carstensen 2005 (TICS); Kennedy, Mather &
+Carstensen 2004 (Psych Sci, autobiographical): older
+adults disproportionately prefer positive over negative
+material in attention and memory — the *positivity
+effect*, interpreted via socioemotional selectivity
+(Carstensen's SST: shrinking time horizon prioritizes
+emotion-regulation goals). Reed, Chan & Mikels 2014
+meta-analysis confirms a real age-graded positivity
+preference. The decisive boundary is Mather & Knight
+2005 (Psych & Aging) + Knight, Seymour, Gaunt, Baker,
+Nesmith & Mather 2007: the effect is CONTROL-DEPENDENT —
+under divided attention at encoding, older adults not
+only lose the positivity preference but *reverse* it,
+attending and remembering MORE negative material than
+the young; low-cognitive-control elders show no
+positivity at all. This is a motivated-cognition
+mechanism running on scarce resource — when the resource
+is taxed, the default negativity bias resurfaces.
+DEBATED alternative framings (neural-decline accounts;
+Murphy & Isaacowitz 2008 meta on attention showing weak
+age-valence interactions) are honored by keeping the
+mechanism on the regulation pathway, not a hard valence
+filter.
+
+Mechanics (spec §6.180). A `pos_eff` term active only
+for `age_eff ≥ pos_onset` (55) on *valenced candidate
+scoring*:
+- Encode arm: `E_pos *= (1+pos_enc_gain·pos_eff)` and
+  `E_neg *= (1−pos_enc_pen·pos_eff)` — older characters
+  mint positive a bit stronger, negative a bit weaker;
+  `pos_eff` ramps `pos_ramp` per year past onset, capped
+  0.5, scaled by `control_eff` (cognitive-control
+  composite: reserve × (1−load) — Mather & Knight's
+  control dependence).
+- **The reversal (the load-bearing clause):** under
+  `C.daLoad`/`C.load ≥ 0.6`, `pos_eff` signs NEGATIVE —
+  `E_neg *= (1+neg_rebound·|pos_eff|)` and retrieval
+  threat-priority (§6.159) doubles on the oldest-old.
+  The distracted grandparent is the MOST negativity-
+  biased person at the table — Knight 2007's reversal,
+  not merely the effect's absence.
+- Retrieval arm: positive-mood broadening (§6.160)
+  gets `pos_broaden_gain` on the oldest-old; negative
+  records pay a small θ surcharge `pos_theta` 0.05 under
+  full attention only.
+- Locked `pos_youth_null`: below `pos_onset` the term is
+  identically zero — youth's bias, such as it is, is not
+  this mechanism (young adults show no motivated
+  positivity preference — Kennedy 2004 control
+  conditions).
+- `pos_appraisal_null` (locked): the effect never touches
+  threat-relevant fields — a real danger still encodes;
+  SST redirects *gratification* attention, not survival
+  attention (Mather & Knight's own caveat).
+
+## 106. Checked out while it happened — peritraumatic dissociation
+
+Ozer, Best, Lipsey & Weiss 2003 (Psych Bull meta, 68
+studies): peritraumatic dissociation — feeling numb,
+unreal, out-of-body, or time-warped DURING the event —
+is the single strongest *during-event* predictor of later
+PTSD symptoms (r ≈ .35), stronger than peritraumatic
+fear itself. van der Kolk & Fisler 1995; Marmar et al.
+1994: dissociative encoding produces recall that is
+fragmentary, often somatic, and intrusive rather than
+narratable. Proneness is trait-distributed (absorption,
+dissociative capacity — Putnam 1997 DES work; also
+higher under fatigue and prior trauma — prior `trauma_n`
+records raise the base rate, "kindling" pattern).
+Different from §7's trauma-tagging (which is
+arousal-magnitude-driven — EVERYONE fragments past
+arousal 0.9): dissociation is PRONENESS-driven — two
+characters in the same bad event walk out with different
+record structures.
+
+Mechanics (spec §6.181). Trait `dissoc` ∈[0,1]
+(composite: absorption/neuroticism/fatigue at mint,
+bible-pinnable as `absorption` loading):
+- On events arousal ≥ `dissoc_arousal_gate` (0.6):
+  `dissoc_p = dissoc·(1+kindle_gain·trauma_n)` rolls a
+  dissociative encode. `kindle_gain` 0.3 per prior
+  trauma record (cap ×1.9).
+- A dissociated record mints `dissociated:true` with the
+  §7 phenotype ROTATED: content fields present but
+  `link_p ×(1−dissoc_frame_pen)` (0.5) — the record
+  fails to bind to its context and to neighboring
+  records (van der Kolk & Fisler's fragmentary quality);
+  `narr_coherence` starts at `dissoc_coh_start` 0.2
+  (§32 repair variable starts low — the record arrives
+  pre-fragmented, not fragmentable).
+- Retrieval asymmetry: voluntary cue-recall θ pays
+  `dissoc_vol_pen` (0.1 surcharge — "I can't quite get
+  to it"), but intrusion/spontaneous-fire threshold
+  DROPS `dissoc_intru_gain` (0.15) — it won't come when
+  called and won't stay away when cued accidentally
+  (Ehlers & Clark's intrusive-poor-voluntary dissociation
+  in PTSD phenomenology).
+- `dissoc_time_warp`: `felt_dt` emission ×(1±0.4) seeded
+  — dissociative time distortion lands either direction
+  (slowed OR collapsed), unlike §45's arousal dilation
+  which is one-directional.
+- Locked `dissoc_content_null`: dissociation impairs
+  BINDING, never content existence — details exist,
+  orphaned; the confused character can still emit
+  accurate fragments under strong cue.
+
+## 107. The camera in the hand — photo-mediated encoding and the photo cue
+
+Barasch, Diehl, Silverman & Zauberman 2017 (Psych Sci,
+museum field + 3 lab studies): volitional photo-taking
+redirects attention WITHIN an experience — visual
+recognition improves (even for unphotographed regions),
+auditory/verbal memory degrades; *mental* photo-taking
+produces the same shift, proving the mechanism is
+attentional, not offloading. Diehl, Zauberman & Barasch
+2016 (JPSP): photo-taking increases engagement and
+thereby ENJOYMENT of positive experiences — and worsens
+evaluations of negative ones (engagement cuts both
+ways). Henkel 2014 (the earlier "camera hurts memory"
+result) found the offload deficit only when photos were
+expected to be archived-for-you — reconciled: volitional
+in-the-moment framing helps vision and costs sound;
+delegated archiving costs everything. For RW: a
+character at Dolores Park framing the sunset is
+literally encoding a different event than the one her
+companion gets.
+
+Mechanics (spec §6.182). Event context `photographing`
+(world-minted; ambient characters rarely, mains
+personality-gated by `social`/extraversion):
+- Encode: `visual`/`scene` fields ×(1+`photo_vis_gain`
+  0.3); `verbal`/`auditory` fields ×(1−`photo_aud_pen`
+  0.25); photographed-beat fields ×(1+`photo_frame_gain`
+  0.2) beyond the visual gain (the framed content wins
+  twice — Barasch's photographed>unphotographed gap).
+- Valence interaction: positive events mint arousal_tag
+  +`photo_engage_gain` 0.1 (enjoyment via engagement);
+  negative events mint the same magnitude NEGATIVE —
+  photographing the argument makes it feel worse in the
+  moment AND encode deeper (Diehl 2016's asymmetry —
+  locked `photo_neg_null` prohibits the positive-only
+  reading).
+- **Photo-cue (new cue carrier):** a later `photo_review`
+  re-encounter event refreshes ONLY the fields that were
+  `photographed:true` at mint — the image preserves its
+  contents verbatim-strong (`photo_verbatim_resist` 0.4
+  slower verbatim decay on framed fields) while
+  unphotographed context continues normal drift. The
+  photo becomes the fixed face of a drifting event —
+  and a channel for discrepancy (`photo_gap:true` audit
+  when remembered affect has drifted far from what the
+  photo still shows; St. Jacques & Schacter 2013's
+  reactivation-selectivity reading).
+- Locked `photo_offload_null`: volitional photographing
+  never reduces overall E — the Henkel-2014 offload arm
+  is reserved for `photographing:"archive"` context
+  (world-supplied distinction: taking a photo to
+  remember vs delegating memory to a device); absent
+  that flag, engagement wins.
+
+## 108. Spec delta (v5.36 → v5.37)
+
+`memory-model-spec.md` v5.37. New §§6.173–6.182 (ten
+mechanisms above). Params: +26 scalars (+2 traits,
++1 record flag family, +2 context flags, +1 event kind,
++2 emissions):
+
+```
+rel_consist_k 0.3, consist_floor 0.1, consist_audit 0.4  §6.173
+msd_selfgen_gain 2.0, msd_extcue_pen 0.5,
+msd_charge_gate 0.3, msd_neutral_mult 0.3              §6.174
+sif_pen 0.04, sif_load_rebound 0.6, sif_rebound_gain 0.2,
+sif_tag_decay 0.35                                     §6.175
+redempt_k 0.5, redempt_cool 0.15, contam_k 0.6,
+narr_seq_shift 0.05                                    §6.176
+resolve_thin 0.3, heal_gap_k 2.0                       §6.177
+choice_src_mult 1.4, choice_bias_k 0.25,
+choice_fill_gain 0.5, choice_age_gain 1.4,
+choice_irrevocable_gain 0.3                            §6.178
+bound_thresh 0.4, bound_neg_amp 0.15, bound_order_pen 0.3,
+bound_within_gain 0.15, bound_dist_gain 0.35,
+bound_interf_res 0.25                                  §6.179
+pos_onset 55, pos_ramp 0.02, pos_enc_gain 0.3,
+pos_enc_pen 0.2, neg_rebound 1.0, pos_theta 0.05,
+pos_broaden_gain 0.3                                   §6.180
+dissoc_arousal_gate 0.6, kindle_gain 0.3,
+dissoc_frame_pen 0.5, dissoc_coh_start 0.2,
+dissoc_vol_pen 0.1, dissoc_intru_gain 0.15,
+dissoc_time_warp 0.4                                   §6.181
+photo_vis_gain 0.3, photo_aud_pen 0.25,
+photo_frame_gain 0.2, photo_engage_gain 0.1,
+photo_verbatim_resist 0.4                              §6.182
+```
+
+Traits: `narr_seq` ∈[−1,1] (bible-pinnable, event-
+rewritable only); `dissoc` ∈[0,1] (absorption composite).
+Record fields: `seg_boundary:true`, `dissociated:true`,
+`sup_n`, `resolved:true`, `photographed:true` per field,
+`opt_src` on option features. Event kinds/flags:
+`choice`, `resolve:true`, `photographing` context
+(+`:"archive"` variant), `photo_review` cue-carrier,
+`suppress:true` reflect mode. Emissions:
+`rewrote_feelings:true`, `rebound:true`,
+`seq_redempt`/`seq_contam`, `heal_gap:true`,
+`rationalized:true`, `photo_gap:true`. Locked nulls:
+`consist_fact_null`, `consist_scope:"person"`,
+`msd_store_null`, `sif_del_null`, `narr_truth_null`,
+`resolve_thin_null` (magnitude), `immune_blind_null`,
+`choice_content_null`, `choice_rev_null`,
+`bound_del_null`, `pos_youth_null`, `pos_appraisal_null`,
+`dissoc_content_null`, `photo_neg_null`,
+`photo_offload_null`. Frozen: `msd_scope:"cueMatch"`.
+
+## 109. Age guidance (extends §§10/23/37/53/67/81/95)
+
+| mechanism | encodeAge | note |
+|---|---|---|
+| consist bend | <8 damp ×0.5 (thin relational ledger) | present-pull needs a longitudinal bond field |
+| msd term | flat | mood-as-context has no known age gradient; keep w_msd clamp |
+| sif | <10 weak (×0.6 — immature inhibitory control, Anderson developmental work); ≥65 `sif_pen` ×0.7 | control weakens at both ends |
+| narr_seq | schema consolidates ~15–25 (McAdams identity-formation window — bump-adjacent) | `narr_seq` draws at bible-write; young mains nearer 0 |
+| immune blind | flat — Gilbert's participants were young | the neglect is human-universal |
+| choice bias | ≥60 ×`choice_age_gain` ramp | Henkel & Mather: old > young — the one distortion that GROWS with age |
+| boundaries | ≥70 `bound_order_pen` ×1.3 (aging impairs temporal-order binding generally — Naveh-Benjamin) | |
+| positivity | onset 55, ramp `pos_ramp`/yr, cap 0.5; control-scaled | the only mechanism here with a hard age gate |
+| dissoc | flat base; `trauma_n` kindling makes it cohort-shaped | war/accident histories differ per bible |
+| photo | flat; ambient use rare | platform-habit, trait-gated |
+
+## 110. Validation probes (P938–P947; registry continues)
+
+- **P938 consistency direction (MUST, sign-lock):** a dyad
+  whose bond rises +0.4 over 60 days emits past-feeling
+  reports bent positive by ≥`consist_floor`; a dyad whose
+  bond falls the same amount bends negative; a STABLE-
+  unhappy dyad bends < floor. McFarland & Ross 1987;
+  Karney & Coombs 2000.
+- **P939 msd conditions (SHOULD, dissociation):** at fixed
+  cue strengths, self-generated recalls show mood-match
+  effect ≥3× the externally-cued effect; neutral records
+  show ≤`msd_neutral_mult` of the charged effect.
+  Eich & Macaulay 2000; Smith & Vela 2001.
+- **P940 SIF dent-and-rebound (MUST, dissociation):** 15
+  successful suppressions produce below-baseline recall
+  on both same-cue AND novel-cue probes (independence is
+  the load-bearing cell); `C.load`≥0.6 suppression
+  attempts produce MORE intrusions than baseline within
+  2 ticks; record never archives (`sif_del_null`).
+  Anderson & Green 2001; Anderson & Huddleston 2012.
+- **P941 sequence drift (SHOULD, sign-lock):** narr_seq
+  +0.8 vs −0.8 twins retell the same negative record 5×;
+  the redemptive record's tag cools ≥`redempt_cool`-scaled
+  beyond verbal-dampen; the contam record's reported
+  valence drifts toward zero/negative; CONTENT fields
+  identical in both (`narr_truth_null`). McAdams 2001.
+- **P942 immune blind (SHOULD):** a character with a
+  resolved negative record (peak tag 0.7, 21-day recovery)
+  forecasting a matched new event overshoots stored
+  recovery duration by ≥`heal_gap_k` and emits
+  `heal_gap:true`; `immune_blind_null` — no recovery-rate
+  term exists to correct it. Wilson & Gilbert 2003.
+- **P943 choice migration (MUST, interaction):** 30 days
+  post-decision, feature reports misattribute positive
+  features to the chosen option ≥4× the reverse
+  direction; effect grows with retention interval
+  (day-2 < day-30); 80yo > 30yo (`choice_age_gain`);
+  option set and choice fact intact
+  (`choice_content_null`). Henkel & Mather 2007.
+- **P944 boundary split (MUST, dissociation):** one
+  3-beat event with an affect_shift ≥`bound_thresh` at
+  beat 2: across-seam order errors ≥2× within-seam;
+  across-seam `felt_dt` ≥1.3×; a strong cross-seam cue
+  still retrieves (order lost, access kept —
+  `bound_del_null`). Heusser 2022; Clewett 2020.
+- **P945 positivity reversal (MUST, sign-lock):** 70yo
+  vs 30yo twins, mixed pos/neg event: full-attention arm
+  shows older recall skewed positive (pos_share +
+  `pos_enc_gain`-scaled); divided-attention arm shows
+  older skewed NEGATIVE relative to young — both arms
+  required, `pos_youth_null` holds in the young.
+  Mather & Knight 2005; Knight et al. 2007.
+- **P946 dissociation split (SHOULD, dissociation):**
+  dissoc 0.9 vs 0.1 twins, arousal 0.75 event: high-
+  dissoc record shows link density <60% of low-dissoc
+  + intrusion rate > low + voluntary θ surcharge —
+  three-way split; content fields present in both
+  (`dissoc_content_null`). Ozer et al. 2003.
+- **P947 camera asymmetry (COULD):** photographing arm
+  vs control: visual-field recall +, auditory-field −;
+  photographed beats > unphotographed; positive event
+  tag +`photo_engage_gain`, negative event tag −same;
+  overall E parity (`photo_offload_null`); photo_review
+  refreshes only photographed fields. Barasch 2017;
+  Diehl 2016.
+
+## 111. Honest limits (Part VIII)
+
+- **Consistency bias** magnitudes: McFarland & Ross and
+  Karney & Coombs measured *correlational* report shifts
+  in small longitudinal samples; the bend-toward-present
+  direction is replicated, the exact gain is ours
+  (HYPOTHESIS — P938 gates sign and floor, not slope).
+  Whether the bend applies to the felt channel's REPORT
+  (not just believed reports) is our extension; the
+  locked null keeps it emission-side regardless.
+- **Mood-state-dependency** is the weakest context term
+  in the literature and failed-replication-prone (the
+  Eich group's own bounds are hedged); we keep `w_msd`
+  clamped ≤0.25 and let the *conditions* carry the
+  realism — self-generated internal search is where it
+  lives.
+- **SIF** effect size is small and the field has
+  failed-replication history (the 2024 multilevel meta
+  is the honest aggregate: real, small, method-sensitive).
+  `sif_pen` is deliberately conservative; the meta's
+  valence-neutrality is honored — we did NOT make SIF
+  stronger for negative records, tempting as that is.
+  The Wegner rebound arm is on separate footing
+  (ironic process, not inhibition) and is priced as an
+  intrusion mechanism, not a SIF multiplier.
+- **Narrative sequences** are measured as coding
+  categories on transcribed life stories — `narr_seq`'s
+  continuum is our compression; the event-rewrite
+  direction (redemptive experiences raise the trait) is
+  documented in therapy-outcome data (Adler 2015) but
+  the magnitudes are ours.
+- **Immune neglect** as implemented is a *storage*
+  claim: recovery events encode thin because ordinary.
+  The forecasting consequence is established (Gilbert's
+  lab); the specific "heal_gap audit" is a
+  game-facing audit we invented — it operationalizes the
+  neglect, it isn't from the literature.
+- **Choice-supportive bias** is solid at the effect level;
+  our routing through `opt_src` source-tag decay is the
+  mechanism story (feature→option binding IS a source
+  tag — clean fit), but `choice_src_mult`/`choice_bias_k`
+  magnitudes are unpriced by the source papers.
+- **Emotional boundaries**: the within/across order
+  dissociation and distance dilation are well replicated
+  (Heusser 2022 gives the mechanism model we literally
+  implement — reset on boundary); the *negative-shift
+  amplification* (`bound_neg_amp`) rests on a newer
+  single-paradigm line (2023 CE) — flagged accordingly.
+- **Positivity effect**: the motivated-cognition framing
+  (SST + control-dependence + DA reversal) is the
+  implemented account; the neural-decline counter-frame
+  exists (Murphy & Isaacowitz's meta found weaker
+  attention effects). The DA-reversal is the load-bearing
+  testable cell — a sim that shows old-positivity under
+  distraction has implemented the wrong mechanism.
+- **Dissociation**: Ozer's meta is strong at the
+  predictor level but the record-structure phenotype
+  (binding loss vs content loss) is our formalization
+  of the fragmentary-recall phenomenology; `kindle_gain`
+  is plausible but unpriced.
+- **Photo effects**: Barasch 2017 is one lab's program
+  (well-powered, multi-study) — the visual/auditory split
+  is verified; the photo-cue *preservation* asymmetry
+  (framed fields resist drift) is our extension via
+  St. Jacques & Schacter's reactivation-selectivity
+  principle — flagged HYPOTHESIS.
