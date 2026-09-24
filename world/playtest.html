@@ -2196,6 +2196,29 @@ const PTS=[
    "Thinai gate: 0 fail; detail reports schema v111 at key rw_thinai_v111",
    "A witness schema carrying a mode/mood field or lazy_thin permitting a catch-up pop would FAIL — spot-check",
    "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT101 hand-sync"]},
+]},
+{id:"PT102",title:"The mouths & pulses layer v113 — named anchors, pulse clocks, the leash",min:8,
+ persona:"systems reviewer — wants proof the crowd's bodies come from somewhere: named doorways with live windows, pulses bound to real schedules, and a leash that keeps the day a closed loop instead of accumulating strangers",
+ goal:"Verify the v113 crowd pass on world/crowd.html: the eight named mouths replace the bare 'edge' endpoint (each a point with dir, live window, per-minute cap — never a zone); the seven pulse clocks lift a mouth's flow only inside their motivating schedule (school bells weekday-windowed, last-call overnight); the leash fixes a unit's zone set at spawn (≤2 zones from entry) with despawn citing a mouth and a rolling-60min per-mouth body ledger; all ids stay internal vocabulary.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Read crowd-sim.md §§29–32 and crowd.json's mouths / pulse_clocks / leash blocks against the earlier layers.",
+  exp:"Every statement resolves to a spawn-budget or bookkeeping rule — mouths carry position+dir+window+cap and no budget; pulses are doorway arithmetic bound to the schedule that motivates them (a pulse can never fire outside its window, name a destination zone, or touch the named layer); the leash's four intents (through/errand/dwell/cover) each bound zones_visited ≤2 plus a dwell window and an exit rule; conservation balances bodies at the mouths over a rolling hour.",
+  ck:[
+   "m-gate is the only mouth with kid_scale — the v85 family safeguard now binds at the doorway",
+   "Every flow edge touching 'edge' cites a declared mouth (f-edge-mudhaus→m-plaza, f-school-park→m-gate, f-club600-edge→m-curb, f-edge-streets→m-plaza, f-edge-school→m-gate)",
+   "leash.no_reentry keeps 'a despawned extra stops existing' — costume continuity, never histories"]},
+ {do:"Open crowd.html (file://). Scrub the clock across 07:00–08:30 weekday, then 15:00–16:00, then 22:30–02:00; switch day to weekend and re-scrub the school window; read the mouths panel.",
+  exp:"The mouths panel shows each anchor live only inside its window — m-gate goes quiet outside 07:00–08:30/15:00–16:45 and all weekend; pulse chips light only in-window (school-bell-am/pm at the gate, shift-change at the curb three times a day, kitchen-close 22:45–23:30, last-call 01:30–02:15); the leash footer lists the four intents with their dwell bounds and exit rules.",
+  ck:[
+   "m-gate reads 'quiet' on weekend — the school doorway is weekday-only by construction",
+   "last-call lights at 01:30–02:15 on the pickup curb — the despawn side of the ledger is as specific as the spawn side",
+   "No panel names a pulse to the feed — mouth/pulse/intent ids stay internal vocabulary like fog_season"]},
+ {do:"Run node world/audit.js and read the crowd gate.",
+  exp:"Crowd gate passes with detail reporting '8 mouths · 7 pulses' at schema v113 — MOUTHS/PULSES/LEASH mirrors agree with crowd.json, every 'edge'-touching flow edge cites a mouth, pulse dirs respect mouth dirs, cap_per_min ceilings hold (≤10 — a trickle with a ceiling, not a faucet), and the meta-vocabulary sweeps cover the new blocks.",
+  ck:[
+   "Crowd gate: 0 fail; detail reports 8 mouths · 7 pulses",
+   "An edge touching 'edge' without a mouth, or a pulse dir contradicting its mouth's dir, would FAIL — spot-check",
+   "Harness gate: '102 scenarios · N checkpoints'; mirror gate confirms the PT102 hand-sync"]}
 ]}
 ];
 

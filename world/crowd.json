@@ -1,7 +1,7 @@
 {
- "version": 99,
+ "version": 113,
  "updated": "2026-09-24",
- "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor). v99 adds the bench layer — the pull protocol (how a request borrows a named ambient: window, capacity, bounds, minors never, in-role only) and the coverage map (what each ambient's post reads while borrowed — understudy extra, back-in-10 sign, or an honestly empty bench).",
+ "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor). v99 adds the bench layer — the pull protocol (how a request borrows a named ambient: window, capacity, bounds, minors never, in-role only) and the coverage map (what each ambient's post reads while borrowed — understudy extra, back-in-10 sign, or an honestly empty bench). v113 adds the mouths & pulses layer — mouths (the eight named spawn/despawn anchors that replace the bare 'edge': transit stairs, bus stops, the school gate, the garage ramp, the pickup curb, the stoops, the west edge), pulse_clocks (seven discrete arrival/departure lifts — train discharge, bus arrival, school bells, shift change, kitchen close, last call), and the leash (entry intents through/errand/dwell/cover plus per-mouth body conservation — the day is a closed loop).",
  "conventions": {
   "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
   "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
@@ -36,7 +36,10 @@
   "group_profile": "v85 company layer — extras spawn in social units (lone/duo/cluster), resolved as normalize(kind_mix × daypart_mix); a unit is one spawn, one edge, one despawn; budgets still count bodies",
   "courtesies": "v85 counter-courtesy layer — named ambient ↔ anonymous extra pose exchanges gated on resolved state + extra presence + cooldown; gesture only, no dialogue, no ledger",
   "pull_protocol": "v99 — the rules for borrowing a named ambient as a co-star; conditions on resolved state + request class, never a dispatch",
-  "coverage": "v99 — per-ambient absence surface while pulled: kind understudy|sign|open|pack; the post never lies (a tarped stand reads tarped, never 'serving')"
+  "coverage": "v99 — per-ambient absence surface while pulled: kind understudy|sign|open|pack; the post never lies (a tarped stand reads tarped, never 'serving')",
+  "mouths": "v113 — named spawn/despawn anchors; every extra enters/leaves through a live mouth, off-camera by position; a mouth is a point with a direction and a per-minute cap, never a zone",
+  "pulse_clocks": "v113 — named discrete lifts on a mouth's flow (train/bus cadence, school bells, shift change, kitchen close, last call); budget arithmetic at the doorway, never a dispatch; internal vocabulary",
+  "leash": "v113 — entry intents (through/errand/dwell/cover) fix a unit's zone set and dwell window at spawn; despawn only at a mouth; per-mouth rolling-60min conservation keeps the day a closed loop"
  },
  "dayparts": [
   {
@@ -1388,7 +1391,8 @@
       9
      ]
     },
-    "note": "the morning approach — the crossing fills before the door does"
+    "note": "the morning approach — the crossing fills before the door does",
+    "mouth": "m-plaza"
    },
    {
     "id": "f-mudhaus-park",
@@ -1430,7 +1434,8 @@
      ]
     },
     "micro": "school-bell",
-    "note": "the release current; weekday only"
+    "note": "the release current; weekday only",
+    "mouth": "m-gate"
    },
    {
     "id": "f-streets-elfarolote",
@@ -1475,7 +1480,8 @@
      ]
     },
     "micro": "last-call-drift",
-    "note": "the way home"
+    "note": "the way home",
+    "mouth": "m-curb"
    },
    {
     "id": "f-park-minimart",
@@ -1519,7 +1525,8 @@
       4
      ]
     },
-    "note": "transit spill — the block absorbs the city's commute"
+    "note": "transit spill — the block absorbs the city's commute",
+    "mouth": "m-plaza"
    },
    {
     "id": "f-edge-school",
@@ -1540,7 +1547,8 @@
      ]
     },
     "micro": "school-dropoff",
-    "note": "the drop-off current — backpacks in, adults peeling back out; weekday only"
+    "note": "the drop-off current — backpacks in, adults peeling back out; weekday only",
+    "mouth": "m-gate"
    }
   ]
  },
@@ -2957,5 +2965,405 @@
    "understudy": "none",
    "read": "never pullable — same rule as June; the perimeter orbit doesn't bend for anyone"
   }
+ },
+ "mouths": {
+  "rule": "named spawn/despawn anchors — a mouth is a point (position + direction + live window + per-minute cap), never a zone; every extra spawn/despawn cites a live mouth; off-camera is satisfied by position (stairs, curb, ramp, gate, stoop line, map edge)",
+  "list": [
+   {
+    "id": "m-plaza",
+    "label": "the plaza stairs",
+    "kind": "transit",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "mudhaus",
+     "elfarolote",
+     "minimart",
+     "fruteria"
+    ],
+    "dayparts": [
+     "commute",
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening",
+     "night"
+    ],
+    "cap_per_min": [
+     2,
+     6
+    ],
+    "allows_family": true,
+    "note": "the block's biggest door — rapid-transit stairs two flights down"
+   },
+   {
+    "id": "m-stop-22",
+    "label": "the 22 stop",
+    "kind": "transit",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "school",
+     "park",
+     "folsom"
+    ],
+    "dayparts": [
+     "commute",
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening"
+    ],
+    "cap_per_min": [
+     1,
+     4
+    ],
+    "allows_family": true,
+    "note": "the cross-street bus — school and worker axis"
+   },
+   {
+    "id": "m-stop-mission",
+    "label": "the Mission stop",
+    "kind": "transit",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "minimart",
+     "elfarolote",
+     "club600"
+    ],
+    "dayparts": [
+     "commute",
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening",
+     "night"
+    ],
+    "cap_per_min": [
+     1,
+     3
+    ],
+    "allows_family": true,
+    "note": "the corridor bus — up and down the main drag"
+   },
+   {
+    "id": "m-gate",
+    "label": "the school gate",
+    "kind": "institutional",
+    "dir": "both",
+    "zones": [
+     "school",
+     "park",
+     "streets"
+    ],
+    "hours": [
+     [
+      7,
+      8.5
+     ],
+     [
+      15,
+      16.75
+     ]
+    ],
+    "dow": "weekday",
+    "cap_per_min": [
+     2,
+     8
+    ],
+    "allows_family": true,
+    "kid_scale": true,
+    "note": "weekday windows only — the only doorway kid-scale units may pass, always inside family clusters"
+   },
+   {
+    "id": "m-garage",
+    "label": "the garage ramp",
+    "kind": "vehicle",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "folsom",
+     "auerbach",
+     "minimart"
+    ],
+    "dayparts": [
+     "predawn",
+     "commute",
+     "rush",
+     "afternoon",
+     "evening"
+    ],
+    "cap_per_min": [
+     0,
+     2
+    ],
+    "allows_family": false,
+    "note": "cars become pedestrians at the curb — the contractor-and-commuter mouth"
+   },
+   {
+    "id": "m-curb",
+    "label": "the pickup curb",
+    "kind": "vehicle",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "club600",
+     "elfarolote",
+     "sfgeneral"
+    ],
+    "dayparts": [
+     "overnight",
+     "commute",
+     "afternoon",
+     "evening",
+     "night"
+    ],
+    "cap_per_min": [
+     1,
+     4
+    ],
+    "allows_family": false,
+    "note": "rideshare, drop-offs, the hospital loop — the night belongs to this mouth"
+   },
+   {
+    "id": "m-stoops",
+    "label": "the stoops",
+    "kind": "residential",
+    "dir": "both",
+    "zones": [
+     "streets",
+     "park",
+     "minimart",
+     "doloresperk",
+     "bloomdoom"
+    ],
+    "dayparts": [
+     "predawn",
+     "commute",
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening",
+     "night"
+    ],
+    "cap_per_min": [
+     0,
+     2
+    ],
+    "allows_family": true,
+    "diffuse": true,
+    "note": "many doors read as one — the neighbors' own comings and goings; capped low so the block fills from transit, not thin air"
+   },
+   {
+    "id": "m-west",
+    "label": "the west edge",
+    "kind": "edge",
+    "dir": "both",
+    "zones": [
+     "park",
+     "doloresperk",
+     "clarion"
+    ],
+    "dayparts": [
+     "commute",
+     "rush",
+     "midday",
+     "lunch",
+     "afternoon",
+     "evening"
+    ],
+    "cap_per_min": [
+     0,
+     2
+    ],
+    "allows_family": true,
+    "note": "the last honest walk-on point — foot traffic from the next block over"
+   }
+  ]
+ },
+ "pulse_clocks": {
+  "rule": "named discrete lifts on a mouth's flow — budget arithmetic at the doorway; a pulse can never fire outside the schedule that motivates it, never names a destination zone, never touches the named layer; ids are internal vocabulary, never feed words",
+  "list": [
+   {
+    "id": "train-discharge",
+    "mouth": "m-plaza",
+    "dir": "in",
+    "dayparts": [
+     "commute",
+     "rush",
+     "evening",
+     "night"
+    ],
+    "cadence_min": {
+     "peak": 8,
+     "offpeak": 20
+    },
+    "burst": [
+     4,
+     9
+    ],
+    "note": "the stairs exhale — the platform empties in ninety seconds"
+   },
+   {
+    "id": "bus-arrival",
+    "mouth": "m-stop-22",
+    "dir": "in",
+    "dayparts": [
+     "commute",
+     "rush",
+     "lunch",
+     "evening"
+    ],
+    "cadence_min": {
+     "peak": 10,
+     "offpeak": 15
+    },
+    "burst": [
+     2,
+     5
+    ],
+    "note": "the kneel, the chime, three shoulders out"
+   },
+   {
+    "id": "school-bell-am",
+    "mouth": "m-gate",
+    "dir": "in",
+    "dow": "weekday",
+    "hours": [
+     7.4,
+     8.25
+    ],
+    "burst": [
+     6,
+     12
+    ],
+    "note": "the drop-off surge — clusters in, anchors peel back out"
+   },
+   {
+    "id": "school-bell-pm",
+    "mouth": "m-gate",
+    "dir": "out",
+    "dow": "weekday",
+    "hours": [
+     15.08,
+     15.75
+    ],
+    "burst": [
+     8,
+     14
+    ],
+    "note": "the release — the gate is the loudest place on the block for twenty minutes"
+   },
+   {
+    "id": "shift-change",
+    "mouth": "m-curb",
+    "dir": "both",
+    "hours": [
+     [
+      6.75,
+      7.25
+     ],
+     [
+      15,
+      15.75
+     ],
+     [
+      23,
+      23.75
+     ]
+    ],
+    "burst": [
+     3,
+     7
+    ],
+    "note": "the hospital loop — scrubs in, scrubs out, the curb keeps the count"
+   },
+   {
+    "id": "kitchen-close",
+    "mouth": "m-curb",
+    "dir": "out",
+    "hours": [
+     22.75,
+     23.5
+    ],
+    "burst": [
+     3,
+     6
+    ],
+    "note": "the dinner crowd pays out ahead of the kitchen — the curb does the leaving"
+   },
+   {
+    "id": "last-call",
+    "mouth": "m-curb",
+    "dir": "out",
+    "hours": [
+     1.5,
+     2.25
+    ],
+    "burst": [
+     5,
+     10
+    ],
+    "note": "the 2 a.m. mouth — the block's last honest exodus"
+   }
+  ]
+ },
+ "leash": {
+  "rule": "every spawned unit draws one entry intent at its mouth; the intent fixes the zone set (≤2 zones from entry, matching the flow edge it rode), the dwell window, and the despawn mouth — a unit never improvises a new stop",
+  "intents": {
+   "through": {
+    "zones_visited": [
+     1,
+     2
+    ],
+    "dwell_s": [
+     20,
+     90
+    ],
+    "exit": "different mouth",
+    "note": "the commute's honest share — passing across, never staying"
+   },
+   "errand": {
+    "zones_visited": [
+     1,
+     2
+    ],
+    "dwell_min": [
+     5,
+     40
+    ],
+    "exit": "any live mouth",
+    "note": "one destination — the line, the run, the pickup order"
+   },
+   "dwell": {
+    "zones_visited": [
+     1,
+     1
+    ],
+    "dwell_min": [
+     20,
+     120
+    ],
+    "exit": "any live mouth",
+    "note": "the zone is the destination — a legal posture from the palette, then home"
+   },
+   "cover": {
+    "zones_visited": [
+     1,
+     1
+    ],
+    "lifetime": "the pull window",
+    "exit": "on the ambient's return",
+    "note": "understudy extras under the coverage layer — zone-fixed to the borrowed post"
+   }
+  },
+  "conservation": "rolling 60-min window per mouth: outflow ≤ inflow + standing resident share — bodies balance at the mouths; the day is a closed loop and the spawner reconciles before it spawns",
+  "unit_rule": "despawn honors the v85 unit — a unit leaves together, at a mouth, off-camera; through units exit a different mouth than they entered",
+  "no_reentry": "a despawned extra stops existing — walk-chain costume continuity reuses silhouettes, never histories"
  }
 }

@@ -2088,7 +2088,75 @@ const PUB = Object.values(PT.surfaces)
         PLH.conc !== (PP.capacity || {}).concurrent_block_max ||
         PLH.cool !== (PP.capacity || {}).cooldown_min)
       add(g, 'fail', 'crowd.html', null, 'PULL mirror drifted from pull_protocol');
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage`;
+    /* v113: the mouths & pulses layer — mirror + integrity */
+    const jMth = (CJ.mouths || {}).list || [], MH = pull('MOUTHS', '[]');
+    if (JSON.stringify(MH.map(m => m.id).sort()) !== JSON.stringify(jMth.map(m => m.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'MOUTHS ids != mouths ids');
+    const mthIds = new Set(jMth.map(m => m.id));
+    if (!mthIds.has('m-gate')) add(g, 'fail', 'crowd.json', null, 'mouths missing m-gate — the kid-scale doorway is contract');
+    for (const m of jMth) {
+      if (!m.id || !m.label || !m.dir || !['in', 'out', 'both'].includes(m.dir))
+        add(g, 'fail', 'crowd.json', null, `mouth ${m.id || '?'}: bad id/label/dir`);
+      for (const z of m.zones || [])
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: unknown zone "${z}"`);
+      if (m.dayparts) for (const dp of m.dayparts)
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: unknown daypart "${dp}"`);
+      if (!m.dayparts && !m.hours) add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: no live window (dayparts or hours required)`);
+      if (m.hours) for (const r of m.hours)
+        if (!Array.isArray(r) || r.length !== 2 || r[0] >= r[1]) add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: bad hours range`);
+      if (!Array.isArray(m.cap_per_min) || m.cap_per_min[0] > m.cap_per_min[1] || m.cap_per_min[1] > 10)
+        add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: bad cap_per_min — a mouth is a trickle with a ceiling, not a faucet`);
+      if (m.kid_scale && m.id !== 'm-gate') add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: kid_scale outside m-gate — the school gate is the only kid doorway`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(m)))
+        add(g, 'fail', 'crowd.json', null, `mouth ${m.id}: meta vocabulary`);
+      const H = MH.find(x => x.id === m.id);
+      if (H && H.label !== m.label) add(g, 'fail', 'crowd.html', null, `MOUTHS ${m.id} label drifted`);
+    }
+    /* every flow edge that touches 'edge' must cite a live mouth */
+    for (const e of CJ.flow_edges.edges)
+      if (e.a === 'edge' || e.b === 'edge') {
+        if (!e.mouth) add(g, 'fail', 'crowd.json', null, `edge ${e.id}: touches 'edge' without a mouth — spawns must cite an anchor`);
+        else if (!mthIds.has(e.mouth)) add(g, 'fail', 'crowd.json', null, `edge ${e.id}: mouth "${e.mouth}" is not a declared mouth`);
+      }
+    const jPul = (CJ.pulse_clocks || {}).list || [], PL2 = pull('PULSES', '[]');
+    if (JSON.stringify(PL2.map(p => p.id).sort()) !== JSON.stringify(jPul.map(p => p.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'PULSES ids != pulse_clocks ids');
+    for (const p of jPul) {
+      if (!mthIds.has(p.mouth)) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: mouth "${p.mouth}" is not a declared mouth`);
+      else {
+        const m = jMth.find(x => x.id === p.mouth);
+        if (m.dir !== 'both' && p.dir !== m.dir) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: dir "${p.dir}" contradicts mouth ${m.id} dir "${m.dir}"`);
+      }
+      if (!['in', 'out', 'both'].includes(p.dir)) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: bad dir`);
+      if (!p.dayparts && !p.hours) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: no window — a pulse must be bound to a schedule`);
+      if (p.dayparts) for (const dp of p.dayparts)
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: unknown daypart "${dp}"`);
+      if (p.hours) for (const r of (Array.isArray(p.hours[0]) ? p.hours : [p.hours]))
+        if (!Array.isArray(r) || r.length !== 2 || r[0] >= r[1]) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: bad hours range`);
+      if (!Array.isArray(p.burst) || p.burst[0] > p.burst[1]) add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: bad burst range`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(p)))
+        add(g, 'fail', 'crowd.json', null, `pulse ${p.id}: meta vocabulary`);
+    }
+    /* the leash: intents legal, conservation + no-reentry clauses present */
+    const LS = CJ.leash || {}, LSH = pull('LEASH', '{}');
+    const jInt = LS.intents || {};
+    for (const k of ['through', 'errand', 'dwell', 'cover'])
+      if (!jInt[k]) add(g, 'fail', 'crowd.json', null, `leash.intents missing "${k}" — every spawned unit draws one`);
+    for (const [k, v] of Object.entries(jInt)) {
+      if (!Array.isArray(v.zones_visited) || v.zones_visited[1] > 2)
+        add(g, 'fail', 'crowd.json', null, `leash.${k}: zones_visited must cap at ≤2 — the leash fixes the zone set at spawn`);
+      if (!v.dwell_s && !v.dwell_min && !v.lifetime)
+        add(g, 'fail', 'crowd.json', null, `leash.${k}: no dwell bound — an intent must bound the life it declares`);
+      if (!v.exit) add(g, 'fail', 'crowd.json', null, `leash.${k}: no exit rule — despawn cites a mouth`);
+      if (!LSH[k]) add(g, 'fail', 'crowd.html', null, `LEASH missing "${k}"`);
+    }
+    if (!/closed loop|balance/.test(LS.conservation || ''))
+      add(g, 'fail', 'crowd.json', null, 'leash.conservation lost the closed-loop clause — bodies balance at the mouths');
+    if (!/stops existing|never/.test(LS.no_reentry || ''))
+      add(g, 'fail', 'crowd.json', null, 'leash.no_reentry lost the stops-existing clause');
+    if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify([LS, CJ.mouths, CJ.pulse_clocks])))
+      add(g, 'fail', 'crowd.json', null, 'meta vocabulary in the mouths/pulses/leash layer');
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage · ${jMth.length} mouths · ${jPul.length} pulses`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 

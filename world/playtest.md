@@ -362,6 +362,17 @@ One person can wear every hat; four real testers is the intended shape.
   splitting thin_min so thin cost scales with observation, not
   population. The audit's v111 block fails a witness schema that
   carries a mode/mood field or a lazy rule that permits a pop.
+  PT102 (The Crowd v113) audits the mouths & pulses layer — the
+  eight named spawn/despawn anchors replacing the bare 'edge'
+  endpoint (point + dir + live window + per-minute cap, never a
+  zone), the seven pulse clocks bound to the schedules that
+  motivate them (school bells weekday-windowed, last-call
+  overnight, shift-change at the hospital curb), and the leash
+  fixing each unit's zone set at spawn with despawn citing a
+  mouth and a rolling-60min body ledger per mouth. The audit's
+  v113 block fails an 'edge'-touching flow edge without a mouth,
+  a pulse whose dir contradicts its mouth, kid_scale anywhere but
+  m-gate, or meta vocabulary in the new blocks.
 
 ## 3. Running a session
 

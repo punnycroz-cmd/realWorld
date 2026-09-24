@@ -36,6 +36,15 @@
   minors never, role-bound, invisible on the wire) and the coverage
   map (what each post reads while borrowed: understudy extra, honest
   sign, or an honestly empty post — the post never lies).
+  v113 adds: the mouths & pulses layer — the bare 'edge' endpoint is
+  replaced by eight named spawn/despawn anchors (the plaza stairs,
+  the 22 stop, the Mission stop, the school gate, the garage ramp,
+  the pickup curb, the stoops, the west edge), seven pulse clocks
+  (train discharge, bus arrival, school bells, shift change, kitchen
+  close, last call — discrete lifts on a mouth's flow, never a
+  dispatch), and the leash: entry intents (through/errand/dwell/
+  cover) fix a unit's zones at spawn, despawn cites a mouth, and a
+  rolling-60min per-mouth ledger keeps the day a closed loop.
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -145,6 +154,9 @@
     <div class="panel"><h2>Counter courtesies — conditions now</h2><div id="courtesies"></div>
       <div class="fine">Named ambient ↔ anonymous extra gesture beats — the greeting matrix's downstairs neighbor. A beat is live only while the ambient's resolved state matches, an extra dwells in reach, and the cooldown has passed. 2–6s, no dialogue, no ledger. Minors have no counter.</div>
     </div>
+    <div class="panel"><h2>The mouths — where bodies enter</h2><div id="mouths"></div>
+      <div class="fine">v113 — the eight named spawn/despawn anchors. Every extra enters and leaves through a live mouth, off-camera by position; a mouth is a point with a direction and a cap, never a zone. Pulse chips light when their clock's window holds — a pulse lifts the doorway's flow, never routes a body. The leash fixes a unit's zones at spawn; mouths balance bodies over any rolling hour — the day is a closed loop.</div>
+    </div>
     <div class="panel"><h2>The bench — pulled &amp; covered</h2><div id="bench"></div>
       <div class="fine">v99 — when a request borrows a named ambient (15–90 min, ≤3/day each, ≤2 at once block-wide, ≥60 min cooldown, one zone step max, role-bound), their post keeps an honest read: an understudy extra, a back-in-10 sign, or an honestly empty post. Sleep, home, transit, and minors are never pullable; the loan never appears on the wire — the coverage read is the whole trace.</div>
     </div>
@@ -172,6 +184,7 @@
       <li><b>Extras arrive with company.</b> Lone/duo/cluster units share one spawn and one despawn; budgets still count bodies. Kid-scale silhouettes live only inside family clusters — never lone, never bars, never overnight.</li>
       <li><b>Courtesies are conditions.</b> A beat renders only while its ambient's state, an extra's presence, and the cooldown all hold — gesture only, no dialogue, no ledger. Minors appear in no beat.</li>
       <li><b>The bench answers loans.</b> A request can borrow an ambient's presence (in-role, in-bounds, ≤90 min); the post reads understudy / sign / open while they're gone — never a lie, never a feed word. Minors are never pullable.</li>
+      <li><b>Bodies cite a mouth.</b> Every spawn/despawn passes one of the eight named anchors inside its live window — nothing pops at an unlisted point. The school gate is the only kid-scale doorway; pulses lift flow, never route a body; the leash fixes zones at spawn and the mouths balance the ledger over each rolling hour.</li>
     </ul></div>
   </div>
 </main>
@@ -337,6 +350,28 @@ const COVERAGE={
  A18:{post:"the flower stand",kind:"sign",read:"the door reads 'back in 10' — the stem basket stays on the counter"},
  A19:{post:"the south bench",kind:"open",read:"the bench empties — the noon pigeons get fed by whoever's nearest; nobody admits who"},
  A20:{post:"the pack orbit",kind:"pack",read:"never pullable — same rule as June; the perimeter orbit doesn't bend for anyone"}};
+/* v113 mirrors: the mouths, the pulse clocks, the leash */
+const MOUTHS=[
+ {id:"m-plaza",label:"the plaza stairs",kind:"transit",dir:"both",zones:["streets","mudhaus","elfarolote","minimart","fruteria"],dp:["commute","rush","midday","lunch","afternoon","evening","night"],cap:[2,6],note:"the block's biggest door"},
+ {id:"m-stop-22",label:"the 22 stop",kind:"transit",dir:"both",zones:["streets","school","park","folsom"],dp:["commute","rush","midday","lunch","afternoon","evening"],cap:[1,4],note:"the cross-street bus"},
+ {id:"m-stop-mission",label:"the Mission stop",kind:"transit",dir:"both",zones:["streets","minimart","elfarolote","club600"],dp:["commute","rush","midday","lunch","afternoon","evening","night"],cap:[1,3],note:"the corridor bus"},
+ {id:"m-gate",label:"the school gate",kind:"institutional",dir:"both",zones:["school","park","streets"],hrs:[[7,8.5],[15,16.75]],dow:"weekday",cap:[2,8],kid:1,note:"weekday windows — the only kid-scale doorway"},
+ {id:"m-garage",label:"the garage ramp",kind:"vehicle",dir:"both",zones:["streets","folsom","auerbach","minimart"],dp:["predawn","commute","rush","afternoon","evening"],cap:[0,2],note:"cars become pedestrians at the curb"},
+ {id:"m-curb",label:"the pickup curb",kind:"vehicle",dir:"both",zones:["streets","club600","elfarolote","sfgeneral"],dp:["overnight","commute","afternoon","evening","night"],cap:[1,4],note:"rideshare, drop-offs, the hospital loop"},
+ {id:"m-stoops",label:"the stoops",kind:"residential",dir:"both",zones:["streets","park","minimart","doloresperk","bloomdoom"],dp:["predawn","commute","rush","midday","lunch","afternoon","evening","night"],cap:[0,2],diffuse:1,note:"the neighbors' own doors — capped low on purpose"},
+ {id:"m-west",label:"the west edge",kind:"edge",dir:"both",zones:["park","doloresperk","clarion"],dp:["commute","rush","midday","lunch","afternoon","evening"],cap:[0,2],note:"the last honest walk-on point"}];
+const PULSES=[
+ {id:"train-discharge",mouth:"m-plaza",dir:"in",dp:["commute","rush","evening","night"],cad:{peak:8,off:20},burst:[4,9],note:"the stairs exhale"},
+ {id:"bus-arrival",mouth:"m-stop-22",dir:"in",dp:["commute","rush","lunch","evening"],cad:{peak:10,off:15},burst:[2,5],note:"the kneel, the chime, three shoulders out"},
+ {id:"school-bell-am",mouth:"m-gate",dir:"in",dow:"weekday",hrs:[[7.4,8.25]],burst:[6,12],note:"the drop-off surge"},
+ {id:"school-bell-pm",mouth:"m-gate",dir:"out",dow:"weekday",hrs:[[15.08,15.75]],burst:[8,14],note:"the release"},
+ {id:"shift-change",mouth:"m-curb",dir:"both",hrs:[[6.75,7.25],[15,15.75],[23,23.75]],burst:[3,7],note:"scrubs in, scrubs out"},
+ {id:"kitchen-close",mouth:"m-curb",dir:"out",hrs:[[22.75,23.5]],burst:[3,6],note:"the dinner crowd pays out ahead of the kitchen"},
+ {id:"last-call",mouth:"m-curb",dir:"out",hrs:[[1.5,2.25]],burst:[5,10],note:"the 2 a.m. exodus"}];
+const LEASH={through:{z:[1,2],dw:"≤90 s/zone",exit:"different mouth"},
+ errand:{z:[1,2],dw:"5–40 min",exit:"any live mouth"},
+ dwell:{z:[1,1],dw:"20–120 min",exit:"any live mouth"},
+ cover:{z:[1,1],dw:"the pull window",exit:"on the ambient's return"}};
 const GREETS=[
   {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
@@ -635,6 +670,28 @@ function render(){
     return `<div class="scene ${cs==="live"?'live':''}"><span class="dot" style="${cs==="cooling"?"background:var(--acc)":""}"></span>
       <b>${c.id}</b><span style="color:var(--dim);font-size:11px">${a[1]} · ${c.form}</span>
       <span class="why">${cs==="live"?"LIVE — ":""}${cs==="cooling"?"cooldown — ":""}${ZLABEL[cz]||cz} · ${legal}</span></div>`;}).join("");
+  /* v113 the mouths: live window + pulse badges; the leash read at foot */
+  const hrsHit=(rs)=>rs&&rs.some(r=>r[0]<=S.h&&S.h<r[1]);
+  const mouthLive=m=>{
+    if(m.dow==="weekday"&&effDay()!=="weekday")return false;
+    if(m.hrs)return hrsHit(m.hrs);
+    return m.dp.includes(daypart(S.h));
+  };
+  const pulseOn=p=>{
+    const m=MOUTHS.find(x=>x.id===p.mouth);
+    if(!mouthLive(m))return false;
+    if(p.dow==="weekday"&&effDay()!=="weekday")return false;
+    if(p.hrs)return hrsHit(p.hrs);
+    return p.dp.includes(daypart(S.h));
+  };
+  document.getElementById("mouths").innerHTML=MOUTHS.map(m=>{
+    const live=mouthLive(m);
+    const pl=PULSES.filter(p=>p.mouth===m.id).map(p=>
+      `<span class="mic ${pulseOn(p)?'':'off'}" title="${p.dir} · ${p.note}">${p.id}</span>`).join("");
+    return `<div class="flow ${live?'':'off'}"><span class="arr">${m.label}</span>
+      <span style="color:var(--dim)">${m.dir} · cap ${m.cap[0]}–${m.cap[1]}/min · ${m.note}${m.kid?" · kid-scale only doorway":""}</span>
+      <span class="n">${live?"live":"quiet"}</span></div>`+(pl?`<div style="margin:-2px 0 4px">${pl}</div>`:"");
+  }).join("")+`<div class="fine">leash intents: through (${LEASH.through.dw}, exits a different mouth) · errand (${LEASH.errand.dw}) · dwell (${LEASH.dwell.dw}) · cover (${LEASH.cover.dw}) — zones fixed at spawn, ≤2 from entry; mouths balance bodies over each rolling 60 min.</div>`;
   /* v99 the bench: current pullability + coverage read per ambient */
   document.getElementById("bench").innerHTML=AMB.map(a=>{
     const[z,st]=ambWhere(a,S.h,S.day,S.wx);

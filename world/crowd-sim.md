@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99, v113)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -667,3 +667,126 @@ Rules the layer enforces:
   thin while borrowed; the loan is scheduling, not promotion.
 - Coverage never covers a seed — there is no coverage surface whose
   read implies a storyline. "Back in 10" is the whole plot.
+
+## 29. The mouths (v113)
+
+Every flow edge so far has ended at a bare `edge` — an unnamed map
+boundary. That's where the bookkeeping is thinnest: budgets rise and
+bodies appear "at the edges," and an edge could be anything, which is
+how ghost towns sneak in. `crowd.json §mouths` names the eight places
+a body can actually enter or leave the block — the spawn/despawn
+anchors the off-camera rule (§1, extras rule 2) hangs on:
+
+| mouth | kind | reads as |
+|---|---|---|
+| `m-plaza` | transit | the plaza stairs — the rapid-transit mouth; the block's biggest door |
+| `m-stop-22` | transit | the cross-street bus stop — school/worker axis |
+| `m-stop-mission` | transit | the corridor bus stop — up-and-down the main drag |
+| `m-gate` | institutional | the school gate — weekday windows only, never overnight |
+| `m-garage` | vehicle | the garage ramp — cars become pedestrians at the curb |
+| `m-curb` | vehicle | the pickup curb — rideshare, drop-offs, the hospital loop |
+| `m-stoops` | residential | stoops and courtyard doors — diffuse, the neighbors' own doors |
+| `m-west` | edge | the west map edge — the last honest walk-on point |
+
+Mouth rules, all enforceable:
+
+1. **A mouth is a point, not a zone.** It has a position, a direction
+   (`in`/`out`/`both`), a live window, and a per-minute cap — no
+   budget, no dwell, no scenes. Nobody waits *at* a mouth; they pass
+   through it.
+2. **Every spawn/despawn cites a mouth.** `flow_edges` entries that
+   touch `edge` carry a `mouth` field; a spawn outside a live mouth's
+   window is a contract violation, not a style choice.
+3. **The gate keeps its shape.** `m-gate` is the only mouth whose
+   units may carry `kid-backpack`, and only inside family clusters
+   with an adult anchor — the v85 safeguard moved to the doorway,
+   where it's enforceable before a body exists.
+4. **The stoops are diffuse.** `m-stoops` represents many doors; it
+   never produces a crowd of its own, only the trickle of residents
+   starting errands — capped low so the block fills from transit, not
+   from thin air.
+5. **A mouth can go quiet.** `m-gate` outside its windows, `m-curb`
+   at 04:00: a live mouth list is a function of daypart and calendar,
+   and an idle mouth spawns nothing.
+
+## 30. The pulse clocks (v113)
+
+Mouths are where; pulses are the *when* inside the where. A pulse is a
+named, discrete arrival or departure — a train letting out, a bell, a
+shift change — that momentarily lifts a mouth's flow above its
+background trickle. `crowd.json §pulse_clocks` carries seven:
+
+| pulse | mouth | dir | when | burst |
+|---|---|---|---|---|
+| `train-discharge` | m-plaza | in | commute, rush, evening, night | 4–9 per cadence (8 min peak / 20 off) |
+| `bus-arrival` | m-stop-22 | in | commute, rush, lunch, evening | 2–5 per cadence (10/15 min) |
+| `school-bell-am` | m-gate | in | weekday 07:25–08:15 | 6–12 |
+| `school-bell-pm` | m-gate | out | weekday 15:05–15:45 | 8–14 |
+| `shift-change` | m-curb | both | 06:45–07:15 · 15:00–15:45 · 23:00–23:45 | 3–7 |
+| `kitchen-close` | m-curb | out | 22:45–23:30 | 3–6 |
+| `last-call` | m-curb | out | 01:30–02:15 | 5–10 |
+
+Rules:
+
+- **A pulse lifts a mouth, never a pawn.** The burst is headcount
+  arithmetic at the doorway — the spawner's flow edges then carry the
+  bodies into zones per §9. Nothing is routed to a person.
+- **Pulses are honest.** `last-call` exists because the bar's open
+  hours end at 2; `school-bell-*` exists because the school's open
+  hours bound them. A pulse can never fire outside the schedule that
+  motivates it — no manufactured rush.
+- **The feed never names a pulse.** "train-discharge" is internal
+  vocabulary like `fog_season`; a spectator sees the crossing fill.
+- **A pulse never moves the named layer.** Ambients arrive by routine
+  (§17), mains by their own will. Pulses budget extras only.
+- **Departures are pulses too.** `school-bell-pm`, `kitchen-close`,
+  `last-call` are `dir:"out"` — mouths admit bodies leaving; the
+  despawn side of the ledger is finally as specific as the spawn side.
+
+## 31. The leash (v113)
+
+The last unnamed degree of freedom: what an extra *is doing here*.
+`crowd.json §leash` fixes it — every spawned unit draws one entry
+intent at its mouth, and the intent bounds the rest of its life:
+
+- **`through`** — passing across the block; ≤2 zones, dwell ≤90 s per
+  zone, despawn at a different mouth than entry. The commute's honest
+  share.
+- **`errand`** — one destination zone, dwell 5–40 min, then out.
+  The fruteria line, the minimart run, the pickup order.
+- **`dwell`** — the zone itself is the destination; dwell 20–120 min
+  under a legal posture (§22), out through any live mouth.
+- **`cover`** — an understudy extra under §27; zone-fixed to the
+  borrowed post, lifetime equals the pull window, despawn on return.
+
+Leash laws:
+
+1. **The zone set is fixed at spawn.** An extra may visit at most the
+   zones its intent declares — it never improvises a new stop. Two
+   zones maximum from its entry mouth, matching the §9 flow edge it
+   rode in on.
+2. **Every mouth keeps a ledger of bodies.** Over any rolling 60-min
+   window a mouth's outflow cannot exceed its inflow plus the standing
+   resident share — bodies balance at the mouths. The day is a closed
+   loop; the spawner reconciles before it spawns.
+3. **Despawn honors the unit.** The v85 rule carries: a unit leaves
+   together, at a mouth, off-camera. `through` units leave by a
+   different mouth than they entered; `errand`/`dwell` units may
+   return the way they came.
+4. **No re-entry.** A despawned extra stops existing. Walk-chain
+   costume continuity (§11) reuses silhouettes, not histories — the
+   leash is why the crowd breathes instead of accumulating.
+
+## 32. Boundary additions (v113)
+
+- Mouth ids, pulse ids, and intent names are **internal vocabulary** —
+  the wire still says band words and scene labels. A spectator sees
+  the stairs let out, never "train-discharge."
+- A pulse is a **budget event**, never a dispatch — it can raise a
+  mouth's flow; it cannot pick a destination zone for a body, move a
+  named pawn, or fire outside its window.
+- `m-gate` is the **only** mouth that may emit family-shaped units;
+  `m-curb` and the transit mouths never emit kid-scale silhouettes
+  overnight. The v85 family rule now binds at the doorway.
+- Mouths and pulses write **no ledger, no feed, no archive** — like
+  the extras they gate, they are atmosphere plumbing, not state.
