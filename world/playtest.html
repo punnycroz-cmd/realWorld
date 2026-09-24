@@ -1462,10 +1462,10 @@ const PTS=[
     "The picker stops offering the span you booked while it is held",
     "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
  {do:"Run `node world/audit.js` and read the book + request + harness gates.",
-  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 69 scenarios at the v73 key.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 70 scenarios at the v74 key.",
   ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
     "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
-    "Harness gate: '69 scenarios · N checkpoints · key rw_playtest_v73'; 0 fail overall"]}]}
+    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]}
 ,{id:"PT68",title:"The Wire v6 — the schedule + the person layer",min:10,
  persona:"daily spectator — knows the wire, wants the day's shape",
  goal:"Verify the v75 spectator-feed pass: the on-the-book strip shows only windows still ahead and never sells one; 'their wire today' counts the wire per person without inventing coverage; thread mute hides a request from your display only; the search match count is honest; every addition stays view-layer.",
@@ -1486,10 +1486,10 @@ const PTS=[
     "Muted events still count in 'the day so far' — the recap counts the wire, not your view",
     "'N matching' counts text + who + resolved names + venue names across the whole feed"]},
  {do:"Run `node world/audit.js` and read the wire + harness gates.",
-  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 69 scenarios at the v73 key.",
+  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 70 scenarios at the v74 key.",
   ck:["wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
     "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
-    "Harness gate: '69 scenarios · N checkpoints · key rw_playtest_v73'; 0 fail overall"]}]}
+    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]}
 ,{id:"PT69",title:"The Archive v6 — the shape layer (same hour, day vs day, finer trail cuts)",min:10,
  persona:"returning spectator — wants the shape of the week, not just its days",
  goal:"Verify the v76 archive pass: the same-hour view counts one hour of day across every archived day without promising a schedule; day vs day compares two days in counted columns only; the person lens cuts a trail finer without widening scope; copy record carries the source badge; j/k walks the day rows.",
@@ -1510,16 +1510,45 @@ const PTS=[
     "The copied line opens 'real world — the archive — record <id> (demo archive)' — badge included",
     "j/k are inert while focus is in the search box"]},
  {do:"Run `node world/audit.js` and read the archive + harness gates.",
-  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 69 scenarios at the v73 key.",
+  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 70 scenarios at the v74 key.",
   ck:["archive gate detail ends 'schema archive-v6' — PASS",
     "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
-    "Harness gate: '69 scenarios · N checkpoints · key rw_playtest_v73'; 0 fail overall"]}]}];
+    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"]}]},
+ {id:"PT70",title:"Join the Cast v6 — the sketch & the seats layer (v77)",min:12,
+ persona:"paid-tier player on a full block — wants a second character and keeps asking what it costs to skip the line",
+ goal:"Verify the v77 creation pass: the structured look picks draw a live canvas sketch on step 2 and ride the review card; the roster panel states the block's hired-face cap verbatim; a full card routes signing to a free, first-come seat waitlist that never bills, expires offers at 48 h, and sells no sooner seat; a second hire is stated as a stranger to the first.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open create.html (file://). Reach step 2 with the pickers empty, then pick build/palette/signature and change each twice.",
+  exp:"The sketch canvas opens with the empty-state line 'pick build · palette · signature — the sketch draws itself'. Each pick redraws the figure — silhouette proportions follow build, the jacket block follows palette, each signature draws its own mark (zipper / boot flecks / print dots / paperback / headband / collar pins). Caption reads 'a casting-office sketch — not a portrait'.",
+  ck:["The figure visibly differs across at least three builds and two palettes — the picks drive the drawing, not decoration",
+    "No free-text look field exists anywhere — the sketch adds zero screening surface",
+    "The caption never calls the sketch a portrait or a preview of final render quality"]},
+ {do:"Read the roster panel's seats line, then click 'demo: fill the card' and finish a hire to step 6.",
+  exp:"The seats line reads 'the card holds N of 12 hired faces — the block's carry limit' and flips to the full state on the demo control. On step 6 the quote gains a 'The card' line, a warn states the waitlist terms (free, FCFS, screened twice, 48 h offer, no paid seat), and the button reads 'Join the seat waitlist — free'.",
+  ck:["The cap is shown as the block's limit, separate from the account slot cap — both ceilings are visible",
+    "The balance check does NOT gate the waitlist CTA — waiting is free by construction",
+    "The warn names 'no way to pay for a sooner seat' verbatim"]},
+ {do:"Sign while the card is full; read the pipeline and the wait card, then close and reopen the page.",
+  exp:"The intent screen still runs at join — a denied name is refused before it ever waits. On pass the feed posts 'hire — application \"<name>\" joined the seat waitlist · in line, no charge' and the wait card shows position, joined time, 'a seat offer never bills until you take it', and 'leave the waitlist — nothing was ever billed'. Reopening restores the card (rw_create_wait_v25).",
+  ck:["Screening happens at join — the waitlist is not a screening bypass",
+    "Wallet unchanged; no queue position is sold anywhere on the card",
+    "Wait ~40 s: the demo seat opens, the offer posts 'offer holds 48 h', and the application enters the normal review pipeline"]},
+ {do:"After a successful hire, start another and read step 6 + the briefing's surface-relationships line.",
+  exp:"The review step names the existing hire — 'Dana Okafor is on the card too — a stranger to <name>. What you know, neither of them does; they meet on the block like anyone else.' The briefing tail lists the other hire as 'a stranger, not a contact'.",
+  ck:["The stranger rule appears in BOTH the review step and the briefing — not just one",
+    "The briefing whitelist is unchanged: profile / surface relationships / routine, secrets still 'none written'",
+    "No affordance links the two characters — no shared bank, no shared knowledge"]},
+ {do:"Run `node world/audit.js` and read the creation + harness gates.",
+  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 70 scenarios at the v74 key.",
+  ck:["Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
+    "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}];
 
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72 */
-const LS="rw_playtest_v73";
-const BUILD="world v73 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73 */
+const LS="rw_playtest_v74";
+const BUILD="world v74 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[

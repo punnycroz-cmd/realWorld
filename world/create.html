@@ -5,8 +5,8 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v5 (world v63; v4 was v49,
-  v3 was v35, v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
+  Character creation flow — "Join the Cast" v6 (world v77; v5 was v63,
+  v4 was v49, v3 was v35, v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
   network. The pipeline (screen → human review → charge → registry write →
   lease → briefing) is simulated locally; at merge it becomes
   gsRequest*/gsLease* calls + feed events.
@@ -26,6 +26,24 @@
       door-on-the-latch per unit kind, the mailbox name card, the first
       rent-book entry, the first shift. Conditions and addresses, never
       a script.
+
+  v77 changes — the sketch & the seats layer:
+    - THE SKETCH — step 2's structured look picks now draw a small
+      canvas figure (silhouette from build, jacket from palette, detail
+      from signature) and the same sketch rides the review card.
+      Rendering data, not text — no new screening surface. The copy says
+      what it is: a casting-office sketch, not a portrait.
+    - THE SEATS — the block carries a finite number of hired faces
+      (BLOCK_CAP 12 — open design decision §9.5, proposal number). The
+      roster panel shows the count verbatim. When the card is full the
+      sign step offers the seat waitlist: free, first-come-first-served,
+      screened at join and re-screened when the seat offer lands, offer
+      expires in 48 h, nothing billed while waiting — and there is no
+      way to pay for a sooner seat. Waitlist state persists
+      (rw_create_wait_v25) like the review queue does.
+    - YOUR OTHER ONE — a second hire is a stranger to the first: the
+      review step and the briefing say so verbatim. What the player
+      knows, neither character does — they meet on the block like anyone.
 
   v49 changes — the people layer:
     - PEOPLE mirror — the block's actual names (8 mains + 20 ambient
@@ -232,6 +250,16 @@
   .keys .kl{display:flex;gap:12px;padding:3px 0;border-bottom:1px solid var(--line)}
   .keys .kl:last-child{border:0}
   .keys .kl .k{color:var(--dim);font-size:11.5px;width:110px;flex:none;padding-top:1px}
+  /* ---- v77: the sketch + the seats ---- */
+  .sketchwrap{display:flex;gap:14px;margin-top:10px;align-items:flex-start}
+  .sketchwrap canvas{border:1px solid var(--line);border-radius:6px;background:#2a313a;flex:none}
+  .sketchwrap .cap{font-size:11.5px;color:var(--dim);font-style:italic;max-width:240px}
+  .quote canvas{border:1px solid var(--line);border-radius:6px;background:#2a313a;display:block;margin:8px 0 2px}
+  .seats{margin-top:10px;border:1px dashed var(--line);border-radius:6px;padding:8px 12px;
+    font-size:12.5px;color:var(--dim)}
+  .seats b{color:var(--ink);font-family:var(--mono);font-weight:400}
+  .seats .full{color:var(--acc)}
+  .seatdemo{font-size:11px;color:var(--blu);cursor:pointer;margin-left:8px}
 </style>
 </head>
 <body>
@@ -268,6 +296,7 @@
         <div class="who">Slot 3</div>
         <div class="meta">Locked — Director tier raises the account cap to 3.</div>
       </div>
+      <div class="seats" id="seatLine"></div>
       <div class="note">Possession is yours alone — you can only ever possess a character
       you hired, and never the main cast.</div>
     </div>
@@ -311,10 +340,34 @@ var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per chara
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
 var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
-var DRAFT_KEY = 'rw_create_draft_v24';
-var APP_KEY = 'rw_create_app_v24';   // v63: a submitted application keeps its place
+var DRAFT_KEY = 'rw_create_draft_v25';
+var APP_KEY = 'rw_create_app_v25';   // v63: a submitted application keeps its place
+var WAIT_KEY = 'rw_create_wait_v25'; // v77: a seat-waitlist spot keeps its place too
 var created = 0;
 var submits = 0;                   // resubmissions route to a different reviewer
+
+/* ---- v77: the seats — how many hired faces the block carries ----
+   Open design decision §9.5 (total cast cap = compute budget). The demo
+   runs the proposal number 12 and says so; per-account slot caps are a
+   separate, smaller ceiling. When the card is full the only door is the
+   seat waitlist — free, in order, never billed while waiting. */
+var BLOCK_CAP = 12;
+var hiredSeed = 1;                 // Dana Okafor is already on the card (demo roster)
+var demoFill = false;              // demo control — pretends the card is full
+var createdNames = [];             // hires this session — the "your other one" list
+function seatsUsed(){ return Math.min(BLOCK_CAP, hiredSeed + created + (demoFill ? BLOCK_CAP : 0)); }
+function cardFull(){ return hiredSeed + created + (demoFill ? BLOCK_CAP : 0) >= BLOCK_CAP; }
+function renderSeats(){
+  var n = seatsUsed(), el = $('seatLine');
+  if (!el) return;
+  el.innerHTML = 'the card holds <b>'+n+' of '+BLOCK_CAP+' hired faces</b> — the block\u2019s carry limit' +
+    (cardFull()
+      ? ' · <span class="full">full — new applications join the seat waitlist: free, in order, never billed while waiting</span>'
+      : ' · seats remain — the limit is the block\u2019s, not yours') +
+    '<span class="seatdemo" id="seatdemo">'+(demoFill?'demo: un-fill the card':'demo: fill the card')+'</span>';
+  var sd = $('seatdemo');
+  if (sd) sd.onclick = function(){ demoFill = !demoFill; renderSeats(); if (STEP===STEPS-1) render(); };
+}
 
 /* ================= live seam (game-v8 hire surfaces) =================
    Read-only: gsJobBoard / gsHireNameCheck / gsHireQuote / gsHireSlots.
@@ -478,6 +531,87 @@ var LOOK = {
              'cardigans and a paperback','running gear at dawn','denim jacket, pins on the collar']
 };
 
+/* ---- v77: the sketch — the structured picks draw a figure ----
+   A small canvas study: silhouette proportions from build, jacket block
+   from palette, one detail line from signature. Rendering data only —
+   nothing here is text, so nothing here is a new screening surface.
+   The copy calls it what it is: a casting-office sketch, not a portrait. */
+var SKIN = ['#c8a284','#a9745a','#7a5238','#e0b89a','#8c6247'];
+function palColor(n){ var p=LOOK.palette.find(function(x){return x.n.trim()===n;}); return p?p.c:'#8b95a1'; }
+function drawSketch(cv, look){
+  if (!cv || !cv.getContext) return;
+  var g = cv.getContext('2d'), W2 = cv.width, H2 = cv.height;
+  /* the block behind them — foggy Mission sidewalk */
+  var sky = g.createLinearGradient(0,0,0,H2);
+  sky.addColorStop(0,'#a9b2bc'); sky.addColorStop(0.62,'#8d97a2'); sky.addColorStop(0.63,'#6d6a63'); sky.addColorStop(1,'#57544e');
+  g.fillStyle = sky; g.fillRect(0,0,W2,H2);
+  g.fillStyle = '#7a5238'; g.fillRect(0, H2*0.40, W2, 3);            /* mural stripe */
+  g.fillStyle = '#c46a4e'; g.fillRect(0, H2*0.43, W2, 2);
+  if (!look.build || !look.palette || !look.signature){
+    g.fillStyle='rgba(232,228,218,.55)'; g.font='10px ui-monospace,monospace'; g.textAlign='center';
+    g.fillText('pick build · palette · signature', W2/2, H2/2-8);
+    g.fillText('— the sketch draws itself', W2/2, H2/2+6);
+    return;
+  }
+  var prop = { slight:{w:16,h:0.66}, compact:{w:19,h:0.58}, tall:{w:15,h:0.72},
+               broad:{w:23,h:0.62}, angular:{w:16,h:0.68} }[look.build] || {w:17,h:0.64};
+  var cx = W2/2, groundY = H2*0.93, figH = H2*prop.h, headR = 7.5;
+  var topY = groundY - figH, shoulderY = topY + headR*2 + 6, hipY = topY + figH*0.62;
+  var skin = SKIN[look.build.length % SKIN.length];   /* deterministic pick detail */
+  var jac = palColor(look.palette);
+  /* legs */
+  g.strokeStyle='#3a3f46'; g.lineWidth=look.build==='broad'?5:3.6; g.lineCap='round';
+  g.beginPath(); g.moveTo(cx-4,hipY); g.lineTo(cx-5,groundY); g.moveTo(cx+4,hipY); g.lineTo(cx+5,groundY); g.stroke();
+  /* torso — the palette reads as the jacket */
+  g.fillStyle=jac;
+  g.beginPath();
+  if (look.build==='angular'){
+    g.moveTo(cx-prop.w,shoulderY); g.lineTo(cx+prop.w,shoulderY);
+    g.lineTo(cx+prop.w*0.55,hipY); g.lineTo(cx-prop.w*0.55,hipY); g.closePath();
+  } else {
+    var r = look.build==='broad'?7:(look.build==='slight'?3:5);
+    g.moveTo(cx-prop.w/2-2,shoulderY);
+    g.quadraticCurveTo(cx-prop.w,shoulderY+r, cx-prop.w*0.72,hipY);
+    g.lineTo(cx+prop.w*0.72,hipY);
+    g.quadraticCurveTo(cx+prop.w,shoulderY+r, cx+prop.w/2+2,shoulderY);
+    g.quadraticCurveTo(cx,shoulderY-4, cx-prop.w/2-2,shoulderY);
+  }
+  g.fill();
+  /* arms */
+  g.strokeStyle=jac; g.lineWidth=look.build==='broad'?5:3.4;
+  g.beginPath();
+  g.moveTo(cx-prop.w*0.8,shoulderY+4); g.lineTo(cx-prop.w*0.7,hipY+8);
+  g.moveTo(cx+prop.w*0.8,shoulderY+4); g.lineTo(cx+prop.w*0.7,hipY+8);
+  g.stroke();
+  /* head */
+  g.fillStyle=skin; g.beginPath(); g.arc(cx, topY+headR, headR, 0, 7); g.fill();
+  /* signature detail — one mark per pick, drawn not described */
+  g.strokeStyle='#e8e4da'; g.fillStyle='#e8e4da'; g.lineWidth=1.2;
+  var sig = look.signature;
+  if (sig==='windbreaker, always'){
+    g.beginPath(); g.moveTo(cx,shoulderY+2); g.lineTo(cx,hipY-3); g.stroke();      /* zipper */
+    g.strokeStyle='rgba(20,23,28,.6)'; g.beginPath(); g.moveTo(cx-3,shoulderY+6); g.lineTo(cx+3,shoulderY+6); g.stroke(); /* collar */
+  } else if (sig==='paint-flecked work boots'){
+    g.fillStyle='#c46a4e'; g.fillRect(cx-7,groundY-4,4,3); g.fillRect(cx+4,groundY-4,4,3);
+    g.fillStyle='#8b95a1'; g.fillRect(cx-6,groundY-7,2,2); g.fillRect(cx+6,groundY-6,2,2);
+  } else if (sig==='loud prints, louder laugh'){
+    g.fillStyle='rgba(232,228,218,.8)';
+    [[-5,shoulderY+8],[4,shoulderY+14],[-2,shoulderY+22],[6,hipY-6],[-7,hipY-12]].forEach(function(p){
+      g.beginPath(); g.arc(cx+p[0],p[1],1.4,0,7); g.fill(); });
+  } else if (sig==='cardigans and a paperback'){
+    g.fillStyle='#d8cdb4'; g.fillRect(cx+prop.w*0.55,hipY-10,8,11);                 /* the paperback */
+    g.strokeStyle='rgba(20,23,28,.45)'; g.strokeRect(cx+prop.w*0.55,hipY-10,8,11);
+  } else if (sig==='running gear at dawn'){
+    g.fillStyle='#e0b34c'; g.fillRect(cx-headR, topY+headR-3, headR*2, 2.4);        /* headband */
+    g.fillStyle='rgba(224,179,76,.85)'; g.fillRect(cx-prop.w*0.72,hipY-2,prop.w*1.44,2.4); /* reflective band */
+  } else if (sig==='denim jacket, pins on the collar'){
+    g.fillStyle='#e0b34c'; g.beginPath(); g.arc(cx-prop.w/2+1,shoulderY+3,1.3,0,7); g.fill();
+    g.fillStyle='#d4695e'; g.beginPath(); g.arc(cx+prop.w/2-1,shoulderY+3,1.3,0,7); g.fill();
+  }
+  /* contact shadow */
+  g.fillStyle='rgba(0,0,0,.28)'; g.beginPath(); g.ellipse(cx,groundY+2,prop.w*0.9,2.6,0,0,7); g.fill();
+}
+
 /* ================= screening — shared engine (world v8 contract) =================
    create.html no longer keeps a private regex set: name/bio/arrival go through
    RWScreen.screenRequest exactly like a request. The only creation-local rule
@@ -560,6 +694,57 @@ function loadPending(){
 }
 function clearPending(){ try{localStorage.removeItem(APP_KEY);}catch(e){} }
 function fmtT(ts){ var d=new Date(ts); return ('0'+d.getHours()).slice(-2)+':'+('0'+d.getMinutes()).slice(-2); }
+
+/* ================= the seat waitlist (world v77) =================
+   When the card is full, an application can only wait: free, in order,
+   screened at join and re-screened when the seat offer lands. A seat
+   offer expires 48 h after it posts — answer it or it passes on. The
+   demo seat opens on a clock (~40 s), the way the demo reviewer clears
+   the queue; at merge the real roster state decides. */
+function saveWait(){
+  try{ localStorage.setItem(WAIT_KEY, JSON.stringify({f:f,joined:Date.now(),submits:submits})); }catch(e){}
+}
+function loadWait(){
+  try{ return JSON.parse(localStorage.getItem(WAIT_KEY)||'null'); }catch(e){ return null; }
+}
+function clearWait(){ try{localStorage.removeItem(WAIT_KEY);}catch(e){} }
+function renderWait(p){
+  wiz.innerHTML='<div class="queue"><h3>Seat waitlist — in line, not in review</h3>'+
+    '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
+    '<div class="ql"><span>joined</span><b>'+fmtT(p.joined)+'</b></div>'+
+    '<div class="ql"><span>position</span><b>behind 2 applications — the line reads in order</b></div>'+
+    '<div class="ql"><span>charge</span><b>nothing — a seat offer never bills until you take it</b></div>'+
+    '<div class="note" style="font-style:normal">You can close this page — the spot keeps its place. '+
+    'When a seat opens, the offer holds for 48 h — answer it or it passes on. '+
+    'There is no way to pay for a sooner seat; the card\u2019s limit is the block\u2019s.</div>'+
+    '<button class="wd" id="leavewait">leave the waitlist — nothing was ever billed</button>'+
+    '<div class="note">leaving posts to the feed like everything else; the draft stays for editing.</div></div>';
+  $('next').disabled=true; $('back').disabled=true;
+  $('leavewait').onclick=function(){
+    f=p.f; submits=p.submits||0; clearWait();
+    feedAdd('you','hire — application "'+f.name+'" left the seat waitlist · no charge');
+    toast('Off the list — nothing was billed. The draft is still here.');
+    STEP=STEPS-1; $('next').disabled=false; $('back').disabled=false; render();
+  };
+  /* demo seat: opens on a clock, the way the demo reviewer clears the queue */
+  var left = 40000 - (Date.now()-p.joined);
+  if (left<=0) seatOpened(p);
+  else setTimeout(function(){ var q=loadWait(); if(q) seatOpened(q); }, left+500);
+}
+function seatOpened(p){
+  if (!loadWait()) return; /* left while we waited */
+  f=p.f; submits=p.submits||0; clearWait();
+  feedAdd('you','hire — a seat opened for "'+f.name+'" · offer holds 48 h');
+  toast('A seat opened — the application moves to review.');
+  var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
+  wiz.innerHTML='';
+  stage('Intent screen — name, bio, arrival','done','pass · screened at join, re-screened at the seat offer');
+  stage('Human review','wait','naming strings always get eyes');
+  setTimeout(function(){
+    stage('Human review','done','approved · demo auto-reviewer — the seat offer was taken');
+    approveHire();
+  }, 2200);
+}
 function renderQueue(p){
   /* pending application on reopen — the wizard stays put behind it */
   wiz.innerHTML='<div class="queue"><h3>Application in review — it keeps its place</h3>'+
@@ -675,6 +860,9 @@ function render(){
       LOOK.palette.map(function(p){return '<span class="sw'+(f.look.palette===p.n.trim()?' sel':'')+'" data-k="palette" data-v="'+p.n.trim()+'" title="'+p.n.trim()+'" style="background:'+p.c+'"></span>';}).join('')+'</div>' +
     '<label>Signature</label><div class="pickrow" id="psig">' +
       LOOK.signature.map(function(s){return '<span class="pick'+(f.look.signature===s?' sel':'')+'" data-k="signature" data-v="'+s+'">'+s+'</span>';}).join('')+'</div>' +
+    '<div class="sketchwrap"><canvas id="sketch" width="132" height="160"></canvas>' +
+      '<div class="cap">a casting-office sketch drawn from your picks — not a portrait. ' +
+      'The block sees the rest in person; the renderer reads the same three fields.</div></div>' +
     '<div class="note">This is what the world sees — it\u2019s also the screened surface. ' +
     'Secrets aren\u2019t a field here because they don\u2019t exist yet; the character grows their own. ' +
     'Look pickers are structured (build / palette / signature) — rendering data, not more text to screen.</div>';
@@ -758,7 +946,7 @@ function render(){
   } else {
     var j=job(), hm=home();
     var left = bankAfterMoveIn(hm), dep=depFor(hm), depPlanned = START_BANK < moveInFor(hm);
-    var quote = '<div class="quote">' +
+    var quote = '<div class="quote"><canvas id="sketch6" width="88" height="104"></canvas>' +
       '<div class="line"><span>Name</span><b>'+esc(f.name)+'</b></div>' +
       '<div class="line"><span>Age · pronouns</span><b>'+f.age+' · '+f.pronouns+'</b></div>' +
       '<div class="line"><span>Look</span><b>'+esc([f.look.build,f.look.palette,f.look.signature].filter(Boolean).join(' · '))+'</b></div>' +
@@ -768,8 +956,13 @@ function render(){
       '<div class="line"><span>Move-in</span><b>first month $'+hm.rent.toLocaleString()+' + deposit $'+dep.toLocaleString()+
         (depPlanned?' (deposit on a payment plan)':'')+'</b></div>' +
       '<div class="line"><span>Arrival money</span><b>$'+START_BANK.toLocaleString()+' → $'+left.toLocaleString()+' after move-in</b></div>' +
+      '<div class="line"><span>The card</span><b>'+(cardFull()
+        ? 'full — '+seatsUsed()+' of '+BLOCK_CAP+' hired faces · the seat waitlist is free'
+        : seatsUsed()+' of '+BLOCK_CAP+' hired faces — seats remain')+'</b></div>' +
       '<div class="line total"><span>Character hire · charged on approval</span><b>'+HIRE_CR+' cr</b></div>' +
     '</div>';
+    /* v77 — your other one: a second hire is a stranger to the first */
+    var others = ['Dana Okafor'].concat(createdNames);
     /* live quote: gsHireQuote returns the pre-payment disclosure card;
        we keep our lines and append any extra disclosure lines it adds */
     if (BRIDGE && BRIDGE.gsHireQuote){ try{
@@ -786,12 +979,19 @@ function render(){
     '<div class="note">Name, bio, and arrival line get the same screen every request gets — ' +
     'the shared engine, then a human pass before the character lands. The hire bills on approval only — denied applications never bill.' +
     (submits>0 ? ' This is submission #'+(submits+1)+' — resubmissions go to a different reviewer.' : '')+'</div>' +
-    (BAL < HIRE_CR ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'') +
+    (others.length ? '<div class="note">'+esc(others.join(' and '))+' '+(others.length>1?'are':'is')+' on the card too — ' +
+      'a stranger to '+esc(f.name||'this one')+'. What you know, neither of them does; they meet on the block like anyone else.</div>':'') +
+    (cardFull() ? '<div class="warn">The card is full — '+seatsUsed()+' of '+BLOCK_CAP+' hired faces. Signing joins the seat waitlist: ' +
+      'free, first-come-first-served, screened at join and again when a seat opens. ' +
+      'An offer holds 48 h; there is no way to pay for a sooner seat.</div>':'') +
+    (BAL < HIRE_CR && !cardFull() ? '<div class="warn">Balance too low — <span class="topup" onclick="topup()">top up</span> first.</div>':'') +
     (created+1 > SLOT_CAP ? '<div class="warn">The roster is full on this account — '+created+' of '+SLOT_CAP+' slots used. The cap is the account\u2019s tier; Director raises it to 3.</div>':'');
   }
   wiz.innerHTML=h;
   $('back').style.display = STEP===0 ? 'none':'';
-  $('next').textContent = STEP===STEPS-1 ? ('Sign & hire — '+HIRE_CR+' cr') : 'Continue';
+  $('next').textContent = STEP===STEPS-1
+    ? (cardFull() ? 'Join the seat waitlist — free' : 'Sign & hire — '+HIRE_CR+' cr')
+    : 'Continue';
   wireStep();
   validate();
 }
@@ -825,6 +1025,7 @@ function wireStep(){
     wiz.querySelectorAll('.pick,.sw').forEach(function(el){
       el.onclick=function(){ f.look[el.dataset.k]=el.dataset.v; render(); };
     });
+    drawSketch($('sketch'), f.look);
   } else if (STEP===2 || STEP===3){
     wiz.querySelectorAll('.opt').forEach(function(el){
       if (el.classList.contains('dis')) return;
@@ -845,6 +1046,7 @@ function wireStep(){
     wiz.querySelectorAll('#pland .pick').forEach(function(el){
       el.onclick=function(){ f.landing=el.dataset.w; render(); };
     });
+    drawSketch($('sketch6'), f.look);
   }
 }
 function validate(){
@@ -853,7 +1055,7 @@ function validate(){
   if (STEP===1) ok = f.bio.trim().length>=10 && f.look.build && f.look.palette && f.look.signature;
   if (STEP===2) ok = !!f.job;
   if (STEP===3) ok = !!f.home;
-  if (STEP===5) ok = BAL>=HIRE_CR && created+1 <= SLOT_CAP;
+  if (STEP===5) ok = (cardFull() || BAL>=HIRE_CR) && created+1 <= SLOT_CAP;
   $('next').disabled=!ok;
 }
 $('back').onclick=function(){ if(STEP>0){STEP--;render();} };
@@ -905,6 +1107,31 @@ function submit(){
   $('denybox').style.display='none';
   $('next').disabled=true; $('back').disabled=true;
   var scr = screenFields();
+  /* v77 — the card is full: the only door is the seat waitlist. Still
+     screened at join (names don't get a pass for waiting); billed never. */
+  if (cardFull()){
+    var s1=stage('Intent screen — name, bio, arrival','wait','screened at join — the seat offer re-screens');
+    setTimeout(function(){
+      if (scr.r==='deny'){
+        s1.className='stage fail'; s1.querySelector('.why').textContent=scr.code;
+        stage('Application not approved','fail',scr.msg);
+        stage('No charge','done','denied applications never bill — waiting or not');
+        feedAdd('you','hire — application not approved');
+        var db=$('denybox'); db.style.display='block';
+        db.innerHTML='<b>Not approved — '+esc(scr.code)+'.</b> '+esc(scr.msg)+
+          '<div class="note" style="font-style:normal">Nothing was charged — the waitlist never bills anyway. ' +
+          'Edit the flagged fields and resubmit; the line reads in order.</div>';
+        toast(scr.msg);
+        $('next').disabled=false; $('back').disabled=false;
+        return;
+      }
+      s1.className='stage done'; s1.querySelector('.why').textContent='pass — joins the line';
+      saveWait();
+      feedAdd('you','hire — application "'+f.name+'" joined the seat waitlist · in line, no charge');
+      renderWait(loadWait());
+    }, 900);
+    return;
+  }
   var isResubmit = submits>0;
 
   var s1=stage('Intent screen — name, bio, arrival','wait','shared engine — same screen every request gets');
@@ -938,9 +1165,10 @@ function submit(){
 
 /* the approval tail — shared by the live submit and the queue's return */
 function approveHire(){
-  clearPending();
+  clearPending(); clearWait();
   submits++;
   BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
+  createdNames.push(f.name); renderSeats();
   stage('Charged on approval','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
   stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
   var hm=home(), depPlanned = START_BANK < moveInFor(hm);
@@ -960,6 +1188,7 @@ function approveHire(){
 function briefing(){
   var j=job(), hm=home();
   var crew = j&&j.est?crewFor(j.employer):[], nb=neighborsFor(hm), ll=landlordFor(hm);
+  var others = ['Dana Okafor'].concat(createdNames.filter(function(n){return n!==f.name;}));
   var ties = 'New in town — ' +
     (j&&j.est ? (crew.length? 'the counter at '+j.employer+' ('+crew.map(function(p){return p.n;}).join(', ')+')'
                              : 'the crew at '+j.employer+' — no names on the card yet')
@@ -967,6 +1196,7 @@ function briefing(){
     '; ' + (nb.length? nb.map(function(p){return p.n;}).join(', ')+' behind the same door'
                      : 'the neighbors at '+hm.address.split(',')[0]) +
     (ll.length? '; the landlord of record is '+ll.map(function(p){return p.n;}).join(', ') : '') +
+    (others.length? '; '+others.join(' and ')+' '+(others.length>1?'are':'is')+' on the card too — a stranger, not a contact' : '') +
     '. That\u2019s the whole list.';
   var b=$('briefing'); b.style.display='block';
   b.innerHTML='<h3>Possession briefing — ' + esc(f.name) + '</h3>' +
@@ -1019,8 +1249,11 @@ function briefing(){
 }
 
 loadDraft();
-var _pend = loadPending();
-if (_pend && _pend.f) renderQueue(_pend); else render();
+renderSeats();
+var _wait = loadWait(), _pend = loadPending();
+if (_wait && _wait.f) renderWait(_wait);
+else if (_pend && _pend.f) renderQueue(_pend);
+else render();
 </script>
 </body>
 </html>

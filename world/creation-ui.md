@@ -1,9 +1,44 @@
-# Character Creation — spec & copy deck (world v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v77 — the sketch & the seats layer: the picks draw, and the block has
+a capacity:**
+
+- **The sketch.** Step 2's structured look pickers now draw a small canvas
+  figure (`drawSketch`): silhouette proportions from build, jacket block
+  from palette, one drawn mark per signature (zipper, boot flecks, print
+  dots, paperback, headband, collar pins). The same sketch rides the
+  step-6 review card. Rendering data only — nothing to screen, nothing
+  invented; the caption calls it "a casting-office sketch — not a
+  portrait. The block sees the rest in person."
+- **The seats.** The block carries a finite number of hired faces —
+  `BLOCK_CAP 12`, the proposal number for open design decision §9.5
+  (total cast cap = compute budget). The roster panel shows the count
+  verbatim ("the card holds N of 12 hired faces — the block's carry
+  limit"), as does the step-6 quote. Per-account slot caps are a
+  separate, smaller ceiling — both are stated, neither is hidden.
+- **The seat waitlist.** When the card is full, the sign button reads
+  "Join the seat waitlist — free" and the submit path changes: screened
+  at join (names don't get a pass for waiting), then persisted
+  (`rw_create_wait_v25`) instead of entering review. The wait card is a
+  status view like the queue card — position, joined time, "nothing —
+  a seat offer never bills until you take it", a leave affordance that
+  posts to the feed. A seat offer holds **48 h**; unclaimed it passes
+  on. There is **no way to pay for a sooner seat** — no expedite, no
+  auction, no paid position. When a seat opens, the application enters
+  the normal pipeline screened again at the offer.
+- **Your other one.** A second hired character is a stranger to the
+  first — said verbatim on the review step and inside the briefing's
+  surface-relationships line ("…is on the card too — a stranger, not a
+  contact"). What the player knows, neither character does; the
+  briefing whitelist is unchanged.
+- **Demo affordance.** The roster panel carries a plainly-labeled demo
+  control — "demo: fill the card" — so the waitlist state is reachable
+  in a file:// demo. It's a test switch, not a product feature.
 
 **v63 — the queue & keys layer: the application keeps its place, and day
 one gets its paperwork:**
@@ -293,6 +328,23 @@ whitelist serves the mod console (moderation §4).
 | Keys rows | KEYS / MAILBOX / RENT BOOK / FIRST SHIFT / THE WIRE |
 | Keys footer | "Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs." |
 | Deny: block name | "That block name is taken too — pick one nobody on the card already answers to." |
+| Sketch caption | "a casting-office sketch drawn from your picks — not a portrait. The block sees the rest in person" |
+| Sketch empty | "pick build · palette · signature — the sketch draws itself" |
+| Seats line | "the card holds N of 12 hired faces — the block's carry limit" · full: "full — new applications join the seat waitlist: free, in order, never billed while waiting" |
+| Seats demo control | "demo: fill the card" / "demo: un-fill the card" |
+| Review: card line | "full — N of 12 hired faces · the seat waitlist is free" · else "N of 12 hired faces — seats remain" |
+| Review: card full warn | "The card is full — N of 12 hired faces. Signing joins the seat waitlist: free, first-come-first-served, screened at join and again when a seat opens. An offer holds 48 h; there is no way to pay for a sooner seat." |
+| Waitlist CTA | "Join the seat waitlist — free" |
+| Wait card head | "Seat waitlist — in line, not in review" |
+| Wait card position | "behind 2 applications — the line reads in order" |
+| Wait card charge | "nothing — a seat offer never bills until you take it" |
+| Wait card honesty | "You can close this page — the spot keeps its place." + "There is no way to pay for a sooner seat; the card's limit is the block's." |
+| Leave waitlist | "leave the waitlist — nothing was ever billed" |
+| Leave feed | 'hire — application "<name>" left the seat waitlist · no charge' |
+| Join feed | 'hire — application "<name>" joined the seat waitlist · in line, no charge' |
+| Seat offer feed | 'hire — a seat opened for "<name>" · offer holds 48 h' |
+| Other-hire line | "<name> is on the card too — a stranger to <new>. What you know, neither of them does; they meet on the block like anyone else." |
+| Briefing stranger tail | "<name> is on the card too — a stranger, not a contact" |
 
 ## 7. Merge notes
 
@@ -328,3 +380,16 @@ whitelist serves the mod console (moderation §4).
   verb (pre-billing, so always free); the feed line stays.
 - v63 `goes_by` joins the screened surface — the review desk sees it as a
   naming string like `name` (moderation §4 human pass covers it).
+- v77 seats: `BLOCK_CAP` is a demo constant for open decision §9.5 — at
+  merge the card count comes from the roster surface (extend
+  `gsHireSlots` or a sibling read); the waitlist spot is a device-local
+  mirror (`rw_create_wait_v25`), and the seat-offer accept maps to the
+  same hire-request activation. Seat offers expire server-side; the
+  48 h clock is a claim window, not a purchase.
+- v77 sketch: `drawSketch` is a demo renderer keyed on the same three
+  record_schema.look fields the real renderer will read — keep the
+  mapping table (build → proportions, palette → jacket, signature →
+  mark) as the contract when the world renderer picks it up.
+- v77 multi-hire: the stranger rule is honesty copy only — no new
+  record field. At merge, surface-relationships may list the owner's
+  other hires as strangers; never as contacts, allies, or alibis.

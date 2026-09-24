@@ -2245,7 +2245,8 @@ const PUB = Object.values(PT.surfaces)
     /* contract blocks the v35+v49 surface depends on */
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
                      'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
-                     'pending_queue', 'day_one_keys'])
+                     'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
+                     'seat_waitlist', 'multi_hire'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
@@ -2308,6 +2309,16 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'creation.json', null, 'screening.surface must carry goes_by — the block name is screened text');
     if (!/f\.goes_by/.test(html))
       add(g, 'fail', 'create.html', null, 'goes_by must ride the screened text + record, not sit unscreened');
+    /* v77: seat-waitlist key + block-cap agreement */
+    const wk = (CJ.seat_waitlist.storage.match(/rw_create_wait_v\d+/) || [])[0];
+    if (!wk || !html.includes(wk)) add(g, 'fail', 'create.html', null, `waitlist key "${wk}" not in page`);
+    const capM = html.match(/var BLOCK_CAP = (\d+)/);
+    if (!capM || +capM[1] !== CJ.block_capacity.cap)
+      add(g, 'fail', 'create.html', null, `BLOCK_CAP drifted from creation.json cap ${CJ.block_capacity.cap}`);
+    if (!/no way to pay for a sooner seat/i.test(html + JSON.stringify(CJ.seat_waitlist)))
+      add(g, 'fail', 'creation.json', null, 'seat waitlist must forbid paid position');
+    if (!/stranger/.test(html) || !/stranger/.test(JSON.stringify(CJ.multi_hire)))
+      add(g, 'fail', 'creation.json', null, 'multi_hire stranger rule must exist in contract + page');
     if (!/depFor/.test(html) || !/0\.5/.test(html))
       add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
     const roomRow = DHOMES.find(h2 => h2.room);
@@ -2411,7 +2422,24 @@ const PUB = Object.values(PT.surfaces)
       [/RENT BOOK/, 'v63: rent-book line'],
       [/FIRST SHIFT/, 'v63: first-shift line'],
       [/Logistics, not a script/, 'v63: keys honesty line'],
-      [/different reviewer, not a faster one/, 'v63: no-expedite honesty']
+      [/different reviewer, not a faster one/, 'v63: no-expedite honesty'],
+      [/casting-office sketch/, 'v77: sketch honesty caption'],
+      [/id="sketch"/, 'v77: sketch canvas on step 2'],
+      [/id="sketch6"/, 'v77: sketch on the review card'],
+      [/drawSketch/, 'v77: sketch renderer'],
+      [/the card holds/, 'v77: seat count line'],
+      [/hired faces/, 'v77: block-capacity vocabulary'],
+      [/Join the seat waitlist — free/, 'v77: waitlist CTA'],
+      [/rw_create_wait_v\d+/, 'v77: waitlist persistence'],
+      [/Seat waitlist — in line, not in review/, 'v77: wait card head'],
+      [/a seat offer never bills until you take it/, 'v77: never-billed-while-waiting honesty'],
+      [/48 h/, 'v77: seat-offer expiry'],
+      [/no way to pay for a sooner seat/, 'v77: no-paid-position honesty'],
+      [/leave the waitlist/, 'v77: leave affordance'],
+      [/renderWait|seatOpened/, 'v77: waitlist handlers'],
+      [/saveWait/, 'v77: waitlist write on join'],
+      [/meet on the block like anyone else/, 'v77: other-hire honesty'],
+      [/a stranger, not a contact/, 'v77: briefing stranger line']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
@@ -2532,7 +2560,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v73 || {};
+    const H = PT.harness_ui_v74 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2937,7 +2965,7 @@ for (const g of out.gates) {
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v75 local';
+out.build = 'world v77 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

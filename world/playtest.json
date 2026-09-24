@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch \u2014 file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 73,
+ "version": 74,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3552,11 +3552,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the book + request + harness gates.",
-     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json \u2194 inline BOOK \u2194 BOOKW), no prices on the Book, bookable \u2286 exclusive actions, claims resolving to CLAIMS keys, feed_shapes \u2286 feed_vocabulary, and a dark-pattern sweep. Harness gate reports 69 scenarios at the v73 key.",
+     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json \u2194 inline BOOK \u2194 BOOKW), no prices on the Book, bookable \u2286 exclusive actions, claims resolving to CLAIMS keys, feed_shapes \u2286 feed_vocabulary, and a dark-pattern sweep. Harness gate reports 70 scenarios at the v74 key.",
      "checkpoints": [
       "book gate detail: 'schema v74 \u00b7 4 claims \u00b7 4 seeded windows' \u2014 PASS",
       "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL \u2014 spot-check the gate code",
-      "Harness gate: '69 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v73'; 0 fail overall"
+      "Harness gate: '70 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v74'; 0 fail overall"
      ]
     }
    ]
@@ -3601,11 +3601,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the wire + harness gates.",
-     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 69 scenarios at the v73 key.",
+     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 70 scenarios at the v74 key.",
      "checkpoints": [
       "wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' \u2014 PASS",
       "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL \u2014 spot-check the gate code",
-      "Harness gate: '69 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v73'; 0 fail overall"
+      "Harness gate: '70 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v74'; 0 fail overall"
      ]
     }
    ]
@@ -3650,11 +3650,69 @@
     },
     {
      "do": "Run `node world/audit.js` and read the archive + harness gates.",
-     "expect": "The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 69 scenarios at the v73 key.",
+     "expect": "The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 70 scenarios at the v74 key.",
      "checkpoints": [
       "archive gate detail ends 'schema archive-v6' — PASS",
       "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
-      "Harness gate: '69 scenarios · N checkpoints · key rw_playtest_v73'; 0 fail overall"
+      "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT70",
+   "title": "Join the Cast v6 — the sketch & the seats layer (v77)",
+   "minutes": 12,
+   "persona": "paid-tier player on a full block — wants a second character and keeps asking what it costs to skip the line",
+   "goal": "Verify the v77 creation pass: the structured look picks draw a live canvas sketch on step 2 and ride the review card; the roster panel states the block's hired-face cap verbatim; a full card routes signing to a free, first-come seat waitlist that never bills, expires offers at 48 h, and sells no sooner seat; a second hire is stated as a stranger to the first.",
+   "surfaces": [
+    "create",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open create.html (file://). Reach step 2 with the pickers empty, then pick build/palette/signature and change each twice.",
+     "expect": "The sketch canvas opens with the empty-state line 'pick build · palette · signature — the sketch draws itself'. Each pick redraws the figure — silhouette proportions follow build, the jacket block follows palette, each signature draws its own mark (zipper / boot flecks / print dots / paperback / headband / collar pins). Caption reads 'a casting-office sketch — not a portrait'.",
+     "checkpoints": [
+      "The figure visibly differs across at least three builds and two palettes — the picks drive the drawing, not decoration",
+      "No free-text look field exists anywhere — the sketch adds zero screening surface",
+      "The caption never calls the sketch a portrait or a preview of final render quality"
+     ]
+    },
+    {
+     "do": "Read the roster panel's seats line, then click 'demo: fill the card' and finish a hire to step 6.",
+     "expect": "The seats line reads 'the card holds N of 12 hired faces — the block's carry limit' and flips to the full state on the demo control. On step 6 the quote gains a 'The card' line, a warn states the waitlist terms (free, FCFS, screened twice, 48 h offer, no paid seat), and the button reads 'Join the seat waitlist — free'.",
+     "checkpoints": [
+      "The cap is shown as the block's limit, separate from the account slot cap — both ceilings are visible",
+      "The balance check does NOT gate the waitlist CTA — waiting is free by construction",
+      "The warn names 'no way to pay for a sooner seat' verbatim"
+     ]
+    },
+    {
+     "do": "Sign while the card is full; read the pipeline and the wait card, then close and reopen the page.",
+     "expect": "The intent screen still runs at join — a denied name is refused before it ever waits. On pass the feed posts 'hire — application \"<name>\" joined the seat waitlist · in line, no charge' and the wait card shows position, joined time, 'a seat offer never bills until you take it', and 'leave the waitlist — nothing was ever billed'. Reopening restores the card (rw_create_wait_v25).",
+     "checkpoints": [
+      "Screening happens at join — the waitlist is not a screening bypass",
+      "Wallet unchanged; no queue position is sold anywhere on the card",
+      "Wait ~40 s: the demo seat opens, the offer posts 'offer holds 48 h', and the application enters the normal review pipeline"
+     ]
+    },
+    {
+     "do": "After a successful hire, start another and read step 6 + the briefing's surface-relationships line.",
+     "expect": "The review step names the existing hire — 'Dana Okafor is on the card too — a stranger to <name>. What you know, neither of them does; they meet on the block like anyone else.' The briefing tail lists the other hire as 'a stranger, not a contact'.",
+     "checkpoints": [
+      "The stranger rule appears in BOTH the review step and the briefing — not just one",
+      "The briefing whitelist is unchanged: profile / surface relationships / routine, secrets still 'none written'",
+      "No affordance links the two characters — no shared bank, no shared knowledge"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the creation + harness gates.",
+     "expect": "Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 70 scenarios at the v74 key.",
+     "checkpoints": [
+      "Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
+      "Harness gate: '70 scenarios · N checkpoints · key rw_playtest_v74'; 0 fail overall",
+      "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"
      ]
     }
    ]
@@ -3699,10 +3757,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v73 local",
- "harness_ui_v73": {
-  "storage_key": "rw_playtest_v73",
-  "build_tag_prefix": "world v73 local",
+ "build": "world v74 local",
+ "harness_ui_v74": {
+  "storage_key": "rw_playtest_v74",
+  "build_tag_prefix": "world v74 local",
   "deep_link": "#pt=<PT id> \u2014 parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3753,7 +3811,8 @@
    "rw_playtest_v70",
    "rw_playtest_v71",
    "rw_playtest_v72",
-   "rw_playtest_v73"
+   "rw_playtest_v73",
+   "rw_playtest_v74"
   ]
  }
 }

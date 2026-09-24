@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 24,
+  "version": 25,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -100,11 +100,11 @@
     "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
   },
   "draft": {
-    "storage": "localStorage rw_create_draft_v24 — fields + step + resubmit count + landing pick + goes_by",
+    "storage": "localStorage rw_create_draft_v25 — fields + step + resubmit count + landing pick + goes_by",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
   },
   "pending_queue": {
-    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v24: fields + submitted timestamp + resubmit count); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
+    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v25: fields + submitted timestamp + resubmit count); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
     "withdraw": "a pending application can be withdrawn — never billed; the withdrawal posts to the feed like everything else and the draft survives for editing",
     "resolve": "the demo reviewer clears the queue on return; at merge the real human-review desk resolves it — the card is a status view, never a faster lane",
     "never": "no queue position is sold, no expedite exists, resubmissions go to a different reviewer not a faster one"
@@ -112,6 +112,24 @@
   "day_one_keys": {
     "doc": "v63 — the keys card after signing: day-one logistics derived from the picks — key pickup (landlord's office for flats, door-on-the-latch + mailed key card for room shares), mailbox name card, first rent-book entry, first shift or the job-hunt runway, and the exact wire line that will post. Conditions and addresses only — never a script for the day.",
     "renders": ["KEYS", "MAILBOX", "RENT BOOK", "FIRST SHIFT", "THE WIRE"]
+  },
+  "sketch": {
+    "doc": "v77 — the structured look picks draw a small canvas figure on step 2 and ride the review card on step 6 (drawSketch): silhouette proportions from build, jacket block from palette, one drawn mark per signature. Rendering data only — no new screening surface. Copy must call it a casting-office sketch, never a portrait."
+  },
+  "block_capacity": {
+    "doc": "v77 — the total hired faces the block carries. Open design decision §9.5 (cast cap = compute budget); the demo runs the proposal number 12 and labels it the block's carry limit. Per-account slot_cap stays a separate, smaller ceiling.",
+    "cap": 12,
+    "proposal": true,
+    "display": "the roster panel and the step-6 quote show the count verbatim ('N of 12 hired faces') — never hidden, never a surprise denial"
+  },
+  "seat_waitlist": {
+    "doc": "v77 — when the card is full, signing joins the seat waitlist instead of the review pipeline: free, first-come-first-served. Screened at join AND re-screened when a seat offer lands. An offer holds 48 h — unclaimed it passes on. Waiting never bills; leaving is free and posts to the feed like every withdrawal.",
+    "storage": "localStorage rw_create_wait_v25 — fields + joined timestamp + resubmit count; survives a closed page like pending_queue",
+    "never": "no expedite, no seat auction, no paid position — there is no way to pay for a sooner seat",
+    "demo": "the demo seat opens on a clock (~40 s), the way the demo reviewer clears the queue; at merge the real roster state decides"
+  },
+  "multi_hire": {
+    "doc": "v77 — a second hired character is a stranger to the first, stated verbatim on the review step ('<name> is on the card too — a stranger to them; they meet on the block like anyone else') and in the briefing's surface-relationships line (a stranger, not a contact). What the player knows, neither character does — the briefing whitelist is unchanged."
   },
   "briefing_whitelist": ["public profile", "surface relationships", "daily routine"],
   "feed_events": {
