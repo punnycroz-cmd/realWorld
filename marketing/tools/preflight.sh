@@ -134,6 +134,18 @@ else
   ok "accuracy sweep: $ACLINE"
 fi
 
+# ── 5d. Press-kit integrity — manifest/disk/captions/links/zip parity ──
+echo "[5d] press-kit integrity"
+PK=$(./tools/press_kit_check.py 2>&1)
+echo "$PK" | grep -E '^\s+FAIL' || true
+PKLINE=$(echo "$PK" | tail -1)
+echo "       $PKLINE"
+if echo "$PKLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "press-kit integrity has failures (above)"
+else
+  ok "press-kit integrity: $PKLINE"
+fi
+
 # ── 6. Tree state (informational) ──
 echo "[6] worktree"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then

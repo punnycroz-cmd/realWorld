@@ -23,6 +23,8 @@
     "review-guide.md": "self-guided review plan for a spectator sim — 30/90-minute/evening watch paths",
     "contact-sheet.html": "printable visual index of every image asset in the kit",
     "captions.txt": "per-asset captions and credit lines",
+    "coverage-log.md": "post-launch coverage tracker — outlet/piece/assets/accuracy/corrections ledger (empty until launch)",
+    "manifest.json": "this file — checked by tools/press_kit_check.py",
     "LICENSE.txt": "press asset usage terms",
     "README.txt": "contents + usage rules + accuracy note",
     "logos/": [

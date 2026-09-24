@@ -46,6 +46,9 @@ Contents
   contact-sheet.html Printable visual index of every image asset in the
                      kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
+  coverage-log.md    Post-launch coverage tracker — who covered us,
+                     what they used, accuracy check, corrections sent
+                     (empty template until coverage begins)
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest
   logos/             Primary lockup (light text, for dark bgs) +

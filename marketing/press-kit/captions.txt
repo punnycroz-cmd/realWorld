@@ -50,9 +50,17 @@ screenshots/v16-int-flat.png
 screenshots/v1-A.png / v1-B.png
   First art pass, for before/after coverage. Pair with v67-A / v67-B.
 
-logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
+screenshots/v67-A.webp / v67-B.webp / v67-C.webp / v67-D.webp
+  Lightweight web companions of the four v67 captures above — same
+  frames, smaller files, for pages that prefer webp.
+
+logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.
+logos/logo-primary.png         Raster of the same lockup (dark bgs only).
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.
-logos/logo-icon.svg/.png       The lit-window mark, square.
+logos/logo-primary-mono.svg    Single-ink primary lockup (inherits text
+                               color) — one-color print, overlays.
+logos/logo-icon.svg            The lit-window mark, square.
+logos/logo-icon.png            Raster of the same mark.
 logos/logo-icon-mono.svg       Single-ink version (inherits text color).
 logos/favicon.svg              Site favicon.
 logos/logo-stacked.svg         Stacked lockup — vertical spaces.

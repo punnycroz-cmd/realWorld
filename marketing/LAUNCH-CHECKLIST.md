@@ -412,3 +412,4 @@ deployed artifact would differ from the rehearsed one.
 4. Re-issue the §6 block from `gonogo.sh` — never edit a stale block by hand.
 The windows here are also compiled into `tools/gate_freshness.sh` — change one,
 change the other.
+| 2026-09-23 | tools/press_kit_check.py (v137, first run) | NEW gate caught 8 real gaps on first run: manifest self-undeclared, 7 assets uncaptioned (logo rasters, mono lockup, v67 webp companions) — all fixed; rerun 7 pass / 0 warn / 0 fail (54 declared files, 15 index links, zip parity). Wired into preflight.sh step 5d. NEW press-kit/coverage-log.md (post-launch coverage tracker). Preflight rerun: 9 pass / 5 warn / 0 fail GO |

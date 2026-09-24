@@ -111,6 +111,7 @@ date. The founder quote slot below stays empty until the user writes one:
 | Social banners | **Available** — X/YouTube/Discord/LinkedIn, safe-zone padded | `press-kit/banners/` |
 | Creator badge | **Available** — "WATCHED ON REAL WORLD" embed badge, color + mono SVGs | `press-kit/badges/` |
 | Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
+| Coverage log | **Available** — post-launch tracker: per-piece ledger, misstated-claims checklist, corrections + inbound-contact tables (empty until launch) | `press-kit/coverage-log.md` |
 | Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |
 | Manifest | **Available** — machine-readable kit contents | `press-kit/manifest.json` |
 | Trailer | **Not yet produced** — see TRAILER-PLAN.md | — |

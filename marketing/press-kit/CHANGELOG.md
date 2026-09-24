@@ -3,6 +3,14 @@
 Newest first. Journalists: the screenshot filenames encode the renderer
 build they were captured from (v67-* is the current development build).
 
+## v137 — 2026-09-23
+- NEW `coverage-log.md` — post-launch coverage tracker: per-piece ledger,
+  misstated-claims checklist, corrections-sent + inbound-contact tables.
+- NEW integrity gate `tools/press_kit_check.py` — manifest↔disk↔captions↔
+  index-link↔zip parity; first run caught 8 gaps, all fixed (captions now
+  name every asset file individually, incl. logo rasters, mono lockup,
+  and the v67 webp companions; manifest self-declares).
+
 ## v136 — 2026-09-23
 - Screenshots rebased v65→**v67** (the lens rebuild: lateral chromatic
   fringing, scanline blur, and film grain retired; vignette softened;
