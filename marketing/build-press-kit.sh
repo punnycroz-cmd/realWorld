@@ -26,11 +26,11 @@ cp site/assets/badge-watched.svg site/assets/badge-watched-mono.svg \
 mkdir -p "$KIT/mastheads"
 cp site/assets/masthead-journal.svg site/assets/masthead-recap.svg \
    site/assets/masthead-caught.svg "$KIT/mastheads/"
-cp site/shots/v81-A.png site/shots/v81-B.png site/shots/v81-C.png \
-   site/shots/v81-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
+cp site/shots/v83-A.png site/shots/v83-B.png site/shots/v83-C.png \
+   site/shots/v83-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \
-   site/shots/v81-A.webp site/shots/v81-B.webp site/shots/v81-C.webp \
-   site/shots/v81-D.webp \
+   site/shots/v83-A.webp site/shots/v83-B.webp site/shots/v83-C.webp \
+   site/shots/v83-D.webp \
    "$KIT/screenshots/"
 
 mkdir -p dist

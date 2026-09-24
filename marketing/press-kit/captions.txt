@@ -13,7 +13,7 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v81-A.png       1440x900 (approx)
+screenshots/v83-A.png       1440x900 (approx)
   The Mission block from overhead on an autumn afternoon (in-world
   Day 22): the Mudhaus Coffee dollhouse cutaway open on the block —
   the building ghosted, a real floor plan drawn inside the footprint,
@@ -23,13 +23,13 @@ screenshots/v81-A.png       1440x900 (approx)
   and height. The HUD shown is the real spectator chrome of the
   development build.
 
-screenshots/v81-B.png       1440x900 (approx)
+screenshots/v83-B.png       1440x900 (approx)
   Street-level close view of Jules on the sidewalk with Priya and Dani
   mid-block: dressed storefronts and stoops, parked cars along the
   curb, leaves drifting — residents carrying name tags overhead, the
   rooftop-over-park monitor live in the corner.
 
-screenshots/v81-C.png       1440x900 (approx)
+screenshots/v83-C.png       1440x900 (approx)
   Dolores Park from overhead: crown-genome trees in rust and gold —
   every crown grown from a genome atlas and flipped per instance, so no
   two read alike — meadow drifts stippled across the lawns, tennis
@@ -37,7 +37,7 @@ screenshots/v81-C.png       1440x900 (approx)
   building-scale shade pooling on the east edge where the sky-visibility
   field says the sky is closed.
 
-screenshots/v81-D.png       1440x900 (approx)
+screenshots/v83-D.png       1440x900 (approx)
   Director mode at street level: the thirds grid and center cross up on
   the composition guides (H key), REC cluster and DIRECTOR badge, the
   viewfinder strip reading 50mm, f2.0, EV+0.0, compass and height —
@@ -52,10 +52,10 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v81-A / v81-B.
+  First art pass, for before/after coverage. Pair with v83-A / v83-B.
 
-screenshots/v81-A.webp / v81-B.webp / v81-C.webp / v81-D.webp
-  Lightweight web companions of the four v81 captures above — same
+screenshots/v83-A.webp / v83-B.webp / v83-C.webp / v83-D.webp
+  Lightweight web companions of the four v83 captures above — same
   frames, smaller files, for pages that prefer webp.
 
 logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.

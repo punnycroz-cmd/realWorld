@@ -11,13 +11,13 @@
 <meta property="og:title" content="Real World — Gallery">
 <meta property="og:description" content="Every capture on this page is a real frame from the development build. No renders, no mockups.">
 <meta property="og:url" content="https://realworld-game.example/gallery.html"><!-- PLACEHOLDER domain -->
-<meta property="og:image" content="shots/v81-D.png">
+<meta property="og:image" content="shots/v83-D.png">
 <meta property="og:image:width" content="1440">
 <meta property="og:image:height" content="900">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Real World — Gallery">
 <meta name="twitter:description" content="Real development-build captures of the Mission block: overhead, street level, director mode, interiors.">
-<meta name="twitter:image" content="shots/v81-D.png">
+<meta name="twitter:image" content="shots/v83-D.png">
 <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
 <link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
@@ -32,6 +32,10 @@
   "url": "https://realworld-game.example/gallery.html",
   "description": "Real screenshots from the Real World development build, all captures of the in-browser simulation.",
   "image": [
+    "shots/v83-A.png",
+    "shots/v83-B.png",
+    "shots/v83-C.png",
+    "shots/v83-D.png",
     "shots/v81-A.png",
     "shots/v81-B.png",
     "shots/v81-C.png",
@@ -122,7 +126,32 @@
 <!-- LATEST BUILD -->
 <section>
   <div class="wrap">
-    <p class="eyebrow">Latest — art pass v81, the rig learned coverage grammar</p>
+    <p class="eyebrow">Latest — art pass v83, the roofs got furnished</p>
+    <h2>Every roof is a real place now.</h2>
+    <p class="muted">Flat roofs stopped being painted-brown guesses: each
+    building bakes a deterministic catalog of what's actually up there —
+    decks, furniture, penthouse pop-ups with sun-keyed walls that throw
+    their own shadows — and the street-level view projects the same
+    catalog, so a rooftop reads the same from above and from the
+    sidewalk. Pitched ridges gain widow's-walk cresting and hip-apex
+    finials. And because the catalog lives in world meters, not pixels,
+    a roof deck is an addressable place the simulation can use — not
+    just decoration. Underneath: the v82 field-memoization pass (street
+    render roughly halved), the v81 coverage grammar, the v80
+    sky-visibility shade field.</p>
+    <div class="gallery">
+      <figure><picture><source srcset="shots/v83-A.webp" type="image/webp"><img src="shots/v83-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view of the Mission block in the production spectator shell — the Mudhaus Coffee dollhouse cutaway open with Jules inside and Marcus and Victor at the door, flat rooftops carrying baked furniture catalogs, the live rooftop-over-park picture-in-picture monitor top right"></picture><figcaption>Overhead — the Mudhaus dollhouse open, flat roofs carrying their real catalogs, the Wire rooftop feed live in the corner. <a href="shots/v83-A.png">Full size</a></figcaption></figure>
+      <figure><picture><source srcset="shots/v83-B.webp" type="image/webp"><img src="shots/v83-B.png" width="1440" height="900" loading="lazy" decoding="async" alt="Street-level close view of Jules on the sidewalk with Priya and Dani mid-block in the production spectator shell — resident inspector card left, camera rail along the bottom, dressed facades and parked cars behind"></picture><figcaption>Street level — Jules up close inside the spectator shell: inspector card left, camera rail below. <a href="shots/v83-B.png">Full size</a></figcaption></figure>
+      <figure><img src="shots/v83-C.webp" width="1440" height="900" loading="lazy" decoding="async" alt="Top-down view over Dolores Park in the production spectator shell — autumn tree crowns across meadow-dotted lawns, tennis courts at the south edge, the Wire rooftop monitor top right"><figcaption>The park — courts holding the south edge, the Wire monitor watching from the rooftop. <a href="shots/v83-C.png">Full size</a></figcaption></figure>
+      <figure><picture><source srcset="shots/v83-D.webp" type="image/webp"><img src="shots/v83-D.png" width="1440" height="900" loading="lazy" decoding="async" alt="Director-mode street view looking up at pitched rooftops with ridge cresting and finials against a bright sky, dressed fronts below, REC overlay and viewfinder strip, development build"></picture><figcaption>Director mode, v83 — pitched ridges wearing their cresting and finials against the sky. <a href="shots/v83-D.png">Full size</a></figcaption></figure>
+    </div>
+  </div>
+</section>
+
+<!-- V81 BUILD -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Art pass v81 — the rig learned coverage grammar</p>
     <h2>The camera shoots like a crew now.</h2>
     <p class="muted">The follow-cam got a director's vocabulary: it pans
     into a subject's look-room off smoothed lateral velocity, composes a

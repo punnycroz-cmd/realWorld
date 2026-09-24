@@ -231,10 +231,10 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v78-A", "the block from overhead — Jules selected inside Mudhaus, the Wire's rooftop cam in the corner"],
-      ["shots/v78-B", "street level on 24th — Jules, Priya and Dani out, leaves in the air"],
-      ["shots/v78-C", "Dolores Park from above — blankets on the lawns, tennis courts at the south end"],
-      ["shots/v78-D", "rooftop height down the block — dressed facades, the director bug riding the corner"]
+      ["shots/v83-A", "the block from overhead — Jules selected inside Mudhaus, the Wire's rooftop cam in the corner"],
+      ["shots/v83-B", "street level on 24th — Jules out front, Priya and Dani mid-block"],
+      ["shots/v83-C", "Dolores Park from above — autumn crowns, tennis courts at the south end"],
+      ["shots/v83-D", "rooftop height down the block — ridge cresting and finials, the director bug riding the corner"]
     ];
     // "Label the shot" overlay — one marker set per SHOTS entry. Every label
     // names something verifiable in the frame itself: the inspector panel,
@@ -251,16 +251,16 @@
         [50, 27, "Mudhaus Coffee — a parody storefront, by design"]
       ],
       [
-        [52, 39, "Jules — follow-cam close, never steering"],
-        [46, 38, "Priya — out on her routine"],
-        [9, 37, "Dani — bubble up, mid-sentence"],
+        [52, 58, "Jules — follow-cam close, never steering"],
+        [45, 35, "Priya — out on her routine"],
+        [9, 12, "Dani — bubble up, mid-sentence"],
         [14, 62, "The same inspector, at street level"],
         [37, 9, "Every storefront is fictional — parody signage only"],
         [85, 18, "The Wire — still LIVE in the corner"]
       ],
       [
-        [52, 54, "Jules — out on the lawns"],
-        [17, 20, "Blankets out — residents on their own schedules"],
+        [52, 46, "Jules — out on the lawns"],
+        [17, 20, "Autumn crowns — the park's own calendar"],
         [37, 89, "Tennis courts at the park's south end"],
         [50, 33, "The park paths — the block's commons"],
         [85, 18, "The Wire — rooftop cam, same frame"]
@@ -268,8 +268,8 @@
       [
         [5, 9, "● REC — director mode"],
         [48, 15, "DIRECTOR — free framing, still read-only"],
-        [28, 48, "STORE — signage pass, parody names only"],
-        [46, 27, "Leaves in the air — autumn on the block's clock"],
+        [30, 42, "STORE — signage pass, parody names only"],
+        [63, 21, "Ridge cresting & finials — pitched roofs got silhouettes"],
         [14, 62, "The inspector rides along in every mode"]
       ]
     ];

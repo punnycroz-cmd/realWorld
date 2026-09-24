@@ -2,7 +2,7 @@
 
 Generated capsule art for store submissions. **Local only — nothing
 submitted.** All files are produced by `tools/make_brand_assets.py` from the
-current hero shot (`site/shots/v81-D.png`); rerun that script after any art
+current hero shot (`site/shots/v83-D.png`); rerun that script after any art
 refresh to re-bake the whole set. Copy text lives in `../STORE-COPY.md`;
 the ordered paste-ready submission runbook is `../STORE-COPY.md` §9.
 `preview.html` is a local-only mock of the itch project page (§35) — open
@@ -22,6 +22,6 @@ from disk, keep it in sync with the copy doc in the same commit.
 | steam-client-logo.png | Steam client logo | transparent PNG |
 | steam-library-hero-3840x1240.png | Steam library hero | 3840×1240, generated interim (STORE-COPY.md §4) |
 
-Screenshots for store pages: `../press-kit/screenshots/` (v81 series + two
+Screenshots for store pages: `../press-kit/screenshots/` (v83 series + two
 v16 interior vignettes + v1 before/after pair). OG/social card:
 `../site/assets/og-card.png`. Avatar: `../site/assets/logo-icon.png`.

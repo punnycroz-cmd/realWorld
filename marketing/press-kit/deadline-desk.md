@@ -33,9 +33,9 @@ in [brackets] is a placeholder — do not print brackets.
 
 | File | Shows | Caption shorthand |
 |---|---|---|
-| `screenshots/v81-A.png` | Top-down over the Mission block — the Mudhaus Coffee dollhouse cutaway open, Jules inside, the live rooftop monitor in the corner | "The Mission block, development build" |
-| `screenshots/v81-B.png` | Street level past stoops and dressed facades, Jules up close mid-block | "Street level, development build" |
-| `screenshots/v81-D.png` | Director mode — thirds-grid guides and viewfinder strip up, the block staged like a film set | "Director mode, development build" |
+| `screenshots/v83-A.png` | Top-down over the Mission block — the Mudhaus Coffee dollhouse cutaway open, Jules inside, the live rooftop monitor in the corner | "The Mission block, development build" |
+| `screenshots/v83-B.png` | Street level past stoops and dressed facades, Jules up close mid-block | "Street level, development build" |
+| `screenshots/v83-D.png` | Director mode — thirds-grid guides and viewfinder strip up, the block staged like a film set | "Director mode, development build" |
 
 Full captions + credit lines: `captions.txt`. Credit:
 "Real World (in development)". Keep the "in development" label.
@@ -70,5 +70,5 @@ If we got something wrong in the kit, or the design changed after this
 snapshot, the fix is one line to [press@ — placeholder]. Corrections to
 published coverage are welcomed — we'll confirm the accurate phrasing
 rather than ask for a takedown. Kit freshness is tracked in
-`CHANGELOG.md`; screenshots are labeled by renderer build (v81-* is
+`CHANGELOG.md`; screenshots are labeled by renderer build (v83-* is
 current as of this kit).

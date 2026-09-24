@@ -1,7 +1,24 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v81-* is the current development build).
+build they were captured from (v83-* is the current development build).
+
+## v181 — 2026-09-24
+- Screenshots rebased v81→**v83** (art's roof-catalog pass: flat roofs
+  bake a deterministic furniture/deck/penthouse-pop-up catalog in world
+  meters, projected identically in overhead and street views; pitched
+  ridges gain widow's-walk cresting + hip-apex finials. v82 between them
+  was an invisible perf pass — frame-scoped field memoization, street
+  render ~halved). Site gallery/index/demo/press-kit/sitemap, kit
+  screenshots + webp (PIL q82) swapped; README, captions, manifest,
+  fact-sheet, whats-new (v83 + v82 bullets, count 17→19), deadline-desk,
+  b-roll, one-sheet, embargo-briefing, awards, pitch-emails refs updated;
+  v81 shots demoted to the gallery archive (files kept in site/shots/).
+- `screenshots/v83-C.png` (2.23MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
+- Demo page fallback deck + "label the shot" marker sets moved to the
+  v83 frames (positions re-checked against the new captures).
 
 ## v167 — 2026-09-24
 - Screenshots rebased v80→**v81** (art's coverage-grammar pass:

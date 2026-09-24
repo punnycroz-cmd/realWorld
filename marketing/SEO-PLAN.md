@@ -459,6 +459,10 @@ reapplied to v80-C; v80-A fell back under the ceiling.)*
 two-shot composer, gust buffeting, thirds-grid guides, viewfinder
 strip); v80 section demoted to archive. Same webp-only rule reapplied
 to v81-C.)*
+*(v181: gallery rebase v81→v83 — roof catalog (furnished flat roofs,
+penthouse pop-ups, ridge cresting + finials; v82 was an invisible perf
+pass); v81 section demoted to archive. Same webp-only rule reapplied
+to v83-C.)*
 1. `shots/v81-C.png` (2.23MB) breaches the 2MB
    PNG-fallback ceiling. Per the rule set at
    v135, **the PNG fallback is dropped for this shot:** its
