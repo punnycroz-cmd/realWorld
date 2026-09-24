@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — The Rent Book (lease flow)</title>
+<title>Real World — The Rent Book v7 (lease flow)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Lease-flow demo — "The Rent Book" (world v96, v6).
+  Lease-flow demo — "The Rent Book" (world v110, v7).
   Self-contained: file://-safe, no network. Spec + copy deck:
   world/lease-ui.md. Machine mirror: world/leases.json.
   Registry numbers: world/jobs-housing.md §3 (canonical).
@@ -63,6 +63,16 @@
   any balance exists, never required and never a waiver; and the rental
   history letter — one dated, neutral abstract per tenancy the tenant
   carries to the next screening.
+  v110 adds (the meter & leftovers layer): tenant-paid utilities bill as
+  their own itemized ledger line each 1st — beside the rent, never
+  inside it; the annual Rent Board fee (assessor: $59/unit) passes up
+  to half to the tenant as an itemized RBF line — once a year, never
+  folded into rent; belongings left at move-out write an itemized
+  abandoned-property notice with a 15-day claim window, disposal
+  documented and storage cost a cited deduction; change-of-terms docs
+  post on month-to-month leases only, ≥30 days out, house terms never
+  rent; a mid-month move-out prorates the last month — symmetric to
+  the first-month rule.
   Boundaries: game dollars only (credits never touch rent); eviction is
   admin-only and never automatic; 9457-3's dispute stays ambiguous;
   no surface offers possession or request-based lease powers.
@@ -188,7 +198,7 @@
 
 <script>
 /* ================= mirror of leases.json + jobs-housing §3 ================= */
-var LS='rw_lease_v96';
+var LS='rw_lease_v110';
 var STEPS=['listed','applied','approved','active','arrears','noticed','cured','disputed','evict_review','evicted','move_out','turnover','owner_occupied'];
 var RAISE_BAND=0.04; /* controlled-unit annual raise band (house rule, lease-ui §13) */
 var SCREEN_INCOME_X=2.5; /* published screening condition */
@@ -199,6 +209,7 @@ function seed(){ return {
   leases:[
     {uid:'bld-g9418-A', addr:'9418 Guerrero St, Unit A', tenant:'C6 Carmen', pub:'a long-time tenant',
      rent:950, ctrl:true, state:'active', bal:0, term:'month-to-month (initial term served 1989)', hist:[],
+     utils:{tenant:['PG&E'],amt:38,landlord:['water','garbage','laundry']},
      movein:['original fir floors, worn finish — pre-existing','north window painted shut — pre-existing'],
      ledger:[{d:1,t:'rent charge',a:950},{d:1,t:'payment',a:-950}], docs:[], repair:[]},
     {uid:'bld-g9418-B', addr:'9418 Guerrero St, Unit B', tenant:null, pub:'listed — 1BR',
@@ -208,6 +219,7 @@ function seed(){ return {
      ledger:[{d:1,t:'rent charge',a:1950},{d:3,t:'payment',a:-1950}], docs:[], repair:[]},
     {uid:'bld-g9457-2', addr:'9457 Guerrero St, Unit 2', tenant:'h01 (your character)', pub:'a new tenant',
      rent:1350, ctrl:true, state:'active', bal:1400, mine:true, deposit:1350, hist:[], termMo:10,
+     utils:{tenant:['PG&E','internet'],amt:85,landlord:['water','garbage']},
      term:'fixed 12 mo \u2192 month-to-month',
      movein:['entry wall scuffed — pre-existing','window latch intact','stove burner R2 slow — noted'],
      ledger:[{d:1,t:'rent charge',a:1350},{d:6,t:'late fee (5%, cap $50)',a:50}],
@@ -237,6 +249,7 @@ function seed(){ return {
      forsale:true, price:160000, deed_cr:2000},
     {uid:'bld-f9088-5', addr:'9088 Folsom St, Unit 5', tenant:'ambient tenant', pub:'a studio tenancy',
      rent:1300, ctrl:true, state:'active', bal:1300, ownedBy:'h02', deposit:1300,
+     utils:{tenant:['PG&E'],amt:45,landlord:['water','garbage','storage locker']},
      term:'fixed 12 mo \u2192 month-to-month (mo 11)', hist:[], termMo:11,
      movein:['clean throughout','blinds frayed at cord — pre-existing'],
      ledger:[{d:1,t:'rent charge',a:1300}], docs:[], repair:[]}
@@ -359,6 +372,18 @@ function renderDetail(){
         (r.breach?' <b style="color:var(--red)">SLA breach on file</b>':'');}).join('<br>')+'</div>';
     if(depth && l.roommate) h+='<div class="note">Joint lease — co-tenant '+l.roommate+', jointly liable. The ledger records one balance; it doesn\u2019t adjudicate roommate splits.</div>';
     if(depth && l.depPending) h+='<div class="notice"><b>deposit clock running</b>Deposit '+money(l.deposit)+' + interest due back by day '+l.depDue+' (21-day window). Deductions itemized against the move-in record — anything pre-existing is refused, not argued.</div>';
+    if(depth && l.utils)
+      h+='<div class="note">Utilities on the lease: tenant pays '+l.utils.tenant.join(' + ')+
+         ' ('+money(l.utils.amt)+'/mo, billed as its own itemized ledger line — beside the rent, never inside it); '+
+         'the building covers '+l.utils.landlord.join(', ')+'. A bill for a covered service is a contested_charge ground.</div>';
+    if(depth && l.cot)
+      h+='<div class="notice med"><b>change of terms</b>'+l.cot.text+' — served day '+l.cot.day+', effective day '+l.cot.effective+' (\u226530 days out). Month-to-month paper only — a fixed term can\u2019t be rewritten mid-lease, and rent changes still go through the raise path. The tenant may respond on the file; a contested change can go to the board.</div>';
+    if(depth && l.abandoned && !l.abandoned.resolved)
+      h+='<div class="notice"><b>abandoned property notice</b>Items left at move-out — itemized on the walkthrough, day '+l.abandoned.day+'. Claim by day '+l.abandoned.claimBy+' (15-day window). Past the window: disposal is documented and storage cost is a cited deduction — never a feed event.</div>';
+    if(depth && l.abandoned && l.abandoned.resolved==='claimed')
+      h+='<div class="note">Abandoned items claimed day '+l.abandoned.resolvedDay+' — released, no deduction.</div>';
+    if(depth && l.abandoned && l.abandoned.resolved==='disposed')
+      h+='<div class="note">Unclaimed past the 15-day window — disposal documented day '+l.abandoned.resolvedDay+'; storage cost itemized at deposit return.</div>';
     if(depth && l.plan && l.planInst)
       h+='<div class="notice plan"><b>payment plan — installments</b>'+l.planInst.map(function(i){
         return 'day '+i.d+': '+money(i.amt)+(i.paid?' <b style="color:var(--grn)">paid</b>':' <b style="color:var(--acc)">due</b>');}).join('<br>')+
@@ -396,6 +421,10 @@ function renderDetail(){
         h+='<button class="ghost" onclick="prepayMonth()">Prepay a month — '+money(l.rent)+'</button>';
       if(!l.histLetter)
         h+='<button class="ghost" onclick="reqHistLetter()">Request rental history letter</button>';
+      if(l.cot&&!l.cotResp)
+        h+='<button class="ghost" onclick="respondCOT()">Respond to change of terms</button>';
+      if(l.abandoned&&!l.abandoned.resolved)
+        h+='<button class="ghost" onclick="claimAbandoned()">Claim abandoned items (by day '+l.abandoned.claimBy+')</button>';
       if(l.buyout&&!l.buyout.decided)
         h+='<button onclick="buyoutDecide(true)">Accept buyout — '+money(l.buyout.amt)+'</button>'+
           '<button class="ghost" onclick="buyoutDecide(false)">Decline — costs nothing</button>';
@@ -449,6 +478,14 @@ function renderDetail(){
            '<button class="ghost" onclick="guarRelDecide(false)">Decline release</button>';
       if(l.tenant&&!l.mine&&!l.sold&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
         h+='<button class="ghost" onclick="recordSale()">Record sale — tenant in place</button>';
+      if(l.utils&&l.tenant&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postUtil()">Post utility bill — '+money(l.utils.amt)+'</button>';
+      if(l.tenant&&!l.rbfDone&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postRBF()">Post Rent Board pass-through — $29 (RBF)</button>';
+      if(l.tenant&&!l.cot&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postCOT()">Post change of terms (30 days out)</button>';
+      if(l.state==='move_out'&&!l.abandoned)
+        h+='<button class="ghost" onclick="postAbandoned()">Note abandoned property</button>';
       if(l.state==='disputed'){
         h+='<button class="ghost" onclick="ruling()">Open ruling card</button>';
         if(l.med) h+='<button class="ghost" onclick="acceptMed()">Accept mediation offer</button>';
@@ -489,6 +526,14 @@ function renderDetail(){
       if(l.guarRelReq)
         h+='<button class="ghost" onclick="guarRelDecide(true)">Release guarantor</button>'+
            '<button class="ghost" onclick="guarRelDecide(false)">Decline release</button>';
+      if(l.utils&&l.tenant&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postUtil()">Post utility bill — '+money(l.utils.amt)+'</button>';
+      if(l.tenant&&!l.rbfDone&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postRBF()">Post Rent Board pass-through — $29 (RBF)</button>';
+      if(l.tenant&&!l.cot&&(l.state==='active'||l.state==='arrears'||l.state==='noticed'))
+        h+='<button class="ghost" onclick="postCOT()">Post change of terms (30 days out)</button>';
+      if(l.state==='move_out'&&!l.abandoned)
+        h+='<button class="ghost" onclick="postAbandoned()">Note abandoned property</button>';
       if(l.state==='noticed')
         h+='<button class="danger" onclick="evictFile()">File for eviction review</button>';
       if(l.state==='disputed'&&!l.med)
@@ -827,7 +872,7 @@ window.recordMoveOut=function(){
   if(l.deposit){
     /* move-out starts the deposit clock — the return is posted
        separately, itemized, inside a 21-day window (lease-ui §33) */
-    l.state='move_out'; l.depPending=true; l.depDue=S.day+21; mkWalk(l);
+    l.state='move_out'; l.depPending=true; l.depDue=S.day+21; mkWalk(l); prorateOut(l);
     l.docs.push({n:'move-out recorded',t:'Keys in, walkthrough done. Deposit '+money(l.deposit)+' + interest is due back within 21 days (by day '+l.depDue+') — deductions itemized against the walkthrough and the move-in record. The clock is a ledger line, not a promise.'});
   } else {
     l.state='turnover';
@@ -848,6 +893,11 @@ window.returnDeposit=function(){
   var refused=pre.length?pre[0]:null;
   var ded=90, items=['broken window latch — '+money(90)+' (walkthrough finding; not on the move-in record)'];
   l.ledger.push({d:S.day,t:'deduction — broken window latch (walkthrough finding, not on move-in record)',a:90});
+  if(l.abandoned&&l.abandoned.resolved==='disposed'&&l.storCost){
+    ded+=l.storCost;
+    items.push('abandoned-property storage — '+money(l.storCost)+' (cited to the day-'+l.abandoned.day+' notice)');
+    l.ledger.push({d:S.day,t:'deduction — abandoned-property storage (cited to notice)',a:l.storCost});
+  }
   if(l.breakFee){
     ded+=l.breakFee;
     items.push('break fee — '+money(l.breakFee)+' (early end inside fixed term)');
@@ -870,7 +920,7 @@ window.nofaultNotice=function(){
   if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
   if(l.state==='disputed'){toast('Frozen — a board filing is open on this lease.');return;}
   l.state='move_out';
-  if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l);}
+  if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l); prorateOut(l);}
   l.ledger.push({d:S.day,t:'relocation credit — NOFAULT (mandatory)',a:-l.rent});
   l.docs.push({n:'no-fault notice',t:'No-fault termination — sale / owner move-in. 60-day window, not the 14-day ladder; a relocation credit of one month\u2019s rent ('+money(l.rent)+') posts mandatory, coded NOFAULT so abuse is legible in the ledger. Deposit returns separately, itemized.'});
   S.wires.push({d:S.day,k:'housing',tx:'no-fault notice posted — '+l.addr});
@@ -1001,7 +1051,7 @@ window.buyoutDecide=function(yes){
   if(yes){
     var amt=l.buyout.amt;
     l.state='move_out'; l.turnWire=true;
-    if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l);}
+    if(l.deposit){l.depPending=true; l.depDue=S.day+21; mkWalk(l); prorateOut(l);}
     l.ledger.push({d:S.day,t:'buyout credit — BUYOUT (accepted offer)',a:-amt});
     if(l.mine)S.bank+=amt;
     l.docs.push({n:'buyout accepted',t:'Accepted — '+money(amt)+' posts as a BUYOUT credit line, distinct code so the paper stays legible. Ordinary move-out: deposit '+money(l.deposit||0)+' returns separately, itemized, inside 21 days.'});
@@ -1035,6 +1085,74 @@ window.reqHistLetter=function(){
   renderAll();
 };
 
+/* ================= v110 — the meter & leftovers layer ================= */
+window.postUtil=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit — licensed tools reach your own doors only.');return;}
+  if(!l.utils){toast('No tenant-paid utilities on this lease.');return;}
+  if(l.utilDay===S.day){toast('Already billed today — the ledger keeps the line.');return;}
+  l.utilDay=S.day;
+  l.bal+=l.utils.amt;
+  l.ledger.push({d:S.day,t:'utilities — '+l.utils.tenant.join(' + ')+' (tenant-paid, itemized)',a:l.utils.amt});
+  l.docs.push({n:'utility bill',t:'Utilities billed — '+l.utils.tenant.join(' + ')+' '+money(l.utils.amt)+', its own itemized line beside the rent, never inside it. The lease states who pays which service; a bill for a building-covered service ('+l.utils.landlord.join(', ')+') is a contested_charge ground. Unpaid, it owes like any balance — but it never folds into the rent number.'});
+  toast('Billed — itemized on the ledger, invisible to the feed.');
+  renderAll();
+};
+window.postRBF=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
+  if(l.rbfDone){toast('Already posted this year — one pass-through per unit per 12 months.');return;}
+  var half=Math.floor(59/2); /* assessor fee $59/unit (game v17); up to half may pass */
+  l.rbfDone=true; l.bal+=half;
+  l.ledger.push({d:S.day,t:'Rent Board fee — 50% pass-through, FY 2026 (RBF)',a:half});
+  l.docs.push({n:'rent board fee — pass-through',t:'Annual Rent Board fee — $59 on the owner\u2019s file, up to half passed to the tenant: '+money(half)+' itemized as an RBF line. Once a year per unit; never folded into rent, never stacked inside a raise posting — the split is stated so it can be read.'});
+  toast('Posted — the RBF line keeps the fee legible.');
+  renderAll();
+};
+window.postCOT=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
+  if(/fixed/i.test(l.term||'')){toast('A fixed term can\u2019t be rewritten mid-lease — the change waits for month-to-month.');return;}
+  l.cot={day:S.day,effective:S.day+30,text:'bike room hours set to 7a\u201310p; storage corner cleared for inspection'};
+  l.ledger.push({d:S.day,t:'change of terms posted — effective day '+l.cot.effective,a:0});
+  l.docs.push({n:'change of terms',t:'Change of terms — '+l.cot.text+'. Served day '+S.day+', effective day '+l.cot.effective+' (\u226530 days out, month-to-month paper only). House terms only: never rent — that\u2019s the raise path — never the deposit, never the protections on the file. The tenant may respond on the file; a contested change can go to the board.'});
+  toast('Posted to the file — effective in 30 days.');
+  renderAll();
+};
+window.respondCOT=function(){
+  var l=L();
+  l.cotResp=true;
+  l.docs.push({n:'change of terms — response',t:'Response on file — the tenant contests the change on the record. A response is a document, not a veto; a contested change can go to the board like anything else.'});
+  toast('Response filed — the record carries both sides.');
+  renderAll();
+};
+window.postAbandoned=function(){
+  var l=L();
+  if(isLand()&&!myUnit(l)){toast('Not your unit.');return;}
+  if(l.abandoned){toast('Already noticed on the file.');return;}
+  l.abandoned={day:S.day,claimBy:S.day+15,resolved:null};
+  l.docs.push({n:'abandoned property notice',t:'Belongings left at move-out — itemized on the walkthrough: two boxes, a bike, a floor lamp. Claim by day '+l.abandoned.claimBy+' — a 15-day window. Inside the window a dated claim releases the items, no deduction; past it, disposal is documented and reasonable storage cost is a stated deduction cited to this notice. File-only — the block never sees someone\u2019s things.'});
+  toast('Noticed — the claim window runs from today.');
+  renderAll();
+};
+window.claimAbandoned=function(){
+  var l=L();
+  if(!l.abandoned||l.abandoned.resolved)return;
+  l.abandoned.resolved='claimed'; l.abandoned.resolvedDay=S.day;
+  l.docs.push({n:'property claimed',t:'Items claimed day '+S.day+' — inside the 15-day window. Released; no deduction, no dispute.'});
+  toast('Claimed on the record — items released.');
+  renderAll();
+};
+function prorateOut(l){ /* last-month proration — symmetric to §29's
+    first-month rule: a mid-month exit credits back the unused days */
+  if(S.day<=1||l.rent<=0)return;
+  var credit=l.rent-Math.round(l.rent*S.day/30);
+  if(credit<=0)return;
+  l.ledger.push({d:S.day,t:'last month — prorated to day '+S.day,a:-credit});
+  l.bal-=credit; if(l.bal<0)l.bal=0;
+  l.docs.push({n:'last month prorated',t:'Mid-month move-out — the last month prorates to day '+S.day+': '+money(credit)+' credited back against the balance. The notice already named the end day; the deposit clock runs untouched.'});
+}
+
 /* ================= day stepper ================= */
 $('nextDay').onclick=function(){
   S.day++;
@@ -1049,7 +1167,11 @@ $('nextDay').onclick=function(){
              a prepaid month never sees a day-6 fee */
           var use=Math.min(x.prepaid||0,x.rent);
           if(use>0){x.prepaid-=use;x.ledger.push({d:1,t:'prepaid credit applied',a:-use});}
-          x.bal+=x.rent-use;}}
+          x.bal+=x.rent-use;
+          /* v110: tenant-paid utilities bill as their own itemized line —
+             beside the rent, never inside it */
+          if(x.utils){x.ledger.push({d:1,t:'utilities — '+x.utils.tenant.join(' + ')+' (tenant-paid, itemized)',a:x.utils.amt});
+            x.bal+=x.utils.amt;}}}
       /* fixed-term month counter (v82): serving month 12 flips the lease
          to month-to-month — staying is the default, no paperwork */
       if(x.termMo!=null&&/fixed/i.test(x.term||'')){
@@ -1122,6 +1244,14 @@ $('nextDay').onclick=function(){
       l.ledger.push({d:S.day,t:'deposit return overdue — past the 21-day window',a:0});
       l.docs.push({n:'deposit overdue',t:'Past the 21-day return window — the delay is itself a ledger line. An overdue deposit is board-able grounds; the file keeps the dates.'});
       if(l.mine)toast('Deposit past the 21-day window — the delay is on the record.');
+    }
+    /* abandoned-property window (v110): unclaimed past the 15-day
+       claim window documents disposal and stages the cited storage
+       deduction for deposit return */
+    if(l.abandoned&&!l.abandoned.resolved&&S.day>l.abandoned.claimBy){
+      l.abandoned.resolved='disposed'; l.abandoned.resolvedDay=S.day; l.storCost=60;
+      l.ledger.push({d:S.day,t:'abandoned property — disposed past the claim window',a:0});
+      l.docs.push({n:'property disposed',t:'Unclaimed past day '+l.abandoned.claimBy+' — disposal documented day '+S.day+'. Reasonable storage cost ('+money(l.storCost)+') is a stated deduction at deposit return, cited to the day-'+l.abandoned.day+' notice — itemized, or it doesn\u2019t deduct.'});
     }
     /* installment due-day: a missed installment breaches the plan and
        resumes the ladder at the rung it froze at — no reset to day 6 */

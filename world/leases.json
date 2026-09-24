@@ -1,10 +1,10 @@
 {
   "doc": "world/lease-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: lease lifecycle state machine, rent-run calendar, notice ladder, deposit/deduction rules, dispute schema, progression gates, and feed wording. Registry numbers (rents, tenants, units) live in jobs-housing.md §3 — this file governs how leases MOVE. All money is game dollars except credit-denominated fees marked cr (monetization §2.4/§2.8 PROPOSAL — do not contradict).",
-  "version": 96,
+  "version": 110,
   "power_map": {
-    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "request_assignment", "decide_buyout", "prepay_rent", "request_history_letter", "give_notice", "offer_to_buy", "decide_renewal_offer", "request_guarantor_release"],
+    "player_own_character": ["apply", "sign", "pay_rent", "pay_partial", "pay_installment", "propose_payment_plan", "repair_request", "report_habitability", "file_dispute", "make_mediation_offer", "request_sublet", "request_roommate_amendment", "request_assignment", "decide_buyout", "prepay_rent", "request_history_letter", "give_notice", "offer_to_buy", "decide_renewal_offer", "request_guarantor_release", "claim_abandoned_property", "respond_change_of_terms"],
     "player_never": ["touch_other_leases", "set_rent", "raise_rent", "evict", "view_other_ledgers"],
-    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "decide_roommate_amendments", "decide_assignments", "offer_buyouts", "issue_history_letters", "post_itemized_deposit_returns", "make_mediation_offers", "file_for_eviction_review", "post_entry_notices", "mark_returned_payments", "offer_renewals", "decide_guarantor_releases"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units", "record_sales"] },
+    "licensed_landlord": { "scope": "own units only", "may": ["view_own_ledgers", "post_notices_to_cure_or_quit", "raise_within_band_or_passthrough", "handle_payment_plans", "decide_sublet_requests", "decide_roommate_amendments", "decide_assignments", "offer_buyouts", "issue_history_letters", "post_itemized_deposit_returns", "make_mediation_offers", "file_for_eviction_review", "post_entry_notices", "mark_returned_payments", "offer_renewals", "decide_guarantor_releases", "post_utility_bills", "post_rent_board_passthrough", "post_change_of_terms", "post_abandoned_property_notices"], "never": ["confirm_eviction", "issue_no_fault_notices", "mint_addresses", "act_off_public_record", "touch_other_units", "record_sales"] },
     "admin_only": ["raise_rent", "issue_notices", "approvals", "evictions", "no_fault_notices", "rulings", "mint_addresses", "record_sales"],
     "requests_pipeline": "admin-domain deny — lease/rent/eviction asks are unreachable by request (moderation.json v8)",
     "currency_wall": "credits never pay rent/deposits/fees — game dollars only"
@@ -153,7 +153,7 @@
     "demo_fields": "roomReq (pending decision), roommate (approved co-tenant name)"
   },
   "disputes": {
-    "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions", "entry_violation"],
+    "grounds": ["contested_raise", "passthrough_claim", "habitability", "deposit_deductions", "entry_violation", "contested_charge"],
     "flow": ["filed", "evidence_window_7d", "mediation_week", "ruling"],
     "raise_freeze": "a filing with rent_next pending sets rent_frozen — old rent bills on the 1st until ruling or a signed offer",
     "rulings": ["uphold", "reduce", "repair_credit"],
@@ -231,17 +231,55 @@
     "turnover":        "Unit turning over — <address> back on the board",
     "sale":            "Sold — <address> changes hands",
     "eviction":        "admin action — tenancy ended at <address>",
-    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms", "entry notices", "renewal offers", "returned payments", "guarantor detail", "buyout_offers", "assignments", "prepayments", "history_letters"]
+    "never": ["rent amounts", "arrears balances", "reason text", "screened detail", "individual payments", "plan proposals", "sublet terms", "entry notices", "renewal offers", "returned payments", "guarantor detail", "buyout_offers", "assignments", "prepayments", "history_letters", "utility_bills", "rent_board_passthrough", "abandoned_property", "change_of_terms"]
+  },
+  "utilities": {
+    "rule": "every lease states who pays which service — a lease term, not a footnote; demo field utils lists tenant-paid services per unit",
+    "billing": "tenant-paid utilities post as their own itemized ledger line each 1st ('utilities — <services>'), itemized by service; they bill beside rent, never inside it — a posted rent stays the posted rent",
+    "unpaid": "an unpaid utility line is a balance like any other and climbs the same ladder — but it is never folded into the rent number; the ledger itemizes, the feed sees nothing",
+    "dispute_ground": "a bill for a service the lease makes landlord-paid is a contested_charge ground — the lease term is the evidence",
+    "visibility": "file + ledger only — never a feed event",
+    "demo_field": "utils — {tenant:[services], amt, landlord:[services]} per lease"
+  },
+  "rent_board_fee": {
+    "rule": "the annual Rent Board fee is a per-unit cost on the owner's file (game-systems assessor: $59/unit on installment 1); the landlord may pass up to half to the tenant as an itemized annual line — never folded into rent, never stacked with a raise posting",
+    "pass_through_cap": "50% of the fee, rounded down to the dollar — the tenant's half is a stated line, not a rent bump",
+    "ledger_code": "RBF — distinct code, same legibility rule as NOFAULT/BUYOUT; the pass-through must name the year and the split",
+    "cadence": "once per year per unit; a second posting inside 12 months is refused outright — the file keeps the dates",
+    "visibility": "file + ledger only — never a feed event",
+    "demo": "postRBF posts 'Rent Board fee — 50% pass-through (RBF)' on a tenant-paid line"
+  },
+  "abandoned_property": {
+    "rule": "belongings left at move-out are paper, not trash — move-out writes an itemized abandoned-property notice when the walkthrough finds items",
+    "claim_window_d": 15,
+    "claim": "the departed tenant claims inside the window — a dated file doc ends it (items released, no deduction)",
+    "after_window": "unclaimed past the window posts a disposal doc; reasonable storage cost is a stated deduction line at deposit return, cited to the notice",
+    "never": ["disposing inside the window", "a disposal fee not itemized", "a feed event — the block never sees someone's things"],
+    "demo_fields": "abandoned {day, claimBy, resolved} — written by the walkthrough when it finds items"
+  },
+  "change_of_terms": {
+    "rule": "a landlord may change house terms (storage, bike room, laundry hours) on paper — a dated change-of-terms doc with a stated effective date at least 30 days out",
+    "gate": "month-to-month only — a fixed term can't be rewritten mid-lease; the doc is refused inside a fixed term",
+    "scope": "house terms only — never rent (that's the raise path), never the deposit, never the protections on the file; a rent change wearing a change-of-terms doc is refused outright",
+    "respond": "the tenant may respond on the file; a contested change can go to the board like anything else",
+    "visibility": "file doc, never a feed event",
+    "demo_fields": "cot {day, effective, text}"
+  },
+  "last_month_proration": {
+    "rule": "a move-out that lands mid-month prorates the last month — symmetric to the first-month rule (§29): round(rent × days-occupied / 30), itemized 'last month — prorated to day N'",
+    "notice_math": "the 30-day notice already names the end day; the proration is computed at the recorded move-out, never rounded up",
+    "deposit": "untouched — the deposit clock and the itemized return run exactly as before"
   },
   "demo_seed": {
     "note": "lease.html demo state — mirrors jobs-housing §3; money in game $",
-    "storage_key": "rw_lease_v96",
+    "storage_key": "rw_lease_v110",
     "viewer_character": "h01 (demo hired character, tenant of bld-g9457-2, income $4,600/mo game-$)",
     "licensed_landlord": "h02 (demo; owns bld-f9088-5, studio rented to an ambient tenant, balance outstanding day 1)",
     "day": "day 6 of the month — h01's rent is in grace-lapsed; 9457-3 dispute is open with its raise frozen",
     "v54_surfaces": "prorated first month on mid-month signing; break fee inside a fixed term; repair clock (habitability ≤7-day SLA + breach line); roommate amendments; 21-day deposit clock with overdue line",
     "v68_surfaces": "guarantor path on near-miss screening (9418-B at $2,100 is a near-miss on $4,600; 9127-A at $1,300 passes clean); service records on notices 2–4 (clock runs from service); move-out walkthrough doc; rent receipts",
     "v82_surfaces": "notices of entry (≥24h, stated reason + window, file-only); sale with a tenant in place (paper follows the deed — admin records it on an occupied unit, e.g. 9263-4); renewal offers inside months 10–12 of a fixed term (h01 at month 10, 9088-5 at month 11); returned payments (reversal + capped $25 fee, ladder unchanged); guarantor release after 12 on-time months",
-    "v96_surfaces": "lease assignment (clean-ledger hand-off, deposit carries, file-only); buyout offers (active-only, 30-day re-offer cooldown, BUYOUT credit code); prepaid rent credit (3-month cap, draws down on the 1st before any balance); the rental history letter (one dated abstract per tenancy, file-only)"
+    "v96_surfaces": "lease assignment (clean-ledger hand-off, deposit carries, file-only); buyout offers (active-only, 30-day re-offer cooldown, BUYOUT credit code); prepaid rent credit (3-month cap, draws down on the 1st before any balance); the rental history letter (one dated abstract per tenancy, file-only)",
+    "v110_surfaces": "tenant-paid utilities billed as their own itemized ledger line (utils per lease, beside rent never inside it); the Rent Board fee pass-through ($59/unit fee on the owner's file, up to half passed as an itemized RBF line, once a year, never folded into rent); abandoned property at move-out (itemized notice, 15-day claim window, disposal doc + cited storage deduction); change-of-terms docs (month-to-month only, ≥30 days out, house terms never rent); last-month proration on a mid-month move-out"
   }
 }

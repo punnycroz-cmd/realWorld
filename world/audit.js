@@ -1159,7 +1159,8 @@ const PUB = Object.values(PT.surfaces)
        prepaid rent credit (3-mo cap, draws down on the 1st), and the
        rental history letter (one dated abstract per tenancy) */
     if (LJ.version >= 96) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v96')
+      const k96 = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (k96 < 96)
         add(g, 'fail', 'leases.json', null, 'v96 schema on an old storage key');
       for (const [re, label] of [
         [/assignment/i, 'lease assignment flow'],
@@ -1199,6 +1200,56 @@ const PUB = Object.values(PT.surfaces)
       const pm = html.match(/window\.prepayMonth=function[\s\S]*?^\};/m);
       if (pm && !/3\*l\.rent/.test(pm[0]))
         add(g, 'fail', 'lease.html', null, 'prepayMonth lacks the three-month cap');
+    }
+    /* v110 additions — the meter & leftovers layer: tenant-paid
+       utilities as their own ledger line, the Rent Board fee
+       pass-through (≤50% of $59, once/12mo, RBF code), abandoned
+       property (15-day claim window, cited storage deduction),
+       change-of-terms docs (month-to-month only, house terms never
+       rent), last-month proration on a recorded move-out */
+    if (LJ.version >= 110) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v110')
+        add(g, 'fail', 'leases.json', null, 'v110 schema on an old storage key');
+      for (const [re, label] of [
+        [/utilities — |utilities billed|tenant-paid/i, 'utility billing surface'],
+        [/Rent Board fee/i, 'Rent Board fee pass-through'],
+        [/RBF/i, 'RBF ledger code'],
+        [/abandoned/i, 'abandoned-property surface'],
+        [/claim window|15-day/i, 'abandoned-property claim window'],
+        [/change of terms|change-of-terms/i, 'change-of-terms doc'],
+        [/prorated to day|last month — prorated/i, 'last-month proration']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v110 surface missing: ${label}`);
+      if (!LJ.utilities || !LJ.rent_board_fee || !LJ.abandoned_property ||
+          !LJ.change_of_terms || !LJ.last_month_proration)
+        add(g, 'fail', 'leases.json', null, 'v110 blocks missing (utilities/rent_board_fee/abandoned_property/change_of_terms/last_month_proration)');
+      if (LJ.abandoned_property && LJ.abandoned_property.claim_window_d !== 15)
+        add(g, 'fail', 'leases.json', null, 'abandoned-property claim window drifted');
+      if (!(LJ.disputes.grounds || []).includes('contested_charge'))
+        add(g, 'fail', 'leases.json', null, 'contested_charge missing from dispute grounds');
+      for (const nm of ['utility_bills', 'rent_board_passthrough', 'abandoned_property', 'change_of_terms'])
+        if (!LJ.feed_wording.never.includes(nm))
+          add(g, 'fail', 'leases.json', null, `feed_wording.never missing "${nm}" — v110 paper is file-only`);
+      /* own-unit guards on the new licensed tools */
+      for (const fn of ['postUtil', 'postRBF', 'postCOT', 'postAbandoned']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (!fb) add(g, 'fail', 'lease.html', null, `${fn} missing`);
+        else if (!/myUnit/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} lacks the own-unit guard`);
+      }
+      /* file-only surfaces: none of the v110 paper reaches the feed */
+      for (const fn of ['postUtil', 'postRBF', 'postCOT', 'respondCOT', 'postAbandoned', 'claimAbandoned']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (fb && /wires\.push/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
+      }
+      /* change-of-terms must refuse inside a fixed term */
+      const cot = html.match(/window\.postCOT=function[\s\S]*?^\};/m);
+      if (cot && !/fixed/i.test(cot[0]))
+        add(g, 'fail', 'lease.html', null, 'postCOT lacks the fixed-term refusal');
+      /* last-month proration wired into the recorded move-out paths */
+      const rmo = html.match(/window\.recordMoveOut=function[\s\S]*?^\};/m);
+      if (rmo && !/prorateOut/.test(rmo[0]))
+        add(g, 'fail', 'lease.html', null, 'recordMoveOut lacks last-month proration');
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
