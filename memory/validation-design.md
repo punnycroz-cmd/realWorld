@@ -8517,3 +8517,99 @@ P917 MUST; P911, P913, P915 SHOULD; P916 COULD.
   pop_seed half-life, meam constants, adult-adult
   scaffolding, `am_att` magnitude, esi decay horizon are RW
   modeling hypotheses, probe-gated P908–P917.
+
+## 178. v87 suite (P918–P927) — age-development VIII
+
+Full prose specs in age-development.md §96. Harness signatures:
+
+- **P918 self-reference onset (MUST, sign):** matched
+  selfRelevance-high events, encodeAge 3 vs adult — E
+  advantage over selfRelevance-low controls ≤0.5× the adult
+  advantage at 3, ≈1.0× at 8 (knot tol ±20%).
+- **P919 era null (SHOULD, structure):** adult-age
+  Reconstruction of encodeAge-3 records shows no `w_self`
+  term — gate reads encodeAge (`self_ref_era_null`
+  structure-check on the eval path).
+- **P920 recol child gate (MUST):** encodeAge ≤6 records
+  emit `reportMode:"know"` ≥2× adult-encodeAge rate at
+  matched strength; `fam_w` identical across encodeAge
+  (`fam_child_null` field-check).
+- **P921 source ripening (SHOULD):** source fields on
+  encodeAge ≤6 records decay ≥1.3× adult; content fields
+  unchanged (channel isolation).
+- **P922 child attention gate (MUST, two arms):** peripheral
+  events encode ≤50% adult rate at age_now 5; high-arousal
+  events ≥90% parity same age (capture preserved).
+- **P923 bump negativity (SHOULD, distribution):** negative
+  selfRelevant records' era distribution is flat vs the
+  positive bump peak; `ls_pos_only` frozen (script pull
+  never fires on negative records).
+- **P924 thin futures U (SHOULD):** imagineEvent
+  verbatim_count at age_now 5 AND 80 < adult; external-
+  detail share +`epf_sem_fill`·0.8 at both ends;
+  `future_leak_null` structure-checked.
+- **P925 zombie intention (MUST):** post-completion cue
+  re-presentation emits `didItAgain:true` at
+  pm_zombie_p±25%; ≥70 arm ≥3× young arm; repeated-fire
+  ≥1.35× single; monitor stays disarmed
+  (`zombie_monitor_null` state-check).
+- **P926 recol maturation (COULD):** know→remember
+  crossover in encodeAge 8–16 on standard battery; logged.
+- **P927 v5.35 regression (MUST, structure):** defaults
+  reproduce v5.34 battery except sign-locked diffs; rif_k,
+  pm_focal_hit untouched.
+
+Registry: P1–P927. v87 suite: P918, P920, P922, P925, P927
+MUST; P919, P921, P923, P924 SHOULD; P926 COULD.
+
+## 179. Sources verified this version (P918–P927 backing)
+
+- **Self-reference development:** Ross, Anderson &
+  Campbell 2011 (*Monogr. SRCD* 76(3):1–102 — verified via
+  abstract: self-reference mnemonic advantage in 3–4y/o via
+  enactment/self-image/ownership); Ross, Hutchison &
+  Cunningham 2020 (*Child Development* — verified: AM
+  volume ~ self-knowledge volume + self-source monitoring);
+  Howe & Courage 1997 (*Psychol. Rev.* 104:499 — cognitive
+  self ~18–24mo; mechanism DEBATED).
+- **Recollection/familiarity development:** Ofen et al.
+  2007 (*Nature Neuroscience* 10:1198 — verified: PFC
+  protracted, MTL early, ages 8–24); Billingsley, Smith &
+  McAndrews 2002 (*JECP* 82:251 — verified); Ghetti & Lee
+  2011 (*Dev. Rev.* 31 — verified review: familiarity ~6–8,
+  recollection→adolescence); Cycowicz, Friedman & Duff 2003.
+- **Child attention:** Betts, McKay, Maruff & Anderson 2006
+  (*Child Neuropsychol.* 12:205 — verified: steep 5→9,
+  plateau ~10–12); Ruff & Rothbart 2001 (*Attention in
+  Early Development* — verified: orienting precedes
+  sustained).
+- **Source monitoring development:** Lindsay, Johnson &
+  Kwon 1991 (*JECP* 52:297 — verified); Drummey &
+  Newcombe 2002 (*Dev. Psychol.* 38:1138 — verified: abrupt
+  4→6 source jump); Sluzenski, Newcombe & Kovacs 2006.
+- **Life-script positivity:** Berntsen & Rubin 2004
+  (*Memory* 12:681 — verified); Thomsen & Berntsen 2008
+  (verified); Bohn & Berntsen 2008 (*Memory* 16 —
+  verified).
+- **Episodic future development/aging:** Busby &
+  Suddendorf 2005 (*Cogn. Dev.* 20:362 — verified: tandem
+  emergence 3→5); Addis, Wong & Schacter 2008 (*Psychol.
+  Sci.* 19:33 — verified: fewer internal details old arm);
+  Addis, Musicaro, Pan & Schacter 2010 (*Psychol. Aging*
+  25:369 — verified recombination).
+- **Intention deactivation:** Scullin, Bugg, McDaniel &
+  Einstein 2011 (*Mem&Cogn* 39:1232 — verified: preserved
+  retrieval, impaired deactivation); Scullin, Bugg &
+  McDaniel 2012 (*Psychol. Aging* 27:46 — verified);
+  Bugg & Scullin 2013 (*Psychol. Aging* 28 — verified:
+  repetition hardens zombies); Walser, Fischer & Goschke
+  2012 (*JEP:LMC* 38:1030 — verified).
+- **Established vs hypothesis:** self-reference presence at
+  3–4, recollection/familiarity dissociation, sustained-
+  attention growth curve, source-monitoring jump, script
+  positivity + flat negative bump, tandem MTT emergence,
+  old-age simulation deficit, commission-error age
+  asymmetry + repetition effect = CONSENSUS/established.
+  Knot magnitudes, `dist_child_mult`, `epf_sem_fill` parity
+  across ends, `pm_zombie_p` per-cue rates, `bump_neg_pen`
+  magnitude = RW hypotheses, probe-gated P918–P927.

@@ -1132,6 +1132,13 @@ needs both.
 | scaf_gain / scaf_child_mult / scaf_repeat_pen | 0.0 / 1.0 / 0.2 | 0.8 / 3.0 / 0.9 | elaborative-prompt partner boost, child knot, repeat decay (v5.34) |
 | contig_gain / contig_fwd / contig_lag_win / contig_age_pen / am_att | 0.0 / 1.0 / 1 / 0.0 / 0.0 | 0.8 / 3.0 / 5 / 0.8 / 1.0 | encode-neighbor activation, forward asymmetry, lag window, age + AM attenuation (v5.34) |
 | esi_gain / esi_thresh / esi_hl_bout | 0.0 / 0.3 / 1 | 0.6 / 0.95 / 6 | specificity-induction gain, triggering richness, bout half-life (v5.34) |
+| self_ref_2y / self_ref_4y / self_ref_6y | 0.0 / 0.3 / 0.5 | 0.6 / 1.0 / 1.0 | self-reference dividend encodeAge knots (v5.35) |
+| src_child_mult / src_child_exit | 1.0 / 6 | 2.5 / 16 | child source-tag decay multiplier + exit age (v5.35) |
+| att_floor_4y / att_floor_7y / att_floor_10y / dist_child_mult | 0.1 / 0.1 / 0.05 / 1.0 | 0.5 / 0.4 / 0.3 / 2.0 | child attention floor knots + capture multiplier (v5.35) |
+| bump_neg_pen | 0.0 | 1.0 | negative-record era-discount penalty; ≥0.3 default (v5.35) |
+| recol_enc_5y / recol_enc_8y / recol_enc_12y / recol_enc_exit | 0.2 / 0.4 / 0.6 / 12 | 0.8 / 1.0 / 1.0 / 20 | recollection encodeAge knots + exit (v5.35) |
+| sdm_4y / sdm_8y / sdm_14y / epf_sem_fill | 0.2 / 0.4 / 0.8 / 0.0 | 0.8 / 1.0 / 1.0 / 0.6 | future-sim child knots + semantic back-fill (v5.35) |
+| pm_zombie_hl / pm_zombie_repeat / pm_zombie_20 / pm_zombie_50 / pm_zombie_80 | 2 / 1.0 / 0.0 / 0.0 / 0.05 | 60 / 3.0 / 0.1 / 0.2 / 0.5 | completed-intention residual: hl(d), repeat mult, age knots (v5.35) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4265,3 +4272,44 @@ params; **no new trait pins** — all traits used (`music`,
   `date_cue_null`, `cw_verbatim_null`, `ref_boost_null`,
   `esi_learn_null` are probe-enforced (P908–P917); frozen
   `meam_scope`, `esi_scope`.
+
+## 68. v5.35 note (age-development VIII — the flat terms that weren't)
+
+All seven v5.35 mechanism groups are **population knots** —
+developmental curves, not personality. Pinning guidance:
+
+- **`self_ref_*` are encodeAge physics.** A bible may not
+  declare "she was always self-absorbed" by raising the
+  toddler knots — the gate is about the self-concept's
+  *existence*, not self-focus. Trait `vivid`/`g_mem` already
+  move E upstream; don't double-count.
+- **`recol_enc_*`/`fam_child_null` are per-record, not
+  per-person.** The curve reads `encodeAge`, so it acts
+  identically on every adult's childhood archive — no
+  profile may have a "childhood she remembers vividly" via
+  this parameter (that's what `ctx_locked` pierce events
+  and selfdef anchors are for). The vivid-childhood
+  character is built from *events*, not the curve.
+- **`att_floor_*`/`dist_child_mult` key age_now.** These
+  only matter while a character IS a child; adult mains
+  never feel them. Ambient child NPCs get the defaults —
+  do not pin a "distractible kid" via dist_child_mult;
+  trait `inattn`/`adhd` is the per-child channel.
+- **`bump_neg_pen` and `ls_pos_only` are population.**
+  The flat negative distribution is the literature's shape;
+  a tragic-bump character is authored with `bump_beta_mult`
+  and event valence, never by zeroing bump_neg_pen.
+- **`sdm_*`/`epf_sem_fill` key age_now** (imagination is a
+  current-capacity operation — you simulate with the brain
+  you have). `epi_future_k` remains the per-character trait;
+  the knots are the shared floor.
+- **`pm_zombie_*` are mostly flat.** What varies per
+  character is *how many intentions complete and recur* —
+  a creature-of-routine elder accumulates rehearsed zombies
+  (×`pm_zombie_repeat`) more often than a chaos-liver; that
+  emerges from the world's schedule, not from the param.
+  Trait `consc` may modulate deactivation effort downstream
+  of `pm_zombie_p` — never re-pin the age knots.
+- **Never pin:** locked nulls `self_ref_era_null`,
+  `fam_child_null`, `zombie_monitor_null` are
+  probe-enforced (P918–P927); frozen `ls_pos_only`.

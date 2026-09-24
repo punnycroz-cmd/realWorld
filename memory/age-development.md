@@ -2531,3 +2531,315 @@ did, not what they saw.
 - `enact_rescue` child knots (1.3@4) extrapolate SPT ratios
   across paradigms; the U shape is right, the exact child arm
   is a fit.
+
+# Part VIII — v87 deepening (2026-09-23): the self that isn't online yet, the child who knows but doesn't remember, the attention gate that hasn't grown, the bump that only takes the good news, the intention that won't die, and futures that run thin at both ends
+
+Six mechanisms and one sign-correction, all sourced this version.
+The through-line: several spec terms were age-FLAT that the
+literature shows are not — the self-reference dividend, the
+recollection channel, the attention gate, the bump's valence
+profile, intention deactivation, and future-simulation detail.
+Each gets knots keyed on the correct of the two ages (§1).
+
+## 87. The self comes online late — `self_ref_eff` gates the dividend
+
+- **Ross, Anderson & Campbell 2011** (*Monographs of the Society
+  for Research in Child Development* 76(3), "I remember me" —
+  verified): 3- and 4-year-olds already show a mnemonic
+  self-reference advantage — via self-performed action,
+  self-image processing, and ownership — but the authors frame
+  it as a *nascent* form; the elaborated self-concept that
+  drives the adult effect (Symons & Johnson 1997) is still
+  under construction. **[CONSENSUS that the effect exists in
+  preschoolers; magnitude-vs-adult is smaller and
+  domain-dependent]**
+- **Howe & Courage 1997** (*Psychol. Rev.* 104:499 — verified):
+  the cognitive self emerges ~18–24 months and is posited as
+  the organizer whose absence *is* infantile amnesia —
+  mechanism DEBATED (§63), but the onset anchor is the best
+  dated one in the literature.
+- **Ross, Hutchison & Cunningham 2020** (*Child Development* —
+  verified): in 3–6-year-olds the volume of specific
+  autobiographical memories is predicted by both the volume of
+  self-knowledge and self-source monitoring capacity — the
+  self→memory coupling is measurable, graded, and still
+  strengthening across this window.
+
+**Spec consequence (v5.35):** §2's `w_self·selfRelevance_eff`
+term gains an `encodeAge` gate — `self_ref_eff(encodeAge)`:
+0.3 at 2 → 0.7 at 4 → 0.9 at 6 → 1.0 by 8. Below the wall the
+gate is moot (records are `ctx_locked` anyway); in the 3–7
+band it is a real partial channel — the preschool self helps,
+just not at adult weight. **Locked `self_ref_era_null`:** the
+gate keys `encodeAge` forever — an adult recalling a
+preschool event does not retro-collect the self dividend; the
+dividend is an encoding operator, not a retrieval weight.
+P918/P919. **[HYPOTHESIS: the ramp shape is fitted; the onset
+and the encode-only scope are the established parts]**
+
+## 88. "I know it happened" — recollection ripens through adolescence
+
+- **Ofen et al. 2007** (*Nature Neuroscience* 10:1198 —
+  verified, ages 8–24 fMRI): recognition of *vividly
+  recollected* scenes improves with age; the developmental gain
+  tracks protracted prefrontal, not MTL, maturation —
+  recollection is the late channel.
+- **Billingsley, Smith & McAndrews 2002** (*JECP* 82:251 —
+  verified): developmental dissociation — priming and
+  familiarity mature earlier than explicit recollection.
+- **Ghetti & Lee 2011** (*Developmental Review* 31 — verified
+  review): familiarity is approximately adult-like by ~6–8;
+  recollection keeps developing into adolescence. Cycowicz,
+  Friedman & Duff 2003: ERP recollection correlates absent in
+  young children. **[CONSENSUS dissociation]**
+
+**Spec consequence (v5.35):** the derived `recol_w` channel
+(§4.23) gains `recol_enc_mult(encodeAge)` — evaluated at
+Reconstruction on the record's encode age, never written into
+stored fields: 0.5 at 5 → 0.75 at 8 → 0.9 at 12 → 1.0 at 16.
+Childhood-encoded records therefore emit `reportMode:"know"`
+far more often at equal strength — fluent, thin-detailed, fast
+— which is exactly what children's verbal recall looks like
+(it isn't a retrieval failure; the contextual detail was never
+the record's). **Locked `fam_child_null`:** `fam_w` carries no
+child multiplier — the verified split is recollection-only;
+an assertion that children are also *familiarity*-deficient
+fails P920. **[HYPOTHESIS: knot values; the dissociation
+itself is textbook]**
+
+## 89. The child's attention gate — `att_min` grows down
+
+- **Betts, McKay, Maruff & Anderson 2006** (*Child
+  Neuropsychology* 12:205 — verified): sustained attention
+  improves steeply 5→9, plateaus ~10–12; high task load
+  disproportionately hurts the youngest group.
+- **Ruff & Rothbart** (*Attention in Early Development*, 2nd
+  ed. 2001 — verified): orienting/capture systems precede
+  sustained and selective control by years — the toddler is
+  captured by salience, not steered by goals.
+
+**Spec consequence (v5.35):** `att_min_eff` gains child knots
+on `age_now` (same quantity as `encodeAge` at mint time):
+`att_floor_age` 0.30 at 4 → 0.22 at 7 → 0.15 at 10 → base
+`att_min` thereafter — the ambient background of a
+4-year-old's day mostly doesn't write. Salience capture is
+*preserved*: `dist_child_mult` (1.3) scales the arousal +
+novelty terms UP for `age_now < 10` — the loud bright thing
+encodes fine; it's the periphery that's missing. The pair
+produces the observed phenomenology: children's days have
+fewer, more peaked records. **[CONSENSUS growth curve and
+capture-preservation direction; magnitudes fitted]**
+
+## 90. The source tag ripens late — `src_child_mult`
+
+- **Lindsay, Johnson & Kwon 1991** (*JECP* 52:297 — verified):
+  memory source monitoring improves through childhood; errors
+  concentrate below ~7.
+- **Drummey & Newcombe 2002** (*Developmental Psychology*
+  38:1138 — verified): fact recall improves steadily 4→8 but
+  source accuracy jumps abruptly 4→6 — binding, not item, is
+  the bottleneck (convergent: Sluzenski, Newcombe & Kovacs
+  2006 longitudinal — item linear, binding accelerates 5–7).
+
+**Spec consequence (v5.35):** `beta_source` gains a child
+multiplier keyed on `encodeAge < src_child_exit` (10):
+`src_child_mult` 1.5 at 4 → 1.25 at 6 → 1.0 by 10. A
+7-year-old's "Maya said so" keeps the claim but sheds the
+speaker at ~1.5× adult rate — orphan claims and
+`sourceConfuse` pile up in childhood-encoded records even
+when the content survives. This is the encode-side partner of
+the retrieval-side `source_confuse` machinery; it does NOT
+touch reality-monitoring (§6.10 — already age-sliced both
+ends). **[CONSENSUS direction; multipliers fitted]**
+
+## 91. The bump only takes the good news — `bump_neg_pen`, frozen `ls_pos_only`
+
+- **Berntsen & Rubin 2004** (*Memory* 12:681 — verified, cited
+  §30): the cultural life script is overwhelmingly *positive* —
+  expected events cluster in the bump window AND in positive
+  valence; the script has almost no negative entries.
+- **Bohn & Berntsen 2008** (*Memory* 16 — verified) and 2011
+  (*Child Development* — verified): scripted transitions are
+  positive-biased; children's own projected life scripts are
+  even more positive than adults'.
+- **Thomsen & Berntsen 2008** (§23 — verified): the bump for
+  *most positive* events is carried by transitional firsts;
+  negative distributions don't bump — they ride arousal and
+  recency instead. **[CONSENSUS pattern]**
+
+**Spec consequence (v5.35) — sign correction:** the current
+`bump_valence_gate` (`valence > 0 OR selfRelevance >
+bump_self_thresh`) lets negative-but-self-relevant records
+through the second arm — they bump, contradicting the datum.
+v5.35: negative-valence records pay `bump_neg_pen` (0.5) on
+`bump_beta_mult` even when selfRelevant — a partial waiver,
+not a block: the divorce still encodes strongly (selfRelevance
+is intact), it just doesn't get the *era* discount. Frozen
+`ls_pos_only`: the `script_age_pull` dating prior applies only
+to non-negative records — "people usually marry around 28"
+exists; "people usually grieve at 28" doesn't. **[HYPOTHESIS:
+pen magnitude; the sign and the frozen scope are established]**
+
+## 92. Thin futures at both ends — `sim_detail_mult` child knots + `epf_sem_fill`
+
+- **Busby & Suddendorf 2005** (*Cognitive Development* 20:362
+  — verified): yesterday/tomorrow reports emerge in tandem
+  3→5 — mental time travel is one faculty; the minority of
+  3-year-olds who can do one side do the other.
+- **Addis, Wong & Schacter 2008** (*Psychological Science*
+  19:33 — verified): older adults generate fewer *internal*
+  (episodic) details for imagined futures — the deficit
+  mirrors their past-recall deficit, and external (semantic)
+  details rise in compensation; internal details correlate
+  with relational memory. Addis, Musicaro, Pan & Schacter
+  2010 (*Psychology and Aging* 25:369 — verified): survives
+  the no-recasting recombination task — it's simulation
+  machinery, not event-recycling.
+
+**Spec consequence (v5.35):** `sim_detail_mult(age_eff)` —
+currently decline-only (1.0 ≤50 → 0.65 at 85) — gains child
+knots: 0.45 at 4 → 0.7 at 8 → 1.0 at 14. New `epf_sem_fill`
+(0.3): the missing internal detail is partially back-filled
+with external/semantic routine detail at *both* ends (the
+4-year-old's "tomorrow" and the 80-year-old's are both
+schedule-shaped, not scene-shaped) — emission length falls
+less than verbatim richness, so the probe reads the detail
+MIX, not the count. `future_leak_null` stands: thin futures
+never mint past-tense records. **[CONSENSUS both arms; knots
+and fill share fitted]**
+
+## 93. The zombie intention — completed PM keeps firing
+
+- **Scullin, Bugg, McDaniel & Einstein 2011** (*Memory &
+  Cognition* 39:1232 — verified): older adults show preserved
+  spontaneous retrieval of PM cues but *impaired deactivation*
+  of completed intentions — the asymmetry is the finding.
+- **Scullin, Bugg & McDaniel 2012** (*Psychology and Aging*
+  27:46 — verified, "Whoops, I did it again"): commission
+  errors — re-performing a finished intention — are elevated
+  in older adults.
+- **Bugg & Scullin 2013** (*Psychology and Aging* 28 —
+  verified): intentions that were *repeatedly performed* are
+  hardest to deactivate — repetition builds the zombie.
+- **Walser, Fischer & Goschke 2012** (*JEP:LMC* 38:1030 —
+  verified): aftereffects of completed intentions persist and
+  interfere — deactivation is the fragile step.
+  **[CONSENSUS: the phenomenon and the age asymmetry]**
+
+**Spec consequence (v5.35):** when an armed intention fires or
+is declared complete, mint a non-record `pm_zombie` residual
+(hl `pm_zombie_hl` ≈ 14 days, ×`pm_zombie_repeat` 1.5 if the
+intention fired ≥3 times before completion). On cue
+re-presentation the completed response re-fires at
+`pm_zombie_p(age_eff)` — knots 0.02 at 20 → 0.05 at 50 → 0.20
+at 80 — emitted as an action-urge micro-event
+`didItAgain:true` the world can render (she double-waters the
+plants, double-mails the letter). **Locked
+`zombie_monitor_null`:** the zombie never re-arms the §5.14
+monitor loop — no monitoring cost, no preparatory attention;
+the aftereffect is spontaneous retrieval only (Scullin 2011's
+account). **[HYPOTHESIS: per-age magnitudes and the
+repetition multiplier]**
+
+## 94. Knot-table revision summary (v5.35)
+
+| param | knots | source |
+|---|---|---|
+| self_ref_eff | 0.3@2 → 0.7@4 → 0.9@6 → 1.0@8 (encodeAge) | Ross 2011; Howe & Courage 1997 |
+| recol_enc_mult | 0.5@5 → 0.75@8 → 0.9@12 → 1.0@16 (encodeAge) | Ofen 2007; Ghetti & Lee 2011 |
+| att_floor_age | 0.30@4 → 0.22@7 → 0.15@10 → att_min (age_now) | Betts 2006 |
+| dist_child_mult | 1.3 flat, exits 10 (age_now) | Ruff & Rothbart 2001 |
+| src_child_mult | 1.5@4 → 1.25@6 → 1.0@10 (encodeAge) | Lindsay 1991; Drummey & Newcombe 2002 |
+| bump_neg_pen | 0.5 flat on negative records (encodeAge-side gate) | Thomsen & Berntsen 2008 |
+| sim_detail_mult child | +0.45@4 → 0.7@8 → 1.0@14 (age_now) | Busby & Suddendorf 2005 |
+| epf_sem_fill | 0.3 flat, both ends | Addis 2008/2010 |
+| pm_zombie_p | 0.02@20 → 0.05@50 → 0.20@80 (age_eff) | Scullin 2011/2012; Bugg & Scullin 2013 |
+| pm_zombie_hl / _repeat | 14d / 1.5 | Walser 2012; Bugg & Scullin 2013 |
+
+## 95. Spec changes (v5.34 → v5.35) — delta table
+
+| change | where | type |
+|---|---|---|
+| `w_self` term × `self_ref_eff(encodeAge)` | §2 formula + §4.41 | knot |
+| `beta_source` × `src_child_mult` under 10 | §4.42 | knot |
+| `att_min_eff` child floor + `dist_child_mult` | §4.43 | knot |
+| `bump_neg_pen` on bump_beta_mult; `ls_pos_only` frozen | §4.44 | sign fix + frozen |
+| `recol_w` × `recol_enc_mult(encodeAge)` at report | §5.92 | knot |
+| `sim_detail_mult` child knots; `epf_sem_fill` | §5.93 | knot + param |
+| `pm_zombie` residual + `didItAgain` emission | §5.94 | mechanism |
+| locked: self_ref_era_null, fam_child_null, zombie_monitor_null | §§4.41, 5.92, 5.94 | nulls |
+
+## 96. Validation probes (P918–P927; registry continues P1–P917)
+
+- **P918 self-reference onset (MUST, sign):** identical
+  high-selfRelevance events encoded at encodeAge 3 vs adult —
+  E ratio ≤0.5× the low-selfRelevance control ratio at 3, ≈1.0
+  at 8 (knot tolerance ±20%).
+- **P919 era null (SHOULD, structure):** adult-age recall of
+  an encodeAge-3 record shows no retrospective `w_self`
+  component — the gate reads encodeAge, not age_now
+  (`self_ref_era_null` structure-check).
+- **P920 recol child gate (MUST):** records with encodeAge ≤6
+  emit `reportMode:"know"` ≥2× the adult-encodeAge rate at
+  matched strength; `fam_w` identical across encodeAge
+  (`fam_child_null` field-check).
+- **P921 source ripening (SHOULD):** who-told/where-learned
+  fields on encodeAge ≤6 records decay ≥1.3× adult rate;
+  content fields unchanged (channel isolation).
+- **P922 child attention gate (MUST, two arms):** peripheral
+  ambient events encode at ≤50% adult rate at age_now 5;
+  high-arousal events ≥90% parity at the same age (capture
+  preserved via `dist_child_mult`).
+- **P923 bump negativity (SHOULD, distribution):**
+  negative-valence selfRelevant records show a flat era
+  distribution vs the positive bump — no secondary peak at
+  bump_peak (`bump_neg_pen` ≥ sign; `ls_pos_only` frozen).
+- **P924 thin futures U (SHOULD):** imagineEvent
+  verbatim_count at age_now 5 AND 80 both < adult at matched
+  traits; external/semantic detail share +`epf_sem_fill`·0.8
+  at both ends; `future_leak_null` structure-checked.
+- **P925 zombie intention (MUST):** after a completed PM
+  intention, cue re-presentation emits `didItAgain:true` at
+  pm_zombie_p±25%; ≥70 age arm ≥3× the young arm; repeated-
+  fire arm ≥1.35× single-fire; monitor state stays disarmed
+  (`zombie_monitor_null` state-check).
+- **P926 recol maturation (COULD):** know→remember report
+  crossover falls in encodeAge 8–16 on the standard battery —
+  logged curve, not asserted point.
+- **P927 v5.35 regression (MUST, structure):** all v5.35
+  params at defaults reproduce v5.34 outputs on the standard
+  battery except the sign-locked differences above; rif_k,
+  pm_focal_hit untouched.
+
+## 97. Honest limits, eighth pass
+
+- `self_ref_eff`'s ramp is a fit — Ross 2011 establishes the
+  effect EXISTS at 3–4 but never titrates it against adults in
+  a common currency; the 0.7@4 knot interpolates between
+  "present" and "adult."
+- `recol_enc_mult` reads encodeAge at report time — an
+  approximation: the literature shows an encoding-side
+  deficit (PFC), but pricing it at retrieval on a fixed
+  record property is equivalent and cheaper. A record encoded
+  at 5 but rehearsed to strength could plausibly regain recol
+  — we forbid that (locked via the encodeAge key, P919-style);
+  reconsolidation-restoration is DEBATED and we chose the
+  simpler side.
+- `att_floor_age` conflates sustained-attention growth with
+  the encode gate; capture (`dist_child_mult`) is modeled as
+  a flat multiplier, though real capture is stimulus-specific.
+- `src_child_mult` is a decay-side stand-in for what is
+  partly a binding-side deficit (Sluzenski 2006) — we price
+  the observable (source lost faster) rather than the
+  mechanism.
+- `bump_neg_pen` 0.5 is fitted; the datum is distributional
+  (negative events don't bump) not parametric.
+- `epf_sem_fill`'s parity of mechanism at both ends is our
+  simplification — Addis's external-detail rise is an old-age
+  finding; extending it to children is HYPOTHESIS (Busby &
+  Suddendorf show the deficit, not the fill).
+- `pm_zombie_p` knots extrapolate lab commission-error rates
+  to per-cue-presentation probabilities; real-world cue
+  frequency makes the daily incident rate emergent, and the
+  repetition multiplier is fitted from Bugg & Scullin's
+  condition ordering, not their magnitudes.

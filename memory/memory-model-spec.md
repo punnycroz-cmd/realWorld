@@ -1,5 +1,32 @@
-# Memory Model Spec v5.34 — implementable human-like memory for RW characters
+# Memory Model Spec v5.35 — implementable human-like memory for RW characters
 
+> **v5.35 note (age-development VIII — the flat terms that
+> weren't):** six age corrections on terms that were flat.
+> **Self-reference onset** — `w_self·selfRelevance_eff`
+> gains `self_ref_eff(encodeAge)` 0.3@2→1.0@8 (Ross,
+> Anderson & Campbell 2011; Howe & Courage 1997); locked
+> `self_ref_era_null` — the dividend is encode-only.
+> **Recollection ripens** — `recol_w ×=
+> recol_enc_mult(encodeAge)` at report, 0.5@5→1.0@16;
+> childhood records emit `know`, not `remember`; locked
+> `fam_child_null` (Ofen 2007; Ghetti & Lee 2011).
+> **Child attention gate** — `att_min_eff` floor knots
+> 0.30@4→base@10; `dist_child_mult` 1.3 preserves salience
+> capture (Betts 2006; Ruff & Rothbart 2001). **Source tags
+> ripen late** — `beta_source × src_child_mult` 1.5@4→1.0@10
+> (Lindsay 1991; Drummey & Newcombe 2002). **Bump is
+> positive-only** — negative selfRelevant records pay
+> `bump_neg_pen` 0.5 on `bump_beta_mult`; frozen
+> `ls_pos_only` (Berntsen & Rubin 2004; Thomsen & Berntsen
+> 2008). **Thin futures** — `sim_detail_mult` child knots
+> 0.45@4→1.0@14 + `epf_sem_fill` semantic back-fill at both
+> ends (Busby & Suddendorf 2005; Addis 2008). **Zombie
+> intentions** — completed PM leaves a `pm_zombie` residual;
+> cue re-presentation fires `didItAgain:true` at
+> `pm_zombie_p` 0.02@20→0.20@80, ×`pm_zombie_repeat` for
+> rehearsed intentions; locked `zombie_monitor_null`
+> (Scullin 2011; Bugg & Scullin 2013). +20 params, +3 locked
+> nulls, +1 frozen. Probes P918–P927.
 > **v5.34 note (retrieval-cues VIII — the cueless pop and
 > the cue that isn't):** eight residual cue mechanisms.
 > **Mind pops** — encoding mints a non-record `pop_seed`
@@ -4665,6 +4692,80 @@ construction — infancy already carries §4.31 machinery; do not
 double-count. A chaotic week costs the *older* trace, not just
 its competitors.
 
+### 4.41 The self comes online late — `self_ref_eff` (new in v5.35)
+
+Ross, Anderson & Campbell 2011 (*Monogr. SRCD* 76(3) —
+verified): the mnemonic self-reference advantage is present in
+3–4-year-olds but nascent — self-enactment, self-image, and
+ownership routes all work, weaker than adult weight. Howe &
+Courage 1997 (*Psychol. Rev.* 104 — verified): cognitive self
+emerges ~18–24 mo (the DEBATED amnesia-offset mechanism —
+AD§63). Ross, Hutchison & Cunningham 2020 (*Child Dev.* —
+verified): preschool AM volume tracks self-knowledge volume.
+
+§2's `w_self·selfRelevance_eff` term gains an `encodeAge`
+multiplier `self_ref_eff` — knots 0.3 at 2 → 0.7 at 4 → 0.9 at
+6 → 1.0 at 8. Below `amnesia_exit_eff` the gate is moot
+(`ctx_locked` dominates); in the 3–7 band it is a genuine
+partial channel. **Locked `self_ref_era_null`:** keyed on
+`encodeAge` forever — an adult recalling a preschool event
+does not retro-collect the dividend; it is an encoding
+operator, not a retrieval weight (P919 structure-checks).
+
+### 4.42 Source tags ripen late — `src_child_mult` (new in v5.35)
+
+Lindsay, Johnson & Kwon 1991 (*JECP* 52:297 — verified):
+source monitoring improves through childhood, errors
+concentrating below ~7. Drummey & Newcombe 2002 (*Dev.
+Psychol.* 38:1138 — verified): fact recall improves steadily
+4→8 while source accuracy jumps abruptly 4→6 — binding, not
+item, is the bottleneck (convergent longitudinal: Sluzenski,
+Newcombe & Kovacs 2006).
+
+`beta_source` gains `src_child_mult(encodeAge)` for
+`encodeAge < src_child_exit` (10): 1.5 at 4 → 1.25 at 6 →
+1.0 by 10. Child-encoded records shed speaker/context tags at
+~1.5× adult rate while content survives — orphan claims and
+`sourceConfuse` concentrate in the childhood archive.
+Encode-side partner of the retrieval-side source machinery;
+reality monitoring (§6.10) untouched.
+
+### 4.43 The child's attention gate (new in v5.35)
+
+Betts, McKay, Maruff & Anderson 2006 (*Child Neuropsychol.*
+12:205 — verified): sustained attention improves steeply 5→9,
+plateaus ~10–12, high-load tasks hurt youngest most. Ruff &
+Rothbart 2001 (verified): orienting/capture precedes sustained
+control by years.
+
+`att_min_eff` gains child knots on `age_now` at mint:
+`att_floor_age` = 0.30 at 4 → 0.22 at 7 → 0.15 at 10 →
+`att_min` thereafter (max() with the load-raised floor —
+whichever gate is higher wins). Salience capture preserved:
+`dist_child_mult` (1.3) scales the arousal+novelty terms UP
+for `age_now < 10`. Result: children's days mint fewer, more
+peaked records — the periphery is missing, the loud thing
+isn't (P922 two arms).
+
+### 4.44 The bump is positive-only — `bump_neg_pen` (new in v5.35)
+
+Berntsen & Rubin 2004 (*Memory* 12:681 — verified): the life
+script is overwhelmingly positive; Thomsen & Berntsen 2008
+(§23 — verified): the positive bump is carried by transitional
+firsts, negative distributions don't bump; Bohn & Berntsen
+2008/2011 (verified): script positivity is even steeper in
+children's projections.
+
+**Sign correction:** `bump_valence_gate`'s OR-arm
+(`selfRelevance > bump_self_thresh`) was letting negative
+self-relevant records bump — wrong. Negative-valence records
+now pay `bump_neg_pen` (0.5) on `bump_beta_mult` even when
+selfRelevant — a partial waiver: the divorce encodes strongly
+(selfRelevance intact) but gets no era discount. Frozen
+`ls_pos_only`: `script_age_pull` (§6.34c) applies only to
+non-negative records — "people marry ~28" exists; "people
+grieve at 28" doesn't (P923 distributional sign).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -6992,6 +7093,65 @@ specificity/detail emission += esi_gain ≈ 0.25 while alive
 and never accumulates across sessions — performance lift,
 not training. Frozen `esi_scope:"bout-window"` — the lift
 applies only to recall specificity, never to encoding E.
+
+### 5.92 "I know it happened" — recollection ripens late (new in v5.35)
+
+Ofen et al. 2007 (*Nat. Neurosci.* 10:1198 — verified,
+ages 8–24): vividly-recollected-scene memory improves with
+age via protracted PFC maturation; MTL-mediated basics form
+early. Billingsley, Smith & McAndrews 2002 (*JECP* 82:251 —
+verified) and Ghetti & Lee 2011 (*Dev. Rev.* 31 — verified
+review): familiarity is ~adult-like by 6–8; recollection
+develops into adolescence.
+
+At Reconstruction, `recol_w ×= recol_enc_mult(encodeAge)` —
+knots 0.5 at 5 → 0.75 at 8 → 0.9 at 12 → 1.0 at 16 —
+evaluated on the derived channel, never written into stored
+fields. Childhood-encoded records emit `reportMode:"know"`
+more often at equal strength: fluent, thin, fast — a mint
+property, not a retrieval failure. **Locked
+`fam_child_null`:** `fam_w` takes no child multiplier — the
+dissociation is recollection-only (P920 field-check).
+
+### 5.93 Thin futures at both ends (new in v5.35)
+
+Busby & Suddendorf 2005 (*Cogn. Dev.* 20:362 — verified):
+past/future reports emerge in tandem 3→5 — mental time
+travel is one faculty. Addis, Wong & Schacter 2008
+(*Psychol. Sci.* 19:33 — verified): older adults generate
+fewer internal details for futures AND pasts; external
+detail rises in compensation (Addis, Musicaro, Pan &
+Schacter 2010 — recombination task, verified).
+
+`sim_detail_mult(age_eff)` gains child knots: 0.45 at 4 →
+0.7 at 8 → 1.0 at 14 (joining the old-side 0.8@70→0.65@85).
+New `epf_sem_fill` (0.3): missing internal detail is
+partially back-filled with external/semantic routine detail
+at both ends — emission length falls less than verbatim
+richness; the probe reads the mix (P924). `future_leak_null`
+stands — thin futures never mint past-tense records.
+
+### 5.94 The zombie intention (new in v5.35)
+
+Scullin, Bugg, McDaniel & Einstein 2011 (*Mem&Cogn*
+39:1232 — verified): preserved spontaneous retrieval,
+impaired deactivation in older adults. Scullin, Bugg &
+McDaniel 2012 (*Psychol. Aging* 27:46 — verified):
+commission errors elevated with age. Bugg & Scullin 2013
+(*Psychol. Aging* — verified): repeatedly-performed
+intentions are hardest to deactivate. Walser, Fischer &
+Goschke 2012 (*JEP:LMC* 38:1030 — verified).
+
+When an armed intention fires or is declared complete, mint
+non-record `pm_zombie` {cue_key, hl `pm_zombie_hl` ≈ 14d,
+×`pm_zombie_repeat` 1.5 if fired ≥3 times before
+completion}. On cue re-presentation the completed response
+re-fires at `pm_zombie_p(age_eff)` — 0.02 at 20 → 0.05 at
+50 → 0.20 at 80 — emitted as action-urge micro-event
+`didItAgain:true` (she double-waters the plants). **Locked
+`zombie_monitor_null`:** the zombie never re-arms the §5.14
+monitor loop — no monitoring cost, retrieval-side
+spontaneous fire only (P925 state-check).
 
 ---
 
@@ -12509,6 +12669,32 @@ MemoryParams = {
 //   `elaborative:true` prompt tag; `esi_state` per-char
 //   non-record scalar. Event schema: `transition:true`
 //   only — additive.
+// v5.35 additions (age-development VIII — AD§§87–93)
+"self_ref_2y": 0.3, "self_ref_4y": 0.7,
+"self_ref_6y": 0.9,                              // §4.41 encodeAge knots
+"src_child_mult": 1.5, "src_child_exit": 10,     // §4.42
+"att_floor_4y": 0.30, "att_floor_7y": 0.22,
+"att_floor_10y": 0.15, "dist_child_mult": 1.3,   // §4.43
+"bump_neg_pen": 0.5,                             // §4.44
+"recol_enc_5y": 0.5, "recol_enc_8y": 0.75,
+"recol_enc_12y": 0.9, "recol_enc_exit": 16,      // §5.92
+"sdm_4y": 0.45, "sdm_8y": 0.7, "sdm_14y": 1.0,
+"epf_sem_fill": 0.3,                             // §5.93
+"pm_zombie_hl": 14, "pm_zombie_repeat": 1.5,
+"pm_zombie_20": 0.02, "pm_zombie_50": 0.05,
+"pm_zombie_80": 0.20,                            // §5.94
+// v5.35 locked nulls: self_ref_era_null (gate keys
+//   encodeAge forever — no retro dividend at recall;
+//   P919); fam_child_null (fam_w carries no child
+//   multiplier — P920); zombie_monitor_null (completed
+//   intentions never re-arm the §5.14 monitor — P925).
+// v5.35 frozen: ls_pos_only (script_age_pull applies to
+//   non-negative records only — Berntsen & Rubin 2004).
+// v5.35 fields/state: `pm_zombie` non-record residual
+//   {cue_key, hl, fired_n} (snapshot-additive); emission
+//   micro-event `didItAgain:true`; `reportMode:"know"`
+//   already in schema (§4.23). No Event schema changes;
+//   no new traits (inattn, g_mem run upstream as before).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -14367,6 +14553,48 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; `pop_seed` +
     `esi_state` + `ref_focus` are hidden/harness-readable
     like other non-record state. Probes P908–P917.
+- v5.35 additions (age-development.md Part VIII §§87–93):
+  - **`self_ref_eff`** (§4.41): encodeAge knots scale the
+    `w_self` term at mint only — locked `self_ref_era_null`
+    means adult recall never retro-collects it. Pure mint
+    modifier; no schema change.
+  - **`src_child_mult`** (§4.42): `beta_source` multiplier
+    for `encodeAge < 10` — decay-side only; callers see the
+    same `sourceConfuse` outcomes, just more of them on
+    child-encoded records.
+  - **`att_floor_age` + `dist_child_mult`** (§4.43):
+    `att_min_eff` floor knots on `age_now` at mint (max()
+    with load-raised floor); arousal/novelty terms ×1.3
+    under 10. No new Event fields — attention is already
+    a context input.
+  - **`bump_neg_pen` + `ls_pos_only`** (§4.44): sign
+    correction on `bump_valence_gate` OR-arm and frozen
+    scope on `script_age_pull` — negative records retain
+    via selfRelevance but take no era discount and no
+    normative-age dating pull.
+  - **`recol_enc_mult`** (§5.92): `recol_w` scaled on
+    `encodeAge` at Reconstruction; `reportMode:"know"`
+    already in schema; `fam_child_null` locked.
+  - **`sdm_*` child knots + `epf_sem_fill`** (§5.93):
+    `sim_detail_mult` U completed; imagined-future
+    emissions may carry `external` detail fields —
+    external = semantic commentary fields, already in
+    schema (same convention as §5.78c).
+  - **`pm_zombie`** (§5.94): non-record residual
+    {cue_key, hl, fired_n} minted on PM completion;
+    cue re-presentation may emit `didItAgain:true`
+    action-urge micro-event (world renderable);
+    `zombie_monitor_null` locked — monitor state stays
+    disarmed, P925 state-checks.
+  - **New params (§7):** 20 — self_ref_2y/4y/6y,
+    src_child_mult, src_child_exit, att_floor_4y/7y/10y,
+    dist_child_mult, bump_neg_pen, recol_enc_5y/8y/12y,
+    recol_enc_exit, sdm_4y/8y/14y, epf_sem_fill,
+    pm_zombie_hl, pm_zombie_repeat, pm_zombie_20/50/80
+    + 3 locked nulls + 1 frozen.
+  - All snapshot-additive, absent = legacy; `pm_zombie`
+    is hidden/harness-readable non-record state. Probes
+    P918–P927.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

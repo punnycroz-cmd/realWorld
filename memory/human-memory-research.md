@@ -3389,3 +3389,50 @@ floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
   CONSENSUS. Seed half-life, meam constants, adult-adult
   scaffolding extension, am_att magnitude, esi horizon =
   RW hypotheses (P908–P917).
+
+## 65. v87 adds — age-development VIII (the flat terms that weren't)
+
+- **Ross, Anderson & Campbell 2011** (*Monogr. SRCD* 76(3)
+  — verified): mnemonic self-reference present at 3–4,
+  nascent — enactment, self-image, ownership routes.
+- **Ross, Hutchison & Cunningham 2020** (*Child Dev.* —
+  verified): preschool AM volume predicted by self-knowledge
+  volume and self-source monitoring.
+- **Ofen et al. 2007** (*Nat. Neurosci.* 10:1198 —
+  verified): recollection develops via protracted PFC
+  maturation (8–24); MTL basics early.
+- **Billingsley, Smith & McAndrews 2002** (*JECP* 82:251 —
+  verified): familiarity/priming mature before recollection.
+- **Ghetti & Lee 2011** (*Dev. Rev.* 31 — verified review):
+  familiarity adult-like ~6–8; recollection→adolescence.
+- **Betts, McKay, Maruff & Anderson 2006** (*Child
+  Neuropsychol.* 12:205 — verified): sustained attention
+  steep 5→9, plateau ~10–12.
+- **Lindsay, Johnson & Kwon 1991** (*JECP* 52:297 —
+  verified): source monitoring improves through childhood.
+- **Drummey & Newcombe 2002** (*Dev. Psychol.* 38:1138 —
+  verified): fact recall steady, source jumps abruptly 4→6.
+- **Busby & Suddendorf 2005** (*Cogn. Dev.* 20:362 —
+  verified): past/future mental time travel in tandem 3→5.
+- **Addis, Wong & Schacter 2008** (*Psychol. Sci.* 19:33 —
+  verified): older adults' future simulation loses internal
+  detail; external compensates.
+- **Addis, Musicaro, Pan & Schacter 2010** (*Psychol.
+  Aging* 25:369 — verified): deficit survives
+  no-recasting recombination.
+- **Scullin, Bugg, McDaniel & Einstein 2011** (*Mem&Cogn*
+  39:1232 — verified): preserved spontaneous PM retrieval,
+  impaired deactivation in aging.
+- **Scullin, Bugg & McDaniel 2012** (*Psychol. Aging*
+  27:46 — verified): commission errors elevated with age.
+- **Bugg & Scullin 2013** (*Psychol. Aging* — verified):
+  repeated performance hardens completed intentions.
+- **Walser, Fischer & Goschke 2012** (*JEP:LMC* 38:1030 —
+  verified): aftereffects of completed intentions.
+- **Berntsen & Rubin 2004; Thomsen & Berntsen 2008; Bohn &
+  Berntsen 2008** (verified): life script positive-only;
+  negative events don't bump.
+- Consensus vs hypothesis: all phenomena above established;
+  knot magnitudes + `dist_child_mult`, `epf_sem_fill`,
+  `pm_zombie_p` rates, `bump_neg_pen` are fitted —
+  probe-gated P918–P927.
