@@ -1946,3 +1946,220 @@ never mints or attributes.
   moderators.
 - O'Connor & Moulin 2010 (verified): déjà vu as familiarity
   plus known falsity → `dejavu_know_null`.
+
+# Part VII — v118 pass: the circumstance layer (spec v5.51–v5.63 compile)
+
+Seven passes pinned what the machine keeps, how it narrates,
+how it sounds, what it thinks it knows, and what the
+remembering looks like from inside. Between v5.51 and v5.63
+the spec grew a *somatic and circumstantial* trait layer —
+ears, shifts, smoke, shifts-of-life — that no bible had pins
+for. This pass compiles it. **No new spec fields** (v5.65
+unchanged); every pin below names an existing §7 scalar or
+trait. The rule from Part VI stands: pins set priors and
+exposures, mechanisms do the work, locked nulls keep the
+layer honest.
+
+## 37. Mechanisms consumed (v5.51–v5.63 — the trait roster)
+
+Bible-settable traits/states with no prior per-main pins:
+
+- `hear` [0,2] + `hear_aided` flag — hearing as an encoding
+  gate (ID§125–127; `hear_gist_null`/`hear_sem_null`: the
+  ear spends at the door — gist mints, verbatim doesn't).
+- `shift_wrk` [0,2] + `day_shift_yrs` + `post_night` ctx —
+  circadian age-equivalence (`shift_age_equiv` 3.0 @w=2·5y;
+  `shift_sem_null`: semantic reserve untouched).
+- `smoker` {0,1,2} + `pack_yrs`/`quit_yrs` +
+  `nicotine_sated`/`withdrawal_h` ctx — decline accrual,
+  quit rescue (`smoke_encode_null`: withdrawal-repair only).
+- `medit` [0,1] — attentional buffer (`medit_att_buf`,
+  `medit_conf_gain`; `medit_store_null`: no store boost).
+- `job_cplx` [0,1] — complexity-of-work reserve feed
+  (`jobcplx_retire_null`: deposit stays banked).
+- `lonely` [0,1] — vigilance + rehearsal tax
+  (`lonely_crowd_null`: perception gap, not census).
+- `migr` [0,2] + `ictal` ctx — attack-day tax, no cumulative
+  damage (`migr_cumul_null` — fifth mandated null).
+- `diab` {0,1,2}+`diab_yrs`, `antichol` [0,2]+`antichol_yrs`,
+  `sick_day`, `apnea`+`cpap`, `menop` {0,1,2},
+  `retire`+`retire_voluntary`+`post_engagement`,
+  `grief:{onset,kin_type,ambivalence}` — state generators,
+  bible seeds the state, mechanisms run it.
+- Credulity trio (v5.52): `tdef` (sleeper/credulity prior),
+  `rsq` (rejection sensitivity → `snub` detection/FP),
+  `imp_anchor` (primacy weight → `imp_reversed` resistance).
+
+## 38. Per-main circumstance pins (all prior passes stand)
+
+### C1 Mars, 29 — `job_cplx 0.7` · `shift_wrk 0.6` · `tdef 0.6` · `rsq 0.4` · `lonely 0.3` · `smoker 0` · `medit 0.3`
+The floor manager's ledger: high job complexity feeds the
+reserve deposit nightly (`jobcplx_reserve_feed`), and
+rotating closes keep a mild circadian tax running — the
+character who *earns* her forgetting. `tdef` mid-high: she
+has heard every version of every rumor from behind the bar;
+demotion comes late and loud. Low `rsq` — the job
+desensitized snub-detection years ago.
+
+### C2 Jules, 26 — `lonely 0.8` · `tdef 0.35` · `rsq 0.7` · `imp_anchor 0.7` · `shift_wrk 0.2` · `smoker 0`
+The newcomer's signature is `lonely` at cast maximum, and
+the mechanism makes it *cost*: `lonely_rehearse_tax` thins
+his rehearsal while `lonely_vigil` keeps his threat-channel
+encoding up — he remembers the room's cold shoulders better
+than its warm ones, which is why the cold archive keeps
+reproving itself (`lonely_crowd_null` keeps the census
+honest — the town is friendlier than his archive says).
+`tdef` low: no local priors to defend, so sleeper tags decay
+while he isn't looking — in six months he'll swear he always
+knew things he was told twice. `imp_anchor` high: first
+impressions of the block resist `imp_reversed`.
+
+### C3 Dani, 24 — `migr 1.3` · `rsq 0.8` · `medit 0.4` · `tdef 0.5` · `lonely 0.5`
+The peak-age female migraineur — Lipton et al. 2007 puts the
+1-yr prevalence at 17.1% for women, cresting through the
+20s–40s; the trait is *base-rate-plausible*, not special.
+`ictal` days tax encoding `migr_ictal_tax` 0.3 while
+`migr_sens_gain` keeps sensory weight oddly high — her
+migraine-day memories are dim but glare-tagged, remembered
+as *the day with the aura*. `migr_cumul_null` is the point:
+no damage accrues; the wound never becomes a lesion. `rsq`
+at cast maximum fits the audition economy — she detects
+exclusions that didn't happen (`snub_fp_base` × rsq),
+encodes them `snub_encode_gain`, and they read real.
+
+### C4 Priya, 31 — `shift_wrk 0.9` · `medit 0.8` · `tdef 0.8` · `smoker 0` · `lonely 0.4` · `rsq 0.3`
+The deliberate stack: the highest `shift_wrk` in the cast
+(health-adjacent shift labor is her backstory's fact)
+*paired with* the highest `medit`. The phenotype is a wash
+by design — `shift_age_equiv` quietly ages her encoding
+while `medit_att_buf`/`medit_mw_buf` buy attention back, and
+`medit_conf_gain` lets her *know* she compensates. `tdef`
+cast-high: the skeptic — sleeper effects decay slowest on
+her, `tdef_detect` trips early; she is the character rumor
+dies on. `shift_sem_null` guards the flank: her semantic
+store is untouched — she is tired, never less *knowing*.
+
+### C5 Marcus, 34 — `smoker 2, pack_yrs 8, quit_yrs 4` · `job_cplx 0.4` · `lonely 0.5` · `imp_anchor 0.3` · `rsq 0.5` · `tdef 0.55`
+The ex-smoker four years out: `smoke_quit_rescue` has already
+paid most of its dividend, `smoke_decline_k` banked a modest
+slope — the archive carries a small scar the phenotype has
+outgrown. `imp_anchor` cast-low pairs with `face_recog` 0.85
+(§33): he keeps *re-meeting* people — the man who recognizes
+everyone updates impressions on contact, so primacy never
+gets to harden. `lonely` mid is the quiet note: surrounded
+by faces, thin on ties.
+
+### C6 Carmen, 74 — `hear 0.7, hear_aided false` · `retire 1, retire_voluntary, post_engagement 0.8` · `menop 2` · `grief:{onset −9y, spouse, ambivalence 0.3}` · `lonely 0.4` · `migr 0.3` · `job_cplx 0.6`
+The oldest archive carries the fullest circumstance ledger.
+`hear` 0.7 unaided: Hoffman et al. 2017 puts speech-frequency
+HI at ~2/3 of her decade's neighbors and aid uptake well
+under a quarter (Chien & Lin 2012) — she is the modal case,
+not an edge. `hear_gist_null` does the characterization: at
+the loud table she gets the story, loses the wording — her
+retellings of *recent* conversations are paraphrase-rich in
+a way her childhood retellings are not. `retire_voluntary` +
+`post_engagement` 0.8 is the chosen-exit phenotype —
+`retire_slope_tax` lands on a busy calendar and mostly
+misses. `menop 2` is bookkeeping: rebound long complete
+(`menop_rebound_d` 180 elapsed; `menop_sym_null`). `grief`
+at −9y: `grief_acute_d` 90 closed years ago — `grief_perm_null`
+means the record shows a scar, not a wound: the husband is
+in the archive at full strength; only the *intrusion*
+channel remembers it cost something.
+
+### C7 Victor, 58 — `smoker 1, pack_yrs 22` · `apnea undiagnosed` · `hear 0.3` · `lonely 0.7` · `job_cplx 0.5` · `retire 0` · `tdef 0.7` · `rsq 0.6`
+The heaviest load in the cast, by design. Current smoker
+(~11.6% adult prevalence, CDC NHIS 2022): `smoke_decline_k`
+accrues daily, `nicotine_sated` micro-gains never repay it —
+`smoke_encode_null` keeps the cost where it belongs, in the
+slope. Undiagnosed apnea is base-rate-plausible (Peppard
+2013: mod-severe SDB ~17% of men 50–70): `apnea_consol_tax`
++ `apnea_sws_cut` tax every night's consolidation and
+`apnea_iiv` noisies his day-to-day — *and no cpap rescue is
+coming*, so the man whose grievances compound is literally
+sleeping badly on them. `hear` 0.3 (decades of shop noise)
+plus `lonely` 0.7 plus `tdef`/`rsq` high: the vigilance stack
+that detects slights, rehearses them thin, and never lets a
+discount_tag finish decaying. His memory isn't bad. His
+*inputs* are rigged.
+
+### C8 Tomás, 36 — `shift_wrk 0.8` · `smoker 2, pack_yrs 10, quit_yrs 1` · `hear 0.2` · `lonely 0.4` · `job_cplx 0.6` · `medit 0.2` · `tdef 0.5`
+Kitchen hours are the `shift_wrk` story — `post_night`
+flags ride most dinner services, `shift_age_equiv` accrues
+at w·y and `shift_recovery` 0.6 means a clean week only buys
+back part of it. The recent quit (`quit_yrs` 1) is the
+interesting pin: `smoke_quit_rescue` is *still paying out*
+in-sim — a small improving slope the player can almost
+notice, against `withdrawal_h` spikes on bad weeks. `hear`
+0.2 is kitchen-noise bookkeeping, `job_cplx` 0.6 is the
+craft — plating is procedural, ordering is not.
+
+### Ambient tier — circumstance template
+`hear` ~ age-graded by Hoffman 2017 decades (≈0 under 40;
+0.2–0.4 in 50s–60s; 0.5–1.0 at 70+, aid flag Bernoulli
+~0.15 of eligibles); `smoker` ~ Categorical(never 0.62,
+former 0.26, current 0.12) per NHIS-2022-shaped priors;
+`shift_wrk` ~ U(0,0.6), ~15–20% above 1.0 (service-sector
+draw); `migr` ~ sex-graded Bernoulli (F 0.17/M 0.06) →
+severity U(0.8,1.8), age-tapered post-60; `lonely` ~
+Beta(2,4) + newcomer tag +0.3; `tdef`/`rsq`/`imp_anchor` ~
+U(0.3,0.7) unremarkable by default; `apnea` latent per
+Peppard sex×age cells, undiagnosed unless bible says;
+`menop`/`retire`/`grief` seeded only where ambient backstory
+demands. **No ambient gets `diab`/`antichol` without an
+explicit bible line** — disease pins are authored, never
+sampled.
+
+## 39. Distinctness — eighth-pass notes
+Priya and Victor now bracket the compensation axis: same
+tax-paying mechanisms, opposite books — her `shift_wrk` is
+answered by `medit`, his by nothing; she knows she's tired,
+he just is. Jules and Carmen are the `lonely`/`hear`
+contrast: both sit in rooms that don't quite reach them —
+his isolation is social and mints false slights, hers is
+sensory and mints paraphrase. Marcus and Tomás are the two
+quitters at different rescue phases — banked vs still
+paying. Dani's `migr` is the only episodic-tax trait in the
+cast: her bad days are *events* in the archive, everyone
+else's are weather. Mars remains the cleanest baseline —
+the machine pays her taxes and files nothing.
+
+## 40. Probes filed
+P1257–P1268 → validation-design.md §238. Signature checks:
+P1257 heard-channel gist-vs-verbatim asymmetry on Carmen
+(locked `hear_gist_null`/`hear_sem_null`); P1259 Priya
+compensation equality (episodic quality ≈ Mars within
+tolerance, complaint channels diverge); P1261 Victor's
+apnea shows as IIV + consolidation shortfall, never as
+semantic loss; P1267 ambient census vs declared priors.
+
+## 41. Sources added this version
+- Hoffman, Dobie, Losonczy, Themann & Flamme 2017 (*JAMA
+  Otolaryngol* 143:274 — verified): NHANES speech-frequency
+  HI 14.1% adults 20–69; ~2:1 men:women; steep decade
+  gradient → `hear` age-graded pins.
+- Goman & Lin 2016 (*AJPH* 106:1820 — verified): 23% of US
+  ≥12 carry better-ear HL; severity shifts toward moderate
+  at 80+ → ambient severity draw.
+- Chien & Lin 2012 (*Arch Intern Med* 172:292 — reported):
+  hearing-aid uptake ~14% of eligible ≥50 — `hear_aided`
+  false is the modal pin, flagged HYPOTHESIS-strength for
+  the ambient 0.15 draw.
+- Peppard et al. 2013 (*Am J Epidemiol* 177:1006 —
+  verified): mod-severe SDB 17% men / 9% women aged 50–70 →
+  Victor's undiagnosed apnea is a base-rate character beat.
+- Lipton et al. 2007 (*Neurology* 68:343 — verified, AMPP
+  n=162,576): migraine 1-yr 11.7% (17.1% F, 5.6% M), midlife
+  peak → Dani's `migr` pin is population-modal.
+- Buse et al. 2012 (*Headache* 52 — verified): chronic
+  migraine ~0.9%, F-40s peak → severity draw cap for
+  ambient; Dani stays episodic.
+- CDC/NHIS 2022 (MMWR 73 — verified): current smoking
+  ~11.6% of adults; quit attempts 53%, success ~9% →
+  ambient smoker categorical + Tomás's recent-quit window.
+- Clarke et al. 2018 (CDC NHIS — reported): adult
+  meditation use ~14% → ambient `medit` base draw; Priya's
+  0.8 is a practice pin, not a prevalence pin.
+- Mechanism constants themselves: reused from
+  individual-differences.md §§108–137 (v5.51–v5.63) and
+  social-memory.md §§151–160 (v5.52) — not re-cited here.

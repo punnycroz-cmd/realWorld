@@ -5160,3 +5160,51 @@ equivalence are systems formalism with no literature claim.
   Part X pattern (infrastructure is population-scoped) holds.
 
 → FM §§92–103; spec v5.65; probes P1245–P1256.
+
+## 93. v118 sources — character-profiles IX (the circumstance-layer pin priors; spec unchanged)
+
+Profile-compile pass: the mechanism constants were sourced at
+birth (ID§§108–137, SM§§151–160). The NEW sourcing here is
+epidemiology for *pin priors* — who plausibly carries which
+trait, at what base rate.
+
+- **Hearing loss age gradient (NEW):** **Hoffman, Dobie,
+  Losonczy, Themann & Flamme 2017** (*JAMA Otolaryngol*
+  143:274 — verified abstract/table): NHANES 2011–12;
+  speech-frequency HI 14.1% of adults 20–69; men ~2× women
+  (18.6% vs 9.6%); steep decade climb at 60–69. → `hear`
+  age-graded archetype rows; Carmen 0.7 / Victor 0.3 /
+  Tomás 0.2 are *decade-modal*, not dramatic.
+- **Severity mix (NEW):** **Goman & Lin 2016** (*AJPH*
+  106:1820 — verified): 23% of US ≥12 carry better-ear HL;
+  mild dominates under 80, moderate dominates at 80+. →
+  ambient severity draw caps.
+- **Aid non-uptake (NEW, HYPOTHESIS-strength):** **Chien &
+  Lin 2012** (*Arch Intern Med* 172:292 — reported): ~14%
+  of eligible ≥50 use hearing aids. → `hear_aided` Bernoulli
+  ~0.15 ambient draw; Carmen unaided is the modal truth.
+- **Sleep apnea (NEW):** **Peppard et al. 2013** (*Am J
+  Epidemiol* 177:1006 — verified): moderate-severe SDB
+  ~17% men / ~9% women aged 50–70 (Wisconsin cohort,
+  NHANES-extrapolated). → Victor's undiagnosed apnea is a
+  base-rate beat; ambient latent draw uses these cells.
+- **Migraine demography (NEW):** **Lipton et al. 2007**
+  (*Neurology* 68:343 — verified; AMPP n=162,576): 1-yr
+  prevalence 11.7% (17.1% F, 5.6% M), midlife peak. →
+  Dani `migr` 1.3 is population-modal for 24F, not a
+  special case. **Buse et al. 2012** (*Headache* — verified):
+  chronic migraine ~0.9%, F-40s peak → ambient severity cap;
+  the cast keeps episodic only.
+- **Smoking census (NEW):** **CDC NHIS 2022** (MMWR 73 —
+  verified): current smoking ~11.6% of adults; quit attempts
+  ~53%/yr, success ~8.8% → ambient Categorical and Tomás's
+  `quit_yrs 1` window (recent-quit is the *common* failure-
+  adjacent state, not an edge).
+- **Meditation base (NEW):** **Clarke et al. 2018** (CDC
+  NHIS — reported): adult meditation use ~14% → ambient
+  `medit` draw floor; Priya 0.8 is a *practice* pin well
+  above use-any prevalence.
+- Reused-in-corpus (mechanism constants, not re-cited):
+  Rouch 2005 shift-work cognitive aging; Wilson/Goveas
+  loneliness-memory work; Anstey smoking meta; Sabia —
+  see ID§§108–137.

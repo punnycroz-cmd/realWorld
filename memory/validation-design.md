@@ -12031,3 +12031,69 @@ a correct psychology silently becomes a database.
   is declared. Measures whether legality constraints actually bind.
 
 Probe registry: P1–P1256 (v117 adds P1245–P1256).
+
+## 238. v118 suite — character-profiles IX: the circumstance layer (P1257–P1268)
+
+Pin-compile validation: the probes check that circumstance
+pins express through their mechanisms and nothing else —
+each locked null from v5.51–v5.63 gets a cast-level trigger.
+
+- **P1257 ear-at-the-door (MUST — locked `hear_gist_null` +
+  `hear_sem_null`):** Carmen in a scripted loud-table scene:
+  `channel:"heard"` events mint gist-tagged records with
+  verbatim fields absent at rate ≥ hear·hear_effort_tax;
+  semantic PersonModel updates from the same scene are
+  unimpaired. Fail if any heard-channel verbatim field
+  survives above the aided rate.
+- **P1258 shift age-equivalence (MUST):** Priya vs a
+  `shift_wrk 0` matched control: 5-sim-year encoding-quality
+  deficit ≈ `shift_age_equiv`·w·yrs scaled, confined to
+  episodic quality + IIV — semantic store deltas ≈ 0
+  (`shift_sem_null`).
+- **P1259 compensation wash (MUST):** Priya's episodic
+  quality lands within tolerance of Mars's despite
+  `shift_wrk` gap (medit buffers attend/mw, not store);
+  complaint-channel reports diverge — she *reports* tired,
+  her archive isn't.
+- **P1260 quit-rescue slope (SHOULD):** Tomás's encoding
+  slope improves measurably over first sim-year post-quit
+  and asymptotes (`smoke_quit_rescue` 0.5); Marcus (quit_yrs
+  4) shows flat slope at the rescued level.
+- **P1261 apnea phenotype (MUST — dose-locked):** Victor's
+  consolidation runs at (1−apnea_consol_tax), IIV inflated
+  by apnea_iiv; NO semantic deficit, NO overnight repair
+  event absent cpap (`apnea_overnight_null`).
+- **P1262 lonely net sign (SHOULD):** Jules's threat-channel
+  records show vigil gain while neutral rehearsal thins —
+  net archive skews cold over 90 sim-days vs a `lonely 0.2`
+  matched arm, while his social census stays calibrated
+  (`lonely_crowd_null`).
+- **P1263 credulity ordering (MUST):** same rumor sequence:
+  Jules (`tdef .35`) sleeper-wakes earliest, Priya (.8)
+  latest or never; `tdef_demote` fires for Priya only when
+  contradiction is explicit (`tdef_detect`).
+- **P1264 primacy asymmetry (SHOULD):** identical
+  contradicting-second-meeting script: Jules's PersonModel
+  `eval_tag` resists revision (`imp_anchor .7` →
+  `imp_reinterp_res`), Marcus's (.3) updates on contact.
+- **P1265 menop residue zero (MUST — locked
+  `menop_ret_null`/`menop_sym_null`):** Carmen (menop 2,
+  rebound elapsed) shows zero retrieval tax and zero
+  symptom emission — the state is bookkeeping only.
+- **P1266 wound-not-lesion (MUST — locked
+  `grief_perm_null`):** Carmen's spouse-linked records
+  retain full strength; intrusion channel shows residual
+  affect; no encoding/store deficit attributable to grief
+  post-acute-window.
+- **P1267 ambient census (MUST):** generated ambient cohort
+  (n≥500 draws) matches declared priors within sampling
+  tolerance: hear-by-decade vs Hoffman cells, smoker
+  categorical vs NHIS-2022, migr sex-graded vs AMPP; any
+  `diab`/`antichol` present without a bible line fails.
+- **P1268 one-vivid-circumstance lint (SHOULD):** bible
+  linter counts per-main circumstance traits ≥0.7 that
+  project to phenotype-visible channels; >1 warns; also
+  requires an explicit answered/unanswered compensation
+  line per tax trait ≥0.7.
+
+Probe registry: P1–P1268 (v118 adds P1257–P1268).
