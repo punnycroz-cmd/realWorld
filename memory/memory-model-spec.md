@@ -1,5 +1,35 @@
-# Memory Model Spec v5.47 — implementable human-like memory for RW characters
+# Memory Model Spec v5.48 — implementable human-like memory for RW characters
 
+> **v5.48 note (age-decline IX — the control layer retires
+> piecemeal: speed fails before strength, the debunk feeds the
+> claim, the chosen few stay sharp — AD§§125–134):** ten
+> mechanisms on the *control* side of aging, not capacity.
+> (a) **Latency, not loss** — `ret_lat_mult(age_eff)` stretches
+> bout duration; fixed `susp_*` windows expire old bouts → more
+> `lost_it`; locked `lat_strength_null` (unlimited window ⇒
+> age-invariant recall at fixed S — Salthouse 1996) — §5.106.
+> (b) **The proper-name cliff** — `propname_tot_mult` on
+> `tot_rate` for proper-name referents; `name_block` emission
+> with referent-confident fallback (Cohen & Burke 1993) —
+> §5.110. (c) **Debunk backfire** — `debunk_fam_gain` raises
+> denied-claim familiarity per repetition while `disc_tag_hl`
+> rots the false-tag → `debunk_flipped` (Skurnik 2005:
+> 28%→40%); locked `debunk_true_null` — §6.230. (d) **SOC
+> narrowing** — `soc_narrow` + `soc_top_q` concentrate the
+> retell budget on top-`goal_value` records (Baltes & Baltes)
+> — §5.107. (e) **Split knees** — `rp_benefit_knee` 65 retires
+> the testing benefit a decade before `rif_age_tail` 75 retires
+> its cost (Aslan et al. 2015 vs 2012) — §5.108. (f) **Two
+> preservations, frozen** — `spacing_age_null`,
+> `savings_age_null` (Balota 1989; Nelson 1985) — §4.55.
+> (g) **Futures go vague** — `sim_detail_mult` on §6.199 `sim`
+> internal detail (Addis 2008) — §4.56. (h) **Vantage drifts**
+> — retell-driven field→observer shift + `relive_mult` tax
+> (Butler 2016; Berntsen & Rubin 2006) — §6.231. (i) **Chains
+> truncate** — `cue_chain_max(age_eff)` caps §5.17 reminding
+> hops (Craik & McDowd) — §5.109. §7 +13 named params +2 locked
+> nulls +2 frozen; §10 contract adds; probes P1055–P1064.
+>
 > **v5.47 note (age-development IX — the faster child clock, the
 > untaught rehearsal, the twice-eaten instance, the false memory
 > that grows, the edge that dies first, the positive filter, the
@@ -5453,6 +5483,38 @@ skill binds nothing; it IS the binding) and from `pi_suscept`
 `proc_flat_null`:** no age leg may be added — motor decline is
 the world's job, not the trace's.
 
+### 4.55 Two levers that never age — spacing and savings (new in v5.48)
+
+AD§§130–131; Balota, Duchek & Paullin 1989; Kornell et al.
+2010; Ebbinghaus 1885; Nelson 1985 (verified: the spacing
+benefit and relearning savings are the most age-invariant
+effects in the memory literature).
+
+`spacing_gain` (distributed > massed re-exposure) and
+`savings_mult` (re-encode discount for decayed-but-alive
+records) carry **no age leg**. **Frozen `spacing_age_null` /
+`savings_age_null`:** no profile or overlay may add one —
+P1060/P1061 audit the flatness. The substrate's cheapest
+intervention on an old character is the same as on a young
+one: spread the repetitions out. (The encoded strength each
+repetition buys still ages via `enc_base` — the *multiplier*
+is what's flat.)
+
+### 4.56 The future loses detail too — `sim_detail_mult` (new in v5.48)
+
+AD§132; Addis, Wong & Schacter 2008 (verified: older adults
+generate fewer internal/episodic details for imagined future
+events — same deficit as past recall, correlated with
+relational memory).
+
+Records minted by future-event simulation (plans, promises,
+imagined encounters — the §6.199 `sim` trait path) carry
+internal-detail count ×`sim_detail_mult(age_eff)`:
+`1.0@55 → 0.85@65 → 0.7@75 → 0.6@85`; external/semantic
+fields flat. Downstream: prospective intentions encoded old
+carry fewer contextual anchors — part of the §87 time-based
+PM deficit is encoding poverty, not just retrieval failure.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -8097,6 +8159,74 @@ never carry the term — the effect lives in deliberate
 self-directed remembering; being grilled removes it.
 
 ### 5.105 (reserved — §5.104 completes the v5.47 retrieval set)
+
+### 5.106 Latency, not loss — `ret_lat_mult` (new in v5.48)
+
+AD§125; Salthouse 1996; Bugg et al. 2006 (verified: processing
+speed mediates age variance; self-paced accuracy largely
+intact).
+
+Bout duration (not probability) scales `×ret_lat_mult(age_eff)`:
+`1.0@55 → 1.15@65 → 1.3@75 → 1.7@85`. The §5.101 `susp_*`
+windows are world-time constants — old bouts expire mid-search
+more often, so `lost_it` rate rises with age while successful-
+recall accuracy is unchanged. **Locked `lat_strength_null`:**
+given unlimited window, P(retrieve | S) is age-invariant —
+latency interacts with the clock, never the trace (P1055).
+
+### 5.107 Choosing few and keeping them — `soc_narrow` (new in v5.48)
+
+AD§128; Baltes & Baltes 1990; Freund & Baltes 2002
+(framework); Wolf & Zimprich 2020 (verified: selectivity
+intact-to-enhanced when stakes explicit). Parameterization
+HYPOTHESIS.
+
+The retell/rehearsal draw budget reshapes:
+`p(draw | r) ∝ base_w·(1 + soc_narrow(age_eff)·[goal_value(r)
+≥ soc_top_q quantile])` with `soc_narrow`:
+`0@55 → 0.15@65 → 0.35@75 → 0.5@85`, `soc_top_q` 0.25.
+Concentration funds the chosen domain; peripheral records
+decay faster than capacity curves alone give (P1058).
+
+### 5.108 The decade testing turns — `rp_benefit_knee` (new in v5.48)
+
+AD§129; Aslan, Schlichting, John & Bäuml 2015 (verified: the
+beneficial effect of selective retrieval declines earlier than
+the detrimental, WM-mediated); vs Aslan & Bäuml 2012's RIF
+knee at ~75 (§5.50 `rif_age_tail`).
+
+`test_gain`/`test_nofb_gain` (§119) multiply by
+`rp_benefit_mult(age_eff)`: `1.0@55 → 0.7@65 → 0.45@75 →
+0.35@85`; `rp_benefit_knee` 65±5. Order-locked: the benefit
+knee precedes the RIF knee — the 65–75 window shows
+(cost ↑, benefit ↓) simultaneously (P1059). DEBATED edge:
+later work shows durable RIF in some old-old samples — the
+ordering, not the magnitudes, is the replicated claim.
+
+### 5.109 The chain stops short — `cue_chain_max` (new in v5.48)
+
+AD§134; Craik & McDowd 1987; Park et al. 2002 (verified
+lifespan WM decline). Knot values ours.
+
+§5.17 reminding chains hard-cap hops per bout at
+`cue_chain_max(age_eff)`: `4@30 → 3@60 → 2@75 → 2@85`.
+Chain-only-reachable records surface less in voluntary recall
+— the recall diet concentrates on directly-cued and bump-era
+records (P1064). Implemented as a counter on bout state
+(`pending_cand`), not a probabilistic decay — a contract.
+
+### 5.110 The name that won't come — `propname_tot_mult` (new in v5.48)
+
+AD§126; Burke, MacKay, Worthley & Wade 1991; Cohen & Burke
+1993; Cross & Burke 2004 (verified: proper-name TOT deficit
+steeply age-graded, dissociable from person knowledge — the
+semantic half retrieves, the phonological half fails).
+
+`tot_rate` multiplies `propname_tot_mult(age_eff)` for
+proper-name referent fields only: `1.0@55 → 1.4@65 → 2.0@75 →
+2.6@85`. Failed name retrieval emits `name_block:true` and
+the referent-confident fallback ("the tenant, you know the
+one") — the name fails, the person doesn't (P1056).
 
 ---
 
@@ -12807,6 +12937,40 @@ OBSERVE-tier param — direction-only audit (P1026); folds to
 0 and promotes `phone_null` if the replication base fails.
 EM§104.
 
+### 6.230 The warning that feeds the claim — `debunk_fam_gain` (new in v5.48)
+
+AD§127; Skurnik, Yoon, Park & Schwarz 2005 (verified: after 3
+days, elders misremembered 28% of once-denied false claims as
+true, 40% of thrice-denied; no true→false asymmetry); Kumkale
+& Albarracín 2004 sleeper-effect meta.
+
+An amplifier on the existing sleeper machinery (discrediting
+`cred_tag` rots faster than content): each repetition of a
+denied claim raises content familiarity ×`debunk_fam_gain
+(age_eff)` `1.0@55 → 1.2@65 → 1.5@75 → 1.6@85` while the tag
+decays on `disc_tag_hl` 3d independent of repetition count.
+When the tag is dead and familiarity exceeds
+`fam_truth_thresh`, the belief flips: `debunk_flipped:true`.
+**Locked `debunk_true_null`:** repetitions of a true label
+never flip a record to false — sign-locked (P1057).
+
+### 6.231 The past becomes a film you're in — `vantage` drift (new in v5.48)
+
+AD§133; Butler, Rice, Wooldridge & Rubin 2016 (verified:
+repeated retrieval shifts vantage field→observer); Nigro &
+Neisser 1983; Berntsen & Rubin 2006 (observer vantage
+attenuates sensory/emotional reliving); Piolino 2006 (weak
+pure-age leg).
+
+Narrative emissions carry `vantage:"field"|"observer"`:
+`vantage_drift = vantage_retell_gain·retell_n +
+vantage_age_leg·max(0, age_eff−60)`, `vantage_retell_gain`
+0.04/retell capped 0.6, `vantage_age_leg` 0.002/yr capped
+0.15. Observer recalls pay `relive_mult` 0.75 on the §4.5
+affect channel — the well-worn story is the least felt
+(P1063). The age leg is deliberately small; retell_n must
+dominate or the parametrization is overfit.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -14808,6 +14972,38 @@ MemoryParams = {
 //   flags; `pending_cand` bout state; `openQuery`
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
+//   absent = legacy.
+// v5.48 additions (age-decline IX — AD§§125–134)
+"disc_tag_hl": 3,                                // §6.230 (days)
+"soc_top_q": 0.25, "rp_benefit_knee": 65,        // §5.107/§5.108
+"vantage_retell_gain": 0.04, "vantage_age_leg": 0.002,
+"relive_mult": 0.75,                             // §6.231
+// v5.48 knot-table updates (existing params, new age knots):
+//   bout duration: ×ret_lat_mult(age_eff)
+//     1.0@55 → 1.15@65 → 1.3@75 → 1.7@85         (§5.106)
+//   retell-budget draw: +soc_narrow(age_eff)·top_quantile
+//     0@55 → 0.15@65 → 0.35@75 → 0.5@85          (§5.107)
+//   test_gain/test_nofb_gain: ×rp_benefit_mult(age_eff)
+//     1.0@55 → 0.7@65 → 0.45@75 → 0.35@85        (§5.108)
+//   §5.17 chain hops: cap cue_chain_max(age_eff)
+//     4@30 → 3@60 → 2@75 → 2@85                  (§5.109)
+//   tot_rate (proper-name fields): ×propname_tot_mult(age_eff)
+//     1.0@55 → 1.4@65 → 2.0@75 → 2.6@85          (§5.110)
+//   denied-claim content fam per repetition:
+//     ×debunk_fam_gain(age_eff)
+//     1.0@55 → 1.2@65 → 1.5@75 → 1.6@85          (§6.230)
+//   sim-trait internal-detail count: ×sim_detail_mult(age_eff)
+//     1.0@55 → 0.85@65 → 0.7@75 → 0.6@85         (§4.56)
+// v5.48 locked nulls: lat_strength_null
+//   (unlimited-window recall age-invariant at fixed S —
+//   P1055); debunk_true_null (true-label repetition never
+//   flips a record false — P1057).
+// v5.48 frozen: spacing_age_null (no age leg on
+//   spacing_gain — P1060); savings_age_null (no age leg on
+//   savings_mult — P1061).
+// v5.48 emissions/fields: `name_block:true`,
+//   `debunk_flipped:true`, `vantage:"field"|"observer"`
+//   on narrative emissions. All snapshot-additive;
 //   absent = legacy.
 // v5.47 additions (age-development IX — AD§§98–107)
 "script_swallow_child": 1.5, "dev_self_gate": 0.4, // §4.49
@@ -17201,6 +17397,31 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.48 additions (age-decline.md §§125–134 — the control layer):
+  - **New emissions/fields:** `name_block:true` (proper-name
+    TOT with referent-confident fallback phrasing — §5.110);
+    `debunk_flipped:true` (sleeper-path belief flip on denied
+    claims — §6.230); `vantage:"field"|"observer"` on narrative
+    emissions (§6.231). All snapshot-additive; absent = legacy.
+  - **Bout-state contract:** `ret_lat_mult` (§5.106) stretches
+    bout duration only — game-systems must NOT scale the
+    §5.101 `susp_*` windows with it; the asymmetry IS the
+    mechanism (old bouts expire mid-search). `cue_chain_max`
+    (§5.109) is a hop counter on `pending_cand`, not a decay.
+  - **Field-class contract:** `propname_tot_mult` applies to
+    proper-name referent fields ONLY; person-knowledge fields
+    on the same referent are unreachable (that's the P1056
+    dissociation, not a tuning choice).
+  - **Ordering contract:** `rp_benefit_knee` (65±5) must stay
+    below `rif_age_tail` (~75) — P1059 fails any build that
+    inverts or coincides the knees.
+  - **Locked boundaries game-systems must honor:**
+    `lat_strength_null`, `debunk_true_null`; frozen
+    `spacing_age_null`, `savings_age_null` — profile-level age
+    legs on spacing/savings are a spec violation.
+  - **New params (§7):** 13 named (19 scalars once knots
+    expand) + 2 locked nulls + 2 frozen.
+  - Probes P1055–P1064.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

@@ -4134,3 +4134,56 @@ Part VIII / spec v5.44:
   motivated account's gate (DEBATED); `proc_decay_mult` 0.3 is a
   placeholder for a consensus direction. → AD Part IX §§98–111;
   probes P1045–P1054.
+
+## 77. v100 sources — age-decline IX (AD Part IX → spec v5.48)
+
+The control layer of cognitive aging, ten mechanisms:
+
+- **Salthouse 1996** (*Psychol. Rev.* 103:403 — verified):
+  general processing-speed factor mediates most age variance;
+  self-paced accuracy largely intact → spec §5.106
+  `ret_lat_mult` + locked `lat_strength_null`; P1055.
+- **Burke, MacKay, Worthley & Wade 1991** (*J. Mem. Lang.*
+  30:542) + **Cohen & Burke 1993** + **Cross & Burke 2004**
+  (verified): proper-name TOT deficit steeply age-graded,
+  dissociable from person knowledge — semantic half retrieves,
+  phonological half fails → §5.110 `propname_tot_mult`,
+  `name_block` emission; P1056.
+- **Skurnik, Yoon, Park & Schwarz 2005** (*J. Consumer Res.*
+  31:713 — verified): denied-claim repetition flips false→
+  true in elders after delay (28%→40% at 3d, 1→3 denials); no
+  true→false arm; **Kumkale & Albarracín 2004** sleeper-effect
+  meta; **Jacoby 1999** familiarity→truth → §6.230
+  `debunk_fam_gain`/`disc_tag_hl`, `debunk_flipped`, locked
+  `debunk_true_null`; P1057.
+- **Baltes & Baltes 1990** SOC + **Freund & Baltes 2002** +
+  **Wolf & Zimprich 2020** (framework; selectivity intact
+  under stakes) → §5.107 `soc_narrow`/`soc_top_q`; P1058.
+- **Aslan, Schlichting, John & Bäuml 2015** (*Psychol. Aging*
+  30:111 — verified): beneficial retrieval-practice effect
+  declines ~a decade before detrimental RIF (Aslan & Bäuml
+  2012 knee ~75) — WM-mediated → §5.108 `rp_benefit_knee`,
+  order-lock; P1059. DEBATED edge: later durable-RIF reports.
+- **Balota, Duchek & Paullin 1989** (*Psychol. Aging* 4:423)
+  + **Kornell et al. 2010**: spacing benefit age-invariant →
+  §4.55 frozen `spacing_age_null`; P1060. **Ebbinghaus 1885**
+  + **Nelson 1985** + **MacLeod 1988**: savings survives
+  recall floor and age → frozen `savings_age_null`; P1061.
+- **Addis, Wong & Schacter 2008** (*Psychol. Sci.* 19:33 —
+  verified): future-event internal detail drops in aging,
+  correlates relational memory → §4.56 `sim_detail_mult`;
+  P1062.
+- **Butler, Rice, Wooldridge & Rubin 2016** (verified:
+  retelling shifts vantage field→observer) + **Berntsen &
+  Rubin 2006** (observer attenuates reliving) + **Nigro &
+  Neisser 1983** + **Piolino 2006** (weak age leg) → §6.231
+  `vantage` drift + `relive_mult`; P1063.
+- **Craik & McDowd 1987** + **Park et al. 2002** +
+  **Verhaeghen metas** (WM-mediated chain-depth decline) →
+  §5.109 `cue_chain_max`; P1064.
+- **Honest limits:** knot magnitudes HYPOTHESIS throughout;
+  `ret_lat_mult` duration-mapping ours; `debunk_fam_gain` is
+  an amplifier on sleeper machinery, not a new op;
+  `soc_narrow` most speculative (framework→budget);
+  `vantage_age_leg` deliberately small; `cue_chain_max` a
+  contract cap. → AD §§125–138; probes P1055–P1064.

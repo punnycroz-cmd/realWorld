@@ -10077,3 +10077,96 @@ P1052 SHOULD; P1054 COULD.
   0.4; `gist_lure_sim` 0.6 operationalization; `trans_bump`
   generalization beyond migration/moves; `sws_var_gain` jitter
   form; `proc_decay_mult` 0.3 coefficient.
+
+## 206. v100 probe suite (P1055–P1064, age-decline IX)
+
+- **P1055 latency-not-loss (MUST, null-lock):** at fixed S,
+  unlimited bout window converges 30yo/80yo recall ≥95%; at
+  default `susp_*` windows `lost_it` rate rises ≥1.5× by 80
+  while successful-recall accuracy is unchanged.
+  `lat_strength_null` structure-checked. Salthouse 1996;
+  Bugg 2006.
+- **P1056 proper-name cliff (MUST, dissociation):** at 80,
+  name-field TOT ≥2× person-knowledge failure on the same
+  referent; `name_block` emissions pair with referent-
+  confident fallback; 30yo gap <1.3×. Burke 1991;
+  Cohen & Burke 1993.
+- **P1057 debunk backfire (MUST, sign-lock):** false claim
+  denied ×3 to a 78yo flips `believed`→true ~40% after
+  `disc_tag_hl` (vs ~28% ×1); true-label repetition never
+  flips (`debunk_true_null`); 30yo arm ≤10%. Skurnik 2005.
+- **P1058 SOC concentration (SHOULD):** top-`goal_value`
+  quantile retell share rises with `soc_narrow`; chosen-domain
+  S at 85 ≥1.3× unstructured-budget control; peripherals decay
+  faster than capacity curves predict. Baltes & Baltes 1990.
+- **P1059 split knee (MUST, order-lock):** `rp_benefit_mult`
+  departs 1.0 before `rif_age_tail` activates; the 65–75
+  window shows benefit↓ + cost↑ simultaneously; coincident or
+  reversed knees FAIL. Aslan 2015 vs Aslan & Bäuml 2012.
+- **P1060 spacing flat (COULD, frozen):** spacing/massed
+  benefit ratio age-invariant within noise at 30/60/80;
+  profile-level age leg on `spacing_gain` = spec violation.
+  Balota 1989.
+- **P1061 savings flat (COULD, frozen):** re-encode cost
+  ratio (sub-threshold vs fresh) age-invariant; ratio <1 at
+  all ages. Ebbinghaus; Nelson 1985.
+- **P1062 future vagueness (SHOULD):** simulated future-event
+  records at 80 carry ~60% the internal-field count of 30yo;
+  external fields flat. Addis 2008.
+- **P1063 vantage drift (SHOULD, shape-lock):** vantage flips
+  observer-ward with retell_n (dominant) over record age;
+  observer recalls show `relive_mult`-attenuated affect vs
+  matched field recalls. Butler 2016; Berntsen & Rubin 2006.
+- **P1064 chain truncation (MUST):** chains never exceed
+  `cue_chain_max(age_eff)`; chain-only-reachable records drop
+  ≥40% in voluntary recall 30→80, directly-cued flat.
+  Craik & McDowd 1987.
+
+Registry: P1–P1064. v100 suite: P1055, P1056, P1057, P1059,
+P1064 MUST (P1055, P1057 locked-null class); P1058, P1062,
+P1063 SHOULD; P1060, P1061 COULD.
+
+## 207. Sources verified this version (P1055–P1064 backing)
+
+- **Speed mediation:** Salthouse 1996 (*Psychol. Rev.* 103:403
+  — verified); Bugg, Zook, DeLosh, Davalos & Davis 2006
+  (category fluency time-limited in the old).
+- **Proper-name cliff:** Burke, MacKay, Worthley & Wade 1991
+  (*J. Mem. Lang.* 30:542); Cohen & Burke 1993; Cross & Burke
+  2004 — phonological half degrades more than semantic half.
+- **Debunk backfire:** Skurnik, Yoon, Park & Schwarz 2005
+  (*J. Consumer Res.* 31:713 — verified: 28%→40% false-as-true
+  at 3d with 1→3 denials; no true→false arm); Kumkale &
+  Albarracín 2004 (*Psychol. Bull.* meta — sleeper effect);
+  Jacoby 1999 (familiarity→truth attribution).
+- **SOC:** Baltes & Baltes 1990; Freund & Baltes 2002;
+  Wolf & Zimprich 2020 (selectivity intact-to-enhanced under
+  explicit stakes).
+- **Split knees:** Aslan, Schlichting, John & Bäuml 2015
+  (*Psychol. Aging* 30:111 — verified: beneficial arm declines
+  earlier, WM-mediated) vs Aslan & Bäuml 2012 (*JEP:LMC*
+  38:894 — RIF intact 60–75, absent >75). DEBATED edge noted
+  (later reports of durable RIF in older samples).
+- **Preservations:** Balota, Duchek & Paullin 1989
+  (*Psychol. Aging* 4:423 — spacing intact/enhanced in aging);
+  Kornell, Castel, Eich & Bjork 2010; Ebbinghaus 1885 +
+  Nelson 1985 (savings); MacLeod 1988.
+- **Future vagueness:** Addis, Wong & Schacter 2008
+  (*Psychol. Sci.* 19:33 — verified: fewer internal details
+  for future events, correlated with relational memory);
+  Addis et al. 2010; Schacter & Addis 2007 framework.
+- **Vantage:** Butler, Rice, Wooldridge & Rubin 2016
+  (retell-driven field→observer shift — verified); Nigro &
+  Neisser 1983; Berntsen & Rubin 2006 (observer attenuates
+  reliving); Rice & Rubin 2009; Piolino et al. 2006 (weak age
+  leg — flagged).
+- **Chain depth:** Craik & McDowd 1987; Park et al. 2002
+  (lifespan WM decline); Verhaeghen aging meta-analyses.
+- **Honest limits marked:** `ret_lat_mult` bout-duration
+  mapping is our construction; `propname_tot_mult` magnitudes
+  HYPOTHESIS; `debunk_fam_gain` rides existing sleeper
+  machinery (amplifier, not new op); `soc_narrow` is the most
+  speculative mapping (framework → retell budget); `vantage_
+  age_leg` kept tiny deliberately; `cue_chain_max` is a
+  contract cap, not a probabilistic claim. → AD Part IX
+  §§125–134; probes P1055–P1064.

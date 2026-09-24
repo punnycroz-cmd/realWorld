@@ -3377,3 +3377,389 @@ Frozen: `biling_scope`, `mt_scope`.
   events reach the relearn path — a wiring assumption the
   game-systems track must honor or the old-age learning channel
   silently defaults to errorful.
+
+# Part IX — v100: the control layer retires piecemeal (speed fails
+# before strength, the debunk feeds the claim, the elders who choose
+# few and keep them sharp, and two levers that never age)
+
+Parts I–VIII priced *capacity* — encoding strength, decay legs,
+interference susceptibility. The missing layer is *control*:
+what old age does to the operations characters run on their
+memories — how long a search takes, whether a correction
+sticks, which memories get the rehearsal budget, how far a
+reminding chain travels. The control findings are more
+surprising than the capacity findings: speed fails while
+accuracy holds (Salthouse 1996); the *cost* of selective
+retrieval outlives its *benefit* by a decade (Aslan et al.
+2015); and two interventions — spacing and savings — do not
+age at all (Balota et al. 1989; Nelson 1985). This Part adds
+the control knobs, including two deliberately frozen
+preservation nulls.
+
+## 125. The answer exists, the window doesn't — retrieval latency
+
+Salthouse 1996 (*Psychol. Rev.* 103:403 — verified): a general
+processing-speed factor mediates most age variance in cognition;
+memory performance differences shrink dramatically when tasks
+are self-paced — the deficit is partly *temporal*, not
+*structural*. Bugg, Zook, DeLosh, Davalos & Davis 2006 verified
+older adults' category fluency is time-limited: given enough
+time, output approaches young levels. **[CONSENSUS: speed
+mediates; accuracy-at-asymptote largely intact.]**
+
+Mechanism: `ret_lat_mult(age_eff)` multiplies bout duration
+(not probability): `1.0@55 → 1.15@65 → 1.3@75 → 1.7@85`. It
+couples to the existing §5.101 suspended-bout machinery —
+`susp_*` windows are world-time constants, so older bouts
+expire mid-search more often: `lost_it` emissions rise with
+age without any recall-probability change. In dialogue this
+is the beat-late answer — she gets it, three exchanges after
+it mattered. **Locked `lat_strength_null`:** given unlimited
+window, retrieval probability at fixed S is age-invariant —
+latency never converts into loss by itself; only the
+interaction with `susp_*` does. (This is what keeps the knob
+honest: the record is intact, the *clock* is what aged.)
+
+## 126. The name that won't come — the proper-name cliff
+
+Burke, MacKay, Worthley & Wade 1991 (*J. Mem. Lang.* 30:542 —
+verified): proper names are retrieved less often than common
+nouns and produce more TOTs, even controlling frequency.
+Cohen & Burke 1993: the proper-name disadvantage *grows* with
+age — semantic person-knowledge (occupation, relations)
+retrieves fine while the phonological name node fails; the
+asymmetry is the defining signature (name-only TOT, person
+known). Cross & Burke 2004: aging degrades the phonological
+half of the link more than the semantic half. **[CONSENSUS:
+proper-name TOT steeply age-graded and dissociable from
+person knowledge.]**
+
+Mechanism: `propname_tot_mult(age_eff)` multiplies `tot_rate`
+for proper-name referent fields only:
+`1.0@55 → 1.4@65 → 2.0@75 → 2.6@85`. The failed retrieval emits
+`name_block:true` and — because the person-knowledge fields
+retrieved fine — the dialogue fallback "the tenant, you know
+the one, third floor" is *structurally* available, not a
+confabulation. The elder who can't produce a name is not
+uncertain about who she means; confidence on the referent
+stays high (that's why the signature is legible to spectators).
+
+## 127. The warning that feeds the claim — debunk backfire
+
+Skurnik, Yoon, Park & Schwarz 2005 (*J. Consumer Res.* 31:713 —
+verified): after a 3-day delay, older adults misremembered
+28% of once-denied false claims as true — and **40%** of
+thrice-denied ones. Repetition raised the claim's familiarity
+faster than the "false" tag survived; with only familiarity
+left, fluent processing reads as truth. No parallel tendency
+for true claims to flip false. Kumkale & Albarracín 2004
+(*Psychol. Bull.* — verified meta): the sleeper effect —
+discounting-tag decay outrunning message decay — is real,
+small, and *age-amplified* through exactly this channel.
+Jacoby 1999: familiarity-as-truth attribution when
+recollection fails. **[CONSENSUS: the age × delay ×
+repetition interaction is replicated; magnitudes vary.]**
+
+Mechanism: heard-account records already carry a `cred_tag`
+field on the discounting edge (existing sleeper machinery —
+the tag rots faster than content). New operator leg:
+`debunk_fam_gain(age_eff)` `1.0@55 → 1.2@65 → 1.6@80`
+multiplies the *content* familiarity accrued per repetition
+of a denied claim, while the tag decays on `disc_tag_hl` 3d
+independent of repetitions. When the tag dies and content
+familiarity exceeds `fam_truth_thresh` (existing §6.x
+familiarity→truth inference), the record's belief flip fires:
+`debunk_flipped:true`. **Locked `debunk_true_null`:**
+repetition of a *true* label never flips a record to false —
+the operator is sign-locked, matching Skurnik's asymmetry.
+This is the rumor-substrate knife edge: a correction campaign
+in a neighborhood full of 70-year-olds *manufactures* the
+belief it fights.
+
+## 128. Choosing few and keeping them — selective optimization
+
+Baltes & Baltes 1990 (SOC model — verified framework):
+successful aging is selection (narrowing goals), optimization
+(concentrating practice on the chosen), compensation
+(scaffolding). Freund & Baltes 2002: SOC strategy use predicts
+preserved functioning in old-old adults. On memory
+specifically: older adults' restricted rehearsal isn't purely
+capacity loss — resource allocation narrows by *value*.
+Wolf & Zimprich 2020 verified memory selectivity intact-to-
+enhanced in aging when stakes are explicit. **[Framework
+CONSENSUS; our parameterization is HYPOTHESIS.]**
+
+Mechanism: `soc_narrow(age_eff)` `0@55 → 0.15@65 → 0.35@75 →
+0.5@85` reshapes the §5.x retell/rehearsal budget: the
+fraction of rehearsal draws going to records in the top
+`soc_top_q` 0.25 quantile of `goal_value` rises by soc_narrow,
+drawn proportionally from mid-value records (bottom deciles
+were already unrehearsed). Consequence the spectator sees:
+the elder's *chosen* domain — the garden ledger, the court
+case, the grandson's schedule — stays improbably sharp while
+everything peripheral thins faster than the capacity curves
+alone would give. Decline is uneven *because it is allocated*.
+
+## 129. The decade testing turns against you — split knees
+
+Aslan & Bäuml 2012 (*J. Exp. Psychol.* 38:894 — verified):
+RIF intact in young-old (60–75), absent in old-old (>75) —
+already spec'd as `rif_age_tail` (§5.50). The piece v100 adds:
+Aslan, Schlichting, John & Bäuml 2015 (*Psychol. Aging* 30:111
+— verified): the *beneficial* effect of selective retrieval
+declines **earlier** than the detrimental effect — mediated
+by working-memory capacity. Two knees, ~a decade apart.
+**[DEBATED at the edges: a 2025 report found durable RIF in
+older adults; the split-knee ordering itself is the
+replicated finding.]**
+
+Mechanism: `rp_benefit_knee` 65±5 on the §119/test_gain
+relearn path — retrieval-practice benefit multiplies by
+`rp_benefit_mult(age_eff)`: `1.0@55 → 0.7@65 → 0.45@75` —
+while `rif_age_tail` stays pinned at ~75. The 65–75 window is
+the dangerous decade: self-quizzing still suppresses rival
+records (the cost lives) but buys less strengthening (the
+benefit retired early) — net negative before it goes neutral.
+Probe P1059 order-locks `rp_benefit_knee < rif_age_tail` so
+no parametrization inverts the sequence.
+
+## 130. The gap that never ages — spacing preserved
+
+Balota, Duchek & Paullin 1989 (*Psychol. Aging* 4:423 —
+verified): spacing effects on free recall are at least as
+large in older as younger adults — in some analyses
+proportionally *larger*, since massed-practice gains are
+disproportionately fragile in the old. Kornell, Castel, Eich
+& Bjork 2010 and Delaney et al. spacing reviews concur: the
+benefit of distributed over massed repetition is one of the
+most robust age-invariant effects in the memory literature.
+**[CONSENSUS: relative spacing benefit survives aging.]**
+
+Mechanism: **frozen `spacing_age_null`** — `spacing_gain`
+carries NO age leg and no profile may add one. Deliberately
+specified as a preservation claim, not an omission: when the
+substrate schedules re-exposure, distributing it helps the
+80yo exactly as much as the 25yo. (The *encoding* it rescues
+still ages — spacing multiplies a smaller enc_base — but the
+multiplier itself is flat.)
+
+## 131. The archive is dormant, not gone — savings preserved
+
+Ebbinghaus 1885: savings — relearning a forgotten list costs
+less than first learning — even when recall is at floor.
+Nelson 1985 verified savings as the most sensitive retention
+measure, revealing trace survival beneath zero recall.
+MacLeod 1988 and subsequent aging work: relearning speedups
+persist in old age; the residue survives what recall cannot
+reach. **[Established for savings-as-measure; the age-flat
+parameterization is our HYPOTHESIS — flagged.]**
+
+Mechanism: **frozen `savings_age_null`** — `savings_mult`
+(the re-encode discount for records that decayed below
+retrieval threshold but not below the noise floor) carries no
+age leg. An 80yo re-learning yesterday's lost record pays the
+same fraction as a 30yo. This pairs with §119's relearn gate:
+feedback is *required* for the old learner, but once corrected,
+the re-encoding itself is as cheap as anyone's — the trouble
+is the gate, not the clay.
+
+## 132. The future loses detail too — simulation impoverishment
+
+Addis, Wong & Schacter 2008 (*Psychol. Sci.* 19:33 —
+verified): older adults generate fewer *internal* (episodic)
+details than young when imagining future events — same deficit
+as for past events, and the two correlate; internal-detail
+count tracks relational-memory ability. Addis, Musicaro, Pan
+& Schacter 2010 and Schacter's constructive-episodic-simulation
+framework: simulating the future recombines the same
+episodic-detail pool that recall draws on — age thins the
+pool both directions. **[CONSENSUS direction; the prospective-
+encoding consequence is our extension.]**
+
+Mechanism: `sim_detail_mult(age_eff)` `1.0@55 → 0.85@65 →
+0.7@75 → 0.6@85` scales internal-detail count on §6.199's
+`sim` trait whenever a character simulates/plans a future
+episode — plans, promises, imagined encounters mint thinner
+records at old ages, with external/semantic content
+preserved. Downstream consequence the substrate inherits for
+free: prospective intentions encoded by elders carry fewer
+contextual anchors → the §87 time-based PM deficit partially
+*explains itself* through encoding poverty, not only
+retrieval failure. The 76yo's "I'll drop by Tuesday" is
+literally a vaguer memory than the 30yo's was.
+
+## 133. The past becomes a film you're in — vantage drift
+
+Nigro & Neisser 1983 established field vs observer vantage.
+Butler, Rice, Wooldridge & Rubin 2016 (*Mem. Stud.* —
+verified): repeated retrieval itself shifts memories toward
+observer perspective — vantage is *reconstructive*, moved by
+retell count more than by retention interval. Piolino et al.
+2006 found older adults report more observer-perspective
+memories; Rice & Rubin 2009 document flexible vantage at
+retrieval in both directions. Berntsen & Rubin 2006
+(*Cogn. Emot.* 20:1193 — verified): observer vantage
+*attenuates* sensory and emotional reliving across all
+emotions. **[Retell-driven shift: CONSENSUS; the residual
+age leg: weak/mixed — flagged.]**
+
+Mechanism: emission-level field `vantage:"field"|"observer"`
+with `vantage_drift = vantage_retell_gain·retell_n +
+vantage_age_leg·age_eff` on each voluntary recall —
+`vantage_retell_gain` 0.04/retell capped 0.6, `vantage_age_leg`
+0.002/yr ≥60 capped 0.15 (kept deliberately small: the
+literature supports retell-driven shift strongly, pure-age
+weakly). Observer-emitted recalls pay a reliving tax:
+`relive_mult` 0.75 on the §4.5 affect channel — her most-
+retold story is also her least felt, the well-worn anecdote
+gone flat. And a nice asymmetry: retelling *causes* the
+distance it pretends to report.
+
+## 134. The chain stops short — reminding depth truncates
+
+§5.17's reminding chains let one retrieved record cue the
+next ("that reminds me…"). Chain depth is working-memory-
+bound: each hop holds the cue record active while sampling
+its associates. Craik & McDowd 1987 and the WM literature
+(Park et al. 2002 verified lifespan WM decline) put effective
+multi-step depth down by roughly half from 30 to 80.
+Verhaeghen's aging meta-analyses concur on the WM-mediated
+chain. **[Mechanism CONSENSUS; the knot values are ours.]**
+
+Mechanism: `cue_chain_max(age_eff)` `4@30 → 3@60 → 2@75 →
+2@85` hard-caps hop count per retrieval bout. Two visible
+consequences: (a) the elder's story doesn't make the second
+hop — she remembers the argument but not what it led to;
+(b) transitive reminding weakens → cue-dependent records that
+*only* surface via chains become rarer in voluntary recall,
+concentrating the recall diet on directly-cued and bump-era
+records. Cheap to implement: a counter on the bout state,
+already present via `pending_cand`.
+
+## 135. Part IX knot rows (extends §121; age_eff unless noted)
+
+| param | 55 | 65 | 75 | 85 | source |
+|---|---|---|---|---|---|
+| ret_lat_mult (§5.106) | 1.0 | 1.15 | 1.3 | 1.7 | Salthouse 1996; Bugg 2006 |
+| propname_tot_mult (§5.110) | 1.0 | 1.4 | 2.0 | 2.6 | Burke 1991; Cohen & Burke 1993 |
+| debunk_fam_gain (§6.230) | 1.0 | 1.2 | 1.5 | 1.6 | Skurnik 2005 |
+| soc_narrow (§5.107) | 0 | 0.15 | 0.35 | 0.5 | Baltes & Baltes 1990 (param ours) |
+| rp_benefit_mult (§5.108) | 1.0 | 0.7 | 0.45 | 0.35 | Aslan et al. 2015 |
+| cue_chain_max (§5.109) | 4 | 3 | 2 | 2 | Park 2002 WM (param ours) |
+| sim_detail_mult (§4.56) | 1.0 | 0.85 | 0.7 | 0.6 | Addis 2008 |
+| vantage_age_leg (§6.231) | — | 0.05 | 0.10 | 0.15 | Piolino 2006 (weak) |
+
+Scalars: `disc_tag_hl` 3d (Skurnik delay); `soc_top_q` 0.25;
+`rp_benefit_knee` 65±5; `vantage_retell_gain` 0.04 cap 0.6;
+`relive_mult` 0.75. Locked nulls: `lat_strength_null`,
+`debunk_true_null`. Frozen: `spacing_age_null`,
+`savings_age_null`. New emissions: `name_block:true`,
+`debunk_flipped:true`, `vantage:"observer"`.
+
+## 136. Spec changes v5.47 → v5.48 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| L1 | §5.106: `ret_lat_mult` on bout duration; couples to §5.101 `susp_*` windows → `lost_it`; locked `lat_strength_null` | §125 |
+| L2 | §5.110: `propname_tot_mult` on `tot_rate` for proper-name referents; `name_block` emission + fallback phrasing | §126 |
+| L3 | §6.230: `debunk_fam_gain` × content familiarity per denial repetition vs `disc_tag_hl` tag decay → `debunk_flipped`; locked `debunk_true_null` | §127 |
+| L4 | §5.107: `soc_narrow` + `soc_top_q` rehearsal-budget concentration on top `goal_value` quantile | §128 |
+| L5 | §5.108: `rp_benefit_knee`/`rp_benefit_mult` on §119 test_gain, ordered before `rif_age_tail` | §129 |
+| L6 | §4.55: frozen `spacing_age_null`, `savings_age_null` — two preservation claims | §§130–131 |
+| L7 | §4.56: `sim_detail_mult` age leg on §6.199 `sim` — future-simulation internal detail | §132 |
+| L8 | §6.231: `vantage` emission field; `vantage_drift` (retell×age); `relive_mult` tax | §133 |
+| L9 | §5.109: `cue_chain_max` cap on §5.17 reminding chains | §134 |
+
+New params: `ret_lat_mult`, `propname_tot_mult`,
+`debunk_fam_gain`, `disc_tag_hl`, `soc_narrow`, `soc_top_q`,
+`rp_benefit_knee`, `rp_benefit_mult`, `cue_chain_max`,
+`sim_detail_mult`, `vantage_retell_gain`, `vantage_age_leg`,
+`relive_mult` — 13 named (19 scalars once knots expand).
+Locked nulls: `lat_strength_null`, `debunk_true_null`.
+Frozen: `spacing_age_null`, `savings_age_null`.
+New emissions/fields: `name_block`, `debunk_flipped`,
+`vantage`.
+
+## 137. Validation probes P1055–P1064
+
+- **P1055 latency-not-loss (MUST — null-lock):** at fixed S,
+  raising the bout window asymptotically equalizes 30yo and
+  80yo recall (≥95% convergence); at default `susp_*` windows,
+  `lost_it` rate rises ≥1.5× by 80 while successful-recall
+  accuracy is unchanged. Salthouse 1996; Bugg 2006.
+- **P1056 proper-name cliff (MUST — dissociation):** at 80,
+  name-field TOT rate ≥2× person-knowledge-field failure rate
+  on the same referent; `name_block` emissions accompany
+  referent-confident fallback phrasing; the 30yo gap is
+  <1.3×. Burke 1991; Cohen & Burke 1993.
+- **P1057 debunk backfire (MUST — sign-lock):** a false claim
+  denied ×3 to a 78yo profile flips `believed`→true at ~40%
+  after `disc_tag_hl` (vs ~28% denied ×1); a true claim
+  labeled-true ×3 NEVER flips false (`debunk_true_null`);
+  the 30yo arm flips ≤10%. Skurnik 2005.
+- **P1058 SOC concentration (SHOULD):** retell-count share of
+  top-`goal_value`-quantile records rises with `soc_narrow`;
+  chosen-domain effective S at 85 exceeds the unstructured-
+  budget control ≥1.3× while peripheral records decay faster.
+  Baltes & Baltes 1990.
+- **P1059 split knee (MUST — order-lock):** across the 55–85
+  sweep, `rp_benefit_mult` departs 1.0 before `rif_age_tail`
+  activates — the 65–75 window must show (benefit ↓, cost ↑)
+  simultaneously; any parametrization with knees ordered
+  reversed or coincident FAILs. Aslan 2015 vs 2012.
+- **P1060 spacing flat (COULD — frozen):** spacing/massed
+  benefit ratio is age-invariant within noise at 30/60/80;
+  a profile-level age leg on `spacing_gain` is a spec
+  violation. Balota 1989.
+- **P1061 savings flat (COULD — frozen):** re-encode cost
+  ratio for sub-threshold vs fresh records is age-invariant;
+  savings exists (ratio <1) at all ages. Ebbinghaus; Nelson.
+- **P1062 future vagueness (SHOULD):** simulated future-event
+  records at 80 carry ~60% the internal-field count of the
+  30yo, external fields flat; internal count correlates with
+  the record's `assoc_mult`-aged binding integrity. Addis 2008.
+- **P1063 vantage drift (SHOULD — shape-lock):** `vantage`
+  flips toward observer with retell_n (dominant) more than
+  with record age; observer recalls show `relive_mult`-
+  reduced affect terms vs matched field recalls. Butler 2016;
+  Berntsen & Rubin 2006.
+- **P1064 chain truncation (MUST):** reminding chains never
+  exceed `cue_chain_max(age_eff)`; voluntary-recall diet of
+  chain-only-reachable records drops ≥40% from 30 to 80 with
+  directly-cued records flat. Craik & McDowd 1987.
+
+## 138. Part IX honest limits
+
+- `ret_lat_mult` scales *duration*; the underlying speed
+  theory is about processing rate across the board — mapping
+  it to bout-length alone is a simplification, and its
+  interaction with `susp_*` windows is our construction
+  (the studies don't use suspended-bout semantics).
+- `propname_tot_mult` knots compress a measured *relative*
+  deficit; absolute TOT rates vary with corpus statistics a
+  sim doesn't have. Sign and ordering are solid; magnitudes
+  HYPOTHESIS.
+- `debunk_fam_gain` rides the existing sleeper/familiarity→
+  truth machinery — it is an *amplifier on a repetition
+  count*, not a new op. Skurnik's 40% is a lab ceiling on
+  debriefed consumer claims; rumor-domain claims with social
+  stakes may run hotter or colder. `debunk_true_null`
+  replicates Skurnik's asymmetry, which a fairness account
+  (fluency helps both labels) predicts should be weaker —
+  flagged.
+- `soc_narrow` parameterizes Baltes & Baltes as a rehearsal-
+  budget reshaping; SOC is a life-management framework, not
+  a memory mechanism — the mapping to retell budget is ours
+  and the most speculative number in this Part.
+- `vantage_age_leg` is deliberately tiny: Butler 2016
+  supports *retell-driven* drift; the pure-age literature is
+  one small study (Piolino 2006). If validation shows the
+  age leg doing work, it's overfit — retell_n should carry
+  it.
+- `cue_chain_max` treats WM decline as a hop cap; real chains
+  degrade probabilistically (hop-3 succeeds sometimes). The
+  cap is a contract, not a cognitive claim — acceptable for
+  the substrate, noted here.
+- Frozen nulls (`spacing_age_null`, `savings_age_null`) are
+  preservation claims game-systems could quietly violate;
+  P1060/P1061 exist to catch exactly that.

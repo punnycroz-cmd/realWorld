@@ -1214,6 +1214,11 @@ needs both.
 | sws_var_gain | 0.0 | 0.4 | per-night sleep-multiplier jitter, age-scaled (v5.47) |
 | trans_bump_gain / trans_bump_win / trans_pi_relief | 0.0 / 1 / 0.0 | 0.5 / 6 / 0.5 | transition-window encode gain, width yrs, post-window PI relief (v5.47) |
 | proc_decay_mult | 0.1 | 0.6 | procedural-class β multiplier, flat — no age leg (v5.47, frozen proc_flat_null) |
+| disc_tag_hl | 1 | 7 | days; discrediting-tag half-life on heard accounts (v5.48) |
+| soc_top_q | 0.1 | 0.4 | goal_value quantile SOC concentrates on (v5.48) |
+| rp_benefit_knee | 55 | 75 | benefit-knee age; must stay < rif_age_tail (v5.48, order-locked P1059) |
+| vantage_retell_gain / vantage_age_leg | 0.0 / 0.0 | 0.1 / 0.005 | per-retell vantage shift cap 0.6 / per-yr≥60 cap 0.15 (v5.48) |
+| relive_mult | 0.5 | 1.0 | affect-channel tax on observer-vantage recalls (v5.48) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -5037,3 +5042,45 @@ buy:
   second life out-densities her youth — `immig_age` bumps her
   arrival years, not her teens. Sources AD§§98–107; probes
   P1045–P1054.
+
+## 80. v5.48 note (age-decline IX — the control layer is population-level, the choices are bible-shaped)
+
+Ten mechanisms (AD Part IX, spec §§4.55–4.56, §§5.106–5.110,
+§§6.230–6.231); clamp rows added in §0. What a bible may and may
+not buy:
+
+- **`ret_lat_mult` / `cue_chain_max` / `propname_tot_mult` —
+  population legs, no pins.** Every head slows, truncates, and
+  blocks on names on the same knots; `aging_rate`/`reserve`
+  (existing traits) shift the effective age, nothing else.
+  `lat_strength_null` is locked for everyone: a bible may NOT
+  make an elder who "just can't retrieve" at fixed S — she is
+  slow, not empty. The legible signature: answers that arrive
+  one beat late, names replaced by confident descriptions.
+- **`soc_narrow` — the one bible-shaped dial in this batch.**
+  The *degree* is age-driven, but the *contents* are hers: the
+  top `goal_value` quantile it concentrates on is read from
+  the character's actual goal ledger. A bible chooses what she
+  keeps sharp (the garden ledger vs the gossip ledger) — it
+  cannot choose whether narrowing happens.
+- **`debunk_fam_gain` — nobody is immune by personality.**
+  The Skurnik flip is familiarity mechanics, not gullibility:
+  no `skeptic` trait discounts it. What varies across the cast
+  is exposure (how often each hears the denial repeated) — a
+  rumor-substrate property, not a profile property.
+- **`vantage` — retell-driven, mostly.** `vantage_age_leg` is
+  clamped small (≤0.005/yr) deliberately; the storyteller who
+  has told the same story forty times drifts observer at any
+  age. A bible may pin nothing; `retell_n` does the work.
+- **Frozen pair:** `spacing_age_null`, `savings_age_null` —
+  no profile may age the spacing or savings multipliers; the
+  two cheapest interventions are age-invariant by decree.
+- **Emergent cast shadows:** (a) the elder whose correction
+  campaign backfires — deny the rumor twice at Sunday dinner
+  and by Wednesday she *believes* it (`debunk_flipped`);
+  (b) the retired surgeon whose operative memory is pristine
+  and whose Thursdays are gone — `soc_narrow` doing exactly
+  what Baltes & Baltes described; (c) the 80yo who takes ten
+  seconds and then is *right* — `ret_lat_mult` stretches the
+  window, `lat_strength_null` keeps the answer true.
+  Sources AD§§125–134; probes P1055–P1064.
