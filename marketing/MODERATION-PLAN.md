@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v148 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v163 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -36,7 +36,16 @@ stage + committed subscription mirror, world-v96's lease counter-paper
 rule, world-v98's observable-safe bible fields, world-v99's ambient
 pull protocol + coverage surface, world-v100's permit wall, and
 memory-v105's `present()` surfacing contract + `opLog` audit journal —
-§2.0, §2.5, §4 +3 rows, §6 +2 rows, §7 +3 rows, §9 re-struck.)
+§2.0, §2.5, §4 +3 rows, §6 +2 rows, §7 +3 rows, §9 re-struck; v163:
+aligned to world-v102's live session/meter seam + `gsAppealStats`,
+world-v103's wire record layer (adopt-only pin reconcile, live audit),
+world-v104's Archive v8 request trails + gap map, world-v105's repair
+bench + second look, world-v106's display-filter bench (Privacy Screen
+Lab), world-v109's privacy beat + data card + silent flag lesson,
+world-v110's lease feed never-list +4 + `contested_charge`, world-v111's
+mode-blind `witness_record`, and game-v17's county/housing feed lines —
+new §2.0 block, §2.3 bench note, §4 +3 rows, §6 +3 rows, §7 +4 rows,
+§9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -473,6 +482,102 @@ Delivered since v133 (world-v93–v100, memory-v105):
   audited mechanism — §2.5 and §7 updated; §9 carries the merge
   contract. Degraded = missing audit, never wrong behavior.
 
+Delivered since v148 (world-v102–v112, game-v17):
+
+- **`world/request.html` v102 + `requests.json` `live_writes`/`live_meter`
+  (world-v102, the live session layer)** — the Counter now rides the bus
+  end-to-end: a live-session card reads `gsRequestMeter`
+  (queued → queuePos/blockedBy; in_review → reviewCode/reviewExpiresInMin;
+  active → remainingMin/spentSoFar/lowCredits; terminal → status +
+  refunded), live `cancelReq`/`appealReq` branches, and a `gsAppealStats`
+  aggregate line. Moderation relevance: the meter contract means copy can
+  say "you can watch your request's state live — including the refund when
+  it ends" as a shipped shape. Two honesty rules to keep verbatim: **queue
+  position shows the holder's own place only** ("can only shrink, never
+  grow" — the queue's order is never published), and **active-cancel
+  refunds unused whole minutes at the applied rate** when live (the demo's
+  "no partial refund" wording scopes itself to the local pipeline — copy
+  must not quote it as policy).
+- **`world/wire.html` v103 (world-v103, the record layer)** — the last
+  four wire endpoints get surfaces: `followsSync` reconciles bus↔page
+  pins **adopt-only** (it may add the viewer's bus-side pins to the panel
+  but may never delete one — audit-enforced; unpinning is already a
+  `false` write, resurrecting it would be a dark pattern), `gsWireDays`
+  backs the archive link's day-count, `gsWireVocabulary().statuses` prints
+  the canonical status coverage line, and `gsWireAudit` renders as a
+  count-only `{ok, issues[], total}` self-check the page runs on demand.
+  Moderation relevance: the wire's integrity check is now spectator-
+  visible — "the feed audits itself, and shows the count" is a shipped
+  fact for §7.
+- **`world/archive.html` v8 (world-v104, the absence + lifecycle
+  layer)** — two new record views: `#v=gaps`, an uncovered-stretch map
+  (≥120 min gaps, boundary chips before/after — the archive *discloses
+  what it doesn't have* instead of implying completeness), and `#v=reqs`,
+  request trails grouped by req id with open-first sort and a
+  `#v=reqs&rq=` permalink. Moderation relevance: a whole request
+  lifecycle — including denials and refunds — is now a single citeable
+  archive page, stronger than the wire `#r=` link for the §6a report.
+  Merge note for game: keep emitting `req` on EVERY lifecycle event — a
+  missing link silently breaks the public trail.
+- **`world/create.html` v8 + `creation.json` `repair_desk_v105`
+  (world-v105, the desk's answer layer)** — denied hire applications now
+  render a **repair bench**: `FIELD_FIX`/`REG_FACT` maps turn the denial
+  code into a field-level fix chip (a `field` on the denied record drives
+  it — nice-to-have, absent degrades to the code-level map), `NO_APPEAL`/
+  `appealable` splits which codes get a second look, and `secondLook`
+  files through the same `gsAppealRequest` bus verb request.html uses —
+  a refused appeal renders `reason`/`code` verbatim. The standing honesty
+  rule: **a second look never reverses a denial on identical text**
+  (`appeal_final` in the deny map). Moderation relevance: "denied" at the
+  desk is now "denied + what to fix" — the most pedagogical denial in the
+  product; §4/§7 updated.
+- **`world/filter-lab.html` + `moderation.json.display_filter_lab`
+  (world-v106, the Privacy Screen Lab)** — the §2.3 owner decision gets
+  a decision bench: 9 cases re-screened live through
+  `RWScreen.screenRequest` at render, each rendered under options
+  A redact / B withhold / C quarantine side-by-side, a survival matrix
+  (the "appeal spectacle risk" row is the one that matters for public
+  recap framing), and an exportable memo JSON
+  (`{tool, version, decision:'OPEN', fixed_contract, options, cases[]}`)
+  that becomes the config record for whichever option the owner picks.
+  Status stays **OWNER-DECISION — open**; normalized hits that can't map
+  verbatim redact full text with a "span approximated" note — the bench
+  never fakes a span. §2.3 updated.
+- **`world/onboarding.html` v8 + `onboarding.json` v109 (the quiet
+  contract)** — three new moderation-relevant teachings: **tour beat 6
+  privacy** anchored `feed-anon` on the "(free, always)" line; the **S2b
+  data card** between handle and band (what the account stores, plainly);
+  and **stage S4g, the flag lesson** — a spectator flag is **free, files
+  nothing, silent on the feed, routes to the same human-review queue,
+  and attaches to player asks only** (design §11 scoping: you flag a
+  request, never a character). Flag feed vocabulary is deliberately NOT
+  invented — a pulled ask resolves with existing neutral wording.
+  Moderation relevance: the community-flag channel is now taught, not
+  rumored; §4/§6/§7 updated — copy must never promise a visible "your
+  flag did X" moment.
+- **`world/leases.json` v110 (the meter & leftovers layer)** — feed
+  never-list +4 (utilities billing, Rent Board fee pass-through,
+  abandoned-property flow, change-of-terms doc — all file-only) and
+  `disputes.grounds +contested_charge` joins the Ear's ladder. The
+  `RBF` ledger code mirrors game-v17's $59/unit assessor fee — at merge
+  the figure reads from the assessor module, not a second hardcode.
+  Moderation relevance: the lease privacy boundary widens again —
+  §7's rent-privacy row covers four more action classes; a contested
+  charge is now a *dispute ground* (in-world), not a support ticket.
+- **`world/thinai.json` v111 `witness_record` (world-v111)** — the
+  mode-blind seen-fact schema for observation tiers (watched/shadowed/
+  dark): "X was at Y", never interiority. Moderation relevance: if
+  observation/rumor channels consume it at merge, a witness record is a
+  citeable *fact* a character could plausibly know — never a read of a
+  mind; same boundary as `present()` (memory-v105) but for seen facts.
+- **game-v17 county layer (`41_game_systems_assessor.js`)** — parcels,
+  Prop-13 roll, tax bills, and the $59/unit Rent Board fee; `county`
+  feed events render as `housing`-kind lines. Moderation relevance:
+  county paper joins the designed public record — assessments are
+  public-by-fiction like real rolls, while lease disputes stay
+  door-not-name; copy can cite the split but must never enumerate a
+  parcel's numbers as a moderation example.
+
 The locked pipeline, with the moderation decision at each stage spelled out:
 
 | Stage | What happens | Moderation decision | Status |
@@ -622,6 +727,18 @@ which fails the build if violated):
   could carry seeds/secret/memory/belief — the audit proves the wire schema
   never grew a place to put one. Secrets aren't redacted on the wire;
   they're absent, same guarantee as possession briefings (§2.5).
+
+**world-v106 shipped the decision bench.** `world/filter-lab.html` (the
+Privacy Screen Lab) re-screens 9 cases live through
+`RWScreen.screenRequest` at render and shows each under A/B/C
+side-by-side, with a survival matrix and an exportable memo JSON
+(`{tool, version, decision:'OPEN', fixed_contract, options, cases[]}`) —
+the memo is the config record for whichever option the owner picks at
+G13. Status stays **OWNER-DECISION — open**; the bench never fakes a
+span (normalized hits that can't map verbatim redact full text with a
+"span approximated" note). The survival matrix's "appeal spectacle risk"
+row is the row that matters for public recap framing — read it before
+weighing in internally.
 
 Marketing copy works under any option: site says "request text is filtered
 before it appears on the public feed" — true under A/B/C — and "denied
@@ -834,6 +951,9 @@ not policy discretion.
 || "Where did Rosa go?" — ambient absent mid-scene | Coverage read shows `understudy`/`sign` instead of the ambient | Working as designed — `pull_protocol` (world-v99): a named ambient can be borrowed as a co-star 15–90 min, ≤3/day, ≥60 min cooldown. The coverage line is the ONLY public trace — no feed event names the loan, so mods must never "reveal" who filed the pull (there's nothing to cite). Minors' coverage kind `pack` is never pullable — a kid's absence is never a loan | No |
 || Request filed during a thin-AI window | World-bound ask can't run while mains are degraded | Check the request's declared class (world-v97 `world_requests.classes`): world-bound waits for a live scene (≥1 full brain or one player per `scene_rule`); thin-bounded may proceed; brain-bound/possession are owner-side. Undeclared kinds default brain-bound. Refile or wait — never promise the outage lifts on a schedule | No |
 || "A briefing leaked something private" claim | Player alleges a possession briefing showed non-public info | Take seriously, verify mechanically — memory-v105: briefings receive surface-tier fields only via `present()`, and the hash-chained `opLog` journals every surfacing read with a declared path. Pull the opLog for the character; if a non-surface field surfaced, it's a spec violation — escalate to owner + memory/game tracks immediately | Yes — on confirmed violation |
+|| Spectator flags a request | "I reported the ask — why is it still running?" | Working as designed (world-v109 S4g): a flag is free, files nothing, is silent on the feed, and routes to the human-review queue; it attaches to player asks only — you flag a request, never a character. A pulled ask resolves with existing neutral wording — there is no "flagged" feed line and no visible "your flag did X" moment. Never promise one | No |
+|| Hire application denied, player confused | "The desk said no — now what?" | Point to the repair bench (world-v105): the denial renders field-level fix chips — fix the tripped field and refile. If the code is appealable, a second look files through the same bus appeal; identical text is refused `appeal_final` — reword first. Withdrawal is always free and never billed | No |
+|| "My place in the queue moved backward" / queue-order claims | Player asserts their queued request was jumped | The queue's order is never published (world-v102): a holder sees their OWN position only, which "can only shrink, never grow." There is no public ordering to dispute — explain the rule; do not litigate positions in community spaces | No |
 
 ## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
@@ -888,6 +1008,9 @@ not policy discretion.
 | Hold compensation paid | ledger `compensated_cr` on `gsAdminHold` sweeps (game-v15, post-merge) | low and fully ledgered; a spike means holds are being used casually — owner reviews hold reasons, never silently |
 || Ambient pull saturation | `crowd.json.pull_protocol` claims vs caps (≤3/day each, ≤2 concurrent, ≥60 min cooldown — world-v99) | low-to-moderate; sustained saturation on one ambient = a fixation signal → `repeat-pattern` lane; coverage reads should be mostly `open`/`sign`, chronic `understudy` means the bench is over-pulled |
 || Surfacing-path audit | `opLog` journal coverage vs `present()` declared paths (memory-v105 spec v5.53) | 100% of surfaced reads carry a declared path; any unjournaled `recall` consumer is a spec violation — treat like a wire-audit fail (merge blocker, not a ticket) |
+|| Spectator flag intake | human-review queue arrivals from the S4g flag affordance (world-v109) | nonzero but small; a flood means community copy implies flags punish characters — re-teach "flags attach to asks only"; a ~0 rate at launch means the affordance isn't discoverable |
+|| Appeal aggregates | `gsAppealStats` line on the Counter (world-v102) — filed/reversed counts | published verbatim in §6a; reversal rate should track the per-reviewer drift metric — a rising reversal rate is reviewer drift, not a louder appeal lane |
+|| Request-trail completeness | archive `#v=reqs` trails vs feed lifecycle events (world-v104) | every request id yields a complete trail; gaps = a `req` link missing on lifecycle emit — file as a game-track defect, since the public trail is the accountability record |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -933,6 +1056,10 @@ the counters.
 || "The bench can join your scene — a named neighbor can be borrowed as a co-star for 15–90 minutes, a few times a day each" | "You can book any character" — pulls are ambients only (mains are never pullable), role-bound, and no feed event names the loan; the absence note is the whole public trace |
 || "Kids in the fiction can't be pulled into anyone's request" | Implying pullable coverage is a content rating — `pack` coverage is a hard boundary, not a parental-control setting |
 || "Secrets aren't filtered out of possession briefings — the briefing can only ask for surface-tier fields, and every read is journaled" | "We audit every character's mind" — `opLog` journals what was *surfaced*, not what a character thinks; the discipline is about exposure, not surveillance |
+|| "Anyone watching can flag a request for human eyes — it's free, it's silent on the feed, and it flags the ask, never a character" | "Flag the bad behavior and we'll act" / "your flag removed it" — flags route to review quietly; a pulled ask resolves with ordinary wording and there is no public flag receipt to point at |
+|| "If the desk turns down your character application, it tells you which field tripped — fix it and refile, free" | "Denied applications can appeal endlessly" — the second look is one look; identical text is refused, and unappealable codes stay unappealable |
+|| "The feed audits itself — it shows a count of what it's holding back and a self-check you can read" | "The feed shows literally everything" — the display filter still applies; the audit and withheld-count are disclosure, not absence of filtering |
+|| "A request's whole story — filed, reviewed, run, refunded — is one page in the archive you can link" | "We keep permanent public dossiers on players" — trails are request records, not player profiles; nothing about the requester beyond the handle ever appears |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -1084,3 +1211,37 @@ pages + this table update in the same commit.
   (screen holes, feed wording leaks, refund edges) should be filed as
   `[world-playtest-finding]` blocks with a triage status so §9 items
   can cite findings, not vibes. No code dependency — a convention.
+- Display-filter owner decision (§2.3) — still OPEN by contract, but
+  world-v106's `filter-lab.html` memo JSON is now the decision record:
+  the owner's pick exports as config, no re-derivation needed. G13's
+  "confirm the default" step should run the bench, not just read the
+  table. No track may pick for the owner — `display_filter.status`
+  stays "OWNER-DECISION — open" until then.
+- Spectator flag merge seam (world-v109) — the S4g flag lesson is
+  taught but the flag itself is demo-local (`S.flagged`, no write).
+  At merge a per-entry flag affordance binds to the human-review
+  queue; flag feed vocabulary is deliberately NOT invented — a pulled
+  ask resolves with existing neutral wording. Marketing must not
+  promise a "flag receipt" or public flag counts in the interim.
+- Live meter contract (world-v102 `requests.json.live_meter`) — the
+  queued/in_review/active/terminal meter shapes are the documented
+  contract the game side conformance-checks; keep the two honesty
+  rules verbatim at merge: own-position-only queue display, and
+  active-cancel refunds unused whole minutes at the applied rate.
+- Request-trail completeness (world-v104) — game must keep emitting
+  `req` on EVERY lifecycle event; OPEN_ST mirrors feed.json open
+  statuses, so any new open status lands in both places or a live
+  trail mis-sorts as closed. §6 metric tracks it.
+- Hire repair-bench field hint (world-v105) — `field` on the denied
+  record drives the fix chip; absent it degrades to the code-level
+  map. Nice-to-have for game; no copy depends on it.
+- Lease never-list growth (world-v110) — +4 file-only classes
+  (utilities, Rent Board fee, abandoned property, change-of-terms);
+  `contested_charge` is now a dispute ground. `RBF` should read the
+  $59/unit figure from game-v17's assessor module at merge, not a
+  second hardcode.
+- Witness-record boundary (world-v111) — `witness_record` is
+  mode-blind seen-fact only ("X was at Y", never interiority). If
+  observation/rumor channels consume it, moderation copy inherits the
+  same rule as `present()`: citeable facts, never minds. No new
+  policy needed — the boundary is already the plan's.
