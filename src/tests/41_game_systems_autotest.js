@@ -4515,6 +4515,315 @@ runAutoTest = async function(){
           'the calendar reloads verbatim');
     }
 
+    /* ==================== v15 — THE MUNICIPAL CODE ====================
+       conflicts, second pass (41_game_systems_civic.js): venue ZONES
+       ('venue:<place>@<zone>' — the permit names an area), the NOISE
+       ORDINANCE (amplified kinds claim 'noise:<place>' + rest
+       22:00-06:00 PT), CITY HOLDS (admin closures that beat every
+       claim — sweep live ones compensated, deny filings 'city_hold',
+       park the line until they lift), CO-HOSTING (identical events on
+       touching ground at overlapping times are one party, two permits),
+       and the clerk's answers (gsReqOutlook, gsPriceQuote 'alts' +
+       estimates). */
+    if(typeof gsAdminHold === 'function' &&
+       typeof gsVenueZoneParse === 'function' &&
+       typeof gsQuietOverlap === 'function'){
+      gsBusReset();
+      const C0 = 200040;                      // half-hour aligned base
+      gsCreditGrant('pCv1', 8000, 'v15 stake');
+      gsCreditGrant('pCv2', 8000, 'v15 stake');
+
+      /* -- the zone map: named areas on subdividable venues ---------- */
+      const zones = gsVenueZoneList('Dolores Park');
+      log(Array.isArray(zones) && zones.indexOf('north lawn') >= 0 &&
+          zones.length >= 4,
+          'gs: v15 Dolores Park subdivides — the zone table is real');
+      log(gsVenueZoneList('Mudhaus Coffee') === null,
+          'gs: v15 a shop does not subdivide — zones are venue facts');
+
+      /* zone grammar: parens suffix, bare suffix, params.zone, denials */
+      const zPar = gsVenueZoneParse({ params:
+        { event: 'park_cleanup', at: 'Dolores Park (north lawn)' } });
+      log(zPar.place === 'dolores park' && zPar.zone === 'north lawn' &&
+          !zPar.err,
+          'gs: v15 "place (zone)" parses to its real ground');
+      const zSfx = gsVenueZoneParse({ params:
+        { event: 'park_cleanup', at: 'dolores park south lawn' } });
+      log(zSfx.zone === 'south lawn' && !zSfx.err,
+          'gs: v15 a bare trailing zone name parses too');
+      const zPrm = gsVenueZoneParse({ params:
+        { event: 'fitness_class', at: 'Dolores Park', zone: 'playground' } });
+      log(zPrm.zone === 'playground' && !zPrm.err,
+          'gs: v15 params.zone names the area explicitly');
+      const zBad = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'park_cleanup',
+        at: 'Dolores Park (the moon)' } }, C0);
+      log(zBad.status === 'denied' && zBad.reason === 'bad_zone',
+          'gs: v15 a zone the venue does not have is refused unbilled');
+      const zWhole = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'block_party',
+        at: 'Dolores Park (north lawn)' } }, C0);
+      log(zWhole.status === 'denied' && zWhole.reason === 'bad_zone',
+          'gs: v15 a whole-venue kind cannot take an area');
+
+      /* -- the zone matrix: same ground clashes, apart shares -------- */
+      const evN = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'park_cleanup',
+        at: 'Dolores Park (north lawn)' } }, C0 + 1);
+      log(evN.status === 'active' &&
+          gsClaimsOf(evN).some(c => c.res === 'venue:dolores park@north lawn'),
+          'gs: v15 a zoned permit claims its named area — venue:P@Z');
+      const evS = gsSubmitRequest({ playerId: 'pCv1', kind: 'street_event',
+        durationMin: 60, params: { event: 'fitness_class',
+        at: 'Dolores Park (south lawn)' } }, C0 + 2);
+      gsReviewResolve(evS.id, true, { nowMin: C0 + 3 });
+      log(evS.status === 'active',
+          'gs: v15 two zones of one park hold two permits at once');
+      const evN2 = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 60, params: { event: 'fitness_class',
+        at: 'Dolores Park (north lawn)' } }, C0 + 4);
+      log(evN2.status === 'denied' && evN2.reason === 'venue_rest',
+          'gs: v15 a permitted lawn rests — a different kind on it is ' +
+          'refused at the door');
+      const evW = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 60, params: { event: 'park_cleanup',
+        at: 'Dolores Park' } }, C0 + 6);
+      log(evW.status === 'queued',
+          'gs: v15 the whole place touches every zone — it queues behind ' +
+          'the far lawn\'s class');
+
+      /* -- the noise floor: amplified fills the airspace ------------- */
+      const evAmp = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'movie_night',
+        at: 'Precita Park (the lawn)' } }, C0 + 8);
+      log(evAmp.status === 'active' &&
+          gsClaimsOf(evAmp).some(c => c.res === 'noise:precita park'),
+          'gs: v15 an amplified permit claims the place\'s airspace too');
+      const evQuiet = gsSubmitRequest({ playerId: 'pCv1', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Precita Park (the plaza)' } }, C0 + 9);
+      log(evQuiet.status === 'queued' &&
+          (gsExplainRequest(evQuiet.id).blockedBy || [])
+            .indexOf(evAmp.id) >= 0,
+          'gs: v15 a loud movie reaches the far plaza — a quiet class ' +
+          'queues behind it');
+      const expAmp = gsExplainRequest(evQuiet.id);
+      log(expAmp && (expAmp.on || []).join(' ').indexOf('amplified') >= 0,
+          'gs: v15 the explanation names the airspace it waits on');
+      const evRov = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 30, params: { event: 'mural_tour',
+        at: 'Precita Park' } }, C0 + 11);
+      gsReviewResolve(evRov.id, true, { nowMin: C0 + 12 });
+      log(evRov.status === 'active',
+          'gs: v15 a roving tour walks through a loud night — openair shares');
+
+      /* -- the noise ordinance: amplified rests 22:00-06:00 PT ------- */
+      let qm = C0; while(!gsQuietMin(gsBusPtMin(qm))) qm += 30;
+      const evLoud = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: 'Valencia Street' }, startMin: qm }, C0 + 20);
+      log(evLoud.status === 'denied' && evLoud.reason === 'quiet_hours',
+          'gs: v15 amplified sound rests 22:00-06:00 PT — the door says so');
+      const q0 = (() => { let m = C0;
+        while(!gsQuietMin(gsBusPtMin(m))) m += 1; return m; })();
+      log(gsQuietOverlap(q0 - 60, q0) === false &&
+          gsQuietOverlap(q0 - 60, q0 + 1) === true,
+          'gs: v15 the ordinance counts minutes — ending at 22:00 is ' +
+          'clean, one past is not');
+      const evCalm = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'park_cleanup',
+        at: 'Dolores Park (church street edge)' },
+        startMin: qm + 30 }, C0 + 21);
+      log(evCalm.status === 'booked',
+          'gs: v15 a quiet permit may book inside quiet hours — the law ' +
+          'is about sound');
+      const slotsQ = gsBookableSlots({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'block_party', at: 'Valencia Street' } }, qm + 5);
+      log(slotsQ.ok === true && slotsQ.slots.length > 0 &&
+          slotsQ.slots.every(s => !gsQuietOverlap(s.startMin,
+            s.startMin + 60)),
+          'gs: v15 the picker never offers an amplified slot inside ' +
+          'quiet hours');
+
+      /* -- co-hosting: identical events on touching ground share ------
+         filed before any pCv* street_event completes (cooldowns are
+         stamped at completion) — pCv3 is a fresh hand for the join */
+      gsCreditGrant('pCv3', 8000, 'v15 stake');
+      const evP1 = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: '18th Street' } }, C0 + 40);
+      log(evP1.status === 'active',
+          'gs: v15 the first permit runs — the party is on');
+      const evCount0 = GS_EVENTS.length;
+      const evP2 = gsSubmitRequest({ playerId: 'pCv3', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: '18th Street' } }, C0 + 45);
+      gsReviewResolve(evP2.id, true, { nowMin: C0 + 46 });
+      const host = GS_EVENTS.find(e => e.at === '18th Street');
+      log(evP2.status === 'active' && GS_EVENTS.length === evCount0 &&
+          !!host && host.co === 2 &&
+          Object.keys(host.sponsors || {}).length === 2,
+          'gs: v15 a second identical permit joins — one party, two ' +
+          'names on the paper');
+      const coFeed = GS_FEED.filter(e => e.type === 'cohost').pop();
+      log(!!coFeed && coFeed.req === evP2.id &&
+          /one party, 2 permits/.test(
+            (gsWireFormat(coFeed)[0] || {}).text || ''),
+          'gs: v15 the wire prints the join — "one party, 2 permits"');
+      const evDiff = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 30,
+        params: { event: 'street_fair', at: '18th Street' } }, C0 + 47);
+      log(evDiff.status === 'denied' && evDiff.reason === 'venue_rest',
+          'gs: v15 a DIFFERENT event on the same ground is refused — ' +
+          'co-hosting is same-party only, and the grass rests');
+
+      /* -- the city's hand: holds beat every claim ------------------- */
+      const hold = gsAdminHold({ by: 'owner', res: 'venue:dolores park',
+        startMin: C0 + 15, durationMin: 120, reason: 'tree work' }, C0 + 15);
+      log(hold.ok === true && hold.hold && Array.isArray(hold.bumped) &&
+          hold.bumped.length >= 2,
+          'gs: v15 the city may close a venue — the sweep names every ' +
+          'bumped claim');
+      log(evN.status === 'cancelled' && evS.status === 'cancelled' &&
+          evW.status === 'failed' && evW.refunded >= evW.billed,
+          'gs: v15 running claims bump with money back; the queued ' +
+          'whole-park ask dies honestly on the rest it could never out-wait');
+      const holdFeed = GS_FEED.filter(e => e.type === 'admin' &&
+        e.action === 'hold').pop();
+      log(!!holdFeed && (holdFeed.bumped || 0) >= 2 &&
+          holdFeed.compensated_cr != null,
+          'gs: v15 the closure posts a public admin line with the count');
+      const dHold = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Dolores Park (playground)' } }, C0 + 22);
+      log(dHold.status === 'denied' && dHold.reason === 'city_hold',
+          'gs: v15 a filing into a live closure is refused at the door');
+      const qHold = gsPriceQuote({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Dolores Park (tennis courts)' } }, C0 + 22);
+      log(qHold.ok === false && qHold.deny === 'city_hold' &&
+          Array.isArray(qHold.alts) && qHold.alts.length > 0,
+          'gs: v15 the receipt says when — a denied quote carries the ' +
+          'soonest legal slots');
+
+      /* a zone hold covers its area, not the park: evAmp is rooted on
+         'the lawn' at Precita — closing the lawn bumps it; the roving
+         tour keeps walking, and the plaza class's blocker bumping hands
+         it to the reviewer (exclusive kinds review at activation) */
+      const hZone = gsAdminHold({ by: 'owner',
+        res: 'venue:precita park@the lawn', startMin: C0 + 16,
+        durationMin: 90, reason: 'sprinklers' }, C0 + 23);
+      log(hZone.ok === true && evAmp.status === 'cancelled' &&
+          evRov.status === 'active',
+          'gs: v15 a zone closure bumps the permit rooted there, not ' +
+          'the walker');
+      log(evQuiet.status === 'in_review',
+          'gs: v15 the bumped blocker frees the line — the plaza class ' +
+          'reaches the reviewer on ground the closure never touched');
+      gsReviewResolve(evQuiet.id, true, { nowMin: C0 + 24 });
+      log(evQuiet.status === 'active',
+          'gs: v15 approved, it runs — the lawn rests, the plaza does not');
+
+      /* -- the held line: a queued filing waits out a hold ------------
+         wxA fog runs [C0+30,C0+60]; wxQ clear queues behind it; the
+         sky hold [C0+62,C0+88] is declared while wxQ's short window
+         [35,55] sits clear of it — so it survives the sweep but parks
+         when the line reaches it; at lift it promotes. (fog: a severe
+         sky would fence the outdoor permits too) */
+      const wxA = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+        durationMin: 30, params: { wx: 'fog' } }, C0 + 30);
+      log(wxA.status === 'active' && GS_WX_OVR.wx === 'fog',
+          'gs: v15 a live sky claim runs before the hold test');
+      const wxQ = gsSubmitRequest({ playerId: 'pCv1', kind: 'weather',
+        durationMin: 20, params: { wx: 'clear' } }, C0 + 32);
+      log(wxQ.status === 'queued',
+          'gs: v15 a contrary forecast queues behind the running sky');
+      const hSky = gsAdminHold({ by: 'owner', res: 'sky',
+        startMin: C0 + 62, durationMin: 26, reason: 'airshow' }, C0 + 35);
+      log(hSky.ok === true && wxQ.status === 'queued',
+          'gs: v15 a future closure leaves the short queue window ' +
+          'standing');
+      const dSky = gsSubmitRequest({ playerId: 'pCvD', kind: 'weather',
+        durationMin: 20, params: { wx: 'heatwave' } }, C0 + 50);
+      log(dSky.status === 'denied' && dSky.reason === 'city_hold',
+          'gs: v15 a filing whose window reaches the closure is refused ' +
+          'at the door');
+      gsBusTick(C0 + 60);
+      const outQ = gsReqOutlook(wxQ.id, C0 + 61);
+      log(wxQ.status === 'queued' && outQ && Array.isArray(outQ.held) &&
+          outQ.held.indexOf(hSky.hold.id) >= 0 &&
+          outQ.notBeforeMin === C0 + 88,
+          'gs: v15 the clerk names the hold and the minute it lifts');
+      gsBusTick(C0 + 89);
+      log(wxQ.status === 'in_review',
+          'gs: v15 the parked filing reaches the front the tick after ' +
+          'the hold lifts — never into it');
+      gsReviewResolve(wxQ.id, true, { nowMin: C0 + 90 });
+      log(wxQ.status === 'active' && GS_WX_OVR.wx === 'clear',
+          'gs: v15 approved, the waited-out forecast finally runs');
+      const liftFeed = GS_FEED.filter(e => e.type === 'admin' &&
+        e.action === 'hold_lift').pop();
+      log(!!liftFeed,
+          'gs: v15 the lift is a public beat too — the closure says when ' +
+          'it ends');
+      /* a fresh hold still sweeps the running claim it covers */
+      const hLift = gsAdminHold({ by: 'owner', res: 'sky',
+        startMin: C0 + 90, durationMin: 60, reason: 'drill' }, C0 + 90);
+      log(hLift.ok === true && wxQ.status === 'cancelled' &&
+          wxQ.refunded >= wxQ.billed,
+          'gs: v15 a fresh hold still sweeps what its window covers');
+      log(gsLiftHold(hLift.hold.id, C0 + 91) === true &&
+          !gsHoldList(C0 + 92).some(h => h.id === hLift.hold.id),
+          'gs: v15 the city can lift a closure early — the board clears');
+
+      /* -- the party outlives its permits (ticks land after the holds) */
+      gsBusTick(C0 + 100);
+      const hostMid = GS_EVENTS.find(e => e.at === '18th Street');
+      log(evP1.status === 'completed' && !!hostMid && hostMid.co === 1 &&
+          hostMid.untilMin === C0 + 106,
+          'gs: v15 the party outlives its first sponsor — the second ' +
+          'permit carries it');
+      gsBusTick(C0 + 106);
+      log(evP2.status === 'completed' &&
+          !GS_EVENTS.some(e => e.at === '18th Street'),
+          'gs: v15 the last sponsor\'s end closes the event');
+
+      /* -- the clerk's answers + persistence ------------------------- */
+      const holdSnap = gsAdminHold({ by: 'owner',
+        res: 'venue:dolores park@tennis courts',
+        startMin: C0 + 200, durationMin: 60, reason: 'resurfacing' },
+        C0 + 150);
+      const snap15 = gsBusSnapshot();
+      gsBusReset();
+      const wiped15 = gsHoldList(C0 + 151).length === 0;
+      gsBusLoad(snap15);
+      const holdsBack = gsHoldList(C0 + 151);
+      log(wiped15 && holdsBack.length === 1 &&
+          holdsBack[0].res === 'venue:dolores park@tennis courts' &&
+          holdsBack[0].live === false,
+          'gs: v15 declared holds ride the bus snapshot — the closure ' +
+          'reloads verbatim');
+      const vs15 = gsViewerState(C0 + 151);
+      log(Array.isArray(vs15.holds) && vs15.holds.length === 1 &&
+          /tennis/.test(vs15.holds[0].label),
+          'gs: v15 the public board posts the closure — viewers see the ' +
+          'closure, not the paperwork');
+      /* admin gate + validation */
+      log(gsAdminHold({ by: 'pCv1', res: 'sky', durationMin: 30 },
+            C0 + 152).err === 'admin_only' &&
+          gsAdminHold({ by: 'owner', res: 'venue:dolores park@the moon',
+            durationMin: 30 }, C0 + 152).err === 'bad_claim' &&
+          gsAdminHold({ by: 'owner', res: 'sky', durationMin: 5 },
+            C0 + 152).err === 'bad_duration',
+          'gs: v15 holds are admin-only, claim-shaped, and duration-bound');
+      log((gsConflictRules().join(' ').indexOf('noise') >= 0) &&
+          (gsConflictRules().join(' ').indexOf('co-hosting') >= 0) &&
+          (gsConflictRules().join(' ').indexOf('city holds') >= 0),
+          'gs: v15 the rule sheet explains zones, sound, and the city\'s hand');
+    }
+
     /* ---- v13 the timepiece + standing directive (SF-only) -----------
        pull-based clocks (rw-time-perception-spec) and the brain's own
        last will filling the gap between turns. */

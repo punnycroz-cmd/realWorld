@@ -111,6 +111,7 @@ const GS_WIRE_EVENT_LABEL = {
   farmers_market: 'a farmers market', parade: 'a parade',
   movie_night: 'a movie night', park_cleanup: 'a park cleanup',
   mural_tour: 'a mural tour',
+  fitness_class: 'a fitness class',          /* v15 zoned permit kind */
 };
 /* v9 co-star asks — plain words for the bounded favors */
 const GS_WIRE_COSTAR_LABEL = {
@@ -133,6 +134,9 @@ const GS_WIRE_ADMIN_LABEL = {
   registry: 'registry paperwork moved',
   foreclose: 'title transferred',          /* v10: holder takes the deed */
   license: 'a landlord license was issued',
+  /* v15: the city's hand — a declared closure and its lift */
+  hold: 'a city closure was declared',
+  hold_lift: 'a city closure lifted',
 };
 
 /* player-authored text may name a real business; on the wire those names
@@ -631,6 +635,17 @@ function gsWireFormat(evt){
         ' sharing the block',
         { who: (evt.players || [])[0] || null,
           mentions: evt.chars || null })];
+
+    case 'cohost':
+      /* v15: a second permit joins a running event — one party on the
+         ground, two names on the paper (the sky's co-sponsor rule) */
+      return [mk('request', 'one party, ' + (evt.co || 2) +
+        ' permits — ' +
+        (GS_WIRE_EVENT_LABEL[evt.event] || evt.event || 'an event') +
+        (evt.at ? ' at ' + gsWireDispName(evt.at) : '') +
+        ' gains a co-host',
+        { status: 'running', who: evt.player,
+          venue: gsWireVenueId(evt.at) })];
 
     case 'hire':
       if(evt.action === 'release')

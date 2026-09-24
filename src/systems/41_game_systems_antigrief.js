@@ -409,10 +409,19 @@ function gsPriceQuote(spec, nowMin){
   }
   if(!gsIsAdmin(pid) && gsFinalText(pid, spec))
     return { ok: false, deny: 'appeal_final' };
+  /* v15: the clerk never says 'no' without saying when — a time/space
+     denial on a bookable kind carries the soonest legal slots */
+  const altsCand = { playerId: pid, kind: spec.kind, target, params,
+                     durationMin: dur };
+  const altsFor = (why) =>
+    (typeof gsCivicAlts === 'function' && GS_BOOKABLE[spec.kind] &&
+     /rest|quiet|hold|tail|window/.test(why))
+      ? gsCivicAlts(altsCand, now, 3) : undefined;
   if(a.allow){
     const why = a.allow({ playerId: pid, target, kind: spec.kind,
-                          params, bookedStart: bookStart }, now);
-    if(why !== true) return { ok: false, deny: why };
+                          params, bookedStart: bookStart,
+                          durationMin: dur }, now);
+    if(why !== true) return { ok: false, deny: why, alts: altsFor(why) };
   }
   if((GS_REQ.cdP[pid + '|' + spec.kind] || 0) > now)
     return { ok: false, deny: 'cooldown',
@@ -426,14 +435,33 @@ function gsPriceQuote(spec, nowMin){
     const tail = gsBookTailDeny(
       { playerId: pid, kind: spec.kind, target, params,
         bookedStart: bookStart, durationMin: dur }, bookStart, now);
-    if(tail) return { ok: false, deny: tail };
+    if(tail) return { ok: false, deny: tail, alts: altsFor(tail) };
   }
   const cand = { playerId: pid, kind: spec.kind, target, params,
                  n: Infinity, durationMin: dur };
   if(bookStart != null) cand.bookedStart = bookStart;
   const claims = gsClaimsOf(cand);
+  /* v15: a city hold covering the claims and window refuses on the
+     receipt exactly as it does at the door */
+  if(typeof gsCivicHoldDeny === 'function' && gsCivicHoldDeny(cand, now))
+    return { ok: false, deny: 'city_hold',
+             alts: (typeof gsCivicAlts === 'function')
+                   ? gsCivicAlts(cand, now, 3) : [] };
   const blockers = gsFindBlockers(cand, now);
   const wouldQueue = blockers.length > 0;
+  /* v15: the estimate the window gives — a queued ask's earliest legal
+     start is the latest of its blockers' ends and any covering hold's */
+  const holdEnds = (typeof gsLiveHolds === 'function')
+    ? gsLiveHolds(cand, now).map(h => h.endMin) : [];
+  const allEnds = blockers.map(b => gsReqWindow(b, now)[1])
+    .concat(holdEnds);
+  const estMin = allEnds.length ? Math.max.apply(null, allEnds) : null;
+  /* v15: a booking that would slide says where it lands — the book's
+     own next-free answer, before any money moves */
+  const slideTo = (bookStart != null &&
+                   typeof gsBookNextFree === 'function' &&
+                   !gsBookSlotFree(cand, bookStart, now))
+    ? gsBookNextFree(cand, now) : null;
   const lane = gsIsAdmin(pid) ? null :
     (screened ? 'screen' :
      a.review === 'always' ? 'exclusive' :
@@ -457,13 +485,27 @@ function gsPriceQuote(spec, nowMin){
     total: discounted ? queueTotal : list,
     wouldQueue: wouldQueue,
     blockedBy: wouldQueue ? blockers.map(b => b.id) : [],
+    /* v15: the clerk's estimate — when a queued ask could earliest run
+       (blockers' ends + covering holds), and where a sliding booking
+       actually lands. Never a promise, always a number. */
+    estStartMin: (wouldQueue && estMin != null) ? estMin : null,
+    estStart: (wouldQueue && estMin != null &&
+               typeof gsBookHHMM === 'function')
+              ? gsBookHHMM(estMin) : null,
+    heldBy: holdEnds.length
+      ? (typeof gsLiveHolds === 'function'
+         ? gsLiveHolds(cand, now).map(h => h.id) : []) : [],
     wouldBook: bookStart != null,
     booked: bookStart != null
       ? { startMin: bookStart,
           start: (typeof gsBookHHMM === 'function')
                  ? gsBookHHMM(bookStart) : null,
           day: (typeof gsBookClock === 'function')
-               ? gsBookClock(bookStart).day : null }
+               ? gsBookClock(bookStart).day : null,
+          slidesToMin: slideTo,
+          slidesTo: (slideTo != null &&
+                     typeof gsBookHHMM === 'function')
+                    ? gsBookHHMM(slideTo) : null }
       : null,
     wouldReview: !!lane, lane: lane,
     adminFree: gsIsAdmin(pid),
