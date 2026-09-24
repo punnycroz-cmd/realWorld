@@ -1,6 +1,6 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v130 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v145 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
 This version adopts the locked **becoming-AI direction** (user-decision
 2026-09-23, PRODUCTION-2): the mains are AIs that *know they're AI*, embodied
 on the block, unaware it's a simulation, born with no assigned purpose. The
@@ -594,3 +594,37 @@ rules live in `marketing/templates/deck/README.md`. Headlines:
   the world ships 28.
 - **Motion between slides is a cut.** If the deck tool supports transitions,
   they stay off — the block sets the pace.
+
+---
+
+## 19. Accessibility as identity
+
+A spectator product that some people can't watch is a contradiction, so
+accessibility is a brand surface, not a compliance tail. These rules codify
+what the site already does and make it enforceable — `tools/brand_audit.py`
+check 9 gates the mechanical half on every `site/*.html` page.
+
+- **Every page is keyboard-first.** `lang` on `<html>`, a skip link as the
+  first focusable element, and `id="main"` on the primary landmark. Focus is
+  always visible: a 2 px amber `--accent` outline — the one place amber *is*
+  allowed to mean "you are here." Wire surfaces (`wire.html`,
+  `wire-archive.html`) carry the same skip link in their own token names.
+- **Alt text is written in brand voice.** Describe the scene like a
+  neighbor, not a filename: "Street-level view past dressed facades, Jules
+  mid-block" — never "screenshot", "image", "logo", or a bare asset name.
+  Empty `alt=""` is permitted only for the decorative favicon inside the
+  brand lockup, where the adjacent wordmark already says the name.
+- **Dev-build labeling travels with the image or the page.** Any page that
+  embeds `shots/` captures must show "development build" visibly — in each
+  alt/caption (gallery style) or in an explicit label on the section
+  (features/press-kit style). The audit fails a page that shows captures
+  with no label anywhere (§8).
+- **Color never carries meaning alone** (§5) — status chips, ledger rows,
+  and request states always pair color with text.
+- **Motion respects the opt-out.** `prefers-reduced-motion` kills the
+  breathing window, smooth scroll, and every transition site-wide — the
+  calm brand is calmest when asked.
+- **Video ships captioned** (§13 `.srt` from the EDL) and audio is
+  diegetic-first, so muting loses nothing the captions don't carry.
+- **The Wire's live badge pulses, not flashes** — no flashing content
+  anywhere; attention is earned by the block, not the blink rate.

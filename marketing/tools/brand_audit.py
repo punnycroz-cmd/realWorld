@@ -20,6 +20,12 @@ Checks:
      bots, virtual, influencers, gameplay, playthrough) plus the NPC rule
      (standalone "NPC"/"NPCs" banned; "NPC nudge" is canonical). Same
      exempt list as check 6.
+  9. Accessibility-as-identity gate (BRAND.md §19) — every site/*.html
+     page: lang attribute, skip link (href="#main"), id="main" landmark,
+     every <img> carries alt, no lazy alt values, empty alt only on the
+     decorative favicon in the brand lockup, and any page embedding
+     shots/ captures must label them "development build" somewhere
+     visible (alt, caption, or section note — §8).
 
 Exit 0 = clean, 1 = failures. Warnings print but don't fail.
 Run: python3 marketing/tools/brand_audit.py
@@ -320,6 +326,47 @@ def main():
             fail(f"deck template missing palette hexes: {', '.join(missing)}")
         else:
             ok("deck template carries the full palette")
+
+    # 9. Accessibility-as-identity gate (BRAND.md §19). Mechanical half:
+    #    landmarks, skip links, alt-text hygiene, dev-build labeling.
+    LAZY_ALT = re.compile(
+        r'^(screenshot|screen shot|image|picture|photo|logo|icon|graphic|'
+        r'banner|art|capture)s?\b', re.I)
+    ALT_FILENAME = re.compile(r'\.(png|jpe?g|webp|svg|gif)$', re.I)
+    DEV_LABEL = re.compile(r'development build|development capture|dev build',
+                           re.I)
+    for page in sorted(glob.glob(os.path.join(SITE, "*.html"))):
+        html = open(page).read()
+        rel = os.path.relpath(page, SITE)
+        if not re.search(r"<html[^>]*\blang=", html):
+            fail(f"{rel}: <html> missing lang attribute (§19)")
+        if 'href="#main"' not in html:
+            fail(f"{rel}: no skip link to #main (§19)")
+        if 'id="main"' not in html:
+            fail(f"{rel}: no id=\"main\" landmark for the skip link (§19)")
+        page_has_shots = False
+        for m in re.finditer(r"<img\b[^>]*>", html):
+            tag = m.group(0)
+            src = re.search(r'src="([^"]*)"', tag)
+            alt = re.search(r'alt="([^"]*)"', tag)
+            if not alt:
+                fail(f"{rel}: <img> without alt — {tag[:80]}")
+                continue
+            srcv = src.group(1) if src else ""
+            altv = alt.group(1).strip()
+            if 'shots/' in srcv:
+                page_has_shots = True
+            if altv == "":
+                if "favicon" not in srcv:
+                    fail(f"{rel}: empty alt on non-decorative image "
+                         f"{srcv} (§19 allows '' only in the brand lockup)")
+            elif LAZY_ALT.match(altv) or ALT_FILENAME.search(altv):
+                fail(f"{rel}: lazy alt {altv!r} on {srcv} — describe the "
+                     f"scene, not the asset (§19)")
+        if page_has_shots and not DEV_LABEL.search(html):
+            fail(f"{rel}: embeds shots/ captures with no visible "
+                 f"'development build' label anywhere on the page (§8/§19)")
+    ok("accessibility gate (§19) ran across all pages")
 
     print(f"\n{len(fails)} fail / {len(warns)} warn")
     sys.exit(1 if fails else 0)
