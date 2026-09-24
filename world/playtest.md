@@ -183,6 +183,11 @@ One person can wear every hat; four real testers is the intended shape.
   circuit, door coverage with Valencia Growers's self-supply
   exemption, the [open-3h, close] window rule, and the supply gate's
   mirror/coverage checks.
+  PT78 (commute v87) audits the getting-there layer — the 22 routes
+  binding registry homes to jobs.json employers, the six modes
+  (walk/bike/muni/muni_walk/loop/stairs), the 10 shared-route overlaps
+  as openable conditions, weather deltas as modal suggestions, minors
+  never routed, and the commute gate's mirror/integrity checks.
 
 ## 3. Running a session
 

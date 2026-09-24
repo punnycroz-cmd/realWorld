@@ -3284,6 +3284,123 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'bookings.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G25 commute ============ */
+{
+  const g = gate('commute', 'commute layer contract (commute.json ↔ commute.html; route/employer/home integrity; minors never routed; no prices)');
+  try {
+    const CJ = JSONF('commute.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const BJ = JSONF('businesses.json');
+    const CHJ = JSONF('characters.json');
+    const AJ = JSONF('ambients.json');
+    const html = rd('commute.html');
+    const m = html.match(/const COM\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline COM not found in commute.html');
+    const COM = eval('(' + m[1] + ')');
+    const DOWS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    /* inline mirror: COM must field-match commute.json (doc exempt) */
+    if (COM.version !== CJ.version)
+      add(g, 'fail', 'commute.html', null, `COM version ${COM.version} != ${CJ.version}`);
+    for (const k of ['schema', 'modes', 'homes', 'routes', 'overlaps', 'non_commuters',
+                     'building_pulse', 'street_texture', 'feed_contract', 'rules'])
+      if (JSON.stringify(COM[k] ?? null) !== JSON.stringify(CJ[k] ?? null))
+        add(g, 'fail', 'commute.html', null, `COM.${k} drifted from commute.json`);
+    if (CJ.schema !== 'commute-v1')
+      add(g, 'fail', 'commute.json', null, `schema "${CJ.schema}" != commute-v1`);
+    /* valid who tokens: c<N>-<firstname> / a<NN>-<name>, ascii-folded */
+    const fold = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ').trim().split(' ')[0];
+    const validWho = new Set(), minors = new Set(), names = new Set();
+    for (const c of CHJ.cast || []) {
+      const t = 'c' + c.id.replace(/\D/g, '') + '-' + fold(c.name);
+      validWho.add(t); names.add(fold(c.name));
+    }
+    for (const a of AJ.ambients || []) {
+      const t = 'a' + a.id.replace(/\D/g, '') + '-' + fold(a.name);
+      validWho.add(t); names.add(fold(a.name));
+      if (a.minor) minors.add(t);
+    }
+    const employers = new Set((JJ.jobs || []).map(j => j.employer));
+    const bizIds = new Set((BJ.businesses || []).map(b => b.id));
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    const homeOk = f => f === 'ambient-ring' ||
+      (typeof f === 'string' && bKeys.has((f.match(/^bld-[a-z]\d{4}/) || [])[0]));
+    const modes = new Set(Object.keys(CJ.modes || {}));
+    const routeWhos = new Set();
+    /* no prices anywhere in the layer */
+    const txt = rd('commute.json');
+    for (const mm of txt.matchAll(/\$\s?\d|\d[\d,]*\s*cr\b|\bUSD\b/gi))
+      add(g, 'fail', 'commute.json', null, `price figure in commute layer: "${mm[0]}"`);
+    for (const r of CJ.routes || []) {
+      const tag = `route:${r.who}`;
+      if (!validWho.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: not a cast/ambient id`);
+      if (minors.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: minors are never routed`);
+      if (routeWhos.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: duplicate route`);
+      routeWhos.add(r.who);
+      if (!homeOk(r.from)) add(g, 'fail', 'commute.json', null, `${tag}: from "${r.from}" not a registry unit or ambient-ring`);
+      if (!employers.has(r.to)) add(g, 'fail', 'commute.json', null, `${tag}: to "${r.to}" is not a jobs.json employer`);
+      if (r.venue != null && !bizIds.has(r.venue)) add(g, 'fail', 'commute.json', null, `${tag}: venue "${r.venue}" not a registry business`);
+      if (!modes.has(r.mode)) add(g, 'fail', 'commute.json', null, `${tag}: mode "${r.mode}" undeclared`);
+      if (!Array.isArray(r.days) || !r.days.length || !r.days.every(d => DOWS.includes(d)))
+        add(g, 'fail', 'commute.json', null, `${tag}: bad days[]`);
+      const [a, b] = r.leave || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'commute.json', null, `${tag}: bad leave window ${JSON.stringify(r.leave)}`);
+      if (r.arrive != null && !(r.arrive > a && r.arrive <= 26.5))
+        add(g, 'fail', 'commute.json', null, `${tag}: arrive ${r.arrive} outside the leave window's future`);
+      if (r.mode === 'loop' && r.arrive != null)
+        add(g, 'fail', 'commute.json', null, `${tag}: a loop has no fixed landing — arrive must be null`);
+      if (!Array.isArray(r.legs) || !r.legs.length) add(g, 'fail', 'commute.json', null, `${tag}: missing legs[]`);
+      if (!r.note) add(g, 'fail', 'commute.json', null, `${tag}: missing note`);
+    }
+    /* overlaps: pair members routed, shared days exist, windows sane */
+    for (const o of CJ.overlaps || []) {
+      const tag = `overlap:${(o.pair || []).join('×')}`;
+      if (!Array.isArray(o.pair) || o.pair.length !== 2)
+        { add(g, 'fail', 'commute.json', null, `${tag}: pair must be two ids`); continue; }
+      for (const p of o.pair)
+        if (!routeWhos.has(p)) add(g, 'fail', 'commute.json', null, `${tag}: "${p}" has no route`);
+      const [a, b] = o.window || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'commute.json', null, `${tag}: bad window`);
+      const shared = (o.days || []).filter(d => DOWS.includes(d) &&
+        o.pair.every(p => (CJ.routes.find(r => r.who === p) || { days: [] }).days.includes(d)));
+      if (!shared.length) add(g, 'fail', 'commute.json', null, `${tag}: no shared working day — an overlap that can never open is dead content`);
+      if (!/^(share|cross)$/.test(o.kind)) add(g, 'fail', 'commute.json', null, `${tag}: kind "${o.kind}" not share|cross`);
+    }
+    /* non-commuters: valid, disjoint from routes, anchored */
+    for (const n of CJ.non_commuters || []) {
+      if (!validWho.has(n.who)) add(g, 'fail', 'commute.json', null, `non_commuter "${n.who}" not a cast/ambient id`);
+      if (routeWhos.has(n.who)) add(g, 'fail', 'commute.json', null, `"${n.who}" is both routed and a non-commuter`);
+      if (!n.anchor || !n.note) add(g, 'fail', 'commute.json', null, `non_commuter "${n.who}" missing anchor/note`);
+    }
+    /* every working main routed — mains with employers must appear */
+    for (const c of CHJ.cast || []) {
+      const t = 'c' + c.id.replace(/\D/g, '') + '-' + fold(c.name);
+      const hasJob = (JJ.jobs || []).some(j =>
+        [].concat(j.held_by || []).includes(t));
+      if (hasJob && !routeWhos.has(t) && !(CJ.non_commuters || []).some(n => n.who === t))
+        add(g, 'fail', 'commute.json', null, `working main "${t}" is neither routed nor a declared non-commuter`);
+    }
+    /* building pulse keys ⊆ building_cards */
+    for (const k of Object.keys(CJ.building_pulse || {}))
+      if (!bKeys.has(k)) add(g, 'fail', 'commute.json', null, `building_pulse "${k}" not a building_cards key`);
+    /* street texture is anonymous: no cast ids or names */
+    for (const l of CJ.street_texture || []) {
+      if (/\b[ca]\d{1,2}-[a-z]+\b/i.test(l))
+        add(g, 'fail', 'commute.json', null, `street texture carries an id: "${l.slice(0, 60)}"`);
+      for (const nm of names)
+        if (nm.length > 3 && l.toLowerCase().split(/[^a-z]+/).includes(nm))
+          add(g, 'fail', 'commute.json', null, `street texture names "${nm}": "${l.slice(0, 60)}"`);
+    }
+    /* rules state the load-bearing contracts */
+    const rules = (CJ.rules || []).join(' ');
+    for (const re of [/conditions,? never scripts|conditions,? not scripts/i, /minors? .*never routed|never routed/i,
+                      /ambient-ring/i, /no prices/i, /surface knowledge/i])
+      if (!re.test(rules)) add(g, 'fail', 'commute.json', null, `rules missing contract: ${re}`);
+    g.detail = `schema v${CJ.version} · ${routeWhos.size} routes · ${(CJ.overlaps || []).length} overlaps · ${(CJ.non_commuters || []).length} non-commuters`;
+  } catch (e) { add(g, 'fail', 'commute.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;

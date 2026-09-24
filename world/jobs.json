@@ -1,6 +1,12 @@
 {
  "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
- "version": 73,
+ "version": 87,
+ "commute_layer": {
+  "spec": "commute.md",
+  "mirror": "commute.json",
+  "demo": "commute.html",
+  "note": "v87 — one route per worker: mode, legs, leave/arrive windows, weather deltas; every route 'to' is an employer name in this file"
+ },
  "exit_layer": {
   "spec": "exits.md",
   "mirror": "exits.json",

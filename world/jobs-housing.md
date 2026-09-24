@@ -31,6 +31,13 @@
 > game-v11's dispute verbs. Internal demo: `world/grievance.html`
 > ("The Ear").
 >
+> **v87 depth layer:** `world/commute.md` + `world/commute.json` — the
+> getting-there layer (a route per working cast member: mode, legs,
+> leave/arrive windows, weather deltas; shared-route overlaps as
+> incidental-contact conditions; building pulse — when each registry
+> address empties). INTERNAL tier; spectators read anonymous street
+> texture only. Internal demo: `world/commute.html` ("The Getting There").
+>
 > **v73 depth layer:** `world/exits.md` + `world/exits.json` — the exit
 > layer (how work ends and units empty: notice norms, who takes the news,
 > last-shift texture, reference worth; 30-day notice + 21-day deposit

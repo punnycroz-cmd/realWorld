@@ -230,6 +230,7 @@ const SURF={
   exits:{file:"exit.html",name:"The Last Shift"},
   apply:{file:"apply.html",name:"The Tryout"},
   supply:{file:"supply.html",name:"The Back Door"},
+  commute:{file:"commute.html",name:"The Getting There"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
@@ -1712,7 +1713,21 @@ const PTS=[
    ck:["Coverage strip shows 19 fed + 1 exempt, 0 bare","Hovering the exempt chip explains the exemption in-world","Every 'to' id resolves to a real registry business — no phantom venues"]},
   {do:"Read the feed-shapes panel and the rules list; then run node world/audit.js and find the supply gate.",
    exp:"Feed shapes are all kind 'venue' with {venue}/{supplier} templated lines — a supplier is a name on a truck's flank, never a story beat. Rules state: offstage only, no cast staff, parody names, conditions-not-scripts, no prices. The supply gate reports '19 suppliers - 44 runs - 19/20 doors fed' and passes.",
-   ck:["Every feed-shape line carries a {venue} token and kind stays 'venue'","No price, credit, or USD figure appears anywhere in the layer","Supply gate reports 'schema v86 - 19 suppliers - 44 runs - 19/20 doors fed'; 0 fail overall"]}]}];
+   ck:["Every feed-shape line carries a {venue} token and kind stays 'venue'","No price, credit, or USD figure appears anywhere in the layer","Supply gate reports 'schema v86 - 19 suppliers - 44 runs - 19/20 doors fed'; 0 fail overall"]}]},
+ {id:"PT78",title:"The Getting There — the commute layer (v87)",min:7,
+  persona:"tester on the internal commute bench — scrubbing days and the clock to watch the neighborhood get to work",
+  goal:"Verify the v87 commute-layer pass: 22 routes connect every working cast member from a registry unit (or the ambient ring) to a jobs.json employer; 10 overlaps are shared-route conditions whose windows actually open; minors are never routed; the commute gate enforces the mirror and referential integrity.",
+  surfaces:["commute","audit"],steps:[
+  {do:"Open world/commute.html ('The Getting There'). Pick Wednesday and scrub the clock from 05:00 to 13:00; read the route cards.",
+   exp:"Dawn shows the openers first: Hana's 3:30 dark walk is already 'at work' before anyone else leaves; Marisol, Malik, and Cole leave in the blue hour; Jules and Reyes converge on 24th; Dani's 49 ride is the longest card; Victor's 'route' is eighteen stairs. Cards light road-green only inside their leave→arrive window; loops (Marcus, Kofe, Doro) never show a fixed landing.",
+   ck:["Hana's card resolves 'at work since 03:54' before the 6:30 wave — the dark commute is first on the board","Victor's mode is 'stairs' — his commute is the interior stair, leave window 07:30–07:42","Loop routes (couriers, dog loops, pitches) show 'on the loop' — never an arrive time"]},
+  {do:"Watch the Overlaps panel at 07:15 on Monday, then scrub back to 06:45; toggle weather to rain and re-read the route cards; then switch to Sunday and Monday-off routes.",
+   exp:"At 07:15 Monday the barista overlap (Jules × Reyes) reads 'WINDOW OPEN'; scrubbing to 06:45 opens the hospital pair (Priya × Asha, mon/wed only — shut by 07:15 and closed outright on Asha's off days). Each overlap row says 'a permission, not an event'. Under rain, Priya's card shows the 48 swap, Kofe's shows surge weather, Sam's case stays shut. Sunday drops Dani into her work week and shows Reyes off; Monday shows Bex, Ida, and Hana off.",
+   ck:["Overlaps are gated on day AND window AND both members' working days — no dead pairs","Weather deltas are per-route modal suggestions — rain changes modes, not the grid","Off-day cards dim to 'off day' — nobody commutes on a day they don't work"]},
+  {do:"Read the Non-commuters, Building pulse, Street texture, and Rules panels; then run node world/audit.js and find the commute gate.",
+   exp:"Non-commuters list Carmen, Esther, Tom, Ray with anchors — no invented routes; minors June and Zee appear nowhere. Building pulse flips each registry address between occupied and emptied (9102 Mission never empties). Street texture is anonymous ('a baker walking the dark block' — no names). The commute gate reports 'schema v87 · 22 routes · 10 overlaps · 4 non-commuters' and passes.",
+   ck:["Every route 'to' resolves to a jobs.json employer; every 'from' to a registry unit or ambient-ring","No cast id or name appears in street_texture — anonymous by contract","Gate reports schema v87 · 22 routes · 10 overlaps · 4 non-commuters; 0 fail overall"]}
+ ]}];
 
 
 /* ---- state ---- */
