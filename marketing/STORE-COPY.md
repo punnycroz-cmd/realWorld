@@ -1,9 +1,11 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v152 — screenshots rebase v75→v76 (crepuscular lanes + silver-lining cloud rims + director-mode beam landings, on the v75 living-walls/gust-field base), Steam library
-hero generated (§4 FLAG closed), store_copy_check wired into preflight,
-2026-09-23.**
-Supersedes v136.
+**Status: v153 — NEW §38 in-product purchase microcopy (wallet sheet,
+ads opt-in, checkout cards, state cards, session strings, co-sponsor,
+money-UI deny-list — every string mapped to `world/requests.json`
+contract blocks); store/preview.html screenshot drift fixed (v71→v76,
+caught by store_copy_check — 4 fails now clean), 2026-09-24.**
+Supersedes v152.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — with v138 the full §4 set including the
@@ -493,6 +495,14 @@ source contract changes, the claim changes — never the reverse.
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
 | Screenshots = real development-build captures | `site/shots/` (art-v76 build) | shipped |
+| Wallet packs $0.99–$99.99 / 100–14,000 cr, +50% first buy, $200/day cap | `requests.json` wallet.packs/first_purchase_bonus/daily_spend_cap | contract (numbers PROPOSAL) |
+| Rewarded ads 2 cr/view, 5/day, 25/week, wallet-only placement | `requests.json` wallet.rewarded_ads | contract (PROPOSAL) |
+| Queued countdown string, expiry auto-refund | `requests.json` queue_hold.display/expiry | shipped contract (locked string) |
+| Modified-approval offer card: trim only, decline free, price diff refunds | `requests.json` approve_modified | shipped contract |
+| Appeal = private, 72 h, different reviewer; 2 classes not appealable | `requests.json` appeals | shipped contract |
+| Low-balance toast ≤15 min, extend at class rate within cap | `requests.json` session_controls/session_extend | shipped contract |
+| Briefing card = public profile only; secrets absent by schema | `requests.json` possession_briefing | shipped contract |
+| Co-sponsor same-price, ≤4, named on feed | `requests.json` co_sponsor | shipped contract |
 
 ---
 
@@ -853,6 +863,24 @@ about-section variant — paste-ready, since Steam takes no Markdown;
 §35 local store-page preview (`store/preview.html`) + preview-drift
 rule; §36 post-launch page lifecycle (day-7/30/90 copy states). §27 SOP
 unchanged; §33 register gained no new rows (preview is local-only).
+
+**v153 changes:** NEW §38 in-product purchase microcopy — the canonical
+string deck for every money surface inside the product: §38.1 wallet
+sheet (pack display names + framings on the contract-locked
+`wallet.packs` ids, no-expire/non-transferable line, first-purchase
++50% flag, $200/day-cap surface, ledger header), §38.2 rewarded-ads
+opt-in card, §38.3 per-action request checkout cards (button carries
+the price; refund line on every card), §38.4 post-submit state cards
+reusing feed_vocabulary verbatim incl. the locked queue-hold countdown
+string and the private appeal path, §38.5 possession session strings
+(briefing-card "not redacted — absent" header, low-balance toast,
+extend, end-early, cap handoff, thin-AI wakeup), §38.6 co-sponsor card,
+§38.7 money-UI deny-list. §14 claim ledger gains 8 rows mapping the new
+strings to their `requests.json` blocks. Also fixed real drift:
+`store/preview.html` still pointed at the deleted v71 screenshot set —
+rebased to v76 with §9 caption wording (store_copy_check 4→0 fails).
+No store-page copy (§1–§3) changed; §33 register unchanged (pack
+prices remain under the existing PROPOSAL row 4).
 
 ---
 
@@ -1224,3 +1252,144 @@ pointed at the deleted v61 press-kit set (rebased to v71 with §9
 captions) and the banner path pointed at a `site/assets/banners/`
 subdirectory that doesn't exist. Wired into `tools/preflight.sh` as
 step 5e, so the drift class fails the go-gate, not just a by-hand audit.
+
+---
+
+## 38. In-product purchase microcopy (the store surface inside the product)
+
+The storefront page is not the only place copy sells. The wallet sheet,
+the request form, and every money-adjacent card inside the product are
+store copy with smaller boxes — and the same honesty contract. This
+section is the canonical string deck. Every string maps to a shipped
+contract block in `world/requests.json` (cited per table); none of it is
+aspirational UI. Game track implements; marketing owns the wording.
+
+**Rules for money surfaces (all of them, always):**
+
+1. **The feed vocabulary is the only vocabulary.** In-product status
+   strings reuse `feed_vocabulary` verbatim — "not approved", never
+   "denied"; "player session ended", never "timed out". If the string a
+   player sees privately differs from what the feed shows publicly,
+   that's a bug.
+2. **Every number is shown before payment** — the surge multiplier
+   included (fairness_invariants). A price discovered after the click is
+   a dark pattern; we don't ship those.
+3. **No urgency, no loss frames.** Money UI never says "almost gone",
+   "don't miss out", "only X left", or runs a countdown that isn't the
+   real 24 h queue-hold clock. The one true countdown string is
+   contract-locked (§38.4).
+4. **Refunds are stated where the money moves**, not buried in a policy
+   page — every confirm card carries its refund line.
+
+### 38.1 Wallet sheet (credit packs)
+
+Pack ids are contract-locked (`wallet.packs`); display names and
+one-line framings below are the copy layer. All prices PROPOSAL until
+§33 row 4 lands.
+
+| id | Display name | Price | Credits | One-line framing (shown under the name) |
+|---|---|---|---|---|
+| pocket | Pocket | $0.99 | 100 | A nudge and change — the smallest honest way in. |
+| starter | Starter | $4.99 | 550 | A hire, or a string of small asks. |
+| regular | Regular | $9.99 | 1,150 | An afternoon on the block. |
+| plus | Plus | $19.99 | 2,500 | Weather and a weekend of watching closer. |
+| pro | Pro | $49.99 | 6,750 | For players who run the board, not just the feed. |
+| mogul | Mogul | $99.99 | 14,000 | The landlord pack — name fits, promise doesn't change. |
+
+Above the pack list, one line, verbatim:
+
+> Credits never expire. They're non-transferable and never redeemable
+> for money — they buy moments on the block, nothing else.
+
+First purchase (contract `first_purchase_bonus`, mult 0.5, once): the
+sheet flags it **before** the first buy —
+
+> First purchase +50% — applies once, to whichever pack you pick first.
+
+Daily spend cap (`daily_spend_cap_usd: 200`): only surfaces when hit —
+
+> That's today's $200 spend cap. The block will still be here tomorrow —
+> and watching is free.
+
+Ledger header (`wallet.ledger`):
+
+> Your ledger — every charge, refund, and earn, itemized. The public
+> feed shows refunds; this shows everything.
+
+### 38.2 Rewarded ads opt-in card (`wallet.rewarded_ads`)
+
+The card lives in the wallet sheet only — never in the sim view.
+
+> **Earn 2 credits** — watch one short ad. Up to 5 a day, 25 a week.
+> Always your call; the neighborhood never interrupts you with one.
+
+Declined/empty state: no card at all — the opt-in is a button ("Earn
+credits"), not a resident prompt.
+
+### 38.3 Request checkout cards (`actions[]`)
+
+Pattern: **title · class chip · price block · refund line · confirm
+button**. The confirm button always carries the price — never a bare
+"Confirm".
+
+| Action | Confirm button | Body copy (under the price) | Refund line |
+|---|---|---|---|
+| possess | `Possess — {N} cr` | You get {duration} of your character. The briefing card above is everything you'll know — their secrets aren't in it because they aren't for sale. | Unused minutes at end-early aren't refunded; the cap is the price. |
+| weather | `Request weather — {40/70/100} cr` | One sky, one block, {1/2/4} hours. Human-reviewed; global cooldown applies to everyone. | Not approved → full refund. Auto, no ask needed. |
+| nudge | `Send the nudge — 40 cr` | An ask, not mind-control. {Name} can say no — and sometimes they will. | Declined → 50% back, automatic. |
+| event | `Trigger event — 200 cr` | One per venue per day, drama-manager-mediated. It fires on schedule and says your name on the feed. | Not approved → full refund. |
+| camera | `Direct the camera — 10 cr / 30 min` | Spectator-side only. The world doesn't change; your view of it does. | Flat block, no per-minute drift. |
+| hire | `Hire onto the cast — 500 cr` | One-time per character, slot-capped. Every name passes human review. Housing after that is game dollars — earned in-world. | Application not approved → never bills. |
+
+Queued-class chip (`classes.queued`): `Queued −15% · activates first-come, first-served · expires refunded`.
+
+Surge line (shown only when active, always pre-payment):
+`Surge ×{1.5–2.5} — shown because it's real. No hidden rate, ever.`
+
+### 38.4 State cards (post-submit)
+
+| State | Card header | Body line |
+|---|---|---|
+| in_review | `In review` | A person is reading it. Denials refund in full; you'll never be billed for a no. |
+| queued | `Queued` | `hold {H} h {M} min left of 24 h · expiry auto-refunds` — contract string, locked verbatim (`queue_hold.display`). |
+| running | `Running` | On the feed, with your name on it — same as everyone's. |
+| approved (modified) | `Approved — modified` | See the offer below. Old terms → new terms, old price → new price. Accept or decline; declining costs nothing (`approve_modified`). |
+| not approved | `Request not approved` | Full refund already in your ledger. No reason is public — that's the rule for everyone. A different reviewer can take a second look within 72 h. `Appeal` (private path, `appeals`). |
+| resolved / refunded | `Resolved` / `Refunded` | Logged to the feed and your ledger. |
+
+### 38.5 Session strings (possession live)
+
+| Moment | String | Source |
+|---|---|---|
+| Briefing card header | `Everything on this card is public-record level. Secrets: not redacted — absent.` | `possession_briefing.secrets` verbatim intent |
+| Brain state | `suspended — AI resumes on release` | `session_controls.brain_state_shown` |
+| Low balance | `≈15 funded minutes left — top up to keep going` + one-click wallet link | `session_controls.low_balance_warning` |
+| Extend | `+{N} min — {rate} cr` (disabled + wallet link when balance short) | `session_extend` |
+| End early | `End session — the AI takes over gracefully. Unused minutes aren't refunded.` | `session_controls.end_early` |
+| Cap handoff | `Time's up — {name}'s AI is back. Feed: "player session ended".` | fairness_invariants hard cap |
+| Thin-AI wakeup | `Welcome back — {name} kept the routine. The block did too.` | design doc thin-AI model |
+
+### 38.6 Co-sponsor card (`co_sponsor`)
+
+> **Join the request — {price} cr** · Same price as the filer paid —
+> you're buying the same world event, not a discount. Up to 4 sponsors;
+> every name goes on the feed line.
+
+### 38.7 What money UI never says
+
+A standing deny-list for any surface that touches a price (extends the
+checker's banned-word scan):
+
+- "Limited time" / "hurry" / "almost gone" — no countdown that isn't
+  the queue-hold clock.
+- "You earned" for anything that wasn't earned in-world — pack buys are
+  purchases, not achievements.
+- "Just $0.99" — minimizing a price is a nudge we banned.
+- "Free credits" for rewarded ads — they're earned, say so ("Earn 2
+  credits").
+- Any framing of credits as value storage ("worth $X") — credits buy
+  requests; the §1.5 line is the whole truth.
+
+Same-commit rule: a change to `world/requests.json` wallet/session/
+appeal blocks invalidates the matching string here — §27 trigger row 2
+covers it; grep `requests.json` block names against §38.
