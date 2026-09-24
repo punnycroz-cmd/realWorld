@@ -1,4 +1,4 @@
-# Cast Memory Profiles — the 8 mains, compiled (v22)
+# Cast Memory Profiles — the 8 mains, compiled (v70)
 
 **Track:** memory-research (sf/memory) · **Inputs:** world track character
 bibles `world/characters/c1–c8` (world-v14, read-only), the v1.0 compiler
@@ -1152,3 +1152,797 @@ unless their variant table shows rotating shifts.
 ### 14.11 Probes filed
 
 P469–P480 → validation-design.md §75.
+
+---
+
+# Part IV — v58 pass: the self layer (spec v5.6)
+
+The v5.6 params give every main a standing self-view and the evaluative
+machinery around it. Pins below are derived from the existing bible facts
+already cited in §3/§9 — nothing here introduces new narrative content;
+each pin is justified by a trait already on file. Defaults apply where no
+pin is listed. `remin_style` is pinned only for C6/C7 (55+ gate).
+
+## 15. The 8 mains — self-layer pins
+
+### C1 Marisol, 29 — `self_est 0.66` · `selfverif_w 0.5` · `self_complex 6`
+(confidante/manager/daughter/blogger/friend/secret-keeper — a
+crowded self, which is also her protection) · `self_comp 0.4` ·
+`savor_k 0.45` `dampen_k 0.35` · `elabor 0.85` — the cast's co-narrator:
+she draws stories out of everyone (consistency: `share_k 1.1`, dest_mem
+0.85, gossip depth 0.9 — her questions are the mechanism that made her
+the ledger) · `future_cont 0.6` · `counterf_k 0.15`. Net: her archive is
+deep partly because she *interviews*; her own secret rides the intrusion
+channel as before — self_complex 6 keeps the blog crisis from eating
+every domain at once.
+
+### C2 Jules, 26 — `self_est 0.45` · `selfverif_w 0.75` · `self_complex 3`
+(newcomer/thin: the sketcher, the tenant, the crush — three rooms and
+the walls are fresh) · `self_comp 0.2` · `future_cont 0.8` ·
+`pself_mint 0.25` (the imagined Mission life IS a possible-self
+archive — hoped: belongs; feared: found out) · `savor_k 0.6`
+`dampen_k 0.45` (self-est-gated dampening prior active) ·
+`elabor 0.5`. Net: the most volatile mood in the cast — spillover
+divisor 3 — and the only main whose negative self-referent feedback
+gets KEPT (selfverif high + self_est low → §6.100 consistency release:
+the slight that confirms the fear is retained).
+
+### C3 Dani, 24 — `self_est 0.55` · `selfverif_w 0.45` · `self_complex 4`
+· `savor_k 0.7` `dampen_k 0.15` (the chalkboard artist savors — positive
+evenings encode fat) · `elabor 0.6` · `future_cont 0.5`. Net: the
+positive ledger runs richest here; contamination-leaning script
+(`script_redeem −0.1`) plus savorer = bright archive, sharp drops.
+
+### C4 Priya, 31 — `self_est 0.65` · `selfverif_w 0.7` (nurse: accepts
+hard feedback — clinical debrief culture is self-verification trained)
+· `self_complex 5` · `self_comp 0.8` (the hospital stays at the
+hospital — maximum compartmentalization, consistent with
+`regulate`-adjacent pins and mnem_neg 0.30) · `dampen_k 0.5` ·
+`counterf_k 0.2` (near-miss debriefs are occupational) ·
+`elabor 0.55`. Net: negative events land inside walled aspects —
+the shift went badly AND it stayed at work.
+
+### C5 Marcus, 34 — `self_est 0.72` · `selfverif_w 0.3` (the
+self-enhancer — defens −0.2 means even the gate he has is rarely
+armed) · `self_complex 3` · `future_cont 0.3` (lives now — his
+long-horizon intentions file on the debtor channel: reliable surprise
+at his own commitments) · `savor_k 0.55`. Net: mnemic neglect at full
+strength — he protects a view he likes; the phenotype is sunny and
+shallowly defended.
+
+### C6 Carmen, 74 — `self_est 0.6` · `selfverif_w 0.55` ·
+`self_complex 7` (a life of many rooms: Havana, Miami, the shop, the
+marriage, the stoop) · `self_comp 0.5` · `remin_style
+{transmissive 0.6, integrative 0.4}` · `remin_w 0.65` (the stoop IS
+reminiscence ecology) · `counterf_k 0.1` · `regret_opp_gate 0.85` —
+with ONE inaction-regret record pinned `oppOpen:false → gate held`
+(the unsaid thing to the husband: the door closed when he died, and
+healthy disengagement never quite fired — regret_inact_mult 0.45
+keeps it at ~2× half-life decades on). Net: her archive is told into
+shape — teaching stories polish, private ones fade; integrative draws
+mint the persSem synthesis that reads as wisdom.
+
+### C7 Victor, 58 — `self_est 0.55` · `selfverif_w 0.5` ·
+`self_complex 2` (the store and the widower — the thinnest self in the
+cast; the offer threatens EVERYTHING because there is no third room) ·
+`self_comp 0.9` (the drawers are literally the trait) · **`repress`
+maximal in cast** — derived from defens +1.2 × neurot_report floor:
+predicted `repress ≈ 0.8` → negative-childhood recall drive ×0.6,
+earliest negative memory shifted ~+1.2y, negative-retrieval latency
+×1.3; recognition intact; nothing deleted. His childhood is thin on
+the negative side BY CONSTRUCTION. · `remin_style {instrumental 0.7,
+obsessive 0.3}` — he rehearses the past as problem-solving, and the
+0.3 obsessive tail is the drawer that opens at 3am ·
+`regret_inact_mult` applies to the inaction records around the
+marriage's last year · `dampen_k 0.7` (savor nothing) ·
+`future_cont 0.4`. Net: the defended archive — complete records, shut
+doors, and a two-room self that makes the sale decision total.
+
+### C8 Tomás, 36 — `self_est 0.6` · `selfverif_w 0.5` · `self_complex 4`
+(San Miguel / Miami / kitchen / family — the immigrant's aspect set is
+cross-language by construction; his `aspect` tags split pre/post-12
+along the existing lang boundary) · `self_comp 0.3` · `savor_k 0.65`
+(the kitchen is a savoring ecology) · `elabor 0.7` (kitchen talk —
+the cook who makes the line tell their day) · `future_cont 0.5` ·
+`counterf_k 0.15`. Net: warm positive ledger, mid complexity, and an
+aspect structure the lang_mismatch machinery already respects.
+
+## 16. Distinctness — third-pass notes
+
+The self layer adds a second orthogonal axis to every signature: Mars's
+six-room self vs Victor's two-room self now produce opposite failure
+geometries (a hit to Mars lands in one of six aspects; a hit to Victor
+lands in half of everything). Jules is the only consistency-keeper;
+Marcus the only full-strength neglecter; C4/C7 both wall off negatives
+but C4 does it by compartmentalization (the bad room exists, door
+closed) while C7 does it by access suppression (the door was never
+built). Those read differently on screen.
+
+## 17. Probes filed
+
+P602–P614 → validation-design.md §103.
+
+## 18. Sources added this version
+
+- Sedikides & Green 2000 (*JPSP* 79:906 — verified): mnemic neglect =
+  incongruence-negativity management; the self-consistency gate.
+- Green, Pinter & Sedikides 2004 (*EJSP* 35:225); Green, Sedikides &
+  Gregg 2007 (*JESP* 44:547 — verified): recall-only boundary,
+  "forgotten but not gone"; repressors show ENHANCED mnemic neglect.
+- Sedikides & Green 2016 (*EJoSP* review — verified): moderator list
+  incl. anxiety/dysphoria; recognition-sparing.
+- Newman, Duff & Baumeister 1997 (*JPSP* 73) — mnemic neglect origin
+  study (reused).
+- Linville 1985 (*Social Cognition* 3:94 — verified) & 1987 (*JPSP*
+  52:663 — verified): self-complexity affective-extremity and
+  stress-buffer claims; Rafaeli-Mor & Steinberg 2003 (*PSPR* 6 —
+  verified): the DEBATED caveat — weak buffering, reactivity
+  moderation survives, stronger for uplifts.
+- Showers 1992 (*JPSP* 62) — compartmentalization of negative
+  self-aspects.
+- Weinberger, Schwartz & Davidson 1979 (*J Abnorm Psychol* 88) —
+  repressor classification; Davis & Schwartz 1987 (*JPSP* 52:155 —
+  verified): fewer/later negative childhood recalls; Davis 1995
+  (*J Abnorm Psychol* 103:288 — verified): slower negative retrieval,
+  paternal-antipathy reports; Davis 1990 — recognition β unchanged.
+- Watt & Wong 1991 (*J Gerontol Soc Work* 16:37 + *Psych & Aging*
+  6:272 — both verified): six reminiscence types; successful aging =
+  integrative/instrumental up, obsessive down.
+- Webster 1993 (*JPSP* 65) — RFS individual differences (reused).
+- Gilovich & Medvec 1994 (*JPSP* 67:357 — verified) & 1995 (*Psych
+  Rev* 102:379 — verified): action short-term / inaction long-term
+  regret pattern.
+- Wrosch & Heckhausen control-theory regret line (Wrosch et al.
+  2005/2007) — opportunity-gated disengagement.
+- Bryant & Veroff 2007 (*Savoring*, Erlbaum — verified); Feldman,
+  Joormann & Johnson 2008 (*Cog Ther Res* 32:507 — verified):
+  dampening prospectively predicts depression; Wood, Heimpel &
+  Michela 2003 (*JPSP* 85:566 — verified): self-esteem gates
+  savor-vs-dampen.
+- Ersner-Hershfield, Wimmer & Knutson 2009 (*SCAN* 4:85 — verified)
+  + Ersner-Hershfield, Garton et al. 2009 (*JDM* 4:280 — verified):
+  future self-continuity individual differences, saving behavior.
+- Markus & Nurius 1986 (*Am Psych* 41:954 — verified): possible
+  selves.
+- Fivush & Fromhoff 1988; Reese, Haden & Fivush 1993 — elaborative
+  reminiscing style (developmental base; adult extension is our
+  HYPOTHESIS, flagged §6.107).
+
+# Part III — v70 pass: the narrator's compass
+
+Spec refs: v5.19 §6.145–6.151. Probes P745–P756 filed to
+validation-design.md §135. This pass adds WHERE in time a
+character's mind rests (time perspective), WHAT their stories
+are about (agency/communion themes), and the machinery that
+turns a life into a book: lesson-minting, coherence-linking,
+chapter salience, future thickness, anchor tension.
+
+## 19. New mechanisms (→ spec v5.19 §6.145–6.151)
+
+### 19.1 Time perspective — `tp_vec` (§6.145)
+
+ZTPI five subscales as independent bible pins. Past-negative =
+the mind wanders to old wounds uninvited; past-positive = the
+sweet old days walk up; present-hedonistic = the past stays put
+unless fetched; present-fatalistic = mind-wandering itself runs
+quiet; future = goals rehearse and imagineEvent fires more.
+Arrival-side ONLY — `tp_fate_null` locks it off record
+existence/content. Distinct from `remin_style` (which is a
+55+ reminiscence FUNCTION taxonomy — what retelling does to
+the archive) and from `script_redeem` (the transform on meaning,
+not the selection). A past-negative elder can still reminisce
+transmissively — she teaches from the wound.
+
+### 19.2 Narrative themes — `narr_agency`/`narr_comm` (§6.146)
+
+McAdams's two thematic axes as field-depth dials at encoding
+and emphasis dials at retell. `theme_fabricate_null` locks the
+tuning to depth — the communion-tuned witness of a solo event
+does not hallucinate a co-actor. Orthogonal to `elabor`
+(which draws stories OUT of others — the interview) and to
+`script_redeem` (the valence transform on meaning).
+
+### 19.3 Autobiographical reasoning — `autobio_k` (§6.147)
+
+The lesson-minting rate. High autobio_k characters convert
+meaning-bearing retellings into `lesson` persSem records —
+self-beliefs with `origin:"derived"`, permanently barred from
+event-source status (`lesson_truth_null`). This is the axis
+that separates "has experience" from "has learned": C5 Marcus
+at 0.2 lives the same year three times; C6 Carmen at 0.7 has
+a stoop-full of derived propositions ("people forgive slower
+than they forget"). Lessons link back to sources — both
+directions are retrieval routes.
+
+### 19.4 Narrative coherence — `narr_coh_k` (§6.148)
+
+Multiplier on `narr_link_gain` at retell. The coherent
+narrator's archive gains connective tissue — causal and
+thematic links that double as retrieval routes. The
+low-coherence archive is a drawer of snapshots: records exist,
+are retrievable, but nothing leads anywhere. Distinct from
+`self_complex` (how many rooms the self has — structural);
+narr_coh is how well the rooms are WIRED.
+
+### 19.5 Period salience — `period_sal` (§6.149)
+
+Per-character scaling of §4.18's chapter walls. At 0 the life
+reads continuous — boundaries barely cost; at 1 every era is
+a closed room and transitions land hard. Era wording
+("in the Miami years") surfaces at `era_surf_p +
+0.5·period_sal` — the chaptered character spontaneously dates
+their own past. `period_identity_null` keeps `period` pure
+metadata — the wall is a cueing cost, never a content edit.
+
+### 19.6 Episodic-future trait — `epi_future_k` (§6.150)
+
+Trait multiplier on `sim_detail_mult` — how thick a
+character's imagined futures run, with a computed prior from
+vivid_detail × OGM terms (Williams 1996: generic past ↔
+generic future is ONE style, not two). `future_leak_null`
+locks the boundary: a richly imagined future never becomes a
+remembered past through detail alone — the flip needs §6.9
+imagination inflation.
+
+### 19.7 Anchor tension — `tension` + `sdm_tension_intr` (§6.151)
+
+selfdef records carry bible-seeded `tension` — the
+unfinishedness of the anchor. Tension raises re-access rate
+(knocking, not damage — `tension_fate_null`). A character can
+hold an anchor that is vivid, positive, AND unresolved — it
+returns to her more often, intact.
+
+## 20. Per-main delta blocks (v70)
+
+All prior pins stand. tp_vec listed as {pn/pp/ph/pf/f}.
+
+### C1 Mars, 29 — tp_vec {0.3/0.5/0.5/0.2/0.5} · `narr_agency 0.5`
+· `narr_comm 0.7` (the manager keeps PEOPLE's books — her
+encoding runs deep on who felt what, thin on who won) ·
+`autobio_k 0.5` · `narr_coh_k 0.6` · `period_sal 0.4` ·
+`epi_future_k 0.7`. Net: her past arrives warm when it arrives;
+the store is a communion archive. With self_complex 6 and
+narr_coh 0.6, her six rooms are wired — one bad day routes
+around itself.
+
+### C2 Jules, 26 — tp_vec {0.4/0.3/0.6/0.3/0.4} ·
+`narr_agency 0.4` · `narr_comm 0.6` · `autobio_k 0.4` (still
+collecting raw material — the newcomer hasn't finished a first
+edition) · `narr_coh_k 0.5` · **`period_sal 0.7`** (her life IS
+a transition — the move to the Mission is her operative wall;
+"back in Portland" wording on emissions at ~0.5 rate) ·
+`epi_future_k 0.6`. Net: two-room self + high period_sal =
+the sharpest before/after in the cast under thirty.
+
+### C3 Dani, 24 — tp_vec {0.2/0.4/**0.8**/0.1/0.3} ·
+`narr_agency 0.6` (maker-stories: what got made, what failed)
+· `narr_comm 0.5` · `autobio_k 0.5` · `narr_coh_k 0.4`
+(notebook mind — fragments that land, not arcs) ·
+`period_sal 0.3` · **`epi_future_k 0.8`** (the artist's
+simulation channel is the cast's thickest — her imagined
+murals have more verbatim detail than most people's
+memories). Net: present-hedonist arrival profile + savorer =
+the past is a sketchbook she rarely opens unprompted.
+
+### C4 Priya, 31 — tp_vec {0.3/0.4/0.4/0.2/**0.7**} ·
+`narr_agency 0.8` (clinical debrief culture = agency-trained
+narration: the plan, the miss, the protocol) · `narr_comm 0.6`
+· `autobio_k 0.6` (the debrief IS autobiographical reasoning —
+occupational lesson-minting) · `narr_coh_k 0.7` ·
+`period_sal 0.5` · `epi_future_k 0.6`. Net: future-weighted +
+coherent + agentic — her archive has a through-line and the
+through-line has a plan. The hospital-wall compartmentalization
+(self_comp 0.8) now reads as chapters that DO open, on
+schedule, at home.
+
+### C5 Marcus, 34 — tp_vec {0.2/0.4/**0.8**/0.2/0.2} ·
+`narr_agency 0.4` · `narr_comm 0.5` · **`autobio_k 0.2`** (the
+cast's lowest — he lives the same year three times; events
+without residue is WHY he repeats) · `narr_coh_k 0.3` ·
+`period_sal 0.2` (the courier's life is one continuous route)
+· `epi_future_k 0.4`. Net: present-max + coherence-min +
+lesson-min = the sunniest shallow archive — mnemic neglect at
+full strength protects a view with no through-line.
+
+### C6 Carmen, 74 — tp_vec {0.2/**0.75**/0.2/0.1/0.3} ·
+`narr_agency 0.4` · `narr_comm 0.8` · **`autobio_k 0.7`** (the
+transmissive reminiscer IS a lesson-minting machine — the
+stoop is a derived-proposition factory) · `narr_coh_k 0.8`
+(integrative + transmissive = the wired life) ·
+**`period_sal 0.8`** (Havana / Miami / the shop / the marriage
+/ the stoop — literal chapters, era-worded emissions ~0.55)
+· `epi_future_k 0.4`. Net: the cast's most narrated archive —
+thick positive arrivals, dense links, lessons everywhere, and
+every memory wearing its era.
+
+### C7 Victor, 58 — tp_vec {**0.6**/0.3/0.2/**0.5**/0.3} ·
+`narr_agency 0.7` (the self-made-store story is agency-native)
+· `narr_comm 0.3` · **`autobio_k 0.2`** (he does not extract
+lessons — he re-runs problems; instrumental remin_style at
+the narrative layer) · `narr_coh_k 0.3` · **`period_sal 0.9`**
+(before/after the wife is THE wall — the steepest boundary in
+the cast; crossing it in recall is a flinch) ·
+`epi_future_k 0.3`. Net: past-negative arrivals + fatalistic
+quiet + the great wall = an archive that answers summons
+correctly but visits on its own terms, always from the wrong
+side of 1994. `tension` seeded 0.8 on the widow anchors.
+
+### C8 Tomás, 36 — tp_vec {0.3/0.5/0.5/0.2/0.6} ·
+`narr_agency 0.6` · `narr_comm 0.7` (kitchen talk is both —
+the line AND the crew) · `autobio_k 0.6` (mentorship stories
+mint lessons — "never let the pan tell you twice") ·
+`narr_coh_k 0.6` · `period_sal 0.7` (San Miguel / Miami / SF —
+the aspect set is cross-language AND cross-era; chapters split
+at the lang boundary the lang_mismatch machinery already
+respects) · `epi_future_k 0.6`. Net: warm, wired, two-era —
+the kitchen mentor whose past arrives in chapters and leaves
+as lessons.
+
+## 21. Distinctness — fourth-pass notes
+
+The compass axes are orthogonal to the v5.6 self-book layer:
+Jules and Victor are BOTH past-tilted, but Jules's tilt is
+past-negative-with-high-walls (the Portland wound stays in
+Portland) while Victor's is past-negative-with-fatalistic
+quiet (the archive summons HIM). Carmen and Mars both arrive
+warm; Carmen's warmth is wired into chapters and lessons,
+Mars's is flat-present and people-keyed. C3 and C4 share
+future thickness but C4's futures are plans (agency + tp_f)
+and C3's are murals (epi_future_k + imagery). Marcus remains
+the diagnostic case: highest present-hedonism, lowest
+coherence — the profile least likely to generate a "lesson
+learned" beat on its own.
+
+## 22. Probes filed
+
+P745–P756 → validation-design.md §135. Headline guards:
+tp_fate_null (arrival-only), theme_fabricate_null (depth not
+content), lesson_truth_null (derived stays derived),
+period_identity_null (metadata not content),
+future_leak_null (rich ≠ remembered), tension_fate_null
+(knocking ≠ damage).
+
+## 23. Sources added this version
+
+- Zimbardo & Boyd 1999 (*JPSP* 77:1271 — verified): ZTPI five
+  subscales; Stolarski, Fieulaine & van Beek 2015 (Springer —
+  review volume): time-perspective theory consolidation.
+- D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 — verified):
+  future-thinking individual differences; goal rehearsal as
+  the future-TP signature.
+- McAdams 2001 (*Rev Gen Psychol* 5:100 — verified): thematic
+  lines agency/communion; McAdams & McLean 2013 (*Curr Dir
+  Psychol Sci* 22:233 — verified): narrative identity review.
+- Adler 2012 (*JPSP* 102:367 — verified): agency ↑ precedes
+  wellbeing ↑ over therapy; Adler, Lodi-Smith, Philippe &
+  Houle 2016 (*PSPR* 20:142 — verified): incremental validity
+  of narrative identity over traits.
+- Pasupathi & Mansour 2006 (*Dev Psychol* 42:798 — verified):
+  autobiographical reasoning links; McLean, Pasupathi & Pals
+  2007 (*PSPR* 11:262 — verified): selves-creating-stories
+  model; McLean & Thorne 2003 (*Dev Psychol* 39:635 —
+  verified): self-defining memories yield lessons.
+- Reese et al. 2011 (*Memory* 19:688 — verified): narrative
+  coherence dimensions × wellbeing.
+- Thomsen 2009 (*Memory* 17 — verified): life-story chapters
+  vary in number and closure — individual-differences basis
+  for `period_sal`; Brown 2016 transition theory (reused §4.18).
+- Williams, Ellis, Tyers, Healy, Rose & MacLeod 1996 (*Memory*
+  4:115 — verified): future-image specificity tracks past
+  specificity; generic past ↔ generic future in depression.
+- Schacter & Addis 2007 (*Phil Trans R Soc B* 362:773 —
+  verified): constructive episodic simulation hypothesis;
+  Hassabis, Kumaran, Vann & Maguire 2007 (*PNAS* 104:1726 —
+  verified): hippocampal amnesics cannot imagine futures.
+- Singer, Blagov, Berry & Oost 2013 (*JPSP* 105:262 —
+  verified): self-defining memory tension dimension;
+  Blagov & Singer 2004 (reused).
+- Garry, Manning, Loftus & Sherman 1996 (*Psychonom Bull Rev*
+  3:208 — reused): imagination inflation — the ONLY licensed
+  future→past flip path.
+
+# Part V — v82 pass: the remembering voice
+
+Spec refs: v5.30 §§5.79–5.83. Probes P871–P878 filed to
+validation-design.md §164. This pass pins how each main's memory
+SOUNDS — report-layer traits only. Nothing below touches what is
+stored; it shapes what the room hears.
+
+## 24. Per-main voice pins (all five traits; prior passes stand)
+
+### C1 Mars, 29 — `voice_quote 0.4` · `report_policy 0.7` · `grain_pref 0.5` · `ie_talk 1.0` · `voice_story 0.6`
+The manager's register: answers only when sure (policy up —
+she runs a floor, wrong answers cost), moderate quotes
+(paraphrase-first, direct speech when the wording mattered),
+story-shaped but disciplined. estKnow grows steadily —
+the room learns she's careful.
+
+### C2 Jules, 26 — `voice_quote 0.3` · `report_policy 0.35` · `grain_pref 0.4` · `ie_talk 1.0` · `voice_story 0.4`
+Answers freely (newcomer eagerness — low-mid policy) but
+coarse by default (grain under 0.5 means confidence must
+push hard to get a precise claim out of him). Flat story
+shaping — reports arrive in retrieval order, ragged.
+
+### C3 Dani, 24 — `voice_quote 0.9` · `report_policy 0.15` · `grain_pref 0.75` · `ie_talk 1.2` · `voice_story 0.85`
+The cast's `bluff`-adjacent voice: never passes, quotes
+everyone, precise dates and numbers out of thin confidence.
+The fluent-liar file (§14.3) gains its instrument —
+`constructed:true` quotes are her medium. P871 watches:
+her quotes must match original wording at chance.
+
+### C4 Priya, 31 — `voice_quote 0.25` · `report_policy 0.85` · `grain_pref 0.3` · `ie_talk 1.0` · `voice_story 0.3`
+Clinical report discipline: passes rather than guesses
+("I don't remember — I can find out"), coarse when she
+does answer ("sometime last week"), near-zero story
+shaping. Emergent effect via §5.82: her rare, fast,
+correct answers plus honest passes make her estKnow the
+highest in the café — the room trusts the quietest
+memory.
+
+### C5 Marcus, 34 — `voice_quote 0.5` · `report_policy 0.2` · `grain_pref 0.6` · `ie_talk 0.9` · `voice_story 0.5`
+Cheerful guesser: always answers, medium-precision, quotes
+with swagger. The sunny-shallow profile (§5.6 note) now has
+a voice — confident, coarse, right often enough that the
+grain goes unread.
+
+### C6 Carmen, 74 — `voice_quote 0.75` · `report_policy 0.6` · `grain_pref 0.4` · `ie_talk 0.85` · `voice_story 0.9`
+The stoop voice: stories arrive pre-shaped — canonical
+order, discordant bits left out, a coda ("and that was
+the last summer before..."), and quotes of the dead and
+gone — every one `constructed:true`, all of them
+*believable*. ie_talk under 1 stacks commentary-register
+habit on the §5.78c age shift.
+
+### C7 Victor, 58 — `voice_quote 0.6` · `report_policy 0.8` · `grain_pref 0.55` · `ie_talk 0.8` · `voice_story 0.5`
+Quotes to indict (constructed dialogue as prosecution
+exhibit — "and she said to me, 'it's just a little
+rust'"), passes or omits rather than hedges — the
+industrial omitter (§14.7) now has a report criterion to
+match. Commentary-heavy mix, mid story-shape.
+
+### C8 Tomás, 36 — `voice_quote 0.45` · `report_policy 0.5` · `grain_pref 0.35` · `ie_talk 1.1` · `voice_story 0.65`
+The understatement voice: coarse-grained ("it was busy")
+over vivid internals — sensory-happening mix up (kitchen
+life is all internal detail), story shape present but
+deadpan; the coda arrives as a shrug, not a lesson.
+
+### Ambient tier — voice template
+Ambients draw `voice_quote`~U(0.2,0.6), `report_policy`~
+U(0.2,0.7), `grain_pref`~U(0.3,0.7), `ie_talk`~U(0.8,1.2),
+`voice_story`~U(0.2,0.7) — same distribution family as
+mains, no exotic corners. The crowd must sound like the
+cast's neighbors, not their chorus.
+
+## 25. Distinctness — fifth-pass notes
+The five voice traits form a second orthogonal signature
+axis: Dani and Marcus both answer freely (low policy) but
+Dani is precise-invented and Marcus coarse-right; Priya and
+Victor both withhold (high policy) but Priya passes
+honestly while Victor omits strategically; Carmen and Dani
+both story-shape hard but Carmen's quotes carry grief and
+Dani's carry theater. Voice × the narrator's compass (Part
+III) gives 40 free knobs per bible without a single
+collision.
+
+## 26. Probes filed
+P871–P878 → validation-design.md §164. The signature
+checks: P871 quote fidelity null (Dani's quotes ≈ chance
+wording match), P872 Priya-vs-Dani free-report
+accuracy/quantity split, P875 FOAK asymmetry (Priya's slow
+passes RAISE estKnow; Dani's fast answers don't move it).
+
+## 27. Sources added this version
+- Tannen 1986 (*Representing* 27 — verified): constructed
+  dialogue; ≥half of conversational direct quotes never
+  spoken. Tannen 1989 (*Talking Voices*, CUP — verified):
+  ch.4, quotation as creation; codas as evaluation.
+- Wade & Clark 1993 (*Memory* 1:265 — verified): reported
+  speech reconstructed toward teller purposes; Clark &
+  Gerrig 1990 (*Cognition* 37 — verified): quotations as
+  demonstrations.
+- Koriat & Goldsmith 1996 (*Psych Rev* 103:490 — verified):
+  monitor-and-control; report option ↑accuracy ↓quantity.
+- Goldsmith, Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73
+  — verified): strategic grain-size regulation.
+- Levine, Svoboda, Hay, Winocur & Moscovitch 2002
+  (*Psychol Aging* 17:677 — verified): AI internal:external
+  mix; persists under probing. Addis, Wong & Schacter 2008
+  (*Neuropsychologia* 46 — verified): mix as style.
+- Brennan & Williams 1995 (*J Mem Lang* 34:383 — verified):
+  FOAK — latency/filler cues; answer-vs-nonanswer
+  asymmetry. Smith & Clark 1993 (*Cognition* 48 —
+  verified): uh/um delay calibration.
+- Marsh 2007 (*Am J Psychol* 120 — verified): retelling is
+  not remembering; tellings retrieved over events.
+- Sachs 1967 (reused): verbatim wording dies sub-daily.
+- Bartlett 1932 (reused): effort after meaning.
+
+# Part VI — v94 pass: the metaself layer
+
+Spec refs: v5.42 §§6.214–6.220. Probes P994–P1005 filed to
+validation-design.md §192. This pass pins what each main
+believes OTHERS think of them — belief-layer traits only;
+the underlying records are untouched. MetaModel is the
+cast's most private wrongness: it never appears in canon,
+and the audience learns each character's self-underestimate
+(or self-monument) only through what the belief makes them
+DO.
+
+## 28. New mechanisms consumed (→ spec v5.42)
+
+- `MetaModel` store (§6.214) — per-alter belief record.
+- Projection prior (§6.215) — self-view stands in until
+  evidence accrues.
+- Reciprocity arm + blind compete channel (§6.216).
+- Liking gap (§6.217) — post-conversation underestimate.
+- Evidence-through-memory (§6.218) + staleness (§6.219).
+- Beautiful-mess asymmetry (§6.220) on `vulnerable:true`.
+
+## 29. Per-main meta pins (all six traits; prior passes stand)
+
+### C1 Marisol, 29 — `meta_proj 0.5` · `meta_recip 0.5` · `lgap_k 0.35` · `meta_ev_w 0.65` · `meta_neg_w 1.1` · `bmess_k 0.2`
+The floor manager's metaself is a working instrument: tips,
+turnover, and who-sits-where are signal-rich, so evidence
+accrues fast and the prior yields (high `meta_ev_w`, mid
+`meta_proj`). Modest gap — she's socially fluent but still
+audits her own performance after close conversations.
+Slightly-discounted cold-shoulder weight: a manager who
+took every chill personally couldn't run the room. Her
+vulnerability registers honest cost — asking staff for
+help feels like weakness at mid `bmess_k`.
+
+### C2 Jules, 26 — `meta_proj 0.55` · `meta_recip 0.65` · `lgap_k 0.8` · `meta_ev_w 0.45` · `meta_neg_w 1.5` · `bmess_k 0.3`
+The newcomer file, metaself edition: thin evidence
+(everything is a first conversation), high self-critical
+focus, high reciprocity — he likes the café crowd, so he
+half-believes they like him, and then the gap claws it
+back every night. THE `gap_close` character: months of
+small warmths must out-grind a 0.8 susceptibility. When a
+`vulnerable:true` moment finally lands (asking Mars for a
+shift change, admitting the Portland story), he will
+believe it cost him while the room liked him more —
+the asymmetry IS his arc.
+
+### C3 Dani, 24 — `meta_proj 0.6` · `meta_recip 0.5` · `lgap_k 0.5` · `meta_ev_w 0.5` · `meta_neg_w 1.6` · `bmess_k 0.1`
+The performer who narrates her own reception: mid
+projection, mid evidence — she believes the room reads
+her as charming because she TELLS it so (the §14.3
+fluent-liar file extends inward: her metaself is her
+first audience). High neg weight — one flat reaction
+outweighs an evening of smiles, and she re-runs the flat
+one (rumin-adjacent sensibility). Near-zero `bmess_k`:
+she confesses theatrically and registers no cost — the
+vulnerability the audience sees and the one she feels are
+different species.
+
+### C4 Priya, 31 — `meta_proj 0.4` · `meta_recip 0.3` · `lgap_k 0.25` · `meta_ev_w 0.75` · `meta_neg_w 1.2` · `bmess_k 0.15`
+The cast's calibrated instrument. Twenty years of reading
+faces for bad news buys the highest `meta_ev_w` in the
+cast and the lowest projection — her metaself is built
+from evidence, not self-image. Low reciprocity (she does
+not assume her liking is returned — clinical distance).
+The flat-affect clock (§14.4) shows here too: modest gap,
+honest vulnerability pricing. Emergent signature: she
+detects cooling before the cooler admits it — and never
+flatters herself, which the audience may misread as
+coldness she doesn't feel.
+
+### C5 Marcus, 34 — `meta_proj 0.5` · `meta_recip 0.7` · `lgap_k 0.15` · `meta_ev_w 0.35` · `meta_neg_w 0.8` · `bmess_k 0.1`
+The sunniest wrongness in the cast. Near-zero gap — he
+never audits a conversation in his life; high reciprocity
+— he likes everybody, so everybody must like him; and by
+the world's actual reciprocity he is *mostly right*: the
+belief outruns the fact by a margin nobody minds. Low
+evidence rate, low neg weight — a cold shoulder doesn't
+rehearse, it evaporates (§4.13 + §14.5). The one profile
+whose `meta_episode_null` does the least work: he needs
+no metaperceptual machinery because he never asks the
+question.
+
+### C6 Carmen, 74 — `meta_proj 0.75` · `meta_recip 0.4` · `lgap_k 0.2` · `meta_ev_w 0.4` · `meta_neg_w 0.9` · `bmess_k 0.25`
+Seventy-four years of stoop-reading has consolidated the
+prior: high projection — she assumes the room reads her
+as the fixture she knows herself to be, and the
+consistency-overestimate Kenny & DePaulo describe fits a
+woman whose self-concept stopped updating slowly. Low
+gap (past auditing her own banter), low neg weight
+(weathered enough slights to discount them), mid
+vulnerability cost — asking for help still stings; being
+*seen* needing it stings more than the need. Her stale
+MetaModels are the cast's most durable: an impression
+from 2019 is still the impression.
+
+### C7 Victor, 58 — `meta_proj 0.8` · `meta_recip 0.35` · `lgap_k 0.2` · `meta_ev_w 0.25` · `meta_neg_w 0.8` · `bmess_k 0.35`
+The monument. Highest projection in the cast: the room
+reads him as the-owner-who-shows-up because that is how
+he reads himself; evidence bounces (`meta_ev_w` lowest)
+— a season of cold shoulders lands as noise, not signal.
+Low reciprocity: he does not assume affection returned;
+he assumes *standing* — and standing is a projection, not
+a perception. Highest `bmess_k`: the industrial omitter
+cannot apologize first without believing it cost him
+standing — and since evidence can't reach him, he may
+never learn it bought him grace. The gap is low not
+because he's secure but because he never holds the
+post-conversation audit at all.
+
+### C8 Tomás, 36 — `meta_proj 0.55` · `meta_recip 0.7` · `lgap_k 0.35` · `meta_ev_w 0.55` · `meta_neg_w 1.3` · `bmess_k 0.25`
+Kitchen loyalty assumes itself returned: highest
+reciprocity in the cast alongside Marcus — the line crew
+that eats together likes each other, and he banks on it.
+Mid everything else — evidence accrues through service
+signals (a sent-back plate is a cold signal; a clean one
+is warm), mid gap, honest neg weight. `vulnerable:true`
+events run kitchen-currency: admitting a mistake to the
+crew costs him a little in his own ledger while the crew
+rates him higher — the beautiful-mess asymmetry playing
+in aprons.
+
+### Ambient tier — metaself template
+Ambients draw `meta_proj`~U(0.4,0.8), `meta_recip`~
+U(0.3,0.7), `lgap_k`~U(0.1,0.6), `meta_ev_w`~U(0.3,0.7),
+`meta_neg_w`~U(0.8,1.6), `bmess_k`~U(0.05,0.35) —
+population bands, no exotic corners. The crowd's
+metaselves must be as varied and as privately wrong as
+the cast's; an ambient whose `stale` flag never clears
+is not a bug — most people run on old impressions.
+
+## 30. Distinctness — sixth-pass notes
+The metaself axes are orthogonal to both prior social
+layers: Victor and Priya both carry low reciprocity, but
+Victor's is monument-indifference while Priya's is
+clinical distance; Jules and Dani share mid-high gaps,
+but Jules's is anxious self-audit while Dani's is
+thin-evidence theater; Marcus and Tomás share high
+reciprocity, but Marcus's is temperament while Tomás's
+is crew-bond. The same incoming warmth now lands eight
+different ways in eight private ledgers — and the
+audience can watch a character be wrong about being
+liked in real time.
+
+## 31. Probes filed
+P994–P1005 → validation-design.md §192. Signature checks:
+P995/P996 gap direction + attenuation (Jules highest,
+still ≥0); P994 mindread null; P999 compete channel
+≈0 accuracy for ALL profiles; P1005 cast spread
+ordering on identical signal diets.
+
+## 32. Sources added this version
+- Kenny & DePaulo 1993 (*Psychol Bull* 114:145 —
+  verified): SRM meta-analysis; self→meta r ≈ .87;
+  generalized > dyadic meta-accuracy.
+- Elfenbein, Eisenkraft & Ding 2009 (*Psychol Sci*
+  20:1081 — verified): dyadic meta-accuracy for being
+  valued runs on reciprocity.
+- Eisenkraft, Elfenbein & Kopelman 2017 (*Psychol Sci*
+  28:233 — verified): we know who likes us, not who
+  competes with us.
+- Boothby, Cooney, Sandstrom & Clark 2018 (*Psychol Sci*
+  29 — verified): the liking gap; five studies; persists
+  months, attenuates with acquaintance.
+- Bruk, Scholl & Bless 2018 (*JPSP* 115:192 — verified):
+  beautiful mess effect; construal-level account.
+- Clark & Wells 1995 (reused): self-focused processing
+  in social anxiety — lgap_k's trait mechanism.
+
+## 33. Per-main hardware pins (all six traits; prior passes stand)
+
+### C1 Mars, 29 — `imagery 0.5` · `obs_persp 0.3` · `face_recog 0.7` · `interdep 0.55` · `family_remin 0.6` · `dejavu 0.4`
+The floor manager's eyes: above-average faces (regulars are a
+book she keeps), field-perspective default (she was *in* it),
+mid-plural childhood — her earliest records are a kitchen
+table, not a solo scene.
+
+### C2 Jules, 26 — `imagery 0.8` · `obs_persp 0.35` · `face_recog 0.5` · `interdep 0.7` · `family_remin 0.7` · `dejavu 0.6`
+Rich imager from a talky household — earliest archive opens
+early and plural. Highest `dejavu` in the cast on purpose:
+fatigued newcomer + high proneness means the city he just met
+keeps arriving pre-remembered. `dejavu_know_null` keeps it a
+feeling, never a fact.
+
+### C3 Dani, 24 — `imagery 0.9` · `obs_persp 0.7` · `face_recog 0.55` · `interdep 0.3` · `family_remin 0.3` · `dejavu 0.7`
+The near-hyperphant tail, paired deliberately with the cast's
+highest observer prior: she watches herself perform her own
+past. `img_accuracy_null` does the work — the most vivid
+rememberer stays the least faithful one; her memories are
+stage sets she stands inside.
+
+### C4 Priya, 31 — `imagery 0.15` · `obs_persp 0.25` · `face_recog 0.6` · `interdep 0.6` · `family_remin 0.5` · `dejavu 0.3`
+The deliberate tail pin (CP§86 allows exactly one):
+aphantasia-adjacent. Greyest sensory reports in the cast,
+untouched archive — she knows, she doesn't see. Paired with
+her report_policy the phenotype compounds: the character who
+both refuses to guess AND can't picture it reads as the most
+honest memory on the block. Watch P1122 — her correctness
+must equal the imagers'.
+
+### C5 Marcus, 34 — `imagery 0.6` · `obs_persp 0.2` · `face_recog 0.85` · `interdep 0.5` · `family_remin 0.5` · `dejavu 0.5`
+Super-recognizer-adjacent faces on the cast's shallowest
+archive: he recognizes everyone and remembers nothing about
+them. Field-default vantage (0.2) — Marcus was there, he
+doesn't watch himself being there.
+
+### C6 Carmen, 74 — `imagery 0.5` · `obs_persp 0.55` · `face_recog 0.4` · `interdep 0.85` · `family_remin 0.75` · `dejavu 0.2`
+The plural childhood, maximal: interdep-high + talk-rich
+household. Her earliest archive opens on a table of people,
+not a self-portrait — and the mechanism legs (`obs_age_slope`)
+mean her oldest stories increasingly arrive watched-from-
+outside: she sees the girl she was at the table. `dejavu`
+bottoms with age per the literature.
+
+### C7 Victor, 58 — `imagery 0.4` · `obs_persp 0.6` · `face_recog 0.5` · `interdep 0.45` · `family_remin 0.2` · `dejavu 0.3`
+The late-opening archive: a household that didn't reminisce
+(0.2) pushes his effective amnesia boundary up ~0.3y —
+"I don't remember being young" is now mechanical. High
+observer prior on self-conscious scenes: he watches the man
+he was being wronged, at an `obs_dampen` discount — which is
+why the grievances read cold instead of hot.
+
+### C8 Tomás, 36 — `imagery 0.35` · `obs_persp 0.3` · `face_recog 0.45` · `interdep 0.8` · `family_remin 0.6` · `dejavu 0.4`
+Dim imager, plural childhood, slightly face-slow: the kitchen
+pro who plates from muscle and procedure, whose people-knowledge
+runs on voice and context — `face_sem_null` keeps the lag
+invisible to anyone who isn't testing faces.
+
+### Ambient tier — hardware template
+`imagery`~N(0,1) truncated ±2σ (tails possible, rare — the
+population rate is the point); `obs_persp`~U(0.15,0.55);
+`face_recog`~N(0.5,0.18) clamp [0.05,0.95] — the crowd may
+contain one slow-face ambient, never a declared prosopagnosic;
+`interdep`/`family_remin` sampled per ambient backstory tag;
+`dejavu`~U(0.2,0.7) age-tapered by mechanism, not by pin.
+
+## 34. Distinctness — seventh-pass notes
+The hardware axis is orthogonal to both prior report layers:
+Priya and Dani now bracket the imagery spectrum AND the
+report-policy spectrum — grey-and-careful vs vivid-and-
+invented, the cleanest vividness≠truth demonstration the
+cast can produce. Marcus and Victor share mid everything
+except the channels that matter: Marcus's face channel is
+his best feature while his archive is thin; Victor's archive
+is deep but his vantage puts him outside his own grievances.
+Carmen and Tomás share interdep-high but diverge on vantage
+and imagery — her childhood is watched, plural, and narrated;
+his is cooked, plural, and unspoken.
+
+## 35. Probes filed
+P1122–P1133 → validation-design.md §218. Signature checks:
+P1122 imagery-decile accuracy equality (Priya ≈ Dani on
+correctness, ≠ on richness); P1125 observer dampen asymmetry
+(field→observer lowers, observer→field doesn't raise);
+P1127 face-blind PersonModel completeness; P1133 déjà vu
+never mints or attributes.
+
+## 36. Sources added this version
+- Zeman, Dewar & Della Sala 2015 (*Cortex* 73:378 — verified):
+  aphantasia named; lifelong imagery absence.
+- Zeman et al. 2020 (*Cortex* 130:426 — verified): extreme
+  aphantasia ~0.7%, hyperphantasia ~2.5–3% prevalence;
+  face-recognition and autobiographical-memory complaints
+  cluster in aphantasia.
+- Dawes, Keogh, Andrillon & Pearson 2020 (*Sci Rep* 10:10022
+  — verified): aphantasic autobiographical memory less vivid/
+  phenomenologically rich; standard memory performance
+  equivalent → `img_accuracy_null`.
+- Nigro & Neisser 1983 (*Cog Psych* 15:467 — verified):
+  field/observer vantage; emotionality+self-awareness→observer;
+  recency→field.
+- Robinson & Swanson 1993 (*Memory* 1:169 — verified):
+  field→observer switch dampens rated affect; converse no
+  effect → `obs_dampen` asymmetry.
+- Sekiguchi & Nonaka 2014 (*Emotion* 26 — verified): dampening
+  persists ≥4 weeks.
+- Russell, Duchaine & Nakayama 2009 (*PBR* 16:252 — verified):
+  super-recognizers; face ability is a spectrum.
+- Kennerknecht et al. 2006; DeGutis et al. 2023 (verified):
+  developmental prosopagnosia ~0.9–2.5%, cutoff-dependent.
+- Wang 2001 (*JPSP* 81:220 — verified): American earliest
+  memory ~3.5y vs Chinese ~4y; self-focused vs collective/
+  routine content; construal-memory coupling.
+- Fivush, Haden & Reese 2006 (*Child Dev* 77:1568 — verified):
+  elaborative maternal reminiscing → earlier first memories.
+- Brown 2004 (*Psychol Bull* 130:394 — verified): ~67%
+  lifetime déjà vu prevalence; age decline; fatigue/stress
+  moderators.
+- O'Connor & Moulin 2010 (verified): déjà vu as familiarity
+  plus known falsity → `dejavu_know_null`.

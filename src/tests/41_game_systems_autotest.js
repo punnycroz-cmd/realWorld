@@ -3813,6 +3813,1280 @@ runAutoTest = async function(){
       log(GS_HIRED['H-REP'].unitId === null,
           'gs: v11 a hire who gives notice is honestly un-homed');
     }
+
+    /* ==================== v12 — THE WELCOME WAGON ====================
+       the viewer→player path end-to-end through the real bus: free
+       observe, persona fork, tour, handle, wallet, the camera first
+       ask, the honest "no" lessons, the hire walkthrough, the first-
+       day card — and the never-list audit proving nothing leaked. */
+    if(typeof gsOnbState === 'function'){
+      /* the suite's earlier arcs leave live requests + a full hired
+         roster behind — sweep the bus past every leftover TTL so the
+         sky is honestly clear, and free a cast seat the public way */
+      gsBusTick(99999);
+      const T0 = 100000;
+      /* -- free observe: a fresh id is a viewer, not a record -------- */
+      const st0 = gsOnbState('pOnb', T0);
+      log(st0.fresh === true && st0.stage === 'S0_watch' &&
+          GS_ONB.players['pOnb'] === undefined &&
+          gsCreditBalance('pOnb') === 0,
+          'gs: v12 a fresh id watches free — no record, no credits, ' +
+          'no gate');
+      log(gsOnbDeepLink('pNoLink', '?utm=x').ok === false &&
+          GS_ONB.players['pNoLink'] === undefined,
+          'gs: v12 a plain visit creates no journey record');
+
+      /* -- persona fork + the seven-beat tour ------------------------ */
+      const card0 = gsOnbStart('pOnb', T0);
+      log(!!card0 && card0.kind === 'welcome' && card0.equalWeight === true &&
+          card0.fork.length === 2,
+          'gs: v12 the welcome card forks watch/play at equal weight');
+      log(gsOnbFork('pOnb', 'bogus', T0).ok === false &&
+          gsOnbFork('pOnb', 'play', T0).stage === 'S1_orient',
+          'gs: v12 the persona fork validates + lands on the tour offer');
+      const anchors = [];
+      let b = gsOnbTourStart('pOnb', T0);
+      while(b && b.ok && !b.done){ anchors.push(b.anchor);
+                                    b = gsOnbTourBeat('pOnb', T0); }
+      const stAftTour = gsOnbState('pOnb', T0);
+      log(anchors.length === 7 && anchors[6] === 'feed-archive' &&
+          b.done === true && stAftTour.stage === 'S2_name' &&
+          GS_ONB.players['pOnb'].signals.archiveSeen === true,
+          'gs: v12 the tour runs exactly seven beats, anchored, ending ' +
+          'on the Archive');
+      /* -- skip-anywhere: every optional step yields to a click ------ */
+      gsOnbStart('pSkip', T0); gsOnbFork('pSkip', 'play', T0);
+      gsOnbTourStart('pSkip', T0);
+      const sk1 = gsOnbSkip('pSkip', T0);          // mid-tour skip
+      const sk2 = gsOnbSkip('pSkip', T0);          // handle
+      const sk3 = gsOnbSkip('pSkip', T0);          // wallet
+      const sk4 = gsOnbSkip('pSkip', T0);          // first ask
+      const sk5 = gsOnbSkip('pSkip', T0);          // nothing left
+      log(sk1.ok && sk2.ok && sk3.ok && sk4.ok && sk5.ok === false &&
+          gsOnbState('pSkip', T0).stage === 'S5_resident',
+          'gs: v12 skipping is free at every step; at the fork there ' +
+          'is nothing left to skip');
+      /* -- the watch persona path lands, not funnels ----------------- */
+      gsOnbStart('pWatch', T0); gsOnbFork('pWatch', 'watch', T0);
+      gsOnbSkip('pWatch', T0);                     // tour offer skipped
+      const stWatch = gsOnbState('pWatch', T0);
+      const settleW = gsOnbSettle('pWatch', 'watch', T0);
+      log(stWatch.stage === 'S1w_watch_done' && settleW.exit === 'completed' &&
+          gsOnbCard('pWatch', T0) === null,
+          'gs: v12 the watch path ends on a landing, then settles ' +
+          'with nothing granted');
+
+      /* -- handles: format, reservation, taken, attribution ---------- */
+      const hcBad = gsHandleCheck('1x'), hcCast = gsHandleCheck('Victor'),
+            hcAmb = gsHandleCheck('Reyes'), hcSys = gsHandleCheck('admin');
+      log(!hcBad.ok && hcBad.reason === 'handle_format' &&
+          !hcCast.ok && hcCast.reason === 'handle_reserved' &&
+          !hcAmb.ok && hcAmb.reason === 'handle_reserved' &&
+          hcCast.suggest.length > 0 &&
+          !hcSys.ok && hcSys.reason === 'handle_reserved',
+          'gs: v12 handles reject bad format, cast names, ambient ' +
+          'names, and system words — with inline suggestions');
+      const hSet = gsSetHandle('pOnb', 'OnbWatcher', T0);
+      const hDup = gsSetHandle('pSkip', 'OnbWatcher', T0);
+      log(hSet.ok === true && gsHandleOf('pOnb') === 'OnbWatcher' &&
+          gsPlayerOfHandle('onbwatcher') === 'pOnb' &&
+          !hDup.ok && hDup.reason === 'handle_taken' &&
+          hDup.suggest.length > 0,
+          'gs: v12 a handle reserves, attributes, and offers variants ' +
+          'when taken');
+
+      /* -- the wallet: ladder verbatim, first-buy bonus, spend cap --- */
+      const w0 = gsWallet('pOnb', T0);
+      log(w0.packs.length === 6 && w0.packs[0].id === 'pocket' &&
+          w0.packs[5].id === 'mogul' && w0.bonusLeft === 0.5 &&
+          w0.capUsd === 200 && /never convert/.test(w0.honesty),
+          'gs: v12 the wallet shows the six-pack ladder, the +50% ' +
+          'first-buy bonus, the $200 day cap, and the two-currency ' +
+          'rule');
+      const bp1 = gsBuyPack('pOnb', 'starter', T0);
+      log(bp1.ok && bp1.credits === 825 && bp1.bonusCr === 275 &&
+          gsCreditBalance('pOnb') === 825 &&
+          gsBuyPack('pOnb', 'nonesuch', T0).reason === 'unknown_pack',
+          'gs: v12 the first pack credits +50% once, disclosed — ' +
+          'starter lands 825 for $4.99');
+      gsBuyPack('pOnb', 'mogul', T0); gsBuyPack('pOnb', 'pro', T0);
+      gsBuyPack('pOnb', 'plus', T0);  gsBuyPack('pOnb', 'regular', T0);
+      const capHit = gsBuyPack('pOnb', 'plus', T0);
+      log(capHit.ok === false && capHit.reason === 'spend_cap' &&
+          Math.abs(gsWallet('pOnb', T0).spentTodayUsd - 184.95) < 0.01,
+          'gs: v12 the disclosed $200/day spend cap bites honestly',
+          capHit.spentTodayUsd);
+      const ad1 = gsWatchAd('pOnb', T0);
+      const led = gsWalletLedger('pOnb');
+      log(ad1.ok && ad1.credits === 2 &&
+          led.some(t => /pack:starter.*\+50%/.test(t.reason)) &&
+          led.some(t => t.reason === 'ad view'),
+          'gs: v12 ads remain the non-purchase mint and the ledger ' +
+          'itemizes every credit');
+
+      /* -- S4: the camera pass — a real request, claims nothing ------ */
+      const camQ = gsPriceQuote({ playerId: 'pOnb', kind: 'camera',
+                                durationMin: 30 }, T0);
+      const fa = gsOnbFirstAsk('pOnb', T0);
+      const camR = fa.req && gsRequestById(fa.req);
+      log(fa.ok && camR && camR.kind === 'camera' && camR.status === 'active' &&
+          camR.billed === 10 && camQ.total === 10 &&
+          gsCameraSessions(T0).some(s => s.req === fa.req) &&
+          GS_REQ.actions.camera.claims(camR).length === 0,
+          'gs: v12 the camera pass files through the bus — 10 cr / ' +
+          '30 min, active, claiming no in-world resource');
+      const wireCam = gsWire({ limit: 400 }).filter(e =>
+        e.req === fa.req || /camera — a directed view/.test(e.text));
+      log(wireCam.some(e => e.who === 'OnbWatcher' &&
+          e.status === 'running'),
+          'gs: v12 the wire attributes the ask to the handle, not ' +
+          'the id');
+      /* -- the low-balance lesson: opt-in, reads the meter only ------ */
+      const balLB = gsCreditBalance('pOnb');
+      const lb = gsOnbLowBal('pOnb', fa.req, T0 + 5);
+      log(lb.ok && lb.simulated === true && lb.debt === false &&
+          lb.fundedMinLeft > 0 &&
+          gsCreditBalance('pOnb') === balLB &&
+          gsOnbLowBal('pOnb', 'no-such', T0).reason === 'no_live_session' &&
+          gsOnbLowBal('pSkip', fa.req, T0).reason === 'no_live_session',
+          'gs: v12 the low-balance preview is opt-in, moves nothing, ' +
+          'and refuses anyone else\'s session');
+      /* -- the hand-back: an early release refunds whole minutes ----- */
+      const endAsk = gsOnbEndAsk('pOnb', fa.req, T0 + 10);
+      log(endAsk.ok === true && endAsk.refunded === 6 &&
+          camR.status === 'cancelled' &&
+          gsCameraSessions(T0 + 10).length === 0 &&
+          gsOnbEndAsk('pSkip', fa.req, T0).reason === 'not_your_ask',
+          'gs: v12 handing the camera back early refunds the unused ' +
+          'minutes — 6 cr home',
+          'refunded ' + (endAsk.refunded != null ? endAsk.refunded : '?'));
+
+      /* -- the honest "no"s: decline / review / queue ---------------- */
+      let ambId = null;
+      if(typeof NV_CAST !== 'undefined'){
+        const amb = NV_CAST.find(c => c.tier === 'ambient');
+        if(amb) ambId = amb.id;
+      }
+      let decMin = null;
+      if(ambId && typeof gsCoStarCheck === 'function')
+        for(let m = T0; m < T0 + 2880 && decMin == null; m += 15)
+          if(!gsCoStarCheck(ambId, 'greet', m, 5).ok) decMin = m;
+      const dl = ambId && decMin != null
+        ? gsOnbLesson('pOnb', 'decline', decMin) : null;
+      const dlR = dl && dl.req && gsRequestById(dl.req);
+      const dlL = GS_ONB.players['pOnb'].lessons.decline;
+      const dlHalf = dlR && dlR.billed - Math.ceil(dlR.billed * 0.5);
+      log(!!dl && dl.ok === true && dlR && dlR.status === 'completed' &&
+          dlR.declined && dlR.refunded === dlHalf &&
+          dlL && dlL.outcome === 'declined' && dlL.refund === dlR.refunded,
+          'gs: v12 the decline lesson files a real co-star ask — the ' +
+          'pawn says no and half the bill comes home',
+          dl && dlR ? dlR.status + ' ' + dlR.refunded : 'no thin window');
+      const rv = gsOnbLesson('pOnb', 'review', T0 + 3000);
+      const rvR = rv.req && gsRequestById(rv.req);
+      const rvParked = rvR.status === 'in_review' && rvR.billed > 0;
+      const rvBal = gsCreditBalance('pOnb');
+      gsReviewResolve(rv.req, false, { nowMin: T0 + 3001 });
+      const rvL = GS_ONB.players['pOnb'].lessons.review;
+      log(rv.ok === true && rvParked && rvR.status === 'denied' &&
+          rvR.refunded === rvR.billed &&
+          gsCreditBalance('pOnb') === rvBal + rvR.billed &&
+          rvL.outcome === 'not approved',
+          'gs: v12 a "not approved" parks billed, then refunds every ' +
+          'credit on the human\'s word',
+          rvR ? rvR.status + ' billed ' + rvR.billed : 'no req');
+      /* the queue lesson needs a real sky hold — a second player's
+         approved weather call supplies it honestly */
+      gsCreditGrant('pBlock', 5000, 'test stake');
+      const blk = gsSubmitRequest({ playerId: 'pBlock', kind: 'weather',
+        durationMin: 120, params: { wx: 'rain' } }, T0 + 3010);
+      gsReviewResolve(blk.id, true, { nowMin: T0 + 3010 });
+      const qy = gsOnbLesson('pOnb', 'queue', T0 + 3011);
+      const qyR = qy.req && gsRequestById(qy.req);
+      const qyBal = gsCreditBalance('pOnb');
+      gsBusTick(T0 + 3011 + 61);                  // past the queued TTL
+      const qyL = GS_ONB.players['pOnb'].lessons.queue;
+      log(blk.status === 'active' && qy.ok === true &&
+          qyR.status === 'expired' && qyR.discount === 0.15 &&
+          qyR.refunded === qyR.billed &&
+          gsCreditBalance('pOnb') === qyBal + qyR.billed &&
+          qyL.outcome === 'lapsed',
+          'gs: v12 the queue lesson holds at −15% behind a real sky ' +
+          'and a lapsed slot refunds in full',
+          qyR ? ('status ' + qyR.status + ' disc ' + qyR.discount)
+              : (qy && qy.reason));
+      log(gsOnbLesson('pOnb', 'bogus', T0).reason === 'unknown_lesson' &&
+          gsOnbLesson('pLeak2', 'decline', decMin || T0)
+            .reason === 'insufficient_credits',
+          'gs: v12 lessons validate kind and file nothing the wallet ' +
+          'can\'t cover');
+      /* the sky-free refusal is honest, not a faked queue — tick past
+         the blocker's end so its claim releases first */
+      gsBusTick(T0 + 3200);
+      const sf = gsOnbLesson('pOnb', 'queue', T0 + 6000);
+      log(sf.ok === false && sf.reason === 'sky_free',
+          'gs: v12 with the sky clear the queue lesson says so — ' +
+          'it never fakes a line');
+
+      /* -- S5/S6: the hire walkthrough rides the real hire lane ------ */
+      const obB = gsRegisterBuilding({ street: 'Welcome Lane' });
+      const obU = gsRegisterUnit(obB.id, { unit_code: 'A', bedrooms: 1,
+                                           base_rent: 900 });
+      /* earlier arcs filled the hired roster — release enough seats the
+         public way so the walkthrough can file a real application */
+      while(Object.keys(GS_HIRED).length >= GS_MAX_HIRED_TOTAL)
+        gsReleaseHired(Object.keys(GS_HIRED)[0], 'v12 seat check');
+      const hp = gsOnbHirePath('pOnb', T0 + 7000);
+      log(hp.fee === 500 && /after screening/.test(hp.billing) &&
+          hp.jobs.some(j => j.id === 'seeking') &&
+          hp.vacancies.some(v => v.id === obU.id) &&
+          hp.truth.length === 4,
+          'gs: v12 the hire card quotes the real lane — 500 cr after ' +
+          'screening, live jobs, live vacancies');
+      const balH = gsCreditBalance('pOnb');
+      const hr = gsSubmitRequest({ playerId: 'pOnb', kind: 'hire',
+        target: obU.id, durationMin: 5,
+        params: { name: 'Onboard Walker', age: 34, pronouns: 'they/them',
+          bio: 'new to the block', arrival: 'came for the light',
+          look: { build: 'compact', palette: 'moss',
+                  signature: 'cardigans and a paperback' },
+          job: 'seeking', moveInDate: '2026-09-23' } }, T0 + 7001);
+      const newHires = () => Object.keys(GS_HIRED).filter(id =>
+        GS_HIRED[id].playerId === 'pOnb');
+      log(hr.status === 'in_review' && hr.billed === 0 &&
+          gsCreditBalance('pOnb') === balH,
+          'gs: v12 a hire parks for human review and bills nothing ' +
+          'while it waits');
+      gsReviewResolve(hr.id, true, { nowMin: T0 + 7002 });
+      const hiredId = newHires()[0];
+      const hLease = hiredId && gsLeasesFor(hiredId)
+        .find(l => l.status === 'active');
+      log(!!hiredId && gsCreditBalance('pOnb') === balH - 500 &&
+          !!hLease && hLease.unit_id === obU.id &&
+          hLease.hirePackage === true &&
+          GS_ONB.players['pOnb'].hires.indexOf(hiredId) >= 0,
+          'gs: v12 approval bills 500 and walks a real hire into a ' +
+          'real lease — no step bypassed the bus');
+      const fdc = gsOnbHiredReturn('pOnb', hiredId, T0 + 7003);
+      const fdcBrief = fdc.briefing || {};
+      log(fdc.ok === true && fdc.kind === 'first_day' &&
+          fdc.char === hiredId && fdcBrief.redacted != null &&
+          fdc.costs.rent && fdc.costs.rent.currency === 'game dollars' &&
+          /never ownership|a visit/.test(fdc.costs.possess) &&
+          /own brain|thinner/.test(fdc.offline) &&
+          /no "miss you"/.test(fdc.offline),
+          'gs: v12 the first-day card is the redacted briefing — ' +
+          'rent in dollars, possession a visit, thin AI a fact');
+      log(gsOnbState('pOnb', T0 + 7004).hires.length === 1 &&
+          gsOnbDeepLink('pOnb', '?hired=1').card.ok === true &&
+          gsOnbDeepLink('pOnb', '?returning=1').link === 'returning',
+          'gs: v12 the two deep links land — ?hired=1 raises the ' +
+          'first-day card, ?returning=1 the quiet hello');
+
+      /* -- checklist truth + exits ------------------------------------ */
+      gsOnbSignal('pOnb', 'watch_min', T0);
+      gsOnbSignal('pOnb', 'feed_scroll', T0);
+      gsOnbSettle('pOnb', 'watch', T0 + 8000);
+      const cl = gsOnbChecklist('pOnb', T0 + 8001);
+      log(cl.items.length === 6 && cl.pct === 100 && cl.done === true &&
+          cl.items[0].done === true && cl.items[4].done === true,
+          'gs: v12 the checklist tells the truth — six items, ' +
+          'percent counts only chosen steps');
+      const clWatch = gsOnbChecklist('pWatch', T0);
+      log(clWatch.items.filter(i => i.optional)
+            .every(i => i.label === 'only if you ever want to act'),
+          'gs: v12 the watch path relabels optional steps honestly');
+      log(gsOnbDismiss('pDis', T0).exit === 'dismissed' &&
+          gsOnbCard('pDis', T0) === null &&
+          gsOnbReopen('pDis', T0).ok === true &&
+          gsOnbPark('pPark', T0).exit === 'parked' &&
+          gsOnbCard('pPark', T0) === null,
+          'gs: v12 dismiss and park collapse to the footer link; ' +
+          'reopen forgives');
+
+      /* -- no free agency: a broke id files nothing ------------------- */
+      const leakCam = gsOnbFirstAsk('pLeak', T0);
+      const leakAny = GS_REQ.reqs.some(r => r.playerId === 'pLeak' &&
+        r.status !== 'denied');
+      log(leakCam.ok === false && leakCam.reason === 'insufficient_credits' &&
+          !leakAny && gsCreditBalance('pLeak') === 0,
+          'gs: v12 no free agency — a zero wallet files nothing and ' +
+          'nothing reaches the feed');
+
+      /* -- analytics: the whitelist holds ----------------------------- */
+      const evs = gsOnbEvents('pOnb');
+      const hooks = new Set(evs.map(e => e.hook));
+      log(hooks.has('watch_start') && hooks.has('persona_chosen') &&
+          hooks.has('tour_started') && hooks.has('archive_beat_seen') &&
+          hooks.has('handle_set') && hooks.has('wallet_explained') &&
+          hooks.has('topup_shown') && hooks.has('request_submitted') &&
+          hooks.has('first_request_filed') &&
+          hooks.has('review_outcome_seen') &&
+          hooks.has('queue_outcome_seen') &&
+          hooks.has('low_balance_simulated') &&
+          hooks.has('character_created') && hooks.has('hired_return') &&
+          evs.every(e => GS_ONB_HOOKS[e.hook]),
+          'gs: v12 the analytics ledger carries only whitelisted ' +
+          'hooks — every contract beat fired');
+
+      /* -- persistence: journeys ride the bus snapshot ---------------- */
+      const snap12 = gsBusSnapshot();
+      gsBusReset();
+      const wiped12 = Object.keys(GS_ONB.players).length === 0 &&
+                      gsHandleOf('pOnb') === null;
+      gsBusLoad(snap12);
+      const stBack = gsOnbState('pOnb', T0 + 9000);
+      log(wiped12 && stBack.fresh === false &&
+          gsHandleOf('pOnb') === 'OnbWatcher' &&
+          gsOnbEvents('pOnb').length === evs.length &&
+          stBack.hires.length === 1,
+          'gs: v12 journeys, handles, and the analytics ledger ' +
+          'survive the bus snapshot');
+
+      /* -- the never-list audit --------------------------------------- */
+      const onbAud = gsOnbAudit();
+      log(onbAud.ok === true,
+          'gs: v12 the onboarding audit is clean after the whole ' +
+          'journey', onbAud.issues.slice(0, 3).join('; ') || 'clean');
+      log(typeof gsPossessDeny === 'function' &&
+          gsPossessDeny('C1', 'pOnb') === 'possession_ban' &&
+          gsPossessDeny('C8', 'owner') === 'possession_ban',
+          'gs: v12 the ban holds through onboarding — the welcome ' +
+          'never offers the mains');
+    }
+
+    /* ==================== v13 — THE FRIDAY PAYROLL ====================
+       canonical payroll off the jobs.json held_by layer, the informal
+       flows, the weekly nut drain, and the owner's back office. The
+       same module set ships the timepiece + standing directive (the
+       three game-feedback fixes). */
+    if(typeof gsEconTick === 'function' && typeof gsEconAudit ===
+       'function'){
+      gsEconReset();                 // the suite owns this stretch of books
+      const FRI = '2026-10-02', SAT = '2026-10-10', NOV = '2026-11-02';
+      gsDollarGrant('C2', 5000, 'v13 stake');
+      gsDollarGrant('C3', 5000, 'v13 stake');
+      gsMarkHired('H90', 'p13', { name: 'Econ Hire' });
+      gsDollarGrant('H90', 50, 'v13 nearly broke');
+
+      /* -- payroll: weekly Friday, variable jitter bounded ---------- */
+      const earn0 = (GS_ECON.rec['C2'] || { earned: 0 }).earned;
+      gsEconTick(FRI);
+      const c2i = GS_ECON_WORK.findIndex(w => w.cid === 'C2');
+      const r2 = gsEconRec('C2');
+      const wkC2 = Math.round(2800 * 12 / 52);
+      const dC2 = r2.earned - earn0;
+      log(r2.marks['w' + c2i] === FRI && dC2 >= wkC2 * 0.9 - 1 &&
+          dC2 <= wkC2 * 1.1 + 1,
+          'gs: v13 Friday pays Jules her barista week — gig jitter ' +
+          'bounded ±10%', 'got ' + dC2 + ' want ~' + wkC2);
+      const c1i = GS_ECON_WORK.findIndex(w => w.cid === 'C1');
+      log((gsEconRec('C1').marks['w' + c1i] === FRI) ===
+          gsBiweeklyDue('C1', FRI),
+          'gs: v13 the biweekly band pays only on its own Friday');
+      const c6m = GS_ECON_WORK.findIndex(w => w.cid === 'C6' &&
+        w.cadence === 'monthly');
+      log(gsEconRec('C6').marks['w' + c6m] === '2026-10',
+          'gs: v13 the pension posts once a month, marked by month');
+
+      /* -- informal flows move real dollars, silently ---------------- */
+      const shareTxn = GS_LEDGER.txns.find(t => t.from === 'C2' &&
+        t.to === 'C6' && t.amt === 700 && /room share/.test(t.reason));
+      log(!!shareTxn &&
+          !GS_FEED.some(e => e.type === 'econ' &&
+            (e.cid || e.from || e.to)),
+          'gs: v13 the cash room share moves real dollars and never ' +
+          'names anyone on the feed');
+
+      /* -- the nut: weekly drain, partial-pay, honest shortfall ------ */
+      gsEconTick(SAT);               // Saturday closes every nutDay
+      const h90 = gsEconRec('H90');
+      log(GS_LEDGER.dollars['H90'] === 0 && h90.nutShort > 0 &&
+          h90.spentNut === 50,
+          'gs: v13 the nut partial-pays food-first and records the ' +
+          'shortfall — never an overdraft');
+
+      /* -- idempotent + honest catch-up across a month boundary ------ */
+      log(gsEconTick(FRI).days === 0,
+          'gs: v13 re-ticking a covered day is a no-op');
+      const snapE = gsEconSnapshot();
+      gsEconReset();
+      const wipedE = GS_ECON.log.length === 0;
+      gsEconLoad(snapE);
+      const novDays = gsEconTick(NOV).days;
+      log(wipedE && novDays > 0 && gsEconTick(NOV).days === 0 &&
+          GS_LEDGER.txns.some(t => t.cur === 'dollars' &&
+            /· 2026-11/.test(t.reason)),
+          'gs: v13 payroll survives the snapshot and the books reopen ' +
+          'into November without double-paying October');
+
+      /* -- the owner's back office ----------------------------------- */
+      const aud = gsEconAudit();
+      log(aud.ok === true,
+          'gs: v13 audit — replayed log equals live balances, both ' +
+          'currencies conserved', aud.bad.slice(0, 2).join('; ') || 'clean');
+      const bk = gsEconBooks('2026-10');
+      log(bk.payroll.paid > 0 && bk.payroll.headcount >= 20 &&
+          bk.payroll.byEmployer['biz:mudhaus'] &&
+          bk.payroll.byEmployer['biz:mudhaus'].headcount >= 2 &&
+          bk.flows.sharesOut === 1400 && bk.nut.groceries > 0,
+          'gs: v13 the monthly statement — payroll by employer, cash ' +
+          'shares, the nut',
+          'paid ' + bk.payroll.paid + ' heads ' + bk.payroll.headcount);
+      const pr13 = gsEconPayroll('2026-10');
+      log(Array.isArray(pr13) && pr13.some(e => e.account === 'biz:mudhaus' &&
+          e.out > 0 && e.float > 0),
+          'gs: v13 the payroll audit names employers, outflow, and the ' +
+          'labeled float');
+      const stb = gsEconStub('C5');
+      log(stb.income === 2600 && stb.nut === 520 && stb.bank >= 0 &&
+          typeof stb.runwayMonths === 'number' && stb.earned > 0,
+          'gs: v13 the money stub reads Marcus — courier income vs ' +
+          'his nut vs his runway');
+      log(Array.isArray(gsEconArrears('2026-10-10')),
+          'gs: v13 the collection queue reads the lease book');
+
+      /* -- wire privacy: Friday is a beat, never a balance ----------- */
+      const pd = gsWireFormat({ n: 900001, type: 'econ',
+                               action: 'payday', count: 12, amt: 99999 });
+      const sh = gsWireFormat({ n: 900002, type: 'econ',
+                               action: 'share_short' });
+      log(pd.length === 1 && /payday/.test(pd[0].text) &&
+          !/\d/.test(pd[0].text) && sh.length === 0,
+          'gs: v13 the wire feels Friday but never prints money');
+      log(GS_FEED.some(e => e.type === 'econ' && e.action === 'payday' &&
+          e.count > 0),
+          'gs: v13 the feed logged the Friday beat');
+    }
+
+    /* ==================== v14 — THE BOOK ====================
+       scheduled exclusives (world/bookings.json): weather + event
+       requests may declare a start window inside the next 24 h on the
+       half-hour grid; approval lands them on the public calendar; they
+       fire when the window arrives; cancel-before-start refunds in
+       full; the book never skips cooldowns and never auctions. All
+       times are explicit epoch minutes — the bus never reads the wall
+       clock when nowMin is passed. */
+    if(typeof gsBookableSlots === 'function' &&
+       typeof gsBookCalendar === 'function'){
+      gsBusReset();
+      const B0 = 200040;                    // half-hour aligned base
+      gsCreditGrant('pBk1', 8000, 'v14 stake');
+      gsCreditGrant('pBk2', 8000, 'v14 stake');
+
+      /* -- the door: who may book, and what a legal window is -------- */
+      /* denied filings go on pBkD's ledger — a player who keeps filing
+         refused paperwork earns the review lane (repeat-pattern), and
+         the booking tests below need pBk1's record clean */
+      const dKind = gsSubmitRequest({ playerId: 'pBkD', kind: 'possess',
+        target: 'H1', durationMin: 10, startMin: B0 + 60 }, B0);
+      log(dKind.status === 'denied' && dKind.reason === 'not_bookable',
+          'gs: v14 sessions are not bookable — the book is weather ' +
+          'and events only');
+      const dFar = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 + 2000 }, B0);
+      log(dFar.status === 'denied' && dFar.reason === 'beyond_horizon',
+          'gs: v14 the book is the next 24 h — beyond that is a queue\'s job');
+      const dBad = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: 'soon' }, B0);
+      log(dBad.status === 'denied' && dBad.reason === 'bad_window',
+          'gs: v14 a malformed window is refused before billing');
+      const dPast = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 - 60 }, B0);
+      log(dPast.status === 'denied' && dPast.reason === 'bad_window',
+          'gs: v14 the past is not a window');
+      log(gsCreditBalance('pBkD') === 0 &&
+          gsCreditBalance('pBk1') === 8000,
+          'gs: v14 structural denies never move a credit');
+
+      /* -- lifecycle: file → review → booked → fire → complete -------
+         bkA runs B0+120..180; its 4h sky rest makes B0+420 the next
+         legal weather slot — bkB books exactly it (tail-boundary ok) */
+      const bkA = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 + 120 }, B0);
+      log(bkA.status === 'booked' && bkA.bookedStart === B0 + 120,
+          'gs: v14 an admin booking lands on the calendar — no review, ' +
+          'no billing');
+      const bkB = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 60, params: { wx: 'rain' },
+        startMin: B0 + 420 }, B0 + 10);
+      log(bkB.status === 'in_review',
+          'gs: v14 a player booking still takes the exclusive review ' +
+          'lane at filing');
+      gsReviewResolve(bkB.id, true, { nowMin: B0 + 20 });
+      log(bkB.status === 'booked' && bkB.bookedStart === B0 + 420,
+          'gs: v14 approval lands on the calendar — the window is the ' +
+          'promise, not the run');
+      const cal = gsViewerState(B0 + 30).calendar;
+      const calA = cal.find(e => e.req === bkA.id);
+      const calB = cal.find(e => e.req === bkB.id);
+      log(!!calA && !!calB && calA.claim === 'sky' &&
+          calA.start_min === B0 + 120 && calB.start_min === B0 + 420 &&
+          calA.min === 60 && calA.who === 'owner',
+          'gs: v14 gsViewerState().calendar is the public strip — ' +
+          'claim, window, holder');
+      /* a live ask whose window would overlap the booked span queues —
+         the calendar promise is a real claim, not a suggestion */
+      const preBusy = gsCreditBalance('pBk1');
+      const busy = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 120, params: { wx: 'clear' } }, B0 + 40);
+      const busyQ = busy.status === 'queued' ||
+        (busy.status === 'in_review' && !!busy.holdsLine);
+      gsCancelRequest(busy.id, B0 + 41, 'player');
+      log(busyQ && gsCreditBalance('pBk1') === preBusy,
+          'gs: v14 an overlapping ask queues behind the booked span — ' +
+          'and a cancelled queue refunds every credit');
+      /* the book never skips cooldowns: bkA's window ends at +180, the
+         sky rests to +420 — a window opening inside that tail is
+         refused at the door, no money moved */
+      const dTail = gsSubmitRequest({ playerId: 'pBk2', kind: 'weather',
+        durationMin: 60, params: { wx: 'clear' },
+        startMin: B0 + 300 }, B0 + 50);
+      log(dTail.status === 'denied' && dTail.reason === 'cooldown_tail',
+          'gs: v14 a slot inside a cooldown tail cannot be booked');
+      gsBusTick(B0 + 90);
+      log(bkA.status === 'booked' && !GS_WX_OVR.wx,
+          'gs: v14 the calendar waits — a booked sky does not fire early');
+      gsBusTick(B0 + 120);
+      log(bkA.status === 'active' && GS_WX_OVR.wx === 'fog',
+          'gs: v14 the window arrives — the booking fires on the beat');
+      gsBusTick(B0 + 180);
+      log(bkA.status === 'completed' && !GS_WX_OVR.wx,
+          'gs: v14 the window ends — the sky is handed back to nature');
+      /* bkB booked [420,480) while bkA's rest ran — the booked slot is
+         legal on arrival: it fires on time */
+      gsBusTick(B0 + 420);
+      log(bkB.status === 'active' && GS_WX_OVR.wx === 'rain',
+          'gs: v14 the second booking fires the moment its window ' +
+          'opens — tail-boundary slots are honored');
+      gsBusTick(B0 + 480);
+      log(bkB.status === 'completed',
+          'gs: v14 the second window completes at its own edge');
+
+      /* -- clip rule: a queued ask whose only blocker is a booked span
+         runs clipped to the window's edge, un-run minutes refunded ---
+         venue claims keep this on events (the sky's 4h rest would gate
+         any weather-vs-weather clip) */
+      const evA = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'block_party', at: 'Dolores Park' },
+        startMin: B0 + 900 }, B0 + 800);
+      log(evA.status === 'booked' && evA.bookedStart === B0 + 900,
+          'gs: v14 a venue event books its window on the calendar');
+      const clipE = gsSubmitRequest({ playerId: 'pBk1',
+        kind: 'street_event', durationMin: 120,
+        params: { event: 'park_cleanup', at: 'Dolores Park' } }, B0 + 810);
+      log(clipE.status === 'queued',
+          'gs: v14 an overlapping same-venue ask queues behind the ' +
+          'booked window');
+      gsBusTick(B0 + 811);
+      if(clipE.status === 'in_review')
+        gsReviewResolve(clipE.id, true, { nowMin: B0 + 812 });
+      gsBusTick(B0 + 813);
+      log(clipE.status === 'active' && clipE.endMin === B0 + 900 &&
+          clipE.clippedBy === evA.id,
+          'gs: v14 the clip rule — the queued cleanup runs until the ' +
+          'booked party, not past it');
+      gsBusTick(B0 + 900);
+      const clipBack = clipE.refunded || 0;
+      log(clipE.status === 'completed' && clipE.usedMin ===
+          B0 + 900 - B0 - 813 && clipBack > 0,
+          'gs: v14 the clipped run refunds its un-run minutes',
+          'refunded ' + clipBack + ' of ' + clipE.billed);
+      log(evA.status === 'active',
+          'gs: v14 the booked event fires on time behind the clipped run');
+      gsBusTick(B0 + 960);
+      log(evA.status === 'completed',
+          'gs: v14 the booked window completes at its own edge');
+
+      /* -- pre-window cancel: the whole bill comes back -------------- */
+      const bkD = gsSubmitRequest({ playerId: 'pBk2', kind: 'street_event',
+        durationMin: 60,
+        params: { event: 'farmers_market', at: 'Mudhaus Coffee' },
+        startMin: B0 + 1200 }, B0 + 1000);
+      gsReviewResolve(bkD.id, true, { nowMin: B0 + 1005 });
+      const dBal = gsCreditBalance('pBk2');
+      const dBill = bkD.billed;
+      const dCal = gsViewerState(B0 + 1006).calendar
+        .some(e => e.req === bkD.id);
+      gsCancelRequest(bkD.id, B0 + 1010, 'player');
+      log(bkD.status === 'cancelled' && dCal &&
+          gsCreditBalance('pBk2') === dBal + dBill &&
+          !gsViewerState(B0 + 1011).calendar.some(e => e.req === bkD.id),
+          'gs: v14 cancel before the window — full refund, off the book');
+
+      /* -- FCFS sliding, never an auction: saturate the sky's horizon,
+         then an overlapping booking queues, finds no legal slot in
+         24 h, and misses with a full refund ------------------------- */
+      /* sky state at B0+1020: last weather completed at +480 → global
+         rest long past. Booked 60-min RAIN windows at +1050,+1350,
+         +1650,+1950,+2250 plus their 4h rest tails cover every slot
+         through the +2460 horizon (identical forecasts co-sponsor —
+         the saturating spans must clash with the probe's forecast) */
+      for(const s of [B0 + 1050, B0 + 1350, B0 + 1650, B0 + 1950,
+                      B0 + 2250]){
+        const ob = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+          durationMin: 60, params: { wx: 'rain' }, startMin: s },
+          B0 + 1020);
+        if(ob.status === 'in_review')
+          gsReviewResolve(ob.id, true, { nowMin: B0 + 1021 });
+      }
+      const p1bal = gsCreditBalance('pBk1');
+      const bkMiss = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 60, params: { wx: 'storm' },
+        startMin: B0 + 1080 }, B0 + 1025);
+      gsBusTick(B0 + 1026);
+      if(bkMiss.status === 'in_review')
+        gsReviewResolve(bkMiss.id, true, { nowMin: B0 + 1027 });
+      gsBusTick(B0 + 1028);
+      log(bkMiss.status === 'expired' &&
+          bkMiss.reason === 'window_missed' &&
+          gsCreditBalance('pBk1') === p1bal,
+          'gs: v14 a booking with no legal window in 24 h misses — ' +
+          'queued, slid, refunded in full');
+      const slotsBk = gsBookableSlots({ playerId: 'pBk1',
+        kind: 'weather', durationMin: 60, params: { wx: 'fog' },
+        startMin: B0 + 1030 }, B0 + 1030);
+      log(slotsBk.ok === true && slotsBk.slots.length === 0,
+          'gs: v14 the picker shows no weather slot while the sky\'s ' +
+          'booked spans + rest tails saturate the horizon');
+
+      /* -- the receipt discloses the window before payment ----------- */
+      /* pBk1's event cooldown (from the +813..900 clipped run) has
+         lapsed by B0+1200; mural_tour is roving — its openair claim
+         never clashes, so the quote reads clean */
+      const q = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: B0 + 2410 }, B0 + 1200);
+      log(q.ok === true && q.wouldBook === true &&
+          q.booked && q.booked.startMin === B0 + 2430 &&
+          q.queueDiscount === 0 && q.wouldReview === true,
+          'gs: v14 the quote names the snapped window, keeps the flat ' +
+          'price, never offers a queue discount on a booking');
+      /* surge keys off the window's hour: find a primetime slot on the
+         PT clock — 18:00–23:00 costs the cover charge. Scans start at
+         the first legal slot after the quote minute (the past is not
+         a window) */
+      let ptMin = B0 + 1230;
+      while(!gsBusPrimetime(ptMin) && ptMin < B0 + 2600) ptMin += 30;
+      let offMin = B0 + 1230;
+      while(gsBusPrimetime(offMin) && offMin < B0 + 2600) offMin += 30;
+      const qPT = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: ptMin }, B0 + 1201);
+      const qOff = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: offMin }, B0 + 1201);
+      log(qPT.ok && qPT.surge > 1 && qPT.total > qPT.base &&
+          qOff.ok && qOff.surge === 1,
+          'gs: v14 primetime pricing follows the window, not the filing');
+
+      /* -- wire vocabulary: the book speaks in contract lines -------- */
+      const fmt = (t, id) => {
+        const e = GS_FEED.find(x => x.type === t && x.req === id);
+        return e ? gsWireFormat(e).map(x => x.text).join(' | ') : null;
+      };
+      log(/booked for/.test(fmt('approve', evA.id) || ''),
+          'gs: v14 feed: "approved · booked for HH:MM"');
+      log(/booked window arrived/.test(fmt('fire', evA.id) || ''),
+          'gs: v14 feed: "booked window arrived — <action> fired"');
+      log(/before the window/.test(fmt('cancel', bkD.id) || ''),
+          'gs: v14 feed: "cancelled before the window · refunded"');
+      log(/window missed/.test(fmt('expire', bkMiss.id) || ''),
+          'gs: v14 feed: a missed window reads as what it was');
+
+      /* -- persistence: the calendar rides the bus snapshot ---------- */
+      /* owner's event cooldown (the +900 party) lapses at +1200 — a
+         roving tour books past the saturation window honestly */
+      const bkE = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'mural_tour' }, startMin: B0 + 2300 },
+        B0 + 1300);
+      log(bkE.status === 'booked',
+          'gs: v14 a roving event books even while the sky is saturated');
+      const snap14 = gsBusSnapshot();
+      gsBusReset();
+      const wiped14 = gsBookCalendar(B0 + 1301).length === 0;
+      gsBusLoad(snap14);
+      const calBack = gsBookCalendar(B0 + 1301);
+      log(wiped14 && calBack.some(e => e.req === bkE.id &&
+          e.start_min === B0 + 2310),
+          'gs: v14 booked windows survive the bus snapshot — ' +
+          'the calendar reloads verbatim');
+    }
+
+    /* ==================== v15 — THE MUNICIPAL CODE ====================
+       conflicts, second pass (41_game_systems_civic.js): venue ZONES
+       ('venue:<place>@<zone>' — the permit names an area), the NOISE
+       ORDINANCE (amplified kinds claim 'noise:<place>' + rest
+       22:00-06:00 PT), CITY HOLDS (admin closures that beat every
+       claim — sweep live ones compensated, deny filings 'city_hold',
+       park the line until they lift), CO-HOSTING (identical events on
+       touching ground at overlapping times are one party, two permits),
+       and the clerk's answers (gsReqOutlook, gsPriceQuote 'alts' +
+       estimates). */
+    if(typeof gsAdminHold === 'function' &&
+       typeof gsVenueZoneParse === 'function' &&
+       typeof gsQuietOverlap === 'function'){
+      gsBusReset();
+      const C0 = 200040;                      // half-hour aligned base
+      gsCreditGrant('pCv1', 8000, 'v15 stake');
+      gsCreditGrant('pCv2', 8000, 'v15 stake');
+
+      /* -- the zone map: named areas on subdividable venues ---------- */
+      const zones = gsVenueZoneList('Dolores Park');
+      log(Array.isArray(zones) && zones.indexOf('north lawn') >= 0 &&
+          zones.length >= 4,
+          'gs: v15 Dolores Park subdivides — the zone table is real');
+      log(gsVenueZoneList('Mudhaus Coffee') === null,
+          'gs: v15 a shop does not subdivide — zones are venue facts');
+
+      /* zone grammar: parens suffix, bare suffix, params.zone, denials */
+      const zPar = gsVenueZoneParse({ params:
+        { event: 'park_cleanup', at: 'Dolores Park (north lawn)' } });
+      log(zPar.place === 'dolores park' && zPar.zone === 'north lawn' &&
+          !zPar.err,
+          'gs: v15 "place (zone)" parses to its real ground');
+      const zSfx = gsVenueZoneParse({ params:
+        { event: 'park_cleanup', at: 'dolores park south lawn' } });
+      log(zSfx.zone === 'south lawn' && !zSfx.err,
+          'gs: v15 a bare trailing zone name parses too');
+      const zPrm = gsVenueZoneParse({ params:
+        { event: 'fitness_class', at: 'Dolores Park', zone: 'playground' } });
+      log(zPrm.zone === 'playground' && !zPrm.err,
+          'gs: v15 params.zone names the area explicitly');
+      const zBad = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'park_cleanup',
+        at: 'Dolores Park (the moon)' } }, C0);
+      log(zBad.status === 'denied' && zBad.reason === 'bad_zone',
+          'gs: v15 a zone the venue does not have is refused unbilled');
+      const zWhole = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'block_party',
+        at: 'Dolores Park (north lawn)' } }, C0);
+      log(zWhole.status === 'denied' && zWhole.reason === 'bad_zone',
+          'gs: v15 a whole-venue kind cannot take an area');
+
+      /* -- the zone matrix: same ground clashes, apart shares -------- */
+      const evN = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'park_cleanup',
+        at: 'Dolores Park (north lawn)' } }, C0 + 1);
+      log(evN.status === 'active' &&
+          gsClaimsOf(evN).some(c => c.res === 'venue:dolores park@north lawn'),
+          'gs: v15 a zoned permit claims its named area — venue:P@Z');
+      const evS = gsSubmitRequest({ playerId: 'pCv1', kind: 'street_event',
+        durationMin: 60, params: { event: 'fitness_class',
+        at: 'Dolores Park (south lawn)' } }, C0 + 2);
+      gsReviewResolve(evS.id, true, { nowMin: C0 + 3 });
+      log(evS.status === 'active',
+          'gs: v15 two zones of one park hold two permits at once');
+      const evN2 = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 60, params: { event: 'fitness_class',
+        at: 'Dolores Park (north lawn)' } }, C0 + 4);
+      log(evN2.status === 'denied' && evN2.reason === 'venue_rest',
+          'gs: v15 a permitted lawn rests — a different kind on it is ' +
+          'refused at the door');
+      const evW = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 60, params: { event: 'park_cleanup',
+        at: 'Dolores Park' } }, C0 + 6);
+      log(evW.status === 'queued',
+          'gs: v15 the whole place touches every zone — it queues behind ' +
+          'the far lawn\'s class');
+
+      /* -- the noise floor: amplified fills the airspace ------------- */
+      const evAmp = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'movie_night',
+        at: 'Precita Park (the lawn)' } }, C0 + 8);
+      log(evAmp.status === 'active' &&
+          gsClaimsOf(evAmp).some(c => c.res === 'noise:precita park'),
+          'gs: v15 an amplified permit claims the place\'s airspace too');
+      const evQuiet = gsSubmitRequest({ playerId: 'pCv1', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Precita Park (the plaza)' } }, C0 + 9);
+      log(evQuiet.status === 'queued' &&
+          (gsExplainRequest(evQuiet.id).blockedBy || [])
+            .indexOf(evAmp.id) >= 0,
+          'gs: v15 a loud movie reaches the far plaza — a quiet class ' +
+          'queues behind it');
+      const expAmp = gsExplainRequest(evQuiet.id);
+      log(expAmp && (expAmp.on || []).join(' ').indexOf('amplified') >= 0,
+          'gs: v15 the explanation names the airspace it waits on');
+      const evRov = gsSubmitRequest({ playerId: 'pCv2', kind: 'street_event',
+        durationMin: 30, params: { event: 'mural_tour',
+        at: 'Precita Park' } }, C0 + 11);
+      gsReviewResolve(evRov.id, true, { nowMin: C0 + 12 });
+      log(evRov.status === 'active',
+          'gs: v15 a roving tour walks through a loud night — openair shares');
+
+      /* -- the noise ordinance: amplified rests 22:00-06:00 PT ------- */
+      let qm = C0; while(!gsQuietMin(gsBusPtMin(qm))) qm += 30;
+      const evLoud = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: 'Valencia Street' }, startMin: qm }, C0 + 20);
+      log(evLoud.status === 'denied' && evLoud.reason === 'quiet_hours',
+          'gs: v15 amplified sound rests 22:00-06:00 PT — the door says so');
+      const q0 = (() => { let m = C0;
+        while(!gsQuietMin(gsBusPtMin(m))) m += 1; return m; })();
+      log(gsQuietOverlap(q0 - 60, q0) === false &&
+          gsQuietOverlap(q0 - 60, q0 + 1) === true,
+          'gs: v15 the ordinance counts minutes — ending at 22:00 is ' +
+          'clean, one past is not');
+      const evCalm = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'park_cleanup',
+        at: 'Dolores Park (church street edge)' },
+        startMin: qm + 30 }, C0 + 21);
+      log(evCalm.status === 'booked',
+          'gs: v15 a quiet permit may book inside quiet hours — the law ' +
+          'is about sound');
+      const slotsQ = gsBookableSlots({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'block_party', at: 'Valencia Street' } }, qm + 5);
+      log(slotsQ.ok === true && slotsQ.slots.length > 0 &&
+          slotsQ.slots.every(s => !gsQuietOverlap(s.startMin,
+            s.startMin + 60)),
+          'gs: v15 the picker never offers an amplified slot inside ' +
+          'quiet hours');
+
+      /* -- co-hosting: identical events on touching ground share ------
+         filed before any pCv* street_event completes (cooldowns are
+         stamped at completion) — pCv3 is a fresh hand for the join */
+      gsCreditGrant('pCv3', 8000, 'v15 stake');
+      const evP1 = gsSubmitRequest({ playerId: 'owner', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: '18th Street' } }, C0 + 40);
+      log(evP1.status === 'active',
+          'gs: v15 the first permit runs — the party is on');
+      const evCount0 = GS_EVENTS.length;
+      const evP2 = gsSubmitRequest({ playerId: 'pCv3', kind: 'street_event',
+        durationMin: 60, params: { event: 'block_party',
+        at: '18th Street' } }, C0 + 45);
+      gsReviewResolve(evP2.id, true, { nowMin: C0 + 46 });
+      const host = GS_EVENTS.find(e => e.at === '18th Street');
+      log(evP2.status === 'active' && GS_EVENTS.length === evCount0 &&
+          !!host && host.co === 2 &&
+          Object.keys(host.sponsors || {}).length === 2,
+          'gs: v15 a second identical permit joins — one party, two ' +
+          'names on the paper');
+      const coFeed = GS_FEED.filter(e => e.type === 'cohost').pop();
+      log(!!coFeed && coFeed.req === evP2.id &&
+          /one party, 2 permits/.test(
+            (gsWireFormat(coFeed)[0] || {}).text || ''),
+          'gs: v15 the wire prints the join — "one party, 2 permits"');
+      const evDiff = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 30,
+        params: { event: 'street_fair', at: '18th Street' } }, C0 + 47);
+      log(evDiff.status === 'denied' && evDiff.reason === 'venue_rest',
+          'gs: v15 a DIFFERENT event on the same ground is refused — ' +
+          'co-hosting is same-party only, and the grass rests');
+
+      /* -- the city's hand: holds beat every claim ------------------- */
+      const hold = gsAdminHold({ by: 'owner', res: 'venue:dolores park',
+        startMin: C0 + 15, durationMin: 120, reason: 'tree work' }, C0 + 15);
+      log(hold.ok === true && hold.hold && Array.isArray(hold.bumped) &&
+          hold.bumped.length >= 2,
+          'gs: v15 the city may close a venue — the sweep names every ' +
+          'bumped claim');
+      log(evN.status === 'cancelled' && evS.status === 'cancelled' &&
+          evW.status === 'failed' && evW.refunded >= evW.billed,
+          'gs: v15 running claims bump with money back; the queued ' +
+          'whole-park ask dies honestly on the rest it could never out-wait');
+      const holdFeed = GS_FEED.filter(e => e.type === 'admin' &&
+        e.action === 'hold').pop();
+      log(!!holdFeed && (holdFeed.bumped || 0) >= 2 &&
+          holdFeed.compensated_cr != null,
+          'gs: v15 the closure posts a public admin line with the count');
+      const dHold = gsSubmitRequest({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Dolores Park (playground)' } }, C0 + 22);
+      log(dHold.status === 'denied' && dHold.reason === 'city_hold',
+          'gs: v15 a filing into a live closure is refused at the door');
+      const qHold = gsPriceQuote({ playerId: 'pCvD', kind: 'street_event',
+        durationMin: 30, params: { event: 'fitness_class',
+        at: 'Dolores Park (tennis courts)' } }, C0 + 22);
+      log(qHold.ok === false && qHold.deny === 'city_hold' &&
+          Array.isArray(qHold.alts) && qHold.alts.length > 0,
+          'gs: v15 the receipt says when — a denied quote carries the ' +
+          'soonest legal slots');
+
+      /* a zone hold covers its area, not the park: evAmp is rooted on
+         'the lawn' at Precita — closing the lawn bumps it; the roving
+         tour keeps walking, and the plaza class's blocker bumping hands
+         it to the reviewer (exclusive kinds review at activation) */
+      const hZone = gsAdminHold({ by: 'owner',
+        res: 'venue:precita park@the lawn', startMin: C0 + 16,
+        durationMin: 90, reason: 'sprinklers' }, C0 + 23);
+      log(hZone.ok === true && evAmp.status === 'cancelled' &&
+          evRov.status === 'active',
+          'gs: v15 a zone closure bumps the permit rooted there, not ' +
+          'the walker');
+      log(evQuiet.status === 'in_review',
+          'gs: v15 the bumped blocker frees the line — the plaza class ' +
+          'reaches the reviewer on ground the closure never touched');
+      gsReviewResolve(evQuiet.id, true, { nowMin: C0 + 24 });
+      log(evQuiet.status === 'active',
+          'gs: v15 approved, it runs — the lawn rests, the plaza does not');
+
+      /* -- the held line: a queued filing waits out a hold ------------
+         wxA fog runs [C0+30,C0+60]; wxQ clear queues behind it; the
+         sky hold [C0+62,C0+88] is declared while wxQ's short window
+         [35,55] sits clear of it — so it survives the sweep but parks
+         when the line reaches it; at lift it promotes. (fog: a severe
+         sky would fence the outdoor permits too) */
+      const wxA = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+        durationMin: 30, params: { wx: 'fog' } }, C0 + 30);
+      log(wxA.status === 'active' && GS_WX_OVR.wx === 'fog',
+          'gs: v15 a live sky claim runs before the hold test');
+      const wxQ = gsSubmitRequest({ playerId: 'pCv1', kind: 'weather',
+        durationMin: 20, params: { wx: 'clear' } }, C0 + 32);
+      log(wxQ.status === 'queued',
+          'gs: v15 a contrary forecast queues behind the running sky');
+      const hSky = gsAdminHold({ by: 'owner', res: 'sky',
+        startMin: C0 + 62, durationMin: 26, reason: 'airshow' }, C0 + 35);
+      log(hSky.ok === true && wxQ.status === 'queued',
+          'gs: v15 a future closure leaves the short queue window ' +
+          'standing');
+      const dSky = gsSubmitRequest({ playerId: 'pCvD', kind: 'weather',
+        durationMin: 20, params: { wx: 'heatwave' } }, C0 + 50);
+      log(dSky.status === 'denied' && dSky.reason === 'city_hold',
+          'gs: v15 a filing whose window reaches the closure is refused ' +
+          'at the door');
+      gsBusTick(C0 + 60);
+      const outQ = gsReqOutlook(wxQ.id, C0 + 61);
+      log(wxQ.status === 'queued' && outQ && Array.isArray(outQ.held) &&
+          outQ.held.indexOf(hSky.hold.id) >= 0 &&
+          outQ.notBeforeMin === C0 + 88,
+          'gs: v15 the clerk names the hold and the minute it lifts');
+      gsBusTick(C0 + 89);
+      log(wxQ.status === 'in_review',
+          'gs: v15 the parked filing reaches the front the tick after ' +
+          'the hold lifts — never into it');
+      gsReviewResolve(wxQ.id, true, { nowMin: C0 + 90 });
+      log(wxQ.status === 'active' && GS_WX_OVR.wx === 'clear',
+          'gs: v15 approved, the waited-out forecast finally runs');
+      const liftFeed = GS_FEED.filter(e => e.type === 'admin' &&
+        e.action === 'hold_lift').pop();
+      log(!!liftFeed,
+          'gs: v15 the lift is a public beat too — the closure says when ' +
+          'it ends');
+      /* a fresh hold still sweeps the running claim it covers */
+      const hLift = gsAdminHold({ by: 'owner', res: 'sky',
+        startMin: C0 + 90, durationMin: 60, reason: 'drill' }, C0 + 90);
+      log(hLift.ok === true && wxQ.status === 'cancelled' &&
+          wxQ.refunded >= wxQ.billed,
+          'gs: v15 a fresh hold still sweeps what its window covers');
+      log(gsLiftHold(hLift.hold.id, C0 + 91) === true &&
+          !gsHoldList(C0 + 92).some(h => h.id === hLift.hold.id),
+          'gs: v15 the city can lift a closure early — the board clears');
+
+      /* -- the party outlives its permits (ticks land after the holds) */
+      gsBusTick(C0 + 100);
+      const hostMid = GS_EVENTS.find(e => e.at === '18th Street');
+      log(evP1.status === 'completed' && !!hostMid && hostMid.co === 1 &&
+          hostMid.untilMin === C0 + 106,
+          'gs: v15 the party outlives its first sponsor — the second ' +
+          'permit carries it');
+      gsBusTick(C0 + 106);
+      log(evP2.status === 'completed' &&
+          !GS_EVENTS.some(e => e.at === '18th Street'),
+          'gs: v15 the last sponsor\'s end closes the event');
+
+      /* -- the clerk's answers + persistence ------------------------- */
+      const holdSnap = gsAdminHold({ by: 'owner',
+        res: 'venue:dolores park@tennis courts',
+        startMin: C0 + 200, durationMin: 60, reason: 'resurfacing' },
+        C0 + 150);
+      const snap15 = gsBusSnapshot();
+      gsBusReset();
+      const wiped15 = gsHoldList(C0 + 151).length === 0;
+      gsBusLoad(snap15);
+      const holdsBack = gsHoldList(C0 + 151);
+      log(wiped15 && holdsBack.length === 1 &&
+          holdsBack[0].res === 'venue:dolores park@tennis courts' &&
+          holdsBack[0].live === false,
+          'gs: v15 declared holds ride the bus snapshot — the closure ' +
+          'reloads verbatim');
+      const vs15 = gsViewerState(C0 + 151);
+      log(Array.isArray(vs15.holds) && vs15.holds.length === 1 &&
+          /tennis/.test(vs15.holds[0].label),
+          'gs: v15 the public board posts the closure — viewers see the ' +
+          'closure, not the paperwork');
+      /* admin gate + validation */
+      log(gsAdminHold({ by: 'pCv1', res: 'sky', durationMin: 30 },
+            C0 + 152).err === 'admin_only' &&
+          gsAdminHold({ by: 'owner', res: 'venue:dolores park@the moon',
+            durationMin: 30 }, C0 + 152).err === 'bad_claim' &&
+          gsAdminHold({ by: 'owner', res: 'sky', durationMin: 5 },
+            C0 + 152).err === 'bad_duration',
+          'gs: v15 holds are admin-only, claim-shaped, and duration-bound');
+      log((gsConflictRules().join(' ').indexOf('noise') >= 0) &&
+          (gsConflictRules().join(' ').indexOf('co-hosting') >= 0) &&
+          (gsConflictRules().join(' ').indexOf('city holds') >= 0),
+          'gs: v15 the rule sheet explains zones, sound, and the city\'s hand');
+    }
+
+    /* ---- v13 the timepiece + standing directive (SF-only) -----------
+       pull-based clocks (rw-time-perception-spec) and the brain's own
+       last will filling the gap between turns. */
+    if(typeof SF_MODE !== 'undefined' && SF_MODE &&
+       typeof gsTimeGlance === 'function' &&
+       typeof sfAgentState === 'function'){
+      const pv = VILLAGERS.find(v => v._castId === 'C2') || VILLAGERS[0];
+      const cid = pv._castId || pv.name;
+      const keepTod = W.tod, keepRain = W.rain, keepStorm = W.storm;
+      const keepX = pv.x, keepY = pv.y, keepInB = pv.inBuilding,
+            keepIns = pv.inside, keepAg = pv.sfAgent,
+            keepState = pv.state;
+      /* the v13 driven-pawn fields all restore — a dirty flag here
+         would gap-lock the pawn for every later test */
+      const keepDrv = pv.sfAgentDriven, keepDir = pv.sfDirective,
+            keepGap = pv.sfGap, keepRes = pv.sfAgentResult,
+            keepRfx = pv.sfReflex, keepSeq = pv._agentSeq,
+            keepDS = pv._dirStreak, keepDg = pv._dirSig;
+      const keepLC = new Map();
+      VILLAGERS.forEach(o => keepLC.set(o, o.lastClockCheck));
+      /* v16 fields ride along — a dirty mind/convo/dispatch here would
+         poison the v16 suite that runs after */
+      const keepV16 = {
+        convo: pv.sfConvo, lastConvo: pv.sfLastConvo,
+        intents: pv.sfIntents, obs: pv.sfObligations,
+        mood: pv.sfMood, concerns: pv.sfConcerns,
+        why: pv.sfLastWhy, disp: pv.sfDisp, mind: pv.sfMind,
+        fat: pv.body ? pv.body.fatigue : null };
+      try{
+        W.tod = 15.8; W.rain = 0; W.storm = 0;
+        pv.lastClockCheck = null; pv.sfAgent = null;
+        pv.sfAgentDriven = false; pv.sfDirective = null;
+        pv.sfGap = false; pv.sfAgentResult = null; pv.sfReflex = null;
+        pv._agentSeq = null; pv._dirStreak = 0; pv._dirSig = null;
+        pv.sfConvo = null; pv.sfLastConvo = null; pv.sfIntents = [];
+        pv.sfObligations = []; pv.sfMood = null; pv.sfConcerns = null;
+        pv.sfLastWhy = null; pv.sfDisp = null;
+        const s0 = sfAgentState(cid, { turn: 1 });
+        log(!('time' in s0) &&
+            !JSON.stringify(s0).includes('15:48'),
+            'gs: v13 the state payload pushes no clock — pull, not push');
+        log(/haven't checked/.test(s0.felt),
+            'gs: v13 a fresh pawn hasn\'t checked the time yet');
+        const s1 = sfAgentState(cid, { turn: 2, glance: 'phone' });
+        log(s1.glance && s1.glance.ok === true && s1.glance.said === '15:48' &&
+            pv.lastClockCheck && pv.lastClockCheck.source === 'phone' &&
+            pv.lastClockCheck.turn === 2,
+            'gs: v13 a phone glance pulls exact sim time and anchors it');
+        const sFelt = sfAgentState(cid, { turn: 6 });
+        log(/it said 15:48/.test(sFelt.felt) && /turns? ago/.test(sFelt.felt),
+            'gs: v13 felt quotes the last check coarsely — never the now');
+
+        /* wallclock: needs a wall, and the room's clock may lie */
+        pv.inBuilding = false; pv.inside = null;
+        const gOut = sfAgentState(cid, { glance: 'wallclock' }).glance;
+        pv.inBuilding = true; pv.inside = 'Mudhaus Coffee';
+        const gIn = sfAgentState(cid, { glance: 'wallclock' }).glance;
+        log(gOut.ok === false && gIn.ok === true && gIn.said === '15:58',
+            'gs: v13 wall clocks need a wall — Mudhaus runs +10 fast',
+            JSON.stringify(gIn));
+        /* ask: the nearest neighbor quotes THEIR last check — skew
+           propagates socially */
+        pv.inBuilding = false; pv.inside = null;
+        VILLAGERS.forEach(o => { if(o !== pv) o.lastClockCheck =
+          { said: 15.9, at: 15.7, day: W.day, source: 'phone', turn: 1 }; });
+        let nearest = null, nd = 1e9;
+        for(const o of VILLAGERS){
+          if(o === pv || o.inBuilding) continue;
+          const dd = Math.hypot(o.x - pv.x, o.y - pv.y);
+          if(dd < nd){ nd = dd; nearest = o; }
+        }
+        const gAsk = sfAgentState(cid, { glance: 'ask' }).glance;
+        log(gAsk.ok === true && nearest && gAsk.via === nearest.name &&
+            gAsk.quoted === true && pv.lastClockCheck.source === 'ask',
+            'gs: v13 asking the time quotes the neighbor\'s own clock',
+            JSON.stringify(gAsk));
+
+        /* senses read the world, never state a clock */
+        W.tod = 23.4; W.rain = 0;
+        const seN = gsTimeSenses(pv);
+        W.tod = 15.0; W.rain = 0.5;
+        const seR = gsTimeSenses(pv);
+        W.rain = 0; W.tod = 15.8;
+        log(/dark/.test(seN) && /rain|grey/.test(seR) &&
+            !/\d{1,2}:\d{2}/.test(seR) &&
+            gsPoiOpenNow('Haus Coffee', 12) === true &&
+            gsPoiOpenNow('Haus Coffee', 23.5) === false,
+            'gs: v13 senses read light and weather and venue hours — ' +
+            'never a clock');
+
+        /* v16: the rain veto is gone — environment is a trigger class,
+           never code-authored behavior. Rest in the rain files and
+           executes; consequences belong to the body. */
+        W.rain = 0.6;
+        const rr = sfAgentAct(cid, { verb: 'rest', holdH: 0.25,
+                                     why: 'bone tired' });
+        log(rr.ok === true && pv.sfAgent && pv.sfAgent.verb === 'rest',
+            'gs: v16 no weather veto — rest in the rain files and runs');
+        sfNpcTick(pv, 0.016);
+        log(pv.state === 'rest' && pv.inBuilding === false,
+            'gs: v16 the rest executes outdoors — the body keeps score');
+        W.rain = 0; pv.sfAgent = null; pv.sfAgentResult = null;
+        /* presence verbs ground "at <to>, do <verb>": rest at home
+           navigates to her own door and goes inside */
+        const rs = sfAgentAct(cid, { verb: 'rest', to: 'home',
+                                     holdH: 0.5, why: 'off feet' });
+        log(rs.ok === true && pv.sfAgent && pv.sfAgent.cell &&
+            pv.sfAgent.enter === 'home',
+            'gs: v16 rest at "home" resolves to the pawn\'s own door');
+        if(pv.sfAgent && pv.sfAgent.cell){
+          const c = pv.sfAgent.cell;
+          pv.x = c.wx * CS + 16; pv.y = c.wy * CS + 16; pv.sfPath = null;
+          sfNpcTick(pv, 0.016); sfNpcTick(pv, 0.016);
+          log(pv.inBuilding === true && pv.state === 'rest',
+              'gs: v16 she goes inside her own place and rests');
+        }
+        pv.inBuilding = false; pv.inside = null; pv.sfAgent = null;
+
+        /* standing directive: the brain's durable last will fills the
+           gap — filed as `directive` (sibling), `act.directive`, or the
+           legacy `act.then` spelling, all landing on v.sfDirective */
+        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'catching a breath' },
+          { directive: { verb: 'work', untilH: 6,
+                         then: { verb: 'idle', why: 'between shifts' },
+                         why: 'shift at the café' } });
+        log(ra.ok === true && pv.sfDirective &&
+            pv.sfDirective.verb === 'work' &&
+            pv.sfDirective.why === 'shift at the café' &&
+            pv.sfAgentDriven === true,
+            'gs: v13 a filed act stores the standing directive as the ' +
+            'pawn\'s durable will');
+        W.tod += 0.5;
+        sfNpcTick(pv, 0.016);
+        log(pv.sfAgent && pv.sfAgent.verb === 'work' &&
+            pv.sfAgent.fromDirective === true &&
+            pv.sfAgent.then && pv.sfAgent.then.verb === 'idle' &&
+            pv.sfAgentResult && pv.sfAgentResult.verb === 'idle' &&
+            pv.sfAgentResult.status === 'expired',
+            'gs: v13 order end reports its outcome and promotes the ' +
+            'directive same-tick — chains carry');
+        const stSt = sfAgentState(cid, {});
+        log(stSt.directive && stSt.directive.verb === 'idle' &&
+            stSt.order && stSt.order.verb === 'work' &&
+            stSt.lastOrder && stSt.lastOrder.status === 'expired' &&
+            stSt.gap === false,
+            'gs: v13 the state shows the brain its order, outcome, ' +
+            'will, and gap');
+        /* the will's horizon bounds every link: after it lapses the
+           pawn stands in the honest gap — never the authored sched */
+        W.tod += 5;   // the work order (holdH ≤2) is long expired
+        sfNpcTick(pv, 0.016);
+        log(pv.sfAgent && pv.sfAgent.verb === 'idle' &&
+            pv.sfDirective && pv.sfDirective.verb === 'idle',
+            'gs: v13 the chain\'s last link promotes and holds until ' +
+            'the will lapses');
+        W.tod += 3;   // past the 6h horizon now — the will is stale
+        sfNpcTick(pv, 0.016); sfNpcTick(pv, 0.016);
+        log(pv.sfAgent === null && pv.sfGap === true &&
+            pv.state === 'idle',
+            'gs: v13 a lapsed will leaves the intention gap — never ' +
+            'the code-authored schedule');
+        const stGap = sfAgentState(cid, {});
+        log(stGap.gap === true && stGap.order === null &&
+            stGap.directive === null,
+            'gs: v13 the gap is visible on the state, not hidden');
+        /* outcome: interrupted — a fresh filing replaces the live
+           order and says so */
+        sfAgentAct(cid, { verb: 'idle', holdH: 1, why: 'waiting' },
+          { directive: { verb: 'work', untilH: 2,
+                         why: 'shift at the café' } });
+        sfAgentAct(cid, { verb: 'move', to: 'Haus Coffee',
+                          holdH: 1, why: 'coffee first' });
+        log(pv.sfAgentResult && pv.sfAgentResult.status === 'interrupted'
+            && pv.sfAgentResult.interruptedBy === 'new_order' &&
+            pv.sfAgent && pv.sfAgent.verb === 'move',
+            'gs: v13 a mid-flight replacement ends the old order ' +
+            '"interrupted"');
+        /* seq guard: a stale turn cannot stomp the newer filing */
+        pv.sfAgent = null; pv.sfAgentDriven = true;
+        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                     why: 'waiting' }, { seq: 40 });
+        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25,
+                                     why: 'clock in' }, { seq: 39 });
+        log(sNew.ok === true && sOld.ok === false &&
+            /stale/.test(sOld.err || '') &&
+            pv.sfAgent && pv.sfAgent.verb === 'idle',
+            'gs: v13 a late stale-seq filing is rejected, not applied');
+        /* v16: a why-less ACT never reaches the directive check at
+           all — why is required on every filing */
+        const noWhy = sfAgentAct(cid, { verb: 'idle' });
+        log(noWhy.ok === false && /why/.test(noWhy.err || ''),
+            'gs: v16 every act needs a why — none filed, none run');
+        /* bad directives are named at filing — unknown verb, missing
+           why, and requests (standing wills never spend, speak, or
+           leave) */
+        const bad = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'fly', why: 'x' } });
+        const badWhy = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'rest' } });
+        const badSay = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'say', text: 'hi', why: 'x' } });
+        const badReq = sfAgentAct(cid, { verb: 'idle', why: 'x' },
+          { directive: { verb: 'request', kind: 'weather', why: 'x' } });
+        log(!!bad.thenDropped && /verb/.test(bad.thenDropped || '') &&
+            /why/.test(badWhy.thenDropped || '') &&
+            /say/.test(badSay.thenDropped || '') &&
+            /request/.test(badReq.thenDropped || ''),
+            'gs: v16 nonsense, why-less, speech, and spending ' +
+            'directives are named at filing');
+        /* repeat:false — the will fires exactly once */
+        pv.sfAgent = null; pv.sfDirective = null;
+        sfAgentAct(cid, { verb: 'idle', holdH: 0.25, why: 'waiting' },
+          { directive: { verb: 'work', holdH: 0.25, repeat: false,
+                         why: 'cover the rush' } });
+        W.tod += 0.5; sfNpcTick(pv, 0.016);
+        const firedOnce = pv.sfAgent && pv.sfAgent.verb === 'work';
+        W.tod += 0.5; sfNpcTick(pv, 0.016);
+        log(firedOnce && pv.sfAgent === null && pv.sfGap === true,
+            'gs: v13 a repeat:false directive fires once, then gaps');
+        /* survival reflex preempts the live order — and reports it.
+           v16's reflex set is the lethal band only: collapse, never
+           sleep-as-emergency. The drift is honest — edge-bound, never
+           a top-up — and it releases; the next move is the brain's. */
+        pv.sfAgent = { verb: 'work', until: sfAbsNow() + 1, done: false };
+        if(pv.body) pv.body.fatigue = 0.99;
+        sfNpcTick(pv, 0.016);
+        log(pv.sfReflex && /collapse/.test(pv.sfReflex.kind) &&
+            pv.sfAgent === null && pv.sfAgentResult &&
+            pv.sfAgentResult.status === 'interrupted' &&
+            /survival/.test(pv.sfAgentResult.interruptedBy || '') &&
+            pv.state === 'downed',
+            'gs: v16 a collapse reflex preempts the order and says why');
+        for(let i = 0; i < 240 && pv.sfReflex; i++) sfNpcTick(pv, 0.016);
+        log(pv.sfReflex === null && pv.state === 'idle' &&
+            pv.sfGap === true,
+            'gs: v16 the reflex releases at the band edge into the gap');
+        if(pv.body) pv.body.fatigue = 0.3;
+        /* a fresh act while the pawn is asleep wakes it honestly */
+        pv.state = 'sleep';
+        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25,
+                                       why: 'up early' });
+        log(woke.ok === true && pv.state === 'idle' &&
+            pv.sfAgent && pv.sfAgent.verb === 'idle',
+            'gs: v13 a new order is the brain deciding to wake');
+      }finally{
+        W.tod = keepTod; W.rain = keepRain; W.storm = keepStorm;
+        pv.x = keepX; pv.y = keepY; pv.inBuilding = keepInB;
+        pv.inside = keepIns; pv.sfAgent = keepAg; pv.state = keepState;
+        pv.sfAgentDriven = keepDrv; pv.sfDirective = keepDir;
+        pv.sfGap = keepGap; pv.sfAgentResult = keepRes;
+        pv.sfReflex = keepRfx; pv._agentSeq = keepSeq;
+        pv._dirStreak = keepDS; pv._dirSig = keepDg;
+        pv.sfConvo = keepV16.convo; pv.sfLastConvo = keepV16.lastConvo;
+        pv.sfIntents = keepV16.intents; pv.sfObligations = keepV16.obs;
+        pv.sfMood = keepV16.mood; pv.sfConcerns = keepV16.concerns;
+        pv.sfLastWhy = keepV16.why; pv.sfDisp = keepV16.disp;
+        pv.sfMind = keepV16.mind;
+        if(pv.body && keepV16.fat != null) pv.body.fatigue = keepV16.fat;
+        pv.sfPath = null; pv.moving = false;
+        keepLC.forEach((lc, o) => { o.lastClockCheck = lc; });
+      }
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

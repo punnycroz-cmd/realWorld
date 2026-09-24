@@ -189,7 +189,10 @@ function survivalGuard(v){
 }
 /* Routine self-care so the scripted village sustains itself between bells. */
 function routineNeeds(v){
-  if(v.dead || v.brainControlled || (v.plan && v.plan.length)) return;
+  /* v16: no injected self-care plans for driven mains — routine
+     self-care is the brain's own directive policy (design §6.5) */
+  if(v.dead || v.brainControlled || v.sfAgentDriven ||
+     (v.plan && v.plan.length)) return;
   const b = ensureBody(v);
   if(b.hydration < 0.45) v.plan = [{ verb: 'go', place: 'well' }, { verb: 'drink' }];
   else if(b.satiety < 0.40) v.plan = [{ verb: 'eat' }];

@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -436,3 +436,234 @@ Spawner contract addition: `crowdBudget(zone, daypart, weather, shade,
 season, events)` — `season` resolves first; `fogStage(hour, all_day) ->
 deep|patchy|burned` reads `fog_model.day_profile`, and `all_day` holds
 `patchy` through the burned dayparts.
+
+## 21. The civic year (v71)
+
+`annual_shades` is the layer between the climate and the day: named
+calendar-window conditions that resolve **after** `season_shades` and
+**before** `day_shades` — and when one matches, the day shades are
+suppressed for that day. The holiday owns the day; `fri`/`sun`/`mon`/
+`first_of_month` are ordinary-week vocabulary and don't apply when the
+calendar has already claimed the date. Weather still stacks on top —
+a rainy Carnaval is a thin Carnaval, not a cancelled one.
+
+Window grammar (`when` or `windows` for alternatives, first hit wins):
+`months`, `dom` (inclusive day-of-month range), `dow`, and `nth`
+(nth occurrence of `dow` in the month — `nth` requires `dow`). All
+clauses in a window must match. Evaluation is budget arithmetic only:
+`zone_mult`, `daypart_zone_mult`, `edge_mult`, `silhouette_hint`. No
+routine is ever changed and no pawn is summoned — Ida opens Bloom &
+Doom on November 1st exactly like any day; the `×1.6` budget and the
+marigold bags do the storytelling.
+
+The eight shades:
+
+| shade | window | what it does |
+|---|---|---|
+| `carnaval-weekend` | May, Sat–Sun, 23–31 | park/Clarion ×1.4–1.5, afternoon swell, folding chairs on the sidewalk |
+| `game-day` | Apr–Sep, Tue/Wed/Fri/Sat | dinner-hour jersey drift through El Farolote and the 600; a swell, not a scene |
+| `muertos` | Nov 1–2 | Bloom & Doom ×1.6, evening procession drift down the corridor, marigold bags |
+| `pride-weekend` | Jun, Sat–Sun, 20–30 | Clarion dresses up, the park keeps the spill, the 600 runs late |
+| `carfree-sunday` | Mar–Oct, 2nd Sunday | the commercial corridor goes car-free — strollers and folding chairs in the curb lane |
+| `labor-day` | first Mon of Sep | the trades stay home (folsom/auerbach/school ×0.3–0.5), the park takes the overflow |
+| `holiday-week` | Dec 24–26, Jan 1 | half the block is visiting someone — counters dark, Malik open, the family walk in the park |
+| `new-year-lull` | Dec 27–31, Jan 2–8 | no commute front, no lunch line — the quietest honest stretch of the year |
+
+Two scenes and two micro-events ride the layer: `marigold-line` (Ida's
+queue under the awning during `muertos`), `game-night-swell` (jerseys
+through to dinner on `game-day` evenings when the taqueria is already
+busy), `school-dropoff` (the morning mirror of `school-bell` on the new
+`f-edge-school` edge), and `marigold-run` (Oct 28–31, the week before —
+Bloom & Doom's busiest stretch). Four calendar telltale silhouettes
+join the palette: `jersey-cap`, `marigold-bag`, `folding-chair`,
+`umbrella-up`. A silhouette can hint the date, never a name.
+
+Ids are internal vocabulary (`civic_vocab`): the wire still says band
+words and scene labels — a spectator sees jerseys and marigolds, never
+the string "muertos".
+
+## 22. The posture palette (v71)
+
+The fix for "Resting peacefully" everywhere is vocabulary, not
+animation. `posture_palette` is the dwell layer: extras inside a zone
+budget who aren't in transit or queue hold **one posture** and rotate
+on a 45–180 s dwell timer; named ambients whose resolved row is
+idle/sit/rest in a public zone pick a legal posture by
+`hash(id, daypart, zone)`. The thin tier renders a small human
+behavior instead of freezing — and the feed gets an honest label.
+
+- `labels` maps every state id to display copy: `idle` → "Between
+  things", `rest` → "Resting", `sit` → "Sitting", `queue` → "Waiting in
+  line"… **No default may imply sleep.** The label lies die here.
+- Twelve postures, each gated on zone kind and pair availability:
+  `phone-check` anywhere public, `window-shop`/`bag-shift` at shops and
+  stands, `nurse-cup`/`read-folded` at cafés and civic steps,
+  `bench-sprawl`/`watch-street`/`stretch-look` in the open air,
+  `lean-wait`/`smoke-stand` at doorways, and the pair postures
+  `pair-chat` and `leash-tangle` — two dwellers braided into one beat.
+- Postures are **conditions on (zone kind, pair availability), never
+  scripts** — nothing is dispatched to fill one. A pair posture
+  requires two dwellers already present; the second one isn't sent for.
+- Minors pair only within the pack; a lone minor's posture is always
+  solo. Postures never render inside `home` and never while sleeping.
+
+Spawner contract addition: `crowdBudget(zone, daypart, weather, shade,
+season, events, annual)` — `annual` resolves after `season` and
+suppresses `shade` when it matches; `postureFor(zone_kind, pair_ok)`
+draws from the palette; `idleLabel(state)` reads `labels` and is the
+only legal idle read on the wire.
+
+## 23. The company layer (v85)
+
+Until now every extra spawned solo — a sidewalk of lone particles, which
+no real block ever is. `crowd.json §group_profile` makes extras arrive in
+**social units**: `lone` (1), `duo` (2), `cluster` (3–4). A unit is one
+spawn, one edge entry, one despawn — it never splits mid-frame, never
+merges with another unit, and a unit walking a flow chain keeps its
+shape end to end.
+
+- **Mix resolution.** `mix(zone, daypart) = normalize(kind_mix[kind] ×
+  daypart_mix[daypart])` — element-wise product, renormalized. The kind
+  carries the venue's social grammar (a bar leans duo/cluster; a clinic
+  corridor leans lone); the daypart carries the hour's (commute is lone
+  business; evening is accompanied). Overnight is lone-only by
+  construction — a cluster at 3 a.m. reads wrong, so the math makes it
+  impossible.
+- **Budgets still count bodies.** A cluster is 3–4 bodies toward the
+  zone band; the +N tail counts heads, not units. The ≤3-interactive
+  cap counts a unit *once* — a family at the counter is one
+  interaction, not four.
+- **Family shape.** A cluster may roll `shape: family` (share per zone
+  kind in `family_share`): ≥1 adult-anchor silhouette plus a `stroller`
+  or `kid-backpack`. Family clusters exist only in
+  open_air/shop/cafe/civic/stand/restaurant zones, never in bars, never
+  overnight or night. **Kid-scale silhouettes never appear lone, never
+  pair with a lone adult unit, and never enter a bar.** The kid is a
+  shape in a group, never a pawn anyone could follow.
+- **Same anonymity.** Units carry the full extras exclusions — no id,
+  no ledger, no feed read, no memory encoding. Costume cohesion, not
+  identity: the linked-elbows pair is a read, not a relationship.
+
+Spawner contract addition: `groupUnit(day, zone, spawnIndex) ->
+{size, shape, gait}` — deterministic under the same hash as
+`extraLook`; the spawn draws the unit first, then the silhouettes.
+
+## 24. The counter courtesies (v85)
+
+The greeting matrix says which *named* pawns nod to each other. The
+block's warmer texture is what passes between a named ambient and the
+anonymous crowd — the cup slid across, the door held. `crowd.json
+§courtesies` declares seventeen beats, each a **condition**, never a
+dispatch: it can render only while (a) the ambient's resolved row sits
+in a listed `during` state, (b) ≥1 extra dwells within arm's reach in
+the zone, and (c) the per-ambient cooldown (15–45 min) has elapsed.
+
+The beats are gesture vocabulary — 2–6 seconds, zero dialogue, zero
+ledger. Reyes slides a cup rather than handing it; Luz offers the slice
+before the sale; Malik counts change into an open palm; Hana wraps the
+heel of the loaf a coin lower; Esther passes a newspaper section
+sideways to whoever sat down; Kofe braces the box on a hip to hold a
+door. Every beat counts as one interactive pawn toward the ≤3 cap, and
+beats are suppressed automatically wherever a claim or venue lock
+zeroes the extras budget — you cannot hold a door for a cleared room.
+
+Hard bounds, same as everywhere:
+
+- **Minors have no counter.** June and Zee appear in no beat — there is
+  no courtesy a teenager can be asked to perform for the camera.
+- **The extra stays an extra.** A courtesy creates no handle, no name,
+  no memory, no rumor witness. If someone asks "who did Reyes serve?",
+  the honest answer is the band word.
+- **No beat moves a routine.** Sam's `ctr-chord` can only fire while
+  his row already says pitch-work; it never summons him to the corner.
+
+## 25. Boundary additions (v85)
+
+- Unit mix, shapes, and courtesy ids are **internal vocabulary** — the
+  wire still says band words and scene labels. A spectator sees a
+  stroller pair, never "family cluster"; sees the cup slide, never
+  "ctr-cup".
+- Groups and courtesies change nothing about persistence: extras
+  (alone or in units) are excluded from save state, and a courtesy beat
+  writes no history — the Archive never records who held the door.
+- The `kid-backpack` silhouette is the only kid-scale vocabulary in the
+  palette and it is reachable only through `group_profile.shapes.family`.
+  No spawn path produces a lone kid.
+
+## 26. The pull protocol (v99)
+
+Ambients.md says a request may borrow a named ambient as a co-star "in
+role, in routine bounds" — but until now nothing defined the loan
+itself. `crowd.json §pull_protocol` is the borrow contract: what a pull
+is allowed to be, so that co-starring stays cheap, bounded, and legible.
+
+- **Window.** A pull is a 15–90 minute presence loan. Shorter reads as
+  teleporting; longer reads as a kidnapping. The window attaches to the
+  request's declared hours — never open-ended.
+- **Capacity.** One ambient: max 3 pulls/day, ≥60 min cooldown between
+  them. The block: max 2 ambients pulled concurrently — a crowd that
+  keeps losing its regulars stops reading as a crowd.
+- **Bounds.** The loan borrows presence, not geography. A pull may move
+  an ambient at most one zone step and only *toward* space the request
+  already controls — a claimed resource or a locked venue. Nobody is
+  walked across the map; nobody is taken home.
+- **States.** Pullable only while the resolved row is a public or
+  staffed state (`serve`/`work`/`idle`/`sit`/`rest`/`chat`/`walk`).
+  Never from `sleep`, never from `home`, never mid-transit on a flow
+  edge — a pawn you can't plausibly stop isn't stoppable.
+- **Minors never.** A04 and A20 are not in the pool. A request naming
+  them resolves as a decline at screening; their rows never surface to
+  the pull resolver at all.
+- **Role-bound.** The pull asks the role, not the person — "a barista
+  at the counter," never "Reyes running an errand." In-role, in-
+  persona, per the co-star rules; the ambient's knowledge stays
+  surface-level because it is surface-level.
+- **Pipeline.** A pull is an exclusive-class request on the ambient's
+  id at the same §11 step as a resource claim — same moderation, same
+  review, same attribution rules.
+
+## 27. The coverage layer (v99)
+
+The other half of a loan is the hole it leaves. `crowd.json §coverage`
+maps every ambient to the read their post produces while they're
+borrowed — three surfaces, all honest:
+
+- **`understudy`** — a working post that can't sit empty gets an extra
+  in the silhouette: Malik's register rings under a cousin-shaped
+  stranger, Kofe's hot box rides under a second courier, Vera's desk
+  answers under a second librarian. The extras layer absorbs the body;
+  the signature read (the flat cap, the paring knife) is simply gone —
+  a spectator who knows the block notices *who* is missing, not *that*
+  someone was dispatched.
+- **`sign`** — a post that can't run unattended tells the truth: Luz's
+  tarp comes down and the chalk reads "back in 10"; Hana's counter gets
+  a ring-bell card; Bex's chair rides a "flash after 4" note. The sign
+  is the coverage — no fake labor, no unattended commerce.
+- **`open`** — benches, laps, and corner tables just empty. Nobody
+  covers a jog; the pigeon bag stays home and the noon feeding falls
+  to whoever's nearest (nobody admits who).
+- **`pack`** — the minors' row: not a surface, a refusal. The pack
+  orbit doesn't bend for a request, and there is no coverage because
+  there is never an absence.
+
+Rules the layer enforces:
+
+1. **The post never lies.** A tarped stand reads tarped — never
+   "serving." Coverage is the honest-visible counterpart of the
+   posture palette's honest labels.
+2. **Coverage is a read, not a cost.** Understudy extras come out of
+   the zone's existing budget — no +1 spawn, no new identity.
+3. **The loan is invisible on the wire.** No feed event names a pull.
+   The spectator-facing trace is exactly the coverage read: "back in
+   10," a second apron, an empty bench.
+
+## 28. Boundary additions (v99)
+
+- Pull ids, windows, and cooldowns are **internal vocabulary** — the
+  wire never says "pulled." What the feed can see is the coverage
+  read and, when the scene itself is public, the ambient doing their
+  job somewhere a request controls.
+- A pull writes **no ledger, no memory, no archive** — ambients stay
+  thin while borrowed; the loan is scheduling, not promotion.
+- Coverage never covers a seed — there is no coverage surface whose
+  read implies a storyline. "Back in 10" is the whole plot.

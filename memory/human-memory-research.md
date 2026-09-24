@@ -1747,3 +1747,2897 @@ Fourth pass on `memory/encoding-mechanics.md` (Part IV §§44–57, spec
   (Wood & Cowan PubMed, Conway DOI, Stangor & McMillan DOI, Nairne
   PubMed, Gable & Harmon-Jones DOIs, Urry/Morehead replication
   records).
+
+## 37. v60 — encoding-mechanics V: the attempt before the trace (2026-09-23)
+
+Part V closes the loop between encoding and what preceded it —
+the retrieval attempts, scaffolds, and co-occurrences that decide
+whether an event ever becomes a trace.
+
+- **The failed search warms the landing.** Kornell, Hays & Bjork
+  2009 + Richland, Kornell & Kao 2009 (both verified): an
+  unsuccessful retrieval attempt potentiates encoding of the answer
+  when it arrives — `pretest_mark` is content-locked and attempt-
+  gated (shown-but-unattempted = nothing, Richland Exp. 5). The
+  complement to §5.26's global forward-test boost: that one fires on
+  success, this on failure.
+- **Confident errors correct deepest.** Butterfield & Metcalfe 2001
+  hypercorrection (verified PMID 11713883) — correction E scales
+  with errConf; the old lose it unsupported (Metcalfe 2015
+  PMC3604148) and get it back under support (Cyr & Anderson 2013) —
+  both arms ride the same `envSupport` field, one mechanism.
+- **The scaffold does the work.** Craik's environmental support is
+  now two-legged: retrieval-side `env_support_gain` (v0.4) and the
+  new encode leg `env_enc_gain` ×(1−si_res) — complementarity means
+  the SAME scaffold that rescues the elder gives the young nothing
+  (Craik & Rose 2012; Naveh-Benjamin 2002 — verified).
+- **Knowledge with no episode.** Saffran 1996 + Turk-Browne 2005:
+  co-occurrence tallies mint θ-exempt links — the "just knows who
+  sits where" channel the episodic store can't produce.
+- **The moral-encoding edge is narrow on purpose.** Bell, Buchner &
+  Musch 2010 (experience-near cheating → recognition+source) vs
+  Buchner et al. 2009 (describe-only → source only, recognition
+  null — locked as `cheat_recog_null`).
+- **Interleaving teaches the difference, not the item** — contrast
+  legs get `interleave_gain`; episodic E unchanged; verbal material
+  locked null (Brunmair & Richter meta g=−0.39). JOL over-reads
+  massed fluency (Kornell & Bjork's illusion — report-side only).
+- **Adjudicated absences:** disfluency_gain = 0 (Xie 2018 d≈0.01;
+  Rummer 2016; Metacogn. Learn. 2016 special issue) — the second
+  CONTESTED-anchor absence assertion after P616.
+- Spec v5.7→v5.8: §2 +9 bullets, param block +16 params +3 locked
+  nulls, §10 contract fields (envSupport, corrects, harmedParty,
+  interrupted, pretest_mark, cooccur); profiles §0 +9 clamp rows +
+  §42; probes P629–P636 (registry P1–P636). 8 source families
+  web-verified.
+
+## 38. v61 addendum — forgetting-curves VI anchors (verified)
+
+The forgetting curve is not smooth and not private. This pass's
+sourced claims (full grounding in forgetting-curves.md §§27–31):
+
+- **Recall re-opens the file.** Nader, Schafe & LeDoux 2000 (Nature
+  406:722) + Hupbach et al. 2007 (L&M 14:47): reactivated memories
+  enter a labile window where they can be updated or lost — adopted
+  weakly (replication record honest: Bos 2014 boundary conditions).
+  Retrieval is when distortion enters.
+- **The teller forgets for the room.** Cuc, Koppel & Hirst 2007
+  (Psych Sci 18:727): speaker-side retrieval-induced forgetting
+  propagates to listeners — narrated omissions suppress the
+  audience's related records. Collective forgetting has a mechanism.
+- **Sleep curates.** Payne et al. 2008 (Psych Sci 19:781) + Wilhelm
+  et al. 2011 (J Neurosci 31:1563): sleep preferentially consolidates
+  arousing and expected-to-matter content; Mazza et al. 2016 (Psych
+  Sci 27:1321): spacing across sleep doubles retention per practice.
+- **Interference peaks at middling similarity.** Osgood 1949's
+  transfer surface — identical encodes rehearse, dissimilar ones
+  never compete, near-twins blur most.
+- **Dates slide toward now.** Rubin & Baddeley 1989; Janssen et al.
+  2006 (Psych Bull 132:677): forward telescoping grows with record
+  age — characters can be wrong about when while right about order.
+- **"Let it go" is a third operator.** Bjork 1970 / MacLeod 1998
+  directed forgetting: rehearsal withdrawal, ~10–20% cost — weaker
+  and non-inhibitory vs Anderson suppression.
+- **Aging taxes the tail and the binding.** Campbell, Hasher &
+  Thomas 2010 hyper-binding (elders mint wrong co-occurrences);
+  Elliott, Isaac & Muhlert 2014 ALF (intercept intact, multi-day
+  tail steepens — DEBATED in healthy aging).
+- **The weird survives the crowd.** von Restorff 1933; Hunt 1995 —
+  distinctiveness is interference-resistance, not immortality.
+- Framework anchor: Bjork & Bjork 1992 New Theory of Disuse is the
+  S/R root this spec has implemented since v0.9 — now cited.
+
+## 39. v62 addendum — retrieval-cues VI anchors (verified)
+
+The cue has a direction, an echo, and a keeper. This pass's sourced
+claims (full grounding in retrieval-cues.md §§60–69):
+
+- **Associations run forward.** Kahana & Caplan 2002 (JML 46:111) +
+  Rizzuto & Kahana 2001: backward recall loses to forward under
+  matched conditions — a cue is a head+tail, not a symmetric link.
+- **Fragments re-enter the search.** Norman & Bobrow 1979 (Cog
+  Psych 11:107) + Williams & Hollan 1981 (Cog Sci 5:87): retrieved
+  partial descriptions become the next probe's specification —
+  "let me think" is an actual loop.
+- **Objects remember outside the skull.** Heersmink 2015 + Turkle
+  2007 (evocative/distributed memory); Henkel 2014 (Psych Sci
+  25:396 — VERIFIED): whole-object photo-taking impairs memory,
+  detail-zoom eliminates the deficit; Barasch et al. 2017 (JPSP
+  112:741): engaged photographing can help — sign rides engagement.
+- **Loud cues do quiet cues' jobs.** McDaniel & Einstein 1993
+  (Memory 1:23 — VERIFIED) + Brandimonte & Passolunghi 1994:
+  distinctive/unfamiliar PM cues beat ordinary nonfocal ones,
+  increasingly with delay.
+- **The asker sets the report option.** Koriat & Goldsmith 1996
+  (Psych Bull 103:490): forced responding buys quantity at
+  accuracy's price — the trade-off lives in the report decision,
+  not the trace. Orne 1962 demand characteristics; rapport arm via
+  Vallano & Schreiber Compo 2011.
+- **The probe wears a path.** Karpicke & Roediger 2008 + Carpenter
+  & DeLosh 2006: retrieval practice strengthens the cue→target
+  route, weakest cues gaining most — the rehearsed anecdote and
+  the cold question are different roads to the same record.
+- **A failed search restarts on a new angle.** Fisher & Geiselman
+  1992 (change-order/change-perspective mnemonics); Köhnken 1999 +
+  Memon, Meissner & Fraser 2010 (Psych Bull 136:340 — CI meta,
+  d≈1.2 correct-detail): varied retrieval paths recover what the
+  first pass dropped; identical re-asks inherit the damage.
+
+## 40. v63 addendum — age-development VI anchors (verified)
+
+- **The infant's clock is a different clock.** Hartshorn et al.
+  1998 + Rovee-Collier 1999: retention doubles roughly monthly
+  through infancy (~1d @2mo → ~2wk @6mo → ~13wk @18mo). The
+  amnesia wall is emergent decay on a fast schedule, not a
+  special erasure rule.
+- **A reminder must be seen, not told.** Rovee-Collier's
+  reactivation paradigm: a flagging infant memory is restored by
+  perceptual re-encounter — verbal accounts cannot reach
+  below-wall records (locked null in the spec).
+- **Neurogenesis may be the eraser — DEBATED.** Frankland et
+  al. 2013 (Science): infant-magnitude neurogenesis actively
+  induces forgetting; suppressing it preserves infant memory.
+  Rodent data; coexists with retrieval-failure accounts.
+- **Toddlers record other people's events.** Barr & Hayne 1999;
+  Bauer 2002: deferred imitation — observed action sequences
+  reproduced after weeks, from ~12mo. The watched-not-done
+  channel is real but self-field-thin.
+- **The bump cascades.** Svob & Brown 2012: parent-told memories
+  bump at the PARENTS' era. Krumhansl & Zupnick 2013: a second
+  music bump at the parents' young-adult years. Family archives
+  transmit their teller's adolescence.
+- **The child can't supply the cue.** Kobasigawa 1974: the
+  retrieval deficit is generation, not use — provided cues work,
+  self-generated ones don't arrive until ~10–12. Scaffolding is
+  the fix, not a crutch.
+- **Children order by strength.** Friedman 1991: lacking
+  temporal codes, young children report the STRONGER memory as
+  the more recent — the vivid old thing is "yesterday."
+- **Strategies arrive on a schedule.** Ornstein et al. 2004 /
+  Schneider & Pressley: rehearsal ~7–8, organization ~9–10,
+  elaboration ~13+ — before onset, repetition is just
+  re-exposure.
+- **Schooling is an operator.** Morrison et al. 1995
+  (birthday-cutoff): memory gains are GRADE effects > age
+  effects — instruction itself reorganizes; extension to
+  encode-side onsets is our flagged hypothesis.
+- **The teen win sticks.** Davidow et al. 2016: reward-
+  associated episodic memory peaks in adolescence — the bump's
+  fuel includes a reward circuit, not just firsts.
+
+## 41. v64 addendum — age-decline VI anchors (verified)
+
+- **Recollection dies first; familiarity lingers.** Yonelinas
+  2002 meta: ~2:1 effect-size split; familiarity declines only
+  in the 75+ group. The old adult's "I know you" without "from
+  where" is the correct readout, not a defect.
+- **Gist survives verbatim — and votes.** Balota et al. 1999
+  (DRM): older adults show MORE gist-consistent false alarms
+  alongside LESS veridical recall. Both halves move; the false
+  memory is the preserved gist doing the voting.
+- **Positivity is a goal, not a filter.** Mather & Carstensen
+  2005: the positivity effect is real and memory-level; Mather &
+  Knight 2005: divided attention abolishes it entirely. No
+  control, no bias.
+- **The old brain keeps morning hours.** May, Hasher &
+  Stoltzfus 1993: the age gap vanishes at the older adult's
+  peak time. May & Hasher 1998: it's the inhibitory channel
+  again. Automatic retrieval ignores the clock.
+- **The senses tax the hippocampus.** Baltes & Lindenberger
+  1997: vision+hearing mediate much of "cognitive" aging;
+  Lin et al. 2011: hearing loss predicts dementia, dose-
+  dependent. Degraded input costs even when understood.
+- **Compensation has a ceiling.** Cabeza 2002 (HAROLD) +
+  Reuter-Lorenz & Cappell 2008 (CRUNCH): old brains recruit
+  more at low demand and saturate sooner — inverted-U, grind
+  harder on easy, cliff on hard.
+- **Doing beats watching, and the gap grows.** Bäckman &
+  Nilsson: the enactment advantage is largely age-invariant —
+  the motoric channel declines least.
+- **Old couples think together.** Barnier et al. 2014:
+  long-married older couples recall MORE episodic detail
+  together than alone — a benefit no young couple needed;
+  strangers get collaborative inhibition instead.
+- **The errand has two legs.** Henry et al. 2004 meta:
+  event-based PM ages gently, time-based PM falls hard;
+  if-then framing (Liu & Park 2004) refunds half.
+- **Calling out age taxes the recall.** Hess et al. 2003:
+  stereotype-primed elders recall worse — a retrieval-side
+  context tax, not a storage change.
+- **Suggestibility amplifies through source failure, not
+  acquiescence.** Roediger & Geraci 2007: the old adult's
+  misinformation risk is familiarity-without-recollection —
+  the shift leg, never the yield leg.
+- **Exercise is the modifiable dial.** Erickson et al. 2011
+  RCT: a year of walking ≈ +2% hippocampal volume. Fitness
+  shifts effective age like reserve but drifts with behavior.
+
+## 42. v65 addendum — emotional-memory VI anchors (verified)
+
+- **Grief oscillates, it doesn't work through.** Stroebe & Schut
+  1999 (*Death Studies* 23:197): adaptive coping is a two-mode
+  oscillation (loss-oriented confrontation vs restoration-
+  oriented respite) with dosage intrinsic — respite is part of
+  the mechanism. Klass, Silverman & Nickman 1996: continuing
+  bonds — the inner relationship persists (inner speech,
+  consultation), overturning the detachment assumption.
+  Ratcliffe 2020: the same vivid memory reads as presence or
+  absence depending on context — a mode-dependent valence flip
+  on identical content.
+- **Emotion binds forward, breaks backward.** Bisby & Burgess
+  2013: negative affect impairs associative binding, spares
+  items — coherence loss. The 2023 *Cognition & Emotion* pair
+  (discovery + preregistered replication): the negative→E+1
+  link encodes STRONGER than E−1→negative — forward-favouring.
+  Palombo et al. 2021: "what"↑, "which"↓, and the emotional
+  item keeps its "when" while neutrals mislocalize late.
+- **Counterconditioning changes valence, not expectancy.** Keller
+  et al. 2020 review + pre-registered meta: CC outperforms
+  extinction specifically on relapse channels; Raes & De Raedt
+  2012: evaluative conditioning moves (d≈0.2), outcome
+  expectancy doesn't — the rival tag, not the eraser.
+- **Shared good news deepens.** Gable et al. 2004 (*JPSP*
+  87:228): capitalization attempts raise PA beyond the event —
+  gated on the listener's ACTIVE-CONSTRUCTIVE response; the
+  shrugged-off win doesn't count.
+- **The tone survives the words.** Schirmer & Escoffier 2010:
+  prosody shifts the remembered valence of content implicitly —
+  listeners needn't recall the tone for it to have stained the
+  words. Chappuis et al. 2014: prosody-induced EEM replicates.
+- **Dread can arrive with no picture.** Brewin 2015
+  re-experiencing taxonomy + Ehlers & Clark 2000: affect-only
+  intrusions are clinically standard (boundary with ordinary
+  anxiety DEBATED); our CondEntry-outlives-source architecture
+  produces them nearly for free.
+- **The rival gets remembered for existing.** Maner et al. 2009:
+  infidelity-primed, chronically jealous individuals show an
+  attend→encode→remember cascade on attractive same-sex targets;
+  Schützwohl & Koch 2004: sex-differentiated recall of
+  infidelity cue classes a week later.
+- **Awe writes a strange record.** Keltner & Haidt 2003:
+  vastness + accommodation failure; Shiota et al. 2007:
+  self-diminishing. No direct memory corpus — our thin-self /
+  thick-gist / unfillable-gap signature is labeled HYPOTHESIS.
+- **Hot records refuse the delete.** Hauswald et al. 2010
+  (*SCAN*): arousing negatives exempt from directed forgetting;
+  2021 item-method meta: emotional DF ~4.2pp smaller; van Schie
+  2013: under controlled direct suppression, comparable —
+  weak-end adopted, strategy halves the resistance.
+- **A trusted hand quiets the firing cue.** Bouton's conditioned
+  inhibitors + the Hornstein/Eisenberger social-safety
+  direction: presence suppresses the CONDITIONED RESPONSE at
+  expression; the association is untouched — inhibition, never
+  unlearning (our locked null).
+
+## 43. v66 addendum — false-memory VI anchors (verified)
+
+- **The calendar drifts, bounded and biased.** Rubin & Baddeley
+  1989 (*JEP:G* 118): dating-error magnitude grows ~0.4 days per
+  day of delay, direction toward the middle of the recall
+  interval — apparent telescoping falls out of retention +
+  bounded errors + the impossibility of future intrusions; no
+  systematic bias term needed. Thompson, Skowronski & Lee 1988
+  (diary/exact-date method): telescoping measurable from ~8
+  weeks; slight unreliable time-expansion for recent events.
+  Lee & Brown 2003: moving the elicited window moves the bias
+  (boundary model); forward telescoping survives guess-removal —
+  two mechanisms. Huttenlocher, Hedges & Prohaska 1988/1990:
+  hierarchical/category model — estimates regress toward bounds
+  and prototypes. Friedman 1993: coarse temporal attributes
+  (season, month, weekday, time-of-day) survive exact-date loss.
+  Landmark anchoring: Shum 1998 review; Loftus & Marburger 1983.
+- **Watching is half of doing.** Lindner, Echterhoff, Davidson &
+  Brand 2010 (*Psych. Sci.* 21:1291): mere observation of
+  another's actions → robust false self-performance memories,
+  persisting despite immediate warnings and despite eliminated
+  sensory overlap — the authors invoke interpersonal motor
+  simulation, not source monitoring. Lindner & Davidson 2013:
+  older adults, executive-function moderation.
+- **Dreams leak into the record.** Rassin, Merckelbach & Spaan
+  2001 (*JNMD* 189:478): 11.8%/25.9% of two general samples
+  report dream-reality confusion; correlates dissociation +
+  fantasy proneness. Mazzoni & Loftus 1996 (*Conscious. Cogn.*):
+  dream content can be implanted→recalled as real. Kemp, Burt &
+  Sheen 2003: dreamt experiences carry thinner sensory/contextual
+  phenomenology than lived ones — the discriminative features
+  exist but are weak. Wamsley et al. 2014 (*Sleep*): narcolepsy
+  "dream delusions" — sustained false beliefs from vivid dreams;
+  the clinical ceiling of the population channel.
+- **Demanding detail protects — when there was detail to get.**
+  Schacter, Israel & Racine 1999 (*JML* 40:1): the
+  distinctiveness heuristic — a response mode demanding
+  diagnostic recollection — suppresses gist-false recognition,
+  and disappears when encoding offered nothing distinctive to
+  expect. Gallo, Bell, Beier & Schacter 2006: two co-existing
+  recollection monitors (distinctiveness + recall-to-reject),
+  both deployable by older adults given supportive encoding.
+  Koutstaal & Schacter 1999: scrutiny reduces but never erases
+  the older-adult gist-false gap.
+- **Fluency without source misattributes.** Jacoby, Kelley,
+  Brown & Jasechko 1989 (*JPSP* 56:326): nonfamous names judged
+  famous 24h after exposure, not immediately — familiarity
+  outlives source recollection; divided attention amplifies
+  (Jacoby, Woloshyn & Kelley 1989). Our neighborhood-scale
+  extension (familiar name → "we've met") is extrapolation,
+  gated on place-consistency.
+- **Detection is the mediator — silently.** Tousignant, Hall &
+  Loftus 1986 (*Mem. & Cogn.* 14:329, N=570): scrutiny (slow
+  reading) → discrepancy detection → misinformation resistance;
+  detection mediates warning, interval, and blatancy effects.
+  Recollection-rejection work (*Appl. Cogn. Psychol.* 2017):
+  spontaneous rejection of contradictory misinformation,
+  decaying with delay; RES qualification (*Memory* 2017):
+  retrieval-enhanced suggestibility accrues only to non-
+  detectors — detection status, not the recall act, is the risk.
+- **Imagers hallucinate better.** Horselenberg et al. 2000:
+  imagery ability was the sole individual-difference predictor
+  of imagination inflation; Heaps & Nash 1999: dissociation
+  (DES) predicts too. Dobson & Markham 1993 (*Brit. J. Psychol.*
+  84): high imagers are *worse* at external-external source
+  discrimination — vivid internal generation blurs boundaries
+  on both sides.
+
+## 44. v67 addendum — individual-differences VI anchors (verified)
+
+- **The upper tail is channel-specific, not superhuman.**
+  LePort et al. 2012 (*Neurobiol. Learn. Mem.* 98:78, N=11 —
+  verified abstract + UCI release): HSAM participants
+  significantly better on personal AND public autobiographical
+  recall including days/dates, but *comparable to matched
+  controls on most standard laboratory memory tests* — the
+  ability does not generalize. Patihis et al. 2013 (*PNAS*
+  110:20947): HSAM false-memory susceptibility (DRM,
+  misinformation) at control rates — extraordinary storage,
+  ordinary reconstruction. Parker, Cahill & McGaugh 2006
+  (*Neurocase*): the founding case. LePort 2016+ follow-ups:
+  elevated obsessive-compulsive spectrum traits — habitual
+  own-day review is the candidate mechanism we implement as a
+  rehearsal engine (P707 makes that choice falsifiable).
+- **The lower tail knows without reliving.** Palombo, Alain,
+  Söderlund, Khuu & Levine 2015 (*Neuropsychologia* 72:105,
+  N=3 — verified): lifelong SDAM, corroborated by absent fMRI/
+  ERP recollection biomarkers; learning and memory intact
+  wherever tasks "could be accomplished by non-episodic
+  processes." Retrieval-side deficit, encoding-side intact —
+  which is why v67 re-parameterizes the v2.5 SDAM modifier's
+  decay leg as retrieval-side specificity thinning. Aphantasia
+  covariation is partial, not identical (Wan et al. 2024).
+- **Disposition to think shows up as an argument gap.**
+  Cacioppo & Petty 1982 (*JPSP* 42:116) define NFC; Cacioppo
+  et al. 1996 (*Psych. Bull.* 119:197, meta — verified): high
+  NFC = more elaboration, more task-relevant thoughts, and a
+  *larger* memory gap between strong and weak arguments —
+  the trait's signature is selectivity, not volume.
+- **The self thin-encodes what threatens it.** Sedikides &
+  Green 2000 (*JPSP* 79:168) mnemic neglect; Green, Sedikides
+  & Gregg 2008 (*JESP* 44:547 — verified): poorer recall with
+  *intact recognition* of self-threatening feedback —
+  "forgotten but not gone"; averted by close sources and
+  modifiability framing (Green, Pinter & Sedikides 2009);
+  attenuated by dysphoria (Sedikides & Green 2009 review);
+  enhanced in repressors. Encoding-side shallow processing
+  (Sedikides & Green 2006, *BBS*).
+- **Injury erases backward, grades by severity, then stops.**
+  Russell & Nathan 1946 (*Brain* 69:280): Ribot's graded
+  retrograde amnesia; PTA length as severity index. Belanger
+  et al. 2005 (*Neuropsychology* 19:595 meta): mild TBI's
+  persisting effect is small and concentrated in WM/
+  processing speed; sports-concussion arm largely resolved by
+  ~90 days. Dikmen et al. 2009: PTA dose-response for
+  moderate-severe.
+- **The genotype moves the slope, not the person you meet.**
+  Caselli et al. 2009 (*NEJM* 361:255, N=815 longitudinal —
+  verified): cognitively normal APOE ε4 carriers' memory
+  decline begins before 60 and accelerates faster, with an
+  allele-dose effect (homozygous > heterozygous); weaker
+  non-memory effects. Below onset: nothing observable.
+- **Synesthesia's advantage is real, broad, and ordinary.**
+  2019 multi-level meta-analysis (Rothen et al., *Memory* —
+  verified): episodic d̂≈0.61, WM d̂≈0.36, pervasive across
+  stimulus types — which the authors note undermines a
+  direct-cue account. Rothen & Meier 2010 (*Memory* 18:258):
+  the advantage is "ordinary rather than extraordinary" —
+  our 0.08 loading is priced under that ceiling.
+- **Rumination is a rehearsal policy, and it has two halves.**
+  Nolen-Hoeksema 1991 (*JPSP* 60:115): ruminative response
+  style prolongs negative mood. Watkins 2008 (*Psych. Bull.*
+  134:163 — verified the split): brooding = maladaptive
+  dwelling; reflection = potentially adaptive problem focus.
+  Lyubomirsky & Tkach 2004: ruminators' negative
+  autobiographical bias.
+- **And the second thing that does nothing.** Pashler,
+  McDaniel, Rohrer & Bjork 2008 (*Psych. Sci. Public
+  Interest* 9:105 — verified): no credible evidence for the
+  learning-styles meshing hypothesis; the supportive studies
+  lack the required design. Rogowsky, Calhoun & Tallal 2015
+  RCT: matching instruction to stated style did nothing.
+  `learn_style` joins `birth_order` as a mandated null —
+  the trait layer's honesty depends on being able to
+  represent "no effect."
+
+## 45. v68 addendum — social-memory VI anchors (verified)
+
+Part VI of social-memory.md (the conversation's holes).
+Anchors web-verified this version; spec §§6.125–6.134.
+
+- **Waiting to speak deafens the speaker before you.**
+  Brenner 1973 (*J. Exp. Psychol.* 98:120 — verified
+  full-text): turn-taking read-aloud, N=88; recall craters
+  ~2 positions before and 1 after one's own turn; the
+  seminar phenomenology is in the paper ("unaware of
+  anything else happening in the room"). Bond 1985
+  (*JPSP* 48:853 — verified abstract): ENCODING failure —
+  strong semantic cues don't rescue, post-hoc instruction
+  doesn't, PRE-instruction reverses into advantage. Bond
+  1991 (*PSPB* 17:174): elaborative rehearsal is the
+  mediator, eye contact is not. → `nil_*` params with a
+  locked retrieval-rescue null.
+- **Incongruity advantage has a schema-strength gate — and
+  recognition flips the sign.** Stangor & McMillan 1992
+  (*Psych. Bull.* 111:42 — verified: 54 experiments): weak/
+  newly-formed expectancies → incongruent recall wins;
+  strong established expectancies → congruent recall bias;
+  recognition favors congruent items throughout (Sherman
+  et al. 1998 integration-theory fit). → §2.3 gated by
+  `exp_str`, recognition arm sign-flipped via
+  `incong_recog_flip`, encoding floor locked.
+- **Implied becomes said.** Harris & Monaco 1978
+  (*JEP:G* 107:1 — "between the lines"): hearers report
+  pragmatically implied content as asserted; Brewer 1977 —
+  the implicature is computed at hearing and the computed
+  proposition stores. → `implied` fields mint weak-sourced
+  gist; the said/implied distinction is M-tier.
+- **The lens, not the target.** Higgins, Rholes & Jones
+  1977 (*JESP* 13:141): recently-primed trait constructs
+  assimilate ambiguous behavior descriptions; Bargh, Bond,
+  Lombardi & Tota 1986 (*JPSP* 50:869): chronically
+  accessible constructs do it unprimed; Martin 1986:
+  contrast under unambiguous behavior — the boundary case.
+- **Dependency buys resolution, not loyalty.** Erber &
+  Fiske 1984 (*JPSP* 47:709) + Neuberg & Fiske 1987
+  (*JPSP* 53:431): outcome-dependent perceivers remember
+  MORE expectancy-inconsistent attributes; Fiske & Dépret
+  1996: individuation runs up the dependency gradient —
+  the §34 remember-up asymmetry's mechanism.
+- **Two books, one harm.** Baumeister, Stillwell & Wotman
+  1990 (*JPSP* 59:994) + Stillwell & Baumeister 1997
+  (*Psych. Sci.* 8:219): victim narratives emphasize
+  severity/arbitrariness and persist; perpetrator accounts
+  fade and soften — the magnitude gap. Kearns & Fincham
+  2005: the gap feeds unforgiveness. → `harmed:` tag splits
+  decay/reconstruction arms; encode-side identical (locked).
+- **Forgiveness rewires the charge, not the record.**
+  McCullough et al. 2003 (*JPSP* 85:321): forgiveness =
+  motivation change (avoidance/revenge decline), memory
+  intact; Worthington 2003: decisional precedes emotional;
+  vanOyen Witvliet 2001 (*Psych. Sci.* 12:117): physiology
+  drops, episode reportable. → `forgiveEvent` moves the
+  affect channel only — `forg_erase_null` locked.
+- **Public promises bind both ends.** Kiesler 1971 (*The
+  Psychology of Commitment*): public declaration increases
+  binding; witnesses are distributed creditors. →
+  `witnessed` on commitments strengthens both arms and
+  mints third-party clones.
+- **Your own story, back bent (composite hypothesis).** No
+  single study isolates self-derivative echo adoption;
+  composed from Gabbert 2003 conformity (0.71 anchor →
+  capped 0.3 arm), source monitoring, and §24 canonization.
+  P716 cap-locks it. `metVia`/`remet_offense_p` similarly
+  flagged HYPOTHESIS composites.
+
+## 46. v69 addendum — social-memory VII anchors (verified)
+
+Anchors for spec v5.17 / SM Part VII (§§96–105). All
+checked against primary sources this version.
+
+- **Eval survives memory.** Johnson, Kim & Risse 1985
+  (*J. Exp. Psychol.: Learn. Mem. Cogn.* 11:22): Korsakoff
+  amnesics formed affective preferences for people they
+  could not retrieve. De Houwer, Thomas & Baeyens 2001
+  (evaluative-conditioning meta — attitude outlives the
+  pairing episode). Srull & Wyer 1989 (impressions stored
+  separately from generating behaviors). → `orphan_eval_resid`
+  floor + `orphan_eval` emission; `orphan_reason_null`
+  locked (no fabricated support episode).
+- **Favor asymmetry (composite).** Greenberg 1980;
+  Greenberg & Westcott 1983 (*Basic Group Processes* —
+  indebtedness as a slow-decaying receiver-side state);
+  Ross & Sicoly 1979 (egocentric availability — own
+  contributions over-rehearsed); Emmons & McCullough 2003;
+  Watkins, Woodward, Stone & Kolts 2003 (gratitude
+  rehearsal retains benefits). Direction locked
+  (`favor_sym_null`); split magnitudes HYPOTHESIS.
+- **Coalition beats demographics.** Kurzban, Tooby &
+  Cosmides 2001 (*PNAS* 98:15387 — who-said-what
+  paradigm; ~4 min of live alliance cues deflates race
+  categorization); Pietraszewski, Cosmides & Tooby 2014
+  (*PLoS ONE* 9:e88534 — alliance regulation; sex/age
+  persist). → `sided_with`/`sided_against` edges +
+  `coal_cat_overwrite` re-sort of §11 sourceInfer;
+  `coal_recolor_null` locked.
+- **Beginnings dominate dyad history.** Buehlman, Gottman
+  & Katz 1992 (*J. Fam. Psychol.* 5:295 — oral-history
+  bond coding predicts 3-yr stability ~94%; how-we-met/
+  courtship narration is the diagnostic content). →
+  `relStartDay` + `rel_bump_win`/`rel_bump_gain` reusing
+  bump + landmark machinery.
+- **Noticed absence (composite HYPOTHESIS).** No direct
+  study; composed of expectancy-violation encoding
+  (§2.3/Stangor & McMillan) + exclusion-salience
+  (§73/ostracism detection). `absence_ghost_null` is the
+  defensible commitment — no manufactured co-presence.
+- **Spotlight + retention overestimate.** Gilovich,
+  Medvec & Savitsky 2000 (*JPSP* 78:211 — ~2× notice
+  overestimate); Savitsky, Epley & Gilovich 2001 —
+  audience memory overestimated. → self/observer decay
+  split + `aud_recall_over`; `blunder_audit_null` keeps
+  witnessed shame off the self channel.
+- **Networks converge on central speakers.** Coman,
+  Manier & Hirst 2016 (*PNAS* 113:8171 — convergence from
+  dyadic alignment × topology); Yamashiro & Hirst 2020
+  (*JEP:G* 149:1000 — central speakers amplify SS-RIF/
+  practice when ingroup, attenuate when outgroup); Coman
+  & Hirst 2015 (transitive propagation). →
+  `central_speaker_mult` + `net_hop_decay`.
+- **Dyad idioms.** Hopper, Knapp & Scott 1981 (*Comm.
+  Monogr.* 48:23 — couples' personal idioms track
+  intimacy); Bruess & Pearson 1997 (idioms decay with the
+  relationship). → `idiom`/`dyad` locked cues +
+  `idiom_orphan_loss` on dissolution.
+- **Rival watch.** Schützwohl & Koch 2004 (*EHB* 25:249);
+  Schützwohl 2005 (*EHB* 26:288 — infidelity-cue recall);
+  2008 (*PAID* 44:633 — disengagement resistance,
+  committed-relationship bound). Module claim contested —
+  Harris 2000 (*JPSP* 78:1082). → encoding/disengagement
+  only; `rival_certainty_null` locked.
+- **Provenance flattening (composite HYPOTHESIS).**
+  Bartlett 1932 leveling + §4 chain work + beta_source
+  decay on embedded attribution stacks. `prov_upgrade_null`
+  locked — flattening loses truth, never launders it.
+
+## 47. Addendum — v70 anchors (formal-model VII, spec v5.18)
+
+Machinery version — the sources below ground the *bounds*, not new
+effects.
+
+- **Combined loads degrade sub-additively.** Craik, Govoni,
+  Naveh-Benjamin & Anderson 1996 (*Psychol Sci* 7:52 — age ×
+  divided attention); Naveh-Benjamin, Craik, Guez & Kreuger 2000;
+  Shields, Sazma, McCullough & Yonelinas 2017 (*Psych Bull*
+  143:636 — 113-study stress × emotion retrieval meta). Every
+  combined-manipulation result in the corpus shows bounded joint
+  impairment — the sign behind the saturating-additive θ law;
+  the tanh form itself is a modeling HYPOTHESIS.
+- **Redundancy doesn't pay twice.** Tulving & Osler 1968
+  (*JEP* 77:593) — the cue-combination precedent the gain-side
+  noisy-OR reuses.
+- **Context drifts.** Estes 1955 (*Psych Rev* 62:74 — stimulus
+  fluctuation); Mensink & Raaijmakers 1988 (*J Math Psych*
+  32:434 — context-drift model of forgetting); Howard & Kahana
+  2002 (*J Math Psych* 46:269 — retrieved context). `ctx_tau`
+  field-persistence is the retrieval-side analog.
+- **Hedges communicate epistemic state.** Koriat & Goldsmith
+  1996 (*Psych Rev* 103:490); Brennan & Williams 1995 (*J Mem
+  Lang* 34:237 — listeners recover FOK from hedged speech);
+  Brown 1991 (*Psych Bull* 109:204 — TOT phenomenology review);
+  Smith & Clark 1993 (*JPSP* 65:186 — latency as access signal).
+  Grounds the surfMap rows: hedge markers, TOT markers, and
+  hesitation beats are *honest signals*, not decoration.
+- **Fits must be able to fail.** Roberts & Pashler 2000 (*Psych
+  Rev* 107:358); Gutenkunst et al. 2007 (*PLoS Comput Biol*
+  3:e189 — sloppy directions). Warrant for the composition
+  bounds and the §56 declaration gate.
+- **Capacity note.** Miller 1956 (*Psych Rev* 63:81 — 7±2) —
+  conservative basis for `att_span_ctx` ≈ 5 as a *cue-set*
+  bound; flagged HYPOTHESIS (cue admission ≠ chunk capacity).
+
+## 48. Addendum — v70 anchors (character-profiles VI, spec v5.19)
+
+The narrator-compass layer: time perspective, narrative themes,
+lesson-minting, coherence, chapter salience, future thickness,
+anchor tension.
+
+- **Time perspective is a stable trait.** Zimbardo & Boyd 1999
+  (*JPSP* 77:1271 — verified): ZTPI five subscales
+  (past-negative, past-positive, present-hedonistic,
+  present-fatalistic, future), intercorrelations weak-to-
+  moderate → five independent pins, not a simplex. Stolarski,
+  Fieulaine & van Beek 2015 (Springer volume) consolidates the
+  theory. The MEMORY-side mapping (arrival weighting by
+  era/valence, future-reach scaling) is our HYPOTHESIS — ZTPI
+  measures orientation, and orientation predicts what
+  spontaneously arrives; we formalize the direction, not the
+  effect size. D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 —
+  verified): future-thinking frequency tracks goals — the
+  tp_future → goal-rehearsal link.
+- **Stories are ABOUT agency or communion.** McAdams 2001
+  (*Rev Gen Psychol* 5:100 — verified) — the two thematic
+  lines; McAdams & McLean 2013 (*Curr Dir Psychol Sci* 22:233 —
+  verified) — narrative identity review. Adler 2012 (*JPSP*
+  102:367 — verified): agency in narratives rose BEFORE
+  wellbeing did across psychotherapy — agency is a narrative
+  habit, not a mood readout. Adler, Lodi-Smith, Philippe &
+  Houle 2016 (*PSPR* 20:142 — verified): narrative identity
+  predicts wellbeing incrementally over Big Five traits —
+  warrant for trait-level narr_* pins. The field-depth tuning
+  mechanism is our HYPOTHESIS (attentional theming at encode).
+- **Reasoning turns events into selves.** Pasupathi & Mansour
+  2006 (*Dev Psychol* 42:798 — verified): self-event
+  connections in narratives; McLean, Pasupathi & Pals 2007
+  (*PSPR* 11:262 — verified): stories create selves and selves
+  create stories; McLean & Thorne 2003 (*Dev Psychol* 39:635 —
+  verified): self-defining memories yield lessons and insights.
+  The `lesson` persSem subtype + `origin:"derived"` lock is
+  our formalization — the literature says these connections
+  are REVISIONS of self-knowledge, not new facts.
+- **Coherence is a measurable property of told lives.** Reese
+  et al. 2011 (*Memory* 19:688 — verified): causal-motivational
+  + thematic coherence predict wellbeing. narr_coh_k models the
+  link-minting side; the retrieval-route benefit is ours.
+- **Lives vary in chapteredness.** Thomsen 2009 (*Memory* 17 —
+  verified): life stories differ in number and closure of
+  chapters; Brown 2016 transition theory (reused, §4.18).
+  `period_sal` = the individual-difference formalization of
+  the chaptered life.
+- **Future imagination rides the episodic machinery.**
+  Williams, Ellis, Tyers, Healy, Rose & MacLeod 1996 (*Memory*
+  4:115 — verified): suicidal/depressed respondents produce
+  generic futures AND generic pasts — specificity is ONE
+  style → `epi_future_k` prior couples to vivid_detail/OGM.
+  Schacter & Addis 2007 (*Phil Trans R Soc B* 362:773 —
+  verified): constructive episodic simulation; Hassabis,
+  Kumaran, Vann & Maguire 2007 (*PNAS* 104:1726 — verified):
+  hippocampal amnesics cannot imagine coherent futures —
+  grounding for `future_leak_null` (the channel that makes
+  futures is episodic, and rich ≠ remembered).
+- **Anchors carry tension.** Singer, Blagov, Berry & Oost 2013
+  (*JPSP* 105:262 — verified): self-defining memories vary on
+  tension; high-tension anchors predict distress. The
+  intrusion-only mapping (tension raises re-access, never
+  damages the record) is our HYPOTHESIS — Singer's tension
+  correlates with rumination in the literature.
+- **Established vs hypothesis summary:** ZTPI structure,
+  agency/communion themes, lesson/self-event connections,
+  coherence×wellbeing, chapter variation, past↔future
+  specificity coupling, SDM tension — CONSENSUS/adjacent.
+  Arrival weighting, field-depth tuning, lesson-as-persSem,
+  link-mint rate, wall-scaling, prior formula, intrusion-only
+  tension — all RW modeling HYPOTHESES on consensus bases.
+
+## 49. Addendum — v71 anchors (validation-design IV; no spec bump)
+
+This version's sources are methodological — they discipline the
+*battery*, not the model. Consensus/hypothesis split explicit.
+
+- **Retrieval is an intervention — CONSENSUS.** Roediger &
+  Karpicke 2006 (*Psych Sci* 17:249 — verified): testing beats
+  restudy; Rowland 2014 (*Psych Bull* 140:1432 — verified):
+  meta-analysis, d ≈ 0.5 vs restudy. Consequence for the
+  harness (VA-MEAS): every recall a probe orders changes the
+  thing measured → `measure_budget`, destructive sampling,
+  measured-vs-unmeasured twin arms (P757–P759). Our modeling
+  choice is the budget discipline itself, not the effect.
+- **Misinformation dose is controlled, not ambient —
+  CONSENSUS.** Loftus, Miller & Burns 1978 (verified): the
+  paradigm's authority rests on a *known* misleading-item dose.
+  Harness discussants are rumor sources → declared dose +
+  dose-monotonicity probe (P760). The interlocutor-as-agent
+  framing is our formalization.
+- **Conditioning on retrieval is collider selection —
+  CONSENSUS (methodological).** Elwert & Winship 2014 (*Annu
+  Rev Sociol* 40:31 — verified). Denominators = encoded
+  manifest; `retrieved_frac` co-reported; the
+  accuracy|retrieved > accuracy signature (P762) is our
+  diagnostic — its logic (selection on strength is what makes
+  the signature exist) is standard selection-bias reasoning
+  applied to the sim.
+- **"Not significant" is not "absent" — CONSENSUS.** Lakens
+  2017 (*Soc Psychol Personal Sci* 8:355 — verified): TOST/
+  SESOI equivalence testing; Button et al. 2013 (*Nat Rev
+  Neurosci* 14:365 — verified): median power ~20% →
+  underpowered nulls are noise. VA-MDE makes null claims carry
+  TOST; P616 → P616v2 under §110 versioning.
+- **Analyst choice is a variance source — CONSENSUS.**
+  Silberzahn et al. 2018 (*Adv Methods Pract Psychol Sci*
+  1:337 — verified): 29 teams, same data, divergent answers.
+  Steegen et al. 2016 (*Persp Psychol Sci* 11:702) multiverse;
+  Simonsohn, Simmons & Nelson 2020 (*Nat Hum Behav* 4:1208 —
+  verified) specification curve. VA-MULTI applies this to our
+  OWN analyzers plus the §107 sloppy ensemble.
+- **Anchors carry populations — CONSENSUS.** Henrich, Heine &
+  Norenzayan 2010 (*BBS* 33:61 — verified): WEIRD samples;
+  Simons, Shoda & Lindsay 2017 (*Persp Psychol Sci* 12:1123 —
+  verified): constraints on generality; Yarkoni 2020 (*BBS*
+  45:e1 — verified): verbal claims outrun statistical support.
+  → `pop_scope` on every anchor; transported bands, never
+  untransported MUSTs (P767).
+- **Children are more suggestible — CONSENSUS (direction).**
+  Ceci & Bruck 1993 (*Psych Bull* 114:403); Bruck & Ceci 1999
+  (*Psychol Public Policy Law* 5:136 — verified). P768 asserts
+  the direction on a transported band; the magnitude is our
+  modeling choice.
+- **Established vs hypothesis summary:** testing effect, dose
+  control, collider bias, TOST discipline, analyst variance,
+  WEIRD/CoG limits, child suggestibility direction — all
+  established methodology/consensus. The harness mechanics
+  (measure_budget field, twin-arm self-calibration, sloppy-
+  ensemble pass_frac gate, spec-curve demotion rule,
+  transported-band widening formula) are RW HYPOTHESES —
+  engineering choices on consensus bases.
+
+## 50. Addendum — v72 anchors (encoding-mechanics VI, spec v5.20)
+
+- **Value directs encoding; scarcity sharpens it — CONSENSUS.**
+  Castel, Benjamin, Craik & Watkins 2002 (*Psychol Aging* 17:209 —
+  verified): older adults match young on high-value items despite
+  lower overall recall — selectivity compensates. Castel, Balota &
+  McCabe 2009 (*JEP:A* 35:916 — verified): disproportionate
+  high-value study-time allocation. **Moderator — ESTABLISHED:**
+  older-adult selectivity FAILS when high-value material is
+  intrinsically hard to encode (Psych. Aging 2025, verified
+  abstract) — routing strategies need self-initiation, so the
+  rescue degrades exactly where it's needed. → `value_rank_w` +
+  `select_sharp` + `value_mem_gate` (§71).
+- **Choice potentiates — ESTABLISHED.** Murty, DuBrow & Davachi
+  2015 (*J Neurosci* 35:6255 — verified): opportunity-to-choose
+  improves declarative memory even with content-unlinked
+  memoranda; striatal-hippocampal anticipation mechanism. Murty
+  2019 (*J Cogn Neurosci* — verified): consolidation leg —
+  reduced forgetting rate. → `choice_enc_gain`/`choice_beta_mult`
+  (§72), scope-locked to chosen content.
+- **Errorful learning's moderator is error TYPE — ESTABLISHED,
+  correcting the clinical cliché.** Cyr & Anderson 2015
+  (*JEP:LMC* — verified): conceptual guesses ("stepping stones")
+  help BOTH ages; arbitrary guesses hurt. 2012 (*Psychol Aging* —
+  verified): conceptual errorful boosts source memory, older ≥
+  younger. The Baddeley & Wilson 1994 / Kessels 2003 errorless-
+  advantage story holds for impaired encoders on arbitrary
+  material. → `guess_kind` split, `errful_mediator_gain`,
+  `errful_arb_loss`, `errful_noise` (§73).
+- **Saying-is-believing — CONSENSUS effect, the GATE is the
+  finding.** Higgins & Rholes 1978; Echterhoff, Higgins & Groll
+  2005 (*JPSP* 89:257 — verified: shared-reality required, ingroup
+  audiences only, epistemic trust mediates); Echterhoff et al.
+  2008 (*JEP:G* 137:3 — verified: politeness/incentive/entertain-
+  ment/compliance motives → tuned message, ZERO memory drift);
+  EJSP 2024 meta (verified). → `sib_drift`/`sib_trust_w` (§74),
+  locked `sib_polite_null`.
+- **Observed encoding is a real middle tier — ESTABLISHED,
+  boundary DEBATED.** Roberts et al. 2022 comparator g≈0.9 vs
+  enactment; Jaroslawska et al. 2016 (*M&C* 44:1183 — verified:
+  observation ≈ enactment for instruction recall); Steffens &
+  von Stülpnagel 2015 (verified: design-dependent). →
+  `obs_enc_gain`/`obs_intent_mult` (§75); no motor-channel
+  exemptions.
+- **Face distinctiveness — CONSENSUS; attractiveness is a NULL.**
+  Light, Kayra-Stuart & Hollander 1979 (*JEP:HLM* 5:212 —
+  verified); Vokey & Read 1992 (verified: distinctiveness
+  mediates); Wickham & Morris 2003 (verified: attractiveness
+  partials out). → `face_dist_gain` (§76), locked
+  `attract_recog_null`.
+- **Secrets preoccupy more than they conceal — ESTABLISHED
+  direction.** Slepian, Chun & Mason 2017 (*JPSP* 113:1 —
+  verified: mind-wandering ≈2× concealment across >13,000
+  secrets); Lane & Wegner 1995 (suppression hyperaccessibility).
+  → secrets join the pending set (§77): `secret_load_mult`,
+  `secret_heat_mult`.
+- **Alcohol retrograde facilitation — DEBATED, interference-
+  account form kept at OBSERVE.** Parker et al. 1980/81
+  (verified); Mueller, Lisman & Spear 1983 (verified:
+  interference > consolidation); Quevedo-Pütter & Erdfelder 2022
+  (verified prereg replication: recall null, retrieval benefit).
+  → `intox_retro_shield` as interference-shield only; locked
+  `retro_consol_null` + frozen `retro_scope:"pre-only"` (§78).
+- **Established vs hypothesis summary:** all nine mechanism
+  directions above are established or better; the GATES (motive,
+  deficit, scope) are where the literature's load-bearing detail
+  lives and all are honored structurally. The sim-level weights
+  (drift rates, multipliers, cap sharing) are RW HYPOTHESES —
+  calibration on consensus bases.
+
+## 51. Addendum — v73 anchors (forgetting-curves VII, spec v5.21)
+
+- **The tier below the record — CONSENSUS, textbook.** Sperling
+  1960 (iconic ~0.25–1s); Darwin, Turvey & Crowder 1972 (*Cogn.
+  Psychol.* 3:255 — echoic ~2–4s); Peterson & Peterson 1959
+  (*JEP* 58:193 — ~18s unrehearsed); Keppel & Underwood 1962
+  (*JVL* 1:153 — the short-term "decay" is proactive interference:
+  trial 1 barely decays). Waugh & Norman 1965 (duplex frame).
+  → §4.34 `stim` ghost tier (`stim_E`/`stim_hl`/`stim_recall_p`/
+  `stim_cap`), locked `stim_mint_null`. Ghost mechanics are our
+  reduced form — magnitudes HYPOTHESIS.
+- **Frequency is reconstructed, not counted — CONSENSUS.**
+  Hasher & Zacks 1979 (*JEP:G* 108:356 — automatic frequency
+  encoding); Greene 1984; Williams & Durso 1986 (*JEP:LMC* 12:165);
+  Tversky & Kahneman 1973 (availability lift). → §5.66
+  `freqRecall` (coverage-weighted count + schema prior +
+  `avail_freq_k`).
+- **The listener is a decay variable — ESTABLISHED (one group,
+  three studies).** Pasupathi, Stallworth & Murdoch 1998
+  (*Discourse Processes* 26:1 — attentive vs distracted vs
+  no-retell); Pasupathi & Rich 2005 (*J. Personality* 73:1051);
+  Pasupathi & Hoyt 2010 (*Memory* 18:185 — 1-month retention and
+  consistency drop under distracted listening). → `aud_resp` on
+  retells (`aud_resp_distract` 0.3); elaboration-mediation is
+  their framework.
+- **Two heads recall less than their parts — CONSENSUS meta.**
+  Weldon & Bellinger 1997 (*JEP:LMC* 23:1160); Basden, Basden,
+  Bryner & Thomas 1997 (*JEP:LMC* 23:626 — retrieval-strategy
+  disruption); Marion & Thorley 2016 (*Psych. Bull.* 142:1141 —
+  75 effects: inhibition robust; 27 effects: post-collaborative
+  benefit). → §5.67 `jointRecall` (`collab_inhib` 0.8,
+  `postcollab_gain` 0.1); magnitudes ours.
+- **Confidence decays slower than content — CONSENSUS direction.**
+  Sauer, Brewer, Zweck & Weber 2009 (*Law Hum. Behav.* 34:337 —
+  delay → overconfidence); Odinot & Wolters 2006 (*ACP* 20:973);
+  Odinot, Wolters & Lavender 2009 (*ACP* — repeated questioning
+  inflates conf on correct and incorrect alike). → conf channel
+  β·`conf_beta_mult` 0.6; locked `conf_feed_null`.
+- **The spacing illusion — CONSENSUS.** Kornell & Bjork 2008
+  (*Psych. Sci.* 19:585 — massed judged better even after
+  contrary performance); Son 2004; Toppino & Cohen 2009
+  (*JEP:LMC* 35:1352 — dishonored spacing attenuates). → locked
+  `spacing_opt_null`: no lag-scheduled retells; deliberate
+  self-rehearsal is massed.
+- **Remembered duration — CONSENSUS direction.** Ornstein 1969
+  (storage-size); Block & Reed 1978 (contextual change); Block &
+  Zakay 1997 meta; Avni-Babad & Ritov 2003 (*JEP:G* 132:543 —
+  routine paradox). → §5.68 `recallDuration` (`dur_ev_w`,
+  `dur_trans_w`) — report-side, the retrospective mirror of t_eff.
+- **Weekday schema — CONSENSUS phenomenon.** Huttenlocher, Hedges
+  & Prohaska 1988 (*Psych. Rev.* 95:471 — hierarchical
+  ordered-domain estimation, midward regression); Huttenlocher,
+  Hedges & Bradburn 1990 (*JASA*). → §6.15 `dow_snap`.
+- **Established vs hypothesis summary:** all eight directions are
+  consensus or better; every magnitude is an RW fit flagged
+  HYPOTHESIS. Probes P779–P786 (3–4 MUST, 4 SHOULD — see
+  validation-design §146).
+
+## 52. Addendum — v74 anchors (retrieval-cues VII, spec v5.22)
+
+- **Retrieval mode (§5.69):** the cue lands in a frame.
+  `orient ∈ {episodic, semantic}` is set by phrasing — "remember
+  when" vs "do you know" — and changes what the same cue can
+  return (scene detail vs gist; TOT reachable only episodic).
+  Tulving 1983's ecphory triad; Herron & Rugg 2003; Rugg &
+  Wilding 2000. [CONSENSUS existence; binary gate HYPOTHESIS.]
+- **Cue valence (§5.70):** cues carry their own valence
+  (`w_valcue` 0.15 — weak); mood still beats cue. The vulnerable
+  arm: negative cue → overgeneral answer for neurot/depr-high
+  profiles (Williams & Broadbent 1986). [CONSENSUS direction.]
+- **Conjunctive cues (§5.71):** ecphory's algebra is
+  interactive — `config_gain` priced by JOINT fan means "the
+  place AND the person" retrieves what neither alone can. Locked
+  `config_oracle_null`: conjunction counts encoded fields only.
+  Watkins 1979; Tulving 1983; Rubin & Wallace 1989.
+- **Event clusters (§5.72):** the autobiographical chunk is a
+  causal bundle (`evClust`), not a clock span — cluster-mates
+  surface together and date worse. Brown & Schopflocher
+  1998a/b; Brown 2005; Brown, Shevell & Rips 1986.
+- **Burst emission (§5.73):** recall arrives in pulses riding
+  reinstated context — `pulse` index marks the steering points
+  where a listener's cue can redirect the next vein.
+  Gruenewald & Lockhead 1980; Barsalou 1988.
+- **Analogical reminding (§5.74):** structural similarity
+  re-orders but never creates candidates (surface gate —
+  Gentner, Rattermann & Forbus 1993); pure-structural
+  remindings are rare (`reminder_chance` 0.03) and flagged
+  `reminding:true`. Wharton et al. 1994; Schank 1982.
+- **Contextual cuing (§5.75):** `ctxcue` — record-free
+  configural competence, age-flat (Howard et al. 2004),
+  hippocampus-dependent (Chun & Phelps 1999). The ambient
+  tier's habit memory and the spared floor of degraded
+  episodic profiles. Chun & Jiang 1998.
+- **The give-up rule (§5.76):** bouts end on a metacognitive
+  bet — `search_budget` scales with FOK_running; exhaustion
+  emits `giveUp:{fok}`; high-fok terminations arm
+  `fok_reprobe` — the "it came to me later" event is emergent.
+  Koriat 1993; Costermans et al. 1992; Singer & Tiede 2008;
+  Nelson & Narens 1990.
+- Probes P787–P794: 5 MUST (mode gating, conjunctive cue,
+  cluster two-arm, record-free ctxcue, metacognitive quitting)
+  + 3 SHOULD. All magnitudes RW HYPOTHESES; all directions
+  established.
+
+## 53. Addendum — v75 anchors (age-development VII, spec v5.23)
+
+- **Infant context dependence:** Butler & Rovee-Collier 1989
+  (*JEP:LM&C* 15 — verified: context/crib-liner change abolishes
+  retention at 3 months); Rovee-Collier & Shyi 1992; Hayne &
+  Findlay 1995 (context-shift cost falls across infancy).
+  Anchors `ctx_locked`/`ctx_strict` (§4.35a/§5.77a); the
+  lifetime persistence of the flag is the flagged extension.
+- **Controlled vs automatic inhibition in development:**
+  Harnishfeger & Pope 1996 (*J. Exp. Child Psychol.* 62:292 —
+  verified: DF absent 1st grade, reduced 3rd, intact 5th);
+  Wilson & Kipp 1998 (*Dev. Rev.* 18:86 — verified review);
+  Aslan, Staudigl, Samenieh & Bäuml 2010 (*PBR* 17:784 —
+  verified production-deficiency account); Zellner & Bäuml 2004.
+  Anchors `df_store_onset`/`df_gate`/`df_gate_ramp` (§6.152a).
+- **Child suppression of false content:** Howe 2005 (*Psychol.
+  Sci.* 16 — verified: children suppress DRM false recall under
+  directed-forget cues where adults do not — output-gated gist).
+  Anchors `df_gist_gate` (§6.152a).
+- **RIF intact early — the version's null:** Zellner & Bäuml
+  2005 (*Mem&Cogn.* 33:396 — verified: retrieval inhibition and
+  part-list cuing intact in children); Ford, Keating & Patel
+  2004 (*Br. J. Dev. Psychol.* 22:585 — verified: adult-
+  magnitude RIF at 7). Result: NO child rif ramp (J9).
+- **Working memory & event completeness:** Gathercole,
+  Pickering, Knight & Stegmann 2004 (*JEP:G* 133 — verified span
+  norms); Jones & Pipe 2002 (children's event recall
+  completeness 5→9). Anchors `field_budget` (§4.35b).
+- **Adolescent forward drift:** Peterson, Grant & Boland 2005;
+  Peterson, Warren & Short 2011 (*Memory* 19 — verified:
+  earliest-memory age advances across childhood); Habermas &
+  de Silveira 2008 (life-narrative reorganization). Anchors
+  `reorg_dip`/`reorg_attrit` (§5.77a).
+- **Time-based prospective memory:** Ceci & Bronfenbrenner 1985
+  (*Dev. Psychol.* 21 — verified: strategic clock monitoring
+  develops through middle childhood); Kvavilashvili, Kyle &
+  Messer 2008 (verified review — event-based early, time-based
+  late). Anchors `pmt_*` child knots + `pm_clock_p` (§5.77b).
+- **Joint reminiscing / child-as-narrator:** Reese, Haden &
+  Fivush 1993 (*Cog. Dev.* 8 — verified); Welch-Ross 1997;
+  Fivush, Haden & Reese 2006; Reese & Newcombe 2007
+  (longitudinal — verified). Anchors `self_reminisce_gain` +
+  `reminisce_env` rerouting (§6.152b).
+- **Intentional-encoding instruction:** Baker-Ward, Ornstein &
+  Holden 1984 (*J. Exp. Child Psychol.* — verified: children
+  gain more from remember-instructions). Anchors
+  `intent_boost` (§4.35c).
+- **Enactment in children:** Ratner, Smith & Dionne 1991;
+  Cohen 1981 (SPT robust ≥3–4). Anchors `er_4y`/`er_10y`
+  (§4.35d — completes the U with age-decline §85's old knots).
+
+## 54. Addendum — v76 anchors (age-decline VII, spec v5.24)
+
+All verified via web this version. Sources behind Part VII of
+`age-decline.md` (§§96–105), spec §§4.36/5.78/6.153, probes
+P805–P814:
+
+- **Trajectory heterogeneity:** Josefsson, de Luna, Pudas,
+  Nilsson & Nyberg 2012 (*J. Am. Geriatr. Soc.* 60:2308 —
+  verified: Betula N=1,558, 15y episodic trajectories —
+  18% maintainers, 68% average, 13% decliners; education,
+  physical activity, partnered, female → maintain; APOE ε4,
+  male, not-in-labor-force → decline); Pudas et al. 2013;
+  Betula 23–28y dementia-risk follow-up (*Int. Psychogeriatr.*
+  — verified: decliners ~4× dementia risk, maintainers ~2.6×
+  reduced, divergence begins 10–15y pre-diagnosis). Anchors
+  `traj` draw + `maint_slope_mult`/`decl_accel` (§4.36a).
+- **Intraindividual variability as leading indicator:**
+  Hultsch, MacDonald & Dixon 2002; MacDonald, Nyberg &
+  Bäckman 2006; Lövdén, Li, Shing & Lindenberger 2007
+  (*Neuropsychologia* — verified: within-person RT
+  variability precedes and predicts 13y decline, Berlin
+  Aging Study ages 70–102); longitudinal meta-analysis
+  r≈.20 CI[.09,.31] (verified). Anchors `iiv_age_slope` +
+  `iiv_lead` (§5.78a).
+- **Subjective cognitive decline:** Jessen et al. 2014
+  (*Alzheimers Dement.* 10:844 — verified: SCD-I framework —
+  self-experienced decline, unimpaired objective tests, first
+  symptomatic preclinical stage; SCD-plus feature list).
+  Anchors `scd_lead` complaint-channel leg (§5.78b).
+- **Mental retirement:** Rohwedder & Willis 2010 (*JEP*
+  24:119 — verified: cross-national IV design via pension
+  policy, early retirement causally lowers early-60s
+  cognition; magnitude/mechanism DEBATED by authors);
+  Bonsang, Adam & Perelman 2012. Anchors `retire_rate`,
+  `retire_cap`, `engage_sub_recover`, `retire_retrieval_null`
+  (§4.36b).
+- **Walking dual-task:** Lindenberger, Marsiske & Baltes
+  2000 (*Psych. & Aging* 15:417 — verified: memorizing while
+  walking, dual-task cost d≈0.98 middle / d≈1.47 old;
+  sensorimotor control demand account). Anchors `loco_tax`,
+  `loco_pm_pen`, `loco_yield` (§4.36c — knots halved vs lab,
+  street-vs-track correction, flagged).
+- **Allocentric navigation decline:** Wiener, de Condappa,
+  Harris & Wolbers 2013 (*J. Neurosci.* 33:6012 — verified:
+  same-direction route recall intact, novel-direction rejoin
+  fails, persistent beacon strategy, no allocentric shift
+  across 6 sessions); Head & Isom 2010; Moffat & Resnick
+  2002; Wiener et al. 2012 route repetition vs retracing.
+  Anchors `allo_mint_p`, `ego_dir_pen`, `nav_permastore_null`
+  (§§4.36d, 5.78c).
+- **Implicit/procedural preservation:** Fleischman, Wilson,
+  Gabrieli, Bienias & Bennett 2004 (*Psych. & Aging* 19:617
+  — verified longitudinal: explicit declines, priming stable
+  over 4 annual waves); Mitchell, Brown & Murphy 1990;
+  La Voie & Light 1994 meta. Anchors `proc_age_null` +
+  min(age_eff,55) floor (§5.78d).
+- **Observation inflation in aging:** Lindner, Echterhoff,
+  Davidson & Brand 2010 (*Psych. Sci.* 21:1291 — verified:
+  observed action → false self-performance memory, warning-
+  immune); Lindner, Davidson & Echterhoff 2014 (*Aging
+  Neuropsychol. Cogn.* — verified: equal error rate, prone
+  elders larger magnitude, true-action observation benefit
+  LARGER in old). Anchors `obs_infl_age`, `obs_tail_k`,
+  `obs_old_gain` (§6.153a).
+- **Autobiographical detail mix:** Levine, Svoboda, Hay,
+  Winocur & Moscovitch 2002 (*Psych. & Aging* 17:677 —
+  verified: Autobiographical Interview — older adults fewer
+  internal/episodic, more external/semantic details,
+  persists under probing); AI meta-analysis 2023 (gbad077 —
+  verified: moderate healthy-aging effect, larger MCI/AD);
+  James et al. 1998 (old narrations judged more
+  interesting). Anchors `ie_shift`, `ext_gain` (§5.78c).
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (class heterogeneity, IIV
+  precedence, SCD-as-first-symptom, retirement direction,
+  dual-task growth, allo→ego shift, priming stability,
+  inflation rate-flat/magnitude-up, I/E shift). All
+  magnitudes, the lead times, trait-draw weights, nav_mode
+  operationalization, the 55 freeze, and `stack_cap` are RW
+  HYPOTHESES — `stack_cap` is bookkeeping, not a finding.
+
+## 55. Addendum — v77 anchors (emotional-memory VII, spec v5.25)
+
+Ten new emotional-memory mechanisms, each anchored to verified
+literature; probe registry P815–P824:
+
+- **Gratitude (P815):** McCullough, Kilpatrick, Emmons & Larson
+  2001 (*Psych. Bull.* 127:249 — moral-barometer/motive account);
+  Bartlett & DeSteno 2006 (*Psych. Sci.* 17:319 — verified:
+  gratitude-mediated costly helping toward the benefactor);
+  Algoe 2012 (find-remind-bind). Anchors `grat_gain`,
+  `grat_fade_resist`, `reciprocate` emission (§6.154).
+- **Co-rumination (P816):** Rose 2002 (*Child Dev.* 73:1830 —
+  verified: co-rumination predicts friendship quality AND
+  internalizing symptoms); Rose, Carlson & Waller 2007 (*Dev.
+  Psychol.* 43:1019 — verified prospective bidirectional);
+  Rose & Rudolph 2007 developmental review (adolescent onset,
+  girls > boys). Anchors `corumin_*` + `solved:true` escape
+  (§6.155).
+- **Directed self-distancing (P817):** Ayduk & Kross 2010
+  (*JPSP* 99:809 — verified: spontaneous distancing → lower
+  reactivity + intrusive ideation, reconstruing-not-avoidance
+  mediation); Kross & Ayduk 2008/2011 distanced-analysis program.
+  Anchors `dist_cool`, `reflect.mode`, `dist_avoid_null`
+  (§6.156).
+- **Humor reappraisal (P818):** Kugler & Kuhbandner 2015
+  (*Neuropsychologia* 62:357 — verified: humorous reappraisal
+  maximally reduces amygdala response AND impairs later memory
+  for the negative content); Samson & Gross 2012; Strick et al.
+  2009 (intensity ceiling). Anchors `humor_reapp_k`,
+  `humor_replay_k`, trait `humor` (§6.157).
+- **Hot–cold read (P819):** Nordgren, van der Pligt & van
+  Harreveld 2006 (*Psych. Sci.* 17:635 — verified: cold-state
+  underestimation of past visceral influence, self+other,
+  correction-resistant); Nordgren et al. 2007 (*JPSP* 93:75 —
+  verified: state-specific, applies to self-judgments);
+  Loewenstein 2005. Anchors `hotcold_k`, `cold_read`,
+  `hotcold_store_null` (§6.158).
+- **Threat detection priority (P820):** Williams, Watts,
+  MacLeod & Mathews 1997 (the anxiety=detection/depression=
+  elaboration split); Bishop 2007 (*Nat. Neurosci.* 10:307 —
+  verified review); Mathews & MacLeod 2005. Anchors
+  `threat_cue_gain`, `threat_hold`, `anx_eff`, depr exclusion
+  (§6.159).
+- **Positive broadening (P821):** Rowe, Hirsh & Anderson 2007
+  (*PNAS* 104:383 — verified: remote associates + flanker
+  breadth); Fredrickson & Branigan 2005; Isen, Daubman &
+  Nowicki 1987. Anchors `broaden_k`, `broaden_store_null`
+  (§6.160).
+- **Disgust extinction asymmetry (P822):** Olatunji, Forsyth &
+  Cherian 2007 (*J. Anxiety Disord.* 21:820 — verified: sticky,
+  resistant); Engelhard, Leer, Lange & Olatunji 2014 (*Behav.
+  Therapy* 45:708 — verified: extinction fails,
+  counterconditioning works); Bosman, Borg & de Jong 2016;
+  Olatunji, Tomarken & Puncochar 2013 (*Emotion* 13:881 —
+  propensity potentiates learning). Anchors `dis_extinct_mult`,
+  `dis_cc_mult`, `disg_prop` (§6.161).
+- **Mood-repair recall (P823):** Josephson, Singer & Salovey
+  1996 (*Cogn. & Emot.* 10:437 — verified: incongruent-positive
+  second recall, self-reported repair intent); Rusting & DeHart
+  2000 (*JPSP* 78:737 — verified trait gating); Joormann &
+  Siemer 2004 (*J. Abnorm. Psychol.* 113:179 — verified
+  dysphoric failure). Anchors `repair_*`, `repair_dep_null`
+  (§6.162).
+- **Felt vs believed (P824):** Robinson & Clore 2002 (*Psych.
+  Bull.* 128:934 — verified accessibility model: episodic for
+  recent, belief-reconstruction beyond ~2 weeks); Levine & Safer
+  2002. Anchors `felt_window`, `felt_believed_gap`,
+  `felt_write_null` (§6.163).
+- **Established vs hypothesis summary:** directions and
+  dissociations all CONSENSUS; magnitudes, age knots, trait
+  composites (`disg_prop`, `anx_eff`), window constants, and
+  all field/mixin operationalizations are RW HYPOTHESES.
+
+## 56. Addendum — v78 anchors (false-memory VII, spec v5.26)
+
+Nine credibility-layer mechanisms; probe registry P825–P834:
+
+- **Sleeper effect (P825):** Hovland & Weiss 1951 (*J. Abnorm.
+  Soc. Psychol.* 46:424 — verified: dissociation hypothesis);
+  Pratkanis, Greenwald, Leippe & Baumgardner 1988 (*Psych.
+  Bull.* 104:53 — verified: AFTER-ordering requirement);
+  Kumkale & Albarracín 2004 (*Psych. Bull.* 130:143 — verified
+  meta). Anchors §6.164 `disc_decay_mult`, `sleeper_k`,
+  `sleeper_grow_null`.
+- **Warning backfire (P826):** Skurnik, Yoon, Park & Schwarz
+  2005 (*J. Consum. Res.* 31:713 — verified: repeated "false"
+  labels → "true" endorsements after 3-day delay, older
+  adults worst); Hawkins & Hoch 1992; Hasher et al. 1977
+  companion fluency line. Anchors §6.165 `warn_tag_mult`,
+  `warn_backfire_k`, `frame_content_null`.
+- **Spinozan acceptance (P827):** Gilbert, Krull & Malone
+  1990 (*JPSP* 59:601 — verified); Gilbert, Tafarodi & Malone
+  1993 (*JPSP* 65:221 — verified); Gilbert 1991 (*Am.
+  Psychol.* 46:107 — verified); Hasson, Simmons & Todorov
+  2005 (boundary caveat). Anchors §6.166 `spinoza_cost`,
+  `load_unbelieve_pen`, `spinoza_revert_null`.
+- **Illusory truth (P828):** Hasher, Goldstein & Toppino 1977
+  (*JVLVB* 16:107 — verified); Fazio, Brashier, Payne & Marsh
+  2015 (*JEP:G* 144:993 — verified: knowledge doesn't
+  protect); Pennycook, Cannon & Rand 2018 (*JEP:G* 147:1865 —
+  verified: single-exposure lift on fake news); Begg, Anas &
+  Farinacci 1992 (*JEP:G* 121:446 — fluency mechanism).
+  Anchors §6.167 `illus_truth_k/cap`, `knowledge_gate_null`,
+  `factCheck_halve`.
+- **Hindsight (P829):** Fischhoff 1975 (*JEP:HPP* 1:288 —
+  verified); Fischhoff & Beyth 1975; Hoffrage, Hertwig &
+  Gigerenzer 2000 (*JEP:LMC* 26:566 — verified RAFT);
+  Roese & Vohs 2012 (*Persp. Psychol. Sci.* 7:411 — verified
+  three-level account). Anchors §6.168 `hind_k`,
+  `hind_conf_boost`, `hind_store_null`.
+- **Innuendo/presupposition (P830):** Wegner, Wenzlaff,
+  Kerker & Beattie 1981 (*JPSP* 41:67 — verified:
+  interrogative ≈ assertion for impressions); Loftus & Zanni
+  1975 (*Cogn. Psychol.* 7:560 — verified: the/a article
+  presupposition ~2× false-object rate). Anchors §6.169
+  `insinu_strength`, `presuppose_gain`, `insin_episode_null`.
+- **Planting recipe (P831–P832):** Shaw & Porter 2015
+  (*Psych. Sci.* 26:291 — verified: 70% rich false crime
+  memories/beliefs in 3 interviews); Wade, Garry & Pezdek
+  2018 (*Psych. Sci.* 29:503 — verified recode: 26–30%
+  recollection-grade — belief/memory split encoded);
+  Loftus & Pickrell 1995 (*Psych. Ann.* 25:720 — ~25% mall);
+  Ceci, Loftus, Leichtman & Bruck 1994 (Samuel Stone —
+  ~50% preschooler assent). Anchors §6.170 `plant_*`,
+  `scaffold_unit`.
+- **Déjà vu (P833):** Brown 2003 (*Psych. Bull.* 129:394 —
+  verified review); Cleary 2008 (*Curr. Dir. Psychol. Sci.*
+  17:353 — verified: recognition without identification);
+  Cleary et al. 2012 (*Conscious. Cogn.* 21:969 — verified
+  VR config familiarity). Anchors §6.171 `deja_*`.
+- **Source poison (P834):** forward credibility discounting
+  established (Hovland line; Kumkale & Albarracín 2004;
+  retraction/correction literature); the retroactive
+  sibling-weakening leg is RW HYPOTHESIS. Anchors §6.172
+  `source_poison_k`, `poison_radius`, `poison_reveal_null`.
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (incl. the Fazio knowledge-failure
+  and the Wade belief/memory recode); magnitudes, age
+  increments, promotion shares, the retro-poison leg, and
+  all field mechanizations are RW HYPOTHESES.
+
+## 57. Addendum — v79 anchors (individual-differences VII, spec v5.27)
+
+Sources backing Part VII of `individual-differences.md`
+(§§77–86) and probes P835–P846.
+
+- **Monitoring-blunting (§77):** Miller 1980 (the MBS
+  construct); Miller & Mangan 1983. CONSENSUS that the
+  coping-style dimension exists and is bipolar-ish; our
+  bipolar single-axis reading vs two separable subscales is
+  a simplification flagged in §91.
+- **Immigration bump (§78):** Schrauf & Rubin 1998 (*JML*
+  39:437 — verified this pass: bump follows immigration
+  age; ~20% of memories recalled internally in the
+  non-session language, partitioned by migration);
+  Schrauf & Rubin 2000 (*ACP* — bump-era memories not more
+  detailed/emotional: distribution, not tagging).
+  CONSENSUS relocation; window-width fit HYPOTHESIS.
+- **Transactive memory (§79):** Wegner 1987; Wegner, Erber
+  & Raymond 1991 (*JPSP* 61:923 — verified: natural couples
+  beat impromptu pairs without structure, lose WITH
+  assigned structure); Weldon & Bellinger 1997 (*JEP:LMC*
+  23:1160 — verified collaborative inhibition + group
+  stability). orphan_recall = RW HYPOTHESIS formalizing
+  bereavement reports.
+- **Cognitive offloading (§80):** Sparrow, Liu & Wegner
+  2011 (*Science* 333:776 — verified: access expectancy →
+  lower content recall, higher where-recall); Risko &
+  Gilbert 2016 (*TiCS* 20:676); Henkel 2014
+  (point-and-shoot impairment). First-lookup no-rehearsal
+  rule is RW HYPOTHESIS.
+- **Consolidation yield (§81):** Gais, Mölle, Helms & Born
+  2002; Schabus et al. 2004 — spindle/yield individual
+  differences. CONSENSUS direction; the two-multiplier
+  mechanization flattens sleep-stage physiology.
+- **Navigation ability (§82):** Coutrot et al. 2018
+  (*Curr. Biol.* — Sea Hero Quest, ~2.5M); Coutrot et al.
+  2022 (*Nature* — verified, N=397,162, rural advantage +
+  street-entropy topology match). navab_interf_k DEBATED.
+- **Schizotypy (§83):** Peters et al. 2007 (*J. Nerv.
+  Ment. Dis.* — verified: imagined→performed confusions,
+  WMC controlled); Larøi et al. 2005; 2022 SM meta (44
+  studies — internal-SM/imagined-stimuli impairment);
+  Steel et al. 2005 (intrusion vulnerability).
+- **Hypnotizability (§84):** Heaps & Nash 1999 (*Psychon.
+  Bull. Rev.* — verified: inflation ~ hypnotic
+  suggestibility + dissociativity, NOT interrogative
+  suggestibility); Barnier & McConkey 1992; Sheehan et al.
+  1991; Wagstaff sociocognitive counterline (verified —
+  accuracy-framed highs MORE resistant). DEBATED overall;
+  hence the context lock.
+- **Mnemonic training (§85):** Maguire et al. 2003; Dresler
+  et al. 2017 (*Neuron* 93:1227 — verified 6-week durable
+  gain); Wagner et al. 2021 (*Sci. Adv.* 7:eabc7606 —
+  verified durability leg).
+- **Bilingual TOT (§86):** Gollan & Acenas 2004 (*JEP:LMC*
+  30:246 — verified: more TOTs on noncognates, cognate
+  rescue, per-language activation mechanism); Gollan &
+  Silverberg 2001.
+
+## 58. Addendum — v80 anchors (social-memory VIII, spec v5.28)
+
+Sources backing Part VIII of `social-memory.md` (§§111–120)
+and probes P847–P858.
+
+- **Own-name capture (§111):** Cherry 1953 (selective
+  listening — unattended channel yields ~nothing, the null
+  that anchors `name_memory_null`); Moray 1959 (~33% name
+  detection in ignored channel); Wood & Cowan 1995
+  (*JEP:G* 124:243 — verified this pass: **34.6%** detected
+  under proper controls, attention shifts limited to ~2
+  items post-name, NO indirect memory for unattended
+  phrases); Conway, Cowan & Bunting 2001 (low-WMC detects
+  MORE — the filter leaks where it is weakest).
+  CONSENSUS effect + rate; channel-capture mechanics RW.
+- **Secret preoccupation (§112):** Slepian, Chun & Mason
+  2017 (*JPSP* 113:1–33 — verified: >13,000 secrets;
+  mind-wandering roughly doubles concealment frequency and
+  is the leg that predicts harm); Slepian, Kirby &
+  Kalokerinos 2020 (*Emotion* — verified: shame-appraised
+  secrets intrude more, guilt-appraised less); Liu,
+  Kalokerinos & Slepian 2023 (*PSPB* — appraisal
+  replication); Slepian, Camp & Masicampo 2015 (*JEP:G*
+  144:e31 — secrecy burden; mechanism citation only).
+  CONSENSUS on intrusion>concealment and the shame/guilt
+  split; per-day intrusion rate mapping is RW HYPOTHESIS.
+- **Endorsement transfer / vouching (§113):** De Houwer,
+  Thomas & Baeyens 2001 (*Psych Bull* 127:853 —
+  evaluative conditioning meta, ~d=0.35). The
+  spillover-across-association leg is CONSENSUS;
+  transitive *credibility* transfer and the one-hop cap
+  are RW composites (trust-transitivity literature is
+  formal, not behavioral).
+- **Exchange vs communal ledgers (§114):** Clark & Mills
+  1979 (*JPSP* 37:12 — the distinction); Clark 1984
+  (*JPSP* 47:549 — record-keeping experiment: exchange
+  expectation produces better who-contributed tracking);
+  Clark & Mills 1993 (norm-violation memorability both
+  directions). CONSENSUS distinction; communal>0 residual
+  gate and the migration threshold are RW HYPOTHESES.
+- **Relationship turning points (§115):** Baxter & Bullis
+  1986 (*HCR* 12:469 — verified: dyadic histories
+  reconstruct from ~15–25 turning points, ~10 categories);
+  Baxter & Erbert 1999; Surra relational-history
+  methodology. CONSENSUS sparse-anchor structure; hub
+  retrieval mechanics RW.
+- **Pre-meeting reputation assimilation (§116):** Jones
+  1990 (*Interpersonal Perception* — assimilation
+  default); Nickerson 1998 (confirmation-bias review);
+  Dunning & Sherman 1997 + Biernat's shifting-standards
+  program (assimilation→contrast boundary at unambiguous
+  extremity). Direction CONSENSUS; band placement and
+  magnitudes RW.
+- **Final-encounter privilege (§117):** Fredrickson &
+  Kahneman 1993; Kahneman et al. 1993 (peak-end leg,
+  CONSENSUS); Davis & Lehman 1995 (bereavement
+  counterfactual replay — nearest direct evidence, about
+  rumination, not encoding). Weakest section of the part;
+  composite HYPOTHESIS.
+- **Shared-adversity bonding (§118):** Bastian, Jetten &
+  Ferris 2014 (*Psych Sci* 25:2079 — verified: three
+  experiments, shared pain → perceived bonding +
+  cooperation, controlling task/effort); Whitehouse &
+  Lanman 2014; Whitehouse et al. 2017 (identity-fusion
+  mechanism). Direction CONSENSUS; bond magnitude and the
+  reinstate leg are RW.
+- **Plural-subject records (§119):** Aron et al. 1991
+  (other-in-self); Mashek, Cannaday & Tangney 2007;
+  Wegner transactive line (partner cueing leg). The
+  "we"-record store is RW composite on CONSENSUS parts.
+- **Story ownership (§120):** Stone 1988 (*The Festival
+  of American Folklife* proceedings / family-lore
+  scholarship) establishes ownership and teller-rights as
+  real social phenomena; no quantitative magnitudes exist —
+  all trespass/yield numbers are RW, probe P857 is
+  deliberately OBSERVE-grade.
+
+## 59. Addendum — v81 anchors (formal-model VIII, spec v5.29)
+
+Part VIII of `formal-model.md` (§§60–69) instantiates the
+spec §14.2 anchor corpus — the first concrete human numbers
+the model is held to. Full row table at formal-model.md §61;
+full per-probe sourcing at validation-design.md §163. This
+addendum records what the corpus *is* and the load-bearing
+disagreements it encodes.
+
+- **The corpus exists because "human-like" was unfalsifiable.**
+  Eighteen statistics spanning forgetting (Ebbinghaus points,
+  Rubin & Wenzel family verdict), lifespan distribution
+  (childhood-amnesia offset 3.5y — Tustin & Hayne 2010 /
+  Nelson & Fivush 2004's 49-estimate mean 3.69; bump 10–30 —
+  Rubin & Schulkind 1997), distortion (misinformation ~.30 —
+  Loftus 2005 / Ayers & Reder 1998; implantation ~.30 —
+  Lindsay et al. 2004; DRM .01–.65 list-graded — Stadler et
+  al. 1999 / Roediger et al. 2001), calibration (flashbulb
+  dissociation — Talarico & Rubin 2003; confidence–accuracy
+  ≤.3 overall / ~.41 choosers — Sporer et al. 1995), and
+  study-time laws (testing .61/.40 at 1wk — Roediger &
+  Karpicke 2006; spacing ISI/RI ≈ .10–.20 — Cepeda et al.
+  2006, 2008; RIF ~8–10pp — Anderson et al. 1994 / Murayama
+  et al. 2014; delayed recency — Glanzer & Cunitz 1966;
+  LoP ~2× — Craik & Tulving 1975; generation d≈.5 — Bertsch
+  et al. 2007).
+- **Deliberate absences encode honesty:** sleep-consolidation
+  magnitude has no anchor row (Diekelmann & Born 2010 vs
+  Cordi & Rasch 2021 replication failures — mechanism kept,
+  number withheld); Bartlett's serial reproduction is
+  qualitative and grounds §6.12 operators, not a statistic.
+- **The grading is asymmetric on purpose:** equivalence
+  testing (TOST — Schuirmann 1987; Lakens 2017) means
+  *exceeding* humans fails (`exceed_null`) — the corpus is
+  the formal statement that a database is a failed character.
+  CONTESTED rows assert nulls: flashbulb consistency
+  advantage ≈ 0 must coexist with confidence advantage > 0 —
+  the Talarico & Rubin dissociation as a joint constraint.
+- **Shrinkage is epistemics as config:** rep grades
+  {META 1.0, RRR .9, MULTI .8, SINGLE .6} recenter bands
+  toward null — justified by OSC 2015 (~36% replication,
+  mean effect ≈ half). Inflated ground produces inflated
+  humans.
+- **Measurement theory leg:** probes read three observable
+  channels only (recall, latency, confidence + emitted
+  content) — Tulving & Pearlstone 1966 availability/
+  accessibility made operational; latency–strength coupling
+  from Wixted & Rohrer 1994; instrument noise (`obs_noise`)
+  from psychometric reliability ceilings (~r .7–.9).
+
+## 60. The report layer — memory has a voice, and the voice lies fluently (v82)
+
+A gap audited this pass: the spec modeled what surfaces
+(candidates, fields, hedged flags) but not the *style of the
+surfacing* as a personality. The literature on memory-as-
+performance splits cleanly into speaker-side control and
+listener-side inference:
+
+- **Quoted speech is fiction by default.** Tannen 1986
+  (*Representing* 27 — verified) reframed "reported speech"
+  as *constructed dialogue*: conversational direct quotes
+  include utterances provably never spoken (choral "everybody
+  says", hypothetical "and I almost said", inner speech
+  rendered as dialogue) — the quote is the teller's creation
+  bearing full responsibility, not a playback. Wade & Clark
+  1993 (*Memory* 1:265) show reproduction drifts toward the
+  teller's communicative purpose; Clark & Gerrig 1990
+  (*Cognition* 37) formalize quotation as *demonstration* —
+  a depiction that selects properties, not a description.
+  Store-side corroboration already in the model: Sachs 1967
+  verbatim decay means wording is almost never available to
+  quote — fluency and fidelity decouple completely.
+- **Volunteering is a decision, not a threshold on the
+  trace.** Koriat & Goldsmith 1996 (*Psych Rev* 103:490 —
+  verified): the monitor-and-control model — metacognitive
+  confidence drives a volunteer/withhold decision whose
+  criterion is a stable control policy; granting report
+  option raises accuracy at the cost of quantity, modulated
+  by incentive and monitoring effectiveness. Goldsmith,
+  Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73 — verified)
+  add the second control dial: grain — rememberers coarsen
+  answers ("last spring") to buy accuracy, trading
+  informativeness. Both are person-level dispositions —
+  exactly the trait-shaped hole §5.61's context-level report
+  option left.
+- **What narration is made of.** Levine, Svoboda, Hay,
+  Winocur & Moscovitch 2002 (*Psychol Aging* 17:677 —
+  verified): the Autobiographical Interview's internal
+  (episodic) vs external (semantic/off-event) detail split;
+  older adults shift external — already the §5.78c age curve
+  — but the spread at fixed age is a style (Addis, Wong &
+  Schacter 2008, *Neuropsychologia* 46:1363): habitual
+  sensory-happening talkers vs habitual commentators.
+- **The audience grades the pause.** Brennan & Williams 1995
+  (*J Mem Lang* 34:383 — verified): listeners estimate a
+  speaker's knowing from latency and filled pauses, with an
+  asymmetry worth a mechanism — latency before an ANSWER
+  lowers the feeling-of-another's-knowing, latency before a
+  NONANSWER raises it (a slow "I don't remember" reads as
+  knowledgeable, a fast one as blank). Smith & Clark 1993
+  (*Cognition* 48:151): uh<um as calibrated delay signals.
+  Top-down beliefs about the speaker's expertise modulate
+  the read (FOAK prior leg — direction CONSENSUS, magnitude
+  SINGLE-study DEBATED).
+- **The telling eats the event.** Marsh 2007 (*Am J Psychol*
+  120:533 — verified): retelling is not remembering —
+  tellings reorganize toward story shape and later recall
+  retrieves the telling; Bartlett's effort-after-meaning
+  supplies the selection bias. Tannen 1989's evaluation
+  coda ("and that's when I knew") is told-on-report, minted
+  nowhere in the record.
+- **Model consequence (spec v5.30 §§5.79–5.83):** five
+  report-layer traits — `voice_quote`, `report_policy`,
+  `grain_pref`, `ie_talk`, `voice_story` — plus the FOAK
+  update leg (`estKnow` on PersonModel). All SELECTION or
+  SURFACE: six locked nulls (P871–P877) keep the voice from
+  ever minting content, sharpening grain, or touching
+  stored strength. The persona-level outcome the project
+  wants — "she's always quoting him, and half of it he
+  never said" — is now a first-class profile phenotype.
+
+## 61. v83 — the battery disciplines itself (validation-design IX)
+
+Not psychology — the psychology is now big enough that the
+measurement layer is the risk. This version arms the verdict
+layer against itself; all additions are spec §14.5 and
+validation-design.md §§166–171 (probes P879–P888).
+
+- **False rejections are budgeted, not hoped away.** At 878
+  probes, nominal-α testing expects ~44 false rejections under
+  global null — and the probes are correlated (shared mains,
+  shared seeds, shared event pools). Verdicts now run inside
+  versioned families under Benjamini–Hochberg at `fdr_q`,
+  with the Benjamini–Yekutieli Σ1/i penalty as the default
+  dependence correction (BH 1995, *JRSS-B* 57:289; BY 2001,
+  *Ann Statist* 29:1165). Locked nulls stay outside FDR: a
+  boundary violation is a gate event, not a statistic.
+- **Watching a running p is a decision.** The harness streams
+  corpusRun verdicts per tick; stopping on a dipped p inflates
+  type-I (Robbins 1970; Howard et al. 2021, *Ann Statist*
+  49:1055). Anchors now monitor on e-values — Ville-valid at
+  arbitrary stopping times — using the betting construction
+  for bounded statistics (Waudby-Smith & Ramdas 2024,
+  *JRSS-B* 86:1, verified; merging rules per Vovk & Wang
+  2021, *JRSS-B* 83:961). Peeking on raw p is `peep_null`.
+- **The identifiability map gets audited, not trusted.**
+  Morris elementary-effects screening (Morris 1991,
+  *Technometrics* 33:161; μ*/σ per Campolongo, Cariboni &
+  Saltelli 2007) re-ranks each anchor's pinned params; ≥0.8
+  top-k overlap required or the map is stale. Screening can
+  add audit candidates but never delete a gated param
+  (`screen_drop_null`) — sloppiness doctrine (Gutenkunst
+  et al. 2007): jointly constrained, individually inert.
+- **Believability is a separate axis.** Corpus anchors fit
+  population statistics; `rateBelief` tests whether a blinded
+  human rater can tell a sim recall transcript from a human
+  protocol (Turing 1950 as protocol skeleton; Orne 1962 for
+  why provenance must be hidden — `rater_leak_null`). Band
+  [0.5,0.75]: detectable-above-ceiling fails believability;
+  below-floor flags instrument error under the §62
+  too-good doctrine.
+- **Model consequence (spec v5.31 §14.5):** verdict governance
+  is now contract — `evalGate` (BH + locked-null gate),
+  `evalAnchor` e-value returns, `sensAudit`, `rateBelief`;
+  +12 pop/harness params, +4 locked nulls; zero Event/record/
+  PersonModel changes. Every claim the corpus makes about the
+  characters is now made by an instrument that is itself
+  falsifiable (P879–P888).
+
+## 62. v84 — what takes the share without permission (encoding-mechanics VII, spec v5.32)
+
+Sixth pass priced value/choice/audience triage. Seventh pass
+prices what was left: the involuntary, the composite, the
+floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
+§§84–95; probes P889–P898; +16 params, +5 locked nulls
+(incl. `gum_gain`), +2 frozen.
+
+- **Attention doesn't need the goal's permission.** Value-driven
+  attentional capture (Anderson, Laurent & Yantis 2011, *PNAS*
+  108:10367 — verified): stimuli that once predicted reward
+  capture attention when they reappear as task-irrelevant
+  distractors — involuntary, persistent (Anderson & Yantis 2012:
+  >6 months), scaled by reward value (Le Pelley et al. 2016
+  meta), and moderated by WMC and impulsivity. Distinct from
+  §71's VDR — that was strategic spending; this is capture.
+  Fields co-encoded with reward carry `rewardAssoc` (half-life
+  `vdac_hl` 180d) buying wm_cap share (`vdac_w`) and taxing
+  co-present fields (`vdac_tax`). Locked `vdac_goal_null`:
+  goal-irrelevance must not prevent capture — that IS the
+  finding. Frozen `vdac_scope`: no retroactive staining.
+  Cast shadow: the corner where the tip was big pulls the
+  low-wmc bartender's eye months later, and whatever else was
+  in the scene mints thinner.
+- **Two congruent channels mint one trace with two doors.**
+  Congruent bimodal+ events gain `msens_gain` and mint
+  cross-modal cue bridges (`msens_cue_bridge`) — the smell
+  retrieves the sight (Shams & Seitz 2008; Lehmann & Murray
+  2005). Incongruent co-occurrence pays `msens_incong_loss` —
+  the TV behind the speaker costs the conversation. Frozen
+  `msens_congr_gate`: congruence is judged per field-pair.
+- **Hasher & Zacks, adjudicated.** Frequency, location, and
+  temporal order encode at a floor (`auto_floor`) with
+  attenuated daLoad cost (`auto_da_resist`) — but intent still
+  helps, so `auto_immune_null` locks the floor from becoming a
+  ceiling (Naveh-Benjamin 1987 critique). The floor survives:
+  attribute fields are the most age-resistant of the deliberate
+  measures (P893 partial-sparing shape).
+- **Drawing beats its parts.** The drawing effect (Wammes,
+  Meade & Fernandes 2016 — >2× recall vs writing, survives
+  LoP/imagery/picture controls) is a composite trace:
+  `engagement:"drawn"` mints `draw_gain` with `draw_da_resist`
+  (robust under divided attention and in older adults, 2018).
+  `draw_verbatim_null`: the composite mints shapes, not
+  orthography — she remembers the diagram's layout, not its
+  labels.
+- **Dwell follows difficulty, not value.** Region of proximal
+  learning (Metcalfe & Kornell 2005): self-paced dwell
+  concentrates mid-difficulty (`rpl_focus` inverted-U); under
+  deadline it flips easiest-first (`rpl_press_flip`; Son &
+  Metcalfe 2000). The deficit encoder flattens the U — the same
+  deficit that breaks value selectivity breaks difficulty
+  selectivity.
+- **Why-probing needs something to grab.** Elaborative
+  interrogation (`why:true` → `ei_gain`) is gated by
+  `schema_support ≥ ei_know_gate`; `ei_noknow_null` locks it —
+  asking why about the unfamiliar yields ≈0 (Pressley 1987;
+  Dunlosky 2013 contingency). The obsessive explainer is deep
+  inside her expertise and shallow outside it — emergent, not
+  pinned.
+- **Coherent days mint as blocks.** `catRun ≥ org_run_min`
+  consecutive same-topic events mint links at
+  `link_p·(1+org_gain)` (Tulving 1962; Bower 1969). The
+  routine-holder's organized days encode densely; the chaotic
+  character's interleaved errands mint as fragments — the
+  encode-side root of event clusters.
+
+## 63. v85 sources (forgetting-curves VIII — the fade's fate)
+
+- **Nelson 1978** (*JEP:HLM* 4:453 — verified): savings
+  detectable for items nonrecallable AND nonrecognizable —
+  subthreshold traces are real and re-incrementable.
+- **Nelson 1985** (*JEP:LMC* 11:472 — verified): savings
+  during relearning is the most sensitive retention measure —
+  sensitivity order savings > recognition > recall.
+- **MacLeod & Nelson 1984** (verified replication): savings
+  on nonretrieved items after one relearning trial;
+  "concatenation" account.
+- **Averell & Heathcote 2011** (*J. Math. Psychol.* 55:25–35
+  — verified): hierarchical fits answer the averaging
+  objection — exponential best per-subject fit but power wins
+  Bayesian model selection; above-chance asymptote in all
+  analyses (briefly-studied memories can be permanent).
+- **Simon 1966** (*Psychometrika* 31:505 — verified): Jost's
+  law + exponential implies heterogeneous decay constants —
+  pooled curves steepen vs per-item.
+- **Anderson & Schooler 1991** (*Psych. Sci.* 2:396 —
+  verified): need-probability statistics (NYT headlines,
+  child-directed speech, e-mail) mirror memory-availability
+  regularities — memory's form is rational given the
+  environment.
+- **Hardt, Nader & Nadel 2013** (*TICS* 37:111 — verified):
+  "decay happens" — forgetting as active remodeling;
+  neurogenesis destabilizes existing traces.
+- **Frankland, Köhler & Josselyn 2013** (*TINS* — verified):
+  neurogenesis account of infantile amnesia — high-plasticity
+  epochs clear old traces. Mechanism DEBATED (adult human
+  neurogenesis contested); RW implements only the reduced
+  form (§4.40).
+- **Established vs hypothesis:** savings existence and
+  sensitivity order, per-individual power+floor adequacy,
+  heterogeneity steepening, need↔availability correspondence
+  = CONSENSUS/established. Hazard lottery, needRate τ
+  modulation, vol_loss ecology term, scalar savings shadow =
+  RW hypotheses (P899–P907).
+
+## 64. v86 sources (retrieval-cues VIII — the cueless pop and the cue that isn't)
+
+- **Kvavilashvili & Mandler 2004** (*Cognitive Psychology*
+  48:47–94 — verified via DOI/abstract): "mind-popping" —
+  involuntary SEMANTIC memories; no apparent cue, automatic-
+  activity bias, priming delays of hours–days; the episodic
+  involuntary literature's cueless cousin.
+- **Janata, Tomic & Rakowski 2007** (*Memory* 15:845–860 —
+  verified): ~30% of familiar-song presentations evoke AMs;
+  positive-emotion skew, nostalgia third; both general and
+  specific AM levels present.
+- **Jakubowski & Ghosh 2021** (*Br. J. Psychol.* — verified
+  via abstract): diary study; 83% of music-evoked memories
+  rated spontaneous — higher involuntary share than food
+  cues.
+- **Belfi et al. 2022** (*Psychology of Music* — verified
+  via abstract): MEAMs are episodically richer than
+  face-evoked memories even matched on involuntariness —
+  richness is a stimulus property.
+- **El Haj, Fasotti & Allain 2012** (*Conscious. Cogn.* 21 —
+  verified): involuntary character of MEAMs; preserved in
+  aging vs word-cued AMs.
+- **Wagenaar 1986** (*Cognitive Psychology* 18:225 —
+  verified): self-diary; `when` was the only cue never
+  effective alone.
+- **Barsalou 1988** (*Psych. Rev.* 95 — verified): date cues
+  fail; autobiographical search runs through extended event
+  structures, not the calendar.
+- **Kurbat, Shevell & Rips 1998** (*Mem&Cogn* 26:1058 —
+  verified): dating is landmark- and calendar-reference-
+  point relative.
+- **Shum 1998** (*Appl. Cogn. Psychol.* 12 — verified):
+  temporal landmarks anchor AM search.
+- **Crovitz & Schiffman 1974** (*Bull. Psychon. Soc.* 4 —
+  verified): word-cue method; recall-age power decay.
+- **Rubin & Schulkind 1997** (*Mem&Cogn* 25:859 — verified):
+  cue-word lifespan distribution — the bump instrument.
+- **Robinson 1976** (*Cognitive Psychology* 8:578 —
+  verified): word-class effects — activity/affect vs object.
+- **Ariel 1990** (*Accessing Noun-Phrase Antecedents* —
+  verified): referring-expression accessibility hierarchy.
+- **Gundel, Hedberg & Zacharski 1993** (*Language* 69:274 —
+  verified): givenness hierarchy of expression forms.
+- **Fivush & Fromhoff 1988**; **Reese, Haden & Fivush 1993**
+  (*Cognitive Development* 8:403 — verified); **Nelson &
+  Fivush 2004** (*Psych. Rev.* 111 — verified review):
+  elaborative reminiscing style scaffolds children's AM.
+- **Kahana 1996** (*Mem&Cogn* 24:103 — verified): lag-CRP
+  temporal contiguity with forward asymmetry; **Howard &
+  Kahana 2002** (*J. Math. Psychol.* 46 — verified TCM);
+  **Kahana, Howard, Zaromb & Wingfield 2002** (*Psychol.
+  Aging* 17 — verified age attenuation); **Moreton & Ward
+  2010** (*QJEP* 63 — verified AM down-weight).
+- **Madore, Gaesser & Schacter 2014** (*PNAS* 111:E1981 —
+  verified): episodic specificity induction lifts subsequent
+  unrelated recall detail; **Madore & Schacter 2016**
+  (*Memory* 24 — verified orientation account); **Jing,
+  Madore & Schacter 2016** (*J. Gerontol. B* — verified
+  older-adult arm).
+- **Established vs hypothesis:** pop existence + cue
+  opacity, MEAM profile, date-cue failure, word-class order,
+  accessibility hierarchy, elaborative-scaffolding child
+  effect, lag-CRP shape + age attenuation, ESI lift =
+  CONSENSUS. Seed half-life, meam constants, adult-adult
+  scaffolding extension, am_att magnitude, esi horizon =
+  RW hypotheses (P908–P917).
+
+## 65. v87 adds — age-development VIII (the flat terms that weren't)
+
+- **Ross, Anderson & Campbell 2011** (*Monogr. SRCD* 76(3)
+  — verified): mnemonic self-reference present at 3–4,
+  nascent — enactment, self-image, ownership routes.
+- **Ross, Hutchison & Cunningham 2020** (*Child Dev.* —
+  verified): preschool AM volume predicted by self-knowledge
+  volume and self-source monitoring.
+- **Ofen et al. 2007** (*Nat. Neurosci.* 10:1198 —
+  verified): recollection develops via protracted PFC
+  maturation (8–24); MTL basics early.
+- **Billingsley, Smith & McAndrews 2002** (*JECP* 82:251 —
+  verified): familiarity/priming mature before recollection.
+- **Ghetti & Lee 2011** (*Dev. Rev.* 31 — verified review):
+  familiarity adult-like ~6–8; recollection→adolescence.
+- **Betts, McKay, Maruff & Anderson 2006** (*Child
+  Neuropsychol.* 12:205 — verified): sustained attention
+  steep 5→9, plateau ~10–12.
+- **Lindsay, Johnson & Kwon 1991** (*JECP* 52:297 —
+  verified): source monitoring improves through childhood.
+- **Drummey & Newcombe 2002** (*Dev. Psychol.* 38:1138 —
+  verified): fact recall steady, source jumps abruptly 4→6.
+- **Busby & Suddendorf 2005** (*Cogn. Dev.* 20:362 —
+  verified): past/future mental time travel in tandem 3→5.
+- **Addis, Wong & Schacter 2008** (*Psychol. Sci.* 19:33 —
+  verified): older adults' future simulation loses internal
+  detail; external compensates.
+- **Addis, Musicaro, Pan & Schacter 2010** (*Psychol.
+  Aging* 25:369 — verified): deficit survives
+  no-recasting recombination.
+- **Scullin, Bugg, McDaniel & Einstein 2011** (*Mem&Cogn*
+  39:1232 — verified): preserved spontaneous PM retrieval,
+  impaired deactivation in aging.
+- **Scullin, Bugg & McDaniel 2012** (*Psychol. Aging*
+  27:46 — verified): commission errors elevated with age.
+- **Bugg & Scullin 2013** (*Psychol. Aging* — verified):
+  repeated performance hardens completed intentions.
+- **Walser, Fischer & Goschke 2012** (*JEP:LMC* 38:1030 —
+  verified): aftereffects of completed intentions.
+- **Berntsen & Rubin 2004; Thomsen & Berntsen 2008; Bohn &
+  Berntsen 2008** (verified): life script positive-only;
+  negative events don't bump.
+- Consensus vs hypothesis: all phenomena above established;
+  knot magnitudes + `dist_child_mult`, `epf_sem_fill`,
+  `pm_zombie_p` rates, `bump_neg_pen` are fitted —
+  probe-gated P918–P927.
+
+## 66. v88 adds — age-decline VIII (the overlay ledger)
+
+Part VIII of age-decline.md (§§110–119) moves decline from
+pure slope to **event-and-state ledger** — the largest
+single reframe since the trajectory classes (§96):
+
+- **Event-shaped decline.** Wilson 2012 (MAP): first
+  hospitalization accelerates decline 2.4× (episodic 3.3×);
+  James 2019 isolates it to *nonelective* admissions —
+  elective surgery does not accelerate. Ehlenbach 2010
+  adds the level step (CASI −1.01/−2.14). RW consequence:
+  `hosp_step` is the first non-age term in the decline
+  integrator — a character's memory age is now partly a
+  *medical history*, and the elective-null keeps the
+  mechanism honest (hospitalization qua illness stressor,
+  not qua event tag).
+- **Loss-shaped decline.** Aartsen 2005: widowhood costs
+  memory *independently of depression* — bereavement is
+  not mood-mediated (so it stacks with, not inside, the
+  loneliness overlay). Shin 2018 says the tail is
+  persistent and time-scaling; LASA fixed-effects says
+  temporary and reasoning-only. We encode acute-certain +
+  tail-small (P929 caps it) — the honest middle.
+- **Reversible dip.** Greendale 2009 (SWAN) is the
+  cleanest *transient* decline in the literature: late-
+  perimenopause learning at 7% of premenopause rate, full
+  rebound post. `mt_stage` is the model's only overlay
+  that gives the deficit back — and the first sex-linked
+  age mechanism (female mains pay a midlife encoding
+  trough; males never do).
+- **Leading indicators.** Mielke 2013's one-way arrow
+  (gait→cognition, never reverse) plus Buracchio 2010's
+  ~12y pre-MCI acceleration give the decline arm a
+  *world-visible* tell (`gaitSlow`) years before memory
+  shows — the spectator learns the trajectory before the
+  character, the external mirror of SCD (§98). Compressed
+  to 4y for season-scale drama.
+- **Protective levers with different physics.** Purpose
+  (Boyle 2010 — internal, event-rewritable, survives
+  bereavement), bilingualism (Bialystok 2007 — DEBATED,
+  onset-shift only, slope never spared), and structural
+  network size (Bennett 2006 — modifies the
+  pathology→function mapping, orthogonal to *perceived*
+  loneliness) are three distinct reserve channels; the
+  spec now keeps them separable so probes can falsify any
+  one without collapsing the others.
+- **Control shift.** Eppinger 2013 / de Wit 2014: old age
+  moves action selection habitual — the routine survives
+  the reason. `perseverate:true` is the emission: she
+  still walks to the closed bakery. Behaviorally the same
+  dissociation as §5.78d's implicit floor, one level up.
+- **The learning-channel crossover.** Tse 2010: testing
+  beats restudy for old adults ONLY with feedback —
+  uncorrected retrieval attempts lose to re-exposure.
+  `test_nofb_gain` < `study_gain` means an old character
+  who misremembers aloud and is never corrected
+  consolidates the error — misinformation (§6.3) and
+  relearning are the same fluency mechanics seen from two
+  sides.
+- **Remote semanticization.** Sekeres 2018 + Levine 2002:
+  the oldest records shed detail fastest in old adults —
+  the remote story survives as its *lesson*.
+
+New sources verified this version: Eppinger 2013, de Wit
+2012/2014, Otto 2013, Aartsen 2005, Shin 2018, LASA
+fixed-effects (Comijs gby104), Fulton 2022 review,
+Wilson 2012, Ehlenbach 2010, James 2019, Boyle 2010/2012,
+Kim 2019, Bialystok 2007/2010, Zahodne 2014, Mukadam 2017,
+Mielke 2013, Buracchio 2010, Tian 2020, Greendale
+2009/2010, Sekeres 2018, Piolino 2006, Bennett 2006,
+Crooks 2008, James 2011, Tse 2010, Meyer & Logan 2013.
+
+## 67. v89 adds — emotional-memory VIII (the quiet uses of feeling)
+
+Part VIII of emotional-memory.md (§§98–107) prices the
+places where the feeling of NOW re-edits the feeling of
+THEN — the direction of the bends, not just their
+existence:
+
+- **Present-pull on the past.** McFarland & Ross 1987 and
+  Karney & Coombs 2000 make the most consequential
+  dyadic finding concrete: recalled past feelings track
+  the CURRENT bond *trajectory*, not the stored record.
+  The honest subtleties the model keeps: it is Δ that
+  drives direction (a stable-unhappy marriage does not
+  produce "never loved you"), verbatim-gated (the
+  letter's words survive while its reported warmth
+  shifts), and emission-side (the born tag refires on a
+  strong cue — `consist_fact_null`/`felt_write_null`
+  discipline). RW payoff: post-breakup "I never felt
+  anything" is now a *mechanism with an audit flag*
+  (`rewrote_feelings:true`), not flavor text.
+- **Two small effects, kept small on purpose.** Mood-
+  state-dependence (Eich & Macaulay 2000 — real, weakest
+  of the context terms, self-generated-search-bound)
+  and SIF (Anderson & Green 2001 → 2024 multilevel
+  meta: real, ~small, valence-neutral) are both
+  literature-famous and both routinely oversold. The
+  spec now prices the CONDITIONS (internal search,
+  external-cue share, charge gate; load-dependent
+  rebound) rather than the raw effect — the
+  implementation encodes where the effects live, which
+  is what survived the replication era.
+- **The narrative layer gets a personality.** `narr_seq`
+  imports McAdams' redemption/contamination finding as
+  a *trait* — the first emotional-memory mechanism that
+  is a story-grammar rather than a store-process. It
+  drifts tags on retell (never content —
+  `narr_truth_null`) and is itself rewritable only by
+  world events: a person who keeps getting betrayed
+  literally becomes a contamination narrator.
+- **Recovery is unmemorable.** Immune neglect (Wilson &
+  Gilbert) reframed as a *storage* claim: coping days
+  mint thin, the duration-to-recover field decays
+  verbatim-fast, and the forecasting arm (§50) is left
+  with peak pain and no learning rate — `immune_blind_
+  null` makes the neglect structural. The `heal_gap`
+  audit is our operationalization, flagged invented.
+- **The one distortion that grows with age.** Choice-
+  supportive bias (Henkel & Mather 2007) is the
+  rare find where OLDER adults distort MORE — routed
+  through `opt_src` source decay, so the bias literally
+  strengthens as the feature→option binding rots.
+  Paired with the positivity effect (Mather & Knight
+  2005), whose load-bearing cell is the DA REVERSAL:
+  distraction doesn't merely erase old-age positivity,
+  it flips it — P945 tests both arms.
+- **Structure, not just strength.** Affect boundaries
+  (Heusser 2022's reset model implemented literally;
+  Clewett 2020's arousal-burst boundary) give Event
+  records internal seams — order breaks across the
+  seam, distance dilates, interference drops. And
+  peritraumatic dissociation (Ozer 2003 meta —
+  strongest during-event PTSD predictor) finally gives
+  the existing `dissoc` trait its encode roll: binding
+  loss, never content loss.
+- **The camera is an attention machine, not an
+  offload machine.** Barasch 2017's mental-photo arm
+  proves the mechanism is attentional; the spec
+  reconciles Henkel 2014 by scoping offload to
+  `photographing:"archive"` — volitional framing boosts
+  the seen and taxes the heard, and a `photo_review`
+  later preserves only what the frame held.
+
+New sources verified this version: McFarland & Ross
+1987, Karney & Coombs 2000, Eich & Macaulay 2000,
+Smith & Vela 2001, Anderson & Green 2001, Anderson &
+Huddleston 2012, Levy & Anderson 2008, Wegner 1987/
+1994, Wenzlaff & Wegner 2000, 2024 SIF multilevel
+meta, McAdams 1997/2001/2006, Adler 2015/2017,
+Pasupathi 2001, Gilbert et al. 1998, Wilson & Gilbert
+2003, Henkel & Mather 2007, Gilbert & Ebert 2002,
+Clewett 2020, Heusser 2022, Rouhani 2020, Mather &
+Carstensen 2005, Kennedy 2004, Reed/Chan/Mikels 2014,
+Mather & Knight 2005, Knight et al. 2007, Ozer et al.
+2003, van der Kolk & Fisler 1995, Ehlers & Clark
+2000, Barasch et al. 2017, Diehl et al. 2016,
+Henkel 2014, St. Jacques & Schacter 2013.
+
+## 68. v90 adds — false-memory VIII (the edges of the record)
+
+Part VIII of false-memory.md (§§88–97) prices the failure
+modes that live at the record's edges — where a memory
+isn't distorted but *attributed*, *extended*, *out-talked*,
+*probed into being*, or *confessed into existence*:
+
+- **Provenance is the first casualty.** Cryptomnesia
+  (Brown & Murphy 1989; Marsh & Bower 1993; Macrae et
+  al. 1999) closes the loop the source-monitoring stack
+  opened: §6.10's sourceInfer, run on generation, mints
+  self-authorship for source-decayed heard content —
+  and the self-similarity gate means characters steal
+  most from the people most like them. Truthiness
+  (Newman et al. 2012) is the same fluency error
+  pointed the other way: a photo that proves nothing
+  still reads as evidence. Both are `believe_p`/`source`
+  layer moves with locked `*_content_null` arms —
+  belief and attribution shift; the record's content
+  doesn't.
+- **The frame is wider than the event.** Boundary
+  extension (Intraub & Richardson 1989) gives scene
+  records schema-typical periphery that normalizes over
+  days — the first mechanism in the spec whose falsity
+  is *geometric*. Verbal overshadowing (Schooler &
+  Engstler-Schooler 1990; Meissner & Brigham 2001;
+  Alogna et al. 2014 RRR — direction kept, magnitude
+  flagged) plus the Carmichael label pull make *telling*
+  a retrieval hazard: the character who describes the
+  suspect is the worst identifier, and her label drags
+  the listeners' records too.
+- **Questions mint what they ask about.** Crashing
+  memories (Crombag, Wagenaar & van Koppen 1996 —
+  55/66% saw a film that doesn't exist; Ost et al.
+  2002) formalize the `footage_probe`: notoriety, not
+  plausibility, gates the phantom, and detail-demanding
+  probes endorse MORE because the demand runs the
+  schema fill. Overclaiming (Atir et al. 2015) is the
+  trait-mapped twin — confidence without a record,
+  minted at `familiar_only` tier only.
+- **The self is the flippable record.** Choice blindness
+  (Johansson et al. 2005 — ≤26% detect, then
+  confabulate) and coerced self-false-memory (Kassin &
+  Kiechel 1996 — 69/28/9%; Nash & Wade 2009) share one
+  discipline: overlays and belief flips, never rewrites
+  (`cb_record_null`, `ownact_fact_null`). A character
+  can remember doing what they didn't do; the ledger
+  always knows.
+- **Two boundaries, one locked.** Collaborative
+  inhibition (Weldon & Bellinger 1997; Rajaram &
+  Pereira-Pasarin 2010) prices the group-recall deficit
+  with `collab_gain_null` — consensus by amnesia. And
+  `repress_revival_null` takes the model's only
+  absolute position: following McNally 2003, the
+  machinery for recovered-memory *reports* is fully
+  implemented (probes mint phantoms through §6.9), the
+  machinery that would *validate* them is absent — and
+  P957 probes the absence.
+
+New sources verified this version: Brown & Murphy 1989,
+Marsh & Bower 1993, Marsh, Landau & Hicks 1997, Macrae,
+Bodenhausen & Calvini 1999, Intraub & Richardson 1989,
+Intraub, Gottesman & Bills 1998, Hubbard 1996, Intraub
+2002, Schooler & Engstler-Schooler 1990, Meissner &
+Brigham 2001, Alogna et al. 2014, Carmichael, Hogan &
+Walter 1932, Crombag, Wagenaar & van Koppen 1996, Ost,
+Vrij, Costall & Bull 2002, Smeets et al. 2009, Otgaar
+et al. 2022, Newman et al. 2012/2015, Johansson, Hall,
+Sikström & Olsson 2005, Hall, Johansson & Strandberg
+2010, Strandberg et al. 2018, Levin et al. 2000, Kassin
+& Kiechel 1996, Nash & Wade 2009, Horselenberg et al.
+2003, Hanba & Zaragoza 2007, Weldon & Bellinger 1997,
+Basden, Basden, Bryner & Thomas 1997, Rajaram &
+Pereira-Pasarin 2010, Atir, Rosenzweig & Dunning 2015,
+McNally 2003, Loftus 1993, Brewin & Andrews 2017,
+Patihis et al. 2014 — probes P948–P957.
+## 69. v91 adds — individual-differences VIII (the chemistry and the crowd)
+
+Part VIII of individual-differences.md (§§92–107) prices
+the axes that live in the state more than the trait —
+pharmacology, pressure, exposure — plus the complaint
+that outruns the record and the third mandated null:
+
+- **The evening's holes are a person, not a dose.** At
+  matched intoxication, only some drinkers gap —
+  `blackout` [0,2] prices the fragmentary (thin-source,
+  `frag:true`, cue-rescuable as `reconstructed`) vs
+  en-bloc (never minted, `blackout_rescue_null`) split
+  from Hartzler & Fromme 2003 (3:1 ratio; retrieval-
+  failure account) and Wetherill & Fromme 2011 (dlPFC/
+  parietal interaction at matched performance). The
+  direction is anterograde-only (`blackout_retro_null`),
+  consistent with v5.20's `intox_retro_shield` — the
+  same night can hold a shield and a hole.
+- **The pill taxes tomorrow.** `med_burden` merges the
+  benzodiazepine (Curran 1991; Buffett-Jerrott &
+  Stewart 2002) and anticholinergic (Gray 2015; Fox
+  2011) signatures into one anterograde-only load with
+  a `med_washout` recovery and a DEBATED cumulative
+  `med_aging_add` leg.
+- **Pressure picks on the strong.** `eval_press` +
+  `choke_k`·wmc⁺ encodes Beilock & Carr 2005's paradox:
+  high-wmc characters lose the most under evaluation,
+  because worry spends the very capacity the task
+  favored (Eysenck et al. 2007 ACT). `att_ctl` is the
+  buffer axis that decides whether `neurot`'s worry
+  reaches the record (Derryberry & Reed 2002) — two
+  characters can share the anxiety and split the cost.
+- **Complaint and accuracy are different channels.**
+  `scd` prices the worried well (Jessen 2014; Rabin
+  2017) with `scd_obj_null` locked; `preg_state` prices
+  the same dissociation inside a real small deficit —
+  Davies et al. 2018's T3-weighted dip at 0.8 complaint
+  share, `preg_perm_null`/`preg_theta_null` keeping it
+  anterograde and temporary. Both join v5.36's
+  `mt_complaint` as the model's complaint>effect
+  family.
+- **Exposure rescales the face tiers.** `cross_exp`
+  damps `orb_*` out-group penalties (Meissner &
+  Brigham 2001; Rhodes & Anastasi 2012 half-weight own-
+  age leg) with `orb_content_null` keeping the bias in
+  face/identity only.
+- **The imagination shares the machinery.** `sim`
+  couples `future:true` detail to `specificity` via
+  `sim_detail_link` (Addis 2007; Madore & Schacter
+  2014) — `sim_content_null` holds the line that
+  detail is not truth.
+- **Two honest ceilings and a locked absence.** `caff`
+  prices dependence not boost (`caff_ability_null`;
+  Rogers & Dernoncourt 1998); `gamer` prices reflexes
+  not store (`gamer_episodic_null`; Bediou 2018's
+  bias-inflated g≈.55/.34 against Boot/Hilgard
+  critiques); `braintrain` becomes the third mandated
+  null — `nt_xfer` only, `braintrain_far_null`
+  (Simons 2016; Melby-Lervåg & Hulme 2013; Owen 2010's
+  11,430-person zero-transfer RCT).
+
+New sources verified this version: Hartzler & Fromme
+2003a/2003b, Wetherill & Fromme 2011, Wetherill et al.
+2011, Nelson et al. 2004, White 2003, Goodwin et al.
+1969, Parker et al. 1980/81, Carlyle et al. 2017,
+Curran 1991, Buffett-Jerrott & Stewart 2002, Gray et
+al. 2015, Fox et al. 2011, Campbell et al. 2009,
+Beilock & Carr 2005, DeCaro et al. 2011, Gimmig et al.
+2006, Eysenck et al. 2007, Beilock 2008, Derryberry &
+Reed 2002, Berggren & Derakshan 2013, Jessen et al.
+2014, Rabin et al. 2017, Meissner & Brigham 2001,
+Rhodes et al. 2006, Wright et al. 2003, Rhodes &
+Anastasi 2012, Addis et al. 2007, Schacter & Addis
+2007, Race et al. 2011, Madore & Schacter 2014, Davies
+et al. 2018, Hoekzema et al. 2017, Greendale et al.
+2009, Rogers & Dernoncourt 1998, James & Rogers 2005,
+Rogers et al. 2013, Kelemen & Creeley 2003, Bediou et
+al. 2018 (+2018 correction), Boot et al. 2011, Hilgard
+et al. 2017, Simons et al. 2016, Melby-Lervåg & Hulme
+2013, Shipstead et al. 2012, Owen et al. 2010 —
+probes P958–P969.
+
+## 70. v92 adds — social-memory IX (the talk evaporates, the ties fade, the maps lie)
+
+Part IX of `social-memory.md` (§§126–140) prices the channel
+structure the social ledger skipped — the residue ordinary
+conversation leaves, the contact clock that fades
+relationships, the stale third-party map, and five arena biases.
+
+- **Conversational memory.** Stafford & Daly 1984
+  (*Communication Monographs* 51:379): ~10% of idea units
+  reproduced at one month — residue is highlights + gist, not
+  transcript. Keenan, MacWhinney & Mayhew 1977: interaction-
+  content statements (insults, boasts, commitments) survive;
+  low-content assertions don't. Hjelmquist 1984 / Hjelmquist &
+  Gidlund 1985: verbatim poor, gist adequate, recognition >>
+  recall. Goldsmith & Baxter 1996: remembering organizes by
+  event, not by talk. → spec: `convo_verbatim_hl` fast leg,
+  `convo_interact_gain`, `formula_e_mult` phatic floor,
+  `convo_formula_null` locked.
+- **Tie decay on contact.** Roberts & Dunbar 2011 (*Social
+  Networks* 33:138): emotional closeness decays when contact
+  drops. Sutcliffe et al. 2012 (*Psychol. Sci.*): the
+  5/15/50/150 layer structure is contact-budgeted. Burt 2000
+  (*Am. J. Sociol.* 106:347): decay functions over years.
+  Hill & Dunbar 2003: kin ties persist at contact levels that
+  kill friendships. → `tie_decay_hl`, `kin_floor`,
+  `recontact_rescue` (HYPOTHESIS — thin direct evidence),
+  `tie_delete_null`.
+- **Cognitive social structures — the stale map.** Krackhardt
+  1987 (*ASQ* 32:109) & 1990 (*Soc. Networks* 12:239):
+  perceived networks diverge systematically from actual.
+  Kumbasar, Rommey & Batchelder 1994 (*AJS* 100:477): recency
+  + transitivity recall biases. Freeman 1992. → `SocialMap`
+  updates on witnessed events only; `stale_map_fact_null` —
+  belief-vs-fact by design.
+- **Expression-contingent face memory.** Baudouin et al. 2000
+  (*BJP* 91:543) smile advantage; Öhman, Lundqvist & Esteves
+  2001 angry faces capture attention WITHOUT recognition
+  advantage — the attention/memory dissociation. →
+  `expr_smile_gain`, `expr_angry_att`,
+  `smile_disposition_null`.
+- **Apology records.** Ohbuchi, Kameda & Agarie 1989 (*JPSP*
+  56:919) apology reduces anger/aggression; Scher & Darley
+  1997 (*JESP* 33:509) partial apologies backfire; Darby &
+  Schlenker 1982. → `apology_damp`/`apology_backfire` on
+  retrigger affect, `apology_eraser_null`.
+- **False consensus.** Ross, Greene & House 1977 (*JESP*
+  13:279); Marks & Miller 1987 (*Psychol. Bull.* 102:72 —
+  meta). → `fc_k` projection on `stance_est`,
+  `fc_consent_null` (projection mints nothing — surprise
+  survives).
+- **Mimicry.** Chartrand & Bargh 1999 (*JPSP* 76:893)
+  chameleon effect; Lakin & Chartrand 2003 (*Psychol. Sci.*
+  14:334) mimicry→liking; van Baaren et al. 2004; detected
+  mimicry backfires. → trait `mimic` (speaker gate),
+  `mimic_gain`/`mimic_cap`/`mimic_detect_pen`,
+  `mimic_recipient_null`.
+- **Pluralistic ignorance — the vocal minority's norm.**
+  Prentice & Miller 1993 (*JPSP* 64:243); Blanton & Christie
+  2003 (deviant regulation — perceived norms steer acts). →
+  `NormModel` per-venue, witnessed `norm_expr` only,
+  `norm_vocal_w`, `norm_truth_null`.
+- **Proposal attribution.** Ross & Sicoly 1979 (*JPSP* 37:322)
+  overclaim of joint contributions. → `idea_self_bias`,
+  `idea_pool_p`, `idea_verbatim_null`.
+- **Trust repair.** Schweitzer, Hershey & Bradlow 2006
+  (*OBHDP* 101:1 — partial recovery); Kim, Ferrin, Cooper &
+  Dirks 2004 (*JAP* 89:104 — violation-type contingent);
+  Tomlinson et al. 2004. → `trust_recover_k`,
+  `breach_floor`, `apology_floor_cut`, `trust_full_null`.
+
+New sources verified this version: Stafford & Daly 1984;
+Keenan, MacWhinney & Mayhew 1977; Hjelmquist 1984; Hjelmquist
+& Gidlund 1985; Goldsmith & Baxter 1996; Roberts & Dunbar
+2011; Sutcliffe et al. 2012; Burt 2000; Hill & Dunbar 2003;
+Saramäki et al. 2014; Krackhardt 1987/1990; Freeman 1992;
+Kumbasar, Rommey & Batchelder 1994; Baudouin et al. 2000;
+D'Argembeau et al. 2003; Öhman, Lundqvist & Esteves 2001;
+Darby & Schlenker 1982; Ohbuchi, Kameda & Agarie 1989; Scher
+& Darley 1997; Bennett & Earwaker 1994; Ross, Greene & House
+1977; Marks & Miller 1987; Chartrand & Bargh 1999; Lakin &
+Chartrand 2003; van Baaren et al. 2004; Prentice & Miller
+1993; Blanton & Christie 2003; Ross & Sicoly 1979;
+Schweitzer, Hershey & Bradlow 2006; Kim, Ferrin, Cooper &
+Dirks 2004; Tomlinson, Dineen & Lewicki 2004 — probes
+P970–P981.
+
+## 71. v93 adds — formal-model IX (the cold start, the do(), the population)
+
+Part IX of `formal-model.md` (§§70–80) is infrastructure
+again — but three literature threads carry the psychology
+behind the plumbing.
+
+- **A past is reconstructed, not stored — so a generated
+  past isn't cheating.** Bartlett 1932 established that
+  remembering is reconstruction; Neisser 1981's John Dean
+  analysis showed confident, detailed recall assembled from
+  gist. Johnson, Hashtroudi & Lindsay 1993 (*Psychol. Bull.*
+  114:3): source monitoring cannot reliably separate lived
+  events from told/imaged reconstructions — which licenses
+  `synth_mark_null`: a synthesized record needs no special
+  status because humans' own records have none. → cold-start
+  invariants FM§73.
+- **Most of a life leaves no trace.** Linton 1982's diary,
+  Brewer 1988's randomly-sampled events, Wagenaar 1986's
+  cue-asymmetry study: the retrievable residue of a life is
+  a thin, cue-structured sample dominated by anchors and
+  rehearsed gist — Conway & Pleydell-Pearce 2000's
+  lifetime-periods knowledge vs event-specific episodics,
+  Bahrick 1984 permastore. → shadow replay's sparse diet +
+  era-density sampler's `era_floor_p` (FM§§71–72).
+- **Era structure is graded, not painted.** Nelson & Fivush
+  2004 / Tustin & Hayne 2010 (earliest memory ~3.5y) and
+  Rubin & Schulkind 1997 / Berntsen & Rubin 2004 (bump,
+  life script) are already anchors A05/A06 — Part IX's move
+  is grading *synthesized* pasts against the same anchors:
+  replay gets the shape emergently, the density sampler by
+  construction, both checked (P986).
+- **Methodology that isn't psychology but binds anyway.**
+  Pearl 2009 (do() — borrowed mechanically); Law 2015 /
+  Glasserman & Yao 1992 (common random numbers — paired-arm
+  comparisons are the only honest way to measure a trait's
+  effect in a stochastic sim); Efron & Morris 1977 +
+  Gelman & Hill 2007 (shrinkage/partial pooling — with 8
+  mains, per-head parameter claims shrink toward the
+  population or they're noise); Gudjonsson 2003 and
+  Unsworth 2019 supply the real trait covariances
+  `pop_table_ver` may declare — and where the literature is
+  silent, the table declares independence rather than
+  inventing correlation.
+
+## 72. v94 adds — social-memory X (the metaself: what I believe you think of me)
+
+The survey gains the metaperception literature — the second
+half of social perception (the first half, person-perception,
+is already modeled as PersonModel). Key verified sources:
+
+- **Kenny & DePaulo 1993** (*Psychol Bull* 114:145 —
+  verified): the landmark SRM meta-analysis of
+  metaperception. Three findings the spec encodes: (a)
+  self-perception→metaperception correlation ≈ .87 —
+  people infer how others see them mostly from their own
+  self-view, NOT from feedback (the `meta_proj` prior);
+  (b) generalized meta-accuracy (how others *in general*
+  see me) ≈ .51 while dyadic meta-accuracy (how *this*
+  person sees me) is near zero among strangers — evidence
+  integration must be slow; (c) people overestimate
+  consistency across perceivers — the metaself assumes a
+  uniform audience.
+- **Elfenbein, Eisenkraft & Ding 2009** (*Psychol Sci*
+  20:1081 — verified): dyadic meta-accuracy for *being
+  valued* does exist and runs through reciprocity —
+  people introspect their own liking and infer its return
+  (`meta_recip`); Eisenkraft, Elfenbein & Kopelman 2017
+  (*Psychol Sci* 28:233 — verified) adds the channel
+  dissociation: we know who likes us but not who competes
+  with us (`compete_blind` ≈ 0 accuracy for everyone).
+- **Boothby, Cooney, Sandstrom & Clark 2018** (*Psychol
+  Sci* 29:1742 — verified): the liking gap — after
+  conversations with new people, observers rate the actor
+  as MORE liked than the actor estimates. Five studies;
+  persists months in developing relationships
+  (attenuating, not vanishing); mechanism is the actor's
+  self-focused performance audit — the actor sees her own
+  faults, the observer sees only the pleasant surface.
+  The directional asymmetry (never a reverse gap) becomes
+  `lgap_reverse_null`.
+- **Bruk, Scholl & Bless 2018** (*JPSP* 115:192 —
+  verified): the beautiful-mess effect — own
+  vulnerability (confession, apologizing first, admitting
+  error, asking help) is evaluated more negatively than
+  the same act observed in another; construal-level
+  account (concrete self vs abstract other). Encoded as
+  the signed `bmess_k`/`bmess_obs` asymmetry.
+- **Clark & Wells 1995** (reused): the cognitive model of
+  social anxiety — self-focused attention and
+  safety-seeking processing bias — grounds `lgap_k` and
+  `meta_neg_w` trait loadings.
+- **Honest limits marked:** the evidence-through-memory
+  pathway (metaperception inherits ALL distortion of the
+  underlying records) is our strong hypothesis, not
+  literature; staleness-without-decay is asserted from
+  retest stability, not measured drift; hypervigilant
+  threat-metaperception deferred as a different
+  mechanism. → SM Part X §§141–150.
+
+## §73. Methodology appendix — validation science sources (v95)
+
+Not memory psychology — the statistics of knowing whether a model
+of memory is right. Sources behind validation-design.md §§194–199:
+
+- **Talts, Betancourt, Simpson, Vehtari & Gelman 2020** (*Bayesian
+  Analysis* 15:1257 — verified): simulation-based calibration; the
+  rank-uniformity theorem and U/arch/tilt diagnostics. If our
+  refit path can't recover parameters it generated itself, its
+  claims about human anchors are noise.
+- **Cook, Gelman & Rubin 2006** (*J Comput Graph Stat* 15:675 —
+  verified): validating Bayesian software by replicating from the
+  prior — the SBC precursor.
+- **Chen et al. 1998** (*IEEE Softw* 15:20 — verified) + **Chen,
+  Kuo, Liu, Poon, Towey, Tse & Zhou 2018** (*ACM Comput Surv*
+  51:4 — verified): metamorphic testing — when no oracle exists,
+  relations between outputs still must hold; an MR that can't
+  fail is vacuous (our `mr_detect_min` tightness audit).
+- **Jia & Harman 2011** (*IEEE TSE* 37:649 — verified): mutation
+  testing survey; suite adequacy = mutant kill; equivalent-mutant
+  caveat handled via family-level detect sets.
+- **Open Science Collaboration 2015** (*Science* 349:aac4716 —
+  verified): replication effects ≈ half the published size —
+  justifies band-membership fitting + `rep_shrink` direction.
+- **Klein et al. 2014** Many Labs (*Soc Psychol* 45:142 —
+  verified): cross-site variance motivates precision-weighted
+  anchor bands.
+- **Page 1954** (*Biometrika* 41:100 — verified): CUSUM — the
+  ancestor of the e-process drift watch (Howard et al. 2021
+  supplies anytime-valid form).
+- **Oberkampf & Trucano 2002** (*Prog Aerospace Sci* 38:209 —
+  verified): verification vs validation distinction — our L0/SBC/
+  golden layers verify; anchors/MRs/raters validate.
+
+## §74. Eighth encoding-mechanics pass — stimulus, room, and past error (v96)
+
+New sources and adjudications behind encoding-mechanics.md
+Part VIII / spec v5.44:
+
+- **Isola, Parikh, Torralba & Oliva 2011** + **Bainbridge,
+  Isola & Oliva 2013 / Bainbridge, Dilks & Oliva 2017**
+  (*NeuroImage* — verified): memorability is a stimulus
+  property, consistent across observers (ρ≈0.7), ~50%
+  unexplained by measured attributes. Encoded as the
+  `memorab` event field + mandatory residual
+  (`memorab_attr_null`). The sim's first encoder-INDEPENDENT
+  E leg.
+- **Shteynberg 2010** (JPSP) + **Eskenazi et al. 2013** +
+  **Shteynberg 2015** (*Perspect. Psychol. Sci.* 10:579 —
+  verified): believed co-attention deepens processing under
+  matched exposure; minimal conditions under registered
+  replication → `coattend_ingroup` is an open gate.
+- **Greve et al. 2017** (*NeuroImage*) + **Quent, Henson &
+  Greve 2021** + **Brod, Werkle-Bergner & Shing 2013**
+  (verified): prediction error boosts the item–context
+  ASSOCIATION for connectable mismatches — `pe_gain`/`pe_win`
+  + `pe_conflate_null` (link-targeted only); schema-sparse
+  encoders gain more.
+- **Adcock et al. 2006** (*Neuron* 50:507) + **Wittmann et
+  al. 2005** + **Murty & Adcock 2014** (verified): reward
+  anticipation is a pre-stimulus encoding window, distinct
+  from post-hoc value — `antic`/`antic_win` reopens the v40
+  fold with the correct temporal structure
+  (`antic_retro_null`).
+- **Cook, Duffy & Fenn 2013** (*Psychol. Sci.* 24:1734) +
+  **So et al. 2012** + Goldin-Meadow thread (verified):
+  self-produced representational gesture at encoding —
+  fourth engagement arm, smallest motor gain,
+  `gest_beat_null`.
+- **Henkel 2014** (*Psychol. Sci.* 25:396) + **Risko &
+  Gilbert 2016** (*Trends Cogn. Sci.* — verified): the
+  offloading impairment requires expecting the external copy
+  to persist — `offloadTransient` gate on the v3.5 channel +
+  `offload_noexp_null`; adoption scales with `device_dep`.
+- **Warriner & Humphreys 2008** (*QJEP*) + **D'Angelo &
+  Humphreys 2015** (*Cognition* 142:166–190 — verified):
+  unresolved TOT dwell trains the error (~2× recurrence,
+  one-week durability); self/cued resolution repairs, told
+  answers don't — `err_strength` ledger + `tot_rescue_null`.
+- **Nelson & Leonesio 1988** (*Am. Psychol.* 43) + **Cuevas &
+  Dawson 2018** (verified): effort at fixed strategy moves
+  JOL, not memory — `labor_vain_null`, third member of the
+  negative-anchor class (with `intention`, `disfluency`).
+- **Ward, Duke, Gneezy & Bos 2017** (*J. Assoc. Consumer
+  Res.* — verified; replication record mixed): mere phone
+  presence drains capacity — OBSERVE-tier `phone_drain`.
+- **Honest limits marked:** co-attention minimal conditions
+  openly debated (gate, not law); pe_win and antic_win
+  magnitudes are RW formalization of directional findings;
+  err_strength ledger mechanics are ours (the recurrence/
+  durability facts are literature); phone_drain observe-tier
+  on a contested base. → EM Part VIII §§96–109.
+
+## §75. Ninth forgetting-curves pass — the aversion, the strength-clock, the flat forecast (v97)
+
+- **Garcia & Koelling 1966** + **Bernstein & Webster 1980**
+  (*Physiol. Behav.* 25:363) + **Bernstein 1978** (*Science*
+  200:1302) + **Logue, Ophir & Strauss 1981** (*Behav. Res.
+  Ther.* — all verified): conditioned taste aversion breaks
+  the standard rules — one trial, hours of CS–US delay,
+  novelty-weighted targeting (scapegoat protects the familiar
+  diet), avoidance that outlives the episode. → spec §4.46
+  (`illness_onset` backward-bind, `cta_somatic_null`,
+  `cta_birth_null`); FC§41.1.
+- **Dilevski, Paterson et al. 2021** (*JARMAC*) + **Danby,
+  Sharman & Paterson 2022** (*Mem. & Cogn.*) + **Deck et al.
+  2021** (*Memory* — verified): repeated-event series show
+  boundary-instance advantage, proximity-graded detail
+  confusion, and a delay-ordered first/last crossover → spec
+  §4.47 (`series:{id,idx,n}`, first-only edge gain, adjacency
+  misattribution); FC§41.4.
+- **Hintzman 2004** (*Mem. & Cogn.*) + **Brown, Rips &
+  Shevell 1985** (verified): when temporal tags fail, recency
+  is INFERRED from residual strength — the lawful source of
+  "I just saw her — actually months ago" after a retell →
+  spec §5.96 (`recencyEstimate` log-map,
+  `rec_verbatim_null`); FC§41.2.
+- **Koriat, Bjork, Sheffer & Bar 2004** (*PNAS* 101:1100) +
+  **Kornell & Bjork 2009** (*JEP:LMC*) + **Rhodes & Tauber
+  2011** (verified): the stability bias — JOLs are nearly
+  horizon-insensitive while accuracy declines, and practice
+  barely corrects it → spec §5.97 (locked `jol_horizon_null`,
+  `jol_exp_gain`); FC§41.3.
+- **Rubin & Schulkind 1997** (*Mem. & Cogn.* 25:859) +
+  **Janssen, Chessa & Murre** (recency-removal — verified):
+  the midlife "trough" is the complement of bump+recency —
+  asserted EMERGENT from firsts density, `trough_gain` as
+  named fallback → FC§41.6, probe P1034.
+- **Emergence note:** mislaid-item PI burial + script-default
+  guesses (FC§41.5, P1033) — no new params.
+- **Honest limits marked:** human CTA duration variable
+  (clinical remission vs folk decades → `cta_beta` mid-range,
+  `avoid` tag carries durability); `rec_scale` log-map is our
+  form; `series_prox_w` coefficient ours. → FC Part IX
+  §§41–45; probes P1027–P1034.
+
+## 76. v99 sources — age-development IX (AD Part IX → spec v5.47)
+
+- **Bauer & Larkina 2014** (*Memory* 22:907) + **Bauer & Larkina
+  2013** (*JEP:G* 143:597) + **Bauer & Larkina 2016** (4-yr
+  prospective — all verified): childhood amnesia is made IN
+  childhood — children forget autobiographical events at a higher
+  constant rate (exponential) than adults (power) → spec §4.48
+  `child_forget_mult(encodeAge)` on β; probe P1045.
+- **Flavell, Beach & Chinsky 1966** (*Child Dev.*) + **Keeney,
+  Cannizzo & Flavell 1967** + **Elliott et al. 2021** (multilab
+  RRR — verified): spontaneous rehearsal is a learned strategy
+  (production deficiency — inducible but not self-initiated,
+  ramping 5→10) → spec §5.103 `rehearse_spont_p` gate on
+  self-initiated retells; locked `rehearse_scaffold_null`; P1046.
+- **Nelson 1986** + **Farrar & Goodman 1990/1992** (verified
+  schema-confirmation-deployment): the child's report IS the
+  script; deviations survive only when salient → spec §4.49
+  `script_swallow_child` + `dev_self_gate`; P1047.
+- **Brainerd, Reyna & Ceci 2008** (*Psychol. Bull.* 134:343) +
+  **Brainerd & Reyna 2007** + **Brainerd, Reyna & Forrest 2002**
+  + **Metzger et al. 2008** (all verified): the developmental
+  reversal — gist-connected false memory INCREASES 6→adult while
+  suggestion susceptibility falls → spec §6.3 lure-type split
+  `gist_false_p(encodeAge)` × `gist_lure_sim`; P1048 (two-sign).
+- **Naveh-Benjamin 2000** (*JEP:LMC* 26:1170) + **Old &
+  Naveh-Benjamin 2008** (*Psychol. Aging* 23:104, 90-study meta —
+  verified): the associative deficit — edges (source/context/
+  order/location/pairing) die faster than items → spec §4.50
+  `assoc_mult(age_eff)` edge-only; locked `assoc_item_null`;
+  P1049.
+- **Mather & Carstensen 2005** (*TiCS*) + **Reed, Chan & Mikels
+  2014** (100-study meta — verified d≈0.26, unconstrained-only,
+  young negative) + **Murphy & Isaacowitz 2008**: the positivity
+  effect → spec §5.104 `pos_retrieve_bias` on voluntary sampling,
+  `eval_press`-gated; locked `pos_involuntary_null`; P1050.
+- **Mander, Winer & Walker 2017** (*Neuron*) + **Mander et al.
+  2013** (*Nat. Neurosci.* — verified): SWS decline shrinks the
+  consolidation dividend → spec §4.51 `sws_mult` old knots +
+  `sws_var_gain`; P1051.
+- **Schrauf & Rubin 1998** (*JML* 39:437) + **Schrauf & Rubin
+  2001** (*ACP*) + **Enz, Pillemer & Johnson 2016** + **Berntsen
+  & Rubin 2004** (all verified): the bump tracks life
+  transitions, not the calendar → spec §4.52 `life_transition`
+  flag + `trans_bump` window + `trans_pi_relief`; P1052.
+- **Hasher & Zacks 1988** + **Lustig, May & Hasher 2001**
+  (*Psychol. Sci.* — verified): inhibitory deficit → elevated
+  proactive interference in aging → spec §4.53
+  `pi_suscept(age_now)` U-curve; P1053.
+- **Fleischman et al. 2004** + **Gabrieli 1998** (verified
+  preservation): procedural memory rides a flat floor → spec
+  §4.54 `proc_decay_mult`; frozen `proc_flat_null`; P1054.
+- **Honest limits marked:** knot magnitudes are HYPOTHESIS
+  throughout (consensus covers directions and differentials);
+  `child_forget_mult` prices rate via β (mechanism-neutral on
+  consolidation-vs-retrieval); `trans_bump` generalizes migration
+  to all flagged transitions; `pos_retrieve_bias` adopts the
+  motivated account's gate (DEBATED); `proc_decay_mult` 0.3 is a
+  placeholder for a consensus direction. → AD Part IX §§98–111;
+  probes P1045–P1054.
+
+## 77. v100 sources — age-decline IX (AD Part IX → spec v5.48)
+
+The control layer of cognitive aging, ten mechanisms:
+
+- **Salthouse 1996** (*Psychol. Rev.* 103:403 — verified):
+  general processing-speed factor mediates most age variance;
+  self-paced accuracy largely intact → spec §5.106
+  `ret_lat_mult` + locked `lat_strength_null`; P1055.
+- **Burke, MacKay, Worthley & Wade 1991** (*J. Mem. Lang.*
+  30:542) + **Cohen & Burke 1993** + **Cross & Burke 2004**
+  (verified): proper-name TOT deficit steeply age-graded,
+  dissociable from person knowledge — semantic half retrieves,
+  phonological half fails → §5.110 `propname_tot_mult`,
+  `name_block` emission; P1056.
+- **Skurnik, Yoon, Park & Schwarz 2005** (*J. Consumer Res.*
+  31:713 — verified): denied-claim repetition flips false→
+  true in elders after delay (28%→40% at 3d, 1→3 denials); no
+  true→false arm; **Kumkale & Albarracín 2004** sleeper-effect
+  meta; **Jacoby 1999** familiarity→truth → §6.230
+  `debunk_fam_gain`/`disc_tag_hl`, `debunk_flipped`, locked
+  `debunk_true_null`; P1057.
+- **Baltes & Baltes 1990** SOC + **Freund & Baltes 2002** +
+  **Wolf & Zimprich 2020** (framework; selectivity intact
+  under stakes) → §5.107 `soc_narrow`/`soc_top_q`; P1058.
+- **Aslan, Schlichting, John & Bäuml 2015** (*Psychol. Aging*
+  30:111 — verified): beneficial retrieval-practice effect
+  declines ~a decade before detrimental RIF (Aslan & Bäuml
+  2012 knee ~75) — WM-mediated → §5.108 `rp_benefit_knee`,
+  order-lock; P1059. DEBATED edge: later durable-RIF reports.
+- **Balota, Duchek & Paullin 1989** (*Psychol. Aging* 4:423)
+  + **Kornell et al. 2010**: spacing benefit age-invariant →
+  §4.55 frozen `spacing_age_null`; P1060. **Ebbinghaus 1885**
+  + **Nelson 1985** + **MacLeod 1988**: savings survives
+  recall floor and age → frozen `savings_age_null`; P1061.
+- **Addis, Wong & Schacter 2008** (*Psychol. Sci.* 19:33 —
+  verified): future-event internal detail drops in aging,
+  correlates relational memory → §4.56 `sim_detail_mult`;
+  P1062.
+- **Butler, Rice, Wooldridge & Rubin 2016** (verified:
+  retelling shifts vantage field→observer) + **Berntsen &
+  Rubin 2006** (observer attenuates reliving) + **Nigro &
+  Neisser 1983** + **Piolino 2006** (weak age leg) → §6.231
+  `vantage` drift + `relive_mult`; P1063.
+- **Craik & McDowd 1987** + **Park et al. 2002** +
+  **Verhaeghen metas** (WM-mediated chain-depth decline) →
+  §5.109 `cue_chain_max`; P1064.
+- **Honest limits:** knot magnitudes HYPOTHESIS throughout;
+  `ret_lat_mult` duration-mapping ours; `debunk_fam_gain` is
+  an amplifier on sleeper machinery, not a new op;
+  `soc_narrow` most speculative (framework→budget);
+  `vantage_age_leg` deliberately small; `cue_chain_max` a
+  contract cap. → AD §§125–138; probes P1055–P1064.
+
+## 78. v101 sources — emotional-memory IX (EM Part IX → spec v5.49)
+
+New primary/secondary sources brought in this pass (each § in
+`emotional-memory.md` Part IX; probes P1065–P1074):
+
+- **Tambini, Rimmele, Phelps & Davachi 2017** (*Nat.
+  Neurosci.* 20:271 — verified via web: E→N order boosts
+  neutral recollection 9–33 min later; N→E order null; gain
+  tracks emotional brain-state reinstatement, not item
+  arousal; prolonged exposure required) + **Dunsmoor, Murty,
+  Davachi & Phelps 2015** (*Nature* 520:345 — retroactive
+  concept-mediated strengthening, the CondEntry route) →
+  §4.57 `hangover_*` + locked `hangover_retro_null`; P1065.
+- **Baumeister, Bratslavsky, Finkenauer & Vohs 2001** (*Rev.
+  Gen. Psychol.* 5:323 — "bad is stronger than good") +
+  **Rozin & Royzman 2001** (negativity-bias taxonomy) +
+  **Taylor 1991** (mobilization counterweight) → §4.58
+  `neg_potency` + locked `potency_repair_null`; P1066.
+- **Gilovich & Medvec 1995** (*Psychol. Rev.* 102:379 —
+  action↔inaction regret crossover) + **Roese & Summerville
+  2005** (opportunity gate; regret most-named emotion) +
+  **Medvec, Madey & Gilovich 1995** (bronze > silver) →
+  §4.59 `regret_inaction_mult`/`counterfac_gain` + locked
+  `regret_reopen_null`; P1067.
+- **Miller 1996** (*Embarrassment: Poise and Peril* — mild,
+  social, persistently intrusive) + **Huppert, Roth & Foa
+  2003** → §5.111 `cringe_intrude`/`cringe_cue_sim` +
+  locked `cringe_fab_null`; P1069.
+- **Redelmeier & Kahneman 1996** (*Pain* 66:3 — verified:
+  remembered pain ≈ peak+end, duration neglected) +
+  **Redelmeier, Katz & Kahneman 2003** (gentle-tail exploit)
+  + **Wirtz et al. 2003** (remembered affect drives
+  repeat-intent) → §6.232 `pain_*`; P1072.
+- **Whitehouse & Lanman 2014** (*Curr. Anthropol.* 55:674 —
+  identity fusion via shared dysphoria) + **Páez et al.
+  2007** + **Konvalinka et al. 2011** (arousal synchrony
+  bonds watchers) → §6.233 `co_arousal_*` + locked
+  `fuse_abuse_null`; P1073.
+- **Roozendaal, Okuda, Van der Zee & McGaugh 2006** (*PNAS*
+  103:6741 — verified: glucocorticoid consolidation boost
+  requires concurrent noradrenergic arousal) + **van
+  Stegeren et al. 2010** + **Shields et al. 2017** meta →
+  §6.234 `gc_na_gate` + locked `gc_solo_null`; P1074.
+- **Ehlers & Clark 2000** (*Behav. Res. Ther.* 38:319 —
+  data-driven processing, perceptually-cued intrusions) +
+  **Brewin, Dalgleish & Joseph 1996** (SAM/VAM) + **Ehlers,
+  Hackmann & Michael 2004** → §5.112 `percept_cue_w` +
+  locked `percept_gate_null`; P1070.
+- **Yoo, Gujar, Hu, Jolesz & Walker 2007** (*Curr. Biol.*
+  17:R877 — verified: ~60% amygdala hyper-reactivity post
+  deprivation, PFC disconnect) + **Tempesta et al. 2018** +
+  **Walker & van der Helm 2009** → §4.60 `sleeploss_*` +
+  locked `sdep_recall_null`; P1068.
+- **Clark, Milberg & Erber 1988** + **Eich 1995** (arousal
+  state-dependency — thinnest base, sub-`w_msd` clamp) →
+  §5.113 `arousal_match_w`; P1071.
+- **Honest limits:** `hangover_tau` curve ours; `neg_potency`
+  unification is compression; regret decay-mapping ours;
+  cringe age-gradient inferred; `co_arousal_bond` magnitudes
+  unpriced; `na_gate` linearizes a non-monotonic interaction;
+  sdep partial-debt scaling extrapolated. → EM §§112–125.
+
+## 79. v102 sources — false-memory IX (FM Part IX → spec v5.50)
+
+New primary/secondary sources brought in this pass (each § in
+`false-memory.md` Part IX; probes P1075–P1084):
+
+- **Forced confabulation:** Zaragoza, Payment, Ackil,
+  Drivdahl & Beck 2001 (*JEP:General* 130:473 — forced
+  answers to unanswerable questions mint whole-event false
+  memories; self-generated errors out-persist suggestions);
+  Ackil & Zaragoza 1998; Chrobak & Zaragoza 2008
+  (cross-event generalization); Slamecka & Graf 1978
+  (generation effect). → §6.235.
+- **Doctored evidence:** Wade, Garry, Read & Lindsay 2002
+  (*Psych. Bull. Rev.* 9:597 — doctored childhood photos →
+  ~50% false memory with narrative detail); Lindsay, Hagen,
+  Read, Wade & Garry 2004 (fabricated grade-school events,
+  ~65% with guided imagery); Nash & Wade 2009 (fabricated
+  video of self). → §6.236.
+- **Implicit theories:** Ross 1989 (*Psych. Rev.* 96:341);
+  McFarland & Ross 1987 (relationship evaluation
+  reconstruction); Wilson & Ross 2001 + Ross & Wilson 2002
+  (temporal self-appraisal, distance-derogation). → §6.237.
+- **Confidence inflation:** Zaragoza & Mitchell 1996
+  (*Psych. Sci.* 7:294 — repetition raises confidence not
+  accuracy); Shaw 1996; Roediger, Jacoby & McDermott 1996.
+  → §6.238.
+- **Nonbelieved memory:** Mazzoni, Scoboria & Harvey 2010
+  (*Psych. Sci.* 21:1334 — ~20% prevalence); Otgaar,
+  Scoboria & Mazzoni 2014 (belief/recollection separability);
+  Scoboria, Boucher & Mazzoni 2015. → §6.239.
+- **Unanimity conformity:** Gabbert, Memon & Wright 2006
+  (*Memory* 14:760); Wright, Self & Justice 2000; Asch
+  1951. → §6.240.
+- **Lateral spread:** Chrobak & Zaragoza 2008 (*Appl. Cog.
+  Psych.* 22); Drivdahl & Zaragoza 2001. → §6.241.
+- **Cognitive interview:** Fisher & Geiselman 1992; Memon,
+  Meissner & Fraser 2010 (meta, 65 studies — correct detail
+  up, errors not up); Köhnken et al. 1999. → §6.242.
+- **Warning timing:** Blank & Launay 2014 (*Appl. Cog.
+  Psych.* 28 meta, 31 studies); Greene, Flynn & Loftus
+  1982; Echterhoff, Hirst & Hussy 2005. → §6.243.
+- **Affect-congruent lures:** Storbeck & Clore 2005
+  (*Psych. Sci.* 16:785 — negative mood increases DRM false
+  recall); Brainerd, Holliday, Reyna, Yang & Toglia 2010;
+  Knott & Thorley 2014; Ruci, Tomes & Zelenski 2009.
+  → §6.244.
+- **Marked hypothesis:** `fgen_*`/`proof_*` lab-ceiling
+  magnitudes; `theory_dir` linear interpolation ours;
+  `cinfl_cap` asymptote unfitted; NBM inertness minimal
+  (affect stays live); unanim superlinearity ours;
+  `moodlure_val_w` DEBATED-tier size. → FM §§101–113;
+  probes P1075–P1084.
+
+## 80. v103 sources — individual-differences IX (ID Part IX → spec v5.51)
+
+New primary/secondary sources brought in this pass (each § in
+`individual-differences.md` Part IX; probes P1085–P1097).
+Collision audit first — what Part IX does NOT re-cover:
+`hearing` trait + `noise_cost` (age-decline §2, Lin 2011
+already priced), `mt_stage` menopause overlay (ID§29/
+Greendale 2009 already priced), `retire_rate`/`engage_sub`
+mental-retirement overlay (age-decline §99, Rohwedder &
+Willis 2010 already priced), `smoker`/nicotine deprivation
+state (ID§42, Jansari leg already priced), `net_mult`
+loneliness overlay (age-decline §40, Wilson 2007 already
+priced), `narr_agency`/`narr_coh` narrative-self layer,
+`checker` detection trait (Part IV), grief machinery
+(`grief_osc_*`, widowhood overlay). The twelve new axes are
+the residue after that audit.
+
+- **Scarcity bandwidth:** Mani, Mullainathan, Shafir & Zhao
+  2013 (*Science* 341:976 — verified: pre/post-harvest
+  sugarcane farmers + NJ mall; ~13-IQ-point equivalent, not
+  stress/nutrition/time); Shah, Mullainathan & Shafir 2012
+  (*Science* 338:682 — tunnelling). → §6.245.
+- **Checking paradox:** van den Hout & Kindt 2003 (*Behav.
+  Res. Ther.* 41:301 — verified: checking degrades
+  vividness/detail/confidence, accuracy intact); van den
+  Hout & Kindt 2004 (*JBTEP* 35:165 — R→K shift); Hermans
+  2008; Radomsky 2014. → §6.246.
+- **Sleep apnea:** Canessa et al. 2011 (*J. Sleep Res.* 20 —
+  partial CPAP reversal at 3 months); Djonlagic et al. 2021
+  (*JAMA Netw. Open* 4:e212537); Leng 2017; Bubu 2020. →
+  §6.247.
+- **Delirium:** Pandharipande et al. 2013 (*NEJM* 369:1306 —
+  verified BRAIN-ICU: delirium duration → global-cognition
+  deficit at 3/12 months); Girard 2010; Marcantonio 2017.
+  Fills the gap age-decline.md §95 flagged. → §6.248.
+- **Bipolar:** Bourne et al. 2013 (*Acta Psychiatr. Scand.*
+  128:149 meta — euthymic d≈0.4–0.7); Robinson & Ferrier
+  2006 (episode-count residue); Cullen 2016. → §6.249.
+- **Postpartum:** Hoekzema et al. 2017 (*Nat. Neurosci.*
+  20:287); Workman, Barha & Galea 2012; Logan et al. 2014
+  (complaint >> measured). → §6.250.
+- **Cancer-related cognitive impairment:** Ahles & Root
+  2018 (*CA: Cancer J. Clin.* 68 — domain-narrow,
+  subjective > objective); Wefel 2015; Janelsins 2014. →
+  §6.251.
+- **Subjective age & stereotype threat:** Stephan, Sutin &
+  Terracciano 2018–2023; Weiss & Lang 2012; Hess et al.
+  2003; Mazerolle 2017 meta. → §6.252.
+- **Photo-taking impairment:** Henkel 2014 (*Psych. Sci.*
+  25:396); Soares & Storm 2018 (no review needed); Barasch
+  2017 (countervailing visual boost). → §6.253.
+- **Mind-wandering:** Cheyne, Carriere & Smilek 2006
+  (ARCES); Schooler et al. 2011; Kane & McVay 2012 (MW vs
+  wmc shared resource). → §6.254.
+- **Savoring:** Bryant & Veroff 2007 (SBI; deliberate
+  positive-channel attention/prolonging — distinct from
+  `rosy` report-layer and `rumin` negative-channel). →
+  §6.255.
+- **Microdosing (the fourth mandated null):** Cavanna et
+  al. 2022 (*Transl. Psychiatry* 12:148 — verified:
+  effects only in correct-guessers); van Elk et al. 2021
+  (two null double-blind RCTs); Murphy et al. 2023 (*Biol.
+  Psychiatry* — verified: dose-day mood ratings, no
+  enduring cognition change); Marschall 2022. → §6.256.
+- **Marked hypothesis:** `scarc_wmc_tax` IQ→encoding
+  bridge; `chk_*` report-layer implementation;
+  `apnea_cpap_rescue` mid-range; `delir_step`
+  linearization; `bip_mania_*` geometry extrapolated;
+  `newpar_flat_null` sleep-mediation bet; `subj_age_shift`
+  residual; photo net-effect DEBATED; `mw_replay`
+  dividend; `savor` decomposition. → ID §§108–124;
+  probes P1085–P1097.
+
+## 81. v104 sources — social-memory XI (SM Part XI → spec v5.52)
+
+- **Sleeper effect:** Hovland & Weiss 1951 (classic);
+  **Kumkale & Albarracín 2004** (*Psychol. Bull.* 130:143 —
+  verified meta: conditional effect — strong initial
+  impact + cue-after-message + processing capacity;
+  discounting cue decays faster than message). → §6.257.
+- **Spontaneous trait transference:** **Skowronski,
+  Carlston, Mae & Crawford 1998** (*JPSP* 74:837 —
+  verified, 4 studies, mindless-associative); Mae et al.
+  1999; Carlston & Skowronski 2005. → §6.258.
+- **Truth default / deception accuracy:** **Bond & DePaulo
+  2006** (*PSPR* 10:214 — verified meta: 54% accuracy,
+  61% truth-acceptance, 47% lie-detection); **Levine
+  2014** (Truth-Default Theory); Levine, Park &
+  McCornack 1999. → §6.259.
+- **Illusory truth:** Hasher, Goldstein & Toppino 1977;
+  **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G*
+  144:993 — verified: knowledge does not protect);
+  Pennycook & Rand 2019; Brashier & Marsh 2020. → §6.260.
+- **Rumor motives:** **Knapp 1944** (*Publ. Opin. Q.*
+  8:22 — pipe-dream/bogie/wedge-driving); Allport &
+  Postman 1947; **DiFonzo & Bordia 2007** (*Rumor
+  Psychology*); DiFonzo, Bordia & Rosnow 1994. → §6.261.
+- **Emotionality transmits:** **Peters, Kashima & Clark
+  2009** (*EJSP* 39:207 — verified: disgust/happiness
+  communicability, audience contingency); **Berger &
+  Milkman 2012** (*J. Marketing Res.* 49:192); Heath,
+  Bell & Sternberg 2001. → §6.262.
+- **Actor–observer asymmetry:** Jones & Nisbett 1971;
+  **Malle 2006** (*Psychol. Bull.* 132:895 — verified
+  meta: real but d≈0.3, valence-shaped). → §6.263.
+- **Dual-clock impressions:** Asch 1946; **Rydell &
+  McConnell 2006**; **Mann & Ferguson 2015** (*JPSP*
+  108:823 — verified: implicit reversal gated on
+  reinterpretation + resources, durable); Cone & Ferguson
+  2015. → §6.264.
+- **Hearsay reputation:** **Sommerfeld, Krambeck, Semmann
+  & Milinski 2007** (*PNAS* 104:17435 — verified);
+  **Feinberg, Willer, Stellar & Keltner 2012** (*JPSP*);
+  Dunbar 1996/2004. → §6.265.
+- **Ostracism / rejection sensitivity:** **Williams,
+  Cheung & Choi 2000** (*JPSP* 79:748 — Cyberball);
+  **Gonsalkorale & Williams 2007** (despised-source
+  exclusion still hurts); **Downey & Feldman 1996**
+  (*JPSP* 70:1327 — RSQ). → §6.266.
+- **Marked hypothesis:** `tdef_base` lab-to-neighborhood
+  transfer; motive-classification heuristic; dual-clock
+  reduction; `hpm_cap` shape; `aobs_selfdamp` sizing;
+  ambient-NPC `rsq` unpriced. → SM §§151–165; probes
+  P1098–P1109.
+
+## 82. v105 sources — formal-model X (FM Part X → spec v5.53)
+
+**Contract version — zero new psychology.** Every citation below is
+already verified in-corpus; this section records which existing
+results the new *contracts* lean on, plus the one new spine source
+(Landauer 1986) that §85's decade bound stands on.
+
+- **Retrieval practice (the write-back leg):** **Roediger &
+  Karpicke 2006** (*Psychol. Sci.* 17:249 — testing effect,
+  verified in-corpus) → `present` shown-record reboost
+  (§5.9 reuse); FM§83.
+- **Part-list cuing / competitor suppression:** Slamecka 1968;
+  Roediger 1973; **Anderson, Bjork & Bjork 1994** (*JEP:LMC*
+  20:1063 — RIF, competitor-specific); → `suppress_k`,
+  `writeback_scope:"episode-bucket"`; FM§§82–83.
+- **Output interference (the budget leg):** Roediger & Schmidt
+  1980; **Criss, Malmberg & Shiffrin 2011** (*J. Memory Lang.*
+  64 — output-position decline) → `present_budget_units`;
+  FM§82.
+- **Socially shared RIF / collaborative inhibition:**
+  **Cuc, Koppel & Hirst 2007** (*Psychol. Sci.* 18:727 —
+  listeners forget what speakers omit); **Weldon & Bellinger
+  1997** (*JEP:LMC* 23:1160 — pairs recall less than pooled
+  nominal) → listener-side legs stay in SM§6, now *counted*
+  via the journal; FM§§81, 88.
+- **Gist-outlives-verbatim (the condensation leg):**
+  Brainerd & Reyna fuzzy-trace corpus (already §45's basis) →
+  `archive_condense_age`, `condensed_w`, one-way skeletons;
+  FM§85.
+- **Lifetime capacity envelope (NEW to this section):**
+  **Landauer 1986** (*Cognitive Science* 10:477 — "How much
+  do people remember? Some estimates of the quantity of
+  learned information": ~10⁹ bits across a lifetime across
+  five independent estimation methods; massive lossy
+  compression is the norm). `canon_day_bound` = 0.3/day ⇒
+  ≤7.7k permanent records over 70y sits orders of magnitude
+  inside the envelope — the binding constraint is retrieval
+  dilution (P1117), not storage; FM§85.
+- **Marked hypothesis:** `suppress_k` 0.02 sizing (pop scalar
+  from SS-RIF ≈ half speaker RIF — effect sizes are lab-scale,
+  our accumulation is cumulative); `present_budget_units` 8
+  (Miller-class working-set analogy, not a fitted number);
+  `brief_prac_mult` 0.3 (briefing-as-read discount —
+  possession suspension makes it near-inert anyway);
+  `canon_day_bound` 0.3/day and `condensed_w` 0.3 (priors,
+  measured by P1117/P1118 not asserted); `present_div_cap` 3
+  (antagonist-flood guard — ours, no direct literature
+  antecedent). → FM §§81–91; probes P1110–P1121.
+
+## 83. v106 sources — character-profiles VIII (CP VIII → spec v5.54)
+
+New spine this version: the *experienced* shape of recall —
+vantage, imagery, face channels, the cultural/familial near
+edge of the archive, déjà vu. All verified by title/venue
+this version.
+
+- **Zeman, Dewar & Della Sala 2015** (*Cortex* 73:378):
+  aphantasia named — lifelong absence of voluntary visual
+  imagery despite normal perception.
+- **Zeman et al. 2020** (*Cortex* 130:426): first systematic
+  neuropsychological + fMRI study of imagery extremes;
+  prevalence ~0.7% extreme aphantasia, ~2.5–3% extreme
+  hyperphantasia; autobiographical-memory and imagination
+  deficits in aphantasia, preserved standard memory.
+- **Dawes, Keogh, Andrillon & Pearson 2020** (*Sci Rep*
+  10:10022): aphantasics report less vivid, phenomenologically
+  impoverished autobiographical memories and futures, fewer/
+  dimmer dreams — with equivalent objective memory. This is
+  the load-bearing split for `img_accuracy_null`: experience
+  differs, storage doesn't.
+- **Nigro & Neisser 1983** (*Cog Psych* 15:467): field vs
+  observer vantage in personal memory; high emotion +
+  self-awareness → observer; recent events → field; recall
+  set (feelings vs circumstances) moves the mix.
+- **Robinson & Swanson 1993** (*Memory* 1:169): perspective
+  is shiftable but easier on recent/vivid memories;
+  field→observer shift lowers rated emotional intensity —
+  the converse does not raise it. → `obs_dampen` asymmetry.
+- **Sekiguchi & Nonaka 2014** (*Emotion*): dampening
+  persists ≥4 weeks across repeated recalls — perspective
+  shifts leave residue, justifying per-record `persp` tags.
+- **McIsaac & Eich 2002**: field memories carry richer
+  affect/sensation/psychological-state detail; observer
+  memories carry appearance/position/layout — the field-
+  class reweight the spec uses on `persp` emissions.
+- **Russell, Duchaine & Nakayama 2009** (*PBR* 16:252):
+  super-recognizers — the top tail establishing face
+  recognition as a continuous, near-independent ability.
+- **Kennerknecht et al. 2006; DeGutis et al. 2023**
+  (cutoff review): developmental prosopagnosia ~0.9–2.5%
+  of population — the bottom tail; `face_recog` is a
+  spectrum, not a binary.
+- **Wang 2001** (*JPSP* 81:220): American vs Chinese
+  earliest memories (~3.5y vs ~4y); lengthy/specific/
+  self-focused vs brief/collective/routine/neutral; the
+  memory style tracks self-construal across the whole
+  sample — the basis for `interdep` as biographical pin
+  rather than ethnic shorthand.
+- **Fivush, Haden & Reese 2006** (*Child Dev* 77:1568) +
+  **Nelson & Fivush 2004**: elaborative maternal
+  reminiscing style → earlier, denser first memories;
+  repetitive style → later. → `family_remin` boundary leg.
+- **Brown 2004** (*Psychol Bull* 130:394): ~67% lifetime
+  déjà vu prevalence across 41 studies; incidence declines
+  with age (r≈−0.2..−0.4); raised by fatigue, stress,
+  travel, education.
+- **O'Connor & Moulin 2010**: déjà vu defined as familiarity
+  plus *awareness that the feeling is false* — the
+  `dejavu_know_null` semantics: recognition felt, source
+  known-absent.
+- **Marked hypothesis:** high `obs_persp` as trauma/
+  dissociation marker (established association, debated
+  valence — coping vs symptom); all ten pop constants are
+  priors awaiting population calibration (P1122–P1133).
+
+## 84. v109 sources — forgetting-curves X (FC Part X → spec v5.57)
+
+- **Aggregation artifact (the average that lies):** Anderson &
+  Tweney 1997 (*Mem. Cognit.* 25:724 — verified: exponential
+  individuals average to a better-fitting power curve; the
+  slow tail is heterogeneity residue); Myung, Kim & Pitt 2000
+  (*JEP:LMC* 26:168); Brown & Heathcote 2003. Consequence:
+  §14.8 two-fit reporting; the pooled power tail is an
+  emergence target (P1156/P1157), never a fitted term.
+- **Need per record:** Anderson & Milson 1989 (*Psychol.
+  Rev.* 96:703 — verified: P(need) from the item's own usage
+  history — recency-power + saturating frequency). Spec
+  §4.62 `uses[]`/`need_p` descends §4.39's class EMA to the
+  record; retention-side only (need_uses_null).
+- **Decay executed and paroled:** McGeoch 1932 (*Psychol.
+  Rev.* 39:352 — verified: interpolated activity, not time,
+  causes LTM loss); McGeoch & Irion 1952; Brown 1958
+  (*QJEP*); Peterson & Peterson 1959; Barrouillet, Bernardin
+  & Camos 2004 (*JEP:G* 133:83 — TBRS: buffer decay is real
+  but attention-gated); Wixted 2004 (*Annu. Rev. Psychol.*
+  55:235 — synthesis: LTM interference-dominated, residual
+  clock open). Spec §4.61 `decay_true` split: 0.15 LTM /
+  frozen 1.0 buffer; `decay_pure_null` locked; sleep stays
+  consolidation (`decay_sleep_leg` frozen) — Jenkins &
+  Dallenbach quiet-stall emerges (P1165).
+- **Status downgrade:** Gardiner & Java 1990 (*Mem. Cognit.*
+  18:23 — verified: remember responses decay, know flat/
+  rising); Gardiner, Ramponi & Richardson-Klavehn 1998;
+  Tunney 2010. Spec §5.114 `epist` emission tag from
+  binding-field survival; `know_conf_cap`; `rk_fake_null`
+  (no narrated detail from a know); `rk_tone` frozen.
+- **Forgetting earns its keep:** Nørby 2015 (*Perspect.
+  Psychol. Sci.* 10:551 — verified: adaptive value of loss —
+  PI relief, updating, generalization); Storm & Levy 2012
+  (*Mem. Cognit.* 40:827 — RIF impairment correlates with
+  practiced recall); Levy et al. 2007 (*Psychol. Sci.* 18:456).
+  Spec §4.63 `relief_dead_null` + measurable release floor +
+  `updt_loser_pen` demote-not-delete.
+- **The bout's bill:** Smith 1971 (*JEP* 91:195); Roediger &
+  Schmidt 1980 (*JEP:HLM* 6:91); Tulving & Arbuckle 1966.
+  Spec §5.115 `oi_bout_k`/`oi_cat_mult` session accumulator;
+  `oi_perm_null` (never persists).
+- **Marked hypothesis:** all magnitudes (decay_true, need_*,
+  relief_min, rk_*, oi_*) are RW calibration targets — the
+  literature supplies direction and ordering, the spec
+  supplies the numbers, the probes police the boundary.
+
+## 85. v110 sources — retrieval-cues X (RC Part X → spec v5.58)
+
+- **The voice as a cue:** McGehee 1937 (*J. Gen. Psychol.*
+  17:249 — verified: five-voice lineup 83%@1d → 13%@5mo) and
+  McGehee 1944 (*JGP* 31:53 — verified: ~45–48% plateau @8wk;
+  the two curves disagree, so the spec locks the front-loaded
+  SHAPE); Clifford 1980 (verified review — earwitness weaker
+  than eyewitness, exposure duration dominates); Stevenage,
+  Clarke & McNeill 2012 (*J. Cogn. Psychol.* 24:647 — verified
+  other-accent effect); Kerstholt et al. 2006 (*Appl. Cogn.
+  Psychol.* 20:187 — telephone degradation); own-age voice
+  findings mixed (2017 estimation bias; 2025 discrimination
+  main-effect only — priced as `voice_age_pen`). Spec §5.116
+  `voicePrint` tier; `voice_face_null` (no visual detail from
+  voice-only); `voice_name_w` < face→name.
+- **The body as a cue:** Dijkstra, Kaschak & Zwaan 2007
+  (*Cognition* 102:139 — verified: congruent posture → faster
+  AM retrieval + better 2wk free recall, both age groups).
+  Spec §5.117 `posture_w` 0.05 (smallest context weight) +
+  latency/re-encode dividends; `posture_sem_null` — our
+  episodic-only extrapolation.
+- **The question knows first:** Reder & Ritter 1992
+  (*JEP:LMC* 18:435 — verified: <850ms know/don't-know driven
+  by question-term familiarity, orthogonal to answer
+  retrievability); Metcalfe, Schwartz & Joaquim 1993
+  (*JEP:LMC* 19:1074 — cue priming ↔ FOK, target priming ↔
+  recall dissociation); Koriat & Levy-Sadot 2001 (*JEP:LMC*
+  27:34 — verified cascade: familiarity early, accessibility
+  gated behind it). Spec §5.118 `fok_pre`/`bout_enter` pre-
+  search gate; `fok_pre_acc_null` — the gate must stay
+  accuracy-blind.
+- **The poisoned cue:** Smith & Blankenship 1991 (verified —
+  misleading cue sets block resolution); Jones & Langford 1987
+  + Jones 1989 (phonological interlopers raise TOTs —
+  DEBATED: Meyer & Bock 1992 matched-control null; effect
+  kept small); Maylor 1990 (*Br. J. Psychol.* 81:449 —
+  verified: phonological blocking DECREASES with age — capture
+  ≠ access). Spec §5.119 `supplied:true` features at `hint_w`,
+  `hint_linger_hl`, `hint_phon_age`; `hint_mint_null` —
+  supplied features never write content.
+- **The direction of travel:** Kahana 1996 (*Mem. Cognit.*
+  24:103 — verified ~2:1 forward asymmetry, cued pairs
+  symmetric); Thomas, Milner & Haberlandt 2003 (*Psychol.
+  Sci.* 14:170 — verified: backward recall = covert forward
+  passes, latency decreases across output); Howard & Kahana
+  2002 + Kahana et al. 2002 (contiguity declines with age).
+  Spec §5.120 `chain_fwd_w`/`chain_bwd_pen` on reminding
+  chains, `pair_cue` bypass, `bwd_cycle_cost` covert-pass
+  latency, `chain_age_pen`.
+- **Marked hypothesis:** all magnitudes RW calibration
+  targets; probes P1166–P1175 police the boundary.

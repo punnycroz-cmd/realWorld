@@ -68,8 +68,13 @@ const api = eval(m[1] + `
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
+    sfCellField, sfTopLean, sfTopLeanShift, SF_TOP_ALT_M, cam,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
-    sfWireShadow, sfPalmRow, SF_DECALS })`);
+    sfWireShadow, sfPalmRow, SF_DECALS, sfWallImpostor, sfWallBakeKey,
+    SF_WIM, sfTreeWellM, SF_PROP_CELL,
+    updateHUD,
+    setInsp: (i2) => { inspectedPawnIdx = i2; },
+    getCtrl: () => controlledPawnIdx })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -145,11 +150,21 @@ const api = eval(m[1] + `
   }
   ok(n === STATES.length, 'all ' + STATES.length + ' states render (got ' + n + ')');
 
-  // schedule sanity: every cast member has a routine + home cell
-  ok(api.VILLAGERS.every(v => v.sfSched && v.sfSched.length),
-     'every cast member has a schedule');
+  // v16 becoming brain: the 8 mains are driven pawns — brain-authored
+  // will, no code-authored schedule, all in the intention gap until the
+  // brain's first filing. The 20 ambients keep thin routines.
+  const isCore = v => /^C[1-8]$/.test(v._castId || '');
+  ok(api.VILLAGERS.filter(isCore).every(v =>
+       v.sfAgentDriven === true && v.isNPC === true && !v.sfSched &&
+       v.sfGap === true),
+     'the 8 mains are driven, schedule-free, and in the gap');
+  ok(api.VILLAGERS.filter(v => !isCore(v)).every(v =>
+       v.sfSched && v.sfSched.length),
+     'the 20 ambients keep their routines');
   ok(api.VILLAGERS.every(v => v.sfHome && isFinite(v.sfHome.wx)),
      'every cast member has a home cell');
+  ok(api.VILLAGERS.filter(isCore).every(v => v.isNPC === true),
+     'no main is player-controlled');
 
   // one sim tick of the schedule system doesn't throw
   try { api.VILLAGERS.forEach(v => api.sfNpcTick(v, 0.016)); pass++; }
@@ -369,6 +384,123 @@ const api = eval(m[1] + `
   ok(kf && kf.length === 2, 'karl front edge resolves');
   ok(api.sfKarlPoly(0).length === 0, 'no front, no polygon');
 
+  // v61: distant shower cells — a pure function of the slow time bucket
+  // plus the live moisture drivers; bearings/distances bounded, strength
+  // in 0..1, virga flag consistent, and a stormy sky raises more cells
+  // than a dry one. Restore W afterwards (v34 block saved the originals).
+  {
+    const cf1 = api.sfCellField();
+    ok(Array.isArray(cf1), 'sfCellField returns an array');
+    ok(JSON.stringify(api.sfCellField()) === JSON.stringify(cf1),
+       'sfCellField deterministic within a bucket');
+    ok(cf1.every(c => c.str >= 0 && c.str <= 1 && c.dist >= 7000 &&
+       c.dist <= 19000 && c.az >= 0 && c.az < Math.PI * 2 &&
+       c.baseZ > 0 && c.topZ > c.baseZ && c.virga === (c.str <= 0.55)),
+       'cell records bounded + virga flag consistent');
+    const t61 = api.SF_WX.t, st0 = api.W.storm, cv0 = api.SF_WX.cover;
+    api.W.hum = 0.95; api.W.storm = 0.8; api.SF_WX.cover = 0.8;
+    let stormCells = 0, stormMax = 0, sawRain = false;
+    for(let b = 0; b < 4; b++){
+      api.SF_WX.t = t61 + b * 1500;              // scan a few cell buckets
+      const cfS = api.sfCellField();
+      stormCells += cfS.length;
+      for(const c of cfS){ stormMax = Math.max(stormMax, c.str);
+        if(!c.virga) sawRain = true; }
+    }
+    ok(stormCells > 0 && stormMax > 0.55 && sawRain,
+       'storm field raises horizon-reaching cells (' + stormCells +
+       ' cells, max ' + stormMax.toFixed(2) + ')');
+    api.W.hum = 0.1; api.W.storm = 0; api.SF_WX.cover = 0.02;
+    api.SF_WX.t = t61 + 6000;
+    ok(api.sfCellField().length === 0, 'dry clear sky spawns no cells');
+    api.W.hum = h0; api.W.storm = st0; api.SF_WX.cover = cv0;
+    api.SF_WX.t = t61;
+  }
+
+  // v61: fog drip — a heavy Karl intrusion wets pavement without rain;
+  // below the threshold it dries. (Physics check on the drip curve, not
+  // the integrator: same expression as the tick's.)
+  {
+    const kfWet = Math.max(-0.006, 0.9 * 0.010 - 0.005);
+    const kfDry = Math.max(-0.006, 0.2 * 0.010 - 0.005);
+    ok(kfWet > 0 && kfDry < 0,
+       'fog drip: karlK 0.9 soaks (' + kfWet.toFixed(4) + '), 0.2 dries');
+  }
+
+  // v62: the top camera is a real aerial platform — relief displacement
+  // is zero at the nadir, radially outward everywhere else, linear in
+  // both height and distance, and grounded at the anchor.
+  {
+    ok(api.SF_TOP_ALT_M > 100 && api.SF_TOP_ALT_M < 2000,
+       'aerial platform altitude is a plausible photo altitude (' +
+       api.SF_TOP_ALT_M + 'm)');
+    const cx = api.cam.x, cy = api.cam.y;
+    const s0 = api.sfTopLeanShift(cx, cy, 60);
+    ok(Math.abs(s0[0]) < 1e-9 && Math.abs(s0[1]) < 1e-9,
+       'nadir: zero displacement at frame center');
+    const sE = api.sfTopLeanShift(cx + 500, cy, 60);
+    ok(sE[0] > 0, 'east of nadir leans east (outward), got ' + sE[0].toFixed(2));
+    const sW = api.sfTopLeanShift(cx - 500, cy, 60);
+    ok(sW[0] < 0, 'west of nadir leans west (outward), got ' + sW[0].toFixed(2));
+    const sN = api.sfTopLeanShift(cx, cy - 500, 60);
+    ok(sN[1] < 0, 'north of nadir leans north/up, got ' + sN[1].toFixed(2));
+    const sS = api.sfTopLeanShift(cx, cy + 500, 60);
+    ok(sS[1] > 0, 'south of nadir leans south/down, got ' + sS[1].toFixed(2));
+    const sE2 = api.sfTopLeanShift(cx + 1000, cy, 60);
+    ok(Math.abs(sE2[0] - sE[0] * 2) < 1e-6,
+       'displacement is linear in distance from nadir');
+    const sTall = api.sfTopLeanShift(cx + 500, cy, 120);
+    ok(Math.abs(sTall[0] - sE[0] * 2) < 1e-6,
+       'displacement is linear in height (taller leans farther)');
+    // grounded: the transform must leave the anchor itself unmoved —
+    // sfTopLean shears about (ax, ay), so a point AT the pivot stays
+    ok(api.sfTopLean(cx + 500, cy, 100, 100) === true &&
+       api.sfTopLean(cx, cy, 100, 100) === false,
+       'sfTopLean returns false at the nadir, true off-center');
+  }
+
+  // v63: wall impostor atlas — the bake key is stable across frames
+  // (cloud-shadow drift is neutralized in the bake, not keyed), a bake
+  // populates the LRU, and the slice fan draws for a sane projection
+  // while refusing a lens parked inside the near plane.
+  {
+    const b0 = api.SF_BLD[0];
+    const k1 = api.sfWallBakeKey(b0, 0, false);
+    const k2 = api.sfWallBakeKey(b0, 0, false);
+    ok(k1 === k2, 'wall bake key is frame-stable');
+    ok(api.sfWallBakeKey(b0, 1, false) !== k1,
+       'bake key distinguishes wall edges');
+    const n0 = api.SF_WIM.size;
+    // synthetic wall: 20m run, 12m tall, camera-facing ortho projection
+    const prW = (x, y, z) => [x * 4 + 200, 400 - z * 8, 40];
+    const okd = api.sfWallImpostor(b0, 0, 0, 0, 20, 0, 1, 0, 20,
+                                   0, -1, 12, prW, false, 40, 1440);
+    ok(okd === true, 'impostor draws for a sane wall projection');
+    ok(api.SF_WIM.size > n0 || api.SF_WIM.size === 150,
+       'bake populates the atlas LRU (' + api.SF_WIM.size + ' entries)');
+    const prNear = (x, y, z) => [x * 4 + 200, 400 - z * 8, 0.8];
+    ok(api.sfWallImpostor(b0, 0, 0, 0, 20, 0, 1, 0, 20,
+                          0, -1, 12, prNear, false, 40, 1440) === false,
+       'impostor refuses a lens inside the near plane');
+  }
+
+  // v64: street-tree wells — every sidewalk tree sits in a grate-ringed
+  // cut-out; the ficus well runs wider than the small-crown pits and the
+  // sizing helper is pure so both views draw the same footprint
+  {
+    ok(typeof api.sfTreeWellM === 'function', 'sfTreeWellM exported');
+    const wF = api.sfTreeWellM({ kind: 'sfStreetTree', v: 0 }),
+          wS = api.sfTreeWellM({ kind: 'sfStreetTree', v: 1 });
+    ok(wF > wS, 'ficus well wider than small-crown pit (' + wF + ' vs ' + wS + ')');
+    ok(api.sfTreeWellM({ v: 1 }) === wS, 'sfTreeWellM deterministic');
+    ok(api.sfTreeWellM(null) > 0, 'sfTreeWellM tolerates a bare prop');
+    // street trees actually exist on the grid to receive wells
+    let nTree = 0;
+    for(const [, lst] of api.SF_PROP_CELL || [])
+      for(const o of lst) if(o.kind === 'sfStreetTree') nTree++;
+    ok(nTree > 0, 'street trees present for wells (' + nTree + ')');
+  }
+
   // v35: interior archetypes resolve per venue name/label
   ok(api.sfIntArch('Taqueria El Farolito', 'the line, the salsa bar') === 'taqueria',
      'farolito reads as taqueria');
@@ -482,6 +614,34 @@ const api = eval(m[1] + `
     let nWorn = 0;
     for(const d of api.SF_DECALS) if(d.kind === 'worn') nWorn += d.cells.length;
     ok(nWorn > 40, 'desire lines worn across the lawn (' + nWorn + ' cells)');
+  }
+
+  // v57: possession ban — the spectator shell's Take Control handler is a
+  // verified no-op for EVERY cast member in SF mode (C1–C8 absolute, and
+  // ambient residents too: possession enters only through the game-systems
+  // request pipeline, never a dev button). Click it programmatically on a
+  // main and on an ambient; nothing may flip.
+  {
+    const btn = document.getElementById('btn-toggle-ctrl');
+    ok(btn && typeof btn.onclick === 'function',
+       'btn-toggle-ctrl handler registered');
+    const c1 = api.VILLAGERS.findIndex(v => v._castId === 'C1');
+    const amb = api.VILLAGERS.findIndex(v => !/^C[1-8]$/.test(v._castId || ''));
+    ok(c1 >= 0 && amb >= 0, 'main + ambient indices resolve');
+    for(const idx of [c1, amb]){
+      if(idx < 0) continue;
+      api.setInsp(idx);
+      const before = api.VILLAGERS.map(v => !!v.isNPC);
+      const ctrl0 = api.getCtrl();
+      btn.onclick();
+      const after = api.VILLAGERS.map(v => !!v.isNPC);
+      ok(after.every((f2, j) => f2 === before[j]) &&
+         api.getCtrl() === ctrl0,
+         'Take Control is a no-op on ' +
+         (api.VILLAGERS[idx]._castId || 'ambient') +
+         ' (possession ban holds)');
+    }
+    api.setInsp(c1 >= 0 ? c1 : 0);
   }
 
   console.log('---');

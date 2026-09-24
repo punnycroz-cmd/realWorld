@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-/* world/audit.js — RW boundary audit (world v58).
+/* world/audit.js — RW boundary audit (world v63).
 
    Turns the playtest harness's manual consistency sweep (PT7) into an
    executable gate. Run:
@@ -36,10 +36,12 @@
      thinai    — thinai.json ↔ thinai.html agreement; locked feed
                  vocabulary only on the wire; handoff note forbidden
                  fields absent by construction; mode-allowance matrix
-     bible     — characters/*.md carry the fixed 17-section order with
+     bible     — characters/*.md carry the fixed 27-section order with
                  SECRETS last; characters.json mirrors roleplay/briefing
                  fields + v28 backstory/room/strangers + v42 wants/
-                 interior/truth; cast.html CAST ids and card fields agree
+                 interior/truth + v84 listening/day_off/repairs + v98
+                 weather/helped;
+                 cast.html CAST ids and card fields agree
     crowd     — crowd.json ↔ crowd.html mirror (zones, budgets, shades,
                 flows, micros, greets, scenes, v43 resources + AMB/AMBX
                 roster); extras carry no identity; minors greet in packs;
@@ -55,6 +57,15 @@
                 has ≥1 regular, offstage/reserved carry none; regulars are
                 never own-venue staff; name_basis ⊆ staff; windows overlap
                 posted hours; house_knows stays on the surface bar
+    perm      — permits.json ↔ permit.html PERM mirror; walls keys ==
+                door tiers exactly; paper kinds/statuses in-key;
+                liquor only on liquor_venues, health_score only on
+                food_venues inside score_range; former names invented,
+                ghost_sign requires a former entry; no people, no money
+    homes     — homes.json ↔ homes.html HOMES mirror; home/vacant unit_ids
+                ⊆ registry seed units + ambient-ring; occupants ⊆ cast ids
+                ∪ household lease ids; perks employers ⊆ jobs.json;
+                vacant rows carry no occupants; no money, no secrets
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -65,7 +76,9 @@
                 v46: approve-modified offer (trim-only, decline = full refund),
                 honest upfront charge, queue hold clock + expiry, scheduled
                 events fire, hire routes to create.html, demo hooks;
-                dark-pattern vocabulary absent
+                dark-pattern vocabulary absent; v60: live seam
+                (__aiBridge detect, capability-guarded gsRequestSubmit),
+                pre-flight check (free, never a gate), receipt drawer
     wire      — feed.json ↔ wire.html: every event kind/status has a chip
                 style; honesty strings + live seam + v33 affordances present;
                 demo seeds mirrored; NO button offers a world-touching verb
@@ -89,6 +102,11 @@
                 content mirror case-for-case; console CHARS whitelist;
                 flag-ledger/shift-report/calibration affordances; no
                 mutation calls on internal surfaces
+    griev     — grievances.json ↔ grievance.html GRJ mirror; every jobs.json
+                employer + housing.json building covered exactly once; venue/
+                org/building refs resolve; live_rungs ⊆ 1–5; archetypes ⊆
+                catalogs; ear cast ids valid; surface-bar sweep on all
+                descriptive fields
     harness   — playtest harness self-contract: storage key + build tag
                 agree with playtest.json; required affordance marks
                 present; scenario integrity (unique PT ids, declared
@@ -247,7 +265,9 @@ const PUB = Object.values(PT.surfaces)
   const INWORLD = new Set(['board.html', 'lease.html', 'timeclock.html',
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
-    'applications.json', 'apply.html']);
+    'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
+    'exits.json', 'exit.html', 'permits.json', 'permit.html',
+    'homes.json', 'homes.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -394,8 +414,8 @@ const PUB = Object.values(PT.surfaces)
     /* internal-only: drama files must never appear as a public playtest surface */
     for (const f of ['drama.html', 'drama.json', 'drama-notes.md'])
       if (PUB.includes(f)) add(g, 'fail', f, null, 'internal drama file listed as a public surface');
-    /* ---- v38 blocks (schema drama-v3) ---- */
-    if (D.schema_version === 'drama-v3') {
+    /* ---- v38+ blocks (schema drama-v3 or later) ---- */
+    if (/^drama-v[3-9]\d*$/.test(D.schema_version || '')) {
       /* state_evidence: exactly the four transitions, each with both lists */
       const EV = D.state_evidence || {};
       for (const t of ['dormant_to_pressured', 'pressured_to_surfaced',
@@ -499,6 +519,159 @@ const PUB = Object.values(PT.surfaces)
         if (!l.w || !l.p || !l.b) add(g, 'fail', 'drama.html', null, `LADDERS ${l.id}: whisper/pressure/brink field empty`);
       if (!VEN || VEN.length !== (D.venue_dramaturgy || []).length)
         add(g, 'fail', 'drama.html', null, 'VENUES count != venue_dramaturgy rows');
+      /* ---- v66+ blocks (schema drama-v4 or later) ---- */
+      if (/^drama-v[4-9]\d*$/.test(D.schema_version || '')) {
+        /* fuse_interference: all C(6,2)=15 pairs exactly once, relation in enum */
+        const FI = D.fuse_interference || {};
+        const RELS = new Set(FI.relations || []);
+        for (const r of ['interlocked', 'adjacent', 'independent', 'masked'])
+          if (!RELS.has(r)) add(g, 'fail', 'drama.json', null, `fuse_interference.relations missing "${r}"`);
+        const seenP2 = new Set();
+        for (const e of FI.pairs || []) {
+          const key = (e.pair || []).slice().sort().join('·');
+          if ((e.pair || []).length !== 2 || e.pair.some(f => !fuses.has(f)))
+            add(g, 'fail', 'drama.json', null, `fuse_interference pair "${key}": must be two known fuse ids`);
+          if (seenP2.has(key)) add(g, 'fail', 'drama.json', null, `fuse_interference: duplicate pair ${key}`);
+          seenP2.add(key);
+          if (!RELS.has(e.relation)) add(g, 'fail', 'drama.json', null, `fuse_interference ${key}: relation "${e.relation}" not in enum`);
+          if (!e.note) add(g, 'fail', 'drama.json', null, `fuse_interference ${key}: missing note`);
+        }
+        const NPAIR = fuses.size * (fuses.size - 1) / 2;
+        if (seenP2.size !== NPAIR)
+          add(g, 'fail', 'drama.json', null, `fuse_interference covers ${seenP2.size}/${NPAIR} fuse pairs — every pair needs exactly one relation`);
+        /* suspicion_calibration: every seed gets all three rung ceilings */
+        const SC = (D.suspicion_calibration || {}).per_seed || {};
+        for (const s of D.seeds || []) {
+          const c = SC[s.id] || {};
+          for (const rung of ['whisper', 'pressure', 'brink'])
+            if (!c[rung]) add(g, 'fail', 'drama.json', null, `suspicion_calibration.${s.id}.${rung} missing — an uncalibrated rung is an unbounded leak`);
+        }
+        /* comedy_duty: every fuse carries carriers + never */
+        const CD = (D.comedy_duty || {}).per_fuse || {};
+        for (const f of fuses) {
+          const c = CD[f] || {};
+          if (!c.carriers || !c.never)
+            add(g, 'fail', 'drama.json', null, `comedy_duty.${f}: carriers/never missing`);
+        }
+        if (!(D.comedy_duty || {}).drought_flag)
+          add(g, 'fail', 'drama.json', null, 'comedy_duty.drought_flag missing — the drought flag is the only knob comedy gets');
+        /* residue_nursery: rules + candidates with valid parent fuses */
+        const RN = D.residue_nursery || {};
+        if (!(RN.rules || []).length) add(g, 'fail', 'drama.json', null, 'residue_nursery.rules empty');
+        for (const n of RN.candidates || []) {
+          if (!fuses.has(n.from_fuse)) add(g, 'fail', 'drama.json', null, `nursery ${n.id}: from_fuse "${n.from_fuse}" not a fuse`);
+          if (!n.tendency || !n.needs) add(g, 'fail', 'drama.json', null, `nursery ${n.id}: tendency/needs missing`);
+        }
+        /* drift review must carry the comedy-texture step */
+        if (!(DR.steps || []).some(s => /comedy/i.test(s)))
+          add(g, 'fail', 'drama.json', null, 'drift_review.steps missing the comedy_drought check (§33)');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['interf', 'susp', 'comedy', 'nursery'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const ITF = grab('INTERF'), SSP = grab('SUSP'), CMD = grab('COMEDY'), NUR = grab('NURSERY');
+        if (!ITF || ITF.length !== (FI.pairs || []).length)
+          add(g, 'fail', 'drama.html', null, 'INTERF count != fuse_interference.pairs');
+        else for (const r of ITF)
+          if (!RELS.has(r[1])) add(g, 'fail', 'drama.html', null, `INTERF ${r[0]}: relation "${r[1]}" off-enum`);
+        if (!SSP || SSP.length !== (D.seeds || []).length)
+          add(g, 'fail', 'drama.html', null, 'SUSP count != seeds — every seed mirrors its ceilings');
+        if (!CMD || CMD.length !== fuses.size)
+          add(g, 'fail', 'drama.html', null, 'COMEDY count != fuses');
+        if (!NUR || NUR.length !== (RN.candidates || []).length)
+          add(g, 'fail', 'drama.html', null, 'NURSERY count != residue_nursery.candidates');
+      }
+      /* ---- v80 blocks (schema drama-v5 or later) ---- */
+      if (/^drama-v[5-9]\d*$/.test(D.schema_version || '')) {
+        /* daypart_dramaturgy: rows need daypart + shadows + never; fuse refs valid */
+        const DP = D.daypart_dramaturgy || {};
+        const seenD = new Set();
+        for (const r of DP.rows || []) {
+          if (!r.daypart || seenD.has(r.daypart)) add(g, 'fail', 'drama.json', null, `daypart_dramaturgy: missing/duplicate daypart "${r.daypart}"`);
+          seenD.add(r.daypart);
+          for (const k of ['shadows', 'never'])
+            if (!r[k]) add(g, 'fail', 'drama.json', null, `daypart "${r.daypart}": missing ${k}`);
+          for (const f of r.fuses || [])
+            if (!fuses.has(f) && f !== 'all' && f !== 'none' && !/^S\d+$/.test(f))
+              add(g, 'fail', 'drama.json', null, `daypart "${r.daypart}": unknown fuse/seed "${f}"`);
+        }
+        if (!seenD.size) add(g, 'fail', 'drama.json', null, 'daypart_dramaturgy.rows empty');
+        /* offscreen_doctrine: rules must fence viewership out of pressure */
+        const OD = D.offscreen_doctrine || {};
+        if (!(OD.rules || []).length) add(g, 'fail', 'drama.json', null, 'offscreen_doctrine.rules empty');
+        if (!(OD.rules || []).some(r => /audience size is not pressure|viewership|spectator count/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'offscreen_doctrine must fence viewership out of pressure inputs');
+        /* surface_aftercare: every fuse exactly once, texture + protected */
+        const SA = (D.surface_aftercare || {}).per_fuse || {};
+        for (const f of fuses) {
+          const c = SA[f] || {};
+          if (!c.window_texture || !c.protected)
+            add(g, 'fail', 'drama.json', null, `surface_aftercare.${f}: window_texture/protected missing`);
+        }
+        if (!(D.surface_aftercare || {}).rules || !(D.surface_aftercare.rules || []).some(r => /spends nothing|spend ban/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'surface_aftercare.rules must carry the spend ban (§38)');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['dayparts', 'offscreen', 'aftercare'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const DPT = grab('DAYPARTS'), OFF = grab('OFFSCREEN'), AFC = grab('AFTERCARE');
+        if (!DPT || DPT.length !== (DP.rows || []).length)
+          add(g, 'fail', 'drama.html', null, 'DAYPARTS count != daypart_dramaturgy.rows');
+        if (!OFF || OFF.length !== (OD.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'OFFSCREEN count != offscreen_doctrine.rules');
+        if (!AFC || AFC.length !== fuses.size)
+          add(g, 'fail', 'drama.html', null, 'AFTERCARE count != fuses');
+      }
+      /* ---- v94 blocks (schema drama-v6 or later) ---- */
+      if (/^drama-v[6-9]\d*$/.test(D.schema_version || '')) {
+        /* cooling_grammar: rules must keep the rung-descent + no-refund shape (§40) */
+        const CG = D.cooling_grammar || {};
+        if (!(CG.rules || []).length) add(g, 'fail', 'drama.json', null, 'cooling_grammar.rules empty');
+        if (!(CG.rules || []).some(r => /rung/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'cooling_grammar must keep descent through the rungs (no cliff-edges)');
+        if (!(CG.rules || []).some(r => /never cools|surfaced/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'cooling_grammar must fence surfaced fuses out of cooling');
+        /* double_surface: rules must carry canon + protections-never-mask (§41) */
+        const DS = D.double_surface || {};
+        if (!(DS.rules || []).length) add(g, 'fail', 'drama.json', null, 'double_surface.rules empty');
+        if (!(DS.rules || []).some(r => /canon/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface must declare two-in-one-window canon, never prevented');
+        if (!(DS.rules || []).some(r => /never mask|protected/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface must keep §38 protections unmaskable');
+        if (!(DS.rules || []).some(r => /merge/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface recovery windows must merge, not stack');
+        /* fair_misfires: whisper-rung-only + retroactive fairness + never aimed (§42) */
+        const FM = D.fair_misfires || {};
+        if (!(FM.rules || []).length) add(g, 'fail', 'drama.json', null, 'fair_misfires.rules empty');
+        if (!(FM.rules || []).some(r => /whisper/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must cap misleads at the whisper rung');
+        if (!(FM.rules || []).some(r => /rewatch|retroactive/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must carry the retroactive-fairness test');
+        if (!(FM.rules || []).some(r => /never aimed|wrong conclusion/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must forbid aimed misleads');
+        /* posture_vocabulary: exactly the five postures; rules fence world-writes (§43) */
+        const PV = D.posture_vocabulary || {};
+        const POSTS = new Set((PV.postures || []).map(p => p.id));
+        for (const p of ['prefer', 'hold', 'shed', 'observe', 'recovery'])
+          if (!POSTS.has(p)) add(g, 'fail', 'drama.json', null, `posture_vocabulary.postures missing "${p}"`);
+        for (const p of PV.postures || [])
+          if (!p.meaning) add(g, 'fail', 'drama.json', null, `posture ${p.id}: missing meaning`);
+        if (!(PV.rules || []).some(r => /never to the world|cannot create/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'posture_vocabulary.rules must fence postures off world state');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['cooling', 'dsurf', 'misfire', 'posture'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const CLG = grab('COOLING'), DSF = grab('DSURF'), MSF = grab('MISFIRE'),
+              PST = grab('POSTURE'), PSR = grab('POSTURERULES');
+        if (!CLG || CLG.length !== (CG.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'COOLING count != cooling_grammar.rules');
+        if (!DSF || DSF.length !== (DS.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'DSURF count != double_surface.rules');
+        if (!MSF || MSF.length !== (FM.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'MISFIRE count != fair_misfires.rules');
+        if (!PST || PST.length !== (PV.postures || []).length)
+          add(g, 'fail', 'drama.html', null, 'POSTURE count != posture_vocabulary.postures');
+        if (!PSR || PSR.length !== (PV.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'POSTURERULES count != posture_vocabulary.rules');
+      }
     }
     /* seeds must never be reachable from spectator contracts */
     for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])
@@ -603,6 +776,125 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v53 schema still on an old storage key');
     }
+    /* ---- v67 blocks: the eligibility layer ---- */
+    if (OB.version >= 67) {
+      const MUST67 = [
+        [/under 13/i, 'under-13 band offered'],
+        [/13\u201317|13-17/i, 'teen band offered'],
+        [/18 or older/i, 'adult band offered'],
+        [/rather not say/i, 'declined band offered'],
+        [/watching account/i, 'under-13 spectator-only wording'],
+        [/2 cr/, 'rewarded-ad rate verbatim (2 cr/view)'],
+        [/opt-in/i, 'ads opt-in placement stated'],
+        [/never in the stream/i, 'ads never inside the sim view'],
+        [/spending limits/i, 'under-18 spend-limit disclosure'],
+        [/wrong band\? fix it/i, 'band correction affordance']
+      ];
+      for (const [re, label] of MUST67)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v67 honesty copy: ${label}`);
+      /* the ads affordance must be structurally gated on the adult band —
+         not rendered for teen/na/u13, and adView() re-checks the guard */
+      if (!/S\.band===?['"]adult['"]/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'rewarded-ads affordance not gated on the adult band');
+      if (!/adViews\s*>=?\s*5/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'ads daily cap (5) not enforced in adView');
+      /* the band fronts paid stages only — it must never gate the free ones */
+      if (!html.includes('normalizeStage'))
+        add(g, 'fail', 'onboarding.html', null, 'stage normalizer missing — paid stages unguarded');
+      for (const s of ['u13', 'teen', 'adult', 'na'])
+        if (!new RegExp(`band\\(\\\\?['"]${s}\\\\?['"]\\)`).test(html))
+          add(g, 'fail', 'onboarding.html', null, `age-band option '${s}' has no handler`);
+      if (!OB.age_band || !OB.rewarded_ads)
+        add(g, 'fail', 'onboarding.json', null, 'v67 contract blocks (age_band / rewarded_ads) missing');
+      else {
+        if (OB.rewarded_ads.rate_cr !== 2 || OB.rewarded_ads.daily_cap !== 5)
+          add(g, 'fail', 'onboarding.json', null, 'rewarded_ads drifts from plan §2.7 (2 cr, 5/day)');
+      }
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v67 schema still on an old storage key');
+    }
+    /* ---- v81 blocks: the house & the other hands ---- */
+    if (OB.version >= 81) {
+      const MUST81 = [
+        [/admin action/i, 'admin transparency on the feed ("admin action")'],
+        [/compensat/i, 'automatic compensation on admin actions stated'],
+        [/nobody's hand is invisible|nobody\u2019s hand is invisible/i, 'beat-8 house-visibility copy'],
+        [/surge/i, 'surge multiplier disclosure'],
+        [/before.{0,12}you pay/i, 'surge shown before payment, never after'],
+        [/×1\.5.{0,10}×2\.5|1\.5.{0,10}2\.5/, 'surge range verbatim (×1.5–×2.5)'],
+        [/tenant.{0,30}owner.{0,30}landlord/i, 'ownership arc named at settle'],
+        [/alongside/i, 'compatible coexistence taught'],
+        [/deed fee/i, 'arc cost shape (game dollars + deed fee) stated']
+      ];
+      for (const [re, label] of MUST81)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v81 honesty copy: ${label}`);
+      /* the admin beat needs a real anchor element */
+      if (!/feed-admin/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'feed-admin anchor missing — beat 8 has nothing to point at');
+      /* S4f reachable + the scripted co-ask exists and is idempotent */
+      if (!html.includes("'S4f'"))
+        add(g, 'fail', 'onboarding.html', null, 'S4f stage not reachable in page source');
+      if (!/window\.coAsk/.test(html) || !/S\.coask/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'co-ask demo affordance missing or not state-guarded');
+      /* surge must never read as a post-payment surprise or a specific invented figure */
+      if (/surge.{0,40}(added|charged) (after|at checkout)/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'surge framed as post-payment — disclosure must be upfront');
+      /* coexistence must never read as contention-for-sale */
+      if (/outbid|buy.{0,10}(their|another player)/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'coexistence framed as contention you can buy out');
+      /* contract blocks must exist in the mirror */
+      for (const k of ['admin_beat', 'coask_lesson', 'surge_disclosure', 'ownership_arc'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v81 contract block '${k}' missing`);
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v81 schema still on an old storage key');
+    }
+    /* ---- v95 blocks: the stay ---- */
+    if (OB.version >= 95) {
+      const MUST95 = [
+        [/never run out/i, 'credit rules: no-expiration stated honestly'],
+        [/never cash out/i, 'credit rules: no cash-out stated'],
+        [/never move between accounts/i, 'credit rules: non-transferable stated'],
+        [/\$4\.99\/mo/i, 'Resident price verbatim ($4.99/mo, plan §2.5)'],
+        [/\$11\.99\/mo/i, 'Director price verbatim ($11.99/mo, plan §2.5)'],
+        [/600 cr/, 'Resident stipend quoted (600 cr/mo)'],
+        [/1,500 cr/, 'Director stipend quoted (1,500 cr/mo)'],
+        [/camera director mode/i, 'Director perk verbatim'],
+        [/show credits/i, 'Director show-credits perk verbatim'],
+        [/22 cr/, 'first-visit minimum billable (22 cr)'],
+        [/mid-motion/i, 'visit hand-back wording'],
+        [/stated once|never pushed again/i, 'subs stated-once contract'],
+        [/nothing is metered back|nothing was metered back/i, 'no early-release refund implied']
+      ];
+      for (const [re, label] of MUST95)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v95 honesty copy: ${label}`);
+      /* subscriptions must never be framed as a deal */
+      if (/free trial|auto-?renew|best value|save \d+%|limited offer/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'subscription framed as a deal — stated once, verbatim, is the contract');
+      /* S7 reachable, hired-gated, handlers present */
+      if (!html.includes("'S7'"))
+        add(g, 'fail', 'onboarding.html', null, 'S7 stage not reachable in page source');
+      if (!/window\.fileVisit/.test(html) || !/window\.stepOut/.test(html) || !/window\.visitCap/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'first-visit handlers missing');
+      if (!/S\.hired/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'the visit is not gated on hired');
+      if (!/S7:1/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'S7 not in PAID_STAGES — the band normalizer does not front it');
+      if (!/window\.subDemo/.test(html) || !/S\.sub/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'stipend preview affordance missing or not state-guarded');
+      /* the visit must never promise an early-release refund */
+      if (/step out.{0,80}(refund|credits? back|money back)|release.{0,40}refund/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'early release framed as refundable — declared blocks are bought up front');
+      for (const k of ['credit_rules', 'subscription_line', 'first_visit'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v95 contract block '${k}' missing`);
+      if (OB.subscription_line &&
+          (OB.subscription_line.resident.usd_mo !== 4.99 || OB.subscription_line.director.usd_mo !== 11.99 ||
+           OB.subscription_line.resident.cr_mo !== 600 || OB.subscription_line.director.cr_mo !== 1500))
+        add(g, 'fail', 'onboarding.json', null, 'subscription_line drifts from plan §2.5 ($4.99/600 cr · $11.99/1,500 cr)');
+      if (OB.first_visit && OB.first_visit.cr !== 22)
+        add(g, 'fail', 'onboarding.json', null, 'first_visit drifts from plan §2.2 minimum billable (22 cr)');
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v95 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }
@@ -689,8 +981,8 @@ const PUB = Object.values(PT.surfaces)
     /* v54 additions — the paper layer: proration, break fee, repair
        SLA clock, roommate amendments, 21-day deposit clock */
     if (LJ.version >= 54) {
-      if (LJ.demo_seed.storage_key !== 'rw_lease_v54')
-        add(g, 'fail', 'leases.json', null, 'v54 schema on an old storage key');
+      if (['rw_lease_v12', 'rw_lease_v26', 'rw_lease_v40'].includes(LJ.demo_seed.storage_key))
+        add(g, 'fail', 'leases.json', null, 'v54+ schema on an old storage key');
       for (const [re, label] of [
         [/prorat/i, 'prorated first month'],
         [/break fee/i, 'fixed-term break fee'],
@@ -708,6 +1000,124 @@ const PUB = Object.values(PT.surfaces)
       if (!rd2) add(g, 'fail', 'lease.html', null, 'returnDeposit missing');
       else if (!/myUnit/.test(rd2[0]))
         add(g, 'fail', 'lease.html', null, 'returnDeposit lacks the own-unit guard');
+    }
+    /* v68 additions — the hand-off layer: guarantor path on near-miss
+       screening, notice service records, move-out walkthrough, receipts */
+    if (LJ.version >= 68) {
+      const keyN = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (keyN < 68)
+        add(g, 'fail', 'leases.json', null, 'v68+ schema on an old storage key');
+      for (const [re, label] of [
+        [/guarantor/i, 'guarantor path'],
+        [/near-miss|near_miss/i, 'near-miss screening band'],
+        [/served|service/i, 'notice service record'],
+        [/walkthrough/i, 'move-out walkthrough doc'],
+        [/receipt/i, 'rent receipt']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v68 surface missing: ${label}`);
+      if (!LJ.screening.guarantor || !LJ.deposits.walkthrough || !LJ.receipts)
+        add(g, 'fail', 'leases.json', null, 'v68 blocks missing (screening.guarantor/deposits.walkthrough/receipts)');
+      const n2 = (LJ.notices || []).find(n => n.n === 2), n3 = (LJ.notices || []).find(n => n.n === 3);
+      if (!n2 || !n2.service || !n3 || !n3.service)
+        add(g, 'fail', 'leases.json', null, 'notices 2–3 lack service records');
+      const ag = html.match(/window\.attachGuar=function[\s\S]*?^\};/m);
+      if (!ag) add(g, 'fail', 'lease.html', null, 'attachGuar missing');
+      else if (/wires\.push/.test(ag[0]))
+        add(g, 'fail', 'lease.html', null, 'attachGuar posts to the feed — guarantors are never feed events');
+      const sa = html.match(/window\.screenApp=function[\s\S]*?^\};/m);
+      if (!sa || !/guar/.test(sa[0]))
+        add(g, 'fail', 'lease.html', null, 'screenApp lacks the near-miss/guarantor branch');
+    }
+    /* v82 additions — the doorstep & the deed layer: entry notices,
+       sale-with-tenant paper, renewal offers, returned payments,
+       guarantor release */
+    if (LJ.version >= 82) {
+      const k82 = parseInt(((LJ.demo_seed.storage_key || '').match(/rw_lease_v(\d+)/) || [])[1] || '0', 10);
+      if (k82 < 82)
+        add(g, 'fail', 'leases.json', null, 'v82+ schema on an old storage key');
+      for (const [re, label] of [
+        [/entry notice|notice of entry/i, 'notice of entry surface'],
+        [/entry_violation/i, 'entry-violation dispute ground'],
+        [/follows the deed|tenant in place/i, 'sale-with-tenant paper'],
+        [/renewal/i, 'renewal offer flow'],
+        [/termMo/i, 'fixed-term month counter'],
+        [/returned.payment|payment returned/i, 'returned-payment handling'],
+        [/guarantor release|release guarantor|guarRel/i, 'guarantor release flow']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v82 surface missing: ${label}`);
+      if (!LJ.entry_notices || !LJ.sale_occupied || !LJ.renewal || !LJ.returned_payments)
+        add(g, 'fail', 'leases.json', null, 'v82 blocks missing (entry_notices/sale_occupied/renewal/returned_payments)');
+      if (!LJ.screening.guarantor || !LJ.screening.guarantor.release)
+        add(g, 'fail', 'leases.json', null, 'guarantor.release block missing');
+      if (!(LJ.disputes.grounds || []).includes('entry_violation'))
+        add(g, 'fail', 'leases.json', null, 'entry_violation missing from dispute grounds');
+      if (LJ.sale_occupied && LJ.sale_occupied.admin_only !== true)
+        add(g, 'fail', 'leases.json', null, 'sale-of-occupied recording must stay admin-only');
+      if (!LJ.power_map.licensed_landlord.never.includes('record_sales'))
+        add(g, 'fail', 'leases.json', null, 'licensed landlords must never record sales');
+      /* own-unit guards on the new licensed tools; admin-only on sale */
+      for (const fn of ['postEntry', 'markReturned', 'offerRenewal', 'guarRelDecide']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (!fb) add(g, 'fail', 'lease.html', null, `${fn} missing`);
+        else if (!/myUnit/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} lacks the own-unit guard`);
+      }
+      const rs = html.match(/window\.recordSale=function[\s\S]*?^\};/m);
+      if (!rs) add(g, 'fail', 'lease.html', null, 'recordSale missing');
+      else if (!/mode!=='admin'|mode!=="admin"/.test(rs[0]))
+        add(g, 'fail', 'lease.html', null, 'recordSale must be admin-only');
+      /* file-only surfaces: entry / returned payment / renewal /
+         guarantor release never reach the feed */
+      for (const fn of ['postEntry', 'markReturned', 'offerRenewal', 'renewalDecide', 'reqGuarRel', 'guarRelDecide']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (fb && /wires\.push/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
+      }
+    }
+    /* v96 additions — the counter-paper layer: lease assignment
+       (clean-ledger hand-off, deposit carries, file-only), buyout
+       offers (active-only, 30-day re-offer cooldown, BUYOUT code),
+       prepaid rent credit (3-mo cap, draws down on the 1st), and the
+       rental history letter (one dated abstract per tenancy) */
+    if (LJ.version >= 96) {
+      if (LJ.demo_seed.storage_key !== 'rw_lease_v96')
+        add(g, 'fail', 'leases.json', null, 'v96 schema on an old storage key');
+      for (const [re, label] of [
+        [/assignment/i, 'lease assignment flow'],
+        [/buyout|cash-for-keys/i, 'buyout offer surface'],
+        [/prepaid/i, 'prepaid rent credit'],
+        [/rental history/i, 'rental history letter'],
+        [/BUYOUT/i, 'BUYOUT ledger code']
+      ]) if (!re.test(html)) add(g, 'fail', 'lease.html', null, `v96 surface missing: ${label}`);
+      if (!LJ.assignments || !LJ.buyouts || !LJ.prepaid_rent || !LJ.history_letter)
+        add(g, 'fail', 'leases.json', null, 'v96 blocks missing (assignments/buyouts/prepaid_rent/history_letter)');
+      if (!/active only/.test(LJ.buyouts && LJ.buyouts.offerable_when || ''))
+        add(g, 'fail', 'leases.json', null, 'buyouts must be offerable in good standing (active) only');
+      if ((LJ.buyouts.cooldown || '').indexOf('30') < 0)
+        add(g, 'fail', 'leases.json', null, 'buyout re-offer cooldown drifted');
+      for (const nm of ['buyout_offers', 'assignments', 'prepayments', 'history_letters'])
+        if (!LJ.feed_wording.never.includes(nm))
+          add(g, 'fail', 'leases.json', null, `feed_wording.never missing "${nm}" — v96 paper is file-only`);
+      /* own-unit guards on the new licensed tools */
+      for (const fn of ['assignDecide', 'offerBuyout']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (!fb) add(g, 'fail', 'lease.html', null, `${fn} missing`);
+        else if (!/myUnit/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} lacks the own-unit guard`);
+      }
+      /* file-only surfaces: assignment / buyout offer / prepay /
+         history letter never reach the feed (buyoutDecide may post the
+         neutral turnover line — the generic tx: scan gates its wording) */
+      for (const fn of ['reqAssign', 'assignDecide', 'offerBuyout', 'prepayMonth', 'reqHistLetter']) {
+        const fb = html.match(new RegExp('window\\.' + fn + '=function[\\s\\S]*?^\\};', 'm'));
+        if (fb && /wires\.push/.test(fb[0]))
+          add(g, 'fail', 'lease.html', null, `${fn} posts to the feed — file-only by contract`);
+      }
+      /* clean-ledger gate on assignment + 3-month prepaid cap */
+      const ra = html.match(/window\.reqAssign=function[\s\S]*?^\};/m);
+      if (ra && !/bal>0/.test(ra[0]))
+        add(g, 'fail', 'lease.html', null, 'reqAssign lacks the clean-ledger gate');
+      const pm = html.match(/window\.prepayMonth=function[\s\S]*?^\};/m);
+      if (pm && !/3\*l\.rent/.test(pm[0]))
+        add(g, 'fail', 'lease.html', null, 'prepayMonth lacks the three-month cap');
     }
     g.detail = `schema v${LJ.version} · ${declared.size} states · key ${LJ.demo_seed.storage_key}`;
   } catch (e) { add(g, 'fail', 'leases.json', null, 'parse/check failure: ' + e.message); }
@@ -861,6 +1271,132 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST55)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v55 copy: ${label}`);
+    /* ---- v69 long-outage pass ---- */
+    for (const blk of ['wake_parity', 'outage_rotation', 'scene_yield', 'blackout_floor'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v69 block "${blk}" missing`);
+    if (TJ.outage_rotation) {
+      if (TJ.outage_rotation.tolerance !== 1)
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation.tolerance drifted from Δ≤1');
+      if (!/not a recovery/.test(TJ.outage_rotation.swap_is_not_recovery || ''))
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation lost the swap-is-not-recovery rule');
+      if (!/deg_min/.test(TJ.outage_rotation.credit || ''))
+        add(g, 'fail', 'thinai.json', null, 'outage_rotation lost the deg_min credit ledger');
+    }
+    if (TJ.blackout_floor && TJ.blackout_floor.at_pct !== 0)
+      add(g, 'fail', 'thinai.json', null, 'blackout_floor.at_pct drifted from 0');
+    if (TJ.wake_parity && !/own (time|day)/.test(TJ.wake_parity.rule || ''))
+      add(g, 'fail', 'thinai.json', null, 'wake_parity lost the thin-time-is-their-own-day rule');
+    const CLS = TJ.co_star && TJ.co_star.ask_classes || {};
+    for (const c of ['be-present', 'hold-space', 'walk-with', 'carry-item'])
+      if (!CLS[c] || !CLS[c].bounds || !CLS[c].veto)
+        add(g, 'fail', 'thinai.json', null, `co_star.ask_classes.${c} missing bounds/veto`);
+    if (!/never improvises/.test(TJ.co_star?.closed_taxonomy || ''))
+      add(g, 'fail', 'thinai.json', null, 'co_star closed-taxonomy rule missing');
+    if (!TJ.phrase_kit?.repetition_guard)
+      add(g, 'fail', 'thinai.json', null, 'phrase_kit.repetition_guard missing');
+    for (const ev of ['service_0', 'scene_c6'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v69 surfaces */
+    const MUST69 = [
+      [/deg_min|degMin/, 'outage-credit ledger'],
+      [/rotation swap/, 'rotation swap seam line'],
+      [/scene-yield/, 'scene-yield posture chip'],
+      [/blackout/, 'blackout floor copy'],
+      [/first beat back|first beat/i, 'wake-parity first-beat copy'],
+      [/repetition guard/i, 'phrase-kit repetition guard'],
+      [/be-present|hold-space|walk-with|carry-item/, 'co-star ask classes']
+    ];
+    for (const [re, label] of MUST69)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v69 copy: ${label}`);
+    /* ---- v83 fallback-surface pass ---- */
+    for (const blk of ['surface_fallback', 'requests_under_degrade', 'quiet_week', 'surface_recovery'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v83 block "${blk}" missing`);
+    if (TJ.surface_fallback) {
+      const P = TJ.surface_fallback.postures || {};
+      for (const k of ['unaffected', 'hold', 'static'])
+        if (!Array.isArray(P[k]) || !P[k].length)
+          add(g, 'fail', 'thinai.json', null, `surface_fallback.postures.${k} missing/empty`);
+      if (!/never auto-write|never auto-generate/i.test((P.hold || []).join(' ')))
+        add(g, 'fail', 'thinai.json', null, 'hold posture lost the no-auto-write rule');
+    }
+    if (TJ.requests_under_degrade) {
+      const R = TJ.requests_under_degrade;
+      if (!/routine-fit/.test(R.routine_fit || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade lost the routine-fit gate');
+      if (!/declined/.test(R.decline || '') || !/50%/.test(R.decline || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade decline lost resolved·declined + 50% refund');
+      if (!/unpossessable/.test(R.ban_unchanged || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade lost the possession ban');
+    }
+    if (TJ.quiet_week) {
+      if (TJ.quiet_week.boundary_jitter_min !== 15)
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.boundary_jitter_min drifted from ±15');
+      if (!/deterministic/.test(TJ.quiet_week.day_hash || ''))
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.day_hash lost the deterministic rule');
+      if (!(TJ.quiet_week.never_jittered || []).join(' ').match(/obligation/))
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.never_jittered must protect obligation minutes');
+    }
+    if (TJ.surface_recovery && !/≤1 per daypart|≤1\/daypart/.test(TJ.surface_recovery.press_trickle || ''))
+      add(g, 'fail', 'thinai.json', null, 'surface_recovery lost the ≤1/daypart press trickle');
+    for (const ev of ['req_c6_fit', 'req_c6_off'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v83 surfaces */
+    const MUST83 = [
+      [new RegExp((TJ.demo.storage_key || 'rw_thinai_v83').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'demo storage key'],
+      [/Surface fallback/i, 'surface-fallback panel'],
+      [/routine-fit/i, 'routine-fit request rule'],
+      [/posture-only/i, 'posture-only accept copy'],
+      [/jitter/i, 'quiet-week jitter copy'],
+      [/pressHeld/, 'held press backlog counter'],
+      [/honest absence beats filler/i, 'no-filler rule']
+    ];
+    for (const [re, label] of MUST83)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v83 copy: ${label}`);
+    /* ---- v97 encounter-layer pass ---- */
+    for (const blk of ['thin_encounters', 'player_contact', 'world_requests'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v97 block "${blk}" missing`);
+    if (TJ.thin_encounters) {
+      if (!/at least one full brain or one player/.test(TJ.thin_encounters.scene_rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'thin_encounters lost the scene-needs-a-live-mind rule');
+      if (!/reflex flag|per-card reflex/.test(TJ.thin_encounters.familiarity_floor || ''))
+        add(g, 'fail', 'thinai.json', null, 'thin_encounters familiarity floor must stay a reflex flag, never a relationship write');
+    }
+    if (TJ.player_contact) {
+      if (!/never on being spoken to|never from being spoken to|presence/.test(TJ.player_contact.attention_rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact lost the attention-can\'t-wake rule');
+      if (!/deflect/.test(TJ.player_contact.register || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact register lost the deflect path');
+      if (!/keeps no record|no record/.test(TJ.player_contact.memory || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact lost the no-thin-side-memory rule');
+    }
+    if (TJ.world_requests) {
+      const C = TJ.world_requests.classes || {};
+      for (const c of ['world-bound', 'thin-bounded', 'brain-bound', 'possession'])
+        if (!C[c]) add(g, 'fail', 'thinai.json', null, `world_requests.classes.${c} missing`);
+      if (C['world-bound'] && C['world-bound'].needs_brain !== false)
+        add(g, 'fail', 'thinai.json', null, 'world-bound class must declare needs_brain:false — it was never a model product');
+      if (!/50%/.test((C['brain-bound'] || {}).at_zero_pct || ''))
+        add(g, 'fail', 'thinai.json', null, 'brain-bound decline lost the 50% auto-refund');
+      if (!/brain-bound/.test(TJ.world_requests.declaration || ''))
+        add(g, 'fail', 'thinai.json', null, 'undeclared kinds must default to brain-bound');
+    }
+    for (const ev of ['encounter_a15', 'player_press_a01', 'wx_rain_req', 'scene_req_thin'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v97 surfaces */
+    const MUST97 = [
+      [/rw_thinai_v97/, 'v97 storage key'],
+      [/nod economy/i, 'thin-to-thin nod-economy copy'],
+      [/who's awake in the room/i, 'encounter panel — live-mind count'],
+      [/world-bound/i, 'world-bound request class'],
+      [/needs ≥1 live mind|at least one full brain or one player/i, 'scene needs a live mind'],
+      [/are you AI\?/, 'seam-probe deflect copy'],
+      [/presence, not a scene partner|presence, not depth/i, 'paid-minutes-buy-presence copy']
+    ];
+    for (const [re, label] of MUST97)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v97 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
@@ -878,6 +1414,9 @@ const PUB = Object.values(PT.surfaces)
       '## Wants (three clocks)', '## The cast, privately',
       '## Truth and lies',
       '## Money', '## Alone', '## Edges',
+      '## A good day / a bad day', '## Keepsakes',
+      '## Listening', '## The day off', '## Repairs',
+      '## Weather', '## Being helped',
       '## Public profile', '## Surface relationships', '## Daily routine',
       '## SECRETS & SEEDS'];
     const IDS = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8'];
@@ -924,7 +1463,7 @@ const PUB = Object.values(PT.surfaces)
       if (iKeys !== others)
         add(g, 'fail', 'characters.json', null, `${id}: interior keys ${iKeys} != ${others}`);
       /* new v28/v42/v56 fields stay observable-safe: no seed vocabulary */
-      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges'])
+      for (const k of ['backstory_brief', 'room', 'strangers', 'truth', 'money', 'alone', 'edges', 'good_day', 'bad_day', 'keepsakes', 'listening', 'day_off', 'repairs', 'weather', 'helped'])
         if (c[k] && /secret|seed|briefing|never tell/i.test(c[k]))
           add(g, 'fail', 'characters.json', null, `${id}.${k}: meta/seed vocabulary in an observable field`);
       const extra = JSON.stringify([w, c.interior || {}]);
@@ -940,13 +1479,27 @@ const PUB = Object.values(PT.surfaces)
       if (htmlIds !== IDS.join(','))
         add(g, 'fail', 'cast.html', null, `CAST ids ${htmlIds} != ${IDS.join(',')}`);
       for (const c of CAST) {
-        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg'])
+        for (const k of ['back', 'room', 'strg', 'prof', 'ties', 'rout', 'want', 'priv', 'trth', 'mny', 'aln', 'edg', 'day', 'keep', 'lst', 'offd', 'rpr', 'wx', 'hlp'])
           if (!c[k]) add(g, 'fail', 'cast.html', null, `${c.id}: field "${k}" missing from card`);
         if (c.want && c.want.length !== 3)
           add(g, 'fail', 'cast.html', null, `${c.id}: want has ${c.want.length} clocks (need 3)`);
         if (c.priv && c.priv.length !== 7)
           add(g, 'fail', 'cast.html', null, `${c.id}: priv has ${c.priv.length} entries (need 7)`);
+        if (c.day && c.day.length !== 2)
+          add(g, 'fail', 'cast.html', null, `${c.id}: day has ${c.day.length} entries (need 2: good/bad)`);
+        if (c.keep && c.keep.length !== 3)
+          add(g, 'fail', 'cast.html', null, `${c.id}: keep has ${c.keep.length} keepsakes (need 3)`);
       }
+    }
+    /* v70 — ensemble.md exists and covers all 8 ids, seed-free */
+    const ens = 'characters/ensemble.md';
+    if (!fs.existsSync(path.join(W, ens))) add(g, 'fail', ens, null, 'ensemble bible missing');
+    else {
+      const em = rd(ens);
+      for (const id of IDS)
+        if (!em.includes(id)) add(g, 'fail', ens, null, `ensemble.md: ${id} absent`);
+      if (/SECRETS & SEEDS|detonating|money bomb|\$\d/i.test(em))
+        add(g, 'fail', ens, null, 'ensemble.md carries seed vocabulary — it is observable-safe only');
     }
     g.detail = `schema v${CJ.version} · ${(CJ.cast || []).length} mains · ${SECTIONS.length} required sections`;
   } catch (e) { add(g, 'fail', 'characters.json', null, 'parse/check failure: ' + e.message); }
@@ -1203,7 +1756,156 @@ const PUB = Object.values(PT.surfaces)
     for (const a of AMB.ambients)
       if (!(a.weather && a.weather.fog))
         add(g, 'fail', 'ambients.json', null, `${a.id}: no weather.fog answer — fog is the default SF condition, every card must respond`);
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered`;
+    /* v71: the civic year + posture palette — mirror + integrity */
+    const ANN = pull('ANNUAL', '{}'), POS = pull('POSTURES', '[]'), PLB = pull('PLABELS', '{}');
+    const jAnn = (CJ.annual_shades || {}).shades || [];
+    if (JSON.stringify(Object.keys(ANN).sort()) !== JSON.stringify(jAnn.map(s => s.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'ANNUAL keys != annual_shades ids');
+    const annIds = new Set(jAnn.map(s => s.id)), silh = new Set((CJ.appearance_palette || {}).silhouettes || []);
+    const DOWS = new Set(['mon','tue','wed','thu','fri','sat','sun']);
+    const winCheck = (sid, w) => {
+      for (const m of w.months || [])
+        if (!Number.isInteger(m) || m < 1 || m > 12) add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad month ${m}`);
+      if (w.dom && !(Array.isArray(w.dom) && w.dom.length === 2 && w.dom[0] >= 1 && w.dom[1] <= 31 && w.dom[0] <= w.dom[1]))
+        add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad dom range`);
+      for (const d of w.dow || [])
+        if (!DOWS.has(d)) add(g, 'fail', 'crowd.json', null, `annual ${sid}: bad dow "${d}"`);
+      if (w.nth != null && !w.dow) add(g, 'fail', 'crowd.json', null, `annual ${sid}: nth requires dow`);
+      for (const dp of w.dayparts || [])
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `annual ${sid}: unknown daypart "${dp}"`);
+    };
+    for (const s of jAnn) {
+      const wins = s.windows || (s.when ? [s.when] : []);
+      if (!wins.length) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: no window`);
+      wins.forEach(w => winCheck(s.id, w));
+      for (const z of Object.keys(s.zone_mult || {}))
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: unknown zone ${z}`);
+      for (const [dp, mm] of Object.entries(s.daypart_zone_mult || {})) {
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: unknown daypart ${dp}`);
+        for (const z of Object.keys(mm)) if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `annual ${s.id}.${dp}: unknown zone ${z}`);
+      }
+      for (const e of Object.keys(s.edge_mult || {}))
+        if (!flIds.has(e)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: edge_mult "${e}" is not a flow edge`);
+      for (const si of s.silhouette_hint || [])
+        if (!silh.has(si)) add(g, 'fail', 'crowd.json', null, `annual ${s.id}: silhouette_hint "${si}" not in appearance_palette`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(s)))
+        add(g, 'fail', 'crowd.json', null, `annual ${s.id}: meta vocabulary`);
+      const H = ANN[s.id];
+      if (H && JSON.stringify(H.zone_mult || null) !== JSON.stringify(s.zone_mult || null))
+        add(g, 'fail', 'crowd.html', null, `ANNUAL.${s.id}.zone_mult drifted`);
+    }
+    for (const s of CJ.scenes)
+      if (s.when && s.when.annual && !annIds.has(s.when.annual))
+        add(g, 'fail', 'crowd.json', null, `scene ${s.id}: unknown annual "${s.when.annual}"`);
+    for (const e of CJ.micro_events.events) {
+      for (const m of (e.when || {}).months || [])
+        if (!Number.isInteger(m) || m < 1 || m > 12) add(g, 'fail', 'crowd.json', null, `micro ${e.id}: bad month ${m}`);
+      if (e.when && e.when.dom && !(e.when.dom[0] <= e.when.dom[1]))
+        add(g, 'fail', 'crowd.json', null, `micro ${e.id}: bad dom range`);
+    }
+    /* posture palette: ids mirror, kinds legal, labels cover every state,
+       pair postures flagged — honest idle vocabulary under audit */
+    const jPos = (CJ.posture_palette || {}).postures || [];
+    if (JSON.stringify(POS.map(p => p.id).sort()) !== JSON.stringify(jPos.map(p => p.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'POSTURES ids != posture_palette ids');
+    const kinds = new Set(Object.values(CJ.zones).map(z => z.kind));
+    for (const p of jPos) {
+      for (const k of p.kinds || [])
+        if (!kinds.has(k)) add(g, 'fail', 'crowd.json', null, `posture ${p.id}: unknown zone kind "${k}"`);
+      if (!p.id || !p.read) add(g, 'fail', 'crowd.json', null, `posture missing id/read`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(p)))
+        add(g, 'fail', 'crowd.json', null, `posture ${p.id}: meta vocabulary`);
+    }
+    const jLbl = (CJ.posture_palette || {}).labels || {};
+    for (const st of [...LEGAL_ST, 'talk', 'queue', 'transit'])
+      if (!jLbl[st]) add(g, 'fail', 'crowd.json', null, `posture_palette.labels missing "${st}" — no state may fall back to a lie`);
+    for (const st of Object.keys(jLbl)) if (!PLB[st])
+      add(g, 'fail', 'crowd.html', null, `PLABELS missing "${st}"`);
+    /* v85: the company layer + counter courtesies — mirror + integrity */
+    const GP = CJ.group_profile || {}, GMX = pull('GMIX', '{}'), CTY = pull('COURTESY', '[]');
+    const mixOk = m => m && ['lone','duo','cluster'].every(k => typeof m[k] === 'number' && m[k] >= 0) &&
+      (m.lone + m.duo + m.cluster) > 0.999 && (m.lone + m.duo + m.cluster) < 1.001;
+    for (const [k, m] of Object.entries(GP.kind_mix || {})) {
+      if (!kinds.has(k)) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix: unknown zone kind "${k}"`);
+      if (!mixOk(m)) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix.${k}: weights don't sum to 1`);
+    }
+    for (const k of kinds)
+      if (GP.kind_mix && !GP.kind_mix[k]) add(g, 'fail', 'crowd.json', null, `group_profile.kind_mix missing kind "${k}" — every zone kind needs a social grammar`);
+    for (const [d, m] of Object.entries(GP.daypart_mix || {})) {
+      if (!dpIds.includes(d)) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix: unknown daypart "${d}"`);
+      if (!mixOk(m)) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix.${d}: weights don't sum to 1`);
+      if ((d === 'overnight' || d === 'predawn') && m.cluster > 0)
+        add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix.${d}: clusters before dawn read wrong — lone-only by construction`);
+    }
+    for (const d of dpIds)
+      if (GP.daypart_mix && !GP.daypart_mix[d]) add(g, 'fail', 'crowd.json', null, `group_profile.daypart_mix missing daypart "${d}"`);
+    /* family shape: kid-scale only inside clusters, never bar/overnight/night */
+    const famKinds = Object.keys(GP.family_share || {});
+    for (const k of famKinds)
+      if (k === 'bar' || !kinds.has(k)) add(g, 'fail', 'crowd.json', null, `group_profile.family_share: illegal kind "${k}"`);
+    if (!/never bar/.test((GP.shapes || {}).family || '') || !/never.*(overnight|night)/.test((GP.shapes || {}).family || ''))
+      add(g, 'fail', 'crowd.json', null, 'group_profile.shapes.family lost the bar/overnight safeguards');
+    if (!(CJ.appearance_palette || {}).silhouettes.includes('kid-backpack'))
+      add(g, 'fail', 'crowd.json', null, 'kid-backpack missing from appearance_palette — the family shape has no kid-scale vocabulary');
+    if (JSON.stringify(GMX.kind || {}) !== JSON.stringify(GP.kind_mix || {}) ||
+        JSON.stringify(GMX.dp || {}) !== JSON.stringify(GP.daypart_mix || {}) ||
+        JSON.stringify(GMX.fam || {}) !== JSON.stringify(GP.family_share || {}))
+      add(g, 'fail', 'crowd.html', null, 'GMIX mirror drifted from group_profile');
+    /* courtesies: ids mirror, ambients real + non-minor, zones real, states legal, no meta vocab */
+    const jCty = (CJ.courtesies || {}).beats || [];
+    if (JSON.stringify(CTY.map(c => c.id).sort()) !== JSON.stringify(jCty.map(c => c.id).sort()))
+      add(g, 'fail', 'crowd.html', null, 'COURTESY ids != courtesies.beats ids');
+    for (const b of jCty) {
+      const amb = AMB.ambients.find(a => a.id === b.amb);
+      if (!amb) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: "${b.amb}" is not an ambient`);
+      if (amb && amb.minor) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: minors have no counter — ${b.amb} may not staff a beat`);
+      for (const z of b.zones || [])
+        if (!CJ.zones[z]) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: unknown zone "${z}"`);
+      for (const st of b.during || [])
+        if (!LEGAL_ST.has(st)) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: during state "${st}" not in declared states`);
+      if (!b.form || /secret|seed|briefing|must_not_know/i.test(JSON.stringify(b)))
+        add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: missing form or meta vocabulary`);
+      const H = CTY.find(x => x.id === b.id);
+      if (H && (H.amb !== b.amb || JSON.stringify(H.z.sort()) !== JSON.stringify([...b.zones].sort())))
+        add(g, 'fail', 'crowd.html', null, `COURTESY ${b.id}: amb/zone drifted`);
+    }
+    /* v99: the bench layer — pull_protocol sanity + coverage mirror */
+    const PP = CJ.pull_protocol || {}, CVH = pull('COVERAGE', '{}'), PLH = pull('PULL', '{}');
+    if (!Array.isArray(PP.window_min) || PP.window_min[0] > PP.window_min[1])
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.window_min bad or missing');
+    if (!PP.capacity || !(PP.capacity.per_ambient_per_day >= 1) || !(PP.capacity.concurrent_block_max >= 1) || !(PP.capacity.cooldown_min >= 0))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.capacity incomplete — the loan needs bounds');
+    if (!/A04/.test(PP.minors || '') || !/A20/.test(PP.minors || ''))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.minors must name A04 and A20 — the pack is never pullable');
+    if (!/never|no event|invisible/i.test(PP.feed || ''))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.feed lost the wire-invisibility clause');
+    if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(PP)))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol carries meta vocabulary');
+    const jCov = CJ.coverage || {};
+    if (JSON.stringify(Object.keys(jCov).sort()) !== JSON.stringify(jA))
+      add(g, 'fail', 'crowd.json', null, 'coverage keys != roster ids — every ambient needs an absence surface');
+    const COVK = new Set(['understudy', 'sign', 'open', 'pack']);
+    for (const [id, c] of Object.entries(jCov)) {
+      const amb = AMB.ambients.find(a => a.id === id);
+      if (!COVK.has(c.kind)) add(g, 'fail', 'crowd.json', null, `coverage ${id}: kind "${c.kind}" not in understudy|sign|open|pack`);
+      if (!c.post || !c.read) add(g, 'fail', 'crowd.json', null, `coverage ${id}: missing post/read — the post must say something honest`);
+      if (!['extra', 'none'].includes(c.understudy)) add(g, 'fail', 'crowd.json', null, `coverage ${id}: understudy "${c.understudy}" must be extra|none`);
+      if (amb && amb.minor && c.kind !== 'pack') add(g, 'fail', 'crowd.json', null, `coverage ${id}: a minor's only kind is pack — never pullable`);
+      if (amb && !amb.minor && c.kind === 'pack') add(g, 'fail', 'crowd.json', null, `coverage ${id}: pack is minors-only vocabulary`);
+      if (c.kind === 'understudy' && c.understudy !== 'extra') add(g, 'fail', 'crowd.json', null, `coverage ${id}: understudy kind without an extra fill`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(c)))
+        add(g, 'fail', 'crowd.json', null, `coverage ${id}: meta vocabulary in absence surface`);
+      const H = CVH[id];
+      if (H && (H.post !== c.post || H.kind !== c.kind || H.read !== c.read))
+        add(g, 'fail', 'crowd.html', null, `COVERAGE ${id} drifted from crowd.json`);
+    }
+    for (const id of jA) if (!CVH[id]) add(g, 'fail', 'crowd.html', null, `COVERAGE ${id} missing from the mirror`);
+    if (JSON.stringify(PLH.win || []) !== JSON.stringify(PP.window_min || []) ||
+        PLH.cap !== (PP.capacity || {}).per_ambient_per_day ||
+        PLH.conc !== (PP.capacity || {}).concurrent_block_max ||
+        PLH.cool !== (PP.capacity || {}).cooldown_min)
+      add(g, 'fail', 'crowd.html', null, 'PULL mirror drifted from pull_protocol');
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -1407,6 +2109,362 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'regulars.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G15c menus ============ */
+{
+  const g = gate('menus', 'menu catalog contract (menus.json ↔ menus.html; doors only; board-price agreement; game dollars only)');
+  try {
+    const MNU = JSONF('menus.json');
+    const html = rd('menus.html');
+    const m = html.match(/const MENUS\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline MENUS not found in menus.html');
+    const MI = eval('(' + m[1] + ')');
+    if (MI.version !== MNU.version)
+      add(g, 'fail', 'menus.html', null, `MENUS version ${MI.version} != menus.json ${MNU.version}`);
+    for (const k of ['cat_keys', 'when_keys', 'names', 'menus'])
+      if (JSON.stringify(MI[k] ?? null) !== JSON.stringify(MNU[k] ?? null))
+        add(g, 'fail', 'menus.html', null, `MENUS.${k} drifted from menus.json`);
+    const BJ = JSONF('businesses.json');
+    const SFJ = JSONF('storefronts.json');
+    const DOOR = new Set(['anchor', 'street']);
+    const cats = new Set(Object.keys(MNU.cat_keys || {}));
+    const whens = new Set(Object.keys(MNU.when_keys || {}));
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const mIds = new Set(Object.keys(MNU.menus || {}));
+    for (const b of BJ.businesses) {
+      if (DOOR.has(b.tier) && !mIds.has(b.id))
+        add(g, 'fail', 'menus.json', null, `${b.id} (${b.tier}) has a door but no menu`);
+      if (!DOOR.has(b.tier) && mIds.has(b.id))
+        add(g, 'fail', 'menus.json', null, `${b.id} (${b.tier}) carries a menu — doors only`);
+      if ((MNU.names || {})[b.id] && MNU.names[b.id] !== b.name)
+        add(g, 'fail', 'menus.json', null, `${b.id}: names "${MNU.names[b.id]}" != registry "${b.name}"`);
+    }
+    let nItems = 0;
+    for (const id of mIds) {
+      if (!BJ.businesses.some(b => b.id === id)) { add(g, 'fail', 'menus.json', null, `menu "${id}" is not a business`); continue; }
+      if (!(MNU.names || {})[id]) add(g, 'fail', 'menus.json', null, `${id}: names map missing entry`);
+      const items = ((MNU.menus[id] || {}).items) || [];
+      nItems += items.length;
+      if (items.length < 4) add(g, 'fail', 'menus.json', null, `${id}: ${items.length} items — minimum 4`);
+      if (!items.some(i => i.sig)) add(g, 'fail', 'menus.json', null, `${id}: no signature item`);
+      for (const it of items) {
+        const tag = `${id}:${it.name}`;
+        if (!it.name || typeof it.name !== 'string') add(g, 'fail', 'menus.json', null, `${id}: unnamed item`);
+        if (!((typeof it.price === 'number' && it.price >= 0) || it.price === 'ask'))
+          add(g, 'fail', 'menus.json', null, `${tag}: price must be a number ≥ 0 or "ask"`);
+        if (!cats.has(it.cat)) add(g, 'fail', 'menus.json', null, `${tag}: cat "${it.cat}" not in cat_keys`);
+        if (it.when != null && !whens.has(it.when))
+          add(g, 'fail', 'menus.json', null, `${tag}: when "${it.when}" not in when_keys`);
+        for (const s of [it.name, it.note])
+          for (const re of BANNED)
+            if (re.test(String(s))) add(g, 'fail', 'menus.json', null, `${tag}: "${s}" banned vocab (${re})`);
+      }
+    }
+    for (const id of Object.keys(MNU.names || {}))
+      if (!BJ.businesses.some(b => b.id === id)) add(g, 'fail', 'menus.json', null, `names key "${id}" is not a business`);
+    /* board agreement: a menu item named on the storefront board carries the
+       same price — the chalk and the ledger never disagree */
+    for (const id of mIds) {
+      const board = (((SFJ.storefronts || {})[id] || {}).board) || [];
+      for (const line of board) {
+        const mm = String(line).match(/^(.*?)\s+(?:≈\s*)?(\d+(?:\.\d+)?)\s*(?:\+|\/lb|$)/);
+        if (!mm) continue;
+        const lname = mm[1].replace(/\s*—.*$/, '').trim().toLowerCase();
+        const lprice = +mm[2];
+        for (const it of ((MNU.menus[id] || {}).items) || []) {
+          if (String(it.name).toLowerCase() !== lname) continue;
+          if (it.price === 'ask')
+            add(g, 'fail', 'menus.json', null, `${id}: "${it.name}" priced ${lprice} on board but "ask" on menu`);
+          else if (it.price !== lprice)
+            add(g, 'fail', 'menus.json', null, `${id}: "${it.name}" menu ${it.price} != board ${lprice}`);
+        }
+      }
+    }
+    /* credit figures never appear in this layer */
+    const mtxt = rd('menus.json');
+    for (const mm of mtxt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+      add(g, 'fail', 'menus.json', null, `credit figure in menu layer: "${mm[0]}"`);
+    g.detail = `schema v${MNU.version} · ${mIds.size} menus · ${nItems} items`;
+  } catch (e) { add(g, 'fail', 'menus.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15e supply ============ */
+{
+  const g = gate('supply', 'supply layer contract (suppliers.json ↔ supply.html; door coverage; window rules; no prices)');
+  try {
+    const SJ = JSONF('suppliers.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('supply.html');
+    const m = html.match(/const SUP\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline SUP not found in supply.html');
+    const SUP = eval('(' + m[1] + ')');
+    const DOWS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const DOOR = new Set(['anchor', 'street']);
+    const ids = new Set(BJ.businesses.map(b => b.id));
+    const doors = new Map(BJ.businesses.filter(b => DOOR.has(b.tier)).map(b => [b.id, b]));
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)\b/i;
+    /* inline mirror: SUP must field-match suppliers.json */
+    if (SUP.version !== SJ.version)
+      add(g, 'fail', 'supply.html', null, `SUP version ${SUP.version} != ${SJ.version}`);
+    for (const k of ['suppliers', 'runs', 'exempt', 'street_texture', 'feed_shapes', 'rules'])
+      if (JSON.stringify(SUP[k] ?? null) !== JSON.stringify(SJ[k] ?? null))
+        add(g, 'fail', 'supply.html', null, `SUP.${k} drifted from suppliers.json`);
+    /* suppliers: parody-named offstage vendors — unique names, no registry
+       collision, no cast staff, no price talk anywhere */
+    const sids = new Set(), snames = new Set(), bnames = new Set(BJ.businesses.map(b => b.name));
+    const sTxt = JSON.stringify({ s: SJ.suppliers, r: SJ.runs });
+    for (const mm of sTxt.matchAll(/\$\s?\d|\bcredit|\bUSD\b/gi))
+      add(g, 'fail', 'suppliers.json', null, `price/credit figure in supply layer: "${mm[0]}"`);
+    for (const [id, s] of Object.entries(SJ.suppliers || {})) {
+      sids.add(id);
+      if (ids.has(id)) add(g, 'fail', 'suppliers.json', null, `${id}: supplier id collides with a registry business`);
+      if (snames.has(s.name)) add(g, 'fail', 'suppliers.json', null, `${id}: duplicate supplier name "${s.name}"`);
+      snames.add(s.name);
+      if (bnames.has(s.name)) add(g, 'fail', 'suppliers.json', null, `${id}: supplier name "${s.name}" collides with a business`);
+      for (const f of ['name', 'kind', 'base', 'vehicle', 'note'])
+        if (!s[f]) add(g, 'fail', 'suppliers.json', null, `${id}: missing "${f}"`);
+      for (const v of Object.values(s))
+        if (CASTID.test(String(v))) add(g, 'fail', 'suppliers.json', null, `${id}: cast id in supplier field — suppliers are offscreen labor`);
+    }
+    /* runs: supplier real, doors only, days valid + venue open, window
+       intersects [open-3, close] (pre-open drops allowed ≤3h) */
+    const openFor = (v, d) => {
+      const h = (v.hours || {})[['sat', 'sun'].includes(d) ? 'weekend' : 'weekday'];
+      if (!h) return null;
+      const dd = (v.hours || {}).days;
+      if (dd && !dd.includes(d)) return null;
+      return h;
+    };
+    let nRuns = 0;
+    for (const r of SJ.runs || []) {
+      nRuns++;
+      const tag = `${r.supplier}→${(r.to || []).join('+')}`;
+      if (!sids.has(r.supplier)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: unknown supplier`);
+      if (!Array.isArray(r.to) || !r.to.length) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: empty to[]`); continue; }
+      for (const id of r.to) {
+        if (!ids.has(id)) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: "${id}" is not a business`); continue; }
+        if (!doors.has(id)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: "${id}" has no door — runs deliver to door tiers only`);
+      }
+      if (!Array.isArray(r.days) || !r.days.length) add(g, 'fail', 'suppliers.json', null, `run ${tag}: empty days[]`);
+      else for (const d of r.days) if (!DOWS.includes(d)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: day "${d}" invalid`);
+      const [a, b] = r.hours || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: bad window ${JSON.stringify(r.hours)}`);
+      else for (const id of r.to || []) {
+        const v = doors.get(id); if (!v) continue;
+        for (const d of r.days || []) {
+          if (!DOWS.includes(d)) continue;
+          const h = openFor(v, d);
+          if (!h) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: ${id} is closed on ${d}`); continue; }
+          if (!(b >= h[0] - 3 && a <= h[1]))
+            add(g, 'fail', 'suppliers.json', null, `run ${tag}: ${id} ${d} window misses [open-3h, close] ${JSON.stringify(h)}`);
+        }
+      }
+      for (const f of ['drop', 'note'])
+        if (r[f] && CASTID.test(r[f])) add(g, 'fail', 'suppliers.json', null, `run ${tag}: cast id in "${f}"`);
+    }
+    /* coverage: every door venue fed, minus declared exemptions */
+    const fed = new Set((SJ.runs || []).flatMap(r => r.to || []));
+    for (const id of doors.keys())
+      if (!fed.has(id) && !(SJ.exempt || {})[id])
+        add(g, 'fail', 'suppliers.json', null, `door "${id}" has no supply run and no exemption`);
+    for (const id of Object.keys(SJ.exempt || {}))
+      if (!doors.has(id)) add(g, 'fail', 'suppliers.json', null, `exempt "${id}" is not a door venue`);
+    /* feed shapes stay inside the 'venue' vocabulary */
+    if ((SJ.feed_shapes || {}).kind !== 'venue')
+      add(g, 'fail', 'suppliers.json', null, 'feed_shapes.kind must be "venue" — a truck is a crowd-level note');
+    for (const l of (SJ.feed_shapes || {}).lines || [])
+      if (!/\{venue\}/.test(l)) add(g, 'fail', 'suppliers.json', null, `feed shape lacks {venue}: "${l.slice(0, 60)}"`);
+    g.detail = `schema v${SJ.version} · ${sids.size} suppliers · ${nRuns} runs · ${fed.size}/${doors.size} doors fed`;
+  } catch (e) { add(g, 'fail', 'suppliers.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15f perm — the paper layer (v100) ============ */
+{
+  const g = gate('perm', 'paper layer contract (permits.json ↔ permit.html; doors only; kind/status keys; liquor+score placement; lineage rule; no people, no money)');
+  try {
+    const PJ = JSONF('permits.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('permit.html');
+    const m = html.match(/const PERM\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline PERM not found in permit.html');
+    const PI = eval('(' + m[1] + ')');
+    const DOOR = new Set(['anchor', 'street']);
+    const doors = BJ.businesses.filter(b => DOOR.has(b.tier));
+    const doorIds = new Set(doors.map(b => b.id));
+    const nameOf = Object.fromEntries(BJ.businesses.map(b => [b.id, b.name]));
+    /* inline mirror: PERM must field-match permits.json */
+    if (PI.version !== PJ.version)
+      add(g, 'fail', 'permit.html', null, `PERM version ${PI.version} != permits.json ${PJ.version}`);
+    for (const k of ['paper_keys', 'status_keys', 'rules', 'walls'])
+      if (JSON.stringify(PI[k] ?? null) !== JSON.stringify(PJ[k] ?? null))
+        add(g, 'fail', 'permit.html', null, `PERM.${k} drifted from permits.json`);
+    const kinds = new Set(Object.keys(PJ.paper_keys || {}));
+    const stats = new Set(Object.keys(PJ.status_keys || {}));
+    const R = PJ.rules || {};
+    const LIQ = new Set(R.liquor_venues || []);
+    const FOOD = new Set(R.food_venues || []);
+    const [sLo, sHi] = R.score_range || [70, 100];
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)\b/i;
+    const BANNED = [/unfiltered/i, /\bsecret/i, /possess/i, /\bcredit/i, /\$\s?\d/, /\bUSD\b/i];
+    /* doors-only coverage, both directions */
+    for (const id of doorIds)
+      if (!PJ.walls[id]) add(g, 'fail', 'permits.json', null, `${id} has a door but no permit wall`);
+    for (const id of Object.keys(PJ.walls || {}))
+      if (!doorIds.has(id)) add(g, 'fail', 'permits.json', null, `wall "${id}" is not a door-tier business`);
+    /* rules venue lists must resolve to door ids */
+    for (const [lk, lst] of [['liquor_venues', LIQ], ['food_venues', FOOD]])
+      for (const id of lst)
+        if (!doorIds.has(id)) add(g, 'fail', 'permits.json', null, `rules.${lk} "${id}" is not a door venue`);
+    let nPapers = 0, nFormer = 0, nGhost = 0, nPend = 0;
+    for (const [id, w] of Object.entries(PJ.walls || {})) {
+      if (!Array.isArray(w.papers) || !w.papers.length)
+        add(g, 'fail', 'permits.json', null, `${id}: empty papers — every door hangs something`);
+      for (const p of w.papers || []) {
+        nPapers++;
+        const tag = `${id}.${p.kind}`;
+        if (!kinds.has(p.kind)) add(g, 'fail', 'permits.json', null, `${tag}: paper kind not in paper_keys`);
+        if (!p.text) add(g, 'fail', 'permits.json', null, `${tag}: no text`);
+        const st = p.status || 'posted';
+        if (!stats.has(st)) add(g, 'fail', 'permits.json', null, `${tag}: status "${st}" not in status_keys`);
+        if (st === 'pending') nPend++;
+        if (p.kind === 'liquor_license' && !LIQ.has(id))
+          add(g, 'fail', 'permits.json', null, `${tag}: liquor paper on a non-liquor venue`);
+        if (p.kind === 'health_score') {
+          if (!FOOD.has(id)) add(g, 'fail', 'permits.json', null, `${tag}: score card on a non-food venue`);
+          const sm = String(p.text).match(/score\s*(\d+)/i);
+          if (!sm || +sm[1] < sLo || +sm[1] > sHi)
+            add(g, 'fail', 'permits.json', null, `${tag}: score out of range ${sLo}–${sHi}: "${p.text}"`);
+        }
+        for (const re of BANNED)
+          if (re.test(String(p.text)))
+            add(g, 'fail', 'permits.json', null, `${tag}: "${p.text}" breaches the wall bar (${re})`);
+        if (CASTID.test(String(p.text)))
+          add(g, 'fail', 'permits.json', null, `${tag}: cast id in paper text — no people on the wall`);
+      }
+      /* lineage: former entries shaped, invented names != current name,
+         ghost sign requires a tenant to remember */
+      for (const f of w.former || []) {
+        nFormer++;
+        const tag = `${id}.former`;
+        if (!f.name || !f.years || !f.note)
+          add(g, 'fail', 'permits.json', null, `${tag}: needs name + years + note`);
+        if (f.name === nameOf[id])
+          add(g, 'fail', 'permits.json', null, `${tag}: "${f.name}" is the current tenant`);
+        if (!/^\d{4}(–\d{4})?$/.test(String(f.years)))
+          add(g, 'fail', 'permits.json', null, `${tag}: bad years "${f.years}"`);
+        if (CASTID.test(String(f.note)))
+          add(g, 'fail', 'permits.json', null, `${tag}: cast id in lineage note`);
+      }
+      if (w.ghost_sign) {
+        nGhost++;
+        if (!(w.former || []).length)
+          add(g, 'fail', 'permits.json', null, `${id}: ghost_sign with no former tenant — the wall remembers a tenant, not a rumor`);
+      }
+    }
+    g.detail = `schema v${PJ.version} · ${doorIds.size} walls · ${nPapers} papers · ${nPend} pending · ${nFormer} former · ${nGhost} ghost signs`;
+  } catch (e) { add(g, 'fail', 'permits.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15g homes — the household layer (v101) ============ */
+{
+  const g = gate('homes', 'household layer contract (homes.json ↔ homes.html HOMES mirror; unit_ids ⊆ registry; occupants ⊆ cast/lease ids; perks ⊆ jobs.json; vacant rows carry no occupants; no money, no secrets)');
+  try {
+    const HJ = JSONF('homes.json');
+    const JJ = JSONF('jobs.json');
+    const html = rd('homes.html');
+    const m = html.match(/const HOMES\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline HOMES not found in homes.html');
+    const HI = eval('(' + m[1] + ')');
+    /* inline mirror: HOMES must field-match homes.json */
+    if (HI.version !== HJ.version)
+      add(g, 'fail', 'homes.html', null, `HOMES version ${HI.version} != homes.json ${HJ.version}`);
+    for (const k of ['shapes', 'homes', 'vacant', 'ambient_ring', 'perks', 'rules'])
+      if (JSON.stringify(HI[k] ?? null) !== JSON.stringify(HJ[k] ?? null))
+        add(g, 'fail', 'homes.html', null, `HOMES.${k} drifted from homes.json`);
+    /* registry seed: parse the canonical JSON block in jobs-housing.md §3 */
+    const jh = rd('jobs-housing.md').match(/```json\n(\{[\s\S]*?\})\n```/);
+    if (!jh) throw new Error('registry seed block not found in jobs-housing.md');
+    const REG = JSON.parse(jh[1]);
+    const UNITS = new Set(REG.units.map(u => u.id));
+    const LEASEIDS = new Set(REG.leases.map(l => String(l.tenant_id)));
+    /* valid occupant ids: cast/ambient ids seen in jobs.json held_by,
+       plus the household lease ids the seed itself declares */
+    const IDS = new Set(LEASEIDS);
+    for (const j of JJ.jobs) {
+      const h = j.held_by;
+      (Array.isArray(h) ? h : h ? [h] : []).forEach(x => IDS.add(x));
+    }
+    const SHAPES = new Set(Object.keys(HJ.shapes || {}));
+    const TEXTF = ['rota', 'kitchen', 'quiet', 'guests', 'kit', 'fridge_note', 'showing', 'brings_home', 'note'];
+    const BANNED = [/unfiltered/i, /esperanza/i, /\bsecret/i, /possess/i, /\$\s?\d/, /\d[\d,]*\s*cr\b/, /unpermitted/i];
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)-[a-z]+\b/i;
+    const scan = (file, tag, s) => {
+      for (const re of BANNED)
+        if (re.test(s)) add(g, 'fail', file, null, `${tag}: "${String(s).slice(0, 70)}" breaches the surface bar (${re})`);
+    };
+    let nOcc = 0;
+    for (const h of HJ.homes || []) {
+      const tag = `homes.${h.unit_id}`;
+      if (!UNITS.has(h.unit_id)) add(g, 'fail', 'homes.json', null, `${tag}: not a registry unit`);
+      if (!SHAPES.has(h.shape)) add(g, 'fail', 'homes.json', null, `${tag}: shape "${h.shape}" not in shapes`);
+      if (h.shape === 'vacant') add(g, 'fail', 'homes.json', null, `${tag}: occupied homes never use the vacant shape`);
+      if (!Array.isArray(h.occupants) || !h.occupants.length)
+        add(g, 'fail', 'homes.json', null, `${tag}: occupied home needs occupants`);
+      for (const o of h.occupants || [])
+        if (!IDS.has(o)) { nOcc++; add(g, 'fail', 'homes.json', null, `${tag}: occupant "${o}" is not a cast/lease id`); }
+      for (const f of TEXTF.slice(0, 5))
+        if (!h[f]) add(g, 'fail', 'homes.json', null, `${tag}: missing ${f}`);
+      /* fridge note: required on named households, null on ambient —
+         and voice-only (no machine ids inside the text) */
+      if (h.shape === 'ambient') {
+        if (h.fridge_note !== null)
+          add(g, 'fail', 'homes.json', null, `${tag}: ambient household carries a fridge note — nobody knows them well enough`);
+      } else if (!h.fridge_note)
+        add(g, 'fail', 'homes.json', null, `${tag}: occupied named home needs a fridge_note`);
+      if (h.fridge_note && CASTID.test(h.fridge_note))
+        add(g, 'fail', 'homes.json', null, `${tag}: cast id inside fridge_note — ids live in occupants[], notes are voice`);
+      for (const f of TEXTF.slice(0, 6)) if (h[f]) scan('homes.json', tag, h[f]);
+    }
+    for (const v of HJ.vacant || []) {
+      const tag = `vacant.${v.unit_id}`;
+      if (!UNITS.has(v.unit_id)) add(g, 'fail', 'homes.json', null, `${tag}: not a registry unit`);
+      if (!v.showing) add(g, 'fail', 'homes.json', null, `${tag}: vacant home needs showing texture`);
+      if (v.occupants) add(g, 'fail', 'homes.json', null, `${tag}: vacant rows never carry occupants`);
+      if (v.showing) scan('homes.json', tag, v.showing);
+    }
+    /* every vacant row should be a unit the registry lists as empty —
+       tenant_id resolution is advisory: flag occupied units listed vacant */
+    const TENANTED = new Set(REG.leases.filter(l => l.status === 'active' || l.status === 'owner-occupied').map(l => l.unit_id));
+    for (const v of HJ.vacant || [])
+      if (TENANTED.has(v.unit_id))
+        add(g, 'fail', 'homes.json', null, `vacant.${v.unit_id}: lease seed shows an active tenant`);
+    for (const h of HJ.homes || [])
+      if (!TENANTED.has(h.unit_id))
+        add(g, 'fail', 'homes.json', null, `homes.${h.unit_id}: no active lease in the registry seed`);
+    /* perks resolve to real employers */
+    const EMP = new Set(JJ.jobs.map(j => j.employer));
+    const seen = new Set();
+    for (const p of HJ.perks || []) {
+      if (!EMP.has(p.employer)) add(g, 'fail', 'homes.json', null, `perk employer "${p.employer}" not on the job board`);
+      if (seen.has(p.employer)) add(g, 'fail', 'homes.json', null, `perk employer "${p.employer}" listed twice`);
+      seen.add(p.employer);
+      if (!p.brings_home) add(g, 'fail', 'homes.json', null, `perk ${p.employer}: missing brings_home`);
+      scan('homes.json', `perk.${p.employer}`, p.brings_home || '');
+      if (p.note) scan('homes.json', `perk.${p.employer}`, p.note);
+    }
+    /* ambient ring stays a direction — never a unit id, never an address */
+    const ring = JSON.stringify(HJ.ambient_ring || {});
+    if (/\bbld-/.test(ring) || /9\d{3}\s+\w+\s+(St|Ave|St\b)/.test(ring))
+      add(g, 'fail', 'homes.json', null, 'ambient_ring carries an address or unit id — the ring stays off-registry');
+    /* rules state the load-bearing contracts */
+    const rules = (HJ.rules || []).join(' ');
+    for (const re of [/surface knowledge/i, /conditions,? never scripts/i, /no money/i,
+                      /vacant.*showing|showing.*vacant/i, /ambient-ring|ambient ring/i])
+      if (!re.test(rules)) add(g, 'fail', 'homes.json', null, `rules missing contract: ${re}`);
+    g.detail = `schema v${HJ.version} · ${(HJ.homes || []).length} homes · ${(HJ.vacant || []).length} vacant · ` +
+      `${(HJ.perks || []).length} perks${nOcc ? ` · ${nOcc} bad occupant ids` : ''}`;
+  } catch (e) { add(g, 'fail', 'homes.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ============ G16 market ============ */
 {
   const g = gate('market', 'market layer contract (market.json ↔ market.html; churn resolves to live openings; no credit figures)');
@@ -1593,7 +2651,62 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'request.html', null, 'hire must route to create.html, not file a request');
     if (!html.includes('RW_DEMO_EVENTS'))
       add(g, 'fail', 'request.html', null, 'demo event hooks (RW_DEMO_EVENTS) missing');
-    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'}`;
+    /* v60/v88 — live seam: the page is bridged when __aiBridge is present;
+       v88 aligns the write name + spec keys with the game-v14 bus */
+    const LS = RJ.live_seam || {};
+    if (!LS.write || !/gsSubmitRequest/.test(LS.write) || !/gsRequestSubmit/.test(LS.write))
+      add(g, 'fail', 'requests.json', null, 'live_seam.write must name gsSubmitRequest (canonical) + gsRequestSubmit (legacy alias)');
+    if (!/street_event/.test(LS.write) || !/start_slot/.test(LS.write))
+      add(g, 'fail', 'requests.json', null, 'live_seam.write must document the kind map (event→street_event) + start_slot');
+    for (const s of ['__aiBridge', 'gsViewerState', 'srcBadge',
+                     'mirror — local pipeline', 'live · __aiBridge',
+                     'gsSubmitRequest', 'gsRequestSubmit', 'gsExplainRequest', 'gsCoSessions', 'livePoll',
+                     'gsResourceBoard', 'gsBookCalendar', 'gsBookableSlots', 'gsPriceQuote',
+                     'busKind', 'busSpec', 'bkNormSlot'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `live-seam surface missing "${s}"`);
+    /* the write path must be capability-guarded — never an unconditional call */
+    if (!/LIVE \? \(BRIDGE\.gsSubmitRequest \|\| BRIDGE\.gsRequestSubmit\)/.test(html))
+      add(g, 'fail', 'request.html', null, 'filing must capability-check gsSubmitRequest || gsRequestSubmit behind LIVE');
+    /* a denied live filing never runs the local pipeline — the bus record is the truth */
+    if (!/rec\.status === 'denied'/.test(html) || !/nothing was billed|never bill/i.test(html))
+      add(g, 'fail', 'request.html', null, 'bus-denied filings must short-circuit with a no-bill line');
+    /* 'booked' is feed vocabulary + a chip class on both surfaces */
+    if (!/booked:'booked'/.test(html) || !/\.st\.booked/.test(html))
+      add(g, 'fail', 'request.html', null, 'booked status missing from chip map/CSS');
+    /* v60 — pre-flight check: same engine, before money moves, never a gate */
+    const PF = RJ.preflight_check || {};
+    if (!/never blocks filing|does not gate/.test((PF.not_a_shadow_ban || '')))
+      add(g, 'fail', 'requests.json', null, 'preflight_check must carry the not-a-shadow-ban rule');
+    if (!(RJ.demo_hooks.emitted || []).includes('preflight_check'))
+      add(g, 'fail', 'requests.json', null, 'demo_hooks.emitted missing preflight_check');
+    for (const s of ['pfbtn', 'check wording first', 'Screening is free',
+                     'screens clean', 'preflight_check', 'gray-zone'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `pre-flight surface missing "${s}"`);
+    /* v60 — receipt drawer: declared terms + charge + claim + trail */
+    const RC = RJ.receipt || {};
+    if (!RC.ref || !/rq-/.test(RC.ref))
+      add(g, 'fail', 'requests.json', null, 'receipt contract must carry the rq-<id> ref');
+    for (const s of ['data-rc', 'rtrail', 'trail(', 'receipt', 'rq-'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `receipt surface missing "${s}"`);
+    /* v102 — the live session layer: meter + live writes + live reads,
+       all capability-checked like the filing seam */
+    const LW = RJ.live_writes || {};
+    if (!/gsCancelRequest/.test(LW.cancel || '') || !/gsAppealRequest/.test(LW.appeal || '') ||
+        !/gsWatchAd/.test(LW.ad || ''))
+      add(g, 'fail', 'requests.json', null, 'live_writes must name gsCancelRequest / gsAppealRequest / gsWatchAd');
+    const LM = RJ.live_meter || {};
+    if (!/queuePos/.test(LM.queued || '') || !/remainingMin/.test(LM.active || '') ||
+        !/nothing billed/.test(LM.terminal || ''))
+      add(g, 'fail', 'requests.json', null, 'live_meter must carry queuePos / remainingMin / terminal projections');
+    for (const s of ['gsRequestMeter', 'gsCancelRequest', 'gsAppealRequest', 'gsAdStatus',
+                     'gsWatchAd', 'gsPossessionBriefing', 'gsConflictRules', 'gsAppealStats',
+                     'liveSess', 'only shrink, never grow', 'the bus holds the clock',
+                     'rulesNote', 'apstats'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `v102 live-session surface missing "${s}"`);
+    /* own queue position is shown to the holder only — never the queue's order */
+    if (!/can only shrink, never grow/.test(html))
+      add(g, 'fail', 'request.html', null, 'queue position must carry the only-shrink honesty line');
+    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -1651,6 +2764,74 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['day_so_far', 'missed_bar', 'declared_costs',
       'wx_follows_feed', 'keyboard'])
       if (!V47[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v47.${k} missing`);
+    /* v61 affordances + contract keys (the Director's rail) */
+    for (const s of ['id="dirbar"', 'id="camps"', 'id="fcamsel"', 'id="scrub"',
+      'id="replay"', 'renderDirector', 'renderReplay', 'camMatch', 'rw_wire_cam',
+      '#dir=1', 'gsExplainRequest', 'gsOccupancy', 'public whereabouts only',
+      'filed at', 'the world itself kept running'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v61 affordance "${s}" absent`);
+    const V61 = (FJ.spectator_ui || {}).spectator_ui_v61 || {};
+    for (const k of ['director_bar', 'cam_presets', 'follow_cam',
+      'replay_scrub', 'live_receipt', 'live_occupancy', 'pass_pointer',
+      'keyboard'])
+      if (!V61[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v61.${k} missing`);
+    /* v75 affordances + contract keys (the schedule + person layer) */
+    for (const s of ['id="bookbar"', 'id="cday"', 'id="mutelist"', 'id="qcount"',
+      'BOOKW', 'renderBook', 'renderCharDay', 'openCharDay', 'toggleMute',
+      'rw_wire_mute', 'rw_wire_book', 'on the book', 'their wire today',
+      'muted on your screen', "'b'"])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v75 affordance "${s}" absent`);
+    const V75 = (FJ.spectator_ui || {}).spectator_ui_v75 || {};
+    for (const k of ['book_strip', 'char_day', 'thread_mute',
+      'search_count', 'keyboard'])
+      if (!V75[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v75.${k} missing`);
+    /* v89 affordances + contract keys (the real wire seam, game-v14) */
+    for (const s of ['id="pboard"', 'renderBoard', 'liveOlder', 'wireIngest',
+      'wireClock', 'America/Los_Angeles', 'gsWireSince', 'gsWirePage',
+      'gsWireFollow', 'gsCoSessions', 'gsResourceBoard', 'liveExhausted',
+      'LIVE_SESS', 'LIVE_STATS', '.st.booked', 'the permit board',
+      'the top of the record', 'privacy screens, not downtime',
+      'player-called sky', 'the bus says', 'asked for — ', 'one scene',
+      'attempt', 'dayLabel'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v89 affordance "${s}" absent`);
+    const V89 = (FJ.spectator_ui || {}).spectator_ui_v89 || {};
+    for (const k of ['live_shape', 'incremental_sync', 'live_clock',
+      'permit_board', 'co_sessions', 'wx_sponsors', 'wire_stats',
+      'explain', 'booked_status', 'follow_sync'])
+      if (!V89[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v89.${k} missing`);
+    /* v103 affordances + contract keys (the record layer) */
+    for (const s of ['id="archlink"', 'followsSync', 'followsSynced',
+      'gsWireFollows', 'gsWireVocabulary', 'gsWireDays', 'gsWireAudit',
+      'LIVE_VOCAB', 'LIVE_AUDIT', 'days on record',
+      'statuses seen today', 'self-check ok', 'flagged by the record',
+      'the bus\\u2019s own vocabulary'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v103 affordance "${s}" absent`);
+    const V103 = (FJ.spectator_ui || {}).spectator_ui_v103 || {};
+    for (const k of ['pin_readback', 'archive_depth', 'vocab_coverage',
+      'self_check', 'keyboard'])
+      if (!V103[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v103.${k} missing`);
+    /* v103 honesty: pin read-back is adopt-only — the sync may never
+       delete a page pin (an unpin already wrote false through the bus) */
+    {
+      const m = html.match(/function followsSync\(\)\{[\s\S]*?\n\}/);
+      if (!m) add(g, 'fail', 'wire.html', null, 'followsSync body not found');
+      else if (/delete follows\[/.test(m[0]))
+        add(g, 'fail', 'wire.html', null, 'followsSync deletes a page pin — read-back must be adopt-only');
+    }
+    /* wire BOOKW mirrors bookings.json windows — same five-field key as
+       request.html's own BOOKW check in the book gate */
+    {
+      const wm = html.match(/var BOOKW = (\[[\s\S]*?\]);/);
+      if (!wm) add(g, 'fail', 'wire.html', null, 'wire BOOKW block not found');
+      else {
+        const BJ = JSONF('bookings.json');
+        const W = eval('(' + wm[1] + ')');
+        const key = w => [w.claim, w.start, w.min, w.who, w.what].join('|');
+        const a = W.map(key).sort(), b = (BJ.windows || []).map(key).sort();
+        if (JSON.stringify(a) !== JSON.stringify(b))
+          add(g, 'fail', 'wire.html', null, 'wire BOOKW != bookings.json windows (hand-sync drift)');
+      }
+    }
     /* declared-cost attrs must be exercised: ≥1 seed carries credits */
     if (!(FJ.demo_seeds || []).some(e => e.attrs && e.attrs.credits))
       add(g, 'fail', 'feed.json', null, 'no demo seed exercises attrs.credits — declared-cost display untested');
@@ -1679,7 +2860,9 @@ const PUB = Object.values(PT.surfaces)
     });
     g.detail = `${kinds.length} kinds · ${FJ.request_status.length} statuses · ` +
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
-      `v47 keys: ${Object.keys(V47).join(',') || 'none'}`;
+      `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'} · ` +
+      `v75 keys: ${Object.keys(V75).join(',') || 'none'} · v89 keys: ${Object.keys(V89).join(',') || 'none'} · ` +
+      `v103 keys: ${Object.keys(V103).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -1785,10 +2968,83 @@ const PUB = Object.values(PT.surfaces)
       [/ArrowLeft/, 'arrow-key day walk'],
       [/around that time/, 'record neighbor trail'],
       [/settled by the public record/, 'rumor settled-by affordance'],
-      [/busiest/, 'busiest-corner day rows']
+      [/busiest/, 'busiest-corner day rows'],
+      /* v62 — the reading layer */
+      [/data-v="shelf"/, 'shelf view switch'],
+      [/data-v="pair"/, 'pair view switch'],
+      [/rw_archive_shelf/, 'shelf storage key'],
+      [/the shelf lives in this browser/, 'shelf honesty copy'],
+      [/keep on the shelf/, 'shelf pin affordance'],
+      [/id="shelfBtn"/, 'record shelf toggle'],
+      [/id="shelftx"/, 'shelf transcript control'],
+      [/copy shelf/, 'copy-shelf affordance'],
+      [/public co-presence/, 'pair honesty copy'],
+      [/seen with — public rows only/, 'person seen-with chips'],
+      [/first on record/, 'person first/latest jumps'],
+      [/the corner’s rhythm/, 'venue rhythm strip'],
+      [/not a promise/, 'rhythm honesty copy'],
+      [/id="pickA"/, 'pair picker A'],
+      [/id="pickB"/, 'pair picker B'],
+      /* v76 — the shape layer */
+      [/data-v="hour"/, 'same-hour view switch'],
+      [/data-v="cmp"/, 'day-compare view switch'],
+      [/id="pickHour"/, 'hour picker'],
+      [/id="pickD1"/, 'compare picker A'],
+      [/id="pickD2"/, 'compare picker B'],
+      [/a shape the wire happened to draw/, 'hour honesty copy'],
+      [/not a schedule/, 'hour not-a-schedule copy'],
+      [/counted, not explained/, 'compare honesty copy'],
+      [/shared corners/, 'compare shared-corners block'],
+      [/named in passing/, 'person lens chip'],
+      [/the trail, cut finer/, 'person lens label'],
+      [/id="reccopy"/, 'copy-record control'],
+      [/copy record/, 'copy-record affordance'],
+      [/ev\.key==='j'/, 'j/k row walk'],
+      [/visIds/, 'row-walk id track'],
+      /* v90 — the real archive seam (game-v14 alignment) */
+      [/ID2DAY/, 'id→day index (live ids need no d<MMDD> prefix)'],
+      [/WHO_INDEX/, 'person index (NAMES ∪ mentions ids)'],
+      [/WHO_SET/, 'person-index membership set'],
+      [/VENUE_INDEX/, 'venue index (VENUES ∪ tagged ids)'],
+      [/nameOf/, 'verbatim name resolution'],
+      [/mergeDay/, 'additive day merge'],
+      [/catchUp/, 'catch-up control fn'],
+      [/id="catchup"/, 'catch-up button'],
+      [/already current — nothing new on the wire/, 'catch-up honest empty'],
+      [/caught up — /, 'catch-up honest count'],
+      [/asked for — /, 'denied-attempt affordance'],
+      [/KNOWN_KINDS/, 'known-kind vocabulary set'],
+      [/extraKinds/, 'honest kind-growth chips'],
+      [/kindPass/, 'generic kind filter'],
+      [/counted, not interpreted/, 'extra-kind honesty copy'],
+      [/a\.t-b\.t\)\s*\|\|\s*\(\(a\.n/, 'bus-n tiebreak on same-minute rows'],
+      /* v104 — the absence + lifecycle layer */
+      [/data-v="gaps"/, 'gaps view switch'],
+      [/data-v="reqs"/, 'request-trails view switch'],
+      [/GAP_MIN/, 'gap threshold constant'],
+      [/gapList/, 'gap enumeration fn'],
+      [/renderGapsView/, 'gaps view renderer'],
+      [/the hours the wire never wrote/, 'gaps honesty copy'],
+      [/counted, never filled/, 'gaps counted-not-filled copy'],
+      [/reqTrails/, 'request-trail grouping fn'],
+      [/renderReqsView/, 'trails view renderer'],
+      [/OPEN_ST/, 'open-status set'],
+      [/one paid reach-in, all its public statuses in a row/, 'trails honesty copy'],
+      [/still open/, 'open-trail marker'],
+      [/rqSel/, 'req-trail selection state'],
+      [/settled the talk/, 'settled-by reverse edge'],
+      [/kv\.rq/, 'req-trail permalink param']
     ];
+    if (!HJ.archive_ui?.archive_ui_v104)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v104 contract block missing');
+    if (!HJ.archive_ui?.archive_ui_v90)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v90 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v48)
       add(g, 'fail', 'history.json', null, 'archive_ui_v48 contract block missing');
+    if (!HJ.archive_ui?.archive_ui_v62)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v62 contract block missing');
+    if (!HJ.archive_ui?.archive_ui_v76)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v76 contract block missing');
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'archive.html', null, `missing required copy/affordance: ${label}`);
     /* no world-mutation call on the surface */
@@ -1802,13 +3058,13 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'archive.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${Object.keys(HJ.days).length} days · ${evCount} events mirrored · ` +
-      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v4`;
+      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v6`;
   } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G20 creation ============ */
 {
-  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; move-in math; bill-on-approval; read-only seam)');
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam; v105 repair bench + second look + desk answers)');
   try {
     const CJ = JSONF('creation.json');
     const JJ = JSONF('jobs.json');
@@ -1819,12 +3075,16 @@ const PUB = Object.values(PT.surfaces)
     const html = rd('create.html');
     /* contract blocks the v35+v49 surface depends on */
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
-                     'people_layer', 'names_registry', 'arrival_window', 'registry_entry'])
+                     'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
+                     'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
+                     'seat_waitlist', 'multi_hire', 'hire_seam_v91', 'repair_desk_v105'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
-    if (!/payment plan/.test(CJ.move_in_math.shortfall_rule))
-      add(g, 'fail', 'creation.json', null, 'deposit shortfall must ride a stated payment plan');
+    if (!/waived/.test(CJ.move_in_math.deposit || '') || !/pro-rated/.test(CJ.move_in_math.first_month || ''))
+      add(g, 'fail', 'creation.json', null, 'v91 hire package: deposit waived + pro-rated first month required');
+    if (!/hire_package|hirePackage/.test(CJ.move_in_math.doc))
+      add(g, 'fail', 'creation.json', null, 'move_in_math must cite the production hirePackage seam');
     if (!(CJ.screening.deny_codes || []).includes('name-collision'))
       add(g, 'fail', 'creation.json', null, 'name-collision deny code missing');
     /* JOBS mirror eval + field compare against jobs.json */
@@ -1875,10 +3135,67 @@ const PUB = Object.values(PT.surfaces)
     /* draft key + deposit rule agreement */
     const dk = (CJ.draft.storage.match(/rw_create_draft_v\d+/) || [])[0];
     if (!dk || !html.includes(dk)) add(g, 'fail', 'create.html', null, `draft key "${dk}" not in page`);
-    if (!/depFor/.test(html) || !/0\.5/.test(html))
-      add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
+    /* v63: pending-application key + goes_by on the screened surface */
+    const ak = (CJ.pending_queue.doc.match(/rw_create_app_v\d+/) || [])[0];
+    if (!ak || !html.includes(ak)) add(g, 'fail', 'create.html', null, `pending key "${ak}" not in page`);
+    if (!(CJ.screening.surface || []).includes('goes_by'))
+      add(g, 'fail', 'creation.json', null, 'screening.surface must carry goes_by — the block name is screened text');
+    if (!/f\.goes_by/.test(html))
+      add(g, 'fail', 'create.html', null, 'goes_by must ride the screened text + record, not sit unscreened');
+    /* v77: seat-waitlist key + block-cap agreement */
+    const wk = (CJ.seat_waitlist.storage.match(/rw_create_wait_v\d+/) || [])[0];
+    if (!wk || !html.includes(wk)) add(g, 'fail', 'create.html', null, `waitlist key "${wk}" not in page`);
+    const capM = html.match(/var BLOCK_CAP = (\d+)/);
+    if (!capM || +capM[1] !== CJ.block_capacity.cap)
+      add(g, 'fail', 'create.html', null, `BLOCK_CAP drifted from creation.json cap ${CJ.block_capacity.cap}`);
+    if (!/no way to pay for a sooner seat/i.test(html + JSON.stringify(CJ.seat_waitlist)))
+      add(g, 'fail', 'creation.json', null, 'seat waitlist must forbid paid position');
+    if (!/stranger/.test(html) || !/stranger/.test(JSON.stringify(CJ.multi_hire)))
+      add(g, 'fail', 'creation.json', null, 'multi_hire stranger rule must exist in contract + page');
+    /* v91 hire package: deposit waived, first month pro-rated to moveInDate */
+    if (!/firstMonthFor/.test(html) || !/moveInDate/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 pro-rated first-month math (firstMonthFor/moveInDate) missing');
+    if (/depFor|moveInFor|payment plan/i.test(html))
+      add(g, 'fail', 'create.html', null, 'retired v35 deposit/payment-plan math still on the page');
+    if (!/hire package/.test(html))
+      add(g, 'fail', 'create.html', null, 'hire-package copy missing');
     const roomRow = DHOMES.find(h2 => h2.room);
-    if (!roomRow) add(g, 'fail', 'create.html', null, 'no room-share home flagged for the 0.5× deposit rule');
+    if (!roomRow) add(g, 'fail', 'create.html', null, 'room-share home dropped from the demo mirror');
+    /* v91 real-seam wiring: bus spec + live surfaces */
+    if (!/kind:'hire'|kind: 'hire'/.test(html) || !/gsSubmitRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 live filing must call gsSubmitRequest with kind hire');
+    if (!/gsVacantUnits/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 home board must read gsVacantUnits when bridged');
+    if (!/gsHiredRoster/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 seat count must read gsHiredRoster when bridged');
+    if (!/DENY_COPY/.test(html) || !/out_of_reach/.test(html) || !/cast_cap/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 real deny-code map missing');
+    if (!/hidFor/.test(html) || !/h01|h' \+ \(n < 10/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 monotonic h0N id format missing');
+    if (!/gsCancelRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 live withdraw must go through gsCancelRequest');
+    const seam = CJ.hire_seam_v91 || {};
+    for (const dc of ['out_of_reach', 'cast_cap', 'unit_occupied', 'job_filled', 'cooldown'])
+      if (!((seam.deny_codes || []).includes(dc)))
+        add(g, 'fail', 'creation.json', null, `hire_seam_v91.deny_codes missing "${dc}"`);
+    /* v105 — the desk's answer layer: repair persistence key + maps + appeal verb */
+    const rk = ((CJ.repair_desk_v105.storage || '').match(/rw_create_return_v\d+/) || [])[0];
+    if (!rk || !html.includes(rk)) add(g, 'fail', 'create.html', null, `return key "${rk}" not in page`);
+    if (!/showRepair/.test(html) || !/FIELD_FIX/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 repair bench (showRepair/FIELD_FIX) missing');
+    if (!/gsAppealRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 second look must file gsAppealRequest when bridged');
+    if (!/second look/.test(html) || !/appeal_final/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 second-look + appeal_final honesty missing');
+    if (!/check the desk/.test(html) || !/pull, never poll|never polls/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 desk-check pull-not-poll affordance missing');
+    if (!/deskStatus|desk answers|liveRec\.status/.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 live desk-status resolution missing');
+    const rd105 = CJ.repair_desk_v105;
+    if (!rd105.field_fix || !rd105.second_look || !rd105.desk_status)
+      add(g, 'fail', 'creation.json', null, 'repair_desk_v105 must carry field_fix/second_look/desk_status');
+    if (!/never fakes a reversal|never fake a reversal/i.test(html))
+      add(g, 'fail', 'create.html', null, 'v105 demo second-look must promise never to fake a reversal');
     /* v49 PEOPLE mirror — every row re-verified against the registries:
        cast rows must match characters.json names exactly (w tokens → job,
        b → home, owns → landlord field); face rows match ambients by
@@ -1930,9 +3247,10 @@ const PUB = Object.values(PT.surfaces)
       [/denied applications never bill/i, 'deny-never-bills promise'],
       [/available on the block/, 'name-check ok copy'],
       [/taken — the block already has one/, 'name-check taken copy'],
-      [/first month \+ deposit/, 'move-in math copy'],
-      [/payment plan/, 'deposit-shortfall honesty'],
-      [/stated plan, not a waived one/, 'no-waived-deposit honesty'],
+      [/first month.*pro-rated|pro-rated.*first month/s, 'v91 pro-rated move-in copy'],
+      [/deposit \$0 — waived|deposit waived/i, 'v91 hire-package deposit copy'],
+      [/hire package covers the hunt/, 'v91 hire-package phrase'],
+      [/re-house.*second lease|second lease.*deposit/s, 'v91 re-house honesty'],
       [/out of reach on that income/, '55% ceiling state'],
       [/not a script/, 'emergence honesty'],
       [/18 minimum/, 'adults-only line'],
@@ -1962,11 +3280,69 @@ const PUB = Object.values(PT.surfaces)
       [/Saturday morning/, 'v49: landing option'],
       [/Landing scheduled/, 'v49: landing pipeline stage'],
       [/lands <window>|lands '|lands " ?\+f\.landing/, 'v49: landing on the wire'],
-      [/Registry entry — h/, 'v49: registry record card'],
+      [/Registry entry — /, 'v49: registry record card'],
       [/no secret fields exist on it/i, 'v49: record honesty line'],
       [/roster is full/, 'v49: slot-cap honesty'],
       [/surface ties, not friendships/, 'v49: FACES honesty'],
-      [/peopleCard/, 'v49: people card helper']
+      [/peopleCard/, 'v49: people card helper'],
+      [/keeps its place/, 'v63: queue persistence honesty'],
+      [/withdraw the application — never billed/, 'v63: withdraw affordance'],
+      [/renderQueue|resolvePending/, 'v63: queue handlers'],
+      [/savePending/, 'v63: pending write on submit'],
+      [/Goes by — optional/, 'v63: block-name field'],
+      [/goescheck/, 'v63: block-name live check'],
+      [/Day one — the keys/, 'v63: keys card'],
+      [/MAILBOX/, 'v63: mailbox line'],
+      [/RENT BOOK/, 'v63: rent-book line'],
+      [/FIRST SHIFT/, 'v63: first-shift line'],
+      [/Logistics, not a script/, 'v63: keys honesty line'],
+      [/different reviewer, not a faster one/, 'v63: no-expedite honesty'],
+      [/casting-office sketch/, 'v77: sketch honesty caption'],
+      [/id="sketch"/, 'v77: sketch canvas on step 2'],
+      [/id="sketch6"/, 'v77: sketch on the review card'],
+      [/drawSketch/, 'v77: sketch renderer'],
+      [/the card holds/, 'v77: seat count line'],
+      [/hired faces/, 'v77: block-capacity vocabulary'],
+      [/Join the seat waitlist — free/, 'v77: waitlist CTA'],
+      [/rw_create_wait_v\d+/, 'v77: waitlist persistence'],
+      [/Seat waitlist — in line, not in review/, 'v77: wait card head'],
+      [/a seat offer never bills until you take it/, 'v77: never-billed-while-waiting honesty'],
+      [/48 h/, 'v77: seat-offer expiry'],
+      [/no way to pay for a sooner seat/, 'v77: no-paid-position honesty'],
+      [/leave the waitlist/, 'v77: leave affordance'],
+      [/renderWait|seatOpened/, 'v77: waitlist handlers'],
+      [/saveWait/, 'v77: waitlist write on join'],
+      [/meet on the block like anyone else/, 'v77: other-hire honesty'],
+      [/a stranger, not a contact/, 'v77: briefing stranger line'],
+      [/gsSubmitRequest/, 'v91: real bus verb'],
+      [/naming lane/, 'v91: naming-lane copy'],
+      [/bus record/, 'v91: live record on the queue card'],
+      [/one hire filing per account per day/, 'v91: hire-cooldown honesty'],
+      [/never fakes an approval|never fake an approval/, 'v91: no-fake-approval honesty'],
+      [/gsVacantUnits/, 'v91: live doors read'],
+      [/gsHiredRoster/, 'v91: live seat count read'],
+      [/gsExplainRequest/, 'v91: live status read'],
+      [/gsCancelRequest/, 'v91: live withdraw write'],
+      [/moveInDate/, 'v91: declared move-in date'],
+      [/live — the personnel office/, 'v91: live quote card'],
+      [/the office refused/, 'v91: pre-billing refusal copy'],
+      [/hired faces — seats remain|hired faces · the seat waitlist/, 'v91: seat-count copy'],
+      [/The desk sent it back/, 'v105: repair card head'],
+      [/fix it — back to/, 'v105: fix-it chip'],
+      [/ask for a second look/, 'v105: second-look affordance'],
+      [/the same words, a different reviewer/, 'v105: second-look honesty'],
+      [/second refusal is final/, 'v105: appeal_final honesty'],
+      [/a different reviewer reads words, not the registry/, 'v105: registry-fact no-appeal honesty'],
+      [/the draft never clears itself/, 'v105: draft-survives honesty'],
+      [/rw_create_return_v\d+/, 'v105: return persistence key'],
+      [/check the desk/, 'v105: pull-the-record affordance'],
+      [/The desk answers/, 'v105: live-outcome vocabulary'],
+      [/the bus minted the hire/, 'v105: live-approval honesty'],
+      [/Closed — the desk is done with it/, 'v105: closed-filing line'],
+      [/FIELD_FIX/, 'v105: field→step map'],
+      [/appealable/, 'v105: appeal gate fn'],
+      [/secondLook/, 'v105: second-look handler'],
+      [/gsAppealRequest/, 'v105: live appeal verb']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);
@@ -1995,7 +3371,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G21 mod ============ */
 {
-  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50 affordances)');
+  const g = gate('mod', 'moderation tooling (taxonomy agreement, corpus↔lab mirror, console whitelist, v36+v50+v64+v78 affordances)');
   try {
     const MJ = JSONF('moderation.json');
     const window = {};
@@ -2043,8 +3419,35 @@ const PUB = Object.values(PT.surfaces)
       [/bumpFlag/, 'flag ledger mechanism'],
       [/shiftStats/, 'shift report mechanism'],
       [/obfuscation-attempt/, 'v36 code present in seeds/copy'],
+      [/flag roster/, 'v64 flag roster affordance'],
+      [/Owner docket|owner docket/, 'v64 owner-docket block'],
+      [/never monetized around/, 'v64 flags-never-public rule copy'],
+      [/exportLedger|export ledger records/, 'v64 ledger export affordance'],
+      [/mod_decision/, 'v64 canonical ledger record shape'],
+      [/claimed_by/, 'v78 review-lock field'],
+      [/releaseClaim|their call to make/, 'v78 claim/release affordance'],
+      [/DIFFERENT-REVIEWER RULE|different-reviewer rule/i, 'v78 enforced appeal block'],
+      [/Appeal workspace/, 'v78 appeal workspace card'],
+      [/Handoff notes — internal only/, 'v78 handoff-notes surface'],
+      [/never the feed or the ledger|never the feed, never the ledger/i, 'v78 notes visibility rule'],
+      [/revSel|setReviewer/, 'v78 reviewer identity switcher'],
+      [/by_reviewer/, 'v78 per-reviewer session stats'],
       [/screen\.js/, 'shared engine script tag'],
-      [/RWScreen\.screenRequest/, 'shared engine call']
+      [/RWScreen\.screenRequest/, 'shared engine call'],
+      /* v92 real review seam */
+      [/gsReviewQueue/, 'v92 live queue read'],
+      [/gsReviewResolve/, 'v92 decision write-through'],
+      [/gsEscalateLegal/, 'v92 legal kill write-through'],
+      [/gsModMetrics/, 'v92 live metrics'],
+      [/gsFlagStatus/, 'v92 live flag card'],
+      [/gsRepLedger/, 'v92 rep notebook read'],
+      [/gsPossessionBriefing/, 'v92 whitelist briefing card'],
+      [/same_reviewer/, 'v92 bus-enforced different-reviewer refusal'],
+      [/live queue|demo queue/, 'v92 data-source badge'],
+      [/refreshQueue/, 'v92 pull-not-poll refresh'],
+      [/via bus|via:'bus'/, 'v92 audit via-bus marker'],
+      [/CLAIMS/, 'v92 session-claim map (bus locks = merge TODO)'],
+      [/billed on approval/, 'v92 deferred-billing honesty chip']
     ];
     for (const [re, label] of MUST)
       if (!re.test(mc)) add(g, 'fail', 'mod-console.html', null, `missing required copy/affordance: ${label}`);
@@ -2056,6 +3459,25 @@ const PUB = Object.values(PT.surfaces)
       for (const k of Object.keys(ch))
         if (!WL.has(k)) add(g, 'fail', 'mod-console.html', null,
           `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
+    /* 4b. v78 + v92 contract blocks present in moderation.json */
+    for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats',
+                     'review_seam_v92', 'drift_report'])
+      if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `contract block "${k}" missing`);
+    if (MJ.review_seam_v92) {
+      for (const fn of ['gsReviewQueue', 'gsReviewResolve', 'gsEscalateLegal',
+                        'gsModMetrics', 'gsFlagStatus', 'gsRepLedger', 'gsPossessionBriefing'])
+        if (!JSON.stringify(MJ.review_seam_v92).includes(fn))
+          add(g, 'fail', 'moderation.json', null, `review_seam_v92 missing bridge fn ${fn}`);
+    }
+    if (MJ.appeal_workspace && !/ENFORCED/.test(MJ.appeal_workspace.different_reviewer_rule || ''))
+      add(g, 'fail', 'moderation.json', null, 'appeal_workspace must state the different-reviewer rule is enforced');
+    /* seeded affordances the demo must keep reachable */
+    if (!/claimed_by:'m\.chen'/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'no seeded claimed item — the lock state must be demoable');
+    if (!/orig:\{when:/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'appeal seed missing orig decision card data');
+    if (!/notes:\[\{t:/.test(mc))
+      add(g, 'fail', 'mod-console.html', null, 'no seeded handoff note');
     /* 5. screen-lab v36 affordances */
     const LMUST = [
       [/Reviewer calibration/, 'calibration section'],
@@ -2066,10 +3488,45 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of LMUST)
       if (!re.test(lab)) add(g, 'fail', 'screen-lab.html', null, `missing required affordance: ${label}`);
-    /* 6. internal surfaces make no world-mutation calls */
-    for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab]])
+    /* 5b. v106 display-filter bench (filter-lab.html) */
+    if (!MJ.display_filter_lab)
+      add(g, 'fail', 'moderation.json', null, 'contract block "display_filter_lab" missing');
+    if (MJ.display_filter && !(MJ.display_filter.bench || '').includes('filter-lab.html'))
+      add(g, 'fail', 'moderation.json', null, 'display_filter.bench must point at filter-lab.html');
+    if (MJ.display_filter && !/OWNER-DECISION — open/.test(MJ.display_filter.status || ''))
+      add(g, 'fail', 'moderation.json', null, 'display_filter must stay OWNER-DECISION — open; the lab never decides');
+    const fl = rd('filter-lab.html');
+    const FLMUST = [
+      [/Privacy Screen Lab/, 'lab title'],
+      [/owner decision — open/i, 'decision-stays-open honesty'],
+      [/screen\.js/, 'shared engine script tag'],
+      [/RWScreen\.screenRequest|screenRequest/, 'live re-screening, never stored verdicts'],
+      [/request not approved/i, 'fixed feed wording contract'],
+      [/text-filtered/, 'option A redact flag chip'],
+      [/withheld by the display filter/, 'option B withhold render'],
+      [/quarantined/, 'option C quarantine render'],
+      [/counted, not read/i, 'suppressedFeed counted-not-read rule'],
+      [/span approximated/, 'option A normalized-hit honesty note'],
+      [/export memo JSON|exMemo/, 'decision memo export'],
+      [/decision:'display_filter — OPEN|decision:\s*'display_filter — OPEN/, 'memo exports decision OPEN'],
+      [/aggregate/i, 'appeals aggregate-only contract']
+    ];
+    for (const [re, label] of FLMUST)
+      if (!re.test(fl)) add(g, 'fail', 'filter-lab.html', null, `missing required copy/affordance: ${label}`);
+    if (/picked|chosen option|decision:\s*['"]?(A|B|C)\b/.test(fl))
+      add(g, 'fail', 'filter-lab.html', null, 'lab must never render a winner — the decision is the owner\u2019s');
+    /* filter-lab re-screens, never stores: no hardcoded verdict words on cases */
+    if (/verdict:'deny'|verdict:'review'/.test(fl))
+      add(g, 'fail', 'filter-lab.html', null, 'stored verdicts in case data — must re-screen live through RWScreen');
+    /* 6. internal surfaces make no world-mutation calls OUTSIDE the review
+       lane. v92: the console's job IS the review lane — the declared seam
+       fns (queue/metrics/flags/rep/briefing reads + review-resolve/legal
+       writes) are allowlisted; anything else world-touching still fails. */
+    const SEAM_OK = /gsReviewQueue|gsReviewResolve|gsEscalateLegal|gsModMetrics|gsFlagStatus|gsRepLedger|gsPossessionBriefing|gsViewerState|gsExplainRequest|gsRequestMeter/g;
+    for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab], ['filter-lab.html', fl]])
       src.split('\n').forEach((ln, i) => {
-        if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)/i.test(ln))
+        const scrubbed = ln.replace(SEAM_OK, '');
+        if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)|gsSubmitRequest|gsCreditSpend|gsCancelRequest/i.test(scrubbed))
           add(g, 'fail', f, i + 1, `world-mutation call on an internal surface: ${ln.trim().slice(0, 100)}`);
       });
     g.detail = `${mjCodes.size} taxonomy codes · ${LC.length} mirrored cases · ` +
@@ -2079,10 +3536,14 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G22 harness ============ */
 {
-  const g = gate('harness', 'playtest harness self-contract (v51 marks, LS/build agreement, scenario integrity, surface coverage)');
+  const g = gate('harness', 'playtest harness self-contract (v51+v65+v76+v93 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v58 || {};
+    /* newest harness_ui_vNN block wins — the key rolls only on harness
+       affordance changes, not per scenario */
+    const hk = Object.keys(PT).filter(k => /^harness_ui_v\d+$/.test(k))
+      .sort((a, b) => +a.match(/\d+/)[0] - +b.match(/\d+/)[0]).pop();
+    const H = PT[hk] || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);
@@ -2095,7 +3556,7 @@ const PUB = Object.values(PT.surfaces)
     /* 2. required affordance marks */
     for (const m of H.required_marks || [])
       if (!html.includes(m))
-        add(g, 'fail', 'playtest.html', null, `required v51 mark missing: ${m}`);
+        add(g, 'fail', 'playtest.html', null, `required harness mark missing: ${m}`);
     /* 3. scenario integrity: unique PT ids, declared surfaces, ≥1 ck/step */
     const ids = new Set();
     const touched = new Set();
@@ -2219,13 +3680,392 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'applications.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G24 griev ============ */
+{
+  const g = gate('griev', 'grievance layer contract (grievances.json ↔ grievance.html; employer/building coverage; refs resolve; surface bar)');
+  try {
+    const GJ = JSONF('grievances.json');
+    const html = rd('grievance.html');
+    const m = html.match(/const GRJ = (\{[\s\S]*?\});\n/);
+    if (!m) throw new Error('inline GRJ not found in grievance.html');
+    const GRJ = eval('(' + m[1] + ')');
+    if (JSON.stringify(GRJ) !== JSON.stringify(GJ))
+      add(g, 'fail', 'grievance.html', null, 'inline GRJ drifted from grievances.json');
+    if (GJ.schema !== 'grievance-v1')
+      add(g, 'fail', 'grievances.json', null, `schema "${GJ.schema}" != grievance-v1`);
+
+    const JJ = JSONF('jobs.json'), HJ = JSONF('housing.json'), BJ = JSONF('businesses.json');
+    const bizIds = new Set(BJ.businesses.map(b => b.id));
+    const orgIds = new Set((GJ.orgs || []).map(o => o.id));
+    const CASTID = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/;
+    const CASTIDG = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/g;
+    const VALIDID = /^[cC][1-8]$|^[aA](0[1-9]|1[0-9]|20)$/;
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const sweep = (fields, tag) => {
+      for (const s of fields)
+        for (const re of BANNED)
+          if (re.test(String(s)))
+            add(g, 'fail', 'grievances.json', null, `${tag}: "${String(s).slice(0, 60)}" breaches the surface bar (${re})`);
+    };
+    const earIds = (ear, tag) => {
+      for (const tok of String(ear).match(CASTIDG) || [])
+        if (!VALIDID.test(tok))
+          add(g, 'fail', 'grievances.json', null, `${tag}: ear token "${tok}" is not a cast id`);
+    };
+
+    /* orgs: ids unique, venue_id resolves to an offstage business */
+    for (const o of GJ.orgs || []) {
+      const b = BJ.businesses.find(x => x.id === o.venue_id);
+      if (!b) add(g, 'fail', 'grievances.json', null, `org ${o.id}: venue_id "${o.venue_id}" not a business`);
+      else if (b.tier !== 'offstage')
+        add(g, 'fail', 'grievances.json', null, `org ${o.id}: venue ${o.venue_id} tier "${b.tier}" — tables are offstage`);
+      sweep([o.name, o.table, o.who_runs, o.what_they_do, o.bounds], `org ${o.id}`);
+    }
+
+    /* ladder: rungs 1..5 unique */
+    const rungs = new Set((GJ.ladder || []).map(r => r.rung));
+    for (const i of [1, 2, 3, 4, 5])
+      if (!rungs.has(i)) add(g, 'fail', 'grievances.json', null, `ladder missing rung ${i}`);
+
+    /* work rows: exactly one per distinct jobs.json employer */
+    const employers = [...new Set(JJ.jobs.map(j => j.employer))];
+    const seen = new Set();
+    const wArch = new Set(Object.keys(GJ.work_archetypes || {}));
+    const hArch = new Set(Object.keys(GJ.housing_archetypes || {}));
+    for (const r of GJ.work || []) {
+      if (seen.has(r.employer)) add(g, 'fail', 'grievances.json', null, `duplicate work row "${r.employer}"`);
+      seen.add(r.employer);
+      if (!employers.includes(r.employer))
+        add(g, 'fail', 'grievances.json', null, `work row "${r.employer}" is not a jobs.json employer`);
+      if (r.venue_id != null && !bizIds.has(r.venue_id))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: venue_id "${r.venue_id}" is not a business`);
+      if (r.paper_route != null && !orgIds.has(r.paper_route))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: paper_route "${r.paper_route}" is not an org`);
+      if (!Array.isArray(r.live_rungs) || !r.live_rungs.length || r.live_rungs.some(x => !rungs.has(x)))
+        add(g, 'fail', 'grievances.json', null, `${r.employer}: bad live_rungs ${JSON.stringify(r.live_rungs)}`);
+      for (const a of r.archetypes || [])
+        if (!wArch.has(a)) add(g, 'fail', 'grievances.json', null, `${r.employer}: archetype "${a}" not in work_archetypes`);
+      earIds(r.ear, r.employer);
+      sweep([r.ear, r.usual_fix, r.bounds, r.texture], r.employer);
+    }
+    for (const e of employers)
+      if (!seen.has(e)) add(g, 'fail', 'grievances.json', null, `employer "${e}" has no grievance row`);
+
+    /* housing rows: every building_cards key covered; only ambient-ring extra */
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    const hSeen = new Set();
+    for (const r of GJ.housing || []) {
+      if (hSeen.has(r.building_id)) add(g, 'fail', 'grievances.json', null, `duplicate housing row "${r.building_id}"`);
+      hSeen.add(r.building_id);
+      if (r.building_id !== 'ambient-ring' && !bKeys.has(r.building_id))
+        add(g, 'fail', 'grievances.json', null, `housing row "${r.building_id}" is not a building_cards key`);
+      if (r.paper_route != null && !orgIds.has(r.paper_route))
+        add(g, 'fail', 'grievances.json', null, `${r.building_id}: paper_route "${r.paper_route}" is not an org`);
+      for (const a of r.archetypes || [])
+        if (!hArch.has(a)) add(g, 'fail', 'grievances.json', null, `${r.building_id}: archetype "${a}" not in housing_archetypes`);
+      earIds(r.ear, r.building_id);
+      sweep([r.ear, r.usual_fix, r.bounds, r.texture], r.building_id);
+    }
+    for (const k of bKeys)
+      if (!hSeen.has(k)) add(g, 'fail', 'grievances.json', null, `building "${k}" has no grievance row`);
+
+    /* feed shapes: the door, never the name — no cast id or name pattern in lines */
+    const fs = GJ.feed_shapes || {};
+    for (const l of (fs.housing || []).concat(fs.work_proposal || []))
+      if (/<addr|<venue>/.test(l) === false && CASTID.test(l))
+        add(g, 'fail', 'grievances.json', null, `feed line carries a name/id: "${l}"`);
+    if (!/door/i.test(fs.contract || ''))
+      add(g, 'fail', 'grievances.json', null, 'feed_shapes.contract must state the door-not-name rule');
+
+    g.detail = `schema v${GJ.version} · ${(GJ.work || []).length} work · ${(GJ.housing || []).length} housing · ${orgIds.size} orgs`;
+  } catch (e) { add(g, 'fail', 'grievances.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G23b exits ============ */
+{
+  const g = gate('exits', 'exit layer contract (exits.json ↔ exit.html; employer/building coverage; door-not-name feed shapes; game dollars only)');
+  try {
+    const XJ = JSONF('exits.json');
+    const html = rd('exit.html');
+    /* deep mirror: inline EXITS == exits.json (doc line exempt) */
+    const m = html.match(/const EXITS = (\{[\s\S]*?\n\});/);
+    if (!m) throw new Error('inline EXITS block not found in exit.html');
+    const INL = eval('(' + m[1] + ')');
+    const strip = o => { const c = JSON.parse(JSON.stringify(o)); delete c.doc; return c; };
+    if (JSON.stringify(strip(INL)) !== JSON.stringify(strip(XJ)))
+      add(g, 'fail', 'exit.html', null, 'inline EXITS != exits.json (hand-sync drift)');
+    if (XJ.schema !== 'exits-v1')
+      add(g, 'fail', 'exits.json', null, `schema "${XJ.schema}" != exits-v1`);
+    /* no credit figures anywhere in this layer */
+    const xtxt = rd('exits.json');
+    for (const mm of xtxt.matchAll(/\b\d[\d,]*\s*cr\b/gi))
+      add(g, 'fail', 'exits.json', null, `credit figure in exit layer: "${mm[0]}"`);
+    /* every jobs.json employer covered exactly once */
+    const JJ = JSONF('jobs.json');
+    const empAll = new Set(JJ.jobs.map(j => j.employer));
+    const seen = new Set();
+    const BANNED = [/unfiltered/i, /secret/i, /\bseed/i, /possess/i, /\bcredit/i, /\bloan\b/i];
+    const sweep = (fields, tag) => {
+      for (const s of fields)
+        for (const re of BANNED)
+          if (re.test(String(s))) add(g, 'fail', 'exits.json', null, `${tag}: banned vocab (${re}) in "${String(s).slice(0, 60)}"`);
+    };
+    for (const r of XJ.work || []) {
+      const tag = `work:${r.employer}`;
+      if (seen.has(r.employer)) add(g, 'fail', 'exits.json', null, `duplicate work row "${r.employer}"`);
+      seen.add(r.employer);
+      if (!empAll.has(r.employer)) add(g, 'fail', 'exits.json', null, `work row "${r.employer}" is not a jobs.json employer`);
+      if (typeof r.notice_days !== 'number' || r.notice_days < 0)
+        add(g, 'fail', 'exits.json', null, `${tag}: notice_days must be a number ≥ 0 (0 = no boss to tell)`);
+      for (const k of ['notice_to', 'last_shift', 'reference', 'stays', 'texture'])
+        if (!r[k]) add(g, 'fail', 'exits.json', null, `${tag}: missing field "${k}"`);
+      sweep([r.notice_to, r.last_shift, r.reference, r.stays, r.texture], tag);
+    }
+    for (const e of empAll)
+      if (!seen.has(e)) add(g, 'fail', 'exits.json', null, `employer "${e}" has no exit row`);
+    /* every housing.json building_cards key + ambient-ring covered once */
+    const HJ = JSONF('housing.json');
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    bKeys.add('ambient-ring');
+    const hSeen = new Set();
+    for (const r of XJ.housing || []) {
+      const tag = `housing:${r.building_id}`;
+      if (hSeen.has(r.building_id)) add(g, 'fail', 'exits.json', null, `duplicate housing row "${r.building_id}"`);
+      hSeen.add(r.building_id);
+      if (!bKeys.has(r.building_id)) add(g, 'fail', 'exits.json', null, `${tag}: not a building_cards key or ambient-ring`);
+      const registry = r.building_id !== 'ambient-ring' && r.building_id !== 'bld-m9102';
+      if (registry && r.notice_days !== 30)
+        add(g, 'fail', 'exits.json', null, `${tag}: registry units carry the 30-day notice norm`);
+      if (registry && r.deposit_clock_days !== 21)
+        add(g, 'fail', 'exits.json', null, `${tag}: deposit clock is 21 days (lease layer agreement)`);
+      for (const k of ['turnover_scope', 'relist', 'texture'])
+        if (!r[k]) add(g, 'fail', 'exits.json', null, `${tag}: missing field "${k}"`);
+      sweep([r.turnover_scope, r.relist, r.texture], tag);
+    }
+    for (const k of bKeys)
+      if (!hSeen.has(k)) add(g, 'fail', 'exits.json', null, `building "${k}" has no exit row`);
+    /* feed shapes: the door, never the name — no cast id or name pattern */
+    const CASTID = /[cC][1-8]|[aA](0[1-9]|1[0-9]|20)/;
+    const fs = XJ.feed_shapes || {};
+    for (const l of (fs.work || []).concat(fs.housing || []))
+      if (!/<addr|<venue>/.test(l) && CASTID.test(l))
+        add(g, 'fail', 'exits.json', null, `feed line carries a name/id: "${l}"`);
+    if (!/door/i.test(fs.contract || ''))
+      add(g, 'fail', 'exits.json', null, 'feed_shapes.contract must state the door-not-name rule');
+    if (!Array.isArray(fs.never) || !fs.never.length)
+      add(g, 'fail', 'exits.json', null, 'feed_shapes.never list missing');
+    /* exit-kind catalogs declared */
+    for (const cat of ['job_exit_kinds', 'housing_exit_kinds'])
+      for (const k of Object.keys(XJ[cat] || {}))
+        if (!/^[a-z_]+$/.test(k)) add(g, 'fail', 'exits.json', null, `bad ${cat} key "${k}"`);
+    g.detail = `schema v${XJ.version} · ${(XJ.work || []).length} work · ${(XJ.housing || []).length} housing`;
+  } catch (e) { add(g, 'fail', 'exits.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G24 book ============ */
+{
+  const g = gate('book', 'booking layer contract (bookings.json ↔ book.html ↔ request.html BOOKW; no repricing; feed-vocabulary reuse)');
+  try {
+    const BJ = JSONF('bookings.json');
+    const bhtml = rd('book.html');
+    const rhtml = rd('request.html');
+    const RJ = JSONF('requests.json');
+    /* deep mirror: inline BOOK == bookings.json (doc keys exempt anywhere) */
+    const m = bhtml.match(/const BOOK = (\{[\s\S]*?\n\});/);
+    if (!m) throw new Error('inline BOOK block not found in book.html');
+    const INL = eval('(' + m[1] + ')');
+    const strip = o => JSON.parse(JSON.stringify(o, (k, v) => k === 'doc' ? undefined : v));
+    if (JSON.stringify(strip(INL)) !== JSON.stringify(strip(BJ)))
+      add(g, 'fail', 'book.html', null, 'inline BOOK != bookings.json (hand-sync drift)');
+    if (BJ.schema !== 'book-v1')
+      add(g, 'fail', 'bookings.json', null, `schema "${BJ.schema}" != book-v1`);
+    /* no prices on the Book — a time slot is not an upgrade */
+    for (const [f, txt] of [['bookings.json', rd('bookings.json')], ['book.html', bhtml]])
+      for (const mm of txt.matchAll(/\b\d[\d,]*\s*cr\b|\$\d/gi))
+        add(g, 'fail', f, null, `price figure on the Book: "${mm[0]}"`);
+    /* bookable ⊆ exclusive actions; booking block agreement in requests.json */
+    const excl = new Set((RJ.actions || []).filter(a => a.class === 'exclusive').map(a => a.id));
+    for (const b of BJ.rules.bookable || [])
+      if (!excl.has(b)) add(g, 'fail', 'bookings.json', null, `bookable "${b}" is not an exclusive action`);
+    const BK = RJ.booking || {};
+    if (JSON.stringify(BK.bookable) !== JSON.stringify(BJ.rules.bookable) ||
+        BK.horizon_h !== BJ.rules.horizon_h || BK.slot_min !== BJ.rules.slot_min)
+      add(g, 'fail', 'requests.json', null, 'booking block drifted from bookings.json rules');
+    /* claim keys resolve: resources ⊆ request.html CLAIMS keys */
+    const resClaims = new Set();
+    for (const r of BJ.resources || []) {
+      resClaims.add(r.claim);
+      if (!rhtml.includes(`'${r.claim}':`))
+        add(g, 'fail', 'bookings.json', null, `resource claim "${r.claim}" has no CLAIMS key in request.html`);
+      for (const b of r.bookable || [])
+        if (!excl.has(b)) add(g, 'fail', 'bookings.json', null, `resource "${r.claim}" bookable "${b}" not exclusive`);
+    }
+    for (const w of BJ.windows || []) {
+      if (!resClaims.has(w.claim)) add(g, 'fail', 'bookings.json', null, `window on undeclared claim "${w.claim}"`);
+      if (!/^\d{2}:\d{2}$/.test(w.start)) add(g, 'fail', 'bookings.json', null, `window start "${w.start}" off HH:MM`);
+      if (!(w.min > 0)) add(g, 'fail', 'bookings.json', null, `window "${w.what}" has no positive min`);
+      if (!w.who || !w.what) add(g, 'fail', 'bookings.json', null, 'window missing holder handle or label');
+    }
+    /* request.html BOOKW mirrors bookings.windows (claim/start/min/who/what) */
+    const wm = rhtml.match(/var BOOKW = (\[[\s\S]*?\]);/);
+    if (!wm) add(g, 'fail', 'request.html', null, 'BOOKW block not found');
+    else {
+      const W = eval('(' + wm[1] + ')');
+      const key = w => [w.claim, w.start, w.min, w.who, w.what].join('|');
+      const a = W.map(key).sort(), b = (BJ.windows || []).map(key).sort();
+      if (JSON.stringify(a) !== JSON.stringify(b))
+        add(g, 'fail', 'request.html', null, 'BOOKW != bookings.json windows (hand-sync drift)');
+    }
+    /* feed shapes reuse the locked vocabulary — booking mints no status */
+    const vocab = new Set(RJ.feed_vocabulary || []);
+    for (const s of (BJ.feed_shapes || {}).statuses || [])
+      if (!vocab.has(s)) add(g, 'fail', 'bookings.json', null, `feed status "${s}" not in feed_vocabulary`);
+    if (!Array.isArray(BJ.feed_shapes.never) || !BJ.feed_shapes.never.length)
+      add(g, 'fail', 'bookings.json', null, 'feed_shapes.never list missing');
+    /* honesty copy + picker surfaces */
+    for (const [f, txt, musts] of [
+      ['book.html', bhtml, [/the book is public/i, /not an upgrade/i, /never skippable/i,
+                            /full refund/i, /first-come-first-served|FCFS/i]],
+      ['request.html', rhtml, [/whenRow/, /\bwsel\b/, /bkSlots/, /soonest free window/i,
+                               /not an upgrade/i, /cancel free until it starts/i,
+                               /Book it —/, /booked window arrived/i, /startMin/, /gsViewerState\(\)\.calendar|vs\.calendar/]]
+    ]) for (const re of musts)
+      if (!re.test(txt)) add(g, 'fail', f, null, `missing booking surface ${re}`);
+    /* dark-pattern sweep on the calendar surface */
+    for (const re of [/only \d+ (slots?|left)/i, /\bhurry\b/i, /act now/i, /premium slot/i,
+                      /don'?t miss/i, /offer ends/i, /\bbid(?:ding)?\b/i])
+      bhtml.split('\n').forEach((ln, i) => {
+        if (re.test(ln)) add(g, 'fail', 'book.html', i + 1,
+          `dark-pattern vocabulary ${re}: ${ln.trim().slice(0, 100)}`);
+      });
+    g.detail = `schema v${BJ.version} · ${(BJ.resources || []).length} claims · ${(BJ.windows || []).length} seeded windows`;
+  } catch (e) { add(g, 'fail', 'bookings.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G25 commute ============ */
+{
+  const g = gate('commute', 'commute layer contract (commute.json ↔ commute.html; route/employer/home integrity; minors never routed; no prices)');
+  try {
+    const CJ = JSONF('commute.json');
+    const JJ = JSONF('jobs.json');
+    const HJ = JSONF('housing.json');
+    const BJ = JSONF('businesses.json');
+    const CHJ = JSONF('characters.json');
+    const AJ = JSONF('ambients.json');
+    const html = rd('commute.html');
+    const m = html.match(/const COM\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline COM not found in commute.html');
+    const COM = eval('(' + m[1] + ')');
+    const DOWS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    /* inline mirror: COM must field-match commute.json (doc exempt) */
+    if (COM.version !== CJ.version)
+      add(g, 'fail', 'commute.html', null, `COM version ${COM.version} != ${CJ.version}`);
+    for (const k of ['schema', 'modes', 'homes', 'routes', 'overlaps', 'non_commuters',
+                     'building_pulse', 'street_texture', 'feed_contract', 'rules'])
+      if (JSON.stringify(COM[k] ?? null) !== JSON.stringify(CJ[k] ?? null))
+        add(g, 'fail', 'commute.html', null, `COM.${k} drifted from commute.json`);
+    if (CJ.schema !== 'commute-v1')
+      add(g, 'fail', 'commute.json', null, `schema "${CJ.schema}" != commute-v1`);
+    /* valid who tokens: c<N>-<firstname> / a<NN>-<name>, ascii-folded */
+    const fold = s => String(s).toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/[^a-z0-9]+/g, ' ').trim().split(' ')[0];
+    const validWho = new Set(), minors = new Set(), names = new Set();
+    for (const c of CHJ.cast || []) {
+      const t = 'c' + c.id.replace(/\D/g, '') + '-' + fold(c.name);
+      validWho.add(t); names.add(fold(c.name));
+    }
+    for (const a of AJ.ambients || []) {
+      const t = 'a' + a.id.replace(/\D/g, '') + '-' + fold(a.name);
+      validWho.add(t); names.add(fold(a.name));
+      if (a.minor) minors.add(t);
+    }
+    const employers = new Set((JJ.jobs || []).map(j => j.employer));
+    const bizIds = new Set((BJ.businesses || []).map(b => b.id));
+    const bKeys = new Set(Object.keys(HJ.building_cards || {}));
+    const homeOk = f => f === 'ambient-ring' ||
+      (typeof f === 'string' && bKeys.has((f.match(/^bld-[a-z]\d{4}/) || [])[0]));
+    const modes = new Set(Object.keys(CJ.modes || {}));
+    const routeWhos = new Set();
+    /* no prices anywhere in the layer */
+    const txt = rd('commute.json');
+    for (const mm of txt.matchAll(/\$\s?\d|\d[\d,]*\s*cr\b|\bUSD\b/gi))
+      add(g, 'fail', 'commute.json', null, `price figure in commute layer: "${mm[0]}"`);
+    for (const r of CJ.routes || []) {
+      const tag = `route:${r.who}`;
+      if (!validWho.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: not a cast/ambient id`);
+      if (minors.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: minors are never routed`);
+      if (routeWhos.has(r.who)) add(g, 'fail', 'commute.json', null, `${tag}: duplicate route`);
+      routeWhos.add(r.who);
+      if (!homeOk(r.from)) add(g, 'fail', 'commute.json', null, `${tag}: from "${r.from}" not a registry unit or ambient-ring`);
+      if (!employers.has(r.to)) add(g, 'fail', 'commute.json', null, `${tag}: to "${r.to}" is not a jobs.json employer`);
+      if (r.venue != null && !bizIds.has(r.venue)) add(g, 'fail', 'commute.json', null, `${tag}: venue "${r.venue}" not a registry business`);
+      if (!modes.has(r.mode)) add(g, 'fail', 'commute.json', null, `${tag}: mode "${r.mode}" undeclared`);
+      if (!Array.isArray(r.days) || !r.days.length || !r.days.every(d => DOWS.includes(d)))
+        add(g, 'fail', 'commute.json', null, `${tag}: bad days[]`);
+      const [a, b] = r.leave || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'commute.json', null, `${tag}: bad leave window ${JSON.stringify(r.leave)}`);
+      if (r.arrive != null && !(r.arrive > a && r.arrive <= 26.5))
+        add(g, 'fail', 'commute.json', null, `${tag}: arrive ${r.arrive} outside the leave window's future`);
+      if (r.mode === 'loop' && r.arrive != null)
+        add(g, 'fail', 'commute.json', null, `${tag}: a loop has no fixed landing — arrive must be null`);
+      if (!Array.isArray(r.legs) || !r.legs.length) add(g, 'fail', 'commute.json', null, `${tag}: missing legs[]`);
+      if (!r.note) add(g, 'fail', 'commute.json', null, `${tag}: missing note`);
+    }
+    /* overlaps: pair members routed, shared days exist, windows sane */
+    for (const o of CJ.overlaps || []) {
+      const tag = `overlap:${(o.pair || []).join('×')}`;
+      if (!Array.isArray(o.pair) || o.pair.length !== 2)
+        { add(g, 'fail', 'commute.json', null, `${tag}: pair must be two ids`); continue; }
+      for (const p of o.pair)
+        if (!routeWhos.has(p)) add(g, 'fail', 'commute.json', null, `${tag}: "${p}" has no route`);
+      const [a, b] = o.window || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'commute.json', null, `${tag}: bad window`);
+      const shared = (o.days || []).filter(d => DOWS.includes(d) &&
+        o.pair.every(p => (CJ.routes.find(r => r.who === p) || { days: [] }).days.includes(d)));
+      if (!shared.length) add(g, 'fail', 'commute.json', null, `${tag}: no shared working day — an overlap that can never open is dead content`);
+      if (!/^(share|cross)$/.test(o.kind)) add(g, 'fail', 'commute.json', null, `${tag}: kind "${o.kind}" not share|cross`);
+    }
+    /* non-commuters: valid, disjoint from routes, anchored */
+    for (const n of CJ.non_commuters || []) {
+      if (!validWho.has(n.who)) add(g, 'fail', 'commute.json', null, `non_commuter "${n.who}" not a cast/ambient id`);
+      if (routeWhos.has(n.who)) add(g, 'fail', 'commute.json', null, `"${n.who}" is both routed and a non-commuter`);
+      if (!n.anchor || !n.note) add(g, 'fail', 'commute.json', null, `non_commuter "${n.who}" missing anchor/note`);
+    }
+    /* every working main routed — mains with employers must appear */
+    for (const c of CHJ.cast || []) {
+      const t = 'c' + c.id.replace(/\D/g, '') + '-' + fold(c.name);
+      const hasJob = (JJ.jobs || []).some(j =>
+        [].concat(j.held_by || []).includes(t));
+      if (hasJob && !routeWhos.has(t) && !(CJ.non_commuters || []).some(n => n.who === t))
+        add(g, 'fail', 'commute.json', null, `working main "${t}" is neither routed nor a declared non-commuter`);
+    }
+    /* building pulse keys ⊆ building_cards */
+    for (const k of Object.keys(CJ.building_pulse || {}))
+      if (!bKeys.has(k)) add(g, 'fail', 'commute.json', null, `building_pulse "${k}" not a building_cards key`);
+    /* street texture is anonymous: no cast ids or names */
+    for (const l of CJ.street_texture || []) {
+      if (/\b[ca]\d{1,2}-[a-z]+\b/i.test(l))
+        add(g, 'fail', 'commute.json', null, `street texture carries an id: "${l.slice(0, 60)}"`);
+      for (const nm of names)
+        if (nm.length > 3 && l.toLowerCase().split(/[^a-z]+/).includes(nm))
+          add(g, 'fail', 'commute.json', null, `street texture names "${nm}": "${l.slice(0, 60)}"`);
+    }
+    /* rules state the load-bearing contracts */
+    const rules = (CJ.rules || []).join(' ');
+    for (const re of [/conditions,? never scripts|conditions,? not scripts/i, /minors? .*never routed|never routed/i,
+                      /ambient-ring/i, /no prices/i, /surface knowledge/i])
+      if (!re.test(rules)) add(g, 'fail', 'commute.json', null, `rules missing contract: ${re}`);
+    g.detail = `schema v${CJ.version} · ${routeWhos.size} routes · ${(CJ.overlaps || []).length} overlaps · ${(CJ.non_commuters || []).length} non-commuters`;
+  } catch (e) { add(g, 'fail', 'commute.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ---------- report ---------- */
 for (const g of out.gates) {
   if (g.status === 'fail') out.fails++;
   else if (g.status === 'review') out.reviews++;
   else out.passes++;
 }
-out.build = 'world v58 local';
+out.build = 'world v77 local';
 out.generated = new Date().toISOString();
 
 if (process.argv.includes('--json')) {

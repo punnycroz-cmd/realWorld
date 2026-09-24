@@ -129,7 +129,10 @@ downedTick = function(v, dtH){
 const __socialTick15 = socialTick;
 socialTick = function(h){
   __socialTick15(h);
+  /* v16: driven mains are excluded — code-authored insults/fights on a
+     main are banned (design §6.4); friction between ambients stays */
   const awake = VILLAGERS.filter(v => !v.dead && !v.brainControlled && !v.outsider &&
+    !v.sfAgentDriven &&
     (v.state === 'idle' || v.state === 'walk' || v.state === 'rest'));
   for(let i = 0; i < awake.length; i++) for(let j = i + 1; j < awake.length; j++){
     const a = awake[i], b = awake[j];
