@@ -4914,3 +4914,105 @@ reversal, audience tuning, action imagination.
   (feedback), specificity (sensitization), direction
   (slant), intent-gate (action). Probes P1206–P1217 test
   those, not the knots.
+
+## 90. v115 additions — the somatic ledger (individual-differences X)
+
+Sources newly added for Part X (§§125–142): the layer
+where difference enters through the body and the career,
+not the biography — plus the fifth mandated null.
+
+- **Hearing loss:** Lin et al. 2011 (*Arch. Neurol.*
+  68:214 — BLSA, incident-dementia HR 1.27/10dB
+  log-linear; 1.89/3.00/4.94 mild/moderate/severe); Lin
+  et al. 2013 (*JAMA Intern. Med.* 173:293 — accelerated
+  decline); Deal et al. 2023 (*Lancet* 402:786 —
+  ACHIEVE RCT, ~48% 3-yr slope rescue in at-risk arm,
+  null in healthy volunteers — partially causal);
+  Pichora-Fuller et al. 2016 (effortfulness hypothesis —
+  degraded input reallocates wmc from storage to
+  decoding). Spec §6.295 `hear_*` + locked
+  `hear_gist_null`/`hear_sem_null`.
+- **Anticholinergic burden:** Caine et al. 1981
+  (scopolamine — encoding-selective deficit); Gray et
+  al. 2015 (*JAMA Intern. Med.* 175:401 — N=3434, 10-yr
+  cumulative dose-response); Risacher et al. 2016
+  (*JAMA Neurol.* 73:572 — hippocampal metabolism +
+  recall, dose-ordered). Spec §6.296 `antichol_*` +
+  locked `antichol_ret_null`.
+- **Menopause transition:** Greendale et al. 2009
+  (*Neurology* 72:2050 — SWAN N=2362: late-
+  perimenopause learning rates 28%/7% of premenopause,
+  FULL rebound postmenopause); Greendale et al. 2010
+  (*Am. J. Epidemiol.* — depr/anxiety/sleep/vasomotor
+  do NOT mediate); Weber, Maki & McDermott 2014 review.
+  Spec §6.297 `menop_*` + locked `menop_ret_null`/
+  `menop_sym_null`.
+- **Shift-work history:** Marquié et al. 2015 (*Occup.
+  Environ. Med.* 72:258 — VISAT: ≥10y rotating ≈ 6.5
+  age-yr equivalent, partial recovery ≥5y off); Rouch
+  et al. 2005. Spec §6.298 `shift_*` + locked
+  `shift_sem_null`.
+- **Acute illness:** Reichenberg et al. 2001 (*Arch.
+  Gen. Psychiatry* 58:445 — endotoxin RCT: acquisition
+  deficit 1–3h, full reversal ~10h); Harrison et al.
+  2009/2014; Dantzer 2008 sickness-behavior review.
+  Spec §6.299 `sick_*` + locked `sick_dur_null`.
+- **Smoking/nicotine:** Anstey et al. 2007 (*Arch. Gen.
+  Psychiatry* 64:84 meta); Sabia et al. 2012 (*Arch.
+  Gen. Psychiatry* 69:627 — Whitehall II); Heishman et
+  al. 2010 meta (acute nicotine ≈ withdrawal reversal,
+  not enhancement). Spec §6.300 `smoke_*`/`nic_*` +
+  locked `smoke_encode_null`.
+- **Meditation:** Chiesa, Calati & Serretti 2011 meta
+  (modest attention/WM, heterogeneous); Chételat et al.
+  2018 (*JAMA Neurol.* — Medit-Ageing primary-endpoint
+  null); Tang, Hölzel & Posner 2015. Spec §6.301
+  `medit_*` + locked `medit_store_null`.
+- **Occupational complexity:** Schooler, Mulatu & Oates
+  1999/2004; Smart, Gow & Deary 2014 (*JINS* — past
+  childhood IQ); Finkel et al. 2009; Andel et al. 2005.
+  Spec §6.302 `jobcplx_*` + locked `jobcplx_retire_null`.
+- **Retirement:** Rohwedder & Willis 2010 (*JEP* 24:118
+  — "mental retirement"); Bonsang, Adam & Perelman 2012
+  (*J. Health Econ.* 31:490 — ~0.7%/yr verbal-memory
+  decline, stimulation-mediated); Mazzonna & Peracchi
+  2017. Causality debated — priced small, engagement-
+  moderated. Spec §6.303 `retire_*` + locked
+  `retire_step_null`.
+- **Loneliness (perceived):** Cacioppo & Hawkley 2009
+  (*Perspect. Psychol. Sci.* — perception, not
+  headcount); Shankar et al. 2013 (*Psychosom. Med.*
+  75:610 — HR~1.65 net of isolation); Wilson et al.
+  2007; Tilvis et al. 2004; Boss, Kang & Branson 2015
+  meta. Spec §6.304 `lonely_*` + locked
+  `lonely_crowd_null`.
+- **Type-2 diabetes:** Rawlings et al. 2014 (*Ann.
+  Intern. Med.* 161:785 — ARIC: 19% greater 20-yr
+  decline); Biessels & Despa 2018 (*Nat. Rev.
+  Endocrinol.*); Palta et al. 2014. Spec §6.305
+  `diab_*` + locked `diab_sem_null`.
+- **Migraine — fifth mandated null:** Rist et al. 2012
+  (*BMJ* 345 — N=6349: migraineurs show LESS decline,
+  null locked at zero not the protective sign); Gaist
+  et al. 2005 (Danish twins); Gil-Gouveia & Martins
+  2019 (ictal complaint real, interictal deficit ~null);
+  Meyer et al. 2000; Vurallı et al. 2018. Spec §6.306
+  `migr_*` + locked `migr_cumul_null`.
+- **Bereavement:** Shin, Kim & Park 2018 (*Am. J.
+  Geriatr. Psychiatry* 26:778 — HRS N=6766, widowhood
+  accelerates decline); Ifcher & Zaveri 2021
+  (contemporaneous dip + adaptation); Kang et al. MIDUS
+  (worse for men, worse for ambivalent marriages);
+  Aartsen et al. 2005; Boelen et al. (complicated-
+  grief intrusions). Spec §6.307 `grief_*` + locked
+  `grief_perm_null`.
+- **Marked hypothesis:** the somatic legs convert
+  hazard-ratios and cohort slopes into `age_eff` steps
+  and encoding taxes — the dose-orderings (dB, TSDD,
+  pack-years, stage, kin) are CONSENSUS direction; the
+  per-year magnitudes are RW calibration choices;
+  `vasc_stack_cap` (2.0×) is our guard against
+  vascular-cluster triple-counting. Probes
+  P1218–P1230 test the structures (channel,
+  selectivity, stage, reversal, perception-gap), not
+  the fitted knots.

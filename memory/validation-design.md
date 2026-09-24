@@ -11797,3 +11797,97 @@ without fitted magnitude.
   & Loftus 2002.
 
 Probe registry: P1–P1217 (v114 adds P1206–P1217).
+
+## 235. v115 suite — individual-differences X (P1218–P1230)
+
+Thirteen probes for the ID Part X somatic layer (spec
+§§6.295–6.307). MUST tier on the structural locks
+(channel-lock, selectivity-lock, stage-lock,
+reversal-lock, size-lock, perception-lock, locked
+nulls); SHOULD where cohort evidence gives direction
+without fitted magnitude.
+
+- **P1218 the crowded room (MUST — channel-lock):**
+  hear=0 vs hear=1.5 on identical spoken-event streams:
+  heard-event E drops ≈hear_effort_tax, source fields
+  thin ≈hear_src_tax, gist fields bit-comparable
+  (hear_gist_null); hear_aided arm rescues
+  ≈hear_aid_rescue of the encoding legs, not the social
+  drag; sustained h≥1·5y arm shows age_eff drift
+  ≈hear_decline_k·h·yrs. Lin 2011/2013; Deal 2023.
+- **P1219 the bedtime antihistamine (MUST —
+  selectivity-lock):** antichol 0→1.5: encoding drops
+  ≈antichol_enc_tax; retrieval/decay/semantic identical
+  (antichol_ret_null); antichol_yrs=10 arm shows age_eff
+  step ≈antichol_decline; washout restores encoding,
+  never the step. Gray 2015; Risacher 2016.
+- **P1220 the transition (MUST — stage-lock):** menop
+  stage 0/1/2/post on one character: learning-rate legs
+  dip per menop_learn_tax (7% of premenopausal rate at
+  stage 2), complaint exceeds the dip, retention flat
+  (menop_ret_null); dip identical under depr=0 vs depr=1
+  (menop_sym_null); post restores all legs over
+  menop_rebound_d. Greendale 2009/2010.
+- **P1221 the decade of nights (SHOULD —
+  recovery-lock):** shift_wrk=2 at day_shift_yrs 0 vs 6:
+  age_eff delta ≈shift_age_equiv; second arm ≈shift_
+  recovery recovered, never full; post_night ctx reads
+  as synchrony antipeak; semantic flat
+  (shift_sem_null). Marquié 2015.
+- **P1222 the flu week (MUST — reversal-lock):**
+  sick_day 0/0.7/0 arms: enc/wmc drop dose-ordered,
+  fuzzy:true fragments at s≥0.6, and at s→0 every leg
+  returns within noise (sick_dur_null — the contrast
+  probe with P1088's permanent delirium step).
+  Reichenberg 2001.
+- **P1223 the pack a day (SHOULD — shape-lock):**
+  smoker never/quit-5y/current at matched pack_yrs:
+  slope ordered current > recent-quit > never
+  (smoke_quit_rescue intermediate); nicotine_sated
+  bumps attention only under withdrawal_h>2, enc_base
+  flat (smoke_encode_null). Sabia 2012; Heishman 2010.
+- **P1224 the cushion (MUST — size-lock):** medit=+2
+  vs −2: att scatter and mw-rate differ per
+  medit_*_buf; β/θ/semantic/procedural identical
+  (medit_store_null); complaint surface improves
+  medit_conf_gain regardless. Chiesa 2011; Chételat
+  2018.
+- **P1225 the deposit stays (SHOULD —
+  persistence-lock):** job_cplx=+1.5 at retire onset:
+  reserve-eff and breadth legs bit-identical pre/post
+  (jobcplx_retire_null); only retire slope legs engage.
+  Smart 2014; Rohwedder & Willis 2010.
+- **P1226 the emptied desk (MUST — shape-lock):**
+  retire=1 at post_engagement 0.2 vs 0.8: low-engage
+  arm declines on retire_slope_tax, PM first; high-
+  engage arm flat; no discontinuity at the event in
+  either arm (retire_step_null). Bonsang 2012.
+- **P1227 the crowded loneliness (MUST —
+  perception-lock):** lonely=+1.5 at social=+1.5 vs
+  −1.5: vigil/rehearsal/neg-bias legs identical across
+  social arms (lonely_crowd_null); bonded:true retells
+  rescue the rehearsal leg, headcount does not.
+  Cacioppo & Hawkley 2009; Shankar 2013.
+- **P1228 the sugar ledger (SHOULD — domain-lock):**
+  diab=2 at diab_yrs=15: age_eff slope
+  ≈diab_decline_k·dose, pspeed legs largest, semantic
+  flat (diab_sem_null); hypo_episode windows mint
+  fragments; smoker+hear stacked arms respect
+  vasc_stack_cap. Rawlings 2014; Biessels 2018.
+- **P1229 the fifth null (MUST — locked):** migr=2
+  with 100 simulated ictal attacks vs migr=0: attack
+  windows show ≈migr_ictal_tax acquisition cost +
+  migr_sens_gain sensory overweight; every cumulative
+  measure — age_eff slope, β, store integrity —
+  identical (migr_cumul_null; locked at zero, not at
+  Rist's protective sign). Rist 2012; Gil-Gouveia 2019.
+- **P1230 the year after (MUST — staging-lock):**
+  grief:{kin=spouse} at 1/6/18/30-month arms: acute
+  wmc tax in grief_acute_d, intrusion cluster on
+  lost-person records ≈grief_intr, slope halves at
+  12m, 30-month arm recovered (grief_perm_null);
+  ambivalent-kin arm: fewer intrusions at equal slope
+  (Kang moderation); kin_type dose ordering respected.
+  Shin 2018; Ifcher 2021.
+
+Probe registry: P1–P1230 (v115 adds P1218–P1230).

@@ -1,4 +1,65 @@
-# Memory Model Spec v5.62 — implementable human-like memory for RW characters
+# Memory Model Spec v5.63 — implementable human-like memory for RW characters
+
+> **v5.63 note (individual-differences X — the ear that
+> spends, the pill that borrows, the transition that
+> pauses, the decade of nights, the fever that fogs, the
+> habit that burns, the cushion that isn't, the career
+> that banked, the desk that emptied, the company that
+> isn't there, the sugar that saps, the headache that
+> passes clean, and the year after the funeral):**
+> `memory/individual-differences.md` Part X (§§125–142)
+> + spec §§6.295–6.307. **The ear spends the buffer** —
+> `hear` taxes heard-event E and source fields at
+> `hear_effort_tax`/`hear_src_tax`, social drag as a
+> leg, aid rescue partial (Lin 2011/2013; Deal 2023
+> ACHIEVE); locked `hear_gist_null`/`hear_sem_null`.
+> **The pill borrows from encoding** — `antichol`
+> burden taxes enc_base only, `antichol_yrs` steps
+> `age_eff` per decade (Caine 1981; Gray 2015; Risacher
+> 2016); locked `antichol_ret_null`. **The transition
+> pauses learning** — `menop` stages tax learning-rate
+> legs and rebound fully; symptom mediation FORBIDDEN
+> (Greendale 2009/2010); locked `menop_ret_null`/
+> `menop_sym_null`. **The decade of nights** —
+> `shift_wrk` prices ~3 age-yr at w=2, partial recovery
+> after 5 day-years (Marquié 2015); locked
+> `shift_sem_null`. **The fever fogs the door** —
+> `sick_day` acquisition tax + fever fragments, full
+> reversal (Reichenberg 2001); locked `sick_dur_null`.
+> **The habit burns the slope** — `smoker` pack-year
+> slope, quitter intermediate arm, nicotine legs =
+> withdrawal-repair attention only (Sabia 2012;
+> Heishman 2010); locked `smoke_encode_null`.
+> **The cushion that isn't a drug** — `medit` confined
+> to attention/mw legs (Chiesa 2011; Chételat 2018);
+> locked `medit_store_null`. **The career that banked**
+> — `job_cplx` feeds `reserve`-eff, persists through
+> retirement (Smart 2014; Schooler); locked
+> `jobcplx_retire_null`. **The desk that emptied** —
+> `retire` slope ×(1−`post_engagement`), PM first, no
+> cliff (Rohwedder & Willis 2010; Bonsang 2012); locked
+> `retire_step_null`. **The company that isn't there** —
+> `lonely` legs independent of `social` headcount;
+> `bonded:true` retells rescue, crowds don't (Cacioppo
+> & Hawkley 2009; Shankar 2013); locked
+> `lonely_crowd_null`. **The sugar that saps** —
+> `diab` duration-ordered age_eff slope, pspeed-first,
+> hypo fragments (Rawlings 2014); locked
+> `diab_sem_null`. **The headache that passes clean**
+> — `migr` pays `ictal` attack windows only; fifth
+> mandated null `migr_cumul_null` (Rist 2012). **The
+> year after the funeral** — `grief` staged
+> acute→slope→adaptation, intrusion cluster on the
+> lost-person records, ambivalence-moderated (Shin
+> 2018; Kang MIDUS); locked `grief_perm_null`.
+> Locked nulls: `hear_gist_null`, `hear_sem_null`,
+> `antichol_ret_null`, `menop_ret_null`,
+> `menop_sym_null`, `shift_sem_null`, `sick_dur_null`,
+> `smoke_encode_null`, `medit_store_null`,
+> `jobcplx_retire_null`, `retire_step_null`,
+> `lonely_crowd_null`, `diab_sem_null`,
+> `migr_cumul_null`, `grief_perm_null`. Probes
+> P1218–P1230.
 
 > **v5.62 note (false-memory X — the minted implication,
 > the skipped step filled, the crowd's shared wrong answer,
@@ -15329,6 +15390,243 @@ per imagining/planning bout for action a
 record → channel dead; the mechanism inflates imagined
 acts, never invents acts ex nihilo. P1217.
 
+### 6.295 The ear spends the buffer — `hear_*` (new in v5.63)
+
+ID§125; Lin et al. 2011 (*Arch. Neurol.* 68:214 — HR
+1.27/10dB log-linear, 1.89/3.00/4.94 by severity); Lin et
+al. 2013 (*JAMA Intern. Med.* 173:293); Deal et al. 2023
+(*Lancet* 402:786 — ACHIEVE RCT, ~48% slope rescue in
+at-risk arm); Pichora-Fuller et al. 2016.
+
+`hear` ∈ [0,2] trait (age-correlated sampling). On
+`channel:"heard"` events: E ×(1 − `hear_effort_tax`·h)
+(0.2, landing on wmc-loadings — source/peripheral fields
+starve first); source-field/`w_people` completeness
+×(1 − `hear_src_tax`·h) (0.15). Withdrawal mediator:
+`social`_eff -= `hear_social_drag`·h (0.3 — feeds
+existing rehearsal legs). `hear_aided:true` rescues
+`hear_aid_rescue` (0.4) of the two encoding legs only.
+Sustained h ≥ 1 over ≥5y: `age_eff` +=
+`hear_decline_k`·h·yrs (0.1 age-yr/yr). **Locked
+`hear_gist_null`/`hear_sem_null`:** gist fields,
+semantic store, and existing records untouched — the
+ear spends at the door, not in the vault.
+
+### 6.296 The pill that borrows from encoding — `antichol_*` (new in v5.63)
+
+ID§126; Caine et al. 1981 (scopolamine → encoding-
+selective deficit); Gray et al. 2015 (*JAMA Intern.
+Med.* 175:401 — 10-yr cumulative dose-response, top
+tertile HR~1.54); Risacher et al. 2016 (*JAMA Neurol.*
+73:572).
+
+`antichol` ∈ [0,2] state (world mints from med list) +
+substrate-integrated `antichol_yrs` tally. Legs:
+`enc_base`/attention-gated fields ×(1 −
+`antichol_enc_tax`·a) (0.25); `iiv_sigma` +=
+`antichol_iiv`·a (0.02); cumulative `age_eff` +=
+`antichol_decline`·(a·antichol_yrs/10) (0.5 age-yr/
+decade — permanent, same ledger as `delir_step`).
+**Locked `antichol_ret_null`:** retrieval, decay,
+semantic store flat — encoding-selective by mechanism.
+
+### 6.297 The transition that pauses learning — `menop_*` (new in v5.63)
+
+ID§127; Greendale et al. 2009 (*Neurology* 72:2050 —
+SWAN: late-perimenopause learning rates 28%/7% of
+premenopause, full rebound post); Greendale et al. 2010
+(symptoms do NOT mediate the dip); Weber, Maki &
+McDermott 2014.
+
+`menop` ∈ {0,1,2} stage state (~4y window). New-
+learning legs ×(1 − `menop_learn_tax`·stage/2) (0.25
+at stage 2); `pspeed` ×(1 − `menop_pspeed_tax`·s/2)
+(0.15); complaint ×`menop_complaint` (1.5). Post
+transition: all legs rebound over `menop_rebound_d`
+(180d). **Locked `menop_ret_null`:** retention/θ/
+stored records untouched; full reversibility is the
+finding. **Locked `menop_sym_null`:** legs stage-gated,
+never scaled by concurrent depr/sleep/vasomotor states.
+
+### 6.298 The decade of nights — `shift_*` (new in v5.63)
+
+ID§128; Marquié et al. 2015 (*Occup. Environ. Med.*
+72:258 — ≥10y rotating shifts ≈ 6.5 age-yr equivalent;
+partial recovery after ≥5y off); Rouch 2005; Folkard.
+
+`shift_wrk` ∈ [0,2] trait (lifetime exposure,
+bible-set from career history). `age_eff` +=
+`shift_age_equiv`·w (3.0y at w=2 — conservative
+half-price of Marquié's estimate); recovery toward
+`shift_recovery` (0.6 asymptote) over `day_shift_yrs`
+≥5. Acute `post_night:true` ctx = synchrony antipeak
+through §2.12 (Δh≈8 — no new mechanism). **Locked
+`shift_sem_null`:** semantic/procedural stores flat.
+
+### 6.299 The fever fogs the door — `sick_*` (new in v5.63)
+
+ID§129; Reichenberg et al. 2001 (*Arch. Gen. Psychiatry*
+58:445 — endotoxin: acquisition deficit at 1–3h, full
+reversal ~10h); Harrison et al. 2009/2014; Dantzer 2008.
+
+`sick_day` ∈ [0,1] state. `enc_base` ×(1 −
+`sick_enc_tax`·s) (0.3); wmc-loadings ×(1 −
+`sick_wmc_tax`·s) (0.2); at s ≥ 0.6 `fuzzy:true`
+fragments mint at `sick_dream_p`·s (0.1 — a tenth of
+`delir_dream_p`); θ += `sick_theta`·s (0.05).
+**Locked `sick_dur_null`:** all legs vanish at s→0 —
+no residue, no step. Contrast `delir_*` (§6.248):
+duration and severity are not the same ledger.
+
+### 6.300 The habit that burns the slope — `smoke_*`/`nic_*` (new in v5.63)
+
+ID§130; Anstey et al. 2007 (*Arch. Gen. Psychiatry*
+64:84 meta); Sabia et al. 2012 (*Arch. Gen. Psychiatry*
+69:627 — Whitehall II: current > recent-quit >
+long-term-ex > never); Heishman et al. 2010 meta
+(acute nicotine ≈ withdrawal reversal).
+
+`smoker` ∈ {0,1,2} + `pack_yrs` + `quit_yrs`.
+Chronic: `age_eff` += `smoke_decline_k`·(pack_yrs/20)
+(1.0 age-yr/20py); ex-smokers ×`smoke_quit_rescue`
+(0.5 at quit_yrs ≥ 5). Acute: `nicotine_sated:true`
+ctx + `withdrawal_h` > 2 → attention legs ×(1 +
+`nic_acute_gain`) (0.08); `withdrawal_h` > 4 → wmc
+×(1 − `nic_withdraw_tax`) (0.1) + iiv bump.
+**Locked `smoke_encode_null`:** no direct E bonus —
+nicotine is withdrawal-repair attention, not an
+encoding enhancer.
+
+### 6.301 The cushion that isn't a drug — `medit_*` (new in v5.63)
+
+ID§131; Chiesa, Calati & Serretti 2011 meta; Tang,
+Hölzel & Posner 2015; Chételat et al. 2018 (*JAMA
+Neurol.* — Medit-Ageing primary-endpoint null).
+
+`medit` N(0,1). Attention-layer legs only: `att`
+sampling noise −`medit_att_buf`·m (0.05); `mw`
+capture rate ×(1 − `medit_mw_buf`·m) (0.15, combined
+floor `mw_rate`·0.4 vs §6.254 — no double-count);
+complaint surface improves `medit_conf_gain` (0.1).
+**Locked `medit_store_null`:** zero loadings on β/θ/
+semantic/procedural — attention is trained; the vault
+is the same vault.
+
+### 6.302 The career that banked a buffer — `jobcplx_*` (new in v5.63)
+
+ID§132; Schooler, Mulatu & Oates 1999/2004; Smart, Gow
+& Deary 2014 (*JINS* — complexity with people/data →
+late-life cognition past childhood IQ); Finkel et al.
+2009; Andel 2005.
+
+`job_cplx` N(0,1), era/sex-aware sampling. `reserve`-
+eff += `jobcplx_reserve_feed`·j (0.3 — deposits into
+the existing buffer, never a parallel one);
+`search_breadth`/`w_topic` +`jobcplx_breadth`·j
+(0.05). No `enc_base` level leg — the literature is
+slope/buffer. **Locked `jobcplx_retire_null`:** legs
+do not decay at `retire` — the deposit stays banked;
+what stops is the depositing.
+
+### 6.303 The desk that emptied — `retire_*` (new in v5.63)
+
+ID§133; Rohwedder & Willis 2010 (*JEP* 24:118 —
+"mental retirement"); Bonsang, Adam & Perelman 2012
+(*J. Health Econ.* 31:490); Mazzonna & Peracchi 2017.
+Causality debated (selection/reverse) — priced small
+and moderated.
+
+`retire` ∈ {0,1} + `post_engagement` [0,1] +
+`retire_voluntary:true` (world-supplied). While
+retired AND post_engagement < 0.5: `beta_episodic`/
+wmc-loadings ×(1 + `retire_slope_tax`·(1−engage))
+(0.05); PM self-initiation −`retire_pm_tax` (0.1 —
+the calendar stops carrying intentions). Engagement
+≥ 0.5 → legs → 0. **Locked `retire_step_null`:** no
+step at the event — slope, never cliff; involuntary-
+retirement confound routes through `depr`.
+
+### 6.304 The company that isn't there — `lonely_*` (new in v5.63)
+
+ID§134; Cacioppo & Hawkley 2009 (*Perspect. Psychol.
+Sci.* — perception ≠ headcount); Shankar et al. 2013
+(*Psychosom. Med.* 75:610 — HR~1.65 net of isolation);
+Wilson et al. 2007; Tilvis 2004; Boss, Kang & Branson
+2015 meta.
+
+`lonely` N(0,1) — never derived from `social` (R −0.35
+only). Legs: `w_state` += `lonely_vigil`·l (0.1 —
+threat-monitoring tax in group contexts); rehearsal
+pool weight ×(1 − `lonely_rehearse_tax`·l) (0.15);
+sustained l > 1 → `age_eff` += `lonely_decline`·l
+(0.15 age-yr/yr at l=2); negative-social records get
+retrieval advantage `lonely_neg_bias`·l (0.1). Rescue
+channel: `bonded:true` retells (world flag) restore
+the rehearsal leg. **Locked `lonely_crowd_null`:**
+`social` exposure never rescues — the finding is the
+perception gap.
+
+### 6.305 The sugar that saps the slope — `diab_*` (new in v5.63)
+
+ID§135; Rawlings et al. 2014 (*Ann. Intern. Med.*
+161:785 — ARIC: midlife diabetes → 19% greater 20-yr
+decline); Biessels & Despa 2018 (*Nat. Rev.
+Endocrinol.*); Palta 2014 (duration-ordered).
+
+`diab` ∈ {0,1,2} + `diab_yrs` tally. `age_eff` +=
+`diab_decline_k`·(d/2)·(diab_yrs/10) (0.4 age-yr per
+decade at d=2); `pspeed`/`ret_lat_mult` ×(1 +
+`diab_pspeed_tax`·d/2) (0.1 — speed-first domain
+shape); `hypo_episode:true` events mint `frag:true`
+at `diab_hypo_frag` (0.3 — severe-hypo amnesia
+windows). Vascular stack shares `vasc_stack_cap`
+(2.0×) with `smoker`/`hear`. **Locked
+`diab_sem_null`:** semantic store flat — slope of
+efficiency, never knowledge loss.
+
+### 6.306 The headache that passes clean — `migr_*` (new in v5.63)
+
+ID§136; Rist et al. 2012 (*BMJ* 345 — N=6349:
+migraineurs show LESS decline, not more); Gaist 2005
+twins; Gil-Gouveia & Martins 2019 (complaints real,
+interictal deficit ~null); Meyer et al. 2000 (ictal
+cognitive symptoms); Vurallı 2018.
+
+`migr` ∈ [0,2] trait (female-skewed R-corr +0.3).
+World supplies `ictal:true` windows. Attack legs:
+`enc_base`/wmc ×(1 − `migr_ictal_tax`·severity)
+(0.3); `w_sensory` cue-weight +`migr_sens_gain`
+(0.2 — the aura writes strong inside a thin record).
+Interictal: complaint surface +`migr_complaint` (0.2)
+only. **Locked `migr_cumul_null`:** no `age_eff` leg,
+no cumulative tally — attack count changes nothing
+long-term. Fifth mandated null (joins `birth_order`,
+`learn_style`, `braintrain`, `microdose`).
+
+### 6.307 The year after the funeral — `grief_*` (new in v5.63)
+
+ID§137; Shin, Kim & Park 2018 (*Am. J. Geriatr.
+Psychiatry* 26:778 — HRS: widowhood accelerates
+decline); Ifcher & Zaveri 2021 (contemporaneous dip +
+partial adaptation); Kang et al. MIDUS (worse for men,
+worse in ambivalent marriages); Aartsen 2005; Boelen
+(complicated grief intrusions).
+
+`grief` ∈ [0,1] state, world supplies `{onset,
+kin_type, ambivalence}`; `kin_type` doses (spouse 1.0,
+child/friend 0.9, parent 0.7, relative 0.4). Stages:
+acute `grief_acute_d` (90d) wmc ×(1 −
+`grief_acute_tax`·g·kin) (0.25); months 3–24 `age_eff`
++= `grief_slope`·g·kin (0.2 age-yr/yr, halving at 12m,
+zero ~24m); intrusions on lost-person record cluster
+×(1 + `grief_intr`·g·kin·(1−ambivalence)) (0.8);
+feeds `rumin_k` on that cluster only. Stacks with
+`depr`/`lonely` under `grief_stack_cap` (1.5×).
+**Locked `grief_perm_null`:** at g→0 all legs return
+— bereavement is a wound, not a lesion; permanent
+residue only via world-decided `depr`/`trauma`
+conversion.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -17574,6 +17872,59 @@ MemoryParams = {
 //   `mood_source`; event flags `labeled:true`,
 //   `closed:true`, `scope:"remote"`. All snapshot-
 //   additive; absent = legacy.
+// v5.63 additions (individual-differences X — ID§§125–137)
+"hear_effort_tax": 0.2, "hear_src_tax": 0.15,
+"hear_social_drag": 0.3, "hear_aid_rescue": 0.4,
+"hear_decline_k": 0.1,                         // §6.295
+"antichol_enc_tax": 0.25, "antichol_iiv": 0.02,
+"antichol_decline": 0.5,                       // §6.296 (age-yr/decade)
+"menop_learn_tax": 0.25, "menop_pspeed_tax": 0.15,
+"menop_complaint": 1.5, "menop_rebound_d": 180, // §6.297
+"shift_age_equiv": 3.0, "shift_recovery": 0.6,  // §6.298 (at w=2, @5y)
+"sick_enc_tax": 0.3, "sick_wmc_tax": 0.2,
+"sick_dream_p": 0.1, "sick_theta": 0.05,        // §6.299
+"smoke_decline_k": 1.0, "smoke_quit_rescue": 0.5,
+"nic_acute_gain": 0.08, "nic_withdraw_tax": 0.1, // §6.300
+"medit_att_buf": 0.05, "medit_mw_buf": 0.15,
+"medit_conf_gain": 0.1,                        // §6.301
+"jobcplx_reserve_feed": 0.3, "jobcplx_breadth": 0.05, // §6.302
+"retire_slope_tax": 0.05, "retire_pm_tax": 0.1, // §6.303
+"lonely_vigil": 0.1, "lonely_rehearse_tax": 0.15,
+"lonely_decline": 0.15, "lonely_neg_bias": 0.1, // §6.304
+"diab_decline_k": 0.4, "diab_pspeed_tax": 0.1,
+"diab_hypo_frag": 0.3, "vasc_stack_cap": 2.0,   // §6.305
+"migr_ictal_tax": 0.3, "migr_sens_gain": 0.2,
+"migr_complaint": 0.2,                         // §6.306
+"grief_acute_d": 90, "grief_acute_tax": 0.25,
+"grief_slope": 0.2, "grief_intr": 0.8,
+"grief_stack_cap": 1.5,                        // §6.307
+// v5.63 locked nulls: hear_gist_null + hear_sem_null
+//   (ear spends at the door — P1218); antichol_ret_null
+//   (encoding-selective — P1219); menop_ret_null +
+//   menop_sym_null (reversible, stage-gated — P1220);
+//   shift_sem_null (P1221); sick_dur_null (full
+//   reversal — P1222); smoke_encode_null (withdrawal-
+//   repair only — P1223); medit_store_null (P1224);
+//   jobcplx_retire_null (deposit stays banked — P1225);
+//   retire_step_null (slope, never cliff — P1226);
+//   lonely_crowd_null (perception gap — P1227);
+//   diab_sem_null (P1228); migr_cumul_null (fifth
+//   mandated null — P1229); grief_perm_null (wound,
+//   not lesion — P1230). Frozen: none.
+// v5.63 traits/states/fields: traits `hear` [0,2],
+//   `shift_wrk` [0,2], `smoker` {0,1,2} (+pack_yrs/
+//   quit_yrs), `medit`, `job_cplx`, `lonely`, `diab`
+//   {0,1,2} (+diab_yrs), `migr` [0,2]; states
+//   `antichol` [0,2] + `antichol_yrs`, `menop` {0,1,2},
+//   `sick_day` [0,1], `retire` {0,1} + `retire_voluntary`
+//   + `post_engagement` [0,1], `grief:{onset,kin_type,
+//   ambivalence}`, `day_shift_yrs`; ctx flags
+//   `post_night:true`, `nicotine_sated:true`,
+//   `ictal:true`; event/channel fields
+//   `channel:"heard"`, `hypo_episode:true`,
+//   `hear_aided:true`, `withdrawal_h`; retell flag
+//   `bonded:true`. All snapshot-additive; absent =
+//   legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -20196,6 +20547,65 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.63 additions (individual-differences.md §§125–137 —
+  the body keeps the ledger):
+  - **World-supplied states/flags:** `antichol` [0,2]
+    minted from the character's med list (+ integrated
+    `antichol_yrs`); `menop` {0,1,2} stage (~4y window,
+    world-owned); `sick_day` [0,1] illness severity;
+    `retire` {0,1} + `retire_voluntary:true` +
+    `post_engagement` [0,1] (did the week fill or
+    empty); `grief:{onset, kin_type, ambivalence}` on
+    loss events; `day_shift_yrs` accrual; ctx flags
+    `post_night:true`, `nicotine_sated:true`,
+    `ictal:true`; event fields `channel:"heard"`,
+    `hypo_episode:true`; `hear_aided:true`; retell flag
+    `bonded:true` (the felt-connection rescue channel
+    for `lonely`). All snapshot-additive; absent =
+    mechanism inert.
+  - **Bible-set traits:** `hear` [0,2] (age-correlated),
+    `shift_wrk` [0,2] (career history), `smoker`
+    {0,1,2} + `pack_yrs`/`quit_yrs`, `medit`, `job_cplx`
+    (era/sex-aware), `lonely` (never derived from
+    `social`), `diab` {0,1,2} + `diab_yrs`, `migr` [0,2].
+  - **Layer contracts:** `antichol`/`menop`/`sick_day`/
+    `migr`-ictal are acquisition-side only — retrieval,
+    decay, and stored records unreachable
+    (`antichol_ret_null`, `menop_ret_null`,
+    `sick_dur_null`, `migr_cumul_null`); `hear` taxes
+    heard-event E + source fields, gist/store flat
+    (`hear_gist_null`/`hear_sem_null`); `medit` legs
+    confined to att/mw (`medit_store_null`); nicotine
+    legs active only under withdrawal
+    (`smoke_encode_null`); `menop` legs are stage-gated
+    and MUST NOT scale with depr/sleep/vasomotor states
+    (`menop_sym_null` — the forbidden mediator).
+  - **Slope contracts:** cumulative `age_eff` steps —
+    `hear_decline_k`, `antichol_decline`,
+    `shift_age_equiv`, `smoke_decline_k`,
+    `lonely_decline`, `diab_decline_k`, `grief_slope` —
+    are forward-only and stack under `vasc_stack_cap`
+    (2.0×) where vascular-clustered; `retire`/`menop`/
+    `sick_day`/`grief` are reversible-or-adapting legs,
+    never cliffs (`retire_step_null`,
+    `menop_ret_null`, `sick_dur_null`,
+    `grief_perm_null`); `job_cplx` deposits into
+    `reserve`-eff and persists at `retire`
+    (`jobcplx_retire_null`); `lonely` legs are rescued
+    by `bonded:true` retells only, never by `social`
+    headcount (`lonely_crowd_null`).
+  - **Locked boundaries game-systems must honor:**
+    `hear_gist_null`, `hear_sem_null`,
+    `antichol_ret_null`, `menop_ret_null`,
+    `menop_sym_null`, `shift_sem_null`,
+    `sick_dur_null`, `smoke_encode_null`,
+    `medit_store_null`, `jobcplx_retire_null`,
+    `retire_step_null`, `lonely_crowd_null`,
+    `diab_sem_null`, `migr_cumul_null`,
+    `grief_perm_null`.
+  - **New params (§7):** 30 scalars + 8 traits +
+    7 state fields + 15 locked nulls.
+  - Probes P1218–P1230.
 - v5.52 additions (social-memory.md §§151–160 — the credulity
   layer):
   - **World/behavior-supplied flags:** `exclusion:true` on social
