@@ -4259,6 +4259,262 @@ runAutoTest = async function(){
           'gs: v13 the feed logged the Friday beat');
     }
 
+    /* ==================== v14 — THE BOOK ====================
+       scheduled exclusives (world/bookings.json): weather + event
+       requests may declare a start window inside the next 24 h on the
+       half-hour grid; approval lands them on the public calendar; they
+       fire when the window arrives; cancel-before-start refunds in
+       full; the book never skips cooldowns and never auctions. All
+       times are explicit epoch minutes — the bus never reads the wall
+       clock when nowMin is passed. */
+    if(typeof gsBookableSlots === 'function' &&
+       typeof gsBookCalendar === 'function'){
+      gsBusReset();
+      const B0 = 200040;                    // half-hour aligned base
+      gsCreditGrant('pBk1', 8000, 'v14 stake');
+      gsCreditGrant('pBk2', 8000, 'v14 stake');
+
+      /* -- the door: who may book, and what a legal window is -------- */
+      /* denied filings go on pBkD's ledger — a player who keeps filing
+         refused paperwork earns the review lane (repeat-pattern), and
+         the booking tests below need pBk1's record clean */
+      const dKind = gsSubmitRequest({ playerId: 'pBkD', kind: 'possess',
+        target: 'H1', durationMin: 10, startMin: B0 + 60 }, B0);
+      log(dKind.status === 'denied' && dKind.reason === 'not_bookable',
+          'gs: v14 sessions are not bookable — the book is weather ' +
+          'and events only');
+      const dFar = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 + 2000 }, B0);
+      log(dFar.status === 'denied' && dFar.reason === 'beyond_horizon',
+          'gs: v14 the book is the next 24 h — beyond that is a queue\'s job');
+      const dBad = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: 'soon' }, B0);
+      log(dBad.status === 'denied' && dBad.reason === 'bad_window',
+          'gs: v14 a malformed window is refused before billing');
+      const dPast = gsSubmitRequest({ playerId: 'pBkD', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 - 60 }, B0);
+      log(dPast.status === 'denied' && dPast.reason === 'bad_window',
+          'gs: v14 the past is not a window');
+      log(gsCreditBalance('pBkD') === 0 &&
+          gsCreditBalance('pBk1') === 8000,
+          'gs: v14 structural denies never move a credit');
+
+      /* -- lifecycle: file → review → booked → fire → complete -------
+         bkA runs B0+120..180; its 4h sky rest makes B0+420 the next
+         legal weather slot — bkB books exactly it (tail-boundary ok) */
+      const bkA = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+        durationMin: 60, params: { wx: 'fog' }, startMin: B0 + 120 }, B0);
+      log(bkA.status === 'booked' && bkA.bookedStart === B0 + 120,
+          'gs: v14 an admin booking lands on the calendar — no review, ' +
+          'no billing');
+      const bkB = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 60, params: { wx: 'rain' },
+        startMin: B0 + 420 }, B0 + 10);
+      log(bkB.status === 'in_review',
+          'gs: v14 a player booking still takes the exclusive review ' +
+          'lane at filing');
+      gsReviewResolve(bkB.id, true, { nowMin: B0 + 20 });
+      log(bkB.status === 'booked' && bkB.bookedStart === B0 + 420,
+          'gs: v14 approval lands on the calendar — the window is the ' +
+          'promise, not the run');
+      const cal = gsViewerState(B0 + 30).calendar;
+      const calA = cal.find(e => e.req === bkA.id);
+      const calB = cal.find(e => e.req === bkB.id);
+      log(!!calA && !!calB && calA.claim === 'sky' &&
+          calA.start_min === B0 + 120 && calB.start_min === B0 + 420 &&
+          calA.min === 60 && calA.who === 'owner',
+          'gs: v14 gsViewerState().calendar is the public strip — ' +
+          'claim, window, holder');
+      /* a live ask whose window would overlap the booked span queues —
+         the calendar promise is a real claim, not a suggestion */
+      const preBusy = gsCreditBalance('pBk1');
+      const busy = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 120, params: { wx: 'clear' } }, B0 + 40);
+      const busyQ = busy.status === 'queued' ||
+        (busy.status === 'in_review' && !!busy.holdsLine);
+      gsCancelRequest(busy.id, B0 + 41, 'player');
+      log(busyQ && gsCreditBalance('pBk1') === preBusy,
+          'gs: v14 an overlapping ask queues behind the booked span — ' +
+          'and a cancelled queue refunds every credit');
+      /* the book never skips cooldowns: bkA's window ends at +180, the
+         sky rests to +420 — a window opening inside that tail is
+         refused at the door, no money moved */
+      const dTail = gsSubmitRequest({ playerId: 'pBk2', kind: 'weather',
+        durationMin: 60, params: { wx: 'clear' },
+        startMin: B0 + 300 }, B0 + 50);
+      log(dTail.status === 'denied' && dTail.reason === 'cooldown_tail',
+          'gs: v14 a slot inside a cooldown tail cannot be booked');
+      gsBusTick(B0 + 90);
+      log(bkA.status === 'booked' && !GS_WX_OVR.wx,
+          'gs: v14 the calendar waits — a booked sky does not fire early');
+      gsBusTick(B0 + 120);
+      log(bkA.status === 'active' && GS_WX_OVR.wx === 'fog',
+          'gs: v14 the window arrives — the booking fires on the beat');
+      gsBusTick(B0 + 180);
+      log(bkA.status === 'completed' && !GS_WX_OVR.wx,
+          'gs: v14 the window ends — the sky is handed back to nature');
+      /* bkB booked [420,480) while bkA's rest ran — the booked slot is
+         legal on arrival: it fires on time */
+      gsBusTick(B0 + 420);
+      log(bkB.status === 'active' && GS_WX_OVR.wx === 'rain',
+          'gs: v14 the second booking fires the moment its window ' +
+          'opens — tail-boundary slots are honored');
+      gsBusTick(B0 + 480);
+      log(bkB.status === 'completed',
+          'gs: v14 the second window completes at its own edge');
+
+      /* -- clip rule: a queued ask whose only blocker is a booked span
+         runs clipped to the window's edge, un-run minutes refunded ---
+         venue claims keep this on events (the sky's 4h rest would gate
+         any weather-vs-weather clip) */
+      const evA = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'block_party', at: 'Dolores Park' },
+        startMin: B0 + 900 }, B0 + 800);
+      log(evA.status === 'booked' && evA.bookedStart === B0 + 900,
+          'gs: v14 a venue event books its window on the calendar');
+      const clipE = gsSubmitRequest({ playerId: 'pBk1',
+        kind: 'street_event', durationMin: 120,
+        params: { event: 'park_cleanup', at: 'Dolores Park' } }, B0 + 810);
+      log(clipE.status === 'queued',
+          'gs: v14 an overlapping same-venue ask queues behind the ' +
+          'booked window');
+      gsBusTick(B0 + 811);
+      if(clipE.status === 'in_review')
+        gsReviewResolve(clipE.id, true, { nowMin: B0 + 812 });
+      gsBusTick(B0 + 813);
+      log(clipE.status === 'active' && clipE.endMin === B0 + 900 &&
+          clipE.clippedBy === evA.id,
+          'gs: v14 the clip rule — the queued cleanup runs until the ' +
+          'booked party, not past it');
+      gsBusTick(B0 + 900);
+      const clipBack = clipE.refunded || 0;
+      log(clipE.status === 'completed' && clipE.usedMin ===
+          B0 + 900 - B0 - 813 && clipBack > 0,
+          'gs: v14 the clipped run refunds its un-run minutes',
+          'refunded ' + clipBack + ' of ' + clipE.billed);
+      log(evA.status === 'active',
+          'gs: v14 the booked event fires on time behind the clipped run');
+      gsBusTick(B0 + 960);
+      log(evA.status === 'completed',
+          'gs: v14 the booked window completes at its own edge');
+
+      /* -- pre-window cancel: the whole bill comes back -------------- */
+      const bkD = gsSubmitRequest({ playerId: 'pBk2', kind: 'street_event',
+        durationMin: 60,
+        params: { event: 'farmers_market', at: 'Mudhaus Coffee' },
+        startMin: B0 + 1200 }, B0 + 1000);
+      gsReviewResolve(bkD.id, true, { nowMin: B0 + 1005 });
+      const dBal = gsCreditBalance('pBk2');
+      const dBill = bkD.billed;
+      const dCal = gsViewerState(B0 + 1006).calendar
+        .some(e => e.req === bkD.id);
+      gsCancelRequest(bkD.id, B0 + 1010, 'player');
+      log(bkD.status === 'cancelled' && dCal &&
+          gsCreditBalance('pBk2') === dBal + dBill &&
+          !gsViewerState(B0 + 1011).calendar.some(e => e.req === bkD.id),
+          'gs: v14 cancel before the window — full refund, off the book');
+
+      /* -- FCFS sliding, never an auction: saturate the sky's horizon,
+         then an overlapping booking queues, finds no legal slot in
+         24 h, and misses with a full refund ------------------------- */
+      /* sky state at B0+1020: last weather completed at +480 → global
+         rest long past. Booked 60-min RAIN windows at +1050,+1350,
+         +1650,+1950,+2250 plus their 4h rest tails cover every slot
+         through the +2460 horizon (identical forecasts co-sponsor —
+         the saturating spans must clash with the probe's forecast) */
+      for(const s of [B0 + 1050, B0 + 1350, B0 + 1650, B0 + 1950,
+                      B0 + 2250]){
+        const ob = gsSubmitRequest({ playerId: 'owner', kind: 'weather',
+          durationMin: 60, params: { wx: 'rain' }, startMin: s },
+          B0 + 1020);
+        if(ob.status === 'in_review')
+          gsReviewResolve(ob.id, true, { nowMin: B0 + 1021 });
+      }
+      const p1bal = gsCreditBalance('pBk1');
+      const bkMiss = gsSubmitRequest({ playerId: 'pBk1', kind: 'weather',
+        durationMin: 60, params: { wx: 'storm' },
+        startMin: B0 + 1080 }, B0 + 1025);
+      gsBusTick(B0 + 1026);
+      if(bkMiss.status === 'in_review')
+        gsReviewResolve(bkMiss.id, true, { nowMin: B0 + 1027 });
+      gsBusTick(B0 + 1028);
+      log(bkMiss.status === 'expired' &&
+          bkMiss.reason === 'window_missed' &&
+          gsCreditBalance('pBk1') === p1bal,
+          'gs: v14 a booking with no legal window in 24 h misses — ' +
+          'queued, slid, refunded in full');
+      const slotsBk = gsBookableSlots({ playerId: 'pBk1',
+        kind: 'weather', durationMin: 60, params: { wx: 'fog' },
+        startMin: B0 + 1030 }, B0 + 1030);
+      log(slotsBk.ok === true && slotsBk.slots.length === 0,
+          'gs: v14 the picker shows no weather slot while the sky\'s ' +
+          'booked spans + rest tails saturate the horizon');
+
+      /* -- the receipt discloses the window before payment ----------- */
+      /* pBk1's event cooldown (from the +813..900 clipped run) has
+         lapsed by B0+1200; mural_tour is roving — its openair claim
+         never clashes, so the quote reads clean */
+      const q = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: B0 + 2410 }, B0 + 1200);
+      log(q.ok === true && q.wouldBook === true &&
+          q.booked && q.booked.startMin === B0 + 2430 &&
+          q.queueDiscount === 0 && q.wouldReview === true,
+          'gs: v14 the quote names the snapped window, keeps the flat ' +
+          'price, never offers a queue discount on a booking');
+      /* surge keys off the window's hour: find a primetime slot on the
+         PT clock — 18:00–23:00 costs the cover charge. Scans start at
+         the first legal slot after the quote minute (the past is not
+         a window) */
+      let ptMin = B0 + 1230;
+      while(!gsBusPrimetime(ptMin) && ptMin < B0 + 2600) ptMin += 30;
+      let offMin = B0 + 1230;
+      while(gsBusPrimetime(offMin) && offMin < B0 + 2600) offMin += 30;
+      const qPT = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: ptMin }, B0 + 1201);
+      const qOff = gsPriceQuote({ playerId: 'pBk1', kind: 'street_event',
+        durationMin: 60, params: { event: 'mural_tour' },
+        startMin: offMin }, B0 + 1201);
+      log(qPT.ok && qPT.surge > 1 && qPT.total > qPT.base &&
+          qOff.ok && qOff.surge === 1,
+          'gs: v14 primetime pricing follows the window, not the filing');
+
+      /* -- wire vocabulary: the book speaks in contract lines -------- */
+      const fmt = (t, id) => {
+        const e = GS_FEED.find(x => x.type === t && x.req === id);
+        return e ? gsWireFormat(e).map(x => x.text).join(' | ') : null;
+      };
+      log(/booked for/.test(fmt('approve', evA.id) || ''),
+          'gs: v14 feed: "approved · booked for HH:MM"');
+      log(/booked window arrived/.test(fmt('fire', evA.id) || ''),
+          'gs: v14 feed: "booked window arrived — <action> fired"');
+      log(/before the window/.test(fmt('cancel', bkD.id) || ''),
+          'gs: v14 feed: "cancelled before the window · refunded"');
+      log(/window missed/.test(fmt('expire', bkMiss.id) || ''),
+          'gs: v14 feed: a missed window reads as what it was');
+
+      /* -- persistence: the calendar rides the bus snapshot ---------- */
+      /* owner's event cooldown (the +900 party) lapses at +1200 — a
+         roving tour books past the saturation window honestly */
+      const bkE = gsSubmitRequest({ playerId: 'owner',
+        kind: 'street_event', durationMin: 60,
+        params: { event: 'mural_tour' }, startMin: B0 + 2300 },
+        B0 + 1300);
+      log(bkE.status === 'booked',
+          'gs: v14 a roving event books even while the sky is saturated');
+      const snap14 = gsBusSnapshot();
+      gsBusReset();
+      const wiped14 = gsBookCalendar(B0 + 1301).length === 0;
+      gsBusLoad(snap14);
+      const calBack = gsBookCalendar(B0 + 1301);
+      log(wiped14 && calBack.some(e => e.req === bkE.id &&
+          e.start_min === B0 + 2310),
+          'gs: v14 booked windows survive the bus snapshot — ' +
+          'the calendar reloads verbatim');
+    }
+
     /* ---- v13 the timepiece + standing directive (SF-only) -----------
        pull-based clocks (rw-time-perception-spec) and the brain's own
        last will filling the gap between turns. */

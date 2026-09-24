@@ -464,14 +464,29 @@ function gsWireFormat(evt){
   switch(evt.type){
 
     case 'approve': {
-      const out = [mk('request', sum() + gsWireNoteSuffix(r, 'running'),
-        { status: 'running', who: evt.player, credits: evt.price,
+      /* v14: a cleared booking reads as the promise it is — the window
+         and any slide land on the wire in the contract's own words
+         ('approved · booked for HH:MM'), never as a live run. The book
+         adds no new status chip — 'approved' is the word. */
+      const bookedTxt = evt.hhmm
+        ? ' — approved · booked for ' + evt.hhmm +
+          (evt.slid ? ' (slid from ' + evt.slid + ')' : '')
+        : null;
+      const clipTxt = (!bookedTxt && evt.clipped)
+        ? ' — runs until ' + evt.clipped + ' (the book holds the rest)'
+        : '';
+      const out = [mk('request',
+        sum() + gsWireNoteSuffix(r, 'running') + (bookedTxt || clipTxt),
+        { status: bookedTxt ? 'approved' : 'running', who: evt.player,
+          credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
       /* player-called sky: the weather change itself is a feed kind,
-         always attributed (feed.json event_kinds). */
-      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+         always attributed (feed.json event_kinds). A booking prints it
+         when the window FIRES, not when it's filed. */
+      if(evt.kind === 'weather' && !bookedTxt &&
+         r && r.params && r.params.wx){
         const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
         out.push(mk('weather', wl + ' over the Mission — called by ' +
           gsWireWho(evt.player), { who: evt.player }));
@@ -498,12 +513,32 @@ function gsWireFormat(evt){
     }
 
     case 'queue':
+      /* v14: a queued booking still names its window on the wire —
+         'in line for 21:30' reads exactly as exposed as 'in line' */
       return [mk('request', sum() + gsWireNoteSuffix(r, 'queued') +
-        ' — in line (#' + (evt.pos || '?') + ')',
+        ' — in line' + (evt.booked ? ' for ' + evt.booked : '') +
+        ' (#' + (evt.pos || '?') + ')',
         { status: 'queued', who: evt.player, credits: evt.price,
           surge: evt.surge, discount: evt.discount,
           venue: gsWireReqVenue(evt, r),
           mentions: gsWireReqMentions(evt, r) })];
+
+    case 'fire': {
+      /* v14: a booked window arrives — the contract line is
+         'booked window arrived — <action> fired' (running) */
+      const out = [mk('request',
+        'booked window arrived — ' + sum() + ' fired' +
+        (evt.late ? ' (window ran late)' : ''),
+        { status: 'running', who: evt.player, credits: evt.price,
+          venue: gsWireReqVenue(evt, r),
+          mentions: gsWireReqMentions(evt, r) })];
+      if(evt.kind === 'weather' && r && r.params && r.params.wx){
+        const wl = GS_WIRE_WX_LABEL[r.params.wx] || 'New skies';
+        out.push(mk('weather', wl + ' over the Mission — called by ' +
+          gsWireWho(evt.player), { who: evt.player }));
+      }
+      return out;
+    }
 
     case 'deny':
       /* verbatim contract wording — never the note, never the detail.
@@ -514,7 +549,11 @@ function gsWireFormat(evt){
           attempt: evt.kind })];
 
     case 'expire':
-      return [mk('request', sum() + ' — lapsed, fully refunded',
+      /* v14: a booked window that passed unfired reads differently from
+         an ordinary queue lapse — the promise is what missed */
+      return [mk('request', sum() + (evt.via === 'window'
+          ? ' — window missed, fully refunded'
+          : ' — lapsed, fully refunded'),
         { status: 'refunded', who: evt.player, credits: evt.refund })];
 
     case 'fail':
@@ -525,8 +564,13 @@ function gsWireFormat(evt){
       /* v9: a declined co-star ask resolves honestly — the pawn said
          no, half the bill came back, and the wire says exactly that */
       const declined = evt.declined || (r && r.declined);
+      /* v14: a clipped or late-fired run still wrapped — the wire owns
+         that the un-run minutes came back */
+      const shortTxt = (!declined && evt.clipped)
+        ? ' — wrapped early · un-run minutes refunded' : null;
       const out = [mk('request', sum() + gsWireNoteSuffix(r, 'resolved') +
-        (declined ? ' — resolved · declined' : ' — wrapped'),
+        (declined ? ' — resolved · declined'
+                  : shortTxt || ' — wrapped'),
         { status: 'resolved', who: evt.player,
           credits: declined ? evt.refund : null,
           venue: gsWireReqVenue(evt, r),
@@ -541,9 +585,13 @@ function gsWireFormat(evt){
 
     case 'cancel': {
       const admin = (evt.by === 'admin' || evt.by === 'owner');
+      /* v14: a pre-window cancel is a booking coming off the calendar —
+         the wire says which kind of promise ended */
+      const preWin = evt.pre_window;
       return [mk('request', sum() + (admin
           ? ' — ended by admin, player compensated'
-          : ' — cancelled, refunded'),
+          : preWin ? ' — cancelled before the window, refunded'
+                   : ' — cancelled, refunded'),
         { status: 'refunded', who: evt.player,
           credits: evt.refund,
           compensated: admin ? evt.refund : null })];
@@ -551,7 +599,10 @@ function gsWireFormat(evt){
 
     case 'review':
       if(evt.action === 'in_review')
-        return [mk('request', sum() + ' — in human review',
+        /* v14: a booked filing in review still names its window —
+           the calendar ask is public even before it's a promise */
+        return [mk('request', sum() + ' — in human review' +
+          (evt.booked ? ' · for ' + evt.booked : ''),
           { status: 'in_review', who: evt.player,
             reason: gsWireReason(evt.code) })];
       if(evt.action === 'approved')
