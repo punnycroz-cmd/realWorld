@@ -1,4 +1,41 @@
-# Memory Model Spec v5.23 — implementable human-like memory for RW characters
+# Memory Model Spec v5.24 — implementable human-like memory for RW characters
+
+> **v5.24 note (age-decline VII — the trajectory layer):**
+> `memory/age-decline.md` Part VII (§§96–105) replaces the mean
+> decline curve with a drawn trajectory and prices the noise that
+> arrives before the fall. **Trajectory split** — `traj` ∈
+> {maintain, average, decline} drawn at bible-write (base rates
+> 0.18/0.68/0.14, modulated by fitness/apoe/social/sex);
+> `maint_slope_mult` 0.5 vs `decl_accel` quadratic leg
+> (Josefsson et al. 2012 Betula; Pudas et al. 2013) — §4.36a.
+> **IIV leads** — `iiv_eff` noise rises with age_eff past 60 and
+> leads the slope by `iiv_lead` ~5y in the decline arm — the
+> inconsistent-before-worse signature (Lövdén et al. 2007 BASE)
+> — §5.78a. **SCD** — the complaint channel samples
+> `age_eff + scd_lead` in decliners only: the character feels the
+> slope ~6y before the store shows it; locked `scd_store_null`
+> (Jessen et al. 2014) — §5.78b. **Retirement overlay** —
+> `work_engaged:false` accrues `engage_deficit` on encode legs
+> only (≤`retire_cap` 4y-equivalent, `engage_sub` recovers ≤0.6);
+> locked `retire_retrieval_null` (Rohwedder & Willis 2010,
+> causality DEBATED) — §4.36b. **Locomotion tax** — `locomoting`
+> context ×(1−`loco_tax`) encode legs + `loco_pm_pen` on armed
+> intentions (Lindenberger, Marsiske & Baltes 2000) — §4.36c.
+> **Allocentric decline** — nav records mint `nav_mode{allo,ego}`
+> under `allo_mint_p(age_eff)`; `ego_dir_pen` on mismatched-
+> heading rejoin; permastore routes exempt — locked
+> `nav_permastore_null` (Wiener et al. 2013) — §§4.36d, 5.78c.
+> **Implicit floor** — priming/ctxcue/script legs evaluate on
+> min(age_eff,55) — locked `proc_age_null` (Fleischman et al.
+> 2004) — §5.78d. **Observation inflation split** — rate flat,
+> tail widens: `obs_infl_age` ×1.6@80 on fantasy/imagery-top
+> quintile; benefit side `obs_old_gain` (Lindner et al.
+> 2010/2014) — §6.153a. **I/E detail shift** — emission field mix
+> goes semantic: internal share 0.65@30→0.45@80, `ext_gain`
+> 1.3@80, probe-resistant (Levine et al. 2002) — §5.78c.
+> **Stack cap** — joint old-age products capped `stack_cap` 3.5,
+> `stack_capped` audit field — §6.153b. +21 params, +4 locked
+> nulls; §10 contract adds. Registry P805–P814.
 
 > **v5.23 note (age-development VII — the child side of the
 > lock):** `memory/age-development.md` Part VII (§§75–82) prices
@@ -4119,6 +4156,58 @@ gains child knots — full curve 1.3@4y → 1.15@10y → 1.1@adult →
 as before; stacks AGAINST `obs_gain` (§4.31c) — at 4y the
 do/watch gap is ~4×, at adult ~1.2×, at 85 ≥1.4×.
 
+### 4.36 The old-age encode legs II — trajectory, work, streets,
+maps (new in v5.24)
+
+**4.36a Trajectory class** (AD§96; Josefsson, de Luna, Pudas,
+Nilsson & Nyberg 2012 *J. Am. Geriatr. Soc.* 60:2308 —
+verified: 18%/68%/13% maintain/average/decline over 15y): the
+profile draws hidden `traj` ∈ {maintain, average, decline} at
+bible-write — base rates `traj_maintain_p` 0.18 /
+`traj_decline_p` 0.14, perturbed ±~0.05/marginal by `fitness`+,
+`apoe`-ε4−(decline), `social`/partnered+, female `sex`+
+(maintain). Effect: all post-60 decline-slope terms (recol_mult,
+tod_tax, pm_time_tax, headroom decay, etc.) multiply
+`maint_slope_mult` 0.5 on maintain arm; decline arm doubles them
+AND compounds — `decl_accel(age_eff)` quadratic leg 1.0@55 →
+1.5@80 → 1.7@85 (the pre-diagnostic divergence). The class is
+never exposed to the character; its only surface is §5.78b.
+
+**4.36b Engagement overlay — the mental-retirement leg** (AD§99;
+Rohwedder & Willis 2010 *JEP* 24:119 — verified causal direction
+via pension-IV design, magnitude DEBATED; Bonsang, Adam &
+Perelman 2012): char state `work_engaged` (world-set on
+retirement/exit events) false → `engage_deficit` accrues
+`retire_rate` (0.5 age_eff-years/sim-year) to `retire_cap` (4y),
+added to age_eff on ENCODE legs only — the decline is upstream
+stimulation loss, mints weaken; retrieval legs untouched (locked
+`retire_retrieval_null`). `engage_sub` ∈[0,1] (world-supplied
+activity flags — clubs, projects, caregiving) refunds up to
+`engage_sub_recover` 0.6 of the accrued deficit — partial, never
+full.
+
+**4.36c Locomotion tax** (AD§100; Lindenberger, Marsiske &
+Baltes 2000 *Psych. & Aging* 15:417 — verified: dual-task cost
+d≈0.98 mid / 1.47 old; knots halved for street-vs-track):
+context `locomoting:true` (walking/transit/carrying — world-set)
+multiplies all encode legs ×(1 − `loco_tax(age_eff)`): 0.05@30
+→ 0.22@65 → 0.35@80 → 0.40@85. Armed Intentions pay
+`loco_pm_pen` (0→0.2@85) added to their firing threshold while
+the character is locomoting — the errand forgets itself
+mid-walk. `loco_yield` emission hint: under hard encode demand
+while locomoting, world may render gait slowing/stopping — the
+behavioral readout of the tax.
+
+**4.36d Navigation mint** (AD§101; Wiener, de Condappa, Harris
+& Wolbers 2013 *J. Neurosci.* 33:6012 — verified; Head & Isom
+2010): records encoding a route/journey mint `nav_mode ∈
+{allo, ego}` — allo with `allo_mint_p(age_eff)` 0.8@30 →
+0.6@65 → 0.3@85, else ego. Ego-mode records encode heading-
+locked; retrieval evaluation at §5.78c. Locked
+`nav_permastore_null`: records tied to §4.20 script-node /
+permastore venues mint neither mode — the 40-year neighborhood
+is exempt; only novel routes carry the flag.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -6045,6 +6134,50 @@ loading); each check inside `pm_win` halves that check's
 remaining tax — strategic monitoring, not a param override.
 Below `cue_floor` (§5.63) a child additionally cannot
 GENERATE the reminder context — the two taxes stack.
+
+### 5.78 Old-age retrieval II — the noise, the worry, the wrong
+corner, the semantic story (new in v5.24)
+
+**5.78a IIV — variance is the symptom** (AD§97; Lövdén, Li,
+Shing & Lindenberger 2007 BASE — verified: within-person
+variability precedes and predicts decline; meta r≈.20): every
+encode/retrieval roll's noise term scales `iiv_eff = iiv ·
+(1 + iiv_age_slope·max(0, age_eff − 60)/20)`, `iiv_age_slope`
+0.6 — variance roughly doubles by 85. Decline arm evaluates
+iiv_eff on `age_eff + iiv_lead` (5y): the inconsistency arrives
+before the mean does — same cue, different Tuesday.
+
+**5.78b The complaint channel leads the store — SCD** (AD§98;
+Jessen et al. 2014 *Alzheimers Dement.* 10:844 — verified SCD
+framework): metamemory-side instruments (meta_conf reports,
+self-report emissions, JOL/FOK verbalization) sample
+`age_eff + scd_lead·(traj=="decline")`, `scd_lead` ~6y — a
+decliner FEELS the slope while the store is still average.
+Locked `scd_store_null`: scd_lead touches report legs only —
+S, θ, and decay are never adjusted by it; worried-well
+(average/maintain arms with high neurot) complains without any
+real drift, unchanged.
+
+**5.78c The wrong corner and the semantic story** (AD§§101,
+104): ego-mode nav records (§4.36d) answer route queries only
+when the approach cue matches encoded heading — mismatched-
+heading rejoin pays `ego_dir_pen` (0.5@85) on top of normal
+match; permastore routes exempt (`nav_permastore_null`). On
+emission field selection, `ie_shift(age_eff)` reweights the
+internal:external detail mix — internal share 0.65@30 →
+0.45@80 → 0.42@85, external (semantic commentary, off-event
+knowledge) ×`ext_gain` →1.3@80 (Levine et al. 2002 — verified;
+persists under probing: interviewMode/FOK-reprobe recover less
+internal than recol_mult alone predicts — the mix shifts, not
+just the mass).
+
+**5.78d The implicit floor** (AD§102; Fleischman, Wilson,
+Gabrieli, Bienias & Bennett 2004 *Psych. & Aging* 19:617 —
+verified longitudinal: priming stable while explicit declines):
+implicit legs — §5.35 fluency channel, §5.75 ctxcue, §4.20
+script-node rate — evaluate on `min(age_eff, 55)`. Locked
+`proc_age_null`: this is the model's deepest spared floor —
+the routine outlives the instance, permanently.
 
 ---
 
@@ -9521,6 +9654,32 @@ of child-tells-own-past events — elaborative households
 produce more child narration AND get more per telling; the
 wall-shift (`amnesia_exit_eff`) is produced, not assumed.
 
+### 6.153 The old-age distortion legs II — "I did it" and the
+cap on the stack (new in v5.24)
+
+**6.153a Observation inflation, age-tail** (AD§103; Lindner,
+Echterhoff, Davidson & Brand 2010 *Psych. Sci.* 21:1291 —
+verified; Lindner, Davidson & Echterhoff 2014 — verified:
+equal RATE, prone elders LARGER magnitude, true-action benefit
+larger too): §6.117 obs_inflation multiplies `obs_infl_age =
+1 + obs_tail_k·max(0, age_eff − 60)/20·tail_ind`, `obs_tail_k`
+0.6, `tail_ind` = top-quintile (fantasy + imagery)/2 — median
+elder flat, the prone tail reaches ~1.6@80. Benefit arm:
+§4.31c `obs_gain` gains old-side knots `obs_old_gain` —
+0.05@55 → 0.18@80 → 0.2@85 (watching helps the old MORE than
+the young; doing still beats watching via enact_rescue). Both
+halves ship — inflation without the benefit is the database
+version.
+
+**6.153b The stack cap** (AD§105 — bookkeeping, no new
+source): the joint product of all old-age multiplier legs on a
+single encode/retrieve/distort path is capped at `stack_cap`
+(3.5); when the cap binds the emission/record mints
+`stack_capped:true` (audit field — P814 counts binding rate;
+<2% of 80+ events at defaults or the knots, not the cap, are
+wrong). The literature prices each leg alone; the cap is the
+honest bound on unmeasured joint territory.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -10934,6 +11093,30 @@ MemoryParams = {
 //   permanent), `reorg_hit` (once-only attrition mark);
 //   Event `to_remember`; emission `check_clock` micro-event.
 //   RIF child ramp REJECTED — null finding (AD§76, J9).
+// v5.24 additions (age-decline VII — AD§§96–105)
+"traj_maintain_p": 0.18, "traj_decline_p": 0.14, // §4.36a draw
+"maint_slope_mult": 0.5, "decl_accel": 1.0,      // post-60 slope legs
+"iiv_age_slope": 0.6, "iiv_lead": 5,             // §5.78a
+"scd_lead": 6,                                   // §5.78b decline arm
+"retire_rate": 0.5, "retire_cap": 4,             // §4.36b
+"engage_sub_recover": 0.6,
+"loco_tax": 0.0, "loco_pm_pen": 0.0,             // §4.36c age-knot bases
+"loco_yield": 0.3,                               // emission hint rate
+"allo_mint_p": 0.8, "ego_dir_pen": 0.5,          // §§4.36d,5.78c
+"obs_infl_age": 1.0, "obs_tail_k": 0.6,          // §6.153a
+"obs_old_gain": 0.0,                             // §4.31c old knots
+"ie_shift": 0.0, "ext_gain": 1.0,                // §5.78c knots
+"stack_cap": 3.5,                                // §6.153b
+// v5.24 locked nulls: proc_age_null (implicit legs evaluate on
+//   min(age_eff,55) — P811); nav_permastore_null (script-node/
+//   permastore routes exempt from nav_mode — P810);
+//   retire_retrieval_null (engage_deficit is encode-only —
+//   P808); scd_store_null (scd_lead moves reports, never S —
+//   P807).
+// v5.24 fields: profile `traj` (drawn at bible-write, hidden);
+//   state `work_engaged`, `engage_sub`, `engage_deficit`;
+//   context `locomoting`; record `nav_mode`; emission
+//   `loco_yield` hint, `stack_capped` audit field.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -12430,6 +12613,37 @@ not resolved (DEBATED magnitude). P509/P511.
     `enacted:true` unchanged as the trigger field.
   - All snapshot-additive, absent = legacy; no new traits
     (reminisce_env, consc already exist).
+- v5.24 additions (age-decline.md Part VII §§96–105):
+  - **Profile field `traj`** (§4.36a) — {maintain, average,
+    decline} drawn at bible-write from trait-modulated base
+    rates (fitness/apoe/social/sex); hidden from the
+    character. World-builder: a bible may REQUEST a class via
+    trait loadings but cannot set it — the draw is the
+    model's, matching Betula heterogeneity.
+  - **State fields:** `work_engaged` (world-set on
+    retirement/exit — feeds §4.36b), `engage_sub` ∈[0,1]
+    (world-supplied activity flags), `engage_deficit`
+    (accrued, internal).
+  - **Context field `locomoting:true`** (§4.36c) — world
+    sets on walking/transit events; `loco_yield` emission
+    hint is the renderable behavioral readout (the elder who
+    stops walking to think).
+  - **Record field `nav_mode`** ∈{allo, ego} (§4.36d) —
+    minted on route/journey records only; permastore venues
+    exempt (`nav_permastore_null`).
+  - **Emission detail mix** (§5.78c) — `ie_shift` reweights
+    internal vs external detail selection on narrations;
+    external = semantic commentary fields, already in schema.
+  - **Complaint channel** (§5.78b) — meta_conf/JOL/FOK
+    reports sample `age_eff + scd_lead` on the decline arm;
+    locked `scd_store_null` — reports never touch S.
+  - **Audit field `stack_capped`** (§6.153b) — minted when
+    the `stack_cap` 3.5 joint-product cap binds.
+  - **Locked nulls:** `proc_age_null`, `nav_permastore_null`,
+    `retire_retrieval_null`, `scd_store_null`.
+  - All snapshot-additive, absent = legacy; no new traits
+    (iiv, apoe, fitness, social, sex, fantasy, imagery,
+    neurot, meta_conf all already exist).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

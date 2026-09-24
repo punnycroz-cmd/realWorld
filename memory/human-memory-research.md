@@ -2689,3 +2689,84 @@ This version's sources are methodological — they discipline the
 - **Enactment in children:** Ratner, Smith & Dionne 1991;
   Cohen 1981 (SPT robust ≥3–4). Anchors `er_4y`/`er_10y`
   (§4.35d — completes the U with age-decline §85's old knots).
+
+## 54. Addendum — v76 anchors (age-decline VII, spec v5.24)
+
+All verified via web this version. Sources behind Part VII of
+`age-decline.md` (§§96–105), spec §§4.36/5.78/6.153, probes
+P805–P814:
+
+- **Trajectory heterogeneity:** Josefsson, de Luna, Pudas,
+  Nilsson & Nyberg 2012 (*J. Am. Geriatr. Soc.* 60:2308 —
+  verified: Betula N=1,558, 15y episodic trajectories —
+  18% maintainers, 68% average, 13% decliners; education,
+  physical activity, partnered, female → maintain; APOE ε4,
+  male, not-in-labor-force → decline); Pudas et al. 2013;
+  Betula 23–28y dementia-risk follow-up (*Int. Psychogeriatr.*
+  — verified: decliners ~4× dementia risk, maintainers ~2.6×
+  reduced, divergence begins 10–15y pre-diagnosis). Anchors
+  `traj` draw + `maint_slope_mult`/`decl_accel` (§4.36a).
+- **Intraindividual variability as leading indicator:**
+  Hultsch, MacDonald & Dixon 2002; MacDonald, Nyberg &
+  Bäckman 2006; Lövdén, Li, Shing & Lindenberger 2007
+  (*Neuropsychologia* — verified: within-person RT
+  variability precedes and predicts 13y decline, Berlin
+  Aging Study ages 70–102); longitudinal meta-analysis
+  r≈.20 CI[.09,.31] (verified). Anchors `iiv_age_slope` +
+  `iiv_lead` (§5.78a).
+- **Subjective cognitive decline:** Jessen et al. 2014
+  (*Alzheimers Dement.* 10:844 — verified: SCD-I framework —
+  self-experienced decline, unimpaired objective tests, first
+  symptomatic preclinical stage; SCD-plus feature list).
+  Anchors `scd_lead` complaint-channel leg (§5.78b).
+- **Mental retirement:** Rohwedder & Willis 2010 (*JEP*
+  24:119 — verified: cross-national IV design via pension
+  policy, early retirement causally lowers early-60s
+  cognition; magnitude/mechanism DEBATED by authors);
+  Bonsang, Adam & Perelman 2012. Anchors `retire_rate`,
+  `retire_cap`, `engage_sub_recover`, `retire_retrieval_null`
+  (§4.36b).
+- **Walking dual-task:** Lindenberger, Marsiske & Baltes
+  2000 (*Psych. & Aging* 15:417 — verified: memorizing while
+  walking, dual-task cost d≈0.98 middle / d≈1.47 old;
+  sensorimotor control demand account). Anchors `loco_tax`,
+  `loco_pm_pen`, `loco_yield` (§4.36c — knots halved vs lab,
+  street-vs-track correction, flagged).
+- **Allocentric navigation decline:** Wiener, de Condappa,
+  Harris & Wolbers 2013 (*J. Neurosci.* 33:6012 — verified:
+  same-direction route recall intact, novel-direction rejoin
+  fails, persistent beacon strategy, no allocentric shift
+  across 6 sessions); Head & Isom 2010; Moffat & Resnick
+  2002; Wiener et al. 2012 route repetition vs retracing.
+  Anchors `allo_mint_p`, `ego_dir_pen`, `nav_permastore_null`
+  (§§4.36d, 5.78c).
+- **Implicit/procedural preservation:** Fleischman, Wilson,
+  Gabrieli, Bienias & Bennett 2004 (*Psych. & Aging* 19:617
+  — verified longitudinal: explicit declines, priming stable
+  over 4 annual waves); Mitchell, Brown & Murphy 1990;
+  La Voie & Light 1994 meta. Anchors `proc_age_null` +
+  min(age_eff,55) floor (§5.78d).
+- **Observation inflation in aging:** Lindner, Echterhoff,
+  Davidson & Brand 2010 (*Psych. Sci.* 21:1291 — verified:
+  observed action → false self-performance memory, warning-
+  immune); Lindner, Davidson & Echterhoff 2014 (*Aging
+  Neuropsychol. Cogn.* — verified: equal error rate, prone
+  elders larger magnitude, true-action observation benefit
+  LARGER in old). Anchors `obs_infl_age`, `obs_tail_k`,
+  `obs_old_gain` (§6.153a).
+- **Autobiographical detail mix:** Levine, Svoboda, Hay,
+  Winocur & Moscovitch 2002 (*Psych. & Aging* 17:677 —
+  verified: Autobiographical Interview — older adults fewer
+  internal/episodic, more external/semantic details,
+  persists under probing); AI meta-analysis 2023 (gbad077 —
+  verified: moderate healthy-aging effect, larger MCI/AD);
+  James et al. 1998 (old narrations judged more
+  interesting). Anchors `ie_shift`, `ext_gain` (§5.78c).
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (class heterogeneity, IIV
+  precedence, SCD-as-first-symptom, retirement direction,
+  dual-task growth, allo→ego shift, priming stability,
+  inflation rate-flat/magnitude-up, I/E shift). All
+  magnitudes, the lead times, trait-draw weights, nav_mode
+  operationalization, the 55 freeze, and `stack_cap` are RW
+  HYPOTHESES — `stack_cap` is bookkeeping, not a finding.

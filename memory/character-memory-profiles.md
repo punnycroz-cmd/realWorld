@@ -1052,6 +1052,16 @@ needs both.
 | self_reminisce_gain / self_reminisce_until | 0.0 / 7 | 0.6 / 13 | child-tells-own-past consolidation / cutoff (v5.23) |
 | reminisce_env_mod | 0.0 | 0.25 | env modulation of self_reminisce_gain (v5.23) |
 | er_4y / er_10y | 1.0 / 1.0 | 1.6 / 1.4 | enact_rescue child-side knots (v5.23) |
+| traj_maintain_p / traj_decline_p | 0.05 / 0.03 | 0.4 / 0.35 | trajectory class draw bases (v5.24) |
+| maint_slope_mult / decl_accel | 0.2 / 1.0 | 0.9 / 2.2 | post-60 slope modifiers per class (v5.24) |
+| iiv_age_slope / iiv_lead | 0.0 / 0 | 1.2 / 9 | variance growth past 60 / decline-arm lead (v5.24) |
+| scd_lead | 0 | 10 | complaint-channel lead, decline arm only (v5.24) |
+| retire_rate / retire_cap / engage_sub_recover | 0.0 / 0 / 0.0 | 1.2 / 8 / 0.9 | retirement overlay accrual/cap/refund (v5.24) |
+| loco_tax / loco_pm_pen / loco_yield | 0.0 / 0.0 / 0.0 | 0.5 / 0.3 / 0.7 | locomotion encode tax, PM threshold, gait hint (v5.24) |
+| allo_mint_p / ego_dir_pen | 0.1 / 0.0 | 0.95 / 0.8 | nav mint allocentric rate / wrong-heading penalty (v5.24) |
+| obs_infl_age / obs_tail_k / obs_old_gain | 0.8 / 0.0 / 0.0 | 1.8 / 1.0 / 0.4 | observation-inflation age tail + benefit knots (v5.24) |
+| ie_shift / ext_gain | 0.0 / 0.8 | 0.4 / 1.8 | internal:external narration mix drift (v5.24) |
+| stack_cap | 2.0 | 6.0 | joint old-age product ceiling + audit (v5.24) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3635,3 +3645,56 @@ existing dials (`reminisce_env`, `consc`). Bible-facing notes:
 - **Doing beats watching hardest in childhood (§4.35d):** ~4×
   do/watch gap at 4y vs ~1.2× adult — a young character's
   autobiography is almost entirely self-action.
+
+## 58. v5.24 note (age-decline VII — the trajectory layer)
+
+Ten clamp rows added in §0. **One new profile field, hidden:**
+`traj` — the decline-class draw. **Zero new traits** — the draw
+consumes fitness, apoe, social, sex (already pinned). Bible-facing
+notes:
+
+- **You cannot write `traj`; you can only load the dice
+  (§4.36a):** a bible that wants a sharp-at-90 elder pins high
+  `fitness` + partnered `social` and gets a ~30% maintain draw,
+  not certainty — Betula says trajectory isn't chosen. The class
+  is invisible to the character; write NO character who "knows"
+  they're declining via the class — the only symptom is §5.78b.
+- **The worrier is data (§5.78b):** a decline-arm main
+  self-reports memory loss ~6 sim-years before the harness can
+  measure it — "my memory's going" while still performing. For
+  bibles: this is the gentlest dramatic hook in the system — the
+  character is right and nobody, including them, can prove it.
+  Worried-well mains (high neurot, average traj) complain
+  identically and never decline — do NOT resolve which is which
+  in the text.
+- **Retirement is a memory event (§4.36b):** when a main leaves
+  work, feed `work_engaged:false` and (optionally) `engage_sub`
+  activity flags — a retiree who joins three clubs loses the
+  slope more slowly than one who doesn't. Encode-side only: they
+  don't recall the past worse; they lay down the present worse.
+- **Walking is encoding load (§4.36c):** set `locomoting` on
+  transit events for old mains — the conversation on the walk to
+  the shop is thinner than the same conversation at the table.
+  `loco_yield` is a free stage direction: the elder who stops
+  walking to answer a hard question.
+- **New corners are hard, the neighborhood is exempt (§§4.36d,
+  5.78c):** `nav_mode` only mints on novel routes — a lifelong
+  Mission resident's streets are permastore and NEVER pay
+  ego_dir_pen. The drama lives at the edges: the new café
+  approached from the wrong direction is genuinely unnavigable.
+- **Watch the tail, not the mean (§6.153a):** "I did it myself"
+  inflation is a fantasy/imagery-top-quintile phenomenon at old
+  age — a vivid-imagination elder main is the one who'll claim
+  the chore they only watched. Pin imagery high if you want that
+  beat.
+- **Stories go semantic (§5.78c):** an 80-year-old's
+  reminiscence emits commentary over footage — writers get this
+  free via the detail mix; don't script extra episodic color
+  into old narrations, the model won't produce it and probing
+  won't recover it (Levine persistence).
+- **The routine outlives the instance (§5.78d):** `proc_age_null`
+  freezes implicit legs at 55 — the most impaired main still
+  does the morning whole. Nothing to pin; it's the floor.
+- **The cap is honest (§6.153b):** if `stack_capped` shows up
+  often in playtest logs, the knots are hot — report it, don't
+  raise the cap.

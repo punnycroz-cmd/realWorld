@@ -6975,3 +6975,130 @@ P798, P799), 1 structure-MUST (P804), 5 SHOULD.
   adolescent dip, time-PM lag, child-narration channel,
   instruction unlock, enactment U); every magnitude and the
   ctx_locked-permanence extension are RW HYPOTHESES.
+
+## 152. New probes P805–P814 (v76 suite — age-decline VII)
+
+- **P805 trajectory classes (MUST — distribution-lock):** a
+  300-profile cohort aged 35→85 under default draws yields
+  maintain/average/decline within 0.10–0.26 / 0.55–0.80 /
+  0.06–0.22; the maintain arm's 75yo episodic output ≥ the
+  average arm's 65yo; the decline arm's second-half slope ≥
+  1.3× its first-half (acceleration). Josefsson 2012.
+- **P806 IIV precedence (MUST — order-lock):** decline-arm
+  profiles show elevated response variance (iiv_eff)
+  measurably BEFORE mean level shifts — the variance anomaly
+  leads the level anomaly by `iiv_lead`±1 sim-year; average
+  arm shows concurrent-not-leading variance. Lövdén 2007.
+- **P807 SCD sign flip (MUST — sign-lock):** decline-arm
+  complaint-channel reports (meta_conf, self-report
+  emissions) exceed measured deficit during the `scd_lead`
+  window, then converge to it; maintain arm never shows
+  complaint>deficit at defaults; `scd_store_null` — S
+  untouched in both arms. Jessen 2014.
+- **P808 retirement overlay (SHOULD):** `work_engaged:false`
+  at 62 adds an encode-side deficit ramping ~8y to
+  `retire_cap`; `engage_sub`=1 recovers ≥50%; retrieval-side
+  metrics flat — `retire_retrieval_null`. Rohwedder & Willis
+  2010.
+- **P809 locomotion tax (MUST — dissociation):** identical
+  events encoded sitting vs `locomoting` at 75 differ ≥1.3×
+  on S; the sitting-vs-locomoting gap at 35 ≤0.15; armed
+  time-intentions during locomotion fire less
+  (`loco_pm_pen`). Lindenberger 2000.
+- **P810 nav split (MUST — shape-lock):** a route learned at
+  78, queried same-direction, retrieves; queried from the
+  reversed approach at a decision corner fails ≥1.8× more
+  (`ego_dir_pen`); permastore venue routes exempt —
+  `nav_permastore_null`. Wiener 2013.
+- **P811 implicit floor (MUST — sign-lock):** priming/ctxcue/
+  script-rate legs at 82 are statistically identical to 55yo
+  values while matched episodic legs differ ≥1.5× —
+  `proc_age_null`. Fleischman 2004.
+- **P812 observation inflation split (SHOULD):** tail_ind
+  profiles at 80 show "did it myself" false alarms ≥1.4× the
+  young-tail rate while median profiles match the young rate;
+  `obs_old_gain` boosts TRUE observed-action recall more at
+  80 than 30 — both halves of the Lindner dissociation, rate
+  AND benefit. Lindner 2010/2014.
+- **P813 I/E narration shift (MUST — probe-resistant):**
+  free-recall emissions at 78 show external-detail share ≥
+  young rate AND interviewMode probing recovers proportionally
+  less internal detail than recol_mult alone predicts — the
+  semantic skew is a mix shift, not a threshold artifact.
+  Levine 2002.
+- **P814 stack audit (MUST — process):** joint old-age
+  products never exceed `stack_cap`; `stack_capped` fires on
+  <2% of 80+ events at defaults; if it fires more, FAIL as
+  miscalibration of the knots, not the cap. AD§105.
+
+Registry: P1–P814. v76 suite: P805–P814 — 7 MUST (P805, P806,
+P807, P809, P810, P811, P813), 1 process-MUST (P814), 2 SHOULD
+(P808, P812).
+
+## 153. Sources verified this version (P805–P814 backing)
+
+- **Trajectory classes — CONSENSUS existence:** Josefsson,
+  de Luna, Pudas, Nilsson & Nyberg 2012 (*J. Am. Geriatr.
+  Soc.* 60:2308 — verified: Betula N=1,558, 15y, 18/68/13%
+  classes; education/activity/partnered/female → maintain;
+  APOE ε4 → decline); Pudas et al. 2013; Betula dementia
+  follow-up (decliners ~4× risk; maintainers ~2.6× reduced —
+  verified). Class boundaries are a ±1 SD rule — flagged
+  SEMI-arbitrary; trait-draw magnitudes HYPOTHESIS.
+- **IIV precedence — CONSENSUS direction:** Hultsch,
+  MacDonald & Dixon 2002; MacDonald, Nyberg & Bäckman 2006;
+  Lövdén, Li, Shing & Lindenberger 2007 (*Neuropsychologia*
+  — verified: trial-to-trial RT variability precedes/predicts
+  13y decline, BASE ages 70–102); longitudinal meta r≈.20
+  CI[.09,.31] — verified. `iiv_lead` magnitude HYPOTHESIS.
+- **SCD — CONSENSUS framework:** Jessen et al. 2014
+  (*Alzheimers Dement.* 10:844 — verified: SCD = subjective
+  decline with unimpaired objective performance, first
+  symptomatic preclinical stage; SCD-plus feature list).
+  Per-class complaint-channel lead (`scd_lead`) is our
+  operationalization — HYPOTHESIS as a number.
+- **Mental retirement — CONSENSUS direction, DEBATED
+  magnitude:** Rohwedder & Willis 2010 (*JEP* 24:119 —
+  verified: cross-national pension-IV design, early
+  retirement causally lowers early-60s cognition); Bonsang,
+  Adam & Perelman 2012. Encode-only routing + accrual form
+  HYPOTHESIS.
+- **Locomotion dual-task — CONSENSUS:** Lindenberger,
+  Marsiske & Baltes 2000 (*Psych. & Aging* 15:417 —
+  verified: memorize-while-walking, d≈0.98 mid / 1.47 old).
+  Street-vs-track halving is our ecological correction.
+- **Allocentric decline — CONSENSUS:** Wiener, de Condappa,
+  Harris & Wolbers 2013 (*J. Neurosci.* 33:6012 — verified:
+  same-direction route recall intact, novel-direction rejoin
+  fails, persistent beacon strategy, no cross-session
+  shift); Head & Isom 2010; Moffat & Resnick 2002.
+  Per-record `nav_mode` flag is our form — HYPOTHESIS.
+- **Implicit/procedural preservation — CONSENSUS:**
+  Fleischman, Wilson, Gabrieli, Bienias & Bennett 2004
+  (*Psych. & Aging* 19:617 — verified longitudinal:
+  explicit declines, priming stable across 4 waves);
+  Mitchell, Brown & Murphy 1990; La Voie & Light 1994.
+  The 55 freeze-point is HYPOTHESIS.
+- **Observation inflation age leg — CONSENSUS finding,
+  modest n:** Lindner, Echterhoff, Davidson & Brand 2010
+  (*Psych. Sci.* 21:1291 — verified: robust, warning-
+  immune); Lindner, Davidson & Echterhoff 2014 (*Aging
+  Neuropsychol. Cogn.* — verified: equal error RATE, prone
+  elders LARGER effect, true-action benefit larger in old).
+  Tail-only operationalization HYPOTHESIS.
+- **Internal/external detail shift — CONSENSUS:** Levine,
+  Svoboda, Hay, Winocur & Moscovitch 2002 (*Psych. & Aging*
+  17:677 — verified: Autobiographical Interview, fewer
+  internal / more external details, probe-resistant);
+  2023 AI meta-analysis (gbad077 — verified: moderate in
+  healthy aging, larger in MCI/AD). Share knots HYPOTHESIS.
+- **Stack cap — no source, by design:** bookkeeping bound on
+  unmeasured joint territory (AD§105); P814 makes the
+  honesty falsifiable.
+- **Established vs hypothesis summary:** every direction and
+  dissociation this version is established (classes, IIV
+  precedence, SCD-as-first-symptom, retirement direction,
+  dual-task growth, allo→ego shift, priming stability,
+  rate-flat/magnitude-up inflation, I/E shift); all
+  magnitudes, lead times, class-draw weights, the nav_mode
+  flag, the freeze point, and the cap are RW HYPOTHESES.

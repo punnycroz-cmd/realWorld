@@ -2597,3 +2597,326 @@ field: `cueType`. Locked nulls: `pos_da_null`, `auto_sync_null`,
   sustained activity events); world-builder decides whether
   "joined a walking group" is a bible beat or a sim emergent —
   spec supports both, neither is scheduled.
+
+# Part VII — v76: the trajectory layer (decline is a distribution, not a
+# curve; the noise arrives before the fall; the spared floors get names)
+
+Parts I–VI priced the MEAN decline curve. The literature's harder finding
+is that the mean is a fiction of averaging: on 15-year longitudinal data
+only ~2/3 of healthy adults track the age-typical slope at all — a fifth
+decline nothing, an eighth fall off a shelf. Part VII splits the curve
+into trajectory classes, prices the two leading indicators that arrive
+before measurable loss (complaints, trial noise), taxes the everyday
+ecology old characters actually live in (walking while remembering,
+retiring, navigating a changed neighborhood), and names the floors that
+survive (priming, the familiar route home). Everything rides the same
+`age_eff` machinery; nothing here reopens the store.
+
+## 96. The trajectory split — maintainers, averages, decliners
+(Josefsson, de Luna, Pudas, Nilsson & Nyberg 2012 *J. Am. Geriatr. Soc.*
+60:2308 — verified: Betula N=1,558, 15y: 18% maintainers, 68% average,
+13% decliners; Pudas et al. 2013; memory-profile/dementia follow-up:
+decliners ~4× dementia risk, maintainers ~2.6× reduced — CONSENSUS that
+the distribution is real, class boundaries SEMI-arbitrary by ±1 SD rule).
+The mean curve in Parts I–VI is now the `traj:"average"` arm; a profile
+draws `traj` ∈ {maintain, average, decline} with base rates
+{0.18, 0.68, 0.14} modulated by existing traits: `fitness` +, `apoe`
+(ε4) −, `social`/partnered +, female `sex` + (Betula predictor table —
+each shifts the draw ~±0.05 on the relevant marginal, summed, clamped
+0.02–0.4 per class). Effect: `maintain` halves the post-60 slope terms
+(`maint_slope_mult` 0.5), `decline` doubles them and adds an accelerating
+quadratic (`decl_accel` — decline compounds, matching the 10–15y
+pre-diagnosis divergence). **[Class rates CONSENSUS; the trait-draw
+magnitudes and the acceleration form HYPOTHESIS. The class is drawn at
+bible-write and is NOT knowable to the character — SCD §98 is its only
+surface symptom.]**
+
+## 97. The noise arrives first — IIV as leading indicator (Hultsch,
+MacDonald & Dixon 2002; MacDonald, Nyberg & Bäckman 2006 — verified;
+Lövdén, Li, Shing & Lindenberger 2007 BASE 13y — verified: within-person
+RT variability PRECEDES and predicts decline 70–102; meta r≈.20 — Buela-
+Casal? no: the longitudinal meta r=.20 CI[.09,.31] — verified).
+`iiv` trait (v3.1) gains an age-linked mean: `iiv_eff = iiv ·
+(1 + iiv_age_slope·(age_eff − 60)/20)` for age_eff>60, `iiv_age_slope`
+≈0.6 — trial-to-trial/encounter-to-encounter variance doubles across
+the seventh→ninth decade. In decliners add `iiv_lead` (~5y): the noise
+rises `iiv_lead` years before the slope does — implemented as iiv_eff
+evaluated on `age_eff + iiv_lead·(traj=="decline")`. Emergent: a
+declining elder is INCONSISTENT first — same question answered
+differently Tuesday and Thursday — before they are worse on average.
+**[Direction + precedence CONSENSUS (BASE); the explicit lead-time and
+its use as a class-marker are HYPOTHESIS.]**
+
+## 98. The complaint that knows — SCD as the pre-deficit symptom (Jessen
+et al. 2014 *Alzheimers Dement.* 10:844 — verified: SCD = self-
+experienced decline with unimpaired test performance, first symptomatic
+stage of preclinical AD; SCD-plus features: onset ≥60, progression,
+confirming informant). This INVERTS §41's metamemory split by class:
+maintainers/elders-on-average under-complain relative to measured
+deficit (the complaint outruns… nothing — §41's gap stands for the
+average arm), but `traj:"decline"` flips the sign `scd_lead` (~6y)
+early: the metamemory gap goes POSITIVE (complaint > measured deficit)
+while age_eff is still average-range. Mechanically: the complaint
+channel (meta_conf, fok instruments, self-report emissions) samples
+`age_eff + scd_lead·(traj=="decline")`, while the store samples
+`age_eff` — the character FEELS the slope before the harness can
+measure it. Healthy arm check: absent decline traj, SCD adds nothing —
+worried-well stays worried-well, no drift on the store.
+**[SCD-predicts-decline CONSENSUS (Jessen; Reisberg longitudinal);
+worried-well vs true-SCD separation CONSENSUS; our per-class sign flip
+is the cleanest implementable form and is HYPOTHESIS as a number.]**
+
+## 99. Leaving work moves the slope — the mental-retirement overlay
+(Rohwedder & Willis 2010 *JEP* 24:119 — verified: early retirement
+causally lowers early-60s cognition, cross-country IV design; Bonsang,
+Adam & Perelman 2012 — verified direction; causality size DEBATED —
+selection and reverse-causality noted by the authors themselves). Char
+state `work_engaged` (default true for working mains; world-set on
+retirement/exit events — world-v73's Last Shift feeds this). Retirement
+ramps an engagement overlay: `engage_deficit` accrues
+`retire_rate` (~0.5 age_eff-years per sim-year, saturating
+`retire_cap` ~4y over ~8y) added to age_eff on encode legs ONLY —
+the decline is upstream (less stimulation → weaker mints), not a
+retrieval failure. Substitute engagement (`engage_sub` ∈[0,1], a
+sum of ongoing cognitively-social activity flags the world supplies:
+clubs, projects, caregiving) recovers up to `engage_sub_recover`
+(0.6) of the deficit — "use it or lose it" operationalized as a
+partial refund, never a full one (retirement's own effect persists
+under substitution in the IV data — DEBATED). **[Direction CONSENSUS-
+leaning, magnitude and mechanism DEBATED; the encode-only routing and
+the accrual form are HYPOTHESIS.]**
+
+## 100. The street costs the memory — locomotion dual-task tax
+(Lindenberger, Marsiske & Baltes 2000 *Psych. & Aging* 15:417 —
+verified: memorizing while walking, dual-task cost d≈0.98 middle-aged,
+d≈1.47 old vs young; sensorimotor behavior increasingly needs cognitive
+control). Context `locomoting:true` (walking, stairs, carrying — world
+supplies on transit events) multiplies all encode legs by
+`(1 − loco_tax(age_eff))` — knots 0.05@30 → 0.15@55 → 0.30@70 →
+0.40@80 — AND adds `loco_pm_pen` (0.15@70) to armed-Intention firing
+thresholds (the errand forgets itself mid-walk). The symmetrical half:
+the world may render walking slowdown/stops under hard encode demand —
+`loco_yield` emission hint (stops-walking-when-talking, the literal
+behavioral readout). **[Direction + rough magnitude CONSENSUS; mapping
+lab narrow-track walking to street locomotion is a stretch we flag —
+real streets are easier than narrow tracks, so the default knots are
+halved relative to the lab effect size.]**
+
+## 101. The neighborhood forgives, the map doesn't — allocentric
+decline (Wiener, de Condappa, Harris & Wolbers 2013 *J. Neurosci.*
+33:6012 — verified: older adults recall routes same-direction but fail
+novel-direction rejoin — persistent beacon/egocentric strategy, no
+allocentric shift across sessions; Head & Isom 2010; Moffat & Resnick
+2002 — allocentric >> egocentric deficit, CONSENSUS). Navigation-
+relevant records mint `nav_mode ∈ {allo, ego}`: young mints allo by
+default; `allo_mint_p(age_eff)` falls 0.8@30 → 0.5@60 → 0.3@80. An
+`ego`-mode record answers a route query only when the approach cue
+matches the encoded heading (`ego_dir_pen` 0.5 on mismatched-heading
+rejoin — the wrong-direction corner is unnavigable, the same-direction
+corner intact). Overlearned routes (§4.20 script-node venues,
+permastore-tier) are EXEMPT — the 40-year resident's neighborhood is
+not this mechanism's territory; the NEW café two blocks over, entered
+from the park side for the first time, is. **[Direction CONSENSUS;
+per-record nav_mode flag is our operationalization — HYPOTHESIS;
+interacts with §5.29 doorway boundaries naturally.]**
+
+## 102. The floor that doesn't move — priming/procedural spared
+(Fleischman, Wilson, Gabrieli, Bienias & Bennett 2004 *Psych. & Aging*
+19:617 — verified longitudinal: explicit declines, priming STABLE over
+4 waves; Mitchell, Brown & Murphy 1990 — procedural/episodic
+dissociation; La Voie & Light 1994 meta — mild-or-null priming
+reduction, CONSENSUS that implicit >> explicit preservation). The
+implicit legs — §5.35 fluency channel, §5.75 ctxcue configural
+competence, §4.20 script-node rate — gain `proc_age_null` semantics:
+they evaluate on `min(age_eff, 55)` — frozen at late-middle-age
+decline, never worsening past it. This is the deepest floor in the
+model: an 85-year-old main whose episodic ledger is half-archived
+still walks the morning routine whole, still feels the neighborhood
+familiar, still can't tell you Tuesday. **[CONSENSUS direction; the
+55 freeze-point is HYPOTHESIS — the literature says "stable," not
+"stable from 55"; we pick the midlife plateau edge (§4.21).]**
+
+## 103. "I did it" — the observation-inflation age leg (Lindner,
+Echterhoff, Davidson & Brand 2010 *Psych. Sci.* 21:1291 — verified:
+watching another's action → false self-performance memory, robust,
+warning-immune; Lindner, Davidson & Echterhoff 2013/2014 — verified:
+older adults show the effect at equal RATE but prone elders show
+LARGER magnitude; AND observation boosted true action memory MORE in
+older adults — the benefit side scales too). §6.117
+observation-inflation gains `obs_infl_age(age_eff)` — 1.0@30 →
+1.0@60 mean (rate flat) but with widened variance: prone tail
+(high `fantasy`/`imagery`) reaches ~1.6@80 while the median stays
+flat — modeled as `obs_infl_age = 1 + obs_tail_k·(age_eff−60)/20·
+tail_ind` where `tail_ind` = top-quintile fantasy+imagery indicator.
+Symmetric benefit: `obs_gain` (§4.31c child arm already minted) gets
+old-side knots — observed actions encode ×(1 + obs_old_gain),
+0.1@60 → 0.2@80, BELOW enact_rescue — watching helps the old more
+than the young, doing still beats watching. **[Rate-flat/magnitude-
+up dissociation CONSENSUS (one study, n modest); tail-only
+operationalization HYPOTHESIS.]**
+
+## 104. The story goes semantic — internal:external detail shift
+(Levine, Svoboda, Hay, Winocur & Moscovitch 2002 *Psych. & Aging*
+17:677 — verified: Autobiographical Interview — older adults produce
+fewer internal/episodic details, MORE external/semantic; persists
+under probing; meta gbad077 2023 — verified: healthy-aging effect
+moderate, MCI/AD larger). Emission field selection gains an age-leg
+on TOP of recol_mult: `ie_shift(age_eff)` — internal-detail emission
+share declines 0.65@30 → 0.55@60 → 0.45@80 while external
+(commentary, general knowledge, off-event semantic) share rises
+complementarily — `ext_gain` ~1.3@80. Probe-resistance is the
+signature: structured re-cuing (§5.30 interviewMode, §5.76 fok
+reprobe) recovers LESS internal detail at old age than the recol_mult
+alone predicts — the story doesn't get more episodic under pressure,
+it gets more semantic, and reads as MORE interesting not less (James
+et al. 1998). This is the narrative-level readout of the R/F split —
+a 78-year-old's reminiscence is commentary-shaped, not footage-shaped.
+**[Direction + probe-persistence CONSENSUS; share knots HYPOTHESIS.]**
+
+## 105. The stack audit — what 14 multipliers do to one record
+(modeling hygiene section; no new source). Part VI warned the
+gist_false × sug_age × illus_recol stack is unpriced as a product.
+Part VII adds recol_mult × ie_shift × loco_tax × traj on a single
+encode-or-emit path — the joint product at 85 can reach 4–5×, which
+no single study licenses. Rule: **every old-age leg is evaluated
+against age_eff in ISOLATION, then the joint product is capped** —
+`stack_cap` (3.5×) on any single record/emission's total old-age
+multiplier product, with the cap logged (`stack_capped:true` audit
+field) so the harness can count how often the ceiling binds. The cap
+is not a mechanism — it's the honest admission that the literature
+measures legs one at a time. P814 checks the cap binds rarely (<2%
+of old-age events at defaults) — if it binds often, the knots are
+miscalibrated, not the cap.
+
+## 106. Part VII knot rows (extends §92; age_eff unless noted)
+
+| param | 30 | 55 | 65 | 75 | 80 | 85 | anchors |
+|---|---|---|---|---|---|---|---|
+| maint_slope_mult | 1.0 | 0.7 | 0.5 | 0.5 | 0.5 | 0.5 | Josefsson 2012 (class, not knot) |
+| decl_accel | 1.0 | 1.0 | 1.1 | 1.3 | 1.5 | 1.7 | Josefsson/Pudas (quadratic leg) |
+| iiv_age_slope | 0 | 0.15 | 0.3 | 0.45 | 0.55 | 0.65 | Lövdén 2007 BASE |
+| iiv_lead (decline arm, y) | 0 | 0 | 5 | 5 | 5 | 5 | Lövdén 2007 (precedence) |
+| scd_lead (decline arm, y) | 0 | 0 | 6 | 6 | 6 | 6 | Jessen 2014 |
+| loco_tax | 0.05 | 0.15 | 0.22 | 0.30 | 0.35 | 0.40 | Lindenberger 2000 (halved) |
+| loco_pm_pen | 0.0 | 0.05 | 0.1 | 0.15 | 0.18 | 0.2 | Lindenberger 2000 (ext.) |
+| allo_mint_p | 0.8 | 0.7 | 0.6 | 0.45 | 0.35 | 0.3 | Wiener 2013 |
+| ego_dir_pen | 0.1 | 0.2 | 0.3 | 0.4 | 0.45 | 0.5 | Wiener 2013 |
+| obs_old_gain | 0.0 | 0.05 | 0.1 | 0.15 | 0.18 | 0.2 | Lindner 2014 (benefit side) |
+| ie internal share | 0.65 | 0.62 | 0.58 | 0.5 | 0.45 | 0.42 | Levine 2002 |
+| ext_gain | 1.0 | 1.05 | 1.15 | 1.25 | 1.3 | 1.35 | Levine 2002 |
+
+Frozen constants: `proc_age_null` — implicit legs evaluate on
+min(age_eff,55) (P811 sign-lock); `stack_cap` 3.5 + `stack_capped`
+audit field (P814); `nav_permastore_null` — §4.20 script-node /
+permastore venues exempt from nav_mode mechanics; `retire_retrieval_null`
+— engage_deficit touches encode legs only, retrieval untouched;
+`scd_store_null` — scd_lead moves the complaint channel only, never S.
+**[All knot interpolations HYPOTHESIS; class rates, directions, and
+the dissociations (R/F, I/E, allo/ego, implicit/explicit, complaint/
+deficit) are the CONSENSUS payload.]**
+
+## 107. Spec changes v5.23 → v5.24 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| J1 | §4.36a: `traj` class drawn at bible-write from {0.18,0.68,0.14} + trait modulation (fitness/apoe/social/sex); `maint_slope_mult`/`decl_accel` on post-60 slope terms | §96 |
+| J2 | §4.36b: `work_engaged` state → `engage_deficit` accrual on encode legs (`retire_rate`/`retire_cap`/`engage_sub`/`engage_sub_recover`); `retire_retrieval_null` | §99 |
+| J3 | §4.36c: `locomoting` context → `loco_tax` on encode legs, `loco_pm_pen` on armed intentions, `loco_yield` emission hint | §100 |
+| J4 | §4.36d: nav records mint `nav_mode` under `allo_mint_p(age_eff)`; `nav_permastore_null` | §101 |
+| J5 | §5.78a: `iiv_eff` on retrieval/encode roll noise; `iiv_lead` for decline arm | §97 |
+| J6 | §5.78b: complaint channel (meta_conf, self-report, JOL/FOK reports) samples `age_eff + scd_lead·(decline)`; `scd_store_null` | §98 |
+| J7 | §5.78c: `ego_dir_pen` on mismatched-heading route rejoin; `ie_shift`/`ext_gain` on emission field mix | §§101, 104 |
+| J8 | §5.78d: implicit legs (§5.35, §5.75, §4.20 rates) evaluate on min(age_eff,55) — `proc_age_null` | §102 |
+| J9 | §6.153a: `obs_infl_age` tail-widening on §6.117; `obs_old_gain` on §4.31c | §103 |
+| J10 | §6.153b: `stack_cap` + `stack_capped` audit on joint old-age products | §105 |
+
+New params: `maint_slope_mult`, `decl_accel`, `traj_maintain_p`,
+`traj_decline_p`, `iiv_age_slope`, `iiv_lead`, `scd_lead`,
+`retire_rate`, `retire_cap`, `engage_sub_recover`, `loco_tax` (knots),
+`loco_pm_pen`, `loco_yield`, `allo_mint_p` (knots), `ego_dir_pen`,
+`obs_infl_age`, `obs_tail_k`, `obs_old_gain`, `ie_shift` (knots),
+`ext_gain`, `stack_cap`. New profile field: `traj` (drawn, hidden).
+New state: `work_engaged`, `engage_sub`. New context: `locomoting`.
+New record field: `nav_mode`. Locked nulls: `proc_age_null`,
+`nav_permastore_null`, `retire_retrieval_null`, `scd_store_null`.
+
+## 108. Validation probes P805–P814
+
+- **P805 trajectory classes (MUST — distribution-lock):** a 300-
+  profile cohort aged 35→85 under default draws yields
+  maintain/average/decline within 0.10–0.26 / 0.55–0.80 / 0.06–0.22;
+  maintain arm's 75yo episodic output ≥ average arm's 65yo; decline
+  arm accelerates (second-half slope ≥1.3× first-half). Josefsson 2012.
+- **P806 IIV precedence (MUST — order-lock):** decline-arm profiles
+  show elevated response variance (iiv_eff) measurably BEFORE mean
+  level shifts — the variance anomaly leads the level anomaly by
+  `iiv_lead`±1 sim-year. Lövdén 2007.
+- **P807 SCD sign flip (MUST — sign-lock):** decline-arm complaint-
+  channel reports (meta_conf self-report) exceed measured deficit
+  during the scd_lead window, then track it; maintain arm never shows
+  complaint>deficit at defaults; `scd_store_null` — S is untouched in
+  both arms. Jessen 2014.
+- **P808 retirement overlay (SHOULD):** `work_engaged` flip at 62 adds
+  encode-side deficit ramping over ~8y to `retire_cap`; `engage_sub`=1
+  recovers ≥50% of the deficit; retrieval-side metrics flat —
+  `retire_retrieval_null`. Rohwedder & Willis 2010.
+- **P809 locomotion tax (MUST — dissociation):** identical events
+  encoded sitting vs `locomoting` at 75 differ ≥1.3× on S; the
+  sitting-vs-locomoting gap at 35 is ≤0.15; armed time-intentions
+  during locomotion fire less (loco_pm_pen). Lindenberger 2000.
+- **P810 nav split (MUST — shape-lock):** a route learned at 78,
+  queried same-direction, retrieves; queried from the reversed
+  approach at a decision corner fails ≥1.8× more (ego_dir_pen);
+  permastore venue routes exempt — `nav_permastore_null`. Wiener 2013.
+- **P811 implicit floor (MUST — sign-lock):** priming/ctxcue/script-
+  rate legs at 82 are statistically identical to 55yo values while
+  matched episodic legs differ ≥1.5× — `proc_age_null`. Fleischman
+  2004.
+- **P812 observation inflation split (SHOULD):** tail_ind profiles at
+  80 show "did it myself" false alarms ≥1.4× young-tail rate while
+  median profiles match young rate; `obs_old_gain` boosts TRUE
+  observed-action recall more at 80 than 30 — both halves of the
+  Lindner dissociation. Lindner 2010/2014.
+- **P813 I/E narration shift (MUST — probe-resistant):** free-recall
+  emissions at 78 show external-detail share ≥ young rate AND
+  interviewMode probing recovers proportionally less internal detail
+  than recol_mult predicts — the semantic skew is a mix shift, not a
+  threshold artifact. Levine 2002.
+- **P814 stack audit (MUST — process):** joint old-age products never
+  exceed `stack_cap`; `stack_capped` fires on <2% of 80+ events at
+  defaults; if it fires more, FAIL as miscalibration. §105.
+
+## 109. Part VII honest limits
+
+- `traj` is a latent class imposed on continuous heterogeneity —
+  Betula's own classifier is a ±1 SD rule, not a discovered kind.
+  We model three classes because bibles need writeable kinds, and
+  flag that reality is a mixture density, not a switch.
+- `scd_lead` as a class-revealing channel is fiction-shaped: real
+  SCD is noisy (worried-well common; Jessen's own framework needs
+  SCD-plus features). In RW the complaint channel is a *signal the
+  writers can hear*, not a diagnosis — a decliner main will sound
+  worried before the harness can prove anything, which is exactly
+  the human phenomenology, but the harness cannot distinguish
+  worried-well from true-SCD without longitudinal ground truth.
+- `retire_rate` inherits all of Rohwedder-Willis's causality debate —
+  direction is defensible, magnitude isn't pinned; the encode-only
+  routing (stimulation → mint quality) is our mechanism choice among
+  several the paper floats.
+- `loco_tax` knots are HALVED from lab d's because narrow-track
+  walking ≠ street walking — we chose ecological plausibility over
+  literal effect size; if anything the halving may still overstate
+  flat-sidewalk cost for a fit elder.
+- `nav_mode` mints per-record, but real strategy choice is situational
+  not per-trace — the flag is a tractable proxy; `allo_mint_p` at 30
+  (0.8) means even young adults egocentric-encode 1 in 5 routes,
+  which matches route-following dominance in daily navigation but
+  isn't directly measured in Wiener.
+- `proc_age_null`'s freeze at 55 is a convenience — the data say
+  "stable," and any freeze point is defensible; we picked the §4.21
+  midlife plateau edge for consistency.
+- `stack_cap` is bookkeeping, not biology. The alternative (joint
+  products unbounded) is worse: at 85 the record-level product of
+  recol × gist_false × sug_age × loco × decline-arm reaches ~5×,
+  a region no study has ever measured. The cap plus the audit field
+  makes the honesty checkable.
