@@ -27,7 +27,9 @@
   wire v89, archive v90, create v91, mod v92),
   PT84 + harness v93 triage layer: surface filter / finding status /
   per-finding copy block / step n/a sweep, PT85 + drama board v94:
-  cooling grammar / double-surface / fair misfires / posture vocabulary).
+  cooling grammar / double-surface / fair misfires / posture vocabulary,
+  PT98 + harness v107 planner layer: rail search / time-boxed session
+  pick-list / [world-playtest-plan] block).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -151,6 +153,12 @@
     <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
       surface <select id="surfFilter" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font:inherit;font-size:11px"><option value="">all surfaces</option></select>
       <span style="font-family:var(--mono)">(regression pass)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      search <input id="railQ" placeholder="id · title · persona  ( / )" style="flex:1;min-width:0;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font:inherit;font-size:11.5px"></label>
+    <div style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:10px">
+      plan <input id="planMin" type="number" min="5" step="5" placeholder="min" title="minutes you have — the planner fills the box" style="width:56px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit;font-size:11.5px">
+      <button id="planGo" title="build a time-boxed pick-list: flagged → unfinished → never-covered → fresh" style="background:var(--panel2);color:var(--acc);border:1px solid var(--line);border-radius:6px;padding:3px 10px;font:inherit;font-size:11px;cursor:pointer">pick my session</button></div>
+    <div id="plan"></div>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -211,6 +219,7 @@
 <div id="keyCard"><b>keys</b> — harness
   <br><code>?</code> this card · <code>j</code>/<code>k</code> checkpoint cursor ·
   <code>p</code>/<code>f</code>/<code>n</code> pass / fail / n-a ·
+  <code>/</code> rail search ·
   <code>[</code>/<code>]</code> prev / next scenario ·
   <code>o</code> open first surface · <code>esc</code> close / clear</div>
 <script>
@@ -1828,8 +1837,8 @@ const PTS=[
   ck:["The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
     "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"]},
  {do:"Run node world/audit.js from the repo root.",
-  exp:"harness gate passes at key rw_playtest_v93 / build 'world v93 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
-  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall",
+  exp:"harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
     "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"]}
 ]},
 {id:"PT85",title:"Drama board v94 — cooling grammar, double-surface, fair misfires, posture vocabulary",min:9,
@@ -1851,7 +1860,7 @@ const PTS=[
   exp:"The drama gate passes the v94 checks: schema drama-v6, cooling/double-surface/fair-misfire rule content requirements, exactly five postures with meanings, posture rules fencing world-writes, and html mirror counts (COOLING/DSURF/MISFIRE/POSTURE/POSTURERULES). Harness gate reports 85 scenarios at the v93 key.",
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 26 pressure rows · schema drama-v6'",
     "A missing posture, a misfire rule without the whisper cap, or an html count mismatch would FAIL — spot-check",
-    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
 ]}
 ,{id:"PT86",title:"Onboarding v7 — the stay (credit rules, the standing option, the first visit)",min:12,
  persona:"new hirer with a funded wallet — wants to know what a credit isn't, whether a subscription is being pushed, and what stepping into their character actually feels like",
@@ -1901,7 +1910,7 @@ const PTS=[
   exp:"The lease gate passes the v96 checks: key rw_lease_v96, all five html surfaces (assignment/buyout/prepaid/history letter/BUYOUT code), the four json blocks, active-only offerability + 30-day cooldown, the four feed_wording.never additions, own-unit guards on assignDecide/offerBuyout, file-only wiring on the five request/decide functions, the clean-ledger gate, and the 3× cap.",
   ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
     "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
-    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
 ]}
 ,{id:"PT88",title:"The Understudy v7 — the encounter layer (nod economy, player contact, request split)",min:11,
  persona:"resilience reviewer — wants the outage posture to survive contact: thin meeting thin, a player pressing thin, and paid requests during a blackout",
@@ -1926,7 +1935,7 @@ const PTS=[
   exp:"The thinai gate passes the v97 checks: key rw_thinai_v97, the three json blocks (thin_encounters / player_contact / world_requests with all four classes), the four new demo events, the seven html marks (nod economy, who's awake in the room, world-bound, live-mind scene rule, the seam-probe deflect, presence-not-depth copy) — plus every prior-pass check still green.",
   ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
     "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
-    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
 ]}
 ,{id:"PT89",title:"The Company v98 — the receiving register (weather, being helped)",min:8,
  persona:"cast-bible reviewer — wants the new v98 sections to read like the characters and stay seed-free",
@@ -1946,7 +1955,7 @@ const PTS=[
   exp:"The bible gate passes at schema v98: 27 required sections enforced, characters.json roleplay_fields gains weather/helped with the v98_fields convention, cast.html wx/hlp keys checked per card, and both new fields swept by the observable-safe vocabulary check.",
   ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
     "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
-    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
  ]}
 ,{id:"PT90",title:"The Crowd v99 — the bench layer (pull protocol + coverage)",min:9,
  persona:"request-pipeline reviewer — wants proof that borrowing a named ambient is bounded, honest, and invisible on the wire",
@@ -1966,7 +1975,7 @@ const PTS=[
   exp:"Crowd gate passes at schema v99 with '… · 20 coverage' in the detail; pull_protocol carries window/capacity/bounds/states/minors/role_bound/feed/pipeline; coverage keys equal the full roster and minors' kind is 'pack'; prose spells the honest-post rule and wire invisibility.",
   ck:["Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
     "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
-    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
 ]},
 {id:"PT91",title:"The Permit Wall v100 — the paper layer (posted paper + door lineage)",min:8,
  persona:"continuity editor — wants proof the paper behind the counter is plausible, honest, and safe to put on camera",
@@ -1980,7 +1989,7 @@ const PTS=[
   ck:["18 ghost signs; the two nulls are both no-wall stands", "Liquor papers appear only at the-600-club, il-delfino, the-musket, buy-rite-market, maliks, el-farolote", "Auerbach lineage names the same family in an earlier trade — the exception that proves the rule"]},
  {do:"Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
   exp:"Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
-  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT92",title:"The Fridge Door v101 — the household layer (homes v101)",min:8,
  persona:"continuity editor — wants proof the inside of each home is plausible, honest, and safe to put on camera",
@@ -2000,7 +2009,7 @@ const PTS=[
   exp:"Homes gate passes at schema v101 with '7 homes · 3 vacant · 24 perks' in the detail; rules declare surface knowledge / conditions never scripts / no money / vacant-showings / ambient-ring. Prose spells the fridge-note rule and the lease-moves-the-row lifecycle.",
   ck:["Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
     "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
-    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT93",title:"The live session layer v102 — request.html rides the bus end-to-end",min:8,
  persona:"merge auditor — wants proof the bridged request card is driven by the bus, not just filed to it",
@@ -2020,7 +2029,7 @@ const PTS=[
   exp:"Request gate passes with the v102 checks green (live_writes names gsCancelRequest/gsAppealRequest/gsWatchAd; live_meter carries queuePos/remainingMin/terminal; all eight surface strings present in the HTML). Prose spells the meter-is-truth rule and the own-position-only distinction.",
   ck:["Request gate: 0 fail; detail still reports 'seam wired'",
     "A missing live_writes/live_meter block or a dropped surface string FAILs the gate — spot-check mentally",
-    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT94",title:"The record layer v103 — wire.html reads the bus's own pins, days, vocabulary, and self-check",min:8,
  persona:"merge auditor — wants proof the last four wire endpoints have honest surfaces, not decorative ones",
@@ -2040,7 +2049,7 @@ const PTS=[
   exp:"Wire gate passes with the v103 checks green (all four endpoint names, id=\"archlink\", the adopt-only followsSync body check, all five spectator_ui_v103 keys). Prose spells the adopt-never-delete rule and the on-demand self-check.",
   ck:["Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
     "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
-    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT95",title:"The absence + lifecycle layer v104 — The Archive v8",min:8,
  persona:"merge auditor — wants proof the two new archive views are projections, not new information",
@@ -2060,7 +2069,7 @@ const PTS=[
   exp:"Archive gate passes with the v104 checks green (data-v gaps/reqs, GAP_MIN/gapList/renderGapsView, reqTrails/renderReqsView/OPEN_ST/rqSel, 'settled the talk', kv.rq, both honesty strings, archive_ui_v104 contract block). Prose spells the no-interpolation and no-inferred-steps laws.",
   ck:["Archive gate: 0 fail; v104 block present in history.json",
     "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
-    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT96",title:"The desk's answer layer v105 — repair bench + second look + live status",min:8,
  persona:"refused applicant — got a no and wants to know exactly what to fix, what a second read costs, and what the live desk actually said",
@@ -2080,7 +2089,7 @@ const PTS=[
   exp:"renderQueue pulls gsExplainRequest on render and on the button (no interval, no poll loop): approved → approval tail with 'the bus minted the hire', denied → showRepair with the record's reason, cancelled/expired/refunded → 'Closed — the desk is done with it'. Creation gate passes with all v105 checks green (return key, showRepair/FIELD_FIX, gsAppealRequest, second-look + appeal_final honesty, check-the-desk pull, liveRec.status resolution, never-fakes-a-reversal).",
   ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
     "No setInterval/poll loop on the desk check — pull only",
-    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]},
 {id:"PT97",title:"The display-filter bench v106 — three options, live engine, no winner",min:6,
  persona:"studio owner — the display_filter row in moderation.json has sat OPEN since the taxonomy landed; wants to see exactly what each option does to the public feed before picking",
@@ -2101,13 +2110,33 @@ const PTS=[
   ck:["Mod gate: 0 fail; mirror gate still green (flab surface + PT97 mirrored in playtest.html)",
     "Coverage gate lists filter-lab.html via the flab surface — no 'untested demo page' review hit",
     "Harness gate unchanged: '97 scenarios' now counted in the rail"]},
+]},
+{id:"PT98",title:"The planner layer v107 — rail search + the time-boxed pick-list",min:8,
+ persona:"facilitator with 45 minutes and four testers' reports to merge — wants the harness to say what to run, not to be told",
+ goal:"Verify the v107 planner layer on this page: the rail's search box narrows scenarios on id+title+persona and composes with every existing filter; the session planner fills a minutes box with an ordered pick-list — revisit-flagged first, then partially-verdicted, then cold (never verdicted by anyone, imports included), then fresh — honestly reporting an overrun when the box can't hold the first must-do; Copy plan emits the [world-playtest-plan] paste.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Type a query into the rail's search box — 'lease', then a persona word like 'facilitator', then a scenario id. Press / from the scenario body to jump back into the box.",
+  exp:"The rail narrows to scenarios whose id, title, or persona match (case-insensitive); the count line tracks it; the filter composes with smoke, hide-finished, and the surface dropdown — and the [ / ] walk and Copy run sheet honor the narrowed list. '/' focuses the box from anywhere outside a form field; the query persists across reload (S.q).",
+  ck:["Search matches id + title + persona only — a word that appears only inside a step does NOT match",
+    "Emptying the box restores the full filtered rail; nothing is deleted, only hidden",
+    "The [ / ] walk inside a search-narrowed rail stays inside the narrowed list"]},
+ {do:"Set the plan box to 30 and press 'pick my session'. Flag one scenario ⚑, verdict one checkpoint of another, then rebuild the plan.",
+  exp:"The plan card appears above the rail: ordered picks each tagged revisit / unfinished / cold / fresh with its minute estimate, totaling within the box. After the flag+verdict the flagged scenario jumps to the top and the partially-verdicted one follows it; cold picks (nobody — including imported cohort sessions — has touched a checkpoint) come before merely-fresh ones. A fully-verdicted scenario never appears.",
+  ck:["Ordering is revisit → unfinished → cold → fresh; ties hold scenario-number order",
+    "The plan stops before the first pick that would overflow the box — unless it's the only pick, which is kept and labeled 'over by ~N min'",
+    "A surface-filtered plan draws only from scenarios touching that surface; ids are always real PTS entries"]},
+ {do:"Press 'Copy plan', paste it into a scratch buffer, then run node world/audit.js and read the harness gate.",
+  exp:"The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
+  ck:["The plan block reads as a session invite — ordered, estimated, reasoned; no verdicts leak into it",
+    "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
+    "An emptied plan box clears the card; a reload with the box set re-renders the plan from persisted state"]},
 ]}
 ];
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76 (world v77–v92 added scenarios only — the key held at v76; no rw_playtest_v77…v92 ever existed) */
-const LS="rw_playtest_v93";
-const BUILD="world v93 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76, rw_playtest_v93 (world v77–v92, v94–v106 added scenarios only — no rw_playtest_v77…v92 or v94…v106 ever existed) */
+const LS="rw_playtest_v107";
+const BUILD="world v107 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -2118,7 +2147,7 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",flab:"world",audit:"world",harness:"world",supply:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
 S.flags=S.flags||{};
 const $=id=>document.getElementById(id);
@@ -2141,11 +2170,53 @@ const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
 const curList=()=>{let l=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
   if(S.hideDone)l=l.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
   if(S.surf)l=l.filter(p=>p.surfaces.includes(S.surf));
+  if(S.q){const q=S.q.toLowerCase();
+    l=l.filter(p=>(p.id+" "+p.title+" "+p.persona).toLowerCase().includes(q));}
   return l;};
 /* revisit flags (v76) — a ⚑ mark on the rail card, persisted, rides the handoff */
 window.toggleFlag=(e,id)=>{e.stopPropagation();
   if(S.flags[id])delete S.flags[id];else S.flags[id]=1;
   save();renderList();};
+/* session planner (v107) — a time-boxed pick-list. Reason ladder:
+   revisit (⚑ flagged, still open) → unfinished (partially verdicted this
+   session) → cold (no checkpoint verdicted by ANYONE, imports included)
+   → fresh (covered by someone, not this session). Fully-verdicted
+   scenarios are never picked; ids always come from PTS — the planner
+   can shrink the list, never invent it. Honors the surface filter. */
+window.planReason=p=>{
+  const {tot,done}=ckDone(p);
+  if(done>=tot)return "done";
+  if(S.flags[p.id])return "revisit";
+  if(done>0)return "unfinished";
+  const cold=!ckKeys(p).some(k=>S.ck[k]&&S.ck[k].v)&&
+    !S.cohort.some(s=>(s.results||[]).some(r=>r.ref.startsWith(p.id+"-")&&r.verdict));
+  return cold?"cold":"fresh";};
+window.buildPlan=()=>{
+  const el=$("plan"),mins=+S.planMin||0;
+  if(!mins){el.innerHTML="";return;}
+  const rank={revisit:0,unfinished:1,cold:2,fresh:3,done:4};
+  const picks=PTS.filter(p=>!S.surf||p.surfaces.includes(S.surf))
+    .map(p=>({p,r:window.planReason(p)})).filter(x=>x.r!=="done")
+    .sort((a,b)=>rank[a.r]-rank[b.r]||parseInt(a.p.id.slice(2))-parseInt(b.p.id.slice(2)));
+  let used=0,over=0;const taken=[];
+  for(const x of picks){
+    if(used+x.p.min>mins&&taken.length)break;   /* stop at the pick that would overflow */
+    if(used+x.p.min>mins)over=used+x.p.min-mins;/* first pick overflows — take it, say so */
+    taken.push(x);used+=x.p.min;}
+  el.innerHTML=taken.length?`<div class="finding" style="margin:0 0 10px"><b>Session plan</b>
+    <span style="color:var(--dim)"> — ${taken.length} scenarios · ~${used} min of ${mins} min${S.surf?" · surface: "+S.surf:""}</span>
+    ${over?`<div style="color:var(--acc);font-size:11.5px;margin-top:2px">over by ~${over} min — the box can't hold even the first must-do; take it anyway or widen the box</div>`:""}
+    ${taken.map((x,i)=>`<div style="font-size:12px;margin-top:3px">${i+1}. <a href="#pt=${x.p.id}" style="color:var(--blu)" onclick="pick('${x.p.id}');return false">${x.p.id}</a>
+      <span style="color:var(--dim)">${x.p.min}m · ${{revisit:"flagged for revisit",unfinished:"unfinished this session",cold:"cold — nobody has verdicted it",fresh:"fresh"}[x.r]}</span></div>`).join("")}
+    <div class="actions" style="margin-top:8px"><button id="exPlan" style="max-width:160px">Copy plan</button></div></div>`
+    :'<div class="finding" style="margin:0 0 10px;color:var(--dim)">nothing left to plan — every checkpoint in scope is verdicted</div>';
+  const ex=$("exPlan");if(ex)ex.onclick=()=>copyPlan(taken,used,mins,over);};
+/* the [world-playtest-plan] paste — the facilitator's session invite */
+function copyPlan(taken,used,mins,over){
+  let md=`## [world-playtest-plan | ${new Date().toISOString().slice(0,10)} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · box ${mins} min · ${taken.length} scenarios (~${used} min)${S.surf?` · surface filter: ${S.surf}`:""}${over?` · over by ~${over} min`:""}\n`;
+  taken.forEach((x,i)=>{md+=`- ${i+1}. ${x.p.id} (${x.p.min}m) — ${x.r} — ${x.p.title}\n`;});
+  navigator.clipboard.writeText(md).then(()=>toast("plan copied"),()=>toast("copy failed"));}
 function renderList(){
   const list=curList();
   let totAll=0,doneAll=0,leftMin=0;
@@ -2158,6 +2229,7 @@ function renderList(){
       <div class="meta">${p.min} min · ${spent}m spent · ${esc(p.persona)}</div></div>`;}).join("");
   $("ptCount").textContent=list.length+(S.smoke?" of ":"")+(!S.smoke?" ":"")+PTS.length+" scenarios";
   $("prog").textContent=`progress: ${doneAll} of ${totAll} checkpoints · ~${Math.round(leftMin)} min left`;
+  if(S.planMin)buildPlan();else $("plan").innerHTML=""; /* plan stays live as verdicts land */
 }
 window.pick=id=>{tickTime();S.cur=id;S.sel=null;S.cur_since=Date.now();
   history.replaceState(null,"","#pt="+id);save();renderList();renderBody();};
@@ -2429,7 +2501,7 @@ $("exSheet").onclick=()=>{
       st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
   navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -2439,6 +2511,7 @@ document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   const k=e.key;
   if(k==="?"){const c=$("keyCard");c.style.display=c.style.display==="block"?"none":"block";return;}
+  if(k==="/"){$("railQ").focus();return;}
   if(k==="Escape"){
     if($("keyCard").style.display==="block"){$("keyCard").style.display="none";return;}
     if(S.sel!=null){S.sel=null;save();renderBody();}return;}
@@ -2471,6 +2544,10 @@ $("hideDone").checked=!!S.hideDone;$("hideDone").onchange=e=>{S.hideDone=e.targe
    can never cite an undeclared surface */
 Object.keys(SURF).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;$("surfFilter").appendChild(o);});
 $("surfFilter").value=S.surf||"";$("surfFilter").onchange=e=>{S.surf=e.target.value||null;save();renderList();};
+/* rail search + session planner (v107) — both persisted, both re-render the rail */
+$("railQ").value=S.q||"";$("railQ").oninput=e=>{S.q=e.target.value.trim();save();renderList();};
+$("planMin").value=S.planMin??"";$("planMin").onchange=e=>{S.planMin=e.target.value===""?null:+e.target.value;save();renderList();};
+$("planGo").onclick=()=>{if(!S.planMin)return toast("set a minutes box first");buildPlan();toast("plan rebuilt");};
 /* deep link: #pt=<id> boots straight into a scenario; unknown ids ignored */
 const _hm=location.hash.match(/^#pt=(\w+)$/);
 if(_hm&&PTS.some(p=>p.id===_hm[1])){S.cur=_hm[1];S.cur_since=Date.now();}

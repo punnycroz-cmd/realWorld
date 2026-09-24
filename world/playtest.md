@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v94)
+# Playtest Harness — "Real World / The Mission" (world v107)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -228,7 +228,8 @@ One person can wear every hat; four real testers is the intended shape.
   per-finding triage status (open/fixed/wontfix/deferred — persists,
   rides both exports, gates the handoff list), the per-finding
   [world-playtest-finding] copy block, the step n/a sweep, and the
-  harness gate's v93 marks at key rw_playtest_v93.
+  harness gate's v93 marks (at key rw_playtest_v107 since v107 — the
+  key rolls whenever persisted session state gains fields).
   PT85 (drama board v94) is a showrunner-side audit — drama.json at
   schema drama-v6 carries the cooling grammar (rung descent, afterglow,
   no refund, surfaced never cools), the double-surface contingency
@@ -321,6 +322,21 @@ One person can wear every hat; four real testers is the intended shape.
   resolution (gsExplainRequest pull on render + 'check the desk',
   approved → approval tail, denied → repair bench, closed → honest
   line).
+  PT97 (the display-filter bench v106 / filter-lab.html) is an
+  owner-side audit — nine seeded cases re-screen live through
+  RWScreen.screenRequest at render (no stored verdicts), each flagged
+  case previewed under all three display options (A redact / B withhold
+  / C quarantine) with a survival matrix and an exportable memo JSON;
+  the decision stays OPEN — the lab never marks a winner.
+  PT98 (harness v107) is a facilitator audit — the rail search box
+  (id+title+persona, case-insensitive, composes with smoke /
+  hide-finished / surface, `/` focuses it) and the session planner:
+  a minutes box filled with an ordered pick-list — revisit-flagged →
+  unfinished → cold (never verdicted by anyone, imports included) →
+  fresh — that stops before overflow, keeps an only-pick overrun with
+  an honest 'over by ~N min' line, honors the surface filter, never
+  picks a done scenario, and copies out as a [world-playtest-plan]
+  block; the harness gate's v107 marks at key rw_playtest_v107.
 
 ## 3. Running a session
 
@@ -446,6 +462,32 @@ v93 harness affordances (PT84 exercises all of them):
 - **n/a step** — a toggle on each step header sweeps every checkpoint
   in that step to n/a; pressed again on an all-n/a step it clears them.
   Mixed steps go all-n/a; other steps are never touched.
+
+v107 harness affordances (PT98 exercises all of them — the storage key
+rolls to `rw_playtest_v107` because session state gained `S.q` and
+`S.planMin`):
+
+- **Rail search** — a `search` box filters the rail on scenario
+  id + title + persona, case-insensitive (`S.q`, persisted). It
+  composes with smoke, hide-finished, and the surface filter, and the
+  narrowed list is the one the `[` / `]` walk and Copy run sheet use.
+  `/` focuses the box from anywhere outside a form field.
+- **Session planner** — a `plan` minutes box + `pick my session`
+  button builds an ordered pick-list into a card above the rail.
+  Priority: revisit-flagged → partially-verdicted this session →
+  cold (no checkpoint verdicted by anyone, imported reports included)
+  → fresh; ties hold scenario-number order. The plan fills the box in
+  order and stops before the first overflowing pick — except when the
+  first pick alone overflows, which is kept and labeled
+  `over by ~N min`. Fully-verdicted scenarios are never picked; ids
+  always come from PTS (the planner can shrink the list, never invent
+  it). With a surface filter set, only scenarios touching that surface
+  are pooled — a regression pass plans inside its surface. The card
+  re-renders as verdicts land, so the plan is always current.
+- **Copy plan** — emits a `[world-playtest-plan]` block: build, box
+  minutes, scenario count, and one line per pick with estimate +
+  reason tag + title. The facilitator's paste into a session invite;
+  it carries no verdicts.
 
 v66 content under test (PT61 exercises it): the drama-direction board's
 new permission structures — fuse interference matrix (§31, all 15 pairs
