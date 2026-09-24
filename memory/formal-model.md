@@ -4211,3 +4211,429 @@ uneventful days do to people too. Zero new psychology, zero new
 per-character params, zero new content fields — this part specifies
 *when the machine may think, how it survives its authors, and what
 it means for two implementations to be the same mind.*
+
+---
+
+# Part XII — v129 deepening pass: the epistemic layer — the provenance lattice, the knows() contract, and the disclosure algebra (P1380–P1391)
+
+Parts I–XI hardened *what the machine computes, when, and how it
+survives its authors*. What remains unformalized is the property the
+product was named for: **who knows what, who thinks others know, and
+how the gap moves.** The mechanisms exist in pieces — `told_by`
+provenance (§6.3+), serial reproduction (§6.12), destination memory
+(§5.140), common-ground overreach (§6.21), confidentiality decay
+(§6.22), inferred-intent provenance (§6.367) — but no *epistemic
+contract* binds them: no declared semantics for "character A knows
+fact F," no rule for what the observation UI may display as seen
+versus inferred, no op for the act of telling, and no record for
+discovering that someone held out on you. This part supplies that
+layer. It is the Astra production-3 mandate made formal: unequal
+knowledge as an attractor of the dynamics, not a scripting flag; and
+an OBSERVED/INFERRED labeling algebra the art track can render
+without ever reading a hidden field.
+
+## 104. The two axes — knowing is not one number
+
+Every memory record already carries *credibility* quantities —
+`strength`, `conf_out`, `beliefStatus` — governing whether it
+surfaces and how firmly it's held. This part declares the second,
+independent axis: **provenance** — how the knower came to have it.
+The axes must not be conflated:
+
+- **Recall axis** (strength/confidence): governs *whether* the
+  character retrieves the content at all. Continuous, decays.
+- **Provenance axis** (display tier): governs *what the outside
+  world is allowed to say about how the character knows*.
+  Discrete, ordered, strength-independent.
+
+A faint witnessed glimpse and a vivid thirdhand rumor can hold
+identical strength and opposite provenance. Any system that lets
+strength bleed into the tier — "it's so detailed, show it as
+observed" — has rebuilt the database failure mode one level up.
+Locked `tier_strength_null` (P1391): no recall-axis quantity may
+enter the tier function.
+
+## 105. The provenance lattice — `tier()` as a join-semilattice
+
+Declare a four-element total order on **display tiers**:
+
+```
+OBSERVED > TOLD > INFERRED > UNKNOWN
+```
+
+with pure function `tier(rec)`:
+
+| record kind | tier | UI face |
+|---|---|---|
+| `witnessed`, `self` | OBSERVED | "seen/did" — may link footage |
+| `told_by` | TOLD | "heard" — renders hop count when `prov_chain` intact |
+| `inferred`, `imagined` | INFERRED | "figured/suspected" — badge always |
+| absent | UNKNOWN | not renderable as knowledge at all |
+
+Join and meet, used by the machinery:
+
+- **Merge join:** when two records merge (§6.x merge paths), the
+  merged record takes `max(tier)` of its parents *by this order
+  alone*. Content fields merge as before; provenance follows the
+  strongest evidence, never the strongest memory.
+- **Upgrade is closed.** The only legal tier upgrades are the
+  named ops: `absorb` (§6.23, gated hearCount≥3 + richness +
+  journaled), `witness` (a real observed event), `reality_flip`
+  (§6.9, imagined→witnessed through the reality-monitoring gate).
+  Decay, rehearsal, retelling, and merging perform **zero** tier
+  upgrades. Locked `prov_up_null` (P1382).
+- **Downgrade is real.** Source decay (§6.10) may strip the
+  `heard_from` edge off a `told_by` record — the content stays
+  TOLD but renders "heard it somewhere," unattributed. Tiers
+  don't decay; *attribution* does. This distinction is what makes
+  "I'm pretty sure, don't ask me who said so" renderable.
+- **Meet for common knowledge:** `commonTier(A, B, F) =
+  min(tier_A(F), tier_B(F))` — a fact is mutually OBSERVED only
+  when both sides hold witnessed records. A co-present event one
+  party merely heard about later is TOLD-common, and the
+  asymmetry is *retained per side*, never averaged.
+
+## 106. The chain crossover — hop-count signs the drift
+
+§6.12 already carries the serial-reproduction operators
+(`si_dropoff·exp(−chainPos/chain_sc_thresh)` for
+stereotype-inconsistent items; `assimilation_gain` per-hop schema
+pull). What was informal is the *sign flip*: Kashima 2000 (*PSPB*
+26:594 — verified: 5-person chains) found stereotype-inconsistent
+items reproduced **more** than consistent items early in chains,
+with consistent items dominating by the end; Lyons & Kashima 2003
+(*JPSP* 85:989) showed SI progressively screened out over 4-person
+chains, sharedness of the stereotype amplifying the pull. Both
+effects are already latent in the spec's operators — this part
+declares the crossover as a testable constant:
+
+```
+S_si(h) = si_early_gain · si_dropoff · exp(−h/chain_sc_thresh)
+S_sc(h) = 1 − (1 − sc_retain)·exp(−h·assimilation_gain/0.05)
+        // rises toward 1 as schema pull compounds
+h* ≈ chain_crossover_h (3):  S_si(h) > S_sc(h) for h < h*,
+                             S_si(h) < S_sc(h) for h > h*
+```
+
+`chain_crossover_h` (3) is a HYPOTHESIS-tagged population constant:
+Kashima's chains show the ordering and the endpoint dominance, not
+a precise crossing index; P1386 gates only the *order* (early SI
+advantage, late SC advantage), leaving the exact h* observable.
+Locked `chain_flat_null` is NOT added — the crossover is a claim,
+and a hop-independent implementation is a probe failure, not a
+parameter choice.
+
+## 107. `knows()` — the isolation contract
+
+```
+knows(charId, factKey) -> {tier, conf, hops} | null
+```
+
+Semantics: a **recognition-mode recall** (§5.6) constrained to the
+`factKey` content-hash family, returning the retrieved record's
+tier, calibrated confidence, and `prov_chain` depth. `null` is not
+an error — it is "this character does not have this fact," produced
+by ordinary retrieval failure: never encoded, decayed below floor,
+interference-blocked, or cue-mismatched.
+
+Three rules make this an epistemic primitive rather than a lookup:
+
+1. **Isolation.** `knows` reads exactly one character's stores.
+   Locked `knows_db_null` (P1383): the canonical ledger, other
+   characters' records, and the world's own event stream are
+   unreachable from inside `knows`. The *world* knows the storm
+   drain was blocked; `knows(mara, drain_fact)` returning `null`
+   is how a secret — or simple ignorance — exists at all.
+2. **Fallibility is the point.** `knows` inherits every recall
+   failure mode. A fact the character *has* may still return
+   `null` on a bad cue day — that is "they'd know if you reminded
+   them," and the reminder is a world event, not a retry flag.
+3. **Tier travels.** The returned `tier` is the §105 tier — the
+   caller learns not just whether but *how* the character knows,
+   which is what dialogue needs to write "you saw it?" versus
+   "you heard?".
+
+## 108. `knowsOf()` — meta-knowledge as a noisy channel
+
+```
+knowsOf(A, B, factKey) -> p in [0,1]
+```
+
+A's model of whether B knows F — never a boolean, because human
+meta-knowledge is wrong in both directions. Composed as a noisy-OR
+over A's evidence edges (all read from A's stores only):
+
+```
+p = 1 − Π_i (1 − w_i·ev_i)
+    ev_told_to   = strength of A's told_to:{B} edge on F's family,
+                   decayed by §5.140 dest machinery (w = meta_dest_w 0.6)
+    ev_copres    = 1 if A holds a witnessed record co-locating B at
+                   F's event (w = meta_copres_p 0.7 — Clark common
+                   ground, §6.21)
+    ev_shared    = shared_with overlap on F's content hash
+                   (w = common_ground_conf, existing)
+    ev_rumor     = A heard that B heard (told_B_knows flag, w = 0.4)
+```
+
+The asymmetry is load-bearing and already paid for by §5.140:
+`told_to` edges encode at `dest_E` < `heard_from` strength, so
+A's "did I tell B?" decays faster than B's "who told me?" — the
+teller forgets the audience before the audience forgets the teller
+(Gopie & MacLeod 2009 — verified destination < source). Locked
+`meta_omni_null` (P1384): no implementation may make `knowsOf`
+exact in either direction — false "they know" (repeat-telling to
+an already-informed audience) and false "they don't" (the
+unremembered disclosure) are both mandatory failure modes.
+`knowsOf` feeds two consumers: dialogue ("I thought you knew"),
+and the UI's plausible-knowledge hints — which must render INFERRED
+always, since meta-knowledge is inference by construction.
+
+## 109. `disclose()` — the asymmetric write
+
+```
+disclose(A, B, factRef, mode)   mode ∈ tell | confide | blurt
+```
+
+The act of telling, specified once as a paired asymmetric write —
+the primitive every rumor, confession, and promise transmission
+reduces to:
+
+- **Pre-gate (confidentiality):** if A's record on `factRef` is
+  `confidential:true`, §6.22's `P(respect)` rolls first. On leak,
+  the write proceeds but B's mint carries `leak:true` +
+  `disclosed_by:A` — the trail that lets the owner later run
+  §110's discovery. The prohibition decays (`secret_str`), the
+  content doesn't — "wait, was that a secret?" stays emergent.
+- **A-side write:** a `tell` event record (E by normal encoding)
+  plus a `told_to:{B}` edge at `dest_E` — deliberately weak.
+  `confide` additionally tags A's record `still_confidential`
+  (the secret persists; the circle widened).
+- **B-side write:** a `told_by` record at hearer E plus
+  `heard_from:{A}` edge at normal source strength. `confide` sets
+  `confidential:true` on B's copy with `secret_str = E_B` — the
+  secrecy obligation is re-minted per holder, fresh. `blurt` adds
+  an arousal tag and skips the confidentiality gate (public
+  setting ⇒ no P(respect) roll — you can't leak what's already
+  out).
+- **Tier cap:** B's record lands TOLD and can never exceed TOLD
+  from this op — B *heard it*. Upgrading to OBSERVED requires a
+  real witnessed event or the gated §6.23 absorption. Locked
+  `tell_obs_null` (P1385 leg): disclosure never mints a witnessed
+  record on the hearer side.
+
+The theorem this makes structural: **unequal knowledge is an
+attractor.** Every disclosure writes one strong edge (hearer→teller)
+and one weak edge (teller→hearer); time erodes the weak one first;
+the population drifts toward states where "who told whom" is
+genuinely unrecoverable — not a bug state to repair but the human
+equilibrium the sim exists to produce.
+
+## 110. `discoverWithheld()` — the meta-event record
+
+```
+discoverWithheld(A, factRef, B) -> withheld record
+```
+
+When A learns F *and* obtains evidence that B knew F earlier and
+didn't disclose: mints a `withheld` record — content "B held F
+back," `target:B`, valence `withheld_valence` (−0.4), strength by
+normal encoding of the discovery event. Idempotent: a second
+discovery of the same withholding merges into the existing record
+(strength bump), never double-mints — being told twice that B hid
+it stings more, it isn't two betrayals.
+
+The memory-side substrate for the trust arc Astra demands: the
+`withheld` record is what later recall surfaces when A weighs B's
+credibility (feeds `PersonModel[B].credibility` at `withheld_cred`
+−0.15), and it is a *record*, so it decays, distorts, and can be
+misattributed like everything else — "I'm sure it was Dev who knew"
+is a legal reconstruction. Honest provenance: the record's
+`prov_chain` carries the discovery evidence; if A only *inferred*
+the withholding, the record's evidence field is INFERRED-tier and
+the UI may not show it as fact. (Empirical basis: thin direct
+literature on memory-for-withholding; grounded in the betrayal/
+violation-of-expectation affect literature — HYPOTHESIS tag on the
+valence/credibility doses; the *mechanism* — a typed meta-record —
+is the deliverable.)
+
+## 111. `acknowledge()` — repair that doesn't erase
+
+```
+acknowledge(A, B, eventRef, kind)   kind ∈ competence | integrity
+```
+
+Voluntary repair — the apology, the acknowledgment, the showing-up-
+next-day. Mints paired `repair` records: A gets "I made it right
+with B about X"; B gets "A made it right with me about X," each
+`repair_of:eventRef`-linked to the breach/withheld/missed-commitment
+record. Two laws:
+
+- **Nothing is deleted.** Locked `repair_erase_null` (P1388): the
+  breach record persists at full provenance; repair is additive
+  evidence, not redaction. Retrieval of the breach later surfaces
+  the linked repair at `repair_link_p` (0.6) — the memory arrives
+  with its epilogue attached, most of the time.
+- **Repair is partial and kind-gated.** `repair_eval_gain` (0.1)
+  applies to B's `PersonModel[A]` eval edge, multiplied by
+  `repair_integ_mult` (0.4) when `kind:integrity` — apologies
+  repair competence failures better than integrity failures
+  (Kim, Ferrin, Cooper & Dirks 2004, *JAP* 89:104 — DEBATED dose,
+  CONSENSUS ordering). A remembered disappointment with a repair
+  edge is *different* knowledge than one without — it is not a
+  smaller disappointment.
+
+## 112. `PromiseView` — paired records, divergent halves
+
+Formalize what §6.368's soft/formal split left informal: every
+commitment event mints **two records from one utterance** —
+`promiser_view` on the speaker, `promisee_view` on the hearer —
+each a first-class record with its own E draw, decay track, and
+distortion path. The asymmetry is self-referential: each side's
+encoding boosts its *own role* at `promise_self_boost` (0.15) —
+the promiser's record foregrounds "I committed" (act-gist), the
+promisee's foregrounds the *terms* (what was owed). Grounding:
+Ross & Sicoly 1979 (*JPSP* 37:322 — self-serving contribution
+recall, CONSENSUS direction); the specific promiser/promisee
+divergence magnitude is HYPOTHESIS.
+
+Consequence, stated as a bound rather than a hope: define
+`promise_div(Δt) = |recall_promisee(terms) − recall_promiser(terms)|`;
+the model must produce `E[promise_div]` increasing in lag, bounded
+by `promise_div_max` (0.4). Promises remembered differently is not
+a special feature — it is the independent-decay of paired records
+plus a self-role skew, and P1389 gates the ordering while
+reporting the magnitude.
+
+## 113. The display contract — what the UI may show
+
+Every memory-backed emission now carries `display_tier` from §105,
+and the rule set is closed:
+
+| emission | rule |
+|---|---|
+| catch-up "verified change" | ledger-OBSERVED events only; links footage |
+| character knowledge card | tier badge on every fact (SEEN / TOLD n / INFERRED) |
+| motive/intent surfaces | `intent_inferred` provenance ⇒ INFERRED, always (§6.367) |
+| who-plausibly-knows hints | `knowsOf` output ⇒ INFERRED, always |
+| withheld/repair records | tier of the *evidence*, not of the accusation |
+| UNKNOWN | renders as absence — never a placeholder fact |
+
+Locked `obs_label_null` (P1381): no path from INFERRED or TOLD to
+an OBSERVED render exists outside the three named upgrade ops.
+This is the primitive set the art track asked for: honesty as a
+*type*, not a style guide.
+
+## 114. New params (spec §7 v5.75 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| si_early_gain | 1.2 | pop — HYPOTHESIS (Kashima 2000 ordering) | P1386 |
+| sc_retain | 0.7 | pop — HYPOTHESIS (endpoint SC dominance) | P1386 |
+| chain_crossover_h | 3 | pop — HYPOTHESIS (crossing index, OBSERVE on value) | P1386 |
+| meta_dest_w | 0.6 | pop | P1384/P1385 |
+| meta_copres_p | 0.7 | pop (Clark common-ground overreach, §6.21) | P1384 |
+| meta_rumor_w | 0.4 | pop | P1384 |
+| withheld_valence | -0.4 | pop — HYPOTHESIS | P1390 |
+| withheld_cred | -0.15 | pop — HYPOTHESIS | P1390 |
+| repair_eval_gain | 0.1 | pop — DEBATED dose (Kim et al. 2004) | P1388 |
+| repair_integ_mult | 0.4 | pop — ordering CONSENSUS, dose DEBATED | P1388 |
+| repair_link_p | 0.6 | pop — HYPOTHESIS | P1388 |
+| promise_self_boost | 0.15 | pop — Ross & Sicoly direction CONSENSUS | P1389 |
+| promise_div_max | 0.4 | pop bound — HYPOTHESIS | P1389 |
+| obs_label_null | 0.0 | locked null | P1381 |
+| prov_up_null | 0.0 | locked null | P1382 |
+| knows_db_null | 0.0 | locked null | P1383 |
+| meta_omni_null | 0.0 | locked null | P1384 |
+| tell_obs_null | 0.0 | locked null | P1385 |
+| repair_erase_null | 0.0 | locked null | P1388 |
+| tier_strength_null | 0.0 | locked null | P1391 |
+
+20 entries, **0 per-character** — the epistemic layer is substrate:
+every character shares the lattice; diversity enters through the
+existing per-profile scalars (self-focus, conscientiousness in
+P(respect), neuroticism on withheld valence via existing trait
+weights). A "keeps secrets better" dial would be a trait on
+`secret_str` encoding, already reachable through E.
+
+## 115. Formal/consistency probes (P1380–P1391)
+
+- **P1380 lattice laws (MUST):** `tier` maps every record kind to
+  exactly one tier; merge satisfies join-semilattice laws
+  (associative, commutative, idempotent) over fuzzed record pairs;
+  `commonTier` symmetric.
+- **P1381 obs label integrity (MUST — locked null):** fuzzed
+  retell/disclose/infer/merge op streams — scan every emission:
+  OBSERVED render ⇔ witnessed/self kind at the ledger.
+  `obs_label_null`.
+- **P1382 upgrade closure (MUST — locked null):** tier upgrades
+  occur only inside `absorb`/`witness`/`reality_flip` and each is
+  journaled; decay/rehearsal/retell fuzzers show bit-identical
+  tiers. `prov_up_null`.
+- **P1383 knows isolation (MUST — locked null):** state where the
+  ledger holds F but the character store does not →
+  `knows(charId, F)` = `null`; state where the store holds F but
+  the ledger was rolled back → `knows` still returns the record.
+  `knows_db_null`.
+- **P1384 meta both directions (MUST — locked null):** scripted
+  scenes — (a) B knows F, A's `told_to` edge decayed →
+  `knowsOf(A,B,F)` may fall below threshold; (b) B does not know,
+  A over-infers from co-presence → above threshold. Both errors
+  must occur with nonzero rate. `meta_omni_null`.
+- **P1385 disclosure asymmetry (MUST — dose):** N scripted
+  `disclose` events, fixed lag: `told_to` hit-rate < `heard_from`
+  hit-rate (Gopie & MacLeod ordering), age gradient per
+  `dest_mult`; hearer tier = TOLD exactly (`tell_obs_null`).
+- **P1386 chain crossover (SHOULD):** serial chains over matched
+  SC/SI items — reproduced-item retention ordering: SI > SC for
+  h < `chain_crossover_h`, SC > SI beyond; report observed h*
+  vs 3 (value OBSERVE, ordering gated).
+- **P1387 secret leak timing (SHOULD):** `confidential` records
+  — P(respect) holds while `secret_str` fresh, leaks approach
+  content-fresh rates as it decays; `leak:true` mints carry
+  `disclosed_by` attribution end-to-end.
+- **P1388 repair preserves (MUST — locked null):**
+  `acknowledge` on a breach record leaves it bit-present with
+  intact provenance; `repair` records carry `repair_of` links;
+  eval gain gated by kind (integrity < competence).
+  `repair_erase_null`.
+- **P1389 promise divergence (SHOULD — HYPOTHESIS-tagged):**
+  paired-arm scripted commitments: `E[promise_div]` > 0 at 30-day
+  lag, promisee terms-recall ≥ promiser terms-recall ordering,
+  divergence ≤ `promise_div_max`.
+- **P1390 withheld idempotence (OBSERVE):** repeated
+  `discoverWithheld` on one (A,F,B) triple → single `withheld`
+  record, strength-bumped; evidence tier INFERRED when the
+  discovery was inference-only.
+- **P1391 tier purity (MUST — locked null):** manipulate
+  strength/confidence/hearCount on fixed-kind records →
+  `display_tier` invariant. `tier_strength_null`.
+
+Registry: P1–P1391. v129 suite: P1380–P1385, P1388, P1391 MUST
+(the locked-null class plus the two ordering results the product
+stands on — disclosure asymmetry and label integrity); P1386,
+P1387, P1389 SHOULD; P1390 OBSERVE.
+
+## 116. Summary for game-systems
+
+Four deliverables, all contract. **The provenance lattice**
+(§§104–106): a four-tier join-semilattice (`OBSERVED > TOLD >
+INFERRED > UNKNOWN`) on a second axis that strength can never
+touch — merges take max-tier, upgrades are closed to three named
+journaled ops, and the Kashima crossover is declared as a
+testable hop-count sign flip rather than left as prose.
+**The epistemic queries** (§§107–108): `knows()` is a
+recognition-mode recall with a locked isolation boundary —
+ignorance is `null`, fallibility included — and `knowsOf()` is a
+noisy-OR over the character's own evidence edges, wrong in both
+directions by construction. **The disclosure algebra**
+(§§109–112): `disclose` writes the teller side weak and the
+hearer side strong so unequal knowledge is an attractor;
+`discoverWithheld` mints the "you knew" meta-record;
+`acknowledge` repairs without erasing, kind-gated;
+`PromiseView` makes promises-remembered-differently a theorem of
+paired independent decay. **The display contract** (§113): every
+emission carries `display_tier`; OBSERVED requires witnessed
+provenance at the ledger — the labeling primitive the observation
+UI needs, enforced by probe rather than by convention. Zero new
+per-character params: the lattice is shared; the diversity was
+already in the heads.

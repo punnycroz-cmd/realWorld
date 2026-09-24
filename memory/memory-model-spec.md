@@ -1,4 +1,47 @@
-# Memory Model Spec v5.74 — implementable human-like memory for RW characters
+# Memory Model Spec v5.75 — implementable human-like memory for RW characters
+
+> **v5.75 note (formal-model XII — the epistemic
+> layer):** `memory/formal-model.md` Part XII
+> (§§104–116) binds the scattered provenance
+> machinery into one contract: who knows what, who
+> thinks others know, and what the UI may claim.
+> **The provenance lattice** — `tier()` maps every
+> record to OBSERVED > TOLD > INFERRED > UNKNOWN on
+> a strength-independent axis; merges take
+> max-tier; upgrades closed to `absorb`/`witness`/
+> `reality_flip` (locked `prov_up_null`,
+> `tier_strength_null`). **The chain crossover** —
+> Kashima's SI-early/SC-late sign flip declared as
+> `chain_crossover_h` 3 (Kashima 2000; Lyons &
+> Kashima 2003 — verified). **`knows()`** —
+> recognition-mode recall returning
+> `{tier,conf,hops}|null`; locked `knows_db_null`
+> keeps the ledger and other heads unreachable.
+> **`knowsOf()`** — noisy-OR meta-knowledge over
+> told_to/co-presence/shared/rumor edges, wrong in
+> both directions by construction
+> (`meta_omni_null`; Gopie & MacLeod 2009
+> destination < source). **`disclose()`** — the
+> paired asymmetric write: `told_to` at `dest_E`,
+> `heard_from` at source strength, hearer tier
+> capped at TOLD (`tell_obs_null`), confidentiality
+> gate routes leaks through `leak:true` +
+> `disclosed_by`. **`discoverWithheld()`** — the
+> "you knew all along" meta-record, idempotent.
+> **`acknowledge()`** — repair records linked
+> `repair_of`, breach preserved (`repair_erase_null`),
+> integrity-kind gain at `repair_integ_mult` (Kim
+> et al. 2004 ordering). **`PromiseView`** — paired
+> promiser/promisee records, self-role skew
+> `promise_self_boost` (Ross & Sicoly 1979),
+> divergence bound `promise_div_max`. **Display
+> contract** — every emission carries
+> `display_tier`; OBSERVED ⇔ witnessed at ledger
+> (`obs_label_null`). §§6.378–6.385; §7 +13 scalars
+> +7 locked nulls +2 record classes (`withheld`,
+> `repair`) +5 ops (`knows`, `knowsOf`,
+> `disclose`, `discoverWithheld`, `acknowledge`);
+> §10 contract; probes P1380–P1391.
 
 > **v5.74 note (social-memory XIII — the intention
 > layer):** `memory/social-memory.md` Part XIII
@@ -17690,6 +17733,133 @@ fields, never enter `told_by` as asserted
 fact; collective-sourced evals render
 INFERRED always.
 
+### 6.378 The provenance lattice — `tier()` (new in v5.75)
+
+FM§§104–105. Every record maps to a display
+tier, `OBSERVED > TOLD > INFERRED > UNKNOWN`:
+`witnessed`/`self` → OBSERVED; `told_by` →
+TOLD (hop from `prov_chain`); `inferred`/
+`imagined` → INFERRED; absent → UNKNOWN.
+Tier is a function of kind only — strength,
+confidence, and hearCount never enter
+(`tier_strength_null`, P1391). Merges take
+max-tier; upgrades only via `absorb` (§6.23),
+`witness`, `reality_flip` (§6.9), all
+journaled (`prov_up_null`, P1382). Source
+decay strips attribution, never the tier.
+`commonTier(A,B,F) = min(tier_A, tier_B)`
+per side — never averaged.
+
+### 6.379 The chain crossover — `chain_crossover_h` (new in v5.75)
+
+FM§106; **Kashima 2000** (*PSPB* 26:594 —
+verified: SI early advantage, SC end-of-chain
+dominance); **Lyons & Kashima 2003** (*JPSP*
+85:989 — SI screened out progressively).
+§6.12 operators declared as crossover:
+
+```
+S_si(h) = si_early_gain(1.2)·si_dropoff·
+          exp(−h/chain_sc_thresh)
+S_sc(h) = 1 − (1−sc_retain(0.7))·
+          exp(−h·assimilation_gain/0.05)
+```
+
+Ordering gated at `chain_crossover_h` (3 —
+HYPOTHESIS index; ordering CONSENSUS): SI
+reproduction advantage below, SC above.
+P1386 gates the order, reports observed h*.
+
+### 6.380 `knows()` — the isolation contract (new in v5.75)
+
+FM§107. `knows(charId, factKey) →
+{tier,conf,hops}|null`: a recognition-mode
+recall (§5.6) on the factKey content-hash
+family; `null` = doesn't-have or can't-get
+(never encoded, decayed, blocked,
+cue-missed). Reads exactly one character's
+stores — locked `knows_db_null` (P1383): the
+canonical ledger and other heads are
+unreachable. Ignorance is a return value,
+not a flag; secrets are `null`s the world
+holds and the head doesn't.
+
+### 6.381 `knowsOf()` — meta-knowledge, noisy by law (new in v5.75)
+
+FM§108. `knowsOf(A, B, factKey) → p∈[0,1]`:
+noisy-OR over A's own evidence —
+
+```
+p = 1 − Π(1 − w_i·ev_i)
+  told_to edge  w = meta_dest_w 0.6 (§5.140 decay)
+  co-presence   w = meta_copres_p 0.7 (§6.21)
+  shared_with   w = common_ground_conf
+  rumor-of-B    w = meta_rumor_w 0.4
+```
+
+Locked `meta_omni_null` (P1384): false
+"they know" (the unremembered prior telling
+→ repeat-tell) and false "they don't" must
+both occur at nonzero rate. Output renders
+INFERRED always.
+
+### 6.382 `disclose()` — the asymmetric write (new in v5.75)
+
+FM§109. `disclose(A, B, factRef, mode)`,
+mode ∈ `tell|confide|blurt`. Pre-gate:
+`confidential` records roll §6.22 P(respect);
+leaks mint B-side `leak:true` +
+`disclosed_by:A`. A-side: `tell` event +
+`told_to:{B}` edge at `dest_E` (weak —
+§5.140). B-side: `told_by` record +
+`heard_from:{A}` at source strength;
+`confide` re-mints `confidential` on B's
+copy (`secret_str = E_B`); `blurt` adds
+arousal, skips the gate. Hearer tier capped
+at TOLD — locked `tell_obs_null` (P1385).
+Unequal knowledge is the attractor: the weak
+edge erodes first.
+
+### 6.383 `discoverWithheld()` — the meta-event (new in v5.75)
+
+FM§110. `discoverWithheld(A, factRef, B)`
+mints a `withheld` record — "B held F back,"
+`target:B`, valence `withheld_valence` (−0.4,
+HYPOTHESIS), feeds `PersonModel[B].credibility`
+at `withheld_cred` (−0.15). Idempotent:
+repeat discovery merges, never double-mints.
+`prov_chain` carries the discovery evidence;
+inference-only discovery keeps the evidence
+INFERRED-tier for the UI.
+
+### 6.384 `acknowledge()` — repair that doesn't erase (new in v5.75)
+
+FM§111. `acknowledge(A, B, eventRef, kind)`,
+kind ∈ `competence|integrity`: paired
+`repair` records, `repair_of:eventRef` links.
+Breach/withheld records persist at full
+provenance — locked `repair_erase_null`
+(P1388). Repair surfaces alongside the breach
+at `repair_link_p` (0.6); B-side PM eval
+gains `repair_eval_gain` (0.1) ×
+`repair_integ_mult` (0.4) on integrity kind —
+ordering per Kim, Ferrin, Cooper & Dirks
+2004 (*JAP* 89:104); dose DEBATED.
+
+### 6.385 `PromiseView` — one utterance, two records (new in v5.75)
+
+FM§112; **Ross & Sicoly 1979** (*JPSP*
+37:322 — self-serving contribution recall,
+CONSENSUS direction; asymmetry magnitude
+HYPOTHESIS). Every commitment mints paired
+records — `promiser_view` (act-gist: "I
+committed") and `promisee_view` (terms-gist)
+— independent E draws with own-role boost
+`promise_self_boost` (0.15), independent
+decay. `promise_div(Δt)` must grow with lag,
+bounded `promise_div_max` (0.4); P1389 gates
+the ordering.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -20138,6 +20308,27 @@ MemoryParams = {
 //   postop_young_null (P1364); mv_exec_null,
 //   mv_level_null + fast_* + glp1_* bans (P1365).
 //   All snapshot-additive; absent = legacy.
+// v5.75 additions (formal-model XII — FM§§104–116,
+//   the epistemic layer)
+"si_early_gain": 1.2, "sc_retain": 0.7,
+"chain_crossover_h": 3,                        // §6.379
+"meta_dest_w": 0.6, "meta_copres_p": 0.7,
+"meta_rumor_w": 0.4,                           // §6.381
+"withheld_valence": -0.4, "withheld_cred": -0.15, // §6.383
+"repair_eval_gain": 0.1, "repair_integ_mult": 0.4,
+"repair_link_p": 0.6,                          // §6.384
+"promise_self_boost": 0.15, "promise_div_max": 0.4, // §6.385
+// v5.75 record classes/fields/ops: `withheld`,
+//   `repair` record classes; `leak:true` +
+//   `disclosed_by` mint fields; `repair_of` link;
+//   `display_tier` emission field; ops `knows`,
+//   `knowsOf`, `disclose`, `discoverWithheld`,
+//   `acknowledge`.
+// v5.75 locked nulls: obs_label_null (P1381);
+//   prov_up_null (P1382); knows_db_null (P1383);
+//   meta_omni_null (P1384); tell_obs_null (P1385);
+//   repair_erase_null (P1388); tier_strength_null
+//   (P1391). All snapshot-additive; absent = legacy.
 // v5.74 additions (social-memory XIII — SM§§181–191,
 //   the intention layer)
 "goal_infer_p": 0.5,                               // §6.367
@@ -23129,6 +23320,46 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.75 additions (formal-model.md §§104–116 — the
+  epistemic layer):
+  - **Lattice contract (§6.378):** `display_tier`
+    on every emission ∈ {OBSERVED, TOLD, INFERRED,
+    UNKNOWN}; tier is kind-only — `tier_strength_null`
+    (P1391); merges max-tier; upgrades only via the
+    three named journaled ops — `prov_up_null` (P1382).
+  - **Crossover contract (§6.379):** serial-repro
+    survival ordering is hop-signed; hop-independent
+    SC/SI handling fails P1386.
+  - **Knows contract (§6.380):** `knows` returns
+    `{tier,conf,hops}|null` from one head only —
+    `knows_db_null` (P1383) bars ledger/other-store
+    reads; `null` is the ignorance primitive.
+  - **Meta contract (§6.381):** `knowsOf` returns a
+    probability, errors mandatory both directions —
+    `meta_omni_null` (P1384); output renders INFERRED.
+  - **Disclose contract (§6.382):** paired write —
+    `told_to` weak (`dest_E`), `heard_from` strong;
+    hearer capped TOLD — `tell_obs_null` (P1385);
+    `confide` re-mints `confidential`; leaks carry
+    `leak:true`+`disclosed_by` end-to-end.
+  - **Withheld contract (§6.383):** `withheld`
+    records idempotent per (A,F,B); evidence tier
+    travels `prov_chain`.
+  - **Repair contract (§6.384):** `repair` records
+    add, never erase — `repair_erase_null` (P1388);
+    integrity-kind gains at `repair_integ_mult`.
+  - **Promise contract (§6.385):** commitment mints
+    paired views; divergence grows, bounded
+    `promise_div_max`.
+  - **Locked boundaries game-systems must honor:**
+    `obs_label_null`, `prov_up_null`, `knows_db_null`,
+    `meta_omni_null`, `tell_obs_null`,
+    `repair_erase_null`, `tier_strength_null`.
+  - **New params (§7):** 13 scalars + 7 locked
+    nulls; record classes `withheld`, `repair`;
+    `display_tier` field; ops `knows`, `knowsOf`,
+    `disclose`, `discoverWithheld`, `acknowledge`.
+  - Probes P1380–P1391.
 - v5.74 additions (social-memory.md §§181–191 — the
   intention layer):
   - **Inference contract (§6.367):** `intent_inferred`

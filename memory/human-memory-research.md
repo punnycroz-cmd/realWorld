@@ -5877,3 +5877,57 @@ v5.73 §§6.351–6.366; validation §§256–257
 → social-memory.md Part XIII §§181–196; spec
 v5.74 §§6.367–6.377; validation §§258–259
 (P1366–P1379).
+
+## 104. v129 — the epistemic layer: provenance lattice, meta-knowledge, disclosure algebra (formal-model XII)
+
+Research moved into the formal spec this version:
+
+- **Who told whom is asymmetric by mechanism
+  (CONSENSUS):** destination memory is measurably
+  worse than source memory, self-focus is the
+  cause, age steepens it (Gopie & MacLeod 2009;
+  Gopie, Craik & Hasher 2010 — both verified).
+  Elevated from mechanism to law: `disclose()`
+  writes `told_to` weak / `heard_from` strong, so
+  "I forget whom I told" outlives "I forget who
+  told me" — unequal knowledge as attractor.
+- **Rumor drift flips sign by hop (CONSENSUS
+  ordering):** Kashima 2000 verified — stereotype-
+  inconsistent items win early chain positions,
+  consistent items dominate by the end; Lyons &
+  Kashima 2003 verified the progressive SI
+  screening + sharedness amplification. Declared
+  as `chain_crossover_h` (HYPOTHESIS index 3).
+- **Meta-knowledge errs both ways (CONSENSUS
+  phenomenon):** common-ground overreach (Clark &
+  Marshall 1981) plus destination-edge decay →
+  `knowsOf()` returns a noisy-OR probability with
+  mandatory false positives AND false negatives
+  (`meta_omni_null`). Omniscient social models
+  are the database failure mode.
+- **Secrets widen the circle (CONSENSUS burden):**
+  Slepian, Chun & Mason 2017 verified — mind-
+  wander ~2–2.5× concealment, 96% hold a current
+  secret; `confide` re-mints `confidential` on
+  the hearer's copy so secrecy is per-holder,
+  and leaks carry `disclosed_by` attribution.
+- **Repair doesn't erase (CONSENSUS ordering):**
+  Kim et al. 2004 — apologies repair competence
+  violations better than integrity violations;
+  `repair` records link `repair_of`, never
+  redact (`repair_erase_null` locked).
+- **Promises diverge at encoding (CONSENSUS
+  direction):** Ross & Sicoly 1979 self-serving
+  contribution recall + self-reference boost →
+  paired `PromiseView` records with own-role
+  skew; remembered-differently is a theorem of
+  independent decay, not a script.
+- **Display honesty is a type (DESIGN):**
+  `display_tier` ∈ OBSERVED/TOLD/INFERRED/UNKNOWN
+  on a strength-independent axis — the OBSERVED-
+  vs-INFERRED labeling primitive the observation
+  UI needs, enforced by `obs_label_null` and
+  `tier_strength_null` probes.
+
+→ spec v5.75 §§6.378–6.385; formal-model.md Part
+XII; validation §§260–261 (P1380–P1391).

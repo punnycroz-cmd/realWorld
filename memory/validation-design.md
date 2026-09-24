@@ -13449,3 +13449,119 @@ Probe registry: P1–P1379. v128 MUST: P1366, P1367,
 P1369 (gate), P1370, P1371, P1373, P1374, P1376,
 P1377 (all locked-null legs). SHOULD: P1368, P1372,
 P1375, P1378. OBSERVE: P1379.
+
+## 260. v129 probe specs (P1380–P1391 — formal-model XII, the epistemic layer)
+
+- **P1380 lattice laws (MUST):** `tier()` maps
+  every record kind to exactly one display tier;
+  merge is associative, commutative, idempotent
+  over fuzzed pairs; `commonTier` symmetric.
+  Harness: fuzzed record-pair generator + merge
+  op; counterexample on any violation.
+- **P1381 obs label integrity (MUST — locked
+  null):** fuzzed retell/disclose/infer/merge op
+  streams → scan every emission: OBSERVED render
+  ⇔ witnessed/self kind at the ledger.
+  `obs_label_null`.
+- **P1382 upgrade closure (MUST — locked null):**
+  tier upgrades occur only inside `absorb` /
+  `witness` / `reality_flip`, each journaled;
+  decay/rehearsal/retell fuzzers show
+  bit-identical tiers. `prov_up_null`.
+- **P1383 knows isolation (MUST — locked null):**
+  ledger-holds-F / store-empty → `knows` = null;
+  store-holds-F / ledger-rolled-back → `knows`
+  returns the record. `knows_db_null`.
+- **P1384 meta both directions (MUST — locked
+  null):** scripted scenes force (a) decayed
+  `told_to` → `knowsOf` below threshold while B
+  knows; (b) co-presence overreach → above
+  threshold while B ignorant. Both error rates
+  > 0. `meta_omni_null`.
+- **P1385 disclosure asymmetry (MUST — dose):**
+  N `disclose` events, fixed lag: `told_to`
+  hit-rate < `heard_from` hit-rate (Gopie &
+  MacLeod 2009 ordering), age gradient per
+  `dest_mult`; hearer tier = TOLD exactly
+  (`tell_obs_null` leg).
+- **P1386 chain crossover (SHOULD):** matched
+  SC/SI item sets through serial chains: SI >
+  SC reproduction below `chain_crossover_h`,
+  SC > SI above; observed h* reported, not
+  gated (Kashima 2000; Lyons & Kashima 2003).
+- **P1387 secret leak timing (SHOULD):**
+  `confidential` records: P(respect) while
+  `secret_str` fresh → leak rate climbs to
+  content-fresh rates as it decays; `leak:true`
+  mints carry `disclosed_by` intact.
+- **P1388 repair preserves (MUST — locked
+  null):** `acknowledge` on a breach leaves the
+  record bit-present, provenance intact;
+  `repair` carries `repair_of`; eval gain gated
+  integrity < competence. `repair_erase_null`.
+- **P1389 promise divergence (SHOULD —
+  HYPOTHESIS-tagged):** paired commitment arms:
+  `E[promise_div]` > 0 at 30-day lag; promisee
+  terms-recall ≥ promiser terms-recall;
+  divergence ≤ `promise_div_max`.
+- **P1390 withheld idempotence (OBSERVE):**
+  repeated `discoverWithheld` on one (A,F,B)
+  triple → one `withheld` record,
+  strength-bumped; inference-only discovery
+  keeps evidence INFERRED.
+- **P1391 tier purity (MUST — locked null):**
+  strength/confidence/hearCount sweeps on
+  fixed-kind records → `display_tier`
+  bit-invariant. `tier_strength_null`.
+
+## 261. Sources verified this version (P1380–P1391
+— formal-model XII)
+
+- **Serial-reproduction crossover (CONSENSUS
+  ordering, HYPOTHESIS index):** Kashima 2000
+  (*PSPB* 26:594 — verified: SI advantage early
+  positions, SC dominance by chain end, 5-person
+  chains); Lyons & Kashima 2003 (*JPSP* 85:989 —
+  verified: SI progressively screened, sharedness
+  amplifies); Bartlett 1932 conventionalization;
+  Allport & Postman 1947.
+- **Destination < source memory (CONSENSUS):**
+  Gopie & MacLeod 2009 (*Psychol. Sci.* 20:1492 —
+  verified; self-focus mechanism); Gopie, Craik &
+  Hasher 2010 age gradient — already spec'd
+  §5.140; this part gives it the `disclose` op
+  it was missing.
+- **Common-ground overreach (CONSENSUS):** Clark
+  & Marshall 1981; Keysar et al. — feeds
+  `meta_copres_p`; already spec'd §6.21.
+- **Secrecy burden (CONSENSUS):** Slepian, Chun &
+  Mason 2017 (*JPSP* 113:1 — verified: mind-wander
+  ~2–2.5× concealment, 13,000 secrets, 96% hold a
+  current secret); Lane & Wegner 1995
+  hyperaccessibility — already spec'd §6.22/
+  `secret_mindwander`; `disclose(confide)` adds
+  the circle-widening leg.
+- **Trust repair by violation kind (CONSENSUS
+  ordering, DEBATED dose):** Kim, Ferrin, Cooper
+  & Dirks 2004 (*JAP* 89:104 — apologies restore
+  more for competence than integrity
+  attributions).
+- **Self-serving paired recall (CONSENSUS
+  direction, HYPOTHESIS magnitude):** Ross &
+  Sicoly 1979 (*JPSP* 37:322 — over-claim of own
+  contributions in married couples/teams);
+  self-reference effect (Rogers, Kuiper & Kirker
+  1977) for the own-role encoding boost.
+- **Withholding discovery (HYPOTHESIS):** typed
+  meta-record is our construct; valence/
+  credibility doses extrapolated from
+  expectation-violation affect literature — no
+  direct memory-for-withholding paradigm cited.
+
+→ formal-model.md Part XII §§104–116; spec v5.75
+§§6.378–6.385; probes P1380–P1391.
+
+Probe registry: P1–P1391. v129 MUST: P1380–P1385,
+P1388, P1391 (locked-null legs + the two ordering
+results the product stands on). SHOULD: P1386,
+P1387, P1389. OBSERVE: P1390.
