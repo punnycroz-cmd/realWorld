@@ -3666,3 +3666,241 @@ sequence). Spec changes land in `memory-model-spec.md` v5.58
   prices Thomas's covert passes — both applied to REMINDING
   chains, our analog of lag transitions, not literal list
   recall.
+
+# PART XI (v122, 2026-09-24) — the cue's crowd, clock, and breath
+
+Parts I–X priced what cues are, who owns them, which way they point,
+and when the search quits. Part XI prices the last unpriced legs:
+**the cue carried by a co-witness's voice** — a partner's account is
+simultaneously a retrieval cue (completeness) and a contaminant
+(conformity), and the spec had priced only the contaminant (§103,
+§6.3/FM§8) while the facilitation half sat unformalized; **the place
+that cues its era, not its address** — TCM implies a place revisits the
+context of when you knew it, so a long-absent bar cues three-year-old
+records, not last week's; **retrieval under acute sleep deprivation** —
+the encode side was priced (`sleepdep_flag`, v0.6) but the search-side
+asymmetry was not; **the name in the crowd at retrieval** —
+`ownname_break_p` (encode) pierces attention but the downstream forced
+bout on self-tagged records was never written; and **the heating-up
+loop** — a bout's persistence should ride the flux of partial products
+("getting warmer"), not a fixed clock — the give-up rule (§77) had a
+threshold but no momentum term. Spec changes land in
+`memory-model-spec.md` v5.68 §§5.134–5.138; probes P1301–P1310.
+
+## 108. The co-witness cue — completeness for a price
+
+- **Gabbert, Memon & Allan 2003** (*Appl. Cogn. Psychol.* 17:533 —
+  verified): dyads who each saw a different camera angle discussed the
+  event, then ~71% reported details only the partner could have seen.
+  The contamination half is already priced (FM§8, §6.3); what was not
+  priced: the partner's account is also a genuine RETRIEVAL CUE for
+  fields the listener encoded but wasn't sampling.
+- **Paterson & Kemp 2006** (*Appl. Cogn. Psychol.* 20:1083 — verified):
+  co-witness information is a STRONGER post-event source than leading
+  questions or media reports — the same face-to-face teller both
+  facilitates and contaminates harder than any channel the spec
+  discounts (`cowit_src_mult` >1 vs document lures at matched content).
+- **Paterson, Kemp & Forgas 2009** (confederate × delay
+  design, *Psychiatry Psychol. Law.*): co-witness discussion WITHOUT
+  injected misinformation was **neither harmful nor beneficial to
+  accuracy** vs no-discussion control. **[CONSENSUS-ish, single study:
+  the cue effect is on COMPLETENESS, not on accuracy of already-held
+  fields. Locked into `cowit_free_null`.]**
+- Model consequence (§5.134): a co-witness utterance about a shared
+  event mints a compound cue: (a) `cowit_fac` (0.15) — completeness
+  gain on fields BOTH parties plausibly encoded (shared ctx window);
+  (b) fields the partner supplies that the listener lacks ride the
+  §5.119 `supplied:true` channel into §6.3 adoption with
+  `cowit_src_mult` (1.2) — the partner outranks print; (c) adoption
+  odds grow with listener-record age (`cowit_lag_gain` 0.1 — source
+  tag decays, partner stays face-coded).
+- Locked `cowit_free_null`: neutral co-witness talk (no novel
+  supplied fields) MUST NOT shift accuracy on already-encoded fields —
+  the effect lives entirely in completeness and the adoption gate.
+- RW texture: two mains rehashing the fight on the stoop — each leaves
+  remembering more than either saw; the wrong detail the confident one
+  threw in is now in both records.
+
+## 109. The place cues its era — place-as-period
+
+- **Howard & Kahana 2002** (*JML* 46:998 — reused, TCM): an emitted
+  item reinstates its encoded context, and that context becomes the
+  next cue — retrieval drifts through context space. The encode-side
+  corollary the spec never used: a place's cue value is not its name,
+  it is the **context layer it reinstates** — and context drifts. A
+  bar revisited after three years reinstates the context of when it
+  was last known; the records it cues most are the ones minted in
+  that era's context field.
+- **Smith & Vela 2001** (reused §1): reinstatement benefit grows with
+  retention interval — consistent with a period-matched cue: the
+  longer the absence, the more the place points at old records, which
+  is where its leverage is.
+- **[HYPOTHESIS — TCM is CONSENSUS as machinery; mapping place-cue
+  drive onto era-affinity is our formalization. Magnitudes ours.]**
+- Model consequence (§5.135): per (character, place) the world keeps a
+  derived `placePeakDay` (visit-weighted recency — the era the place
+  "is" for them). A place cue's drive on record m is scaled by
+  `era_w·exp(−(m.encodeDay − placePeakDay)²/(2·era_sigma²))`
+  (`era_w` 0.3, `era_sigma` ≈180d). `era_return_gain` (0.2) adds when
+  days-since-last-visit ≥ `era_gap` (365d) — the homecoming surge:
+  the first minute back cues hardest, before new exposure re-ages the
+  peak forward.
+- Locked `place_now_null`: a place with uniform, recent visit history
+  shows NO era bias — `era_w` cannot manufacture nostalgia where there
+  is no absence.
+- RW texture: the regular who moved away and walks back into the bar
+  gets the 2019 crowd, not last week's — and the people they suddenly
+  "remember" are exactly the era's people, which is how the sim
+  surfaces a dormant storyline thread.
+
+## 110. The sleepless search — retrieval under acute sleep deprivation
+
+- **Newbury, Crowley, Rastle & Tamminen 2021** (*Psychol. Bull.*
+  147:1215 meta — verified): total SD BEFORE learning g ≈ 0.62;
+  AFTER learning (pre-retrieval/consolidation window) g ≈ 0.28 —
+  encode-side roughly 2.2× the post-encode leg. Immediate-test
+  (still-deprived) performance is hit harder than post-recovery —
+  i.e. there IS a retrieval-side component, small but real.
+- **Frenda et al. 2014** (*Psychol. Sci.* 25:1674) and Diekelmann
+  et al. 2008 (*Learn. Mem.* 15:960): SD raises misinformation
+  susceptibility and false intrusions at test — the tired searcher
+  accepts the supplied detail (§103) and confabulates the gap (§6.2).
+  **[CONSENSUS direction; single-study magnitudes, publication-bias
+  flagged by the meta.]**
+- Model consequence (§5.136): `sleepHours < sdret_thresh` (5h in
+  24h) at retrieval applies `sdret_mult` (0.9) to bout emission
+  quality, `sdret_lat` (1.2) latency, `sdret_confab` (1.3) to §6.2
+  fill rate, `sdret_sug` (1.25) to §5.119 supplied-feature weight —
+  the tired character both reaches slower and believes easier.
+- Locked `sdret_over_null`: every retrieval-side SD term must stay
+  smaller than the encode-side `sleepdep` E-penalty — a build where
+  tired-retrieval costs more than tired-encoding inverts the meta.
+- RW texture: the night-shift nurse asks "wait, what did she say
+  happened?" — she reaches slowly, and the version she accepts is
+  whoever answered first.
+
+## 111. The name in the crowd — own-name at retrieval
+
+- **Moray 1959** (*QJEP* 11:56 — reused from EM) and **Wood & Cowan
+  1995** (*Mem. Cognit.* 23:165 — verified: ~33% detected own name in
+  the unattended channel): encode-side breakthrough is priced
+  (`ownname_break_p`); the RETRIEVAL leg was not — hearing your name
+  doesn't just capture attention, it forces a search: who said it,
+  about me, what do they know?
+- **Röer, Bell & Buchner 2013** (*JEP:LMC* 39:925 — verified): own-
+  name capture is obligatory in that it resists top-down suppression
+  even when task-irrelevant; close-other names capture partially —
+  the self-schema gates by relational distance, not all-or-none.
+- Model consequence (§5.137): `ownname` in the ambient speech field
+  bypasses `fok_pre`/`bout_enter` entirely (locked `ownname_gate_null`
+  — the forced bout cannot be pre-gated) and opens a brief involuntary
+  bout on self-schema + recent self-tagged records, emitting
+  `name_overheard` (with `ownname_attribut_p` 0.6 the bout forks a
+  speaker-identification sub-search — "who's talking about me").
+  `ownname_close` (0.4) on names with `rel` bond >0.5.
+- RW texture: the café table goes quiet when a main walks in; a
+  character three seats over hears their surname and the world-layer
+  delivers a mandatory inner-monologue tick. The ambient NPC hears
+  nothing — this leg is main-cast only (they have self-schemas worth
+  searching).
+
+## 112. The heating-up loop — partial-product flux drives persistence
+
+- **Koriat & Lieblich 1974** (*J. Verb. Learn. Verb. Behav.* 13:370 —
+  verified): unresolved TOTs carry accumulated partial information;
+  the more partials retrieved, the more likely eventual resolution —
+  the searcher literally feels the target approach.
+- **Metcalfe, Schwartz & Joaquim 1993** (*JEP:LMC* 19:1074 — reused
+  §102): cue familiarity vs target retrievability dissociation —
+  persistence is driven by accessibility flux, not by the target
+  itself. **Schwartz 2006** (*Metacognition & Learning* 1:9): the
+  TOT state functions as a heuristic signaling imminent retrieval —
+  metacognition prolonging the search.
+- **[CONSENSUS that partial retrieval products drive search
+  persistence; the continuous flux formulation is our formalization.]**
+- Model consequence (§5.138): the bout tracks `warmth` — an EMA of
+  partial-feature accumulation over the last `warmth_win` (3)
+  emissions/candidates. Give-up (§77) triggers only when BOTH the
+  FOK threshold fails AND `warmth < warmth_floor`; each bout-tick
+  while `warmth>0` extends the search at cost `warmth_ext` (0.4) —
+  the "it's coming, hold on" phenomenology, and the lawful engine of
+  the surprise resolution after a long stall.
+- Locked `warmth_conf_null`: `warmth` modulates persistence only —
+  it must never enter emitted-field confidence (feeling close is not
+  being right; Koriat's accessibility inflates FOK, not accuracy).
+- RW texture: a character stalling mid-sentence, producing fragments
+  ("it was— Tuesday? no— the place with the blue—"), each fragment
+  buying the next; when it resolves, the burst emits the whole record
+  — when it doesn't, the fragments linger as the bout's residue and
+  seed the §96 latent query.
+
+## 113. Cue hierarchy — v122 additions to the §105 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| co-witness account | completeness +0.15 on shared fields; supplied details adopt at 1.2× document-lure rate, growing +0.1/decade-of-record-age; neutral talk accuracy-neutral (locked) | §108 Gabbert 2003; Paterson & Kemp 2006 |
+| place revisited after ≥1y | era-weighted drive on records within ±180d of placePeak; +0.2 return surge; uniform-history places show no bias (locked) | §109 Howard & Kahana 2002; Smith & Vela 2001 |
+| sleep-deprived test | emission ×0.9, latency ×1.2, confab fill ×1.3, supplied-weight ×1.25; all < encode-side SD leg (locked) | §110 Newbury 2021; Frenda 2014 |
+| own name overheard | forced involuntary bout, bypasses fok_pre gate (locked); 60% speaker-attribution fork; close-other names at 0.4 | §111 Moray 1959; Röer 2013 |
+| partial-product flux | warmth EMA extends bout 0.4/tick while positive; never enters confidence (locked) | §112 Koriat & Lieblich 1974; Schwartz 2006 |
+
+## 114. Validation probes P1301–P1310 (v122 suite)
+
+- **P1301 co-witness completeness (MUST):** shared-encode dyads
+  discussing an event emit ≥10% more correct shared fields than
+  matched solo recallers; `cowit_fac` leg.
+- **P1302 co-witness ordering (MUST):** identical wrong detail
+  adopted more from a co-witness teller than a written/media lure at
+  matched content (`cowit_src_mult`); adoption odds grow with record
+  age (`cowit_lag_gain`).
+- **P1303 `cowit_free_null` (MUST — locked):** discussion containing
+  zero novel supplied fields shifts accuracy ≤±2% vs no-discussion
+  control — completeness may rise, accuracy may not move.
+- **P1304 place-era weighting (MUST):** revisit to a place absent
+  ≥`era_gap` emits records within ±`era_sigma` of `placePeakDay` at
+  ≥1.5× the rate of records minted in the last 30d, controlling for
+  record base rates.
+- **P1305 `place_now_null` (MUST — locked):** a continuously-visited
+  place shows no era concentration — emitted encodeDays distribute
+  per base rates ±10%.
+- **P1306 sleepless-search asymmetry (SHOULD):** SD-at-test effect
+  size stays in [0.3, 0.6]× of SD-at-encode (Newbury ratio); a build
+  where retrieval-side dominates fails.
+- **P1307 sleepless suggestibility (SHOULD):** `sleepdep` retrievers
+  confabulate ≥1.2× and adopt supplied features ≥1.15× vs rested.
+- **P1308 own-name forced bout (MUST — locked `ownname_gate_null`):**
+  own-name in ambient speech opens a bout at p≥0.3 even when
+  `fok_pre < bout_enter`; close-other names fire at ≈0.4× rate;
+  stranger names at base.
+- **P1309 warmth persistence (MUST):** bouts with sustained
+  partial-flux persist ≥1.5× longer than matched flat-flux bouts;
+  resolution rate after extension is elevated (the stall that pays
+  off).
+- **P1310 `warmth_conf_null` (SHOULD — locked):** corr(warmth at
+  extension, emitted-field confidence) ≈0 while corr(warmth, bout
+  duration) >0.5.
+
+## 115. Honest limits (v122 additions)
+
+- `cowit_fac` prices a completeness gain the lab shows as "discussion
+  neither helps nor harms accuracy" — we split completeness from
+  accuracy; the lab rarely separates them cleanly, so P1301/P1303 are
+  our deconfounding, not the literature's.
+- `cowit_src_mult` 1.2 prices Paterson & Kemp's potency ordering
+  (co-witness > leading question > media) — ordinal, not cardinal;
+  the meta's publication-bias warning applies.
+- `placePeakDay`/era-gaussian is a TCM-flavored HYPOTHESIS — no lab
+  has priced place-cue drive as a function of visitation history;
+  `era_sigma` 180d is a free parameter, P1304 locks only the absence
+  condition.
+- Newbury's post-learning g=0.28 mixes consolidation-window and
+  retrieval-side effects; we apportion the retrieval share as
+  `sdret_mult` and let P1306 police the ratio — the split itself is
+  DEBATED.
+- `ownname_ret_p` reuses the encode-side ~33% detection — the
+  retrieval bout probability inherits a number measured under
+  shadowing, not free living; RW ambient-noise will modulate it
+  via `ctx_keep_p_eff` anyway.
+- `warmth` as an EMA of partials is our continuous stand-in for
+  discrete partial-retrieval events; `warmth_ext` 0.4 per tick has no
+  direct source — P1309 constrains the ratio, not the constant.

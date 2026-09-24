@@ -5395,3 +5395,49 @@ to a function of horizon, disuse, or record age.
 
 → forgetting-curves.md §§51–55; spec v5.67 §§6.323–6.328;
 probes P1291–P1300.
+
+## 97. v122 source block — the cue's crowd, clock, and breath (retrieval-cues XI)
+
+- **Co-witness as cue (CONSENSUS contamination; completeness
+  deconfounding ours):** **Gabbert, Memon & Allan 2003**
+  (*Appl. Cogn. Psychol.* 17:533 — verified: discussed dyads,
+  ~71% report partner-only details); **Paterson & Kemp 2006**
+  (*Appl. Cogn. Psychol.* 20:1083 — verified: co-witness supply
+  outranks leading questions + media at matched content);
+  **Paterson, Kemp & Forgas 2009** (*Psychiatry Psychol. Law.*
+  16:S112 — verified: no-confederate discussion is accuracy-
+  neutral vs no-discussion control — completeness/accuracy
+  split); Paterson, Kemp & Ng 2011 (warnings + source-
+  monitoring fail to remove conformity).
+- **Place-as-era (TCM machinery CONSENSUS; place→period
+  mapping HYPOTHESIS):** Howard & Kahana 2002 (*JML* 46:998 —
+  reused; emitted item reinstates context → context becomes
+  next cue, context drifts); Smith & Vela 2001 (reused);
+  Mensink & Raaijmakers 1988 (reused substrate).
+- **Sleepless search (CONSENSUS ordering encode≫post-encode;
+  retrieval share DEBATED):** **Newbury, Crowley, Rastle &
+  Tamminen 2021** (*Psychol. Bull.* 147:1215 — verified meta:
+  pre-learn g=0.62 CI[0.47,0.77]; post-learn g=0.28
+  CI[0.18,0.38]; immediate-deprived test hardest; funnel-plot
+  asymmetry flagged); Frenda et al. 2014 (*Psychol. Sci.*
+  25:1674); Diekelmann et al. 2008 (*Learn. Mem.* 15:960).
+- **Own-name retrieval (CONSENSUS capture; forced-bout
+  extension ours):** Moray 1959 (reused); **Wood & Cowan
+  1995** (*Mem. Cognit.* 23:165 — ~33% unattended-channel
+  detection); **Röer, Bell & Buchner 2013** (*JEP:LMC* 39:925
+  — verified: capture resists suppression; close-other names
+  capture partially).
+- **Heating-up loop (CONSENSUS partials→persistence; EMA
+  ours):** **Koriat & Lieblich 1974** (*J. Verb. Learn. Verb.
+  Behav.* 13:370 — partial accumulation predicts TOT
+  resolution); Metcalfe, Schwartz & Joaquim 1993 (reused);
+  **Schwartz 2006** (*Metacognition & Learning* 1:9 — TOT as
+  metacognitive persistence signal).
+- **Spec consequence (v5.68):** §§5.134–5.138 — `cowit_*`
+  (completeness + supplied-detail dual, `cowit_free_null`),
+  `era_*`/`placePeakDay` (place cues era, `place_now_null`),
+  `sdret_*` (retrieval-side SD under encode side,
+  `sdret_over_null`), `ownname_ret_*` (forced bout bypassing
+  fok_pre, `ownname_gate_null`), `warmth_*` (flux-driven
+  persistence, `warmth_conf_null`). §7 +19 scalars +5 locked
+  nulls +1 derived field; §10 contract; probes P1301–P1310.

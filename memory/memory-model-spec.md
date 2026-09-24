@@ -1,4 +1,33 @@
-# Memory Model Spec v5.67 — implementable human-like memory for RW characters
+# Memory Model Spec v5.68 — implementable human-like memory for RW characters
+
+> **v5.68 note (retrieval-cues XI — the cue's crowd, clock,
+> and breath):** `memory/retrieval-cues.md` Part XI
+> (§§108–112) prices five retrieval-side legs left unpriced.
+> **Co-witness cue** — a shared-encode partner's account is
+> simultaneously a completeness cue (`cowit_fac` on shared
+> fields) and a supplied-detail contaminant
+> (`cowit_src_mult` 1.2·hint_w into §6.3, growing with record
+> age); locked `cowit_free_null` — neutral discussion cannot
+> move held-field accuracy (Gabbert 2003; Paterson & Kemp
+> 2006; Paterson et al. 2009). **Place-as-era** — derived
+> `placePeakDay` per (char, place) makes place cues era-
+> weighted (`era_w` gaussian, `era_return_gain` on ≥1y
+> absence); locked `place_now_null` (TCM machinery, mapping
+> HYPOTHESIS). **Sleepless search** — `sleepHours24 < 5`
+> taxes emission quality/latency and raises confabulation +
+> supplied-feature weight (`sdret_*`); locked
+> `sdret_over_null` — retrieval leg stays below the encode
+> leg (Newbury et al. 2021 g-ratio). **Own-name retrieval** —
+> ambient own-name opens a forced bout bypassing
+> `fok_pre`/`bout_enter` (locked `ownname_gate_null`), emits
+> `name_overheard` with speaker-attribution fork; close-other
+> names at `ownname_close` (Moray; Wood & Cowan; Röer 2013).
+> **Heating-up loop** — `warmth` EMA of partial-product flux
+> extends the bout past the §77 quit threshold; locked
+> `warmth_conf_null` — persistence only, never confidence
+> (Koriat & Lieblich 1974; Schwartz 2006). Spec §§5.134–
+> 5.138, §7 +19 scalars +5 locked nulls +1 derived field,
+> §10 contract; probes P1301–P1310.
 
 > **v5.67 note (forgetting-curves XI — the shape parameters
 > are functions):** `memory/forgetting-curves.md` Part XI
@@ -9792,6 +9821,143 @@ with p = fame_p (≈0.12)·fame_age_leg(age_eff):
 `fame_lag` are immune — the delay is the mechanism
 (familiarity must outlive its source tag). P1210.
 
+### 5.134 The co-witness cue — `cowit_*` (new in v5.68)
+
+RC§108; Gabbert, Memon & Allan 2003 (*Appl. Cogn. Psychol.*
+17:533 — verified ~71% partner-only detail adoption);
+Paterson & Kemp 2006 (*Appl. Cogn. Psychol.* 20:1083 —
+co-witness supply outranks leading questions and media at
+matched content); Paterson, Kemp & Forgas 2009 (neutral
+discussion accuracy-neutral vs control).
+
+When a co-encode partner utters an account of a shared event
+in the character's presence:
+
+```
+shared fields (m has field, partner asserted it):
+  cue drive += cowit_fac (0.15)         // completeness leg —
+                                        // partner's mention
+                                        // re-samples your copy
+unshared fields (partner asserted, m lacks/decayed):
+  enter C as supplied:true (§5.119) at
+  weight cowit_src_mult (1.2)·hint_w    // outranks
+                                        // document lures
+adoption path: §6.3 unchanged, with
+  p_adopt ×= (1 + cowit_lag_gain·(ageDays/365))
+                                        // source tag decays,
+                                        // partner stays
+                                        // face-coded
+```
+
+Locked `cowit_free_null` (P1303): discussion contributing
+zero novel supplied fields MUST NOT shift accuracy on
+already-encoded fields (±2% band) — the effect lives in
+completeness and the adoption gate, never in re-scoring
+held fields.
+
+### 5.135 The place cues its era — `era_*` (new in v5.68)
+
+RC§109; Howard & Kahana 2002 (*JML* 46:998 — TCM retrieved-
+context reuse); Smith & Vela 2001 (interval interaction,
+reused §1). Mechanism CONSENSUS-flavored, mapping is
+HYPOTHESIS.
+
+Per (character, place) derived state `placePeakDay` —
+visit-weighted recency of exposure (not stored as a record
+field; recomputed from the visit ledger). A place cue's
+drive on record m scales:
+
+```
+era_match = exp(−(m.encodeDay − placePeakDay)²/(2·era_sigma²))
+drive += era_w·era_match                 // era_w 0.3,
+                                        // era_sigma 180d
+if (now − lastVisit(place)) ≥ era_gap (365d):
+  drive += era_return_gain (0.2)         // the homecoming
+                                        // surge, first
+                                        // revisit only
+```
+
+Each new visit re-ages `placePeakDay` forward — the era
+fades as the place is re-learned. Locked `place_now_null`
+(P1305): uniform recent visit history yields no era
+concentration — `era_match` must distribute emitted
+encodeDays per base rates (±10%).
+
+### 5.136 The sleepless search — `sdret_*` (new in v5.68)
+
+RC§110; Newbury, Crowley, Rastle & Tamminen 2021
+(*Psychol. Bull.* 147:1215 — verified meta: SD-before-learn
+g≈0.62, SD-after-learn g≈0.28, immediate-deprived test hit
+hardest); Frenda et al. 2014 (*Psychol. Sci.* 25:1674);
+Diekelmann et al. 2008 (*Learn. Mem.* 15:960). Direction
+CONSENSUS; magnitudes carry the meta's publication-bias
+warning.
+
+Character state `sleepHours24 < sdret_thresh` (5h) at
+retrieval time applies:
+
+```
+emission quality ×= sdret_mult (0.9)
+bout latency     ×= sdret_lat  (1.2)
+§6.2 confab fill ×= sdret_confab (1.3)
+§5.119 hint_w    ×= sdret_sug  (1.25)   // supplied features
+                                        // land heavier on
+                                        // the tired searcher
+```
+
+Locked `sdret_over_null` (P1306): every retrieval-side SD
+term must remain smaller than the encode-side `sleepdep`
+E-penalty — a build where tired-search costs more than
+tired-mint inverts the meta's ordering.
+
+### 5.137 The name in the crowd — `ownname_ret_*` (new in v5.68)
+
+RC§111; Moray 1959 (*QJEP* 11:56, reused from EM§);
+Wood & Cowan 1995 (*Mem. Cognit.* 23:165 — ~33% unattended-
+channel detection); Röer, Bell & Buchner 2013 (*JEP:LMC*
+39:925 — capture resists suppression; close-other names
+capture partially).
+
+`ownname` matching the character's name in the ambient
+speech field opens an involuntary bout at `ownname_ret_p`
+(0.35) that **bypasses `fok_pre`/`bout_enter`** (locked
+`ownname_gate_null`, P1308 — the forced bout cannot be
+pre-gated by cue familiarity). The bout scans self-schema
++ recent self-tagged records and emits `name_overheard`;
+with `ownname_attribut_p` (0.6) it forks a speaker-
+identification sub-search (§5.10 cascade, may fail open —
+"someone said my name" without a who). Names with `rel`
+bond >0.5 fire at `ownname_close` (0.4)×; stranger names
+at base rates. Main-cast only — ambient NPCs carry no
+self-schema to search.
+
+### 5.138 The heating-up loop — `warmth_*` (new in v5.68)
+
+RC§112; Koriat & Lieblich 1974 (*J. Verb. Learn. Verb.
+Behav.* 13:370 — partial-product accumulation predicts TOT
+resolution); Metcalfe, Schwartz & Joaquim 1993 (reused
+§5.118); Schwartz 2006 (*Metacognition & Learning* 1:9 —
+TOT as metacognitive signal prolonging search). Direction
+CONSENSUS; continuous flux formulation is ours.
+
+The bout maintains `warmth` — an EMA of partial-feature
+accumulation (fragments emitted, near-miss candidates,
+TOT partials) over the last `warmth_win` (3) bout ticks:
+
+```
+warmth ← warmth + warmth_k·(partialFlux − warmth)   // 0.5
+quit (§77) requires: FOK below threshold AND
+                     warmth < warmth_floor (0.1)
+while warmth > 0: each tick extends the bout at cost
+                     warmth_ext (0.4)
+```
+
+Unresolved bouts leave their partials as residue feeding
+the §96 latent-query arm. Locked `warmth_conf_null`
+(P1310): `warmth` modulates persistence only — it must
+never enter emitted-field confidence (feeling close is not
+being right).
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -18383,6 +18549,31 @@ MemoryParams = {
 //   entry; op catalog gains `evalClass` column
 //   (§16.1). All snapshot-additive; absent = legacy
 //   (evaluatedAt absent → treat as createdDay).
+// v5.68 additions (retrieval-cues XI — RC§§108–112)
+"cowit_fac": 0.15, "cowit_src_mult": 1.2,
+"cowit_lag_gain": 0.1,                              // §5.134
+"era_w": 0.3, "era_sigma": 180, "era_gap": 365,
+"era_return_gain": 0.2,                             // §5.135
+"sdret_thresh": 5, "sdret_mult": 0.9,
+"sdret_lat": 1.2, "sdret_confab": 1.3,
+"sdret_sug": 1.25,                                  // §5.136
+"ownname_ret_p": 0.35, "ownname_attribut_p": 0.6,
+"ownname_close": 0.4,                               // §5.137
+"warmth_k": 0.5, "warmth_win": 3,
+"warmth_floor": 0.1, "warmth_ext": 0.4,             // §5.138
+// v5.68 locked nulls: cowit_free_null (neutral talk is
+//   accuracy-neutral — P1303); place_now_null (uniform
+//   history → no era bias — P1305); sdret_over_null
+//   (retrieval-side < encode-side — P1306);
+//   ownname_gate_null (forced bout bypasses fok_pre —
+//   P1308); warmth_conf_null (warmth never enters
+//   confidence — P1310).
+// v5.68 fields/state: derived `placePeakDay` per (char,
+//   place) from the visit ledger — computed, not stored on
+//   records; bout state `warmth` (EMA, per-bout, never
+//   persisted); emission `name_overheard` with optional
+//   speaker-id fork result. All snapshot-additive; absent
+//   = legacy.
 // v5.67 additions (forgetting-curves XI — FC§§51–55)
 "lag_ratio_a": 0.30, "lag_ratio_t0": 7, "lag_ratio_b": -0.33,
 "lag_ratio_lo": 0.05, "lag_ratio_hi": 0.40,    // §6.323
@@ -21166,6 +21357,50 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.68 additions (retrieval-cues.md §§108–112 — the cue's
+  crowd, clock, and breath):
+  - **Co-witness contract (§5.134):** the completeness leg
+    applies only to fields both parties plausibly encoded —
+    `cowit_fac` never mints; unshared assertions ride the
+    §5.119 `supplied:true` channel into §6.3 and nowhere
+    else. `cowit_free_null` (P1303): discussion with zero
+    novel supplied fields must leave held-field accuracy
+    within ±2% of control — the cue's benefit is
+    completeness, its cost is the adoption gate; there is no
+    third route.
+  - **Place-era contract (§5.135):** `placePeakDay` is
+    derived from the visit ledger, never stored on records
+    and never editable by the memory layer. `era_return_gain`
+    fires on the first revisit after `era_gap` only —
+    subsequent visits re-age the peak. `place_now_null`
+    (P1305): a uniformly-visited place emits encodeDays per
+    base rates; era weighting must not manufacture nostalgia
+    without absence.
+  - **Sleepless-search contract (§5.136):** `sdret_*` keys
+    off `sleepHours24` at retrieval time — a state read, not
+    a record flag (the encode-side `sleepdep_flag` is
+    untouched). `sdret_over_null` (P1306): the retrieval
+    leg must stay smaller than the encode leg; builds that
+    invert the ratio fail outright.
+  - **Own-name contract (§5.137):** `ownname_ret_p` bypasses
+    `fok_pre`/`bout_enter` (`ownname_gate_null`, P1308) and
+    emits `name_overheard`; the speaker-identification fork
+    may fail open — emission of the event does not require
+    identifying the speaker. Rel-gated via `ownname_close`;
+    ambient NPCs never run this leg.
+  - **Warmth contract (§5.138):** `warmth` is per-bout EMA
+    state, never persisted and never logged as evidence.
+    `warmth_conf_null` (P1310): corr(warmth, emitted-field
+    confidence) must stay ≈0 — it may extend the search, it
+    may not certify the product.
+  - **Locked boundaries game-systems must honor:**
+    `cowit_free_null`, `place_now_null`, `sdret_over_null`,
+    `ownname_gate_null`, `warmth_conf_null`.
+  - **New params (§7):** 19 scalars + 5 locked nulls +
+    derived `placePeakDay` + bout state `warmth` + emission
+    `name_overheard`.
+  - Probes P1301–P1310.
+
 - v5.67 additions (forgetting-curves.md §§51–55 — the shape
   parameters are functions):
   - **Ridgeline contract (§6.323):** `lag_mult` reads

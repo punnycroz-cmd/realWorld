@@ -12494,3 +12494,102 @@ P1300.
   (*Memory* 15:318 — verified meta: d≈0.40, robust at
   delay); Slamecka & Graf 1978 (reused); McNamara & Healy
   1995; Slamecka & Katsaiti 1987 (retention-interval arm).
+
+## 246. v122 probe specs (P1301–P1310 — retrieval-cues XI, the cue's crowd, clock, and breath)
+
+- **P1301 co-witness completeness (MUST):** dyads with shared
+  encode windows on the same event discuss it; post-discussion
+  solo recall emits ≥10% more correct SHARED fields than matched
+  no-discussion controls. The gain must concentrate on fields the
+  partner asserted (the cue leg), not on unasserted shared fields.
+- **P1302 co-witness ordering (MUST):** an identical wrong detail
+  is adopted more often when delivered by a co-encode partner than
+  by a written/media lure at matched content (`cowit_src_mult`
+  1.2); adoption odds increase with listener-record age
+  (`cowit_lag_gain` — source tag decays, face-coded partner does
+  not). Gabbert 2003 / Paterson & Kemp 2006 anchors.
+- **P1303 `cowit_free_null` (MUST — locked):** discussion
+  containing zero novel supplied fields shifts held-field accuracy
+  ≤±2% vs no-discussion control across the sweep — completeness
+  may rise, accuracy must not move.
+- **P1304 place-era weighting (MUST):** a character revisiting a
+  place absent ≥`era_gap` emits records within ±`era_sigma` of
+  `placePeakDay` at ≥1.5× the base-rate-expected share; the bias
+  decays across subsequent visits as the peak re-ages.
+- **P1305 `place_now_null` (MUST — locked):** a continuously
+  visited place (uniform recent history) shows no era
+  concentration — emitted encodeDays distribute per base rates
+  ±10%; `era_w` cannot conjure an era.
+- **P1306 sleepless-search asymmetry (SHOULD):** population sweep
+  of SD-at-test vs SD-at-encode effect sizes — ratio lands in
+  [0.3, 0.6] (Newbury 2021 g≈0.28/0.62); a build where the
+  retrieval leg dominates fails `sdret_over_null`.
+- **P1307 sleepless suggestibility (SHOULD):** `sleepHours24 <
+  sdret_thresh` retrievers confabulate ≥1.2× rested (§6.2 fills)
+  and adopt supplied features ≥1.15× (§5.119 channel); latency
+  rises ≥15%.
+- **P1308 own-name forced bout (MUST — locked
+  `ownname_gate_null`):** own-name in ambient speech opens a bout
+  at p≥0.3 even when `fok_pre < bout_enter` (gate bypass);
+  close-other names (rel>0.5) fire at ≈0.4×; stranger names at
+  base rates; `name_overheard` emissions fork speaker-id at
+  ≈0.6 and may fail open.
+- **P1309 warmth persistence (MUST):** bouts with sustained
+  positive partial-flux persist ≥1.5× longer than matched
+  flat-flux bouts past the §77 threshold; post-extension
+  resolution rate is elevated over never-extended baselines
+  (the stall that pays off).
+- **P1310 `warmth_conf_null` (SHOULD — locked):**
+  corr(warmth-at-extension, emitted-field confidence) ≈0 while
+  corr(warmth, bout duration) >0.5 — persistence without
+  certification.
+
+Probe registry: P1–P1310 (v122 adds P1301–P1310). MUST:
+P1301, P1302, P1303, P1304, P1305, P1308, P1309 (three
+locked-null legs + completeness, era weighting, forced bout,
+persistence). SHOULD: P1306, P1307, P1310.
+
+## 247. Sources verified this version (P1301–P1310 backing)
+
+- **Co-witness cue (CONSENSUS contamination; completeness leg
+  our deconfounding):** Gabbert, Memon & Allan 2003 (*Appl.
+  Cogn. Psychol.* 17:533 — verified ~71% partner-only detail
+  adoption in discussed dyads); Paterson & Kemp 2006 (*Appl.
+  Cogn. Psychol.* 20:1083 — verified: co-witness supply beats
+  leading questions and media reports at matched content);
+  Paterson, Kemp & Forgas 2009 (*Psychiatry Psychol. Law.* 16:S112 — confederate × delay —
+  discussion without injected misinformation accuracy-neutral
+  vs control); Paterson, Kemp & Ng 2011 (*Appl. Cogn. Psychol.*
+  — warnings/source-monitoring fail to remove conformity).
+- **Place-as-era (TCM machinery CONSENSUS; place-cue era
+  mapping HYPOTHESIS):** Howard & Kahana 2002 (*JML* 46:998 —
+  reused; retrieved context becomes the next cue, context
+  drifts); Smith & Vela 2001 (reused §1 — reinstatement grows
+  with interval); Mensink & Raaijmakers 1988 (context-
+  fluctuation substrate, reused).
+- **Sleep-deprived retrieval (CONSENSUS ordering — encode leg
+  ≫ post-encode leg; retrieval share of the post-encode leg
+  DEBATED):** Newbury, Crowley, Rastle & Tamminen 2021
+  (*Psychol. Bull.* 147:1215 — verified meta: pre-learning
+  g=0.62 CI[0.47,0.77], post-learning g=0.28 CI[0.18,0.38],
+  immediate-deprived tests hit harder, funnel-plot asymmetry
+  flagged); Frenda et al. 2014 (*Psychol. Sci.* 25:1674 — SD
+  raises misinformation susceptibility); Diekelmann, Wilhelm,
+  Wagner & Born 2008 (*Learn. Mem.* 15:960 — SD raises false
+  intrusions).
+- **Own-name retrieval (CONSENSUS capture; bout-forcing is our
+  extension):** Moray 1959 (*QJEP* 11:56 — reused); Wood &
+  Cowan 1995 (*Mem. Cognit.* 23:165 — verified ~33% unattended-
+  channel detection); Röer, Bell & Buchner 2013 (*JEP:LMC*
+  39:925 — verified: own-name distraction resists top-down
+  suppression; close-other names capture partially).
+- **Heating-up loop (CONSENSUS that partial products drive
+  persistence; continuous-flux formulation ours):** Koriat &
+  Lieblich 1974 (*J. Verb. Learn. Verb. Behav.* 13:370 —
+  verified: partials predict TOT resolution); Metcalfe,
+  Schwartz & Joaquim 1993 (reused §5.118); Schwartz 2006
+  (*Metacognition & Learning* 1:9 — TOT as metacognitive
+  persistence signal).
+
+→ retrieval-cues.md §§108–115; spec v5.68 §§5.134–5.138;
+probes P1301–P1310.
