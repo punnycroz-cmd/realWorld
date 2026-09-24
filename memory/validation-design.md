@@ -15212,3 +15212,94 @@ probes P1506–P1516.
 → memory-model-spec.md v5.87 §17;
 formal-model.md Part XIII §§117–125;
 probes P1517–P1528. Registry P1–P1528.
+
+## 286. v142 probe specs (P1529–P1540 — the trait backlog compile)
+
+Profile-layer probes: the Part IX pins are testable artifacts,
+not prose. Each pins a falsifiable consequence.
+
+- **P1529 edu level-not-slope, profile arm (MUST —
+  `edu_slope_null` at the compile layer):** run C4
+  (`edu` 2) vs C5 (`edu` 0.7) at matched age_eff through
+  identical event streams: baseline semantic/fluency legs
+  differ ≥10%, `beta_episodic` slopes equal within probe CI.
+- **P1530 remfn discriminates WHICH (MUST —
+  `remfn_random_null` at the profile layer):** C6
+  (`teach` .8) vs C7 (`bitter` .5) retell bouts over matched
+  archives: record-class histograms differ — Carmen overdraws
+  `first`/`selfdef` toward younger listeners, Victor overdraws
+  unresolved-loss; bout RATES may match.
+- **P1531 transactive loss is structural (MUST):**
+  C6/C7 `collab_partner.lost:true` → zero `collab` bout ops
+  post-loss; partner-cued records carry `transact_loss` θ
+  penalty; directory entry still emits "X would know" reports.
+  A phantom bout or a deleted directory fails.
+- **P1532 release ≠ erasure (MUST — `goal_forget_null`):**
+  force goal abandonment on C5 (`goal_dis` .7) vs C7 (.2):
+  C5 `goal_sub` mint rate ~`goal_sub_p_eff`; C7's stays
+  suppressed and intrusion τ runs long. In both arms the goal
+  record and history survive bit-present.
+- **P1533 the veto is a trait (SHOULD):** S2 (`rtr_mult` 0.5)
+  vs C4 (1.3) at matched candidate/verbatim strengths: S2
+  accepts suggested lures ≥1.5× C4's rate; verbatim-vs-verbatim
+  resolution identical in both (`rtr_free_null` extension).
+- **P1534 the nap pays honestly (SHOULD):** C4/Asha nap-event
+  arms boost that morning's mints via the sleep channel;
+  `nap_long` flags correlate with `age_eff`/fatigue but
+  removing the flag changes no leg (`nap_long_cause_null`).
+- **P1535 the pressure window (MUST — `htn_late_null`):**
+  C7 (`htn` 1.0, onset 50, untreated) accrues `htn_slope_k`
+  through the ≤65 window at full rate; treated arm (C6,
+  `htn_treated`) accrues 0.6×; synthetic onset-≥70 arm accrues
+  ≤0.3×.
+- **P1536 boredom reaches, never mints (MUST —
+  `bored_mint_null`):** `bored_sus` 0.7 (C2) vs 0.2 (C7) under
+  matched idle stretches: C2 shows elevated `bored_nost`
+  reach-back into positive bump records; zero new records
+  minted by the leg in either arm.
+- **P1537 plans are authored (MUST — `ifthen_author_null`):**
+  inject scripted/request-minted intentions into all profiles:
+  none carry `if_then`; char-authored intentions carry it at
+  ~`ifthen_use` rate (C4 ≈4× C3).
+- **P1538 no orphan pins (MUST — `pin_orphan_null`):** the
+  compile gate rejects any pin without resolvable
+  {authored-cite | derived-computation | event-counter |
+  prior-draw} provenance; audit every Part IX pin resolves.
+- **P1539 eleven-way distinctness (MUST):** the 8 mains + 3
+  promoted residents are pairwise ≥2σ apart on ≥4 of the
+  §48 axes; no promoted profile collapses onto its nearest
+  main (extends P1402).
+- **P1540 promoted parity at the pin layer (MUST —
+  `prom_quality_null` downstream):** S1–S3 Part IX pins
+  compile through the identical `deriveParams` path as mains;
+  no tier-specific narrowing or capped ranges.
+
+## 287. Sources verified this version
+(P1529–P1540 backing)
+
+- **Wrosch, Scheier, Miller, Schulz & Carver 2003** (*PSPB*
+  29:1494 — verified): Goal Adjustment Scale; disengagement
+  and reengagement separable — the two-trait license behind
+  `goal_dis`/`goal_reeng` and `goal_forget_null` (P1532).
+- **Gollwitzer & Sheeran 2006** (*Adv. Exp. Soc. Psych.*
+  38:69 — verified meta-analysis): implementation-intention
+  efficacy d≈0.65; the propensity axis `ifthen_use` and its
+  authored-only gate (P1537).
+- **Farmer & Sundberg 1986** (*J. Pers. Assess.* 50:4 —
+  verified): Boredom Proneness Scale — `bored_sus` is a
+  measured trait, not a knob (P1536).
+- **Koriat 2007** (*TiCS* 11:296 — verified review):
+  metacognitive monitoring as stable individual difference —
+  `rtr_mult` trait license (P1533).
+- **Arbuckle, Nohara-LeClair & Pushkar 2000** (*Psychol.
+  Aging* 15 — off-target verbosity; mechanism DEBATED) —
+  `offtarg` authored-style pins (S2 0.7 vs C4 0.1).
+- **Wegner 1987** (reused): transactive systems —
+  `collab_partner.lost` is the widower's directory priced at
+  §6.14 (P1531).
+- All profile-layer constants reused from spec §§4.96–4.104,
+  5.160–5.169, 6.407–6.431 — not re-cited.
+
+→ memory-model-spec.md v5.88 §6.431;
+cast-profiles.md Part IX §§48–54;
+probes P1529–P1540. Registry P1–P1540.

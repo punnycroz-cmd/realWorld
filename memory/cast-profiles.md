@@ -2540,3 +2540,365 @@ P1404 minor guard refuses guardian-less promotion.
   re-promotion gain.
 - Mechanism constants: reused from spec §§6.386–6.392 (v5.76)
   and all prior pin layers — not re-cited.
+
+# Part IX — v142 pass: the trait backlog (spec v5.77–v5.87 compile)
+
+Eleven spec versions landed since the last full cast compile (v130,
+spec v5.76). Most of what they added is global machinery — knots,
+legs, locked nulls — but a long tail of it is *authored-trait*
+machinery: axes that were spec'd generically and never pinned per
+person. A profile that doesn't pin an authored trait silently runs
+the default, and the default is the least interesting human. This
+pass walks the whole backlog and pins it.
+
+The compile also exposed six axes the machinery implied but never
+declared — now spec'd as v5.88 §6.431 (`ifthen_use`, `rtr_mult`,
+`persp_shift_p`, `bored_sus`, `goal_dis`/`goal_reeng`,
+`collab_partner`) plus the provenance registry (`pin_orphan_null`):
+every pin below names its class {authored-cited · derived ·
+event-minted · sampled-prior}, and an unsourced pin now fails the
+compile. This is the spec→wired gap closing at the profile layer:
+a pin you can't source is a pin you invented.
+
+## 48. The backlog, enumerated (what got pinned and why)
+
+| axis | spec | class | what it buys a viewer |
+|---|---|---|---|
+| `amnesia_offset` [2.5,4.5] | §4.96 | sampled | where each childhood wall stands |
+| `remnis_style` [0,1] | §4.96 | authored | elaborative reminiscers reach earlier |
+| `remfn_w` 7-vec | §5.163 | authored | WHY each person retells — which records rehearse |
+| `expert_dom` [ids] | §4.104 | authored | the craft that holds its own against age |
+| `mse` seeds {domain} | §5.164 | authored | who believes in their own memory, per domain |
+| `ifthen_use` [0,1] | §6.431 | authored | who plans in when-then form |
+| `offtarg` (drift prop.) | §5.160 | authored | whose talk wanders off-target |
+| `rtr_mult` [0.5,1.5] | §6.431 | authored | who vetoes their own recall |
+| `persp_shift_p` [0,.5] | §6.431 | authored | who retells from outside their own eyes |
+| `bored_sus` [0,1] | §6.431 | authored | whose boredom reaches backward |
+| `goal_dis`/`goal_reeng` [0,1] | §6.431 | authored | who releases goals vs re-finds them |
+| `collab_partner` {dyad} | §6.431 | derived | whose memory was half someone else's |
+| `edu` [0,2] | §6.407 | authored | level, never slope (`edu_slope_null`) |
+| `cog_act` [0,2] | §6.408 | authored | rate, not résumé (`cogact_level_null`) |
+| `purpose` [0,2] | §6.409 | authored+drift | moderation of decline legs, PM survival |
+| `htn`/`htn_onset`/`htn_treated` | §6.411 | authored | the pressure years, windowed ≤65 |
+| `cvd_hist` [0,2] | §6.412 | event-minted | the event that isn't a stroke |
+| `alc_hist` [0,2] | §6.414 | authored+event | chronic dose; J-curve banned |
+| `noise_exp` [0,2] | §6.413 | derived | residence/workplace exposure |
+| `preterm` | §6.415 | authored | born early (nobody pinned — see §52) |
+| `advers_cum` | §6.418 | event counter | seeded from biography at compile |
+| `nap` propensity | §6.416 | authored | daytime-sleep leg; `nap_long` marker only |
+
+## 49. Per-main pins (all prior passes stand)
+
+### C1 Mars, 29 — the host
+
+```
+amnesia_offset 3.4 · remnis_style 0.55 ·
+remfn_w {id .3, prob .2, teach .3, intim .6, bored .1, bitter .1, deprep 0}
+expert_dom [café-service, people-reading] ·
+mse {social .7, names .5, ledger .6} ·
+ifthen_use 0.5 · offtarg 0.2 · rtr_mult 1.0 · persp_shift_p 0.1 ·
+bored_sus 0.4 · goal_dis 0.5 · goal_reeng 0.6 ·
+collab_partner none — the bar is her dyad, distributed not dyadic
+edu 1 (city college, hospitality by apprenticeship) · cog_act 1.2 ·
+purpose 1.4 (the café is the project) · htn 0 · cvd_hist 0 ·
+alc_hist 0.4 (the comped drink is her medium, not her habit) ·
+noise_exp 0.8 derived (bar-shift hours; annoyance leg only) ·
+preterm 0 · advers_cum 2 (mother's scare 2022; the warmth that
+didn't return) · nap 0.3
+```
+
+Signature delta: the medium is other people's evenings —
+`noise_exp` pays the annoyance tax while `expert_dom` rebates the
+service channel; she forgets the night and keeps the faces.
+
+### C2 Jules, 26 — the newcomer
+
+```
+amnesia_offset 3.0 · remnis_style 0.4 ·
+remfn_w {id .4, prob .3, teach .1, intim .3, bored .3, bitter .1, deprep 0}
+expert_dom [printmaking] · mse {craft .7, social .4, names .4} ·
+ifthen_use 0.3 · offtarg 0.3 · rtr_mult 0.8 · persp_shift_p 0.2 ·
+bored_sus 0.7 · goal_dis 0.6 · goal_reeng 0.5 ·
+collab_partner none
+edu 1 (two years community-college printmaking, stopped for money
+not aptitude — bible §timeline 2019) · cog_act 0.8 ·
+purpose 0.5 (the honest low pin — he is between purposes; it
+drifts on event mints per §6.409, which is the point) ·
+htn 0 · cvd_hist 0 · alc_hist 0.3 · noise_exp 0.4 derived ·
+preterm 0 · advers_cum 1 · nap 0.4
+```
+
+Signature delta: `bored_sus` 0.7 + newcomer thinness = the
+reach-back profile. Slow afternoons in the café pull his archive
+toward wherever-he-came-from — the nostalgia leg (§5.166) doing
+to a 26-year-old what it was measured on the old.
+
+### C3 Dani, 24 — the fabulist
+
+```
+amnesia_offset 3.5 · remnis_style 0.5 ·
+remfn_w {id .5, prob .1, teach .2, intim .5, bored .4, bitter .2, deprep 0}
+expert_dom [drawing, chalk-lettering] · mse {art .8, practical .3} ·
+ifthen_use 0.1 · offtarg 0.4 · rtr_mult 0.5 · persp_shift_p 0.35 ·
+bored_sus 0.6 · goal_dis 0.4 · goal_reeng 0.4 ·
+collab_partner none
+edu 0.8 (one scholarship year, art school, money ran out —
+bible §timeline 2020) · cog_act 1.0 (draws constantly —
+attentional practice in the perceptual channel) · purpose 0.9 ·
+htn 0 · cvd_hist 0 · alc_hist 0.5 (bar economy; covers friends'
+drinks on weeks she can't) · noise_exp 0.7 · preterm 0 ·
+advers_cum 2 · nap 0.6 (bible: "naps in her" — habitual)
+```
+
+Signature delta: `rtr_mult` 0.5 + `persp_shift_p` 0.35 — she
+rarely vetoes her own recall and often retells herself from
+outside. The fabulist's memory isn't lying machinery; it's a
+veto that never runs and a camera that keeps pulling back.
+
+### C4 Priya, 31 — the nurse
+
+```
+amnesia_offset 3.5 · remnis_style 0.5 ·
+remfn_w {id .3, prob .5, teach .4, intim .3, bored 0, bitter .1, deprep 0}
+expert_dom [med-surg nursing, vitals] · mse {clinical .8, social .6} ·
+ifthen_use 0.8 · offtarg 0.1 · rtr_mult 1.3 · persp_shift_p 0.15 ·
+bored_sus 0.2 · goal_dis 0.4 · goal_reeng 0.7 ·
+collab_partner none (work dyads live off-block)
+edu 2 (BSN) · cog_act 1.6 · purpose 1.6 (the ward; `purpose`
+moderates her decline legs AND her PM survival — she keeps
+intentions because keeping them is the job) ·
+htn 0 · cvd_hist 0 · alc_hist 0.1 · noise_exp 0.5 ·
+preterm 0 · advers_cum 1 · nap 0.8 ("a nap taken like a
+medication" — bible §routines; scheduled, protective, on-shift-
+day cadence — `nap_event` mints her, `nap_long` stays a flag)
+```
+
+Signature delta: `ifthen_use` 0.8 — the checklist mind. Her
+intentions mint cue-bound ("when the shift ends, call Carmen")
+and so her prospective memory looks preternatural; it is
+architecture, not capacity (`mse_perf_null` keeps the books
+honest).
+
+### C5 Marcus, 34 — the courier
+
+```
+amnesia_offset 4.0 · remnis_style 0.3 ·
+remfn_w {id .3, prob .2, teach .1, intim .3, bored .5, bitter .2, deprep 0}
+expert_dom [street-knowledge, bike-handling] ·
+mse {streets .8, money .3, names .4} ·
+ifthen_use 0.2 · offtarg 0.3 · rtr_mult 0.7 · persp_shift_p 0.05 ·
+bored_sus 0.5 · goal_dis 0.7 · goal_reeng 0.3 ·
+collab_partner none
+edu 0.7 · cog_act 0.7 · purpose 0.9 · htn 0 · cvd_hist 0 ·
+alc_hist 0.6 · noise_exp 0.9 derived (the street IS noise —
+adult attention-gated leg only, §6.413) · preterm 0 ·
+advers_cum 2 (the arrears surfacing is a live counter) · nap 0.3
+```
+
+Signature delta: `goal_dis` 0.7 / `goal_reeng` 0.3 — the drifter's
+asymmetry. He releases goals easily and replaces them slowly;
+the grief-intrusion tail after an abandonment runs LONG
+(τ = 21·(1.6−0.24) ≈ 29 sim-days) because disengaging is not the
+same as having somewhere to go.
+
+### C6 Carmen, 74 — the widow who keeps the block
+
+```
+amnesia_offset 4.0 · remnis_style 0.8 (elaborative —
+offset_eff ≈ 3.7; her wall sits early AND she reaches under it)
+remfn_w {id .4, prob .2, teach .8, intim .5, bored .3, bitter .3, deprep .1}
+expert_dom [seamstress craft, altar-keeping] ·
+mse {craft .8, names .4, dates .5} ·
+ifthen_use 0.3 · offtarg 0.5 · rtr_mult 0.8 · persp_shift_p 0.2 ·
+bored_sus 0.3 · goal_dis 0.7 · goal_reeng 0.5 ·
+collab_partner {her husband — deceased; shared_years ~30,
+lost:true} — `transact_loss` θ penalty on partner-cued records;
+the thimble on a ribbon is a kept directory entry, not a bout
+edu 1 (apprenticed trade, Havana/Miami) · cog_act 1.8 ·
+purpose 1.5 · htn 1.5, onset 55, treated:true (Priya's line —
+"your blood pressure is a whole narrative" — is the compliance
+channel; inside the ≤65 window → treated accrual 0.6×) ·
+cvd_hist 0 · alc_hist 0.2 · noise_exp 0.2 · preterm 0 ·
+advers_cum 4 (exile, settlement, widowhood, the quiet) · nap 0.6
+```
+
+Signature delta: `remfn_w.teach` 0.8 + `collab_partner.lost` —
+she retells TO someone, and the someone who held half her archive
+is gone. Her bump is bimodal (Part I §1.1) and her transactive
+directory is a graveyard she still consults.
+
+### C7 Victor, 58 — the landlord
+
+```
+amnesia_offset 3.5 · remnis_style 0.4 ·
+remfn_w {id .5, prob .3, teach .4, intim .1, bored .2, bitter .5, deprep 0}
+expert_dom [hardware, building systems, the pipes of both
+buildings] · mse {store .8, faces .4, names .5} ·
+ifthen_use 0.6 · offtarg 0.4 · rtr_mult 1.1 · persp_shift_p 0.05 ·
+bored_sus 0.2 · goal_dis 0.2 · goal_reeng 0.2 ·
+collab_partner {wife — deceased 2019; shared_years ~25,
+lost:true} — same machinery as Carmen's, opposite affect: the
+directory he consults is where the grievances were co-filed
+edu 1.5 · cog_act 1.0 (ledgers are routine, not exercise —
+`cogact_level_null` keeps his baseline honest) · purpose 1.8
+(highest in the cast — the store IS the purpose; sale pressure
+is a purpose-threat event, not a mood) · htn 1.0, onset 50,
+treated:false (the stubborn ledger-keeper does not take the
+pill — inside the window, untreated accrual at full rate) ·
+cvd_hist 0 · alc_hist 0.8 (a beer most nights, alone, above the
+store) · noise_exp 0.4 · preterm 0 · advers_cum 3 (widowhood,
+the sale, the arrears he watches) · nap 0.2
+```
+
+Signature delta: `goal_dis` 0.2 — he does not release. Every
+unmet obligation stays an open loop at full `selfdef_floor`; the
+grievance book is structural, not temperamental. `bitter` .5
+makes his retell sampler overdraw unresolved-loss records — the
+bible's "rational, kind-hearted but not soft" reads, in memory
+terms, as a man whose rehearsals all route through the ledger.
+
+### C8 Tomás, 36 — the cook
+
+```
+amnesia_offset 3.5 · remnis_style 0.6 ·
+remfn_w {id .4, prob .3, teach .4, intim .4, bored .2, bitter .2, deprep 0}
+expert_dom [kitchen, menu-memory] ·
+mse {kitchen .8, english-social .4, names .5} ·
+ifthen_use 0.4 · offtarg 0.2 · rtr_mult 0.9 · persp_shift_p 0.1 ·
+bored_sus 0.4 · goal_dis 0.4 · goal_reeng 0.6 ·
+collab_partner {remote — mother in San Miguel, weekly call;
+shared_years ~12, lost:false, thin channel: the dyad exists but
+the bout rate runs on the call, not the kitchen}
+edu 0.8 (culinary apprenticeship, kitchen-taught) · cog_act 1.0 ·
+purpose 1.2 · htn 0 · cvd_hist 0 · alc_hist 0.4 ·
+noise_exp 0.6 (kitchen hood hours — attention leg) · preterm 0 ·
+advers_cum 2 (crossing at 12 IS the counter's seed) · nap 0.5
+(split shifts — the honest nap, §6.416)
+```
+
+Signature delta: the remote dyad. His `collab_partner` is real
+but bandwidth-thin — a weekly call cannot run §5.161's shared
+index. His pre-12 archive is `lang:"es"` (Part I); his deepest
+shared history is the one he can only reach by phone.
+
+## 50. The promoted three — delta layer only (Part VIII compiles stand)
+
+S1 **Bex, 29**: `remnis_style` 0.5 · remfn_w {id .5, prob .1,
+teach .3, intim .2, bored .3, bitter .2} · `expert_dom`
+[tattoo-linework] · `mse` {ink .85, names .3} · `ifthen_use` 0.3
+· `offtarg` 0.2 · `rtr_mult` 1.0 · `persp_shift_p` 0.1 ·
+`bored_sus` 0.4 · `goal_dis` 0.5 · `goal_reeng` 0.5 ·
+`collab_partner` none (Portland artist — off-screen, eval-tagged,
+never a bout) · `edu` 1 · `cog_act` 1.1 (the sketch walks are
+`medit`-adjacent attentional practice) · `purpose` 1.0 ·
+`alc_hist` 0.5 · `advers_cum` 2 · `nap` 0.3 · `htn`/`cvd`/`pt` 0.
+
+S2 **Esther, 78**: `amnesia_offset` 3.0 · `remnis_style` 0.9
+(SF native, fluent reminiscer — offset_eff ≈ 2.6, the cast's
+earliest reachable archive) · remfn_w {id .4, prob .1, teach .9,
+intim .3, bored .4, bitter .4, deprep .15} · `expert_dom`
+[block-genealogy, school-records] · `mse` {names .8, dates .6 —
+HIGH despite the error rate: the confabulator's metaself is
+confident, which is why she never corrects} · `ifthen_use` 0.5 ·
+`offtarg` 0.7 (78 + secretary's loquacity — the bench filibuster)
+· `rtr_mult` 0.5 (the veto that never runs) · `persp_shift_p`
+0.3 (she tells her own past from outside — the editor's stance)
+· `bored_sus` 0.5 · `goal_dis` 0.5 · `goal_reeng` 0.4 ·
+`collab_partner` none alive · `edu` 1.5 · `cog_act` 1.9 (the
+block's memory layer is her cognitive-activity dose — highest
+pin in the cast) · `purpose` 1.3 · `htn` 1.0 onset 62 treated ·
+`alc_hist` 0.2 · `advers_cum` 3 · `nap` 0.5.
+
+S3 **Asha, 33**: `remnis_style` 0.3 · remfn_w {id .3, prob .6,
+teach .2, intim .2, bored .2, bitter .3} · `expert_dom`
+[med-surg] · `mse` {clinical .6, self .2 — under-rates her own
+record; the dark metaself persists} · `ifthen_use` 0.7 ·
+`offtarg` 0.15 · `rtr_mult` 1.2 · `persp_shift_p` 0.15 ·
+`bored_sus` 0.4 · `goal_dis` 0.7 (the exit application IS
+disengagement in motion — watch `purpose` drift down on event
+mints, §6.409) · `goal_reeng` 0.6 · `collab_partner` none (the
+floor she chose BECAUSE nobody knows it — an authored solitude
+the spec prices, not a defect) · `edu` 2 · `cog_act` 1.0 ·
+`purpose` 0.8 and falling · `alc_hist` 0.2 (never the shift
+drink — bible §habits) · `advers_cum` 1 · `nap` 0.7 (night-
+rotation day-sleep — `nap_long` flags, never causes).
+
+## 51. Distinctness — tenth-pass notes
+
+- **Carmen vs Victor** — the two `lost:true` dyads. Same
+  `transact_loss` machinery, opposite texture: her partner-cued
+  records route to altars and teaching; his route to ledgers and
+  grievance. The mechanism is shared; the remfn sampler is what
+  the viewer will actually see.
+- **Esther vs Dani** — two low-`rtr_mult` confabulators,
+  separated by the `mse` axis: Dani knows her practical memory
+  is bad (mse .3) and doesn't care; Esther believes her names
+  ledger (mse .8) and is wrong. One charms, one edits.
+- **Priya vs Asha** — same ward, same `ifthen_use` architecture;
+  Priya's `purpose` holds her PM survival up, Asha's `purpose`
+  erosion is the plot. Identical machinery, opposite trend
+  signs — `purpose` drifting on event mints is the burnout
+  made legible.
+- **Marcus vs Jules** — both drifters; Marcus releases without
+  re-finding (dis .7/reeng .3 — the long grief tail), Jules
+  releases and re-finds (dis .6/reeng .5). Same abandonment
+  events, different intrusions.
+- **Mars vs everyone** — the only pin set where `noise_exp`
+  and `expert_dom` fight: she forgets whole nights she worked
+  while retaining the faces from them. The host's memory is
+  supposed to be selectively thin — that's the job's cost.
+
+## 52. The honest zeros
+
+`preterm` is pinned 0 for all eleven — nobody's bible says born
+early, and `pin_orphan_null` now forbids inventing it. `cvd_hist`
+0 everywhere: nobody has had the event; the counter exists for
+the day someone does. `collab_partner` resolves for only three
+(Carmen, Victor — lost; Tomás — remote): the cast is largely
+dyad-less, which is itself a finding about this block — the
+transactive infrastructure is mostly dead or thin. A new
+long-term coupling would mint the field mid-run; that's a
+consequence the romance mechanics get for free.
+
+## 53. Probes filed
+
+P1529–P1540 → validation-design.md §286. Highlights: P1529
+edu-level-not-slope at the profile layer; P1530 `remfn_w`
+sampler discriminates WHICH records (teach→firsts vs
+bitter→unresolved) not just how many; P1532 `goal_forget_null`;
+P1533 Esther's low veto vs Carmen's at matched strength;
+P1536 `bored_mint_null`; P1537 `ifthen_author_null`; P1538
+provenance gate; P1539 eleven-profile ≥2σ pairwise distinctness;
+P1540 promoted-tier compile path identical to mains.
+
+## 54. Sources added this version
+
+- **Wrosch, Scheier, Miller, Schulz & Carver 2003** (*PSPB*
+  29:1494 — verified): the Goal Adjustment Scale — disengagement
+  and reengagement are SEPARABLE capacities, not a single axis.
+  `goal_dis`/`goal_reeng` are the scale's two subscales made
+  traits; `goal_forget_null` encodes that releasing a goal is
+  not forgetting it.
+- **Gollwitzer & Sheeran 2006** (*Adv. Exp. Soc. Psych.* 38:69
+  — verified meta-analysis, d≈0.65): implementation intentions —
+  `ifthen_use` is the individual propensity to plan in
+  when-then form; the §5.162 benefit leg was already spec'd,
+  this adds who USES it.
+- **Farmer & Sundberg 1986** (*J. Pers. Assess.* 50:4 —
+  verified): the Boredom Proneness Scale — `bored_sus` is BPS
+  as a trait; van Tilburg & Igou (§5.166) supply the mechanism.
+- **Koriat 2007** (*TiCS* 11:296 — verified review):
+  metacognition as a stable individual difference — the trait
+  license for `rtr_mult`.
+- **Arbuckle, Nohara-LeClair & Pushkar 2000** (*Psychol. Aging*
+  15) — off-target verbosity age gradient, DEBATED mechanism
+  (inhibition vs life-story style) — `offtarg` pins are
+  authored style, the mechanism argument stays open.
+- **Wegner 1987** (*Psych. Rev.* 94:186 — reused): transactive
+  memory — `collab_partner.lost` operationalizes the widower's
+  degraded directory already priced at §6.14 `transact_loss`.
+- Sekiguchi & Nonaka 2014; Nigro & Neisser 1983 (reused,
+  §5.165): observer-perspective shift — `persp_shift_p` is the
+  deliberate-use propensity.
+- Mechanism constants reused from spec §§4.96, 4.101–4.104,
+  5.160–5.165, 6.407–6.418 — not re-cited.

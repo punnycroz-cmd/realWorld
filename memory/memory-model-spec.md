@@ -1,4 +1,33 @@
-# Memory Model Spec v5.87 — implementable human-like memory for RW characters
+# Memory Model Spec v5.88 — implementable human-like memory for RW characters
+
+> **v5.88 note (character-profiles IX — the
+> trait backlog: the six profile axes the cast
+> compiles needed that v5.77–v5.87 hadn't
+> declared, and the provenance registry that
+> makes every pin auditable):**
+> `memory/cast-profiles.md` Part IX (§§48–54)
+> compiles all authored-trait machinery added
+> since the v130 pass (spec v5.76) into the 8
+> mains + 3 promoted residents. Six gaps the
+> compile exposed are now spec'd (§6.431):
+> `ifthen_use` (who plans in implementation
+> intentions — Gollwitzer & Sheeran 2006),
+> `rtr_mult` (per-character metacognitive veto —
+> Koriat 2007), `persp_shift_p` (deliberate
+> observer-retell propensity — §5.165 consumer),
+> `bored_sus` (boredom proneness — Farmer &
+> Sundberg 1986 BPS), `goal_dis`/`goal_reeng`
+> (Wrosch et al. 2003 Goal Adjustment Scale —
+> SEPARABLE capacities), and `collab_partner`
+> (derived dyad field; `lost:true` prices the
+> widow's transactive loss via §6.14
+> `transact_loss`). Plus the trait-provenance
+> registry: every pin resolves to
+> {authored-cited | derived | event-minted |
+> sampled-prior} — P1538 makes an unsourced pin
+> a compile failure. §7 +6 scalars +1 dyad
+> field +4 locked nulls; probes P1529–P1540.
+> (Prior notes v4.x–v5.87 in the version log.)
 
 > **v5.87 note (formal-model XIII — the ground
 > under the heads: the durability partition, the
@@ -19861,6 +19890,80 @@ record_age_norm) (0.5); τ ~60d. Locked
 mints nothing — the kindness is being SEEN to
 remember.
 
+### 6.431 The trait ledger — provenance classes + the six backlog traits (new in v5.88)
+
+cast-profiles.md Part IX §48; the compile found
+six per-person axes the machinery implied but
+never declared. All authored ∈ profile traits,
+compiled at `deriveParams`, never state.
+
+**Provenance classes** — every profile pin
+carries `prov ∈ {authored, derived, event,
+sampled}`: `authored` pins cite a bible line;
+`derived` pins name their computation (e.g.
+`soc_net` from the relationship store);
+`event` pins name the minting counter
+(`advers_cum`, `alc_hist` feed); `sampled`
+pins cite the §76 prior draw. A pin with no
+resolvable provenance fails the compile —
+locked `pin_orphan_null` (P1538).
+
+**The six traits:**
+
+- `ifthen_use` ∈[0,1] — probability an
+  authored intention mints carrying
+  `if_then:{cue,action}` (§5.162). Individual-
+  difference propensity for implementation
+  intentions (Gollwitzer & Sheeran 2006,
+  *Adv. Exp. Soc. Psych.* 38:69 — verified
+  meta-analysis, d≈0.65 goal-attainment).
+  Locked `ifthen_author_null` (P1537):
+  script-injected or request-minted intentions
+  never carry `if_then` — plans are authored.
+- `rtr_mult` ∈[0.5,1.5] — scales `rtr_p` in
+  the §5.169 recollection-rejection vote.
+  Metacognitive skepticism is a stable
+  individual difference (Koriat 2007,
+  *TiCS* 11:296 — verified review). Never
+  reorders verbatim-vs-verbatim (extends
+  `rtr_free_null`, P1533).
+- `persp_shift_p` ∈[0,0.5] — per-retell
+  probability of a deliberate §5.165
+  `persp_shift` op (self-distanced retell;
+  Sekiguchi & Nonaka 2014 — the cooling
+  is a *choice* some characters make often).
+- `bored_sus` ∈[0,1] — boredom proneness
+  (Farmer & Sundberg 1986, *J. Pers. Assess.*
+  50:4 — BPS, verified): `bored` state entry
+  threshold ×(1.5−`bored_sus`) and §5.166
+  `bored_nost` knots ×(0.5+`bored_sus`).
+  Locked `bored_mint_null` (P1536): the leg
+  reweights which records surface — it mints
+  nothing.
+- `goal_dis` / `goal_reeng` ∈[0,1] — the
+  Wrosch Goal Adjustment Scale's SEPARABLE
+  capacities (Wrosch, Scheier, Miller, Schulz
+  & Carver 2003, *PSPB* 29:1494 — verified;
+  reengagement is not the complement of
+  disengagement). `goal_sub_p_eff =
+  goal_sub_p·(0.4+0.6·goal_dis)`; post-
+  abandonment intrusion τ =
+  `goal_grief_days`·(1.6−0.8·goal_reeng).
+  Locked `goal_forget_null` (P1532):
+  disengagement lifts `selfdef_floor` and
+  reprices — the goal record and its history
+  are never deleted.
+- `collab_partner` (dyad field, DERIVED) —
+  `{id, shared_years, lost:bool}` from the
+  top RelEdge by shared_years where
+  `kind:"transact"` history exists (§6.14).
+  `lost:true` on partner death: `collab`
+  bouts end, `transact_loss` θ penalty
+  applies to partner-cued records, the
+  directory entry stays (Wegner 1987; the
+  widower keeps knowing *who would have
+  known*). Never authorable — computed.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -22490,6 +22593,20 @@ MemoryParams = {
 //   (P1525); goal_resurrect_null (P1526);
 //   wire_regress_null (P1527).
 //   All snapshot-additive; absent = legacy.
+// v5.88 additions (cast-profiles IX v142 —
+//   CP§§48–54, §6.431, the trait backlog)
+"ifthen_use": 0.4,                            // §6.431 trait
+"rtr_mult": 1.0,                              // §6.431 trait
+"persp_shift_p": 0.1,                         // §6.431 trait
+"bored_sus": 0.5,                             // §6.431 trait
+"goal_dis": 0.5, "goal_reeng": 0.5,           // §6.431 traits
+// v5.88 dyad field: `collab_partner`
+//   {id, shared_years, lost} — DERIVED, §6.431.
+// v5.88 locked nulls: pin_orphan_null (P1538);
+//   ifthen_author_null (P1537);
+//   bored_mint_null (P1536); goal_forget_null
+//   (P1532). All snapshot-additive; absent =
+//   legacy default behavior.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -25809,6 +25926,36 @@ not resolved (DEBATED magnitude). P509/P511.
     fields + 1 dyad field + 10 locked nulls.
   - Probes P1506–P1516 (P1516 = provenance
     audit of all new mints).
+- v5.88 additions (cast-profiles.md Part IX
+  §§48–54 — the trait backlog compile: every
+  authored axis v5.77–v5.87 minted, pinned
+  per character, plus six traits the compile
+  forced into the spec):
+  - **Provenance contract (§6.431):** every
+    profile pin resolves
+    {authored|derived|event|sampled};
+    `pin_orphan_null` (P1538).
+  - **Planning contract:** `ifthen_use`
+    propensity on authored intentions only;
+    `ifthen_author_null` (P1537).
+  - **Veto contract:** `rtr_mult` trait-scales
+    the §5.169 vote; verbatim ordering
+    untouched (P1533).
+  - **Distance contract:** `persp_shift_p`
+    deliberate observer retells.
+  - **Boredom contract:** `bored_sus` gates
+    state entry and `bored_nost` reach-back;
+    `bored_mint_null` (P1536).
+  - **Release contract:** `goal_dis`/
+    `goal_reeng` separable; `goal_sub_p_eff`
+    and intrusion τ scaled;
+    `goal_forget_null` (P1532).
+  - **Dyad contract:** `collab_partner`
+    derived; `lost:true` keeps the directory,
+    ends the bouts, applies `transact_loss`.
+  - **New params (§7):** 6 scalars + 1 dyad
+    field + 4 locked nulls.
+  - Probes P1529–P1540.
 - v5.82 additions (age-decline.md Part XII
   §§167–176 — the mouth that wanders, the idea
   that changes owners, the dyad that edits, the
