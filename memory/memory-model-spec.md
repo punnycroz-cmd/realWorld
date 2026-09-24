@@ -1,4 +1,42 @@
-# Memory Model Spec v5.19 — implementable human-like memory for RW characters
+# Memory Model Spec v5.20 — implementable human-like memory for RW characters
+
+> **v5.20 note (encoding-mechanics VI — value, choice, errors,
+> audiences, faces, secrets, and one fragile shield):**
+> `memory/encoding-mechanics.md` Part VI (§§71–83) closes the intake
+> side. **Value-directed remembering** — the §31 wm_cap ordering key
+> gains `value_rank_w·importance`; overflow spill steepens by
+> `select_sharp·deficit_proxy` (older encoders concentrate the same
+> budget on what matters — Castel 2002/2009); `value_mem_gate` prices
+> the 2025 failure mode: hard-but-important fields lose the routing
+> benefit exactly where deficit is high — §71. **Choice** — perceived
+> control potentiates the chosen content (`choice_enc_gain` + day-1
+> `choice_beta_mult`; Murty, DuBrow & Davachi 2015, content-unlinked;
+> Murty 2019 consolidation leg) — §72. **Error type** — §58 pretest
+> guesses split `guess_kind:{conceptual,arbitrary}`: conceptual
+> guesses mint mediators (`errful_mediator_gain`, Cyr & Anderson
+> 2015's stepping stones, age-flat), arbitrary guesses attenuate
+> `pretest_gain` and mint intruding competitors under high
+> deficit_proxy (Baddeley & Wilson 1994) — §73. **Saying-is-
+> believing** — shared-reality retells drift the speaker's own record
+> toward `audience_tune` via the §13.1 path, gated by epistemic
+> trust; LOCKED `sib_polite_null` — politeness/incentive tuning
+> drifts nothing (Echterhoff 2005/2008) — §74. **Observed tier** —
+> `engagement:"observed"` mints above heard, below enacted;
+> `obsIntent` doubles it; no motor DA-resistance (Jaroslawska 2016;
+> Steffens & von Stülpnagel 2015 boundary) — §75. **Face
+> distinctiveness** — `faceDistinct` widens person-field writes and
+> familiarity accrual (Light 1979; Vokey & Read 1992); LOCKED
+> `attract_recog_null` — attractiveness adds nothing past
+> distinctiveness (Wickham & Morris 2003) — §76. **Secrets** —
+> `confidential` records join the pending set at
+> `pending_intrude·secret_load_mult`, crowding the same n≤5 cap
+> (secrets evict errands) and heating secret-overlapping cues
+> (Slepian 2017; Lane & Wegner 1995) — §77. **Retrograde shield** —
+> OBSERVE tier: intox ≥ 0.3 shields PRE-onset records' interference
+> accrual (`intox_retro_shield`; Parker 1980/81 interference account;
+> LOCKED `retro_consol_null` — never raises strength; Quevedo-Pütter
+> & Erdfelder 2022 fragility noted) — §78. +16 params, +4 locked
+> nulls, +3 frozen constants; §10 contract adds. Registry P769–P778.
 
 > **v5.19 note (character-profiles VI — the narrator's compass):
 > `memory/cast-profiles.md` Part III (§§19–23) adds the missing
@@ -2695,6 +2733,63 @@ Postman 1964; Hyde & Jenkins 1973).
   2016 special issue). Difficulty that deepens SEMANTIC processing
   helps (Part I); difficulty that makes input harder to READ does
   not — CONTESTED anchor asserting absence (§14.2, P636).
+- **Value-directed selectivity (v5.20):** the §31 wm_cap ordering key
+  gains `value_rank_w·importance` (0.35); overflow spill steepens
+  `×(1 + select_sharp·deficit_proxy·(2·importance − 1))` (0.3) —
+  deficit encoders concentrate a fixed budget on what matters
+  (Castel 2002/2009). `value_mem_gate` (0.4): bottom-quartile-
+  encodability fields lose the value bonus in proportion to
+  deficit_proxy — hard-but-important fails exactly where routing
+  was needed (Psych. Aging 2025 moderator).
+- **Choice (v5.20):** `choice:true` events mint chosen-content
+  records `E += choice_enc_gain` (0.10) with day-1
+  `choice_beta_mult` (0.9) — perceived control potentiates even
+  content-unlinked memoranda (Murty, DuBrow & Davachi 2015; Murty
+  2019 consolidation leg). Frozen `choice_scope`: chosen content
+  only, unchosen mints normal.
+- **Error-type moderation (v5.20):** §58 `pretest_mark` guesses carry
+  `guess_kind:{conceptual,arbitrary}`. Conceptual → mediator link +
+  source boost `errful_mediator_gain` (0.15), pretest_gain full
+  (Cyr & Anderson 2015 stepping-stones, age-flat; 2012 source-memory
+  arm). Arbitrary → pretest_gain ×(1 − errful_arb_loss) (0.3) + guess
+  mints at `errful_noise` (0.12); deficit_proxy > 0.6 guesses also
+  take sourceStr ×0.7 — the impaired encoder re-emits the guess
+  (Baddeley & Wilson 1994).
+- **Saying-is-believing (v5.20):** retell emissions carrying
+  `audience_tune` δ + `tune_motive:"sharedReality"` + `aud_ingroup`
+  drift the speaker's source-record eval fields `+= sib_drift·δ·
+  (0.3 + sib_trust_w·epistemicTrust)` (0.15/0.7) via the §13.1
+  rewrite path (Higgins & Rholes 1978; Echterhoff 2005 ingroup/
+  trust gate). Locked null `sib_polite_null = 0`: non-shared-reality
+  motives produce the tuned message and ZERO record drift
+  (Echterhoff 2008). `lie:true` retells exempt — the liar's truth
+  record is intact (§51).
+- **Observed tier (v5.20):** `engagement:"observed"` mints
+  `E += obs_enc_gain` (0.08 — between heard and enacted, Roberts
+  2022 comparator; Jaroslawska 2016 instruction-recall parity);
+  `obsIntent:true` ×`obs_intent_mult` (2.0). No DA-resistance, no
+  self-agency fields — §6.117's observed_action bookkeeping owns
+  agency; Steffens & von Stülpnagel 2015 boundary honored.
+- **Face distinctiveness (v5.20):** `faceDistinct ∈[0,1]` on person
+  events → person-field writes + familiarity accrual
+  ×(1 + face_dist_gain·faceDistinct) (0.2) (Light 1979; Vokey &
+  Read 1992 mediation). Composes multiplicatively with
+  owngroup_loss. Locked `attract_recog_null = 0` (Wickham & Morris
+  2003 — attractiveness partials out).
+- **Secrets as open loops (v5.20):** `confidential:true` records
+  count as phantom pending Intentions —
+  `daLoad += pending_intrude·secret_load_mult` (1.5) per secret
+  inside the same n≤5 cap (secrets evict errands; Slepian 2017's
+  preoccupation ≫ concealment); secret-overlapping cues heat
+  ×`secret_heat_mult` (1.3, Lane & Wegner hyperaccessibility).
+  Disclosure closes the loop — both legs stop.
+- **Retrograde shield (v5.20, OBSERVE):** while `context.intox ≥ 0.3`,
+  records minted before intox onset accrue retroactive interference
+  ×(1 − intox_retro_shield·intox) (0.4) — Parker 1980/81 via the
+  interference account (Mueller 1983). Frozen `retro_scope =
+  "pre-only"`; locked `retro_consol_null = 0` — shield never raises
+  strength (the consolidation account failed); Quevedo-Pütter &
+  Erdfelder 2022 replication fragility keeps this OBSERVE.
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -10318,6 +10413,28 @@ MemoryParams = {
 //   persSem subtype `lesson:true` + `origin:"derived"` +
 //   `sources:[ids]`; emissions may carry era wording (surface
 //   mark, not content).
+// v5.20 additions (encoding-mechanics VI — EM§§71–83)
+"value_rank_w": 0.35, "select_sharp": 0.3,    // §71 wm_cap ordering + spill
+"value_mem_gate": 0.4,                        // §71 hard-item selectivity gate
+"choice_enc_gain": 0.10, "choice_beta_mult": 0.9, // §72
+"errful_mediator_gain": 0.15, "errful_arb_loss": 0.3,
+"errful_noise": 0.12,                         // §73 guess-kind split
+"sib_drift": 0.15, "sib_trust_w": 0.7,        // §74 saying-is-believing
+"obs_enc_gain": 0.08, "obs_intent_mult": 2.0, // §75 observed tier
+"face_dist_gain": 0.2,                        // §76
+"secret_load_mult": 1.5, "secret_heat_mult": 1.3, // §77
+"intox_retro_shield": 0.4,                    // §78 OBSERVE
+// v5.20 locked nulls: sib_polite_null = 0 (P773 — non-shared-reality
+//   tuning drifts nothing); attract_recog_null = 0 (P775 — Wickham &
+//   Morris 2003); retro_consol_null = 0 (P777 — shield never adds
+//   strength, Mueller 1983); taboo_gain = 0 (folds to arousal +
+//   isolated — §79). Frozen: choice_scope (chosen only),
+//   retro_scope = "pre-only", secrets share the pending n≤5 cap.
+// v5.20 fields: Event `choice:true`, `guess_kind:{conceptual,
+//   arbitrary}`, `obsIntent:true`, `faceDistinct ∈[0,1]`;
+//   engagement enum + "observed"; retell emission fields
+//   `audience_tune`/`tune_motive`/`aud_ingroup`; `confidential`
+//   records join the pending set.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -11719,6 +11836,31 @@ not resolved (DEBATED magnitude). P509/P511.
     moves selection, depth, and wording; existence,
     provenance, and content are out of bounds.
   - All snapshot-additive, absent = legacy.
+- v5.20 additions (encoding-mechanics.md Part VI §§71–83):
+  - Event fields (all optional, default-neutral): `choice:true`
+    (the character selected among live options — chosen-content
+    records only, frozen `choice_scope`), `guess_kind:
+    {conceptual,arbitrary}` on `pretest_mark` guesses (§73 —
+    world derives conceptual from shared semantic/domain link to
+    the mark's topicKey), `obsIntent:true` (watching-to-learn —
+    §75), `faceDistinct ∈[0,1]` on person-encounter events
+    (§76 — world supplies or derives from roster-centroid
+    deviation).
+  - `engagement` enum gains `"observed"` as first-class (§75) —
+    between heard and enacted; no DA-resistance, no self-agency
+    fields (§6.117 owns observed_action agency bookkeeping).
+  - Retell/discuss emissions may carry `audience_tune` ∈[−1,+1],
+    `tune_motive:{sharedReality,politeness,incentive,other}`,
+    `aud_ingroup` (§74) — the speaker-record drift runs through
+    the §13.1 rewrite path; `tune_motive ≠ sharedReality` is a
+    locked zero (`sib_polite_null`, TOST-enforced by P773).
+  - `confidential:true` records join the §34 pending set as
+    phantom Intentions — same n≤5 cap, same tonic daLoad channel
+    (§77); disclosure (confidential lifted) ends both legs.
+  - Intoxication: `context.intox ≥ 0.3` activates the pre-onset
+    interference shield (§78) — `retro_scope = "pre-only"`
+    frozen; OBSERVE tier, wide bands.
+  - All snapshot-additive, absent = legacy; no new traits.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

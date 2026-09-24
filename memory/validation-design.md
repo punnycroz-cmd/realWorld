@@ -6545,3 +6545,111 @@ Net new machinery: VA-MEAS, VA-COLLIDER, VA-MDE, VA-MULTI,
 VA-WEIRD — the battery now disciplines its own footprint, its
 own denominators, its own nulls, its own analyst choices, and
 its own population claims.
+
+## 144. New probes P769–P778 (v72 suite — encoding-mechanics VI)
+
+- **P769** value ordering under overflow (MUST): n > wm_cap events
+  with graded importance → high-importance fields survive at the
+  value_rank_w-implied rate; the (high−low) value recall gap widens
+  with deficit_proxy at matched overall recall (Castel 2002/2009
+  selectivity shape; MUST-tier on the interaction, not the size).
+- **P770** value×memorability crossover (MUST): deficit cohort
+  shows the selectivity advantage on easy-high-value fields AND
+  its collapse on hard-high-value fields (Psych. Aging 2025
+  moderator); young cohort near-flat on both — a build where the
+  deficit cohort selects equally on hard items fails.
+- **P771** choice (SHOULD): choice:true mints higher E + lower
+  day-1 β than yoked assigned events; unchosen alternatives show
+  no gain (choice_scope audit); effect survives memoranda-content
+  decoupled from the choice (Murty 2015 design).
+- **P772** error-type triple (MUST): conceptual-guess pretests >
+  errorless > arbitrary-guess pretests on target recall; the
+  conceptual leg is age-flat (Cyr & Anderson 2015); arbitrary
+  guesses intrude at recall for deficit_proxy>0.6 profiles only
+  (Baddeley & Wilson 1994 phenotype).
+- **P773** saying-is-believing gate (MUST): sharedReality retells
+  drift the speaker record toward audience_tune at sib_drift rate;
+  politeness/incentive motives TOST-equivalent to zero drift
+  (SESOI 0.05 — locked null enforced, not assumed); outgroup
+  audiences attenuate; lie:true retells leave truth records
+  untouched.
+- **P774** observed tier ordering (SHOULD): enacted > observed >
+  heard at matched attention, observed inside [verbal,
+  verbal+0.7·enact]; obsIntent doubles the leg; observed records
+  get NO DA-resistance (boundary — a build where watched actions
+  survive distraction like performed ones fails).
+- **P775** face distinctiveness (SHOULD): high-faceDistinct persons
+  accrue familiarity faster and write wider person fields;
+  attract_recog_null TOST-enforced (typical-attractive faces
+  |Δ| ≤ 0.03); multiplicative composition with owngroup_loss.
+- **P776** secret load (MUST): a held secret ≈ 1.5 pending-intention
+  units of tonic daLoad inside the shared n≤5 cap — measurable as
+  reduced pending_cue_gain on NON-secret overlaps while secrets are
+  held (secrets evict errands); secret-overlap cues encode hotter
+  (secret_heat_mult); disclosure ends both legs at once.
+- **P777** retrograde shield (OBSERVE): intox-onset → pre-onset
+  records show reduced next-window interference accrual;
+  on-intoxication records unchanged (retro_scope audit); stored
+  strength never increases (retro_consol_null — a build where
+  drinking raises strength fails by construction); band wide per
+  Quevedo-Pütter & Erdfelder 2022.
+- **P778** v5.20 regression (MUST — structure): new fields/params
+  pass P457 non-interference (audience_tune drift is a §13.1
+  citizen; secrets occupy the existing pending budget; choice/
+  obs/face legs touch E and β only) and §12.2 commutativity (no
+  new op reads across charIds).
+
+## 145. Sources verified this version (P769–P778 backing)
+
+- Castel, Benjamin, Craik & Watkins 2002 (*Psychol Aging* 17:209 —
+  verified): value-directed remembering, older adults match young
+  on high-value. Castel, Balota & McCabe 2009 (*JEP:A* 35:916 —
+  verified): disproportionate high-value allocation. Castel 2007
+  (*PLM* 48 — verified chapter): evaluative processing framework.
+  Psych. Aging 2025 strategic-VDR study (verified abstract):
+  selectivity fails on low-memorability high-value items — the
+  P770 crossover. Knowlton & Castel 2022 (*Cognition* 222 — review
+  thread).
+- Murty, DuBrow & Davachi 2015 (*J Neurosci* 35:6255 — verified):
+  choice → striatal anticipation → hippocampal encoding, content-
+  unlinked. Murty et al. 2019 (*PB&R* 26:1788 — verified pooled):
+  delayed-recognition advantage + preference correlation. Murty et
+  al. 2019 (*J Cogn Neurosci* — verified): reduced forgetting rate.
+- Cyr & Anderson 2015 (*JEP:LMC* — verified): conceptual vs lexical
+  guesses; stepping stones, age-flat; guess memory mediates.
+  Cyr & Anderson 2012 (*Psychol Aging* — verified): conceptual
+  errorful → source memory, older ≥ younger. Baddeley & Wilson
+  1994; Clare & Jones 2008 (*Neuropsychol Rehabil* review);
+  Kessels & de Haan 2003 (*JINS* meta).
+- Higgins & Rholes 1978; Echterhoff, Higgins & Groll 2005 (*JPSP*
+  89:257 — verified: shared-reality necessity, ingroup, trust
+  mediator); Echterhoff, Higgins, Kopietz & Groll 2008 (*JEP:G*
+  137:3 — verified: motive gate); Echterhoff et al. 2009 (*Soc
+  Psychol* 40:150); EJSP 2024 meta (27 studies — verified:
+  outgroup/identity-threat attenuation).
+- Jaroslawska, Gathercole, Allen & Holmes 2016 (*Mem Cognit*
+  44:1183 — verified: observation ≈ enactment on instruction
+  recall); Steffens & von Stülpnagel 2015 (*Front Psychol* 6:1907 —
+  verified design-dependent boundary).
+- Light, Kayra-Stuart & Hollander 1979 (*JEP:HLM* 5:212 —
+  verified); Vokey & Read 1992 (verified: distinctiveness
+  mediation); Wickham & Morris 2003 (verified: attractiveness
+  null); Valentine 1991 (face-space).
+- Slepian, Chun & Mason 2017 (*JPSP* 113:1 — verified: mind-
+  wandering ≈2× concealment; preoccupation predicts harm);
+  Lane & Wegner 1995 (secrecy hyperaccessibility).
+- Parker et al. 1980 (*Psychopharmacology* 69:219 — verified) +
+  1981 dose-response; Mueller, Lisman & Spear 1983 (*Physiol
+  Behav* — verified: interference account); Gawrylowicz et al.
+  2017 (misinfo resistance); Quevedo-Pütter & Erdfelder 2022
+  (*Exp Psychol* 69:335 — verified prereg replication: recall
+  null, retrieval-side benefit).
+- Fold/null backing: Rhodes & Castel 2008 (font-size JOL —
+  report-side only); MacKay et al. 2004 + Janschewitz 2008
+  (taboo → arousal+isolated fold).
+
+Registry: P1–P778. v72 suite: P769–P778 — 5 MUST (P769, P770,
+P772, P773, P776 — of which P773 is a locked-null TOST gate),
+4 SHOULD (P771, P774, P775, P777-as-OBSERVE counts separately:
+P777 is OBSERVE; SHOULD = P771, P774, P775), 1 OBSERVE (P777),
+1 structure MUST (P778).

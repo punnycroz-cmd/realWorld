@@ -2067,3 +2067,469 @@ difficulty adds nothing — Xie 2018 meta d ≈ 0.01; Rummer 2016).
   distinctiveness rescue); Metacognition & Learning 2016 special
   issue (6 studies, >1000 participants — verified); Xie et al. 2018
   meta (d ≈ 0.01 — verified via abstract).
+
+---
+
+# Part VI — encoding-mechanics, sixth pass (v72 focus)
+
+**Version tag:** spec v5.20. Parts I–V priced processing depth,
+motivational state, momentary capacity/competition, the gate's
+exceptions, and the attempts/scaffolds that precede encoding. Part VI
+prices what remains on the intake side: **how the scarce encoder
+triages by value** (value-directed remembering and its age shape and
+its failure mode), **two agency-adjacent gains** (choice, observed-
+with-intent), **the moderator the errorful-learning literature
+actually found** (error *type*, not error per se), **the speaker's
+own memory bending toward the audience** (saying-is-believing),
+**the face's own memorability** (distinctiveness, with the
+attractiveness null), **secrets as permanent open loops** (Slepian's
+preoccupation finding wired into the pending set), and one DEBATED
+shield (alcohol's retrograde interference account — folded under the
+existing intox machinery). 14 new params, 4 locked nulls, 10 probes
+(P769–P778).
+
+## 71. Value-directed remembering — the scarce encoder spends on what matters (CONSENSUS direction; the failure mode is the v72 refinement)
+
+Castel, Benjamin, Craik & Watkins (2002, Psych. Aging 17:209 — verified):
+when items carry explicit point values, OLDER adults match young on
+high-value items despite worse overall recall — selectivity is the
+compensation strategy. Castel, Balota & McCabe (2009, JEP:A 35:916 —
+verified): the same holds across scorekeeping; older adults allocate
+study time *disproportionately* to high-value items — sharper
+selectivity, not preserved-by-luck. Knowlton & Castel (2022, Cognition
+222 — verified review thread) and Castel's PLM 2007 chapter frame it:
+responsible remembering = agenda-based regulation. **The 2025
+moderator** (Psych. Aging, strategic VDR — verified abstract): older
+adults' selectivity FAILS when high-value information is intrinsically
+hard to encode (low-memorability) — value can't beat hardness for the
+self-initiation-poor encoder. That failure is the mechanistic boundary:
+selectivity is a routing strategy, and routing strategies are exactly
+what deficit_proxy degrades.
+
+**Formalization.** The §31 `wm_cap` competition's per-field ordering
+key gains a value leg:
+
+```
+orderKey = attention·selfRelevance + value_rank_w·importance
+                                                        (value_rank_w ≈ 0.35)
+```
+
+On overflow (n > wm_cap), the spill probability stops being flat:
+
+```
+spill_p(field) = vivid_detail·cap_spill·(1 + select_sharp·deficit_proxy
+                 ·(2·field.importance − 1))
+                                                        (select_sharp ≈ 0.3)
+```
+
+— the deficit-scaled encoder writes high-value overflow fields MORE
+and low-value overflow fields LESS: the same budget, concentrated.
+Young profiles (deficit_proxy ≈ 0) stay near the flat spill — their
+selectivity works, they just don't need it inside wm_cap.
+
+The failure mode: `value_mem_gate` (0.4, frozen direction). A field
+whose inherent encodability (elaboration + concreteness proxy) sits in
+the bottom quartile gets its value-weighted ordering bonus
+×(1 − value_mem_gate·deficit_proxy) — the hard-but-important detail
+(the exact lease clause, the dose instruction) is exactly what the
+older encoder *wants* to keep and can't route to. P770 asserts the
+crossover: deficit-cohort selectivity advantage on easy-high-value
+material, collapse on hard-high-value.
+
+## 72. Choice — the act of choosing encodes the chosen (ESTABLISHED)
+
+Murty, DuBrow & Davachi (2015, J. Neurosci. 35:6255 — verified):
+encoding objects under an opportunity-to-choose manipulation improved
+declarative memory even when the choice bore no relation to the
+memoranda; anticipatory striatal activation predicted hippocampal
+encoding success. Murty et al. (2019, PB&R 26:1788 — verified pooled
+analysis): the advantage replicates at immediate and 24-h recognition,
+and correlates across subjects with choice-induced preference change —
+a shared value-based mechanism. Murty et al. (2019, J. Cogn. Neurosci.
+— verified): decision-making reduces *forgetting rate* across 24 h —
+post-encoding consolidation, not just intake. Orthogonal to
+enactment (no motor trace — choices were button-picks between covered
+items) and to generation (no content produced).
+
+**Formalization.** Event flag `choice:true` — the character selected
+among live options (which table, which lie, which gift). The chosen
+option's records mint `E += choice_enc_gain` (0.10) AND carry
+`choice_beta_mult` (0.9) on β for the first day — the consolidation
+leg, kept small since the effect size is modest. Locked scope
+`choice_scope` (frozen): the gain applies to the CHOSEN content only —
+the unchosen alternatives mint normally (the literature's chosen>
+unchosen asymmetry is partly the same total budget; claiming a bonus
+on both would double-count). RW consequence: the apartment she picked
+over the other two is remembered with an ownership the landlord's
+tour never gave it.
+
+## 73. The errorful moderator is error TYPE — stepping stones vs noise (ESTABLISHED, corrects the naïve age story)
+
+§58's pretest machinery mints the failed guess as a competitor record
+and lets the corrected answer out-encode it. The aging literature's
+verdict is subtler than "errors hurt the old." Cyr & Anderson (2015,
+JEP:LMC 41 — verified): trial-and-error learning with CONCEPTUAL
+guesses ("a flower → tulip?") improves target memory for BOTH age
+groups — the guesses are semantic stepping stones toward the target
+and memory for the guess MEDIATES the benefit; LEXICAL/arbitrary
+guesses ("ho___ → house") produce retrieval noise, hurting both.
+Cyr & Anderson (2012, Psych. Aging 27 — verified): conceptual errorful
+learning improves *source memory* especially in older adults who don't
+spontaneously elaborate. The old clinical story (Baddeley & Wilson
+1994; Clare & Jones 2008 review; Kessels & de Haan 2003 meta) holds
+for memory-IMPAIRED populations on arbitrary material: errors
+unsuppressable at source monitoring get re-emitted as answers.
+
+**Formalization.** `pretest_mark` guesses carry
+`guess_kind:{conceptual,arbitrary}` (world derives: conceptual = the
+guess shares a semantic/domain link to the topicKey; arbitrary =
+phonological, numeric, wild).
+
+```
+conceptual guess → mints a MEDIATOR: link guess→target +=
+                  errful_mediator_gain (0.15); pretest_gain unmodified;
+                  source memory on the corrected pair +errful_mediator_gain
+arbitrary guess → pretest_gain ×(1 − errful_arb_loss) (0.3);
+                  guess record mints at errful_noise (0.12) as a
+                  competitor — and for deficit_proxy > 0.6 profiles the
+                  guess's source tag takes sourceStr ×(1 − 0.3): the
+                  impaired encoder can't tell the guess from the answer
+                  later (Baddeley & Wilson's re-emission phenotype)
+```
+
+P772 asserts the triple: conceptual > errorless > arbitrary on target
+recall, age-flat on the conceptual leg, deficit-gated on the arbitrary
+intrusion. This upgrades §58 from "failed recall warms the landing"
+to "failed recall warms the landing *if the failure was meaningful*".
+
+## 74. Saying-is-believing — the speaker's record bends toward the audience (CONSENSUS effect; the gate is the finding)
+
+Higgins & Rholes (1978 — verified lineage): tuning a description
+toward the audience's attitude biases the speaker's own later recall
+toward the tuned version. The boundary conditions are the science:
+Echterhoff, Higgins & Groll (2005, JPSP 89:257 — verified): the memory
+bias appears only when the audience successfully identified the target
+(shared reality achieved), only toward INGROUP audiences, mediated by
+epistemic trust. Echterhoff, Higgins, Kopietz & Groll (2008, JEP:G
+137:3 — verified, 4 experiments + mini-meta): tuning under
+NON-shared-reality goals (politeness to a stigmatized audience,
+incentive, entertainment, blatant compliance) produces the biased
+*message* but zero memory bias. 2024 EJSP meta (27 studies, 59 memory-
+bias effects — verified): robust overall, attenuated for outgroup
+audiences and identity-threatening topics.
+
+**Formalization.** Retell/discuss emissions may carry
+`audience_tune` ∈ [−1,+1] (the evaluative shift the speaker applied —
+dialogue knows; it wrote the tuned version) and a motive tag
+`tune_motive:{sharedReality,politeness,incentive,other}` plus
+`aud_ingroup` from the PersonModel edge. On the SHARED-REALITY path:
+
+```
+source record eval fields += sib_drift·audience_tune·
+    (0.3 + sib_trust_w·epistemicTrust)         (sib_drift ≈ 0.15,
+                                               sib_trust_w ≈ 0.7)
+via the §13.1 rewrite path (drift, not a new record)
+```
+
+`epistemicTrust` = the PersonModel trust/closeness scalar already
+maintained. **Locked null `sib_polite_null = 0`:** tune_motive ≠
+sharedReality → zero drift — the flattering description told to keep
+the peace does NOT move the speaker's memory of what happened (the
+liar remembers; the appeaser remembers; only the *connecting* speaker
+absorbs their own spin). Composes with §51 lie encoding: a tuned-but-
+believed retell drifts the record; a tuned-and-known-false retell
+(`lie:true` mint) leaves the truth record intact. This is the
+mechanism by which a gossip's version of Tuesday quietly becomes
+their Tuesday — the strongest distortion RW can produce without any
+misinformation entering from outside.
+
+## 75. Observed engagement — watching-to-learn is its own channel (ESTABLISHED; boundary DEBATED)
+
+Roberts, Macleod & Fernandes (2022 meta — Part I's enactment source):
+the enacted-vs-observed gap (g ≈ 0.9) sits between enacted-vs-verbal
+(1.23) and zero — observation is a real middle tier, not a null.
+Jaroslawska, Gathercole, Allen & Holmes (2016, M&C 44:1183 — verified):
+action observation improves instruction recall comparably to self-
+enactment in children; Waterman et al. extension work holds the same
+for adults. Steffens & von Stülpnagel (2015, Front. Psych. 6:1907 —
+verified): the enacted>observed advantage is DESIGN-DEPENDENT — it
+holds under intermixed designs, evaporates under blocked designs;
+the honest claim is "observation encodes action content nearly as
+well as doing," not "doing always wins." Intent arm: observational
+practice lit (watching-to-reproduce > passive watching — motor-
+learning thread, PLOS One 2012 watch-and-learn).
+
+**Formalization.** `engagement:"observed"` is now a first-class enum
+member: `E += obs_enc_gain` (0.08) — above heard/read, below enacted.
+Flag `obsIntent:true` (the character was watching to copy — the new
+barista studying the pour) → obs_enc_gain ×`obs_intent_mult` (2.0).
+Boundary kept deliberately: observed events do NOT get enactment's
+DA-resistance (§4's motor-channel exemption is motor-channel only)
+and do not mint `enacted:true` self-agency fields — §6.117's
+observed_action machinery already owns the agency bookkeeping. The
+sim gains "she learned the whole routine from the doorway" without
+ever claiming she did it.
+
+## 76. Face distinctiveness — memorability is a property of the face, not the viewer (CONSENSUS; attractiveness arm is a locked null)
+
+Light, Kayra-Stuart & Hollander (1979, JEP:HLM 5:212 — verified):
+unusual faces out-recognized typical faces across incidental and
+intentional learning, 3–15 s rates, 3–24 h delays; Experiment 5
+established interitem similarity as the structural basis. Vokey &
+Read (1992 — verified): the typicality effect is mediated by rated
+memorability/distinctiveness; attractiveness and likability effects
+reduce to typicality (attractive/likable faces skew typical →
+recognized WORSE). Wickham & Morris (2003 — verified): attractiveness
+does not predict recognition once distinctiveness is partialled;
+unattractive faces skew distinctive but that is the distinctiveness
+talking. Valentine (1991) face-space supplies the mechanism: typical
+faces are dense-region neighbors — confusable by construction.
+
+**Formalization.** `faceDistinct ∈ [0,1]` on person-encounter events
+(world supplies or derives from the character's PersonModel roster —
+deviation from the roster's centroid, the Vokey & Read mechanism at
+our grain): the encounter's person fields write with
+`×(1 + face_dist_gain·faceDistinct)` (0.2) and familiarity accrual
+on that PersonModel ×same. Complements `owngroup_loss` (the GROUP tag
+cuts accrual) — a distinctive other-group face can beat a typical
+own-group one; the two axes compose multiplicatively. **Locked null
+`attract_recog_null = 0`:** perceived attractiveness never adds
+encoding weight once faceDistinct is priced — a build that mints
+"pretty = memorable" fails P775.
+
+## 77. Secrets are open loops — concealment is rare, preoccupation is constant (ESTABLISHED direction; sim split HYPOTHESIS)
+
+Slepian, Chun & Mason (2017, JPSP 113:1 — verified; 10 studies,
+>13,000 secrets): people mind-wander to their secrets roughly TWICE
+as often as they encounter situations requiring active concealment;
+the preoccupation frequency — not concealment frequency — predicts
+the harm. Lane & Wegner (1995 — verified): secrecy works like a
+suppressed thought — hyperaccessibility of the concealed content is
+the mechanism. Earlier concealment-in-interaction cost (a live
+concealment attempt is a secondary task) already rides
+`suppress_da_map` (§39) — what's missing is the TONIC half: the
+secret hums when nobody's asking.
+
+**Formalization.** Records tagged `confidential:true` (the secrets
+layer) join the §34 pending set as phantom intentions: each
+contributes `pending_intrude·secret_load_mult` (1.5) to tonic daLoad,
+counting inside the same n≤5 cap — secrets EVICT errands from the
+open-loop budget, which is exactly why the secret-keeper forgets to
+buy milk. Records whose cueVector overlaps a held secret's content
+get cue-heating ×`secret_heat_mult` (1.3) while the secret is held —
+Wegner's hyperaccessibility at birth. On disclosure (the world lifts
+`confidential`), both legs stop — the told secret is a closed loop
+(this is why confession feels like relief: a pending slot frees).
+Trait loading: `rumin` and `neurot` raise secret_load_mult's
+effective hit (the preoccupation moderator); `supp` (suppression
+style) does NOT reduce it — suppression is the load, not the cure.
+The retrieval-side half (mind-wandering arrivals at the secret
+record) rides the existing rumination/arrival machinery — no new
+param there; the encoding-side half is what Part VI prices.
+
+## 78. Retrograde shield under intoxication — the drink protects what came before (DEBATED → OBSERVE tier)
+
+Parker et al. (1980, Psychopharmacology 69:219 — verified) and
+Parker et al. (1981, dose-response — verified): alcohol consumed
+AFTER learning improved delayed recall of pre-drink material.
+Mechanism adjudication: Mueller, Lisman & Spear (1983, Physiol.
+Behav. — verified) found support for the INTERFERENCE account
+(alcohol blocks acquisition of interfering new memories), none for
+the consolidation account; Gawrylowicz et al. (2017 — verified)
+found intoxicated witnesses MORE resistant to misinformation on
+pre-drink-encoded events — same shield, forensic surface. The
+catch: Quevedo-Pütter & Erdfelder (2022, Exp. Psychol. — verified
+preregistered replication, N=93, MPT modeling) found NO recall
+advantage and only a retrieval-side benefit — the effect is real
+in direction, modest and fragile in magnitude. OBSERVE tier.
+
+**Formalization (interference-account only).** While
+`context.intox ≥ 0.3`, retroactive-interference accrual on records
+minted BEFORE intox onset is `×(1 − intox_retro_shield·intox)`
+(0.4). Two locked boundaries: `retro_scope = "pre-only"` (frozen —
+records minted DURING intox get nothing; they already pay the
+v1.9 E floor), and `retro_consol_null = 0` (locked — the shield
+reduces incoming interference, never raises strength directly;
+Mueller 1983 killed the consolidation account). The night's own
+thin records don't gain; the afternoon's do — the drunk remembers
+the morning meeting better than the party, and so does the sober
+person, which is why the probe band is wide.
+
+## 79. Deliberate non-adds (v72)
+
+- **Delayed vs immediate feedback at encoding:** timing effects are
+  practice-schedule machinery (retrieval side owns feedback delivery);
+  the encoding-side residual at our grain is noise. No param.
+- **Taboo/profane words:** the taboo-Stroop capture + recall advantage
+  (MacKay et al. 2004; Janschewitz 2008) decomposes into arousal +
+  `isolated` + threat-lite — all priced. Locked fold `taboo_gain = 0`.
+- **Sense-of-agency / outcome binding beyond `choice`:** agency-on-
+  outcome is the `selfRelevance` + `enacted` + `choice:true` product
+  already; a fourth leg double-counts.
+- **Font-size / readability JOL inflation** (Rhodes & Castel 2008):
+  report-side fluency belief, folds into `jol_fluency_bias`'s family —
+  same null logic as `se_accuracy_null`: felt ease ≠ stored strength.
+- **Bilingual language mode at encoding:** `langs`/`lang_mismatch`
+  machinery (§11) owns the channel; no new encode term.
+- **Sleep quality AT encoding:** `sleepFactor`/`sleepdep_flag` already
+  own it (and §37's adjacency owns the other side). Cross-ref only.
+
+## 80. Parameter summary (new in v5.20 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `value_rank_w` | 0.35 | 0–0.7 | importance leg in wm_cap ordering | Castel 2002/2009 |
+| `select_sharp` | 0.3 | 0–0.7 | deficit-scaled spill gradient | Castel, Balota & McCabe 2009 |
+| `value_mem_gate` | 0.4 | 0–0.8 | hard-but-valuable selectivity failure | Psych. Aging 2025 VDR study |
+| `choice_enc_gain` | 0.10 | 0–0.3 | chosen-content E bonus | Murty, DuBrow & Davachi 2015 |
+| `choice_beta_mult` | 0.9 | 0.7–1.0 | day-1 consolidation leg | Murty et al. 2019 JOCN |
+| `errful_mediator_gain` | 0.15 | 0–0.4 | conceptual-guess mediator + source boost | Cyr & Anderson 2012/2015 |
+| `errful_arb_loss` | 0.3 | 0–0.7 | arbitrary guesses attenuate pretest_gain | Cyr & Anderson 2015 |
+| `errful_noise` | 0.12 | 0–0.3 | arbitrary-guess competitor birth strength | Baddeley & Wilson 1994; Kessels 2003 |
+| `sib_drift` | 0.15 | 0–0.4 | speaker-record eval drift toward tuned retell | Higgins & Rholes 1978; Echterhoff 2005/2008 |
+| `sib_trust_w` | 0.7 | 0–1 | epistemic-trust weight in the shared-reality gate | Echterhoff et al. 2005 |
+| `obs_enc_gain` | 0.08 | 0–0.25 | observed-action middle tier | Roberts 2022; Jaroslawska 2016 |
+| `obs_intent_mult` | 2.0 | 1–3 | watching-to-learn multiplier | observational-practice lit |
+| `face_dist_gain` | 0.2 | 0–0.5 | distinctive-face field/accrual gain | Light et al. 1979; Vokey & Read 1992 |
+| `secret_load_mult` | 1.5 | 0.5–3 | secret tonic daLoad (×pending_intrude) | Slepian, Chun & Mason 2017 |
+| `secret_heat_mult` | 1.3 | 1–2 | secret-overlap cue-heating | Lane & Wegner 1995 |
+| `intox_retro_shield` | 0.4 | 0–0.8 | pre-drink interference shield (OBSERVE) | Parker 1980/81; Mueller 1983; Q-P&E 2022 |
+
+**Frozen constants (v5.20):** `choice_scope` (gain on chosen content
+only), `retro_scope = "pre-only"`, secrets share the pending n≤5 cap
+(no separate budget). **Locked nulls:** `sib_polite_null = 0`
+(non-shared-reality tuning drifts nothing — Echterhoff 2008),
+`attract_recog_null = 0` (attractiveness adds nothing past
+faceDistinct — Wickham & Morris 2003), `retro_consol_null = 0`
+(shield never raises strength — Mueller 1983), `taboo_gain = 0`
+(folds to arousal+isolated — MacKay decomposes).
+
+## 81. Validation probes P769–P778
+
+- **P769 (MUST) value ordering:** under n > wm_cap overflow, high-
+  importance fields survive at the value_rank_w-implied rate;
+  deficit-scaled profiles concentrate spill on high-value items —
+  recall gap (high−low value) widens with deficit_proxy at matched
+  overall (Castel selectivity shape).
+- **P770 (MUST — crossover) value×memorability gate:** deficit cohort
+  shows the selectivity advantage on easy-high-value material AND its
+  collapse on hard-high-value material (2025 moderator); young cohort
+  shows neither cliff (their spill stays near-flat). A build where
+  the old cohort selects equally well on hard items fails — the gate
+  is the mechanism.
+- **P771 (SHOULD) choice:** choice:true mints higher E + lower day-1
+  β than matched assigned events (band from Murty 2015/2019); the
+  unchosen alternative shows no gain (scope audit); effect holds with
+  memoranda-content unlinked to the choice (the 2015 decoupling).
+- **P772 (MUST — triple) error type:** conceptual-guess pretests beat
+  errorless controls and arbitrary-guess pretests on target recall,
+  age-flat on the conceptual leg (Cyr & Anderson 2015); arbitrary
+  guesses mint competitors that intrude at recall for high-deficit
+  profiles (Baddeley & Wilson phenotype) but not low-deficit.
+- **P773 (MUST — gate) saying-is-believing:** shared-reality retells
+  drift the speaker record toward audience_tune at the sib_drift
+  rate; politeness/incentive/other motives drift ≈0 (locked null —
+  TOST, SESOI 0.05); outgroup audiences attenuate (2005 gate);
+  `lie:true` retells leave the truth record untouched (P500
+  consistency).
+- **P774 (SHOULD) observed tier:** engagement ordering enacted >
+  observed > heard at matched attention, observed band [verbal,
+  verbal+0.7·enact]; obsIntent doubles the observed leg; observed
+  records get NO DA-resistance (enactment exemption boundary — a
+  build where watched actions survive distraction like performed
+  ones fails).
+- **P775 (SHOULD) face distinctiveness:** faceDistinct-high persons
+  accrue familiarity faster and field-write wider at matched
+  exposure; `attract_recog_null` TOST-enforced — attractiveness-tagged
+  but typical faces show |Δ| ≤ 0.03; composes multiplicatively with
+  owngroup_loss (distinctive-other-group vs typical-own-group
+  ordering either direction).
+- **P776 (MUST) secret load:** a held secret contributes ~1.5 pending-
+  intention units to tonic daLoad inside the n≤5 cap (secrets crowd
+  OUT ordinary pending cues — measurable as reduced pending_cue_gain
+  on non-secret overlaps while secrets are held); secret-overlapping
+  cues encode hotter (secret_heat_mult); disclosure ends both legs
+  immediately (closed-loop check).
+- **P777 (OBSERVE) retrograde shield:** intox-onset events →
+  pre-onset records show reduced next-window interference accrual;
+  on-intoxication records gain nothing (retro_scope audit);
+  strength never increases (retro_consol_null — a build where
+  drinking RAISES a stored strength fails by construction); band
+  wide per the 2022 replication's fragility.
+- **P778 (MUST — structure) v5.20 regression:** new fields/params
+  pass the P457 non-interference pattern (audience_tune/sib drift is
+  a §13.1 rewrite-path citizen; secrets occupy the existing pending
+  budget, not a parallel store; choice/obs/face legs touch E and β
+  only) and the §12.2 commutativity pattern (no new op reads across
+  charIds).
+
+## 82. Spec deltas delivered (v5.20)
+
+- `memory-model-spec.md` → v5.20: §2 +8 mechanism bullets
+  (value-directed selectivity + the hard-item gate, choice, error-
+  type moderation on pretest, saying-is-believing, observed tier,
+  face distinctiveness, secrets-as-open-loops, intox retrograde
+  shield); params +16 (+4 locked nulls, +3 frozen); §10 contract
+  additions — Event fields `choice:true`, `guess_kind`,
+  `audience_tune`/`tune_motive`/`aud_ingroup` on retell emissions,
+  `obsIntent:true`, `faceDistinct ∈[0,1]`; `engagement:"observed"`
+  promoted to first-class; `confidential` records join the pending
+  set. All optional w/ defaults; backward compatible.
+- `character-memory-profiles.md`: §0 +16 clamp rows; §54 v5.20
+  note — none are trait pins (all mechanism constants); the
+  emergent shadows (older mains route to value, secret-keepers
+  carry a tax, gossipers absorb their own spin).
+- `validation-design.md`: §§144–145 — probes P769–P778 + sources.
+  Registry P1–P778.
+- `human-memory-research.md`: §50 v72 summary appended.
+
+## 83. Sources new to this version (all verified 2026-09-23)
+
+- Castel, Benjamin, Craik & Watkins 2002 (Psych. Aging 17:209 —
+  verified: older adults match young on high-value despite lower
+  overall); Castel, Balota & McCabe 2009 (JEP:A 35:916 — verified:
+  disproportionate study-time allocation); Castel 2007 (PLM 48
+  chapter — verified: evaluative processing/VDR framework);
+  Knowlton & Castel 2022 (Cognition 222 — verified review);
+  Psych. Aging 2025 strategic-VDR study (verified abstract:
+  selectivity fails on hard high-value items — the gate).
+- Murty, DuBrow & Davachi 2015 (J. Neurosci. 35:6255 — verified:
+  choice → striatal-anticipation → hippocampal encoding success,
+  content-unlinked); Murty et al. 2019 (PB&R 26:1788 — verified
+  pooled analysis, delayed-recognition advantage + preference
+  correlation); Murty et al. 2019 (J. Cogn. Neurosci. — verified:
+  reduced forgetting rate, post-encoding consolidation).
+- Cyr & Anderson 2015 (JEP:LMC — verified: conceptual vs lexical
+  guesses, stepping-stones account, guess memory mediates);
+  Cyr & Anderson 2012 (Psych. Aging — verified: conceptual
+  errorful improves source memory, older ≥ younger); Baddeley &
+  Wilson 1994; Clare & Jones 2008 (Neuropsychol. Rehabil. review);
+  Kessels & de Haan 2003 (JINS meta — clinical errorless lit).
+- Higgins & Rholes 1978 (the paradigm); Echterhoff, Higgins &
+  Groll 2005 (JPSP 89:257 — verified: shared-reality necessity,
+  ingroup gate, trust mediator); Echterhoff, Higgins, Kopietz &
+  Groll 2008 (JEP:G 137:3 — verified: motive gate, 4 experiments);
+  Echterhoff, Lang, Krämer & Higgins 2009 (Soc. Psych. 40:150);
+  EJSP 2024 meta (27 studies — verified: robust, outgroup/
+  identity-threat attenuation).
+- Jaroslawska, Gathercole, Allen & Holmes 2016 (M&C 44:1183 —
+  verified: observation ≈ enactment on instruction recall);
+  Steffens & von Stülpnagel 2015 (Front. Psych. 6:1907 — verified:
+  design-dependent boundary); PLOS One 2012 watch-and-learn
+  (observational practice thread).
+- Light, Kayra-Stuart & Hollander 1979 (JEP:HLM 5:212 — verified:
+  typicality effect across delays); Vokey & Read 1992 (verified:
+  distinctiveness/memorability mediation); Wickham & Morris 2003
+  (verified: attractiveness null once distinctiveness partialled);
+  Valentine 1991 (face-space mechanism).
+- Slepian, Chun & Mason 2017 (JPSP 113:1 — verified: mind-wandering
+  ≈2× concealment, preoccupation predicts harm); Lane & Wegner 1995
+  (secrecy-suppression hyperaccessibility).
+- Parker et al. 1980 (Psychopharmacology 69:219 — verified) &
+  1981 dose-response; Mueller, Lisman & Spear 1983 (Physiol. Behav.
+  — verified: interference > consolidation account); Gawrylowicz et
+  al. 2017 (eyewitness misinfo resistance); Quevedo-Pütter &
+  Erdfelder 2022 (Exp. Psychol. 69:335 — verified preregistered
+  replication: recall null, retrieval-side benefit → OBSERVE tier).
+- Deliberate-null/fold sources: Rhodes & Castel 2008 (font-size JOL);
+  MacKay et al. 2004 + Janschewitz 2008 (taboo fold).

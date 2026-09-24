@@ -1008,6 +1008,17 @@ needs both.
 | theme_sel_k | 0.1 | 0.35 | mechanism — field-depth modulation (v5.19) |
 | era_surf_p | 0.05 | 0.3 | mechanism — base era-wording rate (v5.19) |
 | sdm_tension_intr | 0.05 | 0.3 | mechanism — anchor re-access gain (v5.19) |
+| value_rank_w | 0.15 | 0.7 | importance leg in wm_cap ordering (v5.20) |
+| select_sharp | 0.0 | 0.7 | deficit-scaled spill gradient (v5.20) |
+| value_mem_gate | 0.1 | 0.8 | hard-but-valuable selectivity failure (v5.20) |
+| choice_enc_gain / choice_beta_mult | 0.0 / 0.75 | 0.3 / 1.0 | chosen-content E + day-1 β (v5.20) |
+| errful_mediator_gain | 0.0 | 0.4 | conceptual-guess mediator leg (v5.20) |
+| errful_arb_loss / errful_noise | 0.0 / 0.0 | 0.7 / 0.3 | arbitrary-guess attenuation + competitor (v5.20) |
+| sib_drift / sib_trust_w | 0.0 / 0.2 | 0.4 / 1.0 | saying-is-believing drift + trust weight (v5.20) |
+| obs_enc_gain / obs_intent_mult | 0.0 / 1.0 | 0.25 / 3.0 | observed tier + watching-to-learn (v5.20) |
+| face_dist_gain | 0.0 | 0.5 | distinctive-face write/accrual gain (v5.20) |
+| secret_load_mult / secret_heat_mult | 0.5 / 1.0 | 3.0 / 2.0 | secret tonic load + cue-heating (v5.20) |
+| intox_retro_shield | 0.0 | 0.8 | pre-onset interference shield, OBSERVE (v5.20) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3446,3 +3457,40 @@ actually touch:
   is the sharpest under-30 boundary; (e) Dani's futures are
   thicker than most people's pasts — and can never accidentally
   become one.
+
+## 54. v5.20 note (encoding-mechanics VI — all ecology, no traits)
+
+Eleven clamp rows added in §0 for the v5.20 machinery. **Zero new
+trait pins** — every new param is a mechanism constant or a
+world-supplied ecology flag. The bible-author-facing surface is the
+emergent shadow:
+
+- **Value routing (§71):** deficit-bearing profiles (older mains,
+  low-wmc) automatically concentrate scarce capacity on important
+  content — and automatically fail on hard-but-important detail
+  (`value_mem_gate`). A bible writer does NOT pin these; they
+  emerge from deficit_proxy. Cast note: an older main remembers the
+  three things that mattered about a tenant meeting and loses the
+  clause they needed — that is the model working, not a bug.
+- **Choice (§72):** world marks `choice:true`; characters with
+  constrained lives (few choice-tagged events) have measurably
+  thinner ownership of their days — an ecology finding the bible
+  can lean on narratively (the character who never chooses).
+- **Secrets (§77):** the drama-seed layer (`confidential:true`)
+  now carries a REAL cost — each held secret is ~1.5 pending
+  intentions of tonic daLoad inside the shared cap. A main holding
+  three secrets is running a degraded encoder all day, and their
+  open errands lose slots. Disclosure frees the slot — confession
+  relieves by mechanism, not by prose.
+- **Saying-is-believing (§74):** gossip-motive tagging matters.
+  `tune_motive` is the world's call per retell; only sharedReality
+  tuning drifts the speaker. The cast's appeasers (high `affil`,
+  politeness-tuned) keep accurate private records; the connectors
+  absorb their own spin.
+- **Faces (§76):** `faceDistinct` is roster-relative — a main with
+  a homogeneous social world finds every newcomer distinctive (more
+  accrual) and a main in a varied world needs more deviation. Same
+  knob, different emergent sociology.
+- **Observed tier (§75):** `obsIntent` is the apprentice flag —
+  bibles that say "learns by watching" should ensure the world tags
+  their watch events accordingly; the gain is mechanism, not trait.

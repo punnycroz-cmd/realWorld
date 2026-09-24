@@ -2464,3 +2464,73 @@ This version's sources are methodological — they discipline the
   ensemble pass_frac gate, spec-curve demotion rule,
   transported-band widening formula) are RW HYPOTHESES —
   engineering choices on consensus bases.
+
+## 50. Addendum — v72 anchors (encoding-mechanics VI, spec v5.20)
+
+- **Value directs encoding; scarcity sharpens it — CONSENSUS.**
+  Castel, Benjamin, Craik & Watkins 2002 (*Psychol Aging* 17:209 —
+  verified): older adults match young on high-value items despite
+  lower overall recall — selectivity compensates. Castel, Balota &
+  McCabe 2009 (*JEP:A* 35:916 — verified): disproportionate
+  high-value study-time allocation. **Moderator — ESTABLISHED:**
+  older-adult selectivity FAILS when high-value material is
+  intrinsically hard to encode (Psych. Aging 2025, verified
+  abstract) — routing strategies need self-initiation, so the
+  rescue degrades exactly where it's needed. → `value_rank_w` +
+  `select_sharp` + `value_mem_gate` (§71).
+- **Choice potentiates — ESTABLISHED.** Murty, DuBrow & Davachi
+  2015 (*J Neurosci* 35:6255 — verified): opportunity-to-choose
+  improves declarative memory even with content-unlinked
+  memoranda; striatal-hippocampal anticipation mechanism. Murty
+  2019 (*J Cogn Neurosci* — verified): consolidation leg —
+  reduced forgetting rate. → `choice_enc_gain`/`choice_beta_mult`
+  (§72), scope-locked to chosen content.
+- **Errorful learning's moderator is error TYPE — ESTABLISHED,
+  correcting the clinical cliché.** Cyr & Anderson 2015
+  (*JEP:LMC* — verified): conceptual guesses ("stepping stones")
+  help BOTH ages; arbitrary guesses hurt. 2012 (*Psychol Aging* —
+  verified): conceptual errorful boosts source memory, older ≥
+  younger. The Baddeley & Wilson 1994 / Kessels 2003 errorless-
+  advantage story holds for impaired encoders on arbitrary
+  material. → `guess_kind` split, `errful_mediator_gain`,
+  `errful_arb_loss`, `errful_noise` (§73).
+- **Saying-is-believing — CONSENSUS effect, the GATE is the
+  finding.** Higgins & Rholes 1978; Echterhoff, Higgins & Groll
+  2005 (*JPSP* 89:257 — verified: shared-reality required, ingroup
+  audiences only, epistemic trust mediates); Echterhoff et al.
+  2008 (*JEP:G* 137:3 — verified: politeness/incentive/entertain-
+  ment/compliance motives → tuned message, ZERO memory drift);
+  EJSP 2024 meta (verified). → `sib_drift`/`sib_trust_w` (§74),
+  locked `sib_polite_null`.
+- **Observed encoding is a real middle tier — ESTABLISHED,
+  boundary DEBATED.** Roberts et al. 2022 comparator g≈0.9 vs
+  enactment; Jaroslawska et al. 2016 (*M&C* 44:1183 — verified:
+  observation ≈ enactment for instruction recall); Steffens &
+  von Stülpnagel 2015 (verified: design-dependent). →
+  `obs_enc_gain`/`obs_intent_mult` (§75); no motor-channel
+  exemptions.
+- **Face distinctiveness — CONSENSUS; attractiveness is a NULL.**
+  Light, Kayra-Stuart & Hollander 1979 (*JEP:HLM* 5:212 —
+  verified); Vokey & Read 1992 (verified: distinctiveness
+  mediates); Wickham & Morris 2003 (verified: attractiveness
+  partials out). → `face_dist_gain` (§76), locked
+  `attract_recog_null`.
+- **Secrets preoccupy more than they conceal — ESTABLISHED
+  direction.** Slepian, Chun & Mason 2017 (*JPSP* 113:1 —
+  verified: mind-wandering ≈2× concealment across >13,000
+  secrets); Lane & Wegner 1995 (suppression hyperaccessibility).
+  → secrets join the pending set (§77): `secret_load_mult`,
+  `secret_heat_mult`.
+- **Alcohol retrograde facilitation — DEBATED, interference-
+  account form kept at OBSERVE.** Parker et al. 1980/81
+  (verified); Mueller, Lisman & Spear 1983 (verified:
+  interference > consolidation); Quevedo-Pütter & Erdfelder 2022
+  (verified prereg replication: recall null, retrieval benefit).
+  → `intox_retro_shield` as interference-shield only; locked
+  `retro_consol_null` + frozen `retro_scope:"pre-only"` (§78).
+- **Established vs hypothesis summary:** all nine mechanism
+  directions above are established or better; the GATES (motive,
+  deficit, scope) are where the literature's load-bearing detail
+  lives and all are honored structurally. The sim-level weights
+  (drift rates, multipliers, cap sharing) are RW HYPOTHESES —
+  calibration on consensus bases.
