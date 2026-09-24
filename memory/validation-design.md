@@ -13313,3 +13313,139 @@ backing)
 
 → individual-differences.md Part XI §§143–163; spec
 v5.73 §§6.351–6.366; probes P1352–P1365.
+
+## 258. v128 probe specs (P1366–P1379 — social-memory
+XIII, the intention layer)
+
+- **P1366 intent provenance (MUST, locked):** dyad of
+  observers at one helpful act, one under
+  `sit_force`≥0.7: the discounted observer mints no
+  `intent_inferred` (or at halved rate); every
+  `intent_inferred` field carries
+  `provenance:"inferred"`; verbatim scan finds zero
+  intent content (`intent_fact_null`). Hassin et al.
+  2005; Gilbert et al. 1988.
+- **P1367 soft-token silence (MUST, locked):**
+  unkept `commit_soft` → no `breach` tag, no
+  credibility decrement, no §6.139 absence record
+  (`soft_breach_null`); an explicit revival event
+  mints the eval, not the lapse. Clark & Bavelas
+  2004.
+- **P1368 advice asymmetry (SHOULD):** advisor vs
+  advisee at 14d: advisor's emitted uptake belief
+  exceeds advisee's advice-weighted retrieval shift
+  by ~`advice_over_est`; credibility raises
+  `advice_w`, distance lowers it. Yaniv &
+  Kleinberger 2000.
+- **P1369 granter warmth (SHOULD, gate-locked):**
+  voluntary costly favor → granter `eval_tag` +;
+  coerced identical favor → zero (`benfrank_vol_null`).
+  Jecker & Landy 1969.
+- **P1370 indirect-fear ceiling (MUST, locked):**
+  `warned` + witnessed legs stacked at one cue never
+  exceed the direct-aversive write
+  (`indirect_exceed_null`); threat info AFTER
+  vicarious acquisition leaves the fear tag unmoved
+  (`instruct_erase_null`). Askew & Field 2008.
+- **P1371 polarization gate (MUST, locked):** n=3
+  same-lean bout shifts member valences toward mean;
+  |L|<`polar_gate` bout leaves valences bit-identical
+  (`polar_zero_null`). Isenberg 1986.
+- **P1372 doorframe cost (SHOULD):** scripted
+  two-room encounter: boundary-adjacent records
+  out-survive mid-segment records; unrehearsed
+  pre-boundary tail shows `boundary_reset_tax`;
+  `seg_grain` extremes produce different `edge`
+  counts. Radvansky & Copeland 2006.
+- **P1373 punisher proportionality (MUST, locked):**
+  two observers with different offense records watch
+  one sanction: high-offense reader grants
+  `punish_trust`, low-offense reader writes
+  `punish_over`; unconditional dividend fails
+  (`punish_free_null`). Barclay 2006.
+- **P1374 roster imperfection (MUST, locked):**
+  canonical 6-guest event recalled 20×: zero perfect
+  rosters (`roster_exact_null`); intrusions
+  concentrate on close-tie absentees; peripheral
+  true attendees dropped most. Freeman & Romney
+  1987.
+- **P1375 humor redistribution (SHOULD, sat-locked):**
+  mixed funny/earnest bout: humor record
+  out-survives; ±1 neighbors under-survive vs
+  all-earnest control; all-funny bout shows gain
+  collapse to 1.0, never below (`humor_sat_null`).
+  Schmidt 1994; Schmidt & Williams 2001.
+- **P1376 stereotype floor (MUST, locked):** thin
+  member PM + strong collective PM → member eval
+  retrieves toward collective (INFERRED-marked);
+  zero collective-trait content in member verbatim
+  fields (`stereo_fact_null`); individuated member
+  escapes the prior. Hamilton & Sherman 1996.
+- **P1377 soft vs formal (MUST):** identical wording
+  split `commit_soft`/`commit_formal`: only formal
+  mints expectation/debt edges and breach paths.
+- **P1378 aging boundary (SHOULD):** age-70 profile
+  keeps `boundary_gain` but shows elevated
+  cross-boundary order confusion vs age-30
+  (`seg_norm` leg). Zacks et al. 2006.
+- **P1379 cast spread (OBSERVE):** identical
+  warn-and-miss diet across the 8 mains →
+  `obs_fear`/`instruct_fear` accrual ordered by
+  `neuro`/`distrust`; report, don't gate.
+
+## 259. Sources verified this version (P1366–P1379
+— social-memory XIII)
+
+- **Goal inference (CONSENSUS existence):**
+  Hassin, Aarts & Ferguson 2005 (*JESP* 41:129);
+  Jones & Davis 1965 correspondent inference;
+  Gilbert, Pelham & Krull 1988 load-blocking.
+  Field-strength HYPOTHESIS.
+- **Phatic commitments (CONSENSUS pragmatics):**
+  Clark & Bavelas 2004; Brown & Levinson 1987.
+  Memory mechanics HYPOTHESIS.
+- **Advice discounting (CONSENSUS direction):**
+  Bonaccio & Dalal 2006 (*J. Behav. Decis. Making*
+  19:127); Yaniv & Kleinberger 2000 (*OBHDP*
+  83:260); Yaniv 2004.
+- **Granter-side liking (CLASSIC, dose DEBATED):**
+  Jecker & Landy 1969 (*Hum. Relat.* 22:371);
+  Schopler & Compere 1971 coercion boundary.
+- **Indirect fear (CONSENSUS pathways):** Rachman
+  1977; Mineka et al. 1984; Olsson & Phelps 2007;
+  Phelps et al. 2001; Askew & Field 2007 (*Behav.
+  Res. Ther.* 45:2616) + Kessock-Philip 2008
+  ordering result. Doses HYPOTHESIS.
+- **Group polarization (CONSENSUS):** Moscovici &
+  Zavalloni 1969 (*JPSP* 12:125); Isenberg 1986
+  (*Psych. Bull.* 99:41) meta; Sunstein 1999.
+- **Event boundaries (CONSENSUS core):** Zacks,
+  Speer, Swallow, Braver & Reynolds 2007 (*Psych.
+  Bull.* 133:273); Radvansky & Copeland 2006
+  (*Mem. & Cogn.*); Radvansky, Krawietz & Tamplin
+  2011; Zacks, Speer, Vettel & Jacoby 2006
+  (*Psych. & Aging* 21:466) — verified.
+- **Punisher's dividend (ROBUST):** Barclay 2006
+  (*Evol. Hum. Behav.* 27:325 — verified,
+  justified-only dividend); Fehr & Gächter 2002;
+  Jordan, Hoffman, Bloom & Rand 2016 (*Nature*
+  530:473).
+- **Roster memory (CONSENSUS inaccuracy):**
+  Bernard, Killworth & Sailer informant-accuracy
+  series; Freeman & Romney 1987 (*Hum. Org.*
+  46:330); Freeman, Romney & Freeman 1987.
+- **Humor (CONSENSUS direction):** Schmidt 1994
+  (*JEP:LMC* 20:953 — verified, incl. mixed-list
+  boundary); Schmidt & Williams 2001; Fraley &
+  Aron 2004 (*Pers. Relat.* 11:61).
+- **Entitativity (CONSENSUS phenomenon):** Campbell
+  1958; Hamilton & Sherman 1996; Lickel et al. 2000
+  (*JPSP* 79:223).
+
+→ social-memory.md Part XIII §§181–196; spec v5.74
+§§6.367–6.377; probes P1366–P1379.
+
+Probe registry: P1–P1379. v128 MUST: P1366, P1367,
+P1369 (gate), P1370, P1371, P1373, P1374, P1376,
+P1377 (all locked-null legs). SHOULD: P1368, P1372,
+P1375, P1378. OBSERVE: P1379.

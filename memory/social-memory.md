@@ -6028,3 +6028,562 @@ avoid gradients under a blank trait ledger.
   trait abstraction ramps over years; `soc_abstract_age` is a step
   at ~7 for implementability — the eval_tag seeding means the step
   doesn't need to carry the whole transition.
+
+# Part XIII — v128 pass: the intention layer (what I think you meant, what we almost did, who was really there)
+
+Parts I–XII built the dyad, the room, and the books they keep. The
+gap left is the **interpretive half** of social memory: observers
+don't just record behavior — they *read intentions into it*, commit
+to plans that were never plans, half-hear advice, bond through jokes
+and doorways, and reconstruct guest lists that were never checked.
+Humans also catch fear from each other without being hurt, gain
+standing for punishing proportionally, and hold person-models of
+*groups* that contaminate members. Part XIII adds eleven mechanisms
++ ten locked nulls, all additive. Astra alignment: §§181, 183, 185
+are the unequal-knowledge machinery (inferred intent, discounted
+counsel, secondhand fear) — every minted field carries OBSERVED vs
+INFERRED provenance so the observation UI never has to guess.
+
+## 181. Reading the mind behind the move — spontaneous goal inference **[CONSENSUS existence; field strength HYPOTHESIS]**
+
+Hassin, Aarts & Ferguson 2005 (*JESP* 41:129): observers infer goals
+from everyday behavior automatically — behaviors read as *means* get
+their inferred goal attached to memory without instruction. Root
+paradigm: Jones & Davis 1965 correspondent inference — perceivers
+explain acts by dispositions, discounting when situational force is
+high; Gilbert, Pelham & Krull 1988 — the dispositional reading is
+automatic, situational correction is effortful (load blocks it).
+So a watched act is remembered not as "she stacked chairs" but as
+"she was closing up early (to make me leave)."
+
+Implement: on encode of an event where `agent != self` and the
+behavior has an unambiguous goal-structure tag (world supplies
+`goal_cand` candidates or null), with prob `goal_infer_p` (0.5,
+scaled down by `task_load` — Gilbert's correction-under-load result)
+mint field `intent_inferred` on the record AND a parallel write to
+`PersonModel[agent].lastIntent`. The field carries
+`provenance:"inferred"` forever — it is generated, never observed.
+Discounting: when the event carries `sit_force` ≥ 0.7 (the world
+obviously made them do it), `goal_infer_p` halves (correspondent-
+inference discounting rule). **Locked `intent_fact_null`:** an
+`intent_inferred` field may bias gist/eval retrieval paths but can
+never be copied into a verbatim/fact-class field — characters
+*remember what they inferred* as inference ("I figured she wanted
+me gone"), and the UI renders it INFERRED, never OBSERVED.
+Emergent: a busy character (high `task_load`) takes acts at face
+value; an idle suspicious one accumulates motive stories — two
+witnesses to the same kindness keep different books on why.
+
+## 182. "Let's get lunch" is not a promise — soft commitments **[CONSENSUS pragmatics; memory mechanics HYPOTHESIS]**
+
+Clark & Bavelas 2004 (social uses of language) and the politeness
+literature (Brown & Levinson 1987) treat phatic proposals —
+"we should do this again" — as relationship tokens, not offers;
+both parties recognize the genre. Speech-act theory (Searle 1969):
+a commissive requires uptake conditions the phatic form signals
+it does not meet. Prospective-memory grounding (McDaniel &
+Einstein 2007): intention execution requires an encoded intention
+— soft tokens never reach it. Empirical edge: people still feel a
+*small* social sting when a soft token is never followed up —
+the token is non-binding, not content-free.
+
+Implement: world tags proposals `commit_soft` (phatic, no
+time/place spec) vs `commit_formal` (existing promise machinery,
+Part V debt ledger). `commit_soft` mints a `courtesy` record —
+`soft_commit_strength` ~0.5× the formal record, `soft_commit_tau`
+~5 days half-life, and **no** debt/expectation edge — the
+`expected:[ids]` noticed-absence path (§6.139) is unreachable
+from soft mints. **Locked `soft_breach_null`:** a dropped soft
+token can never mint a `breach`/`betrayal` tag or decrement
+`PersonModel.credibility` — nobody gets cheater-tagged for the
+lunch that was never lunch. Residual: if the soft token is
+explicitly revived ("you never called"), the *revival event*
+itself writes a mild negative eval — the sting attaches to the
+re-mention, not the original silence.
+Emergent: characters survive days full of unkept "we should"s
+without the ledger exploding; the one character who treats every
+phatic token as a contract (high `consc` loading, §192) reads as
+exhaustingly literal — which is true to life.
+
+## 183. She warned me and I half-heard it — advice discounting **[CONSENSUS direction; weights from JAS meta]**
+
+Judge–advisor systems (Bonaccio & Dalal 2006, *J. Behav. Decis.
+Making* 19:127 integrative review): decision-makers weight advice
+at roughly 0.3–0.5 of their own prior — egocentric advice
+discounting is the modal finding across paradigms (Yaniv &
+Kleinberger 2000, *OBHDP* 83:260 — mean weight-of-advice ≈ 0.2–0.4;
+Yaniv 2004 — discounting shrinks for advisors perceived expert or
+close). Asymmetry: advisors systematically *overestimate* how much
+their advice moved the advisee.
+
+Implement: a `told_by` record of class `advice` (world tags
+counsel/warning/recommendation) enters the advisee's later
+decision-relevant retrieval at weight `advice_w` (0.4) relative
+to the advisee's own matching records — it shapes recall order,
+never replaces prior content. `advice_w` scales: ×(1 +
+`advice_trust_gain`·advisorCred) for credibility, ×(1 +
+`advice_close_gain`) for relationship-tier advisors (Yaniv 2004
+distance finding — distance up, weight down). On the advisor's
+side, emitted confidence that their advice landed runs
+`advice_over_est` (0.15) high — the asymmetry is a *metamodel*
+field, not a fact. Emergent: the landlord warns about the lease
+deadline, the tenant half-hears, both later remember "I told
+you / you never told me clearly" — the canonical two-sided
+misunderstanding, produced by two correct weights, no bug.
+
+## 184. Doing you a favor makes me like you — the granter's side **[CLASSIC effect; modern replications DEBATED]**
+
+Jecker & Landy 1969 (*Hum. Relat.* 22:371 — "Liking a person as a
+function of doing him a favour"): participants induced to do a
+favor for the experimenter rated him *more* positively afterward —
+dissonance-resolution reading: costly pro-target behavior implies
+the target is worth it ("the Benjamin Franklin effect"). Follow-
+ups (Schopler & Compere 1971) weakened the effect for coerced
+favors; modern replications are thin — effect direction accepted,
+magnitude uncertain [DEBATED dose]. Converse side already modeled:
+the recipient's debt ledger (§114 exchange/communal).
+
+Implement: on a `favor_granted:true` event where `granter = self`,
+granter's `PersonModel[target].eval_tag` += `benfrank_gain` (0.05)
+· `cost` (world-supplied favor cost ∈[0,1]) — only when the grant
+was uncoerced (`voluntary:true`); coerced grants write nothing
+positive (Schopler boundary — `benfrank_vol_null` locked).
+Recipient-side expectations of reciprocity unchanged (existing
+debt path). Emergent: the character who keeps lending tools to the
+neighbor genuinely warms to him, unilaterally — asymmetry sets up
+the one-sided investment arc without any narrative nudge.
+
+## 185. Fear by proxy — vicarious and instructed threat learning **[CONSENSUS pathways; doses HYPOTHESIS]**
+
+Rachman 1977's three-pathway theory: fear is acquired directly,
+*vicariously* (watching another's aversive response), and by
+*verbal threat information* (being told something is dangerous) —
+the two indirect pathways are real acquisition routes, not
+weaker copies of conditioning. Verified legs: Mineka et al. 1984
+(rhesus monkeys acquire snake fear purely by watching fearful
+conspecifics — durable); Olsson & Phelps 2007 review (social fear
+learning literature — observational and instructed fear engage
+overlapping-but-reduced circuitry vs direct); Phelps et al. 2001
+(instructed fear alone produces physiological threat response);
+Askew & Field 2007/2008 (children 7–9: vicarious pairing changes
+fear cognitions + avoidance, persisting to 3 months; verbal
+threat *facilitates subsequent* vicarious learning but does not
+rewrite already-acquired fear beliefs — ordering matters).
+
+Implement two legs, both writing to the threat/avoidance tag
+already on records and place/person cues:
+- `warned:true` told_by content naming a cue as dangerous mints
+  an avoidance eval on that cue at `instruct_fear` (0.45 × the
+  direct-aversive write, scaled by advisor credibility §9 and
+  listener `neuro`).
+- Witnessing another character's `aversive:true` event at a cue
+  the observer wasn't harmed by mints `obs_fear` (0.55 × direct,
+  scaled by `emp` and target closeness).
+**Locked `indirect_exceed_null`:** instructed + vicarious legs,
+stacked, can never exceed what the same event would write as a
+direct first-person aversive record — empathy approaches, never
+crosses, being there (same family as `vic_exceed_null` §169).
+**Locked `instruct_erase_null`:** verbal threat information
+received *after* a vicarious fear exists does not damp it
+(Askew/Field Exp. 3 — order-bound). Emergent: "don't walk past
+the garage on Treat after dark" actually changes route behavior
+in a character who was never hurt there — rumor finally has a
+*behavioral* memory consequence, not just eval drift.
+
+## 186. Talk tilts the room — group polarization **[CONSENSUS direction; mechanism composite]**
+
+Moscovici & Zavalloni 1969 (*JPSP* 12:125) launched the finding:
+group discussion shifts members' expressed positions toward the
+more extreme pole of the group's pre-discussion lean (risky shift
+→ group polarization). Isenberg 1986 (*Psych. Bull.* 99:41) meta:
+the shift is real across paradigms and bidirectional — a
+cautious-leaning group gets more cautious; two composite
+mechanisms (persuasive-arguments pool + social comparison), both
+empirically supported, never cleanly separated. Sunstein 1999 —
+enclave deliberation is the real-world amplifier.
+
+Implement inside `groupRecall`/`discussEvent` (existing §7
+wrapper): compute the group's mean lean `L` on the discussed
+record's valence across members; if |L| > `polar_gate` (0.15) and
+n ≥ 3, each member's surfaced record drifts `valence +=
+polar_gain·sign(L)·|L|` (`polar_gain` 0.06) — applied once per
+bout, not per turn. **Locked `polar_zero_null`:** |L| below gate
+produces zero drift — a mixed room does not extremitize, it
+settles (the depolarization regime is documented; balance is the
+null). Note the dual bookkeeping: the shift lands on stored
+valence (memory, durable) — NOT just emitted stance — consistent
+with the persistence findings; flagged [HYPOTHESIS] since most
+studies measure expressed judgments, memory persistence is
+thinner. Emergent: three tenants complain to each other about
+rent; each leaves angrier than any arrived — no leader needed.
+
+## 187. The doorway in the party — event boundaries in social memory **[CONSENSUS core; aging leg ROBUST]**
+
+Event Segmentation Theory (Zacks, Speer, Swallow, Braver &
+Reynolds 2007, *Psych. Bull.* 133:273): ongoing activity is
+encoded as discrete events bounded at points of situational
+change (goal, location, cast, topic shifts); boundary-adjacent
+material is encoded *better*, within-event detail binds to the
+current event model, and working-model reset at boundaries drops
+recent items (Radvansky & Copeland 2006 — walking through a
+doorway measurably impairs recall of recently held information;
+Radvansky, Krawietz & Tamplin 2011 — survives physical→virtual
+generalization). Aging leg: Zacks, Speer, Vettel & Jacoby 2006
+(*Psych. & Aging* 21:466) — older adults segment less
+*normatively*; poorer segmentation agreement predicts worse
+recognition + worse temporal-order memory.
+
+Implement: world emits `boundary:true` on location-change,
+participant-set change, and explicit phase markers. A boundary
+(1) mints a low-content `edge` record (cheap anchor: time + cast
+delta); (2) applies `boundary_gain` (1.25) to records in the
+adjacent ±1 positions (boundary items survive); (3) drops the
+working-model tail: records from the *prior* segment get
+`boundary_reset_tax` (0.12 strength cut) unless already rehearsed
+— the doorframe cost. Per-character `seg_grain` ∈[0.7,1.3]
+controls how many boundaries register: high-grain characters
+carve parties into many sharp episodes (better detail, more
+edges); low-grain blur (fewer anchors, more gist). Aging:
+`seg_norm` declines ≥65 (segmentation drifts off-norm —
+order-confusion rises independently of item loss, matching
+Zacks 2006's dissociation). Emergent: characters remember a
+visit as scenes with joints — and genuinely can't recall what
+was said just before the food arrived.
+
+## 188. The punisher's dividend — sanctioned enforcement pays reputation **[ROBUST; proportionality gate CONSENSUS]**
+
+Barclay 2006 (*Evol. Hum. Behav.* 27:325 — four studies):
+observers rate punishers of free-riders more trustworthy,
+group-focused, and respectable than non-punishers — *but only
+when the punishment is justified*: unjustified or
+misdirected punishment bought no reputational gain (their
+Exp. 4). Fehr & Gächter 2002 established altruistic punishment
+itself; Jordan, Hoffman, Bloom & Rand 2016 (*Nature* 530:473)
+— third-party punishment functions as a costly signal of
+trustworthiness; its benefit is contingent on observers seeing
+it as proportionate.
+
+Implement: an observer of a `punish:true` event (world tags
+sanction acts: fines, callouts, eviction threats) updates
+`PersonModel[punisher]` along the *trust* dimension — but
+through a proportionality gate: the observer computes
+`prop = sanction_cost / perceived_offense` where
+`perceived_offense` is read from the OBSERVER's own record of
+the original offense (§86 magnitude gap — a witness who barely
+registered the harm sees every sanction as excessive). If
+`prop` ∈ [`punish_prop_lo` 0.3, `punish_prop_hi` 3.0]:
+`punisher.eval_trust += punish_trust` (0.06); else if over:
+the write flips sign at `punish_over` (−0.08, moral-negative
+class — vindictiveness is a *diagnostic* act §2.2). **Locked
+`punish_free_null`:** no trust gain without the proportionality
+gate passing — a merge that pays the dividend unconditionally
+inverts Barclay's key finding. Emergent: the landlord who fines
+fairly accrues real trust with watchers; the one who escalates
+reads as cruel — to exactly the witnesses who thought the
+offense was small. Reputation for punishment is earned per-
+observer, never globally.
+
+## 189. "Everyone was there" — roster reconstruction **[CONSENSUS inaccuracy; error model HYPOTHESIS]**
+
+The informant-accuracy program (Bernard, Killworth & Sailer
+1979–82 series; Freeman & Romney 1987, *Hum. Org.* 46:330;
+Freeman, Romney & Freeman 1987, *Am. Anthropol.* 89:310):
+people asked to list who attended a fixed event (a party, a
+meeting) produce systematically wrong rosters — recall is
+reconstructed from *cognitive social structure* (who belongs
+together, who's central) not from a stored list; errors run
+large (roughly half of typical reports in their samples) and
+are patterned, not random: close/central alters are over-
+included, peripheral attendees dropped. Consensus: roster
+recall is inference wearing the costume of memory.
+
+Implement `rosterRecall(charId, eventRecord)`: for each
+candidate member of the event's plausible set, recall P =
+`roster_base` (0.5) · (0.4 + 0.6·tie_strength) · (0.5 +
+0.5·`typicality`) — tie and typicality read off the existing
+PersonModel/RelEdge and the event's schema. Then false
+inclusions: each close-tie absentee (tie ≥ `roster_fill_gate`
+0.6, canonically absent per ledger) is added at
+`roster_fill` (0.18) — over-inclusion of the socially central,
+exactly Freeman/Romney's error shape. **Locked
+`roster_exact_null`:** roster output at set-size ≥5 may never
+be fully correct — at least one miss or intrusion is forced;
+perfect guest lists are a database behavior. Composes with
+§6.139 noticed-absence (encode-side) — this is the recall-side
+mirror. Emergent: two attendees of the same dinner produce
+different guest lists weeks later, both confident, both wrong
+in patterned ways — and "Mara was definitely there" can be
+sincerely believed about a Mara who never came.
+
+## 190. The laugh eats the next line — humor's memory trade-off **[CONSENSUS direction; list-structure boundary CONSENSUS]**
+
+Schmidt 1994 (*JEP:LMC* 20:953 — six experiments): humorous
+sentences are recalled better than non-humorous versions in
+free and cued recall — attention + rehearsal mechanisms —
+**but only in mixed lists**: when all items are humorous the
+advantage disappears (distinctiveness is list-relative).
+Schmidt & Williams 2001 (cartoon study): good cartoons are
+remembered *at the expense of* poorer ones — humor redistributes
+memory within an episode, it doesn't raise the total. Social
+side: Fraley & Aron 2004 (*Pers. Relat.* 11:61) — shared
+humorous experience increases felt closeness between strangers;
+humor is a bonding event, not just a salient one.
+
+Implement: a `humor:true` tag (world marks funny lines/moments
+— banter, jokes, absurd turns) writes `humor_gain` (1.4)
+strength on its own record AND `humor_tax` (0.5 attention)
+on temporally adjacent records (±1 in the stream — the laugh
+literally eats the next line, matching the redistribution
+finding). All-humorous bouts: if `humor` density in the event
+> `humor_sat` (0.5), the gain collapses to 1.0 (list-composition
+boundary, enforced — `humor_sat_null` locked: saturation can
+never *invert* the gain below baseline). Bonding leg: shared
+`humor:true` records (both parties tagged it) add
+`humor_bond` (0.03) to the mutual eval edge — small, per bout.
+Emergent: the joke everyone remembers; the earnest point made
+right after it that nobody does; and two characters slightly
+closer for having laughed at the same thing.
+
+## 191. Person models for collectives — entitativity **[CONSENSUS phenomenon; prejudice mechanics flagged]**
+
+Campbell 1958 coined entitativity — collections are perceived
+as *entities* with degrees (intimacy groups > task groups >
+social categories > transitory aggregates). Hamilton & Sherman
+1996 review: entitative groups get person-like processing —
+trait attribution, expectancy, unity assumptions. Lickel et
+al. 2000 (*JPSP* 79:223) measured the taxonomy. Consequence:
+perceivers apply group-level traits to individual members
+with essentially zero individuating evidence (stereotype
+application — the mechanism behind "the new tenants are
+cliquish" → assuming *this* tenant is).
+
+Implement: `PersonModel` admits `collective:true` records
+(group nodes: "the tenants," "the landlords," "the Dolores
+regulars" — world supplies group tags on `personId`
+namespaces). Collective PMs accrue traits/eval exactly like
+person PMs (same update rules, `collective_decay` slightly
+slower — group impressions are stickier). Inference flows
+**down**: when a member's individual PM is thin (familiarity <
+`stereo_floor` 0.3), retrieval of member eval falls back to
+`collective.eval·stereo_prior` (`stereo_prior` 0.4) — the
+stereotype-as-prior mechanic. **Locked `stereo_fact_null`:**
+collective-PM traits can never write to a member's
+verbatim/fact fields and never enter `told_by` content as
+asserted fact — the stereotype is a prior that shapes
+*expectation and attention*, and the UI renders collective-
+sourced evals INFERRED always. As members individuate,
+`stereo_prior` weight decays toward 0 — contact literally
+outweighs category, the contact-hypothesis shape. Emergent:
+strangers inherit their group's reputation until they earn a
+personal one — the model's honest, bounded implementation of
+prejudice as memory mechanics.
+
+## 192. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121, 136, 146, 161, 176)
+
+| Parameter | Trait loading | Age trajectory |
+|---|---|---|
+| goal_infer_p | +`suspicion`/`distrust` (suspicious minds infer more motives); −high `task_load` (load gate built-in) | flat [HYPOTHESIS] |
+| soft_commit_strength | +`consc` (literal-minded mint heavier tokens); −`social` (fluent phatic users register the genre lighter) | adolescent+ only — phatic genre is learned; children treat tokens as formal (`soft_genre_age` ~12) |
+| advice_w | −`distrust` (×(1−0.3·distrust)); +`consc` modest | older adults: ×(1−0.15) at 65+ (age-related advice discounting documented — HYPOTHESIS on slope) |
+| benfrank_gain | +`consc` (consistency pressure is the mechanism) | flat [HYPOTHESIS] |
+| instruct_fear / obs_fear | +`neuro`, +`emp` (vicarious leg only) | children: ×1.3 both legs (Askew/Field pathway strength); flat after |
+| polar_gain | +`conformity`/`rsq` (social-comparison leg) | flat [HYPOTHESIS] |
+| boundary_gain | none | `seg_norm` −0.2 at 65+ (Zacks 2006); `boundary_reset_tax` unchanged — older adults lose order, not the boost |
+| punish_trust / punish_over | +`consc` (norm-salience); `status_seek`-high observers weight the trust signal more | flat [HYPOTHESIS] |
+| roster_fill | +`social` (dense networks → more intrusion candidates) | ×1.2 at 65+ (gist-based reconstruction rises with source decline) |
+| humor_gain / humor_tax | +`extra`/`social` on gain; `humor_tax` flat | flat [HYPOTHESIS] |
+| stereo_prior | +`conformity` | children: stereo_prior HIGH until `soc_abstract_age` (category-first is the default); 65+: +0.1 (schema reliance, Hess) |
+
+## 193. Spec changes in v5.74 (summary)
+
+- §6.367 NEW: spontaneous goal inference — `goal_infer_p`,
+  `intent_inferred` field (provenance INFERRED), `sit_force`
+  discount, `task_load` gate; `intent_fact_null` locked.
+- §6.368 NEW: soft commitments — `commit_soft` courtesy
+  records (`soft_commit_strength`, `soft_commit_tau`),
+  unreachable by §6.139 absence path; `soft_breach_null`
+  locked; `soft_genre_age` gate.
+- §6.369 NEW: advice discounting — `advice` record class,
+  `advice_w`, `advice_trust_gain`, `advice_close_gain`,
+  `advice_over_est` (advisor-side metamodel field).
+- §6.370 NEW: granter-side liking — `favor_granted` +
+  `voluntary:true` gate, `benfrank_gain`·cost;
+  `benfrank_vol_null` locked.
+- §6.371 NEW: indirect fear — `warned:true` (`instruct_fear`),
+  witnessed `aversive:true` (`obs_fear`), scaled by cred/emp/
+  closeness; `indirect_exceed_null`, `instruct_erase_null`
+  locked.
+- §6.372 NEW: group polarization — mean-lean `L` over members
+  in discussEvent bouts, `polar_gate`, `polar_gain`;
+  `polar_zero_null` locked.
+- §6.373 NEW: event boundaries — `boundary:true` edge
+  records, `boundary_gain`, `boundary_reset_tax`,
+  `seg_grain`, `seg_norm` (age leg).
+- §6.374 NEW: punisher's dividend — `punish:true` observer
+  path, `prop` gate on `punish_prop_lo/hi` reading the
+  OBSERVER's offense record, `punish_trust`/`punish_over`;
+  `punish_free_null` locked.
+- §6.375 NEW: roster reconstruction — `rosterRecall` op,
+  `roster_base`, `roster_fill`, `roster_fill_gate`;
+  `roster_exact_null` locked.
+- §6.376 NEW: humor trade-off — `humor:true`, `humor_gain`,
+  `humor_tax` (±1 stream neighbors), `humor_sat`,
+  `humor_bond`; `humor_sat_null` locked.
+- §6.377 NEW: collective person models — `collective:true`
+  PMs, `collective_decay`, `stereo_floor`, `stereo_prior`
+  (individuation decay); `stereo_fact_null` locked.
+- §7: +26 scalars +1 authored trait (`suspicion` already
+  exists — goal_infer_p loads on it; no new trait needed)
+  +10 locked
+  nulls +2 record classes (`advice`, `courtesy`) +2 fields
+  (`intent_inferred`, `edge` records) +1 op (`rosterRecall`).
+- §10: contract block (all ten locked nulls + INFERRED
+  provenance on `intent_inferred`/collective evals —
+  the UI honesty line).
+
+## 194. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+| Parameter | Default | Clamp range | Evidence |
+|---|---|---|---|
+| goal_infer_p | 0.5 | 0.2–0.8 | Hassin et al. 2005; Gilbert load gate |
+| soft_commit_strength | 0.5× | 0.2–0.8× | HYPOTHESIS |
+| soft_commit_tau | 5d | 1–14d | HYPOTHESIS |
+| soft_genre_age | 12 | 9–15 | pragmatics consensus, age HYPOTHESIS |
+| advice_w | 0.4 | 0.15–0.6 | Yaniv & Kleinberger 2000; Bonaccio & Dalal 2006 |
+| advice_over_est | 0.15 | 0–0.3 | HYPOTHESIS |
+| benfrank_gain | 0.05 | 0–0.15 | Jecker & Landy 1969 [DEBATED dose] |
+| instruct_fear | 0.45 | 0.2–0.7 | Phelps 2001; Rachman 1977 [dose HYPOTHESIS] |
+| obs_fear | 0.55 | 0.3–0.8 | Mineka 1984; Askew & Field 2007 |
+| polar_gain | 0.06 | 0–0.15 | Isenberg 1986 meta |
+| polar_gate | 0.15 | 0.05–0.3 | HYPOTHESIS |
+| boundary_gain | 1.25 | 1.0–1.5 | Zacks 2007; Radvansky 2006 |
+| boundary_reset_tax | 0.12 | 0–0.3 | Radvansky 2006 |
+| seg_grain | 1.0 | 0.7–1.3 | per-profile |
+| seg_norm | −0.2 @65+ | −0.4–0 | Zacks 2006 |
+| punish_trust | 0.06 | 0–0.15 | Barclay 2006; Jordan 2016 |
+| punish_over | −0.08 | −0.2–0 | Barclay 2006 Exp. 4 |
+| punish_prop_lo/hi | 0.3 / 3.0 | 0.15–0.5 / 2–5 | HYPOTHESIS |
+| roster_base | 0.5 | 0.3–0.7 | Bernard/Killworth/Sailer; Freeman & Romney |
+| roster_fill | 0.18 | 0.05–0.35 | Freeman & Romney error shape |
+| humor_gain | 1.4 | 1.0–1.8 | Schmidt 1994 |
+| humor_tax | 0.5 | 0.2–0.8 | Schmidt & Williams 2001 |
+| humor_sat | 0.5 | 0.3–0.7 | Schmidt 1994 list boundary |
+| humor_bond | 0.03 | 0–0.1 | Fraley & Aron 2004 |
+| collective_decay | 0.7× | 0.5–1.0× | HYPOTHESIS |
+| stereo_prior | 0.4 | 0.1–0.7 | Hamilton & Sherman 1996 |
+
+## 195. Validation probes (P1366–P1379)
+
+- **P1366 intent provenance (MUST — locked):** pair of
+  observers at one helpful act, one `sit_force`≥0.7: the
+  discounted observer's record carries no `intent_inferred`
+  OR a halved-probability mint; ALL `intent_inferred` fields
+  carry `provenance:"inferred"`; a verbatim scan finds zero
+  intent content (`intent_fact_null`).
+- **P1367 soft-token silence (MUST — locked):** a
+  `commit_soft` never kept: no `breach` tag, no credibility
+  decrement, no §6.139 absence record; an explicit
+  revival event mints the eval, not the lapse
+  (`soft_breach_null`).
+- **P1368 advice asymmetry (SHOULD):** advisor vs advisee
+  dyad at 14d: advisor's emitted "they took it" confidence
+  exceeds advisee's actual advice-weighted retrieval shift
+  by ~`advice_over_est`; high-cred advisor raises
+  `advice_w`, distance lowers it.
+- **P1369 granter warmth (SHOULD):** voluntary costly
+  favor → granter eval_tag +; coerced favor → zero
+  (`benfrank_vol_null`); recipient debt leg unchanged.
+- **P1370 indirect fear ceiling (MUST — locked):** warned +
+  witnessed legs stacked at matched cue never exceed the
+  direct-aversive write (`indirect_exceed_null`); threat
+  info delivered AFTER vicarious acquisition leaves the
+  fear tag unmoved (`instruct_erase_null`).
+- **P1371 polarization gate (MUST — locked):** n=3 same-lean
+  bout shifts member valences toward mean; |L|<gate bout
+  produces bit-identical valences (`polar_zero_null`).
+- **P1372 doorframe cost (SHOULD):** scripted two-room
+  encounter: boundary-adjacent records out-survive
+  mid-segment records; pre-boundary tail records show the
+  `boundary_reset_tax` cut; `seg_grain` extremes produce
+  different edge counts.
+- **P1373 punisher proportionality (MUST — locked):** two
+  observers with different offense records watch one
+  sanction: the high-offense reader grants `punish_trust`,
+  the low-offense reader writes `punish_over`; a
+  no-gate implementation fails (`punish_free_null`).
+- **P1374 roster imperfection (MUST — locked):** n=6
+  canonical guest list recalled 20× per character: zero
+  perfect rosters (`roster_exact_null`); intrusions
+  concentrate on close-tie absentees; peripheral true
+  attendees dropped most.
+- **P1375 humor redistribution (SHOULD):** mixed funny/
+  earnest bout: humor record survives longest; ±1 neighbors
+  under-survive vs matched all-earnest bout; all-funny bout
+  shows no gain (`humor_sat_null` direction, never invert).
+- **P1376 stereotype floor (MUST — locked):** thin member
+  PM + strong collective PM → member eval retrieves toward
+  collective (INFERRED-marked); verbatim scan: zero
+  collective-trait content in member fact fields
+  (`stereo_fact_null`); individuated member escapes the
+  prior.
+- **P1377 soft vs formal (MUST):** identical wording, one
+  tagged `commit_soft` one `commit_formal`: only formal
+  mints expectation/debt edges and breach paths.
+- **P1378 aging boundary (SHOULD):** age-70 profile shows
+  same `boundary_gain` but elevated order-confusion on
+  cross-boundary sequences vs age-30 (`seg_norm` leg).
+- **P1379 cast spread (OBSERVE):** identical warn-and-miss
+  diet across the 8 mains → divergence in `obs_fear`/
+  `instruct_fear` accrual ordered by `neuro`/`distrust`;
+  report, don't gate.
+
+## 196. Honest limits (Part XIII)
+
+- **Goal inference is measured on tidy stimuli.** Hassin/
+  Aarts/Ferguson used scripted vignettes; whether the 0.5
+  mint rate survives messy multi-goal scenes is our
+  calibration. The DISCOUNTING rule (sit_force, load) is
+  the better-founded half.
+- **The soft/formal line is binary; real phaticness is a
+  gradient.** We chose two classes for implementability —
+  a character could plausibly mint "medium" tokens. The
+  locked null (no breach from soft) is load-bearing;
+  soft_commit_strength is the most-tunable knob.
+- **Advice weighting is a decision-science number, not a
+  memory number.** We route it through retrieval weight,
+  which is our architectural choice; the JAS literature
+  measures choice shifts, not recall.
+- **Ben Franklin is 1969 and replication-poor.** Keep
+  `benfrank_gain` small; the voluntary-gate null is what
+  must never slip (coerced favor → liking is documented
+  backwards).
+- **Indirect fear doses are extrapolated.** Pathway
+  existence is consensus; 0.45/0.55 relative to direct is
+  our calibration — Mineka's observational acquisition was
+  fast and durable in monkeys, so the vicarious leg may be
+  UNDER-priced for close-tie sources.
+- **Polarization writes to stored valence — the literature
+  measures expressed judgment.** Memory persistence of
+  group shifts is thinner than the shift itself; flagged
+  in §186. If it proves unstable, gate the write to
+  high-arousal bouts.
+- **Boundary machinery needs world-supplied edges.**
+  `boundary:true` is only as good as the event stream's
+  segmentation signals; absent them the mechanism is inert,
+  never hallucinated.
+- **Proportionality is per-observer by design.** This makes
+  punishment reputation *irreducibly contested* — correct
+  per the §86 magnitude gap, but game-systems must not
+  add a canonical "was it fair" flag; the disagreement is
+  the feature.
+- **Roster numbers are 1980s informant-accuracy.** Error
+  magnitude varies with event memorability and set size;
+  `roster_base`/`roster_fill` are starting calibrations.
+- **Entitativity models prejudice as memory mechanics —
+  and stops there.** Collective PMs describe how
+  *characters* generalize; they assert nothing about real
+  groups, and `stereo_fact_null` keeps group content out
+  of member facts. This is the model's most sensitive
+  surface — treat collective trait inventories as
+  world-builder prejudice content, curated, never
+  auto-derived from gameplay statistics.

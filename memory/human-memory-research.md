@@ -5801,3 +5801,79 @@ literature classes used:
 → individual-differences.md Part XI §§143–163; spec
 v5.73 §§6.351–6.366; validation §§256–257
 (P1352–P1365).
+
+## 103. The intention layer (v128 — social-memory XIII)
+
+- **Observers infer goals, not just acts (CONSENSUS):**
+  Hassin, Aarts & Ferguson 2005 automatic goal
+  inference; Jones & Davis 1965 correspondent
+  inference + discounting; Gilbert et al. 1988 —
+  situational correction is effortful and load-
+  gated. RW mints `intent_inferred` with permanent
+  INFERRED provenance; `intent_fact_null` keeps it
+  out of fact fields.
+- **"Let's get lunch" is a genre, not a promise:**
+  phatic tokens (Clark & Bavelas 2004; Brown &
+  Levinson 1987) never reach prospective-memory
+  binding — `commit_soft` mints courtesy records
+  with no breach path (`soft_breach_null` locked).
+- **Advice is discounted ~0.4, asymmetrically
+  remembered:** Bonaccio & Dalal 2006 meta; Yaniv
+  & Kleinberger 2000. Advisors overestimate uptake
+  (`advice_over_est`) — the canonical two-sided
+  "I told you / you never said" from two correct
+  weights.
+- **Doing favors warms the doer (CLASSIC, dose
+  DEBATED):** Jecker & Landy 1969; coercion
+  boundary (Schopler & Compere 1971) is the
+  load-bearing null (`benfrank_vol_null`).
+- **Fear transmits without harm (CONSENSUS
+  pathways, doses HYPOTHESIS):** Rachman's three
+  pathways — instructed fear (`instruct_fear`)
+  and vicarious fear (`obs_fear`) mint avoidance
+  strictly below direct experience
+  (`indirect_exceed_null`); threat info can't
+  erase acquired vicarious fear
+  (`instruct_erase_null`, Askew & Field 2008).
+  Rumor finally has a behavioral leg.
+- **Talk extremitizes same-leaning rooms
+  (CONSENSUS):** group polarization (Moscovici &
+  Zavalloni 1969; Isenberg 1986 meta) — gated
+  `polar_gain`, locked `polar_zero_null` for
+  balanced rooms.
+- **Social life is stored as scenes with joints:**
+  event boundaries (Zacks et al. 2007; Radvansky
+  & Copeland 2006) — `boundary_gain` on ±1
+  records, `boundary_reset_tax` on prior-segment
+  tails, `seg_norm` aging leg (Zacks et al. 2006
+  verified — older adults segment off-norm, lose
+  order not boost).
+- **Punishing pays reputation only when
+  proportionate (ROBUST):** Barclay 2006
+  verified — justified punishment buys trust,
+  unjustified buys nothing; the gate reads the
+  OBSERVER's own offense record so fairness stays
+  contested (`punish_free_null` locked).
+- **Guest lists are rebuilt, not retrieved
+  (CONSENSUS inaccuracy):** informant-accuracy
+  program (Bernard/Killworth/Sailer; Freeman &
+  Romney 1987) — `rosterRecall` reconstructs from
+  tie + typicality with patterned intrusions;
+  `roster_exact_null` bans perfect rosters ≥5.
+- **Humor redistributes memory within an episode
+  (CONSENSUS):** Schmidt 1994 verified — gain only
+  in mixed bouts; Schmidt & Williams 2001
+  neighbor cost; Fraley & Aron 2004 closeness leg
+  (`humor_bond`).
+- **Groups get person-models too (CONSENSUS
+  phenomenon):** entitativity (Campbell 1958;
+  Hamilton & Sherman 1996; Lickel 2000) —
+  `collective:true` PMs with `stereo_prior`
+  fallback for thin members, decaying with
+  individuation; `stereo_fact_null` keeps group
+  traits out of member facts. The model's honest,
+  bounded prejudice mechanic.
+
+→ social-memory.md Part XIII §§181–196; spec
+v5.74 §§6.367–6.377; validation §§258–259
+(P1366–P1379).

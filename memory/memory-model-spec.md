@@ -1,4 +1,56 @@
-# Memory Model Spec v5.73 — implementable human-like memory for RW characters
+# Memory Model Spec v5.74 — implementable human-like memory for RW characters
+
+> **v5.74 note (social-memory XIII — the intention
+> layer):** `memory/social-memory.md` Part XIII
+> (§§181–196) prices the interpretive half of social
+> memory — what observers *infer* rather than see,
+> and the social records that never become facts.
+> **Reading the mind behind the move** — spontaneous
+> goal inference mints `intent_inferred` fields with
+> permanent `provenance:"inferred"` (Hassin, Aarts &
+> Ferguson 2005; Gilbert 1988 load gate; Jones &
+> Davis 1965 discounting); locked `intent_fact_null`.
+> **"Let's get lunch" is not a promise** — `commit_soft`
+> phatic tokens mint low courtesy records, no debt,
+> no breach, ever; locked `soft_breach_null`
+> (Clark & Bavelas 2004). **Half-heard counsel** —
+> `advice` records weight `advice_w` 0.4 vs own prior,
+> advisor overestimates uptake `advice_over_est`
+> (Bonaccio & Dalal 2006; Yaniv & Kleinberger 2000).
+> **The granter warms** — voluntary costly favors
+> raise granter-side eval (`benfrank_gain`);
+> coerced grants null (`benfrank_vol_null`;
+> Jecker & Landy 1969, DEBATED dose). **Fear by
+> proxy** — `warned:true` (`instruct_fear`) and
+> witnessed `aversive` (`obs_fear`) mint avoidance
+> without first-person harm (Rachman 1977; Mineka
+> 1984; Olsson & Phelps 2007; Askew & Field 2007);
+> locked `indirect_exceed_null`/`instruct_erase_null`.
+> **Talk tilts the room** — group polarization drifts
+> stored valence toward mean lean, gated;
+> `polar_zero_null` (Isenberg 1986). **The doorway
+> in the party** — `boundary:true` edge records,
+> `boundary_gain`, `boundary_reset_tax`, `seg_grain`,
+> `seg_norm` aging leg (Zacks 2007; Radvansky 2006;
+> Zacks 2006). **The punisher's dividend** —
+> proportionate sanction buys observer trust through
+> a per-observer `prop` gate reading the OBSERVER's
+> own offense record; `punish_free_null` (Barclay
+> 2006; Jordan 2016). **"Everyone was there"** —
+> `rosterRecall` reconstructs guest lists from tie +
+> typicality with patterned intrusions; perfect
+> rosters banned (`roster_exact_null`;
+> Freeman & Romney 1987). **The laugh eats the next
+> line** — `humor_gain` on the joke, `humor_tax` on
+> ±1 neighbors, saturation collapse, `humor_bond`
+> (Schmidt 1994; Fraley & Aron 2004). **Person models
+> for collectives** — `collective:true` PMs with
+> downward `stereo_prior` for thin member PMs;
+> `stereo_fact_null` keeps group traits out of member
+> facts (Campbell 1958; Hamilton & Sherman 1996).
+> §§6.367–6.377; §7 +26 scalars +10 locked nulls +2
+> record classes +1 op (`rosterRecall`); §10
+> contract; probes P1366–P1379.
 
 > **v5.73 note (individual-differences XI — the chart
 > nobody shows):** `memory/individual-differences.md`
@@ -17453,6 +17505,191 @@ locked 0.0. Neither benefit nor fog claim is
 licensed; revisit trigger = human cognition-
 primary RCTs. Fails P1365 on any nonzero leg.
 
+### 6.367 Reading the mind behind the move — `goal_infer_*` (new in v5.74)
+
+SM§181; **Hassin, Aarts & Ferguson 2005**;
+**Jones & Davis 1965**; **Gilbert et al. 1988**
+(load blocks situational correction).
+
+On encode, `agent != self` events carrying
+`goal_cand` mint `intent_inferred` at
+`goal_infer_p` (0.5), halved when `task_load`
+≥0.6 and halved again when `sit_force` ≥0.7.
+Field carries `provenance:"inferred"`
+permanently; parallel write to
+`PersonModel[agent].lastIntent`. Locked
+`intent_fact_null` (P1366): inferred intent
+never copies into verbatim/fact-class fields —
+bias gist/eval paths only; UI renders INFERRED.
+
+### 6.368 "Let's get lunch" is not a promise — `commit_soft` (new in v5.74)
+
+SM§182; **Clark & Bavelas 2004**;
+**Brown & Levinson 1987**; McDaniel & Einstein
+2007 (no intention, no prospective memory).
+
+`commit_soft` events mint `courtesy` records:
+`soft_commit_strength` 0.5×, `soft_commit_tau`
+5d half-life, ZERO debt/expectation edges —
+the §6.139 absence path cannot bind to them.
+Locked `soft_breach_null` (P1367): a dropped
+soft token never mints `breach`/`betrayal` tags
+or `credibility` decrements; a revival event
+("you never called") writes its own mild eval.
+`soft_genre_age` ~12 gates the distinction —
+younger characters treat tokens as formal.
+
+### 6.369 Half-heard counsel — `advice_*` (new in v5.74)
+
+SM§183; **Bonaccio & Dalal 2006** (meta);
+**Yaniv & Kleinberger 2000** (WoA ≈0.2–0.4);
+**Yaniv 2004** (distance moderates).
+
+Record class `advice` (world tags counsel/
+warning/recommendation) enters decision-relevant
+retrieval at weight `advice_w` (0.4) relative
+to matching own records; scaled ×(1 +
+`advice_trust_gain`·advisorCred) and ×(1 +
+`advice_close_gain`) for relationship-tier
+advisors. Advisor-side emitted uptake belief
+runs `advice_over_est` (0.15) high — metamodel
+field, not fact. Advice reweights recall order;
+it never replaces advisee priors.
+
+### 6.370 The granter warms — `benfrank_*` (new in v5.74)
+
+SM§184; **Jecker & Landy 1969**; Schopler &
+Compere 1971 boundary [DEBATED dose].
+
+`favor_granted:true` with `granter=self` and
+`voluntary:true`: granter's
+`PersonModel[target].eval_tag +=
+benfrank_gain·cost` (0.05 × cost ∈[0,1]).
+Locked `benfrank_vol_null` (P1369): coerced
+grants write nothing positive. Recipient debt
+path unchanged (§114).
+
+### 6.371 Fear by proxy — `instruct_fear` / `obs_fear` (new in v5.74)
+
+SM§185; **Rachman 1977** (three pathways);
+**Mineka et al. 1984**; **Olsson & Phelps
+2007**; **Phelps et al. 2001**; **Askew &
+Field 2007/2008** (ordering result).
+
+`warned:true` told_by content naming a cue
+dangerous mints avoidance eval on the cue at
+`instruct_fear` (0.45 × direct-aversive write,
+scaled by advisor credibility + `neuro`).
+Witnessing another's `aversive:true` event at
+a cue mints `obs_fear` (0.55 × direct, scaled
+by `emp` + target closeness). Locked
+`indirect_exceed_null` (P1370): stacked
+indirect legs never exceed the direct write;
+locked `instruct_erase_null`: threat info
+arriving AFTER vicarious acquisition cannot
+damp the fear tag (order-bound).
+
+### 6.372 Talk tilts the room — `polar_*` (new in v5.74)
+
+SM§186; **Moscovici & Zavalloni 1969**;
+**Isenberg 1986** meta; **Sunstein 1999**.
+
+In `groupRecall`/`discussEvent` bouts, n ≥ 3:
+compute member mean lean `L` on the discussed
+record's valence; if |L| > `polar_gate` (0.15),
+each member's surfaced record drifts
+`valence += polar_gain·sign(L)·|L|` (0.06,
+once per bout). Locked `polar_zero_null`
+(P1371): |L| below gate → zero drift; mixed
+rooms settle, they don't extremitize.
+
+### 6.373 The doorway in the party — `boundary_*` (new in v5.74)
+
+SM§187; **Zacks et al. 2007** (EST);
+**Radvansky & Copeland 2006**;
+**Zacks et al. 2006** (aging leg).
+
+`boundary:true` events (location/cast/phase
+shifts): mint a low-content `edge` record
+(time + cast delta); apply `boundary_gain`
+(1.25) to ±1-adjacent records; apply
+`boundary_reset_tax` (0.12 strength cut) to
+unrehearsed prior-segment tail records.
+`seg_grain` ∈[0.7,1.3] per character;
+`seg_norm` −0.2 at 65+ — older adults lose
+segmentation normativity (order confusion
+rises, item boost stays).
+
+### 6.374 The punisher's dividend — `punish_*` (new in v5.74)
+
+SM§188; **Barclay 2006** (justified-only
+dividend); **Fehr & Gächter 2002**;
+**Jordan et al. 2016**.
+
+Observer of `punish:true` computes
+`prop = sanction_cost / perceived_offense`
+where `perceived_offense` reads the
+OBSERVER's own offense record (§86 gap
+composes). `prop` ∈ [`punish_prop_lo` 0.3,
+`punish_prop_hi` 3.0] → `punisher.eval_trust
++= punish_trust` (0.06); over →
+`punish_over` (−0.08 moral-negative write).
+Locked `punish_free_null` (P1373): no
+trust gain without the gate; unconditional
+dividend inverts the finding.
+
+### 6.375 "Everyone was there" — `rosterRecall` (new in v5.74)
+
+SM§189; **Bernard, Killworth & Sailer**
+(informant accuracy series);
+**Freeman & Romney 1987**; **Freeman, Romney
+& Freeman 1987** (patterned error).
+
+`rosterRecall(charId, event)`: per plausible
+member, recall P = `roster_base` (0.5)·(0.4 +
+0.6·tie)·(0.5 + 0.5·typicality); close-tie
+canonical absentees (tie ≥ `roster_fill_gate`
+0.6) intrude at `roster_fill` (0.18). Locked
+`roster_exact_null` (P1374): set-size ≥5
+rosters are never perfect — ≥1 miss or
+intrusion forced; perfect guest lists are
+database behavior.
+
+### 6.376 The laugh eats the next line — `humor_*` (new in v5.74)
+
+SM§190; **Schmidt 1994** (mixed-list
+boundary); **Schmidt & Williams 2001**
+(redistribution); **Fraley & Aron 2004**
+(closeness leg).
+
+`humor:true` records ×`humor_gain` (1.4);
+±1 stream neighbors pay `humor_tax` (0.5
+attention). `humor` density > `humor_sat`
+(0.5) → gain collapses to 1.0; locked
+`humor_sat_null` (P1375): saturation never
+inverts the gain below baseline. Shared
+humor records add `humor_bond` (0.03) to the
+mutual eval edge per bout.
+
+### 6.377 Person models for collectives — `collective_*`/`stereo_*` (new in v5.74)
+
+SM§191; **Campbell 1958**; **Hamilton &
+Sherman 1996**; **Lickel et al. 2000**.
+
+`PersonModel` admits `collective:true` group
+nodes (world-supplied `personId` group
+namespaces); same update rules,
+`collective_decay` 0.7×. Member PMs with
+`familiarity` < `stereo_floor` (0.3) retrieve
+eval as `member_eval·(1−stereo_prior) +
+collective_eval·stereo_prior` (`stereo_prior`
+0.4, decaying toward 0 with individuation).
+Locked `stereo_fact_null` (P1376): collective
+traits never write member verbatim/fact
+fields, never enter `told_by` as asserted
+fact; collective-sourced evals render
+INFERRED always.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -19901,6 +20138,41 @@ MemoryParams = {
 //   postop_young_null (P1364); mv_exec_null,
 //   mv_level_null + fast_* + glp1_* bans (P1365).
 //   All snapshot-additive; absent = legacy.
+// v5.74 additions (social-memory XIII — SM§§181–191,
+//   the intention layer)
+"goal_infer_p": 0.5,                               // §6.367
+"soft_commit_strength": 0.5, "soft_commit_tau": 5,
+"soft_genre_age": 12,                              // §6.368
+"advice_w": 0.4, "advice_trust_gain": 0.5,
+"advice_close_gain": 0.3, "advice_over_est": 0.15, // §6.369
+"benfrank_gain": 0.05,                             // §6.370
+"instruct_fear": 0.45, "obs_fear": 0.55,           // §6.371
+"polar_gain": 0.06, "polar_gate": 0.15,            // §6.372
+"boundary_gain": 1.25, "boundary_reset_tax": 0.12,
+"seg_grain": 1.0, "seg_norm": -0.2,                // §6.373
+"punish_trust": 0.06, "punish_over": -0.08,
+"punish_prop_lo": 0.3, "punish_prop_hi": 3.0,      // §6.374
+"roster_base": 0.5, "roster_fill": 0.18,
+"roster_fill_gate": 0.6,                           // §6.375
+"humor_gain": 1.4, "humor_tax": 0.5,
+"humor_sat": 0.5, "humor_bond": 0.03,              // §6.376
+"collective_decay": 0.7, "stereo_floor": 0.3,
+"stereo_prior": 0.4,                               // §6.377
+// v5.74 record classes/fields: `advice`, `courtesy`
+//   record classes; `intent_inferred` field
+//   (provenance:"inferred" permanent); `edge`
+//   boundary-anchor records; `commit_soft` event
+//   tag; `warned`/`favor_granted`/`punish`/`humor`/
+//   `boundary`/`collective` event+PM flags;
+//   `PersonModel.lastIntent`; op `rosterRecall`.
+// v5.74 locked nulls: intent_fact_null (P1366);
+//   soft_breach_null (P1367); benfrank_vol_null
+//   (P1369); indirect_exceed_null +
+//   instruct_erase_null (P1370); polar_zero_null
+//   (P1371); punish_free_null (P1373);
+//   roster_exact_null (P1374); humor_sat_null
+//   (P1375); stereo_fact_null (P1376). All
+//   snapshot-additive; absent = legacy.
 // v5.70 additions (age-decline XI — AgD§§153–162)
 "auto_freq_flat": true,                               // §4.84
 "selfrel_keep": 1.0,                                  // §4.85
@@ -22857,6 +23129,70 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.74 additions (social-memory.md §§181–191 — the
+  intention layer):
+  - **Inference contract (§6.367):** `intent_inferred`
+    fields carry `provenance:"inferred"` permanently;
+    they bias gist/eval retrieval paths only —
+    `intent_fact_null` (P1366) bars them from every
+    verbatim/fact-class field. UI renders INFERRED.
+  - **Soft-token contract (§6.368):** `commit_soft`
+    mints `courtesy` records only — no debt edges, no
+    §6.139 absence binding, no breach path;
+    `soft_breach_null` (P1367). A revival *event*
+    carries its own eval; silence stays silent.
+  - **Advice contract (§6.369):** `advice` records
+    reweight decision-relevant recall order at
+    `advice_w` ≤ own prior; `advice_over_est` lives on
+    the advisor's metamodel — never a ledger fact.
+  - **Granter contract (§6.370):** `benfrank_gain`
+    applies only under `voluntary:true`;
+    `benfrank_vol_null` (P1369) — coerced favors buy
+    nothing.
+  - **Indirect-fear contract (§6.371):** `warned`/
+    witnessed legs mint avoidance evals at fractional
+    dose; `indirect_exceed_null` (P1370) caps the
+    stack strictly below direct experience;
+    `instruct_erase_null` — late threat info cannot
+    damp an acquired vicarious fear.
+  - **Polarization contract (§6.372):** `polar_gain`
+    writes stored valence once per bout when |L| >
+    gate; `polar_zero_null` (P1371) — a balanced room
+    produces bit-identical valences.
+  - **Boundary contract (§6.373):** `boundary:true`
+    needs world-supplied edge signals; absent them the
+    mechanism is inert — edges are never hallucinated
+    from content.
+  - **Punishment contract (§6.374):** `punish_trust`
+    pays only through the observer-side `prop` gate
+    reading the OBSERVER's offense record;
+    `punish_free_null` (P1373). No canonical
+    "was it fair" flag — proportionality stays
+    contested by design.
+  - **Roster contract (§6.375):** `rosterRecall` is
+    reconstruction, not lookup; `roster_exact_null`
+    (P1374) forces ≥1 error at set-size ≥5.
+  - **Humor contract (§6.376):** `humor_sat_null`
+    (P1375) — saturation collapses the gain to 1.0,
+    never below baseline.
+  - **Collective contract (§6.377):** `stereo_prior`
+    is an INFERRED eval fallback for thin member PMs,
+    decaying with individuation; `stereo_fact_null`
+    (P1376) keeps collective traits out of member
+    facts and out of `told_by` content.
+  - **Locked boundaries game-systems must honor:**
+    `intent_fact_null`, `soft_breach_null`,
+    `benfrank_vol_null`, `indirect_exceed_null`,
+    `instruct_erase_null`, `polar_zero_null`,
+    `punish_free_null`, `roster_exact_null`,
+    `humor_sat_null`, `stereo_fact_null`.
+  - **New params (§7):** 26 scalars + 10 locked
+    nulls; record classes `advice`, `courtesy`;
+    `edge` boundary anchors; `intent_inferred`
+    (INFERRED-provenance) field; op `rosterRecall`;
+    `PersonModel.lastIntent`; `collective:true`
+    PersonModel kind.
+  - Probes P1366–P1379.
 - v5.73 additions (individual-differences.md §§143–163
   — the medical-history layer):
   - **Dyslexia contract (§6.351):** taxes land on
