@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v122)
+# Playtest Harness — "Real World / The Mission" (world v123)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -408,6 +408,15 @@ One person can wear every hat; four real testers is the intended shape.
   invitations), and the seventh pressure tranche (P-31–P-34). The
   audit's v122 marks pin the contract blocks and the CONSEQ/SUPPORT/
   OPPS mirror counts.
+  PT112 (onboarding v123) audits the loop pass — S5b 'the long game'
+  between every keep-watching exit and settle, identical for all
+  four bands; the catch-up edition stated as up-to-three verified
+  changes (observable, never inferred motive); the prediction demo
+  free, private (never a feed line), unscored, its whole job checking
+  it later; and the open-invitation line keeping 'may ignore' plus
+  'an empty table is still the story'. The audit's v123 marks pin
+  the eight honesty strings, the makePred/predCheck handlers, the
+  four contract blocks, and the rw_onboard_v123 key.
 
 ## 3. Running a session
 

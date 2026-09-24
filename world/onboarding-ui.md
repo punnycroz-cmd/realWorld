@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49; v109 adds §50–55)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49; v109 adds §50–55; v123 adds §56–62)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -952,3 +952,140 @@ public asks imply a public check. Copy:
   consequences handle the cast; review handles asks.
 - Never let the flag affordance cost credits or require a wallet — the
   viewer's check on agency is free or it isn't a check.
+
+## v123 — the ninth pass: the loop
+
+v11–v109 taught a stranger the world's grammar and the quiet contract —
+what agency costs, what watching costs (nothing), and whose hands are on
+the world. What the journey still hadn't taught is the **free product's
+actual loop**: watching pays off in days, not minutes. The production-3
+observer loop — catch up → follow → predict → check → revise — is the
+reason anyone comes back a second time, and onboarding was ending at
+settle without ever naming it. Four additions, all free, all for every
+band including the watching account.
+
+### 56. The long game (S5b) — the loop, named once
+
+A new free card between the settle fork and done, reachable from every
+exit that ends in "keep watching" — S1w, S3u, both S5 variants — so the
+watching account meets it too (it says nothing about money):
+
+> "Watching pays off in days, not minutes. The loop is simple: come
+> back, catch up, pick someone to follow, make a prediction, check it
+> later. Everything on this card is free — this is the product."
+
+- Free-tier, outside the band normalizer — predictions and catch-up
+  are spectator features; the u13 watching account sees the identical
+  card, verbatim. There is no paid variant and never will be.
+- The card replaces nothing — settle still ends onboarding; S5b is the
+  last card before it, not a new step of setup. No checklist item is
+  added: the loop is a habit, not a task.
+- Watch-path relabeling holds: on the watcher fork this card is the
+  whole point, not an "only if you ever want to act" item.
+
+### 57. The catch-up edition — stated, not demoed
+
+One line on the card, quoted as fact about the product the Archive
+already documents:
+
+> "When you come back, a catch-up edition waits at the top — up to
+> three verified changes since your last visit, each linked to the
+> moment it happened and the earlier context. Verified means
+> observable: what the feed showed, never a guess at what someone was
+> thinking."
+
+- "Verified" is the honesty contract: the edition reports what was
+  seen, not inferred motive. A follow must never surface a resident's
+  interior as fact — that fence is the same one thread-following
+  carries (never present hidden memory or an inferred motive as
+  public fact).
+- "Up to three" is a cap, not a quota — a quiet week can fill zero.
+  The line never promises a change happened; "nothing you follow
+  changed" is a legal edition.
+
+### 58. Predictions (S5b affordance) — a note to yourself, not a bet
+
+The card's one affordance, demo-marked like the flag lesson:
+
+> "A prediction is a note to yourself, not a bet. It costs nothing,
+> nothing rides on it, nobody wins anything. Its whole job is
+> checking it later — right or wrong, you revise what you thought
+> you knew about them."
+
+- Demo: "make a prediction (demo)" offers the fixed safe pick —
+  *"the bench parliament is still going at dusk"* — marks `S.pred`,
+  then "jump ahead — check it" drops a world event on the feed
+  (dusk, the bench parliament adjourning) and marks `S.predChecked`.
+  The prediction itself **never writes a feed line** — it's private,
+  like watching. Only the world event is public.
+- Free, no balance, no band gate — it sits beside no ask context, so
+  it does NOT ride the band normalizer; the watching account can
+  predict too. Predictions are the spectator's verb.
+- Never scored: no points, no streak, no leaderboard, no accuracy
+  display, no "you were right" flourish beyond a plain resolution.
+  A wrong prediction is the same lesson as a right one — revise.
+
+### 59. The open invitation — stated, not demoed
+
+One line teaching the may-ignore rule the bounded-opportunity layer
+already carries (drama.json `bounded_opportunities`):
+
+> "Sometimes the block posts an open invitation — a shared meal, a
+> repair afternoon, a mural day. The characters decide whether to
+> come. They may ignore it entirely, and an empty table is still the
+> story — nobody rescues it."
+
+- Uptake belongs to the characters; onboarding promises nothing about
+  attendance. "May ignore" is said out loud so a viewer who watches an
+  invitation sit empty reads it as consequence, not a broken feature.
+- Player-sponsored invitations are a request-pipeline concern, not an
+  onboarding lesson — the card teaches the *watching* of invitations
+  only, and never implies a viewer can buy attendance.
+
+### 60. Edge cases (v123 additions)
+
+| Case | Behavior |
+|------|----------|
+| Prediction made, demo closed before check | `S.pred` persists at the v123 key — the card reopens with "jump ahead — check it" still offered |
+| Check clicked twice | idempotent — `S.predChecked` guards; second click toasts "already checked — revise and pick the next one" |
+| S5b reached with no handle | fine — predictions are private; no name is needed or asked |
+| S5b on u13 band | identical card — predictions and the edition are watching-layer; nothing is normalized away |
+| S5b parked | parked like every card; reopens only via the footer link |
+| Returning viewer | no S5b auto-resurface — the returning rule holds; the loop card is a first-session lesson |
+
+### 61. v123 merge notes
+
+- `storage_key` → `rw_onboard_v123` (`S.pred`, `S.predChecked` added;
+  prior keys coexist harmlessly — the demo reads only its own).
+- No new tour beats — the loop is a card, not a coach-mark; the tour
+  stays at nine, admin still last.
+- Settle reroute: S1w, S3u, and both S5 variants now pass through S5b
+  before `settle()` — a card, not a step; the checklist is unchanged.
+- New analytics hooks (v123): `loop_card_seen`, `prediction_made`,
+  `prediction_checked`, `edition_line_seen` — same envelope, stage +
+  opted_out props only.
+- At merge: the prediction affordance binds to the spectator
+  predictions store (device-local until accounts exist — the S2b
+  forward clause covers it); the catch-up edition binds to the
+  Archive's last-visit record; the demo's fixed pick stays demo-only.
+- The open-invitation line assumes the bounded-opportunity layer
+  exists as public feed events the characters may ignore
+  (creation.json OPENS / drama.json bounded_opportunities are the
+  current instance). If no invitation has ever surfaced, the line is
+  still true — it describes the kind of event, not a promise.
+
+### 62. What v123 still must never do
+
+- Never score a prediction — no points, streaks, accuracy stats,
+  leaderboards, or prize framing; "not a bet" is the whole lesson.
+- Never charge for a prediction or gate it behind a handle, a band,
+  or a wallet — the spectator's verb is free or it isn't one.
+- Never write a prediction to the public feed — predictions are
+  private like watching; only world events are public.
+- Never present an inferred motive as a verified change — the
+  edition reports the observable, never the interior.
+- Never promise a resident will take an invitation — "may ignore"
+  stays in the copy; an ignored invitation is never framed as a bug.
+- Never let the loop card read as a retention hook — no "come back
+  tomorrow," no streak framing; "come back" names the viewer's own
+  interest, never a debt the block is owed.

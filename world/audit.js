@@ -1028,6 +1028,36 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81', 'rw_onboard_v95'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v109 schema still on an old storage key');
     }
+    /* ---- v123 blocks: the loop ---- */
+    if (OB.version >= 123) {
+      const MUST123 = [
+        [/days, not minutes/i, 'loop framing: watching pays off in days'],
+        [/up to three verified changes/i, 'catch-up edition: up-to-three verified changes'],
+        [/never a guess at what someone was thinking/i, 'edition verified = observable, never inferred motive'],
+        [/not a bet/i, 'prediction honesty: a note to yourself, not a bet'],
+        [/nothing rides on it/i, 'prediction honesty: nothing rides on it'],
+        [/checking it later/i, 'prediction purpose: checking it later'],
+        [/may ignore/i, 'open invitation: characters may ignore'],
+        [/empty table is still the story/i, 'ignored invitation is honest texture']
+      ];
+      for (const [re, label] of MUST123)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v123 honesty copy: ${label}`);
+      /* S5b reachable + handlers present + state-guarded */
+      if (!html.includes("'S5b'"))
+        add(g, 'fail', 'onboarding.html', null, 'S5b stage not reachable in page source');
+      if (!/window\.makePred/.test(html) || !/window\.predCheck/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'prediction demo handlers missing');
+      if (!/S\.pred\b/.test(html) || !/S\.predChecked/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'prediction demo not state-guarded');
+      /* predictions must never be scored, priced, or surfaced on the feed */
+      if (/prediction.{0,50}(point|score|streak|leaderboard|prize|\d+ cr)/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'prediction framed as scored or priced — "not a bet" is the contract');
+      /* contract blocks must exist in the mirror */
+      for (const k of ['observer_loop', 'catchup_edition', 'prediction_lesson', 'open_invitation_line'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v123 contract block '${k}' missing`);
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81', 'rw_onboard_v95', 'rw_onboard_v109'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v123 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }

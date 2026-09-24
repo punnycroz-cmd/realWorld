@@ -2417,6 +2417,26 @@ const PTS=[
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 34 pressure rows · schema drama-v8'",
    "A missing rule keyword, a dropped html section id, or a count mismatch would FAIL — spot-check",
    "Harness gate: '111 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT112",title:"Onboarding v123 — the loop: catch-up edition, predictions, open invitations",min:8,
+ persona:"returning spectator — wants the free product's actual loop taught honestly: verified catch-up, a prediction that's a note not a bet, invitations the block may ignore",
+ goal:"Verify the v123 onboarding pass: S5b 'the long game' sits between every keep-watching exit and settle, identical for all four bands; the catch-up edition is stated as up-to-three verified changes (observable, never inferred motive); the prediction demo is free, private (never a feed line), unscored, and its whole job is checking it later; the open-invitation line keeps 'may ignore' and 'an empty table is still the story'; onboarding.json v123 carries observer_loop/catchup_edition/prediction_lesson/open_invitation_line on the rw_onboard_v123 key; onboarding-ui.md §§56–62 is canonical.",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§56–62 and onboarding.json's four new contract blocks, then open onboarding.html (file://) and walk a keep-watching path to S5b (fork 'just watching' → tour → S1w → 'Just keep watching').",
+  exp:"The loop card renders between the exit and settle — the same card on every band, outside the band normalizer. It names the loop (come back, catch up, follow, predict, check later), states the edition honestly (up to three verified changes, each linked to the moment and the context, verified = observable never inferred motive), the prediction terms (a note to yourself, not a bet — nothing rides on it, nobody wins anything, its whole job is checking it later), and the invitation rule (may ignore, an empty table is still the story).",
+  ck:["S5b is reachable from S1w, S3u, and both S5 variants — the watching account sees the identical card",
+   "No checklist item was added; the loop is a card, not a task — 'this is the product' is stated",
+   "The copy carries no retention hook — no 'come back tomorrow', no streak framing"]},
+ {do:"On S5b click 'Make a prediction (demo)', watch the feed, then 'Jump ahead — check it' and inspect the feed again.",
+  exp:"The pick marks state privately — no request or prediction line lands on the feed (only asks and world events are public). The check drops a world scene line (dusk, the bench parliament still going) and resolves plainly — no score, no points, no prize flourish; the toast frames revise either way.",
+  ck:["The prediction never writes a feed line — privacy parity with watching",
+   "predCheck is idempotent — a second click toasts 'already checked'",
+   "The world event is a normal scene entry, not a prediction-attributed item"]},
+ {do:"Run node world/audit.js from the repo root and read the onboard + harness gates.",
+  exp:"The onboard gate passes the v123 checks: schema v123, key rw_onboard_v123, the eight honesty strings (days-not-minutes, up-to-three verified changes, never-a-guess, not-a-bet, nothing-rides, checking-it-later, may-ignore, empty-table), S5b reachable, makePred/predCheck handlers present and state-guarded, no scored/priced prediction framing, and all four contract blocks present. Harness gate reports 112 scenarios at the v121 key.",
+  ck:["Onboard gate: 0 fail; detail reports 'schema v123 · 9 beats · key rw_onboard_v123'",
+   "A prediction-scoring or prediction-pricing line on the page would FAIL — spot-check",
+   "Harness gate: '112 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ];
 

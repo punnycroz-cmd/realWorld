@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v8)</title>
+<title>Real World — Onboarding (first session, v9)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v109, v8 of the v11 demo).
+  Onboarding flow — first-session journey (world v123, v9 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
@@ -35,6 +35,11 @@
     → S4g flagging an ask (the viewer's one hand — free, files
       nothing, sends a flagged ask to the same human review;
       flags attach to player asks, never to the residents)
+    → S5b the long game (the observer loop, named once before
+      settle: catch up → follow → predict → check → revise —
+      the catch-up edition's up-to-three verified changes, a
+      prediction that's a note to yourself not a bet, and the
+      open invitation the block may ignore)
 
   New in v53 — the time layer: the Archive joins the tour (catching up
   is free), the queued class gets its own honest lesson (hold ≤24 h,
@@ -74,6 +79,17 @@
   email or account in this build); and S4g teaches flagging — any
   viewer can send a player ask to human review for free, unattributed,
   and flags attach to asks, never to the residents.
+  New in v123 — the loop: S5b sits between every keep-watching exit
+  (S1w, S3u, both S5 variants) and settle, identical for all four
+  bands. It names the spectator's actual loop — come back, catch up
+  (a catch-up edition of up to three verified changes, observable
+  only, never inferred motive), follow someone, make a prediction
+  (a note to yourself, not a bet — nothing rides on it, nobody wins
+  anything, its whole job is checking it later), and watch the open
+  invitations the block posts, which the characters may ignore —
+  an empty table is still the story. The demo prediction is private:
+  it marks state and never writes a feed line; only the world event
+  it checks against is public.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -278,9 +294,10 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v109';
+var LS='rw_onboard_v123';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
   band:null,adViews:0,coask:false,sub:null,visited:false,flagged:false,
+  pred:null,predChecked:false,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
 try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=Object.assign(S,s);}catch(e){}
@@ -434,7 +451,7 @@ function render(){
       '<p class="note">The block keeps human hours — the morning rush at Mudhaus, '+
       'the bench parliament toward dusk. Come back whenever; the Archive keeps '+
       'the rest. Nothing here is on a timer for you.</p>',
-      '<button class="go" onclick="settle()">Just keep watching</button>'+
+      '<button class="go" onclick="stage(\'S5b\')">Just keep watching</button>'+
       '<button class="ghost" onclick="stage(\'S2\')">Set up anyway — no commitment</button>', true);
     anchor(null);
   } else if(S.stage==='S2'){
@@ -485,7 +502,7 @@ function render(){
       'it, free, always.</p>'+
       '<p class="note">Wallets and requests are for older accounts. Nothing '+
       'here is missing — there was never anything to unlock.</p>',
-      '<button class="go" onclick="settle()">Got it — back to the block</button>'+
+      '<button class="go" onclick="stage(\'S5b\')">Got it — back to the block</button>'+
       '<button class="ghost" onclick="stage(\'S2a\')">Wrong band? Fix it</button>', true);
     anchor(null);
   } else if(S.stage==='S3'){
@@ -733,7 +750,7 @@ function render(){
         '<p>Just keep watching — the feed never asks for anything, and on this '+
         'account there\u2019s nothing else to set up. Hiring and requests are for '+
         'older accounts; the block is the whole show either way.</p>',
-        '<button class="go" onclick="settle()">Just keep watching</button>');
+        '<button class="go" onclick="stage(\'S5b\')">Just keep watching</button>');
     } else {
       h=card('Settle in',
         '<p><b>Want a person of your own?</b> Hiring a character is 500 cr — they arrive '+
@@ -745,8 +762,44 @@ function render(){
         'a second unit. That\u2019s the whole arc: tenant → owner → landlord. It\u2019s '+
         'not a step of setup; it\u2019s just what the block has.</p>',
         '<button class="go" onclick="location.href=\'create.html\'">Join the Cast →</button>'+
-        '<button class="ghost" onclick="settle()">Just keep watching</button>');
+        '<button class="ghost" onclick="stage(\'S5b\')">Just keep watching</button>');
     }
+  } else if(S.stage==='S5b'){
+    /* the long game — the observer loop, named once before settle.
+       Free for every band including the watching account: predictions
+       and the catch-up edition are spectator features, so this card
+       stays outside the band normalizer. The demo prediction is
+       private — it marks state and never writes a feed line; only
+       the world event it checks against is public. */
+    h=card('The long game — free, always',
+      '<p>Watching pays off in days, not minutes. The loop is simple: '+
+      'come back, catch up, pick someone to follow, make a prediction, '+
+      'check it later. Everything on this card is free — this is the '+
+      'product.</p>'+
+      '<p><b>Catching up.</b> When you come back, a catch-up edition '+
+      'waits at the top — up to three verified changes since your last '+
+      'visit, each linked to the moment it happened and the earlier '+
+      'context. Verified means observable: what the feed showed — '+
+      'never a guess at what someone was thinking.</p>'+
+      '<p><b>Predicting.</b> A prediction is a note to yourself, not a '+
+      'bet. It costs nothing, nothing rides on it, nobody wins '+
+      'anything. Its whole job is checking it later — right or wrong, '+
+      'you revise what you thought you knew about them.</p>'+
+      '<p><b>Open invitations.</b> Sometimes the block posts one — a '+
+      'shared meal, a repair afternoon, a mural day. The characters '+
+      'decide whether to come. They may ignore it entirely, and an '+
+      'empty table is still the story — nobody rescues it.</p>'+
+      (S.pred?'<p class="note">Your prediction: <i>"'+esc(S.pred)+'"</i> — '+
+        (S.predChecked?'checked. It held; either way you know them better now.</p>'
+                     :'yours alone — it never touches the feed.</p>')
+        :''),
+      (!S.pred
+        ?'<button class="go" onclick="makePred()">Make a prediction (demo)</button>'
+        :(S.predChecked
+          ?'<button class="ghost" disabled>— checked; pick the next one someday</button>'
+          :'<button class="go" onclick="predCheck()">Jump ahead — check it</button>'))+
+      '<button class="ghost" onclick="settle()">Done — the block\u2019s right there</button>', true);
+    anchor(null);
   }
   $('obcard').innerHTML=h;
 }
@@ -930,6 +983,27 @@ window.stepOut=function(){
   feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — possession: first visit','player session ended');
   render();
   toast('You stepped out — they resumed mid-motion. Nothing was metered back.');
+};
+window.makePred=function(){
+  /* scripted demo beat: a fixed safe pick, marked privately — the
+     prediction never writes a feed line (it's a note to yourself,
+     not a bet); at merge this binds to the spectator predictions
+     store, device-local until accounts exist */
+  if(S.pred){toast('One on the books already — check it first.');return;}
+  S.pred='the bench parliament is still going at dusk'; save();
+  render();
+  toast('Noted — yours alone. Nothing on the feed changed; that\u2019s the point.');
+};
+window.predCheck=function(){
+  /* jump ahead to check it: the world event is public (a scene line
+     on the feed), the resolution is plain — no score, no flourish,
+     a held or missed prediction is the same lesson: revise */
+  if(!S.pred||S.predChecked){toast('Already checked — revise and pick the next one.');return;}
+  S.predChecked=true; feedMin+=210; save();
+  $('feed-clock').innerHTML=hhmm(feedMin)+' <small>block time</small>';
+  feedAdd('scene','Dusk settles over the park — the bench parliament is still going, Esther and Ray unmoved');
+  render();
+  toast('It held — they were still at it. Right or wrong, you revise what you thought you knew.');
 };
 window.settle=function(){S.ck.settle=true;S.done=true;save();render();};
 
