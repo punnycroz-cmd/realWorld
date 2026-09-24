@@ -4637,3 +4637,292 @@ provenance at the ledger — the labeling primitive the observation
 UI needs, enforced by probe rather than by convention. Zero new
 per-character params: the lattice is shared; the diversity was
 already in the heads.
+
+# Part XIII — v141 deepening pass: the durability partition, the promotion law, and the consequence battery (P1517–P1528)
+
+This part answers the production-3 charge head-on. Astra's review said
+infrastructure is not demonstrated longitudinal development: much of the
+profile machinery is spec-only, and nothing yet *proves* that a remembered
+disappointment, a voluntary repair, or a revised priority persists across
+simulated days. Parts I–XII built mechanisms and contracts; this part
+builds the three things that were still informal:
+
+1. **The durability partition** — a formal statement of what survives a
+   day boundary / a serialize→resume, and a psychologically motivated
+   split between volatile daylog and consolidated store (complementary
+   learning systems, McClelland, McNaughton & O'Reilly 1995).
+2. **The promotion law** — what "supporting residents with persistent
+   memory of the same quality as the mains" means as a theorem, not a
+   promise.
+3. **The consequence battery** — the Astra meal test turned into named,
+   falsifiable, longitudinal probes, plus a wiring ledger that makes
+   "spec→wired gap" an auditable number that can only move one way.
+
+## 117. The durability partition — DURABLE / DERIVED / EPHEMERAL
+
+Every field in the record store, PersonModel, MetaModel, dyad store, and
+queue set is assigned to exactly one of three classes:
+
+| class | definition | members (by family) |
+|---|---|---|
+| DURABLE | survives serialize→deserialize and day boundary; covered by `canonHash` | record `strength`, `createdDay`, `lastAccessDay`, `kind`, `prov` tier, all §6.x minted fields (`forgiven`, `vindicated`, `scope_cred`, `role`, `leak`, `repair_of`, …), EMA accumulators (`responsiveness`, `dependence`), owed-work queue contents, journal tail |
+| DERIVED | recomputable on read from DURABLE + now; NEVER stored | `R(t)` evaluated strength, `tier()` joins, `netRecall` output, `knows()`/`knowsOf()` results, `present()` projections, display_tier |
+| EPHEMERAL | may be lost at any yield; never minted into records | presentation caches, cue-index accelerators, in-flight op scratch |
+
+Two laws.
+
+**L-P1 (round-trip):** for any reachable state s,
+`deserialize(serialize(s)) =_state s` (canonHash bit-identical under
+CRN, FM§16.3). Probe P1518.
+
+**L-P2 (no derived persistence):** storing a DERIVED value in a
+DURABLE field is a violation — it will silently diverge from
+recomputation the moment inputs move. Locked null
+`persist_derived_null` (P1518): audit scans the serialized image for
+any field whose value is a function of `now` or of other records.
+
+This is the contract that makes "persists across simulated days" a
+well-formed claim: a quantity persists iff it is DURABLE and every op
+that reads it either recomputes DERIVED views or reads the DURABLE
+substrate. [HYPOTHESIS — systems formalization; no literature claim.]
+
+## 118. Consolidation as commit — the daylog and the sleep barrier
+
+The partition gets a psychological face from complementary learning
+systems: a fast, volatile hippocampal store that holds the day's
+episodes and a slow neocortical store written during sleep
+(McClelland, McNaughton & O'Reilly 1995 *Psych. Rev.* 102:419 —
+CONSENSUS as computational theory; McGaugh 2000 *Science* 287:248 —
+consolidation is real and time-dependent). The model gains:
+
+- **`daylog`** — minted records carry `consolidated:false` and live in
+  a volatile buffer until the next sleep-deadline op
+  (DEADLINE(`consol_deadline_h`), catalog §16.1). They are readable
+  within the day — a character remembers this morning — but are NOT
+  DURABLE. Locked `daylog_durable_null` (P1519): a restart before the
+  sleep barrier loses the daylog. This is correct behavior, not a bug:
+  it is the hippocampal-amnesia leg, and it gives "the day that never
+  got slept on" a real semantics.
+- **Selective commit.** At the barrier, each daylog record is promoted
+  with probability weighted by encoding strength and salience tags —
+  `cls_write_frac` (0.6) expected fraction; high-E and emotional items
+  preferentially consolidated (Born & Wilhelm 2012 *Psych. Res.*
+  76:141 — sleep consolidates *tagged*, future-relevant content;
+  CONSENSUS direction, dose HYPOTHESIS).
+- **Reconsolidation rewrite.** A retrieved record becomes labile again
+  and its updated copy is only committed at the next barrier
+  (`reconsol_rewrite_p` 0.7; Nader, Schafe & LeDoux 2000 *Nature*
+  406:722 — restabilization window of hours, `consol_window_h` 6;
+  DEBATED for human episodic memory — the phenomenon replicates but
+  boundary conditions are contested, Hupbach et al. and Hardt et al.
+  vs. replications-of-null in Schiller & Phelps 2011 review). The
+  consequence we bank on is narrower and safer: **retrieval writes go
+  through the same commit barrier as new mints**, so every cross-day
+  probe exercises a real write path, never a no-op.
+
+This is what "remembered disappointment persists across days" decomposes
+into mechanically: mint → daylog → barrier commit → DURABLE substrate →
+derived reads at lag.
+
+## 119. The promotion law — `resident_tier`
+
+`resident_tier ∈ {main, promoted, ambient}`. The product mandate
+(Astra §4) is that 2–4 recurring supporting residents get "persistent
+memory of the same quality as the mains." Formalized:
+
+- **Same-quality means same distribution, not same copy.** Promoted
+  residents draw every psych parameter from the §76 population prior —
+  identical `deriveParams` machinery, identical per-profile scalars.
+  Locked `prom_quality_null` (P1522): no parameter may be frozen,
+  narrowed, or mean-shifted relative to mains. A KS test over param
+  draws must show promoted ⊂ main prior.
+- **The difference is compute, not psychology.** Promoted residents
+  may defer census/maintenance digests at `prom_cadence_mult` (4×) and
+  run no shadow-past replay (§71) — era-density sampler (§72) only —
+  `prom_shadow_null` locked. Ambient bound §99 applies at the
+  promoted level: `ambient_err_bound` measured against a full-fidelity
+  twin.
+- **The full op set is non-negotiable.** encode, decay, retell,
+  disclose, PromiseView, provenance lattice, daylog/barrier — all run
+  on promoted records. A resident who cannot form a divergent promise
+  view is not promoted.
+
+Promotion follows recurring relationships, not camera time: eligibility
+is `interactions_with_mains ≥ prom_elig_n` over `prom_elig_days`,
+computed from the ledger — never from viewer attention metrics
+(`prom_camera_null` locked; the archive/follow layer must not steer
+world internals, marketing-v189 rule extended inward).
+
+## 120. The consequence battery — CB-0 through CB-3
+
+Four scripted longitudinal scenarios, each a falsifiable acceptance
+test the running model must pass. None prescribes a character's
+choice; each measures whether consequence *persists*.
+
+- **CB-0 round-trip (the substrate).** Every CB arm must span ≥1 sleep
+  barrier and ≥1 serialize→resume; post-resume `=_state` required.
+- **CB-1 remembered disappointment (the meal test).** A publicly
+  commits to a shared meal; B no-shows. Measures at lag t∈{1,7,30}d:
+  (a) breach record DURABLE with intact prov; (b) B's next promise to
+  A priced lower on A's `scope_cred` (§6.427) — the remembered
+  discount; (c) avoid-channel propensity elevated vs. matched-control
+  arm where the commitment was fulfilled; (d) an `acknowledge` reduces
+  eval but never erases (`repair_erase_null` reuse). Locked
+  `breach_erase_null`: no leg may delete the breach to make the
+  discount stop. This is Schweitzer, Hershey & Bradlow 2006 (*OBHDP*
+  101:1 — violated promises lower trust and recovery is partial and
+  asymmetric; CONSENSUS direction) and Kim et al. 2004 as already
+  wired in §109.
+- **CB-2 voluntary repair (non-prescription).** Post-breach, responses
+  are classified on the EVLN taxonomy — voice, loyalty, neglect, exit
+  (Rusbult, Zembrodt & Gunn 1982 *J. Exp. Soc. Psych.*; Hirschman
+  1970 — CONSENSUS as descriptive taxonomy). The probe asserts two
+  things only: every repair-path op carries `origin:"char"`, and the
+  observed EVLN distribution is reported. Locked `script_repair_null`:
+  a harness mint of an `acknowledge`/`apology` op (origin `"script"`)
+  fails the probe. The engine must not prescribe either reaction —
+  that is the Astra condition, made auditable.
+- **CB-3 revised priorities (goal disengagement).** A character
+  abandons a self-chosen project. Required: `goal` record gets
+  `status:abandoned` and a `goal_sub` substitute-goal record may mint
+  with probability `goal_sub_p` (0.6) reflecting reengagement capacity
+  (Wrosch, Scheier, Miller, Schulz & Carver 2003 *PSPB* 29:1494 —
+  disengagement + reengagement are separable, both adaptive;
+  CONSENSUS). Attention/effort budget must measurably reallocate.
+  Ruminative intrusions on the abandoned goal stay elevated for
+  `goal_grief_days` (21) then decay — the bittersweet tail is human,
+  not a leak (Klinger 1975 on current-concern persistence).
+  `goal_resurrect_null` locked: abandonment never silently reopens.
+
+## 121. The wiring ledger — `wireCov()`
+
+Every spec section §x carries `wire_status ∈ {SPEC_ONLY, PARTIAL,
+WIRED}` with a machine-checkable predicate:
+
+```
+WIRED ⇔ ∃ probe p exercising every op of §x end-to-end through the
+          production tick path (no harness shim for the op under test)
+PARTIAL ⇔ some ops wired, rest harness-only
+SPEC_ONLY ⇔ no end-to-end probe
+```
+
+`wireCov = |WIRED| / |sections|`. Locked `wire_regress_null` (P1527):
+a merge that moves any section WIRED→PARTIAL→SPEC_ONLY fails audit.
+The ledger is additive metadata on the spec — it changes nothing
+psychologically; it makes the gap Astra flagged a number that can only
+shrink. [HYPOTHESIS — process formalization.]
+
+## 122. Interaction notes
+
+- The daylog is where §5.84 mind-pops and §6.421 secret-pops are born:
+  intrusive candidates draw from fresh daylog preferentially
+  (pre-sleep salience, CONSISTENT with existing `sec_pop_boost`).
+- `PromiseView` halves are minted at the commitment event → daylog;
+  divergent decay then runs on DURABLE post-barrier. CB-1's 30-day
+  lag exercises the full chain.
+- The deferral catalog (§16.1) gains one line: `daylog→DURABLE
+  barrier commit` is DEADLINE(`consol_deadline_h`), owed at yield like
+  other sleep legs.
+- `netRecall`, `knows`, `present` outputs are DERIVED: they are never
+  in the serialized image; this is what keeps P1518 honest.
+
+## 123. New params (spec §7 v5.87 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| cls_write_frac | 0.6 | pop — DEBATED dose (Born & Wilhelm 2012) | P1520 |
+| consol_window_h | 6 | pop — DEBATED (Nader et al. 2000 window) | P1521 |
+| reconsol_rewrite_p | 0.7 | pop — DEBATED | P1521 |
+| prom_cadence_mult | 4 | harness | P1523 |
+| prom_elig_n | 12 | harness (recurring-relationship bar) | P1523 |
+| prom_elig_days | 30 | harness | P1523 |
+| cb_disappoint_days | 30 | harness (lag grid endpoint) | P1524 |
+| goal_sub_p | 0.6 | pop — HYPOTHESIS (Wrosch 2003 direction) | P1526 |
+| goal_grief_days | 21 | pop — HYPOTHESIS | P1526 |
+| persist_derived_null | 0.0 | locked null | P1518 |
+| daylog_durable_null | 0.0 | locked null | P1519 |
+| prom_quality_null | 0.0 | locked null | P1522 |
+| prom_shadow_null | 0.0 | locked null | P1523 |
+| prom_camera_null | 0.0 | locked null | P1523 |
+| breach_erase_null | 0.0 | locked null | P1524 |
+| script_repair_null | 0.0 | locked null | P1525 |
+| goal_resurrect_null | 0.0 | locked null | P1526 |
+| wire_regress_null | 0.0 | locked null | P1527 |
+
+18 entries, **0 per-character** — this part is substrate and contract.
+Diversity still enters through the existing per-profile scalars
+(sleepFactor modulates `cls_write_frac` indirectly via E; neuroticism
+lifts `goal_grief_days` through existing trait weights).
+
+## 124. Formal/consistency probes (P1517–P1528)
+
+- **P1517 partition completeness (MUST):** every field in the record
+  store / PM / MetaModel / dyad / queues carries a declared class in
+  {DURABLE, DERIVED, EPHEMERAL}; `canonHash` domain = DURABLE exactly.
+- **P1518 round-trip + no derived persistence (MUST — locked null):**
+  serialize→deserialize at fuzzed mid-tick points → `=_state`; audit
+  of serialized image finds zero DERIVED-valued fields.
+  `persist_derived_null`.
+- **P1519 daylog volatility (MUST — locked null):** scripted restart
+  pre-barrier loses `consolidated:false` records; post-barrier restart
+  loses nothing. `daylog_durable_null`.
+- **P1520 selective commit ordering (SHOULD):** daylog with E-mixed
+  items → promoted fraction ≈ `cls_write_frac`; high-E promotion rate
+  > low-E (ordering gated, value OBSERVE).
+- **P1521 reconsolidation path (OBSERVE — DEBATED class):**
+  retrieved-then-slept records show committed write-back vs
+  unretrieved controls; effect confined to `consol_window_h`.
+- **P1522 promotion quality (MUST — locked null):** promoted-resident
+  param draws KS-indistinguishable from main prior over `deriveParams`
+  samples; every CB arm passes on promoted residents.
+  `prom_quality_null`.
+- **P1523 promotion compute + eligibility (SHOULD):** promoted tick
+  cost ≤ main × declared bound; eligibility counts ledger
+  interactions, camera/follow metrics provably unread
+  (`prom_camera_null`); no shadow-replay ops in promoted journals
+  (`prom_shadow_null`).
+- **P1524 CB-1 remembered disappointment (MUST — the meal test):**
+  breach arm vs fulfilled arm, lags {1,7,30}d across ≥2 barriers +
+  1 resume: `scope_cred` discount persists and decays on R(t), never
+  zeroed without `acknowledge`; breach record bit-present throughout
+  (`breach_erase_null`).
+- **P1525 CB-2 voluntary repair (MUST — locked null):** N post-breach
+  runs — all repair-path ops carry `origin:"char"`; EVLN distribution
+  reported, no mode mandated; scripted repair injection fails by
+  construction. `script_repair_null`.
+- **P1526 CB-3 revised priorities (SHOULD):** abandonment → budget
+  reallocation measurable at 7d; `goal_sub` mints at ~`goal_sub_p`;
+  intrusions elevated ≤`goal_grief_days` then decay; abandoned record
+  never reopens (`goal_resurrect_null`).
+- **P1527 wiring monotone (MUST — locked null):** every WIRED section
+  names ≥1 end-to-end probe; `wireCov` nondecreasing across the
+  journal. `wire_regress_null`.
+- **P1528 battery independence (OBSERVE):** CB-1/2/3 arms pass/fail
+  independently under single-param perturbation — no shared confound
+  lever.
+
+Registry: P1–P1528. v141 suite: P1517–P1519, P1522, P1524, P1525,
+P1527 MUST (the locked-null class plus the two product-bearing
+results — the meal test and non-prescribed repair); P1520, P1523,
+P1526 SHOULD; P1521, P1528 OBSERVE.
+
+## 125. Summary for game-systems
+
+Three deliverables, all contract with a psych spine. **The durability
+partition** (§§117–118): fields are DURABLE, DERIVED, or EPHEMERAL;
+round-trip is `=_state`; and the durable write has a mechanism — a
+volatile daylog committed selectively at the sleep barrier, so
+"persisted across days" always exercises a real path (CLS theory gives
+the split; reconsolidation is marked DEBATED and only the safe leg —
+commit-on-write-back — is banked on). **The promotion law** (§119):
+same quality = same parameter distribution + full op set; the
+difference is compute and cadence only; eligibility comes from the
+ledger, never the camera — two locked nulls keep it honest. **The
+consequence battery** (§120): CB-0 through CB-3 turn remembered
+disappointment, voluntary repair, and revised priorities into named
+falsifiable probes spanning barriers and resumes; `script_repair_null`
+is the clause that makes "the engine must not prescribe either
+reaction" testable. **The wiring ledger** (§121): `wireCov()` is the
+spec→wired gap as a monotone number. Zero new per-character params —
+again the diversity was already in the heads; this version wired the
+ground under them.

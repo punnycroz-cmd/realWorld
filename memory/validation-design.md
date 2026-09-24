@@ -15118,3 +15118,97 @@ property globally.
 
 → memory-model-spec.md v5.86 §§6.421–6.430;
 probes P1506–P1516.
+
+## 284. v141 probe specs (P1517–P1528 — durability, promotion, battery, wiring)
+
+- **P1517 partition completeness (MUST):** enumerate
+  every field across record store / PersonModel /
+  MetaModel / dyad / queues → declared
+  `fieldClass` ∈ {DURABLE, DERIVED, EPHEMERAL} on
+  100%; `canonHash` input set = DURABLE exactly.
+- **P1518 round-trip + derived ban (MUST —
+  `persist_derived_null`):** fuzzed mid-tick
+  serialize→deserialize → `=_state`; serialized
+  image scanned — zero fields whose value is a
+  function of `now` or of other records.
+- **P1519 daylog volatility (MUST —
+  `daylog_durable_null`):** restart pre-barrier →
+  `consolidated:false` records absent;
+  post-barrier restart → nothing lost.
+- **P1520 selective commit (SHOULD):** E-mixed
+  daylog → promoted fraction ≈ `cls_write_frac`;
+  high-E promotion > low-E (ordering gated).
+- **P1521 reconsolidation path (OBSERVE —
+  DEBATED):** retrieved-then-slept records show
+  write-back vs unretrieved controls, confined
+  to `consol_window_h`.
+- **P1522 promotion quality (MUST —
+  `prom_quality_null`):** promoted param draws
+  KS-indistinguishable from §76 main prior; all
+  CB arms pass on promoted residents.
+- **P1523 promotion compute + eligibility
+  (SHOULD):** promoted tick cost ≤ declared
+  bound; ledger-only eligibility
+  (`prom_camera_null`); zero shadow-replay ops in
+  promoted journals (`prom_shadow_null`).
+- **P1524 CB-1 meal test (MUST —
+  `breach_erase_null`):** breach vs fulfilled
+  arms, lags {1,7,30}d across ≥2 barriers + 1
+  resume: `scope_cred` discount persists, decays
+  on R(t), never zeroed without `acknowledge`;
+  breach record bit-present throughout.
+- **P1525 CB-2 voluntary repair (MUST —
+  `script_repair_null`):** all repair-path ops
+  carry `origin:"char"`; EVLN distribution
+  reported with no mandated mode; injected
+  scripted repair fails the probe.
+- **P1526 CB-3 revised priorities (SHOULD):**
+  abandonment → measurable budget reallocation at
+  7d; `goal_sub` mint rate ~`goal_sub_p`;
+  intrusions elevated ≤`goal_grief_days` then
+  decay; `goal_resurrect_null`.
+- **P1527 wiring monotone (MUST —
+  `wire_regress_null`):** every WIRED section
+  names ≥1 end-to-end probe; `wireCov`
+  nondecreasing across the journal.
+- **P1528 battery independence (OBSERVE):**
+  CB-1/2/3 pass/fail independently under
+  single-param perturbation.
+
+## 285. Sources verified this version
+(P1517–P1528 backing)
+
+- **McClelland, McNaughton & O'Reilly 1995**
+  (*Psych. Rev.* 102:419 — complementary learning
+  systems: fast hippocampal / slow neocortical;
+  the daylog↔barrier split's theoretical license);
+  **McGaugh 2000** (*Science* 287:248 — memory
+  consolidation a century on).
+- **Born & Wilhelm 2012** (*Psych. Res.* 76:141 —
+  sleep consolidates tagged/expected-relevant
+  content selectively); Diekelmann & Born 2010
+  (*Nat. Rev. Neurosci.* 11:114).
+- **Nader, Schafe & LeDoux 2000** (*Nature*
+  406:722 — reconsolidation, restabilization
+  window hours); **DEBATED** for human episodic
+  (Schiller & Phelps 2011 review; boundary
+  conditions contested) — spec banks only on
+  commit-on-write-back.
+- **Schweitzer, Hershey & Bradlow 2006**
+  (*OBHDP* 101:1 — violated promises: trust
+  damage persists, recovery partial and
+  asymmetric); Kim, Ferrin, Cooper & Dirks 2004
+  (already wired §109).
+- **Rusbult, Zembrodt & Gunn 1982** (*J. Exp.
+  Soc. Psych.* 18:172 — EVLN typology of
+  post-decline responses); Hirschman 1970 —
+  taxonomy used descriptively, never prescriptive.
+- **Wrosch, Scheier, Miller, Schulz & Carver
+  2003** (*PSPB* 29:1494 — goal disengagement and
+  reengagement as separable adaptive capacities);
+  Klinger 1975 (current-concern persistence —
+  the ruminative tail).
+
+→ memory-model-spec.md v5.87 §17;
+formal-model.md Part XIII §§117–125;
+probes P1517–P1528. Registry P1–P1528.

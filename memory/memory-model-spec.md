@@ -1,4 +1,39 @@
-# Memory Model Spec v5.86 — implementable human-like memory for RW characters
+# Memory Model Spec v5.87 — implementable human-like memory for RW characters
+
+> **v5.87 note (formal-model XIII — the ground
+> under the heads: the durability partition, the
+> daylog barrier, the promotion law, the
+> consequence battery, and the wiring ledger):**
+> `memory/formal-model.md` Part XIII (§§117–125)
+> makes production-3 auditable. **Durability** —
+> every field is DURABLE / DERIVED / EPHEMERAL;
+> round-trip `=_state`; DERIVED never stored
+> (`persist_derived_null`). **Daylog** — mints
+> land volatile (`consolidated:false`) until the
+> sleep barrier commits them selectively
+> (`cls_write_frac`; restart pre-barrier loses
+> them — `daylog_durable_null`; McClelland,
+> McNaughton & O'Reilly 1995 CLS; Born & Wilhelm
+> 2012; reconsolidation write-back `reconsol_
+> rewrite_p`, Nader et al. 2000 — DEBATED).
+> **Promotion** — `resident_tier:{main,promoted,
+> ambient}`; promoted residents draw from the same
+> §76 prior and run the full op set — only
+> cadence/replay compute differ
+> (`prom_quality_null`, `prom_shadow_null`,
+> `prom_camera_null`). **Battery** — CB-0..CB-3
+> longitudinal acceptance tests: remembered
+> disappointment (Schweitzer, Hershey & Bradlow
+> 2006; `breach_erase_null`), voluntary repair
+> with EVLN reporting and `origin:"char"` only
+> (`script_repair_null`; Rusbult, Zembrodt & Gunn
+> 1982), revised priorities (`goal_sub_p`,
+> `goal_grief_days`, `goal_resurrect_null`;
+> Wrosch et al. 2003). **Wiring** —
+> `wire_status` per section, `wireCov` monotone
+> (`wire_regress_null`). §17 annex; §7 +9 scalars
+> +3 fields +9 locked nulls; probes P1517–P1528.
+> (Prior notes v4.x–v5.86 in the version log.)
 
 > **v5.86 note (social-memory XIV — the unequal
 > books II: the secret that thinks of itself, the
@@ -22432,6 +22467,29 @@ MemoryParams = {
 //   (P1514); rem_kind_auto_null (P1515).
 //   All snapshot-additive; absent = legacy.
 //   Provenance audit: P1516.
+// v5.87 additions (formal-model XIII v141 —
+//   FM§§117–125, §17 annex, durability/promotion/
+//   battery/wiring)
+"cls_write_frac": 0.6,                        // §17.2
+"consol_window_h": 6, "reconsol_rewrite_p": 0.7, // §17.2
+"prom_cadence_mult": 4, "prom_elig_n": 12,
+"prom_elig_days": 30,                         // §17.3
+"cb_disappoint_days": 30,                     // §17.4
+"goal_sub_p": 0.6, "goal_grief_days": 21,     // §17.4
+// v5.87 record fields: `consolidated` (bool),
+//   `goal` record `status:{active,abandoned}` +
+//   `goal_sub` kind + `repair_of` reuse; op field
+//   `origin:{char,script}` on repair-path ops;
+//   `resident_tier:{main,promoted,ambient}` on
+//   the character record (harness-visible).
+// v5.87 locked nulls: persist_derived_null
+//   (P1518); daylog_durable_null (P1519);
+//   prom_quality_null + prom_shadow_null +
+//   prom_camera_null (P1522/P1523);
+//   breach_erase_null (P1524); script_repair_null
+//   (P1525); goal_resurrect_null (P1526);
+//   wire_regress_null (P1527).
+//   All snapshot-additive; absent = legacy.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -27839,3 +27897,63 @@ recov_tol 0.10 + probe CIs) / `≈_d(ε)` (declared divergence bound —
 thin mode: `ambient_err_bound` 0.15/30 dark-days). Each code path
 declares its class; `equiv_claim_null` makes over-claiming a probe
 failure (P1254). Probes P1245–P1256.
+
+## 17. Durability, promotion, and wiring annex (new in v5.87)
+
+Machinery for formal-model.md Part XIII. All harness/contract — the
+psychology it references (CLS consolidation, EVLN, goal disengagement)
+is cited there; this annex is the implementable residue.
+
+### 17.1 Field classes
+
+Every field carries `fieldClass ∈ {DURABLE, DERIVED, EPHEMERAL}` in a
+declared registry. `canonHash` domain = DURABLE exactly. Laws:
+L-P1 round-trip `=_state`; L-P2 DERIVED never serialized
+(`persist_derived_null`). See FM§117 table for the family map.
+
+### 17.2 The daylog and the barrier
+
+Record field `consolidated:false` at mint; the record lives in
+`daylog` (volatile) until the sleep-barrier op — evalClass
+DEADLINE(`consol_deadline_h`), owed at yield 1.0 per §16.1. At the
+barrier each daylog record promotes with P weighted by E and salience
+tags, expectation `cls_write_frac`. Retrieval write-back lands at the
+next barrier with P=`reconsol_rewrite_p` inside `consol_window_h` of
+retrieval. Restart pre-barrier loses daylog — locked
+`daylog_durable_null` — the hippocampal-amnesia leg.
+
+### 17.3 `resident_tier`
+
+`{main, promoted, ambient}` on the character record. Promoted draws
+all psych params from the §76 prior (`prom_quality_null` — KS-audited),
+runs the full op set including PromiseView and the provenance lattice;
+degraded only in census cadence (`prom_cadence_mult`) and replay
+(`prom_shadow_null` — §71 shadow-past banned, §72 sampler allowed).
+Eligibility: `interactions_with_mains ≥ prom_elig_n` within
+`prom_elig_days`, counted from the ledger; viewer metrics excluded
+(`prom_camera_null`).
+
+### 17.4 The consequence battery
+
+CB-0..CB-3 per FM§120. Required scaffolding: `origin:{char,script}`
+on every repair-path op (`script_repair_null`); `goal` records carry
+`status:{active,abandoned}` and `goal_sub` is a first-class record
+kind (`goal_resurrect_null`); breach records are never deletable
+(`breach_erase_null`). CB arms must span ≥1 barrier + ≥1 resume and
+run on mains AND promoted residents.
+
+### 17.5 The wiring ledger
+
+`wire_status ∈ {SPEC_ONLY, PARTIAL, WIRED}` per section with the
+FM§121 predicate; `wireCov = |WIRED|/|sections|` journaled per commit;
+monotone (`wire_regress_null`).
+
+### 17.6 New params (v5.87 block — all pop/harness, 9 locked nulls)
+
+`cls_write_frac` 0.6 · `consol_window_h` 6 · `reconsol_rewrite_p` 0.7
+· `prom_cadence_mult` 4 · `prom_elig_n` 12 · `prom_elig_days` 30 ·
+`cb_disappoint_days` 30 · `goal_sub_p` 0.6 · `goal_grief_days` 21 ·
+nulls: `persist_derived_null`, `daylog_durable_null`,
+`prom_quality_null`, `prom_shadow_null`, `prom_camera_null`,
+`breach_erase_null`, `script_repair_null`, `goal_resurrect_null`,
+`wire_regress_null`. Probes P1517–P1528.
