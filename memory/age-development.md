@@ -4318,3 +4318,623 @@ accuracy drop, not its shape]**
   as variance; a bias-form would predict systematic
   overconfidence instead. P1320's zero-mean leg is the
   discriminator between the two readings.
+
+
+# Part XII — v135 deepening (2026-09-24): the wordless file, the wall that is a signature, order inside and silence between, counting for free, the lab that lies about the old, the twin episodes, chains in time and islands in meaning, the bump that mints firsts, the child who predicts glory, and the channel that never ages
+
+Part XI priced the blocked name, the told-to edge,
+era-selective senses, the late inhibitor, cue-harm,
+evaluative tax, savings, own-age faces, divided
+encoding, and loosened metacognition. Ten gaps
+remain — all verified this version: (a) the spec's
+amnesia gate treats all preverbal records alike,
+but Simcock & Hayne 2002 (verified) showed the
+file survives and only the LANGUAGE route is
+sealed — preverbal records must be reachable by
+sensory/enactive cues and emit as behavior, not
+narrative; (b) childhood-amnesia offset is a
+trait, not a wall — elaborative reminiscing style
+and culture move it a full year (Fivush et al.;
+Wang 2006; MacDonald et al. 2000); (c) children
+order WITHIN events but cannot order BETWEEN
+them before ~8 (Friedman 1991) — the spec had
+one order field; (d) frequency-of-occurrence is
+encoded automatically and spared by aging
+(Hasher & Zacks 1979) — the spec only tracks
+episodic strength; (e) prospective memory has a
+paradox — old adults are BETTER on naturalistic
+PM and worse on lab event-based PM (Rendell &
+Craik 2000, verified); (f) mnemonic
+discrimination (pattern separation) is an
+inverted-U across the whole lifespan — 4yos and
+80yos both call the lure "old" (Ngo et al. 2018,
+2019; Stark et al. 2013); (g) recall organization
+splits: temporal contiguity survives aging while
+semantic clustering is a childhood acquisition
+(Kahana et al. 2002); (h) the bump is a bump of
+FIRSTS (Jansari & Parkin 1996; Rathbone et al.
+2008); (i) child metamemory overestimates recall
+~2× (Flavell et al. 1970); (j) perceptual
+priming is the one channel the lifespan leaves
+alone (Fleischman & Gabrieli 1998).
+
+## 140. The wordless file — `pv_*`
+
+Simcock & Hayne 2002 (*Psychol. Sci.* 13:225 —
+verified this session: children 27–39 months at
+encoding, tested 6–12 months later; every child
+retained the event nonverbally — they operated
+the Magic Shrinking Machine correctly — and
+every child had since acquired the vocabulary
+needed to describe it; NOT ONE reported a
+feature verbally that had been outside their
+productive vocabulary at encoding); Simcock &
+Hayne 2003 (*Psychol. Sci.* 14:8 — preverbal
+photographs cue nonverbal but not verbal recall);
+Bauer, Kroupina et al. 2000; Peterson & Parsons
+2005 (deferred-imitation evidence of retention
+without report); Josselyn & Frankland 2018
+(*Curr. Opin. Neurobiol.* 53:198 — neurogenesis
+hypothesis for WHY the files exist but can't be
+indexed — DEBATED mechanism, consistent
+phenomenon).
+
+**Mechanism:** records minted with
+`encodeAge < language_age` (trait, default 3.5y —
+tighten via §141's `amnesia_offset`) carry
+`preverbal:true`. At retrieval:
+
+```
+verbal/narrative cue classes match at ×pv_verbal_block (0.0)
+    // the file has no words in it; words cannot open it
+sensory (odor/texture/sound) cues match at ×pv_sense_gain (1.6)
+enactive cues (performing the action, being in the posture)
+    match at ×pv_enact_gain (1.8)   // re-enactment, not recall
+on success: emission is behavioral/valence-only —
+    no `what`/`who`/`when` fields emit; output is
+    prov:"enactive", display_tier INFERRED —
+    an approach/avoidance or an unexplained comfort,
+    never a told memory
+```
+
+The adult consequence is the prize: the
+60-year-old who cannot tell you why the smell of
+a certain soap feels like safety — the record is
+live, the door is sensorimotor, the story was
+never written. **Locked `pv_talk_null`:** verbal
+cues on a `preverbal` record retrieve exactly
+nothing — a build where an adult can narrate a
+pre-language event verbatim fails P1455.
+**[CONSENSUS: preverbal events are retained
+nonverbally and never translated into post-hoc
+verbal report; HYPOTHESIS: hard-zero verbal
+match and the enactive/sensory gain
+magnitudes]**
+
+## 141. The wall is a signature — `amnesia_offset`, `remnis_style`
+
+Bauer & Larkina 2014 (*Memory* 22:1038 —
+verified: childhood amnesia offset is a
+retention-function crossing, not a boundary —
+memories encoded ~5.6y are half-retained at age
+10 and the curve keeps falling into adulthood);
+Fivush, Haden & Reese 2006 (*Child Dev.* 77:1568
+— elaborative maternal reminiscing predicts
+earlier offset and denser early memories);
+Nelson & Fivush 2004 (*Psychol. Rev.* 111:486 —
+the emergence of autobiographical memory);
+Wang 2006 (*Memory* 14:374 — American adults'
+earliest memories ~3.5y vs Chinese ~3.9–4.0y;
+cultural narrative style); MacDonald, Uesiliana
+& Hayne 2000 (*Memory* 8:365 — Māori adults
+~2.5y, earlier than Pākehā and Asian NZ); Reese
+& Newcombe 2007 (remnis style causally trained,
+moves children's autobiographical recall).
+
+**Mechanism:** replace the fixed 3.5y floor with
+an authored trait pair:
+
+```
+trait amnesia_offset ∈ [2.5, 4.5]y   // population µ≈3.5,
+                                     // σ≈0.5; the era gate's
+                                     // soft edge centers here
+trait remnis_style ∈ [0,1]           // caregiver elaboration;
+                                     // drives offset AND early-E
+offset_eff = amnesia_offset − remnis_gain·remnis_style   // 0.4y max pull
+for encodeAge ∈ [offset_eff − 1.5, 7]:
+    E ×= soft_ramp((encodeAge − (offset_eff−1.5)) / (7 − (offset_eff−1.5)))
+    // below offset_eff−1.5: preverbal regime (§140)
+```
+
+So two 6-year-olds' encoded pasts differ by
+their first interlocutors: the elaboratively-
+reminisced child keeps a denser, earlier shelf;
+the low-`remnis_style` child's same-age record
+of the same party is thinner. World-builder hook:
+`remnis_style` is an authored childhood-context
+trait — it does NOT describe the character's own
+talkativeness now. **[CONSENSUS: offset varies
+with reminiscing style and culture by ~1y+;
+DEBATED: causal vs correlational share of
+reminiscing; HYPOTHESIS: gain 0.4y and ramp
+shape]**
+
+## 142. Order inside, silence between — `ord_betw_*`
+
+Friedman 1991 (*Child Dev.* 62:139 — children
+sequence within-event stages correctly long
+before they can locate an event on conventional
+timescales); Friedman & Lyon 2005 (*Cognition*
+96:253 — temporal-order memory for two past
+events develops through ~8–9); Friedman 2007
+(*Eur. J. Dev. Psychol.* — distances/scale
+knowledge matures last); Bauer 2007 (times in
+autobiographical memory review).
+
+**Mechanism:** split the record's order
+information:
+
+```
+ord_within  — stage ordering inside a single episode:
+    minted at full strength from encodeAge ≥ ~4
+ord_betw    — cross-event ordering / dating:
+    ord_betw_mult(encodeAge): 0@<4 → 0.3@6 → 0.6@8
+        → 0.9@10 → 1.0@12
+retrieval of `when` on a child-encoded record emits
+    cyclic anchors only ("it was summer," "before school
+    started") — never calendar position — when
+    ord_betw_mult < 0.5
+```
+
+The 5-year-old can tell you the party's whole
+script in sequence — candles before cake — and
+genuinely cannot say whether the party was
+before or after the camping trip last month.
+That is not forgetting; the between-event index
+was never written. **[CONSENSUS: within-before-
+between ordering development, conventional
+timescales mature ~8+; HYPOTHESIS: knot ages and
+the cyclic-anchor emission rule]**
+
+## 143. Counting for free — `freq_*`
+
+Hasher & Zacks 1979 (*JEP:G* 108:356 —
+frequency-of-occurrence is processed
+automatically, without intention or effort);
+Hasher & Zacks 1984 (*Am. Psychol.* 39:1372 —
+frequency coding spared by aging, depression,
+and divided attention; among the few truly
+age-invariant encodings); Zacks, Hasher & Sanft
+1982 (encoding of frequency and aging); Jonides
+& Naveh-Benjamin 1987 (boundary: finer
+frequency estimates do age a little).
+
+**Mechanism:** series/venue records gain a
+`freq` accumulator:
+
+```
+on each instance mint/merge into the series:
+    freq += 1           // no attention cost, no E gating —
+                        // frequency rides the mint itself
+freq decays at freq_decay (0.02/day) — counts stale
+emission "how often" = softplus(freq)/freq_scale,
+    quantized to {once, a few times, often, always}
+freq ignores age_eff and attn state —
+    locked `freq_attn_null`
+```
+
+Consequences: the 80-year-old who cannot
+recall a single visit can still say "she comes
+every week," and be right; the 6-year-old's
+"we ALWAYS have pizza on Friday" rides the same
+free channel. Frequency is the one ledger the
+lifespan doesn't tax — while the episodes
+themselves (E) burn down around it.
+**[CONSENSUS: automatic, age-invariant coarse
+frequency encoding; DEBATED: absolute-invariance
+vs small age cost on fine discriminations —
+priced as `freq_attn_null` + coarse quantization]**
+
+## 144. The lab lies about the old — `pm_paradox`
+
+Rendell & Craik 2000 (*Appl. Cogn. Psychol.*
+14:S43 — verified this session: Virtual Week —
+older adults worse on the board-game PM task;
+Actual Week — same-age contrast REVERSES, older
+better on naturalistic PM); Rendell & Thomson
+1999 (*J. Gerontol. B* 54B:P256 — verified:
+naturalistic superiority robust across regimens,
+same participants worse on lab PM); Einstein &
+McDaniel 2005 (multiprocess view — focal-cue
+spontaneous retrieval vs controlled monitoring);
+Aberle, Rendell, Rose, McDaniel & Kliegel 2010
+(*Psychol. Aging* 25:645 — age differences
+largest for nonfocal cues); McDaniel & Einstein
+2011 (review — the paradox is about WHERE
+retrieval support lives: environment vs
+self-initiation).
+
+**Mechanism:** PM intentions already carry
+`pm_kind`; now the age multiplier splits by
+cue-locus:
+
+```
+pm_eff = pm_base · pm_mult(age_now) · pm_locus
+pm_locus = pm_nat_boost(age)   when cue is
+           environmental/routine (place, person,
+           recurring slot) — 1.0@40 → 1.1@60 → 1.25@80
+         · pm_evt_pen(age)     when cue is
+           nonfocal/self-initiated (remember to check,
+           unprompted deadline) — 1.0@40 → 0.85@60 → 0.65@80
+```
+
+Same 75-year-old: never misses Tuesday's piano
+student (the cue IS the doorbell) yet forgets to
+call back without an external prompt. The
+paradox is structural — the old brain outsourced
+monitoring to a more predictable environment.
+**Locked `pm_flat_null`:** a single age slope on
+PM fails P1459's crossover. **[CONSENSUS: lab-
+vs-naturalistic reversal; DEBATED: mechanism
+(motivation/habit vs focal-cue structure);
+HYPOTHESIS: knot values and the locus split
+threshold]**
+
+## 145. The twin episodes — `patsep_*`
+
+Stark, Yassa, Lacy & Stark 2013 (*Neuropsychol.
+Rev.* 23:267 — mnemonic discrimination declines
+monotonically from ~60, steeply past 75; BFA/MST
+paradigms); Yassa, Mattfeld, Stark & Stark 2011
+(*PNAS* 108:8873 — aging pattern-separation
+deficit, DG/CA3); **Ngo, Newcombe & Olson 2018**
+(*Dev. Sci.* e12556 — verified this session:
+4yos significantly worse than 6yos and adults on
+both relational memory and the child-adapted
+MST; the two processes have DIFFERENT
+developmental trajectories); Ngo, Lin, Newcombe
+& Olson 2019 (*Psychol. Sci.* — verified:
+inverted-U across 4–80 for both mnemonic
+discrimination and relational binding; high-
+similarity contexts develop latest); Bennett,
+Huffman & Stark 2015.
+
+**Mechanism:** when a retrieval candidate `m_i`
+shares simOp ≥ `patsep_sim` (0.7) with the
+target record, the emission must pass
+discrimination:
+
+```
+P(lure emitted as the true event) =
+    lure_base · (1 − patsep_mult(age_now))
+patsep_mult: 0.45@4 → 0.8@7 → 1.0@16 → 1.0@55
+             → 0.8@70 → 0.6@80 → 0.45@88
+    // keys on age_now (capacity), not encodeAge
+success → emit with prov intact;
+failure → sibling-lure emission at prov:"episode",
+    conf reduced patsep_conf_tax (0.15) — the
+    character tells last month's lunch as if it
+    were yesterday's
+```
+
+The 5-year-old and the 82-year-old both
+misfile Tuesday's grocery run into last week's —
+for opposite developmental reasons, at the same
+surface signature. Distinct from §6.3 gist lures
+(meaning-connected) — this is FEATURAL overlap
+(look-alike episodes), and from §113's binding
+lag (never-bound vs bound-but-confused).
+**[CONSENSUS: inverted-U mnemonic
+discrimination, child arm maturing ~4–6+, old
+arm declining ~60+; HYPOTHESIS: knot curve and
+coupling to lure emission]**
+
+## 146. Chains in time, islands in meaning — `clust_*`
+
+Kahana, Howard, Zaromb & Wingfield 2002
+(*Psychol. Aging* 17:125 — age dissociates
+recency from lag-recency: older adults show
+INTACT recency but reduced temporal contiguity
+advantage at nonzero lags — they jump the chain
+more); Howard & Kahana 1999 (contextual
+variability account); Bjorklund & Jacobs 1985
+(semantic/category clustering in recall DEVELOPS
+through childhood — strategic organization is a
+childhood acquisition); Schneider & Pressley
+1997 (strategy emergence review); Sederberg et
+al. 2010 (temporal contiguity as context
+retrieval).
+
+**Mechanism:** free-recall emission order is
+generated by walking two attractor fields:
+
+```
+next-item pick ∝ clust_temp_w · temporal neighbor(m_i)
+               + clust_sem_w(age) · semantic neighbor(m_i)
+clust_temp_w — near-flat adult, slight old dip:
+    1.0 adult → 0.85@70 → 0.7@85   // the chain loosens,
+                                   // it doesn't break
+clust_sem_w(age): 0.2@5 → 0.6@9 → 1.0@14 → 1.0@75 → 0.9@85
+    // children recall in time-order, adults in meaning-order;
+    // the old keep the categories they learned
+```
+
+Observable signature: ask a child what happened
+this week → narrated sequence; ask an adult →
+thematic clusters ("work stuff, then home
+stuff"); ask an 85-year-old → clusters intact
+but the chain skips days. **[CONSENSUS:
+development of semantic organization across
+childhood; lag-recency decline with preserved
+recency in aging; HYPOTHESIS: weights and the
+two-field walk form]**
+
+## 147. The bump mints firsts — `first_*`, `selfdef`
+
+Jansari & Parkin 1996 (*Br. J. Psychol.* 87:455
+— bump memories are disproportionately NOVEL
+events — firsts); Rathbone, Moulin & Conway 2008
+(*Psychol. Sci.* 19:397 — self-centered memories
+organize the bump; first-time achievements
+cluster at self-formation); Conway 2005 (self-
+memory system); Janssen, Kristo, Rouw & Murre
+2015 (*QJEP* 68:142 — bump for preferences
+follows the same era); Berntsen & Rubin 2004
+(cultural life script — bump events are the
+scripted firsts: first kiss, first job, leaving
+home).
+
+**Mechanism:** mint-time flag `first:true` when
+the event's category has no live prior instance
+(novelty check at encode — cheap: series bucket
+empty); `selfdef:true` when the event matches
+the profile's active identity goals
+(`selfModel.goals` overlap ≥ `selfdef_overlap`
+0.5):
+
+```
+bump_bonus_eff = bump_bonus · (1 + first_bump_mult·first
+                              + selfdef_bump_mult·selfdef)
+first_bump_mult 0.35, selfdef_bump_mult 0.5
+selfdef records: decay floor selfdef_floor (0.3) —
+    they stop decaying at a minimum strength while
+    the corresponding goal stays active in selfModel
+    // abandon the goal → floor lifts (the memory of
+    // who you were going to be fades when you stop
+    // being them — ties to §6.386 promote/demote)
+```
+
+The bump stops being a flat era bonus and becomes
+what it empirically is: the decade where a life
+runs out of firsts is the decade where nothing
+sticks. A 70-year-old's first solo trip still
+mint-bumps — `first` keys on the category, not
+the calendar. **[CONSENSUS: bump composed
+disproportionately of novel/self-defining events;
+HYPOTHESIS: multiplier magnitudes and the goal-
+gated decay floor]**
+
+## 148. The child predicts glory — `jol_child_*`
+
+Flavell, Friedrichs & Hoyt 1970 (*Cogn. Psychol.*
+1:324 — children massively overpredict their own
+recall; the 7-year-old predicts near-perfect and
+recalls half); Schneider & Pressley 1997
+(metamemory develops through adolescence);
+Koriat & Shitzer-Reichert 2002 (child JOLs
+insensitive to retention interval); Schneider,
+Visé, Lockl & Nelson 2000 (longitudinal —
+prediction calibration tightens ~9–12).
+
+**Mechanism:** when a profile emits a prospective
+memory estimate ("will I remember?") the
+prediction carries a developmental bias:
+
+```
+jol_pred = E_est · (1 + jol_child_bias(age_now))
+jol_child_bias: 1.0@5 → 0.7@7 → 0.35@10 → 0.15@13
+                → 0 adult → ~0 old (old-side monitor
+                  noise rides fok_old_* §5.144 —
+                  bias stays ≈0, variance grows)
+```
+
+Not a confidence effect at report — a prediction
+effect at intention: the child genuinely expects
+to remember the library book, so she doesn't
+write a reminder, so the failure is authored by
+optimism, not weakness. Pairs with §89's
+`att_min` gate: children under-encode AND
+over-promise. **[CONSENSUS: child overprediction
+large, declining through early adolescence;
+HYPOTHESIS: bias knot values]**
+
+## 149. The channel that never ages — `prime_*`
+
+Fleischman & Gabrieli 1998 (*Neuropsychology*
+12:630 — review: repetition priming largely
+preserved in aging where explicit recall is
+impaired); Mitchell 1989 (*Psychol. Aging* 4:31 —
+priming and memory in old age); Light & Singh
+1987 (*JEP:LMC* 13:333 — implicit and explicit
+memory dissociate across the lifespan);
+Newcombe, Fox & colleagues infant work (elicited
+imitation as implicit retention); Fleischman
+2007 (review — conceptual priming shows small
+age costs, perceptual priming flat).
+
+**Mechanism:** exposure to a stimulus similar to
+any live record adds a non-episodic activation:
+
+```
+prime += prime_gain (0.1) per exposure      // no bout,
+    // no emit, no consolidation — pure availability
+prime decays at prime_tau (≈3 days)
+effect: +prime_bias (0.1·prime) on
+    fluency-driven outputs — the word the character
+    reaches for, the route they take without knowing
+    why, the melody hummed
+prime ignores age_eff entirely —
+    locked `prime_age_null`
+emission prov:"primed" — INFERRED tier; the
+    character CANNOT report the prime as a memory
+    (a build that emits "I remember X" off a prime
+    fails P1464)
+```
+
+The lifespan's one free channel: the 4-year-old
+and the 84-year-old are equally faster to say
+"asparagus" after last night's soup — neither
+knows it happened. **[CONSENSUS: perceptual
+priming spared in aging vs explicit deficit;
+DEBATED: small conceptual-priming age cost —
+priced zero here, flagged]; HYPOTHESIS: gain/
+tau magnitudes]**
+
+## 150. Knot-table revision summary (v5.81)
+
+New traits: `amnesia_offset` [2.5,4.5]y µ3.5;
+`remnis_style` [0,1]; `language_age` default
+3.5y (profile-authorable). New fields:
+`preverbal` (bool), `freq` (accumulator),
+`ord_betw` (order strength), `pm_locus` resolved
+at intention mint, `prime` (activation),
+`first`/`selfdef` (mint flags). New knot curves:
+`ord_betw_mult(encodeAge)`, `pm_nat_boost` /
+`pm_evt_pen` (age_now), `patsep_mult(age_now)`,
+`clust_temp_w` / `clust_sem_w` (age_now),
+`jol_child_bias(age_now)`. The amnesia era gate
+now centers on `offset_eff` (§141) instead of a
+constant — all downstream era terms (`bump_*`,
+`child_forget_mult`, `bind_dev_mult`) inherit
+the trait-shifted edge unchanged.
+
+## 151. Spec changes (v5.80 → v5.81) — delta table
+
+| Spec locus | Change |
+|---|---|
+| §2 schema | +`preverbal`, `freq`, `ord_betw`, `prime`, `first`, `selfdef`, `pm_locus`; +traits `amnesia_offset`, `remnis_style`, `language_age` |
+| §4.96 | era gate centers `offset_eff`; `remnis_style` pull |
+| §4.97 | `ord_within`/`ord_betw` split; cyclic-anchor `when` |
+| §4.98 | `freq` accumulator, attention-free |
+| §4.99 | `patsep_mult` lure gate |
+| §4.100 | `first`/`selfdef` mint flags; bump bonus and decay floor |
+| §5.155 | `preverbal` cue routing (verbal ×0, sensory ×1.6, enactive ×1.8); `prov:"enactive"` emission |
+| §5.156 | `pm_locus` split — naturalistic boost vs nonfocal penalty past 60 |
+| §5.157 | `clust_*` two-field recall-order walk |
+| §5.158 | `jol_child_bias` prospective-estimate inflation |
+| §5.159 | `prime` channel — no bout, INFERRED tier, age-flat |
+| §7 | +18 scalars, +3 traits, +4 locked nulls, +7 fields |
+
+## 152. Validation probes (P1455–P1464; registry continues P1–P1454)
+
+- **P1455 wordless file (MUST — `pv_talk_null`
+  locked):** seed a record with `encodeAge` 2.8 on
+  a character now 40. Verbal cues over 30 sim-days
+  retrieve zero content fields; an odor cue matching
+  `cueVector.sensory` emits valence/approach with
+  `prov:"enactive"` and display_tier INFERRED at
+  ≥3× the no-cue behavioral rate; no narrative
+  fields ever emit.
+- **P1456 offset trait (MUST):** two identical
+  event streams at `encodeAge` 3.0, profiles
+  differing only in `amnesia_offset` 2.7 vs 4.2 —
+  the early-offset profile retains ≥2× live records
+  at age 20; `remnis_style` 0.9 vs 0.1 shifts
+  effective offset ≥0.3y.
+- **P1457 within/between (MUST):** a 5yo encodes
+  a multi-stage event and a second event a week
+  later — within-stage ordering errors <10%,
+  between-event ordering at chance ±15%; `when`
+  emissions on child-encoded records are cyclic
+  anchors only until `ord_betw_mult ≥ 0.5`.
+- **P1458 free counting (MUST — `freq_attn_null`
+  locked):** a character encodes a recurring event
+  under `attn:ambient` across 20 instances —
+  `freq` counts ≥90% of instances while episodic E
+  stays at ambient-floor; an 80yo's frequency
+  judgment error ≤ a 25yo's on the same series.
+- **P1459 PM paradox (MUST — `pm_flat_null`
+  locked):** 75yo vs 25yo on routine-cued
+  intentions (doorbell-type) — the 75yo ≥ the
+  25yo; on nonfocal self-initiated intentions the
+  ordering reverses ≥1.3×. A single age slope on
+  PM fails by construction.
+- **P1460 twin episodes (MUST):** sibling-lure
+  acceptance rate (simOp ≥0.7) U-shaped: 5yo and
+  82yo profiles ≥1.5× a 30yo's rate at matched E;
+  error carries `conf` reduced by `patsep_conf_tax`
+  and `prov:"episode"` (not schema).
+- **P1461 chain vs island (SHOULD):** free-recall
+  emission order — child profiles show higher
+  forward-lag contiguity and lower same-category
+  clustering than adults; 85yo shows preserved
+  recency edge and reduced nonzero-lag contiguity
+  vs 40yo, clustering ≈ intact.
+- **P1462 bump of firsts (MUST):** across a full
+  lifespan sim, bump-era retained records are
+  ≥1.6× `first:true`-enriched vs non-bump-era
+  records at matched E; a first-in-category event
+  at age 70 gets the same relative bonus.
+- **P1463 predicted glory (MUST):** 6yo profiles
+  overpredict recall ≥1.7× vs outcome; 13yo bias
+  ≤0.2; the bias inflates the PREDICTION, not
+  encoding E and not report-side confidence.
+- **P1464 the free channel (MUST —
+  `prime_age_null` locked):** primed-stimulus
+  availability equal (±10%) for 5yo/30yo/80yo at
+  matched exposure; prime decays to <5% by 2×
+  `prime_tau`; primed fluency shifts output without
+  any episodic emission — the character cannot
+  emit the primed item as a told memory.
+
+## 153. Honest limits, twelfth pass
+
+- `pv_*` hard-zero verbal match is stronger than
+  the evidence — Simcock & Hayne show failure to
+  REPORT, which could be a production gate rather
+  than a match gate. The emission channel
+  (enactive/valence-only) honors the finding either
+  way, but a softer block (pv_verbal_block 0.05–
+  0.15) is defensible; the lock pins zero for
+  falsifiability.
+- `amnesia_offset`'s two drivers (style, culture)
+  are correlated in the literature — we split them
+  because world-builder authors them separately.
+  `remnis_gain` 0.4y is a HYPOTHESIS within the
+  observed ~1–1.5y cross-cultural spread.
+- `ord_betw_mult` treats cross-event order as one
+  maturity; Friedman shows sub-components (scale
+  knowledge vs distance judgment) mature on
+  different schedules — collapsed here.
+- `freq`'s absolute age-invariance is the strong
+  reading (Hasher & Zacks); Jonides & Naveh-
+  Benjamin show small age costs on fine
+  discriminations — absorbed into coarse
+  quantization rather than an age slope.
+- `pm_paradox`'s locus split conflates
+  naturalistic-vs-lab with focal-vs-nonfocal;
+  Aberle et al. 2010 show focality is likely the
+  load-bearing variable — `pm_locus` resolves at
+  mint on cue structure, which is the mechanistic
+  reading, but real-world routine also adds habit
+  support we price as cue-environmental.
+- `patsep_mult` puts discrimination failure at
+  emission; part of the effect is an ENCODE-side
+  separation deficit (the twins were minted
+  overlapping). Knots tuned so ~60% of the lure
+  error is attributable to encode overlap.
+- `clust_*`'s two-field walk is a simplification
+  of CMR — it produces order statistics without
+  modeling context drift; acceptable at RW
+  resolution.
+- `first` novelty check needs a live series bucket
+  — sparse early life means early records are
+  nearly all `first:true`, which is partly why the
+  amnesia-era floor still hides them.
+- `jol_child_bias` assumes a single metacognitive
+  inflation; literature shows domain variance
+  (social predictions calibrate earlier).
+- `prime` at 3-day tau is a convenience —
+  perceptual priming lasts weeks to months in some
+  paradigms; short tau keeps it a fluency texture,
+  not a shadow store.

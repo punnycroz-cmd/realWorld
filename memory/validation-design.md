@@ -14019,6 +14019,9 @@ SHOULD: P1432, P1434, P1436, P1439, P1442.
 v134 MUST: P1443, P1444, P1445, P1447,
 P1449, P1450, P1451, P1452, P1453, P1454.
 SHOULD: P1446, P1448.
+Probe registry: P1–P1464. v135 MUST: P1455,
+P1456, P1457, P1458, P1459, P1460, P1462,
+P1463, P1464. SHOULD: P1461.
 
 ## 268. v133 probe specs (P1431–P1442 —
 forgetting-curves XII, the neighborhood prices
@@ -14245,3 +14248,138 @@ backing)
 
 → memory-model-spec.md v5.80 §§5.149–5.154; probes
 P1443–P1454.
+
+## 272. v135 probe specs (P1455–P1464 — age-
+development XII; spec v5.81 §§4.96–4.100 +
+§§5.155–5.159)
+
+Harness: profile-sweep arms (child 5 / adult 30 /
+old 75 / oldest 85 knots), CRN-matched event
+streams; era probes vary `encodeAge` on fixed
+histories. Locked nulls this pass: `pv_talk_null`,
+`freq_attn_null`, `pm_flat_null`, `prime_age_null`.
+
+- **P1455 wordless file (MUST — `pv_talk_null`
+  locked):** `encodeAge` 2.8 record on a 40yo —
+  verbal cues over 30 sim-days retrieve zero
+  content; matching odor cue emits valence/
+  approach at `prov:"enactive"` INFERRED ≥3×
+  baseline; no narrative field ever emits.
+- **P1456 offset trait (MUST):** identical
+  `encodeAge` 3.0 streams, `amnesia_offset` 2.7
+  vs 4.2 → ≥2× live records at 20 for the early
+  arm; `remnis_style` 0.9 vs 0.1 shifts effective
+  offset ≥0.3y.
+- **P1457 within/between (MUST):** 5yo multi-
+  stage event + second event a week later —
+  within-order errors <10%, between-order at
+  chance; `when` emits cyclic anchors only below
+  `ord_betw_mult` 0.5.
+- **P1458 free counting (MUST —
+  `freq_attn_null` locked):** `attn:ambient`
+  series over 20 instances — `freq` ≥90% accurate
+  while E sits at ambient floor; 80yo frequency
+  error ≤ 25yo's.
+- **P1459 PM paradox (MUST — `pm_flat_null`
+  locked):** 75yo ≥ 25yo on environmental-cued
+  intentions; ≥1.3× reversal on self-initiated;
+  single-slope PM build fails.
+- **P1460 twin episodes (MUST):** sibling-lure
+  (simOp ≥0.7) acceptance U-shaped — 5yo and
+  82yo ≥1.5× the 30yo rate at matched E; errors
+  emit `prov:"episode"`, conf −`patsep_conf_tax`.
+- **P1461 chain vs island (SHOULD):** child free
+  recall shows higher forward-lag contiguity and
+  lower semantic clustering than adult; 85yo keeps
+  recency edge and clustering, loses nonzero-lag
+  contiguity.
+- **P1462 bump of firsts (MUST):** lifespan sim —
+  bump-era retained records ≥1.6× `first:true`-
+  enriched vs non-bump era at matched E; first-in-
+  category at 70 gets the same relative bonus.
+- **P1463 predicted glory (MUST):** 6yo recall
+  predictions ≥1.7× outcome; 13yo bias ≤0.2;
+  bias touches prediction, not E, not report
+  confidence.
+- **P1464 the free channel (MUST —
+  `prime_age_null` locked):** primed fluency
+  equal ±10% across 5/30/80 knots at matched
+  exposure; prime <5% by 2×`prime_tau`; primed
+  items never emit as told memories.
+
+## 273. Sources verified this version (P1455–P1464
+backing)
+
+- **Simcock & Hayne 2002** (*Psychol. Sci.*
+  13:225 — verified this session: 27–39mo at
+  encoding, tested 6–12mo later; nonverbal
+  retention intact; ZERO verbal report of
+  features outside productive vocabulary at
+  encoding, despite post-delay vocabulary
+  acquisition); Simcock & Hayne 2003 (*Psychol.
+  Sci.* 14:8); Peterson & Parsons 2005;
+  Josselyn & Frankland 2018 (*Curr. Opin.
+  Neurobiol.* 53:198 — neurogenesis mechanism,
+  DEBATED).
+- **Bauer & Larkina 2014** (*Memory* 22:1038 —
+  childhood amnesia as retention-function
+  crossing); **Fivush, Haden & Reese 2006**
+  (*Child Dev.* 77:1568 — elaborative
+  reminiscing); Nelson & Fivush 2004 (*Psychol.
+  Rev.* 111:486); **Wang 2006** (*Memory*
+  14:374 — US ~3.5y vs Chinese ~3.9–4.0y);
+  **MacDonald, Uesiliana & Hayne 2000**
+  (*Memory* 8:365 — Māori ~2.5y); Reese &
+  Newcombe 2007 (training study).
+- **Friedman 1991** (*Child Dev.* 62:139);
+  Friedman & Lyon 2005 (*Cognition* 96:253);
+  Friedman 2007.
+- **Hasher & Zacks 1979** (*JEP:G* 108:356);
+  Hasher & Zacks 1984 (*Am. Psychol.* 39:1372);
+  Zacks, Hasher & Sanft 1982; Jonides &
+  Naveh-Benjamin 1987 (fine-discrimination
+  boundary).
+- **Rendell & Craik 2000** (*Appl. Cogn.
+  Psychol.* 14:S43 — verified this session:
+  Virtual Week older worse, Actual Week older
+  better); **Rendell & Thomson 1999**
+  (*J. Gerontol. B* 54B:P256 — verified: same-
+  participant reversal across paradigms);
+  Einstein & McDaniel 2005 (multiprocess);
+  Aberle, Rendell, Rose, McDaniel & Kliegel
+  2010 (*Psychol. Aging* 25:645 — nonfocal cues
+  drive the age gap); McDaniel & Einstein 2011.
+- **Ngo, Newcombe & Olson 2018** (*Dev. Sci.*
+  e12556 — verified: 4yo << 6yo = adults on
+  relational memory AND child-adapted MST; two
+  processes, two trajectories); **Ngo, Lin,
+  Newcombe & Olson 2019** (*Psychol. Sci.* —
+  verified: inverted-U 4–80, high-similarity
+  contexts latest); Stark, Yassa, Lacy & Stark
+  2013 (*Neuropsychol. Rev.* 23:267); Yassa et
+  al. 2011 (*PNAS* 108:8873).
+- **Kahana, Howard, Zaromb & Wingfield 2002**
+  (*Psychol. Aging* 17:125 — recency preserved,
+  lag-recency reduced); Howard & Kahana 1999;
+  Bjorklund & Jacobs 1985 (semantic clustering
+  develops); Sederberg et al. 2010.
+- **Jansari & Parkin 1996** (*Br. J. Psychol.*
+  87:455 — bump = novel events); **Rathbone,
+  Moulin & Conway 2008** (*Psychol. Sci.*
+  19:397 — self-defining memories organize the
+  bump); Janssen, Kristo, Rouw & Murre 2015
+  (*QJEP* 68:142); Berntsen & Rubin 2004.
+- **Flavell, Friedrichs & Hoyt 1970** (*Cogn.
+  Psychol.* 1:324 — child overprediction);
+  Schneider & Pressley 1997; Schneider, Visé,
+  Lockl & Nelson 2000; Koriat & Shitzer-
+  Reichert 2002.
+- **Fleischman & Gabrieli 1998**
+  (*Neuropsychology* 12:630 — priming preserved
+  in aging); Mitchell 1989 (*Psychol. Aging*
+  4:31); Light & Singh 1987 (*JEP:LMC*
+  13:333); Fleischman 2007 (conceptual-priming
+  caveat — priced flat, flagged).
+
+→ memory-model-spec.md v5.81 §§4.96–4.100 +
+§§5.155–5.159; probes P1455–P1464.

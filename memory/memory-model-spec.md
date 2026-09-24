@@ -1,4 +1,47 @@
-# Memory Model Spec v5.80 — implementable human-like memory for RW characters
+# Memory Model Spec v5.81 — implementable human-like memory for RW characters
+
+> **v5.81 note (age-development XII — the wordless
+> file, the trait-set wall, order without a clock,
+> the free counter, the paradox, the twin
+> episodes, chains vs islands, the bump of firsts,
+> the optimistic prophet, and the flat channel):**
+> `memory/age-development.md` Part XII (§§140–149)
+> prices ten lifespan channels. **Preverbal
+> lockout** — `encodeAge < language_age` mints
+> `preverbal:true`; verbal cues ×0, sensory ×1.6,
+> enactive ×1.8; emits `prov:"enactive"` INFERRED
+> only (Simcock & Hayne 2002, verified);
+> `pv_talk_null`. **Amnesia offset is a trait** —
+> `amnesia_offset`/`remnis_style` author the era
+> gate's center `offset_eff` (Bauer & Larkina
+> 2014; Fivush et al. 2006; Wang 2006; MacDonald
+> et al. 2000). **Order splits** — `ord_within`
+> full from ~4, `ord_betw_mult(encodeAge)` matures
+> to ~12; child `when` emits cyclic anchors only
+> (Friedman 1991, 2007). **Frequency is free** —
+> `freq` accumulator, attention-free, age-flat
+> (Hasher & Zacks 1979); `freq_attn_null`. **PM
+> paradox** — `pm_locus` splits: routine-cued
+> rises past 60, nonfocal falls (Rendell & Craik
+> 2000, verified); `pm_flat_null`. **Pattern
+> separation U** — `patsep_mult(age_now)` gates
+> sibling-lure emission (Ngo et al. 2018/2019;
+> Stark et al. 2013, verified). **Recall order
+> splits** — `clust_temp_w` near-flat with old dip
+> vs `clust_sem_w` childhood-acquired (Kahana et
+> al. 2002). **The bump mints firsts** — `first`/
+> `selfdef` mint flags scale `bump_bonus`;
+> `selfdef` holds a goal-gated decay floor
+> (Jansari & Parkin 1996; Rathbone et al. 2008).
+> **Child metamemory inflates** — `jol_child_bias`
+> on prospective predictions, not on E or
+> confidence (Flavell et al. 1970). **Priming is
+> flat** — `prime` activation, no bout, INFERRED,
+> `prime_age_null` (Fleischman & Gabrieli 1998).
+> §§4.96–4.100 + §§5.155–5.159; §7 +18 scalars
+> +3 traits +4 locked nulls +7 fields; probes
+> P1455–P1464 in validation-design.md §§272–273.
+> (Prior notes v4.x–v5.80 in the version log.)
 
 > **v5.80 note (retrieval-cues XIV — the cue has
 > an address, a shelf, an hour, a listener, and a
@@ -7472,6 +7515,73 @@ armor fades by ~day 3). Complements `consol_beta_mult`
 (P1438): post-sleep records must accrue less new
 suppression than matched awake-epoch controls.
 
+### 4.96 The wall is a signature — `amnesia_offset` / `remnis_style` (new in v5.81)
+
+AD§141; **Bauer & Larkina 2014** (*Memory* 22:1038 —
+verified: offset is a retention-function crossing, not a
+boundary); **Fivush, Haden & Reese 2006**; Nelson &
+Fivush 2004; **Wang 2006**; **MacDonald, Uesiliana &
+Hayne 2000** (Māori ~2.5y). The childhood-amnesia era
+gate stops being a constant: traits `amnesia_offset`
+∈[2.5,4.5]y (µ3.5) and `remnis_style` ∈[0,1] set
+`offset_eff = amnesia_offset − remnis_gain(0.4)·remnis_style`.
+For `encodeAge ∈ [offset_eff−1.5, 7]`,
+`E ×= soft_ramp((encodeAge − (offset_eff−1.5))/(7 − offset_eff+1.5))`;
+below `offset_eff−1.5` the record mints `preverbal`
+(§5.155). All downstream era terms inherit the shifted
+edge unchanged.
+
+### 4.97 Order inside, silence between — `ord_betw_mult` (new in v5.81)
+
+AD§142; **Friedman 1991** (*Child Dev.* 62:139);
+Friedman & Lyon 2005; Friedman 2007. Records carry
+`ord_within` (minted at full strength from
+`encodeAge ≥ 4`) and `ord_betw` scaled by
+`ord_betw_mult(encodeAge)`: `0@<4 → 0.3@6 → 0.6@8 →
+0.9@10 → 1.0@12`. `when` emissions on records with
+`ord_betw_mult < 0.5` produce cyclic anchors only
+("it was summer"), never calendar position.
+
+### 4.98 Counting for free — `freq` (new in v5.81)
+
+AD§143; **Hasher & Zacks 1979** (*JEP:G* 108:356);
+Hasher & Zacks 1984; Zacks, Hasher & Sanft 1982.
+Series/venue records carry a `freq` accumulator:
+`freq += 1` on each instance mint/merge, decaying
+`freq_decay` (0.02/day). Frequency judgments emit
+quantized {once, few, often, always}. `freq` ignores
+`age_eff` and `attn` — locked `freq_attn_null`
+(P1458).
+
+### 4.99 The twin episodes — `patsep_mult` (new in v5.81)
+
+AD§145; **Ngo, Newcombe & Olson 2018** (*Dev. Sci.*
+e12556 — verified); Ngo, Lin, Newcombe & Olson 2019;
+**Stark et al. 2013** (*Neuropsychol. Rev.* 23:267);
+Yassa et al. 2011. When a retrieval candidate shares
+simOp ≥ `patsep_sim` (0.7) with the target,
+`P(lure emitted as true) = lure_base·(1 − patsep_mult(age_now))`
+with `patsep_mult: 0.45@4 → 0.8@7 → 1.0@16 → 1.0@55 →
+0.8@70 → 0.6@80 → 0.45@88`. Lure success emits
+`prov:"episode"`, `conf −= patsep_conf_tax` (0.15).
+~60% of the error is attributable to encode overlap —
+tune the knot so, don't put it all at emission.
+
+### 4.100 The bump mints firsts — `first` / `selfdef` (new in v5.81)
+
+AD§147; **Jansari & Parkin 1996** (*Br. J. Psychol.*
+87:455); **Rathbone, Moulin & Conway 2008**;
+Janssen et al. 2015; Berntsen & Rubin 2004. Mint
+flags: `first:true` when the event's series bucket is
+empty; `selfdef:true` when the event overlaps the
+profile's active `selfModel.goals` ≥
+`selfdef_overlap` (0.5). `bump_bonus_eff =
+bump_bonus·(1 + first_bump_mult(0.35)·first +
+selfdef_bump_mult(0.5)·selfdef)`; `selfdef` records
+hold a decay floor `selfdef_floor` (0.3) while the
+goal stays active — abandoned goals lift the floor
+(hooks §6.386 promote/demote).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -11102,6 +11212,75 @@ consistent-unverified elements: schema-fill at schemis_intr (0.1),
 Locked `schema_free_null` (P1454): a fully
 consistent scene mints no episodic recall beyond
 base.
+
+### 5.155 The wordless file — `pv_*` (new in v5.81)
+
+AD§140; **Simcock & Hayne 2002** (*Psychol. Sci.*
+13:225 — verified: nonverbal retention intact, zero
+verbal translation after vocabulary acquisition);
+Simcock & Hayne 2003; Josselyn & Frankland 2018.
+On `preverbal:true` records: verbal/narrative cue
+classes match at `×pv_verbal_block` (0.0); sensory
+cues `×pv_sense_gain` (1.6); enactive cues (re-
+performing the action/posture) `×pv_enact_gain`
+(1.8). Successful retrieval emits valence/behavioral
+lean only — `prov:"enactive"`, display_tier INFERRED,
+no `what`/`who`/`when` fields. Locked `pv_talk_null`
+(P1455): verbal cues retrieve exactly nothing.
+
+### 5.156 The lab lies about the old — `pm_locus` (new in v5.81)
+
+AD§144; **Rendell & Craik 2000** (*Appl. Cogn.
+Psychol.* 14:S43 — verified: Virtual Week old worse,
+Actual Week old better); Rendell & Thomson 1999;
+Einstein & McDaniel 2005; Aberle et al. 2010.
+PM intentions resolve `pm_locus` at mint on cue
+structure: `environmental` (place/person/recurring
+slot) vs `selfinitiated` (unprompted check/
+deadline). `pm_eff ×= pm_nat_boost(age)` for
+environmental (`1.0@40 → 1.1@60 → 1.25@80`) and
+`×pm_evt_pen(age)` for self-initiated (`1.0@40 →
+0.85@60 → 0.65@80`). Locked `pm_flat_null`
+(P1459): a single PM age slope fails the crossover.
+
+### 5.157 Chains in time, islands in meaning — `clust_*` (new in v5.81)
+
+AD§146; **Kahana, Howard, Zaromb & Wingfield 2002**
+(*Psychol. Aging* 17:125 — recency intact, lag-
+recency reduced); Bjorklund & Jacobs 1985; Schneider
+& Pressley 1997. Free-recall emission order walks
+two attractor fields:
+`next ∝ clust_temp_w·temporal_neighbor +
+clust_sem_w(age)·semantic_neighbor` with
+`clust_temp_w: 1.0 → 0.85@70 → 0.7@85` and
+`clust_sem_w: 0.2@5 → 0.6@9 → 1.0@14 → 1.0@75 →
+0.9@85`. Children narrate sequences; adults emit
+thematic clusters; the old keep clusters while the
+chain loosens.
+
+### 5.158 The child predicts glory — `jol_child_bias` (new in v5.81)
+
+AD§148; **Flavell, Friedrichs & Hoyt 1970** (*Cogn.
+Psychol.* 1:324); Schneider & Pressley 1997;
+Schneider, Visé, Lockl & Nelson 2000. Prospective
+memory estimates carry `jol_pred = E_est·(1 +
+jol_child_bias(age_now))` with `1.0@5 → 0.7@7 →
+0.35@10 → 0.15@13 → 0` adult. The bias inflates the
+PREDICTION only — encoding E and report-side
+confidence are untouched; the child under-prepares
+because she over-promises.
+
+### 5.159 The channel that never ages — `prime` (new in v5.81)
+
+AD§149; **Fleischman & Gabrieli 1998**
+(*Neuropsychology* 12:630); Mitchell 1989; Light &
+Singh 1987. Exposure to a stimulus similar to a
+live record adds `prime += prime_gain` (0.1), no
+bout, no emit; `prime` decays `prime_tau` (≈3 days)
+and adds `prime_bias` (0.1·prime) to fluency-driven
+output choices. Ignores `age_eff` — locked
+`prime_age_null` (P1464); emission `prov:"primed"`,
+INFERRED tier, never tellable as memory.
 
 ---
 
@@ -21044,6 +21223,33 @@ MemoryParams = {
 //   checkpoints); label_gap_null (P1410 — memory-backed
 //   emission with no display_tier). All snapshot-
 //   additive; absent = legacy.
+// v5.81 additions (age-development XII v135 —
+//   AD§§140–149, §§4.96–4.100 + §§5.155–5.159)
+"pv_verbal_block": 0.0, "pv_sense_gain": 1.6,
+"pv_enact_gain": 1.8,                       // §5.155
+"remnis_gain": 0.4,                          // §4.96
+"ord_betw_mult": "knot:0@4,0.3@6,0.6@8,0.9@10,1@12", // §4.97
+"freq_decay": 0.02,                          // §4.98
+"patsep_sim": 0.7, "patsep_conf_tax": 0.15,  // §4.99
+"first_bump_mult": 0.35, "selfdef_bump_mult": 0.5,
+"selfdef_overlap": 0.5, "selfdef_floor": 0.3, // §4.100
+"pm_nat_boost": "knot:1@40,1.1@60,1.25@80",
+"pm_evt_pen": "knot:1@40,0.85@60,0.65@80",   // §5.156
+"clust_temp_w": "knot:1,0.85@70,0.7@85",
+"clust_sem_w": "knot:0.2@5,0.6@9,1@14,1@75,0.9@85", // §5.157
+"jol_child_bias": "knot:1@5,0.7@7,0.35@10,0.15@13,0", // §5.158
+"prime_gain": 0.1, "prime_tau": 3,
+"prime_bias": 0.1,                           // §5.159
+// v5.81 traits/fields: `amnesia_offset`
+//   [2.5,4.5] µ3.5, `remnis_style` [0,1],
+//   `language_age` default 3.5 (§4.96/§5.155);
+//   record fields `preverbal`, `freq`,
+//   `ord_betw`, `prime`, `first`, `selfdef`,
+//   `pm_locus`.
+// v5.81 locked nulls: pv_talk_null (P1455);
+//   freq_attn_null (P1458); pm_flat_null
+//   (P1459); prime_age_null (P1464). All
+//   snapshot-additive; absent = legacy.
 // v5.80 additions (retrieval-cues XIV v134 —
 //   RC§§116–121, §§5.149–5.154)
 "tx_dir_p": 0.6, "tx_lazy_mult": 0.5,
@@ -24124,6 +24330,49 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.81 additions (age-development.md Part XII
+  §§140–149 — the wordless file, the trait-set
+  wall, order without a clock, the free counter,
+  the paradox, the twins, chains vs islands, the
+  bump of firsts, the optimistic prophet, the flat
+  channel):
+  - **Preverbal contract (§5.155):** `preverbal`
+    records match verbal cues at ×0, sensory ×1.6,
+    enactive ×1.8; emission `prov:"enactive"`
+    INFERRED, no narrative fields; `pv_talk_null`
+    (P1455).
+  - **Offset-trait contract (§4.96):** era gate
+    centers `offset_eff` from `amnesia_offset`/
+    `remnis_style`; all era terms inherit.
+  - **Order contract (§4.97):** `ord_within`
+    vs `ord_betw`; child `when` emits cyclic
+    anchors only.
+  - **Frequency contract (§4.98):** `freq`
+    accumulator, attention-free, age-flat;
+    `freq_attn_null` (P1458).
+  - **Pattern-separation contract (§4.99):**
+    `patsep_mult(age_now)` U-curve gates sibling-
+    lure emission; error keeps `prov:"episode"`
+    at reduced conf.
+  - **Bump-of-firsts contract (§4.100):** `first`/
+    `selfdef` mint flags scale `bump_bonus`;
+    `selfdef` decay floor lifts on goal
+    abandonment.
+  - **PM-paradox contract (§5.156):** `pm_locus`
+    environmental boost vs self-initiated penalty
+    past 60; `pm_flat_null` (P1459).
+  - **Recall-order contract (§5.157):** two-field
+    `clust_temp_w`/`clust_sem_w(age)` walk.
+  - **Child-JOL contract (§5.158):**
+    `jol_child_bias` inflates predictions only.
+  - **Priming contract (§5.159):** `prime`
+    activation, no bout, INFERRED, age-flat;
+    `prime_age_null` (P1464).
+  - **New params (§7):** 18 scalars + 3 authored
+    traits + 4 locked nulls + fields `preverbal`,
+    `freq`, `ord_betw`, `prime`, `first`,
+    `selfdef`, `pm_locus`.
+  - Probes P1455–P1464.
 - v5.80 additions (retrieval-cues.md §§116–121 —
   the cue has an address, a shelf, an hour, a
   listener, and a lie):
