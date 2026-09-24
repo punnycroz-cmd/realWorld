@@ -1,6 +1,6 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v138 — preview rebase v61→v67 (dead-image fix), Steam library
+**Status: v143 — screenshots rebase v67→v71 (dollhouse + block-shadow passes), Steam library
 hero generated (§4 FLAG closed), store_copy_check wired into preflight,
 2026-09-23.**
 Supersedes v136.
@@ -179,7 +179,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v67-A..D.png` (4 ready, lens-rebuild build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v71-A..D.png` (4 ready, dollhouse-pass build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -193,9 +193,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v67-D (director view — the hook), v67-B
-(street level), v67-C (Dolores Park), v16-int-cafe (interior vignette),
-then v67-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v71-D (director view — the hook), v71-B
+(street level), v71-C (Dolores Park), v16-int-cafe (interior vignette),
+then v71-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -254,7 +254,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v67-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v71-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -357,15 +357,15 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v67-D "director view" → "Director
+`press-kit/captions.txt` as canonical): v71-D "director view" → "Director
 mode over the rooftops and laundry lines under a clean autumn sky — REC
 cluster and DIRECTOR badge up top, the rebuilt lens rendering one
-weather-driven visibility distance."; v67-B street level → "Street-level
+weather-driven visibility distance."; v71-B street level → "Street-level
 close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
-storefronts, parked cars, leaves drifting, name tags overhead."; v67-C
+storefronts, parked cars, leaves drifting, name tags overhead."; v71-C
 park → "Dolores Park from overhead — crown-genome trees in rust and gold
 across the mow-striped lawns, no two alike, tennis courts on the south
-edge."; v67-A overhead → "The Mission block around 24th and Mission from
+edge."; v71-A overhead → "The Mission block around 24th and Guerrero from
 overhead on an autumn afternoon — leaves drifting over rooftops and
 parked cars, dressed facades, inspector open on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
 venue from the street camera."; v1 pair → "Same engine, day one — the
@@ -392,7 +392,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v67-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v71-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -492,7 +492,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v67 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v71 build) | shipped |
 
 ---
 
@@ -1027,7 +1027,7 @@ Cadence: announcements are events, not a drip — never post "stay tuned".
 
 ## 32. Seasonal store-art freshness rule
 
-The sim runs on the real calendar — the v67 captures are the autumn
+The sim runs on the real calendar — the v71 captures are the autumn
 turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
 crowns while the live block is in spring is a quiet lie.
 
@@ -1207,7 +1207,7 @@ Two housekeeping rules now have teeth.
 
 **Library hero provenance.** `steam-library-hero-3840x1240.png` is a
 generated composite, not a capture: blurred wings stretched from the
-v67-D frame, a crisp center panel (~1.6× source), and the standard
+v71-D frame, a crisp center panel (~1.6× source), and the standard
 lockup in the left safe zone. It is honest Steam library art (logo only,
 no text — per the §4 text rule) and ship-able as-is, but it is flagged
 **interim**: if the conditional Steam page ever becomes real, commission
@@ -1220,7 +1220,7 @@ in the same commit — is now mechanical: `tools/store_copy_check.py`
 checks 8–9 fail on any dead local `<img>` in preview.html and on any
 capsule whose real pixel size contradicts its filename. First run of
 the new checks caught two real drifts: the screenshot strip still
-pointed at the deleted v61 press-kit set (rebased to v67 with §9
+pointed at the deleted v61 press-kit set (rebased to v71 with §9
 captions) and the banner path pointed at a `site/assets/banners/`
 subdirectory that doesn't exist. Wired into `tools/preflight.sh` as
 step 5e, so the drift class fails the go-gate, not just a by-hand audit.

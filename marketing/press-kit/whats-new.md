@@ -2,17 +2,17 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v67-*.png` = build v67). Everything below is
+the build (`screenshots/v71-*.png` = build v71). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v67** (September 2026).
+Current development build: **v71** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, six more passes landed:
+Since the v55 editorial set, ten more passes landed:
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -39,6 +39,34 @@ Since the v55 editorial set, six more passes landed:
   catenary garlands and wall-bracket porch flags on the facades — all
   of it wind-driven off the same W.windAng/W.windSpd the weather uses,
   so the bunting flutters when the wind picks up.
+- **v68 — the rig gets a monitor.** Picture-in-picture: a parked
+  camera rig composites its live feed into the corner of the main frame
+  with LIVE/REC chrome — rooftop over the park, the Dolores overlook,
+  the Mission street — so a spectator can keep one eye on a second angle
+  without leaving the shot they're watching. And a footprint that
+  straddles the near camera plane now dissolves into a cutaway wire rim
+  instead of hanging a roof wedge in the gate.
+- **v69 — light through the leaves.** Canopy dapple: leaf-gap sun flecks
+  clipped inside each tree's thrown shade, jittering with the gust
+  envelope, in both the top-down crown shade and the street elevation.
+  The same weather gates it as everything else — cloud shadow, canyon
+  shade, day, night.
+- **v70 — the dollhouse pass.** Inspect a resident who's indoors and
+  their building ghosts to a quarter of itself while a real floor plan
+  draws inside the footprint — door-anchored rooms, per-archetype floors
+  and furniture, party walls on wide buildings, a sun patch through the
+  sun-facing wall, lamp pools after dark. Occupants stay the same chibi
+  pawns, still tagged, still readable; the spectator just gets a closer
+  set.
+- **v71 — the block stands on its shadows.** The top view gains a
+  per-building shadow pass: each footprint throws a real swept shadow
+  along the sun vector — penumbra layers, a displaced roofprint fill,
+  an AO contact skirt at the base — culled against the view and gated
+  by night, day, and cloud cover like everything else. Buildings stop
+  floating on the map; the block reads planted.
+
+The v67 pass that came just before is worth its own line:
+
 - **v67 — the lens rebuild.** The camera stopped showing off: lateral
   chromatic fringing, the scanline blur pass, and film grain are all
   retired, and the vignette is softened. What remains is one honest
@@ -48,7 +76,7 @@ Since the v55 editorial set, six more passes landed:
   five fewer full-frame passes). The trees got their own upgrade along
   the way: every crown is grown from a genome atlas, turned by the
   in-world calendar and flipped per instance, so no two read alike —
-  and in the v67 captures the autumn leaf-fall is drifting over the
+  and in the current captures the autumn leaf-fall is drifting over the
   block.
 
 Earlier arc (still in the before/after shots):
@@ -77,15 +105,15 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v67-A.png` (current) — same top-down framing of the
+  `screenshots/v71-A.png` (current) — same top-down framing of the
   block, sixty-six iterations apart.
-- `screenshots/v67-C.png` is the Dolores Park overhead in its re-framed
+- `screenshots/v71-C.png` is the Dolores Park overhead in its re-framed
   form: the telling detail is the ring of streets and facades — a
   maintained city park, not open field — plus the crown-genome trees,
   no two alike.
-- `screenshots/v67-D.png` carries the v67 headline: director mode over
-  the rooftops through the rebuilt lens — one weather-driven
-  visibility number, no stacked effects.
+- `screenshots/v71-A.png` carries the v70 headline: the Mudhaus Coffee
+  dollhouse cutaway open on the overhead — the building ghosted, a real
+  floor plan inside the footprint, residents still tagged inside it.
 
 ## Still true (unchanged by these passes)
 

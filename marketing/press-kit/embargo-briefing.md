@@ -8,7 +8,7 @@ The presenter runs `guided-tour.md`; this book is what you read the
 night before.
 
 Everything here is accurate to the locked design and the current
-development build (renderer v67). Brackets mark placeholders.
+development build (renderer v71). Brackets mark placeholders.
 
 ---
 

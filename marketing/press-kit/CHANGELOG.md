@@ -1,7 +1,20 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v67-* is the current development build).
+build they were captured from (v71-* is the current development build).
+
+## v143 — 2026-09-24
+- Screenshots rebased v67→**v71** (the dollhouse pass + block
+  shadows: inspect a resident indoors and their building ghosts open
+  into a real floor plan — door-anchored rooms, per-archetype floors
+  and furniture, party walls, sun patch, lamp pools after dark; and the
+  top view now throws per-building swept shadows with AO contact
+  skirts, so the block sits on the ground; carries v68 PiP rig monitor,
+  v69 canopy dapple, and the v67 lens rebuild underneath).
+  Site shots, kit screenshots, key art, og-card, banners, store capsules
+  rebaked; captions, README, fact-sheet, index, contact-sheet,
+  deadline-desk, b-roll, one-sheet, embargo-briefing refs updated.
+- `whats-new.md` extended: arc now covers v53→…→v67→v68→v69→v70→v71.
 
 ## v137 — 2026-09-23
 - NEW `coverage-log.md` — post-launch coverage tracker: per-piece ledger,

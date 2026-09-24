@@ -308,6 +308,41 @@
       "status": "PENDING — game build",
       "note": "counts exposure of the honesty line; surge never surfaces post-payment (world-v81 §43)"
     },
+    "credit_rules_seen": {
+      "when": "the S3 credit-rules fine-print line renders — 'never run out, never cash out, never move between accounts' (game-side; world-v95 §44 — money-eligible bands only: adult/teen/na, u13 has no wallet)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "disclosure exposure, not a feature list — stated once, before first purchase (world-v95 §44)"
+    },
+    "subs_line_shown": {
+      "when": "the S3 subscription line renders — Resident $4.99/mo + Director $11.99/mo, stated once and never re-surfaced (game-side; world-v95 §45 — inherits S3 band guards)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the only place onboarding mentions subs; no best-value styling, no trial framing (world-v95 §45)"
+    },
+    "sub_stipend_previewed": {
+      "when": "the demo affordance 'preview Resident (demo) — the 600 cr stipend lands' is clicked; +600 cr once, idempotent (game-side; world-v95 §45 — demos the stipend mechanic only)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "labeled as stipend preview; second click is a no-op toast — never reads as granted spend (world-v95 §45/§49)"
+    },
+    "first_visit_filed": {
+      "when": "the S7 first-visit possession request is filed from the ?hired=1 first-day card — demo 15 min, 22 cr compatible minimum (game-side; world-v95 §46 — requires hired + balance ≥ 22, band-normalized)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "posts a real 'possession — first visit' feed entry; teaches possession = capped session, not ownership (world-v95 §46)"
+    },
+    "visit_ended": {
+      "when": "the S7 first visit exits — 'step out early' or the hard 15-min cap (game-side; world-v95 §46 — both exits hand back to the AI mid-motion, nothing metered back)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool", "exit": "cap|stepped_out" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "feed resolves as 'player session ended' either way — the locked neutral wording (world-v95 §46)"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },

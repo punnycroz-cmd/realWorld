@@ -21,7 +21,7 @@ uncommitted work-in-progress).
 **One-command gate worksheet:** `./tools/gonogo.sh` prints all 18 gates with
 live AUTO status for the mechanical ones and a pre-filled §6 block for the
 owner decision thread. Last run **2026-09-23 (v128): 3/18 auto-green** — G5
-(gallery at published v67), G9 (zip fresh), G18 (accuracy sweep clean); the
+(gallery at published v71), G9 (zip fresh), G18 (accuracy sweep clean); the
 rest await owner/track triggers, as expected pre-launch.
 **Checklist self-audit:** `./tools/checklist_audit.py` mechanically verifies
 the checklist against the tree it describes — gate contiguity, every gate has
@@ -44,7 +44,7 @@ log the result in §10 before the checklist may cite it.
 | G2 | Game build verified live and stable enough for spectators | owner + game track | `[ ] PENDING` |
 | G3 | Real domain registered; `realworld-game.example` replaced everywhere it ships (canonical links, OG URLs, `sitemap.xml`, `robots.txt`, Caddyfile/netlify DNS+env). One command: `tools/swap_domain.sh <domain>` then `--check` must print CLEAN | owner + mkt | `[ ] PENDING` — swap tool rehearsed v59 (apply→check→revert round-trip clean) |
 | G4 | Pricing flip: owner approves final numbers → `tools/flip_flags.sh --set pricing=final` (sets `data-pricing="final"` on `pricing.html` `<body>` — PRICING-PAGE-CONTENT.md §1). Same-commit sync: `faq.html`, `js/pricing.js` constants, `social/drafts/pricing-post.md`, STORE-COPY.md if numbers changed | owner | `[ ] PENDING` — flip rehearsed via flip_flags.sh round-trip v74, attribute is live CSS |
-| G5 | Screenshot gallery refreshed with launch-build captures (current = **v59 dev build** — refreshed v113 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
+| G5 | Screenshot gallery refreshed with launch-build captures (current = **v71 dev build** — refreshed v143 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture. Drafts EXIST since v104: `site/terms.html` (credits/cash-out wall, request rules, possession limits, age bands, liability), `site/privacy.html` (cookieless-analytics contract mirrored verbatim from js/analytics.js, Stripe-hosted checkout, u13 posture), `site/refunds.html` (the full refund matrix — deny/expire/trim/revoke/appeal/final). Stripe activation needs these URLs live — they're the answer. Gate = owner/counsel review + removing the "launch draft" pill + effective date; NOT drafting, which is done | owner | `[ ] PENDING` — pages drafted v104; owner review is the gate |
 | G8 | Analytics: shim wired on all 20 pages but INERT — `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every `js/analytics.js` include in one pass, after owner picks backend (Umami spec ready at `deploy/umami.compose.example`; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23); flip_flags endpoint set/revert rehearsed v74 |
@@ -55,8 +55,8 @@ log the result in §10 before the checklist may cite it.
 | G13 | Moderation readiness: owner confirms the shipped feed display-filter default (game-v6 ships `GS_WIRE_CFG.displayFilter='A'`, all three modes implemented; `gsWireSetFilter` flips it in one call — MODERATION-PLAN.md §2.3) and confirms the game build wires the `world/moderation.json` contract (`screen.js` verdicts, lane routing, `reason_code` taxonomy — 4 groups: deny_tier / review_tier / player_wording / public_wording — `mod_decision` ledger records; console demo at `world/mod-console.html`; `moderation.json.display_filter` is still marked OWNER-DECISION upstream — G13 IS that decision) and confirm the private appeal path is reachable in the request flow (`world/requests.json.appeals` — 72 h window, different reviewer via `orig_reviewer`, charge re-applies only on approval, not-appealable: `legal-backstop` + `appeal-resubmit`); record one `gsWireAudit()` → `{ok:true}` on staging data in the rehearsal log; ALSO verify the launch-candidate spectator shell exposes no possession affordance on C1–C8 — the Take-Control bypass was FIXED at art-v57 (button removed, handler a hard no-op under SF_MODE, sf harness asserts the ban holds against a programmatic click); regression-guard it once on the launch build, since the original bug was a stale hub bundle, not missing code (MODERATION-PLAN.md §8 day-0) | owner + game track | `[ ] PENDING` — full spec in MODERATION-PLAN.md |
 | G14 | Infrastructure provisioned per INFRASTRUCTURE.md §5: domain + DNS live, host deployed (`deploy/deploy-site.sh`), TLS issued, analytics backend up (G8), Stripe account + products created (test→live), uptime monitor armed, `maintenance.html` staged on host for rollback | owner + mkt | `[ ] PENDING` — full runbook + configs in `deploy/`; `tools/preflight.sh` is the step-0 go-gate, `tools/ship.sh` runs steps 0–4 as one command; monitor spec in `deploy/monitoring.example`; host prep = `tools/bootstrap_host.sh` (`deploy/host-contract.md`); est. 2–3 h |
 | G15 | Feed vocabulary sync: `world/feed.json` `request_status` (canonical: requested, in_review, approved, approved (modified), running, queued, resolved, refunded, "not approved", "player session ended") is the contract. Before launch flip, diff the labels in `demo.html` feed-preview, `journal.html` recap sample, `social/drafts/recap-format.md`, and `analytics-events.json` against it — demo/journal labels are marked "illustrative" today | mkt + game/world track | `[ ] PENDING` — world-v4/v5 shipped the canonical vocab; marketing labels must match the live feed verbatim |
-| G16 | Onboarding contract: the shipped build runs the world-v81 flow (persona fork watch/play, handle format + reserved-name check, age-band fork S2a → under-13 spectator account S3u / under-18 limits line / adults-only §2.7 sponsored-message card, declined-ask refund lesson, human-review lesson S4c scripted "not approved — refunded", queued-ask lesson S4e, archive-link beat S7, opt-in low-balance sim → "player session ended", post-hire return via `?hired=1` → first-day card S6, admin-attribution beat on the `feed-admin` anchor, scripted compatible co-ask, surge-range disclosure line, parked/returning states — `world/onboarding-ui.md` + `onboarding.json` schema v81, storage key `rw_onboard_v81`) and emits the full `analytics_hooks` contract to the endpoint configured in G8 — all 27 hooks (`tour_started`/`tour_beat`/`tour_completed`/`tour_skipped`, `persona_chosen`, `handle_set`/`handle_taken_shown`, `wallet_explained`/`topup_shown`, `first_request_filed`, `decline_lesson_shown`, `onboard_dismissed`, `returning_session`, `review_lesson_shown`/`review_outcome_seen`, `low_balance_simulated`, `handoff_seen`, `hired_return`, `queue_lesson_shown`/`queue_outcome_seen`, `archive_beat_seen`, `band_declared`, `ads_line_shown`, `ad_demo_viewed`, `admin_beat_seen`, `coask_seen`, `surge_line_shown`) are spec'd in `analytics-events.json`. Verify on staging with a scripted watch-persona and play-persona run including a `?hired=1` return AND the four band paths (u13 → S3u, teen/na → limits line, adult → ads line) | owner + game/world track | `[ ] PENDING` — marketing sink/report/dashboard accept all 27 hooks; the game-side emitters are the missing half |
-| G17 | Human playtest: owner (or designate) runs the live playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT84 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness pinned live by checklist_audit (PT1–PT84); run owed on the launch candidate build |
+| G16 | Onboarding contract: the shipped build runs the world-v95 flow (persona fork watch/play, handle format + reserved-name check, age-band fork S2a → under-13 spectator account S3u / under-18 limits line / adults-only §2.7 sponsored-message card, declined-ask refund lesson, human-review lesson S4c scripted "not approved — refunded", queued-ask lesson S4e, archive-link beat, opt-in low-balance sim → "player session ended", post-hire return via `?hired=1` → first-day card S6, admin-attribution beat on the `feed-admin` anchor, scripted compatible co-ask, surge-range disclosure line, credit-rules line S3 (never run out / never cash out / never move between accounts), subscription line S3 (stated once — Resident $4.99, Director $11.99), first-visit card S7 (possession demo 15 min · 22 cr, cap|stepped_out exits), parked/returning states — `world/onboarding-ui.md` + `onboarding.json` schema v95, storage key `rw_onboard_v95`) and emits the full `analytics_hooks` contract to the endpoint configured in G8 — all 32 hooks (`tour_started`/`tour_beat`/`tour_completed`/`tour_skipped`, `persona_chosen`, `handle_set`/`handle_taken_shown`, `wallet_explained`/`topup_shown`, `first_request_filed`, `decline_lesson_shown`, `onboard_dismissed`, `returning_session`, `review_lesson_shown`/`review_outcome_seen`, `low_balance_simulated`, `handoff_seen`, `hired_return`, `queue_lesson_shown`/`queue_outcome_seen`, `archive_beat_seen`, `band_declared`, `ads_line_shown`, `ad_demo_viewed`, `admin_beat_seen`, `coask_seen`, `surge_line_shown`, `credit_rules_seen`, `subs_line_shown`, `sub_stipend_previewed`, `first_visit_filed`, `visit_ended`) are spec'd in `analytics-events.json`. Verify on staging with a scripted watch-persona and play-persona run including a `?hired=1` return AND the four band paths (u13 → S3u, teen/na → limits line, adult → ads line) | owner + game/world track | `[ ] PENDING` — marketing sink/report/dashboard accept all 32 hooks; the game-side emitters are the missing half |
+| G17 | Human playtest: owner (or designate) runs the live playtest harness end-to-end on the near-launch build (`world/playtest.html`, PT1–PT88 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, harness keyboard map, per-scenario timing in `session.time_per_scenario`). Blocker/major findings exported via "Copy inbox note" into the shared inbox; **zero open blockers and every major triaged with an owner-visible disposition** before GO. This is the only gate that proves a human can actually get through the front door — every other gate proves a mechanism | owner + world track | `[ ] PENDING` — harness pinned live by checklist_audit (PT1–PT88); run owed on the launch candidate build |
 | G18 | Public-copy accuracy: `tools/accuracy_sweep.py` → **0 FAIL**. Hard-fail checks: any real business name from the live 155-key `world/parody-names.json` map in public copy, fabricated quotes/testimonials/named-outlet coverage on `site/` pages. Human-read WARNs: cut-feature and possession/cash-out/loot-box mentions without a negation cue (negated phrasing like "never possessed" passes automatically). Caught and fixed 3 real-address leaks at first run (cast.html ×2, demo.html ×1). Wired into `preflight.sh` step 5c so the mechanical go-gate carries it | mkt | `[x] REHEARSED` — first run 2026-09-23 (v113): 0 fail / 32 warn (all human-verified contexts) |
 
 ## §2 Run of show — T-minus schedule
@@ -67,7 +67,7 @@ The ordered countdown. Each line is owner-visible; nothing executes early.
 |------|------|-----------|
 | T-7d | Content freeze on `site/` (bugfixes only); social drafts re-read against BRAND.md voice; press list re-confirmed with owner | G6 |
 | T-5d | Full local rehearsal: dry-run + press-kit rebuild + animatic review + checklist_audit; log results in §10 | G9, G10 |
-| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT84 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
+| T-4d | Human playtest pass (G17): run `world/playtest.html` PT1–PT88 on the launch candidate; export blocker/major findings via "Copy inbox note"; owner dispositions every major | G17 |
 | T-3d | Staging deploy at placeholder domain; run `tools/prod_smoke.sh` against staging; OG card validated in a share-preview tool | G14 (staging half) |
 | T-48h | Go/No-Go issued (§6 template); if GO, flip G4 pricing + G15 vocab sync in ONE commit on `sf/marketing`; confirm G16 staging verification is logged | all gates |
 | T-24h | Final dry-run on the exact commit that will ship; press kit zip rebuilt and staged; day-0 posts loaded into drafts folder in send order | G9, G10 |
@@ -194,7 +194,7 @@ Blocking items: <list or none>
 Known warnings: <dry-run warns accepted as non-blocking>
 Accuracy sweep (G18): <0 fail — last run <date>>
 Feed display-filter option (G13): A / B / C — <confirm shipped default A or flip via gsWireSetFilter>
-Onboarding hooks (G16): <staging run logged — 27-hook set incl. ?hired=1 return + four band paths>
+Onboarding hooks (G16): <staging run logged — 32-hook set incl. ?hired=1 return + S7 first visit + four band paths>
 Human playtest (G17): <report logged — 0 open blockers, N majors dispositioned>
 Decision: GO / NO-GO — <owner name>, <timestamp>
 ```
@@ -218,8 +218,8 @@ the checklist exists so a GO is boring.
 | Feed display-filter option (G13) | | | A=redact / B=withhold / C=quarantine |
 | Infrastructure (G14) | | | domain + host + Stripe + analytics + uptime |
 | Feed vocabulary sync (G15) | | | labels match `world/feed.json` |
-| Onboarding contract (G16) | | | world-v81 flow + 27 hooks on staging |
-| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT84 |
+| Onboarding contract (G16) | | | world-v95 flow + 32 hooks on staging |
+| Human playtest (G17) | | | 0 open blockers on launch candidate · PT1–PT88 |
 
 ## §8 Day 7 — first week
 
@@ -352,8 +352,8 @@ it before citing the gate.
 | G13 moderation | `MODERATION-PLAN.md` + `world/mod-console.html` demo; `gsWireAudit()` staging run still owed | spec only — needs game build |
 | G14 infra | `deploy/` configs + `tools/ship.sh` rehearsal + `tools/uptime_probe.sh` + `tools/rehearse_host.sh` (deploy/rollback/retention) + `tools/incident_drill.sh` (detect→rollback→verify) + `tools/release_manifest.py` (release.json provenance, prod_smoke §5b) + `tools/stripe_webhook_fixture.py` (crediting-path fixture) + `tools/dns_check.sh` (DNS verify) + `tools/runofshow.sh` (countdown status) + `tools/bootstrap_host.sh` (host provision + contract check + DR rebuild) | 2026-09-23 ship.sh + rehearse_host green; dns_check + runofshow rehearsed 2026-09-24 (v74); incident_drill PASS 2026-09-23 (v89); bootstrap emit+check-local rehearsed 2026-09-23 (v119) |
 | G15 feed vocab | `world/feed.json` canonical list quoted in gate text | diff owed at flip |
-| G16 onboarding | `analytics-events.json` — all 27 world-v81 onboarding hooks spec'd incl. band_declared/ads_line_shown/ad_demo_viewed + v81's admin_beat_seen/coask_seen/surge_line_shown (verified by checklist_audit §8) + sink/report/dashboard support; staging run incl. `?hired=1` + four band paths owed | spec complete — needs game build |
-| G17 human playtest | `world/playtest.html` harness (live: PT1–PT84 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
+| G16 onboarding | `analytics-events.json` — all 32 world-v95 onboarding hooks spec'd incl. band_declared/ads_line_shown/ad_demo_viewed + v95's credit_rules_seen/subs_line_shown/sub_stipend_previewed/first_visit_filed/visit_ended (verified by checklist_audit §8) + sink/report/dashboard support; staging run incl. `?hired=1` + four band paths owed | spec complete — needs game build |
+| G17 human playtest | `world/playtest.html` harness (live: PT1–PT88 (checkpoint count grows with the harness — cite the live count), `#pt=` deep links, triage export); owner run on launch candidate owed | harness shipped; run owed |
 | G18 accuracy sweep | `tools/accuracy_sweep.py` — 155-key parody map + fabrication markers are hard FAILs, claim-risk-without-negation are human-read WARNs; wired into preflight step 5c | first run 2026-09-23 (v113): 0 fail after 3 real-address fixes |
 | Checklist integrity | `tools/checklist_audit.py` — gates↔§11↔§7↔command-card↔gonogo consistency + live world-contract freshness (§8) | 2026-09-23 (v83): 14/0/0 |
 | Proof freshness (§13) | `tools/gate_freshness.sh` — ages every §10 proof against its window + structural drift (gallery/zip/site-edits/uncommitted); `--strict` for cron | first run 2026-09-23 (v128): flagged gallery v62<v64 + stale zip pre-refresh |
@@ -415,3 +415,81 @@ The windows here are also compiled into `tools/gate_freshness.sh` — change one
 change the other.
 | 2026-09-23 | tools/press_kit_check.py (v137, first run) | NEW gate caught 8 real gaps on first run: manifest self-undeclared, 7 assets uncaptioned (logo rasters, mono lockup, v67 webp companions) — all fixed; rerun 7 pass / 0 warn / 0 fail (54 declared files, 15 index links, zip parity). Wired into preflight.sh step 5d. NEW press-kit/coverage-log.md (post-launch coverage tracker). Preflight rerun: 9 pass / 5 warn / 0 fail GO |
 | 2026-09-23 | tools/store_copy_check.py checks 8–9 + preflight 5e (v138, first run) | NEW checks caught 2 real drifts on first run: preview.html screenshot strip pointed at deleted press-kit v61 set (rebased to v67 + §9 captions) and banner src pointed at nonexistent site/assets/banners/ path — both fixed; capsule-dims check verifies all 8 sized PNGs incl. NEW steam-library-hero-3840x1240.png (generated composite, §4 FLAG→Done-interim). Wired into preflight.sh step 5e. Preflight rerun: 9 pass / 6 warn / 0 fail GO |
+
+## §14 The quiet-launch variant (owner's other GO)
+
+GO is not binary. The checklist supports a second, quieter shape: ship the
+site and open the door, but hold the announce. Use it when the gates are
+green but confidence isn't — e.g. G17 passed with majors fresh in memory,
+or the owner wants real spectators on the build before press sees it.
+
+| | Full announce (default) | Quiet launch |
+|---|---|---|
+| Deploy + smoke (D0.1–D0.3b) | yes | yes — identical |
+| Search Console submit (D0.4) | yes | yes — indexing is not announcing |
+| Devlog post (D0.5) | T-0 | held — publish as "the door has been open 3 days" |
+| Channels/press/community (D0.6–D0.8) | T-0, ≥20 min apart | held 72 h, then run in the same order |
+| Community open (D0.8b) | T-0 | held with the rest — Discord opens WITH the announce, not before (a Discord with nobody in it reads dead, not quiet) |
+| Monitoring (D0.9) | continuous | continuous — this is the point of the soak |
+| Retro (D0.10) | T+24h | two notes: soak-day-1 + post-announce day-1 |
+
+Quiet-launch rules:
+- **It's still a launch.** Every gate G1–G18 must be green; the quiet
+  variant relaxes timing, never readiness. A quiet launch of an unready
+  build is just a launch nobody can roll back from cleanly.
+- **72 h is the soak window, not a habit.** Decide the announce date at
+  the T-48h block — don't drift. If a SEV-1/2 fires during the soak, fix
+  it, then restart the 72 h; the announce drafts stay truth-conditional.
+- **Whoever finds it organically, welcomes it.** No delisting tricks, no
+  robots-walls — the site is public the moment it deploys. Quiet launch
+  means we don't amplify, not that we hide.
+- Record the choice in the §6 block: `Shape: FULL / QUIET — announce at
+  <date>` and mirror it in §15's event log when it happens.
+
+## §15 Launch-day event log (fill in as it happens)
+
+§10 is rehearsals; this is the performance. One line per real event,
+timestamps in UTC — it's the forensic record for the day-7 retro and the
+only place "what actually shipped when" is unambiguous. Fill during the
+day; it takes seconds per row.
+
+| UTC | Event | Note |
+|-----|-------|------|
+| | §6 GO issued — shape FULL/QUIET | |
+| | deploy applied (D0.1) | release id from /release.json |
+| | prod smoke green (D0.2) | pass/warn/fail |
+| | launch copy flipped (D0.3) | commit sha |
+| | demo embed live (D0.3b) | watch_start mode:"live" seen y/n |
+| | devlog posted (D0.5) | url |
+| | channel posts sent (D0.6) | which channels |
+| | press kit mailed (D0.7) | n outlets |
+| | community opened (D0.8b) | invite link live |
+| | first organic spectator | source if known |
+| | first request_submitted event | |
+| | first character_created event | |
+| | incidents | link §5 row fired, or "none" |
+| | day-1 snapshot taken (D0.10) | vs funnel targets |
+
+## §16 The second go/no-go — post-launch health gates
+
+Launch day proves the door opens. These checkpoints prove it should stay
+open. Each has a hold-condition: if tripped, pause the remaining amplify
+steps (§3 abort points) and log it here — never silently absorb a red.
+Thresholds marked `<owner>` are the owner's to set in the §6 block,
+because they're judgment, not mechanics.
+
+| When | Check | Hold-condition |
+|------|-------|----------------|
+| T+2h | uptime probe green; `watch_start` firing on both personas; request feed moving | any FAIL → §5 row + hold D0.6+ if still running |
+| T+24h | funnel: visit→watch_start conversion sane (not zero, not absurd); mod queue depth reviewed; refund events = only legit paths | refund spike or queue backlog > <owner> → hold paid-traffic ideas, keep site up |
+| T+72h | quiet-launch soak ends (if QUIET) — all §15 rows filled, no open SEV | announce proceeds only if soak was clean |
+| T+7d | §8 list done; payer rate vs projection band <owner>; denial rate first look sane | pricing review owed before any promo push |
+| T+30d | §9 list done; month-1 report rendered via `tools/analytics_report.py` | roadmap re-rank before season-2 decisions |
+
+The standing rule from §6 applies here too: a red row defaults to HOLD.
+The launch is boring twice, or it isn't done.
+| 2026-09-24 | checklist_audit.py world-contract refresh (v143) | caught live drift twice mid-version: onboarding v81→v95 (storage key rw_onboard_v95, 27→32 hooks — spec'd credit_rules_seen/subs_line_shown/sub_stipend_previewed/first_visit_filed/visit_ended in analytics-events.json), playtest PT1–PT84→PT1–PT88 (world shipped four harness versions during this one); all pins + gonogo labels resynced; final 14 pass / 0 warn / 0 fail |
+| 2026-09-24 | gallery refresh v67→v71 (v143) | art published v70 AND v71 mid-version — rebased straight past both (dollhouse interiors: inspected pawn's building ghosts to a real floor plan; top-view block-shadow pass: swept footprint shadows + AO skirts); shots + kit screenshots swapped (cmp-verified, webp regen), captions/alt-text/README/whats-new/deadline-desk/contact-sheet/fact-sheet/one-sheet/b-roll/embargo refs updated, whats-new gained v68/v69/v70/v71 bullets, keyart/banners/capsules/og-card rebaked on v71-D; v71-C PNG (2.02MB) breaches the 2MB ceiling → webp-only per the v135 rule (A/B/D keep PNG fallback); dist zip rebuilt (59 files) |
+| 2026-09-24 | staging_dryrun.sh (v143, shots v71) | 40 pass / 3 warn / 0 fail — warns: domain ×2 + 1 on-disk PNG >2MB (expected, fallback dropped) |
+| 2026-09-24 | tools/preflight.sh (v143) | 10 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted); accuracy_sweep 5/34/0, seo_audit 97/43/0, brand_audit 0/0, checklist_audit 14/0/0, press_kit 7/0/0, store_copy 0/0 |
+| 2026-09-24 | tools/gonogo.sh (v143, 18 gates) | 3/18 auto-green (G5 gallery v71, G9 zip fresh, G18 accuracy clean) — G5 flagged mid-version at v70<v71, cleared by the rebase above |
