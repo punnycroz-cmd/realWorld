@@ -3488,12 +3488,42 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of LMUST)
       if (!re.test(lab)) add(g, 'fail', 'screen-lab.html', null, `missing required affordance: ${label}`);
+    /* 5b. v106 display-filter bench (filter-lab.html) */
+    if (!MJ.display_filter_lab)
+      add(g, 'fail', 'moderation.json', null, 'contract block "display_filter_lab" missing');
+    if (MJ.display_filter && !(MJ.display_filter.bench || '').includes('filter-lab.html'))
+      add(g, 'fail', 'moderation.json', null, 'display_filter.bench must point at filter-lab.html');
+    if (MJ.display_filter && !/OWNER-DECISION — open/.test(MJ.display_filter.status || ''))
+      add(g, 'fail', 'moderation.json', null, 'display_filter must stay OWNER-DECISION — open; the lab never decides');
+    const fl = rd('filter-lab.html');
+    const FLMUST = [
+      [/Privacy Screen Lab/, 'lab title'],
+      [/owner decision — open/i, 'decision-stays-open honesty'],
+      [/screen\.js/, 'shared engine script tag'],
+      [/RWScreen\.screenRequest|screenRequest/, 'live re-screening, never stored verdicts'],
+      [/request not approved/i, 'fixed feed wording contract'],
+      [/text-filtered/, 'option A redact flag chip'],
+      [/withheld by the display filter/, 'option B withhold render'],
+      [/quarantined/, 'option C quarantine render'],
+      [/counted, not read/i, 'suppressedFeed counted-not-read rule'],
+      [/span approximated/, 'option A normalized-hit honesty note'],
+      [/export memo JSON|exMemo/, 'decision memo export'],
+      [/decision:'display_filter — OPEN|decision:\s*'display_filter — OPEN/, 'memo exports decision OPEN'],
+      [/aggregate/i, 'appeals aggregate-only contract']
+    ];
+    for (const [re, label] of FLMUST)
+      if (!re.test(fl)) add(g, 'fail', 'filter-lab.html', null, `missing required copy/affordance: ${label}`);
+    if (/picked|chosen option|decision:\s*['"]?(A|B|C)\b/.test(fl))
+      add(g, 'fail', 'filter-lab.html', null, 'lab must never render a winner — the decision is the owner\u2019s');
+    /* filter-lab re-screens, never stores: no hardcoded verdict words on cases */
+    if (/verdict:'deny'|verdict:'review'/.test(fl))
+      add(g, 'fail', 'filter-lab.html', null, 'stored verdicts in case data — must re-screen live through RWScreen');
     /* 6. internal surfaces make no world-mutation calls OUTSIDE the review
        lane. v92: the console's job IS the review lane — the declared seam
        fns (queue/metrics/flags/rep/briefing reads + review-resolve/legal
        writes) are allowlisted; anything else world-touching still fails. */
     const SEAM_OK = /gsReviewQueue|gsReviewResolve|gsEscalateLegal|gsModMetrics|gsFlagStatus|gsRepLedger|gsPossessionBriefing|gsViewerState|gsExplainRequest|gsRequestMeter/g;
-    for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab]])
+    for (const [f, src] of [['mod-console.html', mc], ['screen-lab.html', lab], ['filter-lab.html', fl]])
       src.split('\n').forEach((ln, i) => {
         const scrubbed = ln.replace(SEAM_OK, '');
         if (/\bXMLHttpRequest\b|\bfetch\(|\.post\(|gsRequest[A-Z]|gsPossess|gsAdmin|gsHire(Submit|Activate)|gsSubmitRequest|gsCreditSpend|gsCancelRequest/i.test(scrubbed))

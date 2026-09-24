@@ -243,6 +243,7 @@ const SURF={
   homes:{file:"homes.html",name:"The Fridge Door"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
+  flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
   harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
@@ -2080,6 +2081,26 @@ const PTS=[
   ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
     "No setInterval/poll loop on the desk check — pull only",
     "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT97",title:"The display-filter bench v106 — three options, live engine, no winner",min:6,
+ persona:"studio owner — the display_filter row in moderation.json has sat OPEN since the taxonomy landed; wants to see exactly what each option does to the public feed before picking",
+ goal:"Verify the v106 Privacy Screen Lab on world/filter-lab.html: nine seeded cases re-screen live through RWScreen.screenRequest at render (never stored verdicts); each flagged case renders under all three display options side-by-side — A redact (░░░ span + text-filtered chip), B withhold (class + outcome only), C quarantine (held card); the survival matrix and memo JSON name costs honestly; the decision stays OPEN everywhere.",
+ surfaces:["flab","mod","audit"],steps:[
+ {do:"Open world/filter-lab.html and click through all nine cases — FL-01 harm deny through FL-09 pass control.",
+  exp:"Each case header shows the live engine verdict+code (deny harm-targeting, deny secret-extraction, deny real-business, deny legal-backstop, deny possession-scope, review obfuscation-attempt, review gray-zone, review repeat-pattern, pass). The pass case renders identically under all three options — no filter engages. Flagged cases differ: A shows text with the charged span blacked out, B shows class+outcome only, C shows a dashed 'held for review' card.",
+  ck:["Every verdict comes from RWScreen.screenRequest at render — no stored verdict strings in the case data",
+    "Option A on FL-05 (hyphenated 'p-o-s-s-e-s s') redacts the full text and prints 'normalized match — span approximated for display' — the preview never fakes a span",
+    "Deny entries always read 'request not approved' under every option — the wording contract is fixed"]},
+ {do:"Read the survival matrix and export the memo JSON.",
+  exp:"The matrix rows name what survives per option — including the suppressedFeed 'counted, not read' row and option C's reviewer-load cost. 'Export memo JSON' fills the memo block with decision:'display_filter — OPEN (owner decision)', the fixed contract line, and a per-case render map across A/B/C.",
+  ck:["Header and memo both carry 'owner decision — open' — nothing in the lab marks a winner",
+    "memo JSON includes all 9 cases with per-option render summaries",
+    "Option C's cost (reviewer load on every charged entry) is stated in the matrix"]},
+ {do:"Run node world/audit.js and read the mod gate.",
+  exp:"Mod gate passes with the new v106 block: display_filter_lab contract present, display_filter.bench points at filter-lab.html, status still OWNER-DECISION — open, all FLMUST affordance marks present, no winner rendered, no stored verdicts, filter-lab included in the world-mutation sweep.",
+  ck:["Mod gate: 0 fail; mirror gate still green (flab surface + PT97 mirrored in playtest.html)",
+    "Coverage gate lists filter-lab.html via the flab surface — no 'untested demo page' review hit",
+    "Harness gate unchanged: '97 scenarios' now counted in the rail"]},
 ]}
 ];
 
@@ -2096,7 +2117,7 @@ const DEBRIEF=[
  {id:"seams",label:"Invisible seams — did anything imply shared live state the demos don't have?"},
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
-const OWNER_SUGGEST={screen:"world",lab:"world",audit:"world",harness:"world",supply:"world"};
+const OWNER_SUGGEST={screen:"world",lab:"world",flab:"world",audit:"world",harness:"world",supply:"world"};
 let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
 S.flags=S.flags||{};

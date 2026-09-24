@@ -351,3 +351,44 @@ bridged: badge flip, verbatim bus ids, resolve calls carrying
 legal escalation through `gsEscalateLegal`, live flag roster and
 `gsModMetrics` report — and the audit's `mod` gate enforces the seam
 keys plus the ledger-record `via:'bus'` marker.
+
+## 12d. v106 — the display-filter bench (Privacy Screen Lab v1)
+
+`display_filter` has been an OWNER-DECISION since the taxonomy landed —
+options A (redact span), B (withhold text), C (quarantine pending review)
+existed only as three lines in `moderation.json`. `world/filter-lab.html`
+is the decision bench: nine seeded cases re-screened live through
+`RWScreen.screenRequest` at render time — never stored verdicts — so the
+preview can never drift from the engine. The set spans the deny tier
+(harm, secret-extraction, real-business, legal-backstop, possession via
+a hyphenated evasion), the review tier (unreadable-run obfuscation,
+gray-zone, history-driven repeat-pattern), and one pass control to show
+where no filter engages at all.
+
+Each case renders under all three options side-by-side, plus a survival
+matrix (what reaches the feed under each: the attempt, the charged span,
+the reason class, attribution, the suppressedFeed counter, appeal-spectacle
+risk) and an "export memo JSON" — the studio-side artifact that drops into
+the moderation.json record once the owner picks.
+
+Two honesty rules are structural:
+
+- **The lab never picks a winner.** The header carries "owner decision —
+  open"; the memo JSON exports `decision: OPEN`. moderation.json's
+  "A recommended" note is reproduced verbatim as context, not rendered as
+  a conclusion.
+- **Option A's redact render can't fake a span.** The trace hit string is
+  post-normalization; when a separator/accent evasion no longer maps
+  verbatim to the original text, the card redacts the full text and prints
+  "normalized match — span approximated for display". A preview that lies
+  about redaction would sell option A on false evidence.
+
+The fixed contract prints on every render: deny wording always
+`request not approved`, appeals aggregate-only, no reviewer free text,
+`suppressedFeed` counted-not-read under all three options. Option C's real
+cost is named in the matrix — quarantine adds reviewer load to every
+charged entry, not just exclusives.
+
+Contract: `moderation.json` gains `display_filter_lab` + a `bench` pointer
+on `display_filter`. Merge note: once the owner picks, the filter is a
+feed-render layer in game-systems; the memo JSON is the config record.

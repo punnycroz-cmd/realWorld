@@ -87,7 +87,15 @@
       "B_withhold":   "flagged text hidden; feed shows class + outcome only",
       "C_quarantine": "flagged text held for human review before display"
     },
-    "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs."
+    "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs.",
+    "bench": "world/filter-lab.html (v1, world v106) renders all three options against live screen.js verdicts — the decision artifact for the owner; the lab never picks a winner"
+  },
+  "display_filter_lab": {
+    "tool": "world/filter-lab.html — Privacy Screen Lab v1 (world v106)",
+    "method": "9 seeded cases re-screened live through RWScreen.screenRequest at render (harm/secret/real-business/legal/possession-via-separator/obfuscation/gray-zone/repeat-pattern/pass-control); each renders under A/B/C side-by-side plus a survival matrix and an exportable decision memo JSON",
+    "redact_render": "option A locates the trace hit in the original text; normalized hits that no longer map verbatim (separator/accent evasions) redact the full text with an 'approximated' note — honest, never fakes a span",
+    "honesty": "the lab renders consequences, not a verdict — decision stays OPEN; fixed contract printed on every render: deny wording always 'request not approved', appeals aggregate-only, no reviewer free text, suppressedFeed counted-not-read under all three options",
+    "merge_target": "once the owner picks, the display filter is a feed-render layer in game-systems; the lab's memo JSON is the config record (options + fixed contract + per-case render map)"
   },
   "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)", "corpus green (screen-lab)"],
   "testing": {
