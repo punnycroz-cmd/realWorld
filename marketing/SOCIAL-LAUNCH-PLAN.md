@@ -1,10 +1,12 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v109 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v124 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
 community playtest night + Move-In Week arc + Limits arc + Parrot Watch
-arc + Counter arc (request receipts) + automated pre-send checker
-(`tools/social_check.py`) + machine-readable calendar
+arc + Counter arc (request receipts) + milestone post layer
+(`social/drafts/milestone-posts.md` + `social/milestones.json` trigger
+table + `tools/milestone_check.py` unlock report) + automated pre-send
+checker (`tools/social_check.py`) + machine-readable calendar
 (`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export) +
 generated post-ready cards (`social/cards/` ← `tools/make_social_cards.py`),
 2026-09-23.
@@ -101,6 +103,7 @@ its channel, timing slot, required asset, and character-count check.
 | `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
 | `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
 | `counter-arc.md` | 4-post "every request leaves a receipt" series on the Counter — the board, the free wording check, the `rq-` receipt, co-sponsoring (v94; post-launch only, canon: world-v60 request-ui.md/requests.json live_seam) | 4 |
+| `milestone-posts.md` | 10 trigger-fired posts keyed to real counters (first request, 100 watchers, first hire, first decline, rent-cycle close, 1k/5k/10k requests, week-one numbers, first ruling, quiet-week card) — fires on truth, never schedule (v124) | 10 |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
 | `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
 
@@ -175,6 +178,22 @@ Sustainable rhythm, fed by the product itself.
 - **This Week cadence total:** ~7 posts/week across channels, mostly reused
   assets. Target effort after week 1: under 2 h/week for drafting; review
   per §3 gate.
+
+### Triggered beats — any time (v124)
+
+Milestone posts fire on real counters, not the calendar — first request,
+first hire, first decline, 100 concurrent watchers, request-count
+thresholds, rent-cycle close, first public ruling, week-one numbers,
+quiet-week honesty card. The trigger table is machine-readable:
+`social/milestones.json`; run `python3 tools/milestone_check.py --show
+--counters <snapshot.json>` (or `--set counter=N`) to see which posts are
+currently unlocked, and pass `--fired` so fires-once posts don't re-fire.
+Rules: counter-verbatim numbers, attribution outward only (never
+@-mention players from the dev account), M5 holds until the appeal
+window closes, M8 is owner-gated, M10 max once/month and not before
+T+14. Full drafts + rules: `social/drafts/milestone-posts.md`. These sit
+*outside* `schedule.json` deliberately — they have no day offsets; they
+slot into whichever week the counter trips.
 
 ## 6. Launch-day runbook (operational)
 
