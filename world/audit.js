@@ -2190,12 +2190,30 @@ const PUB = Object.values(PT.surfaces)
       [/the corner’s rhythm/, 'venue rhythm strip'],
       [/not a promise/, 'rhythm honesty copy'],
       [/id="pickA"/, 'pair picker A'],
-      [/id="pickB"/, 'pair picker B']
+      [/id="pickB"/, 'pair picker B'],
+      /* v76 — the shape layer */
+      [/data-v="hour"/, 'same-hour view switch'],
+      [/data-v="cmp"/, 'day-compare view switch'],
+      [/id="pickHour"/, 'hour picker'],
+      [/id="pickD1"/, 'compare picker A'],
+      [/id="pickD2"/, 'compare picker B'],
+      [/a shape the wire happened to draw/, 'hour honesty copy'],
+      [/not a schedule/, 'hour not-a-schedule copy'],
+      [/counted, not explained/, 'compare honesty copy'],
+      [/shared corners/, 'compare shared-corners block'],
+      [/named in passing/, 'person lens chip'],
+      [/the trail, cut finer/, 'person lens label'],
+      [/id="reccopy"/, 'copy-record control'],
+      [/copy record/, 'copy-record affordance'],
+      [/ev\.key==='j'/, 'j/k row walk'],
+      [/visIds/, 'row-walk id track']
     ];
     if (!HJ.archive_ui?.archive_ui_v48)
       add(g, 'fail', 'history.json', null, 'archive_ui_v48 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v62)
       add(g, 'fail', 'history.json', null, 'archive_ui_v62 contract block missing');
+    if (!HJ.archive_ui?.archive_ui_v76)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v76 contract block missing');
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'archive.html', null, `missing required copy/affordance: ${label}`);
     /* no world-mutation call on the surface */
@@ -2209,7 +2227,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'archive.html', i + 1, `world-mutation call on a spectator surface: ${ln.trim().slice(0, 100)}`);
     });
     g.detail = `${Object.keys(HJ.days).length} days · ${evCount} events mirrored · ` +
-      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v5`;
+      `${Object.keys(HJ.threads || {}).length} threads · schema archive-v6`;
   } catch (e) { add(g, 'fail', 'history.json', null, 'parse/check failure: ' + e.message); }
 }
 
@@ -2514,7 +2532,7 @@ const PUB = Object.values(PT.surfaces)
   const g = gate('harness', 'playtest harness self-contract (v51+v65 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
-    const H = PT.harness_ui_v72 || {};
+    const H = PT.harness_ui_v73 || {};
     /* 1. storage key + build tag agreement */
     if (H.storage_key && !html.includes(`"${H.storage_key}"`))
       add(g, 'fail', 'playtest.html', null, `storage key "${H.storage_key}" not found in the harness`);

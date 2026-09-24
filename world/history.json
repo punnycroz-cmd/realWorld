@@ -98,7 +98,26 @@
         "the shelf transcript carries the source badge like the day transcript — a pasted shelf can't impersonate live",
         "the rhythm strip counts the wire's own tags; it never predicts where a venue will be"
       ]
-    }
+    },
+  "archive_ui_v76": {
+   "doc": "world v76 — The Archive v6: the shape layer. The same hour (one hour of day across every archived day), day vs day (two-day counted comparison), the person lens (followed vs named-in-passing cut of the same trail), copy record (single badged line) + j/k row walk on the day view. Still projections — nothing counted, cut, or copied that wasn't already a public row.",
+   "views_added": {
+    "hour": "#v=hour&h=<0-23> — every event inside one hour of day across all days; head counts rows/days, names the most-tagged corner, counts kinds; copy calls it 'a shape the wire happened to draw — not a schedule'",
+    "cmp": "#v=cmp&d1=<day>&d2=<day> — two-day side-by-side: entries, coverage span, busiest corner, per-kind counts matching the day view's own filters (cells open that day pre-filtered), plus shared venue ids as venue-view chips",
+    "person_lens": "chip row on the person trail: all rows / followed (who) / named in passing (mentions) — the lens subtracts, never adds; the head count still reports the whole trail",
+    "copy_record": "'copy record' on the record detail emits one badged plain-text line — 'real world — the archive — record <id> (<source badge>)' + day HH:MM kind text [status]",
+    "row_walk": "j/k on the day view walk the visible rows — selection, record detail, and permalink move together; clamped, inert in inputs and on other views"
+   },
+   "permalinks_added": [
+    "#v=hour&h=<0-23>",
+    "#v=cmp&d1=<YYYY-MM-DD>&d2=<YYYY-MM-DD>"
+   ],
+   "honesty": [
+    "hour/cmp figures are counts over the archive's own rows — 'counted, not explained'; no editorial pick, no prediction",
+    "the person lens never widens scope — 'named in passing' is still only rows where the id appears in who/mentions",
+    "copy record carries the source badge — a pasted line can never impersonate live"
+   ]
+  }
   },
   "days": {
     "2026-09-17": [

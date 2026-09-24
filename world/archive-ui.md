@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -300,7 +300,60 @@ Copy deck additions:
 | Rhythm head | "the corner's rhythm — counted across the whole record, not a promise" |
 | Rhythm tooltip | "HH:00 — N across the record" |
 
-## 13. Merge notes (for the game track)
+## 13. v76 — The Archive v6 — the shape layer
+
+Four additions. The standing rule holds — projections of public rows,
+counted, never curated — plus the shelf rule: reader-side state stays
+on the reader's device.
+
+- **The same hour** (`#v=hour&h=<0-23>`). An hour-of-day picker in the
+  left rail; the center lists every event the wire ever wrote inside
+  that hour, across all days, through the day-grouped trail renderer.
+  The head counts rows and days, names the most-tagged corner in that
+  hour (same busiest-corner rule as the week rows), and counts kinds.
+  Copy calls it what it is: "a shape the wire happened to draw — not a
+  schedule". Empty hour: "the block keeps some hours to itself."
+- **Day vs day** (`#v=cmp&d1=<day>&d2=<day>`). Two day pickers
+  (default: the latest two days on record). The table counts each
+  day's own rows side by side — entries, coverage span, busiest
+  corner, then one row per day-view kind filter (`the block` / word /
+  requests / admin / press). Kind cells open that day pre-filtered, so
+  a number and its rows can never disagree. "Shared corners" lists
+  venue ids the wire tagged on both days; chips open the venue view.
+  Same day picked twice gets a plain explanation, not a table.
+- **Person lens.** The person trail gains a cut-finer chip row:
+  `all rows` / `followed` (the wire's row is theirs — `who`) /
+  `named in passing` (somebody else's row named them — `mentions`).
+  Same scope either way; the lens subtracts, never adds. The head
+  count still reports the whole trail.
+- **Copy record + j/k.** The record detail gains `copy record` — the
+  single record as a badged plain-text line (`record <id>`, source
+  badge in the header line, same honesty rule as the day transcript).
+  On the day view, `j` / `k` walk the visible rows — selection,
+  detail, and permalink move together; clamped at both ends, inert
+  inside inputs and on other views.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Hour chip | "the same hour — one hour of day, every day on record — a shape, not a schedule" |
+| Hour head | "The block at HH:00 — a shape the wire happened to draw — not a schedule" |
+| Hour meta | "N rows · M days on record · most-tagged corner: <venue> (K)" |
+| Hour kinds | "kinds counted — N kind · N kind …" |
+| Hour empty | "Nothing public in this hour on any day — the block keeps some hours to itself." |
+| Cmp chip | "day vs day — two days side by side — counted, not explained" |
+| Cmp head | "<day> vs <day> — same rows, two columns — counted, not explained" |
+| Shared corners | "shared corners — venue ids the wire tagged on both days" |
+| Cmp footnote | "a kind cell opens that day pre-filtered — the number and the rows never disagree" |
+| Cmp same-day | "Same day twice — pick two different days on the left." |
+| Lens label | "the trail, cut finer:" |
+| Lens chips | "all rows" / "followed" / "named in passing" |
+| Copy record | "copy record" → toast "record copied — one line, badge included" |
+| Record transcript head | "real world — the archive — record <id> (<source badge>)" |
+| Row walk | "j / k" (in-page; no separate chip — the ← → keyhint already marks day-view keys) |
+
+## 14. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -331,3 +384,10 @@ sources change nothing: a pin id the current source doesn't serve is
 counted honestly, never dropped or invented. If the bus ever rewrites an
 id, the shelf treats the old id as absent — correct behavior, no repair
 path needed.
+
+v76: no schema change — the same-hour and day-vs-day views project `t`,
+`kind`, `venue`, `who`/`mentions` over the same day-objects; the person
+lens is a display filter, not a field. `copy record` carries the source
+badge like every transcript. Nothing new for the bridge to emit; the
+two views degrade gracefully on a one-day record (compare asks for two
+days; the hour view just counts fewer rows).

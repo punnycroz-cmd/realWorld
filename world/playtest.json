@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch \u2014 file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 72,
+ "version": 73,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3552,11 +3552,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the book + request + harness gates.",
-     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json \u2194 inline BOOK \u2194 BOOKW), no prices on the Book, bookable \u2286 exclusive actions, claims resolving to CLAIMS keys, feed_shapes \u2286 feed_vocabulary, and a dark-pattern sweep. Harness gate reports 68 scenarios at the v72 key.",
+     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json \u2194 inline BOOK \u2194 BOOKW), no prices on the Book, bookable \u2286 exclusive actions, claims resolving to CLAIMS keys, feed_shapes \u2286 feed_vocabulary, and a dark-pattern sweep. Harness gate reports 69 scenarios at the v73 key.",
      "checkpoints": [
       "book gate detail: 'schema v74 \u00b7 4 claims \u00b7 4 seeded windows' \u2014 PASS",
       "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL \u2014 spot-check the gate code",
-      "Harness gate: '68 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v72'; 0 fail overall"
+      "Harness gate: '69 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v73'; 0 fail overall"
      ]
     }
    ]
@@ -3601,11 +3601,60 @@
     },
     {
      "do": "Run `node world/audit.js` and read the wire + harness gates.",
-     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 68 scenarios at the v72 key.",
+     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 69 scenarios at the v73 key.",
      "checkpoints": [
       "wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' \u2014 PASS",
       "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL \u2014 spot-check the gate code",
-      "Harness gate: '68 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v72'; 0 fail overall"
+      "Harness gate: '69 scenarios \u00b7 N checkpoints \u00b7 key rw_playtest_v73'; 0 fail overall"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT69",
+   "title": "The Archive v6 — the shape layer (same hour, day vs day, finer trail cuts)",
+   "minutes": 10,
+   "persona": "returning spectator — wants the shape of the week, not just its days",
+   "goal": "Verify the v76 archive pass: the same-hour view counts one hour of day across every archived day without promising a schedule; day vs day compares two days in counted columns only; the person lens cuts a trail finer without widening scope; copy record carries the source badge; j/k walks the day rows.",
+   "surfaces": [
+    "archive",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open archive.html (file://). Switch to 'the same hour' and pick 15:00, then an uncovered early hour like 04:00.",
+     "expect": "The 15:00 view lists every event in that hour across all days, grouped by day, with a head counting rows and days, naming the most-tagged corner, and listing counted kinds — plus the honesty chip 'a shape the wire happened to draw — not a schedule'. The empty hour reads 'Nothing public in this hour on any day — the block keeps some hours to itself.'",
+     "checkpoints": [
+      "Row count and days-on-record agree with the rendered trail — no invented coverage",
+      "The view never reads as a prediction — 'not a schedule' sits in the head",
+      "Permalink #v=hour&h=15 restores the view with the picker set"
+     ]
+    },
+    {
+     "do": "Switch to 'day vs day'. Leave the default pickers, then set both pickers to the same day, then pick two different days and click a kind cell.",
+     "expect": "Defaults compare the latest two days on record: entries, coverage span, busiest corner, then one row per day-view kind filter — 'same rows, two columns — counted, not explained'. Shared corners appear as chips that open the venue view. Same-day-twice shows a plain explanation, not a table. A kind cell opens that day pre-filtered.",
+     "checkpoints": [
+      "A cell's number equals the rows the filtered day view shows — the number and the rows never disagree",
+      "Shared corners list only venue ids tagged on both days (null venue counts as 'the block')",
+      "No editorial line anywhere — the table never says which day was 'better'"
+     ]
+    },
+    {
+     "do": "Open 'by person' → Jules (C2). Toggle 'followed' then 'named in passing'. Open any record and use 'copy record'. Back on the day view, press j then k.",
+     "expect": "'followed' shows only rows where the wire followed Jules (who); 'named in passing' only rows where another event's mentions name her; the head count still reports the whole trail. Copy record places one badged plain-text line on the clipboard. j/k move the row selection and the record detail together, clamped at both ends.",
+     "checkpoints": [
+      "The lens subtracts only — followed + named-in-passing together equal the full trail",
+      "The copied line opens 'real world — the archive — record <id> (demo archive)' — badge included",
+      "j/k are inert while focus is in the search box"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the archive + harness gates.",
+     "expect": "The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 69 scenarios at the v73 key.",
+     "checkpoints": [
+      "archive gate detail ends 'schema archive-v6' — PASS",
+      "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
+      "Harness gate: '69 scenarios · N checkpoints · key rw_playtest_v73'; 0 fail overall"
      ]
     }
    ]
@@ -3650,10 +3699,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v72 local",
- "harness_ui_v72": {
-  "storage_key": "rw_playtest_v72",
-  "build_tag_prefix": "world v72 local",
+ "build": "world v73 local",
+ "harness_ui_v73": {
+  "storage_key": "rw_playtest_v73",
+  "build_tag_prefix": "world v73 local",
   "deep_link": "#pt=<PT id> \u2014 parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3703,7 +3752,8 @@
    "rw_playtest_v69",
    "rw_playtest_v70",
    "rw_playtest_v71",
-   "rw_playtest_v72"
+   "rw_playtest_v72",
+   "rw_playtest_v73"
   ]
  }
 }
