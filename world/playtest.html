@@ -34,7 +34,8 @@
   become a persisted re-test list (#verify / S.verify / 'still broken'
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
-  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer).
+  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer,
+  PT118 + offers v129 standing-offer layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -258,6 +259,7 @@ const SURF={
   rules:{file:"rules.html",name:"The Fine Print"},
   firsts:{file:"firsts.html",name:"The First Week"},
   favors:{file:"favor.html",name:"The Counter Tab"},
+  offers:{file:"offer.html",name:"The Standing Offer"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
@@ -2555,6 +2557,26 @@ const PTS=[
   ck:["favs PASS with the expected detail line",
    "no arrangement reads as a script — all are standing invitations that may lapse",
    "businesses.md §10 and businesses.json favor_layer describe the layer consistently"]}
+]},
+{id:"PT118",title:"The Standing Offer v129 — the bounded-opportunities layer (open doors, honest neglect)",min:8,
+ persona:"viewer who keeps hearing the world called 'an observable social sandbox' and wants to see whether a taped-up clipboard can actually matter",
+ goal:"Verify the v129 offers layer: offers.json registers 34 standing offers across all 20 door venues AND all 9 registry buildings (shared_workspace / open_invitation / community_project); every offer names a host who keeps it legible — a person id or staff/house/regulars — plus a real cost, capacity, and cadence; every offer carries both a changes line (readable consequence if taken up) and a neglect line (honest decay if ignored), matching drama.json §51; visibility stratifies board/counter/quiet with quiet redacting below internal clearance in offer.html; cost.dollars is the only money field; jobs.json + housing.json both register offers_layer; the offs audit gate passes.",
+ surfaces:["offers","audit"],steps:[
+ {do:"Open offer.html at public clearance, then flip to staff and internal. Count quiet rows (11 — the building offers plus the proofing lesson) disappearing below internal and counter rows below staff.",
+  exp:"Clearance gating works exactly like the favors layer: quiet offers (the garden bed, the parcel shelf, the hall vacuum) never render at public; counter offers (the prep stool, the industry stool, the Sunday bay) need staff+. Buildings render as their own section under 'the buildings — registry addresses'.",
+  ck:["public shows board rows only; staff adds counter; internal shows all 34",
+   "the counter line reports 'N shown · M above clearance' honestly",
+   "a venue whose rows are all hidden shows the honest empty state, not a blank card"]},
+ {do:"Read offers for El Farolote, Auerbach, and 9418 Guerrero in offers.json; check host, cost, capacity, cadence, changes, neglect, since against the schema in offers.md §2.",
+  exp:"off-far-01 is the Thursday table occ-supper-table gestures at — a named instance, not a duplicate; every offer's host resolves to a person id or staff/house/regulars; every one has both a changes and a neglect line — consequence and honest decay are schema requirements, not vibes.",
+  ck:["off-aue-01's host is c7 — upkeep attaches to Victor the person, not 'the shop'",
+   "the garden bed at bld-g9418 is quiet visibility — household knowledge, never spectator-legible",
+   "no offer tracks attendance or promises an outcome — conditions, never scripts"]},
+ {do:"Run node world/audit.js and check the offs gate line; scan the neglect fields — the honest-decay states must read as texture (blank lines, dust, a folded chair), never as pressure or a fuse.",
+  exp:"offs gate passes with 'schema v129 · 29 keys · 34 offers · 10 on buildings · 11 quiet'; banned-vocabulary sweep keeps ask/changes/neglect on the offer bar.",
+  ck:["offs PASS with the expected detail line",
+   "jobs.json and housing.json both carry an offers_layer pointer",
+   "a missed Thursday table or an unclaimed garden bed reads as a thing that happened, not a thing that failed"]}
 ]}
 ];
 

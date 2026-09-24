@@ -69,6 +69,13 @@
                 required; tab_line balance game dollars only; quiet rows
                 redact on public clearance in the demo; banned vocabulary +
                 money-figure sweep on prose fields
+    offs      — offers.json ↔ offer.html OFF mirror; offers keyed by door
+                venues ∪ registry buildings, every door + building ≥1;
+                kind/visibility/host closed vocab; host ∈ person ids ∪
+                {staff,house,regulars}; ask/changes/neglect/since/cadence/
+                capacity required; cost.dollars numeric only; quiet/counter
+                redact below clearance in the demo; banned vocabulary +
+                money-figure sweep on prose fields
     rules     — house-rules.json ↔ rules.html RULE mirror; doors keys ==
                 door tiers exactly; every door states every fact_key;
                 closed vocabularies only; posted-sign consistency (cash /
@@ -3030,6 +3037,88 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'favor.html', null, 'missing internal/never-ship marker');
     g.detail = `schema v${FJ.version} · ${keyed.size} doors · ${n} arrangements · ${nQuiet} quiet · ${nTab} tabs`;
   } catch (e) { add(g, 'fail', 'favors.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15g offers — the standing-offer layer (v129) ============ */
+{
+  const g = gate('offs', 'offers contract (offers.json ↔ offer.html; doors + registry buildings key it; host mandatory; changes+neglect required; quiet redacts; dollars numeric only)');
+  try {
+    const OJ = JSONF('offers.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('offer.html');
+    const m = html.match(/const OFF\s*=\s*(\{[\s\S]*?\n\};)/);
+    if (!m) throw new Error('inline OFF not found in offer.html');
+    const OFF = eval('(' + m[1].replace(/;\s*$/, '') + ')');
+    if (OFF.version !== OJ.version)
+      add(g, 'fail', 'offer.html', null, `OFF version ${OFF.version} != offers.json ${OJ.version}`);
+    for (const k of ['kind_keys', 'visibility_keys', 'host_forms', 'offers'])
+      if (JSON.stringify(OFF[k] ?? null) !== JSON.stringify(OJ[k] ?? null))
+        add(g, 'fail', 'offer.html', null, `OFF.${k} drifted from offers.json`);
+    const DOOR = new Set(['anchor', 'street']);
+    const doorIds = new Set(BJ.businesses.filter(b => DOOR.has(b.tier)).map(b => b.id));
+    const bizIds = new Set(BJ.businesses.map(b => b.id));
+    /* registry buildings: parse the canonical seed block in jobs-housing.md §3 */
+    const jh = rd('jobs-housing.md').match(/```json\n(\{[\s\S]*?\})\n```/);
+    if (!jh) throw new Error('registry seed block not found in jobs-housing.md');
+    const REG = JSON.parse(jh[1]);
+    const bldIds = new Set(REG.buildings.map(b => b.id));
+    const keyed = new Set(Object.keys(OJ.offers || {}));
+    for (const id of doorIds)
+      if (!keyed.has(id)) add(g, 'fail', 'offers.json', null, `${id} has a door but no standing offer`);
+    for (const id of bldIds)
+      if (!keyed.has(id)) add(g, 'fail', 'offers.json', null, `${id} is a registry building with no standing offer`);
+    for (const k of keyed)
+      if (!doorIds.has(k) && !bldIds.has(k)) {
+        if (bizIds.has(k)) add(g, 'fail', 'offers.json', null, `${k} keys offers but has no door — offstage/reserved key nothing`);
+        else add(g, 'fail', 'offers.json', null, `offers key "${k}" is neither a door venue nor a registry building`);
+      }
+    const PID = /^(c[1-8]|s[1-3]|a(0[1-9]|1[0-9]|20))$/i;
+    const HOSTS = new Set(['staff', 'house', 'regulars']);
+    const kinds = new Set(Object.keys(OJ.kind_keys || {}));
+    const vis = new Set(Object.keys(OJ.visibility_keys || {}));
+    const BANNED = [/unfiltered/i, /\bsecret\b/i, /\bseed\b/i, /possess/i, /\bcredit/i, /\bUSD\b/i, /\bscript/i, /\$\s?\d/, /\b\d[\d,]*\s*cr\b/i];
+    const seen = new Set();
+    let n = 0, nQuiet = 0, nBld = 0;
+    for (const k of keyed) {
+      const rows = OJ.offers[k];
+      if (!Array.isArray(rows) || !rows.length) { add(g, 'fail', 'offers.json', null, `${k}: empty offers`); continue; }
+      for (const a of rows) {
+        n++;
+        if (bldIds.has(k)) nBld++;
+        const tag = a.id || `${k}:unnamed`;
+        if (!/^off-[a-z0-9]+-\d+$/.test(a.id || ''))
+          add(g, 'fail', 'offers.json', null, `${tag}: bad id "${a.id}"`);
+        if (seen.has(a.id)) add(g, 'fail', 'offers.json', null, `${tag}: duplicate id`);
+        seen.add(a.id);
+        if (!kinds.has(a.kind)) add(g, 'fail', 'offers.json', null, `${tag}: kind "${a.kind}" not in kind_keys`);
+        if (!vis.has(a.visibility)) add(g, 'fail', 'offers.json', null, `${tag}: visibility "${a.visibility}" not in visibility_keys`);
+        if (a.visibility === 'quiet') nQuiet++;
+        if (!(PID.test(String(a.host)) || HOSTS.has(a.host)))
+          add(g, 'fail', 'offers.json', null, `${tag}: host "${a.host}" not a person id or staff/house/regulars — someone keeps it legible`);
+        for (const f of ['ask', 'changes', 'neglect', 'since', 'cadence', 'capacity'])
+          if (!a[f] || String(a[f]).length < 6)
+            add(g, 'fail', 'offers.json', null, `${tag}: ${f} missing or too thin — an offer has an ask, a consequence, a decay, and a past`);
+        const c = a.cost || {};
+        for (const kk of Object.keys(c))
+          if (!['time', 'bring', 'dollars'].includes(kk))
+            add(g, 'fail', 'offers.json', null, `${tag}: cost.${kk} not in {time,bring,dollars}`);
+        if (c.dollars != null && (typeof c.dollars !== 'number' || c.dollars < 0))
+          add(g, 'fail', 'offers.json', null, `${tag}: cost.dollars must be a game-dollar number ≥ 0`);
+        for (const s of [a.ask, a.changes, a.neglect, a.since, a.cadence, a.capacity, c.time, c.bring])
+          for (const re of BANNED)
+            if (re.test(String(s)))
+              add(g, 'fail', 'offers.json', null, `${tag}: "${String(s).slice(0, 60)}" banned vocabulary/money figure (${re})`);
+      }
+    }
+    /* quiet/counter rows must redact below their clearance in the demo */
+    if (!/a\.visibility==='quiet'&&LVL\[clr\]<2/.test(html))
+      add(g, 'fail', 'offer.html', null, 'quiet rows have no clearance-redaction path');
+    if (!/a\.visibility==='counter'&&LVL\[clr\]<1/.test(html))
+      add(g, 'fail', 'offer.html', null, 'counter rows have no clearance-redaction path');
+    if (!/Internal posture|never ship/i.test(html))
+      add(g, 'fail', 'offer.html', null, 'missing internal/never-ship marker');
+    g.detail = `schema v${OJ.version} · ${keyed.size} keys · ${n} offers · ${nBld} on buildings · ${nQuiet} quiet`;
+  } catch (e) { add(g, 'fail', 'offers.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G15h rules — the fine-print layer (v114) ============ */

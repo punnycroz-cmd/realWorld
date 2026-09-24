@@ -1,4 +1,4 @@
-# Jobs & Housing — "The Mission" (world v0, index updated v45)
+# Jobs & Housing — "The Mission" (world v0, index updated v129)
 
 > **v3 depth layer:** the tables below remain canonical for numbers.
 > `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
@@ -52,6 +52,14 @@
 > clock per building, turnover scope, relist path; feed shapes print the
 > door, never the name). Internal demo: `world/exit.html`
 > ("The Last Shift").
+>
+> **v129 depth layer:** `world/offers.md` + `world/offers.json` — the
+> standing-offer layer (the authored half of the production-3 bounded
+> opportunities: one or more shared workspaces, open invitations, or
+> community projects per door venue AND per registry building; each with
+> host, cost, capacity, cadence, a `changes` line and an honest `neglect`
+> line). Conditions, never scripts — uptake belongs to the characters.
+> Internal demo: `world/offer.html` ("The Standing Offer").
 >
 > **v115 depth layer:** `world/firsts.md` + `world/firsts.json` — the
 > first-week layer (what happens after the yes: one first-shift card per

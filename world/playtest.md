@@ -473,6 +473,18 @@ One person can wear every hat; four real testers is the intended shape.
   game-dollar balances confined to tab_line. The audit's v128 marks pin
   the doors-key-it coverage, the carries contract, the closed
   vocabularies, the deep FAV mirror, and the clearance-redaction paths.
+  PT118 (offers v129) audits the standing-offer layer — "The Standing
+  Offer": 34 bounded opportunities across all 20 door venues AND all 9
+  registry buildings (shared_workspace / open_invitation /
+  community_project), each naming a host who keeps it legible (a person
+  id, or staff/house/regulars) plus cost, capacity, cadence, and since;
+  every offer carrying both a changes line (the readable consequence if
+  taken up) and a neglect line (the honest decay state if ignored) —
+  the authored half of drama.json §51, so a missed shared meal or an
+  unclaimed garden bed reads as a thing that happened, never a failed
+  script. The audit's v129 marks pin the doors+buildings coverage, the
+  host vocabulary, the mandatory changes/neglect pair, the deep OFF
+  mirror, and the quiet/counter clearance-redaction paths.
 
 ## 3. Running a session
 
@@ -687,7 +699,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Thirty-three gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirty-four gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -764,7 +776,12 @@ never routed, weather deltas are suggestions, no prices), **favs**
 every door carries ≥1, kind/visibility closed vocab, between parties
 resolve and the keyed venue is always one, carries ∈ between ∪
 {staff,both}, since required, tab_line balances game dollars only,
-quiet rows redact below internal clearance).
+quiet rows redact below internal clearance), **offs**
+(offers.json ↔ offer.html: OFF deep mirror, doors ∪ registry buildings
+key offers and every door + building carries ≥1, kind/visibility/host
+closed vocab, host ∈ person ids ∪ {staff,house,regulars},
+ask/changes/neglect/since/cadence/capacity required, cost.dollars the
+only money field, quiet/counter rows redact below clearance).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

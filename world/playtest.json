@@ -54,7 +54,10 @@
    "world/homes.md",
    "world/favor.html",
    "world/favors.json",
-   "world/favors.md"
+   "world/favors.md",
+   "world/offer.html",
+   "world/offers.json",
+   "world/offers.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -250,6 +253,11 @@
   "favors": {
    "file": "favor.html",
    "name": "The Counter Tab",
+   "tier": "internal"
+  },
+  "offers": {
+   "file": "offer.html",
+   "name": "The Standing Offer",
    "tier": "internal"
   }
  },
@@ -5831,6 +5839,46 @@
       "favs PASS with the expected detail line",
       "no arrangement reads as a script — all are standing invitations that may lapse",
       "businesses.md §10 and businesses.json favor_layer describe the layer consistently"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT118",
+   "title": "The Standing Offer v129 — the bounded-opportunities layer (open doors, honest neglect)",
+   "minutes": 8,
+   "persona": "viewer who keeps hearing the world called 'an observable social sandbox' and wants to see whether a taped-up clipboard can actually matter",
+   "goal": "Verify the v129 offers layer: offers.json registers 34 standing offers across all 20 door venues AND all 9 registry buildings (shared_workspace / open_invitation / community_project); every offer names a host who keeps it legible — a person id or staff/house/regulars — plus a real cost, capacity, and cadence; every offer carries both a changes line (readable consequence if taken up) and a neglect line (honest decay if ignored), matching drama.json §51; visibility stratifies board/counter/quiet with quiet redacting below internal clearance in offer.html; cost.dollars is the only money field; jobs.json + housing.json both register offers_layer; the offs audit gate passes.",
+   "surfaces": [
+    "offers",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open offer.html at public clearance, then flip to staff and internal. Count quiet rows (11 — the building offers plus the proofing lesson) disappearing below internal and counter rows below staff.",
+     "expect": "Clearance gating works exactly like the favors layer: quiet offers (the garden bed, the parcel shelf, the hall vacuum) never render at public; counter offers (the prep stool, the industry stool, the Sunday bay) need staff+. Buildings render as their own section under 'the buildings — registry addresses'.",
+     "checkpoints": [
+      "public shows board rows only; staff adds counter; internal shows all 34",
+      "the counter line reports 'N shown · M above clearance' honestly",
+      "a venue whose rows are all hidden shows the honest empty state, not a blank card"
+     ]
+    },
+    {
+     "do": "Read offers for El Farolote, Auerbach, and 9418 Guerrero in offers.json; check host, cost, capacity, cadence, changes, neglect, since against the schema in offers.md §2.",
+     "expect": "off-far-01 is the Thursday table occ-supper-table gestures at — a named instance, not a duplicate; every offer's host resolves to a person id or staff/house/regulars; every one has both a changes and a neglect line — consequence and honest decay are schema requirements, not vibes.",
+     "checkpoints": [
+      "off-aue-01's host is c7 — upkeep attaches to Victor the person, not 'the shop'",
+      "the garden bed at bld-g9418 is quiet visibility — household knowledge, never spectator-legible",
+      "no offer tracks attendance or promises an outcome — conditions, never scripts"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and check the offs gate line; scan the neglect fields — the honest-decay states must read as texture (blank lines, dust, a folded chair), never as pressure or a fuse.",
+     "expect": "offs gate passes with 'schema v129 · 29 keys · 34 offers · 10 on buildings · 11 quiet'; banned-vocabulary sweep keeps ask/changes/neglect on the offer bar.",
+     "checkpoints": [
+      "offs PASS with the expected detail line",
+      "jobs.json and housing.json both carry an offers_layer pointer",
+      "a missed Thursday table or an unclaimed garden bed reads as a thing that happened, not a thing that failed"
      ]
     }
    ]

@@ -126,5 +126,11 @@
   "mirror": "homes.json",
   "demo": "homes.html",
   "note": "v101 \u2014 what each registry unit is like inside: occupants, shape, rota, kitchen, quiet, guests, kit, fridge_note; vacant listings carry showing texture; ambient-ring stays off-registry"
+ },
+ "offers_layer": {
+  "spec": "offers.md",
+  "mirror": "offers.json",
+  "demo": "offer.html",
+  "note": "v129 \u2014 the standing-offer layer: one or more bounded opportunities keyed per registry building (bld-* ids from the \u00a73 seed) plus every door venue; quiet visibility = household/handshake knowledge, internal only"
  }
 }

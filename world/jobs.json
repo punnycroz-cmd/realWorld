@@ -384,5 +384,11 @@
   "mirror": "homes.json",
   "demo": "homes.html",
   "note": "v101 \u2014 what each employer sends home: the perks table lives in homes.json (perks[] employer strings match this file verbatim)"
+ },
+ "offers_layer": {
+  "spec": "offers.md",
+  "mirror": "offers.json",
+  "demo": "offer.html",
+  "note": "v129 \u2014 the standing-offer layer: bounded opportunities (shared_workspace/open_invitation/community_project) keyed per door venue and per registry building; venue keys are business ids, matching the employer names on this board"
  }
 }
