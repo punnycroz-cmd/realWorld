@@ -29,7 +29,10 @@
   per-finding copy block / step n/a sweep, PT85 + drama board v94:
   cooling grammar / double-surface / fair misfires / posture vocabulary,
   PT98 + harness v107 planner layer: rail search / time-boxed session
-  pick-list / [world-playtest-plan] block).
+  pick-list / [world-playtest-plan] block),
+  PT110 + harness v121 fix-verification layer: imported open findings
+  become a persisted re-test list (#verify / S.verify / 'still broken'
+  follow-up / fix_checks export / [world-playtest-verify] block).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1839,8 +1842,8 @@ const PTS=[
   ck:["The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
     "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"]},
  {do:"Run node world/audit.js from the repo root.",
-  exp:"harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
-  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
+  exp:"harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
     "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"]}
 ]},
 {id:"PT85",title:"Drama board v94 — cooling grammar, double-surface, fair misfires, posture vocabulary",min:9,
@@ -1862,7 +1865,7 @@ const PTS=[
   exp:"The drama gate passes the v94 checks: schema drama-v6, cooling/double-surface/fair-misfire rule content requirements, exactly five postures with meanings, posture rules fencing world-writes, and html mirror counts (COOLING/DSURF/MISFIRE/POSTURE/POSTURERULES). Harness gate reports 85 scenarios at the v93 key.",
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 26 pressure rows · schema drama-v6'",
     "A missing posture, a misfire rule without the whisper cap, or an html count mismatch would FAIL — spot-check",
-    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
+    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT86",title:"Onboarding v7 — the stay (credit rules, the standing option, the first visit)",min:12,
  persona:"new hirer with a funded wallet — wants to know what a credit isn't, whether a subscription is being pushed, and what stepping into their character actually feels like",
@@ -1912,7 +1915,7 @@ const PTS=[
   exp:"The lease gate passes the v96 checks: key rw_lease_v96, all five html surfaces (assignment/buyout/prepaid/history letter/BUYOUT code), the four json blocks, active-only offerability + 30-day cooldown, the four feed_wording.never additions, own-unit guards on assignDecide/offerBuyout, file-only wiring on the five request/decide functions, the clean-ledger gate, and the 3× cap.",
   ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
     "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
-    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
+    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT88",title:"The Understudy v7 — the encounter layer (nod economy, player contact, request split)",min:11,
  persona:"resilience reviewer — wants the outage posture to survive contact: thin meeting thin, a player pressing thin, and paid requests during a blackout",
@@ -1937,7 +1940,7 @@ const PTS=[
   exp:"The thinai gate passes the v97 checks: key rw_thinai_v97, the three json blocks (thin_encounters / player_contact / world_requests with all four classes), the four new demo events, the seven html marks (nod economy, who's awake in the room, world-bound, live-mind scene rule, the seam-probe deflect, presence-not-depth copy) — plus every prior-pass check still green.",
   ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
     "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
-    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
+    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT89",title:"The Company v98 — the receiving register (weather, being helped)",min:8,
  persona:"cast-bible reviewer — wants the new v98 sections to read like the characters and stay seed-free",
@@ -1957,7 +1960,7 @@ const PTS=[
   exp:"The bible gate passes at schema v98: 27 required sections enforced, characters.json roleplay_fields gains weather/helped with the v98_fields convention, cast.html wx/hlp keys checked per card, and both new fields swept by the observable-safe vocabulary check.",
   ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
     "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
-    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
+    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
  ]}
 ,{id:"PT90",title:"The Crowd v99 — the bench layer (pull protocol + coverage)",min:9,
  persona:"request-pipeline reviewer — wants proof that borrowing a named ambient is bounded, honest, and invisible on the wire",
@@ -1977,7 +1980,7 @@ const PTS=[
   exp:"Crowd gate passes at schema v99 with '… · 20 coverage' in the detail; pull_protocol carries window/capacity/bounds/states/minors/role_bound/feed/pipeline; coverage keys equal the full roster and minors' kind is 'pack'; prose spells the honest-post rule and wire invisibility.",
   ck:["Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
     "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
-    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]}
+    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]},
 {id:"PT91",title:"The Permit Wall v100 — the paper layer (posted paper + door lineage)",min:8,
  persona:"continuity editor — wants proof the paper behind the counter is plausible, honest, and safe to put on camera",
@@ -1991,7 +1994,7 @@ const PTS=[
   ck:["18 ghost signs; the two nulls are both no-wall stands", "Liquor papers appear only at the-600-club, il-delfino, the-musket, buy-rite-market, maliks, el-farolote", "Auerbach lineage names the same family in an earlier trade — the exception that proves the rule"]},
  {do:"Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
   exp:"Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
-  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT92",title:"The Fridge Door v101 — the household layer (homes v101)",min:8,
  persona:"continuity editor — wants proof the inside of each home is plausible, honest, and safe to put on camera",
@@ -2011,7 +2014,7 @@ const PTS=[
   exp:"Homes gate passes at schema v101 with '7 homes · 3 vacant · 24 perks' in the detail; rules declare surface knowledge / conditions never scripts / no money / vacant-showings / ambient-ring. Prose spells the fridge-note rule and the lease-moves-the-row lifecycle.",
   ck:["Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
     "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
-    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT93",title:"The live session layer v102 — request.html rides the bus end-to-end",min:8,
  persona:"merge auditor — wants proof the bridged request card is driven by the bus, not just filed to it",
@@ -2031,7 +2034,7 @@ const PTS=[
   exp:"Request gate passes with the v102 checks green (live_writes names gsCancelRequest/gsAppealRequest/gsWatchAd; live_meter carries queuePos/remainingMin/terminal; all eight surface strings present in the HTML). Prose spells the meter-is-truth rule and the own-position-only distinction.",
   ck:["Request gate: 0 fail; detail still reports 'seam wired'",
     "A missing live_writes/live_meter block or a dropped surface string FAILs the gate — spot-check mentally",
-    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT94",title:"The record layer v103 — wire.html reads the bus's own pins, days, vocabulary, and self-check",min:8,
  persona:"merge auditor — wants proof the last four wire endpoints have honest surfaces, not decorative ones",
@@ -2051,7 +2054,7 @@ const PTS=[
   exp:"Wire gate passes with the v103 checks green (all four endpoint names, id=\"archlink\", the adopt-only followsSync body check, all five spectator_ui_v103 keys). Prose spells the adopt-never-delete rule and the on-demand self-check.",
   ck:["Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
     "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
-    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT95",title:"The absence + lifecycle layer v104 — The Archive v8",min:8,
  persona:"merge auditor — wants proof the two new archive views are projections, not new information",
@@ -2071,7 +2074,7 @@ const PTS=[
   exp:"Archive gate passes with the v104 checks green (data-v gaps/reqs, GAP_MIN/gapList/renderGapsView, reqTrails/renderReqsView/OPEN_ST/rqSel, 'settled the talk', kv.rq, both honesty strings, archive_ui_v104 contract block). Prose spells the no-interpolation and no-inferred-steps laws.",
   ck:["Archive gate: 0 fail; v104 block present in history.json",
     "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
-    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT96",title:"The desk's answer layer v105 — repair bench + second look + live status",min:8,
  persona:"refused applicant — got a no and wants to know exactly what to fix, what a second read costs, and what the live desk actually said",
@@ -2091,7 +2094,7 @@ const PTS=[
   exp:"renderQueue pulls gsExplainRequest on render and on the button (no interval, no poll loop): approved → approval tail with 'the bus minted the hire', denied → showRepair with the record's reason, cancelled/expired/refunded → 'Closed — the desk is done with it'. Creation gate passes with all v105 checks green (return key, showRepair/FIELD_FIX, gsAppealRequest, second-look + appeal_final honesty, check-the-desk pull, liveRec.status resolution, never-fakes-a-reversal).",
   ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
     "No setInterval/poll loop on the desk check — pull only",
-    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT97",title:"The display-filter bench v106 — three options, live engine, no winner",min:6,
  persona:"studio owner — the display_filter row in moderation.json has sat OPEN since the taxonomy landed; wants to see exactly what each option does to the public feed before picking",
@@ -2128,9 +2131,9 @@ const PTS=[
     "The plan stops before the first pick that would overflow the box — unless it's the only pick, which is kept and labeled 'over by ~N min'",
     "A surface-filtered plan draws only from scenarios touching that surface; ids are always real PTS entries"]},
  {do:"Press 'Copy plan', paste it into a scratch buffer, then run node world/audit.js and read the harness gate.",
-  exp:"The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
+  exp:"The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
   ck:["The plan block reads as a session invite — ordered, estimated, reasoned; no verdicts leak into it",
-    "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
+    "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
     "An emptied plan box clears the card; a reload with the box set re-renders the plan from persisted state"]},
 ]},
 {id:"PT99",title:"Drama board v108 — drift record, object dramaturgy, composition rule",min:9,
@@ -2152,7 +2155,7 @@ const PTS=[
   exp:"The drama gate passes the v108 checks: schema drama-v7, drift_record fields/flags/fence content, drift_log is an array, object rows carry held_by valid main ids, composition_rule carries the one-shadow cap + brink exclusivity, and html mirror counts (DRIFTREC/DRIFTRECRULES/OBJECTS/OBJECTRULES/COMPOSE). Harness gate reports 99 scenarios at the v107 key.",
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 30 pressure rows · schema drama-v7'",
     "A missing drift field, an object holder off the C-id pattern, or an html count mismatch would FAIL — spot-check",
-    "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
+    "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT100",title:"Onboarding v8 — the quiet contract (privacy beat, the data card, flagging)",min:10,
  persona:"privacy-skeptical first-time viewer — wants to know what watching costs in data, and whether the 'flag' button is a real check or theater",
@@ -2173,7 +2176,7 @@ const PTS=[
   exp:"Onboard gate passes at 'schema v109 · 9 beats · key rw_onboard_v109' — all ten v109 honesty strings found, feed-anon anchor present, S2b/S4g reachable, S4g in PAID_STAGES, flagDemo state-guarded, the silent-flag sweep clean, and the three contract blocks present in the mirror.",
   ck:["Onboard gate: 0 fail; detail reports schema v109 at key rw_onboard_v109",
     "A flag surfaced on the feed (flagged-for-review wording, flag counts) would FAIL — the sweep enforces silence",
-    "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT100 hand-sync"]},
+    "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT100 hand-sync"]},
 ]},
 {id:"PT101",title:"The unobserved tick v111 — lazy thin, witness records, compute soak",min:8,
  persona:"cost-minded infra reviewer — wants proof that 20 ambients plus offline hires stay cheap when nobody is watching, without the block ever looking simulated",
@@ -2197,7 +2200,7 @@ const PTS=[
   ck:[
    "Thinai gate: 0 fail; detail reports schema v111 at key rw_thinai_v111",
    "A witness schema carrying a mode/mood field or lazy_thin permitting a catch-up pop would FAIL — spot-check",
-   "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT101 hand-sync"]},
+   "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT101 hand-sync"]},
 ]},
 {id:"PT102",title:"The mouths & pulses layer v113 — named anchors, pulse clocks, the leash",min:8,
  persona:"systems reviewer — wants proof the crowd's bodies come from somewhere: named doorways with live windows, pulses bound to real schedules, and a leash that keeps the day a closed loop instead of accumulating strangers",
@@ -2373,13 +2376,33 @@ const PTS=[
   ck:["Mod gate: 0 fail — taxonomy, corpus mirror, whitelist, and v36…v120 affordances all green",
    "Renaming the docket record to 'mod_decision' in moderation.json fails the gate — the separation is structural",
    "Harness gate: '109 scenarios · N checkpoints'; mirror gate confirms the PT109 hand-sync"]}
+]},
+{id:"PT110",title:"The fix-verification layer v121 — re-testing imported findings on the harness",min:8,
+ persona:"returning facilitator — the previous tester filed findings and exported their report; your job this session is to RE-TEST what they found, not to re-log it from scratch",
+ goal:"Verify the v121 fix-verification layer on world/playtest.html: imported reports' open/deferred findings become a persisted re-test card (#verify) in the cohort panel — deduped on content identity, exclusive verdicts (still broken / fixed / can't repro) + notes in S.verify, a 'log follow-up' that seeds never auto-logs, fix_checks in the JSON export, a fix-checks line on the handoff, and a [world-playtest-verify] paste.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Import a session report that carries findings — take the previous tester's export, export one from a second browser profile, or duplicate your own export, change the tester name, and leave one finding at status 'open'. Watch the cohort panel.",
+  exp:"A 'Fix verification' card appears between Regressions and Coverage: one row per imported open or deferred finding — severity chip, ref/surface, title, 'reported by <tester>' — each with STILL BROKEN / FIXED / CAN'T REPRO buttons and a verify-note field; the header reads 'N of M checked'.",
+  ck:["A finding two imported reports share appears once — deduped by surface|ref|title content identity, never by array position; the reported-by line names both testers",
+   "Findings the author already closed (status fixed or wontfix) never enter the list — only open and deferred carry over",
+   "The rail's surface filter narrows the verify list exactly like it narrows scenarios — a feed-only filter hides mod findings"]},
+ {do:"Verdict the rows — mark one FIXED, one STILL BROKEN with a note, one CAN'T REPRO. Reload the page, then click 'Clear imported reports' and re-import the same file.",
+  exp:"Verdicts and notes persist across the reload (S.verify in rw_playtest_v121). Clearing imports removes the card; re-importing the same report restores every verdict in place — the keys are content-derived, not position-derived.",
+  ck:["The three verdicts toggle exclusively — pressing FIXED again clears the row back to unverdicted",
+   "The statline's 'verify: N of M imported' counts verdicted rows only; the card's own tally agrees",
+   "A verify note persists and rides the export — it never edits the imported report's finding"]},
+ {do:"On the STILL BROKEN row hit 'log follow-up', then export: JSON report, Copy handoff, and the card's 'copy verify list'. Run node world/audit.js.",
+  exp:"The follow-up seeds the finding form — severity carried over, surface matched, title 're: <original title>', detail citing the original tester and build — but nothing logs until 'Log finding'. The JSON carries a top-level fix_checks array ({surface, ref, title, verdict, note, by} per verdicted row); the handoff adds a 'fix checks: N of M' line; the verify paste is a [world-playtest-verify] block with verdicted and pending rows separated.",
+  ck:["The seeded follow-up is editable and never auto-logs — same template discipline as the v65 boundary templates",
+   "fix_checks survives 'Clear imported reports' — verdicts live in this session's S.verify, not in the imported file",
+   "Harness gate: '110 scenarios · N checkpoints · key rw_playtest_v121'; the v121 marks are present (id=verify, S.verify, vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify)"]}
 ]}
 ];
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76, rw_playtest_v93 (world v77–v92, v94–v106 added scenarios only — no rw_playtest_v77…v92 or v94…v106 ever existed) */
-const LS="rw_playtest_v107";
-const BUILD="world v107 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76, rw_playtest_v93, rw_playtest_v107 (world v77–v92, v94–v106, v108–v120 added scenarios only — no rw_playtest_v77…v92, v94…v106, or v108…v120 ever existed; v121 rolls the key for S.verify) */
+const LS="rw_playtest_v121";
+const BUILD="world v121 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -2390,9 +2413,9 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",flab:"world",audit:"world",harness:"world",supply:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{},verify:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
-S.flags=S.flags||{};
+S.flags=S.flags||{};S.verify=S.verify||{};
 const $=id=>document.getElementById(id);
 const save=()=>{localStorage.setItem(LS,JSON.stringify(S));
   const t=$("saveTick");t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1200);};
@@ -2591,7 +2614,9 @@ window.debNote=(id,n)=>{S.debrief[id]=S.debrief[id]||{};S.debrief[id].note=n;sav
 function renderStats(){
   let p=0,f=0,n=0;Object.values(S.ck).forEach(v=>{if(v.v==="pass")p++;else if(v.v==="fail")f++;else if(v.v==="na")n++;});
   const open=S.findings.filter(x=>(x.status||"open")==="open"||x.status==="deferred").length;
-  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`;
+  const vfL=S.cohort.length?vfList():[],vfD=vfL.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`+
+    (S.cohort.length?` — verify: ${vfD} of ${vfL.length} imported`:"");
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
@@ -2600,6 +2625,10 @@ function report(){
     debrief:Object.fromEntries(DEBRIEF.map(d=>[d.id,S.debrief[d.id]||{}]).filter(([,v])=>v.v||v.note)),
     time_per_scenario:Object.fromEntries(Object.entries(S.times)
       .map(([k,v])=>[k,Math.round(v/6000)/10]))},
+    fix_checks:Object.entries(S.verify||{}).filter(([,v])=>v.v).map(([k,v])=>{
+      const p=k.split("|"); /* surface|ref|title — a '|' in the title joins back */
+      return {surface:p[0],ref:p[1]||null,title:p.slice(2).join("|"),
+        verdict:v.v,note:v.note||"",by:v.by||null};}),
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
@@ -2615,6 +2644,53 @@ function regressionSplit(){
   return {regressed:Object.keys(curV).filter(k=>curV[k]==="fail"&&impV[k]&&impV[k].has("pass")).sort(),
           recovered:Object.keys(curV).filter(k=>curV[k]==="pass"&&impV[k]&&impV[k].has("fail")).sort()};
 }
+/* fix verification (v121) — imported open/deferred findings become a re-test
+   list in the cohort card. Verdicts persist in S.verify keyed on the finding's
+   content identity (surface|ref|title) — never array position — so a re-import
+   restores every verdict in place. The imported reports are never edited;
+   'still broken' can seed a follow-up finding with re: lineage. */
+const vfKey=f=>[f.surface||"?",f.ref||"",String(f.title||"").slice(0,64)].join("|");
+const vfList=()=>{const seen={},out=[];
+  S.cohort.forEach(s=>(s.findings||[]).forEach(f=>{
+    if((f.status||"open")!=="open"&&f.status!=="deferred")return;
+    const k=vfKey(f),who=s.session.tester||"?";
+    if(seen[k]){if(!seen[k].who.includes(who))seen[k].who.push(who);return;}
+    seen[k]={f,who:[who]};out.push(seen[k]);}));
+  return S.surf?out.filter(x=>x.f.surface===S.surf):out;};
+/* rows are addressed by index into the current vfList render — free-text
+   finding titles never land inside an onclick attribute */
+const vfRow=i=>vfList()[i];
+window.setVf=(i,v)=>{const row=vfRow(i);if(!row)return;const k=vfKey(row.f);
+  S.verify[k]=S.verify[k]||{};
+  S.verify[k].v=S.verify[k].v===v?null:v;
+  if(S.verify[k].v)S.verify[k].by=S.name||"this session";
+  save();renderCohort();renderStats();};
+window.vfNote=(i,n)=>{const row=vfRow(i);if(!row)return;
+  S.verify[vfKey(row.f)]=S.verify[vfKey(row.f)]||{};S.verify[vfKey(row.f)].note=n;save();};
+/* follow-up on a still-broken row — seeds the finding form with re: lineage;
+   same discipline as the v65 templates: editable, never auto-logs (v121) */
+window.vfFollow=i=>{const row=vfRow(i);if(!row)return;
+  const f=row.f;
+  $("fSev").value=["blocker","major","minor","nit","question"].includes(f.severity)?f.severity:"major";
+  if([...$("fSurf").options].some(o=>o.value===f.surface))$("fSurf").value=f.surface;
+  $("fStep").value="";$("fTitle").value="re: "+(f.title||"imported finding");
+  $("fDetail").value=`Follow-up on ${row.who.join(" + ")}'s finding — still broken in ${BUILD}.`;
+  $("fRepro").value=f.steps_to_repro||"";
+  $("fTitle").scrollIntoView({block:"center"});$("fTitle").focus();
+  toast("follow-up seeded — edit, then Log finding");};
+/* the [world-playtest-verify] paste — pending and verdicted rows separated,
+   each with its who-logged-it attribution (v121) */
+window.copyVf=()=>{const list=vfList();
+  const date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-verify | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · ${list.length} imported open finding(s) in scope${S.surf?` · surface filter: ${S.surf}`:""}\n`;
+  const pend=list.filter(x=>!(S.verify[vfKey(x.f)]||{}).v);
+  const done=list.filter(x=>(S.verify[vfKey(x.f)]||{}).v);
+  if(done.length)md+=`- verdicted:\n`+done.map(x=>{const v=S.verify[vfKey(x.f)];
+    return `  - **${v.v}** ${x.f.ref||x.f.surface}: ${x.f.title} (reported by ${x.who.join(" + ")}${v.by?`, checked by ${v.by}`:""}${v.note?" — "+v.note:""})`;}).join("\n")+"\n";
+  if(pend.length)md+=`- pending re-test:\n`+pend.map(x=>
+    `  - **${x.f.severity}** ${x.f.ref||x.f.surface}: ${x.f.title} (reported by ${x.who.join(" + ")})`).join("\n")+"\n";
+  navigator.clipboard.writeText(md).then(()=>toast("verify list copied"),()=>toast("copy failed"));};
 function renderCohort(){
   const el=$("cohort");
   if(!S.cohort.length){el.innerHTML="";return;}
@@ -2650,6 +2726,24 @@ function renderCohort(){
       <td style="padding:2px 8px;font-family:var(--mono);font-size:11px">${hit}/${keys.length}</td>
       <td style="padding:2px 8px;font-family:var(--mono);font-size:11px;color:var(--dim)">${m!=null?m+"m":"—"} vs est ${p.min}m</td></tr>`;}).join("");
   const neverKeys=PTS.flatMap(p=>ckKeys(p).filter(k=>!verdicted.has(k)));
+  /* fix-verification rows (v121) — imported open findings to re-test */
+  const vf=vfList();
+  const vfDone=vf.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  const vfCard=`<div class="finding" id="verify"><b>Fix verification</b>
+    <span style="color:var(--dim)"> — imported open findings to re-test · ${vfDone} of ${vf.length} checked · verdicts ride this session's export; the source reports are never edited (v121)</span>
+    ${vf.length?vf.map((x,i)=>{const f=x.f,v=S.verify[vfKey(f)]||{};
+      return `<div class="ck"><div class="txt"><span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
+        <span style="color:var(--dim)"> · ${esc(f.surface)}${f.ref?` · ${esc(f.ref)}`:""} · reported by ${esc(x.who.join(" + "))}</span>
+        ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}
+        <input class="note" placeholder="verify note…" value="${esc(v.note||"")}" onchange="vfNote(${i},this.value)"></div>
+        <div class="v">
+          <span class="vbtn fail ${v.v==='still broken'?'on':''}" onclick="setVf(${i},'still broken')">STILL BROKEN</span>
+          <span class="vbtn pass ${v.v==='fixed'?'on':''}" onclick="setVf(${i},'fixed')">FIXED</span>
+          <span class="vbtn na ${v.v==="can't repro"?'on':''}" onclick="setVf(${i},'can\\'t repro')">CAN'T REPRO</span>
+          ${v.v==='still broken'?`<span class="vbtn" style="font-size:9.5px" title="seed the finding form with a follow-up citing the original report" onclick="vfFollow(${i})">log follow-up</span>`:""}
+        </div></div>`;}).join("")
+      :'<div style="font-size:11.5px;color:var(--dim);margin-top:4px">no open imported findings in scope — every imported finding is closed'+(S.surf?', or the surface filter hid them':'')+'</div>'}
+    ${vf.length?'<div class="actions" style="margin-top:8px"><button onclick="copyVf()" style="max-width:180px">Copy verify list</button></div>':""}</div>`;
   el.innerHTML=`<h2 style="margin-top:18px">Cohort — ${sessions.length} sessions</h2>
     <div class="statline">${sessions.map(s=>`${esc(s.session.tester)} (${s.session.role}${s.session.date?", "+s.session.date:""})`).join(" · ")}</div>
     <table style="border-collapse:collapse;border:1px solid var(--line)">
@@ -2661,6 +2755,7 @@ function renderCohort(){
     <div class="finding" id="regr"><b>Regressions</b><span style="color:var(--dim)"> — this session vs imported reports · directional, never averaged (v76)</span>
       ${reg.regressed.length?reg.regressed.map(r=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> <span style="color:var(--red)">regressed</span> — was pass, now fail</div>`).join(""):'<div style="font-size:11.5px;color:var(--grn);margin-top:4px">no regressions vs imported sessions</div>'}
       ${reg.recovered.map(r=>`<div style="font-size:12px;margin-top:2px"><code>${r}</code> <span style="color:var(--grn)">recovered</span> — was fail, now pass</div>`).join("")}</div>
+    ${vfCard}
     <div class="finding"><b>Coverage</b><span style="color:var(--dim)"> — checkpoints verdicted by anyone · median time-open vs estimate</span>
       <table id="covg" style="border-collapse:collapse;margin-top:4px">${covRows}</table>
       ${neverKeys.length?`<div style="font-size:11.5px;color:var(--dim);margin-top:6px">never verdicted by any session (${neverKeys.length}): `+
@@ -2731,6 +2826,8 @@ $("exHandoff").onclick=()=>{
   if(openF.length)md+="\n- open findings:\n"+openF.map(f=>
     `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}${f.status==="deferred"?" (deferred)":""}`).join("\n");
   else md+="\n- no open findings";
+  const vfL=vfList(),vfD=vfL.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  if(vfL.length)md+=`\n- fix checks: ${vfD} of ${vfL.length} imported open findings re-tested`;
   navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
 /* run sheet (v76) — a blank Markdown artifact for the next session's paper
    run; honors the filtered rail (smoke + hide-finished), carries no verdicts */
@@ -2744,7 +2841,7 @@ $("exSheet").onclick=()=>{
       st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
   navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{},verify:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */

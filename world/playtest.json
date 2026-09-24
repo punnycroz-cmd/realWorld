@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 107,
+ "version": 121,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -4441,9 +4441,9 @@
     },
     {
      "do": "Run node world/audit.js from the repo root.",
-     "expect": "harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+     "expect": "harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
      "checkpoints": [
-      "Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
+      "Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
       "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"
      ]
     }
@@ -4484,7 +4484,7 @@
      "checkpoints": [
       "Drama gate: 0 fail; detail reports '10 seeds · 26 pressure rows · schema drama-v6'",
       "A missing posture, a misfire rule without the whisper cap, or an html count mismatch would FAIL — spot-check",
-      "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4582,7 +4582,7 @@
      "checkpoints": [
       "Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
       "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
-      "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4631,7 +4631,7 @@
      "checkpoints": [
       "Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
       "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
-      "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4671,7 +4671,7 @@
      "checkpoints": [
       "Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
       "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
-      "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4711,7 +4711,7 @@
      "checkpoints": [
       "Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
       "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
-      "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4751,7 +4751,7 @@
      "checkpoints": [
       "Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts",
       "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally",
-      "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4791,7 +4791,7 @@
      "checkpoints": [
       "Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
       "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
-      "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4831,7 +4831,7 @@
      "checkpoints": [
       "Request gate: 0 fail; detail still reports 'seam wired'",
       "A missing live_writes/live_meter block or a dropped surface string FAILs the gate — spot-check mentally",
-      "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4871,7 +4871,7 @@
      "checkpoints": [
       "Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
       "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
-      "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4911,7 +4911,7 @@
      "checkpoints": [
       "Archive gate: 0 fail; v104 block present in history.json",
       "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
-      "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -4951,7 +4951,7 @@
      "checkpoints": [
       "Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
       "No setInterval/poll loop on the desk check — pull only",
-      "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -5028,10 +5028,10 @@
     },
     {
      "do": "Press 'Copy plan', paste it into a scratch buffer, then run node world/audit.js and read the harness gate.",
-     "expect": "The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v107 / build 'world v107 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
+     "expect": "The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
      "checkpoints": [
       "The plan block reads as a session invite — ordered, estimated, reasoned; no verdicts leak into it",
-      "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
+      "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
       "An emptied plan box clears the card; a reload with the box set re-renders the plan from persisted state"
      ]
     }
@@ -5072,7 +5072,7 @@
      "checkpoints": [
       "Drama gate: 0 fail; detail reports '10 seeds · 30 pressure rows · schema drama-v7'",
       "A missing drift field, an object holder off the C-id pattern, or an html count mismatch would FAIL — spot-check",
-      "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"
+      "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"
      ]
     }
    ]
@@ -5113,7 +5113,7 @@
      "checkpoints": [
       "Onboard gate: 0 fail; detail reports schema v109 at key rw_onboard_v109",
       "A flag surfaced on the feed (flagged-for-review wording, flag counts) would FAIL — the sweep enforces silence",
-      "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT100 hand-sync"
+      "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT100 hand-sync"
      ]
     }
    ]
@@ -5154,7 +5154,7 @@
      "checkpoints": [
       "Thinai gate: 0 fail; detail reports schema v111 at key rw_thinai_v111",
       "A witness schema carrying a mode/mood field or lazy_thin permitting a catch-up pop would FAIL — spot-check",
-      "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v107'; mirror gate confirms the PT101 hand-sync"
+      "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT101 hand-sync"
      ]
     }
    ]
@@ -5478,6 +5478,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT110",
+   "title": "The fix-verification layer v121 — re-testing imported findings on the harness",
+   "minutes": 8,
+   "persona": "returning facilitator — the previous tester filed findings and exported their report; your job this session is to RE-TEST what they found, not to re-log it from scratch",
+   "goal": "Verify the v121 fix-verification layer on world/playtest.html: imported reports' open/deferred findings become a persisted re-test card (#verify) in the cohort panel — deduped on content identity, exclusive verdicts (still broken / fixed / can't repro) + notes in S.verify, a 'log follow-up' that seeds never auto-logs, fix_checks in the JSON export, a fix-checks line on the handoff, and a [world-playtest-verify] paste.",
+   "surfaces": [
+    "harness",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Import a session report that carries findings — take the previous tester's export, export one from a second browser profile, or duplicate your own export, change the tester name, and leave one finding at status 'open'. Watch the cohort panel.",
+     "expect": "A 'Fix verification' card appears between Regressions and Coverage: one row per imported open or deferred finding — severity chip, ref/surface, title, 'reported by <tester>' — each with STILL BROKEN / FIXED / CAN'T REPRO buttons and a verify-note field; the header reads 'N of M checked'.",
+     "checkpoints": [
+      "A finding two imported reports share appears once — deduped by surface|ref|title content identity, never by array position; the reported-by line names both testers",
+      "Findings the author already closed (status fixed or wontfix) never enter the list — only open and deferred carry over",
+      "The rail's surface filter narrows the verify list exactly like it narrows scenarios — a feed-only filter hides mod findings"
+     ]
+    },
+    {
+     "do": "Verdict the rows — mark one FIXED, one STILL BROKEN with a note, one CAN'T REPRO. Reload the page, then click 'Clear imported reports' and re-import the same file.",
+     "expect": "Verdicts and notes persist across the reload (S.verify in rw_playtest_v121). Clearing imports removes the card; re-importing the same report restores every verdict in place — the keys are content-derived, not position-derived.",
+     "checkpoints": [
+      "The three verdicts toggle exclusively — pressing FIXED again clears the row back to unverdicted",
+      "The statline's 'verify: N of M imported' counts verdicted rows only; the card's own tally agrees",
+      "A verify note persists and rides the export — it never edits the imported report's finding"
+     ]
+    },
+    {
+     "do": "On the STILL BROKEN row hit 'log follow-up', then export: JSON report, Copy handoff, and the card's 'copy verify list'. Run node world/audit.js.",
+     "expect": "The follow-up seeds the finding form — severity carried over, surface matched, title 're: <original title>', detail citing the original tester and build — but nothing logs until 'Log finding'. The JSON carries a top-level fix_checks array ({surface, ref, title, verdict, note, by} per verdicted row); the handoff adds a 'fix checks: N of M' line; the verify paste is a [world-playtest-verify] block with verdicted and pending rows separated.",
+     "checkpoints": [
+      "The seeded follow-up is editable and never auto-logs — same template discipline as the v65 boundary templates",
+      "fix_checks survives 'Clear imported reports' — verdicts live in this session's S.verify, not in the imported file",
+      "Harness gate: '110 scenarios · N checkpoints · key rw_playtest_v121'; the v121 marks are present (id=verify, S.verify, vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify)"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {
@@ -5485,7 +5525,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v107 local",
+   "build": "world v121 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
@@ -5512,6 +5552,7 @@
     "status": "open|fixed|wontfix|deferred — facilitator triage state on the finding row (v93); default open; fixed/wontfix drop out of the handoff's open-findings list"
    }
   ],
+  "fix_checks": "array — [{surface, ref, title, verdict: still broken|fixed|can't repro, note, by}] — this session's re-test verdicts on imported open findings; lives in S.verify keyed on surface|ref|title content identity, survives cleared imports (v121)",
   "cohort": "Import report merges exported session JSONs; the harness renders a per-scenario verdict matrix across sessions, flags checkpoint disagreements (pass vs fail on the same ref), and merges findings with tester attribution.",
   "triage_owner_map": {
    "world": "all world/* surfaces + copy + content",
@@ -5520,7 +5561,7 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v107 local",
+ "build": "world v121 local",
  "harness_ui_v93": {
   "storage_key": "rw_playtest_v93",
   "build_tag_prefix": "world v93 local",
@@ -5695,5 +5736,87 @@
   "rail_search": "railQ text input (S.q, persisted) narrows the rail to scenarios whose id+title+persona match the query — case-insensitive; composes with smoke + hide-finished + surf on the rail, the [ / ] walk, and Copy run sheet (v107)",
   "session_planner": "planMin input + 'pick my session' (planGo) build an ordered pick-list into #plan — revisit-flagged first, then partially-verdicted this session, then cold (no checkpoint verdicted by anyone incl. imported reports), then fresh; fills the minute budget in order, keeps the first pick even when it overruns (honest 'over by N min'); honors the surface filter, never picks a fully-verdicted scenario, never invents ids (v107)",
   "plan_block": "Copy plan (exPlan) emits a [world-playtest-plan] block — build, box minutes, ordered picks each with est + reason tag (revisit/unfinished/cold/fresh); the facilitator's paste into a session invite (v107)"
+ },
+ "harness_ui_v121": {
+  "storage_key": "rw_playtest_v121",
+  "build_tag_prefix": "world v121 local",
+  "key_roll": "key rolled rw_playtest_v107 → rw_playtest_v121 — session state gained S.verify (fix-verification verdicts); prior keys remain in the mark list",
+  "fix_verification": "cohort panel gains a Fix verification card (#verify) between Regressions and Coverage — one row per imported open/deferred finding, deduped on vfKey (surface|ref|title), attribution lists every reporter; honors the surface filter; imported reports are never edited (v121)",
+  "verify_verdicts": "per-row STILL BROKEN / FIXED / CAN'T REPRO toggle (exclusive, press-again clears) + note; persisted in S.verify keyed on content identity — a re-import restores verdicts in place; rows are addressed by render index so free-text titles never enter an onclick attribute (v121)",
+  "verify_followup": "'log follow-up' on a still-broken row seeds the finding form (severity carried, surface matched, title 're: <original>', detail citing reporter + build) — editable, never auto-logs, same discipline as the v65 templates (v121)",
+  "verify_exports": "report() gains top-level fix_checks [{surface,ref,title,verdict,note,by}] for every verdicted row — survives cleared imports; Copy handoff adds a 'fix checks: N of M' line; the statline reads 'verify: N of M imported' while a cohort is loaded (v121)",
+  "verify_block": "'copy verify list' (copyVf) emits a [world-playtest-verify] block — build, in-scope count, verdicted and pending rows separated, each with reporter attribution (v121)",
+  "required_marks": [
+   "rw_playtest_v57",
+   "rw_playtest_v62",
+   "id=\"prog\"",
+   "id=\"keyCard\"",
+   "id=\"exInbox\"",
+   "id=\"fStep\"",
+   "id=\"fOwner\"",
+   "id=\"debrief\"",
+   "id=\"covg\"",
+   "copyRef",
+   "time_per_scenario",
+   "S.times",
+   "S.debrief",
+   "#pt=",
+   "rw_playtest_v63",
+   "rw_playtest_v64",
+   "rw_playtest_v65",
+   "id=\"fTmpl\"",
+   "id=\"hideDone\"",
+   "id=\"exHandoff\"",
+   "FTEMPLATES",
+   "world-playtest-handoff",
+   "rw_playtest_v66",
+   "rw_playtest_v67",
+   "rw_playtest_v68",
+   "rw_playtest_v69",
+   "rw_playtest_v70",
+   "rw_playtest_v71",
+   "rw_playtest_v72",
+   "rw_playtest_v73",
+   "rw_playtest_v74",
+   "rw_playtest_v75",
+   "rw_playtest_v76",
+   "id=\"exSheet\"",
+   "id=\"regr\"",
+   "S.flags",
+   "toggleFlag",
+   "world-playtest-runsheet",
+   "flagged for revisit",
+   "rw_playtest_v93",
+   "id=\"surfFilter\"",
+   "S.surf",
+   "Object.keys(SURF)",
+   "class=\"fStat\"",
+   "setFStat",
+   "copyFinding",
+   "world-playtest-finding",
+   "naStep",
+   "rw_playtest_v107",
+   "id=\"railQ\"",
+   "S.q",
+   "id=\"planMin\"",
+   "id=\"planGo\"",
+   "id=\"plan\"",
+   "buildPlan",
+   "planReason",
+   "id=\"exPlan\"",
+   "world-playtest-plan",
+   "id=\"verify\"",
+   "S.verify",
+   "vfKey",
+   "vfList",
+   "setVf",
+   "vfNote",
+   "vfFollow",
+   "copyVf",
+   "still broken",
+   "fix_checks",
+   "world-playtest-verify",
+   "rw_playtest_v121"
+  ]
  }
 }

@@ -4152,7 +4152,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G22 harness ============ */
 {
-  const g = gate('harness', 'playtest harness self-contract (v51+v65+v76+v93+v107 marks, LS/build agreement, scenario integrity, surface coverage)');
+  const g = gate('harness', 'playtest harness self-contract (v51+v65+v76+v93+v107+v121 marks, LS/build agreement, scenario integrity, surface coverage)');
   try {
     const html = rd('playtest.html');
     /* newest harness_ui_vNN block wins — the key rolls only on harness

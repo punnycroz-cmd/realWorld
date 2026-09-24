@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v109)
+# Playtest Harness — "Real World / The Mission" (world v121)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -385,6 +385,18 @@ One person can wear every hat; four real testers is the intended shape.
   minimum, a sign naming a person or carrying a 'when X then Y',
   an offstage org with a door, or any drift between rules.html's
   inline RULE and house-rules.json.
+  PT110 (harness v121) is a facilitator audit — the fix-verification
+  layer: imported reports' open/deferred findings become a re-test
+  card in the cohort panel (deduped on surface|ref|title content
+  identity, never position; reporters attributed; the surface filter
+  narrows it the same as the rail), exclusive verdicts (still broken /
+  fixed / can't repro) + notes persisted in S.verify under the rolled
+  key rw_playtest_v121, a 'log follow-up' that seeds the finding form
+  with re: lineage but never auto-logs, a top-level fix_checks array
+  in the JSON export that survives cleared imports, a 'fix checks'
+  line on the handoff, and the [world-playtest-verify] paste block.
+  The audit's v121 marks pin the affordances (id=verify, S.verify,
+  vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify).
 
 ## 3. Running a session
 
@@ -536,6 +548,34 @@ rolls to `rw_playtest_v107` because session state gained `S.q` and
   minutes, scenario count, and one line per pick with estimate +
   reason tag + title. The facilitator's paste into a session invite;
   it carries no verdicts.
+
+v121 harness affordances (PT110 exercises all of them — the storage key
+rolls to `rw_playtest_v121` because session state gained `S.verify`):
+
+- **Fix verification card** — a `#verify` card in the cohort panel
+  between Regressions and Coverage lists every imported finding whose
+  author left it `open` or `deferred`, one row each: severity chip,
+  ref/surface, title, `reported by` attribution, repro line, a
+  verify-note field, and three exclusive verdicts —
+  `STILL BROKEN` / `FIXED` / `CAN'T REPRO` (press again to clear).
+  Rows are deduped on content identity `surface|ref|title` — two
+  testers reporting the same thing produces one row naming both.
+  The surface filter narrows it exactly like the rail. Imported
+  reports are never edited; the verdicts live in this session's
+  `S.verify`, so a re-import restores every check in place.
+- **log follow-up** — on a still-broken row, seeds the finding form:
+  severity carried over, surface matched, title `re: <original>`,
+  detail citing the reporter and build. Editable, never auto-logs —
+  same discipline as the v65 boundary templates.
+- **Exports** — the JSON report carries a top-level `fix_checks`
+  array (`{surface, ref, title, verdict, note, by}` per verdicted
+  row) that survives `Clear imported reports`; Copy handoff adds a
+  `fix checks: N of M` line; the statline reads
+  `verify: N of M imported` while a cohort is loaded.
+- **Copy verify list** — emits a `[world-playtest-verify]` block:
+  build, in-scope count, then verdicted and pending-re-test rows in
+  separate lists, each with reporter attribution — the facilitator's
+  fix-tracking paste.
 
 v66 content under test (PT61 exercises it): the drama-direction board's
 new permission structures — fuse interference matrix (§31, all 15 pairs
