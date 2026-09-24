@@ -26590,8 +26590,15 @@ const SF_WX = {
 };
 /* v9: shared aerial-perspective falloff — light scattered by the marine
    layer washes distant geometry toward the horizon color. */
+const SF_HAZE_MEMO = { fr: -1, m: new Map() };   // v82: haze per 2m depth
 function sfHazeA(fwd){
-  return Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
+  const k = Math.round(fwd * 0.5);
+  if(SF_HAZE_MEMO.fr !== SF_FRAME){ SF_HAZE_MEMO.m.clear(); SF_HAZE_MEMO.fr = SF_FRAME; }
+  const hit = SF_HAZE_MEMO.m.get(k);
+  if(hit !== undefined) return hit;
+  const v = Math.min(0.62, Math.max(0, (fwd - 45) / 240) * SF_WX.hazeK);
+  SF_HAZE_MEMO.m.set(k, v);
+  return v;
 }
 /* ---------------- v14: TRUE SUN — a real solar position drives every light
    The old constant shadow vector (sun frozen upper-left) is replaced by the
@@ -26720,6 +26727,13 @@ function sfBldAtM(xm, ym){
 }
 function sfCanyonShade(xm, ym, selfI){
   if(SF_SUN.day < 0.08) return 0;
+  /* v82: the march is memoized per 4m cell per occluding self — the shade
+     height it returns varies on facade scale, so a cell far under a
+     parapet shadow length is exact-enough and identical per frame */
+  const k = (selfI + 2) * 1e6 + Math.round(xm * 0.25) * 1024 +
+            Math.round(ym * 0.25);
+  const hit = sfLFGet('cany', k);
+  if(hit !== undefined) return hit;
   const tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
   const maxD = Math.min(80, 30 / tanEl);   // a 30m mass caps the reach
   // v39: occluder tops are ABSOLUTE heights — a mass sitting uphill on
@@ -26734,7 +26748,7 @@ function sfCanyonShade(xm, ym, selfI){
     const z = SF_BLD[bi].hPx / 4.2 + (sfElevM(ox, oy) - zProbe) - s * tanEl;
     if(z > zs){ zs = z; if(zs > 26) break; }
   }
-  return zs;
+  return sfLFSet('cany', k, zs);
 }
 /* v39: wire -> facade shadow solver. A conductor point W at height wz
    (the v20 catenary spans ride ~7m) casts along the sun ray; where that
@@ -27012,11 +27026,28 @@ function sfBounceK(sunK, occlM){
    repeat lot datums. Quantized to 1/16m — sub-millimeter height error
    on these slopes — and LRU-bounded; the map persists across frames so
    steady-state frames run lookup-only. */
-const SF_ELEV_MEMO = new Map();
+/* v82: the memo grew into a heightfield — a Float32Array over the whole
+   map at 1m cells, lazily filled on first touch per cell (NaN sentinel),
+   evaluated at the cell center. Same function, same shape, but a flat
+   array index replaces the Map round-trip: ~110k lookups/frame go from
+   hashed-key to pointer math. Max sampling error is half a meter of XY —
+   under 4cm of height on the steepest modeled grade (the Dolores bowl),
+   far inside the line width of anything it shades. ~10MB resident. */
+let SF_ELEV_G = null, SF_ELEV_GW = 0, SF_ELEV_GH = 0;
 function sfElevM(xm, ym){
-  const k = Math.round(xm * 16) * 1e6 + Math.round(ym * 16);
-  let z = SF_ELEV_MEMO.get(k);
-  if(z !== undefined) return z;
+  if(!SF_ELEV_G){
+    SF_ELEV_GW = Math.ceil(SF_M.gw * SF_M.cell_m) + 2;
+    SF_ELEV_GH = Math.ceil(SF_M.gh * SF_M.cell_m) + 2;
+    SF_ELEV_G = new Float32Array(SF_ELEV_GW * SF_ELEV_GH);
+    SF_ELEV_G.fill(NaN);
+  }
+  let ix = Math.floor(xm) + 1, iy = Math.floor(ym) + 1;
+  if(ix < 0) ix = 0; else if(ix >= SF_ELEV_GW) ix = SF_ELEV_GW - 1;
+  if(iy < 0) iy = 0; else if(iy >= SF_ELEV_GH) iy = SF_ELEV_GH - 1;
+  const idx = iy * SF_ELEV_GW + ix;
+  let z = SF_ELEV_G[idx];
+  if(z === z) return z;                          // NaN = unbaked cell
+  xm = ix - 0.5; ym = iy - 0.5;                  // cell center sample
   const mw = SF_M.gw * SF_M.cell_m, mh = SF_M.gh * SF_M.cell_m;
   const pc = sfParkCenterM();
   z = 9 + (ym / mh) * 31 + (1 - xm / mw) * 19;
@@ -27029,9 +27060,8 @@ function sfElevM(xm, ym){
   z += 9.0 / (1 + (hx * hx + hy * hy) / (240 * 240));   // Dolores Heights
   z += 0.9 * Math.sin(xm * 0.011 + 1.3) * Math.sin(ym * 0.009 + 0.4)
      + 0.4 * Math.sin((xm - ym) * 0.0055);       // dunes under the grid
-  if(SF_ELEV_MEMO.size > 400000) SF_ELEV_MEMO.clear();
-  SF_ELEV_MEMO.set(k, z);
-  return z;
+  SF_ELEV_G[idx] = z;
+  return SF_ELEV_G[idx];      // return the STORED value — repeat calls equal
 }
 const SF_CURB_H = 0.15;
 function sfGroundZ(wxm, wym){
@@ -27274,24 +27304,31 @@ function sfCloudPos(c){
   let y = (c.y + vy * SF_WX.t) % SF_WX.wrapY; if(y < 0) y += SF_WX.wrapY;
   return [x - 350, y - 350];
 }
-/* 0..1 soft cloud occlusion over a world point (meters) — sun dimmer */
+/* 0..1 soft cloud occlusion over a world point (meters) — sun dimmer.
+   v82: evaluates the field on the frame-memoized blob list and caches the
+   scalar per 8m cell — the field's own penumbra is ~10x wider than the
+   cell, so the memo is inside the noise of the gradient it samples. */
 function sfCloudShadow(mx, my){
-  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('cloud', k);
+  if(hit !== undefined) return hit;
+  const bl = sfShadowBlobs();
   let sh = 0;
-  for(let i = 0; i < n; i++){
-    const c = cs[i];
-    const [cx, cy] = sfCloudPos(c);
-    const gx = cx - SF_SUN.x * SF_CLOUD_ALT, gy = cy - SF_SUN.y * SF_CLOUD_ALT;
-    const dx = mx - gx, dy = my - gy;
-    const d2 = dx * dx + dy * dy, r2 = c.r * c.r;
-    if(d2 < r2 * 4) sh += c.a * Math.exp(-d2 / r2);
+  for(let i = 0; i < bl.length; i++){
+    const b = bl[i], dx = mx - b[0], dy = my - b[1], d2 = dx * dx + dy * dy;
+    if(d2 < b[2] * 4) sh += b[3] * Math.exp(-d2 / b[2]);
   }
-  return Math.min(1, sh * (0.4 + 0.6 * sfCloudCover()));
+  return sfLFSet('cloud', k,
+                 Math.min(1, sh * (0.4 + 0.6 * sfCloudCover())));
 }
 /* v11: ground-projected cloud blobs resolved ONCE per frame — the street
    ground pass used to re-run sfCloudPos (wrap/mod math) for every cell x
-   every cloud. Same shadow field, a fraction of the arithmetic. */
+   every cloud. Same shadow field, a fraction of the arithmetic.
+   v82: the list itself is now memoized on SF_FRAME — sfCloudShadow and
+   the painters below share one resolution per rendered frame. */
+const SF_BLOB_SH = { fr: -1, a: null };
 function sfShadowBlobs(){
+  if(SF_BLOB_SH.fr === SF_FRAME && SF_BLOB_SH.a) return SF_BLOB_SH.a;
   const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
   const out = [];
   for(let i = 0; i < n; i++){
@@ -27300,6 +27337,7 @@ function sfShadowBlobs(){
     out.push([cx - SF_SUN.x * SF_CLOUD_ALT, cy - SF_SUN.y * SF_CLOUD_ALT,
               c.r * c.r, c.a]);
   }
+  SF_BLOB_SH.fr = SF_FRAME; SF_BLOB_SH.a = out;
   return out;
 }
 /* ---------------- v47: sunbreaks --------------------------------------
@@ -27314,7 +27352,9 @@ function sfShadowBlobs(){
    drifts on the same wind, projects along the same sun vector, and dies
    out as the deck closes (cover -> 1 leaves no gaps to shine through). */
 const SF_GAP_SHIFT = 132;                    // ~half the 265m street spacing
+const SF_BLOB_GAP = { fr: -1, a: null };
 function sfGapBlobs(){
+  if(SF_BLOB_GAP.fr === SF_FRAME && SF_BLOB_GAP.a) return SF_BLOB_GAP.a;
   const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
   const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
   const out = [];
@@ -27325,21 +27365,20 @@ function sfGapBlobs(){
               cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT,
               c.r * c.r * 1.35, c.a]);
   }
+  SF_BLOB_GAP.fr = SF_FRAME; SF_BLOB_GAP.a = out;
   return out;
 }
 function sfSunGapK(mx, my){
-  const cs = sfClouds(), n = Math.ceil(cs.length * (0.25 + 0.75 * sfCloudCover()));
-  const nxv = -Math.sin(W.windAng), nyv = Math.cos(W.windAng);
-  let k = 0;
-  for(let i = 0; i < n; i++){
-    const c = cs[i];
-    const [cx, cy] = sfCloudPos(c);
-    const gx = cx + nxv * SF_GAP_SHIFT - SF_SUN.x * SF_CLOUD_ALT,
-          gy = cy + nyv * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT;
-    const dx = mx - gx, dy = my - gy, d2 = dx * dx + dy * dy, r2 = c.r * c.r * 1.35;
-    if(d2 < r2 * 4) k += c.a * Math.exp(-d2 / r2);
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('gap', k);
+  if(hit !== undefined) return hit;
+  const bl = sfGapBlobs();
+  let g = 0;
+  for(let i = 0; i < bl.length; i++){
+    const b = bl[i], dx = mx - b[0], dy = my - b[1], d2 = dx * dx + dy * dy;
+    if(d2 < b[2] * 4) g += b[3] * Math.exp(-d2 / b[2]);
   }
-  return Math.min(1, k);
+  return sfLFSet('gap', k, Math.min(1, g));
 }
 /* ---------------- v24: cumulus bodies -------------------------------
    The cloud field used to exist only as sliding ground shadows and flat
@@ -27606,15 +27645,24 @@ function sfParkCenterM(){
    to carry it. sfKarlPoly() clips the map rect to the half-plane behind
    the fog front — the upwind edge where Karl pours in. Both views draw
    the SAME front. */
+/* v82: memoized on its INPUTS (tod/hum/wind/cover/rain/storm) rather than
+   the frame counter — a harness or game tick that mutates W between
+   renders still sees the new value instantly. */
+let SF_KARLK_IN = '', SF_KARLK_V = 0;
 function sfKarlK(){
+  const sig = W.tod + ',' + W.hum + ',' + W.windSpd + ',' + SF_WX.cover +
+              ',' + W.rain + ',' + W.storm;
+  if(sig === SF_KARLK_IN) return SF_KARLK_V;
   const t = W.tod;
   const diur = clamp(0.12 + 0.85 * Math.max(
     Math.exp(-Math.pow((t - 7.5) / 4.2, 2)),      // overnight/morning deck
     clamp((t - 14.6) / 2.6, 0, 1)), 0, 1);         // evening push
   const hum = clamp((W.hum - 0.35) / 0.5, 0, 1);
   const fetch = clamp(W.windSpd / 2.4, 0, 1);
-  return clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
+  SF_KARLK_V = clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
                fetch * 0.15 - 0.24, 0, 1);
+  SF_KARLK_IN = sig;
+  return SF_KARLK_V;
 }
 /* v67: meteorological visibility — a Koschmieder-style daylight visual
    range in km, derived from the same drivers every other weather system
@@ -27725,13 +27773,17 @@ function sfKarlFrontField(){
 }
 /* along-wind depth (m) of the modulated front at cross-wind coord v */
 function sfKarlDepthAt(v){
+  const k = Math.round(v * 0.5);                 // v82: 2m cells on the front
+  const hit = sfLFGet('kdep', k);
+  if(hit !== undefined) return hit;
   const F = sfKarlFrontField(), kk = sfKarlK();
   const lim = F.lo + kk * 0.9 * (F.hi - F.lo);
   const x = clamp((v - F.vLo) / (F.vHi - F.vLo), 0, 1) * F.N;
   const i = Math.min(F.N - 1, Math.floor(x)), fx = x - i;
   const mod = F.dv[i] + (F.dv[i + 1] - F.dv[i]) * fx;
   // fingertips breathe on a slow ~minute-scale cycle
-  return lim + mod + Math.sin(SF_WX.t * 0.10 + v * 0.013) * 9;
+  return sfLFSet('kdep', k,
+               lim + mod + Math.sin(SF_WX.t * 0.10 + v * 0.013) * 9);
 }
 /* world-meter polyline of the modulated front edge (cross-wind order) */
 function sfKarlFrontPts(){
@@ -27752,10 +27804,14 @@ function sfKarlFrontPts(){
 function sfKarlShade(mx, my){
   const kk = sfKarlK();
   if(kk <= 0.03 || isNight()) return 0;
+  const k = Math.round(mx * 0.125) * 1e6 + Math.round(my * 0.125);
+  const hit = sfLFGet('karl', k);
+  if(hit !== undefined) return hit;
   const F = sfKarlFrontField();
   const u = mx * F.wxv + my * F.wyv, v = mx * F.nxv + my * F.nyv;
   if(v < F.vLo || v > F.vHi) return 0;
-  return clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1);
+  return sfLFSet('karl', k,
+               clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1));
 }
 
 /* ---------------- v60: KARL AT STREET LEVEL ---------------------------
@@ -28150,7 +28206,39 @@ function sfSplashOverlay(cw, yTop, yBot){
       ivy, flower boxes) is distance-tiered so far walls cost far less.
    Physically: same sun, same wind, same wet streets — just cheaper. */
 const SF_PERF = { ms: 0, fps: 60, t0: 0, last: 0, info: '' };
+/* ---------------- v82: the light-field cache --------------------------
+   Profiling (devtools/perf_v82.js) showed the street pass spending ~40%
+   of its JS time re-answering the same three questions ~1.7k times per
+   frame: "how much cloud is over this point" (sfCloudShadow), "is this
+   point in a sunbreak" (sfSunGapK), "is Karl's sheet overhead"
+   (sfKarlShade) — each a ~46-cloud exp() loop per query, plus the canyon
+   raymarch and the fog-front interpolant. Every one of those is a SMOOTH
+   SCALAR FIELD over world meters: a cloud shadow edge is ~100m wide, the
+   fog shade gradient runs 110m, canyon shade changes on facade scale.
+   So v82 evaluates each field once per ~8m cell per rendered frame and
+   memoizes the rest — the light the sim draws is identical (the error is
+   far under one shade gradient), the per-frame work drops by an order of
+   magnitude. SF_FRAME ticks at the top of each render pass (sfPerfBegin),
+   so a stale cell can never survive a clock tick; the blob lists
+   (cloud ground positions projected along the sun vector) are resolved
+   once per frame instead of once per query. */
+let SF_FRAME = 0;
+const SF_LFM = { cloud: { fr: -1, m: new Map() },
+                 gap:   { fr: -1, m: new Map() },
+                 karl:  { fr: -1, m: new Map() },
+                 cany:  { fr: -1, m: new Map() },
+                 kdep:  { fr: -1, m: new Map() } };
+let SF_LF_HIT = 0, SF_LF_MIS = 0;
+function sfLFGet(slot, k){
+  const F = SF_LFM[slot];
+  if(F.fr !== SF_FRAME){ F.m.clear(); F.fr = SF_FRAME; }
+  const v = F.m.get(k);
+  if(v === undefined){ SF_LF_MIS++; return undefined; }
+  SF_LF_HIT++; return v;
+}
+function sfLFSet(slot, k, v){ SF_LFM[slot].m.set(k, v); return v; }
 function sfPerfBegin(){
+  SF_FRAME++;
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   if(SF_PERF.last) SF_PERF.fps += (1000 / Math.max(1, now - SF_PERF.last) - SF_PERF.fps) * 0.06;
   SF_PERF.last = now; SF_PERF.t0 = now; SF_PERF.info = '';
@@ -28159,7 +28247,10 @@ function sfPerfHud(cw, ch){
   const now = (typeof performance !== 'undefined' ? performance.now() : Date.now());
   SF_PERF.ms += (now - SF_PERF.t0 - SF_PERF.ms) * 0.1;
   const ms = SF_PERF.ms, fps = Math.min(240, SF_PERF.fps);
+  const lfT = SF_LF_HIT + SF_LF_MIS;
+  const lfPct = lfT ? Math.round(100 * SF_LF_HIT / lfT) : 0;
   const lab = `PERF ${fps.toFixed(0)}fps ${ms.toFixed(1)}ms` +
+              ` LF${lfPct}%` +
               (SF_PERF.info ? ' ' + SF_PERF.info : '');
   ctx.font = 'bold 11px monospace'; ctx.textAlign = 'left';
   const tw = ctx.measureText(lab).width;
