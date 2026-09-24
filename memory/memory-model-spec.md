@@ -1,4 +1,28 @@
-# Memory Model Spec v5.88 — implementable human-like memory for RW characters
+# Memory Model Spec v5.89 — implementable human-like memory for RW characters
+
+> **v5.89 note (validation-design XII — the
+> consequence-and-provenance surface: the four
+> audit hooks the new battery needs):**
+> `memory/validation-design.md` §§288–293 adds
+> VA-CONT (longitudinal consequence continuity —
+> validate residue distributions, never scripted
+> outcomes; Wagenaar 1986, Barclay & Wellman
+> 1986), VA-PROV (provenance-labeling audit —
+> OBSERVED vs INFERRED as a measurable contract;
+> Johnson, Hashtroudi & Lindsay 1993; Buneman
+> et al. 2001), VA-IMP (implicit-without-explicit
+> dissociation; Graf & Schacter 1985, Johnson,
+> Kim & Risse 1985), and VA-CAL (confidence–
+> accuracy calibration; Sporer et al. 1995,
+> Lichtenstein & Fischhoff 1977, Roediger &
+> DeSoto 2014). §18 (new annex) specs the four
+> validation-only emitters they consume:
+> `residue_ref` + `cb_origin` tagging,
+> `prov_audit_sample` with S1/S2/S3 severity,
+> the `impl_str` orphan boundary, and
+> `conf_bin_report`. §18.5 +3 params +6 locked
+> nulls; probes P1541–P1552.
+> (Prior notes v4.x–v5.88 in the version log.)
 
 > **v5.88 note (character-profiles IX — the
 > trait backlog: the six profile axes the cast
@@ -22607,6 +22631,21 @@ MemoryParams = {
 //   bored_mint_null (P1536); goal_forget_null
 //   (P1532). All snapshot-additive; absent =
 //   legacy default behavior.
+// v5.89 additions (validation-design XII v143 —
+//   VD§§288–293, §18 annex)
+"prov_audit_k": 200, "audit_catch_min": 0.95,  // §18.2
+"residue_tail_min": 0.05,                      // §18.1
+// v5.89 emitter contracts: `residue_ref`
+//   {recordId, channel} + `cb_origin:{t0_id}`
+//   on CB mints; `prov_audit_sample(k,seed)`;
+//   `conf_bin_report()`; display_tier mandatory
+//   on memory-backed claims.
+// v5.89 locked nulls: residue_zero_null +
+//   residue_mono_null (P1541); prov_label_null
+//   (P1548); audit_blind_null (P1549);
+//   implicit_orphan_null (P1550);
+//   conf_perfect_null (P1551).
+//   All validation-only; absent = legacy.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -28104,3 +28143,51 @@ nulls: `persist_derived_null`, `daylog_durable_null`,
 `prom_quality_null`, `prom_shadow_null`, `prom_camera_null`,
 `breach_erase_null`, `script_repair_null`, `goal_resurrect_null`,
 `wire_regress_null`. Probes P1517–P1528.
+
+## 18. Validation-surface annex (new in v5.89)
+
+Harness/contract residue of validation-design.md §§288–291 (VA-CONT,
+VA-PROV, VA-IMP, VA-CAL). The psychology is cited there; these are the
+emitter contracts the probes consume.
+
+### 18.1 Residue reporting
+
+Every op that references a prior record emits `residue_ref:{recordId,
+channel}` with `channel ∈ {retell, affect, goal, distancing,
+selfreport}`. CB interventions tag their mint `cb_origin:{t0_id}` so
+probes can follow the causal chain; the hidden tap exposes
+`conditionedAffect` val and `retrievalCount` for channel scoring.
+`residue_zero_null` — a CB arm that produces a zero-residue cohort is a
+fail, not a clean run.
+
+### 18.2 Provenance audit hook
+
+`prov_audit_sample(k, seed)` — validation-only: draws k emitted display
+claims, recomputes `tier()` (provenance lattice, OBSERVED > TOLD >
+INFERRED > UNKNOWN) from each chain, and returns the emitted-vs-
+recomputed diff. Emitters must attach `display_tier` to every
+memory-backed claim; severity classes S1/S2/S3 per VD§289.
+`prov_label_null` — S1 (INFERRED-as-OBSERVED) count is hard-zero;
+`audit_blind_null` — injected mis-tiers must be caught ≥95%.
+
+### 18.3 Implicit boundary
+
+`impl_str` mints ONLY as a decayed product of an encoded record —
+`implicit_orphan_null`: injected impl_str on an unencoded record must
+produce no behavioral shift. Affect shift at recall-floor is the
+intended Korsakoff leg (P1550), never suppressed as "leakage".
+
+### 18.4 Confidence reporting
+
+`conf_bin_report()` — validation-only: emits `(conf_out, accuracy)`
+pairs per recall for decile binning. `conf_perfect_null` — accuracy in
+the conf ≥0.9 bin must be <1.0 at n≥200 (Roediger & DeSoto 2014:
+confident errors are human); a perfect top bin fails as a database
+tell.
+
+### 18.5 New params/nulls (v5.89 block — harness only)
+
+`prov_audit_k` 200 · `audit_catch_min` 0.95 · `residue_tail_min` 0.05 ·
+nulls: `residue_zero_null`, `residue_mono_null`, `prov_label_null`,
+`audit_blind_null`, `implicit_orphan_null`, `conf_perfect_null`.
+Probes P1541–P1552.

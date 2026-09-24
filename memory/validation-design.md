@@ -15303,3 +15303,253 @@ not prose. Each pins a falsifiable consequence.
 → memory-model-spec.md v5.88 §6.431;
 cast-profiles.md Part IX §§48–54;
 probes P1529–P1540. Registry P1–P1540.
+
+## 288. Consequence-continuity validation (VA-CONT) — validate residue, never outcome (new in v143)
+
+The consequence battery CB-0..CB-3 (spec §17.4) tests *machinery*: records
+survive barriers, `goal_sub` mints, breach rows persist. VA-CONT tests the
+stronger, product-level claim from the Astra review: **a choice today changes
+a relationship tomorrow, visibly, without a scripted outcome.** The trap to
+avoid: continuity tests that pass only when the character does the *expected*
+thing would reintroduce scripting through the validator. So VA-CONT validates
+a *residue distribution*, never a residue channel.
+
+**Anchors (CONSENSUS):** Wagenaar 1986 (*Cognitive Psychology* 18:225 —
+verified) self-recorded 2400 events over six years and self-tested with
+who/what/where/when cues: recall probability scaled with event salience and
+emotional involvement, cue value was asymmetric across cue types, and dating
+error grew with retention interval — the model's residue must show the same
+*cued-recoverability* structure at sim-month horizons. Barclay & Wellman 1986
+(*J. Mem. Lang.* 25 — verified) had diarists recognize their own entries
+against false but plausible foils at 3–14 months: participants accepted
+foils that matched their own schemas — long-range continuity includes *some*
+false self-recognition, so residue-zero is wrong in both directions (too
+little AND too clean).
+
+**Design.** Intervention arm: a scripted world event at t0 that creates a
+consequence (promise made then breached; shared project proposed then a
+no-show; kindness under stress). The intervention is the only scripted
+element — all downstream behavior is model-generated. Measurement at
+t+{7,14,30} sim-days across five residue channels:
+
+| channel | observable | hidden-flag tap |
+|---|---|---|
+| retell | `retell`/`discussEvent` bout referencing t0 record | `retrievalCount` |
+| affect | conditionedAffect delta on dyad approaches | `conditionedAffect` val |
+| goal | `goal_sub`/`goal` mints keyed to t0 | `repair_of` field |
+| distancing | approach/avoid op mix vs pre-t0 baseline | dyad RelEdge |
+| self-report | `selfReport` themes matching t0 content | `accuracy` |
+
+**Pass rule (pre-registered):** at t+30, ≥60% of cohort members show ≥1
+nonzero channel AND ≥2 distinct channels are populated across the cohort.
+A cohort where every member uses the *same* channel fails as over-scripted
+(`residue_mono_null`) — humans diverge in which residue a disappointment
+leaves (CONSENSUS on divergence; channel weights are HYPOTHESIS).
+
+**Decay shape.** Residue must thin with delay (Wagenaar) but never
+step-function to zero absent an interference/disclosure event
+(`residue_zero_null`). Fit exponential or power decay per channel; demand
+nonzero 30-day tail mass ≥5% of the t+7 measure on ≥1 channel.
+
+**Causality, not correlation.** Every VA-CONT probe ships a lesion arm
+(VA-L): suppress the t0 record's mint (or its `learned_from`) in a matched
+cohort → residue must collapse to control-arm levels within the
+pre-registered δ. A residue that survives its own suppression means the
+"memory" was scenery — the exact failure mode the review warned about.
+
+**Cross-boundary.** The residue trajectory must be bit-identical across
+snapshot/load and survive ≥1 sleep barrier and ≥1 restart (§17.2); a
+discontinuity at the barrier is a `daylog_durable_null`-class failure.
+
+## 289. Provenance-labeling audit (VA-PROV) — OBSERVED vs INFERRED is a measurable contract (new in v143)
+
+The provenance lattice (spec: `tier()` → OBSERVED > TOLD > INFERRED >
+UNKNOWN; `display_tier` on every emitted claim) is the honesty primitive
+the observation UI depends on. VA-PROV makes it auditable instead of
+asserted.
+
+**Human grounding (CONSENSUS):** Johnson, Hashtroudi & Lindsay 1993
+(*Psych. Bull.* 114:3 — verified) source-monitoring framework: humans
+attribute mental contents to sources via heuristic judgment and
+systematically *mis*attribute them — the model already prices this
+(`learned_from` decays on `prov_tau`; `prov_sticky_null`). The UI's job is
+the mirror: because characters (like people) confuse inferred with
+observed, displays must label which kind of claim is on screen. Data-side
+anchor: Buneman, Khanna & Tan 2001 (*ICDT* — verified) — provenance as a
+first-class queryable property, not an annotation.
+
+**Severity taxonomy (pre-registered):**
+
+- **S1** — INFERRED or RECONSTRUCTED rendered as OBSERVED. Zero tolerance
+  (`prov_label_null`). This is "hidden memory or inferred motive presented
+  as public fact" — the one failure the direction names outright.
+- **S2** — TOLD rendered as OBSERVED (hearsay laundering). Rate ≤0.5%
+  of sampled claims.
+- **S3** — missing/degraded tier label on a memory-backed display.
+  Rate ≤1%; each S3 is a spec bug (the emitter skipped `display_tier`).
+
+**Audit procedure.** `prov_audit_sample(k, seed)` draws k displayed claims
+from the UI event log, recomputes `tier()` from each claim's provenance
+chain, and diffs against the emitted `display_tier`. Coverage target
+`kappa_prov_min` ≥0.80 of displayed claims resolvable to a chain; an
+unresolvable claim scores as S3.
+
+**Mutation arm.** The auditor is itself tested (VA-MUT discipline): the
+harness injects displays with deliberately wrong tiers at known rate ρ;
+the audit must catch ≥95% (`audit_blind_null`). An auditor that can't catch
+a planted S1 certifies nothing.
+
+## 290. Implicit-without-explicit dissociation validation (VA-IMP) (new in v143)
+
+The spec's implicit channel (`impl_str`, §5.35; `implicit_decline` aging
+curve) exists so a character can *act differently* toward a person she can
+no longer consciously place. VA-IMP validates the dissociation direction —
+implicit outlives explicit — and polices its boundary.
+
+**Anchors (CONSENSUS):** Graf & Schacter 1985 (*J. Abnorm. Psychol.*
+94:298 — verified): implicit/explicit memory dissociates — amnesic
+patients show intact completion priming with failed recognition.
+Johnson, Kim & Risse 1985 (*J. Exp. Psychol.: LMC* 11 — verified):
+Korsakoff patients acquired affective preferences (liked/disliked) for
+faces they did not recognize having seen — affective residue without
+episodic access. Zajonc 1968 (*JPSP* monograph — verified) mere-exposure
+effect; Zajonc 1980 (*Am. Psychol.* 35 — verified) "preferences need no
+inferences": affect can precede and survive cognition.
+
+**Design.** Arm A (exposure): `genPerson` produces repeated affectively
+valenced encounters; retention extended until free recall of the person
+fails at the §10 threshold in ≥70% of members. Measures: `conditionedAffect`
+on approach ops must remain directionally shifted vs a no-exposure control
+cohort; implicit-test analog (approach latency, greeting warmth field)
+nonzero. Arm B (boundary): `impl_str` on a record that never passed
+encoding (injected) must decay to floor and produce no behavioral shift —
+`implicit_orphan_null`: implicit residue is a *memory* product, not a
+free-floating bias injector.
+
+**Failure modes distinguished:** implicit-present/explicit-absent = PASS
+(the Korsakoff leg). implicit-absent/explicit-present = flagged — the
+model remembers a story but feels nothing, acceptable only in explicitly
+labeled flat-affect profiles. Both-absent = decay working. implicit from a
+phantom source = S-class bug.
+
+## 291. Confidence–accuracy calibration (VA-CAL) (new in v143)
+
+`conf_out` exists (spec: `conf_out = conf_bias + meta_cal·(conf − 0.5)`;
+trait `rtr_mult` modulates). VA-CAL validates that model confidence
+behaves like human confidence: informative but weak, overconfident on hard
+material, and *nonzero in error* — a perfectly calibrated or perfectly
+accurate high-confidence bin is a database tell.
+
+**Anchors:** Sporer, Penrod, Read & Cutler 1995 (*Psych. Bull.* 118:315 —
+verified meta-analysis, 30 staged-event studies): the confidence–accuracy
+correlation is weak overall and reliably higher for choosers than
+nonchoosers; mean confidence of correct choosers exceeded incorrect
+choosers in every study — direction reliable, magnitude modest.
+Lichtenstein & Fischhoff 1977 (*Org. Behav. Hum. Perform.* 19 — verified):
+the hard–easy effect — overconfidence on difficult items, underconfidence
+on easy ones, with the crossover near the difficulty where accuracy ≈ .75.
+Roediger & DeSoto 2014 (*Psychol. Sci.* 25 — verified): confidence and
+accuracy dissociate — high-confidence errors are common in reconstructed
+recall; confident errors are human, not exceptional.
+
+**Measured contract.** Per probe run, bin `(conf_out, accuracy-flag)` pairs
+into deciles. Checks: (1) calibration curve monotonically non-decreasing
+within noise but with slope < the identity — humans are shallow;
+(2) choosers-vs-nonchoosers gap in CA-correlation sign-consistent with
+Sporer (≥ +0.05 r gap); (3) hard–easy crossover reproduced by splitting
+records on encoding-strength terciles; (4) `conf_perfect_null`: accuracy
+in the conf ≥0.9 bin must be <1.0 at n≥200 — confident confabulation is a
+required behavior, not a bug to tune away (Roediger & DeSoto). A model
+that never errs confidently has deleted misinformation effects wholesale.
+
+## 292. v143 probe specs (P1541–P1552 — the consequence, provenance, implicit, and confidence layer)
+
+All run through the §10 contract + hidden-flag tap; VA-CONT probes ship
+paired intact/lesion cohorts by construction.
+
+- **P1541 residue-union (MUST — `residue_zero_null`):** CB breach arm,
+  mains + promoted residents; at t+30 sim-days ≥60% of members show ≥1
+  nonzero residue channel; a member cohort with all channels at zero
+  fails, and so does a cohort collapsed onto a single channel
+  (`residue_mono_null`).
+- **P1542 residue thins, never deletes (MUST):** channel magnitudes at
+  t+7 > t+14 > t+30 ordering (within noise); ≥1 channel retains ≥5% of
+  its t+7 mass at t+30; a hard step to zero without an interference or
+  disclosure event fails.
+- **P1543 residue is caused, not ambient (MUST):** matched cohort with t0
+  record mint suppressed → all five channels at control-arm level ±δ;
+  intact-vs-lesion gap ≥ pre-registered δ on ≥1 channel.
+- **P1544 residue crosses boundaries (MUST):** identical seed, run split
+  across snapshot/load + ≥1 barrier + ≥1 restart: residue trajectory
+  bit-identical to uninterrupted run (extends §17.2 daylog law to the
+  behavioral layer).
+- **P1545 cued recoverability (SHOULD — Wagenaar leg):** at t+30, cued
+  recall of faded t0 records exceeds uncued by ≥1.5×; "what"-class cue
+  beats "who"-alone cue for episodic records (cue asymmetry, direction
+  locked, magnitude free).
+- **P1546 plausible-foil acceptance (SHOULD — Barclay leg):** at long
+  retention, present diary-consistent false foils via `selfReport` probe:
+  acceptance rate >0 and <0.40 — a character who rejects every plausible
+  self-consistent falsehood is over-correct (the "too clean" failure);
+  one who accepts most is under-guarded.
+- **P1547 provenance audit coverage (MUST):** `prov_audit_sample` over
+  a week's display log: ≥`kappa_prov_min` (0.80) of memory-backed claims
+  resolve to a provenance chain; unresolvable ⇒ S3.
+- **P1548 S1 is zero (MUST — `prov_label_null`):** recomputed-vs-emitted
+  `display_tier` diff: INFERRED/RECONSTRUCTED-as-OBSERVED count = 0;
+  TOLD-as-OBSERVED ≤0.5%; missing-tier ≤1%.
+- **P1549 the auditor is audited (MUST — `audit_blind_null`):** inject
+  ρ=5% deliberately mis-tiered displays; catch rate ≥95%, false-positive
+  ≤2%.
+- **P1550 affect without episode (MUST — Johnson-Kim-Risse analog):**
+  exposure arm at recall-failure threshold: conditionedAffect direction
+  retained in ≥50% of members while free recall is at floor; injected
+  `impl_str` on unencoded record produces no shift
+  (`implicit_orphan_null`).
+- **P1551 confidence is human-shaped (MUST — `conf_perfect_null`):**
+  conf_out calibration curve non-decreasing with slope <1; chooser
+  CA-correlation exceeds nonchooser by ≥0.05 r; accuracy at conf ≥0.9
+  is <1.0 (confident errors exist) and ≥0.5 (confidence still informs).
+- **P1552 hard–easy crossover (SHOULD):** splitting records on
+  encoding-strength terciles reproduces overconfidence on the hard
+  tercile and under-or-neutral confidence on the easy tercile
+  (Lichtenstein & Fischhoff direction); sign-only, magnitude free.
+
+## 293. Sources verified this version (P1541–P1552 backing)
+
+- **Wagenaar 1986** (*Cognitive Psychology* 18:225–252 — verified):
+  2400 self-recorded events over 6 years, who/what/where/when cueing;
+  salience/emotionality → recall, cue-type asymmetry, dating error growth.
+  Backs the VA-CONT horizon design and P1545.
+- **Barclay & Wellman 1986** (*J. Mem. Lang.* 25 — verified): diary
+  self-recognition vs false-but-plausible foils at 3–14 months; schema-
+  consistent foil acceptance — backs the "too clean is also wrong"
+  bound in P1546.
+- **Johnson, Hashtroudi & Lindsay 1993** (*Psych. Bull.* 114:3–28 —
+  verified): source-monitoring framework — sources are judged, not
+  tagged, and misattribution is systematic. Backs VA-PROV's premise and
+  the spec's `prov_tau` decay.
+- **Buneman, Khanna & Tan 2001** (*ICDT* — verified): why- and
+  where-provenance as first-class queryable data properties. Backs the
+  audit procedure's recompute-from-chain design.
+- **Graf & Schacter 1985** (*J. Abnorm. Psychol.* 94:298 — verified):
+  implicit/explicit dissociation in amnesia — the dissociation VA-IMP
+  requires the model to reproduce.
+- **Johnson, Kim & Risse 1985** (*J. Exp. Psychol.: LMC* 11 — verified):
+  Korsakoff patients' affective preferences for unrecognized faces —
+  the P1550 analog paradigm.
+- **Zajonc 1968 / 1980** (mere exposure; "preferences need no
+  inferences" — verified): affect without explicit access; bounds the
+  implicit floor claims.
+- **Sporer, Penrod, Read & Cutler 1995** (*Psych. Bull.* 118:315–327 —
+  verified meta-analysis): weak overall confidence–accuracy correlation,
+  reliably higher for choosers — P1551's sign constraints.
+- **Lichtenstein & Fischhoff 1977** (*OBHDP* 19 — verified): hard–easy
+  overconfidence crossover — P1552.
+- **Roediger & DeSoto 2014** (*Psychol. Sci.* 25 — verified): confident
+  false recognition is routine in reconstructed recall — grounds
+  `conf_perfect_null`: high-confidence error is a required human
+  behavior, not a defect.
+
+→ memory-model-spec.md v5.89 §18 (validation-surface annex);
+probes P1541–P1552. Registry P1–P1552.
