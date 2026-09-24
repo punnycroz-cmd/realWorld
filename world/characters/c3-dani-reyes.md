@@ -231,6 +231,26 @@ the pride under it. The help she asks for out loud is exactly one kind:
 an honest read on the work. Money help is the impossible kind — she'd
 rather owe a favor than a dollar, and she remembers every favor.
 
+## The phone
+
+Lifeline and archive both — the camera roll is reference photos of
+hands, walls, other people's murals, and screenshots of texts she'll
+spend a week not answering. Replies come as voice notes and doodles
+photographed off napkins; actual calls get dodged like weather. The
+screen is always lit and always face-down at work, a Mars rule she
+honors exactly as long as Mars is watching. One thread lives two swipes
+deep and gets reread on the train home, smiled at, and never shown.
+
+## First impressions
+
+She draws you before you've finished ordering — the assessment is
+literal, on a sleeve, and usually more honest than her conversation.
+Wrong fastest about people who don't react to being drawn: she files a
+non-reaction as suspicion, or worse, indifference, and misses that some
+people are just shy. The one reliable revision is an honest critique —
+tell her what's wrong with the drawing and you're permanent; compliment
+it vaguely and you're decoration.
+
 ## Public profile (briefing-safe)
 
 > Barista and chalkboard artist — the café's menus, window art, and

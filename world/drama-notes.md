@@ -1,4 +1,4 @@
-# Drama Direction Notes — "The Mission" (world v94)
+# Drama Direction Notes — "The Mission" (world v122)
 
 *v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
 week shapes, and substrate handoff; v38 added evidence standards, drift review,
@@ -9,9 +9,20 @@ fuse interference matrix, audience suspicion calibration, the comedy-duty
 roster, the residue nursery, and pressure catalog third tranche; v80 added
 daypart dramaturgy (where shadows land in time), the offscreen doctrine
 (viewership is never a pressure input), surface-window aftercare per fuse,
-and pressure catalog fourth tranche; v94 adds the cooling grammar (how a
+and pressure catalog fourth tranche; v94 added the cooling grammar (how a
 pressured fuse goes quiet), the double-surface contingency, the fair-misfire
 register, the drift-review posture vocabulary, and pressure catalog fifth
+tranche; v108 adds the drift record (what a review actually writes — the
+§43 audit trail given a schema), the object dramaturgy registry (the
+secret-objects' custody rules), the composition rule (one shadow per
+frame), and pressure catalog sixth tranche; v122 adds the
+consequence-continuity doctrine (the missed-meal test — a miss is
+canon, repair is a character act, direction only keeps the conditions
+for repair alive), supporting-resident dramaturgy (promoted ambients
+enter the seed architecture — promotion follows recurring
+relationships, never camera popularity), bounded-opportunity direction
+(public invitations as may-ignore conditions — an ignored invitation
+is honest texture, never rescued), and pressure catalog seventh
 tranche.*
 
 **Audience:** the character AI brains (via their system context), the future
@@ -828,9 +839,12 @@ Two corollaries:
   a legible shadow, and an exhaustion rule. If any of the three is
   missing, the row is a wish, not a pressure.
 - Tell-ladder edits (§28), venue-map edits (§29), daypart-map edits (§36),
-  aftercare edits (§38), and the v94 rule blocks (§§40–43) sync across all
-  three artifacts the same way; a brink tell that names its fact gets
-  deleted, not moved down a rung.
+  aftercare edits (§38), the v94 rule blocks (§§40–43), and the v108 blocks
+  (drift record §45, object dramaturgy §46, composition rule §47) sync
+  across all three artifacts the same way; a brink tell that names its
+  fact gets deleted, not moved down a rung. The drift log itself
+  (`drama.json: drift_log`) is append-only — reviews write entries, edits
+  never rewrite them (§45).
 - `world/audit.js` gate `drama` checks the JSON's structural invariants
   (states in enum, fuse ids valid, holders/suspects/must_not_know
   pairwise disjoint). It cannot check legality of *notes* — §19 is human.
@@ -1248,3 +1262,235 @@ legible shadow, an exhaustion rule — or it's a wish, not a pressure.
 | P-24 | The borrowed-thing return trip — an object lent weeks ago finally coming back (umbrella, book, dish) | the block's ordinary borrowing texture | F4, F3 | the return as a second knock; a reason for contact already spent once | rare — a return invented weekly is a prop department; objects return once |
 | P-25 | A venue's posted closed day — supply run, deep clean, a real reason on the door | the businesses' own closure cadence | F6, F1-adjacent | a sign on the door; regulars rerouted to a second-choice counter | rare + real reason only — a venue never closes *for* pressure; the closure reroutes presence, it doesn't aim it |
 | P-26 | The group errand — one car, three errands, a shared ride | neighbors' ordinary cooperation | F2, F5-adjacent | who's in the car and who sits where; an errand that took longer than its list | monthly at most — a ride arranged to isolate two people is staging |
+
+## 45. The drift record — what a review actually writes
+
+§22 names the steps; §43 promises an audit trail. This section names the
+artifact. Every drift review appends **exactly one record** to the drift
+log — an internal bookkeeping file that lives beside this document's data,
+never in the world, never on any spectator surface. `drama.json` mirrors
+the schema as `drift_record` and carries the log itself as `drift_log`.
+
+| Field | Content |
+|---|---|
+| `window` | the block-week under review — one record per window, in order |
+| `states` | per-seed observed state; every *changed* state carries its §21 evidence pointer (the ledger event that moved it). Unchanged seeds record as `unchanged`, not silence |
+| `postures` | the §43 postures set for the coming window — one per fuse max, written as vocabulary entries, never prose that sneaks in a plan |
+| `spend` | which pressure-catalog conditions actually produced ledger events this window and which seeds consumed budget — observed, never planned |
+| `shadows` | the pressure- and brink-rung tells that actually rendered, per seed — the §12 audit trail |
+| `flags` | review artifacts only: `comedy_drought`, `compound_surface`, `stacked_week`, `crowded_frame`, `fix_forward`, `missing_review` |
+| `notes` | free text — where "emergence reordered the preference" gets written down |
+
+Standing rules:
+
+- **Append-only and immutable.** A wrong read is fixed forward in the next
+  record — never rewritten, same law as the canonical ledger itself. A
+  reviewer who edits last week's record has destroyed the only evidence
+  that the record-keeping is honest.
+- **A quiet week is a record too.** A window with no entry is a review
+  that didn't happen; the next review flags `missing_review` and moves on
+  — it never backfills a record for a week nobody watched. The log's gaps
+  are themselves data.
+- **The record is the "why" for every loud week.** §43's rule — a reviewer
+  should be able to answer "why was F4 loud this week" from the record
+  alone — only holds if `postures` and `spend` are honestly separated:
+  what the manager preferred versus what the world produced.
+- **Records never write to the world** — not to the ledger, not to a
+  character, not to a seed state. They describe the direction layer's own
+  bookkeeping; states stay observed (§21), and the record *reports* the
+  observation.
+- **Internal vocabulary end to end.** A record may name seeds and fuses;
+  nothing in it is briefing-safe or feed-safe. The archive is what a
+  spectator gets; the drift log is what the showrunner gets.
+
+## 46. Object dramaturgy — the secret-objects
+
+The block's secrets live in physical objects as much as in people. Objects
+are the fairest shadows the show has — they can be *seen* without being
+*read* — so they get their own registry. `drama.json` mirrors it as
+`object_dramaturgy`.
+
+| Object | Held by | May appear | The never |
+|---|---|---|---|
+| the flyer | C1 (a copy); the original in C7's drawer | an apron pocket; under the counter; changing hands (P-03) | its text legible on camera; posted anywhere public before a publish event; a second copy appearing by convenience |
+| the notebook (La Esperanza) | C8 | the supplier loop; the 3 p.m. table — always closed or almost | opened for a non-holder; left behind as a beat; explained on sight |
+| the sketchbook | C2 | café tables; 9418 at odd hours | opened by anyone but Jules — a page may be glimpsed in passing, never studied |
+| the chalkboard | C3's work surface at Mudhaus | the public wall — the one object that is its own venue | spelling a name; converging faster than one legible step per pressured window (P-09) |
+| the unread letter | C6 | moved between surfaces; read twice; kept from Jules's sight-line | opened on camera — the envelope is the entire shadow |
+| rent envelopes | C4, C5, C2 (cash) | counters; the first of the month; pockets | a legible amount — numbers stay interior |
+
+Rules:
+
+- **Custody is ledger-visible.** An object changing hands is a world event
+  or it didn't happen. Objects can't teleport, and they're never planted —
+  a sketchbook that lands open in Priya's path is a scripted beat with
+  props (§11.2).
+- **Shown vs. opened.** An object *shown* is a shadow; an object *opened*
+  is the holder's own act. Direction may arrange the presence; the sim
+  owns the reading.
+- **Lost or destroyed is off-register** (P-03) — objects persist the way
+  secrets do. Even the letter is never destroyed on camera; Carmen keeps
+  what she hides.
+- **A new secret-object meets the pressure-row bar** (§30): a producing
+  routine that already exists, a §12 shadow, a registry row — or it's a
+  prop, not an object.
+
+## 47. The composition rule — one shadow per frame
+
+§29 maps *where* a shadow may land; §36 maps *when*. This rule caps *how
+many* may land in one camera-readable beat — the last place a stacked
+week can hide is inside a single frame.
+
+- **One shadow per beat.** A single legible moment carries at most one
+  seed's shadow. A frame holding two seeds' tells is a stacked week in
+  miniature — and it reads as the camera telling on itself, which is the
+  one leak a viewer can always feel without being able to name it.
+- **Echo exemption.** Adjacent-fuse texture at whisper grade may share a
+  frame with a louder shadow — the chorus's bench math under a pressured
+  day is venue texture, not a second signal. If an echo reads as a signal,
+  it wasn't an echo (§31's mislabel rule applies).
+- **Brink exclusivity.** A frame containing a brink tell carries nothing
+  else dramatic — no second seed's shadow, and per §33 no comedy beat on
+  the same fuse. The brink owns its moment.
+- **Triangulation happens across scenes, not within them.** The correct
+  pressured week is a whisper at one venue and ordinary life everywhere
+  else (§29's corollary); the composition rule is that corollary applied
+  per-frame — the audience does the synthesis, the render never does it
+  for them.
+- **The rule binds the display ceiling, not the characters.** Two people's
+  ordinary lives intersecting is just the neighborhood; the rule governs
+  which of the intersecting shadows may render at tell-grade.
+- **A crowded frame is a review flag** (`crowded_frame`, §45) — observed
+  and logged at drift review like a stacked week, never retro-scrubbed.
+
+## 48. Pressure catalog — sixth tranche
+
+Same legality as §14/§26/§35/§39/§44: a producing system that already
+exists, a legible shadow, an exhaustion rule — or it's a wish, not a
+pressure. `drama.json` mirrors.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-27 | Delivery morning — supplier crates and invoices on the wholesale-row sidewalk | the supplier loop's own delivery cadence | F1, S6 | Tomás counting crates; a clipboard invoice; prices in the air | per the loop's real cadence — crates are props of the route, never planted |
+| P-28 | The borrowed-key errand — watering plants, feeding a cat while someone's away | the block's mutual-favor texture | F5, F2 | a key on a hook that isn't yours; a door opened for somebody | rare — keys exist because absences do; a key lent to engineer proximity is staging |
+| P-29 | The shared-dessert appearance — a birthday or small win producing a plate that travels between counters | the block's ordinary occasions | F4, F3 | a candle in a pastry; who carries the plate and who takes the first slice | real dates only — a celebration invented for pressure is a prop department |
+| P-30 | Rain-day ritual transfer — cafecito hour or a park ritual relocating indoors under weather | the weather layer + the rituals' own elasticity | F5 | the plants alone in the rain; Carmen's chair inside the café | the ritual may move, never cancel for pressure; weather is flat (§17 identical-twin) |
+
+## 49. Consequence continuity — the missed-meal doctrine
+
+The product's one deep corner is a choice today visibly changing a
+relationship tomorrow. For the direction layer that reduces to a single
+doctrine: **protect the possibility of consequence, never the
+consequence.** `drama.json` mirrors it as `consequence_continuity`.
+
+- **A missed commitment is canon.** The no-show, the waiting, the food
+  going cold — if it happened it is a ledger event like any other.
+  It is never smoothed over, never replayed for a better take, never
+  retro-doctored into "they were both late." The sim owns what the
+  miss meant; direction owns nothing downstream of it.
+- **All three outcomes are legal.** A miss may tighten a relationship
+  (disappointment remembered), loosen it (quiet distance), or pass
+  unremarked — the characters' engines decide. A drift review records
+  which way it went in `notes`; a posture may never be set to steer it.
+- **Repair is a character act.** A make-good gesture — a second
+  invitation, a covered shift, the apology pastry — is produced by the
+  character, not scheduled. Direction may keep the *conditions* for
+  repair alive (shared spaces, recurring contact, P-31's route staying
+  walkable) and may never produce the gesture itself.
+- **Disappointment has no direction-set expiry.** How long a miss is
+  carried belongs to the remembering character. "Still carrying it" is
+  a legitimate drift-record observation; a posture demanding the
+  carrying end is an outcome claim (§19.5).
+- **The double ledger stays double.** What the misser remembers and
+  what the missed remembers may diverge — unequal knowledge is the
+  content, not a bug. Direction never reconciles the two memories, and
+  never pressures the character holding the smaller version to "catch
+  up."
+- **A declined invitation is not a wound.** A missed commitment and an
+  ignored opportunity (§51) are different objects: the first is a
+  promise between people, the second is a flyer nobody took. Refusal
+  of an open door carries no residue and must not be treated as
+  pressure.
+
+## 50. Supporting-resident dramaturgy — promotion follows relationship
+
+When an ambient promotes per `world/promotion.md`, the block gains a
+recurring resident with persistent memory and brain-authored
+consequential interactions — the cast grows from eight mains toward
+eight plus a few. `drama.json` mirrors it as `supporting_dramaturgy`.
+
+- **Promotion follows recurring relationships, never camera
+  popularity.** A candidate's case is built from observed recurring
+  contact in the ledger — who keeps crossing whose routine — never
+  from viewer attention (§37 fences viewership out of pressure; it
+  fences it out of casting too).
+- **Pre-promotion shadows are venue texture.** A not-yet-promoted
+  resident appears exactly as teller-bias carriers do (§24): texture
+  with a name. The audience must never be taught to read a pawn as a
+  fuse — a resident whose ambient shadows ran at tell-grade arrives at
+  promotion pre-leaked, and that's a §12 violation.
+- **Secrets mint at promotion, never retroactively.** The promoted
+  resident's SECRETS section is authored fresh at promotion
+  (promotion.md §2.3): the knowledge matrix gains a row; their surface
+  knowledge stays surface. A resident may not arrive knowing seed
+  facts "they would have overheard."
+- **New seeds meet the seed bar.** Any seed authored for a promoted
+  resident gets the full registry treatment — disjoint
+  holders/suspects/must_not_know, a three-rung tell ladder, a
+  suspicion-calibration row — or it doesn't enter the registry.
+- **Casting is not pacing.** Direction never promotes to fill a slow
+  week (the stall doctrine applies: a quiet block is correct content),
+  and never holds a promotion back to protect a venue's texture — the
+  coverage hole is a crowd-sim problem (promotion.md §1), not a drama
+  lever.
+- **Reversion keeps residue.** If a promoted resident's role ends,
+  their resolved interactions stay ledger canon. Direction never
+  unwinds them — a departed resident is a name the block remembers,
+  not a plot hole to scrub.
+
+## 51. Bounded-opportunity direction — invitations the block may ignore
+
+The Astra direction's second half: public invitations, shared
+workspace, community projects — real content the characters may walk
+past. `drama.json` mirrors it as `bounded_opportunities`.
+
+- **Opportunities are conditions, never fuses.** A standing invitation
+  (the study table, workbench hours, the garden plot) is at most a
+  pressure-catalog producer (P-32). It is never a seed, never a fuse,
+  never a promise someone must keep.
+- **Uptake belongs to the characters.** Direction may post an
+  opportunity, maintain it, and keep it legible. It may never track
+  attendance as a score, never escalate an ignored invitation into
+  pressure, and never refresh a stale one to force uptake — an
+  invitation re-posted because nobody came is a script wearing a
+  flyer.
+- **Ignored is honest texture.** The sign-up sheet stays up with its
+  blank lines. The drift review may write `cold_opportunity` in
+  `notes` — observed, never flagged for rescue. A block where every
+  invitation lands is a block where invitations mean nothing.
+- **Adopted becomes ordinary.** Once characters take an opportunity
+  up it joins their routines and produces shadows by the normal rules
+  — it earns no exemption from the quiet floor, and its adoption
+  spends no pressure budget.
+- **The organizer's act is theirs.** If a character independently
+  organizes around an opportunity — the shared meal, the work party —
+  attendance and absence consequences follow §49. The opportunity
+  itself never carries the consequence; the promise between people
+  does.
+- **Requests may create opportunities, never obligations.** A
+  sponsored invitation enters with identical pressure to an organic
+  one (§17's identical-twin test) — the player's hope is weather,
+  not a lever.
+
+## 52. Pressure catalog — seventh tranche
+
+Same legality as §14/§26/§35/§39/§44/§48: a producing system that
+already exists, a legible shadow, an exhaustion rule — or it's a
+wish, not a pressure. `drama.json` mirrors.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-31 | The make-good route — a character's voluntary repair gesture crossing shared space (a carried plate, a covered shift, a second invitation delivered in person) | the characters' own repair behavior under §49 — direction keeps the route walkable, never walks it | F3, F4, F5 | the gesture seen before it's read: a plate carried the long way; a shift taken without being asked | rare by definition — the gesture is never produced, only allowed to be seen; a route kept open is a condition, a gesture is an act |
+| P-32 | The standing invitation — a posted open call (study table, workbench hours, garden plot) staying up week over week | the bounded-opportunity layer (§51) | F2, F3 | the sheet itself — names appearing or not appearing; the table that exists whether or not anyone sits | spends nothing while ignored; an adopted invitation becomes routine texture — its pressure is spent by becoming ordinary |
+| P-33 | Second-shift overlap — a promoted resident's recurring routine crossing a main's habitual hour | the promotion layer's kept schedules (§50; promotion.md §2.4) | F4, F6 | the same two people in the same frame across weeks; recognition texture — "the usual" | per the residents' real cadence — overlap is a rhythm, not an arrangement; promotion makes it legible, never creates it |
+| P-34 | The commitment artifact — evidence of a plan made earlier (a chalked date, ingredients bought, a borrowed chair count) | characters' own planning acts | F5, F3 | the artifact outliving the plan — chairs stacked for a meal that didn't happen; a date rubbed off the board | one per plan — the artifact exists because the plan did; planted to remind the audience it's a prop, not a shadow |

@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Standing Offer (offers layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Offers demo — "The Standing Offer" (world v129). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/offers.json
+  (mirrored inline below as OFF — hand-synced, deep-compared by audit.js offs gate).
+  Per door venue and per registry building: the standing bounded opportunities —
+  a shared workspace, an open invitation, a community project — with host, cost,
+  capacity, cadence, the readable CHANGE if taken up, and the honest NEGLECT state
+  if ignored. quiet rows render only at internal clearance, same rule as secret
+  web edges and quiet favors. Conditions, never scripts: uptake belongs to the
+  characters; nobody tracks attendance; an ignored offer is texture, not a fuse.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --vio:#9d8cd4;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  main{max-width:1240px;margin:0 auto;padding:16px 18px}
+  .sect{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:18px 0 8px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(400px,1fr));gap:14px}
+  .ven{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .ven.bld{border-color:#3a3348}
+  .vhead{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:8px}
+  .vhead b{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--acc)}
+  .vhead .addr{font-size:10.5px;color:var(--dim)}
+  .vhead .n{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono)}
+  .off{padding:9px 14px;border-bottom:1px dashed var(--line)}
+  .off:last-child{border-bottom:none}
+  .off.quiet{background:#241f2c}
+  .oline1{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .kind{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:8px;padding:0 7px;color:var(--blu)}
+  .kind.community_project{color:var(--grn)}
+  .kind.open_invitation{color:var(--pink)}
+  .host{font-weight:700;color:var(--ink)}
+  .host em{font-style:normal;color:var(--dim);font-weight:400}
+  .vis{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:8px;padding:0 7px;color:var(--dim)}
+  .vis.board{color:var(--grn);border-color:var(--grn)}
+  .vis.counter{color:var(--acc);border-color:var(--acc)}
+  .vis.quiet{color:var(--vio);border-color:var(--vio)}
+  .ask{margin-top:3px}
+  .chg{font-size:11.5px;margin-top:4px}
+  .chg b{color:var(--grn);font-weight:600}
+  .neg{font-size:11.5px;color:var(--dim);margin-top:2px}
+  .neg b{color:var(--vio);font-weight:600}
+  .meta{display:flex;gap:10px;margin-top:5px;font-size:10.5px;font-family:var(--mono);flex-wrap:wrap;color:var(--dim)}
+  .meta .cad{color:var(--blu)}
+  .meta .cap{color:var(--acc)}
+  .meta .cst{color:var(--grn)}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE STANDING OFFER</div>
+  <div class="tgl" id="clrTgl">clearance <button data-v="public">public</button><button data-v="staff">staff</button><button data-v="internal" class="on">internal</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">The open doors of the block — every offer is a <b>condition, never a script</b>.
+    Each names a <b>host</b> who keeps it legible (and may let it lapse), a real cost and capacity,
+    the readable <b>change</b> if someone takes it up, and the honest <b>neglect</b> if nobody does.
+    <b>board</b> is posted publicly, <b>counter</b> is staff-side, <b>quiet</b> is household or
+    handshake knowledge and never reaches public clearance. Internal posture — never ship.</p>
+  <div class="sect">the doors — workplace venues</div>
+  <div class="grid" id="doorGrid"></div>
+  <div class="sect">the buildings — registry addresses</div>
+  <div class="grid" id="bldGrid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/offers.json (hand-synced, v129) ---- */
+const OFF=
+{
+ "doc": "The standing offers — world v129. The authored half of drama.json §51 bounded_opportunities and the jobs-housing counterpart to crowd.json occasions: concrete, bounded invitations anchored at every door venue and every registry building. Each offer names a host (who keeps it legible — a person, staff, the house, or the regulars), a cost in time/stuff/game-dollars, a capacity, a cadence, a changes line (the readable consequence IF taken up) and a neglect line (the honest decay state if ignored). CONDITIONS, NEVER SCRIPTS — uptake belongs to the characters; an ignored offer is texture, not a fuse, and nobody tracks attendance. INTERNAL tier for machine surfaces; board-visibility offers are the only spectator-legible rows.",
+ "version": 129,
+ "kind_keys": {
+  "shared_workspace": "a bench, stove, shelf, line, or lift anyone may use on the house's terms — the space is the offer",
+  "open_invitation": "a standing ask that repeats — a table, a sign-up sheet, a night, a jar; join by showing up",
+  "community_project": "a named ongoing effort with a physical trace — a garden bed, a shelf, a fund jar; it persists whether or not anyone shows"
+ },
+ "visibility_keys": {
+  "board": "posted where anyone can read it — spectator-legible",
+  "counter": "staff-side or regulars-side knowledge — internal and staff contexts only",
+  "quiet": "household or handshake knowledge — internal only, redacted below internal clearance"
+ },
+ "host_forms": {
+  "person": "a cast/supporting/ambient id (c1–c8, s1–s3, a01–a20) — the person who keeps the offer legible; may let it lapse",
+  "staff": "the venue collectively — whoever is behind the counter that day",
+  "house": "the household — no single keeper; the offer lives in the shared space itself",
+  "regulars": "the regulars — kept alive by habit, not by a named keeper"
+ },
+ "offers": {
+  "mudhaus": [
+   {
+    "id": "off-mud-01", "kind": "community_project", "visibility": "board", "host": "c1",
+    "ask": "Claim a month on the art wall — bring six to ten pieces, hang them yourself on the first Sunday, leave a price card only if you want one.",
+    "cost": { "time": "a Sunday morning to hang", "bring": "your own work and your own tape" },
+    "capacity": "one wall, one artist a month", "cadence": "monthly swap, first Sunday",
+    "since": "since the second year — a regular asked to hang her sketches and Marisol said the wall was wasting light anyway",
+    "changes": "a wall-month makes the artist a known face at the counter — regulars start asking what's next, and the clipboard name gets recognized on the street",
+    "neglect": "the clipboard stays taped up with blank months; last year's show hangs three months too long and fades at the corners"
+   },
+   {
+    "id": "off-mud-02", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The community shelf — leave a book, take a book, tuck a flyer on the cork edge if it's for something on the block.",
+    "cost": { "time": "none — a minute at the shelf", "bring": "a book you'd actually hand someone" },
+    "capacity": "one shelf; when it overflows the overflow goes to the Dusty Spine", "cadence": "standing",
+    "since": "since forever — nobody remembers who left the first book",
+    "changes": "the shelf is how a flyer for a balcony show or a lost cat actually travels — a thing posted here gets seen by everyone who waits for a latte",
+    "neglect": "the shelf fills with water-damaged paperbacks nobody wants and the cork edge goes blank — Jules or Dani weeds it when it embarrasses them"
+   }
+  ],
+  "el-farolote": [
+   {
+    "id": "off-far-01", "kind": "open_invitation", "visibility": "board", "host": "c8",
+    "ask": "The Thursday table — one long table stays unreserved on Thursdays; ask by Wednesday and a seat gets set, family-meal price, no questions about who you came with.",
+    "cost": { "time": "a long dinner — the table eats slow", "dollars": 12, "bring": "nothing; an appetite is the ticket" },
+    "capacity": "the table seats ten; it has never once filled", "cadence": "thursdays",
+    "since": "since Tomás started running the pass — staff meal kept having extra seats and it felt wrong to waste them",
+    "changes": "a seat at the Thursday table turns a neighbor into a regular — Tomás learns your order, and the kitchen starts saving you the good salsa",
+    "neglect": "the table sits with ten empty chairs some Thursdays and the staff eats at it instead — nobody takes it personally, nobody writes it down"
+   },
+   {
+    "id": "off-far-02", "kind": "shared_workspace", "visibility": "counter", "host": "c8",
+    "ask": "The prep stool — Sunday mornings, whoever shows gets a cutting board and a pile of something to break down; you eat the family meal after.",
+    "cost": { "time": "two hours of prep", "bring": "nothing — the knives are the house's" },
+    "capacity": "two stools, three if someone doesn't mind the small board", "cadence": "sunday mornings",
+    "since": "since a regular's kid needed to learn knife work for a job interview and stayed a year",
+    "changes": "a stool regular picks up real knife skills and a kitchen reference — and the family meal stops feeling like charity because they cooked it",
+    "neglect": "the stools stack in the corner and Tomás preps alone with the radio — the offer stays open but the pile gets smaller"
+   }
+  ],
+  "auerbach": [
+   {
+    "id": "off-aue-01", "kind": "shared_workspace", "visibility": "board", "host": "c7",
+    "ask": "The Tuesday bench — bring the broken thing and the part if you know it; Victor supervises, you do the work, the shop's tools do the rest.",
+    "cost": { "time": "an evening, sometimes two", "bring": "the broken thing; the part if it's exotic", "dollars": 0 },
+    "capacity": "one bench, one project — the queue is the line of things on the floor", "cadence": "tuesday evenings",
+    "since": "since 2009 — a customer asked if Victor fixed toasters and he said 'no, but I'll watch you do it'",
+    "changes": "a bench regular stops paying repair shops and starts being the person other people bring toasters to — competence the block can see",
+    "neglect": "the bench holds the shop's own backlog and the sign goes face-down for a season — nobody un-offers it, it just waits"
+   },
+   {
+    "id": "off-aue-02", "kind": "community_project", "visibility": "board", "host": "c7",
+    "ask": "The stoop fund jar — coins and small bills toward the sidewalk planter rebuild; when the jar covers lumber, a Saturday gets named and whoever shows builds it.",
+    "cost": { "time": "a Saturday if the jar ever fills", "dollars": 5, "bring": "coins, or hands on build day" },
+    "capacity": "one jar, one planter, whoever's there", "cadence": "standing — the jar fills at its own pace",
+    "since": "since the delivery truck clipped the planter and Victor decided the fix belonged to the block",
+    "changes": "a filled jar becomes a named Saturday — sawdust on the sidewalk, coffee appearing from somewhere, and a planter everyone watched get built",
+    "neglect": "the jar sits at two coins and a button for months; the chipped planter stays chipped and the jar reads as a wish, not a plan"
+   }
+  ],
+  "dolores-perk": [
+   {
+    "id": "off-dpk-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The patio pitcher — bus the outside tables on your way out and your refill is on the house; the little chalkboard by the door explains it once, forever.",
+    "cost": { "time": "two minutes with a tub", "bring": "nothing" },
+    "capacity": "as many as want it — the tub lives under the side counter", "cadence": "standing, daylight hours",
+    "since": "since the summer the park crowd kept leaving cups and a regular cleared them without being asked",
+    "changes": "a habitual table-clearer gets remembered by name at the register — the smallest job on the block with the fastest promotion to regular",
+    "neglect": "the chalkboard fades, the tub migrates behind the counter, and the offer quietly becomes staff-side knowledge only"
+   }
+  ],
+  "buy-rite-market": [
+   {
+    "id": "off-brm-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The Saturday sample table — local makers get the folding table by the door for two hours; sign up on the clipboard at register two, bring your own tablecloth.",
+    "cost": { "time": "a Saturday two-hour slot", "bring": "samples, a tablecloth, a card with your name" },
+    "capacity": "one table, one maker per Saturday", "cadence": "saturdays, midday",
+    "since": "since the hot-sauce guy outsold the shelf stock from a card table and the manager made it official",
+    "changes": "a good Saturday puts a maker's name in fifty kitchens — the clipboard is the cheapest shelf space in the neighborhood",
+    "neglect": "the clipboard goes a month blank and the folding table stays in the back — the slot exists but the block forgets to use it"
+   }
+  ],
+  "buy-rite-creamery": [
+   {
+    "id": "off-brc-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The flavor chalkboard — write a flavor suggestion in the chalk column; the staff pick each month gets made as a pint special and the suggester gets the first scoop free.",
+    "cost": { "time": "ten seconds with the chalk", "bring": "a flavor that isn't a joke — the staff can tell" },
+    "capacity": "the column holds about twenty lines before it gets erased and started over", "cadence": "monthly pick",
+    "since": "since the ube-and-everything month proved the customers had better ideas than the catalog",
+    "changes": "a winning flavor makes a name briefly famous on the block — 'the pretzel one was mine' is a real claim people make",
+    "neglect": "the column fills with the same three jokes and the staff stops reading it — the chalk stays up but the pick quietly stops"
+   }
+  ],
+  "il-delfino": [
+   {
+    "id": "off-del-01", "kind": "open_invitation", "visibility": "counter", "host": "staff",
+    "ask": "The industry stool — service workers from anywhere on the block get the end bar stool after close and a staff-priced plate; say where you work, that's the whole ticket.",
+    "cost": { "time": "a late hour", "dollars": 9, "bring": "the name of your shift" },
+    "capacity": "two stools — more would turn it into a seating section and it isn't one", "cadence": "after close, nightly",
+    "since": "since a Farolote cook came in still wearing his apron and nobody made him change",
+    "changes": "the stool is how the block's kitchen crews actually meet each other — a cook's gossip network two seats wide",
+    "neglect": "the stools get taken by walk-ins on busy nights and the tradition goes quiet until a bartender remembers to defend it"
+   }
+  ],
+  "baguette-about-it": [
+   {
+    "id": "off-bag-01", "kind": "open_invitation", "visibility": "counter", "host": "a16",
+    "ask": "The four a.m. bench — the bench by the oven vent is warm before dawn; early workers and insomniacs can sit with a paper cup while the first proof comes up, as long as they don't block the flour run.",
+    "cost": { "time": "the cold hour before the city starts", "bring": "nothing — Hana sets out the day-olds when there are some" },
+    "capacity": "the bench holds three comfortably", "cadence": "predawn, daily",
+    "since": "since Hana noticed the same nurse's-aide waiting for the first bus in the cold and unlocked the door early",
+    "changes": "a bench regular has a warm hour and a known face at the loneliest part of the day — the bakery's first fifteen minutes become a small community",
+    "neglect": "the bench sits cold in the dark when Hana's schedule shifts — the door stays locked and nobody thinks to ask"
+   },
+   {
+    "id": "off-bag-02", "kind": "shared_workspace", "visibility": "quiet", "host": "a16",
+    "ask": "The proofing lesson — Hana will teach one person at a time to shape loaves on Sunday afternoons; the deal is you take your misshapen results home and eat them.",
+    "cost": { "time": "three Sunday afternoons to be any good", "bring": "an apron and humility" },
+    "capacity": "one learner at a time — two hands at the bench is a crowd", "cadence": "sunday afternoons, when Hana's week allows",
+    "since": "since a counter kid asked why her baguettes stood up straight and got a real answer",
+    "changes": "a learner leaves with a working skill and a standing invitation — and Hana gets the only thing a 4 a.m. baker can't buy: company that understands the hours",
+    "neglect": "nobody's asked in a year — the Sunday bench does baguettes for the case and the lesson exists only because it was never withdrawn"
+   }
+  ],
+  "the-600-club": [
+   {
+    "id": "off-600-01", "kind": "open_invitation", "visibility": "board", "host": "regulars",
+    "ask": "The league sheet — the pool league takes walk-ons for the Monday open bracket; put your initials on the sheet, bring your own cue or borrow the warped one, lose gracefully at least once.",
+    "cost": { "time": "a Monday evening", "dollars": 5, "bring": "a cue if you have one; the buy-in covers the table light" },
+    "capacity": "sixteen initials; the sheet rarely fills", "cadence": "monday nights",
+    "since": "since the regular league died of attendance and the open bracket replaced it — less glory, more strangers",
+    "changes": "a walk-on who keeps showing up becomes a Tuesday regular who happens to play Mondays — the sheet is the club's only recruiting tool",
+    "neglect": "the sheet hangs with five faded initials for weeks and the table plays winner-stays like always"
+   }
+  ],
+  "dandy-lion": [
+   {
+    "id": "off-dan-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The tempering watch — first Saturday of the month the marble slab runs a tempering demo; stand at the rail, ask questions, take the tasting spoon when it comes around.",
+    "cost": { "time": "forty minutes at the rail", "bring": "nothing — questions are optional, patience isn't" },
+    "capacity": "the rail holds six before sightlines go", "cadence": "first saturday, mid-morning",
+    "since": "since a customer asked why the chocolate snapped and got a forty-minute answer the whole shop enjoyed",
+    "changes": "a rail regular starts recognizing temper by eye and gets pulled into tastings — the demo makes connoisseurs out of neighbors",
+    "neglect": "the demo skips a month when the kitchen's slammed and nobody complains — the sign's date just quietly updates"
+   }
+  ],
+  "valencia-growers": [
+   {
+    "id": "off-val-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The cull crate — at close, the crate by the scale holds the day's too-soft and too-ugly; help break down empty boxes for ten minutes and the crate is yours to pick through first.",
+    "cost": { "time": "ten minutes of breaking down boxes at close", "bring": "a bag — the crate never comes with one" },
+    "capacity": "whoever's there at close; the crate feeds three honest pickers", "cadence": "daily, at close",
+    "since": "since the compost run started costing more than the produce was worth and the closing crew found the better math",
+    "changes": "a cull regular eats well on a thin week and becomes the person the closing crew watches for — interdependence measured in soft tomatoes",
+    "neglect": "the crate goes to compost unclaimed some nights — the offer stays taped to the scale whether or not anyone reads it"
+   }
+  ],
+  "needlepointe": [
+   {
+    "id": "off-ndl-01", "kind": "open_invitation", "visibility": "counter", "host": "s1",
+    "ask": "The apprentice hours — one evening a week the shop takes small flash work at apprentice rates while Bex builds her book; you pick from the posted sheet, you tip what the piece is worth to you.",
+    "cost": { "time": "an evening under the needle", "dollars": 40, "bring": "a shower and a decision" },
+    "capacity": "one chair — the shop's books, not the offer, decide the wait", "cadence": "one evening a week",
+    "since": "since Bex's apprenticeship needed skin hours the shop's regulars couldn't all supply",
+    "changes": "the hours make Bex's line-work visible on the block — every healed piece is a walking reference, and her book gets thick in public",
+    "neglect": "a slow month leaves the sheet unbooked and Bex practices on skin sheets instead — nobody's disappointed, it just shows in the pace"
+   }
+  ],
+  "folsom-auto": [
+   {
+    "id": "off-fol-01", "kind": "shared_workspace", "visibility": "counter", "host": "a10",
+    "ask": "The Sunday bay — when the shop's closed Gus opens one lift for do-it-yourself work; you bring the oil and the filter, he supervises from the stool, and you leave the bay cleaner than you found it.",
+    "cost": { "time": "a Sunday hour or two", "bring": "your own oil, filter, and the willingness to do it yourself", "dollars": 10 },
+    "capacity": "one lift, first ask gets it", "cadence": "sundays, when Gus feels like opening",
+    "since": "since Gus got tired of watching neighbors overpay for oil changes he could supervise for free",
+    "changes": "a bay regular learns their own truck — the block gets one more person who can tell a bad belt by sound",
+    "neglect": "the bay stays closed the Sundays Gus fishes — the offer's rhythm is his weekends and everyone knows it"
+   }
+  ],
+  "maliks": [
+   {
+    "id": "off-mal-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The cork board — the wall by the door takes flyers for anything real on the block: room shares, lost cats, lessons, the church basement sale. Pushpin it yourself; Malik clears it the first of the month.",
+    "cost": { "time": "a minute and a pushpin", "bring": "a flyer small enough to leave neighbors room" },
+    "capacity": "the board holds maybe thirty before it's wallpaper", "cadence": "standing — cleared monthly",
+    "since": "since the first lost-dog flyer worked and word got around that the board actually gets read",
+    "changes": "the board is the block's slow internet — a room share posted here finds a tenant through three conversations instead of an algorithm",
+    "neglect": "the board goes a month of stale flyers and dead dates — Malik's first-of-the-month clearing is the only curation it gets"
+   }
+  ],
+  "las-palmas": [
+   {
+    "id": "off-lpm-01", "kind": "open_invitation", "visibility": "counter", "host": "a07",
+    "ask": "The tarp pull — when the marine layer comes in wet, whoever's standing there helps Luz pull the tarp and stack the crates; the deal is the soft-fruit bag at the end.",
+    "cost": { "time": "fifteen minutes of fast work at exactly the wrong moment", "bring": "dry hands and luck" },
+    "capacity": "two helpers is plenty; three is a traffic jam", "cadence": "whenever the weather turns — no schedule, all sky",
+    "since": "since the first storm Luz weathered alone and the stand's regulars watched it happen",
+    "changes": "a tarp-pull regular becomes someone Luz feeds in soft mangoes and remembers by name — help at the hard minute buys more than a polite hour does",
+    "neglect": "the tarp gets pulled alone on the wet days nobody's around — the stand survives, the offer just goes unanswered"
+   }
+  ],
+  "bloom-and-doom": [
+   {
+    "id": "off-bnd-01", "kind": "open_invitation", "visibility": "board", "host": "a18",
+    "ask": "The stem bucket — day-old stems go in the bucket by the door after five; take a bunch, leave the bucket, and if the bunch is for somebody sick Ida will tell you which stems hold up.",
+    "cost": { "time": "a minute at the bucket", "bring": "a jar at home — the stems don't come with one" },
+    "capacity": "one bucket; it empties most days by six", "cadence": "daily, after five",
+    "since": "since Ida decided composting perfect stems was a sin the shop didn't have to commit",
+    "changes": "the bucket makes half the block's kitchens smell like flowers for free — and Ida learns who in the neighborhood is sick, courting, or apologizing",
+    "neglect": "a slow day means a thin bucket and the regulars learn to check the stems before they check the price — nobody is owed a bouquet"
+   }
+  ],
+  "golden-hour": [
+   {
+    "id": "off-gld-01", "kind": "open_invitation", "visibility": "board", "host": "staff",
+    "ask": "The folding table — Thursday evenings the big table by the dryers is folding-and-talk territory; bring your basket, the attendant puts the radio on the good station, and nobody has to talk if they don't want to.",
+    "cost": { "time": "a dryer cycle and change", "dollars": 4, "bring": "laundry — that's the cover charge" },
+    "capacity": "the table seats six baskets", "cadence": "thursday evenings",
+    "since": "since the attendant noticed the same six people doing laundry separately on Thursdays and pushed the table into the light",
+    "changes": "a folding-table Thursday turns a chore into the hour some people see other humans — the table makes acquaintances out of parallel lives",
+    "neglect": "the table goes back to folding-in-silence when nobody claims it — the radio still plays, the chairs still face the dryers"
+   }
+  ],
+  "dusty-spine": [
+   {
+    "id": "off-dst-01", "kind": "shared_workspace", "visibility": "board", "host": "staff",
+    "ask": "The mending night — first Sunday the back table is set with glue, tape, and cloth; bring the battered book, the shop supplies the repair kit, and your book goes home re-readable.",
+    "cost": { "time": "a Sunday hour", "bring": "the book that's losing its spine — literally or otherwise" },
+    "capacity": "the table fits four menders and a kettle", "cadence": "first sunday",
+    "since": "since a customer tried to buy a replacement for a book that just needed glue and the owner took it personally",
+    "changes": "a mending regular learns the cobbler's-stitch and starts rescuing the withdrawn-shelf finds — competence the shelf silently accumulates",
+    "neglect": "the kit sits in its cigar box when the first Sunday passes quietly — the glue doesn't dry out, it just waits"
+   }
+  ],
+  "marooned": [
+   {
+    "id": "off-mar-01", "kind": "open_invitation", "visibility": "counter", "host": "regulars",
+    "ask": "The listening station — bring a record you found or one you made; the weekend counter puts the B-side on the shop deck if it's not terrible, and the honest verdict is part of the deal.",
+    "cost": { "time": "a side, maybe just a track", "bring": "a record and a thick skin" },
+    "capacity": "the deck plays one thing at a time — the shop's ears are the bottleneck", "cadence": "weekends, when the counter feels like it",
+    "since": "since a kid's demo got played between the trade-ins and three people asked what it was",
+    "changes": "a played record makes its maker a name the shop repeats — the counter's verdict is the closest thing the block has to radio",
+    "neglect": "the deck plays the same twenty records for a month when nobody brings anything — the offer lives or dies on what walks in the door"
+   }
+  ],
+  "the-musket": [
+   {
+    "id": "off-mus-01", "kind": "open_invitation", "visibility": "board", "host": "regulars",
+    "ask": "The first-Monday jam — the back room's open for whoever brings an instrument; the drummer owns the kit so drummers negotiate with her, everyone else just plugs in or doesn't.",
+    "cost": { "time": "an evening", "bring": "an instrument, or a voice, or honest listening" },
+    "capacity": "the back room holds eight players before it's a wall of noise", "cadence": "first monday",
+    "since": "since the house band broke up and the room felt wrong empty on Mondays",
+    "changes": "a jam regular ends up in somebody's Sunday-afternoon practice — the back room is where the block's half-bands find each other",
+    "neglect": "the back room stays dark some first Mondays — the regulars shrug and play darts, and the sign stays up anyway"
+   }
+  ],
+  "bld-g9418": [
+   {
+    "id": "off-9418-01", "kind": "community_project", "visibility": "quiet", "host": "c6",
+    "ask": "The back garden — the shared bed behind the duplex has one unclaimed plot; take it, weed the common path when you're down there, and the herbs by the gate are anyone's.",
+    "cost": { "time": "Sunday hours, mostly", "bring": "seeds and your own trowel — Carmen lends nothing she can't see returned" },
+    "capacity": "one unclaimed bed — the rest are spoken for", "cadence": "standing; the bed's been open since spring",
+    "since": "since the last tenant in B left and Carmen has been keeping the bed from going to thistle out of spite",
+    "changes": "a claimed bed makes a neighbor into a Sunday-morning presence Carmen waters around — shared dirt is the strongest glue this building has",
+    "neglect": "the bed goes to thistle and Carmen keeps it barely alive anyway — an empty garden bed in a shared yard is a visible unanswered question"
+   }
+  ],
+  "bld-g9457": [
+   {
+    "id": "off-9457-01", "kind": "community_project", "visibility": "quiet", "host": "house",
+    "ask": "The stairwell shelf — the wide landing between floors holds a leave-a-book shelf; Unit 1 dusts it, everyone pretends not to know who, and the shelf has never once been empty.",
+    "cost": { "time": "none", "bring": "a book you'd hand to a neighbor" },
+    "capacity": "one shelf — overflow migrates to the radiator cover, which Unit 1 tolerates", "cadence": "standing",
+    "since": "since someone left a box of mysteries on the landing with a FREE sign and the shelf organized itself around the box",
+    "changes": "the shelf is the building's lowest-tech introduction service — a bookmarked spine tells you who upstairs reads what",
+    "neglect": "the shelf accrues water-damaged romances and old manuals until someone silently weeds it — it has never once gone fully empty"
+   },
+   {
+    "id": "off-9457-02", "kind": "open_invitation", "visibility": "quiet", "host": "house",
+    "ask": "The landing chairs — two folding chairs live on the wide landing; whoever's home and restless sits, and whoever joins shares the radiator warmth and whatever's cooking upstairs.",
+    "cost": { "time": "an unstructured evening hour", "bring": "nothing — company is the point" },
+    "capacity": "two chairs; a third gets borrowed from Unit 3's stack", "cadence": "unscheduled — winter evenings mostly",
+    "since": "since the radiator on the landing turned out to be the warmest seat in the building",
+    "changes": "a landing evening is how the ambient household in Unit 1 stops being mailbox names — the chairs are the only place the floors actually meet",
+    "neglect": "the chairs stay folded against the wall during the busy months — the landing is just a landing until someone sits"
+   }
+  ],
+  "bld-c9127": [
+   {
+    "id": "off-9127-01", "kind": "shared_workspace", "visibility": "quiet", "host": "c1",
+    "ask": "The laundry line — the backyard line is shared by the four studios; the clothespin jar lives on Unit C's sill, take what you need, and Marisol's only rule is sheets off before dark.",
+    "cost": { "time": "the two trips laundry takes", "bring": "your own detergent; the pins are communal" },
+    "capacity": "two lines — whoever hangs first gets the sun side", "cadence": "dry days, which is most of them",
+    "since": "since the dryer in the basement died and the landlord priced the repair against a clothesline",
+    "changes": "line neighbors learn each other's laundry day and start moving each other's sheets off the line when fog rolls in — the smallest reliable kindness in the building",
+    "neglect": "the jar goes missing for a week and everyone buys a pack at Malik's — the line works anyway, just more alone"
+   }
+  ],
+  "bld-g9263": [
+   {
+    "id": "off-9263-01", "kind": "open_invitation", "visibility": "quiet", "host": "house",
+    "ask": "The dinner-night seat — the flat's rotating dinner night technically seats whoever's around; a neighbor on the stairs at the right hour has gotten fed more than once, and the rice cooker makes eight whether it means to or not.",
+    "cost": { "time": "a dinner that starts as lunch", "bring": "nothing twice in a row — the house notices, kindly" },
+    "capacity": "the table plus the couch plus the floor — the flat absorbs people", "cadence": "rotating; sundays lean longest",
+    "since": "since the cousins' first Sunday in the flat fed seven people who only meant to drop something off",
+    "changes": "a seat at the dinner rotation makes a stair-neighbor into family-adjacent — the flat's guest list grows by appetite, not invitation",
+    "neglect": "the rotation skips when all three adults pull the same rough week — the rice cooker stays small and the flat eats separately, which nobody says out loud"
+   }
+  ],
+  "bld-f9344": [
+   {
+    "id": "off-9344-01", "kind": "shared_workspace", "visibility": "quiet", "host": "c8",
+    "ask": "The roof table — the roof has a salvaged table and two chairs Tomás dragged up; whoever claims the evening first gets it, and the unwritten rule is you bring the table back under the awning if fog's coming.",
+    "cost": { "time": "an evening; the stairs are the toll", "bring": "your own everything — the roof provides view and table only" },
+    "capacity": "the table, two chairs, and standing room for the view", "cadence": "summer evenings; fog-permitting",
+    "since": "since Tomás found the table on the curb and decided the roof was wasted on the pigeons",
+    "changes": "a claimed roof evening is how a studio renter gets a dinner-party venue for free — the table has hosted more birthdays than the building knows",
+    "neglect": "the table sits under the awning through the wet months — first good evening of spring, somebody always remembers it"
+   }
+  ],
+  "bld-m9102": [
+   {
+    "id": "off-9102-01", "kind": "open_invitation", "visibility": "quiet", "host": "c7",
+    "ask": "The borrowed-door table — when Victor's table (a door on sawhorses, going on twenty years) gets set up, word travels by phone and staircase; showing up with bread or a bottle is the whole etiquette.",
+    "cost": { "time": "a long dinner", "bring": "bread, a bottle, or a story — one of the three" },
+    "capacity": "the door seats ten if nobody minds elbows", "cadence": "a few times a year, announced by phone tree",
+    "since": "since the shop's first Thanksgiving over the storefront, when the door came off the hinges and became furniture",
+    "changes": "a seat at the door-table is the strongest belonging signal on the block — it's how the neighborhood learns it has decided to keep someone",
+    "neglect": "the door stays a door most of the year — the dinners happen when they happen and the phone tree does all the announcing there is"
+   }
+  ],
+  "bld-s9641": [
+   {
+    "id": "off-9641-01", "kind": "open_invitation", "visibility": "quiet", "host": "s1",
+    "ask": "The front steps — two folding chairs and the building's front steps; Bex sits out on dry evenings and whoever joins gets an honest opinion on whatever they're carrying, wearing, or thinking about.",
+    "cost": { "time": "an evening on the steps", "bring": "nothing — but Bex will ask what you're working on" },
+    "capacity": "two chairs and four steps of sitting room", "cadence": "dry evenings, no schedule",
+    "since": "since Bex moved in and decided a stoop you can't sit on is a stoop wasted",
+    "changes": "a steps regular gets the sharpest honest read on the block — Bex's stoop is where half-formed ideas go to get told the truth",
+    "neglect": "the chairs stay inside on wet weeks — the steps are just steps and the building loses its easiest conversation"
+   }
+  ],
+  "bld-d9388": [
+   {
+    "id": "off-9388-01", "kind": "community_project", "visibility": "quiet", "host": "s2",
+    "ask": "The parcel shelf — the lobby shelf by the mailboxes holds signed-for packages for whichever neighbor isn't home; Esther's usually there to sign, and the shelf's only rule is you take the shift when you're the one who's home.",
+    "cost": { "time": "the odd afternoon of being home when the truck comes", "bring": "a signature and the decency to reciprocate" },
+    "capacity": "one shelf — it has never held more than three parcels", "cadence": "standing, daily",
+    "since": "since Esther retired and the building discovered it had accidentally acquired a doorman",
+    "changes": "the shelf makes the building run on reciprocity — the neighbor who signs today is owed a signature tomorrow, and the shelf keeps quiet count",
+    "neglect": "the shelf sits empty when Esther travels — parcels go back to the depot and the building remembers what she does for them"
+   }
+  ],
+  "bld-sv9519": [
+   {
+    "id": "off-9519-01", "kind": "shared_workspace", "visibility": "quiet", "host": "s3",
+    "ask": "The hall vacuum — the closet off the hall holds the building's shared vacuum and the masking-tape sign-out; borrow it, write your unit on the tape, return it emptied.",
+    "cost": { "time": "the twenty minutes a studio floor takes", "bring": "nothing — emptying it before return is the whole rule" },
+    "capacity": "one vacuum, four studios, no conflicts yet", "cadence": "standing",
+    "since": "since Asha arrived and asked where the vacuum was and learned there wasn't one — so she bought the secondhand one and put it in the closet",
+    "changes": "a vacuum with four units' tape on it is a building that shares — the sign-out strip is a small ledger of who takes care of things",
+    "neglect": "the vacuum sits unused the weeks everyone's busy — the tape peels and the closet is just a closet again"
+   }
+  ]
+ },
+ "rules": [
+  "conditions, never scripts — uptake belongs to the characters; an offer may be claimed, renegotiated, or ignored, and nothing obliges anyone to show",
+  "ignored is honest texture — neglect describes the decay state (blank lines, dust, an empty jar); nobody tracks attendance and nothing flags a cold offer for rescue",
+  "the host keeps the offer legible — a person host may let it lapse; 'staff', 'house', and 'regulars' mean no single keeper is on the hook",
+  "no promises — the changes line is the readable consequence if taken up, never a scripted outcome; a missed shared meal belongs to the characters' memory, not this file",
+  "dollars is the only money field — a numeric game-dollar cost, small by definition; no credit figures, no prices in prose, ever",
+  "keys ⊆ door venues (anchor|street tier) ∪ registry building ids; every door and every building carries ≥1 offer; offstage and reserved names key nothing but may host nothing either — they have no door",
+  "person hosts use bare ids (c1–c8, s1–s3, a01–a20); quiet rows are household/handshake knowledge and redact below internal clearance, same rule as secret web edges and quiet favors"
+ ]
+};
+/* ---- names for display (person ids → first names; venue ids → short names; building ids → addresses) ---- */
+const PN={c1:'Marisol',c2:'Jules',c3:'Dani',c4:'Priya',c5:'Marcus',c6:'Carmen',c7:'Victor',c8:'Tomás',
+ s1:'Bex',s2:'Esther',s3:'Asha',a01:'Reyes',a02:'Doro',a03:'Malik',a04:'June',a06:'Kofe',a07:'Luz',
+ a08:'Sam',a10:'Gus',a11:'Vera',a15:'Omar',a16:'Hana',a17:'Cole',a18:'Ida',a19:'Ray',a20:'Zee',
+ a05:'Esther',a09:'Asha',a14:'Bex',a12:'Tom',a13:'Nadia'};
+const VN={mudhaus:'Mudhaus','el-farolote':'El Farolote',auerbach:'Auerbach','dolores-perk':'Dolores Perk',
+ 'buy-rite-market':'Buy-Rite Market','buy-rite-creamery':'Buy-Rite Creamery','il-delfino':'Il Delfino',
+ 'baguette-about-it':'Baguette About It','the-600-club':'600 Club','dandy-lion':'Dandy Lion',
+ 'valencia-growers':'Valencia Growers',needlepointe:'Needlepointe','folsom-auto':'Folsom Auto',
+ maliks:"Malik's",'las-palmas':'Las Palmas','bloom-and-doom':'Bloom & Doom','golden-hour':'Golden Hour',
+ 'dusty-spine':'Dusty Spine',marooned:'Marooned','the-musket':'The Musket'};
+const BN={'bld-g9418':'9418 Guerrero St','bld-g9457':'9457 Guerrero St','bld-c9127':'9127 Capp St',
+ 'bld-g9263':'9263 Geneva Ave','bld-f9344':'9344 Folsom St','bld-m9102':'9102 Mission St',
+ 'bld-s9641':'9641 Shotwell St','bld-d9388':'9388 Dolores St','bld-sv9519':'9519 South Van Ness Ave'};
+let clr='internal';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const nm=p=>PN[p]||VN[p]||p;
+const LVL={public:0,staff:1,internal:2};
+function card(vid,rows,isBld){
+  const el=document.createElement('div');el.className='ven'+(isBld?' bld':'');
+  let inner=`<div class="vhead"><b>${esc(VN[vid]||BN[vid]||vid)}</b>`+
+    (isBld?`<span class="addr">registry building</span>`:'')+
+    `<span class="n">${rows.length} offer${rows.length===1?'':'s'}</span></div>`;
+  let any=false;
+  for(const a of rows){
+    if(a.visibility==='quiet'&&LVL[clr]<2){continue}
+    if(a.visibility==='counter'&&LVL[clr]<1){continue}
+    any=true;
+    const c=a.cost||{};
+    const costBits=[c.time?`time: ${c.time}`:null,c.bring?`bring: ${c.bring}`:null,
+      typeof c.dollars==='number'&&c.dollars>0?`G$${c.dollars}`:null].filter(Boolean).join(' · ');
+    inner+=`<div class="off ${a.visibility}">
+      <div class="oline1"><span class="kind ${a.kind}">${a.kind.replace(/_/g,' ')}</span>
+        <span class="host">kept by <em>${esc(nm(a.host))}</em></span>
+        <span class="vis ${a.visibility}">${a.visibility}</span></div>
+      <div class="ask">${esc(a.ask)}</div>
+      <div class="chg"><b>if taken up —</b> ${esc(a.changes)}</div>
+      <div class="neg"><b>if ignored —</b> ${esc(a.neglect)}</div>
+      <div class="meta"><span>since ${esc(a.since)}</span>
+        <span class="cad">${esc(a.cadence)}</span>
+        <span class="cap">${esc(a.capacity)}</span>
+        ${costBits?`<span class="cst">${esc(costBits)}</span>`:''}
+        <span>${esc(a.id)}</span></div>
+    </div>`;
+  }
+  if(!any)inner+='<div class="off"><span class="neg">all offers are above this clearance</span></div>';
+  el.innerHTML=inner;return el;
+}
+function render(){
+  const dg=document.getElementById('doorGrid'),bg=document.getElementById('bldGrid');
+  dg.innerHTML='';bg.innerHTML='';
+  let shown=0,hidden=0;
+  for(const vid of Object.keys(OFF.offers)){
+    const isBld=/^bld-/.test(vid);
+    for(const a of OFF.offers[vid]){
+      if(a.visibility==='quiet'&&LVL[clr]<2){hidden++;continue}
+      if(a.visibility==='counter'&&LVL[clr]<1){hidden++;continue}
+      shown++;
+    }
+    (isBld?bg:dg).appendChild(card(vid,OFF.offers[vid],isBld));
+  }
+  document.getElementById('cnt').textContent=`${shown} shown · ${hidden} above clearance`;
+}
+document.getElementById('clrTgl').addEventListener('click',e=>{
+  if(!e.target.dataset.v)return;clr=e.target.dataset.v;
+  document.querySelectorAll('#clrTgl button').forEach(b=>b.classList.toggle('on',b.dataset.v===clr));
+  render();
+});
+render();
+</script>
+</body>
+</html>

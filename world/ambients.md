@@ -30,16 +30,16 @@ co-star behavior, promotion packet) live in `world/ambients/`:
 | A02 | ambients/a02-doro.md | Doro | dog-walker | park loops 7–11, 16–20 |
 | A03 | ambients/a03-malik.md | Malik | corner-shop keeper | Malik's Mini Mart 7:30–18 |
 | A04 | ambients/a04-june.md | June | student | Mission High; park/café 15–19 |
-| A05 | ambients/a05-esther.md | Esther | retiree | park benches 8–18 |
+| A05 → **S2** | ambients/a05-esther.md | Esther | retiree → **promoted v126** (`characters/supporting/s2-esther-goldman.md`) | park benches 8–18 |
 | A06 | ambients/a06-kofe.md | Kofe | MuleIt delivery rider | delivery spine 8–19 |
 | A07 | ambients/a07-luz.md | Luz | fruit vendor | stand, Dolores at 19th, 7–18 |
 | A08 | ambients/a08-sam.md | Sam | busker | park pitches 10–18; 600 Club nights |
-| A09 | ambients/a09-asha.md | Asha | nurse | SF General shifts; Mudhaus 19:30–21 |
+| A09 → **S3** | ambients/a09-asha.md | Asha | nurse → **promoted v126** (`characters/supporting/s3-asha-nair.md`) | SF General shifts; Mudhaus 19:30–21 |
 | A10 | ambients/a10-gus.md | Gus | mechanic | Folsom Auto & Sons 6:30–16 |
 | A11 | ambients/a11-vera.md | Vera | librarian | Mission Branch Library 7:30–17:30 |
 | A12 | ambients/a12-tom.md | Tom | jogger | park laps 6–8, 17–19 |
 | A13 | ambients/a13-nadia.md | Nadia | remote tech worker | Mudhaus corner table 9–17 |
-| A14 | ambients/a14-bex.md | Bex | tattoo artist | Needlepointe/Clarion 10–18; 600 Club nights |
+| A14 → **S1** | ambients/a14-bex.md | Bex | tattoo artist → **promoted v126** (`characters/supporting/s1-bex-lindqvist.md`) | Needlepointe/Clarion 10–18; 600 Club nights |
 | A15 | ambients/a15-omar.md | Omar | Flying Pannier courier | paper-run loop 8–19 |
 | A16 | ambients/a16-hana.md | Hana | baker | Baguette About It 4–13 |
 | A17 | ambients/a17-cole.md | Cole | carpenter | site near Auerbach Hardware 6:30–16 |

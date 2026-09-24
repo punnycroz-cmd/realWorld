@@ -15,7 +15,10 @@ Companion artifacts:
   v7 in v90 — the real archive seam: id→day index, person index from
   mentions, attempt on denials, kind-growth chips, catch up;
   v8 in v104 — the absence + lifecycle layer: off-the-feed gaps map,
-  request trails by req id, settled-the-talk reverse edge); spec in
+  request trails by req id, settled-the-talk reverse edge;
+  v9 in v118 — two clocks (replay + live) and the catch-up edition;
+  v10 in v132 — the consequence layer: following, after-this,
+  seen-this-before); spec in
   `world/archive-ui.md`. Supersedes
   history.html as the primary archive surface.
 - `world/history.html` — working demo (file://-safe; day data inlined,

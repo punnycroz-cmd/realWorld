@@ -1,0 +1,901 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Fine Print (house rules layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  House-rules demo — "The Fine Print" (world v114). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source:
+  world/house-rules.json (mirrored inline below as RULE — hand-synced,
+  deep-compared by the audit.js rules gate). Shows, per door venue, the
+  structured house facts a brain reads (pay/restroom/wifi/laptops/dogs/
+  outside_food/linger/tab) and the taped-sign copy a camera reads, pinned
+  to where it hangs.
+  Boundaries: doors only (offstage orgs and reserved names carry no house
+  rules); signs never name people; the only money figure is the card
+  minimum — a policy number in game dollars, never a price; rules are
+  conditions on the room, never scripts for characters.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --org:#d98e5f;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim);flex-wrap:wrap}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  main{max-width:1280px;margin:0 auto;padding:16px 18px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .legend{display:flex;flex-wrap:wrap;gap:6px}
+  .fk{font-family:var(--mono);font-size:10.5px;padding:3px 9px;border:1px solid var(--line);border-radius:9px;color:var(--dim)}
+  .fk b{color:var(--blu);font-weight:600}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:12px}
+  .door{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .dhead{padding:9px 13px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .dhead b{font-family:var(--mono);font-size:12.5px;color:var(--acc);letter-spacing:.05em}
+  .dhead .tier{font-size:10.5px;color:var(--dim)}
+  .dhead .corner{font-size:10.5px;color:var(--dim);margin-left:auto}
+  .facts{display:flex;flex-wrap:wrap;gap:4px;padding:8px 13px;border-bottom:1px solid var(--line)}
+  .fact{font-family:var(--mono);font-size:10px;padding:2px 8px;border-radius:8px;border:1px solid var(--line);color:var(--dim)}
+  .fact .k{color:var(--blu)}
+  .fact.hard{color:var(--org);border-color:var(--org)}
+  .posted{margin:0;padding:8px 13px;list-style:none}
+  .posted li{font-size:11.5px;padding:4px 0 4px 16px;position:relative;border-bottom:1px dashed var(--line)}
+  .posted li:last-child{border-bottom:none}
+  .posted li::before{content:"▨";position:absolute;left:0;color:var(--dim)}
+  .posted .sign{font-family:var(--mono);font-size:10.8px;color:#d8d2c0;letter-spacing:.03em}
+  .posted .where{font-family:var(--mono);font-size:9.5px;color:var(--pink);margin-left:7px}
+  .rules{font-size:11.5px;color:var(--dim)}
+  .rules li{margin:3px 0}
+  .stat{font-family:var(--mono);font-size:11px;color:var(--dim)}
+  .count{color:var(--acc)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> · THE FINE PRINT</div>
+  <div class="tgl" id="flt">
+    <span>show</span>
+    <button data-f="all" class="on">all doors</button>
+    <button data-f="cash">cash only</button>
+    <button data-f="card_min">card minimum</button>
+    <button data-f="wifi">has wi-fi</button>
+    <button data-f="laptops">laptops ok</button>
+    <button data-f="dogs">dogs welcome</button>
+    <button data-f="tab">house tab</button>
+  </div>
+  <div class="tgl" style="margin-left:auto"><span>internal — fine-print layer · conditions, never scripts</span></div>
+</header>
+<main>
+  <h2>fact vocabularies</h2>
+  <div class="legend" id="factLegend"></div>
+  <h2>the doors <span class="stat" id="doorStat"></span></h2>
+  <div class="grid" id="grid"></div>
+  <h2>the bars</h2>
+  <ul class="rules">
+    <li><b>Doors only</b> — keys equal the anchor+street registry ids; offstage orgs and reserved names have no house rules.</li>
+    <li><b>Full house</b> — every door states every fact, even when the answer is "none".</li>
+    <li><b>Posted means posted</b> — card minimums, cash-only, restroom codes, and receipt wi-fi all carry a taped sign; a policy nobody posts doesn't exist.</li>
+    <li><b>Tabs agree with the ledger</b> — <i>tab: regulars</i> only where regulars.json already keeps a tab.</li>
+    <li><b>No people, no scripts</b> — signs constrain the room, never the neighbor; the only money figure is the card minimum (game dollars, a policy — not a price).</li>
+  </ul>
+</main>
+<script>
+const RULE = {
+ "_doc": "world/house-rules.md — v114 the fine-print layer: per-door house facts (structured policy fields a brain can read) + posted sign copy (the taped-up lines a camera can read). Doors only — keys equal anchor+street tier business ids exactly. All money figures are GAME DOLLARS; a card minimum is a policy number, not a menu price. Signs are conditions, never scripts — a house rule constrains how the room is used, never what anyone does.",
+ "version": 114,
+ "fact_keys": {
+  "pay": {
+   "any": "cash and card, no minimum",
+   "cash_only": "no cards — the ATM-by-the-door economy",
+   "card_min": "cards accepted over a posted minimum (pay_min, game dollars)"
+  },
+  "restroom": {
+   "customers": "customer restroom, ask-free",
+   "code": "keypad or token — the code moves with the receipt",
+   "ask": "a key on a big object, handed over the counter",
+   "none_public": "no public restroom — employees only"
+  },
+  "wifi": {
+   "open": "open network, name on the wall",
+   "receipt": "password printed on the receipt",
+   "none": "no wifi — a deliberate posture, not a gap"
+  },
+  "laptops": {
+   "ok": "laptops welcome all hours",
+   "weekdays_only": "no laptops weekends — the brunch crush needs the tables",
+   "counter_only": "laptops at the counter rail only",
+   "none": "no laptops — a deliberate posture"
+  },
+  "dogs": {
+   "welcome": "dogs inside, water bowl out",
+   "patio": "dogs on the sidewalk/park side only",
+   "service_only": "service animals only (the legal default, posted where argued about)",
+   "no": "no dogs — health code venues"
+  },
+  "outside_food": {
+   "ok": "outside food welcome",
+   "park_spill": "park food tolerated at the outdoor tables only",
+   "no": "no outside food or drink"
+  },
+  "linger": {
+   "welcome": "stay as long as you like — the room is the product",
+   "rush_limit": "posted limit during the rush window only",
+   "move_along": "counter service — no seats, no lingering posture"
+  },
+  "tab": {
+   "regulars": "house tab exists for known regulars (mirrors regulars.json tab rows)",
+   "none": "no tabs — settle at the register"
+  }
+ },
+ "where_keys": {
+  "door": "taped inside the glass door",
+  "window": "window glass or decal",
+  "register": "at the register/card terminal",
+  "counter": "on or above the counter",
+  "menu_board": "on the menu/chalk board",
+  "a_frame": "the sidewalk A-frame",
+  "restroom_door": "on the restroom door itself",
+  "table_tent": "table tents / shelf cards",
+  "tip_jar": "written on the tip jar",
+  "bulletin": "the flyer/community board"
+ },
+ "rules": {
+  "doors_only": "doors keys == anchor+street tier business ids, exactly — offstage orgs and reserved names carry no house rules",
+  "full_house": "every door's house object carries every fact_key exactly once — a house with no policy still says so",
+  "consistency": "pay:card_min requires pay_min (game dollars) and a posted sign naming it; pay:cash_only requires a posted CASH sign; restroom:code requires a sign at restroom_door or register; wifi:receipt requires a sign pointing at the receipt; tab:regulars requires at least one tab row in regulars.json",
+  "no_people": "signs and facts never name cast or regulars — 'ask the counter' is the whole sentence",
+  "no_scripts": "a rule is a condition on the room (what the space permits/charges), never an instruction to a character",
+  "money_policy_only": "the only money figure allowed is pay_min — card minimums are policy, not prices; menu prices live in menus.json",
+  "sign_tone": "posted copy reads like a real taped sign — terse, slightly weary, occasionally funny; no legalese, no policy numbers"
+ },
+ "doors": {
+  "mudhaus": {
+   "house": {
+    "pay": "any",
+    "restroom": "code",
+    "wifi": "receipt",
+    "laptops": "weekdays_only",
+    "dogs": "patio",
+    "outside_food": "no",
+    "linger": "rush_limit",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "WI-FI CODE ON YOUR RECEIPT",
+     "where": "register"
+    },
+    {
+     "text": "NO LAPTOPS WEEKENDS — BE KIND, SHARE TABLES",
+     "where": "table_tent"
+    },
+    {
+     "text": "RESTROOM CODE CHANGES WITH THE TIDE. ASK NICELY.",
+     "where": "restroom_door"
+    },
+    {
+     "text": "30-MIN TABLE LIMIT 9–11 AM, SORRY, THE LINE IS REAL",
+     "where": "a_frame"
+    },
+    {
+     "text": "DOGS YES (OUTSIDE), PUPACCINO MAYBE",
+     "where": "window"
+    }
+   ]
+  },
+  "el-farolote": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "customers",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "no",
+    "outside_food": "no",
+    "linger": "move_along",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "CASH ONLY — ATM NEXT DOOR",
+     "where": "register"
+    },
+    {
+     "text": "CASH ONLY",
+     "where": "door"
+    },
+    {
+     "text": "NO OUTSIDE FOOD OR DRINK",
+     "where": "menu_board"
+    },
+    {
+     "text": "ORDER FIRST, THEN SIT. WE'LL FIND YOU.",
+     "where": "counter"
+    },
+    {
+     "text": "SALSA BAR IS NOT A SOUVENIR STAND",
+     "where": "counter"
+    }
+   ]
+  },
+  "auerbach": {
+   "house": {
+    "pay": "any",
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "YES WE CUT KEYS. NO WE CAN'T COPY 'DO NOT DUPLICATE'.",
+     "where": "counter"
+    },
+    {
+     "text": "DOGS WELCOME — BISCUITS BY THE REGISTER",
+     "where": "door"
+    },
+    {
+     "text": "REPAIR TICKETS: TUESDAY DROP-OFF, ASK AT THE COUNTER",
+     "where": "counter"
+    },
+    {
+     "text": "IF WE DON'T HAVE IT, YOU DON'T NEED IT",
+     "where": "window"
+    },
+    {
+     "text": "NO PUBLIC RESTROOM — SORRY, INSURANCE",
+     "where": "counter"
+    }
+   ]
+  },
+  "dolores-perk": {
+   "house": {
+    "pay": "card_min",
+    "pay_min": 5,
+    "restroom": "customers",
+    "wifi": "open",
+    "laptops": "ok",
+    "dogs": "patio",
+    "outside_food": "park_spill",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "$5 CARD MINIMUM",
+     "where": "register"
+    },
+    {
+     "text": "PARK PICNICS WELCOME AT THE OUTSIDE TABLES",
+     "where": "window"
+    },
+    {
+     "text": "WI-FI: PERK_GUEST — BUY SOMETHING FIRST, EH",
+     "where": "table_tent"
+    },
+    {
+     "text": "DOGS ON THE PARK SIDE, BOWL'S BY THE DOOR",
+     "where": "door"
+    }
+   ]
+  },
+  "buy-rite-market": {
+   "house": {
+    "pay": "any",
+    "restroom": "ask",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "service_only",
+    "outside_food": "no",
+    "linger": "move_along",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "RESTROOM KEY AT REGISTER 2",
+     "where": "register"
+    },
+    {
+     "text": "BACKPACKS ON THE FLOOR, NOT THE SHELF",
+     "where": "door"
+    },
+    {
+     "text": "NO SAMPLING THE GRAPES. YES, YOU.",
+     "where": "counter"
+    },
+    {
+     "text": "SERVICE ANIMALS ONLY",
+     "where": "door"
+    }
+   ]
+  },
+  "buy-rite-creamery": {
+   "house": {
+    "pay": "card_min",
+    "pay_min": 4,
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "patio",
+    "outside_food": "ok",
+    "linger": "move_along",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "$4 CARD MIN — A SINGLE SCOOP IS CASH, FRIEND",
+     "where": "register"
+    },
+    {
+     "text": "TWO SAMPLES MAX, THE LINE IS WATCHING",
+     "where": "counter"
+    },
+    {
+     "text": "NO RESTROOM — THE PARK HAS ONE, LEFT SIDE",
+     "where": "door"
+    },
+    {
+     "text": "DOGS: OUTSIDE WINDOW ONLY, PLAIN VANILLA IN A CUP",
+     "where": "window"
+    }
+   ]
+  },
+  "il-delfino": {
+   "house": {
+    "pay": "any",
+    "restroom": "customers",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "service_only",
+    "outside_food": "no",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "WALK-INS AT THE BAR ONLY — TABLES ARE BOOKED",
+     "where": "door"
+    },
+    {
+     "text": "THE TABLE IS YOURS FOR THE EVENING",
+     "where": "menu_board"
+    },
+    {
+     "text": "NO CORKAGE ON THE BOTTLE WE SELL YOU",
+     "where": "menu_board"
+    },
+    {
+     "text": "PHONES OFF THE TABLE IS A NICE IDEA",
+     "where": "table_tent"
+    }
+   ]
+  },
+  "baguette-about-it": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "no",
+    "outside_food": "no",
+    "linger": "move_along",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "CASH ONLY. THE CARD READER IS A PROP.",
+     "where": "register"
+    },
+    {
+     "text": "WHEN THE BOARD SAYS SOLD OUT IT MEANS SOLD OUT",
+     "where": "menu_board"
+    },
+    {
+     "text": "DAY-OLD SHELF: HALF PRICE, CASH, NO RETURNS",
+     "where": "counter"
+    },
+    {
+     "text": "NO DOGS — FLOUR IS A LIVING THING",
+     "where": "door"
+    }
+   ]
+  },
+  "the-600-club": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "customers",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "no",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "regulars"
+   },
+   "posted": [
+    {
+     "text": "CASH BAR — ATM IN THE BACK, IT BITES",
+     "where": "register"
+    },
+    {
+     "text": "NO TABS YOU DON'T ALREADY HAVE",
+     "where": "counter"
+    },
+    {
+     "text": "CASH ONLY",
+     "where": "door"
+    },
+    {
+     "text": "BURRITOS WELCOME. GLASSWARE STAYS.",
+     "where": "counter"
+    },
+    {
+     "text": "LAST CALL MEANS LAST CALL",
+     "where": "menu_board"
+    },
+    {
+     "text": "TABS ARE FOR FRIENDS OF THE HOUSE",
+     "where": "tip_jar"
+    }
+   ]
+  },
+  "dandy-lion": {
+   "house": {
+    "pay": "card_min",
+    "pay_min": 3,
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "counter_only",
+    "dogs": "no",
+    "outside_food": "no",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "$3 CARD MIN — A SINGLE TRUFFLE IS A CASH ITEM",
+     "where": "register"
+    },
+    {
+     "text": "TASTING SPOON: ONE PER CUSTOMER, WE COUNT",
+     "where": "counter"
+    },
+    {
+     "text": "NO DOGS INSIDE — HEALTH CODE, NOT THE CHOCOLATE'S FEELINGS",
+     "where": "door"
+    },
+    {
+     "text": "LAPTOPS AT THE RAIL ONLY — THE TABLES ARE FOR TASTING",
+     "where": "table_tent"
+    }
+   ]
+  },
+  "valencia-growers": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "CASH — THE VENMO SIGN IS A JOKE, STOP ASKING",
+     "where": "counter"
+    },
+    {
+     "text": "SAMPLES: ASK, DON'T GRAZE",
+     "where": "menu_board"
+    },
+    {
+     "text": "DOGS FINE. DOGS EATING THE PRODUCE: YOURS TO PAY FOR.",
+     "where": "a_frame"
+    },
+    {
+     "text": "WE HOLD BAGS BEHIND THE TABLE TIL CLOSE",
+     "where": "counter"
+    }
+   ]
+  },
+  "needlepointe": {
+   "house": {
+    "pay": "any",
+    "restroom": "customers",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "no",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "WALK-INS FOR FLASH ONLY — CUSTOM IS BY APPOINTMENT",
+     "where": "door"
+    },
+    {
+     "text": "DEPOSIT HOLDS THE APPOINTMENT. RESCHEDULE 48H OR IT'S OURS.",
+     "where": "counter"
+    },
+    {
+     "text": "NO DOGS, NO EXCEPTIONS — STERILE ROOM",
+     "where": "door"
+    },
+    {
+     "text": "YOU MUST BE 18. YES WITH A PARENT. STILL NO.",
+     "where": "window"
+    },
+    {
+     "text": "CASH TIPS APPRECIATED, DRAWINGS ALSO ACCEPTED",
+     "where": "tip_jar"
+    }
+   ]
+  },
+  "folsom-auto": {
+   "house": {
+    "pay": "any",
+    "restroom": "ask",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "ESTIMATES FREE. DIAGNOSIS ISN'T. IT'S ON THE SIGN FOR A REASON.",
+     "where": "counter"
+    },
+    {
+     "text": "NO CASH PRICES OVER THE PHONE — COME LOOK AT IT WITH US",
+     "where": "counter"
+    },
+    {
+     "text": "SHOP DOG FRIENDLY — OFFICE DOG UNFRIENDLY (HE'S OLD)",
+     "where": "door"
+    },
+    {
+     "text": "RESTROOM: ASK GUS. DON'T ASK WHAT'S IN THE SINK.",
+     "where": "register"
+    },
+    {
+     "text": "DROPS BEFORE 8: KEYS THROUGH THE SLOT, NOTE ON THE WHEEL",
+     "where": "window"
+    }
+   ]
+  },
+  "maliks": {
+   "house": {
+    "pay": "card_min",
+    "pay_min": 5,
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "no",
+    "outside_food": "ok",
+    "linger": "move_along",
+    "tab": "regulars"
+   },
+   "posted": [
+    {
+     "text": "$5 CARD MINIMUM — NO EXCEPTIONS, THE SIGN IS OLDER THAN YOU",
+     "where": "register"
+    },
+    {
+     "text": "NO RESTROOM. NOT EVEN IF YOU ASK NICE.",
+     "where": "door"
+    },
+    {
+     "text": "TABS: MALIK DECIDES. THE ANSWER IS USUALLY NO.",
+     "where": "counter"
+    },
+    {
+     "text": "NO BIG BILLS AFTER 9 PM — WE'RE NOT A BANK",
+     "where": "register"
+    },
+    {
+     "text": "LOTTO TICKETS ARE CASH, THE MACHINE IS CASH, LIFE IS CASH",
+     "where": "window"
+    },
+    {
+     "text": "FLYER BOARD: TAPE IT, DATE IT, MALIK PULLS STALE ONES SUNDAYS",
+     "where": "bulletin"
+    }
+   ]
+  },
+  "las-palmas": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "CASH ONLY — SMALL BILLS PLEASE",
+     "where": "counter"
+    },
+    {
+     "text": "SAMPLES: LUZ OFFERS, YOU DON'T ASK",
+     "where": "a_frame"
+    },
+    {
+     "text": "TODAY'S RIPE IS TODAY'S RIPE — TOMORROW IS A DIFFERENT MANGO",
+     "where": "menu_board"
+    },
+    {
+     "text": "DOGS FINE, KEEP THEM OFF THE LOW CRATES",
+     "where": "window"
+    }
+   ]
+  },
+  "bloom-and-doom": {
+   "house": {
+    "pay": "any",
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "WEDDINGS BOOK TUESDAYS. FUNERALS WALK IN ANYTIME.",
+     "where": "counter"
+    },
+    {
+     "text": "BUCKET BLOOMS: PICK THREE, WE WRAP, CASH FASTER THAN CARD",
+     "where": "a_frame"
+    },
+    {
+     "text": "DOGS WELCOME — THE SHOP CAT IS NOT NEGOTIABLE",
+     "where": "door"
+    },
+    {
+     "text": "YES WE DO LAST-MINUTE. NO WE DON'T DO CHEAP LAST-MINUTE.",
+     "where": "window"
+    }
+   ]
+  },
+  "golden-hour": {
+   "house": {
+    "pay": "cash_only",
+    "restroom": "none_public",
+    "wifi": "open",
+    "laptops": "ok",
+    "dogs": "no",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "CASH ONLY — QUARTERS AT THE CHANGE MACHINE",
+     "where": "register"
+    },
+    {
+     "text": "UNATTENDED LAUNDRY GETS PULLED AT 30 MIN. WE'RE NOT MEAN, WE'RE BUSY.",
+     "where": "menu_board"
+    },
+    {
+     "text": "WI-FI: GOLDEN_GUEST — IT'S A LAUNDROMAT, NOT A COWORK",
+     "where": "table_tent"
+    },
+    {
+     "text": "NO DYE LOADS IN MACHINES 1–4. THEY KNOW WHAT THEY DID.",
+     "where": "counter"
+    },
+    {
+     "text": "FLYER BOARD: DATE YOUR POSTER OR IT'S CONFETTI",
+     "where": "bulletin"
+    }
+   ]
+  },
+  "dusty-spine": {
+   "house": {
+    "pay": "any",
+    "restroom": "ask",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "ok",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "BROWSING IS FREE. BUYING IS ENCOURAGED. SITTING IS FINE.",
+     "where": "window"
+    },
+    {
+     "text": "FREE BOX OUT FRONT: TAKE ONE, LEAVE ONE, DON'T SELL THEM",
+     "where": "door"
+    },
+    {
+     "text": "WE BUY BOOKS TUESDAY + THURSDAY, COUNTER ONLY",
+     "where": "counter"
+    },
+    {
+     "text": "DOGS YES IF THEY'VE READ SOMETHING",
+     "where": "window"
+    },
+    {
+     "text": "RESTROOM KEY ON A DICTIONARY. IT'S THE BIG ONE.",
+     "where": "register"
+    }
+   ]
+  },
+  "marooned": {
+   "house": {
+    "pay": "card_min",
+    "pay_min": 8,
+    "restroom": "none_public",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "welcome",
+    "outside_food": "no",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "$8 CARD MIN — THE DOLLAR BIN IS A CASH COUNTRY",
+     "where": "register"
+    },
+    {
+     "text": "SELL-BACK SUNDAYS 12–4, CONDITION IS A CONVERSATION",
+     "where": "counter"
+    },
+    {
+     "text": "LISTENING STATION: ONE SIDE, THEN PASS THE HEADPHONES",
+     "where": "menu_board"
+    },
+    {
+     "text": "DOGS YES. RECORDS ON THE FLOOR ARE YOUR PROBLEM.",
+     "where": "door"
+    },
+    {
+     "text": "NO FOOD NEAR THE BINS. DRINKS ON THE AMP, NOT THE CRATES.",
+     "where": "window"
+    }
+   ]
+  },
+  "the-musket": {
+   "house": {
+    "pay": "any",
+    "restroom": "customers",
+    "wifi": "none",
+    "laptops": "none",
+    "dogs": "service_only",
+    "outside_food": "no",
+    "linger": "welcome",
+    "tab": "none"
+   },
+   "posted": [
+    {
+     "text": "NO RESERVATIONS — THE WALK-IN IS THE POINT",
+     "where": "door"
+    },
+    {
+     "text": "THE BAR IS FIRST COME. THE ROOM IS THE ROOM.",
+     "where": "menu_board"
+    },
+    {
+     "text": "COCKTAIL LIST CHANGES WHEN IT CHANGES",
+     "where": "counter"
+    },
+    {
+     "text": "SERVICE ANIMALS ONLY — THE STURGEON IS JUMPY",
+     "where": "window"
+    }
+   ]
+  }
+ }
+};
+
+const NAMES = {
+  "mudhaus":"Mudhaus Coffee","el-farolote":"Taqueria El Farolote","auerbach":"Auerbach Hardware",
+  "dolores-perk":"Dolores Perk","buy-rite-market":"Buy-Rite Market","buy-rite-creamery":"Buy-Rite Creamery",
+  "il-delfino":"Il Delfino","baguette-about-it":"Baguette About It Bakery","the-600-club":"The 600 Club",
+  "dandy-lion":"Dandy Lion Chocolate Co.","valencia-growers":"Valencia Growers Market","needlepointe":"Needlepointe Tattoo",
+  "folsom-auto":"Folsom Auto & Sons","maliks":"Malik's Mini Mart","las-palmas":"Frutería Las Palmas",
+  "bloom-and-doom":"Bloom & Doom Flowers","golden-hour":"Golden Hour Laundromat","dusty-spine":"The Dusty Spine",
+  "marooned":"Marooned Records","the-musket":"The Musket"
+};
+const TIERS = {"mudhaus":"anchor","el-farolote":"anchor","auerbach":"anchor","dolores-perk":"anchor"};
+const CORNER = {
+  "mudhaus":"24th St, mid-block","el-farolote":"Mission at 24th","auerbach":"Mission St",
+  "dolores-perk":"park edge, Dolores side","buy-rite-market":"18th St","buy-rite-creamery":"18th St, beside the market",
+  "il-delfino":"18th St","baguette-about-it":"18th / Guerrero side","the-600-club":"Guerrero side",
+  "dandy-lion":"Valencia side","valencia-growers":"Valencia, weekly stall set","needlepointe":"Clarion-adjacent",
+  "folsom-auto":"Folsom side","maliks":"Guerrero corner","las-palmas":"Dolores at 19th (stand)",
+  "bloom-and-doom":"24th side","golden-hour":"Mission St side, orange awning","dusty-spine":"Valencia at 20th side",
+  "marooned":"Valencia side","the-musket":"Valencia at 23rd side"
+};
+
+/* hard-posture facts render warm — they're the ones a sign argues about */
+const HARD = {pay:["cash_only","card_min"],restroom:["none_public","code"],wifi:["none"],
+  laptops:["none","weekdays_only"],dogs:["no"],outside_food:["no"],linger:["move_along","rush_limit"]};
+
+const grid = document.getElementById('grid');
+const legend = document.getElementById('factLegend');
+for(const [k,vals] of Object.entries(RULE.fact_keys)){
+  const chip = document.createElement('span');
+  chip.className = 'fk';
+  chip.innerHTML = '<b>'+k+'</b> '+Object.keys(vals).join(' · ');
+  legend.appendChild(chip);
+}
+const doorStat = document.getElementById('doorStat');
+
+function matches(id,f){
+  const h = RULE.doors[id].house;
+  switch(f){
+    case 'all': return true;
+    case 'cash': return h.pay === 'cash_only';
+    case 'card_min': return h.pay === 'card_min';
+    case 'wifi': return h.wifi !== 'none';
+    case 'laptops': return h.laptops === 'ok';
+    case 'dogs': return h.dogs === 'welcome' || h.dogs === 'patio';
+    case 'tab': return h.tab === 'regulars';
+  }
+  return true;
+}
+function render(f){
+  grid.innerHTML = '';
+  let shown = 0, signs = 0;
+  for(const id of Object.keys(RULE.doors)){
+    if(!matches(id,f)) continue;
+    shown++; signs += RULE.doors[id].posted.length;
+    const d = RULE.doors[id];
+    const el = document.createElement('div');
+    el.className = 'door';
+    let facts = '';
+    for(const [k,v] of Object.entries(d.house)){
+      const hard = (HARD[k]||[]).includes(v);
+      const label = v + (k==='pay' && v==='card_min' ? ' $'+d.house.pay_min+' min' : '');
+      facts += '<span class="fact'+(hard?' hard':'')+'"><span class="k">'+k+'</span> '+label+'</span>';
+    }
+    let posted = '';
+    for(const s of d.posted)
+      posted += '<li><span class="sign">'+s.text+'</span><span class="where">'+s.where+'</span></li>';
+    el.innerHTML =
+      '<div class="dhead"><b>'+NAMES[id]+'</b><span class="tier">'+(TIERS[id]||'street')+'</span>'+
+      '<span class="corner">'+CORNER[id]+'</span></div>'+
+      '<div class="facts">'+facts+'</div>'+
+      '<ul class="posted">'+posted+'</ul>';
+    grid.appendChild(el);
+  }
+  doorStat.textContent = '· '+shown+' doors · '+signs+' posted signs';
+}
+document.getElementById('flt').addEventListener('click', e => {
+  const b = e.target.closest('button'); if(!b) return;
+  for(const x of document.querySelectorAll('#flt button')) x.classList.remove('on');
+  b.classList.add('on');
+  render(b.dataset.f);
+});
+render('all');
+</script>
+</body>
+</html>

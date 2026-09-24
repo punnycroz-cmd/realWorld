@@ -152,6 +152,43 @@
     "today counts only written rows — a quiet hour and an unwatched hour look the same and the copy says so",
     "settled-the-talk links only rows that stood on the wire in their own right — same law as forward outcome.by"
    ]
+  },
+  "archive_ui_v118": {
+   "doc": "world v118 — The Archive v9: the two-clocks + edition layer. A replay clock on the day view and a catch-up edition keyed to a reader-side mark. Both projections: replay hides unreached rows only while it runs; the edition counts from a mark the reader set on this device.",
+   "views_added": {
+    "replay": "day view 'replay' button (r toggles) — deals the day's own rows back in timestamp order at 15/30/60 block-minutes per real second; pause/resume, 'next line →' dead-air skip (jumps the playhead to the next written row, same ≥120-min honesty as gaps), block-time readout, 'whole day' stops; rows ahead of the playhead are simply not dealt yet — same rows, same order; replay stops when the reader leaves the day view or walks to another day",
+    "edition": "#v=edition — 'the edition': every line strictly after the reader's mark in record order, grouped by day via the trail renderer; summary counts lines/days/kinds/threads touched; a 'your mark' chip jumps to the record the mark sits on; 'mark the record read' / 'start the edition here' moves the mark to the newest line; a mark the current source doesn't serve is reported ('isn't in this archive source') and the whole record shows unmarked"
+   },
+   "reader_state": {
+    "rw_archive_seen": "localStorage key holding the id of the newest line the reader had seen — reader-side state like rw_archive_shelf, never sent anywhere, never a world write"
+   },
+   "permalinks_added": [
+    "#v=edition"
+   ],
+   "honesty": [
+    "replay adds no rows and drops none — it only delays display; the bar says 'the live clock stays on the wire'",
+    "the edition is a window, never a cut — the day list, counts, and every other view are untouched by the mark",
+    "first visit starts the edition explicitly ('start the edition here') — the page never pretends it watched a visit it didn't",
+    "the mark is this browser's localStorage — same law as the shelf; the copy says 'the archive doesn't remember you'"
+   ]
+  },
+  "archive_ui_v132": {
+   "doc": "world v132 — The Archive v10: the consequence layer. Following (names + threads marked in this browser, reported against the edition mark with honest quiet), 'after this' next-edge trails and 'seen this before' shape counts on the record detail, and ◆ marks on rows touching a follow. All projections of public rows — the record itself is untouched.",
+   "views_added": {
+    "follow": "#v=follow — cards for every marked name (p:<id>) and thread (t:<id>): rows on record, lines since your mark (edition mark), latest-row jump, honest quiet lines; follows a source doesn't serve are kept and stated, never invented. rw_archive_follow localStorage, this device only.",
+    "after_this": "record detail — the next written row on each edge the row carries (same thread / next sighting of the person / next at the venue), capped at 3, record order. Copy says a next line is not a caused line.",
+    "seen_before": "record detail — count + up to 3 earlier rows with the same public shape (same kind at same venue, else same kind on same who). A count, not a pattern claim.",
+    "follow_row_marks": "any rendered row touching a followed person (who/mentions) or thread carries .fol + a ◆ mark — display state only"
+   },
+   "permalinks_added": [
+    "#v=follow"
+   ],
+   "honesty": [
+    "follows live in the reader's localStorage — following never reaches the world; nobody is notified, nothing is counted for anyone but the reader",
+    "follow chips resolve only WHO_SET person ids and THREADS ids the source serves — unserved keys render as 'not in this archive source', never invented",
+    "after-this names shared edges only (thread/who/venue) — adjacency is never presented as causation",
+    "seen-before counts identical public shapes — it asserts repetition the wire wrote, never a routine or an intention"
+   ]
   }
  },
  "days": {

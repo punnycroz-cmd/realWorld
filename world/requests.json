@@ -19,6 +19,15 @@
       "claims": ["venue:*", "openair"], "note": "Drama-manager-mediated; one per resource per 24 h." },
     { "id": "camera",   "label": "Camera director", "class": "compatible", "billing": "flat", "cr_per_30min": 10,
       "note": "Spectator-side only; changes nothing in-world." },
+    { "id": "listing",  "label": "List a unit (deed office)", "class": "exclusive", "billing": "per_min",
+      "rate_cr_per_min": 1, "min_min": 30, "max_min": 4320, "claims": ["listing:<unit>"],
+      "note": "Sale or rent card, seller holds the deed. A tenant in place keeps the lease — the paper follows the deed. One live listing per unit." },
+    { "id": "buy",      "label": "Buy a listing (escrow)", "class": "exclusive", "billing": "flat_deed_fee",
+      "claims": ["paper:<unit>"],
+      "note": "Offer at asking, first accepted wins — no bidding. The ask moves in game dollars through the hired buyer; credits pay only the deed fee (ladder tier, deed_office.deed_fee_cr). Buyer = a hired character with the game dollars. Whole-building escrow claims every door's paperwork." },
+    { "id": "license",  "label": "Landlord license", "class": "compatible", "billing": "flat", "cr": 2000,
+      "claims": ["paper:license:<player>"],
+      "note": "Earned gates checked by the deed office before escrow — own a deeded door ≥30 days, reputation threshold, clean record (leases.json progression.landlord). Refused filings refund in full." },
     { "id": "hire",     "label": "Character hire", "class": "compatible", "billing": "flat", "cr": 500,
       "review": "human (naming strings always queued — moderation §4)",
       "note": "One-time per character, slot-capped per account (creation.json). Includes starter wardrobe + apartment hunt; housing costs game dollars. Denied applications never bill.",
@@ -151,6 +160,42 @@
     "cap": "total session length never exceeds the class max (120 min compatible; camera uncapped but sold in +30 blocks)",
     "low_balance": "insufficient balance disables the button and links the wallet sheet — the top-up to extend path is one click"
   },
+  "deed_office": {
+    "doc": "v116 — the ownership track of the request form: list / buy / license, mirroring the game bus verbs (src/systems/41_game_systems_listings.js gsDefineAction listing|buy|license). Numbers adopt leases.json progression + monetization §2.4 verbatim.",
+    "deed_fee_cr": { "studio": 1000, "1br": 2000, "flat": 3500, "house": 5000 },
+    "license_cr": 2000,
+    "license_gates": ["own a deeded door >= 30 days", "reputation threshold", "clean record"],
+    "license_scope": "own units only · all actions public record · no-fault notices stay admin-only",
+    "no_surge": "paper:* and listing:* claims are exempt from surge — registry work is serialized, never auctioned; a deed fee is a fee, not a bid",
+    "rules": [
+      "offer at asking — first accepted wins, no bidding",
+      "the ask moves in game dollars through the hired buyer; credits only ever pay the deed fee",
+      "a refused filing refunds in full — escrow checks run before money settles",
+      "a sale with a sitting tenant carries the lease, deposit, and file — the paper follows the deed",
+      "one live listing per unit; whole-building escrow claims every door's paperwork"
+    ],
+    "feed": "listing/buy/license post the same feed vocabulary — running/resolved/refunded lines carry the address, never the tenant",
+    "bus_params": "buy files params.buyerId + params.ask; listing files params.kind (sale|rent)"
+  },
+  "lands_as": {
+    "doc": "v130 — the landing layer: what an approved opportunity-shaped request becomes in-world. Inject-as-opportunity (design §11) mints a bounded standing invitation in the world/offers.json shape — a posted ask the block may claim, renegotiate, or ignore. A request buys the posting, never the turnout.",
+    "applies_to": ["nudge", "event"],
+    "never": ["possess", "camera", "weather", "listing", "buy", "license", "hire"],
+    "mints": {
+      "shape_keys": ["kind", "visibility", "host", "ask", "cost", "capacity", "cadence", "since", "changes", "neglect", "sponsor", "expires_h", "posted_by"],
+      "kind": { "event": "open_invitation", "nudge": "open_invitation" },
+      "visibility": { "event": "board", "nudge": "counter" },
+      "host": "staff | regulars — a sponsored posting has no single keeper; never a named character (nobody is obliged to keep it)",
+      "sponsor": "{rq: 'rq-<id>', handle} — attribution rides the record: the feed names the filer, the offer names the sponsor",
+      "posted_by": "request:<rq-id> — the record is honest about its origin; since reads 'posted at a viewer's request'",
+      "expires_h": { "nudge": 72, "event": 168 },
+      "player_text": "the screened intent text may inform the ask; the posted wording is house-worded — screening happens on the request, the venue keeps its own voice"
+    },
+    "feed": "the feed line reports the posting — 'an invitation went up at <venue> (requested by X)' — never 'the NPCs will…'; uptake is never scored: a later line may report what happened ('the table filled' / 'the card came down unread') as fact, not as success or failure",
+    "lapse": "at expiry the invitation lapses to its neglect state — the card comes down; nothing flags it for rescue and no one is owed an explanation",
+    "honesty": "the landed card never promises a response; 'the block may ignore this — nobody is obliged' is printed on the card itself, and uptake is never scored",
+    "live_seam": "bridged: a terminal approved meter on a nudge/event reports the minted offer id when the bus carries one (lands_as read: gsExplainRequest(id).offer); absent → the local landed card is the contract reference"
+  },
   "fairness_invariants": [
     "cooldowns never purchasable",
     "surge multiplier shown before payment",
@@ -158,7 +203,9 @@
     "queued expiry auto-refunds",
     "admin overrides compensate affected players",
     "no auctions for slots; FCFS within class",
-    "a time slot is not an upgrade — booking never reprices"
+    "a time slot is not an upgrade — booking never reprices",
+    "registry paperwork never surges — a deed fee is a fee, not a bid",
+    "a request buys the posting, never the turnout — uptake is never scored"
   ],
   "booking": {
     "doc": "v74 — the Book: scheduled exclusives. Spec world/bookings.md; machine mirror world/bookings.json; public calendar surface world/book.html; the When picker in request.html.",

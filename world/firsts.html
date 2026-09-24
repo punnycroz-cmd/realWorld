@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The First Week (first-week layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  First-week-layer demo — "The First Week" (world v115). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/firsts.json
+  (mirrored inline below as FIRSTS — hand-synced, deep-compared by audit.js
+  firsts gate). Shows what happens after the yes: one first-shift card per
+  live jobs.json opening (day one, trainer, kit, the test, the first mistake,
+  when you stop being new, pay paper, break spot) and one move-in card per
+  vacant registry unit + listing-ladder tier (key handoff, honest walkthrough,
+  first night, mail/trash/laundry anchors, first knock, first rent). Feed
+  shapes are the only spectator render — the door, never the name.
+  Norms are CONDITIONS, never scripts. No dollar figures, no secrets.
+  INTERNAL tier — feed_shapes are the only spectator-safe field.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --org:#d98e5f;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim);flex-wrap:wrap}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  .tier{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  main{max-width:1280px;margin:0 auto;padding:16px 18px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:22px 0 10px;border-bottom:1px solid var(--line);padding-bottom:5px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:12px}
+  .card{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .card.tier-row{opacity:.85;border-style:dashed}
+  .chead{padding:8px 13px;border-bottom:1px solid var(--line);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .chead b{font-family:var(--mono);font-size:12.5px;color:var(--acc);letter-spacing:.04em}
+  .chip{font-family:var(--mono);font-size:9.5px;border:1px solid var(--line);border-radius:8px;padding:1px 7px;color:var(--blu)}
+  .chip.trn{color:var(--grn)}
+  .chip.vac{color:var(--dim);border-style:dashed}
+  .who{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono)}
+  .cbody{padding:8px 13px;font-size:11.5px}
+  .f{padding:2.5px 0}
+  .f b{color:var(--org);font-weight:600;font-size:10.5px;text-transform:uppercase;letter-spacing:.08em;margin-right:6px}
+  .wt{margin:2px 0;padding-left:2px}
+  .wt li{margin:2px 0 2px 16px;color:var(--ink)}
+  .anchor{display:flex;gap:8px;padding:2px 0}
+  .anchor b{min-width:56px;color:var(--pink);font-family:var(--mono);font-size:10px;font-weight:600;text-transform:uppercase;padding-top:1px}
+  .feed{display:flex;flex-direction:column;gap:6px}
+  .fl{display:flex;gap:10px;align-items:baseline;padding:7px 12px;background:#20242c;border:1px solid var(--line);border-radius:7px;font-size:12px}
+  .fl .kind{font-family:var(--mono);font-size:9.5px;color:var(--blu);min-width:64px;text-transform:uppercase;letter-spacing:.08em}
+  .fl.never{color:var(--dim);border-style:dashed}
+  .fl.never .kind{color:var(--pink)}
+  .contract{font-size:11.5px;color:var(--dim);padding:8px 12px;border:1px dashed var(--line);border-radius:7px;margin-bottom:10px}
+  .rules{font-size:11px;color:var(--dim);padding-left:18px}
+  .rules li{margin:3px 0}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real World <span>· The First Week</span></div>
+  <div class="tgl" id="flt">
+    <button data-s="all" class="on">all</button>
+    <button data-s="work">first shifts</button>
+    <button data-s="move">move-ins</button>
+    <button data-s="feed">feed shapes</button>
+  </div>
+  <div class="tier" id="tier"></div>
+</header>
+<main>
+  <h2>First shifts — one card per live board opening</h2>
+  <div class="grid" id="jobs"></div>
+  <h2>Move-ins — vacant registry units + ladder tiers</h2>
+  <div class="grid" id="moves"></div>
+  <h2>Feed shapes — the door, never the name</h2>
+  <div class="contract" id="fscontract"></div>
+  <div class="feed" id="feed"></div>
+  <h2>Layer rules</h2>
+  <ul class="rules" id="rules"></ul>
+</main>
+<script>
+const FIRSTS = {
+ "doc": "The first-week layer (world v115) — machine-readable mirror of world/firsts.md. What happens after the yes: first_shifts[] carries one row per live jobs.json opening (day one shape, who trains, the kit handout, the informal test, the first mistake everyone makes, when you stop being new, how the pay paper works, where breaks actually happen); move_ins[] carries the settling-in texture per registry vacant unit and per listing-ladder tier (key handoff, honest walkthrough, first night, where mail/trash/laundry live, who knocks first, how first rent actually moves). feed_shapes is the only spectator render — the door, never the name. Conditions, never scripts. SURFACE knowledge only: a first week sees the heater, never the dispute. No secrets, no seeds, no dollar figures. INTERNAL tier.",
+ "version": 115,
+ "schema": "firsts-v1",
+ "first_shifts": [
+  {
+   "employer": "Mudhaus Coffee",
+   "role": "Barista",
+   "trainer": "c1-marisol",
+   "trainer_note": "Marisol trains the machine herself — she will train skill, not reliability; that's what the screen was for.",
+   "day_one": "A weekday mid-shift on purpose, not a rush — scheduled against a dead 10:00 Tuesday so the rebuilt three-group can be learned slow. Shadow the bar, pull your first drink for yourself, then for a regular who is told to expect it to take a minute.",
+   "kit": "An apron from the drawer, your name in chalk on the schedule grid (the printed label waits until you stick), your own lock for the alley-door cubbies, a Sharpie in the apron pocket that is yours to lose.",
+   "the_test": "The first real Saturday rush — the manager watches whether you bus a table without being asked, not whether your latte art lands.",
+   "first_mistake": "Pulling the last shot of a batch on group two — it runs hot and everyone except new hires knows it. The fix is explained once, kindly, and never twice.",
+   "not_new_when": "The day a regular orders at you instead of past you — or when your name appears in the chalkboard's staff corner, whichever comes first.",
+   "pay_setup": "Hours posted on the paper grid two weeks out; tips pooled per shift and split by hours — counted twice, and the second count stands.",
+   "break_spot": "The alley out the back door — milk crates, overlap with the pastry driver's smoke break, ten minutes that feel like twenty."
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "role": "Line cook",
+   "trainer": "c8-tomas",
+   "trainer_note": "Tomás runs the line six days; you learn at the plancha next to him. Doña Ocampo watches one service Thursday, silent — she is the verdict, not the teacher.",
+   "day_one": "Prep at 9:00, not service — beans from yesterday, salsas fresh, the trompo stacked while the real talk happens. Lunch is your trial by workers' crowd; the late window waits until week two.",
+   "kit": "Your own knives — the house lends none and the lead's roll is never touched. Non-slip shoes or don't come back. A quart container with your name tape for family meal.",
+   "the_test": "Doña Ocampo's Thursday — she comments only on the rice and is always right about it. Tasting the salsa before it goes out is the pass; plating past a bad batch is the fail.",
+   "first_mistake": "Reordering the ticket rail — the rail order is the kitchen's grammar, learned by breaking it once and hearing about it in two languages.",
+   "not_new_when": "When the crew's nickname for you sticks — it arrives before you earn it, and you stop being new the day you answer to it.",
+   "pay_setup": "Weekly envelope off the register count; the staff meal every shift is non-negotiable — eat standing if you must, but eat.",
+   "break_spot": "The counter in the dead 15:00–17:00 — staff meal standing up, corridos low, the door propped for the kitchen heat."
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "role": "Counter/closer",
+   "trainer": "c8-tomas",
+   "trainer_note": "The lead cook is the room's tempo — the closer learns the wheel, the salsa bar, and the mop alongside whoever holds the line that night.",
+   "day_one": "A midweek dinner shift — register, salsa bar, and the mop that is yours by the end of the night. You learn the order wheel before the menu; the wheel is the job.",
+   "kit": "The register drawer key on a wristband, a mop that has seen things, salsa-bar crocks, and a par sheet laminated in grease.",
+   "the_test": "A post-bar rush — the club down the block lets out and the room fills with loose energy. Keep it simple, keep it kind, keep them seated: the pass is a night with no comps and no walkouts.",
+   "first_mistake": "Correcting a drunk customer's Spanish at one in the morning — nobody does it twice; patience is the actual job description.",
+   "not_new_when": "When the after-23:30 regulars start ordering 'the usual' at you — the late crowd adopts you or it doesn't, and it tells you first.",
+   "pay_setup": "Weekly; counter tips split nightly from the jar — counted at the wheel before the mop comes out.",
+   "break_spot": "The salsa-bar stool in the dead hour — everyone eats standing, but the stool is the closer's."
+  },
+  {
+   "employer": "MuleIt",
+   "role": "Delivery rider",
+   "trainer": null,
+   "trainer_note": "Nobody — that is the job's whole shape. An onboarding video, a gear deposit, a background check; the app is the entire org chart and the nod at the pickup counter is the mentorship program.",
+   "day_one": "You go online and the offers start. The first hour teaches the real curriculum: unpaid wait at restaurant counters, heat maps that don't care about your plans, a rating number you learn to check like weather.",
+   "kit": "A phone, a bike, the bag with the deposit on it, and a charger — riders learn the outlets at every counter within a month.",
+   "the_test": "There isn't one — that is the churn. The offers thin or they don't; the rating threshold is the only supervisor who ever speaks.",
+   "first_mistake": "Accepting every offer on day one — the algorithm learns you'll take the long unpaid runs and feeds you accordingly. Veterans let offers sit.",
+   "not_new_when": "You never stop being new; you stop looking it. The other riders at the café counter learn your face around week three.",
+   "pay_setup": "Weekly direct deposit through the app; tips are the real paycheck and every rider knows it.",
+   "break_spot": "Wherever the phone says wait — the curb outside the taqueria, the counter nod, the park edge when the heat map goes cold."
+  },
+  {
+   "employer": "Buy-Rite Market",
+   "role": "Grocery clerk",
+   "trainer": null,
+   "trainer_note": "The senior clerk whose name sits first on the office clipboard — seniority culture without the union, so training is apprenticeship to whoever holds the good shift.",
+   "day_one": "A Wednesday delivery morning — cases from six, stock before you ever touch a register. You learn the store from the back room forward; the clipboard schedule is law and has not been digital in decades.",
+   "kit": "A box cutter you sign out, an apron, a back brace nobody makes you wear and everybody past thirty wears.",
+   "the_test": "Six months. The hiring bar is 'will you stay a year' and the store's answer is the good-shifts ladder — the test is simply still being there.",
+   "first_mistake": "Arguing with the butcher counter's evening close — it closes sharp and argues about it daily; the new clerk learns the argument is theater and the close is real.",
+   "not_new_when": "When the PA's salsa station stops being noise and you catch yourself knowing a regular's weekly basket before they reach for it.",
+   "pay_setup": "Biweekly paper check from the office — the clipboard's other job. Seniority picks shifts, not pay.",
+   "break_spot": "The back step by the delivery door — two folding chairs, the produce bay's smell, the café's milk run passing through like a diplomatic visit."
+  },
+  {
+   "employer": "Buy-Rite Creamery",
+   "role": "Scooper",
+   "trainer": null,
+   "trainer_note": "The returning summer scooper — whoever survived last season trains this season, which means a teenager teaches you the till.",
+   "day_one": "A weekend afternoon on purpose — the line in the sun is the job, so the first shift is the real one. Scoop technique, the flavor board, the proud little ritual of the weekly staff picks.",
+   "kit": "A scoop you keep in your apron, a hat in the window's colors, freezer-burned forearms by week two.",
+   "the_test": "Sunny-weekend availability — the whole job is sunny weekends; a scooper who can't work the first hot Saturday is gently unscheduled.",
+   "first_mistake": "Promising a flavor that's gone — the board lies by evening on a hot day, and the line does not forgive a tease.",
+   "not_new_when": "When your flavor pick goes up on the board — staff picks rotate weekly and your first pick is the marker.",
+   "pay_setup": "Weekly from the market office next door — the window borrows the grocer's back office.",
+   "break_spot": "The stoop beside the window — staff eat their scoop there in the sun in view of the line, which is half the recruiting poster."
+  },
+  {
+   "employer": "Dolores Perk",
+   "role": "Counter",
+   "trainer": null,
+   "trainer_note": "Whoever holds the mornings — a two-person shop where the senior counter person teaches by proximity, not curriculum.",
+   "day_one": "The dog-walker wave, 8:00–10:00 — you learn the dogs' names before the regulars'. The pace is gentle and that is the skill being taught.",
+   "kit": "An apron, the paper cups ledger, a paperback behind the counter that is standard issue — rain days empty the room to the regulars.",
+   "the_test": "A rainy Tuesday. Nobody is in a hurry here; a hire who can't downshift to paperback pace doesn't last the month.",
+   "first_mistake": "Rushing a park-edge regular's refill — the regulars are furniture, and hurrying the furniture is the one unforgivable tempo.",
+   "not_new_when": "When a regular's dog pulls toward you specifically — the dogs decide before the owners do.",
+   "pay_setup": "Weekly, off the till ledger — a small shop with honest paper.",
+   "break_spot": "The park-facing tables, in uniform, with the paperback — your break is visible to the room and the room is fine with it."
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "role": "Counter, afternoons",
+   "trainer": null,
+   "trainer_note": "The morning counter lead you relieve at 13:00 — the doorway overlap hour is the whole training program, and the baker's staff loaf marked for the counter crew is the handoff ritual.",
+   "day_one": "13:00 sharp — you learn the sell-down first: what's left of the day's bake, the half-price mark at 18:30, the shelter donation run at close.",
+   "kit": "The afternoon apron with bakers' flour already in it, the marking gun for the half-price rush, the donation log — three objects that are the whole job.",
+   "the_test": "The 18:30 half-price rush — the regulars who time it arrive all at once, and arithmetic under a line is the screen.",
+   "first_mistake": "Wearing fragrance on shift — it kills the bread smell, the rule is real, and you hear about it once by name.",
+   "not_new_when": "When a baker leaves your name on the staff-loaf tape — the doorway hour decides when you've joined.",
+   "pay_setup": "Biweekly from the bakery office; the day-old bread bag is the unofficial compensation and staff get first pick.",
+   "break_spot": "The back steps by the ovens' exhaust — warm year-round, smelling like the whole block's morning."
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "role": "Counter temp, holiday",
+   "trainer": null,
+   "trainer_note": "The same doorway overlap as the standing counter — compressed to a week, because the window is the window and the season doesn't wait.",
+   "day_one": "The week before the holiday rush — you learn the seasonal counter, which is the afternoon job plus a gift-box line and the stollen regulars.",
+   "kit": "Same three objects plus the gift-box twine dispenser — the seasonal kit fits in one apron.",
+   "the_test": "The last Saturday before the window ends — run the box line and the half-price rush back to back and you're invited next year, which is the whole reward.",
+   "first_mistake": "Promising a stollen after they've sold — holiday stock is finite and the regulars count it.",
+   "not_new_when": "At close on the last day — the job ends before the newness does; the nod from the bakers on the way out is the certificate.",
+   "pay_setup": "Biweekly, same paper as the standing counter — the temp label changes the calendar, not the payroll.",
+   "break_spot": "The same oven steps — in December they're the best seat on the block and the crew knows it."
+  },
+  {
+   "employer": "Il Delfino",
+   "role": "Line cook",
+   "trainer": null,
+   "trainer_note": "The sous chef — a professional kitchen with real hierarchy; you stage on sauté before you ever hold a station alone.",
+   "day_one": "Prep from 14:00, not service — mise, the board, family meal at 16:15 eaten in twelve minutes. Your first service is a Tuesday, the learning night.",
+   "kit": "Your own knives and spoons; the house provides towels and the printer's contempt. Clogs or don't bother.",
+   "the_test": "A Friday sauté station — real sauté time is the hiring bar and Friday is where it shows; the pass is no refires through the rush.",
+   "first_mistake": "Calling back a ticket you misheard instead of asking — the printer screams and the rail is sacred, but a quiet 'say again' is professional, not weak.",
+   "not_new_when": "When the kitchen calls your name for the rail — stations get called, not people, until the day they call yours.",
+   "pay_setup": "Biweekly real payroll — the professional kitchen runs professional paper.",
+   "break_spot": "Family meal at the pass, 16:15 — twelve minutes, standing, the best staff meal on the board."
+  },
+  {
+   "employer": "Il Delfino",
+   "role": "Server",
+   "trainer": null,
+   "trainer_note": "The floor lead — the floor crew has been together for years and trains in pairs; you shadow a section before you carry one.",
+   "day_one": "A Tuesday, deliberately — the slow night is the classroom: the paper reservation book, the overbooking ritual apology, the table numbers that skip thirteen.",
+   "kit": "Your own book, a wine key, the house pens — the book lives on the host stand and the host stand is law.",
+   "the_test": "Carrying a slow Tuesday without checking your phone where tables can see — the hiring bar's literal screen.",
+   "first_mistake": "Trusting the book on a Friday — overbooking is a real recurring human error; veterans pre-apologize to the kitchen, not just the door.",
+   "not_new_when": "When the floor lead stops seating you the forgiving tables — the section you get is the verdict.",
+   "pay_setup": "Biweekly plus pooled tips — the floor splits honestly and the Saturday section is the raise you earn.",
+   "break_spot": "The staff glass after close — family meal is the cooks'; the floor's decompression is the last hour at the bar end."
+  },
+  {
+   "employer": "Auerbach Hardware",
+   "role": "Counter clerk",
+   "trainer": null,
+   "trainer_note": "The owner himself — he interviewed by handing you a mislabeled bin of screws and watching what you did; training is the same method, repeated daily.",
+   "day_one": "A weekday morning with the contractors — you mostly watch counter talk happen fast, then get handed the stock room. The ladder is your job now; his knee isn't.",
+   "kit": "A vendor apron, the ladder's good graces, and access to the ledger — the key wall stays supervised for months.",
+   "the_test": "Talking a customer out of a wrong part — the house values the advice over the sale, and the day you do it right is the day the hovering stops.",
+   "first_mistake": "Guessing on a plumbing question instead of saying you don't know — lying about it is disqualifying; admitting it earns the teaching counter.",
+   "not_new_when": "The first Tuesday the repair pile holds something dropped off 'for the new one' — the neighborhood assigns trust, not the owner.",
+   "pay_setup": "Biweekly from the register ledger, on the dot — punctuality paid and expected back.",
+   "break_spot": "The counter stool — breaks happen between customers with the radio on; there is no back room worth sitting in."
+  },
+  {
+   "employer": "Marooned Records",
+   "role": "Weekend counter",
+   "trainer": null,
+   "trainer_note": "The owner, across two Saturdays — the shop is owner-run and word-of-mouth; training is sitting next to someone who prices a crate by flipping it once.",
+   "day_one": "A Saturday at 11:00 — the bins by era, the counter turntable as the room's mood readout, and the hold-shelf's small economy of regrets.",
+   "kit": "Nothing issued — you bring your ears. The counter stylus and the price gun are the shop's.",
+   "the_test": "Pricing a crate correctly — the skill that eventually buys you the desk. The interview's only wrong answer was lying about what you listen to, and that already happened.",
+   "first_mistake": "Shelving a hold without a name — the hold-shelf runs on trust and an unnamed hold is a heartbreak.",
+   "not_new_when": "When a crate-digger asks for you by description — 'the weekend one' becomes a name in about a month of Sundays.",
+   "pay_setup": "Weekly, cash-adjacent — a record shop's payroll is as analog as the stock.",
+   "break_spot": "The counter stool with the turntable — your break is picking the next side, which is also the job."
+  },
+  {
+   "employer": "Golden Hour Laundromat",
+   "role": "Evening attendant",
+   "trainer": null,
+   "trainer_note": "The binder — machine log, quarters count, soap inventory. The owner's whole screen is whether you can be kind at 22:45; the binder teaches the rest, three months to the keys.",
+   "day_one": "A weekday evening from 17:00 — the change machine's taste in quarters, the two machine rows' personalities, the folding counter's forced adjacency.",
+   "kit": "The binder, the quarters key, the lost-and-found box you will come to know intimately.",
+   "the_test": "A Friday evening crowd scene — ninety minutes of adjacency management; the pass is a folding counter that stays friendly.",
+   "first_mistake": "Leaving a note instead of staying for a finish — the real job is being present at 22:45; a machine that eats quarters with no witness makes an enemy.",
+   "not_new_when": "When the Thursday regular lets you hold her corner machines without watching — the regulars' trust is the promotion.",
+   "pay_setup": "Weekly, off the binder — the shop's bookkeeping is the binder itself.",
+   "break_spot": "The folding counter — there is no back room; your break is the same counter, folded shirts as a cushion, the bulletin board's lost cats for company."
+  },
+  {
+   "employer": "Bloom & Doom Flowers",
+   "role": "Saturday counter help",
+   "trainer": "a18-ida",
+   "trainer_note": "Ida works the Saturday you're hired for — training is standing at the workbench while weddings and funerals get built by the same hands.",
+   "day_one": "A Saturday on market-fresh stock — the cold case rotation, the bucket wall, and the rule that condolence orders get priority no matter what's on the bench.",
+   "kit": "An apron, the stem stripper you'll hate for a week, a pair of the shop's shears that are not the florist's.",
+   "the_test": "A funeral order landing mid-morning on a day's notice — the shop's name is the business model and Saturday is when it proves it.",
+   "first_mistake": "Selling the display stem — some flowers are the window's, not the inventory's; the distinction is invisible until you break it.",
+   "not_new_when": "When a Saturday regular asks you to pick 'something for an apology' and means it — reading occasions is the job's real skill.",
+   "pay_setup": "Weekly, off the shop ledger — a one-day job with honest paper.",
+   "break_spot": "The workbench stool — your break is a stem-stripping seat surrounded by the day's casualties."
+  },
+  {
+   "employer": "SF General",
+   "role": "CNA/tech",
+   "trainer": null,
+   "trainer_note": "The preceptor assigned on the ward — hospital training is real: orientation week, badge, competencies signed off. The ward's nurses work beside you but nobody's first week belongs to a name.",
+   "day_one": "Hospital orientation, then the floor — twelve-hour days, three on. You learn handoff report first: the half-hour where the ward's whole truth transfers, and interrupting it is the one sin.",
+   "kit": "Scrubs you buy, a badge that works on the third day (everyone's does), pens you will lose by the fistful.",
+   "the_test": "The first shift that goes badly — the interview asked about one and the job keeps asking. Honesty about hard work is the standing screen.",
+   "first_mistake": "Charting at the wrong end of the rhythm — at the bedside when you should be at the station, or the reverse; either way the charting never ends and you learn its shape by getting it wrong.",
+   "not_new_when": "Your second schedule cycle — when you stop being the float and the station's gallows humor includes you by name.",
+   "pay_setup": "Biweekly institutional payroll — differentials, benefits forms, the only onboarding packet on the board with a table of contents.",
+   "break_spot": "The cafeteria at odd hours — 04:00 for the night floaters; it's the staff's true break room and the food is exactly what hospital food is."
+  }
+ ],
+ "move_ins": [
+  {
+   "key": "bld-g9418-B",
+   "label": "9418 Guerrero St, Unit B",
+   "key_handoff": "Keys at the hardware counter — two keys on a plain ring, the taped-bell warning, the date written into the ledger while you sign. The landlord does his own walkthrough.",
+   "walkthrough": [
+    "the shared garden window is the selling point and it is allowed to sell itself",
+    "water pressure drops when both flats shower — you learn each other's mornings",
+    "the downstairs bell is taped; you knock, and she answers",
+    "the entry-hall outlet is the building's informal commons — phones charge there during outages"
+   ],
+   "first_night": "Street light through the bay window and the smell of the downstairs neighbor's cooking — garlic and coffee grounds — which the listing never mentioned and everyone mentions after.",
+   "anchors": {
+    "mail": "the mail table in the shared entry — names on tape",
+    "trash": "bins at the side gate, Sunday night, next to the rosemary",
+    "laundry": "none in-building — the corner laundromat knows this building's faces"
+   },
+   "first_knock": "The downstairs neighbor with a plate — she waters the stoop plant whether anyone lives upstairs or not, and a new tenant gets fed and assessed in the same visit.",
+   "first_rent": "Across the hardware counter — written into the paper ledger in front of you; the receipt is a torn ledger line."
+  },
+  {
+   "key": "bld-g9457-2",
+   "label": "9457 Guerrero St, Unit 2",
+   "key_handoff": "Same counter, same ledger — the pink building is his too. Keys come with a warning about the stair: you'll hear it, and they'll hear you.",
+   "walkthrough": [
+    "the stair runs past the door — middle flat, and the building's pulse is your wallpaper",
+    "the light well beats a view; the studio is honest about being small",
+    "garbage night belongs to the downstairs neighbors by unspoken tradition — the stack owes them cookies",
+    "your radiator works — the flat upstairs is the one with the known heater problem"
+   ],
+   "first_night": "You hear the building breathe — every door on the stair, footsteps vertical through old lath. By week two you're walking soft without ever deciding to.",
+   "anchors": {
+    "mail": "lobby mailboxes at the stair foot",
+    "trash": "the bins go out when Unit 1 takes them — the whole stack rides their habit",
+    "laundry": "none — the same laundromat walk as the rest of the block"
+   },
+   "first_knock": "Nobody knocks — the welcome is a nod on the stair and the upstairs flat's bike getting shifted to make room. The space-heater hum through the ceiling is your winter soundtrack.",
+   "first_rent": "Same counter, same ledger — tenants of these two buildings pay the shop, and a late month is a conversation before it's a letter."
+  },
+  {
+   "key": "bld-c9127-A",
+   "label": "9127 Capp St, Unit A",
+   "key_handoff": "A manila envelope from the building's manager, not a neighbor — keys and a typed rules sheet. The landlord here is a registry role, not the guy downstairs; everything arrives on paper.",
+   "walkthrough": [
+    "the buzzer is temperamental — carry keys, guests call up",
+    "the basement laundry eats one quarter in ten; the machine with tape on it is the honest one",
+    "the light well is your weather report — rain announces on the well glass",
+    "the B/C wall is thin; the building's contract is friendly nods and closed doors"
+   ],
+   "first_night": "Top of the stairs, street-facing — Capp runs louder than the park side and the climb is real. You hear the light well before you understand it.",
+   "anchors": {
+    "mail": "the mail table with everyone's real name on a label",
+    "trash": "curb bins the night before pickup — the manager's rules sheet actually covers this one",
+    "laundry": "basement coin machines — quarters, patience, the taped one"
+   },
+   "first_knock": "None — studios mean everyone lives alone on purpose. The welcome is a door held when your hands are full, weeks before a name is exchanged; the building's spare-key envelopes live one unit over and learn you exist at your first lockout.",
+   "first_rent": "Into the landlord channel — a payment to an address, not a person; the receipt is a ledger row in a system nobody in the building sees."
+  },
+  {
+   "key": "tier:room",
+   "label": "Room in shared flat — 9521 Treat Ave, Unit 2 (room)",
+   "key_handoff": "The leaseholder hands you a key they had cut themselves — rooms don't come from landlords, they come from roommates. The interview was the paperwork; the spreadsheet on the fridge is the constitution.",
+   "walkthrough": [
+    "the room's door locks — the listing said so and it's true",
+    "the chore spreadsheet is real and your name row already exists",
+    "kitchen shelf assignment is negotiated in week one, not assigned",
+    "the bathroom schedule exists because it has to"
+   ],
+   "first_night": "Someone else's flat around you — TV through the wall, the smell of a dinner you weren't at. The room is yours; the rest is a treaty.",
+   "anchors": {
+    "mail": "the household's mailbox, your name taped on by Sunday",
+    "trash": "whoever's row it is on the spreadsheet",
+    "laundry": "the building's, if it has one — or the laundromat like everyone"
+   },
+   "first_knock": "The roommates — a room share is the only tier where the first knock comes from inside, usually about the shelf or the spreadsheet, kindly.",
+   "first_rent": "Cash or transfer to the leaseholder — you're paying a person you cook next to, which makes the first of the month a kitchen conversation."
+  },
+  {
+   "key": "tier:studio",
+   "label": "Studio — 9088 Folsom St, Unit 5",
+   "key_handoff": "The owner shows Tuesday evenings and hands keys in person — a fourth-floor walk-up means the handoff happens after the climb, which is itself the disclosure.",
+   "walkthrough": [
+    "the wall heater works — you test it together in September because that's when it's free to learn",
+    "the Murphy bed hardware stays — listed as included and it is",
+    "four flights is the real rent",
+    "the building sells units one at a time — your neighbors are owners and it shows in the hallway upkeep"
+   ],
+   "first_night": "Quieter than it sounds — Folsom at night is busier than it looks and calmer than it feels; the wall heater clicks on a cycle you learn to sleep through.",
+   "anchors": {
+    "mail": "lobby boxes — your ring's third key",
+    "trash": "building bins in the rear — the owner's sheet covers the night",
+    "laundry": "none — the walk-up's deal is that everything else is cheaper"
+   },
+   "first_knock": "The owner-neighbor from downstairs checking the heater's first real run — the building's owners look after the walk-up like a shared investment, because it is one.",
+   "first_rent": "To the owner directly — the same person who showed the unit; the sale listing and the rental share a door and a handshake."
+  },
+  {
+   "key": "tier:1br",
+   "label": "1BR apartment — 9476 Dolores St, Unit B",
+   "key_handoff": "The owner prefers a buyer who'll live in it — as a renter you get the keys anyway, with the standing knowledge that the listing is dual-purpose and the garden gate code is on the receipt.",
+   "walkthrough": [
+    "the park view is from the fire-escape landing, not the window — the listing's honest asterisk",
+    "radiator heat: the pipes bang their announcement before the warmth",
+    "shared garden — the gate code, the hose etiquette, whose tomatoes are whose",
+    "dogs by interview means the dog met the owner before you signed"
+   ],
+   "first_night": "The park going dark across the street — a Dolores-facing flat hears the park empty and the avenue stay alive, in that order.",
+   "anchors": {
+    "mail": "vestibule boxes behind a door that sticks",
+    "trash": "bins in the garden side passage",
+    "laundry": "none in-unit — the period details stopped at the plumbing"
+   },
+   "first_knock": "The downstairs neighbor about the pipes — they bang, everyone knows, the conversation is a formality and it ends in a plant cutting.",
+   "first_rent": "To the owner — who is always also asking, gently, whether you'd like to talk about buying. The rent check arrives with the brochure's shadow."
+  },
+  {
+   "key": "tier:flat",
+   "label": "Victorian upper flat — 9560 Guerrero St, Unit 2",
+   "key_handoff": "Shown by serious inquiry — a full upper flat gets the math vetted before the keys. The handoff includes the laundry-closet tour, because in-unit laundry is the flat's whole flex and they know it.",
+   "walkthrough": [
+    "pocket doors stick in winter — Victorian honesty",
+    "bay windows mean the street sees in; the previous tenant's curtain rods stay",
+    "in-unit laundry: rare, know what you have — the closet vents into the back stair",
+    "the garden share is real — a flat's worth, not a whole yard"
+   ],
+   "first_night": "The best address texture rent buys on the ladder — Guerrero's tree canopy against the streetlight, and enough square footage to hear yourself think.",
+   "anchors": {
+    "mail": "the flat's own slot in a two-box vestibule",
+    "trash": "shared bins with the lower flat — a two-household negotiation",
+    "laundry": "in-unit — the closet by the back bedroom"
+   },
+   "first_knock": "The lower flat about the shared bins — the first knock at this tier is logistics, not welcome, and it's how the two households start.",
+   "first_rent": "Bank transfer to a landlord who reads like an LLC — the higher the tier, the less the first of the month has a face."
+  },
+  {
+   "key": "tier:house",
+   "label": "Whole Victorian house — 9812 Church St",
+   "key_handoff": "By appointment — a whole house means the owner walks every room with you, garage and yard included. Keys plural: front, back, garage, gate.",
+   "walkthrough": [
+    "the plum tree fruits in August whether you're ready or not",
+    "the garage is the house's second job — storage, workshop, or the car you'll now need to park",
+    "the owner will carry a mortgage note for the right tenant-buyer — the house is always half for sale",
+    "radiators and a parlor — every system in a house this old has a personality"
+   ],
+   "first_night": "A whole house's silence is different from a flat's — rooms you're not in yet, a yard you can hear wind move through, the hill keeping the street's noise polite.",
+   "anchors": {
+    "mail": "the house's own mailbox on the gate",
+    "trash": "your own bins, your own curb night — the one tier with nobody to share the forgetting with",
+    "laundry": "hookups in the garage — the machines are yours to acquire"
+   },
+   "first_knock": "The next-door neighbor about the plum tree's reach — whole-house tenants inherit the block's standing negotiations, tree first.",
+   "first_rent": "A check or transfer to an owner who answers the phone — at this tier the landlord relationship is a correspondence, not a counter."
+  }
+ ],
+ "feed_shapes": {
+  "contract": "the door, never the name — same rule as the exit and grievance layers. A first week is public only where the world can already see it: new hands at a counter, a card coming down, boxes on a stair. Who hired whom, trial outcomes, and pay terms are ledger facts the parties hold, never feed events.",
+  "work": [
+   "new hands behind the counter — <venue>",
+   "a card came down — <venue>",
+   "someone learning the register — <venue>"
+  ],
+  "housing": [
+   "a card came down — <address>",
+   "boxes on the stair — <address>",
+   "new curtains in the window — <address>"
+  ],
+  "never": [
+   "names of new hires or new tenants",
+   "who trained whom",
+   "trial outcomes or pay terms",
+   "how long someone has been there",
+   "a first day as a named event"
+  ]
+ },
+ "rules": [
+  "conditions, never scripts — day_one/kit/the_test are texture a coworker could report, not obligations; nothing obliges anyone to pull a shot or walk soft",
+  "first_shifts covers live jobs.json openings exactly (openings != 0), one row per employer+role — a filled or closed slot has no first week on the board",
+  "trainer is a cast id only when that id is held_by the same employer; employers with no cast staff train through roles, not names — trainer_note carries who",
+  "move_ins covers the registry's vacant units (housing.json listings_live) plus every listing-ladder tier — keys are unit_ids or tier:<tier>",
+  "no money — wages live in jobs.json, rents and deposits in housing.json/market.json; pay_setup and first_rent describe the paper, never the figure",
+  "no secrets, no seeds — the contested raise, the spare-room arrangement, and every bible seed stay in their own files; a first week sees the heater, never the dispute",
+  "feed_shapes print the door, never the name — the spectator sees new hands, never whose",
+  "INTERNAL tier — the machine file is not a spectator surface; feed_shapes are the only public render"
+ ]
+};
+const $=s=>document.querySelector(s);
+document.getElementById('tier').textContent='INTERNAL tier — feed shapes are the only spectator-safe field · firsts v'+FIRSTS.version;
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+let view='all';
+function jobCard(j){
+  const el=document.createElement('div'); el.className='card';
+  el.innerHTML=`<div class="chead"><b>${esc(j.employer)}</b><span class="chip">${esc(j.role)}</span>
+    <span class="who">${j.trainer?`trained by ${esc(j.trainer)}`:'no cast trainer'}</span></div>
+    <div class="cbody">
+      <div class="f"><b>trainer</b>${esc(j.trainer_note)}</div>
+      <div class="f"><b>day one</b>${esc(j.day_one)}</div>
+      <div class="f"><b>kit</b>${esc(j.kit)}</div>
+      <div class="f"><b>the test</b>${esc(j.the_test)}</div>
+      <div class="f"><b>first mistake</b>${esc(j.first_mistake)}</div>
+      <div class="f"><b>not new when</b>${esc(j.not_new_when)}</div>
+      <div class="f"><b>pay paper</b>${esc(j.pay_setup)}</div>
+      <div class="f"><b>break spot</b>${esc(j.break_spot)}</div>
+    </div>`;
+  return el;
+}
+function moveCard(m){
+  const el=document.createElement('div'); el.className='card'+(m.key.startsWith('tier:')?' tier-row':'');
+  const kind=m.key.startsWith('tier:')?`<span class="chip vac">${esc(m.key.slice(5))} tier</span>`:`<span class="chip">vacant unit</span>`;
+  el.innerHTML=`<div class="chead"><b>${esc(m.label)}</b>${kind}</div>
+    <div class="cbody">
+      <div class="f"><b>key handoff</b>${esc(m.key_handoff)}</div>
+      <div class="f"><b>walkthrough</b><ul class="wt">${m.walkthrough.map(w=>`<li>${esc(w)}</li>`).join('')}</ul></div>
+      <div class="f"><b>first night</b>${esc(m.first_night)}</div>
+      <div class="anchor"><b>mail</b><span>${esc(m.anchors.mail)}</span></div>
+      <div class="anchor"><b>trash</b><span>${esc(m.anchors.trash)}</span></div>
+      <div class="anchor"><b>laundry</b><span>${esc(m.anchors.laundry)}</span></div>
+      <div class="f"><b>first knock</b>${esc(m.first_knock)}</div>
+      <div class="f"><b>first rent</b>${esc(m.first_rent)}</div>
+    </div>`;
+  return el;
+}
+function render(){
+  const j=$('#jobs'); j.innerHTML='';
+  if(view==='all'||view==='work') FIRSTS.first_shifts.forEach(x=>j.appendChild(jobCard(x)));
+  const mv=$('#moves'); mv.innerHTML='';
+  if(view==='all'||view==='move') FIRSTS.move_ins.forEach(x=>mv.appendChild(moveCard(x)));
+  const f=$('#feed'); f.innerHTML='';
+  if(view==='all'||view==='feed'){
+    $('#fscontract').textContent=FIRSTS.feed_shapes.contract;
+    FIRSTS.feed_shapes.work.forEach(l=>{const d=document.createElement('div');d.className='fl';d.innerHTML=`<span class="kind">work</span><span>${esc(l)}</span>`;f.appendChild(d);});
+    FIRSTS.feed_shapes.housing.forEach(l=>{const d=document.createElement('div');d.className='fl';d.innerHTML=`<span class="kind">housing</span><span>${esc(l)}</span>`;f.appendChild(d);});
+    FIRSTS.feed_shapes.never.forEach(l=>{const d=document.createElement('div');d.className='fl never';d.innerHTML=`<span class="kind">never</span><span>${esc(l)}</span>`;f.appendChild(d);});
+  } else $('#fscontract').textContent='';
+}
+document.getElementById('flt').addEventListener('click',e=>{
+  if(!e.target.dataset.s)return;
+  view=e.target.dataset.s;
+  document.querySelectorAll('#flt button').forEach(b=>b.classList.toggle('on',b===e.target));
+  render();
+});
+$('#rules').innerHTML=FIRSTS.rules.map(r=>`<li>${esc(r)}</li>`).join('');
+render();
+</script>
+</body>
+</html>

@@ -27,7 +27,15 @@
   wire v89, archive v90, create v91, mod v92),
   PT84 + harness v93 triage layer: surface filter / finding status /
   per-finding copy block / step n/a sweep, PT85 + drama board v94:
-  cooling grammar / double-surface / fair misfires / posture vocabulary).
+  cooling grammar / double-surface / fair misfires / posture vocabulary,
+  PT98 + harness v107 planner layer: rail search / time-boxed session
+  pick-list / [world-playtest-plan] block),
+  PT110 + harness v121 fix-verification layer: imported open findings
+  become a persisted re-test list (#verify / S.verify / 'still broken'
+  follow-up / fix_checks export / [world-playtest-verify] block),
+  PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
+  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer,
+  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer, PT121 + archive v132 consequence layer, PT122 + create v133 carried-in layer, PT123 + mod v134 precedent layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -151,6 +159,12 @@
     <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
       surface <select id="surfFilter" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font:inherit;font-size:11px"><option value="">all surfaces</option></select>
       <span style="font-family:var(--mono)">(regression pass)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      search <input id="railQ" placeholder="id · title · persona  ( / )" style="flex:1;min-width:0;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:3px 8px;font:inherit;font-size:11.5px"></label>
+    <div style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:10px">
+      plan <input id="planMin" type="number" min="5" step="5" placeholder="min" title="minutes you have — the planner fills the box" style="width:56px;background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:3px 6px;font:inherit;font-size:11.5px">
+      <button id="planGo" title="build a time-boxed pick-list: flagged → unfinished → never-covered → fresh" style="background:var(--panel2);color:var(--acc);border:1px solid var(--line);border-radius:6px;padding:3px 10px;font:inherit;font-size:11px;cursor:pointer">pick my session</button></div>
+    <div id="plan"></div>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -211,6 +225,7 @@
 <div id="keyCard"><b>keys</b> — harness
   <br><code>?</code> this card · <code>j</code>/<code>k</code> checkpoint cursor ·
   <code>p</code>/<code>f</code>/<code>n</code> pass / fail / n-a ·
+  <code>/</code> rail search ·
   <code>[</code>/<code>]</code> prev / next scenario ·
   <code>o</code> open first surface · <code>esc</code> close / clear</div>
 <script>
@@ -241,6 +256,10 @@ const SURF={
   commute:{file:"commute.html",name:"The Getting There"},
   permits:{file:"permit.html",name:"The Permit Wall"},
   homes:{file:"homes.html",name:"The Fridge Door"},
+  rules:{file:"rules.html",name:"The Fine Print"},
+  firsts:{file:"firsts.html",name:"The First Week"},
+  favors:{file:"favor.html",name:"The Counter Tab"},
+  offers:{file:"offer.html",name:"The Standing Offer"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
@@ -1828,8 +1847,8 @@ const PTS=[
   ck:["The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
     "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"]},
  {do:"Run node world/audit.js from the repo root.",
-  exp:"harness gate passes at key rw_playtest_v93 / build 'world v93 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
-  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall",
+  exp:"harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
     "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"]}
 ]},
 {id:"PT85",title:"Drama board v94 — cooling grammar, double-surface, fair misfires, posture vocabulary",min:9,
@@ -1851,7 +1870,7 @@ const PTS=[
   exp:"The drama gate passes the v94 checks: schema drama-v6, cooling/double-surface/fair-misfire rule content requirements, exactly five postures with meanings, posture rules fencing world-writes, and html mirror counts (COOLING/DSURF/MISFIRE/POSTURE/POSTURERULES). Harness gate reports 85 scenarios at the v93 key.",
   ck:["Drama gate: 0 fail; detail reports '10 seeds · 26 pressure rows · schema drama-v6'",
     "A missing posture, a misfire rule without the whisper cap, or an html count mismatch would FAIL — spot-check",
-    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT86",title:"Onboarding v7 — the stay (credit rules, the standing option, the first visit)",min:12,
  persona:"new hirer with a funded wallet — wants to know what a credit isn't, whether a subscription is being pushed, and what stepping into their character actually feels like",
@@ -1901,7 +1920,7 @@ const PTS=[
   exp:"The lease gate passes the v96 checks: key rw_lease_v96, all five html surfaces (assignment/buyout/prepaid/history letter/BUYOUT code), the four json blocks, active-only offerability + 30-day cooldown, the four feed_wording.never additions, own-unit guards on assignDecide/offerBuyout, file-only wiring on the five request/decide functions, the clean-ledger gate, and the 3× cap.",
   ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
     "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
-    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT88",title:"The Understudy v7 — the encounter layer (nod economy, player contact, request split)",min:11,
  persona:"resilience reviewer — wants the outage posture to survive contact: thin meeting thin, a player pressing thin, and paid requests during a blackout",
@@ -1926,7 +1945,7 @@ const PTS=[
   exp:"The thinai gate passes the v97 checks: key rw_thinai_v97, the three json blocks (thin_encounters / player_contact / world_requests with all four classes), the four new demo events, the seven html marks (nod economy, who's awake in the room, world-bound, live-mind scene rule, the seam-probe deflect, presence-not-depth copy) — plus every prior-pass check still green.",
   ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
     "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
-    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]}
 ,{id:"PT89",title:"The Company v98 — the receiving register (weather, being helped)",min:8,
  persona:"cast-bible reviewer — wants the new v98 sections to read like the characters and stay seed-free",
@@ -1946,7 +1965,7 @@ const PTS=[
   exp:"The bible gate passes at schema v98: 27 required sections enforced, characters.json roleplay_fields gains weather/helped with the v98_fields convention, cast.html wx/hlp keys checked per card, and both new fields swept by the observable-safe vocabulary check.",
   ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
     "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
-    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
  ]}
 ,{id:"PT90",title:"The Crowd v99 — the bench layer (pull protocol + coverage)",min:9,
  persona:"request-pipeline reviewer — wants proof that borrowing a named ambient is bounded, honest, and invisible on the wire",
@@ -1966,7 +1985,7 @@ const PTS=[
   exp:"Crowd gate passes at schema v99 with '… · 20 coverage' in the detail; pull_protocol carries window/capacity/bounds/states/minors/role_bound/feed/pipeline; coverage keys equal the full roster and minors' kind is 'pack'; prose spells the honest-post rule and wire invisibility.",
   ck:["Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
     "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
-    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
 ]},
 {id:"PT91",title:"The Permit Wall v100 — the paper layer (posted paper + door lineage)",min:8,
  persona:"continuity editor — wants proof the paper behind the counter is plausible, honest, and safe to put on camera",
@@ -1980,7 +1999,7 @@ const PTS=[
   ck:["18 ghost signs; the two nulls are both no-wall stands", "Liquor papers appear only at the-600-club, il-delfino, the-musket, buy-rite-market, maliks, el-farolote", "Auerbach lineage names the same family in an earlier trade — the exception that proves the rule"]},
  {do:"Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
   exp:"Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
-  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT92",title:"The Fridge Door v101 — the household layer (homes v101)",min:8,
  persona:"continuity editor — wants proof the inside of each home is plausible, honest, and safe to put on camera",
@@ -2000,7 +2019,7 @@ const PTS=[
   exp:"Homes gate passes at schema v101 with '7 homes · 3 vacant · 24 perks' in the detail; rules declare surface knowledge / conditions never scripts / no money / vacant-showings / ambient-ring. Prose spells the fridge-note rule and the lease-moves-the-row lifecycle.",
   ck:["Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
     "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
-    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT93",title:"The live session layer v102 — request.html rides the bus end-to-end",min:8,
  persona:"merge auditor — wants proof the bridged request card is driven by the bus, not just filed to it",
@@ -2020,7 +2039,7 @@ const PTS=[
   exp:"Request gate passes with the v102 checks green (live_writes names gsCancelRequest/gsAppealRequest/gsWatchAd; live_meter carries queuePos/remainingMin/terminal; all eight surface strings present in the HTML). Prose spells the meter-is-truth rule and the own-position-only distinction.",
   ck:["Request gate: 0 fail; detail still reports 'seam wired'",
     "A missing live_writes/live_meter block or a dropped surface string FAILs the gate — spot-check mentally",
-    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT94",title:"The record layer v103 — wire.html reads the bus's own pins, days, vocabulary, and self-check",min:8,
  persona:"merge auditor — wants proof the last four wire endpoints have honest surfaces, not decorative ones",
@@ -2040,7 +2059,7 @@ const PTS=[
   exp:"Wire gate passes with the v103 checks green (all four endpoint names, id=\"archlink\", the adopt-only followsSync body check, all five spectator_ui_v103 keys). Prose spells the adopt-never-delete rule and the on-demand self-check.",
   ck:["Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
     "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
-    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT95",title:"The absence + lifecycle layer v104 — The Archive v8",min:8,
  persona:"merge auditor — wants proof the two new archive views are projections, not new information",
@@ -2060,7 +2079,7 @@ const PTS=[
   exp:"Archive gate passes with the v104 checks green (data-v gaps/reqs, GAP_MIN/gapList/renderGapsView, reqTrails/renderReqsView/OPEN_ST/rqSel, 'settled the talk', kv.rq, both honesty strings, archive_ui_v104 contract block). Prose spells the no-interpolation and no-inferred-steps laws.",
   ck:["Archive gate: 0 fail; v104 block present in history.json",
     "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
-    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT96",title:"The desk's answer layer v105 — repair bench + second look + live status",min:8,
  persona:"refused applicant — got a no and wants to know exactly what to fix, what a second read costs, and what the live desk actually said",
@@ -2080,7 +2099,7 @@ const PTS=[
   exp:"renderQueue pulls gsExplainRequest on render and on the button (no interval, no poll loop): approved → approval tail with 'the bus minted the hire', denied → showRepair with the record's reason, cancelled/expired/refunded → 'Closed — the desk is done with it'. Creation gate passes with all v105 checks green (return key, showRepair/FIELD_FIX, gsAppealRequest, second-look + appeal_final honesty, check-the-desk pull, liveRec.status resolution, never-fakes-a-reversal).",
   ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
     "No setInterval/poll loop on the desk check — pull only",
-    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
 ]},
 {id:"PT97",title:"The display-filter bench v106 — three options, live engine, no winner",min:6,
  persona:"studio owner — the display_filter row in moderation.json has sat OPEN since the taxonomy landed; wants to see exactly what each option does to the public feed before picking",
@@ -2101,13 +2120,576 @@ const PTS=[
   ck:["Mod gate: 0 fail; mirror gate still green (flab surface + PT97 mirrored in playtest.html)",
     "Coverage gate lists filter-lab.html via the flab surface — no 'untested demo page' review hit",
     "Harness gate unchanged: '97 scenarios' now counted in the rail"]},
+]},
+{id:"PT98",title:"The planner layer v107 — rail search + the time-boxed pick-list",min:8,
+ persona:"facilitator with 45 minutes and four testers' reports to merge — wants the harness to say what to run, not to be told",
+ goal:"Verify the v107 planner layer on this page: the rail's search box narrows scenarios on id+title+persona and composes with every existing filter; the session planner fills a minutes box with an ordered pick-list — revisit-flagged first, then partially-verdicted, then cold (never verdicted by anyone, imports included), then fresh — honestly reporting an overrun when the box can't hold the first must-do; Copy plan emits the [world-playtest-plan] paste.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Type a query into the rail's search box — 'lease', then a persona word like 'facilitator', then a scenario id. Press / from the scenario body to jump back into the box.",
+  exp:"The rail narrows to scenarios whose id, title, or persona match (case-insensitive); the count line tracks it; the filter composes with smoke, hide-finished, and the surface dropdown — and the [ / ] walk and Copy run sheet honor the narrowed list. '/' focuses the box from anywhere outside a form field; the query persists across reload (S.q).",
+  ck:["Search matches id + title + persona only — a word that appears only inside a step does NOT match",
+    "Emptying the box restores the full filtered rail; nothing is deleted, only hidden",
+    "The [ / ] walk inside a search-narrowed rail stays inside the narrowed list"]},
+ {do:"Set the plan box to 30 and press 'pick my session'. Flag one scenario ⚑, verdict one checkpoint of another, then rebuild the plan.",
+  exp:"The plan card appears above the rail: ordered picks each tagged revisit / unfinished / cold / fresh with its minute estimate, totaling within the box. After the flag+verdict the flagged scenario jumps to the top and the partially-verdicted one follows it; cold picks (nobody — including imported cohort sessions — has touched a checkpoint) come before merely-fresh ones. A fully-verdicted scenario never appears.",
+  ck:["Ordering is revisit → unfinished → cold → fresh; ties hold scenario-number order",
+    "The plan stops before the first pick that would overflow the box — unless it's the only pick, which is kept and labeled 'over by ~N min'",
+    "A surface-filtered plan draws only from scenarios touching that surface; ids are always real PTS entries"]},
+ {do:"Press 'Copy plan', paste it into a scratch buffer, then run node world/audit.js and read the harness gate.",
+  exp:"The clipboard holds a [world-playtest-plan] block: build + box minutes + scenario count + one line per pick (est + reason + title). Harness gate passes at key rw_playtest_v121 / build 'world v121 local' with the v107 marks present (railQ, S.q, planMin/planGo/plan, buildPlan, planReason, exPlan, world-playtest-plan) and reports 98 scenarios; the mirror gate confirms the PT98 hand-sync.",
+  ck:["The plan block reads as a session invite — ordered, estimated, reasoned; no verdicts leak into it",
+    "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall",
+    "An emptied plan box clears the card; a reload with the box set re-renders the plan from persisted state"]},
+]},
+{id:"PT99",title:"Drama board v108 — drift record, object dramaturgy, composition rule",min:9,
+ persona:"showrunner-side reviewer — wants the v108 direction layer verified as bookkeeping schema and permission structures, not scripts",
+ goal:"Verify the v108 drama-direction pass: drama.json drama-v7 carries the drift-record schema (seven fields, flags enum, append-only/immutable + never-write-to-world fences, empty drift_log array), the secret-objects registry (six objects, custody ledger-visible, shown-vs-opened), and the composition rule (one shadow per frame, echo exemption, brink exclusivity); pressure catalog grows to P-30; drama.html renders all three new sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§45–48 against the §19 legality checklist. For each new rule or table row, name which of the four legal forms it is.",
+  exp:"Every statement resolves to a permission, ceiling, weight, or protection — the drift record is a bookkeeping schema (reports observations, never writes state), object dramaturgy is a custody permission structure (shown is a shadow, opened is the holder's act), the composition rule caps the display ceiling per frame. No line predicts an outcome the feed could falsify in a week.",
+  ck:["Drift record: seven fields; append-only and immutable; a quiet week is still a record (missing_review flag, never backfilled); records never write to the world",
+    "Object dramaturgy: custody is ledger-visible; no teleporting or planting; shown vs. opened split; new objects meet the pressure-row bar",
+    "Composition rule: one shadow per beat; echo exemption is whisper-grade only; a brink tell owns its frame; crowded_frame is a review flag, never a retro-scrub",
+    "P-27–P-30 each name a producing system that already exists + a legible shadow + an exhaustion rule"]},
+ {do:"Open drama.html (file://) and scroll the three new sections plus the pressure catalog.",
+  exp:"The drift record table renders seven field rows plus the rule list; object dramaturgy renders six object rows with holder/appears/never plus the rule list; the composition rule renders its six rules; the pressure catalog now runs P-01–P-30 with the sixth-tranche rows (delivery morning, borrowed-key errand, shared-dessert appearance, rain-day ritual transfer).",
+  ck:["All three new sections render populated — no empty list/tbody, no console errors",
+    "DRIFTREC/OBJECTS/COMPOSE counts match drama.json field/object/rule counts",
+    "Object 'never' columns stay honest — the flyer's text and the letter's contents never render; every holder is a C-id"]},
+ {do:"Run node world/audit.js from the repo root and read the drama + harness gates.",
+  exp:"The drama gate passes the v108 checks: schema drama-v7, drift_record fields/flags/fence content, drift_log is an array, object rows carry held_by valid main ids, composition_rule carries the one-shadow cap + brink exclusivity, and html mirror counts (DRIFTREC/DRIFTRECRULES/OBJECTS/OBJECTRULES/COMPOSE). Harness gate reports 99 scenarios at the v107 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 30 pressure rows · schema drama-v7'",
+    "A missing drift field, an object holder off the C-id pattern, or an html count mismatch would FAIL — spot-check",
+    "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]},
+]},
+{id:"PT100",title:"Onboarding v8 — the quiet contract (privacy beat, the data card, flagging)",min:10,
+ persona:"privacy-skeptical first-time viewer — wants to know what watching costs in data, and whether the 'flag' button is a real check or theater",
+ goal:"Verify the v109 onboarding pass: tour beat 6 (anchored feed-anon) states watching leaves no mark — no viewer list, presence is private, only asks carry names; S2b states the page keeps browser-local state only (nothing sent anywhere, no email, no account) and the forward clause is only the asks-public/watching-private shape; S4g teaches flagging — free, files nothing, silent on the feed, routes to the same human review queue, and attaches to player asks only, never to the residents.",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§50–55 and onboarding.json's privacy_beat / data_card / flag_lesson blocks against the never-list additions.",
+  exp:"Every v109 statement resolves to a disclosure or a boundary — the privacy beat bans any viewer list outright, the data card claims only device-local storage (no more, no less than the build does), and flag scope is design §11 verbatim: moderation scopes to player requests, the cast's lives are never moderated.",
+  ck:["Privacy beat anchored to feed-anon (the feed's 'free, always' line), ordered after follow, admin still last at beat 9",
+    "Data card is free-tier and outside the band normalizer — the watching account sees it too",
+    "flag_lesson states the two edges verbatim: silent on the feed + player asks only, never residents"]},
+ {do:"Open onboarding.html (file://), pick 'I might reach in', run the tour to beat 6, set a handle, read S2b, pick the adult band, fund the demo wallet, file the camera ask, and walk S4f → S4g. Click 'Flag an ask on the feed (demo)' twice.",
+  exp:"Beat 6 anchors the '(free, always)' line and reads the privacy promise verbatim. S2b renders after the handle step and before the band question, closable, with 'Got it' continuing to S2a. S4g is reached from S4f; flagging marks the lesson once — the feed entry does NOT change (a flag is silent); the second click toasts 'flagged already — review has it'. Reset and pick under-13: S2b still renders but S4g redirects to S3u.",
+  ck:["No feed mutation on flag — nothing on the public surface shows a flag happened",
+    "flagDemo is idempotent and state-guarded (S.flagged persists across reload at key rw_onboard_v109)",
+    "S4g sits in PAID_STAGES — the band normalizer fronts it like every ask-context card",
+    "No viewer list / presence count / 'who's watching' surface anywhere on the page"]},
+ {do:"Run node world/audit.js from the repo root and read the onboard gate.",
+  exp:"Onboard gate passes at 'schema v109 · 9 beats · key rw_onboard_v109' — all ten v109 honesty strings found, feed-anon anchor present, S2b/S4g reachable, S4g in PAID_STAGES, flagDemo state-guarded, the silent-flag sweep clean, and the three contract blocks present in the mirror.",
+  ck:["Onboard gate: 0 fail; detail reports schema v109 at key rw_onboard_v109",
+    "A flag surfaced on the feed (flagged-for-review wording, flag counts) would FAIL — the sweep enforces silence",
+    "Harness gate: '100 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT100 hand-sync"]},
+]},
+{id:"PT101",title:"The unobserved tick v111 — lazy thin, witness records, compute soak",min:8,
+ persona:"cost-minded infra reviewer — wants proof that 20 ambients plus offline hires stay cheap when nobody is watching, without the block ever looking simulated",
+ goal:"Verify the v111 seventh thin-AI pass on world/thinai.html: observation tiers watched/shadowed/dark coarsen the tick; a dark pawn resolves lazily on return, identical to continuous ticking with no catch-up pop; obligations stay eager; witness records are mode-blind seen-facts (place + doing + posture, deduped per place per hour); the compute soak splits thin_min by tier so thin cost scales with observation, not population.",
+ surfaces:["thinai", "audit"],steps:[
+ {do:"Read thin-ai.md §§47–52 and thinai.json's observation_tiers / lazy_thin / witness_record / compute_soak blocks.",
+  exp:"Every statement resolves to a bookkeeping or posture rule — tiers follow attention never population; lazy resolve is observational equivalence (state a watcher lands on is identical to continuous ticking), never a re-simulation; obligations settle eager at their minute; the witness schema is mode-blind and bars intent/mood/seed fields by construction; the soak split keeps dark_min honest at ~zero.",
+  ck:[
+   "lazy_thin.never forbids a catch-up pop AND a skipped obligation AND re-simulation on return",
+   "witness_record.schema carries char/place/doing/at_min and NO mode, mood, or intent field",
+   "observation_tiers transitions land dark only at a cell edge and resolve watched only at a seam — never mid-cell"]},
+ {do:"Open thinai.html (file://). Press 'Cameras pull back', then step +15 min twice — watch pawns land shadowed then dark. Press 'Cameras return' and 'Whip pan to C6'. Step +1 h and read the witness record and the soak line.",
+  exp:"Pull-back logs a seam line dropping all watched pawns to shadowed; the next tick lands them dark with a seam line each. Cameras return logs one lazy-resolve seam per pawn naming the landed cell with the identical-to-continuous rule — no catch-up pop. Whip pan resolves C6 mid-cell instantly. The soak line shows dark minutes accruing under dark; the witness panel lists seen-facts only for watched pawns, deduped per place per hour, and the rent autopay still drafts at 09:00 whether or not anyone watched.",
+  ck:[
+   "Shadowed → dark lands at the first unwatched edge — one seam line per pawn, then silence",
+   "Cameras return logs 'identical to what continuous ticking produced. No catch-up pop.'",
+   "Witness records carry place + doing only — no mode, no mood, no interiority",
+   "Soak buckets move: watched_min stops accruing while dark, dark_min accumulates — thin cost tracks observation"]},
+ {do:"Run node world/audit.js and read the thinai gate.",
+  exp:"Thinai gate passes at 'schema v111 · 4 pawns · key rw_thinai_v111' — all four v111 contract blocks present, the storage key agrees, the three new demo events are declared, the v111 html marks pass, and the wire-vocabulary + mode-matrix sweeps still hold.",
+  ck:[
+   "Thinai gate: 0 fail; detail reports schema v111 at key rw_thinai_v111",
+   "A witness schema carrying a mode/mood field or lazy_thin permitting a catch-up pop would FAIL — spot-check",
+   "Harness gate: '101 scenarios · N checkpoints · key rw_playtest_v121'; mirror gate confirms the PT101 hand-sync"]},
+]},
+{id:"PT102",title:"The mouths & pulses layer v113 — named anchors, pulse clocks, the leash",min:8,
+ persona:"systems reviewer — wants proof the crowd's bodies come from somewhere: named doorways with live windows, pulses bound to real schedules, and a leash that keeps the day a closed loop instead of accumulating strangers",
+ goal:"Verify the v113 crowd pass on world/crowd.html: the eight named mouths replace the bare 'edge' endpoint (each a point with dir, live window, per-minute cap — never a zone); the seven pulse clocks lift a mouth's flow only inside their motivating schedule (school bells weekday-windowed, last-call overnight); the leash fixes a unit's zone set at spawn (≤2 zones from entry) with despawn citing a mouth and a rolling-60min per-mouth body ledger; all ids stay internal vocabulary.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Read crowd-sim.md §§29–32 and crowd.json's mouths / pulse_clocks / leash blocks against the earlier layers.",
+  exp:"Every statement resolves to a spawn-budget or bookkeeping rule — mouths carry position+dir+window+cap and no budget; pulses are doorway arithmetic bound to the schedule that motivates them (a pulse can never fire outside its window, name a destination zone, or touch the named layer); the leash's four intents (through/errand/dwell/cover) each bound zones_visited ≤2 plus a dwell window and an exit rule; conservation balances bodies at the mouths over a rolling hour.",
+  ck:[
+   "m-gate is the only mouth with kid_scale — the v85 family safeguard now binds at the doorway",
+   "Every flow edge touching 'edge' cites a declared mouth (f-edge-mudhaus→m-plaza, f-school-park→m-gate, f-club600-edge→m-curb, f-edge-streets→m-plaza, f-edge-school→m-gate)",
+   "leash.no_reentry keeps 'a despawned extra stops existing' — costume continuity, never histories"]},
+ {do:"Open crowd.html (file://). Scrub the clock across 07:00–08:30 weekday, then 15:00–16:00, then 22:30–02:00; switch day to weekend and re-scrub the school window; read the mouths panel.",
+  exp:"The mouths panel shows each anchor live only inside its window — m-gate goes quiet outside 07:00–08:30/15:00–16:45 and all weekend; pulse chips light only in-window (school-bell-am/pm at the gate, shift-change at the curb three times a day, kitchen-close 22:45–23:30, last-call 01:30–02:15); the leash footer lists the four intents with their dwell bounds and exit rules.",
+  ck:[
+   "m-gate reads 'quiet' on weekend — the school doorway is weekday-only by construction",
+   "last-call lights at 01:30–02:15 on the pickup curb — the despawn side of the ledger is as specific as the spawn side",
+   "No panel names a pulse to the feed — mouth/pulse/intent ids stay internal vocabulary like fog_season"]},
+ {do:"Run node world/audit.js and read the crowd gate.",
+  exp:"Crowd gate passes with detail reporting '8 mouths · 7 pulses' at schema v113 — MOUTHS/PULSES/LEASH mirrors agree with crowd.json, every 'edge'-touching flow edge cites a mouth, pulse dirs respect mouth dirs, cap_per_min ceilings hold (≤10 — a trickle with a ceiling, not a faucet), and the meta-vocabulary sweeps cover the new blocks.",
+  ck:[
+   "Crowd gate: 0 fail; detail reports 8 mouths · 7 pulses",
+   "An edge touching 'edge' without a mouth, or a pulse dir contradicting its mouth's dir, would FAIL — spot-check",
+   "Harness gate: '102 scenarios · N checkpoints'; mirror gate confirms the PT102 hand-sync"]}
+]},
+{id:"PT103",title:"The fine-print layer v114 — per-door house facts + posted sign copy",min:8,
+ persona:"systems reviewer — wants proof the rooms feel *run*: every door venue carries a full set of machine-readable house facts, and the taped signs a camera reads agree with them — conditions on the room, never scripts for characters",
+ goal:"Verify the v114 house-rules layer on world/rules.html: doors keys equal the anchor+street tier business ids exactly (20 doors — offstage orgs and reserved names carry no house rules); every door states every fact_key exactly once (silence is not a policy); posted signs pin to where_keys and agree with the facts (cash_only posts CASH, card_min posts its minimum, restroom:code posts at the door or register, wifi:receipt points at the receipt, tab:regulars matches regulars.json tab rows); pay_min is the only money figure.",
+ surfaces:["rules","audit"],steps:[
+ {do:"Read house-rules.md §§1–5 and house-rules.json's fact_keys / where_keys / rules / doors blocks against the layers beneath (businesses registry, storefronts, menus, permits).",
+  exp:"Every statement resolves to a condition on the room or a sign on the wall — fact vocabularies are closed (a venue with no wifi policy still says wifi:'none'); the consistency rules are stated as agreements between the two surfaces, not behaviors; §5 bars the layer from pricing, menus, permits, rumor feeds, and character scripts.",
+  ck:[
+   "doors has exactly 20 keys — anchor+street tier ids only; Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, Calle Justa, The Rent Table and the three reserved names have no door",
+   "Every door's house block carries all eight fact_keys exactly once — pay/restroom/wifi/laptops/dogs/outside_food/linger/tab",
+   "maliks is the card_min door — pay_min:5 game dollars, and its register sign names the minimum; it is the only money figure in the layer"]},
+ {do:"Open rules.html (file://). Read the fact-vocabulary legend, then run each filter chip (cash only, card minimum, wi-fi, laptops, dogs, house tab) and spot-read three door cards end to end.",
+  exp:"The Fine Print renders each door as a card: structured facts as chips (hard postures highlighted) and posted sign copy with its where-tag; filters narrow the grid honestly; the header carries the internal posture line 'conditions, never scripts'; no card names a person and no sign carries a price or a 'when X then Y'.",
+  ck:[
+   "Filtering 'cash only' leaves exactly the cash_only doors — and each shows a posted CASH sign somewhere on the card",
+   "golden-hour's register sign reads CASH ONLY — QUARTERS AT THE CHANGE MACHINE: the cash posture and the posted line agree",
+   "A sign naming a dollar figure other than a card minimum, or naming a neighbor, is a fail — the sign bar is enforced"]},
+ {do:"Run node world/audit.js and read the rules gate.",
+  exp:"Rules gate passes at version 114: RULE mirror deep-equals house-rules.json (version, fact_keys, where_keys, rules, doors); doors ⊆ anchor+street tier ids; full-house fact coverage; closed vocabularies on facts and where; sign-posted consistency for cash/card_min/restroom-code/wifi-receipt; tab:regulars agrees with regulars.json tab rows; no people named; pay_min the only money figure.",
+  ck:[
+   "Rules gate: 0 fail",
+   "A dollar figure on a sign (other than the card minimum), a 'secret' in sign copy, or a cash_only door with no posted CASH sign would FAIL — spot-check",
+   "Harness gate: '103 scenarios · N checkpoints'; mirror gate confirms the PT103 hand-sync"]}
+]}
+,{id:"PT104",title:"The first-week layer v115 — first shifts + move-in texture after the yes",min:8,
+ persona:"systems reviewer — wants proof the seam between 'hired' and 'working' (and between 'signed' and 'living there') is real content: every live opening has a first week, every vacancy has a move-in, and the public render never names a person",
+ goal:"Verify the v115 firsts layer on world/firsts.html: first_shifts covers every live jobs.json opening exactly (openings != 0, one row per employer+role); trainer is null or a cast id held_by that employer; move_ins covers the three registry vacancies plus all five ladder tiers (keys = unit_id or tier:<tier>); walkthroughs carry ≥2 honest quirks and anchors pin mail/trash/laundry; feed_shapes print the door, never the name; no dollar figures, no cast ids in texture fields.",
+ surfaces:["firsts", "audit"],steps:[
+ {do:"Read firsts.md §§1–5 and firsts.json against the layers it seams (applications upstream, shifts/homes downstream): the row shapes, the trainer rule (cast id only when held_by the same employer), and the lifecycle rules in §5.",
+  exp:"Every statement resolves to texture a coworker or a new tenant could report — day_one/kit/the_test/first_mistake/not_new_when are conditions, not scheduled beats; trainer nulls carry a role in trainer_note instead (the binder at Golden Hour, nobody at MuleIt); §5 declares that a closing opening retires its row and a new vacancy adds one.",
+  ck:[
+   "first_shifts has exactly 16 rows — one per live jobs.json opening; the MuleIt always-hiring row is present with trainer null",
+   "The four cast trainers (c1-marisol at Mudhaus, c8-tomas twice at El Farolote, a18-ida at Bloom & Doom) are all held_by that employer in jobs.json; Auerbach's trainer is null — Victor owns the shop and sits in trainer_note, not on the board",
+   "move_ins has exactly 8 rows — bld-g9418-B, bld-g9457-2, bld-c9127-A plus tier:room/studio/1br/flat/house; no tenanted unit carries a row"]},
+ {do:"Open firsts.html (file://). Run the filter chips (first shifts / move-ins / feed shapes) and spot-read three cards end to end — e.g. Mudhaus Barista, 9457-2, tier:room.",
+  exp:"The First Week renders each opening as a card with trainer chip and the eight texture fields; each move-in shows key handoff, walkthrough bullets, first night, the three anchors, first knock, first rent; the feed section shows the door-never-name contract, work/housing shapes with <venue>/<address> placeholders, and the never list; the header carries the internal posture line.",
+  ck:[
+   "9457-2's walkthrough discloses the stair noise and notes 'your radiator works — the flat upstairs is the one with the known heater problem': texture, not the dispute",
+   "tier:room's first_rent reads 'a person you cook next to' — paper texture, no figure; no card anywhere carries a dollar amount or a credit figure",
+   "A feed shape naming a person, a day count, or a pay term would be a fail — the never list holds"]},
+ {do:"Run node world/audit.js and read the firsts gate.",
+  exp:"Firsts gate passes at version 115: FIRSTS mirror deep-equals firsts.json (version, first_shifts, move_ins, feed_shapes, rules); bidirectional coverage both ways (a live opening with no row fails, a row with no live opening fails); trainer ids resolve to held_by; move-in keys ⊆ vacant units ∪ ladder tiers with tenanted units rejected; surface bar sweep clean.",
+  ck:[
+   "Firsts gate: 0 fail",
+   "A cast id inside a texture field, a dollar figure, or a tenanted unit in move_ins would FAIL — spot-check the gate list",
+   "Harness gate: '104 scenarios · N checkpoints'; mirror gate confirms the PT104 hand-sync"]}
+]},
+{id:"PT105",title:"The deed office v116 — list · buy · license on the request form",min:8,
+ persona:"player mid-arc — owns one hired landlord (h02, deed on 9088-5 day 1, tenant in place) and ~1,240 cr; facilitator checking that ownership requests are honest about money, gates, and queues",
+ goal:"Verify the v116 deed-office layer on world/request.html: three new actions (List a unit, Buy a listing, Landlord license) file through the same pipeline; the quote splits game dollars from credits honestly (the ask never touches the wallet); deed fees pin to the leases.json ladder; the license is earned-gated and refuses honestly; paper:* and listing:* claims never surge; every path posts the locked feed vocabulary.",
+ surfaces:["request", "audit"],steps:[
+ {do:"Open request.html (file://). Read the resource board for the two new claim families — 'listing:bld-f9088-5' (9088 Folsom Unit 5 — listing slot, free) and the 'paper:' rows (9476 Dolores B free; 9560 Guerrero 2 locked · escrow running · r0ok). Then pick 'List a unit (deed office)'.",
+  exp:"The board now renders registry claims like any shared resource — queue legibility, no auction. The listing action offers the one door the demo player holds the deed on (h02's studio, tenant in place named on the target label); duration is 1 h / 24 h / 72 h blocks, a credit a minute; the note carries 'the paper follows the deed' so a seller learns the tenant keeps the lease before filing.",
+  ck:[
+   "Listing quote: a credit a minute — 1 h = 60 cr, 72 h = 4,320 cr — and NO surge line even filed inside the 18:00–23:00 primetime window (paperwork never surges)",
+   "Filing a 1 h card runs declare → screen → human review → 'card is up'; the claim locks on the board and the feed posts 'listing — 9088 Folsom St, Unit 5 posted · offer at asking' (running); ~14 s later the card retires and the claim frees",
+   "Typing 'rent' anywhere in the intent text is what flips the card to a rent listing — the copy picker is wording, not a hidden control"]},
+ {do:"Pick 'Buy a listing (escrow)' → 9476 Dolores St, Unit B (1br · 160,000 game$ · 2,000 cr deed). Read the quote, file it, watch the escrow stage. Then switch to 9560 Guerrero St, Unit 2 (flat · 280,000 game$) and read the quote without filing.",
+  exp:"The quote shows two currencies without blurring them: the ask in game dollars paid by h02, the deed fee in credits charged upfront, 'offer at asking · first accepted wins · no bidding'. h02's 172,400 game$ covers the 1br — escrow verifies and records the deed (resolved, feed 'deed recorded · offer at asking, no bidding'). The flat shows the shortfall math in the Buyer line ('short 107,600 game$') and warns that a refused filing refunds in full — and while r0ok's escrow holds its paperwork the filing queues rather than running, so the registry serializes one change per door.",
+  ck:[
+   "Deed fees are the ladder verbatim — 1br 2,000 cr / flat 3,500 cr — and the credits line is the fee alone; 160,000 game$ never touches the wallet",
+   "Buying the flat while r0ok's escrow holds paper:bld-g9560-2 queues the filing (−15%, hold clock) instead of running — the registry serializes one change per door",
+   "An insufficient-dollars refusal posts 'refunded' on the feed — never 'not approved' (this is escrow, not moderation) and never keeps a credit"]},
+ {do:"Pick 'Landlord license' (2,000 cr flat). Read the Earned gates line, then file it anyway. Then run node world/audit.js and read the request gate.",
+  exp:"The quote names the three gates verbatim (deed N/30 days · reputation threshold · clean record — 'not met yet' at deed day 1) and warns that filing is allowed but the deed office refuses before escrow. Filing charges 2,000 cr upfront, the deed-office stage fails on the 30-day gate, and the full refund lands in the ledger with a 'refunded' feed line — the license is earned, not bought.",
+  ck:[
+   "The gate line is honest before money moves: 'deed 1/30 days … — not met yet' plus the warn strip; the refusal refunds in full, nothing is kept",
+   "Request gate passes at v116: deed_fee_cr deep-equals leases.json progression.owner, license_cr equals progression.landlord.license_cr, gate count mirrors, every deedCr figure in the demo is a real ladder fee, and the surge exemption for paper:/listing: is present",
+   "Harness gate: '105 scenarios · N checkpoints'; mirror gate confirms the PT105 hand-sync"]}
+]},
+{id:"PT106",title:"The attention layer v117 — kind lens + hour grid + thread watch on the wire",min:8,
+ persona:"settled-in spectator — pins a couple of venues, watches request threads for sport; facilitator checking that every new affordance is honest counting, never invented salience",
+ goal:"Verify the v117 attention layer on world/wire.html: the kind tray counts the wire by kind and isolates the stream (ANDed with the main filter); the day card's hour grid shades 24 cells by the wire's own per-hour counts and jumps to an hour's first line; 'watch this thread' flags a request's lines for the viewer only; the new-events pill counts pending lines that hit pins/watches.",
+ surfaces:["wire", "audit"],steps:[
+ {do:"Open wire.html (file://) and let the demo tick a few cycles. Read the kind tray under the filter chips: one chip per kind actually on the wire, each with its count. Click 'weather', then 'press', then 'all kinds'; press g to cycle.",
+  exp:"The tray lists only kinds present today (counts match the rows they would show — spot-check 'weather' against the seed fog line). Picking a kind isolates the stream to it; the main filter still applies on top ('the block' + 'weather' shows weather only, requests stay out). g cycles through present kinds then off. The footer note reads 'the wire counted by kind — a lens, never a ranking' and chip order follows the fixed vocabulary, never the counts.",
+  ck:[
+   "Tray chips carry honest counts and only present kinds — no 'quiet' chip until a quiet line exists",
+   "kindPick ANDs with the main filter and the search box still narrows inside it; 'all kinds' or a second click clears",
+   "g cycles kinds then off; the keys card lists it — 'cycle the kind lens — kinds today, counted'"]},
+ {do:"Open 'the day so far' (d or the bar). Read the 24-cell hour grid, hover a few cells, click the hour holding the seeded 06:15 run line and then a dead hour.",
+  exp:"The grid sits inside the day card above the honesty footer — each cell's opacity tracks the wire's own count for that hour, empty hours sit near-invisible, tooltips read 'HH:00 — N events on the wire'. Clicking a live hour selects and centers its FIRST line; clicking an hour whose rows are older than the loaded page toasts 'that hour is older than the loaded page — load older first' rather than faking a jump.",
+  ck:[
+   "Cell counts sum to the wire's own total — the shape is counted, not curated (the fnote says so)",
+   "The jump targets the hour's earliest line so the viewer reads forward, not backward",
+   "A dead hour (no events) does nothing but an honest 'nothing on the wire in that hour' toast"]},
+ {do:"Open a request event's record and hit 'watch this thread'. Watch its rows pick up ◆, its reaching-in-now card edge green, and the Following panel's 'watching' list (latest status + unwatch). Scroll down a few screens and let a watched thread advance. Then unwatch from the panel, mute the same thread, and unmute. Run node world/audit.js.",
+  exp:"Watching persists (rw_wire_watch) and is viewer-side only — the detail copy reads 'muted or watched — your screen only; the wire's record is unchanged and The Archive keeps everything', and the watchlist header adds 'a watch flags the thread's new lines for you only — the record is everyone's'. When new events accrue behind the scroll position, the pill reads 'N new — jump to top · M on your pins' counting pin/watch hits. The audit's wire gate pins the whole layer including the rule that toggleWatch never touches the bus.",
+  ck:[
+   "A watched req's new line carries ◆ for this viewer only; the live-strip card goes green-edged; unwatch reverses cleanly",
+   "The pill tail counts pins AND watched threads honestly — scroll back to top and it clears",
+   "Wire gate: 0 fail at v117 (kindtray/hourgrid/watchlist affordances, spectator_ui_v117 keys, toggleWatch may not call BRIDGE/gsWire/fetch, KIND_ORDER must be the fixed vocabulary order). Harness gate: '106 scenarios · N checkpoints'; mirror gate confirms the PT106 hand-sync"]}
+]},
+{id:"PT107",title:"The two-clocks + edition layer v118 — replay clock + catch-up edition in The Archive",min:8,
+ persona:"returning spectator — away for a few days, wants the shape of what they missed without a spoiler edit; facilitator checking that both new affordances are windows on the record, never cuts of it",
+ goal:"Verify the v118 layer on world/archive.html: 'replay' deals a day's own rows back on a second block clock (pause, dead-air skip, speed chips, honest stop) and 'the edition' counts every line the wire wrote since a reader-side mark (rw_archive_seen) — first visit explicit, a missing mark reported, never silently reset.",
+ surfaces:["archive", "audit"],steps:[
+ {do:"Open archive.html (file://), pick a dense demo day in the rail, and hit 'replay' (or press r). Let the block clock run, switch speeds (15/30/60 m/s), pause and resume, then hit 'next line →' through a gap stretch. Let it run out, then click 'whole day'.",
+  exp:"A replay bar appears under the hour strip: a mono block-time readout, 'the day's own rows, dealt back at speed; the live clock stays on the wire', pause/resume, next-line skip, three speed chips, 'whole day'. Rows deal in timestamp order — rows ahead of the playhead are simply not dealt yet, while the hour strip and entry count still report the whole day. 'next line →' jumps the playhead to the next written row instead of interpolating the gap. At day's end the bar offers 'again' and toasts 'the day played out — the record is whole again'.",
+  ck:["Rows ahead of the playhead are absent only while replay runs — 'whole day' or r restores the identical list, and stepping days or leaving the view stops the clock",
+   "The day head count and hour strip never change under replay — the clock subtracts display, never scope",
+   "An empty day toasts 'a quiet day — nothing to replay' instead of pretending a clock"]},
+ {do:"Open 'the edition' in the left rail on a first visit (clear rw_archive_seen if needed): read the first-visit card, then 'start the edition here'. Reopen the edition, then in devtools set rw_archive_seen to an early event id like d0917-01 and reload the view. Finally 'mark the record read'.",
+  exp:"First visit refuses to pretend: 'The edition hasn't started — it counts from the line you mark read' plus the start affordance. After marking, the edition reports 'Nothing new since your mark — the record is caught up' and the mark chip names the newest line. With the mark moved to d0917-01, the edition lists every later line grouped by day with counted lines/days/kinds/threads, and the rail chip reads 'N lines since your mark'. A mark id the source doesn't serve shows 'isn't in this archive source — showing the whole record, unmarked' — never a silent reset.",
+  ck:["The mark chip (HH:MM · kind · id) opens the record the mark sits on — 'the last line you had seen'",
+   "Lines/days/kinds/threads counts match the actual rows after the mark — a window, never a cut",
+   "rw_archive_seen lives in localStorage next to rw_archive_shelf — nothing is sent anywhere"]},
+ {do:"Run node world/audit.js and read the archive gate. Then try permalink #v=edition directly and hit j/k and ←/→ on the day view with replay off.",
+  exp:"The archive gate passes at v118: DEMO_DAYS mirror, archive_ui_v118 contract block, edition + replay affordance marks, storage key, honesty copy, and the r-key toggle. #v=edition deep-links the view. Replay never issues a fetch or a bus write — it's the day's own rows on a faster clock.",
+  ck:["Archive gate: 0 fail at v118 — the v118 mirror, 'the live clock stays on the wire', 'a window, never a cut', and the missing-mark copy all pinned",
+   "No archive affordance touches the world — the no-mutation scan still passes (no gsRequest*/fetch/post)",
+   "Harness gate: '107 scenarios · N checkpoints'; mirror gate confirms the PT107 hand-sync"]}
+]},
+{id:"PT108",title:"The welcome layer v119 — open doors on the creation flow",min:7,
+ persona:"new player writing their first hire — wants to know what the block is already doing when their character lands; facilitator checking that every open door is a real, grounded invitation and that nobody's welcome is scripted",
+ goal:"Verify the v119 open-doors layer on world/create.html: the OPENS mirror lists bounded invitations sourced from the real registries, opensFor() orders them work-adjacent → building-adjacent → park-wide, step 5 gains an OPEN DOORS row and the keys card an OPEN DOORS line — with the may-ignore honesty and nothing written to the record.",
+ surfaces:["create", "audit"],steps:[
+ {do:"Open create.html (file://), fill a hire: any fresh name, pick 'Barista — Mudhaus Coffee' on step 3 and '9418 Guerrero St, Unit B' on step 4. Continue to step 5 (the first week) and read the OPEN DOORS row under FACES.",
+  exp:"The row leads with work-adjacent doors (the 3 p.m. coffee, poetry hour, hemming drop-offs — Mudhaus items first), then the building's door (the stoop cafecito — 9418 Guerrero only appears when the pick lands behind that building), then the park-wide ones (drum circle, cleanup, benches, fruit stand). At most 4 render plus '+N more on the corkboard by the market door'. The note under the grid reads 'Open invitations, not plans — the block does these anyway. They can walk past every one; nobody's assigned to notice a new face. An open door isn't a welcome — the welcome, if it comes, is theirs to give.'",
+  ck:["Switch the job pick to 'Delivery rider — MuleIt' and re-read step 5: the rider bench and plancha window lead instead of the Mudhaus items — the list follows the picker's own choices, never a fixed ranking",
+   "Switch the home to 9127 Capp St: the cafecito drops off the row (it was the building's door, not a park-wide one)",
+   "'Arrives without work' still shows the park-wide doors — an unemployed hire is never doorless"]},
+ {do:"Continue to step 6 and sign. Let the pipeline run to the approval tail. Read the keys card's OPEN DOORS line, then the possession briefing and the registry entry.",
+  exp:"The keys card carries an OPEN DOORS line (3 items + corkboard tail) followed by 'no RSVP to file and no attendance to keep — an open door isn't a welcome.' The briefing still renders exactly the three whitelist fields (public profile / surface relationships / daily routine) — open doors never became a briefing field. The registry entry lists the same record_schema fields as always; nothing about invitations is written on the record.",
+  ck:["The same doors appear in step 5 and the keys card — one list, two renderings",
+   "No RSVP, accept, or decline affordance exists anywhere in the flow — conditions, never a script",
+   "The registry record carries no 'doors'/'invitations' field — the file stays whole-file-honest"]},
+ {do:"Run node world/audit.js and read the creation gate.",
+  exp:"The creation gate passes at v119: the OPENS mirror is re-verified against the registries (every at a real job-board employer, every near a 9xxx building on the card, every who a PEOPLE face, every entry carrying a reach channel), the welcome_layer_v119 contract block is present, and the honesty copy is pinned on the page.",
+  ck:["Creation gate: 0 fail — '30 board rows · 4 homes · 28 people · schema v28'",
+   "Editing an OPENS at-token to a fake employer (or a who to a name not on the card) fails the gate — the doors can't drift from the block",
+   "Harness gate: '108 scenarios · N checkpoints'; mirror gate confirms the PT108 hand-sync"]}
+]},
+{id:"PT109",title:"The writers' docket v120 — incidents for the writers' room in the Mod Console",min:6,
+ persona:"reviewer on shift — just watched a main do something worth the writers' eyes; facilitator checking the docket is the constructive half of the locked 'no report-the-AI' boundary and that it can touch nothing",
+ goal:"Verify the v120 writers' docket on world/mod-console.html: the header toggle opens an incident panel where reviewers file observations FOR the writers' room (whitelist character pick, note/concern severity, free-text observation, request-id refusal), export emits writers_incident records never mod_decision, the shift report counts incidents only — and nothing reaches the world, the feed, the player, or the AI.",
+ surfaces:["mod", "audit"],steps:[
+ {do:"Open mod-console.html (file://) and click 'writers' docket' in the header. Read the panel copy, the seeded filings (wi-031 Mars's comp habit, wi-032 Victor's early closes, wi-033 Priya's 2 a.m. stairs runs), then file an incident: pick 'Jules Park', severity 'concern', type an observation, hit 'file incident'.",
+  exp:"The panel leads with the boundary copy: 'there is no \"report the AI\" surface and no retcon tool. An incident filed here touches nothing — not the world, not the feed, not the player, not the character.' The character select lists whitelist names plus 'the street / no one in particular'. The new filing lands at the top as wi-034 attributed to the active reviewer, amber-bordered as a concern, and the header sub reads '4 filed · writers only'.",
+  ck:["Typing a request id like 'rq-1042 made her cry' is refused: 'That's a request id — decide it in the queue. The docket is for the AI's own behavior.'",
+   "The toast on file says 'it touched nothing. Not the world, not the feed, not the player.' — the filing changes no queue item, no flag, no feed line",
+   "Severity 'concern' renders an amber border and flag chip; 'note' renders a dim chip — the register is modeled by the seeds"]},
+ {do:"Click 'export incident records' and read the JSON. Then open the shift report and find the docket line. Then open the audit-log 'export ledger records' and confirm the separation.",
+  exp:"The export is a writers_incident record set — {rec:'writers_incident', id, ts, filed_by, character, severity, observation} with contract 'moderation.json writers_docket' and the note 'writers' room queue — NOT mod_decision records; observations only, never instructions, never the public feed'. The shift report carries 'Incidents to the writers' room: N — counted, contents stay with the writers; never a moderation action'. The ledger export still emits only mod_decision records — the two ledgers never mix.",
+  ck:["No writers_incident appears in exportLedger output and no mod_decision appears in exportDocket output — a different ledger for a different room",
+   "The shift report counts incidents but shows no observation text — counted, not read",
+   "Audit log (the decision record) shows no entry for the filing — it was never a decision"]},
+ {do:"Run node world/audit.js and read the mod gate.",
+  exp:"The mod gate passes at v120: writers_docket contract block present with record.rec 'writers_incident' and a rules line keeping incidents off the public feed; console affordances pinned (docket toggle, handlers, export, honesty copy, request-id guard, ledger separation).",
+  ck:["Mod gate: 0 fail — taxonomy, corpus mirror, whitelist, and v36…v120 affordances all green",
+   "Renaming the docket record to 'mod_decision' in moderation.json fails the gate — the separation is structural",
+   "Harness gate: '109 scenarios · N checkpoints'; mirror gate confirms the PT109 hand-sync"]}
+]},
+{id:"PT110",title:"The fix-verification layer v121 — re-testing imported findings on the harness",min:8,
+ persona:"returning facilitator — the previous tester filed findings and exported their report; your job this session is to RE-TEST what they found, not to re-log it from scratch",
+ goal:"Verify the v121 fix-verification layer on world/playtest.html: imported reports' open/deferred findings become a persisted re-test card (#verify) in the cohort panel — deduped on content identity, exclusive verdicts (still broken / fixed / can't repro) + notes in S.verify, a 'log follow-up' that seeds never auto-logs, fix_checks in the JSON export, a fix-checks line on the handoff, and a [world-playtest-verify] paste.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Import a session report that carries findings — take the previous tester's export, export one from a second browser profile, or duplicate your own export, change the tester name, and leave one finding at status 'open'. Watch the cohort panel.",
+  exp:"A 'Fix verification' card appears between Regressions and Coverage: one row per imported open or deferred finding — severity chip, ref/surface, title, 'reported by <tester>' — each with STILL BROKEN / FIXED / CAN'T REPRO buttons and a verify-note field; the header reads 'N of M checked'.",
+  ck:["A finding two imported reports share appears once — deduped by surface|ref|title content identity, never by array position; the reported-by line names both testers",
+   "Findings the author already closed (status fixed or wontfix) never enter the list — only open and deferred carry over",
+   "The rail's surface filter narrows the verify list exactly like it narrows scenarios — a feed-only filter hides mod findings"]},
+ {do:"Verdict the rows — mark one FIXED, one STILL BROKEN with a note, one CAN'T REPRO. Reload the page, then click 'Clear imported reports' and re-import the same file.",
+  exp:"Verdicts and notes persist across the reload (S.verify in rw_playtest_v121). Clearing imports removes the card; re-importing the same report restores every verdict in place — the keys are content-derived, not position-derived.",
+  ck:["The three verdicts toggle exclusively — pressing FIXED again clears the row back to unverdicted",
+   "The statline's 'verify: N of M imported' counts verdicted rows only; the card's own tally agrees",
+   "A verify note persists and rides the export — it never edits the imported report's finding"]},
+ {do:"On the STILL BROKEN row hit 'log follow-up', then export: JSON report, Copy handoff, and the card's 'copy verify list'. Run node world/audit.js.",
+  exp:"The follow-up seeds the finding form — severity carried over, surface matched, title 're: <original title>', detail citing the original tester and build — but nothing logs until 'Log finding'. The JSON carries a top-level fix_checks array ({surface, ref, title, verdict, note, by} per verdicted row); the handoff adds a 'fix checks: N of M' line; the verify paste is a [world-playtest-verify] block with verdicted and pending rows separated.",
+  ck:["The seeded follow-up is editable and never auto-logs — same template discipline as the v65 boundary templates",
+   "fix_checks survives 'Clear imported reports' — verdicts live in this session's S.verify, not in the imported file",
+   "Harness gate: '110 scenarios · N checkpoints · key rw_playtest_v121'; the v121 marks are present (id=verify, S.verify, vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify)"]}
+]},
+{id:"PT111",title:"Drama board v122 — consequence continuity, supporting residents, bounded opportunities",min:9,
+ persona:"showrunner-side reviewer — wants the v122 direction layer verified as permission structures: consequence possibility protected, casting fenced off viewership, invitations the block may ignore",
+ goal:"Verify the v122 drama-direction pass: drama.json drama-v8 carries consequence_continuity (a missed commitment is canon, all three outcomes legal, repair a character act, no direction-set expiry, the double ledger, declined invitation ≠ wound), supporting_dramaturgy (promotion follows recurring relationships never camera popularity, pre-promotion shadows are venue texture, secrets mint at promotion, new seeds meet the seed bar, casting ≠ pacing, reversion keeps residue), and bounded_opportunities (conditions never fuses, uptake belongs to the characters, ignored is honest texture, adopted becomes ordinary, organizer's act is theirs, identical-twin for sponsored invitations); pressure catalog grows to P-34; drama.html renders all three new sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§49–52 against the §19 legality checklist. For each new rule or table row, name which of the four legal forms it is.",
+  exp:"Every statement resolves to a permission, ceiling, weight, or protection — consequence continuity protects the possibility of consequence (the missed meal stays canon; tightening, distance, or passing unremarked are all legal; repair is a character act never scheduled), supporting dramaturgy is a casting permission structure (promotion follows ledger-observed recurring contact, never viewership), bounded opportunities are may-ignore conditions (an ignored invitation is honest texture, never rescued). No line predicts an outcome the feed could falsify in a week.",
+  ck:["Consequence continuity: a missed commitment is canon and never retconned; the drift review records which way it went, a posture never steers it; the double ledger stays double",
+   "Supporting dramaturgy: promotion case built from recurring contact, never camera popularity; secrets mint at promotion; pre-promotion shadows capped at venue texture; never promote to fill a slow week",
+   "Bounded opportunities: never a seed or fuse; attendance never a score; an ignored invitation is never escalated or refreshed to force uptake; sponsored and organic invitations carry identical pressure",
+   "P-31–P-34 each name a producing system that already exists + a legible shadow + an exhaustion rule — P-31 especially: the gesture is never produced, only allowed to be seen"]},
+ {do:"Open drama.html (file://) and scroll the three new sections plus the pressure catalog.",
+  exp:"Consequence continuity, supporting-resident dramaturgy, and bounded opportunities each render their six-rule lists; the pressure catalog now runs P-01–P-34 with the seventh-tranche rows (make-good route, standing invitation, second-shift overlap, commitment artifact).",
+  ck:["All three new sections render populated — no empty lists, no console errors",
+   "CONSEQ/SUPPORT/OPPS counts match drama.json rule counts",
+   "The header reads schema drama-v8; nothing on the board offers a world-touching verb"]},
+ {do:"Run node world/audit.js from the repo root and read the drama + harness gates.",
+  exp:"The drama gate passes the v122 checks: schema drama-v8, consequence_continuity rule content (canon/never-retconned, character-act repair, declined-invitation separation), supporting_dramaturgy content (never camera popularity, minted-at-promotion secrets, venue-texture cap), bounded_opportunities content (never fuses, uptake with the characters, identical-twin), and html mirror counts (CONSEQ/SUPPORT/OPPS). Harness gate reports 111 scenarios at the v121 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 34 pressure rows · schema drama-v8'",
+   "A missing rule keyword, a dropped html section id, or a count mismatch would FAIL — spot-check",
+   "Harness gate: '111 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT112",title:"Onboarding v123 — the loop: catch-up edition, predictions, open invitations",min:8,
+ persona:"returning spectator — wants the free product's actual loop taught honestly: verified catch-up, a prediction that's a note not a bet, invitations the block may ignore",
+ goal:"Verify the v123 onboarding pass: S5b 'the long game' sits between every keep-watching exit and settle, identical for all four bands; the catch-up edition is stated as up-to-three verified changes (observable, never inferred motive); the prediction demo is free, private (never a feed line), unscored, and its whole job is checking it later; the open-invitation line keeps 'may ignore' and 'an empty table is still the story'; onboarding.json v123 carries observer_loop/catchup_edition/prediction_lesson/open_invitation_line on the rw_onboard_v123 key; onboarding-ui.md §§56–62 is canonical.",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§56–62 and onboarding.json's four new contract blocks, then open onboarding.html (file://) and walk a keep-watching path to S5b (fork 'just watching' → tour → S1w → 'Just keep watching').",
+  exp:"The loop card renders between the exit and settle — the same card on every band, outside the band normalizer. It names the loop (come back, catch up, follow, predict, check later), states the edition honestly (up to three verified changes, each linked to the moment and the context, verified = observable never inferred motive), the prediction terms (a note to yourself, not a bet — nothing rides on it, nobody wins anything, its whole job is checking it later), and the invitation rule (may ignore, an empty table is still the story).",
+  ck:["S5b is reachable from S1w, S3u, and both S5 variants — the watching account sees the identical card",
+   "No checklist item was added; the loop is a card, not a task — 'this is the product' is stated",
+   "The copy carries no retention hook — no 'come back tomorrow', no streak framing"]},
+ {do:"On S5b click 'Make a prediction (demo)', watch the feed, then 'Jump ahead — check it' and inspect the feed again.",
+  exp:"The pick marks state privately — no request or prediction line lands on the feed (only asks and world events are public). The check drops a world scene line (dusk, the bench parliament still going) and resolves plainly — no score, no points, no prize flourish; the toast frames revise either way.",
+  ck:["The prediction never writes a feed line — privacy parity with watching",
+   "predCheck is idempotent — a second click toasts 'already checked'",
+   "The world event is a normal scene entry, not a prediction-attributed item"]},
+ {do:"Run node world/audit.js from the repo root and read the onboard + harness gates.",
+  exp:"The onboard gate passes the v123 checks: schema v123, key rw_onboard_v123, the eight honesty strings (days-not-minutes, up-to-three verified changes, never-a-guess, not-a-bet, nothing-rides, checking-it-later, may-ignore, empty-table), S5b reachable, makePred/predCheck handlers present and state-guarded, no scored/priced prediction framing, and all four contract blocks present. Harness gate reports 112 scenarios at the v121 key.",
+  ck:["Onboard gate: 0 fail; detail reports 'schema v123 · 9 beats · key rw_onboard_v123'",
+   "A prediction-scoring or prediction-pricing line on the page would FAIL — spot-check",
+   "Harness gate: '112 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT113",title:"Lease v124 — the stakes layer: a commitment, not a bill",min:8,
+ persona:"spectator who just learned rent exists in this world — wants to know why anyone's lease matters, without ever seeing someone's private paper",
+ goal:"Verify the v124 lease pass: every rent-roll row renders a 'what this lease stakes' mirror with the four readings (who it binds / what it costs / who knows what / open door); the spectator tier is the stairwell read — no amounts, no ratios, no non-public names; open-door lines carry the may-ignore rule and track nothing; leases.json v124 carries the stakes contract + income_ratios/stakes_mirrors on the feed never-list under the rw_lease_v124 key; lease-ui.md §§62–64 is canonical.",
+ surfaces:["lease","audit"],steps:[
+ {do:"Read lease-ui.md §§62–64 and the leases.json stakes block, then open lease.html (file://) in tenant mode and click through the rent roll — 9457-2 (own), 9457-3 (the disputed joint lease), 9418-A (Carmen), 9418-B (listed), 9088-5 (licensed unit).",
+  exp:"Every lease detail carries a 'what this lease stakes' block with the same four readings. 9457-2's capacity line computes the real burden (rent + utilities ≈ $1,435 of $4,600 — about 31% of the wage, a standing claim); other rows stay qualitative. 9457-3 reads interdependence (one joint balance, the ledger never adjudicating halves); 9418-A reads scar-free longevity; 9418-B and 9476-B carry open-door lines with 'may ignore' attached; 9088-5 names the capped-toolbox asymmetry.",
+  ck:["All 12 demo rows render a stakes mirror — a row with no STAKES entry would FAIL the audit gate",
+   "Own lease shows the computed burden percent; every other file's cost line is qualitative — no invented income",
+   "No stakes block posts, tracks, or transacts — it is a read on existing paper, not a verb"]},
+ {do:"Switch to Spectator mode and re-inspect 9457-3, 9457-2, and 9418-B.",
+  exp:"The stakes mirror renders the stairwell tier only — 'the block half-knows; the file knows', the neutral-line reminder, and the open-door line where one exists. No rent figure, balance, burden percent, or non-public tenant name appears anywhere on the spectator stakes card.",
+  ck:["No $ amount, income ratio, or tenant name beyond the pub label reaches the spectator stakes card",
+   "Open-door lines still carry 'may ignore' and 'an empty table is still the story' — the invitation survives the tier drop",
+   "The stairwell read names knowledge tiers honestly (file / stairwell / feed) without becoming a rumor surface"]},
+ {do:"Run node world/audit.js from the repo root and read the lease + harness + mirror gates.",
+  exp:"The lease gate passes the v124 checks: key rw_lease_v124, stakes block with capacity/interdependence/unequal_knowledge/open_doors/never, open_doors stated as 'conditions, never scripts', both never-list entries, the spectator branch free of money()/l.rent/S.income/burden(), stakesHtml writing nothing, and every demo uid mirrored. Mirror gate agrees PT113 is in both files.",
+  ck:["Lease gate: 0 fail; detail reports 'schema v124 · 13 states · key rw_lease_v124'",
+   "A stakes card showing amounts to spectators, or an open door wired to an RSVP/attendance mechanic, would FAIL — spot-check",
+   "Harness gate: '113 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT114",title:"Understudy v9 (thin-AI v125) — the promoted-resident era",min:9,
+ persona:"builder who has watched thin AI all week and wants to know what happens when the cheap brain meets the consequence layer — promotion, brownouts, and a supper nobody has to attend",
+ goal:"Verify the v125 thin-AI pass: A14 Bex crosses the era seam live (promote → kind flips to supporting resident, mode gains full/degraded, ambient-era seen-facts re-label ambient:true as TOLD-tier gist and a backfill:true sketch lands — never enriched, never OBSERVED); the revised ladder degrades the promoted resident before any main at 30–59%; degrade wake-notes carry held_threads (eager-ledger facts, never interpretation); the supper-at-19:00 bounded opportunity resolves attendance as ledger fact — thin can show up but cannot hold, and Bex's thin routine declining the invitation IS the may-ignore rule; demotion≠degrade and secrets mint post-promotion only. thinai.json v125 carries promoted_row / era_seam / held_threads / degrade_ladder.promoted_tier under rw_thinai_v125; thin-ai.md §§53–58 is canonical.",
+ surfaces:["thinai","audit"],steps:[
+ {do:"Read thin-ai.md §§53–58 and the thinai.json v125 blocks, then open thinai.html (file://). Confirm five pawns render with A14 Bex ambient/thin; step the clock a few hours so the witness panel accumulates A14 seen-facts.",
+  exp:"Five pawn cards. A14 runs her card verbatim (Clarion alley coffee → Needlepointe linework → 600 Club night crowd). Seen-facts accumulate for her like any watched pawn — mode-blind place+doing+posture. The era panel shows the pre-promotion explainer line.",
+  ck:["A14's routine is the ambient card — the same rows promotion step 4 carries over",
+   "Witness records for A14 are schema-identical to the mains' — the era tag lives on the record, not the schema",
+   "The era panel pre-promotion states the rules: re-label never enrich, TOLD-tier gist, secrets mint post-promotion"]},
+ {do:"Press 'Promote A14 Bex'. Then press 'Service 55%' and watch the ladder; press 'Service 100%' and let the dwell elapse (step +1 h).",
+  exp:"The wire logs 'ambient promoted — A14 Bex joins the cast (admin)'; her card flips to supporting resident · full, routine line reads 'the ambient card, verbatim — degrade is a homecoming'. Era panel shows gist rows tagged TOLD-tier · ambient:true plus the backfill:true Clarion sketch. At 55% Bex degrades BEFORE any main (youngest brains thin first) with 'no seed access' posture; C2/C6 stay full. At 100% with dwell elapsed she recovers last of the ladder.",
+  ck:["Promotion is feed-visible (admin transparency); degrade/recover log seam-only — the seam stays invisible at every tier",
+   "At 30–59% only the promoted tier thins — the mains never leave full",
+   "Seen-facts were re-labeled, not enriched: gist is paraphrase-shaped, no verbatim lines anywhere"]},
+ {do:"Reset. Press 'Supper at 9457 · 19:00', then 'Service 55%', then 'Promote A14 Bex' (born degraded mid-outage), and step the clock past 19:00. Then 'Service 100%' + step +1 h until Bex recovers.",
+  exp:"At 19:00 the seam logs co-presence as ledger fact: C6 hosts posture-only if degraded, C2 attends, degraded-Bex stays at the 600 Club — 'may ignore, honored by the routine'. The wake note on C6's (or Bex's) next recovery carries held_threads naming the supper facts — cells attended, who sat — with no verdict attached.",
+  ck:["A thin/degraded pawn's routine declining the supper IS the may-ignore rule — nobody was tracked as invited",
+   "held_threads are facts only (cells, co-presence, drafts) — interpretation is the full brain's first beat back",
+   "Consequence lives in the observers: the room's witness records of a degraded pawn are full-fidelity while her own record is posture-only"]},
+ {do:"Run node audit.js (or the thinai gate) and the node DOM-stub smoke: MODES.a14 == json demo modes; storage_key rw_thinai_v125 agrees html↔json; demo.events carry promote_a14 + supper_19; era_seam never-list covers enrich + OBSERVED + pre-seeded secrets.",
+  exp:"The thinai gate passes with detail 'schema v125 · 5 pawns · key rw_thinai_v125'. No new fails anywhere.",
+  ck:["Gate detail shows v125 / 5 pawns",
+   "Unpromoted ambients still can never be degraded — the audit's a01/h01 bans hold; demotion and degrade never share a label",
+   "wire() vocabulary still locked — promotion logs through the request-line channel as admin"]}
+]},
+{id:"PT115",title:"The Company v126 — the supporting residents' bibles (promoted class S1–S3)",min:9,
+ persona:"writer who has read the eight mains' bibles and wants to know whether a promoted ambient can carry the same roleplay contract — and whether the promotion was real plumbing, not a costume",
+ goal:"Verify the v126 character-bibles pass: three supporting-resident bibles (s1-bex, s2-esther, s3-asha) carry the fixed 27-section order with SECRETS & SEEDS last, five dated beats each, and secrets at supporting scale (a drawer letter, a revised history, a submitted application — no detonating bombs); characters.json gains a parallel supporting[] array with promoted_from/knows/interior contract (interior ⊆ knows, never the other-seven rule); addresses minted 9641 Shotwell B / 9388 Dolores 1 / 9519 South Van Ness 4 and registered in jobs-housing.md §3 table + registry seed; ambients.json A05/A09/A14 carry promoted_to and ids stay frozen; promotion.md §5 marks the class EXECUTED with A06 Kofe as the standing fourth candidate; cast.html renders a SUPPORTING strip (slim cards, same no-possession badge) without touching CAST; ensemble.md gains the supporting-tier seams as priors, never scripts.",
+ surfaces:["cast","audit"],steps:[
+ {do:"Read characters/supporting/_index.md, then open all three bibles and check the contract: 27 sections in the mains' order, SECRETS & SEEDS last, ≥5 dated beats, 'The cast, privately' covering a declared knows set rather than all seven mains.",
+  exp:"Each bible is a stranger-could-roleplay document: voice + sample lines, mannerisms, the room, wants as open questions on three clocks, an interior ledger of the people their ambient era actually touched. Secrets are supporting-scale — consequential but neighborhood-sized — and each names the ambient id it was promoted from (provenance).",
+  ck:["All three bibles pass the mains' section order with secrets last — promotion changed the tier, not the contract",
+   "Each SECRETS section is consequence-rich but bounded: shop succession letter / revised history + closet files / submitted clinic application",
+   "'The cast, privately' interior keys are subsets of each resident's knows list — Bex has no line for Priya, Asha has no line for Victor"]},
+ {do:"Cross-check the plumbing: characters.json supporting[] (promoted_from, knows, interior, briefing_safe, seed_lock), ambients.json A05/A09/A14 promoted_to round-trip, jobs-housing.md §3 table + registry seed rows, promotion.md §5, ensemble.md supporting-tier section.",
+  exp:"Every promoted_from A-id answers promoted_to the S-id; all three homes appear in the §3 table AND the JSON seed (buildings+units+leases); ids frozen — no A05/A09/A14 respawn; ensemble seams are priors (cold seams named, 'keep it cold' instructions), never scripted outcomes.",
+  ck:["promoted_from ↔ promoted_to round-trips on all three pairs; ambient ids stay frozen",
+   "Esther's lease start is 1974 (the mint backdated the registry honestly — tenancy predates it)",
+   "ensemble.md names cold seams deliberately (Bex×Victor, Bex×Asha) as content, not oversight"]},
+ {do:"Open cast.html (file://). Read the rail and click each supporting resident; check the mains rail is unchanged and the ban badge renders on supporting cards.",
+  exp:"Rail shows the 8 mains, a '17 more neighbors' ambient note, then a SUPPORTING RESIDENTS header with Bex/Esther/Asha. Each card is slimmer by design (profile/look/voice/ties/week) with 'AI-driven · no possession' and 'promoted into the cast from A14…' provenance. No possess affordance anywhere.",
+  ck:["Slim card is honest about the era seam — 'they were silhouettes last month' framing, never retconned intimacy",
+   "Header scope copy: eight mains + three promoted residents, still free-tier, still no possession",
+   "CAST ids remain exactly C1–C8 — the mains' contract untouched"]},
+ {do:"Run node world/audit.js and read the bible + harness gates.",
+  exp:"The bible gate passes with detail 'schema v126 · 8 mains + 3 supporting · 29 required sections' — every supporting check live (roleplay fields, briefing_safe, seed_lock, tier, promoted_from regex + round-trip, knows validity, interior ⊆ knows, section order, secrets-last, beats, home-in-registry, bible-names-ambient-id, seed-free observable fields, cast.html SUPPORTING mirror).",
+  ck:["Bible gate: schema v126 · 8 mains + 3 supporting · 0 fail",
+   "Dropping a supporting bible, an interior key outside knows, or the SUPPORTING block in cast.html would FAIL — spot-check",
+   "Harness gate: '115 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT116",title:"The Crowd v127 — vacancies & occasions (posts that became people; invitations as room tone)",min:8,
+ persona:"regular of the feed who noticed Esther's bench went quiet after her promotion and wants to know whether the block is being honest about it — and whether a flyer on a cork board is allowed to matter",
+ goal:"Verify the v127 ambient-crowd pass: the vacancy layer makes promotion a permanent absence (coverage reads re-keyed, never refilled, residents never pullable, courtesy beats ctr-section/ctr-stool/ctr-flash and the res-needlepointe-chair claim retired); the occasion layer adds three bounded-opportunity shapes (supper table / alley wall workday / cork board) that lift a venue's extras budget ≤1.4 inside their window with extras orbiting but never attending; resident-keyed scenes (bench parliament, evening nurse, parliament in exile) re-key to S-ids and can honestly not happen; greeting pairs reroute to S-ids with resident:true.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Read crowd-sim.md §§33–35 and crowd.json vacancies + occasions blocks. Confirm each vacancy's was↔S-id round-trips ambients.json promoted_to, and that no vacancy carries refill/understudy/expiry fields.",
+  exp:"Three vacancies (S1 walk-in chair / S2 north bench / S3 counter seat) read as honest permanent absences — 'the chair books by appointment now', 'parliament of one some mornings'. promotion.md is named as the only path to a named face.",
+  ck:["vacancies.list keys are S-ids; each was maps to the ambient whose promoted_to is that S-id",
+   "coverage entries for A05/A09/A14 carry vacated marks and re-worded reads — no understudy, no 'back in 10'",
+   "no vacancy field smells like refill/expiry — the absence never heals"]},
+ {do:"Check the retired surfaces: courtesies.beats loses ctr-section/ctr-stool/ctr-flash, ambient_resources loses res-needlepointe-chair, pull_protocol gains the residents clause. Then the occasion shapes: zones, windows, zone_mult, traces.",
+  exp:"The three beats and the chair claim are gone with a 'retired' note (a resident's gestures are brain-authored; claims on a person are barred). pull_protocol.residents bars S-ids. Three occasion shapes carry zone_mult ≤1.4, legal dayparts/dow, a posture_hint, and a trace that never scores uptake or names who came.",
+  ck:["No courtesy beat or claimable resource is staffed by A05/A09/A14 anywhere in the file",
+   "occ-supper-table (elfarolote, thu evening ×1.2), occ-alley-wall (clarion, sat midday→afternoon ×1.3), occ-cork-board (minimart, always ×1.05)",
+   "occasions rules bar attendance bookkeeping, manufactured pulses, and dispatch — budget arithmetic only"]},
+ {do:"Open crowd.html (file://). Scrub to midday weekday, dry weather: bench parliament shows OPEN — S2 decides, never LIVE. Set wx rain: parliament-in-exile shows OPEN when Ray defects to Dolores Perk. Evening: the evening nurse is OPEN — Asha's call. Try the occasion toggle (supper at evening; wall on weekend midday) and watch the venue board + 24h curve. Read the Vacancies and bench panels.",
+  exp:"Resident-keyed scenes render a pink dot + 'OPEN — S2 Esther decides' rather than LIVE; resident greet chips render dashed with 'her call'; promoted ambients show pink-bordered chips and 'resident → S#' in the bench panel, never pullable. The occasion toggle lifts elfarolote/clarion budgets visibly; the cork board is a standing ×1.05. The Vacancies panel lists all three posts.",
+  ck:["No scene shows LIVE on a resident's behalf — 'her call' language throughout, nothing dispatched",
+   "Occasion toggle moves the budget midpoint + curve without touching mouths/pulses or naming attendees",
+   "Vacancies panel + retired-note comments render; the walk-in chair is absent from claimable resources"]},
+ {do:"Run node world/audit.js and read the crowd gate detail line.",
+  exp:"The crowd gate passes with 'schema v127 · … · 14 courtesies · 20 coverage · 8 mouths · 7 pulses · 3 vacancies · 3 occasions' — the v127 marks live: vacancy↔promoted_to round-trip, vacated coverage marks both sides, retired-beat/resource bars, residents-not-pullable clause, OCCASIONS/VACANCIES mirrors, zone_mult ≤1.4, no attendance fields.",
+  ck:["Crowd gate: 0 fail with the vacancies/occasions tail on the detail line",
+   "Respawning ctr-flash or res-needlepointe-chair, or flag-free resident greet pairs, would FAIL — spot-check one",
+   "Harness gate still reads its own key; overall 0 fail"]}
+]},
+{id:"PT117",title:"The Counter Tab v128 — the informal-obligations layer (who owes whom)",min:8,
+ persona:"writer checking whether the business layer can carry consequence continuity — obligations that attach to people, cost someone something, and can lapse",
+ goal:"Verify the v128 favors layer: favors.json registers 44 informal arrangements across all 20 door venues (keys/tabs/holds/lends/watches/passes/favors owed); every arrangement names a carries party — the standing cost is always legible; between parties resolve to real businesses or c/s/a person ids and may include offstage orgs (Calle Justa borrows chairs) while never keying one; visibility tiers stratify knowledge (open/counter/quiet) and favor.html redacts quiet rows below internal clearance like secret web edges; balances are game dollars only; businesses.md §10 + businesses.json favor_layer register the layer; the favs audit gate passes.",
+ surfaces:["favors","audit","directory"],steps:[
+ {do:"Open favor.html at public clearance, then flip to staff and internal. Count quiet rows (5) disappearing below internal and counter rows below staff.",
+  exp:"Clearance gating works exactly like secret web edges: quiet arrangements (the key swap, the alarm key, the stall fee) never render at public; counter rows need staff+.",
+  ck:["public shows only open rows; staff adds counter; internal shows all 44",
+   "the counter line reports 'N shown · M above clearance' honestly",
+   "a venue whose rows are all hidden shows the honest empty state, not a blank card"]},
+ {do:"Read the arrangements for Mudhaus, El Farolote, and Needlepointe in favors.json; check carries, since, and the kind vocabulary against kind_keys.",
+  exp:"Every arrangement names who bears the standing cost (carries ∈ between ∪ {staff,both}); every one has a since — the origin a counter would tell; kinds are the closed set; tab_lines carry game-dollar balances only.",
+  ck:["carries is never absent — interdependence is structural, not implied",
+   "fav-ndl-01 names s1 as a party and carrier — obligations attach to people, not roles",
+   "offstage calle-justa appears inside between but keys nothing — doors key it, anyone may be a party"]},
+ {do:"Run node world/audit.js and check the favs gate line; then try public-clearance wording — confirm no arrangement prose leaks a quiet obligation into feed-safe text.",
+  exp:"favs gate passes with 'schema v128 · 20 doors · 44 arrangements · 5 quiet · 6 tabs'; banned-vocabulary sweep keeps terms/note on the obligation bar.",
+  ck:["favs PASS with the expected detail line",
+   "no arrangement reads as a script — all are standing invitations that may lapse",
+   "businesses.md §10 and businesses.json favor_layer describe the layer consistently"]}
+]},
+{id:"PT118",title:"The Standing Offer v129 — the bounded-opportunities layer (open doors, honest neglect)",min:8,
+ persona:"viewer who keeps hearing the world called 'an observable social sandbox' and wants to see whether a taped-up clipboard can actually matter",
+ goal:"Verify the v129 offers layer: offers.json registers 34 standing offers across all 20 door venues AND all 9 registry buildings (shared_workspace / open_invitation / community_project); every offer names a host who keeps it legible — a person id or staff/house/regulars — plus a real cost, capacity, and cadence; every offer carries both a changes line (readable consequence if taken up) and a neglect line (honest decay if ignored), matching drama.json §51; visibility stratifies board/counter/quiet with quiet redacting below internal clearance in offer.html; cost.dollars is the only money field; jobs.json + housing.json both register offers_layer; the offs audit gate passes.",
+ surfaces:["offers","audit"],steps:[
+ {do:"Open offer.html at public clearance, then flip to staff and internal. Count quiet rows (11 — the building offers plus the proofing lesson) disappearing below internal and counter rows below staff.",
+  exp:"Clearance gating works exactly like the favors layer: quiet offers (the garden bed, the parcel shelf, the hall vacuum) never render at public; counter offers (the prep stool, the industry stool, the Sunday bay) need staff+. Buildings render as their own section under 'the buildings — registry addresses'.",
+  ck:["public shows board rows only; staff adds counter; internal shows all 34",
+   "the counter line reports 'N shown · M above clearance' honestly",
+   "a venue whose rows are all hidden shows the honest empty state, not a blank card"]},
+ {do:"Read offers for El Farolote, Auerbach, and 9418 Guerrero in offers.json; check host, cost, capacity, cadence, changes, neglect, since against the schema in offers.md §2.",
+  exp:"off-far-01 is the Thursday table occ-supper-table gestures at — a named instance, not a duplicate; every offer's host resolves to a person id or staff/house/regulars; every one has both a changes and a neglect line — consequence and honest decay are schema requirements, not vibes.",
+  ck:["off-aue-01's host is c7 — upkeep attaches to Victor the person, not 'the shop'",
+   "the garden bed at bld-g9418 is quiet visibility — household knowledge, never spectator-legible",
+   "no offer tracks attendance or promises an outcome — conditions, never scripts"]},
+ {do:"Run node world/audit.js and check the offs gate line; scan the neglect fields — the honest-decay states must read as texture (blank lines, dust, a folded chair), never as pressure or a fuse.",
+  exp:"offs gate passes with 'schema v129 · 29 keys · 34 offers · 10 on buildings · 11 quiet'; banned-vocabulary sweep keeps ask/changes/neglect on the offer bar.",
+  ck:["offs PASS with the expected detail line",
+   "jobs.json and housing.json both carry an offers_layer pointer",
+   "a missed Thursday table or an unclaimed garden bed reads as a thing that happened, not a thing that failed"]}
+]},
+
+{id:"PT119",title:"The Landing Layer v130 — what an approved request becomes (a posting, never a turnout)",min:8,
+ persona:"player who filed a nudge last week, watched it say 'accepted', and wants to know what that actually bought — and whether anyone is allowed to just ignore it",
+ goal:"Verify the v130 landing layer: requests.json lands_as mints a bounded standing invitation in the offers.json shape for approved nudges and events only (open_invitation; board visibility for events, counter for nudges; host staff|regulars — never a named character; sponsor tag carrying rq-<id>; expires_h 72/168); request.html renders the 'How it landed' card with the posting verbatim and the honesty line printed on it; the ending reports taken-up or let-lapse as fact, never a score; a declined nudge mints nothing; the request audit gate's v130 marks pass.",
+ surfaces:["request","offers","audit"],steps:[
+ {do:"Open request.html, file an NPC nudge with a plausible ask (e.g. 'Dana takes the long way through the park'), and let it run. If the demo declines it, file again until accepted — note that the decline minted nothing.",
+  exp:"On acceptance a 'How it landed — a standing invitation' card appears: posting id off-req-<n>, open invitation, counter visibility (word of mouth), kept by staff with 'a sponsored posting has no single keeper; never a named character', stands ~72 h, sponsor rq-<n> · you, and the honesty line 'The block may ignore this — nobody is obliged… uptake is never scored.' The feed shows 'the ask was passed at <target> — off-req-<n>'.",
+  ck:["the landed card renders all six rows plus the honesty line — nothing promises a response",
+   "a declined nudge shows 'Declined by character' + 50% refund and NO landed card — the refusal mints no artifact",
+   "the receipt trail gains 'landed — off-req-<n> posted … the block may ignore it'"]},
+ {do:"File an event trigger at a venue (soonest window, no booking). Wait for human review to approve, then watch the card, the feed, and the ~16 s ending line.",
+  exp:"On approval the landed card mints board visibility, host 'regulars', stands ~168 h. The feed posts 'an invitation went up at <venue> — off-req-<n>' under the same neutral vocabulary as everything else. The ending line is one of two fact reports — 'taken up — reported as fact, not a score' or 'the card came down … nobody obliged. That is a fine ending' — styled identically either way.",
+  ck:["board visibility + regulars host + 168 h for events; counter + staff + 72 h for nudges",
+   "the ending never reads as success/failure — same styling, 'fact, not a score' / 'a fine ending' wording",
+   "weather, possess, camera, and the deed verbs mint no landed card — lands_as.never is honored"]},
+ {do:"Read requests.json lands_as block against offers.json: shape_keys ⊆ the offers schema (+sponsor/expires_h/posted_by), kind/visibility values inside offers vocab, host rule 'staff | regulars — never a named character', since 'posted at a viewer's request'. Then run node world/audit.js.",
+  exp:"lands_as reads as the machine mirror of §15: a request buys the posting, never the turnout; the record is honest about its origin; lapse = the offers neglect state, nothing flags it for rescue. Request gate passes with the 'lands nudge+event' tail on its detail line.",
+  ck:["every shape_key is an offers-schema key or one of sponsor/expires_h/posted_by",
+   "fairness_invariants gained 'a request buys the posting, never the turnout — uptake is never scored'",
+   "request gate: 0 fail; a named-character host or a success metric would FAIL — spot-check one"]}
+]},
+{id:"PT120",title:"The Return Layer v131 — the catch-up edition + stakeless calls",min:8,
+ persona:"a returning spectator — watched the block last night, closed the tab, came back this evening and wants to know what actually changed while they were gone",
+ goal:"Verify the v131 return layer on wire.html: the 'since you were away' edition lists at most three VERIFIED changes since the viewer's last-visit edge (request threads filed or moved, sky/registry/press/admin/cast events — never moves or texture), each row linked to its own line, its pre-away context, and its thread, with 'still open' on unresolved threads; the call ledger lets a viewer note 'will run / won't run' on an open request thread, locks when the record answers, and reports the outcome with no stakes and no score; the wire audit gate's v131 marks pass.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open wire.html fresh (clear localStorage or a new profile). Read the 'since you were away' card. Then let the demo run a few ticks, reload the page, and read the card again.",
+  exp:"First visit: the card is present and honest — 'first visit on record — the wire keeps the edge you leave' with 'Nothing to compare yet'. After a reload with elapsed ticks: the card lists up to three verified changes (e.g. 'request rq-1041 filed — requested · marina_w', 'the sky changed — …'), each with 'the line' / 'before that' / 'the thread' links; a still-open thread carries 'still open'. The footer states 'at most three verified changes … Nothing inferred, nothing ranked.'",
+  ck:["first-visit and no-change states are honest copy — no fabricated delta, 'quiet is a finding, not a gap'",
+   "every row links to evidence in the stream — 'the line' selects the event, 'before that' selects the pre-away line, 'the thread' opens the request trail",
+   "no move/scene/venue-texture event ever appears as a 'change' — requests, weather, housing, press, admin, cast only"]},
+ {do:"Open a live request's record (any thread still requested/in_review/queued/running — the reaching-in-now strip has them). Click 'call it — won't run', then watch the thread through its lifecycle (demo advances a status every few ticks).",
+  exp:"The detail shows 'call it — will run / won't run' with the honesty line 'a call is a note to yourself — no stakes, no score, nobody else sees it.' The Following panel gains a 'your calls' list entry. When the thread posts a terminal status the call locks and the record answers: 'you called — won't run at HH:MM · the record shows resolved — the record went the other way. kept, not scored.' No counter, no streak, no share affordance anywhere.",
+  ck:["calls are writable only while the thread is open — on a terminal thread the affordance is gone and clearing a settled call is housekeeping (✕) only",
+   "the verdict copy is neutral — 'your call held' / 'the record went the other way', never points or praise",
+   "no accuracy tally exists anywhere on the page — grep the DOM: the only 'score' string is inside 'no stakes, no score'"]},
+ {do:"Press u, then esc. Run node world/audit.js and read the wire gate.",
+  exp:"u jumps to (and opens) the edition card. The audit's wire gate reports 0 fails on the v131 marks: edition/calllist mounts, lastseen stamping, the 3-row cap (rows.slice(0,3)), and the honesty checks — makeCall/clearCall must not reach the bus, makeCall must consult the open-status set, no call-scoring vocabulary.",
+  ck:["wire gate: 0 fail — a merge that drops the 3-cap, wires a call to gsWireFollow, or adds a score FAILs the gate",
+   "spectator_ui_v131 present in feed.json with catchup_edition / calls / call_terminal_map / keyboard",
+   "the call functions contain no BRIDGE/gsWire reference — a call is pure viewer-side state like a watch"]}
+]},
+{id:"PT121",title:"The Consequence Layer v132 — following, after-this, seen-before (Archive v10)",min:8,
+ persona:"a regular spectator who already follows the block loosely and wants the archive to answer two honest questions: 'what did the record show after that?' and 'has the wire seen this shape before?' — without the page pretending adjacency is causation",
+ goal:"Verify the v132 consequence layer on archive.html: the following view (#v=follow, rw_archive_follow) lets a reader mark names and threads, reports each follow's rows on record + lines since the edition mark with honest quiet lines, keeps unserved follows stated-not-dropped, and never reaches the world; rows touching a follow carry the ◆ mark; the record detail gains 'after this' (next written row on each shared edge — thread/person/venue, 'a next line is not a caused line') and 'seen this before' (earlier same-shape rows, 'a count, not a pattern claim'); the archive audit gate's v132 marks pass.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open archive.html. Open a person's trail (e.g. Jules Park) and click 'follow Jules Park'; open a thread detail and click 'follow this thread'. Then open #v=follow.",
+  exp:"Each follow renders a card: label + kind tag, 'N rows on record', a latest-row chip that opens that record, and 'unfollow'. With no edition mark set, cards read 'no mark set — counts wait for the edition'. The header states the law: 'the follows live in this browser; the archive doesn't remember you; following never reaches the world'. The rail chip now counts your follows.",
+  ck:["follow toggles persist across reload (rw_archive_follow) and unfollow works from the card and from the person/thread chip",
+   "the empty state ('Nothing followed — …') shows before any follow exists and disappears after",
+   "grep the page: no follow function references BRIDGE/gsWire — following is pure reader-side state"]},
+ {do:"Back on the day view, watch rows for the ◆ mark and the accent edge; then open any record mid-day and read 'after this' and 'seen this before'.",
+  exp:"Rows touching a followed name or thread carry the ◆ 'touches something you follow' mark on every view that renders rows. The record detail lists up to three 'after this' rows labeled by shared edge ('on the same thread' / 'next sighting of <name>' / 'next at <venue>') with the honesty line 'a next line is not a caused line', and a 'seen this before' block counting earlier same-shape rows ('a count, not a pattern claim'). Every listed row is clickable.",
+  ck:["after-this edges are real shared fields — no inferred causation, no 'led to' wording anywhere",
+   "seen-before only counts same kind + same venue (or same kind + same name when venueless) — spot-check one count by hand",
+   "rows in 'after this' appear in record order and may cross days (day label shows when they do)"]},
+ {do:"Set an edition mark ('mark the record read' on the edition view), then reopen the following view; then hand-edit localStorage to add a bogus follow key like p:NOPE and reload.",
+  exp:"With a mark, cards report 'M since your mark'; a follow with nothing new reads 'the record went quiet on <name> since your mark — that's a count too.' The bogus key renders as 'isn't in this archive source — the follow is yours, kept' with only an unfollow chip — kept, stated, never invented. node world/audit.js archive gate passes all v132 marks.",
+  ck:["quiet follows are counted in the summary strip ('K quiet since your mark'), not hidden",
+   "unserved follow keys are kept and stated — the archive never silently resets reader state",
+   "archive gate: 0 fail on the v132 marks (data-v=\"follow\", rw_archive_follow, honesty strings, no-bus check on fol* functions); history.json carries archive_ui_v132"]}
+]},
+{id:"PT122",title:"The Carried-In Layer v133 — a hope, not a plan; and what the week costs",min:8,
+ persona:"a player mid-application who wants the form to ask one honest question — 'what does this person want?' — without it turning into a quest log or a promise the block has to keep",
+ goal:"Verify the v133 carried-in layer on create.html: step 5 gains an optional structured HOPES pick (a trade to learn / people to eat with / a crew / good at the work / a place that's theirs / to be known a little / a quiet year) with 'arrives open' as the honest default; the note states 'a hope is an initial condition, not a promise … nothing tracks the difference' and named-face hopes add 'nobody was asked'; the HOURS row derives the week's time cost from the picked job's posted hours; the hope rides the review quote, the keys card, the registry entry, and params.hope on the bus filing — never the briefing; the creation audit gate's v133 marks pass.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open create.html (fresh profile or clear rw_create_* keys). Walk the wizard with a real pick set — name, bio, build/palette/signature, a posted job (try Mudhaus barista, 30–38 h/wk), and an affordable door (the Treat Ave room — the Guerrero studio should refuse at ~56% of income). On step 5, read the week grid and the new picker before touching anything.",
+  exp:"The week grid ends with an HOURS row derived from the posted hours — 'the shift takes ~30–38 h of the week — afternoons and evenings exist; thin ones, but theirs'. Below it, 'What they carried in — a hope, not a plan (optional)' shows the HOPES picks plus 'arrives open' pre-selected, and the note reads 'Arrives open — most people do.' plus the no-promise honesty.",
+  ck:["HOURS is derived, not authored — switch the job pick (back a step) and the line changes: a 40 h card says 'a hope competes with sleep', a variable gig says 'the catch is the pay, not the clock', 'arrives without work' says 'every hour is theirs — and every dollar watched'",
+   "'arrives open' is selected by default and is a real, complete choice — picking nothing is not an error state",
+   "the picker adds no free-text field — the screened surface is unchanged (still name/goes_by/bio/arrival)"]},
+ {do:"Pick 'a crew' (or 'a trade to learn'), read the note, then pick 'good at the work' and read it again.",
+  exp:"A named-face hope (crew → Marcus Bell, trade → Tomás Herrera, table → Carmen, known → Sam) appends the obligation honesty: 'It names a face without asking them — nobody was asked; the block keeps its own counsel.' The 'good at the work' hope drops that clause entirely — and with no job picked it appends 'No job picked — the hunt is the work for now.'",
+  ck:["the note states verbatim: 'A hope is an initial condition, not a promise — the brain may keep it, revise it, or quietly drop it, and nothing tracks the difference'",
+   "no RSVP/progress/score affordance exists anywhere near the pick — it's a chip, not a tracker",
+   "the no-obligation clause appears only on who-grounded hopes — 'good at the work' and 'a quiet year' carry none"]},
+ {do:"Continue to review & sign, read the quote, submit, and let the demo reviewer clear. Read the keys card and the registry entry. Reload the page mid-draft once to confirm the pick persists in rw_create_draft_v27.",
+  exp:"The step-6 quote carries a 'Carried in' line with the hope's line verbatim. After approval the keys card gains 'CARRIED IN — on the file as an initial condition; the block was never asked to deliver it' and the registry entry gains 'carried in … initial condition, never a tracked goal'. The possession briefing is unchanged — the whitelist stays public profile / surface relationships / routine. A reload mid-flow restores the pick.",
+  ck:["the hope appears on quote + keys + record but NOT in the briefing's four lines — it is inner life the player authored, not a public fact",
+   "with 'arrives open' the same surfaces render 'nothing picked — they arrive open' / 'arrives open' — the empty state is stated, not blank",
+   "grep the submit path: params.hope rides busSpec() like goes_by — recorded, and the personnel file doesn't read it yet"]},
+ {do:"Read creation.json hope_layer_v133 + time_budget_v133 against the page, then run node world/audit.js and devtools/smoke_create_v133.js.",
+  exp:"Both contract blocks exist: grounding law (at/who/near/job/open channels re-verified like OPENS), renders list, honesty + never list (no quest log, no obligation on named faces, never a briefing line, never screened text, never a paid hope). The audit's creation gate passes the v133 marks; the smoke test reports ALL PASS.",
+  ck:["creation gate: 0 fail — a merge that drops the HOPES mirror, ungrounds an entry, screens the pick as text, or adds tracking vocabulary FAILs",
+   "record_schema.hope is present and says 'never a tracked goal'; hire_seam_v91 spec.params lists hope",
+   "HOPES 'at'/'who' tokens re-verify against jobs.json employers and the PEOPLE mirror — a drifted name fails the gate"]}
+]},
+{id:"PT123",title:"The Precedent Layer v134 — 'ruled alike' in the Mod Console",min:6,
+ persona:"reviewer mid-shift — wants yesterday's rulings visible beside today's open request so two identical asks can't quietly land two rulings; facilitator checking the layer informs and never binds",
+ goal:"Verify the v134 precedent layer on world/mod-console.html: the 'Ruled alike — the record so far' card renders on every request detail between the trace and the decision bar, matches decided rulings on charge (screen code; appeals use the original denial code) or face (target), cites rulings only (id/date/reviewer/outcome/code — never screened text, never the player), notes departures on the audit line without blocking, and renders the honest empty state on a first-of-its-kind.",
+ surfaces:["mod","audit"],steps:[
+ {do:"Open mod-console.html (file://) and select rq-1040 — pt's surface-relationship nudge on Priya. Read the 'Ruled alike' card under the trace. Then select rq-1039 (r0ok's admin-domain rent ask on Victor) and rq-1038 (the ghostline appeal).",
+  exp:"rq-1040's card lists rq-1024 (denied · surface-relationship · Priya Raman) plus same-face rows like rq-1011 (denied · harm-targeting · Priya). rq-1039's card lists rq-1029 (denied · admin-domain). rq-1038's card matches on the ORIGINAL code (secret-extraction → rq-1009) and excludes rq-1017 — the appeal's own original, already in the appeal workspace. Every row cites id/date/reviewer/outcome/code only.",
+  ck:["No precedent row contains request text or a player handle — the record cites rulings, never re-reads screened text and never names the player",
+   "The card footer reads 'A precedent informs, never binds — judge this text on its own.'",
+   "Select rq-1042 (sky weather, pass verdict): the card shows rq-1004 (approved · pass · sky) — a pass-class charge still matches on face; nothing fabricates a charge where the screen saw none"]},
+ {do:"On rq-1039 (admin-domain), Approve it instead of denying. Read the audit log line and the toast. Then open the shift report and find the departure line. Then 'export ledger records' and read the new record.",
+  exp:"The decision lands normally — nothing blocks. The audit line ends '| AGAINST THE RECORD — departs from 1 prior admin-domain ruling (noted, never blocked).' The shift report gains 'Departures from the record: 1 of N session rulings — noted on the audit line, never blocked'. The ledger record carries precedent:{matched:1, against:true}.",
+  ck:["Approving against the record is not refused, requires no override, and shows no warning dialog — noted, never blocked",
+   "The precedent object rides the exported mod_decision record — {matched, against}, no text, no reasoning field",
+   "Decide rq-1040 as DENIED · surface-relationship (with the record): its audit line carries no AGAINST THE RECORD marker, and the next open surface-relationship request now lists it as a 'this session' row — session rulings join the record"]},
+ {do:"Select rq-1034 (pt's fog burn-off — pass verdict, target sky). Then run node world/audit.js and read the mod gate.",
+  exp:"rq-1034 shows only the same-face rq-1004 row — or, if the record were empty for a charge+face, the honest line 'Nothing on record — a first of its kind is decided on the text, not on a pattern.' The mod gate passes at v134: precedent_layer contract block present with informs-never-binds, PRECEDENTS rows field-locked to {id,when,who,decision,code,target} (a text or player key fails), and the affordance marks pinned.",
+  ck:["Mod gate: 0 fail — a merge that drops the card, un-locks the row shape, or makes precedent binding fails the gate",
+   "Live mode (if a bridge is stubbed): the card reads this session's rulings only and says the canonical-ledger lookup is the merge target — it never fabricates a seeded record on a live queue",
+   "Harness gate: '123 scenarios · N checkpoints'; mirror gate confirms the PT123 hand-sync"]}
 ]}
 ];
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76 (world v77–v92 added scenarios only — the key held at v76; no rw_playtest_v77…v92 ever existed) */
-const LS="rw_playtest_v93";
-const BUILD="world v93 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76, rw_playtest_v93, rw_playtest_v107 (world v77–v92, v94–v106, v108–v120, v122 added scenarios only — no rw_playtest_v77…v92, v94…v106, v108…v120, or v122 ever existed; v121 rolls the key for S.verify) */
+const LS="rw_playtest_v121";
+const BUILD="world v121 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -2118,9 +2700,9 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",flab:"world",audit:"world",harness:"world",supply:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{},verify:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
-S.flags=S.flags||{};
+S.flags=S.flags||{};S.verify=S.verify||{};
 const $=id=>document.getElementById(id);
 const save=()=>{localStorage.setItem(LS,JSON.stringify(S));
   const t=$("saveTick");t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1200);};
@@ -2141,11 +2723,53 @@ const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
 const curList=()=>{let l=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
   if(S.hideDone)l=l.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
   if(S.surf)l=l.filter(p=>p.surfaces.includes(S.surf));
+  if(S.q){const q=S.q.toLowerCase();
+    l=l.filter(p=>(p.id+" "+p.title+" "+p.persona).toLowerCase().includes(q));}
   return l;};
 /* revisit flags (v76) — a ⚑ mark on the rail card, persisted, rides the handoff */
 window.toggleFlag=(e,id)=>{e.stopPropagation();
   if(S.flags[id])delete S.flags[id];else S.flags[id]=1;
   save();renderList();};
+/* session planner (v107) — a time-boxed pick-list. Reason ladder:
+   revisit (⚑ flagged, still open) → unfinished (partially verdicted this
+   session) → cold (no checkpoint verdicted by ANYONE, imports included)
+   → fresh (covered by someone, not this session). Fully-verdicted
+   scenarios are never picked; ids always come from PTS — the planner
+   can shrink the list, never invent it. Honors the surface filter. */
+window.planReason=p=>{
+  const {tot,done}=ckDone(p);
+  if(done>=tot)return "done";
+  if(S.flags[p.id])return "revisit";
+  if(done>0)return "unfinished";
+  const cold=!ckKeys(p).some(k=>S.ck[k]&&S.ck[k].v)&&
+    !S.cohort.some(s=>(s.results||[]).some(r=>r.ref.startsWith(p.id+"-")&&r.verdict));
+  return cold?"cold":"fresh";};
+window.buildPlan=()=>{
+  const el=$("plan"),mins=+S.planMin||0;
+  if(!mins){el.innerHTML="";return;}
+  const rank={revisit:0,unfinished:1,cold:2,fresh:3,done:4};
+  const picks=PTS.filter(p=>!S.surf||p.surfaces.includes(S.surf))
+    .map(p=>({p,r:window.planReason(p)})).filter(x=>x.r!=="done")
+    .sort((a,b)=>rank[a.r]-rank[b.r]||parseInt(a.p.id.slice(2))-parseInt(b.p.id.slice(2)));
+  let used=0,over=0;const taken=[];
+  for(const x of picks){
+    if(used+x.p.min>mins&&taken.length)break;   /* stop at the pick that would overflow */
+    if(used+x.p.min>mins)over=used+x.p.min-mins;/* first pick overflows — take it, say so */
+    taken.push(x);used+=x.p.min;}
+  el.innerHTML=taken.length?`<div class="finding" style="margin:0 0 10px"><b>Session plan</b>
+    <span style="color:var(--dim)"> — ${taken.length} scenarios · ~${used} min of ${mins} min${S.surf?" · surface: "+S.surf:""}</span>
+    ${over?`<div style="color:var(--acc);font-size:11.5px;margin-top:2px">over by ~${over} min — the box can't hold even the first must-do; take it anyway or widen the box</div>`:""}
+    ${taken.map((x,i)=>`<div style="font-size:12px;margin-top:3px">${i+1}. <a href="#pt=${x.p.id}" style="color:var(--blu)" onclick="pick('${x.p.id}');return false">${x.p.id}</a>
+      <span style="color:var(--dim)">${x.p.min}m · ${{revisit:"flagged for revisit",unfinished:"unfinished this session",cold:"cold — nobody has verdicted it",fresh:"fresh"}[x.r]}</span></div>`).join("")}
+    <div class="actions" style="margin-top:8px"><button id="exPlan" style="max-width:160px">Copy plan</button></div></div>`
+    :'<div class="finding" style="margin:0 0 10px;color:var(--dim)">nothing left to plan — every checkpoint in scope is verdicted</div>';
+  const ex=$("exPlan");if(ex)ex.onclick=()=>copyPlan(taken,used,mins,over);};
+/* the [world-playtest-plan] paste — the facilitator's session invite */
+function copyPlan(taken,used,mins,over){
+  let md=`## [world-playtest-plan | ${new Date().toISOString().slice(0,10)} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · box ${mins} min · ${taken.length} scenarios (~${used} min)${S.surf?` · surface filter: ${S.surf}`:""}${over?` · over by ~${over} min`:""}\n`;
+  taken.forEach((x,i)=>{md+=`- ${i+1}. ${x.p.id} (${x.p.min}m) — ${x.r} — ${x.p.title}\n`;});
+  navigator.clipboard.writeText(md).then(()=>toast("plan copied"),()=>toast("copy failed"));}
 function renderList(){
   const list=curList();
   let totAll=0,doneAll=0,leftMin=0;
@@ -2158,6 +2782,7 @@ function renderList(){
       <div class="meta">${p.min} min · ${spent}m spent · ${esc(p.persona)}</div></div>`;}).join("");
   $("ptCount").textContent=list.length+(S.smoke?" of ":"")+(!S.smoke?" ":"")+PTS.length+" scenarios";
   $("prog").textContent=`progress: ${doneAll} of ${totAll} checkpoints · ~${Math.round(leftMin)} min left`;
+  if(S.planMin)buildPlan();else $("plan").innerHTML=""; /* plan stays live as verdicts land */
 }
 window.pick=id=>{tickTime();S.cur=id;S.sel=null;S.cur_since=Date.now();
   history.replaceState(null,"","#pt="+id);save();renderList();renderBody();};
@@ -2276,7 +2901,9 @@ window.debNote=(id,n)=>{S.debrief[id]=S.debrief[id]||{};S.debrief[id].note=n;sav
 function renderStats(){
   let p=0,f=0,n=0;Object.values(S.ck).forEach(v=>{if(v.v==="pass")p++;else if(v.v==="fail")f++;else if(v.v==="na")n++;});
   const open=S.findings.filter(x=>(x.status||"open")==="open"||x.status==="deferred").length;
-  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`;
+  const vfL=S.cohort.length?vfList():[],vfD=vfL.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`+
+    (S.cohort.length?` — verify: ${vfD} of ${vfL.length} imported`:"");
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
@@ -2285,6 +2912,10 @@ function report(){
     debrief:Object.fromEntries(DEBRIEF.map(d=>[d.id,S.debrief[d.id]||{}]).filter(([,v])=>v.v||v.note)),
     time_per_scenario:Object.fromEntries(Object.entries(S.times)
       .map(([k,v])=>[k,Math.round(v/6000)/10]))},
+    fix_checks:Object.entries(S.verify||{}).filter(([,v])=>v.v).map(([k,v])=>{
+      const p=k.split("|"); /* surface|ref|title — a '|' in the title joins back */
+      return {surface:p[0],ref:p[1]||null,title:p.slice(2).join("|"),
+        verdict:v.v,note:v.note||"",by:v.by||null};}),
     results:Object.entries(S.ck).map(([k,v])=>({ref:k,verdict:v.v,note:v.note||""})),
     findings:S.findings};
 }
@@ -2300,6 +2931,53 @@ function regressionSplit(){
   return {regressed:Object.keys(curV).filter(k=>curV[k]==="fail"&&impV[k]&&impV[k].has("pass")).sort(),
           recovered:Object.keys(curV).filter(k=>curV[k]==="pass"&&impV[k]&&impV[k].has("fail")).sort()};
 }
+/* fix verification (v121) — imported open/deferred findings become a re-test
+   list in the cohort card. Verdicts persist in S.verify keyed on the finding's
+   content identity (surface|ref|title) — never array position — so a re-import
+   restores every verdict in place. The imported reports are never edited;
+   'still broken' can seed a follow-up finding with re: lineage. */
+const vfKey=f=>[f.surface||"?",f.ref||"",String(f.title||"").slice(0,64)].join("|");
+const vfList=()=>{const seen={},out=[];
+  S.cohort.forEach(s=>(s.findings||[]).forEach(f=>{
+    if((f.status||"open")!=="open"&&f.status!=="deferred")return;
+    const k=vfKey(f),who=s.session.tester||"?";
+    if(seen[k]){if(!seen[k].who.includes(who))seen[k].who.push(who);return;}
+    seen[k]={f,who:[who]};out.push(seen[k]);}));
+  return S.surf?out.filter(x=>x.f.surface===S.surf):out;};
+/* rows are addressed by index into the current vfList render — free-text
+   finding titles never land inside an onclick attribute */
+const vfRow=i=>vfList()[i];
+window.setVf=(i,v)=>{const row=vfRow(i);if(!row)return;const k=vfKey(row.f);
+  S.verify[k]=S.verify[k]||{};
+  S.verify[k].v=S.verify[k].v===v?null:v;
+  if(S.verify[k].v)S.verify[k].by=S.name||"this session";
+  save();renderCohort();renderStats();};
+window.vfNote=(i,n)=>{const row=vfRow(i);if(!row)return;
+  S.verify[vfKey(row.f)]=S.verify[vfKey(row.f)]||{};S.verify[vfKey(row.f)].note=n;save();};
+/* follow-up on a still-broken row — seeds the finding form with re: lineage;
+   same discipline as the v65 templates: editable, never auto-logs (v121) */
+window.vfFollow=i=>{const row=vfRow(i);if(!row)return;
+  const f=row.f;
+  $("fSev").value=["blocker","major","minor","nit","question"].includes(f.severity)?f.severity:"major";
+  if([...$("fSurf").options].some(o=>o.value===f.surface))$("fSurf").value=f.surface;
+  $("fStep").value="";$("fTitle").value="re: "+(f.title||"imported finding");
+  $("fDetail").value=`Follow-up on ${row.who.join(" + ")}'s finding — still broken in ${BUILD}.`;
+  $("fRepro").value=f.steps_to_repro||"";
+  $("fTitle").scrollIntoView({block:"center"});$("fTitle").focus();
+  toast("follow-up seeded — edit, then Log finding");};
+/* the [world-playtest-verify] paste — pending and verdicted rows separated,
+   each with its who-logged-it attribution (v121) */
+window.copyVf=()=>{const list=vfList();
+  const date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-verify | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · ${list.length} imported open finding(s) in scope${S.surf?` · surface filter: ${S.surf}`:""}\n`;
+  const pend=list.filter(x=>!(S.verify[vfKey(x.f)]||{}).v);
+  const done=list.filter(x=>(S.verify[vfKey(x.f)]||{}).v);
+  if(done.length)md+=`- verdicted:\n`+done.map(x=>{const v=S.verify[vfKey(x.f)];
+    return `  - **${v.v}** ${x.f.ref||x.f.surface}: ${x.f.title} (reported by ${x.who.join(" + ")}${v.by?`, checked by ${v.by}`:""}${v.note?" — "+v.note:""})`;}).join("\n")+"\n";
+  if(pend.length)md+=`- pending re-test:\n`+pend.map(x=>
+    `  - **${x.f.severity}** ${x.f.ref||x.f.surface}: ${x.f.title} (reported by ${x.who.join(" + ")})`).join("\n")+"\n";
+  navigator.clipboard.writeText(md).then(()=>toast("verify list copied"),()=>toast("copy failed"));};
 function renderCohort(){
   const el=$("cohort");
   if(!S.cohort.length){el.innerHTML="";return;}
@@ -2335,6 +3013,24 @@ function renderCohort(){
       <td style="padding:2px 8px;font-family:var(--mono);font-size:11px">${hit}/${keys.length}</td>
       <td style="padding:2px 8px;font-family:var(--mono);font-size:11px;color:var(--dim)">${m!=null?m+"m":"—"} vs est ${p.min}m</td></tr>`;}).join("");
   const neverKeys=PTS.flatMap(p=>ckKeys(p).filter(k=>!verdicted.has(k)));
+  /* fix-verification rows (v121) — imported open findings to re-test */
+  const vf=vfList();
+  const vfDone=vf.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  const vfCard=`<div class="finding" id="verify"><b>Fix verification</b>
+    <span style="color:var(--dim)"> — imported open findings to re-test · ${vfDone} of ${vf.length} checked · verdicts ride this session's export; the source reports are never edited (v121)</span>
+    ${vf.length?vf.map((x,i)=>{const f=x.f,v=S.verify[vfKey(f)]||{};
+      return `<div class="ck"><div class="txt"><span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
+        <span style="color:var(--dim)"> · ${esc(f.surface)}${f.ref?` · ${esc(f.ref)}`:""} · reported by ${esc(x.who.join(" + "))}</span>
+        ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}
+        <input class="note" placeholder="verify note…" value="${esc(v.note||"")}" onchange="vfNote(${i},this.value)"></div>
+        <div class="v">
+          <span class="vbtn fail ${v.v==='still broken'?'on':''}" onclick="setVf(${i},'still broken')">STILL BROKEN</span>
+          <span class="vbtn pass ${v.v==='fixed'?'on':''}" onclick="setVf(${i},'fixed')">FIXED</span>
+          <span class="vbtn na ${v.v==="can't repro"?'on':''}" onclick="setVf(${i},'can\\'t repro')">CAN'T REPRO</span>
+          ${v.v==='still broken'?`<span class="vbtn" style="font-size:9.5px" title="seed the finding form with a follow-up citing the original report" onclick="vfFollow(${i})">log follow-up</span>`:""}
+        </div></div>`;}).join("")
+      :'<div style="font-size:11.5px;color:var(--dim);margin-top:4px">no open imported findings in scope — every imported finding is closed'+(S.surf?', or the surface filter hid them':'')+'</div>'}
+    ${vf.length?'<div class="actions" style="margin-top:8px"><button onclick="copyVf()" style="max-width:180px">Copy verify list</button></div>':""}</div>`;
   el.innerHTML=`<h2 style="margin-top:18px">Cohort — ${sessions.length} sessions</h2>
     <div class="statline">${sessions.map(s=>`${esc(s.session.tester)} (${s.session.role}${s.session.date?", "+s.session.date:""})`).join(" · ")}</div>
     <table style="border-collapse:collapse;border:1px solid var(--line)">
@@ -2346,6 +3042,7 @@ function renderCohort(){
     <div class="finding" id="regr"><b>Regressions</b><span style="color:var(--dim)"> — this session vs imported reports · directional, never averaged (v76)</span>
       ${reg.regressed.length?reg.regressed.map(r=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> <span style="color:var(--red)">regressed</span> — was pass, now fail</div>`).join(""):'<div style="font-size:11.5px;color:var(--grn);margin-top:4px">no regressions vs imported sessions</div>'}
       ${reg.recovered.map(r=>`<div style="font-size:12px;margin-top:2px"><code>${r}</code> <span style="color:var(--grn)">recovered</span> — was fail, now pass</div>`).join("")}</div>
+    ${vfCard}
     <div class="finding"><b>Coverage</b><span style="color:var(--dim)"> — checkpoints verdicted by anyone · median time-open vs estimate</span>
       <table id="covg" style="border-collapse:collapse;margin-top:4px">${covRows}</table>
       ${neverKeys.length?`<div style="font-size:11.5px;color:var(--dim);margin-top:6px">never verdicted by any session (${neverKeys.length}): `+
@@ -2416,6 +3113,8 @@ $("exHandoff").onclick=()=>{
   if(openF.length)md+="\n- open findings:\n"+openF.map(f=>
     `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}${f.status==="deferred"?" (deferred)":""}`).join("\n");
   else md+="\n- no open findings";
+  const vfL=vfList(),vfD=vfL.filter(x=>(S.verify[vfKey(x.f)]||{}).v).length;
+  if(vfL.length)md+=`\n- fix checks: ${vfD} of ${vfL.length} imported open findings re-tested`;
   navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
 /* run sheet (v76) — a blank Markdown artifact for the next session's paper
    run; honors the filtered rail (smoke + hide-finished), carries no verdicts */
@@ -2429,7 +3128,7 @@ $("exSheet").onclick=()=>{
       st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
   navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,q:"",planMin:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{},verify:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -2439,6 +3138,7 @@ document.addEventListener("keydown",e=>{
   if(e.metaKey||e.ctrlKey||e.altKey)return;
   const k=e.key;
   if(k==="?"){const c=$("keyCard");c.style.display=c.style.display==="block"?"none":"block";return;}
+  if(k==="/"){$("railQ").focus();return;}
   if(k==="Escape"){
     if($("keyCard").style.display==="block"){$("keyCard").style.display="none";return;}
     if(S.sel!=null){S.sel=null;save();renderBody();}return;}
@@ -2471,6 +3171,10 @@ $("hideDone").checked=!!S.hideDone;$("hideDone").onchange=e=>{S.hideDone=e.targe
    can never cite an undeclared surface */
 Object.keys(SURF).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;$("surfFilter").appendChild(o);});
 $("surfFilter").value=S.surf||"";$("surfFilter").onchange=e=>{S.surf=e.target.value||null;save();renderList();};
+/* rail search + session planner (v107) — both persisted, both re-render the rail */
+$("railQ").value=S.q||"";$("railQ").oninput=e=>{S.q=e.target.value.trim();save();renderList();};
+$("planMin").value=S.planMin??"";$("planMin").onchange=e=>{S.planMin=e.target.value===""?null:+e.target.value;save();renderList();};
+$("planGo").onclick=()=>{if(!S.planMin)return toast("set a minutes box first");buildPlan();toast("plan rebuilt");};
 /* deep link: #pt=<id> boots straight into a scenario; unknown ids ignored */
 const _hm=location.hash.match(/^#pt=(\w+)$/);
 if(_hm&&PTS.some(p=>p.id===_hm[1])){S.cur=_hm[1];S.cur_since=Date.now();}

@@ -1,6 +1,12 @@
 {
  "doc": "Job board \u2014 machine-readable mirror of world/jobs-housing.md \u00a72. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan \u00a72.4 (PROPOSAL).",
- "version": 101,
+ "version": 115,
+ "firsts_layer": {
+  "spec": "firsts.md",
+  "mirror": "firsts.json",
+  "demo": "firsts.html",
+  "note": "v115 — the first-week layer: one first_shifts row per live opening (openings != 0); a closing opening retires its row"
+ },
  "commute_layer": {
   "spec": "commute.md",
   "mirror": "commute.json",
@@ -378,5 +384,11 @@
   "mirror": "homes.json",
   "demo": "homes.html",
   "note": "v101 \u2014 what each employer sends home: the perks table lives in homes.json (perks[] employer strings match this file verbatim)"
+ },
+ "offers_layer": {
+  "spec": "offers.md",
+  "mirror": "offers.json",
+  "demo": "offer.html",
+  "note": "v129 \u2014 the standing-offer layer: bounded opportunities (shared_workspace/open_invitation/community_project) keyed per door venue and per registry building; venue keys are business ids, matching the employer names on this board"
  }
 }

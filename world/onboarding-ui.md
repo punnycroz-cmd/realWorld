@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49; v109 adds §50–55; v123 adds §56–62)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -831,3 +831,261 @@ running`, attributed) and opens the visit card:
   briefing stays redacted throughout.
 - Never let the stipend demo read as granted spend — it previews the
   standing order's mechanics, labeled as such, once.
+
+---
+
+## v109 — the eighth pass: the quiet contract
+
+v11–v95 taught a stranger the world's grammar — every ask class, every
+honest "no," the house's visibility, the arc, the first visit. What the
+journey still hadn't said: **what watching costs you in data (nothing)**
+and **what the viewer's one hand on the world is** (a flag). Three
+additions, all quiet by design.
+
+### 50. Watching is invisible (tour beat 6)
+
+A new coach-mark inserted between the follow beat and the reach-in beat —
+you learn watching is a lens before you learn it's invisible — anchored to
+the feed header's "(free, always)" line (`feed-anon`):
+
+> "Watching leaves no mark. There's no viewer list, nobody on the feed
+> can see who's looking, and the block keeps no count of you. The only
+> thing that ever carries a name is an ask — agency is public, presence
+> is private."
+
+The admin beat stays last (v81's ordering rationale stands); privacy
+belongs early — it's a promise about the product, not a feature of it.
+The promise is structural: any future "viewers watching" surface would
+falsify the beat, so the never-list now bans it outright.
+
+### 51. What this page keeps (S2b) — the data card
+
+One free card between the handle step and the age band, stated once:
+
+> "This build keeps your place in this checklist in **this browser's
+> storage** — nothing is sent anywhere, and there's no email and no
+> account to attach it to. Delete your site data and it forgets you
+> entirely. When accounts arrive at launch the shape stays the same:
+> **asks are public, watching is private.** The feed attributes every
+> request to a handle; it never lists who's looking."
+
+- Free-tier, outside the band normalizer — the u13 watching account sees
+  it too (it says nothing about money).
+- Disclosure, not reassurance theater: it states what is kept and where.
+  It never claims the build collects less than it does, and it never
+  promises what the launch build hasn't built — "the shape stays the
+  same" is the only forward claim, and it's a design constraint, not a
+  feature.
+- Closable like every card; "Got it" continues to S2a.
+
+### 52. Flagging an ask (S4g) — the viewer's one hand
+
+After the other-hands beat, the last teaching card closes the loop:
+public asks imply a public check. Copy:
+
+> "Every ask on the feed is public — and every ask is flaggable. If a
+> request reads wrong to you, flagging it **costs nothing, files
+> nothing**, and sends it to the same human review the exclusive asks
+> already pass through.
+>
+> Two honest edges: a flag is silent on the feed — it never shows who
+> flagged, and the entry itself doesn't change; review happens
+> off-stage. A flag is not a public vote, and nobody can be shamed for
+> one. And flags attach to **player asks only, never to the residents**
+> — the cast's lives aren't moderated; what they do is the story, and
+> the world answers it in-world."
+
+- The demo affordance (*"flag an ask on the feed (demo)"*) marks
+  `S.flagged` once and deliberately **does not touch the feed** — the
+  flag's silence is the lesson; the toast says so. At merge it calls the
+  same human-review queue; a pulled ask resolves with the same neutral
+  feed vocabulary as any review — no flag-specific wording is invented.
+- Scope is design §11 verbatim: moderation applies to player requests.
+  The card says so by teaching that flags can't reach the residents —
+  emergent AI behavior is inviolable, and onboarding says it out loud.
+- Free card, files nothing, needs no balance — but it lives in
+  ask-context, so it sits behind the band normalizer like S4f: the
+  watching account never sees flag mechanics framed at it.
+
+### 53. Edge cases (v109 additions)
+
+| Case | Behavior |
+|------|----------|
+| Tour skipped before beat 6 | the privacy promise isn't tour-gated — the data card (S2b) restates "asks public, watching private" for everyone |
+| Flag clicked twice | idempotent — `S.flagged` guards; second click toasts "flagged already — review has it" |
+| Flag card reached on u13 | `normalizeStage()` redirects to S3u like every ask-context card — the watching account never sees flag mechanics |
+| S2b parked | parked like every card; reopens only via the footer link; no state is lost — that's the card's own point |
+| `localStorage` blocked | the data card's promise degrades gracefully — nothing persisted is the existing v25 rule; the card's claim stays true (nothing sent anywhere regardless) |
+| Flag with no requests on feed | affordance still works — it marks the lesson, not a specific entry; at merge the affordance binds per-entry |
+
+### 54. v109 merge notes
+
+- `storage_key` → `rw_onboard_v109` (`S.flagged` added; v95/v109 states
+  coexist harmlessly; the demo reads only its own key).
+- New anchors required on the real Wire at merge: `feed-anon` (the
+  feed's "free, always" header line) joins the v25/v53/v81 set.
+- Tour order changed: privacy is beat 6, reach-in/archive/admin renumber
+  to 7/8/9 — admin stays deliberately last per §37.
+- No feed vocabulary invented — a flag is silent on the public feed; if
+  review pulls a flagged ask it resolves with existing neutral wording.
+- New analytics hooks (v109): `privacy_beat_seen`, `data_card_seen`,
+  `flag_lesson_shown`, `flag_demo_sent` — same envelope, stage +
+  opted_out props only.
+- At merge: `flagDemo` binds to the real per-entry flag affordance →
+  human-review queue; the demo's mark-the-lesson behavior stays
+  demo-only. `S2b`'s "browser's storage" claim must be re-verified
+  against whatever account system lands — if launch adds real accounts,
+  the card's forward clause ("asks are public, watching is private")
+  stays verbatim.
+
+### 55. What v109 still must never do
+
+- Never keep a viewer list or surface presence anywhere on the feed —
+  the privacy beat would be a lie the moment one existed.
+- Never let a flag attach to a resident — flags route player asks to
+  human review; the cast's lives are never moderated (design §11).
+- Never show who flagged, a flag count, or frame a flag as a public
+  vote — flagging is free, silent, and sends no verdict.
+- Never claim the build collects data it doesn't — the data card states
+  device-local storage, no email, no account, verbatim.
+- Never teach flagging as a response to disliked drama — in-world
+  consequences handle the cast; review handles asks.
+- Never let the flag affordance cost credits or require a wallet — the
+  viewer's check on agency is free or it isn't a check.
+
+## v123 — the ninth pass: the loop
+
+v11–v109 taught a stranger the world's grammar and the quiet contract —
+what agency costs, what watching costs (nothing), and whose hands are on
+the world. What the journey still hadn't taught is the **free product's
+actual loop**: watching pays off in days, not minutes. The production-3
+observer loop — catch up → follow → predict → check → revise — is the
+reason anyone comes back a second time, and onboarding was ending at
+settle without ever naming it. Four additions, all free, all for every
+band including the watching account.
+
+### 56. The long game (S5b) — the loop, named once
+
+A new free card between the settle fork and done, reachable from every
+exit that ends in "keep watching" — S1w, S3u, both S5 variants — so the
+watching account meets it too (it says nothing about money):
+
+> "Watching pays off in days, not minutes. The loop is simple: come
+> back, catch up, pick someone to follow, make a prediction, check it
+> later. Everything on this card is free — this is the product."
+
+- Free-tier, outside the band normalizer — predictions and catch-up
+  are spectator features; the u13 watching account sees the identical
+  card, verbatim. There is no paid variant and never will be.
+- The card replaces nothing — settle still ends onboarding; S5b is the
+  last card before it, not a new step of setup. No checklist item is
+  added: the loop is a habit, not a task.
+- Watch-path relabeling holds: on the watcher fork this card is the
+  whole point, not an "only if you ever want to act" item.
+
+### 57. The catch-up edition — stated, not demoed
+
+One line on the card, quoted as fact about the product the Archive
+already documents:
+
+> "When you come back, a catch-up edition waits at the top — up to
+> three verified changes since your last visit, each linked to the
+> moment it happened and the earlier context. Verified means
+> observable: what the feed showed, never a guess at what someone was
+> thinking."
+
+- "Verified" is the honesty contract: the edition reports what was
+  seen, not inferred motive. A follow must never surface a resident's
+  interior as fact — that fence is the same one thread-following
+  carries (never present hidden memory or an inferred motive as
+  public fact).
+- "Up to three" is a cap, not a quota — a quiet week can fill zero.
+  The line never promises a change happened; "nothing you follow
+  changed" is a legal edition.
+
+### 58. Predictions (S5b affordance) — a note to yourself, not a bet
+
+The card's one affordance, demo-marked like the flag lesson:
+
+> "A prediction is a note to yourself, not a bet. It costs nothing,
+> nothing rides on it, nobody wins anything. Its whole job is
+> checking it later — right or wrong, you revise what you thought
+> you knew about them."
+
+- Demo: "make a prediction (demo)" offers the fixed safe pick —
+  *"the bench parliament is still going at dusk"* — marks `S.pred`,
+  then "jump ahead — check it" drops a world event on the feed
+  (dusk, the bench parliament adjourning) and marks `S.predChecked`.
+  The prediction itself **never writes a feed line** — it's private,
+  like watching. Only the world event is public.
+- Free, no balance, no band gate — it sits beside no ask context, so
+  it does NOT ride the band normalizer; the watching account can
+  predict too. Predictions are the spectator's verb.
+- Never scored: no points, no streak, no leaderboard, no accuracy
+  display, no "you were right" flourish beyond a plain resolution.
+  A wrong prediction is the same lesson as a right one — revise.
+
+### 59. The open invitation — stated, not demoed
+
+One line teaching the may-ignore rule the bounded-opportunity layer
+already carries (drama.json `bounded_opportunities`):
+
+> "Sometimes the block posts an open invitation — a shared meal, a
+> repair afternoon, a mural day. The characters decide whether to
+> come. They may ignore it entirely, and an empty table is still the
+> story — nobody rescues it."
+
+- Uptake belongs to the characters; onboarding promises nothing about
+  attendance. "May ignore" is said out loud so a viewer who watches an
+  invitation sit empty reads it as consequence, not a broken feature.
+- Player-sponsored invitations are a request-pipeline concern, not an
+  onboarding lesson — the card teaches the *watching* of invitations
+  only, and never implies a viewer can buy attendance.
+
+### 60. Edge cases (v123 additions)
+
+| Case | Behavior |
+|------|----------|
+| Prediction made, demo closed before check | `S.pred` persists at the v123 key — the card reopens with "jump ahead — check it" still offered |
+| Check clicked twice | idempotent — `S.predChecked` guards; second click toasts "already checked — revise and pick the next one" |
+| S5b reached with no handle | fine — predictions are private; no name is needed or asked |
+| S5b on u13 band | identical card — predictions and the edition are watching-layer; nothing is normalized away |
+| S5b parked | parked like every card; reopens only via the footer link |
+| Returning viewer | no S5b auto-resurface — the returning rule holds; the loop card is a first-session lesson |
+
+### 61. v123 merge notes
+
+- `storage_key` → `rw_onboard_v123` (`S.pred`, `S.predChecked` added;
+  prior keys coexist harmlessly — the demo reads only its own).
+- No new tour beats — the loop is a card, not a coach-mark; the tour
+  stays at nine, admin still last.
+- Settle reroute: S1w, S3u, and both S5 variants now pass through S5b
+  before `settle()` — a card, not a step; the checklist is unchanged.
+- New analytics hooks (v123): `loop_card_seen`, `prediction_made`,
+  `prediction_checked`, `edition_line_seen` — same envelope, stage +
+  opted_out props only.
+- At merge: the prediction affordance binds to the spectator
+  predictions store (device-local until accounts exist — the S2b
+  forward clause covers it); the catch-up edition binds to the
+  Archive's last-visit record; the demo's fixed pick stays demo-only.
+- The open-invitation line assumes the bounded-opportunity layer
+  exists as public feed events the characters may ignore
+  (creation.json OPENS / drama.json bounded_opportunities are the
+  current instance). If no invitation has ever surfaced, the line is
+  still true — it describes the kind of event, not a promise.
+
+### 62. What v123 still must never do
+
+- Never score a prediction — no points, streaks, accuracy stats,
+  leaderboards, or prize framing; "not a bet" is the whole lesson.
+- Never charge for a prediction or gate it behind a handle, a band,
+  or a wallet — the spectator's verb is free or it isn't one.
+- Never write a prediction to the public feed — predictions are
+  private like watching; only world events are public.
+- Never present an inferred motive as a verified change — the
+  edition reports the observable, never the interior.
+- Never promise a resident will take an invitation — "may ignore"
+  stays in the copy; an ignored invitation is never framed as a bug.
+- Never let the loop card read as a retention hook — no "come back
+  tomorrow," no streak framing; "come back" names the viewer's own
+  interest, never a debt the block is owed.

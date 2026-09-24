@@ -1,4 +1,4 @@
-# Jobs & Housing — "The Mission" (world v0, index updated v45)
+# Jobs & Housing — "The Mission" (world v0, index updated v129)
 
 > **v3 depth layer:** the tables below remain canonical for numbers.
 > `world/jobs/` holds per-workplace cards (shift shape, culture, hiring
@@ -52,6 +52,23 @@
 > clock per building, turnover scope, relist path; feed shapes print the
 > door, never the name). Internal demo: `world/exit.html`
 > ("The Last Shift").
+>
+> **v129 depth layer:** `world/offers.md` + `world/offers.json` — the
+> standing-offer layer (the authored half of the production-3 bounded
+> opportunities: one or more shared workspaces, open invitations, or
+> community projects per door venue AND per registry building; each with
+> host, cost, capacity, cadence, a `changes` line and an honest `neglect`
+> line). Conditions, never scripts — uptake belongs to the characters.
+> Internal demo: `world/offer.html` ("The Standing Offer").
+>
+> **v115 depth layer:** `world/firsts.md` + `world/firsts.json` — the
+> first-week layer (what happens after the yes: one first-shift card per
+> live opening — trainer, kit, the informal test, the first mistake, when
+> you stop being new, the pay paper, the break spot; and one move-in card
+> per vacant unit + ladder tier — key handoff, honest walkthrough, first
+> night, mail/trash/laundry anchors, first knock, first rent). Feed
+> shapes print the door, never the name. Internal demo:
+> `world/firsts.html` ("The First Week").
 
 The rent-vs-wage loop in one file. All money below is **game dollars**
 (in-world currency — the wall stays: no credit↔dollar exchange, ever).
@@ -141,6 +158,9 @@ Mission St building; see `characters/_index.md`).
 | 9263 Geneva Ave | flat | 4 | 2 | $2,100 | yes | Reyes cousins' lease; **C3 Dani** pays a $700 room share (not leaseholder) |
 | 9344 Folsom St | studios | 1 | 0 | $1,275 | yes | **C8 Tomás** |
 | 9102 Mission St | mixed-use | 2 | 1 | — (owner-occupied) | — | **C7 Victor** |
+| 9641 Shotwell St | flat share | B (room) | — (room) | $850 | yes | **S1 Bex** (minted at promotion v126) |
+| 9388 Dolores St | Edwardian flats | 1 | 1 | $780 | yes | **S2 Esther** (minted at promotion v126; tenancy since 1974) |
+| 9519 South Van Ness Ave | studios | 4 | 0 | $1,450 | yes | **S3 Asha** (minted at promotion v126) |
 
 \* 9457-3's $600 raise ($2,600 → $3,200) is **contested** — Priya disputes
 the passthrough claim plus the dead heater. Keep the flag ambiguous; the
@@ -158,7 +178,8 @@ dispute is a live storyline, not a bug.
 
 Ambients live in off-registry stock one ring out from the park (see
 `ambients.md` §Home bases); a promotion mints a real address per spec §6
-and a lease row here.
+and a lease row here. v126 minted the first three: 9641 Shotwell B
+(Bex), 9388 Dolores 1 (Esther), 9519 South Van Ness 4 (Asha).
 
 ### Registry seed (JSON, spec §4 shape)
 
@@ -176,7 +197,13 @@ and a lease row here.
     { "id": "bld-f9344", "address": "9344 Folsom St, San Francisco, CA",
       "style": "studios", "units": ["bld-f9344-1"], "owner_id": "landlord" },
     { "id": "bld-m9102", "address": "9102 Mission St, San Francisco, CA",
-      "style": "mixed-use storefront + flat", "units": ["bld-m9102-2"], "owner_id": "landlord" }
+      "style": "mixed-use storefront + flat", "units": ["bld-m9102-2"], "owner_id": "landlord" },
+    { "id": "bld-s9641", "address": "9641 Shotwell St, San Francisco, CA",
+      "style": "flat share", "units": ["bld-s9641-A", "bld-s9641-B"], "owner_id": "landlord" },
+    { "id": "bld-d9388", "address": "9388 Dolores St, San Francisco, CA",
+      "style": "Edwardian flats", "units": ["bld-d9388-1", "bld-d9388-2"], "owner_id": "landlord" },
+    { "id": "bld-sv9519", "address": "9519 South Van Ness Ave, San Francisco, CA",
+      "style": "studios", "units": ["bld-sv9519-4"], "owner_id": "landlord" }
   ],
   "units": [
     { "id": "bld-g9418-A", "unit_code": "A", "bedrooms": 2, "base_rent": 950, "rent_controlled": true },
@@ -188,7 +215,10 @@ and a lease row here.
     { "id": "bld-c9127-C", "unit_code": "C", "bedrooms": 0, "base_rent": 1150, "rent_controlled": true },
     { "id": "bld-g9263-4", "unit_code": "4", "bedrooms": 2, "base_rent": 2100, "rent_controlled": true },
     { "id": "bld-f9344-1", "unit_code": "1", "bedrooms": 0, "base_rent": 1275, "rent_controlled": true },
-    { "id": "bld-m9102-2", "unit_code": "2", "bedrooms": 1, "base_rent": 0, "rent_controlled": false }
+    { "id": "bld-m9102-2", "unit_code": "2", "bedrooms": 1, "base_rent": 0, "rent_controlled": false },
+    { "id": "bld-s9641-B", "unit_code": "B", "bedrooms": 0, "base_rent": 850, "rent_controlled": true },
+    { "id": "bld-d9388-1", "unit_code": "1", "bedrooms": 1, "base_rent": 780, "rent_controlled": true },
+    { "id": "bld-sv9519-4", "unit_code": "4", "bedrooms": 0, "base_rent": 1450, "rent_controlled": true }
   ],
   "leases": [
     { "unit_id": "bld-g9418-A", "tenant_id": "c6-carmen", "start": "1989-03-01", "monthly_rent": 950, "status": "active",
@@ -200,7 +230,13 @@ and a lease row here.
     { "unit_id": "bld-g9263-4", "tenant_id": "reyes-cousins", "start": "2021-02-01", "monthly_rent": 2100, "status": "active",
       "notes": "c3-dani pays $700 informal room share; not on lease" },
     { "unit_id": "bld-f9344-1", "tenant_id": "c8-tomas", "start": "2020-04-01", "monthly_rent": 1275, "status": "active" },
-    { "unit_id": "bld-m9102-2", "tenant_id": "c7-victor", "start": "1998-01-01", "monthly_rent": 0, "status": "owner-occupied" }
+    { "unit_id": "bld-m9102-2", "tenant_id": "c7-victor", "start": "1998-01-01", "monthly_rent": 0, "status": "owner-occupied" },
+    { "unit_id": "bld-s9641-B", "tenant_id": "s1-bex", "start": "2026-09-24", "monthly_rent": 850, "status": "active",
+      "notes": "room share minted at promotion (world v126); co-tenant is an off-registry ambient household" },
+    { "unit_id": "bld-d9388-1", "tenant_id": "s2-esther", "start": "1974-06-01", "monthly_rent": 780, "status": "active",
+      "notes": "address minted at promotion (world v126); tenancy predates the registry — start date is the real lease year" },
+    { "unit_id": "bld-sv9519-4", "tenant_id": "s3-asha", "start": "2026-09-24", "monthly_rent": 1450, "status": "active",
+      "notes": "studio minted at promotion (world v126)" }
   ]
 }
 ```

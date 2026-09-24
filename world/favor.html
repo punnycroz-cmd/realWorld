@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Counter Tab (favors layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Favors demo — "The Counter Tab" (world v128). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/favors.json
+  (mirrored inline below as FAV — hand-synced, deep-compared by audit.js favs gate).
+  Per door venue: the informal arrangements — keys held, shifts covered, tabs,
+  holds, lends, watches, passes, favors owed — with who CARRIES the standing cost
+  and a visibility tier. quiet rows render only at internal clearance, same rule
+  as secret web edges. Doors only; offstage orgs and reserved names key nothing
+  (they may appear inside `between`). Conditions, never scripts: an arrangement
+  is a standing invitation someone may honor, renegotiate, or let lapse.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --vio:#9d8cd4;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  main{max-width:1240px;margin:0 auto;padding:16px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(380px,1fr));gap:14px}
+  .ven{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .vhead{padding:10px 14px;border-bottom:1px solid var(--line);display:flex;align-items:baseline;gap:8px}
+  .vhead b{font-family:var(--mono);font-size:13px;letter-spacing:.06em;color:var(--acc)}
+  .vhead .n{margin-left:auto;font-size:10px;color:var(--dim);font-family:var(--mono)}
+  .fav{padding:9px 14px;border-bottom:1px dashed var(--line)}
+  .fav:last-child{border-bottom:none}
+  .fav.quiet{background:#241f2c}
+  .fline1{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+  .kind{font-family:var(--mono);font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:8px;padding:0 7px;color:var(--blu)}
+  .kind.favor_owed{color:var(--vio)}
+  .kind.key_holding{color:var(--pink)}
+  .between{font-weight:700;color:var(--ink)}
+  .between em{font-style:normal;color:var(--dim);font-weight:400}
+  .vis{margin-left:auto;font-size:9px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:8px;padding:0 7px;color:var(--dim)}
+  .vis.open{color:var(--grn);border-color:var(--grn)}
+  .vis.counter{color:var(--acc);border-color:var(--acc)}
+  .vis.quiet{color:var(--vio);border-color:var(--vio)}
+  .terms{font-style:italic;margin-top:3px}
+  .note{font-size:11.5px;color:var(--dim);margin-top:2px}
+  .meta{display:flex;gap:10px;margin-top:5px;font-size:10.5px;font-family:var(--mono);flex-wrap:wrap}
+  .since{color:var(--dim)}
+  .carries{color:var(--acc)}
+  .bal{color:var(--grn)}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE COUNTER TAB</div>
+  <div class="tgl" id="clrTgl">clearance <button data-v="public">public</button><button data-v="staff">staff</button><button data-v="internal" class="on">internal</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">Who owes whom — the informal ledger that runs on memory, not invoices. Every
+    arrangement names its <b>carries</b> (who bears the standing cost) and a visibility tier:
+    <b>open</b> reads from the room, <b>counter</b> is staff-side, <b>quiet</b> is between the
+    parties and never reaches public clearance. Balances are <b>game dollars</b>, never credits.
+    Conditions, never scripts — a lapse is a readable beat, not a broken one. Internal posture —
+    never ship.</p>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/favors.json (hand-synced, v128) ---- */
+const FAV=
+{
+ "_doc": "The informal-obligations layer (world v128) — 'the counter tab.' Per-door-venue registry of the arrangements that run on memory, not invoices: spare keys held, shifts covered, running tabs, standing holds, lent equipment, watched mail, passed culls, favors owed. Companion spec: world/favors.md. Demo: world/favor.html (inline FAV mirror, hand-synced, deep-compared by audit.js favs gate). Consumers: the brain/prompt layer (counter-side texture — who can ask what of whom), the feed layer (an honored or dropped arrangement is a readable beat, never a summoned one). Rules: doors only (anchor + street); every arrangement names who CARRIES the standing cost; visibility is open / counter / quiet — quiet rows redact on public clearance like secret web edges; no credit figures, no USD, balances are game dollars; conditions, never scripts — an arrangement is a standing invitation someone may honor, renegotiate, or let lapse, and the lapse is the content.",
+ "version": 128,
+ "kind_keys": {
+  "key_holding": "one party keeps another's spare key or alarm code — trust made physical",
+  "shift_cover": "an informal cover arrangement — the call when someone is short-handed",
+  "tab_line": "a running informal tab in game dollars, settled by a house rule, not an invoice",
+  "lend": "equipment or space lent on a standing basis — the thing lives in two places",
+  "hold": "a standing hold — the chair, the crate, the table — kept without being asked",
+  "watch": "mail, packages, plants, or a door watched during absence or overlap",
+  "pass": "culls, day-olds, scraps, or leftovers passed on a standing basis",
+  "favor_owed": "a named past kindness carried as an open obligation — the ledger nobody wrote down"
+ },
+ "visibility_keys": {
+  "open": "readable from the room — a regular would know",
+  "counter": "the staff side carries it; a customer would not",
+  "quiet": "between the parties only — redacted on public clearance"
+ },
+ "party_forms": {
+  "venue": "a business id from businesses.json — the house itself",
+  "person": "a cast id (c1–c8), supporting id (s1–s3), or ambient id (a01–a20) — the obligation attaches to the person, not the role",
+  "staff": "the literal token 'staff' may appear in `carries` only — the keyed venue collectively bears it"
+ },
+ "arrangements": {
+  "mudhaus": [
+   {"id":"fav-mud-01","kind":"tab_line","between":["mudhaus","c6"],"carries":"mudhaus","since":"the winter her card failed, 2022","terms":"the hemming tab — Carmen runs it all week, settles Fridays in cash counted twice","balance":14.5,"note":"nobody writes it down anymore; the float risk is the house's","visibility":"open"},
+   {"id":"fav-mud-02","kind":"hold","between":["mudhaus","s2"],"carries":"staff","since":"the first wet November, 2023","terms":"rain on the bench means the corner two-top is Esther's — held unmarked, no purchase clock","note":"a table the house keeps ready on bad-weather mornings; some days it just stays empty","visibility":"open"},
+   {"id":"fav-mud-03","kind":"pass","between":["mudhaus","el-farolote"],"carries":"staff","since":"the pastry case got too full, 2024","terms":"the day-old crate goes to whoever Tomás sends after close — staff meal, not trash","note":"the crate sits by the back door from 18:30; an untouched crate at open is a readable anomaly","visibility":"counter"},
+   {"id":"fav-mud-04","kind":"lend","between":["mudhaus","calle-justa"],"carries":"mudhaus","since":"the clinic's first Thursday, 2024","terms":"six folding chairs and the good extension cord live at the Workers' Table Thursdays, back by Friday open","note":"the cord comes back taped a little differently each time; nobody re-tapes it","visibility":"counter"}
+  ],
+  "el-farolote": [
+   {"id":"fav-elf-01","kind":"tab_line","between":["el-farolote","c5"],"carries":"el-farolote","since":"the manifest went sideways, 2023","terms":"Marcus eats after the last run; the ticket settles when the week's deliveries do","balance":22,"note":"the post-1 AM burrito is half wage, half weather report — he hears the night first","visibility":"open"},
+   {"id":"fav-elf-02","kind":"shift_cover","between":["el-farolote","il-delfino"],"carries":"both","since":"the flu January, 2025","terms":"a short-handed line can call the other kitchen — one cook, one shift, repaid in kind not cash","note":"nobody counts the balance precisely; both kitchens keep rough track and prefer it that way","visibility":"counter"},
+   {"id":"fav-elf-03","kind":"favor_owed","between":["el-farolote","a10"],"carries":"el-farolote","since":"the night the walk-in died, 2023","terms":"Gus ran a compressor part across town at 23:00; his crew's Friday lunch has been on the house tab ever since","note":"Gus keeps trying to pay; the register keeps not ringing — the debt is being repaid weekly and he knows it","visibility":"counter"}
+  ],
+  "auerbach": [
+   {"id":"fav-aue-01","kind":"key_holding","between":["auerbach","folsom-auto"],"carries":"both","since":"the morning Gus's rollup froze, 2021","terms":"each shop holds the other's storefront key in the back drawer — one call, no locksmith, no questions","note":"used maybe twice a year; both drawers stay unlocked precisely because this exists","visibility":"quiet"},
+   {"id":"fav-aue-02","kind":"lend","between":["auerbach","dusty-spine"],"carries":"auerbach","since":"the shelf rehang, 2022","terms":"the hand truck lives in whichever shop used it last — it walks Valencia twice a month","note":"neither shop owns it on paper anymore; both charge it out to customers anyway","visibility":"counter"},
+   {"id":"fav-aue-03","kind":"watch","between":["auerbach","needlepointe"],"carries":"auerbach","since":"Clarion alley got too crowded for deliveries, 2024","terms":"Needlepointe's oversize packages land at the hardware counter; Bex collects them on the smoke-break loop","note":"Victor's counter is the de facto loading dock for a shop with no dock","visibility":"counter"}
+  ],
+  "dolores-perk": [
+   {"id":"fav-dpk-01","kind":"hold","between":["dolores-perk","a02"],"carries":"staff","since":"the leash pile-up, 2023","terms":"the hook rail by the door is the dog-walker's — Doro's pack ties off there, no cup required","note":"six leashes at 8 AM is a normal morning; a bare rail means Doro's route changed","visibility":"open"},
+   {"id":"fav-dpk-02","kind":"favor_owed","between":["dolores-perk","buy-rite-creamery"],"carries":"buy-rite-creamery","since":"the heat-wave week, 2024","terms":"the creamery's overrun slept in the Perk's freezer for five nights; the Perk's park-side tables still absorb the line, no vouchers needed","note":"the debt is the arrangement — both sides stopped counting and kept the habit","visibility":"counter"}
+  ],
+  "buy-rite-market": [
+   {"id":"fav-brm-01","kind":"tab_line","between":["buy-rite-market","a19"],"carries":"buy-rite-market","since":"the pension check was late, 2022","terms":"Ray's groceries ride the last week of the month; the counter settles it on the first, no list kept","balance":31,"note":"the cashier writes nothing down — Ray's basket is that regular","visibility":"open"},
+   {"id":"fav-brm-02","kind":"watch","between":["buy-rite-market","las-palmas"],"carries":"buy-rite-market","since":"the awning blew down, 2023","terms":"Luz's crate deliveries land on the Buy-Rite dock when the stand is closed; she collects before her morning setup","note":"a rival's dock is still a dock — the fruit doesn't care about the edge","visibility":"counter"}
+  ],
+  "buy-rite-creamery": [
+   {"id":"fav-brc-01","kind":"hold","between":["buy-rite-creamery","a20"],"carries":"staff","since":"the phone died mid-summer, 2024","terms":"the corner booth has the outlet — Zee's phone charges there, one scoop is optional","note":"the staff stopped pretending it's about the ice cream; the booth is the point","visibility":"open"},
+   {"id":"fav-brc-02","kind":"pass","between":["buy-rite-creamery","s3"],"carries":"buy-rite-creamery","since":"a nurse asked for the almost-melted pint, 2024","terms":"the last scooped-dry tub of the night goes to whoever's coming off shift — Asha knows the freezer door code is a fiction","note":"a tub set aside on the back shelf is a message; an empty shelf means the night was clean","visibility":"counter"}
+  ],
+  "il-delfino": [
+   {"id":"fav-ild-01","kind":"watch","between":["il-delfino","flying-pannier"],"carries":"il-delfino","since":"the first late pickup, 2023","terms":"Marcus's courier bags rest warm by the pass when a run lands late — the food waits, not the rider","note":"the date-night room never sees the courier; the pass shelf is the whole arrangement","visibility":"counter"},
+   {"id":"fav-ild-02","kind":"shift_cover","between":["il-delfino","the-musket"],"carries":"both","since":"the same flu January, 2025","terms":"date-night rivals cover each other's line — one cook, one shift, repaid in kind","note":"the rivalry is for the floor; the pass is where the actual kitchens live","visibility":"counter"}
+  ],
+  "baguette-about-it": [
+   {"id":"fav-bag-01","kind":"hold","between":["baguette-about-it","mudhaus"],"carries":"baguette-about-it","since":"the first restock ran short, 2022","terms":"two morning buns stay back for the Mudhaus openers before the doors unlock — the restock eats first","note":"Hana sets them aside without being asked; a missing pair means the bake ran short","visibility":"open"},
+   {"id":"fav-bag-02","kind":"key_holding","between":["baguette-about-it","bloom-and-doom"],"carries":"bloom-and-doom","since":"the 4 AM lockout, 2023","terms":"Ida holds the bakery's alarm key — a baker who can't get in at four is a block without bread","note":"the key has been used once; it stays because four in the morning is not a locksmith hour","visibility":"quiet"}
+  ],
+  "the-600-club": [
+   {"id":"fav-6cl-01","kind":"hold","between":["the-600-club","s1"],"carries":"staff","since":"the flash-night crowds, 2024","terms":"the back booth is Bex's on the nights her portfolio goes around — kept dark until she shows or doesn't","note":"a booth that stays empty through happy hour is the bar keeping a promise","visibility":"open"},
+   {"id":"fav-6cl-02","kind":"watch","between":["the-600-club","a08"],"carries":"the-600-club","since":"the amp got rained on, 2022","terms":"Sam's amp sleeps in the back room between gig nights — the bar's storage is the busker's locker","note":"the corner spot stays loud partly because the gear never has to walk home","visibility":"counter"}
+  ],
+  "dandy-lion": [
+   {"id":"fav-ddl-01","kind":"pass","between":["dandy-lion","bloom-and-doom"],"carries":"dandy-lion","since":"the cocoa-dusted petals idea, 2024","terms":"broken truffles go to Ida's back counter; stem scraps come back as arrangement garnish","note":"the trade is visible in both windows — petals dusted, truffles mended into staff snacks","visibility":"open"},
+   {"id":"fav-ddl-02","kind":"hold","between":["dandy-lion","a04"],"carries":"staff","since":"the exam weeks, 2023","terms":"the window table is June's during finals — one hot chocolate, three hours, no side-eye","note":"the shop loses a table twice a year and gains a graduate who buys gift boxes forever","visibility":"open"}
+  ],
+  "valencia-growers": [
+   {"id":"fav-vgr-01","kind":"hold","between":["valencia-growers","c8"],"carries":"valencia-growers","since":"the first Saturday, 2022","terms":"Tomás's tomato case is set aside before the stalls open — he walks, compares, and still buys it","note":"the ritual is the point: the held case is an offer, not a sale, and he compares anyway","visibility":"open"},
+   {"id":"fav-vgr-02","kind":"favor_owed","between":["valencia-growers","a07"],"carries":"valencia-growers","since":"the year the card reader died, 2022","terms":"Luz covered a stall fee in cash when the readers failed; the stall hasn't forgotten","note":"nobody settled it because settling it would end it — the stand gets first pick of the cull crates","visibility":"quiet"}
+  ],
+  "needlepointe": [
+   {"id":"fav-ndl-01","kind":"key_holding","between":["needlepointe","the-600-club","s1"],"carries":"s1","since":"the night the manager locked himself out, 2023","terms":"Bex holds the bar's spare front key in the shop's lockbox — the tattoo shop is the bar's spare pocket","note":"a 2 AM key run is the worst version of this arrangement and it has happened twice","visibility":"quiet"},
+   {"id":"fav-ndl-02","kind":"lend","between":["needlepointe","marooned"],"carries":"needlepointe","since":"the in-store nights, 2024","terms":"the flash-frame projector lives at Marooned on show nights — the shop's wall goes dark so the records light up","note":"the projector walks Valencia in a milk crate; it has never once been signed out","visibility":"counter"}
+  ],
+  "folsom-auto": [
+   {"id":"fav-fol-01","kind":"tab_line","between":["folsom-auto","auerbach"],"carries":"folsom-auto","since":"the parts runs started, 2021","terms":"Victor's counter stock rides the shop account — parts settled monthly, fittings settled in walks","balance":260,"note":"the ledger is a greasy index card; the mid-job walks are the interest","visibility":"counter"},
+   {"id":"fav-fol-02","kind":"hold","between":["folsom-auto","a15"],"carries":"folsom-auto","since":"the courier's frame cracked, 2024","terms":"Omar's bike takes the open lift ahead of paying jobs — a courier without wheels has no week","note":"a paying car waits an hour so a rider doesn't lose a day; the shop eats the schedule","visibility":"counter"}
+  ],
+  "maliks": [
+   {"id":"fav-mlk-01","kind":"tab_line","between":["maliks","a17"],"carries":"maliks","since":"the scaffold crew moved in, 2023","terms":"Cole's crew runs a morning float — coffee and rolls on the card, settled Friday envelope","balance":47,"note":"the envelope is exact to the quarter; the tab exists so 6:45 AM never involves counting","visibility":"open"},
+   {"id":"fav-mlk-02","kind":"watch","between":["maliks","golden-hour"],"carries":"maliks","since":"the attendant's break gap, 2022","terms":"Malik signs for the laundromat's vending deliveries when nobody's at the folding tables","note":"the signature is always 'M.' — the distributor stopped asking years ago","visibility":"counter"}
+  ],
+  "las-palmas": [
+   {"id":"fav-lpm-01","kind":"pass","between":["las-palmas","bloom-and-doom"],"carries":"las-palmas","since":"the first trade, 2022","terms":"Ida's buckets get Luz's stem culls; the stand gets a bouquet for the scale when the culls run good","note":"the corner smells like both by noon because the trade is literally in the air","visibility":"open"},
+   {"id":"fav-lpm-02","kind":"hold","between":["las-palmas","s2"],"carries":"las-palmas","since":"Esther's market mornings, 2023","terms":"the two best avocados of the day wait under the counter on Esther's mornings — she never asks, they're never sold","note":"an arrangement kept by a fruit stand is still an arrangement — the held pair is the contract","visibility":"open"}
+  ],
+  "bloom-and-doom": [
+   {"id":"fav-bnd-01","kind":"lend","between":["bloom-and-doom","the-musket"],"carries":"bloom-and-doom","since":"the first Friday service, 2023","terms":"Ida's bud vases dress the Musket's tables Fridays and walk back Sunday — the dining room borrows a garden","note":"twenty-two vases, counted at both ends; the count is the friendship","visibility":"counter"},
+   {"id":"fav-bnd-02","kind":"pass","between":["bloom-and-doom","s3"],"carries":"bloom-and-doom","since":"a nurse stopped to smell the culls, 2024","terms":"the day-old bouquet bucket goes to the ward break room — Asha carries it on the walk she was already taking","note":"a bucket that leaves the shop at shift change is flowers doing their second job","visibility":"open"}
+  ],
+  "golden-hour": [
+   {"id":"fav-ghr-01","kind":"hold","between":["golden-hour","a19"],"carries":"staff","since":"the bench parliament moved indoors, 2023","terms":"the corner folding table is Ray's when it rains — pigeons or no pigeons, the chair knows him","note":"a laundromat has no business holding a chair for a man who never washes there; it does anyway","visibility":"open"},
+   {"id":"fav-ghr-02","kind":"lend","between":["golden-hour","calle-justa"],"carries":"golden-hour","since":"the clinic needed tables, 2024","terms":"two folding tables leave Thursday afternoon for the Workers' Table and come back Thursday night","note":"the laundromat's tables have a second shift nobody scheduled","visibility":"counter"}
+  ],
+  "dusty-spine": [
+   {"id":"fav-dsp-01","kind":"hold","between":["dusty-spine","c2"],"carries":"dusty-spine","since":"the reserve habit, 2022","terms":"Jules's hold stack lives under the counter — books pulled on sight, claimed when the shift money lands","note":"the stack sometimes outlasts the wanting; it gets reshelved unresentfully","visibility":"open"},
+   {"id":"fav-dsp-02","kind":"pass","between":["dusty-spine","marooned"],"carries":"both","since":"the twenty-dollar loop got a pastry, 2023","terms":"whoever opens first brings the morning bun for both counters — the loop has a breakfast","note":"the bun appears on one counter or the other every morning; nobody remembers whose turn it is and that's the arrangement","visibility":"open"}
+  ],
+  "marooned": [
+   {"id":"fav-mrn-01","kind":"watch","between":["marooned","a08"],"carries":"marooned","since":"the crate and the guitar, 2023","terms":"Sam's records crate lives behind the counter between corner sets — a busker's inventory is a shop's shelf","note":"the crate never leaves the block; it just changes which counter it sleeps behind","visibility":"counter"},
+   {"id":"fav-mrn-02","kind":"favor_owed","between":["marooned","dusty-spine"],"carries":"marooned","since":"the storm flood, 2023","terms":"the Dusty Spine's upstairs took Marooned's stock the night Valencia flooded — the bins remember the stairs","note":"repaid in first refusal on every good trade-in since; both shops prefer it unspoken","visibility":"quiet"}
+  ],
+  "the-musket": [
+   {"id":"fav-msk-01","kind":"pass","between":["the-musket","the-600-club"],"carries":"the-musket","since":"the closing-plate habit, 2023","terms":"the kitchen sends one plate downhill to whoever's closing the bar — staff meal, delivered, never ordered","note":"a plate walks the block at 23:00 most nights; the bartender's shift ends fed","visibility":"counter"},
+   {"id":"fav-msk-02","kind":"tab_line","between":["the-musket","c3"],"carries":"the-musket","since":"the chalkboard redraw, 2024","terms":"Dani redraws the menu board when the seasons change; the running dinner tab is the payment","balance":65,"note":"the tab is the invoice and the friendship at once — nobody's sure which side is ahead","visibility":"open"}
+  ]
+ }
+};
+/* ---- names for display (person ids → first names; venue ids → short names) ---- */
+const PN={c1:'Marisol',c2:'Jules',c3:'Dani',c4:'Priya',c5:'Marcus',c6:'Carmen',c7:'Victor',c8:'Tomás',
+ s1:'Bex',s2:'Esther',s3:'Asha',a01:'Reyes',a02:'Doro',a03:'Malik',a04:'June',a06:'Kofe',a07:'Luz',
+ a08:'Sam',a10:'Gus',a11:'Vera',a15:'Omar',a16:'Hana',a17:'Cole',a18:'Ida',a19:'Ray',a20:'Zee',
+ a05:'Esther',a09:'Asha',a14:'Bex',a12:'Tom',a13:'Nadia'};
+const VN={mudhaus:'Mudhaus','el-farolote':'El Farolote',auerbach:'Auerbach','dolores-perk':'Dolores Perk',
+ 'buy-rite-market':'Buy-Rite Market','buy-rite-creamery':'Buy-Rite Creamery','il-delfino':'Il Delfino',
+ 'baguette-about-it':'Baguette About It','the-600-club':'600 Club','dandy-lion':'Dandy Lion',
+ 'valencia-growers':'Valencia Growers',needlepointe:'Needlepointe','folsom-auto':'Folsom Auto',
+ maliks:"Malik's",'las-palmas':'Las Palmas','bloom-and-doom':'Bloom & Doom','golden-hour':'Golden Hour',
+ 'dusty-spine':'Dusty Spine',marooned:'Marooned','the-musket':'The Musket','flying-pannier':'Flying Pannier',
+ 'calle-justa':'Calle Justa','the-rent-table':'The Rent Table'};
+let clr='internal';
+const esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+const nm=p=>PN[p]||VN[p]||p;
+const RANK={open:0,counter:1,quiet:2};
+const LVL={public:0,staff:1,internal:2};
+function render(){
+  const grid=document.getElementById('grid');grid.innerHTML='';
+  let shown=0,hidden=0;
+  for(const vid of Object.keys(FAV.arrangements)){
+    const rows=FAV.arrangements[vid];
+    const card=document.createElement('div');card.className='ven';
+    let inner=`<div class="vhead"><b>${esc(VN[vid]||vid)}</b><span class="n">${rows.length} arrangements</span></div>`;
+    let any=false;
+    for(const a of rows){
+      if(a.visibility==='quiet'&&LVL[clr]<2){hidden++;continue}
+      if(a.visibility==='counter'&&LVL[clr]<1){hidden++;continue}
+      any=true;shown++;
+      const parties=a.between.map(p=>`<em>${esc(nm(p))}</em>`).join(' ↔ ');
+      inner+=`<div class="fav ${a.visibility}">
+        <div class="fline1"><span class="kind ${a.kind}">${a.kind.replace(/_/g,' ')}</span>
+          <span class="between">${parties}</span>
+          <span class="vis ${a.visibility}">${a.visibility}</span></div>
+        <div class="terms">${esc(a.terms)}</div>
+        <div class="note">${esc(a.note)}</div>
+        <div class="meta"><span class="since">since ${esc(a.since)}</span>
+          <span class="carries">carries: ${esc(nm(a.carries)==a.carries?a.carries:nm(a.carries))}</span>
+          ${typeof a.balance==='number'?`<span class="bal">tab G$${a.balance.toFixed(2)}</span>`:''}
+          <span>${esc(a.id)}</span></div>
+      </div>`;
+    }
+    if(!any)inner+='<div class="fav"><span class="note">all arrangements are above this clearance</span></div>';
+    card.innerHTML=inner;grid.appendChild(card);
+  }
+  document.getElementById('cnt').textContent=`${shown} shown · ${hidden} above clearance`;
+}
+document.getElementById('clrTgl').addEventListener('click',e=>{
+  if(!e.target.dataset.v)return;clr=e.target.dataset.v;
+  document.querySelectorAll('#clrTgl button').forEach(b=>b.classList.toggle('on',b.dataset.v===clr));
+  render();
+});
+render();
+</script>
+</body>
+</html>

@@ -1,6 +1,12 @@
 {
  "doc": "Housing \u2014 machine-readable mirror of world/jobs-housing.md \u00a73 + world/housing/. The registry seed in jobs-housing.md is canonical JSON per address spec \u00a74; this file adds listing copy + building card links. Money is game dollars; deed fees are credits (PROPOSAL per monetization \u00a72.4). Lifecycle (application \u2192 rent run \u2192 notices \u2192 disputes \u2192 turnover/purchase) lives in world/leases.json + world/lease-ui.md (v12); demo: world/lease.html.",
- "version": 101,
+ "version": 115,
+ "firsts_layer": {
+  "spec": "firsts.md",
+  "mirror": "firsts.json",
+  "demo": "firsts.html",
+  "note": "v115 — the first-week layer: one move_ins row per listings_live unit + per listings_ladder tier; a leased unit's row retires as the unit joins homes.json"
+ },
  "commute_layer": {
   "spec": "commute.md",
   "mirror": "commute.json",
@@ -120,5 +126,11 @@
   "mirror": "homes.json",
   "demo": "homes.html",
   "note": "v101 \u2014 what each registry unit is like inside: occupants, shape, rota, kitchen, quiet, guests, kit, fridge_note; vacant listings carry showing texture; ambient-ring stays off-registry"
+ },
+ "offers_layer": {
+  "spec": "offers.md",
+  "mirror": "offers.json",
+  "demo": "offer.html",
+  "note": "v129 \u2014 the standing-offer layer: one or more bounded opportunities keyed per registry building (bld-* ids from the \u00a73 seed) plus every door venue; quiet visibility = household/handshake knowledge, internal only"
  }
 }

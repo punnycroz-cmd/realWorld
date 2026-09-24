@@ -1,9 +1,77 @@
-# Character Creation — spec & copy deck (world v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v133; v9 was v119; v8 was v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v133 — the carried-in layer: a new face can arrive wanting something, and the
+week's cost is printed where the commitment is made:**
+
+- **What they carried in.** Step 5 gains an optional single pick off a
+  `HOPES` mirror: a self-chosen direction the character arrives carrying —
+  a trade to learn, people to eat with, a crew, to be good at the work, a
+  place that's theirs someday, to be known a little, a quiet year — plus
+  the honest default **"arrives open"**. Production-3's self-chosen-
+  projects dimension: an intention seed, never an assigned destiny. The
+  pick is structured (data, not text) so it adds zero screening surface.
+- **Grounded like the open doors.** Every HOPES entry carries at least
+  one reach channel the audit re-verifies: `at` → a job-board employer,
+  `who` → a face on the PEOPLE mirror, `near` → a 9xxx prefix on the
+  card, `job` → the picker's own post, `open` → needs nothing. The hopes
+  can't drift from the block.
+- **A hope is not a promise.** The copy says it verbatim: an initial
+  condition the brain may keep, revise, or quietly drop — *and nothing
+  tracks the difference*. No quest log, progress meter, check-in, or
+  score exists anywhere. A hope that names a face (Tomás's patience,
+  Carmen's table, Marcus's circle, Sam's pitch) names them **without
+  asking** — nobody was asked; the block keeps its own counsel. An
+  abandoned hope is a legitimate outcome, not a failed quest.
+- **Where it rides.** `params.hope` on the real bus filing (recorded,
+  unread — same posture as `goes_by`, flagged for the game track), the
+  step-6 review quote ("Carried in"), the day-one keys card ("CARRIED IN"
+  — on the file as an initial condition; the block was never asked to
+  deliver it), and the registry entry ("initial condition, never a
+  tracked goal"). It is **never a briefing line** — the whitelist stays
+  public profile / surface relationships / routine.
+- **The week's cost.** The first-week grid gains a `HOURS` row derived
+  from the picked job's posted hours — not authored copy: a 40-hour card
+  eats evenings ("a hope competes with sleep"), a 30-hour card leaves
+  thin evenings, a side shift leaves the week open but the money thin,
+  `variable` reads "the catch is the pay, not the clock", and arriving
+  without work owns every hour while watching every dollar. Limited
+  capacity stated where the commitment is made — the same hours a hope
+  would need.
+
+**v119 — the welcome layer: the block's open doors render next to the arrival,
+and nobody is assigned to knock:**
+
+- **The open doors.** An `OPENS` mirror lists the block's bounded open
+  invitations — the things the block does anyway that a new face can walk
+  into or walk past: Carmen's stoop cafecito, the 3 p.m. counter seat at
+  Mudhaus, the Thursday drum circle in the park, the Saturday cleanup, the
+  index-card corkboard by the market door, the rider bench, the day-old
+  rack. Every entry is grounded, and the audit gate re-verifies it: `at`
+  tokens must be real job-board employers, `near` tokens real 9xxx building
+  prefixes already on the card, `who` a real face on the PEOPLE mirror —
+  the doors can't drift from the block.
+- **Relevance, not recommendation.** `opensFor()` orders the list by the
+  picker's own choices — work-adjacent doors first, then the building's,
+  then the park-wide ones every new face gets. The display caps at a few
+  and hands the rest to the corkboard; nothing is ranked, promoted, or
+  scored.
+- **Where it renders.** Step 5 (the first week) gains an `OPEN DOORS` row
+  next to `FACES`; the day-one keys card gains an `OPEN DOORS` line. Same
+  list, same honesty both places.
+- **Conditions, never a script.** The copy says it verbatim: *"the block
+  does these anyway — they can walk past every one; nobody's assigned to
+  notice a new face. An open door isn't a welcome — the welcome, if it
+  comes, is theirs to give."* There is no RSVP field, no attendance
+  tracking, nothing written to the registry record, and it never enters
+  the briefing (the whitelist stays public profile / surface
+  relationships / routine). If the character never once shows up at the
+  stoop, the record is equally complete — an open door ignored is a
+  legitimate outcome, not a failed one.
 
 **v105 — the desk's answer layer: a refusal is a repair card, an appeal is one
 more read, and a live filing resolves instead of waiting blind:**

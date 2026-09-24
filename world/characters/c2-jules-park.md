@@ -237,6 +237,28 @@ compliment worst of all — it gets thanked and then argued with. Help
 framed as teaching — a shown trick, a named supplier — is the one kind
 that lands clean.
 
+## The phone
+
+Cracked screen protector they've decided is "aesthetic." The ringer has
+been off since the bus south; everything arrives as a banner they read
+and answer on a delay measured in guilt — Portland threads get answered
+at night, composed like postcards, longer than anyone there sends back.
+The camera roll is thumbnails for future sketches: light on a fire
+escape, a hand on a cup, the park in weather. Drafts get written and
+deleted constantly — the phone is where a slightly braver Jules lives
+and mostly doesn't get out.
+
+## First impressions
+
+Reads composition before personality — where you stand in the room,
+what your eyes land on, whether you notice the chalkboard or the wall
+art at all. Trusts anyone who looks at the drawings a beat too long;
+gets formal around anyone loud. Reliably wrong about confident people:
+ease gets misread as belonging, and locals who perform comfort get filed
+as safe before they've earned it. The verdict revises almost entirely
+through Carmen — whoever is kind to her unprompted gets re-drawn,
+literally, kinder.
+
 ## Public profile (briefing-safe)
 
 > The new kid behind the counter — Portland transplant, three months in.

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v94)
+# Playtest Harness — "Real World / The Mission" (world v126)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -228,7 +228,8 @@ One person can wear every hat; four real testers is the intended shape.
   per-finding triage status (open/fixed/wontfix/deferred — persists,
   rides both exports, gates the handoff list), the per-finding
   [world-playtest-finding] copy block, the step n/a sweep, and the
-  harness gate's v93 marks at key rw_playtest_v93.
+  harness gate's v93 marks (at key rw_playtest_v107 since v107 — the
+  key rolls whenever persisted session state gains fields).
   PT85 (drama board v94) is a showrunner-side audit — drama.json at
   schema drama-v6 carries the cooling grammar (rung descent, afterglow,
   no refund, surfaced never cools), the double-surface contingency
@@ -321,6 +322,235 @@ One person can wear every hat; four real testers is the intended shape.
   resolution (gsExplainRequest pull on render + 'check the desk',
   approved → approval tail, denied → repair bench, closed → honest
   line).
+  PT97 (the display-filter bench v106 / filter-lab.html) is an
+  owner-side audit — nine seeded cases re-screen live through
+  RWScreen.screenRequest at render (no stored verdicts), each flagged
+  case previewed under all three display options (A redact / B withhold
+  / C quarantine) with a survival matrix and an exportable memo JSON;
+  the decision stays OPEN — the lab never marks a winner.
+  PT98 (harness v107) is a facilitator audit — the rail search box
+  (id+title+persona, case-insensitive, composes with smoke /
+  hide-finished / surface, `/` focuses it) and the session planner:
+  a minutes box filled with an ordered pick-list — revisit-flagged →
+  unfinished → cold (never verdicted by anyone, imports included) →
+  fresh — that stops before overflow, keeps an only-pick overrun with
+  an honest 'over by ~N min' line, honors the surface filter, never
+  picks a done scenario, and copies out as a [world-playtest-plan]
+  block; the harness gate's v107 marks at key rw_playtest_v107.
+  PT99 (drama board v108) is a showrunner-side audit — the v108
+  direction layer verified as bookkeeping and permission structures,
+  never scripts: the drift record (§45) as a seven-field append-only
+  review schema that never writes to the world, object dramaturgy
+  (§46) as a custody table for the six secret-objects (shown is a
+  shadow, opened is the holder's act), and the composition rule (§47)
+  capping one shadow per frame with brink exclusivity; the pressure
+  catalog's sixth tranche brings it to P-30 and drama.html renders
+  all three new sections with mirrored counts.
+  PT100 (onboarding v8, v109) audits the quiet contract — the
+  privacy beat (tour beat 6 on feed-anon: watching leaves no mark,
+  no viewer list, presence is private), the S2b data card (browser-
+  local state only, no email, no account — free-tier, seen by every
+  band including u13), and the S4g flag lesson (free, files nothing,
+  silent on the feed, routes to the same human review, attaches to
+  player asks only — never the residents). The audit's v109 block
+  enforces the silence: flag vocabulary on the feed is a FAIL.
+  PT101 (The Understudy v8, v111) audits the unobserved tick —
+  observation tiers watched → shadowed → dark coarsening the thin
+  tick, lazy resolve on return (identical to continuous ticking,
+  no catch-up pop), obligations staying eager, mode-blind witness
+  seen-facts deduped per place per hour, and the compute soak
+  splitting thin_min so thin cost scales with observation, not
+  population. The audit's v111 block fails a witness schema that
+  carries a mode/mood field or a lazy rule that permits a pop.
+  PT102 (The Crowd v113) audits the mouths & pulses layer — the
+  eight named spawn/despawn anchors replacing the bare 'edge'
+  endpoint (point + dir + live window + per-minute cap, never a
+  zone), the seven pulse clocks bound to the schedules that
+  motivate them (school bells weekday-windowed, last-call
+  overnight, shift-change at the hospital curb), and the leash
+  fixing each unit's zone set at spawn with despawn citing a
+  mouth and a rolling-60min body ledger per mouth. The audit's
+  v113 block fails an 'edge'-touching flow edge without a mouth,
+  a pulse whose dir contradicts its mouth, kid_scale anywhere but
+  m-gate, or meta vocabulary in the new blocks.
+  PT103 (The Fine Print v114) audits the house-rules layer — the
+  twenty door venues each carrying a full set of machine-readable
+  house facts (pay / restroom / wifi / laptops / dogs /
+  outside_food / linger / tab — silence is not a policy) plus the
+  posted sign copy a camera reads, pinned to where it hangs; the
+  consistency rules bind the two surfaces (cash posts CASH, a card
+  minimum posts its number, a restroom code posts at the door, a
+  house tab agrees with regulars.json). The audit's v114 rules
+  gate fails a dollar figure on a sign other than the card
+  minimum, a sign naming a person or carrying a 'when X then Y',
+  an offstage org with a door, or any drift between rules.html's
+  inline RULE and house-rules.json.
+  PT110 (harness v121) is a facilitator audit — the fix-verification
+  layer: imported reports' open/deferred findings become a re-test
+  card in the cohort panel (deduped on surface|ref|title content
+  identity, never position; reporters attributed; the surface filter
+  narrows it the same as the rail), exclusive verdicts (still broken /
+  fixed / can't repro) + notes persisted in S.verify under the rolled
+  key rw_playtest_v121, a 'log follow-up' that seeds the finding form
+  with re: lineage but never auto-logs, a top-level fix_checks array
+  in the JSON export that survives cleared imports, a 'fix checks'
+  line on the handoff, and the [world-playtest-verify] paste block.
+  The audit's v121 marks pin the affordances (id=verify, S.verify,
+  vfKey, setVf, vfFollow, copyVf, fix_checks, world-playtest-verify).
+  PT111 (drama board v122) audits the consequence-continuity pass —
+  drama.json drama-v8 carrying the missed-meal doctrine (a miss is
+  canon, all three outcomes legal, repair a character act, the double
+  ledger stays double, a declined invitation is not a wound),
+  supporting-resident dramaturgy (promotion follows recurring
+  relationships, never camera popularity; secrets mint at promotion;
+  casting is not pacing), bounded opportunities (conditions never
+  fuses; ignored is honest texture; identical-twin for sponsored
+  invitations), and the seventh pressure tranche (P-31–P-34). The
+  audit's v122 marks pin the contract blocks and the CONSEQ/SUPPORT/
+  OPPS mirror counts.
+  PT112 (onboarding v123) audits the loop pass — S5b 'the long game'
+  between every keep-watching exit and settle, identical for all
+  four bands; the catch-up edition stated as up-to-three verified
+  changes (observable, never inferred motive); the prediction demo
+  free, private (never a feed line), unscored, its whole job checking
+  it later; and the open-invitation line keeping 'may ignore' plus
+  'an empty table is still the story'. The audit's v123 marks pin
+  the eight honesty strings, the makePred/predCheck handlers, the
+  four contract blocks, and the rw_onboard_v123 key.
+  PT113 (lease v124) audits the stakes layer — every rent-roll row
+  rendering a 'what this lease stakes' mirror (who it binds / what it
+  costs / who knows what / open door), the spectator tier held to the
+  stairwell read with no amounts or non-public names, open doors
+  carrying 'may ignore' with nothing tracked, and the burden percent
+  computed on the viewer's own lease only. The audit's v124 marks pin
+  the stakes contract block, both never-list entries, the spectator
+  branch's figure-freedom, the read-only check, the per-uid mirror
+  coverage, and the rw_lease_v124 key.
+  PT114 (thinai v125) audits the promoted-resident era — A14 Bex crossing
+  the era seam live (ambient-era seen-facts re-labeling ambient:true as
+  TOLD-tier gist, backfill:true sketches landing, secrets minting
+  post-promotion only), the revised ladder degrading the promoted tier
+  before any main at 30–59%, degrade wake-notes carrying held_threads
+  (facts, never interpretation), and the supper-at-19:00 bounded
+  opportunity where a thin pawn's routine declining the invitation IS
+  the may-ignore rule. The audit's v125 marks pin the promoted_row /
+  era_seam / held_threads blocks, the ladder's youngest-brains-first
+  rule, the two new demo events, the fifth pawn, and the
+  rw_thinai_v125 key.
+  PT115 (cast v126) audits the supporting-resident bibles — the first
+  promotion class S1 Bex / S2 Esther / S3 Asha carrying the full
+  27-section mains contract with secrets last and supporting-scale
+  stakes (a drawer letter, a revised history, a submitted application);
+  the promoted_from ↔ promoted_to round-trip against ambients.json;
+  minted 9xxx addresses registered in jobs-housing.md §3; interior
+  ledgers bounded by each resident's declared knows set; and the
+  cast.html SUPPORTING strip rendering slim cards under the same
+  possession ban. The audit's v126 marks pin the supporting checks in
+  the bible gate (schema v126 · 8 mains + 3 supporting).
+  PT116 (crowd v127) audits the ambient-crowd consequence pass — the
+  vacancy layer (promotion as permanent absence: A05/A09/A14's posts
+  vacated and never refilled, coverage reads re-keyed, residents barred
+  from the pull pool, ctr-section/ctr-stool/ctr-flash and the
+  needlepointe chair claim retired rather than reassigned) and the
+  occasion layer (three bounded-opportunity shapes — the Thursday supper
+  table, the Saturday alley wall workday, the always-up cork board —
+  lifting a venue's extras budget ≤1.4 inside its window while extras
+  orbit and never attend, and a next-daypart trace that never scores
+  uptake). Resident-keyed scenes and greeting pairs re-key to S-ids: a
+  bench parliament can honestly not happen, and the demo shows 'OPEN —
+  S2 decides', never LIVE on a person's behalf. The audit's v127 marks
+  pin the vacancy↔promoted_to round-trips, the vacated coverage marks,
+  the retired-surface bars, the residents clause, the OCCASIONS/VACANCIES
+  mirrors, the ≤1.4 modesty cap, and the no-attendance-fields rule.
+  PT117 (favors v128) audits the informal-obligations layer — "The
+  Counter Tab": 44 arrangements across all 20 door venues (key_holding /
+  shift_cover / tab_line / lend / hold / watch / pass / favor_owed),
+  each naming the party that CARRIES the standing cost and a since-line
+  origin; between parties resolving to real businesses or c/s/a person
+  ids, with offstage orgs legal inside between but never keying; the
+  open/counter/quiet visibility ladder redacting quiet rows below
+  internal clearance in favor.html exactly like secret web edges; and
+  game-dollar balances confined to tab_line. The audit's v128 marks pin
+  the doors-key-it coverage, the carries contract, the closed
+  vocabularies, the deep FAV mirror, and the clearance-redaction paths.
+  PT118 (offers v129) audits the standing-offer layer — "The Standing
+  Offer": 34 bounded opportunities across all 20 door venues AND all 9
+  registry buildings (shared_workspace / open_invitation /
+  community_project), each naming a host who keeps it legible (a person
+  id, or staff/house/regulars) plus cost, capacity, cadence, and since;
+  every offer carrying both a changes line (the readable consequence if
+  taken up) and a neglect line (the honest decay state if ignored) —
+  the authored half of drama.json §51, so a missed shared meal or an
+  unclaimed garden bed reads as a thing that happened, never a failed
+  script. The audit's v129 marks pin the doors+buildings coverage, the
+  host vocabulary, the mandatory changes/neglect pair, the deep OFF
+  mirror, and the quiet/counter clearance-redaction paths.
+  PT119 (request v130) audits the landing layer — what an approved
+  nudge or event *becomes*: a bounded standing invitation minted in the
+  offers.json shape (open_invitation; board for events, counter for
+  nudges; host staff|regulars, never a named character; sponsor tag
+  carrying rq-<id>; expiry in hours), rendered on the "How it landed"
+  card with the honesty line printed on it — the block may ignore this,
+  nobody is obliged, uptake is never scored. A declined nudge mints
+  nothing; endings report taken-up or let-lapse as fact, never success
+  or failure. The audit's v130 marks pin the lands_as contract against
+  the offers schema and vocabularies, the host rule, the new fairness
+  invariant, and the locked card copy.
+  PT120 (wire v131) audits the return layer — the free observer loop's
+  catch-up + prediction beats on the spectator feed. The "since you were
+  away" edition stamps the feed's edge at each visit and reports at most
+  three verified changes since (request threads filed or moved, sky/
+  registry/press/admin/cast events — moves and texture never count),
+  each row linked to its own line, its pre-away context, and its thread,
+  with "still open" on unresolved threads. Calls let a viewer note
+  "will run / won't run" on an open request thread — stakeless,
+  viewer-side only, locking when the record answers ("your call held /
+  the record went the other way. kept, not scored"). The audit's v131
+  marks pin the 3-row cap, the open-status gate on makeCall, the
+  never-a-bus-write rule on call functions, and the no-scoring
+  vocabulary ban.
+  PT121 (archive v132) audits the consequence layer — the observer
+  loop's follow + inspect legs on the history browser. Following marks
+  names and threads (rw_archive_follow, this browser only) and reports
+  each follow's rows on record plus lines since the edition mark, with
+  honest quiet lines ("the record went quiet on <name> — that's a count
+  too") and kept-not-invented handling for follows a source doesn't
+  serve; rows touching a follow carry the ◆ mark. The record detail
+  gains "after this" (the next written row on each shared edge —
+  thread/person/venue — "a next line is not a caused line") and "seen
+  this before" (earlier same-shape rows — "a count, not a pattern
+  claim"). The audit's v132 marks pin the view switch, storage key,
+  both honesty lines, the follow toggles, and the never-a-bus-write
+  rule on every fol* function.
+  PT122 (create v133) audits the carried-in layer — the creation flow's
+  self-chosen-projects + limited-capacity legs. Step 5 gains an optional
+  HOPES pick ("a trade to learn" / "people to eat with" / "a crew" /
+  "good at the work" / "a place that's theirs" / "to be known a little"
+  / "a quiet year") with "arrives open" as the honest default; the note
+  states "a hope is an initial condition, not a promise … nothing
+  tracks the difference" and who-grounded hopes append "nobody was
+  asked". The week grid gains a HOURS row derived from the picked job's
+  posted hours ("a hope competes with sleep" on a 40-hour card; "the
+  catch is the pay, not the clock" on a variable gig). The hope rides
+  the review quote, the keys card, the registry entry, and params.hope
+  on the bus filing — never the briefing. The audit's v133 marks pin
+  the HOPES mirror grounding (at/who/near/job/open channels re-verified
+  against the registries), the honesty strings, the params.hope seam,
+  and the contract blocks.
+  PT123 (mod v134) audits the precedent layer — consistency memory for
+  reviewers. The request detail gains a "Ruled alike — the record so
+  far" card between the trace and the decision bar: decided rulings
+  matching on charge (screen code; appeals read the original denial
+  code) or face (target), each row citing the ruling only — id, date,
+  reviewer, outcome, code — never screened text, never the player.
+  A ruling departing from every matched same-code precedent lands
+  anyway and is noted on the audit line ("AGAINST THE RECORD — noted,
+  never blocked") and in the exported mod_decision's precedent field;
+  the shift report counts departures in aggregate. No matches renders
+  the honest "first of its kind" line — the panel never invents a
+  precedent. The audit's v134 marks pin the card, the field-locked
+  PRECEDENTS row shape, the informs-never-binds copy, and the
+  precedent_layer contract block.
 
 ## 3. Running a session
 
@@ -447,6 +677,60 @@ v93 harness affordances (PT84 exercises all of them):
   in that step to n/a; pressed again on an all-n/a step it clears them.
   Mixed steps go all-n/a; other steps are never touched.
 
+v107 harness affordances (PT98 exercises all of them — the storage key
+rolls to `rw_playtest_v107` because session state gained `S.q` and
+`S.planMin`):
+
+- **Rail search** — a `search` box filters the rail on scenario
+  id + title + persona, case-insensitive (`S.q`, persisted). It
+  composes with smoke, hide-finished, and the surface filter, and the
+  narrowed list is the one the `[` / `]` walk and Copy run sheet use.
+  `/` focuses the box from anywhere outside a form field.
+- **Session planner** — a `plan` minutes box + `pick my session`
+  button builds an ordered pick-list into a card above the rail.
+  Priority: revisit-flagged → partially-verdicted this session →
+  cold (no checkpoint verdicted by anyone, imported reports included)
+  → fresh; ties hold scenario-number order. The plan fills the box in
+  order and stops before the first overflowing pick — except when the
+  first pick alone overflows, which is kept and labeled
+  `over by ~N min`. Fully-verdicted scenarios are never picked; ids
+  always come from PTS (the planner can shrink the list, never invent
+  it). With a surface filter set, only scenarios touching that surface
+  are pooled — a regression pass plans inside its surface. The card
+  re-renders as verdicts land, so the plan is always current.
+- **Copy plan** — emits a `[world-playtest-plan]` block: build, box
+  minutes, scenario count, and one line per pick with estimate +
+  reason tag + title. The facilitator's paste into a session invite;
+  it carries no verdicts.
+
+v121 harness affordances (PT110 exercises all of them — the storage key
+rolls to `rw_playtest_v121` because session state gained `S.verify`):
+
+- **Fix verification card** — a `#verify` card in the cohort panel
+  between Regressions and Coverage lists every imported finding whose
+  author left it `open` or `deferred`, one row each: severity chip,
+  ref/surface, title, `reported by` attribution, repro line, a
+  verify-note field, and three exclusive verdicts —
+  `STILL BROKEN` / `FIXED` / `CAN'T REPRO` (press again to clear).
+  Rows are deduped on content identity `surface|ref|title` — two
+  testers reporting the same thing produces one row naming both.
+  The surface filter narrows it exactly like the rail. Imported
+  reports are never edited; the verdicts live in this session's
+  `S.verify`, so a re-import restores every check in place.
+- **log follow-up** — on a still-broken row, seeds the finding form:
+  severity carried over, surface matched, title `re: <original>`,
+  detail citing the reporter and build. Editable, never auto-logs —
+  same discipline as the v65 boundary templates.
+- **Exports** — the JSON report carries a top-level `fix_checks`
+  array (`{surface, ref, title, verdict, note, by}` per verdicted
+  row) that survives `Clear imported reports`; Copy handoff adds a
+  `fix checks: N of M` line; the statline reads
+  `verify: N of M imported` while a cohort is loaded.
+- **Copy verify list** — emits a `[world-playtest-verify]` block:
+  build, in-scope count, then verdicted and pending-re-test rows in
+  separate lists, each with reporter attribution — the facilitator's
+  fix-tracking paste.
+
 v66 content under test (PT61 exercises it): the drama-direction board's
 new permission structures — fuse interference matrix (§31, all 15 pairs
 carry exactly one of interlocked/adjacent/independent/masked), audience
@@ -481,7 +765,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Thirty gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirty-four gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -553,7 +837,17 @@ employer/building coverage, door-not-name feed shapes, game dollars
 only), **book** (bookings.json ↔ book.html ↔ request.html BOOKW: no
 repricing, feed-vocabulary reuse, seeded windows), **commute**
 (commute.json ↔ commute.html: route/employer/home integrity, minors
-never routed, weather deltas are suggestions, no prices).
+never routed, weather deltas are suggestions, no prices), **favs**
+(favors.json ↔ favor.html: FAV deep mirror, doors key arrangements and
+every door carries ≥1, kind/visibility closed vocab, between parties
+resolve and the keyed venue is always one, carries ∈ between ∪
+{staff,both}, since required, tab_line balances game dollars only,
+quiet rows redact below internal clearance), **offs**
+(offers.json ↔ offer.html: OFF deep mirror, doors ∪ registry buildings
+key offers and every door + building carries ≥1, kind/visibility/host
+closed vocab, host ∈ person ids ∪ {staff,house,regulars},
+ask/changes/neglect/since/cadence/capacity required, cost.dollars the
+only money field, quiet/counter rows redact below clearance).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

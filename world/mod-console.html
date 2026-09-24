@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Mod Console — the human-review surface for the request pipeline (world v8;
+  v120 adds the writers' docket — the incident log for emergent AI behavior
+  that moderation can never touch: reviewers file observations FOR the
+  writers' room, the console recommends nothing and changes nothing, and
+  the boundary it makes constructive is the locked "no report-the-AI" rule);
   v36 adds the account-flag ledger, the aggregate shift report, and an
   obfuscation-attempt seed row; v50 adds a separator-evasion seed row that
   still lands the real charge after normalization; v64 adds the flag roster
@@ -20,7 +24,11 @@
   read gsModMetrics, the flag card reads gsFlagStatus, the notebook reads
   gsRepLedger, and the character card reads gsPossessionBriefing — the same
   whitelist object possession briefings ship. Capability-detected per call;
-  an absent bridge is the seeded demo below.
+  an absent bridge is the seeded demo below. v134 adds the precedent layer —
+  "ruled alike": decided rulings are remembered and surfaced beside the open
+  request (same code, same face) so consistency is a check a reviewer can see;
+  departing from the record is noted on the audit line, never blocked, and
+  the record cites rulings — it never re-reads screened text.
   Self-contained demo: file://-safe, no network, seeded queue simulated locally.
   Spec + runbook: world/moderation-tooling.md. Taxonomy: world/moderation.json.
   Screening engine: world/screen.js (window.RWScreen) — same engine request.html uses.
@@ -127,6 +135,7 @@
     <div class="metric"><b><a href="screen-lab.html" style="color:var(--blu);text-decoration:none">Screen Lab →</a></b><span>corpus + try-it</span></div>
     <div class="metric"><b><span id="repBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleReport()">shift report</span></b><span>aggregate only</span></div>
     <div class="metric"><b><span id="rosBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleRoster()">flag roster</span></b><span id="rosSub">internal only</span></div>
+    <div class="metric"><b><span id="docBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleDocket()">writers&rsquo; docket</span></b><span id="docSub">not moderation</span></div>
     <div class="metric" id="mDepth"><b>0</b><span>queue depth</span></div>
     <div class="metric" id="mOldest"><b>0:00</b><span>oldest wait</span></div>
     <div class="metric" id="mMed"><b>—</b><span>median today (SLA 15m)</span></div>
@@ -175,6 +184,32 @@
     the console recommends, it never executes an account action.
   </div>
   <div id="rosterBody"></div>
+</section>
+<section class="panel" id="docketPanel" style="display:none;max-width:900px;margin:0 auto 16px">
+  <h2>Writers&rsquo; docket — observed AI behavior, filed for the writers&rsquo; room</h2>
+  <div class="foot" style="color:var(--dim);font-size:11px;margin-bottom:10px">
+    The one constructive outlet for the locked boundary: there is no
+    &ldquo;report the AI&rdquo; surface and no retcon tool. An incident filed
+    here touches nothing — not the world, not the feed, not the player, not
+    the character. It lands in the writers&rsquo; room queue; the writers
+    decide what, if anything, changes on the page — never the console.
+    File the AI&rsquo;s own behavior only: if what you saw came from a
+    player&rsquo;s request, decide the request — that&rsquo;s the queue&rsquo;s
+    job. Character names come from the reviewer whitelist; you cannot cite a
+    secret you cannot see.
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    <select id="dChar"><option value="">the street / no one in particular</option></select>
+    <select id="dSev"><option value="note">note — worth the writers&rsquo; eyes</option>
+      <option value="concern">concern — writers should read soon</option></select>
+    <button class="ghost" onclick="fileIncident()">file incident</button>
+    <button class="ghost" onclick="exportDocket()">export incident records</button>
+  </div>
+  <input type="text" id="dText" spellcheck="false"
+    placeholder="what was observed — behavior you saw, in your own words; never a request, never a fix order"
+    style="width:100%;margin-bottom:12px">
+  <div id="docketBody"></div>
+  <textarea id="docketOut" spellcheck="false" style="width:100%;min-height:90px;margin-top:8px;font-family:var(--mono);font-size:10.5px;display:none"></textarea>
 </section>
 <div class="toast" id="toast"></div>
 
@@ -341,6 +376,26 @@ var PRIOR = { window:'trailing 30 days (seeded demo)',
             'repeat-pattern':3, 'real-person-mention':1 },
   appeals_filed:14, appeals_reversed:3,
   median_decision_min:11, comp_cr:1260, flags_issued:31 };
+/* v134: the precedent layer — "ruled alike". The detailed record behind
+   PRIOR's aggregate counts: decided rulings a reviewer can stand next to.
+   A precedent row cites the RULING only — id, date, reviewer, code,
+   decision, target — never the screened request text and never the player
+   handle: the record remembers what was decided, not who asked or what
+   they wrote. Demo-mode only; on a live queue the layer reads this
+   session's AUDIT entries until the canonical-ledger merge lands. */
+var PRECEDENTS = [
+  { id:'rq-1017', when:'2026-09-22', who:'s.oha', decision:'denied',  code:'secret-extraction',   target:'c1' },
+  { id:'rq-1009', when:'2026-09-15', who:'m.chen', decision:'denied',  code:'secret-extraction',   target:'c1' },
+  { id:'rq-1011', when:'2026-09-16', who:'you',    decision:'denied',  code:'harm-targeting',      target:'c4' },
+  { id:'rq-1019', when:'2026-09-23', who:'s.oha',  decision:'approved',code:'surface-relationship',target:'c6' },
+  { id:'rq-1024', when:'2026-09-19', who:'m.chen', decision:'denied',  code:'surface-relationship',target:'c4' },
+  { id:'rq-1027', when:'2026-09-20', who:'you',    decision:'denied',  code:'venue-lock',          target:'mudhaus' },
+  { id:'rq-1029', when:'2026-09-21', who:'m.chen', decision:'denied',  code:'admin-domain',        target:'c6' },
+  { id:'rq-1030', when:'2026-09-23', who:'you',    decision:'denied',  code:'obfuscation-attempt', target:'c2' },
+  { id:'rq-0988', when:'2026-09-08', who:'s.oha',  decision:'denied',  code:'real-business',       target:'naming' },
+  { id:'rq-0995', when:'2026-09-10', who:'m.chen', decision:'denied',  code:'legal-backstop',      target:'club600' },
+  { id:'rq-1004', when:'2026-09-12', who:'s.oha',  decision:'approved',code:'pass',                target:'sky' }
+];
 var LANE = 'all';
 var SEL = null;
 /* v78: reviewer identity — the demo switcher stands in for SSO. Every claim,
@@ -422,6 +477,72 @@ function waitMin(q){
   return 0;
 }
 function sortKey(q){ return q.subMin!=null?q.subMin*60000:(q.submitted||0); }
+
+/* ================= v134: the precedent layer — "ruled alike" =================
+   Consistency memory for reviewers. For the open request, surface decided
+   rulings that match on charge (the screen code — for appeals, the original
+   denial code) or on face (the target). Sources: this session's AUDIT always;
+   the seeded PRECEDENTS record only in demo mode — on a live queue the
+   canonical-ledger lookup is the game-systems merge target, and the card
+   says so rather than pretending. A precedent INFORMS, never binds: nothing
+   here decides, caps, or vetoes — a ruling that departs from the record is
+   noted on the audit line and still lands. */
+function precCode(q){
+  if(!q) return null;
+  if(q.appeal_of && q.orig && q.orig.code) return q.orig.code;
+  var c=(q.bus&&q.bus.screen)||(q.verdict&&q.verdict.code);
+  return (c&&c!=='pass')?c:null;
+}
+function findPrecedents(q){
+  var code=precCode(q), rows=[];
+  /* session rulings — AUDIT entries carry {id,who,decision,code,target,t} */
+  AUDIT.forEach(function(a){
+    if(!a.id||a.id===q.id) return;
+    var dc=(a.decision==='deny'||a.decision==='escalate')?'denied':'approved';
+    var sameCode=code&&a.code===code, sameTarget=a.target&&a.target===q.target;
+    if(sameCode||sameTarget)
+      rows.push({id:a.id, when:'today '+a.t, who:a.who, decision:dc,
+        code:a.code||'—', target:a.target, sameCode:!!sameCode, sameTarget:!!sameTarget, session:true});
+  });
+  if(!q.bus){
+    PRECEDENTS.forEach(function(r){
+      if(r.id===q.id||r.id===q.appeal_of) return;
+      var sameCode=code&&r.code===code, sameTarget=r.target===q.target;
+      if(sameCode||sameTarget)
+        rows.push({id:r.id, when:r.when, who:r.who, decision:r.decision,
+          code:r.code, target:r.target, sameCode:!!sameCode, sameTarget:!!sameTarget});
+    });
+  }
+  rows.sort(function(a,b){return (b.sameCode-a.sameCode)||(b.sameTarget-a.sameTarget);});
+  return { code:code, rows:rows.slice(0,5),
+    sameCodeCount:rows.filter(function(r){return r.sameCode;}).length };
+}
+function renderPrecedents(q){
+  var P=findPrecedents(q);
+  var html='<div class="card" style="margin-top:8px"><h3>Ruled alike — the record so far</h3>';
+  if(!P.rows.length){
+    html+='<div class="redact-note" style="font-style:normal">Nothing on record — a first of its kind is decided on the text, not on a pattern.</div>';
+  }else{
+    P.rows.forEach(function(r){
+      var tl=(CHARS[r.target]&&CHARS[r.target].name)||r.target||'—';
+      html+='<div class="kv"><span>'+r.when+' · '+r.id+(r.session?' · this session':'')+'</span>'+
+        '<b style="max-width:62%;text-align:right;font-weight:400">'+r.decision+' · '+r.code+' · '+tl+(r.sameTarget&&!r.sameCode?' <span style="color:var(--blu)">· same face</span>':'')+' — '+r.who+'</b></div>';
+    });
+    html+='<div class="redact-note" style="font-style:normal;margin-top:6px">A precedent informs, never binds — judge this text on its own. The record cites rulings (id, code, outcome), never re-reads screened text and never names the player.'+
+      (q.bus?' Live queue: this session\u2019s rulings only — the canonical-ledger lookup is the game-systems merge target.':'')+'</div>';
+  }
+  return html+'</div>';
+}
+/* decision-class alignment for the audit note: matched same-code rulings all
+   went one way and this decision goes the other → noted, never blocked */
+function precedentCheck(q, kind){
+  var P=findPrecedents(q);
+  var mine=(kind==='deny'||kind==='escalate')?'denied':'approved';
+  var same=P.rows.filter(function(r){return r.sameCode;});
+  var n=same.length;
+  var against=n>0&&same.every(function(r){return r.decision!==mine;});
+  return {matched:n, against:against, code:P.code};
+}
 
 var $ = function(id){ return document.getElementById(id); };
 function toast(m){ var t=$('toast'); t.textContent=m; t.style.display='block';
@@ -560,6 +681,9 @@ function renderDetail(){
   if(q.lane==='legal'){
     html+='<div class="trace" style="color:var(--red)">LEGAL LANE — kill before run. Public wording is always \u201Crequest not approved\u201D. Flag account (+3). Notify owner. No appeal.</div>';
   }
+  /* v134: the precedent layer — decided rulings on the same charge or the
+     same face, surfaced before the decision bar. Informs, never binds. */
+  html+=renderPrecedents(q);
   /* actions — withheld entirely when the item is claimed by another reviewer
      or when the appeal's original reviewer is you */
   if(lockedOut){
@@ -696,11 +820,14 @@ function decide(kind){
     }
     if(kind==='modify') outcome='[modified → '+opts.modifyMin+' min] '+outcome;
     if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
+    var prec=precedentCheck(q, kind);
+    if(prec.against) outcome+=' | AGAINST THE RECORD — departs from '+prec.matched+' prior '+(prec.code||'same-code')+' ruling'+(prec.matched>1?'s':'')+' (noted, never blocked).';
     var t2=new Date();
     AUDIT.unshift({t:('0'+t2.getHours()).slice(-2)+':'+('0'+t2.getMinutes()).slice(-2),
       who:REVIEWER, id:q.id, outcome:outcome,
       decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
-      appeal_of:q.appeal_of||null, player:q.player, via:'bus'});
+      appeal_of:q.appeal_of||null, player:q.player, via:'bus',
+      target:q.target, precedent:{matched:prec.matched, against:prec.against}});
     delete CLAIMS[q.id];
     SEL=null; DECISIONS++;
     toast(q.id+' resolved through the bus — '+res.status+'.');
@@ -728,11 +855,14 @@ function decide(kind){
     rec.code=code; rec.flag_w=c.flag_w; rec.feed=c.feed;
   }
   if(q.appeal_of) outcome='[APPEAL of '+q.appeal_of+'] '+outcome;
+  var prec2=precedentCheck(q, kind);
+  if(prec2.against) outcome+=' | AGAINST THE RECORD — departs from '+prec2.matched+' prior '+(prec2.code||'same-code')+' ruling'+(prec2.matched>1?'s':'')+' (noted, never blocked).';
   var t=new Date();
   AUDIT.unshift({t:('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
     who:REVIEWER, id:q.id, outcome:outcome,
     decision:rec.decision, code:rec.code, flag_w:rec.flag_w, feed:rec.feed,
-    appeal_of:q.appeal_of||null, player:q.player});
+    appeal_of:q.appeal_of||null, player:q.player,
+    target:q.target, precedent:{matched:prec2.matched, against:prec2.against}});
   QUEUE=QUEUE.filter(function(x){return x.id!==SEL;});
   SEL=null; DECISIONS++;
   toast(q.id+' decided — '+kind+'. Logged to audit trail.');
@@ -882,6 +1012,13 @@ function renderReport(){
   var rws=Object.keys(s.by_reviewer);
   if(rws.length) html+='<div class="kv"><span>Decisions this session, by reviewer</span><b>'+
     rws.map(function(r){return r+': '+s.by_reviewer[r];}).join(' · ')+'</b></div>';
+  /* v120 writers' docket — counted here, contents stay with the writers */
+  html+='<div class="kv"><span>Incidents to the writers\u2019 room</span><b>'+(DOCKET.length+SESSION_WI.length)+
+    ' — counted, contents stay with the writers; never a moderation action</b></div>';
+  /* v134 precedent layer — departures counted in aggregate, never which */
+  var dep=AUDIT.filter(function(a){return a.precedent&&a.precedent.against;}).length;
+  if(AUDIT.length) html+='<div class="kv"><span>Departures from the record</span><b>'+dep+' of '+AUDIT.length+
+    ' session rulings — noted on the audit line, never blocked; consistency is a check, not a veto</b></div>';
   html+='<h2 style="margin:12px 0 6px">Denials + reviews by code</h2>';
   Object.keys(s.by_code).sort(function(a,b){return s.by_code[b]-s.by_code[a];}).forEach(function(k){
     html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';
@@ -981,7 +1118,8 @@ function exportLedger(){
   var recs=AUDIT.slice().reverse().map(function(a){
     return { rec:'mod_decision', ts:new Date().toISOString().slice(0,10)+' '+a.t,
       reviewer:a.who, request_id:a.id, player:a.player, decision:a.decision,
-      code:a.code, flag_w:a.flag_w, appeal_of:a.appeal_of, feed_line:a.feed };
+      code:a.code, flag_w:a.flag_w, appeal_of:a.appeal_of, feed_line:a.feed,
+      precedent:a.precedent||null };
   });
   var t=$('ledgerOut'); t.style.display='block';
   t.value=JSON.stringify({records:recs, contract:'moderation.json ledger_records',
@@ -1000,7 +1138,72 @@ function renderAudit(){
   });
 }
 
-function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); }
+/* ================= writers' docket (v120) — incidents for the writers' room =================
+   The constructive half of "no report-the-AI surface": reviewers SEE emergent
+   behavior all shift; the docket is where an observation goes. It is not a
+   moderation action — it touches nothing (not the world, not the feed, not
+   the player, not the AI). Records export as writers_incident, never
+   mod_decision — a different ledger for a different room. */
+var DOCKET=[ /* seeded prior filings — believable emergent-behavior notes, public behavior only */
+  { id:'wi-031', t:'2026-09-21 08:40', who:'s.oha', char:'c1', sev:'note',
+    text:'Mars comped a stranger\u2019s coffee three mornings running — different stranger each time. Generosity cluster; the writers may want to know it\u2019s become a habit, not a one-off.' },
+  { id:'wi-032', t:'2026-09-22 19:15', who:'m.chen', char:'c7', sev:'note',
+    text:'Victor closed the store ~40 min early twice this week and sat on the stoop with Carmen. Reads as deliberate, not idle — flagging in case it becomes a pattern the street reacts to.' },
+  { id:'wi-033', t:'2026-09-23 02:50', who:'you', char:'c4', sev:'concern',
+    text:'Priya went back out for a second stairs run at 2 a.m. after a full night shift — third late-night loop this week. Not a moderation matter; flagging for the writers in case the exhaustion reads somewhere it shouldn\u2019t.' }
+];
+var SESSION_WI=[];
+function toggleDocket(){
+  var p=$('docketPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){ renderDocket(); p.scrollIntoView(); }
+}
+function renderDocket(){
+  var sel=$('dChar');
+  if(!sel.options.length||sel.options.length===1){
+    for(var id in CHARS){
+      var o=document.createElement('option'); o.value=id; o.textContent=CHARS[id].name; sel.appendChild(o);
+    }
+  }
+  var html='';
+  var all=SESSION_WI.concat(DOCKET);
+  if(!all.length){ html='<div class="empty">Nothing filed yet — the docket is for the AI\u2019s own behavior, seen and noted.</div>'; }
+  all.forEach(function(w){
+    var ch=w.char&&CHARS[w.char]?CHARS[w.char].name:'the street';
+    html+='<div class="card"'+(w.sev==='concern'?' style="border-color:var(--acc)"':'')+'><h3>'+w.id+' — '+ch+
+      (w.sev==='concern'?' <span class="flag soft">concern</span>':' <span class="flag soft" style="background:var(--panel2);color:var(--dim)">note</span>')+'</h3>'+
+      '<div class="kv"><span>Filed</span><b>'+w.t+' · '+w.who+'</b></div>'+
+      '<div style="margin-top:6px;font-size:12.5px">'+w.text+'</div></div>';
+  });
+  html+='<div class="foot" style="color:var(--dim);font-size:11px;margin-top:8px">Incidents are observations, not instructions. The writers\u2019 room reads them; nothing on this panel reaches the world, the wire, or the ledger of decisions.</div>';
+  $('docketBody').innerHTML=html;
+  $('docSub').textContent=all.length+' filed · writers only';
+}
+function fileIncident(){
+  var txt=($('dText')&&$('dText').value||'').trim();
+  if(!txt){ toast('An incident needs the observation itself — what did you see?'); return; }
+  if(/^rq-\d+/i.test(txt)){ toast('That\u2019s a request id — decide it in the queue. The docket is for the AI\u2019s own behavior.'); return; }
+  var t=new Date();
+  var id='wi-0'+(34+SESSION_WI.length);
+  SESSION_WI.unshift({ id:id, t:t.toISOString().slice(0,10)+' '+('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
+    who:REVIEWER, char:$('dChar').value||null, sev:$('dSev').value, text:txt });
+  $('dText').value='';
+  toast(id+' filed to the writers\u2019 room — it touched nothing. Not the world, not the feed, not the player.');
+  renderDocket();
+}
+function exportDocket(){
+  var recs=SESSION_WI.slice().reverse().concat(DOCKET).map(function(w){
+    return { rec:'writers_incident', id:w.id, ts:w.t, filed_by:w.who,
+      character:w.char, severity:w.sev, observation:w.text };
+  });
+  var t=$('docketOut'); t.style.display='block';
+  t.value=JSON.stringify({records:recs, contract:'moderation.json writers_docket',
+    note:'writers\u2019 room queue — NOT mod_decision records; observations only, never instructions, never the public feed'},null,1);
+  t.select(); try{ document.execCommand('copy'); }catch(e){}
+  toast(recs.length+' writers_incident record(s) — a different ledger for a different room.');
+}
+
+function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); renderDocket(); }
 /* v92 seam boot: live mode pulls the bus once and marks the badge; the demo
    keeps its seeded queue as the contract reference. */
 if(LIVE){

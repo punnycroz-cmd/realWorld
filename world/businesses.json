@@ -1,5 +1,5 @@
 {
- "_doc": "Machine-readable registry of canonical parody businesses. Naming authority: world/businesses.md; depth layer: world/businesses/*.md (one card per venue). Display layer: src/sf/30a_sf_names.js + world/parody-names.json (generated). Rule: parody names only (design §11); civic/landmark kinds keep real names as scenery. All prices are GAME DOLLARS — never credits, never real USD. Supply layer: world/suppliers.json (v86 — offstage wholesale vendors + delivery runs; suppliers never enter this registry).",
+ "_doc": "Machine-readable registry of canonical parody businesses. Naming authority: world/businesses.md; depth layer: world/businesses/*.md (one card per venue). Display layer: src/sf/30a_sf_names.js + world/parody-names.json (generated). Rule: parody names only (design §11); civic/landmark kinds keep real names as scenery. All prices are GAME DOLLARS — never credits, never real USD. Supply layer: world/suppliers.json (v86 — offstage wholesale vendors + delivery runs; suppliers never enter this registry). Obligations layer: world/favors.json (v128 — informal arrangements per door; quiet rows redact like secret web edges).",
  "version": 100,
  "regulars_layer": "world/regulars.json — v58: per-venue regulars (standing order, window, spot, surface knowledge, name basis, tab); spec world/regulars.md; demo world/regulars.html",
  "storefront_layer": "world/storefronts.json — v44: signage/menu-board/flyer copy per door-having venue (anchor + street tiers only); spec world/storefronts.md; demo world/storefront.html",
@@ -1174,5 +1174,6 @@
    "Dolores Park"
   ]
  },
- "corridor_flips_note": "The second-wave parody names (v16 — e.g. Tacobulous, Hole in Fun, Centro Cultural La Misión) live in SF_PARODY_NAMES / parody-names.json, not here: they are signage-level venues with no cast ties. Promote one to a card only when a routine, job, or storyline attaches to it. Promoted at v30: The Dusty Spine (Dog Eared Books), Marooned Records (Stranded Records), The Musket (Beretta) — plus Golden Hour Laundromat minted from the reserved list."
+ "corridor_flips_note": "The second-wave parody names (v16 — e.g. Tacobulous, Hole in Fun, Centro Cultural La Misión) live in SF_PARODY_NAMES / parody-names.json, not here: they are signage-level venues with no cast ties. Promote one to a card only when a routine, job, or storyline attaches to it. Promoted at v30: The Dusty Spine (Dog Eared Books), Marooned Records (Stranded Records), The Musket (Beretta) — plus Golden Hour Laundromat minted from the reserved list.",
+ "favor_layer": "world/favors.json — v128: per-door informal arrangements (keys/tabs/holds/lends/watches/passes/favors owed); each names carries + open/counter/quiet visibility; spec world/favors.md; demo world/favor.html"
 }

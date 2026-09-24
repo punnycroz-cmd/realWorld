@@ -112,6 +112,34 @@ the other), matching both bibles' interior ledgers compressed.
 - Nobody on the cast dislikes anybody outright. Conflict in this
   ensemble comes from affection under pressure, never antagonists.
 
+## The supporting tier (v126)
+
+Three ambients promoted to full supporting residents at v126
+(`characters/supporting/`): **S1 Bex** (the alley — Clarion, Needlepointe,
+the 600 Club circuit), **S2 Esther** (the bench — park south, eight
+hours of open office), **S3 Asha** (the evening counter seat — 19:30,
+phone face-down). Same rules as this file: priors and pressures, never
+scripts; observable-safe only.
+
+- **Bex's seams:** the alley orbit touches Dani (a customer who tips in
+  sketches — and a hand she half-recognizes), Marcus (the drumsticks),
+  and Marisol's counter (her aftercare referral). Coldest useful seam:
+  Bex × Victor — her landlord's shape is a faceless shop owner; his is
+  a hardware ledger. They've never needed each other. Yet.
+- **Esther's seams:** Carmen is the peer-nod; Marisol is the Treat Ave
+  girl she's watched since childhood; Jules is the newcomer currently
+  being tested. Esther × the park is the relationship — the mains are
+  guests in her office.
+- **Asha's seams:** Priya is the mirror across the hallway (bad weeks
+  read without talking — neither has named it); Marisol's counter is
+  her ten minutes of personhood; Esther is a bench she checks with her
+  eyes, and both know it now.
+- **Supporting × supporting:** Bex and Esther share the
+  honest-hands moment (unprompted, once, kept). Asha and Esther share
+  the checking/noticed asymmetry. Bex and Asha are cold by design —
+  two professionals who pass on South Van Ness without a word; keep
+  it cold, the arrival is content.
+
 ## What the ensemble is *for*
 
 - Viewers should be able to pick any two mains sharing a frame and get

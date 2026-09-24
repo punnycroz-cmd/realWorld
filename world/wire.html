@@ -91,6 +91,16 @@
       day card's withheld-count honesty line (privacy, not downtime).
     - follow pins sync to the bus endpoint gsWireFollow (v:/m: keys) —
       the only write this page makes is the viewer's own pin.
+  New in v9 (world v117) — the attention layer:
+    - kind tray — the wire counted by kind ("weather 3 · press 1 …"):
+      one chip per kind actually on the wire today; click isolates that
+      kind, `g` cycles, click again clears. A lens, never a ranking.
+    - the hour grid in the day card — 24 cells shaded by the wire's own
+      per-hour count; clicking an hour jumps to its first line.
+    - thread watch — a request's detail gains "watch this thread":
+      its new lines carry a ◆ for you only (rw_wire_watch), the watched
+      list lives beside muted threads, and the new-events pill counts
+      what landed on your pins and watches. The record is unchanged.
   New in v8 (world v103) — the record layer:
     - pin read-back: gsWireFollows() hydrates the Following panel from
       the bus's own pin set on join and adopts new bus-side pins each
@@ -106,6 +116,20 @@
     - bus self-check: opening the day card (live) runs gsWireAudit() and
       reports the bus's own verdict — "N lines · self-check ok" or the
       honest issue count. Read-only; the record flags itself.
+  New in v10 (world v131) — the return layer:
+    - "since you were away" — the catch-up edition (#edition, `u` key,
+      rw_wire_ed/rw_wire_lastseen). The page remembers the feed's edge
+      at your last visit and reports AT MOST THREE verified changes
+      since: request threads filed or moved, sky changes, registry/
+      press/admin/cast events — each linked to its own line, its
+      pre-away context, and its thread. Still-open threads carry
+      'still open'. Moves and street texture aren't "changes"; nothing
+      inferred, nothing ranked.
+    - calls — a stakeless prediction ledger (rw_wire_calls). On an open
+      request thread: "call it — will run / won't run". The record
+      answers at the terminal line ('your call held' / 'the record went
+      the other way'). No stakes, no score, nobody else sees it; like a
+      watch, a call never reaches the bus.
   Boundaries: surface-only text, homes are walls, secrets absent by
   schema, parody names only, mains unpossessable, attribution on every
   paid intervention. Watching is free forever.
@@ -361,6 +385,39 @@
   .pboard .pb .pnote{color:var(--dim);flex:1;font-size:11.5px}
   .pboard .pb .pwho{color:var(--blu);flex:none;font-size:11px}
   .pboard .pfoot{margin-top:8px;color:var(--dim);font-size:11px}
+
+  /* ---- v117: the attention layer ---- */
+  .kindtray{display:none;gap:6px;flex-wrap:wrap;align-items:center;margin:-4px 0 10px}
+  .kindtray .ktlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .kindtray .ktnote{font-size:10.5px;color:var(--dim);font-style:italic}
+  .kchip{font:inherit;font-size:10.5px;padding:2px 9px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--dim)}
+  .kchip.on{color:var(--acc);border-color:var(--acc);background:#2a2618}
+  .kchip .n{color:var(--acc);font-family:var(--mono);font-size:9.5px}
+  .hgrid{display:flex;gap:2px;margin:8px 0 2px}
+  .hcell{flex:1;min-width:0;height:20px;border-radius:3px;background:var(--blu);
+    font-family:var(--mono);font-size:8.5px;color:#10151b;text-align:center;
+    line-height:20px;cursor:pointer;overflow:hidden}
+  .hcell:hover{outline:1px solid var(--acc)}
+  .wire .wm{color:var(--grn);font-size:9px;margin-left:5px}
+  .lncard.wch{border-color:var(--grn)}
+  .watchlist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .watchlist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  /* v131 — the return layer */
+  .edition{display:none;margin:8px 0;padding:8px 10px;border:1px solid var(--line);
+    border-radius:8px;background:rgba(255,255,255,.02);font-size:12px}
+  .edition .edhead{display:flex;align-items:center;gap:8px;cursor:pointer}
+  .edition .edhead b{color:var(--ink);font-size:12.5px}
+  .edition .edhead .arrow{margin-left:auto;color:var(--dim)}
+  .edition .edrow{padding:5px 0;border-top:1px dashed var(--line);color:var(--dim)}
+  .edition .edrow:first-of-type{border-top:0}
+  .edition .edrow .t{color:var(--dim);font-variant-numeric:tabular-nums;margin-right:6px}
+  .edition .edlink{color:var(--blu);cursor:pointer;margin-left:8px;white-space:nowrap}
+  .edition .edfoot{margin-top:6px;font-size:11px;color:var(--dim)}
+  .edition .stopen{color:var(--grn,#7ec98a);font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;margin-left:6px}
+  .calllist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .calllist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -404,11 +461,13 @@
       <span class="qcount" id="qcount"></span>
       <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
+    <div class="kindtray" id="kindtray" aria-label="the wire counted by kind — a lens, never a ranking"></div>
     <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
     <div class="bookbar" id="bookbar" aria-label="on the book — upcoming booked windows"></div>
     <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
     <div class="daybar" id="daybar" role="button" tabindex="0" aria-label="toggle the day-so-far recap"></div>
     <div class="daycard" id="daycard"></div>
+    <div class="edition" id="edition" aria-label="since you were away — verified changes from the wire's own record"></div>
     <div class="dirbar" id="dirbar" aria-label="director preview — camera presets, follow-cam, replay scrub">
       <div class="dhead"><b>director preview</b>
         <span class="dnote">view-layer only — cameras watch the wire, never the inside of a home</span>
@@ -460,6 +519,8 @@
         venue or a character on the left — free, instant, reversible. It filters the wire;
         it never touches the world.</div>
       <div class="mutelist" id="mutelist" style="display:none"></div>
+      <div class="watchlist" id="watchlist" style="display:none"></div>
+      <div class="calllist" id="calllist" style="display:none"></div>
     </section>
   </div>
 </main>
@@ -489,6 +550,8 @@
       <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
       <tr><td class="k">v</td><td>director preview — cam presets, follow-cam, replay scrub</td></tr>
       <tr><td class="k">b</td><td>on the book — upcoming booked windows</td></tr>
+      <tr><td class="k">g</td><td>cycle the kind lens — kinds today, counted</td></tr>
+      <tr><td class="k">u</td><td>since you were away — the catch-up edition</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -687,6 +750,232 @@ function toggleMute(req){
   saveMuted(); renderFollows(); renderWire(); renderDetail();
 }
 
+/* v117 — thread watch: the mute's mirror. A watched request's lines get
+   a ◆ for this viewer only and its updates are counted in the new-events
+   pill. Viewer-side, persisted (rw_wire_watch); the wire's record — and
+   everyone else's screen — is unchanged. A watch never writes to the
+   bus: unlike a pin it is pure display state, so nothing leaves the page. */
+var watching={};
+try{ watching=JSON.parse(localStorage.getItem('rw_wire_watch')||'{}'); }catch(e){}
+function saveWatching(){ try{ localStorage.setItem('rw_wire_watch',JSON.stringify(watching)); }catch(e){} }
+function toggleWatch(req){
+  if (watching[req]) delete watching[req]; else watching[req]=true;
+  saveWatching(); renderFollows(); renderWire(); renderDetail();
+}
+
+/* ================= v131 — the return layer =================
+   Two answers for the coming-back viewer, both strictly view-layer:
+
+   1) "since you were away" — the catch-up edition (#edition, `u` key,
+      persisted rw_wire_ed). The page remembers the feed's edge when the
+      viewer last left (rw_wire_lastseen: {seq,t,id}) and reports AT MOST
+      THREE verified changes since — where a "change" is something the
+      wire itself recorded crossing a boundary: a request thread that
+      moved status or was filed, a sky change, a housing/registry event,
+      a press post, an admin action, a new resident. Moves, scenes, and
+      venue texture are deliberately not "changes" — they're the day
+      happening, and the stream already has them. Each row links to its
+      own line (the evidence) and to the thread's last pre-away line
+      (the earlier context); a still-open thread carries 'still open' —
+      the unresolved follow-up. Nothing inferred, nothing ranked: rows
+      are newest-first, capped at three, and the card says so.
+
+   2) calls — a stakeless prediction ledger (rw_wire_calls). On any open
+      request thread the viewer may note "will run" / "won't run" — a
+      private expectation, viewer-side only (like a watch it never
+      reaches the bus). When the thread posts a terminal status the
+      record answers: 'the record shows resolved — your call held' or
+      'the record went the other way'. No points, no streaks, no share
+      button, nobody else sees it — a call is a note to yourself about
+      what you expected, kept honest by the wire's own record. */
+var edOpen=true;
+try{ edOpen = localStorage.getItem('rw_wire_ed')!=='0'; }catch(e){}
+/* the edge the viewer last left — read once at boot, then re-stamped as
+   this session advances so the next visit measures from tonight, not
+   from the first visit ever. Baseline resolution at render time is
+   id- first, then seq, then t (a demo restart's seq can regress; the
+   block clock can't). */
+var LAST_SEEN=null;
+try{ LAST_SEEN = JSON.parse(localStorage.getItem('rw_wire_lastseen')||'null'); }catch(e){}
+function stampLastSeen(){
+  var edge=null;
+  FEED.forEach(function(e){ if(!edge || e.seq>edge.seq || (e.seq===edge.seq&&e.t>edge.t)) edge=e; });
+  if (!edge) return;
+  try{ localStorage.setItem('rw_wire_lastseen',
+    JSON.stringify({seq:edge.seq, t:edge.t, id:edge.id, at:Date.now()})); }catch(e){}
+}
+window.addEventListener('pagehide',stampLastSeen);
+window.addEventListener('beforeunload',stampLastSeen);
+function isSince(e){
+  if (!LAST_SEEN) return false;
+  if (e.id && e.id===LAST_SEEN.id) return false;
+  if (LAST_SEEN.seq!=null && e.seq>LAST_SEEN.seq) return true;
+  if (LAST_SEEN.t!=null && e.t>LAST_SEEN.t) return true;
+  return false;
+}
+var TERMINAL_ST={'resolved':1,'refunded':1,'not approved':1,'player session ended':1};
+function reqRan(st){ return st==='resolved'||st==='player session ended'; }
+/* collect the verified changes since the baseline — at most three */
+function editionRows(){
+  var rows=[];
+  /* request threads: filed or moved across the boundary */
+  var order=[], seenReq={};
+  FEED.forEach(function(e){
+    if (e.kind!=='request'||!e.req||seenReq[e.req]) return;
+    seenReq[e.req]=1; order.push(e.req);
+  });
+  order.forEach(function(r){
+    var post=FEED.filter(function(e){return e.req===r&&isSince(e);});
+    if (!post.length) return;
+    var latest=post[0]; /* FEED newest-first */
+    var pre =FEED.filter(function(e){return e.req===r&&!isSince(e);});
+    var prev=pre.length?pre[0]:null;
+    rows.push({t:latest.t, seq:latest.seq, id:latest.id, ctx:prev&&prev.id,
+      open:!!LIVE_STATUSES[latest.status], req:r,
+      text: prev ? 'request '+r+' moved — '+prev.status+' → '+latest.status
+                 : 'request '+r+' filed — '+(latest.status||'requested')+(latest.who?' · '+latest.who:'')});
+  });
+  /* the sky, the registry, the paper, admin, a new face — one row each */
+  var singles={weather:null,housing:null,press:null,admin:null,cast:null};
+  FEED.forEach(function(e){
+    if (!(e.kind in singles) || !isSince(e)) return;
+    if (!singles[e.kind]) singles[e.kind]=e;
+  });
+  var ONE_LINERS={weather:'the sky changed — ', housing:'the registry moved — ',
+    press:'the paper posted — ', admin:'admin acted — ', cast:'a new face — '};
+  Object.keys(singles).forEach(function(k){
+    var e=singles[k]; if(!e) return;
+    rows.push({t:e.t, seq:e.seq, id:e.id, ctx:null, open:false, req:null,
+      text:ONE_LINERS[k]+e.text});
+  });
+  rows.sort(function(a,b){ return (b.t-a.t)||(b.seq-a.seq); });
+  return rows.slice(0,3);
+}
+function renderEdition(){
+  var box=document.getElementById('edition');
+  /* the card exists the moment the viewer has any baseline — a first
+     visit renders the honest empty state instead of hiding the feature */
+  var rows = LAST_SEEN ? editionRows() : [];
+  var head = '<div class="edhead" id="edhead"><b>since you were away</b>'+
+    '<span style="color:var(--dim)">'+
+    (LAST_SEEN ? 'the record since '+fmt(LAST_SEEN.t)+' — up to three verified changes'
+               : 'first visit on record — the wire keeps the edge you leave')+
+    '</span><span class="arrow">'+(edOpen?'▾':'▸')+'</span></div>';
+  if (!edOpen){ box.innerHTML=head; box.style.display='block';
+    document.getElementById('edhead').onclick=toggleEdition; return; }
+  var h=head;
+  if (!LAST_SEEN){
+    h+='<div class="edrow">Nothing to compare yet — from here on, the wire '+
+      'remembers where you left. Come back and this card lists what verifiably changed.</div>';
+  } else if (!rows.length){
+    h+='<div class="edrow">The record is unchanged since '+fmt(LAST_SEEN.t)+
+      ' — quiet is a finding, not a gap.</div>';
+  } else {
+    rows.forEach(function(r){
+      h+='<div class="edrow"><span class="t">'+fmt(r.t)+'</span>'+esc(r.text)+
+        (r.open?'<span class="stopen">still open</span>':'')+
+        ' <span class="edlink" data-e="'+r.id+'">the line</span>'+
+        (r.ctx?' <span class="edlink" data-e="'+r.ctx+'">before that</span>':'')+
+        (r.req?' <span class="edlink" data-r="'+esc(r.req)+'">the thread</span>':'')+
+        '</div>';
+    });
+    h+='<div class="edfoot">at most three verified changes, each linked to its own '+
+      'lines — moves and street texture aren\u2019t "changes"; the stream has them. '+
+      'Nothing inferred, nothing ranked.</div>';
+  }
+  box.innerHTML=h; box.style.display='block';
+  document.getElementById('edhead').onclick=toggleEdition;
+  box.querySelectorAll('.edlink[data-e]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation();
+      selId=c.dataset.e; renderWire(); renderDetail();
+      var el=document.querySelector('#wire .ev[data-id="'+selId+'"]');
+      if (el){ el.scrollIntoView({block:'center'}); el.focus(); }
+      else toast('that line is older than the loaded page — load older first');
+    };
+  });
+  box.querySelectorAll('.edlink[data-r]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation();
+      var hit=null;
+      for (var i=0;i<FEED.length;i++) if (FEED[i].req===c.dataset.r){ hit=FEED[i]; break; }
+      if (hit){ selId=hit.id; renderWire(); renderDetail(); }
+      else toast('request '+c.dataset.r+' isn\u2019t on the loaded wire — try The Archive');
+    };
+  });
+}
+function toggleEdition(){
+  edOpen=!edOpen;
+  try{ localStorage.setItem('rw_wire_ed',edOpen?'1':'0'); }catch(e){}
+  renderEdition();
+}
+
+/* calls — the stakeless prediction ledger. {req: {pick:'will'|'wont', t}}.
+   A call is writable only while the thread's latest status is open; once
+   the record answers, the call locks and the outcome line renders beside
+   it. One call per thread — change your mind while it's open, never after. */
+var calls={};
+try{ calls=JSON.parse(localStorage.getItem('rw_wire_calls')||'{}'); }catch(e){}
+function saveCalls(){ try{ localStorage.setItem('rw_wire_calls',JSON.stringify(calls)); }catch(e){} }
+function reqLatest(req){
+  var tr=trailFor(req);
+  return tr.length?tr[tr.length-1]:null;
+}
+function makeCall(req,pick){
+  var lt=reqLatest(req);
+  if (!lt || !LIVE_STATUSES[lt.status]){ toast('the record already answered that thread'); return; }
+  calls[req]={pick:pick,t:T};
+  saveCalls(); renderFollows(); renderDetail();
+}
+function clearCall(req){
+  var lt=reqLatest(req);
+  if (lt && !LIVE_STATUSES[lt.status]){ toast('the record already answered — the call stands'); return; }
+  delete calls[req]; saveCalls(); renderFollows(); renderDetail();
+}
+function callVerdict(req){
+  var c=calls[req], lt=reqLatest(req);
+  if (!c||!lt) return null;
+  if (LIVE_STATUSES[lt.status]) return {open:true, status:lt.status};
+  var ran=reqRan(lt.status);
+  var held=(c.pick==='will')===ran;
+  return {open:false, status:lt.status, held:held};
+}
+
+/* v117 — the kind tray: the wire counted by kind. Chips exist only for
+   kinds actually on the wire (a count, never a ranking); picking one
+   isolates the stream to it — stacked on the main filter, so "requests"
+   + "the block" reads the way it sounds. */
+var kindPick=null;
+var KIND_ORDER=['move','scene','venue','weather','request','admin','press','housing','cast','quiet'];
+function kindCounts(){
+  var ct={};
+  FEED.forEach(function(e){ ct[e.kind]=(ct[e.kind]||0)+1; });
+  var ks=KIND_ORDER.filter(function(k){return ct[k];})
+    .concat(Object.keys(ct).filter(function(k){return KIND_ORDER.indexOf(k)<0;}));
+  return {order:ks, ct:ct};
+}
+function renderKinds(){
+  var tray=document.getElementById('kindtray');
+  if (!FEED.length){ tray.style.display='none'; tray.innerHTML=''; return; }
+  var kc=kindCounts();
+  tray.style.display='flex';
+  tray.innerHTML='<span class="ktlab">kinds</span>'+
+    kc.order.map(function(k){
+      return '<button class="kchip'+(kindPick===k?' on':'')+'" data-k="'+k+'">'+
+        esc(k)+' <span class="n">'+kc.ct[k]+'</span></button>';
+    }).join('')+
+    (kindPick?'<button class="kchip" data-k="">all kinds</button>':'')+
+    '<span class="ktnote">the wire counted by kind — a lens, never a ranking</span>';
+  tray.querySelectorAll('.kchip').forEach(function(c){
+    c.onclick=function(){ kindPick=c.dataset.k||null; page=1; renderWire(); };
+  });
+}
+function cycleKind(){
+  var ks=kindCounts().order;
+  var i=ks.indexOf(kindPick);
+  kindPick = (i+1>ks.length-1) ? null : ks[i+1];
+  if (i===-1 && ks.length) kindPick=ks[0];
+  page=1; renderWire();
+}
+
 /* their wire today — a per-character card counted from the wire itself */
 var cdayId=null;
 function renderCharDay(){
@@ -727,7 +1016,7 @@ function push(e){ e.id = e.id || eid();
   if (e.mentions && !(e.attrs && e.attrs.mentions)){
     e.attrs = e.attrs || {}; e.attrs.mentions = e.mentions;
   }
-  FEED.unshift(e); return e; }
+  FEED.unshift(e); stampLastSeen(); return e; }
 function findEvent(id){ for (var i=0;i<FEED.length;i++) if(FEED[i].id===id) return FEED[i]; return null; }
 function trailFor(req){ return FEED.filter(function(e){return e.req===req;}).sort(function(a,b){return a.seq-b.seq;}); }
 
@@ -749,6 +1038,7 @@ function kindVisible(e){
   else if (filter==='admin') ok = e.kind==='admin';
   else if (filter==='followed') ok = followsMatch(e);
   else ok = e.kind!=='request' && e.kind!=='admin' && e.kind!=='quiet';
+  if (ok && kindPick) ok = e.kind===kindPick;   /* v117 — the kind lens */
   if (ok && query){
     var hay = (e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
     ok = hay.indexOf(query.toLowerCase())>=0;
@@ -766,6 +1056,7 @@ function rowHtml(e){
   if (e.attrs && e.attrs.credits) txt += ' <span class="cr">'+e.attrs.credits+' cr'+
     (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</span>';
   if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
+  if (e.req && watching[e.req]) txt += ' <span class="wm" title="watched thread — your screen only">◆</span>';
   var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'')+
     (e.t<joinT?' early':'')+(dirOpen&&camMatch(e)?' camhl':'');
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
@@ -815,7 +1106,7 @@ function renderWire(){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
-  renderLiveNow(); renderDayBar(); renderBook(); renderQCount();
+  renderLiveNow(); renderDayBar(); renderBook(); renderQCount(); renderKinds(); renderEdition();
   if (cdayId) renderCharDay();
 }
 function renderQCount(){
@@ -848,7 +1139,7 @@ function renderLiveNow(){
   var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
                    .slice(0,6).map(function(r){
     var l=latest[r];
-    return '<span class="lncard" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
+    return '<span class="lncard'+(watching[r]?' wch':'')+'" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
       '<span class="who">'+esc(l.who||'?')+'</span>'+
       '<span class="st '+stKey(l.status)+'">'+esc(l.status)+'</span></span>';
   });
@@ -879,22 +1170,27 @@ function renderLiveNow(){
 /* new-events pill: never yank scroll */
 var wireEl = document.getElementById('wire');
 var stickTop = true;
+var pendingMine=0;   /* v117 — of the pending new lines, how many hit a pin or a watched thread */
 window.addEventListener('scroll', function(){
   stickTop = window.scrollY < 120;
-  if (stickTop && pendingNew){ pendingNew=0; renderWire(); updatePill(); }
+  if (stickTop && pendingNew){ pendingNew=0; pendingMine=0; renderWire(); updatePill(); }
 });
 function updatePill(){
   var p=document.getElementById('newpill');
-  if (pendingNew>0){ p.style.display='block'; p.textContent = pendingNew+' new — jump to top'; }
+  if (pendingNew>0){ p.style.display='block';
+    p.textContent = pendingNew+' new — jump to top'+(pendingMine?' · '+pendingMine+' on your pins':''); }
   else p.style.display='none';
 }
 document.getElementById('newpill').onclick=function(){
-  pendingNew=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
+  pendingNew=0; pendingMine=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
 };
 function ingest(e){
   push(e); applyWx(e);
   if (held){ heldCount++; updateHoldBar(); return; }
-  if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+  if (stickTop || selId) renderWire();
+  else { pendingNew++;
+    if (followsMatch(e)||(e.req&&watching[e.req])) pendingMine++;
+    updatePill(); }
 }
 
 /* ================= v47: the recap layer =================
@@ -966,9 +1262,34 @@ function renderDayBar(){
         esc(String(LIVE_AUDIT.total||0))+' lines · '+
         (LIVE_AUDIT.ok?'self-check ok':(LIVE_AUDIT.issues||[]).length+' issue'+
           ((LIVE_AUDIT.issues||[]).length===1?'':'s')+' flagged by the record')+'</b></div>';
+    /* v117 — the hour grid: the wire's own per-hour counts as a 24-cell
+       strip. Clicking an hour jumps to its first line — a reading aid,
+       not a chart of anything the feed didn't already say. */
+    var hours=new Array(24).fill(0);
+    FEED.forEach(function(e){ hours[Math.min(23,Math.floor(e.t/60))]++; });
+    var hmx=1; hours.forEach(function(n){ if(n>hmx)hmx=n; });
+    h+='<div class="hgrid" id="hourgrid">'+hours.map(function(n,hh){
+      return '<div class="hcell" data-h="'+hh+'" title="'+
+        ('0'+hh).slice(-2)+':00 — '+n+' event'+(n===1?'':'s')+' on the wire"'+
+        ' style="opacity:'+(n?(0.22+0.78*n/hmx):0.07)+'">'+(n||'')+'</div>';
+    }).join('')+'</div>';
+    h+='<div class="fnote">the shape the wire drew today — click an hour to jump to '+
+      'its first line. Counted, not curated.</div>';
     h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
       'no ranking, nothing extra a camera couldn’t see.</div>';
     card.innerHTML=h; card.classList.add('open');
+    card.querySelectorAll('.hcell').forEach(function(c){
+      c.onclick=function(){
+        var hh=+c.dataset.h, target=null;
+        FEED.forEach(function(e){ if (Math.floor(e.t/60)===hh) target=e; }); /* FEED is newest-first — last hit is the hour's first line */
+        if (!target){ toast('nothing on the wire in that hour'); return; }
+        var el=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (!el){ toast('that hour is older than the loaded page — load older first'); return; }
+        selId=target.id; renderWire(); renderDetail();
+        var el2=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (el2){ el2.scrollIntoView({block:'center'}); el2.focus(); }
+      };
+    });
   } else card.classList.remove('open');
 }
 function toggleDay(){
@@ -1171,8 +1492,26 @@ function renderDetail(){
     /* v75 — thread mute: viewer-side only, the wire's record is unchanged */
     h+='<div class="meta"><button class="dbtn'+(muted[e.req]?' on':'')+'" data-mute="'+esc(e.req)+'">'+
       (muted[e.req]?'unmute this thread':'mute this thread')+'</button>'+
-      ' <span style="color:var(--dim)">muted on your screen only — the wire\u2019s record '+
+      ' <button class="dbtn'+(watching[e.req]?' on':'')+'" data-watch="'+esc(e.req)+'">'+
+      (watching[e.req]?'unwatch this thread':'watch this thread')+'</button>'+
+      ' <span style="color:var(--dim)">muted or watched — your screen only; the wire\u2019s record '+
       'is unchanged and The Archive keeps everything.</span></div>';
+    /* v131 — call it: a stakeless note to yourself about how this thread
+       ends. Writable only while the record hasn't answered; locks at the
+       terminal line. No stakes, no score, nobody else sees it. */
+    var cv=callVerdict(e.req);
+    if (cv && cv.open){
+      h+='<div class="meta">call it — '+
+        '<button class="dbtn'+(calls[e.req]&&calls[e.req].pick==='will'?' on':'')+'" data-call="'+esc(e.req)+'" data-pick="will">will run</button> '+
+        '<button class="dbtn'+(calls[e.req]&&calls[e.req].pick==='wont'?' on':'')+'" data-call="'+esc(e.req)+'" data-pick="wont">won\u2019t run</button>'+
+        (calls[e.req]?' <button class="dbtn" data-uncall="'+esc(e.req)+'">clear</button>':'')+
+        ' <span style="color:var(--dim)">a call is a note to yourself — no stakes, no score, '+
+        'nobody else sees it. The record answers when the thread closes.</span></div>';
+    } else if (cv){
+      h+='<div class="meta">you called — <b>'+(calls[e.req].pick==='will'?'will run':'won\u2019t run')+'</b> at '+fmt(calls[e.req].t)+
+        ' · the record shows <b>'+esc(cv.status)+'</b> — '+(cv.held?'your call held.':'the record went the other way.')+
+        ' <span style="color:var(--dim)">kept, not scored.</span></div>';
+    }
     var tr=trailFor(e.req);
     h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
     tr.forEach(function(x){
@@ -1222,8 +1561,17 @@ function renderDetail(){
   box.querySelectorAll('.dbtn[data-mute]').forEach(function(c){
     c.onclick=function(){ toggleMute(c.dataset.mute); };
   });
+  box.querySelectorAll('.dbtn[data-watch]').forEach(function(c){
+    c.onclick=function(){ toggleWatch(c.dataset.watch); };
+  });
   box.querySelectorAll('.dbtn[data-cd]').forEach(function(c){
     c.onclick=function(){ openCharDay(c.dataset.cd); };
+  });
+  box.querySelectorAll('.dbtn[data-call]').forEach(function(c){
+    c.onclick=function(){ makeCall(c.dataset.call, c.dataset.pick); };
+  });
+  box.querySelectorAll('.dbtn[data-uncall]').forEach(function(c){
+    c.onclick=function(){ clearCall(c.dataset.uncall); };
   });
 }
 
@@ -1236,19 +1584,20 @@ function renderFollows(){
   var list=document.getElementById('folllist');
   if (!keys.length){
     list.innerHTML='Nothing pinned. Follow a venue or a character on the left — free, instant, reversible. It filters the wire; it never touches the world.';
-    return;
-  }
+  } else {
   list.innerHTML=keys.map(function(k){
     var label = k[0]==='v' ? VENUE_NAME[k.slice(2)]||k : (CHAR_NAME[k.slice(2)]||k)+' <span style="color:var(--dim)">(public whereabouts only)</span>';
     return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+label+
       ' <span class="pin on" data-k="'+k+'" style="float:right">unpin</span></div>';
   }).join('');
+  }
   list.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete follows[p.dataset.k]; saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire(); };
   });
   /* v75 — muted threads live here too: viewer-side only, reversible */
   var mk=Object.keys(muted), ml=document.getElementById('mutelist');
-  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; return; }
+  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; }
+  else {
   ml.style.display='block';
   ml.innerHTML='<div class="mlab">muted threads</div>'+
     '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">muted on your screen only — '+
@@ -1259,6 +1608,54 @@ function renderFollows(){
     }).join('');
   ml.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete muted[p.dataset.m]; saveMuted(); renderFollows(); renderWire(); renderDetail(); };
+  });
+  }
+  /* v117 — watched threads sit beside muted ones: a watch flags the
+     thread's lines for you only (◆ + a counted pill line); the wire's
+     record is everyone's and stays unchanged. */
+  var wk=Object.keys(watching), wl=document.getElementById('watchlist');
+  if (!wk.length){ wl.style.display='none'; wl.innerHTML=''; }
+  else {
+  wl.style.display='block';
+  wl.innerHTML='<div class="mlab">watching</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">a watch flags the thread\u2019s '+
+    'new lines for you only — the record is everyone\u2019s.</div>'+
+    wk.map(function(r){
+      var tr=trailFor(r), lt=tr.length?tr[tr.length-1].status:null;
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        (lt?' <span class="st '+stKey(lt)+'">'+esc(lt)+'</span>':'')+
+        ' <span class="pin" data-w="'+esc(r)+'" style="float:right">unwatch</span></div>';
+    }).join('');
+  wl.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete watching[p.dataset.w]; saveWatching(); renderFollows(); renderWire(); renderDetail(); };
+  });
+  }
+  /* v131 — the call ledger sits beside watches: each entry is the
+     viewer's own stakeless note plus, once the thread closes, what the
+     record showed. A call never reaches the bus — same class of state
+     as a watch, pure screen. */
+  var ck2=Object.keys(calls), cl=document.getElementById('calllist');
+  if (!ck2.length){ cl.style.display='none'; cl.innerHTML=''; return; }
+  cl.style.display='block';
+  cl.innerHTML='<div class="mlab">your calls</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">notes to yourself — '+
+    'no stakes, no score, nobody else sees them. The record answers.</div>'+
+    ck2.map(function(r){
+      var v=callVerdict(r), c=calls[r];
+      var tail = !v ? '' :
+        v.open ? ' <span class="st '+stKey(v.status)+'">'+esc(v.status)+'</span>'
+               : ' · the record shows <b>'+esc(v.status)+'</b> — '+
+                 (v.held?'your call held':'the record went the other way');
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        ' <span style="color:var(--dim)">you called '+(c.pick==='will'?'will run':'won\u2019t run')+'</span>'+tail+
+        ' <span class="pin" data-c="'+esc(r)+'" style="float:right">'+(v&&v.open?'clear':'✕')+'</span></div>';
+    }).join('');
+  cl.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){
+      var r=p.dataset.c, lt=reqLatest(r);
+      if (lt && !LIVE_STATUSES[lt.status]){ delete calls[r]; saveCalls(); renderFollows(); renderDetail(); }
+      else clearCall(r);
+    };
   });
 }
 function toggleFollow(k){
@@ -1681,6 +2078,9 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='d'){ toggleDay(); }
   else if (ev.key==='v'){ toggleDir(); }
   else if (ev.key==='b'){ toggleBook(); }
+  else if (ev.key==='g'){ cycleKind(); }
+  else if (ev.key==='u'){ if(!edOpen) toggleEdition();
+    document.getElementById('edition').scrollIntoView({block:'center'}); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);
@@ -1717,6 +2117,7 @@ if (deepR){
 var deepZ = location.hash.match(/#z=1/);
 if (deepZ) setZen(true);
 if (location.hash.match(/#dir=1/)) toggleDir(true);
+if (location.hash.match(/#u=1/)){ edOpen=true; renderEdition(); }
 </script>
 </body>
 </html>

@@ -3,3 +3,7 @@ __pycache__/
 
 node_modules/
 scratch/
+
+# playtest video artifacts (v129 — 100MB+ webm captures, never committed)
+production/playtest/video/
+production/playtest/archive/*/video/

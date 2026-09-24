@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v96; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer)
+# Lease Flow — spec & copy deck (world v124; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer + v110 meter & leftovers layer + v124 stakes layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v6), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v8), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v96`.
+  9088-5 only) / admin. localStorage `rw_lease_v124`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -913,3 +913,203 @@ Move-out settles the unit — the tenant still needs their paper:
 - `node world/audit.js` G11 now also requires the v96 surfaces
   (assignment, buyout, prepaid credit, history letter) and fails on the
   old storage key.
+
+## 55. Tenant-paid utilities (the itemized bill line)
+
+Every lease states who pays which service — a lease term, not a
+footnote:
+
+- Tenant-paid services bill as their **own itemized ledger line each
+  1st** — "utilities — PG&E + internet" — **beside the rent, never
+  inside it**. A posted rent stays the posted rent; the day utilities
+  disappear into a rent number is the day a raise hides.
+- The lease term is the evidence: a bill for a service the lease makes
+  landlord-paid is a `contested_charge` dispute ground (added to the
+  grounds list) — the paper says who pays, and the paper is the record.
+- An unpaid utility line is a balance like any other and climbs the
+  same ladder — but it is never folded into the rent number. The ledger
+  itemizes; the feed sees nothing.
+- Demo: `utils` per lease (h01 pays PG&E + internet $85; 9088-5's
+  studio pays PG&E $45; Carmen pays PG&E $38, laundry covered);
+  `postUtil` bills on demand, month rollover bills automatically.
+
+## 56. The Rent Board fee pass-through
+
+The assessor charges the owner an annual Rent Board fee — **$59 per
+unit**, posting on installment 1 (game-systems v17). The lawful share
+the tenant can carry:
+
+- Up to **half the fee** passes to the tenant as an itemized annual
+  line — `$29` on the $59 — coded **`RBF`** in the ledger, same
+  legibility rule as `NOFAULT`/`BUYOUT`. The line names the year and
+  the split so it can be read.
+- **Once a year per unit.** A second posting inside 12 months is
+  refused outright — the file keeps the dates.
+- **Never folded into rent, never stacked inside a raise posting.** A
+  pass-through wearing a raise's clothes is exactly the abuse the
+  distinct code exists to expose.
+- File + ledger only — never a feed event. Licensed landlords may post
+  it on their own units like any capped tool.
+
+## 57. Abandoned property (the claim window)
+
+Belongings left at move-out are paper, not trash:
+
+- A move-out walkthrough that finds items writes an **itemized
+  abandoned-property notice** — dated, listing what was left.
+- The departed tenant has a **15-day claim window** (`claimBy`). A
+  dated claim inside the window ends it: items released, no deduction,
+  no dispute.
+- Unclaimed past the window: a **disposal doc** posts, and reasonable
+  storage cost becomes a **stated deduction line at deposit return,
+  cited to the notice** — itemized or it doesn't deduct.
+- Never: disposing inside the window, an unitemized disposal fee, or
+  the feed — the block never sees someone's things.
+- Demo: `postAbandoned` → `abandoned {day, claimBy, resolved}`;
+  `claimAbandoned` resolves inside the window; the day-stepper disposes
+  past it and the storage line lands in `returnDeposit`.
+
+## 58. Change of terms (month-to-month paper)
+
+A landlord may change house terms — but on paper, with a runway:
+
+- A **change-of-terms doc**: dated, served, stating the change
+  (bike-room hours, storage corner, laundry rules) and an effective
+  date **at least 30 days out**.
+- **Month-to-month only** — a fixed term can't be rewritten mid-lease;
+  posting is refused inside one. The fixed term is the deal.
+- **House terms only** — never rent (that's the raise path), never the
+  deposit, never the protections on the file. A rent change wearing a
+  change-of-terms doc is refused outright.
+- The tenant may **respond on the file** — a response is a document,
+  not a veto; a contested change can go to the board like anything else.
+- File doc, never a feed event. Demo: `postCOT` / `respondCOT`; the
+  demo change is bike-room hours on a month-to-month lease.
+
+## 59. Last-month proration (the symmetric exit)
+
+§29 prorates the first month on a mid-month signing; the exit gets the
+same arithmetic:
+
+- A recorded move-out that lands mid-month prorates the last month:
+  `rent − round(rent × day / 30)` credits back against the balance as
+  an itemized `last month — prorated to day N` line — never rounded up.
+- The 30-day notice already named the end day; the proration is
+  computed at the recorded move-out, and the **deposit clock is
+  untouched** — the 21-day itemized return runs exactly as before.
+- Applies wherever the move-out is recorded: recorded vacate, no-fault,
+  accepted buyout. Demo: `prorateOut(l)` runs inside all three paths.
+
+## 60. Copy deck additions (v110)
+
+|| Moment | Copy |
+|---|---|---|
+|| Utility bill | "Utilities billed — its own itemized line beside the rent, never inside it. The lease states who pays which service." |
+|| Utility, covered service | "A bill for a building-covered service is a contested_charge ground — the lease term is the evidence." |
+|| Rent Board pass-through | "Annual Rent Board fee — $59 on the owner's file, up to half passed to you: $29 itemized as an RBF line. Once a year, never folded into rent." |
+|| RBF re-post refused | "Already posted this year — one pass-through per unit per 12 months." |
+|| Abandoned property | "Items left at move-out — claim by day N (15-day window). Past it, disposal is documented and storage cost is a cited deduction." |
+|| Property claimed | "Claimed on the record — released, no deduction." |
+|| Property disposed | "Unclaimed past the window — disposal documented; storage cost itemized at deposit return." |
+|| Change of terms | "Served day N, effective day N+30 — house terms only, month-to-month paper only. Rent changes still go through the raise path." |
+|| COT on fixed term | "A fixed term can't be rewritten mid-lease — the change waits for month-to-month." |
+|| COT response | "A response is a document, not a veto — a contested change can go to the board." |
+|| Last-month proration | "Mid-month move-out — the last month prorates to day N. The deposit clock runs untouched." |
+
+## 61. Merge notes (v110)
+
+- New demo fields: `utils` {tenant, amt, landlord}, `utilDay`, `rbfDone`,
+  `abandoned` {day, claimBy, resolved, resolvedDay}, `storCost`,
+  `cot` {day, effective, text}, `cotResp` — all optional, all documented
+  above. LS key rolled `rw_lease_v96` → `rw_lease_v110` (old saves
+  ignored by design).
+- leases.json v110 adds: `utilities`, `rent_board_fee`,
+  `abandoned_property`, `change_of_terms`, `last_month_proration`;
+  `disputes.grounds` gains `contested_charge`; power_map gains
+  `claim_abandoned_property` / `respond_change_of_terms` (tenant) and
+  `post_utility_bills` / `post_rent_board_passthrough` /
+  `post_change_of_terms` / `post_abandoned_property_notices` (licensed,
+  own units); `feed_wording.never` gains `utility_bills`,
+  `rent_board_passthrough`, `abandoned_property`, `change_of_terms`.
+  Feed templates unchanged — all five surfaces are file-only.
+- Engine contract at merge: tenant-paid utilities bill as their own
+  ledger line (never inside the rent number); the RBF pass-through caps
+  at 50% of the $59/unit fee, once per 12 months, distinct code;
+  abandoned property holds a 15-day claim window before disposal and
+  any storage deduction must cite the notice; change-of-terms docs
+  refuse inside a fixed term and can never carry a rent change;
+  last-month proration credits `rent − round(rent × day / 30)` on any
+  recorded move-out. The $59 figure should read from the assessor
+  module (game v17), not a second hardcode.
+- `node world/audit.js` G11 now also requires the v110 surfaces
+  (utilities line, RBF pass-through, abandoned-property window,
+  change-of-terms gate, last-month proration) and fails on the old
+  storage key.
+
+## 62. The stakes layer (v124) — the lease re-read as a commitment
+
+Everything above is *how the paper moves*. This section is what the
+paper **means** — the same lease row read through the four dimensions
+that make a lease a commitment instead of a bill. The layer adds **no
+mechanics**: no new states, no new ledger objects, no feed vocabulary.
+It is a read on the paper that already exists, and it exists so the
+lease file answers "why does this matter to a life" as plainly as it
+answers "what is owed."
+
+Every lease row carries a **stakes mirror** — demo field `STAKES`
+keyed by uid — with four readings:
+
+| Dimension | The read | Demo shape |
+|---|---|---|
+| **Capacity** | Rent + utilities read against income — a standing claim on the month's hours. Prepay, a payment plan, an assignment are capacity moves, not favors | own lease (h01) computes the real burden — rent + utils ÷ the wage, "about N% of the wage"; other files stay qualitative |
+| **Interdependence** | Who else the paper binds — co-tenants on one joint balance (9457-3), guarantors liable but never occupants, the shared-wall neighbor (9418-B), the landlord character whose file it is. A move-out, amendment, or eviction changes somebody else's month | `share` line per unit |
+| **Unequal knowledge** | Three tiers stated on every mirror: **the file** (tenant + that unit's landlord), **the stairwell** (neighbors half-know — a notice on a door, a moved couch, half an argument), **the feed** (neutral lines only). Scar asymmetry is honest: the tenant remembers the month, the file keeps the scar, the block keeps a rumor | `knows` line per unit; spectator mode renders the stairwell tier only |
+| **Open doors** | A listed or vacant unit may carry **one grounded invitation** — a garden-plot share with the lease, posted open-house hours, a move-in meal the block may organize. Conditions, never scripts: no RSVP, no attendance tracking, nothing on the record | `door` line where one exists; the may-ignore rule is always attached |
+
+Honesty rules for the mirror (same spine as every other layer):
+
+- **Spectator tier never prints amounts.** A neighbor sees the
+  stairwell read — "the block half-knows; the file knows" — never a
+  rent figure, an income ratio, or a name the pub label doesn't carry.
+- **The mirror never promises an outcome.** An open door is an
+  invitation the block may ignore; an empty table is still the story.
+- **No inferred motive.** The mirror says who the paper binds and who
+  knows what — it does not say what anyone feels about it.
+- **The burden figure is private math.** The viewer's own lease shows
+  the percent; nobody else's ratio renders anywhere — income_ratios
+  and stakes_mirrors are on the feed's never-list by contract.
+
+## 63. Copy deck additions (v124)
+
+|| Moment | Copy |
+|---|---|---|
+|| Stakes header | "What this lease stakes" |
+|| Capacity (own lease) | "$N of $M a month — about N% of the wage, a standing claim on the month's hours." |
+|| Interdependence | "Who it binds: two co-tenants, one joint balance — the ledger records the household's number and never adjudicates whose half was late." |
+|| Knowledge tiers | "Who knows what: the filing is on the feed; the amounts aren't. Neighbors half-know there's a dispute and a cold heater upstairs." |
+|| Stairwell (spectator) | "The stairwell read: … The block half-knows; the file knows. The feed prints the neutral line only — amounts, names, and paper stay off it." |
+|| Open door | "Open door: a garden-plot share goes with the lease if the next tenant wants it — may ignore; nothing is tracked, nothing posts." |
+|| Scar asymmetry | "The file keeps a cured-arrears scar from 2024 — the block forgot; the paper didn't." |
+
+## 64. Merge notes (v124)
+
+- New demo field: `STAKES` (static mirror keyed by uid — `share`,
+  `cost`, `knows`, `door`, all strings-or-null); `stakesHtml()` renders
+  the stairwell tier for spectators, the full read otherwise. LS key
+  rolled `rw_lease_v110` → `rw_lease_v124` (old saves ignored by
+  design).
+- leases.json v124 adds: `stakes` (rule + capacity + interdependence +
+  unequal_knowledge + open_doors + never + demo_field);
+  `feed_wording.never` gains `income_ratios`, `stakes_mirrors`.
+  Feed templates unchanged — the mirror is a read-layer, not a verb;
+  nothing in it posts, tracks, or transacts.
+- Engine contract at merge: the stakes mirror is display content on the
+  lease detail — spectator render must never include amounts, income
+  ratios, or non-public names; open-door lines are bounded
+  opportunities (conditions, never scripts — drama.json
+  bounded_opportunities agrees; creation.json OPENS is the sister
+  instance on the join side). The burden figure exists only where a
+  viewer's own lease and income are both on screen.
+- `node world/audit.js` G11 now also requires the v124 surfaces
+  (stakes mirror, may-ignore open doors, stairwell tier, capacity
+  framing) and fails on the old storage key.

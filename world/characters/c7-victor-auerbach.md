@@ -246,6 +246,26 @@ question from Carmen — and he takes it in the same disguise. Money or
 paperwork help he'd refuse and be right about refusing. Nobody's offered
 to help him decide anything; he'd answer it in hardware metaphor anyway.
 
+## The phone
+
+A tool, filed with the other tools — answered "Auerbach," ended when
+the business is done, no goodbye if the goodbye adds nothing. Texts
+typed with one finger in sentence fragments, receipts photographed
+instead of filed. The camera roll is job-site documentation — a leak,
+a hinge, a property line — plus one picture of his daughter's dog he
+didn't take and won't delete. The store landline still rings and he
+still prefers it; the cell is the price of the buildings having tenants.
+
+## First impressions
+
+Reads what you're carrying and how your shoes meet his floors — a
+tenant's scuff tells him more than a handshake. Wrong about charming
+people in the exact opposite direction from everyone else: charm gets
+filed as overhead, a cost center, and warm people start in a hole they
+didn't dig. The revision is singular and mechanical — a stranger who
+tries the fix themselves first, badly even, goes up in a ledger that
+never gets said out loud.
+
 ## Public profile (briefing-safe)
 
 > Third-generation hardware man. Owns the store on Mission and the two

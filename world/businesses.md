@@ -1,4 +1,12 @@
-# Parody Business Registry — "The Mission" (world v100)
+# Parody Business Registry — "The Mission" (world v128)
+
+> **v128 additions:** the **obligations layer** — `world/favors.json` +
+> `world/favors.md` + `world/favor.html` ("The Counter Tab") register the
+> informal arrangements that run on memory, not invoices: key_holding,
+> shift_cover, tab_line, lend, hold, watch, pass, favor_owed. Every door
+> venue keys ≥1 arrangement; each names its `carries` party and an
+> open/counter/quiet visibility tier (quiet redacts on public clearance,
+> same rule as secret web edges). Conditions, never scripts. See §10.
 
 > **v100 additions:** the **paper layer** — `world/permits.json` +
 > `world/permits.md` + `world/permit.html` ("The Permit Wall") register the
@@ -529,3 +537,31 @@ remember. Spec: `world/permits.md`; machine mirror:
   Auerbach's former tenant is itself under an earlier trade.
 - **No people, no money.** Papers never name cast or regulars ("staff on
   file" is the whole sentence) and carry no prices, fees, or credits.
+
+---
+
+## 10. The obligations layer — the counter tab (v128)
+
+What the doors owe each other and the people in them. Spec:
+`world/favors.md`; machine mirror: `world/favors.json`; internal demo:
+`world/favor.html` ("The Counter Tab").
+
+- **Doors key it, anyone may be a party.** `arrangements` keys ⊆
+  anchor+street ids (every door ≥1); `between` may name any registered
+  business — offstage orgs borrow chairs even though they have no counter —
+  or a person id (c/s/a). Obligations attach to people, not roles.
+- **`carries` is mandatory.** Every arrangement names who bears the standing
+  cost — the float, the schedule, the drawer. This is the interdependence
+  dimension made machine-readable; `staff`/`both` are the only non-party
+  values.
+- **`visibility` stratifies knowledge.** `open` reads from the room,
+  `counter` is staff-side, `quiet` is between the parties and redacts on
+  public clearance — same rule and same redaction path as `secret` web edges.
+  Quiet entries are obligations, never seeds; the banned-vocabulary bar
+  applies.
+- **`tab_line` balances are game dollars** — the only money in the layer.
+- **Complements, never duplicates:** web edges are flows, regulars are
+  knowledge, favors are commitments; occasions lapse at their window, a favor
+  lapses when someone lets it. A missed crate is a readable anomaly, and the
+  repair is the character's choice — the layer describes conditions, never
+  scripts.

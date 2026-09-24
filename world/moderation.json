@@ -169,6 +169,25 @@
     "finding_v92": "23 permissive gaps on identical input: 13 missing normalization (leet/spaced/separator/accent evasions pass the bus), 10 lexicon drift (word-form stems 'humiliates', 'get <name> fired', parody-venue venue-lock, real-person names, obfuscation-attempt code absent), 6 player-history cases untestable in stub",
     "rule": "per testing.drift_gate the port may be stricter, never more permissive — the report is the merge artifact for game-systems; world cannot fix the port from this branch"
   },
+  "precedent_layer": {
+    "surface": "mod-console v11 (world v134) — 'ruled alike' card on the request detail, between the trace and the decision bar",
+    "purpose": "consistency memory for reviewers: decided rulings matching the open request on charge (screen code; for appeals, the original denial code) or on face (target) are surfaced before the decision is made. Consequence continuity for the review side of §11 — today's ruling visibly remembers yesterday's.",
+    "record_shape": "{ id, when, who, decision, code, target } — the RULING only. Never the screened request text, never the player handle: the record remembers what was decided, not who asked or what they wrote.",
+    "sources": "this session's audit entries always; the seeded PRECEDENTS record (the detailed rows behind the 30-day baseline) in demo mode only",
+    "informs_never_binds": "a precedent informs, never binds — precedents decide nothing: no cap, no veto, no auto-fill. A ruling that departs from every matched same-code precedent is noted on the audit line ('AGAINST THE RECORD — noted, never blocked') and still lands. The shift report counts departures in aggregate, never which.",
+    "empty_state": "no matches renders an honest line — 'a first of its kind is decided on the text, not on a pattern'; the panel never invents a precedent",
+    "appeal_note": "an appeal's own original decision is excluded from the card — it already renders in the appeal workspace",
+    "merge_target": "game-systems: the lookup becomes a query over canonical-ledger mod_decision records keyed (code, target); until it lands, a live queue shows this session's rulings only and the card says so"
+  },
+  "writers_docket": {
+    "surface": "mod-console 'writers\u2019 docket' panel (world v120) — the incident log for emergent AI behavior, the constructive half of the locked 'no report-the-AI' boundary",
+    "purpose": "reviewers see emergent behavior all shift; when something is worth the writers' eyes it gets filed here. Spec §1 names it: 'a logged incident for the writers' room — not a moderation action.'",
+    "not_a_moderation_action": "an incident touches NOTHING — not the world, not the feed, not the player, not the AI, not the canonical decision ledger. There is no retcon tool; the docket is not a back door to one. The writers decide what, if anything, changes on the page — never the console.",
+    "scope_guard": "file the AI's own behavior only — the form refuses request ids ('that's a request — decide it in the queue'). Character picks come from the reviewer whitelist; you cannot cite a secret you cannot see.",
+    "record": { "rec": "writers_incident", "id": "wi-*", "ts": "YYYY-MM-DD HH:MM", "filed_by": "reviewer handle", "character": "cast id or null ('the street')", "severity": "note | concern", "observation": "free text — what was seen, never an instruction" },
+    "rules": ["observations only, never instructions — the docket carries context to the writers' room, not fix orders", "writers_incident is NOT mod_decision — a different ledger for a different room; the audit log stays the only decision record", "never the public feed, never the player, never exported into the mod ledger export", "shift report counts incidents only — contents stay with the writers"],
+    "merge_target": "writers' room intake queue (studio-side). At merge the game bus may carry a writers_incident sink; it must never join the mod_decision stream or the public feed."
+  },
   "ledger_records": {
     "surface": "mod-console audit log 'export ledger records' (v64)",
     "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },
