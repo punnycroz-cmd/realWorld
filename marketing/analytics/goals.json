@@ -11,6 +11,9 @@
                  "price_calc", "scene_calc", "sub_calc", "request_simulated"],
     "community": ["community_join", "recap_open", "watch_party_rsvp"],
     "watch_start": ["watch_start"],
+    "observer": ["catchup_edition_viewed", "thread_followed",
+                 "prediction_made", "outcome_inspected",
+                 "invite_submitted", "invite_outcome_seen"],
     "request_submitted": ["request_submitted"],
     "character_created": ["character_created"]
   },
@@ -36,6 +39,31 @@
       "direction": "at_least", "target": 0.15,
       "severity": "info",
       "source": "ANALYTICS.md §7 — optimize pageview→watch_start first"
+    },
+    {
+      "id": "watch-observer",
+      "label": "watching sessions that enter the observer loop (catch-up / follow / predict / inspect / bounded invite)",
+      "metric": {"kind": "stage_conv", "from": "watch_start", "to": "observer"},
+      "direction": "at_least", "target": 0.30,
+      "pending_ok": true,
+      "source": "production-3 direction — the free observer loop is the product's core; hypothesis pending real data"
+    },
+    {
+      "id": "observer-return",
+      "label": "observer-loop sessions that inspect an outcome (the revise-and-return moment)",
+      "metric": {"kind": "event_session_rate", "events": ["outcome_inspected"], "per_stage": "observer"},
+      "direction": "at_least", "target": 0.25,
+      "pending_ok": true,
+      "source": "production-3 direction — inspect→revise→return is what produces a returning viewer"
+    },
+    {
+      "id": "return-7d",
+      "label": "returning viewers on >=2 distinct days, trailing 7d (milestone M12 counter — THE north star)",
+      "metric": {"kind": "returning_viewers_7d"},
+      "direction": "at_least", "target": 100,
+      "unit": "count",
+      "pending_ok": true,
+      "source": "social/milestones.json M12 + production-3 monetization step 1 (prove return visits before pricing anything)"
     },
     {
       "id": "watch-request",

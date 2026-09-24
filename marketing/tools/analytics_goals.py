@@ -87,10 +87,45 @@ def build_index(evts, stages):
     return sess_stage, sess_pages, sess_events, pageviews, notfound_pv, engaged_secs
 
 
-def evaluate(goal, idx):
+def retention_count_7d(tsv_path):
+    """returning_viewers_7d from a windowed-hash sidecar (v171, §1a).
+
+    Returns (returning_count, viewers_7d) or (None, 0) if unreadable.
+    """
+    from collections import defaultdict
+    from datetime import date
+    days_of = defaultdict(set)
+    try:
+        with open(tsv_path, encoding="utf-8") as f:
+            for line in f:
+                line = line.rstrip("\n")
+                if not line:
+                    continue
+                try:
+                    day_s, h = line.split("\t")
+                    days_of[h].add(date.fromisoformat(day_s))
+                except (ValueError, IndexError):
+                    pass
+    except OSError:
+        return None, 0
+    all_days = sorted({d for ds in days_of.values() for d in ds})
+    if not all_days:
+        return None, 0
+    win7 = {date.fromordinal(all_days[-1].toordinal() - k) for k in range(7)}
+    viewers = sum(1 for ds in days_of.values() if ds & win7)
+    returning = sum(1 for ds in days_of.values() if len(ds & win7) >= 2)
+    return returning, viewers
+
+
+def evaluate(goal, idx, retention_path=None):
     sess_stage, sess_pages, sess_events, pageviews, notfound_pv, engaged_secs = idx
     m = goal["metric"]
     kind = m["kind"]
+
+    if kind == "returning_viewers_7d":
+        if not retention_path:
+            return None, 0
+        return retention_count_7d(retention_path)
 
     if kind == "stage_conv":
         num = sum(1 for s in sess_stage.values()
@@ -138,6 +173,8 @@ def fmt(value, unit):
         return "—"
     if unit == "s":
         return f"{value:.0f}s"
+    if unit == "count":
+        return str(int(value))
     return f"{value * 100:.1f}%"
 
 
@@ -148,6 +185,9 @@ def main():
     ap.add_argument("--json", action="store_true")
     ap.add_argument("--strict", action="store_true",
                     help="exit 1 on any MISS (weekly cron hook)")
+    ap.add_argument("--retention", default=None,
+                    help="windowed-hash TSV (analytics_sink.py --retention) "
+                         "— enables the returning_viewers_7d goal (v171)")
     args = ap.parse_args()
 
     with open(args.goals, encoding="utf-8") as f:
@@ -160,7 +200,7 @@ def main():
     rows = []
     misses = 0
     for g in spec["goals"]:
-        value, den = evaluate(g, idx)
+        value, den = evaluate(g, idx, args.retention)
         status = grade(g, value, den, defaults)
         if status == "MISS":
             misses += 1

@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v156 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v171 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -50,6 +50,38 @@ python3 marketing/tools/analytics_privacy.py            # audit the shipped site
 python3 marketing/tools/analytics_privacy.py --site DIR # audit a staging copy
 ```
 
+### 1a. The return-visit exception — a windowed pseudonym (v171)
+
+Production-3 made **return visits the north star** (monetization step 1:
+prove outsiders come back voluntarily over a week, measured alongside
+cost per simulated day; milestone M12 counts `returning_viewers_7d`). The
+strict §1 design cannot measure that — a salt discarded every 24 h makes
+every visitor new forever. This is the one place the privacy posture
+bends, deliberately and in writing:
+
+- **What it is:** an OPTIONAL second sidecar — `analytics_sink.py
+  --retention PATH [--retention-days N]` (default 30). Same
+  `day<TAB>hash` format as `--uniques`, but the hash salt rotates per
+  N-day **window** instead of per day, and the hash drops the day
+  component: stable day-over-day inside one window, broken at every
+  window boundary.
+- **What it enables:** "was this hash seen on ≥2 distinct days in the
+  trailing 7d" — the only question retention needs. Reported by
+  `tools/analytics_retention.py`; graded as goal `return-7d`.
+- **What it still never does:** raw IPs/UAs are never written; salts live
+  in memory only and are never persisted; nothing client-side changes
+  (still no cookies, no localStorage ids); the retention TSV is **never
+  joined to the event NDJSON** — a `sid` is a session, not a visitor,
+  and joining would silently rebuild the persistent profile §1 forbids.
+- **Honest bias:** a viewer silent across a window boundary counts as
+  new — the metric *undercounts* returns. Undercounting is the safe
+  direction for a number that gates monetization.
+- **Disclosure:** if the production collector enables this, the FAQ/
+  privacy page line becomes: *"return visits are counted with a
+  30-day-rotating anonymous hash — it forgets you on a schedule."*
+  The daily `--uniques` sidecar stays the strict option; both may run
+  together (separate files, separate salts).
+
 ## 2. Tool choice
 
 **Recommended: self-hosted cookieless analytics (Plausible CE or Umami) OR a
@@ -84,6 +116,11 @@ visit      pageview                     (site — live now)
                                         (v40 — PENDING surfaces; see community/)
       └─watch  watch_start              (demo.js LIVE on demo.html in fallback
                                          mode; live game embed still PENDING)
+        ├─observer  catchup_edition_viewed → thread_followed →
+        │           prediction_made → outcome_inspected;
+        │           invite_submitted → invite_outcome_seen
+        │                               (v171 — PENDING, production-3
+        │                               free observer loop; §5.retention)
         └─onboard  tour_started … onboard_dismissed  (game — PENDING, v36)
           └─request request_submitted, first_request_filed  (game — PENDING)
             └─create character_created  (game — PENDING)
@@ -150,6 +187,20 @@ per-event props + privacy contract). Site-side events already wired:
   (`js/demo-sim.js`), fires once per simulated filing; props = action /
   class / minutes / credits quoted. Pre-launch demand signal for *which
   request type* visitors try first — complements `price_calc`.
+
+**Observer-loop events (v171 — production-3 direction):** six PENDING
+game-side events instrument the free observer loop, one per step:
+`catchup_edition_viewed` (catch up — carries the 0–3 verified-change
+count only), `thread_followed` (follow — `target_kind` only, never which
+character/thread), `prediction_made` (non-wager predict — kind only,
+never a stake or the text), `outcome_inspected` (inspect/revise —
+`verdict: hit|miss|unresolved`), `invite_submitted` + `invite_outcome_seen`
+(the bounded free intervention trial — kind + feed-vocab
+`delivered|refused|expired`; refusal is a legitimate measured result).
+All are in `analytics-events.json`, the sink allowlist, and goals.json's
+`observer` stage (goals `watch-observer`, `observer-return`). Return
+itself isn't an event — it can't be, a `sid` dies with the tab; it's
+measured by the §1a retention sidecar instead.
 
 Add an event = add `data-rw-event` + optional `data-rw-props` JSON to the
 element. No JS changes needed for click events.
@@ -384,6 +435,34 @@ python3 tools/analytics_live.py /tmp/live.ndjson --once
 `analytics_e2e.sh` runs `--once --strict` on exactly that fixture — a WARN
 on clean synthetic data fails the pipeline, same as a validation FAIL.
 
+### Return visits — the north star (v171)
+
+`tools/analytics_retention.py` reads the §1a windowed sidecar
+(`--retention` on the sink) and prints the retention block for the
+weekly file: unique viewers per day, **returning_viewers_7d** (unique
+hashes on ≥2 distinct days in the trailing 7d — milestone M12's counter
+and the production-3 monetization gate), first-seen ISO-week cohorts
+with their day-7 return rates, median days-to-first-return, and the
+multi-day share over the whole span. It never touches the event NDJSON —
+joining a windowed hash to session events would rebuild the persistent
+profile §1 forbids.
+
+```bash
+python3 marketing/tools/analytics_sink.py --port 8970 --out e.ndjson \
+    --uniques uniques.tsv --retention retention.tsv --retention-days 30
+
+python3 marketing/tools/analytics_retention.py retention.tsv
+python3 marketing/tools/analytics_retention.py retention.tsv --strict --min-returning 100
+```
+
+`--strict --min-returning N` exits 1 below the M12 floor — the cron
+counterpart of `analytics_goals.py --strict`. Committed reference:
+`analytics/sample-retention.tsv` (synthetic 32-day span) →
+`analytics/sample-retention.md`. `metrics_weekly.sh` takes the TSV as a
+fourth arg: it appends the retention block and passes it to
+`analytics_goals.py --retention`, which grades the `return-7d` goal
+(NO-DATA without the file — correct while the sidecar isn't live).
+
 ### Experiment program (v96)
 
 A/B readouts are run through `tools/ab_compare.py`; which tests exist and
@@ -472,6 +551,11 @@ One dashboard, four panels — everything derivable from the event spec:
    PASS/WATCH/MISS/LOW-N/NO-DATA per KPI. Rendered by
    `analytics_goals.py` in the weekly file and by the "0 · Goals" panel in
    `dashboard.html` (drop goals.json on the page to enable it).
+7. **Retention (v171):** `returning_viewers_7d` (the north star), viewer
+   counts/day, first-seen cohort day-7 rates, median days-to-return —
+   from the §1a windowed sidecar only, via `analytics_retention.py`.
+   Plus the observer-loop sub-funnel once game-side: catch-up → follow →
+   predict → inspect, and invite → delivered/refused.
 
 **Targets (honest, from the research report):** the free-watch top of funnel is
 the whole business — optimize `pageview → watch_start` first. TPP-class
@@ -487,6 +571,7 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - uniques: {{n}} (Δ{{±%}} wow) · pageviews: {{n}} · nocollect rate: {{%}}
 - top sources: {{utm_source ×3 with counts}}
 - funnel: visit→cta {{%}} → watch {{%}} → request {{%}} → create {{%}}
+- returning_viewers_7d: {{n}} ({{%}} of trailing-7d viewers) · observer: {{watch→observer %}}
 - top shots: {{shot ×3 by screenshot_view}}
 - 404s: {{count}} (worst path: {{path}})
 - action taken: {{one line — what we changed because of the numbers}}
@@ -544,6 +629,17 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] Day-0: pick `--target-sessions` for the pace line from the launch
       projection in community/funnel-scorecard.md before the rush starts —
       targets are still hypotheses, never edited mid-day to look good (v156)
+- [ ] Decide whether the production collector runs the §1a `--retention`
+      sidecar (30-day windowed hash) — without it `returning_viewers_7d`
+      / milestone M12 / goal `return-7d` stay NO-DATA and the monetization
+      step-1 gate can't be read (v171)
+- [ ] If retention is enabled: FAQ/privacy line updated per §1a, and
+      `metrics_weekly.sh` gets the retention TSV as arg 4 (v171)
+- [ ] Game emits the six observer-loop events per `analytics-events.json`
+      (`catchup_edition_viewed`, `thread_followed`, `prediction_made`,
+      `outcome_inspected`, `invite_submitted`, `invite_outcome_seen`) —
+      kind/verdict props only, never which thread or what was predicted
+      (v171; coordination note for game/world track)
 
 ## 10. Hard rules
 

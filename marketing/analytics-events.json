@@ -26,8 +26,8 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|demo-labels|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer",
-        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms",
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|demo-labels|demo-clip|demo-clip-done|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer|local-build",
+        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms|hub",
         "href": "raw href (same-site)",
         "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)",
         "item": "field-card item key — only on cta=demo-fieldcard (v101): deck|parody|routine|fog|wire|quiet|theater|sim",
@@ -417,12 +417,54 @@
       "funnel_stage": "community",
       "status": "PENDING — Discord-side, manual count at launch (community/watch-party-playbook.md §3)",
       "note": "no per-member data — a count, not a list"
+    },
+    "catchup_edition_viewed": {
+      "when": "the catch-up edition renders for a returning viewer — up to three verified changes since their last visit, each linked to footage (game-side; production-3 observer loop step 1)",
+      "props": { "items": "int 0-3 — verified changes shown" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "count of verified changes only — never which characters/threads they were about"
+    },
+    "thread_followed": {
+      "when": "viewer follows a character or commitment thread (game-side; observer loop step 2 — 'choose someone to follow')",
+      "props": { "target_kind": "character|commitment|thread" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "kind only — never WHICH character/thread; follows are viewer-side state, not bus writes"
+    },
+    "prediction_made": {
+      "when": "viewer records a non-wager prediction on a followed thread (game-side; observer loop step 3)",
+      "props": { "target_kind": "character|commitment|thread" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "stakeless by design — never carries a wager, amount, or the prediction text"
+    },
+    "outcome_inspected": {
+      "when": "viewer returns to check a prediction against the recorded outcome (game-side; observer loop step 4 — 'inspect the outcome, revise your understanding')",
+      "props": { "verdict": "hit|miss|unresolved" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "the revise-your-understanding moment; the loop's proof that watching produces knowledge"
+    },
+    "invite_submitted": {
+      "when": "viewer files one bounded invitation/opportunity (game-side; the free intervention trial — notice an unmet opportunity → submit → see delivery or refusal)",
+      "props": { "kind": "invitation|workspace|project" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "bounded + attributed by design; kind only — never the invite text or target"
+    },
+    "invite_outcome_seen": {
+      "when": "the delivery/refusal result of a bounded invite is shown (game-side; instant delivery feedback, no promised emotional result)",
+      "props": { "outcome": "delivered|refused|expired" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "feed-vocabulary outcome only — refusal is a legitimate, measured result, not a failure state"
     }
   },
   "privacy": {
     "cookies": false,
     "persistent_ids": false,
-    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81)",
+    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81). OPTIONAL second sidecar --retention (v171): windowed hash stable <=30 days for return-visit counting (ANALYTICS.md §1a) — opt-in, separate file, salts memory-only",
     "opt_out": ["navigator.doNotTrack", "navigator.globalPrivacyControl", "?nocollect=1", "localStorage rw:no-collect=1", "rw.optOut()"],
     "inert_by_default": true
   }

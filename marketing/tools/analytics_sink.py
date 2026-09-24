@@ -28,6 +28,16 @@ generated in memory at startup and rotated at each UTC day rollover —
 discarded salts are never written, so a stored hash cannot be correlated
 across days and raw IPs/UAs are never persisted. Dedup per day happens
 at report time (analytics_report.py --uniques).
+
+v171: --retention PATH [--retention-days N] adds the §1a return-visit
+sidecar — a SEPARATE TSV using a window-rotating salt (default N=30 days).
+hash = sha256(salt_window + ip + ua + window_index): stable day-over-day
+inside one N-day window (so analytics_retention.py can count viewers seen
+on >=2 distinct days — the returning_viewers_7d / milestone-M12 counter),
+deliberately broken at every window rollover. Salts still live in memory
+only; raw IPs/UAs are still never written. This is the documented, opt-in
+trade-off in ANALYTICS.md §1a: return-visit measurement requires a
+time-boxed pseudonym; the window caps how long one can persist.
 """
 import argparse
 import hashlib
@@ -58,6 +68,8 @@ FALLBACK_EVENTS = {
     "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
     "handoff_seen", "hired_return",
     "queue_lesson_shown", "queue_outcome_seen", "archive_beat_seen",
+    "catchup_edition_viewed", "thread_followed", "prediction_made",
+    "outcome_inspected", "invite_submitted", "invite_outcome_seen",
 }
 
 
@@ -88,8 +100,34 @@ class DailyHasher:
         return day, h
 
 
-def make_handler(out_path, uniques_path, allowed):
+class WindowHasher:
+    """Window-rotating salted hash for return-visit counting (§1a, v171).
+
+    Stable inside one N-day window so the same visitor hashes identically
+    across days; the salt rotates at each window boundary, cutting all
+    cross-window correlation. Salts are memory-only, never written.
+    """
+
+    def __init__(self, window_days=30):
+        self.window_days = max(1, int(window_days))
+        self._salts = {}  # window_index -> salt (in memory only)
+
+    def hash(self, ip, ua, now=None):
+        ts = (now or time.time() * 1000) / 1000
+        dt = datetime.fromtimestamp(ts, timezone.utc)
+        day = dt.strftime("%Y-%m-%d")
+        win = dt.toordinal() // self.window_days
+        if win not in self._salts:
+            self._salts = {win: secrets.token_hex(16)}  # rotate: drop old salts
+        h = hashlib.sha256(
+            f"{self._salts[win]}|{ip}|{ua}|w{win}".encode("utf-8")).hexdigest()[:20]
+        return day, h
+
+
+def make_handler(out_path, uniques_path, allowed, retention_path=None,
+                 retention_days=30):
     hasher = DailyHasher()
+    win_hasher = WindowHasher(retention_days) if retention_path else None
 
     def handler(self):
         length = int(self.headers.get("Content-Length") or 0)
@@ -109,6 +147,11 @@ def make_handler(out_path, uniques_path, allowed):
             day, h = hasher.hash(self.client_address[0],
                                  self.headers.get("User-Agent", ""))
             with open(uniques_path, "a", encoding="utf-8") as f:
+                f.write(f"{day}\t{h}\n")
+        if win_hasher:
+            day, h = win_hasher.hash(self.client_address[0],
+                                     self.headers.get("User-Agent", ""))
+            with open(retention_path, "a", encoding="utf-8") as f:
                 f.write(f"{day}\t{h}\n")
         print(f"[sink] {name} {evt.get('path', '')} {json.dumps(evt.get('props', {}))}{flag}")
         self.send_response(204)
@@ -145,14 +188,25 @@ def main():
     ap.add_argument("--uniques", default=None,
                     help="sidecar TSV of daily unique-visitor hashes "
                          "(ANALYTICS.md §1 contract; raw IPs never stored)")
+    ap.add_argument("--retention", default=None,
+                    help="sidecar TSV of window-hashed visitor rows for "
+                         "return-visit counting (ANALYTICS.md §1a, v171)")
+    ap.add_argument("--retention-days", type=int, default=30,
+                    help="days per retention window before the salt "
+                         "rotates and all hashes break (default 30)")
     args = ap.parse_args()
     allowed, src = load_allowed_events()
     print(f"[sink] event allowlist: {len(allowed)} events ({src})")
     if args.uniques:
         print(f"[sink] uniques sidecar: {args.uniques} (daily-rotating salted hash)")
+    if args.retention:
+        print(f"[sink] retention sidecar: {args.retention} "
+              f"({args.retention_days}-day windowed salted hash)")
     print(f"[sink] listening on http://localhost:{args.port}/e -> {args.out}")
     ThreadingHTTPServer(("127.0.0.1", args.port),
-                        make_handler(args.out, args.uniques, allowed)).serve_forever()
+                        make_handler(args.out, args.uniques, allowed,
+                                     args.retention, args.retention_days)
+                        ).serve_forever()
 
 
 if __name__ == "__main__":

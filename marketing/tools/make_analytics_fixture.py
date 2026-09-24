@@ -250,6 +250,34 @@ def main():
                 yield_evt("returning_session", "/demo.html", sid,
                           {"stage": "s0", "opted_out": False},
                           utm=utm, ref=ref, ts=ts + 14000)
+            if rnd.random() < 0.45:  # observer loop (v171, production-3)
+                yield_evt("catchup_edition_viewed", "/demo.html", sid,
+                          {"items": rnd.randint(0, 3)},
+                          utm=utm, ref=ref, ts=ts + 20000)
+                if rnd.random() < 0.75:
+                    yield_evt("thread_followed", "/demo.html", sid,
+                              {"target_kind": rnd.choice(
+                                  ["character", "commitment", "thread"])},
+                              utm=utm, ref=ref, ts=ts + 24000)
+                    if rnd.random() < 0.55:
+                        yield_evt("prediction_made", "/demo.html", sid,
+                                  {"target_kind": rnd.choice(
+                                      ["character", "commitment", "thread"])},
+                                  utm=utm, ref=ref, ts=ts + 30000)
+                        if rnd.random() < 0.4:
+                            yield_evt("outcome_inspected", "/demo.html", sid,
+                                      {"verdict": rnd.choice(
+                                          ["hit", "miss", "unresolved"])},
+                                      utm=utm, ref=ref, ts=ts + 45000)
+                if rnd.random() < 0.15:  # bounded free intervention trial
+                    yield_evt("invite_submitted", "/demo.html", sid,
+                              {"kind": rnd.choice(
+                                  ["invitation", "workspace", "project"])},
+                              utm=utm, ref=ref, ts=ts + 36000)
+                    yield_evt("invite_outcome_seen", "/demo.html", sid,
+                              {"outcome": rnd.choice(
+                                  ["delivered", "refused", "expired"])},
+                              utm=utm, ref=ref, ts=ts + 50000)
             if rnd.random() < 0.22:  # request
                 yield_evt("request_submitted", "/demo.html", sid,
                           {"class": rnd.choice(["compatible", "exclusive", "queued"]),
