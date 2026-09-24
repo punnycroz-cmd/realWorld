@@ -31,6 +31,11 @@
   kid-backpack silhouette reachable only inside family clusters); and
   the counter courtesies — named ambient ↔ anonymous extra gesture
   beats gated on resolved state + extra presence + cooldown.
+  v99 adds: the bench layer — the pull protocol (15–90 min presence
+  loans, per-ambient capacity, one-step bounds, sleep/home never,
+  minors never, role-bound, invisible on the wire) and the coverage
+  map (what each post reads while borrowed: understudy extra, honest
+  sign, or an honestly empty post — the post never lies).
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -140,6 +145,9 @@
     <div class="panel"><h2>Counter courtesies — conditions now</h2><div id="courtesies"></div>
       <div class="fine">Named ambient ↔ anonymous extra gesture beats — the greeting matrix's downstairs neighbor. A beat is live only while the ambient's resolved state matches, an extra dwells in reach, and the cooldown has passed. 2–6s, no dialogue, no ledger. Minors have no counter.</div>
     </div>
+    <div class="panel"><h2>The bench — pulled &amp; covered</h2><div id="bench"></div>
+      <div class="fine">v99 — when a request borrows a named ambient (15–90 min, ≤3/day each, ≤2 at once block-wide, ≥60 min cooldown, one zone step max, role-bound), their post keeps an honest read: an understudy extra, a back-in-10 sign, or an honestly empty post. Sleep, home, transit, and minors are never pullable; the loan never appears on the wire — the coverage read is the whole trace.</div>
+    </div>
     <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
       <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
     </div>
@@ -163,6 +171,7 @@
       <li><b>Idle has an honest name.</b> Postures are dwell conditions on zone kind and pair availability — nobody is dispatched into one, and no label may imply sleep. Minors pair only within the pack.</li>
       <li><b>Extras arrive with company.</b> Lone/duo/cluster units share one spawn and one despawn; budgets still count bodies. Kid-scale silhouettes live only inside family clusters — never lone, never bars, never overnight.</li>
       <li><b>Courtesies are conditions.</b> A beat renders only while its ambient's state, an extra's presence, and the cooldown all hold — gesture only, no dialogue, no ledger. Minors appear in no beat.</li>
+      <li><b>The bench answers loans.</b> A request can borrow an ambient's presence (in-role, in-bounds, ≤90 min); the post reads understudy / sign / open while they're gone — never a lie, never a feed word. Minors are never pullable.</li>
     </ul></div>
   </div>
 </main>
@@ -304,6 +313,30 @@ const COURTESY=[
  {id:"ctr-section",amb:"A05",z:["park","doloresperk"],st:["sit"],form:"the offered section — paper passed sideways"},
  {id:"ctr-crumbs",amb:"A19",z:["park","doloresperk"],st:["sit"],form:"a pinch of crumbs spared for a stranger's bold pigeon"},
  {id:"ctr-stool",amb:"A09",z:["mudhaus"],st:["idle"],form:"the stool yielded — the seat does the talking"}];
+/* v99 mirrors: the pull protocol + the coverage map (the bench layer) */
+const PULL={win:[15,90],cap:3,conc:2,cool:60,
+ states:["serve","work","idle","sit","rest","chat","walk"]};
+const COVERAGE={
+ A01:{post:"the espresso bar",kind:"understudy",read:"a second apron steps up from the back — the line stretches but drinks keep coming"},
+ A02:{post:"the park loops",kind:"open",read:"the route just empties — nobody covers three leashes but her"},
+ A03:{post:"the register",kind:"understudy",read:"a cousin-shaped extra rings up behind the till — the pricing gun stays in the drawer"},
+ A04:{post:"the pack orbit",kind:"pack",read:"never pullable — the pack keeps its orbit; nothing moves for a request"},
+ A05:{post:"the north bench",kind:"open",read:"the bench keeps her folded section — regulars read the empty seat as 'running late'"},
+ A06:{post:"the delivery spine",kind:"understudy",read:"another rider takes the run — the hot box keeps moving; only the signature's gone"},
+ A07:{post:"the fruit stand",kind:"sign",read:"tarp down, chalk reads 'back in 10' — the stand can't run unattended and won't pretend to"},
+ A08:{post:"the pitch",kind:"open",read:"the pitch goes quiet — the chalkboard passes the slot to the next name"},
+ A09:{post:"the counter seat",kind:"open",read:"the seat just frees — she's only borrowable off-shift; the ward is never her cover"},
+ A10:{post:"the lift bay",kind:"understudy",read:"the second bay covers — the rag stays in the pocket, the radio stays on"},
+ A11:{post:"the front desk",kind:"understudy",read:"a second librarian takes the desk — the returns cart sits mid-aisle, waiting"},
+ A12:{post:"the lap loop",kind:"open",read:"the lap count drops by one — nobody covers a jog"},
+ A13:{post:"the corner table",kind:"open",read:"the table frees — the padded sleeve goes with her"},
+ A14:{post:"the walk-in chair",kind:"sign",read:"the chair holds its claim — a 'flash after 4' card rides the door"},
+ A15:{post:"the paper run",kind:"understudy",read:"a second courier takes the bag — the route doesn't skip a doorstep"},
+ A16:{post:"the bakery counter",kind:"sign",read:"the bake doesn't stop — a ring-bell card does the talking at the counter"},
+ A17:{post:"the site cut list",kind:"understudy",read:"a crewmate covers the saw — the thermos stays where it is"},
+ A18:{post:"the flower stand",kind:"sign",read:"the door reads 'back in 10' — the stem basket stays on the counter"},
+ A19:{post:"the south bench",kind:"open",read:"the bench empties — the noon pigeons get fed by whoever's nearest; nobody admits who"},
+ A20:{post:"the pack orbit",kind:"pack",read:"never pullable — same rule as June; the perimeter orbit doesn't bend for anyone"}};
 const GREETS=[
   {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
@@ -602,6 +635,18 @@ function render(){
     return `<div class="scene ${cs==="live"?'live':''}"><span class="dot" style="${cs==="cooling"?"background:var(--acc)":""}"></span>
       <b>${c.id}</b><span style="color:var(--dim);font-size:11px">${a[1]} · ${c.form}</span>
       <span class="why">${cs==="live"?"LIVE — ":""}${cs==="cooling"?"cooldown — ":""}${ZLABEL[cz]||cz} · ${legal}</span></div>`;}).join("");
+  /* v99 the bench: current pullability + coverage read per ambient */
+  document.getElementById("bench").innerHTML=AMB.map(a=>{
+    const[z,st]=ambWhere(a,S.h,S.day,S.wx);
+    const legal=STMAP[st]||st;
+    const cv=COVERAGE[a[0]],minor=a[4]&&a[4].minor;
+    const able=!minor&&z!=="home"&&z!=="edge"&&PULL.states.includes(legal);
+    const tag=minor?"never":able?"pullable now":"not pullable ("+legal+")";
+    const col=minor?"var(--pink)":able?"var(--grn)":"var(--dim)";
+    return `<div class="flow"><span class="arr">${a[0]} ${a[1]}</span>
+      <span style="color:var(--dim)">${cv.post} · ${cv.kind} — ${cv.read}</span>
+      <span class="n" style="color:${col}">${tag}</span></div>`;}).join("")+
+    `<div class="fine">windows ${PULL.win[0]}–${PULL.win[1]} min · ≤${PULL.cap}/day each · ≤${PULL.conc} at once · ${PULL.cool} min cooldown</div>`;
   document.getElementById("micros").innerHTML=MICROS.map(m=>
     `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
   document.getElementById("res").innerHTML=RESOURCES.map(r=>{
@@ -622,6 +667,7 @@ function render(){
       <div style="font-size:11.5px;margin-top:5px"><b>signature:</b> ${x.sig||"—"}</div>
       <div style="font-size:11.5px;margin-top:3px"><b>the week:</b> ${x.v||"—"}</div>
       ${greets?`<div style="font-size:11.5px;margin-top:3px"><b>knows:</b> ${greets}</div>`:""}
+      <div style="font-size:11.5px;margin-top:3px"><b>if borrowed:</b> ${COVERAGE[sel[0]].post} · ${COVERAGE[sel[0]].kind} — ${COVERAGE[sel[0]].read}</div>
       <div class="fine" style="margin-top:5px">Thin tier · zero LLM while ambient · never possessable · promotable via world/promotion.md.</div></div>`;})():"";
   /* 24h curve for selected zone */
   const cv=document.getElementById("curve"),ctx=cv.getContext("2d");

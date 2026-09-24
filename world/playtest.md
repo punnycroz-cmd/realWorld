@@ -267,6 +267,15 @@ One person can wear every hat; four real testers is the intended shape.
   card, sit between Repairs and the briefing-safe block in all eight
   bibles, mirror as `weather`/`helped` in characters.json, and stay
   inside the observable-safe sweep — orbit, never seed.
+  PT90 (The Crowd v99 / crowd.json v99) probes the bench layer — the
+  pull protocol for borrowing a named ambient (15–90 min loans, ≤3/day
+  each, ≤2 concurrent, ≥60 min cooldown, one-step bounds, in-role only,
+  sleep/home/transit never, minors never) and the coverage map: what
+  each post reads while borrowed (understudy extra / honest sign /
+  honestly empty post; minors' kind is `pack` — a refusal, not a
+  surface). The bench panel in crowd.html shows live pullability per
+  ambient; the loan never appears on the wire — the coverage read is
+  the whole spectator-facing trace.
 
 ## 3. Running a session
 

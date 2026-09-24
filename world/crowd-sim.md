@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -589,3 +589,81 @@ Hard bounds, same as everywhere:
 - The `kid-backpack` silhouette is the only kid-scale vocabulary in the
   palette and it is reachable only through `group_profile.shapes.family`.
   No spawn path produces a lone kid.
+
+## 26. The pull protocol (v99)
+
+Ambients.md says a request may borrow a named ambient as a co-star "in
+role, in routine bounds" — but until now nothing defined the loan
+itself. `crowd.json §pull_protocol` is the borrow contract: what a pull
+is allowed to be, so that co-starring stays cheap, bounded, and legible.
+
+- **Window.** A pull is a 15–90 minute presence loan. Shorter reads as
+  teleporting; longer reads as a kidnapping. The window attaches to the
+  request's declared hours — never open-ended.
+- **Capacity.** One ambient: max 3 pulls/day, ≥60 min cooldown between
+  them. The block: max 2 ambients pulled concurrently — a crowd that
+  keeps losing its regulars stops reading as a crowd.
+- **Bounds.** The loan borrows presence, not geography. A pull may move
+  an ambient at most one zone step and only *toward* space the request
+  already controls — a claimed resource or a locked venue. Nobody is
+  walked across the map; nobody is taken home.
+- **States.** Pullable only while the resolved row is a public or
+  staffed state (`serve`/`work`/`idle`/`sit`/`rest`/`chat`/`walk`).
+  Never from `sleep`, never from `home`, never mid-transit on a flow
+  edge — a pawn you can't plausibly stop isn't stoppable.
+- **Minors never.** A04 and A20 are not in the pool. A request naming
+  them resolves as a decline at screening; their rows never surface to
+  the pull resolver at all.
+- **Role-bound.** The pull asks the role, not the person — "a barista
+  at the counter," never "Reyes running an errand." In-role, in-
+  persona, per the co-star rules; the ambient's knowledge stays
+  surface-level because it is surface-level.
+- **Pipeline.** A pull is an exclusive-class request on the ambient's
+  id at the same §11 step as a resource claim — same moderation, same
+  review, same attribution rules.
+
+## 27. The coverage layer (v99)
+
+The other half of a loan is the hole it leaves. `crowd.json §coverage`
+maps every ambient to the read their post produces while they're
+borrowed — three surfaces, all honest:
+
+- **`understudy`** — a working post that can't sit empty gets an extra
+  in the silhouette: Malik's register rings under a cousin-shaped
+  stranger, Kofe's hot box rides under a second courier, Vera's desk
+  answers under a second librarian. The extras layer absorbs the body;
+  the signature read (the flat cap, the paring knife) is simply gone —
+  a spectator who knows the block notices *who* is missing, not *that*
+  someone was dispatched.
+- **`sign`** — a post that can't run unattended tells the truth: Luz's
+  tarp comes down and the chalk reads "back in 10"; Hana's counter gets
+  a ring-bell card; Bex's chair rides a "flash after 4" note. The sign
+  is the coverage — no fake labor, no unattended commerce.
+- **`open`** — benches, laps, and corner tables just empty. Nobody
+  covers a jog; the pigeon bag stays home and the noon feeding falls
+  to whoever's nearest (nobody admits who).
+- **`pack`** — the minors' row: not a surface, a refusal. The pack
+  orbit doesn't bend for a request, and there is no coverage because
+  there is never an absence.
+
+Rules the layer enforces:
+
+1. **The post never lies.** A tarped stand reads tarped — never
+   "serving." Coverage is the honest-visible counterpart of the
+   posture palette's honest labels.
+2. **Coverage is a read, not a cost.** Understudy extras come out of
+   the zone's existing budget — no +1 spawn, no new identity.
+3. **The loan is invisible on the wire.** No feed event names a pull.
+   The spectator-facing trace is exactly the coverage read: "back in
+   10," a second apron, an empty bench.
+
+## 28. Boundary additions (v99)
+
+- Pull ids, windows, and cooldowns are **internal vocabulary** — the
+  wire never says "pulled." What the feed can see is the coverage
+  read and, when the scene itself is public, the ambient doing their
+  job somewhere a request controls.
+- A pull writes **no ledger, no memory, no archive** — ambients stay
+  thin while borrowed; the loan is scheduling, not promotion.
+- Coverage never covers a seed — there is no coverage surface whose
+  read implies a storyline. "Back in 10" is the whole plot.

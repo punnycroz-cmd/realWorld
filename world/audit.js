@@ -1859,7 +1859,43 @@ const PUB = Object.values(PT.surfaces)
       if (H && (H.amb !== b.amb || JSON.stringify(H.z.sort()) !== JSON.stringify([...b.zones].sort())))
         add(g, 'fail', 'crowd.html', null, `COURTESY ${b.id}: amb/zone drifted`);
     }
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies`;
+    /* v99: the bench layer — pull_protocol sanity + coverage mirror */
+    const PP = CJ.pull_protocol || {}, CVH = pull('COVERAGE', '{}'), PLH = pull('PULL', '{}');
+    if (!Array.isArray(PP.window_min) || PP.window_min[0] > PP.window_min[1])
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.window_min bad or missing');
+    if (!PP.capacity || !(PP.capacity.per_ambient_per_day >= 1) || !(PP.capacity.concurrent_block_max >= 1) || !(PP.capacity.cooldown_min >= 0))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.capacity incomplete — the loan needs bounds');
+    if (!/A04/.test(PP.minors || '') || !/A20/.test(PP.minors || ''))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.minors must name A04 and A20 — the pack is never pullable');
+    if (!/never|no event|invisible/i.test(PP.feed || ''))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.feed lost the wire-invisibility clause');
+    if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(PP)))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol carries meta vocabulary');
+    const jCov = CJ.coverage || {};
+    if (JSON.stringify(Object.keys(jCov).sort()) !== JSON.stringify(jA))
+      add(g, 'fail', 'crowd.json', null, 'coverage keys != roster ids — every ambient needs an absence surface');
+    const COVK = new Set(['understudy', 'sign', 'open', 'pack']);
+    for (const [id, c] of Object.entries(jCov)) {
+      const amb = AMB.ambients.find(a => a.id === id);
+      if (!COVK.has(c.kind)) add(g, 'fail', 'crowd.json', null, `coverage ${id}: kind "${c.kind}" not in understudy|sign|open|pack`);
+      if (!c.post || !c.read) add(g, 'fail', 'crowd.json', null, `coverage ${id}: missing post/read — the post must say something honest`);
+      if (!['extra', 'none'].includes(c.understudy)) add(g, 'fail', 'crowd.json', null, `coverage ${id}: understudy "${c.understudy}" must be extra|none`);
+      if (amb && amb.minor && c.kind !== 'pack') add(g, 'fail', 'crowd.json', null, `coverage ${id}: a minor's only kind is pack — never pullable`);
+      if (amb && !amb.minor && c.kind === 'pack') add(g, 'fail', 'crowd.json', null, `coverage ${id}: pack is minors-only vocabulary`);
+      if (c.kind === 'understudy' && c.understudy !== 'extra') add(g, 'fail', 'crowd.json', null, `coverage ${id}: understudy kind without an extra fill`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(c)))
+        add(g, 'fail', 'crowd.json', null, `coverage ${id}: meta vocabulary in absence surface`);
+      const H = CVH[id];
+      if (H && (H.post !== c.post || H.kind !== c.kind || H.read !== c.read))
+        add(g, 'fail', 'crowd.html', null, `COVERAGE ${id} drifted from crowd.json`);
+    }
+    for (const id of jA) if (!CVH[id]) add(g, 'fail', 'crowd.html', null, `COVERAGE ${id} missing from the mirror`);
+    if (JSON.stringify(PLH.win || []) !== JSON.stringify(PP.window_min || []) ||
+        PLH.cap !== (PP.capacity || {}).per_ambient_per_day ||
+        PLH.conc !== (PP.capacity || {}).concurrent_block_max ||
+        PLH.cool !== (PP.capacity || {}).cooldown_min)
+      add(g, 'fail', 'crowd.html', null, 'PULL mirror drifted from pull_protocol');
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 

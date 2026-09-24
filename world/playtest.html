@@ -1944,6 +1944,26 @@ const PTS=[
   ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
     "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
     "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+ ]}
+,{id:"PT90",title:"The Crowd v99 — the bench layer (pull protocol + coverage)",min:9,
+ persona:"request-pipeline reviewer — wants proof that borrowing a named ambient is bounded, honest, and invisible on the wire",
+ goal:"Verify the v99 bench layer: crowd.json pull_protocol declares the loan bounds (15–90 min, ≤3/day each, ≤2 concurrent, ≥60 min cooldown, one-step bounds, minors never); coverage gives all 20 ambients an absence surface of kind understudy|sign|open|pack; crowd.html renders 'The bench — pulled & covered' with live pullability per ambient; the crowd gate enforces mirror parity and the pack rule.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Open world/crowd.html (file://) and find 'The bench — pulled & covered'. Scrub the clock from 6:00 to 24:00 and flip day/weather toggles.",
+  exp:"Every ambient row shows its post, coverage kind, and honest read; the pullable tag flips with resolved state — Reyes 'pullable now' during Mudhaus hours, 'not pullable (sleep)' overnight, 'not pullable' on her Sunday off; A04 June and A20 Zee read 'never' in pink at every hour.",
+  ck:["All 20 rows present — post · kind · read + a live pullability tag",
+    "Pullability tracks the resolved routine (sleep/home/transit never pullable)",
+    "Minors read 'never' at every hour and every weather"]},
+ {do:"Click Reyes, Luz, and Ray in the named-layer roster. Read the 'if borrowed' line on each card.",
+  exp:"Reyes: 'the espresso bar · understudy — a second apron steps up…'; Luz: 'the fruit stand · sign — tarp down, chalk reads back in 10'; Ray: 'the south bench · open — the bench empties…'. Three different honest surfaces — no card pretends the work keeps running unattended.",
+  ck:["Understudy reads fill the silhouette with an extra, never a named pawn",
+    "Sign reads tell the truth (tarp down / ring bell / back in 10)",
+    "Open reads let the post empty — nobody covers a jog or a bench"]},
+ {do:"Run node world/audit.js and read the crowd gate. Then open world/crowd.json §pull_protocol + §coverage and world/crowd-sim.md §§26–28.",
+  exp:"Crowd gate passes at schema v99 with '… · 20 coverage' in the detail; pull_protocol carries window/capacity/bounds/states/minors/role_bound/feed/pipeline; coverage keys equal the full roster and minors' kind is 'pack'; prose spells the honest-post rule and wire invisibility.",
+  ck:["Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
+    "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
+    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
 ]}];
 
 

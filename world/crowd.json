@@ -1,7 +1,7 @@
 {
- "version": 85,
- "updated": "2026-09-23",
- "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor).",
+ "version": 99,
+ "updated": "2026-09-24",
+ "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor). v99 adds the bench layer — the pull protocol (how a request borrows a named ambient: window, capacity, bounds, minors never, in-role only) and the coverage map (what each ambient's post reads while borrowed — understudy extra, back-in-10 sign, or an honestly empty bench).",
  "conventions": {
   "hours": "game-local decimal; dayparts are half-open [h0,h1) wrapping at 24",
   "budget": "extras headcount range [lo,hi] the spawner maintains per zone, off-camera only",
@@ -34,7 +34,9 @@
   "annual_shades": "v71 calendar-window layer — resolves season → annual (suppresses day shades when active) → weather",
   "posture_palette": "v71 dwell vocabulary — extras and idle ambients hold labeled postures instead of freezing; honest labels map is the content fix for idle-label lies",
   "group_profile": "v85 company layer — extras spawn in social units (lone/duo/cluster), resolved as normalize(kind_mix × daypart_mix); a unit is one spawn, one edge, one despawn; budgets still count bodies",
-  "courtesies": "v85 counter-courtesy layer — named ambient ↔ anonymous extra pose exchanges gated on resolved state + extra presence + cooldown; gesture only, no dialogue, no ledger"
+  "courtesies": "v85 counter-courtesy layer — named ambient ↔ anonymous extra pose exchanges gated on resolved state + extra presence + cooldown; gesture only, no dialogue, no ledger",
+  "pull_protocol": "v99 — the rules for borrowing a named ambient as a co-star; conditions on resolved state + request class, never a dispatch",
+  "coverage": "v99 — per-ambient absence surface while pulled: kind understudy|sign|open|pack; the post never lies (a tarped stand reads tarped, never 'serving')"
  },
  "dayparts": [
   {
@@ -2503,28 +2505,95 @@
   "units": {
    "lone": 1,
    "duo": 2,
-   "cluster": [3, 4]
+   "cluster": [
+    3,
+    4
+   ]
   },
   "resolution": "mix(zone, daypart) = normalize(kind_mix[kind] * daypart_mix[daypart]) — element-wise product, renormalized; a zero row falls back to the kind row alone",
   "kind_mix": {
-   "cafe": {"lone": 0.55, "duo": 0.35, "cluster": 0.10},
-   "open_air": {"lone": 0.60, "duo": 0.28, "cluster": 0.12},
-   "bar": {"lone": 0.40, "duo": 0.35, "cluster": 0.25},
-   "shop": {"lone": 0.62, "duo": 0.30, "cluster": 0.08},
-   "stand": {"lone": 0.66, "duo": 0.28, "cluster": 0.06},
-   "restaurant": {"lone": 0.42, "duo": 0.36, "cluster": 0.22},
-   "civic": {"lone": 0.70, "duo": 0.24, "cluster": 0.06}
+   "cafe": {
+    "lone": 0.55,
+    "duo": 0.35,
+    "cluster": 0.1
+   },
+   "open_air": {
+    "lone": 0.6,
+    "duo": 0.28,
+    "cluster": 0.12
+   },
+   "bar": {
+    "lone": 0.4,
+    "duo": 0.35,
+    "cluster": 0.25
+   },
+   "shop": {
+    "lone": 0.62,
+    "duo": 0.3,
+    "cluster": 0.08
+   },
+   "stand": {
+    "lone": 0.66,
+    "duo": 0.28,
+    "cluster": 0.06
+   },
+   "restaurant": {
+    "lone": 0.42,
+    "duo": 0.36,
+    "cluster": 0.22
+   },
+   "civic": {
+    "lone": 0.7,
+    "duo": 0.24,
+    "cluster": 0.06
+   }
   },
   "daypart_mix": {
-   "overnight": {"lone": 1.0, "duo": 0.0, "cluster": 0.0},
-   "predawn": {"lone": 0.95, "duo": 0.05, "cluster": 0.0},
-   "commute": {"lone": 0.88, "duo": 0.11, "cluster": 0.01},
-   "rush": {"lone": 0.80, "duo": 0.16, "cluster": 0.04},
-   "midday": {"lone": 0.70, "duo": 0.24, "cluster": 0.06},
-   "lunch": {"lone": 0.60, "duo": 0.30, "cluster": 0.10},
-   "afternoon": {"lone": 0.55, "duo": 0.30, "cluster": 0.15},
-   "evening": {"lone": 0.50, "duo": 0.32, "cluster": 0.18},
-   "night": {"lone": 0.60, "duo": 0.28, "cluster": 0.12}
+   "overnight": {
+    "lone": 1.0,
+    "duo": 0.0,
+    "cluster": 0.0
+   },
+   "predawn": {
+    "lone": 0.95,
+    "duo": 0.05,
+    "cluster": 0.0
+   },
+   "commute": {
+    "lone": 0.88,
+    "duo": 0.11,
+    "cluster": 0.01
+   },
+   "rush": {
+    "lone": 0.8,
+    "duo": 0.16,
+    "cluster": 0.04
+   },
+   "midday": {
+    "lone": 0.7,
+    "duo": 0.24,
+    "cluster": 0.06
+   },
+   "lunch": {
+    "lone": 0.6,
+    "duo": 0.3,
+    "cluster": 0.1
+   },
+   "afternoon": {
+    "lone": 0.55,
+    "duo": 0.3,
+    "cluster": 0.15
+   },
+   "evening": {
+    "lone": 0.5,
+    "duo": 0.32,
+    "cluster": 0.18
+   },
+   "night": {
+    "lone": 0.6,
+    "duo": 0.28,
+    "cluster": 0.12
+   }
   },
   "shapes": {
    "adults": "default — any silhouettes from appearance_palette",
@@ -2532,10 +2601,10 @@
   },
   "family_share": {
    "open_air": 0.35,
-   "civic": 0.20,
+   "civic": 0.2,
    "shop": 0.15,
-   "cafe": 0.10,
-   "stand": 0.10,
+   "cafe": 0.1,
+   "stand": 0.1,
    "restaurant": 0.15
   },
   "note": "duos walk abreast and read as 'together' — the linked-elbows pair, the stroller pushed two-handed. A unit that walks a chain keeps its shape; despawn takes the whole unit at once. A silhouette may hint a family, never a name."
@@ -2543,28 +2612,350 @@
  "courtesies": {
   "rule": "the greeting matrix's downstairs neighbor — named ambient ↔ anonymous extra pose exchanges. A beat is a condition, not a dispatch: it can render only while the ambient's resolved row sits in a listed state, ≥1 extra dwells within arm's reach in the zone, and the cooldown since that ambient's last beat has elapsed. Gesture vocabulary only — 2–6 s, zero dialogue, zero ledger; the extra stays an extra (no handle, no name, no memory). Beats are suppressed automatically wherever a claim or lock zeroes the extras budget, and a beat counts as one interactive pawn toward the ≤3 cap. Minors have no counter — June and Zee appear in no beat.",
   "shared": {
-   "dur_s": [2, 6],
-   "cooldown_min": [15, 45],
+   "dur_s": [
+    2,
+    6
+   ],
+   "cooldown_min": [
+    15,
+    45
+   ],
    "cap": "counts as one interactive pawn toward the ≤3 rule"
   },
   "beats": [
-   {"id": "ctr-cup", "amb": "A01", "zones": ["mudhaus"], "during": ["serve"], "form": "the cup across the counter — slid, not handed; the regular's order already started"},
-   {"id": "ctr-change", "amb": "A03", "zones": ["minimart"], "during": ["serve"], "form": "change counted into the open palm, small bills first"},
-   {"id": "ctr-mango", "amb": "A07", "zones": ["fruteria"], "during": ["serve"], "form": "the slice before the sale — a taste off the knife tip"},
-   {"id": "ctr-heel", "amb": "A16", "zones": ["bakery"], "during": ["serve"], "form": "the heel of the loaf, wrapped separate, priced a coin lower"},
-   {"id": "ctr-stem", "amb": "A18", "zones": ["bloomdoom"], "during": ["serve"], "form": "a stem re-cut and paper-wrapped while they wait"},
-   {"id": "ctr-stamp", "amb": "A11", "zones": ["library"], "during": ["work"], "form": "stamp, slide, one tap on the due date"},
-   {"id": "ctr-hood", "amb": "A10", "zones": ["folsom"], "during": ["work"], "form": "rag down first, then the finger pointing under the hood"},
-   {"id": "ctr-flash", "amb": "A14", "zones": ["needlepointe", "clarion"], "during": ["work"], "form": "the flash book opened to the right page first try"},
-   {"id": "ctr-chord", "amb": "A08", "zones": ["park", "club600"], "during": ["work", "chat"], "form": "the nod that opens a set — hat forward, first chord for whoever stopped"},
-   {"id": "ctr-leash", "amb": "A02", "zones": ["park"], "during": ["walk"], "form": "the leash handed over mid-stride — a sit-stay that almost holds"},
-   {"id": "ctr-door", "amb": "A06", "zones": ["streets", "mudhaus", "elfarolote"], "during": ["carry"], "form": "the door held with the box braced on a hip"},
-   {"id": "ctr-lobby", "amb": "A15", "zones": ["streets"], "during": ["carry"], "form": "ten seconds of courier patience — the lobby door held"},
-   {"id": "ctr-tape", "amb": "A17", "zones": ["auerbach"], "during": ["work"], "form": "the tape measure lent — it comes back hooked, unasked"},
-   {"id": "ctr-outlet", "amb": "A13", "zones": ["mudhaus"], "during": ["phone"], "form": "the charger pushed across the corner table — the outlet shared"},
-   {"id": "ctr-section", "amb": "A05", "zones": ["park", "doloresperk"], "during": ["sit"], "form": "the offered section — paper passed sideways to a benchmate"},
-   {"id": "ctr-crumbs", "amb": "A19", "zones": ["park", "doloresperk"], "during": ["sit"], "form": "a pinch of crumbs spared for a stranger's bold pigeon"},
-   {"id": "ctr-stool", "amb": "A09", "zones": ["mudhaus"], "during": ["idle"], "form": "the stool yielded — scrubs buy nothing extra, the seat does the talking"}
+   {
+    "id": "ctr-cup",
+    "amb": "A01",
+    "zones": [
+     "mudhaus"
+    ],
+    "during": [
+     "serve"
+    ],
+    "form": "the cup across the counter — slid, not handed; the regular's order already started"
+   },
+   {
+    "id": "ctr-change",
+    "amb": "A03",
+    "zones": [
+     "minimart"
+    ],
+    "during": [
+     "serve"
+    ],
+    "form": "change counted into the open palm, small bills first"
+   },
+   {
+    "id": "ctr-mango",
+    "amb": "A07",
+    "zones": [
+     "fruteria"
+    ],
+    "during": [
+     "serve"
+    ],
+    "form": "the slice before the sale — a taste off the knife tip"
+   },
+   {
+    "id": "ctr-heel",
+    "amb": "A16",
+    "zones": [
+     "bakery"
+    ],
+    "during": [
+     "serve"
+    ],
+    "form": "the heel of the loaf, wrapped separate, priced a coin lower"
+   },
+   {
+    "id": "ctr-stem",
+    "amb": "A18",
+    "zones": [
+     "bloomdoom"
+    ],
+    "during": [
+     "serve"
+    ],
+    "form": "a stem re-cut and paper-wrapped while they wait"
+   },
+   {
+    "id": "ctr-stamp",
+    "amb": "A11",
+    "zones": [
+     "library"
+    ],
+    "during": [
+     "work"
+    ],
+    "form": "stamp, slide, one tap on the due date"
+   },
+   {
+    "id": "ctr-hood",
+    "amb": "A10",
+    "zones": [
+     "folsom"
+    ],
+    "during": [
+     "work"
+    ],
+    "form": "rag down first, then the finger pointing under the hood"
+   },
+   {
+    "id": "ctr-flash",
+    "amb": "A14",
+    "zones": [
+     "needlepointe",
+     "clarion"
+    ],
+    "during": [
+     "work"
+    ],
+    "form": "the flash book opened to the right page first try"
+   },
+   {
+    "id": "ctr-chord",
+    "amb": "A08",
+    "zones": [
+     "park",
+     "club600"
+    ],
+    "during": [
+     "work",
+     "chat"
+    ],
+    "form": "the nod that opens a set — hat forward, first chord for whoever stopped"
+   },
+   {
+    "id": "ctr-leash",
+    "amb": "A02",
+    "zones": [
+     "park"
+    ],
+    "during": [
+     "walk"
+    ],
+    "form": "the leash handed over mid-stride — a sit-stay that almost holds"
+   },
+   {
+    "id": "ctr-door",
+    "amb": "A06",
+    "zones": [
+     "streets",
+     "mudhaus",
+     "elfarolote"
+    ],
+    "during": [
+     "carry"
+    ],
+    "form": "the door held with the box braced on a hip"
+   },
+   {
+    "id": "ctr-lobby",
+    "amb": "A15",
+    "zones": [
+     "streets"
+    ],
+    "during": [
+     "carry"
+    ],
+    "form": "ten seconds of courier patience — the lobby door held"
+   },
+   {
+    "id": "ctr-tape",
+    "amb": "A17",
+    "zones": [
+     "auerbach"
+    ],
+    "during": [
+     "work"
+    ],
+    "form": "the tape measure lent — it comes back hooked, unasked"
+   },
+   {
+    "id": "ctr-outlet",
+    "amb": "A13",
+    "zones": [
+     "mudhaus"
+    ],
+    "during": [
+     "phone"
+    ],
+    "form": "the charger pushed across the corner table — the outlet shared"
+   },
+   {
+    "id": "ctr-section",
+    "amb": "A05",
+    "zones": [
+     "park",
+     "doloresperk"
+    ],
+    "during": [
+     "sit"
+    ],
+    "form": "the offered section — paper passed sideways to a benchmate"
+   },
+   {
+    "id": "ctr-crumbs",
+    "amb": "A19",
+    "zones": [
+     "park",
+     "doloresperk"
+    ],
+    "during": [
+     "sit"
+    ],
+    "form": "a pinch of crumbs spared for a stranger's bold pigeon"
+   },
+   {
+    "id": "ctr-stool",
+    "amb": "A09",
+    "zones": [
+     "mudhaus"
+    ],
+    "during": [
+     "idle"
+    ],
+    "form": "the stool yielded — scrubs buy nothing extra, the seat does the talking"
+   }
   ]
+ },
+ "pull_protocol": {
+  "window_min": [
+   15,
+   90
+  ],
+  "capacity": {
+   "per_ambient_per_day": 3,
+   "concurrent_block_max": 2,
+   "cooldown_min": 60
+  },
+  "bounds": "the pull borrows presence inside the ambient's resolved routine — it may move them at most one zone step and only toward a zone the request already controls (a claimed resource or a locked venue); never relocates across the map, never into 'home'",
+  "states": "pullable only while the resolved row is a public or staffed state (serve/work/idle/sit/rest/chat/walk) — never from sleep, never from 'home', never mid-transit on a flow edge",
+  "minors": "A04 and A20 are never pullable — a request naming them resolves as a decline; their rows never enter the pool",
+  "role_bound": "the pull asks the role, not the person — Reyes can be borrowed as 'a barista at the counter', never as 'Reyes running an errand'; the ambient stays in-role per ambients.md co-star rules",
+  "feed": "pulls are invisible on the wire — no event type, no attribution; spectators see the coverage read, not the loan",
+  "pipeline": "a pull enters the §11 request pipeline at the same step as a resource claim; exclusive-class only when the ask needs sole attention"
+ },
+ "coverage": {
+  "A01": {
+   "post": "the espresso bar",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "a second apron steps up from the back — the line stretches but drinks keep coming"
+  },
+  "A02": {
+   "post": "the park loops",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the route just empties — nobody covers three leashes but her"
+  },
+  "A03": {
+   "post": "the register",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "a cousin-shaped extra rings up behind the till — the pricing gun stays in the drawer"
+  },
+  "A04": {
+   "post": "the pack orbit",
+   "kind": "pack",
+   "understudy": "none",
+   "read": "never pullable — the pack keeps its orbit; nothing moves for a request"
+  },
+  "A05": {
+   "post": "the north bench",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the bench keeps her folded section — regulars read the empty seat as 'running late'"
+  },
+  "A06": {
+   "post": "the delivery spine",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "another rider takes the run — the hot box keeps moving; only the signature's gone"
+  },
+  "A07": {
+   "post": "the fruit stand",
+   "kind": "sign",
+   "understudy": "none",
+   "read": "tarp down, chalk reads 'back in 10' — the stand can't run unattended and won't pretend to"
+  },
+  "A08": {
+   "post": "the pitch",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the pitch goes quiet — the chalkboard passes the slot to the next name"
+  },
+  "A09": {
+   "post": "the counter seat",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the seat just frees — she's only borrowable off-shift; the ward is never her cover"
+  },
+  "A10": {
+   "post": "the lift bay",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "the second bay covers — the rag stays in the pocket, the radio stays on"
+  },
+  "A11": {
+   "post": "the front desk",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "a second librarian takes the desk — the returns cart sits mid-aisle, waiting"
+  },
+  "A12": {
+   "post": "the lap loop",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the lap count drops by one — nobody covers a jog"
+  },
+  "A13": {
+   "post": "the corner table",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the table frees — the padded sleeve goes with her"
+  },
+  "A14": {
+   "post": "the walk-in chair",
+   "kind": "sign",
+   "understudy": "none",
+   "read": "the chair holds its claim — a 'flash after 4' card rides the door"
+  },
+  "A15": {
+   "post": "the paper run",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "a second courier takes the bag — the route doesn't skip a doorstep"
+  },
+  "A16": {
+   "post": "the bakery counter",
+   "kind": "sign",
+   "understudy": "none",
+   "read": "the bake doesn't stop — a ring-bell card does the talking at the counter"
+  },
+  "A17": {
+   "post": "the site cut list",
+   "kind": "understudy",
+   "understudy": "extra",
+   "read": "a crewmate covers the saw — the thermos stays where it is"
+  },
+  "A18": {
+   "post": "the flower stand",
+   "kind": "sign",
+   "understudy": "none",
+   "read": "the door reads 'back in 10' — the stem basket stays on the counter"
+  },
+  "A19": {
+   "post": "the south bench",
+   "kind": "open",
+   "understudy": "none",
+   "read": "the bench empties — the noon pigeons get fed by whoever's nearest; nobody admits who"
+  },
+  "A20": {
+   "post": "the pack orbit",
+   "kind": "pack",
+   "understudy": "none",
+   "read": "never pullable — same rule as June; the perimeter orbit doesn't bend for anyone"
+  }
  }
 }
