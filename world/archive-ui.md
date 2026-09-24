@@ -1,4 +1,4 @@
-# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90)
+# The Archive — history-browser application spec & copy deck (world v20; v3 pass v34; v4 pass v48; v5 pass v62; v6 pass v76; v7 pass v90; v8 pass v104)
 
 `world/archive.html` is the **full history surface**: the spectator layer of
 the canonical ledger, browsable five ways. It supersedes `history.html`
@@ -404,7 +404,53 @@ Copy deck additions:
 | Extra kind chip | `<kind>` — "a kind the wire wrote — counted, not interpreted" |
 | Unknown person/venue label | the id itself, verbatim — "the archive never invents a display name" |
 
-## 16. Merge notes (for the game track)
+## 17. v104 — The Archive v8 — the absence + lifecycle layer
+
+Same rule as every pass: projections of rows that were already public —
+counted, never curated; linked, never inferred.
+
+- **OFF THE FEED** (`#v=gaps`). The uncovered-stretch map: every gap of
+  ≥2 h (`GAP_MIN=120`, the same rule the day view's inline "— off the
+  feed —" markers use) between consecutive written rows, enumerated per
+  day and across the record. The header counts stretches, the longest
+  one, total uncovered minutes, and days-with-a-gap. Each stretch links
+  its two boundary rows (`before`/`after` chips open their records) —
+  the edge of coverage is a fact; what happened inside it is not, and
+  the page says so: "a quiet hour and an unwatched hour look the same."
+  A gap is never interpolated into "where somebody probably was."
+- **REQUEST TRAILS** (`#v=reqs`, `#v=reqs&rq=<id>`). Every request event
+  grouped by its shared `req` id into one card: payer handle verbatim,
+  declared credits where `attrs.credits` carries them, and the full
+  public lifecycle the wire wrote — `queued → running → resolved`,
+  `in_review → refunded`, however it ran, chronological by `t`+`n` and
+  day-aware. Open trails (any member in an open status:
+  `requested/in_review/approved/queued/running`) sort first, then
+  newest-first. A trail row click opens that event's record. A trail
+  can end at "not approved" and no further — denied text was never
+  written, so there is no secret step to leak.
+- **Settled-the-talk** — the reverse edge of `outcome.by`: when the
+  selected record is the public event a rumor's outcome points at, the
+  detail panel shows "settled the talk" chips linking the rumor rows.
+  Same law as forward: the link only ever points at rows that stood on
+  the wire in their own right.
+
+Copy deck additions:
+
+| Moment | Copy |
+|---|---|
+| Gaps chip | "off the feed — the hours the wire never wrote — counted, never filled" |
+| Gaps head | "Off the feed — the hours the wire never wrote — counted, never filled" |
+| Gaps rule line | "a stretch is ≥2 h between two written rows — the same rule the day view's markers use. Today counts only the rows already written; a quiet hour and an unwatched hour look the same, and the archive says so." |
+| Gaps empty | "No uncovered stretches on record — the wire never blinked. That's a count too." |
+| Gap row | "— off the feed (HH:MM → HH:MM) — N h M min" + `before`/`after` boundary chips |
+| Reqs chip | "request trails — one paid reach-in, all its public statuses in a row" |
+| Reqs head | "Request trails — one paid reach-in, all its public statuses in a row — the trail is what the wire wrote, nothing more" |
+| Reqs rule line | "…Denied ask text was never written, so a trail can end at 'not approved' and no further. Open trails sort first." |
+| Reqs empty | "No paid reach-ins on this record — the ledger is clean." |
+| Trail card | "<payer> · N public statuses · M days · req <id> · K cr declared" (+ "still open" when any member is open) |
+| Settled-the-talk | "settled the talk: HH:MM · word on the block" chips in record detail |
+
+## 18. Merge notes (for the game track)
 
 `gsWireDays`/`gsWireArchiveDay` (game-v6) are the live contract; day
 objects must keep `history.json` `day_schema` fields, with `req` emitted
@@ -453,3 +499,11 @@ ids there (never player handles) and the archive's person/venue/pair
 views stay honest automatically. `catch up` calls `gsWireDays` +
 `gsWireArchiveDay` again on demand; both must stay cheap and
 idempotent.
+
+v104: no schema change — the gaps view reuses the ≥120-min rule the
+day view already applies inline, and request trails group the `req`
+field the ledger already requires (`req` on every lifecycle event is
+what makes a trail complete; keep emitting it on every status the wire
+writes). `OPEN_ST` mirrors feed.json's open statuses — if the
+vocabulary gains a new open status, add it there too or a live trail
+will mis-sort as closed.

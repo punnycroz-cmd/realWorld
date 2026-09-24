@@ -13,7 +13,9 @@ Companion artifacts:
   rumor settled-by; v5 in v62 — shelf, pair, seen-with, venue rhythm;
   v6 in v76 — same hour, day-vs-day, person lens, copy record;
   v7 in v90 — the real archive seam: id→day index, person index from
-  mentions, attempt on denials, kind-growth chips, catch up); spec in
+  mentions, attempt on denials, kind-growth chips, catch up;
+  v8 in v104 — the absence + lifecycle layer: off-the-feed gaps map,
+  request trails by req id, settled-the-talk reverse edge); spec in
   `world/archive-ui.md`. Supersedes
   history.html as the primary archive surface.
 - `world/history.html` — working demo (file://-safe; day data inlined,

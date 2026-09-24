@@ -134,6 +134,24 @@
     "the person index adds reach to names the wire already wrote — never names it didn't",
     "unknown ids render verbatim — the archive never invents a display name"
    ]
+  },
+  "archive_ui_v104": {
+   "doc": "world v104 — The Archive v8: the absence + lifecycle layer. Two more projections of the same public rows plus the reverse of outcome.by. Nothing counted, cut, or linked that wasn't already on the wire.",
+   "views_added": {
+    "gaps": "#v=gaps — 'off the feed': every uncovered stretch of ≥2 h between written rows, enumerated per day and across the record; summary counts stretches, longest stretch, uncovered minutes, days-with-a-gap; each stretch links its two boundary rows ('before'/'after' chips open their records)",
+    "reqs": "#v=reqs — 'request trails': every request grouped by req id into one card — payer verbatim, declared credits where attrs carry them, and the full public lifecycle (queued/running/resolved/refunded/in_review/not_approved, however it ran); open trails (any member in an open status) sort first; a trail row click opens that event's record; #v=reqs&rq=<reqid> selects a trail",
+    "settled_the_talk": "record detail: when the selected event is the outcome.by target of a rumor, the panel shows 'settled the talk' chips linking the rumor rows — the reverse edge of 'settled by the public record'"
+   },
+   "permalinks_added": [
+    "#v=gaps",
+    "#v=reqs and #v=reqs&rq=<reqid>"
+   ],
+   "honesty": [
+    "a gap stretch is the same ≥120-min rule the day view's inline markers already use — the gaps view enumerates them, it never interpolates what happened inside one",
+    "a trail is exactly the statuses the wire wrote under one req id — no inferred steps; a trail can end at 'not approved' and no further because denied text was never written",
+    "today counts only written rows — a quiet hour and an unwatched hour look the same and the copy says so",
+    "settled-the-talk links only rows that stood on the wire in their own right — same law as forward outcome.by"
+   ]
   }
  },
  "days": {

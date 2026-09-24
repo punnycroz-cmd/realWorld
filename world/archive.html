@@ -66,6 +66,20 @@
       keeps rows it already served; a ring-capped bus dropping old
       lines doesn't erase the reader's copy). No polling — the archive
       stays a reading surface, the wire does the watching.
+  v8 additions (world v104) — THE ABSENCE + LIFECYCLE LAYER:
+    - OFF THE FEED — the uncovered-stretch map: every gap of two hours
+      or more between written rows, counted per day and across the
+      record. Absence is part of the record — counted, never filled.
+    - REQUEST TRAILS — one card per paid reach-in (req id): payer
+      verbatim, declared credits where attrs carry them, and the full
+      public lifecycle the wire wrote — queued → running → resolved,
+      in_review → refunded, however it ran. Open trails sort first.
+    - settled-the-talk — the reverse of outcome.by: when a public row
+      is the record a rumor settled against, its detail says so and
+      links the talk. Same rule as forward — the link only ever points
+      at rows that stood on the wire in their own right.
+    All three are still projections: nothing counted, cut, or linked
+    that wasn't already a public row.
 
   File://-safe, no network. Two data sources, one schema
   (world/history.json):
@@ -324,6 +338,8 @@
         <div class="vchip" data-v="threads">threads<small>storylines the public record already tells</small></div>
         <div class="vchip" data-v="word">word on the block<small>the rumor board — all of it marked</small></div>
         <div class="vchip" data-v="ledger">the ledger<small>every paid reach-in, attributed</small></div>
+        <div class="vchip" data-v="reqs">request trails<small>one paid reach-in, all its public statuses in a row</small></div>
+        <div class="vchip" data-v="gaps">off the feed<small>the hours the wire never wrote — counted, never filled</small></div>
         <div class="vchip" data-v="pair">seen together<small>two names, one public record — co-presence only</small></div>
         <div class="vchip" data-v="shelf">your shelf<small>pins kept on this device — the archive doesn’t remember you</small></div>
       </div>
@@ -628,7 +644,7 @@ if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live archiv
 /* ================= state + hash routing ================= */
 var view="day", day=TODAY, selHour=-1, kindF="all", q="", who="", venue="", selId=null;
 var selTh=null, searchScope="day", payer="", pairA="", pairB="";
-var hourSel=15, cmpA="", cmpB="", personLens="all", visIds=[];
+var hourSel=15, cmpA="", cmpB="", personLens="all", visIds=[], rqSel="";
 
 /* ---- the shelf: pins kept in this browser's localStorage only.
    Reader-side state, not world state — the archive doesn't remember
@@ -681,6 +697,7 @@ function setHash(){
         : view==='pair' ? '#v=pair&a='+pairA+'&b='+pairB
         : view==='hour' ? '#v=hour&h='+hourSel
         : view==='cmp' ? '#v=cmp&d1='+cmpA+'&d2='+cmpB
+        : view==='reqs'&&rqSel ? '#v=reqs&rq='+encodeURIComponent(rqSel)
         : '#v='+view;
   if (view==='threads' && selTh) h+='&th='+selTh;
   if (selId) h += (h.indexOf('&')>=0||view!=='day'?'&':'&')+'e='+selId;
@@ -691,7 +708,8 @@ function readHash(){
   h.split('&').forEach(function(p){ var i=p.indexOf('='); if(i>0) kv[p.slice(0,i)]=decodeURIComponent(p.slice(i+1)); });
   if (kv.e){ var f=findEvent(kv.e); if(f){ selId=kv.e; if(f.day) day=f.day; } }
   if (kv.d && DAYS[kv.d]) day=kv.d;
-  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.v && ['day','person','venue','threads','word','ledger','week','pair','shelf','hour','cmp','gaps','reqs'].indexOf(kv.v)>=0) view=kv.v;
+  if (kv.rq){ rqSel=kv.rq; view='reqs'; }
   if (kv.h!==undefined){ var hi=parseInt(kv.h,10); if(hi>=0&&hi<24) hourSel=hi; }
   if (kv.d1 && DAYS[kv.d1]) cmpA=kv.d1;
   if (kv.d2 && DAYS[kv.d2]) cmpB=kv.d2;
@@ -1181,6 +1199,156 @@ function renderCmpView(){
   });
 }
 
+/* ================= VIEW: off the feed =================
+   The uncovered-stretch map. The same ≥2h rule the day view uses for
+   its inline "— off the feed —" markers, enumerated across the whole
+   record. Absence is part of the record: counted, never filled —
+   no stretch is interpolated into "where somebody probably was". */
+var GAP_MIN=120;
+function gapList(){
+  var out=[];
+  Object.keys(DAYS).sort().forEach(function(d){
+    var evs=DAYS[d]||[];
+    for (var i=1;i<evs.length;i++){
+      var span=evs[i].t-evs[i-1].t;
+      if (span>=GAP_MIN) out.push({day:d, a:evs[i-1], b:evs[i], span:span});
+    }
+  });
+  return out;
+}
+function fmtSpan(min){
+  var h=Math.floor(min/60), m=min%60;
+  return h?h+' h'+(m?' '+m+' min':''):m+' min';
+}
+function renderGapsView(){
+  var body=document.getElementById('viewBody');
+  var gaps=gapList();
+  var longest=null, totMin=0, byDay={};
+  gaps.forEach(function(g){
+    totMin+=g.span; (byDay[g.day]=byDay[g.day]||[]).push(g);
+    if (!longest||g.span>longest.span) longest=g;
+  });
+  var days=Object.keys(byDay).sort().reverse();
+  body.innerHTML='<div class="dayhead"><h3>Off the feed</h3>'+
+    '<span class="meta">the hours the wire never wrote — counted, never filled</span></div>'+
+    '<div class="wksum">'+
+    '<div class="rs"><b>'+gaps.length+'</b><span>uncovered stretch'+(gaps.length===1?'':'es')+'</span></div>'+
+    '<div class="rs"><b>'+(longest?fmtSpan(longest.span):'—')+'</b><span>longest stretch'+(longest?' · '+daySepLabel(longest.day):'')+'</span></div>'+
+    '<div class="rs"><b>'+fmtSpan(totMin)+'</b><span>uncovered minutes on record</span></div>'+
+    '<div class="rs"><b>'+days.length+'</b><span>day'+(days.length===1?'':'s')+' with a gap</span></div>'+
+    '</div>'+
+    '<div class="meta" style="font-size:11.5px;color:var(--dim);margin:2px 0 10px">'+
+      'a stretch is ≥'+Math.floor(GAP_MIN/60)+' h between two written rows — the same rule '+
+      'the day view\u2019s \u201c— off the feed —\u201d markers use. Today counts only the rows '+
+      'already written; a quiet hour and an unwatched hour look the same, and the archive says so.</div>'+
+    '<div id="gapdays"></div>';
+  var box=document.getElementById('gapdays');
+  if (!gaps.length){ box.innerHTML='<div class="empty">No uncovered stretches on record — the wire never blinked. That\u2019s a count too.</div>'; return; }
+  days.forEach(function(d){
+    var sep=document.createElement('div'); sep.className='daysep';
+    sep.innerHTML=daySepLabel(d)+' <a data-day="'+d+'">open day →</a>';
+    box.appendChild(sep);
+    var ul=document.createElement('ul'); ul.className='evs'; box.appendChild(ul);
+    byDay[d].forEach(function(g){
+      var li=document.createElement('li'); li.className='ev';
+      li.style.cursor='default';
+      li.innerHTML='<span class="t">'+fmt(g.a.t)+'</span><span class="k quiet">gap</span><span>'+
+        '— off the feed ('+fmt(g.a.t)+' → '+fmt(g.b.t)+') — '+fmtSpan(g.span)+
+        ' <span class="thchip" data-ev="'+g.a.id+'" title="the last written row before the stretch">before</span>'+
+        ' <span class="thchip" data-ev="'+g.b.id+'" title="the first written row after the stretch">after</span></span>';
+      ul.appendChild(li);
+    });
+  });
+  box.querySelectorAll('.daysep a[data-day]').forEach(function(a){
+    a.onclick=function(){ view='day'; day=a.dataset.day; selHour=-1; renderAll(); };
+  });
+  box.querySelectorAll('[data-ev]').forEach(function(c){
+    c.onclick=function(ev){ ev.stopPropagation(); var f=findEvent(c.dataset.ev); if(!f) return;
+      selId=f.e.id; if(f.day)day=f.day; renderDet(); setHash(); };
+  });
+}
+
+/* ================= VIEW: request trails =================
+   One paid reach-in, all its public statuses in a row. Requests share
+   a req id across lifecycle events (feed.json contract); the trail is
+   exactly the statuses the wire wrote — no inferred steps, no denied
+   text. Open trails (any member still in an open status) sort first. */
+var OPEN_ST={requested:1,in_review:1,approved:1,queued:1,running:1};
+function reqTrails(){
+  var groups={}, order=[];
+  allEvents().forEach(function(e){
+    if (e.kind!=='request'||!e.req) return;
+    if (!groups[e.req]){ groups[e.req]=[]; order.push(e.req); }
+    groups[e.req].push(e);
+  });
+  var trails=order.map(function(rq){
+    var mems=groups[rq].slice().sort(function(a,b){return (a.t-b.t)||((a.n||0)-(b.n||0));});
+    var payer=null, cr=0, open=false, days={};
+    mems.forEach(function(e){
+      if (e.who&&e.who!=='admin'&&!payer) payer=e.who;
+      if (e.attrs&&e.attrs.credits) cr+=e.attrs.credits;
+      if (e.status&&OPEN_ST[e.status]) open=true;
+      var d=dateOfId(e.id); if(d) days[d]=1;
+    });
+    return {id:rq, mems:mems, payer:payer, credits:cr, open:open,
+      days:Object.keys(days).sort(),
+      last:mems[mems.length-1]};
+  });
+  /* open first, then newest-first within each group */
+  trails.sort(function(a,b){
+    if (a.open!==b.open) return a.open?-1:1;
+    return (b.last.t-a.last.t) || (b.days[b.days.length-1]<a.days[a.days.length-1]?-1:1);
+  });
+  return trails;
+}
+function renderReqsView(){
+  var body=document.getElementById('viewBody');
+  var trails=reqTrails();
+  var openN=trails.filter(function(t){return t.open;}).length;
+  var payers={}, cr=0;
+  trails.forEach(function(t){ if(t.payer)payers[t.payer]=1; cr+=t.credits; });
+  body.innerHTML='<div class="dayhead"><h3>Request trails</h3>'+
+    '<span class="meta">one paid reach-in, all its public statuses in a row — the trail is what the wire wrote, nothing more</span></div>'+
+    '<div class="ledsum">'+
+    '<div class="rs"><b>'+trails.length+'</b><span>trail'+(trails.length===1?'':'s')+'</span></div>'+
+    '<div class="rs"><b>'+openN+'</b><span>still open</span></div>'+
+    '<div class="rs"><b>'+Object.keys(payers).length+'</b><span>payer'+(Object.keys(payers).length===1?'':'s')+'</span></div>'+
+    (cr?'<div class="rs"><b>'+cr+' cr</b><span>declared credits</span></div>':'')+
+    '</div>'+
+    '<div class="meta" style="font-size:11.5px;color:var(--dim);margin:2px 0 12px">'+
+      'a trail is every public status the wire wrote under one request id — queued, running, resolved, '+
+      'refunded, in_review, however it ran. Denied ask text was never written, so a trail can end at '+
+      '\u201cnot approved\u201d and no further. Open trails sort first.</div>'+
+    '<div id="reqlist"></div>';
+  var list=document.getElementById('reqlist');
+  if (!trails.length){ list.innerHTML='<div class="empty">No paid reach-ins on this record — the ledger is clean.</div>'; return; }
+  trails.forEach(function(t){
+    var c=document.createElement('div'); c.className='thcard'+(rqSel===t.id?' on':'');
+    if (rqSel===t.id) c.style.borderColor='var(--acc)';
+    var last=t.last;
+    c.innerHTML='<div class="thl"><span class="payer">'+esc(t.payer||'unattributed')+'</span>'+
+      (t.open?' <span class="stt" style="color:var(--acc)">· still open</span>':'')+'</div>'+
+      '<div class="thb">'+esc(last.text)+(last.status?' <span class="st '+stKey(last.status)+'">'+esc(last.status)+'</span>':'')+'</div>'+
+      '<div class="thm">'+t.mems.length+' public statuse'+(t.mems.length===1?'':'s')+' · '+
+      t.days.length+' day'+(t.days.length===1?'':'s')+' · req '+esc(t.id)+
+      (t.credits?' · '+t.credits+' cr declared':'')+'</div>'+
+      '<ul class="trail" style="margin-top:8px">';
+    t.mems.forEach(function(e){
+      var d=dateOfId(e.id)||TODAY;
+      c.innerHTML+='<li data-tid="'+e.id+'">'+fmt(e.t)+' · '+daySepLabel(d)+' · '+esc(e.status||e.kind)+
+        (e.attempt?' <span class="att">asked for — '+esc(e.attempt)+'</span>':'')+'</li>';
+    });
+    c.innerHTML+='</ul>';
+    c.onclick=function(){ rqSel=(rqSel===t.id?'':t.id); setHash(); };
+    c.querySelectorAll('.trail li[data-tid]').forEach(function(li){
+      li.onclick=function(ev){ ev.stopPropagation();
+        selId=li.dataset.tid; var f=findEvent(selId); if(f&&f.day)day=f.day;
+        renderDet(); setHash(); };
+    });
+    list.appendChild(c);
+  });
+}
+
 /* ================= VIEW: your shelf =================
    Pins kept in this browser's localStorage — reader-side state, not
    world state. Copy-shelf exports a transcript that carries the source
@@ -1482,6 +1650,19 @@ function renderDet(){
         fmt(be.t)+' · '+esc(be.kind)+'</span>');
     }
   }
+  /* settled-the-talk (v104) — the reverse of outcome.by: when this row
+     is the public record some rumor settled against, the detail says so
+     and links the talk. The link only ever points at a row that stood
+     on the wire in its own right. */
+  var settledTalk=allEvents().filter(function(x){
+    return x.kind==='rumor' && x.outcome && x.outcome.by===e.id; });
+  if (settledTalk.length){
+    html+='<div class="meta"><b>settled the talk:</b> '+
+      settledTalk.map(function(x){
+        return '<span class="thchip" data-ev="'+x.id+'" title="'+esc(x.text)+'">'+
+          fmt(x.t)+' · word on the block</span>';
+      }).join(' ')+'</div>';
+  }
   if (e.attrs&&e.attrs.compensated_cr) bits.push('affected players compensated <b>'+e.attrs.compensated_cr+' cr</b>');
   if (e.attrs&&e.attrs.credits) bits.push('declared <b>'+e.attrs.credits+' cr</b>');
   bits.forEach(function(x){ html+='<div class="meta">'+x+'</div>'; });
@@ -1589,6 +1770,8 @@ function renderView(){
   else if (view==='shelf') renderShelfView();
   else if (view==='hour') renderHourView();
   else if (view==='cmp') renderCmpView();
+  else if (view==='gaps') renderGapsView();
+  else if (view==='reqs') renderReqsView();
 }
 function renderAll(){
   renderViewChips(); renderDayList(); renderView(); renderDet(); setHash();

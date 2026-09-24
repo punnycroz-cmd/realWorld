@@ -305,6 +305,13 @@ One person can wear every hat; four real testers is the intended shape.
   viewer's pin), gsWireDays archive depth ("N days on record → The
   Archive"), gsWireVocabulary status coverage in the day card, and
   gsWireAudit's self-check run on demand when the card opens.
+  PT95 (The absence + lifecycle layer v104 / archive.html v8) audits the
+  two new archive projections — the gaps view (every ≥2h uncovered
+  stretch, same GAP_MIN rule as the day view's inline markers, boundary
+  rows linked, nothing interpolated) and request trails (one card per
+  req id, the wire's own statuses only, open trails first, 'not
+  approved' can be the last step) — plus the settled-the-talk reverse
+  edge on records a rumor's outcome.by points at.
 
 ## 3. Running a session
 

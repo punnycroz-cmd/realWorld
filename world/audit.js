@@ -3017,8 +3017,26 @@ const PUB = Object.values(PT.surfaces)
       [/extraKinds/, 'honest kind-growth chips'],
       [/kindPass/, 'generic kind filter'],
       [/counted, not interpreted/, 'extra-kind honesty copy'],
-      [/a\.t-b\.t\)\s*\|\|\s*\(\(a\.n/, 'bus-n tiebreak on same-minute rows']
+      [/a\.t-b\.t\)\s*\|\|\s*\(\(a\.n/, 'bus-n tiebreak on same-minute rows'],
+      /* v104 — the absence + lifecycle layer */
+      [/data-v="gaps"/, 'gaps view switch'],
+      [/data-v="reqs"/, 'request-trails view switch'],
+      [/GAP_MIN/, 'gap threshold constant'],
+      [/gapList/, 'gap enumeration fn'],
+      [/renderGapsView/, 'gaps view renderer'],
+      [/the hours the wire never wrote/, 'gaps honesty copy'],
+      [/counted, never filled/, 'gaps counted-not-filled copy'],
+      [/reqTrails/, 'request-trail grouping fn'],
+      [/renderReqsView/, 'trails view renderer'],
+      [/OPEN_ST/, 'open-status set'],
+      [/one paid reach-in, all its public statuses in a row/, 'trails honesty copy'],
+      [/still open/, 'open-trail marker'],
+      [/rqSel/, 'req-trail selection state'],
+      [/settled the talk/, 'settled-by reverse edge'],
+      [/kv\.rq/, 'req-trail permalink param']
     ];
+    if (!HJ.archive_ui?.archive_ui_v104)
+      add(g, 'fail', 'history.json', null, 'archive_ui_v104 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v90)
       add(g, 'fail', 'history.json', null, 'archive_ui_v90 contract block missing');
     if (!HJ.archive_ui?.archive_ui_v48)

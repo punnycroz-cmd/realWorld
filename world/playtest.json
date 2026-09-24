@@ -4859,6 +4859,46 @@
    ]
   }
  ]
+},
+{
+ "id": "PT95",
+ "title": "The absence + lifecycle layer v104 — The Archive v8",
+ "minutes": 8,
+ "persona": "merge auditor — wants proof the two new archive views are projections, not new information",
+ "goal": "Verify the v104 absence + lifecycle layer: archive.html gains #v=gaps (every ≥2h uncovered stretch, counted per day and across the record, boundary-row links) and #v=reqs (one card per req id with the full public lifecycle, open trails first) plus the settled-the-talk reverse edge on records that settled a rumor; history.json carries archive_ui_v104; the archive gate enforces every surface.",
+ "surfaces": [
+  "archive",
+  "audit"
+ ],
+ "steps": [
+  {
+   "do": "Open world/archive.html, click 'off the feed', and compare its stretches to a day's inline '— off the feed —' markers.",
+   "expect": "The gaps view enumerates every ≥2h stretch between written rows using the same GAP_MIN=120 rule as the day view; the header counts stretches, longest stretch, uncovered minutes, and days-with-a-gap; each stretch's before/after chips open the boundary rows' records; the copy says a quiet hour and an unwatched hour look the same — nothing inside a stretch is interpolated.",
+   "checkpoints": [
+    "Every inline day-view gap also appears in the gaps view — same rule, same rows",
+    "Boundary chips open real records only — a gap never links to anything written to explain it",
+    "Today counts only written rows; no stretch invents coverage the wire didn't have"
+   ]
+  },
+  {
+   "do": "Click 'request trails' and open a multi-status trail (e.g. leaf's park cleanup); check the settled-the-talk edge on the doorway-set record (d0921-12).",
+   "expect": "Trails group every request event by req id — payer verbatim, declared credits where attrs carry them, statuses chronological by t+n with day labels; open trails (requested/in_review/approved/queued/running) sort first; a trail can end at 'not approved' and no further. d0921-12's detail shows 'settled the talk' linking the license rumor that pointed at it via outcome.by.",
+   "checkpoints": [
+    "A trail is exactly the wire's statuses — no inferred steps, no denied text",
+    "Open trails sort before closed ones; #v=reqs&rq=<id> selects a card",
+    "settled-the-talk links only rows that stood on the wire in their own right"
+   ]
+  },
+  {
+   "do": "Run node world/audit.js and read the archive gate; then open world/history.json archive_ui_v104 and world/archive-ui.md §17.",
+   "expect": "Archive gate passes with the v104 checks green (data-v gaps/reqs, GAP_MIN/gapList/renderGapsView, reqTrails/renderReqsView/OPEN_ST/rqSel, 'settled the talk', kv.rq, both honesty strings, archive_ui_v104 contract block). Prose spells the no-interpolation and no-inferred-steps laws.",
+   "checkpoints": [
+    "Archive gate: 0 fail; v104 block present in history.json",
+    "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
+    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"
+   ]
+  }
+ ]
 }
  ],
  "session_report_schema": {
