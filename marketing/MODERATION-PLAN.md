@@ -1,6 +1,6 @@
 # Moderation Plan — Real World ("The Mission")
 
-**Version:** v118 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v133 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
 (v13: first canonical plan; v28: aligned to the world track's shipped
 moderation contract — see §2.0; v43: aligned to game-v6's shipped wire
 display filter + world-v18/v19 surfaces — see §2.3; v58: aligned to
@@ -25,7 +25,11 @@ stats), world-v80's offscreen doctrine, world-v81's admin-transparency
 + coexistence onboarding beats, world-v82's file-only lease layer,
 game-v13's econ feed fence, and the FIXED C1–C8 possession-ban UI hole
 (art-v57 rebuild) — §2.0, §2.2, §4 +3 rows, §6 +1 row, §7 +3 rows,
-§8/§9 re-struck.)
+§8/§9 re-struck; v133: aligned to world-v89's real wire seam (withheld-
+count honesty line, permit board), world-v90's durable archive seam,
+world-v92's Mod Console v5 live review seam + executable screen-drift
+gate, and game-v15's civic code (city holds, quiet hours, zones) —
+§2.0, §4 +3 rows, §6 +2 rows, §7 +2 rows, §9 re-struck.)
 **Authority:** design doc `rw-game-design-2026-09-22.md` §5 (participation),
 §7 (possession), §8 (anti-grief), §11 amendment (request moderation pipeline —
 user-locked). Machine-readable contract shipped by world-v8:
@@ -340,6 +344,54 @@ Delivered since v103 (world-v78/v80/v81/v82, game-v13, art-v57):
   assertion clicks the hidden control programmatically on a main and an
   ambient and asserts the ban holds. §8's day-0 launch blocker is now a
   regression check, not a blocker.
+
+Delivered since v118 (world-v89/v90/v92, game-v15):
+
+- **`world/wire.html` v89 (world-v89)** — the spectator page now syncs
+  on the real bus end-to-end: request lifecycle trails, a right-rail
+  **permit board** (`vs.board`/`gsResourceBoard` — claim states +
+  booked markers, read-only), co-session cards, weather-sponsor header
+  lines, and a **withheld-count honesty line** (`gsWireStats`): the
+  wire discloses how many entries it is *not* showing instead of
+  silently suppressing them. Moderation relevance: suppression is now
+  disclosed, not invisible — the transparency story can quote "the
+  feed tells you when it's holding something back" as a shipped fact.
+- **`world/archive.html` v7 (world-v90)** — the history browser's live
+  seam: day/who/venue indexes resolve verbatim from the ledger, denied
+  rows print "asked for — <kind>", unknown kinds get honest
+  kind-growth chips, and `mergeDay`/`catchUp` pull today's ledger
+  without polling. Moderation relevance: the public record is now
+  **durable** — a denial or dispute line stays citeable after it
+  scrolls off the live wire, which is what the §6a report's permalink
+  promise needs past day-30.
+- **`world/mod-console.html` v5 + `moderation.json` (world-v92, the
+  live review seam)** — the console reads the game-v14 bridge
+  verbatim: `gsReviewQueue` (in_review records carry screen/lane/
+  submittedMin/reviewExpireMin/appealOf/origReviewer),
+  `gsReviewResolve({by,code,modifyMin})`, `gsEscalateLegal`,
+  `gsModMetrics`, `gsFlagStatus` (roster + ownerHold docket),
+  `gsRepLedger`, and `gsPossessionBriefing` as the character-card
+  whitelist — same schema guarantee as §2.5. Review-lock claims are
+  session-local until `review_locks.merge_target` lands (still a
+  game-systems TODO — see §9). NEW **`devtools/screen_drift.js`** — an
+  executable drift gate that diffs the game-side classifier port
+  against the reference `screen.js` engine on identical input.
+  Current report: **23 permissive gaps** (13 missing normalization,
+  10 lexicon drift, 6 untestable-in-stub). The §2.0 merge rule stands:
+  stricter-ok, never-more-permissive — the port needs the v22/v36/v50
+  normalization + v50 lexicon generation before conformance holds.
+- **game-v15 civic code (`41_game_systems_civic.js`, sf/game-systems)**
+  — moderation-relevant admin surface: `gsAdminHold`/`gsLiftHold`
+  bounded city closures with a **full-compensation sweep** (§2.4
+  item 7's "admin actions are feed-public + compensated" now has a
+  second instance); new deny codes `quiet_hours` (amplified kinds in
+  the 22:00–06:00 PT band), `bad_zone`, `city_hold`; venue zones
+  (`venue:<place>@<zone>`) and `noise:<place>` airspace claims;
+  `gsReqOutlook`/`gsCivicAlts` clerk answers; `cohost` feed kind.
+  **Baseline caveat:** shipped on `sf/game-systems` v15, NOT in the
+  production-1 baseline (game pinned v11) — internal runbook rows are
+  documented below, but public copy must not quote civic vocabulary
+  until merge (same gate as DEMO-PAGE.md §7 / marketing-v131).
 
 The locked pipeline, with the moderation decision at each stage spelled out:
 
@@ -691,6 +743,9 @@ not policy discretion.
 | Feed goes quiet during an AI outage | Spectators report the wire "died" | Check before apologizing: at `blackout_floor` 0% all mains are degraded and the feed is silent *by design* (world-v69) — a quiet feed is the outage posture, not a second bug. Comms acknowledge the outage, never promise restoration times | No |
 | Under-age band hits a paid stage | "The site redirected my kid" / support mail | Working as designed — band-gated paid surfaces redirect u13 out of the paid flow (world-v67); it's an eligibility redirect, not a flag or a ban. Canned reply exists; never offer a workaround | No |
 | Spectator handle rejected/impersonation | `gsHandleCheck` refuses a handle | Same rule as hire names: no cast/ambient/real-person names (game-v12). Handles are attribution — the wire `who` line prints them — so they get screened, not hand-moderated | No |
+| City hold closes a block (game-v15, post-merge) | `hold`/`hold_lift` admin lines on the feed | Working as designed — a bounded `gsAdminHold` with a full-compensation sweep; admin actions are feed-public like every other (§2.4 item 7). Never treat as a player punishment or a crash; the `city_hold` deny is the player-facing side while a hold is active | No |
+| Quiet-hours denial confusion (game-v15, post-merge) | Amplified request denied `quiet_hours` overnight | Working as designed — the 22:00–06:00 PT noise band is a civic rule, not a reviewer call; the denial auto-refunds like every deny. Refile for daytime or drop the amplified class. Public copy holds this vocabulary until merge | No |
+| Screen-drift gate goes red | `devtools/screen_drift.js` reports permissive gaps vs `screen.js` | Merge blocker, not an incident — the gate's rule is stricter-ok/never-more-permissive (world-v92 report: 23 gaps open). Do not flip the live queue onto a looser port; escalate to owner + game track | Yes — before any merge flip |
 
 ## 5. Appeals & refunds (requests) — aligned to `moderation.json` appeal_flow
 
@@ -741,6 +796,8 @@ not policy discretion.
 | Modified-offer decline rate | offer-card accept/decline counts (world-v46 contract) | some declines are healthy — proof trims are real offers; a ~0% decline rate means trims are too timid to notice |
 | Boundary-confusion rate | mod tickets/DMs asking to "report" a character vs. feed dispute lines (`a housing dispute filed — <addr>`) | low; a rising ticket rate means public copy blurs the §2.6 boundary — fix copy, never open the ticket |
 | Per-reviewer decision mix | shift report `by_reviewer` counts (world-v78 `reviewer_stats`) | reviewers' approve/deny/trim mixes stay within shouting distance of each other; one reviewer diverging is drift or training debt — retrain, never publicly name |
+| Screen-drift gate | `devtools/screen_drift.js` permissive-gap count (world-v92) | 0 permissive gaps at merge flip; stricter gaps are tolerated, permissive ones block — currently 23 open on the game-side port |
+| Hold compensation paid | ledger `compensated_cr` on `gsAdminHold` sweeps (game-v15, post-merge) | low and fully ledgered; a spike means holds are being used casually — owner reviews hold reasons, never silently |
 
 ### 6a. Monthly transparency report (POLICY — template shipped v43)
 
@@ -781,6 +838,8 @@ the counters.
 | "Appeals go to a different reviewer — the console won't let the same person decide twice" | "Appeals are always reversed if the first reviewer was wrong" — enforcement is procedural, outcomes still differ per case |
 | "The world doesn't perform for you — viewership is never an input to the drama" | "Characters can't tell you're watching" as a mechanics claim — they can't be steered by an audience, but copy must not promise perception rules the design doesn't state |
 | "Your rent, deposit, and lease are private — the only money event on the public feed is payday" | "Nothing financial is ever public" — payday is the designed public beat; the fence is category-level, not absolute |
+| "The feed tells you when it's holding something back — suppressed entries have a count, not a secret" | "The feed shows literally everything" — the display filter (§2.3) still applies; the withheld-count line discloses it, never the screened text |
+| "Denials and disputes stay on the record — you can look them up in the history browser after they scroll off the live feed" | "History is editable / we can correct the record" — the archive is append-only canon; no retcon exists (§2.4) |
 
 `faq.html` and `rules.html` implement this table; if policy changes, both
 pages + this table update in the same commit.
@@ -885,3 +944,20 @@ pages + this table update in the same commit.
   class (claims nothing, 10 cr/30 min) and files through the same
   screened pipeline at the Counter; the wire itself stays purchase-free
   (world-v61 gate). No new policy needed — §2.1 compatible rule covers it.
+- Live review seam — world-v92's Mod Console v5 maps
+  `gsReviewQueue`/`gsReviewResolve`/`gsEscalateLegal`/`gsModMetrics`/
+  `gsFlagStatus`/`gsRepLedger`/`gsPossessionBriefing` verbatim off the
+  game-v14 bridge. Remaining: `review_locks.merge_target` — bus-side
+  lock claims are still a game-systems TODO; console claims stay
+  session-local until then. No schema invention needed.
+- ~~Classifier port conformance~~ — now executable, not aspirational:
+  `devtools/screen_drift.js` (world-v92) is the drift gate; current
+  report 23 permissive gaps on the game-side port (normalization +
+  lexicon generation owed). Rule unchanged: stricter-ok,
+  never-more-permissive. A red drift report blocks the live-queue
+  flip — §4 runbook row + §6 metric added.
+- Civic vocabulary — game-v15 (`41_game_systems_civic.js`) shipped
+  holds/quiet-hours/zones/`cohost` on sf/game-systems but is NOT in
+  the production-1 baseline (game pinned v11). Internal runbook rows
+  and metrics documented (§4, §6); §7 public copy deliberately has no
+  civic claims — add them only post-merge, same gate as the demo page.
