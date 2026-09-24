@@ -1,6 +1,18 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v135 · 2026-09-23 (ninth pass — SERP re-validation §23:
+**Version:** v150 · 2026-09-24 (tenth pass — SERP re-validation §24:
+the Truman-Show SERP is no longer a pure eulogy — Out of the Blue's
+*American Arcadia* shipped its trailer cycle into the phrase's results
+(Eurogamer, Mar 2026); still nobody ships a *persistent spectator* life
+sim, so Tier-1 stands with sharper copy rules. LIVORA shipped 5.0
+*yesterday* (countries/visas/education, 36 locations — still single-life,
+single-player, no spectator surface). inZOI Phase-5 re-confirmed as an
+Oct 2026 *target* in the updated roadmap — and KRAFTON itself now speaks
+"movie director / cast your actors," answering v135's carried question:
+YES, the biggest budget adopted director language. compare.html gains a
+second-ring section (LIVORA / Canvastown / American Arcadia / Burbank)
+closing the register's livora→compare owner gap.)
+**v135** (ninth pass — SERP re-validation §23:
 inZOI's multiplayer is converging on *director-mode* roleplay (Canvastown
 role assignment, "cast your actors") — the biggest budget in the genre is
 circling our spectator fantasy; Phase-5 still an Oct 2026 *target*.
@@ -81,7 +93,7 @@ first week post-launch; re-score tiers at day-30.
 
 | Keyword | Intent | Landing page | Why we win |
 |---|---|---|---|
-| truman show game | High — the pitch itself | index | Phrase does our explaining; zero incumbents |
+| truman show game | High — the pitch itself | index | Phrase does our explaining; no *persistent-sim* incumbent — American Arcadia (upcoming narrative escape game) now shares the SERP, so copy must say "a neighborhood that never ends," never imply an escape story (§24) |
 | AI life sim / AI life simulation game | High | index, features | InZOI mainstreamed the term; ride the wake |
 | watch AI villagers / AI villagers game | High | demo, features | Smallville/AI-Town interest never got a product |
 | persistent AI world | Medium | features, how-it-works | "Runs 24/7 whether you watch or not" |
@@ -97,8 +109,9 @@ first week post-launch; re-score tiers at day-30.
 | games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
 | GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
 | Paralives alternative / Paralives review | Medium | faq comparison block | SHIPPED May 25 2026 ($39.99 EA, 78k peak, mixed — Live Mode thin per critics; §19). Capture post-launch disappointment, never disparage |
-| LIVORA game / LIVORA life sim | Low-med, rising | faq comparison + journal essay | Shipped Jul 3 2026 — "one continuous Life, consequences for years" pitch validates persistent-world messaging but is single-player/single-life. Contrast: their world orbits one protagonist; ours is a neighborhood that doesn't (§20) |
-| inZOI online alternative / games like Canvastown | Low-med, rising | faq + journal essay | Kjun's 2026 roadmap lands Phase-5 large-scale multiplayer ~Oct 2026 (Canvastown #1 40-lot village shipped Jun 2026). Shared-town demand gets primed on KRAFTON's budget — we're the spectator-first answer (§20) |
+| LIVORA game / LIVORA life sim | Low-med, rising | compare (second-ring block) + faq comparison + journal essay | Shipped Jul 3 2026, iterating ~weekly — 5.0 landed Sep 23 2026 (5 fictional countries, 36 locations, visas/education). Still single-protagonist, single-player, no shared or spectator surface. Contrast: their world orbits one life; ours is a neighborhood that doesn't (§20, §24) |
+| American Arcadia / games like American Arcadia | Low-med | compare (second-ring block) + journal essay | Out of the Blue's upcoming "Truman-Show-esque" reality-show escape game (proper trailer hit Eurogamer Mar 2026) — the phrase's SERP now has a living claimant. It's a scripted single-player escape story; we contrast *leave the show* vs. *live in the block* — never disparage (§24) |
+| inZOI online alternative / games like Canvastown | Low-med, rising | compare (second-ring block) + faq + journal essay | Phase-5 dedicated servers re-confirmed as an Oct 2026 *target* in the updated roadmap Part 2 — still aspirational ("R&D-driven, dates may shift"). Canvastown is hosted RP: ~50 players per AR Company channel, assigned roles, one avatar each — KRAFTON itself now says "like a movie director, cast your actors." Our contrast: the cast is AI; the show runs itself, you don't host it (§23, §24) |
 | new life sim 2026 / upcoming life sims | Medium | index + journal | The SERP is now a listicle genre (LIVORA/OurLife/VirtualSociety all pitching) — being *on the list* is the play; accuracy-quotable positioning paragraph is built for citation |
 | Burbank game / games like Burbank | Low-med, disappointed | faq comparison + journal essay | Jake Solomon's cancelled "Sims + Truman Show" (Midsummer, closed 2026) — press-proven demand, zero product. §18 |
 | cozy life sim 2026 | Medium | index support copy | Tone match, "but with stakes" |
@@ -349,6 +362,7 @@ Two pages must never compete for the same query. Current assignments:
 | pricing / credits / cost | pricing | faq answers redirect to pricing, never restate numbers |
 | cast / characters | cast | features names roles only |
 | sims/inzoi/paralives alternative | compare (long-form table) + faq (comparison Q links over) | journal essays link back, don't re-rank; index/features name competitors never |
+| livora / canvastown / american arcadia / burbank | compare (second-ring block) + faq comparison | journal essays link back; index/features name competitors never (v150) |
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
@@ -384,7 +398,12 @@ the owner instead of competing — same rule as internal-link §6.
 - Day 60/90: review cannibalization register vs. actual query→page mapping;
   fold learnings into the calendar's next 12 weeks.
 
-**Debt register (carried, honest):** *(v143: gallery rebase v67→v71 —
+**Debt register (carried, honest):** *(v150: fixed the register-vs-content
+gap — `seo/query-register.csv` owned "livora game/life sim" queries to
+compare.html while the page never named them; second-ring block shipped
+this pass. Audit baseline 97 pass / 43 warn / 0 fail — warns are
+placeholder-canonical + raster-size, all accepted.)*
+*(v143: gallery rebase v67→v71 —
 audit baseline 97 pass / 42 warn / 0 fail; warns = 20
 placeholder-canonical + 22 raster-size; raster warns fell 29→22 because
 v71-C now serves webp directly with no PNG `<img>` fallback.)*
@@ -436,7 +455,8 @@ already owns the cluster.
 | can you watch old events / is there a history | faq + archive | ✔ answered (v75 — Archive surface exists on-site, demo-badged) |
 | is there a day/night cycle | faq | ✔ answered (v75 — real solar engine, real-time routines; canon since art-v14) |
 | who made it / what engine | press-kit + Organization schema | pending domain flip |
-| is it like LIVORA / inZOI online | faq comparison block | QUEUE — the new Tier-2 clusters (§2, §20); graduate once either query shows up in a channel or the comparison block is next touched |
+| is it like LIVORA / inZOI online | faq comparison block | QUEUE — the new Tier-2 clusters (§2, §20); compare.html now answers it on-page (v150 second-ring block); graduate to faq once either query shows in a channel |
+| is it like American Arcadia / the Truman Show escape game | faq comparison block | QUEUE — v150 SERP finding; contrast is escape-story vs. live-in-block; graduate on first real query |
 | can I watch with other people / is the watch shared | faq | QUEUE — co-sponsor Q covers shared asks; a shared-*spectating* Q waits for a real query |
 
 Rules: a question graduates to faq.html only when (a) a real channel shows the
@@ -696,3 +716,80 @@ and did Canvastown's marketing adopt "director" language (if so, brief
 compare.html on the AI-cast-vs-hosted-RP distinction)? Watch LIVORA for
 any shared/spectator surface. Landlord + sitcom clusters promote on
 first real impressions, per §15 cadence.
+
+## 24. SERP re-validation (v150) — the phrase got neighbors
+
+Re-ran the carried §23 checks (inZOI Phase-5 October status + director
+language, LIVORA cadence + any spectator surface, Truman-Show orphan
+status). Four findings, all sourced:
+
+1. **LIVORA 5.0 shipped September 23, 2026 — yesterday.** "A Bigger World
+   to Live In" adds five fictional countries, 36 playable locations,
+   visas/residency, and a full Education & Student Life system (IndieDB
+   news post); a "Playable Group Chats" update also hit Steam this cycle.
+   That makes five substantial updates inside three weeks — the fastest
+   iterator in the niche by far. Still strictly single-protagonist,
+   single-player, private save: no shared world, no spectator surface,
+   nothing to watch. Our verbs-contrast is unchanged and now well-worn
+   enough to be boilerplate: *their world orbits one life; ours is a
+   neighborhood that doesn't*. §2 Tier-2 row updated; compare.html gains
+   LIVORA in the new second-ring block (closing the register's
+   livora→compare owner gap — the CSV assigned those queries to compare
+   while the page never named them; fixed this pass).
+2. **inZOI Phase-5 is re-confirmed as an October 2026 *target* — and the
+   director language is now official.** The updated roadmap Part 2
+   (forum [1.2.26]) repeats the October dedicated-servers goal
+   (hundreds–thousands/server, "explore, watch, meet others") with the
+   same "R&D-driven, dates may shift" caveat, and Kjun promises
+   multiplayer won't drain single-player. Canvastown's shape is now
+   firm: ~50 players per "AR Company" channel under mutual consent,
+   pre-made scenarios, NPC Zois playing assigned roles, script mods for
+   minigames, one controllable avatar, Ready Player One ambition — and
+   Kjun's own framing, verbatim: *"Like a movie director, you can assign
+   roles and cast your actors."* The v135 carried question is answered:
+   **YES — KRAFTON adopted director language first.** That is free
+   category education and a positioning threat in one. Our counter is
+   structural, not rhetorical: their director hosts a session of human
+   actors in a pre-made scenario; our cast is AI, the show runs itself,
+   and nobody — not players, not us — can take the mains over. Compare
+   page now says exactly that (second-ring block). Phase-5's reception
+   stays on the watch list; if October lands buggy or empty, the "scale
+   isn't the hard part" essay is still pre-positioned (§20).
+3. **The Truman-Show SERP has a living claimant now.** Out of the Blue's
+   *American Arcadia* — "Truman-Show-esque" per Eurogamer's March 24,
+   2026 trailer coverage — is an upcoming single-player narrative escape
+   game from a proven studio (citizens don't know they're the planet's
+   most watched reality show; you play the escape). A low-grade AI-chat
+   RPG ("Seahaven Escape") also litters the long tail. Sixth-pass verdict:
+   the orphan demand is **contested at the edges but still unoccupied at
+   the core** — nobody ships a *persistent, watchable* neighborhood, and
+   Arcadia's trailer traction is proof the fantasy sells. Copy rules sharpened:
+   (a) Tier-1 copy must never imply an escape story or a winnable plot —
+   our block has no finale; (b) the honest contrast is *leave the show*
+   (scripted, single-player, ends) vs. *live in the block* (persistent,
+   shared, doesn't); (c) Arcadia coverage is a press-template gift —
+   outlets already have the vocabulary, we give them the other half of
+   the fantasy. §2 gains the Arcadia cluster; §13 +§16 register it.
+4. **Standing query battery formalized.** Future passes re-run these, in
+   order, before touching the map: `truman show game` · `paralives
+   alternative` · `LIVORA update` · `inZOI Phase-5 / Canvastown` ·
+   `new life sim 2026` · `watch AI villagers` · plus any query that
+   entered the register last pass. Any result that names a *shared or
+   spectator* surface — at any competitor — triggers a same-day compare
+   page review, not a wait-for-next-pass.
+
+**Actions taken this pass:** §2 Tier-1 + Tier-2 rows updated (Truman-Show
+copy rule, LIVORA 5.0, Arcadia cluster, inZOI/director refresh);
+§13 +1 register row (second-ring cluster → compare); §16 +1 queued
+question (Arcadia); §15 debt register notes the livora→compare fix;
+`seo/query-register.csv` +3 rows (53 total); compare.html gains the
+second-ring block (LIVORA / Canvastown / American Arcadia / Burbank) +
+Article `dateModified` bump; audit baseline 97/43/0 unchanged.
+
+**Carried to next pass:** inZOI Phase-5 — did October actually ship, and
+how was it received (the "scale isn't the hard part" essay goes live
+either way, tone flips on reception). LIVORA — watch for any *shared*
+surface; five updates in three weeks means the next check can't wait a
+full cycle. American Arcadia — if it gets a sequel/DLC announcement,
+the Truman-Show SERP hardens; watch wishlist/press velocity. Landlord +
+sitcom + arcadia clusters promote on first real impressions per §15.
