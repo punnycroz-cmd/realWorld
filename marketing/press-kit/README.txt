@@ -35,8 +35,14 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v54 → v55, for "what's new" coverage and
+                     v53 → v55 → v59 → v61, for "what's new" coverage and
                      update posts
+  one-sheet.html     Single-page printable sell sheet — the whole pitch
+                     on one page; Print → PDF works
+  embargo-briefing.md  Long-lead pre-brief book for coverage under
+                     embargo: what we show, what we don't, embargo terms
+  review-guide.md    How to review a spectator sim — a self-guided
+                     30/90-minute/evening watch plan with what to look for
   contact-sheet.html Printable visual index of every image asset in the
                      kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
@@ -58,14 +64,14 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v55-* = current renderer (September turn: ginkgo
-                     gold / rust / wine crown sets, contour-following
-                     mow stripes on the Dolores lawns, gust-driven
-                     leaf-fall, fallen palm fronds, leaf litter on
-                     sidewalks — on top of the v54 facade dressing:
-                     window boxes, AC sleeves, Juliet rails, house
-                     numbers, stoop pots, A-boards; and the v53 street
-                     furniture + palm allée work);
+                     v61-* = current renderer (weather you can see
+                     coming: patchy Karl fog, distant cumulus shower
+                     cells with wind-leaned rain shafts and virga on the
+                     skyline, the re-framed Dolores overlook — perimeter
+                     streets and facades ring the lawns — on top of the
+                     v55 September turn: leaf-turn crowns, contour mow
+                     stripes, leaf-fall; the v54 facade dressing; and
+                     the v53 street furniture + palm allée work);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

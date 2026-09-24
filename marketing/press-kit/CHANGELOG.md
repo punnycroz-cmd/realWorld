@@ -1,7 +1,24 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v55-* is the current development build).
+build they were captured from (v61-* is the current development build).
+
+## v122 — 2026-09-23
+- Screenshots rebased v55→**v61** (weather you can see coming: patchy
+  Karl fog, distant cumulus shower cells with wind-leaned rain shafts
+  and virga on the skyline, fog-drip pavement wetting, and the
+  re-framed Dolores overlook — perimeter streets and facades ring the
+  lawns). Site shots, kit screenshots, key art, og-card, banners, and
+  store capsules rebaked; captions, README, fact-sheet, index,
+  contact-sheet, deadline-desk, b-roll refs updated.
+- NEW `one-sheet.html` — single-page printable sell sheet (Print → PDF).
+- NEW `embargo-briefing.md` — long-lead pre-brief book for coverage
+  under embargo: the two-hour embargo session plan, what's on and off
+  the record, embargo terms.
+- NEW `review-guide.md` — how to review a spectator sim: a self-guided
+  30-minute / 90-minute / one-evening watch plan with what to look for
+  and the traps to avoid.
+- `whats-new.md` extended: arc now covers v53→v55→v56→v59→v61.
 
 ## v107 — 2026-09-23
 - Screenshots rebased v53→**v55** (the September turn: contour-following

@@ -2,7 +2,7 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v55 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v61 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
@@ -17,7 +17,10 @@
     "guided-tour.md": "10-minute press-preview run sheet + presenter rules",
     "b-roll-shotlist.md": "video-press capture guide — essential b-roll shots, camera keys, capture rules",
     "deadline-desk.md": "the 15-minute coverage path — three facts, a verbatim paragraph, three images, mistakes to avoid",
-    "whats-new.md": "build-highlights sheet — what changed v53→v54→v55, for 'what's new' coverage",
+    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61, for 'what's new' coverage",
+    "one-sheet.html": "single-page printable sell sheet (Print -> PDF)",
+    "embargo-briefing.md": "long-lead pre-brief book for embargoed coverage — session plan, on/off-record lists, embargo terms",
+    "review-guide.md": "self-guided review plan for a spectator sim — 30/90-minute/evening watch paths",
     "contact-sheet.html": "printable visual index of every image asset in the kit",
     "captions.txt": "per-asset captions and credit lines",
     "LICENSE.txt": "press asset usage terms",
@@ -35,8 +38,8 @@
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v55-A.png", "v55-B.png", "v55-C.png", "v55-D.png",
-      "v55-A.webp", "v55-B.webp", "v55-C.webp", "v55-D.webp",
+      "v61-A.png", "v61-B.png", "v61-C.png", "v61-D.png",
+      "v61-A.webp", "v61-B.webp", "v61-C.webp", "v61-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },
