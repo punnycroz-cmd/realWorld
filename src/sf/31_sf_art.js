@@ -1473,6 +1473,11 @@ function sfBldCanvas(b, wet){
   // canvas y = pad + hPx + (py - by0)
   const P = b.px.map(q => [q[0] - b.bx0 + pad, q[1] - b.by0 + pad + hPx]);
   const n = P.length;
+  /* v79: roof-life anchors — canvas-px positions of furniture that gets a
+     live animated overlay in the top view (smoke, fan spin, laundry,
+     pigeons). Recorded during the bake so the moving element sits exactly
+     on the prop that causes it; consumed by sfRoofLife in 32_sf_render. */
+  const live = [];
   // signed area for winding
   let area = 0;
   for(let i = 0; i < n; i++){
@@ -2081,6 +2086,8 @@ function sfBldCanvas(b, wet){
       }
       if(!inside) continue;
       const kind = Math.floor(phash(b.i, k, 1369) * 21); // v58: +3 kinds
+      if(kind === 2 || kind === 3 || kind === 9 || kind === 10 || kind === 12)
+        live.push({ k: kind, x: cx, y: cy }); // v79: animated overlay anchor
       if(kind === 0){ // mushroom vent
         sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
@@ -2296,6 +2303,61 @@ function sfBldCanvas(b, wet){
                   1.4, 1, ROOF[2]);
       }
     }
+    /* v79: rooftop murals — the Mission paints its ceilings too (the
+       real district has several painted roofs the alley murals spilled
+       onto). Over half of the big flat roofs get a sunburst or a diagonal
+       serape field; the whole motif is footprint-clipped so paint never
+       runs over a parapet. */
+    if(roofArea > 1200 && phash(b.i, 55, 3500) < 0.55){
+      const mx = Math.round(wPx / 2 + (phash(b.i, 56, 3501) - 0.5) * wPx * 0.3),
+            my = Math.round(pad + hBase * (0.35 + phash(b.i, 57, 3502) * 0.3));
+      const mr = Math.round(Math.min(wPx - pad * 2, hBase) *
+                            (0.30 + phash(b.i, 58, 3503) * 0.14));
+      const corners = [[mx - mr, my - mr], [mx + mr, my - mr],
+                       [mx - mr, my + mr], [mx + mr, my + mr]];
+      if(mr > 8 && corners.every(([qx, qy]) => sfPtInPoly(P, qx, qy + hPx))){
+        const MURAL = ['#d8542e', '#e8a832', '#2e8a8a', '#c84878',
+                       '#3858a8', '#7a4a9a', '#e0d8c0'];
+        const c0 = MURAL[Math.floor(phash(b.i, 59, 3504) * 3)],
+              c1 = MURAL[3 + Math.floor(phash(b.i, 60, 3505) * 3)],
+              c2 = MURAL[Math.floor(phash(b.i, 61, 3506) * MURAL.length)];
+        if(phash(b.i, 62, 3507) < 0.5){
+          // serape field: diagonal stripes running with the roof pitch
+          const dir = phash(b.i, 63, 3508) < 0.5 ? 1 : -1;
+          g.save();
+          g.beginPath(); g.rect(mx - mr, my - mr, mr * 2, mr * 2); g.clip();
+          g.lineWidth = 4;
+          for(let s2 = -mr * 2; s2 < mr * 2; s2 += 7){
+            g.strokeStyle = (Math.round(s2 / 7) % 2) ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx + s2, my - mr);
+            g.lineTo(mx + s2 + dir * mr * 2, my + mr);
+            g.stroke();
+          }
+          // sun disc center — the Mission's favorite motif
+          paEllipse(g, mx, my, mr * 0.42, mr * 0.34, c2);
+          paEllipse(g, mx, my, mr * 0.3, mr * 0.24, c1);
+          paEllipse(g, mx, my, mr * 0.14, mr * 0.11, c0);
+          g.restore();
+        } else {
+          // sunburst: ray fan from a low center — reads from the air
+          const nRay = 10;
+          for(let k2 = 0; k2 < nRay; k2++){
+            const a0 = -Math.PI * (k2 / (nRay - 1)) * 0.9 - 0.05;
+            g.fillStyle = k2 % 2 ? c0 : c1;
+            g.beginPath();
+            g.moveTo(mx, my + mr * 0.3);
+            g.lineTo(mx + Math.cos(a0) * mr, my + mr * 0.3 + Math.sin(a0) * mr * 1.3);
+            g.lineTo(mx + Math.cos(a0 - 0.1) * mr, my + mr * 0.3 + Math.sin(a0 - 0.1) * mr * 1.3);
+            g.closePath(); g.fill();
+          }
+          paEllipse(g, mx, my + mr * 0.3, mr * 0.34, mr * 0.26, c2);
+          g.strokeStyle = c2; g.lineWidth = 2;
+          g.strokeRect(mx - mr, my - mr * 0.75, mr * 2, mr * 1.5);
+        }
+        live.push({ k: 9, x: mx, y: my }); // pigeons love a painted roof
+      }
+    }
   }
   } else {
     /* ---- v12: pitched roofscape (gable / mansard / hip) ----
@@ -2507,6 +2569,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 9, shade('#8a5a48', wetF));
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       } else if(k2 % 3 === 2){ // low-profile ridge vent
         rl(px3 - 4, ly3, px3 + 4, ly3, shingle[1]);
         rl(px3 - 4, ly3 - 1, px3 + 4, ly3 - 1, shingle[2]);
@@ -2515,6 +2578,7 @@ function sfBldCanvas(b, wet){
         paR(g, px3 - 2, ly3 - 8, 5, 1, '#c89078');
         paR(g, px3 - 3, ly3 - 10, 7, 2, '#6a4034');
         paR(g, px3 + 2, ly3 + 1, 5, 2, 'rgba(20,14,8,0.28)'); // drip shadow
+        live.push({ k: 3, x: Math.round(px3), y: Math.round(ly3) }); // v79
       }
     }
 
@@ -2624,7 +2688,7 @@ function sfBldCanvas(b, wet){
            Math.round(apY - 4), TRIM);
     paPX(g, T.cx, apY - 5, '#e8d8a8');
   }
-  return { c: S.c, ox: pad, oy: pad + hPx };
+  return { c: S.c, ox: pad, oy: pad + hPx, live };
 }
 function frameDoorCol(isShop, trim){ return isShop ? '#3a3a40' : trim; }
 

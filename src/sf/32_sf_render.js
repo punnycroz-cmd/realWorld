@@ -2774,6 +2774,171 @@ function sfStillStore(cw, ch, key){
   SF_STILL.g.drawImage(ctx.canvas, 0, 0, cw, ch);
   SF_STILL.key = key;
 }
+/* ---- v79: roof life ---------------------------------------------------
+   The baked sprite carries static furniture, but the Mission's roofs are
+   alive: boiler stacks breathe wind-slanted smoke, exhaust vents spin,
+   laundry swings on its line, and pigeon flocks flush off the parapet,
+   wheel a lap over the block, and settle back. Anchors are recorded at
+   bake time (art.live, canvas px) so every animated element sits exactly
+   on the prop that causes it. Drawn AFTER the blit inside the same
+   sfTopLean transform, and again over a still-cache hit so the roof never
+   freezes. */
+function sfRoofLife(b, art, sx, sy){
+  const L = art.live;
+  if(!L || !L.length) return;
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+  const z = cam.zoom;
+  const wvX = Math.cos(W.windAng), wvY = Math.sin(W.windAng);
+  const wSpd = Math.max(0.4, W.windSpd || 0.8);
+  const gust = SF_WX.gust || 0.5;
+  const night = isNight();
+  /* breath visibility — a plume reads strongest in cold, damp, foggy air
+     and nearly vanishes on a hot dry afternoon; always >0 so the roof
+     keeps breathing, scaled by the physics that would carry it */
+  const plumeK = clamp(0.55 + (SF_WX.wet || 0) * 0.45 + sfKarlK() * 0.3 +
+                       (W.temp < 12 ? 0.25 : 0) + (night ? 0.1 : 0), 0.4, 1);
+  const puffCol = night ? '146,154,168' : '214,219,225';
+  const cw2 = ctx.canvas.width, ch2 = ctx.canvas.height;
+  for(const a of L){
+    const ax = sx + a.x * z, ay = sy + a.y * z;
+    if(ax < -60 || ax > cw2 + 60 || ay < -90 || ay > ch2 + 60) continue;
+    const ph = phash(b.i, a.x + a.y * 7, 7800);
+    if(a.k === 3 || a.k === 2){
+      /* chimney / pipe stack smoke — puffs born at the cap, rising on
+         their own buoyancy while the wind vector bends the column over;
+         each puff grows and thins as it mixes out */
+      const rise0 = a.k === 3 ? 10 : 6, len = a.k === 3 ? 1 : 0.55;
+      for(let i = 0; i < 7; i++){
+        const t = (now * (0.2 + wSpd * 0.06) + i * 0.145 + ph) % 1;
+        const drift = t * (8 + wSpd * 16) * len;
+        const px = ax + wvX * drift * z,
+              py = ay - (rise0 * 0.4 + t * rise0 * 1.8) * z + wvY * drift * z;
+        const r = Math.max(0.7, (1.8 + t * 8) * z);
+        ctx.fillStyle = `rgba(${puffCol},${((1 - t) * 0.62 * plumeK).toFixed(3)})`;
+        ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+      }
+    } else if(a.k === 12){
+      /* exhaust fan — three-blade sweep over the baked dome; spin rate
+         follows wind speed like a real turbine vent */
+      const cy2 = ay - 2 * z, r = Math.max(1.4, 3.2 * z);
+      const rot = now * (4 + wSpd * 4) + ph * 6.28;
+      ctx.strokeStyle = night ? 'rgba(120,128,138,0.55)' : 'rgba(238,242,246,0.85)';
+      ctx.lineWidth = Math.max(0.6, 0.55 * z);
+      for(let s2 = 0; s2 < 3; s2++){
+        const an = rot + s2 * Math.PI * 2 / 3;
+        ctx.beginPath();
+        ctx.moveTo(ax, cy2);
+        ctx.lineTo(ax + Math.cos(an) * r, cy2 + Math.sin(an) * r * 0.72);
+        ctx.stroke();
+      }
+    } else if(a.k === 10){
+      /* clothesline — laundry pinned at the line, hems swinging downwind
+         in phase with the gust envelope */
+      const lx0 = ax - 7 * z, lx1 = ax + 7 * z, lyy = ay - 4 * z;
+      const cloth = ['#e8e0d0', '#7a94b8', '#c86a6a', '#e8e8f0'];
+      for(let c3 = 0; c3 < 3; c3++){
+        const t2 = 0.22 + c3 * 0.28;
+        const bx6 = lx0 + (lx1 - lx0) * t2,
+              by6 = lyy - z + Math.sin(t2 * Math.PI) * 1.6 * z;
+        const sw = Math.sin(now * (1.5 + gust * 2.4) + c3 * 1.9 + ph * 6);
+        ctx.save();
+        ctx.translate(bx6, by6);
+        ctx.rotate(sw * 0.3 * (0.4 + gust));
+        ctx.fillStyle = cloth[Math.floor(phash(b.i, c3 + a.x, 1706) * 4)];
+        ctx.fillRect(-1.7 * z, 0, 3.4 * z, (4.2 + sw * 1.1) * z);
+        ctx.restore();
+      }
+    } else if(a.k === 9){
+      /* pigeon flock — a deterministic flush schedule: roughly half the
+         cycle the birds wheel an elliptical lap above the roof (beating
+         wings), then settle back to shuffle-peck around the vent */
+      const cyc = (now / 24 + ph) % 1;
+      const nB = 4 + Math.floor(phash(b.i, a.x, 7801) * 3);
+      if(cyc < 0.5){
+        const lift = Math.sin(Math.min(1, cyc / 0.12) * Math.PI * 0.5) *
+                     Math.sin(Math.min(1, (0.5 - cyc) / 0.1) * Math.PI * 0.5);
+        const R = (9 + gust * 4 + Math.sin(now * 0.7 + ph * 9) * 2) * z;
+        const ocx = ax + wvX * 4 * z, ocy = ay - 13 * z * lift;
+        ctx.strokeStyle = night ? '#3a3a42' : '#3e3e46';
+        ctx.lineWidth = Math.max(0.8, 0.7 * z);
+        for(let b2 = 0; b2 < nB; b2++){
+          const an = now * (1.6 + gust * 0.6) + ph * 6.28 + b2 * Math.PI * 2 / nB;
+          const bx6 = ocx + Math.cos(an) * R,
+                by6 = ocy + Math.sin(an) * R * 0.55;
+          // real-sun flicker shadow sliding over the roof as the bird wheels
+          if(!night && SF_SUN.day > 0.2){
+            ctx.fillStyle = `rgba(20,14,8,${0.10 * SF_SUN.day})`;
+            ctx.beginPath();
+            ctx.ellipse(bx6 + SF_SUN.x * 6 * z, ay + SF_SUN.y * 4 * z,
+                        1.6 * z, 0.9 * z, 0, 0, Math.PI * 2);
+            ctx.fill();
+          }
+          const flap = Math.sin(now * 13 + b2 * 2.3) * 1.8 * z;
+          ctx.beginPath();
+          ctx.moveTo(bx6 - 3.2 * z, by6 - flap);
+          ctx.lineTo(bx6, by6);
+          ctx.lineTo(bx6 + 3.2 * z, by6 - flap);
+          ctx.stroke();
+        }
+      } else {
+        const step = Math.floor(now * 2);
+        ctx.fillStyle = night ? '#3a3a42' : '#46464e';
+        for(let b2 = 0; b2 < 2; b2++){
+          const bx6 = ax + (phash(step, b2 + a.x, 7802) - 0.5) * 11 * z,
+                by6 = ay + (phash(b2 + a.x, step, 7803) - 0.5) * 7 * z -
+                      (phash(step, b2, 7804) < 0.3 ? z : 0); // peck dip
+          ctx.fillRect(bx6, by6, Math.max(1, 1.2 * z), Math.max(1, z));
+        }
+      }
+    }
+  }
+}
+/* standalone pass for still-cache hits — replays the overlay over the
+   blitted frame so smoke, fans, laundry and pigeons never freeze while
+   the camera idles. Same culling + lean transform as the main loop. */
+function sfRoofLifePass(cw, ch){
+  if(cam.zoom < 0.35) return;
+  const wet = SF_WX.wet > 0.45 ? 1 : 0;
+  for(const b of SF_BLD){
+    if(!b.px) continue;
+    if(b.bx1 < cam.x - cw / 2 / cam.zoom - 64 || b.bx0 > cam.x + cw / 2 / cam.zoom + 64) continue;
+    if(b.by1 - b.hPx / SF_TILT < cam.y - ch / 2 / cam.zoom / SF_TILT - 220 ||
+       b.by0 > cam.y + ch / 2 / cam.zoom / SF_TILT + 64) continue;
+    const art = getSfBldArt(b.i, wet);
+    if(!art.live || !art.live.length) continue;
+    const sx = Math.round((b.bx0 - cam.x) * cam.zoom + cw / 2 - art.ox * cam.zoom),
+          sy = Math.round(sfSY(b.by1, ch) - (art.oy + (b.by1 - b.by0)) * cam.zoom);
+    ctx.save();
+    sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2, sfSY(b.by1, ch));
+    sfRoofLife(b, art, sx, sy);
+    ctx.restore();
+  }
+}
+/* street-view counterpart: a plume of puffs born at a chimney/pipe cap,
+   buoyant rise bent downwind — the wind vector is re-projected through
+   the camera so the slant agrees with the flagged trees and rain */
+function sfStreetPlume(pr, fx, fy, zB, capX, capY, sc, seed, night){
+  const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+  const wA = pr(fx, fy, zB),
+        wB = pr(fx + Math.cos(W.windAng) * 3, fy + Math.sin(W.windAng) * 3, zB);
+  let wdx = 0.4, wdy = -0.15;
+  if(wA && wB){
+    const dx = wB[0] - wA[0], dy = wB[1] - wA[1], l = Math.hypot(dx, dy) || 1;
+    wdx = dx / l; wdy = dy / l;
+  }
+  const wSpd = Math.max(0.4, W.windSpd || 0.8);
+  const plumeK = clamp(0.55 + (SF_WX.wet || 0) * 0.45 + sfKarlK() * 0.3 +
+                       (W.temp < 12 ? 0.25 : 0) + (night ? 0.1 : 0), 0.4, 1);
+  for(let i = 0; i < 6; i++){
+    const t = (now * (0.2 + wSpd * 0.05) + i * 0.17 + seed) % 1;
+    const drift = t * (4 + wSpd * 8) * sc;
+    const px = capX + wdx * drift,
+          py = capY + wdy * drift * 0.4 - t * 8.5 * sc;
+    const r = Math.max(0.6, (0.5 + t * 3.4) * sc);
+    ctx.fillStyle = `rgba(${night ? '146,154,168' : '214,219,225'},${((1 - t) * 0.34 * plumeK).toFixed(3)})`;
+    ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
+  }
+}
 /* seamless cloud-dapple texture: blobs drawn 9-way wrapped so the tile
    repeats without seams as it scrolls on the wind */
 let SF_DAPPLE = null;
@@ -2918,7 +3083,7 @@ function sfRenderWorld(cw, ch){
   // v10: temporal frame cache — blit the last frame when nothing moved
   const stillKey = sfStillKey(cw, ch, 'top',
     [Math.round(cam.x), Math.round(cam.y), Math.round(cam.zoom * 1000)]);
-  if(sfStillHit(stillKey)){ sfPerfHud(cw, ch); return; }
+  if(sfStillHit(stillKey)){ sfRoofLifePass(cw, ch); sfPerfHud(cw, ch); return; } // v79
   const sfDappleOn = !isNight();
   const cs = CS * cam.zoom;
   const csT = cs * SF_TILT;   // v8: squashed ground-plane cell height
@@ -3168,6 +3333,9 @@ function sfRenderWorld(cw, ch){
       ctx.globalAlpha = cover ? 0.45 : (doll ? 0.22 : 1);
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
+      // v79: live roof overlay — smoke, spinning fans, swinging laundry,
+      // wheeling pigeons on the anchors the bake recorded
+      if(!cover && !doll && cam.zoom >= 0.35) sfRoofLife(b, art, sx, sy);
       // v33: parapet sun-rim — the coping lip on every footprint edge
       // whose outward normal faces the solar bearing catches a thin warm
       // line at roof height; the baked sprite can't carry it (the sprite
@@ -9300,6 +9468,9 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath();
           ctx.ellipse(base[0], base[1] - bh2 - 4, Math.max(1.2, bw2 * 0.16), Math.max(1.6, bw2 * 0.22), 0, 0, Math.PI * 2);
           ctx.fill();
+          // v79: live smoke off the chimney pot
+          sfStreetPlume(pr, fx, fy, hm + zR + 2, base[0], base[1] - bh2 - 5,
+                        sc, phash(b.i, k, 7812), night);
         } else if(kind === 0 && roofAreaM > 110){
           // water tank: legs + banded barrel + cone cap
           const lb = pr(fx, fy, hm + zR), lt = pr(fx, fy, hm + zR + 1.4),
@@ -9326,6 +9497,9 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath(); ctx.moveTo(base[0], base[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
           ctx.fillStyle = night ? '#2a2725' : '#8a8478';
           ctx.beginPath(); ctx.ellipse(pt2[0], pt2[1], Math.max(1.5, 0.25 * sc), Math.max(0.8, 0.1 * sc), 0, 0, Math.PI * 2); ctx.fill();
+          // v79: steam wisp off the vent cap — thinner than a chimney
+          sfStreetPlume(pr, fx, fy, hm + zR + 0.5, pt2[0], pt2[1] - 0.2 * sc,
+                        sc * 0.55, phash(b.i, k, 7813), night);
         } else if(kind === 2){ // antenna mast + crossbars
           const pt2 = pr(fx, fy, hm + zR + 3 + phash(k, b.i, 1509) * 2);
           if(!pt2) continue;
@@ -9517,6 +9691,37 @@ function sfRenderStreet(cw, ch){
             ctx.beginPath();
             ctx.arc(q[0] - bs * 0.9, q[1] - bs * 1.3, bs * 0.45, 0, Math.PI * 2);
             ctx.fill();
+          }
+        }
+      }
+      /* v79: a wheeling flock above the roofline — same flush schedule as
+         the top view: half the cycle the birds orbit the block, wings
+         beating; the other half they've settled back on the parapet */
+      {
+        const now2 = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+        const cyc = (now2 / 24 + phash(b.i, 1, 7806)) % 1;
+        if(cyc < 0.5 && d.fwd < 160 && phash(b.i, 3, 7807) < 0.55){
+          const lift = Math.sin(Math.min(1, cyc / 0.12) * Math.PI * 0.5) *
+                       Math.sin(Math.min(1, (0.5 - cyc) / 0.1) * Math.PI * 0.5);
+          const c0 = pr(cxm, cym, hm + 3 + 3 * lift);
+          if(c0){
+            const sc3 = F / c0[2];
+            const R = (6 + SF_WX.gust * 4) * sc3;
+            const nB = 4 + Math.floor(phash(b.i, 2, 7808) * 3);
+            ctx.strokeStyle = night ? '#33333b' : '#46464e';
+            ctx.lineWidth = Math.max(0.8, 0.05 * sc3);
+            for(let b2 = 0; b2 < nB; b2++){
+              const an = now2 * 1.7 + phash(b.i, 4, 7809) * 6.28 +
+                         b2 * Math.PI * 2 / nB;
+              const bx6 = c0[0] + Math.cos(an) * R * 2.4,
+                    by6 = c0[1] + Math.sin(an) * R * 0.5 - lift * 6 * sc3;
+              const flap = Math.sin(now2 * 13 + b2 * 2.3) * 0.9 * sc3;
+              ctx.beginPath();
+              ctx.moveTo(bx6 - 1.6 * sc3, by6 - flap);
+              ctx.lineTo(bx6, by6);
+              ctx.lineTo(bx6 + 1.6 * sc3, by6 - flap);
+              ctx.stroke();
+            }
           }
         }
       }
