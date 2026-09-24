@@ -26929,6 +26929,179 @@ function sfKarlShade(mx, my){
   return clamp(kk * 1.25 * (1 - (u - sfKarlDepthAt(v)) / 110), 0, 1);
 }
 
+/* ---------------- v60: KARL AT STREET LEVEL ---------------------------
+   Fog used to be a pair of unrelated costumes: a silhouette tongue in the
+   top view and screen-space mist bands in the street view — neither knew
+   where the fog actually WAS. Now ground fog is a world body: a field of
+   puffs in world meters, spawned inside the canyon-channelled front
+   (real street corridors vent deeper — the same kf.cf probe that shapes
+   the front picks the puff nurseries), pooled in the Dolores basin
+   (radiation fog drains downhill — the park is the neighborhood's cold
+   sump), advected on the real wind at ground speed (roughly a third of
+   the cloud-level flow — surface friction), and wrapped on the map.
+   Both views draw the SAME puffs: a wisp crossing Guerrero from above
+   is the wisp the street camera is about to drive through. Density at a
+   puff is the front-shade field itself, so wisps thin out exactly where
+   the sun comes back. */
+let SF_FOG_FIELD = null;
+function sfGroundFogK(){
+  const kk = sfKarlK();
+  return clamp(kk * 1.25 + clamp((W.hum - 0.62) * 2.2, 0, 1) * 0.6 -
+               W.rain * 0.55, 0, 1);
+}
+function sfFogField(){
+  const aB = Math.round(W.windAng * 60);
+  if(SF_FOG_FIELD && SF_FOG_FIELD.aB === aB) return SF_FOG_FIELD;
+  const wxv = Math.cos(W.windAng), wyv = Math.sin(W.windAng);
+  const nxv = -wyv, nyv = wxv;
+  const kf = sfKarlFrontField();
+  const puffs = [];
+  /* corridor nurseries: puffs born inside the venting street columns,
+     staggered in depth behind (and a little ahead of) the front */
+  let made = 0;
+  for(let i = 0; i <= kf.N && made < 20; i++){
+    if(kf.cf[i] < 0.30 && phash(i, 97, 5301) < 0.55) continue;
+    const nHere = 1 + Math.floor(phash(i, 98, 5302) * 2);
+    for(let j = 0; j < nHere && made < 20; j++){
+      const v = kf.vs[i] + (phash(i, j, 5303) - 0.5) * 70;
+      const u0 = (phash(i, j, 5304) - 0.35) * 260;   // relative to front
+      puffs.push({ v, u0, r: 38 + phash(i, j, 5305) * 84,
+                   a: 0.55 + phash(i, j, 5306) * 0.45,
+                   z: 2 + phash(i, j, 5307) * 9,
+                   ph: phash(i, j, 5308) * 6.28,
+                   s: 0.55 + phash(i, j, 5309) * 0.7 });
+      made++;
+    }
+  }
+  /* basin puffs: Dolores Park sits in the Mission's natural bowl — cold
+     air pools there first and burns off last, so a dedicated knot of
+     fog always loiters over the lawn while the front is anywhere near */
+  const [pcx, pcy] = sfParkCenterM();
+  for(let k = 0; k < 8; k++){
+    const ang = phash(k, 41, 5311) * 6.28,
+          rad = phash(k, 42, 5312) * 130;
+    const mx = pcx + Math.cos(ang) * rad, my = pcy + Math.sin(ang) * rad * 0.7;
+    puffs.push({ basin: 1, mx, my,
+                 r: 46 + phash(k, 43, 5313) * 90,
+                 a: 0.45 + phash(k, 44, 5314) * 0.55,
+                 z: 1.5 + phash(k, 45, 5315) * 5,
+                 ph: phash(k, 46, 5316) * 6.28,
+                 s: 0.35 + phash(k, 47, 5317) * 0.4 });
+  }
+  SF_FOG_FIELD = { aB, wxv, wyv, nxv, nyv, kf, puffs,
+                   wx2: SF_M.gw * SF_M.cell_m + 500,
+                   wy2: SF_M.gh * SF_M.cell_m + 500 };
+  return SF_FOG_FIELD;
+}
+/* world-meter position of puff i right now — advected on the wind at
+   ground speed, wrapped on the padded map rect (same scheme as clouds) */
+function sfFogPos(p){
+  const F = SF_FOG_FIELD;
+  if(p.basin){
+    // basin fog barely travels — it sloshes inside the bowl instead
+    return [p.mx + Math.sin(SF_WX.t * 0.07 * p.s + p.ph) * 22,
+            p.my + Math.cos(SF_WX.t * 0.05 * p.s + p.ph * 1.3) * 14];
+  }
+  const sp = W.windSpd * 3.8 * p.s;                   // ~1/3 cloud speed
+  const front = sfKarlDepthAt(p.v);                   // rides the breathing edge
+  let x = (F.wxv * (front + p.u0) + F.nxv * p.v + F.wxv * sp * SF_WX.t) % F.wx2;
+  let y = (F.wyv * (front + p.u0) + F.nyv * p.v + F.wyv * sp * SF_WX.t) % F.wy2;
+  if(x < 0) x += F.wx2; if(y < 0) y += F.wy2;
+  return [x - 250, y - 250];
+}
+/* local density of puff i — the shade field sets how thick the air is
+   where the puff currently sits (basin puffs read a mild ambient term) */
+function sfFogPuffA(p, x, y, gk){
+  const loc = p.basin ? 0.45 : clamp(0.10 + sfKarlShade(x, y) * 1.3, 0, 1);
+  return p.a * loc * gk;
+}
+/* TOP VIEW: draw the puff field — wind-elongated sheets hugging the
+   ground, sun-side rims warmed at golden hour like the front billows */
+function sfGroundFogTop(cw, ch){
+  const gk = sfGroundFogK();
+  if(gk < 0.05) return;
+  const F = sfFogField();
+  const wrot = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
+  for(const p of F.puffs){
+    const [mx, my] = sfFogPos(p);
+    const sx = (mx * SF_PXM - cam.x) * cam.zoom + cw / 2,
+          sy = sfSY(my * SF_PXM, ch);
+    const rr = p.r * SF_PXM * cam.zoom;
+    if(sx + rr * 1.6 < 0 || sx - rr * 1.6 > cw ||
+       sy + rr < 0 || sy - rr > ch) continue;
+    const a = sfFogPuffA(p, mx, my, gk);
+    if(a < 0.02) continue;
+    const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rr * 1.5);
+    g.addColorStop(0, `rgba(233,238,244,${0.46 * a})`);
+    g.addColorStop(0.55, `rgba(228,234,241,${0.22 * a})`);
+    g.addColorStop(1, 'rgba(228,234,241,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, rr * 2.1, rr * 0.42 * SF_TILT, wrot, 0, Math.PI * 2);
+    ctx.fill();
+    if(SF_SUN.day > 0.2){
+      const hx = sx - SF_SUN.toX * rr * 0.55,
+            hy = sy - SF_SUN.toY * rr * 0.4 * SF_TILT;
+      const hg = ctx.createRadialGradient(hx, hy, 0, hx, hy, rr * 0.7);
+      hg.addColorStop(0, `rgba(255,240,214,${a * (0.10 + 0.22 * SF_SUN.warm)})`);
+      hg.addColorStop(1, 'rgba(255,240,214,0)');
+      ctx.fillStyle = hg;
+      ctx.beginPath();
+      ctx.ellipse(hx, hy, rr * 0.7, rr * 0.3 * SF_TILT, wrot, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+/* STREET VIEW: the same puffs, projected at their real depth — wide flat
+   veils riding at rooftop-and-below height, denser with distance so the
+   street dissolves into the fog rather than the fog floating on top */
+function sfGroundFogStreet(pr, F, horizon, cw, ch, night){
+  const gk = sfGroundFogK();
+  if(gk < 0.05 || W.rain > 0.5) return;
+  const FF = sfFogField();
+  const puffs = [];
+  for(const p of FF.puffs){
+    const [mx, my] = sfFogPos(p);
+    const a = sfFogPuffA(p, mx, my, gk) * (night ? 0.6 : 1);
+    if(a < 0.02) continue;
+    const pp = pr(mx, my, sfGroundZ(mx, my) + p.z);
+    if(!pp || pp[2] > 420) continue;
+    puffs.push([pp[2], pp[0], pp[1], p, a]);
+  }
+  puffs.sort((q, r) => r[0] - q[0]);               // far first
+  for(const [fwd, sx, sy, p, a] of puffs){
+    const rx = p.r * 2.6 * F / fwd, ry = p.r * 0.55 * F / fwd;
+    if(sx + rx < 0 || sx - rx > cw) continue;
+    // near-field wisps read thin — you see through what you're inside
+    const near = clamp(fwd / 55, 0.15, 1);
+    const al = a * near * (0.42 + 0.18 * phash(p.ph * 91 | 0, fwd | 0, 5320));
+    if(al < 0.01) continue;
+    const g = ctx.createRadialGradient(sx, sy, 0, sx, sy, rx);
+    g.addColorStop(0, `rgba(${night ? '150,158,180' : '228,234,241'},${al})`);
+    g.addColorStop(1, `rgba(${night ? '150,158,180' : '228,234,241'},0)`);
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.ellipse(sx, sy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+    /* fog-top lit edge — low sun catches the upper surface of each bank
+       while the street beneath sits in its own shadow */
+    if(!night && SF_SUN.day > 0.25){
+      const sF = SF_SUN.toX * Math.cos(SF_CAM.yaw) +
+                 SF_SUN.toY * Math.sin(SF_CAM.yaw);
+      if(sF < -0.05){                      // looking toward the sunlit side
+        const hg = ctx.createRadialGradient(sx, sy - ry * 0.9, 0,
+                                            sx, sy - ry * 0.9, rx * 0.8);
+        hg.addColorStop(0, `rgba(255,236,200,${al * 0.55 * SF_SUN.warm})`);
+        hg.addColorStop(1, 'rgba(255,236,200,0)');
+        ctx.fillStyle = hg;
+        ctx.beginPath();
+        ctx.ellipse(sx, sy - ry * 0.9, rx * 0.8, ry * 0.5, 0, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+  }
+}
+
 /* ---------------- v44: SKYLINE — the city doesn't end at the map edge
    The street camera's horizon used to be bare gradient + fog. Now it
    carries a real skyline: an azimuth-consistent silhouette band (each
@@ -28758,6 +28931,10 @@ function sfRenderWorld(cw, ch){
       }
     }
   }
+
+  // 2e3. v60: ground-fog puffs — the world-anchored field, drawn over the
+  //   roofs so the fog reads as a body lying ON the neighborhood
+  sfGroundFogTop(cw, ch);
 
   // 2f. v7: lightning wash
   sfFlashOverlay(cw, ch);
@@ -33483,7 +33660,10 @@ function sfRenderStreet(cw, ch){
   // band rides to the camera.
   {
     const kk2 = sfKarlK();
-    const mist = Math.max(kk2 * 1.3, clamp((W.hum - 0.62) * 2.4, 0, 1));
+    // v60: the world-anchored puff field now carries the fog body — these
+    // screen-space bands stay only as fine grain between the real banks,
+    // so they're demoted from "the fog" to texture (was kk2 * 1.3)
+    const mist = Math.max(kk2 * 0.55, clamp((W.hum - 0.62) * 2.4, 0, 1) * 0.6);
     if(!night && mist > 0.05 && W.rain < 0.5){
       const lat = Math.sin(W.windAng - SF_CAM.yaw);
       const latA = Math.abs(lat) > 0.12 ? lat : Math.sign(lat || 1) * 0.12;
@@ -33508,6 +33688,10 @@ function sfRenderStreet(cw, ch){
       }
     }
   }
+
+  // v60: world-anchored ground fog — the same puff field the top view
+  // draws, projected at depth so wisps occlude facades correctly
+  sfGroundFogStreet(pr, F, horizon, cw, ch, night);
 
   // v7: lightning wash over everything
   sfFlashOverlay(cw, ch);
