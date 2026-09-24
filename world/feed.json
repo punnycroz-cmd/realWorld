@@ -92,6 +92,13 @@
       "thread_watch": "request detail gains 'watch this thread' beside the mute (rw_wire_watch, reversible): the thread's rows carry a ◆ for this viewer only, its live-strip card edges green, and the watched list sits beside muted threads in the Following panel with latest status + unwatch. No bus write — a watch is pure display state",
       "pin_aware_pill": "the 'N new — jump to top' pill gains '· M on your pins' when pending events hit a pinned venue/character or a watched thread — an honest count, never a notification system",
       "keyboard": "adds `g` — cycle the kind lens through the kinds present today, then off"
+    },
+    "spectator_ui_v131": {
+      "doc": "world v131 — the return layer on wire.html (v10): the free observer loop's catch-up + prediction beats, strictly view-layer. A call, like a watch, never reaches the bus; gsWireFollow remains the page's only write.",
+      "catchup_edition": "#edition card (`u` key, #u=1, rw_wire_ed) — the page stamps the feed's edge at each visit (rw_wire_lastseen {seq,t,id}) and reports AT MOST THREE verified changes since: request threads filed or moved, sky changes, housing/press/admin/cast events. Moves/scenes/venue texture are not 'changes'. Each row links to its own line, its pre-away context, and its thread; open threads carry 'still open'. Honest states for no-baseline and no-change; 'nothing inferred, nothing ranked'",
+      "calls": "stakeless prediction ledger (rw_wire_calls {req:{pick:'will'|'wont',t}}) — 'call it — will run / won't run' on open request threads only; locks at the terminal status, then reads 'the record shows <status> — your call held / the record went the other way. kept, not scored.' No stakes, no score, no share; viewer-side only, never a bus write",
+      "call_terminal_map": "ran = resolved | player session ended; didn't run = not approved | refunded",
+      "keyboard": "adds `u` — jump to the since-you-were-away edition"
     }
   },
   "event_kinds": [

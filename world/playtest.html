@@ -35,7 +35,7 @@
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
   loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer,
-  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer).
+  PT118 + offers v129 standing-offer layer, PT119 + request v130 landing layer, PT120 + wire v131 return layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2598,6 +2598,26 @@ const PTS=[
   ck:["every shape_key is an offers-schema key or one of sponsor/expires_h/posted_by",
    "fairness_invariants gained 'a request buys the posting, never the turnout — uptake is never scored'",
    "request gate: 0 fail; a named-character host or a success metric would FAIL — spot-check one"]}
+]},
+{id:"PT120",title:"The Return Layer v131 — the catch-up edition + stakeless calls",min:8,
+ persona:"a returning spectator — watched the block last night, closed the tab, came back this evening and wants to know what actually changed while they were gone",
+ goal:"Verify the v131 return layer on wire.html: the 'since you were away' edition lists at most three VERIFIED changes since the viewer's last-visit edge (request threads filed or moved, sky/registry/press/admin/cast events — never moves or texture), each row linked to its own line, its pre-away context, and its thread, with 'still open' on unresolved threads; the call ledger lets a viewer note 'will run / won't run' on an open request thread, locks when the record answers, and reports the outcome with no stakes and no score; the wire audit gate's v131 marks pass.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open wire.html fresh (clear localStorage or a new profile). Read the 'since you were away' card. Then let the demo run a few ticks, reload the page, and read the card again.",
+  exp:"First visit: the card is present and honest — 'first visit on record — the wire keeps the edge you leave' with 'Nothing to compare yet'. After a reload with elapsed ticks: the card lists up to three verified changes (e.g. 'request rq-1041 filed — requested · marina_w', 'the sky changed — …'), each with 'the line' / 'before that' / 'the thread' links; a still-open thread carries 'still open'. The footer states 'at most three verified changes … Nothing inferred, nothing ranked.'",
+  ck:["first-visit and no-change states are honest copy — no fabricated delta, 'quiet is a finding, not a gap'",
+   "every row links to evidence in the stream — 'the line' selects the event, 'before that' selects the pre-away line, 'the thread' opens the request trail",
+   "no move/scene/venue-texture event ever appears as a 'change' — requests, weather, housing, press, admin, cast only"]},
+ {do:"Open a live request's record (any thread still requested/in_review/queued/running — the reaching-in-now strip has them). Click 'call it — won't run', then watch the thread through its lifecycle (demo advances a status every few ticks).",
+  exp:"The detail shows 'call it — will run / won't run' with the honesty line 'a call is a note to yourself — no stakes, no score, nobody else sees it.' The Following panel gains a 'your calls' list entry. When the thread posts a terminal status the call locks and the record answers: 'you called — won't run at HH:MM · the record shows resolved — the record went the other way. kept, not scored.' No counter, no streak, no share affordance anywhere.",
+  ck:["calls are writable only while the thread is open — on a terminal thread the affordance is gone and clearing a settled call is housekeeping (✕) only",
+   "the verdict copy is neutral — 'your call held' / 'the record went the other way', never points or praise",
+   "no accuracy tally exists anywhere on the page — grep the DOM: the only 'score' string is inside 'no stakes, no score'"]},
+ {do:"Press u, then esc. Run node world/audit.js and read the wire gate.",
+  exp:"u jumps to (and opens) the edition card. The audit's wire gate reports 0 fails on the v131 marks: edition/calllist mounts, lastseen stamping, the 3-row cap (rows.slice(0,3)), and the honesty checks — makeCall/clearCall must not reach the bus, makeCall must consult the open-status set, no call-scoring vocabulary.",
+  ck:["wire gate: 0 fail — a merge that drops the 3-cap, wires a call to gsWireFollow, or adds a score FAILs the gate",
+   "spectator_ui_v131 present in feed.json with catchup_edition / calls / call_terminal_map / keyboard",
+   "the call functions contain no BRIDGE/gsWire reference — a call is pure viewer-side state like a watch"]}
 ]}
 ];
 

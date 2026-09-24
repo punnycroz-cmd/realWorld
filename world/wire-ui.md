@@ -1,10 +1,10 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103 · v9 @ v117)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103 · v9 @ v117 · v10 @ v131)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
 Everything in `feed-ui.md` §1–§4 (two provenances, event vocabulary, display
 rules, daypart density) still applies — this file specifies what v2 adds on
-top. Current page version: **v9 (world v117)** — §15.
+top. Current page version: **v10 (world v131)** — §16.
 
 - Demo: `world/wire.html` (file://-safe; dual data source — see §2).
 - Schema: `world/feed.json` (v19 additions: `req`, permalinks, follows,
@@ -590,3 +590,83 @@ viewer's own screen.
 | Watched row marker | "◆" (title: "watched thread — your screen only") |
 | Pill tail | "· M on your pins" |
 | `g` key | "cycle the kind lens — kinds today, counted" |
+
+## 16. v131 — the return layer (world v131)
+
+The free observer loop's missing half: a viewer who leaves and comes back
+should be able to *catch up*, and a settled-in viewer should be able to
+*guess and be answered*. Both additions are strictly view-layer — a call,
+like a watch, never reaches the bus; `gsWireFollow` remains the page's only
+write. This is the spectator-side reading of the production-3 "catch-up
+edition" and "non-wager prediction" beats: the wire's own record is the
+only evidence, and the UI says so.
+
+### "since you were away" — the catch-up edition
+
+- `#edition` sits between the day card and the director bar; `u` key,
+  `#u=1`, persisted open state `rw_wire_ed`.
+- The page stamps the feed's edge (`rw_wire_lastseen` = {seq, t, id}) as
+  the session advances and on `pagehide`/`beforeunload`; at the next
+  visit that edge is the baseline. Baseline resolution is id → seq → t
+  (a demo restart can regress seq; the block clock can't).
+- A **verified change** is something the wire itself recorded crossing
+  the boundary: a request thread filed or moved (`rq-1038 moved —
+  queued → refunded`), a sky change, a registry/housing event, a press
+  post, an admin action, a new resident. Moves, scenes, and venue
+  texture are deliberately *not* changes — the day happening is not
+  news, and the footer says so.
+- **At most three rows**, newest-first. Each row links to its own line
+  (`the line`), to the thread's last pre-away line (`before that` — the
+  earlier context), and to the whole trail (`the thread`). A thread
+  whose latest status is still open carries `still open` — the
+  unresolved follow-up, per the catch-up spec.
+- Honest states: no baseline yet → "first visit on record — the wire
+  keeps the edge you leave"; baseline but no changes → "The record is
+  unchanged since HH:MM — quiet is a finding, not a gap." The card never
+  fabricates a delta.
+- Footer is the contract: *"at most three verified changes, each linked
+  to its own lines — moves and street texture aren't 'changes'; the
+  stream has them. Nothing inferred, nothing ranked."*
+
+### calls — the stakeless prediction ledger
+
+- On any request event whose thread's latest status is still open, the
+  detail panel gains **call it — will run / won't run**
+  (`rw_wire_calls`, `{req: {pick, t}}`). One call per thread; change or
+  clear while open; locks the moment the record answers.
+- Terminal statuses resolve the call: `resolved` / `player session
+  ended` → it ran; `not approved` / `refunded` → it didn't. The detail
+  panel and the Following panel's **your calls** list then read
+  *"you called — will run at HH:MM · the record shows resolved — your
+  call held / the record went the other way. kept, not scored."*
+- **No stakes, no score, no share, no streak.** Nobody else sees a call;
+  there is no accuracy counter anywhere — a tally would invent a game
+  the spectator didn't ask for. The copy says so at the point of use:
+  *"a call is a note to yourself — no stakes, no score, nobody else sees
+  it. The record answers when the thread closes."*
+- Calls on terminal-or-gone threads can be dismissed (✕) from the list;
+  a call on an open thread can be cleared — but the record's answer is
+  never erasable retroactively (the toast says "the record already
+  answered — the call stands" for in-flight clears; the list ✕ removes
+  settled entries as housekeeping).
+
+### Copy deck — v131 strings
+
+| Moment | Copy |
+|---|---|
+| Edition head (baseline) | "since you were away — the record since \<HH:MM\> — up to three verified changes" |
+| Edition head (first visit) | "since you were away — first visit on record — the wire keeps the edge you leave" |
+| First-visit body | "Nothing to compare yet — from here on, the wire remembers where you left. Come back and this card lists what verifiably changed." |
+| No-change body | "The record is unchanged since \<HH:MM\> — quiet is a finding, not a gap." |
+| Change row (moved) | "request \<id\> moved — \<old status\> → \<new status\>" |
+| Change row (filed) | "request \<id\> filed — \<status\> · \<handle\>" |
+| Change row links | "the line" · "before that" · "the thread" |
+| Open marker | "still open" |
+| Edition footer | "at most three verified changes, each linked to its own lines — moves and street texture aren't 'changes'; the stream has them. Nothing inferred, nothing ranked." |
+| Line link miss | "that line is older than the loaded page — load older first" |
+| Call affordance | "call it — will run / won't run" |
+| Call honesty | "a call is a note to yourself — no stakes, no score, nobody else sees it. The record answers when the thread closes." |
+| Call resolved | "you called — \<pick\> at \<HH:MM\> · the record shows \<status\> — your call held. / the record went the other way. kept, not scored." |
+| Call list label / note | "your calls" · "notes to yourself — no stakes, no score, nobody else sees them. The record answers." |
+| Locked call toast | "the record already answered that thread" / "the record already answered — the call stands" |
+| `u` key | "since you were away — the catch-up edition" |

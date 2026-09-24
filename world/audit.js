@@ -3887,6 +3887,45 @@ const PUB = Object.values(PT.surfaces)
       else if (/delete follows\[/.test(m[0]))
         add(g, 'fail', 'wire.html', null, 'followsSync deletes a page pin — read-back must be adopt-only');
     }
+    /* v131 affordances + contract keys (the return layer) */
+    for (const s of ['id="edition"', 'id="calllist"', 'renderEdition',
+      'editionRows', 'toggleEdition', 'LAST_SEEN', 'stampLastSeen',
+      'rw_wire_lastseen', 'rw_wire_ed', 'rw_wire_calls', 'makeCall',
+      'clearCall', 'callVerdict', 'reqLatest', 'TERMINAL_ST', 'reqRan',
+      'since you were away', 'still open', 'the line', 'before that',
+      'the thread', 'quiet is a finding', 'first visit on record',
+      'Nothing inferred, nothing ranked', 'call it — ', 'will run',
+      'won\\u2019t run', 'your call held', 'the record went the other way',
+      'kept, not scored', 'no stakes, no score', 'your calls',
+      'the record answers', "'u'", 'data-call', 'data-uncall',
+      'pagehide', 'moved — ', 'the sky changed'])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v131 affordance "${s}" absent`);
+    const V131 = (FJ.spectator_ui || {}).spectator_ui_v131 || {};
+    for (const k of ['catchup_edition', 'calls', 'call_terminal_map',
+      'keyboard'])
+      if (!V131[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v131.${k} missing`);
+    /* v131 honesty: the edition is capped at three verified changes —
+       a merge that drops the slice turns catch-up into a firehose */
+    if (!/rows\.slice\(0,\s*3\)/.test(html))
+      add(g, 'fail', 'wire.html', null, 'editionRows lost its 3-row cap — the catch-up edition is at most three verified changes');
+    /* v131 honesty: calls are viewer-side only — makeCall/clearCall may
+       never reach the bus (same class as a watch) */
+    for (const fn of ['makeCall', 'clearCall']) {
+      const m = html.match(new RegExp('function ' + fn + '\\(req[^)]*\\)\\{[\\s\\S]*?\\n\\}'));
+      if (!m) add(g, 'fail', 'wire.html', null, fn + ' body not found');
+      else if (/BRIDGE|gsWire|fetch|XMLHttpRequest/.test(m[0]))
+        add(g, 'fail', 'wire.html', null, fn + ' reaches the bus — a call is viewer-side display state, never a write');
+    }
+    /* v131 honesty: a call is writable only while the thread is open —
+       makeCall must consult the live-status set before storing */
+    {
+      const m = html.match(/function makeCall\(req[^)]*\)\{[\s\S]*?\n\}/);
+      if (m && !/LIVE_STATUSES/.test(m[0]))
+        add(g, 'fail', 'wire.html', null, 'makeCall stores without checking the open-status set — calls lock when the record answers');
+    }
+    /* v131 honesty: calls carry no score — no accuracy tally may exist */
+    if (/call.*(score|streak|accuracy|leaderboard)/i.test(html) && !/no stakes, no score/.test(html))
+      add(g, 'fail', 'wire.html', null, 'call scoring vocabulary present — calls are kept, never scored');
     /* wire BOOKW mirrors bookings.json windows — same five-field key as
        request.html's own BOOKW check in the book gate */
     {

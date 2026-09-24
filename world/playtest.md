@@ -496,6 +496,19 @@ One person can wear every hat; four real testers is the intended shape.
   or failure. The audit's v130 marks pin the lands_as contract against
   the offers schema and vocabularies, the host rule, the new fairness
   invariant, and the locked card copy.
+  PT120 (wire v131) audits the return layer — the free observer loop's
+  catch-up + prediction beats on the spectator feed. The "since you were
+  away" edition stamps the feed's edge at each visit and reports at most
+  three verified changes since (request threads filed or moved, sky/
+  registry/press/admin/cast events — moves and texture never count),
+  each row linked to its own line, its pre-away context, and its thread,
+  with "still open" on unresolved threads. Calls let a viewer note
+  "will run / won't run" on an open request thread — stakeless,
+  viewer-side only, locking when the record answers ("your call held /
+  the record went the other way. kept, not scored"). The audit's v131
+  marks pin the 3-row cap, the open-status gate on makeCall, the
+  never-a-bus-write rule on call functions, and the no-scoring
+  vocabulary ban.
 
 ## 3. Running a session
 
