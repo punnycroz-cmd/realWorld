@@ -127,12 +127,26 @@ session per main (`agents/C*/`, BRIEF.md ritual: `curl /state` →
 says a trigger is due. `--scripted` runs an honest in-driver policy as
 the no-LLM production-path probe.
 
-- `turns.jsonl` — every dispatch: trigger kind/tier, act, directive,
-  reason, engine result, per-turn positions + gap flags
-- `turns/*.png`, `video/*.webm` — visuals
-- `transcripts/C*.atif.json` — independent agent transcripts
-- `replay.html` — scrubbable replay (visuals + per-agent orders/whys)
-- `evaluation.md` — objective BECOMING-rubric assessment
+**Live run (6 sim-h, ~10× effective):** 33 dispatches — 31 contract
+filings, 26 accepted, 5 rejected with honest reasons (retried to
+acceptance). All three dispatch tiers exercised. 4 spontaneous talk
+opens; convo channel carried invites/obligations/`no_answer` ends —
+**0 accepted floor passes** (async ~90s brain turns vs ~3min invite TTL
+at speed — the run's documented gap, see evaluation.md). 8/8 T2
+reflects landed, referencing real run events. Failure-honesty probe:
+all 8 mains withheld at directive boundaries across the live +
+supplemental runs, `intention_gap` confirmed 8/8.
+
+- `turns-live.jsonl` (= `turns.jsonl`) — every dispatch: trigger,
+  tier, act, directive, why, engine result, per-turn gap flags
+- `turns/` — one screenshot per dispatched turn (34)
+- `video/playtest-live.webm` — VP8 recording, ~10 min
+- `transcripts/C*.atif.json` + `C*.md` — independent agent records
+- `replay.html` — scrub every turn: screenshot + camera + trigger +
+  the filing + all eight standing wills side by side
+- `turns-withhold-*` — the scripted gap-probe runs
+- `evaluation.md` — full objective assessment (BECOMING rubric)
+- `archive/prod1/` — production-1's run, preserved
 
 Run:
 
@@ -143,7 +157,7 @@ Run:
 
 # live 8-brain run (needs `devin` on PATH; Playwright Chromium)
 /home/hatch/workspace/village-game/tmp/.venv/bin/python \
-    production/playtest/driver.py --sim-hours 8 --cap-min 90
+    production/playtest/driver.py --sim-hours 6 --speed 4 --cap-min 110
 ```
 
 ## Pinned source SHAs
