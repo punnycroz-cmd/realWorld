@@ -10807,3 +10807,79 @@ the machine around the remembering is honest.
   budget_units` 8; `brief_prac_mult` 0.3; `canon_day_bound`
   / `condensed_w` priors; `present_div_cap` (no direct
   antecedent). → FM §§81–91; probes P1110–P1121.
+
+## 218. v106 probes — the perceiver's hardware (P1122–P1133)
+
+Harness: 8 main profiles + 200-ambient population; novel-scene
+and recall batteries under CRN; identical record sets across
+trait contrasts unless noted.
+
+- **P1122** (MUST, locked null `img_accuracy_null`): recall
+  correctness on identical record sets equal across imagery
+  deciles (|Δ| < noise band). Priya (0.15) vs Dani (0.9):
+  equal correctness, unequal sensory-field report counts.
+- **P1123**: report richness ordering — projected utterance
+  sensory-field count monotone in imagery at fixed record
+  (Dani > Marcus > Priya); record fields themselves
+  identical.
+- **P1124** (MUST, `obs_content_null`): a `persp` flip on an
+  emission changes the tag + reported-affect + surfaced
+  field-class mix only; record byte-diff = 0.
+- **P1125**: dampen asymmetry — field→observer shift lowers
+  reported affect by ~`obs_dampen`; observer→field shift
+  raises it by ≈0 (Robinson & Swanson sign test).
+- **P1126**: age slope — p(observer) increases with
+  log10(record ageDays) at fixed traits; recent records stay
+  field-dominant cast-wide.
+- **P1127** (MUST, `face_sem_null`): low-`face_recog`
+  profile shows slower `familiar`/`identity` crossings on
+  face-only cues but identical PersonModel content and
+  name/voice-cue crossings.
+- **P1128**: super-recognizer tail — face_recog 0.85
+  (Marcus) reaches `familiar` on stranger faces after
+  single exposure ≥2× faster than 0.4 profile; ceiling
+  still caps verbatim.
+- **P1129**: earliest-memory ordering — high interdep +
+  low family_remin shifts effective `amnesia_exit` up;
+  Victor (0.45/0.2) has a later mean earliest record than
+  Carmen (0.85/0.75) despite greater age.
+- **P1130** (MUST, `cult_capacity_null`): interdep sweep
+  changes early-record field mix (`sdmCat:"collective"`
+  share) and boundary only — record count, strength, decay
+  invariant.
+- **P1131** (MUST, `remin_content_null`): family_remin
+  sweep moves the boundary; zero records minted, zero
+  field-content deltas above the boundary.
+- **P1132**: déjà vu emission — `dejavu:true` events fire
+  only on novel-scene flags; rate declines with age_eff
+  (Jules > Carmen) and rises under fatigue.
+- **P1133** (MUST, `dejavu_know_null`): post-`dejavu:true`
+  store diff = 0 — no record minted, no source attributed,
+  no familiarity residue on PersonModels.
+
+## 219. Sources verified this version (P1122–P1133 backing)
+
+- **Imagery extremes:** Zeman, Dewar & Della Sala 2015;
+  Zeman et al. 2020 (*Cortex* 130:426 — prevalence +
+  autobiographical-memory association); Dawes et al. 2020
+  (*Sci Rep* 10:10022 — standard-test equivalence →
+  P1122); Dance, Ipser & Simner 2021 (prevalence review).
+- **Vantage:** Nigro & Neisser 1983 (vantage construct +
+  moderators → P1126); Robinson & Swanson 1993 (switch
+  asymmetry → P1125); Sekiguchi & Nonaka 2014 (persistence);
+  McIsaac & Eich 2002 (field-class mix → P1124 surface leg).
+- **Face spectrum:** Russell, Duchaine & Nakayama 2009
+  (super-recognizers → P1128); Kennerknecht et al. 2006 +
+  DeGutis et al. 2023 (DP prevalence → tail rates, P1127).
+- **Culture/reminiscing:** Wang 2001 (*JPSP* 81:220 →
+  P1129/P1130); Wang & Conway 2004; Fivush, Haden & Reese
+  2006 (elaborative style → P1131); Nelson & Fivush 2004.
+- **Déjà vu:** Brown 2004 (*Psychol Bull* 130:394 → P1132);
+  O'Connor & Moulin 2010 (known falsity → P1133).
+- **Marked hypothesis:** trauma-linked high `obs_persp`
+  (coping vs symptom debated); `img_report_w`/`obs_dampen`/
+  `face_thresh_scale`/`firstmem_shift_y`/`remin_shift_y`/
+  `dejavu_*` magnitudes are priors pending population
+  calibration.
+
+Probe registry: P1–P1133 (v106 adds P1122–P1133).

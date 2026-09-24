@@ -619,7 +619,22 @@ never copying raw.
 | fame_thresh | 0.25 | 0.6 | nameFluency attribution threshold (v5.14) |
 | fame_p / acquaint_p | 0.04 / 0.04 | 0.25 / 0.25 | unexplained-familiarity emit rates (v5.14) |
 | detect_gain | 0.25 | 0.8 | silent discrepancy-detection base (v5.14) |
-| imagery | — | — | IndivTraits entry, N(0,1): loads imagine/richness/source_confuse/dream_flip (v5.14) |
+| imagery | — | — | IndivTraits entry, N(0,1): loads imagine/richness/source_confuse/dream_flip (v5.14); +sensory-cue/report legs (v5.54) |
+| obs_persp | 0.0 | 1.0 | habitual observer-vantage prior (v5.54) |
+| face_recog | 0.0 | 1.0 | face-recognition ability spectrum, DP tail→super-recognizer (v5.54) |
+| interdep | 0.0 | 1.0 | self-construal: independent→interdependent (v5.54) |
+| family_remin | 0.0 | 1.0 | elaborative family reminiscing exposure in childhood (v5.54) |
+| dejavu | 0.0 | 1.0 | déjà vu proneness (v5.54) |
+| img_sensory_w | 0.0 | 0.3 | imagery→w_sensory cue-weight shift (v5.54) |
+| img_report_w | 0.0 | 0.6 | imagery→sensory-field report richness (v5.54) |
+| obs_emo_k | 0.0 | 0.6 | self-conscious emotion→observer conversion (v5.54) |
+| obs_age_slope | 0.0 | 0.2 | record-age→observer drift per log-day (v5.54) |
+| obs_dampen | 0.0 | 0.6 | reported-affect loss on field→observer shift (v5.54) |
+| face_thresh_scale | 0.0 | 1.0 | face_recog→face-cue familiarity crossing (v5.54) |
+| firstmem_shift_y | 0.0 | 1.0 | interdep earliest-memory delay, years (v5.54) |
+| remin_shift_y | 0.0 | 0.8 | family_remin earliest-memory advance, years (v5.54) |
+| interdep_soc_w | 0.0 | 0.8 | collective-vs-self field share on early records (v5.54) |
+| dejavu_base / dejavu_age_slope / dejavu_state_k | 0.005 / 0.0 / 0.0 | 0.05 / 0.08 / 1.0 | déjà vu emission constants (v5.54) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -5450,3 +5465,139 @@ world-builder needs to know:
 - **Nothing co-samples.** No trait loads any v5.53 param;
   existing modifiers and clamp rows unchanged. Sources
   FM§§81–91; probes P1110–P1121.
+
+## 86. v5.54 note (character-profiles VIII — the perceiver's hardware)
+
+Sixteen clamp rows added in §0. Every prior character-profiles
+pass tuned what the machine *keeps* (encoding, decay, distortion)
+or what it *says* (the report layer, Part VII). This pass tunes
+what the remembering *looks and feels like from inside* — the
+vantage, the vividness, the channel that carries faces, the
+shape of the very first record — plus the little
+familiarity-ghost everyone gets. Five new trait pins, one
+existing trait re-scoped downward (`imagery` gains the
+aphantasia tail), ten pop constants, six locked nulls. Spec
+§§6.267–6.272.
+
+- **`imagery` — re-scoped, not new.** It already loads
+  imagine_gain/rm-richness/dream_flip (v5.14); v5.54 adds the
+  *down* tail and two new legs: `w_sensory` shifts
+  `img_sensory_w`·(imagery−μ) and projected reports carry
+  sensory fields at `img_report_w`·imagery. The base rate is
+  now pinned: extreme aphantasia ≈0.7–1% of population,
+  extreme hyperphantasia ≈2.5–3% (Zeman et al. 2020; Dance et
+  al. 2021 gives the wider weakness band). The load-bearing
+  empirical fact for the spec is NEGATIVE: aphantasics score
+  normally on standard memory tests while reporting
+  impoverished autobiographical recall (Dawes et al. 2020;
+  Zeman et al. 2020 fMRI cohort — autobiographical and
+  imagination tasks differ, standard tests do not). So imagery
+  moves the *experienced and reported* richness, never the
+  stored fidelity — `img_accuracy_null` (P1122) hard-fails any
+  generator that lets imagery touch correctness, and the
+  aphantasic character can carry the block's best archive
+  behind the greyest reports. Pin guidance: leave un-pinned for
+  most of the cast (it's a ~4%-of-humanity tails trait); ONE
+  main may sit in a tail deliberately (cast-profiles §33 gives
+  it to Priya — the chart-minded nurse who knows, never sees).
+- **`obs_persp` — the camera inside the memory.** Nigro &
+  Neisser 1983: every recall arrives field (own eyes) or
+  observer (seeing oneself). Three mechanism legs do most of
+  the work: older records drift observer (`obs_age_slope`),
+  self-conscious/high-emotion scenes arrive observer
+  (`obs_emo_k`), and switching field→observer DAMPENS reported
+  affect while observer→field does not raise it
+  (`obs_dampen` — Robinson & Swanson 1993; Sekiguchi & Nonaka
+  2014, the asymmetry persists ~4 weeks). The trait is the
+  prior on top: high `obs_persp` = the character who watches
+  themselves in their own past — co-sample with
+  `selfconscious`(+0.4) and dissociation-adjacent pins; trauma
+  bibles may push it (observer vantage is a documented
+  peritraumatic marker, DEBATED as coping vs symptom — flag it
+  hypothesis). **`obs_content_null` is the guardrail:**
+  perspective is a RENDER tag on the emission — it changes
+  which field classes report rich (observer: own appearance/
+  position; field: affect/sensation — McIsaac & Eich 2002),
+  never the stored content. A character cannot see themselves
+  "more accurately" from outside; they see themselves
+  *differently*, at an affect discount.
+- **`face_recog` — the channel dial.** Face memory is a
+  near-independent spectrum: developmental prosopagnosia
+  ≈0.9–2.5% at the bottom (Kennerknecht 2006; DeGutis 2023
+  cutoff review), super-recognizers at the top ~1–2%
+  (Russell, Duchaine & Nakayama 2009). Scales ONLY the
+  face-cue leg: effective `face_ceiling`·(0.7+0.6·face_recog)
+  and familiarity-threshold crossings on face cues
+  `face_thresh_scale`·(face_recog−0.5). **`face_sem_null`:**
+  the deficit is channel-local — a face-blind character knows
+  exactly who people are by voice/context/name; their
+  PersonModels are complete, their `familiar` crossings on
+  face alone are slow. This is a gift to writers: the warm
+  character who "never forgets a face" (Marcus 0.85) vs the
+  character who's been politely failing at faces for decades
+  without it ever being about *people*.
+- **`interdep` — the plural childhood.** Wang 2001 (JPSP
+  81:220): American earliest memories land ~6 months before
+  Chinese ones (~3.5y vs ~4y), arrive longer/specific/
+  self-focused vs brief/collective/emotionally neutral — and
+  the memory style tracks the self-construal, not the
+  continent. `interdep` [0,1] is a *biographical* pin (pin
+  from heritage + household talk norms, not personality):
+  shifts the earliest-memory prior `firstmem_shift_y`·interdep
+  and the early-record content mix `interdep_soc_w` toward
+  collective/routine fields. **`cult_capacity_null`:** the
+  construal changes WHICH fields mint and WHEN the archive
+  opens — never strength, count, or decay. A Carmen-bible
+  written interdep-high gets dense family-table childhoods
+  and a slightly later first memory; that is a *texture*,
+  not a handicap.
+- **`family_remin` — where the archive's near edge comes
+  from.** Fivush, Haden & Reese 2006: elaborative maternal
+  reminiscing style → earlier and denser first memories;
+  repetitive style → later. `family_remin` is a backstory pin
+  (the household that did or didn't ask "and then what
+  happened?") whose only action is `remin_shift_y`·(family_
+  remin−μ) off `amnesia_exit`'s effective edge — stacked with
+  the interdep shift in the same units. **`remin_content_
+  null`:** style moves the boundary, never the content — no
+  bible may mint an extra childhood by pinning it 1.0.
+  Emergent pairing: Victor's stern household (0.2) + mid
+  interdep buys him one of the cast's latest first memories —
+  his "I don't remember being young" is now a mechanism, not
+  a mannerism.
+- **`dejavu` — the free ghost.** Brown 2004: ~67% lifetime
+  prevalence, frequency declines with age (r ≈ −0.2 to −0.4
+  across studies), rises with fatigue/stress/travel.
+  `dejavu` scales a rare emission on *novel* scenes:
+  `dejavu_base`·dejavu·exp(−dejavu_age_slope·(age_eff−25)/10)
+  ·(1+dejavu_state_k·fatigue) → familiarity-only event flagged
+  `dejavu:true`. **`dejavu_know_null` is what makes it human:**
+  the emission carries NO source — the character feels
+  recognition and *knows it's false*; nothing is minted,
+  nothing attributed. Cheap, universal, and the audience gets
+  to watch a character trust their own memory a little less
+  for no reason anyone can fix.
+- **Never pin (mechanism constants):** `img_sensory_w`,
+  `img_report_w`, `obs_emo_k`, `obs_age_slope`, `obs_dampen`,
+  `face_thresh_scale`, `firstmem_shift_y`, `remin_shift_y`,
+  `interdep_soc_w`, `dejavu_base`/`_age_slope`/`_state_k` —
+  population scales all. Six locked nulls
+  (`img_accuracy_null`, `obs_content_null`, `face_sem_null`,
+  `cult_capacity_null`, `remin_content_null`,
+  `dejavu_know_null`) are profile-flat by design: the
+  perceiver's hardware changes the *experience* of
+  remembering, never its truth.
+- **Emergent cast shadows:** (a) Priya — aphantasia-adjacent
+  (0.15): greyest reports, best archive; the audience learns
+  vividness≠truth in one character. (b) Dani — hyperphant-
+  adjacent (0.9) + high obs_persp: she watches herself
+  perform her own past; vivid, staged, unreliable. (c) Marcus
+  — super-recognizer-adjacent faces on a shallow archive: he
+  knows everyone, remembers nothing about them. (d) Carmen —
+  interdep-high: her childhood is a table of people, not a
+  self-portrait; her first memory arrives late and plural.
+  (e) Victor — low family_remin: the archive opens late;
+  "before that, nothing" is literal. (f) Jules — highest
+  dejavu in a fatigued-newcomer ecology: the city he just
+  moved to keeps feeling remembered. Sources §83 of
+  human-memory-research.md; probes P1122–P1133.

@@ -1824,3 +1824,125 @@ ordering on identical signal diets.
   beautiful mess effect; construal-level account.
 - Clark & Wells 1995 (reused): self-focused processing
   in social anxiety — lgap_k's trait mechanism.
+
+## 33. Per-main hardware pins (all six traits; prior passes stand)
+
+### C1 Mars, 29 — `imagery 0.5` · `obs_persp 0.3` · `face_recog 0.7` · `interdep 0.55` · `family_remin 0.6` · `dejavu 0.4`
+The floor manager's eyes: above-average faces (regulars are a
+book she keeps), field-perspective default (she was *in* it),
+mid-plural childhood — her earliest records are a kitchen
+table, not a solo scene.
+
+### C2 Jules, 26 — `imagery 0.8` · `obs_persp 0.35` · `face_recog 0.5` · `interdep 0.7` · `family_remin 0.7` · `dejavu 0.6`
+Rich imager from a talky household — earliest archive opens
+early and plural. Highest `dejavu` in the cast on purpose:
+fatigued newcomer + high proneness means the city he just met
+keeps arriving pre-remembered. `dejavu_know_null` keeps it a
+feeling, never a fact.
+
+### C3 Dani, 24 — `imagery 0.9` · `obs_persp 0.7` · `face_recog 0.55` · `interdep 0.3` · `family_remin 0.3` · `dejavu 0.7`
+The near-hyperphant tail, paired deliberately with the cast's
+highest observer prior: she watches herself perform her own
+past. `img_accuracy_null` does the work — the most vivid
+rememberer stays the least faithful one; her memories are
+stage sets she stands inside.
+
+### C4 Priya, 31 — `imagery 0.15` · `obs_persp 0.25` · `face_recog 0.6` · `interdep 0.6` · `family_remin 0.5` · `dejavu 0.3`
+The deliberate tail pin (CP§86 allows exactly one):
+aphantasia-adjacent. Greyest sensory reports in the cast,
+untouched archive — she knows, she doesn't see. Paired with
+her report_policy the phenotype compounds: the character who
+both refuses to guess AND can't picture it reads as the most
+honest memory on the block. Watch P1122 — her correctness
+must equal the imagers'.
+
+### C5 Marcus, 34 — `imagery 0.6` · `obs_persp 0.2` · `face_recog 0.85` · `interdep 0.5` · `family_remin 0.5` · `dejavu 0.5`
+Super-recognizer-adjacent faces on the cast's shallowest
+archive: he recognizes everyone and remembers nothing about
+them. Field-default vantage (0.2) — Marcus was there, he
+doesn't watch himself being there.
+
+### C6 Carmen, 74 — `imagery 0.5` · `obs_persp 0.55` · `face_recog 0.4` · `interdep 0.85` · `family_remin 0.75` · `dejavu 0.2`
+The plural childhood, maximal: interdep-high + talk-rich
+household. Her earliest archive opens on a table of people,
+not a self-portrait — and the mechanism legs (`obs_age_slope`)
+mean her oldest stories increasingly arrive watched-from-
+outside: she sees the girl she was at the table. `dejavu`
+bottoms with age per the literature.
+
+### C7 Victor, 58 — `imagery 0.4` · `obs_persp 0.6` · `face_recog 0.5` · `interdep 0.45` · `family_remin 0.2` · `dejavu 0.3`
+The late-opening archive: a household that didn't reminisce
+(0.2) pushes his effective amnesia boundary up ~0.3y —
+"I don't remember being young" is now mechanical. High
+observer prior on self-conscious scenes: he watches the man
+he was being wronged, at an `obs_dampen` discount — which is
+why the grievances read cold instead of hot.
+
+### C8 Tomás, 36 — `imagery 0.35` · `obs_persp 0.3` · `face_recog 0.45` · `interdep 0.8` · `family_remin 0.6` · `dejavu 0.4`
+Dim imager, plural childhood, slightly face-slow: the kitchen
+pro who plates from muscle and procedure, whose people-knowledge
+runs on voice and context — `face_sem_null` keeps the lag
+invisible to anyone who isn't testing faces.
+
+### Ambient tier — hardware template
+`imagery`~N(0,1) truncated ±2σ (tails possible, rare — the
+population rate is the point); `obs_persp`~U(0.15,0.55);
+`face_recog`~N(0.5,0.18) clamp [0.05,0.95] — the crowd may
+contain one slow-face ambient, never a declared prosopagnosic;
+`interdep`/`family_remin` sampled per ambient backstory tag;
+`dejavu`~U(0.2,0.7) age-tapered by mechanism, not by pin.
+
+## 34. Distinctness — seventh-pass notes
+The hardware axis is orthogonal to both prior report layers:
+Priya and Dani now bracket the imagery spectrum AND the
+report-policy spectrum — grey-and-careful vs vivid-and-
+invented, the cleanest vividness≠truth demonstration the
+cast can produce. Marcus and Victor share mid everything
+except the channels that matter: Marcus's face channel is
+his best feature while his archive is thin; Victor's archive
+is deep but his vantage puts him outside his own grievances.
+Carmen and Tomás share interdep-high but diverge on vantage
+and imagery — her childhood is watched, plural, and narrated;
+his is cooked, plural, and unspoken.
+
+## 35. Probes filed
+P1122–P1133 → validation-design.md §218. Signature checks:
+P1122 imagery-decile accuracy equality (Priya ≈ Dani on
+correctness, ≠ on richness); P1125 observer dampen asymmetry
+(field→observer lowers, observer→field doesn't raise);
+P1127 face-blind PersonModel completeness; P1133 déjà vu
+never mints or attributes.
+
+## 36. Sources added this version
+- Zeman, Dewar & Della Sala 2015 (*Cortex* 73:378 — verified):
+  aphantasia named; lifelong imagery absence.
+- Zeman et al. 2020 (*Cortex* 130:426 — verified): extreme
+  aphantasia ~0.7%, hyperphantasia ~2.5–3% prevalence;
+  face-recognition and autobiographical-memory complaints
+  cluster in aphantasia.
+- Dawes, Keogh, Andrillon & Pearson 2020 (*Sci Rep* 10:10022
+  — verified): aphantasic autobiographical memory less vivid/
+  phenomenologically rich; standard memory performance
+  equivalent → `img_accuracy_null`.
+- Nigro & Neisser 1983 (*Cog Psych* 15:467 — verified):
+  field/observer vantage; emotionality+self-awareness→observer;
+  recency→field.
+- Robinson & Swanson 1993 (*Memory* 1:169 — verified):
+  field→observer switch dampens rated affect; converse no
+  effect → `obs_dampen` asymmetry.
+- Sekiguchi & Nonaka 2014 (*Emotion* 26 — verified): dampening
+  persists ≥4 weeks.
+- Russell, Duchaine & Nakayama 2009 (*PBR* 16:252 — verified):
+  super-recognizers; face ability is a spectrum.
+- Kennerknecht et al. 2006; DeGutis et al. 2023 (verified):
+  developmental prosopagnosia ~0.9–2.5%, cutoff-dependent.
+- Wang 2001 (*JPSP* 81:220 — verified): American earliest
+  memory ~3.5y vs Chinese ~4y; self-focused vs collective/
+  routine content; construal-memory coupling.
+- Fivush, Haden & Reese 2006 (*Child Dev* 77:1568 — verified):
+  elaborative maternal reminiscing → earlier first memories.
+- Brown 2004 (*Psychol Bull* 130:394 — verified): ~67%
+  lifetime déjà vu prevalence; age decline; fatigue/stress
+  moderators.
+- O'Connor & Moulin 2010 (verified): déjà vu as familiarity
+  plus known falsity → `dejavu_know_null`.

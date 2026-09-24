@@ -4476,3 +4476,69 @@ results the new *contracts* lean on, plus the one new spine source
   measured by P1117/P1118 not asserted); `present_div_cap` 3
   (antagonist-flood guard — ours, no direct literature
   antecedent). → FM §§81–91; probes P1110–P1121.
+
+## 83. v106 sources — character-profiles VIII (CP VIII → spec v5.54)
+
+New spine this version: the *experienced* shape of recall —
+vantage, imagery, face channels, the cultural/familial near
+edge of the archive, déjà vu. All verified by title/venue
+this version.
+
+- **Zeman, Dewar & Della Sala 2015** (*Cortex* 73:378):
+  aphantasia named — lifelong absence of voluntary visual
+  imagery despite normal perception.
+- **Zeman et al. 2020** (*Cortex* 130:426): first systematic
+  neuropsychological + fMRI study of imagery extremes;
+  prevalence ~0.7% extreme aphantasia, ~2.5–3% extreme
+  hyperphantasia; autobiographical-memory and imagination
+  deficits in aphantasia, preserved standard memory.
+- **Dawes, Keogh, Andrillon & Pearson 2020** (*Sci Rep*
+  10:10022): aphantasics report less vivid, phenomenologically
+  impoverished autobiographical memories and futures, fewer/
+  dimmer dreams — with equivalent objective memory. This is
+  the load-bearing split for `img_accuracy_null`: experience
+  differs, storage doesn't.
+- **Nigro & Neisser 1983** (*Cog Psych* 15:467): field vs
+  observer vantage in personal memory; high emotion +
+  self-awareness → observer; recent events → field; recall
+  set (feelings vs circumstances) moves the mix.
+- **Robinson & Swanson 1993** (*Memory* 1:169): perspective
+  is shiftable but easier on recent/vivid memories;
+  field→observer shift lowers rated emotional intensity —
+  the converse does not raise it. → `obs_dampen` asymmetry.
+- **Sekiguchi & Nonaka 2014** (*Emotion*): dampening
+  persists ≥4 weeks across repeated recalls — perspective
+  shifts leave residue, justifying per-record `persp` tags.
+- **McIsaac & Eich 2002**: field memories carry richer
+  affect/sensation/psychological-state detail; observer
+  memories carry appearance/position/layout — the field-
+  class reweight the spec uses on `persp` emissions.
+- **Russell, Duchaine & Nakayama 2009** (*PBR* 16:252):
+  super-recognizers — the top tail establishing face
+  recognition as a continuous, near-independent ability.
+- **Kennerknecht et al. 2006; DeGutis et al. 2023**
+  (cutoff review): developmental prosopagnosia ~0.9–2.5%
+  of population — the bottom tail; `face_recog` is a
+  spectrum, not a binary.
+- **Wang 2001** (*JPSP* 81:220): American vs Chinese
+  earliest memories (~3.5y vs ~4y); lengthy/specific/
+  self-focused vs brief/collective/routine/neutral; the
+  memory style tracks self-construal across the whole
+  sample — the basis for `interdep` as biographical pin
+  rather than ethnic shorthand.
+- **Fivush, Haden & Reese 2006** (*Child Dev* 77:1568) +
+  **Nelson & Fivush 2004**: elaborative maternal
+  reminiscing style → earlier, denser first memories;
+  repetitive style → later. → `family_remin` boundary leg.
+- **Brown 2004** (*Psychol Bull* 130:394): ~67% lifetime
+  déjà vu prevalence across 41 studies; incidence declines
+  with age (r≈−0.2..−0.4); raised by fatigue, stress,
+  travel, education.
+- **O'Connor & Moulin 2010**: déjà vu defined as familiarity
+  plus *awareness that the feeling is false* — the
+  `dejavu_know_null` semantics: recognition felt, source
+  known-absent.
+- **Marked hypothesis:** high `obs_persp` as trauma/
+  dissociation marker (established association, debated
+  valence — coping vs symptom); all ten pop constants are
+  priors awaiting population calibration (P1122–P1133).

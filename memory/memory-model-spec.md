@@ -1,5 +1,20 @@
-# Memory Model Spec v5.53 — implementable human-like memory for RW characters
+# Memory Model Spec v5.54 — implementable human-like memory for RW characters
 
+> **v5.54 note (character-profiles VIII — the perceiver's
+> hardware):** `character-memory-profiles.md` §86 + spec
+> §§6.267–6.272 add the *experienced* shape of recall as a
+> pinnable layer — five new traits (`obs_persp`, `face_recog`,
+> `interdep`, `family_remin`, `dejavu`) plus the `imagery`
+> trait's downward tail re-scoped with real prevalence
+> (aphantasia ~1% / hyperphantasia ~3%, Zeman 2020). All six
+> move vantage, vividness-of-report, channel gain, earliest-
+> memory boundary, and familiarity ghosts — and all six are
+> fenced by locked nulls (`img_accuracy_null`,
+> `obs_content_null`, `face_sem_null`, `cult_capacity_null`,
+> `remin_content_null`, `dejavu_know_null`): the perceiver's
+> hardware changes what remembering *feels* like, never what
+> it *is*. Probes P1122–P1133.
+>
 > **v5.53 note (formal-model X — the exposure discipline, the
 > decade bound, the audit journal):** `memory/formal-model.md`
 > Part X (§§81–91) formalizes the last three assumed-but-
@@ -13768,6 +13783,88 @@ at `snub_fp_base` (0.1) + 0.4·`rsq`. Detected exclusions encode
 **Locked `snub_source_null`:** detection and hurt are
 source-invariant — despised excluders register equally.
 
+### 6.267 The mind's eye has a setting — `imagery` ext + `img_*` (new in v5.54)
+
+CP§86; Zeman, Dewar & Della Sala 2015; Zeman et al. 2020
+(*Cortex* 130:426 — extreme aphantasia ≈0.7–1%, hyperphantasia
+≈2.5–3%); Dawes et al. 2020 (*Sci Rep* 10:10022 — aphantasics
+report impoverished autobiographical recall + fewer dreams but
+score normally on standard memory tests). `imagery` keeps its
+v5.14 loads (imagine_gain/rm-richness/dream_flip) and gains
+two legs: effective `w_sensory` += `img_sensory_w`·(imagery−μ)
+and projected reports emit sensory fields at
+`img_report_w`·imagery·(fields present). **Locked
+`img_accuracy_null`:** imagery moves report richness and cue
+reach only — correctness, strength, and decay are unreachable
+(P1122). Tail pin guidance lives in CP§86 — the trait is a
+~4%-of-humanity tails dial, not a per-character flourish.
+
+### 6.268 The camera pulls back — `obs_*` (new in v5.54)
+
+CP§86; Nigro & Neisser 1983 (*Cog Psych* 15:467 — field vs
+observer vantage; emotionality + self-awareness → observer;
+recent → field); Robinson & Swanson 1993 (*Memory* 1:169 —
+field→observer switch dampens rated affect, converse does
+not); Sekiguchi & Nonaka 2014 (dampening persists ≥4 weeks);
+McIsaac & Eich 2002 (field: affect/sensation rich; observer:
+appearance/position rich). On each recall the emission tags
+`persp:"field"|"observer"`: p_obs = clamp(`obs_persp` +
+`obs_emo_k`·selfconsc·arousal + `obs_age_slope`·log10(ageDays),
+0, 0.95). On a field→observer shift (vs the record's last
+tag), reported affect ×(1−`obs_dampen`); observer→field does
+NOT raise it (asymmetry locked, P1125). Perspective reweights
+which field classes surface rich — **locked `obs_content_
+null`:** the tag is render-level; stored content untouched
+(P1124).
+
+### 6.269 Faces are a channel, not a wall — `face_recog` (new in v5.54)
+
+CP§86; Russell, Duchaine & Nakayama 2009 (*PBR* 16:252 —
+super-recognizers top ~1–2%); Kennerknecht et al. 2006 +
+DeGutis et al. 2023 (developmental prosopagnosia ≈0.9–2.5%,
+cutoff-dependent). `face_recog` [0,1] scales ONLY face-cue
+legs: effective `face_ceiling`·(0.7+0.6·face_recog) on
+stranger-face records and `face_thresh_scale`·(face_recog−0.5)
+on familiarity-tier crossings driven by face cues. Voice/
+context/name cues unaffected. **Locked `face_sem_null`:**
+PersonModel content, name semantics, and relationship records
+untouched — a face-blind character knows *who*, slowly by face
+(P1127).
+
+### 6.270 The plural childhood — `interdep`/`firstmem_*` (new in v5.54)
+
+CP§86; Wang 2001 (*JPSP* 81:220 — American earliest memory
+~3.5y vs Chinese ~4y; self-focused/specific vs collective/
+routine/neutral); Wang & Conway 2004. `interdep` [0,1] is a
+biographical pin (heritage + household talk norms): shifts
+earliest-memory prior +`firstmem_shift_y`·interdep (years)
+and tilts early-record field mix toward collective/routine
+fields at `interdep_soc_w`. **Locked `cult_capacity_null`:**
+construal changes WHICH fields mint and WHEN the archive
+opens — record count, strength, decay untouched (P1130).
+
+### 6.271 The table where memory was taught — `family_remin` (new in v5.54)
+
+CP§86; Fivush, Haden & Reese 2006 (elaborative maternal
+reminiscing → earlier, denser first memories; repetitive →
+later); Nelson & Fivush 2004. `family_remin` [0,1] is a
+backstory pin: effective `amnesia_exit` shifts
+`remin_shift_y`·(family_remin−μ), same units and stack as
+§6.270. **Locked `remin_content_null`:** the style moves the
+boundary only — no records minted or enriched (P1131).
+
+### 6.272 Been here, never was — `dejavu_*` (new in v5.54)
+
+CP§86; Brown 2004 (~67% lifetime prevalence across 41
+studies; incidence declines with age r≈−0.2..−0.4; raised by
+fatigue/stress); O'Connor & Moulin 2010 (familiarity + known
+falsity). On novel-scene perception: p =
+`dejavu_base`·dejavu·exp(−`dejavu_age_slope`·(age_eff−25)/10)
+·(1+`dejavu_state_k`·fatigue). Fires a familiarity-only
+emission flagged `dejavu:true` — **locked `dejavu_know_
+null`:** no record minted, no source attributed; the
+character feels recognition and knows it is false (P1133).
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -15794,6 +15891,33 @@ MemoryParams = {
 //   `synth:true` on cold-start ops; record flag `condensed:true`
 //   on archive skeletons; present op emission
 //   `{path, shown, shadowed, suppressed, truncated}`. All
+//   snapshot-additive; absent = legacy.
+// v5.54 additions (character-profiles VIII — CP§86; 5 traits,
+//   10 pop constants, 6 locked nulls)
+// traits (IndivTraits pins, [0,1]; `imagery` unchanged N(0,1))
+"obs_persp": 0.5, "face_recog": 0.5, "interdep": 0.5,
+"family_remin": 0.5, "dejavu": 0.5,
+// pop constants
+"img_sensory_w": 0.15, "img_report_w": 0.35,        // §6.267
+"obs_emo_k": 0.3, "obs_age_slope": 0.08,
+"obs_dampen": 0.35,                               // §6.268
+"face_thresh_scale": 0.5,                         // §6.269
+"firstmem_shift_y": 0.5, "interdep_soc_w": 0.4,   // §6.270
+"remin_shift_y": 0.4,                             // §6.271
+"dejavu_base": 0.02, "dejavu_age_slope": 0.03,
+"dejavu_state_k": 0.5,                            // §6.272
+// v5.54 locked nulls: img_accuracy_null (imagery never
+//   touches correctness — P1122); obs_content_null
+//   (perspective tag is render-only — P1124); face_sem_null
+//   (face channel only, person semantics intact — P1127);
+//   cult_capacity_null (construal changes mix/boundary, not
+//   capacity — P1130); remin_content_null (boundary moves,
+//   no records minted — P1131); dejavu_know_null
+//   (familiarity-only, no source, no mint — P1133).
+// v5.54 state/fields: recall-emission tag
+//   `persp:"field"|"observer"`; familiarity-only emission
+//   `dejavu:true`; early-record field mix
+//   `sdmCat:"collective"` under high interdep. All
 //   snapshot-additive; absent = legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
@@ -18458,6 +18582,25 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 14 scalars/enums + 7 locked nulls —
     all pop/harness scope, zero per-character.
   - Probes P1110–P1121.
+- v5.54 additions (character-profiles VIII — CP§86, spec
+  §§6.267–6.272 — the perceiver's hardware):
+  - **Experience-vs-record contract:** all six surfaces are
+    render/report/boundary level — `persp` tag, sensory-field
+    report richness, face-cue familiarity crossings,
+    earliest-memory edge, `dejavu:true` emission. None may
+    touch record content, strength, count, or decay (six
+    locked nulls, P1122–P1133).
+  - **World-supplied flags:** `selfconsc` scene tag feeds
+    `obs_emo_k`; `fatigue` state feeds `dejavu_state_k`;
+    `observed` scene novelty (novel-place flag) gates
+    `dejavu_base`. All snapshot-additive; absent = legs
+    inert at defaults.
+  - **Trait-vs-biography split:** `obs_persp`/`face_recog`/
+    `dejavu` are temperamental IndivTraits pins; `interdep`/
+    `family_remin` are backstory pins (heritage + household
+    talk norms) — bible authors set them from the character's
+    upbringing, never as personality dials.
+  - Probes P1122–P1133.
   - **Report-vs-store contracts:** `chk_*` erodes reported
     vividness/confidence and the R/K tag — `accuracy`
     unreachable (`chk_acc_null`); `subj_age` moves
