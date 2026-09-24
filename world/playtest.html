@@ -10,7 +10,24 @@
   PT47 + harness v51 session-debrief / cohort coverage / owner routing / walk keys,
   PT48 + onboarding v4 time layer / onboard gate v53, PT49 + lease v5 / lease gate v54,
   PT50 + thinai v5 / thinai gate v55, PT51 + bible v56 / bible gate v56,
-  PT52 + crowd v5 marine layer / crowd gate v57).
+  PT52 + crowd v5 marine layer / crowd gate v57,
+  PT60 + harness v65 finding templates / hide-finished filter / session handoff;
+  PT61 + drama board v66 interference matrix / suspicion ceilings / comedy duty / nursery,
+  PT62 + onboarding v5 eligibility layer / onboard gate v67,
+  PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
+  PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73,
+  PT67 + book v74 / book gate v74, PT68 + wire v6 schedule/person layer,
+  PT69 + archive v6 shape layer, PT70 + create v77 sketch & seats layer,
+  PT71 + mod v78 second-eyes layer, PT72 + harness v76 revisit flags /
+  regression view / run sheet, PT73 + onboarding v6 house & other hands,
+  PT74 + lease v82 doorstep & deed layer / lease gate v82,
+  PT75 + thin-AI v83 fallback-surface layer,
+  PT76 + crowd v6 company & courtesy layer / crowd gate v85,
+  PT77–PT83 + the real-seam passes (supply v86, commute v87, request v88,
+  wire v89, archive v90, create v91, mod v92),
+  PT84 + harness v93 triage layer: surface filter / finding status /
+  per-finding copy block / step n/a sweep, PT85 + drama board v94:
+  cooling grammar / double-surface / fair misfires / posture vocabulary).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -51,6 +68,8 @@
   .pt b{font-size:13px}
   .pt .meta{font-size:11px;color:var(--dim);margin-top:2px}
   .pt .done{float:right;font-family:var(--mono);font-size:10.5px;color:var(--grn)}
+  .pt .flag{float:right;font-size:11px;color:var(--dim);cursor:pointer;margin-left:7px;line-height:1.3}
+  .pt .flag.on{color:var(--acc)}
   .goal{font-size:12.5px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
     border-radius:6px;padding:9px 12px;margin:10px 0}
   .goal em{color:var(--dim)}
@@ -127,6 +146,11 @@
     <div class="statline" id="prog"></div>
     <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
       <input type="checkbox" id="smk"> smoke set only <span style="font-family:var(--mono)">(PT1·PT4·PT7·PT21)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px;cursor:pointer">
+      <input type="checkbox" id="hideDone"> hide finished <span style="font-family:var(--mono)">(every checkpoint verdicted)</span></label>
+    <label style="font-size:11px;color:var(--dim);display:flex;gap:6px;align-items:center;margin-bottom:8px">
+      surface <select id="surfFilter" style="background:var(--panel2);color:var(--ink);border:1px solid var(--line);border-radius:6px;padding:2px 6px;font:inherit;font-size:11px"><option value="">all surfaces</option></select>
+      <span style="font-family:var(--mono)">(regression pass)</span></label>
     <div id="ptList"></div>
     <div class="invar"><b style="color:var(--ink)">Boundary checklist — always on:</b>
       <ul style="margin:6px 0 0;padding-left:16px">
@@ -150,9 +174,17 @@
     <div class="finding">
       <div class="row">
         <select id="fSev" style="max-width:110px"><option>blocker</option><option selected>major</option><option>minor</option><option>nit</option><option>question</option></select>
-        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>apply</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
+        <select id="fSurf" style="max-width:130px"><option>feed</option><option>wire</option><option>request</option><option>mod</option><option>create</option><option>board</option><option>history</option><option>onboard</option><option>lease</option><option>thinai</option><option>cast</option><option>crowd</option><option>directory</option><option>timeclock</option><option>archive</option><option>market</option><option>storefront</option><option>regulars</option><option>grievance</option><option>menus</option><option>exits</option><option>apply</option><option>book</option><option>screen</option><option>lab</option><option>audit</option><option>harness</option></select>
         <select id="fOwner" style="max-width:120px" title="owning track — routes the finding in the inbox note"><option>world</option><option>game-systems</option><option>art</option><option>marketing</option></select>
         <select id="fStep" style="max-width:120px" title="finding ref — step inside the open scenario"></select>
+        <select id="fTmpl" style="max-width:130px" title="prefill from a boundary-break template — seeds the form, never logs by itself">
+          <option value="">template…</option>
+          <option value="possess">possession affordance</option>
+          <option value="realbiz">real business name</option>
+          <option value="price">price off PROPOSAL</option>
+          <option value="deny">deny wording</option>
+          <option value="aireport">AI-moderation surface</option>
+        </select>
         <input id="fTitle" placeholder="finding title">
       </div>
       <textarea id="fDetail" placeholder="what happened vs. what should happen"></textarea>
@@ -166,6 +198,8 @@
       <button class="primary" id="exJson">Export report (JSON)</button>
       <button id="exMd">Copy report (Markdown)</button>
       <button id="exInbox" title="blocker/major findings only — the §5 triage paste">Copy inbox note</button>
+      <button id="exHandoff" title="paste-ready block for the next tester — resume point, remaining counts, open findings">Copy handoff</button>
+      <button id="exSheet" title="Markdown run sheet for the filtered scenario list — the paper artifact for live facilitation">Copy run sheet</button>
       <button id="exImport">Import report…</button>
       <input type="file" id="exFile" accept=".json" style="display:none" multiple>
       <button class="danger" id="reset">Reset session</button>
@@ -184,6 +218,7 @@
 const SURF={
   feed:{file:"feed.html",name:"The Wire (lite)"},wire:{file:"wire.html",name:"The Wire (v3)"},
   request:{file:"request.html",name:"Requests"},
+  book:{file:"book.html",name:"The Book"},
   mod:{file:"mod-console.html",name:"Mod Console"},create:{file:"create.html",name:"Join the Cast (v4)"},
   lab:{file:"screen-lab.html",name:"Screen Lab"},
   board:{file:"board.html",name:"Housing & Jobs Board"},history:{file:"history.html",name:"The Archive (lite)"},
@@ -198,9 +233,17 @@ const SURF={
   market:{file:"market.html",name:"The Board's Metabolism"},
   storefront:{file:"storefront.html",name:"The Storefront"},
   regulars:{file:"regulars.html",name:"The House Knows"},
+  grievance:{file:"grievance.html",name:"The Ear"},
+  menus:{file:"menus.html",name:"The Board"},
+  exits:{file:"exit.html",name:"The Last Shift"},
   apply:{file:"apply.html",name:"The Tryout"},
+  supply:{file:"supply.html",name:"The Back Door"},
+  commute:{file:"commute.html",name:"The Getting There"},
+  permits:{file:"permit.html",name:"The Permit Wall"},
+  homes:{file:"homes.html",name:"The Fridge Door"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
+  flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
   harness:{file:"playtest.html",name:"Playtest Harness",tool:1,run:"this page — you're looking at it"}};
 const PTS=[
 {id:"PT1",title:"First watch — the free tier",min:10,persona:"brand-new spectator, no account, no credits",
@@ -1120,12 +1163,951 @@ const PTS=[
   ck:["regs gate detail: 'schema v58 · 20 venues · 49 regulars' — PASS",
     "A regular whose window never overlaps open hours, or a name_basis id not on staff, would FAIL — spot-check by reading the gate",
     "Harness gate: '53 scenarios · N checkpoints · key rw_playtest_v58'; 0 fail overall"]}]}
+,{id:"PT54",title:"The Ear — the grievance layer (jobs-housing, depth pass)",min:10,persona:"long-time spectator — checking whether the block has somewhere to take a wrong besides the feed",
+ goal:"Verify the v59 grievance layer: a five-rung informal ladder (aside → named ask → third ear → table → filing), one row per jobs.json employer and per registry building, two offstage parody orgs as rung 4, and feed shapes that print the door and never the name. Pairs with game-v11's dispute verbs — content only, no mechanics.",
+ surfaces:["grievance","directory","audit"],steps:[
+ {do:"Open grievance.html. Read the ladder strip, then click rung 4 (the table) and watch the card grid.",
+  exp:"Five rungs render with names and knowledge bounds. Selecting rung 4 dims every row whose live_rungs skip the table — MuleIt, Las Palmas, the library, SF General, Capp/Folsom buildings stay lit; solo gigs and owner-occupied 9102 dim.",
+  ck:["Ladder shows all five rungs with knowledge-bound lines ('the two people only' → 'public by paper')",
+    "Rung-4 filter dims rows without a table route and keeps rows that reach Calle Justa / The Rent Table",
+    "Header count line tracks the filter ('N at rung 4')"]},
+ {do:"Scan the work grid: Mudhaus, MuleIt, Auerbach, Busking. Then the housing grid: 9457 Guerrero vs 9102 Mission.",
+  exp:"Each card shows ear, live rungs (dot strip), archetype tags, usual fix, paper route, bounds, texture. MuleIt and busking have no ear — the table is rung 1 there. 9102 Mission's ladder collapses to rung 1: the tenant IS the landlord. 9457 carries the contested-raise texture as a ledger fact.",
+  ck:["24 work rows + 7 housing rows; every row has an ear line and a paper_route (or the honest 'none')",
+    "No card names a real SF business or prints a rent/check figure — bounds lines mark what doesn't travel",
+    "Org cards list Calle Justa (thu) and The Rent Table (wed, Vera at sign-in) with their covered archetypes"]},
+ {do:"Read the feed-shapes panel at the bottom, then open directory.html and find the two new org rows.",
+  exp:"Feed panel lists the housing lines ('a housing dispute filed — <address>'), the work proposal lines, and a struck-through never-list (names, amounts, who filed). The Directory shows Calle Justa and The Rent Table as offstage orgs with all affordances off.",
+  ck:["Every feed line shows a door placeholder — no name, amount, or rung leaks",
+    "Directory BIZ rows exist for both orgs at tier 'offstage' with card links",
+    "knowledge_bounds line is present: parties day-0 → hallway/shift → same street; table files never travel"]},
+ {do:"Run `node world/audit.js` and read the griev + biz + harness gates.",
+  exp:"The griev gate reports schema v59 — 24 work, 7 housing, 2 orgs — coverage/refs/surface-bar all green. Biz gate passes at v59 with 28 businesses. Harness gate passes at the v59 key.",
+  ck:["griev gate detail: 'schema v59 · 24 work · 7 housing · 2 orgs' — PASS",
+    "An employer missing a row, an archetype outside the catalog, or a banned word in a bounds field would FAIL — spot-check by reading the gate",
+    "Harness gate: '54 scenarios · N checkpoints · key rw_playtest_v59'; 0 fail overall"]}]}
+,{id:"PT55",title:"The Counter — request UI live seam, pre-flight check, receipts (v60)",min:10,persona:"first-time payer — wants to know exactly what filing costs and what a no looks like, before spending",
+ goal:"Verify the v60 request-UI pass: the __aiBridge live seam (mirror/live badge, capability-checked gsRequestSubmit write path), 'check wording first — free' pre-flight screen (same engine, before money moves, never a gate), and the per-request receipt drawer (declared terms · intent · charge · claim · trail · rq-<id>).",
+ surfaces:["request","audit"],steps:[
+ {do:"Open request.html. Read the header badge, then click 'check wording first — free' with a benign intent ('Dana takes the long way through the park').",
+  exp:"Off the game build the badge reads 'mirror — local pipeline' (on the bus it would read 'live · __aiBridge'). The pre-flight line shows 'screens clean' in green — no wallet change, no feed line.",
+  ck:["Badge reads 'mirror — local pipeline' and sits in the header next to the wallet",
+    "Pre-flight pass copy: 'screens clean — nothing in the text trips the intent screen.'",
+    "Balance and feed are untouched by the check — screening is free"]},
+ {do:"Type 'Get Jules fired from Mudhaus — she deserves a setback.' and check wording again. Then submit the request anyway.",
+  exp:"The preview denies with code harm-targeting and says 'Screening is free; file anyway and it refunds in full.' — and submit stays clickable (the preview informs, never gates). Filing runs the real screen: denied, upfront charge refunded in the ledger.",
+  ck:["Deny preview shows the code (harm-targeting) plus the neutral player message — never an accusation",
+    "Submit is NOT disabled by a failed preview — not a shadow ban",
+    "On file, the pipeline denies, the ledger shows charge out + deny refund, and the card gains an appeal affordance"]},
+ {do:"File a clean request (possess Dana, 15 min). As it runs, click the card header and read the receipt.",
+  exp:"The card expands into a receipt: declared action · target · duration, the filed intent text, the upfront charge, the claim key, and a timestamped trail that grows with each pipeline stage — ending in 'rq-<id> — mirrors the public feed lines'.",
+  ck:["Receipt shows declared terms, intent text, 'charged upfront' amount, and claim key (char:h01)",
+    "Trail lines append at each transition — declared → screened → running → handoff",
+    "Receipt ends with the rq-<id> ref that matches the request on the public feed"]},
+ {do:"Run `node world/audit.js` and read the request + harness gates.",
+  exp:"The request gate reports 'seam wired' and passes the v60 checks: bridge detect strings, capability-guarded gsRequestSubmit, pre-flight copy, receipt affordances. Harness gate reports 55 scenarios at the v60 key.",
+  ck:["request gate detail ends 'seam wired' — PASS",
+    "Removing the LIVE && BRIDGE. guard, the preflight copy, or the rq- ref would FAIL — spot-check by reading the gate",
+    "Harness gate: '55 scenarios · N checkpoints · key rw_playtest_v60'; 0 fail overall"]}]}
+,{id:"PT56",title:"The Director's rail — spectator-feed camera preview, replay scrub, live receipt (v61)",min:10,persona:"lean-back spectator — heard there's a director mode, wants to know what watching-with-intent feels like before it costs anything",
+ goal:"Verify the v61 spectator-feed pass: the director preview bar (named camera presets + follow-cam marking, never filtering, 'public whereabouts only'), the replay scrub over the wire's own events, the capability-checked live seam (gsExplainRequest live record, gsOccupancy venue cards), and the honesty rules — no purchase affordance on the page, the pass is only pointed at the Counter.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open wire.html and click 'Preview' in the left rail (or press v). Read the bar.",
+  exp:"A gold-bordered 'director preview' bar opens under the day bar: cam preset chips, a follow-cam select, a replay slider at 'live', and the pass-pointer footer naming 10 cr / 30 min 'filed at the Counter'. The wire itself is unchanged — nothing is gated.",
+  ck:["Bar reads 'director preview' + 'view-layer only — cameras watch the wire, never the inside of a home'",
+    "Footer names the pass plainly (10 cr / 30 min) and links to request.html — there is no buy/pay button anywhere on the page",
+    "The bar survives reload via rw_wire_cam and #dir=1 deep-links it open"]},
+ {do:"Click the 'park lawn' preset, then pick a main in the follow-cam select (e.g. Mars Delgado).",
+  exp:"Wire rows in the camera's venue set gain a gold edge; rows whose who/mentions hit the follow-cam do too. The stream is MARKED, never filtered — every event still renders. Follow-cam options all carry 'public whereabouts only'.",
+  ck:["Preset 'park lawn' edges park rows gold; 'all cams' clears it",
+    "Follow-cam on Mars edges her move rows (and mention rows) gold",
+    "No event disappears under any preset or follow-cam — a camera marks, never filters"]},
+ {do:"Drag the replay slider left, past mid-day. Read the replay card, then drag back to the right edge.",
+  exp:"The card reads 'the wire at HH:MM — N events by then' with the newest rows at-or-before that minute, verbatim from the stream, ending 'the feed, replayed — the world itself kept running.' At the right edge the label returns to 'live' and the card hides.",
+  ck:["Scrubbed card shows real wire rows only — no reconstructed or guessed content",
+    "Label flips between fmt(HH:MM) and 'live' honestly at the edge",
+    "esc order: esc closes the director bar before clearing a selection"]},
+ {do:"Run `node world/audit.js` and read the wire + harness gates.",
+  exp:"The wire gate passes the v61 checks: dirbar/camps/fcamsel/scrub ids, gsExplainRequest + gsOccupancy capability reads, 'public whereabouts only', 'filed at', and the feed.json spectator_ui_v61 contract keys. No button on the page offers a world-touching verb. Harness gate reports 56 scenarios at the v61 key.",
+  ck:["wire gate detail ends 'v61 keys: director_bar,cam_presets,...' — PASS",
+    "A purchase-affordance button on wire.html would FAIL the no-world-verb scan — spot-check by reading the gate",
+    "Harness gate: '56 scenarios · N checkpoints · key rw_playtest_v61'; 0 fail overall"]}]}
+,{id:"PT57",title:"The Archive v5 — the reading layer (shelf, seen together, venue rhythm) (v62)",min:10,persona:"returning spectator — keeps losing good records in the week and wants a way to hold them without an account",
+ goal:"Verify the v62 archive pass: the device-local shelf (pin/unpin from any record, rw_archive_shelf persistence, copy-shelf transcript with the source badge, honest orphan count), the seen-together pair view (structural co-presence, never a relationship claim), person 'seen with' chips + first/latest jumps, and the venue rhythm histogram — all projections, nothing world-touching.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open archive.html, select any record, and hit 'keep on the shelf'; pin two more from different days. Then open 'your shelf' from the Browse rail.",
+  exp:"The record's button flips to 'on the shelf — take off'. The shelf view lists all three pins grouped by day, headed 'the shelf lives in this browser — the archive doesn't remember you; nothing is sent anywhere'.",
+  ck:["Shelf header carries the device-only honesty line verbatim",
+    "Pins persist across reload (localStorage rw_archive_shelf); the summary strip counts pinned records",
+    "'copy shelf' produces a transcript headed 'your shelf (demo archive)' — the badge line travels with the paste"]},
+ {do:"Open 'seen together' and pick Mars Delgado + Reyes (pickA/pickB). Then pick the same name twice.",
+  exp:"The shared trail shows only events where both ids appear in who/mentions, headed 'public co-presence — the wire's own rows, never a claim about the relationship'. Same-name selection redirects to the person view explanation. The permalink writes #v=pair&a=C1&b=A01.",
+  ck:["Shared rows are structural (who/mentions) — spot-check one row's record for both names",
+    "No text anywhere asserts a relationship — the head copy disclaims it",
+    "#v=pair&a=<id>&b=<id> deep-links back to the same trail on reload"]},
+ {do:"Open by person → Jules Park. Read the jump chips and the 'seen with' row; click a seen-with chip.",
+  exp:"The head gains 'first on record — HH:MM · day' and 'latest — HH:MM · day' chips that select the trail's ends, plus 'seen with — public rows only:' chips for the top co-occurring names (×N counted). Clicking one opens the pair view for Jules + that name.",
+  ck:["First/latest chips land on the correct end records and mark them in the detail panel",
+    "Seen-with counts match a manual recount of co-occurrences in the trail",
+    "A person with no public record still shows the empty-state copy — nothing inferred"]},
+ {do:"Open by venue → Dolores Park. Read the rhythm strip, then run `node world/audit.js` and read the archive + harness gates.",
+  exp:"'The corner's rhythm — counted across the whole record, not a promise' renders a 24-hour histogram of park tags (tooltips 'HH:00 — N across the record'), non-interactive. The archive gate reports 'schema archive-v5' with the v62 affordance checks green; harness gate reports 57 scenarios at the v62 key.",
+  ck:["Rhythm bars carry no click affordance — they count, they don't promise",
+    "archive gate passes: shelf/pair/rhythm marks + archive_ui_v62 contract block present",
+    "Harness gate: '57 scenarios · N checkpoints · key rw_playtest_v62'; 0 fail overall"]}]}
+,{id:"PT58",title:"Join the Cast v5 — the queue & keys layer (v63)",min:12,persona:"returning player — started a hire last night, closed the laptop on the review stage, wants to know the application didn't evaporate",
+ goal:"Verify the v63 creation pass: the pending application keeps its place across a closed page (rw_create_app_v24 queue card, submitted time, nothing-charged-while-pending honesty), withdraw is a real never-billed path that preserves the draft, the 'goes by' block name is optional + screened + collision-checked, and the keys card gives day-one logistics without scripting the day.",
+ surfaces:["create","audit"],steps:[
+ {do:"Fill a hire through step 6 (pick a job with wages and the 9457 Guerrero studio), set an optional 'goes by' — try 'Mars' first, then a free one. Sign & hire, and the moment 'Human review' shows waiting, close the tab. Reopen create.html.",
+  exp:"'Mars' as a block name reads 'taken — someone on the block already answers to it'; a free name reads 'free — the neighbors will still do what they do'. On reopen, instead of the wizard: the queue card — applicant name, submitted HH:MM, 'human review — naming strings always get eyes', 'nothing — billed on approval only, never while pending'.",
+  ck:["Queue card heads 'Application in review — it keeps its place' and states 'You can close this page'",
+    "No charge line claims anything but 'billed on approval only' — 500 cr has NOT left the wallet",
+    "goes_by is screened text: a collision denies with name-collision copy, and it rides the same RWScreen call as name/bio/arrival"]},
+ {do:"Reload once more (or wait ~45 s). Read the resolved pipeline and the cards after it.",
+  exp:"The demo reviewer clears the queue: pipeline shows the screen pass + 'approved · demo auto-reviewer — the queue kept its place', then charge/register/lease/landing. After the briefing, 'Day one — the keys' renders: key pickup at the landlord's office (named for the Guerrero buildings), mailbox card, first rent-book entry, first shift, and the exact wire line including the goes-by name.",
+  ck:["Keys card is logistics only — 'Logistics, not a script' footer present; KEYS/MAILBOX/RENT BOOK/FIRST SHIFT/THE WIRE rows all render",
+    "Registry entry carries 'goes by' when set; the cast feed line carries it too",
+    "rw_create_app_v24 is cleared after approval — a second reload does NOT resurrect the queue"]},
+ {do:"Start another hire, sign, and this time hit 'withdraw the application — never billed' on the queue card (reopen the page while it's pending if the desk already cleared it).",
+  exp:"Withdrawal clears the pending state, posts 'hire — application \"<name>\" withdrawn · no charge' to the feed, keeps the draft fields on step 6, and toasts that nothing was billed.",
+  ck:["Withdraw posts a public feed line — hidden exits don't exist here",
+    "Wallet unchanged through submit+withdraw; the draft chip still offers discard",
+    "Resubmitting after withdraw lands with the different-reviewer note intact"]},
+ {do:"Run `node world/audit.js` and read the creation + harness gates.",
+  exp:"Creation gate passes the v63 marks: pending_queue + day_one_keys contract blocks, rw_create_app_v24 key, goes_by on the screened surface, queue/keys copy strings. Harness gate reports 58 scenarios at the v63 key.",
+  ck:["Creation gate detail reports schema v24 + draft rw_create_draft_v24",
+    "Harness gate: '58 scenarios · N checkpoints · key rw_playtest_v63'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}
+,{id:"PT59",title:"Mod Console v3 — the roster & record layer (v64)",min:10,persona:"shift reviewer — mid-queue, wants to know which accounts are carrying flag weight and whether the session's decisions will survive the merge",
+ goal:"Verify the v64 moderation pass: the flag roster gives whole-book account standing (tiers, decay, owner docket at score 9+, internal-only rule copy), and 'export ledger records' turns session decisions into canonical mod_decision records with neutral feed lines.",
+ surfaces:["mod","audit"],steps:[
+ {do:"Open mod-console.html and hit 'flag roster' in the header metrics. Read the panel top to bottom.",
+  exp:"Every account carrying flag weight lists sorted by rolling score — wren_404 (score 9) leads inside a red-bordered 'Owner docket' block reading 'account review — owner decision', with its full flag log inline. Each card shows active tier + effect, next threshold, next decay date (−1 per clean 30 d from the last flag entry), and the log tail. The header carries 'internal only — never shown publicly, never monetized around'.",
+  ck:["Owner docket block renders at top with 'account review — owner decision' and 'The console recommends; it never executes an account action'",
+    "wren_404's next-decay date is 30 days after its last flag_log entry (2026-09-20 → 2026-10-20)",
+    "Header rule copy states flags are 'internal only — never shown publicly, never monetized around'"]},
+ {do:"Pick rq-1036 (legal lane, r0ok) and hit 'Confirm legal flag'. Reopen the flag roster.",
+  exp:"The audit line reads 'LEGAL CONFIRMED — killed, account flagged +3, owner notified, ledger legal-deny. Public: “request not approved”.' plus a 'FLAG TIER 6 REACHED: request privileges suspended 72 h' callout (r0ok was at 4). The roster re-sorts: r0ok now shows score 7 with the tier-6 effect line.",
+  ck:["Tier-crossing callout appears inline in the audit outcome, not as a separate prompt",
+    "Roster reflects the bump immediately — r0ok score 7, 'TIER 6: request privileges suspended 72 h'",
+    "Legal confirm keeps public wording identical to a normal deny — no spectacle"]},
+ {do:"Deny rq-1044 (confirm the pre-selected admin-domain code), approve rq-1042, then hit 'export ledger records' under the audit log.",
+  exp:"The textarea fills with a JSON object: a records array where each entry is {rec:'mod_decision', ts, reviewer, request_id, player, decision, code, flag_w, appeal_of, feed_line} — the deny carries code 'admin-domain', flag_w 1, feed_line 'request not approved'; the approve carries 'request approved (attributed)'. The seeded 30-day baseline is NOT in the records — the note field says it stays aggregate.",
+  ck:["Every record has rec 'mod_decision' and a feed_line drawn from the taxonomy, never reviewer free text",
+    "Deny and legal records both show feed_line 'request not approved' — the reason code is metadata, not spectacle",
+    "The export covers session decisions only; the PRIOR baseline stays aggregate"]},
+ {do:"Run `node world/audit.js` and read the mod + harness gates.",
+  exp:"The mod gate passes including the v64 affordance marks (flag roster, owner docket, never-monetized copy, exportLedger, mod_decision record shape); its detail line still reports the taxonomy count, 94 mirrored corpus cases, engine v50, whitelist cards. Harness gate reports 59 scenarios at the v64 key.",
+  ck:["Mod gate: 0 fail; v64 marks all present in mod-console.html",
+    "Harness gate: '59 scenarios · N checkpoints · key rw_playtest_v64'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsAdmin) appears on mod-console.html — internal surfaces stay read-only"]}]}
+,{id:"PT60",title:"The harness round three — finding templates, hide-finished, handoff card (v65)",min:10,
+ persona:"facilitator mid-cohort — wants faster honest logging and a clean pass to the next tester",
+ goal:"Verify the v65 harness pass: the finding-template dropdown seeds severity + wording for the five boundary breaks without ever logging on its own, 'hide finished' clears fully-verdicted scenarios from the rail, and 'Copy handoff' emits a paste-ready resume block for the next tester.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Open the 'template…' dropdown in the findings form and pick 'possession affordance'. Read what it wrote, then pick each of the other four templates in turn.",
+  exp:"Each pick flips severity to the boundary-appropriate value (blocker for possession / real-biz / AI-moderation, major for price / deny wording) and seeds title + detail + repro with the locked-rule wording. Nothing is logged — 'Log finding' is still required, and the seeded text stays editable.",
+  ck:["Template prefills severity + title + detail + repro but never logs — the form still waits for 'Log finding'",
+    "All five templates map to a locked rule (possession ban, parody names, §2 PROPOSAL prices, deny wording, §11 moderation scope)",
+    "Seeded text is editable before logging — templates seed, they don't dictate"]},
+ {do:"Verdict every checkpoint of one scenario (any short one), then tick 'hide finished' in the rail header. Untick it, then tick it alongside 'smoke set only'.",
+  exp:"The fully-verdicted scenario leaves the rail and the progress line's denominator narrows honestly; a scenario with even one unverdicted checkpoint stays. Both filters compose — smoke + hide finished shows only unfinished smoke items. The setting survives a reload.",
+  ck:["hide finished drops only scenarios where every checkpoint carries a verdict",
+    "It composes with the smoke filter — neither filter eats the other's meaning",
+    "The setting persists across reload (session state, rw_playtest_v65)"]},
+ {do:"Log one nit finding (any wording), then hit 'Copy handoff' and paste it into a scratch note.",
+  exp:"The clipboard holds a '## [world-playtest-handoff | date | tester (role)]' block: build + session minutes + 'resume at PT#' naming the open scenario, a remaining list of per-scenario unverdicted counts matching the rail's N/M math, an open-findings list carrying every severity (not just blocker/major — that's the inbox note's job), and ttfr when set.",
+  ck:["Handoff names the exact scenario to resume at and never invents a verdict",
+    "Remaining counts match the rail's N/M math exactly",
+    "Open findings list all severities with refs and owner routing"]},
+ {do:"Run `node world/audit.js` and read the harness gate.",
+  exp:"The harness gate passes at key rw_playtest_v65 / build 'world v65 local' with the v65 marks present (fTmpl, hideDone, exHandoff, handoff writer) and reports 60 scenarios; the mirror gate confirms the PT60 hand-sync.",
+  ck:["Harness gate: '60 scenarios · N checkpoints · key rw_playtest_v65'; 0 fail overall",
+    "A missing fTmpl / hideDone / exHandoff id or the old LS key would FAIL — spot-check",
+    "Mirror gate reports inline == contract after the PT60 hand-sync"]}]}
+,{id:"PT61",title:"Drama board v66 — interference matrix, suspicion ceilings, comedy duty, nursery",min:10,
+ persona:"showrunner-side reviewer — wants the v66 direction layer verified as permission structures, not scripts",
+ goal:"Verify the v66 drama-direction pass: drama.json drama-v4 carries the fuse interference matrix (all 15 pairs), per-seed suspicion ceilings, the comedy-duty roster, and the residue nursery; drama.html renders all four sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§31–35 against the §19 legality checklist. For each new table row, name which of the four legal forms it is.",
+  exp:"Every row resolves to a permission, ceiling, or weight — interference relations are permissions ('may share a window', never 'will'), suspicion ceilings bound what the audience may conclude, comedy duty names carriers and forbidden registers, nursery candidates are dormant-only. No row predicts an outcome the feed could falsify in a week.",
+  ck:["All 15 unordered fuse pairs carry exactly one relation; only F1's four edges are interlocked; F2·F3 is the single masked pair",
+    "Each suspicion ceiling is phrased as what the audience may suspect — the brink rung never lets a viewer state the fact",
+    "Comedy duty's only mechanism is the comedy_drought review flag — a posture note, never a scheduled joke",
+    "Nursery candidates N1–N4 are dormant-only and each names what promotion would need (bible-authored fact, never backfilled)"]},
+ {do:"Open drama.html (file://) and scroll the four new sections: interference matrix, suspicion calibration, comedy duty, residue nursery.",
+  exp:"The interference table renders 15 color-coded rows (interlocked/adjacent/independent/masked); calibration shows 10 seeds × 3 ceilings; comedy shows 6 fuses with carriers + never; the nursery lists N1–N4 with parent fuses. The pressure catalog table now runs P-01–P-18 and the drift-review list carries the comedy-texture step.",
+  ck:["All four new tables render populated — no empty tbody, no console errors",
+    "Interference rows are relation-colored and the masked pair (F2·F3) reads as a ceiling drop, not a trigger",
+    "P-16/P-17/P-18 each name a producing system that already exists (lease cadence, weekend crowds, posted hours)"]},
+ {do:"Run `node world/audit.js` and read the drama + harness gates.",
+  exp:"The drama gate passes the v66 checks: pair coverage 15/15, relations in enum, per-seed ceilings complete, per-fuse comedy rows, nursery parent-fuse validity, comedy step in drift_review, and html mirror counts (INTERF/SUSP/COMEDY/NURSERY). Harness gate reports 61 scenarios at the v66 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 18 pressure rows · schema drama-v4'",
+    "A missing pair, an off-enum relation, or a seed without all three ceilings would FAIL — spot-check",
+    "Harness gate: '61 scenarios · N checkpoints · key rw_playtest_v66'; 0 fail overall"]}]}
+,{id:"PT62",title:"Onboarding v5 — the eligibility layer (age bands + the free-credit path)",min:12,
+ persona:"first-session tester toggling account bands — wants proof the funnel never punishes the watching-only account",
+ goal:"Verify the v67 onboarding pass: a one-question age band (S2a) fronts every paid stage but never the feed or the tour; under-13 renders 'the watching account' (S3u) with no packs, no asks, no ads and honestly relabeled checklist items; 13–17 and rather-not-say carry the spending-limits disclosure with no ads affordance and no invented cap figure; 18+ sees the plan §2.7 rewarded path verbatim (2 cr, 5/day, opt-in, never in the stream).",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§30–36 and onboarding.json's age_band / rewarded_ads blocks against monetization plan §2.7 and §6.",
+  exp:"Every claim matches the plan verbatim — 2 cr per view, 5/day cap, opt-in only, never pre-roll/mid-session/inside the sim view, adults only; under-13 spectator-only; the under-18 disclosure states that limits apply without quoting a figure the plan never set.",
+  ck:["Four bands declared (u13 / teen / adult / na) and the band gates money surfaces only — never the feed, tour, or free cards",
+    "rewarded_ads contract reads rate_cr 2, daily_cap 5, adult-band-only eligibility",
+    "No minor spend-cap number anywhere — the disclosure says limits apply, full stop"]},
+ {do:"Open onboarding.html (file://), reset onboarding, walk: fork → tour → handle → the band card. Pick 'Under 13'.",
+  exp:"The wallet card is replaced by 'The watching account' — no pack ladder, no top-up, no ads line. The checklist's money items relabel 'spectator account — watching only' without failure styling. S5 shows no Join the Cast button. The feed and tour are identical throughout.",
+  ck:["S3u copy reads as the whole product — 'nothing here is missing', never a restriction",
+    "Paid stages unreachable: any path to S3/S4 lands on S3u; paid handlers bail with a neutral toast",
+    "'Wrong band? Fix it' returns to S2a — correction is free, no confirm-shame"]},
+ {do:"Reset, retake the flow picking '18 or older', reach the wallet card, click 'watch one (demo)'.",
+  exp:"The adult wallet carries the §2.7 line verbatim — 'a sponsored message earns 2 cr — up to 5 a day, opt-in from this card only. Never in the stream.' Each click credits +2 cr with an N/5 counter; at five the affordance is replaced by the cap line, no countdown. Repeat with '13–17' and 'Rather not say': both show the spending-limits note and neither shows the ads line.",
+  ck:["Ads affordance exists only on the adult band — teen/na cards render the limits disclosure instead",
+    "Counter is honest (N/5 today) and the cap message carries no urgency",
+    "Demo top-up and all guided asks still work on teen/na/adult bands"]},
+ {do:"Run `node world/audit.js` and read the onboard + harness gates.",
+  exp:"The onboard gate passes the v67 checks: all ten honesty strings, the structural adult-band guard on the ads affordance, the 5/day cap enforcement, normalizeStage present, all four band handlers wired, and the rewarded_ads contract not drifting from §2.7. Harness gate reports 62 scenarios at the v67 key.",
+  ck:["Onboard gate: 0 fail; detail reports 'schema v67 · 7 beats · key rw_onboard_v67'",
+    "An ungated ads button, a quoted minor cap, or a missing band option would FAIL — spot-check",
+    "Harness gate: '62 scenarios · N checkpoints · key rw_playtest_v67'; 0 fail overall"]}]}
+,{id:"PT63",title:"Lease flow v68 — the hand-off layer (guarantor, service, walkthrough, receipts)",min:14,
+ persona:"tenant-side tester who has been denied an apartment before — wants proof the file answers, not vibes",
+ goal:"Verify the v68 lease pass: a screening near-miss (income 2.0–2.5× rent) offers a guarantor path instead of a flat decline — the co-signer is verified on the same checklist, liable for rent + deposit, never a tenant, never a feed event; notices 2–4 carry a service record and their windows run from service, not the posting; every move-out writes an itemized walkthrough doc that deductions must cite; any payment can issue a dated receipt that agrees with the ledger.",
+ surfaces:["lease","audit"],steps:[
+ {do:"Read lease-ui.md §§36–41 and leases.json's screening.guarantor / notices service / deposits.walkthrough / receipts blocks.",
+  exp:"The near-miss band is 2.0–2.5× with a guarantor path; below 2.0× declines privately. Notices 2–4 record posted-to-door + mailed service and run their windows from it. The walkthrough is written on all three exits and every deduction cites a walkthrough line. Receipts are tenant-file docs that must agree with the ledger. No new feed vocabulary anywhere.",
+  ck:["guarantor.near_miss_band reads 2.0–2.5×; under_floor declines privately; liability is rent + deposit, never a tenant",
+    "notices n2/n3/NF carry a service clause; n1 (late reminder) stays informal",
+    "feed_wording.never still bars amounts/reasons — nothing v68 adds a template"]},
+ {do:"Open lease.html (file://). As tenant h01 (income $4,600), apply to 9418-B ($2,100 — needs $5,250). Switch to admin and run screening.",
+  exp:"Screening lands a near-miss doc — income clears the floor ($4,200) but not 2.5×; the file asks for a guarantor, and re-running screening without one waits. Back as tenant, 'Attach guarantor — M. Okafor' writes the doc; admin re-screens to approved; signing prorates day 6 as before. Then apply to 9127-A ($1,300 — needs $3,250): clean approve, no guarantor asked.",
+  ck:["Near-miss doc names the floor and the published multiple — no invented criteria",
+    "Guarantor attaches as a file doc; the wire gains nothing (guarantors are never feed events)",
+    "9418-B signs atomic after approval; 9127-A approves clean on the same checklist"]},
+ {do:"On h01's own lease (9457-2, balance outstanding): as admin, post notices through formal notice and cure-or-quit; then give 30-day notice as tenant; as admin, return the deposit itemized; then request a receipt.",
+  exp:"The formal notice and cure-or-quit docs carry 'Served: posted to door + mailed' lines, and the cure-or-quit states 'cure by day N+14' with the deadline visible in the detail. Notice posts the walkthrough doc (latch broken — new; floors worn — ordinary wear). The deposit return cites the walkthrough finding for the latch deduction and still refuses the pre-existing repaint claim. The receipt doc totals payments and matches the ledger.",
+  ck:["Service dates on both docs; 'the clock runs from service, not the posting'",
+    "Walkthrough lines itemized against the move-in record; deduction cites 'walkthrough finding'",
+    "Receipt reads 'same numbers as the ledger' and the amount matches the payment lines"]},
+ {do:"Run `node world/audit.js` and read the lease + harness gates.",
+  exp:"The lease gate passes the v68 checks: storage key rw_lease_v68, guarantor/near-miss/service/walkthrough/receipt surfaces, notices 2–3 service records in the JSON, attachGuar never posting to the feed, screenApp's guarantor branch. Harness gate reports 63 scenarios at the v68 key.",
+  ck:["Lease gate: 0 fail; detail reports 'schema v68 · 13 states · key rw_lease_v68'",
+    "A guarantor feed line or a deduction without a walkthrough citation would FAIL — spot-check",
+    "Harness gate: '63 scenarios · N checkpoints · key rw_playtest_v68'; 0 fail overall"]}]}
+,{id:"PT64",title:"Thin-AI fallback v69 — the long-outage layer (wake parity, rotation, scene-yield, ask classes, repetition guard, blackout)",min:14,
+ persona:"ops-minded spectator who has watched a live service degrade before — wants proof the seam never shows, even at 0%",
+ goal:"Verify the v69 thin-AI pass: a wake or recovery inherits the day (place/ledger/needs continuity — the first beat continues the handoff note's doing); under a sustained brownout the deg_min outage-credit ledger lets a dwell-eligible bench swap up with a peer within Δ≤1 salience (a swap is not a recovery — the pawn stepping down starts a fresh dwell); a degraded main in a live scene yields (phrase-kit only, reads as the quiet one tonight); co-star asks resolve to a closed taxonomy (be-present / hold-space / walk-with / carry-item — no class, no accept); the phrase kit never repeats inside the hour or echoes consecutive lines; and 0% capacity is a quiet day, not an outage screen.",
+ surfaces:["thinai", "audit"],steps:[
+ {do:"Read thin-ai.md §§29–35 and thinai.json's wake_parity / outage_rotation / scene_yield / blackout_floor / co_star.ask_classes / phrase_kit.repetition_guard blocks.",
+  exp:"Wake parity is four continuities (place, ledger, needs, temporal) with the test 'if a wake feels like a wake, the layer failed'. Rotation keys on a rolling 24-h deg_min ledger with tolerance Δ≤1 and the rule 'a swap is not a recovery'. Scene-yield is posture only — phrase-kit, never initiates, nothing persists. The ask taxonomy is closed at four classes. The blackout floor is 0% and reads 'a quiet day'.",
+  ck:["outage_rotation.tolerance is 1 and swap_is_not_recovery is stated; deg_min is internal, never feed",
+    "All four ask classes carry bounds + veto; closed_taxonomy says thin never improvises a class",
+    "blackout_floor.still_true keeps routines/reflexes/wages running and the feed silent"]},
+ {do:"Open thinai.html (file://). Drive a long brownout: Service 55%, then step +1 h repeatedly until a degraded main's dwell elapses and deg_min diverges; watch for a rotation swap. Toggle 'Scene forms at C6' while she is degraded.",
+  exp:"Degradation walks one step per beat; deg_min accrues 15/tick only on degraded mains and shows in the coverage panel. Once a bench is dwell-eligible and ahead on credit within Δ≤1 salience, a 'rotation swap' seam line fires — the pawn stepping down starts a fresh dwell. With the scene flag on a degraded C6, her card shows the scene-yield chip and the scene adds salience while it lasts.",
+  ck:["Coverage panel shows 'outage credit — deg_min' per main; swap logs 'a swap is not a recovery' and a fresh dwell",
+    "Degraded C6 under a scene shows 'scene-yield — phrase-kit only, the quiet one tonight'",
+    "No wire/feed line appears for degrade, swap, yield, or recovery — seam-only"]},
+ {do:"Exercise wake parity and the kit: 'Owner logs off', linger, drop; 'Owner returns'; press A01 four times inside the hour, then again after +1 h; fire 'Co-star A01 · cycle classes' four times at different hours; then 'Service 0% · blackout' and step the clock.",
+  exp:"Wake logs 'first beat back' continuing the note's doing. Bubbles never repeat a line inside the hour and never echo the last line; at 3/hr cap, silence. Co-star classes cycle: be-present/hold-space/carry-item accept on-shift inside cell bounds, walk-with only fits the evening cell — declines wire 'resolved · declined (50% auto-refund)'. At 0% both mains degrade stepwise, the panel reads 'blackout floor — a quiet day, not an outage screen', routines/wages/autopay keep running, and the feed shows nothing.",
+  ck:["'wake parity — first beat back' seam line cites the note's doing; needs/ledger carry over",
+    "Press A01: no line repeats within the hour; after the cap, silence lines only",
+    "At least one co-star class declines with 'the taxonomy is closed'; blackout converges one step per beat with zero feed lines"]},
+ {do:"Run `node world/audit.js` and read the thinai + harness gates.",
+  exp:"The thinai gate passes the v69 checks: schema v69, key rw_thinai_v69, the four new blocks, four ask classes with bounds+veto, repetition guard, demo events service_0 + scene_c6, and all MUST69 copy in the html. Harness gate reports 64 scenarios at the v69 key.",
+  ck:["Thinai gate: 0 fail; detail reports 'schema v69 · 4 pawns · key rw_thinai_v69'",
+    "A wire() line outside 'request — / weather — ' vocabulary would FAIL — spot-check",
+    "Harness gate: '64 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}
+,{id:"PT65",title:"The Board — the menu layer (parody businesses, commerce substrate)",min:10,
+ persona:"long-time spectator — checking whether the counters sell things a stranger could order, at prices a ledger could keep",
+ goal:"Verify the v72 menu layer: every door-having venue carries an orderable catalog (item, game-dollar price or 'ask', cat, when, sig, counter-voice note); doors only; ≥4 items and ≥1 signature per venue; board-price agreement with storefronts.json; no credit figure or USD framing anywhere.",
+ surfaces:["menus","storefront","audit"],steps:[
+ {do:"Open menus.html (file://). Read the venue list, then scrub the clock through a day and toggle weather/day.",
+  exp:"20 cards — exactly the anchor + street tiers. Each shows items with prices in game dollars or 'ask', a ★ signature item, category chips, and when-conditioned items dimming/appearing as conditions resolve (same vocabulary as storefront.html).",
+  ck:["20 menu cards; Mudhaus lists drip/latte/pour-over matching its registry prices",
+    "Every card carries ≥4 items and exactly the ★ marks its signature order",
+    "Conditional items (heat/rain/sat/late) shift with the scrubber — conditions, never scheduled scripts"]},
+ {do:"Check the doors-only contract and read three 'ask'-priced and one 0-price item.",
+  exp:"Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, Calle Justa, The Rent Table, La Esperanza, and the spares carry no menu — an app has no catalog, a notebook has no prices. 'Ask' items read as market-priced/verbal; a 0 item is something the house gives away on purpose (tasting square, free box, open-mic slot).",
+  ck:["No card exists for any offstage or reserved business",
+    "No item name or note resolves a secret, mentions the blog/loan, or uses credit/USD framing — spot-read three",
+    "Notes are counter voice, ≤ ~140 chars — surface-safe like regulars copy"]},
+ {do:"Cross-check board agreement: open storefront.html beside menus.html and compare any item named on a venue's chalk board.",
+  exp:"Any menu item named on a storefront board carries the same price in both places — the chalk and the ledger never disagree. Boards may carry jokes/warnings/'ask' lines the menu doesn't; menus may list items the board doesn't.",
+  ck:["Spot-check 3 board lines with prices — each matching menu item holds the identical number",
+    "A board-only line (joke, warning) is fine; a menu item named on the board at a different price is a FAIL"]},
+ {do:"Run `node world/audit.js` and read the menus + biz + harness gates.",
+  exp:"The menus gate reports schema v72 — 20 menus, 101 items — with doors-only coverage, cat/when enum checks, sig presence, banned-vocab sweep, board-price agreement, and the MENUS inline mirror deep-compared. Biz gate still passes at v72; harness gate reports 65 scenarios at the v69 key.",
+  ck:["menus gate detail: 'schema v72 · 20 menus · 101 items' — PASS",
+    "A menu on an offstage venue, a missing signature, or a board/menu price mismatch would FAIL — spot-check the gate code",
+    "Harness gate: '65 scenarios · N checkpoints · key rw_playtest_v69'; 0 fail overall"]}]}
+,{id:"PT66",title:"The Last Shift — the exit layer (job departures + unit turnover)",min:10,
+ persona:"long-time spectator — checking whether the block knows how things end, not just how they start",
+ goal:"Verify the v73 exit layer: every jobs.json employer carries an exit row (notice norm, who takes the news, last-shift texture, reference worth, what stays); every housing.json building + the ambient ring carries a turnover row (30-day notice + 21-day deposit clock on registry units, off-registry empties by construction); feed shapes print the door, never the name; game dollars only.",
+ surfaces:["exits","apply","audit"],steps:[
+ {do:"Open exit.html (file://). Read the work cards with the 'housing' side off, then toggle sides and the noticed/no-notice kind filter.",
+  exp:"24 work cards — one per board employer. Each shows a notice norm in days (0 where there's no boss to tell: MuleIt, busking, hemming), who takes the news and where, a last-shift texture line, what a reference is worth, and what stays behind.",
+  ck:["24 work cards; Mudhaus's row reads Marisol/counter-before-9 and El Farolote's reads Tomás/kitchen-after-lunch",
+    "notice_days 0 rows are exactly the boss-less jobs — app, corner, word-of-mouth",
+    "The kind filter partitions cleanly: 'no-notice' shows only 0-day rows"]},
+ {do:"Toggle to housing. Read the seven cards, then cross-check two against housing.json and the grievance layer's ear rows.",
+  exp:"6 registry buildings + the ambient ring. Registry units carry 30-day notice and the 21-day deposit clock; 9102 Mission (owner-occupied) and the ring are empty by construction — kept unit, off-registry churn, no notice or deposit rows.",
+  ck:["9418/9457 Guerrero read owner-direct turnover through Victor's Tuesday process; Capp/Folsom read management-mailbox",
+    "9263 Geneva reads as a family-decision-first vacancy — the informal share leaves no paper",
+    "9102 Mission has null notice/deposit and a 'kept unit' texture — never a turnover"]},
+ {do:"Read the feed-shapes panel at the top and compare with grievances.json's contract.",
+  exp:"Work exits render as venue doors (a job opening posted / a card came down / a new face behind the counter — <venue>); housing exits as addresses, reusing the live 'a tenant gave notice' line. The never list bars leaver names, reasons, deposit amounts, declines, and named quit/eviction events.",
+  ck:["No feed line carries a name or cast id — the door-not-name rule matches the grievance layer",
+    "Deposit letters, deductions, and notices are ledger facts — never feed events",
+    "Game dollars only throughout; no credit figure or USD framing anywhere"]},
+ {do:"Run `node world/audit.js` and read the exits + harness gates.",
+  exp:"The exits gate reports schema v73 — 24 work + 7 housing rows — with bidirectional employer coverage vs jobs.json, building coverage vs housing.json keys + ambient-ring, 30/21-day registry norms, banned-vocab sweep, door-not-name feed shapes, and the EXITS inline mirror deep-compared. Harness gate reports 66 scenarios at the v70 key.",
+  ck:["exits gate detail: 'schema v73 · 24 work · 7 housing' — PASS",
+    "A missing employer row, a 25-day notice on a registry unit, or a named feed line would FAIL — spot-check the gate code",
+    "Harness gate: '66 scenarios · N checkpoints · key rw_playtest_v70'; 0 fail overall"]}]}
+,{id:"PT67",title:"The Book — scheduled exclusives (pick a window, not just a what)",min:10,
+ persona:"player with credits — wants the park at dusk, not whenever it frees",
+ goal:"Verify the v74 booking layer: the When picker offers only slots that can legally fire (≥30 min out, past lock/cooldown tails, never overlapping a booked span); a booked request files/screens/reviews like any exclusive but lands on the calendar (approved · booked for HH:MM), counts down, fires on the feed with attribution, and resolves; cancel-until-start refunds in full; a time slot never reprices.",
+ surfaces:["book","request","audit"],steps:[
+ {do:"Open book.html (file://). Read the four claim strips and click a blue span.",
+  exp:"A 24 h strip per bookable claim (sky, openair, Mudhaus Coffee, The 600 Club): free / booked / locked / cooldown, hour ticks, a now line. Clicking a booked span names the holder, the window, and what it is for. No prices anywhere — a time slot is not an upgrade.",
+  ck:["4 strips, each with a seeded booked window carrying a handle (marina_w, leaf, dvh, okfm)",
+    "Locked and cooldown tails render at the left edge; the legend says cooldowns are never skippable",
+    "No credit or dollar figure anywhere on the page — the Book never shows a price"]},
+ {do:"Open request.html, pick Event trigger → The 600 Club. Open the When picker and compare its options against book.html's club600 strip.",
+  exp:"The picker lists 'soonest free window (queue if busy)' plus up to six half-hour slots that avoid the running lock, any cooldown tail, and the 22:30 birthday window. The quote gains 'Window — booked for HH:MM · cancel free until it starts'; the button reads 'Book it — HH:MM'; the flat 200 cr is unchanged (surge only when the window's own hour is primetime).",
+  ck:["No offered slot overlaps the 22:30–23:30 booked span or opens inside the lock tail",
+    "'A time slot is not an upgrade — same flat price' sits under the picker",
+    "A primetime slot shows the surge line keyed to the window's hour, before payment"]},
+ {do:"File a booked event and let it run: watch the card count down, fire ('booked window arrived'), lock the claim, and end. Then file a second booking and cancel it before the window.",
+  exp:"After human review the card reads approved with 'booked for HH:MM — fires when the window arrives' and a live countdown; the feed gains 'approved · booked for HH:MM'. On arrival the claim locks, the feed shows 'booked window arrived — <event> fired' (running), then '<event> ended' (resolved). Cancel-before-start refunds in full with the neutral feed line.",
+  ck:["The booked card is cancellable until the window starts — after that the cancel affordance is gone",
+    "The picker stops offering the span you booked while it is held",
+    "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
+ {do:"Run `node world/audit.js` and read the book + request + harness gates.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 72 scenarios at the v76 key.",
+  ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
+    "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]}
+,{id:"PT68",title:"The Wire v6 — the schedule + the person layer",min:10,
+ persona:"daily spectator — knows the wire, wants the day's shape",
+ goal:"Verify the v75 spectator-feed pass: the on-the-book strip shows only windows still ahead and never sells one; 'their wire today' counts the wire per person without inventing coverage; thread mute hides a request from your display only; the search match count is honest; every addition stays view-layer.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Open wire.html (file://). Read the 'on the book' strip under the filters; click its header, then press b.",
+  exp:"A collapsible bar lists booked windows still ahead of the block clock — 'HH:MM · claim · what · @handle' (e.g. 16:00 poetry hour at Mudhaus Coffee, 22:30 birthday window at The 600 Club). Past windows are absent — a fired window is already a wire event. No price, slot-picker, or claim button appears; the footer links the Book.",
+  ck:["Only upcoming windows render — the 07:30 and 09:00 seeded windows are already behind the 15:04 clock and do not show",
+    "The strip carries zero credit figures and zero 'book it' affordances — the wire reads the calendar, never writes it",
+    "Collapse persists across reload (rw_wire_book) and the b key toggles it"]},
+ {do:"Click 'Mars' in the cast strip, then open a move event's record and use 'their wire today — <name>'.",
+  exp:"The right-rail 'Their wire today' card lists every event whose who/mentions touched that character — newest eight plus an honest '…and N earlier' remainder — with a pin button and 'public whereabouts only — homes are walls; off-the-feed stretches stay off'. A character with no events shows 'Nothing yet today — the wire only knows what a camera could see.'",
+  ck:["The card counts only wire events — no inferred mood, no coverage the feed lacks",
+    "The pin affordance on the card is the same free follows system (public whereabouts only)",
+    "Dani's card can honestly show an 'off the feed' stretch event — never invented coverage"]},
+ {do:"Open a running request's record, 'mute this thread', watch its lines leave the stream and the reaching-in-now strip; unmute from the Following panel. Then type 'park' in search.",
+  exp:"Muting drops that req's lines from your display only; the Following panel gains a 'muted threads' list with the note 'muted on your screen only — the wire's record is unchanged and The Archive keeps everything' and unmute restores it. The day-so-far card still counts the muted rows. Search shows a live 'N matching' counter beside the box.",
+  ck:["Muted threads persist (rw_wire_mute) and unmute brings the whole trail back",
+    "Muted events still count in 'the day so far' — the recap counts the wire, not your view",
+    "'N matching' counts text + who + resolved names + venue names across the whole feed"]},
+ {do:"Run `node world/audit.js` and read the wire + harness gates.",
+  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 72 scenarios at the v76 key.",
+  ck:["wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
+    "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]}
+,{id:"PT69",title:"The Archive v6 — the shape layer (same hour, day vs day, finer trail cuts)",min:10,
+ persona:"returning spectator — wants the shape of the week, not just its days",
+ goal:"Verify the v76 archive pass: the same-hour view counts one hour of day across every archived day without promising a schedule; day vs day compares two days in counted columns only; the person lens cuts a trail finer without widening scope; copy record carries the source badge; j/k walks the day rows.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open archive.html (file://). Switch to 'the same hour' and pick 15:00, then an uncovered early hour like 04:00.",
+  exp:"The 15:00 view lists every event in that hour across all days, grouped by day, with a head counting rows and days, naming the most-tagged corner, and listing counted kinds — plus the honesty chip 'a shape the wire happened to draw — not a schedule'. The empty hour reads 'Nothing public in this hour on any day — the block keeps some hours to itself.'",
+  ck:["Row count and days-on-record agree with the rendered trail — no invented coverage",
+    "The view never reads as a prediction — 'not a schedule' sits in the head",
+    "Permalink #v=hour&h=15 restores the view with the picker set"]},
+ {do:"Switch to 'day vs day'. Leave the default pickers, then set both pickers to the same day, then pick two different days and click a kind cell.",
+  exp:"Defaults compare the latest two days on record: entries, coverage span, busiest corner, then one row per day-view kind filter — 'same rows, two columns — counted, not explained'. Shared corners appear as chips that open the venue view. Same-day-twice shows a plain explanation, not a table. A kind cell opens that day pre-filtered.",
+  ck:["A cell's number equals the rows the filtered day view shows — the number and the rows never disagree",
+    "Shared corners list only venue ids tagged on both days (null venue counts as 'the block')",
+    "No editorial line anywhere — the table never says which day was 'better'"]},
+ {do:"Open 'by person' → Jules (C2). Toggle 'followed' then 'named in passing'. Open any record and use 'copy record'. Back on the day view, press j then k.",
+  exp:"'followed' shows only rows where the wire followed Jules (who); 'named in passing' only rows where another event's mentions name her; the head count still reports the whole trail. Copy record places one badged plain-text line on the clipboard. j/k move the row selection and the record detail together, clamped at both ends.",
+  ck:["The lens subtracts only — followed + named-in-passing together equal the full trail",
+    "The copied line opens 'real world — the archive — record <id> (demo archive)' — badge included",
+    "j/k are inert while focus is in the search box"]},
+ {do:"Run `node world/audit.js` and read the archive + harness gates.",
+  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 72 scenarios at the v76 key.",
+  ck:["archive gate detail ends 'schema archive-v6' — PASS",
+    "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]},
+ {id:"PT70",title:"Join the Cast v6 — the sketch & the seats layer (v77)",min:12,
+ persona:"paid-tier player on a full block — wants a second character and keeps asking what it costs to skip the line",
+ goal:"Verify the v77 creation pass: the structured look picks draw a live canvas sketch on step 2 and ride the review card; the roster panel states the block's hired-face cap verbatim; a full card routes signing to a free, first-come seat waitlist that never bills, expires offers at 48 h, and sells no sooner seat; a second hire is stated as a stranger to the first.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open create.html (file://). Reach step 2 with the pickers empty, then pick build/palette/signature and change each twice.",
+  exp:"The sketch canvas opens with the empty-state line 'pick build · palette · signature — the sketch draws itself'. Each pick redraws the figure — silhouette proportions follow build, the jacket block follows palette, each signature draws its own mark (zipper / boot flecks / print dots / paperback / headband / collar pins). Caption reads 'a casting-office sketch — not a portrait'.",
+  ck:["The figure visibly differs across at least three builds and two palettes — the picks drive the drawing, not decoration",
+    "No free-text look field exists anywhere — the sketch adds zero screening surface",
+    "The caption never calls the sketch a portrait or a preview of final render quality"]},
+ {do:"Read the roster panel's seats line, then click 'demo: fill the card' and finish a hire to step 6.",
+  exp:"The seats line reads 'the card holds N of 12 hired faces — the block's carry limit' and flips to the full state on the demo control. On step 6 the quote gains a 'The card' line, a warn states the waitlist terms (free, FCFS, screened twice, 48 h offer, no paid seat), and the button reads 'Join the seat waitlist — free'.",
+  ck:["The cap is shown as the block's limit, separate from the account slot cap — both ceilings are visible",
+    "The balance check does NOT gate the waitlist CTA — waiting is free by construction",
+    "The warn names 'no way to pay for a sooner seat' verbatim"]},
+ {do:"Sign while the card is full; read the pipeline and the wait card, then close and reopen the page.",
+  exp:"The intent screen still runs at join — a denied name is refused before it ever waits. On pass the feed posts 'hire — application \"<name>\" joined the seat waitlist · in line, no charge' and the wait card shows position, joined time, 'a seat offer never bills until you take it', and 'leave the waitlist — nothing was ever billed'. Reopening restores the card (rw_create_wait_v25).",
+  ck:["Screening happens at join — the waitlist is not a screening bypass",
+    "Wallet unchanged; no queue position is sold anywhere on the card",
+    "Wait ~40 s: the demo seat opens, the offer posts 'offer holds 48 h', and the application enters the normal review pipeline"]},
+ {do:"After a successful hire, start another and read step 6 + the briefing's surface-relationships line.",
+  exp:"The review step names the existing hire — 'Dana Okafor is on the card too — a stranger to <name>. What you know, neither of them does; they meet on the block like anyone else.' The briefing tail lists the other hire as 'a stranger, not a contact'.",
+  ck:["The stranger rule appears in BOTH the review step and the briefing — not just one",
+    "The briefing whitelist is unchanged: profile / surface relationships / routine, secrets still 'none written'",
+    "No affordance links the two characters — no shared bank, no shared knowledge"]},
+ {do:"Run `node world/audit.js` and read the creation + harness gates.",
+  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 72 scenarios at the v76 key.",
+  ck:["Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}
+,{id:"PT71",title:"Mod Console v4 — the second-eyes layer (v78)",min:11,
+ persona:"reviewer on a two-person shift — a queue, a partner, and one appeal",
+ goal:"Verify the v78 console pass: reviewer identity attributes claims/notes/decisions; a claim locks the item for other reviewers (buttons withheld, decide() refuses); the appeal different-reviewer rule is enforced, not advisory; handoff notes are internal-only and claim-free; the appeal workspace shows the original decision beside the new text; the shift report counts decisions per reviewer.",
+ surfaces:["mod","audit"],steps:[
+ {do:"Open mod-console.html (file://). Read the header reviewer picker, then select rq-1041 (Dolores Park block party) from the queue.",
+  exp:"The picker offers you / s.oha / m.chen (demo stand-in for SSO). rq-1041's detail shows 'claimed by m.chen — their call to make'; the queue row shows 'claimed by m.chen'. The decision bar is replaced by 'Claimed by m.chen — one reviewer per request.' — no Approve/Deny controls render.",
+  ck:["The lock withholds the whole decision bar — not a disabled button, no controls",
+    "The handoff-note composer still renders on a claimed item — notes cross reviewers by design",
+    "Queue rows surface the claim inline — 'claimed by m.chen' visible without opening the item"]},
+ {do:"Select an unclaimed item (e.g. rq-1035 venue-lock). Click 'claim', then 'release', then click Approve on any unclaimed item.",
+  exp:"Claim writes 'claimed by you (<handle>)' with a release link; release returns the item to 'unclaimed'. Approving an unclaimed item auto-claims it first, then logs the decision to the audit trail under the current handle.",
+  ck:["Deciding an unclaimed item claims it first — zero-friction common case, still attributed",
+    "The toast + audit line name the active reviewer handle",
+    "Release returns the item to unclaimed — a claim is a lock, not a score"]},
+ {do:"Switch the reviewer picker to s.oha, then open appeal rq-1038.",
+  exp:"The detail shows the appeal workspace card — original request rq-1017, denied 2026-09-22, code secret-extraction, reviewer s.oha, original text — plus the red line 'DIFFERENT-REVIEWER RULE — you decided the original' and 'No decision controls — the different-reviewer rule owns this item.' Switching back to you restores the decision bar.",
+  ck:["The rule is enforced — controls withheld AND decide() refuses, not just a warning",
+    "The workspace prints the reviewer's only question: 'Is the new text substantially different?' plus 'a second denial is final' and 'appeals never re-charge'",
+    "Switching identity is the only thing that changes reachability — same item, same text"]},
+ {do:"As you, open rq-1040 (pt → Priya nudge). Read the seeded handoff note, then leave a note of your own and export ledger records.",
+  exp:"A 'Handoff notes — internal only' card shows s.oha's note on the pt/Priya pattern; the composer placeholder reads 'note for the next reviewer — internal only, never the feed or the ledger'. Your note lands attributed to you and the queue row gains '· N notes'. The ledger export contains decisions only — notes never appear in it.",
+  ck:["Notes attribute to the writing reviewer and timestamp",
+    "Ledger export carries zero note content — internal only is structural",
+    "Notes are reachable without holding the claim"]},
+ {do:"Decide two items as different reviewers (switch the picker between), then open 'shift report'.",
+  exp:"The report gains 'Decisions this session, by reviewer' — counts only, e.g. 'you: 1 · s.oha: 0'. Everything else unchanged: aggregate-only, no request text, no handles beyond the internal report.",
+  ck:["Per-reviewer counts live inside the studio report only — never the public recap",
+    "The report still shows corpus green at engine v50 — the screening engine itself did not change",
+    "Deny still previews canned player copy + neutral feed line + flag weight"]},
+ {do:"Run `node world/audit.js` and read the mod + harness gates.",
+  exp:"Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 72 scenarios at the v76 key.",
+  ck:["mod gate detail still reports taxonomy/corpus agreement — 15 codes, 94 mirrored cases, engine v50",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gs*) appears on mod-console.html — internal surface"]}]},
+ {id:"PT72",title:"Harness v76 — the relay & regression layer (v79)",min:10,
+ persona:"facilitator running the second week of a rolling cohort — needs to hand a clean state to the next tester and catch what broke since last session",
+ goal:"Verify the v76 harness pass: the ⚑ revisit flag on each rail card persists across reload and rides the handoff note; Copy run sheet emits a [world-playtest-runsheet] Markdown block honoring the smoke and hide-finished filters; the cohort panel's Regressions card splits 'regressed' (imported pass → current fail) from 'recovered' (imported fail → current pass) — directional, never averaged; the [ / ] walk honors both rail filters.",
+ surfaces:["harness","audit"],
+ steps:[
+ {do:"Flag two rail cards with the ⚑ toggle, then reload the page.",
+  exp:"Each card gains a filled ⚑ marker; flagging does not open the scenario (the toggle does not trigger pick). After reload the flags persist (S.flags inside rw_playtest_v76 state).",
+  ck:["The flag toggles without selecting the scenario — no accidental pick",
+    "Flags survive reload — persisted session state, not a render artifact",
+    "Unflagging restores the empty marker — a flag is a mark, not a verdict"]},
+ {do:"Click 'Copy handoff' and read the block; then click 'Copy run sheet' and read the block.",
+  exp:"The handoff gains a 'flagged for revisit: <ids>' line listing exactly the flagged scenarios. The run sheet opens with a '## [world-playtest-runsheet | <date> | <tester> (<role>)]' header, a build line 'world v76 local · N scenarios · ~M min est', then per scenario: title, persona, goal, and '- [ ]' checkbox lines for every step and every checkpoint.",
+  ck:["The run sheet's scenario set equals the filtered rail — check 'smoke set only' first and the sheet narrows to PT1·PT4·PT7·PT21",
+    "hide-finished composes too — fully verdicted scenarios drop off the sheet",
+    "The sheet carries NO verdicts — it is a blank run artifact for the next session, never a report"]},
+ {do:"In PT1, verdict the first checkpoint FAIL, export the JSON report, then flip the same checkpoint to PASS and import the exported file.",
+  exp:"The cohort panel gains a 'Regressions' card: PT1-0-0 lists under 'recovered — was fail, now pass'. Flip the checkpoint back to FAIL and the same ref moves to 'regressed — was pass, now fail'. The plain Disagreements card still lists the ref as before — the new card is directional, not a rename.",
+  ck:["Regression direction is computed against imported sessions, not the current one — a lone session shows 'no regressions vs imported sessions'",
+    "The card keys on checkpoint refs, never scenario titles — the exact ref is printed in mono",
+    "Verdict flips update the card live — no re-import needed after the cohort is loaded"]},
+ {do:"With 'smoke set only' AND 'hide finished' both checked, walk scenarios with ] and [.",
+  exp:"The walk moves through the doubly-filtered list only — finished scenarios are skipped, not just hidden from the rail. Clamped at both ends, no wrap.",
+  ck:["The walk order equals the visible rail order exactly — no phantom stops",
+    "The deep-link hash still updates on each hop"]},
+ {do:"Run `node world/audit.js` and read the harness + mirror gates.",
+  exp:"The harness gate passes at key rw_playtest_v76 / build 'world v76 local' with the v76 marks present (exSheet, regr, S.flags, toggleFlag, world-playtest-runsheet, flagged for revisit) and reports 72 scenarios; the mirror gate confirms the PT72 hand-sync.",
+  ck:["Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+    "Mirror gate reports 72 inline vs 72 contract — PT72 hand-synced",
+    "A missing exSheet/regr mark or the old LS key would FAIL — spot-check"]}]},
+ {id:"PT73",title:"Onboarding v6 — the house & the other hands (v81)",min:8,
+ persona:"first-session viewer who picked 'I might reach in' — walks the full tour and the whole ask-lesson chain",
+ goal:"Verify the v81 onboarding pass: tour beat 8 anchors to an admin event and teaches that the house acts on the same public feed (attributed, automatic compensation); S4f teaches compatible coexistence via a scripted co-ask that lands alongside (never behind) and is idempotent; the exclusive card states surge is shown before payment (×1.5–×2.5 range, verbatim); S5/S6 name the tenant→owner→landlord arc as context with no funnel; and the u13 band still redirects S4f to the watching account.",
+ surfaces:["onboard", "audit"],
+ steps:[
+ {do:"Reset onboarding (footer link), pick 'I might reach in', and walk the tour to its last beat.",
+  exp:"The tour now runs 8 beats; the final coach-mark anchors to the admin event in the stream ('admin action — venue window reset … players compensated 90 cr') and reads: the people who run the block act on this same feed — attributed, compensation automatic, nobody's hand is invisible.",
+  ck:["Beat counter reads 8/8 on the last beat", "The admin event's <li> carries the feed-admin anchor highlight", "The admin seed event text matches feed.json vocabulary verbatim — attribution + compensation note"]},
+ {do:"Set a handle, declare 18 or older, top up (demo), and walk S4 → S4b → S4c. Read the exclusive card's new line before filing.",
+  exp:"The S4c card carries the surge disclosure: if the sky ran exclusive in the last 6 h the form shows ×1.5 to ×2.5 BEFORE you pay — the price you see is the price filed. File the weather ask, watch 'in review' → 'not approved · refunded 40 cr', then the queued ask → 'queued request expired before activation' · refunded 34 cr; resolving the queue routes onward to S4f automatically.",
+  ck:["Surge is quoted as the plan's range only — no specific multiplier invented for the demo", "Nothing about surge appears after payment anywhere — the line is on the pre-file card", "resolveQueue lands on S4f, not S5"]},
+ {do:"On the S4f card, click 'Watch one land (demo)' twice.",
+  exp:"A feed entry 'marlo_v — camera director, 30 min · running' posts once; the second click is a no-op toast ('Already on the feed'). The card teaches that compatible asks run alongside, attributed to both, and that exclusivity is about the resource, never the player.",
+  ck:["The co-ask is attributed to a different handle — not 'you'", "Copy frames coexistence as the multiplayer, never as contention", "S4f filed nothing and needed no balance"]},
+ {do:"Continue to S5 and read the settle card; then reload with ?hired=1 and read the S6 card.",
+  exp:"S5 names the arc in one context line — tenants can buy, listings read like normal listings (game dollars + deed fee in credits), owners can rent out a second unit, tenant → owner → landlord — with NO button to the market. S6 carries the parallel listings line for a new hirer.",
+  ck:["The arc is a note, not a funnel — no market link inside the card", "u13's settle card is unchanged (no money surfaces)"]},
+ {do:"Reset, pick the fork, and at S2a choose 'Under 13'; then force stage S4f via the co-ask path (or verify in code).",
+  exp:"normalizeStage redirects S4f to S3u — the watching account never sees ask mechanics framed at it; S3u still reads as the whole product, not a restriction.",
+  ck:["S4f is in PAID_STAGES despite filing nothing — band-fronted like every ask-context card", "The watching-account copy carries no packs, asks, or arc"]},
+ {do:"Run `node world/audit.js` and read the onboard gate.",
+  exp:"onboard gate passes: 'schema v81 · 8 beats · key rw_onboard_v81', zero fails — admin-action copy, compensation wording, surge disclosure, arc naming, feed-admin anchor, S4f reachability, and the coAsk state guard all verified.",
+  ck:["The gate reports 8 beats (was 7) and the v81 storage key", "The contention-for-sale sweep stays clean — coexistence copy never offers to buy another player's session"]}
+ ]},
+ {id:"PT74",title:"The Rent Book v5 — the doorstep & the deed layer (v82)",min:9,
+ persona:"tester in every hat — tenant h01, licensed landlord h02, and admin — walking the new file-only paper",
+ goal:"Verify the v82 lease pass: entry notices are dated docs with a stated reason and ≥24h window and never reach the feed; recording a sale on an occupied unit carries the lease/deposit/file across the deed intact; fixed-term leases run a renewal offer in months 10–12 that the tenant decides (accept = new fixed term, decline/lapse = month-to-month); a returned payment reverses onto the balance with a capped $25 fee and leaves the notice ladder untouched; and a guarantor release is a request-and-decide file doc.",
+ surfaces:["lease","audit"],
+ steps:[
+ {do:"In Tenant mode on 9457-2, read the header line and confirm the fixed-term month shows; switch to Admin and post an entry notice on any occupied lease.",
+  exp:"The lease header reads 'month 10 of the fixed term' on h01's file. Posting the entry notice writes a dated doc ('served day N — entry day N+1, 9:00–12:00, reason: scheduled repair visit'), a zero-amount ledger line, and NOTHING on the wire — the docs panel shows it, the feed does not.",
+  ck:["Entry notice doc carries serve day, entry day, window, and a stated reason","No wire event is posted — entry notices are file-only","The doc names entry_violation as the dispute ground for repeated/unnotified entry"]},
+ {do:"Stay in Admin, open 9263 Geneva Ave Unit 4 (Reyes cousins), and click 'Record sale — tenant in place'. Read the file and the wire.",
+  exp:"The ledger gains 'deed transferred — lease and deposit carried intact', the file gains the 'sale — tenant in place' doc ('the paper follows the deed — a sale never resets a tenancy'), the header flags 'sold day N — lease carried intact', and the wire posts the existing neutral 'Sold — 9263 Geneva Ave, Unit 4 changes hands'. Rent, term, control flag, and history are unchanged.",
+  ck:["Feed wording is the existing 'Sold —' template — no tenant name, no terms","The lease object carries over verbatim — nothing resets","In Landlord mode the Record sale button is absent on every unit — sales record at the owner's desk"]},
+ {do:"In Admin mode, click 'Offer renewal' on 9457-2 (month 10). Then switch to Tenant mode and read the offer card.",
+  exp:"Admin posts 'renewal offered — new fixed 12 mo' to the ledger and a doc stating the rent ($1,404 — band raise, stated basis). Tenant mode shows the offer card: accept runs a new fixed term, decline rolls to month-to-month. Nothing on the feed.",
+  ck:["Offer shows the band-raised number with its stated basis","An offer bills nothing — no charge line is posted","Offer only appears inside months 10–12 of a fixed term"]},
+ {do:"As the tenant, accept the renewal; then in Admin post another renewal on 9088-5's file and decline it in code or observe the decline copy path on a fresh reload.",
+  exp:"Accepting writes 'lease renewed — new fixed 12-mo term at $1,404', resets the file to month 1 of a renewed fixed term, and keeps deposit + move-in record. Declining (or letting the term lapse) rolls the lease to month-to-month with a doc — staying is the default either way.",
+  ck:["Accept posts the renewal ledger line and resets termMo to 1","The month-roll flips a served fixed term to month-to-month on its own, with a 'term served' doc","A lapsed offer reads 'renewal offer lapsed' — never a penalty"]},
+ {do:"In Admin on any lease with a payment line, click 'Mark last payment returned'. Check the ledger, the balance, and the state word.",
+  exp:"The payment reverses onto the balance and a 'returned-payment fee (house rule, cap $25)' line posts. The doc states the ladder stands where it stood — no state jump, no feed line. Paying again clears the new balance normally.",
+  ck:["Reversal + capped $25 fee are the only two ledger lines","The state word does not change on return — the ladder is untouched","Nothing posts to the wire"]},
+ {do:"Run `node world/audit.js` and read the lease gate.",
+  exp:"lease gate passes at 'schema v82 · 13 states · key rw_lease_v82' with the v82 checks green: entry_notices/sale_occupied/renewal/returned_payments blocks, guarantor.release, entry_violation in grounds, own-unit guards on the new licensed tools, recordSale admin-only, and no wires.push inside any file-only handler.",
+  ck:["Gate reports the v82 storage key and 13 states","Feed-only check confirms entry/returned-payment/renewal/release handlers never push wires","A missing myUnit guard on postEntry/markReturned/offerRenewal/guarRelDecide would FAIL — spot-check"]}]},
+ {id:"PT75",title:"The Understudy v6 — the fallback-surface layer (v83)",min:8,
+ persona:"tester on the internal thin-AI bench — driving capacity, requests, and days to watch surfaces degrade honestly",
+ goal:"Verify the v83 thin-AI pass: every surface declares a fallback posture (unaffected / hold / static) and the panel moves with the capacity slider; a routine-fit ask on a degraded main runs posture-only with the locked 'running' line while an off-routine ask resolves 'resolved · declined' + 50% auto-refund, judged at activation; the press backlog holds under degrade and trickles ≤1/daypart on recovery; and the day-hash jitter shifts each pawn's next cell edge ±≤15 min deterministically while authored coverage stays contiguous.",
+ surfaces:["thinai","audit"],
+ steps:[
+ {do:"Open world/thinai.html, read the Surface fallback panel at 100% service, then click 'Service 55%' and 'Service 0% · blackout' and re-read it.",
+  exp:"The panel lists three postures: unaffected (wire text, status lines, quiet markers, ledgers, owner report, mod queue, bubbles — 'never model text'), hold (Mission Unfiltered), static (briefings card-only, archive threads untitled). Under degrade the hold row flips to 'held · backlog N' and the static rows flip to card-only/untitled. The footer states the matrix is closed and nothing is labeled in-world.",
+  ck:["All three postures render and respond to the capacity slider","The panel states 'honest absence beats filler' and 'nothing is labeled in-world'","No 'the AI is down' surface appears anywhere — the Wire log shows nothing for mode changes"]},
+ {do:"With C6 degraded (Service 55%, stepped until Carmen's badge reads degraded), click 'Ask C6 · routine-fit' while she is on a waking cell, then 'Ask C6 · off-routine'.",
+  exp:"The routine-fit ask posts wire 'request — co-star on Carmen (be-present), 20 min — running' and a seam line naming posture-only accept (presence in place, phrase-kit register, scene-yield still governs, never leads); the window ends mid-beat-clean with nothing persisting. The off-routine ask posts 'resolved · declined (50% auto-refund)' — judged at activation, never parked.",
+  ck:["Wire lines use locked vocabulary only — 'running' and 'resolved · declined', nothing new","Posture-only is explicit in the seam line — never authored dialogue, never leads","While C6 is full both buttons toast that a healthy brain carries the ask normally"]},
+ {do:"Hold service at 0% and step +24 h twice; then restore Service 100% and step +1 h across a daypart boundary.",
+  exp:"Each day boundary under degrade adds 'held press backlog +1' to the seam log and the hold row's backlog count. After recovery, crossing a daypart releases exactly one held post ('≤1/daypart — a returning blogger, not a dump'). Nothing summarizes the outage and no static artifact is rewritten.",
+  ck:["Backlog increments only under degrade and drains at ≤1 per daypart","No recap or backfill line appears on recovery — surfaces resume like pawns do","The compute ledger recorded the outage as thin_min throughout"]},
+ {do:"Note a pawn's 'next edge' jitter line, step +24 h, and compare the same edge next day; check that obligation copy says ledgers don't jitter.",
+  exp:"Each pawn card shows 'next edge HH:MM → ±Nm = HH:MM (day-hash jitter — shared edge…)'. The same edge carries a different ±N on the next day, all within ±15. The surface panel and spec state obligations, cell kinds, and co-star windows never jitter, and authored coverage is what the gate checks.",
+  ck:["Jitter is deterministic (same day → same shift) and bounded ±15 min","The shared-edge rule is stated — both neighbors move, no gap opens","Obligation minutes and cell kinds are listed as never-jittered"]},
+ {do:"Run `node world/audit.js` and read the thinai gate.",
+  exp:"thinai gate passes at the current schema/key (schema v97 · key rw_thinai_v97 as of v97) with the v83 checks green: surface_fallback/requests_under_degrade/quiet_week/surface_recovery blocks, closed posture matrix, routine-fit + decline vocabulary, ±15 jitter bound, ≤1/daypart trickle, demo events req_c6_fit/req_c6_off, and the html mirror strings.",
+  ck:["Gate reports the current schema + rw_thinai_ key (v97 as of world v97)","A missing v83 block or an off-vocabulary wire line would FAIL — spot-check one","Prior gates (coverage, flap guard, rotation, ask classes) still pass unchanged"]}]},
+ {id:"PT76",title:"The Crowd v6 — the company & the courtesy layer (v85)",min:8,
+ persona:"tester on the internal crowd bench — scrubbing the clock and toggles to watch extras arrive in company and the counters stay warm",
+ goal:"Verify the v85 ambient-crowd pass: extras resolve as lone/duo/cluster social units via normalize(kind × daypart) with family-shape safeguards (kid-backpack only inside family clusters, never bars/overnight); the 17 counter courtesies gate on resolved state + extra presence + cooldown and never carry dialogue or ledger; and the crowd gate enforces the mirrors.",
+ surfaces:["crowd","audit"],
+ steps:[
+ {do:"Open world/crowd.html, select the sidewalk zone, and scrub from overnight through commute, lunch, and evening; then select the 600 Club at night and the park on a weekend afternoon.",
+  exp:"The Company mix panel resolves lone/duo/cluster percentages per kind × daypart — overnight reads 100% lone, commute leans lone, evening and the bar lean duo/cluster, the park weekend afternoon shows the fattest cluster share. The unit line converts the extras budget into '~N units (M bodies)'.",
+  ck:["Mix shifts with both the zone kind and the daypart — it is not a flat constant","Overnight/predawn read 100% lone — clusters before dawn are impossible by construction","The unit math keeps budgets in bodies: a cluster counts 3–4 toward the band, once toward the ≤3 cap"]},
+ {do:"Read the family-safeguard line on park (open_air) at afternoon, then on club600 (bar) at night and streets at overnight.",
+  exp:"Park afternoon shows 'family share 35% of clusters'; the bar at night and streets overnight show 'family clusters not legal here'. The panel and the rules list state kid-scale silhouettes never spawn lone, never enter bars, never appear overnight/night.",
+  ck:["Family eligibility is kind-and-daypart gated — bar and overnight/night are excluded","kid-backpack is reachable only through family clusters — no lone-kid spawn path exists","Units share one spawn and one despawn — stated, and nothing shows a group splitting"]},
+ {do:"Scrub to weekday rush and read the Counter courtesies panel; note which beats are LIVE vs cooldown vs off; then toggle weather to storm and event to the Mudhaus lock and re-read.",
+  exp:"ctr-cup (Reyes) and ctr-door (Kofe) light live or cooling at rush while their ambients serve/carry and extras dwell; beats whose ambient is off-zone or off-state show off with the resolved zone+state in the why column. Under the Mudhaus lock the mudhaus beats drop off — a courtesy needs an extra in reach. The panel states 2–6s gesture, no dialogue, no ledger; minors appear in no beat (A04/A20 absent).",
+  ck:["Beats are conditions — each shows why it is live, cooling, or off","The venue lock suppresses Mudhaus beats even while Reyes keeps serving","No beat lists June or Zee; the panel says 'minors have no counter'"]},
+ {do:"Run `node world/audit.js` and read the crowd gate.",
+  exp:"crowd gate passes at 'schema v85 · 17 zones · 8 edges · 18 pairs · 5 resources · 20 rostered · 8 annual · 12 postures · 17 courtesies' with the v85 checks green: GMIX/COURTESY mirrors, kind+daypart mix sums, lone-only pre-dawn, family-shape kind legality, kid-backpack palette presence, non-minor beat staffing, legal during-states.",
+  ck:["Gate reports schema v85 and the 17-courtesy count","A dropped safeguard line (bar/overnight in shapes.family) or a minor-staffed beat would FAIL — spot-check one","Prior crowd checks (zones, shades, annual, postures, greet bounds) still pass unchanged"]}]},
+ {id:"PT77",title:"The Supply Layer — the back door (v86)",min:7,
+  persona:"tester on the internal supply bench — scrubbing days and the clock to watch the trucks that stock the corridor",
+  goal:"Verify the v86 parody-supplier pass: 19 offstage wholesale vendors carry 44 delivery runs across the 20 door venues; every run resolves against real registry doors, lands inside [open-3h, close] on days the venue opens, and the supply gate enforces the mirror and coverage.",
+  surfaces:["supply","audit"],steps:[
+  {do:"Open world/supply.html ('The Back Door'). Pick Thursday and scrub the clock from 05:00 to 17:00; read the 'Runs today' list and the supplier grid.",
+   exp:"Thursday shows the corridor's busiest supply day: Fogline's keg drop at the 600 Club (14:00-16:00), the Hot Off the Press flyer circuit walking five counters (11:00-14:00), linen swaps at El Farolote / the Musket, produce and print runs. Runs light 'OUT NOW' only while the scrubbed clock sits inside their window; each run shows its supplier, doors, and drop spot.",
+   ck:["The flyer circuit renders as one run with five 'to' stops — walked, shoulder bag, no truck","The 600 Club's Thursday keg drop lands inside [open-3h, close] — pre-open deliveries are the norm, not an error","Supplier cards stay offstage — vehicle + base described, no door, no interior, no staff"]},
+  {do:"Check the door-coverage strip: every door-tier venue should read 'fed' except Valencia Growers, which reads 'exempt'.",
+   exp:"19 of 20 doors carry at least one run; Valencia Growers is exempt because it IS the supplier — a truck delivering to a farmers' market would be a delivery to a delivery. No door reads 'BARE'.",
+   ck:["Coverage strip shows 19 fed + 1 exempt, 0 bare","Hovering the exempt chip explains the exemption in-world","Every 'to' id resolves to a real registry business — no phantom venues"]},
+  {do:"Read the feed-shapes panel and the rules list; then run node world/audit.js and find the supply gate.",
+   exp:"Feed shapes are all kind 'venue' with {venue}/{supplier} templated lines — a supplier is a name on a truck's flank, never a story beat. Rules state: offstage only, no cast staff, parody names, conditions-not-scripts, no prices. The supply gate reports '19 suppliers - 44 runs - 19/20 doors fed' and passes.",
+   ck:["Every feed-shape line carries a {venue} token and kind stays 'venue'","No price, credit, or USD figure appears anywhere in the layer","Supply gate reports 'schema v86 - 19 suppliers - 44 runs - 19/20 doors fed'; 0 fail overall"]}]},
+ {id:"PT78",title:"The Getting There — the commute layer (v87)",min:7,
+  persona:"tester on the internal commute bench — scrubbing days and the clock to watch the neighborhood get to work",
+  goal:"Verify the v87 commute-layer pass: 22 routes connect every working cast member from a registry unit (or the ambient ring) to a jobs.json employer; 10 overlaps are shared-route conditions whose windows actually open; minors are never routed; the commute gate enforces the mirror and referential integrity.",
+  surfaces:["commute","audit"],steps:[
+  {do:"Open world/commute.html ('The Getting There'). Pick Wednesday and scrub the clock from 05:00 to 13:00; read the route cards.",
+   exp:"Dawn shows the openers first: Hana's 3:30 dark walk is already 'at work' before anyone else leaves; Marisol, Malik, and Cole leave in the blue hour; Jules and Reyes converge on 24th; Dani's 49 ride is the longest card; Victor's 'route' is eighteen stairs. Cards light road-green only inside their leave→arrive window; loops (Marcus, Kofe, Doro) never show a fixed landing.",
+   ck:["Hana's card resolves 'at work since 03:54' before the 6:30 wave — the dark commute is first on the board","Victor's mode is 'stairs' — his commute is the interior stair, leave window 07:30–07:42","Loop routes (couriers, dog loops, pitches) show 'on the loop' — never an arrive time"]},
+  {do:"Watch the Overlaps panel at 07:15 on Monday, then scrub back to 06:45; toggle weather to rain and re-read the route cards; then switch to Sunday and Monday-off routes.",
+   exp:"At 07:15 Monday the barista overlap (Jules × Reyes) reads 'WINDOW OPEN'; scrubbing to 06:45 opens the hospital pair (Priya × Asha, mon/wed only — shut by 07:15 and closed outright on Asha's off days). Each overlap row says 'a permission, not an event'. Under rain, Priya's card shows the 48 swap, Kofe's shows surge weather, Sam's case stays shut. Sunday drops Dani into her work week and shows Reyes off; Monday shows Bex, Ida, and Hana off.",
+   ck:["Overlaps are gated on day AND window AND both members' working days — no dead pairs","Weather deltas are per-route modal suggestions — rain changes modes, not the grid","Off-day cards dim to 'off day' — nobody commutes on a day they don't work"]},
+  {do:"Read the Non-commuters, Building pulse, Street texture, and Rules panels; then run node world/audit.js and find the commute gate.",
+   exp:"Non-commuters list Carmen, Esther, Tom, Ray with anchors — no invented routes; minors June and Zee appear nowhere. Building pulse flips each registry address between occupied and emptied (9102 Mission never empties). Street texture is anonymous ('a baker walking the dark block' — no names). The commute gate reports 'schema v87 · 22 routes · 10 overlaps · 4 non-commuters' and passes.",
+   ck:["Every route 'to' resolves to a jobs.json employer; every 'from' to a registry unit or ambient-ring","No cast id or name appears in street_texture — anonymous by contract","Gate reports schema v87 · 22 routes · 10 overlaps · 4 non-commuters; 0 fail overall"]}
+ ]},
+ {id:"PT79",title:"The Real Bus Seam — request UI meets game-v14 (v88)",min:6,
+  persona:"tester on the internal request bench — bridging a stub request bus to watch the seam honor the game's own names",
+  goal:"Verify the v88 live-seam alignment: filing capability-detects gsSubmitRequest (gsRequestSubmit as legacy alias) with bus spec keys {playerId, kind — event files as street_event — durationMin, note, params, start_slot}; the returned record is the truth (denied short-circuits before any local charge); reads grow to gsViewerState().board / gsResourceBoard(), gsBookCalendar(), gsBookableSlots(), and a gsPriceQuote() live-check line; the v14 'booked' status renders a booked chip.",
+  surfaces:["request","audit","harness"],steps:[
+  {do:"Open world/request.html twice: once bare (badge 'mirror — local pipeline') and once with a stub __aiBridge carrying gsViewerState + gsSubmitRequest + gsBookCalendar + gsBookableSlots + gsPriceQuote (devtools/smoke_request_v88.js is the reference stub).",
+   exp:"Bare, the page is unchanged — the local pipeline files, screens, reviews, and runs as the contract reference. Bridged, the badge reads 'live · __aiBridge', the public feed ingests bus entries (a 'booked' status lands as a booked chip), and the resource strip takes the bus's own projection: cool claims show leftMin, queued claims show depth as a count, booked[] markers annotate the claim.",
+   ck:["The strip never calls a resource free just because the bus is silent — unnamed claims keep demo state","Queue depth renders as a count, never a position auction","'booked' is feed vocabulary on both the public feed and the request card"]},
+  {do:"On the bridged page pick Weather change, fill the intent box, and read the quote box; then open the When picker.",
+   exp:"The quote gains a 'Live check' line running gsPriceQuote — the submit path's own math (total, surge, would-queue) shown before payment, informative never blocking. The When picker unions gsBookableSlots output into the local offer set, deduped by absolute minute; a slot the bus refuses simply isn't offered.",
+   ck:["A bus deny in gsPriceQuote warns ('refused requests never bill') but does not disable submit — same honesty rule as the pre-flight screen","Bus slots normalize from minutes-from-now, minute-of-day, start_min/startMin/abs, or 'HH:MM'"]},
+  {do:"File a booked weather window on the bridged page; inspect the payload and the request card; then make the stub return {status:'denied', reason:'cooldown'} and file again.",
+   exp:"The payload is bus-shaped: kind:'weather', durationMin, note, start_slot in minutes-from-now — alongside the documented world keys for the legacy alias. The card mirrors the returned record: booked lands approved/booked with busId. A denied record short-circuits the whole local pipeline — no upfront charge, no deny refund, just 'Request not approved — nothing was billed.'",
+   ck:["Event trigger files as kind:'street_event' (the game-v14 merge note)","A denied live filing never touches the ledger — denied requests never bill holds on the bus","Run devtools/smoke_request_v88.js — 13/13 green; the request gate in audit.js enforces the seam contract"]}
+ ]},
+ {id:"PT80",title:"The Real Wire Seam — spectator feed meets game-v14 (v89)",min:6,
+  persona:"tester on the internal spectator bench — bridging a stub game bus to watch The Wire read the feed the way 41_game_systems_feed actually writes it",
+  goal:"Verify the v89 live-seam alignment on wire.html: bus entries ingest in the real shape (top-level mentions, monotonic n as seq, day → multi-day separators, attempt on denied lines, 'booked' chip); incremental sync uses gsWireSince(maxN) and 'load older' pages via gsWirePage to an honest top-of-record; the permit board renders vs.board/gsResourceBoard read-only; co-sessions, player-called sky sponsors, and the gsWireStats withheld count all surface; pins write through to gsWireFollow (v:/m: keys) — the page's only write.",
+  surfaces:["wire","audit","harness"],steps:[
+  {do:"Open world/wire.html twice: once bare (badge 'demo stream') and once with a stub __aiBridge shaped like game-v14 (devtools/smoke_wire_v89.js is the reference stub — gsViewerState with feed/sessions/board/weather/calendar plus gsWireSince/gsWirePage/gsWireStats/gsCoSessions/gsExplainRequest/gsWireFollow).",
+   exp:"Bare, the page is unchanged — the local stream runs as the contract reference. Bridged, the badge reads 'live', bus entries land with top-level mentions folded in, a 'booked' status renders its chip and counts as open on the reaching-in-now strip, and entries carrying a different PT day get their own day separator.",
+   ck:["An entry's bus n becomes its seq — request trails and the missed bar follow bus order","'booked' rides the live strip alongside requested/queued/running","A sep-22 entry sits under a 'tuesday, sep 22' divider even when today's entries surround it in the tail"]},
+  {do:"On the bridged page, read the right rail and the reaching-in-now strip; open a queued request's event record.",
+   exp:"The permit board panel lists vs.board claim states (locked with minutes-left and holder, queued with depth, booked[] markers) — read-only, footer points at the Counter. Co-session pairs render 'a + b · one scene' cards. The detail panel's live record shows gsExplainRequest's real shape: 'the bus says — <note>', #N in line, waiting-on claim labels, blocked-by/behind ids; denied events show 'asked for — <kind>' and the reason class, never the screened text.",
+   ck:["The permit board is absent (not empty) when the bus reports no claims","Queued filings show 'filed queued — −15%' when attrs.discount rides along","Denied detail shows the attempt class + reason_code only — screened text never renders"]},
+  {do:"Let a few polls run (or call livePoll()), click 'load older', pin a character, open the day-so-far card, and watch the header.",
+   exp:"Polls switch to gsWireSince(maxN) after the join tail — the 50-line tail can't drop events. 'load older' calls gsWirePage({before:oldest n}) and ends at 'the top of the record — earlier days live in The Archive'. The pin writes gsWireFollow('m:<id>') — the page's only write, the viewer's own. The day card gains 'withheld — N, privacy screens, not downtime' from gsWireStats; the viewer counter hides when the bus reports none. A vs.weather override prints 'player-called sky — rain until HH:MM · 2 sponsors'.",
+   ck:["gsWireSince is called with the max n seen — never re-reads the tail once a cursor exists","liveExhausted flips only on the bus's own oldest flag","No viewer count renders when gsWireStats omits it — honest metrics, no invented audience","Run devtools/smoke_wire_v89.js — 15/15 green; the wire gate in audit.js enforces the v89 seam keys"]}
+ ]},
+ {id:"PT81",title:"The Real Archive Seam — history browser meets game-v14 (v90)",min:6,
+  persona:"tester on the internal spectator bench — bridging a stub game bus to watch The Archive read day-objects the way 41_game_systems_feed actually archives them",
+  goal:"Verify the v90 live-seam alignment on archive.html: live day-objects ingest in the real wire shape ({id,n,t,day,kind,text,venue,who,req,status,reason_code,attempt,mentions,attrs}); events resolve to days via an id→day index (w- ids and any year, not just d<MMDD> prefixes); the person index is NAMES ∪ mentions ids (live char ids browsable, player handles excluded); denied rows show 'asked for — <kind>'; unknown kinds earn their own chip; 'catch up' merges new rows by id, additive only, no polling.",
+  surfaces:["archive","audit","harness"],steps:[
+  {do:"Open world/archive.html twice: once bare (badge 'demo archive') and once with a stub __aiBridge carrying gsWireDays + gsWireArchiveDay returning game-v14-shaped day-objects (devtools/smoke_archive_v90.js is the reference stub — w- and d<MMDD>- ids, mentions with unknown char ids, attempt + reason_code on a denial, a 'cast' kind, 'player session ended' status).",
+   exp:"Bare, the page is the demo week as contract reference. Bridged, the badge reads 'live archive', only live days list, today is flagged and capped 'still being written', and same-minute rows keep the bus's n order (queued before running).",
+   ck:["An event with a w- id (no day prefix) resolves its day and record through the id→day index","Same-minute sub-lines sort by the bus's monotonic n, not arrival luck","The 'player session ended' status renders as a canonical chip"]},
+  {do:"On the bridged page, open a denied request's record, then the person picker, then the day view's kind chips.",
+   exp:"The denied record shows 'asked for — <kind>' and the why-class only — the screened text was never written and cannot be found. The person index lists mentions-only live ids (h01, h02) verbatim next to the cast registry; player handles (dvh, ghostline) never appear — they stay ledger-side. A kind outside the page's known set ('cast') earns its own chip labeled 'counted, not interpreted' and filters exactly.",
+   ck:["Denied rows show the attempt class — the only public piece of a denied ask","Person index = NAMES ∪ mentions ids; handles excluded structurally","Unknown ids render verbatim — the archive never invents a display name"]},
+  {do:"On today (live), click 'catch up' twice — once after the stub grows a new event, once with nothing new.",
+   exp:"First pull reports 'caught up — 1 new line on the record' and the new row appears; second reports 'already current — nothing new on the wire'. The merge is additive by id — rows the page already served are never dropped, and nothing polls in the background.",
+   ck:["catch up exists only on today, live mode only — the archive doesn't poll","mergeDay is additive: a ring-capped bus dropping old lines doesn't erase the reader's copy","Run devtools/smoke_archive_v90.js — 20/20 green; the archive gate in audit.js enforces the v90 seam keys"]}
+ ]},
+ {id:"PT82",title:"The Real Hire Seam — Join the Cast meets the production bus (v91)",min:7,
+  persona:"tester on the internal creator bench — filing a hire through create.html twice: bare (demo board) and bridged to a stub personnel office shaped like 41_game_systems_hiring.js",
+  goal:"Verify the v91 real-hire-seam alignment on create.html: signing files gsSubmitRequest({playerId, kind:'hire', target:<unit id>, durationMin:5, params:{name, goes_by, age, pronouns, bio, arrival, look, job, moveInDate, resubmit_n}}); the home board reads gsVacantUnits() when bridged; the hire package replaces the deposit story (deposit $0 waived, first month pro-rated to moveInDate, arrival bank $1,600); gsHireQuote renders its real fields verbatim; a 'denied' record shows the real reason code with no charge; an 'in_review' record parks in the naming lane and the queue card carries the live record id — the page never fakes an approval on a live filing; the card cap is the production 24; minted ids are h0N; live withdraw goes through gsCancelRequest.",
+  surfaces:["create","audit","harness"],steps:[
+  {do:"Open world/create.html bare (badge 'demo board') and walk all six steps to signing.",
+   exp:"The seats line reads 'of 24 hired faces' (the production envelope, not the old proposal 12). Step 4's header says the deposit is waived — the hire package covers the hunt — and every home row shows 'deposit waived · first month $N pro-rated'. The move-in card shows the pro-rated first month from a real date, deposit $0, and the re-house honesty line. The review card's move-in line is pro-rated, the one-a-day cooldown note is present, and no payment-plan copy survives anywhere.",
+   ck:["BLOCK_CAP is 24 — GS_MAX_HIRED_TOTAL, production-pinned","Deposit story gone: '$0 — waived · the hire package covers the hunt' replaces the old 1×/0.5× + payment-plan math","First month pro-rates to moveInDate — landing pick drives a real date, not a vague window"]},
+  {do:"Bridge a stub __aiBridge (devtools/smoke_create_v91.js is the reference stub — gsJobBoard, gsVacantUnits with registry units, gsHireNameCheck, gsHireQuote, gsHireSlots, gsHiredRoster, gsExplainRequest, gsSubmitRequest, gsCancelRequest) and sign a hire.",
+   exp:"The badge flips to 'live board'; step 4 lists the registry units verbatim ('9127 Capp Street, San Francisco, CA Unit A', bedrooms 0 → studio). The review card gains a 'live — the personnel office' block with the quote's own fields (deposit note, rent-to-income pct, bank after move-in, slots, warnings). Signing calls gsSubmitRequest with kind 'hire', target = the unit id, and the full params; the returned in_review record parks the queue card with its live bus id (req-7 · in_review · naming lane) — no briefing, no registry mint, no fake approval.",
+   ck:["The bus spec is the real shape — target is a unit id, params.job is a job id, moveInDate is YYYY-MM-DD","The queue card carries the live record id and the naming-lane line — billed on approval only","Withdraw calls gsCancelRequest(req-7), never a local pretend-cancel"]},
+  {do:"Force a denied filing (taken name through the stub) and check the deny surface.",
+   exp:"The pipeline shows 'the office refused — name_collision' and 'no charge — a refused filing never bills'; the deny box shows the real reason code and DENY_COPY line. The live name check refuses the gate on a collision before the bus is even asked.",
+   ck:["A denied record renders its real reason code — never a softened generic","Nothing is billed on a bus denial — pre-billing refusal","Run devtools/smoke_create_v91.js — 27/27 green; the creation gate in audit.js enforces the v91 seam keys"]}
+ ]},
+ {id:"PT83",title:"The Real Review Seam — Mod Console meets the production bus (v92)",min:7,
+  persona:"reviewer on the internal mod bench — running the queue twice: bare (seeded demo contract) and bridged to a stub review surface shaped like 41_game_systems_requests.js + 41_game_systems_antigrief.js",
+  goal:"Verify the v92 real-review-seam alignment on mod-console.html: the queue IS gsReviewQueue() (bus records parked in_review mapped verbatim — screen code, lane, submittedMin, reviewExpireMin TTL chip, billed:0 'billed on approval'); decisions write through gsReviewResolve({by,code,modifyMin}) and gsEscalateLegal, never a local pretend; the bus's same_reviewer refusal on appeals is honored both directions; metrics read gsModMetrics verbatim; the player card reads gsFlagStatus + gsRepLedger; the character card is the gsPossessionBriefing whitelist object; claims stay session-local until bus locks land; the drift tool (devtools/screen_drift.js) runs the corpus through both engines.",
+  surfaces:["mod","audit","harness"],steps:[
+  {do:"Open world/mod-console.html bare (badge 'demo queue'), pick an item, approve it, and read the audit log.",
+   exp:"The seeded queue is the contract reference: lanes, whitelist card ('Not redacted — absent'), claim/release, handoff notes, the RWScreen trace, and the seeded 30-day shift report all still work. The decide lands an audit entry.",
+   ck:["Badge reads 'demo queue' — the seeded path is the fallback, not the product","Every v78 affordance intact: claims, appeal workspace, notes, flag roster, ledger export"]},
+  {do:"Bridge a stub __aiBridge (devtools/smoke_mod_v92.js is the reference stub — gsReviewQueue returning in_review records incl. an appeal with origReviewer and a legal-backstop screen, gsReviewResolve, gsEscalateLegal, gsModMetrics, gsFlagStatus, gsRepLedger, gsPossessionBriefing, gsExplainRequest, gsViewerState.nowMin) and work the queue.",
+   exp:"The badge flips to 'live queue'; bus ids render verbatim with the bus's own screen code and a TTL chip; a billed:0 appeal shows 'billed on approval'; wait counts bus minutes. Deciding calls gsReviewResolve with {by:<active reviewer>} and the item leaves the queue; the audit entry carries 'via bus'; an approve that lands queued/failed is reported as the real landing, never 'approved'.",
+   ck:["The bus spec is the real shape — {by} is the reviewer handle, deny carries {code}, modify carries {modifyMin} under the declared duration","No fake approval: the audit line reports the bus's landing status verbatim","Wait times and the metrics strip count bus minutes / gsModMetrics, not wall clock"]},
+  {do:"Switch the reviewer picker to the appeal's origReviewer and open the appeal; then open the legal item and confirm the flag; then run node devtools/screen_drift.js.",
+   exp:"As the original reviewer the decision bar is withheld AND gsReviewResolve returns {error:'same_reviewer'} — the bus enforces the rule, the console just shows it. Confirm legal flag calls gsEscalateLegal and the item dies. The drift report prints corpus green + a PORT-GAP table (23 gaps: 13 missing normalization, 10 lexicon drift, 6 history untestable) — a merge artifact for game-systems, never a world failure.",
+   ck:["same_reviewer is enforced twice: the UI withholds the bar, the bus refuses the resolve","Legal kills go through gsEscalateLegal — public wording stays 'request not approved'","screen_drift.js exits 0 with the corpus green; gaps are reported, not judged from this branch"]}
+]},
+{id:"PT84",title:"Harness v93 — the triage layer (surface filter, finding status, per-finding copy, step n/a)",min:8,
+ persona:"facilitator running a post-change regression pass — the harness itself is the surface under test",
+ goal:"Verify the v93 triage affordances: the rail's surface filter narrows scenarios to those touching a picked surface and composes with smoke + hide-finished; findings carry a triage status (open / fixed / wontfix / deferred) that persists, rides both exports, and gates the handoff's open-findings list; each finding row emits its own [world-playtest-finding] paste block; a step sweeps to n/a in one click and un-sweeps the same way.",
+ surfaces:["harness","audit"],steps:[
+ {do:"Pick a surface in the rail's new surface dropdown (e.g. 'lease'), then stack the smoke and hide-finished filters on and off, and walk with [ / ].",
+  exp:"The rail narrows to exactly the scenarios declaring that surface; the progress line's denominator, the scenario walk, and Copy run sheet all honor the narrowed list; the pick persists across reload (S.surf).",
+  ck:["Surface filter options come from Object.keys(SURF) — only declared surfaces, and it narrows honestly: no scenario appears that doesn't touch the pick",
+    "Composes with smoke + hide-finished — neither filter eats the others' meaning, progress line denominator narrows with it",
+    "The pick persists across reload and clears back to 'all surfaces'"]},
+ {do:"Log two findings, set one to 'fixed' and one to 'deferred' on the row's status chip; reload; then export JSON, copy Markdown, and Copy handoff.",
+  exp:"Status persists on the finding (f.status, default open); the statline and both exports carry it; the handoff's open-findings list excludes fixed/wontfix and labels deferred honestly.",
+  ck:["f.status persists across reload; findings logged before v93 read as open",
+    "Markdown export prints the status per finding; handoff drops fixed/wontfix from 'open findings' and marks deferred",
+    "Statline reads 'findings: N (M open)'"]},
+ {do:"Click 'copy' on one finding and read the clipboard; then hit 'n/a step' on a step with several checkpoints — and again on the same step.",
+  exp:"Copy emits a [world-playtest-finding] block — severity, ref, owner, title, detail, repro, and the #pt= deep link — pasteable into a per-track note as-is. n/a step marks every checkpoint in that step n/a; pressed again on an all-n/a step it clears them; a partially-verdicted step sweeps to all-n/a without touching other steps.",
+  ck:["The finding block carries ref + owner + repro deep link — no retyping for the triage paste",
+    "n/a sweep sets the whole step; second press on an all-n/a step clears it; other steps untouched"]},
+ {do:"Run node world/audit.js from the repo root.",
+  exp:"harness gate passes at key rw_playtest_v93 / build 'world v93 local' with the v93 marks (surfFilter, S.surf, fStat/setFStat, copyFinding, world-playtest-finding, naStep) and reports 84 scenarios; the mirror gate confirms the PT84 hand-sync.",
+  ck:["Harness gate: '84 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall",
+    "A missing surfFilter/fStat/copyFinding/naStep mark or the old LS key would FAIL — spot-check"]}
+]},
+{id:"PT85",title:"Drama board v94 — cooling grammar, double-surface, fair misfires, posture vocabulary",min:9,
+ persona:"showrunner-side reviewer — wants the v94 direction layer verified as permission structures and vocabularies, not scripts",
+ goal:"Verify the v94 drama-direction pass: drama.json drama-v6 carries the cooling grammar (rung descent, afterglow, no refund, surfaced never cools), the double-surface contingency (canon + merge-not-stack + protections never mask), the fair-misfire register (whisper-only, retroactive fairness, never aimed), and the five-posture vocabulary; pressure catalog grows to P-26; drama.html renders all four new sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§40–44 against the §19 legality checklist. For each new rule or table row, name which of the four legal forms it is.",
+  exp:"Every statement resolves to a permission, ceiling, weight, or protection — cooling describes how shadows thin (never a mechanism that thins them), double-surface is contingency-handling not prevention, misfires are unscheduled ambiguity with a fairness test, postures are a written vocabulary that cannot create conditions. No line predicts an outcome the feed could falsify in a week.",
+  ck:["Cooling grammar: descent through rungs, required afterglow, no banking, re-pressuring needs fresh §21 evidence, surfaced never cools",
+    "Double-surface: canon not prevented; louder observed not assigned; §38 protections unmaskable; recovery merges; archive separates the two events",
+    "Fair misfires: whisper-rung only; rewatch test in reverse; never aimed at a specific wrong conclusion; no budget and no lever",
+    "Posture vocabulary: exactly prefer/hold/shed/observe/recovery; one per fuse per window; recovery outranks prefer; a posture that reads as a plan is a violation"]},
+ {do:"Open drama.html (file://) and scroll the four new sections plus the pressure catalog.",
+  exp:"Cooling grammar, double-surface contingency, fair misfires each render their rule lists; the posture table renders five rows with args column; the pressure catalog now runs P-01–P-26 with the fifth-tranche rows (laundry-night, borrowed-thing return, posted closed day, group errand) each naming a producing system that already exists.",
+  ck:["All four new sections render populated — no empty list/tbody, no console errors",
+    "POSTURE shows 5 rows; cooling/dsurf/misfire lists match drama.json rule counts",
+    "P-23–P-26 each carry produced_by + legible shadow + exhaustion — a row missing any is a wish, not a pressure"]},
+ {do:"Run node world/audit.js from the repo root and read the drama + harness gates.",
+  exp:"The drama gate passes the v94 checks: schema drama-v6, cooling/double-surface/fair-misfire rule content requirements, exactly five postures with meanings, posture rules fencing world-writes, and html mirror counts (COOLING/DSURF/MISFIRE/POSTURE/POSTURERULES). Harness gate reports 85 scenarios at the v93 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 26 pressure rows · schema drama-v6'",
+    "A missing posture, a misfire rule without the whisper cap, or an html count mismatch would FAIL — spot-check",
+    "Harness gate: '85 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]}
+,{id:"PT86",title:"Onboarding v7 — the stay (credit rules, the standing option, the first visit)",min:12,
+ persona:"new hirer with a funded wallet — wants to know what a credit isn't, whether a subscription is being pushed, and what stepping into their character actually feels like",
+ goal:"Verify the v95 onboarding pass: the wallet card states the credit rules once (never run out / never cash out / never move between accounts); the two standing orders surface exactly once with plan §2.5 verbatim contents ($4.99/600 cr Resident, $11.99/1,500 cr Director) and no deal framing; the Resident stipend preview lands +600 once; and S7 walks a hired player through a 22-cr 15-min first possession whose two exits both hand back mid-motion with no refund promised.",
+ surfaces:["onboard","audit"],steps:[
+ {do:"Read onboarding-ui.md §§44–49 and onboarding.json's credit_rules / subscription_line / first_visit blocks against monetization plan §2.1, §2.2, and §2.5.",
+  exp:"Every number matches the plan verbatim — $4.99/mo + 600 cr, $11.99/mo + 1,500 cr, camera director mode, show credits, 22 cr minimum billable; every perk named is one the plan lists; no trial, cancellation term, or 'best value' framing anywhere; the never-list gained the six v95 clauses.",
+  ck:["Sub contents verbatim from §2.5 — nothing promised that the plan doesn't list",
+    "Credit rules are locked constraints stated as disclosure, not feature-sell",
+    "first_visit.cr = 22 — the §2.2 compatible minimum billable, no invented figure"]},
+ {do:"Open onboarding.html (file://), pick 'I might reach in', pick a handle, choose the adult band, and read the wallet card top to bottom. Click the Resident preview twice.",
+  exp:"The credit-rules line and the standing-orders line render once each, in the same plain .note styling as everything else — no highlight, no default-check, no second mention on re-render. The preview credits +600 once labeled as the stipend; the second click toasts a no-op. Repeat with the under-13 band on a reset: neither line exists on S3u.",
+  ck:["Both lines present on S3 for adult/teen/na; structurally absent for u13",
+    "Stipend preview is idempotent — +600 once, later clicks a no-op toast",
+    "No deal framing anywhere: no trial, no auto-renew language, no savings percentage"]},
+ {do:"Reload with ?hired=1 on a funded adult account. Read the first-day card, take the first visit, then 'Step out early'; reset, rehire, and take it again to 'Jump ahead — 15 min later'.",
+  exp:"S6 offers the visit only when band + hired allow; filing posts 'possession: first visit, 15 min · running' attributed and charges 22 cr. Step-out resolves 'player session ended'; the cap resolves 'session ended at the cap · resolved'. Both cards say nothing is metered back; after either exit the card reads 'that was the visit' and offers settle only — no re-file.",
+  ck:["Feed vocabulary is verbatim requests.json wording — running / player session ended / resolved",
+    "22 cr charged once; balance math honest on screen",
+    "One-time lesson: after exit, S7 offers settle — no second guided visit",
+    "?hired=1 on u13 shows no visit affordance; stage('S7') without hired redirects to S5"]},
+ {do:"Run node world/audit.js from the repo root and read the onboard gate.",
+  exp:"onboard gate passes at 'schema v95 · 8 beats · key rw_onboard_v95' — all v95 honesty strings found, S7 reachable + hired-gated + in PAID_STAGES, subscription_line/first_visit values pinned to the plan, deal-framing and early-release-refund sweeps clean.",
+  ck:["Onboard gate: 0 fail; detail reports schema v95 at key rw_onboard_v95",
+    "A missing credit rule, an invented sub price, or S7 outside PAID_STAGES would FAIL — spot-check"]}
+]}
+,{id:"PT87",title:"Rent Book v6 — the counter-paper layer (assignment, buyout, prepaid, history letter)",min:11,
+ persona:"tenant-rights reviewer — wants the v96 layer verified as paper that protects the tenant, not new levers for the landlord",
+ goal:"Verify the v96 lease pass: lease assignment (clean-ledger gate, assignee screened on the published checklist, deposit carries, outgoing liability ends, file-only); buyout offers (offerable only while active, stated amount, tenant decides, 30-day re-offer cooldown on decline, BUYOUT credit code on accept); prepaid rent (3-month cap, draws down on the 1st before any balance, never required); the rental history letter (one dated abstract, neutral scars); all four file-only — the feed hears at most the neutral turnover line.",
+ surfaces:["lease","audit"],steps:[
+ {do:"Open lease.html (file://) as tenant h01. Try 'Request lease assignment' while the day-6 balance still stands; pay the rent, then file it and switch to admin.",
+  exp:"The request is refused while a balance stands — 'the ledger must be clean to hand over.' Once paid, the request writes a file doc naming the assignee and the published checklist; admin sees the approve/decline pair. Approving renames the tenant to D. Park, carries the deposit, keeps the term and the scars on the unit's file — and posts nothing to the wire.",
+  ck:["Balance gate blocks the request before it files — toast names the rule",
+    "Approval carries deposit + term + hist verbatim; mine flag clears (h01 is off the lease)",
+    "No wire line on request, approval, or decline — assignment is file-only"]},
+ {do:"As admin, 'Offer buyout' on an active lease; then as tenant, decline it. Try to offer again. On a second lease (or after stepping days past the cooldown), accept one.",
+  exp:"The offer posts a stated-amount doc and the tenant decides. Decline writes a free decline — no fee, no mark — and locks re-offer 30 days; the offer button is gone until the cooldown lapses. Accept posts a 'buyout credit — BUYOUT' ledger line, runs ordinary move-out paper (walkthrough + 21-day deposit clock), credits the tenant bank, and the wire shows only 'Unit turning over — <addr>'. Offering under a live rung (arrears/noticed/disputed) is refused outright.",
+  ck:["offerBuyout refuses any state but active — buyout is not a ladder shortcut",
+    "Decline is free and sets buyoutCool = day+30; re-offer is gated",
+    "Accept writes BUYOUT-coded credit + depPending + walkthrough; feed sees only the neutral turnover template"]},
+ {do:"As tenant, 'Prepay a month' twice on 9457-2, then step days to cross the 1st and watch the rollover. Then 'Request rental history letter' twice.",
+  exp:"Each prepay posts a 'prepaid rent credit' line and the file shows the running credit (cap: three months — a fourth click refuses). At the month rollover the rent charge posts and a 'prepaid credit applied' line covers it before any balance exists — no day-6 fee accrues on the covered month. The history letter writes once: dated, term stated, payment-line count, scars stated as scars; a second click is a no-op toast.",
+  ck:["prepaid credit draws down on the 1st — balance never forms on the covered month",
+    "Cap enforced at 3× rent; prepay is never framed as required or as leverage",
+    "Letter is one-per-tenancy, neutral, and names scars without editorializing"]},
+ {do:"Run node world/audit.js from the repo root and read the lease gate.",
+  exp:"The lease gate passes the v96 checks: key rw_lease_v96, all five html surfaces (assignment/buyout/prepaid/history letter/BUYOUT code), the four json blocks, active-only offerability + 30-day cooldown, the four feed_wording.never additions, own-unit guards on assignDecide/offerBuyout, file-only wiring on the five request/decide functions, the clean-ledger gate, and the 3× cap.",
+  ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
+    "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
+    "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]}
+,{id:"PT88",title:"The Understudy v7 — the encounter layer (nod economy, player contact, request split)",min:11,
+ persona:"resilience reviewer — wants the outage posture to survive contact: thin meeting thin, a player pressing thin, and paid requests during a blackout",
+ goal:"Verify the v97 encounter pass: two thin pawns sharing a cell run gesture register only (the nod economy — no staged conversation, cap unchanged, nothing persists); a possessed player pressing a thin pawn gets kit → deflect → silence and can never wake a mode with attention; the request split delivers world-bound asks (rain) at 0% service while brain-bound scene asks decline with the 50% auto-refund.",
+ surfaces:["thinai","audit"],steps:[
+ {do:"Open thinai.html (file://) and click 'A15 drifts in / out'. Read the A01 card, the encounter panel, and the seam lines; toggle A15 back out.",
+  exp:"A15 sharing the counter cell produces the nod economy: a co-presence chip and a seam line naming a regulars' nod as a per-card reflex flag — not a relationship write. No conversation is staged, the 3/hr bubble cap is unchanged, and when A15 leaves, nothing persists. The encounter panel counts live minds and states the rule: a scene needs at least one full brain or one player.",
+  ck:["Co-presence renders as gesture register only — no dialogue, no relationship beat",
+    "Seam line calls the nod a per-card reflex flag, never a memory write",
+    "Panel counts live minds and states the ≥1-mind scene rule"]},
+ {do:"Bring the owner online, possess h01, then press 'Player talks at A01' four times inside the same hour.",
+  exp:"Each press spends from A01's ordinary bubble budget: two phrase-kit replies, then the third press — the seam probe 'are you AI?' — resolves as a generic deflect, and the fourth hits the cap and produces silence. Every seam line repeats the rule: attention doesn't wake a mode, the session bought presence not a scene partner, and nothing writes thin-side.",
+  ck:["Player contact consumes the same 3/hr cap as any press — no deeper register for paying minutes",
+    "'are you AI?' deflects like any other direct question — no answer register exists",
+    "No mode change, no thin-side memory; the button is inert without a live session"]},
+ {do:"Drop the service to 0% blackout, then fire 'World req: rain now' and 'Scene req: A01 + A15'. Step +15 min and watch reflexes.",
+  exp:"The rain request delivers in full at 0% — wire shows 'request — weather: rain over the Mission, 2 h — running' and rain-shelter / covered-route reflexes fire block-wide: the world was never model output. The scene request resolves 'resolved · declined (50% auto-refund)' — the named pair are both thin and a live mind elsewhere doesn't carry their scene. The feed never announces the outage underneath.",
+  ck:["World-bound request delivers at 0% — weather and reflexes are not brain products",
+    "Brain-bound scene ask declines with locked vocabulary + 50% refund, judged at activation",
+    "Wire shows ordinary request/weather vocabulary only — no outage surface"]},
+ {do:"Run node world/audit.js from the repo root and read the thinai gate.",
+  exp:"The thinai gate passes the v97 checks: key rw_thinai_v97, the three json blocks (thin_encounters / player_contact / world_requests with all four classes), the four new demo events, the seven html marks (nod economy, who's awake in the room, world-bound, live-mind scene rule, the seam-probe deflect, presence-not-depth copy) — plus every prior-pass check still green.",
+  ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
+    "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
+    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]}
+,{id:"PT89",title:"The Company v98 — the receiving register (weather, being helped)",min:8,
+ persona:"cast-bible reviewer — wants the new v98 sections to read like the characters and stay seed-free",
+ goal:"Verify the v98 roleplay pass: all 8 bibles carry 'Weather' and 'Being helped' between Repairs and the briefing-safe block; cast.html renders both fields on every card; characters.json mirrors them as weather/helped with no seed vocabulary; the bible gate counts 27 required sections.",
+ surfaces:["cast","audit"],steps:[
+ {do:"Open cast.html (file://) and click all 8 rail cards. On each card, find the 'Weather, as it lands on them' and 'How they take help' rows below the repairs line.",
+  exp:"Both rows render populated on every card — weather written through each character's own work/body/routine (Carmen's joints and stoop, Victor's roofs, Tomás's line), and the helped register is a distinct posture per character (Marisol nearly unhelpable, Jules's gratitude-ledger, Tomás's cooked-for surrender). Nothing on either row names or teases a private storyline.",
+  ck:["All 8 cards carry both new rows — no empty labels",
+    "Weather copy is per-character texture, not interchangeable preference",
+    "No row states or teases a hidden fact — orbit only, never the seed"]},
+ {do:"Open two bibles in an editor — characters/c6-carmen-echeverria.md and characters/c8-tomas-herrera.md. Confirm '## Weather' and '## Being helped' sit after '## Repairs' and before '## Public profile', and read both sections.",
+  exp:"Placement is fixed-order compliant on both files. Each section is camera-legible register — the feed could film every line — and gestures at blind spots without stating them (Carmen's charity-refusal, Tomás's pride) while the SECRETS block remains last.",
+  ck:["Section order: Repairs → Weather → Being helped → Public profile on both bibles",
+    "Voice differs per bible — Carmen's is joints/stoop/verano, Tomás's is produce/line/leisure",
+    "SECRETS & SEEDS remains the final ## section in both files"]},
+ {do:"Run node world/audit.js from the repo root and read the bible gate.",
+  exp:"The bible gate passes at schema v98: 27 required sections enforced, characters.json roleplay_fields gains weather/helped with the v98_fields convention, cast.html wx/hlp keys checked per card, and both new fields swept by the observable-safe vocabulary check.",
+  ck:["Bible gate: 0 fail; detail reports 'schema v98 · 8 mains · 27 required sections'",
+    "A missing weather/helped field in characters.json or a missing wx/hlp key in cast.html would FAIL — spot-check",
+    "Harness gate: '89 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+ ]}
+,{id:"PT90",title:"The Crowd v99 — the bench layer (pull protocol + coverage)",min:9,
+ persona:"request-pipeline reviewer — wants proof that borrowing a named ambient is bounded, honest, and invisible on the wire",
+ goal:"Verify the v99 bench layer: crowd.json pull_protocol declares the loan bounds (15–90 min, ≤3/day each, ≤2 concurrent, ≥60 min cooldown, one-step bounds, minors never); coverage gives all 20 ambients an absence surface of kind understudy|sign|open|pack; crowd.html renders 'The bench — pulled & covered' with live pullability per ambient; the crowd gate enforces mirror parity and the pack rule.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Open world/crowd.html (file://) and find 'The bench — pulled & covered'. Scrub the clock from 6:00 to 24:00 and flip day/weather toggles.",
+  exp:"Every ambient row shows its post, coverage kind, and honest read; the pullable tag flips with resolved state — Reyes 'pullable now' during Mudhaus hours, 'not pullable (sleep)' overnight, 'not pullable' on her Sunday off; A04 June and A20 Zee read 'never' in pink at every hour.",
+  ck:["All 20 rows present — post · kind · read + a live pullability tag",
+    "Pullability tracks the resolved routine (sleep/home/transit never pullable)",
+    "Minors read 'never' at every hour and every weather"]},
+ {do:"Click Reyes, Luz, and Ray in the named-layer roster. Read the 'if borrowed' line on each card.",
+  exp:"Reyes: 'the espresso bar · understudy — a second apron steps up…'; Luz: 'the fruit stand · sign — tarp down, chalk reads back in 10'; Ray: 'the south bench · open — the bench empties…'. Three different honest surfaces — no card pretends the work keeps running unattended.",
+  ck:["Understudy reads fill the silhouette with an extra, never a named pawn",
+    "Sign reads tell the truth (tarp down / ring bell / back in 10)",
+    "Open reads let the post empty — nobody covers a jog or a bench"]},
+ {do:"Run node world/audit.js and read the crowd gate. Then open world/crowd.json §pull_protocol + §coverage and world/crowd-sim.md §§26–28.",
+  exp:"Crowd gate passes at schema v99 with '… · 20 coverage' in the detail; pull_protocol carries window/capacity/bounds/states/minors/role_bound/feed/pipeline; coverage keys equal the full roster and minors' kind is 'pack'; prose spells the honest-post rule and wire invisibility.",
+  ck:["Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
+    "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
+    "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]},
+{id:"PT91",title:"The Permit Wall v100 — the paper layer (posted paper + door lineage)",min:8,
+ persona:"continuity editor — wants proof the paper behind the counter is plausible, honest, and safe to put on camera",
+ goal:"Verify the v100 paper layer: permits.json walls cover exactly the 20 door venues (offstage orgs and reserved names carry none); every paper kind is in paper_keys and every status in status_keys; liquor papers only on rules.liquor_venues and score cards only on food_venues inside range; lineage is shaped (name/years/note), never the current tenant, and ghost_sign requires a former entry; permit.html renders 'The Permit Wall' with live filters; the perm gate enforces the mirror.",
+ surfaces:["permits", "audit"],steps:[
+ {do:"Open world/permit.html (file://) and scan the wall grid. Then flip the 'has pending' filter.",
+  exp:"Twenty wall cards render — business name · tier · corner · a paper list with kind tags and status chips. The pending filter narrows to exactly two doors: Baguette About It (sidewalk tables) and The Musket (entertainment). Pending reads as a taped-up application receipt, never a violation.",
+  ck:["All 20 door venues present; no offstage org or reserved name carries a wall", "Statuses chip as posted/renewed/pending with honest hover text", "Pending = 'application filed, receipt taped' — no drama, no violation wording"]},
+ {do:"Flip 'has ghost sign' and 'liquor venues'. Read Auerbach's card closely, then Las Palmas and Valencia Growers.",
+  exp:"Ghost filter shows 18 doors with faded caps-letter signage (PALLET & PINE, LA CORREA, SUD CITY…); Las Palmas and Valencia Growers read 'no wall to paint' — stands have no facade. Liquor filter shows the six pouring venues only. Auerbach's former tenant is itself under an earlier trade (Auerbach Radio & TV) — third-generation continuity.",
+  ck:["18 ghost signs; the two nulls are both no-wall stands", "Liquor papers appear only at the-600-club, il-delfino, the-musket, buy-rite-market, maliks, el-farolote", "Auerbach lineage names the same family in an earlier trade — the exception that proves the rule"]},
+ {do:"Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
+  exp:"Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
+  ck:["Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts", "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally", "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT92",title:"The Fridge Door v101 — the household layer (homes v101)",min:8,
+ persona:"continuity editor — wants proof the inside of each home is plausible, honest, and safe to put on camera",
+ goal:"Verify the v101 household layer: homes.json covers exactly the 7 actively-leased registry units plus the 3 vacant listings; occupants resolve to cast/lease ids, shapes stay in-key, ambient households carry null fridge notes and vacant rows carry showing texture not people; perks[] covers every jobs.json employer once with texture not compensation; homes.html renders 'The Fridge Door' with shape filters and pinned-note styling; the homes gate enforces the mirror and the no-money/no-secrets bar.",
+ surfaces:["homes","audit"],steps:[
+ {do:"Open world/homes.html (file://) and scan the occupied-homes grid. Then flip the shape filter to 'share'.",
+  exp:"Seven occupied cards render — address · shape chip · occupant ids · rota/kitchen/quiet/guests/kit fields · a pinned paper note per named household. The share filter narrows to 9418-A (Carmen + Jules) and 9263-4 (Reyes cousins + Dani). The ambient Unit 1 card shows '— no fridge note —' honestly.",
+  ck:["All 7 occupied registry units present; each fields all five texture rows",
+    "Fridge notes read as real pinned notes — voice, no machine ids inside the text",
+    "Ambient household carries a null note, never an invented voice"]},
+ {do:"Flip to 'vacant' and read the three showing cards; then scan the perks table and the ambient-ring row.",
+  exp:"Vacant grid shows the 3 LISTED units with showing texture (paint smell, the lingering window, the honest script) and zero occupants. Perks lists all 24 employers once — day-old bread, the dented-can shelf, the staff bay — with Malik's honest null. The ring row describes off-registry homes with no ids and no addresses.",
+  ck:["3 vacant cards = exactly the LISTED units; no occupants, no fridge notes",
+    "24 perks, one per jobs.json employer — texture, never a wage figure",
+    "Ambient ring stays a direction: no unit ids, no 9xxx addresses"]},
+ {do:"Run node world/audit.js and read the homes gate. Then open world/homes.json §rules and world/homes.md §§1–5.",
+  exp:"Homes gate passes at schema v101 with '7 homes · 3 vacant · 24 perks' in the detail; rules declare surface knowledge / conditions never scripts / no money / vacant-showings / ambient-ring. Prose spells the fridge-note rule and the lease-moves-the-row lifecycle.",
+  ck:["Homes gate: 0 fail; detail reports 'schema v101' and the homes/vacant/perks counts",
+    "A dollar figure, a cast id inside a fridge note, or occupants on a vacant row FAILs the gate — spot-check mentally",
+    "Harness gate: '92 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT93",title:"The live session layer v102 — request.html rides the bus end-to-end",min:8,
+ persona:"merge auditor — wants proof the bridged request card is driven by the bus, not just filed to it",
+ goal:"Verify the v102 live session layer: request.html capability-checks gsRequestMeter / gsCancelRequest / gsAppealRequest / gsWatchAd / gsAdStatus / gsPossessionBriefing / gsConflictRules / gsAppealStats behind the same LIVE flag as the filing seam; requests.json documents them in live_seam.reads + live_writes + live_meter; the request gate enforces every surface name plus the own-position-only queue honesty line.",
+ surfaces:["request","audit"],steps:[
+ {do:"Read the v102 block at the top of world/request.html, then find liveSess and the meter pass inside livePoll (search 'v102').",
+  exp:"The header comment names all eight bus surfaces with their capability-check rule. liveSess renders remainingMin/spentSoFar/lowCredits as a live session card ('the bus holds the clock'); the meter pass maps queued→queuePos, in_review→reviewCode+expiry, active→session, and terminal states→status+refund onto the card.",
+  ck:["gsRequestMeter drives the card verbatim — queued position, review clock, active remaining, terminal refunds",
+    "Queue position copy reads 'place N in line — yours can only shrink, never grow' — the holder's own place, never the queue's order",
+    "Release early files gsCancelRequest and the copy says the bus settles unused minutes by its own rule"]},
+ {do:"Read cancelReq, appealReq, renderAds/the ad button, renderBrief, and renderBoard — every live write and read is behind LIVE && BRIDGE.<fn>.",
+  exp:"Cancel and appeal file on the bus only when r.busId exists; appeal refusal codes map to neutral wording (already_appealed, window_closed…); the ad button mints through gsWatchAd and treats capHit as an honest refusal; the briefing prefers gsPossessionBriefing with the absent-by-schema bar unchanged; gsConflictRules renders under the board; gsAppealStats adds one aggregate line, never per-appeal feed items.",
+  ck:["No live call is unconditional — every one is inside LIVE && BRIDGE.<fn> with try/catch",
+    "Appeal refuses read neutral — no accusation, no theater",
+    "Absent-by-schema secrets bar present on both demo and live briefing cards"]},
+ {do:"Run node world/audit.js and read the request gate; then open world/requests.json live_writes/live_meter and world/request-ui.md §13.",
+  exp:"Request gate passes with the v102 checks green (live_writes names gsCancelRequest/gsAppealRequest/gsWatchAd; live_meter carries queuePos/remainingMin/terminal; all eight surface strings present in the HTML). Prose spells the meter-is-truth rule and the own-position-only distinction.",
+  ck:["Request gate: 0 fail; detail still reports 'seam wired'",
+    "A missing live_writes/live_meter block or a dropped surface string FAILs the gate — spot-check mentally",
+    "Harness gate: '93 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT94",title:"The record layer v103 — wire.html reads the bus's own pins, days, vocabulary, and self-check",min:8,
+ persona:"merge auditor — wants proof the last four wire endpoints have honest surfaces, not decorative ones",
+ goal:"Verify the v103 record layer: wire.html consumes gsWireFollows (pin read-back), gsWireDays (archive depth), gsWireVocabulary (status coverage), and gsWireAudit (self-check) — all capability-checked behind LIVE; feed.json documents them in spectator_ui_v103; the wire gate enforces every surface plus the adopt-only pin rule.",
+ surfaces:["wire","audit"],steps:[
+ {do:"Read the v103 block in world/wire.html's header comment, then find followsSync and its call inside livePoll (search 'v103').",
+  exp:"followsSync maps bus keys v:<venue>/m:<char> to page v:/c:, adopts new bus-side pins into the viewer's Following panel each poll, and on the first sync only pushes page pins (localStorage carry-over) the bus lacks through gsWireFollow. It never deletes a page pin — a viewer's unpin already wrote false through the bus.",
+  ck:["Pin read-back is adopt-only — no delete follows[...] inside followsSync",
+    "Bus m: keys become page c: keys; v: keys pass through unchanged",
+    "Every bus call sits inside try/catch under the LIVE flag — a missing endpoint degrades silently"]},
+ {do:"Find the archive-depth, vocabulary-coverage, and self-check passes — livePoll's tail and toggleDay/renderDayBar.",
+  exp:"gsWireDays() rewrites the footer link to 'N days on record → The Archive' when the record spans >1 day; gsWireVocabulary() caches as LIVE_VOCAB and the open day card counts 'statuses seen today — M of S on the bus's own vocabulary'; gsWireAudit() runs on day-card open (not per-poll) and renders 'the bus's self-check — N lines · self-check ok' or the honest issue count. Demo mode shows none of it.",
+  ck:["The archive link counts the bus's days — no fabricated history",
+    "Vocabulary coverage is a count of the wire's own statuses — never a completeness grade or ranking",
+    "Self-check is on-demand only; issues render as a count, never quoted strings"]},
+ {do:"Run node world/audit.js and read the wire gate; then open world/feed.json spectator_ui_v103 and world/wire-ui.md §14.",
+  exp:"Wire gate passes with the v103 checks green (all four endpoint names, id=\"archlink\", the adopt-only followsSync body check, all five spectator_ui_v103 keys). Prose spells the adopt-never-delete rule and the on-demand self-check.",
+  ck:["Wire gate: 0 fail; detail reports 'v103 keys: doc,pin_readback,archive_depth,vocab_coverage,self_check,keyboard'",
+    "A delete inside followsSync or a dropped spectator_ui_v103 key FAILs the gate — spot-check mentally",
+    "Harness gate: '94 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT95",title:"The absence + lifecycle layer v104 — The Archive v8",min:8,
+ persona:"merge auditor — wants proof the two new archive views are projections, not new information",
+ goal:"Verify the v104 absence + lifecycle layer: archive.html gains #v=gaps (every ≥2h uncovered stretch, counted per day and across the record, boundary-row links) and #v=reqs (one card per req id with the full public lifecycle, open trails first) plus the settled-the-talk reverse edge on records that settled a rumor; history.json carries archive_ui_v104; the archive gate enforces every surface.",
+ surfaces:["archive","audit"],steps:[
+ {do:"Open world/archive.html, click 'off the feed', and compare its stretches to a day's inline '— off the feed —' markers.",
+  exp:"The gaps view enumerates every ≥2h stretch between written rows using the same GAP_MIN=120 rule as the day view; the header counts stretches, longest stretch, uncovered minutes, and days-with-a-gap; each stretch's before/after chips open the boundary rows' records; the copy says a quiet hour and an unwatched hour look the same — nothing inside a stretch is interpolated.",
+  ck:["Every inline day-view gap also appears in the gaps view — same rule, same rows",
+    "Boundary chips open real records only — a gap never links to anything written to explain it",
+    "Today counts only written rows; no stretch invents coverage the wire didn't have"]},
+ {do:"Click 'request trails' and open a multi-status trail (e.g. leaf's park cleanup); check the settled-the-talk edge on the doorway-set record (d0921-12).",
+  exp:"Trails group every request event by req id — payer verbatim, declared credits where attrs carry them, statuses chronological by t+n with day labels; open trails (requested/in_review/approved/queued/running) sort first; a trail can end at 'not approved' and no further. d0921-12's detail shows 'settled the talk' linking the license rumor that pointed at it via outcome.by.",
+  ck:["A trail is exactly the wire's statuses — no inferred steps, no denied text",
+    "Open trails sort before closed ones; #v=reqs&rq=<id> selects a card",
+    "settled-the-talk links only rows that stood on the wire in their own right"]},
+ {do:"Run node world/audit.js and read the archive gate; then open world/history.json archive_ui_v104 and world/archive-ui.md §17.",
+  exp:"Archive gate passes with the v104 checks green (data-v gaps/reqs, GAP_MIN/gapList/renderGapsView, reqTrails/renderReqsView/OPEN_ST/rqSel, 'settled the talk', kv.rq, both honesty strings, archive_ui_v104 contract block). Prose spells the no-interpolation and no-inferred-steps laws.",
+  ck:["Archive gate: 0 fail; v104 block present in history.json",
+    "A missing contract block or a dropped honesty string FAILs the gate — spot-check mentally",
+    "Harness gate: '95 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT96",title:"The desk's answer layer v105 — repair bench + second look + live status",min:8,
+ persona:"refused applicant — got a no and wants to know exactly what to fix, what a second read costs, and what the live desk actually said",
+ goal:"Verify the v105 desk's-answer layer on world/create.html: every refusal path (bus denied record, engine deny, live desk refusal) lands on the same repair card with field-level fix chips (FIELD_FIX) and persisted returned state (rw_create_return_v105); text-judgment refusals offer one second look that files gsAppealRequest live and never fakes a reversal in demo; registry-fact refusals carry no appeal button; a live pending filing resolves through gsExplainRequest — approved → approval tail, denied → repair bench, cancelled/expired → closed line — via 'check the desk' pull, never poll.",
+ surfaces:["create","audit"],steps:[
+ {do:"Open world/create.html, fill a draft, and force refusals — a taken name (name-collision), then an engine-denied bio text. Read each denial card.",
+  exp:"Both refusals render 'The desk sent it back — <code>' with the charge line 'nothing — a refused filing never bills', a 'fix it — back to <step>' chip that jumps to the owning step, and a resubmission-count line. The name-collision card offers NO second look ('a different reviewer reads words, not the registry'); the text-judgment card offers 'ask for a second look — the same words, a different reviewer'. Reload the page: the repair card returns from rw_create_return_v105 with the draft intact.",
+  ck:["FIELD_FIX jumps land on the owning step (name/age → arrival, look → appearance, job → work, door codes → home)",
+    "Registry-fact refusals show no appeal button; text refusals show exactly one",
+    "rw_create_return_v105 persists the return; resubmit/withdraw/approval clears it"]},
+ {do:"Take the second look on a text refusal (demo, off-bridge) and wait for the desk's answer.",
+  exp:"'Second look filed' shows immediately; after the demo clock the card answers 'Second look — same answer' with appeal_final honesty ('That was the second read — reword it into a new filing') and a rework chip. Nothing bills at any point; the same text cannot take a third read. Bridged, the same button files gsAppealRequest(busId) and a refused appeal renders the bus's real reason code.",
+  ck:["The demo second look never fakes a reversal — identical text gets the same refusal, final",
+    "appeal_final blocks a further appeal on identical text only — the copy says a new draft starts the count over",
+    "No charge copy appears at every stage of the appeal"]},
+ {do:"Read renderQueue's v105 live-status block and the 'check the desk' button; run node world/audit.js and read the creation gate.",
+  exp:"renderQueue pulls gsExplainRequest on render and on the button (no interval, no poll loop): approved → approval tail with 'the bus minted the hire', denied → showRepair with the record's reason, cancelled/expired/refunded → 'Closed — the desk is done with it'. Creation gate passes with all v105 checks green (return key, showRepair/FIELD_FIX, gsAppealRequest, second-look + appeal_final honesty, check-the-desk pull, liveRec.status resolution, never-fakes-a-reversal).",
+  ck:["Creation gate: 0 fail; contract carries repair_desk_v105 with field_fix/second_look/desk_status",
+    "No setInterval/poll loop on the desk check — pull only",
+    "Harness gate: '96 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]},
+]},
+{id:"PT97",title:"The display-filter bench v106 — three options, live engine, no winner",min:6,
+ persona:"studio owner — the display_filter row in moderation.json has sat OPEN since the taxonomy landed; wants to see exactly what each option does to the public feed before picking",
+ goal:"Verify the v106 Privacy Screen Lab on world/filter-lab.html: nine seeded cases re-screen live through RWScreen.screenRequest at render (never stored verdicts); each flagged case renders under all three display options side-by-side — A redact (░░░ span + text-filtered chip), B withhold (class + outcome only), C quarantine (held card); the survival matrix and memo JSON name costs honestly; the decision stays OPEN everywhere.",
+ surfaces:["flab","mod","audit"],steps:[
+ {do:"Open world/filter-lab.html and click through all nine cases — FL-01 harm deny through FL-09 pass control.",
+  exp:"Each case header shows the live engine verdict+code (deny harm-targeting, deny secret-extraction, deny real-business, deny legal-backstop, deny possession-scope, review obfuscation-attempt, review gray-zone, review repeat-pattern, pass). The pass case renders identically under all three options — no filter engages. Flagged cases differ: A shows text with the charged span blacked out, B shows class+outcome only, C shows a dashed 'held for review' card.",
+  ck:["Every verdict comes from RWScreen.screenRequest at render — no stored verdict strings in the case data",
+    "Option A on FL-05 (hyphenated 'p-o-s-s-e-s s') redacts the full text and prints 'normalized match — span approximated for display' — the preview never fakes a span",
+    "Deny entries always read 'request not approved' under every option — the wording contract is fixed"]},
+ {do:"Read the survival matrix and export the memo JSON.",
+  exp:"The matrix rows name what survives per option — including the suppressedFeed 'counted, not read' row and option C's reviewer-load cost. 'Export memo JSON' fills the memo block with decision:'display_filter — OPEN (owner decision)', the fixed contract line, and a per-case render map across A/B/C.",
+  ck:["Header and memo both carry 'owner decision — open' — nothing in the lab marks a winner",
+    "memo JSON includes all 9 cases with per-option render summaries",
+    "Option C's cost (reviewer load on every charged entry) is stated in the matrix"]},
+ {do:"Run node world/audit.js and read the mod gate.",
+  exp:"Mod gate passes with the new v106 block: display_filter_lab contract present, display_filter.bench points at filter-lab.html, status still OWNER-DECISION — open, all FLMUST affordance marks present, no winner rendered, no stored verdicts, filter-lab included in the world-mutation sweep.",
+  ck:["Mod gate: 0 fail; mirror gate still green (flab surface + PT97 mirrored in playtest.html)",
+    "Coverage gate lists filter-lab.html via the flab surface — no 'untested demo page' review hit",
+    "Harness gate unchanged: '97 scenarios' now counted in the rail"]},
+]}
 ];
 
-
 /* ---- state ---- */
-const LS="rw_playtest_v58";
-const BUILD="world v58 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75, rw_playtest_v76 (world v77–v92 added scenarios only — the key held at v76; no rw_playtest_v77…v92 ever existed) */
+const LS="rw_playtest_v93";
+const BUILD="world v93 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -1135,9 +2117,10 @@ const DEBRIEF=[
  {id:"seams",label:"Invisible seams — did anything imply shared live state the demos don't have?"},
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
-const OWNER_SUGGEST={screen:"world",lab:"world",audit:"world",harness:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+const OWNER_SUGGEST={screen:"world",lab:"world",flab:"world",audit:"world",harness:"world",supply:"world"};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
+S.flags=S.flags||{};
 const $=id=>document.getElementById(id);
 const save=()=>{localStorage.setItem(LS,JSON.stringify(S));
   const t=$("saveTick");t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1200);};
@@ -1150,16 +2133,28 @@ function tickTime(){if(S.cur&&S.cur_since){S.times[S.cur]=(S.times[S.cur]||0)+(D
 function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",1800);}
 
 /* ---- scenario list ---- */
+const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+  const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+  return {tot,done};};
+/* the filtered rail list — smoke + hide-finished compose; one source of truth
+   for the rail, the [ / ] walk, and the run sheet (v76) */
+const curList=()=>{let l=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  if(S.hideDone)l=l.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
+  if(S.surf)l=l.filter(p=>p.surfaces.includes(S.surf));
+  return l;};
+/* revisit flags (v76) — a ⚑ mark on the rail card, persisted, rides the handoff */
+window.toggleFlag=(e,id)=>{e.stopPropagation();
+  if(S.flags[id])delete S.flags[id];else S.flags[id]=1;
+  save();renderList();};
 function renderList(){
-  const list=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  const list=curList();
   let totAll=0,doneAll=0,leftMin=0;
   $("ptList").innerHTML=list.map(p=>{
-    const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
-    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    const {tot,done}=ckDone(p);
     totAll+=tot;doneAll+=done;leftMin+=p.min*(tot-done)/tot;
     const spent=Math.floor((S.times[p.id]||0)/60000);
     return `<div class="pt ${S.cur===p.id?'on':''}" onclick="pick('${p.id}')">
-      <span class="done">${done}/${tot}</span><b>${p.id} — ${esc(p.title)}</b>
+      <span class="done">${done}/${tot}</span><span class="flag ${S.flags[p.id]?'on':''}" title="flag for revisit" onclick="toggleFlag(event,'${p.id}')">⚑</span><b>${p.id} — ${esc(p.title)}</b>
       <div class="meta">${p.min} min · ${spent}m spent · ${esc(p.persona)}</div></div>`;}).join("");
   $("ptCount").textContent=list.length+(S.smoke?" of ":"")+(!S.smoke?" ":"")+PTS.length+" scenarios";
   $("prog").textContent=`progress: ${doneAll} of ${totAll} checkpoints · ~${Math.round(leftMin)} min left`;
@@ -1181,6 +2176,7 @@ function renderBody(){
     <div class="goal"><em>Persona:</em> ${esc(p.persona)}<br><em>Goal:</em> ${esc(p.goal)}</div>
     <div class="surflinks">${p.surfaces.map(s=>`<button onclick="openSurf('${s}')">▶ ${SURF[s].name}</button>`).join("")}</div>
     ${p.steps.map((st,si)=>`<div class="step"><span class="n">STEP ${si+1}</span>
+      <span class="vbtn na" style="float:right;font-size:9.5px" title="sweep every checkpoint in this step to n/a — press again on an all-n/a step to clear" onclick="naStep('${p.id}',${si})">n/a step</span>
       <div class="do">${esc(st.do)}</div><div class="exp">expect: ${esc(st.exp)}</div>
       ${st.ck.map((c,ci)=>{const k=p.id+"-"+si+"-"+ci,v=S.ck[k]||{};flat++;
         return `<div class="ck ${flat===S.sel?'sel':''}"><div class="txt">${esc(c)}
@@ -1191,8 +2187,14 @@ function renderBody(){
             <span class="vbtn na ${v.v==='na'?'on':''}" onclick="setCk('${k}','na')">N/A</span>
           </div></div>`;}).join("")}</div>`).join("")}`;
 }
-window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();};
+window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();renderCohort();};
 window.noteCk=(k,n)=>{S.ck[k]=S.ck[k]||{};S.ck[k].note=n;save();renderStats();};
+/* step n/a sweep (v93) — all-na clears, anything else sets the whole step */
+window.naStep=(pid,si)=>{const p=PTS.find(x=>x.id===pid);if(!p)return;
+  const keys=p.steps[si].ck.map((_,ci)=>pid+"-"+si+"-"+ci);
+  const allNa=keys.every(k=>S.ck[k]&&S.ck[k].v==="na");
+  keys.forEach(k=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=allNa?null:"na";});
+  save();renderBody();renderList();renderStats();renderCohort();};
 window.openSurf=s=>{const f=SURF[s];$("viewer").style.display="block";$("vName").textContent=f.name;
   $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;
   if(f.tool){$("vFrame").removeAttribute("src");$("vFrame").style.display="none";
@@ -1209,6 +2211,9 @@ function renderFindings(){
     <span class="del" onclick="delF(${i})">✕</span>
     <span class="sev ${f.severity}">${f.severity}</span><b>${esc(f.title)}</b>
     <span style="color:var(--dim)"> · ${f.surface}${f.ref?` · ${f.ref}`:""} · →${f.owner||"world"}</span>
+    <select class="fStat" style="font-size:10px;background:var(--panel2);color:${(f.status||"open")==="open"?"var(--acc)":f.status==="fixed"?"var(--grn)":"var(--dim)"};border:1px solid var(--line);border-radius:5px;padding:0 4px" title="triage status — fixed/wontfix drop out of the handoff" onchange="setFStat(${i},this.value)">
+      ${["open","fixed","wontfix","deferred"].map(s=>`<option ${s===(f.status||"open")?"selected":""}>${s}</option>`).join("")}</select>
+    <span class="vbtn" style="float:right;font-size:9.5px" title="copy a [world-playtest-finding] block for this finding" onclick="copyFinding(${i})">copy</span>
     ${f.ref?`<span class="vbtn" style="float:right;font-size:9.5px" title="copy a deep link back to this scenario" onclick="copyRef('${f.ref}')">link</span>`:""}
     <div style="color:var(--dim);margin-top:3px">${esc(f.detail)}</div>
     ${f.steps_to_repro?`<div style="color:var(--dim);font-size:11.5px">repro: ${esc(f.steps_to_repro)}</div>`:""}</div>`).join("");
@@ -1217,6 +2222,36 @@ function renderFindings(){
 window.delF=i=>{S.findings.splice(i,1);save();renderFindings();renderStats();};
 window.copyRef=r=>{const pt=(r||"").split("·")[0];
   navigator.clipboard.writeText("playtest.html#pt="+pt).then(()=>toast("repro link copied"),()=>toast("copy failed"));};
+/* finding triage status (v93) — rides the finding object; fixed/wontfix
+   close it for the handoff, deferred stays listed but labeled */
+window.setFStat=(i,v)=>{S.findings[i].status=v;save();renderFindings();renderStats();};
+/* per-finding paste block (v93) — the single-finding note for an owning track */
+window.copyFinding=i=>{const f=S.findings[i];if(!f)return;
+  const md=`## [world-playtest-finding | ${new Date().toISOString().slice(0,10)} | ${S.name||"?"}]\n`+
+    `- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) [${f.status||"open"}] ${f.title}\n`+
+    `  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}`+
+    `${f.ref?"\n  repro link: playtest.html#pt="+f.ref.split("·")[0]:""}\n`;
+  navigator.clipboard.writeText(md).then(()=>toast("finding block copied"),()=>toast("copy failed"));};
+/* finding templates (v65) — seed the form for the five boundary breaks; never auto-log */
+const FTEMPLATES={
+ possess:{sev:"blocker",title:"surface offers possessing a main (C1–C8)",
+   detail:"Boundary break — no surface may offer possession of any of the 8 mains, incl. the landlord. Affordance seen: ",
+   repro:"surface + control label + what it appeared to grant"},
+ realbiz:{sev:"blocker",title:"real SF business name in world content",
+   detail:"Parody-name rule broken — a real business name where only parody names are allowed (real streets/landmarks are fine). Name seen: ",
+   repro:"surface + where the name appears"},
+ price:{sev:"major",title:"price copy off the monetization-plan §2 PROPOSAL numbers",
+   detail:"Copy cites a number not in the PROPOSAL set, or words a price the plan fixes differently. Seen: ",
+   repro:"surface + exact wording"},
+ deny:{sev:"major",title:"deny copy reads as accusation or drops the refund",
+   detail:"All denies must be neutral 'request not approved' + full refund. This copy instead: ",
+   repro:"surface + deny path taken"},
+ aireport:{sev:"blocker",title:"UI implies moderating or reporting AI behavior",
+   detail:"Moderation scope is player request text only (+ legal backstop) — no 'report the AI' surface may exist. This offers: ",
+   repro:"surface + control label"}};
+$("fTmpl").onchange=e=>{const t=FTEMPLATES[e.target.value];e.target.value="";if(!t)return;
+  $("fSev").value=t.sev;$("fTitle").value=t.title;$("fDetail").value=t.detail;$("fRepro").value=t.repro;
+  toast("template loaded — edit, then Log finding");};
 $("fSurf").onchange=e=>{$("fOwner").value=OWNER_SUGGEST[e.target.value]||"world";};
 $("fAdd").onclick=()=>{const t=$("fTitle").value.trim();if(!t)return toast("finding needs a title");
   const stp=$("fStep").value;
@@ -1240,7 +2275,8 @@ window.debNote=(id,n)=>{S.debrief[id]=S.debrief[id]||{};S.debrief[id].note=n;sav
 /* ---- stats + export ---- */
 function renderStats(){
   let p=0,f=0,n=0;Object.values(S.ck).forEach(v=>{if(v.v==="pass")p++;else if(v.v==="fail")f++;else if(v.v==="na")n++;});
-  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length}`;
+  const open=S.findings.filter(x=>(x.status||"open")==="open"||x.status==="deferred").length;
+  $("statline").textContent=`checkpoints: ${p} pass · ${f} fail · ${n} n/a — findings: ${S.findings.length} (${open} open)`;
 }
 function report(){
   return {session:{tester:S.name,role:S.role,date:new Date().toISOString().slice(0,10),
@@ -1254,6 +2290,16 @@ function report(){
 }
 
 /* ---- cohort (imported reports) ---- */
+/* regression split (v76): current session vs imported reports, directional —
+   regressed = imported pass → current fail; recovered = imported fail →
+   current pass. Shared by the cohort card and the Markdown export. */
+function regressionSplit(){
+  const curV={};Object.entries(S.ck).forEach(([k,v])=>{if(v.v)curV[k]=v.v;});
+  const impV={};S.cohort.forEach(s=>(s.results||[]).forEach(r=>{
+    if(r.verdict)(impV[r.ref]=impV[r.ref]||new Set()).add(r.verdict);}));
+  return {regressed:Object.keys(curV).filter(k=>curV[k]==="fail"&&impV[k]&&impV[k].has("pass")).sort(),
+          recovered:Object.keys(curV).filter(k=>curV[k]==="pass"&&impV[k]&&impV[k].has("fail")).sort()};
+}
 function renderCohort(){
   const el=$("cohort");
   if(!S.cohort.length){el.innerHTML="";return;}
@@ -1273,6 +2319,7 @@ function renderCohort(){
   sessions.forEach((s,si)=>s.results.forEach(r=>{if(!r.verdict)return;
     (byRef[r.ref]=byRef[r.ref]||[]).push({si,v:r.verdict});}));
   const dis=Object.entries(byRef).filter(([,l])=>new Set(l.map(x=>x.v)).size>1);
+  const reg=regressionSplit();
   const allFindings=sessions.flatMap((s,si)=>s.findings.map(f=>({f,who:s.session.tester})));
   /* coverage (v51): which checkpoints anyone has verdicted + median time vs estimate */
   const verdicted=new Set();
@@ -1296,6 +2343,9 @@ function renderCohort(){
     ${dis.length?`<div class="finding" style="border-color:var(--red)"><b style="color:var(--red)">Disagreements</b>`+
       dis.map(([r,l])=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> — `+
         l.map(x=>`${esc(sessions[x.si].session.tester)}: ${x.v}`).join(" vs ")+`</div>`).join("")+`</div>`:""}
+    <div class="finding" id="regr"><b>Regressions</b><span style="color:var(--dim)"> — this session vs imported reports · directional, never averaged (v76)</span>
+      ${reg.regressed.length?reg.regressed.map(r=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> <span style="color:var(--red)">regressed</span> — was pass, now fail</div>`).join(""):'<div style="font-size:11.5px;color:var(--grn);margin-top:4px">no regressions vs imported sessions</div>'}
+      ${reg.recovered.map(r=>`<div style="font-size:12px;margin-top:2px"><code>${r}</code> <span style="color:var(--grn)">recovered</span> — was fail, now pass</div>`).join("")}</div>
     <div class="finding"><b>Coverage</b><span style="color:var(--dim)"> — checkpoints verdicted by anyone · median time-open vs estimate</span>
       <table id="covg" style="border-collapse:collapse;margin-top:4px">${covRows}</table>
       ${neverKeys.length?`<div style="font-size:11.5px;color:var(--dim);margin-top:6px">never verdicted by any session (${neverKeys.length}): `+
@@ -1325,14 +2375,17 @@ $("exMd").onclick=()=>{const r=report();
   if(r.session.time_to_first_request_min!=null)md+=` · ttfr: ${r.session.time_to_first_request_min} min`;
   md+=`\n\n## Boundary checklist\n- No surface may offer possessing C1–C8 (incl. the landlord).\n- Moderation touches player request text only — no "report the AI".\n- Parody business names only; real streets/landmarks fine.\n- All denies: neutral "request not approved" + full refund.\n- Prices = monetization-plan §2 PROPOSAL verbatim.\n\n## Checkpoints\n`;
   r.results.forEach(x=>md+=`- [${x.verdict||"?"}] ${x.ref}${x.note?" — "+x.note:""}\n`);
-  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
+  md+="\n## Findings\n";r.findings.forEach(f=>md+=`- **${f.severity}** (${f.surface}${f.ref?", "+f.ref:""} →${f.owner||"world"}) [${f.status||"open"}] ${f.title}\n  ${f.detail}${f.steps_to_repro?"\n  repro: "+f.steps_to_repro:""}\n`);
   const debs=Object.entries(r.session.debrief||{});
   if(debs.length){md+="\n## Debrief\n";debs.forEach(([k,v])=>md+=`- ${k}: ${v.v||"—"}${v.note?" — "+v.note:""}\n`);}
   if(S.cohort.length){md+="\n## Cohort\n";S.cohort.forEach(c=>md+=`- ${c.session.tester||"?"} (${c.session.role}): ${c.results.filter(x=>x.verdict==="pass").length} pass / ${c.results.filter(x=>x.verdict==="fail").length} fail, ${c.findings.length} findings\n`);
     const byRef={};[{session:{tester:S.name||"this session"},results:r.results},...S.cohort]
       .forEach(s=>s.results.forEach(x=>{if(x.verdict)(byRef[x.ref]=byRef[x.ref]||new Set()).add(x.verdict);}));
     const dis=Object.keys(byRef).filter(k=>byRef[k].size>1);
-    if(dis.length)md+="- disagreements: "+dis.join(", ")+"\n";}
+    if(dis.length)md+="- disagreements: "+dis.join(", ")+"\n";
+    const reg=regressionSplit();
+    if(reg.regressed.length)md+="- regressed (was pass, now fail): "+reg.regressed.join(", ")+"\n";
+    if(reg.recovered.length)md+="- recovered (was fail, now pass): "+reg.recovered.join(", ")+"\n";}
   navigator.clipboard.writeText(md).then(()=>toast("Markdown copied"),()=>toast("copy failed"));};
 $("exInbox").onclick=()=>{const r=report();
   const bf=r.findings.filter(f=>f.severity==="blocker"||f.severity==="major");
@@ -1345,8 +2398,38 @@ $("exInbox").onclick=()=>{const r=report();
     md+=`- ${o}:\n`+l.map(x=>`  - **${x.severity}** ${x.ref||x.surface}: ${x.title}${x.detail?" — "+x.detail:""}`).join("\n")+"\n";});}
   else md+="- no blocker/major findings\n";
   navigator.clipboard.writeText(md).then(()=>toast("inbox note copied"),()=>toast("copy failed"));};
+/* session handoff (v65) — a paste-ready block for the next tester: where this
+   session stopped, what's left per scenario, and every open finding */
+$("exHandoff").onclick=()=>{
+  const date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-handoff | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · session ${Math.floor((Date.now()-S.started)/60000)}m · resume at ${S.cur||"scenario picker"}`;
+  if(S.ttfr!=null)md+=` · ttfr ${S.ttfr} min`;
+  md+="\n- remaining:";
+  const rem=PTS.map(p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+    return tot-done?`${p.id} ${tot-done}/${tot}`:null;}).filter(Boolean);
+  md+=rem.length?" "+rem.join(" · "):" none — every checkpoint verdicted";
+  const fl=Object.keys(S.flags||{});
+  if(fl.length)md+=`\n- flagged for revisit: ${fl.join(" · ")}`;
+  const openF=S.findings.filter(f=>(f.status||"open")==="open"||f.status==="deferred");
+  if(openF.length)md+="\n- open findings:\n"+openF.map(f=>
+    `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}${f.status==="deferred"?" (deferred)":""}`).join("\n");
+  else md+="\n- no open findings";
+  navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
+/* run sheet (v76) — a blank Markdown artifact for the next session's paper
+   run; honors the filtered rail (smoke + hide-finished), carries no verdicts */
+$("exSheet").onclick=()=>{
+  const list=curList(),date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-runsheet | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · ${list.length} scenarios · ~${Math.round(list.reduce((a,p)=>a+p.min,0))} min est\n`;
+  list.forEach(p=>{md+=`\n### ${p.id} — ${p.title} (${p.min} min)\n`+
+    `persona: ${p.persona}\ngoal: ${p.goal}\n`;
+    p.steps.forEach((st,i)=>{md+=`- [ ] step ${i+1}: ${st.do}\n  expect: ${st.exp}\n`;
+      st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
+  navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,surf:null,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -1371,8 +2454,8 @@ document.addEventListener("keydown",e=>{
     setCk(keys[S.sel],k==="p"?"pass":k==="f"?"fail":"na");
     if(S.sel<keys.length-1){S.sel++;save();renderBody();scrollSel();}}
   else if(k==="o"){openSurf(p.surfaces[0]);}
-  else if(k==="["||k==="]"){ /* scenario walk — clamped to the filtered list (v51) */
-    const list=S.smoke?PTS.filter(x=>SMOKE.includes(x.id)):PTS;
+  else if(k==="["||k==="]"){ /* scenario walk — clamped to the filtered list (v51; honors hide-finished since v76) */
+    const list=curList();
     const i=list.findIndex(x=>x.id===S.cur);
     const nx=list[k==="]"?(i+1<list.length?i+1:i):(i>0?i-1:0)];
     if(nx&&nx.id!==S.cur)pick(nx.id);}
@@ -1383,6 +2466,11 @@ $("sName").value=S.name||"";$("sName").onchange=e=>{S.name=e.target.value;save()
 $("sRole").value=S.role||"spectator";$("sRole").onchange=e=>{S.role=e.target.value;save();};
 $("sTtfr").value=S.ttfr??"";$("sTtfr").onchange=e=>{S.ttfr=e.target.value===""?null:+e.target.value;save();};
 $("smk").checked=!!S.smoke;$("smk").onchange=e=>{S.smoke=e.target.checked;save();renderList();};
+$("hideDone").checked=!!S.hideDone;$("hideDone").onchange=e=>{S.hideDone=e.target.checked;save();renderList();};
+/* surface filter (v93) — options derive from SURF itself, so the dropdown
+   can never cite an undeclared surface */
+Object.keys(SURF).forEach(k=>{const o=document.createElement("option");o.value=k;o.textContent=k;$("surfFilter").appendChild(o);});
+$("surfFilter").value=S.surf||"";$("surfFilter").onchange=e=>{S.surf=e.target.value||null;save();renderList();};
 /* deep link: #pt=<id> boots straight into a scenario; unknown ids ignored */
 const _hm=location.hash.match(/^#pt=(\w+)$/);
 if(_hm&&PTS.some(p=>p.id===_hm[1])){S.cur=_hm[1];S.cur_since=Date.now();}

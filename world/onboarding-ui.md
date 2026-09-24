@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -452,3 +452,382 @@ version that taught thin-AI without the no-nag clause would be incomplete.
 - At merge: queue holds resolve on the real resource board
   (`requests.json.resource_board` — `sky` claim, FCFS activation, review on
   activation not while waiting); the demo's fixed lapse stays demo-only.
+
+---
+
+## v67 — the fifth pass: the eligibility layer
+
+v11–v53 taught a stranger everything about *what the world is* and *how
+asks behave*. What the funnel never did was ask the one compliance question
+the monetization plan already mandates: **who is holding the account** —
+because §2.7 restricts rewarded ads to adults and §6 makes under-13
+accounts spectator-only. v67 adds that single question, placed so it can
+never feel like a gate.
+
+### 30. The age band (S2a) — who the account is
+
+One question, rendered as a four-option fork card after the handle step and
+before the wallet:
+
+> "Money features differ by age. Pick the band that fits this account — it
+> decides what the next card offers. Watching is identical for every band,
+> always free, and this question never gates it."
+
+| Band | What the next card offers |
+|------|---------------------------|
+| Under 13 | A watching account — no wallet, no requests, nothing to buy |
+| 13–17 | Wallet and requests work; under-18 spending limits apply |
+| 18 or older | The full ladder, plus the opt-in sponsored-message path |
+| Rather not say | Fine — money features treat the account as under-18 |
+
+- The band fronts **every paid stage** (`S3`, `S4*`) via `normalizeStage()` —
+  unset redirects to S2a; `u13` redirects to S3u. It fronts nothing free:
+  the feed, the tour, the Archive, the fork, and the handle step are
+  identical for all four bands.
+- The pick is stored once in session state and correctable in place via a
+  **"Wrong band? Fix it"** link on both wallet variants — never re-asked,
+  never nagged.
+- A skip line carries the eternal exit: *"Skip — I'll only ever watch."*
+
+### 31. The watching account (S3u) — under-13, honestly
+
+Under-13 replaces the wallet card entirely:
+
+> "This account watches — that's the whole product, not a restricted
+> version of it. The feed, the Archive, the block's whole week: all of it,
+> free, always. Wallets and requests are for older accounts. Nothing here
+> is missing — there was never anything to unlock."
+
+- No pack ladder, no top-up, no ask filing, no ads affordance — the
+  affordances are absent by construction (paid handlers also bail on
+  `u13`), not merely hidden.
+- The checklist's money items (handle / wallet / first ask) relabel to
+  *"spectator account — watching only"* — never styled as failures.
+- S5 on a `u13` band drops the hire button; the settle card says watching
+  is the whole show. The tone test: a child reading S3u should feel
+  *done*, not *denied*.
+
+### 32. Under-18 bands — teen and rather-not-say
+
+`teen` and `na` share the money surface: the wallet works, requests work,
+and one disclosure line rides the wallet card:
+
+> "Under-18 accounts carry spending limits — any cap is stated before a
+> purchase, never after." (`na` adds: "You chose not to say, so this
+> account is treated as under-18.")
+
+The plan (§6) hard-caps minors but sets no figure — so the card **states
+that limits apply and quotes no number**. Quoting one would be inventing
+pricing.
+
+### 33. The free-credit path — rewarded ads, adults only
+
+Plan §2.7 verbatim, surfaced for the first time: on the adult wallet card
+only,
+
+> "No card? A sponsored message earns **2 cr** — up to 5 a day, opt-in from
+> this card only. Never in the stream, never before you can watch."
+
+- The demo affordance (*"watch one (demo) — +2 cr"*) credits +2 cr with a
+  `N/5 today` counter; at the cap the line reads *"That's today's five —
+  the cap resets tomorrow"* — no countdown, no urgency framing.
+- Eligibility is structural: the line and button render only when
+  `S.band==='adult'`, and `adView()` re-checks the guard. Teen, na, u13,
+  and unset accounts never see the affordance — consistent with the plan's
+  "no rewarded ads to under-18 accounts."
+- Placement obeys the locked rule: opt-in only, on the wallet card — never
+  pre-roll, never mid-session, never inside the sim view.
+
+### 34. Edge cases (v67 additions)
+
+| Case | Behavior |
+|------|----------|
+| Band unset, saved stage is a paid one | `normalizeStage()` in `render()` redirects to S2a — stale state can't skip the question |
+| u13 files nothing | every paid handler (`topup`, `fileAsk`, `fileNudge`, `fileWeather`, `fileQueue`) bails with a neutral toast even if reached |
+| u13 + `?hired=1` | the first-day card still renders (the hire exists), but requests aren't offered on the account — same band rules |
+| Rather-not-say | treated as under-18 on every money surface; watching identical; stated on the card, never punished |
+| Wrong band picked | "Wrong band? Fix it" returns to S2a — correction is free, no confirm-shame |
+| Ads at daily cap | line flips to the cap message; the affordance disappears, no countdown |
+
+### 35. v67 merge notes
+
+- `storage_key` → `rw_onboard_v67` (v53/v67 states coexist harmlessly; the
+  demo reads only its own key).
+- At merge the band comes from the **account record**, not a per-session
+  self-declaration — this demo's self-pick models the shape only; any
+  verification flow (age assurance, parental approval) is production work,
+  out of scope here.
+- New analytics hooks (v67): `band_declared` (no band value in props —
+  eligibility is not funnel data), `ads_line_shown`, `ad_demo_viewed` —
+  same envelope, stage + opted_out props only.
+- The rewarded-ads line is the first surface of the §2.7 path; the wallet
+  card in `request.html` may adopt the same wording at merge rather than
+  re-derive it.
+
+### 36. What v67 still must never do
+
+- Never gate the feed, the tour, or any free card behind the age band.
+- Never frame the under-13 spectator account as a restriction, downgrade,
+  or something to grow out of.
+- Never render the ads affordance for a non-adult band — the guard is
+  structural, not cosmetic.
+- Never quote a minor spend-cap figure the plan doesn't set.
+- Never treat the band answer as targeting data — it decides which card
+  renders, nothing else.
+
+---
+
+## v81 — the sixth pass: the house & the other hands
+
+v11–v67 taught a stranger everything about *their own* path — watch, name,
+fund, ask, settle — and every honest "no" on it. What the journey still
+hadn't said: **the player is not the only hand on the world, and the people
+who run it are visible too.** Three additions, all transparency-first, plus
+the one piece of map a settled viewer deserves: where the arc goes from here.
+
+### 37. The house acts in the open (tour beat 8)
+
+A final coach-mark, anchored to an `admin` event in the stream
+(`feed-admin` — every demo seed set carries one):
+
+> "The people who run the block act on this same feed. Every admin action
+> lands here — attributed, and when it bumps a player's plans, compensation
+> is automatic. Nobody's hand is invisible, including ours."
+
+This is the transparency rule (design §3 — the public request feed lists
+every admin action) made legible in the tour, and it deliberately comes
+**last**: you teach the viewer their own ask is public before you show them
+the house is too. The beat's demo anchor is a seed event with a
+compensation note (`admin action — venue window reset · players
+compensated 90 cr`) — wording verbatim from `feed.json` event seeds; no new
+vocabulary invented.
+
+### 38. The other hands (S4f) — compatible coexistence, taught
+
+The queue lesson taught "wait"; nothing yet taught "together." After the
+queued ask resolves, one more optional card closes the request teachings:
+
+- A **"watch one land"** demo affordance drops a second handle's compatible
+  ask onto the feed (`marlo_v — camera director, 30 min · running`) — not
+  the player's, not queued behind theirs. The card states the rule:
+  compatible asks run **alongside** each other; nobody waits behind a
+  compatible session. That overlap *is* the multiplayer — two players, two
+  characters, one block.
+- Copy promise, verbatim: *"Your session never held anyone else's. Reach in
+  at the same time as a stranger and the block just gets busier — the feed
+  shows both, attributed to both."*
+- The card also draws the boundary honestly: exclusivity is about the
+  *resource* (the sky, a venue window), never about the player — you cannot
+  buy another player's session away, and nobody can buy yours.
+- Requires no balance and files nothing — it's a free teaching card; it
+  still sits behind the band normalizer (paid-stage context) so the
+  watching account never sees ask mechanics framed at it.
+
+### 39. Surge honesty, stated where it applies (S4c)
+
+The exclusive-ask card gains one disclosure line, verbatim-faithful to
+plan §2.2:
+
+> "If the sky ran exclusive in the last 6 h, the request form shows a surge
+> multiplier — ×1.5 to ×2.5 — **before** you pay. The price you see is the
+> price filed; nothing is added after."
+
+Quoted as a range exactly as the plan states it — no specific multiplier is
+invented for the demo. The rule that matters to a new player is the
+ordering: **disclosed upfront, never a surprise after.** The card does not
+demonstrate surge (the demo's guided ask is fixed-price); it teaches that
+the form itself is honest.
+
+### 40. The long arc, named at settle (S5 + S6)
+
+Settling in is the right place to show the map without pushing it. The S5
+card (all non-u13 bands) gains one line:
+
+> "And if watching ever turns into staying: tenants here can buy — listings
+> on the block's market board read like normal listings, priced in game
+> dollars plus a deed fee in credits — and owners can rent out a second
+> unit. That's the whole arc: tenant → owner → landlord. It's not a step of
+> setup; it's just what the block has."
+
+The S6 first-day card gains the parallel line for a new hirer:
+
+> "The listings on the market board are real places in this world — your
+> character rents like everyone, and the path from there (save, buy, one
+> day rent out a place of your own) runs entirely in game dollars plus a
+> deed fee."
+
+Both lines are **context, not funnel**: no button leads to the market, the
+market link isn't moved into the card, and the u13 settle card stays
+unchanged (no money surfaces). The arc is named because a viewer deserves
+to know the world has a depth axis — the same reason the tour names the
+Archive.
+
+### 41. Edge cases (v81 additions)
+
+|| Case | Behavior |
+||------|----------|
+|| Band unset / u13 reaches S4f | `normalizeStage()` redirects like any paid-context card — the watching account never sees ask mechanics |
+|| "Watch one land" clicked twice | idempotent — the scripted co-ask posts once; later clicks are a no-op toast |
+|| Co-ask card parked | parked like every card; the feed entry it would have added simply never posts — nothing dangles |
+|| Admin beat anchor missing at merge | audit fails — the beat teaches a real feed kind; a demo without an admin event can't carry it |
+|| Surge line vs queued discount | both quoted verbatim from plan §2.2 — surge as a range, queue as −15%; no derived figure anywhere |
+
+### 42. v81 merge notes
+
+- `storage_key` → `rw_onboard_v81` (v67/v81 states coexist harmlessly; the
+  demo reads only its own key).
+- New anchors required on the real Wire at merge: `feed-admin` (any admin
+  event in the stream) joins the v25/v53 set.
+- Feed vocabulary the demo renders: `admin action` + the compensation note
+  — already in `feed.json`/`requests.json` vocabulary; nothing invented.
+- New analytics hooks (v81): `admin_beat_seen`, `coask_seen`,
+  `surge_line_shown` — same envelope, stage + opted_out props only.
+- At merge: the scripted co-ask becomes a real spectator's compatible
+  request surfacing naturally on the feed — the demo's fixed handle stays
+  demo-only. The market-board pointer binds to `market.html`'s real link.
+
+### 43. What v81 still must never do
+
+- Never render an admin action without attribution — the house is public
+  or the promise is broken.
+- Never let a surge multiplier surface after payment, or quote a specific
+  multiplier the plan doesn't set (the range ×1.5–2.5 only).
+- Never frame coexistence as contention — no "someone else got there
+  first" framing on compatible asks; only exclusives contend, and only on
+  the resource.
+- Never present the ownership arc as a setup step or a next funnel — it's
+  named context at settle, with no button attached.
+- Never imply a player can buy out, preempt, or see inside another
+  player's session — attribution is public, interiors are not.
+
+---
+
+## v95 — the seventh pass: the stay
+
+v11–v81 taught a stranger the whole request grammar — every class, every
+honest "no," the house's own visibility — and named the ownership arc. Two
+things the journey still hadn't said out loud: **what a credit actually
+isn't** (the fine print nobody reads until it bites), **that a standing
+order exists at all** (the plan's two subscriptions have never surfaced
+anywhere in onboarding), and **what the first possession feels like** —
+the hire flow ends at S6's first-day card, but nobody has ever walked a
+player through stepping into their character for the first time.
+
+### 44. The credit rules, stated once (S3)
+
+The wallet card gains one fine-print line under the ladder, rendered for
+every money-eligible band (adult / teen / na — u13 has no wallet):
+
+> "Three things credits never do: they **never run out**, they **never
+> cash out**, and they **never move between accounts**. They buy agency
+> here — that's the whole job."
+
+All three are locked design constraints (credits non-transferable /
+non-redeemable / no cash-out; no expiration or dormancy fees per plan
+§2.1) — this is disclosure, not a selling point. Stated once, in plain
+terms, before the first purchase. It is deliberately *not* framed as a
+feature list ("no fees!") — it's the shape of the thing.
+
+### 45. The standing option — subscriptions (S3)
+
+The wallet card gains one more line — the only place onboarding ever
+mentions subscriptions:
+
+> "If you'll be around a while, two standing orders exist — stated once,
+> here, and never pushed again. **Resident — $4.99/mo:** 600 cr a month,
+> a second character slot, the weekly digest. **Director — $11.99/mo:**
+> everything in Resident, plus 1,500 cr a month, a third slot, camera
+> director mode, and your name in the show credits. A pack is a one-time
+> thing; a standing order is for regulars."
+
+- Contents quoted verbatim from plan §2.5 (PROPOSAL) — every perk named
+  is one the plan lists (stipend, slots, digest, camera director mode,
+  show credits); nothing else is promised or implied.
+- **Stated once, honestly:** no "best value" marker, no comparison
+  styling, no default-checked toggle, no trial framing, no recurring
+  prompt on later visits. The card says it exists; that's the whole
+  funnel.
+- A demo affordance (*"preview Resident (demo) — the 600 cr stipend
+  lands"*) credits +600 cr once, labeled as the stipend, so a tester
+  sees what the standing order *does* without inventing mechanics —
+  second click is a no-op toast. It demos the stipend only; no other
+  perk is simulated.
+- Rendered inside S3, so it inherits every existing guard: u13 never
+  sees it, the band normalizer fronts it, teen/na carry the spend-limit
+  line alongside. The handler re-checks the band like every paid
+  affordance.
+
+### 46. The first visit (S7) — possession, walked through once
+
+S6 tells a new hirer what a hired character *isn't*. What it never did
+was walk them into the character. `?hired=1` now ends at a card with a
+third option: **"Take the first visit (demo — 15 min, 22 cr)"** — the
+compatible-rate minimum billable (1.5 cr/min × 15 min, plan §2.2's
+≈22 cr figure quoted as-is).
+
+Filing posts the real feed entry (`possession — first visit, 15 min ·
+running`, attributed) and opens the visit card:
+
+> "You're inside the person you hired — for the next 15 minutes you walk
+> their shift, their errands, their Tuesday. The briefing is still all
+> you see: public profile, surface relationships, routine — secrets stay
+> redacted even to you. Step out any time — the ask ends and their own
+> brain resumes mid-motion. Or let the clock run: the cap is hard, and at
+> 15 minutes they take back over, mid-stride. The time was bought up
+> front — stepping out early ends it; nothing is metered back."
+
+- Two exits, both honest: **"Step out early"** resolves the feed entry
+  as `player session ended` (the locked neutral wording — same line a
+  zeroed wallet logs); **"Jump ahead — 15 min later"** resolves at the
+  cap. Both hand back to the AI mid-motion; neither claims a refund on
+  unused minutes — the plan promises none, so the card says so.
+- S7 is a paid stage — it sits behind the band normalizer like every
+  ask-context card (unset → S2a, u13 → S3u) and additionally requires
+  `hired` + balance ≥ 22; without either, the affordance simply isn't
+  offered on the S6 card.
+- It teaches the one thing no other beat covers: possession is a
+  *session*, not a state — entered, capped, exited, always attributed.
+
+### 47. Edge cases (v95 additions)
+
+| Case | Behavior |
+|------|----------|
+| Balance < 22 at the visit | "Balance too low" toast; nothing filed |
+| `?hired=1` on u13 | S6 renders; the visit affordance doesn't — paid handlers bail on `u13` like every other paid path |
+| Visit affordance without `hired` | not rendered — S7 only exists off the first-day card; `stage('S7')` without `hired` redirects to S5 |
+| Stipend preview clicked twice | idempotent — +600 lands once, later clicks toast a no-op |
+| Step out, then re-enter | the visit is a one-time lesson — after any exit the card offers settle; a second visit would be a normal request, not onboarding's job |
+| Sub line on the watch path | identical card, identical prices — the fork never re-prices; the line is also *skippable* with everything else |
+
+### 48. v95 merge notes
+
+- `storage_key` → `rw_onboard_v95` (v81/v95 states coexist harmlessly;
+  the demo reads only its own key).
+- Feed vocabulary the demo renders: `possession — first visit` +
+  `running` / `player session ended` / `resolved` — all already in
+  `requests.json` vocabulary; nothing invented.
+- New analytics hooks (v95): `credit_rules_seen`, `subs_line_shown`,
+  `sub_stipend_previewed`, `first_visit_filed`, `visit_ended`
+  (cap|stepped_out) — same envelope, stage + opted_out props only.
+- At merge: the sub line's demo affordance is replaced by the real
+  account record; the visit files a normal compatible possession
+  request through `requests.json`'s pipeline — the demo's fixed 15-min
+  block stays demo-only. S7's entry point binds to create.html's real
+  post-approval redirect (`?hired=1` already is).
+
+### 49. What v95 still must never do
+
+- Never render the subscription line on the watching account, or
+  anywhere the band normalizer hasn't cleared — it inherits S3's guards.
+- Never style either subscription as better value, default-check it, or
+  re-surface it after the card is seen — "stated once" is the contract.
+- Never invent subscription terms the plan doesn't set — no trial, no
+  cancellation promises, no perk beyond §2.5's list.
+- Never promise a refund on early release — the plan prices declared
+  blocks up front; the card says the time was bought, nothing metered
+  back.
+- Never frame the first visit as owning, keeping, or unlocking the
+  character — it is a capped session inside a person you hired, and the
+  briefing stays redacted throughout.
+- Never let the stipend demo read as granted spend — it previews the
+  standing order's mechanics, labeled as such, once.

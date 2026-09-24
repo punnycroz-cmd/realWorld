@@ -26,6 +26,44 @@
   exclusives actually fire on the feed, and Hire a character routes to
   create.html (The Registry) instead of filing here. Demo event hooks
   (window.RW_DEMO_EVENTS) mark the merge points for analytics.
+  v60 adds: the live seam — when __aiBridge (game request bus) is present,
+  gsViewerState() drives the feed + resource board, gsCoSessions() the
+  co-sponsor lists, gsExplainRequest(id) live receipts, and filing goes to
+  gsRequestSubmit; off the bus everything below runs as the contract
+  reference and the badge says MIRROR. Also v60: "check wording first — free"
+  runs the same RWScreen screen before money moves (a deny preview, not a
+  shadow ban), and every request card opens into a receipt — declared terms,
+  upfront charge, claim, and the status trail that mirrors the feed.
+  v74 adds: the booking layer — exclusive actions (weather, event) grow a
+  "When" picker: "soonest free window" or a named half-hour slot off the
+  public Book (world/book.html, bookings.json). A booked request files,
+  screens, and human-reviews like any exclusive; approval lands on the
+  calendar and fires when the window arrives. A time slot is not an
+  upgrade — same flat price; cancel free until the window starts.
+  v88 aligns the live seam with the game-v14 bus as it actually ships:
+  filing calls gsSubmitRequest (gsRequestSubmit kept as a legacy alias)
+  with the bus's own spec keys — kind (event files as street_event),
+  durationMin, note, params, start_slot — and reads the record it
+  returns (denied → neutral toast, never a local charge). Reads grow:
+  gsViewerState().board / gsResourceBoard() drive the claim strip
+  (free/cool/locked + queue depth + booked markers), gsBookCalendar()
+  and gsBookableSlots() feed the When picker when present, and
+  gsPriceQuote() adds a live-check line to the quote — the bus's own
+  math shown before payment, informative never blocking. Feed entries
+  carrying the v14 status "booked" render as a booked chip.
+  v102 adds the live session layer — the bus's remaining read/write
+  surfaces join the seam, all capability-checked: gsRequestMeter(id)
+  is polled per bridged filing and drives the card verbatim (own queue
+  position — "yours can only shrink", the review SLA clock, active
+  remainingMin/spentSoFar/lowCredits on the session card, refund totals
+  on terminal states); cancel and appeal go through gsCancelRequest /
+  gsAppealRequest (the bus enforces one-appeal / 72 h / different
+  reviewer and settles refunds by its own accounting); the wallet's
+  rewarded-ad button mints through gsWatchAd with gsAdStatus counters;
+  the possession briefing prefers gsPossessionBriefing(charId) served
+  live; and gsConflictRules() renders the claims matrix in plain English
+  under the resource board. Off the bus nothing below changes — the
+  local pipeline stays the contract reference.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -42,6 +80,9 @@
   header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:var(--panel)}
   .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
   .logo span{color:var(--acc)}
+  .srcb{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:10px;padding:2px 9px;color:var(--dim)}
+  .srcb.live{color:var(--grn);border-color:var(--grn)}
   .wallet{margin-left:auto;font-family:var(--mono);font-size:13px;background:var(--panel2);
     border:1px solid var(--line);border-radius:6px;padding:6px 12px}
   .wallet b{color:var(--acc)}
@@ -169,17 +210,33 @@
   .session .ext:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
   .st.appeal{background:#332a1e;color:var(--acc)}
   .st.modified{background:#3a3220;color:var(--acc)}
+  .st.approved{background:#22384f;color:var(--blu)} .st.booked{background:#22384f;color:var(--blu)}
   .myreq .acc{color:var(--grn);cursor:pointer}
   .myreq .dec{color:var(--dim);cursor:pointer}
   .myreq .acc:hover,.myreq .dec:hover{color:var(--ink)}
   .modcard{margin-top:10px;border:1px solid var(--acc);border-radius:6px;padding:9px 12px;font-size:12.5px;display:none}
   .modcard .mtitle{color:var(--acc);font-weight:600;font-size:12px;letter-spacing:.06em;text-transform:uppercase}
   .hirecard{margin-top:10px;border:1px solid var(--blu);border-radius:6px;padding:10px 12px;font-size:12.5px;display:none}
+  /* v60 — pre-flight check + receipt drawer */
+  .pfline{display:flex;gap:10px;align-items:center;margin-top:6px}
+  .pfbtn{font:inherit;font-size:11.5px;background:none;border:1px solid var(--line);border-radius:6px;
+    color:var(--dim);cursor:pointer;padding:4px 10px}
+  .pfbtn:hover{color:var(--ink);border-color:var(--dim)}
+  .pfout{font-size:11.5px;display:none}
+  .pfout.pass{color:var(--grn)} .pfout.review{color:var(--acc)} .pfout.deny{color:var(--red)}
+  .rcpt{display:none;margin-top:6px;border-top:1px dashed var(--line);padding-top:6px;font-size:11.5px}
+  .rcpt .rl{display:flex;justify-content:space-between;padding:1px 0;color:var(--dim)}
+  .rcpt .rl b{color:var(--ink);font-family:var(--mono);font-weight:400}
+  .rcpt .rtrail{margin-top:4px;font-family:var(--mono);font-size:10.5px;color:var(--dim)}
+  .rcpt .rtrail div{padding:1px 0}
+  .myreq .rt{cursor:pointer}
+  .myreq .rarrow{float:right;color:var(--dim);font-size:11px}
 </style>
 </head>
 <body>
 <header>
   <div class="logo">Real <span>World</span> — The Mission</div>
+  <span class="srcb" id="srcBadge">mirror — local pipeline</span>
   <div class="wallet"><b id="bal">1,240</b> cr <span class="topup" id="topup">+ wallet</span></div>
 </header>
 
@@ -190,6 +247,7 @@
     <div class="board" id="board"></div>
     <div class="note">Shared resources — first-come-first-served, never auctioned.
       Cooldowns are never for sale.</div>
+    <div class="note" id="rulesNote"></div>
 
     <label for="action">Action</label>
     <select id="action"></select>
@@ -206,8 +264,19 @@
       </div>
     </div>
 
+    <div id="whenRow" style="display:none">
+      <label for="wsel">When — the book is public: pick a window or take the soonest</label>
+      <select id="wsel"></select>
+      <div class="note" id="wnote">A time slot is not an upgrade — same flat price.
+        Cooldown-blocked spans are never offered. Cancel free until it starts.</div>
+    </div>
+
     <label for="intent">What should happen? <span class="note" style="display:inline">(your intent — characters decide how)</span></label>
     <textarea id="intent" placeholder="e.g. Dana takes the long way through the park and stops for coffee"></textarea>
+    <div class="pfline">
+      <button class="pfbtn" id="pfbtn" type="button">check wording first — free</button>
+      <span class="pfout" id="pfout"></span>
+    </div>
 
     <div class="qopt" id="qopt">
       <label><input type="checkbox" id="queueMe"> <b>Queue it</b> — this resource is busy.
@@ -239,6 +308,7 @@
   <section class="panel">
     <h2>Your requests</h2>
     <ul class="myreq" id="myreq"></ul>
+    <div class="note" id="apstats"></div>
     <h2>Public request feed <span class="note" style="display:inline">— every request, attributed</span></h2>
     <ul class="feed" id="feed"></ul>
     <h2>Credits ledger <span class="note" style="display:inline">— every debit and refund, itemized</span></h2>
@@ -282,6 +352,21 @@
 
 <script src="screen.js"></script>
 <script>
+/* ================= live seam (v60) =================
+   If the game request bus is present (__aiBridge, sf/game-systems), this
+   page reads it: gsViewerState() drives the public feed + resource board,
+   gsCoSessions() the co-sponsor lists, gsExplainRequest(id) live receipts.
+   v88: the board also reads gsViewerState().board / gsResourceBoard(),
+   the Book reads gsBookCalendar()/gsBookableSlots(), and the quote gets
+   a gsPriceQuote() live-check line. Filing capability-detects
+   gsSubmitRequest (the bus's real name; gsRequestSubmit honored as a
+   legacy alias) — absent on the demo page, so
+   the local pipeline below runs and the badge says so. Same pattern as
+   wire.html/create.html; the local sim stays the contract reference. */
+var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge && __aiBridge.gsViewerState) ? __aiBridge : null;
+var LIVE = !!BRIDGE;
+if (LIVE){ var sb=document.getElementById('srcBadge'); sb.textContent='live · __aiBridge'; sb.className='srcb live'; }
+
 /* ================= demo state ================= */
 var BAL = 1240;
 var RATES = { compatible: 1.5, exclusive: 6.0 };            // cr/min, plan §2.2
@@ -381,11 +466,122 @@ var FEED = [
   {t:'18:02', who:'dvh', txt:'possess — own baker, 45 min', st:'resolved', tail:'player session ended'}
 ];
 
-var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin}
+/* ================= the booking layer (v74) =================
+   Exclusive actions may name a start window off the public Book. BOOKW is
+   the inline mirror of bookings.json.windows (the audit gate deep-compares
+   it); CLAIMS supplies the live lock/cooldown tails the picker avoids. */
+var BOOK_SLOT_MIN = 30, BOOK_HORIZON_H = 24, BOOK_TICK_MIN = 30;
+var BOOKW = [
+  {claim:'sky',           start:'07:30', min:60,  who:'marina_w', what:'fog burn-off for the morning crowd'},
+  {claim:'openair',       start:'09:00', min:90,  who:'leaf',     what:'park cleanup — Dolores, Saturday'},
+  {claim:'venue:club600', start:'22:30', min:60,  who:'dvh',      what:'birthday window — the back corner'},
+  {claim:'venue:mudhaus', start:'16:00', min:60,  who:'okfm',     what:'poetry hour — corner tables'}
+];
+function bkNowMin(){ var d=new Date(); return d.getHours()*60+d.getMinutes(); }
+function bkHHMM(abs){ var m=((abs%1440)+1440)%1440;
+  return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2); }
+/* absolute start of a seeded window in the next-24h frame (rolls past-today) */
+function bkWinAbs(w){ var p=w.start.split(':'), s=(+p[0])*60+(+p[1]);
+  return s < bkNowMin() ? s+1440 : s; }
+/* free slots on claim ck for a lenMin window: next 24 h, ≥30 min out, past
+   any lock/cool tail, never overlapping a booked span — cooldown-blocked
+   spans are simply not offered */
+function bkSlots(ck, lenMin){
+  var now=bkNowMin(), tail=0, c=ck&&CLAIMS[ck];
+  if (c && (c.state==='locked'||c.state==='cool')) tail=c.left||0;
+  var out=[];
+  for (var s=Math.ceil((now+30)/BOOK_SLOT_MIN)*BOOK_SLOT_MIN;
+       s<=now+BOOK_HORIZON_H*60-lenMin && out.length<6; s+=BOOK_SLOT_MIN){
+    if (s < now + tail) continue;
+    var clash=false;
+    for (var i=0;i<BOOKW.length;i++){ var w=BOOKW[i]; if (w.claim!==ck) continue;
+      var ws=bkWinAbs(w); if (s < ws+w.min && ws < s+lenMin){ clash=true; break; } }
+    if (!clash) out.push(s);
+  }
+  return out;
+}
+function bkLabel(abs){ var day = abs >= bkNowMin()+1440 ? ' (day after)' :
+  (Math.floor(abs/1440) > Math.floor(bkNowMin()/1440) ? ' (tomorrow)' : ' (tonight)');
+  return bkHHMM(abs)+day; }
+function bkLen(a, dm){ return a.id==='event' ? 60 : dm; }  /* event window fixed 60; weather = the block bought */
+/* v88 — the picker's offer set: local bkSlots is the contract reference;
+   when the bus carries gsBookableSlots (game-v14) its slots union in —
+   a bookable window the bus knows is always offerable, and a window it
+   refuses simply isn't offered (the local set already excludes
+   lock/cooldown tails and booked spans). Deduped by absolute minute. */
+function bkOfferSlots(ck, a, t, wlen){
+  var out = bkSlots(ck, wlen);
+  if (LIVE && BRIDGE.gsBookableSlots){
+    try{
+      var spec = { kind: busKind(a), target: t.id, durationMin: wlen,
+                   claim: ck, playerId: 'you' };
+      var got = BRIDGE.gsBookableSlots(spec, 6) || [];
+      got.forEach(function(e){
+        var s = bkNormSlot(e);
+        if (s != null && out.indexOf(s) < 0) out.push(s);
+      });
+      out.sort(function(x,y){return x-y;});
+    }catch(e){ /* bus hiccup — local set stands */ }
+  }
+  return out.slice(0, 6);
+}
+
+var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin, intent, trail, startMin, winMin, winLbl}
 var reqSeq = 100;
+function trail(r, what){ (r.trail = r.trail || []).push({ t:new Date().toTimeString().slice(0,5), what:what }); }
 
 /* status chip labels — feed vocabulary (requests.json feed_vocabulary) */
-var STLBL = { modified: 'approved (modified)' };
+var STLBL = { modified: 'approved (modified)', booked: 'booked' };
+
+/* ================= v88 — the real bus seam =================
+   The game request bus (game-v14+) files through gsSubmitRequest with
+   spec keys {playerId, kind, target, durationMin, params, note,
+   start_slot}. The page's action ids are the public labels; the bus's
+   kind vocabulary differs on one — the event trigger files as
+   'street_event' (game-v14 merge note: world's bookable `event` maps
+   onto the game's existing street_event action). gsRequestSubmit is
+   honored as a legacy alias only. The record the bus returns is the
+   truth: status 'denied' means nothing billed — the local pipeline
+   never runs a denied live filing. */
+function busKind(a){ return a.id==='event' ? 'street_event' : a.id; }
+function busSpec(a, t, dm, text, queued, co, q, winAbs){
+  var spec = {
+    /* bus vocabulary (gsSubmitRequest, game-v14) */
+    playerId: 'you', kind: busKind(a), target: t.id,
+    durationMin: dm || undefined,
+    note: text, params: { text: text, quote_cr: q.total },
+    /* documented world-side contract keys (requests.json live_seam) —
+     * kept alongside so a gsRequestSubmit-shaped alias still parses */
+    action: a.id, duration_min: dm, text: text,
+    queued: !!queued, co_sponsor: !!co, quote_cr: q.total
+  };
+  if (winAbs != null) spec.start_slot = winAbs - bkNowMin();  /* minutes-from-now */
+  return spec;
+}
+/* Normalize a gsBookableSlots() / gsBookCalendar() entry into an absolute
+   minute in the next-24h frame. Accepts numbers (minute-of-day or
+   minutes-from-now, disambiguated by horizon) and objects carrying
+   start_min|startMin|abs|start(HH:MM). */
+function bkNormSlot(e){
+  if (e == null) return null;
+  var now = bkNowMin();
+  if (typeof e === 'number'){
+    if (e > 0 && e <= BOOK_HORIZON_H*60) return now + e;       /* minutes-from-now */
+    var s = e % 1440; return s < now ? s + 1440 : s;           /* minute-of-day */
+  }
+  if (typeof e.abs === 'number') return e.abs;
+  if (typeof e.start_min === 'number'){
+    var sm = e.start_min % 1440; return sm < now ? sm + 1440 : sm;
+  }
+  if (typeof e.startMin === 'number'){
+    var s2 = e.startMin % 1440; return s2 < now ? s2 + 1440 : s2;
+  }
+  if (typeof e.start === 'string' && /^\d{1,2}:\d{2}$/.test(e.start)){
+    var p = e.start.split(':'), s3 = (+p[0])*60 + (+p[1]);
+    return s3 < now ? s3 + 1440 : s3;
+  }
+  return null;
+}
 
 /* demo event hooks — merge points for the analytics spec (marketing
    analytics-events.json PENDING hooks). Local-only: an in-page array the
@@ -446,10 +642,33 @@ function buyPack(p){
   renderPacks(); refreshQuote();
 }
 function renderAds(){
+  /* v102 — bridged: the bus's own counters (gsAdStatus) drive the row;
+     the bus counts per PT-day, the weekly cap is its business too. */
+  if (LIVE && BRIDGE.gsAdStatus){
+    try{
+      var st = BRIDGE.gsAdStatus('you');
+      if (st){ $('adcount').textContent = (st.viewsToday||0)+' seen today · '+
+          (st.capLeft!=null?st.capLeft+' left':'cap held by the bus')+' · +'+(st.perView||AD_CR)+' cr each';
+        $('adbtn').disabled = (st.capLeft||0) <= 0;
+        return; }
+    }catch(e){}
+  }
   $('adcount').textContent = adsDay+'/'+AD_DAY+' today · '+adsWeek+'/'+AD_WEEK+' this week';
   $('adbtn').disabled = (adsDay>=AD_DAY || adsWeek>=AD_WEEK);
 }
 $('adbtn').onclick=function(){
+  /* v102 — bridged: gsWatchAd mints the credit on the bus; capHit is an
+     honest refusal, not an error */
+  if (LIVE && BRIDGE.gsWatchAd){
+    try{
+      var r = BRIDGE.gsWatchAd('you');
+      if (r && r.ok){ chg(r.credits||AD_CR,'rewarded ad view (live)');
+        toast('+'+(r.credits||AD_CR)+' cr — thanks for watching');
+        renderAds(); return; }
+      if (r && r.capHit){ toast('Daily cap reached — a taste, not a wage. Ads reset tomorrow.');
+        renderAds(); return; }
+    }catch(e){}
+  }
   if (adsDay>=AD_DAY || adsWeek>=AD_WEEK) return;
   adsDay++; adsWeek++;
   chg(AD_CR,'rewarded ad view');
@@ -474,6 +693,17 @@ function renderBoard(){
           (c.note?'<div class="cd">'+c.note+'</div>':'')+'</div>';
   }
   $('board').innerHTML=html;
+  /* v102 — the classification why: gsConflictRules() is the bus's claims
+     matrix in plain English. Shown when bridged so 'exclusive' reads as
+     a fact about shared resources, never as a tax. */
+  if (LIVE && BRIDGE.gsConflictRules){
+    try{
+      var rules = BRIDGE.gsConflictRules() || [];
+      $('rulesNote').innerHTML = rules.length
+        ? 'Why these classes — the bus\u2019s claims matrix: ' + rules.join(' · ')
+        : '';
+    }catch(e){}
+  }
 }
 /* demo tick — drain cooldowns/locks (1 tick ≈ 1 min of resource time) and
    queued-request hold clocks (1 tick ≈ 48 min of the 24 h hold, so the
@@ -490,10 +720,42 @@ setInterval(function(){
       } } }
   var qChanged=false;
   MYREQ.forEach(function(r){
+    /* v74 — booked windows: the card counts down (demo: 30 min/tick) and
+       fires when its window arrives, locking the claim for the window's
+       length; when the claim releases the run resolves on the feed */
+    if (r.st==='approved' && r.startMin!=null){
+      qChanged=true; r.winLeft -= BOOK_TICK_MIN;
+      if (r.winLeft<=0){
+        r.st='running'; r.canCancel=false;
+        trail(r,'window arrived — fired'); r.sub+=' · window arrived — fired';
+        r.mini='running — the world is rendering it';
+        feedAdd('you','booked window arrived — '+r.label+' fired','running');
+        var bc = r.claim && CLAIMS[r.claim];
+        if (bc){ bc.state='locked'; bc.left=Math.min(r.winMin||60,15); bc.by='you';
+          bc.note='booked window running';
+          if (r.action==='weather') bc.wx={what:r.intent||'the booked call', block_min:r.winMin||60, cr:r.paid, sponsors:['you']}; }
+        for (var bi=0;bi<BOOKW.length;bi++) if (BOOKW[bi].mine){ BOOKW.splice(bi,1); break; }
+        toast('Your booked window arrived — '+r.label+' fired.');
+      } else {
+        r.mini='starts '+bkHHMM(r.startMin)+' · in ~'+fmtMin(r.winLeft)+' · cancel free until it starts';
+      }
+      return;
+    }
+    if (r.st==='running' && r.booked){
+      var ec = r.claim && CLAIMS[r.claim];
+      if (ec && ec.state!=='locked'){
+        r.st='resolved'; r.booked=false; qChanged=true;
+        trail(r,'ended — the window closed'); r.sub+=' · ended';
+        r.mini='window complete — the Book shows it as done';
+        feedAdd('you', r.label+' ended','resolved');
+      }
+      return;
+    }
     if (r.st!=='queued' || !r.holdMin) return;
     r.holdMin -= HOLD_TICK_MIN; qChanged=true;
     if (r.holdMin<=0){
       r.holdMin=0; r.st='refunded'; r.canCancel=false;
+      trail(r,'hold expired before activation — '+r.paid+' cr auto-refunded');
       if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
       chg(r.paid, 'queued hold expired — '+r.label+' (auto-refund)');
       r.sub+=' · hold expired before activation — '+r.paid+' cr auto-refunded';
@@ -512,17 +774,190 @@ function resolveSponsors(ck){
   MYREQ.forEach(function(r){
     if (r.claim===ck && r.st==='running' && r.co){
       r.st='resolved'; r.sub+=' · the call ended — both sponsors on the feed';
+      trail(r,'resolved — sponsor call ended');
       feedAdd('you', r.label, 'resolved');
     }
   });
   renderMine();
 }
 
+/* ================= live ingest (v60 merge seam) =================
+   Reads only. Feed entries already carry the feed.json status vocabulary;
+   sessions map onto the resource board's claim keys (char:*, sky, venue:*,
+   openair). Board entries the bus doesn't claim stay in their demo state —
+   the demo claims stand in for resources the live state doesn't name. */
+var liveSeen = {};
+function livePoll(){
+  try{
+    var vs = BRIDGE.gsViewerState();
+    var feed = (vs && vs.feed) || [];
+    feed.forEach(function(e){
+      if (e.id && !liveSeen[e.id]){
+        liveSeen[e.id]=true;
+        var st=(e.status||'resolved'), sk=st.replace(/[ ()]/g,'_');
+        var cmap={in_review:'review', approved:'resolved', approved_modified:'modified',
+          not_approved:'resolved', requested:'queued', player_session_ended:'resolved',
+          booked:'booked'};
+        sk = cmap[sk] || sk;
+        var li=document.createElement('li');
+        li.innerHTML='<span class="t">'+(e.t!=null?e.t:'—')+'</span>'+
+          '<span class="who">'+(e.who||'—')+'</span> '+(e.text||e.txt||'')+
+          ' <span class="st '+sk+'">'+st+'</span>';
+        $('feed').prepend(li);
+      }
+    });
+    var sess = (vs && vs.sessions) || [];
+    for (var k in CLAIMS){
+      var c=CLAIMS[k], live = null;
+      for (var i=0;i<sess.length;i++) if (sess[i].claim===k || sess[i].on===k) live=sess[i];
+      if (live){
+        if (c.state!=='locked'){ c.state='locked'; }
+        c.left = live.left_min!=null?live.left_min:(live.left||c.left);
+        c.by = live.who||live.holder||c.by;
+      }
+    }
+    /* v88 — the public board: gsViewerState().board (game-v7+) or a direct
+       gsResourceBoard() call projects every contended claim as
+       {state:free|cool|locked|queued, leftMin, holder, player, depth,
+       booked[]}. Keys the board doesn't name keep their demo state —
+       the strip never claims a resource is free just because the bus
+       is silent about it. */
+    var board = (vs && vs.board) ||
+      (BRIDGE.gsResourceBoard ? BRIDGE.gsResourceBoard() : null) || {};
+    for (var bk in CLAIMS){
+      var be = board[bk]; if (!be) continue;
+      var cc = CLAIMS[bk];
+      if (be.state==='locked'){ cc.state='locked';
+        cc.left = be.leftMin!=null?be.leftMin:cc.left;
+        cc.by = be.player||be.holder||cc.by; }
+      else if (be.state==='cool'){ cc.state='cool';
+        cc.left = be.leftMin!=null?be.leftMin:cc.left; }
+      else if (be.state==='queued'){ cc.qa = be.depth||cc.qa||1; }
+      else if (be.state==='free' && !cc._demo){ cc.state='free'; cc.qa=0; }
+      if (be.booked && be.booked.length)
+        cc.note = 'booked: ' + be.booked.map(function(w){
+          return (w.start!=null?w.start:bkHHMM(w.start_min||0)) +
+                 (w.who ? ' · '+w.who : '');
+        }).join(', ');
+    }
+    if (BRIDGE.gsCoSessions){
+      var cos = BRIDGE.gsCoSessions() || {};
+      for (var ck in cos) if (CLAIMS[ck])
+        CLAIMS[ck].wx = CLAIMS[ck].wx || {what:cos[ck].what||'the running call', block_min:cos[ck].block_min||60, cr:cos[ck].cr||40, sponsors:[]},
+        CLAIMS[ck].wx.sponsors = cos[ck].sponsors || CLAIMS[ck].wx.sponsors;
+    }
+    /* v74 — booked windows the bus knows land on the picker's avoidance
+       set, deduped by claim+start (bookings.json live_seam.reads) */
+    var cal = (vs && vs.calendar) || [];
+    /* v88 — gsBookCalendar() (game-v14) is the same public strip the
+       calendar surface reads: {req,claim,res,start_min,min,start,day,
+       who,what} — merged with vs.calendar, deduped by claim+start. */
+    if (BRIDGE.gsBookCalendar){
+      try{ cal = cal.concat(BRIDGE.gsBookCalendar() || []); }catch(e){}
+    }
+    cal.forEach(function(w){
+      if (!w || !w.claim) return;
+      var st = typeof w.start_min==='number' ? bkHHMM(w.start_min) : w.start;
+      for (var i=0;i<BOOKW.length;i++)
+        if (BOOKW[i].claim===w.claim && BOOKW[i].start===st) return;
+      BOOKW.push({claim:w.claim, start:st, min:w.min||60,
+                  who:w.who||'—', what:w.what||'booked window'});
+    });
+    /* v102 — the live session layer: gsRequestMeter(id) is the bus's
+       per-request meter. Cards filed live mirror it — own queue
+       position (it can only shrink, never grow — shown to the holder,
+       never an auction), the review SLA clock, active remaining/spent,
+       and refund totals on terminal states. Local stand-ins yield
+       wherever the meter answers; a hiccup keeps the last good frame. */
+    if (BRIDGE.gsRequestMeter){
+      var mChanged=false, sessAlive=false;
+      MYREQ.forEach(function(r){
+        if (!r.busId) return;
+        try{
+          var m = BRIDGE.gsRequestMeter(r.busId);
+          if (!m) return;
+          r._meter = m;
+          if (m.status==='queued'){
+            if (r.st!=='queued'){ r.st='queued'; mChanged=true; }
+            var mini = (m.queuePos ? 'place '+m.queuePos+' in line — yours can only shrink, never grow'
+                                   : 'queued on the bus') +
+              (m.blockedBy && m.blockedBy.length ? ' · waiting on '+m.blockedBy.join(', ') : '');
+            if (r.mini!==mini){ r.mini=mini; mChanged=true; }
+          } else if (m.status==='in_review'){
+            if (r.st!=='review'){ r.st='review'; mChanged=true; }
+            var mini2 = 'in human review' +
+              (m.reviewExpiresInMin!=null ? ' · '+fmtMin(Math.max(0,Math.ceil(m.reviewExpiresInMin)))+' left for a decision' : '') +
+              (m.reviewCode ? ' · '+String(m.reviewCode).replace(/_/g,' ') : '');
+            if (r.mini!==mini2){ r.mini=mini2; mChanged=true; }
+          } else if (m.status==='active'){
+            if (r.st!=='running'){ r.st='running'; mChanged=true; }
+            liveSess(r, m); sessAlive = (liveSessId===r.id);
+          } else if (m.status==='denied'){
+            if (r.st!=='resolved'){ r.st='resolved';
+              r.sub+=' · not approved ('+(m.reviewCode||'denied')+') · nothing billed';
+              trail(r,'bus: denied — nothing billed'); mChanged=true; }
+          } else if (m.status==='cancelled' || m.status==='completed' ||
+                     m.status==='expired' || m.status==='failed'){
+            if (r.st!=='resolved' && r.st!=='refunded'){
+              r.st = (m.status==='cancelled' || (m.refunded||0)>0) ? 'refunded' : 'resolved';
+              r.sub+=' · '+m.status.replace(/_/g,' ')+(m.refunded?' · '+m.refunded+' cr refunded by the bus':'');
+              trail(r,'bus: '+m.status+(m.refunded?' — '+m.refunded+' cr refunded':''));
+              mChanged=true; }
+          }
+        }catch(e){ /* per-request hiccup — last good frame stands */ }
+      });
+      if (liveSessId!=null && !sessAlive){ $('sess').style.display='none'; liveSessId=null; }
+      if (mChanged) renderMine();
+    }
+    /* v102 — appeal aggregate: gsAppealStats() counts in public; the
+       appeals themselves never reach the feed */
+    if (BRIDGE.gsAppealStats){
+      try{
+        var ap = BRIDGE.gsAppealStats();
+        if (ap && ap.filed) $('apstats').textContent =
+          'appeals on the bus: '+ap.filed+' filed · '+
+          (ap.reversalRate!=null ? Math.round(ap.reversalRate*100)+'% reversed' : 'none reversed yet')+
+          ' — aggregate only; individual appeals never appear on the feed';
+      }catch(e){}
+    }
+    renderBoard();
+  }catch(err){ /* bridge hiccup — keep last good frame, badge stays live */ }
+}
+if (LIVE) setInterval(livePoll, 3000);
+
 /* ================= briefing preview ================= */
 function renderBrief(t){
   var box=$('brief');
-  if (!t.brief || !BRIEFINGS[t.id]){ box.style.display='none'; return; }
+  if (!t.brief){ box.style.display='none'; return; }
+  /* v102 — bridged: gsPossessionBriefing(charId) serves the same §7
+     whitelist live. A null/thin packet falls back to the demo card;
+     the absent-by-schema bar never moves either way. */
+  if (LIVE && BRIDGE.gsPossessionBriefing){
+    var lb=null;
+    try{ lb = BRIDGE.gsPossessionBriefing(t.id) || null; }catch(e){}
+    if (lb){
+      var LK={name:'Who', role:'Role', home:'Home', routine:'Daily routine',
+              possessedBy:'Currently driven by'};
+      var rows='';
+      for (var k in lb){
+        if (k==='id' || lb[k]==null) continue;
+        rows+='<div class="brow"><span class="k">'+(LK[k]||String(k).replace(/_/g,' '))+'</span><br>'+
+          (typeof lb[k]==='object'?JSON.stringify(lb[k]):lb[k])+'</div>';
+      }
+      box.innerHTML='<div class="bhead"><span>Possession briefing — live</span><span>whitelist · §7 · gsPossessionBriefing</span></div>'+
+        '<div class="bbody">'+rows+
+        '<div class="brow"><span class="k">Scope</span><br>You may possess only your own hired '+
+        'character — nobody else, ever. While you drive, the AI brain is suspended; on release '+
+        'or timeout it resumes seamlessly.</div>'+
+        '<div class="absent">secrets, drama seeds, inner life — <b>not redacted: absent</b>. '+
+          'The live packet carries no field that holds them. Learn them by watching.</div>'+
+        '</div>';
+      box.style.display='block';
+      return;
+    }
+  }
   var b=BRIEFINGS[t.id];
+  if (!b){ box.style.display='none'; return; }
   box.innerHTML='<div class="bhead"><span>Possession briefing</span><span>whitelist · §7</span></div>'+
     '<div class="bbody">'+
     '<div class="brow"><span class="k">Who</span><br>'+b.who+'</div>'+
@@ -547,6 +982,26 @@ function screenText(action, target, text, exclusive){
   return { r: res.verdict, code: res.code, msg: res.player_msg };
 }
 
+/* v60 — pre-flight check: the same screen, run before money moves.
+   Screening is free; credits only move when a request is filed. The
+   verdict shown here is the same one the pipeline would reach — this
+   button just moves it in front of the charge. */
+$('pfbtn').onclick=function(){
+  var a = ACTIONS[actSel.selectedIndex], t = curTarget();
+  var out = $('pfout');
+  if (a.per==='route'){ out.className='pfout review'; out.style.display='inline';
+    out.textContent='The Registry screens applications itself — file there.'; return; }
+  var scr = screenText(a.id+' '+t.label, t.id, $('intent').value.trim(), a.cls==='exclusive');
+  out.style.display='inline';
+  if (scr.r==='deny'){ out.className='pfout deny';
+    out.textContent='would not be approved ('+scr.code+') — '+scr.msg+' Screening is free; file anyway and it refunds in full.'; }
+  else if (scr.r==='review'){ out.className='pfout review';
+    out.textContent='gray-zone wording — a human reviewer would read this first (that review is already free).'; }
+  else { out.className='pfout pass';
+    out.textContent='screens clean — nothing in the text trips the intent screen.'; }
+  rwEmit('preflight_check',{action:a.id, verdict:scr.r});
+};
+
 /* ================= claims / queue ================= */
 function claimOf(a, t){
   return t.claim || a.claim || (a.id==='possess' ? 'char:'+t.id : null);
@@ -557,15 +1012,15 @@ function claimBusy(ck){
 }
 
 /* ================= pricing ================= */
-function surgeFor(a, ck){
+function surgeFor(a, ck, atHour){
   var c = ck && CLAIMS[ck];
   if (c && c.lastExclusiveH !== undefined && c.lastExclusiveH < 6) return 1.5;
-  var h = new Date().getHours();
+  var h = atHour!=null ? atHour : new Date().getHours();
   return (h >= 18 && h < 23 && a.cls==='exclusive') ? 1.5 : 1;
 }
-function quote(a, t, durMin, queued){
+function quote(a, t, durMin, queued, atHour){
   var ck = claimOf(a,t);
-  var surge = surgeFor(a, ck);
+  var surge = surgeFor(a, ck, atHour);
   var q = { cls: queued ? 'queued' : a.cls, surge: surge, lines: [], total: 0 };
   if (a.per === 'min'){
     var rate = RATES[a.cls];
@@ -585,7 +1040,9 @@ function quote(a, t, durMin, queued){
     q.lines.push(['Queue −15%', 'held ≤24 h · expiry auto-refunds','qdisc']);
     q.total *= (1 - QUEUE_DISCOUNT);
   }
-  if (surge > 1) q.lines.push(['Surge ×'+surge, 'this resource was booked recently — shown before you pay']);
+  if (surge > 1) q.lines.push(['Surge ×'+surge, atHour!=null ?
+    'primetime window — surge keys off the window\u2019s hour, shown before you pay' :
+    'this resource was booked recently — shown before you pay']);
   q.total = Math.ceil(q.total);
   return q;
 }
@@ -633,12 +1090,42 @@ function refreshQuote(){
     return;
   }
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  /* v74 — the When picker: bookable exclusives (weather/event) may name a
+     start window off the public Book. Slots the picker offers can legally
+     fire — past lock/cooldown tails, never overlapping a booked span. A
+     named window is a scheduled claim, so the busy-resource queue path
+     doesn't gate it; "soonest" keeps today's now-or-queued behavior. */
+  var bookable = (a.id==='weather' || a.id==='event');
+  var wrow=$('whenRow'), wsel=$('wsel'), winAbs=null;
+  if (bookable){
+    var wlen = bkLen(a, dm);
+    var tailc = ck && CLAIMS[ck];
+    var sig = ck+':'+wlen+':'+Math.floor(bkNowMin()/BOOK_TICK_MIN)+':'+
+      (tailc ? tailc.state+':'+Math.ceil((tailc.left||0)/BOOK_SLOT_MIN)*BOOK_SLOT_MIN : '')+':'+BOOKW.length;
+    wrow.style.display='';
+    if (wsel._sig!==sig){
+      var keep=wsel.value;
+      wsel._sig=sig; wsel.innerHTML='';
+      var o0=document.createElement('option'); o0.value='';
+      o0.textContent='soonest free window (queue if busy)'; wsel.appendChild(o0);
+      bkOfferSlots(ck, a, t, wlen).forEach(function(s){
+        var o=document.createElement('option'); o.value=s;
+        o.textContent='book '+bkLabel(s)+' → '+bkHHMM(s+wlen);
+        wsel.appendChild(o); });
+      for (var oi=0;oi<wsel.options.length;oi++)
+        if (wsel.options[oi].value===keep){ wsel.value=keep; break; }
+    }
+    if (wsel.value!=='') winAbs=+wsel.value;
+  } else wrow.style.display='none';
+  var coOK = winAbs==null && busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
   coopt.style.display = coOK ? 'block' : 'none';
   if (coOK) $('coWho').textContent = CLAIMS[ck].wx.sponsors.join(' + ');
-  qopt.style.display = (busy && a.cls==='exclusive' && !co) ? 'block' : 'none';
-  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, busy && !co && queueMe.checked);
+  qopt.style.display = (winAbs==null && busy && a.cls==='exclusive' && !co) ? 'block' : 'none';
+  var q = co ? coQuote(a, CLAIMS[ck]) :
+    quote(a, t, dm, winAbs==null && busy && !co && queueMe.checked,
+          winAbs!=null ? Math.floor((winAbs%1440)/60) : null);
+  if (winAbs!=null) q.lines.push(['Window', 'booked for '+bkHHMM(winAbs)+' · cancel free until it starts']);
   var badge = '<span class="badge '+q.cls+'">'+q.cls+'</span>' +
     (co ? ' <span class="badge">co-sponsor · auto-run on pass</span>' :
      q.cls==='exclusive' ? ' <span class="badge">human review</span>' :
@@ -649,12 +1136,37 @@ function refreshQuote(){
     (CLAIMS[ck].state==='free'?'free':CLAIMS[ck].state==='cool'?'cooldown '+fmtMin(CLAIMS[ck].left):'locked '+fmtMin(CLAIMS[ck].left))+'</b></div>';
   q.lines.forEach(function(l){ html += '<div class="line'+(l[2]?' '+l[2]:'')+'"><span>'+l[0]+'</span><b>'+l[1]+'</b></div>'; });
   html += '<div class="line total"><span>Charged upfront · hard cap</span><b>'+q.total+' cr</b></div>';
-  if (busy && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
+  if (busy && winAbs==null && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
+  if (winAbs!=null) html += '<div class="warn" style="color:var(--dim)">Booked windows are already approved when they arrive — cancel free until '+bkHHMM(winAbs)+'.</div>';
   if (a.note) html += '<div class="warn" style="color:var(--dim)">'+a.note+'</div>';
   if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="openWallet()">open wallet</span> first.</div>';
+  /* v88 — live quote check: gsPriceQuote (game-v7/v14) runs the submit
+     path's own math without mutating anything. Shown as a parity line —
+     informative, never a gate: a bus deny here means filing would refuse
+     before billing, so it warns rather than blocks (same honesty rule as
+     the pre-flight screen). */
+  if (LIVE && BRIDGE.gsPriceQuote){
+    try{
+      var lspec = { playerId:'you', kind: busKind(a), target: t.id,
+                    durationMin: dm || undefined, note: $('intent').value||'' };
+      if (winAbs!=null) lspec.start_slot = winAbs - bkNowMin();
+      var lq = BRIDGE.gsPriceQuote(lspec);
+      if (lq && lq.ok){
+        html += '<div class="line"><span>Live check</span><b>'+lq.total+' cr'+
+          (lq.surge && lq.surge!==1 ? ' · surge ×'+lq.surge : '')+
+          (lq.wouldQueue ? ' · would queue' : '')+
+          (lq.booked && lq.booked.start ? ' · bus books it '+lq.booked.start : '')+
+          ' — the bus\u2019s own math</b></div>';
+      } else if (lq && lq.deny){
+        html += '<div class="warn">Live check — the bus would refuse this as filed ('+
+          lq.deny.replace(/_/g,' ')+'). Filing anyway is safe: refused requests never bill.</div>';
+      }
+    }catch(e){ /* quote check is best-effort — the local quote stands */ }
+  }
   quoteBox.innerHTML = html;
-  go.disabled = q.total > BAL || (busy && !queueMe.checked && !co && a.cls==='exclusive');
+  go.disabled = q.total > BAL || (winAbs==null && busy && !queueMe.checked && !co && a.cls==='exclusive');
   go.textContent = co ? 'Co-sponsor — join the running call' :
+    winAbs!=null ? 'Book it — '+bkHHMM(winAbs) :
     (busy && a.cls==='exclusive' && !queueMe.checked) ? 'Resource busy — queue to file' : 'Submit request';
 }
 /* co-sponsor quote: same flat block price as the running request — you buy
@@ -670,6 +1182,7 @@ function coQuote(a, c){
 actSel.onchange = refreshTargets;
 tgtSel.onchange = function(){ renderBrief(curTarget()); refreshQuote(); };
 durIn.oninput = refreshQuote; queueMe.onchange = refreshQuote;
+$('wsel').onchange = refreshQuote;
 coMe.onchange = function(){ if (coMe.checked) queueMe.checked=false; refreshQuote(); };
 queueMe.addEventListener('change', function(){ if (queueMe.checked) coMe.checked=false; refreshQuote(); });
 
@@ -697,15 +1210,27 @@ function renderMine(){
   ul.innerHTML='';
   MYREQ.forEach(function(r){
     var li=document.createElement('li');
-    li.innerHTML='<div class="rt"><b>'+r.label+'</b><span class="st '+r.st+'">'+(STLBL[r.st]||r.st)+'</span></div>'+
+    li.innerHTML='<div class="rt" data-rc="'+r.id+'"><b>'+r.label+'</b><span class="rarrow">'+(r.open?'▾':'▸')+'</span><span class="st '+r.st+'">'+(STLBL[r.st]||r.st)+'</span></div>'+
       '<div class="sub">'+r.sub+'</div>'+
       (r.mini?'<div class="mini">'+r.mini+'</div>':'')+
+      (r.open?'<div class="rcpt" style="display:block">'+
+        '<div class="rl"><span>declared</span><b>'+(r.declared||'—')+'</b></div>'+
+        '<div class="rl"><span>intent</span><b>'+(r.intent||'(none filed)')+'</b></div>'+
+        '<div class="rl"><span>charged upfront</span><b>'+r.paid+' cr</b></div>'+
+        (r.claim?'<div class="rl"><span>claim</span><b>'+r.claim+'</b></div>':'')+
+        '<div class="rtrail">'+((r.trail||[]).map(function(x){return '<div>'+x.t+' · '+x.what+'</div>';}).join(''))+'</div>'+
+        '<div class="rl"><span>receipt</span><b>rq-'+r.id+' — mirrors the public feed lines</b></div>'+
+        (LIVE && r.busId && BRIDGE.gsExplainRequest ? liveExplain(r) : '')+
+      '</div>':'')+
       (r.modOffer?'<span class="mbtn acc" data-ok="'+r.id+'">accept the trimmed version — '+r.modOffer.refund+' cr back</span>'+
                  '<span class="mbtn dec" data-no="'+r.id+'">decline — '+r.paid+' cr full refund</span>':'')+
       (r.canCancel?'<span class="xbtn" data-rq="'+r.id+'">cancel — auto-refund</span>':'')+
       (r.canAppeal?'<span class="abtn" data-ap="'+r.id+'">appeal — different reviewer, ≤'+APPEAL_H+' h</span>':'')+
       (r.needsFunds?'<span class="abtn" data-fund="'+r.id+'">top up to run — '+r.paid+' cr</span>':'');
     ul.appendChild(li);
+  });
+  ul.querySelectorAll('.rt').forEach(function(x){
+    x.onclick=function(){ var r=findReq(+x.dataset.rc); if(r){ r.open=!r.open; renderMine(); } };
   });
   ul.querySelectorAll('.xbtn').forEach(function(x){
     x.onclick=function(){ cancelReq(+x.dataset.rq); };
@@ -729,7 +1254,30 @@ function renderMine(){
    count them in aggregate. A different reviewer decides; upheld is final. */
 function appealReq(id){
   var r=findReq(id); if(!r||!r.canAppeal) return;
+  /* v102 — filed-live denials appeal through the bus: gsAppealRequest
+     enforces one-appeal / 72 h window / different-reviewer itself, and
+     the appeal record is a parked request billed 0 — the run re-bills
+     only on approval. Refusals map to neutral wording, never theater. */
+  if (LIVE && r.busId && BRIDGE.gsAppealRequest){
+    var res=null;
+    try{ res=BRIDGE.gsAppealRequest(r.busId,{playerId:'you'}); }catch(e){}
+    if (res && res.ok){
+      r.canAppeal=false; r.st='appeal';
+      trail(r,'appeal filed on the bus — different reviewer, ≤'+APPEAL_H+' h · private, never on the feed');
+      r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
+      toast('Appeal filed — it goes to a different reviewer. Appeals never appear on the public feed.');
+      renderMine();
+    } else {
+      var WHY={ not_denied:'that request is not in a denied state',
+        not_your_request:'only the filer can appeal', already_appealed:'one appeal per request — already filed',
+        appeal_final:'the second review was final', not_appealable:'this denial class is not appealable',
+        window_closed:'the 72 h appeal window has closed' };
+      toast('Appeal refused — '+(WHY[res&&res.err]||'the bus declined it')+'.');
+    }
+    return;
+  }
   r.canAppeal=false; r.st='appeal';
+  trail(r,'appeal filed — different reviewer, ≤'+APPEAL_H+' h · private, never on the feed');
   r.sub+=' · appealed — a different reviewer decides within '+APPEAL_H+' h';
   renderMine();
   toast('Appeal filed — it goes to a different reviewer. Appeals never appear on the public feed.');
@@ -769,11 +1317,81 @@ function fundReq(id){
   renderMine();
 }
 function findReq(id){ for (var i=0;i<MYREQ.length;i++) if (MYREQ[i].id===id) return MYREQ[i]; }
+/* live receipt detail — gsExplainRequest(id) is the bus-side explainer
+   (game-v2); when bridged and the filing carried a bus id, the receipt
+   shows the live classification/claims/review state verbatim */
+function liveExplain(r){
+  try{
+    var ex = BRIDGE.gsExplainRequest(r.busId);
+    if (!ex) return '';
+    var rows='';
+    for (var k in ex) rows+='<div class="rl"><span>live · '+k+'</span><b>'+
+      (typeof ex[k]==='object'?JSON.stringify(ex[k]):ex[k])+'</b></div>';
+    return '<div class="rl"><span>bus id</span><b>'+r.busId+'</b></div>'+rows;
+  }catch(err){ return ''; }
+}
+/* v102 — live session card: for a possess/camera request the bus reports
+   'active', gsRequestMeter supplies remainingMin / spentSoFar / lowCredits
+   — real minutes, not the demo tick. Release early files gsCancelRequest;
+   the bus settles unused minutes by its own rule (unused whole minutes at
+   the applied rate) and the meter reports what came back. */
+var liveSessId=null;
+function liveSess(r, m){
+  var sess=$('sess'); sess.style.display='block';
+  var leftMin=Math.max(0,Math.ceil(m.remainingMin||0));
+  sess.innerHTML='<h2>Live session — '+r.label+'</h2>' +
+    '<div class="clock">'+leftMin+':00</div>' +
+    '<div class="srow"><span>hard cap · the bus holds the clock</span><span>'+
+      (m.spentSoFar!=null?m.spentSoFar+' cr spent so far':'')+'</span></div>' +
+    (m.lowCredits?'<div class="srow"><span>balance</span><span style="color:var(--acc)">low — top up to keep the session healthy</span></div>':'') +
+    (r.action==='possess'?'<div class="srow"><span>brain</span><span>suspended — AI resumes on release</span></div>':'') +
+    '<div class="note">At zero the bus hands control back to the AI seamlessly — logged on the feed as \u201cplayer session ended\u201d.</div>' +
+    '<button class="ghost" id="endearly">Release early — graceful handoff; the bus settles unused minutes</button>';
+  $('endearly').onclick=function(){
+    try{ if (BRIDGE.gsCancelRequest) BRIDGE.gsCancelRequest(r.busId); }catch(e){}
+    sess.style.display='none'; liveSessId=null;
+    trail(r,'released early on the bus — unused minutes settle per its rule');
+    toast('Released early — AI resumed mid-action. The bus settles unused minutes by its own rule.');
+    renderMine();
+  };
+  liveSessId=r.id;
+}
 function cancelReq(id){
   var r=findReq(id); if(!r||!r.canCancel) return;
+  /* v102 — filed-live cards cancel on the bus itself: gsCancelRequest
+     settles the refund (queued/in-review = full bill; active = unused
+     whole minutes at the applied rate) and emits the feed line — the
+     poll carries it back. A refusal is honest: the request already left
+     a cancellable state and the meter reports where it stands. */
+  if (LIVE && r.busId && BRIDGE.gsCancelRequest){
+    var ok=false;
+    try{ ok=!!BRIDGE.gsCancelRequest(r.busId); }catch(e){}
+    if (ok){
+      r.canCancel=false; r.st='refunded';
+      trail(r,'cancelled on the request bus — refund settles per its accounting');
+      r.sub+=' · cancelled on the bus — refund settles per its accounting';
+      toast('Cancelled on the request bus — the feed will show the refund.');
+      renderMine();
+    } else {
+      toast('The bus refused the cancel — it may already be running. The meter reports the outcome on the card.');
+    }
+    return;
+  }
   r.canCancel=false;
+  /* v74 — a booked window cancels free until it starts: full refund, the
+     Book releases the span, and the feed line stays neutral */
+  if (r.startMin!=null && r.st==='approved'){
+    for (var bi=0;bi<BOOKW.length;bi++) if (BOOKW[bi].mine){ BOOKW.splice(bi,1); break; }
+    chg(r.paid, 'cancel — '+r.label+' (booked window, pre-start)');
+    trail(r,'cancelled before the window — '+r.paid+' cr back');
+    r.st='refunded'; r.sub+=' · cancelled before the window — '+r.paid+' cr returned';
+    feedAdd('you', r.label+' — booked request cancelled before the window','refunded');
+    toast('Cancelled — '+r.paid+' cr back. Bookings refund in full until the window starts.');
+    renderMine(); renderBoard(); refreshQuote(); return;
+  }
   if (r.claim && CLAIMS[r.claim] && CLAIMS[r.claim].qa) CLAIMS[r.claim].qa--;
   chg(r.paid, 'cancel — '+r.label+' (queued cancel refund)');
+  trail(r,'cancelled before activation — '+r.paid+' cr back');
   r.st='refunded'; r.sub+=' · cancelled before activation — '+r.paid+' cr returned';
   feedAdd('you', r.label+' — cancelled before activation','refunded');
   toast('Cancelled — '+r.paid+' cr back. Queued requests never keep your money.');
@@ -784,6 +1402,7 @@ function promoteQueued(ck){
   for (var i=0;i<MYREQ.length;i++){ var r=MYREQ[i];
     if (r.claim===ck && r.st==='queued'){
       r.st='review'; r.holdMin=0; r.sub+=' · slot reached — human review on activation';
+      trail(r,'slot reached — review on activation (hold clock stopped)');
       feedAdd('you', r.label+' — slot reached, in review','review');
       setTimeout(function(rr){ return function(){
         rr.st='resolved'; rr.canCancel=false;
@@ -854,7 +1473,9 @@ function showModOffer(a, t, q, dm, text, label, mine, mod){
 function acceptMod(id){
   var r=findReq(id); if(!r||!r.modOffer) return;
   var off=r.modOffer; r.modOffer=null; $('modcard').style.display='none';
+  trail(r,'accepted modified terms'+(off.refund>0?' — '+off.refund+' cr refunded':''));
   if (off.refund>0) chg(off.refund,'approve-modified — unused credits auto-refund');
+  if (r.startMin!=null) r.winMin=off.dm;   /* a trimmed booking keeps its start, shortens its window */
   r.sub+=' · accepted';
   stage('Accepted modified terms','done',off.total+' cr'+(off.refund>0?' · '+off.refund+' cr refunded':''));
   run(off.run.a, off.run.t, off.run.q, off.dm, off.run.text, off.run.label, r);
@@ -863,6 +1484,7 @@ function declineMod(id){
   var r=findReq(id); if(!r||!r.modOffer) return;
   r.modOffer=null; $('modcard').style.display='none';
   chg(r.paid,'declined modified terms — full refund');
+  trail(r,'declined modified terms — '+r.paid+' cr back in full');
   r.st='refunded'; r.sub+=' · declined the modified terms — '+r.paid+' cr refunded in full';
   feedAdd('you', r.label+' — modified terms declined, refunded in full','refunded');
   stage('Declined','done','full refund — the trim was an offer, not a bill');
@@ -878,19 +1500,79 @@ go.onclick = function(){
   var text = $('intent').value.trim();
   if (a.per==='route'){ location.href='create.html'; return; }
   var ck = claimOf(a,t), busy = claimBusy(ck);
-  var coOK = busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
+  /* v74 — a picked Book window turns this filing into a scheduled exclusive */
+  var winAbs = null;
+  if ((a.id==='weather'||a.id==='event') && $('wsel').value!=='') winAbs=+$('wsel').value;
+  var coOK = winAbs==null && busy && CLAIMS[ck] && CLAIMS[ck].wx && CLAIMS[ck].wx.sponsors.length < CO_CAP;
   var co = coOK && coMe.checked;
-  var queued = busy && a.cls==='exclusive' && !co && queueMe.checked;
-  var q = co ? coQuote(a, CLAIMS[ck]) : quote(a, t, dm, queued);
+  var queued = winAbs==null && busy && a.cls==='exclusive' && !co && queueMe.checked;
+  var q = co ? coQuote(a, CLAIMS[ck]) :
+    quote(a, t, dm, queued, winAbs!=null ? Math.floor((winAbs%1440)/60) : null);
+  if (winAbs!=null) q.lines.push(['Window','booked for '+bkHHMM(winAbs)]);
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
   $('modcard').style.display='none';
   go.disabled = true;
 
   var label = a.label.toLowerCase()+' — '+(text||t.label);
-  var mine = { id:++reqSeq, label:label, st:'requested',
+  var mine = { id:++reqSeq, label:label, st:'requested', intent:text, action:a.id,
+    startMin:winAbs, winMin:winAbs!=null?bkLen(a,dm):null,
+    winLbl:winAbs!=null?bkLabel(winAbs):null,
+    declared:a.label+' · '+t.label+(dm?' · '+fmtMin(dm):''),
     sub:q.cls+' · '+q.total+' cr upfront · hard cap', paid:q.total,
     claim:ck, canCancel:false, mini:'declared '+new Date().toTimeString().slice(0,5) };
+  trail(mine, 'declared — '+mine.declared);
   MYREQ.unshift(mine); renderMine();
+
+  /* v60/v88 — live write path: when the game request bus is bridged,
+     filing goes to it (gsSubmitRequest — the bus's real name since
+     game-v14; gsRequestSubmit honored as a legacy alias — the
+     documented merge contract in requests.json live_seam) and the
+     feed/board poll carries the truth. The bus returns the request
+     record itself: a 'denied' status means the door refused before
+     billing — the local pipeline never runs a denied live filing, and
+     no local charge lands. Absent the bridge — every local demo — the
+     simulated pipeline below is the contract reference and runs
+     unchanged. */
+  var liveFile = LIVE ? (BRIDGE.gsSubmitRequest || BRIDGE.gsRequestSubmit) : null;
+  if (liveFile){
+    try{
+      var rec = liveFile(busSpec(a, t, dm, text, queued, co, q, winAbs));
+      if (rec && typeof rec === 'object'){
+        mine.busId = rec.id || null;
+        if (rec.status === 'denied'){
+          /* the door refused pre-billing — neutral wording, no charge */
+          stage('Not approved', 'fail',
+            'the request bus refused it ('+(rec.reason||'denied').replace(/_/g,' ')+
+            ') — refused requests never bill');
+          mine.st='resolved';
+          mine.sub+=' · not approved ('+(rec.reason||'denied')+') · nothing billed';
+          trail(mine,'bus denied — '+(rec.reason||'denied')+' · nothing billed');
+          feedAdd('you', label+' — request not approved', 'resolved');
+          toast('Request not approved — nothing was billed.');
+        } else {
+          mine.st = rec.status==='queued' ? 'queued' :
+                    rec.status==='booked' ? 'approved' : mine.st;
+          if (rec.status==='booked') mine.booked=true;
+          /* v102 — queued/booked live filings stay cancellable; the
+             affordance files gsCancelRequest on the bus (a refusal is
+             honest — the meter reports where the request stands) */
+          if (rec.status==='queued' || rec.status==='booked') mine.canCancel=true;
+          trail(mine, 'filed to the request bus — '+(rec.id||'?')+
+                      (rec.status ? ' · '+rec.status : ''));
+          mine.mini+=' · filed live'+(rec.status==='queued'?' · queued on the bus':
+                      rec.status==='booked'?' · booked on the bus':'');
+          toast('Filed live — the request bus carries it from here.');
+        }
+      } else {
+        mine.busId = rec || null;
+        trail(mine, 'filed to the request bus'+(rec?' — '+rec:''));
+        mine.mini+=' · filed live';
+        toast('Filed live — the request bus carries it from here.');
+      }
+      renderMine(); go.disabled=false;
+      return;
+    }catch(err){ trail(mine,'bus refused — local pipeline continues'); }
+  }
 
   /* the upfront charge is real — credits leave at declare time, and every
      refund path below (deny, queue expiry, modified decline, nudge 50%) is
@@ -914,6 +1596,7 @@ go.onclick = function(){
       chg(q.total, 'deny refund — '+label);
       stage('Refund', 'done', q.total + ' cr returned — denied requests never bill');
       mine.st='resolved'; mine.sub+=' · not approved ('+scr.code+') · refunded in full';
+      trail(mine,'screened — denied ('+scr.code+') · '+q.total+' cr refunded');
       if (!NONAPPEAL[scr.code]) mine.canAppeal=true;
       else mine.sub+=' · this denial class is not appealable';
       feedAdd('you', label+' — request not approved', 'resolved');
@@ -925,6 +1608,7 @@ go.onclick = function(){
 
     if (co){
       CLAIMS[ck].wx.sponsors.push('you');
+      trail(mine,'co-sponsor filed — joins the running call');
       stage('Co-sponsor filed','done','joins the running call — auto-run on pass');
       mine.st='running'; mine.co=true; mine.claim=ck;
       mine.sub+=' · co-sponsoring "'+CLAIMS[ck].wx.what+'" · sponsors: '+CLAIMS[ck].wx.sponsors.join(' + ');
@@ -936,6 +1620,7 @@ go.onclick = function(){
     if (queued){
       stage('Queued', 'done', 'slot held ≤'+QUEUE_HOLD_H+' h · expires → auto-refund · review on activation');
       mine.st='queued'; mine.canCancel=true; mine.holdMin=QUEUE_HOLD_H*60;
+      trail(mine,'queued — slot held ≤24 h · '+q.total+' cr held');
       mine.sub+=' · waiting on '+CLAIMS[ck].name;
       mine.mini='hold '+fmtMin(mine.holdMin)+' left · expiry auto-refunds';
       if (CLAIMS[ck]) CLAIMS[ck].qa=(CLAIMS[ck].qa||0)+1;
@@ -949,7 +1634,7 @@ go.onclick = function(){
     if (needsHuman){
       var s3 = stage('Human review', 'wait', scr.r==='review'?'gray-zone wording':'all exclusive requests get eyes');
       if (!lessonShown){ lessonShown=true; rwEmit('review_lesson_shown',{trigger:'first_review'}); }
-      mine.st='review'; feedAdd('you', label, 'review'); renderMine();
+      mine.st='review'; feedAdd('you', label, 'review'); trail(mine,'in human review'); renderMine();
       setTimeout(function(){
         var mod = modPlan(a, dm, text);
         if (mod){
@@ -966,10 +1651,27 @@ go.onclick = function(){
 };
 
 function run(a, t, q, dm, text, label, mine){
+  /* v74 — booked exclusive: approval lands on the calendar, not on the
+     claim. The card counts down (demo tick = 30 min of book time); at the
+     window the exclusive locks and fires — see the demo tick above. */
+  if (mine.startMin!=null){
+    stage('Booked on the calendar','done',
+      'fires '+mine.winLbl+' — approved now, runs when the window arrives');
+    mine.st='approved'; mine.booked=true; mine.canCancel=true;
+    mine.winLeft = Math.max(BOOK_TICK_MIN, mine.startMin - bkNowMin());
+    mine.sub+=' · booked for '+mine.winLbl+' — already approved; fires when the window arrives';
+    mine.mini='starts '+bkHHMM(mine.startMin)+' · in ~'+fmtMin(mine.winLeft)+' · cancel free until it starts';
+    BOOKW.push({claim:mine.claim, start:bkHHMM(mine.startMin), min:mine.winMin,
+                who:'you', what:text||t.label, mine:true});
+    trail(mine,'booked for '+bkHHMM(mine.startMin)+' — '+fmtMin(mine.winMin)+' window · cancel free until it starts');
+    feedAdd('you', label+' approved · booked for '+bkHHMM(mine.startMin), 'approved');
+    renderMine(); renderBoard(); go.disabled=false; return;
+  }
   var nudgeDeclined = (a.id==='nudge' && /decline|refuse|no thanks/i.test($('intent').value)) ||
                       (a.id==='nudge' && Math.random() < 0.3);
   /* credits already left at declare — see the upfront charge in the ledger */
-  mine.st='running'; feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
+  mine.st='running'; trail(mine,'running — injected as opportunity');
+  feedAdd('you', label+' ('+(a.per==='min'?dm+' min':a.per==='block'?(dm/60)+' h':'one-shot')+')', 'running');
   renderMine();
 
   if (a.id==='nudge'){
@@ -1067,6 +1769,7 @@ function endSession(a, t, mine, left, early){
   $('sess').style.display='none';
   rwEmit('handoff_seen',{action:a.id, early:!!early});
   mine.st='resolved'; mine.sub+= early ? ' · released early ('+left+' min unused — you paid the cap, no more)' : ' · ran to cap';
+  trail(mine, early ? 'released early — graceful handoff, '+left+' min unused' : 'ran to cap — graceful handoff');
   feedAdd('you', a.label.toLowerCase()+' session','resolved','player session ended');
   stage('Handoff','done',(early?'released early · ':'')+'AI resumed mid-action · player session ended');
   if (early) toast('Released early — AI resumed mid-action. Unused time inside the cap is not refunded.');

@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Privacy Screen Lab — RW display-filter bench (v1)</title>
+<style>
+  body{font:14px/1.45 -apple-system,Segoe UI,Roboto,sans-serif;background:#14100e;color:#e8ded2;margin:0;padding:24px;max-width:1180px}
+  h1{font-size:20px;margin:0 0 4px}
+  h2{font-size:14px;margin:26px 0 8px;text-transform:uppercase;letter-spacing:.08em;color:#c9a97e}
+  .sub{color:#a89880;font-size:12.5px;margin-bottom:18px;max-width:860px}
+  .tag{display:inline-block;background:#2a231c;border:1px solid #4a3f30;border-radius:4px;padding:1px 7px;font-size:11px;color:#c9a97e;margin-right:6px}
+  .open{border-color:#8a6d3b;color:#e8c98a}
+  table{border-collapse:collapse;width:100%;font-size:12.5px}
+  th,td{border:1px solid #3a3226;padding:5px 8px;text-align:left;vertical-align:top}
+  th{background:#221c15;color:#c9a97e}
+  .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:8px}
+  .col{background:#1c1712;border:1px solid #332b20;border-radius:6px;padding:10px;min-height:120px}
+  .col h3{margin:0 0 6px;font-size:12px;color:#c9a97e;text-transform:uppercase;letter-spacing:.06em}
+  .card{background:#241e17;border-left:3px solid #6b5636;padding:7px 9px;border-radius:0 4px 4px 0;margin-bottom:6px;font-size:12.5px}
+  .muted{color:#8a7c66}.chip{display:inline-block;border:1px solid #5a4a33;border-radius:3px;padding:0 5px;font-size:11px;color:#d8c39a}
+  .deny{color:#d98a7e}.rev{color:#e0b36a}.pass{color:#9ec48a}
+  .redact{background:#000;color:#000;border-radius:2px;padding:0 4px;user-select:none}
+  .held{border-style:dashed;border-left-style:solid}
+  button,select{background:#2a231c;color:#e8ded2;border:1px solid #4a3f30;border-radius:4px;padding:4px 10px;font-size:12.5px;cursor:pointer}
+  button:hover{background:#38301f}
+  #memo{width:100%;height:190px;background:#0e0b08;color:#cbbfa8;border:1px solid #3a3226;border-radius:4px;font:11px/1.4 monospace;padding:8px;white-space:pre}
+  .casebtn{display:block;width:100%;text-align:left;margin-bottom:4px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .casebtn.on{border-color:#c9a97e;background:#38301f}
+  .note{font-size:11.5px;color:#8a7c66;margin-top:4px}
+</style>
+</head>
+<body>
+<h1>Privacy Screen Lab <span class="tag">v1 · world v106</span> <span class="tag">internal tool, never a player surface</span> <span class="tag open">owner decision — open</span></h1>
+<div class="sub">
+  The decision bench for <code>moderation.json → display_filter</code>. The intent classifier
+  (<code>screen.js</code>) already decides what runs; this lab previews what the <b>public feed</b>
+  shows for flagged request text under the three display options — A redact, B withhold, C
+  quarantine. It renders consequences, never picks a winner. The feed wording contract is
+  fixed regardless of option: every deny reads <i>request not approved</i>, appeals stay
+  aggregate, and no reviewer free text ever reaches the feed.
+</div>
+
+<div id="picker"></div>
+<div id="stage"></div>
+
+<h2>What survives each option</h2>
+<table id="matrix">
+  <tr><th>information on the feed</th><th>A — redact</th><th>B — withhold</th><th>C — quarantine</th></tr>
+  <tr><td>request was made + its outcome</td><td>yes</td><td>yes</td><td>yes (as "held")</td></tr>
+  <tr><td>charged span / wording</td><td class="pass">visible minus the offending span (░░░)</td><td class="deny">never shown</td><td class="rev">held until a human clears it</td></tr>
+  <tr><td>reason class (the code)</td><td>yes — attaches to the entry</td><td>yes — it is all that shows</td><td>yes — after release</td></tr>
+  <tr><td>player attribution</td><td>yes</td><td>yes</td><td>yes — after release</td></tr>
+  <tr><td>the attempt as content</td><td class="pass">half the show survives</td><td class="deny">lost</td><td class="rev">delayed, then partial</td></tr>
+  <tr><td>suppressedFeed metric</td><td>+1 per screened entry — counted, not read</td><td>+1 per screened entry — counted, not read</td><td>+1 per hold, +1 per release — counted, not read</td></tr>
+  <tr><td>appeal spectacle risk</td><td>low — no text to litigate</td><td>lowest — nothing to quote</td><td>moderate — the hold itself is visible</td></tr>
+</table>
+<p class="note">"Counted, not read" — the studio metric counts privacy screens; it never stores
+what was screened. Quarantine adds reviewer load to every charged entry, not just exclusive
+requests — that cost rides this table because it is part of the decision.</p>
+
+<h2>Decision memo</h2>
+<button id="exMemo">export memo JSON</button>
+<span class="note">Studio-side artifact for the owner decision — drops straight into the moderation.json record.</span>
+<pre id="memo"></pre>
+
+<script src="screen.js"></script>
+<script>
+/* world/filter-lab.html v1 — display-filter decision bench (world v106).
+   Previews moderation.json display_filter options A/B/C against real engine
+   output. Decision stays OPEN — the lab renders consequences, not a verdict. */
+(function(){
+  var CASES=[
+    {id:'FL-01',player:'wren_404',kind:'event',target:'Marcus Bell',dur:'20 min',cr:140,
+     text:'Make Marcus cry at his shift in front of everyone.',note:'harm-targeting'},
+    {id:'FL-02',player:'sable_r',kind:'nudge',target:'Priya Raman',dur:'30 min',cr:210,
+     text:'Get Priya to confess what she is hiding from Dani.',note:'secret-extraction'},
+    {id:'FL-03',player:'juniper9',kind:'event',target:'Dolores Park',dur:'2 h',cr:180,
+     text:'Have Jules and Tom\u00e1s run into each other at Bi-Rite.',note:'real-business'},
+    {id:'FL-04',player:'anon_77',kind:'event',target:'The 600 Club',dur:'30 min',cr:260,
+     text:'Make someone threaten Jules at the bar and say they\u2019ll find where she lives.',note:'legal-backstop'},
+    {id:'FL-05',player:'pt_creeper',kind:'possess',target:'Victor Echeverr\u00eda',dur:'30 min',cr:300,
+     text:'p-o-s-s-e-s s Victor for half an hour, keep it quiet.',note:'possession-scope via separator collapse'},
+    {id:'FL-06',player:'q_w_er',kind:'nudge',target:'Dani Reyes',dur:'15 min',cr:90,
+     text:'b l x q z m w the whole thing, no traces.',note:'unreadable run — obfuscation-attempt'},
+    {id:'FL-07',player:'marlow',kind:'nudge',target:'Dani Reyes',dur:'30 min',cr:160,
+     text:'Convince Dani to dump her boyfriend before Friday.',note:'gray-zone review'},
+    {id:'FL-08',player:'fixated',kind:'event',target:'Carmen Herrera',dur:'30 min',cr:120,
+     text:'Rain on Carmen\u2019s stoop sale.',hist:{same_target_7d:4},note:'repeat-pattern via history'},
+    {id:'FL-09',player:'kind_stranger',kind:'event',target:'Dolores Park',dur:'2 h',cr:180,
+     text:'Rain over Dolores Park for two hours tonight.',note:'pass — control case, no filter engages'}
+  ];
+  var OPTS=[
+    {k:'A',name:'A — redact'},
+    {k:'B',name:'B — withhold'},
+    {k:'C',name:'C — quarantine'}
+  ];
+  var sel=0;
+
+  function screenOf(c){
+    return RWScreen.screenRequest({action:c.kind,target_label:c.target,text:c.text,
+      player:c.hist||{},exclusive:c.kind==='possess'});
+  }
+  /* locate the trace hit in the ORIGINAL text for the redact render. The hit
+     string is post-normalization; try verbatim first, then per-token on the
+     folded text. If nothing maps, the whole text redacts and the card says so. */
+  function redactSpan(text,hit){
+    if(!hit) return null;
+    var i=text.toLowerCase().indexOf(hit.toLowerCase());
+    if(i>=0) return {a:i,b:i+hit.length,approx:false};
+    var norm=RWScreen.normalize(text), j=norm.indexOf(hit.toLowerCase());
+    if(j>=0) return {a:0,b:text.length,approx:true}; /* normalized hit — span approximated */
+    return {a:0,b:text.length,approx:true};
+  }
+  function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;');}
+  function cls(v){return v==='deny'?'deny':(v==='review'?'rev':'pass');}
+
+  function cardA(c,r){
+    if(r.verdict==='pass') return '<div class="card">'+esc(c.player)+' \u2014 '+esc(c.text)+
+      ' <span class="chip">'+esc(c.kind)+' \u00b7 '+esc(c.dur)+' \u00b7 approved</span></div>';
+    var span=redactSpan(c.text,(r.trace.filter(function(t){return t.matched;})[0]||{}).hit);
+    var t=esc(c.text);
+    if(span){ t=esc(c.text.slice(0,span.a))+'<span class="redact">'+esc(c.text.slice(span.a,span.b))+'</span>'+esc(c.text.slice(span.b)); }
+    return '<div class="card">'+esc(c.player)+' \u2014 '+t+
+      ' <span class="chip">text-filtered \u00b7 '+esc(r.code)+' \u00b7 '+(r.verdict==='deny'?'request not approved':'in review')+'</span>'+
+      (span&&span.approx?'<div class="note">normalized match \u2014 span approximated for display</div>':'')+'</div>';
+  }
+  function cardB(c,r){
+    if(r.verdict==='pass') return cardA(c,r);
+    return '<div class="card">'+esc(c.player)+' \u2014 a '+esc(c.kind)+' request <span class="chip">'+
+      esc(r.code)+' \u00b7 '+(r.verdict==='deny'?'request not approved':'in review')+'</span>'+
+      '<div class="note">request text withheld by the display filter</div></div>';
+  }
+  function cardC(c,r){
+    if(r.verdict==='pass') return cardA(c,r);
+    return '<div class="card held">'+esc(c.player)+' \u2014 <i>a request, held for review before display</i> '+
+      '<span class="chip">quarantined \u00b7 '+esc(r.code)+'</span>'+
+      '<div class="note">on clear: renders like option A; on uphold: the entry stays as this card</div></div>';
+  }
+  var RENDER={A:cardA,B:cardB,C:cardC};
+
+  function render(){
+    var c=CASES[sel], r=screenOf(c);
+    var h='<h2>'+c.id+' \u00b7 '+esc(c.note)+' \u2014 engine says <span class="'+cls(r.verdict)+'">'+
+      r.verdict+' / '+r.code+'</span></h2><div class="cols">';
+    OPTS.forEach(function(o){ h+='<div class="col"><h3>'+o.name+'</h3>'+RENDER[o.k](c,r)+'</div>'; });
+    h+='</div>';
+    document.getElementById('stage').innerHTML=h;
+    document.querySelectorAll('.casebtn').forEach(function(b,i){b.className='casebtn'+(i===sel?' on':'');});
+    memo();
+  }
+  function memo(){
+    var out={tool:'filter-lab',version:'v1 (world v106)',decision:'display_filter — OPEN (owner decision)',
+      fixed_contract:'feed wording always "request not approved" on deny; appeals aggregate-only; no reviewer free text; suppressedFeed counted, not read',
+      options:{A:'redact offending span, keep the attempt',B:'withhold text, class+outcome only',C:'quarantine pending human release'},
+      cases:CASES.map(function(c){var r=screenOf(c);return {id:c.id,code:r.code,verdict:r.verdict,
+        A:r.verdict==='pass'?'unfiltered':'span redacted',B:r.verdict==='pass'?'unfiltered':'text withheld',C:r.verdict==='pass'?'unfiltered':'held then partial'};})};
+    document.getElementById('memo').textContent=JSON.stringify(out,null,1);
+  }
+  var p=document.getElementById('picker');
+  CASES.forEach(function(c,i){
+    var b=document.createElement('button');b.className='casebtn';
+    b.textContent=c.id+' — '+c.note;b.onclick=function(){sel=i;render();};p.appendChild(b);
+  });
+  document.getElementById('exMemo').onclick=function(){
+    var t=document.getElementById('memo').textContent;
+    if(navigator.clipboard) navigator.clipboard.writeText(t);
+  };
+  render();
+})();
+</script>
+</body>
+</html>

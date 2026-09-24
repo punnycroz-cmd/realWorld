@@ -1,28 +1,40 @@
 {
- "doc": "Job board — machine-readable mirror of world/jobs-housing.md §2. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan §2.4 (PROPOSAL).",
- "version": 45,
+ "doc": "Job board \u2014 machine-readable mirror of world/jobs-housing.md \u00a72. That file is canonical; regenerate this when it changes. Money is game dollars. Band rules per rw-monetization-plan \u00a72.4 (PROPOSAL).",
+ "version": 101,
+ "commute_layer": {
+  "spec": "commute.md",
+  "mirror": "commute.json",
+  "demo": "commute.html",
+  "note": "v87 \u2014 one route per worker: mode, legs, leave/arrive windows, weather deltas; every route 'to' is an employer name in this file"
+ },
+ "exit_layer": {
+  "spec": "exits.md",
+  "mirror": "exits.json",
+  "demo": "exit.html",
+  "note": "v73 \u2014 how each employer's exits look: notice norms, who takes the news, last-shift texture, reference worth, what stays; feed shapes print the venue door, never the name"
+ },
  "application_layer": {
   "spec": "applications.md",
   "mirror": "applications.json",
   "demo": "apply.html",
-  "note": "v45 — actor-facing ask/screen/trial/decline per live opening; channels agree with market.json churn"
+  "note": "v45 \u2014 actor-facing ask/screen/trial/decline per live opening; channels agree with market.json churn"
  },
  "shift_layer": {
   "spec": "shifts.md",
   "mirror": "shifts.json",
   "demo": "timeclock.html",
-  "note": "v17 — weekly grids + coverage floors; 'open' grid slots correspond to this file's openings"
+  "note": "v17 \u2014 weekly grids + coverage floors; 'open' grid slots correspond to this file's openings"
  },
  "budget_layer": {
   "spec": "budgets.md",
   "mirror": "budgets.json",
-  "note": "v17 — INTERNAL household envelopes; never render named numbers on spectator surfaces"
+  "note": "v17 \u2014 INTERNAL household envelopes; never render named numbers on spectator surfaces"
  },
  "market_layer": {
   "spec": "market.md",
   "mirror": "market.json",
   "demo": "market.html",
-  "note": "v31 — opening churn, hiring channels, ladders, seasonal rhythm; INTERNAL tier"
+  "note": "v31 \u2014 opening churn, hiring channels, ladders, seasonal rhythm; INTERNAL tier"
  },
  "bands": {
   "entry": [
@@ -99,7 +111,7 @@
    "variable": true,
    "held_by": "c5-marcus",
    "openings": 0,
-   "openings_note": "intermittent — co-op intake twice a year",
+   "openings_note": "intermittent \u2014 co-op intake twice a year",
    "card": "jobs/courier-work.md"
   },
   {
@@ -145,7 +157,7 @@
    "role": "Baker",
    "wage": 26,
    "hours_per_week": 45,
-   "shift": "4:00–13:00",
+   "shift": "4:00\u201313:00",
    "held_by": "a16-hana",
    "openings": 0,
    "card": "jobs/food-and-grocery.md"
@@ -164,10 +176,10 @@
    "role": "Counter temp, holiday",
    "wage": 18,
    "hours_per_week": 20,
-   "seasonal": "nov15–dec24",
+   "seasonal": "nov15\u2013dec24",
    "held_by": null,
    "openings": 1,
-   "openings_note": "seasonal — posted ~Nov 1, ends Dec 24",
+   "openings_note": "seasonal \u2014 posted ~Nov 1, ends Dec 24",
    "card": "jobs/food-and-grocery.md"
   },
   {
@@ -203,10 +215,10 @@
    "role": "Weekend counter",
    "wage": 17,
    "hours_per_week": 12,
-   "shift": "Sat–Sun",
+   "shift": "Sat\u2013Sun",
    "held_by": null,
    "openings": 1,
-   "openings_note": "word-of-mouth only — never a posted card",
+   "openings_note": "word-of-mouth only \u2014 never a posted card",
    "card": "jobs/shop-and-trade.md"
   },
   {
@@ -265,7 +277,7 @@
    "card": "jobs/shop-and-trade.md"
   },
   {
-   "employer": "Frutería Las Palmas",
+   "employer": "Fruter\u00eda Las Palmas",
    "role": "Vendor",
    "wage": 18,
    "hours_per_week": 55,
@@ -288,7 +300,7 @@
    "role": "RN, med-surg",
    "wage": 48,
    "hours_per_week": 36,
-   "shift": "3×12",
+   "shift": "3\u00d712",
    "held_by": [
     "c4-priya",
     "a09-asha"
@@ -330,7 +342,7 @@
    "hours_per_week": 40,
    "held_by": "a13-nadia",
    "openings": 0,
-   "openings_note": "remote employer — never on the board",
+   "openings_note": "remote employer \u2014 never on the board",
    "card": "jobs/public-and-independent.md"
   },
   {
@@ -354,5 +366,17 @@
    "openings": 0,
    "card": "jobs/public-and-independent.md"
   }
- ]
+ ],
+ "grievance_layer": {
+  "spec": "grievances.md",
+  "mirror": "grievances.json",
+  "demo": "grievance.html",
+  "note": "the grievance layer (v59) \u2014 the informal complaint ladder, per-employer/building ears, the two drop-in tables, rung-5 feed shapes. Content for game-v11 dispute verbs."
+ },
+ "home_layer": {
+  "spec": "homes.md",
+  "mirror": "homes.json",
+  "demo": "homes.html",
+  "note": "v101 \u2014 what each employer sends home: the perks table lives in homes.json (perks[] employer strings match this file verbatim)"
+ }
 }

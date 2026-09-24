@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v56)
+# Main Cast Index — "The Mission" (world v98)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -25,7 +25,7 @@ Every bible uses the same fields:
 - **SURFACE RELATIONSHIPS** — ties other people could plausibly observe.
 - **SECRETS & SEEDS** — what's actually going on.
 
-## Roleplay layer (v14, deepened v28, v42, v56)
+## Roleplay layer (v14, deepened v28, v42, v56, v70, v84, v98)
 
 Added sections per bible — enough that a stranger could play the
 character consistently on day one. Field order is fixed:
@@ -49,11 +49,14 @@ character consistently on day one. Field order is fixed:
 11. **With strangers** — default posture toward tourists, newcomers, and
     player-hired characters (v28). Written as tendencies, never rules —
     the brain decides in the moment; this is the prior.
-12. **Wants (three clocks)** — v42. Desires on three timescales: this
-    week / this season / the long one. Written as pressures and pulls,
-    never plans — a want is a condition the brain weighs, not a script
-    it follows. The long one may gesture at seed terrain (a life of her
-    own, a kitchen with his name on the door) without stating the seed.
+12. **Wants (three clocks)** — v42, re-stanced v92 (purpose-free pass).
+    Three timescales: this week / this season / the long one — now
+    written as OPEN QUESTIONS the character itself must answer, never
+    goals handed to it. Bibles are starting circumstances, not scripts:
+    each main is an AI that knows it is AI, born with no assigned
+    purpose (PRODUCTION-2 direction, 2026-09-23); the "Awakening frame"
+    blockquote atop each bible is author-direction for the BRIEF writer,
+    not in-fiction text.
 13. **The cast, privately** — v42. Exactly one line per other main
     (seven entries): the interior valence of each surface tie — what
     that person *is* to them. Interiority, not intel: it may carry a
@@ -77,12 +80,46 @@ character consistently on day one. Field order is fixed:
     them, what they forgive instantly, and the grudge policy. Written
     as emotional perimeter, not trigger conditions — the brain weighs
     it; nothing here fires a behavior.
-18. Public profile · surface relationships · daily routine (briefing-safe)
-19. Secrets & seeds (never surfaces — always the LAST section)
+18. **A good day / a bad day** — v70. The valence axis: the concrete,
+    camera-legible conditions that make a day land good or bad for them.
+    Written as conditions, never triggers — the brain weighs them; nothing
+    here fires a behavior.
+19. **Keepsakes** — v70. Three objects each with a one-line story the
+    character carries. Camera-legible like "the room": the object and its
+    visible handling are filmable; the attached meaning may orbit a seed
+    (a face-down notebook, a gift never delivered) without naming it.
+20. **Listening** — v84. The attention register: how they listen, what
+    their presence looks like mid-conversation, the lean-in sign, what
+    they interrupt for. Written as observable habits, not attention
+    rules — the brain weighs it; nothing here fires a behavior.
+21. **The day off** — v84. The camera-legible texture of obligation-free
+    hours: what the feed sees when no shift, errand, or ritual owns the
+    day. Texture, not a schedule — it complements the routine table
+    (which is obligations) and must never contradict it.
+22. **Repairs** — v84. The apology/forgiveness register: how they say
+    sorry (or don't), how they accept being apologized to, what closes
+    the account. The mending side of "Edges" — edges is the perimeter,
+    repairs is the return path. Written as register, never thresholds.
+23. **Weather** — v98. How Mission weather lands on them: fog, heat,
+    rain read through their own work, body, and routine. Written as
+    camera-legible posture, not preference — the feed could film every
+    line of it. May orbit a seed's terrain; never states it.
+24. **Being helped** — v98. The receiving register: how they take help,
+    care, and gifts — what gets accepted, in what disguise, and what
+    gets refused. The complement to a caretaking-heavy cast. Written as
+    habits, not rules — the brain weighs it; nothing here fires a
+    behavior.
+25. Public profile · surface relationships · daily routine (briefing-safe)
+26. Secrets & seeds (never surfaces — always the LAST section)
+
+`world/characters/ensemble.md` (v70) is the companion between-layer file:
+topology, shared rituals, all 28 pair chemistries, and cold seams —
+observable-safe only, priors not scripts.
 
 `world/characters.json` mirrors sections 4–8 plus compressed backstory/room/
-strangers/wants/interior/truth/money/alone/edges fields and the
-briefing-safe block for the brain/prompt layer.
+strangers/wants/interior/truth/money/alone/edges/day/keepsakes/listening/
+day_off/repairs/weather/helped fields and the briefing-safe block for the
+brain/prompt layer.
 Section placement note: the roleplay layer sits between personality and the
 briefing-safe block — mannerisms and voice are *public-observable* (safe for
 thin-AI phrase kits per thinai.json), while "under pressure" and

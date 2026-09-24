@@ -87,7 +87,15 @@
       "B_withhold":   "flagged text hidden; feed shows class + outcome only",
       "C_quarantine": "flagged text held for human review before display"
     },
-    "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs."
+    "separate_from_intent_screening": "the display filter judges wording on the public feed; the intent classifier judges declared intent before money moves. Different stages, different jobs.",
+    "bench": "world/filter-lab.html (v1, world v106) renders all three options against live screen.js verdicts — the decision artifact for the owner; the lab never picks a winner"
+  },
+  "display_filter_lab": {
+    "tool": "world/filter-lab.html — Privacy Screen Lab v1 (world v106)",
+    "method": "9 seeded cases re-screened live through RWScreen.screenRequest at render (harm/secret/real-business/legal/possession-via-separator/obfuscation/gray-zone/repeat-pattern/pass-control); each renders under A/B/C side-by-side plus a survival matrix and an exportable decision memo JSON",
+    "redact_render": "option A locates the trace hit in the original text; normalized hits that no longer map verbatim (separator/accent evasions) redact the full text with an 'approximated' note — honest, never fakes a span",
+    "honesty": "the lab renders consequences, not a verdict — decision stays OPEN; fixed contract printed on every render: deny wording always 'request not approved', appeals aggregate-only, no reviewer free text, suppressedFeed counted-not-read under all three options",
+    "merge_target": "once the owner picks, the display filter is a feed-render layer in game-systems; the lab's memo JSON is the config record (options + fixed contract + per-case render map)"
   },
   "metrics": ["queue depth", "oldest wait", "median decision vs 15-min SLA", "decisions per shift", "denial rate by reason code", "appeal reversal count", "compensation paid (cr)", "corpus green (screen-lab)"],
   "testing": {
@@ -106,6 +114,66 @@
     "rule": "aggregate only — counts, rates, medians. Never request text, handles, or individual appeals (appeal_flow.feed_visibility)",
     "fields": ["requests screened", "approved/modified/denied + deny rate", "per-code denial counts", "appeals filed/reversed (aggregate)", "median decision vs 15-min target", "compensation cr paid", "flag weight issued", "corpus green at engine version"],
     "merge_target": "studio-side source for the monthly public transparency recap (marketing transparency-report template)"
+  },
+  "flag_roster": {
+    "surface": "mod-console 'flag roster' panel (v64) — every account carrying flag weight, sorted by rolling score",
+    "per_account": ["handle", "flag_score", "active tier + effect", "next threshold", "next decay date (−1 per clean 30 d from the last flag_log entry)", "flag_log tail", "history line"],
+    "owner_docket": "score ≥ 9 lifts the account into a docket block at the top — 'account review — owner decision'. The console recommends; it never executes an account action. The owner reads the log and decides.",
+    "visibility": "internal only — flags are never shown publicly and never monetized around (account_flags.rules)"
+  },
+  "review_locks": {
+    "surface": "mod-console v4 (world v78) — queue items carry claimed_by/claimed_at; one reviewer per request",
+    "rule": "deciding an unclaimed item claims it first; a claim by another reviewer withholds the decision bar entirely ('their call to make'); the claimer can release back to the queue. A claim is a lock against double-deciding, not a score or a privilege.",
+    "merge_target": "game-systems: claim = a short-lived queue lock keyed to reviewer identity (SSO at merge; the demo switcher stands in); claims release on decide, on explicit release, or on reviewer offline — never on timeout-for-money, the request's own clock already handles expiry+refund"
+  },
+  "appeal_workspace": {
+    "surface": "mod-console v4 — appeal items render the original decision card beside the new text: original request id, denial date, code, original reviewer, original text",
+    "different_reviewer_rule": "ENFORCED, not advisory — if the current reviewer decided the original, the decision bar is withheld and decide() refuses. Prior versions showed orig_reviewer so the rule was checkable; v78 makes it structural.",
+    "question": "the reviewer's only question: is the new text substantially different? If not, a second denial is final for that request text (same code). If yes, judge the new text on its own merits. Appeals never re-charge the player.",
+    "seed": "rq-1038 carries orig:{when, reviewer, code, text} — the demo makes the block reachable by switching the reviewer picker to s.oha"
+  },
+  "handoff_notes": {
+    "surface": "mod-console v4 — per-request internal notes between reviewers (shift handoffs, second opinions)",
+    "record": { "t": "HH:MM", "who": "reviewer handle", "text": "free text — reviewers write for reviewers" },
+    "rule": "internal only — notes never appear on the public feed, never export to the ledger, never reach the player. Leaving a note does not require holding the claim — handoffs cross reviewers by design.",
+    "not_for": "notes are not a shadow decision channel — they carry context, not verdicts; the audit log stays the only decision record"
+  },
+  "reviewer_stats": {
+    "surface": "mod-console v4 — shift report gains 'decisions this session, by reviewer' (count only)",
+    "rule": "aggregate-per-reviewer counts are fine inside the studio report; they never leave it — the public recap stays counts-of-decisions only, no reviewer attribution, per appeal_flow.feed_visibility"
+  },
+  "review_seam_v92": {
+    "surface": "mod-console.html v9 — the real review seam (game-v14 alignment)",
+    "bridge_reads": {
+      "queue": "gsReviewQueue() → bus records parked in_review (id, playerId, kind, target, durationMin, params, price, billed, screen, lane, submittedMin, reviewExpireMin, appealOf, origReviewer) — mapped verbatim, never simulated",
+      "claims": "gsExplainRequest(id) → blockedBy/on/queuePos on the detail card",
+      "clock": "gsViewerState().nowMin — wait times count bus minutes, not wall clock",
+      "metrics": "gsModMetrics() → reviewDepth/oldestWaitMin/medianDecisionMin/denialsByCode/appeals/compensatedCr/suppressedFeed, verbatim on the strip and in the shift report",
+      "flags": "gsFlagStatus(pid) → score/reviewUntil/suspendedUntil/ownerHold/flags — internal only, owner-console surface",
+      "notebook": "gsRepLedger(pid) → dated weighted notes on the player card",
+      "character_card": "gsPossessionBriefing(cid) → the SAME whitelist object possession briefings ship (name/role/home/routine/possessedBy) — secrets absent by construction"
+    },
+    "bridge_writes": {
+      "decide": "gsReviewResolve(id, approve, {by:<reviewer handle>, code, modifyMin}) — approve re-enters the line at approval time with a fresh sequence (no leapfrog), re-runs standing validity, may land queued at the -15% patience rate, may fail honestly (insufficient_credits / conditions changed); deny refunds in full",
+      "legal": "gsEscalateLegal(id) — kill pre-run or mid-flight, ledger legal-deny, public wording identical to any deny",
+      "claims": "SESSION-scoped local CLAIMS map only — bus-side review locks are the review_locks.merge_target TODO; the console keeps one-reviewer-per-request semantics locally until then",
+      "notes": "handoff notes stay local/internal — never written to the bus"
+    },
+    "bus_enforced": "the different-reviewer rule is enforced BY THE BUS — gsReviewResolve returns {error:'same_reviewer'} when opts.by === r.origReviewer; the console also withholds the decision bar pre-flight, belt and suspenders",
+    "verdict_source": "the bus's own screen code (r.screen) is authoritative on a live item; the RWScreen trace in the detail view is the reference-engine read of the same text — a mismatch files a port drift note, it is not a veto",
+    "badge": "header 'data source' metric reads 'live queue' bridged, 'demo queue' bare; live mode pulls on demand (refresh link), never polls"
+  },
+  "drift_report": {
+    "tool": "devtools/screen_drift.js — runs the golden corpus through BOTH world/screen.js and the bus port (gsIntentScreen in src/systems/41_game_systems_possession.js, loaded with stubs)",
+    "method": "identical authored strings as spec.note; gaps diagnosed by re-screening the normalized text — 'missing normalization layer' vs 'lexicon drift'; player-history cases flagged untestable in stub (they need a seeded GS_REQ log)",
+    "finding_v92": "23 permissive gaps on identical input: 13 missing normalization (leet/spaced/separator/accent evasions pass the bus), 10 lexicon drift (word-form stems 'humiliates', 'get <name> fired', parody-venue venue-lock, real-person names, obfuscation-attempt code absent), 6 player-history cases untestable in stub",
+    "rule": "per testing.drift_gate the port may be stricter, never more permissive — the report is the merge artifact for game-systems; world cannot fix the port from this branch"
+  },
+  "ledger_records": {
+    "surface": "mod-console audit log 'export ledger records' (v64)",
+    "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },
+    "rules": ["one record per human decision, session-scoped", "feed_line is always the neutral reason_codes.*.feed wording — never reviewer free text", "the seeded 30-day baseline is aggregate and is never exported as records"],
+    "merge_target": "canonical ledger mod_decision records — the post-hoc record the world reacts to (design §11.7)"
   },
   "audit": "every decision logged: timestamp, reviewer, request id, outcome, code — merge target is canonical-ledger mod_decision records",
   "feed_contract": "feed wording comes from reason_codes.*.feed — never reviewer free text; reason_code attaches to 'not approved' entries (world/feed.json request events)"

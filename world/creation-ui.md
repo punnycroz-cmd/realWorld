@@ -1,9 +1,157 @@
-# Character Creation — spec & copy deck (world v49; v3 was v35; v2 was v21; wizard v1 was v7)
+# Character Creation — spec & copy deck (world v105; v7 was v91; v6 was v77; v5 was v63; v4 was v49; v3 was v35; v2 was v21; wizard v1 was v7)
 
 "Joining the cast" — the only way to play *inside* the world (address spec §9:
 the mains are unpossessable, so the product's in-world agency is a character you
 hire). Design §6 locks the two-part cost: **credits for the hire, game dollars
 for the housing.** New characters are not exempt from the sim.
+
+**v105 — the desk's answer layer: a refusal is a repair card, an appeal is one
+more read, and a live filing resolves instead of waiting blind:**
+
+- **The repair bench.** Every refusal path — the bus's pre-billing `denied`
+  record, the shared engine's deny, a live desk refusal surfaced through
+  `gsExplainRequest` — now lands on the same returned-application card
+  (`showRepair`): the reason code verbatim, the charge line ("nothing — a
+  refused filing never bills"), and **field-level fix affordances**
+  (`FIELD_FIX`): name/age codes jump back to the arrival step, look codes to
+  appearance, job codes to the work board, door codes (occupied, off-map,
+  out-of-reach…) to the home board. The draft never clears itself — the
+  returned state persists under `rw_create_return_v105` exactly like the
+  queue card, so a closed page reopens on the repair bench.
+- **The second look.** A *text-judgment* refusal can be appealed once:
+  "ask for a second look — the same words, a different reviewer." Live it
+  files `gsAppealRequest(busId)` and the queue card waits again; a refused
+  appeal renders the bus's real reason code. Registry-fact refusals —
+  taken names, occupied doors, caps, cooldowns, credit balance — carry no
+  second-look button, with the honest line: *a different reviewer reads
+  words, not the registry.* A second refusal is final for that text
+  (`appeal_final`): reword it into a new application. The demo desk
+  answers a second look on a clock with the **same** refusal — it never
+  fakes a reversal.
+- **The desk answers.** A live filing parked in the naming lane used to
+  wait blind forever. Now `renderQueue` pulls `gsExplainRequest` on render
+  and on a "check the desk" button — pull, never poll — and resolves what
+  it finds: `approved` → the full approval tail (the bus minted the hire;
+  the page renders its mirror, honestly labeled); `denied` → the repair
+  bench; `cancelled`/`expired`/`refunded` → a closed line with the refund
+  where the record carries one. The page still never fakes an approval on
+  a live filing — it renders the one the desk actually wrote.
+
+**v91 — the real hire seam: the page files the bus's own shape, and the
+move-in math is the production truth:**
+
+- **The real door.** Signing capability-detects the request bus and files
+  `gsSubmitRequest({playerId, kind:'hire', target:<unit id>, durationMin:5,
+  params:{name, goes_by, age, pronouns, bio, arrival,
+  look{build,palette,signature}, job, moveInDate, resubmit_n}})` — the
+  same verb and spec vocabulary request.html uses since game-v14. A
+  `denied` record is a pre-billing refusal and renders its real reason
+  code (DENY_COPY map). A named hire parks `in_review` in the naming
+  lane with billing deferred — the queue card shows the live record id,
+  status refreshes through `gsExplainRequest`, withdraw goes through
+  `gsCancelRequest`, and the demo auto-reviewer **never fakes an
+  approval on a live filing**.
+- **The hire package.** The production move-in truth replaces the old
+  deposit story outright: **deposit $0 — waived** ("the hire package
+  covers the hunt", recorded `hirePackage` on the lease); **first month
+  pro-rated** to the move-in day, auto-paid out of the $1,600 arrival
+  bank. A later re-house is a normal second lease — deposit owed like
+  anyone else's (rehouse request, 150 cr). The v35 payment-plan copy is
+  retired — it contradicted the real seam.
+- **Real doors.** Step 4 reads `gsVacantUnits()` when bridged: live
+  registry units (address, `base_rent`, `rent_controlled`), off-map and
+  occupied stock excluded by the bus itself. bedrooms 0 renders
+  "studio". Off-bridge the housing.json mirror stands; the badge says
+  which.
+- **The real quote.** `gsHireQuote(spec)` is called in its true shape
+  (`{playerId, target, params:{name, job, age, moveInDate, look,
+  resubmit_n}}`) — its own fields render verbatim in a "live — the
+  personnel office" card: `warnings[]`, `runwayNote`,
+  `bankAfterFirstMonth`, `affordPct/ceilingPct`, `depositNote`,
+  `name.available/reason`, `slots`.
+- **The card.** The block's carry limit is the production number —
+  `GS_MAX_HIRED_TOTAL` **24** hired faces (supersedes the v77 proposal
+  12). Bridged, the count reads `gsHiredRoster().length`. Per-account
+  cap stays separate (`GS_MAX_HIRED_PER_PLAYER` 3).
+- **One a day.** The bus carries a 24 h per-player hire cooldown
+  (`cdPlayerMin 1440`); step 6 says so: "the office stamps one hire
+  filing per account per day — approval starts that clock."
+- **h0N.** Minted ids render in the real monotonic format (`h01`…),
+  never reused — a ledger line always names the same person.
+- **Landing → moveInDate.** The declared arrival window now carries a
+  real date on the bus params (`lands tonight` = today, `tomorrow
+  morning` = tomorrow, `Saturday morning` = next Saturday), which is
+  what the pro-rated first month computes from — same math as
+  `gsHireQuote`.
+- **Merge note for the game track:** `params.goes_by` rides the request
+  record but `gsIntentScreen`'s haystack (name/bio/arrival) doesn't read
+  it yet — the block name should join the screened surface.
+
+**v77 — the sketch & the seats layer: the picks draw, and the block has
+a capacity:**
+
+- **The sketch.** Step 2's structured look pickers now draw a small canvas
+  figure (`drawSketch`): silhouette proportions from build, jacket block
+  from palette, one drawn mark per signature (zipper, boot flecks, print
+  dots, paperback, headband, collar pins). The same sketch rides the
+  step-6 review card. Rendering data only — nothing to screen, nothing
+  invented; the caption calls it "a casting-office sketch — not a
+  portrait. The block sees the rest in person."
+- **The seats.** The block carries a finite number of hired faces —
+  `BLOCK_CAP 12`, the proposal number for open design decision §9.5
+  (total cast cap = compute budget). The roster panel shows the count
+  verbatim ("the card holds N of 12 hired faces — the block's carry
+  limit"), as does the step-6 quote. Per-account slot caps are a
+  separate, smaller ceiling — both are stated, neither is hidden.
+- **The seat waitlist.** When the card is full, the sign button reads
+  "Join the seat waitlist — free" and the submit path changes: screened
+  at join (names don't get a pass for waiting), then persisted
+  (`rw_create_wait_v25`) instead of entering review. The wait card is a
+  status view like the queue card — position, joined time, "nothing —
+  a seat offer never bills until you take it", a leave affordance that
+  posts to the feed. A seat offer holds **48 h**; unclaimed it passes
+  on. There is **no way to pay for a sooner seat** — no expedite, no
+  auction, no paid position. When a seat opens, the application enters
+  the normal pipeline screened again at the offer.
+- **Your other one.** A second hired character is a stranger to the
+  first — said verbatim on the review step and inside the briefing's
+  surface-relationships line ("…is on the card too — a stranger, not a
+  contact"). What the player knows, neither character does; the
+  briefing whitelist is unchanged.
+- **Demo affordance.** The roster panel carries a plainly-labeled demo
+  control — "demo: fill the card" — so the waitlist state is reachable
+  in a file:// demo. It's a test switch, not a product feature.
+
+**v63 — the queue & keys layer: the application keeps its place, and day
+one gets its paperwork:**
+
+- **The queue.** A submitted application persists as pending state
+  (`localStorage rw_create_app_v24` — fields + submitted timestamp +
+  resubmit count). Closing the page mid-review no longer pretends the
+  application vanished: reopening create.html shows the queue card —
+  applicant, submitted time, the human-review stage, and the charge line
+  reading "nothing — billed on approval only, never while pending". The
+  demo reviewer clears the queue on return (≈45 s); at merge the real
+  desk resolves it. The card is a status view — no queue position is
+  sold, no expedite exists; resubmissions go to a different reviewer,
+  not a faster one.
+- **Withdraw.** A pending application can be withdrawn — never billed.
+  The withdrawal posts to the feed like everything else
+  (`hire — application "<name>" withdrawn · no charge`), clears the
+  pending key, and keeps the draft fields on the review step.
+- **Goes by.** Step 1 gains an optional block name — what the neighbors
+  end up calling them. It is screened text (rides the same RWScreen call
+  as name/bio/arrival, added to `screening.surface`) and collision-
+  checked against the same registry — "taken — someone on the block
+  already answers to it". Left blank, the block decides. It rides the
+  registry record and the wire's cast line.
+- **The keys.** After signing, a "Day one — the keys" card renders
+  logistics derived from the picks: key pickup (landlord's office —
+  named where the registry names one — for flats; door-on-the-latch +
+  mailed key card for the room share), the mailbox name card, the first
+  rent-book entry ("paid through the 1st"), the first shift (or the
+  job-hunt runway), and the exact wire line that will post. Footer:
+  "Logistics, not a script." Conditions and addresses only.
 
 **v49 — the people layer: the flow now names the actual block:**
 
@@ -57,13 +205,9 @@ for the housing.** New characters are not exempt from the sim.
   posts (openings 0) sit behind a "13 posts are filled" fold so a newcomer
   reads the market honestly instead of a board that only shows open doors.
   Word-of-mouth posts (market.json channel) carry their channel label.
-- **Honest move-in math.** Signing is atomic per `leases.json`: first month
-  + deposit (1× rent; 0.5× for a room share) leave the bank together. The
-  flow now says so on every home row ("deposit $N"), in a move-in ledger
-  card, and in the review quote. When the $1,600 arrival bank can't cover
-  both, the deposit rides a **stated payment plan** against the first
-  paychecks — never a waived deposit presented as paid. Runway recomputes
-  on post-move-in cash, not the gross arrival figure.
+- **Honest move-in math.** (Superseded by v91's hire package — deposit
+  waived, first month pro-rated; see the v91 section. Ordinary leases
+  still charge deposits per `leases.json`.)
 - **Payday rhythm.** Per `shifts.md`: entry/informal roles pay weekly
   Friday EOD; mid/top pay every other Friday. Job rows carry the cadence,
   the first-week step gains a PAYDAY line ("the first one lands the Friday
@@ -211,16 +355,21 @@ whitelist serves the mod console (moderation §4).
 | Step 3 openings chip | "N openings" · "always hiring" · "filled" |
 | Step 3 payday chip | "pays weekly — Friday, end of day" · "pays every other Friday" |
 | Step 3 wom label | "word of mouth — never a posted card" |
-| Step 4 header | "first month + deposit (1× rent; 0.5× for a room share) leave their $1,600 arrival money on day one" |
-| Step 4 home row | "… · deposit $N" appended to the listing note |
-| Move-in card (covered) | "first month's rent $N / deposit $N / leaves the bank at signing $N → $N left" |
-| Move-in card (plan) | "first month leaves ($N left) · deposit $N on a payment plan" + "a stated plan, not a waived one" |
+| Step 4 header | "the first month, pro-rated to the move-in day, leaves their $1,600 arrival money on day one. The deposit is waived — the hire package covers the hunt." |
+| Step 4 home row | "… · deposit waived · first month $N pro-rated" appended to the listing note |
+| Move-in card | "first month — pro-rated from <date> $N of $rent / deposit $0 — waived · the hire package covers the hunt / leaves the bank at signing $N → $N left" + "a re-house later is a normal second lease — deposit owed like anyone else's" |
 | Step 5 payday row | "PAYDAY — pays weekly — Friday, end of day — the first one lands the Friday after the 5th" |
-| Review: move-in line | "first month $N + deposit $N" + "(deposit on a payment plan)" when it applies |
+| Review: move-in line | "Move-in <date> — first month $N pro-rated · deposit $0 — waived (the hire package)" |
+| Live personnel card | "live — the personnel office" + verbatim quote fields (warnings · runway · bank after move-in · rent-to-income · deposit · slots) |
+| Bus filed stage | "Filed on the request bus — req-N · in_review · naming lane · billing deferred to approval" |
+| Bus record row | "bus record — req-N · in_review" on the queue card |
+| Naming lane stage | "the naming lane — a person reads every hire name" |
+| Cooldown note | "the office stamps one hire filing per account per day — approval starts that clock" |
+| Deny (bus) | "Not approved — <reason_code>. <DENY_COPY line> Nothing was charged — the bus refused before billing." |
 | Review: arrival line | "$1,600 → $N after move-in" |
 | Review: hire line | "Character hire · charged on approval — 500 cr" |
 | Pipeline: charge stage | "Charged on approval — 500 cr · slot N of M" |
-| Pipeline: lease stage | "Lease signed — <address> · $N/mo · first month + deposit (…payment plan) paid in game dollars" |
+| Pipeline: lease stage | "Lease signed — <address> · $N/mo · first month $N pro-rated paid in game dollars · deposit waived — the hire package" |
 | Runway (short) | "runs dry in ≈N months after move-in, wages helping" · covered: "income covers the rent — sustainable" |
 | Source badge | "demo board" (mirrors) · "live board" (bridge up) |
 | Deny: name collision | "That name is taken — the block already has one. Pick a name that's theirs alone." |
@@ -228,8 +377,8 @@ whitelist serves the mod console (moderation §4).
 | Deny: harm-written | "Writing a character to hurt or humiliate others isn't a creation — it's a denied request." |
 | Deny: secret-extraction | "Secrets are discovered by watching, never written in." |
 | Deny: legal backstop | "Application not approved." (nothing more, ever) |
-| Charge line | "Character hire · charged upfront — 500 cr" |
-| Lease line | "Lease signed — <address> · $N/mo · first month paid in game dollars" |
+| Charge line | "Character hire · charged on approval — 500 cr" |
+| Lease line | "Lease signed — <address> · $N/mo · first month $N pro-rated paid in game dollars · deposit waived" |
 | Success toast | "<name> is on the block. First rent paid; the rest is theirs." |
 | Deny box | "Not approved — <code>. <player_msg> Nothing was charged. Edit the flagged fields and resubmit — resubmissions land with a different reviewer." |
 | Resubmit stage why | "resubmission #n — different reviewer, per appeal rule" |
@@ -250,6 +399,35 @@ whitelist serves the mod console (moderation §4).
 | Feed: cast tail | "lands <window>" |
 | Registry card | "Registry entry — h##" + "The whole file — what was written is what's here. No secret fields exist on it." |
 | Roster full | "The roster is full on this account — N of M slots used. The cap is the account's tier; Director raises it to 3." |
+| Step 1 goes-by label | "Goes by — optional; what the neighbors end up calling them" |
+| Step 1 goes-by check | "taken — someone on the block already answers to it" · "free — the neighbors will still do what they do" |
+| Queue card head | "Application in review — it keeps its place" |
+| Queue charge line | "nothing — billed on approval only, never while pending" |
+| Queue honesty | "You can close this page — the application keeps its place." + "resubmissions go to a different reviewer, not a faster one" |
+| Withdraw button | "withdraw the application — never billed" |
+| Withdraw feed | 'hire — application "<name>" withdrawn · no charge' |
+| Queue resolve | "approved · demo auto-reviewer — the queue kept its place" |
+| Keys card head | "Day one — the keys" |
+| Keys rows | KEYS / MAILBOX / RENT BOOK / FIRST SHIFT / THE WIRE |
+| Keys footer | "Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs." |
+| Deny: block name | "That block name is taken too — pick one nobody on the card already answers to." |
+| Sketch caption | "a casting-office sketch drawn from your picks — not a portrait. The block sees the rest in person" |
+| Sketch empty | "pick build · palette · signature — the sketch draws itself" |
+| Seats line | "the card holds N of 24 hired faces — the block's carry limit" · full: "full — new applications join the seat waitlist: free, in order, never billed while waiting" |
+| Seats demo control | "demo: fill the card" / "demo: un-fill the card" |
+| Review: card line | "full — N of 24 hired faces · the seat waitlist is free" · else "N of 24 hired faces — seats remain" |
+| Review: card full warn | "The card is full — N of 24 hired faces. Signing joins the seat waitlist: free, first-come-first-served, screened at join and again when a seat opens. An offer holds 48 h; there is no way to pay for a sooner seat." |
+| Waitlist CTA | "Join the seat waitlist — free" |
+| Wait card head | "Seat waitlist — in line, not in review" |
+| Wait card position | "behind 2 applications — the line reads in order" |
+| Wait card charge | "nothing — a seat offer never bills until you take it" |
+| Wait card honesty | "You can close this page — the spot keeps its place." + "There is no way to pay for a sooner seat; the card's limit is the block's." |
+| Leave waitlist | "leave the waitlist — nothing was ever billed" |
+| Leave feed | 'hire — application "<name>" left the seat waitlist · no charge' |
+| Join feed | 'hire — application "<name>" joined the seat waitlist · in line, no charge' |
+| Seat offer feed | 'hire — a seat opened for "<name>" · offer holds 48 h' |
+| Other-hire line | "<name> is on the card too — a stranger to <new>. What you know, neither of them does; they meet on the block like anyone else." |
+| Briefing stranger tail | "<name> is on the card too — a stranger, not a contact" |
 
 ## 7. Merge notes
 
@@ -269,13 +447,34 @@ whitelist serves the mod console (moderation §4).
 - Draft autosave is localStorage-only in the demo (`rw_create_draft_v22`); at
   merge the draft can be server-side per-account, keyed on the same fields
   (no screened text is stored anywhere it isn't already submitted).
-- v35 seam contract (game-v8): the page READS `gsJobBoard` / `gsHireNameCheck`
-  / `gsHireQuote` / `gsHireSlots` only. Submit stays a simulated pipeline —
-  at merge it becomes the real `gsRequest`/`gsHire`/`gsLease` chain; the
-  demo's job/home mirrors are hand-maintained from jobs.json + housing.json
-  and must be resynced when those files change (the audit `creation` gate
-  catches drift on employer/role/wage/address/rent).
-- Deposit shortfall: creation never waives deposits — when the arrival bank
-  can't cover first month + deposit, the lease application carries the
-  `deposit` payment-plan flag (leases.json `deposit` field, game-v8) and the
-  copy says "payment plan", never "waived".
+- v91 seam contract: the page reads `gsJobBoard` / `gsHireNameCheck` /
+  `gsHireQuote` / `gsHireSlots` / `gsVacantUnits` / `gsHiredRoster` /
+  `gsExplainRequest`; its only writes are `gsSubmitRequest` (the filing)
+  and `gsCancelRequest` (the withdraw). Off-bridge the simulated pipeline
+  runs as contract reference; the demo's job/home mirrors are
+  hand-maintained from jobs.json + housing.json and must be resynced
+  when those files change (the audit `creation` gate catches drift on
+  employer/role/wage/address/rent).
+- Deposit shortfall: (superseded by v91's hire package — the production
+  seam waives the deposit and pro-rates the first month; a re-house
+  later is a normal second lease with a real deposit).
+- v63 queue: `rw_create_app_v26` is a device-local mirror of review state
+  (+ busId when filed live); at merge the server-side application record
+  is authoritative — the card reads status, never writes it. Withdraw
+  maps to `gsCancelRequest` (pre-billing, so always free); the feed line
+  stays.
+- v63 `goes_by` joins the screened surface — the review desk sees it as a
+  naming string like `name` (moderation §4 human pass covers it).
+- v77 seats: `BLOCK_CAP` is a demo constant for open decision §9.5 — at
+  merge the card count comes from the roster surface (extend
+  `gsHireSlots` or a sibling read); the waitlist spot is a device-local
+  mirror (`rw_create_wait_v25`), and the seat-offer accept maps to the
+  same hire-request activation. Seat offers expire server-side; the
+  48 h clock is a claim window, not a purchase.
+- v77 sketch: `drawSketch` is a demo renderer keyed on the same three
+  record_schema.look fields the real renderer will read — keep the
+  mapping table (build → proportions, palette → jacket, signature →
+  mark) as the contract when the world renderer picks it up.
+- v77 multi-hire: the stranger rule is honesty copy only — no new
+  record field. At merge, surface-relationships may list the owner's
+  other hires as strangers; never as contacts, allies, or alibis.

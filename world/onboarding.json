@@ -1,21 +1,25 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 53,
-  "storage_key": "rw_onboard_v53",
+  "version": 95,
+  "storage_key": "rw_onboard_v95",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
     { "id": "S1_orient",   "tier": "free", "gate": "offered by welcome/fork card; self-dismisses once the viewer has scrolled the feed" },
     { "id": "S1w_watch_done", "tier": "free", "gate": "watcher-fork landing after the tour: 'you're set' card; setup steps remain available but unpushed" },
     { "id": "S2_name",     "tier": "free", "gate": "optional — handle required only for request attribution + wallet; one field, no email in this build; live availability + reserved-name check" },
-    { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever" },
+    { "id": "S2a_band",    "tier": "free", "gate": "one-question age band before any money surface — under 13 / 13–17 / 18 or older / rather not say; fronts every paid stage, never gates the feed or the tour" },
+    { "id": "S3u_under13", "tier": "free", "gate": "under-13 landing instead of the wallet — 'the watching account': spectator-only, no packs, no asks, nothing framed as missing" },
+    { "id": "S3_wallet",   "tier": "meta", "gate": "optional — teaches credits vs game dollars over the full pack ladder; top-up is skippable forever; adult band also sees the rewarded-ads line (2 cr/view, 5/day, opt-in)" },
     { "id": "S4_first_ask","tier": "paid", "gate": "requires balance > 0; recommends camera director 10 cr/30 min (view-layer, zero in-world risk); optional second guided ask demonstrates a DECLINED nudge + 50% auto-refund" },
     { "id": "S4b_declined","tier": "paid", "gate": "optional teaching beat — a fixed-safe nudge scripted to be declined so the player watches the refund land" },
     { "id": "S4c_review",  "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask (40 cr, exclusive class) scripted to return 'not approved — refunded' so the player sees human review + auto-refund" },
     { "id": "lowbal_sim",  "tier": "paid", "gate": "opt-in affordance on the running-ask card only — simulates the wallet hitting zero inside the cap: warning toast → 'player session ended' feed line → AI resumes, no debt" },
     { "id": "S4e_queue",   "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask filed while the sky is claimed, lands 'queued' at tier −15% (34 cr held); scripted to lapse unactivated → 'queued request expired before activation' + full auto-refund" },
-    { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight" },
-    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" }
+    { "id": "S4f_shared",  "tier": "free", "gate": "optional teaching beat after the queue resolves — 'the other hands': compatible asks run alongside, scripted co-ask lands from a second handle; files nothing, needs no balance, still behind the band normalizer so the watching account never sees ask mechanics" },
+    { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight; the ownership arc is named as context, no funnel" },
+    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" },
+    { "id": "S7_visit",    "tier": "paid", "gate": "optional teaching beat off the S6 card — requires hired + band + balance ≥22; a guided 15-min first possession at the compatible minimum billable; 'step out early' and 'jump ahead' exits both hand back to the AI mid-motion with no refund promised" }
   ],
   "persona_fork": {
     "where": "welcome card, before the tour offer",
@@ -31,7 +35,8 @@
     { "n": 4, "anchor": "feed-request", "copy_key": "tour.public_agency" },
     { "n": 5, "anchor": "feed-follow",  "copy_key": "tour.follow" },
     { "n": 6, "anchor": "feed-reachin", "copy_key": "tour.reach_in" },
-    { "n": 7, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" }
+    { "n": 7, "anchor": "feed-archive", "copy_key": "tour.archive", "note": "v53 beat — the time layer: nobody can watch 24/7; the Archive keeps the block's week and catching up is free" },
+    { "n": 8, "anchor": "feed-admin",   "copy_key": "tour.admin",   "note": "v81 beat — the house acts in the open: every admin action lands on this feed, attributed, with automatic compensation when it bumps a player's plans" }
   ],
   "tour_rules": {
     "skippable": "every beat — Skip ends the whole tour",
@@ -69,6 +74,22 @@
     { "n": 5, "id": "first_ask",  "optional": true,  "completes_on": "own request reaches feed status 'requested'" },
     { "n": 6, "id": "settle",     "optional": false, "completes_on": "S5 fork chosen (or S1w 'just keep watching' on the watch path)" }
   ],
+  "age_band": {
+    "where": "S2a — one question after the handle step, before the wallet; reachable again via 'wrong band? fix it' on S3/S3u",
+    "options": ["u13", "teen", "adult", "na"],
+    "u13": "spectator-only — S3u replaces the wallet; paid stages redirect to S3u; checklist money items relabel 'spectator account — watching only'; S5 shows no hire button; copy must read as the whole product, never a restriction",
+    "teen": "wallet + requests work; the under-18 spending-limits disclosure rides the wallet card; no rewarded-ads line",
+    "adult": "full ladder + the rewarded-ads line (see rewarded_ads)",
+    "na": "rather-not-say is treated as under-18 for every money surface — stated on the card, never punished; watching identical",
+    "rules": "the band gates money surfaces only — the feed, the tour, the Archive, and every free card are identical for all four bands; the pick is stored once and correctable, not re-asked"
+  },
+  "rewarded_ads": {
+    "doc": "plan §2.7 verbatim — the free-credit path, adults only",
+    "rate_cr": 2, "daily_cap": 5,
+    "placement": "opt-in only, on the wallet card (S3) — never pre-roll, never mid-session, never inside the sim view",
+    "eligibility": "adult band only — the affordance is not rendered for teen / na / u13 / unset",
+    "demo": "'watch one (demo)' credits +2 cr with a 'N/5 today' counter; at the cap the line says the cap resets tomorrow — no countdown, no urgency"
+  },
   "checklist_rules": {
     "optional_items": "marked 'optional' in copy ('only if you ever want to act' on the watch path); never styled as failures; percent-complete bars only count chosen (non-skipped) items",
     "completion_reward": "none — completing onboarding grants no credits/items/status (no-dark-patterns)",
@@ -109,6 +130,48 @@
     "copy_promise": "queueing is the patient option, not a consolation — −15% off the tier rate, and a lapsed slot refunds every credit on its own",
     "never": "queue depth shown as a count, never a position; never a position auction or pay-to-jump; the −15% is shown as a rate + the held amount, nothing derived beyond it"
   },
+  "admin_beat": {
+    "where": "tour beat 8 (last), anchored to an admin event in the stream (feed-admin); every demo seed set carries one",
+    "copy_promise": "the people who run the block act on this same feed — every admin action attributed, and when it bumps a player's plans compensation is automatic; nobody's hand is invisible, including ours",
+    "feed_result": "admin event renders with an attribution + compensation note (verbatim feed.json vocabulary: 'admin action — … · players compensated N cr')",
+    "why_last": "you teach the viewer their own ask is public before you show them the house is too"
+  },
+  "coask_lesson": {
+    "where": "S4f — after the queued ask resolves; optional, files nothing, needs no balance; gated behind the band normalizer like every ask-context card",
+    "demo": "'watch one land' drops a second handle's compatible ask onto the feed (marlo_v — camera director, 30 min · running) — not the player's, not queued behind theirs; idempotent, posts once",
+    "copy_promise": "your session never held anyone else's — compatible asks run alongside each other; that overlap is the multiplayer; exclusivity is about the resource, never the player",
+    "never": "no contention framing on compatible asks; nobody can buy out, preempt, or see inside another player's session"
+  },
+  "surge_disclosure": {
+    "where": "S4c exclusive-ask card, one line",
+    "copy": "if the sky ran exclusive in the last 6 h, the request form shows a surge multiplier — ×1.5 to ×2.5 — before you pay; the price you see is the price filed, nothing is added after",
+    "rule": "range quoted verbatim from plan §2.2 — no specific multiplier invented for the demo; surge is taught as 'the form is honest', not demonstrated"
+  },
+  "credit_rules": {
+    "where": "S3 wallet card, one fine-print line under the pack ladder — all money-eligible bands (u13 has no wallet)",
+    "copy": "three things credits never do: they never run out, they never cash out, and they never move between accounts — they buy agency here, that's the whole job",
+    "why": "all three are locked constraints (non-transferable / non-redeemable / no cash-out; no expiration or dormancy fees, plan §2.1) — stated once as disclosure before the first purchase, not framed as a feature"
+  },
+  "subscription_line": {
+    "where": "S3 wallet card, one line — the only place onboarding ever mentions subscriptions; inherits every S3 guard (band normalizer, never u13)",
+    "resident": { "usd_mo": 4.99, "cr_mo": 600, "perks_quoted": ["600 cr/mo stipend", "second character slot", "weekly digest"] },
+    "director": { "usd_mo": 11.99, "cr_mo": 1500, "perks_quoted": ["everything in Resident", "1,500 cr/mo", "third slot", "camera director mode", "name in show credits"] },
+    "rule": "contents verbatim from plan §2.5 (PROPOSAL) — no perk beyond the plan's list, no trial, no cancellation terms, no 'best value' styling, stated once and never re-pushed",
+    "demo": "'preview Resident' credits +600 cr once labeled as the stipend — idempotent; it demos the stipend only, no other perk is simulated"
+  },
+  "first_visit": {
+    "where": "S7 — off the S6 first-day card only (hired=1); a paid stage behind the band normalizer, requires balance ≥22",
+    "action": "possession", "block": "15 min", "cr": 22,
+    "why": "the compatible-rate minimum billable (1.5 cr/min × 15, plan §2.2 ≈22 cr) — the one beat no other stage covers: possession is a session, entered, capped, exited, always attributed",
+    "feed_result": "request event 'possession — first visit, 15 min' lands 'running'; 'jump ahead' resolves at the cap, 'step out early' resolves 'player session ended' — locked neutral wording, verbatim from requests.json",
+    "copy_promise": "the briefing stays redacted even to the hirer; step out or let the cap run — the AI resumes mid-motion either way; the time was bought up front, nothing is metered back",
+    "never": "no refund promised on early release (the plan prices declared blocks up front); never framed as owning/keeping/unlocking the character; one-time lesson — after exit the card offers settle"
+  },
+  "ownership_arc": {
+    "where": "one context line on S5 (non-u13 bands) + the parallel line on S6 — context, not funnel; no button leads to the market",
+    "copy_promise": "tenants can buy — listings on the block's market board read like normal listings, priced in game dollars plus a deed fee in credits — and owners can rent out a second unit; the arc is tenant → owner → landlord",
+    "u13": "settle card unchanged — no money surfaces on the watching account"
+  },
   "archive_beat": {
     "where": "tour beat 7, anchored to the 'Yesterday on the block' link under the stream",
     "copy_promise": "nobody can watch 24/7 — the Archive keeps the block's week and catching up is free, always",
@@ -142,7 +205,23 @@
     "deep-link into a paid step (deep links are returning/hired only)",
     "show queue position or sell queue priority — depth is a count, FCFS is the rule",
     "frame the Archive, the block's rhythm, or catching up as urgency — the world waits, nothing is on a timer for the viewer",
-    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt"
+    "imply a hired character suffers, waits, or misses the player while offline — thin AI is stated as fact, never as guilt",
+    "gate the feed, the tour, or any free card behind the age band — it fronts money surfaces only",
+    "frame the under-13 spectator account as a restriction, a downgrade, or something to grow out of — it is the whole product",
+    "render the rewarded-ads affordance for any band but adult — the guard is structural, not cosmetic",
+    "quote a minor spend-cap figure — the plan sets none, so the card says limits apply without a number",
+    "re-ask the band as a nag — it is stored once and correctable via 'wrong band? fix it'",
+    "render an admin action without attribution — the house is public or the promise is broken",
+    "let a surge multiplier surface after payment, or quote a specific multiplier the plan doesn't set (the range ×1.5–2.5 only)",
+    "frame compatible coexistence as contention — exclusives contend on the resource, never the player",
+    "present the ownership arc as a setup step or a funnel — it is named context at settle, no button attached",
+    "imply a player can buy out, preempt, or see inside another player's session — attribution is public, interiors are not",
+    "render the subscription line on the watching account or anywhere the band normalizer hasn't cleared",
+    "style a subscription as best value, default-check it, or re-surface it after the card is seen — stated once is the contract",
+    "invent subscription terms the plan doesn't set — no trial, no cancellation promises, no perk beyond §2.5's list",
+    "promise a refund on early release — declared blocks are bought up front, nothing is metered back",
+    "frame the first visit as owning, keeping, or unlocking the character — a capped session, briefing redacted throughout",
+    "let the stipend demo read as granted spend — it previews the standing order's mechanics, labeled, once"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -152,7 +231,12 @@
     "review_lesson_shown", "review_outcome_seen", "low_balance_simulated",
     "handoff_seen", "hired_return",
     "queue_lesson_shown", "queue_outcome_seen", "archive_beat_seen",
+    "band_declared (no band value in props — eligibility is not funnel data)",
+    "ads_line_shown", "ad_demo_viewed",
+    "admin_beat_seen", "coask_seen", "surge_line_shown",
+    "credit_rules_seen", "subs_line_shown", "sub_stipend_previewed",
+    "first_visit_filed", "visit_ended (cap|stepped_out)",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
-  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + wallet + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', and the queued ask is scripted to lapse — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, and the reserved-name list is generated from characters.json + ambients.json"
+  "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + age band + wallet (+ demo ad views) + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', the queued ask is scripted to lapse, and the co-ask is a scripted second handle — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, the reserved-name list is generated from characters.json + ambients.json, and the market-board pointer binds to market.html"
 }
