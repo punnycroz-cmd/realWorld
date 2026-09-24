@@ -69,7 +69,10 @@ alongside the computed rows:
   "discord_active_posters": 14,
   "member_initiated_threads": 9,
   "watch_party_rsvps": 11,
-  "recap_mentions_of_members": 2
+  "recap_mentions_of_members": 2,
+  "calls_posted": 8,
+  "calls_resolved": 5,
+  "repeat_callers": 3
 }
 ```
 
@@ -79,6 +82,7 @@ alongside the computed rows:
 | `member_initiated_threads` (in `#the-feed`) | trending up; ≥1 unprompted thread/wk by W2 | `first-100.md` §2 W2–3 row |
 | `watch_party_rsvps` | >0 within first month; qualifies event per playbook §1 | `watch-party-playbook.md` |
 | `recap_mentions_of_members` | ≥1/wk once members exist — the cheapest retention mechanic | `first-100.md` §3, funnel §7.4 |
+| `repeat_callers` (calls ritual) | >0 by W2; trending up — community-side proxy for the return-visit metric until `prediction_made`/`outcome_inspected` ship | `prediction-ledger.md` §5 |
 
 Anti-vanity rule (unchanged): member count is reported *only* as the
 denominator of the activity ratio. Never headline the raw number

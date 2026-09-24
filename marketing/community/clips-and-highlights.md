@@ -50,6 +50,25 @@ the rules, and how clips flow upstream into marketing surfaces.
 | `#clips` standouts | Weekly recap "community saw" line | One line max: "worth a look: @handle's capture of {{BEAT}}" — clips are evidence for beats the recap already reported, never new claims |
 | `#clips` volume | `funnel-scorecard.md` | Weekly manual count → manual-counts JSON (`clips_posted`, `clips_reshared`) — feeds the Stage 5 signal |
 
+### 3a. The highest-value clip: choice → consequence
+
+Per the product direction (Astra review §6): the clips that teach the
+product are **pairs** — an unexpected choice, then its later consequence,
+with a pointer into the thread. A lone street capture is scenery; a pair
+is a story with evidence.
+
+- Format when re-shared upstream: two captures (or two timestamps in one
+  clip) — *what they did* → *what it changed later* — plus one line of
+  context and a link into the archive/wire thread. The context line is
+  factual only ("she skipped the dinner she'd organized; two days later
+  she knocked on his door") — never motive captions ("she felt guilty").
+- Encourage members toward pairs in the pin comment, never require it:
+  a single great capture is still welcome; pairs are what get picked for
+  socials and the recap "community saw" line first.
+- This is the same format `SOCIAL-LAUNCH-PLAN.md` uses for owned posts
+  (`social/drafts/choice-and-consequence.md`) — member pairs can flow
+  upstream unchanged, credited per rule 5.
+
 ## 4. Boundary with creators
 
 Member clips are organic advocacy; creator content is §6 outreach. A

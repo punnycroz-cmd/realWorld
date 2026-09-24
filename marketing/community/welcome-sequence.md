@@ -52,6 +52,10 @@ Start here:
 • #help-requests — how to file a request, what "compatible" means
 • #announcements — the Sunday recap, "This Week on the Block"
 
+Sundays after the recap: the calls thread — predict what happens next on
+an open beat (no stakes, observable outcomes only). We check the calls
+against next week's recap.
+
 Nothing here is scripted. Every event you discuss actually ran.
 ```
 

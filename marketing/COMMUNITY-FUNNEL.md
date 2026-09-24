@@ -1,6 +1,19 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v159 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v174 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v174 added the observer-loop ritual layer: NEW `community/prediction-ledger.md`
+— the stakeless weekly "calls" thread that gives the Production-3 free
+observer loop (catch up → follow → predict → inspect → revise → return) a
+community surface before the in-product prediction feature exists:
+valid-call rules (observable outcomes only, never motives, no stakes,
+unresolved is honest), evidence-linked resolution against the archive,
+misses published equally, and wiring into the Sunday slot, the recap's
+"resolved calls" line, and the scorecard (`repeat_callers` as the
+community-side proxy for the return-visit metric until the six PENDING
+observer events ship). `programming-calendar.md` gained the Sun 18:10
+slot + opener, `funnel-scorecard.md` the calls counts, and
+`clips-and-highlights.md` §3a the choice→consequence pair format —
+member clips now point at the same verified-pair standard as owned posts.)
 (v159 closed the funnel's last two holes: NEW `community/re-engagement.md`
 — the lapsed-member path: observable-only lapse signals, the honest hooks
 the world already produces (open rumors, watch-party triggers, credited
@@ -130,6 +143,7 @@ numbers from the events capture + manual Discord counts).
 | Scale plan — `community/scale-plan.md` | Server lifecycle: stay-small covenant, growth tiers T0–T3 (slow mode, channel splits, verification gate, mod ratio), quiet/dead-server path, sunset sequence | BUILT (v144), OWNER-GATED to run |
 | Request clinic kit — `community/request-clinic-kit.md` | Stage 2→3 in public: the Wednesday clinic runnable — agenda, worked examples (compatible/exclusive/denied), canned answers, quiet-week fallback | BUILT (v159), OWNER-GATED to run |
 | Re-engagement — `community/re-engagement.md` | The lapsed-member path: observable-only lapse signals, honest re-entry hooks (open rumors, watch parties, credited fixes), covenant never-do list, scorecard health line | BUILT (v159), OWNER-GATED to run |
+| Prediction ledger — `community/prediction-ledger.md` | Stage 1→2 observer-loop ritual: weekly stakeless "calls" on open beats — observable outcomes only, evidence-linked resolution, misses published, `repeat_callers` as the return-visit proxy until `prediction_made`/`outcome_inspected` ship | BUILT (v174), OWNER-GATED to run — activates with the Sunday recap slot |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -261,6 +275,7 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Launch day | Announcement thread | — | `social/drafts/launch-thread.md` |
 | Launch week | Seeded discussion questions | — | `social/drafts/seeded-questions.md` |
 | Sun 18:05 (with recap) | Open-rumor thread | recap's unconfirmed hook | `community/programming-calendar.md` §3 |
+| Sun 18:10 (with recap) | Weekly calls thread | the week's open beats | `community/prediction-ledger.md` (v174 — rules, resolution, failure modes) |
 | Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/request-clinic-kit.md` (v159 — agenda, worked examples, canned answers) |
 | Monthly (1st Sat) | Town hall text AMA | — | `community/programming-calendar.md` §2/§3 |
 
