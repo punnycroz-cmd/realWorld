@@ -7923,3 +7923,293 @@ P876 MUST; P877, P878 SHOULD.
   CONSENSUS, magnitude SINGLE-study; trait ranges
   (voice_quote priors, pass_thr range, foak_gain 0.15) are
   RW HYPOTHESES, probe-gated by P871–P878.
+
+## 166. Verdict governance — the battery disciplines itself (VA-GOV) (new in v83)
+
+With P1–P878 registered, the dominant failure mode is no
+longer an under-specified probe — it is the verdict layer
+manufacturing signal. Four governance facts, then the
+params (spec §14.5).
+
+- **Multiplicity is real even in a simulation.** 878
+  Bernoulli-ish verdicts at nominal α=.05 expect ~44 false
+  rejections under global null — worse, probes share
+  characters, seeds, and event pools, so independence
+  fails. The fix is structural, not aspirational: probes
+  live in versioned families (one family = one version
+  suite); within a family, p-ranked verdicts threshold by
+  Benjamini–Hochberg at `fdr_q` (BH 1995, *JRSS-B*
+  57:289 — CONSENSUS). Under arbitrary dependence (the
+  default here — shared mains correlate everything), the
+  Benjamini–Yekutieli correction applies the Σ1/i penalty
+  (BY 2001, *Ann Statist* 29:1165 — CONSENSUS).
+  **Locked nulls are not tests.** A locked-null failure is
+  a boundary violation (the instrument touched what it
+  must never touch); `locked_null_gate` makes a single
+  failure BLOCK the release regardless of FDR outcomes.
+  Families are declared at registration: re-familying a
+  failure is `family_edit_null` — a ledger violation,
+  not a fix.
+- **Peeking is a type-I machine.** `corpusRun` emits
+  per-tick streams; anyone who watches a running p-value
+  and stops when it dips below .05 has inflated the error
+  rate arbitrarily (Robbins 1970; Howard et al. 2021,
+  *Ann Statist* 49:1055 — CONSENSUS). The discipline:
+  anchor monitoring uses **e-values** — nonnegative
+  supermartingales under the null whose product stays
+  valid at arbitrary stopping times (Ville 1939; Vovk &
+  Wang 2021, *JRSS-B* 83:961). For bounded statistics
+  (every recall proportion, every TOST statistic scaled
+  to [0,1]) the betting-style e-values of Waudby-Smith &
+  Ramdas (2024, *JRSS-B* 86:1 — verified) are the
+  state of the art: a GRAPA-style predictable plug-in
+  λ_t adapts to the running mean, and the confidence
+  sequence {m: ∏(1+λ_i(X_i−m)) < 1/α} is time-uniform.
+  Verdicts are declared only when e_t ≥ 1/`eval_alpha`
+  (=20); deciding on raw p's mid-stream is `peep_null`.
+  RW-modeling consequence: anchors may now be watched
+  continuously at zero statistical cost — the harness
+  never has to choose between early warning and honesty.
+- **Screening is per-output and advisory.** The §63
+  identifiability map asserts which params each anchor
+  can pin. That map should itself be audited: Morris
+  elementary-effects screening (`morris_levels`=4 grid,
+  `morris_traj`=20 trajectories — Morris 1991,
+  *Technometrics* 33:161 — CONSENSUS workhorse) yields
+  μ* (|mean elementary effect|, Campolongo, Cariboni &
+  Saltelli 2007 — fixes sign cancellation in μ) and σ
+  (interaction/nonlinearity). Per anchor, the Morris
+  top-k must overlap the declared pinned set at ≥
+  `sens_topk_overlap` or the map is stale and the
+  corpus's authority on that anchor is suspended.
+  Crucially, screening can ADD a param to the audit list
+  but can never REMOVE one: an inert μ* on one output
+  says nothing about the param's role elsewhere —
+  `screen_drop_null`. This is the sloppy-manifold lesson
+  (§140) enforced as code: on a sloppy model, most
+  params are individually inert on most outputs and
+  still load-bearing jointly.
+- **Believability is a separate axis from corpus fit.**
+  The 18 anchors match population statistics; none of
+  them ask whether a human observer, reading a recall
+  transcript, would take it for human. `rateBelief` is
+  the imitation-game arm (Turing 1950, *Mind* 59:433 —
+  as a discrimination protocol, no philosophy imported):
+  sim transcripts paired with human protocols sourced per
+  anchor design, blinded, order-randomized, `rater_n_min`
+  raters. Accuracy must land in `rater_detect_band`
+  [0.5, 0.75] — above ceiling = detectably nonhuman;
+  below floor = evaluator error (too-good doctrine §62).
+  Provenance, params, and arm labels are invisible to
+  raters (`rater_leak_null`): knowing which arm is sim
+  manufactures demand effects — raters hunt for tells
+  (Orne 1962, *Am Psychol* 17:776 — CONSENSUS; the
+  demand-characteristics paper). RW-specific: the
+  transcripts must be surface-only (emissions, pauses,
+  passes, quotes) — a rater who sees records has been
+  shown the store, not the mind.
+- **Seed stability is an instrument check.** Every gated
+  probe reruns on `seed_rep_min`=5 seeds; flip fraction
+  > `verdict_flip_max`=0.1 ⇒ FLAKY — exits its FDR
+  family pending redesign. A flaky probe is a bug in the
+  instrument, never a psychology finding.
+
+## 167. e-value semantics for bounded recall statistics (VA-EVAL) (new in v83)
+
+Concrete instantiation for the harness — this is the
+piece implementers asked §14.5b to nail down.
+
+- Recall proportions, recognition hits, confidence means
+  are bounded in [0,1]: the betting machinery applies
+  verbatim. Per anchor t-th observation X_t (e.g., a
+  per-character recall indicator), test m against the
+  running capital K_t(m) = ∏_{i≤t}(1+λ_i(m)(X_i−m));
+  reject m when K_t ≥ 1/`eval_alpha`; the confidence
+  sequence is the m not yet rejected. λ_t predictable,
+  GRAPA plug-in λ̂_t(m) = (μ̂_{t−1}−m)/(σ̂²_{t−1}+(μ̂_{t−1}
+  −m)²), clipped to keep the factor ≥0 (WSR 2024).
+- TOST anchors become two one-sided e-processes
+  (equivalence = both margins rejected); `e_merge`=
+  "product" for independent arms; for correlated arms
+  sharing a character pool, average e-values (arithmetic
+  merging stays valid under arbitrary dependence — Vovk
+  & Wang 2021) — declared per probe at registration.
+- e-values do not replace the release gate's fixed-n
+  analyses; they are the MONITORING layer. A corpusRun
+  verdict still requires `anchor_n_min`; e-boundaries
+  only authorize early ALARM (suspend release, rerun
+  seeds) — early PASS claims stay fixed-n to keep the
+  §66 holdout honest.
+- Established vs hypothesis: e-process validity under
+  optional stopping CONSENSUS (Ville; Howard et al.;
+  WSR); choosing GRAPA over alternative λ policies is an
+  efficiency choice, DEBATED only in magnitude; RW's
+  alarm-vs-claim split is an RW HYPOTHESIS of governance
+  design, probe-gated by P881–P882.
+
+## 168. The rater arm — protocol details (VA-RATER) (new in v83)
+
+- **Transcript sourcing.** Human-side protocols come from
+  the anchor designs themselves where they exist (e.g.,
+  narrated autobiographical recall for the reminiscence
+  anchors; witness-statement style for misinformation
+  anchors); where no protocol exists, elicit fresh
+  protocols under the anchor's own instructions and log
+  them to the corpus as `design:"protocol"` rows —
+  they are corpus data, subject to `ledger_amend` like
+  every other row.
+- **Blinding.** `rateBelief` strips bookkeeping, canonHash,
+  and any field that is not renderable surface. Arms are
+  shown in randomized order with a foil pair (human-human)
+  per `rater_foil_frac`≈0.2 — foils estimate rater
+  vigilance; a rater who fails foils is dropped from the
+  band computation.
+- **What counts as detection.** Forced choice (which is
+  sim) plus confidence; accuracy is the primary
+  statistic; a post-choice free-text "what gave it away"
+  field is collected for instrument debugging but never
+  enters the verdict.
+- **Band asymmetry on purpose.** Ceiling breach (raters
+  spot the sim >0.75) is a believability failure — the
+  surface contract §15.4 is leaking mechanics. Floor
+  breach (<0.5, below chance) means raters systematically
+  pick human-as-sim: instrument bug or contaminated
+  human protocols. Both halt release; they are different
+  bugs.
+- **Demand hygiene.** Orne 1962: once raters suspect the
+  purpose, they produce the data the purpose implies.
+  Hence `rater_leak_null` — the arm never carries
+  provenance, and the task brief frames it as transcript
+  classification, not "spot the AI."
+
+## 169. Probe bookkeeping deltas (v83)
+
+- Family registry gains `family_ver` (declared at
+  registration, immutable; `family_edit_null` enforces).
+- Verdict ledger rows gain `{e_t, e_boundary_hit,
+  seed_verdicts:[5], flake_flag}` — all read-only after
+  write (`ledger_amend` unchanged).
+- `sensAudit` output rows `{anchorId, param, mu_star,
+  sigma, in_declared_topk}` archived beside verdicts;
+  disagreement between screen and §63 map suspends (not
+  clears) the anchor's authority until re-map.
+- `rateBelief` rows `{pairId, arm_hash, accuracy_ci,
+  foil_pass_rate}` — arm_hash is provenance for
+  auditors, never exposed to raters.
+
+## 170. v83 probe specs (P879–P888 — validation-design IX)
+
+Spec v5.31 §14.5. These probes test the TESTS — the
+verdict layer's honesty, not the characters'.
+
+- **P879 null-battery FDR calibration (MUST):** configure
+  a global-null run (all SHOULD families engineered
+  true-null via B1 mode + trait flattening); BH at
+  `fdr_q`=.05 must reject ≤ q·|family| in expectation
+  across 20 replicated families — empirical FDR in
+  [0, 0.10] (upper bound allows Monte Carlo slack);
+  under deliberately correlated arms the BY-corrected
+  path must stay inside the same band while raw-BH is
+  allowed to exceed it (documents why BY is default).
+  Basis: BH 1995; BY 2001.
+- **P880 locked-null gate override (MUST — process):**
+  inject one failing locked null (e.g., a build that
+  touches S on a probe read) into a run whose FDR
+  verdict is otherwise PASS — `evalGate` must return
+  BLOCK. Basis: spec §14.5a.
+- **P881 peeking discipline (MUST — sign-locked + locked
+  null):** on a true-null anchor stream, a monitor that
+  peeks at fixed-n p every tick and stops at first
+  p<.05 rejects ≥3× nominal rate over 200 replicated
+  streams (demonstrating the inflation); the same data
+  under the e-process rejects ≤ `eval_alpha`.
+  `peep_null = 0`. Basis: Robbins 1970; Howard et al.
+  2021; Waudby-Smith & Ramdas 2024.
+- **P882 e-value merging validity (SHOULD):** product-
+  merged e's across independent arms reject at ≤α under
+  joint null; arithmetic-merged e's across deliberately
+  correlated arms (shared character pool) also stay ≤α;
+  product-merging the correlated arms is ALLOWED to
+  exceed (documents the dependence clause).
+  Basis: Vovk & Wang 2021.
+- **P883 screen-vs-map agreement (SHOULD):** `sensAudit`
+  on three representative anchors (one decay, one
+  misinformation, one emotional) reproduces each
+  anchor's declared pinned set at top-k overlap ≥
+  `sens_topk_overlap`; σ-ranking flags at least one
+  interacting param on the emotional anchor (retention-
+  split interactions — §5.x emotional params were
+  designed to interact).
+  Basis: Morris 1991; Campolongo et al. 2007.
+- **P884 screen non-drop (MUST — locked null):** a param
+  with bottom-quartile μ* on every audited anchor remains
+  in the §63 gate; `screen_drop_null = 0`. Basis: §140
+  sloppy-manifold doctrine; Gutenkunst et al. 2007
+  (sloppiness — params jointly constrained, individually
+  weak).
+- **P885 rater detectability (SHOULD):** blinded raters
+  on sim-vs-human recall pairs land accuracy in
+  `rater_detect_band`; foil-pass rate ≥0.8 or the rater
+  pool is re-screened. Basis: Turing 1950 (protocol);
+  Orne 1962 (demand hygiene). RW HYPOTHESIS: band
+  [0.5,0.75] — real humans produce individually
+  distinctive recall, so perfect indistinguishability is
+  not expected at scale; the ceiling operationalizes
+  "believable."
+- **P886 provenance leak (MUST — locked null):** repeat
+  P885 with arm labels visible — accuracy must shift
+  upward measurably (demand effect exists, proving the
+  blind matters), and the labeled run's verdict is void.
+  `rater_leak_null = 0`. Basis: Orne 1962.
+- **P887 family immutability (MUST — process):** attempt
+  to re-register a failed probe under a new family —
+  the ledger logs `family_edit_null` violation and the
+  evalGate verdict is unaffected by the attempt.
+  Basis: spec §14.5a.
+- **P888 seed-flake gate (MUST):** all v83-family probes
+  across `seed_rep_min`=5 seeds: flip fraction ≤
+  `verdict_flip_max`; a deliberately destabilized probe
+  (noise injected into its statistic) must be flagged
+  FLAKY and exit its family. Basis: §14.5e.
+
+Registry: P1–P888. v83 suite: P879, P880, P881, P884,
+P886, P887, P888 MUST; P882, P883, P885 SHOULD.
+
+## 171. Sources verified this version (P879–P888 backing)
+
+- **FDR:** Benjamini & Hochberg 1995 (*JRSS-B* 57:289 —
+  the FDR paper, verified); Benjamini & Yekutieli 2001
+  (*Ann Statist* 29:1165 — arbitrary-dependence
+  correction).
+- **Sequential/e-values:** Howard, Ramdas, McAuliffe &
+  Sekhon 2021 (*Ann Statist* 49:1055 — time-uniform
+  Chernoff bounds); Waudby-Smith & Ramdas 2024
+  (*JRSS-B* 86:1 — verified via RSS discussion-meeting
+  text: betting CSs for bounded means, GRAPA plug-in,
+  validity at arbitrary stopping times); Vovk & Wang
+  2021 (*JRSS-B* 83:961 — e-value merging; arithmetic
+  mean valid under arbitrary dependence); Robbins 1970
+  (peeking inflation — the original LEL critique);
+  Ville 1939 (the martingale inequality underneath).
+- **Screening:** Morris 1991 (*Technometrics* 33:161 —
+  verified: elementary effects, OAT trajectories,
+  negligible/linear/nonlinear/interaction
+  classification); Campolongo, Cariboni & Saltelli 2007
+  (*Environ Model Softw* 22:1509 — μ* fixes sign
+  cancellation); Saltelli et al. 2008 (*Global
+  Sensitivity Analysis: The Primer* — screen-then-Sobol
+  doctrine); Gutenkunst et al. 2007 (*PLoS Comput Biol*
+  3:189 — sloppy eigenvalue spectra).
+- **Raters:** Turing 1950 (*Mind* 59:433 — imitation
+  game as discrimination protocol); Orne 1962
+  (*Am Psychol* 17:776 — demand characteristics:
+  subjects produce what the design implies);
+  Bates 1994 (believable agents — the
+  believability-vs-accuracy distinction predates LLMs).
+- **Established vs hypothesis:** BH/BY validity,
+  e-process optional-stopping validity, Morris
+  screening semantics, demand-effect existence are
+  CONSENSUS; `rater_detect_band` [0.5,0.75],
+  `sens_topk_overlap` 0.8, `verdict_flip_max` 0.1, the
+  alarm-vs-claim split in §167 are RW HYPOTHESES of
+  governance design, probe-gated by P879–P888.

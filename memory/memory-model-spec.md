@@ -1,5 +1,28 @@
-# Memory Model Spec v5.30 — implementable human-like memory for RW characters
+# Memory Model Spec v5.31 — implementable human-like memory for RW characters
 
+> **v5.31 note (validation-design IX — the battery
+> disciplines itself):** 878 probes only mean something if
+> the verdict layer is honest. §14.5 adds the governance
+> block: **multiplicity** — probe families run under BH-FDR
+> at `fdr_q` with locked-null failures bypassing FDR
+> entirely (a gate, not a test — Benjamini & Hochberg 1995;
+> BY 2001); **anytime validity** — anchors monitor via
+> betting-style e-value sequences (`eval_alpha`), so the
+> harness may look every tick without inflating error
+> (Howard et al. 2021; Waudby-Smith & Ramdas 2024); raw-p
+> peeking is `peep_null`; **sensitivity audit** — Morris
+> elementary-effects screens the §63 pinned params per
+> anchor before any Sobol spend (Morris 1991; Campolongo
+> et al. 2007); an inert screen can never drop a param
+> (`screen_drop_null`); **believability** — blinded
+> human-rater discrimination of sim vs human recall
+> transcripts inside `rater_detect_band` (Turing 1950 as
+> protocol skeleton; Orne 1962 for why provenance must be
+> hidden — `rater_leak_null`); **seed stability** — verdict
+> flips across `seed_rep_min` seeds bounded by
+> `verdict_flip_max`. Harness gains `evalGate`, `sensAudit`,
+> `rateBelief`. +12 params, +4 locked nulls; zero
+> Event/record/PersonModel changes. Probes P879–P888.
 > **v5.30 note (character-profiles VII — the remembering
 > voice):** five traits move onto the REPORT layer — what a
 > character's memory looks like from the audience's chair.
@@ -11956,6 +11979,25 @@ MemoryParams = {
 //   `prePauseMs`, `fillers`, `coda` {eval:true};
 //   PersonModel `estKnow[speaker][topic]` update
 //   rule (§5.82); no new Event/record fields.
+// v5.31 additions (validation-design IX — the battery
+//   disciplines itself; all pop/harness)
+"fdr_q": 0.05, "fdr_family_mode": "suite",            // §14.5a
+"locked_null_gate": true,                            // §14.5a
+"eval_alpha": 0.05, "e_merge": "product",            // §14.5b
+"morris_levels": 4, "morris_traj": 20,
+"sens_topk_overlap": 0.8,                            // §14.5c
+"rater_n_min": 30, "rater_detect_band": [0.5, 0.75], // §14.5d
+"seed_rep_min": 5, "verdict_flip_max": 0.1,          // §14.5e
+// v5.31 locked nulls: family_edit_null (probe family
+//   assignments version-frozen; re-familying a failure
+//   is a ledger violation — P887); peep_null (decisions
+//   only at e-value boundaries; raw-p peeking invalid —
+//   P881); screen_drop_null (an inert Morris screen
+//   never removes a param from the identifiability
+//   gate — P884); rater_leak_null (rater arms never
+//   see provenance or internals — P886).
+// v5.31 fields: none — harness governance only; no
+//   Event/record/PersonModel/emission changes.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13680,6 +13722,26 @@ not resolved (DEBATED magnitude). P509/P511.
     `ext_floor_null`, `foak_store_null`, `story_mint_null`.
   - All snapshot-additive, absent = legacy; no Event or
     record schema changes. Probes P871–P878.
+- v5.31 additions (validation-design.md §§166–170, spec §14.5):
+  - `evalGate(verdictRows) -> {release: PASS|BLOCK, perSuite}` —
+    harness entry: applies per-family BH at `fdr_q`, then the
+    locked-null gate; any locked-null failure ⇒ BLOCK regardless
+    of FDR verdicts (§14.5a).
+  - `evalAnchor` — v5.31: each anchor verdict additionally
+    returns the running e-value `e_t`; monitors may inspect at
+    every tick; verdicts only at e ≥ 1/`eval_alpha` boundaries
+    (`peep_null`, §14.5b).
+  - `sensAudit(paramIds, anchorId) -> [{param, mu_star, sigma}]` —
+    Morris screen over the §63 pinned set (§14.5c).
+  - `rateBelief(pairId) -> raterArm` — blinded sim-vs-human
+    transcript arm; rater sees no provenance (`rater_leak_null`,
+    §14.5d).
+  - **New params (§7):** 12 pop/harness — fdr_q, fdr_family_mode,
+    locked_null_gate, eval_alpha, e_merge, morris_levels,
+    morris_traj, sens_topk_overlap, rater_n_min,
+    rater_detect_band, seed_rep_min, verdict_flip_max + 4 locked
+    nulls (family_edit_null, peep_null, screen_drop_null,
+    rater_leak_null). Probes P879–P888.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -13923,6 +13985,83 @@ manifest.
 | oracle_tune / ledger_amend | 0.0 each | locked nulls — instrument constants never tune toward bands; verdict history is never rewritten |
 
 Probes P615–P628 in validation-design.md §111.
+
+### 14.5 Verdict governance — multiplicity, peeking, screening, raters (new in v5.31)
+
+The battery is now large enough (P1–P878) that naive per-probe
+testing manufactures its own verdicts. This annex defines the
+verdict layer; the psychology is untouched.
+
+**(a) Multiplicity.** Probes are grouped into versioned families
+(`fdr_family_mode:"suite"` — the version suite, e.g. v82's
+P871–P878). Within a family, SHOULD/MUST rejections are ranked
+by p and thresholded by Benjamini–Hochberg at `fdr_q` (BH 1995,
+*JRSS-B* 57:289); under arbitrary dependence the BY 2001
+correction applies (`fdr_q/Σ1/i` — conservative default since
+probes share characters and events). **Locked nulls bypass FDR
+entirely** (`locked_null_gate`): they are model-boundary
+violations — one failure ⇒ `evalGate` returns BLOCK. Families
+are declared at probe-registration time; moving a failing probe
+to a new family is `family_edit_null` — the ledger records the
+attempt as a violation, not a fix.
+
+**(b) Anytime validity.** `corpusRun` monitors stream verdicts
+per tick. Fixed-n p-values peeked repeatedly inflate type-I
+(Robbins 1970; Howard et al. 2021, *Ann Statist* 49:1055), so
+anchor monitoring runs on **e-values**: each anchor's evidence
+is a nonnegative supermartingale under the null; the verdict is
+declared only when `e_t ≥ 1/eval_alpha` — valid at arbitrary
+stopping times (Ville). Betting-style e-values for the bounded
+recall statistics (Waudby-Smith & Ramdas 2024, *JRSS-B* 86:1)
+replace per-tick p's; independent probes' e-values combine by
+product (`e_merge`, Vovk & Wang 2021, *JRSS-B* 83:961). Raw-p
+peek decisions are `peep_null`.
+
+**(c) Sensitivity audit.** Before refitting the corpus, Morris
+elementary-effects screening (`morris_levels`×`morris_traj`
+trajectories — Morris 1991, *Technometrics* 33:161; μ*/σ of
+Campolongo, Cariboni & Saltelli 2007) ranks the §63 pinned
+params per anchor; top-k overlap with the identifiability map
+must clear `sens_topk_overlap` or the map is stale. Screening is
+per-output and advisory — an inert μ* can never remove a param
+from the gate (`screen_drop_null`): identifiability is a
+spec-level claim, not a screening output.
+
+**(d) Believability rater arm.** The corpus anchors match
+population statistics; believability is a separate axis —
+does an observer's read of a recall transcript track human?
+`rateBelief` pairs sim transcripts with human protocols
+(sourced per anchor design), blinded and order-randomized;
+rater discrimination accuracy must land inside
+`rater_detect_band` — above the ceiling the sim is
+detectably nonhuman (believability failure); below the
+floor flags evaluator error per §62's too-good-is-a-bug
+doctrine. Raters never see provenance, params,
+or which arm is sim (`rater_leak_null`) — provenance leaks
+create demand effects (Orne 1962, *Am Psychol* 17:776).
+Protocol skeleton: Turing 1950's imitation game as a
+discrimination task, not a philosophy claim.
+
+**(e) Seed stability.** Every gated probe reruns across
+`seed_rep_min` seeds; per-probe verdict-flip fraction above
+`verdict_flip_max` marks the probe FLAKY — it exits the FDR
+family pending redesign (a flaky probe is an instrument bug,
+never a psychology finding).
+
+| param | default | notes |
+|---|---|---|
+| fdr_q | 0.05 | pop — BH threshold within each probe family |
+| fdr_family_mode | "suite" | pop — family = version suite |
+| locked_null_gate | true | harness — locked-null failures bypass FDR |
+| eval_alpha | 0.05 | pop — e-value boundary 1/α = 20 |
+| e_merge | "product" | pop — independent e-values multiply |
+| morris_levels / morris_traj | 4 / 20 | harness — screen resolution |
+| sens_topk_overlap | 0.8 | pop — screen-vs-map agreement floor |
+| rater_n_min / rater_detect_band | 30 / [0.5,0.75] | pop — rater power and detectability window |
+| seed_rep_min / verdict_flip_max | 5 / 0.1 | harness — flake gate |
+| family_edit / peep / screen_drop / rater_leak | 0.0 each | locked nulls — §14.5a–d |
+
+Probes P879–P888 in validation-design.md §170.
 
 ## 15. Composition, context, and surface annex (new in v5.18)
 

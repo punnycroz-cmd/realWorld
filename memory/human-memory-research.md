@@ -3168,3 +3168,51 @@ listener-side inference:
   stored strength. The persona-level outcome the project
   wants — "she's always quoting him, and half of it he
   never said" — is now a first-class profile phenotype.
+
+## 61. v83 — the battery disciplines itself (validation-design IX)
+
+Not psychology — the psychology is now big enough that the
+measurement layer is the risk. This version arms the verdict
+layer against itself; all additions are spec §14.5 and
+validation-design.md §§166–171 (probes P879–P888).
+
+- **False rejections are budgeted, not hoped away.** At 878
+  probes, nominal-α testing expects ~44 false rejections under
+  global null — and the probes are correlated (shared mains,
+  shared seeds, shared event pools). Verdicts now run inside
+  versioned families under Benjamini–Hochberg at `fdr_q`,
+  with the Benjamini–Yekutieli Σ1/i penalty as the default
+  dependence correction (BH 1995, *JRSS-B* 57:289; BY 2001,
+  *Ann Statist* 29:1165). Locked nulls stay outside FDR: a
+  boundary violation is a gate event, not a statistic.
+- **Watching a running p is a decision.** The harness streams
+  corpusRun verdicts per tick; stopping on a dipped p inflates
+  type-I (Robbins 1970; Howard et al. 2021, *Ann Statist*
+  49:1055). Anchors now monitor on e-values — Ville-valid at
+  arbitrary stopping times — using the betting construction
+  for bounded statistics (Waudby-Smith & Ramdas 2024,
+  *JRSS-B* 86:1, verified; merging rules per Vovk & Wang
+  2021, *JRSS-B* 83:961). Peeking on raw p is `peep_null`.
+- **The identifiability map gets audited, not trusted.**
+  Morris elementary-effects screening (Morris 1991,
+  *Technometrics* 33:161; μ*/σ per Campolongo, Cariboni &
+  Saltelli 2007) re-ranks each anchor's pinned params; ≥0.8
+  top-k overlap required or the map is stale. Screening can
+  add audit candidates but never delete a gated param
+  (`screen_drop_null`) — sloppiness doctrine (Gutenkunst
+  et al. 2007): jointly constrained, individually inert.
+- **Believability is a separate axis.** Corpus anchors fit
+  population statistics; `rateBelief` tests whether a blinded
+  human rater can tell a sim recall transcript from a human
+  protocol (Turing 1950 as protocol skeleton; Orne 1962 for
+  why provenance must be hidden — `rater_leak_null`). Band
+  [0.5,0.75]: detectable-above-ceiling fails believability;
+  below-floor flags instrument error under the §62
+  too-good doctrine.
+- **Model consequence (spec v5.31 §14.5):** verdict governance
+  is now contract — `evalGate` (BH + locked-null gate),
+  `evalAnchor` e-value returns, `sensAudit`, `rateBelief`;
+  +12 pop/harness params, +4 locked nulls; zero Event/record/
+  PersonModel changes. Every claim the corpus makes about the
+  characters is now made by an instrument that is itself
+  falsifiable (P879–P888).
