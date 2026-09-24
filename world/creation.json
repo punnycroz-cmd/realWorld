@@ -1,6 +1,6 @@
 {
   "doc": "Character creation — machine-readable mirror of world/creation-ui.md (canonical for behavior + copy). 'Joining the cast' per design §6: creating/hiring a character costs credits AND requires renting in-game housing in game dollars. New characters are not exempt from the sim. Prices adopt rw-monetization-plan-2026-09-22 §2.4–2.5 (PROPOSAL — never contradict in player-facing copy).",
-  "version": 25,
+  "version": 26,
   "price": {
     "hire_cr": 500,
     "billing": "flat, one-time, charged on approval only (billOnApproval per game-v8) — the charge lands after screening + human review pass",
@@ -55,11 +55,11 @@
     "currency_wall": "rent is game dollars only — credits are never offered for it anywhere in the flow"
   },
   "move_in_math": {
-    "doc": "v35 — signing is atomic per leases.json sign_atomic: first month + deposit leave the bank together. The flow must show this before signing, never quietly ignore it.",
-    "deposit_flat": "1x monthly rent",
-    "deposit_room_share": "0.5x monthly rent",
-    "shortfall_rule": "if arrival bank < first month + deposit, the deposit rides a stated payment plan against the first paychecks — shown verbatim, never a waived deposit presented as paid",
-    "day_one_cash": "arrival bank − first month − deposit (or − first month only when the plan applies)"
+    "doc": "v91 — the production hire package (41_game_systems_hiring.js gsHireMoveIn/gsHireQuote) supersedes the v35 deposit story. Deposit $0 — waived, recorded as hirePackage on the lease ('the hire package covers the hunt'). First month is pro-rated to the move-in day and auto-paid out of the $1,600 arrival bank. Ordinary leases still charge deposits per leases.json — the waiver is the hire package, and a later re-house is a normal second lease with a real deposit.",
+    "deposit": "$0 — waived on the hire package only",
+    "first_month": "pro-rated: move-in day through month end (the 1st of a month pays the full rent)",
+    "rehouse_rule": "a re-house is a normal second lease — deposit owed like anyone else's (rehouse request, 150 cr per production ratePerMin 30 × 5 min)",
+    "day_one_cash": "arrival bank − pro-rated first month"
   },
   "payday": {
     "doc": "shifts.md cadence rendered per job row and in the first-week step",
@@ -74,10 +74,20 @@
     "seeking": "'arrives without work' is always selectable — savings only"
   },
   "live_seam": {
-    "doc": "create.html reads game-v8 bridge surfaces when __aiBridge is present; mirrors otherwise. Read-only — the demo never calls a mutation.",
-    "reads": ["gsJobBoard()", "gsHireNameCheck(name)", "gsHireQuote(spec)", "gsHireSlots(pid)"],
-    "never": ["gsRequestSubmit", "gsHireActivate", "gsHiredTakeJob", "gsApplyForLease", "gsSignLease", "fetch", "XHR"],
-    "badge": "header shows 'live board' | 'demo board' — the page never pretends to be live"
+    "doc": "create.html reads production bridge surfaces when __aiBridge is present; mirrors otherwise. One write verb — the filing itself.",
+    "reads": ["gsJobBoard()", "gsHireNameCheck(name)", "gsHireQuote(spec)", "gsHireSlots(pid)", "gsVacantUnits()", "gsHiredRoster()", "gsExplainRequest(id)"],
+    "writes": ["gsSubmitRequest(spec) — the hire filing, real bus vocabulary", "gsCancelRequest(id) — withdraw a pending live filing"],
+    "never": ["gsRequestSubmit (legacy alias — the bus's real name is gsSubmitRequest)", "gsHireActivate", "gsHiredTakeJob", "gsApplyForLease", "gsSignLease", "gsReviewResolve (admin-side)", "fetch", "XHR"],
+    "badge": "header shows 'live board' | 'demo board' — the page never pretends to be live",
+    "honesty": "a live filing never gets a fake approval — 'in_review' parks in the naming lane and the queue card shows the real record id; the demo auto-reviewer runs off-bridge only"
+  },
+  "hire_seam_v91": {
+    "doc": "the production bus shape create.html files when bridged",
+    "spec": { "playerId": "you", "kind": "hire", "target": "<unit id>", "durationMin": 5,
+      "params": ["name", "goes_by", "age", "pronouns", "bio", "arrival", "look{build,palette,signature}", "job", "moveInDate", "resubmit_n"] },
+    "record": "denied → pre-billing refusal, real reason code shown; in_review + lane 'naming' → deferred billing, charge lands at approval; the office stamps one hire per account per 24 h (cdPlayerMin 1440)",
+    "deny_codes": ["needs_housing", "unknown_unit", "unit_not_livable", "unit_offmap", "unit_occupied", "hire_cap", "cast_cap", "needs_name", "name_too_short", "name_too_long", "name_collision", "underage", "bad_age", "bad_look", "unknown_job", "job_filled", "out_of_reach", "cooldown", "appeal_final", "insufficient_credits"],
+    "note": "goes_by rides params on the record but 41_game_systems_possession's screen haystack doesn't read it yet — flagged for the game track"
   },
   "people_layer": {
     "doc": "v49 — the block's actual names, mirrored from characters.json (cast, k:'cast') and ambients.json (faces, k:'face'). Every row re-verified by the audit gate: w employer tokens resolve into the person's job/venue field, b building prefixes resolve into cast home fields, owns prefixes resolve into the landlord's job field. Ambient homes are not addresses, so faces never carry b.",
@@ -100,11 +110,11 @@
     "rule": "renders exactly the record_schema fields — nothing the player can't see is written on the card"
   },
   "draft": {
-    "storage": "localStorage rw_create_draft_v25 — fields + step + resubmit count + landing pick + goes_by",
+    "storage": "localStorage rw_create_draft_v26 — fields + step + resubmit count + landing pick + goes_by",
     "rules": "autosaves on every step render; discarded explicitly or cleared on successful hire; nothing leaves the browser in the demo"
   },
   "pending_queue": {
-    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v25: fields + submitted timestamp + resubmit count); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
+    "doc": "v63 — a submitted application keeps its place across a closed page. Pending state persists (rw_create_app_v26: fields + submitted timestamp + resubmit count + busId when filed live); reopening create.html shows the queue card (applicant, submitted time, stage, 'nothing charged while pending') instead of pretending the application vanished.",
     "withdraw": "a pending application can be withdrawn — never billed; the withdrawal posts to the feed like everything else and the draft survives for editing",
     "resolve": "the demo reviewer clears the queue on return; at merge the real human-review desk resolves it — the card is a status view, never a faster lane",
     "never": "no queue position is sold, no expedite exists, resubmissions go to a different reviewer not a faster one"
@@ -117,14 +127,14 @@
     "doc": "v77 — the structured look picks draw a small canvas figure on step 2 and ride the review card on step 6 (drawSketch): silhouette proportions from build, jacket block from palette, one drawn mark per signature. Rendering data only — no new screening surface. Copy must call it a casting-office sketch, never a portrait."
   },
   "block_capacity": {
-    "doc": "v77 — the total hired faces the block carries. Open design decision §9.5 (cast cap = compute budget); the demo runs the proposal number 12 and labels it the block's carry limit. Per-account slot_cap stays a separate, smaller ceiling.",
-    "cap": 12,
-    "proposal": true,
-    "display": "the roster panel and the step-6 quote show the count verbatim ('N of 12 hired faces') — never hidden, never a surprise denial"
+    "doc": "v91 — the total hired faces the block carries. The production envelope is pinned: GS_MAX_HIRED_TOTAL 24 (supersedes the v77 proposal 12). Per-account slot_cap stays a separate, smaller ceiling (GS_MAX_HIRED_PER_PLAYER 3).",
+    "cap": 24,
+    "production_pinned": true,
+    "display": "the roster panel and the step-6 quote show the count verbatim ('N of 24 hired faces'); bridged, the count reads gsHiredRoster().length — never hidden, never a surprise denial"
   },
   "seat_waitlist": {
     "doc": "v77 — when the card is full, signing joins the seat waitlist instead of the review pipeline: free, first-come-first-served. Screened at join AND re-screened when a seat offer lands. An offer holds 48 h — unclaimed it passes on. Waiting never bills; leaving is free and posts to the feed like every withdrawal.",
-    "storage": "localStorage rw_create_wait_v25 — fields + joined timestamp + resubmit count; survives a closed page like pending_queue",
+    "storage": "localStorage rw_create_wait_v26 — fields + joined timestamp + resubmit count; survives a closed page like pending_queue",
     "never": "no expedite, no seat auction, no paid position — there is no way to pay for a sooner seat",
     "demo": "the demo seat opens on a clock (~40 s), the way the demo reviewer clears the queue; at merge the real roster state decides"
   },

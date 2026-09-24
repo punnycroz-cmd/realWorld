@@ -2582,7 +2582,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G20 creation ============ */
 {
-  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; move-in math; bill-on-approval; read-only seam)');
+  const g = gate('creation', 'character-creation contract (creation.json ↔ create.html; jobs/housing/look/people mirrors; v91 hire-package math; bill-on-approval; the real hire seam)');
   try {
     const CJ = JSONF('creation.json');
     const JJ = JSONF('jobs.json');
@@ -2595,12 +2595,14 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['move_in_math', 'payday', 'job_board', 'live_seam', 'screening', 'briefing_whitelist',
                      'people_layer', 'names_registry', 'arrival_window', 'registry_entry',
                      'pending_queue', 'day_one_keys', 'sketch', 'block_capacity',
-                     'seat_waitlist', 'multi_hire'])
+                     'seat_waitlist', 'multi_hire', 'hire_seam_v91'])
       if (CJ[k] === undefined) add(g, 'fail', 'creation.json', null, `contract block "${k}" missing`);
     if (CJ.price.hire_cr !== 500) add(g, 'fail', 'creation.json', null, 'hire price drifted from 500 cr');
     if (!/approval/.test(CJ.price.billing)) add(g, 'fail', 'creation.json', null, 'billing must be on-approval (billOnApproval)');
-    if (!/payment plan/.test(CJ.move_in_math.shortfall_rule))
-      add(g, 'fail', 'creation.json', null, 'deposit shortfall must ride a stated payment plan');
+    if (!/waived/.test(CJ.move_in_math.deposit || '') || !/pro-rated/.test(CJ.move_in_math.first_month || ''))
+      add(g, 'fail', 'creation.json', null, 'v91 hire package: deposit waived + pro-rated first month required');
+    if (!/hire_package|hirePackage/.test(CJ.move_in_math.doc))
+      add(g, 'fail', 'creation.json', null, 'move_in_math must cite the production hirePackage seam');
     if (!(CJ.screening.deny_codes || []).includes('name-collision'))
       add(g, 'fail', 'creation.json', null, 'name-collision deny code missing');
     /* JOBS mirror eval + field compare against jobs.json */
@@ -2668,10 +2670,32 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'creation.json', null, 'seat waitlist must forbid paid position');
     if (!/stranger/.test(html) || !/stranger/.test(JSON.stringify(CJ.multi_hire)))
       add(g, 'fail', 'creation.json', null, 'multi_hire stranger rule must exist in contract + page');
-    if (!/depFor/.test(html) || !/0\.5/.test(html))
-      add(g, 'fail', 'create.html', null, 'deposit rule (1× flat / 0.5× room share) not implemented');
+    /* v91 hire package: deposit waived, first month pro-rated to moveInDate */
+    if (!/firstMonthFor/.test(html) || !/moveInDate/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 pro-rated first-month math (firstMonthFor/moveInDate) missing');
+    if (/depFor|moveInFor|payment plan/i.test(html))
+      add(g, 'fail', 'create.html', null, 'retired v35 deposit/payment-plan math still on the page');
+    if (!/hire package/.test(html))
+      add(g, 'fail', 'create.html', null, 'hire-package copy missing');
     const roomRow = DHOMES.find(h2 => h2.room);
-    if (!roomRow) add(g, 'fail', 'create.html', null, 'no room-share home flagged for the 0.5× deposit rule');
+    if (!roomRow) add(g, 'fail', 'create.html', null, 'room-share home dropped from the demo mirror');
+    /* v91 real-seam wiring: bus spec + live surfaces */
+    if (!/kind:'hire'|kind: 'hire'/.test(html) || !/gsSubmitRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 live filing must call gsSubmitRequest with kind hire');
+    if (!/gsVacantUnits/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 home board must read gsVacantUnits when bridged');
+    if (!/gsHiredRoster/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 seat count must read gsHiredRoster when bridged');
+    if (!/DENY_COPY/.test(html) || !/out_of_reach/.test(html) || !/cast_cap/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 real deny-code map missing');
+    if (!/hidFor/.test(html) || !/h01|h' \+ \(n < 10/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 monotonic h0N id format missing');
+    if (!/gsCancelRequest/.test(html))
+      add(g, 'fail', 'create.html', null, 'v91 live withdraw must go through gsCancelRequest');
+    const seam = CJ.hire_seam_v91 || {};
+    for (const dc of ['out_of_reach', 'cast_cap', 'unit_occupied', 'job_filled', 'cooldown'])
+      if (!((seam.deny_codes || []).includes(dc)))
+        add(g, 'fail', 'creation.json', null, `hire_seam_v91.deny_codes missing "${dc}"`);
     /* v49 PEOPLE mirror — every row re-verified against the registries:
        cast rows must match characters.json names exactly (w tokens → job,
        b → home, owns → landlord field); face rows match ambients by
@@ -2723,9 +2747,10 @@ const PUB = Object.values(PT.surfaces)
       [/denied applications never bill/i, 'deny-never-bills promise'],
       [/available on the block/, 'name-check ok copy'],
       [/taken — the block already has one/, 'name-check taken copy'],
-      [/first month \+ deposit/, 'move-in math copy'],
-      [/payment plan/, 'deposit-shortfall honesty'],
-      [/stated plan, not a waived one/, 'no-waived-deposit honesty'],
+      [/first month.*pro-rated|pro-rated.*first month/s, 'v91 pro-rated move-in copy'],
+      [/deposit \$0 — waived|deposit waived/i, 'v91 hire-package deposit copy'],
+      [/hire package covers the hunt/, 'v91 hire-package phrase'],
+      [/re-house.*second lease|second lease.*deposit/s, 'v91 re-house honesty'],
       [/out of reach on that income/, '55% ceiling state'],
       [/not a script/, 'emergence honesty'],
       [/18 minimum/, 'adults-only line'],
@@ -2755,7 +2780,7 @@ const PUB = Object.values(PT.surfaces)
       [/Saturday morning/, 'v49: landing option'],
       [/Landing scheduled/, 'v49: landing pipeline stage'],
       [/lands <window>|lands '|lands " ?\+f\.landing/, 'v49: landing on the wire'],
-      [/Registry entry — h/, 'v49: registry record card'],
+      [/Registry entry — /, 'v49: registry record card'],
       [/no secret fields exist on it/i, 'v49: record honesty line'],
       [/roster is full/, 'v49: slot-cap honesty'],
       [/surface ties, not friendships/, 'v49: FACES honesty'],
@@ -2788,7 +2813,20 @@ const PUB = Object.values(PT.surfaces)
       [/renderWait|seatOpened/, 'v77: waitlist handlers'],
       [/saveWait/, 'v77: waitlist write on join'],
       [/meet on the block like anyone else/, 'v77: other-hire honesty'],
-      [/a stranger, not a contact/, 'v77: briefing stranger line']
+      [/a stranger, not a contact/, 'v77: briefing stranger line'],
+      [/gsSubmitRequest/, 'v91: real bus verb'],
+      [/naming lane/, 'v91: naming-lane copy'],
+      [/bus record/, 'v91: live record on the queue card'],
+      [/one hire filing per account per day/, 'v91: hire-cooldown honesty'],
+      [/never fakes an approval|never fake an approval/, 'v91: no-fake-approval honesty'],
+      [/gsVacantUnits/, 'v91: live doors read'],
+      [/gsHiredRoster/, 'v91: live seat count read'],
+      [/gsExplainRequest/, 'v91: live status read'],
+      [/gsCancelRequest/, 'v91: live withdraw write'],
+      [/moveInDate/, 'v91: declared move-in date'],
+      [/live — the personnel office/, 'v91: live quote card'],
+      [/the office refused/, 'v91: pre-billing refusal copy'],
+      [/hired faces — seats remain|hired faces · the seat waitlist/, 'v91: seat-count copy']
     ];
     for (const [re, label] of MUST)
       if (!re.test(html)) add(g, 'fail', 'create.html', null, `missing required copy/seam: ${label}`);

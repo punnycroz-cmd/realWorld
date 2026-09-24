@@ -4291,6 +4291,47 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT82",
+   "title": "The Real Hire Seam — Join the Cast meets the production bus (v91)",
+   "minutes": 7,
+   "persona": "tester on the internal creator bench — filing a hire through create.html twice: bare (demo board) and bridged to a stub personnel office shaped like 41_game_systems_hiring.js",
+   "goal": "Verify the v91 real-hire-seam alignment on create.html: signing files gsSubmitRequest({playerId, kind:'hire', target:<unit id>, durationMin:5, params:{name, goes_by, age, pronouns, bio, arrival, look, job, moveInDate, resubmit_n}}); the home board reads gsVacantUnits() when bridged; the hire package replaces the deposit story (deposit $0 waived, first month pro-rated to moveInDate, arrival bank $1,600); gsHireQuote renders its real fields verbatim; a 'denied' record shows the real reason code with no charge; an 'in_review' record parks in the naming lane and the queue card carries the live record id — the page never fakes an approval on a live filing; the card cap is the production 24; minted ids are h0N; live withdraw goes through gsCancelRequest.",
+   "surfaces": [
+    "create",
+    "audit",
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "Open world/create.html bare (badge 'demo board') and walk all six steps to signing.",
+     "expect": "The seats line reads 'of 24 hired faces' (the production envelope, not the old proposal 12). Step 4's header says the deposit is waived — the hire package covers the hunt — and every home row shows 'deposit waived · first month $N pro-rated'. The move-in card shows the pro-rated first month from a real date, deposit $0, and the re-house honesty line. The review card's move-in line is pro-rated, the one-a-day cooldown note is present, and no payment-plan copy survives anywhere.",
+     "checkpoints": [
+      "BLOCK_CAP is 24 — GS_MAX_HIRED_TOTAL, production-pinned",
+      "Deposit story gone: '$0 — waived · the hire package covers the hunt' replaces the old 1×/0.5× + payment-plan math",
+      "First month pro-rates to moveInDate — landing pick drives a real date, not a vague window"
+     ]
+    },
+    {
+     "do": "Bridge a stub __aiBridge (devtools/smoke_create_v91.js is the reference stub — gsJobBoard, gsVacantUnits with registry units, gsHireNameCheck, gsHireQuote, gsHireSlots, gsHiredRoster, gsExplainRequest, gsSubmitRequest, gsCancelRequest) and sign a hire.",
+     "expect": "The badge flips to 'live board'; step 4 lists the registry units verbatim ('9127 Capp Street, San Francisco, CA Unit A', bedrooms 0 → studio). The review card gains a 'live — the personnel office' block with the quote's own fields (deposit note, rent-to-income pct, bank after move-in, slots, warnings). Signing calls gsSubmitRequest with kind 'hire', target = the unit id, and the full params; the returned in_review record parks the queue card with its live bus id (req-7 · in_review · naming lane) — no briefing, no registry mint, no fake approval.",
+     "checkpoints": [
+      "The bus spec is the real shape — target is a unit id, params.job is a job id, moveInDate is YYYY-MM-DD",
+      "The queue card carries the live record id and the naming-lane line — billed on approval only",
+      "Withdraw calls gsCancelRequest(req-7), never a local pretend-cancel"
+     ]
+    },
+    {
+     "do": "Force a denied filing (taken name through the stub) and check the deny surface.",
+     "expect": "The pipeline shows 'the office refused — name_collision' and 'no charge — a refused filing never bills'; the deny box shows the real reason code and DENY_COPY line. The live name check refuses the gate on a collision before the bus is even asked.",
+     "checkpoints": [
+      "A denied record renders its real reason code — never a softened generic",
+      "Nothing is billed on a bus denial — pre-billing refusal",
+      "Run devtools/smoke_create_v91.js — 27/27 green; the creation gate in audit.js enforces the v91 seam keys"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

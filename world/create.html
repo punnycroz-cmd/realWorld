@@ -5,11 +5,49 @@
 <title>Real World — Join the Cast</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Character creation flow — "Join the Cast" v6 (world v77; v5 was v63,
-  v4 was v49, v3 was v35, v2 was v21, wizard v1 was v7). Self-contained demo: file://-safe, no
-  network. The pipeline (screen → human review → charge → registry write →
-  lease → briefing) is simulated locally; at merge it becomes
-  gsRequest*/gsLease* calls + feed events.
+  Character creation flow — "Join the Cast" v7 (world v91; v6 was v77,
+  v5 was v63, v4 was v49, v3 was v35, v2 was v21, wizard v1 was v7).
+  Self-contained demo: file://-safe, no network. The pipeline (screen →
+  human review → charge → registry write → lease → briefing) is simulated
+  locally; when __aiBridge is up the filing goes to the real request bus.
+
+  v91 changes — the real hire seam (production alignment):
+    - THE REAL DOOR — signing now capability-detects the request bus and
+      files gsSubmitRequest({playerId, kind:'hire', target:<unit id>,
+      durationMin:5, params:{name, goes_by, age, pronouns, bio, arrival,
+      look{build,palette,signature}, job:<job id>, moveInDate, resubmit_n}})
+      — the bus's own shape since 41_game_systems_hiring.js. A named hire
+      parks in the naming lane (status 'in_review', lane 'naming',
+      deferred billing) — the queue card shows the live record id and the
+      page never fakes an approval on a live filing. A 'denied' record is
+      a pre-billing refusal and renders its real reason code.
+    - THE HIRE PACKAGE — the production move-in truth replaces the old
+      deposit story: deposit $0 (waived — the hire package covers the
+      hunt, recorded as hirePackage on the lease), first month PRO-RATED
+      to the move-in day and auto-paid out of the $1,600 arrival bank.
+      A later re-house is a normal second lease — deposit owed like
+      anyone else's (rehouse request, 150 cr). The old 1×/0.5× deposit +
+      payment-plan demo math is retired — it contradicted the real seam.
+    - REAL DOORS — the home board reads gsVacantUnits() when bridged:
+      live registry units (address, base_rent, rent_controlled), off-map
+      and occupied stock excluded by the bus itself. Demo mirror stands
+      off-bridge; the badge says which.
+    - REAL QUOTE — gsHireQuote(spec) is called in its true shape
+      ({playerId, target, params}) and its real fields render verbatim:
+      warnings[], runwayNote, bankAfterFirstMonth, affordPct/ceilingPct,
+      depositNote, name.available/reason, slots.
+    - THE CARD — the block's carry limit is now the production number:
+      GS_MAX_HIRED_TOTAL 24 hired faces (was the v77 proposal 12). Live
+      seat counts read gsHiredRoster().length when bridged.
+    - DENY MAP — the real allow() codes get real copy: needs_housing,
+      unknown_unit, unit_not_livable, unit_offmap, unit_occupied,
+      hire_cap, cast_cap, underage, bad_age, bad_look, unknown_job,
+      job_filled, out_of_reach, name_*, cooldown, appeal_final,
+      insufficient_credits.
+    - ONE A DAY — the bus carries a 24 h per-player hire cooldown
+      (cdPlayerMin 1440); the review step says so honestly.
+    - h0N — minted ids render in the real monotonic format (h01…),
+      never reused.
 
   v63 changes — the queue & keys layer:
     - THE QUEUE — a submitted application keeps its place across a closed
@@ -40,7 +78,7 @@
       screened at join and re-screened when the seat offer lands, offer
       expires in 48 h, nothing billed while waiting — and there is no
       way to pay for a sooner seat. Waitlist state persists
-      (rw_create_wait_v25) like the review queue does.
+      (rw_create_wait_v26) like the review queue does.
     - YOUR OTHER ONE — a second hire is a stranger to the first: the
       review step and the briefing say so verbatim. What the player
       knows, neither character does — they meet on the block like anyone.
@@ -70,12 +108,12 @@
     - LIVE SEAM — if window.__aiBridge exposes the game-v8 hire surfaces
       (gsJobBoard / gsHireNameCheck / gsHireQuote / gsHireSlots) the page
       reads them; otherwise it runs on the mirrors below. The badge says
-      which. Read-only seam only — the demo never calls a mutation.
-    - HONEST MOVE-IN MATH — signing is atomic per leases.json: first month
-      + deposit (1× rent; 0.5× for a room share) leave the bank at signing.
-      When the $1,600 arrival bank can't cover both, the deposit rides a
-      stated payment plan against the first paychecks — the page says so
-      instead of quietly ignoring it. Runway recomputes on post-move-in cash.
+      which. (v91: filing now writes through gsSubmitRequest when bridged
+      — the read surfaces stay read-only.)
+    - HONEST MOVE-IN MATH — (superseded by v91's hire package: the
+      production seam waives the deposit and pro-rates the first month
+      to the move-in day; ordinary leases still charge deposits per
+      leases.json, and a re-house is a normal second lease).
     - THE WHOLE BOARD — every posted row renders: openings show their count,
       always-hiring gigs are marked, filled posts sit in a "filled" fold so
       a newcomer reads the market honestly instead of seeing only doors that
@@ -306,7 +344,7 @@
       <div style="font-size:12.5px;color:var(--dim)">
         <div style="padding:3px 0"><b style="color:var(--ink)">500 cr</b> once, per character — charged on approval, never a subscription to a person.</div>
         <div style="padding:3px 0">Denied applications <b style="color:var(--ink)">never bill</b>. A post-review denial auto-refunds in full.</div>
-        <div style="padding:3px 0"><b style="color:var(--ink)">First month + deposit</b> leave their arrival money — the move-in math is on the table before you sign.</div>
+        <div style="padding:3px 0"><b style="color:var(--ink)">First month, pro-rated</b> leaves their arrival money — deposit waived on the hire package. The math is on the table before you sign.</div>
         <div style="padding:3px 0">Rent is in <b style="color:var(--ink)">game dollars</b> — credits can't touch it, by design.</div>
         <div style="padding:3px 0">You write <b style="color:var(--ink)">initial conditions</b>. Personality, secrets, and choices emerge — there are no script fields to fill.</div>
       </div>
@@ -340,23 +378,27 @@ var HIRE_CR = 500;                 // plan §2.4 PROPOSAL — one-time per chara
 var SLOT_CAP = 2;                  // this account: Resident tier
 var START_BANK = 1600;             // game dollars — arrival money
 var RENT_PCT_MAX = 55;             // rent-to-income ceiling shown honestly
-var DRAFT_KEY = 'rw_create_draft_v25';
-var APP_KEY = 'rw_create_app_v25';   // v63: a submitted application keeps its place
-var WAIT_KEY = 'rw_create_wait_v25'; // v77: a seat-waitlist spot keeps its place too
+var DRAFT_KEY = 'rw_create_draft_v26';
+var APP_KEY = 'rw_create_app_v26';   // v63: a submitted application keeps its place
+var WAIT_KEY = 'rw_create_wait_v26'; // v77: a seat-waitlist spot keeps its place too
 var created = 0;
 var submits = 0;                   // resubmissions route to a different reviewer
 
 /* ---- v77: the seats — how many hired faces the block carries ----
-   Open design decision §9.5 (total cast cap = compute budget). The demo
-   runs the proposal number 12 and says so; per-account slot caps are a
-   separate, smaller ceiling. When the card is full the only door is the
-   seat waitlist — free, in order, never billed while waiting. */
-var BLOCK_CAP = 12;
+   Open design decision §9.5 (total cast cap = compute budget). v91: the
+   production envelope is pinned — GS_MAX_HIRED_TOTAL 24 hired faces on
+   the block; per-account slot caps stay a separate, smaller ceiling
+   (GS_MAX_HIRED_PER_PLAYER 3). When the card is full the only door is
+   the seat waitlist — free, in order, never billed while waiting. */
+var LIVE_HIRED = 0;                  // live seat count when bridged
+function seatsUsed(){ return Math.min(BLOCK_CAP,
+  (BRIDGE && BRIDGE.gsHiredRoster ? liveHired() : hiredSeed + created) + (demoFill ? BLOCK_CAP : 0)); }
+function liveHired(){ try{ var r=BRIDGE.gsHiredRoster(); return (r&&r.length)||0; }catch(e){ return LIVE_HIRED; } }
+var BLOCK_CAP = 24;                  // v91: the production envelope (GS_MAX_HIRED_TOTAL)
 var hiredSeed = 1;                 // Dana Okafor is already on the card (demo roster)
 var demoFill = false;              // demo control — pretends the card is full
 var createdNames = [];             // hires this session — the "your other one" list
-function seatsUsed(){ return Math.min(BLOCK_CAP, hiredSeed + created + (demoFill ? BLOCK_CAP : 0)); }
-function cardFull(){ return hiredSeed + created + (demoFill ? BLOCK_CAP : 0) >= BLOCK_CAP; }
+function cardFull(){ return seatsUsed() >= BLOCK_CAP; }
 function renderSeats(){
   var n = seatsUsed(), el = $('seatLine');
   if (!el) return;
@@ -369,9 +411,12 @@ function renderSeats(){
   if (sd) sd.onclick = function(){ demoFill = !demoFill; renderSeats(); if (STEP===STEPS-1) render(); };
 }
 
-/* ================= live seam (game-v8 hire surfaces) =================
-   Read-only: gsJobBoard / gsHireNameCheck / gsHireQuote / gsHireSlots.
-   If __aiBridge is absent the page runs on the mirrors below and says so. */
+/* ================= live seam (production hire surfaces) =================
+   Reads: gsJobBoard / gsHireNameCheck / gsHireQuote / gsHireSlots /
+   gsVacantUnits / gsHiredRoster / gsExplainRequest. One write verb:
+   gsSubmitRequest (the bus's real name since game-v14 — the same verb
+   request.html v88 files with). If __aiBridge is absent the page runs
+   on the mirrors below and says so. */
 var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge) ? __aiBridge : null;
 var LIVE = !!(BRIDGE && BRIDGE.gsJobBoard);
 if (LIVE){ var b=document.getElementById('srcBadge'); b.textContent='live board'; b.className='src live'; }
@@ -434,7 +479,8 @@ if (LIVE){ try{
 }catch(e){ /* mirror stands */ } }
 
 /* homes mirrored from world/housing.json listings_live + room tier.
-   Deposit per leases.json: 1× rent flat, 0.5× for a room share. */
+   v91: on the bridge the doors come from gsVacantUnits() — live registry
+   units, off-map and occupied stock excluded by the bus itself. */
 var HOMES = [
   {id:'treat-room', address:'9521 Treat Ave, Unit 2', kind:'room in a shared flat', rent:700,  ctrl:false, room:true, note:'cheapest door on the board', near:'Dolores Perk, two blocks to the park'},
   {id:'c9127-A',    address:'9127 Capp St, Unit A',   kind:'studio',                rent:1300, ctrl:false, near:'Buy-Rite on the corner'},
@@ -442,12 +488,49 @@ var HOMES = [
   {id:'g9418-B',    address:'9418 Guerrero St, Unit B',kind:'1-bedroom',            rent:2100, ctrl:true,  note:'rent-controlled Victorian', near:'park-facing block'}
 ];
 
-/* deposits: leases.json — flat = 1× rent, room share = 0.5×.
-   Signing is atomic: first month + deposit leave the bank together;
-   when the arrival bank can't cover both the deposit rides a stated
-   payment plan instead of being quietly skipped. */
-function depFor(hm){ return hm && hm.room ? Math.round(hm.rent*0.5) : (hm?hm.rent:0); }
-function moveInFor(hm){ return hm ? hm.rent + depFor(hm) : 0; }
+/* v91 — live doors: gsVacantUnits() rows {unit, building, address} map
+   onto the mirror shape; bedrooms 0→studio like the registry speaks it.
+   Off-map and occupied stock never reach the page — the bus filters. */
+if (BRIDGE && BRIDGE.gsVacantUnits){ try{
+  var vu = BRIDGE.gsVacantUnits();
+  if (vu && vu.length){
+    HOMES = vu.map(function(r){
+      var u = r.unit || {}, bd = u.bedrooms;
+      return { id: u.id, address: r.address || u.id,
+        kind: bd===0 ? 'studio' : bd===1 ? '1-bedroom' : (bd!=null ? bd+'-bedroom' : 'flat'),
+        rent: +(u.base_rent||0), ctrl: !!u.rent_controlled, room: false,
+        near: 'on the block — the registry\u2019s door, not a listing mock' };
+    });
+  }
+}catch(e){ /* mirror stands */ } }
+
+/* ================= the hire package (v91 — the production move-in) =================
+   The real seam (41_game_systems_hiring.js): deposit $0 — waived, the
+   hire package covers the hunt (recorded hirePackage on the lease). The
+   first month is PRO-RATED to the move-in day and auto-paid out of the
+   $1,600 arrival bank. A re-house later is a normal second lease —
+   deposit owed like anyone else's. */
+function moveInDate(){
+  /* the declared landing window rides the hire as params.moveInDate —
+     'lands tonight' = today, 'tomorrow morning' = tomorrow, 'Saturday
+     morning' = the next Saturday (real dates, YYYY-MM-DD) */
+  var d = new Date();
+  if (f.landing === 'tomorrow morning') d.setDate(d.getDate()+1);
+  else if (f.landing === 'Saturday morning'){
+    var add = (6 - d.getDay() + 7) % 7; if (add===0) add = 7;
+    d.setDate(d.getDate()+add);
+  }
+  return d.getFullYear()+'-'+('0'+(d.getMonth()+1)).slice(-2)+'-'+('0'+d.getDate()).slice(-2);
+}
+function dim(y,m){ return new Date(y, m, 0).getDate(); }
+function firstMonthFor(hm){
+  /* pro-rated like gsHireQuote: move-in day through month end; the 1st
+     of a month pays the full rent */
+  if (!hm) return 0;
+  var md = moveInDate().split('-'), day = +md[2], dimm = dim(+md[0], +md[1]);
+  return day > 1 ? Math.round(hm.rent * (dimm - day + 1) / dimm) : hm.rent;
+}
+function bankAfterMoveIn(hm){ return START_BANK - firstMonthFor(hm); }
 
 /* live slot read: gsHireSlots() reports the account's cap/used when the
    bridge is up — mirror keeps Resident-tier 2 for the demo. */
@@ -686,8 +769,8 @@ $('clearDraft').onclick=function(){ clearDraft(); location.reload(); };
    vanished. Reopening shows the queue card — submitted time, the
    human-review honesty line, and a withdraw affordance that never
    bills. The demo reviewer clears the queue on return (age ≥ 45 s). */
-function savePending(){
-  try{ localStorage.setItem(APP_KEY, JSON.stringify({f:f,submitted:Date.now(),submits:submits})); }catch(e){}
+function savePending(busId){
+  try{ localStorage.setItem(APP_KEY, JSON.stringify({f:f,submitted:Date.now(),submits:submits,busId:busId||null})); }catch(e){}
 }
 function loadPending(){
   try{ return JSON.parse(localStorage.getItem(APP_KEY)||'null'); }catch(e){ return null; }
@@ -746,11 +829,20 @@ function seatOpened(p){
   }, 2200);
 }
 function renderQueue(p){
-  /* pending application on reopen — the wizard stays put behind it */
+  /* pending application on reopen — the wizard stays put behind it.
+     v91: a live filing carries its bus record id; status reads through
+     gsExplainRequest when the bridge offers it, withdraws through
+     gsCancelRequest — and the demo auto-reviewer never fakes an
+     approval on a live filing. */
+  var liveRec = null;
+  if (p.busId && BRIDGE && BRIDGE.gsExplainRequest){
+    try{ liveRec = BRIDGE.gsExplainRequest(p.busId); }catch(e){}
+  }
   wiz.innerHTML='<div class="queue"><h3>Application in review — it keeps its place</h3>'+
     '<div class="ql"><span>applicant</span><b>'+esc(p.f.name)+'</b></div>'+
     '<div class="ql"><span>submitted</span><b>'+fmtT(p.submitted)+'</b></div>'+
-    '<div class="ql"><span>stage</span><b>human review — naming strings always get eyes</b></div>'+
+    (p.busId? '<div class="ql"><span>bus record</span><b>'+esc(p.busId)+(liveRec&&liveRec.status?' · '+esc(liveRec.status):'')+'</b></div>':'')+
+    '<div class="ql"><span>stage</span><b>'+(p.busId?'the naming lane — a person reads every hire name':'human review — naming strings always get eyes')+'</b></div>'+
     '<div class="ql"><span>charge</span><b>nothing — billed on approval only, never while pending</b></div>'+
     '<div class="note" style="font-style:normal">You can close this page — the application keeps its place. '+
     'The desk reads in order; resubmissions go to a different reviewer, not a faster one.</div>'+
@@ -758,11 +850,18 @@ function renderQueue(p){
     '<div class="note">withdrawn applications post to the feed like everything else; nothing was ever charged.</div></div>';
   $('next').disabled=true; $('back').disabled=true;
   $('withdraw').onclick=function(){
-    f=p.f; submits=p.submits||0; clearPending();
-    feedAdd('you','hire — application "'+f.name+'" withdrawn · no charge');
+    f=p.f; submits=p.submits||0;
+    if (p.busId && BRIDGE && BRIDGE.gsCancelRequest){
+      try{ BRIDGE.gsCancelRequest(p.busId); }catch(e){}
+      feedAdd('you','hire — application "'+f.name+'" withdrawn on the bus · no charge');
+    } else {
+      feedAdd('you','hire — application "'+f.name+'" withdrawn · no charge');
+    }
+    clearPending();
     toast('Withdrawn — nothing was billed. The draft is still here if you want it back.');
     STEP=STEPS-1; $('next').disabled=false; $('back').disabled=false; render();
   };
+  if (p.busId) return;   /* a live filing waits on the real desk — no clock */
   /* demo reviewer: clears the queue when the application has waited its
      turn — on a real desk this is a human pass; here it's a clock */
   var left = 45000 - (Date.now()-p.submitted);
@@ -786,15 +885,6 @@ function steps(){
 }
 function job(){ return JOBS.find(function(x){return x.id===f.job;}); }
 function home(){ return HOMES.find(function(x){return x.id===f.home;}); }
-/* move-in honesty: first month always leaves the bank at signing; the
-   deposit leaves too when the bank can cover it, else it rides a stated
-   payment plan. Returns what the character actually keeps on day one. */
-function bankAfterMoveIn(hm){
-  if (!hm) return START_BANK;
-  var dep = depFor(hm);
-  if (START_BANK >= hm.rent + dep) return START_BANK - hm.rent - dep;
-  return START_BANK - hm.rent; /* deposit on the payment plan */
-}
 function runwayMonths(hm){
   var rent=hm.rent, est = job()?job().est:0;
   if (est>=rent) return null; /* sustainable — income covers it */
@@ -810,18 +900,15 @@ function runwayBar(hm){
   return '<div class="runway"><b style="font-family:var(--mono)">$'+rent+'/mo</b> vs ≈$'+est.toLocaleString()+'/mo income'+
     '<div class="bar"><i style="width:'+pct+'%;background:'+col+'"></i></div>'+cap+'</div>';
 }
-/* move-in ledger card: first month + deposit, or the plan note */
+/* move-in ledger card (v91 hire package): pro-rated first month, deposit
+   waived — the hire package covers the hunt */
 function moveInCard(hm){
-  var dep=depFor(hm), full=moveInFor(hm), left=bankAfterMoveIn(hm);
-  var h='<div class="movein">'+
-    '<div class="ml"><span>first month\u2019s rent</span><b>$'+hm.rent.toLocaleString()+'</b></div>'+
-    '<div class="ml"><span>deposit'+(hm.room?' · room share 0.5×':'')+'</span><b>$'+dep.toLocaleString()+'</b></div>';
-  if (START_BANK>=full)
-    h+='<div class="ml cash"><span>leaves the bank at signing</span><b>$'+full.toLocaleString()+' → $'+left.toLocaleString()+' left</b></div>';
-  else
-    h+='<div class="ml cash"><span>first month leaves ($'+left.toLocaleString()+' left)</span><b>deposit $'+dep.toLocaleString()+' on a payment plan</b></div>'+
-       '<div class="note" style="margin-top:4px">The landlord\u2019s office splits the deposit across the first paychecks — a stated plan, not a waived one.</div>';
-  return h+'</div>';
+  var first=firstMonthFor(hm), left=bankAfterMoveIn(hm), md=moveInDate();
+  return '<div class="movein">'+
+    '<div class="ml"><span>first month — pro-rated from '+md+'</span><b>$'+first.toLocaleString()+' of $'+hm.rent.toLocaleString()+'</b></div>'+
+    '<div class="ml"><span>deposit</span><b>$0 — waived · the hire package covers the hunt</b></div>'+
+    '<div class="ml cash"><span>leaves the bank at signing</span><b>$'+first.toLocaleString()+' → $'+left.toLocaleString()+' left</b></div>'+
+    '<div class="note" style="margin-top:4px">A re-house later is a normal second lease — deposit owed like anyone else\u2019s.</div></div>';
 }
 function payLine(j){
   if (!j || !j.pay) return '';
@@ -896,7 +983,8 @@ function render(){
   } else if (STEP===3){
     var est = job()?job().est:0;
     h='<h2>Step 4 — A door of their own</h2><div class="note" style="margin:0 0 4px">Lease signs at creation — ' +
-    'first month + deposit (1× rent; 0.5× for a room share) leave their $'+START_BANK.toLocaleString()+' arrival money on day one.' +
+    'the first month, pro-rated to the move-in day, leaves their $'+START_BANK.toLocaleString()+' arrival money on day one. ' +
+    'The deposit is waived — the hire package covers the hunt.' +
     (est? ' Current projected income ≈$'+est.toLocaleString()+'/mo.':'')+'</div>';
     HOMES.forEach(function(hm){
       var afford = est>0 ? Math.round(hm.rent/est*100) : null;
@@ -904,7 +992,7 @@ function render(){
       h+='<div class="opt'+(f.home===hm.id?' sel':'')+(tight?' dis':'')+'" data-home="'+hm.id+'">' +
         '<span><b>'+hm.address+'</b> — '+hm.kind+(hm.ctrl?' · rent-controlled':'')+
         '<div class="note" style="margin:2px 0 0">'+hm.near+(hm.note?' · '+hm.note:'')+
-        ' · deposit $'+depFor(hm).toLocaleString()+'</div>'+
+        ' · deposit waived · first month $'+firstMonthFor(hm).toLocaleString()+' pro-rated</div>'+
         (tight?'<div class="bad">out of reach on that income — pick a cheaper door or a better job</div>':'')+
         '</span><span class="r"><b>$'+hm.rent+'/mo</b>'+(afford!==null?'<br>'+afford+'% of income':'')+'</span></div>';
     });
@@ -945,7 +1033,7 @@ function render(){
     'It happens on the feed, in front of everyone.</div>';
   } else {
     var j=job(), hm=home();
-    var left = bankAfterMoveIn(hm), dep=depFor(hm), depPlanned = START_BANK < moveInFor(hm);
+    var first = firstMonthFor(hm), left = bankAfterMoveIn(hm), md = moveInDate();
     var quote = '<div class="quote"><canvas id="sketch6" width="88" height="104"></canvas>' +
       '<div class="line"><span>Name</span><b>'+esc(f.name)+'</b></div>' +
       '<div class="line"><span>Age · pronouns</span><b>'+f.age+' · '+f.pronouns+'</b></div>' +
@@ -953,8 +1041,7 @@ function render(){
       '<div class="line"><span>Work</span><b>'+j.role+' · '+j.employer+'</b></div>' +
       (j&&j.pay? '<div class="line"><span>Payday</span><b>'+payLine(j)+'</b></div>':'') +
       '<div class="line"><span>Home</span><b>'+hm.address+' · $'+hm.rent+'/mo'+(hm.ctrl?' · rent-controlled':'')+'</b></div>' +
-      '<div class="line"><span>Move-in</span><b>first month $'+hm.rent.toLocaleString()+' + deposit $'+dep.toLocaleString()+
-        (depPlanned?' (deposit on a payment plan)':'')+'</b></div>' +
+      '<div class="line"><span>Move-in '+md+'</span><b>first month $'+first.toLocaleString()+' pro-rated · deposit $0 — waived (the hire package)</b></div>' +
       '<div class="line"><span>Arrival money</span><b>$'+START_BANK.toLocaleString()+' → $'+left.toLocaleString()+' after move-in</b></div>' +
       '<div class="line"><span>The card</span><b>'+(cardFull()
         ? 'full — '+seatsUsed()+' of '+BLOCK_CAP+' hired faces · the seat waitlist is free'
@@ -963,13 +1050,33 @@ function render(){
     '</div>';
     /* v77 — your other one: a second hire is a stranger to the first */
     var others = ['Dana Okafor'].concat(createdNames);
-    /* live quote: gsHireQuote returns the pre-payment disclosure card;
-       we keep our lines and append any extra disclosure lines it adds */
+    /* v91 — the real quote: gsHireQuote takes the bus spec shape
+       {playerId, target, params:{name, job, age, moveInDate, look}} and
+       answers the disclosure card in its own fields — warnings[],
+       runwayNote, bankAfterFirstMonth, affordPct/ceilingPct, depositNote,
+       name availability, slots. We render them verbatim next to ours. */
     if (BRIDGE && BRIDGE.gsHireQuote){ try{
-      var q = BRIDGE.gsHireQuote({name:f.name, job_id:f.job, unit_id:f.home});
-      if (q && q.lines && q.lines.length)
-        quote += '<div class="quote">' + q.lines.map(function(l){
-          return '<div class="line"><span>'+esc(l.label||'')+'</span><b>'+esc(l.value||'')+'</b></div>'; }).join('') + '</div>';
+      var q = BRIDGE.gsHireQuote({ playerId:'you', target:f.home,
+        params:{ name:f.name, age:f.age, job:f.job, look:f.look,
+                 moveInDate:md, resubmit_n:submits } });
+      if (q){
+        var ql='';
+        if (q.ok===false && q.deny) ql+='<div class="line"><span>the office says</span><b>'+esc(q.deny.replace(/_/g,' '))+'</b></div>';
+        if (q.firstMonth!=null && q.firstMonth!==first)
+          ql+='<div class="line"><span>office first month</span><b>$'+(+q.firstMonth).toLocaleString()+' (move-in '+esc(q.moveIn||md)+')</b></div>';
+        if (q.bankAfterFirstMonth!=null)
+          ql+='<div class="line"><span>office bank after move-in</span><b>$'+(+q.bankAfterFirstMonth).toLocaleString()+'</b></div>';
+        if (q.affordPct!=null)
+          ql+='<div class="line"><span>rent-to-income</span><b>'+q.affordPct+'% of a '+q.ceilingPct+'% ceiling</b></div>';
+        if (q.runwayNote) ql+='<div class="line"><span>runway</span><b>'+esc(q.runwayNote)+'</b></div>';
+        if (q.depositNote) ql+='<div class="line"><span>deposit</span><b>'+esc(q.depositNote)+'</b></div>';
+        if (q.name && q.name.available===false)
+          ql+='<div class="line"><span>name</span><b>'+esc((q.name.reason||'unavailable').replace(/_/g,' '))+'</b></div>';
+        if (q.slots) ql+='<div class="line"><span>account slots</span><b>'+q.slots.used+' of '+q.slots.cap+' used</b></div>';
+        if (q.warnings && q.warnings.length)
+          ql+='<div class="line"><span>warnings</span><b>'+esc(q.warnings.join(' · ').replace(/_/g,' '))+'</b></div>';
+        if (ql) quote += '<div class="quote"><div class="line"><span style="color:var(--grn)">live — the personnel office</span><b></b></div>'+ql+'</div>';
+      }
     }catch(e){} }
     h='<h2>Step 6 — Review & sign</h2>' + quote +
     '<label>The landing — when they arrive (the block sees it on The Wire)</label>' +
@@ -977,7 +1084,8 @@ function render(){
       ['lands tonight','tomorrow morning','Saturday morning'].map(function(w){
         return '<span class="pick'+(f.landing===w?' sel':'')+'" data-w="'+w+'">'+w+'</span>';}).join('')+'</div>' +
     '<div class="note">Name, bio, and arrival line get the same screen every request gets — ' +
-    'the shared engine, then a human pass before the character lands. The hire bills on approval only — denied applications never bill.' +
+    'the shared engine, then a human pass before the character lands. The hire bills on approval only — denied applications never bill. ' +
+    'The office stamps one hire filing per account per day — approval starts that clock.' +
     (submits>0 ? ' This is submission #'+(submits+1)+' — resubmissions go to a different reviewer.' : '')+'</div>' +
     (others.length ? '<div class="note">'+esc(others.join(' and '))+' '+(others.length>1?'are':'is')+' on the card too — ' +
       'a stranger to '+esc(f.name||'this one')+'. What you know, neither of them does; they meet on the block like anyone else.</div>':'') +
@@ -1102,11 +1210,93 @@ function stage(name,cls,why){
 }
 
 /* ================= submit: screen → review → charge → mint → lease → briefing ================= */
+/* v91 — the real bus vocabulary: a hire files like every other request.
+   gsSubmitRequest spec keys {playerId, kind:'hire', target:<unit id>,
+   durationMin:5, params}. The bus screens params.name/bio/arrival through
+   gsIntentScreen, runs the personnel office's door checks, parks every named hire
+   in the naming lane (moderation §4) with deferred billing, and the
+   charge lands at the review desk's approval — never at filing. */
+var DENY_COPY = {
+  needs_housing:'no door picked — the hire needs a home to land in',
+  unknown_unit:'that door isn\u2019t on the registry anymore — pick again from the board',
+  unit_not_livable:'that unit isn\u2019t livable — the registry flags it',
+  unit_offmap:'the cast lives on-map — that address is off the stage',
+  unit_occupied:'someone already holds the keys — the board turns over, pick another door',
+  hire_cap:'the account is at its hired-character cap',
+  cast_cap:'the block is full — the seat waitlist is the only door',
+  underage:'player-possessable characters are adults — 18 minimum, always',
+  bad_age:'the office needs a real age',
+  bad_look:'pick build, palette, and signature from the lists',
+  unknown_job:'that post isn\u2019t on the board — pick again',
+  job_filled:'that post filled while you were picking — the board turns over',
+  out_of_reach:'rent over the 55% ceiling on that income — a cheaper door or a better job',
+  needs_name:'the application needs a name',
+  name_too_short:'too short — neighbors need something to call them',
+  name_too_long:'too long — the mailbox card won\u2019t fit it',
+  name_collision:'that name is taken — the block already has one',
+  cooldown:'the office stamps one hire a day — the clock\u2019s still running on the last one',
+  appeal_final:'this application text was already denied twice — reword it into a new application',
+  insufficient_credits:'balance too low — top up first',
+  rate_limited:'too many filings — the door opens again shortly',
+  review_lapsed:'the review window lapsed — nothing was billed'
+};
+function denyCopy(code){ return DENY_COPY[code] || ('the office refused — '+String(code||'denied').replace(/_/g,' ')); }
+
+function busSpec(){
+  /* gsSubmitRequest vocabulary — target is the unit id, params carry the
+     application (goes_by rides the record even though the personnel file
+     doesn't read it yet — flag for the game track) */
+  return { playerId:'you', kind:'hire', target:f.home, durationMin:5,
+    params:{ name:f.name, goes_by:f.goes_by||undefined, age:f.age,
+      pronouns:f.pronouns, bio:f.bio, arrival:f.arrival,
+      look:{ build:f.look.build, palette:f.look.palette, signature:f.look.signature },
+      job:f.job, moveInDate:moveInDate(), resubmit_n:submits } };
+}
+
 function submit(){
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
   $('denybox').style.display='none';
   $('next').disabled=true; $('back').disabled=true;
   var scr = screenFields();
+
+  /* v91 — the real door: bridged, the filing goes to the request bus.
+     A 'denied' record is a pre-billing refusal — real reason code, no
+     charge, no fake pipeline. 'in_review' parks in the naming lane and
+     the queue card carries the live record id — the page never fakes an
+     approval on a live filing. */
+  var liveFile = (LIVE && BRIDGE.gsSubmitRequest) ? BRIDGE.gsSubmitRequest : null;
+  if (liveFile && !cardFull()){
+    try{
+      var rec = liveFile(busSpec());
+      if (rec && rec.status === 'denied'){
+        var code = rec.reason || 'denied';
+        stage('The office refused — ' + code.replace(/_/g,' '), 'fail', denyCopy(code));
+        stage('No charge','done','a refused filing never bills — pre-billing denial');
+        feedAdd('you','hire — application not approved', code);
+        var db0=$('denybox'); db0.style.display='block';
+        db0.innerHTML='<b>Not approved — '+esc(code)+'.</b> '+esc(denyCopy(code))+
+          '<div class="note" style="font-style:normal">Nothing was charged — the bus refused before billing. ' +
+          'Edit the flagged fields and resubmit; resubmissions land with a different reviewer.</div>';
+        toast(denyCopy(code));
+        $('next').disabled=false; $('back').disabled=false;
+        return;
+      }
+      if (rec && rec.id){
+        /* parked in the naming lane — in_review, billed at approval only */
+        stage('Filed on the request bus — '+rec.id,'done',
+          (rec.status||'in_review')+(rec.lane?' · '+rec.lane+' lane':'')+' · billing deferred to approval');
+        stage('Human review','wait','the naming lane — a person reads every hire name');
+        feedAdd('you','hire — application "'+f.name+'" filed · in review','keeps its place if you close the page');
+        savePending(rec.id);
+        renderQueue(loadPending());
+        return;
+      }
+      /* truthy non-record — filed; keep the local reference pipeline */
+      stage('Filed on the request bus','done',String(rec||'accepted'));
+    }catch(err){ stage('Bus unreachable — local pipeline continues','wait','demo path'); }
+  }
+
+  var scr0 = scr;
   /* v77 — the card is full: the only door is the seat waitlist. Still
      screened at join (names don't get a pass for waiting); billed never. */
   if (cardFull()){
@@ -1163,6 +1353,9 @@ function submit(){
   }, 900);
 }
 
+/* minted ids speak the production format — monotonic h0N, never reused */
+function hidFor(n){ return 'h' + (n < 10 ? '0' : '') + n; }
+
 /* the approval tail — shared by the live submit and the queue's return */
 function approveHire(){
   clearPending(); clearWait();
@@ -1170,10 +1363,10 @@ function approveHire(){
   BAL-=HIRE_CR; $('bal').textContent=BAL.toLocaleString(); created++;
   createdNames.push(f.name); renderSeats();
   stage('Charged on approval','done',HIRE_CR+' cr · slot '+(created+1)+' of '+SLOT_CAP);
-  stage('Registered','done','id h'+(created)+' — hired cast, owned by you, unpossessable to everyone else');
-  var hm=home(), depPlanned = START_BANK < moveInFor(hm);
-  stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month + deposit'+
-    (depPlanned?' (deposit on a payment plan)':'')+' paid in game dollars');
+  stage('Registered','done','id '+hidFor(created)+' — hired cast, owned by you, unpossessable to everyone else');
+  var hm=home();
+  stage('Lease signed','done',hm.address+' · $'+hm.rent+'/mo · first month $'+firstMonthFor(hm).toLocaleString()+
+    ' pro-rated paid in game dollars · deposit waived — the hire package');
   stage('Landing scheduled','done',f.landing+' — the arrival posts to The Wire like everything else');
   feedAdd('you','hire — "'+f.name+'" joined the cast · resolved', hm.address+' · '+f.landing);
   feedAdd('you','housing — move-in · '+hm.address+' comes off the board');
@@ -1223,8 +1416,8 @@ function briefing(){
     '<div class="note" style="margin-top:6px">Logistics, not a script — where the keys are and what the ledger says. What they do with the day is theirs.</div>';
 
   var r=$('record'); r.style.display='block';
-  r.innerHTML='<h3>Registry entry — h'+created+'</h3>' +
-    '<div class="rl"><span>id / owner</span><b>h'+created+' · you (demo-player)</b></div>' +
+  r.innerHTML='<h3>Registry entry — '+hidFor(created)+'</h3>' +
+    '<div class="rl"><span>id / owner</span><b>'+hidFor(created)+' · you (demo-player)</b></div>' +
     '<div class="rl"><span>name</span><b>'+esc(f.name)+(f.goes_by?' · goes by \u201c'+esc(f.goes_by)+'\u201d':'')+' · '+f.age+' · '+esc(f.pronouns)+'</b></div>' +
     '<div class="rl"><span>look</span><b>'+esc([f.look.build,f.look.palette,f.look.signature].filter(Boolean).join(' · '))+'</b></div>' +
     '<div class="rl"><span>arrival</span><b>'+esc(f.arrival||'—')+' · '+esc(f.landing)+'</b></div>' +

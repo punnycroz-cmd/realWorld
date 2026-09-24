@@ -206,6 +206,14 @@ One person can wear every hat; four real testers is the intended shape.
   mentions, attempt on denials, honest kind-growth chips, n tiebreak)
   and 'catch up' merges new rows by id, additive only, no polling.
   Reference stub + 20-check run: devtools/smoke_archive_v90.js.
+  PT82 (create v91) audits the real hire seam — Join the Cast files the
+  bus's own shape (gsSubmitRequest kind 'hire', target = unit id, full
+  params), reads gsVacantUnits doors and the gsHireQuote personnel
+  card, carries the hire-package truth (deposit waived, first month
+  pro-rated to moveInDate), shows real deny codes, parks live filings
+  in the naming lane with the bus record id — never a fake approval —
+  and withdraws through gsCancelRequest. Reference stub + 27-check run:
+  devtools/smoke_create_v91.js.
 
 ## 3. Running a session
 
