@@ -1,0 +1,214 @@
+{
+  "_doc": "The supply layer (world v86) — 'the back door.' Registry of the offstage wholesale and trade suppliers whose trucks make the neighborhood legible: who restocks what, through which door, in which window. Companion spec: world/suppliers.md. Internal demo: world/supply.html (inline SUP mirror, hand-synced, deep-compared by the audit supply gate). Consumers: the brain/prompt layer (delivery texture, invoice talk, back-gate presence), the crowd/wire layers (double-parked trucks, handtruck paths as street texture), the feed (feed_shapes only, kind 'venue'). Rules: suppliers are OFFSTAGE — they have no door, no POI, no interior, and are never staffed by cast ids; their names are parody-only like every business name. Runs are CONDITIONS the routine system may satisfy (a run can be late, early, or missed — the truck is texture, not a summons). Windows may precede open by up to 3h (pre-open drops are the norm) but must end before close, and must only list days the venue actually opens. Supply copy carries no prices — invoices stay offscreen; no credits, no USD. Suppliers do not enter businesses.json or the directory — they are vendors, not destinations. Valencia Growers is exempt: it IS the supplier — its upstream is farms off the map.",
+  "version": 86,
+  "suppliers": {
+    "third-rail-roasters": {
+      "name": "Third Rail Roasters",
+      "kind": "coffee roaster (wholesale)",
+      "base": "a warehouse in the Bayview with the roll-up door always half open",
+      "vehicle": "battered orange box truck, faded lightning bolt on the flank",
+      "note": "the neighborhood's caffeine upstream — bags stamped with the bolt, invoices nobody reads twice"
+    },
+    "masa-madre": {
+      "name": "Masa Madre Foods",
+      "kind": "tortilla / masa / prepared proteins",
+      "base": "a commissary off Bayshore",
+      "vehicle": "white step van, corn-sheaf stencil on the doors",
+      "note": "the masa arrives still warm; the driver refuses the alley's bad end and the cooks have stopped arguing"
+    },
+    "green-crate": {
+      "name": "Green Crate Produce",
+      "kind": "wholesale produce",
+      "base": "the wholesale sheds out on Jerrold",
+      "vehicle": "green stake-bed truck, hand-lettered crate stack",
+      "note": "the pallet jack arrives before the first customers; Saturday belongs to Valencia Growers, the crates fill the gaps"
+    },
+    "bay-tool": {
+      "name": "Bay Tool & Fastener",
+      "kind": "hardware wholesale",
+      "base": "a warehouse row in South San Francisco",
+      "vehicle": "flatbed with a strap box held together by habit",
+      "note": "Victor's fasteners come by the pallet — counted before coffee, disputed after"
+    },
+    "lombard-parts": {
+      "name": "Lombard Parts Co.",
+      "kind": "auto parts",
+      "base": "a parts depot by the freeway",
+      "vehicle": "white cargo van, always idling, door never fully closed",
+      "note": "runs the parts hotline — a job waiting on a widget is the only traffic report that matters"
+    },
+    "cold-gate": {
+      "name": "Cold Gate Dairy",
+      "kind": "dairy / cream / eggs",
+      "base": "a refrigerated dock off Evans",
+      "vehicle": "small reefer truck, condensation dripping off the mirrors",
+      "note": "the cream run is the quietest delivery on the street — pre-open, no witnesses, full cases"
+    },
+    "fogline": {
+      "name": "Fogline Beverage Distributors",
+      "kind": "beer / keg / beverage distribution",
+      "base": "a bonded warehouse over the hill",
+      "vehicle": "low keg truck, dolly chained to the bumper",
+      "note": "Thursday is keg day — the dolly rattle down the frontage is the weekend's first sound"
+    },
+    "fold-and-freight": {
+      "name": "Fold & Freight Linen",
+      "kind": "linen / uniform / towel service",
+      "base": "an industrial laundry on the east side",
+      "vehicle": "cube van, canvas carts lashed inside",
+      "note": "dirty out, clean in — the swap is choreographed by whoever's closest to the door"
+    },
+    "morning-catch": {
+      "name": "Morning Catch Seafood",
+      "kind": "seafood wholesale",
+      "base": "the fish docks before dawn",
+      "vehicle": "reefer van that smells like the wharf no matter the hour",
+      "note": "the fish box arrives on ice and leaves empty; nobody asks the van's odometer its opinion"
+    },
+    "golden-grain": {
+      "name": "Golden Grain Mills",
+      "kind": "flour / grain",
+      "base": "a mill up in the Delta",
+      "vehicle": "grain truck with dust on every horizontal surface",
+      "note": "flour pallets move in the dark — the streetlight is still on when the truck is gone"
+    },
+    "two-beans": {
+      "name": "Two Beans Trading Co.",
+      "kind": "cacao / couverture import",
+      "base": "a bonded freezer and a spreadsheet",
+      "vehicle": "unmarked van, always five minutes early",
+      "note": "couverture blocks signed for twice — once at the curb, once in the tempering room"
+    },
+    "hot-off-press": {
+      "name": "Hot Off the Press Print Shop",
+      "kind": "print — menus / flyers / window cards",
+      "base": "a print shop two corridors south",
+      "vehicle": "none — the flyer circuit is walked with a shoulder bag",
+      "note": "every flyer board on the corridor is downstream of this bag; menus get reprinted when the prices do"
+    },
+    "static-route": {
+      "name": "Static Route Distribution",
+      "kind": "record distribution",
+      "base": "a distributor shelf somewhere in Oakland",
+      "vehicle": "hatchback full of mailers",
+      "note": "Friday's crate clears the counter — new releases land before the shop opens its mouth"
+    },
+    "remainder-and-sons": {
+      "name": "Remainder & Sons",
+      "kind": "book wholesale / remainders",
+      "base": "a warehouse with a cat and a loading dock",
+      "vehicle": "old estate wagon, boxes tied with twine",
+      "note": "the remainder box includes dust at no charge; the good stuff never lasts the weekend"
+    },
+    "sterile-field": {
+      "name": "Sterile Field Supply",
+      "kind": "tattoo / medical disposables",
+      "base": "a medical supply depot",
+      "vehicle": "plain sedan, brown boxes in the trunk",
+      "note": "the brown box nobody asks about — gloves, needles, ink caps, signed for by whoever's at the counter"
+    },
+    "brannan-shed": {
+      "name": "The Brannan Shed",
+      "kind": "flower wholesale",
+      "base": "the flower sheds, pre-dawn",
+      "vehicle": "stall truck, buckets lashed in rows",
+      "note": "Saturday's drop is the big one — the buckets outnumber the buckets' owners"
+    },
+    "sudspack": {
+      "name": "Sudspack Vending Supply",
+      "kind": "detergent / coin-op sundries",
+      "base": "a janitorial supply yard",
+      "vehicle": "van with a handtruck permanently leaned on the bumper",
+      "note": "the soap boxes outnumber the customers — the vending wall is the whole point"
+    },
+    "crosstown-sundries": {
+      "name": "Crosstown Sundries",
+      "kind": "candy / smokes / soda sundries",
+      "base": "a cash-and-carry on the county line",
+      "vehicle": "box van, invoice clipboard on the dash",
+      "note": "the corner-store upstream — candy, smokes, the soda fridge, and the lottery tape nobody mentions"
+    },
+    "chefs-closet": {
+      "name": "Chef's Closet Supply",
+      "kind": "restaurant supply / paper goods",
+      "base": "restaurant supply row",
+      "vehicle": "box truck with a liftgate that complains",
+      "note": "sheet pans, parchment, quart containers by the sleeve — the invisible half of every menu"
+    }
+  },
+  "runs": [
+    { "supplier": "third-rail-roasters", "to": ["mudhaus"], "days": ["mon", "thu"], "hours": [6, 6.5], "drop": "the front door, pre-open — Marisol signs half-awake", "note": "the pastry case and the coffee sacks arrive in the same gray hour" },
+    { "supplier": "third-rail-roasters", "to": ["dolores-perk"], "days": ["wed"], "hours": [6.5, 7.25], "drop": "the park-side door", "note": "a smaller order — the park crowd drinks less, slower" },
+    { "supplier": "masa-madre", "to": ["el-farolote"], "days": ["mon", "wed", "fri"], "hours": [9, 9.75], "drop": "the back gate off the alley", "note": "the masa is still warm; the salsa bar gets stocked while the driver waits" },
+    { "supplier": "masa-madre", "to": ["las-palmas"], "days": ["tue", "sat"], "hours": [7, 7.75], "drop": "the stand, before the awning goes up", "note": "the stand's half of the order is tortillas for the walk-by trade" },
+    { "supplier": "green-crate", "to": ["buy-rite-market"], "days": ["mon", "thu"], "hours": [6.5, 8], "drop": "the 18th St curb — hazards on, pallet jack out", "note": "the produce aisle is rebuilt before the first basket walks in" },
+    { "supplier": "green-crate", "to": ["las-palmas"], "days": ["mon", "thu"], "hours": [7.25, 8], "drop": "the stand", "note": "the stand competes with the crates' own wholesale floor and buys anyway" },
+    { "supplier": "green-crate", "to": ["il-delfino"], "days": ["tue", "fri"], "hours": [15, 16.25], "drop": "the 18th St door, pre-service", "note": "the walk-in restock between prep and doors" },
+    { "supplier": "green-crate", "to": ["el-farolote"], "days": ["tue", "thu", "sat"], "hours": [9.25, 10], "drop": "the back gate", "note": "backup cases for the days Valencia Growers runs short — never Saturday mornings, that's the market's" },
+    { "supplier": "bay-tool", "to": ["auerbach"], "days": ["wed"], "hours": [7, 8], "drop": "the side gate", "note": "the Wednesday pallet — Victor counts fasteners before coffee" },
+    { "supplier": "lombard-parts", "to": ["folsom-auto"], "days": ["mon", "tue", "wed", "thu", "fri"], "hours": [8.25, 9], "drop": "the bay doors", "note": "the parts hotline run — the van idles because it always does" },
+    { "supplier": "lombard-parts", "to": ["folsom-auto"], "days": ["tue", "thu"], "hours": [13, 13.75], "drop": "the bay doors", "note": "the mid-day hotshot — a job is waiting on a widget" },
+    { "supplier": "cold-gate", "to": ["buy-rite-creamery"], "days": ["mon", "thu"], "hours": [9.75, 10.75], "drop": "the creamery's side door", "note": "cream and eggs, pre-open — the batch freezers hum through it" },
+    { "supplier": "cold-gate", "to": ["baguette-about-it"], "days": ["tue", "fri"], "hours": [5.5, 6.5], "drop": "the bakery's flour-dusted stoop", "note": "butter blocks before the ovens peak" },
+    { "supplier": "cold-gate", "to": ["buy-rite-market"], "days": ["tue", "fri"], "hours": [7, 8], "drop": "the dairy case, through the front", "note": "the milk crates stack outside the door until the aisle is clear" },
+    { "supplier": "fogline", "to": ["the-600-club"], "days": ["thu"], "hours": [14, 16], "drop": "the Guerrero-side door", "note": "keg day — the dolly rattle down the frontage is the weekend's first sound" },
+    { "supplier": "fogline", "to": ["the-600-club"], "days": ["tue"], "hours": [15, 16], "drop": "the Guerrero-side door", "note": "top-up cases — quieter than Thursday" },
+    { "supplier": "fogline", "to": ["the-musket"], "days": ["fri"], "hours": [14, 15.5], "drop": "the Valencia-side door", "note": "the Friday beverage order, timed to land before the dinner build" },
+    { "supplier": "fogline", "to": ["maliks"], "days": ["mon", "thu"], "hours": [6.5, 7.5], "drop": "the Guerrero corner curb", "note": "the beer fridge fills before the commute — the van double-parks and nobody honks" },
+    { "supplier": "fogline", "to": ["buy-rite-market"], "days": ["wed"], "hours": [6.75, 8], "drop": "the 18th St curb", "note": "the Wednesday restock — cases stacked beside the produce pallets" },
+    { "supplier": "fold-and-freight", "to": ["el-farolote"], "days": ["mon", "thu"], "hours": [9, 10], "drop": "the back gate", "note": "aprons and linen swap — dirty out, clean in, the same canvas cart both ways" },
+    { "supplier": "fold-and-freight", "to": ["il-delfino"], "days": ["tue", "fri"], "hours": [16, 17], "drop": "the 18th St door", "note": "table linen before doors — the cart wheels squeal on the tile" },
+    { "supplier": "fold-and-freight", "to": ["the-600-club"], "days": ["wed"], "hours": [14, 15], "drop": "the Guerrero-side door", "note": "bar towels by the bag — the Wednesday swap is the week's quietest errand" },
+    { "supplier": "fold-and-freight", "to": ["the-musket"], "days": ["thu"], "hours": [15.5, 16.5], "drop": "the Valencia-side door", "note": "linen before the Thursday service — the cart waits by the host stand" },
+    { "supplier": "morning-catch", "to": ["il-delfino"], "days": ["tue", "wed", "thu", "fri", "sat"], "hours": [15.5, 16.5], "drop": "the 18th St door, pre-service", "note": "the fish box, still on ice — the day's menu settles around it" },
+    { "supplier": "morning-catch", "to": ["el-farolote"], "days": ["fri"], "hours": [8.5, 9.5], "drop": "the back gate", "note": "Friday's ceviche order — the van smells like the wharf on purpose" },
+    { "supplier": "morning-catch", "to": ["the-musket"], "days": ["wed", "fri"], "hours": [15, 16], "drop": "the Valencia-side door", "note": "the fish box beats the prep line by an hour" },
+    { "supplier": "golden-grain", "to": ["baguette-about-it"], "days": ["mon", "thu"], "hours": [5, 6], "drop": "the bakery's stoop, in the dark", "note": "flour pallets move before the streetlight clicks off — the day's first proof" },
+    { "supplier": "two-beans", "to": ["dandy-lion"], "days": ["wed"], "hours": [8.5, 9.75], "drop": "the Valencia-side door", "note": "couverture blocks signed for twice — the tempering room's week starts here" },
+    { "supplier": "two-beans", "to": ["dandy-lion"], "days": ["fri"], "hours": [8.5, 9.25], "drop": "the Valencia-side door", "note": "the Friday top-up before the weekend counter rush" },
+    { "supplier": "hot-off-press", "to": ["dusty-spine", "marooned", "needlepointe", "golden-hour", "the-600-club"], "days": ["thu"], "hours": [11, 14], "drop": "the flyer circuit — walked, one shoulder bag, five counters", "note": "every flyer board on the corridor is downstream of this bag" },
+    { "supplier": "hot-off-press", "to": ["il-delfino"], "days": ["wed"], "hours": [16, 16.75], "drop": "the 18th St door", "note": "menu reprints land when the prices do — the chalk board keeps its dignity" },
+    { "supplier": "hot-off-press", "to": ["the-musket"], "days": ["wed"], "hours": [15.75, 16.5], "drop": "the Valencia-side door", "note": "the folded menus arrive before the host stand opens its drawer" },
+    { "supplier": "static-route", "to": ["marooned"], "days": ["fri"], "hours": [10, 11], "drop": "the Valencia-side door", "note": "Friday's crate — new releases land before the shop opens its mouth" },
+    { "supplier": "remainder-and-sons", "to": ["dusty-spine"], "days": ["wed"], "hours": [9.75, 10.75], "drop": "the Valencia at 20th door", "note": "the remainder box — dust included at no charge" },
+    { "supplier": "sterile-field", "to": ["needlepointe"], "days": ["tue"], "hours": [10.75, 11.75], "drop": "the Clarion-adjacent door", "note": "the brown box nobody asks about — gloves, caps, the week's sharps" },
+    { "supplier": "sterile-field", "to": ["needlepointe"], "days": ["thu"], "hours": [10.75, 11.5], "drop": "the Clarion-adjacent door", "note": "the Thursday top-up — signed for by whoever's nearest the counter" },
+    { "supplier": "brannan-shed", "to": ["bloom-and-doom"], "days": ["tue", "thu", "sat"], "hours": [7.5, 9], "drop": "the 24th-side door, buckets first", "note": "Saturday's drop is the big one — the buckets outnumber the sidewalk" },
+    { "supplier": "sudspack", "to": ["golden-hour"], "days": ["mon"], "hours": [6.5, 7.25], "drop": "the Mission-side door", "note": "the vending restock — soap boxes stacked higher than the folding tables" },
+    { "supplier": "crosstown-sundries", "to": ["maliks"], "days": ["tue", "fri"], "hours": [7, 8], "drop": "the Guerrero corner curb", "note": "candy, smokes, the soda fridge — the clipboard never leaves the dash" },
+    { "supplier": "crosstown-sundries", "to": ["buy-rite-market"], "days": ["fri"], "hours": [7.5, 8.5], "drop": "the 18th St curb", "note": "the Friday sundries order, small beside the produce pallets" },
+    { "supplier": "chefs-closet", "to": ["el-farolote"], "days": ["wed"], "hours": [9, 10], "drop": "the back gate", "note": "quart containers by the sleeve — the invisible half of the menu" },
+    { "supplier": "chefs-closet", "to": ["the-musket"], "days": ["mon"], "hours": [15, 16], "drop": "the Valencia-side door", "note": "paper goods before the Monday service — the liftgate complains once" },
+    { "supplier": "chefs-closet", "to": ["il-delfino"], "days": ["thu"], "hours": [16, 17], "drop": "the 18th St door", "note": "sheet pans and parchment — Thursday's restock beats the dinner build" },
+    { "supplier": "chefs-closet", "to": ["baguette-about-it"], "days": ["fri"], "hours": [8, 9], "drop": "the bakery's stoop", "note": "parchment and boxes — the Friday supply before the weekend line" }
+  ],
+  "exempt": {
+    "valencia-growers": "it IS the supplier — the stall sources itself from farms off the map; no truck delivers to a farmers' market that is itself the delivery"
+  },
+  "street_texture": [
+    "the universal double-park: hazards on, wheels straight, nobody honks before 9 AM on 18th St",
+    "the flyer circuit is walked, not driven — one shoulder bag, five counters, Thursday midday",
+    "the back gate off the alley is El Farolote's real front door — deliveries, linen swaps, the occasional clipboard argument",
+    "handtruck paths are permanent fixtures: curb to door, door to shelf, the wheels memorialize the route",
+    "the universal invoice ritual: knock twice, drop the box, the signature is a scrawl neither side reads",
+    "Mudhaus has no alley — the coffee sacks come through the front door like embarrassed guests"
+  ],
+  "feed_shapes": {
+    "kind": "venue",
+    "lines": [
+      "a delivery run — {venue} ({supplier})",
+      "a truck double-parked outside {venue}",
+      "the back gate at {venue} is open — a restock is in progress",
+      "the flyer circuit passes — the {venue} board gets new postings"
+    ]
+  },
+  "rules": [
+    "suppliers are offstage — no door, no POI, no interior, no registry entry in businesses.json, no card",
+    "no cast id may be staffed at a supplier — drivers are unnamed extras, offscreen labor",
+    "supplier names are parody-only under the same rule as every business name (design §11)",
+    "runs are conditions the routine system may satisfy — a run can be late, early, or missed; the truck is texture, never a summons",
+    "a run window may precede open by up to 3 hours but must end before close, and may only list days the venue opens",
+    "supply copy carries no prices — invoices stay offscreen; no credits, no USD, no contract terms",
+    "feed surfaces may emit feed_shapes lines under kind 'venue' only — the supplier is a name on a truck, never a story beat"
+  ]
+}

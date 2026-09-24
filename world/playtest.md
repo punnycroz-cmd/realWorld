@@ -178,6 +178,11 @@ One person can wear every hat; four real testers is the intended shape.
   family-cluster safeguards (kid-backpack never lone, never bars), the
   17 counter-courtesy beats gated on state + extra presence + cooldown,
   and the crowd gate's v85 mirror/integrity checks.
+  PT77 (supply v86) audits the back-door layer — the 19 offstage
+  parody suppliers and their 44 delivery runs, the Thursday flyer
+  circuit, door coverage with Valencia Growers's self-supply
+  exemption, the [open-3h, close] window rule, and the supply gate's
+  mirror/coverage checks.
 
 ## 3. Running a session
 

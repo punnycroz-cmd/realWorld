@@ -1949,6 +1949,96 @@ const PUB = Object.values(PT.surfaces)
   } catch (e) { add(g, 'fail', 'menus.json', null, 'parse/check failure: ' + e.message); }
 }
 
+/* ============ G15e supply ============ */
+{
+  const g = gate('supply', 'supply layer contract (suppliers.json ↔ supply.html; door coverage; window rules; no prices)');
+  try {
+    const SJ = JSONF('suppliers.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('supply.html');
+    const m = html.match(/const SUP\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline SUP not found in supply.html');
+    const SUP = eval('(' + m[1] + ')');
+    const DOWS = ['mon', 'tue', 'wed', 'thu', 'fri', 'sat', 'sun'];
+    const DOOR = new Set(['anchor', 'street']);
+    const ids = new Set(BJ.businesses.map(b => b.id));
+    const doors = new Map(BJ.businesses.filter(b => DOOR.has(b.tier)).map(b => [b.id, b]));
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)\b/i;
+    /* inline mirror: SUP must field-match suppliers.json */
+    if (SUP.version !== SJ.version)
+      add(g, 'fail', 'supply.html', null, `SUP version ${SUP.version} != ${SJ.version}`);
+    for (const k of ['suppliers', 'runs', 'exempt', 'street_texture', 'feed_shapes', 'rules'])
+      if (JSON.stringify(SUP[k] ?? null) !== JSON.stringify(SJ[k] ?? null))
+        add(g, 'fail', 'supply.html', null, `SUP.${k} drifted from suppliers.json`);
+    /* suppliers: parody-named offstage vendors — unique names, no registry
+       collision, no cast staff, no price talk anywhere */
+    const sids = new Set(), snames = new Set(), bnames = new Set(BJ.businesses.map(b => b.name));
+    const sTxt = JSON.stringify({ s: SJ.suppliers, r: SJ.runs });
+    for (const mm of sTxt.matchAll(/\$\s?\d|\bcredit|\bUSD\b/gi))
+      add(g, 'fail', 'suppliers.json', null, `price/credit figure in supply layer: "${mm[0]}"`);
+    for (const [id, s] of Object.entries(SJ.suppliers || {})) {
+      sids.add(id);
+      if (ids.has(id)) add(g, 'fail', 'suppliers.json', null, `${id}: supplier id collides with a registry business`);
+      if (snames.has(s.name)) add(g, 'fail', 'suppliers.json', null, `${id}: duplicate supplier name "${s.name}"`);
+      snames.add(s.name);
+      if (bnames.has(s.name)) add(g, 'fail', 'suppliers.json', null, `${id}: supplier name "${s.name}" collides with a business`);
+      for (const f of ['name', 'kind', 'base', 'vehicle', 'note'])
+        if (!s[f]) add(g, 'fail', 'suppliers.json', null, `${id}: missing "${f}"`);
+      for (const v of Object.values(s))
+        if (CASTID.test(String(v))) add(g, 'fail', 'suppliers.json', null, `${id}: cast id in supplier field — suppliers are offscreen labor`);
+    }
+    /* runs: supplier real, doors only, days valid + venue open, window
+       intersects [open-3, close] (pre-open drops allowed ≤3h) */
+    const openFor = (v, d) => {
+      const h = (v.hours || {})[['sat', 'sun'].includes(d) ? 'weekend' : 'weekday'];
+      if (!h) return null;
+      const dd = (v.hours || {}).days;
+      if (dd && !dd.includes(d)) return null;
+      return h;
+    };
+    let nRuns = 0;
+    for (const r of SJ.runs || []) {
+      nRuns++;
+      const tag = `${r.supplier}→${(r.to || []).join('+')}`;
+      if (!sids.has(r.supplier)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: unknown supplier`);
+      if (!Array.isArray(r.to) || !r.to.length) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: empty to[]`); continue; }
+      for (const id of r.to) {
+        if (!ids.has(id)) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: "${id}" is not a business`); continue; }
+        if (!doors.has(id)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: "${id}" has no door — runs deliver to door tiers only`);
+      }
+      if (!Array.isArray(r.days) || !r.days.length) add(g, 'fail', 'suppliers.json', null, `run ${tag}: empty days[]`);
+      else for (const d of r.days) if (!DOWS.includes(d)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: day "${d}" invalid`);
+      const [a, b] = r.hours || [];
+      if (!(a >= 0 && b <= 26.5 && a < b)) add(g, 'fail', 'suppliers.json', null, `run ${tag}: bad window ${JSON.stringify(r.hours)}`);
+      else for (const id of r.to || []) {
+        const v = doors.get(id); if (!v) continue;
+        for (const d of r.days || []) {
+          if (!DOWS.includes(d)) continue;
+          const h = openFor(v, d);
+          if (!h) { add(g, 'fail', 'suppliers.json', null, `run ${tag}: ${id} is closed on ${d}`); continue; }
+          if (!(b >= h[0] - 3 && a <= h[1]))
+            add(g, 'fail', 'suppliers.json', null, `run ${tag}: ${id} ${d} window misses [open-3h, close] ${JSON.stringify(h)}`);
+        }
+      }
+      for (const f of ['drop', 'note'])
+        if (r[f] && CASTID.test(r[f])) add(g, 'fail', 'suppliers.json', null, `run ${tag}: cast id in "${f}"`);
+    }
+    /* coverage: every door venue fed, minus declared exemptions */
+    const fed = new Set((SJ.runs || []).flatMap(r => r.to || []));
+    for (const id of doors.keys())
+      if (!fed.has(id) && !(SJ.exempt || {})[id])
+        add(g, 'fail', 'suppliers.json', null, `door "${id}" has no supply run and no exemption`);
+    for (const id of Object.keys(SJ.exempt || {}))
+      if (!doors.has(id)) add(g, 'fail', 'suppliers.json', null, `exempt "${id}" is not a door venue`);
+    /* feed shapes stay inside the 'venue' vocabulary */
+    if ((SJ.feed_shapes || {}).kind !== 'venue')
+      add(g, 'fail', 'suppliers.json', null, 'feed_shapes.kind must be "venue" — a truck is a crowd-level note');
+    for (const l of (SJ.feed_shapes || {}).lines || [])
+      if (!/\{venue\}/.test(l)) add(g, 'fail', 'suppliers.json', null, `feed shape lacks {venue}: "${l.slice(0, 60)}"`);
+    g.detail = `schema v${SJ.version} · ${sids.size} suppliers · ${nRuns} runs · ${fed.size}/${doors.size} doors fed`;
+  } catch (e) { add(g, 'fail', 'suppliers.json', null, 'parse/check failure: ' + e.message); }
+}
+
 /* ============ G16 market ============ */
 {
   const g = gate('market', 'market layer contract (market.json ↔ market.html; churn resolves to live openings; no credit figures)');

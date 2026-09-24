@@ -204,6 +204,11 @@
    "file": "exit.html",
    "name": "The Last Shift",
    "tier": "internal"
+  },
+  "supply": {
+   "file": "supply.html",
+   "name": "The Back Door",
+   "tier": "internal"
   }
  },
  "smoke_set": [
@@ -4076,6 +4081,46 @@
       "A dropped safeguard line (bar/overnight in shapes.family) or a minor-staffed beat would FAIL — spot-check one",
       "Prior crowd checks (zones, shades, annual, postures, greet bounds) still pass unchanged"
      ]
+    }
+   ]
+  },
+  {
+   "id": "PT77",
+   "title": "The Supply Layer — the back door (v86)",
+   "minutes": 7,
+   "persona": "tester on the internal supply bench — scrubbing days and the clock to watch the trucks that stock the corridor",
+   "goal": "Verify the v86 parody-supplier pass: 19 offstage wholesale vendors carry 44 delivery runs across the 20 door venues; every run resolves against real registry doors, lands inside [open-3h, close] on days the venue opens, and the supply gate enforces the mirror and coverage.",
+   "surfaces": [
+    "supply",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open world/supply.html ('The Back Door'). Pick Thursday and scrub the clock from 05:00 to 17:00; read the 'Runs today' list and the supplier grid.",
+     "checkpoints": [
+      "The flyer circuit renders as one run with five 'to' stops — walked, shoulder bag, no truck",
+      "The 600 Club's Thursday keg drop lands inside [open-3h, close] — pre-open deliveries are the norm, not an error",
+      "Supplier cards stay offstage — vehicle + base described, no door, no interior, no staff"
+     ],
+     "expect": "Thursday shows the corridor's busiest supply day: Fogline's keg drop at the 600 Club (14:00-16:00), the Hot Off the Press flyer circuit walking five counters (11:00-14:00), linen swaps at El Farolote / the Musket, produce and print runs. Runs light 'OUT NOW' only while the scrubbed clock sits inside their window; each run shows its supplier, doors, and drop spot."
+    },
+    {
+     "do": "Check the door-coverage strip: every door-tier venue should read 'fed' except Valencia Growers, which reads 'exempt'.",
+     "checkpoints": [
+      "Coverage strip shows 19 fed + 1 exempt, 0 bare",
+      "Hovering the exempt chip explains the exemption in-world",
+      "Every 'to' id resolves to a real registry business — no phantom venues"
+     ],
+     "expect": "19 of 20 doors carry at least one run; Valencia Growers is exempt because it IS the supplier — a truck delivering to a farmers' market would be a delivery to a delivery. No door reads 'BARE'."
+    },
+    {
+     "do": "Read the feed-shapes panel and the rules list; then run node world/audit.js and find the supply gate.",
+     "checkpoints": [
+      "Every feed-shape line carries a {venue} token and kind stays 'venue'",
+      "No price, credit, or USD figure appears anywhere in the layer",
+      "Supply gate reports 'schema v86 - 19 suppliers - 44 runs - 19/20 doors fed'; 0 fail overall"
+     ],
+     "expect": "Feed shapes are all kind 'venue' with {venue}/{supplier} templated lines — a supplier is a name on a truck's flank, never a story beat. Rules state: offstage only, no cast staff, parody names, conditions-not-scripts, no prices. The supply gate reports '19 suppliers - 44 runs - 19/20 doors fed' and passes."
     }
    ]
   }

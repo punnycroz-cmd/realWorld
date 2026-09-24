@@ -458,3 +458,37 @@ internal demo: `world/storefront.html`.
   interior menu boards, and storefront glass (art v43 render boxes). The
   mapping layer (`sfDisplayName`) still owns POI→name resolution; this file
   authors what the resolved sign says.
+
+---
+
+## 8. The supply layer — the back door (v86)
+
+The registry says what a venue *is*; `world/suppliers.json` says where its
+*stock comes from*. Nineteen offstage wholesale/trade suppliers — Third
+Rail Roasters, Masa Madre Foods, Green Crate Produce, Fogline Beverage
+Distributors, Morning Catch Seafood, Golden Grain Mills, Two Beans Trading
+Co., Hot Off the Press Print Shop, Static Route Distribution, Remainder &
+Sons, Sterile Field Supply, The Brannan Shed, Sudspack Vending Supply,
+Crosstown Sundries, Chef's Closet Supply, Bay Tool & Fastener, Lombard
+Parts Co., Cold Gate Dairy, Fold & Freight Linen — run 44 delivery windows
+across the twenty door venues. Spec and rules: `world/suppliers.md`;
+internal demo: `world/supply.html` ("The Back Door").
+
+- **Offstage by contract.** Suppliers carry no door, no POI, no interior,
+  no registry entry, no card — they are vendors, not destinations, and they
+  never enter the web edge graph (the runs are the supply edge layer).
+- **Unstaffed by cast.** Drivers are unnamed extras — offscreen labor.
+- **Runs are conditions, never scripts.** A window may precede open by up
+  to three hours (pre-open drops are the norm) but must end before close,
+  and may only list days the venue opens. A missed run is a readable
+  anomaly, not a broken script.
+- **Coverage is enforced.** Every door venue is fed by at least one run —
+  except Valencia Growers, which is exempt because it *is* the supplier.
+- **The flyer circuit is physical.** Hot Off the Press's Thursday shoulder-
+  bag walk (Dusty Spine → Marooned → Needlepointe → Golden Hour → the 600
+  Club) is the substrate under the `gossip_route` edges and the flyer
+  boards the storefront layer paints.
+- **Feed-legible, never a story beat.** `feed_shapes` emits four templated
+  lines under kind `venue` only — a supplier is a name on a truck's flank.
+- **No prices.** Invoices stay offscreen; supply copy carries no game
+  dollars, no credits, no contract terms.
