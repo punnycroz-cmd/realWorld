@@ -1,5 +1,5 @@
 {
-  "version": 124,
+  "version": 139,
   "schema": "social-milestones/v1",
   "notes": "Trigger table for social/drafts/milestone-posts.md. Counters are read from a JSON snapshot (game feed + analytics, once live) or passed by hand; tools/milestone_check.py reports which posts are unlocked. LOCAL ONLY: unlocking a milestone never posts anything.",
   "counter_sources": {
@@ -14,7 +14,8 @@
     "disputes_filed": "public feed: housing/admin events",
     "public_rulings": "public feed: housing/admin ruling events",
     "days_since_launch": "calendar vs launch_date in schedule.json",
-    "requests_filed_last_week": "public feed: trailing 7d request count"
+    "requests_filed_last_week": "public feed: trailing 7d request count",
+    "viewer_clips_reshared": "human-counted: granted reshare permissions logged in post-review.md consent ledger"
   },
   "milestones": [
     {"id": "M1", "draft": "milestone-posts.md", "title": "first request filed", "channels": ["x", "bluesky"], "fires": "once",
@@ -40,6 +41,8 @@
      "when": {"counter": "public_rulings", "op": ">=", "value": 1}},
     {"id": "M10", "draft": "milestone-posts.md", "title": "quiet-week honesty card", "channels": ["x", "bluesky"], "fires": "monthly-max",
      "when": {"counter": "requests_filed_last_week", "op": "<=", "value": 10},
-     "min_days_since_launch": 14}
+     "min_days_since_launch": 14},
+    {"id": "M11", "draft": "milestone-posts.md", "title": "first viewer clip reshared", "channels": ["x", "bluesky"], "fires": "once",
+     "when": {"counter": "viewer_clips_reshared", "op": ">=", "value": 1}}
   ]
 }

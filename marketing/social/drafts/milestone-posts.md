@@ -104,6 +104,19 @@ Attach: `cards/card-empty-feed.png`.
 Rule: this is the anti-hype post. It exists so we never have to invent
 drama; deploy when the weekly recap would be thin.
 
+**M11 — first viewer clip reshared (fires once)**
+> First viewer clip on the board: {{HANDLE}} caught {{ONE_LINE}} while
+> watching the block. We asked; they said yes. That's how every reshare
+> here works — {{WATCH_URL}}
+
+Attach: none — the quote-post embed IS the attachment (their clip,
+their post).
+Rule: counter is human-counted (`viewer_clips_reshared` — granted
+permissions logged in `post-review.md`'s consent ledger). Fires only
+on the first reshare that clears all four gates in
+`reshare-playbook.md` §1; if the first permission takes weeks, M11
+waits weeks. Never post it about a reshare we haven't actually run.
+
 ---
 
 ## Rules that apply to every milestone

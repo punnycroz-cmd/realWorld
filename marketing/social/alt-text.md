@@ -70,3 +70,14 @@ Never describe a resident's secret on the card (spoiler rule §4).
 | `card-receipt` | A receipt panel on a blurred block background: "The Counter — every request leaves a receipt," with rows for filing, the free wording check, and public status. DEMO badge in the corner. |
 | `card-empty-feed` | "The feed is empty. Be the first." over Dolores Park in fog. Development build. |
 | `card-watchfree` | "Watch free." over the Mission block from above — twenty-eight characters, your requests on the public feed. Development build. |
+
+## Viewer reshares (v139)
+
+Quote-posts carry the viewer's own media — platforms pull its alt from
+the original post when present. When we add alt (re-posting stills with
+permission, recap roundups), the pattern is: credit + what their capture
+shows + our context. Example: "Screen capture by @{{handle}}: a Real
+World resident crossing Dolores Park at dusk while a rain request runs.
+Their clip, reshared with permission." Never write alt text that
+describes a viewer's clip as official footage — attribution is part of
+the description.
