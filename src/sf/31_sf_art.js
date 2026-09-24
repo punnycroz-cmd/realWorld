@@ -1588,7 +1588,7 @@ function sfBldCanvas(b, wet){
   // halo, a mid falloff, then the umbra core — the same physics the sun's
   // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
-  const shA = 0.08 + 0.24 * SF_SUN.day; // fades to nothing under cloud/night
+  const shA = 0.08 + 0.30 * SF_SUN.day; // fades to nothing under cloud/night
   // v23: true swept silhouette — every footprint edge extruded along the
   // sun-throw plus the displaced cap, all in ONE path so the penumbra
   // never double-darkens; tint is cool sky-lit shade, not warm mud

@@ -24920,7 +24920,7 @@ function sfBldCanvas(b, wet){
   // halo, a mid falloff, then the umbra core — the same physics the sun's
   // ~0.5° disc produces on real streets.
   const shx = hPx * SF_SUN.x, shy = hPx * SF_SUN.y;
-  const shA = 0.08 + 0.24 * SF_SUN.day; // fades to nothing under cloud/night
+  const shA = 0.08 + 0.30 * SF_SUN.day; // fades to nothing under cloud/night
   // v23: true swept silhouette — every footprint edge extruded along the
   // sun-throw plus the displaced cap, all in ONE path so the penumbra
   // never double-darkens; tint is cool sky-lit shade, not warm mud
@@ -26517,6 +26517,27 @@ function sfLensEnd(cw, ch){
     bg.filter = 'none';
     bOk = true;
   }
+  /* v84: the grade — the last thing light does is meet the eye. Every
+     pass before this painted light locally; nothing balanced the frame
+     as a whole. A gentle S-curve + saturation lift on the frame plate
+     keeps sun-struck pigment warm and lets skylit shade fall to cool
+     depth instead of neutral milk — the two-source daylight the scene
+     already computes, now readable at a glance. Strength rides the
+     real sun: overcast grades flatter, golden hour grades richer,
+     night barely touches. Applied ONLY to the world plate so the
+     optical stack after it (bokeh mask, ghosts, glare, droplets) and
+     the HUD stay ungraded chrome. */
+  {
+    const grK = (typeof isNight === 'function' && isNight()) ? 0.3
+              : (typeof SF_SUN !== 'undefined'
+                 ? 0.5 + SF_SUN.day * 0.5 : 0.5);
+    const warmK = typeof SF_SUN !== 'undefined' ? SF_SUN.warm : 0;
+    if(typeof ctx.filter === 'string')
+      ctx.filter = `contrast(${(1 + 0.20 * grK).toFixed(3)}) ` +
+                   `saturate(${(1 + 0.30 * grK).toFixed(3)}) ` +
+                   `brightness(${(1 + 0.02 * grK).toFixed(3)}) ` +
+                   `sepia(${(0.10 * warmK).toFixed(3)})`;
+  }
   // v36: dutch roll — pan-rate cants the gate a fraction of a degree;
   // settled cameras roll to zero so locked shots stay level
   if(SF_LENS.roll && Math.abs(SF_LENS.roll) > 0.0004){
@@ -26535,6 +26556,7 @@ function sfLensEnd(cw, ch){
        driven effects are the only softening the eye ever sees. */
     ctx.drawImage(F, 0, 0);
   }
+  ctx.filter = 'none';   // v84: the grade ends where the world plate ends
   /* v77: depth-keyed bokeh — the street camera finally USES its focus
      distance. The follow-focus rig already publishes SF_LENS.foc (meters)
      and camHF (lens height × focal factor), so the focal plane lands at
@@ -26859,10 +26881,10 @@ function sfSunFaceK(nx, ny){
 /* face color under the current sun: warm-lit when sunward, sky-cool fill
    when shaded, ambient grey when the sun is down or buried in the deck */
 function sfSunWallCol(base, k){
-  const lit = 0.58 + 0.5 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
+  const lit = 0.56 + 0.55 * Math.max(0, k) * SF_SUN.day + 0.05 * Math.max(0, k);
   if(SF_SUN.day > 0.22 && k > 0.18)
-    return mix(shade(base, lit), '#ffdd9e', SF_SUN.warm * 0.58 * Math.min(1, k));
-  return mix(shade(base, lit), '#7183a4', 0.22 * (1 - Math.max(0, k) * SF_SUN.day));
+    return mix(shade(base, lit), '#ffd98e', SF_SUN.warm * 0.68 * Math.min(1, k));
+  return mix(shade(base, lit), '#6680b2', 0.30 * (1 - Math.max(0, k) * SF_SUN.day));
 }
 /* ---------------- v32: the Mediterranean turf calendar ----------------
    The Mission gets ~0mm of rain from June to October — lawn turf cures
@@ -27045,6 +27067,57 @@ function sfPropVis(o){
     o._visQ = SF_SUN.q;
   }
   return o._visV;
+}
+/* v84: pavement-level sun visibility for the street-view ground pass —
+   the same physics sfSkyVis marches for the top-down bake, solved two
+   cheaper ways. Buildings answer through the memoized canyon probe
+   (same occluder field the facades already pay for, 4m cells). Tree
+   crowns are solved by PROJECTION, not marching: each crown throws a
+   shadow disc whose center lands the crown's own height down-sun
+   (throw = z·cot(el) along the real solar bearing), grown by the sun's
+   ~0.5° penumbra over that throw. Inside the disc the beam is
+   crown-transmitted, not zero — a palm sieves (0.42 dense), a cypress
+   wallops (0.8) — with a soft rim so the sieve edge reads like real
+   scattered shade. Returns 0..1 direct-beam fraction. */
+function sfGroundVis(xm, ym){
+  if(SF_SUN.day < 0.05 || isNight()) return 1;
+  /* the field's own gradients are street-scale — a 10m road, a 12m
+     canopy, a 40m parapet throw — so the answer is memoized on an 8m
+     frame grid and every tile samples its nearest probe. One frame
+     pays ~nc/16 marches instead of nc. */
+  const gx8 = Math.round(xm / 8), gy8 = Math.round(ym / 8);
+  const k = gx8 * 8192 + gy8;
+  const hit = sfLFGet('gvis', k);
+  if(hit !== undefined) return hit;
+  xm = gx8 * 8; ym = gy8 * 8;
+  if(sfCanyonShade(xm, ym, -1) > 0.35) return sfLFSet('gvis', k, 0.04);
+  const cm = SF_M.cell_m, tanEl = Math.tan(Math.max(0.02, SF_SUN.el));
+  const z0 = sfElevM(xm, ym);
+  let vis = 1;
+  const cxx = Math.floor(xm / cm), cyy = Math.floor(ym / cm);
+  for(let ny = -1; ny <= 1; ny++) for(let nx = -1; nx <= 1; nx++){
+    const lst = SF_PROP_CELL.get((cxx + nx) + ',' + (cyy + ny));
+    if(!lst) continue;
+    for(const o of lst){
+      const oc = o._occ || (o._occ = sfCrownOcc(o));
+      if(!oc) continue;
+      const r = oc[0],
+            zc = (oc[1] + oc[2]) * 0.5 +
+                 sfElevM(o.x / SF_PXM, o.y / SF_PXM);
+      const thr = (zc - z0) / tanEl;       // shadow throw in meters
+      if(thr < -r) continue;               // crown below the probe
+      const t2 = Math.max(0, thr);
+      const sx = o.x / SF_PXM - SF_SUN.toX * t2,
+            sy = o.y / SF_PXM - SF_SUN.toY * t2;
+      const rr = r + t2 * 0.009;           // penumbra grows with throw
+      const dx = xm - sx, dy = ym - sy, d2 = dx * dx + dy * dy;
+      if(d2 >= rr * rr) continue;
+      const edge = clamp((rr - Math.sqrt(d2)) / (rr * 0.3), 0, 1);
+      vis *= 1 - oc[3] * edge;
+      if(vis < 0.04) return sfLFSet('gvis', k, 0.04);
+    }
+  }
+  return sfLFSet('gvis', k, vis);
 }
 /* ---------------- v15: penumbra & twilight ----------------
    sfSoftEllipse — a contact shadow with a real umbra/penumbra profile:
@@ -28430,6 +28503,7 @@ const SF_LFM = { cloud: { fr: -1, m: new Map() },
                  gap:   { fr: -1, m: new Map() },
                  karl:  { fr: -1, m: new Map() },
                  cany:  { fr: -1, m: new Map() },
+                 gvis:  { fr: -1, m: new Map() },   // v84 pavement sun field
                  kdep:  { fr: -1, m: new Map() } };
 let SF_LF_HIT = 0, SF_LF_MIS = 0;
 function sfLFGet(slot, k){
@@ -35636,11 +35710,26 @@ function sfRenderStreet(cw, ch){
       }
       gk = Math.min(1, gk * (1 - cover * 0.5));
     }
+    /* v84: the pavement joins the sun field. Until now the only beam
+       blockers this pass knew were clouds and Karl — a cell under a 40m
+       parapet shadow still received the warm key underneath the sweep
+       pass, and no crown ever sieved light onto the road. sfGroundVis
+       answers both: canyon-memoized building umbra + projected crown
+       shadow discs. Shade lands as extra skylight-only fill; the warm
+       key is gated by the SAME visibility so lit and shade can never
+       disagree about where the shadow line runs. */
+    let gsv = 1;
+    if(litK > 0.02 && cfwd < 150)
+      gsv = sfGroundVis(wxm + cm / 2, wym + cm / 2);
+    if(gsv < 0.97){
+      const qs = Math.min(8, Math.round((1 - gsv) * 0.30 * 24));
+      if(qs > 0) qE(shSt[qs], T0, T0 + 2, T0 + 4, T0 + 6);
+    }
     // v42: the sun's warm key on whatever the shade leaves lit — grass,
     // asphalt, sidewalk all read gold in open sun, cool where cloud,
-    // canyon or Karl already claimed the cell (lit ∝ 1 - csh)
+    // canyon or Karl already claimed the cell (lit ∝ vis · (1 - csh))
     if(litK > 0.04 && csh < 0.9){
-      const ql = Math.min(8, Math.round(litK * (1 - csh) * (1 + 0.85 * gk) * 8));
+      const ql = Math.min(8, Math.round(litK * gsv * (1 - csh) * (1 + 0.85 * gk) * 8));
       if(ql > 0) qE(litSt[ql], T0, T0 + 2, T0 + 4, T0 + 6);
     }
     // v7: wetness memory — hardscape darkens, puddles mirror the sky
