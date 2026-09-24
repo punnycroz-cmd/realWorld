@@ -1,6 +1,16 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v168 — production-shell surfaces added to the store record:
+**Status: v183 — production-3 posture landed on the store record: NEW §41
+(proof-first sequencing — what the page sells at each monetization gate,
+audience narrowed to AI-curious viewers + emergent-story fans, standing
+bans restated as copy rules) and §42 (clip cards: the unexpected-choice →
+later-consequence module spec, real-footage-only, registry empty until
+verified moments exist); §1.1 gains a loop tagline, §13 gains A/B
+variant D (observer-loop, 229 chars), §20 FAQ gains the "what do you do
+as a watcher" row, §14 ledger + §33 register updated, 2026-09-24.**
+Supersedes v168 header.
+
+**Status (prior): v168 — production-shell surfaces added to the store record:
 §1.3/§1.4 now sell the shipped spectator HUD (preset cameras + PiP
 follow-cam + six-tab rail), §14 claim ledger gains the shell rows,
 §2.4 screenshot bench gains the production-smoke UI captures, NEW §39
@@ -44,6 +54,7 @@ Pick per context; all are ≤80 chars.
 | Twenty-eight lives on a real Mission block. | 43 | Social bios |
 | The Truman Show, except Truman is the whole street. | 51 | Press/pitch only (comparative, not on storefront boilerplate) |
 | Free to watch. Yours to change. | 31 | Short ads / social cards |
+| Make a call. Come back and check it. | 36 | Observer-loop surfaces (clip cards, devlog headers) |
 
 ### 1.2 Short description
 *(≤300 chars — Steam "short description", itch.io "short description/tagline"
@@ -472,6 +483,12 @@ conventions in ANALYTICS.md. Do not promise anything §1.3 can't back up.
 | A (current, §1.2) | spectator-first | A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Ready to reach in? Buy a time-boxed request or move in yourself: rent, work, own the block. | 222 |
 | B | agency-first | Watch a real Mission District block where 28 fictional residents never stop living. Then reach in: possess your character for thirty minutes, call for rain, nudge a neighbor — every request priced upfront, refunded if it never fires. Watching stays free. | 254 |
 | C | drama-first | Rent is due on the block, and everybody knows it. A persistent AI neighborhood in San Francisco's Mission — eight unpossessable mains, twenty ambient neighbors, one public feed of every intervention anyone buys. Free to watch. Yours to change. | 243 |
+| D | observer-loop | Catch up on a real Mission block where 28 fictional AI residents never stop living. Follow one resident. Call what happens next — then come back and check. Watching stays free; reaching in is a time-boxed request, priced upfront. | 229 |
+
+Variant D is the production-3 posture pick — it sells the return loop
+(catch up → follow → predict → verify → return) to AI-curious viewers and
+emergent-story fans instead of the whole life-sim market. Rotation order
+once baseline CTR exists: A → D → B → C.
 
 ---
 
@@ -515,6 +532,8 @@ source contract changes, the claim changes — never the reverse.
 | Named camera presets (overlook / street / rooftop) + follow + free | `src/sf/37_sf_cameras.js` SF_CAM_PRESETS + `production/shell.html` data-cam rail | shipped UI |
 | PiP second feed follows a picked resident | `production/shell.html` rwPip/pipSel | shipped UI |
 | Six-tab spectator rail (watch/wire/requests/ledger/cast/housing) | `production/shell.html` rwTabs | shipped UI |
+| Observer-loop framing (catch up → follow → predict → verify → return) | production-3 direction (2026-09-24) + shipped follow-cam/feed | posture, not a feature claim — prediction is viewer-side, no product mechanism promised |
+| Clip cards show real footage only, labeled + dated | §42 sourcing rules | policy — registry empty until verified moments exist |
 
 ---
 
@@ -674,6 +693,7 @@ Different register from `site/faq.html` — shorter, purchase-adjacent.
 | Can I lose money in this game? | There's nothing to lose. Credits are non-transferable, non-redeemable, and every denied or expired request auto-refunds. The only spend is the upfront, hard-capped request price you saw before you clicked. |
 | Is the AI content moderated? | Player requests and character names pass an intent classifier plus human review before they enter the world. Emergent resident behavior is unscripted, but consequences are handled in-fiction — and the whole request feed is public, so nothing happens off-camera. |
 | Why a browser game? | A neighborhood you can check like a live camera shouldn't need an install. Watch from anything; act when you feel like it. |
+| What do you actually do as a watcher? | Catch up on what changed, pick a resident to follow, make your private call on what happens next — then come back and see if you were right. Watching is a loop, not a lobby. |
 
 ---
 
@@ -907,6 +927,23 @@ compression rules). `store/README.md` hero-shot cite fixed v71→v81 —
 the capsules were already rebaked at v81 in v167; only the doc text
 lagged. §33 register unchanged: no new owner decisions introduced.
 
+**v183 changes:** production-3 direction (user decision 2026-09-24)
+landed on the store record. NEW §41 proof-first sequencing — the G-A/G-B/
+G-C gate table mapping store surfaces to the locked monetization order
+(return visits → subscriptions-for-depth → capped attributed
+sponsorship), the narrowed audience register (AI-curious viewers +
+emergent-story fans), and the user-locked bans restated as copy rules
+(no "unlimited living worlds", no consciousness claims, no credit-economy
+front door). NEW §42 clip cards — the unexpected-choice →
+later-consequence module spec with card format, real-footage-only
+sourcing rules, an EMPTY registry (no placeholders, no staged moments),
+placement table, and never-does list. §1.1 gains "Make a call. Come
+back and check it." (36); §13 gains variant D (observer-loop, 229,
+designated posture pick); §20 FAQ gains the watcher-loop row; §14 ledger
+gains observer-loop + clip-card policy rows; §33 gains row 15 (first
+clip-card set, owner-gated). No §1–§3 page copy changed — the new
+posture is sequencing and modules, not new claims.
+
 ---
 
 ## 26. itch.io complete field map (every project-edit field)
@@ -1118,6 +1155,7 @@ Cross-refs: LAUNCH-CHECKLIST.md gates, INFRASTRUCTURE.md §secrets.
 | 12 | Under-13 spectator privacy pass | age-gating copy, §6 | §6, checklist |
 | 13 | Trading cards post-wrapper | §29 defer row | §29 |
 | 14 | Awards/showcase entries | §30 verdict row | §30 |
+| 15 | First clip-card set (§42) | §42 registry going live on any page | §42, needs real footage + owner sign-off |
 
 Two rules for this table: **a decided row gets executed, not re-opened**
 (change means editing the doc, not improvising at the form); and **no
@@ -1487,3 +1525,117 @@ Rules: captures must be re-taken after any shell re-skin (§27 trigger);
 never crop the rail off a "UI" shot — the rail is the claim; file sizes
 are large (~2 MB) — downscale to ≤1600 px wide and recompress before
 upload, keep originals referenced by path here.
+
+---
+
+## 41. Proof-first sequencing (what the store page sells, and when)
+
+User direction, locked 2026-09-24 (astra concept review): **monetization
+follows proof, in order** — return visits first, then subscriptions for
+depth, then capped attributed sponsorship. This section is the store
+copy's spine for that order: it decides what each surface leads with and
+which copy blocks stay dormant until their gate opens. It changes
+emphasis, not facts — every claim still passes §14.
+
+**Audience register (replaces "the whole life-sim market"):** the page
+is written for AI-curious viewers and emergent-story fans — people who
+want to *watch a consequence land*, not people shopping for a dollhouse
+to own. Practical test for any new line: would it interest someone who
+enjoys figuring a person out from the outside? If it only interests
+someone who wants to spend, it belongs lower on the page or later in
+time.
+
+**Gate table — which copy activates when:**
+
+| Gate | Proof required | Store surfaces that unlock |
+|---|---|---|
+| G-A (now) | — | Everything spectator-led: §1.3 watching paragraphs, §39 rail copy, free-forever claims, the public-feed transparency story, clip cards (§42) once real footage exists |
+| G-B | Return visits proven — outsiders understand a consequence and come back voluntarily over a week, measured alongside cost per simulated day | Subscription/depth copy may stop being marked PROPOSAL-as-aspiration and become an offer; creator/export tooling may be mentioned |
+| G-C | Retention + G-B hold | Sponsorship-of-opportunity copy — capped, publicly attributed, explicit delivery/refusal/refund terms — gets its own block. Until then the page says nothing about sponsoring anything |
+
+**Standing copy bans (user-locked, apply to every storefront and every
+§ in this doc):**
+
+- Never sell "unlimited living worlds" — no phrasing that implies
+  infinite or private universes at scale.
+- Never claim consciousness — residents are "fictional AI characters",
+  "LLM-driven", "unscripted"; never "alive", "aware", "feels real
+  feelings". "Real" attaches to the *world's persistence and the
+  footage*, not to inner states.
+- Never present the credit economy as the front door. The request menu
+  (§2.2) stays on the page — it's shipped contract and honestly priced —
+  but no headline, tagline, capsule, or first-screen element may lead
+  with buying. The free observer loop is the front door.
+- No elaborate-credit-economy framing before repeat interest is proven:
+  no pack-comparison tables, no "best value" markers, no subscription
+  upsell blocks on the storefront while in G-A.
+
+**Page-order consequence (G-A, already satisfied by §2.2):** pitch →
+how watching works → what you can ask for (menu, marked proposal) →
+honesty box → FAQ. Nothing in G-A moves money copy above the fold.
+
+---
+
+## 42. Clip cards — unexpected choice → later consequence
+
+The production-3 content strategy for the storefront: short,
+contextualized pairs — a clip of an unexpected choice, then the clip of
+its later consequence — each linking into the thread it came from. This
+is the opposite of an empty street camera, and it's the only video-style
+module the store page is allowed to show.
+
+### 42.1 Card format (one card = one thread)
+
+| Field | Spec |
+|---|---|
+| Choice clip | ≤30 s, real capture, dated. The moment a resident did something nobody queued. |
+| Consequence clip | ≤30 s, real capture, dated — a *later* observable effect of that choice. Gap in days shown on the card. |
+| Caption | Two lines, verbatim pattern: `On {date}, {name} {did the thing}.` / `{N} days later: {what changed}.` |
+| Thread link | Deep link into the resident/thread view (URL pattern per site IA; `<domain>` placeholder until §33 row 1). |
+| Label | Every card carries "real capture, unscripted" — the same honesty line as the screenshot captions. |
+
+### 42.2 Sourcing rules (the honesty contract for clips)
+
+1. **Real footage only.** Clips come from the live archive/public feed.
+   Never staged, never re-performed, never seeded via a request to
+   manufacture a card — a request-driven moment may be used only if the
+   feed attribution stays visible ("requested by {handle}").
+2. **A consequence must be observable**, not inferred. "She was sad"
+   fails; "she moved her shift to mornings and stopped eating at
+   Mudhaus" qualifies. If we can't show it on camera or feed, it's not
+   a consequence for store purposes.
+3. **No cherry-picking theater.** At least one card in any live set
+   must be kind/funny/competent, not conflict-only (per the review's
+   catch-up-edition rule).
+4. **Registry lives here.** Cards are drafted below before they touch
+   any page — one row per card, links to source captures, owner
+   sign-off column (§33 row 15).
+
+### 42.3 Card registry
+
+| # | Choice (date) | Consequence (date) | Captures | Status |
+|---|---|---|---|---|
+| — | *none yet — the world must produce the moment first* | — | — | EMPTY |
+
+A store page with zero clip cards is honest; a store page with a staged
+one is not. The module simply does not render while the registry is
+empty — no placeholder, no "coming soon".
+
+### 42.4 Placement (when the first card exists)
+
+| Surface | Placement |
+|---|---|
+| itch.io page body | After the honesty box, before the FAQ — the proof beat after the promises |
+| Product Hunt gallery | Slot 2–3 (after keyart) — the "what is this" answer in motion |
+| Steam (conditional) | "Recent events & announcements" cards + about-section still; never autoplay |
+| Social cutdowns | Same pair, vertical crop — per SOCIAL-LAUNCH-PLAN, link into the thread not the homepage |
+
+### 42.5 What clip cards never do
+
+- No wager framing — predictions are the viewer's private loop; the
+  store never sells betting or prediction pools.
+- No "you won't believe what happens next" packaging — the caption
+  pattern above is the whole voice. Surprise is demonstrated, not
+  announced.
+- No clip that outs a resident's secrets — cards show observable
+  behavior only; hidden memory stays hidden (same rule as §39.4).
