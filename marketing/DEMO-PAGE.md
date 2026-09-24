@@ -8,12 +8,14 @@ keyboard deck control, today-vs-launch block (v71) + clickable camera
 presets (v86) + #shot deep links, first-watch field card, sim example
 cycler (v101) + "Would it air?" screening quiz + streamer embed
 snippet (v116) + request-lifecycle ribbon + simulated feed rows that
-walk the real `request_status` vocabulary (v131); live
+walk the real `request_status` vocabulary (v131) + "Label the shot"
+annotation overlay (v146); live
 embed pending a shippable spectator build (game-systems/world track
 dependency).
 **Roadmap ref:** MARKETING_ROADMAP.md v12 (focus: demo-page), pulled forward
 to v11; second pass v26; third pass v41; fourth pass v56; sixth pass v71;
-seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131.
+seventh pass v86; eighth pass v101; ninth pass v116; tenth pass v131;
+eleventh pass v146.
 
 The demo page is the funnel's front door: free spectator view first, then the
 watch → request → create ladder. It must work *today* (pre-build) without
@@ -254,6 +256,28 @@ spectator game build; the wire embed is a separate, already-real surface.
   `rw_watchcard_v1` — existing cards just show 8/9 until the new item
   is checked (honest, no migration).
 
+## 4a-ix. v146 — "Label the shot" overlay
+
+- **`#demo-labels` + `#demo-marks`** — a toolbar toggle that drops a
+  `.demo-marks` layer over the fallback screen. `MARKS` in demo.js holds
+  one marker set per `SHOTS` entry (x/y % + text); each label names only
+  what is verifiable in the frame itself — the resident inspector, names
+  over heads, the Wire HUD chip, the REC/DIRECTOR markers, fog at the
+  edges, dressed facades. `renderMarks()` runs inside `show()`, so the
+  markers stay pinned to the right capture through auto-cycle, ←/→,
+  chips, deep links and the tour.
+- **Fallback-only** — the button and layer hide when a live embed
+  resolves (the live HUD names its own surfaces); the today-vs-launch
+  block says the overlay retires at launch.
+- Toggle carries `aria-pressed`, emits declarative
+  `cta_click{cta:"demo-labels"}`; key **L** toggles it (form fields
+  excluded, same guard as ←/→); `#demo-keys` hint names all three
+  bindings. Markers are `pointer-events:none` — they never block the
+  overlay or note card.
+- **Field card** grows to ten items (`data-fc="labels"`); count stays
+  `boxes.length`-derived. Key stays `rw_watchcard_v1` — existing cards
+  show 9/10 until the new item is checked (same honest pattern as v131).
+
 ## 4b. Day strip (v26)
 
 "A day on the block" cards (v26; hour-range windows + live `is-now`
@@ -277,10 +301,11 @@ persistent world. No liveness implied.
 - Page weight (excl. shots/, excl. the game embed itself): **< 200 KB**.
 - Embed iframe is `loading="lazy"` and only created when a URL resolves —
   zero game payload for fallback viewers.
-- No frameworks, no webfonts, no third-party requests. `demo.js` < 20 KB
-  (raised v116 — embed-copy handler; was < 16 KB at v86, < 14 KB at v71,
-  < 6 KB pre-v56), `demo-sim.js` < 16 KB (raised v131 — lifecycle walk +
-  status map grew it past the old 12 KB line), `demo-quiz.js` < 8 KB (v116).
+- No frameworks, no webfonts, no third-party requests. `demo.js` < 22 KB
+  (raised v146 — MARKS overlay + toggle; was < 20 KB at v116, < 16 KB at
+  v86, < 14 KB at v71, < 6 KB pre-v56), `demo-sim.js` < 16 KB (raised v131 —
+  lifecycle walk + status map grew it past the old 12 KB line),
+  `demo-quiz.js` < 8 KB (v116).
 
 ## 6. Analytics hooks
 
@@ -338,5 +363,8 @@ analytics-events.json.
   manual copy where clipboard is unavailable (v116).
 - [x] Lifecycle ribbon + sim feed rows use only the ten verbatim
   `request_status` labels; walk timers stop on detached rows (v131).
+- [x] Label overlay markers name only frame-verifiable surfaces, track
+  the active shot across every deck navigation path, are pointer-transparent,
+  and hide with the button when the live embed resolves (v146).
 - [ ] Flip `data-demo-src` + verify `watch_start{mode:"live"}` — **launch gate**
   (tracked in LAUNCH-CHECKLIST.md).

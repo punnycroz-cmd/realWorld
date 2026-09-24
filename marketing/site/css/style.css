@@ -213,6 +213,25 @@ ul.clean li { margin: 6px 0; }
   display: inline-block; flex: none;
 }
 .demo-stage.is-live .demo-status .dot { background: var(--accent-2); }
+.demo-marks {
+  position: absolute; inset: 0; pointer-events: none; z-index: 2;
+}
+.demo-mark {
+  position: absolute; transform: translate(-50%, -50%);
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 12px; font-weight: 600; line-height: 1.2;
+  color: var(--text); white-space: nowrap;
+  background: rgba(14, 15, 20, .82); border: 1px solid var(--border);
+  border-radius: 999px; padding: 3px 10px 3px 6px;
+}
+.demo-mark::before {
+  content: ""; width: 7px; height: 7px; border-radius: 50%;
+  background: var(--accent-2); flex: none;
+  box-shadow: 0 0 0 3px rgba(120, 200, 160, .22);
+}
+@media (max-width: 720px) {
+  .demo-mark { font-size: 10.5px; padding: 2px 7px 2px 5px; }
+}
 .cam-bar {
   display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
   margin: 10px 0 2px;

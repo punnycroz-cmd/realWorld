@@ -236,6 +236,39 @@
       ["shots/v53-C", "Dolores Park — blankets on the lawns, Karl's fog edging in"],
       ["shots/v53-D", "director mode — the neighborhood reads like a set"]
     ];
+    // "Label the shot" overlay — one marker set per SHOTS entry. Every label
+    // names something verifiable in the frame itself: the inspector panel,
+    // names over heads, the Wire HUD chip, the REC marker. Nothing here
+    // claims liveness — the captures are labeled as such everywhere else.
+    // Fallback-only: the live HUD names its own surfaces.
+    var MARKS = [
+      [
+        [14, 44, "Resident inspector — needs, mood & skills on select"],
+        [48, 47, "Jules — the selected resident"],
+        [30, 4, "World HUD — day, weather, block time"],
+        [82, 4, "The Wire — every request lands here"],
+        [62, 57, "24th St — the real Mission grid"]
+      ],
+      [
+        [48, 36, "Jules — names over heads, always"],
+        [64, 36, "Priya — out on her routine"],
+        [11, 34, "Dani"],
+        [14, 44, "The same inspector, at street level"],
+        [50, 22, "Facades mid-dress — signage pass in progress"]
+      ],
+      [
+        [48, 34, "Dolores Park — the block's commons"],
+        [86, 30, "The palm allée"],
+        [33, 22, "Blankets out — residents on their own schedules"],
+        [12, 12, "Karl's fog pools at the edges — it edges in, never snaps"]
+      ],
+      [
+        [5, 9, "● REC — director mode"],
+        [50, 14, "DIRECTOR — free framing, still read-only"],
+        [62, 43, "Dressed facades — the block as its own postcard"],
+        [14, 44, "The inspector rides along in every mode"]
+      ]
+    ];
     // Deep link: #shot=1..4 pins the deck (and its cam chip) on load, so a
     // shared "this view" link lands on the same capture. The live embed
     // ignores the hash — live cameras live inside the frame.
@@ -256,6 +289,26 @@
     var keysHint = document.getElementById("demo-keys");
     var camBar = document.getElementById("cam-bar");
     var camChips = camBar ? camBar.querySelectorAll(".cam-chip") : [];
+    var marksEl = document.getElementById("demo-marks");
+    var labelBtn = document.getElementById("demo-labels");
+    var labelsOn = false;
+
+    function renderMarks() {
+      if (!marksEl) return;
+      marksEl.textContent = "";
+      marksEl.hidden = !labelsOn;
+      marksEl.setAttribute("aria-hidden", labelsOn ? "false" : "true");
+      if (!labelsOn) return;
+      var list = MARKS[idx] || [];
+      for (var m = 0; m < list.length; m++) {
+        var mk = document.createElement("span");
+        mk.className = "demo-mark";
+        mk.style.left = list[m][0] + "%";
+        mk.style.top = list[m][1] + "%";
+        mk.textContent = list[m][2];
+        marksEl.appendChild(mk);
+      }
+    }
     var reduced = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var idx = 0, touring = false, tourTimer = null, autoTimer = null;
@@ -271,6 +324,7 @@
     function show(i, fade) {
       idx = ((i % SHOTS.length) + SHOTS.length) % SHOTS.length;
       markCam(idx);
+      renderMarks();
       var base = SHOTS[idx][0], label = SHOTS[idx][1];
       var swap = function () {
         if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
@@ -352,6 +406,15 @@
       })(camChips[ci]);
     }
 
+    if (labelBtn) {
+      labelBtn.addEventListener("click", function () {
+        labelsOn = !labelsOn;
+        labelBtn.setAttribute("aria-pressed", labelsOn ? "true" : "false");
+        labelBtn.textContent = labelsOn ? "Hide the labels" : "Label the shot";
+        renderMarks();
+        // the button's own data-rw-event emits cta_click{cta:"demo-labels"}
+      });
+    }
     if (screen && img) {
       if (hashShot >= 0) show(hashShot, false);
       if (!reduced) startAuto();
@@ -376,6 +439,8 @@
           if (touring) endTour(false);
           show(parseInt(e.key, 10) - 1, true);
           resetAuto();
+        } else if (e.key === "l" || e.key === "L") {
+          if (labelBtn) labelBtn.click();
         }
       });
     } else {
@@ -390,6 +455,8 @@
     if (kh) kh.hidden = true;
     var cb = document.getElementById("cam-bar");
     if (cb) cb.hidden = true;
+    var lb = document.getElementById("demo-labels");
+    if (lb) lb.hidden = true;
   }
 
   // First-watch field card — a local checklist for a first visit. State is
