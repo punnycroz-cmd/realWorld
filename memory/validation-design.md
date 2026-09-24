@@ -8613,3 +8613,137 @@ MUST; P919, P921, P923, P924 SHOULD; P926 COULD.
   Knot magnitudes, `dist_child_mult`, `epf_sem_fill` parity
   across ends, `pm_zombie_p` per-cue rates, `bump_neg_pen`
   magnitude = RW hypotheses, probe-gated P918–P927.
+
+## 180. v88 suite (P928–P937) — age-decline VIII
+
+Suite focus: the overlay ledger — event steps, state
+overlays, protective slopes, reversible dips, and
+world-visible leading indicators (spec v5.36,
+AD§§110–119).
+
+- **P928 habit shift (MUST, dissociation):** script-node
+  execution share at age 80 ≥1.3× the 30yo share when a
+  scripted outcome changes; `goal_update_pen` delays update
+  ≥2× sim-days on old profiles; `perseverate` emissions
+  fire only on genuine outcome-change events (a stable
+  world emits none). Eppinger 2013; de Wit 2014.
+- **P929 grief two-half (MUST, sign-lock):** `spousal_loss`
+  at 72 degrades new encode legs ~`grief_hl` while pre-loss
+  recall stays flat (`grief_recall_null`); the `grief_slope`
+  tail is detectable but must not dominate the acute dip
+  (≤1.3×) — honors the LASA null. Aartsen 2005; Shin 2018;
+  Comijs fixed-effects.
+- **P930 hospitalization step (MUST, shape-lock):** `acute`
+  hospitalization at 74 shifts encode legs by
+  `hosp_step_acute`±20% + transient slope ≥1.5×;
+  `elective` produces neither (James 2019 elective-null);
+  stored-record recall flat — `hosp_level_null`. Wilson
+  2012; Ehlenbach 2010.
+- **P931 purpose slope (SHOULD):** purpose 0.9 vs 0.1
+  twins diverge post-60 by the HR-0.48-mapped ratio;
+  protection survives a `spousal_loss` event (internal
+  lever). Boyle 2010/2012.
+- **P932 bilingual onset (SHOULD, shape-lock):** bilingual
+  twins cross decline knots `biling_years`±0.5 later,
+  post-onset slope identical — onset shift never slope
+  (`biling_scope` frozen). Bialystok 2007; Zahodne 2014
+  counterflag.
+- **P933 gait precedence (MUST, order-lock):** decline-arm
+  `gaitSlow` hints lead episodic-output decline by
+  `gait_lead`±1y; `gait_channel_null` — gait metrics never
+  alter a memory roll. Mielke 2013; Buracchio 2010.
+- **P934 MT dip-and-rebound (MUST, sign-lock):** forced
+  mt_stage sequence shows late_peri encode trough ≥1.4×
+  vs pre, full recovery within `mt_recover` (≤5% residual);
+  male twin flat; pre-dip recall flat — `mt_recall_null`.
+  Greendale 2009.
+- **P935 remote semanticization (SHOULD, interaction):**
+  at fixed 20y retention 78yo emissions show more external
+  share than 35yo; at fixed 78, 20y-old records emit more
+  external than 1y-old — both halves required. Sekeres
+  2018; Levine 2002.
+- **P936 network orthogonality (SHOULD):** `net_size`
+  tertiles diverge on decline legs with `social` trait and
+  loneliness overlay held equal — structural channel
+  separable from perceived. Bennett 2006; James 2011.
+- **P937 feedback crossover (MUST, sign-lock):** at 80,
+  uncorrected failed-retrieval re-encodes gain LESS than
+  passive re-exposure while corrected retrievals gain MORE;
+  at 30 both retrieval modes beat re-exposure — full
+  crossover required. Tse 2010; Meyer & Logan 2013.
+
+Registry: P1–P937. v88 suite: P928, P929, P930, P933,
+P934, P937 MUST; P931, P932, P935, P936 SHOULD.
+
+## 181. Sources verified this version (P928–P937 backing)
+
+- **Habit/goal balance:** Eppinger, Walter, Heekeren & Li
+  2013 (*Front. Psychol.* 4:967 — verified: model-based
+  impaired, model-free spared, perseveration on strategy
+  shift); de Wit, van de Vijver, Ridderinkhof & Crielaard
+  2014 (*Cogn. Affect. Behav. Neurosci.* 14:647 —
+  verified: devaluation + slips-of-action); de Wit et al.
+  2012 (*J. Neurosci.* 32:8211 — verified corticostriatal
+  connectivity); Otto et al. 2013 (stress → habitual).
+- **Widowhood:** Aartsen, Van Tilburg, Smits, Comijs &
+  Knipscheer 2005 (*Psychol. Med.* 35:217 — verified:
+  memory decline independent of depression/health); Shin,
+  Kim & An 2018 (*Am. J. Geriatr. Psychiatry* 26:778 —
+  verified HRS 6,766: time-since-loss scaling); Comijs et
+  al. LASA fixed-effects (*J. Gerontol. B* gby104 —
+  verified counterpoint: temporary reasoning-only dip,
+  women only); Fulton et al. 2022 systematic review
+  (64 studies, adverse association overall).
+- **Hospitalization:** Wilson et al. 2012 (*Neurology*
+  78:950 — verified: 0.031→0.075/yr, 2.4×, episodic 3.3×);
+  Ehlenbach et al. 2010 (*JAMA* 303:763 — verified: CASI
+  −1.01/−2.14, dementia HR 1.4/2.3); James et al. 2019
+  (*JAMA Netw Open* — verified: nonelective 0.076→0.112,
+  elective null).
+- **Purpose:** Boyle, Buchman, Barnes & Bennett 2010
+  (*Arch. Gen. Psychiatry* 67:304 — verified: AD HR 0.48,
+  MCI 0.71, slower decline, robust to depression/
+  neuroticism/network); Boyle et al. 2012 (verified:
+  moderates pathology→cognition mapping); Kim et al. 2019
+  (*AJGP* — verified HRS 11,557).
+- **Bilingualism:** Bialystok, Craik & Freedman 2007
+  (*Neuropsychologia* 45:459 — verified ~4.1y delay);
+  Craik, Bialystok & Freedman 2010 (~5y); DEBATED —
+  Zahodne et al. 2014 (*Neurology*) null; Mukadam 2017
+  meta attenuation in prospective samples.
+- **Gait:** Mielke et al. 2013 (*J. Gerontol. A* 68:929 —
+  verified Mayo 1,478: gait→cog direction only); Buracchio
+  et al. 2010 (*Arch. Neurol.* 67:980 — verified ~12y
+  pre-MCI acceleration); Tian et al. 2020 (*JAMA Netw
+  Open* 3:e1921636 — verified 6-cohort meta: dual decline
+  6.28× dementia risk).
+- **Menopause:** Greendale, Huang, Wight et al. 2009
+  (*Neurology* 72:1850 — verified SWAN 2,362: late-peri
+  learning 7–28% of pre, post rebound); Greendale et al.
+  2010 SWAN symptom analysis (verified: not fully
+  symptom-mediated).
+- **Remote semanticization:** Sekeres, Winocur &
+  Moscovitch 2018 (*J. Neurosci.* — verified); Levine et
+  al. 2002 (*Psychol. Aging* — §104/§5.78c anchor);
+  Piolino et al. 2006; Nadel & Moscovitch 1997 MTT.
+- **Structural network:** Bennett, Schneider, Tang,
+  Arnold & Wilson 2006 (*Lancet Neurol.* 5:406 — verified:
+  network size modifies pathology→function, survives
+  depression/activity controls); Crooks et al. 2008
+  (*AJPH* 98:1221 — verified HR 0.74); James, Wilson,
+  Barnes & Bennett 2011 (*JINS* — verified activity
+  frequency → slower decline).
+- **Testing/feedback:** Tse, Balota & Roediger 2010
+  (*Psychol. Aging* 25:19 — verified crossover); Meyer &
+  Logan 2013 (*Psychol. Aging* — verified extension).
+- **Established vs hypothesis:** habit/goal dissociation,
+  bereavement→decline association (tail DEBATED), post-
+  hospitalization acceleration + elective-null, purpose
+  protection, gait→cognition arrow, MT dip-and-rebound,
+  remote semanticization, network-size moderation,
+  testing×feedback crossover = CONSENSUS/established
+  (bilingual onset DEBATED). All knot magnitudes,
+  age-equivalent unit conversions (hosp_step, grief_equiv),
+  compressed leads (gait_lead 4y vs 12y, mt_learn 0.5 vs
+  0.07 learning rate) = RW hypotheses, probe-gated
+  P928–P937.

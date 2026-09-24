@@ -3436,3 +3436,75 @@ floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
   knot magnitudes + `dist_child_mult`, `epf_sem_fill`,
   `pm_zombie_p` rates, `bump_neg_pen` are fitted —
   probe-gated P918–P927.
+
+## 66. v88 adds — age-decline VIII (the overlay ledger)
+
+Part VIII of age-decline.md (§§110–119) moves decline from
+pure slope to **event-and-state ledger** — the largest
+single reframe since the trajectory classes (§96):
+
+- **Event-shaped decline.** Wilson 2012 (MAP): first
+  hospitalization accelerates decline 2.4× (episodic 3.3×);
+  James 2019 isolates it to *nonelective* admissions —
+  elective surgery does not accelerate. Ehlenbach 2010
+  adds the level step (CASI −1.01/−2.14). RW consequence:
+  `hosp_step` is the first non-age term in the decline
+  integrator — a character's memory age is now partly a
+  *medical history*, and the elective-null keeps the
+  mechanism honest (hospitalization qua illness stressor,
+  not qua event tag).
+- **Loss-shaped decline.** Aartsen 2005: widowhood costs
+  memory *independently of depression* — bereavement is
+  not mood-mediated (so it stacks with, not inside, the
+  loneliness overlay). Shin 2018 says the tail is
+  persistent and time-scaling; LASA fixed-effects says
+  temporary and reasoning-only. We encode acute-certain +
+  tail-small (P929 caps it) — the honest middle.
+- **Reversible dip.** Greendale 2009 (SWAN) is the
+  cleanest *transient* decline in the literature: late-
+  perimenopause learning at 7% of premenopause rate, full
+  rebound post. `mt_stage` is the model's only overlay
+  that gives the deficit back — and the first sex-linked
+  age mechanism (female mains pay a midlife encoding
+  trough; males never do).
+- **Leading indicators.** Mielke 2013's one-way arrow
+  (gait→cognition, never reverse) plus Buracchio 2010's
+  ~12y pre-MCI acceleration give the decline arm a
+  *world-visible* tell (`gaitSlow`) years before memory
+  shows — the spectator learns the trajectory before the
+  character, the external mirror of SCD (§98). Compressed
+  to 4y for season-scale drama.
+- **Protective levers with different physics.** Purpose
+  (Boyle 2010 — internal, event-rewritable, survives
+  bereavement), bilingualism (Bialystok 2007 — DEBATED,
+  onset-shift only, slope never spared), and structural
+  network size (Bennett 2006 — modifies the
+  pathology→function mapping, orthogonal to *perceived*
+  loneliness) are three distinct reserve channels; the
+  spec now keeps them separable so probes can falsify any
+  one without collapsing the others.
+- **Control shift.** Eppinger 2013 / de Wit 2014: old age
+  moves action selection habitual — the routine survives
+  the reason. `perseverate:true` is the emission: she
+  still walks to the closed bakery. Behaviorally the same
+  dissociation as §5.78d's implicit floor, one level up.
+- **The learning-channel crossover.** Tse 2010: testing
+  beats restudy for old adults ONLY with feedback —
+  uncorrected retrieval attempts lose to re-exposure.
+  `test_nofb_gain` < `study_gain` means an old character
+  who misremembers aloud and is never corrected
+  consolidates the error — misinformation (§6.3) and
+  relearning are the same fluency mechanics seen from two
+  sides.
+- **Remote semanticization.** Sekeres 2018 + Levine 2002:
+  the oldest records shed detail fastest in old adults —
+  the remote story survives as its *lesson*.
+
+New sources verified this version: Eppinger 2013, de Wit
+2012/2014, Otto 2013, Aartsen 2005, Shin 2018, LASA
+fixed-effects (Comijs gby104), Fulton 2022 review,
+Wilson 2012, Ehlenbach 2010, James 2019, Boyle 2010/2012,
+Kim 2019, Bialystok 2007/2010, Zahodne 2014, Mukadam 2017,
+Mielke 2013, Buracchio 2010, Tian 2020, Greendale
+2009/2010, Sekeres 2018, Piolino 2006, Bennett 2006,
+Crooks 2008, James 2011, Tse 2010, Meyer & Logan 2013.

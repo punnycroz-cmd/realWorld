@@ -1,5 +1,45 @@
-# Memory Model Spec v5.35 — implementable human-like memory for RW characters
+# Memory Model Spec v5.36 — implementable human-like memory for RW characters
 
+> **v5.36 note (age-decline VIII — decline is a ledger of
+> losses, not just a slope):** the overlay layer — event
+> steps, protective slopes, reversible dips, and channels a
+> spectator can see. **Habit over goal** — `habit_shift`
+> knots + `goal_update_pen` + `habit_stress_gain` shift
+> control habitual with age/stress; `perseverate:true`
+> emission (Eppinger 2013; de Wit 2014). **Widowhood** —
+> `spousal_loss` mints `grief_decline` (encode-only
+> `grief_age_equiv` +3y, hl 2.5y) + contested `grief_slope`
+> 1.15 tail; locked `grief_recall_null` (Aartsen 2005;
+> Shin 2018). **Hospitalization step** —
+> `hospitalization{elective|acute|critical}` mints
+> `hosp_step` (+0/+1.0/+2.0 age-years) + `hosp_slope_mult`
+> (1.0/1.7/2.4) decaying on `hosp_recover_tau`; elective
+> null + `hosp_level_null` (Wilson 2012; Ehlenbach 2010;
+> James 2019). **Purpose slope** — trait `purpose` →
+> `purpose_mult` on post-60 legs, ~HR-0.48 compressed
+> (Boyle 2010). **Bilingual onset** — trait `bilingual`
+> shifts decline onset `biling_years` 2.0; frozen
+> `biling_scope:"onset-only"` (Bialystok 2007 — DEBATED).
+> **Gait leads** — `gait_eff` on `age_eff +
+> gait_lead·(decline)` 4y → `gaitSlow:true` world hints
+> before memory shows; locked `gait_channel_null` (Mielke
+> 2013; Buracchio 2010; dual-decline Tian 2020).
+> **Menopause dip** — `mt_stage` gates `mt_learn_mult`
+> 0.75/0.5 early/late peri, full rebound `mt_recover`;
+> `mt_complaint` honest; locked `mt_recall_null` (Greendale
+> 2009). **Remote semanticization** — `ie_remote_gain` on
+> §5.78c: external share grows with record age × owner
+> age ≥60 (Sekeres 2018; Levine 2002). **Structural
+> network** — `net_size` (substrate-computed EMA) →
+> `net_mult` on decline legs, orthogonal to loneliness
+> (Bennett 2006; James 2011). **Feedback-gated
+> relearning** — old-age retrieval re-encodes gain
+> `test_gain` 1.3 only with `feedback:true`;
+> `test_nofb_gain` 0.7 < `study_gain` — the Tse 2010
+> crossover: an uncorrected old error learns better than
+> the truth. +28 scalars (24 params incl. knot sets), +2
+> traits, +3 state, +4 locked nulls, +2 frozen. Probes
+> P928–P937.
 > **v5.35 note (age-development VIII — the flat terms that
 > weren't):** six age corrections on terms that were flat.
 > **Self-reference onset** — `w_self·selfRelevance_eff`
@@ -4766,6 +4806,84 @@ selfRelevant — a partial waiver: the divorce encodes strongly
 non-negative records — "people marry ~28" exists; "people
 grieve at 28" doesn't (P923 distributional sign).
 
+### 4.45 The old-age overlay ledger — events, states, and
+levers (new in v5.36)
+
+Decline is not only a slope; it is a ledger. These overlays
+sit on top of §4.36's trajectory machinery — each is a state
+or event the world can mint, and each is encode-side unless
+stated.
+
+**4.45a Habit over goal** (AD§110; Eppinger, Walter,
+Heekeren & Li 2013 *Front. Psychol.* 4:967 — verified:
+model-based control impaired, model-free spared; de Wit et
+al. 2014 *CABN* 14:647 — verified slips-of-action; Otto
+2013 — stress shifts everyone habitual): control-balance
+scalar `goal_w_eff = goal_w·(1 − habit_shift(age_eff) −
+habit_stress_gain·stress)` governs whether a character
+updates a §4.20 script-node when its outcome changes.
+`habit_shift` knots 0.05@30 → 0.15@65 → 0.30@80 → 0.35@85;
+`habit_stress_gain` ~0.2–0.3. On outcome-change events a
+failed update roll emits `perseverate:true` (world-
+renderable: she still walks to the closed bakery) and the
+script retries next encounter — `goal_update_pen` delays,
+never permanently locks.
+
+**4.45b Widowhood** (AD§111; Aartsen et al. 2005 *Psychol.
+Med.* 35:217 — verified: memory decline independent of
+depression/health; Shin, Kim & An 2018 *AJGP* 26:778 —
+verified HRS: decline scales with time-since-loss;
+LASA fixed-effects counterpoint — DEBATED tail): event
+`spousal_loss` mints `grief_decline` {hl `grief_hl` 2.5y,
+peak +`grief_age_equiv` 3y on encode legs} plus persistent
+`grief_slope` 1.15 on post-60 decline legs. Locked
+`grief_recall_null` — pre-loss records untouched; stacks
+orthogonally to the §40 loneliness overlay.
+
+**4.45c Hospitalization step** (AD§112; Wilson et al. 2012
+*Neurology* 78:950 — verified: 2.4× post-hospitalization
+acceleration, episodic 3.3×; Ehlenbach 2010 *JAMA* 303:763
+— verified CASI −1.01/−2.14, HR 1.4/2.3; James et al. 2019
+*JAMA Netw Open* — verified: nonelective carries it,
+elective null): event `hospitalization:{elective|acute|
+critical}` mints `hosp_step` — one-time age_eff step
+(0 / +1.0 / +2.0 age-years) plus `hosp_slope_mult`
+(1.0 / 1.7 / 2.4) on encode-side decline legs decaying to
+1.0 over `hosp_recover_tau` 3y. Locked `hosp_level_null`:
+the step ages the machinery, never the corpus — no record's
+S is retroactively touched.
+
+**4.45d Purpose slope** (AD§113; Boyle et al. 2010 *Arch.
+Gen. Psychiatry* 67:304 — verified: HR 0.48 AD, slower
+decline, robust to depression/neuroticism/network;
+Boyle 2012 — verified: purpose moderates the
+pathology→cognition mapping): bible-pinnable trait
+`purpose` ∈[0,1] → `purpose_mult = 1 − purpose_slope·purpose`
+on all post-60 decline legs, `purpose_slope` 0.35. Internal
+lever — survives widowhood and retirement; world rewrites
+it only on goal events, never ticks it.
+
+**4.45e Bilingual onset** (AD§114; Bialystok, Craik &
+Freedman 2007 *Neuropsychologia* 45:459 — verified ~4.1y
+delay; DEBATED — Zahodne 2014 null, prospective
+attenuation): trait `bilingual` ∈{0,1} shifts the onset
+of age_decline legs right by `biling_years` (2.0). Frozen
+`biling_scope="onset-only"`: the slope is never spared —
+compensation, not immunity (P932 shape-lock).
+
+**4.45f Menopause dip** (AD§116; Greendale et al. 2009
+*Neurology* 72:1850 — verified SWAN: perimenopause learning
+rate 29%/7% of premenopause, rebound post; complaints real
+— 60% endorse): female-profile state `mt_stage` ∈{pre,
+early_peri, late_peri, post} (world/bible-set ~42–52,
+`mt_span` ~4y) scales encode + relearn legs by
+`mt_learn_early` 0.75 / `mt_learn_late` 0.5 (compressed —
+P934), restores over `mt_recover` 1y post. `mt_complaint`
+0.5 routes the dip to the complaint channel honestly — she
+notices and is right (contrast §5.78b worried-well). Locked
+`mt_recall_null`: pre-dip records untouched. Frozen
+`mt_scope="encode-only"`.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -7152,6 +7270,55 @@ re-fires at `pm_zombie_p(age_eff)` — 0.02 at 20 → 0.05 at
 `zombie_monitor_null`:** the zombie never re-arms the §5.14
 monitor loop — no monitoring cost, retrieval-side
 spontaneous fire only (P925 state-check).
+
+### 5.95 Old-age overlays III — the feet report first, the
+remote story semanticizes, the uncorrected error learns
+(new in v5.36)
+
+**5.95a The gait channel** (AD§115; Mielke et al. 2013 *J.
+Gerontol. A* 68:929 — verified: gait predicts cognition,
+not vice versa; Buracchio 2010 *Arch. Neurol.* 67:980 —
+verified: gait acceleration ~12y pre-MCI; Tian et al. 2020
+*JAMA Netw Open* — verified dual-decline 6.28×): the world
+layer may read `gait_eff` — a motor channel evaluated on
+`age_eff + gait_lead·(traj=="decline")`, `gait_lead` 4y —
+and render `gaitSlow:true` hints (slower walk, rests) that
+precede measurable memory decline. §4.36c `loco_yield`
+micro-events scale ×(1+gait_deficit). Locked
+`gait_channel_null`: gait metrics never enter a memory
+roll — pure world-renderable readout.
+
+**5.95b Remote semanticization** (AD§117; Sekeres, Winocur
+& Moscovitch 2018 *J. Neurosci.* — verified: remote AMs
+lose contextual detail, gain schema consistency; Levine
+2002 — §5.78c anchor; Piolino 2006): emission detail mix
+(§5.78c) gains a record-age interaction for age_eff ≥60 —
+`ie_remote_gain = 1 + remote_ie·log1p((worldDay −
+createdDay)/3650)`, `remote_ie` 0.4 — the remote record
+retrieves as *meaning*: the toast is gone, the lesson is
+fluent. P935 locks the age × record-age interaction.
+
+**5.95c The structural network** (AD§118; Bennett et al.
+2006 *Lancet Neurol.* 5:406 — verified: network SIZE
+modifies pathology→function, strongest on semantic/WM;
+Crooks 2008 HR 0.74; James 2011): `net_size` —
+substrate-computed count of maintained relationship ties,
+EMA over `net_ema_tau` 1y — standardizes to `net_z`;
+decline legs multiply `net_mult = 1 − net_slope·min(net_z,
+2)`, `net_slope` 0.15. Orthogonal to `social` trait and
+§40 loneliness — the counted channel, not the felt one.
+
+**5.95d Feedback-gated relearning** (AD§119; Tse, Balota &
+Roediger 2010 *Psychol. Aging* 25:19 — verified crossover:
+no-feedback testing loses to restudy in old adults,
+feedback restores the testing advantage at ~80; Meyer &
+Logan 2013 — verified): relearn/re-encode gains split by
+correction — `test_gain` 1.3 when the re-encode carries
+`feedback:true` (hearAccount correction events route
+here); `test_nofb_gain` declines 1.15@30 → 1.0@60 →
+0.7@80 vs `study_gain` 1.0 passive re-exposure. The
+crossover is the spec: uncorrected old-age misrecall
+consolidates the error.
 
 ---
 
@@ -12695,6 +12862,42 @@ MemoryParams = {
 //   micro-event `didItAgain:true`; `reportMode:"know"`
 //   already in schema (§4.23). No Event schema changes;
 //   no new traits (inattn, g_mem run upstream as before).
+// v5.36 additions (age-decline VIII — AD§§110–119)
+"habit_shift_30": 0.05, "habit_shift_65": 0.15,
+"habit_shift_80": 0.30, "habit_shift_85": 0.35,
+"goal_update_pen": 0.4, "habit_stress_gain": 0.25, // §4.45a
+"grief_hl": 2.5, "grief_age_equiv": 3.0,
+"grief_slope": 1.15,                             // §4.45b
+"hosp_step_acute": 1.0, "hosp_step_critical": 2.0,
+"hosp_slope_acute": 1.7, "hosp_slope_critical": 2.4,
+"hosp_recover_tau": 3.0,                         // §4.45c
+"purpose_slope": 0.35,                           // §4.45d
+"biling_years": 2.0,                             // §4.45e
+"mt_learn_early": 0.75, "mt_learn_late": 0.5,
+"mt_span": 4.0, "mt_recover": 1.0,
+"mt_complaint": 0.5,                             // §4.45f
+"gait_lead": 4.0,                                // §5.95a
+"remote_ie": 0.4,                                // §5.95b
+"net_ema_tau": 1.0, "net_slope": 0.15,           // §5.95c
+"test_gain": 1.3, "test_nofb_80": 0.7,
+"study_gain": 1.0,                               // §5.95d
+// v5.36 traits: `purpose` ∈[0,1] (bible-pinnable,
+//   event-rewritable only — never ticked); `bilingual`
+//   ∈{0,1} (onset shift only).
+// v5.36 locked nulls: grief_recall_null (pre-loss records
+//   untouched — P929); hosp_level_null (step never touches
+//   stored S — P930); mt_recall_null (pre-dip records
+//   untouched — P934); gait_channel_null (gait_eff is
+//   world-renderable, never enters a memory roll — P933).
+// v5.36 frozen: biling_scope="onset-only" (slope never
+//   spared — P932); mt_scope="encode-only".
+// v5.36 fields/state: `grief_decline`, `hosp_step`,
+//   `mt_stage` overlay state (snapshot-additive); events
+//   `spousal_loss`, `hospitalization:{elective|acute|
+//   critical}` (world-supplied); emissions
+//   `perseverate:true`, `gaitSlow:true`; re-encode
+//   `feedback:true` routing (§5.95d). Event schema:
+//   +2 event kinds, additive.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -14595,6 +14798,42 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; `pm_zombie`
     is hidden/harness-readable non-record state. Probes
     P918–P927.
+- v5.36 additions (age-decline.md Part VIII §§110–119):
+  - **New event kinds** (world-supplied, additive):
+    `spousal_loss` → mints `grief_decline` state;
+    `hospitalization:{elective|acute|critical}` → mints
+    `hosp_step` state. Both snapshot-additive; absent =
+    never happened.
+  - **New emissions:** `perseverate:true` (failed script
+    update under habit_shift — world renders the repeated
+    routine); `gaitSlow:true` (§5.95a decline-arm leading
+    readout — spectator-visible, harness-checkable).
+  - **New traits:** `purpose` ∈[0,1] (bible-pinnable,
+    event-rewritable — never ticked); `bilingual` ∈{0,1}.
+  - **New state:** `grief_decline` {hl, age-equiv},
+    `hosp_step` {step, slope_mult, tau}, `mt_stage`
+    ∈{pre|early_peri|late_peri|post} — all encode-side
+    overlays on `age_eff`; none touch stored S
+    (`hosp_level_null`, `grief_recall_null`,
+    `mt_recall_null` locked).
+  - **`net_size` input:** substrate-supplied EMA count of
+    maintained ties (world/game-systems computes from the
+    relationship matrix; spec consumes `net_z` only).
+  - **`feedback:true` routing:** hearAccount correction
+    events and self-quizzing re-encodes may mark the
+    re-encode — §5.95d splits `test_gain` vs
+    `test_nofb_gain` on it; absent feedback flag on old
+    profiles defaults to the losing arm (the crossover
+    means wiring this wrong is detectable, P937).
+  - **New params (§7):** 28 scalars — habit_shift_30/65/
+    80/85, goal_update_pen, habit_stress_gain, grief_hl,
+    grief_age_equiv, grief_slope, hosp_step_acute/
+    critical, hosp_slope_acute/critical, hosp_recover_tau,
+    purpose_slope, biling_years, mt_learn_early/late,
+    mt_span, mt_recover, mt_complaint, gait_lead,
+    remote_ie, net_ema_tau, net_slope, test_gain,
+    test_nofb_80, study_gain + 4 locked nulls + 2 frozen.
+  - Probes P928–P937.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

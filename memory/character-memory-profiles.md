@@ -1139,6 +1139,15 @@ needs both.
 | recol_enc_5y / recol_enc_8y / recol_enc_12y / recol_enc_exit | 0.2 / 0.4 / 0.6 / 12 | 0.8 / 1.0 / 1.0 / 20 | recollection encodeAge knots + exit (v5.35) |
 | sdm_4y / sdm_8y / sdm_14y / epf_sem_fill | 0.2 / 0.4 / 0.8 / 0.0 | 0.8 / 1.0 / 1.0 / 0.6 | future-sim child knots + semantic back-fill (v5.35) |
 | pm_zombie_hl / pm_zombie_repeat / pm_zombie_20 / pm_zombie_50 / pm_zombie_80 | 2 / 1.0 / 0.0 / 0.0 / 0.05 | 60 / 3.0 / 0.1 / 0.2 / 0.5 | completed-intention residual: hl(d), repeat mult, age knots (v5.35) |
+| habit_shift_* / goal_update_pen / habit_stress_gain | 0.0 / 0.0 / 0.0 | 0.5 / 0.8 / 0.5 | habit-vs-goal balance knots + update delay + stress leg (v5.36) |
+| grief_hl / grief_age_equiv / grief_slope | 1.0 / 0.0 / 1.0 | 6.0 / 6.0 / 1.4 | widowhood overlay: decay(y), peak age-equiv, persistent tail (v5.36) |
+| hosp_step_acute / hosp_step_critical / hosp_slope_acute / hosp_slope_critical / hosp_recover_tau | 0.0 / 0.0 / 1.0 / 1.0 / 1.0 | 3.0 / 5.0 / 3.0 / 4.0 / 8.0 | hospitalization step + slope acceleration + recovery (v5.36) |
+| purpose_slope / purpose | 0.0 / 0.0 | 0.6 / 1.0 | purpose-in-life protection strength + trait (v5.36) |
+| biling_years / bilingual | 0.0 / 0 | 4.0 / 1 | bilingual onset shift + flag (v5.36, DEBATED source) |
+| mt_learn_early / mt_learn_late / mt_span / mt_recover / mt_complaint | 0.4 / 0.2 / 2.0 / 0.5 / 0.0 | 1.0 / 0.8 / 8.0 / 3.0 / 1.0 | menopause-transition encode dip + rebound + complaint share (v5.36) |
+| gait_lead | 0.0 | 8.0 | decline-arm motor lead over memory (y) (v5.36) |
+| remote_ie / net_ema_tau / net_slope | 0.0 / 0.25 / 0.0 | 0.8 / 4.0 / 0.4 | remote-record semanticization + structural-network slope (v5.36) |
+| test_gain / test_nofb_80 / study_gain | 1.0 / 0.3 / 0.8 | 1.6 / 1.3 / 1.3 | feedback-gated relearning crossover (v5.36) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4313,3 +4322,48 @@ developmental curves, not personality. Pinning guidance:
 - **Never pin:** locked nulls `self_ref_era_null`,
   `fam_child_null`, `zombie_monitor_null` are
   probe-enforced (P918–P927); frozen `ls_pos_only`.
+
+## 69. v5.36 note (age-decline VIII — the overlay ledger)
+
+Nine clamp rows added in §0. **Two new traits:** `purpose`
+(∈[0,1] — what gets her up; bible-pinnable, rewritable by
+goal events only, never ticked) and `bilingual` (∈{0,1} —
+language-use flag, onset shift only, DEBATED source).
+**Three new overlay states** (world-minted, encode-side):
+`grief_decline`, `hosp_step`, `mt_stage`.
+
+Pinning guidance:
+
+- **Most v5.36 params are population/state, not traits.**
+  `habit_shift_*`, `grief_*`, `hosp_*`, `mt_*`, `gait_lead`,
+  `remote_ie`, `net_*`, `test_*` are shared machinery or
+  event-produced state — a bible never sets "she declines
+  harder after the hospital"; the `hospitalization` event
+  does it. The per-character variance lives in *which
+  events happen* and in `purpose`/`bilingual`.
+- **`purpose` is the strongest new lever and the easiest
+  to abuse.** It is not "optimism" and not `consc` — set it
+  from what the character demonstrably organizes her life
+  around (the garden, the case, the tenants). High purpose
+  halves post-60 decline slope; if a bible can't name the
+  purpose, leave it at the cohort mean (~0.5), don't guess.
+- **`bilingual` is a language-use flag, not an ethnicity
+  marker** — and its source is DEBATED (Bialystok 2007 vs
+  Zahodne 2014). It shifts onset `biling_years` only;
+  `biling_scope="onset-only"` is frozen. Do not promise a
+  bilingual character a gentler slope — she gets a later
+  one.
+- **`mt_stage` belongs to the world, not the bible** for
+  characters who will live through the transition in-sim;
+  a bible may seed it for characters created post-40. Male
+  profiles never carry it. `mt_complaint` is honest signal
+  — she notices the dip and she is *right*, unlike the
+  worried-well SCD channel.
+- **`net_size` is computed, not authored** — the substrate
+  counts maintained ties; a bible can't buy a lonely
+  character a big network by fiat. Write the loneliness
+  overlay (§40) through `social`/`isolation` as before.
+- **Never pin:** locked nulls `grief_recall_null`,
+  `hosp_level_null`, `mt_recall_null`, `gait_channel_null`;
+  frozen `biling_scope`, `mt_scope` — probe-enforced
+  (P928–P937).
