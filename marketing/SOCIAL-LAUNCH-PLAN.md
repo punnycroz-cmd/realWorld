@@ -10,8 +10,10 @@ checker (`tools/social_check.py`) + machine-readable calendar
 (`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export) +
 generated post-ready cards (`social/cards/` ← `tools/make_social_cards.py`)
 + community-amplification layer (`social/drafts/reshare-playbook.md` +
-`pinned-comments.md` + `social/post-review.md` weekly retro),
-2026-09-23.
+`pinned-comments.md` + `social/post-review.md` weekly retro) + launch-day
+live-narration runbook (`social/drafts/launch-watchalong.md`) + viewer-clip
+intake series (`social/drafts/caught-on-the-block.md`),
+2026-09-24.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
 post, and every DM is owner-gated: a human flips the switch, this file is the
@@ -108,6 +110,8 @@ its channel, timing slot, required asset, and character-count check.
 | `milestone-posts.md` | 11 trigger-fired posts keyed to real counters (first request, 100 watchers, first hire, first decline, rent-cycle close, 1k/5k/10k requests, week-one numbers, first ruling, quiet-week card, first viewer reshare) — fires on truth, never schedule (v124, M11 v139) | 11 |
 | `reshare-playbook.md` | Viewer-UGC amplification: 4-gate permission rules, never-reshare list, permission templates, 6 reshare + 3 streamer captions, clip-of-the-week format, consent ledger (v139) | 6 templates + 9 captions |
 | `pinned-comments.md` | Pinned-comment / self-reply bank — the link + context slot TikTok/YouTube/X bury (v139) | 8 |
+| `launch-watchalong.md` | Launch-day live-narration runbook — one clock-stamped thread reporting what the block actually does all day; scheduled + event beats, silence rules, reusable for any big feed day (v154) | 7 spine + 4 event templates |
+| `caught-on-the-block.md` | "Caught on the Block" weekly UGC prompt — solicits viewer clips into the reshare-playbook 4-gate flow; feeds M11 + clip-of-the-week (v154, post-launch only) | 6 prompts + 1 caption |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
 | `../post-review.md` | Weekly social retro: per-post scorecard, rerun/keep/kill rules, consent ledger, three-decision output feeding edits back into this bank (v139) | template |
 | `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
@@ -149,6 +153,12 @@ Full timeline in `launch-thread.md` header. Skeleton:
 | 18:00 | Evening shot + "the block doesn't sleep" |
 | 21:00 | Day-one recap: first edition of "This Week on the Block" |
 
+Running parallel all day: the **launch watchalong** — one clock-stamped
+live-narration thread reporting what the block actually does, per
+`launch-watchalong.md`. The skeleton above is the broadcast; the
+watchalong is the ticker. Silence and honesty rules are in the file —
+quiet beats filler, always.
+
 ### Phase C — Post-launch (T+1 → T+30)
 Sustainable rhythm, fed by the product itself.
 
@@ -180,6 +190,10 @@ Sustainable rhythm, fed by the product itself.
 - **Parrot Watch arc:** T+14 → T+16 or first quiet weekend — the wild-
   parakeet mini-series (`parrot-watch.md`). Prefers a live `{{PARROT_CLIP}}`
   capture post-launch; degrades to stills.
+- **Caught on the Block:** weekly Saturday prompt from T+3
+  (`caught-on-the-block.md`) — the intake half of viewer reshares:
+  asks spectators to clip what they catch, routes everything through
+  the reshare-playbook gates, feeds M11 and clip-of-the-week.
 - **Viewer reshares:** opportunistic from T+1 — when viewers clip the
   block, amplify per `reshare-playbook.md` (4 gates first, caption bank
   R1–R6, clip-of-the-week max 1/week). Reshares never displace the

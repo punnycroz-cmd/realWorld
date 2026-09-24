@@ -1,5 +1,5 @@
 {
-  "version": 94,
+  "version": 154,
   "schema": "social-schedule/v1",
   "notes": "Canonical content calendar for SOCIAL-LAUNCH-PLAN.md §5. All times are owner-set; `launch_date` stays null until the owner picks a date — tools/social_schedule.py resolves offsets at export time. LOCAL ONLY: this file schedules nothing by itself.",
   "launch_date": null,
@@ -35,7 +35,8 @@
         {"id": "B1300-jules", "day": 0, "time": "13:00", "channels": ["x", "bluesky"], "draft": "cast-spotlights.md", "medium": "spotlight", "campaign": "launch", "summary": "First cast spotlight rerun (Jules) + watch-now link"},
         {"id": "B1500-feed", "day": 0, "time": "15:00", "channels": ["x"], "draft": null, "medium": "organic", "campaign": "launch", "summary": "Request-feed screenshot: first real player request — or 'the feed is empty, be the first' (feed-honesty rule)"},
         {"id": "B1800-evening", "day": 0, "time": "18:00", "channels": ["x", "bluesky", "tiktok"], "draft": null, "medium": "clip", "campaign": "launch", "summary": "Evening shot + 'the block doesn't sleep'"},
-        {"id": "B2100-recap", "day": 0, "time": "21:00", "channels": ["x", "bluesky"], "draft": "recap-format.md", "medium": "recap", "campaign": "launch", "summary": "Day-one recap: first 'This Week on the Block' — real events only"}
+        {"id": "B2100-recap", "day": 0, "time": "21:00", "channels": ["x", "bluesky"], "draft": "recap-format.md", "medium": "recap", "campaign": "launch", "summary": "Day-one recap: first 'This Week on the Block' — real events only"},
+        {"id": "B-watchalong", "day": 0, "time": "08:45", "channels": ["x", "bluesky"], "draft": "launch-watchalong.md", "medium": "thread", "campaign": "launch", "summary": "Launch watchalong: one clock-stamped live-narration thread, 08:45→23:00 PT — reports what the block actually does; silence rules, max 14 beats"}
       ]
     },
     {
@@ -51,6 +52,7 @@
         {"id": "C-archive-arc", "day_range": [14, 20], "recurrence": "arc-mon-fri", "channels": ["x", "bluesky"], "draft": "archive-arc.md", "medium": "organic", "campaign": "ongoing", "summary": "Archive arc: 5 posts — 'the block keeps receipts'. Post-launch only; demo badge pre-live."},
         {"id": "C-parrot-watch", "day_range": [14, 16], "recurrence": "arc-weekend", "channels": ["x", "bluesky", "tiktok"], "draft": "parrot-watch.md", "medium": "clip", "campaign": "ongoing", "summary": "Parrot Watch mini-arc (3 posts) — prefers live PARROT_CLIP, degrades to stills"},
         {"id": "C-move-in", "day_range": [21, 27], "recurrence": "arc-daily", "channels": ["x", "bluesky"], "draft": "move-in-arc.md", "medium": "organic", "campaign": "ongoing", "summary": "Move-In Week arc: 6 posts on hiring a character onto the cast"},
+        {"id": "C-caught-on-block", "day_range": [3, 30], "recurrence": "weekly-saturday", "channels": ["x", "bluesky"], "draft": "caught-on-the-block.md", "medium": "organic", "campaign": "ongoing", "summary": "Caught on the Block: weekly viewer-clip prompt — UGC intake feeding reshare-playbook gates, M11, clip-of-the-week. Post-launch only."},
         {"id": "C-limits", "day_range": [28, 30], "recurrence": "evergreen", "channels": ["x", "bluesky"], "draft": "offline-and-limits.md", "medium": "organic", "campaign": "ongoing", "summary": "Limits arc (evergreen from T+28): 'the rules are the pitch' — bank for quiet weeks"}
       ]
     }
