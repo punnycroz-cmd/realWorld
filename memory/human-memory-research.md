@@ -2770,3 +2770,76 @@ P805–P814:
   magnitudes, the lead times, trait-draw weights, nav_mode
   operationalization, the 55 freeze, and `stack_cap` are RW
   HYPOTHESES — `stack_cap` is bookkeeping, not a finding.
+
+## 55. Addendum — v77 anchors (emotional-memory VII, spec v5.25)
+
+Ten new emotional-memory mechanisms, each anchored to verified
+literature; probe registry P815–P824:
+
+- **Gratitude (P815):** McCullough, Kilpatrick, Emmons & Larson
+  2001 (*Psych. Bull.* 127:249 — moral-barometer/motive account);
+  Bartlett & DeSteno 2006 (*Psych. Sci.* 17:319 — verified:
+  gratitude-mediated costly helping toward the benefactor);
+  Algoe 2012 (find-remind-bind). Anchors `grat_gain`,
+  `grat_fade_resist`, `reciprocate` emission (§6.154).
+- **Co-rumination (P816):** Rose 2002 (*Child Dev.* 73:1830 —
+  verified: co-rumination predicts friendship quality AND
+  internalizing symptoms); Rose, Carlson & Waller 2007 (*Dev.
+  Psychol.* 43:1019 — verified prospective bidirectional);
+  Rose & Rudolph 2007 developmental review (adolescent onset,
+  girls > boys). Anchors `corumin_*` + `solved:true` escape
+  (§6.155).
+- **Directed self-distancing (P817):** Ayduk & Kross 2010
+  (*JPSP* 99:809 — verified: spontaneous distancing → lower
+  reactivity + intrusive ideation, reconstruing-not-avoidance
+  mediation); Kross & Ayduk 2008/2011 distanced-analysis program.
+  Anchors `dist_cool`, `reflect.mode`, `dist_avoid_null`
+  (§6.156).
+- **Humor reappraisal (P818):** Kugler & Kuhbandner 2015
+  (*Neuropsychologia* 62:357 — verified: humorous reappraisal
+  maximally reduces amygdala response AND impairs later memory
+  for the negative content); Samson & Gross 2012; Strick et al.
+  2009 (intensity ceiling). Anchors `humor_reapp_k`,
+  `humor_replay_k`, trait `humor` (§6.157).
+- **Hot–cold read (P819):** Nordgren, van der Pligt & van
+  Harreveld 2006 (*Psych. Sci.* 17:635 — verified: cold-state
+  underestimation of past visceral influence, self+other,
+  correction-resistant); Nordgren et al. 2007 (*JPSP* 93:75 —
+  verified: state-specific, applies to self-judgments);
+  Loewenstein 2005. Anchors `hotcold_k`, `cold_read`,
+  `hotcold_store_null` (§6.158).
+- **Threat detection priority (P820):** Williams, Watts,
+  MacLeod & Mathews 1997 (the anxiety=detection/depression=
+  elaboration split); Bishop 2007 (*Nat. Neurosci.* 10:307 —
+  verified review); Mathews & MacLeod 2005. Anchors
+  `threat_cue_gain`, `threat_hold`, `anx_eff`, depr exclusion
+  (§6.159).
+- **Positive broadening (P821):** Rowe, Hirsh & Anderson 2007
+  (*PNAS* 104:383 — verified: remote associates + flanker
+  breadth); Fredrickson & Branigan 2005; Isen, Daubman &
+  Nowicki 1987. Anchors `broaden_k`, `broaden_store_null`
+  (§6.160).
+- **Disgust extinction asymmetry (P822):** Olatunji, Forsyth &
+  Cherian 2007 (*J. Anxiety Disord.* 21:820 — verified: sticky,
+  resistant); Engelhard, Leer, Lange & Olatunji 2014 (*Behav.
+  Therapy* 45:708 — verified: extinction fails,
+  counterconditioning works); Bosman, Borg & de Jong 2016;
+  Olatunji, Tomarken & Puncochar 2013 (*Emotion* 13:881 —
+  propensity potentiates learning). Anchors `dis_extinct_mult`,
+  `dis_cc_mult`, `disg_prop` (§6.161).
+- **Mood-repair recall (P823):** Josephson, Singer & Salovey
+  1996 (*Cogn. & Emot.* 10:437 — verified: incongruent-positive
+  second recall, self-reported repair intent); Rusting & DeHart
+  2000 (*JPSP* 78:737 — verified trait gating); Joormann &
+  Siemer 2004 (*J. Abnorm. Psychol.* 113:179 — verified
+  dysphoric failure). Anchors `repair_*`, `repair_dep_null`
+  (§6.162).
+- **Felt vs believed (P824):** Robinson & Clore 2002 (*Psych.
+  Bull.* 128:934 — verified accessibility model: episodic for
+  recent, belief-reconstruction beyond ~2 weeks); Levine & Safer
+  2002. Anchors `felt_window`, `felt_believed_gap`,
+  `felt_write_null` (§6.163).
+- **Established vs hypothesis summary:** directions and
+  dissociations all CONSENSUS; magnitudes, age knots, trait
+  composites (`disg_prop`, `anx_eff`), window constants, and
+  all field/mixin operationalizations are RW HYPOTHESES.

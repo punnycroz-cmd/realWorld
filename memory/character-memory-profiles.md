@@ -1062,6 +1062,16 @@ needs both.
 | obs_infl_age / obs_tail_k / obs_old_gain | 0.8 / 0.0 / 0.0 | 1.8 / 1.0 / 0.4 | observation-inflation age tail + benefit knots (v5.24) |
 | ie_shift / ext_gain | 0.0 / 0.8 | 0.4 / 1.8 | internal:external narration mix drift (v5.24) |
 | stack_cap | 2.0 | 6.0 | joint old-age product ceiling + audit (v5.24) |
+| grat_gain / grat_fade_resist | 0.1 / 0.0 | 0.9 / 0.7 | gratitude person-entry gain + fade resistance (v5.25) |
+| corumin_gate / corumin_bond / corumin_damp_loss | 0.2 / 0.0 / 0.0 | 0.8 / 0.08 / 0.9 | co-rumination gate, bond accrual, dampen denial (v5.25) |
+| dist_cool | 0.1 | 0.8 | distanced-reflection affect cool (v5.25) |
+| humor_reapp_k / humor_replay_k | 0.0 / 0.0 | 0.6 / 0.3 | humor-reappraisal encode cool / retell cool (v5.25) |
+| hotcold_k / hotcold_gap_thresh | 0.2 / 0.3 | 0.8 / 0.7 | hot–cold read attenuation + attribution gate (v5.25) |
+| threat_cue_gain / threat_hold | 0.0 / 0.0 | 0.35 / 0.6 | anxiety detection bonus + disengage hold (v5.25) |
+| broaden_k / mood_broaden_floor | 0.0 / 0.2 | 0.5 / 0.5 | positive-mood fan widening + floor (v5.25) |
+| dis_extinct_mult / dis_cc_mult / disg_prop_gain | 0.2 / 0.5 / 0.0 | 0.8 / 1.0 / 0.6 | disgust extinction resistance / countercond. wash / propensity mint (v5.25) |
+| repair_base / repair_cap / repair_thresh / repair_lift | 0.0 / 0.3 / 0.2 / 0.0 | 0.6 / 0.9 / 0.6 / 0.25 | mood-repair recall reach/cap/gate/lift (v5.25) |
+| felt_window | 7 | 21 | felt-vs-believed report seam, days (v5.25) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3698,3 +3708,63 @@ notes:
 - **The cap is honest (§6.153b):** if `stack_capped` shows up
   often in playtest logs, the knots are hot — report it, don't
   raise the cap.
+
+## 59. v5.25 note (emotional-memory VII — the uses of feeling)
+
+Ten clamp rows added in §0. **One new trait:** `humor`
+(reappraisal-family joking style — feeds §6.157's tag-cooling,
+NOT the v4.6 memorability channel; loads extra + open, mild
+−neurot). Bible-facing notes:
+
+- **Kindness needs a cost tag (§6.154):** the gratitude mint
+  only fires when the world marks `benefit:true` — a kindness
+  appraised as costing the giver something. Routine favors mint
+  ordinary positive entries; the memorable debt is the costly
+  one. World-builder: tag the sacrifice, not the smile.
+- **The dark friendship is real (§6.155):** two high-rumin
+  mains who co-rehearse grievances grow closer AND stay sadder —
+  this is the literature's trade, not a bug. `solved:true` on a
+  retell is the escape hatch: resolution talk dampens normally.
+  Bibles: a co-ruminating pair needs BOTH partners ≥0.4 rumin —
+  a ruminator paired with a problem-solver gets the ordinary
+  disclosure path.
+- **Distancing is regulation, not avoidance (§6.156):**
+  `reflect.mode:distanced` cools the re-fired affect while
+  keeping the record fully accessible (locked `dist_avoid_null`).
+  A distanced main still knows exactly what happened — they just
+  stopped bleeding on it. Pin `persp_obs`/`mindful` high for a
+  character who "thinks about it calmly"; pin `rumin` for one
+  who recounts.
+- **The joke has a price (§6.157):** humor-cooled negative
+  records mint ~15% thinner verbatim — the funny main genuinely
+  remembers less of the bad day. Nothing to pin beyond `humor`;
+  the cost is structural.
+- **The calm reader can't feel the fight (§6.158):**
+  `cold_read:true` emissions are the "that wasn't like me"
+  attributions — the record is intact, the heat didn't port.
+  A bible should never let a character's cold-state self-
+  narration be treated as the truth of the hot event.
+- **Anxiety reaches for threat first (§6.159):** under
+  `anxiety_state` or high neurot, threat-tagged records win cue
+  competition — the anxious main's week-review surfaces the bill
+  and the weird look. Depression does NOT get this (locked
+  dissociation) — depr's channel is elaboration/rumination.
+- **Disgust doesn't wash with exposure (§6.161):** a disgust
+  CondEntry barely moves under repeated safe visits; the fix is
+  a rival positive tag on the same cue (counterconditioning).
+  World: if a storyline needs a disgust aversion to heal, write
+  the warm rival event, not montage exposure.
+- **Sad regulators reach for happy records (§6.162):**
+  negative-mood self-recall inverts toward positive candidates
+  in regulator profiles; at depr ≥0.5 both the reach and the
+  lift die (locked `repair_dep_null`) — the depressive main can
+  recall the good time and stay sad. Don't write a depressed
+  character whose mood lifts from positive reminiscence; write
+  them distracted instead.
+- **Asked later, they answer from who they are (§6.163):**
+  beyond ~14 days, emotion reports reconstruct from self-belief
+  and script, not the tag; `felt_believed_gap:true` marks the
+  divergence. A bible may exploit this — the character who
+  *says* the breakup destroyed them over a record of tired
+  relief — but the record keeps the truth and a strong cue can
+  still refire it.

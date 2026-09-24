@@ -7102,3 +7102,148 @@ P807, P809, P810, P811, P813), 1 process-MUST (P814), 2 SHOULD
   rate-flat/magnitude-up inflation, I/E shift); all
   magnitudes, lead times, class-draw weights, the nav_mode
   flag, the freeze point, and the cap are RW HYPOTHESES.
+
+## 154. New probes P815–P824 (v77 suite — emotional-memory VII)
+
+- **P815 gratitude mint (MUST — locked asymmetry):** benefit:true
+  event with cost_appraisal 0.8 vs matched pleasant non-benefit
+  event on the same benefactor: the benefactor CondEntry must mint
+  grateful:true, exceed the §4.9 positive-entry strength, decay
+  measurably slower across 60 simulated days, and emit
+  reciprocate:true on a later benefactor-need event. FAIL if the
+  entry decays at ordinary positive rate or if a low-cost event
+  mints the flag.
+- **P816 co-rumination bond/affect split (MUST — sign lock):**
+  two high-rumin characters jointRecall a shared negative record
+  three times: bond_strength rises ≥3×corumin_bond·0.8 AND the
+  record's negative tag takes no verbal_dampen (damp_loss active);
+  a solved:true retell arm takes the ordinary dampen. FAIL if
+  bond grows without affect refresh or if the loop fires below
+  the ~10y age floor.
+- **P817 distanced reflection (MUST — locked null):** a negative
+  record reflected under reflect.mode:distanced vs immersed:
+  fired affect lower by dist_cool, coherence accrual EQUAL, θ
+  and cueMatch IDENTICAL post-session (dist_avoid_null — FAIL if
+  distancing raises θ or adds a surcharge); distanced:true
+  emitted.
+- **P818 humor reappraisal (MUST):** humor:true on a negative
+  event (arousal 0.6) vs matched unfunny: arousal_tag lower by
+  ~humor_reapp_k and verbatim ~15% thinner; at arousal 0.9 the
+  gate blocks the cool. Replay arm: two humor:true retells cool
+  ~2×humor_replay_k; FAIL if the cool exceeds the once-per-window
+  cap or touches neutral records.
+- **P819 hot–cold read (MUST — locked null):** reconstruct an
+  arousal-0.8 own-impulsive record under C.arousal_now 0.2:
+  re-fired affect attenuated ≥hotcold_k·0.5, cold_read:true
+  emitted, stored tag + verbatim byte-identical
+  (hotcold_store_null); re-present the cue under arousal_now 0.7
+  → full tag strength restored.
+- **P820 threat priority (MUST — dissociation lock):** under
+  anx_eff 0.8, matched-strength record sets surface threat:true
+  first at rate exceeding baseline by the threat_cue_gain margin;
+  under depr 0.8 / anx_eff 0 the same set shows NO threat
+  preference. threat_hold: ambient-scan dwell longer on threat
+  records under anxiety.
+- **P821 broaden fan (MUST — locked null):** C.mood 0.7 vs 0:
+  associative search clears a weaker record class (θ_eff cut) and
+  effective search_breadth rises; all store fields byte-identical
+  afterward (broaden_store_null — read-side only).
+- **P822 disgust extinction asymmetry (MUST):** a disgust
+  CondEntry: five safe exposures move safeCount <0.4× a matched
+  fear entry (dis_extinct_mult); three positive rival-tag mints
+  (§72) reduce fired affect near-normally (dis_cc_mult ~0.9).
+  FAIL if extinction and counterconditioning behave identically —
+  the asymmetry IS the probe.
+- **P823 mood-repair gate (MUST):** negative mood, regulator vs
+  depr≥0.5 profiles: the regulator arm shows positive-candidate
+  inversion and post-recall mood lift; the depr arm shows neither
+  even when a positive record is force-recalled
+  (repair_dep_null). FAIL if the depr arm lifts.
+- **P824 felt-vs-believed (MUST):** (a) report "how did X feel"
+  at day 3 vs day 30 on an intact record: day-3 tracks the tag;
+  day-30 shifts toward self_belief/script with
+  felt_believed_gap:true when divergence >0.4; (b) the tag
+  unchanged by any believed report (felt_write_null); (c) a
+  later strong sensory cue still refires the true tag.
+
+Registry: P1–P824. v77 suite: P815–P824 — all MUST (P817, P819,
+P821 carry locked-null arms; P820 carries the dissociation lock;
+P822 the asymmetry lock).
+
+## 155. Sources verified this version (P815–P824 backing)
+
+- **Gratitude → durable benefactor orientation:** McCullough,
+  Kilpatrick, Emmons & Larson 2001 (*Psych. Bull.* — verified:
+  moral-barometer account, gratitude as relationship-value
+  signal); Bartlett & DeSteno 2006 (*Psych. Sci.* 17:319 —
+  verified: gratitude → costly helping toward the benefactor,
+  mediated by gratitude not mood); Algoe 2012 find-remind-bind.
+  CONSENSUS direction; decay-resistance magnitude HYPOTHESIS.
+- **Co-rumination:** Rose 2002 (*Child Dev.* 73:1830 —
+  verified: predicts friendship quality AND internalizing
+  symptoms); Rose, Carlson & Waller 2007 (*Dev. Psychol.*
+  43:1019 — verified: prospective bidirectional gains; girls >
+  boys; adolescent emergence). Mechanistic params HYPOTHESIS.
+- **Directed self-distancing:** Ayduk & Kross 2010 (*JPSP*
+  99:809 — verified: spontaneous distancing → lower reactivity
+  short-term, lower intrusive ideation over time, mediated by
+  reconstruing not avoidance); Kross & Ayduk 2008/2011
+  ("why from a distance" program). dist_avoid_null is the
+  verified cell.
+- **Humor reappraisal:** Kugler & Kuhbandner 2015
+  (*Neuropsychologia* 62:357 — verified: humorous reappraisal
+  > positive reappraisal on amygdala reduction; worse later
+  memory for the negative items); Samson & Gross 2012; Strick
+  et al. 2009 (moderate-intensity boundary). Encode magnitudes
+  calibrated, replay cool HYPOTHESIS.
+- **Hot–cold empathy gap:** Nordgren, van der Pligt & van
+  Harreveld 2006 (*Psych. Sci.* 17:635 — verified: cold-state
+  underestimation of past visceral influence, self AND other,
+  correction-resistant); Nordgren et al. 2007 (*JPSP* 93:75 —
+  verified: cold evaluators judge impulsive behavior more
+  harshly, state-SPECIFIC); Loewenstein 2005. Extension from
+  drive states to emotional arousal — standard reading, flagged.
+- **Threat attentional priority:** Williams, Watts, MacLeod &
+  Mathews 1997 (canonical anxiety=detection / depression=
+  elaboration split); Bishop 2007 (*Nat. Neurosci.* 10:307 —
+  verified review); Mathews & MacLeod 2005. Magnitude and the
+  clean dissociation under comorbidity flagged.
+- **Positive-affect broadening:** Rowe, Hirsh & Anderson 2007
+  (*PNAS* 104:383 — verified: remote associates up, flanker
+  selectivity down, correlated individual differences);
+  Fredrickson & Branigan 2005; Isen et al. 1987. Episodic
+  projection is our form — HYPOTHESIS, read-side locked.
+- **Disgust extinction asymmetry:** Olatunji, Forsyth &
+  Cherian 2007 (*J. Anxiety Disord.* 21:820 — verified: sticky,
+  extinction-resistant); Engelhard, Leer, Lange & Olatunji 2014
+  (*Behav. Therapy* 45:708 — verified: Study 1 extinction did
+  NOT reduce disgust evaluative learning, Study 2
+  counterconditioning DID); Bosman, Borg & de Jong 2016;
+  Olatunji, Tomarken & Puncochar 2013 (*Emotion* 13:881 —
+  verified: disgust propensity potentiates aversive evaluative
+  learning). The asymmetry is the verified finding; multipliers
+  calibrated.
+- **Mood-repair recall:** Josephson, Singer & Salovey 1996
+  (*Cogn. & Emot.* 10:437 — verified: sad→sad first, positive
+  second recall in nondepressed, 68% self-reported repair
+  intent); Rusting & DeHart 2000 (*JPSP* 78:737 — verified:
+  incongruent recall under reappraisal strategies, trait-gated);
+  Joormann & Siemer 2004 (*J. Abnorm. Psychol.* 113:179 —
+  verified: dysphorics fail to repair via positive recall;
+  distraction works instead). repair_dep_null is verified.
+- **Felt vs believed reports:** Robinson & Clore 2002
+  (*Psych. Bull.* 128:934 — verified accessibility model:
+  episodic retrieval for recent emotion, belief/schema
+  reconstruction beyond ~2 weeks); Levine & Safer 2002
+  (appraisal-bias complements — §28's channel). Seam position
+  and mix weights flagged as open parameters.
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (gratitude's person-binding, the
+  co-rumination bond/distress trade, distancing-without-
+  avoidance, humor's amygdala + memory cost, the hot–cold gap,
+  threat detection priority under anxiety, positive broadening,
+  the disgust extinction/counterconditioning asymmetry, the
+  dysphoric repair failure, the felt/believed seam). All
+  magnitudes, the age knots, trait composites (disg_prop,
+  anx_eff), the once-per-window rule, and field/mixin forms are
+  RW HYPOTHESES.

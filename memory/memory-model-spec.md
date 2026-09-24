@@ -1,4 +1,45 @@
-# Memory Model Spec v5.24 — implementable human-like memory for RW characters
+# Memory Model Spec v5.25 — implementable human-like memory for RW characters
+
+> **v5.25 note (emotional-memory VII — the uses of feeling):**
+> `memory/emotional-memory.md` Part VII (§§84–93) prices the
+> instrumental layer and formalizes two informal tags.
+> **Gratitude** — `benefit:true`/`benefactor` events mint a
+> `grateful` person-CondEntry that beats the §4.9 positive
+> discount and resists fade (`grat_gain`, `grat_fade_resist`),
+> emitting `reciprocate` on benefactor-need cues (McCullough
+> 2001; Bartlett & DeSteno 2006) — §6.154. **Co-rumination** —
+> dyadic negative jointRecall between two high-rumin characters
+> pays bond while denying the dampen discount (`corumin_*`,
+> `solved:true` escape; Rose 2002, Rose et al. 2007) — §6.155.
+> **Directed self-distancing** — `cueContext.reflect.mode:
+> distanced` cools fired affect and kills the rumin dividend
+> while coherence accrues normally; locked `dist_avoid_null`
+> (Ayduk & Kross 2010 — reconstruing, not avoiding) — §6.156.
+> **Humor reappraisal** — `humor:true` on NEGATIVE events cools
+> the born tag at ~15% verbatim cost, arousal<0.85 gate;
+> `humor_replay_k` once-per-window on retells; new trait
+> `humor` (Kugler & Kuhbandner 2015; Samson & Gross 2012) —
+> §6.157. **Hot–cold read** — `hotcold_k·|a_enc−a_now|`
+> attenuates re-fired affect and mints `cold_read` dispositional
+> attributions; locked `hotcold_store_null` (Nordgren et al.
+> 2006/2007) — §6.158. **Threat priority** — `threat_cue_gain`
+> detection bonus + `threat_hold` dwell under `anx_eff`; depr
+> excluded (locked dissociation, Williams et al. 1997; Bishop
+> 2007) — §6.159. **Positive broadening** — `broaden_k` lowers
+> associative θ_eff and widens breadth under positive mood;
+> locked `broaden_store_null` (Rowe, Hirsh & Anderson 2007
+> PNAS) — §6.160. **Disgust formalized** — `dis_extinct_mult`
+> 0.4 vs `dis_cc_mult` 0.9: exposure fails, the rival tag is
+> the wash (Olatunji, Forsyth & Cherian 2007; Engelhard et al.
+> 2014) — §6.161. **Mood-repair recall** — `repair_*` positive-
+> candidate inversion under negative mood, gated OFF in the
+> dysphoric arm (locked `repair_dep_null`; Josephson et al.
+> 1996; Joormann & Siemer 2004) — §6.162. **Felt vs believed**
+> — `felt_window` ~14d seam splits emotion reports into
+> retrieved-affect vs belief-reconstruction channels,
+> `felt_believed_gap` audit, locked `felt_write_null`
+> (Robinson & Clore 2002) — §6.163. +22 params, +5 locked
+> nulls; §10 contract adds. Registry P815–P824.
 
 > **v5.24 note (age-decline VII — the trajectory layer):**
 > `memory/age-decline.md` Part VII (§§96–105) replaces the mean
@@ -9680,6 +9721,152 @@ single encode/retrieve/distort path is capped at `stack_cap`
 wrong). The literature prices each leg alone; the cap is the
 honest bound on unmeasured joint territory.
 
+### 6.154 Gratitude — the positive entry that refuses to fade (new in v5.25)
+
+Event `benefit:true` + `benefactor:<charId>` (world tags acts of
+kindness appraised as costly-to-the-giver — EM§84; McCullough et
+al. 2001's moral-barometer account; Bartlett & DeSteno 2006's
+costly-repayment finding): mint a person-CondEntry on the
+benefactor with positive valence and
+`strength *= (1 + grat_gain·cost_appraisal)` — `grat_gain` 0.5
+defeats the §4.9 positive discount for genuinely costly kindness.
+Entry flag `grateful:true` → decay leg ×(1−`grat_fade_resist`
+0.4). On a later `need:true` event involving the benefactor the
+entry cues an emission `reciprocate:true` — benefactor-directed,
+not generalized prosociality. Below encodeAge ~8 the mint gain
+halves (cost appraisal develops late — HYPOTHESIS knot, EM§95).
+
+### 6.155 Co-rumination — the shared dark loop (new in v5.25)
+
+`jointRecall(A, B, cue)` on a shared negative-valence record with
+`min(rumin_A, rumin_B) ≥ corumin_gate` (0.4) and both
+`age_now ≥ 10` (Rose 2002; Rose, Carlson & Waller 2007 — the
+loop buys closeness AND distress, emerges in adolescence):
+`bond_strength += corumin_bond` (0.03) per episode; the record's
+negative tag denies the §16 verbal-dampen discount
+(`verbal_dampen *= (1 − corumin_damp_loss·min(rumin))`, 0.6);
+both tellers' mood takes `mood_bleed·neg` re-fire. Escape arm: a
+retell event carrying `solved:true` (world tags resolution in the
+dialogue) exits the loop and takes the ordinary dampen path —
+repetition-without-resolution is the discriminator (Rose's
+structural criterion).
+
+### 6.156 Directed self-distancing (new in v5.25)
+
+`cueContext.reflect:{mode:"distanced"}` (dialogue/internal layer
+sets it on deliberate distanced self-analysis; base rate scaled
+by `persp_obs` × `mindful`): the reflected record's fired affect
+×(1−`dist_cool`·persp_obs_scaled), `dist_cool` 0.5 — deeper than
+§5.39's 0.2 surface loss because this is reflection-mode, not
+emission-mode; the rumin refresh dividend on the record ×(1−
+`dist_cool`); `coherence` accrual unchanged (Ayduk & Kross 2010:
+reconstruing preserved, recounting cooled). **Locked null
+`dist_avoid_null` = 0:** distanced reflection never raises θ,
+never adds `avoid_suppress`, never reduces future cueMatch —
+cooling is not excluding (verified: the effect is not mediated
+by avoidance). Emission carries `distanced:true`.
+
+### 6.157 Humor reappraisal — the joke cools the tag (new in v5.25)
+
+Distinct from v4.6's `humor_gain` memorability channel. Event
+`humor:true` on a negative-valence event with arousal < 0.85
+(Strick et al. 2009 ceiling): `arousal_tag *= (1 −
+humor_reapp_k·min(1, humor + 0.3))`, `humor_reapp_k` 0.35
+(Kugler & Kuhbandner 2015 — humorous reappraisal cuts amygdala
+response more than reinterpretation and costs later memory);
+verbatim fields mint ~15% thinner (the fidelity price).
+Retell-side: a `humor:true` retell of a negative record applies
+an additional tag cool ×(1−`humor_replay_k` 0.15), once per
+record per humor-cool window (7 days). New IndivTraits axis
+`humor` (loads extra + open, mild −neurot); suppressors can use
+it — reappraisal-family, not suppression-family.
+
+### 6.158 The hot–cold read (new in v5.25)
+
+At Reconstruction, when `|arousal_tag − C.arousal_now| ≥
+hotcold_gap_thresh` (0.5) — either direction (Nordgren, van der
+Pligt & van Harreveld 2006/2007; Loewenstein 2005): re-fired
+affect ×(1−`hotcold_k·|Δ|`), `hotcold_k` 0.5; if the record is
+the character's OWN hot-state impulsive behavior the emission
+carries `cold_read:true` (dispositional attribution, "that
+wasn't like me" — state-specific: matching drive channel only).
+**Locked null `hotcold_store_null` = 0:** the gap never rewrites
+the stored tag — read-side failure only; the same record refires
+at full strength when the hot state returns.
+
+### 6.159 Threat priority — anxiety wins the cue race (new in v5.25)
+
+`anx_eff = clamp(0.6·neurot + 0.4·max(0, C.anxiety_state), 0, 1)`
+(context field `anxiety_state` supplied by the emotion layer;
+absent → trait only). In §5.2 noisy-OR competition, records with
+`threat:true` or negative CondEntry linkage get
+`cueMatch += threat_cue_gain·anx_eff·arousal_tag` (0.15 —
+detection-stage priority, Williams, Watts, MacLeod & Mathews
+1997; Bishop 2007). Disengagement: ambient-scan next-step
+disengage probability ×(1−`threat_hold`·anx_eff), 0.3 — the
+anxious mind stays on the threat record (§6.143's rival hold is
+the person-cued special case). **Locked dissociation:** `depr`
+gets NO threat_cue_gain — depression's bias is elaboration, not
+detection (the textbook split).
+
+### 6.160 Positive mood widens the fan (new in v5.25)
+
+When `C.mood > mood_broaden_floor` (0.3): associative-spread
+θ_eff ×(1−`broaden_k`·C.mood) (0.25); fan_k per-candidate
+penalty ×(1−0.5·broaden_k·C.mood); `search_breadth` effective
++floor(broaden_k·C.mood·4) (Rowe, Hirsh & Anderson 2007 PNAS —
+remote associates under positive mood; Fredrickson & Branigan
+2005). **Locked null `broaden_store_null` = 0:** the widened
+aperture is read-side only — no S changes, no link mints, no
+confab bonus beyond ordinary confab_fill.
+
+### 6.161 Disgust formalized — the wash that works is the rival tag (new in v5.25)
+
+CondEntry `emotion:disgust`: acquisition gain `+=
+disg_prop_gain·disg_prop` (0.3; `disg_prop =
+clamp(0.6·neurot + 0.4·consc, 0, 1)` — propensity
+potentiates learning, Olatunji, Tomarken & Puncochar 2013);
+extinction `safeCount` accrual ×`dis_extinct_mult` (0.4 —
+Olatunji, Forsyth & Cherian 2007; Engelhard et al. 2014 Study
+1: exposure did not reduce disgust evaluative learning);
+§72 counterconditioning rival-tag mint at ×`dis_cc_mult` 0.9
+(Engelhard Study 2: counterconditioning DID reduce it — the
+rival tag, not the exposure, is the wash). Renewal standard —
+the resistance is in extinction rate, not renewal magnitude.
+
+### 6.162 Mood-repair recall — reaching for the happy record (new in v5.25)
+
+On self-initiated recall (ambient scan / pm_self) while
+`C.mood < −repair_thresh` (0.4): with probability
+`P = clamp(repair_base·(1+regulate_style)·(1+0.5·self_est)·
+(1−depr), 0, repair_cap)` (`repair_base` 0.3, `repair_cap` 0.7)
+the search inverts cue-valence weighting — positive-tagged
+records compete as if the cue were positive (Josephson, Singer
+& Salovey 1996: the second-recall shift; 68% self-reported
+repair intent; Rusting & DeHart 2000: reappraisal-strategy arm).
+Successful repair recall: `C.mood += repair_lift·(1−depr)`
+(0.1) + ordinary `retell_boost`. **Locked null
+`repair_dep_null`:** at `depr ≥ 0.5` both P and lift → ~0 —
+the dysphoric character can recall the good memory and stay
+sad; distraction is their working channel (Joormann & Siemer
+2004).
+
+### 6.163 Felt vs believed — the two channels of an emotion report (new in v5.25)
+
+Emotion reports ("how did X feel") split by the Robinson & Clore
+2002 accessibility model: inside `felt_window` (14 days) reports
+track the record's tag (felt channel — existing machinery);
+beyond it, OR when the record is below θ, reports reconstruct
+from `mix(self_belief, schema_prototype, mood_bleed)` —
+identity beliefs and the event-type script, not the stored
+feeling. When a believed report diverges from the record's tag
+by >0.4, emission carries `felt_believed_gap:true` — the gap is
+data. **Locked null `felt_write_null` = 0:** believed reports
+never write to the record — the false report is emitted, not
+stored; the true tag still refires on a strong cue. Below
+encodeAge ~10 `felt_window` halves (weaker episodic access —
+HYPOTHESIS, EM§95).
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -11117,6 +11304,32 @@ MemoryParams = {
 //   state `work_engaged`, `engage_sub`, `engage_deficit`;
 //   context `locomoting`; record `nav_mode`; emission
 //   `loco_yield` hint, `stack_capped` audit field.
+// v5.25 additions (emotional-memory VII — EM§§84–93)
+"grat_gain": 0.5, "grat_fade_resist": 0.4,        // §6.154
+"corumin_gate": 0.4, "corumin_bond": 0.03,
+"corumin_damp_loss": 0.6,                        // §6.155
+"dist_cool": 0.5,                                // §6.156
+"humor_reapp_k": 0.35, "humor_replay_k": 0.15,   // §6.157
+"hotcold_k": 0.5, "hotcold_gap_thresh": 0.5,     // §6.158
+"threat_cue_gain": 0.15, "threat_hold": 0.3,     // §6.159
+"broaden_k": 0.25, "mood_broaden_floor": 0.3,    // §6.160
+"dis_extinct_mult": 0.4, "dis_cc_mult": 0.9,
+"disg_prop_gain": 0.3,                           // §6.161
+"repair_base": 0.3, "repair_cap": 0.7,
+"repair_thresh": 0.4, "repair_lift": 0.1,        // §6.162
+"felt_window": 14,                               // §6.163
+// v5.25 locked nulls: dist_avoid_null (distanced reflection
+//   never raises θ/adds surcharge/reduces cueMatch — P817);
+//   hotcold_store_null (gap is read-side, tag never rewrites —
+//   P819); broaden_store_null (widened search is read-side —
+//   P821); repair_dep_null (depr≥0.5: no reach AND no lift —
+//   P823); felt_write_null (believed reports never write the
+//   tag — P824); depr excluded from threat_cue_gain (P820).
+// v5.25 fields: Event `benefit`/`benefactor`/`humor`/`solved`;
+//   record `grateful:true`; cueContext `reflect.mode`;
+//   context `anxiety_state`; emission `reciprocate`/
+//   `distanced`/`cold_read`/`felt_believed_gap`; new trait
+//   `humor` (extra + open loading, mild −neurot).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -11142,7 +11355,9 @@ nfc, mnemic, tbi, apoe, synesth, rumin, and the locked-null
 learn_style — ID Part VI §73; v5.19 adds the narrator-compass
 pins tp_pastneg, tp_pastpos, tp_preshed, tp_presfat, tp_future,
 narr_agency, narr_comm, autobio_k, narr_coh_k, period_sal,
-epi_future_k — cast-profiles.md Part III §20) — sampled MVN(0, R) with the sparse correlation matrix in
+epi_future_k — cast-profiles.md Part III §20; v5.25 adds
+`humor` — reappraisal-family joking style, loads extra + open,
+mild −neurot, feeds §6.157 only (EM§87)) — sampled MVN(0, R) with the sparse correlation matrix in
 `individual-differences.md` §4/§17/§30/§43/§60/§73 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17 there) onto these params, plus ±5% residual jitter. This replaces
@@ -12644,6 +12859,34 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; no new traits
     (iiv, apoe, fitness, social, sex, fantasy, imagery,
     neurot, meta_conf all already exist).
+- v5.25 additions (emotional-memory.md Part VII §§84–93):
+  - **Event fields:** `benefit:true` + `benefactor:<id>`
+    (§6.154 — costly-kindness tagging, world-side appraisal);
+    `humor:true` on NEGATIVE events and on retell events
+    (§6.157 — reappraisal path, distinct from the v4.6
+    memorability field which is unchanged); `solved:true` on
+    retell events (§6.155 — resolution escape for the
+    co-rumination loop); `anxiety_state` context field
+    (§6.159 — emotion layer supplies; absent → trait only).
+  - **Record field:** `grateful:true` on person-CondEntries
+    (§6.154).
+  - **cueContext field:** `reflect:{mode:"distanced"}`
+    (§6.156 — the dialogue/internal layer's deliberate-
+    distancing request).
+  - **Emission fields:** `reciprocate:true` (benefactor-need
+    cue), `distanced:true` (reflection mode), `cold_read:true`
+    (hot–cold gap bound), `felt_believed_gap:true` (report/
+    record divergence >0.4 audit — the character's stated
+    feeling is a belief-reconstruction, not the tag).
+  - **New trait `humor`** — IndivTraits axis, loads extra +
+    open, mild −neurot; feeds §6.157 only.
+  - **Locked nulls:** `dist_avoid_null`, `hotcold_store_null`,
+    `broaden_store_null`, `repair_dep_null`, `felt_write_null`,
+    plus the depr-exclusion on `threat_cue_gain` (§6.159's
+    locked anxiety/depression dissociation).
+  - All snapshot-additive, absent = legacy; existing fields
+    (`attachment`, `persp`, `humor` memorability, CondEntry
+    `emotion` enum incl. disgust) unchanged in meaning.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
