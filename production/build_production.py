@@ -22,7 +22,11 @@ BOOTSTRAP = """<script>
 /* production bootstrap: force the SF Mission scenario on bare opens */
 window.SF_FORCE = true;   // the hub IS the Mission build — never boot Willowbrook
 if(!/[?&](sf|scenario=sf)\\b/.test(location.search||'')){
-  location.replace(location.pathname + '?sf=1' + (location.hash||''));
+  // keep existing params (cache-busters) — pathname-only replace can land
+  // the same cached URL the redirect was meant to escape
+  const rest = (location.search||'').replace(/^\\?/, '');
+  location.replace(location.pathname + '?sf=1' +
+                   (rest ? '&' + rest : '') + (location.hash||''));
 }
 </script>
 """
