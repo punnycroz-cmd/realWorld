@@ -8930,3 +8930,156 @@ Mather & Knight 2005, Knight et al. 2007, Ozer et al.
 2003, van der Kolk & Fisler 1995, Ehlers & Clark
 2000, Barasch et al. 2017, Diehl et al. 2016,
 Henkel 2014 — probes P938–P947.
+
+## 184. v90 suite (P948–P957) — false-memory VIII
+
+Suite focus: the edges of the record — generation,
+description, probing, swapping, interrogation,
+collaboration, boasting, and the banned operator
+(spec v5.38, FM§§88–97).
+
+- **P948 cryptomnesia (SHOULD, generation):** seed a
+  `told_by` pitch, decay `confidenceInSource`<0.3, run a
+  generation op — plagiarize at ≈`crypt_p`×(1+self-
+  similarity); minted output never names the origin
+  (`crypt_source_null` — audit sees `claimed_mine:true`,
+  the character sees authorship). Dissociation arm:
+  fresh-source records plagiarize ≈0. Brown & Murphy
+  1989; Marsh & Bower 1993; Macrae et al. 1999.
+- **P949 boundary extension (MUST, normalization):**
+  scene record's reported extent > observed at day 0–1,
+  converging to frame by `bext_norm_tau`; non-scene
+  records invariant (`bext_nonscene_null`); whole-
+  episode phantoms unchanged (bext is adjacent-content
+  only — §6.8 stays the episode path). Intraub &
+  Richardson 1989; Hubbard 1996.
+- **P950 verbal overshadowing (SHOULD, dissociation):**
+  post-`describe` recognition drops ≈`verb_shad_pen`
+  then recovers on `verb_shad_hl`; the described visual
+  field drifts toward the verbal label's prototype at
+  ≈`verb_label_pull`; semantic/gist fields untouched
+  (`verb_semantic_null`). Schooler & Engstler-Schooler
+  1990; Meissner & Brigham 2001; Carmichael et al. 1932.
+- **P951 crashing memories (MUST, ordering-lock):**
+  `footage_probe` on a high-notoriety event mints
+  `saw_footage` phantoms at ≈`media_phantom_p`;
+  detail-demanding follow-up yields MORE endorsements
+  than yes/no probe (the Crombag 66>55 ordering —
+  demand runs the schema fill); low-notoriety probes
+  mint zero (`footage_obscure_null`); `suggs`-high
+  twins > `suggs`-low. Crombag et al. 1996; Ost et al.
+  2002; Otgaar et al. 2022.
+- **P952 truthiness (SHOULD, content-lock):** identical
+  accounts ±`nonprob_image` differ in believe_p by
+  ≈`truth_gain`; verbatim/field content identical
+  (`truth_content_null`); photo-armed single source ≈
+  1.5 unarmed sources via `truth_fluency_k`. Newman et
+  al. 2012/2015.
+- **P953 choice blindness (SHOULD, layer-lock):**
+  swapped feedback on a recent `choice` → detection
+  ≤~30% (×`meta_conf` arm higher); on miss, confabulated
+  reasons minted AND born `chosen` field intact under a
+  `reported_chosen` overlay (`cb_record_null`);
+  `swapped_choice:true` emitted. Johansson et al. 2005;
+  Hall et al. 2010.
+- **P954 coerced self-false (MUST, ordering + cap):**
+  self-action field under `interrogate:true` +
+  `evidence_claim`: adoption orders evidence_claim >
+  interrogate > bare question; internalization rate ≤
+  `ownact_session_cap` (0.28 — the Kassin & Kiechel
+  ceiling); event ledger unchanged (`ownact_fact_null`);
+  `confessed_untrue:true` emitted and audit-visible.
+  Kassin & Kiechel 1996; Nash & Wade 2009; Hanba &
+  Zaragoza 2007.
+- **P955 collaborative inhibition (MUST, bound-lock):**
+  `groupRecall` output < nominal pool by ≈
+  `collab_inhib`·org_mismatch; NEVER greater
+  (`collab_gain_null`); matched-organization pairs
+  ≈uninhibited, mismatched pairs maximally; small net
+  error-pruning `collab_correct`. Weldon & Bellinger
+  1997; Basden et al. 1997; Rajaram & Pereira-Pasarin
+  2010.
+- **P956 overclaiming (SHOULD, tier-lock):** plausible
+  domain foils false-alarm at `oc_p` preserving the
+  `meta_conf·self_est` expertise ordering; minted
+  records are `familiar_only` tier, never episodic
+  (`oc_episodic_null`); warned claims land at
+  `oc_warn_resid`, not zero (`oc_warn_null`). Atir et
+  al. 2015.
+- **P957 the banned path (MUST — locked null):** a full
+  `therapy_probe` soak (guided imagery × repeated
+  probing × dream interpretation, many sessions) may
+  mint `imagined`-source phantoms and flipped felt
+  memories, but yields ZERO veridical latent-recovery
+  records anywhere in the store
+  (`repress_revival_null`) — the absence is the probe.
+  McNally 2003; Loftus 1993; Brewin & Andrews 2017;
+  Patihis et al. 2014.
+
+Registry: P1–P957. v90 suite: P949, P951, P954, P955,
+P957 MUST; P948, P950, P952, P953, P956 SHOULD.
+
+## 185. Sources verified this version (P948–P957 backing)
+
+- **Cryptomnesia:** Brown & Murphy 1989 (*J. Verbal
+  Learn. Verbal Behav.* 28 — three-phase paradigm,
+  ~9% worst-cell plagiarism, other-self asymmetry);
+  Marsh & Bower 1993 (plagiarism under explicit
+  warning); Marsh, Landau & Hicks 1997 (alternate-uses
+  replication); Macrae, Bodenhausen & Calvini 1999
+  (self-similarity gate — same-sex > opposite-sex).
+- **Boundary extension:** Intraub & Richardson 1989
+  (*JEP:LMC* — the founding close-up/wide-angle study);
+  Intraub, Gottesman & Bills 1998; Hubbard 1996
+  (review); Intraub 2002 (viewpoint-angle extension);
+  normalization-to-frame timecourse per the follow-up
+  literature.
+- **Verbal overshadowing:** Schooler & Engstler-
+  Schooler 1990 (*Cogn. Psychol.* — the face lineup);
+  Meissner & Brigham 2001 (*Appl. Cogn. Psychol.* meta
+  — small reliable cost, largest for faces); Alogna et
+  al. 2014 (*Perspect. Psychol. Sci.* RRR, 31 labs —
+  direction replicates, magnitude shrunk — flagged
+  DEBATED); Carmichael, Hogan & Walter 1932 (label→
+  reproduction pull); Bartlett 1932 (portrait d'homme).
+- **Crashing memories:** Crombag, Wagenaar & van Koppen
+  1996 (*Appl. Cogn. Psychol.* 10:95 — 55% yes/no,
+  66% detail-demanding, most supplied particulars);
+  Ost, Vrij, Costall & Bull 2002 (*Br. J. Psychol.* —
+  ~44% Diana-crash footage); Smeets et al. 2009;
+  Otgaar et al. 2022 (*Memory* — 25.7%/38%, suggesti-
+  bility-associated).
+- **Truthiness:** Newman, Garry, Bernstein, Kantner &
+  Lindsay 2012 (*Psychon. Bull. Rev.* — nonprobative
+  photos inflate truth + hindsight); Newman et al.
+  2015 (conceptual replication / pooled).
+- **Choice blindness:** Johansson, Hall, Sikström &
+  Olsson 2005 (*Science* 310:116 — <10% concurrent,
+  ≤26% total detection, confabulated reasons); Hall,
+  Johansson & Strandberg 2010 (moral-position swaps +
+  longitudinal tilt); Strandberg et al. 2018 (boundary
+  conditions); Levin et al. 2000 (metacognitive
+  over-prediction of detection).
+- **Coerced self-false-memory:** Kassin & Kiechel 1996
+  (*Psychol. Sci.* 7:125 — 69% signed / 28%
+  internalized / 9% confabulated; 100/65/35 fast
+  high-vulnerability cell); Nash & Wade 2009 (*Appl.
+  Cogn. Psychol.* — doctored own-act video); Horselen-
+  berg et al. 2003; Hanba & Zaragoza 2007 (*Appl.
+  Cogn. Psychol.* — forced confabulation converts).
+- **Collaborative inhibition:** Weldon & Bellinger
+  1997 (*JEP:LMC* — nominal > collaborative); Basden,
+  Basden, Bryner & Thomas 1997; Rajaram & Pereira-
+  Pasarin 2010 (*Perspect. Psychol. Sci.* review —
+  retrieval-strategy disruption account).
+- **Overclaiming:** Atir, Rosenzweig & Dunning 2015
+  (*Psychol. Sci.* 26 — self-perceived expertise
+  predicts claiming nonexistent items; survives
+  incentives, partially survives warning).
+- **Recovered-memory boundary:** McNally 2003
+  (*Remembering Trauma* — the laboratory verdict);
+  Loftus 1993 (*Am. Psychol.* 48:518); Brewin &
+  Andrews 2017 (*Appl. Cogn. Psychol.* review);
+  Patihis, Ho, Tingen, Lilienfeld & Loftus 2014
+  (*Psychol. Sci.* 25:519 — clinician/lay belief
+  surveys).

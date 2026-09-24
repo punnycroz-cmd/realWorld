@@ -3595,3 +3595,80 @@ Mather & Knight 2005, Knight et al. 2007, Ozer et al.
 2003, van der Kolk & Fisler 1995, Ehlers & Clark
 2000, Barasch et al. 2017, Diehl et al. 2016,
 Henkel 2014, St. Jacques & Schacter 2013.
+
+## 68. v90 adds — false-memory VIII (the edges of the record)
+
+Part VIII of false-memory.md (§§88–97) prices the failure
+modes that live at the record's edges — where a memory
+isn't distorted but *attributed*, *extended*, *out-talked*,
+*probed into being*, or *confessed into existence*:
+
+- **Provenance is the first casualty.** Cryptomnesia
+  (Brown & Murphy 1989; Marsh & Bower 1993; Macrae et
+  al. 1999) closes the loop the source-monitoring stack
+  opened: §6.10's sourceInfer, run on generation, mints
+  self-authorship for source-decayed heard content —
+  and the self-similarity gate means characters steal
+  most from the people most like them. Truthiness
+  (Newman et al. 2012) is the same fluency error
+  pointed the other way: a photo that proves nothing
+  still reads as evidence. Both are `believe_p`/`source`
+  layer moves with locked `*_content_null` arms —
+  belief and attribution shift; the record's content
+  doesn't.
+- **The frame is wider than the event.** Boundary
+  extension (Intraub & Richardson 1989) gives scene
+  records schema-typical periphery that normalizes over
+  days — the first mechanism in the spec whose falsity
+  is *geometric*. Verbal overshadowing (Schooler &
+  Engstler-Schooler 1990; Meissner & Brigham 2001;
+  Alogna et al. 2014 RRR — direction kept, magnitude
+  flagged) plus the Carmichael label pull make *telling*
+  a retrieval hazard: the character who describes the
+  suspect is the worst identifier, and her label drags
+  the listeners' records too.
+- **Questions mint what they ask about.** Crashing
+  memories (Crombag, Wagenaar & van Koppen 1996 —
+  55/66% saw a film that doesn't exist; Ost et al.
+  2002) formalize the `footage_probe`: notoriety, not
+  plausibility, gates the phantom, and detail-demanding
+  probes endorse MORE because the demand runs the
+  schema fill. Overclaiming (Atir et al. 2015) is the
+  trait-mapped twin — confidence without a record,
+  minted at `familiar_only` tier only.
+- **The self is the flippable record.** Choice blindness
+  (Johansson et al. 2005 — ≤26% detect, then
+  confabulate) and coerced self-false-memory (Kassin &
+  Kiechel 1996 — 69/28/9%; Nash & Wade 2009) share one
+  discipline: overlays and belief flips, never rewrites
+  (`cb_record_null`, `ownact_fact_null`). A character
+  can remember doing what they didn't do; the ledger
+  always knows.
+- **Two boundaries, one locked.** Collaborative
+  inhibition (Weldon & Bellinger 1997; Rajaram &
+  Pereira-Pasarin 2010) prices the group-recall deficit
+  with `collab_gain_null` — consensus by amnesia. And
+  `repress_revival_null` takes the model's only
+  absolute position: following McNally 2003, the
+  machinery for recovered-memory *reports* is fully
+  implemented (probes mint phantoms through §6.9), the
+  machinery that would *validate* them is absent — and
+  P957 probes the absence.
+
+New sources verified this version: Brown & Murphy 1989,
+Marsh & Bower 1993, Marsh, Landau & Hicks 1997, Macrae,
+Bodenhausen & Calvini 1999, Intraub & Richardson 1989,
+Intraub, Gottesman & Bills 1998, Hubbard 1996, Intraub
+2002, Schooler & Engstler-Schooler 1990, Meissner &
+Brigham 2001, Alogna et al. 2014, Carmichael, Hogan &
+Walter 1932, Crombag, Wagenaar & van Koppen 1996, Ost,
+Vrij, Costall & Bull 2002, Smeets et al. 2009, Otgaar
+et al. 2022, Newman et al. 2012/2015, Johansson, Hall,
+Sikström & Olsson 2005, Hall, Johansson & Strandberg
+2010, Strandberg et al. 2018, Levin et al. 2000, Kassin
+& Kiechel 1996, Nash & Wade 2009, Horselenberg et al.
+2003, Hanba & Zaragoza 2007, Weldon & Bellinger 1997,
+Basden, Basden, Bryner & Thomas 1997, Rajaram &
+Pereira-Pasarin 2010, Atir, Rosenzweig & Dunning 2015,
+McNally 2003, Loftus 1993, Brewin & Andrews 2017,
+Patihis et al. 2014 — probes P948–P957.

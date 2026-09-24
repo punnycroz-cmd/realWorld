@@ -1,5 +1,55 @@
-# Memory Model Spec v5.37 — implementable human-like memory for RW characters
+# Memory Model Spec v5.38 — implementable human-like memory for RW characters
 
+> **v5.38 note (false-memory VIII — the edges of the
+> record):** `memory/false-memory.md` Part VIII
+> (§§88–97) prices the failure modes that live at the
+> record's edges — generation, description, probing,
+> swapping, interrogation, collaboration, boasting, and
+> the one operator the model refuses to ship.
+> **Cryptomnesia** — generation ops plagiarize source-
+> decayed `told_by` content at `crypt_p`, self-similar
+> sources favored; `crypt_source_null` locked (Brown &
+> Murphy 1989; Marsh & Bower 1993; Macrae et al. 1999)
+> — §6.183. **Boundary extension** — scene records mint
+> schema periphery at encode + reconstruct, normalized
+> on `bext_norm_tau`; `bext_nonscene_null` (Intraub &
+> Richardson 1989) — §6.184. **Verbal overshadowing** —
+> `describe` taxes visual verbatim on `verb_shad_hl`
+> and pulls toward the label; `verb_semantic_null`
+> (Schooler & Engstler-Schooler 1990; Meissner &
+> Brigham 2001; Alogna et al. 2014 — magnitude DEBATED)
+> — §6.185. **Crashing memories** — `footage_probe`
+> mints `saw_footage` phantoms on a notoriety gate;
+> detail-demanding probes mint MORE (the 66>55
+> ordering); `footage_obscure_null` (Crombag et al.
+> 1996; Ost et al. 2002) — §6.186. **Truthiness** —
+> `nonprob_image` lifts believe_p with zero content;
+> `truth_content_null` (Newman et al. 2012) — §6.187.
+> **Choice blindness** — swapped feedback detected at
+> `cb_detect_p` (×meta_conf); misses write a
+> `reported_chosen` overlay, never the born field
+> (`cb_record_null`); reasons minted (Johansson et al.
+> 2005; Hall et al. 2010) — §6.188. **Coerced
+> self-false-memory** — `interrogate` +
+> `evidence_claim` on self-action fields: `p_adopt
+> ×ownact_suscept`, internalization capped at
+> `ownact_session_cap`; `ownact_fact_null` — the
+> ledger never moves (Kassin & Kiechel 1996; Nash &
+> Wade 2009) — §6.189. **Collaborative inhibition** —
+> groupRecall < nominal pool by `collab_inhib`
+> ·org_mismatch; `collab_gain_null` locked (Weldon &
+> Bellinger 1997; Rajaram & Pereira-Pasarin 2010) —
+> §6.190. **Overclaiming** — domain foils false-alarm
+> at `oc_gain·meta_conf·self_est·domain_exposure`,
+> `familiar_only` tier only (`oc_episodic_null`),
+> warning-residual (`oc_warn_null`) (Atir et al. 2015)
+> — §6.191. **The banned operator** —
+> `repress_revival_null` locked: no veridical
+> latent-recovery path; every probe context mints
+> through §6.9 (McNally 2003; Loftus 1993; Patihis
+> et al. 2014) — §6.192. +24 scalars, +1 frozen,
+> +10 locked nulls; §10 contract adds. Probes
+> P948–P957.
 > **v5.37 note (emotional-memory VIII — the quiet uses of
 > feeling):** `memory/emotional-memory.md` Part VIII
 > (§§98–107) prices how the feeling of NOW re-edits the
@@ -11333,6 +11383,177 @@ total E — the offload arm is reserved for
 `photographing:"archive"` context (Henkel 2014
 reconciled via expected-delegation, not camera use).
 
+### 6.183 The stolen idea comes back as yours — cryptomnesia (new in v5.38)
+
+Generation ops (`plan`, `joke`, `pitch`, invention inside
+`retell`) roll `crypt_p` (0.05) when the store holds a
+`source.kind:"told_by"` record overlapping the output AND
+`confidenceInSource < 0.3`; on success the output is
+minted self-sourced with emission `claimed_mine:true`
+(audit-only). Multiplier `1 + crypt_self_gain·sim(self,
+originSpeaker)` — plagiarism favors self-similar sources
+(Macrae, Bodenhausen & Calvini 1999; base rates Brown &
+Murphy 1989 ~9% worst-cell; Marsh & Bower 1993; Marsh,
+Landau & Hicks 1997). **Locked null `crypt_source_null`:**
+the minted claim never carries the true source —
+provenance loss is the phenomenon.
+
+### 6.184 The frame you never saw — boundary extension (new in v5.38)
+
+Scene/spatial verbatim records gain `bext` periphery
+fields (schema-typical content beyond the observed
+frame): mint at encode with `bext_enc` (0.35), refresh at
+each reconstruct with `bext_recon` (0.2), extent capped
+at `bext_max_frac` (0.3) of the scene's field; the minted
+periphery normalizes toward the true frame on
+`bext_norm_tau` (~3 d) — early reports are widest
+(Intraub & Richardson 1989; Hubbard 1996; Intraub 2002).
+Adjacent-content only — never whole episodes (§6.8 stays
+the phantom path). **Locked null `bext_nonscene_null`:**
+non-scene records (conversations, transactions) never
+extend.
+
+### 6.185 Say it and lose it — verbal overshadowing (new in v5.38)
+
+A `describe` action on a face/scene/identity record, at
+next reconsolidation: (a) one-time visual-verbatim decay
+bump ×(1−`verb_shad_pen` 0.15) recovering on
+`verb_shad_hl` (~4 d) — the describing witness is
+temporarily the worst identifier (Schooler & Engstler-
+Schooler 1990; Meissner & Brigham 2001 — small, reliable;
+Alogna et al. 2014 RRR shrunk the size — flagged
+DEBATED); (b) `verb_label_pull` (0.2) drift of the visual
+field toward the descriptor's prototype — "sketchy" is
+remembered sketchier (Carmichael, Hogan & Walter 1932;
+Bartlett reproductions). The pull also rides hearAccount
+as a `label:` field bias on the listener's matching
+record. **Locked null `verb_semantic_null`:** the tax is
+verbatim-only; gist and semantic fields untouched.
+
+### 6.186 The film that doesn't exist — crashing memories (new in v5.38)
+
+A `footage_probe` question context ("did you see the
+video?") on hearAccount: if `notoriety(event) ≥
+footage_notor` (0.5 — saturation of the local rumor
+field) and no verbatim `media_exposure` record exists →
+`media_phantom_p` (0.3) mints a `saw_footage` record
+(`source.kind:"media"`, `phantom:true`, hidden
+`accuracy:0`), details born empty and schema-filled at
+first reconstruct — which is why detail-demanding probes
+yield MORE reports (66%) than yes/no probes (55%):
+Crombag, Wagenaar & van Koppen 1996; Ost et al. 2002
+~44%; Otgaar et al. 2022 (25.7%, 38%, `suggs`-associated
+— trait lever on media_phantom_p). `footage_rep_gain`
+(0.15) strengthens on repeat probes. Emission
+`saw_footage:true`. **Locked null `footage_obscure_null`:**
+low-notoriety events mint zero — the gate is schema
+saturation, not plausibility; you cannot crash-remember
+a Tuesday.
+
+### 6.187 The picture did nothing — truthiness (new in v5.38)
+
+An `account` carrying `nonprob_image:true` gets
+`+truth_gain` (0.15) on believe_p at hearAccount — a
+nonprobative photo lets the listener simulate the claim,
+and simulation reads as evidence (Newman, Garry,
+Bernstein, Kantner & Lindsay 2012; Newman et al. 2015 —
+small, robust, survives instruction). Substitutes
+partially in the `w_corr` corroboration slot
+(`truth_fluency_k` 0.5 — one photo-armed source reads
+like 1.5 sources). **Locked null `truth_content_null`:**
+the image writes no fields — belief moves, content
+doesn't; fields still arrive only through §6.3's merge.
+
+### 6.188 You chose the one you didn't choose — choice blindness (new in v5.38)
+
+`choice_blind` fires when a feedback frame misstates the
+`chosen` field of a recent `choice` record: detect roll
+`cb_detect_p` (0.15, ×(1+`cb_meta_k`·meta_conf)) — under
+10% concurrent / ≤26% total in Johansson, Hall, Sikström
+& Olsson 2005; boundary conditions DEBATED (Strandberg et
+al. 2018). On a miss: write a `reported_chosen` overlay —
+**locked null `cb_record_null`:** the born `chosen` field
+is never rewritten; the swap lives in the report layer.
+Reasons minted by the §6.39 reason-minter at
+`cb_confab_gain` (0.5); later preference reports tilt
+toward the swap at `cb_persist_gain` (0.1 —
+HYPOTHESIS-weight on the Hall et al. 2010 longitudinal
+arm). Emission `swapped_choice:true`. Companion
+metacognitive note (Levin et al. 2000): characters
+predict they'd always detect — the trait layer keeps
+`meta_conf` blind to its own failure rate.
+
+### 6.189 Confessing what you didn't do — coerced self-false-memory (new in v5.38)
+
+When the contested field is a **self-action** and the
+hearAccount context carries `interrogate:true` +
+`evidence_claim` (asserted proof), `p_adopt` gains
+`×ownact_suscept` (1.5) and `×interrogate_gain` (1.3)
+atop §6.3's moderators; on adopt, a second roll
+(`ownact_internalize`, capped `ownact_session_cap` 0.28
+per session — the Kassin & Kiechel 1996 internalization
+ceiling; 69% signed / 28% internalized / 9% confabulated,
+100/65/35 in the fast high-vulnerability cell; Nash &
+Wade 2009; forced-confabulation arm Horselenberg et al.
+2003, Hanba & Zaragoza 2007) may flip the field to felt
+self-memory, minting `confessed_untrue:true`. Detail
+grows via confab_fill on each retell. **Locked null
+`ownact_fact_null`:** the event ledger never changes —
+belief and recollection flip, truth doesn't. Gate
+`interrogate` contexts to drama-tier voices, never
+ambient chatter — the most dangerous op in the spec.
+
+### 6.190 The group remembers less than its members — collaborative inhibition (new in v5.38)
+
+`groupRecall` output = nominal pool × (1 −
+`collab_inhib`·org_mismatch): `collab_inhib` 0.3,
+org_mismatch via `collab_org_k` (0.5) on member cue-
+structure overlap — matched organizers barely inhibit,
+mismatched ones disrupt (Weldon & Bellinger 1997; Basden,
+Basden, Bryner & Thomas 1997; disruption mechanism per
+Rajaram & Pereira-Pasarin 2010). `collab_correct` (0.1)
+small net error-pruning; post-collaboration re-exposure
+bump rides §5.8. **Locked null `collab_gain_null`:**
+collaborative output never exceeds the nominal pool —
+directional, a win is a bug. **Frozen
+`collab_scope:"episodic_free"`** — the penalty prices
+free episodic recall; recognition and semantic pools are
+out of scope.
+
+### 6.191 "I know that" — overclaiming mints false familiarity (new in v5.38)
+
+Recognition-mode lures for plausible-but-nonexistent
+domain entities succeed at `oc_p = oc_gain·(meta_conf·
+self_est·domain_exposure)` — self-perceived expertise
+predicts claiming invented items (Atir, Rosenzweig &
+Dunning 2015; survives incentives, partially survives
+warning). On a hit, mint a `familiar_only`-tier record —
+**locked null `oc_episodic_null`:** overclaiming produces
+familiarity, never a relived episode. Warning attenuates
+to `oc_warn_resid` (0.6) — **`oc_warn_null` locked:** a
+warned claim still lands. Emission `overclaimed:true`.
+The trait composite is the extension (OMC measures
+self-rated knowledge per domain; `domain_exposure`
+proxies it).
+
+### 6.192 The banned operator — no veridical latent recovery (new in v5.38)
+
+**Locked null `repress_revival_null`:** no operator may
+mint a veridical (accuracy > 0) record from a dormant or
+latent state, and no tick may recover content never
+encoded (`att_min` already guarantees such records don't
+exist). Therapy-adjacent contexts — `therapy_probe`
+guided imagery, repeated probing, dream interpretation —
+route through §6.9 `imagineEvent` only: they mint
+imagined-source phantoms that may flip to felt memory,
+never truths. Position per the laboratory literature
+(McNally 2003; Loftus 1993; Brewin & Andrews 2017);
+population belief in recovery documented and left in the
+belief layer (Patihis et al. 2014 — clinicians and
+laypeople endorse it; characters may too). The absence
+is itself probed: P957 runs a full therapy-probe soak and
+asserts zero veridical latent-recovery records.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -13145,6 +13366,45 @@ MemoryParams = {
 "photo_vis_gain": 0.3, "photo_aud_pen": 0.25,
 "photo_frame_gain": 0.2, "photo_engage_gain": 0.1,
 "photo_verbatim_resist": 0.4,                  // §6.182
+// v5.38 additions (false-memory VIII — FM§§88–97)
+"crypt_p": 0.05, "crypt_self_gain": 0.5,
+"crypt_sim_k": 0.5,                          // §6.183
+"bext_enc": 0.35, "bext_recon": 0.2,
+"bext_max_frac": 0.3, "bext_norm_tau": 3.0,  // §6.184
+"verb_shad_pen": 0.15, "verb_shad_hl": 4.0,
+"verb_label_pull": 0.2,                      // §6.185
+"footage_notor": 0.5, "media_phantom_p": 0.3,
+"footage_rep_gain": 0.15,                    // §6.186
+"truth_gain": 0.15, "truth_fluency_k": 0.5,  // §6.187
+"cb_detect_p": 0.15, "cb_meta_k": 0.5,
+"cb_confab_gain": 0.5, "cb_persist_gain": 0.1, // §6.188
+"ownact_suscept": 1.5, "interrogate_gain": 1.3,
+"ownact_internalize": 0.28,
+"ownact_session_cap": 0.28,                  // §6.189
+"collab_inhib": 0.3, "collab_correct": 0.1,
+"collab_org_k": 0.5,                         // §6.190
+"oc_gain": 0.25, "oc_warn_resid": 0.6,       // §6.191
+// v5.38 trait: none — levers reuse `suggs`,
+//   `meta_conf`, `self_est`, `imagery`, `verbal`,
+//   `social` (FM§99).
+// v5.38 locked nulls: crypt_source_null (P948);
+//   bext_nonscene_null (P949); verb_semantic_null
+//   (P950); footage_obscure_null (P951);
+//   truth_content_null (P952); cb_record_null
+//   (P953); ownact_fact_null (P954);
+//   collab_gain_null (P955); oc_episodic_null +
+//   oc_warn_null (P956); repress_revival_null
+//   (P957).
+// v5.38 frozen: collab_scope="episodic_free".
+// v5.38 fields/state: record `bext` periphery
+//   fields, `reported_chosen` overlay; contexts
+//   `footage_probe`, `interrogate:true`,
+//   `evidence_claim`, `therapy_probe`,
+//   `nonprob_image:true` on accounts, `describe`
+//   action flag, `choice_blind` feedback op;
+//   emissions `claimed_mine`, `saw_footage`,
+//   `swapped_choice`, `confessed_untrue`,
+//   `overclaimed`. All snapshot-additive.
 // v5.37 trait: `narr_seq` ∈[−1,1] (bible-pinnable,
 //   event-rewritable only — resolve:+ / betrayal:−,
 //   never ticked, EM§101); `dissoc` reuses the v1.9
@@ -15139,6 +15399,44 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 26 scalars + 1 trait +
     15 locked nulls + 1 frozen (`msd_scope`).
   - Probes P938–P947.
+- v5.38 additions (false-memory.md Part VIII §§88–97):
+  - **New contexts on hearAccount:** `footage_probe`
+    (§6.186 — "did you see the video?" media-style
+    probe), `interrogate:true` + `evidence_claim`
+    (§6.189 — gated to drama-tier voices, never ambient
+    chatter), `therapy_probe` (§6.192 — routes through
+    imagineEvent only), `nonprob_image:true` account
+    flag (§6.187), `label:` field bias carrying the
+    §6.185 pull to listeners.
+  - **New action/ops:** `describe` action flag on
+    face/scene/identity records (§6.185 — world emits
+    when a character narrates a person/place);
+    `choice_blind` feedback op (§6.188 — a partner/
+    form/admin frame misstates a recent `chosen`);
+    generation ops (`plan`/`joke`/`pitch`) roll §6.183
+    internally.
+  - **New record fields:** `bext` periphery fields on
+    scene verbatim (§6.184), `reported_chosen` overlay
+    on `choice` records (§6.188) — both
+    snapshot-additive; the born `chosen` field is never
+    rewritten (`cb_record_null`).
+  - **New emissions (world-renderable audits):**
+    `claimed_mine:true` (§6.183 cryptomnesia),
+    `saw_footage:true` (§6.186 phantom media memory),
+    `swapped_choice:true` (§6.188), `confessed_untrue:
+    true` (§6.189 — highest-stakes; the audit layer
+    must always see it), `overclaimed:true` (§6.191).
+  - **Locked boundaries game-systems must honor:**
+    `repress_revival_null` (no veridical latent
+    recovery — P957 probes the absence),
+    `ownact_fact_null` (confession never moves the
+    ledger), `collab_gain_null` (group ≤ nominal pool),
+    `footage_obscure_null` (no notoriety → no phantom).
+  - **New params (§7):** 24 scalars + 1 frozen
+    (`collab_scope`) + 10 locked nulls. No new traits —
+    levers reuse `suggs`, `meta_conf`, `self_est`,
+    `imagery`, `verbal`, `social`.
+  - Probes P948–P957.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

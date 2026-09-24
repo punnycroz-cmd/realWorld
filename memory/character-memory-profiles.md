@@ -1158,6 +1158,15 @@ needs both.
 | pos_onset / pos_ramp / pos_enc_gain / pos_enc_pen / neg_rebound / pos_theta / pos_broaden_gain | 45 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 65 / 0.05 / 0.6 / 0.4 / 2.0 / 0.15 / 0.6 | positivity effect + distraction reversal (v5.37) |
 | dissoc_arousal_gate / kindle_gain / dissoc_frame_pen / dissoc_coh_start / dissoc_vol_pen / dissoc_intru_gain / dissoc_time_warp | 0.4 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.85 / 0.6 / 0.8 / 0.4 / 0.3 / 0.3 / 0.6 | peritraumatic dissociation record phenotype (v5.37) |
 | photo_vis_gain / photo_aud_pen / photo_frame_gain / photo_engage_gain / photo_verbatim_resist | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.6 / 0.5 / 0.4 / 0.25 / 0.7 | photo-mediated encode + photo cue (v5.37) |
+| crypt_p / crypt_self_gain / crypt_sim_k | 0.0 / 0.0 / 0.0 | 0.2 / 1.5 / 1.0 | cryptomnesia — generation plagiarizes source-decayed told_by (v5.38) |
+| bext_enc / bext_recon / bext_max_frac / bext_norm_tau | 0.0 / 0.0 / 0.1 / 1 | 0.7 / 0.5 / 0.5 / 14 | boundary extension — schema periphery on scene records, days (v5.38) |
+| verb_shad_pen / verb_shad_hl / verb_label_pull | 0.0 / 1 / 0.0 | 0.4 / 14 / 0.5 | verbal overshadowing decay bump, days + label pull (v5.38) |
+| footage_notor / media_phantom_p / footage_rep_gain | 0.3 / 0.0 / 0.0 | 0.8 / 0.6 / 0.4 | crashing-memory phantom on notoriety gate (v5.38) |
+| truth_gain / truth_fluency_k | 0.0 / 0.0 | 0.3 / 1.0 | nonprobative-image truth lift + corroboration substitution (v5.38) |
+| cb_detect_p / cb_meta_k / cb_confab_gain / cb_persist_gain | 0.0 / 0.0 / 0.0 / 0.0 | 0.4 / 1.0 / 1.0 / 0.3 | choice-blindness detect / confab / persistence (v5.38) |
+| ownact_suscept / interrogate_gain / ownact_internalize / ownact_session_cap | 1.0 / 1.0 / 0.0 / 0.1 | 3.0 / 2.0 / 0.5 / 0.5 | coerced self-false-memory under interrogation (v5.38) |
+| collab_inhib / collab_correct / collab_org_k | 0.1 / 0.0 / 0.0 | 0.45 / 0.25 / 1.0 | collaborative inhibition vs nominal pool (v5.38) |
+| oc_gain / oc_warn_resid | 0.0 / 0.3 | 0.5 / 1.0 | overclaiming foil acceptance + warning residual (v5.38) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4429,3 +4438,62 @@ Pinning guidance:
   `dissoc_content_null`, `photo_neg_null`,
   `photo_offload_null`; frozen `msd_scope` —
   probe-enforced (P938–P947).
+
+## 71. v5.38 note (false-memory VIII — the edges of the record)
+
+Nine clamp rows added in §0. **No new traits** — every new
+lever rides existing ones, which is the point of this
+version's pinning guidance: the false-memory edges sort
+characters along axes the bibles already own.
+
+Pinning guidance:
+
+- **`suggs` is now the phantom gate.** `media_phantom_p`
+  scales with it — the highly suggestible character is the
+  one who saw footage that doesn't exist (Otgaar et al.
+  2022 found the suggestibility association, not
+  compliance). A bible that wants "believes what the feed
+  says" should pin `suggs` high and let `footage_notor`
+  do the rest; a skeptic profile needs `suggs` low AND
+  `checker` high (the §6.6 correction path is their
+  antibody).
+- **`meta_conf`·`self_est` is the overclaiming axis.** The
+  confident self-rated expert false-alarms on plausible
+  domain foils and — the same product — is *better* at
+  detecting a swapped choice (`cb_meta_k`). Confidence
+  buys detection and costs honesty; a humble character
+  misses the swap but never claims the fake band. Do not
+  try to pin `oc_gain` per-character — it's machinery;
+  the trait composite does the differentiating.
+- **`imagery` makes the dangerous phantoms.** Rich imagers
+  mint vivid `saw_footage` and cryptomnesia material —
+  the well-imagined falsehood is the one that flips
+  (reality-monitoring gate, §6.9's rm_rich_thresh still
+  governs). High `imagery` + high `suggs` is the
+  implanted-memory candidate; high `imagery` + low
+  `suggs` is the vivid dreamer who keeps score.
+- **`verbal` loads the label pull.** The articulate
+  character's `describe` does more damage — their labels
+  stick harder (`verb_label_pull`), so the neighborhood's
+  best storyteller is also its worst eyewitness after
+  telling. Pair with `social` for exposure frequency.
+- **`social`/extra gates cryptomnesia exposure.** More
+  heard content → more source-decayed `told_by` material
+  to plagiarize. The outgoing character steals ideas
+  without knowing it; `crypt_self_gain` means they steal
+  from their closest matches — the roommate, the
+  co-worker, the rival who thinks like them.
+- **`interrogate`/`therapy_probe`/`footage_probe`/
+  `nonprob_image` are world/context flags, never pinned**
+  — the world decides who gets interrogated, probed, or
+  shown a blurry photo. Bibles may note interrogation-
+  vulnerable characters (high `suggs`, low `distrust`,
+  high `attach_anx`) but the caps (`ownact_session_cap`)
+  are population machinery.
+- **Never pin:** locked nulls `crypt_source_null`,
+  `bext_nonscene_null`, `verb_semantic_null`,
+  `footage_obscure_null`, `truth_content_null`,
+  `cb_record_null`, `ownact_fact_null`,
+  `collab_gain_null`, `oc_episodic_null`, `oc_warn_null`,
+  `repress_revival_null`; frozen `collab_scope` —
+  probe-enforced (P948–P957).
