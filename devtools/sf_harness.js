@@ -70,7 +70,8 @@ const api = eval(m[1] + `
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
     sfCellField, sfTopLean, sfTopLeanShift, SF_TOP_ALT_M, cam,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
-    sfWireShadow, sfPalmRow, SF_DECALS,
+    sfWireShadow, sfPalmRow, SF_DECALS, sfWallImpostor, sfWallBakeKey,
+    SF_WIM,
     updateHUD,
     setInsp: (i2) => { inspectedPawnIdx = i2; },
     getCtrl: () => controlledPawnIdx })`);
@@ -446,6 +447,31 @@ const api = eval(m[1] + `
     ok(api.sfTopLean(cx + 500, cy, 100, 100) === true &&
        api.sfTopLean(cx, cy, 100, 100) === false,
        'sfTopLean returns false at the nadir, true off-center');
+  }
+
+  // v63: wall impostor atlas — the bake key is stable across frames
+  // (cloud-shadow drift is neutralized in the bake, not keyed), a bake
+  // populates the LRU, and the slice fan draws for a sane projection
+  // while refusing a lens parked inside the near plane.
+  {
+    const b0 = api.SF_BLD[0];
+    const k1 = api.sfWallBakeKey(b0, 0, false);
+    const k2 = api.sfWallBakeKey(b0, 0, false);
+    ok(k1 === k2, 'wall bake key is frame-stable');
+    ok(api.sfWallBakeKey(b0, 1, false) !== k1,
+       'bake key distinguishes wall edges');
+    const n0 = api.SF_WIM.size;
+    // synthetic wall: 20m run, 12m tall, camera-facing ortho projection
+    const prW = (x, y, z) => [x * 4 + 200, 400 - z * 8, 40];
+    const okd = api.sfWallImpostor(b0, 0, 0, 0, 20, 0, 1, 0, 20,
+                                   0, -1, 12, prW, false, 40, 1440);
+    ok(okd === true, 'impostor draws for a sane wall projection');
+    ok(api.SF_WIM.size > n0 || api.SF_WIM.size === 150,
+       'bake populates the atlas LRU (' + api.SF_WIM.size + ' entries)');
+    const prNear = (x, y, z) => [x * 4 + 200, 400 - z * 8, 0.8];
+    ok(api.sfWallImpostor(b0, 0, 0, 0, 20, 0, 1, 0, 20,
+                          0, -1, 12, prNear, false, 40, 1440) === false,
+       'impostor refuses a lens inside the near plane');
   }
 
   // v35: interior archetypes resolve per venue name/label

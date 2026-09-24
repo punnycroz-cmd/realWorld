@@ -31260,7 +31260,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v25: rain weeps off the cornice — drops fall from the parapet edge,
   // accelerating as they go, and burst on the sidewalk. Only near
   // facades resolve drips; beyond ~90m the rain field itself carries it.
-  if(W.rain > 0.1 && fwd < 90){
+  if(W.rain > 0.1 && fwd < 90 && !SF_WALL_BAKE){
     const nD = Math.min(4, Math.max(1, Math.floor(L / 6)));
     for(let k = 0; k < nD; k++){
       const u = 0.15 + phash(i, ei * 7 + k, 1880) * 0.7;
@@ -31403,6 +31403,130 @@ function sfCarStreet(o, pr, F, night){
     }
   }
 }
+/* ---------------- v63: WALL IMPOSTOR ATLAS ----------------
+   The street pass used to re-trace every cornice bracket, bay sash and
+   string course of every facing facade on every frame (~13k canvas ops
+   of the ~31k frame). But a wall's APPEARANCE is camera-independent —
+   sun sector, wetness and cloud-dim move far slower than the lens. So
+   each facing wall is rendered ONCE into a wall-space sprite: the very
+   same sfStreetWall pass, driven by a canonical orthographic pr() that
+   maps (u along wall, z height) to bake pixels at a fixed 30m focal
+   distance. Per frame the sprite is re-projected as a fan of vertical
+   drawImage slices — perspective-exact at slice edges, affine inside —
+   while haze, canyon shade and pole-wire shadows still composite
+   per-frame on top. Rain (animated facade streaks) or a lens inside the
+   near plane falls back to the full vector pass. */
+const SF_WIM = new Map();          // key -> {c,wpx,hpx,uPad,S,zTopL,zBotL}
+const SF_WIM_MAX = 150;
+const SF_WIM_S = 11;               // bake px per meter
+let SF_WALL_BAKE = false;          // gates camera-ephemeral detail in the bake
+function sfWallBakeKey(b, ei, night){
+  return [b.i, ei, SF_SUN.q, night ? 1 : 0, Math.round(SF_WX.wet * 8),
+          Math.round(W.rain * 4), Math.round((W.windAng || 0) * 8),
+          Math.round(sfKarlK() * 6)].join(':');
+}
+function sfWallImpostor(b, ei, x1, y1, x2, y2, ux, uy, L, nx, ny, hm,
+                        pr, night, fwd, cw){
+  const zTopL = hm + 6.2, zBotL = -1.0;   // local z span (turret hat headroom)
+  const key = sfWallBakeKey(b, ei, night);
+  let bk = SF_WIM.get(key);
+  if(bk){ SF_WIM.delete(key); SF_WIM.set(key, bk); }       // LRU touch
+  else {
+    const S = SF_WIM_S, uPad = 2.2;
+    const wpx = Math.ceil((L + uPad * 2) * S),
+          hpx = Math.ceil((zTopL - zBotL) * S);
+    if(wpx > 1100 || hpx > 420 || wpx < 4) return false;
+    const c = document.createElement('canvas');
+    c.width = wpx; c.height = hpx;
+    const g = c.getContext('2d');
+    const saveCtx = ctx; ctx = g;
+    // canonical lens: u along the wall -> bake x, local z -> bake y,
+    // fixed 30m depth so internal thresholds resolve at full detail
+    const prB = (qx, qy, qz) =>
+      [((qx - x1) * ux + (qy - y1) * uy + uPad) * S,
+       (zTopL - qz) * S, 30];
+    /* cloud shadow / Karl shade / sunbreak drift continuously — keying
+       them would thrash the atlas, so the bake renders them NEUTRAL and
+       the draw below composites the same dim/gap math as an overlay */
+    const csF = sfCloudShadow, ksF = sfKarlShade, gkF = sfSunGapK;
+    sfCloudShadow = () => 0; sfKarlShade = () => 0; sfSunGapK = () => 0;
+    SF_WALL_BAKE = true;
+    try {
+      sfStreetWall(b, ei, x1, y1, x2, y2, x2 - x1, y2 - y1, L,
+                   nx, ny, hm, prB, 30 * S, night, 20);
+    } finally {
+      SF_WALL_BAKE = false; ctx = saveCtx;
+      sfCloudShadow = csF; sfKarlShade = ksF; sfSunGapK = gkF;
+    }
+    bk = { c, wpx, hpx, uPad, S, zTopL, zBotL };
+    if(SF_WIM.size >= SF_WIM_MAX)
+      SF_WIM.delete(SF_WIM.keys().next().value);
+    SF_WIM.set(key, bk);
+  }
+  // slice fan: u sweeps a padded span so cornice returns survive
+  const uLo = -bk.uPad, uHi = L + bk.uPad;
+  const b0 = pr(x1 + ux * uLo, y1 + uy * uLo, bk.zBotL),
+        b1 = pr(x1 + ux * uHi, y1 + uy * uHi, bk.zBotL);
+  if(!b0 || !b1) return false;
+  const wScr = b1[0] - b0[0];
+  if(Math.abs(wScr) < 3 || Math.abs(wScr) > cw * 2.6) return false;
+  if(Math.min(b0[2], b1[2]) < 1.6) return false;   // lens in the wall
+  const N = clamp(Math.round(Math.abs(wScr) / 42), 5, 26);
+  const flip = wScr < 0;
+  for(let k = 0; k < N; k++){
+    const ta = k / N, tb = (k + 1) / N;
+    const wa = x1 + ux * (uLo + (uHi - uLo) * ta),
+          ya = y1 + uy * (uLo + (uHi - uLo) * ta),
+          wb = x1 + ux * (uLo + (uHi - uLo) * tb),
+          yb = y1 + uy * (uLo + (uHi - uLo) * tb);
+    const pa = pr(wa, ya, bk.zBotL), qa = pr(wa, ya, bk.zTopL),
+          pb = pr(wb, yb, bk.zBotL), qb = pr(wb, yb, bk.zTopL);
+    if(!pa || !qa || !pb || !qb) continue;
+    const dx = Math.min(pa[0], pb[0]) - 0.3,
+          dw = Math.abs(pb[0] - pa[0]) + 0.6,
+          dy = Math.min(qa[1], qb[1]),
+          dh = Math.max(pa[1], pb[1]) - dy;
+    if(dw <= 0 || dh <= 0) continue;
+    const sa = flip ? 1 - tb : ta, sb = flip ? 1 - ta : tb;
+    ctx.drawImage(bk.c, sa * bk.wpx, 0, (sb - sa) * bk.wpx, bk.hpx,
+                  dx, dy, dw, dh);
+  }
+  // per-frame overlays: cloud/Karl dim + sunbreak warmth (neutralized in
+  // the bake) + aerial haze — same math sfStreetWall folds into colors
+  const t0 = pr(x1 + ux * uLo, y1 + uy * uLo, bk.zTopL),
+        t1 = pr(x1 + ux * uHi, y1 + uy * uHi, bk.zTopL);
+  if(t0 && t1){
+    const cx = b.x / SF_PXM, cy = b.y / SF_PXM;
+    const dimF = (1 - 0.45 * sfCloudShadow(cx, cy)) *
+                 (1 - 0.5 * sfKarlShade(cx, cy));
+    const gapK = sfSunGapK(cx, cy) * SF_SUN.day;
+    const hz = sfHazeA(fwd);
+    const quadF = () => {
+      ctx.beginPath();
+      ctx.moveTo(b0[0], b0[1]); ctx.lineTo(b1[0], b1[1]);
+      ctx.lineTo(t1[0], t1[1]); ctx.lineTo(t0[0], t0[1]);
+      ctx.closePath(); ctx.fill();
+    };
+    if(dimF < 0.985){
+      ctx.globalAlpha = Math.min(0.62, 1 - dimF);
+      ctx.fillStyle = '#0c1220';
+      quadF();
+    }
+    if(gapK > 0.12){
+      ctx.globalAlpha = Math.min(0.26, gapK * 0.26);
+      ctx.fillStyle = '#ffe0a8';
+      quadF();
+    }
+    if(hz > 0.01){
+      ctx.globalAlpha = hz;
+      ctx.fillStyle = `rgb(${SF_WX.hazeRGB})`;
+      quadF();
+    }
+    ctx.globalAlpha = 1;
+  }
+  return true;
+}
+
 function sfRenderStreet(cw, ch){
   sfPerfBegin();
   sfWxTick();
@@ -32718,7 +32842,12 @@ function sfRenderStreet(cw, ch){
           if((s1 > lat1 && s2 > lat2) || (s1 < -lat1 && s2 < -lat2))
             continue;
         }
-        sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
+        // v63: impostor atlas — the baked wall sprite re-projects as a
+        // slice fan; rain streaks + extreme near-plane stay on vectors
+        if(W.rain > 0.1 ||
+           !sfWallImpostor(b, e, x1, y1, x2, y2, ex / L, ey / L, L,
+                           nx, ny, hm, pr, night, d.fwd, cw))
+          sfStreetWall(b, e, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, d.fwd);
         /* v23/v39: canyon shade band — the row across the street steals
            the low sun. v39: the shade line is now PROBED, not guessed —
            sfCanyonShade marches the sun ray at N points along the wall,
@@ -34752,7 +34881,6 @@ function sfRenderInterior(cw, ch, v){
   ctx.font = '11px sans-serif'; ctx.fillStyle = '#d8c8b0';
   ctx.fillText(lab, cw / 2, ch * 0.045 + 34);
 }
-
 
 /* =====================================================================
    PART SF-4: THE CAST — 28 Mission residents, homes, routines.
