@@ -288,10 +288,11 @@ function sfLobeCaps(g, blobs, col){
   for(const [bx, by, rx, ry] of blobs)
     paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, col);
 }
-function sfLeafyTree(v){
+function sfLeafyTree(v, lf, ld){
   // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // under-canopy occlusion mass (keeps the core deep)
   const blobs = SF_CROWN.tree[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
@@ -525,9 +526,10 @@ function sfPlanterSpr(){
    sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
    trunk rising into real crown architecture, instead of the top-down
    crown sprite pasted upright (which read as a green balloon). */
-function sfBigTreeSpr(v){
+function sfBigTreeSpr(v, lf, ld){
   const s = paMk(128, 120), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
   const blobs = SF_CROWN.big[v].lobes;
   for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
@@ -555,12 +557,12 @@ function sfSideCrown(g, blobs, seed, lf, ld){
                  { n: Math.round(rx * ry * 1.7) });
   }
 }
-function sfVegSideSpr(kind, v){
+function sfVegSideSpr(kind, v, lf0, ld0){
   if(kind === 'tree'){
     // park / OSM broadleaf seen from the sidewalk: real trunk into a
     // layered crown (~7-9m tall at draw scale)
     const s = paMk(110, 175), g = s.g;
-    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    const tr = MAT.trunk, lf = lf0 || MAT.leaf, ld = ld0 || MAT.leafDeep;
     // tapered trunk + scaffold limbs
     for(let y = 0; y < 78; y++){
       const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
@@ -901,6 +903,16 @@ function sfBlanketSpr(v){
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
+  /* v55: THE TURNING — Mission autumn crown sets. Real SF fall color is
+     modest and species-patchy: ginkgo/liquidambar gold, ornamental pear
+     rust, a few wine-red stragglers — never the whole canopy at once.
+     Same SF_CROWN lobe geometry as the green sets (shadow contract
+     holds); only the palette flips. */
+  const SF_FALL = [
+    [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
+    [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
+    [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+  V.treeA = [0, 1, 2].map(v => sfLeafyTree(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.palm = [sfPalmTree(0), sfPalmTree(1)];
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
@@ -921,7 +933,9 @@ function buildSfVeg(){
   // v31: park-scale crowns (top view) + side-elevation silhouettes
   // (street view) — drawn instead of the plan-view crown sprites
   V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.bigTreeA = [0, 1, 2].map(v => sfBigTreeSpr(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sideTreeA = [0, 1, 2].map(v => sfVegSideSpr('tree', v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
   V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];

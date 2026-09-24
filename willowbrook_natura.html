@@ -23416,10 +23416,11 @@ function sfLobeCaps(g, blobs, col){
   for(const [bx, by, rx, ry] of blobs)
     paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, col);
 }
-function sfLeafyTree(v){
+function sfLeafyTree(v, lf, ld){
   // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // under-canopy occlusion mass (keeps the core deep)
   const blobs = SF_CROWN.tree[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
@@ -23653,9 +23654,10 @@ function sfPlanterSpr(){
    sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
    trunk rising into real crown architecture, instead of the top-down
    crown sprite pasted upright (which read as a green balloon). */
-function sfBigTreeSpr(v){
+function sfBigTreeSpr(v, lf, ld){
   const s = paMk(128, 120), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
   const blobs = SF_CROWN.big[v].lobes;
   for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
@@ -23683,12 +23685,12 @@ function sfSideCrown(g, blobs, seed, lf, ld){
                  { n: Math.round(rx * ry * 1.7) });
   }
 }
-function sfVegSideSpr(kind, v){
+function sfVegSideSpr(kind, v, lf0, ld0){
   if(kind === 'tree'){
     // park / OSM broadleaf seen from the sidewalk: real trunk into a
     // layered crown (~7-9m tall at draw scale)
     const s = paMk(110, 175), g = s.g;
-    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    const tr = MAT.trunk, lf = lf0 || MAT.leaf, ld = ld0 || MAT.leafDeep;
     // tapered trunk + scaffold limbs
     for(let y = 0; y < 78; y++){
       const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
@@ -24029,6 +24031,16 @@ function sfBlanketSpr(v){
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
+  /* v55: THE TURNING — Mission autumn crown sets. Real SF fall color is
+     modest and species-patchy: ginkgo/liquidambar gold, ornamental pear
+     rust, a few wine-red stragglers — never the whole canopy at once.
+     Same SF_CROWN lobe geometry as the green sets (shadow contract
+     holds); only the palette flips. */
+  const SF_FALL = [
+    [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
+    [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
+    [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+  V.treeA = [0, 1, 2].map(v => sfLeafyTree(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.palm = [sfPalmTree(0), sfPalmTree(1)];
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
@@ -24049,7 +24061,9 @@ function buildSfVeg(){
   // v31: park-scale crowns (top view) + side-elevation silhouettes
   // (street view) — drawn instead of the plan-view crown sprites
   V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.bigTreeA = [0, 1, 2].map(v => sfBigTreeSpr(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sideTreeA = [0, 1, 2].map(v => sfVegSideSpr('tree', v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
   V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
@@ -25786,6 +25800,28 @@ function sfGrassDry(wx, wy){
                 ? 0.55 : 1;
   return d * irrig * (0.35 + 0.65 * phash(wx, wy, 3820));
 }
+/* ---------------- v55: THE TURNING — the leaf-fall calendar ------------
+   SF autumn is real but patchy: the ginkgos and liquidambars on the
+   streets go gold while the park's evergreen mass stays green, and the
+   exposed crowns on the open lawn turn first (radiation chill + wind
+   stress). sfFallTurn is pure in the sim month (peak ~late Oct);
+   sfTreeTurns decides per-prop whether THIS crown went — deterministic
+   so sprites, shadows, litter and both cameras all agree. Palms and
+   cypress are evergreen and never turn. */
+function sfFallTurn(){
+  const mo = (typeof W !== 'undefined' && W.month) ||
+             ({ Winter: 1, Spring: 4, Summer: 7, Autumn: 10 })[W.season] || 9;
+  return clamp(1 - Math.abs(mo - 10.5) / 3.0, 0, 1);
+}
+function sfTreeTurns(o){
+  return phash(o.wx, o.wy, 5520) < sfFallTurn() * (o.big ? 0.62 : 0.45);
+}
+/* mow-stripe band: the ride-on mower follows the slope, so passes run
+   along elevation contours — alternating light/dark bands ~2.5m tall */
+function sfMowBand(wx, wy){
+  return Math.floor(sfElevM((wx + 0.5) * SF_M.cell_m,
+                            (wy + 0.5) * SF_M.cell_m) / 1.25) & 1;
+}
 /* ---------------- v23: street-canyon sun occlusion ----------------
    The Mission's signature light: a low sun fires down the street grid,
    so the row on the sunward side throws the whole canyon into shade
@@ -27172,6 +27208,29 @@ function sfTerrChunk(cx, cy, wetQ){
       const spr = sfTerrainTile(wx, wy, tt);
       const sx = ix * csz;
       if(spr && spr.c) g.drawImage(spr.c, sx, sy, csz, sh);
+      // v55: the mowed lawn — Dolores' grass is cut in contour-following
+      // passes, not random meadow. Alternating light/dark bands along
+      // elevation contours (albedo change, drawn under the light passes
+      // so hillshade + sun key still modulate it), plus autumn leaf-fall
+      // speckle that thickens with the turn.
+      if(tt === 13){
+        if(sfMowBand(wx, wy)){
+          g.fillStyle = 'rgba(20,44,30,0.11)';
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        } else {
+          g.fillStyle = 'rgba(255,246,206,0.09)';
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        }
+        if(phash(wx, wy, 5570) < sfFallTurn() * 0.5){
+          const LC2 = ['#c8983a', '#a4582c', '#8a5c22'];
+          for(let k2 = 0; k2 < 3; k2++){
+            g.fillStyle = LC2[(wx + wy + k2) % 3];
+            g.fillRect(sx + phash(wx, wy * 3 + k2, 5571) * (csz - 3),
+                       sy + phash(wy, wx * 5 + k2, 5572) * (sh - 2),
+                       2.5, 1.6);
+          }
+        }
+      }
       // v37: hillshade — the landform reads under the real sun: slopes
       // angled at it catch warm light, shying slopes take cool fill
       {
@@ -27673,7 +27732,10 @@ function sfRenderWorld(cw, ch){
       // ground-contact radius in meters (drives the always-on AO disc)
       let spr = null, shadeR = 0, propM = 0, footM = 0;
       if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
-        spr = o.big ? V.bigTree[ti] : V.tree[ti]; shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
+        const ar = sfTreeTurns(o);   // v55: this crown turned for autumn
+        spr = o.big ? (ar ? V.bigTreeA : V.bigTree)[ti]
+                    : (ar ? V.treeA : V.tree)[ti];
+        shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0];
         // v40: the ficus (v0) throws a real canopy-sized shade pool
@@ -27830,12 +27892,16 @@ function sfRenderWorld(cw, ch){
         // of each crown (pink trumpet petals, ginkgo gold, plain leaf).
         // Deterministic per prop; denser under the big park crowns.
         if(vegK && cam.zoom >= 0.55 && !isNight()){
-          const LC = o.kind === 'sfStreetTree'
+          const turnL = o.kind === 'sfTree' && sfTreeTurns(o);
+          const LC = turnL ? ['#c8983a','#a4582c','#8a5c22','#e0bc50']
+            : o.kind === 'sfStreetTree'
             ? (o.v === 1 ? ['#f0b8d0','#e0a0bc','#f8dce8'] :
                o.v === 2 ? ['#d8a84a','#c09038','#e8c86a'] :
                            ['#5a7a3a','#6b8a44','#48682e'])
             : ['#5a7a3a','#718c46','#486830'];
-          const nL = o.big ? 22 : (o.kind === 'sfStreetTree' ? (o.v === 0 ? 15 : 9) : 12);
+          // v55: turned crowns shed a real carpet, not a sprinkle
+          const nL = turnL ? (o.big ? 42 : 24)
+                   : o.big ? 22 : (o.kind === 'sfStreetTree' ? (o.v === 0 ? 15 : 9) : 12);
           const wdx = Math.cos(W.windAng || 0), wdy = Math.sin(W.windAng || 0);
           const lee = shadeR * 0.4 * (0.4 + SF_WX.gust * 0.8);
           for(let li = 0; li < nL; li++){
@@ -27845,6 +27911,53 @@ function sfRenderWorld(cw, ch){
             ctx.fillRect(Math.round(sx + Math.cos(a) * rr + wdx * lee * cam.zoom),
                          Math.round(sy + Math.sin(a) * rr * SF_TILT + wdy * lee * SF_TILT * cam.zoom),
                          Math.max(1, 1.6 * cam.zoom), Math.max(1, 1.1 * cam.zoom));
+          }
+        }
+        // v55: leaf-fall drizzle — on gusts, turned crowns shed: each
+        // leaf cycles crown->ground on its own clock, fluttering sideways
+        // on the wind vector. Same deterministic hash grammar as litter.
+        if(o.kind === 'sfTree' && sfTreeTurns(o) && !isNight() &&
+           SF_WX.gust > 0.12 && cam.zoom >= 0.45){
+          const wdx2 = Math.cos(W.windAng || 0), wdy2 = Math.sin(W.windAng || 0);
+          const nF = (o.big ? 7 : 4);
+          const LCf = ['#d8a83e', '#b5622e', '#b0483e'];
+          for(let fi = 0; fi < nF; fi++){
+            const ph2 = (SF_WX.t * (0.22 + phash(fi, o.wx, 5530) * 0.2) +
+                         phash(fi, o.wy, 5531)) % 1;
+            const fx = sx + (phash(fi, o.wx + o.wy, 5532) - 0.5) * pw * 0.7 +
+                       wdx2 * ph2 * 30 * cam.zoom +
+                       Math.sin(ph2 * 11 + fi * 2.3) * 3.5 * cam.zoom;
+            const fy = sy - ph * 0.55 + ph2 * (ph * 0.5 + 8 * cam.zoom) +
+                       wdy2 * ph2 * 12 * cam.zoom;
+            ctx.fillStyle = LCf[fi % 3];
+            ctx.globalAlpha = ph2 < 0.85 ? 1 : (1 - ph2) / 0.15;
+            ctx.fillRect(Math.round(fx), Math.round(fy),
+                         Math.max(1, 2 * cam.zoom), Math.max(1, 1.4 * cam.zoom));
+          }
+          ctx.globalAlpha = 1;
+        }
+        // v55: fallen fronds — real Mission palms drop brown fronds that
+        // lie where they fall, rachis arcs combed downwind
+        if(o.kind === 'sfPalm' && cam.zoom >= 0.55 &&
+           phash(o.wx, o.wy, 5560) < 0.6){
+          const wdx3 = Math.cos(W.windAng || 0), wdy3 = Math.sin(W.windAng || 0);
+          const nFr = 1 + (phash(o.wx, o.wy, 5561) < 0.4 ? 1 : 0);
+          for(let fi = 0; fi < nFr; fi++){
+            const fa = phash(fi, o.wx, 5562) * Math.PI * 2,
+                  fd = (4 + phash(fi, o.wy, 5563) * 7) * cam.zoom;
+            const fx = sx + Math.cos(fa) * fd + wdx3 * 3 * cam.zoom,
+                  fy = sy + Math.sin(fa) * fd * SF_TILT + wdy3 * 2 * cam.zoom;
+            const hang = Math.atan2(wdy3 * SF_TILT, wdx3) +
+                         (phash(fi, o.wy, 5564) - 0.5) * 0.7;
+            ctx.strokeStyle = fi ? '#7a5a30' : '#8a6a38';
+            ctx.lineWidth = Math.max(1, 1.3 * cam.zoom);
+            ctx.beginPath();
+            ctx.moveTo(fx, fy);
+            ctx.quadraticCurveTo(fx + Math.cos(hang) * 6 * cam.zoom,
+                                 fy + Math.sin(hang) * 6 * cam.zoom - 2 * cam.zoom,
+                                 fx + Math.cos(hang) * 11 * cam.zoom,
+                                 fy + Math.sin(hang) * 11 * cam.zoom);
+            ctx.stroke();
           }
         }
         // v49: queen-palm fruit trusses — heavy orange bunches hanging
@@ -32428,7 +32541,9 @@ function sfRenderStreet(cw, ch){
       let spr = null, hm = 5, shadowR = 0;
       // v31: vegetation draws in ELEVATION — real trunk-to-crown
       // silhouettes at their true heights, not the plan-view crown blit
-      if(o.kind === 'sfTree'){ spr = V.sideTree[Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0]; hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
+      if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0;
+        spr = (sfTreeTurns(o) ? V.sideTreeA : V.sideTree)[ti];   // v55 autumn
+        hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
       else if(o.kind === 'sfPalm'){ spr = V.sidePalm[Math.abs(hash2(o.wx, o.wy, 8) * V.sidePalm.length) | 0]; hm = 10.5; shadowR = 1.1; }
       else if(o.kind === 'sfStreetTree'){ spr = V.sideStreet[o.v != null ? o.v : 0];
         // v40: ficus stands taller with a crown that spans the curb lane
