@@ -516,6 +516,17 @@ function gsPossessOn(r, now){
   sess.spent = 0;
   sess.startCell = v ? { wx: Math.round(v.x / CS), wy: Math.round(v.y / CS) }
                      : null;
+  /* v18: the session is a scene, not a flag — an activity trail the
+     debrief and the handoff note read back (acts are camera-visible
+     beats only; the audit surface stays public) */
+  sess.acts = [];
+  sess.goods = [];                 // things bought that ride home
+  sess.greeted = {};               // pair cooldown: char -> minute
+  sess.workMin = 0;                // minutes spent on their own shift
+  sess.bodyWarned = false;         // one warning per session
+  sess.endWhy = null;              // set when the body calls it
+  sess.lastTickMin = now;
+  gsSessAct(r.target, 'start', 'took the wheel');
   /* a possessed body can't act from inside a POI — step to the door so
      the driver's first click lands on the street */
   if(v && v.inside && typeof sfExitPOI === 'function') sfExitPOI(v);
@@ -529,6 +540,32 @@ function gsPossessOn(r, now){
     name: gsCharName(r.target), untilMin: r.endMin, spawned: !!v });
 }
 
+/* v18: append a beat to the session's activity trail. Ring-capped; the
+   debrief + handoff read the tail. Acts are short honest labels — what a
+   camera saw, never why. */
+const GS_SESS_ACTS_MAX = 48;
+function gsSessAct(cid, k, t){
+  const sess = GS_POSSESS[cid];
+  if(!sess) return;
+  if(!sess.acts) sess.acts = [];
+  sess.acts.push({ m: +((typeof gsNowMin === 'function')
+    ? gsNowMin() : 0).toFixed(1), k: k, t: String(t || '').slice(0, 80) });
+  if(sess.acts.length > GS_SESS_ACTS_MAX) sess.acts.shift();
+}
+/* the digest the debrief and handoff note read: venue stops, purchases,
+   hellos — compressed to a few honest labels */
+function gsSessDigest(sess){
+  const acts = (sess && sess.acts) || [];
+  const stops = [], goods = [];
+  for(const a of acts){
+    if(a.k === 'enter' && stops.indexOf(a.t) < 0) stops.push(a.t);
+    if(a.k === 'buy') goods.push(a.t);
+  }
+  return { acts: acts.slice(-8).map(a => a.t),
+           stops: stops.slice(0, 6),
+           goods: (sess && sess.goods ? sess.goods : goods).slice(0, 8) };
+}
+
 /* deactivation hook — runs while the session record is still live, so
    the driving record captures the honest ending (gsFxPossessOff deletes
    GS_POSSESS[r.target] right after this returns) */
@@ -536,15 +573,18 @@ function gsPossessOff(r, now, why){
   const sess = GS_POSSESS[r.target];
   if(!sess) return;
   const v = gsVillagerForChar(r.target);
-  const endReason = why === 'completed' ? 'timeout'
+  /* v18: a body-forced stop (exhaustion) outranks the generic 'released' */
+  const endReason = sess.endWhy ||
+    (why === 'completed' ? 'timeout'
     : (r && (r.by === 'admin' || r.by === 'owner')) ? 'admin_revoked'
     : why === 'cancelled' ? 'released'
-    : (why || 'released');
+    : (why || 'released'));
   const endCell = v ? { wx: Math.round(v.x / CS), wy: Math.round(v.y / CS) }
                     : null;
   const cap = (r && r.endMin != null) ? r.endMin : now;
   const usedMin = +Math.max(0,
     Math.min(now != null ? now : cap, cap) - sess.sinceMin).toFixed(1);
+  const digest = gsSessDigest(sess);
   const entry = {
     n: ++GS_PLOG_SEQ.n, char: r.target, player: sess.playerId,
     req: sess.reqId, startMin: sess.sinceMin, endMin: now,
@@ -552,6 +592,10 @@ function gsPossessOff(r, now, why){
     startCell: sess.startCell || null, endCell,
     dollarsSpent: sess.spent || 0,
     rentRisk: gsPossessRentRisk(r.target),
+    /* v18: the errand trail — what the session actually did */
+    acts: digest.acts, stops: digest.stops, goods: digest.goods,
+    workMin: +(sess.workMin || 0).toFixed(1),
+    extendedMin: (r && r.extendedMin) || 0,
   };
   GS_POSSESS_LOG.push(entry);
   if(GS_POSSESS_LOG.length > GS_PLOG_MAX) GS_POSSESS_LOG.shift();
@@ -561,11 +605,16 @@ function gsPossessOff(r, now, why){
      note — "I was just moving through here — ". The mode is computed
      for AFTER the delete: 'full' while the owner is online, 'thin'
      when they aren't (they can't be offline mid-session — disconnect
-     releases first — but admin paths can land anywhere). */
+     releases first — but admin paths can land anywhere). v18: the note
+     carries the errand digest — continuity the brain can act on. */
   if(typeof gsBrainTransition === 'function'){
     const toMode = (typeof gsPresenceOf === 'function' &&
       gsPresenceOf(sess.playerId, now) !== 'online') ? 'thin' : 'full';
-    gsBrainTransition(r.target, 'possessed', toMode, now, 'handoff');
+    const doing = digest.stops.length
+      ? 'ran errands — ' + digest.stops.slice(0, 3).join(', ')
+      : (v && v.inside ? 'ducked into ' + v.inside : 'their day');
+    gsBrainTransition(r.target, 'possessed', toMode, now, 'handoff',
+      { doing: doing, errands: digest.acts });
   }
   return entry;
 }
@@ -584,6 +633,54 @@ function gsPossessTick(now){
       r._possessWarned = true;
       gsBusEmit('possess', r, { action: 'winddown', char: r.target,
         leftMin: +left.toFixed(1) });
+    }
+  }
+  /* v18: the body answers back. A driven pawn still ticks its real body
+     gauges (bodyTick never stopped) — a driver who marches a starving,
+     exhausted body gets one warning, then the body calls it: the session
+     ends early through the normal release path (unused minutes refund,
+     the AI takes the wheel mid-scene). Not a punishment — the world
+     staying honest. */
+  for(const cid of Object.keys(GS_POSSESS)){
+    const sess = GS_POSSESS[cid];
+    const r = sess.reqId ? gsRequestById(sess.reqId) : null;
+    if(!r || r.status !== 'active') continue;
+    const v = gsVillagerForChar(cid);
+    /* shift attendance: minutes spent inside the job venue while their
+       own shift block is live accrue onto the session — the debrief
+       reads it, and the character's day never stopped being theirs */
+    const dt = Math.max(0, now - (sess.lastTickMin != null
+                                ? sess.lastTickMin : now));
+    sess.lastTickMin = now;
+    if(v && v.inside && typeof gsThinBlock === 'function' &&
+       typeof gsWireClock === 'function'){
+      const tod = gsWireClock(now).t;
+      const blk = tod != null ? gsThinBlock(cid, tod / 60) : null;
+      /* only the shift's own venue counts — sitting in a café during
+         work hours is skipping work, not working it */
+      const workVenue = blk && blk.to && blk.to.poi;
+      if(blk && (blk.state === 'work' || blk.state === 'serve' ||
+                 blk.state === 'carry') &&
+         (!workVenue || v.inside === workVenue))
+        sess.workMin = (sess.workMin || 0) + dt;
+    }
+    if(!v || !v.body) continue;
+    const b = v.body;
+    const spent = b.fatigue >= 0.97 || b.satiety <= 0.04 ||
+                  b.hydration <= 0.04;
+    const flagging = b.fatigue >= 0.85 || b.satiety <= 0.15 ||
+                     b.hydration <= 0.15;
+    if(spent){
+      sess.endWhy = 'exhausted';
+      gsSessAct(cid, 'stop', 'the body called it');
+      /* the normal release path: unused whole minutes refund, the end
+         event carries 'exhausted', the AI resumes mid-scene */
+      gsCancelRequest(r.id, now, 'system');
+      continue;
+    }
+    if(flagging && !sess.bodyWarned){
+      sess.bodyWarned = true;
+      gsBusEmit('possess', r, { action: 'bodywarn', char: cid });
     }
   }
   for(const cid of Object.keys(GS_POSSESS)){
@@ -646,6 +743,11 @@ function gsPossessionSession(cid, nowMin){
     elapsedMin: +Math.max(0, now - s.sinceMin).toFixed(1),
     dollarsSpent: s.spent || 0,
     spawned: !!gsVillagerForChar(cid),
+    /* v18: the trail + the meter's extension record — the session card
+       reads what the scene already did */
+    acts: (s.acts || []).slice(-6).map(a => a.t),
+    extendedMin: (r && r.extendedMin) || 0,
+    bodyWarned: !!s.bodyWarned,
   };
 }
 function gsPossessDriving(nowMin){
@@ -812,9 +914,17 @@ function gsPossessDrive(cid, playerId, wx, wy){
   if(typeof SF_M !== 'undefined' && SF_M &&
      (wx < 0 || wy < 0 || wx >= SF_M.gw || wy >= SF_M.gh))
     return { ok: false, err: 'bad_cell' };          // the Mission ends somewhere
-  if(v.inside && typeof sfExitPOI === 'function') sfExitPOI(v);
+  if(v.inside && typeof sfExitPOI === 'function'){
+    sfExitPOI(v);
+    gsSessAct(cid, 'exit', 'stepped out');   // v18 trail
+  }
   v.targetX = wx * CS + 16; v.targetY = wy * CS + 16;
   v.sfPath = null;                       // the driver's click beats the old route
+  /* v18: record heading changes, not every click — the trail reads like
+     a scene, not a packet log */
+  const last = sess.acts && sess.acts[sess.acts.length - 1];
+  if(!last || last.k !== 'drive' || last.t !== wx + ',' + wy)
+    gsSessAct(cid, 'drive', wx + ',' + wy);
   return { ok: true, target: { wx, wy } };
 }
 
@@ -863,6 +973,8 @@ function gsPossessPay(cid, playerId, to, amt, reason, nowMin){
                       balance: gsDollarBalance(cid) };
   }
   sess.spent = (sess.spent || 0) + paid;
+  gsSessAct(cid, 'pay', settled === 'rent'
+    ? 'paid the landlord' : 'paid $' + paid + ' to ' + to);
   const r = sess.reqId ? gsRequestById(sess.reqId) : null;
   if(r) r._now = now;
   gsBusEmit('possess', r || { playerId, kind: 'possess', target: cid,

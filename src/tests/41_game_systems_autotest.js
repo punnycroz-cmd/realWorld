@@ -385,8 +385,8 @@ runAutoTest = async function(){
     const okReq = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
                                   target: 'H1', durationMin: 30 }, 0);
     log(notYours.reason === 'not_your_character' &&
-        okReq.status === 'active' && okReq.price === 120 &&
-        gsCreditBalance('pA') === pAStake - 120,
+        okReq.status === 'active' && okReq.price === 45 &&
+        gsCreditBalance('pA') === pAStake - 45,
         'gs: hired character possess activates, billed rate x duration upfront');
 
     // ---- bus: duration bounds + unknowns denied ----
@@ -503,31 +503,31 @@ runAutoTest = async function(){
     const pStart = gsCreditBalance('pC');
     const pos = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H9',
                                   durationMin: 30 }, 1000);
-    const possOn = pos.status === 'active' && pos.price === 120 &&
+    const possOn = pos.status === 'active' && pos.price === 45 &&
                    GS_POSSESS.H9 && GS_POSSESS.H9.playerId === 'pC' &&
                    stubV.isNPC === false && gsIsBrainSuspended('H9');
     gsBusTick(1030);                               // duration end -> handoff
     const possOff = pos.status === 'completed' && !GS_POSSESS.H9 &&
                     stubV.isNPC === true && !gsIsBrainSuspended('H9');
     VILLAGERS.splice(VILLAGERS.indexOf(stubV), 1);
-    log(possOn && possOff && gsCreditBalance('pC') === pStart - 120,
-        'gs: v1 possess suspends the AI, force-hands-off at end, bills 4/min');
+    log(possOn && possOff && gsCreditBalance('pC') === pStart - 45,
+        'gs: v1 possess suspends the AI, force-hands-off at end, bills 1.5/min');
 
     // ---- v1: player cancel pro-rates unused minutes; admin pays full ----
     gsMarkHired('H10', 'pC'); gsMarkHired('H11', 'pC');
     const pr = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H10',
                                  durationMin: 30 }, 2000);
     const prBal = gsCreditBalance('pC');
-    gsCancelRequest(pr.id, 2010, 'player');        // 20 whole min unused -> 80
-    log(pr.status === 'cancelled' && pr.refunded === 80 &&
-        gsCreditBalance('pC') === prBal + 80 && pr.usedMin === 10,
+    gsCancelRequest(pr.id, 2010, 'player');        // 20 whole min unused -> 30
+    log(pr.status === 'cancelled' && pr.refunded === 30 &&
+        gsCreditBalance('pC') === prBal + 30 && pr.usedMin === 10,
         'gs: v1 player cancel refunds whole unused minutes (per-minute billing)');
     const ar = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H11',
                                  durationMin: 30 }, 2100);
     const arBal = gsCreditBalance('pC');
     gsAdminRevoke(ar.id, 'contested', 2105);
-    log(ar.status === 'cancelled' && ar.by === 'admin' && ar.refunded === 120 &&
-        gsCreditBalance('pC') === arBal + 120 &&
+    log(ar.status === 'cancelled' && ar.by === 'admin' && ar.refunded === 45 &&
+        gsCreditBalance('pC') === arBal + 45 &&
         GS_FEED.some(e => e.type === 'admin' && e.action === 'revoke' &&
                           e.target === ar.id),
         'gs: v1 admin revoke compensates in full + posts to the public feed');
@@ -681,7 +681,7 @@ runAutoTest = async function(){
         'gs: v1 queue positions are exposed to viewers');
     const meter = gsRequestMeter(vp1.id, 7010);
     log(meter && meter.elapsedMin === 10 && meter.remainingMin === 20 &&
-        meter.spentSoFar === 40,
+        meter.spentSoFar === 15,
         'gs: v1 live meter reports per-minute spend against the hard cap');
     const vs = gsViewerState(7000);
     log(vs.queues['t:possess:H13'] && vs.queues['t:possess:H13'].length === 2 &&
@@ -690,10 +690,10 @@ runAutoTest = async function(){
         'gs: v1 viewer state exposes queues, active sessions, ordered feed');
 
     // ---- v1: low-balance warning posts to the feed at activation ----
-    gsCreditGrant('pG', 130, 'stake'); gsMarkHired('H14', 'pG');
+    gsCreditGrant('pG', 60, 'stake'); gsMarkHired('H14', 'pG');
     const lw = gsSubmitRequest({ playerId: 'pG', kind: 'possess', target: 'H14',
                                  durationMin: 30 }, 8000);
-    log(lw.status === 'active' && gsCreditBalance('pG') === 10 &&
+    log(lw.status === 'active' && gsCreditBalance('pG') === 15 &&
         GS_FEED.some(e => e.type === 'warn' && e.req === lw.id && e.low_credits),
         'gs: v1 low-balance warning fires on the public feed');
 
@@ -894,7 +894,7 @@ runAutoTest = async function(){
     const hB = gsSubmitRequest({ playerId: 'qD', kind: 'possess', target: 'H23',
                                durationMin: 20 }, 20301);
     gsCancelRequest(hA.id, 20310, 'player');
-    log(hA.status === 'cancelled' && hA.refunded === 80 &&
+    log(hA.status === 'cancelled' && hA.refunded === 30 &&
         hB.status === 'active' &&
         GS_POSSESS.H23 && GS_POSSESS.H23.reqId === hB.id,
         'gs: v2 cancelling an active request hands the resource to the line instantly');
@@ -1538,7 +1538,7 @@ runAutoTest = async function(){
        ticked past their cap) complete and leave the driving set */
     gsBusTick(50010);
     const schedBefore = vh60.sfSched;
-    log(sess5.status === 'active' && sess5.price === 120 &&
+    log(sess5.status === 'active' && sess5.price === 45 &&
         GS_POSSESS.H60 && GS_POSSESS.H60.prevNPC === true &&
         vh60.isNPC === false && vh60.gsPossessed === sess5.id &&
         vh60.sfPath === null && vh60.targetX === null &&
@@ -1681,7 +1681,7 @@ runAutoTest = async function(){
         target: 'H63', durationMin: 10,
         params: { note: 'confront the landlord about the noise' } }, 50750);
     log(grayR.status === 'in_review' && grayR.screen === 'gray-zone' &&
-        grayR.billed === grayR.price && grayR.price === 40 &&
+        grayR.billed === grayR.price && grayR.price === 15 &&
         gsReviewQueue().some(r => r.id === grayR.id) && !GS_POSSESS.H63,
         'gs: v5 gray-zone intent parks in_review — billed, not running');
     const accR = gsReviewResolve(grayR.id, true, { nowMin: 50751 });
@@ -2050,9 +2050,9 @@ runAutoTest = async function(){
     gsMarkHired('H70', 'pV');
     const qt0 = gsPriceQuote({ playerId: 'pV', kind: 'possess',
       target: 'H70', durationMin: 10 }, 62000);
-    log(qt0.ok && qt0.base === 40 && qt0.total === 40 && qt0.surge === 1 &&
+    log(qt0.ok && qt0.base === 15 && qt0.total === 15 && qt0.surge === 1 &&
         qt0.wouldQueue === false && qt0.wouldReview === false &&
-        qt0.ratePerMin === 4 && qt0.refundNote.length > 0,
+        qt0.ratePerMin === 1.5 && qt0.refundNote.length > 0,
         'gs: v7 gsPriceQuote — the honest receipt before a credit moves');
     const qtW = gsPriceQuote({ playerId: 'pV', kind: 'weather',
       durationMin: 10, params: { wx: 'fog' } }, 62000);
@@ -2202,7 +2202,7 @@ runAutoTest = async function(){
     const den1 = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
         target: 'H71', durationMin: 10,
         params: { note: 'confront the neighbors about the fence' } }, 62400);
-    log(den1.status === 'in_review' && den1.billed === 40,
+    log(den1.status === 'in_review' && den1.billed === 15,
         'gs: v7 appealable requests park first (gray-zone here)');
     gsReviewResolve(den1.id, false, { code: 'gray-zone', by: 'mod1',
                                       nowMin: 62401 });
@@ -2220,7 +2220,7 @@ runAutoTest = async function(){
         'gs: v7 appeals refuse the original reviewer');
     gsReviewResolve(ap1.request.id, true, { by: 'mod2', nowMin: 62404 });
     log(ap1.request.status === 'active' &&
-        gsCreditBalance('aP') === aP0 - 40 &&
+        gsCreditBalance('aP') === aP0 - 15 &&
         !GS_WIRE.some(e => /confront the neighbors/.test(e.text)),
         'gs: v7 an overturned appeal re-bills once — and the once-denied ' +
         'text still never airs');
@@ -2304,7 +2304,7 @@ runAutoTest = async function(){
     gsReviewResolve(bEv.id, true, { nowMin: 62803, by: 'mod-b' });
     const board2 = gsResourceBoard(62804);
     log(bA.status === 'active' && bQ.status === 'queued' &&
-        bQ.billed === 34 &&                     // ceil(40 * 0.85)
+        bQ.billed === 13 &&                     // ceil(15 * 0.85)
         bEv.status === 'active' &&
         board2['char:H73'].state === 'locked' &&
         board2['char:H73'].depth === 1 &&
@@ -2785,8 +2785,8 @@ runAutoTest = async function(){
     gsPlayerOffline('p9', 80110);
     const plog9 = GS_POSSESS_LOG[GS_POSSESS_LOG.length - 1];
     log(!GS_POSSESS['H70'] && poss9.status === 'cancelled' &&
-        poss9.refunded === 80 &&           /* 30min@4cr − 10 used */
-        gsCreditBalance('p9') === p9BalPre + 80 &&
+        poss9.refunded === 30 &&           /* 30min@1.5cr − 10 used */
+        gsCreditBalance('p9') === p9BalPre + 30 &&
         plog9 && plog9.char === 'H70' && plog9.endReason === 'released' &&
         GS_WIRE.some(e => e.status === 'player session ended' &&
           e.mentions && e.mentions.indexOf('H70') >= 0),

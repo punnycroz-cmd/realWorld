@@ -102,9 +102,14 @@
      legal slots — and queues with an earliest-start estimate.
 
    RATE CARD (design §9.3 — honest pricing tracks real compute cost):
-     possess      4 cr/min — interactive session relay; the character's
-                   LLM brain is SUSPENDED while possessed, so compute cost
-                   is low — most of the price is exclusivity on one body.
+     possess    1.5 cr/min — compatible-class per the published card
+                   (request-ui.md '1.5 cr/min'); the character's LLM brain
+                   is SUSPENDED while possessed, so compute cost is low —
+                   most of the price is exclusivity on one body. v18: a
+                   running session buys more minutes at its own applied
+                   rate via gsRequestExtend (requests.json session_extend)
+                   — the class cap is still the cap, and a clipped slot
+                   never extends into the next booking's window.
      weather      6 cr/min — no inference at all; priced for being a
                    world-scale exclusive resource every viewer sees.
      street_event 5 cr/min — perturbs ~20 thin-AI ambient schedules
@@ -455,8 +460,10 @@ function gsFxBuy(r, now){
    matrix — see gsClaimClash). allow() still decides standing validity
    (ownership, bans, caps); the matrix decides transient occupancy. */
 gsDefineAction('possess', {
-  scope: 'target', exclusive: true, ratePerMin: 4,
-  minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30,
+  /* v18: 1.5 cr/min — the published compatible-class rate (request-ui.md);
+     the +15-min extend block is the contract's session_extend button */
+  scope: 'target', exclusive: true, ratePerMin: 1.5,
+  minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30, extendMin: 15,
   effect: 'maintained',
   allow: (r) => (typeof gsPossessDeny === 'function')
     ? (gsPossessDeny(r.target, r.playerId) || true)      // v5: ambient denied too
@@ -1757,6 +1764,60 @@ function gsAdminRevoke(id, reason, nowMin){
   return gsCancelRequest(id, now, 'admin');
 }
 
+/* ---- session extend (world/requests.json session_extend): a running,
+   per-minute-metered session buys more minutes at its OWN applied rate —
+   post-surge, post-discount. The class cap is still the cap, a clipped
+   session's wall is still the wall, and only the filer buys the minutes.
+   Extends are ledger entries; the wire sees no extra noise (the raw feed
+   records it for consoles, gsWireEvent suppresses it). */
+/* minutes of runtime a session can still buy: the class cap — or none,
+   when the action declares extendUncapped (the camera sells +30 blocks
+   without a ceiling, per requests.json session_extend) — then the clip
+   wall: a booked sibling's window is a hard edge the meter can't buy
+   past. Shared by gsRequestExtend + gsRequestMeter so the button always
+   reads true. */
+function gsExtendRoom(r, a){
+  let room = a.extendUncapped ? Infinity
+                            : Math.max(0, a.maxMin - r.durationMin);
+  if(r.clipEndMin != null)
+    room = Math.min(room, Math.max(0, r.clipEndMin - r.endMin));
+  return room;
+}
+function gsRequestExtend(id, addMin, playerId, nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const r = gsRequestById(id);
+  if(!r) return { ok: false, err: 'unknown_request' };
+  if(r.playerId !== playerId) return { ok: false, err: 'not_owner' };
+  if(r.status !== 'active') return { ok: false, err: 'not_running' };
+  const a = GS_REQ.actions[r.kind];
+  if(!a || a.effect !== 'maintained' || !(a.ratePerMin > 0))
+    return { ok: false, err: 'not_metered' };
+  const step = Math.floor(+addMin || a.extendMin || 15);
+  if(!(step >= 1)) return { ok: false, err: 'bad_minutes' };
+  const room = gsExtendRoom(r, a);
+  const granted = Math.min(step, Math.floor(room));
+  if(granted < 1)
+    return { ok: false, err: 'at_cap', maxMin: a.maxMin,
+             durationMin: r.durationMin, clipEndMin: r.clipEndMin || null };
+  const cost = Math.ceil(granted * (r.rateApplied || 0));
+  if(cost > 0 && !gsCreditSpend(playerId, cost, r.kind + ' extend'))
+    return { ok: false, err: 'insufficient_credits', cost,
+             balance: gsCreditBalance(playerId) };
+  r.durationMin += granted;
+  r.endMin += granted;
+  r.billed += cost;
+  r.price += cost;
+  r.extendedMin = (r.extendedMin || 0) + granted;
+  r._now = now;
+  delete r._possessWarned;              // the wind-down can re-arm
+  /* the session record rides the request's clock */
+  if(r.kind === 'possess' && GS_POSSESS[r.target])
+    GS_POSSESS[r.target].endMin = r.endMin;
+  gsBusEmit('extend', r, { addMin: granted, cost, untilMin: r.endMin });
+  return { ok: true, granted, cost, endMin: r.endMin,
+           balance: gsCreditBalance(playerId) };
+}
+
 /* ---- the review lane (design §11.4): gray-zone intent hits park in
    'in_review' until a human resolves them. gsReviewResolve is the
    reviewer's door — approve enters the line AT APPROVAL TIME (a fresh
@@ -1969,6 +2030,21 @@ function gsRequestMeter(id, nowMin){
     m.remainingMin = Math.max(0, r.endMin - now);
     m.spentSoFar = Math.min(r.price, Math.ceil(r.rateApplied * m.elapsedMin));
     m.lowCredits = gsLowCredit(r.playerId);
+    /* v18: the extend affordance — the meter reads its own button state
+       (requests.json session_extend: "+15 min at this rate", disabled
+       at the cap). Shown to anyone watching the meter; only the filer
+       can actually buy it. */
+    const a = GS_REQ.actions[r.kind];
+    if(a && a.effect === 'maintained' && a.ratePerMin > 0){
+      const room = gsExtendRoom(r, a);
+      const step = a.extendMin || 15;
+      const buy = Math.min(step, Math.floor(room));
+      m.extend = { min: buy,
+        cost: Math.ceil(buy * (r.rateApplied || 0)),
+        maxMin: a.extendUncapped ? null : a.maxMin,
+        can: Math.floor(room) >= 1,
+        extendedMin: r.extendedMin || 0 };
+    }
   } else {
     m.usedMin = r.usedMin || 0;
   }
@@ -2130,7 +2206,9 @@ function gsBusSnapshot(){
     civic: (typeof gsCivicSnapshot === 'function')
            ? gsCivicSnapshot() : null,     // v15 municipal code
     assessor: (typeof gsAssessorSnapshot === 'function')
-              ? gsAssessorSnapshot() : null }); // v17 the county roll
+              ? gsAssessorSnapshot() : null, // v17 the county roll
+    errands: (typeof gsErrandSnapshot === 'function')
+             ? gsErrandSnapshot() : null }); // v18 greet cooldowns
 }
 function gsBusLoad(json){
   try{
@@ -2157,6 +2235,7 @@ function gsBusLoad(json){
         ? { [GS_WX_OVR.reqId]: GS_WX_OVR.untilMin } : {};
     GS_FX_SEQ.n = d.fxSeq || 0;
     if(typeof gsPossessLoad === 'function') gsPossessLoad(d.plog);
+    if(typeof gsErrandLoad === 'function') gsErrandLoad(d.errands);
     /* v6: restore the formatted wire verbatim; a snapshot without one
        leaves the cursor at 0 and the wire rebuilds from the feed */
     if(typeof gsWireLoad === 'function') gsWireLoad(d.wire);
@@ -2221,12 +2300,16 @@ function gsBusReset(){
   if(typeof gsEconReset === 'function') gsEconReset();       // v13
   if(typeof gsCivicReset === 'function') gsCivicReset();     // v15
   if(typeof gsAssessorReset === 'function') gsAssessorReset(); // v17
+  if(typeof gsErrandReset === 'function') gsErrandReset();   // v18
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
 if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsSubmitRequest = (spec) => gsSubmitRequest(spec);
   window.__aiBridge.gsCancelRequest = (id) => gsCancelRequest(id, null, 'player');
+  /* v18: "+15 min at this rate" — the session_extend contract button */
+  window.__aiBridge.gsRequestExtend = (id, addMin, playerId) =>
+    gsRequestExtend(id, addMin, playerId);
   window.__aiBridge.gsViewerState = () => gsViewerState();
   window.__aiBridge.gsRequestMeter = (id) => gsRequestMeter(id);
   window.__aiBridge.gsQueuePosition = (id) => gsQueuePosition(id);

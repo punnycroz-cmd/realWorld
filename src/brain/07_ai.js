@@ -81,9 +81,11 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => { keysDown[e.code] = false; });
 
 function updatePlayerPawn(v, dtH){
-  // SF director camera owns WASD/arrows while active — pawn stands still
+  // SF director camera owns WASD/arrows while active — pawn stands still.
+  // v18: a remotely-driven possessed pawn still moves — its waypoint is
+  // the driver's, not the director's keyboard.
   if(typeof SF_MODE !== 'undefined' && SF_MODE && SF_VIEW === 'street' &&
-     SF_CAM.director) return;
+     SF_CAM.director && !v.gsPossessed) return;
   // Clamp dtH for movement to avoid excessive displacement at high simulation speeds
   const moveDtH = Math.min(dtH, 0.03); // limit to ~30ms equivalent per frame
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);

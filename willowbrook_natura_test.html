@@ -6639,9 +6639,11 @@ window.addEventListener('keydown', e => {
 window.addEventListener('keyup', e => { keysDown[e.code] = false; });
 
 function updatePlayerPawn(v, dtH){
-  // SF director camera owns WASD/arrows while active — pawn stands still
+  // SF director camera owns WASD/arrows while active — pawn stands still.
+  // v18: a remotely-driven possessed pawn still moves — its waypoint is
+  // the driver's, not the director's keyboard.
   if(typeof SF_MODE !== 'undefined' && SF_MODE && SF_VIEW === 'street' &&
-     SF_CAM.director) return;
+     SF_CAM.director && !v.gsPossessed) return;
   // Clamp dtH for movement to avoid excessive displacement at high simulation speeds
   const moveDtH = Math.min(dtH, 0.03); // limit to ~30ms equivalent per frame
   const wx = Math.floor(v.x / CS), wy = Math.floor(v.y / CS);
@@ -41398,9 +41400,14 @@ function gsLedgerLoad(json){
      legal slots — and queues with an earliest-start estimate.
 
    RATE CARD (design §9.3 — honest pricing tracks real compute cost):
-     possess      4 cr/min — interactive session relay; the character's
-                   LLM brain is SUSPENDED while possessed, so compute cost
-                   is low — most of the price is exclusivity on one body.
+     possess    1.5 cr/min — compatible-class per the published card
+                   (request-ui.md '1.5 cr/min'); the character's LLM brain
+                   is SUSPENDED while possessed, so compute cost is low —
+                   most of the price is exclusivity on one body. v18: a
+                   running session buys more minutes at its own applied
+                   rate via gsRequestExtend (requests.json session_extend)
+                   — the class cap is still the cap, and a clipped slot
+                   never extends into the next booking's window.
      weather      6 cr/min — no inference at all; priced for being a
                    world-scale exclusive resource every viewer sees.
      street_event 5 cr/min — perturbs ~20 thin-AI ambient schedules
@@ -41751,8 +41758,10 @@ function gsFxBuy(r, now){
    matrix — see gsClaimClash). allow() still decides standing validity
    (ownership, bans, caps); the matrix decides transient occupancy. */
 gsDefineAction('possess', {
-  scope: 'target', exclusive: true, ratePerMin: 4,
-  minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30,
+  /* v18: 1.5 cr/min — the published compatible-class rate (request-ui.md);
+     the +15-min extend block is the contract's session_extend button */
+  scope: 'target', exclusive: true, ratePerMin: 1.5,
+  minMin: 5, maxMin: 120, cdPlayerMin: 30, ttlMin: 30, extendMin: 15,
   effect: 'maintained',
   allow: (r) => (typeof gsPossessDeny === 'function')
     ? (gsPossessDeny(r.target, r.playerId) || true)      // v5: ambient denied too
@@ -43053,6 +43062,60 @@ function gsAdminRevoke(id, reason, nowMin){
   return gsCancelRequest(id, now, 'admin');
 }
 
+/* ---- session extend (world/requests.json session_extend): a running,
+   per-minute-metered session buys more minutes at its OWN applied rate —
+   post-surge, post-discount. The class cap is still the cap, a clipped
+   session's wall is still the wall, and only the filer buys the minutes.
+   Extends are ledger entries; the wire sees no extra noise (the raw feed
+   records it for consoles, gsWireEvent suppresses it). */
+/* minutes of runtime a session can still buy: the class cap — or none,
+   when the action declares extendUncapped (the camera sells +30 blocks
+   without a ceiling, per requests.json session_extend) — then the clip
+   wall: a booked sibling's window is a hard edge the meter can't buy
+   past. Shared by gsRequestExtend + gsRequestMeter so the button always
+   reads true. */
+function gsExtendRoom(r, a){
+  let room = a.extendUncapped ? Infinity
+                            : Math.max(0, a.maxMin - r.durationMin);
+  if(r.clipEndMin != null)
+    room = Math.min(room, Math.max(0, r.clipEndMin - r.endMin));
+  return room;
+}
+function gsRequestExtend(id, addMin, playerId, nowMin){
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const r = gsRequestById(id);
+  if(!r) return { ok: false, err: 'unknown_request' };
+  if(r.playerId !== playerId) return { ok: false, err: 'not_owner' };
+  if(r.status !== 'active') return { ok: false, err: 'not_running' };
+  const a = GS_REQ.actions[r.kind];
+  if(!a || a.effect !== 'maintained' || !(a.ratePerMin > 0))
+    return { ok: false, err: 'not_metered' };
+  const step = Math.floor(+addMin || a.extendMin || 15);
+  if(!(step >= 1)) return { ok: false, err: 'bad_minutes' };
+  const room = gsExtendRoom(r, a);
+  const granted = Math.min(step, Math.floor(room));
+  if(granted < 1)
+    return { ok: false, err: 'at_cap', maxMin: a.maxMin,
+             durationMin: r.durationMin, clipEndMin: r.clipEndMin || null };
+  const cost = Math.ceil(granted * (r.rateApplied || 0));
+  if(cost > 0 && !gsCreditSpend(playerId, cost, r.kind + ' extend'))
+    return { ok: false, err: 'insufficient_credits', cost,
+             balance: gsCreditBalance(playerId) };
+  r.durationMin += granted;
+  r.endMin += granted;
+  r.billed += cost;
+  r.price += cost;
+  r.extendedMin = (r.extendedMin || 0) + granted;
+  r._now = now;
+  delete r._possessWarned;              // the wind-down can re-arm
+  /* the session record rides the request's clock */
+  if(r.kind === 'possess' && GS_POSSESS[r.target])
+    GS_POSSESS[r.target].endMin = r.endMin;
+  gsBusEmit('extend', r, { addMin: granted, cost, untilMin: r.endMin });
+  return { ok: true, granted, cost, endMin: r.endMin,
+           balance: gsCreditBalance(playerId) };
+}
+
 /* ---- the review lane (design §11.4): gray-zone intent hits park in
    'in_review' until a human resolves them. gsReviewResolve is the
    reviewer's door — approve enters the line AT APPROVAL TIME (a fresh
@@ -43265,6 +43328,21 @@ function gsRequestMeter(id, nowMin){
     m.remainingMin = Math.max(0, r.endMin - now);
     m.spentSoFar = Math.min(r.price, Math.ceil(r.rateApplied * m.elapsedMin));
     m.lowCredits = gsLowCredit(r.playerId);
+    /* v18: the extend affordance — the meter reads its own button state
+       (requests.json session_extend: "+15 min at this rate", disabled
+       at the cap). Shown to anyone watching the meter; only the filer
+       can actually buy it. */
+    const a = GS_REQ.actions[r.kind];
+    if(a && a.effect === 'maintained' && a.ratePerMin > 0){
+      const room = gsExtendRoom(r, a);
+      const step = a.extendMin || 15;
+      const buy = Math.min(step, Math.floor(room));
+      m.extend = { min: buy,
+        cost: Math.ceil(buy * (r.rateApplied || 0)),
+        maxMin: a.extendUncapped ? null : a.maxMin,
+        can: Math.floor(room) >= 1,
+        extendedMin: r.extendedMin || 0 };
+    }
   } else {
     m.usedMin = r.usedMin || 0;
   }
@@ -43426,7 +43504,9 @@ function gsBusSnapshot(){
     civic: (typeof gsCivicSnapshot === 'function')
            ? gsCivicSnapshot() : null,     // v15 municipal code
     assessor: (typeof gsAssessorSnapshot === 'function')
-              ? gsAssessorSnapshot() : null }); // v17 the county roll
+              ? gsAssessorSnapshot() : null, // v17 the county roll
+    errands: (typeof gsErrandSnapshot === 'function')
+             ? gsErrandSnapshot() : null }); // v18 greet cooldowns
 }
 function gsBusLoad(json){
   try{
@@ -43453,6 +43533,7 @@ function gsBusLoad(json){
         ? { [GS_WX_OVR.reqId]: GS_WX_OVR.untilMin } : {};
     GS_FX_SEQ.n = d.fxSeq || 0;
     if(typeof gsPossessLoad === 'function') gsPossessLoad(d.plog);
+    if(typeof gsErrandLoad === 'function') gsErrandLoad(d.errands);
     /* v6: restore the formatted wire verbatim; a snapshot without one
        leaves the cursor at 0 and the wire rebuilds from the feed */
     if(typeof gsWireLoad === 'function') gsWireLoad(d.wire);
@@ -43517,12 +43598,16 @@ function gsBusReset(){
   if(typeof gsEconReset === 'function') gsEconReset();       // v13
   if(typeof gsCivicReset === 'function') gsCivicReset();     // v15
   if(typeof gsAssessorReset === 'function') gsAssessorReset(); // v17
+  if(typeof gsErrandReset === 'function') gsErrandReset();   // v18
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */
 if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsSubmitRequest = (spec) => gsSubmitRequest(spec);
   window.__aiBridge.gsCancelRequest = (id) => gsCancelRequest(id, null, 'player');
+  /* v18: "+15 min at this rate" — the session_extend contract button */
+  window.__aiBridge.gsRequestExtend = (id, addMin, playerId) =>
+    gsRequestExtend(id, addMin, playerId);
   window.__aiBridge.gsViewerState = () => gsViewerState();
   window.__aiBridge.gsRequestMeter = (id) => gsRequestMeter(id);
   window.__aiBridge.gsQueuePosition = (id) => gsQueuePosition(id);
@@ -45425,6 +45510,17 @@ function gsPossessOn(r, now){
   sess.spent = 0;
   sess.startCell = v ? { wx: Math.round(v.x / CS), wy: Math.round(v.y / CS) }
                      : null;
+  /* v18: the session is a scene, not a flag — an activity trail the
+     debrief and the handoff note read back (acts are camera-visible
+     beats only; the audit surface stays public) */
+  sess.acts = [];
+  sess.goods = [];                 // things bought that ride home
+  sess.greeted = {};               // pair cooldown: char -> minute
+  sess.workMin = 0;                // minutes spent on their own shift
+  sess.bodyWarned = false;         // one warning per session
+  sess.endWhy = null;              // set when the body calls it
+  sess.lastTickMin = now;
+  gsSessAct(r.target, 'start', 'took the wheel');
   /* a possessed body can't act from inside a POI — step to the door so
      the driver's first click lands on the street */
   if(v && v.inside && typeof sfExitPOI === 'function') sfExitPOI(v);
@@ -45438,6 +45534,32 @@ function gsPossessOn(r, now){
     name: gsCharName(r.target), untilMin: r.endMin, spawned: !!v });
 }
 
+/* v18: append a beat to the session's activity trail. Ring-capped; the
+   debrief + handoff read the tail. Acts are short honest labels — what a
+   camera saw, never why. */
+const GS_SESS_ACTS_MAX = 48;
+function gsSessAct(cid, k, t){
+  const sess = GS_POSSESS[cid];
+  if(!sess) return;
+  if(!sess.acts) sess.acts = [];
+  sess.acts.push({ m: +((typeof gsNowMin === 'function')
+    ? gsNowMin() : 0).toFixed(1), k: k, t: String(t || '').slice(0, 80) });
+  if(sess.acts.length > GS_SESS_ACTS_MAX) sess.acts.shift();
+}
+/* the digest the debrief and handoff note read: venue stops, purchases,
+   hellos — compressed to a few honest labels */
+function gsSessDigest(sess){
+  const acts = (sess && sess.acts) || [];
+  const stops = [], goods = [];
+  for(const a of acts){
+    if(a.k === 'enter' && stops.indexOf(a.t) < 0) stops.push(a.t);
+    if(a.k === 'buy') goods.push(a.t);
+  }
+  return { acts: acts.slice(-8).map(a => a.t),
+           stops: stops.slice(0, 6),
+           goods: (sess && sess.goods ? sess.goods : goods).slice(0, 8) };
+}
+
 /* deactivation hook — runs while the session record is still live, so
    the driving record captures the honest ending (gsFxPossessOff deletes
    GS_POSSESS[r.target] right after this returns) */
@@ -45445,15 +45567,18 @@ function gsPossessOff(r, now, why){
   const sess = GS_POSSESS[r.target];
   if(!sess) return;
   const v = gsVillagerForChar(r.target);
-  const endReason = why === 'completed' ? 'timeout'
+  /* v18: a body-forced stop (exhaustion) outranks the generic 'released' */
+  const endReason = sess.endWhy ||
+    (why === 'completed' ? 'timeout'
     : (r && (r.by === 'admin' || r.by === 'owner')) ? 'admin_revoked'
     : why === 'cancelled' ? 'released'
-    : (why || 'released');
+    : (why || 'released'));
   const endCell = v ? { wx: Math.round(v.x / CS), wy: Math.round(v.y / CS) }
                     : null;
   const cap = (r && r.endMin != null) ? r.endMin : now;
   const usedMin = +Math.max(0,
     Math.min(now != null ? now : cap, cap) - sess.sinceMin).toFixed(1);
+  const digest = gsSessDigest(sess);
   const entry = {
     n: ++GS_PLOG_SEQ.n, char: r.target, player: sess.playerId,
     req: sess.reqId, startMin: sess.sinceMin, endMin: now,
@@ -45461,6 +45586,10 @@ function gsPossessOff(r, now, why){
     startCell: sess.startCell || null, endCell,
     dollarsSpent: sess.spent || 0,
     rentRisk: gsPossessRentRisk(r.target),
+    /* v18: the errand trail — what the session actually did */
+    acts: digest.acts, stops: digest.stops, goods: digest.goods,
+    workMin: +(sess.workMin || 0).toFixed(1),
+    extendedMin: (r && r.extendedMin) || 0,
   };
   GS_POSSESS_LOG.push(entry);
   if(GS_POSSESS_LOG.length > GS_PLOG_MAX) GS_POSSESS_LOG.shift();
@@ -45470,11 +45599,16 @@ function gsPossessOff(r, now, why){
      note — "I was just moving through here — ". The mode is computed
      for AFTER the delete: 'full' while the owner is online, 'thin'
      when they aren't (they can't be offline mid-session — disconnect
-     releases first — but admin paths can land anywhere). */
+     releases first — but admin paths can land anywhere). v18: the note
+     carries the errand digest — continuity the brain can act on. */
   if(typeof gsBrainTransition === 'function'){
     const toMode = (typeof gsPresenceOf === 'function' &&
       gsPresenceOf(sess.playerId, now) !== 'online') ? 'thin' : 'full';
-    gsBrainTransition(r.target, 'possessed', toMode, now, 'handoff');
+    const doing = digest.stops.length
+      ? 'ran errands — ' + digest.stops.slice(0, 3).join(', ')
+      : (v && v.inside ? 'ducked into ' + v.inside : 'their day');
+    gsBrainTransition(r.target, 'possessed', toMode, now, 'handoff',
+      { doing: doing, errands: digest.acts });
   }
   return entry;
 }
@@ -45493,6 +45627,54 @@ function gsPossessTick(now){
       r._possessWarned = true;
       gsBusEmit('possess', r, { action: 'winddown', char: r.target,
         leftMin: +left.toFixed(1) });
+    }
+  }
+  /* v18: the body answers back. A driven pawn still ticks its real body
+     gauges (bodyTick never stopped) — a driver who marches a starving,
+     exhausted body gets one warning, then the body calls it: the session
+     ends early through the normal release path (unused minutes refund,
+     the AI takes the wheel mid-scene). Not a punishment — the world
+     staying honest. */
+  for(const cid of Object.keys(GS_POSSESS)){
+    const sess = GS_POSSESS[cid];
+    const r = sess.reqId ? gsRequestById(sess.reqId) : null;
+    if(!r || r.status !== 'active') continue;
+    const v = gsVillagerForChar(cid);
+    /* shift attendance: minutes spent inside the job venue while their
+       own shift block is live accrue onto the session — the debrief
+       reads it, and the character's day never stopped being theirs */
+    const dt = Math.max(0, now - (sess.lastTickMin != null
+                                ? sess.lastTickMin : now));
+    sess.lastTickMin = now;
+    if(v && v.inside && typeof gsThinBlock === 'function' &&
+       typeof gsWireClock === 'function'){
+      const tod = gsWireClock(now).t;
+      const blk = tod != null ? gsThinBlock(cid, tod / 60) : null;
+      /* only the shift's own venue counts — sitting in a café during
+         work hours is skipping work, not working it */
+      const workVenue = blk && blk.to && blk.to.poi;
+      if(blk && (blk.state === 'work' || blk.state === 'serve' ||
+                 blk.state === 'carry') &&
+         (!workVenue || v.inside === workVenue))
+        sess.workMin = (sess.workMin || 0) + dt;
+    }
+    if(!v || !v.body) continue;
+    const b = v.body;
+    const spent = b.fatigue >= 0.97 || b.satiety <= 0.04 ||
+                  b.hydration <= 0.04;
+    const flagging = b.fatigue >= 0.85 || b.satiety <= 0.15 ||
+                     b.hydration <= 0.15;
+    if(spent){
+      sess.endWhy = 'exhausted';
+      gsSessAct(cid, 'stop', 'the body called it');
+      /* the normal release path: unused whole minutes refund, the end
+         event carries 'exhausted', the AI resumes mid-scene */
+      gsCancelRequest(r.id, now, 'system');
+      continue;
+    }
+    if(flagging && !sess.bodyWarned){
+      sess.bodyWarned = true;
+      gsBusEmit('possess', r, { action: 'bodywarn', char: cid });
     }
   }
   for(const cid of Object.keys(GS_POSSESS)){
@@ -45555,6 +45737,11 @@ function gsPossessionSession(cid, nowMin){
     elapsedMin: +Math.max(0, now - s.sinceMin).toFixed(1),
     dollarsSpent: s.spent || 0,
     spawned: !!gsVillagerForChar(cid),
+    /* v18: the trail + the meter's extension record — the session card
+       reads what the scene already did */
+    acts: (s.acts || []).slice(-6).map(a => a.t),
+    extendedMin: (r && r.extendedMin) || 0,
+    bodyWarned: !!s.bodyWarned,
   };
 }
 function gsPossessDriving(nowMin){
@@ -45721,9 +45908,17 @@ function gsPossessDrive(cid, playerId, wx, wy){
   if(typeof SF_M !== 'undefined' && SF_M &&
      (wx < 0 || wy < 0 || wx >= SF_M.gw || wy >= SF_M.gh))
     return { ok: false, err: 'bad_cell' };          // the Mission ends somewhere
-  if(v.inside && typeof sfExitPOI === 'function') sfExitPOI(v);
+  if(v.inside && typeof sfExitPOI === 'function'){
+    sfExitPOI(v);
+    gsSessAct(cid, 'exit', 'stepped out');   // v18 trail
+  }
   v.targetX = wx * CS + 16; v.targetY = wy * CS + 16;
   v.sfPath = null;                       // the driver's click beats the old route
+  /* v18: record heading changes, not every click — the trail reads like
+     a scene, not a packet log */
+  const last = sess.acts && sess.acts[sess.acts.length - 1];
+  if(!last || last.k !== 'drive' || last.t !== wx + ',' + wy)
+    gsSessAct(cid, 'drive', wx + ',' + wy);
   return { ok: true, target: { wx, wy } };
 }
 
@@ -45772,6 +45967,8 @@ function gsPossessPay(cid, playerId, to, amt, reason, nowMin){
                       balance: gsDollarBalance(cid) };
   }
   sess.spent = (sess.spent || 0) + paid;
+  gsSessAct(cid, 'pay', settled === 'rent'
+    ? 'paid the landlord' : 'paid $' + paid + ' to ' + to);
   const r = sess.reqId ? gsRequestById(sess.reqId) : null;
   if(r) r._now = now;
   gsBusEmit('possess', r || { playerId, kind: 'possess', target: cid,
@@ -47176,10 +47373,12 @@ function gsWireFormat(evt){
     case 'cancel': {
       const admin = (evt.by === 'admin' || evt.by === 'owner');
       /* v14: a pre-window cancel is a booking coming off the calendar —
-         the wire says which kind of promise ended */
+         the wire says which kind of promise ended. v18: 'system' is the
+         body calling it — the wire names the honest ender. */
       const preWin = evt.pre_window;
       return [mk('request', sum() + (admin
           ? ' — ended by admin, player compensated'
+          : evt.by === 'system' ? ' — called short, refunded'
           : preWin ? ' — cancelled before the window, refunded'
                    : ' — cancelled, refunded'),
         { status: 'refunded', who: evt.player,
@@ -47274,12 +47473,33 @@ function gsWireFormat(evt){
       if(evt.action === 'end')
         return [mk('request', gsWireCharLabel(evt.char) +
           ' is back on their own two feet' +
-          (evt.endReason === 'admin_revoked' ? ' (admin handoff)' : ''),
+          (evt.endReason === 'admin_revoked' ? ' (admin handoff)'
+           : evt.endReason === 'exhausted' ? ' — the body called it' : ''),
           { status: 'player session ended', who: evt.player,
             mentions: evt.char ? [evt.char] : null })];
       if(evt.action === 'winddown')
         return [mk('request', 'handoff soon — ' + gsWireCharLabel(evt.char) +
           ' back to themselves in ~' + Math.ceil(evt.leftMin || 5) + ' min',
+          { who: evt.player, mentions: evt.char ? [evt.char] : null })];
+      /* v18: the errand beats — a purchase or a hello is a scene beat the
+         audience can see anyway; both stay attributed to the driver. The
+         venue name is a parody board name, the amount stays off-text for
+         goods (posted prices are public, the line stays light). */
+      if(evt.action === 'buy')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' picked up ' + (evt.item || 'something') +
+          (evt.venue ? ' — ' + gsWireDispName(evt.venue) : ''),
+          { who: evt.player, mentions: evt.char ? [evt.char] : null,
+            venue: gsWireVenueId(evt.venue) })];
+      if(evt.action === 'greet')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' trades a hello with ' +
+          gsWireCharLabel(evt.to || 'a neighbor'),
+          { who: evt.player,
+            mentions: [evt.char, evt.to].filter(Boolean) })];
+      if(evt.action === 'bodywarn')
+        return [mk('request', gsWireCharLabel(evt.char) +
+          ' looks worn out — the body is asking for a break',
           { who: evt.player, mentions: evt.char ? [evt.char] : null })];
       if(evt.action === 'spend')
         /* the character's own dollars moving IS camera-visible (the
@@ -48505,12 +48725,17 @@ function gsBrainTransition(cid, from, to, atMin, tid, opts){
   const v = (typeof gsVillagerForChar === 'function')
     ? gsVillagerForChar(cid) : null;
   if(!opts.force && v && !gsSeamReady(cid)){
-    /* mid-beat — queue it; the tick drains at the seam or the deadline */
+    /* mid-beat — queue it; the tick drains at the seam or the deadline.
+       v18: the caller's doing/errands context rides the queue so a
+       deferred handoff still writes the real story */
     GS_SEAM[cid] = { to: to, tid: tid, atMin: atMin, from: from,
-                     deadlineMin: atMin + GS_SEAM_MAX_MIN };
+                     deadlineMin: atMin + GS_SEAM_MAX_MIN,
+                     doing: opts.doing || null,
+                     errands: opts.errands || null };
     return { ok: true, queued: true };
   }
-  gsBrainApply(cid, to, tid, atMin, { from: from });
+  gsBrainApply(cid, to, tid, atMin,
+    { from: from, doing: opts.doing, errands: opts.errands });
   return { ok: true, queued: false };
 }
 function gsBrainApply(cid, to, tid, atMin, o){
@@ -48520,7 +48745,7 @@ function gsBrainApply(cid, to, tid, atMin, o){
   /* 'thin'/'full'/'possessed' are derived — applying them is just the
      handoff note; the mode was already correct the moment presence or
      possession changed. */
-  gsHandoffWrite(cid, o.from || null, to, atMin, tid);
+  gsHandoffWrite(cid, o.from || null, to, atMin, tid, o);
 }
 
 /* ---------------- handoff notes ----------------
@@ -48531,7 +48756,8 @@ const GS_NOTES_ARCH = [];          // read/stale notes, capped
 const GS_NOTES_ARCH_CAP = 200;
 const GS_NOTE_STALE_MIN = 1440;    // 24h
 
-function gsHandoffWrite(cid, from, to, atMin, tid){
+function gsHandoffWrite(cid, from, to, atMin, tid, opts){
+  opts = opts || {};
   const clock = (typeof gsWireClock === 'function')
     ? gsWireClock(atMin) : { t: null, day: null };
   const v = (typeof gsVillagerForChar === 'function')
@@ -48566,8 +48792,13 @@ function gsHandoffWrite(cid, from, to, atMin, tid){
     char: cid, from: from || 'full', to: to,
     at_min: clock.t, at_day: clock.day || null,
     place: place,
-    doing: (v && v.state) || (blk && blk.state) || 'their day',
+    doing: opts.doing || (v && v.state) || (blk && blk.state) ||
+           'their day',
     pending: pending,
+    /* v18: a released session's errand tail — public beats only, the
+       receiving brain's honest "what just happened" */
+    errands: Array.isArray(opts.errands) ? opts.errands.slice(0, 6)
+                                         : null,
     near: near.slice(0, 6),
     mood_hint: needs && needs.rest < 0.15 ? 'tired'
              : needs && needs.hunger > 0.75 ? 'hungry' : 'fine',
@@ -49003,7 +49234,8 @@ function gsOffTick(nowMin){
     const s = GS_SEAM[cid];
     if(now >= s.deadlineMin || gsSeamReady(cid)){
       delete GS_SEAM[cid];
-      gsBrainApply(cid, s.to, s.tid, now, { from: s.from });
+      gsBrainApply(cid, s.to, s.tid, now,
+        { from: s.from, doing: s.doing, errands: s.errands });
     }
   }
   /* the ladder re-derives — capacity moves get answered the same pass */
@@ -51112,6 +51344,10 @@ if(typeof gsDefineAction === 'function')
   gsDefineAction('camera', {
     scope: 'global', exclusive: false, ratePerMin: 1 / 3,
     minMin: 15, maxMin: 120, ttlMin: 30,
+    /* v18: +30 blocks at the session's own rate — requests.json sells
+       camera extends uncapped (the class cap binds the filing, not the
+       renewal); a clip wall still bounds it when the book holds the hour */
+    extendMin: 30, extendUncapped: true,
     effect: 'maintained',
     /* the director's view is always permitted — it touches nothing */
     allow: () => true,
@@ -54115,6 +54351,490 @@ if(typeof window !== 'undefined' && window.__aiBridge){
   window.__aiBridge.gsAssessorAudit = () => gsAssessorAudit();
 }
 
+/* =====================================================================
+   PART 41S: GAME SYSTEMS — THE ERRAND LAYER (possession, v18)
+
+   A possession session stops being a bare flag and becomes a lived
+   errand run: the driver can step into a real venue, buy off the
+   chalkboard the camera already reads, sit down, and trade a hello
+   with a neighbor — then hand the body back with the afternoon's
+   trail honestly written into the debrief and the handoff note.
+
+   Everything here obeys the stage-door rule (41F): the verbs act on the
+   BODY only. The spoken hello is the shared thin kit's line — a player
+   string never reaches a character's mouth, and the greeting can only
+   INVITE a conversation (a main's own brain decides whether to talk).
+   Purchases move the character's OWN game dollars to the venue's till
+   account — the same accounts payroll draws from — never credits.
+
+   The boards mirror world/storefronts.json v44 verbatim: parody names
+   only, game-dollar prices only. If the world track re-chalks a board,
+   this file needs the same diff — the two stay in lockstep on purpose
+   (the board the driver reads is the board the camera reads).
+   ===================================================================== */
+
+/* ---- venue boards (world/storefronts.json v44 mirror) ----
+   keyed by the name a pawn's `inside` field holds. acct = the ledger
+   till; where a job-board employer exists, the till IS that account so
+   a good lunch rush shows up in Friday payroll. openAir = no door —
+   buy at the stall, no inside required. */
+const GS_BOARD_SRC = {
+  'Mudhaus Coffee': { acct: 'biz:mudhaus',
+    board: ['drip 3.50', 'latte 5.50', 'pour-over 6.50',
+            'day-old pastry 2.00', 'the regular — regulars know'] },
+  'Taqueria El Farolote': { acct: 'biz:farolote',
+    board: ['super burrito 12.00', 'taco 3.75', 'agua fresca 4.00',
+            'pupusa — not on the menu. not yet.'] },
+  'Auerbach Hardware': { acct: 'biz:auerbach',
+    board: ['key cut 4.00', 'tool rental, half-day 18.00',
+            'faucet washer 1.50', 'advice — free, worth every penny'] },
+  'Dolores Perk': { acct: 'biz:perk',
+    board: ['coffee 3.75', 'sandwich 9.50',
+            'park cup to go — lid on tight'] },
+  'Buy-Rite Market': { acct: 'biz:buyrite',
+    board: ['sandwich of the day — ask',
+            'peaches (in season): priced accordingly',
+            'grocery run for one ≈ 45.00'] },
+  'Buy-Rite Creamery': { acct: 'biz:creamery',
+    board: ['single scoop 5.50', 'sundae 9.00',
+            "flavor board rotates — today's is today's"] },
+  'Il Delfino': { acct: 'biz:delfino',
+    board: ['pasta 24.00', 'table for two with wine ≈ 110.00',
+            'the window two-top is the window two-top'] },
+  'Baguette About It Bakery': { acct: 'biz:bai',
+    board: ['morning bun 5.00', 'country loaf 11.00', 'croissant 4.75',
+            'day-olds to Mudhaus — nothing wasted'] },
+  'The 600 Club': { acct: 'biz:600club',
+    board: ['beer 6.00', 'well drink 9.00',
+            'open-mic slot: free, five minutes, no encores'] },
+  'Dandy Lion Chocolate Co.': { acct: 'biz:dandylion',
+    board: ['single-origin bar 12.00', 'hot chocolate 6.00',
+            'tasting square — one per visitor, honor system'] },
+  'Valencia Growers Market': { acct: 'biz:growers', openAir: true,
+    board: ['produce bag ≈ 20.00',
+            'tomato cases priced by the walk — compare before you buy'] },
+  'Needlepointe Tattoo': { acct: 'biz:needlepointe',
+    board: ['shop minimum 80.00', 'flash piece 120.00+',
+            "custom consult — free, honest, sometimes 'no'"] },
+  'Folsom Auto & Sons': { acct: 'biz:folsomauto',
+    board: ['oil change 65.00', 'brake job 380.00',
+            'diagnostic shrug — free with any nod'] },
+  "Malik's Mini Mart": { acct: 'biz:maliks',
+    board: ['chips 2.50', 'six-pack 11.00',
+            'the usual — Malik already knows'] },
+  'Frutería Las Palmas': { acct: 'biz:laspalmas', openAir: true,
+    board: ['fruit cup with chile 6.00', 'mango 2.00',
+            "whatever's ripe — ask Luz"] },
+  'Bloom & Doom Flowers': { acct: 'biz:bloom',
+    board: ['bouquet 35.00', 'single stem 4.00',
+            'the order book is private — the van is not'] },
+  'Golden Hour Laundromat': { acct: 'biz:goldenhour',
+    board: ['wash 4.25', 'dry 0.50 / 8 min', 'wash-and-fold 1.75/lb',
+            'the folding table is communal territory'] },
+  'The Dusty Spine': { acct: 'biz:dustyspine',
+    board: ['paperback 6.00', 'staff-pick hardcover 18.00',
+            'free box 0.00 — take one, leave the guilt'] },
+  'Marooned Records': { acct: 'biz:marooned',
+    board: ['45s bin 2.00', 'used LP ≈ 16.00', 'new release 28.00',
+            'sell-backs: hold shelf is real, so is the wait'] },
+  'The Musket': { acct: 'biz:musket',
+    board: ['small plate 14.00', 'cocktail 15.00',
+            'bar seats are luck — the window watches it happen'] },
+};
+
+/* parse one board line: the trailing money token makes it sellable.
+   '≈' and '+' ride the posted price; '/8 min' and '/lb' bill one unit.
+   A line with no price is chalk, not stock. */
+const GS_BOARDS = {};
+(function(){
+  const slug = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-')
+                     .replace(/^-+|-+$/g, '');
+  for(const name in GS_BOARD_SRC){
+    const rec = GS_BOARD_SRC[name];
+    const items = [];
+    for(const line of rec.board){
+      const m = String(line)
+        .match(/^(.*?)\s*(?:≈\s*)?(\d+(?:\.\d+)?)(\+|\s*\/.*)?$/);
+      if(!m || !m[1].trim()) continue;
+      const label = m[1].trim().replace(/[—–].*$/, '').replace(/\s+$/, '');
+      const usd = parseFloat(m[2]);
+      items.push({ id: slug(label) || ('item-' + items.length),
+        label: label, usd: usd,
+        /* the ledger keeps whole dollars — the register rounds */
+        cost: Math.max(0, Math.round(usd)) });
+    }
+    GS_BOARDS[name] = { name, acct: rec.acct, openAir: !!rec.openAir,
+                        board: rec.board.slice(), items };
+  }
+})();
+
+/* what a bought thing does to the body it was bought with — ordinary
+   food logic, honest magnitudes. goods ride home on the character. */
+function gsMenuClassify(label){
+  const l = String(label || '').toLowerCase();
+  if(/drip|latte|pour-over|coffee|agua|hot chocolate|beer|well drink|cocktail|wine|six-pack|soda|tea/.test(l))
+    return { hyd: 0.30, sat: 0.05, fat: /coffee|drip|latte|pour-over/.test(l)
+             ? -0.08 : 0 };
+  if(/burrito|taco|sandwich|pasta|plate|pupusa|grocery|produce bag/
+     .test(l))
+    return { sat: 0.40, hyd: 0.10 };
+  if(/pastry|bun|croissant|loaf|scoop|sundae|fruit|mango|chips|bar|square/
+     .test(l))
+    return { sat: 0.18, hyd: 0.05 };
+  return { good: true };          // a thing, not a meal — it rides home
+}
+
+/* ---- venue + door resolution ---- */
+function gsErrandVenue(name){
+  if(!name || typeof SF_POIS === 'undefined') return null;
+  if(typeof sfFindPOI === 'function'){
+    const p = sfFindPOI(name);
+    if(p) return { name: p.name, kind: p.kind, x: p.x, y: p.y,
+                   door: (typeof sfPoiDoor === 'function')
+                         ? sfPoiDoor(p) : { wx: p.wx, wy: p.wy } };
+  }
+  /* building-parody venues (The Dusty Spine, Marooned, …) live in
+     SF_BLD — match raw or display name */
+  if(typeof SF_BLD !== 'undefined')
+    for(const b of SF_BLD){
+      const disp = (typeof sfDisplayName === 'function')
+        ? sfDisplayName(b.name, b.kind) : b.name;
+      if(b.name === name || disp === name){
+        const d = (typeof SF_DOOR_OF !== 'undefined' &&
+                   SF_DOOR_OF.has && SF_DOOR_OF.has(b.i))
+          ? SF_DOOR_OF.get(b.i) : null;
+        return { name: disp || b.name, kind: b.kind, x: b.x, y: b.y,
+                 door: d || { wx: Math.round(b.x / CS),
+                              wy: Math.round(b.y / CS) } };
+      }
+    }
+  return null;
+}
+function gsErrandBoard(name){
+  if(!name) return null;
+  if(GS_BOARDS[name]) return GS_BOARDS[name];
+  if(typeof sfDisplayName === 'function'){
+    const disp = sfDisplayName(name, null);
+    if(disp && GS_BOARDS[disp]) return GS_BOARDS[disp];
+  }
+  /* tolerate exact POI names differing from the inside label */
+  for(const k in GS_BOARDS)
+    if(k.toLowerCase() === String(name).toLowerCase())
+      return GS_BOARDS[k];
+  return null;
+}
+
+/* shared gate: session live, caller is the driver, body exists */
+function gsErrandSess(cid, playerId){
+  const sess = GS_POSSESS[cid];
+  if(!sess) return { err: 'not_possessed' };
+  if(sess.playerId !== playerId) return { err: 'not_driver' };
+  const v = (typeof gsVillagerForChar === 'function')
+    ? gsVillagerForChar(cid) : null;
+  if(!v) return { err: 'no_body' };
+  return { sess, v };
+}
+function gsErrandEmit(sess, cid, extra){
+  const r = sess.reqId ? gsRequestById(sess.reqId) : null;
+  gsBusEmit('possess', r || { playerId: sess.playerId, kind: 'possess',
+    target: cid, id: sess.reqId, _now: gsNowMin() }, extra);
+}
+
+/* step through a door — the venue must be a door-having place the pawn
+   is standing at. 'home' means their own lease's door. */
+function gsPossessEnter(cid, playerId, poiName){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  if(v.inside) return { ok: false, err: 'already_inside', inside: v.inside };
+  if(poiName === 'home'){
+    if(typeof gsHiredHomeCell !== 'function')
+      return { ok: false, err: 'no_home' };
+    const hc = gsHiredHomeCell(cid);
+    if(!hc) return { ok: false, err: 'no_home' };
+    const d = Math.hypot(v.x - (hc.wx * CS + 16), v.y - (hc.wy * CS + 16));
+    if(d > 5 * CS) return { ok: false, err: 'too_far', dist: d };
+    v.inBuilding = true; v.inside = 'home';
+    v.targetX = null; v.targetY = null;
+    gsSessAct(cid, 'enter', 'home');
+    gsErrandEmit(sess, cid, { action: 'enter', char: cid, venue: 'home' });
+    return { ok: true, inside: 'home' };
+  }
+  const ven = gsErrandVenue(poiName);
+  if(!ven || !ven.door) return { ok: false, err: 'unknown_venue' };
+  const board = gsErrandBoard(ven.name);
+  if(board && board.openAir) return { ok: false, err: 'no_door' };
+  const d = Math.hypot(v.x - (ven.door.wx * CS + 16),
+                       v.y - (ven.door.wy * CS + 16));
+  if(d > 5 * CS) return { ok: false, err: 'too_far', dist: d };
+  if(typeof sfEnterPOI === 'function') sfEnterPOI(v, ven.name);
+  else { v.inBuilding = true; v.inside = ven.name; }
+  v.targetX = null; v.targetY = null;
+  gsSessAct(cid, 'enter', ven.name);
+  gsErrandEmit(sess, cid, { action: 'enter', char: cid, venue: ven.name });
+  return { ok: true, inside: ven.name };
+}
+function gsPossessExit(cid, playerId){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  if(!v.inside && !v.inBuilding) return { ok: false, err: 'not_inside' };
+  const was = v.inside;
+  if(typeof sfExitPOI === 'function') sfExitPOI(v);
+  else { v.inBuilding = false; v.inside = null; }
+  gsSessAct(cid, 'exit', 'stepped out of ' + (was || 'the venue'));
+  gsErrandEmit(sess, cid, { action: 'exit', char: cid, venue: was });
+  return { ok: true, outside: true };
+}
+
+/* the chalkboard the pawn can see from where they stand — inside a
+   door venue, or at an open-air stall */
+function gsPossessMenu(cid, playerId){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { v } = g;
+  let board = v.inside ? gsErrandBoard(v.inside) : null;
+  let venue = board ? board.name : null;
+  if(!board && typeof SF_POIS !== 'undefined')
+    for(const name in GS_BOARDS){
+      const b = GS_BOARDS[name];
+      if(!b.openAir) continue;
+      const ven = gsErrandVenue(name);
+      if(ven && Math.hypot(v.x - ven.x, v.y - ven.y) <= 4 * CS){
+        board = b; venue = name; break;
+      }
+    }
+  if(!board) return { ok: false, err: 'no_menu' };
+  return { ok: true, venue, board: board.board,
+           items: board.items.map(i => Object.assign({}, i)),
+           balance: gsDollarBalance(cid) };
+}
+
+/* buy off the board — character dollars to the venue's till, real item
+   effects on the real body, goods ride home on the hire's record. The
+   session spend cap counts purchases too — the card has a limit. */
+function gsPossessBuy(cid, playerId, itemId, nowMin){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  const menu = gsPossessMenu(cid, playerId);
+  if(!menu.ok) return { ok: false, err: menu.err === 'no_menu'
+                        ? 'not_inside' : menu.err };
+  const it = menu.items.find(i => i.id === itemId || i.label === itemId);
+  if(!it) return { ok: false, err: 'no_item', menu: menu.venue };
+  const cost = it.cost;
+  if(cost > 0){
+    if(cost > gsDollarBalance(cid))
+      return { ok: false, err: 'insufficient_dollars',
+               balance: gsDollarBalance(cid) };
+    if(((sess.spent || 0) + cost) > GS_POSSESS_SPEND_MAX)
+      return { ok: false, err: 'spend_cap', cap: GS_POSSESS_SPEND_MAX,
+               spent: sess.spent || 0 };
+    const txn = gsDollarPay(cid, menu.venue && GS_BOARDS[menu.venue]
+      ? GS_BOARDS[menu.venue].acct : 'biz:' + menu.venue, cost,
+      'buy: ' + it.label);
+    if(!txn) return { ok: false, err: 'insufficient_dollars',
+                      balance: gsDollarBalance(cid) };
+    sess.spent = (sess.spent || 0) + cost;
+  }
+  /* the body feels it — and the needs layer learns, so the thin brain
+     doesn't send them straight back out for lunch after handoff */
+  const eff = gsMenuClassify(it.label);
+  if(v.body){
+    if(eff.sat) v.body.satiety = Math.min(1, (v.body.satiety||0) + eff.sat);
+    if(eff.hyd) v.body.hydration =
+      Math.min(1, (v.body.hydration||0) + eff.hyd);
+    if(eff.fat) v.body.fatigue =
+      Math.max(0, Math.min(1, (v.body.fatigue||0) + eff.fat));
+  }
+  if(eff.sat && typeof gsThinNeeds === 'function'){
+    const n = gsThinNeeds(cid);
+    n.hunger = Math.max(0, n.hunger - eff.sat);
+  }
+  if(eff.good){
+    sess.goods = sess.goods || [];
+    if(sess.goods.indexOf(it.label) < 0) sess.goods.push(it.label);
+    const h = (typeof GS_HIRED === 'object') ? GS_HIRED[cid] : null;
+    if(h){
+      h.belongings = h.belongings || [];
+      if(h.belongings.indexOf(it.label) < 0 &&
+         h.belongings.length < 20)
+        h.belongings.push(it.label);   // public surface — rides roster
+    }
+  }
+  gsSessAct(cid, 'buy', it.label);
+  gsErrandEmit(sess, cid, { action: 'buy', char: cid, item: it.label,
+                            venue: menu.venue, amt: cost });
+  return { ok: true, item: it.label, cost, venue: menu.venue,
+           balance: gsDollarBalance(cid),
+           effect: eff.good ? 'good' : 'consumed' };
+}
+
+/* trade a hello — the ONLY social verb. No text parameter exists: the
+   driven pawn's line comes from the shared thin kit, never the player.
+   A main is INVITED through the real convo channel (their brain decides);
+   a thin neighbor answers from the same kit; a co-driven pawn waves. */
+const GS_GREET_LAST = {};          // 'a|b' -> minute (either direction)
+const GS_GREET_CD_MIN = 20;
+function gsPossessGreet(cid, playerId, targetId, nowMin){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  if(!targetId || targetId === cid)
+    return { ok: false, err: 'bad_target' };
+  if(typeof gsCharKind !== 'function' || !gsCharKind(targetId))
+    return { ok: false, err: 'not_a_character' };
+  const t = gsVillagerForChar(targetId);
+  if(!t) return { ok: false, err: 'offstage' };
+  /* proximity: same room, or sidewalk distance */
+  const sameRoom = !!(v.inside && t.inBuilding && v.inside === t.inside);
+  const near = Math.hypot(v.x - t.x, v.y - t.y) <= 8 * CS;
+  if(!sameRoom && (!near || (v.inside || t.inside) && v.inside !== t.inside))
+    return { ok: false, err: 'too_far' };
+  const pair = [cid, targetId].sort().join('|');
+  const last = GS_GREET_LAST[pair];
+  if(last != null && now - last < GS_GREET_CD_MIN)
+    return { ok: false, err: 'just_greeted',
+             againInMin: +(GS_GREET_CD_MIN - (now - last)).toFixed(1) };
+  GS_GREET_LAST[pair] = now;
+  sess.greeted = sess.greeted || {};
+  sess.greeted[targetId] = now;
+
+  /* the hello — shared kit only. Player text can never reach the mouth
+     because there is nowhere to put it. */
+  const mine = (typeof gsThinSay === 'function') ? gsThinSay(cid, now)
+                                               : null;
+  if(typeof sfSay === 'function' && mine) sfSay(v, mine.line);
+  v.faceTo = { x: t.x, y: t.y };
+  t.faceTo = { x: v.x, y: v.y };
+  const tKind = gsCharKind(targetId);
+  let via = 'waved', replied = null;
+  if(tKind === 'core' && typeof sfConvoOpen === 'function'){
+    /* the real convo channel: the invite lands on the main's dispatch —
+       they decide whether to talk. No answer = a wave that didn't land,
+       which is also a scene. A muted kit (phrase cap) sends no phantom
+       invite — it stays a wave. */
+    if(mine){
+      sfConvoOpen(v, t, mine.line);
+      if(typeof sfDispatchTrig === 'function')
+        sfDispatchTrig(t, 'convo_invite', 'T1', { from: cid });
+      via = 'invited';
+    }
+  } else if(tKind !== 'core'){
+    /* thin + hired AI pawns answer from the same kit — small talk on
+       the corner, honest and bounded. A possessed-by-another pawn waves
+       back with kit too: nobody puts words in a driven mouth. */
+    const theirs = (typeof gsThinSay === 'function')
+      ? gsThinSay(targetId, now) : null;
+    if(theirs && typeof sfSay === 'function'){
+      sfSay(t, theirs.line);
+      replied = theirs.line; via = 'answered';
+    }
+    const otherSess = GS_POSSESS[targetId];
+    if(otherSess) gsSessAct(targetId, 'greet',
+      gsCharName(cid) + ' said hello');
+  }
+  gsSessAct(cid, 'greet', 'said hello to ' + gsCharName(targetId));
+  gsErrandEmit(sess, cid, { action: 'greet', char: cid, to: targetId,
+                            via });
+  return { ok: true, to: targetId, toName: gsCharName(targetId), via,
+           said: mine ? mine.line : null, replied };
+}
+
+/* sit down / take a load off — the body actually recovers (bodyTick
+   restores fatigue in 'sit'). The next drive click stands them up. */
+function gsPossessRest(cid, playerId){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  v.targetX = null; v.targetY = null; v.sfPath = null; v.moving = false;
+  v.state = v.inside ? 'rest' : 'sit';
+  gsSessAct(cid, 'rest', v.inside ? 'rested at ' + v.inside
+                                  : 'sat down a minute');
+  gsErrandEmit(sess, cid, { action: 'rest', char: cid });
+  return { ok: true, state: v.state };
+}
+
+/* the windshield — everything the driver needs on one card. Driver-only:
+   meter + wallet-adjacent fields don't leave the session. */
+function gsPossessScene(cid, playerId, nowMin){
+  const g = gsErrandSess(cid, playerId);
+  if(g.err) return { ok: false, err: g.err };
+  const { sess, v } = g;
+  const now = (nowMin != null) ? nowMin : gsNowMin();
+  const r = sess.reqId ? gsRequestById(sess.reqId) : null;
+  const menu = gsPossessMenu(cid, playerId);
+  const near = [];
+  if(typeof VILLAGERS !== 'undefined')
+    for(const o of VILLAGERS){
+      if(o === v) continue;
+      const oid = o._castId || o.gsCharId;
+      if(!oid || !gsCharKind(oid)) continue;
+      const sameRoom = !!(v.inside && o.inBuilding &&
+                          o.inside === v.inside);
+      const d = Math.hypot(o.x - v.x, o.y - v.y);
+      if(sameRoom || (!v.inside && !o.inside && d <= 8 * CS))
+        near.push({ id: oid, name: gsCharName(oid),
+                    kind: gsCharKind(oid) });
+      if(near.length >= 8) break;
+    }
+  const warnings = [];
+  if(v.body){
+    if(v.body.fatigue >= 0.85) warnings.push('tired');
+    if(v.body.satiety <= 0.15) warnings.push('hungry');
+    if(v.body.hydration <= 0.15) warnings.push('thirsty');
+  }
+  return {
+    ok: true, char: cid, name: gsCharName(cid),
+    pos: { wx: Math.round(v.x / CS), wy: Math.round(v.y / CS) },
+    inside: v.inside || null, state: v.state,
+    venue: menu && menu.ok ? { name: menu.venue, items: menu.items }
+                           : null,
+    near,
+    body: v.body ? { satiety: +((v.body.satiety||0).toFixed(2)),
+                     hydration: +((v.body.hydration||0).toFixed(2)),
+                     fatigue: +((v.body.fatigue||0).toFixed(2)) } : null,
+    meter: { remainingMin: r ? +Math.max(0, r.endMin - now).toFixed(1)
+                             : null,
+             extendedMin: (r && r.extendedMin) || 0,
+             /* the "+N at this rate" button's truth — same math the
+                request meter shows, so the windshield never lies */
+             extend: r ? (gsRequestMeter(r.id, now) || {}).extend || null
+                       : null },
+    acts: (sess.acts || []).slice(-6).map(a => a.t),
+    goods: (sess.goods || []).slice(),
+    spent: sess.spent || 0,
+    rentRisk: gsPossessRentRisk(cid),
+    warnings,
+  };
+}
+
+/* reset for the bus reset path — boards are static, cooldowns are not */
+function gsErrandReset(){
+  for(const k in GS_GREET_LAST) delete GS_GREET_LAST[k];
+}
+function gsErrandSnapshot(){
+  return { greet: Object.assign({}, GS_GREET_LAST) };
+}
+function gsErrandLoad(d){
+  gsErrandReset();
+  if(d && d.greet) Object.assign(GS_GREET_LAST, d.greet);
+}
+
+/* ---- bridge surface ---- */
+if(typeof window !== 'undefined' && window.__aiBridge){
+  const B = window.__aiBridge;
+  B.gsPossessEnter = (cid, pid, poi) => gsPossessEnter(cid, pid, poi);
+  B.gsPossessExit = (cid, pid) => gsPossessExit(cid, pid);
+  B.gsPossessBuy = (cid, pid, item) => gsPossessBuy(cid, pid, item);
+  B.gsPossessGreet = (cid, pid, t) => gsPossessGreet(cid, pid, t);
+  B.gsPossessRest = (cid, pid) => gsPossessRest(cid, pid);
+  B.gsPossessScene = (cid, pid) => gsPossessScene(cid, pid);
+  B.gsPossessMenu = (cid, pid) => gsPossessMenu(cid, pid);
+  B.gsErrandBoard = (name) => gsErrandBoard(name);
+}
+
 /* SF scenario autotest — appends SF assertions to the in-page ?test suite.
    Runs only when SF_MODE (?sf&test). Wraps runAutoTest (permitted hook point:
    the no-new-wraps law only covers planTick/simTick/bodyTick/updateVillagerAI). */
@@ -54978,8 +55698,8 @@ runAutoTest = async function(){
     const okReq = gsSubmitRequest({ playerId: 'pA', kind: 'possess',
                                   target: 'H1', durationMin: 30 }, 0);
     log(notYours.reason === 'not_your_character' &&
-        okReq.status === 'active' && okReq.price === 120 &&
-        gsCreditBalance('pA') === pAStake - 120,
+        okReq.status === 'active' && okReq.price === 45 &&
+        gsCreditBalance('pA') === pAStake - 45,
         'gs: hired character possess activates, billed rate x duration upfront');
 
     // ---- bus: duration bounds + unknowns denied ----
@@ -55096,31 +55816,31 @@ runAutoTest = async function(){
     const pStart = gsCreditBalance('pC');
     const pos = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H9',
                                   durationMin: 30 }, 1000);
-    const possOn = pos.status === 'active' && pos.price === 120 &&
+    const possOn = pos.status === 'active' && pos.price === 45 &&
                    GS_POSSESS.H9 && GS_POSSESS.H9.playerId === 'pC' &&
                    stubV.isNPC === false && gsIsBrainSuspended('H9');
     gsBusTick(1030);                               // duration end -> handoff
     const possOff = pos.status === 'completed' && !GS_POSSESS.H9 &&
                     stubV.isNPC === true && !gsIsBrainSuspended('H9');
     VILLAGERS.splice(VILLAGERS.indexOf(stubV), 1);
-    log(possOn && possOff && gsCreditBalance('pC') === pStart - 120,
-        'gs: v1 possess suspends the AI, force-hands-off at end, bills 4/min');
+    log(possOn && possOff && gsCreditBalance('pC') === pStart - 45,
+        'gs: v1 possess suspends the AI, force-hands-off at end, bills 1.5/min');
 
     // ---- v1: player cancel pro-rates unused minutes; admin pays full ----
     gsMarkHired('H10', 'pC'); gsMarkHired('H11', 'pC');
     const pr = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H10',
                                  durationMin: 30 }, 2000);
     const prBal = gsCreditBalance('pC');
-    gsCancelRequest(pr.id, 2010, 'player');        // 20 whole min unused -> 80
-    log(pr.status === 'cancelled' && pr.refunded === 80 &&
-        gsCreditBalance('pC') === prBal + 80 && pr.usedMin === 10,
+    gsCancelRequest(pr.id, 2010, 'player');        // 20 whole min unused -> 30
+    log(pr.status === 'cancelled' && pr.refunded === 30 &&
+        gsCreditBalance('pC') === prBal + 30 && pr.usedMin === 10,
         'gs: v1 player cancel refunds whole unused minutes (per-minute billing)');
     const ar = gsSubmitRequest({ playerId: 'pC', kind: 'possess', target: 'H11',
                                  durationMin: 30 }, 2100);
     const arBal = gsCreditBalance('pC');
     gsAdminRevoke(ar.id, 'contested', 2105);
-    log(ar.status === 'cancelled' && ar.by === 'admin' && ar.refunded === 120 &&
-        gsCreditBalance('pC') === arBal + 120 &&
+    log(ar.status === 'cancelled' && ar.by === 'admin' && ar.refunded === 45 &&
+        gsCreditBalance('pC') === arBal + 45 &&
         GS_FEED.some(e => e.type === 'admin' && e.action === 'revoke' &&
                           e.target === ar.id),
         'gs: v1 admin revoke compensates in full + posts to the public feed');
@@ -55274,7 +55994,7 @@ runAutoTest = async function(){
         'gs: v1 queue positions are exposed to viewers');
     const meter = gsRequestMeter(vp1.id, 7010);
     log(meter && meter.elapsedMin === 10 && meter.remainingMin === 20 &&
-        meter.spentSoFar === 40,
+        meter.spentSoFar === 15,
         'gs: v1 live meter reports per-minute spend against the hard cap');
     const vs = gsViewerState(7000);
     log(vs.queues['t:possess:H13'] && vs.queues['t:possess:H13'].length === 2 &&
@@ -55283,10 +56003,10 @@ runAutoTest = async function(){
         'gs: v1 viewer state exposes queues, active sessions, ordered feed');
 
     // ---- v1: low-balance warning posts to the feed at activation ----
-    gsCreditGrant('pG', 130, 'stake'); gsMarkHired('H14', 'pG');
+    gsCreditGrant('pG', 60, 'stake'); gsMarkHired('H14', 'pG');
     const lw = gsSubmitRequest({ playerId: 'pG', kind: 'possess', target: 'H14',
                                  durationMin: 30 }, 8000);
-    log(lw.status === 'active' && gsCreditBalance('pG') === 10 &&
+    log(lw.status === 'active' && gsCreditBalance('pG') === 15 &&
         GS_FEED.some(e => e.type === 'warn' && e.req === lw.id && e.low_credits),
         'gs: v1 low-balance warning fires on the public feed');
 
@@ -55487,7 +56207,7 @@ runAutoTest = async function(){
     const hB = gsSubmitRequest({ playerId: 'qD', kind: 'possess', target: 'H23',
                                durationMin: 20 }, 20301);
     gsCancelRequest(hA.id, 20310, 'player');
-    log(hA.status === 'cancelled' && hA.refunded === 80 &&
+    log(hA.status === 'cancelled' && hA.refunded === 30 &&
         hB.status === 'active' &&
         GS_POSSESS.H23 && GS_POSSESS.H23.reqId === hB.id,
         'gs: v2 cancelling an active request hands the resource to the line instantly');
@@ -56131,7 +56851,7 @@ runAutoTest = async function(){
        ticked past their cap) complete and leave the driving set */
     gsBusTick(50010);
     const schedBefore = vh60.sfSched;
-    log(sess5.status === 'active' && sess5.price === 120 &&
+    log(sess5.status === 'active' && sess5.price === 45 &&
         GS_POSSESS.H60 && GS_POSSESS.H60.prevNPC === true &&
         vh60.isNPC === false && vh60.gsPossessed === sess5.id &&
         vh60.sfPath === null && vh60.targetX === null &&
@@ -56274,7 +56994,7 @@ runAutoTest = async function(){
         target: 'H63', durationMin: 10,
         params: { note: 'confront the landlord about the noise' } }, 50750);
     log(grayR.status === 'in_review' && grayR.screen === 'gray-zone' &&
-        grayR.billed === grayR.price && grayR.price === 40 &&
+        grayR.billed === grayR.price && grayR.price === 15 &&
         gsReviewQueue().some(r => r.id === grayR.id) && !GS_POSSESS.H63,
         'gs: v5 gray-zone intent parks in_review — billed, not running');
     const accR = gsReviewResolve(grayR.id, true, { nowMin: 50751 });
@@ -56643,9 +57363,9 @@ runAutoTest = async function(){
     gsMarkHired('H70', 'pV');
     const qt0 = gsPriceQuote({ playerId: 'pV', kind: 'possess',
       target: 'H70', durationMin: 10 }, 62000);
-    log(qt0.ok && qt0.base === 40 && qt0.total === 40 && qt0.surge === 1 &&
+    log(qt0.ok && qt0.base === 15 && qt0.total === 15 && qt0.surge === 1 &&
         qt0.wouldQueue === false && qt0.wouldReview === false &&
-        qt0.ratePerMin === 4 && qt0.refundNote.length > 0,
+        qt0.ratePerMin === 1.5 && qt0.refundNote.length > 0,
         'gs: v7 gsPriceQuote — the honest receipt before a credit moves');
     const qtW = gsPriceQuote({ playerId: 'pV', kind: 'weather',
       durationMin: 10, params: { wx: 'fog' } }, 62000);
@@ -56795,7 +57515,7 @@ runAutoTest = async function(){
     const den1 = gsSubmitRequest({ playerId: 'aP', kind: 'possess',
         target: 'H71', durationMin: 10,
         params: { note: 'confront the neighbors about the fence' } }, 62400);
-    log(den1.status === 'in_review' && den1.billed === 40,
+    log(den1.status === 'in_review' && den1.billed === 15,
         'gs: v7 appealable requests park first (gray-zone here)');
     gsReviewResolve(den1.id, false, { code: 'gray-zone', by: 'mod1',
                                       nowMin: 62401 });
@@ -56813,7 +57533,7 @@ runAutoTest = async function(){
         'gs: v7 appeals refuse the original reviewer');
     gsReviewResolve(ap1.request.id, true, { by: 'mod2', nowMin: 62404 });
     log(ap1.request.status === 'active' &&
-        gsCreditBalance('aP') === aP0 - 40 &&
+        gsCreditBalance('aP') === aP0 - 15 &&
         !GS_WIRE.some(e => /confront the neighbors/.test(e.text)),
         'gs: v7 an overturned appeal re-bills once — and the once-denied ' +
         'text still never airs');
@@ -56897,7 +57617,7 @@ runAutoTest = async function(){
     gsReviewResolve(bEv.id, true, { nowMin: 62803, by: 'mod-b' });
     const board2 = gsResourceBoard(62804);
     log(bA.status === 'active' && bQ.status === 'queued' &&
-        bQ.billed === 34 &&                     // ceil(40 * 0.85)
+        bQ.billed === 13 &&                     // ceil(15 * 0.85)
         bEv.status === 'active' &&
         board2['char:H73'].state === 'locked' &&
         board2['char:H73'].depth === 1 &&
@@ -57378,8 +58098,8 @@ runAutoTest = async function(){
     gsPlayerOffline('p9', 80110);
     const plog9 = GS_POSSESS_LOG[GS_POSSESS_LOG.length - 1];
     log(!GS_POSSESS['H70'] && poss9.status === 'cancelled' &&
-        poss9.refunded === 80 &&           /* 30min@4cr − 10 used */
-        gsCreditBalance('p9') === p9BalPre + 80 &&
+        poss9.refunded === 30 &&           /* 30min@1.5cr − 10 used */
+        gsCreditBalance('p9') === p9BalPre + 30 &&
         plog9 && plog9.char === 'H70' && plog9.endReason === 'released' &&
         GS_WIRE.some(e => e.status === 'player session ended' &&
           e.mentions && e.mentions.indexOf('H70') >= 0),

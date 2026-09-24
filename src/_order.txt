@@ -93,6 +93,7 @@ systems/41_game_systems_economy.js
 systems/41_game_systems_timepiece.js
 systems/41_game_systems_civic.js
 systems/41_game_systems_assessor.js
+systems/41_game_systems_errands.js
 tests/30_sf_autotest.js
 tests/38_sf_brain_autotest.js
 tests/41_game_systems_autotest.js
