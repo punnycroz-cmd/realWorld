@@ -38,7 +38,9 @@ from playwright.sync_api import sync_playwright
 HERE = pathlib.Path(__file__).resolve().parent
 ROOT = HERE.parent.parent
 HUB = 'file://' + str(ROOT / 'production' / 'hub.html')
-CHROME = '/opt/meta-chromium/chrome'
+import glob as _glob
+CHROME = (_glob.glob('/opt/.devin/chrome/chrome/linux-*/chrome-linux64/chrome')
+          or ['/opt/meta-chromium/chrome'])[0]
 PORT = 8797
 CAST = ['C1', 'C2', 'C3', 'C4', 'C5', 'C6', 'C7', 'C8']
 
@@ -224,6 +226,10 @@ def main():
     ap.add_argument('--scripted', action='store_true',
                     help='in-driver honest policy answers every trigger '
                          '(probe mode — no LLM sessions)')
+    ap.add_argument('--agents', action='store_true',
+                    help='prod-3 mode: each trigger spawns agents/<CID>/\'s '
+                         'own brain process (brain_worker.py) — 8 separate '
+                         'agents, per-character personas + journals')
     ap.add_argument('--max-calls', type=int, default=0,
                     help='stop after N brain calls (0 = unbounded)')
     ap.add_argument('--shot-every', type=float, default=20,
@@ -373,6 +379,20 @@ def main():
                     act=out['act'], directive=out.get('directive'),
                     result=res)
                 return res
+            if args.agents:
+                # prod-3: this character's own brain process answers the
+                # trigger — separate agent, its own persona + journal
+                env = dict(os.environ,
+                           RW_TRIG=json.dumps(trig),
+                           RW_SEQ=str(seq),
+                           RW_BASE=f'http://127.0.0.1:{PORT}')
+                p = subprocess.Popen(
+                    [sys.executable, str(HERE / 'brain_worker.py'), cid],
+                    cwd=str(HERE / 'agents' / cid), env=env,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True)
+                stats[cid]['calls'] += 1
+                return {'proc': p}
             # devin session mode: the trigger is the prompt
             prompt = (f'Dispatch seq={seq} kind={trig["kind"]} tier={tier} '
                       f'detail={json.dumps(trig.get("detail"))}. '
