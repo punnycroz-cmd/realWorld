@@ -5,7 +5,7 @@
 <title>Real World — The Understudy (thin-AI fallback)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Thin-AI fallback demo — "The Understudy" v5 (world v69).
+  Thin-AI fallback demo — "The Understudy" v6 (world v83).
   Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
   Machine mirror: world/thinai.json. INTERNAL builder tool —
   never-ship, not a player surface; mode badges and seam lines are
@@ -39,6 +39,16 @@
   repetition guard (no repeat inside the hour, no consecutive echo,
   silence exempt), and the 0% blackout floor (a quiet day, never an
   outage screen).
+  v83 — the fallback-surface layer: a per-surface posture panel
+  (unaffected / hold / static — wire vocabulary and ledgers never
+  needed the model; Mission Unfiltered holds its authored backlog and
+  trickles ≤1/daypart on recovery; briefings ship the static card;
+  archive threads go untitled), the routine-fit rule for requests on
+  degraded mains (posture-only accept inside the public-routine cell,
+  else resolved · declined + 50% auto-refund — judged at activation,
+  never parked), and quiet-week deterministic jitter (day-hash ±15-min
+  shared cell edges + stop-order rotation — same block on every
+  client, obligations and cell kinds never jitter).
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -154,6 +164,9 @@
     <div class="panel"><h2>Coverage &amp; the flap guard</h2><div class="ledger" id="cov"></div>
       <div class="fine">Routine resolution is a total function — every pawn, every minute lands on a cell; the floor is <b>home · idle</b> and a pawn never freezes. The degrade ladder has a <b>deadband</b>: thin below 60%, recover at ≥70%, plus a 30-min minimum dwell — a flapping service can't churn the seam.</div>
     </div>
+    <div class="panel"><h2>Surface fallback — what a stall does</h2><div class="ledger" id="surf"></div>
+      <div class="fine">Three postures, closed matrix: <b>unaffected</b> (template vocabulary — never model text), <b>hold</b> (authored backlog — Mission Unfiltered goes quiet, trickles back ≤1/daypart), <b>static</b> (the card ships without prose — briefings, thread labels). Honest absence beats filler; nothing is labeled in-world.</div>
+    </div>
     <div class="panel"><h2>Owner report — h01 (own pawns only)</h2><div class="ledger" id="orep"></div>
       <div class="fine">A ledger, not a diary: place, doing, wages since last visit, obligations met/lapsed. Never the handoff note verbatim, never another character's state.</div>
     </div>
@@ -179,8 +192,8 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v69) */
-var LS='rw_thinai_v69';
+/* mirror of thinai.json demo scenario (schema v83) */
+var LS='rw_thinai_v83';
 var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
@@ -199,6 +212,7 @@ function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(
 function seed(){return {
   min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
   coStar:0, csClass:0, scene:false, bubHour:-1, bubN:0, bubUsed:{}, lastLine:{a01:null},
+  pressHeld:0, c6ask:0,
   paidToday:false, c6src:'authored', degMin:{c2:0,c6:0},
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
@@ -286,6 +300,16 @@ function reflexes(id){
   if(n.hunger>80&&cell(id,S.min/60)[1]!=='meal')r.push('hungry — routine food stop on the way home');
   return r;
 }
+/* v83 quiet-week jitter — deterministic day hash, ±≤15 min on the
+   shared cell edge (both neighbors move together; obligations and
+   cell kinds never jitter). Same block on every client. */
+var EDGES={a01:[7.5,12,12.5,18,22],h01:[8,12,12.5,19],c2:[6,8,13,13.5,17,20],c6:[7,10,16.5,21]};
+function jit(id,edgeMin){var n=0;for(var i=0;i<id.length;i++)n+=id.charCodeAt(i);var s=S.day*31+n*7+edgeMin*13;s=((s%31)+31)%31;return s-15;}
+function nextEdge(id,h){
+  var es=EDGES[id]||[];
+  for(var i=0;i<es.length;i++)if(es[i]>h)return es[i]*60;
+  return null;
+}
 /* which ladder rung the cell resolved from (v55 coverage contract) */
 function srcLabel(id){
   if(id==='c6')return S.c6src==='authored'?'authored (registry mirror)':(S.c6src==='template'?'role template — rung 2':'home · idle — the floor');
@@ -315,6 +339,8 @@ function render(){
       '<div class="doing">'+c[0]+'</div><div class="cell">schedule cell: '+c[1]+' · venue: '+p.venue+
       (p.kind==='main'?' · <span class="sal">salience '+salience(id)+'</span>':'')+
       ' · <span class="sal">routine: '+srcLabel(id)+'</span></div>'+
+      (function(){var e=nextEdge(id,h);if(e===null)return '';
+        var j=jit(id,e);return '<div class="cell">next edge '+hhmm(e)+' → '+(j>=0?'+':'')+j+'m = '+hhmm(e+j)+' <small>(day-hash jitter — shared edge, coverage stays contiguous)</small></div>';})()+
       '<div class="needs">hunger <span class="bar"><i style="width:'+Math.min(100,n.hunger)+'%"></i></span>'+
       ' rest <span class="bar r"><i style="width:'+Math.min(100,n.rest)+'%"></i></span></div>';
     if(S.coStar&&id==='a01')out+='<span class="costar">co-star window live</span>';
@@ -339,6 +365,13 @@ function render(){
     }).join('<br>')+
     '<br>outage credit — deg_min: <b>C2 '+S.degMin.c2+'</b> · <b>C6 '+S.degMin.c6+'</b> <small>(rolling 24 h; a dwell-eligible bench with the largest credit swaps up with a peer within Δ≤1 salience — a swap is not a recovery)</small><br>'+
     '<small>deadband: thin &lt;60%, recover ≥70% · min dwell 30 min · one step per beat · ambients + possessed never on the ladder</small>';
+  /* v83 surface fallback matrix — three postures, closed matrix */
+  var down=S.cap<60;
+  $('surf').innerHTML=
+    '<b>unaffected</b> — wire event text · request status lines · quiet markers · ledgers · owner report · mod queue · phrase-kit bubbles <small>(template vocabulary — never model text)</small><br>'+
+    '<b>hold</b> — Mission Unfiltered posts: '+(down?'<b style="color:var(--acc)">held · backlog '+S.pressHeld+'</b> <small>the blog goes quiet — never auto-write a post</small>':(S.pressHeld>0?'draining <b>'+S.pressHeld+'</b> held · ≤1/daypart — a returning blogger, not a dump':'healthy — posts file on schedule'))+'<br>'+
+    '<b>static</b> — briefings: '+(down?'static card only <small>(profile + surface rels + routine — the whole contract; a shorter card, never an apology)</small>':'model prose over the card')+' · archive thread labels: '+(down?'untitled <small>(chrome, never narration)</small>':'labeled at archive time')+'<br>'+
+    '<small>requests on degraded mains: routine-fit → posture-only accept; anything else → resolved · declined + 50% auto-refund, judged at activation. The matrix is closed — honest absence beats filler, and nothing is labeled in-world.</small>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
     'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
@@ -431,6 +464,22 @@ var EV=[
    else{
      wire('request — ambient co-star ('+cls+') — resolved · declined (50% auto-refund)');
      seam('A01 declines '+cls+' — '+(cls==='walk-with'?'off-route for a counter shift':'off-shift / window past cell end')+'; the taxonomy is closed, nothing persists');}}],
+ ['Ask C6 · routine-fit',function(){
+   /* v83 routine-fit rule — a screened ask on a degraded main runs
+      posture-only iff venue+window sit inside her public-routine cell */
+   var p=S.pawns.c6,h=S.min/60;
+   if(p.mode!=='degraded'){toast('C6 is full — a healthy brain carries the ask normally. Degrade her first (Service <60%).');return;}
+   if(S.c6ask){toast('A request on C6 is already live.');return;}
+   if(cell('c6',h)[1]==='sleep'){wire('request — co-star on Carmen (be-present) — resolved · declined (50% auto-refund)');
+     seam('routine-fit check fails — she is on a sleep cell; the ask resolves declined, never parks waiting for morning');return;}
+   S.c6ask=2; /* 20 min ≈ 2 demo ticks */
+   wire('request — co-star on Carmen (be-present), 20 min — running (rf)');
+   seam('C6 co-star · be-present: ask fits her current public-routine cell → posture-only accept — presence in place, phrase-kit register, scene-yield still governs, never leads');}],
+ ['Ask C6 · off-routine',function(){
+   var p=S.pawns.c6;
+   if(p.mode!=='degraded'){toast('C6 is full — a healthy brain carries the ask normally. Degrade her first (Service <60%).');return;}
+   wire('request — co-star on Carmen (walk-with, off-routine) — resolved · declined (50% auto-refund)');
+   seam('off-routine ask on a degraded main — judged at activation, declines: the product shrinks to "be where they already were". Sell the ask, refund the miss.');}],
  ['Scene forms at C6',function(){
    S.scene=!S.scene;
    seam(S.scene?'a live scene forms around C6 — under degrade she yields: phrase-kit only, drifts to the background of her cell, reads as the quiet one tonight'
@@ -559,6 +608,14 @@ function tick(mins){
     /* co-star time-box */
     if(S.coStar>0&&--S.coStar===0)
       seam('co-star window ended — role card released mid-beat-clean; A01 returns to schedule, nothing persists');
+    if(S.c6ask>0&&--S.c6ask===0)
+      seam('C6 request window ended — posture-only release, mid-beat-clean; she returns to her cell, nothing persists');
+    /* v83 press backlog — Mission Unfiltered holds under degrade,
+       trickles ≤1/daypart on recovery */
+    if(pm<0&&S.cap<60){S.pressHeld++;seam('held press backlog +1 — Mission Unfiltered doesn\'t file under degrade; the blog\'s quiet is honest');}
+    if(S.cap>=70&&S.pressHeld>0&&Math.floor(pm/360)!==Math.floor(S.min/360)){
+      S.pressHeld--;
+      seam('Mission Unfiltered posts from the held backlog — ≤1/daypart on recovery, a returning blogger not a content dump');}
     /* stale notes archive at 24 h */
     ['a01','h01','c2','c6'].forEach(function(k){
       var q=S.pawns[k];

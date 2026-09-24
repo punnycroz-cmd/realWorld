@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -137,21 +137,25 @@ serve."
 
 ## 8. Demo & playtest
 
-`world/thinai.html` — "The Understudy" (v5, world v69): four pawns
+`world/thinai.html` — "The Understudy" (v6, world v83): four pawns
 (A01 always thin; h01 cycling thin→possessed→handoff; C2 *and* C6
 showing the salience-ordered degrade ladder — Carmen alone at home
 thins before Jules mid-scene), a clock stepper, service-capacity
 buttons (incl. the 0% blackout floor), event buttons (log off /
 return / possess / cap / rain / press / ask / co-star classes /
-scene-at-C6), needs meters, a baseline-wage ledger, a compute ledger
+scene-at-C6 / routine-fit + off-routine asks on a degraded main),
+needs meters, a baseline-wage ledger, a compute ledger
 (llm_min / thin_min / player_min), an owner report, the live handoff
 note + stale-note archive, the authored phrase kit with the
 repetition guard, the per-main `deg_min` outage-credit ledger driving
-rotation swaps, and a split log marking which lines are feed-public
-vs seam-internal. The page carries a LIVE SEAM badge: when
+rotation swaps, a split log marking which lines are feed-public
+vs seam-internal, and the v83 fallback-surface layer: a per-surface
+posture panel (unaffected / hold / static) with the held press
+backlog + recovery trickle, and the day-hash jitter shown on each
+pawn's next cell edge. The page carries a LIVE SEAM badge: when
 `window.__aiBridge` exposes the game-v9 offline surfaces it reads
 them; otherwise it runs on the inline mirror. Playtests: PT11 + PT25
-+ PT37 + PT64 in `world/playtest.json`.
++ PT37 + PT64 + PT75 in `world/playtest.json`.
 
 ## 9. Degrade ladder (mains, brain-service capacity)
 
@@ -692,3 +696,153 @@ Extends §§15/28. Decided, not deferred:
 - **Repetition guard vs. an empty category:** if every line in the
   only fitting category is spent, thin defaults to silence — a nod
   over a stutter, always.
+
+## 36. Surface fallback matrix — what 0% does to every surface (v83)
+
+The brain service isn't the only generator that can stall. Every
+surface a spectator or player reads answers the same question — what
+shows when the model isn't there? — with one of three postures. No
+surface ever gets generated filler: the choices are template,
+authored backlog, or honest absence.
+
+| surface | generator | posture at 0% |
+|---------|-----------|---------------|
+| Wire event text (`feed.json` `event_kinds`) | fixed template vocabulary | **unaffected** — it was never model text |
+| request status lines | locked vocabulary | **unaffected** |
+| `quiet` honest-empty markers | daypart table | **unaffected** |
+| ledgers / owner report / mod queue copy | canned wording + reason codes | **unaffected** — mechanics were never prose |
+| speech bubbles | the phrase kit | **unaffected** — thin register is the whole register |
+| Mission Unfiltered posts (`press`) | authored releases | **hold** — the blog goes quiet; a blogger who doesn't file. Held posts trickle back ≤1/daypart on recovery (§39). Never auto-write a post. |
+| character briefings | model prose over the static card | **static** — the card alone ships: public profile + surface relationships + routine is already the whole contract (possession-ban §4). No "degraded" label; a shorter card, not an apology. |
+| archive thread labels (`history.json` chrome) | generated at archive time | **static** — the day archives with untitled threads; labels are chrome, never narration |
+
+Rules:
+
+- **The matrix is closed.** A new surface must declare its posture at
+  build time; "the model writes it and there is no fallback" is not an
+  allowed answer.
+- **Honest absence beats filler.** A held press day and an untitled
+  thread are both legible to a spectator as ordinary quiet; a fake
+  post would be a fabricated claim about the world.
+- **Never labeled in-world.** "Static" and "hold" are internal
+  postures. The Wire shows nothing; the Archive stores the day like
+  any other. There is no "the AI is down" surface anywhere.
+
+## 37. Requests under degrade — the routine-fit rule (v83)
+
+Co-star bounds (§13/§32) cover ambients and offline hired pawns. A
+screened request aimed at a **degraded main** resolves through the
+same closed taxonomy plus one extra gate — the ask must fit the main's
+*own public routine* (the §27 registry):
+
+- **Routine-fit accept:** the ask maps to an ask-class AND its
+  venue+window sit inside the main's current or next routine cell →
+  it runs **posture-only**: presence in place, phrase-kit register
+  (cap still governs), scene-yield still applies, never authored
+  dialogue, never leads. The deliverable is "they were where you
+  asked" — which is all a public-routine pawn can honestly sell.
+- **Anything else declines** — off-routine venue, a window outside
+  the cell, an ask needing dialogue or a carried scene:
+  `resolved · declined` + the 50% auto-refund, same locked vocabulary
+  as every other decline. Sell the ask, refund the miss.
+- **Review happens at activation** (requests.json queue model): a
+  queued request that reaches the front during a degrade is judged
+  against the *current* posture — it resolves, it doesn't park hoping
+  the service recovers. If the main recovers before activation, the
+  normal full-brain path applies.
+- **Booked windows still bind.** A booked window claiming a main
+  during a blackout delivers posture-only if routine-fit; otherwise it
+  declines at activation — the claim was real, the posture is honest.
+- At 0% every main is in this posture: the request product shrinks to
+  "be where they already were." That is the honest degraded offer —
+  the Wire's vocabulary never grows to describe it.
+- Mains remain unpossessable throughout — degrade changes the brain,
+  never the ban.
+
+## 38. Quiet-week variety — deterministic jitter (v83)
+
+A fixed routine replayed N days straight reads mechanical — a real
+person's Tuesday is never a replay of Monday. The fix is
+deterministic variation, not new content:
+
+- **Day hash:** `H = hash(day_index, char_id)` — deterministic, so
+  every client computes the same block; never random, never seeded
+  per-viewer.
+- **Boundary jitter:** each routine cell edge may shift ±≤15 min.
+  The shift applies to the *shared* boundary — both neighbors move
+  together, so coverage stays contiguous and no gap ever opens. The
+  authored card remains the contract; jitter is an execution detail.
+- **Stop-order rotation:** inside a multi-stop cell (`stops` arrays),
+  the visit order rotates by `H mod len(stops)`. The cell's venue set
+  is unchanged — same errands, different order.
+- **Never jittered:** scheduled-obligation minutes (autopay drafts at
+  its minute — ledgers don't jitter), cell *kind* (a sleep edge can't
+  become a work edge), co-star window bounds (windows bind the
+  authored cell, §40), and anything a co-star ask or reflex keys on.
+- Ambients stack this on top of whichever row set resolved
+  (week/weather/personal → base → template); mains apply it to the
+  §27 registry rows. The coverage gate still checks the *authored*
+  0–24 coverage — jitter can never produce a partial day.
+- Jitter is honesty, not a variety promise: if the hash yields the
+  same stop order two days running, that's allowed. Nobody promised a
+  different day — only a non-identical one.
+
+## 39. Surface recovery — no recap, no backfill (v83)
+
+When the service recovers, surfaces resume the way the pawns do
+(§29): inheriting the day, not announcing the return.
+
+- **No recap surface.** Nothing summarizes "what thin did" — thin
+  days are real days; the Wire and the Archive already carry them.
+- **No backfill.** Static-fallback artifacts (untitled threads,
+  card-only briefings) are never rewritten after the fact. A day
+  archived quiet stays archived quiet.
+- **Held press backlog trickles** — at most one Mission Unfiltered
+  post per daypart on recovery; a returning blogger, not a content
+  dump.
+- **Briefings resume fresh prose** on the next pull; nothing
+  annotates the gap, and a briefing pulled mid-outage is simply the
+  static card (§36).
+- **The internal record is the only historian.** The compute ledger
+  (§18) records the outage honestly — thin_min days are the audit
+  trail the feed never shows.
+
+## 40. Failure matrix — the degraded-request cases (v83)
+
+Extends §§15/28/35. Decided, not deferred:
+
+- **Routine-fit ask lands mid-scene-yield:** runs posture-only inside
+  the yield — the main is present where asked, the scene still
+  belongs to the full brains.
+- **Off-routine ask on a degraded main:** declines at activation;
+  the queue never holds a request the current posture can't serve.
+- **Ask window straddles a degrade:** runs to its box posture-only —
+  same rule as a co-star window spanning a mode change (§35).
+- **Ask window straddles a recovery:** the full brain inherits
+  mid-window — the ask was screened; the pawn simply becomes able to
+  lead. Nothing re-reviews, nothing re-bills.
+- **Jittered edge vs. a hold-space window:** windows bind the
+  *authored* cell bounds; a boundary that jittered late never extends
+  a window, and a co-star release still lands mid-beat-clean.
+- **Blackout spanning a booked window:** the claim holds (§37) —
+  posture-only delivery if routine-fit, `resolved · declined` +
+  refund otherwise.
+- **Week-long blackout:** the press backlog stays held the whole
+  time — the blog's silence is honest, and there is no filler switch.
+- **Degrade hits between screen-pass and activation:** judged at
+  activation (§37) — a pass on a full brain doesn't obligate a
+  degraded one to deliver what it can't.
+
+## 41. What the demo v6 proves
+
+The Understudy v6 adds, on top of v5's seam and ladder proof: the
+surface-fallback panel — every surface's posture (unaffected / hold /
+static) moving with the capacity slider, including the press backlog
+counter holding under degrade and trickling ≤1/daypart after
+recovery; a routine-fit ask on degraded Carmen running posture-only
+with the locked `running` line; an off-routine ask resolving
+`resolved · declined` with the 50% auto-refund; and the day-hash
+jitter shown on each pawn's next cell edge — changing across a +24 h
+step while authored coverage stays contiguous. The claim from §36
+holds end to end: at 0% brain service the product gets quieter, and
+nowhere does it get fake.

@@ -1150,6 +1150,51 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST69)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v69 copy: ${label}`);
+    /* ---- v83 fallback-surface pass ---- */
+    for (const blk of ['surface_fallback', 'requests_under_degrade', 'quiet_week', 'surface_recovery'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v83 block "${blk}" missing`);
+    if (TJ.surface_fallback) {
+      const P = TJ.surface_fallback.postures || {};
+      for (const k of ['unaffected', 'hold', 'static'])
+        if (!Array.isArray(P[k]) || !P[k].length)
+          add(g, 'fail', 'thinai.json', null, `surface_fallback.postures.${k} missing/empty`);
+      if (!/never auto-write|never auto-generate/i.test((P.hold || []).join(' ')))
+        add(g, 'fail', 'thinai.json', null, 'hold posture lost the no-auto-write rule');
+    }
+    if (TJ.requests_under_degrade) {
+      const R = TJ.requests_under_degrade;
+      if (!/routine-fit/.test(R.routine_fit || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade lost the routine-fit gate');
+      if (!/declined/.test(R.decline || '') || !/50%/.test(R.decline || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade decline lost resolved·declined + 50% refund');
+      if (!/unpossessable/.test(R.ban_unchanged || ''))
+        add(g, 'fail', 'thinai.json', null, 'requests_under_degrade lost the possession ban');
+    }
+    if (TJ.quiet_week) {
+      if (TJ.quiet_week.boundary_jitter_min !== 15)
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.boundary_jitter_min drifted from ±15');
+      if (!/deterministic/.test(TJ.quiet_week.day_hash || ''))
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.day_hash lost the deterministic rule');
+      if (!(TJ.quiet_week.never_jittered || []).join(' ').match(/obligation/))
+        add(g, 'fail', 'thinai.json', null, 'quiet_week.never_jittered must protect obligation minutes');
+    }
+    if (TJ.surface_recovery && !/≤1 per daypart|≤1\/daypart/.test(TJ.surface_recovery.press_trickle || ''))
+      add(g, 'fail', 'thinai.json', null, 'surface_recovery lost the ≤1/daypart press trickle');
+    for (const ev of ['req_c6_fit', 'req_c6_off'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v83 surfaces */
+    const MUST83 = [
+      [/rw_thinai_v83/, 'v83 storage key'],
+      [/Surface fallback/i, 'surface-fallback panel'],
+      [/routine-fit/i, 'routine-fit request rule'],
+      [/posture-only/i, 'posture-only accept copy'],
+      [/jitter/i, 'quiet-week jitter copy'],
+      [/pressHeld/, 'held press backlog counter'],
+      [/honest absence beats filler/i, 'no-filler rule']
+    ];
+    for (const [re, label] of MUST83)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v83 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }

@@ -20,7 +20,8 @@
   PT69 + archive v6 shape layer, PT70 + create v77 sketch & seats layer,
   PT71 + mod v78 second-eyes layer, PT72 + harness v76 revisit flags /
   regression view / run sheet, PT73 + onboarding v6 house & other hands,
-  PT74 + lease v82 doorstep & deed layer / lease gate v82).
+  PT74 + lease v82 doorstep & deed layer / lease gate v82,
+  PT75 + thin-AI v83 fallback-surface layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -1659,7 +1660,27 @@ const PTS=[
   ck:["Reversal + capped $25 fee are the only two ledger lines","The state word does not change on return — the ladder is untouched","Nothing posts to the wire"]},
  {do:"Run `node world/audit.js` and read the lease gate.",
   exp:"lease gate passes at 'schema v82 · 13 states · key rw_lease_v82' with the v82 checks green: entry_notices/sale_occupied/renewal/returned_payments blocks, guarantor.release, entry_violation in grounds, own-unit guards on the new licensed tools, recordSale admin-only, and no wires.push inside any file-only handler.",
-  ck:["Gate reports the v82 storage key and 13 states","Feed-only check confirms entry/returned-payment/renewal/release handlers never push wires","A missing myUnit guard on postEntry/markReturned/offerRenewal/guarRelDecide would FAIL — spot-check"]}]}];
+  ck:["Gate reports the v82 storage key and 13 states","Feed-only check confirms entry/returned-payment/renewal/release handlers never push wires","A missing myUnit guard on postEntry/markReturned/offerRenewal/guarRelDecide would FAIL — spot-check"]}]},
+ {id:"PT75",title:"The Understudy v6 — the fallback-surface layer (v83)",min:8,
+ persona:"tester on the internal thin-AI bench — driving capacity, requests, and days to watch surfaces degrade honestly",
+ goal:"Verify the v83 thin-AI pass: every surface declares a fallback posture (unaffected / hold / static) and the panel moves with the capacity slider; a routine-fit ask on a degraded main runs posture-only with the locked 'running' line while an off-routine ask resolves 'resolved · declined' + 50% auto-refund, judged at activation; the press backlog holds under degrade and trickles ≤1/daypart on recovery; and the day-hash jitter shifts each pawn's next cell edge ±≤15 min deterministically while authored coverage stays contiguous.",
+ surfaces:["thinai","audit"],
+ steps:[
+ {do:"Open world/thinai.html, read the Surface fallback panel at 100% service, then click 'Service 55%' and 'Service 0% · blackout' and re-read it.",
+  exp:"The panel lists three postures: unaffected (wire text, status lines, quiet markers, ledgers, owner report, mod queue, bubbles — 'never model text'), hold (Mission Unfiltered), static (briefings card-only, archive threads untitled). Under degrade the hold row flips to 'held · backlog N' and the static rows flip to card-only/untitled. The footer states the matrix is closed and nothing is labeled in-world.",
+  ck:["All three postures render and respond to the capacity slider","The panel states 'honest absence beats filler' and 'nothing is labeled in-world'","No 'the AI is down' surface appears anywhere — the Wire log shows nothing for mode changes"]},
+ {do:"With C6 degraded (Service 55%, stepped until Carmen's badge reads degraded), click 'Ask C6 · routine-fit' while she is on a waking cell, then 'Ask C6 · off-routine'.",
+  exp:"The routine-fit ask posts wire 'request — co-star on Carmen (be-present), 20 min — running' and a seam line naming posture-only accept (presence in place, phrase-kit register, scene-yield still governs, never leads); the window ends mid-beat-clean with nothing persisting. The off-routine ask posts 'resolved · declined (50% auto-refund)' — judged at activation, never parked.",
+  ck:["Wire lines use locked vocabulary only — 'running' and 'resolved · declined', nothing new","Posture-only is explicit in the seam line — never authored dialogue, never leads","While C6 is full both buttons toast that a healthy brain carries the ask normally"]},
+ {do:"Hold service at 0% and step +24 h twice; then restore Service 100% and step +1 h across a daypart boundary.",
+  exp:"Each day boundary under degrade adds 'held press backlog +1' to the seam log and the hold row's backlog count. After recovery, crossing a daypart releases exactly one held post ('≤1/daypart — a returning blogger, not a dump'). Nothing summarizes the outage and no static artifact is rewritten.",
+  ck:["Backlog increments only under degrade and drains at ≤1 per daypart","No recap or backfill line appears on recovery — surfaces resume like pawns do","The compute ledger recorded the outage as thin_min throughout"]},
+ {do:"Note a pawn's 'next edge' jitter line, step +24 h, and compare the same edge next day; check that obligation copy says ledgers don't jitter.",
+  exp:"Each pawn card shows 'next edge HH:MM → ±Nm = HH:MM (day-hash jitter — shared edge…)'. The same edge carries a different ±N on the next day, all within ±15. The surface panel and spec state obligations, cell kinds, and co-star windows never jitter, and authored coverage is what the gate checks.",
+  ck:["Jitter is deterministic (same day → same shift) and bounded ±15 min","The shared-edge rule is stated — both neighbors move, no gap opens","Obligation minutes and cell kinds are listed as never-jittered"]},
+ {do:"Run `node world/audit.js` and read the thinai gate.",
+  exp:"thinai gate passes at 'schema v83 · 4 pawns · key rw_thinai_v83' with the v83 checks green: surface_fallback/requests_under_degrade/quiet_week/surface_recovery blocks, closed posture matrix, routine-fit + decline vocabulary, ±15 jitter bound, ≤1/daypart trickle, demo events req_c6_fit/req_c6_off, and the html mirror strings.",
+  ck:["Gate reports schema v83 and the rw_thinai_v83 key","A missing v83 block or an off-vocabulary wire line would FAIL — spot-check one","Prior gates (coverage, flap guard, rotation, ask classes) still pass unchanged"]}]}];
 
 
 /* ---- state ---- */

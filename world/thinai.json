@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 69,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 83,
   "brain_modes": {
     "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
     "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
@@ -263,14 +263,61 @@
       { "h0": 16,   "h1": 24,   "state": "work",  "where": "Taqueria El Farolote — the line" } ],
       "degrade_reflexes": ["supplier loop keeps to awnings in rain — the 3 p.m. coffee never moves"] }
   },
+  "surface_fallback": {
+    "doc": "v83 — every spectator/player-facing surface declares its posture at 0% brain service: template vocabulary, authored backlog, or honest absence. The matrix is closed — 'the model writes it and there is no fallback' is not an allowed answer. Never labeled in-world; there is no 'the AI is down' surface anywhere.",
+    "postures": {
+      "unaffected": [
+        "wire event text — feed.json event_kinds is a fixed template vocabulary, never model text",
+        "request status lines — locked vocabulary",
+        "quiet honest-empty markers — daypart table",
+        "ledgers / owner report / mod queue copy — canned wording + reason codes",
+        "speech bubbles — the phrase kit is already the whole register"
+      ],
+      "hold": [
+        "Mission Unfiltered posts (press) — authored releases; the blog goes quiet, held posts trickle back ≤1/daypart on recovery; never auto-write a post"
+      ],
+      "static": [
+        "character briefings — the static card ships alone (public profile + surface relationships + routine is the whole contract); a shorter card, never an apology",
+        "archive thread labels — the day archives with untitled threads; labels are chrome, never narration"
+      ]
+    },
+    "rule": "honest absence beats filler — a held press day and an untitled thread read as ordinary quiet; a fake post would be a fabricated claim about the world"
+  },
+  "requests_under_degrade": {
+    "doc": "v83 — a screened request on a degraded main resolves through the co-star ask-class taxonomy plus the routine-fit gate (§37)",
+    "routine_fit": "the routine-fit gate — accept iff the ask maps to an ask-class AND its venue+window sit inside the main's current or next public-routine cell (main_routines registry) → runs posture-only: presence in place, phrase-kit register, scene-yield still governs, never authored dialogue, never leads",
+    "decline": "anything else resolves 'resolved · declined' + 50% auto-refund — off-routine venue, window outside the cell, any ask needing dialogue or a carried scene; sell the ask, refund the miss",
+    "review_at": "activation — a queued request is judged against the current posture, never parked hoping the service recovers; if the main recovers first the normal full-brain path applies",
+    "booked_windows": "still bind — posture-only delivery if routine-fit, decline at activation otherwise",
+    "at_zero_pct": "every main is in this posture — the request product shrinks to 'be where they already were'; the Wire's vocabulary never grows to describe it",
+    "ban_unchanged": "mains remain unpossessable — degrade changes the brain, never the ban"
+  },
+  "quiet_week": {
+    "doc": "v83 — deterministic day-hash variety so a multi-day outage isn't frame-identical days (§38)",
+    "day_hash": "H = hash(day_index, char_id) — deterministic; every client computes the same block; never random, never per-viewer",
+    "boundary_jitter_min": 15,
+    "jitter_rule": "a cell edge shifts ±≤15 min applied to the shared boundary — both neighbors move together; coverage stays contiguous; the authored card remains the contract",
+    "stop_rotation": "multi-stop cells rotate visit order by H mod len(stops) — same errands, different order",
+    "never_jittered": ["scheduled-obligation minutes (ledgers don't jitter)", "cell kind (a sleep edge can't become a work edge)", "co-star window bounds (windows bind the authored cell)", "anything a reflex or ask-class keys on"],
+    "stacking": "ambients: jitter applies over whichever row set resolved; mains: jitter applies to the main_routines registry rows; the coverage gate checks authored 0–24 coverage — jitter can never produce a partial day",
+    "honesty": "jitter is honesty, not a variety promise — an identical stop order two days running is allowed"
+  },
+  "surface_recovery": {
+    "doc": "v83 — surfaces resume like pawns do (§29): inheriting the day, never announcing the return",
+    "no_recap": "nothing summarizes what thin did — thin days are real days; the Wire and the Archive already carry them",
+    "no_backfill": "static-fallback artifacts (untitled threads, card-only briefings) are never rewritten after the fact — a day archived quiet stays archived quiet",
+    "press_trickle": "held Mission Unfiltered posts release ≤1 per daypart on recovery — a returning blogger, not a content dump",
+    "briefings": "fresh prose resumes on the next pull; nothing annotates the gap",
+    "audit_trail": "the compute ledger records the outage honestly — thin_min days are the internal record the feed never shows"
+  },
   "demo": {
-    "storage_key": "rw_thinai_v69",
+    "storage_key": "rw_thinai_v83",
     "pawns": [
       { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
       { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
       { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" },
       { "id": "C6",  "name": "Carmen", "kind": "main", "modes": ["full", "degraded"], "venue": "her stoop / her palm / home" }
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "service_100", "service_70", "service_60", "service_55", "service_30", "service_0", "scene_c6", "corrupt_c6", "reset"]
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "req_c6_fit", "req_c6_off", "service_100", "service_70", "service_60", "service_55", "service_30", "service_0", "scene_c6", "corrupt_c6", "reset"]
   }
 }

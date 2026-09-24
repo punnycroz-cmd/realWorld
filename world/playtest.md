@@ -168,6 +168,11 @@ One person can wear every hat; four real testers is the intended shape.
   file-only docs, sale-with-tenant carryover, the months-10–12 renewal
   window, returned payments that leave the ladder untouched, and the
   guarantor release request/decide pair.
+  PT75 (thin-AI v83) audits the fallback-surface layer — the closed
+  posture matrix (unaffected/hold/static), routine-fit vs off-routine
+  asks on a degraded main with locked vocabulary, the held press
+  backlog and its ≤1/daypart recovery trickle, and the deterministic
+  ±15-min day-hash jitter on cell edges.
 
 ## 3. Running a session
 
