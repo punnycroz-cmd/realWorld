@@ -36,9 +36,21 @@ function updateHUD(){
 
   const isCtrl = (v === VILLAGERS[controlledPawnIdx]);
   const badge = document.getElementById('pi-badge');
-  badge.textContent = isCtrl ? 'Controlled' : 'Autonomous AI';
-  badge.className = isCtrl ? 'pi-badge controlled' : 'pi-badge';
-  document.getElementById('btn-toggle-ctrl').textContent = isCtrl ? 'Release to AI' : 'Take Control';
+  const SF_UI = typeof SF_MODE !== 'undefined' && SF_MODE;
+  if(SF_UI){
+    // v54: spectator vocabulary — cast status, never "Controlled"
+    const isMain = /^C[1-8]$/.test(v._castId || '');
+    badge.textContent = isMain ? '🔒 MAIN CAST' : 'RESIDENT';
+    badge.className = isMain ? 'pi-badge controlled' : 'pi-badge';
+    badge.title = 'AI-driven — nobody can possess this character';
+  } else {
+    badge.textContent = isCtrl ? 'Controlled' : 'Autonomous AI';
+    badge.className = isCtrl ? 'pi-badge controlled' : 'pi-badge';
+    badge.title = '';
+  }
+  const tglBtn = document.getElementById('btn-toggle-ctrl');
+  if(SF_UI){ if(tglBtn) tglBtn.style.display = 'none'; }
+  else if(tglBtn) tglBtn.textContent = isCtrl ? 'Release to AI' : 'Take Control';
 
   // Swimming trait badge
   const sBadge = document.getElementById('pi-swim-badge');
@@ -54,13 +66,33 @@ function updateHUD(){
 
   // Live status label
   let actStr = 'Resting peacefully';
-  if(v.state === 'drown_panic') actStr = '🚨 DROWNING! Panicking in deep water - cannot swim!';
-  else if(v.state === 'swim') actStr = 'Swimming gracefully across deep lake';
-  else if(v.state === 'wade') actStr = 'Wading in refreshing lake shallows';
-  else if(v.state === 'work') actStr = `Working diligently (${(v.workProgress*100).toFixed(0)}%)`;
-  else if(v.state === 'walk') actStr = 'Walking down village path';
-  else if(v.state === 'sleep') actStr = 'Sleeping soundly in bed';
-  else if(v.body && v.body.hydration < 0.25) actStr = 'Looking for water to drink';
+  if(SF_UI){
+    /* v54: honest labels — the old default called every unlisted state
+       "Resting peacefully", so a barista mid-conversation read as asleep.
+       In the Mission shell every state gets its own line and the
+       fallback implies nothing. */
+    const SF_ACT = {
+      idle: 'Between things', rest: 'Taking a breather',
+      talk: 'In conversation', sit: 'Sitting', serve: 'Serving customers',
+      carry: 'Carrying supplies', eat: 'Eating', drink: 'Getting a drink',
+      phone: 'On the phone', move: 'On the move',
+      walk: 'Walking the block',
+      work: `Working a shift (${(v.workProgress*100).toFixed(0)}%)`,
+      sleep: 'Asleep',
+      swim: 'Swimming', wade: 'Wading',
+      drown_panic: '🚨 DROWNING! Panicking in deep water - cannot swim!',
+    };
+    actStr = SF_ACT[v.state] ||
+      (v.body && v.body.hydration < 0.25 ? 'Looking for water' : 'Out and about');
+  } else {
+    if(v.state === 'drown_panic') actStr = '🚨 DROWNING! Panicking in deep water - cannot swim!';
+    else if(v.state === 'swim') actStr = 'Swimming gracefully across deep lake';
+    else if(v.state === 'wade') actStr = 'Wading in refreshing lake shallows';
+    else if(v.state === 'work') actStr = `Working diligently (${(v.workProgress*100).toFixed(0)}%)`;
+    else if(v.state === 'walk') actStr = 'Walking down village path';
+    else if(v.state === 'sleep') actStr = 'Sleeping soundly in bed';
+    else if(v.body && v.body.hydration < 0.25) actStr = 'Looking for water to drink';
+  }
   document.getElementById('pi-act-label').textContent = actStr;
 
   // Real-time biological meters

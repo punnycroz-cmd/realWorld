@@ -288,10 +288,11 @@ function sfLobeCaps(g, blobs, col){
   for(const [bx, by, rx, ry] of blobs)
     paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, col);
 }
-function sfLeafyTree(v){
+function sfLeafyTree(v, lf, ld){
   // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // under-canopy occlusion mass (keeps the core deep)
   const blobs = SF_CROWN.tree[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
@@ -518,6 +519,67 @@ function sfPlanterSpr(){
     paBlob(g, bx, by, 1.1, c);
   return s;
 }
+/* ---- v59: Mission garden palette — agave rosettes + echium spires.
+   The neighborhood's signature succulent planting: century-plant
+   rosettes ringing the Dolores palms, Pride of Madeira towers in the
+   border beds. Both drought plants — they read SF, not generic park. */
+function sfAgaveSpr(v){
+  // century plant from above: a star of thick tapered leaves, pale
+  // margins, dark terminal spines. v1 = variegated 'marginata'.
+  const s = paMk(40, 34), g = s.g;
+  const lf = rampOf(v === 0 ? '#5f9089' : '#6fa08a');
+  const marg = v === 0 ? '#a8ccc0' : '#e8d88a';
+  paEllipse(g, 20, 26, 15, 5, 'rgba(24,18,10,0.28)');   // sit shadow
+  paEllipse(g, 20, 25, 13, 4.4, MAT.dirt[2]);          // mulch collar
+  paNoise(g, 8, 22, 24, 6, [MAT.dirt[0], MAT.dirt[3]], 0.3, 5700 + v);
+  const cx = 20, cy = 16;
+  for(let f = 0; f < 11; f++){
+    const ang = -Math.PI * 0.08 - f * (Math.PI * 2 / 11) +
+                (phash(f, v, 5701) - 0.5) * 0.22;
+    const len = 9 + phash(f, v, 5702) * 5 - (f % 3);
+    const dx = Math.cos(ang), dy = Math.sin(ang);
+    for(let k = 1; k <= len; k++){
+      const px = cx + dx * k, py = cy + dy * k * 0.62 + k * k * 0.02;
+      const wpx = Math.max(0.6, 2.4 - k * 0.16);       // leaf tapers out
+      const cc = k > len - 2 ? '#2e4038'               // dark spine tip
+               : (k % 2 ? lf[3] : lf[2]);
+      paEllipse(g, px, py, wpx, Math.max(0.7, wpx * 0.55), cc);
+      if(k > 1 && k < len - 1)                          // pale margin
+        paPX(g, Math.round(px - dy * wpx), Math.round(py + dx * wpx * 0.5), marg);
+    }
+    paPX(g, Math.round(cx + dx * (len + 1)),           // terminal spine
+           Math.round(cy + dy * (len + 1) * 0.62 + len * len * 0.02), '#24352e');
+  }
+  paBlob(g, cx, cy + 1, 3.2, lf[1]);                    // dark heart
+  paPX(g, cx - 1, cy, lf[5]); paPX(g, cx + 1, cy, lf[4]);
+  return s;
+}
+function sfEchiumSpr(v){
+  // Pride of Madeira: silvery leaf mound carrying upright violet flower
+  // cones — the purple candles that stripe Mission gardens April-June,
+  // browning to seed heads through September (v1 = seed-spent).
+  const s = paMk(36, 40), g = s.g;
+  const lf = rampOf('#7a9a72'), ld = rampOf('#4a6a46');
+  paEllipse(g, 18, 34, 14, 4, 'rgba(24,18,10,0.28)');
+  paEllipse(g, 18, 30, 13, 6, ld[1]);
+  sfLeafCanopy(g, 18, 29, 12, 5.5, 5710 + v, lf, ld, { n: 40 });
+  // flower cones — dense speckled spikes rising off the mound
+  const cols = v === 0 ? ['#8a5ad0', '#a878e8', '#6a42b0', '#c098f0']
+                       : ['#8a6a50', '#a8845e', '#6a5038', '#c0a078'];
+  const spikes = [[13, 20, 9], [20, 16, 12], [26, 21, 8]];
+  for(let si = 0; si < spikes.length; si++){
+    const [bx, by, hh] = spikes[si];
+    for(let k = 0; k < hh; k++){
+      const wpx = Math.max(0.8, 2.8 * (1 - k / hh));   // cone taper
+      paEllipse(g, bx + Math.round((phash(k, si, 5711) - 0.5)),
+                by - k, wpx, Math.max(0.8, wpx * 0.7),
+                cols[(k + si) % cols.length]);
+      if(k % 2 === 0) paPX(g, Math.round(bx - wpx), by - k, '#e8e0f8');
+    }
+    paPX(g, bx, by - hh, cols[1]);                      // lit tip
+  }
+  return s;
+}
 /* ---- v31: URBAN FOREST — elevation vegetation + park canopy masses ----
    sfBigTreeSpr: 128px park-scale crown (~8m at 16px/m) — the broad
    multi-lobed canopies Dolores Park actually carries, built from the
@@ -525,9 +587,10 @@ function sfPlanterSpr(){
    sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
    trunk rising into real crown architecture, instead of the top-down
    crown sprite pasted upright (which read as a green balloon). */
-function sfBigTreeSpr(v){
+function sfBigTreeSpr(v, lf, ld){
   const s = paMk(128, 120), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
   const blobs = SF_CROWN.big[v].lobes;
   for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
@@ -555,12 +618,12 @@ function sfSideCrown(g, blobs, seed, lf, ld){
                  { n: Math.round(rx * ry * 1.7) });
   }
 }
-function sfVegSideSpr(kind, v){
+function sfVegSideSpr(kind, v, lf0, ld0){
   if(kind === 'tree'){
     // park / OSM broadleaf seen from the sidewalk: real trunk into a
     // layered crown (~7-9m tall at draw scale)
     const s = paMk(110, 175), g = s.g;
-    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    const tr = MAT.trunk, lf = lf0 || MAT.leaf, ld = ld0 || MAT.leafDeep;
     // tapered trunk + scaffold limbs
     for(let y = 0; y < 78; y++){
       const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
@@ -635,6 +698,55 @@ function sfVegSideSpr(kind, v){
         }
       }
       paPX(g, Math.round(tx + fx * len), Math.round(ty + fy * len * 0.55 + len * len * 0.05), lf[5]);
+    }
+    return s;
+  }
+  if(kind === 'agave'){
+    // century plant in profile: stiff tapered leaves cupped upward from
+    // a ground rosette, pale margins, needle tips
+    const s = paMk(56, 46), g = s.g;
+    const lf = rampOf(v === 0 ? '#5f9089' : '#6fa08a');
+    const marg = v === 0 ? '#a8ccc0' : '#e8d88a';
+    paEllipse(g, 28, 43, 20, 3, 'rgba(24,18,10,0.3)');
+    paEllipse(g, 28, 42, 17, 2.6, MAT.dirt[2]);
+    for(let f = 0; f < 9; f++){
+      const sp = (f - 4) / 4;                          // -1..1 spread
+      const len = 26 - Math.abs(sp) * 12 + phash(f, v, 5720) * 4;
+      for(let k = 0; k < len; k++){
+        const t = k / len;
+        const px = 28 + sp * (4 + t * 14), py = 42 - k * (1 - Math.abs(sp) * 0.28);
+        const wpx = Math.max(0.7, 2.6 * (1 - t) + 0.4);
+        paEllipse(g, px, py, wpx, 1.1, k > len - 3 ? '#2e4038' : (k % 2 ? lf[3] : lf[2]));
+        if(k > 2 && k < len - 2 && k % 2 === 0)
+          paPX(g, Math.round(px - wpx), Math.round(py), marg);
+      }
+      paPX(g, Math.round(28 + sp * 18), Math.round(42 - len * (1 - Math.abs(sp) * 0.28)), '#24352e');
+    }
+    paBlob(g, 28, 40, 4, lf[1]);
+    return s;
+  }
+  if(kind === 'echium'){
+    // Pride of Madeira in profile: silvery leaf mound + tall violet
+    // flower candles — the unmistakable Mission-garden vertical
+    const s = paMk(48, 110), g = s.g;
+    const lf = rampOf('#7a9a72'), ld = rampOf('#4a6a46');
+    paEllipse(g, 24, 106, 18, 3, 'rgba(24,18,10,0.3)');
+    paEllipse(g, 24, 100, 15, 8, ld[1]);
+    sfLeafCanopy(g, 24, 98, 14, 7, 5725 + v, lf, ld, { n: 46 });
+    const cols = v === 0 ? ['#8a5ad0', '#a878e8', '#6a42b0', '#c098f0']
+                         : ['#8a6a50', '#a8845e', '#6a5038', '#c0a078'];
+    const spikes = [[15, 40], [25, 26], [34, 48]];
+    for(let si = 0; si < spikes.length; si++){
+      const [bx, top] = spikes[si];
+      const hh = 96 - top;
+      for(let k = 0; k < hh; k += 1.4){
+        const t = k / hh, wpx = Math.max(0.9, 3.2 * (1 - t));
+        paEllipse(g, bx + (phash(k, si, 5726) - 0.5) * 1.6, 96 - k,
+                  wpx, 1.5, cols[(Math.floor(k) + si) % cols.length]);
+        if(Math.floor(k) % 3 === 0)
+          paPX(g, Math.round(bx - wpx), Math.round(96 - k), '#e8e0f8');
+      }
+      paPX(g, bx, top, cols[1]);
     }
     return s;
   }
@@ -741,9 +853,370 @@ function sfPoleSpr(dir){
   else { paR(g, 2, 6, 10, 2, wd[2]); paPX(g, 2, 6, wd[0]); paPX(g, 11, 6, wd[0]); }
   return s;
 }
+/* ---- v53 street furniture: the small iron-and-concrete layer every
+   real Mission sidewalk carries. Plan-view sprites; the street camera
+   draws the same objects as projected 3-D miniatures in
+   sfStreetFurniture() (32_sf_render) so neither view floats them. ---- */
+/* SF fire hydrant — the low-pressure white body with its domed bonnet
+   and twin side caps. v=1 paints it gold: the one at 20th & Church is
+   repainted every April 18, so a rare golden hydrant lives on the
+   Dolores-corner cells. */
+function sfHydrantSpr(v){
+  const s = paMk(14, 18), g = s.g;
+  const C = v === 1 ? rampOf('#d8a824') : rampOf('#e8e4da');
+  const D = v === 1 ? rampOf('#9a7014') : rampOf('#b0aca0');
+  paEllipse(g, 7, 15.5, 5.5, 1.8, 'rgba(24,18,10,0.3)');
+  paR(g, 4, 6, 6, 9, C[3]);                       // barrel
+  paR(g, 4, 6, 2, 9, C[4]);                       // sun-side barrel light
+  paR(g, 8, 6, 2, 9, D[2]);                       // lee side
+  paEllipse(g, 7, 6, 3.4, 2.6, C[4]);             // bonnet dome
+  paPX(g, 7, 3, C[5]); paPX(g, 6, 4, C[5]);
+  paR(g, 2, 8, 2, 3, D[1]); paR(g, 10, 8, 2, 3, D[1]); // side caps
+  paPX(g, 2, 8, C[4]); paPX(g, 11, 8, C[4]);
+  paR(g, 3, 14, 8, 2, D[1]);                      // flange base
+  paR(g, 5, 16, 4, 1, D[0]);
+  return s;
+}
+/* SF corner litter basket — the dark green drum on a concrete foot,
+   black liner lip over the rim. */
+function sfTrashCanSpr(){
+  const s = paMk(14, 18), g = s.g;
+  const G = rampOf('#2e4632'), K = rampOf('#161a14');
+  paEllipse(g, 7, 15.5, 5.5, 2, 'rgba(24,18,10,0.3)');
+  paR(g, 3, 5, 8, 10, G[2]);
+  paR(g, 3, 5, 3, 10, G[3]);
+  paR(g, 9, 5, 2, 10, G[1]);
+  paEllipse(g, 7, 5, 4.4, 2.2, K[3]);             // open black mouth
+  paEllipse(g, 7, 5, 4.4, 1.1, K[1]);
+  paR(g, 3, 7, 8, 1, G[0]);                       // strap band
+  paR(g, 4, 15, 6, 1, G[0]);                      // foot
+  paPX(g, 4, 6, G[4]); paPX(g, 5, 9, G[3]);
+  return s;
+}
+/* News boxes — the row of chained single-sheet boxes real corners hold.
+   v picks 1-3 boxes and their parody-press colors. */
+function sfNewsBoxSpr(v){
+  const s = paMk(30, 18), g = s.g;
+  const cols = [rampOf('#d8b828'), rampOf('#b03030'), rampOf('#2a6a7a'),
+                rampOf('#e8e4da')];
+  paEllipse(g, 15, 16, 13, 1.6, 'rgba(24,18,10,0.3)');
+  const n = 1 + (v % 3);
+  for(let i = 0; i < n; i++){
+    const C = cols[(v + i) % cols.length];
+    const x = 3 + i * 9;
+    paR(g, x, 4, 8, 11, C[2]);                    // body
+    paR(g, x, 4, 8, 3, C[3]);                     // lid
+    paR(g, x + 1, 8, 6, 5, rampOf('#3a4a55')[1]); // window
+    paR(g, x + 1, 8, 6, 1, '#e8e4da');            // paper stack edge
+    paR(g, x, 15, 8, 1, '#22201c');               // feet
+    paPX(g, x + 1, 4, C[5]);
+  }
+  return s;
+}
+/* Sidewalk bike rack — inverted-U hoops with real bikes locked on.
+   Plan view: thin tire ellipses, triangle frames, seat/handlebar ticks. */
+function sfBikeRackSpr(v){
+  const s = paMk(36, 20), g = s.g;
+  const ir = rampOf('#3c4044');
+  const bikeCols = [rampOf('#a03838'), rampOf('#3a5a8a'), rampOf('#e0d8c8'),
+                    rampOf('#4a6a44')];
+  paEllipse(g, 18, 17.5, 16, 1.8, 'rgba(24,18,10,0.28)');
+  const nBike = v === 2 ? 2 : 1;
+  // hoops behind the bikes
+  for(const hx of [8, 20]){
+    paR(g, hx, 5, 2, 9, ir[1]);
+    paR(g, hx, 5, 6, 2, ir[2]);
+    paR(g, hx + 4, 5, 2, 9, ir[1]);
+    paPX(g, hx, 5, ir[4]); paPX(g, hx + 4, 5, ir[4]);
+  }
+  for(let b = 0; b < nBike; b++){
+    const C = bikeCols[(v * 2 + b) % bikeCols.length];
+    const oy = b * 8;
+    // wheels: thin ellipses
+    for(const wx of [9 + b * 10, 21 + b * 10]){
+      paEllipse(g, wx, 12 + oy, 4, 2.4, '#1c1a18');
+      paEllipse(g, wx, 12 + oy, 2.8, 1.4, rampOf('#565a63')[3]);
+    }
+    // frame triangle + seat + bars
+    paLine(g, 9 + b * 10, 12 + oy, 15 + b * 10, 6 + oy, C[3]);
+    paLine(g, 15 + b * 10, 6 + oy, 21 + b * 10, 12 + oy, C[3]);
+    paLine(g, 9 + b * 10, 12 + oy, 21 + b * 10, 12 + oy, C[2]);
+    paPX(g, 14 + b * 10, 5 + oy, '#1c1a18');
+    paLine(g, 21 + b * 10, 12 + oy, 23 + b * 10, 7 + oy, '#2a2c30');
+    paPX(g, 24 + b * 10, 7 + oy, '#1c1a18');
+  }
+  return s;
+}
+/* ---- v65 streetrooms ----
+   sfParkletSpr(dir, v) — plan view of the curb-lane deck every Mission
+   cafe claims under the parklet program: a cedar platform ~5.2x1.8m
+   ringed by a steel rail on the traffic sides, planter boxes on the
+   ends, and furniture that varies by variant (v0 two cafe tables,
+   v1 umbrella + table, v2 bench + planter). dir 0 = E-W street. */
+function sfParkletSpr(dir, v){
+  const w = dir === 0 ? 88 : 32, h = dir === 0 ? 32 : 88;
+  const s = paMk(w, h), g = s.g;
+  const WD = rampOf('#9a7a50'), IR = rampOf('#34383c'),
+        PL = rampOf('#5a4a34'), LF = rampOf('#4a7a3a');
+  const L = dir === 0 ? w : h;
+  // soft under-shadow pad
+  paEllipse(g, w / 2, h / 2 + 1, w * 0.48, h * 0.44, 'rgba(20,16,10,0.25)');
+  // deck boards: base + seams across the short axis + sun/weather strips
+  paR(g, 2, 2, w - 4, h - 4, WD[3]);
+  for(let k = 8; k < L - 4; k += 7){
+    if(dir === 0) paR(g, k, 3, 1, h - 6, WD[1]);
+    else paR(g, 3, k, w - 6, 1, WD[1]);
+  }
+  if(dir === 0){ paR(g, 2, 2, w - 4, 2, WD[4]); paR(g, 2, h - 5, w - 4, 3, WD[1]); }
+  else { paR(g, 2, 2, 2, h - 4, WD[4]); paR(g, w - 5, 2, 3, h - 4, WD[1]); }
+  // perimeter rail: posts + rails on both long edges and the ends —
+  // reads as the dark frame that keeps the deck honest to the lane
+  if(dir === 0){
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < w - 6; k += 12){
+      paPX(g, k, 2, IR[0]); paPX(g, k, h - 3, IR[0]);
+    }
+  } else {
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < h - 6; k += 12){
+      paPX(g, 2, k, IR[0]); paPX(g, w - 3, k, IR[0]);
+    }
+  }
+  // planter boxes anchoring the ends — soil + leaf tufts
+  const bx = dir === 0 ? 4 : w / 2 - 5, by = dir === 0 ? h / 2 - 5 : 4;
+  for(const e of [0, 1]){
+    const px2 = bx + (dir === 0 ? e * (w - 18) : 0),
+          py2 = by + (dir === 0 ? 0 : e * (h - 18));
+    paR(g, px2, py2, 10, 10, PL[2]);
+    paR(g, px2 + 1, py2 + 1, 8, 8, '#2c2418');
+    for(let m = 0; m < 4; m++)
+      paPX(g, px2 + 2 + (m * 3) % 7, py2 + 2 + (m * 5) % 6, LF[m % 2 ? 3 : 4]);
+  }
+  // furniture by variant
+  const cx = w / 2, cy = h / 2;
+  if(v === 1){
+    // umbrella: canopy disc + pole pixel, warm canvas against the deck
+    const UC = rampOf('#b8542e');
+    paEllipse(g, cx, cy, 9, 7, UC[2]);
+    paEllipse(g, cx - 2, cy - 2, 5, 4, UC[3]);
+    paEllipse(g, cx, cy, 3.5, 2.6, UC[4]);
+    paPX(g, cx, cy, '#241c12');
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              4, 3, '#26221c');   // second table
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              3, 2.2, '#8a8074');
+  } else if(v === 2){
+    // bench along one edge + extra green trough
+    if(dir === 0){
+      paR(g, cx - 14, cy - 2, 28, 4, PL[3]); paR(g, cx - 14, cy - 2, 28, 1, PL[4]);
+      paR(g, cx - 14, cy + 6, 28, 4, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx - 12 + m * 5, cy + 7, LF[3 + (m & 1)]);
+    } else {
+      paR(g, cx - 2, cy - 14, 4, 28, PL[3]); paR(g, cx - 2, cy - 14, 1, 28, PL[4]);
+      paR(g, cx + 6, cy - 14, 4, 28, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx + 7, cy - 12 + m * 5, LF[3 + (m & 1)]);
+    }
+  } else {
+    // two cafe tables + chair ticks
+    for(const e of [-1, 1]){
+      const tx = cx + e * 14 * (dir === 0 ? 1 : 0),
+            ty = cy + e * 14 * (dir === 0 ? 0 : 1);
+      paEllipse(g, tx, ty, 4.5, 3.4, '#26221c');
+      paEllipse(g, tx, ty, 3.4, 2.5, '#a8988a');
+      paPX(g, tx, ty, '#3a342c');
+      if(dir === 0){ paR(g, tx - 1, ty - 6, 2, 3, '#4a4640'); paR(g, tx - 1, ty + 4, 2, 3, '#4a4640'); }
+      else { paR(g, tx - 6, ty - 1, 3, 2, '#4a4640'); paR(g, tx + 4, ty - 1, 3, 2, '#4a4640'); }
+    }
+  }
+  return s;
+}
+/* sfBinsSpr(dir) — the Recology three-cart row every SF frontage puts
+   out on pickup morning: recycle blue, compost green, landfill black,
+   lids shut, wheels toward the curb. Plan view, row along the axis. */
+function sfBinsSpr(dir){
+  const s = paMk(dir === 0 ? 26 : 12, dir === 0 ? 12 : 26), g = s.g;
+  const cols = ['#3a68b0', '#4e7a3a', '#2e2c28'];
+  for(let i = 0; i < 3; i++){
+    const x = dir === 0 ? 1 + i * 8 : 2, y = dir === 0 ? 2 : 1 + i * 8;
+    paR(g, x, y, 7, 9, shade(cols[i], 0.9));
+    paR(g, x, y, 7, 2, shade(cols[i], 1.15));          // lid lip
+    paR(g, x, y + 7, 7, 2, shade(cols[i], 0.6));       // wheel shadow
+    paPX(g, x + 1, y + 1, shade(cols[i], 1.3));
+  }
+  return s;
+}
+/* Dolores picnic blanket — the park's true ground cover. 2.2x2.8m cloth
+   anchored to the lawn: gingham / stripes / solids, a corner cooler,
+   tote bag, and 0-2 reclining sunbathers drawn as plan-view figures. */
+const SF_BLANKET_COLS = [
+  { base: '#d84c44', pat: 'gingham' }, { base: '#2e8aa8', pat: 'stripe' },
+  { base: '#e0b23a', pat: 'solid' },   { base: '#8a5ab8', pat: 'gingham' },
+  { base: '#f0e8da', pat: 'stripe' },  { base: '#3f8a52', pat: 'solid' }];
+const SF_SKIN = ['#e8c8a0', '#c89868', '#8a6248', '#f0d8b8', '#6e4a32'];
+const SF_SHIRT = ['#d85040', '#4a7ab0', '#e8e0d0', '#e0a030', '#5a8a5a',
+                  '#30343c', '#c878a0'];
+function sfBlanketSpr(v){
+  const s = paMk(38, 46), g = s.g;
+  const B = SF_BLANKET_COLS[v % SF_BLANKET_COLS.length];
+  const C = rampOf(B.base);
+  // soft under-shadow + cloth with slightly ragged edge
+  paEllipse(g, 19, 24, 18, 21, 'rgba(20,30,14,0.18)');
+  paR(g, 3, 4, 32, 38, C[3]);
+  paR(g, 3, 4, 32, 2, C[4]); paR(g, 3, 4, 2, 38, C[4]);
+  paR(g, 3, 40, 32, 2, C[2]); paR(g, 33, 4, 2, 38, C[2]);
+  if(B.pat === 'gingham'){
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 3, C[2]);
+      paR(g, 7 + k * 7, 4, 3, 38, C[2]);
+    }
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 1, C[5]);
+      paR(g, 7 + k * 7, 4, 1, 38, C[5]);
+    }
+  } else if(B.pat === 'stripe'){
+    for(let k = 0; k < 4; k++) paR(g, 3, 8 + k * 10, 32, 4, C[2]);
+    paR(g, 3, 4, 32, 3, C[5]);
+  } else {
+    paR(g, 8, 9, 22, 28, C[2]); paR(g, 10, 11, 18, 24, C[3]);
+  }
+  paNoise(g, 3, 4, 32, 38, [C[2], C[4]], 0.08, 5300 + v);
+  // cooler box on a corner + a tote slumped beside it
+  const cool = rampOf('#d8d8e0'), tote = rampOf(SF_SHIRT[(v + 3) % SF_SHIRT.length]);
+  paR(g, 26, 34, 8, 7, cool[3]); paR(g, 26, 34, 8, 2, cool[5]);
+  paPX(g, 29, 37, cool[1]);
+  paR(g, 5, 34, 6, 6, tote[2]); paEllipse(g, 8, 34, 3, 2, tote[3]);
+  // sunbathers: head + torso + kicked-out legs, all inside the cloth
+  const nP = phash(v, 3, 5310) < 0.3 ? 0 : (phash(v, 5, 5311) < 0.55 ? 1 : 2);
+  for(let p = 0; p < nP; p++){
+    const px = 10 + p * 12 + Math.floor(phash(v, p, 5312) * 3),
+          py = 12 + Math.floor(phash(p, v, 5313) * 4);
+    const skin = rampOf(SF_SKIN[(v + p) % SF_SKIN.length]);
+    const shirt = rampOf(SF_SHIRT[(v + p * 2) % SF_SHIRT.length]);
+    const prone = phash(v, p, 5314) < 0.5;      // belly-down sunning
+    paEllipse(g, px, py + 8, 4.4, 6.5, prone ? skin[3] : shirt[3]); // torso
+    paEllipse(g, px, py + 8, 4.4, 2, prone ? skin[2] : shirt[2]);
+    paBlob(g, px, py + 1, 3.1, skin[2]);                          // head
+    paPX(g, px - 1, py, skin[4]); paPX(g, px + 1, py, skin[4]);
+    paBlob(g, px, py - 1, 1.6, '#2c2018');                        // hair
+    // legs trail toward the bottom of the cloth
+    paLine(g, px - 2, py + 13, px - 3, py + 19, skin[3]);
+    paLine(g, px + 2, py + 13, px + 3, py + 18, skin[3]);
+    paPX(g, px - 3, py + 20, skin[2]); paPX(g, px + 3, py + 19, skin[2]);
+    if(phash(v, p, 5315) < 0.4){ // book or phone held over the face
+      paR(g, px - 2, py - 4, 4, 3, '#e8e4da'); paPX(g, px, py - 4, '#8a2c2c');
+    }
+  }
+  return s;
+}
+/* ---- v66: THE GENETIC CANOPY — no two park trees share a silhouette.
+   sfCrownGen composes a unique lobe skeleton per genome (a dominant
+   leader, a jittered ring of satellites, a low skirt); sfCrownBake
+   draws each through the same leaf-cluster engine. Sixteen genomes bake
+   per (size × turn state) at boot, and a per-instance mirror flip keyed
+   on the tree's own hash doubles the silhouettes. Autumn now turns
+   LOBES, not trees — a turning crown carries green/gold/rust patches at
+   once the way real liquidambars do, and turned lobes bake slightly
+   deflated (shedding). The shadow pass re-reads the SAME generated
+   lobes (sfCrownSpec in 32_sf_render), so ground shade stays
+   crown-true. */
+const SF_FALL = [
+  [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
+  [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
+  [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+const SF_GREEN_SET = [
+  [MAT.leaf, MAT.leafDeep],
+  [rampOf('#6a8a3e'), rampOf('#3e5a26')],   // olive
+  [rampOf('#4a7c34'), rampOf('#2c5222')],   // deep laurel
+  [rampOf('#7fa248'), rampOf('#4a6c2e')]];  // bright new growth
+function sfCrownGen(big, vi, turn){
+  const W0 = big ? 128 : 56, H0 = big ? 120 : 64;
+  const seed = (big ? 6100 : 6000) + vi * 97 + turn * 31;
+  const cx = W0 / 2, cy = big ? 56 : 27;
+  const lobes = [];
+  const push = (x, y, rx, ry) => {
+    const t2 = turn ? (phash(lobes.length, seed, 9) < 0.74 ? 1 : 0) : 0;
+    lobes.push([Math.max(rx + 2, Math.min(W0 - rx - 2, x)),
+                Math.max(ry + 2, Math.min(big ? 96 : 52, y)), rx, ry, t2]);
+  };
+  // dominant leader
+  push(cx + (phash(0, seed, 1) - 0.5) * (big ? 16 : 7),
+       cy + (phash(1, seed, 2) - 0.5) * (big ? 12 : 6),
+       (big ? 26 : 13) + phash(2, seed, 3) * (big ? 10 : 6),
+       (big ? 17 : 9) + phash(3, seed, 4) * (big ? 8 : 4));
+  // jittered satellite ring
+  const n = (big ? 7 : 5) + Math.floor(phash(4, seed, 5) * 3),
+        a0 = phash(5, seed, 6) * Math.PI * 2;
+  for(let k = 0; k < n; k++){
+    const a = a0 + k * (Math.PI * 2 / n) + (phash(k, seed, 7) - 0.5) * 0.7,
+          d = (big ? 26 : 11) + phash(k, seed, 8) * (big ? 14 : 6);
+    push(cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.7,
+         (big ? 12 : 6) + phash(k, seed, 10) * (big ? 10 : 4),
+         (big ? 9 : 4.5) + phash(k, seed, 11) * (big ? 6 : 3));
+  }
+  // low skirt lobe — crowns shade their own trunk side
+  push(cx + (phash(8, seed, 12) - 0.5) * (big ? 14 : 6), cy + (big ? 28 : 16),
+       (big ? 22 : 13) + phash(9, seed, 13) * (big ? 6 : 3), big ? 11 : 6);
+  if(turn && !lobes.some(l => l[4])) lobes[0][4] = 1;
+  return { w: W0, h: H0, lobes };
+}
+function sfCrownBake(spec, big, vi){
+  const s = paMk(spec.w, spec.h), g = s.g;
+  const tr = MAT.trunk, lobes = spec.lobes;
+  const [glf, gld] = SF_GREEN_SET[vi % SF_GREEN_SET.length];
+  for(let bi = 0; bi < lobes.length; bi++){
+    const [bx, by, rx, ry, t2] = lobes[bi];
+    paEllipse(g, bx, by + (big ? 2 : 1), rx, ry,
+              (t2 ? SF_FALL[(vi + bi) % 3][1] : gld)[1]);
+  }
+  // trunk + forked scaffold (same grammar as the clone sets)
+  if(big){
+    paR(g, 62, 96, 5, 20, tr[2]); paR(g, 63, 96, 2, 20, tr[3]);
+    paLine(g, 63, 100, 44, 84, tr[2]); paLine(g, 64, 100, 84, 82, tr[2]);
+    paLine(g, 63, 104, 52, 90, tr[3]); paLine(g, 64, 104, 74, 88, tr[3]);
+    sfBranchFan(g, 64, 92, lobes, tr[1]);
+  } else {
+    paLine(g, 27, 60, 27, 40, tr[2]); paLine(g, 28, 60, 28, 40, tr[3]);
+    paLine(g, 27, 44, 20, 36, tr[2]); paLine(g, 28, 44, 36, 34, tr[2]);
+    paLine(g, 27, 48, 22, 42, tr[3]); paLine(g, 28, 48, 33, 42, tr[3]);
+    sfBranchFan(g, 28, 42, lobes, tr[1]);
+  }
+  for(let bi = 0; bi < lobes.length; bi++){
+    const [bx, by, rx, ry, t2] = lobes[bi];
+    const [lf, ld] = t2 ? SF_FALL[(vi + bi) % 3] : [glf, gld];
+    // sun-cap on the lobe's upper-left face, in the lobe's own palette
+    paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, lf[3]);
+    const sk = t2 ? 0.9 : 1;   // turned lobes shed — slightly deflated
+    sfLeafCanopy(g, bx, by, rx * sk, ry * sk,
+                 (big ? 6200 : 6300) + vi * 53 + bi, lf, ld,
+                 { n: Math.round(rx * ry * (big ? 1.9 : 2.2)) });
+  }
+  paEllipse(g, big ? 40 : 19, big ? 22 : 11, big ? 6 : 4, big ? 3 : 2, glf[5]);
+  return s;
+}
+
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
+  /* v55: THE TURNING — Mission autumn crown sets. Real SF fall color is
+     modest and species-patchy: ginkgo/liquidambar gold, ornamental pear
+     rust, a few wine-red stragglers — never the whole canopy at once.
+     Same SF_CROWN lobe geometry as the green sets (shadow contract
+     holds); only the palette flips. (v66: SF_FALL hoisted module-level
+     for the genetic canopy.) */
+  V.treeA = [0, 1, 2].map(v => sfLeafyTree(v, SF_FALL[v][0], SF_FALL[v][1]));
+  /* v66: genetic canopy atlas — 16 unique genomes per size x turn
+     state; the renderer mirrors each instance for ~32 silhouettes. */
+  V.crownN = 16;
+  V.crown = { tree: [[], []], big: [[], []] };
+  for(const bk of [false, true])
+    for(let t = 0; t < 2; t++)
+      for(let vi = 0; vi < V.crownN; vi++){
+        const spec = sfCrownGen(bk, vi, t);
+        V.crown[bk ? 'big' : 'tree'][t].push(
+          { spec, spr: sfCrownBake(spec, bk, vi) });
+      }
   V.palm = [sfPalmTree(0), sfPalmTree(1)];
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
@@ -754,6 +1227,11 @@ function buildSfVeg(){
   V.shrub = [sfShrubSpr(0), sfShrubSpr(1)];
   V.flowerbed = [sfFlowerBedSpr(0), sfFlowerBedSpr(1)];
   V.planter = sfPlanterSpr();
+  // v59: Mission garden palette — agave rosettes + echium towers
+  V.agave = [sfAgaveSpr(0), sfAgaveSpr(1)];
+  V.echium = [sfEchiumSpr(0), sfEchiumSpr(1)];
+  V.sideAgave = [sfVegSideSpr('agave', 0), sfVegSideSpr('agave', 1)];
+  V.sideEchium = [sfVegSideSpr('echium', 0), sfVegSideSpr('echium', 1)];
   // v17: V.car[v*2 + dir] — dir 0 = E-W street (horizontal), 1 = N-S
   V.car = [];
   for(let cv = 0; cv < 8; cv++){
@@ -764,10 +1242,27 @@ function buildSfVeg(){
   // v31: park-scale crowns (top view) + side-elevation silhouettes
   // (street view) — drawn instead of the plan-view crown sprites
   V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.bigTreeA = [0, 1, 2].map(v => sfBigTreeSpr(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sideTreeA = [0, 1, 2].map(v => sfVegSideSpr('tree', v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
   V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
+  // v53: the furniture layer — hydrant (v1 = the golden one), corner
+  // litter drum, chained news boxes, bike rack with locked bikes, and
+  // the Dolores picnic blanket set (6 cloth variants)
+  V.hydrant = [sfHydrantSpr(0), sfHydrantSpr(1)];
+  V.trashCan = sfTrashCanSpr();
+  V.newsBox = [sfNewsBoxSpr(0), sfNewsBoxSpr(1), sfNewsBoxSpr(2),
+               sfNewsBoxSpr(3), sfNewsBoxSpr(4)];
+  V.bikeRack = [sfBikeRackSpr(0), sfBikeRackSpr(1), sfBikeRackSpr(2)];
+  // v65: curb-lane parklet decks ([dir][v]) + the Recology cart row
+  V.parklet = [[0, 1, 2].map(v => sfParkletSpr(0, v)),
+               [0, 1, 2].map(v => sfParkletSpr(1, v))];
+  V.bins = [sfBinsSpr(0), sfBinsSpr(1)];
+  V.blanket = [];
+  for(let bv = 0; bv < SF_BLANKET_COLS.length; bv++)
+    V.blanket.push(sfBlanketSpr(bv));
 }
 
 /* ---------------- Victorian facade compiler ----------------
@@ -817,6 +1312,35 @@ const SF_MURAL_SKY = [['#2a88b8', '#f2c14a', '#e87830'],
 const SF_MURAL_HILL = ['#1e5a3a', '#c84838', '#284a78', '#7a3a28', '#d8a028'];
 const SF_TILE_COLS = [['#2a6a6a', '#e8e0c8'], ['#7a2a30', '#e8d8b0'],
                       ['#2a4a6a', '#d8e0e0'], ['#4a5a2a', '#e8e0c0']];
+/* v72: facade material registry — what a wall is actually BUILT of, not
+   just what color it's painted. The Mission's stock is mostly painted
+   wood siding, but a large minority of fronts are real masonry: red
+   pressed brick, brown clinker brick, brick painted over generations
+   ago, or scored stucco on the Edwardian shop rows. The declared skin
+   drives the wall's base color in BOTH cameras (bake + street view) and
+   unlocks the masonry dressing in sfStreetWall: bond coursing, soldier-
+   course lintels, stone sills, quoins and ghost signs. */
+const SF_BRICK_COLS  = ['#8a4a3c', '#7c4438', '#96604a', '#a05848', '#83503e'];
+const SF_CLINKER_COLS = ['#5f463c', '#6b5040'];
+const SF_BRICK_PAINT = ['#c8bcae', '#b9c0c4', '#d0c4a8', '#c4b4a4'];
+const SF_STUCCO_SCORE = ['#d8cbb8', '#c9bda8', '#cfc4b4'];
+function sfFacadeMat(i, ei, L, isShop, mural){
+  if(mural) return null;
+  const r = phash(i, ei, 5501);
+  if(isShop)
+    return r < 0.18 ? 'brick' : (r < 0.28 ? 'brickPaint' : (r < 0.36 ? 'score' : null));
+  if(L < 7) return null;
+  return r < 0.20 ? 'brick'
+       : (r < 0.30 ? 'brickPaint' : (r < 0.36 ? 'clinker' : (r < 0.44 ? 'score' : null)));
+}
+function sfFacadeBase(i, ei, mat, fallback){
+  const tab = mat === 'brick' ? SF_BRICK_COLS
+            : mat === 'clinker' ? SF_CLINKER_COLS
+            : mat === 'brickPaint' ? SF_BRICK_PAINT
+            : mat === 'score' ? SF_STUCCO_SCORE : null;
+  return tab ? tab[Math.floor(phash(i, ei, 5502) * tab.length)] : fallback;
+}
+function sfMasonry(mat){ return mat === 'brick' || mat === 'clinker' || mat === 'brickPaint'; }
 /* user-locked rule: businesses on screen are GTA-style parodies, never
    real SF names. Code keys stay real for routines/lookups — this is the
    display layer. production-1: the canonical parody table is
@@ -1016,7 +1540,12 @@ function sfBldCanvas(b, wet){
     // v14: real sun exposure per face — n·L against the solar bearing,
     // warm-lit sunward / cool sky-fill shaded (same rule as street view)
     const sunK = clamp(w.nx * SF_SUN.toX + w.ny * SF_SUN.toY, -1, 1);
-    const wr = rampOf(sfSunWallCol(wallBase, sunK));
+    // v72: the wall's declared material tints the strip — brick fronts
+    // read brick-red from above exactly like they do from the street
+    const wMat = sfFacadeMat(b.i, w.i, w.len / SF_PXM, isShop,
+                             sfMuralWall(b.i, w.i, w.len, isShop));
+    const wBase = wMat ? sfFacadeBase(b.i, w.i, wMat, wallBase) : wallBase;
+    const wr = rampOf(sfSunWallCol(wBase, sunK));
     g.fillStyle = wr[3];
     g.beginPath();
     g.moveTo(w.x1, w.y1); g.lineTo(w.x2, w.y2);
@@ -1035,12 +1564,25 @@ function sfBldCanvas(b, wet){
     // banding even at top-down zoom — plus the shade band the projecting
     // cornice throws across the wall crown (same physics as street view)
     if(hPx > 14 && w.len > 10){
-      g.strokeStyle = 'rgba(30,24,18,0.10)'; g.lineWidth = 1;
-      g.beginPath();
-      for(let zz = 3; zz < hPx - 5; zz += 3){
-        g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+      if(!sfMasonry(wMat)){   // v72: brick rules out wood coursing
+        g.strokeStyle = 'rgba(30,24,18,0.10)'; g.lineWidth = 1;
+        g.beginPath();
+        for(let zz = 3; zz < hPx - 5; zz += 3){
+          g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+        }
+        g.stroke();
       }
-      g.stroke();
+      // v72: masonry skins carry coarser bond joints instead of the fine
+      // wood courses — a darker ruled grid so brick reads as brick even
+      // in the thin top-down wall strip
+      if(sfMasonry(wMat)){
+        g.strokeStyle = 'rgba(46,30,24,0.16)'; g.lineWidth = 1;
+        g.beginPath();
+        for(let zz = 4; zz < hPx - 5; zz += 5){
+          g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+        }
+        g.stroke();
+      }
       const eavA = 0.05 + 0.16 * SF_SUN.day * Math.max(0, sunK);
       g.strokeStyle = `rgba(20,14,8,${eavA})`; g.lineWidth = 4;
       g.beginPath();
@@ -1084,7 +1626,7 @@ function sfBldCanvas(b, wet){
         const [ax, ay] = wallAt(w.x1, w.y1, w.x2, w.y2, uA, 1),
               [bx2, by2] = wallAt(w.x1, w.y1, w.x2, w.y2, uB, 1),
               [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
-        g.fillStyle = sfSunWallCol(shade(wallBase, 0.92), sunK);
+        g.fillStyle = sfSunWallCol(shade(wBase, 0.92), sunK);
         g.beginPath();
         g.moveTo(ax, ay); g.lineTo(bx2, by2);
         g.quadraticCurveTo(mx, my - mhP * 2, ax, ay);
@@ -1099,7 +1641,7 @@ function sfBldCanvas(b, wet){
       if(gh > 0){
         const ghP = gh * 4.2;
         const [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
-        const gcol = sfSunWallCol(shade(wallBase, 0.88), sunK);
+        const gcol = sfSunWallCol(shade(wBase, 0.88), sunK);
         g.fillStyle = gcol;
         g.beginPath();
         g.moveTo(w.x1, w.y1 - hPx); g.lineTo(w.x2, w.y2 - hPx);
@@ -1266,7 +1808,7 @@ function sfBldCanvas(b, wet){
       if(nRx * w.nx + nRy * w.ny < 0){ nRx = -nRx; nRy = -nRy; }
       const bayFace = (qx, qy, rx2, ry2, fnx, fny) => {
         const k2 = clamp(fnx * SF_SUN.toX + fny * SF_SUN.toY, -1, 1);
-        g.fillStyle = sfSunWallCol(wallBase, k2);
+        g.fillStyle = sfSunWallCol(wBase, k2);
         g.beginPath();
         g.moveTo(qx, qy - zLoP); g.lineTo(rx2, ry2 - zLoP);
         g.lineTo(rx2, ry2 - zHiP); g.lineTo(qx, qy - zHiP);
@@ -1299,6 +1841,44 @@ function sfBldCanvas(b, wet){
       paLine(g, Math.round(mx2), Math.round(my2 - zHiP),
              Math.round((f1x + f2x) / 2), Math.round((f1y + f2y) / 2 - zHiP),
              shade(ROOF[2], 0.9));
+    }
+
+    /* v72: fire-escape footprint — the street view bolts a grated iron
+       platform ~0.95m off tall residential fronts (same gate salts); from
+       above it reads as a thin dark band floating just off the wall with
+       its own hairline of shade on the pavement. */
+    if(!isShop && w.ny > 0.15 && w.len / SF_PXM > 9 && nFloors >= 2 &&
+       !sfMuralWall(b.i, w.i, w.len, isShop) && phash(b.i, w.i, 1762) < 0.5){
+      const Lm = w.len / SF_PXM;
+      const fe0 = 0.14 + phash(b.i, w.i, 1763) * 0.45,
+            fe1 = fe0 + Math.min(3.4, Lm * 0.34) / Lm;
+      const off = 0.95 * SF_PXM;
+      const [e0x, e0y] = wallAt(w.x1, w.y1, w.x2, w.y2, fe0, 0),
+            [e1x, e1y] = wallAt(w.x1, w.y1, w.x2, w.y2, fe1, 0);
+      // sun-cast hairline first (the ironwork shades the pavement)
+      g.strokeStyle = `rgba(30,38,62,${(0.10 + 0.14 * SF_SUN.day).toFixed(3)})`;
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(e0x + w.nx * off + SF_SUN.x * 2, e0y + w.ny * off + SF_SUN.y * 2);
+      g.lineTo(e1x + w.nx * off + SF_SUN.x * 2, e1y + w.ny * off + SF_SUN.y * 2);
+      g.stroke();
+      g.strokeStyle = 'rgba(38,32,28,0.85)'; g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(e0x + w.nx * off, e0y + w.ny * off);
+      g.lineTo(e1x + w.nx * off, e1y + w.ny * off);
+      g.moveTo(e0x, e0y); g.lineTo(e0x + w.nx * off, e0y + w.ny * off);
+      g.moveTo(e1x, e1y); g.lineTo(e1x + w.nx * off, e1y + w.ny * off);
+      g.stroke();
+      g.strokeStyle = 'rgba(30,26,22,0.6)'; g.lineWidth = 1;
+      g.beginPath();
+      const nGr = Math.max(2, Math.floor(Math.hypot(e1x - e0x, e1y - e0y) / 7));
+      for(let k = 1; k < nGr; k++){
+        const t2 = k / nGr;
+        g.moveTo(e0x + (e1x - e0x) * t2, e0y + (e1y - e0y) * t2);
+        g.lineTo(e0x + (e1x - e0x) * t2 + w.nx * off,
+                 e0y + (e1y - e0y) * t2 + w.ny * off);
+      }
+      g.stroke();
     }
 
     // v45: Queen Anne turret — collect the front-facing drum site; the
@@ -1359,6 +1939,23 @@ function sfBldCanvas(b, wet){
     const cx = pad + (wPx - pad * 2) * phash(b.i, k, 1901);
     const cy = pad + hBase * phash(k, b.i, 1902);
     paEllipse(g, cx, cy, 5, 2, 'rgba(180,205,230,0.35)');
+  }
+  /* v58: ponding — old flat tar roofs hold standing water for days after
+     rain. A few irregular pools sit in the low spots; each is a dark body
+     (submerged gravel) carrying a sky-reflection rim and a bright glint
+     pushed toward the sun — the same physics as street puddles, from above. */
+  if(wet){
+    const nPd = 1 + Math.floor(phash(b.i, 41, 3400) * 2);
+    for(let k = 0; k < nPd; k++){
+      const cx = pad + (wPx - pad * 2) * (0.15 + 0.7 * phash(b.i, k, 3401));
+      const cy = pad + hBase * (0.2 + 0.6 * phash(k, b.i, 3402));
+      const pr2 = 4 + phash(b.i, k, 3403) * Math.min(9, roofArea / 900);
+      paBlob(g, cx, cy, pr2, 'rgba(26,30,38,0.5)');
+      paBlob(g, cx + SF_SUN.x * 1.4, cy + SF_SUN.y * 1.0,
+             pr2 * 0.72, 'rgba(150,180,210,0.30)');
+      paEllipse(g, cx + SF_SUN.x * 1.8, cy + SF_SUN.y * 1.2 - pr2 * 0.28,
+                pr2 * 0.45, pr2 * 0.15, 'rgba(212,232,246,0.42)');
+    }
   }
   g.restore();
   // parapet cornice: bright trim along every outward roof edge
@@ -1429,6 +2026,23 @@ function sfBldCanvas(b, wet){
         paBlob(g, bx4 + 1.5, by4 - 2.2, 1.4, MAT.leaf[3]);
         if(phash(b.i, p3, 3210) < 0.35) paPX(g, bx4, by4 - 3, '#d05040');
       }
+      /* v58: festoon string lights across the deck — a sagging catenary of
+         warm bulbs between the corner posts (unlit by day in the bake; the
+         street-view pass glows them once sfLampsLit trips). Plus the cooler
+         crate every Mission deck keeps by the chairs. */
+      {
+        const lxA = dx0 + 2, lyA = dy0 + 1,
+              lxB = dx0 + dw - 2, lyB = dy0 + Math.round(dh * 0.45);
+        for(let s2 = 0; s2 <= 14; s2++){
+          const t2 = s2 / 14;
+          const sx3 = lxA + (lxB - lxA) * t2;
+          const sy3 = lyA + (lyB - lyA) * t2 + Math.sin(t2 * Math.PI) * 2.2;
+          paPX(g, Math.round(sx3), Math.round(sy3),
+               s2 % 3 === 1 ? '#d8b868' : '#4a4238');
+        }
+        paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 4, '#4a7a9a');
+        paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 1, '#c8d8e0');
+      }
     };
     // shop roofs sometimes get a railed sun deck with planks + umbrella
     if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
@@ -1466,7 +2080,7 @@ function sfBldCanvas(b, wet){
         inside = sfPtInPoly(P, cx, cy + hPx);
       }
       if(!inside) continue;
-      const kind = Math.floor(phash(b.i, k, 1369) * 18); // v22: +5 kinds
+      const kind = Math.floor(phash(b.i, k, 1369) * 21); // v58: +3 kinds
       if(kind === 0){ // mushroom vent
         sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
@@ -1617,6 +2231,54 @@ function sfBldCanvas(b, wet){
           paEllipse(g, px4, py4 - 0.5, 1.3, 0.9, '#7a4028');
           paBlob(g, px4, py4 - 2, 1.5, p3 % 2 ? MAT.leaf[2] : MAT.leaf[3]);
           if(phash(p3, b.i, 3215) < 0.3) paPX(g, px4, py4 - 3, '#e8c05a');
+        }
+      } else if(kind === 18){ // v58: HVAC duct run — galvanized trunk line
+        // with a welded elbow and gooseneck discharge; sheet metal catches
+        // the sky along its crown
+        const horiz = phash(b.i, k, 3300) < 0.5;
+        const len = 10 + Math.floor(phash(b.i, k, 3301) * 8);
+        sfPropShadow(g, cx, cy, 2.5, len * 0.5);
+        if(horiz){
+          paR(g, cx - len / 2, cy - 1, len, 3, '#9aa2a8');
+          rl(cx - len / 2, cy - 1, cx + len / 2, cy - 1, '#c8d0d6');
+          rl(cx - len / 2, cy + 2, cx + len / 2, cy + 2, '#6a7278');
+          paR(g, cx + len / 2 - 1, cy - 4, 3, 3, '#9aa2a8');
+          paEllipse(g, cx + len / 2 + 1, cy - 5, 2.4, 1.6, '#c8d0d6');
+          paEllipse(g, cx + len / 2 + 1, cy - 5, 1.5, 1, '#6a7278');
+        } else {
+          paR(g, cx - 1, cy - len / 2, 3, len, '#9aa2a8');
+          rl(cx - 1, cy - len / 2, cx - 1, cy + len / 2, '#6a7278');
+          rl(cx + 2, cy - len / 2, cx + 2, cy + len / 2, '#c8d0d6');
+          paR(g, cx - 4, cy - len / 2 - 1, 3, 3, '#9aa2a8');
+          paEllipse(g, cx - 5, cy - len / 2 - 1, 2.4, 1.6, '#c8d0d6');
+        }
+      } else if(kind === 19){ // v58: tar-patch repairs — black mastic
+        // scars every old Mission flat roof collects around its drains,
+        // plus a gravel windrow pushed up by wind and foot traffic
+        const nPt2 = 2 + Math.floor(phash(b.i, k, 3310) * 3);
+        for(let p3 = 0; p3 < nPt2; p3++){
+          const px4 = cx + (phash(p3, k, 3311) - 0.5) * 12;
+          const py4 = cy + (phash(k, p3, 3312) - 0.5) * 8;
+          paBlob(g, px4, py4, 2.5 + phash(p3, b.i, 3313) * 2.5,
+                 wet ? 'rgba(14,16,20,0.55)' : 'rgba(30,28,26,0.45)');
+        }
+        rl(cx - 6, cy + 5, cx + 6, cy + 5, '#3a3835');
+        rl(cx - 6, cy + 6, cx + 5, cy + 6, '#2a2825');
+      } else if(kind === 20){ // v58: sunbather's kit — towel, cooler,
+        // sandals: the Mission roof IS the backyard
+        sfPropShadow(g, cx, cy + 1, 2, 4);
+        const tC = ['#d8685a', '#5a8ab8', '#e0c060'][
+          Math.floor(phash(b.i, k, 3320) * 3)];
+        paR(g, cx - 4, cy - 2, 8, 5, tC);
+        rl(cx - 4, cy - 1, cx + 4, cy - 1, shade(tC, 1.2));
+        rl(cx - 4, cy + 1, cx + 4, cy + 1, shade(tC, 1.2));
+        paR(g, cx + 5, cy - 3, 4, 4, '#4a7a9a');
+        paR(g, cx + 5, cy - 3, 4, 1, '#d8e4ea');
+        paPX(g, cx - 5, cy + 3, '#e8e0d0');
+        paPX(g, cx - 5, cy + 4, '#e8e0d0');
+        if(phash(b.i, k, 3321) < 0.4){ // folded lounge chair
+          rl(cx - 6, cy - 4, cx - 2, cy - 6, '#8a6f52');
+          rl(cx - 6, cy - 4, cx - 6, cy - 1, '#8a6f52');
         }
       } else { // v22 kind 17: conduit run + vent cluster — the bundled
         // pipes HVAC contractors leave crossing old tar roofs
