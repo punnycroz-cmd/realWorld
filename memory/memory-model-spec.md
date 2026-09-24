@@ -1,4 +1,29 @@
-# Memory Model Spec v5.66 — implementable human-like memory for RW characters
+# Memory Model Spec v5.67 — implementable human-like memory for RW characters
+
+> **v5.67 note (forgetting-curves XI — the shape parameters
+> are functions):** `memory/forgetting-curves.md` Part XI
+> (§§51–55) promotes six constants to functions of horizon,
+> disuse, and age. **The ridgeline** — `lag_opt_ratio` becomes
+> horizon-scaled `lag_ratio(T)` (Cepeda et al. 2008: 20–40%
+> of a week's RI, 5–10% of a year's); locked `lag_flat_null`.
+> **Fitness bump** — `fitness:true` events earn post-term
+> `fitness_gain`, half priced at consolidation (Nairne et
+> al. 2007; reducibility to arousal/self locked:
+> `fitness_redux_null`). **Disuse clock** — skill decay runs
+> on `disuseDays`, not record age; domain asymmetry
+> `skill_dom_mult` + return-fumble `vac_*` (Cooper 1996;
+> Driskell 1992); locked `skill_clock_null`. **Emotional
+> crossover** — E's arousal term is age-gated at retrieval
+> (`emo_del_gate`) plus same-day `emo_imm_tax` (Kleinsmith &
+> Kaplan 1963); locked `emo_instant_null`. **Deadline
+> scallop** — time-armed intentions self-cue on a J-ramp
+> `mon_rate(t)`; unfired past `pm_grace` convert to
+> `missed:true` records (Harris & Wilkins 1982); locked
+> `deadline_mute_null`. **Generation slope** — self-produced
+> records decay at `beta·gen_tau_mult` (Bertsch 2007);
+> locked `gen_intercept_null`. Spec §§6.323–6.328, §7 +20
+> scalars +6 locked nulls +3 fields, §10 contract; probes
+> P1291–P1300.
 
 > **v5.66 note (encoding-mechanics X — the backward-
 > looking encoder):** `memory/encoding-mechanics.md` Part X
@@ -15957,6 +15982,109 @@ linking function. Locked `bound_ante_null`: backward only —
 the incoming segment's first records get zero ante gain
 (P1290).
 
+### 6.323 The ridgeline is sloped — `lag_ratio(T)` (new in v5.67)
+
+FC§51.1; Cepeda, Vul, Rohrer, Wixted & Pashler 2008
+(*Psychol. Sci.* 19:1095 — verified: n=1354, ISI≤105d,
+RI≤350d; optimal gap ~20–40% of week-scale RI, ~5–10% of
+year-scale RI).
+
+The §4.11 `lag_mult` re-targets from `recordAge` to the
+record's forward horizon `T_hor = min(τ_eff, 1/needRate)`
+(class-τ fallback; `lag_opt_ratio` retained for unknown
+horizons):
+
+```
+lag_ratio(T) = clip(0.30·(T/7)^−0.33, 0.05, 0.40)
+lag_mult = exp(−(ln(gap/(lag_ratio(T_hor)·T_hor)))²/(2·lag_width²))
+```
+
+Locked `lag_flat_null` (P1292): a horizon-constant build
+fails the two-horizon optimum test (P1291). Substrate-side
+only — retell policy stays cue-driven (spacing_opt_null
+unaffected).
+
+### 6.324 The fitness bump — `fitness_gain` (new in v5.67)
+
+FC§51.2; Nairne, Thompson & Pandeirada 2007 (*Psychol. Sci.*
+18:263 — verified); Nairne & Pandeirada 2008; Scofield,
+Buchanan & Kostic 2018 (meta; mechanism DEBATED —
+Kroneisen & Erdfelder 2011; Klein 2012).
+
+Events flagged `fitness:true` (world-side appraisal of
+threat/food/shelter/illness/status-loss relevance) take
+`E *= (1 + fitness_gain)` (0.12) AFTER w_emo/w_self/w_nov.
+Immediate share `fitness_imm` (0.5) prices the E leg; the
+residual accrues at consolidation legs (HYPOTHESIS split).
+Locked `fitness_redux_null`: matched-arousal controls must
+still separate (P1293); delay-selectivity probed at P1294.
+
+### 6.325 The disuse clock — `disuseDays`, `gap_load`, `vac_*` (new in v5.67)
+
+FC§51.3; Cooper, Nye, Charlton, Lindsay & Greathouse 1996
+(*Rev. Educ. Res.* 66:227 — verified: ~1mo grade-equiv
+loss, math/spelling > reading); Driskell, Willis & Copper
+1992 (*J. Appl. Psychol.* 77:615); Arthur et al. 1998
+(§22.5 base).
+
+Skill records carry `disuseDays` (reset on successful use /
+enacted recall): `beta_skill_eff = beta_proc·(1 + gap_load)`,
+`gap_load = min(gap_load_k·ln(1+disuseDays), gap_load_cap)`
+(0.15/0.5). Domain asymmetry `skill_dom_mult` 0.3 on the
+verbal/recognition subskill share (procedures full-rate).
+First enactment after `disuseDays ≥ vac_gap_d` (14) rolls
+`vac_fail_base` (0.15), attenuating per successful re-use.
+Locked `skill_clock_null`: clock-age decay builds fail
+P1295.
+
+### 6.326 The emotional crossover — `emo_del_gate`, `emo_imm_tax` (new in v5.67)
+
+FC§51.4; Kleinsmith & Kaplan 1963 (*JVLVB* 2:201);
+Sharot & Phelps 2004; McGaugh 2000; Ritchey et al. 2008.
+Advantage-accrues-over-delay CONSENSUS; immediate-deficit
+magnitude DEBATED.
+
+At retrieval, E's arousal contribution is age-gated:
+`E_r = E − w_emo·arousal·E·(1 − emo_del_gate(age))`,
+`emo_del_gate(age) = 1 − exp(−age/emo_del_tau)` (0.7d);
+records `arousal ≥ 0.7` additionally read non-arousal E
+×(1−`emo_imm_tax`) (0.10) same-day. Locked
+`emo_instant_null`: with consolidation legs disabled,
+arousal shows ZERO same-day retrieval advantage (P1297) —
+the dividend posts through §v0.5 `emo_consol_gain` and
+friends, never at birth.
+
+### 6.327 The wound-up deadline — `mon_*`, `missed:true` (new in v5.67)
+
+FC§51.5; Harris & Wilkins 1982 (*Br. J. Psychol.* 73:1 —
+verified: J-shaped test–wait–test scallop; check-before-
+miss detail); Ceci & Bronfenbrenner 1985; Kvavilashvili &
+Fisher 2007 (*Memory* 15:458 — time-based PM rides periodic
+self-cues).
+
+Uncued armed intentions (dueDay/dueTime, no event trigger)
+emit self-cues at `mon_rate(t) = mon_base·(1 + mon_gain/
+(1 + (due−t)/mon_tau))` (0.2/day, 6, 0.5d) — each fire is a
+cheap §5.9 leg (cueBind refresh + small S). Unfired at
+`dueDay + pm_grace` (1d): monitoring stops, the intention
+converts to a `missed:true` record minted at
+`missed_enc_gain` (0.15). Locked `deadline_mute_null`: no
+armed-forever survivors (P1299).
+
+### 6.328 Generation is a slope — `gen_tau_mult` (new in v5.67)
+
+FC§51.6; Bertsch, Pesta, Wiscott & McDaniel 2007 (*Memory*
+15:318 meta — d≈0.40, delay-robust); McNamara & Healy 1995;
+Slamecka & Katsaiti 1987 (widening DEBATED, adopted mild —
+Jost-consistent).
+
+Records minted through self-production (`speaker:self`
+fields, `selfacted:true`, generated content) decay at
+`beta·gen_tau_mult` (0.85). Encode-side `selfsaid_gain`
+unchanged — intercept and slope now each carry half.
+Locked `gen_intercept_null`: intercept-only builds fail
+P1300.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -18255,6 +18383,32 @@ MemoryParams = {
 //   entry; op catalog gains `evalClass` column
 //   (§16.1). All snapshot-additive; absent = legacy
 //   (evaluatedAt absent → treat as createdDay).
+// v5.67 additions (forgetting-curves XI — FC§§51–55)
+"lag_ratio_a": 0.30, "lag_ratio_t0": 7, "lag_ratio_b": -0.33,
+"lag_ratio_lo": 0.05, "lag_ratio_hi": 0.40,    // §6.323
+"fitness_gain": 0.12, "fitness_imm": 0.5,      // §6.324
+"gap_load_k": 0.15, "gap_load_cap": 0.5,
+"skill_dom_mult": 0.3, "vac_gap_d": 14,
+"vac_fail_base": 0.15,                         // §6.325
+"emo_del_tau": 0.7, "emo_imm_tax": 0.10,       // §6.326
+"mon_base": 0.2, "mon_gain": 6, "mon_tau": 0.5,
+"pm_grace": 1, "missed_enc_gain": 0.15,        // §6.327
+"gen_tau_mult": 0.85,                          // §6.328
+// v5.67 locked nulls: lag_flat_null (horizon-constant ratio
+//   fails — P1292); fitness_redux_null (matched-arousal
+//   controls must separate — P1293); skill_clock_null
+//   (disuse-days, not record age — P1295); emo_instant_null
+//   (zero same-day arousal advantage legs-off — P1297);
+//   deadline_mute_null (no armed-forever intentions —
+//   P1299); gen_intercept_null (self-vs-heard gap must
+//   widen with delay — P1300).
+// v5.67 fields/flags: event flag `fitness:true` (world-side
+//   appraisal); record flag `selfacted` (reuses enactment
+//   marker); per-skill `disuseDays` counter; intention state
+//   `missed:true` + armed-intention self-cue accumulator;
+//   derived `T_hor` (min(τ_eff, 1/needRate), not stored).
+//   `lag_opt_ratio` demoted to unknown-horizon fallback.
+//   All snapshot-additive; absent = legacy.
 // v5.66 additions (encoding-mechanics X — EM§§123–127)
 "rew_thresh": 0.4, "post_rew_win": 45, "post_rew_gain": 0.10,
 "post_rew_tau": 15, "post_rew_cat_w": 0.5,        // §6.318
@@ -21012,6 +21166,46 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.67 additions (forgetting-curves.md §§51–55 — the shape
+  parameters are functions):
+  - **Ridgeline contract (§6.323):** `lag_mult` reads
+    `T_hor = min(τ_eff, 1/needRate)` — never `recordAge`;
+    `lag_opt_ratio` is fallback-only for unknown horizons.
+    `lag_flat_null` — a horizon-constant ratio build must
+    fail P1291's two-horizon optimum. The retell policy is
+    untouched (cue-driven; `spacing_opt_null` stands).
+  - **Fitness contract (§6.324):** `fitness:true` is a
+    world-side appraisal flag — the memory layer never
+    derives it from valence/arousal (`fitness_redux_null`,
+    P1293); the gain applies once, post w-terms.
+  - **Disuse contract (§6.325):** `disuseDays` resets only
+    on successful use or enacted recall — reading about the
+    craft doesn't count (`skill_clock_null`, P1295). The
+    `vac_fail_base` roll fires on first enactment only.
+  - **Crossover contract (§6.326):** `emo_del_gate` acts on
+    the *retrieval projection* E_r — stored E is unchanged
+    (`emo_instant_null`, P1297). The gate never taxes
+    non-arousal E shares below `emo_imm_tax`.
+  - **Deadline contract (§6.327):** `mon_rate` applies to
+    uncued armed intentions only — event-cued intentions
+    ride their trigger; every armed intention terminates
+    as fired or `missed:true` within `dueDay + pm_grace`
+    (`deadline_mute_null`, P1299). Self-cue fires are
+    rehearsal legs — they may surface in inner monologue,
+    never in the event ledger.
+  - **Generation-slope contract (§6.328):** `gen_tau_mult`
+    is mint-fixed per record (set at encode when
+    `speaker:self`/`selfacted` is true) — not re-derived at
+    decay time (`gen_intercept_null`, P1300).
+  - **Locked boundaries game-systems must honor:**
+    `lag_flat_null`, `fitness_redux_null`,
+    `skill_clock_null`, `emo_instant_null`,
+    `deadline_mute_null`, `gen_intercept_null`.
+  - **New params (§7):** 20 scalars + 6 locked nulls +
+    event flag `fitness:true` + record flag `selfacted` +
+    `disuseDays` + intention `missed:true` + derived `T_hor`.
+  - Probes P1291–P1300.
+
 - v5.66 additions (encoding-mechanics.md §§123–127 — the
   backward-looking encoder):
   - **Retro-reward contract:** the sweep fires only on

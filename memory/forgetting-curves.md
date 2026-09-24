@@ -3402,3 +3402,345 @@ the ledger that quiets down at night.
   number in the pass — Storm & Levy give direction and the RIF
   correlation, not a per-death delta; the probe bands it loosely
   and flags it as calibration debt.
+
+
+# Part XI — v121 deepening: the sloped ridgeline, the fitness
+bump, the interrupted craft, the late-arriving arousal benefit,
+the wound-up deadline, and the self-done edge that outlives itself
+
+Ten passes priced what decays. This pass tightens six places where
+the curve's *shape parameters* were constants when the literature
+says they're functions: the optimal rehearsal gap is not a fixed
+ratio of the horizon; fitness-relevant content earns an encode
+bonus that arousal can't explain away; a skill decays on the days
+you don't do it, not the days since you learned it; arousal's
+retrieval benefit is bought on layaway and posts late; a time-
+armed intention paces itself like a watched clock; and self-
+produced content's advantage is a slope, not an intercept.
+
+Claims tagged [CONSENSUS] / [DEBATED] / [HYPOTHESIS] as before.
+
+## 51. New primary sources
+
+### 51.1 The ridgeline has a slope — optimal gap shrinks as a share of the horizon — Cepeda, Vul, Rohrer, Wixted & Pashler 2008
+
+§7.1 installed `lag_mult`, a log-normal in `gap/(lag_opt_ratio·
+recordAge)` with `lag_opt_ratio` frozen at 0.15 — drawn from the
+Cepeda et al. 2006 meta. The 2008 study is the strongest single
+dataset on the question (n=1354 online; ISI 0–105 days; RI 7–350
+days; Psychological Science 19:1095 — verified): the optimal gap
+grows in absolute days as the retention interval grows, but
+**shrinks as a proportion** — ~20–40% of a 1-week RI vs ~5–10% of
+a 1-year RI. A constant 0.15 is right nowhere and roughly right
+only at ~month horizons. The data describe a *temporal ridgeline*:
+retention rises along ISI at fixed RI, peaks, then falls — and the
+ridge climbs sublinearly [CONSENSUS that gap×RI interact; the
+declining-ratio shape rests on this one landmark study — DEBATED
+in exact form, though Balota & colleagues' tradition and the 2006
+meta's tables point the same way].
+
+**Spec consequence — `lag_opt_ratio` becomes a function.** The
+denominator also moves: Cepeda's variable is the *desired forward
+horizon* (how long the thing must last after the last rehearsal),
+which in our terms is the record's remaining useful life —
+`T_hor = min(τ_eff, 1/needRate)` (with class τ as fallback when
+neither is estimable). New form:
+
+```
+lag_ratio(T) = clip( lag_ratio_a·(T/lag_ratio_t0)^lag_ratio_b ,
+                     lag_ratio_lo, lag_ratio_hi )
+lag_mult(gap, T_hor) = exp( −(ln(gap/(lag_ratio(T_hor)·T_hor)))²
+                            / (2·lag_width²) )
+```
+
+`lag_ratio_a` 0.30, `lag_ratio_t0` 7d, `lag_ratio_b` −0.33,
+bounds [0.05, 0.40] — recovers ~0.3 at week horizons and ~0.08 at
+year horizons, inside both Cepeda bands. `lag_opt_ratio` is
+retained as the fallback when `T_hor` is unknown (probe-mandated
+deprecation path, §52). Locked `lag_flat_null`: a horizon-
+constant build must fail the two-horizon probe (P1291/P1292) —
+the ridgeline is the falsifiable content of this section.
+
+RW behavior: the anecdote a character wants to survive a week
+deserves a retell tomorrow; the family story that must outlive
+the year is best refreshed after a month, not a week — and the
+*character* never knows this (§32.6 metacognitive spacing
+illusion holds; the retell ecology stays cue-driven — this is a
+substrate property, not a policy).
+
+### 51.2 The fitness bump — survival processing buys what arousal can't — Nairne, Thompson & Pandeirada 2007
+
+Nairne, Thompson & Pandeirada 2007 (*Psychological Science*
+18:263 — verified): words rated for relevance to a grasslands
+survival scenario were recalled better than words processed by
+pleasantness, a matched moving-house scenario, or self-reference
+— the strongest incidental-encoding conditions then known, beaten
+by ~10+ percentage points. Nairne & Pandeirada 2008 (*JEP:LMC*
+34:497) extended it to delay and showed it survives controls for
+arousal, novelty, and media exposure; Scofield, Buchanan & Kostic
+2018 meta confirmed the effect is real and moderately sized
+(d≈0.4–0.6). The *mechanism* is contested — congruity accounts
+(Howe & Derbish 2010), elaboration/density accounts (Kroneisen &
+Erdfelder 2011), and design-artifact accounts (Klein 2012) all
+survive; what survives every adjudication is that fitness
+relevance is **not reducible** to arousal or self-reference —
+matched-arousal controls still lose [CONSENSUS phenomenon;
+DEBATED mechanism].
+
+**Spec consequence — a new E-term, not a rerating of old ones.**
+Events carrying `fitness:true` (appraised threat/food/shelter/
+illness/status-loss relevance — the world flags, not the memory
+layer) take `E *= (1 + fitness_gain)` (0.12) **after** the w_emo,
+w_self, w_nov terms have run. Because the literature's advantage
+is measured at delayed tests, only `fitness_imm` (0.5) of the
+gain prices immediate retrievability; the residual posts through
+the normal consolidation legs (HYPOTHESIS split — the delay-
+selectivity is a data pattern, not a mechanism). Locked
+`fitness_redux_null`: a build that claims the gain is already
+covered by arousal/self terms fails P1293 — matched-arousal
+controls must still separate.
+
+### 51.3 The interruption forgets procedures first — disuse-days, not clock-days — Cooper, Nye, Charlton, Lindsay & Greathouse 1996; Driskell, Willis & Copper 1992
+
+The summer-loss meta (Cooper et al. 1996, *Review of Educational
+Research* 66:227 — verified, 39 studies, 13 meta-analyzed): a
+summer off costs ≈1 month of grade-equivalent (~0.1 SD), and the
+loss is **domain-asymmetric** — math computation and spelling
+sink; reading recognition is flat or even up in middle-class
+kids. The authors' own reading: fact- and procedure-based
+material decays under disuse; recognition-level verbal material
+survives ambient practice. The adult-skills arm (Driskell,
+Willis & Copper 1992, *J. Appl. Psychol.* 77:615; Arthur et al.
+1998, §22.5 here) says the same thing in retention language:
+non-use intervals decay cognitive/control skills steeply in the
+first weeks then asymptote; physical/natural tasks decay least;
+overlearning protects.
+
+**Spec consequence — decay runs on the disuse clock.** §22.5's
+`beta_proc_*` runs on record age; replace the clock with a
+per-skill `disuseDays` counter (reset on any successful use,
+mint or recall-with-enactment): `beta_skill_eff = beta_proc·
+(1 + gap_load)`, `gap_load = min(gap_load_k·ln(1+disuseDays),
+gap_load_cap)` (0.15 / 0.5 — steep early, saturating). Domain
+split `skill_dom_mult`: procedures/computation 1.0, verbal/
+recognition subskills 0.3 (the Cooper asymmetry). Return-from-
+gap observable: first enactment after `disuseDays ≥ vac_gap_d`
+(14) rolls a `vac_fail_base` (0.15) fumble check, attenuating
+with each successful re-use (relearning is fast — `relearn_gain`
+already governs). Locked `skill_clock_null`: skill loss must
+track disuse-days, not record age — a clock-aged build fails
+P1295.
+
+RW behavior: the barista back from three weeks away fumbles the
+tamp once, laughs it off, and is fine by the second pull — while
+the menu prices (verbal recognition) never left.
+
+### 51.4 Arousal's bill posts late — the emotional crossover — Kleinsmith & Kaplan 1963; Sharot & Phelps 2004
+
+Kleinsmith & Kaplan 1963 (*JVLVB* 2:201 — the classic):
+high-arousal paired associates are recalled **worse** at
+immediate test and **better** at delayed test — the curves
+literally cross inside the first day. The consolidation account
+(McGaugh 2000; Sharot & Phelps 2004; Ritchey et al. 2008)
+explains the shape: arousal's memory benefit is amygdala-mediated
+consolidation, which takes hours and a sleep cycle — so at
+t≈0 the high-arousal trace is at parity or worse (encoding was
+narrowed, §arousal_narrowing), and its advantage *accrues*
+rather than arriving [CONSENSUS direction — emotional advantage
+grows with delay; the immediate-test deficit magnitude is
+DEBATED — replications find parity more often than a deficit].
+
+**Spec consequence — gate the arousal term by record age.** The
+spec already spends arousal's dividend through `emo_consol_gain`
+at the first sleep leg ("fully priced at birth" was rejected at
+v0.5) — but nothing stops the *encoding-strength* arousal term
+from showing up in same-day R. Split E's arousal contribution at
+retrieval:
+
+```
+E_r = E − w_emo·arousal·E·(1 − emo_del_gate(age))
+emo_del_gate(age) = 1 − exp(−age/emo_del_tau)   // tau 0.7d
+```
+
+plus `emo_imm_tax` (0.10): records with `arousal ≥ 0.7` read
+their non-arousal E share at ×(1−emo_imm_tax) on same-day recall
+(the narrowing cost). Net: an arousal-0.9 record is *worse* than
+a matched neutral one at hour 1 and clearly better at day 3 —
+the crossover is a property of the curve, not a flag. Locked
+`emo_instant_null`: in a build with consolidation legs disabled,
+arousal must show **zero** same-day retrieval advantage —
+anything else means the term is double-priced (P1297).
+
+### 51.5 The deadline winds itself — the monitoring scallop and the post-deadline silence — Harris & Wilkins 1982; Kvavilashvili & Fisher 2007
+
+Harris & Wilkins 1982 (*British Journal of Psychology* 73:1 —
+verified): remembering to do a thing at a target time is a
+test–wait–test–exit process, and clock-check frequency follows a
+**J-shaped scallop** — a few early checks, a long quiet middle,
+then a steep rise into the deadline. The diagnostic detail: many
+who missed the response had *checked the clock shortly before* —
+monitoring got them there; resolution failed at the action gate.
+Ceci & Bronfenbrenner 1985 showed 10–14-year-olds scallop too
+(and even linearly over-monitor under perceived importance).
+Kvavilashvili & Fisher 2007 (*Memory* 15:458): naturalistic
+time-based intentions persist via periodic self-reminders —
+event-based intentions ride the cue and need no such maintenance
+[CONSENSUS on the scallop and the time/event asymmetry; the
+underlying refresh mechanism DEBATED].
+
+**Spec consequence — armed time-intentions pace themselves.**
+An armed intention with a `dueDay`/`dueTime` and no event cue
+emits internal self-cues at rate
+
+```
+mon_rate(t) = mon_base·(1 + mon_gain/(1 + (due−t)/mon_tau))
+```
+
+`mon_base` 0.2/day, `mon_gain` 6, `mon_tau` 0.5d — the fire rate
+is flat early and ramps steeply in the last ~day. Each self-cue
+is a cheap §5.9-scale leg (cueBind refresh + small S-growth —
+the scallop *is* the maintenance). Post-deadline: an intention
+unfired at `dueDay + pm_grace` (1d) stops monitoring and
+converts to a `missed:true` record minted at `missed_enc_gain`
+0.15 — the forgotten errand becomes the guilt memory, which is
+why missed intentions feel remembered after the fact. Locked
+`deadline_mute_null`: no armed-forever intentions — a build
+whose deadline can pass silently fails P1299.
+
+### 51.6 Self-done outlives self-heard — generation is a slope — Bertsch, Pesta, Wiscott & McDaniel 2007; Slamecka & Graf 1978
+
+The spec prices the generation stack at encode (`selfsaid_gain`
+§6.316; the enacted>generated>spoken>heard ladder §5.6x). The
+meta-analysis (Bertsch et al. 2007, *Memory* 15:318 — 86
+studies, generation effect d≈0.40) is delay-robust, and the
+retention-interval arm (McNamara & Healy 1995; also Slamecka &
+Katsaiti 1987) reports the generated-vs-read advantage **grows**
+at delayed test — generation buys durability, not just strength
+[CONSENSUS that the advantage survives delay; the widening-with-
+delay interaction is DEBATED in humans — we adopt the mild form
+because it is also Jost-consistent: better-stored items decay
+slower in proportional terms].
+
+**Spec consequence — move part of the gain to the slope.**
+Records minted through self-production (`speaker:self` fields,
+`selfacted:true`, generated content) decay at
+`beta·gen_tau_mult` (0.85 [0.7–1.0]). The encode-side
+`selfsaid_gain` is unchanged — the intercept and the slope now
+each carry half the phenomenon. Locked `gen_intercept_null`:
+an intercept-only build fails P1300 — the self-vs-heard gap
+must widen between day 0.5 and day 7.
+
+### 51.7 Supporting citations (no new mechanism)
+
+- Roediger & Butler 2011 — the critical role of retrieval
+  practice across retention intervals (backstops §7.2's split).
+- Anderson, Bjork & Bjork 1994 — the original RIF design
+  (underpins the relief/competitive-release leg §46.5).
+- Scofield, Buchanan & Kostic 2018 — adaptive-memory meta;
+  pins `fitness_gain` at the modest end, not the headline end.
+- Talamini et al. 2008 — sleep × multiple-trial interference;
+  background for the owed-work drain rate.
+- Ceci & Bronfenbrenner 1985 — developmental J-scallop;
+  supports mon ramp being a prior, not a learned policy.
+
+## 52. What changed in the spec (v5.66 → v5.67)
+
+| # | Change | Grounding |
+|---|---|---|
+| C-fc11-1 | §4.11 revision: `lag_mult` gains horizon-dependent ratio `lag_ratio(T)`; `T_hor = min(τ_eff, 1/needRate)`, class-τ fallback; `lag_opt_ratio` deprecated to fallback-only; locked `lag_flat_null` | §51.1 |
+| C-fc11-2 | New encode term `fitness_gain` on `fitness:true` events, post-w_emo/w_self; `fitness_imm` immediate-share split; locked `fitness_redux_null` | §51.2 |
+| C-fc11-3 | Skill decay runs on `disuseDays`: `gap_load` log-saturating; `skill_dom_mult` domain asymmetry; `vac_gap_d`/`vac_fail_base` return-fumble; locked `skill_clock_null` | §51.3 |
+| C-fc11-4 | Retrieval-side `emo_del_gate(age)` + `emo_imm_tax` — the arousal term of E is age-gated at recall; locked `emo_instant_null` | §51.4 |
+| C-fc11-5 | Time-armed intentions: `mon_rate(t)` scallop, self-cue rehearsal legs, `pm_grace` + `missed:true` conversion; locked `deadline_mute_null` | §51.5 |
+| C-fc11-6 | Self-produced records decay at `beta·gen_tau_mult`; locked `gen_intercept_null` | §51.6 |
+
+New params: `lag_ratio_a 0.30 [0.15–0.5]`, `lag_ratio_t0 7
+[3–21]`, `lag_ratio_b −0.33 [−0.5–−0.1]`, `lag_ratio_lo 0.05`,
+`lag_ratio_hi 0.40`, `fitness_gain 0.12 [0–0.3]`,
+`fitness_imm 0.5 [0–1]`, `gap_load_k 0.15 [0–0.4]`,
+`gap_load_cap 0.5 [0.2–1.0]`, `skill_dom_mult 0.3 [0.1–0.6]`,
+`vac_gap_d 14 [7–30]`, `vac_fail_base 0.15 [0–0.4]`,
+`emo_del_tau 0.7 [0.2–2]`, `emo_imm_tax 0.10 [0–0.25]`,
+`mon_base 0.2 [0.05–1]`, `mon_gain 6 [0–15]`, `mon_tau 0.5
+[0.1–2]`, `pm_grace 1 [0–3]`, `missed_enc_gain 0.15 [0–0.4]`,
+`gen_tau_mult 0.85 [0.7–1.0]`. Locked nulls: `lag_flat_null`,
+`fitness_redux_null`, `skill_clock_null`, `emo_instant_null`,
+`deadline_mute_null`, `gen_intercept_null`. New fields/state:
+event flag `fitness:true`; record flag `selfacted` (reuses the
+enactment marker where present); per-skill `disuseDays`
+counter; intention state `missed:true` + armed-intention
+self-cue accumulator. Frozen: `lag_opt_ratio` (fallback only).
+
+## 53. Retention table — added rows (defaults, game days)
+
+| record class | mechanism | visible effect |
+|---|---|---|
+| anecdote needing week-scale life | lag_ratio ≈ 0.3·T | best retell ≈ day 1–2; day-of retell nearly wasted |
+| family story needing year-scale life | lag_ratio ≈ 0.08·T | best retell ≈ month 1 — the quiet stretch is the point |
+| `fitness:true` event (threat/illness/scarcity) | post-term E gain | out-recalls matched-arousal news at day 7 |
+| skill after 21d no-use gap | disuseDays + gap_load | first-use fumble p≈0.15; second pull clean; prices never left |
+| high-arousal event, same day | emo_imm_tax + gate | recalls *below* matched neutral; crosses over by ~day 3 |
+| armed deadline intention | mon scallop | "kept thinking about it all week" only at the end; missed → `missed:true` guilt record |
+| self-performed vs overheard | gen_tau_mult | gap widens day 0.5 → day 7 — own deeds outlive own hearing |
+
+## 54. Validation probes (P1291–P1300)
+
+- **P1291 horizon ridgeline (MUST):** record sets with target
+  horizons T=7d and T=365d show peak post-rehearsal retention at
+  gap≈1.4–2.8d and ≈18–36d respectively; a horizon-constant
+  ratio cannot satisfy both — `lag_flat_null` leg (P1292).
+- **P1293 fitness irreducibility (MUST):** `fitness:true` vs
+  arousal-matched controls (equal w_emo·w_self contribution)
+  separate by ≥0.05 recall at day 7 — `fitness_redux_null`.
+- **P1294 fitness delay-selectivity (SHOULD):** the
+  fitness-control gap at day 7 exceeds the gap at hour 1.
+- **P1295 disuse-clock (MUST):** twin skills, identical age,
+  one with disuseDays=21 → return-fumble rate elevated and
+  asymptotic loss; `skill_clock_null` leg — a clock-age build
+  shows no dip.
+- **P1296 domain asymmetry (SHOULD):** procedural vs verbal
+  subskill loss over the same gap ≈ 3:1 at defaults (band
+  1.5:1–5:1 — Cooper ordering, magnitudes loose).
+- **P1297 emotional crossover (MUST):** high-arousal vs neutral
+  ordering flips between hour-1 and day-3 test;
+  `emo_instant_null` leg — consolidation-disabled build shows
+  no same-day advantage.
+- **P1298 monitoring scallop (MUST):** armed time-intention
+  self-cue density in the final 25% of the arming window ≥ 3×
+  the mid-window density; event-cued intentions show no ramp.
+- **P1299 deadline conversion (MUST):** every armed intention
+  either fires or lands as `missed:true` within `dueDay +
+  pm_grace` — zero armed-forever survivors — `deadline_mute_null`.
+- **P1300 generation slope (SHOULD):** self-vs-heard recall gap
+  at day 7 > gap at day 0.5 under `gen_tau_mult` < 1;
+  `gen_intercept_null` leg — intercept-only build shows flat gap.
+
+## 55. Honest limits (additions)
+
+- `lag_ratio(T)` is fitted to ONE landmark study's surface;
+  b=−0.33 interpolates between two read-off bands (20–40% @1wk,
+  5–10% @1yr). The shape is defensible, the exponent is debt.
+- `T_hor` conflates "how long the record must live" with its
+  τ/needRate — a real agent has no horizon oracle; the proxy is
+  the honest version of the human's implicit one.
+- `fitness:true` pushes the problem to the world: WHO appraises
+  fitness relevance? Spec says world-layer flags it; the
+  character-side appraisal model (threat-scarcity prior) is
+  still unwritten — flagged as an interface debt.
+- The emotional crossover's immediate-*deficit* is the contested
+  half; we implement the deficit small (0.10) and the gating
+  large — the probe tests the flip, not the size.
+- The monitoring scallop is modeled as a pure hazard ramp; the
+  literature can't tell us whether the early checks are strategy
+  or settling — `mon_base` covers both and stays flat.
+- `gen_tau_mult` on self-produced content assumes generation and
+  enactment share the slope benefit; the SPT literature
+  (enacted) is stronger than the generation arm at long delay —
+  the single multiplier is a parsimony choice, flag for split
+  if probes strain.
+- `skill_dom_mult` maps "math computation" → procedures and
+  "reading recognition" → verbal — the Cooper categories are
+  school-shaped; RW skills (espresso, bike routes, cooking)
+  mostly land on the procedural side, so the asymmetry shows up
+  mainly as *variance across mains* via job mix, not as a
+  within-person contrast.

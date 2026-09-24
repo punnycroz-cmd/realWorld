@@ -12396,3 +12396,101 @@ P1284, P1286, P1288.
   Zacks & Abrams 2009; Gold, Zacks & Flores 2017;
   Radvansky & Zacks 2017 (*Curr. Opin. Behav. Sci.* —
   review).
+
+## 244. v121 probe specs (P1291–P1300 — forgetting-curves XI, the shape parameters are functions)
+
+- **P1291 horizon ridgeline (MUST — §6.323):** two record
+  cohorts with target horizons T=7d and T=365d; sweep
+  rehearsal gap; peak post-rehearsal retention must land at
+  gap ≈1.4–2.8d for the week cohort and ≈18–36d for the
+  year cohort (inside both Cepeda 2008 bands).
+- **P1292 flat-ratio failure (MUST — locked
+  `lag_flat_null`):** a build with `lag_ratio(T)` pinned
+  constant cannot satisfy both P1291 optima simultaneously —
+  the two-horizon signature is the locked content.
+- **P1293 fitness irreducibility (MUST — locked
+  `fitness_redux_null`):** `fitness:true` events vs
+  arousal-matched controls (equal w_emo·w_self contribution)
+  separate by ≥0.05 recall at day 7; a build deriving
+  fitness relevance from valence/arousal fails.
+- **P1294 fitness delay-selectivity (SHOULD):** the
+  fitness-vs-control gap at day 7 exceeds the hour-1 gap —
+  the `fitness_imm`/`fitness_consol` split's observable arm.
+- **P1295 disuse clock (MUST — locked `skill_clock_null`):**
+  twin skill records, identical age, one with
+  `disuseDays=21`: return-enactment fumble rate elevated
+  (≈`vac_fail_base` first-use) and asymptotic loss on the
+  gap side only; clock-age-matched no-gap control flat.
+- **P1296 domain asymmetry (SHOULD):** procedural vs
+  verbal/recognition subskill loss over an identical gap ≈
+  3:1 at defaults (accept 1.5:1–5:1 — the Cooper ordering,
+  magnitudes loose).
+- **P1297 emotional crossover (MUST — locked
+  `emo_instant_null`):** high-arousal (≥0.7) vs neutral
+  recall ordering flips between hour-1 and day-3 tests;
+  with consolidation legs disabled the same-day arousal
+  advantage must be ≤0 — the gate pins the dividend to the
+  legs.
+- **P1298 monitoring scallop (MUST):** uncued armed
+  intention self-cue density in the final 25% of the arming
+  window ≥3× mid-window density; event-cued intentions show
+  no ramp (Harris & Wilkins J-shape).
+- **P1299 deadline conversion (MUST — locked
+  `deadline_mute_null`):** population sweep: every armed
+  intention terminates as fired or `missed:true` within
+  `dueDay + pm_grace`; zero armed-forever survivors; missed
+  records mint at `missed_enc_gain` and stop monitoring.
+- **P1300 generation slope (SHOULD — locked
+  `gen_intercept_null`):** self-produced vs heard recall
+  gap at day 7 > gap at day 0.5 under `gen_tau_mult`<1;
+  intercept-only build shows a flat gap and fails.
+
+Probe registry: P1–P1300 (v121 adds P1291–P1300). MUST:
+P1291, P1292, P1293, P1295, P1297, P1298, P1299 (six
+locked-null legs + the scallop). SHOULD: P1294, P1296,
+P1300.
+
+## 245. Sources verified this version (P1291–P1300 backing)
+
+- **Optimal-gap ridgeline (CONSENSUS interaction; ratio
+  shape single-study):** Cepeda, Vul, Rohrer, Wixted &
+  Pashler 2008 (*Psychol. Sci.* 19:1095 — verified: n=1354,
+  ISI ≤105d, RI ≤350d; optimal gap ~20–40% of week RI,
+  ~5–10% of year RI); Cepeda, Pashler, Vul, Wixted & Rohrer
+  2006 (*Psychol. Bull.* — reused, §7.1 base).
+- **Survival processing (CONSENSUS phenomenon; mechanism
+  DEBATED):** Nairne, Thompson & Pandeirada 2007
+  (*Psychol. Sci.* 18:263 — verified: survival processing
+  beats pleasantness/moving/self-reference controls);
+  Nairne & Pandeirada 2008 (*JEP:LMC* 34:497 — delay
+  extension, arousal controls); Scofield, Buchanan &
+  Kostic 2018 (meta — moderate robust effect);
+  countervailing: Kroneisen & Erdfelder 2011; Howe &
+  Derbish 2010; Klein 2012.
+- **Interruption/summer loss (CONSENSUS ordering):**
+  Cooper, Nye, Charlton, Lindsay & Greathouse 1996 (*Rev.
+  Educ. Res.* 66:227 — verified: ~1mo grade-equiv; math
+  computation/spelling > reading; middle-SES reading
+  gains); Driskell, Willis & Copper 1992 (*J. Appl.
+  Psychol.* 77:615 — verified meta: non-use decay, steep
+  early, asymptotic; physical tasks least); Arthur et al.
+  1998 (reused §22.5).
+- **Emotional crossover (CONSENSUS direction; immediate-
+  deficit magnitude DEBATED):** Kleinsmith & Kaplan 1963
+  (*JVLVB* 2:201 — verified: high-arousal worse immediate,
+  better delayed); Sharot & Phelps 2004; McGaugh 2000;
+  Ritchey, Dolcos & Cabeza 2008.
+- **PM monitoring scallop (CONSENSUS shape):** Harris &
+  Wilkins 1982 (*Br. J. Psychol.* 73:1 — verified: TOTE,
+  J-shaped clock-check rise into the deadline; missers had
+  often checked shortly before); Ceci & Bronfenbrenner 1985
+  (developmental scallop/over-monitor under importance);
+  Kvavilashvili & Fisher 2007 (*Memory* 15:458 — verified:
+  time-based PM maintained by periodic self-reminders,
+  event-based rides the cue); McDaniel & Einstein 1993
+  (reused — arming delay).
+- **Generation × delay (CONSENSUS delay-robust; widening
+  DEBATED):** Bertsch, Pesta, Wiscott & McDaniel 2007
+  (*Memory* 15:318 — verified meta: d≈0.40, robust at
+  delay); Slamecka & Graf 1978 (reused); McNamara & Healy
+  1995; Slamecka & Katsaiti 1987 (retention-interval arm).

@@ -5318,3 +5318,80 @@ New primary sources, all verified 2026-09-24:
 
 → encoding-mechanics.md §§123–132; spec v5.66
 §§6.318–6.322; probes P1281–P1290.
+
+## 96. v121 source block — the shape parameters are functions (forgetting-curves XI)
+
+Six new primary-source clusters, each promoting a spec constant
+to a function of horizon, disuse, or record age.
+
+- **Optimal-gap ridgeline (CONSENSUS that gap×RI interact;
+  declining-ratio shape rests on one landmark — DEBATED in
+  exact form):** **Cepeda, Vul, Rohrer, Wixted & Pashler
+  2008** (*Psychol. Sci.* 19:1095 — verified: n=1354 online;
+  ISI 0–105d; RI 7–350d; optimal gap rises in absolute days
+  with RI but falls as a proportion — ~20–40% of week RI vs
+  ~5–10% of year RI → `lag_ratio(T) = clip(0.30·(T/7)^−0.33,
+  0.05, 0.40)`; horizon proxy `T_hor = min(τ_eff,
+  1/needRate)`; locked `lag_flat_null`). Cepeda et al. 2006
+  reused (§7.1 anchor).
+- **Survival processing (CONSENSUS phenomenon; mechanism
+  DEBATED — congruity/elaboration/design-artifact accounts
+  survive):** **Nairne, Thompson & Pandeirada 2007**
+  (*Psychol. Sci.* 18:263 — verified: grasslands-survival
+  rating beats pleasantness, moving-house, and self-
+  reference, the strongest incidental controls then known);
+  **Nairne & Pandeirada 2008** (*JEP:LMC* 34:497 — delay
+  arm, arousal/novelty controls); **Scofield, Buchanan &
+  Kostic 2018** (meta — moderate robust d≈0.4–0.6);
+  countervailing **Kroneisen & Erdfelder 2011**, **Howe &
+  Derbish 2010**, **Klein 2012**. Spec: `fitness:true`
+  events earn post-term `fitness_gain` 0.12 split
+  `fitness_imm`/consolidation; locked `fitness_redux_null` —
+  matched-arousal controls must still separate.
+- **Interruption loss (CONSENSUS ordering; adult-skill arm
+  CONSENSUS):** **Cooper, Nye, Charlton, Lindsay &
+  Greathouse 1996** (*Rev. Educ. Res.* 66:227 — verified:
+  39 studies/13 meta-analyzed; ~1mo grade-equiv loss; math
+  computation & spelling > reading; middle-SES reading
+  gains); **Driskell, Willis & Copper 1992** (*J. Appl.
+  Psychol.* 77:615 — verified meta: non-use decay steep
+  early then asymptotic; physical/natural tasks least;
+  overlearning protects); Arthur et al. 1998 reused (§22.5).
+  Spec: skills decay on `disuseDays` (log-saturating
+  `gap_load`), `skill_dom_mult` 0.3 verbal/recognition
+  share, `vac_gap_d`/`vac_fail_base` return-fumble; locked
+  `skill_clock_null`.
+- **Emotional crossover (CONSENSUS that the advantage
+  accrues; immediate-deficit magnitude DEBATED —
+  replications find parity more often than deficit):**
+  **Kleinsmith & Kaplan 1963** (*JVLVB* 2:201 — verified:
+  high-arousal pairs worse immediate, better delayed — the
+  literal crossover); Sharot & Phelps 2004; McGaugh 2000;
+  Ritchey, Dolcos & Cabeza 2008 (all reused — consolidation
+  account). Spec: retrieval-side `emo_del_gate(age)` on E's
+  arousal term + same-day `emo_imm_tax` 0.10; locked
+  `emo_instant_null` — legs-off builds show zero same-day
+  arousal advantage.
+- **Deadline monitoring (CONSENSUS scallop shape + time/
+  event asymmetry; refresh mechanism DEBATED):** **Harris &
+  Wilkins 1982** (*Br. J. Psychol.* 73:1 — verified:
+  test–wait–test–exit; J-shaped clock-check rise into the
+  target; missers often checked shortly before — monitoring
+  ≠ resolution); **Ceci & Bronfenbrenner 1985** (children
+  scallop; over-monitor under importance); **Kvavilashvili
+  & Fisher 2007** (*Memory* 15:458 — verified: time-based
+  PM persists via periodic self-reminders). Spec:
+  `mon_rate(t)` J-ramp on uncued armed intentions; post-
+  `pm_grace` conversion to `missed:true` records; locked
+  `deadline_mute_null`.
+- **Generation × delay (CONSENSUS delay-robust; widening
+  DEBATED — adopted mild, Jost-consistent):** **Bertsch,
+  Pesta, Wiscott & McDaniel 2007** (*Memory* 15:318 —
+  verified meta: d≈0.40 across 86 studies); **McNamara &
+  Healy 1995**; **Slamecka & Katsaiti 1987** (retention-
+  interval arm); Slamecka & Graf 1978 reused. Spec:
+  `gen_tau_mult` 0.85 on self-produced records — slope, not
+  just intercept; locked `gen_intercept_null`.
+
+→ forgetting-curves.md §§51–55; spec v5.67 §§6.323–6.328;
+probes P1291–P1300.
