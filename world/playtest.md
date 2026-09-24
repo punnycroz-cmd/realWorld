@@ -157,6 +157,11 @@ One person can wear every hat; four real testers is the intended shape.
   walk-with / carry-item), the phrase-kit repetition guard, and the
   0% blackout floor that reads as a quiet day, never an outage
   screen.
+  PT65–PT71 audit the per-version surface layers (menus, exits, the
+  Book, wire v6, archive v6, create v77, mod v78). PT72 (harness v76
+  relay layer) is a facilitator audit — the revisit flags, the
+  directional Regressions card, the run sheet, and the doubly-filtered
+  scenario walk.
 
 ## 3. Running a session
 
@@ -242,6 +247,25 @@ v65 harness affordances (PT60 exercises all of them):
   next tester: build, session minutes, the exact scenario to resume at,
   per-scenario remaining counts matching the rail's N/M math, every open
   finding at any severity with refs and owner routing, and ttfr when set.
+
+v76 harness affordances (PT72 exercises all of them):
+
+- **Revisit flags** — a `⚑` toggle on every rail card marks a scenario
+  to come back to (`S.flags`, persisted, never a verdict). Flagging does
+  not select the card. Flagged ids ride the handoff note under
+  `flagged for revisit:` so the relay survives a tester change.
+- **Regressions card** — the cohort panel gains `#regr`: refs verdicted
+  pass by an imported session but fail in the current session list as
+  `regressed`; imported-fail → current-pass list as `recovered`.
+  Directional (current build vs history), keyed on checkpoint refs,
+  never averaged — the plain Disagreements card is unchanged. The same
+  split rides the Markdown export's `## Cohort` section.
+- **Copy run sheet** — `exSheet` emits a `[world-playtest-runsheet]`
+  Markdown block for the filtered scenario list: header + build/estimate
+  line, then per scenario the persona, goal, and `- [ ]` lines for every
+  step and checkpoint. Blank by design — a paper artifact for the next
+  session, not a report. Honors smoke + hide-finished, which now also
+  compose on the `[` / `]` walk (previously smoke-only).
 
 v66 content under test (PT61 exercises it): the drama-direction board's
 new permission structures — fuse interference matrix (§31, all 15 pairs
@@ -331,7 +355,7 @@ present and no mutation call on the surface; draft key + deny codes
 agree), **mod** (taxonomy agreement, corpus↔lab case mirror, CHARS
 whitelist, v36 affordances), **harness** (playtest.json ↔ playtest.html:
 LS key + build tag agree with the contract version, every
-harness_ui_v69 mark present, scenario integrity — unique PT ids,
+harness_ui_vNN mark present, scenario integrity — unique PT ids,
 declared surfaces only, ≥1 checkpoint per step, every declared surface
 touched by ≥1 scenario — and the finding-surface dropdown ⊆ declared
 surfaces).
@@ -394,8 +418,8 @@ shared inbox after each session with blockers/majors only.
   fn)` returning hits with `file:line` refs; REVIEW for eyeballed contexts,
   FAIL for violations.
 - v51: harness affordances are contract-checked — when you add a harness
-  feature, declare its marks under `harness_ui_v51.required_marks` in
-  playtest.json and the harness gate enforces them. Bumping the LS key
-  without bumping `version` (or vice versa) FAILs the gate.
+  feature, declare its marks under the current `harness_ui_vNN.required_marks`
+  block in playtest.json and the harness gate enforces them. Bumping the
+  LS key without bumping `version` (or vice versa) FAILs the gate.
 - When the game track lands real plumbing, add a `PT9 "merge wiring"` scenario
   rather than rewriting the demos — the demo contracts stay the reference.

@@ -1,6 +1,6 @@
 {
  "doc": "world/playtest.md is canonical for purpose, roles, and runbook. This file is the machine-readable contract: scenario definitions, step checkpoints, severity rubric, and the session-report schema. world/playtest.html mirrors this data inline (no fetch — file://-safe); regenerate the inline block by hand when this file changes.",
- "version": 75,
+ "version": 76,
  "scope": {
   "under_test": [
    "world/feed.html",
@@ -3552,11 +3552,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the book + request + harness gates.",
-     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 71 scenarios at the v75 key.",
+     "expect": "The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 72 scenarios at the v76 key.",
      "checkpoints": [
       "book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
       "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
-      "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"
      ]
     }
    ]
@@ -3601,11 +3601,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the wire + harness gates.",
-     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 71 scenarios at the v75 key.",
+     "expect": "The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 72 scenarios at the v76 key.",
      "checkpoints": [
       "wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
       "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
-      "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"
      ]
     }
    ]
@@ -3650,11 +3650,11 @@
     },
     {
      "do": "Run `node world/audit.js` and read the archive + harness gates.",
-     "expect": "The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 71 scenarios at the v75 key.",
+     "expect": "The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 72 scenarios at the v76 key.",
      "checkpoints": [
       "archive gate detail ends 'schema archive-v6' — PASS",
       "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
-      "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"
      ]
     }
    ]
@@ -3708,10 +3708,10 @@
     },
     {
      "do": "Run `node world/audit.js` and read the creation + harness gates.",
-     "expect": "Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 71 scenarios at the v75 key.",
+     "expect": "Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 72 scenarios at the v76 key.",
      "checkpoints": [
       "Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
-      "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
       "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"
      ]
     }
@@ -3775,11 +3775,68 @@
     },
     {
      "do": "Run `node world/audit.js` and read the mod + harness gates.",
-     "expect": "Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 71 scenarios at the v75 key.",
+     "expect": "Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 72 scenarios at the v76 key.",
      "checkpoints": [
       "mod gate detail still reports taxonomy/corpus agreement — 15 codes, 94 mirrored cases, engine v50",
-      "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
       "No world-mutation call (fetch/XHR/gs*) appears on mod-console.html — internal surface"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT72",
+   "title": "Harness v76 — the relay & regression layer (v79)",
+   "minutes": 10,
+   "persona": "facilitator running the second week of a rolling cohort — needs to hand a clean state to the next tester and catch what broke since last session",
+   "goal": "Verify the v76 harness pass: the ⚑ revisit flag on each rail card persists across reload and rides the handoff note; Copy run sheet emits a [world-playtest-runsheet] Markdown block honoring the smoke and hide-finished filters; the cohort panel's Regressions card splits 'regressed' (imported pass → current fail) from 'recovered' (imported fail → current pass) — directional, never averaged; the [ / ] walk honors both rail filters.",
+   "surfaces": [
+    "harness",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Flag two rail cards with the ⚑ toggle, then reload the page.",
+     "expect": "Each card gains a filled ⚑ marker; flagging does not open the scenario (the toggle does not trigger pick). After reload the flags persist (S.flags inside rw_playtest_v76 state).",
+     "checkpoints": [
+      "The flag toggles without selecting the scenario — no accidental pick",
+      "Flags survive reload — persisted session state, not a render artifact",
+      "Unflagging restores the empty marker — a flag is a mark, not a verdict"
+     ]
+    },
+    {
+     "do": "Click 'Copy handoff' and read the block; then click 'Copy run sheet' and read the block.",
+     "expect": "The handoff gains a 'flagged for revisit: <ids>' line listing exactly the flagged scenarios. The run sheet opens with a '## [world-playtest-runsheet | <date> | <tester> (<role>)]' header, a build line 'world v76 local · N scenarios · ~M min est', then per scenario: title, persona, goal, and '- [ ]' checkbox lines for every step and every checkpoint.",
+     "checkpoints": [
+      "The run sheet's scenario set equals the filtered rail — check 'smoke set only' first and the sheet narrows to PT1·PT4·PT7·PT21",
+      "hide-finished composes too — fully verdicted scenarios drop off the sheet",
+      "The sheet carries NO verdicts — it is a blank run artifact for the next session, never a report"
+     ]
+    },
+    {
+     "do": "In PT1, verdict the first checkpoint FAIL, export the JSON report, then flip the same checkpoint to PASS and import the exported file.",
+     "expect": "The cohort panel gains a 'Regressions' card: PT1-0-0 lists under 'recovered — was fail, now pass'. Flip the checkpoint back to FAIL and the same ref moves to 'regressed — was pass, now fail'. The plain Disagreements card still lists the ref as before — the new card is directional, not a rename.",
+     "checkpoints": [
+      "Regression direction is computed against imported sessions, not the current one — a lone session shows 'no regressions vs imported sessions'",
+      "The card keys on checkpoint refs, never scenario titles — the exact ref is printed in mono",
+      "Verdict flips update the card live — no re-import needed after the cohort is loaded"
+     ]
+    },
+    {
+     "do": "With 'smoke set only' AND 'hide finished' both checked, walk scenarios with ] and [.",
+     "expect": "The walk moves through the doubly-filtered list only — finished scenarios are skipped, not just hidden from the rail. Clamped at both ends, no wrap.",
+     "checkpoints": [
+      "The walk order equals the visible rail order exactly — no phantom stops",
+      "The deep-link hash still updates on each hop"
+     ]
+    },
+    {
+     "do": "Run `node world/audit.js` and read the harness + mirror gates.",
+     "expect": "The harness gate passes at key rw_playtest_v76 / build 'world v76 local' with the v76 marks present (exSheet, regr, S.flags, toggleFlag, world-playtest-runsheet, flagged for revisit) and reports 72 scenarios; the mirror gate confirms the PT72 hand-sync.",
+     "checkpoints": [
+      "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+      "Mirror gate reports 72 inline vs 72 contract — PT72 hand-synced",
+      "A missing exSheet/regr mark or the old LS key would FAIL — spot-check"
      ]
     }
    ]
@@ -3790,7 +3847,7 @@
    "tester": "string",
    "role": "spectator|player|reviewer|facilitator",
    "date": "YYYY-MM-DD",
-   "build": "world v54 local",
+   "build": "world v76 local",
    "time_to_first_request_min": "number|null — facilitator clocks it during PT8",
    "debrief": "object — {prompt_id: {v: n/a|clear|stumbled|blocker, note}} — the §6 watch-list answered per session (v51)",
    "time_per_scenario": "object — {PT id: minutes open} wall-clock facilitation aid (v37)",
@@ -3824,10 +3881,10 @@
    "marketing": "public-facing copy inconsistencies once flagged"
   }
  },
- "build": "world v74 local",
- "harness_ui_v75": {
-  "storage_key": "rw_playtest_v75",
-  "build_tag_prefix": "world v75 local",
+ "build": "world v76 local",
+ "harness_ui_v76": {
+  "storage_key": "rw_playtest_v76",
+  "build_tag_prefix": "world v76 local",
   "deep_link": "#pt=<PT id> — parsed on load; updated via history.replaceState on pick; unknown ids ignored",
   "time_tracking": "S.times[PT id] accumulates wall-clock ms only while that scenario is open; persisted; reported as session.time_per_scenario minutes; facilitation aid, never a score",
   "keyboard": {
@@ -3848,6 +3905,9 @@
   "finding_templates": "fTmpl dropdown seeds severity + title + detail + repro for the five boundary breaks (possession affordance / real business name / price off PROPOSAL / deny wording / AI-moderation surface); seeds only — Log finding still required, seeded text editable (v65)",
   "hide_finished": "hideDone checkbox drops scenarios whose every checkpoint carries a verdict; composes with the smoke filter; persisted in session state (v65)",
   "session_handoff": "Copy handoff emits a [world-playtest-handoff] block — build + session minutes + resume-at scenario + per-scenario remaining counts + all open findings + ttfr when set; the relay note for the next tester (v65)",
+  "revisit_flags": "a ⚑ toggle on each rail card flags the scenario for revisit (S.flags, persisted across reload); flagged ids ride the handoff note under 'flagged for revisit' (v76)",
+  "regression_view": "cohort panel gains a Regressions card (#regr) — refs verdicted pass by an imported session but fail in the current session list as 'regressed', imported-fail → current-pass list as 'recovered'; directional, never averaged; also rides the Markdown cohort section (v76)",
+  "run_sheet": "Copy run sheet (exSheet) emits a [world-playtest-runsheet] Markdown block for the filtered scenario list — header + per-scenario persona/goal + per-step checkbox lines; honors the smoke and hide-finished filters (v76)",
   "required_marks": [
    "rw_playtest_v57",
    "rw_playtest_v62",
@@ -3880,7 +3940,14 @@
    "rw_playtest_v72",
    "rw_playtest_v73",
    "rw_playtest_v74",
-   "rw_playtest_v75"
+   "rw_playtest_v75",
+   "rw_playtest_v76",
+   "id=\"exSheet\"",
+   "id=\"regr\"",
+   "S.flags",
+   "toggleFlag",
+   "world-playtest-runsheet",
+   "flagged for revisit"
   ]
  }
 }

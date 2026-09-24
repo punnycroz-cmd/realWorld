@@ -16,7 +16,10 @@
   PT62 + onboarding v5 eligibility layer / onboard gate v67,
   PT63 + lease v68 hand-off layer / lease gate v68, PT64 + thinai v69 long-outage layer,
   PT65 + menus v72 / menus gate, PT66 + exits v73 / exits gate v73,
-  PT67 + book v74 / book gate v74, PT68 + wire v6 schedule/person layer).
+  PT67 + book v74 / book gate v74, PT68 + wire v6 schedule/person layer,
+  PT69 + archive v6 shape layer, PT70 + create v77 sketch & seats layer,
+  PT71 + mod v78 second-eyes layer, PT72 + harness v76 revisit flags /
+  regression view / run sheet).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -57,6 +60,8 @@
   .pt b{font-size:13px}
   .pt .meta{font-size:11px;color:var(--dim);margin-top:2px}
   .pt .done{float:right;font-family:var(--mono);font-size:10.5px;color:var(--grn)}
+  .pt .flag{float:right;font-size:11px;color:var(--dim);cursor:pointer;margin-left:7px;line-height:1.3}
+  .pt .flag.on{color:var(--acc)}
   .goal{font-size:12.5px;color:var(--ink);background:var(--panel2);border:1px solid var(--line);
     border-radius:6px;padding:9px 12px;margin:10px 0}
   .goal em{color:var(--dim)}
@@ -183,6 +188,7 @@
       <button id="exMd">Copy report (Markdown)</button>
       <button id="exInbox" title="blocker/major findings only — the §5 triage paste">Copy inbox note</button>
       <button id="exHandoff" title="paste-ready block for the next tester — resume point, remaining counts, open findings">Copy handoff</button>
+      <button id="exSheet" title="Markdown run sheet for the filtered scenario list — the paper artifact for live facilitation">Copy run sheet</button>
       <button id="exImport">Import report…</button>
       <input type="file" id="exFile" accept=".json" style="display:none" multiple>
       <button class="danger" id="reset">Reset session</button>
@@ -1462,10 +1468,10 @@ const PTS=[
     "The picker stops offering the span you booked while it is held",
     "Every feed line uses the existing vocabulary — booking mints no new status chip"]},
  {do:"Run `node world/audit.js` and read the book + request + harness gates.",
-  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 71 scenarios at the v75 key.",
+  exp:"The book gate reports schema book-v1 with the three-way mirror deep-compared (bookings.json ↔ inline BOOK ↔ BOOKW), no prices on the Book, bookable ⊆ exclusive actions, claims resolving to CLAIMS keys, feed_shapes ⊆ feed_vocabulary, and a dark-pattern sweep. Harness gate reports 72 scenarios at the v76 key.",
   ck:["book gate detail: 'schema v74 · 4 claims · 4 seeded windows' — PASS",
     "A cr figure in bookings.json, a stale BOOKW row, or an off-vocabulary status would FAIL — spot-check the gate code",
-    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]}
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]}
 ,{id:"PT68",title:"The Wire v6 — the schedule + the person layer",min:10,
  persona:"daily spectator — knows the wire, wants the day's shape",
  goal:"Verify the v75 spectator-feed pass: the on-the-book strip shows only windows still ahead and never sells one; 'their wire today' counts the wire per person without inventing coverage; thread mute hides a request from your display only; the search match count is honest; every addition stays view-layer.",
@@ -1486,10 +1492,10 @@ const PTS=[
     "Muted events still count in 'the day so far' — the recap counts the wire, not your view",
     "'N matching' counts text + who + resolved names + venue names across the whole feed"]},
  {do:"Run `node world/audit.js` and read the wire + harness gates.",
-  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 71 scenarios at the v75 key.",
+  exp:"The wire gate reports the v75 affordances present (bookbar/cday/mutelist/qcount, renderBook/renderCharDay/toggleMute, both localStorage keys), feed.json spectator_ui_v75 keys complete, and the wire's BOOKW deep-mirrored against bookings.json windows. Harness gate reports 72 scenarios at the v76 key.",
   ck:["wire gate detail ends with 'v75 keys: book_strip,char_day,thread_mute,search_count,keyboard' — PASS",
     "A BOOKW row drifting from bookings.json, or a mute verb on a button that touches the world, would FAIL — spot-check the gate code",
-    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]}
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]}
 ,{id:"PT69",title:"The Archive v6 — the shape layer (same hour, day vs day, finer trail cuts)",min:10,
  persona:"returning spectator — wants the shape of the week, not just its days",
  goal:"Verify the v76 archive pass: the same-hour view counts one hour of day across every archived day without promising a schedule; day vs day compares two days in counted columns only; the person lens cuts a trail finer without widening scope; copy record carries the source badge; j/k walks the day rows.",
@@ -1510,10 +1516,10 @@ const PTS=[
     "The copied line opens 'real world — the archive — record <id> (demo archive)' — badge included",
     "j/k are inert while focus is in the search box"]},
  {do:"Run `node world/audit.js` and read the archive + harness gates.",
-  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 71 scenarios at the v75 key.",
+  exp:"The archive gate reports schema archive-v6 with the v76 affordance marks present (hour/cmp view switches, pickHour/pickD1/pickD2, honesty copy, lens chips, reccopy, the j/k walk) and the archive_ui_v76 contract block in history.json. Harness gate reports 72 scenarios at the v76 key.",
   ck:["archive gate detail ends 'schema archive-v6' — PASS",
     "A missing archive_ui_v76 block or absent affordance mark would FAIL — spot-check the gate code",
-    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall"]}]},
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall"]}]},
  {id:"PT70",title:"Join the Cast v6 — the sketch & the seats layer (v77)",min:12,
  persona:"paid-tier player on a full block — wants a second character and keeps asking what it costs to skip the line",
  goal:"Verify the v77 creation pass: the structured look picks draw a live canvas sketch on step 2 and ride the review card; the roster panel states the block's hired-face cap verbatim; a full card routes signing to a free, first-come seat waitlist that never bills, expires offers at 48 h, and sells no sooner seat; a second hire is stated as a stranger to the first.",
@@ -1539,9 +1545,9 @@ const PTS=[
     "The briefing whitelist is unchanged: profile / surface relationships / routine, secrets still 'none written'",
     "No affordance links the two characters — no shared bank, no shared knowledge"]},
  {do:"Run `node world/audit.js` and read the creation + harness gates.",
-  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 71 scenarios at the v75 key.",
+  exp:"Creation gate passes the v77 marks: sketch/block_capacity/seat_waitlist/multi_hire contract blocks, rw_create_wait_v25 + BLOCK_CAP agreement, waitlist/sketch/stranger copy strings. Harness gate reports 72 scenarios at the v76 key.",
   ck:["Creation gate detail reports schema v25 + waitlist key rw_create_wait_v25",
-    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
     "No world-mutation call (fetch/XHR/gsRequest*/gsLease*) appears on create.html — the seam stays read-only"]}]}
 ,{id:"PT71",title:"Mod Console v4 — the second-eyes layer (v78)",min:11,
  persona:"reviewer on a two-person shift — a queue, a partner, and one appeal",
@@ -1573,16 +1579,45 @@ const PTS=[
     "The report still shows corpus green at engine v50 — the screening engine itself did not change",
     "Deny still previews canned player copy + neutral feed line + flag weight"]},
  {do:"Run `node world/audit.js` and read the mod + harness gates.",
-  exp:"Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 71 scenarios at the v75 key.",
+  exp:"Mod gate passes the v78 marks: claimed_by, releaseClaim, DIFFERENT-REVIEWER RULE, Appeal workspace, Handoff notes — internal only, revSel/setReviewer, by_reviewer, plus the four moderation.json contract blocks (review_locks/appeal_workspace/handoff_notes/reviewer_stats) and the three seeded affordances (claimed item, orig card, note). Harness gate reports 72 scenarios at the v76 key.",
   ck:["mod gate detail still reports taxonomy/corpus agreement — 15 codes, 94 mirrored cases, engine v50",
-    "Harness gate: '71 scenarios · N checkpoints · key rw_playtest_v75'; 0 fail overall",
-    "No world-mutation call (fetch/XHR/gs*) appears on mod-console.html — internal surface"]}]}];
+    "Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+    "No world-mutation call (fetch/XHR/gs*) appears on mod-console.html — internal surface"]}]},
+ {id:"PT72",title:"Harness v76 — the relay & regression layer (v79)",min:10,
+ persona:"facilitator running the second week of a rolling cohort — needs to hand a clean state to the next tester and catch what broke since last session",
+ goal:"Verify the v76 harness pass: the ⚑ revisit flag on each rail card persists across reload and rides the handoff note; Copy run sheet emits a [world-playtest-runsheet] Markdown block honoring the smoke and hide-finished filters; the cohort panel's Regressions card splits 'regressed' (imported pass → current fail) from 'recovered' (imported fail → current pass) — directional, never averaged; the [ / ] walk honors both rail filters.",
+ surfaces:["harness","audit"],
+ steps:[
+ {do:"Flag two rail cards with the ⚑ toggle, then reload the page.",
+  exp:"Each card gains a filled ⚑ marker; flagging does not open the scenario (the toggle does not trigger pick). After reload the flags persist (S.flags inside rw_playtest_v76 state).",
+  ck:["The flag toggles without selecting the scenario — no accidental pick",
+    "Flags survive reload — persisted session state, not a render artifact",
+    "Unflagging restores the empty marker — a flag is a mark, not a verdict"]},
+ {do:"Click 'Copy handoff' and read the block; then click 'Copy run sheet' and read the block.",
+  exp:"The handoff gains a 'flagged for revisit: <ids>' line listing exactly the flagged scenarios. The run sheet opens with a '## [world-playtest-runsheet | <date> | <tester> (<role>)]' header, a build line 'world v76 local · N scenarios · ~M min est', then per scenario: title, persona, goal, and '- [ ]' checkbox lines for every step and every checkpoint.",
+  ck:["The run sheet's scenario set equals the filtered rail — check 'smoke set only' first and the sheet narrows to PT1·PT4·PT7·PT21",
+    "hide-finished composes too — fully verdicted scenarios drop off the sheet",
+    "The sheet carries NO verdicts — it is a blank run artifact for the next session, never a report"]},
+ {do:"In PT1, verdict the first checkpoint FAIL, export the JSON report, then flip the same checkpoint to PASS and import the exported file.",
+  exp:"The cohort panel gains a 'Regressions' card: PT1-0-0 lists under 'recovered — was fail, now pass'. Flip the checkpoint back to FAIL and the same ref moves to 'regressed — was pass, now fail'. The plain Disagreements card still lists the ref as before — the new card is directional, not a rename.",
+  ck:["Regression direction is computed against imported sessions, not the current one — a lone session shows 'no regressions vs imported sessions'",
+    "The card keys on checkpoint refs, never scenario titles — the exact ref is printed in mono",
+    "Verdict flips update the card live — no re-import needed after the cohort is loaded"]},
+ {do:"With 'smoke set only' AND 'hide finished' both checked, walk scenarios with ] and [.",
+  exp:"The walk moves through the doubly-filtered list only — finished scenarios are skipped, not just hidden from the rail. Clamped at both ends, no wrap.",
+  ck:["The walk order equals the visible rail order exactly — no phantom stops",
+    "The deep-link hash still updates on each hop"]},
+ {do:"Run `node world/audit.js` and read the harness + mirror gates.",
+  exp:"The harness gate passes at key rw_playtest_v76 / build 'world v76 local' with the v76 marks present (exSheet, regr, S.flags, toggleFlag, world-playtest-runsheet, flagged for revisit) and reports 72 scenarios; the mirror gate confirms the PT72 hand-sync.",
+  ck:["Harness gate: '72 scenarios · N checkpoints · key rw_playtest_v76'; 0 fail overall",
+    "Mirror gate reports 72 inline vs 72 contract — PT72 hand-synced",
+    "A missing exSheet/regr mark or the old LS key would FAIL — spot-check"]}]}];
 
 
 /* ---- state ---- */
-/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74 */
-const LS="rw_playtest_v75";
-const BUILD="world v75 local";
+/* prior session keys, kept for the audit mark list: rw_playtest_v71, rw_playtest_v72, rw_playtest_v73, rw_playtest_v74, rw_playtest_v75 */
+const LS="rw_playtest_v76";
+const BUILD="world v76 local";
 const SMOKE=["PT1","PT4","PT7","PT21"];
 /* session debrief — the §6 watch-list as five fixed prompts (v51) */
 const DEBRIEF=[
@@ -1593,8 +1628,9 @@ const DEBRIEF=[
  {id:"scope",label:"Scope leaks — any UI implying main-possession, AI moderation, or real money?"}];
 /* finding owner routing — mirrors session_report_schema.triage_owner_map (v51) */
 const OWNER_SUGGEST={screen:"world",lab:"world",audit:"world",harness:"world"};
-let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+let S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
 try{const s=JSON.parse(localStorage.getItem(LS));if(s)S={...S,...s};}catch(e){}
+S.flags=S.flags||{};
 const $=id=>document.getElementById(id);
 const save=()=>{localStorage.setItem(LS,JSON.stringify(S));
   const t=$("saveTick");t.style.opacity=1;setTimeout(()=>t.style.opacity=0,1200);};
@@ -1607,19 +1643,27 @@ function tickTime(){if(S.cur&&S.cur_since){S.times[S.cur]=(S.times[S.cur]||0)+(D
 function toast(m){const t=$("toast");t.textContent=m;t.style.display="block";setTimeout(()=>t.style.display="none",1800);}
 
 /* ---- scenario list ---- */
+const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
+  const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
+  return {tot,done};};
+/* the filtered rail list — smoke + hide-finished compose; one source of truth
+   for the rail, the [ / ] walk, and the run sheet (v76) */
+const curList=()=>{let l=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
+  if(S.hideDone)l=l.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
+  return l;};
+/* revisit flags (v76) — a ⚑ mark on the rail card, persisted, rides the handoff */
+window.toggleFlag=(e,id)=>{e.stopPropagation();
+  if(S.flags[id])delete S.flags[id];else S.flags[id]=1;
+  save();renderList();};
 function renderList(){
-  const ckDone=p=>{const tot=p.steps.reduce((a,s)=>a+s.ck.length,0);
-    const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
-    return {tot,done};};
-  let list=S.smoke?PTS.filter(p=>SMOKE.includes(p.id)):PTS;
-  if(S.hideDone)list=list.filter(p=>{const d=ckDone(p);return d.done<d.tot;});
+  const list=curList();
   let totAll=0,doneAll=0,leftMin=0;
   $("ptList").innerHTML=list.map(p=>{
     const {tot,done}=ckDone(p);
     totAll+=tot;doneAll+=done;leftMin+=p.min*(tot-done)/tot;
     const spent=Math.floor((S.times[p.id]||0)/60000);
     return `<div class="pt ${S.cur===p.id?'on':''}" onclick="pick('${p.id}')">
-      <span class="done">${done}/${tot}</span><b>${p.id} — ${esc(p.title)}</b>
+      <span class="done">${done}/${tot}</span><span class="flag ${S.flags[p.id]?'on':''}" title="flag for revisit" onclick="toggleFlag(event,'${p.id}')">⚑</span><b>${p.id} — ${esc(p.title)}</b>
       <div class="meta">${p.min} min · ${spent}m spent · ${esc(p.persona)}</div></div>`;}).join("");
   $("ptCount").textContent=list.length+(S.smoke?" of ":"")+(!S.smoke?" ":"")+PTS.length+" scenarios";
   $("prog").textContent=`progress: ${doneAll} of ${totAll} checkpoints · ~${Math.round(leftMin)} min left`;
@@ -1651,7 +1695,7 @@ function renderBody(){
             <span class="vbtn na ${v.v==='na'?'on':''}" onclick="setCk('${k}','na')">N/A</span>
           </div></div>`;}).join("")}</div>`).join("")}`;
 }
-window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();};
+window.setCk=(k,v)=>{S.ck[k]=S.ck[k]||{};S.ck[k].v=S.ck[k].v===v?null:v;save();renderBody();renderList();renderStats();renderCohort();};
 window.noteCk=(k,n)=>{S.ck[k]=S.ck[k]||{};S.ck[k].note=n;save();renderStats();};
 window.openSurf=s=>{const f=SURF[s];$("viewer").style.display="block";$("vName").textContent=f.name;
   $("vFile").textContent="world/"+f.file;$("vTab").href=f.file;
@@ -1734,6 +1778,16 @@ function report(){
 }
 
 /* ---- cohort (imported reports) ---- */
+/* regression split (v76): current session vs imported reports, directional —
+   regressed = imported pass → current fail; recovered = imported fail →
+   current pass. Shared by the cohort card and the Markdown export. */
+function regressionSplit(){
+  const curV={};Object.entries(S.ck).forEach(([k,v])=>{if(v.v)curV[k]=v.v;});
+  const impV={};S.cohort.forEach(s=>(s.results||[]).forEach(r=>{
+    if(r.verdict)(impV[r.ref]=impV[r.ref]||new Set()).add(r.verdict);}));
+  return {regressed:Object.keys(curV).filter(k=>curV[k]==="fail"&&impV[k]&&impV[k].has("pass")).sort(),
+          recovered:Object.keys(curV).filter(k=>curV[k]==="pass"&&impV[k]&&impV[k].has("fail")).sort()};
+}
 function renderCohort(){
   const el=$("cohort");
   if(!S.cohort.length){el.innerHTML="";return;}
@@ -1753,6 +1807,7 @@ function renderCohort(){
   sessions.forEach((s,si)=>s.results.forEach(r=>{if(!r.verdict)return;
     (byRef[r.ref]=byRef[r.ref]||[]).push({si,v:r.verdict});}));
   const dis=Object.entries(byRef).filter(([,l])=>new Set(l.map(x=>x.v)).size>1);
+  const reg=regressionSplit();
   const allFindings=sessions.flatMap((s,si)=>s.findings.map(f=>({f,who:s.session.tester})));
   /* coverage (v51): which checkpoints anyone has verdicted + median time vs estimate */
   const verdicted=new Set();
@@ -1776,6 +1831,9 @@ function renderCohort(){
     ${dis.length?`<div class="finding" style="border-color:var(--red)"><b style="color:var(--red)">Disagreements</b>`+
       dis.map(([r,l])=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> — `+
         l.map(x=>`${esc(sessions[x.si].session.tester)}: ${x.v}`).join(" vs ")+`</div>`).join("")+`</div>`:""}
+    <div class="finding" id="regr"><b>Regressions</b><span style="color:var(--dim)"> — this session vs imported reports · directional, never averaged (v76)</span>
+      ${reg.regressed.length?reg.regressed.map(r=>`<div style="font-size:12px;margin-top:4px"><code>${r}</code> <span style="color:var(--red)">regressed</span> — was pass, now fail</div>`).join(""):'<div style="font-size:11.5px;color:var(--grn);margin-top:4px">no regressions vs imported sessions</div>'}
+      ${reg.recovered.map(r=>`<div style="font-size:12px;margin-top:2px"><code>${r}</code> <span style="color:var(--grn)">recovered</span> — was fail, now pass</div>`).join("")}</div>
     <div class="finding"><b>Coverage</b><span style="color:var(--dim)"> — checkpoints verdicted by anyone · median time-open vs estimate</span>
       <table id="covg" style="border-collapse:collapse;margin-top:4px">${covRows}</table>
       ${neverKeys.length?`<div style="font-size:11.5px;color:var(--dim);margin-top:6px">never verdicted by any session (${neverKeys.length}): `+
@@ -1812,7 +1870,10 @@ $("exMd").onclick=()=>{const r=report();
     const byRef={};[{session:{tester:S.name||"this session"},results:r.results},...S.cohort]
       .forEach(s=>s.results.forEach(x=>{if(x.verdict)(byRef[x.ref]=byRef[x.ref]||new Set()).add(x.verdict);}));
     const dis=Object.keys(byRef).filter(k=>byRef[k].size>1);
-    if(dis.length)md+="- disagreements: "+dis.join(", ")+"\n";}
+    if(dis.length)md+="- disagreements: "+dis.join(", ")+"\n";
+    const reg=regressionSplit();
+    if(reg.regressed.length)md+="- regressed (was pass, now fail): "+reg.regressed.join(", ")+"\n";
+    if(reg.recovered.length)md+="- recovered (was fail, now pass): "+reg.recovered.join(", ")+"\n";}
   navigator.clipboard.writeText(md).then(()=>toast("Markdown copied"),()=>toast("copy failed"));};
 $("exInbox").onclick=()=>{const r=report();
   const bf=r.findings.filter(f=>f.severity==="blocker"||f.severity==="major");
@@ -1837,12 +1898,25 @@ $("exHandoff").onclick=()=>{
     const done=p.steps.reduce((a,s,si)=>a+s.ck.filter((_,ci)=>S.ck[p.id+"-"+si+"-"+ci]).length,0);
     return tot-done?`${p.id} ${tot-done}/${tot}`:null;}).filter(Boolean);
   md+=rem.length?" "+rem.join(" · "):" none — every checkpoint verdicted";
+  const fl=Object.keys(S.flags||{});
+  if(fl.length)md+=`\n- flagged for revisit: ${fl.join(" · ")}`;
   if(S.findings.length)md+="\n- open findings:\n"+S.findings.map(f=>
     `  - **${f.severity}** ${f.ref||f.surface}: ${f.title} →${f.owner||"world"}`).join("\n");
   else md+="\n- no findings logged";
   navigator.clipboard.writeText(md+"\n").then(()=>toast("handoff copied"),()=>toast("copy failed"));};
+/* run sheet (v76) — a blank Markdown artifact for the next session's paper
+   run; honors the filtered rail (smoke + hide-finished), carries no verdicts */
+$("exSheet").onclick=()=>{
+  const list=curList(),date=new Date().toISOString().slice(0,10);
+  let md=`## [world-playtest-runsheet | ${date} | ${S.name||"?"} (${S.role})]\n`+
+    `- build: ${BUILD} · ${list.length} scenarios · ~${Math.round(list.reduce((a,p)=>a+p.min,0))} min est\n`;
+  list.forEach(p=>{md+=`\n### ${p.id} — ${p.title} (${p.min} min)\n`+
+    `persona: ${p.persona}\ngoal: ${p.goal}\n`;
+    p.steps.forEach((st,i)=>{md+=`- [ ] step ${i+1}: ${st.do}\n  expect: ${st.exp}\n`;
+      st.ck.forEach(c=>{md+=`  - [ ] ${c}\n`;});});});
+  navigator.clipboard.writeText(md).then(()=>toast("run sheet copied"),()=>toast("copy failed"));};
 $("reset").onclick=()=>{if(confirm("Clear this session's verdicts + findings? (imported reports also cleared)")){
-  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{}};
+  localStorage.removeItem(LS);S={name:"",role:"spectator",cur:null,ck:{},findings:[],cohort:[],ttfr:null,smoke:false,hideDone:false,started:Date.now(),times:{},sel:null,cur_since:null,debrief:{},flags:{}};
   location.reload();}};
 
 /* ---- keyboard map (see #keyCard; inert inside form fields) ---- */
@@ -1867,8 +1941,8 @@ document.addEventListener("keydown",e=>{
     setCk(keys[S.sel],k==="p"?"pass":k==="f"?"fail":"na");
     if(S.sel<keys.length-1){S.sel++;save();renderBody();scrollSel();}}
   else if(k==="o"){openSurf(p.surfaces[0]);}
-  else if(k==="["||k==="]"){ /* scenario walk — clamped to the filtered list (v51) */
-    const list=S.smoke?PTS.filter(x=>SMOKE.includes(x.id)):PTS;
+  else if(k==="["||k==="]"){ /* scenario walk — clamped to the filtered list (v51; honors hide-finished since v76) */
+    const list=curList();
     const i=list.findIndex(x=>x.id===S.cur);
     const nx=list[k==="]"?(i+1<list.length?i+1:i):(i>0?i-1:0)];
     if(nx&&nx.id!==S.cur)pick(nx.id);}
