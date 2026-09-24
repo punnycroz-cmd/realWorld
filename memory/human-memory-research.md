@@ -4249,3 +4249,56 @@ New primary/secondary sources brought in this pass (each § in
   cringe age-gradient inferred; `co_arousal_bond` magnitudes
   unpriced; `na_gate` linearizes a non-monotonic interaction;
   sdep partial-debt scaling extrapolated. → EM §§112–125.
+
+## 79. v102 sources — false-memory IX (FM Part IX → spec v5.50)
+
+New primary/secondary sources brought in this pass (each § in
+`false-memory.md` Part IX; probes P1075–P1084):
+
+- **Forced confabulation:** Zaragoza, Payment, Ackil,
+  Drivdahl & Beck 2001 (*JEP:General* 130:473 — forced
+  answers to unanswerable questions mint whole-event false
+  memories; self-generated errors out-persist suggestions);
+  Ackil & Zaragoza 1998; Chrobak & Zaragoza 2008
+  (cross-event generalization); Slamecka & Graf 1978
+  (generation effect). → §6.235.
+- **Doctored evidence:** Wade, Garry, Read & Lindsay 2002
+  (*Psych. Bull. Rev.* 9:597 — doctored childhood photos →
+  ~50% false memory with narrative detail); Lindsay, Hagen,
+  Read, Wade & Garry 2004 (fabricated grade-school events,
+  ~65% with guided imagery); Nash & Wade 2009 (fabricated
+  video of self). → §6.236.
+- **Implicit theories:** Ross 1989 (*Psych. Rev.* 96:341);
+  McFarland & Ross 1987 (relationship evaluation
+  reconstruction); Wilson & Ross 2001 + Ross & Wilson 2002
+  (temporal self-appraisal, distance-derogation). → §6.237.
+- **Confidence inflation:** Zaragoza & Mitchell 1996
+  (*Psych. Sci.* 7:294 — repetition raises confidence not
+  accuracy); Shaw 1996; Roediger, Jacoby & McDermott 1996.
+  → §6.238.
+- **Nonbelieved memory:** Mazzoni, Scoboria & Harvey 2010
+  (*Psych. Sci.* 21:1334 — ~20% prevalence); Otgaar,
+  Scoboria & Mazzoni 2014 (belief/recollection separability);
+  Scoboria, Boucher & Mazzoni 2015. → §6.239.
+- **Unanimity conformity:** Gabbert, Memon & Wright 2006
+  (*Memory* 14:760); Wright, Self & Justice 2000; Asch
+  1951. → §6.240.
+- **Lateral spread:** Chrobak & Zaragoza 2008 (*Appl. Cog.
+  Psych.* 22); Drivdahl & Zaragoza 2001. → §6.241.
+- **Cognitive interview:** Fisher & Geiselman 1992; Memon,
+  Meissner & Fraser 2010 (meta, 65 studies — correct detail
+  up, errors not up); Köhnken et al. 1999. → §6.242.
+- **Warning timing:** Blank & Launay 2014 (*Appl. Cog.
+  Psych.* 28 meta, 31 studies); Greene, Flynn & Loftus
+  1982; Echterhoff, Hirst & Hussy 2005. → §6.243.
+- **Affect-congruent lures:** Storbeck & Clore 2005
+  (*Psych. Sci.* 16:785 — negative mood increases DRM false
+  recall); Brainerd, Holliday, Reyna, Yang & Toglia 2010;
+  Knott & Thorley 2014; Ruci, Tomes & Zelenski 2009.
+  → §6.244.
+- **Marked hypothesis:** `fgen_*`/`proof_*` lab-ceiling
+  magnitudes; `theory_dir` linear interpolation ours;
+  `cinfl_cap` asymptote unfitted; NBM inertness minimal
+  (affect stays live); unanim superlinearity ours;
+  `moodlure_val_w` DEBATED-tier size. → FM §§101–113;
+  probes P1075–P1084.

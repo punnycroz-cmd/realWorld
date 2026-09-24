@@ -1229,6 +1229,16 @@ needs both.
 | pain_peak_w / pain_inflate / pain_avoid_gain | 0.5 / 1.0 / 0.0 | 0.9 / 1.4 / 1.0 | peak-end pain report + decision weight (v5.49) |
 | co_arousal_min / co_arousal_gain / co_arousal_bond | 0.3 / 0.0 / 0.0 | 0.8 / 0.4 / 0.4 | shared-arousal encode boost + pairwise bond leg (v5.49) |
 | gc_na_thresh / stress_consol_k | 0.2 / 0.0 | 0.6 / 0.6 | noradrenergic gate on glucocorticoid consolidation (v5.49) |
+| fgen_gain / fgen_vs_hear / fgen_warn_resid | 0.2 / 1.0 / 0.2 | 1.5 / 3.0 / 0.8 | self-generated false-content strength + warning residue (v5.50) |
+| proof_lift / proof_mint_p / proof_rich_gain | 0.0 / 0.0 / 0.0 | 0.7 / 0.7 / 0.6 | doctored-evidence autobiographical implantation (v5.50) |
+| theory_consist / theory_change_gain / theory_dist_tau / theory_drift_cap | 0.0 / 0.0 / 1 / 0.2 | 0.7 / 0.6 / 10 / 0.8 | implicit-theory past-self report drift (v5.50, report-only) |
+| cinfl_per_retell / cinfl_cap | 0.0 / 0.1 | 0.2 / 0.6 | rehearsal confidence inflation (v5.50, report-only) |
+| nbm_thresh / nbm_vivid / nbm_decay | 0.1 / 0.25 / 0.2 | 0.35 / 0.6 / 1.0 | nonbelieved-memory entry + fade (v5.50) |
+| unanim_k / unanim_cap | 0.2 / 0.7 | 0.8 / 1.0 | independent-speaker unanimity amplification (v5.50) |
+| cspread_p / cspread_hop / cspread_s_mult | 0.0 / 1 / 0.2 | 0.4 / 2 / 0.8 | one-hop lateral confabulation spread (v5.50) |
+| ci_gain / ci_guard / ci_warn_add | 0.0 / 0.3 / 0.0 | 0.4 / 0.9 / 0.3 | cognitive-interview shield (v5.50) |
+| warn_pre_eff / warn_post_eff / warn_post_resid | 0.3 / 0.0 / 0.1 | 0.9 / 0.5 / 0.5 | warning-timing split (v5.50) |
+| moodlure_neg_gain / moodlure_val_w | 0.0 / 0.0 | 0.8 / 0.5 | negative-mood + valence-match gist-lure gain (v5.50) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -5162,3 +5172,73 @@ may not buy:
   in flat affect and genuinely remembers it *thinner* than
   the sister who screamed — `gc_na_gate`.
   Sources EM§§112–121; probes P1065–P1074.
+
+## 82. v5.50 note (false-memory IX — the self-service layer: which lies a bible may tell)
+
+Ten mechanisms (FM Part IX, spec §§6.235–6.244); clamp rows
+added in §0. What a bible may and may not buy:
+
+- **`fgen_gain` — the confabulator's trait.** Scales with
+  `suggs` and `verbal` fluency: the glib main who always
+  has an answer is the one whose answers become her past.
+  The quiet character who says "I don't know" mints almost
+  nothing here — `answer:true` never fires. Personality
+  expressed as interrogation vulnerability.
+- **`proof_*` — a world-supplied trigger, not a trait.**
+  `proof_mint_p` varies only via `suggs`; the *opportunity*
+  (a fabricated photo existing at all) is a world-level
+  act. No bible should pin high `proof_rich_gain` except
+  the vivid `imagery` main — she furnishes the forged
+  memory herself.
+- **`theory_*` — the two most characterful knobs in the
+  batch.** `self_est` high → `growth:true` narratives +
+  `theory_change_gain` derogation (the self-improver whose
+  origin story worsens yearly); `meta_conf` low → drift
+  goes unnoticed. A bible choosing `growth:true` on a
+  main is choosing a character whose past is a moving
+  target by construction.
+- **`cinfl_*` — trait-free by design.** Every reteller
+  inflates; the diversity is in retell *frequency*
+  (social/extraversion exposure), not the rate. The
+  storyteller main reaches `cinfl_cap` in weeks; the
+  reticent one never does — emergence, not parameter.
+- **`nbm_*` — everyone can hold a nonbelieved memory;
+  who accumulates them differs.** Low `nbm_thresh` +
+  high `nbm_vivid` = the character who keeps a museum of
+  disproven scenes (the one whose beliefs get corrected
+  often — gullible then disillusioned). `nbm_reflip_null`
+  is locked for all profiles.
+- **`unanim_*` — population-level; exposure is social.**
+  `unanim_k` flat; what varies is how many independent
+  voices a character's social graph actually supplies.
+  `unanim_echo_null` is the substrate's job — if genealogy
+  tracking is coarse, don't tune around it, fix the
+  genealogy.
+- **`cspread_*` — `confab_fill` is the lever.** High
+  gap-fillers spread adopted suggestions further; clamp
+  `cspread_hop` at 2 maximum — the chain null is locked
+  regardless.
+- **`ci_*` — the protocol is a behavior, not a trait.**
+  Any character can run `mode:"ci"`; the bible decides
+  *who defaults to it* (the patient listener archetype).
+  `ci_guard` high = the interviewer whose questions mint
+  fewer falsehoods in everyone she talks to — a
+  community-level good carried by one character.
+- **`warn_pre/post_*` — flat population.** Timing is the
+  speaker's choice, not the hearer's trait; `suggs`
+  modulates only the base adoption both legs discount.
+- **`moodlure_*` — `neurot` sets exposure time.** The
+  gains are flat; the anxious/depressive main simply
+  spends more ticks in the amplified state. Do not pin
+  `moodlure_neg_gain` per-character — the state, not the
+  sheet, carries it.
+- **Emergent cast shadows:** (a) the glib main whose
+  invented answers become her autobiography (`fgen` +
+  low `meta_conf`); (b) the self-improver whose past
+  keeps worsening on schedule (`theory_change_gain` +
+  `growth:true`); (c) the patient listener whose
+  conversations leave fewer falsehoods behind than they
+  found (`ci_guard`); (d) the disillusioned one with a
+  shelf of vivid scenes she no longer believes
+  (`nbm_thresh`/`nbm_vivid`).
+  Sources FM§§101–110; probes P1075–P1084.

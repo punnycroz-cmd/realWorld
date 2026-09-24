@@ -1,5 +1,53 @@
-# Memory Model Spec v5.49 — implementable human-like memory for RW characters
+# Memory Model Spec v5.50 — implementable human-like memory for RW characters
 
+> **v5.50 note (false-memory IX — the self-service layer:
+> the mind authors its own errors, then defends them —
+> FM§§101–110):** ten mechanisms where the character is the
+> *source* of the falsehood, plus the two guards that work.
+> (a) **Forced confabulation** — `answer:true` on gap fields
+> mints self-sourced content at `fgen_gain`/`fgen_vs_hear`,
+> warning-residual `fgen_warn_resid`; locked
+> `fgen_truth_null` (Zaragoza et al. 2001) — §6.235.
+> (b) **Doctored-evidence implantation** — `proof:"photo"|
+> "video"` on self-past claims lifts `plaus_min`
+> (`proof_lift`), mints autobiographical phantoms at
+> `proof_mint_p` with schema periphery `proof_rich_gain`;
+> locked `proof_verified_null`/`proof_remote_null` (Wade et
+> al. 2002; Lindsay et al. 2004) — §6.236. (c) **Implicit-
+> theory bias** — self-attitude reports drift toward now
+> (`theory_consist`) or away under `growth:true`/past-self
+> distance (`theory_change_gain`/`theory_dist_tau`), capped
+> `theory_drift_cap`; locked `theory_stored_null` (Ross
+> 1989; Wilson & Ross 2001) — §6.237. (d) **Rehearsal
+> confidence inflation** — `cinfl_per_retell`→`cinfl_cap`
+> on reported confidence only; locked `cinfl_accr_null`
+> (Zaragoza & Mitchell 1996) — §6.238. (e) **Nonbelieved
+> memory** — `beliefStatus:"nonbelieved"` below `nbm_thresh`
+> with strength ≥`nbm_vivid`; vivid but behaviorally inert,
+> `nbm_decay` fade; locked `nbm_reflip_null` (Mazzoni et al.
+> 2010) — §6.239. (f) **Unanimity amplification** — adoption
+> reparametrized over n genealogy-independent speakers via
+> `unanim_k`/`unanim_cap`; locked `unanim_echo_null`
+> (Gabbert et al. 2006) — §6.240. (g) **Lateral
+> confabulation spread** — adopted suggestions recruit
+> schema neighbors at `cspread_p`/`cspread_hop`, half
+> strength, `cspread:true` tag; locked `cspread_chain_null`
+> (Chrobak & Zaragoza 2008) — §6.241. (h) **Cognitive-
+> interview shield** — `mode:"ci"` adds `ci_gain` correct
+> detail, `ci_guard` suppresses confabulation minting;
+> locked `ci_error_null` (Fisher & Geiselman 1992; Memon
+> 2010) — §6.242. (i) **Warning-timing split** — `warned`
+> splits into `warn_pre`/`warn_post` legs + `warn_post_resid`
+> sleeper feed; locked `warn_undo_null` (Blank & Launay
+> 2014) — §6.243. (j) **Affect-congruent lures** —
+> `moodlure_neg_gain` global negative-mood gist
+> amplification + `moodlure_val_w` valence match; locked
+> `moodlure_pos_null` (Storbeck & Clore 2005) — §6.244.
+> §7 +21 named scalars +9 locked nulls; §10 contract adds
+> (`mode:"ci"`, `proof` flag, `answer:true`, `warned`
+> timing split, `nonbelieved` semantics, unanimity
+> genealogy, `cspread` one-hop bound); probes P1075–P1084.
+>
 > **v5.49 note (emotional-memory IX — the arousal that
 > outlives its event: the hangover window, the unpaid regret,
 > the borrowed fear, the gate cortisol can't open alone —
@@ -13179,6 +13227,141 @@ never negative — quiet cortisol is inert, not corrosive
 (P1074). Interface: reads the same `C.arousal_now` field
 §4.57's hangover and §5.113's state-match consume.
 
+### 6.235 Guessing mints better lies than hearing — `fgen_*` (new in v5.50)
+
+FM§101; Zaragoza, Payment, Ackil, Drivdahl & Beck 2001
+(JEP:G 130:473); Ackil & Zaragoza 1998; Chrobak & Zaragoza
+2008.
+
+Any `answer:true` emission on an unanswerable/gap field
+mints the answered content self-sourced:
+`S = enc_base·(1 + fgen_gain)` (`fgen_gain` 0.8), adopted at
+`fgen_vs_hear` (1.5)× the heard-suggestion path. A later
+source warning leaves `fgen_warn_resid` (0.5). **Locked
+`fgen_truth_null`:** confabulated fields never carry
+`accuracy:1` — generation effort is not evidence. Emission
+`confab_answer:true` (audit only).
+
+### 6.236 The photo of the day that never happened — `proof_*` (new in v5.50)
+
+FM§102; Wade, Garry, Read & Lindsay 2002; Lindsay, Hagen,
+Read, Wade & Garry 2004; Nash & Wade 2009.
+
+`hearAccount`/`showEvidence` on a self-referential past
+claim carrying `proof:"photo"|"video"` bypasses `plaus_min`
+by `proof_lift` (0.4) and mints an autobiographical phantom
+at `proof_mint_p` (0.5) with schema-filled periphery at
+`proof_rich_gain` (0.3). Locked nulls: `proof_verified_null`
+— the proof artifact never gains an audit trail the
+character can see; `proof_remote_null` — proof about others'
+pasts gets only §55's gate lift, never the episodic mint.
+Emission `saw_proof:true`.
+
+### 6.237 The present edits the past self — `theory_*` (new in v5.50)
+
+FM§103; Ross 1989 (Psych. Rev. 96:341); McFarland & Ross
+1987; Wilson & Ross 2001; Ross & Wilson 2002.
+
+Self-attitude/evaluative fields reconstruct through the
+theory lens: `reported = now − theory_dir·(now − stored)`,
+`theory_dir` = `theory_consist` (0.35) by default, or
+`−theory_change_gain` (0.3) when the field carries
+`growth:true` or is `past_self` class with gap >
+`theory_dist_tau` (4 y). Per-reconstruct drift, cumulative
+cap `theory_drift_cap` (0.5). **Locked `theory_stored_null`:**
+the stored field is never rewritten — only the report
+drifts.
+
+### 6.238 Confidence rehearses upward — `cinfl_*` (new in v5.50)
+
+FM§104; Zaragoza & Mitchell 1996; Shaw 1996; Roediger,
+Jacoby & McDermott 1996.
+
+Each `retell`/`discussEvent` touch adds
+`reported_conf += cinfl_per_retell·(1 − conf)`
+(`cinfl_per_retell` 0.08), cumulative cap `cinfl_cap` 0.35 —
+applied before §3 `conf_out`. **Locked `cinfl_accr_null`:**
+confidence never feeds back into S, belief, or accuracy.
+
+### 6.239 Remembered but not believed — `nbm_*` (new in v5.50)
+
+FM§105; Mazzoni, Scoboria & Harvey 2010 (Psych. Sci.
+21:1334); Otgaar, Scoboria & Mazzoni 2014; Scoboria,
+Boucher & Mazzoni 2015.
+
+`beliefStatus` gains `"nonbelieved"`: entered when belief
+falls below `nbm_thresh` (0.2) via correction/discrediting
+while strength ≥ `nbm_vivid` (0.4). The record keeps
+phenomenal fields and its affect tag, stops generating
+belief-dependent behavior (planning, testimony), decays at
+`nbm_decay` (0.5×). **Locked `nbm_reflip_null`:** repetition
+and fluency cannot re-flip a nonbelieved record — only
+verified new evidence restores belief. One-way ratchet.
+
+### 6.240 One liar is a rumor; three are a fact — `unanim_*` (new in v5.50)
+
+FM§106; Gabbert, Memon & Wright 2006; Wright, Self &
+Justice 2000.
+
+For n genealogy-independent speakers (§58) delivering the
+same content: `adopt_p = 1 − (1 − p1)·(1 − unanim_k)^(n−1)`,
+`unanim_k` 0.5, ceiling `unanim_cap` 0.95. **Locked
+`unanim_echo_null`:** content re-heard through the speaker's
+own downstream chain never increments n — echo is not
+corroboration.
+
+### 6.241 The adopted error leaks sideways — `cspread_*` (new in v5.50)
+
+FM§107; Chrobak & Zaragoza 2008; Zaragoza et al. 2001;
+Drivdahl & Zaragoza 2001.
+
+When a `told_by`/confab field is adopted (belief ≥0.5), at
+next reconsolidation each unadopted schema-neighbor field
+within `cspread_hop` (1) rolls `cspread_p` (0.15) toward
+schema-congruent completion at half strength
+(`cspread_s_mult` 0.5), tagged `cspread:true`. **Locked
+`cspread_chain_null`:** spread fields cannot seed spread —
+one hop, never a wavefront.
+
+### 6.242 The interview that guards — `ci_*` (new in v5.50)
+
+FM§108; Fisher & Geiselman 1992; Memon, Meissner & Fraser
+2010 (meta, 65 studies); Köhnken et al. 1999.
+
+`cueContext.mode:"ci"` (context reinstatement + unforced
+report) adds `ci_gain` (0.2) correct-detail yield and
+multiplies `fgen_gain`-class confabulation minting by
+`(1 − ci_guard)` (0.6); `warned` inside ci_mode adds
+`ci_warn_add` (0.1). **Locked `ci_error_null`:** ci_mode
+never raises the false-report rate — the shield is free.
+
+### 6.243 Warn me before the lie — `warn_pre/post_*` (new in v5.50)
+
+FM§109; Blank & Launay 2014 (meta, 31 studies); Greene,
+Flynn & Loftus 1982; Echterhoff, Hirst & Hussy 2005.
+
+The `warned` flag splits by timing. `warn_pre` (flag before
+content): adoption ×`(1 − warn_pre_eff)` (0.6). `warn_post`
+(flag after encoding): rollback at `warn_post_eff` (0.25),
+rolled-back content keeps `warn_post_resid` (0.3)
+familiarity feeding §77's sleeper path. **Locked
+`warn_undo_null`:** no warning fully un-encodes delivered
+content — post-warning marks, never erases.
+
+### 6.244 The mood paints which lures land — `moodlure_*` (new in v5.50)
+
+FM§110; Storbeck & Clore 2005 (Psych. Sci. 16:785);
+Brainerd, Holliday, Reyna, Yang & Toglia 2010; Knott &
+Thorley 2014; Ruci, Tomes & Zelenski 2009.
+
+Gist-lure adoption (the `gist_lure_sim` path) is modulated:
+`lure_p *= (1 + moodlure_neg_gain·max(0,−C.mood))` with
+`moodlure_neg_gain` 0.4, plus valence match `×(1 +
+moodlure_val_w)` (0.25) when `sign(lure_valence) ==
+sign(C.mood)`. **Locked `moodlure_pos_null`:** positive
+mood gets no symmetric suppression — the asymmetry is the
+finding.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -15181,6 +15364,43 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.50 additions (false-memory IX — FM§§101–110)
+"fgen_gain": 0.8, "fgen_vs_hear": 1.5,
+"fgen_warn_resid": 0.5,                        // §6.235
+"proof_lift": 0.4, "proof_mint_p": 0.5,
+"proof_rich_gain": 0.3,                        // §6.236
+"theory_consist": 0.35, "theory_change_gain": 0.3,
+"theory_dist_tau": 4, "theory_drift_cap": 0.5, // §6.237 (yrs)
+"cinfl_per_retell": 0.08, "cinfl_cap": 0.35,   // §6.238
+"nbm_thresh": 0.2, "nbm_vivid": 0.4,
+"nbm_decay": 0.5,                              // §6.239
+"unanim_k": 0.5, "unanim_cap": 0.95,           // §6.240
+"cspread_p": 0.15, "cspread_hop": 1,
+"cspread_s_mult": 0.5,                         // §6.241
+"ci_gain": 0.2, "ci_guard": 0.6,
+"ci_warn_add": 0.1,                            // §6.242
+"warn_pre_eff": 0.6, "warn_post_eff": 0.25,
+"warn_post_resid": 0.3,                        // §6.243
+"moodlure_neg_gain": 0.4, "moodlure_val_w": 0.25, // §6.244
+// v5.50 locked nulls: fgen_truth_null (confabulated
+//   fields never accuracy:1 — P1075); proof_verified_null
+//   + proof_remote_null (P1076); theory_stored_null
+//   (reports drift, stores don't — P1077); cinfl_accr_null
+//   (confidence never feeds S/belief/accuracy — P1078);
+//   nbm_reflip_null (nonbelieved needs verified evidence —
+//   P1079); unanim_echo_null (echo ≠ corroboration —
+//   P1080); cspread_chain_null (one hop max — P1081);
+//   ci_error_null (ci_mode never raises false rate —
+//   P1082); warn_undo_null (no warning un-encodes —
+//   P1083); moodlure_pos_null (no positive-mood
+//   suppression — P1084). Frozen: none.
+// v5.50 enums/flags/contexts: beliefStatus gains
+//   "nonbelieved"; cueContext.mode gains "ci";
+//   hearAccount/showEvidence flag `proof:"photo"|"video"`;
+//   emission flag `answer:true` on gap fields;
+//   `warned` splits warn_pre/warn_post; record tag
+//   `cspread:true`; emissions `confab_answer`, `saw_proof`.
+//   All snapshot-additive; absent = legacy.
 // v5.49 additions (emotional-memory IX — EM§§112–121)
 "hangover_arm": 0.65, "hangover_gain": 0.25,
 "hangover_tau": 12, "hangover_win": 30,        // §4.57 (sim-min)
@@ -17640,6 +17860,44 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.50 additions (false-memory.md §§101–110 — the
+  self-service layer):
+  - **New context/flag contracts:** `cueContext.mode:"ci"`
+    (cognitive-interview protocol — correct-yield gain +
+    confabulation suppression, §6.242); `proof:"photo"|
+    "video"` on `hearAccount`/`showEvidence` for
+    self-referential past claims (§6.236); `answer:true`
+    on gap-field emissions (§6.235); `warned` splits into
+    `warn_pre`/`warn_post` timing legs (§6.243). All
+    snapshot-additive; absent = legacy behavior.
+  - **`beliefStatus:"nonbelieved"` semantics (§6.239):**
+    retrievable with full phenomenal fields + live affect
+    tag, but MUST NOT drive belief-dependent behavior
+    (planning, testimony, accusations); re-flip requires
+    verified new evidence — repetition/fluency cannot
+    (`nbm_reflip_null`).
+  - **Genealogy contract (§6.240):** `unanim_*` counts
+    genealogy-INDEPENDENT speakers only — n comes from
+    §58's source-genealogy resolution; downstream echoes
+    of one utterance are n=1 (`unanim_echo_null`).
+  - **Spread bound (§6.241):** `cspread` minting is one
+    hop from an adopted suggestion, half strength, tagged
+    `cspread:true`; spread fields must never seed further
+    spread (`cspread_chain_null`).
+  - **Report-vs-store contract (§§6.237–6.238):**
+    `theory_*` and `cinfl_*` mutate REPORTED
+    attitudes/confidence only — stored fields and
+    `accuracy` are unreachable (`theory_stored_null`,
+    `cinfl_accr_null`). Confidence must never feed back
+    into S or belief.
+  - **Locked boundaries game-systems must honor:**
+    `fgen_truth_null`, `proof_verified_null`,
+    `proof_remote_null`, `theory_stored_null`,
+    `cinfl_accr_null`, `nbm_reflip_null`,
+    `unanim_echo_null`, `cspread_chain_null`,
+    `ci_error_null`, `warn_undo_null`, `moodlure_pos_null`.
+  - **New params (§7):** 21 scalars + 10 locked nulls.
+  - Probes P1075–P1084.
 - v5.49 additions (emotional-memory.md §§112–121 — the
   carrier layer):
   - **New character state:** `{hangover_until, hangover_amp}`

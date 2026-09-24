@@ -4128,3 +4128,531 @@ Probes P948–P957 (one per section):
   bar for moving it is the bar McNally set: veridical
   recovery under controlled conditions, which no study
   has shown.
+
+# Part IX — the self-service layer: errors the mind writes,
+# proves, un-believes, and spreads (v5.50)
+
+Parts I–VIII covered external suggestion, social adoption,
+the credibility ledger, and the edge cases. What remains is
+a set of mechanisms where the character is the *author* of
+the falsehood: guesses that out-bind hearsay (forced
+confabulation), fabricated proof of a childhood that never
+happened (doctored evidence), the present reaching back to
+edit the past self (implicit theories), confidence that
+rehearses upward while accuracy stands still, records kept
+vivid but no longer believed (nonbelieved memory), the crowd
+that multiplies credence beyond its witnesses (unanimity),
+the adopted error that leaks into neighboring fields
+(lateral spread), and — as the counterweights — the
+interview that guards (cognitive interview), the warning
+that must arrive *before* the lie (timing asymmetry), and
+the mood that paints which lures land (affect-congruent
+gist). Ten sections, §§101–110; spec changes §111;
+params/probes §112; limits §113.
+
+## 101. The guess you wrote is yours forever — forced
+## confabulation
+
+Zaragoza, Payment, Ackil, Drivdahl & Beck (2001, JEP:General
+130:473): witnesses forced to *answer* unanswerable
+questions about a film (free confabulation vs "I don't
+know" allowed) later remembered their own fabrications as
+seen — the generated-error arm out-false-alarms the
+suggestion arm at one week. Ackil & Zaragoza (1998): the
+cost survives a source warning. Chrobak & Zaragoza (2008):
+forced confabulation about one event inflated false recall
+for a *second* witnessed event — the habit generalizes.
+Mechanism: the generation effect (Slamecka & Graf 1978)
+applies to content regardless of truth — self-generated
+fields encode with `gen_gain` (§4.x encoding bonus) and
+carry `source:"self"`, the most trusted source tag in the
+store. [CONSENSUS effect; one-week persistence robust.]
+
+**Spec consequence (§6.235):** any `answer:true` emission
+on an unanswerable/gap field mints the answered content
+as a self-sourced field with strength
+`S = enc_base·(1 + fgen_gain)` (`fgen_gain` 0.8 — above
+`gen_gain` because the mint rides both generation effort
+and interrogative pressure) and adoption-vs-heard ratio
+`fgen_vs_hear` ≈1.5× `misinfo_suscept` path. A subsequent
+source warning halves but never zeroes it (`fgen_warn_resid`
+0.5). **Locked `fgen_truth_null`:** confabulated fields may
+never carry `accuracy:1` — generation effort is not evidence.
+Emission `confab_answer:true` for the audit layer.
+
+RW: the character asked "why did you storm out?" who answers
+invented motives *believes them next week* — interrogating a
+character about their own drama manufactures the drama.
+
+## 102. The photo of the day that never happened —
+## doctored-evidence implantation
+
+Wade, Garry, Read & Lindsay (2002, Psych. Bull. Rev. 9:597):
+doctored childhood photos (subject's face composited onto a
+hot-air-balloon ride) produced false memories of the event
+in ~50% of adults — with detail, emotion, and narrative.
+Lindsay, Hagen, Read, Wade & Garry (2004): the effect
+extends to fabricated grade-school events (putting slime in
+the teacher's desk) at ~65% with guided imagery.
+Nash & Wade (2009): fabricated *video* of the self
+confabulated via computer-trick paradigm mints
+self-perpetrated false memories. Where §55's fabricated
+evidence breaks the *plausibility gate* on claims about
+the world, this is the autobiographical arm: proof of *your*
+past mints episodes, not beliefs. [CONSENSUS for the
+implantation effect; ecological prevalence unknown —
+DEBATED how often real-world proof is fabricated.]
+
+**Spec consequence (§6.236):** `hearAccount`/`showEvidence`
+on a self-referential claim carrying `proof:"photo"|"video"`
+bypasses `plaus_min` by `proof_lift` (0.4) and mints an
+`imagined`→`witnessed`-track record at `proof_mint_p` (0.5)
+with fabricated periphery at `proof_rich_gain` (0.3 —
+sensory fields fill from schema, the Wade balloon-basket
+detail). Two locked nulls: `proof_verified_null` — the
+proof artifact itself never acquires an audit trail (the
+ledger knows the photo is fake; the character cannot see
+why); `proof_remote_null` — proof about *others'* pasts
+gets only §55's gate lift, never the episodic mint.
+Emission `saw_proof:true`.
+
+RW: the landlord shows a tenant a forged photo of "the
+damage you did last March" — the tenant who apologizes
+with a *story* about it is the v102 signature event.
+
+## 103. The present edits the past self — implicit-theory
+## bias
+
+Ross (1989, Psych. Rev. 96:341 — "implicit theories of
+stability and change"): people reconstruct past states by
+anchoring on the present and applying a lay theory — when
+the theory says stability, the past is pulled *toward* now
+(attitude-shift studies: McFarland & Ross 1987, dating
+couples whose love grew remembered it as stronger at the
+start than they reported then; whose love faded, weaker).
+When the theory says change, the past is pushed *away* —
+Wilson & Ross (2001): distant past selves derogated so the
+present self shines (self-improvement bias);
+Ross & Wilson (2002) the distance knob. [CONSENSUS for
+both directions; the theory-selection variable is the hard
+part — our `theory_kind` read is a modeling hypothesis.]
+
+**Spec consequence (§6.237):** self-attitude/evaluative
+fields (past opinions of persons, self-traits, relationship
+ratings) reconstruct through the theory lens:
+`reported = now − theory_dir·(now − stored)` where
+`theory_dir` = `theory_consist` (0.35, pull toward now) when
+the record carries no change-schema, or
+`−theory_change_gain` (0.3, push away — "I was so naive")
+when the self-narrative carries `growth:true` or the field
+is `past_self` class with age-gap > `theory_dist_tau` (~4
+yr — Ross & Wilson's subjective-distance arm). Drift applies
+at each reconstruct, capped cumulative `theory_drift_cap`
+0.5. **Locked `theory_stored_null`:** the stored field is
+never rewritten by theory pull — only the report drifts
+(the ledger keeps what she actually felt; her mouth says
+what her theory says).
+
+RW: the couple whose relationship soured each "remembers"
+it was always bad; the self-improver's origin story keeps
+getting worse. Cheap, perpetual, character-differentiating.
+
+## 104. Confidence rehearses upward; accuracy doesn't —
+## rehearsal inflation
+
+Zaragoza & Mitchell (1996, Psych. Sci. 7:294): repeated
+exposure to suggested information raises confidence, not
+accuracy — the confidence/accuracy dissociation is the
+paradigm's stablest output. Shaw (1996): repeated recalls
+of fabricated events inflate confidence monotonically.
+Roediger, Jacoby & McDermott (1996) on DRM: false
+recognition confidence approaches true. The law: retells
+grow *confidence* on whatever survived — true or false.
+[CONSENSUS; this is the confidence-channel analogue of
+retell_boost on strength.]
+
+**Spec consequence (§6.238):** each `retell`/`discussEvent`
+touch on a record adds `reported_conf += cinfl_per_retell·
+(1 − conf)` with `cinfl_per_retell` 0.08, cumulative cap
+`cinfl_cap` 0.35 — a phantom rehearsed five times reports
+near-witnessed confidence while its `accuracy` field never
+moves. **Locked `cinfl_accr_null`:** reported confidence is
+decoupled from accuracy by construction; game-systems must
+never let confidence feed back into strength or belief.
+Interacts with §3 `conf_out` (overconfidence report transform
+applies *after* inflation — the two are serial).
+
+RW: the neighbor who has told the burglary story thirty
+times *is certain* of details minted in telling three —
+and the audience reads her certainty as evidence. It isn't.
+This is the quiet engine behind §106's unanimity.
+
+## 105. I remember it — and I know it isn't true —
+## nonbelieved memory
+
+Mazzoni, Scoboria & Harvey (2010, Psych. Sci. 21:1334):
+~20% of adults hold *nonbelieved memories* — vivid episodic
+phenomenology whose belief the holder has withdrawn (a
+childhood memory disproven by a parent, a dream mistaken
+for event). Otgaar, Scoboria & Mazzoni (2014) model: belief
+in occurrence and recollective phenomenology are separable
+dimensions; NBMs sit high-recollection/low-belief.
+Scoboria, Boucher & Mazzoni (2015): NBMs are stable —
+disbelief doesn't erase the memory, it retires it.
+[CONSENSUS existence; population prevalence approximate.]
+
+**Spec consequence (§6.239):** `beliefStatus` gains the
+value `"nonbelieved"`, entered when a record's belief
+crosses below `nbm_thresh` (0.2) via correction/discrediting
+while its recollective strength stays ≥ `nbm_vivid` (0.4):
+the record keeps its phenomenal fields, stops generating
+belief-dependent behavior (planning, testimony), and decays
+on `nbm_decay` (0.5× — disbelieved memories fade faster but
+never vanish). **Locked `nbm_reflip_null`:** a nonbelieved
+record cannot re-flip to believed by repetition/fluency —
+only new veridical evidence (a `proof` the ledger verifies)
+restores belief. Disbelief is a one-way ratchet.
+
+RW: a character disproven in public keeps *seeing* the
+scene she now knows was staged — available for dialogue
+("I can still picture it") but inert for action. The most
+distinctive phenomenology in the whole spec: memory without
+endorsement.
+
+## 106. One liar is a rumor; three are a fact — unanimity
+## amplification
+
+Gabbert, Memon & Wright (2006, Mem. 14:760): memory
+conformity scales with co-witness agreement — unanimous
+post-event information is adopted far above the single-
+source rate. Wright, Self & Justice (2000): conformity is
+normative + informational; unanimity removes the doubt that
+a dissenting voice preserves. Asch's line-judgment core
+(1951) is the conformity prior. [CONSENSUS direction; exact
+superlinearity ours.]
+
+**Spec consequence (§6.240):** §6.3's per-hearer adoption
+reparametrizes: for `n` *genealogically independent*
+speakers delivering the same content, `adopt_p = 1 −
+(1 − p1)·(1 − unanim_k)^(n−1)` with `unanim_k` 0.5 — the
+second independent voice nearly doubles adoption, the
+third approaches ceiling `unanim_cap` 0.95. Genealogy is
+§58's: three hearers of one source count as n=1.
+**Locked `unanim_echo_null`:** content re-heard from the
+speaker's own downstream chain never increments n — echo
+is not corroboration (this is the probe P1080's core and
+the structural defense against rumor storms minting truth).
+
+RW: the hallway where everyone agrees the landlord raised
+the rent (one tenant said it) manufactures certainty out of
+a single utterance — unless the genealogy check catches it.
+
+## 107. The adopted error leaks sideways — lateral spread
+## of confabulation
+
+Chrobak & Zaragoza (2008, Appl. Cog. Psych. 22): forced
+confabulation about witnessed event A inflated false recall
+for event B — the error propagates along event linkage.
+Zaragoza et al. (2001) found whole-event false memories:
+suggesting one detail lets the schema mint the surrounding
+fabric. Drivdahl & Zaragoza (2001): fabricated peripheral
+details were later attributed to the witnessed source.
+[CONSENSUS that spread occurs; the spread *radius* is our
+parameterization.]
+
+**Spec consequence (§6.241):** when a `told_by`/`confab`
+field is adopted (belief ≥0.5), at next reconsolidation
+each *unadopted* sibling field within `cspread_hop` (1 —
+direct schema neighbors only) rolls `cspread_p` (0.15)
+toward schema-congruent completion — adopted lies recruit
+supporting details. Spread fields mint at half strength
+(`cspread_s_mult` 0.5) and are tagged `cspread:true` for
+audit. **Locked `cspread_chain_null`:** spread fields cannot
+themselves seed spread — one hop, never two (the
+contamination has a radius, not a wavefront).
+
+RW: accepting "you were rude to her" manufactures the
+remembered eye-roll that proves it. One adopted sentence
+redecorates the whole scene.
+
+## 108. The interview that guards — the cognitive-interview
+## shield
+
+Fisher & Geiselman (1992, *Memory-Enhancing Techniques for
+Investigative Interviewing*): the cognitive interview
+(context reinstatement + multiple perspectives + reverse
+order) raises correct recall ~35% with no error increase in
+the original studies. Memon, Meissner & Fraser (2010 meta,
+65 studies): CI reliably increases correct detail; error
+rate *unchanged to slightly lower* — the rare technique
+that adds signal without adding noise. Köhnken et al.
+(1999 meta) concurs. [CONSENSUS; the guard against our own
+§101 — a non-coercive interview protocol exists and works.]
+
+**Spec consequence (§6.242):** `cueContext.mode:"ci"` (the
+cognitive-interview protocol — context reinstatement +
+unforced report): adds `ci_gain` (0.2) to correct-detail
+yield, multiplies `fgen_gain`-class minting by
+`(1 − ci_guard)` with `ci_guard` 0.6 — an interview that
+permits "I don't know" suppresses confabulation at the
+source rather than filtering after. `warned` inside ci_mode
+adds `ci_warn_add` 0.1. **Locked `ci_error_null`:** ci_mode
+never raises the false-report rate — the shield is free;
+that's what makes it the protocol the world's gentle
+characters default to.
+
+RW: the careful listener — the bartender who asks "tell me
+everything, take your time" — extracts more truth and mints
+fewer falsehoods than the interrogator. A personality
+difference expressed as protocol choice.
+
+## 109. Warn me before the lie, not after — warning-timing
+## asymmetry
+
+Blank & Launay (2014, Appl. Cog. Psych. 28 meta, 31
+studies): pre-exposure warnings reduce misinformation
+adoption reliably; *post*-warnings are weaker and
+unreliable — once the suggestion is encoded it is defended
+like content. Greene, Flynn & Loftus (1982): warnings
+before misleading questions halved the effect; after,
+little. Echterhoff, Hirst & Hussy (2005): post-warnings
+fail especially when the source was credible at encoding.
+[CONSENSUS: timing dominates warning efficacy.]
+
+**Spec consequence (§6.243):** the `warned:true` flag on
+`hearAccount` splits by timing. `warn_pre` (source flagged
+before content delivered): adoption ×`(1 − warn_pre_eff)`
+with `warn_pre_eff` 0.6. `warn_post` (flag applied after
+encoding, e.g. a later "actually, he lies a lot"):
+adoption only rolled back at `warn_post_eff` 0.25, and the
+rolled-back content keeps `warn_post_resid` 0.3 residual
+familiarity — feeding the §77 sleeper path. **Locked
+`warn_undo_null`:** no warning fully un-encodes delivered
+content — post-warning can only mark, never erase (the
+system-level truth that makes §108's prevention-first
+protocol matter).
+
+RW: "don't believe a word he says" works if it arrives
+before he speaks — after the story, it just adds a footnote
+the memory will lose first (§77 again).
+
+## 110. The mood paints which lures land — affect-congruent
+## gist adoption
+
+Storbeck & Clore (2005, Psych. Sci. 16:785): negative mood
+*increased* DRM false recall, positive mood decreased it —
+negative affect promotes relational/gist processing, the
+exact channel §6.3's lures ride. Brainerd, Holliday,
+Reyna, Yang & Toglia (2010): valence-congruent lures are
+adopted more — sad subjects falsely remember sad lures.
+Knott & Thorley (2014): mood-congruent false memory
+replicates across inductions; Ruci, Tomes & Zelenski (2009)
+on dysphoria. [CONSENSUS direction for negative-mood gist
+amplification; the valence-match term is thinner —
+DEBATED size.]
+
+**Spec consequence (§6.244):** gist-lure adoption (the
+`gist_lure_sim` path) is modulated: `lure_p *= (1 +
+moodlure_neg_gain·max(0,−C.mood))` with `moodlure_neg_gain`
+0.4 — negative mood amplifies gist processing globally; plus
+valence match `lure_p *= (1 + moodlure_val_w·sign_match)`
+with `moodlure_val_w` 0.25 when `sign(lure_valence) ==
+sign(C.mood)` — a sad listener buys sad rumors. Positive
+mood gets no symmetric boost (`moodlure_pos_null` locked —
+the asymmetry *is* the finding: negative mood opens the gist
+channel, positive doesn't close it below baseline).
+
+RW: the depressive character isn't just sadder — she's
+measurably *more gullible to sad-shaped lies*, and the
+world's rumor engine finds her on her bad weeks.
+
+## 111. Spec changes in v5.50 (summary)
+
+- **§6.235 forced confabulation** — `answer:true` on gap
+  fields mints self-sourced content at `fgen_gain`,
+  out-binding heard suggestion (`fgen_vs_hear`), warning
+  residual `fgen_warn_resid`; `fgen_truth_null` locked;
+  emission `confab_answer`. (Zaragoza et al. 2001; Ackil &
+  Zaragoza 1998; Chrobak & Zaragoza 2008.)
+- **§6.236 doctored-evidence implantation** — `proof:
+  "photo"|"video"` on self-referential claims lifts
+  `plaus_min` by `proof_lift`, mints autobiographical
+  phantoms at `proof_mint_p` with fabricated periphery
+  `proof_rich_gain`; `proof_verified_null`,
+  `proof_remote_null` locked; emission `saw_proof`.
+  (Wade et al. 2002; Lindsay et al. 2004; Nash & Wade 2009.)
+- **§6.237 implicit-theory bias** — self-attitude fields
+  reconstruct via `theory_dir` (consist 0.35 / change
+  −0.3 under `growth:true` or past-self distance
+  `theory_dist_tau`), cumulative cap `theory_drift_cap`;
+  `theory_stored_null` locked — reports drift, stores
+  don't. (Ross 1989; McFarland & Ross 1987; Wilson &
+  Ross 2001.)
+- **§6.238 rehearsal confidence inflation** — retells add
+  `cinfl_per_retell` toward cap `cinfl_cap` on reported
+  confidence only; `cinfl_accr_null` locked. (Zaragoza &
+  Mitchell 1996; Shaw 1996.)
+- **§6.239 nonbelieved memory** — `beliefStatus:
+  "nonbelieved"` below `nbm_thresh` with strength ≥
+  `nbm_vivid`; phenomenal fields retained, behaviorally
+  inert, `nbm_decay` fade; `nbm_reflip_null` locked.
+  (Mazzoni, Scoboria & Harvey 2010; Otgaar et al. 2014.)
+- **§6.240 unanimity amplification** — adoption
+  reparametrized over n independent speakers via
+  `unanim_k`, cap `unanim_cap`, §58 genealogy gating;
+  `unanim_echo_null` locked. (Gabbert et al. 2006;
+  Wright et al. 2000.)
+- **§6.241 lateral confabulation spread** — adopted
+  suggestion spreads to schema neighbors at `cspread_p`
+  within `cspread_hop`, half strength `cspread_s_mult`,
+  tag `cspread:true`; `cspread_chain_null` locked.
+  (Chrobak & Zaragoza 2008; Zaragoza et al. 2001.)
+- **§6.242 cognitive-interview shield** — `mode:"ci"`
+  adds `ci_gain` correct yield, `ci_guard` suppression
+  of confabulation minting, `ci_warn_add`; `ci_error_null`
+  locked. (Fisher & Geiselman 1992; Memon et al. 2010.)
+- **§6.243 warning-timing split** — `warned` splits into
+  `warn_pre`/`warn_post` legs (`warn_pre_eff`/
+  `warn_post_eff`/`warn_post_resid`); `warn_undo_null`
+  locked. (Blank & Launay 2014; Greene et al. 1982;
+  Echterhoff et al. 2005.)
+- **§6.244 affect-congruent lures** — gist-lure adoption
+  modulated by `moodlure_neg_gain` (global negative
+  amplification) + `moodlure_val_w` (valence match);
+  `moodlure_pos_null` locked. (Storbeck & Clore 2005;
+  Brainerd et al. 2010; Knott & Thorley 2014.)
+- **§7:** +21 scalars, +9 locked nulls, +1 enum value
+  (`beliefStatus:"nonbelieved"`), +1 context mode
+  (`"ci"`), +1 account flag (`proof`), +1 emission flag
+  (`confab_answer`), +1 record tag (`cspread:true`).
+- **§10 contract adds:** `mode:"ci"` on cueContext;
+  `proof` flag on `hearAccount`/`showEvidence`;
+  `answer:true` gap-emission flag; `warned` timing split;
+  `beliefStatus:"nonbelieved"` semantics (inert for
+  behavior, retrievable for narrative); unanimity
+  genealogy contract; `cspread` one-hop bound. All
+  snapshot-additive; absent = legacy.
+
+## 112. Parameter guidance and probes
+
+| param | default | clamp | drives |
+|---|---|---|---|
+| fgen_gain / fgen_vs_hear / fgen_warn_resid | 0.8 / 1.5 / 0.5 | 0.2–1.5 / 1–3 / 0.2–0.8 | §6.235 |
+| proof_lift / proof_mint_p / proof_rich_gain | 0.4 / 0.5 / 0.3 | 0–0.7 / 0–0.7 / 0–0.6 | §6.236 |
+| theory_consist / theory_change_gain / theory_dist_tau / theory_drift_cap | 0.35 / 0.3 / 4 / 0.5 | 0–0.7 / 0–0.6 / 1–10 y / 0.2–0.8 | §6.237 |
+| cinfl_per_retell / cinfl_cap | 0.08 / 0.35 | 0–0.2 / 0.1–0.6 | §6.238 |
+| nbm_thresh / nbm_vivid / nbm_decay | 0.2 / 0.4 / 0.5 | 0.1–0.35 / 0.25–0.6 / 0.2–1.0 | §6.239 |
+| unanim_k / unanim_cap | 0.5 / 0.95 | 0.2–0.8 / 0.7–1.0 | §6.240 |
+| cspread_p / cspread_hop / cspread_s_mult | 0.15 / 1 / 0.5 | 0–0.4 / 1–2 / 0.2–0.8 | §6.241 |
+| ci_gain / ci_guard / ci_warn_add | 0.2 / 0.6 / 0.1 | 0–0.4 / 0.3–0.9 / 0–0.3 | §6.242 |
+| warn_pre_eff / warn_post_eff / warn_post_resid | 0.6 / 0.25 / 0.3 | 0.3–0.9 / 0–0.5 / 0.1–0.5 | §6.243 |
+| moodlure_neg_gain / moodlure_val_w | 0.4 / 0.25 | 0–0.8 / 0–0.5 | §6.244 |
+
+Trait levers (existing): `suggs` scales all adoption paths
+(fgen, proof, unanim, moodlure); `meta_conf` gates `theory_*`
+awareness (low-metamemory characters drift more);
+`self_est` tilts `theory_dir` toward change/derogation on
+high (self-improvers) vs consist on low; `neurot` raises
+`moodlure_neg_gain` exposure time via mood baseline;
+`imagery` scales `proof_rich_gain` fabricated periphery;
+`social`/extraversion raises exposure to unanim contexts.
+No new traits.
+
+Probes P1075–P1084 (one per section):
+
+- **P1075 forced confabulation (MUST):** gap-field
+  `answer:true` mints self-sourced false fields stronger
+  than matched heard-suggestion fields (≥fgen_vs_hear);
+  post-warning halves, never zeroes; minted fields never
+  read `accuracy:1` (`fgen_truth_null`). Zaragoza 2001.
+- **P1076 doctored proof (MUST):** `proof:"photo"` on a
+  fabricated self-past claim mints episodic phantoms at
+  ≈proof_mint_p with schema-filled periphery; identical
+  proof about a *third party* mints belief only, no
+  episode (`proof_remote_null`); ledger keeps the
+  artifact's fabricated status (`proof_verified_null`).
+  Wade 2002; Lindsay 2004.
+- **P1077 theory pull (MUST, direction-lock):** with no
+  change-schema, reported past attitudes regress toward
+  current at ≈theory_consist; with `growth:true` +
+  distant past-self, reports push *away* (derogation);
+  stored fields never move (`theory_stored_null`).
+  Ross 1989; Wilson & Ross 2001.
+- **P1078 confidence inflation (SHOULD, decouple-lock):**
+  five retells raise reported confidence by ≈
+  cinfl_per_retell·(1−conf) each to cap cinfl_cap while
+  `accuracy` is bit-identical; confidence must never feed
+  S or belief (`cinfl_accr_null`). Zaragoza & Mitchell
+  1996.
+- **P1079 nonbelieved memory (MUST, state-lock):**
+  discredited vivid record enters `nonbelieved` — still
+  retrievable with full phenomenal fields, zero
+  belief-dependent behavior; repetition cannot re-flip
+  it (`nbm_reflip_null`), only verified evidence.
+  Mazzoni 2010.
+- **P1080 unanimity (MUST, genealogy-lock):** three
+  independent speakers drive adopt_p ≈ unanim_cap; three
+  speakers downstream of ONE source drive adopt_p = the
+  single-source rate (`unanim_echo_null`) — the probe
+  pair is the rumor-storm defense. Gabbert 2006.
+- **P1081 lateral spread (SHOULD, radius-lock):** adopted
+  suggestion recruits ≥1 schema-neighbor field at ≈
+  cspread_p; spread fields are tagged and cannot seed
+  second-hop spread (`cspread_chain_null`). Chrobak &
+  Zaragoza 2008.
+- **P1082 CI shield (SHOULD, no-cost-lock):** `mode:"ci"`
+  yields ≥ci_gain more correct detail vs standard recall
+  AND strictly-not-greater false reports (`ci_error_null`);
+  confabulation minting suppressed by ≈ci_guard. Memon
+  2010.
+- **P1083 warning timing (MUST, order-lock):** identical
+  content+warning: pre-warning adoption ≈
+  (1−warn_pre_eff)·base < post-warning rollback ≈
+  warn_post_eff — order inverted fails; post-arm keeps
+  warn_post_resid familiarity (sleeper feed);
+  `warn_undo_null` — no arm zeroes. Blank & Launay 2014.
+- **P1084 mood-congruent lures (SHOULD, asymmetry-lock):**
+  gist-lure adoption rises under negative mood
+  (≈moodlure_neg_gain) and under valence match
+  (≈moodlure_val_w); positive mood produces NO symmetric
+  suppression below baseline (`moodlure_pos_null`).
+  Storbeck & Clore 2005.
+
+## 113. Honest limits (Part IX)
+
+- **Forced-confabulation magnitudes are lab-priced** —
+  `fgen_gain` 0.8/`fgen_vs_hear` 1.5 are set from the
+  one-week persistence ordering, not a fitted constant;
+  everyday "answer pressure" is milder than Zaragoza's
+  forced-answer paradigm.
+- **Doctored-proof rates are ceiling numbers** — Wade's
+  ~50% came with guided imagery and repeated interviews;
+  `proof_mint_p` models the full protocol, so a single
+  photo shown once should sit well below. RW note: this
+  op is deliberately rare (fabricated proof is a
+  world-level act, not a conversation move).
+- **Implicit-theory direction is a binary we imposed** —
+  Ross's account allows mixed theories per domain;
+  `growth:true` is a coarse toggle, and `theory_dir`'s
+  linear interpolation is ours.
+- **Confidence inflation is unbounded in principle** —
+  `cinfl_cap` 0.35 is chosen so confidence can't fully
+  saturate; the literature shows monotonic rise but no
+  clean asymptote to fit.
+- **Nonbelieved memory's behavioral inertness is
+  simplified** — real NBMs still influence affect
+  (Otgaar notes emotional residue); we zero only
+  belief-*dependent* behavior, keeping the record's
+  affect tag live, which is the minimal honest version.
+- **Unanimity's independence check is the load-bearing
+  piece** — `unanim_echo_null` does more work than
+  `unanim_k`; if genealogy tracking is coarse, unanimity
+  becomes a rumor amplifier we did not intend.
+- **CI's `ci_error_null` follows the meta-analytic
+  central estimate** — individual studies vary; we lock
+  the null because the "free shield" property is what
+  makes the mechanism worth shipping.
+- **Mood-lure's negative-only asymmetry is the finding,
+  but its size is the weakest number in the batch** —
+  `moodlure_val_w` is DEBATED-tier; probe P1084 locks the
+  asymmetry, not the magnitude.

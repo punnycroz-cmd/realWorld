@@ -10280,3 +10280,122 @@ P1068, P1069, P1073 SHOULD; P1071 COULD.
   bond` magnitudes unpriced by sources; `na_gate` ramp
   linearizes a non-monotonic interaction. → EM Part IX
   §§112–121; probes P1065–P1074.
+
+## 210. v102 probes — the self-service layer (P1075–P1084)
+
+- **P1075 forced confabulation (MUST):** gap-field
+  `answer:true` mints self-sourced false fields stronger
+  than matched heard-suggestion fields (≥`fgen_vs_hear`);
+  post-warning halves, never zeroes; minted fields never
+  read `accuracy:1` (`fgen_truth_null`). Zaragoza 2001.
+- **P1076 doctored proof (MUST):** `proof:"photo"` on a
+  fabricated self-past claim mints episodic phantoms at
+  ≈`proof_mint_p` with schema-filled periphery; identical
+  proof about a third party mints belief only, no episode
+  (`proof_remote_null`); the artifact's fabricated status
+  stays ledger-side (`proof_verified_null`). Wade 2002;
+  Lindsay 2004.
+- **P1077 theory pull (MUST, direction-lock):** no
+  change-schema → reported past attitudes regress toward
+  current ≈`theory_consist`; `growth:true` + distant
+  past-self → reports push away; stored fields bit-stable
+  (`theory_stored_null`). Ross 1989; Wilson & Ross 2001.
+- **P1078 confidence inflation (SHOULD, decouple-lock):**
+  five retells raise reported confidence ≈`cinfl_per_retell`
+  ·(1−conf) to cap `cinfl_cap` while `accuracy` is
+  bit-identical; confidence never feeds S or belief
+  (`cinfl_accr_null`). Zaragoza & Mitchell 1996.
+- **P1079 nonbelieved memory (MUST, state-lock):**
+  discredited vivid record enters `nonbelieved` —
+  retrievable with full phenomenal fields, zero
+  belief-dependent behavior; repetition cannot re-flip
+  (`nbm_reflip_null`); verified evidence can. Mazzoni 2010.
+- **P1080 unanimity (MUST, genealogy-lock):** three
+  independent speakers → adopt_p ≈ `unanim_cap`; three
+  speakers downstream of ONE source → single-source rate
+  (`unanim_echo_null`). Gabbert 2006.
+- **P1081 lateral spread (SHOULD, radius-lock):** adopted
+  suggestion recruits ≥1 schema-neighbor field at ≈
+  `cspread_p`; tagged `cspread:true`; no second-hop spread
+  (`cspread_chain_null`). Chrobak & Zaragoza 2008.
+- **P1082 CI shield (SHOULD, no-cost-lock):** `mode:"ci"`
+  yields ≥`ci_gain` more correct detail vs standard recall
+  AND strictly-not-greater false reports (`ci_error_null`);
+  confabulation minting suppressed ≈`ci_guard`. Memon 2010.
+- **P1083 warning timing (MUST, order-lock):** pre-warning
+  adoption ≈(1−`warn_pre_eff`)·base < post-warning rollback
+  ≈`warn_post_eff` — order inverted fails; post-arm keeps
+  `warn_post_resid` familiarity; `warn_undo_null` — no arm
+  zeroes. Blank & Launay 2014.
+- **P1084 mood-congruent lures (SHOULD, asymmetry-lock):**
+  gist-lure adoption rises under negative mood
+  (≈`moodlure_neg_gain`) and valence match
+  (≈`moodlure_val_w`); positive mood shows NO suppression
+  below baseline (`moodlure_pos_null`). Storbeck & Clore
+  2005.
+
+Registry: P1–P1084. v102 suite: P1075, P1076, P1077, P1079,
+P1080, P1083 MUST (P1075, P1077, P1079, P1080, P1083
+locked-null class); P1078, P1081, P1082, P1084 SHOULD.
+
+## 211. Sources verified this version (P1075–P1084 backing)
+
+- **Zaragoza, Payment, Ackil, Drivdahl & Beck 2001**
+  (*JEP:General* 130:473 — forced confabulation mints
+  whole-event false memories, out-persisting suggestion)
+  + **Ackil & Zaragoza 1998** + **Chrobak & Zaragoza
+  2008** (cross-event spread) + **Slamecka & Graf 1978**
+  (generation effect base) → §6.235 `fgen_*` + locked
+  `fgen_truth_null`; P1075.
+- **Wade, Garry, Read & Lindsay 2002** (*Psych. Bull.
+  Rev.* 9:597 — doctored childhood photos → ~50% false
+  autobiographical memory) + **Lindsay, Hagen, Read, Wade
+  & Garry 2004** (slime-event implantation ~65% w/ guided
+  imagery) + **Nash & Wade 2009** (fabricated video of
+  self) → §6.236 `proof_*` + locked `proof_verified_null`/
+  `proof_remote_null`; P1076.
+- **Ross 1989** (*Psych. Rev.* 96:341 — implicit theories
+  of stability/change) + **McFarland & Ross 1987** (dating-
+  couple attitude reconstruction) + **Wilson & Ross 2001**
+  + **Ross & Wilson 2002** (temporal self-appraisal,
+  distance-derogation) → §6.237 `theory_*` + locked
+  `theory_stored_null`; P1077.
+- **Zaragoza & Mitchell 1996** (*Psych. Sci.* 7:294 —
+  repeated suggestion raises confidence, not accuracy) +
+  **Shaw 1996** + **Roediger, Jacoby & McDermott 1996** →
+  §6.238 `cinfl_*` + locked `cinfl_accr_null`; P1078.
+- **Mazzoni, Scoboria & Harvey 2010** (*Psych. Sci.*
+  21:1334 — ~20% hold nonbelieved memories) + **Otgaar,
+  Scoboria & Mazzoni 2014** (belief/recollection
+  separability model) + **Scoboria, Boucher & Mazzoni
+  2015** (NBM stability) → §6.239 `nbm_*` + `beliefStatus:
+  "nonbelieved"` + locked `nbm_reflip_null`; P1079.
+- **Gabbert, Memon & Wright 2006** (*Memory* 14:760 —
+  unanimity amplifies memory conformity) + **Wright, Self
+  & Justice 2000** + **Asch 1951** (conformity prior) →
+  §6.240 `unanim_*` + locked `unanim_echo_null`; P1080.
+- **Chrobak & Zaragoza 2008** + **Drivdahl & Zaragoza
+  2001** (fabricated peripherals attributed to witnessed
+  source) → §6.241 `cspread_*` + locked
+  `cspread_chain_null`; P1081.
+- **Fisher & Geiselman 1992** (cognitive interview) +
+  **Memon, Meissner & Fraser 2010** (meta, 65 studies:
+  correct detail up, errors not up) + **Köhnken et al.
+  1999** → §6.242 `ci_*` + locked `ci_error_null`; P1082.
+- **Blank & Launay 2014** (*Appl. Cog. Psych.* 28 meta —
+  pre-warnings beat post-warnings) + **Greene, Flynn &
+  Loftus 1982** + **Echterhoff, Hirst & Hussy 2005** →
+  §6.243 `warn_pre/post_*` + locked `warn_undo_null`;
+  P1083.
+- **Storbeck & Clore 2005** (*Psych. Sci.* 16:785 —
+  negative mood increases DRM false recall) + **Brainerd,
+  Holliday, Reyna, Yang & Toglia 2010** + **Knott &
+  Thorley 2014** + **Ruci, Tomes & Zelenski 2009** →
+  §6.244 `moodlure_*` + locked `moodlure_pos_null`; P1084.
+- **Honest limits:** `fgen_*`/`proof_*` magnitudes are
+  lab-priced ceilings; `theory_dir` linearization ours;
+  `cinfl_cap` asymptote unfitted; NBM behavioral inertness
+  simplified (affect stays live); unanim superlinearity
+  ours — genealogy is load-bearing; `ci_error_null` rides
+  the meta-analytic central estimate; `moodlure_val_w`
+  DEBATED-tier. → FM §§101–113.
