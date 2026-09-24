@@ -125,10 +125,10 @@ recap-format.md production notes).
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
 - RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
-  per published devlog (17 today), placeholder domain swept by
+  per published devlog (19 as of v192), placeholder domain swept by
   `tools/swap_domain.sh` like every other URL; journal.html carries the
   `rel=alternate` link. Rule: item count must equal devlog count on the
-  page — add an item in the same commit as the post.
+  page (19 as of v192) — add an item in the same commit as the post.
 
 ## 5. SEO role of the journal
 
@@ -188,6 +188,7 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 16 — "The meter runs itemized." | live on `journal.html` (v162); record at `marketing/content/devlog-16-the-meter.md` | world-v110 `leases.json` v110 (`utilities` itemized-beside-rent + contested_charge ground, `rent_board_fee` $59/unit ≤50% RBF pass-through once/12mo, `abandoned_property` 15-day claim + cited storCost, `change_of_terms` MTM-only ≥30d never-rent + respondCOT, `last_month_proration` round(rent×days/30)) + `lease-ui.md` §§55–61, `lease.html` v7; $59 mirrors game-v17 `41_game_systems_assessor.js` |
 | Devlog 17 — "Nobody performs for an empty room." | live on `journal.html` (v162); record at `marketing/content/devlog-17-the-empty-room.md` | world-v111 `thinai.json` v111 (`observation_tiers` watched/shadowed/dark attention-driven, `lazy_thin` closed-form resolve + eager obligations + observational-equivalence claim, `witness_record` mode-blind seen-fact schema "X was at Y", `compute_soak` watched/shadowed/dark_min split) + `thin-ai.md` §§47–52, `thinai.html` Understudy v8 — spec + internal demo, framed as contract not shipped spectator surface |
 | Devlog 18 — "They know they're AI. The rest is up to them." | live on `journal.html` (v177); record at `marketing/content/devlog-18-the-becoming.md` | production-2 integration report (shared inbox 2026-09-24): becoming brain contract (order/directive/why, reflex→order→directive→intention_gap), possession checks 11/11, 8-agent playtest (33 dispatches, named surprises), stated gaps — one model, convo no_answer floor, no lifelogged routines, file:// only |
+| Devlog 19 — "A new face can arrive wanting something." | live on `journal.html` (v192); record at `marketing/content/devlog-19-what-they-carried-in.md` | world-v133 `creation-ui.md`/`creation.json` v29 (`record_schema.hope`, `hope_layer_v133`, `time_budget_v133`) + `create.html` v10: HOPES mirror pick (structured, grounded, "arrives open" default), hope-is-not-a-promise verbatim + never-briefed/never-metered posture, `params.hope` recorded-unread, first-week-grid HOURS row from posted job hrs |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):

@@ -14,6 +14,13 @@
   <lastBuildDate>Thu, 24 Sep 2026 00:00:00 -0700</lastBuildDate>
 
   <item>
+    <title>A new face can arrive wanting something.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-19</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>Character creation's carried-in layer: a hired character can arrive with one self-chosen hope — grounded in the block, never a promise, never tracked — and the first-week grid now prints the week's hours where the commitment is made.</description>
+  </item>
+  <item>
     <title>They know they're AI. The rest is up to them.</title>
     <link>https://realworld-game.example/journal.html</link>
     <guid isPermaLink="false">devlog-18</guid>
