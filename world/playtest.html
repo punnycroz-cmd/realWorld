@@ -1690,8 +1690,8 @@ const PTS=[
   exp:"Each pawn card shows 'next edge HH:MM → ±Nm = HH:MM (day-hash jitter — shared edge…)'. The same edge carries a different ±N on the next day, all within ±15. The surface panel and spec state obligations, cell kinds, and co-star windows never jitter, and authored coverage is what the gate checks.",
   ck:["Jitter is deterministic (same day → same shift) and bounded ±15 min","The shared-edge rule is stated — both neighbors move, no gap opens","Obligation minutes and cell kinds are listed as never-jittered"]},
  {do:"Run `node world/audit.js` and read the thinai gate.",
-  exp:"thinai gate passes at 'schema v83 · 4 pawns · key rw_thinai_v83' with the v83 checks green: surface_fallback/requests_under_degrade/quiet_week/surface_recovery blocks, closed posture matrix, routine-fit + decline vocabulary, ±15 jitter bound, ≤1/daypart trickle, demo events req_c6_fit/req_c6_off, and the html mirror strings.",
-  ck:["Gate reports schema v83 and the rw_thinai_v83 key","A missing v83 block or an off-vocabulary wire line would FAIL — spot-check one","Prior gates (coverage, flap guard, rotation, ask classes) still pass unchanged"]}]},
+  exp:"thinai gate passes at the current schema/key (schema v97 · key rw_thinai_v97 as of v97) with the v83 checks green: surface_fallback/requests_under_degrade/quiet_week/surface_recovery blocks, closed posture matrix, routine-fit + decline vocabulary, ±15 jitter bound, ≤1/daypart trickle, demo events req_c6_fit/req_c6_off, and the html mirror strings.",
+  ck:["Gate reports the current schema + rw_thinai_ key (v97 as of world v97)","A missing v83 block or an off-vocabulary wire line would FAIL — spot-check one","Prior gates (coverage, flap guard, rotation, ask classes) still pass unchanged"]}]},
  {id:"PT76",title:"The Crowd v6 — the company & the courtesy layer (v85)",min:8,
  persona:"tester on the internal crowd bench — scrubbing the clock and toggles to watch extras arrive in company and the counters stay warm",
  goal:"Verify the v85 ambient-crowd pass: extras resolve as lone/duo/cluster social units via normalize(kind × daypart) with family-shape safeguards (kid-backpack only inside family clusters, never bars/overnight); the 17 counter courtesies gate on resolved state + extra presence + cooldown and never carry dialogue or ledger; and the crowd gate enforces the mirrors.",
@@ -1899,6 +1899,31 @@ const PTS=[
   ck:["Lease gate: 0 fail; detail reports 'schema v96 · 13 states · key rw_lease_v96'",
     "A missing never-list entry, a wires.push inside a file-only fn, or a missing myUnit guard would FAIL — spot-check",
     "Harness gate: '87 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
+]}
+,{id:"PT88",title:"The Understudy v7 — the encounter layer (nod economy, player contact, request split)",min:11,
+ persona:"resilience reviewer — wants the outage posture to survive contact: thin meeting thin, a player pressing thin, and paid requests during a blackout",
+ goal:"Verify the v97 encounter pass: two thin pawns sharing a cell run gesture register only (the nod economy — no staged conversation, cap unchanged, nothing persists); a possessed player pressing a thin pawn gets kit → deflect → silence and can never wake a mode with attention; the request split delivers world-bound asks (rain) at 0% service while brain-bound scene asks decline with the 50% auto-refund.",
+ surfaces:["thinai","audit"],steps:[
+ {do:"Open thinai.html (file://) and click 'A15 drifts in / out'. Read the A01 card, the encounter panel, and the seam lines; toggle A15 back out.",
+  exp:"A15 sharing the counter cell produces the nod economy: a co-presence chip and a seam line naming a regulars' nod as a per-card reflex flag — not a relationship write. No conversation is staged, the 3/hr bubble cap is unchanged, and when A15 leaves, nothing persists. The encounter panel counts live minds and states the rule: a scene needs at least one full brain or one player.",
+  ck:["Co-presence renders as gesture register only — no dialogue, no relationship beat",
+    "Seam line calls the nod a per-card reflex flag, never a memory write",
+    "Panel counts live minds and states the ≥1-mind scene rule"]},
+ {do:"Bring the owner online, possess h01, then press 'Player talks at A01' four times inside the same hour.",
+  exp:"Each press spends from A01's ordinary bubble budget: two phrase-kit replies, then the third press — the seam probe 'are you AI?' — resolves as a generic deflect, and the fourth hits the cap and produces silence. Every seam line repeats the rule: attention doesn't wake a mode, the session bought presence not a scene partner, and nothing writes thin-side.",
+  ck:["Player contact consumes the same 3/hr cap as any press — no deeper register for paying minutes",
+    "'are you AI?' deflects like any other direct question — no answer register exists",
+    "No mode change, no thin-side memory; the button is inert without a live session"]},
+ {do:"Drop the service to 0% blackout, then fire 'World req: rain now' and 'Scene req: A01 + A15'. Step +15 min and watch reflexes.",
+  exp:"The rain request delivers in full at 0% — wire shows 'request — weather: rain over the Mission, 2 h — running' and rain-shelter / covered-route reflexes fire block-wide: the world was never model output. The scene request resolves 'resolved · declined (50% auto-refund)' — the named pair are both thin and a live mind elsewhere doesn't carry their scene. The feed never announces the outage underneath.",
+  ck:["World-bound request delivers at 0% — weather and reflexes are not brain products",
+    "Brain-bound scene ask declines with locked vocabulary + 50% refund, judged at activation",
+    "Wire shows ordinary request/weather vocabulary only — no outage surface"]},
+ {do:"Run node world/audit.js from the repo root and read the thinai gate.",
+  exp:"The thinai gate passes the v97 checks: key rw_thinai_v97, the three json blocks (thin_encounters / player_contact / world_requests with all four classes), the four new demo events, the seven html marks (nod economy, who's awake in the room, world-bound, live-mind scene rule, the seam-probe deflect, presence-not-depth copy) — plus every prior-pass check still green.",
+  ck:["Thinai gate: 0 fail; detail reports 'schema v97 · 4 pawns · key rw_thinai_v97'",
+    "A declared world-bound class with needs_brain≠false, or an undeclared-kind default other than brain-bound, would FAIL — spot-check",
+    "Harness gate: '88 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"]}
 ]}];
 
 

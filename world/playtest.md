@@ -252,6 +252,13 @@ One person can wear every hat; four real testers is the intended shape.
   BUYOUT credit code on accept), prepaid rent (3-month cap, draws down
   on the 1st before any balance exists), and the one-per-tenancy
   rental history letter.
+  PT88 (Understudy v7 / thinai v97) probes the encounter layer — the
+  nod economy when two thin pawns share a cell (gesture register,
+  cap unchanged, nothing persists), a possessed player pressing thin
+  (kit → deflect → silence; "are you AI?" resolves like any other
+  question; attention never wakes a mode), and the request split:
+  world-bound asks (rain) deliver at 0% service while brain-bound
+  scene asks decline `resolved · declined` + 50% refund.
 
 ## 3. Running a session
 

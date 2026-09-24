@@ -1,6 +1,6 @@
 {
-  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
-  "version": 83,
+  "doc": "Thin-AI fallback — machine mirror of world/thin-ai.md (canonical). Brain modes, transitions, the handoff-note contract + lifecycle + archive, degrade ladder with salience ordering + flap guard (v55), needs model, authored phrase kit + repetition guard (v69), reflex registry, co-star bounds + ask classes (v69), scheduled obligations, presence + billing rule, compute ledger, owner report, feed visibility, coverage contract + mains thin-routine registry (v55), wake parity + outage rotation + scene-yield + blackout floor (v69), surface fallback matrix + requests-under-degrade routine-fit rule + quiet-week deterministic jitter + surface recovery (v83), encounter layer — thin-to-thin nod economy + player contact + world-bound request split under degrade (v97), live seam to game-v9 offline surfaces. world/thinai.html mirrors the demo scenario inline (file://-safe).",
+  "version": 97,
   "brain_modes": {
     "thin":      { "who": "A01–A20 always; h## while owner offline", "llm": false },
     "full":      { "who": "C1–C8 always; h## while owner online",    "llm": true  },
@@ -310,14 +310,42 @@
     "briefings": "fresh prose resumes on the next pull; nothing annotates the gap",
     "audit_trail": "the compute ledger records the outage honestly — thin_min days are the internal record the feed never shows"
   },
+  "thin_encounters": {
+    "doc": "v97 — the nod economy: what happens when the only brains in the room are cheap ones (§42)",
+    "register": "gesture + phrase kit only — co-presence is convincing (shared counter, queue, bench) but thin pawns never stage a conversation, never perform a relationship beat",
+    "scene_rule": "two thin pawns cannot create a scene — a scene needs at least one full brain or one player driving",
+    "cap": "the 3/hr bubble cap is per-pawn and unchanged — a room full of thin pawns gets quieter, never weirder",
+    "familiarity_floor": "standing gestures between regulars (the nod) are per-card reflex flags, not relationship writes — thin can recognize, it cannot befriend",
+    "persists": "nothing — no obligation, no memory, no thread the full brain later inherits"
+  },
+  "player_contact": {
+    "doc": "v97 — a possessed pawn pressing a thin one gets the same register a full brain would (§43); not a loophole",
+    "register": "phrase kit, capped 3/hr, then the silence arc; direct questions — including 'are you AI?' — get the generic deflect",
+    "initiation": "thin never initiates toward a possessed pawn — the player drives their own scene",
+    "attention_rule": "attention can't wake a pawn — modes change on owner presence + service capacity only, never on being spoken to; paid minutes buy presence, not depth",
+    "memory": "nothing writes thin-side; the player's own handoff note may carry 'talked at Reyes' as an ordinary pending — the thin pawn keeps no record",
+    "requests": "a directed ask is still a co-star request (§13/§32) — presence is cheap, a filed ask follows the bounds"
+  },
+  "world_requests": {
+    "doc": "v97 — the split matrix (§44): some requests were never brain products; at 0% service the world still answers",
+    "classes": {
+      "world-bound":  { "kinds": ["weather/ambience", "venue + open-air claims (bookings, hold-space on a place)"], "needs_brain": false, "at_zero_pct": "delivers in full — thin reflexes are the reaction layer (rain-shelter fires block-wide); booked world windows still bind" },
+      "thin-bounded": { "kinds": ["co-star on ambient/offline hire", "routine-fit ask on a degraded main"], "needs_brain": "bounded", "at_zero_pct": "delivers posture-only per §13/§32/§37" },
+      "brain-bound":  { "kinds": ["scene-dependent asks — anything needing a carried scene"], "needs_brain": true, "at_zero_pct": "declines when every participant is thin/degraded — 'resolved · declined' + 50% auto-refund" },
+      "possession":   { "kinds": ["possess own hired pawn"], "needs_brain": "the owner is the brain", "at_zero_pct": "unaffected — mains unpossessable; hired sessions need owner online (§17)" }
+    },
+    "scene_test": "a scene needs at least one full brain or one player — thin pawns can be watched together, never directed together into dialogue",
+    "declaration": "the class is declared per request kind at build time (requests.json kind → class), never inferred at runtime; an undeclared kind defaults to brain-bound — the conservative side",
+    "feed": "ordinary locked vocabulary throughout — nothing announces the outage underneath"
+  },
   "demo": {
-    "storage_key": "rw_thinai_v83",
+    "storage_key": "rw_thinai_v97",
     "pawns": [
       { "id": "A01", "name": "Reyes", "kind": "ambient", "modes": ["thin"], "venue": "Mudhaus Coffee" },
       { "id": "h01", "name": "the courier (hired)", "kind": "hired", "modes": ["thin", "full", "possessed"], "venue": "Flying Pannier loop" },
       { "id": "C2",  "name": "Jules", "kind": "main", "modes": ["full", "degraded"], "venue": "park / cafe circuit" },
       { "id": "C6",  "name": "Carmen", "kind": "main", "modes": ["full", "degraded"], "venue": "her stoop / her palm / home" }
     ],
-    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "req_c6_fit", "req_c6_off", "service_100", "service_70", "service_60", "service_55", "service_30", "service_0", "scene_c6", "corrupt_c6", "reset"]
+    "events": ["owner_off", "owner_on", "possess", "cap_hit", "rain", "press_a01", "ask_a01", "co_star_a01", "req_c6_fit", "req_c6_off", "service_100", "service_70", "service_60", "service_55", "service_30", "service_0", "scene_c6", "corrupt_c6", "encounter_a15", "player_press_a01", "wx_rain_req", "scene_req_thin", "reset"]
   }
 }

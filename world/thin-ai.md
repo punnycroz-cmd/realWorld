@@ -1,4 +1,4 @@
-# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83)
+# Thin-AI Fallback — spec (world v13; second pass v41; third pass v55; fourth pass v69; fifth pass v83; sixth pass v97)
 
 The cheap brain that keeps the block alive when the expensive brain isn't
 there. Design basis: §2 (ambients run "schedules + reflexes, zero LLM calls
@@ -846,3 +846,131 @@ jitter shown on each pawn's next cell edge — changing across a +24 h
 step while authored coverage stays contiguous. The claim from §36
 holds end to end: at 0% brain service the product gets quieter, and
 nowhere does it get fake.
+
+## 42. Thin-to-thin encounters — the nod economy (v97)
+
+§5 covers a full brain pressing a thin pawn. The case it didn't name:
+what happens when the only brains in the room are cheap ones — two
+thin pawns sharing a cell.
+
+- **The register is gesture, not dialogue.** Two thin pawns on the
+  same cell co-exist convincingly — share the counter, queue
+  together, hold a door, sit the same bench — and interact only in
+  the silence register plus the phrase kit. They never stage a
+  conversation and never perform a relationship beat.
+- **Two thin pawns cannot create a scene.** A scene needs at least
+  one full brain or one player driving. A spectator watching two
+  ambients share a stoop sees two neighbors sharing a stoop — the
+  block's quiet is honest, never a puppet show.
+- **The cap is per-pawn and unchanged.** Co-presence doesn't raise
+  the 3/hr ceiling; a room full of thin pawns gets quieter, never
+  weirder.
+- **The familiarity floor is posture, not relationship.** Ambients on
+  overlapping routines may carry a *standing gesture* — the nod
+  between regulars — declared as a per-card reflex flag
+  (`ambients.json → reflexes`), not a relationship write. Thin can
+  recognize; it cannot befriend. Recognition is a posture the card
+  already owned.
+- Nothing an encounter produces persists: no obligation, no memory,
+  no thread the full brain later inherits. The nod economy pays in
+  nods.
+
+## 43. Player contact — pressing the understudy (v97)
+
+The second unnamed case: a **possessed** pawn (player-driven) is not
+a full brain, but it is a live mind pressing a thin one. The rule is
+the same one §5 gives full brains, stated so no one can bill it as a
+loophole:
+
+- A player talking at a thin pawn gets the phrase-kit register —
+  capped 3/hr, then the silence arc. A direct question gets the
+  generic deflect, including "are you AI?": there is no answer
+  register, so the question resolves like any other.
+- **Thin never initiates toward a possessed pawn.** Co-presence is
+  posture; the player drives their own scene.
+- **Attention can't wake a pawn.** Mode changes come from owner
+  presence and service capacity only — never from being spoken to.
+  A player cannot spend their way into a smarter understudy
+  mid-session; they bought the world's attention, not the pawn's
+  depth.
+- **Nothing writes thin-side memory.** On handoff, the *player's*
+  note may carry "talked at Reyes — he nodded along" as an ordinary
+  loose end (§4 `pending`), the same as any possession leftover; the
+  thin pawn keeps no record. There is no interrogation surface — a
+  seam probe finds only the kit, because there is nothing behind the
+  counter to find.
+- Co-star bounds still apply if the player files a request instead of
+  just talking (§13/§32) — presence is cheap, a directed ask is a
+  request.
+
+## 44. World-bound requests under degrade — the split matrix (v97)
+
+§37 covered requests aimed *at* a degraded main. The matrix splits
+cleaner than that: some requests were never brain products at all.
+
+| request class | needs a brain? | at 0% service |
+|---------------|----------------|----------------|
+| weather / ambience (rain, fog, evening) | no — the world | **delivers in full** — and thin reflexes are the reaction layer: rain-shelter fires block-wide |
+| venue / open-air claims (bookings, hold-space on a place) | no — the ledger | **delivers** — the claim binds the address, not a mind |
+| co-star on ambient / offline hire | bounded — thin side carries it | delivers posture-only per §13/§32 |
+| routine-fit ask on a degraded main | bounded — the public routine | posture-only per §37 |
+| scene-dependent asks ("start a conversation between X and Y", anything needing a carried scene) | **yes** | **declines** when every participant is thin/degraded — `resolved · declined` + 50% auto-refund |
+| possession | the owner is the brain | unaffected — mains were never possessable; hired sessions need the owner online (§17) |
+
+- **A scene needs at least one full brain or one player.** That is
+  the whole test. A request whose deliverable is a scene between two
+  thin pawns declines — thin can be *watched* together, never
+  *directed* together into dialogue.
+- **The world doesn't go down with the brains.** A rain request
+  during a blackout is the honest case: the weather was never model
+  output, and the reflexes that answer it were never model output
+  either. The Wire shows the ordinary locked vocabulary — nothing
+  announces the outage underneath.
+- **Booked world windows still bind under blackout** — a claim on a
+  place is a ledger fact; the degrade changes brains, not deeds.
+- The split is declared per request kind at build time (requests.json
+  `kind → class`), never inferred at runtime. A kind that hasn't
+  declared its class defaults to brain-bound — the conservative side.
+
+## 45. Failure matrix — the encounter cases (v97)
+
+Extends §§15/28/35/40. Decided, not deferred:
+
+- **Two thin pawns named in a scene request:** declines at
+  classification — no brain to carry it; the 50% refund applies, the
+  queue never parks it.
+- **Player monologues at a thin pawn for an hour:** the cap runs out
+  at three bubbles and the silence register carries the rest — a nod,
+  a shrug. The session bought presence, not a scene partner.
+- **"Are you AI?" and other seam probes:** generic deflect — the
+  question is a direct question like any other; the probe finds the
+  kit and nothing else.
+- **Rain request lands mid-blackout:** delivers in full; rain-shelter
+  and the per-card weather reflexes fire on schedule. The world
+  reacts without a single brain online.
+- **Scene request names a thin pawn + a full main:** judged on the
+  participants — one full brain is enough to carry a scene; the thin
+  pawn attends in kit register.
+- **Co-star window, third party talks at the summoned pawn:** kit-only
+  — co-star sells presence, never dialogue; the bystander's press is
+  §43, not the request's problem.
+- **Standing-gesture reflex between regulars:** fires as posture
+  (the nod), never as a line that implies history — a gesture can't
+  leak a relationship thin doesn't have.
+- **Undeclared request kind hits the split:** defaults brain-bound —
+  a kind that can't show it doesn't need a brain is treated like it
+  does.
+
+## 46. What the demo v7 proves
+
+The Understudy v7 adds the encounter layer on top of v6: A15 drifting
+into A01's counter cell to show the nod economy (co-presence in
+gesture register — no conversation, cap unchanged, a scene unable to
+form with zero brains); the player-contact path (possess h01, talk at
+A01 — kit then deflect then silence; "are you AI?" resolves like any
+other question; attention never changes a mode); the request split
+live (a rain request delivering at 0% with reflexes firing while a
+scene request naming two thin pawns declines `resolved · declined` +
+50% refund); and the encounter panel showing who's awake in the room
+— the count of live minds, which is the only thing the split ever
+keys on.

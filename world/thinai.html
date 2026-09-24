@@ -5,7 +5,7 @@
 <title>Real World — The Understudy (thin-AI fallback)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Thin-AI fallback demo — "The Understudy" v6 (world v83).
+  Thin-AI fallback demo — "The Understudy" v7 (world v97).
   Self-contained: file://-safe, no network. Spec: world/thin-ai.md.
   Machine mirror: world/thinai.json. INTERNAL builder tool —
   never-ship, not a player surface; mode badges and seam lines are
@@ -49,6 +49,16 @@
   never parked), and quiet-week deterministic jitter (day-hash ±15-min
   shared cell edges + stop-order rotation — same block on every
   client, obligations and cell kinds never jitter).
+  v97 — the encounter layer: thin-to-thin encounters run the nod
+  economy (A15 drifts into A01's counter cell — gesture register,
+  no staged conversation, two thin pawns can't create a scene);
+  player contact (a possessed h01 pressing A01 gets kit → deflect →
+  silence; "are you AI?" resolves like any other question; attention
+  never changes a mode); and the world-bound request split — a rain
+  request delivers at 0% with reflexes firing while a scene request
+  naming two thin pawns resolves declined + 50% refund. The
+  encounter panel shows who's awake in the room — the only thing
+  the split keys on.
   LIVE SEAM — if window.__aiBridge exposes the game-v9 offline
   surfaces (gsBrainMode, gsThinScheduleView, gsNeedsView, gsObligations,
   gsComputeStats, gsServiceEval, gsOfflineReport), this page reads them;
@@ -164,6 +174,9 @@
     <div class="panel"><h2>Coverage &amp; the flap guard</h2><div class="ledger" id="cov"></div>
       <div class="fine">Routine resolution is a total function — every pawn, every minute lands on a cell; the floor is <b>home · idle</b> and a pawn never freezes. The degrade ladder has a <b>deadband</b>: thin below 60%, recover at ≥70%, plus a 30-min minimum dwell — a flapping service can't churn the seam.</div>
     </div>
+    <div class="panel"><h2>Encounters — who's awake in the room</h2><div class="ledger" id="enc"></div>
+      <div class="fine">The nod economy: thin-to-thin is gesture register — a scene needs at least one full brain or one player. Requests split world-bound (deliver at 0%) from brain-bound (decline without a live mind).</div>
+    </div>
     <div class="panel"><h2>Surface fallback — what a stall does</h2><div class="ledger" id="surf"></div>
       <div class="fine">Three postures, closed matrix: <b>unaffected</b> (template vocabulary — never model text), <b>hold</b> (authored backlog — Mission Unfiltered goes quiet, trickles back ≤1/daypart), <b>static</b> (the card ships without prose — briefings, thread labels). Honest absence beats filler; nothing is labeled in-world.</div>
     </div>
@@ -192,8 +205,8 @@
 </main>
 <div class="toast" id="toast"></div>
 <script>
-/* mirror of thinai.json demo scenario (schema v83) */
-var LS='rw_thinai_v83';
+/* mirror of thinai.json demo scenario (schema v97) */
+var LS='rw_thinai_v97';
 var MODES={a01:['thin'],h01:['thin','full','possessed'],c2:['full','degraded'],c6:['full','degraded']};
 var KIT={
   greeting:['morning','hey',"how's it"],
@@ -212,7 +225,7 @@ function hhmm(m){return ('0'+Math.floor(m/60)%24).slice(-2)+':'+('0'+Math.floor(
 function seed(){return {
   min:13*60+7, day:4, rain:false, cap:100, linger:0, possessLeft:0, handoffBeat:0,
   coStar:0, csClass:0, scene:false, bubHour:-1, bubN:0, bubUsed:{}, lastLine:{a01:null},
-  pressHeld:0, c6ask:0,
+  pressHeld:0, c6ask:0, a15:false,
   paidToday:false, c6src:'authored', degMin:{c2:0,c6:0},
   ledger:{a01:0,h01:0}, rentDrafts:0, arch:[],
   comp:{llm:0,thin:0,player:0},
@@ -344,6 +357,7 @@ function render(){
       '<div class="needs">hunger <span class="bar"><i style="width:'+Math.min(100,n.hunger)+'%"></i></span>'+
       ' rest <span class="bar r"><i style="width:'+Math.min(100,n.rest)+'%"></i></span></div>';
     if(S.coStar&&id==='a01')out+='<span class="costar">co-star window live</span>';
+    if(S.a15&&id==='a01'&&cell(id,h)[1]==='serve')out+='<span class="costar">A15 sharing the cell — nod economy</span>';
     if(rx.length)out+='<div>'+rx.map(function(r){return '<span class="rx">'+r+'</span>';}).join('')+'</div>';
     if(p.note){var age=noteAge(p);
       out+='<div class="notebox"><b>handoff note</b> <span class="age">'+(age>=1440?'stale — archives at 24 h':'age '+Math.floor(age/60)+'h'+('0'+age%60).slice(-2)+'m')+'</span>\n'+JSON.stringify({char:p.note.char,from:p.note.from,to:p.note.to,at_min:p.note.at_min,place:p.note.place,doing:p.note.doing,pending:p.note.pending,near:p.note.near,mood_hint:p.note.mood_hint},null,1)+'</div>';}
@@ -372,6 +386,14 @@ function render(){
     '<b>hold</b> — Mission Unfiltered posts: '+(down?'<b style="color:var(--acc)">held · backlog '+S.pressHeld+'</b> <small>the blog goes quiet — never auto-write a post</small>':(S.pressHeld>0?'draining <b>'+S.pressHeld+'</b> held · ≤1/daypart — a returning blogger, not a dump':'healthy — posts file on schedule'))+'<br>'+
     '<b>static</b> — briefings: '+(down?'static card only <small>(profile + surface rels + routine — the whole contract; a shorter card, never an apology)</small>':'model prose over the card')+' · archive thread labels: '+(down?'untitled <small>(chrome, never narration)</small>':'labeled at archive time')+'<br>'+
     '<small>requests on degraded mains: routine-fit → posture-only accept; anything else → resolved · declined + 50% auto-refund, judged at activation. The matrix is closed — honest absence beats filler, and nothing is labeled in-world.</small>';
+  /* v97 encounter layer — who's awake in the room; the split keys on
+     live minds, never on names. Two thin pawns can't make a scene. */
+  var minds=['a01','h01','c2','c6'].filter(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
+  $('enc').innerHTML=
+    'live minds in the room: <b>'+minds.length+'</b> ('+(minds.length?minds.map(function(k){return k.toUpperCase();}).join(' · '):'none — the block runs on schedule + reflexes')+')<br>'+
+    'co-presence: '+(S.a15?'<b>A15 sharing A01\'s counter cell</b> — nod economy: gesture register only, cap unchanged, no conversation staged':'A01 holds the counter alone')+'<br>'+
+    'request split — <b>world-bound</b> (weather, venue claims): delivers at 0% · <b>thin-bounded</b> (co-star, routine-fit): posture-only · <b>brain-bound</b> (carried scenes): needs ≥1 live mind, else resolved · declined + 50% refund<br>'+
+    '<small>a scene needs at least one full brain or one player — thin pawns can be watched together, never directed together into dialogue</small>';
   var hp=S.pawns.h01,hc=cell('h01',h);
   $('orep').innerHTML='your courier — '+hc[0]+'<br>'+
     'wages since last visit: <b>$'+S.ledger.h01.toFixed(2)+'</b> · obligations drafted: <b>'+S.rentDrafts+'</b>'+
@@ -484,6 +506,39 @@ var EV=[
    S.scene=!S.scene;
    seam(S.scene?'a live scene forms around C6 — under degrade she yields: phrase-kit only, drifts to the background of her cell, reads as the quiet one tonight'
               :'the scene around C6 disperses — yield ends with the scene; nothing persists, no memory on the thin side');}],
+ ['A15 drifts in / out',function(){
+   /* v97 nod economy — two thin pawns sharing a cell run gesture
+      register only; no conversation is staged, and the pairing can
+      never create a scene (a scene needs ≥1 live mind). */
+   S.a15=!S.a15;
+   seam(S.a15?'A15 drifts into A01\'s counter cell — the nod economy: a regulars\' nod (per-card reflex flag, not a relationship write), shared-queue posture, cap unchanged. Two thin pawns can\'t stage a conversation.'
+            :'A15 drifts back to her own route — nothing persisted: no obligation, no memory, no thread for a full brain to inherit');}],
+ ['Player talks at A01',function(){
+   /* v97 player contact — a possessed pawn pressing thin gets the
+      same register a full brain would; attention can't wake a mode */
+   var p=S.pawns.h01;
+   if(p.mode!=='possessed'){toast('No live session — the player presses thin only while driving h01.');return;}
+   var h=S.min/60;
+   if(cell('a01',h)[1]==='sleep'){seam('player talks at A01 while she\'s off-shift asleep — no response; thin doesn\'t perform off-schedule, not even for a paying player');return;}
+   if(S.bubN>=3){seam('player press at A01 — cap already spent: '+KIT.silence[1]+'. The session bought presence, not a scene partner; nothing writes thin-side.');return;}
+   var probe=(S.bubN===2);
+   var line=probe?KIT.deflect[0]:KIT.greeting[S.bubN%KIT.greeting.length];
+   S.bubN++;
+   seam('player (h01, possessed) '+(probe?'asks "are you AI?" — generic deflect: "'+line+'". There is no answer register; the probe finds the kit and nothing else'
+     :'talks at A01 — phrase-kit reply: "'+line+'". Attention doesn\'t wake a mode; the pawn keeps no record')+' (bubble '+S.bubN+'/3)');}],
+ ['World req: rain now',function(){
+   /* v97 split — world-bound requests were never brain products:
+      delivers even at 0% service; thin reflexes ARE the reaction */
+   if(S.rain){toast('Already raining.');return;}
+   S.rain=true;
+   wire('request — weather: rain over the Mission, 2 h — running (wx)');
+   seam('world-bound request delivers'+(S.cap<60?' at '+S.cap+'% service':'')+' — the weather was never model output, and the reflexes answering it (rain-shelter, covered routes, cafecito inside) were never model output either');}],
+ ['Scene req: A01 + A15',function(){
+   /* v97 split — brain-bound: a carried scene needs ≥1 live mind;
+      two thin pawns can't be directed into dialogue */
+   var live=['a01','h01','c2','c6'].some(function(k){var m=S.pawns[k].mode;return m==='full'||m==='possessed';});
+   wire('request — scene between A01 and A15 — resolved · declined (50% auto-refund)');
+   seam('scene-dependent ask judged at activation — '+(live?'the named pair are both thin; a live mind elsewhere doesn\'t carry their scene':'zero live minds in the room')+'. Thin can be watched together, never directed together. Sell the ask, refund the miss.');}],
  ['Service 100%',function(){setCap(100);}],
  ['Service 70%',function(){setCap(70);}],
  ['Service 60%',function(){setCap(60);}],

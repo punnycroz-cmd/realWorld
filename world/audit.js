@@ -1333,7 +1333,7 @@ const PUB = Object.values(PT.surfaces)
         add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
     /* html mirror: v83 surfaces */
     const MUST83 = [
-      [/rw_thinai_v83/, 'v83 storage key'],
+      [new RegExp((TJ.demo.storage_key || 'rw_thinai_v83').replace(/[.*+?^${}()|[\]\\]/g, '\\$&')), 'demo storage key'],
       [/Surface fallback/i, 'surface-fallback panel'],
       [/routine-fit/i, 'routine-fit request rule'],
       [/posture-only/i, 'posture-only accept copy'],
@@ -1343,6 +1343,49 @@ const PUB = Object.values(PT.surfaces)
     ];
     for (const [re, label] of MUST83)
       if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v83 copy: ${label}`);
+    /* ---- v97 encounter-layer pass ---- */
+    for (const blk of ['thin_encounters', 'player_contact', 'world_requests'])
+      if (!TJ[blk]) add(g, 'fail', 'thinai.json', null, `v97 block "${blk}" missing`);
+    if (TJ.thin_encounters) {
+      if (!/at least one full brain or one player/.test(TJ.thin_encounters.scene_rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'thin_encounters lost the scene-needs-a-live-mind rule');
+      if (!/reflex flag|per-card reflex/.test(TJ.thin_encounters.familiarity_floor || ''))
+        add(g, 'fail', 'thinai.json', null, 'thin_encounters familiarity floor must stay a reflex flag, never a relationship write');
+    }
+    if (TJ.player_contact) {
+      if (!/never on being spoken to|never from being spoken to|presence/.test(TJ.player_contact.attention_rule || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact lost the attention-can\'t-wake rule');
+      if (!/deflect/.test(TJ.player_contact.register || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact register lost the deflect path');
+      if (!/keeps no record|no record/.test(TJ.player_contact.memory || ''))
+        add(g, 'fail', 'thinai.json', null, 'player_contact lost the no-thin-side-memory rule');
+    }
+    if (TJ.world_requests) {
+      const C = TJ.world_requests.classes || {};
+      for (const c of ['world-bound', 'thin-bounded', 'brain-bound', 'possession'])
+        if (!C[c]) add(g, 'fail', 'thinai.json', null, `world_requests.classes.${c} missing`);
+      if (C['world-bound'] && C['world-bound'].needs_brain !== false)
+        add(g, 'fail', 'thinai.json', null, 'world-bound class must declare needs_brain:false — it was never a model product');
+      if (!/50%/.test((C['brain-bound'] || {}).at_zero_pct || ''))
+        add(g, 'fail', 'thinai.json', null, 'brain-bound decline lost the 50% auto-refund');
+      if (!/brain-bound/.test(TJ.world_requests.declaration || ''))
+        add(g, 'fail', 'thinai.json', null, 'undeclared kinds must default to brain-bound');
+    }
+    for (const ev of ['encounter_a15', 'player_press_a01', 'wx_rain_req', 'scene_req_thin'])
+      if (!(TJ.demo.events || []).includes(ev))
+        add(g, 'fail', 'thinai.json', null, `demo.events missing "${ev}"`);
+    /* html mirror: v97 surfaces */
+    const MUST97 = [
+      [/rw_thinai_v97/, 'v97 storage key'],
+      [/nod economy/i, 'thin-to-thin nod-economy copy'],
+      [/who's awake in the room/i, 'encounter panel — live-mind count'],
+      [/world-bound/i, 'world-bound request class'],
+      [/needs ≥1 live mind|at least one full brain or one player/i, 'scene needs a live mind'],
+      [/are you AI\?/, 'seam-probe deflect copy'],
+      [/presence, not a scene partner|presence, not depth/i, 'paid-minutes-buy-presence copy']
+    ];
+    for (const [re, label] of MUST97)
+      if (!re.test(html)) add(g, 'fail', 'thinai.html', null, `missing v97 copy: ${label}`);
     g.detail = `schema v${TJ.version} · ${TJ.demo.pawns.length} pawns · key ${TJ.demo.storage_key}`;
   } catch (e) { add(g, 'fail', 'thinai.json', null, 'parse/check failure: ' + e.message); }
 }
