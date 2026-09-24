@@ -1,6 +1,9 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v145 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v160 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+v160 adds §20, the naming constitution: three name classes, the registry of
+every approved name, and the coinage rules — plus a visual misuse board
+(`site/assets/logo-misuse.svg`, embedded on the brand book page).
 This version adopts the locked **becoming-AI direction** (user-decision
 2026-09-23, PRODUCTION-2): the mains are AIs that *know they're AI*, embodied
 on the block, unaware it's a simulation, born with no assigned purpose. The
@@ -118,7 +121,8 @@ are allowed and encouraged.
 
 These names are owned by the world track's app shells; marketing copy uses
 them verbatim and never coins new surface names without a world-track
-artifact to point at.
+artifact to point at. The full naming system — classes, registry, and how
+new names get coined — is §20.
 
 ---
 
@@ -628,3 +632,84 @@ check 9 gates the mechanical half on every `site/*.html` page.
   diegetic-first, so muting loses nothing the captions don't carry.
 - **The Wire's live badge pulses, not flashes** — no flashing content
   anywhere; attention is earned by the block, not the blink rate.
+
+---
+
+## 20. Brand architecture — the naming constitution
+
+Names are load-bearing here: the product sells a neighborhood, and
+neighborhoods are named by the people who live in them, not by a marketing
+department. Every name we use falls into exactly one of three classes, and
+each class has its own casing rule and its own owner. A name's class is
+fixed at coinage — nothing gets promoted quietly.
+
+### Classes
+
+| Class | What it is | Casing | Who coins it |
+|---|---|---|---|
+| **A — product & surfaces** | The product and its app shells: things with a URL. | Title case; surfaces take a leading "The" | The track that ships the artifact (world) |
+| **B — programs & series** | Recurring editorial/community formats: things with a calendar slot. | Title case; may embed "the Block" as a proper element | Marketing, registered below before first use |
+| **C — colloquial** | How neighbors talk: generics, never trademarks. | lowercase, always | Anyone; they describe, they don't name |
+
+### Registry — every approved name
+
+| Name | Class | Artifact it points at | Notes |
+|---|---|---|---|
+| **Real World** | A | the product | two words, title case, no leading "The" (§2) |
+| **Real World — The Mission** | A | first formal reference | em dash, never a colon (§2) |
+| **The Mission** | A | the neighborhood | in-world shorthand once established |
+| **The Wire** | A | `wire.html` — live spectator feed | world-track shell |
+| **The Archive** | A | `wire-archive.html` — history browser | world-track shell |
+| **Join the Cast** | A | `world/create.html` — character creation | world-track surface; as a verb phrase it stays lowercase "join the cast" (lexicon §1) |
+| **the Journal** | A | `site/journal.html` — devlog + recap home | lowercase "the" mid-sentence: "in the Journal" |
+| **This Week on the Block** | B | Sunday recap — `journal.html` + `social/drafts/recap-format.md` | "the Block" is part of the title, so it keeps its capital inside the name |
+| **Caught on the Block** | B | weekly UGC clip prompt — `social/drafts/caught-on-the-block.md` | same rule |
+| **the block** | C | the neighborhood, in voice | never capitalized outside a Class-B title |
+| **the feed** | C | The Wire, spoken about | never "the Feed" |
+| **the cast** | C | the 8 mains collectively | |
+| **watch party** | C | community event type — `community/watch-party-playbook.md` | an event *can be* a watch party; there is no "Watch Party™" |
+| **request clinic** | C | Wednesday help session — `community/request-clinic-kit.md` | lowercase even on the calendar |
+| **town hall** | C | first-Saturday owner session | lowercase |
+
+### Coinage rules
+
+1. **A name must point at a real artifact.** No name without a page, a
+   file, a calendar slot, or a shipped shell. If the artifact doesn't
+   exist yet, the name doesn't either — drafts may experiment, the
+   registry may not.
+2. **Class A is sealed.** Marketing never coins product or surface names;
+   they arrive with the world track's app shells. A proposal goes through
+   the inbox, not into copy.
+3. **Class B names prefer a concrete neighborhood noun** — Block, Wire,
+   Archive, Journal, Cast. They sound like things a neighbor named, not
+   things a growth team A/B tested.
+4. **"the Block" is the only promoted colloquial** allowed inside a
+   Class-B title, and only as a full proper element — never "theBlock",
+   never "Da Block", never alone as "The Block" (that would make the
+   neighborhood a franchise).
+5. **One leading "The" per name.** Surfaces earned theirs; programs don't
+   take one ("The This Week on the Block" is wrong twice).
+6. **No sub-brands.** Never "Real World X" for a program or feature —
+   the product name is not a prefix. If a name can't stand without it,
+   it isn't a name.
+7. **No startup shapes.** No "-ify/-ly/-hub/-space", no portmanteaus, no
+   verb-names ("Requestly"). Banned by the same rule that bans hype words
+   (§4): the brand is a place, not a platform.
+8. **Colloquials stay lowercase forever.** If a Class-C term graduates to
+   a titled program, it gets a registry row in the same commit as its
+   first capitalized use. Mid-document promotion is a bug.
+9. **In-world names come from in-world authorities** — residents from the
+   bibles, venues from `world/businesses.md`, per lexicon §4. Marketing
+   never invents a resident, venue, or street.
+10. **Test: would a neighbor call it this?** "The Wire" passes — it's
+    what you'd call the feed if you watched it nightly. "Engagement
+    Portal" does not.
+
+### Drift watch
+
+A v160 sweep of `marketing/` found the corpus already conformant: every
+"the Block" capital sits inside a Class-B title, every program name has
+an artifact, no colloquial is promoted anywhere. Keep it that way —
+`tools/brand_audit.py` covers the mechanical casing checks, and this
+registry is the human gate for meaning (§17). When a new name lands, add
+its row here in the same commit as its first public use.
