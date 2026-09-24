@@ -1,4 +1,49 @@
-# Memory Model Spec v5.50 — implementable human-like memory for RW characters
+# Memory Model Spec v5.51 — implementable human-like memory for RW characters
+
+> **v5.51 note (individual-differences IX — the tax and the
+> step: states that rent the machinery, injuries that reset
+> it, the bookkeeping quirks, and the fourth mandated null —
+> ID§§108–119):** twelve axes that make two identical trait
+> vectors remember different weeks. (a) **Scarcity** —
+> `scarc` state taxes wmc-loadings while `stressor:true`
+> events tunnel-encode stronger; locked `scarc_trait_null`
+> (Mani 2013; Shah 2012) — §6.245. (b) **The checking
+> paradox** — `recheck` events erode reported vividness/
+> confidence and drift R→K while `accuracy` never moves
+> (`chk_acc_null`; van den Hout & Kindt 2003/2004) — §6.246.
+> (c) **Apnea** — `apnea` trait taxes `consol_beta_mult`/
+> `sws_mult`/iiv nightly; `apnea_treated` rescues ~half on
+> a 90-day timescale; locked `apnea_overnight_null`
+> (Canessa 2011; Djonlagic 2021) — §6.247. (d) **Delirium**
+> — the missing `hosp_step` mediator: `frag:true`/
+> `fuzzy:true` in-window minting + permanent dose-ordered
+> `age_eff` step; locked `delir_retro_null` (Pandharipande
+> 2013) — §6.248. (e) **Bipolar** — euthymic residue +
+> per-episode accrual + wide-thin manic encoding; locked
+> `bip_creat_null` (Bourne 2013) — §6.249. (f) **Newborn
+> months** — `newpar_state` routes the whole dip through
+> sleep/iiv/att channels; locked `newpar_flat_null`
+> (Logan 2014; Hoekzema 2017) — §6.250. (g) **Treatment
+> fog** — `crci_state` taxes the control layer only,
+> complaint≈1.2×; locked `crci_epi_null` (Ahles & Root
+> 2018) — §6.251. (h) **Felt age** — `subj_age` shifts
+> performance-side `age_eff`; `age_cue` stereotype ctx
+> (Hess 2003); locked `subj_age_store_null` (Stephan 2018)
+> — §6.252. (i) **The camera tax** — `photographed:true`
+> splits E: nonvisual −`photo_tax`, visual +`photo_vis_gain`;
+> locked `photo_review_null` (Henkel 2014; Soares & Storm
+> 2018; Barasch 2017) — §6.253. (j) **Mind-wandering** —
+> `mw` mints `mw_gap:true` thin-field windows and returns
+> an intrusion dividend; locked `mw_deliberate_null`
+> (Cheyne 2006; Kane & McVay 2012) — §6.254. (k)
+> **Savoring** — `savor` props positive detail/rehearsal/
+> affect-fade; locked `savor_neg_null` (Bryant & Veroff
+> 2007) — §6.255. (l) **The fourth mandated null** —
+> `microdose` gets `mdose_expect_conf` and nothing else;
+> locked `mdose_enhance_null` (Cavanna 2022; van Elk 2021;
+> Murphy 2023) — §6.256. +33 scalars, +7 traits, +8 state
+> fields, +12 locked nulls; §10 contract adds. Probes
+> P1085–P1097.
 
 > **v5.50 note (false-memory IX — the self-service layer:
 > the mind authors its own errors, then defends them —
@@ -13362,6 +13407,179 @@ sign(C.mood)`. **Locked `moodlure_pos_null`:** positive
 mood gets no symmetric suppression — the asymmetry is the
 finding.
 
+### 6.245 The bill eats the buffer — `scarc_*` (new in v5.51)
+
+ID§108; Mani, Mullainathan, Shafir & Zhao 2013 (*Science*
+341:976); Shah, Mullainathan & Shafir 2012 (*Science*
+338:682).
+
+`scarc` ∈ [0,1] — world-supplied state (minted from
+ledger-side financial-strain events; never bible-pinned).
+While `scarc > 0`: all wmc-loadings ×(1 −
+`scarc_wmc_tax`·scarc) (`scarc_wmc_tax` 0.2); PM
+self-initiation ×(1 − `scarc_pm_tax`·scarc) (0.15).
+Tunnel leg: `stressor:true` events encode E ×(1 +
+`scarc_tunnel_gain`·scarc) (0.25) — the scarce domain
+sharpens while the periphery pays. **Locked
+`scarc_trait_null`:** identity never carries the tax —
+`scarc`→0 restores all loadings fully.
+
+### 6.246 The tenth check trusts less — `chk_*` (new in v5.51)
+
+ID§109; van den Hout & Kindt 2003 (*Behav. Res. Ther.*
+41:301), 2004 (*JBTEP* 35:165); Hermans et al. 2008;
+Radomsky et al. 2014.
+
+On `recheck` events referencing a self-action record
+(world-supplied): reported vividness/detail ×(1 −
+`chk_vivid_erosion`·checker) per check (0.15); reported
+confidence ×(1 − `chk_conf_erosion`·checker) (0.2);
+remember/know tag drifts `know`-ward at
+`chk_know_shift`·checker per check (0.3, asymptotic).
+**Locked `chk_acc_null`:** `accuracy` never moves — erosion
+is phenomenal/metacognitive only; the recheck urge scales
+with eroded confidence (the loop is emergent).
+
+### 6.247 The night that never consolidates — `apnea_*` (new in v5.51)
+
+ID§110; Canessa et al. 2011 (*J. Sleep Res.* 20); Djonlagic
+et al. 2021 (*JAMA Netw. Open* 4:e212537); Leng 2017;
+Bubu 2020 meta.
+
+`apnea` ∈ [0,2] trait (age/male-skewed sampling):
+`consol_beta_mult` ×(1 + `apnea_consol_tax`·a) (0.15);
+`sws_mult` ×(1 − `apnea_sws_cut`·a) (0.2); `iiv_sigma`/
+`ret_noise` += `apnea_iiv`·a (0.02). `apnea_treated:true`
+rescues fraction `apnea_cpap_rescue` (0.5) of all legs,
+accruing over ~90 days. **Locked `apnea_overnight_null`:**
+single treated nights repair nothing.
+
+### 6.248 The confusion that stays — `delir_*` (new in v5.51)
+
+ID§111; Pandharipande et al. 2013 (*NEJM* 369:1306 —
+BRAIN-ICU: delirium duration dose-orders lasting global-
+cognition deficit); Girard 2010; Marcantonio 2017.
+
+World supplies `delirium:{onset,offset,severity}` atop
+`hosp` events. In-window: encoding mints `frag:true`
+fragments at `delir_enc_floor` (0.05) of normal E, source
+fields empty; delusional fragments mint at `delir_dream_p`
+(0.15) with `fuzzy:true` provenance. At offset:
+`age_eff += delir_step·days` (`delir_step` 0.15 age-years/
+day, cap `delir_step_cap` 3y) — permanent, stacks with
+`hosp_step`. **Locked `delir_retro_null`:** pre-admission
+records untouched — forward-only step.
+
+### 6.249 The swing and its residue — `bip_*` (new in v5.51)
+
+ID§112; Bourne et al. 2013 (*Acta Psychiatr. Scand.* 128:149
+meta — euthymic d≈0.4–0.7); Robinson & Ferrier 2006
+(episode-count residue); Cullen 2016.
+
+`bipolar` ∈ [0,2] trait, ≤1 per cast. Euthymic: E and
+`search_breadth` ×(1 − `bip_euthymic_tax`·b) (0.1) plus
+`bip_ep_residue`·`episode_count` (0.02, cap 0.2). Manic ctx
+(`C.mood ≥ +0.7`): `w_nov`/`w_people` ×(1 +
+`bip_mania_reach`·b) (0.3); `w_topic`/source completeness
+×(1 − `bip_mania_thin`·b) (0.2). **Locked
+`bip_creat_null`:** no encoding/retrieval advantage at any
+state — the phenotype costs.
+
+### 6.250 The newborn months — `newpar_*` (new in v5.51)
+
+ID§113; Hoekzema et al. 2017 (*Nat. Neurosci.* 20:287);
+Workman, Barha & Galea 2012; Logan et al. 2014.
+
+`newpar_state` ∈ {0,1} (~6 postpartum months; either parent
+at `night_duty` share): `sleepQuality` ceiling ×(1 −
+`newpar_sleep_cap`·state) (0.25); `iiv_sigma` +=
+`newpar_iiv` (0.03); `att_min` += `newpar_att` (0.03);
+complaint surface ×`newpar_complaint` (0.6). **Locked
+`newpar_flat_null`:** zero direct E/θ/β terms — all cost
+routes through sleep/attention channels.
+
+### 6.251 The treatment fog — `crci_*` (new in v5.51)
+
+ID§114; Ahles & Root 2018 (*CA: Cancer J. Clin.* 68);
+Wefel 2015; Janelsins 2014.
+
+`crci_state` ∈ [0,1] during active treatment ±3 months:
+`pspeed`/`ret_lat_mult`/wmc-loadings ×(1 −
+`crci_exec_tax`·s) (0.15 — executive domain only); tax
+scaled +0.5 by `task_load` (fatigue mediation); complaint
+surface ×`crci_complaint` (1.2 — exceeds the tax, the
+signature). **Locked `crci_epi_null`:** `enc_base`/
+`beta_episodic`/`theta` untouched — fog in the control
+layer, not the store.
+
+### 6.252 How old it feels — `subj_age`/`stereo_*` (new in v5.51)
+
+ID§115; Stephan, Sutin & Terracciano 2018–2023; Weiss &
+Lang 2012; Hess et al. 2003; Mazerolle 2017 meta.
+
+`subj_age` ∈ [−1,+1] trait (felt − chronological;
+population skews negative): performance-side `age_eff` legs
+shift `subj_age_shift`·subj_age years (3.0 — HYPOTHESIS
+residual after depr/activity mediation). `age_cue:true`
+ctx (birthdays, memory tests, "sir") taxes wmc-loadings
+×(1 − `stereo_tax`) (0.1) when age_now ≥ 60 AND
+subj_age > 0. **Locked `subj_age_store_null`:** felt age
+never touches encoding/decay — performance and report only.
+
+### 6.253 The shutter's price — `photo_*` (new in v5.51)
+
+ID§116; Henkel 2014 (*Psych. Sci.* 25:396); Soares & Storm
+2018; Barasch et al. 2017.
+
+`photo_habit` ∈ [0,2] trait. On `photographed:true` events:
+nonvisual/gist fields E ×(1 − `photo_tax`·min(1,h)) (0.15);
+visual-detail fields ×(1 + `photo_vis_gain`·h) (0.1);
+`camera:true` provenance tag enables the photo as
+`resurrect`-class cue. **Locked `photo_review_null`:** the
+tax applies at the shutter — post-hoc review or deletion
+changes nothing backward.
+
+### 6.254 The mind leaves the room — `mw_*` (new in v5.51)
+
+ID§117; Cheyne, Carriere & Smilek 2006 (ARCES); Schooler et
+al. 2011; Kane & McVay 2012.
+
+`mw` N(0,1): internal-capture events at rate
+`mw_rate`·(1 + 0.3·mw) (0.02/tick); in capture windows `att`
+floors at `att_min` and fields mint `mw_gap:true` — thin
+verbatim, intact place-gist. Retrieval: intrusion rate
++= `mw_replay`·(1+mw) leg (0.1). **Locked
+`mw_deliberate_null`:** deliberate-recall accuracy and cue
+weights untouched — capture is cost + dividend, not a
+retrieval style.
+
+### 6.255 The deliberate keeper — `savor_*` (new in v5.51)
+
+ID§118; Bryant & Veroff 2007 (Savoring Beliefs Inventory);
+distinct from `rosy` (report-layer) and `rumin` (negative-
+channel).
+
+`savor` N(0,1): positive-valence records gain detail/
+peripheral fields ×(1 + `savor_attend`·sav) (0.15) at
+encoding; enter the rehearsal pool ×(1 +
+`savor_rehearse`·sav) (0.3); positive affect-tag fade
+×(1 − `savor_fade_buf`·sav) (0.2). **Locked
+`savor_neg_null`:** negative records untouched at all
+trait values.
+
+### 6.256 The fourth mandated null — `mdose_*` (new in v5.51)
+
+ID§119; Cavanna et al. 2022 (*Transl. Psychiatry* 12:148);
+van Elk et al. 2021; Murphy et al. 2023 (*Biol.
+Psychiatry*); Marschall 2022.
+
+`microdose` ∈ {0,1} habit flag: dose-day reported
+performance confidence += `mdose_expect_conf` (0.1) when
+the character believes they dosed (the expectancy finding).
+**Locked `mdose_enhance_null`:** every objective parameter
+identical to non-dosing — E, β, θ, wmc-loadings, intrusion
+rates. Joins `birth_order`, `learn_style`, `braintrain`.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -15364,6 +15582,49 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.51 additions (individual-differences IX — ID§§108–119)
+"scarc_wmc_tax": 0.2, "scarc_pm_tax": 0.15,
+"scarc_tunnel_gain": 0.25,                       // §6.245
+"chk_vivid_erosion": 0.15, "chk_conf_erosion": 0.2,
+"chk_know_shift": 0.3,                           // §6.246 (per recheck)
+"apnea_consol_tax": 0.15, "apnea_sws_cut": 0.2,
+"apnea_iiv": 0.02, "apnea_cpap_rescue": 0.5,     // §6.247
+"delir_enc_floor": 0.05, "delir_dream_p": 0.15,
+"delir_step": 0.15, "delir_step_cap": 3.0,       // §6.248 (age-yr/day)
+"bip_euthymic_tax": 0.1, "bip_ep_residue": 0.02,
+"bip_mania_reach": 0.3, "bip_mania_thin": 0.2,   // §6.249
+"newpar_sleep_cap": 0.25, "newpar_iiv": 0.03,
+"newpar_att": 0.03, "newpar_complaint": 0.6,     // §6.250
+"crci_exec_tax": 0.15, "crci_complaint": 1.2,    // §6.251
+"subj_age_shift": 3.0, "stereo_tax": 0.1,        // §6.252
+"photo_tax": 0.15, "photo_vis_gain": 0.1,        // §6.253
+"mw_rate": 0.02, "mw_replay": 0.1,               // §6.254
+"savor_attend": 0.15, "savor_rehearse": 0.3,
+"savor_fade_buf": 0.2,                           // §6.255
+"mdose_expect_conf": 0.1,                        // §6.256
+// v5.51 locked nulls: scarc_trait_null (state-gated —
+//   P1085); chk_acc_null (erosion never touches accuracy —
+//   P1086); apnea_overnight_null (no single-night repair —
+//   P1087); delir_retro_null (forward-only step — P1088);
+//   bip_creat_null (phenotype never compensates — P1089);
+//   newpar_flat_null (sleep-routed only — P1090);
+//   crci_epi_null (control layer not store — P1091);
+//   subj_age_store_null (performance/report only — P1092);
+//   photo_review_null (tax at the shutter — P1094);
+//   mw_deliberate_null (no deliberate-recall gain —
+//   P1095); savor_neg_null (positive records only —
+//   P1096); mdose_enhance_null (fourth mandated null —
+//   P1097). Frozen: none.
+// v5.51 traits/states/fields: traits `apnea`, `bipolar`,
+//   `subj_age`, `photo_habit`, `mw`, `savor`, `microdose`
+//   (mandated-null habit flag); states `scarc` [0,1],
+//   `delirium:{onset,offset,severity}`, `newpar_state`,
+//   `crci_state`, `night_duty` share, `episode_count` int,
+//   `apnea_treated`; ctx flag `age_cue:true`; event flag
+//   `photographed:true`; event `recheck` (self-action
+//   record ref); record fields `mw_gap:true`, `frag:true`
+//   reuse, `fuzzy:true` provenance, `camera:true` tag.
+//   All snapshot-additive; absent = legacy.
 // v5.50 additions (false-memory IX — FM§§101–110)
 "fgen_gain": 0.8, "fgen_vs_hear": 1.5,
 "fgen_warn_resid": 0.5,                        // §6.235
@@ -17860,6 +18121,50 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.51 additions (individual-differences.md §§108–119 —
+  the tax and the step):
+  - **World-supplied states/flags:** `scarc` [0,1] minted
+    from financial-strain ledger events (never bible-pinned);
+    `delirium:{onset,offset,severity}` stacked on `hosp`
+    events; `newpar_state` + `night_duty` share; `crci_state`
+    [0,1]; `episode_count` int; `apnea_treated`; ctx flag
+    `age_cue:true`; event flag `photographed:true`; `recheck`
+    events referencing self-action record ids. All
+    snapshot-additive; absent = mechanism inert.
+  - **State-vs-trait contract:** `scarc`, `delirium`,
+    `newpar_state`, `crci_state` are transient — traits
+    (`apnea`, `bipolar`, `subj_age`, `photo_habit`, `mw`,
+    `savor`, `microdose`) are bible-set. `scarc_trait_null`
+    forbids the state leaking into identity.
+  - **Report-vs-store contracts:** `chk_*` erodes reported
+    vividness/confidence and the R/K tag — `accuracy`
+    unreachable (`chk_acc_null`); `subj_age` moves
+    performance-side `age_eff` legs only — encoding/decay
+    unreachable (`subj_age_store_null`); `mdose_expect_conf`
+    writes reported confidence only (`mdose_enhance_null`
+    keeps every objective leg flat).
+  - **Channel-routing contracts:** `newpar_state` costs
+    MUST route through sleepQuality/iiv/att_min
+    (`newpar_flat_null` — no direct E/θ/β terms); `crci_state`
+    taxes executive/pspeed legs only (`crci_epi_null` keeps
+    the store untouched); `photo_*` tax applies at the
+    `photographed:true` mint, not at review
+    (`photo_review_null`); `delir_*` step is forward-only
+    (`delir_retro_null`).
+  - **Step contract:** `delir_step`·days is permanent,
+    dose-ordered, capped at `delir_step_cap`, and stacks
+    with — never replaces — `hosp_step`. `bip_ep_residue`
+    accrues per `episode_count`, capped.
+  - **Locked boundaries game-systems must honor:**
+    `scarc_trait_null`, `chk_acc_null`,
+    `apnea_overnight_null`, `delir_retro_null`,
+    `bip_creat_null`, `newpar_flat_null`, `crci_epi_null`,
+    `subj_age_store_null`, `photo_review_null`,
+    `mw_deliberate_null`, `savor_neg_null`,
+    `mdose_enhance_null`.
+  - **New params (§7):** 33 scalars + 7 traits + 8 state
+    fields + 12 locked nulls.
+  - Probes P1085–P1097.
 - v5.50 additions (false-memory.md §§101–110 — the
   self-service layer):
   - **New context/flag contracts:** `cueContext.mode:"ci"`

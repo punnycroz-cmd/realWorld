@@ -1239,6 +1239,18 @@ needs both.
 | ci_gain / ci_guard / ci_warn_add | 0.0 / 0.3 / 0.0 | 0.4 / 0.9 / 0.3 | cognitive-interview shield (v5.50) |
 | warn_pre_eff / warn_post_eff / warn_post_resid | 0.3 / 0.0 / 0.1 | 0.9 / 0.5 / 0.5 | warning-timing split (v5.50) |
 | moodlure_neg_gain / moodlure_val_w | 0.0 / 0.0 | 0.8 / 0.5 | negative-mood + valence-match gist-lure gain (v5.50) |
+| scarc_wmc_tax / scarc_pm_tax / scarc_tunnel_gain | 0.0 / 0.0 / 0.0 | 0.4 / 0.3 / 0.5 | scarcity bandwidth tax + stressor tunnel (v5.51, state-gated) |
+| chk_vivid_erosion / chk_conf_erosion / chk_know_shift | 0.0 / 0.0 / 0.0 | 0.35 / 0.45 / 0.6 | per-recheck report-layer erosion (v5.51, accuracy locked) |
+| apnea_consol_tax / apnea_sws_cut / apnea_iiv / apnea_cpap_rescue | 0.0 / 0.0 / 0.0 / 0.0 | 0.4 / 0.5 / 0.06 / 0.7 | nightly consolidation tax, partial cumulative rescue (v5.51) |
+| delir_enc_floor / delir_dream_p / delir_step / delir_step_cap | 0.0 / 0.0 / 0.0 / 0 | 0.15 / 0.4 / 0.4 / 6 | in-window fragment minting + permanent step (v5.51) |
+| bip_euthymic_tax / bip_ep_residue / bip_mania_reach / bip_mania_thin | 0.0 / 0.0 / 0.0 / 0.0 | 0.25 / 0.06 / 0.6 / 0.45 | euthymic residue + episode accrual + manic signature (v5.51) |
+| newpar_sleep_cap / newpar_iiv / newpar_att / newpar_complaint | 0.0 / 0.0 / 0.0 / 0.0 | 0.5 / 0.08 / 0.08 / 1.0 | newborn-months dip, sleep-routed only (v5.51) |
+| crci_exec_tax / crci_complaint | 0.0 / 0.0 | 0.35 / 2.0 | treatment-fog executive tax + complaint overshoot (v5.51) |
+| subj_age_shift / stereo_tax | 0.0 / 0.0 | 6.0 / 0.25 | felt-age performance shift + stereotype-cue tax (v5.51) |
+| photo_tax / photo_vis_gain | 0.0 / 0.0 | 0.35 / 0.25 | shutter tax on nonvisual fields, visual boost (v5.51) |
+| mw_rate / mw_replay | 0.0 / 0.0 | 0.06 / 0.3 | internal-capture rate + intrusion dividend (v5.51) |
+| savor_attend / savor_rehearse / savor_fade_buf | 0.0 / 0.0 / 0.0 | 0.35 / 0.6 / 0.5 | positive-channel attend/rehearse/fade-buffer (v5.51) |
+| mdose_expect_conf | 0.0 | 0.25 | microdose expectancy leg — all objective params locked (v5.51) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -5242,3 +5254,92 @@ added in §0. What a bible may and may not buy:
   shelf of vivid scenes she no longer believes
   (`nbm_thresh`/`nbm_vivid`).
   Sources FM§§101–110; probes P1075–P1084.
+
+## 83. v5.51 note (individual-differences IX — the tax and the step: which states a bible may set)
+
+Twelve axes (ID Part IX, spec §§6.245–6.256); clamp rows
+added in §0. The bible/state boundary is this batch's whole
+point — half of these are *things that happen to* a
+character, not things a character is:
+
+- **`scarc` — forbidden fruit.** Bibles may not pin `scarc`;
+  the world mints it from ledger-side financial strain
+  (`scarc_trait_null`). What a bible CAN pin is *exposure*:
+  precarious income, thin savings, dependents — the
+  probability that the state fires, not the state itself.
+  The tunnel leg means a broke character is not just
+  degraded — she's *focused*: the rent problem encodes
+  deeper while the surrounding week thins.
+- **`chk_loop` — a mechanism riding an existing trait.**
+  `checker` (Part IV) sets who rechecks; `chk_*` sets what
+  each recheck costs the record's *felt* vividness and
+  confidence. A bible choosing high `checker` is choosing
+  a character who erodes her own memory trust one
+  verification at a time — accuracy never moves, so she
+  stays *right* while feeling *wrong*. That's the OCD-
+  checking signature in miniature.
+- **`apnea` — the quiet trait.** Bible-pinnable [0,2],
+  age/male-skewed sampling (R +0.35/+0.25). `apnea_treated`
+  is a world/state flag — a bible may write the CPAP; the
+  rescue still accrues over ~90 days, never overnight.
+  Emergent shadow: the elder who sleeps "fine" by his own
+  report but consolidates like a much older man.
+- **`delirium` — world event, not trait.** Bibles write
+  the hospitalization; `delirium:{onset,offset,severity}`
+  is a world-supplied overlay. What a bible should know:
+  a 7-day delirium costs ~1 age-year permanently
+  (`delir_step`·days, cap 3y) AND leaves the character
+  owning `fuzzy:true` delusional fragments of a week that
+  mostly didn't happen as remembered — dark, real, and
+  the strongest `hosp_step` amplifier we ship.
+- **`bipolar` — ≤1 per cast, hard stop.** The prevalence
+  honesty rule applies as with `hsam`/`sdam`. The bible
+  sets `episode_count` (backstory leg — each episode is
+  residue). Manic-ctx encoding is *wide and thin*: more
+  people, more novelty, less topic-depth — the party as
+  light, not content. `bip_creat_null` is locked: do not
+  write a creative-genius compensation into the params.
+- **`newpar_state` — the honest dip.** State + `night_duty`
+  share, either parent. All cost routes through
+  sleep/iiv/att (`newpar_flat_null` locked) — the
+  mechanism is the night, not the brain. Complaint leg
+  runs hot (0.6) — she'll *feel* foggier than she is.
+- **`crci_state` — the fog is real but narrow.** Executive/
+  pspeed legs only; the store is untouched
+  (`crci_epi_null`). Complaint≈1.2× the tax — like `scd`
+  with a real thin deficit underneath instead of none.
+- **`subj_age` — a bible's freebie with a boundary.** Pin
+  felt-minus-chronological ([−1,+1], population skews
+  felt-younger); it moves performance-side `age_eff` legs
+  (~3y at ±1, HYPOTHESIS) and gates the `age_cue`
+  stereotype tax — felt-old elders take the stereotype
+  hit; felt-young ones dodge it. `subj_age_store_null`:
+  it never changes what's stored.
+- **`photo_habit` — the reflexive photographer.** [0,2];
+  co-samples with `offload` (+0.35). The tax lands on
+  nonvisual fields at the shutter; visual detail gets a
+  small countervailing boost. Emergent shadow: the
+  character whose camera roll is rich and whose unaided
+  recall of the same days is thin — and who never
+  notices, because the photos resurrect on review.
+- **`mw` — the absent-minded encoding gap.** N(0,1);
+  co-samples with `adhd`/`media_m`, anti-loads `att_ctl`.
+  `mw_gap:true` records are thin-verbatim place-gist —
+  the character was there, wasn't *there*. The
+  `mw_replay` dividend means the same mind also pops
+  unbidden content more often — a wanderer whose
+  memories ambush him.
+- **`savor` — the positive-channel worker.** N(0,1);
+  audit against `rosy`/`fab` stacking — three layers that
+  all lean positive. A high-`savor` bible is choosing
+  deliberate positive rehearsal, not retrospective
+  kindness. `savor_neg_null` locked: savoring never
+  touches negative records — pair with `rumin` only if
+  you want both ledgers hot.
+- **`microdose` — the fourth mandated null.** A bible may
+  write the habit (the character believes it works —
+  `mdose_expect_conf` gives the dose-day confidence bump
+  when believed). Every objective leg stays flat.
+  `mdose_enhance_null` is locked for all profiles; the
+  folk claim is the design surface, the store is not.
+  Sources ID§§108–119; probes P1085–P1097.

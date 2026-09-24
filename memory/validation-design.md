@@ -10399,3 +10399,172 @@ locked-null class); P1078, P1081, P1082, P1084 SHOULD.
   ours — genealogy is load-bearing; `ci_error_null` rides
   the meta-analytic central estimate; `moodlure_val_w`
   DEBATED-tier. → FM §§101–113.
+
+## 212. v103 probes — the tax and the step (P1085–P1097)
+
+- **P1085 the broke month (MUST — state-lock):** scarc
+  0→0.9 on a fixed character: wmc-loadings and PM
+  self-initiation drop ≈`scarc_wmc_tax`/`scarc_pm_tax`;
+  `stressor:true` events encode STRONGER
+  (`scarc_tunnel_gain` — the tunnel); scarc→0 restores
+  all loadings fully (`scarc_trait_null` — the farmers).
+  Mani 2013; Shah 2012.
+- **P1086 the tenth check (MUST — accuracy-lock):**
+  checker=+1.5 self-action record rechecked ×10:
+  reported vividness/confidence erode ≈`chk_*_erosion`,
+  R→K tag drifts `know`-ward; `accuracy` bit-identical
+  (`chk_acc_null`); recheck urge rises as confidence
+  falls — emergent loop, not scripted. van den Hout &
+  Kindt 2003/2004.
+- **P1087 the machine on the nightstand (SHOULD —
+  timescale-lock):** apnea=1.5, `apnea_treated` from
+  day 0: consol/sws legs recover toward
+  `apnea_cpap_rescue` asymptote over ~90 days; one
+  treated night moves nothing (`apnea_overnight_null`).
+  Canessa 2011.
+- **P1088 the ICU week (MUST — dose-lock):** delirium
+  0/3/7-day arms under identical `hosp`: `age_eff` step
+  ∝ days (`delir_step`, cap `delir_step_cap`); in-window
+  records mint only `frag:true`/`fuzzy:true`; pre-
+  admission records bit-identical (`delir_retro_null`);
+  step stacks additively with `hosp_step`. Pandharipande
+  2013.
+- **P1089 the swing's residue (SHOULD — count-lock):**
+  bipolar=1.5, `episode_count` 0 vs 5: euthymic tax rises
+  ≈`bip_ep_residue`·count (cap 0.2); mania-ctx records
+  wider-thinner; NO arm shows encoding or retrieval
+  advantage (`bip_creat_null`). Bourne 2013; Robinson
+  2006.
+- **P1090 the newborn months (MUST — channel-lock):**
+  newpar_state=1 at night_duty=0.7: measured dip routes
+  ≥80% through sleepQuality/iiv/att_min channels; direct
+  E/θ/β identical (`newpar_flat_null`); complaint
+  surface ≈`newpar_complaint` exceeds measured dip.
+  Logan 2014; Hoekzema 2017.
+- **P1091 the treatment fog (SHOULD — domain-lock):**
+  crci_state=1: exec/pspeed/ret_lat legs tax
+  ≈`crci_exec_tax`; episodic E/β/θ identical
+  (`crci_epi_null`); complaint ≈1.2× objective dip;
+  `task_load` mediation scales tax ×0.5. Ahles & Root
+  2018.
+- **P1092 the felt decade (SHOULD — layer-lock):**
+  subj_age=+0.8 vs −0.8 at fixed chronological:
+  performance-side `age_eff` legs shift
+  ≈`subj_age_shift`; encoding/decay identical
+  (`subj_age_store_null`); `age_cue` ctx taxes the
+  felt-old (subj_age>0) arm only. Stephan 2018; Hess
+  2003.
+- **P1093 the double-count guard (MUST — separability
+  arm):** reserve×subj_age factorial: reserve owns the
+  capacity floor, subj_age owns performance legs; joint
+  cell shows no superadditive collapse and no mutual
+  nullification — the mediated pathways stay separable.
+  Stephan 2018; Stern 2002.
+- **P1094 the shutter (MUST — act-lock):**
+  `photographed:true` events on photo_habit=+1.5:
+  nonvisual/gist E down ≈`photo_tax`, visual detail up
+  ≈`photo_vis_gain`; post-hoc photo deletion restores
+  nothing (`photo_review_null`); offload− arm still
+  pays the tax (mechanisms separable). Henkel 2014;
+  Soares & Storm 2018; Barasch 2017.
+- **P1095 the absent tick (SHOULD — channel-lock):**
+  mw=+1.5 vs −1.5 on identical event streams:
+  `mw_gap:true` field-thinning scales with `mw_rate`
+  capture; intrusion rate gains `mw_replay`; deliberate-
+  recall measures identical (`mw_deliberate_null`).
+  Cheyne 2006; Schooler 2011.
+- **P1096 the deliberate keeper (SHOULD — valence-
+  lock):** savor=+1.5: positive records gain attend/
+  rehearse/fade-buffer legs; negative records bit-
+  identical (`savor_neg_null`); savor×rumin
+  co-manipulation keeps both ledgers separable.
+  Bryant & Veroff 2007.
+- **P1097 the fourth null (MUST — locked):** microdose=1
+  regimen vs matched non-dosing: every objective measure
+  identical within jitter (`mdose_enhance_null`);
+  dose-day reported confidence gains
+  ≈`mdose_expect_conf` ONLY when the character believes
+  they dosed (expectancy leg = the Cavanna finding).
+
+Registry: P1–P1097. v103 suite: P1085, P1086, P1088,
+P1090, P1093, P1094, P1097 MUST (P1085, P1086, P1088,
+P1090, P1094, P1097 locked-null class; P1093
+separability guard); P1087, P1089, P1091, P1092, P1095,
+P1096 SHOULD.
+
+## 213. Sources verified this version (P1085–P1097 backing)
+
+- **Mani, Mullainathan, Shafir & Zhao 2013** (*Science*
+  341:976 — verified: pre/post-harvest farmers + NJ mall;
+  ~13-IQ-point-equivalent bandwidth tax, NOT explained by
+  stress/nutrition/time) + **Shah, Mullainathan & Shafir
+  2012** (*Science* 338:682 — scarcity tunnelling) →
+  §6.245 `scarc_*` + locked `scarc_trait_null`; P1085.
+- **van den Hout & Kindt 2003** (*Behav. Res. Ther.*
+  41:301 — verified: repeated checking degrades
+  vividness/detail/confidence, accuracy intact) +
+  **2004** (*JBTEP* 35:165 — remember→know shift, five
+  experiments) + Hermans 2008 + Radomsky 2014 → §6.246
+  `chk_*` + locked `chk_acc_null`; P1086.
+- **Canessa et al. 2011** (*J. Sleep Res.* 20 — OSA gray-
+  matter/cognitive deficit, partial CPAP reversal at 3
+  months) + **Djonlagic 2021** (*JAMA Netw. Open*
+  4:e212537) + Leng 2017 + Bubu 2020 → §6.247 `apnea_*`
+  + locked `apnea_overnight_null`; P1087.
+- **Pandharipande et al. 2013** (*NEJM* 369:1306 —
+  BRAIN-ICU verified: delirium duration dose-orders
+  global-cognition deficit at 3/12 months) + Girard 2010
+  + Marcantonio 2017 → §6.248 `delir_*` + locked
+  `delir_retro_null`; P1088.
+- **Bourne et al. 2013** (*Acta Psychiatr. Scand.*
+  128:149 — euthymic bipolar impairment d≈0.4–0.7) +
+  Robinson & Ferrier 2006 (episode-count residue) +
+  Cullen 2016 (UK Biobank) → §6.249 `bip_*` + locked
+  `bip_creat_null`; P1089.
+- **Hoekzema et al. 2017** (*Nat. Neurosci.* 20:287 —
+  pregnancy gray-matter change persisting ≥2y) +
+  Workman, Barha & Galea 2012 + **Logan et al. 2014**
+  (self-report >> measured) → §6.250 `newpar_*` + locked
+  `newpar_flat_null` (sleep-routed account); P1090.
+- **Ahles & Root 2018** (*CA: Cancer J. Clin.* 68 —
+  cancer-related cognitive impairment domain-narrow:
+  pspeed/executive/WM; subjective > objective) + Wefel
+  2015 + Janelsins 2014 → §6.251 `crci_*` + locked
+  `crci_epi_null`; P1091.
+- **Stephan, Sutin & Terracciano 2018–2023** (subjective
+  age → episodic memory, independent of chronological) +
+  Weiss & Lang 2012 + **Hess et al. 2003** (age-
+  stereotype threat) + Mazerolle 2017 meta → §6.252
+  `subj_age`/`stereo_*` + locked `subj_age_store_null`;
+  P1092–P1093.
+- **Henkel 2014** (*Psych. Sci.* 25:396 — photo-taking
+  impairment effect) + **Soares & Storm 2018**
+  (impairment without review) + **Barasch 2017**
+  (countervailing visual-detail boost) → §6.253
+  `photo_*` + locked `photo_review_null`; P1094.
+- **Cheyne, Carriere & Smilek 2006** (ARCES absent-
+  mindedness trait) + Schooler 2011 + **Kane & McVay
+  2012** (MW competes for control resource) → §6.254
+  `mw_*` + locked `mw_deliberate_null`; P1095.
+- **Bryant & Veroff 2007** (Savoring Beliefs Inventory;
+  savoring as deliberate positive-channel attention/
+  prolonging) → §6.255 `savor_*` + locked
+  `savor_neg_null`; P1096.
+- **Cavanna et al. 2022** (*Transl. Psychiatry* 12:148 —
+  verified: effects only in correct-guessers) + **van
+  Elk et al. 2021** (two null double-blind RCTs) +
+  **Murphy et al. 2023** (*Biol. Psychiatry* — LSD
+  microdose RCT: dose-day mood ratings, no enduring
+  cognitive change) + Marschall 2022 → §6.256 `mdose_*`
+  + locked `mdose_enhance_null` (fourth mandated null);
+  P1097.
+- **Honest limits:** `scarc_wmc_tax` IQ-to-encoding
+  bridge ours; `chk_*` priced report-layer (testing-
+  effect fight unresolved); `apnea_cpap_rescue`
+  mid-range; `delir_step` linearized from an odds
+  gradient; `bip_mania_*` field-geometry extrapolated;
+  `newpar_flat_null` bets on sleep-mediation; `crci`
+  fatigue-mediator split simplified; `subj_age_shift`
+  residual HYPOTHESIS; photo net-effect DEBATED in the
+  wild; `mw_replay` dividend HYPOTHESIS; `savor` leg
+  decomposition ours. → ID §§108–124.

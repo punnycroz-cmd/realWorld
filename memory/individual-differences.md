@@ -4254,3 +4254,665 @@ braintrain·*         0.0    (mandated — see §102)
   flips the causality verdict on action games, `gamer`
   is one commit away from joining `braintrain` as a
   fourth null — the trait slot stays either way.
+
+
+# Part IX — v103: the ninth axis of difference (the tax and the
+# step — states that rent the machinery, injuries that reset it,
+# the bookkeeping quirks, and the fourth mandated null)
+
+Eight parts have built the trait vector outward — capacity,
+personality, language, neurodivergence, clinical phenotypes,
+lived-in bookkeeping, offloading, chemistry. What remains
+uncovered is a specific class: **circumstantial states that tax
+or step the machine without changing who the character IS**,
+plus a handful of bookkeeping traits that survived every prior
+audit, plus one more popular enhancement claim the evidence
+refuses. A broke month, a checking habit, an interrupted night,
+a week in the ICU, a mood swing, a newborn, a chemo course, a
+felt age, a camera habit, a wandering mind, a savoring streak,
+and a dosing regimen that does nothing — thirteen ways two
+characters with identical trait vectors still won't remember
+the same week.
+
+## 108. `scarc` — the bandwidth tax that tunnels (state, not trait)
+
+**Consensus:** scarcity consumes cognitive control, measurably
+and reversibly. Mani, Mullainathan, Shafir & Zhao 2013
+(*Science* 341:976 — verified): sugarcane farmers' fluid
+performance drops **before** harvest (poor) and recovers after
+(rich) — the same person, ~13-IQ-point equivalent swing; a New
+Jersey mall arm: contemplating an expensive car-repair bill
+degraded poor shoppers' performance, a cheap one did not.
+Shah, Mullainathan & Shafir 2012 (*Science* 338:682): scarcity
+doesn't just tax — it **tunnels**: focus on the scarce
+commodity improves while everything outside the tunnel pays
+the fare (attentional capture, neglect of the periphery).
+
+**Model:** `scarc` ∈ [0,1] — a **world-supplied state**
+(ledger-side financial strain; the substrate mints it from
+rent-shortfall/debt events, not the bible). Two legs:
+(a) tax — all wmc-loadings (encoding depth under
+`div_attention`-class contexts, PM self-initiation,
+search_breadth) ×(1 − `scarc_wmc_tax`·scarc), `scarc_wmc_tax`
+0.2; PM self-initiation takes an extra `scarc_pm_tax` (0.15)
+— the unpaid bill eats the intention buffer first.
+(b) tunnel — events carrying `stressor:true` (the scarce
+domain itself: the bill, the shift, the pawnshop) encode
+×(1 + `scarc_tunnel_gain`·scarc), gain 0.25. The broke
+character remembers the *debt* vividly and drops the
+conversation held next to it.
+
+**Locked `scarc_trait_null`:** `scarc` is state-gated —
+identity never enters. Same character, `scarc` 0.9→0.1 →
+wmc-loadings recover fully (the farmers). No bible pins it.
+
+## 109. `chk_loop` — the checking paradox (mechanism on `checker`)
+
+**Consensus:** the `checker` trait (Part IV) prices *who*
+checks; the literature also prices what checking *does to the
+record*. van den Hout & Kindt 2003 (*Behav. Res. Ther.*
+41:301 — verified, two experiments on the virtual stove):
+repeated checking leaves memory **accuracy intact** but
+degrades its vividness, detail, and the checker's confidence
+in it — familiarity promotes conceptual processing, which
+inhibits perceptual re-encoding. 2004 (*J. Behav. Ther. Exp.
+Psychiatry* 35:165 — five experiments): the shift is
+remember→know — "the memory is there, but it isn't definite."
+Hermans et al. 2008; Radomsky et al. 2014 — the loop feeds
+itself: eroded confidence motivates the next check.
+
+**Model:** when a character re-verifies a self-action record
+(re-checks the stove, re-asks the partner, re-reads the sent
+message — world supplies `recheck` events referencing the
+record id), the record's **reported** vividness/detail decay
+×(1 − `chk_vivid_erosion`·checker) per check (0.15),
+reported confidence ×(1 − `chk_conf_erosion`·checker) (0.2),
+and the remember/know tag drifts toward `know` at
+`chk_know_shift`·checker (0.3/check, asymptotic).
+`accuracy` never moves. The checker's urge to re-check
+scales with the *eroded* confidence — the loop is emergent,
+not scripted.
+
+**Locked `chk_acc_null`:** no number of rechecks changes
+field accuracy — erosion is phenomenal/metacognitive only.
+This is the finding (accuracy stayed intact across all vdH&K
+experiments), and it is the cleanest confidence-accuracy
+decoupling in the model since `cinfl_*`.
+
+## 110. `apnea` — the night that never consolidates (trait)
+
+**Consensus direction, magnitudes debated:** obstructive
+sleep apnea fragments sleep architecture and adds intermittent
+hypoxia; the memory signature is impaired episodic
+consolidation plus executive/pspeed drag, partially reversible
+with CPAP. Canessa et al. 2011 (*J. Sleep Res.* 20 — gray-
+matter reduction in hippocampal/executive regions, partially
+reversed after 3 months CPAP); Djonlagic et al. 2021 (*JAMA
+Netw. Open* 4:e212537 — sleep-disordered breathing associated
+with Alzheimer's biomarker burden); Leng et al. 2017;
+Bubu et al. 2020 meta. This is a **trait**, not the `sleep`
+state: apnea is every night, untreated-or-treated, for years.
+
+**Model:** `apnea` ∈ [0,2], bible-set (body-type/age
+correlated; ~1/3 of older male mains at clinical levels).
+Three legs: (a) `consol_beta_mult` ×(1 +
+`apnea_consol_tax`·a) (0.15) — nightly consolidation yields
+less; (b) `sws_mult` ×(1 − `apnea_sws_cut`·a) (0.2) — the SWS
+channel specifically, which is the episodic one;
+(c) `ret_noise`/`iiv_sigma` += `apnea_iiv`·a (0.02) —
+daytime sleepiness is inconsistency, not flat loss.
+Treatment state `apnea_treated:true` rescues ~half the legs
+(`apnea_cpap_rescue` 0.5) — Canessa's partial reversal,
+never full.
+
+**Locked `apnea_overnight_null`:** a single treated night
+repairs nothing — the rescue is cumulative over ~90 days
+(Canessa's timescale). The acute `sleep` state stays
+orthogonal: an apneic with a good subjective night still
+consolidates poorly.
+
+## 111. `delirium` — the step nobody prices (state → residue)
+
+**Consensus:** age-decline.md §95 already prices
+`hosp_step` (hospitalization accelerates decline) but
+explicitly flags the gap: "no delirium/acute-confusion state
+under hospitalization." The literature says the step is
+mediated by *delirium duration*. Pandharipande et al. 2013
+(*NEJM* 369:1306 — BRAIN-ICU, verified): delirium duration in
+ICU independently predicted global-cognition deficit at 3 and
+12 months — ~40% of survivors at ~1.5 SD below age norms at 3
+months; Girard et al. 2010; Marcantonio 2017 review.
+Delirium is also **encoding silence**: the episode itself
+writes almost no records (phenomenology of the ICU — patients
+report fragments, delusions, or nothing).
+
+**Model:** world supplies `delirium:{onset, offset, severity}`
+on top of `hosp` events. Two legs: (a) **window** — encoding
+during delirium mints only `frag:true` fragments at
+`delir_enc_floor` (0.05) of normal E, source fields empty;
+delusional fragments mint at `delir_dream_p` (0.15) with
+`fuzzy:true` provenance (ICU delusion memories are real —
+patients remember nightmares, not procedures). (b)
+**residue** — at offset, `age_eff += delir_step·days`
+(`delir_step` 0.15 age-years per delirious day, cap
+`delir_step_cap` 3y) — dose-ordered, permanent, stackable
+with `hosp_step` (delirium is the mediator, not the
+alternative).
+
+**Locked `delir_retro_null`:** pre-admission records are
+untouched — the step is forward-only like `tbi`'s Ribot
+gradient is backward-only.
+
+## 112. `bipolar` — the swing phenotype (clinical trait)
+
+**Consensus direction:** euthymic bipolar patients carry a
+moderate, persistent verbal-memory/executive deficit
+(Bourne et al. 2013, *Acta Psychiatr. Scand.* 128:149 meta —
+d ≈ 0.4–0.7 across domains; Cullen et al. 2016 UK Biobank);
+episodes add state legs — manic encoding is fast, social,
+thin-contextualized; depressive encoding inherits `depr`'s
+overgeneral shape (§34). Inter-episode impairment correlates
+with episode *count*, not current symptoms (Robinson &
+Ferrier 2006 — each episode accrues a small residue).
+
+**Model:** `bipolar` ∈ [0,2], bible-set, max ~1 per cast
+(prevalence honesty). Baseline leg: episodic E and
+`search_breadth` ×(1 − `bip_euthymic_tax`·b) (0.1 — the
+euthymic residue, present between episodes).
+State legs consume `C.mood` extremes: `C.mood ≥ +0.7`
+(hypomanic ctx) → `w_nov`/`w_people` ×(1 +
+`bip_mania_reach`·b) (0.3) while `w_topic`/source-field
+completeness ×(1 − `bip_mania_thin`·b) (0.2) — wide but
+shallow records, the party remembered as light not content.
+`episode_count` (world/bible-supplied integer) adds
+`bip_ep_residue`·n (0.02 each, cap 0.2) to the euthymic tax —
+the scar tissue is cumulative.
+
+**Locked `bip_creat_null`:** the romantic claim —
+bipolar→creative advantage — gets no encoding or retrieval
+bonus. The phenotype costs; it does not compensate
+(CONSENSUS direction; the creativity association is real in
+population data but is not a *memory* parameter).
+
+## 113. `newpar_state` — the newborn months (state, honest size)
+
+**Established shape, debated mechanism:** postpartum memory
+complaint is common (~80% self-report in some surveys) while
+objective deficits are small and sleep-mediated. Hoekzema et
+al. 2017 (*Nat. Neurosci.* 20:287 — pregnancy produces
+long-lasting gray-matter changes, present at 2 years);
+Workman, Barha & Galea 2012 review; Logan et al. 2014
+(prospective — self-report deficit >> measured). The honest
+reading, same as `preg_state` (§99): real dip, smaller than
+the complaint, largely *sleep-frag routed* — which the model
+can finally express, since `sleep` is a state channel.
+
+**Model:** `newpar_state` ∈ {0,1} (first ~6 postpartum
+months; applies to either parent at `night_duty` share —
+world supplies). Legs: `sleepQuality` ceiling ×(1 −
+`newpar_sleep_cap`·state) (0.25 — fragmented, not short);
+`iiv_sigma` += `newpar_iiv` (0.03 — every night differs);
+`att_min` += `newpar_att` (0.03 — the monitor is always on).
+Complaint leg: `newpar_complaint` (0.6 — self-report bias,
+same pricing as preg). **Locked `newpar_flat_null`:** no
+independent E/θ/β terms — all memory cost routes through
+sleep/attention channels. If a probe shows the sleep-mediation
+accounting for <80% of the measured dip, the null fails and
+a direct term gets added — that's the falsifiable edge.
+
+## 114. `crci_state` — the treatment fog (state, complaint-heavy)
+
+**Established shape, debated etiology:** cancer-related
+cognitive impairment is real but *domain-narrow* — processing
+speed, executive, working memory — with objective deficit
+consistently smaller than subjective complaint. Ahles & Root
+2018 (*CA: Cancer J. Clin.* 68 review); Wefel et al. 2015;
+Janelsins et al. 2014 (longitudinal — inflammation,
+not just chemotherapy, correlates). Like `scd` (§96) the
+pattern is complaint>store; unlike `scd` there IS an
+objective leg, just thin and domain-specific.
+
+**Model:** `crci_state` ∈ [0,1] during active treatment ±3
+months. Legs: `pspeed`/`ret_lat_mult` and wmc-loadings
+×(1 − `crci_exec_tax`·s) (0.15 — executive-side only);
+complaint surface ×`crci_complaint` (1.2 — exceeds the tax,
+the signature). **Locked `crci_epi_null`:** episodic
+`enc_base`/`beta_episodic`/`theta` untouched — the fog is in
+the control layer, not the store (CONSENSUS direction —
+episodic memory is the *least* affected domain in the meta-
+analyses). `crci_fatigue` mediation: `task_load` interactions
+scale the tax by 0.5 — fatigue is the honest mediator.
+
+## 115. `subj_age` — felt age is a parameter (trait)
+
+**Consensus direction, mechanism debated:** subjective age —
+how old someone feels — predicts memory performance
+independent of chronological age. Stephan, Sutin &
+Terracciano (2018–2023 series — younger felt age → better
+episodic memory, slower decline); Weiss & Lang 2012; Hughes
+& Lachman 2018 review. Adjacent mechanism: **stereotype
+threat** — activating the "old = forgetful" stereotype
+degrades older adults' recall in the moment (Hess et al.
+2003; Mazerolle et al. 2017 meta). Two legs, one trait.
+
+**Model:** `subj_age` ∈ [−1,+1] (felt-minus-chronological,
+N(0.1, 0.4) — population skews felt-younger). Trait leg:
+`age_eff` gains `subj_age_shift`·subj_age years on
+performance-side legs only (`subj_age_shift` 3.0 — HYPOTHESIS
+magnitude; the cohort effects are real but mediated by
+depression/activity, which we already price — residual
+leg stays small). State leg: cueContext
+`age_cue:true` (world-supplied — birthday, being called
+"sir," a memory test) taxes wmc-loadings ×(1 −
+`stereo_tax`) (0.1) when age_now ≥ 60 AND subj_age > 0 —
+the stereotype bites only people who believe it applies.
+
+**Locked `subj_age_store_null`:** felt age never moves
+encoding or decay — it's a performance/report parameter
+(the Stephan correlations are performance-side; no evidence
+it changes what's stored). Keeps `subj_age` honest against
+`reserve`.
+
+## 116. `photo_habit` — the camera tax (trait × act)
+
+**Consensus direction, size debated:** taking a photo
+*impairs* memory for the photographed event — the
+photo-taking impairment effect (Henkel 2014, *Psych. Sci.*
+25:396 — museum study, photographed objects recalled worse
+than observed ones; Soares & Storm 2018 — the impairment
+holds even when photos are never reviewed; Barasch et al.
+2017 — a countervailing *attentional* boost to visual
+detail at the cost of nonvisual detail). Distinct from
+`offload` (§80): offloading is the expectation that the
+device stores it; the camera tax applies *at the shutter*
+even when review never happens.
+
+**Model:** `photo_habit` ∈ [0,2] trait (how reflexively the
+camera comes out). When an event carries `photographed:true`
+(world flag): E for nonvisual/gist fields ×(1 −
+`photo_tax`·min(1,habit)) (0.15); visual-detail fields
+×(1 + `photo_vis_gain`·habit) (0.1 — Barasch's
+countervailing leg); source `context.external` gets a
+`camera:true` provenance tag enabling the offload pathway at
+retrieval (the photo becomes a `resurrect`-class cue —
+records revive on review, which is why people don't notice
+the tax). **Locked `photo_review_null`:** the impairment
+does not require never-reviewing — deleting the photo
+post-hoc does not restore the untaken E. The tax is at
+encoding, not at review.
+
+## 117. `mw` — the wandering mind (trait, the encoding gap)
+
+**Consensus:** mind-wandering propensity is a stable trait
+that costs encoding in proportion to task demand — the
+absent-minded error profile. Cheyne, Carriere & Smilek 2006
+(ARCES — attention-related cognitive errors scale);
+Schooler et al. 2011 review; Kane & McVay 2012 —
+mind-wandering competes with wmc for the same control
+resource (correlated with wmc ~ −0.3). Distinct from
+`media_m` (external task-switching) and `att_ctl` (control
+under threat): `mw` is *stimulus-independent* internal
+capture — the mind leaves without a trigger.
+
+**Model:** `mw` N(0,1). Mechanism: per-tick attention
+sampling gains an internal-capture event at rate
+`mw_rate`·(1+0.3·mw) (0.02/tick baseline): during capture
+windows (~seconds), `att` drops to `att_min` floor and
+event fields encoded in the window carry `mw_gap:true` —
+thin verbatim, intact gist-of-place (you were there, you
+just weren't *there*). Retrieval-side: `mw` adds
+`mw_replay` (0.1) to spontaneous-intrusion rate — the same
+channel that eats encoding returns unbidden content.
+**Locked `mw_deliberate_null`:** `mw` never raises
+deliberate-recall accuracy or cue weights — capture is a
+cost with an intrusion dividend, not a retrieval style.
+
+## 118. `savor` — the deliberate keeper (trait)
+
+**Consensus direction:** savoring — deliberate attention to
+and prolonging of positive experience — is a measurable
+trait (Bryant & Veroff 2007 Savoring Beliefs Inventory) that
+maintains positive affect and, for memory purposes, acts as
+*positive-channel rehearsal*. Distinct from `rosy` (§57 —
+retrospective kindness, a report-layer trait) and from
+`extra`'s sunniness: `savor` is an *act* — it changes what
+positive records get worked on after minting.
+
+**Model:** `savor` N(0,1). Legs: (a) at encoding, positive-
+valence records gain `savor_attend`·sav (0.15) on
+detail/peripheral fields — the savorer is literally attending
+longer (Bryant's "marveling"); (b) post-encoding, positive
+records enter the rehearsal pool with weight
+×(1 + `savor_rehearse`·sav) (0.3) — the savorer re-lives
+good events deliberately; (c) the affect-side: positive
+affect tags decay ×(1 − `savor_fade_buf`·sav) (0.2 — the
+FAB's positive side is *propped*, local to positive records
+only — §4.5's `neg_affect_decay` asymmetry unchanged).
+**Locked `savor_neg_null`:** no effect on negative records —
+savoring is not rumination (that's `rumin`'s job); a
+high-`savor` high-`rumin` character keeps both ledgers.
+
+## 119. `microdose` — the fourth mandated null (the popular claim
+the placebo keeps eating)
+
+**Consensus after controlled trials:** anecdotal reports
+claim microdosing psychedelics improves memory, focus,
+creativity. The placebo-controlled record refuses: Cavanna
+et al. 2022 (*Transl. Psychiatry* 12:148 — verified: only
+participants who *correctly guessed* their condition showed
+effects; all other measures null or slightly impaired);
+van Elk et al. 2021 (two double-blind longitudinal RCTs —
+null across cognitive control, memory, social cognition);
+Murphy et al. 2023 (*Biol. Psychiatry* — verified: LSD
+microdose RCT, transient mood ratings on dose days, no
+enduring cognitive change); Marschall et al. 2022. The
+belief effects are real; the ability effects are not.
+
+**Model:** `microdose` ∈ {0,1} habit flag. Permitted leg:
+`mdose_expect_conf` (0.1) — expectancy raises *reported*
+clarity/performance confidence on dose days (the Cavanna
+finding is an expectancy effect — price it where the data
+put it). **Locked `mdose_enhance_null`:** every objective
+parameter — E, β, θ, WMC-loadings, intrusion rates —
+identical to non-dosing self. The character *believes* the
+regimen works; the store does not care. Joins `birth_order`
+(§58), `learn_style` (§71), `braintrain` (§102): the
+mandated-null shelf exists so that a bible asking for the
+folk-psychology effect gets the evidence instead.
+
+## 120. Cross-version interactions (audit)
+
+- `scarc` × `stress` (Part I): scarcity is not modeled as
+  arousal — the tax is bandwidth, not the §2 stress gate.
+  `scarc` events may co-mint stress; the `scarc_wmc_tax`
+  leg does not require it. Keeps the farmers' null result
+  (stress measured, didn't account for the dip).
+- `chk_loop` × `distrust`/`meta_conf`: `distrust` is the
+  *baseline* doubt; `chk_loop` is the *acquired* doubt,
+  self-inflicted per record. Both write confidence;
+  neither writes accuracy. A high-`distrust` non-`checker`
+  doubts globally; a `checker` erodes per-act.
+- `apnea` × `sleep` state: `sleep` prices the night's
+  quality; `apnea` prices the disorder underneath it. They
+  multiply, not substitute — an apneic's best night still
+  underconsolidates.
+- `delirium` × `hosp_step`: stacked, not merged —
+  `hosp_step` prices hospitalization generally (§95);
+  `delirium` prices the acute-confusion dose specifically.
+  A sedated non-delirious admission pays only `hosp_step`.
+- `bipolar` × `depr`: `depr` (§34) owns the pole's
+  overgeneral shape; `bipolar` owns the between-episode
+  residue and the manic encoding signature. A `depr`-only
+  character never gets `bip_mania_reach` legs.
+- `crci_state` × `scd`: same complaint>store shape,
+  different basis — `scd` is the worried well (objective
+  null locked); `crci` has a real but narrow executive
+  tax. The complaint decoupling is the shared mechanism;
+  the store-side difference is the diagnostic.
+- `subj_age` × `reserve`: `reserve` (v0.4) shifts what the
+  brain can take before decline shows; `subj_age` shifts
+  performance-side legs only, store untouched — the two
+  must not double-count (P1093 partial-correlation arm).
+- `photo_habit` × `offload`: `offload` is expectation
+  (§80 — "the phone remembers"); `photo_habit` is the act
+  at the shutter. Non-`offload` characters still pay the
+  camera tax; `offload` characters pay both.
+- `mw` × `media_m`/`att_ctl`: `media_m` is external split
+  attention, `att_ctl` is control under load, `mw` is
+  untriggered internal capture. R-corr ~+0.3 between
+  `mw`/`media_m` (habit overlap) but separate levers.
+- `savor` × `rosy` × `fab`: `rosy` is report-layer
+  kindness, `fab` is the affect-fade asymmetry (§4.5),
+  `savor` is rehearsal selection. Three different layers
+  that all lean positive — the audit exists so a bible
+  doesn't stack all three into a saccharine main.
+- `microdose` × `fantasy`/`suggs`: the expectancy leg
+  (`mdose_expect_conf`) may load +0.1 on `fantasy` —
+  the believer's prior — but the null is unconditional.
+
+## 121. Extended trait vector, R additions, loading table
+## (Part IX)
+
+```json
+IndivTraits += {
+  "apnea":      0.0,   // §110 — sleep-disordered breathing [0,2]
+  "bipolar":    0.0,   // §112 — the swing phenotype [0,2], ≤1/cast
+  "subj_age":   0.0,   // §115 — felt-minus-chronological [-1,+1]
+  "photo_habit":0.0,   // §116 — camera reflex [0,2]
+  "mw":         0.0,   // §117 — mind-wandering propensity
+  "savor":      0.0,   // §118 — deliberate positive rehearsal
+  "microdose":  0.0,   // §119 — DOCUMENTED NULL (expectancy only)
+  // state fields (not traits):
+  //   scarc [0,1] world-supplied (§108);
+  //   recheck events on self-action records (§109);
+  //   delirium:{onset,offset,severity} (§111);
+  //   newpar_state {0,1} + night_duty share (§113);
+  //   crci_state [0,1] (§114); age_cue ctx flag (§115);
+  //   photographed:true event flag (§116);
+  //   episode_count int (§112); apnea_treated (§110)
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+scarc·stress         +0.30  (strain arrives with arousal — sampling)
+scarc·(−consc)       +0.20  (precarity correlation — sampling, not causal)
+apnea·age            +0.35  (prevalence rises steeply — CONSENSUS)
+apnea·(male sex)     +0.25  (2:1 clinical skew — CONSENSUS)
+bipolar·neurot       +0.30  (affective comorbidity — sampling)
+subj_age·depr        −0.30  (felt-old tracks dysphoria — CONSENSUS dir.)
+subj_age·self_est    +0.20
+photo_habit·offload  +0.35  (device-reliance cluster — sampling)
+photo_habit·extra    +0.15
+mw·media_m           +0.30  (attention-habit cluster — sampling)
+mw·adhd              +0.40  (shared mechanism — CONSENSUS dir.)
+mw·att_ctl           −0.30  (Kane & McVay 2012 — CONSENSUS dir.)
+savor·extra          +0.20  (sampling)
+savor·rosy           +0.25  (both lean positive — sampling; layers differ)
+savor·depr           −0.25  (savoring deficits in dysphoria — CONSENSUS dir.)
+microdose·fantasy    +0.10  (expectancy prior only — DEBATED)
+crci_state·(depr)    +0.20  (complaint inflation co-travels — sampling)
+```
+
+### Loading table additions (rows beyond §104)
+
+| trait/state | param | loading | tier / source |
+|---|---|---|---|
+| scarc | wmc-loadings/PM-self ×(1−tax·s) | tax 0.2, pm 0.15 | CONSENSUS (Mani 2013) |
+| scarc | stressor:true E ×(1+tunnel·s) | tunnel 0.25 | CONSENSUS dir. (Shah 2012) |
+| chk_loop | recheck→vivid/conf erosion, R→K | 0.15/0.2/0.3 per chk | CONSENSUS (vdH&K 2003/04) |
+| chk_loop | accuracy (all fields) | 0.0 — LOCKED | CONSENSUS (vdH&K) |
+| apnea | consol_beta_mult / sws_mult | +0.15·a / −0.2·a | CONSENSUS dir. (Canessa 2011) |
+| apnea | iiv_sigma + / treated rescue | 0.02·a / 0.5 | CONSENSUS dir. / DEBATED |
+| delirium | in-window E floor / frag mint | 0.05, dream_p 0.15 | CONSENSUS (ICU phenomenol.) |
+| delirium | age_eff += step·days (cap 3y) | step 0.15/d | CONSENSUS dose (Pandharipande) |
+| bipolar | euthymic E/breadth tax | −0.1·b | CONSENSUS (Bourne 2013) |
+| bipolar | mania ctx: reach +0.3, thin −0.2 | per b | CONSENSUS dir. (HYPOTHESIS map) |
+| bipolar | per-episode residue | +0.02/count, cap 0.2 | CONSENSUS dir. (Robinson 2006) |
+| newpar_state | sleep cap / iiv / att_min | 0.25 / 0.03 / 0.03 | CONSENSUS dir. (sleep-routed) |
+| newpar_state | direct E/θ/β terms | 0.0 — LOCKED | CONSENSUS (Logan 2014) |
+| crci_state | exec/pspeed tax, complaint | 0.15·s / 1.2 | CONSENSUS (Ahles & Root 2018) |
+| crci_state | episodic params | 0.0 — LOCKED | CONSENSUS (domain-narrow) |
+| subj_age | perf-side age_eff shift | 3.0y at ±1 | HYPOTHESIS (Stephan; mediated) |
+| age_cue ctx | wmc-loadings ×(1−stereo_tax) | 0.1, age≥60 | CONSENSUS dir. (Hess 2003) |
+| photo_habit | nonvisual E −0.15, visual +0.1 | per min(1,h) | CONSENSUS (Henkel; Barasch) |
+| photo_habit | post-hoc review repair | 0.0 — LOCKED | CONSENSUS (Soares & Storm 2018) |
+| mw | capture rate, intrusion dividend | 0.02 base / +0.1 | CONSENSUS dir. (Cheyne; Schooler) |
+| mw | deliberate-recall params | 0.0 — LOCKED | CONSENSUS (encoding deficit) |
+| savor | pos detail/rehearse/fade-buf | 0.15 / 0.3 / 0.2 | CONSENSUS dir. (Bryant 2007) |
+| savor | negative records (all) | 0.0 — LOCKED | CONSENSUS (not rumination) |
+| microdose | expectancy confidence | +0.1 dose-days | CONSENSUS (Cavanna 2022) |
+| microdose | ALL objective params | 0.0 — LOCKED | CONSENSUS (van Elk; Murphy) |
+
+## 122. New explicit nulls (Part IX's falsifiable edge)
+
+- `scarc_trait_null`: bandwidth tax is state-gated; identity
+  never carries it (P1085).
+- `chk_acc_null`: rechecking erodes the *felt* memory, never
+  the fields (P1086).
+- `apnea_overnight_null`: one treated night repairs nothing
+  — cumulative rescue only (P1087).
+- `delir_retro_null`: delirium steps forward only (P1088).
+- `bip_creat_null`: the phenotype costs, never compensates
+  (P1089).
+- `newpar_flat_null`: newborn months cost through sleep/
+  attention only (P1090).
+- `crci_epi_null`: the treatment fog stays in the control
+  layer (P1091).
+- `subj_age_store_null`: felt age is performance-side only
+  (P1092).
+- `photo_review_null`: the camera tax happens at the
+  shutter; no review pattern restores it (P1094).
+- `mw_deliberate_null`: wandering buys intrusions, never
+  deliberate-recall gains (P1095).
+- `savor_neg_null`: savoring never touches negative records
+  (P1096 — and distinguishes savor from rumin).
+- `mdose_enhance_null`: the fourth mandated null —
+  expectancy leg only, every objective param identical
+  (P1097).
+
+## 123. Falsifiable probes (P1085–P1097; validation-design §212)
+
+- **P1085 the broke month (MUST — state-lock):** scarc
+  0→0.9 on a fixed character: wmc-loadings and PM
+  self-initiation drop ≈`scarc_wmc_tax`; `stressor:true`
+  events encode STRONGER (tunnel leg); scarc→0 restores
+  all loadings fully (`scarc_trait_null` — the farmers).
+- **P1086 the tenth check (MUST — accuracy-lock):**
+  checker=+1.5 self-action record rechecked ×10:
+  reported vividness/confidence erode ≈`chk_*_erosion`,
+  R→K tag drifts `know`-ward; `accuracy` bit-identical
+  (`chk_acc_null`); urge-to-recheck rises as confidence
+  falls (emergent loop). van den Hout & Kindt 2003/2004.
+- **P1087 the machine on the nightstand (SHOULD —
+  timescale-lock):** apnea=1.5 with `apnea_treated` from
+  day 0: consol/sws legs recover toward
+  `apnea_cpap_rescue` asymptote over ~90 days; a single
+  treated night moves nothing (`apnea_overnight_null`).
+- **P1088 the ICU week (MUST — dose-lock):** delirium
+  0/3/7-day arms under identical `hosp`: age_eff step
+  ∝ days (`delir_step`, cap `delir_step_cap`); in-window
+  records mint only `frag:true`/`fuzzy:true` fragments;
+  pre-admission records bit-identical
+  (`delir_retro_null`). Pandharipande 2013.
+- **P1089 the swing's residue (SHOULD — count-lock):**
+  bipolar=1.5, `episode_count` 0 vs 5: euthymic tax
+  rises ≈`bip_ep_residue`·count (cap); mania-ctx
+  records wider-thinner; no arm shows any encoding or
+  retrieval advantage (`bip_creat_null`).
+- **P1090 the newborn months (MUST — channel-lock):**
+  newpar_state=1 at night_duty=0.7: all measured dip
+  routes through sleep/iiv/att channels; direct E/θ/β
+  identical (`newpar_flat_null`); complaint surface
+  exceeds measured dip (`newpar_complaint` shape).
+- **P1091 the treatment fog (SHOULD — domain-lock):**
+  crci_state=1: exec/pspeed legs tax ≈`crci_exec_tax`;
+  episodic E/β/θ identical (`crci_epi_null`); complaint
+  surface ≈1.2× the objective dip.
+- **P1092 the felt decade (SHOULD — layer-lock):**
+  subj_age=+0.8 vs −0.8 at fixed chronological:
+  performance-side legs shift ≈`subj_age_shift`;
+  encoding/decay identical (`subj_age_store_null`);
+  `age_cue` arm taxes the felt-old only.
+- **P1093 the double-count guard (MUST — partial-corr
+  arm):** reserve=1 & subj_age=+1 factorial: legs stay
+  separable — reserve on capacity floor, subj_age on
+  performance; joint cell shows no superadditive
+  collapse (guard against double-counting the mediated
+  pathway). Stephan 2018; Stern 2002.
+- **P1094 the shutter (MUST — act-lock):**
+  `photographed:true` events on photo_habit=+1.5:
+  nonvisual/gist E down ≈`photo_tax`, visual detail up
+  ≈`photo_vis_gain`; photo deletion post-hoc restores
+  nothing (`photo_review_null`); `offload`− arm still
+  pays the tax (mechanisms separable). Henkel 2014;
+  Soares & Storm 2018; Barasch 2017.
+- **P1095 the absent tick (SHOULD — channel-lock):**
+  mw=+1.5 vs −1.5 on identical event streams:
+  `mw_gap:true` field-thinning scales with capture rate;
+  intrusion rate gains `mw_replay`; deliberate-recall
+  measures identical (`mw_deliberate_null`). Cheyne
+  2006; Schooler 2011.
+- **P1096 the deliberate keeper (SHOULD — valence-
+  lock):** savor=+1.5: positive records gain
+  detail/rehearsal/fade-buffer legs; negative records
+  bit-identical (`savor_neg_null`); high-savor
+  high-rumin co-manipulation keeps both ledgers
+  separable. Bryant & Veroff 2007.
+- **P1097 the fourth null (MUST — locked):** microdose=1
+  regimen vs matched non-dosing: every objective measure
+  identical within jitter (`mdose_enhance_null`);
+  dose-day reported confidence gains ≈`mdose_expect_conf`
+  only when the character believes they dosed
+  (expectancy leg = the Cavanna finding).
+
+## 124. Part IX honest limits
+
+- `scarc`'s 0.2 wmc-loading tax is our mapping of the
+  13-IQ-point equivalent; Mani's effect was measured on
+  Raven's and cognitive-control tasks — converting to
+  *memory encoding* loadings is a HYPOTHESIS bridge
+  (the direction is solid, the magnitude is ours).
+- `chk_loop` inherits vdH&K's mechanism claim (familiarity
+  → conceptual processing → perceptual starvation) but we
+  implement it as report-layer erosion — the field values
+  we degrade are phenomenal, matching the null on
+  accuracy. Whether a recheck is a retrieval that ALSO
+  consolidates (testing effect fights the erosion) is
+  unresolved; we priced erosion on reported channels only
+  to keep the locked null clean.
+- `apnea`'s `sws_mult` leg assumes SWS-episodic coupling —
+  our own §consolidation machinery; the apnea literature
+  reports REM-fragmentation effects too, which our model
+  routes through the same consolidated channels.
+  `apnea_cpap_rescue`=0.5 is mid-range; Canessa suggests
+  partial reversal at 3 months, trajectories unclear.
+- `delirium`'s 0.15y/day step is linearized from
+  Pandharipande's duration association (an odds-gradient,
+  not a slope); the cap is ours. The `delir_dream_p`
+  delusional-fragment minting is ICU-phenomenology priced
+  as confabulation-adjacent — the closest existing
+  machinery (§6.235 `fgen_*`) — flagged HYPOTHESIS.
+- `bipolar`'s manic encoding signature is our
+  extrapolation — the episode literature measures mood and
+  impairment, not field-level encoding geometry. The
+  euthymic tax and episode-count residue are CONSENSUS-
+  direction; `bip_mania_thin` shape is HYPOTHESIS.
+- `newpar_state` bets on the sleep-mediation account
+  (CONSENSUS direction but causally unresolved — Hoekzema's
+  structural changes could carry a direct leg). The locked
+  null is the falsifier: if direct terms are real, P1090
+  fails *loudly*.
+- `crci_state`'s "control layer not store" mapping follows
+  the meta-analytic domain pattern but etiology is
+  multi-causal (inflammation, fatigue, endocrine); the
+  `task_load` mediation split is our simplification.
+- `subj_age`'s store-null is the model being honest:
+  cohort correlations are real but likely mediated by
+  depression/activity (already priced); the 3y shift is
+  the residual we believe survives mediation — a
+  HYPOTHESIS, and small by design.
+- `photo_habit` merges Henkel's tax and Barasch's visual
+  boost — two labs' rival findings coexist as two legs
+  (impairment for the nonvisual whole, boost for visual
+  detail); whether the net autobiographical effect in the
+  wild is negative is DEBATED. `camera:true` provenance
+  is ours.
+- `mw`'s capture-as-gap implementation assumes mind-
+  wandering during encoding produces field-thin records
+  rather than absent ones — supported direction (absent-
+  minded errors), but the `mw_replay` intrusion dividend
+  (the same channel returns content) is a HYPOTHESIS
+  bridge from the spontaneous-thought literature.
+- `savor` is priced as three positive-channel legs because
+  the savoring literature is affect-outcome-based, not
+  memory-field-based — the mapping to detail/rehearsal/
+  fade-buffer is our decomposition, direction CONSENSUS,
+  weights HYPOTHESIS.
+- `microdose` joins the mandated-null shelf on the strength
+  of three null RCTs + one expectancy-moderated RCT; the
+  belief-leg is real (expectancy and correct-guess
+  effects replicate), so the flag carries
+  `mdose_expect_conf` rather than being a pure no-op —
+  the honestest null we can write.

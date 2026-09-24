@@ -4302,3 +4302,76 @@ New primary/secondary sources brought in this pass (each § in
   (affect stays live); unanim superlinearity ours;
   `moodlure_val_w` DEBATED-tier size. → FM §§101–113;
   probes P1075–P1084.
+
+## 80. v103 sources — individual-differences IX (ID Part IX → spec v5.51)
+
+New primary/secondary sources brought in this pass (each § in
+`individual-differences.md` Part IX; probes P1085–P1097).
+Collision audit first — what Part IX does NOT re-cover:
+`hearing` trait + `noise_cost` (age-decline §2, Lin 2011
+already priced), `mt_stage` menopause overlay (ID§29/
+Greendale 2009 already priced), `retire_rate`/`engage_sub`
+mental-retirement overlay (age-decline §99, Rohwedder &
+Willis 2010 already priced), `smoker`/nicotine deprivation
+state (ID§42, Jansari leg already priced), `net_mult`
+loneliness overlay (age-decline §40, Wilson 2007 already
+priced), `narr_agency`/`narr_coh` narrative-self layer,
+`checker` detection trait (Part IV), grief machinery
+(`grief_osc_*`, widowhood overlay). The twelve new axes are
+the residue after that audit.
+
+- **Scarcity bandwidth:** Mani, Mullainathan, Shafir & Zhao
+  2013 (*Science* 341:976 — verified: pre/post-harvest
+  sugarcane farmers + NJ mall; ~13-IQ-point equivalent, not
+  stress/nutrition/time); Shah, Mullainathan & Shafir 2012
+  (*Science* 338:682 — tunnelling). → §6.245.
+- **Checking paradox:** van den Hout & Kindt 2003 (*Behav.
+  Res. Ther.* 41:301 — verified: checking degrades
+  vividness/detail/confidence, accuracy intact); van den
+  Hout & Kindt 2004 (*JBTEP* 35:165 — R→K shift); Hermans
+  2008; Radomsky 2014. → §6.246.
+- **Sleep apnea:** Canessa et al. 2011 (*J. Sleep Res.* 20 —
+  partial CPAP reversal at 3 months); Djonlagic et al. 2021
+  (*JAMA Netw. Open* 4:e212537); Leng 2017; Bubu 2020. →
+  §6.247.
+- **Delirium:** Pandharipande et al. 2013 (*NEJM* 369:1306 —
+  verified BRAIN-ICU: delirium duration → global-cognition
+  deficit at 3/12 months); Girard 2010; Marcantonio 2017.
+  Fills the gap age-decline.md §95 flagged. → §6.248.
+- **Bipolar:** Bourne et al. 2013 (*Acta Psychiatr. Scand.*
+  128:149 meta — euthymic d≈0.4–0.7); Robinson & Ferrier
+  2006 (episode-count residue); Cullen 2016. → §6.249.
+- **Postpartum:** Hoekzema et al. 2017 (*Nat. Neurosci.*
+  20:287); Workman, Barha & Galea 2012; Logan et al. 2014
+  (complaint >> measured). → §6.250.
+- **Cancer-related cognitive impairment:** Ahles & Root
+  2018 (*CA: Cancer J. Clin.* 68 — domain-narrow,
+  subjective > objective); Wefel 2015; Janelsins 2014. →
+  §6.251.
+- **Subjective age & stereotype threat:** Stephan, Sutin &
+  Terracciano 2018–2023; Weiss & Lang 2012; Hess et al.
+  2003; Mazerolle 2017 meta. → §6.252.
+- **Photo-taking impairment:** Henkel 2014 (*Psych. Sci.*
+  25:396); Soares & Storm 2018 (no review needed); Barasch
+  2017 (countervailing visual boost). → §6.253.
+- **Mind-wandering:** Cheyne, Carriere & Smilek 2006
+  (ARCES); Schooler et al. 2011; Kane & McVay 2012 (MW vs
+  wmc shared resource). → §6.254.
+- **Savoring:** Bryant & Veroff 2007 (SBI; deliberate
+  positive-channel attention/prolonging — distinct from
+  `rosy` report-layer and `rumin` negative-channel). →
+  §6.255.
+- **Microdosing (the fourth mandated null):** Cavanna et
+  al. 2022 (*Transl. Psychiatry* 12:148 — verified:
+  effects only in correct-guessers); van Elk et al. 2021
+  (two null double-blind RCTs); Murphy et al. 2023 (*Biol.
+  Psychiatry* — verified: dose-day mood ratings, no
+  enduring cognition change); Marschall 2022. → §6.256.
+- **Marked hypothesis:** `scarc_wmc_tax` IQ→encoding
+  bridge; `chk_*` report-layer implementation;
+  `apnea_cpap_rescue` mid-range; `delir_step`
+  linearization; `bip_mania_*` geometry extrapolated;
+  `newpar_flat_null` sleep-mediation bet; `subj_age_shift`
+  residual; photo net-effect DEBATED; `mw_replay`
+  dividend; `savor` decomposition. → ID §§108–124;
+  probes P1085–P1097.
