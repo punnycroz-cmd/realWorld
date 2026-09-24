@@ -1,4 +1,13 @@
-# Parody Business Registry — "The Mission" (world v59)
+# Parody Business Registry — "The Mission" (world v100)
+
+> **v100 additions:** the **paper layer** — `world/permits.json` +
+> `world/permits.md` + `world/permit.html` ("The Permit Wall") register the
+> framed paper behind every door venue's counter (business license, health
+> score card, occupancy, liquor/entertainment/sidewalk permits where they
+> apply) and each door's lineage: former tenants plus the `ghost_sign` the
+> facade still carries — authored copy for the render-side ghost-sign pass.
+> Doors only; agency names are civic facts and stay real; no people, no
+> prices, conditions never scripts. See §9.
 
 > **v59 additions:** two offstage parody orgs registered — **Calle Justa
 > Workers' Table** (Thursday drop-in worker clinic) and **The Rent Table**
@@ -492,3 +501,31 @@ internal demo: `world/supply.html` ("The Back Door").
   lines under kind `venue` only — a supplier is a name on a truck's flank.
 - **No prices.** Invoices stay offscreen; supply copy carries no game
   dollars, no credits, no contract terms.
+
+---
+
+## 9. The paper layer — the permit wall + door lineage (v100)
+
+What the registry's doors hang behind the counter and what their facades
+remember. Spec: `world/permits.md`; machine mirror:
+`world/permits.json`; internal demo: `world/permit.html`.
+
+- **Doors only.** `walls` keys equal the anchor+street business ids
+  exactly — offstage orgs and reserved names have no counter to hang
+  paper behind.
+- **Civic names stay real.** SFDPH, CA ABC, CDTFA, BAR, SFFD, Public
+  Works — the permitting agencies are civic facts (§3c), same standing as
+  the library. Every *business* name in the layer is parody or invented,
+  including every former tenant.
+- **Kinds are a closed list** (`paper_keys`); `liquor_license` may appear
+  only on `rules.liquor_venues`, `health_score` only on
+  `rules.food_venues` with the number inside `score_range`. `pending` is
+  a taped-up application receipt — a readable condition, never a
+  violation or a script.
+- **Lineage.** `former` records prior tenants as `{name, years, note}` —
+  the note is the physical trace that survived. `ghost_sign` is the faded
+  painted sign still on the wall (null where there is no wall to paint)
+  and requires a former entry — the wall remembers a tenant, not a rumor.
+  Auerbach's former tenant is itself under an earlier trade.
+- **No people, no money.** Papers never name cast or regulars ("staff on
+  file" is the whole sentence) and carry no prices, fees, or credits.

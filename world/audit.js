@@ -57,6 +57,11 @@
                 has ≥1 regular, offstage/reserved carry none; regulars are
                 never own-venue staff; name_basis ⊆ staff; windows overlap
                 posted hours; house_knows stays on the surface bar
+    perm      — permits.json ↔ permit.html PERM mirror; walls keys ==
+                door tiers exactly; paper kinds/statuses in-key;
+                liquor only on liquor_venues, health_score only on
+                food_venues inside score_range; former names invented,
+                ghost_sign requires a former entry; no people, no money
     market    — market.json ↔ market.html deep mirror; every churn row
                 resolves to a live jobs.json opening; channels declared;
                 ladders resolve to real employers; vacancy/move-in tiers
@@ -257,7 +262,7 @@ const PUB = Object.values(PT.surfaces)
     'directory.html', 'businesses.json', 'housing.json', 'jobs.json',
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
     'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
-    'exits.json', 'exit.html']);
+    'exits.json', 'exit.html', 'permits.json', 'permit.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2265,6 +2270,93 @@ const PUB = Object.values(PT.surfaces)
       if (!/\{venue\}/.test(l)) add(g, 'fail', 'suppliers.json', null, `feed shape lacks {venue}: "${l.slice(0, 60)}"`);
     g.detail = `schema v${SJ.version} · ${sids.size} suppliers · ${nRuns} runs · ${fed.size}/${doors.size} doors fed`;
   } catch (e) { add(g, 'fail', 'suppliers.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15f perm — the paper layer (v100) ============ */
+{
+  const g = gate('perm', 'paper layer contract (permits.json ↔ permit.html; doors only; kind/status keys; liquor+score placement; lineage rule; no people, no money)');
+  try {
+    const PJ = JSONF('permits.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('permit.html');
+    const m = html.match(/const PERM\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline PERM not found in permit.html');
+    const PI = eval('(' + m[1] + ')');
+    const DOOR = new Set(['anchor', 'street']);
+    const doors = BJ.businesses.filter(b => DOOR.has(b.tier));
+    const doorIds = new Set(doors.map(b => b.id));
+    const nameOf = Object.fromEntries(BJ.businesses.map(b => [b.id, b.name]));
+    /* inline mirror: PERM must field-match permits.json */
+    if (PI.version !== PJ.version)
+      add(g, 'fail', 'permit.html', null, `PERM version ${PI.version} != permits.json ${PJ.version}`);
+    for (const k of ['paper_keys', 'status_keys', 'rules', 'walls'])
+      if (JSON.stringify(PI[k] ?? null) !== JSON.stringify(PJ[k] ?? null))
+        add(g, 'fail', 'permit.html', null, `PERM.${k} drifted from permits.json`);
+    const kinds = new Set(Object.keys(PJ.paper_keys || {}));
+    const stats = new Set(Object.keys(PJ.status_keys || {}));
+    const R = PJ.rules || {};
+    const LIQ = new Set(R.liquor_venues || []);
+    const FOOD = new Set(R.food_venues || []);
+    const [sLo, sHi] = R.score_range || [70, 100];
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)\b/i;
+    const BANNED = [/unfiltered/i, /\bsecret/i, /possess/i, /\bcredit/i, /\$\s?\d/, /\bUSD\b/i];
+    /* doors-only coverage, both directions */
+    for (const id of doorIds)
+      if (!PJ.walls[id]) add(g, 'fail', 'permits.json', null, `${id} has a door but no permit wall`);
+    for (const id of Object.keys(PJ.walls || {}))
+      if (!doorIds.has(id)) add(g, 'fail', 'permits.json', null, `wall "${id}" is not a door-tier business`);
+    /* rules venue lists must resolve to door ids */
+    for (const [lk, lst] of [['liquor_venues', LIQ], ['food_venues', FOOD]])
+      for (const id of lst)
+        if (!doorIds.has(id)) add(g, 'fail', 'permits.json', null, `rules.${lk} "${id}" is not a door venue`);
+    let nPapers = 0, nFormer = 0, nGhost = 0, nPend = 0;
+    for (const [id, w] of Object.entries(PJ.walls || {})) {
+      if (!Array.isArray(w.papers) || !w.papers.length)
+        add(g, 'fail', 'permits.json', null, `${id}: empty papers — every door hangs something`);
+      for (const p of w.papers || []) {
+        nPapers++;
+        const tag = `${id}.${p.kind}`;
+        if (!kinds.has(p.kind)) add(g, 'fail', 'permits.json', null, `${tag}: paper kind not in paper_keys`);
+        if (!p.text) add(g, 'fail', 'permits.json', null, `${tag}: no text`);
+        const st = p.status || 'posted';
+        if (!stats.has(st)) add(g, 'fail', 'permits.json', null, `${tag}: status "${st}" not in status_keys`);
+        if (st === 'pending') nPend++;
+        if (p.kind === 'liquor_license' && !LIQ.has(id))
+          add(g, 'fail', 'permits.json', null, `${tag}: liquor paper on a non-liquor venue`);
+        if (p.kind === 'health_score') {
+          if (!FOOD.has(id)) add(g, 'fail', 'permits.json', null, `${tag}: score card on a non-food venue`);
+          const sm = String(p.text).match(/score\s*(\d+)/i);
+          if (!sm || +sm[1] < sLo || +sm[1] > sHi)
+            add(g, 'fail', 'permits.json', null, `${tag}: score out of range ${sLo}–${sHi}: "${p.text}"`);
+        }
+        for (const re of BANNED)
+          if (re.test(String(p.text)))
+            add(g, 'fail', 'permits.json', null, `${tag}: "${p.text}" breaches the wall bar (${re})`);
+        if (CASTID.test(String(p.text)))
+          add(g, 'fail', 'permits.json', null, `${tag}: cast id in paper text — no people on the wall`);
+      }
+      /* lineage: former entries shaped, invented names != current name,
+         ghost sign requires a tenant to remember */
+      for (const f of w.former || []) {
+        nFormer++;
+        const tag = `${id}.former`;
+        if (!f.name || !f.years || !f.note)
+          add(g, 'fail', 'permits.json', null, `${tag}: needs name + years + note`);
+        if (f.name === nameOf[id])
+          add(g, 'fail', 'permits.json', null, `${tag}: "${f.name}" is the current tenant`);
+        if (!/^\d{4}(–\d{4})?$/.test(String(f.years)))
+          add(g, 'fail', 'permits.json', null, `${tag}: bad years "${f.years}"`);
+        if (CASTID.test(String(f.note)))
+          add(g, 'fail', 'permits.json', null, `${tag}: cast id in lineage note`);
+      }
+      if (w.ghost_sign) {
+        nGhost++;
+        if (!(w.former || []).length)
+          add(g, 'fail', 'permits.json', null, `${id}: ghost_sign with no former tenant — the wall remembers a tenant, not a rumor`);
+      }
+    }
+    g.detail = `schema v${PJ.version} · ${doorIds.size} walls · ${nPapers} papers · ${nPend} pending · ${nFormer} former · ${nGhost} ghost signs`;
+  } catch (e) { add(g, 'fail', 'permits.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G16 market ============ */

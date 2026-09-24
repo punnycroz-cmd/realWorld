@@ -214,6 +214,11 @@
    "file": "commute.html",
    "name": "The Getting There",
    "tier": "internal"
+  },
+  "permits": {
+   "file": "permit.html",
+   "name": "The Permit Wall",
+   "tier": "internal"
   }
  },
  "smoke_set": [
@@ -4683,6 +4688,46 @@
       "Crowd gate: 0 fail; detail reports 'schema v99' and '20 coverage'",
       "Deleting a coverage entry or flipping a minor's kind FAILS the gate — spot-check mentally",
       "Harness gate: '90 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT91",
+   "title": "The Permit Wall v100 — the paper layer (posted paper + door lineage)",
+   "minutes": 8,
+   "persona": "continuity editor — wants proof the paper behind the counter is plausible, honest, and safe to put on camera",
+   "goal": "Verify the v100 paper layer: permits.json walls cover exactly the 20 door venues (offstage orgs and reserved names carry none); every paper kind is in paper_keys and every status in status_keys; liquor papers only on rules.liquor_venues and score cards only on food_venues inside range; lineage is shaped (name/years/note), never the current tenant, and ghost_sign requires a former entry; permit.html renders 'The Permit Wall' with live filters; the perm gate enforces the mirror.",
+   "surfaces": [
+    "permits",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open world/permit.html (file://) and scan the wall grid. Then flip the 'has pending' filter.",
+     "expect": "Twenty wall cards render — business name · tier · corner · a paper list with kind tags and status chips. The pending filter narrows to exactly two doors: Baguette About It (sidewalk tables) and The Musket (entertainment). Pending reads as a taped-up application receipt, never a violation.",
+     "checkpoints": [
+      "All 20 door venues present; no offstage org or reserved name carries a wall",
+      "Statuses chip as posted/renewed/pending with honest hover text",
+      "Pending = 'application filed, receipt taped' — no drama, no violation wording"
+     ]
+    },
+    {
+     "do": "Flip 'has ghost sign' and 'liquor venues'. Read Auerbach's card closely, then Las Palmas and Valencia Growers.",
+     "expect": "Ghost filter shows 18 doors with faded caps-letter signage (PALLET & PINE, LA CORREA, SUD CITY…); Las Palmas and Valencia Growers read 'no wall to paint' — stands have no facade. Liquor filter shows the six pouring venues only. Auerbach's former tenant is itself under an earlier trade (Auerbach Radio & TV) — third-generation continuity.",
+     "checkpoints": [
+      "18 ghost signs; the two nulls are both no-wall stands",
+      "Liquor papers appear only at the-600-club, il-delfino, the-musket, buy-rite-market, maliks, el-farolote",
+      "Auerbach lineage names the same family in an earlier trade — the exception that proves the rule"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and read the perm gate. Then open world/permits.json §rules and world/permits.md §§1–4.",
+     "expect": "Perm gate passes at schema v100 with '20 walls · 102 papers · 2 pending · 21 former · 18 ghost signs' in the detail; rules declare doors_only / liquor_venues / food_venues / score_range / ghost_rule / no_people / no_money; prose spells the civic-names-stay-real rule and pending-is-a-receipt.",
+     "checkpoints": [
+      "Perm gate: 0 fail; detail reports 'schema v100' and the walls/papers/ghost counts",
+      "A score card off a food venue, or a ghost_sign with no former entry, FAILs the gate — spot-check mentally",
+      "Harness gate: '91 scenarios · N checkpoints · key rw_playtest_v93'; 0 fail overall"
      ]
     }
    ]

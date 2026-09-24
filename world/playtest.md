@@ -276,6 +276,15 @@ One person can wear every hat; four real testers is the intended shape.
   surface). The bench panel in crowd.html shows live pullability per
   ambient; the loan never appears on the wire — the coverage read is
   the whole spectator-facing trace.
+  PT91 (The Permit Wall v100 / permits.json v100) walks the paper
+  layer — the framed paper behind every door venue's counter
+  (business license, health score card, occupancy, plus liquor /
+  entertainment / sidewalk papers where the rules allow) and each
+  door's lineage: former tenants plus the `ghost_sign` the facade
+  still carries. Doors only — the two no-wall stands read "no wall
+  to paint"; civic agency names stay real as facts; pending is a
+  taped-up receipt, never a violation; papers carry no people and
+  no money.
 
 ## 3. Running a session
 

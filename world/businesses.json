@@ -1,10 +1,11 @@
 {
  "_doc": "Machine-readable registry of canonical parody businesses. Naming authority: world/businesses.md; depth layer: world/businesses/*.md (one card per venue). Display layer: src/sf/30a_sf_names.js + world/parody-names.json (generated). Rule: parody names only (design §11); civic/landmark kinds keep real names as scenery. All prices are GAME DOLLARS — never credits, never real USD. Supply layer: world/suppliers.json (v86 — offstage wholesale vendors + delivery runs; suppliers never enter this registry).",
- "version": 86,
+ "version": 100,
  "regulars_layer": "world/regulars.json — v58: per-venue regulars (standing order, window, spot, surface knowledge, name basis, tab); spec world/regulars.md; demo world/regulars.html",
  "storefront_layer": "world/storefronts.json — v44: signage/menu-board/flyer copy per door-having venue (anchor + street tiers only); spec world/storefronts.md; demo world/storefront.html",
  "menu_layer": "world/menus.json — v72: orderable catalog per door-having venue (name, game-dollar price or 'ask', cat, when, sig, note); spec world/menus.md; demo world/menus.html",
  "supply_layer": "world/suppliers.json — v86: offstage wholesale/trade suppliers + delivery runs per door venue (the back door); spec world/suppliers.md; demo world/supply.html",
+ "permit_layer": "world/permits.json — v100: per-door posted-paper walls (licenses, score cards, permits — civic agency names stay real) + door lineage (former tenants, ghost signs); spec world/permits.md; demo world/permit.html",
  "tiers": {
   "anchor": "interior-capable, request-targetable venue",
   "street": "street-facing counter/signage, no interior yet",
