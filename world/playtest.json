@@ -5278,6 +5278,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT105",
+   "title": "The deed office v116 — list · buy · license on the request form",
+   "minutes": 8,
+   "persona": "player mid-arc — owns one hired landlord (h02, deed on 9088-5 day 1, tenant in place) and ~1,240 cr; facilitator checking that ownership requests are honest about money, gates, and queues",
+   "goal": "Verify the v116 deed-office layer on world/request.html: three new actions (List a unit, Buy a listing, Landlord license) file through the same pipeline; the quote splits game dollars from credits honestly (the ask never touches the wallet); deed fees pin to the leases.json ladder; the license is earned-gated and refuses honestly; paper:* and listing:* claims never surge; every path posts the locked feed vocabulary.",
+   "surfaces": [
+    "request",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open request.html (file://). Read the resource board for the two new claim families — 'listing:bld-f9088-5' (9088 Folsom Unit 5 — listing slot, free) and the 'paper:' rows (9476 Dolores B free; 9560 Guerrero 2 locked · escrow running · r0ok). Then pick 'List a unit (deed office)'.",
+     "expect": "The board now renders registry claims like any shared resource — queue legibility, no auction. The listing action offers the one door the demo player holds the deed on (h02's studio, tenant in place named on the target label); duration is 1 h / 24 h / 72 h blocks, a credit a minute; the note carries 'the paper follows the deed' so a seller learns the tenant keeps the lease before filing.",
+     "checkpoints": [
+      "Listing quote: a credit a minute — 1 h = 60 cr, 72 h = 4,320 cr — and NO surge line even filed inside the 18:00–23:00 primetime window (paperwork never surges)",
+      "Filing a 1 h card runs declare → screen → human review → 'card is up'; the claim locks on the board and the feed posts 'listing — 9088 Folsom St, Unit 5 posted · offer at asking' (running); ~14 s later the card retires and the claim frees",
+      "Typing 'rent' anywhere in the intent text is what flips the card to a rent listing — the copy picker is wording, not a hidden control"
+     ]
+    },
+    {
+     "do": "Pick 'Buy a listing (escrow)' → 9476 Dolores St, Unit B (1br · 160,000 game$ · 2,000 cr deed). Read the quote, file it, watch the escrow stage. Then switch to 9560 Guerrero St, Unit 2 (flat · 280,000 game$) and read the quote without filing.",
+     "expect": "The quote shows two currencies without blurring them: the ask in game dollars paid by h02, the deed fee in credits charged upfront, 'offer at asking · first accepted wins · no bidding'. h02's 172,400 game$ covers the 1br — escrow verifies and records the deed (resolved, feed 'deed recorded · offer at asking, no bidding'). The flat shows the shortfall math in the Buyer line ('short 107,600 game$') and warns that a refused filing refunds in full — and while r0ok's escrow holds its paperwork the filing queues rather than running, so the registry serializes one change per door.",
+     "checkpoints": [
+      "Deed fees are the ladder verbatim — 1br 2,000 cr / flat 3,500 cr — and the credits line is the fee alone; 160,000 game$ never touches the wallet",
+      "Buying the flat while r0ok's escrow holds paper:bld-g9560-2 queues the filing (−15%, hold clock) instead of running — the registry serializes one change per door",
+      "An insufficient-dollars refusal posts 'refunded' on the feed — never 'not approved' (this is escrow, not moderation) and never keeps a credit"
+     ]
+    },
+    {
+     "do": "Pick 'Landlord license' (2,000 cr flat). Read the Earned gates line, then file it anyway. Then run node world/audit.js and read the request gate.",
+     "expect": "The quote names the three gates verbatim (deed N/30 days · reputation threshold · clean record — 'not met yet' at deed day 1) and warns that filing is allowed but the deed office refuses before escrow. Filing charges 2,000 cr upfront, the deed-office stage fails on the 30-day gate, and the full refund lands in the ledger with a 'refunded' feed line — the license is earned, not bought.",
+     "checkpoints": [
+      "The gate line is honest before money moves: 'deed 1/30 days … — not met yet' plus the warn strip; the refusal refunds in full, nothing is kept",
+      "Request gate passes at v116: deed_fee_cr deep-equals leases.json progression.owner, license_cr equals progression.landlord.license_cr, gate count mirrors, every deedCr figure in the demo is a real ladder fee, and the surge exemption for paper:/listing: is present",
+      "Harness gate: '105 scenarios · N checkpoints'; mirror gate confirms the PT105 hand-sync"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

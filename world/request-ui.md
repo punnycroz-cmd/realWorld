@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88 + v102)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88 + v102 + v116)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -485,3 +485,69 @@ individual appeals still never appear on the feed.
 |||||| Appeal aggregate | "appeals on the bus: N filed · R% reversed — aggregate only; individual appeals never appear on the feed" |
 |||||| Live ad cap | "Daily cap reached — a taste, not a wage. Ads reset tomorrow." |
 |||||| Rules line | "Why these classes — the bus's claims matrix: <rules>" |
+
+## 14. v116 — the deed office (list · buy · license)
+
+The form's ownership track: the three registry verbs the bus already
+carries (`41_game_systems_listings.js` — `gsDefineAction` listing / buy /
+license) finally get player-facing surfaces. The progression arc
+(tenant → owner → landlord) monetizes here per plan §2.4 — deed fee and
+license in credits, the property itself always in game dollars.
+
+**List a unit** (`listing`). Exclusive on `listing:<unit>` — one live
+card per door. Seller must hold the deed (demo target: h02's studio,
+9088 Folsom Unit 5, tenant in place). Duration is how long the card
+stays up — 1 h / 24 h / 72 h blocks, a credit a minute, matching the bus's
+30–4320 min window. Sale or rent card; the intent text picks ("rent"
+in the wording files `params.kind:'rent'`). A sitting tenant keeps the
+lease — the paper follows the deed; the note says so on the card.
+
+**Buy a listing** (`buy`). Exclusive escrow on `paper:<unit>` — the
+registry serializes one change per door at a time (a whole-building
+escrow claims every door's paper). The quote splits the two currencies
+honestly: the ask in game dollars moves through the hired buyer's
+ledger (demo buyer h02, balance shown with the shortfall math); the
+deed fee in credits is the upfront charge — by ladder tier (studio
+1,000 · 1br 2,000 · flat 3,500 · house 5,000, leases.json
+`progression.owner.deed_fee_cr`). **Offer at asking, first accepted
+wins — no bidding.** Escrow verifies title + funds; a refused filing
+(`insufficient_dollars`, `not_listed`, `self_deal`) refunds the deed
+fee in full — "refused filings never bill."
+
+**Landlord license** (`license`). Compatible, flat 2,000 cr
+(`progression.landlord.license_cr`), claim `paper:license:<player>`.
+The quote carries the earned gates verbatim — deed held ≥30 days,
+reputation threshold, clean record — and the deed office checks them
+before escrow. Demo deed is day 1, so the filing refuses honestly and
+refunds: the license is *earned*, not bought. Granted scope: own units
+only, everything public record, no-fault notices stay admin-only.
+
+**Paperwork never surges.** `paper:*` and `listing:*` claims are exempt
+from the surge multiplier — registry work is serialized, never
+auctioned; a deed fee is a fee, not a bid. The resource board renders
+both claim families (`listing:` = the seller's card slot, `paper:` =
+the door's registry line, shown "escrow running" when busy), so a
+queued escrow is legible the same way a locked sky is.
+
+**Live seam.** The verbs file through `gsSubmitRequest` unchanged —
+`buy` adds `params.buyerId` + `params.ask`, `listing` adds
+`params.kind`; the meter, cancel, and refund projections from v102
+carry them verbatim. Feed reuses the locked vocabulary — `running /
+resolved / refunded` lines carry the address, never the tenant.
+
+### v116 copy deck additions
+
+||||||| Moment | Copy |
+|||||||---|---
+||||||| Listing note | "Sale or rent card — the deed office writes either. A tenant in place keeps the lease; the paper follows the deed." |
+||||||| Listing filed | "Card posted — the deed office holds it for N h." |
+||||||| Listing feed | "listing — \<address\> posted · offer at asking" (`running`) / "listing card retired — \<address\>" (`resolved`) |
+||||||| Buy terms | "Offer at asking — first accepted wins, no bidding." |
+||||||| Buy currencies | "The ask moves in game dollars through your hired buyer; only the deed fee is credits, and deed fees never surge." |
+||||||| Escrow wait | "deed office verifying title and \<buyer\>'s game dollars — offer at asking" |
+||||||| Escrow refuse | "Escrow refused — \<buyer\>'s game dollars don't cover the ask. Deed fee refunded in full." |
+||||||| Deed recorded | "title written as owner_id — never a lease; the paper follows the deed" |
+||||||| License gates | "deed N/30 days · reputation threshold · clean record — not met yet" |
+||||||| License warn | "Earned gate — the deed is 1 day old of 30. Filing is allowed; the deed office refuses before escrow and refunds in full." |
+||||||| License granted | "licensed landlord — own units only, everything on the public record" |
+||||||| No surge | (code rule — `paper:`/`listing:` exempt; a deed fee is a fee, not a bid) |

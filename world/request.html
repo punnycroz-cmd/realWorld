@@ -64,6 +64,17 @@
   live; and gsConflictRules() renders the claims matrix in plain English
   under the resource board. Off the bus nothing below changes — the
   local pipeline stays the contract reference.
+  v116 adds the deed office — the ownership track of the form: list a
+  unit (exclusive, claim listing:<unit>, a credit a minute while the card is up;
+  sale or rent, a tenant in place keeps the lease), buy a listing
+  (exclusive escrow on paper:<unit> — offer at asking, no bidding; the
+  ask moves in game dollars through a hired buyer and only the deed fee
+  is credits), and the landlord license (2,000 cr flat on
+  paper:license:<player> — earned gates checked by the deed office:
+  deed held ≥30 days, reputation, clean record; a refused filing
+  refunds in full). Paperwork never surges — registry claims are
+  serialized, never auctioned. Mirrors the bus verbs in
+  41_game_systems_listings.js (listing / buy / license).
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -417,6 +428,20 @@ var ACTIONS = [
   { id:'camera', label:'Camera director', cls:'compatible', per:'flat', cr:10, perN:'/30 min',
     targets:[ {id:'self',label:'Your spectator view (multi-cam, follow, replay)'} ],
     note:'View-layer only — changes nothing in the world.' },
+  { id:'listing', label:'List a unit (deed office)', cls:'exclusive', per:'block',
+    targets:[ {id:'bld-f9088-5', label:'9088 Folsom St, Unit 5 — your deed (h02\u2019s studio, tenant in place)',
+               claim:'listing:bld-f9088-5'} ],
+    blocks:[ {cr:60,min:60,lbl:'1 h'},{cr:1440,min:1440,lbl:'24 h'},{cr:4320,min:4320,lbl:'72 h'} ],
+    note:'Sale or rent card — the deed office writes either. A tenant in place keeps the lease; the paper follows the deed. A credit a minute while the card is up.' },
+  { id:'buy', label:'Buy a listing (escrow)', cls:'exclusive', per:'deed',
+    targets:[ {id:'bld-d9476-B', label:'9476 Dolores St, Unit B — 1br · asking 160,000 game$',
+               claim:'paper:bld-d9476-B', ask:160000, deedCr:2000, tier:'1br'},
+              {id:'bld-g9560-2', label:'9560 Guerrero St, Unit 2 — flat · asking 280,000 game$',
+               claim:'paper:bld-g9560-2', ask:280000, deedCr:3500, tier:'flat'} ],
+    note:'Offer at asking — first accepted wins, no bidding. The ask moves in game dollars through your hired buyer; only the deed fee is credits, and deed fees never surge.' },
+  { id:'license', label:'Landlord license', cls:'compatible', per:'flat', cr:2000,
+    targets:[ {id:'you', label:'Your license filing — own a deeded door ≥30 days first'} ],
+    note:'Earned, not bought outright: deed held 30 days, reputation threshold, clean record. The deed office checks before escrow — a refused filing refunds in full.' },
   { id:'hire', label:'Hire a character (join the cast)', cls:'compatible', per:'route', cr:500,
     targets:[ {id:'create',label:'The Registry — new resident intake'} ],
     note:'One-time per character slot · naming strings always get human review · billed only on approval. Housing is game dollars, earned in-world.' }
@@ -433,8 +458,21 @@ var CLAIMS = {
   'openair':       {name:'Open air (parks, alleys, blocks)', state:'free', qa:1},
   'venue:mudhaus': {name:'Mudhaus Coffee', state:'free'},
   'venue:club600': {name:'The 600 Club',   state:'locked', left:34, by:'marina_w', note:'private show window'},
-  'char:h01':      {name:'Dana Okafor (your character)', state:'free'}
+  'char:h01':      {name:'Dana Okafor (your character)', state:'free'},
+  /* v116 — the deed office: registry claims are legible too. listing:<unit>
+     is the seller's card slot; paper:<unit> serializes every registry change
+     (hire, escrow, license) on that door — a queue, never an auction. */
+  'listing:bld-f9088-5': {name:'9088 Folsom Unit 5 — listing slot', state:'free'},
+  'paper:bld-d9476-B':   {name:'9476 Dolores B — registry paperwork', state:'free'},
+  'paper:bld-g9560-2':   {name:'9560 Guerrero 2 — registry paperwork', state:'locked',
+                          left:18, by:'r0ok', note:'escrow running — offer at asking'}
 };
+
+/* v116 — demo deed-office state. h02 is your second hire: owns the Folsom
+   studio (deed day 1, a tenant in place) and carries the demo game-dollar
+   balance escrow checks against. The license gate reads deedDays. */
+var DEED = { buyer:'h02', bal:172400, deedDays:1 };
+function fmtD(n){ return n.toLocaleString('en-US'); }
 
 /* possession briefing — the §7 whitelist, verbatim. Secrets are ABSENT BY
    SCHEMA, not redacted: this card is everything the game can ever say. */
@@ -455,6 +493,8 @@ var BRIEFINGS = {
 
 /* seeded public feed — vocabulary syncs to gsViewerState (running/queued/resolved/refunded) */
 var FEED = [
+  {t:'21:22', who:'r0ok', txt:'listing — 9560 Guerrero St, Unit 2 posted · sale card · 72 h', st:'running'},
+  {t:'21:15', who:'dvh', txt:'buy — deed recorded on 9812 Church St · offer at asking, no bidding', st:'resolved'},
   {t:'21:04', who:'marina_w', txt:'weather — clear skies over Dolores Park, 2 h', st:'running'},
   {t:'20:47', who:'leaf', txt:'event — park cleanup at Dolores Park', st:'queued'},
   {t:'20:31', who:'admin', txt:'admin action — venue window reset at The 600 Club · affected players compensated 90 cr', st:'admin'},
@@ -556,6 +596,11 @@ function busSpec(a, t, dm, text, queued, co, q, winAbs){
     queued: !!queued, co_sponsor: !!co, quote_cr: q.total
   };
   if (winAbs != null) spec.start_slot = winAbs - bkNowMin();  /* minutes-from-now */
+  /* v116 — deed office: the bus's buy verb needs the hired buyer + the
+     listed ask (41_game_systems_listings gsBuyAllow); listing takes the
+     card kind (sale default — "rent" in the intent text flips it) */
+  if (a.id === 'buy'){ spec.params.buyerId = DEED.buyer; spec.params.ask = t.ask; }
+  if (a.id === 'listing') spec.params.kind = /\brent\b/i.test(text) ? 'rent' : 'sale';
   return spec;
 }
 /* Normalize a gsBookableSlots() / gsBookCalendar() entry into an absolute
@@ -1013,6 +1058,9 @@ function claimBusy(ck){
 
 /* ================= pricing ================= */
 function surgeFor(a, ck, atHour){
+  /* v116 — deed-office claims never surge: registry paperwork is a queue,
+     not a contested world resource; a deed fee is a fee, not a bid. */
+  if (ck && /^(paper|listing):/.test(ck)) return 1;
   var c = ck && CLAIMS[ck];
   if (c && c.lastExclusiveH !== undefined && c.lastExclusiveH < 6) return 1.5;
   var h = atHour!=null ? atHour : new Date().getHours();
@@ -1032,9 +1080,21 @@ function quote(a, t, durMin, queued, atHour){
     for (var i=0;i<a.blocks.length;i++) if (a.blocks[i].min === durMin) b = a.blocks[i];
     q.lines.push(['Block', b.lbl + ' flat']);
     q.total = b.cr * surge;
+  } else if (a.per === 'deed'){
+    /* v116 — buy: the credits charge is the deed fee alone; the ask is
+       game dollars moved through the hired buyer at escrow, never cr */
+    q.lines.push(['Asking price', fmtD(t.ask) + ' game$ — paid by ' + DEED.buyer + ' in game dollars, never credits']);
+    q.lines.push(['Deed fee', t.deedCr + ' cr · ' + t.tier + ' tier — charged upfront']);
+    q.lines.push(['Terms', 'offer at asking · first accepted wins · no bidding']);
+    q.lines.push(['Buyer', DEED.buyer + ' · ' + fmtD(DEED.bal) + ' game$ on hand' +
+      (DEED.bal >= t.ask ? '' : ' — short ' + fmtD(t.ask - DEED.bal))]);
+    q.total = t.deedCr;   /* deed fees never surge (paperwork is a queue) */
   } else {
     q.lines.push(['Flat rate', a.cr + ' cr' + (a.perN||'')]);
     q.total = a.cr * surge;
+    if (a.id === 'license')
+      q.lines.push(['Earned gates', 'deed ' + DEED.deedDays + '/30 days · reputation threshold · clean record' +
+        (DEED.deedDays < 30 ? ' — not met yet' : ' — met')]);
   }
   if (queued){
     q.lines.push(['Queue −15%', 'held ≤24 h · expiry auto-refunds','qdisc']);
@@ -1138,6 +1198,12 @@ function refreshQuote(){
   html += '<div class="line total"><span>Charged upfront · hard cap</span><b>'+q.total+' cr</b></div>';
   if (busy && winAbs==null && !queueMe.checked && !co) html += '<div class="warn">This resource is busy — exclusive requests can queue (−15%) or wait.</div>';
   if (winAbs!=null) html += '<div class="warn" style="color:var(--dim)">Booked windows are already approved when they arrive — cancel free until '+bkHHMM(winAbs)+'.</div>';
+  if (a.id==='license' && DEED.deedDays<30)
+    html += '<div class="warn">Earned gate — the deed is '+DEED.deedDays+' day old of 30. '+
+      'Filing is allowed; the deed office refuses before escrow and refunds in full.</div>';
+  if (a.per==='deed' && DEED.bal < t.ask)
+    html += '<div class="warn">'+DEED.buyer+' is '+fmtD(t.ask-DEED.bal)+' game$ short of the ask — '+
+      'filing still runs the escrow check; a refused filing refunds in full.</div>';
   if (a.note) html += '<div class="warn" style="color:var(--dim)">'+a.note+'</div>';
   if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="openWallet()">open wallet</span> first.</div>';
   /* v88 — live quote check: gsPriceQuote (game-v7/v14) runs the submit
@@ -1691,6 +1757,84 @@ function run(a, t, q, dm, text, label, mine){
       renderMine(); go.disabled=false;
     }, 2500);
     stage('Injected as opportunity', 'done','character decides how — never mind-control');
+    return;
+  }
+
+  /* v116 — the deed office: three verbs that touch the registry, not the
+     stage. listing posts a card (maintained, claim locks while it's up);
+     buy runs escrow on paper:<unit>; license files against the earned
+     gates. Refusals refund in full — paperwork is a queue, never a bill. */
+  if (a.id==='listing'){
+    var ck = claimOf(a,t);
+    stage('Deed office', 'done',
+      'card written — sale or rent; a tenant in place keeps the lease, the paper follows the deed');
+    CLAIMS[ck].state='locked'; CLAIMS[ck].left=dm; CLAIMS[ck].by='you';
+    mine.st='running';
+    trail(mine,'listing posted — '+fmtMin(dm)+' card · claim '+ck);
+    mine.sub+=' · card is up ('+fmtMin(dm)+')';
+    feedAdd('you','listing — '+t.label.split('—')[0].trim()+' posted · offer at asking','running');
+    toast('Card posted — the deed office holds it for '+fmtMin(dm)+'.');
+    setTimeout(function(){
+      CLAIMS[ck].state='free'; delete CLAIMS[ck].by; delete CLAIMS[ck].left;
+      feedAdd('you','listing card retired — '+t.label.split('—')[0].trim(),'resolved');
+      mine.st='resolved'; mine.sub+=' · card retired'; trail(mine,'card retired — claim freed');
+      renderMine(); renderBoard();
+    }, 14000);
+    renderMine(); renderBoard(); go.disabled=false; return;
+  }
+
+  if (a.id==='buy'){
+    var sE = stage('Escrow', 'wait',
+      'deed office verifying title and '+DEED.buyer+'\u2019s game dollars — offer at asking');
+    setTimeout(function(){
+      if (DEED.bal < t.ask){
+        sE.className='stage fail'; sE.querySelector('.why').textContent='insufficient_dollars';
+        chg(q.total,'escrow refused — deed fee back in full');
+        stage('Refund','done',q.total+' cr returned — refused filings never bill');
+        mine.st='refunded';
+        mine.sub+=' · escrow refused — '+DEED.buyer+' short '+fmtD(t.ask-DEED.bal)+' game$ · refunded';
+        trail(mine,'escrow refused — insufficient game dollars · deed fee refunded');
+        feedAdd('you','buy — escrow on '+t.label.split('—')[0].trim()+' refused (game dollars short) · refunded','refunded');
+        toast('Escrow refused — '+DEED.buyer+'\u2019s game dollars don\u2019t cover the ask. Deed fee refunded in full.');
+      } else {
+        DEED.bal -= t.ask;
+        sE.className='stage done'; sE.querySelector('.why').textContent='title clean · funds verified · offer at asking';
+        stage('Deed recorded','done','title written as owner_id — never a lease; the paper follows the deed');
+        mine.st='resolved';
+        mine.sub+=' · deed recorded — '+fmtD(t.ask)+' game$ moved on '+DEED.buyer+'\u2019s ledger';
+        trail(mine,'deed recorded — owner_id written · '+fmtD(t.ask)+' game$');
+        feedAdd('you','buy — deed recorded on '+t.label.split('—')[0].trim()+' · offer at asking, no bidding','resolved');
+        toast('Deed recorded — '+t.label.split('—')[0].trim()+' is yours. The ask moved in game dollars, never credits.');
+      }
+      renderMine(); renderBoard(); go.disabled=false;
+    }, 3000);
+    return;
+  }
+
+  if (a.id==='license'){
+    var sL = stage('Deed office', 'wait',
+      'checking the earned gates — deed age, reputation threshold, clean record');
+    setTimeout(function(){
+      if (DEED.deedDays < 30){
+        sL.className='stage fail'; sL.querySelector('.why').textContent=
+          'earned gate — deed is '+DEED.deedDays+' day old of 30';
+        chg(q.total,'license filing refused — refunded in full');
+        stage('Refund','done',q.total+' cr returned — refused filings never bill');
+        mine.st='refunded';
+        mine.sub+=' · gate unmet — deed '+DEED.deedDays+'/30 days · refunded';
+        trail(mine,'refused at the deed office — earned gate unmet · refunded');
+        feedAdd('you','license — filing refused (deed age '+DEED.deedDays+'/30) · refunded','refunded');
+        toast('The license is earned, not bought — the deed is '+DEED.deedDays+' day old of 30. Refunded in full.');
+      } else {
+        sL.className='stage done'; sL.querySelector('.why').textContent='gates met — deed '+DEED.deedDays+' days, record clean';
+        stage('License granted','done','licensed landlord — own units only, everything on the public record');
+        mine.st='resolved'; mine.sub+=' · licensed — own units only, public record';
+        trail(mine,'license granted — licensed landlord');
+        feedAdd('you','license — landlord license granted','resolved');
+        toast('Licensed landlord — your ledger tools cover your own units only.');
+      }
+      renderMine(); renderBoard(); go.disabled=false;
+    }, 2500);
     return;
   }
 

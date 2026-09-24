@@ -3180,6 +3180,39 @@ const PUB = Object.values(PT.surfaces)
     /* own queue position is shown to the holder only — never the queue's order */
     if (!/can only shrink, never grow/.test(html))
       add(g, 'fail', 'request.html', null, 'queue position must carry the only-shrink honesty line');
+    /* v116 — the deed office: list / buy / license surface the bus verbs;
+       every number pins to leases.json progression, never invented */
+    const DO = RJ.deed_office || {};
+    const LPROG = (JSONF('leases.json').progression || {});
+    for (const tier of ['studio', '1br', 'flat', 'house'])
+      if ((DO.deed_fee_cr || {})[tier] !== ((LPROG.owner || {}).deed_fee_cr || {})[tier])
+        add(g, 'fail', 'requests.json', null,
+          `deed fee for ${tier} drifted from leases.json (${((LPROG.owner || {}).deed_fee_cr || {})[tier]})`);
+    if (DO.license_cr !== (LPROG.landlord || {}).license_cr)
+      add(g, 'fail', 'requests.json', null, 'license fee drifted from leases.json progression.landlord');
+    if ((DO.license_gates || []).length !== ((LPROG.landlord || {}).gates || []).length)
+      add(g, 'fail', 'requests.json', null, 'license gates must mirror leases.json progression.landlord.gates');
+    if (!/never.*(auction|bid)|never.*surge/i.test(DO.no_surge || ''))
+      add(g, 'fail', 'requests.json', null, 'deed_office.no_surge contract missing (paperwork never surges)');
+    for (const a of RJ.actions.filter(x => ['listing', 'buy', 'license'].includes(x.id))) {
+      if (a.id === 'listing' && (a.rate_cr_per_min !== 1 || a.max_min !== 4320))
+        add(g, 'fail', 'requests.json', null, 'listing must be 1 cr/min, ≤4320 min (bus listing verb)');
+      if (a.id === 'buy' && !(a.claims || []).some(c => /^paper:/.test(c)))
+        add(g, 'fail', 'requests.json', null, 'buy must claim paper:<unit> — registry serializes escrow');
+      if (a.id === 'license' && a.cr !== (LPROG.landlord || {}).license_cr)
+        add(g, 'fail', 'requests.json', null, 'license action price must equal the license fee');
+    }
+    for (const s of ["id:'listing'", "id:'buy'", "id:'license'", "per:'deed'",
+                     'listing:bld-', 'paper:bld-', 'DEED', 'deedDays',
+                     'offer at asking', 'no bidding', 'the paper follows the deed',
+                     'insufficient_dollars', 'refunds in full', 'fmtD'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `deed-office surface missing "${s}"`);
+    if (!/\^\(paper\|listing\):/.test(html))
+      add(g, 'fail', 'request.html', null, 'paperwork surge exemption missing from surgeFor');
+    /* demo deed-fee figures are real tier fees, not invented */
+    for (const m of html.matchAll(/deedCr:(\d+)/g))
+      if (!Object.values((LPROG.owner || {}).deed_fee_cr || {}).includes(+m[1]))
+        add(g, 'fail', 'request.html', null, `deedCr ${m[1]} is not a ladder tier fee`);
     g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }

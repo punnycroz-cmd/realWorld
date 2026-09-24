@@ -19,6 +19,15 @@
       "claims": ["venue:*", "openair"], "note": "Drama-manager-mediated; one per resource per 24 h." },
     { "id": "camera",   "label": "Camera director", "class": "compatible", "billing": "flat", "cr_per_30min": 10,
       "note": "Spectator-side only; changes nothing in-world." },
+    { "id": "listing",  "label": "List a unit (deed office)", "class": "exclusive", "billing": "per_min",
+      "rate_cr_per_min": 1, "min_min": 30, "max_min": 4320, "claims": ["listing:<unit>"],
+      "note": "Sale or rent card, seller holds the deed. A tenant in place keeps the lease — the paper follows the deed. One live listing per unit." },
+    { "id": "buy",      "label": "Buy a listing (escrow)", "class": "exclusive", "billing": "flat_deed_fee",
+      "claims": ["paper:<unit>"],
+      "note": "Offer at asking, first accepted wins — no bidding. The ask moves in game dollars through the hired buyer; credits pay only the deed fee (ladder tier, deed_office.deed_fee_cr). Buyer = a hired character with the game dollars. Whole-building escrow claims every door's paperwork." },
+    { "id": "license",  "label": "Landlord license", "class": "compatible", "billing": "flat", "cr": 2000,
+      "claims": ["paper:license:<player>"],
+      "note": "Earned gates checked by the deed office before escrow — own a deeded door ≥30 days, reputation threshold, clean record (leases.json progression.landlord). Refused filings refund in full." },
     { "id": "hire",     "label": "Character hire", "class": "compatible", "billing": "flat", "cr": 500,
       "review": "human (naming strings always queued — moderation §4)",
       "note": "One-time per character, slot-capped per account (creation.json). Includes starter wardrobe + apartment hunt; housing costs game dollars. Denied applications never bill.",
@@ -151,6 +160,23 @@
     "cap": "total session length never exceeds the class max (120 min compatible; camera uncapped but sold in +30 blocks)",
     "low_balance": "insufficient balance disables the button and links the wallet sheet — the top-up to extend path is one click"
   },
+  "deed_office": {
+    "doc": "v116 — the ownership track of the request form: list / buy / license, mirroring the game bus verbs (src/systems/41_game_systems_listings.js gsDefineAction listing|buy|license). Numbers adopt leases.json progression + monetization §2.4 verbatim.",
+    "deed_fee_cr": { "studio": 1000, "1br": 2000, "flat": 3500, "house": 5000 },
+    "license_cr": 2000,
+    "license_gates": ["own a deeded door >= 30 days", "reputation threshold", "clean record"],
+    "license_scope": "own units only · all actions public record · no-fault notices stay admin-only",
+    "no_surge": "paper:* and listing:* claims are exempt from surge — registry work is serialized, never auctioned; a deed fee is a fee, not a bid",
+    "rules": [
+      "offer at asking — first accepted wins, no bidding",
+      "the ask moves in game dollars through the hired buyer; credits only ever pay the deed fee",
+      "a refused filing refunds in full — escrow checks run before money settles",
+      "a sale with a sitting tenant carries the lease, deposit, and file — the paper follows the deed",
+      "one live listing per unit; whole-building escrow claims every door's paperwork"
+    ],
+    "feed": "listing/buy/license post the same feed vocabulary — running/resolved/refunded lines carry the address, never the tenant",
+    "bus_params": "buy files params.buyerId + params.ask; listing files params.kind (sale|rent)"
+  },
   "fairness_invariants": [
     "cooldowns never purchasable",
     "surge multiplier shown before payment",
@@ -158,7 +184,8 @@
     "queued expiry auto-refunds",
     "admin overrides compensate affected players",
     "no auctions for slots; FCFS within class",
-    "a time slot is not an upgrade — booking never reprices"
+    "a time slot is not an upgrade — booking never reprices",
+    "registry paperwork never surges — a deed fee is a fee, not a bid"
   ],
   "booking": {
     "doc": "v74 — the Book: scheduled exclusives. Spec world/bookings.md; machine mirror world/bookings.json; public calendar surface world/book.html; the When picker in request.html.",
