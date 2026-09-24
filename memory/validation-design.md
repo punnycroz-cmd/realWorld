@@ -13880,3 +13880,136 @@ P1406, P1407, P1409, P1410, P1411, P1415,
 P1417 (the causal-wiring and honesty legs).
 SHOULD: P1408, P1412, P1413, P1414, P1416,
 P1418.
+
+Probe registry: P1–P1430. v132 MUST: P1419,
+P1420, P1421, P1423, P1424, P1425, P1428.
+SHOULD: P1426, P1427, P1429. OBSERVE: P1422,
+P1430.
+
+## 266. v132 probe specs (P1419–P1430 —
+encoding-mechanics, the volitional/breadth/
+pattern/odor/suppression/construal channels;
+spec v5.78 §§6.393–6.398)
+
+Harness: 8 mains + 200-ambient pop; CRN-matched
+arms. All bands use the §3 replication-discount
+protocol; the motivational-intensity band is
+widened for the 2025 registered-replication null.
+
+- **P1419 choice gain (MUST — sign):** matched
+  events, `chosen` arm (≥`choice_opt_min` live
+  options, self-picked) vs assigned arm → chosen
+  records recall higher at 24-h-equivalent;
+  effect must survive content-independence
+  (Murty 2015 — the memorandum content is
+  orthogonal to the choice). Ordering IS the
+  claim; magnitude band modest (replication
+  discount on a JNeurosci paradigm).
+- **P1420 optionality lock (MUST — locked
+  `choice_trivial_null`):** `chosen` flag asserted
+  with one live option (agency theater) → TOST
+  equivalence with unflagged baseline. Any gain
+  = the flag is decorative, not causal.
+- **P1421 breadth valence-independence (MUST —
+  locked `motiv_valence_null`):** high-MI positive
+  and high-MI negative states thin peripheral
+  field-write equivalently; valence flipped at
+  constant MI → TOST on breadth. A valence-only
+  narrowing path (positive broadens / negative
+  narrows regardless of MI) fails — that is the
+  superseded pre-2008 theory.
+- **P1422 MI magnitude (OBSERVE):** dose-response
+  curve of peripheral-write thinning vs
+  `motiv_intensity`; band kept deliberately wide —
+  the 2025 registered replication found breadth
+  invariant under the canonical manipulation, so
+  this probe watches for regression, not
+  calibration.
+- **P1423 statistical mint (MUST):** tag-pair
+  recurring in attended events ≥`stat_thresh` →
+  `pattern:true` record exists with `rk:"know"`,
+  `prov:"implicit"`, `dateKnown:null`; below
+  threshold → none. First-decade-of-exposure
+  patterns must mint for ambient characters too —
+  the substrate of "a local just knows."
+- **P1424 attention gate (MUST — locked
+  `stat_unseen_null`):** identical co-occurrence
+  stream rendered unattended (att_min gate) →
+  zero `stat_ev` accrual. Preattentive accrual =
+  fail (Turk-Browne 2005 gating is the finding).
+- **P1425 provenance lock (MUST — locked
+  `stat_event_null`):** pattern records may never
+  cite a constituent episode; any `pattern:true`
+  emission carrying OBSERVED `display_tier` or an
+  episode back-reference fails — implicit accrual
+  minting footage is provenance forgery.
+- **P1426 odor durability (SHOULD):** `ctx_odor`
+  field outlives same-record verbal fields at
+  matched birth E (`odor_beta_mult`); odor cue
+  match reinstates a below-`resurrect_thresh`
+  record that a matched verbal cue cannot —
+  `odor_rescue_gain` reach test.
+- **P1427 odor naming (SHOULD — locked
+  `odor_name_null`):** `odorName:true` at mint
+  attenuates odor gains by `odor_name_mult`;
+  gains zeroed = fail (Willander & Larsson 2007 —
+  attenuation, never abolition).
+- **P1428 suppression cost (MUST):**
+  `suppressing` character's concurrent-event
+  recall drops vs matched non-suppressing at
+  `sup_load` — the poker face spends real
+  attention; zero delta = `sup_free_null` leg 1.
+- **P1429 rebound (SHOULD):** suppressed-target
+  intrusion/`rebound_gain` events inside
+  `rebound_win` exceed baseline; zero rebound =
+  `sup_free_null` leg 2. Rebound measured on the
+  *target* record, not scene recall.
+- **P1430 construal distance (OBSERVE):**
+  distant-target events (far horizon / socially
+  distant counterpart) mint verbatim fields thinned
+  by `construal_concrete`, E unchanged; proximate
+  matched events mint full. E-invariance is the
+  falsifier — a construal path that moves strength
+  is miswired.
+
+## 267. Sources verified this version (P1419–P1430
+— encoding channels)
+
+- Murty, DuBrow & Davachi 2015 (*J. Neurosci.*
+  35:6255 — verified: inconsequential choice →
+  24-h declarative gain, striatum→hippocampus);
+  DuBrow, Eberts & Murty 2019 (*Mem. Cognit.*);
+  2021 PMC8600978 replication (incidental arm).
+- Gable & Harmon-Jones 2008 (*Psychol. Sci.*
+  19:476 — verified); Harmon-Jones, Gable &
+  Price 2013 (*Curr. Dir.* 22:217 — verified);
+  Gable, Poole & Harmon-Jones 2015 (*JPSP*
+  109:163 — verified); **honest flag** — 2025
+  registered conceptual replication (*Cognition &
+  Emotion* — verified null on canonical paradigm)
+  → P1422 OBSERVE, wide band.
+- Saffran, Aslin & Newport 1996 (*Science*
+  274:1926 — verified); Turk-Browne, Jungé &
+  Scholl 2005 (*JEP:G* 134:552 — verified:
+  attention-gated, implicit, abstracted);
+  Turk-Browne, Scholl, Chun & Johnson 2008
+  (*J. Cogn. Neurosci.* 21:1934 — verified).
+- Willander & Larsson 2006 (*Psychon. Bull. Rev.*
+  13:240 — verified: odor bump <10 y); Willander
+  & Larsson 2007 (*Mem. Cognit.* 35:1659 —
+  verified: naming attenuates); Chu & Downes
+  2000 (*Cognition* 75:B41 — verified); Herz &
+  Schooler 2002 (*Am. J. Psychol.* 115:21 —
+  verified); Herz & Engen 1996 review.
+- Wegner, Schneider, Carter & White 1987
+  (*JPSP* 53:5 — verified: rebound); Wegner 1994
+  (*Psychol. Rev.* 101:34 — verified: ironic
+  process); Macrae, Bodenhausen, Milne & Jetten
+  1994 (*JPSP* 67:808 — verified); Lane & Wegner
+  1995 (preoccupation — §77 cross-ref).
+- Trope & Liberman 2003 (*Psychol. Rev.* 110:403
+  — verified: construal-level theory; memory-side
+  mapping HYPOTHESIS → OBSERVE).
+
+→ memory-model-spec.md v5.78 §§6.393–6.398;
+probes P1419–P1430.

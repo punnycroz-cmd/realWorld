@@ -4175,3 +4175,394 @@ ordering/direction probes); P1284, P1286, P1288 SHOULD.
   — existing band); Wegner transactive (§6.14); Rhodes & Castel
   2008 (font JOL — stays a report bias); Roig et al. 2013
   (exercise — consolidation-side).
+
+---
+
+# v132 — the will, the want, the pattern, the smell, the bear, the distance
+
+Six findings that were still unpriced: **volitional choice** at the
+mint (Murty/DuBrow/Davachi), **motivational intensity** as the
+valence-independent breadth dial (Gable & Harmon-Jones — with the
+2025 replication failure honestly priced), **statistical learning**
+— implicit regularities minting pattern records no episode backs
+(Saffran; Turk-Browne), **odor-bound fields** that outlive the
+scene (Willander & Larsson; Chu & Downes), **suppression cost +
+rebound** (Wegner — the secret-keeper pays at the gate), and
+**construal distance** — far things write abstract (Trope &
+Liberman). All six land inside the existing E/field-write/link
+machinery; one new record flag (`pattern:true`), three new Event
+fields (`chosen`, `odor`, `suppressing`), one new encoder-state
+input (`motiv_intensity`).
+
+## 133. Choice at the gate — volition mints deeper (ESTABLISHED)
+
+Murty, DuBrow & Davachi 2015 (*J. Neurosci.* 35:6255 — verified):
+objects encoded under a manipulation of *the mere opportunity to
+choose* — choice unrelated to content — were remembered better at
+24 h. Anticipatory striatal activation predicted trial-by-trial
+hippocampal encoding success; the striatal signal preceded the
+hippocampal one, i.e. the choice signal modulates the memory
+system. The effect does not need the choice to matter: it is the
+perceived agency, not the option quality. Independent arms:
+DuBrow, Eberts & Murty 2019 (*Mem. Cognit.* — choice benefit
+replicates and extends to context memory); the 2021 PMC replication
+extends it to *incidental* encoding — you need not intend to learn
+(consistent with `intent_null`, §1).
+
+RW consequence is the Astra-mandate encoding leg: a character who
+*chose* the act encodes it deeper than one who was steered into it.
+The world frequently issues characters near-forced moves (only one
+affordable option, a scripted obligation); those mint thin. This is
+what makes "a choice today changes a relationship tomorrow"
+durable at the record level — voluntary acts are born heavier.
+
+**Formalization.** Event field `chosen:true` when ≥
+`choice_opt_min` (default 2) live options existed AND the
+character's own deliberation picked this one (world-imposed,
+scripted, and request-granted-but-unvetted content fails the flag).
+`E += choice_gain` (0.10). Choice with one live option earns
+nothing — locked `choice_trivial_null`: a "choice" flag asserted
+without the option set must produce zero gain (agency theater is
+not agency). The bonus is anticipatory-striatal in origin, so it
+also touches content adjacent to the choice in the same event tick
+— implement as an E bump on the event's own record(s) only, not a
+window sweep (the `choice_ante_win` reach stays inside the tick;
+forward sweeps belong to §99's anticipation channel).
+
+Boundary (marked DEBATED): effect sizes in the literature are
+medium-small and choice paradigms cluster in reward-adjacent
+territory; keep `choice_gain` ≤0.3.
+
+## 134. Motivational intensity, not valence, sets encoding breadth (ESTABLISHED direction; magnitude DEBATED)
+
+Gable & Harmon-Jones 2008 (*Psychol. Sci.* 19:476 — verified):
+approach-motivated positive affect (dessert pictures, pregoal
+desire) *narrows* attentional breadth relative to neutral — the
+opposite of the broaden-and-build prediction for positive states.
+Harmon-Jones, Gable & Price 2013 (*Curr. Dir. Psychol. Sci.*
+22:217 — verified): the motivational dimensional model — breadth
+follows motivational *intensity*, not valence: high-intensity
+states (desire, fear, disgust) narrow; low-intensity states
+(amusement, contentment, sadness, post-goal positive) broaden —
+symmetric across valence. Gable, Poole & Harmon-Jones 2015
+(*JPSP* 109:163): anger narrows perceptually AND conceptually.
+
+**Honest flag:** a 2025 registered conceptual replication of the
+canonical desserts-vs-rocks manipulation found breadth *invariant*
+across image type, focality, and rated intensity (Cognition &
+Emotion — verified). And motivational-intensity self-report
+correlates >.9 with valence in stimulus norming (Emotion, Gable
+lab's own audit) — the constructs are empirically hard to pull
+apart. Mark: direction ESTABLISHED (multiple paradigms,
+pre-registered failures notwithstanding); magnitude DEBATED; keep
+the dose small and the tier SHOULD.
+
+**Formalization.** New encoder-state input `motiv_intensity ∈
+[0,1]` (the brain-side "urge to approach/avoid" at mint — craving a
+pastry ≈ fearing the landlord for breadth purposes). Peripheral
+field-write probability scales `× (1 − motiv_narrow ·
+motiv_intensity)` when `motiv_intensity > motiv_gate` (defaults
+0.15 / 0.5) — goal-central fields untouched. This is a *breadth*
+channel, orthogonal to ABC's arousal-driven central-boost: ABC
+moves E on central vs peripheral; MI moves which peripheral fields
+get written at all, on either valence sign. Locked
+`motiv_valence_null`: holding MI constant and flipping valence
+must not change breadth — a valence-only narrowing path is the
+pre-2008 theory and fails P1421.
+
+## 135. Statistical learning — the pattern mints without an event (CONSENSUS phenomenon; RW mapping HYPOTHESIS)
+
+Saffran, Aslin & Newport 1996 (*Science* 274:1926 — verified):
+8-month-olds extract transitional-probability structure from a
+speech stream in two minutes, no instruction, no awareness.
+Turk-Browne, Jungé & Scholl 2005 (*JEP:G* 134:552 — verified):
+visual statistical learning is **implicit but attention-gated** —
+observers learn the regularities in the *attended* stream only,
+under a cover task, with no awareness of what was learned; the
+resulting representations are abstracted (invariant to surface
+changes). Turk-Browne, Scholl, Chun & Johnson 2008 (*J. Cogn.
+Neurosci.* 21:1934): neural sensitivity to structure precedes
+explicit familiarity.
+
+The gap in the model: every record in the store is born from an
+event. But humans accumulate *undated, sourceless regularities* —
+"the fog rolls in around four," "the tall one always orders the
+same thing" — with no founding episode anyone could point to. That
+is unequal knowledge's quiet substrate: a promoted ambient
+resident's feel for the block is largely statistical-learning
+records.
+
+**Formalization.** New record flag `pattern:true` (class
+`generic`, `rk:"know"`, `prov:"implicit"`, `dateKnown:null` — no
+episode citation, ever). A per-character pattern ledger accumulates
+`stat_ev += 1` each time a co-occurrence (tag-pair, actor-place,
+place-time) recurs in an *attended* event (att_min applies per
+Turk-Browne's gating — locked `stat_unseen_null`: unattended
+co-occurrences accrue nothing). At `stat_ev ≥ stat_thresh`
+(default 5) the ledger mints a `pattern` record at `E = stat_E`
+(0.4), decaying at `stat_beta_mult` 0.7 of episodic β — patterns
+are knowledge-like. Cap `stat_max_active` 64 patterns; LRU
+eviction decays the record rather than deleting it. Locked
+`stat_event_null`: a pattern record may never cite a constituent
+episode — minting an OBSERVED-tier record from implicit accrual
+is a provenance forgery and fails P1425. UI consequence: pattern
+records render TOLD/INFERRED-adjacent — never footage.
+
+## 136. The odor-bound field outlives the scene (CONSENSUS direction; encoding-side dose HYPOTHESIS)
+
+The retrieval side is already in the model (`sensory_age_slope`,
+`sensory_mismatch_pen` — Chu & Downes 2002). The *encoding*-side
+asymmetry is separate and unpriced: odor-present events bind an
+olfactory field that is (a) more durable than the event's verbal/
+visual fields, (b) reaches further back — odor-cued
+autobiographical memories peak in the *first decade of life* vs
+the 10–30 reminiscence bump for word/picture cues (Chu & Downes
+2000, *Cognition* 75:B41; Willander & Larsson 2006, *Psychon.
+Bull. Rev.* 13:240 — both verified), and (c) more emotional with
+stronger "brought back" phenomenology (Willander & Larsson 2007,
+*Mem. Cognit.* 35:1659; Herz & Schooler 2002; Herz & Engen 1996
+review). Mechanism is anatomical: olfactory areas synapse directly
+onto amygdala-hippocampal memory circuitry — the one sensory
+channel with a privileged limbic line.
+
+**Formalization.** Event field `odor ∈ [0,1]` (olfactory salience
+at mint — the taqueria, the fog, the bakery). When `odor > 0`,
+the record writes a `ctx_odor` bound field that decays at
+`odor_beta_mult` 0.5 of the record's base β (field-level
+durability, not record-level — the smell outlives the facts), and
+mints `+ odor_emo_gain` (0.1) into the affective fields.
+Retrieval: an odor cue match adds `odor_rescue_gain` (0.2) to
+cueMatch against records below `resurrect_thresh` — the smell
+reaches what words can't. Locked `odor_name_null`: naming the
+odor at mint (`odorName:true`) multiplies odor gains by
+`odor_name_mult` 0.5 but can never zero them — Willander &
+Larsson 2007 showed verbalization attenuates, not abolishes, the
+olfactory privilege; full abolition is a failure mode, not a
+finding.
+
+## 137. Suppression at the mint — the bear costs and rebounds (CONSENSUS phenomenon; doses HYPOTHESIS)
+
+Wegner, Schneider, Carter & White 1987 (*JPSP* 53:5 — verified):
+instructed suppression produces a *rebound* — suppressed thoughts
+return at elevated accessibility once suppression lifts. Wegner
+1994 (*Psychol. Rev.* 101:34): the ironic-process account — an
+effortful operating process plus an automatic monitoring process
+that keeps scanning for the suppressed target; under cognitive
+load the monitor outlives the operator and the target intrudes.
+Macrae, Bodenhausen, Milne & Jetten 1994 (*JPSP* 67:808):
+suppression rebound transfers to social content (stereotype
+suppression → later elevated stereotype use). Lane & Wegner 1995:
+secret-keeping produces preoccupation — §77 priced the
+preoccupation; the *encoding cost during the concealment itself*
+was never priced.
+
+**Formalization.** Event flag `suppressing:"<topicRef>"` set by
+the actor when actively concealing during the event (a secret-
+holder mid-conversation, a character suppressing grief at work).
+Two effects, both at encode time and after:
+
+- **Cost:** `daLoad += sup_load` (0.2) for the event's duration —
+  the operating process is real divided attention (slots into the
+  existing §4 DA machinery, so its consequences are already
+  priced).
+- **Rebound:** the suppressed-target record(s) carry a
+  `rebound_mark`; within `rebound_win` (24 h) the monitor rolls
+  `sup_rebound_p` (0.3) per retrieval-relevant tick — on success
+  the target record gets `R += rebound_gain` (0.15) and is
+  eligible for `intrusion_thresh`-style involuntary recall — the
+  thing you must not think about surfaces, unbidden, afterward.
+  This produces the human "kept it together at dinner, couldn't
+  stop thinking about it that night" phenomenology.
+
+Locked `sup_free_null`: suppression with `daLoad` held at zero —
+or a rebound of zero — fails P1428/P1429; monitoring is never
+free. Interaction note: `suppressing` composes §77's preoccupation
+(preoccupation raises the target's *baseline* accessibility;
+suppression is the in-event cost plus the post-event rebound —
+different clocks, keep separate).
+
+## 138. Construal distance at the mint — far things write abstract (CONSENSUS theory; memory-side mapping HYPOTHESIS)
+
+Trope & Liberman 2003 (*Psychol. Rev.* 110:403 — verified):
+psychological distance (temporal, spatial, social, hypothetical)
+shifts construal toward abstract, high-level, schematic features;
+proximity shifts toward concrete, low-level, incidental features.
+The memory-side consequence — distant events are *encoded*
+abstractly, not just *reconstructed* abstractly — is a direct
+extension but thinner-evidenced; mark HYPOTHESIS, OBSERVE tier.
+
+**Formalization.** Event field `construal:"abstract"|"concrete"`
+derived at mint from `psychDistance` (planning horizon, social
+distance of the counterpart, hypothetically of the content).
+`abstract` records mint with peripheral/verbatim field-write
+probability `× construal_concrete` (0.6) and `coherence`
+computed at schema level — a far-future plan or a stranger's
+troubles are born as gist, not footage. `construal_dist_w` (0.5)
+scales how strongly distance drives the flag. This does not move
+E — it moves *what kind* of record exists, which is what a
+reconstructed-distant event should look like when it is recalled
+later: few verbatim hooks, normal gist.
+
+## 139. Deliberate non-adds (v132)
+
+- **Encoding specificity / TAP:** retrieval-side (§5.12);
+  re-affirmed non-add — mint-side cue-packing is cue machinery,
+  not encoding strength.
+- **Massed vs spaced re-encoding:** lives in the §4.11
+  desirable-difficulty term and `massed_retell_mult`; no mint-side
+  spacing param.
+- **Being-watched / evaluation-apprehension tax:** evidence for a
+  memory-specific (as opposed to performance) cost is thin and
+  mixed — watch-list, not a param.
+- **Motor imagery as a fourth engagement:** absorbed —
+  `engagement:"imagined"` already covers covert simulation at
+  half the enacted channel.
+- **Own-voice / own-hand recognition effects:** real but
+  sub-field scale; folded into `gen_gain`.
+- **Emotional granularity at mint:** affect-labeling delivered in
+  emotional-memory §128 (`name it at the gate`); do not double
+  price.
+
+## 140. Parameter summary (new in v5.78 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `choice_gain` | 0.10 | 0–0.3 | volitional-mint E bonus | Murty, DuBrow & Davachi 2015 |
+| `choice_opt_min` | 2 | 2–6 | live-option floor for `chosen` | Murty 2015 paradigm shape |
+| `motiv_narrow` | 0.15 | 0–0.4 | peripheral field-write loss per MI | Gable & Harmon-Jones 2008 |
+| `motiv_gate` | 0.5 | 0.3–0.8 | MI threshold engaging narrowing | Harmon-Jones 2013 review |
+| `stat_thresh` | 5 | 3–12 | attended co-occurrences to mint | Saffran 1996 (fast-extraction anchor) |
+| `stat_E` | 0.4 | 0.2–0.7 | pattern-record birth strength | HYPOTHESIS |
+| `stat_beta_mult` | 0.7 | 0.4–1.0 | pattern decay vs episodic β | knowledge-like |
+| `stat_max_active` | 64 | 16–256 | pattern-ledger cap | HYPOTHESIS |
+| `odor_beta_mult` | 0.5 | 0.2–0.8 | ctx_odor field decay multiplier | Willander & Larsson 2006 |
+| `odor_emo_gain` | 0.1 | 0–0.25 | affective-field boost on odor events | Willander & Larsson 2007 |
+| `odor_rescue_gain` | 0.2 | 0–0.4 | odor-cue reach below resurrect_thresh | Chu & Downes 2000/2002 |
+| `odor_name_mult` | 0.5 | 0.2–0.8 | verbalized-odor attenuation | Willander & Larsson 2007 |
+| `sup_load` | 0.2 | 0.05–0.4 | suppression daLoad contribution | Wegner 1994 |
+| `sup_rebound_p` | 0.3 | 0.1–0.6 | per-tick rebound roll in rebound_win | Wegner 1987 |
+| `rebound_gain` | 0.15 | 0.05–0.4 | target-record R bump on rebound | Macrae 1994 |
+| `rebound_win` | 24 h | 6–72 h | monitor-rebound window | Wegner 1987; HYPOTHESIS scale |
+| `construal_concrete` | 0.6 | 0.3–0.9 | abstract-construal verbatim thinning | Trope & Liberman 2003 (map HYPOTHESIS) |
+| `construal_dist_w` | 0.5 | 0–1 | distance→construal drive | HYPOTHESIS |
+
+Locked nulls: `choice_trivial_null` (P1420), `motiv_valence_null`
+(P1421), `stat_event_null` (P1425), `stat_unseen_null` (P1424),
+`odor_name_null` (P1427 — abolition, not attenuation, is the
+failure), `sup_free_null` (P1428/P1429).
+
+## 141. Validation probes P1419–P1430
+
+Harness: 8 mains + 200-ambient pop; CRN-matched arms. Spec v5.78.
+
+- **P1419 choice gain (MUST — sign):** matched events, `chosen`
+  arm (≥2 live options, self-picked) vs assigned arm → chosen
+  records recall higher at 24-h-equivalent; band from Murty
+  replication discount.
+- **P1420 optionality lock (MUST — locked `choice_trivial_null`):**
+  flag asserted with one live option (agency theater) → TOST
+  equivalence with unflagged.
+- **P1421 breadth valence-independence (MUST — locked
+  `motiv_valence_null`):** high-MI positive vs high-MI negative
+  states narrow peripheral writes equivalently; valence flipped
+  at constant MI → TOST on breadth.
+- **P1422 MI magnitude (OBSERVE):** narrowing dose-response band
+  kept wide — the 2025 registered replication caps confidence;
+  a run showing large valence-side narrowing flags the wiring.
+- **P1423 statistical mint (MUST):** tag-pair recurring in
+  attended events ≥`stat_thresh` → `pattern:true` record exists
+  (`rk:"know"`, `prov:"implicit"`, no `dateKnown`); below
+  threshold → none.
+- **P1424 attention gate (MUST — locked `stat_unseen_null`):**
+  identical stream rendered unattended → zero accrual.
+- **P1425 provenance lock (MUST — locked `stat_event_null`):**
+  pattern record may never cite a constituent episode or emit
+  OBSERVED-tier; a merge that back-references the mint events
+  fails.
+- **P1426 odor durability (SHOULD):** odor-bound field survives
+  longer than the same record's verbal field at matched birth E;
+  odor cue match reinstates a below-`resurrect_thresh` record
+  that a verbal cue cannot.
+- **P1427 odor naming (SHOULD — locked `odor_name_null`):**
+  `odorName:true` at mint attenuates gains by `odor_name_mult`;
+  zeroed gains = fail.
+- **P1428 suppression cost (MUST):** `suppressing` character's
+  concurrent-event recall drops vs matched non-suppressing —
+  the poker face spends real attention.
+- **P1429 rebound (SHOULD):** suppressed-target intrusion count
+  in `rebound_win` > baseline; `sup_free_null` — suppression
+  with zero cost or zero rebound fails either leg.
+- **P1430 construal distance (OBSERVE):** distant-target events
+  mint with verbatim fields thinned by `construal_concrete`,
+  E unchanged; proximate matched events mint full fields.
+
+Registry: P1–P1430. v132 MUST: P1419, P1420, P1421, P1423,
+P1424, P1425, P1428. SHOULD: P1426, P1427, P1429. OBSERVE:
+P1422, P1430.
+
+## 142. Spec deltas delivered (v5.78)
+
+- §6.393 volitional mint: `chosen` event field,
+  `choice_opt_min` floor, `choice_gain`; `choice_trivial_null`.
+- §6.394 motivational-intensity breadth: `motiv_intensity`
+  state input, `motiv_narrow`/`motiv_gate` on peripheral
+  field-write; `motiv_valence_null`.
+- §6.395 statistical learning: pattern ledger +
+  `pattern:true` record flag (`rk:"know"`, `prov:"implicit"`,
+  `dateKnown:null`); `stat_thresh`/`stat_E`/`stat_beta_mult`/
+  `stat_max_active`; `stat_event_null` + `stat_unseen_null`.
+- §6.396 odor binding: `odor` event field, `ctx_odor` bound
+  field at `odor_beta_mult`, `odor_emo_gain`, retrieval
+  `odor_rescue_gain`, `odor_name_mult` attenuation;
+  `odor_name_null`.
+- §6.397 suppression cost/rebound: `suppressing` event flag →
+  `sup_load` daLoad + `rebound_mark`/`sup_rebound_p`/
+  `rebound_gain`/`rebound_win`; `sup_free_null`.
+- §6.398 construal distance: `construal` event field from
+  `psychDistance`; `construal_concrete` verbatim thinning,
+  `construal_dist_w`; E unchanged.
+- §7: +18 scalars + 6 locked nulls + Event fields
+  `chosen`/`odor`/`odorName`/`suppressing`/`construal` + record
+  flag `pattern:true` + record field `ctx_odor`.
+- §10 contract entry. Probes P1419–P1430.
+
+## 143. Sources new to this version (all verified 2026-09-24)
+
+- Murty, DuBrow & Davachi 2015 (*J. Neurosci.* 35:6255 —
+  verified: inconsequential-choice encoding enhancement,
+  anticipatory striatum → hippocampus); DuBrow, Eberts & Murty
+  2019 (*Mem. Cognit.* — choice → context memory); 2021
+  inconsequential-choice replication (PMC8600978 — extends to
+  incidental encoding).
+- Gable & Harmon-Jones 2008 (*Psychol. Sci.* 19:476 —
+  verified: approach-motivated positive affect narrows);
+  Harmon-Jones, Gable & Price 2013 (*Curr. Dir. Psychol. Sci.*
+  22:217 — verified: motivational dimensional model); Gable,
+  Poole & Harmon-Jones 2015 (*JPSP* 109:163 — verified: anger
+  narrows perceptually + conceptually); **honest flag:** 2025
+  registered conceptual replication (*Cognition & Emotion* —
+  verified null on desserts-vs-rocks breadth) → magnitude
+  DEBATED, tier SHOULD.
+- Saffran, Aslin & Newport 1996 (*Science* 274:1926 — verified:
+  infant statistical learning); Turk-Browne, Jungé & Scholl 2005
+  (*JEP:G* 134:552 — verified: implicit, attention-gated,
+  abstracted); Turk-Browne, Scholl, Chun & Johnson 2008
+  (*J. Cogn. Neurosci.* 21:1934 — verified: neural response
+  precedes explicit familiarity).
+- Willander & Larsson 2006 (*Psychon. Bull. Rev.* 13:240 —
+  verified: odor-cued memories older, childhood bump <10 y);
+  Willander & Larsson 2007 (*Mem. Cognit.* 35:1659 — verified:
+  odor naming attenuates, odor-evoked more emotional); Chu &
+  Downes 2000 (*Cognition* 75:B41 — verified: odor bump decade);
+  Chu & Downes 2002 (reused — §5.x sensory cue); Herz & Schooler
+  2002 (*Am. J. Psychol.* 115:21 — verified: Proustian
+  naturalistic test); Herz & Engen 1996 (*Psychon. Bull. Rev.*
+  3:300 — verified review).
+- Wegner, Schneider, Carter & White 1987 (*JPSP* 53:5 —
+  verified: white-bear rebound); Wegner 1994 (*Psychol. Rev.*
+  101:34 — verified: ironic process); Macrae, Bodenhausen, Milne
+  & Jetten 1994 (*JPSP* 67:808 — verified: stereotype rebound);
+  Lane & Wegner 1995 (secret-keeping preoccupation — §77
+  cross-ref).
+- Trope & Liberman 2003 (*Psychol. Rev.* 110:403 — verified:
+  construal-level theory; memory-side mapping ours — HYPOTHESIS).

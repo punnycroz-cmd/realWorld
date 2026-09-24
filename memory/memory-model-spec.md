@@ -1,4 +1,43 @@
-# Memory Model Spec v5.77 — implementable human-like memory for RW characters
+# Memory Model Spec v5.78 — implementable human-like memory for RW characters
+
+> **v5.78 note (encoding-mechanics — the will, the
+> want, the pattern, the smell, the bear, the
+> distance):** six intake channels the store never
+> priced. **Volitional mint** — `chosen` events
+> (≥`choice_opt_min` live options, self-picked) get
+> `choice_gain` (Murty, DuBrow & Davachi 2015:
+> anticipatory striatum → hippocampus, content-
+> independent); `choice_trivial_null` — agency
+> theater is not agency. **Motivational intensity
+> breadth** — `motiv_intensity` state input narrows
+> peripheral field-write above `motiv_gate`
+> regardless of valence (Gable & Harmon-Jones 2008;
+> 2025 registered replication failed → magnitude
+> DEBATED, SHOULD); `motiv_valence_null`. **Statistical
+> learning** — attended co-occurrences accrue in a
+> pattern ledger; at `stat_thresh` they mint
+> `pattern:true` records (`rk:"know"`,
+> `prov:"implicit"`, `dateKnown:null`) — undated
+> sourceless regularities, the quiet substrate of
+> unequal knowledge; `stat_event_null` (never
+> episode-cited) + `stat_unseen_null` (attention-
+> gated per Turk-Browne 2005). **Odor binding** —
+> `odor` events write a `ctx_odor` field decaying at
+> `odor_beta_mult` 0.5 with `odor_rescue_gain`
+> reaching archived records (Willander & Larsson
+> 2006 — childhood bump <10 y); `odor_name_null`
+> caps verbal attenuation at `odor_name_mult`.
+> **Suppression cost/rebound** — `suppressing` flag
+> spends `sup_load` daLoad at mint and marks the
+> target for `sup_rebound_p`/`rebound_gain`
+> intrusion inside `rebound_win` (Wegner 1987/1994);
+> `sup_free_null`. **Construal distance** —
+> `construal:"abstract"` mints thin verbatim fields
+> at unchanged E (Trope & Liberman 2003; mapping
+> HYPOTHESIS). §§6.393–6.398; §7 +18 scalars +6
+> locked nulls; probes P1419–P1430 in
+> validation-design.md §§266–267. (Prior notes
+> v4.x–v5.77 in the version log.)
 
 > **v5.77 note (validation-design XI — consequence-
 > continuity contracts):** the battery gains the
@@ -18090,6 +18129,115 @@ A04/A20 stay ambient until both conditions
 hold; teen archetype machinery (CP-band B) is
 ready, the door is gated, not absent.
 
+### 6.393 The volitional mint — `chosen` (new in v5.78)
+
+EM§133. Murty, DuBrow & Davachi 2015 (*J. Neurosci.*
+35:6255): the mere opportunity to choose during
+encoding — choice unrelated to content — enhances
+24-h declarative memory via anticipatory
+striatum→hippocampus modulation; extends to
+incidental encoding (2021 replication). Event
+field `chosen:true` requires ≥`choice_opt_min` (2)
+live options AND self-picked deliberation —
+world-imposed, scripted, or unvetted request-granted
+content fails the flag. `E += choice_gain` (0.10);
+the boost is anticipatory, applies to the event's
+own records only — forward sweeps stay in §99.
+Locked `choice_trivial_null` (P1420): a `chosen`
+flag without the live option set yields zero gain.
+
+### 6.394 Breadth follows want, not valence —
+`motiv_intensity` (new in v5.78)
+
+EM§134. Gable & Harmon-Jones 2008 (*Psychol. Sci.*
+19:476); Harmon-Jones, Gable & Price 2013:
+attentional/encoding breadth tracks motivational
+intensity, not valence — high-approach positive
+narrows like fear; low-intensity states broaden.
+Magnitude DEBATED (2025 registered replication
+null) → SHOULD tier, small dose. Encoder-state
+input `motiv_intensity ∈ [0,1]`; when
+`> motiv_gate` (0.5), peripheral field-write
+probability `× (1 − motiv_narrow · MI)`
+(`motiv_narrow` 0.15). Orthogonal to ABC:
+arousal moves E distribution; MI moves which
+peripheral fields exist — on either valence sign.
+Locked `motiv_valence_null` (P1421): valence-only
+narrowing at constant MI is the pre-2008 theory.
+
+### 6.395 The pattern mints without an event —
+`pattern:true` (new in v5.78)
+
+EM§135. Saffran, Aslin & Newport 1996 (*Science*
+274:1926); Turk-Browne, Jungé & Scholl 2005
+(*JEP:G* 134:552): implicit statistical learning —
+attention-gated, awareness-free, abstracted. A
+per-character pattern ledger accrues `stat_ev`
+per attended co-occurrence (att_min applies —
+locked `stat_unseen_null`, P1424); at
+`stat_ev ≥ stat_thresh` (5) it mints a
+`pattern:true` record — `class:"generic"`,
+`rk:"know"`, `prov:"implicit"`, `dateKnown:null` —
+at `E = stat_E` (0.4), decaying at
+`stat_beta_mult` 0.7 × episodic β. Ledger cap
+`stat_max_active` 64; LRU eviction decays, never
+deletes. Locked `stat_event_null` (P1425): a
+pattern record never cites a constituent episode
+and never emits OBSERVED-tier — implicit accrual
+minting footage is provenance forgery.
+
+### 6.396 The smell index — `ctx_odor` (new in v5.78)
+
+EM§136. Willander & Larsson 2006 (*Psychon. Bull.
+Rev.* 13:240): odor-cued autobiographical memories
+peak in the first decade (<10 y) vs the 10–30 bump
+for word/picture cues; more emotional, stronger
+brought-back (2007, *Mem. Cognit.* 35:1659); Chu &
+Downes 2000 (*Cognition* 75:B41). Event field
+`odor ∈ [0,1]`; `odor > 0` records write a
+`ctx_odor` bound field decaying at
+`odor_beta_mult` 0.5 of base β (field-level
+durability — the smell outlives the facts) and
+mint `+ odor_emo_gain` (0.1) into affective
+fields. Retrieval: odor cue match adds
+`odor_rescue_gain` (0.2) against records below
+`resurrect_thresh`. `odorName:true` at mint
+multiplies odor gains by `odor_name_mult` 0.5 —
+locked `odor_name_null` (P1427): naming attenuates,
+never abolishes.
+
+### 6.397 The bear costs and rebounds —
+`suppressing` (new in v5.78)
+
+EM§137. Wegner, Schneider, Carter & White 1987
+(*JPSP* 53:5); Wegner 1994 (*Psychol. Rev.*
+101:34 — ironic process: effortful operator +
+automatic monitor); Macrae et al. 1994 (*JPSP*
+67:808 — rebound on social content). Event flag
+`suppressing:"<topicRef>"`: `daLoad += sup_load`
+(0.2) for the event (feeds §4 DA machinery), and
+target records get `rebound_mark` — within
+`rebound_win` (24 h) per-tick rolls at
+`sup_rebound_p` (0.3) grant `R += rebound_gain`
+(0.15) + intrusion eligibility. Locked
+`sup_free_null` (P1428/P1429): zero-cost or
+zero-rebound suppression fails. Composes §77
+preoccupation — different clocks, no fold.
+
+### 6.398 Far things write abstract — `construal`
+(new in v5.78)
+
+EM§138. Trope & Liberman 2003 (*Psychol. Rev.*
+110:403): psychological distance → high-level
+construal. Memory-side mapping HYPOTHESIS
+(OBSERVE). Event field `construal` ∈
+{abstract,concrete} derived from `psychDistance`
+at `construal_dist_w` (0.5) drive; `abstract`
+mints peripheral/verbatim field-write `×
+construal_concrete` (0.6), schema-level
+`coherence`, E unchanged — a far plan is born as
+gist, not footage.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -20576,6 +20724,28 @@ MemoryParams = {
 //   (P1418 — accelerated replay skips zero commitment
 //   checkpoints); label_gap_null (P1410 — memory-backed
 //   emission with no display_tier). All snapshot-
+//   additive; absent = legacy.
+// v5.78 additions (encoding-mechanics v132 — EM§§133–138,
+//   §§6.393–6.398)
+"choice_gain": 0.10, "choice_opt_min": 2,
+"motiv_narrow": 0.15, "motiv_gate": 0.5,
+"stat_thresh": 5, "stat_E": 0.4,
+"stat_beta_mult": 0.7, "stat_max_active": 64,
+"odor_beta_mult": 0.5, "odor_emo_gain": 0.1,
+"odor_rescue_gain": 0.2, "odor_name_mult": 0.5,
+"sup_load": 0.2, "sup_rebound_p": 0.3,
+"rebound_gain": 0.15, "rebound_win": 1.0,
+"construal_concrete": 0.6, "construal_dist_w": 0.5,
+// v5.78 record fields/flags: Event `chosen`,
+//   `odor`, `odorName`, `suppressing`,
+//   `construal`; encoder-state `motiv_intensity`;
+//   record flag `pattern:true` + field
+//   `ctx_odor`; pattern ledger `stat_ev`.
+// v5.78 locked nulls: choice_trivial_null
+//   (P1420); motiv_valence_null (P1421);
+//   stat_unseen_null (P1424); stat_event_null
+//   (P1425); odor_name_null (P1427);
+//   sup_free_null (P1428/P1429). All snapshot-
 //   additive; absent = legacy.
 // v5.75 additions (formal-model XII — FM§§104–116,
 //   the epistemic layer)
@@ -23589,6 +23759,50 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.78 additions (encoding-mechanics.md §§133–138 —
+  the volitional/breadth/pattern/odor/suppression/
+  construal intake channels):
+  - **Volition contract (§6.393):** `chosen` requires
+    ≥`choice_opt_min` live options and self-picked
+    deliberation — `choice_trivial_null` (P1420)
+    bars agency theater; gain is mint-local,
+    forward sweeps stay in §99.
+  - **Breadth contract (§6.394):**
+    `motiv_intensity > motiv_gate` thins peripheral
+    field-write at `motiv_narrow`, valence-
+    independent — `motiv_valence_null` (P1421);
+    orthogonal to ABC (arousal moves E, MI moves
+    field existence).
+  - **Pattern contract (§6.395):** `pattern:true`
+    records mint from the attended-co-occurrence
+    ledger at `stat_thresh`; `rk:"know"`,
+    `prov:"implicit"`, `dateKnown:null`; locked
+    `stat_unseen_null` (P1424) and
+    `stat_event_null` (P1425) — never episode-
+    cited, never OBSERVED.
+  - **Odor contract (§6.396):** `ctx_odor` decays
+    at `odor_beta_mult`, cues rescue below
+    `resurrect_thresh` at `odor_rescue_gain`;
+    naming attenuates at `odor_name_mult`, never
+    abolishes — `odor_name_null` (P1427).
+  - **Suppression contract (§6.397):**
+    `suppressing` spends `sup_load` at mint and
+    marks targets for `sup_rebound_p` intrusion in
+    `rebound_win` — `sup_free_null` (P1428/P1429).
+  - **Construal contract (§6.398):**
+    `construal:"abstract"` thins verbatim fields at
+    unchanged E — HYPOTHESIS mapping, OBSERVE tier
+    (P1430).
+  - **Locked boundaries game-systems must honor:**
+    `choice_trivial_null`, `motiv_valence_null`,
+    `stat_unseen_null`, `stat_event_null`,
+    `odor_name_null`, `sup_free_null`.
+  - **New params (§7):** 18 scalars + 6 locked
+    nulls; Event fields `chosen`, `odor`,
+    `odorName`, `suppressing`, `construal`;
+    encoder-state `motiv_intensity`; record flag
+    `pattern:true` + field `ctx_odor`.
+  - Probes P1419–P1430.
 - v5.77 additions (validation-design.md §§264–265 —
   consequence-continuity contracts; all §14.9
   harness, no psychology moved):

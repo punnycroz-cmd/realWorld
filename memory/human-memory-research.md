@@ -6018,3 +6018,79 @@ rates, the mirror image of infantile amnesia.
 nulls, fields `era`/`rk`/`backfill`/`guardian`, ops `promote`/
 `demote`); four compiled profiles in cast-profiles.md Part VIII;
 probes P1392–P1404.
+
+## 106. v132 — encoding channels the store never priced (encoding-mechanics §§133–138)
+
+**Volition is an encoder (ESTABLISHED).** Murty,
+DuBrow & Davachi 2015 (*J. Neurosci.* 35:6255 —
+verified): the mere opportunity to choose during
+encoding enhances declarative memory even when the
+choice is inconsequential to content; anticipatory
+striatal signals predict hippocampal encoding
+success trial-by-trial. The human corollary for RW:
+*chosen* acts are born heavier than steered ones —
+the record-level substrate of "a choice today
+changes a relationship tomorrow." Priced as
+`chosen`+`choice_gain`; `choice_trivial_null` bars
+agency theater (one live option earns nothing).
+
+**Breadth follows want, not valence (ESTABLISHED
+direction; DEBATED magnitude).** Gable &
+Harmon-Jones 2008 (*Psychol. Sci.* 19:476 —
+verified) + Harmon-Jones, Gable & Price 2013:
+high-approach positive states narrow cognitive
+scope like fear; low-intensity states broaden.
+Honest flag: a 2025 registered conceptual
+replication found breadth invariant under the
+canonical desserts-vs-rocks manipulation —
+`motiv_narrow` stays small, SHOULD tier, and
+`motiv_valence_null` enforces the model's actual
+claim (valence-independent narrowing) rather than
+its popular paraphrase.
+
+**Patterns mint without events (CONSENSUS).**
+Saffran, Aslin & Newport 1996 (*Science* 274:1926)
++ Turk-Browne, Jungé & Scholl 2005 (*JEP:G*
+134:552 — verified): implicit statistical learning
+— attention-gated, awareness-free. Humans carry
+undated, sourceless regularities ("the fog comes
+in around four") with no founding episode. New
+`pattern:true` records (`rk:"know"`,
+`prov:"implicit"`, `dateKnown:null`) mint from an
+attended-co-occurrence ledger at `stat_thresh`;
+`stat_event_null` forbids episode citation — the
+honest face of "I just know," and the quiet
+substrate of unequal knowledge on a lived-in block.
+
+**Smell outlives the scene (CONSENSUS direction).**
+Willander & Larsson 2006/2007 (verified): odor-cued
+memories peak in the first decade of life and are
+more emotional than word/picture-cued ones; naming
+the odor attenuates but never abolishes. `ctx_odor`
+fields decay at `odor_beta_mult` 0.5 — the smell
+field outlives the record's facts — and rescue
+archived records at `odor_rescue_gain`.
+
+**The bear costs and rebounds (CONSENSUS).**
+Wegner et al. 1987 (*JPSP* 53:5) + Wegner 1994
+ironic process: suppression during an event spends
+monitoring attention (`sup_load` into daLoad) and
+the suppressed target rebounds into intrusion
+afterward (`sup_rebound_p`/`rebound_gain` inside
+`rebound_win`). The encoding face of §77's secret-
+keeping preoccupation — "held it together at
+dinner, couldn't stop thinking about it at 2 a.m."
+
+**Far things write abstract (HYPOTHESIS).** Trope
+& Liberman 2003 (*Psychol. Rev.* 110:403 —
+verified): psychological distance → high-level
+construal. The mint-side mapping — distant plans
+and socially distant counterparts born as gist-
+shaped records at unchanged strength — is ours;
+OBSERVE tier, E-invariance is the falsifier.
+
+→ Implemented as spec v5.78 §§6.393–6.398 (+18
+scalars, +6 locked nulls, Event fields
+`chosen`/`odor`/`odorName`/`suppressing`/
+`construal`, record flag `pattern:true` + field
+`ctx_odor`); probes P1419–P1430.
