@@ -4650,3 +4650,41 @@ Eleven new clamp rows above price the social channel structure
   `fc_consent_null`, `mimic_recipient_null`,
   `norm_truth_null`, `idea_verbatim_null`,
   `trust_full_null` — probe-enforced (P970–P981).
+
+## 74. v5.41 note (formal-model IX — the cold start, the intervention calculus, the population prior)
+
+**Zero new clamp rows, zero new traits, zero new per-char
+params.** Part IX (formal-model.md §§70–80) is again pure
+infrastructure — but it changes *where profiles come from*:
+
+- **Bibles declare anchors, not memories.** World-builder
+  writes `{bible_anchor:true}` facts at ages — the cold start
+  samples everything between them from the ordinary event
+  diet and lets most of it die. `anchor_keep:true` marks the
+  anchors that must still be retrievable at spawn age; the
+  sampler enforces them by rejection, so keep the keep-list
+  short — a character who retains every declared fact is the
+  database smell the corpus exists to catch.
+- **`era_context` spans tilt the past, never assert it.**
+  `{ageLo, ageHi, place, occupation}` bends the filler diet
+  (a decade at sea produces sea-flavored blur); it writes no
+  canonical facts — `past_fact_null` means a synthesized
+  memory is a private *claim*. Shared-history anchors
+  between mains must be declared canonical by world BEFORE
+  cold start; the sampler conditions on canon, never mints
+  it. If two mains "remember" a shared event differently,
+  that disagreement is the feature — only canon arbitrates.
+- **Profiles are now draws, not designs.** `pop_table_ver`
+  carries population μ/Σ per trait axis; the cast's trait
+  vectors are graded as a *sample* — means inside the
+  ellipsoid, declared correlations approximately present
+  (P992). Bible authors should still choose within clamps
+  for character reasons, but a cast where everyone sits on
+  the same side of every mean is a fitting artifact, not a
+  creative choice. Ambients are `arche_mix_ver` mixture
+  members with residuals ≤ `(1−pool_k_ambient)` of clamp —
+  an ambient who needs more is a promotion candidate, not a
+  profile.
+- **Never pin:** locked nulls `bible_contradict_null`,
+  `synth_mark_null`, `past_fact_null`, `crn_paired_null` —
+  probe-enforced (P982–P993).

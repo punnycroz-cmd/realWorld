@@ -2778,3 +2778,499 @@ cheaper than one probe family, and a holdout so tuning can't
 memorize the exam). Zero new per-character params, zero new
 record fields, zero new psychology — this part changes what the
 spec *owes*, not what it *does*.
+
+
+# Part IX — v93 deepening pass: the cold start, the intervention calculus, and the population prior (P982–P993)
+
+Parts I–VIII built and graded the machine *as if characters are born
+at sim start*. Every probe to date runs a character forward and
+measures what it mints. But RW's cast does not start at age zero:
+the eight mains are instantiated at 24, 40, 70 — with a bible, a
+past, and a memory store that must look like it was *lived*, not
+*loaded*. Nothing in Parts I–VIII says where that store comes from,
+what it owes the probes, or what it is allowed to claim about the
+world. That is the cold-start problem, and it is the largest
+unformalized surface left in the spec: get it wrong and every
+character either wakes up amnesic (database initialized empty) or
+omniscient about their own past (database initialized complete) —
+both fail the project's core insight.
+
+The other two gaps are smaller but load-bearing. The probe suite
+compares arms ("does trait X change outcome Y") with no declared
+intervention semantics and no shared-randomness discipline — a
+comparative probe that re-seeds between arms measures noise, not
+effect. And the profile layer treats each character's parameters as
+independent draws when they are, formally, draws from a population —
+with 8 mains the independent-draw model is statistically
+indefensible (you cannot estimate ~70 free params per head), and the
+ambient 20 need a cheaper discipline still.
+
+This part formalizes all three: §§70–73 the cold start, §§74–75 the
+intervention calculus, §§76–77 the population prior. Conventions
+unchanged: **CONSENSUS** / **DEBATED** / **HYPOTHESIS** tags; all new
+params are pop/harness (the cold start is infrastructure — what a
+character *has* is unchanged, only how it got there).
+
+## 70. The cold-start problem — S₀ as a posterior sample
+
+Formal statement. A character is specified by a bible
+`B = {traits τ, anchor facts F = {(event_i, age_i, tol_i)},
+demographics}` and instantiated at age `a₀`. The spec's forward
+model defines a distribution `P(S | lived history, τ)`. The cold
+start must produce
+
+```
+S₀ ~ P(S | B)   such that   S₀ ≈ P(S | replay(0 → a₀) conditioned on F)
+```
+
+i.e. the initial store is a sample from the *same* distribution the
+forward model would produce if the character had actually lived
+`a₀` years with the declared anchors happening at the declared ages.
+This is a posterior-sampling problem (condition on constraints,
+sample the rest), not a database import (assert rows). Three
+consequences that shape everything below:
+
+- **The store is generated, not authored.** Bibles declare *anchors*
+  (graduated 1998, mother died 2015, moved to the building 2019) —
+  the load-bearing facts the narrative needs. Everything between
+  anchors is sampled from the population's ordinary event diet, and
+  most of it is *already forgotten* at mint time. A generated past
+  is mostly silence plus the records that survived the same decay
+  law as everyone else's. **HYPOTHESIS** (this is the modeling
+  commitment itself).
+- **A synthesized record is not a special record.** Once minted, a
+  cold-start record enters the same lifecycle (Part V §37) as any
+  other: it decays, distorts, merges, resurfaces. Humans cannot
+  distinguish their own "real" from reconstructed memories — the
+  reconstruction IS the memory (Bartlett 1932; Neisser 1981 John
+  Dean analysis — confident recall built from gist). The provenance
+  flag `synth` may exist in the record's M-tier audit trail but is
+  invisible to every behavioral channel (locked null, §73).
+- **The past is belief, not history.** A synthesized record is
+  inside exactly one head. It mints **no** canonical ledger
+  entries, **no** world facts, **no** canonical RelEdges between
+  other characters — a synthesized memory of "I lent Marcus $200
+  in 2014" is true in Marcus's head only if Marcus's own store or
+  the canonical ledger agrees; otherwise it is a *belief* the world
+  may contradict. This is the §39 information boundary applied to
+  the past: cold-start writes tier-1 (private) state only
+  (`past_fact_null`, §73). Design consequence for world-builder:
+  bible anchors that must be world-true (shared history between
+  mains) are declared canonical by the world layer *before* any
+  cold start — the sampler conditions on them, never creates them.
+
+Why this is forced, not optional: the alternative initializations
+are named pathologies already banned elsewhere. Empty store =
+global retrograde amnesia (a §6 pathology, not a population).
+Full-fidelity store = the `exceed_null` database. Hand-authored
+records = every character's past is a screenplay — humans do not
+remember screenplays, they remember *samples* (Brewer 1988,
+randomly-sampled autobiographical events: mundane events dominate
+recalled experience; Linton 1982 — her own diary showed the
+overwhelming mass of life leaves no retrievable trace).
+
+## 71. Shadow-past replay — the forward route
+
+Route A for mains: actually run the model. `replay(0 → a₀)` is a
+degraded forward simulation — same kernels, coarser schedule:
+
+- **Coarse tick.** Daily ticks batch at `shadow_tick_mult` (4.0):
+  decay evaluated as R(Δt) over 4-day strides (Part I §1 —
+  power-law scale invariance makes this a compute decision, not a
+  fidelity loss); interference/merge bucketing unchanged.
+- **Sparse diet.** The shadow past does not simulate days — it
+  samples an event diet: `shadow_diet_p` (0.6) of a normal day's
+  event density, drawn from the ambient event-type distribution the
+  spec already assumes (same mixture the probe harness uses for
+  the §64 corpus runs). Childhood years sample the child-encoding
+  legs (spec §4.35, §4.41–4.43 — `self_ref_eff`, `src_child_mult`,
+  the attention gate) automatically because `encodeAge` is on the
+  clock; bump years get bump machinery; older years the age-decline
+  legs. The replay inherits the whole age stack for free — this is
+  the decisive advantage over direct sampling: the era structure
+  (A05 earliest memory ~3.5y, A06 bump) is *emergent*, not
+  painted on.
+- **Anchor imprint.** Each bible anchor `(e_i, age_i, tol_i)` is
+  injected as an `encodeEvent` at the declared age with
+  `bible_anchor:true` — the event goes through ordinary encoding
+  (it can still be forgotten over the remaining replay years; an
+  anchor that must be retrievable at `a₀` declares
+  `anchor_keep:true` which sets its initial E high enough that the
+  residual at `a₀` sits above θ with margin — the anchor is a
+  *constraint on the sample*, enforced by rejection: replays where
+  a `keep` anchor falls below retrieval are resampled, bounded
+  `reanchor_max` = 20 attempts, then flagged).
+- **What replay costs.** a₀ = 70y ≈ 25k days ≈ 6k coarse ticks;
+  the diet is sparse and most encodes die young — steady-state
+  live-store stays ~200–800 records (Part III §20 census). A full
+  shadow replay is cheaper than one P68-family probe scenario. The
+  whole cast (8 mains) costs less than the anchor corpus.
+- **What replay gets wrong.** Diet-distribution mismatch: the
+  sampled event diet is the population's, not this life's — a
+  character who spent 2010–2019 at sea gets landlocked filler.
+  Mitigation: bibles may declare `era_context` spans
+  `{ageLo, ageHi, place, occupation}` that tilt the diet's
+  place/topic/people mixtures; spans are inputs to the sampler,
+  never asserted facts about individual days (same boundary —
+  belief-shaped past).
+
+## 72. The era-density sampler — the direct route
+
+Route B for ambients (and for mains when replay is unavailable —
+e.g. a mid-sim hire arriving aged 45): sample the store directly
+from a fitted era-density model.
+
+```
+n_records(era) ~ Poisson(λ_era),  λ_era = base_rate · era_weight(era)
+era_weight = recency(Δt) + bump_bonus(era ∈ [bump_lo, bump_hi])
+           + anchor_pull(|age − anchor_ages| < tol)
+record_type ~ type_mix(era)   // episodic young, semantic/gist old
+strength ~ f(decay(Δt), class)  // drawn AT the age-appropriate value
+```
+
+where `recency(Δt)` is the expected surviving-record density of the
+forward model at lag Δt — derivable in closed form from the Part III
+§20 steady-state numerics (mint rate × survival integral under the
+power-family decay, A04's locked form). The sampler is the forward
+model's *marginal* — it cannot produce the joint structure replay
+produces (no reminding chains, no source-confusion clusters, no
+schema-merge neighborhoods), which is exactly why ambients get it:
+they are thin-AI running the degraded mode already (Part I §6) and
+nobody will ever probe their remindings.
+
+- **`era_density_ver` table** pins the numeric era weights +
+  type mixtures per version (auditable, versioned like
+  `anchor_set_ver`).
+- **`era_floor_p` (0.25)** — fraction of surviving distant-era
+  records minted directly at permastore class: remote autobiography
+  is dominated by rehearsed gist (Bahrick 1984 permastore;
+  Conway's "lifetime periods" knowledge — Conway & Pleydell-Pearce
+  2000, *Psych Rev* 107:261, CONSENSUS that remote recall is
+  knowledge-base reconstruction, not episodic playback).
+- Anchors imprint identically to route A (same rejection rule) —
+  the two routes agree on constraints and differ only on filler.
+
+Route selection is a *cost* decision declared per character-class
+(`synth_route`), never a behavioral difference: the §73 invariants
+bind both routes equally. An ambient whose past "matters" is a
+design contradiction — promote them to main and rerun replay.
+
+## 73. Synth invariants — what a generated past owes
+
+Whatever the route, S₀ must satisfy five invariants — these are the
+contract that makes "cold-started" and "lived" indistinguishable to
+every instrument the spec owns:
+
+1. **Anchor indistinguishability** (P982/P986): S₀ passes the
+   corpus's age-conditional anchors — a synthesized 70-year-old's
+   era density shows A05's earliest-memory distribution and A06's
+   bump shape within band, *emergently for replay, by construction
+   for density*; both routes are graded by the same anchors, so a
+   density-table bug is caught the same way a replay bug is.
+2. **`bible_contradict_null` (locked):** no synthesized record may
+   contradict a canonical bible fact or ledger fact — not just the
+   anchors it conditions on, but *any* canonical fact (a synth
+   record asserting the character lived in the building in 2015
+   when the ledger shows move-in 2019 is a violation). Fuzzed at
+   P983 — the checker is mechanical (field-level consistency vs
+   canonical tables), run at mint.
+3. **`synth_mark_null` (locked):** the provenance flag is audit-
+   only — it may not enter cue vectors, confidence computation,
+   latency, or any surface. A probe toggling the flag on identical
+   latent content must observe identical channels (P984). A
+   character cannot know which of their memories were synthesized
+   because *there is no such knowledge* — matching the human case
+   where source monitoring cannot separate lived from told-from-
+   reconstructed (Johnson, Hashtroudi & Lindsay 1993 source
+   monitoring; CONSENSUS).
+4. **`past_fact_null` (locked):** cold-start writes private state
+   only. Zero canonical ledger rows, zero canonical RelEdges, zero
+   SocialMap canonical entries, zero other-characters' PersonModel
+   fields (P985). Shared-history anchors are world-declared
+   canonicals consumed as *input*; the sampler is downstream of
+   canon, never upstream.
+5. **Determinism** (`synth_seed_scope = "charId:bibleHash"`): S₀ is
+   a pure function of the bible and seed — same bible, same past;
+   bible edits re-synthesize only records inconsistent with the
+   diff (incremental resynthesis, preserving the Part I §7
+   serialization/replay contract).
+
+A sixth property is deliberately **not** an invariant: internal
+consistency of the filler. Human autobiographical memory is riddled
+with small contradictions (dating errors §11, telescopy; Wagenaar
+1986's diary found what/who/where/when cues disagree routinely).
+The sampler does NOT cross-check filler records against each other
+beyond the canonical-facts bar — perfect internal consistency is
+the database smell again. Over-consistency in a generated past is
+a defect class to *avoid*, flagged as a design note for the
+density-table authors, not probe-gated (HYPOTHESIS — no human
+benchmark for "too consistent" exists; the anchors only catch
+distributional failure).
+
+## 74. The intervention calculus — do() on the kernel
+
+Every comparative probe ("does X change Y") is an intervention.
+Part V defined probes as kernels; this section names the algebra.
+There are exactly **five** intervention operators, closed under
+composition, applied to the initial-state distribution before the
+probe scenario runs:
+
+```
+do(setParam, p, v)    — MemoryParams[p] := v  (respects frozen/locked)
+do(setTrait, c, t, v) — char c's IndivTraits[t] := v (in-clamp enforced)
+do(injectEvent, c, e) — append encodeEvent(c, e) to scenario script
+do(setState, c, path, v) — direct record-field write (harness-only;
+                          flags the run synthetic)
+do(armClock, t)       — shift the sim clock (the "suddenly it is
+                        40 years later" operator — legal only in
+                        shadow replay and dedicated probes)
+```
+
+- **Registry** (`do_ops` enum, §15.5-style gate): a probe that
+  mutates state through any other path is a build error (P988) —
+  the same discipline as the §52 terminus registry and the §61
+  corpus lint. Intervention declarations make probes *auditable
+  causal claims*: "Pxxx asserts Y under do(setTrait, suggs, +0.2)"
+  is a falsifiable sentence; an undocumented `store[x]=` inside a
+  probe script is not.
+- **`do(setParam)` on a locked null** refuses at the gate — you
+  cannot do() your way around `past_fact_null`; locked nulls are
+  the spec's safety rails and the calculus respects them (the
+  frozen-vs-free split of Part I already implied this; P988 makes
+  it a gate).
+- **Borrowed formalism, honest scope:** the `do()` notation echoes
+  Pearl's intervention operator (Pearl 2009) — we claim only the
+  *mechanical* part (replace a variable's mechanism with a
+  constant, propagate through the kernel). No causal-inference
+  claims are made: our "identification" is trivially guaranteed
+  because we own the data-generating process. The borrowing is
+  notational hygiene, not theory.
+- **`do(setState)` is quarantined:** it writes latent fields
+  directly and therefore produces states the forward model may
+  never reach (S and θ jointly impossible under the §5/§10 split,
+  e.g. "strength 0.9, source gone, conf 0.99"). Such states are
+  legitimate *test fixtures* (probes of retrieval on impossible
+  inputs) but must not leak into corpus runs — runs containing a
+  `setState` op are tagged `synthetic` and excluded from anchor
+  grading automatically (P861's manifest lint extended).
+
+## 75. Common random numbers — the paired-seed discipline
+
+The spec owns its RNG (`rand(seed, charId, worldDay, opSeq)`, Part I
+§7 — bit-identical replay). Comparative probes currently get no
+further discipline, which means a two-arm trait comparison samples
+from
+
+```
+Var(Ŷ_A − Ŷ_B) = Var(Ŷ_A) + Var(Ŷ_B)     // independent arms
+```
+
+when the paired construction
+
+```
+Var(Ŷ_A − Ŷ_B) = Var(Ŷ_A) + Var(Ŷ_B) − 2·Cov(Ŷ_A, Ŷ_B)
+```
+
+is available *for free*: run both arms on the same seed — same
+event diet, same ambient noise — so the scenario randomness
+cancels and only the intervention's effect differs. Common random
+numbers are textbook simulation methodology (Law 2015,
+*Simulation Modeling and Analysis* ch. 11 variance reduction;
+CONSENSUS technique, routinely 5–50× variance reduction on
+positively-correlated arms). Rule:
+
+- **`crn_scope = "probe-pair"`:** any probe asserting a *difference*
+  between configurations must run arms under CRN — one seed, the
+  intervention applied as the only divergence. Deterministic
+  divergence point = the `do()` application site.
+- **`crn_paired_null` (locked):** a comparative probe manifest may
+  not reseed between arms; registry lint (P987) refuses
+  unpaired comparative manifests. Single-arm absolute probes
+  (anchors, invariants) are exempt — nothing to pair with.
+- **Correlation is checked, not assumed:** arms are positively
+  correlated only if the intervention doesn't scramble the RNG
+  stream order (a `do()` that changes event count shifts
+  `opSeq` — post-divergence draws are no longer common). The
+  harness reports realized `Cov(Ŷ_A, Ŷ_B)`; a comparative probe
+  with negative arm covariance is flagged `crn_broken` — usually
+  a symptom the intervention changed scenario length mid-run,
+  fixable by restructuring the `do()` site, and a real finding
+  when it isn't.
+- Consequence for the power budget (§64): paired arms at the same
+  n deliver tighter half-widths — the corpus's existing n floors
+  stay conservative; nothing needs re-sizing.
+
+## 76. The population prior — traits are draws, not constants
+
+The 8 mains' trait vectors are not 8 independent ~70-dim points —
+they are draws from a human population. Formalize the layer the
+profile files have used implicitly since v1:
+
+```
+τ_i ~ PopPrior(μ_pop, Σ_pop)     // correlated trait moments
+p_i  = g(τ_i) + ε_i              // per-char param residuals
+```
+
+- **`pop_table_ver = "v1"`** pins `μ_pop`/`Σ_pop` per trait axis
+  the spec exposes (age-band moments from the age files; trait
+  covariances where the literature reports them — e.g. the
+  `suggs`–`checker` negative correlation implied by Gudjonsson's
+  compliance/interrogative-suggestibility dissociation, Gudjonsson
+  2003; `neurot`–`rumin` positive; `wmc`–`episodic-quality`
+  positive, Unsworth 2019). Where no covariance is published the
+  table carries 0 — independence is the honest prior, not a
+  guessed one.
+- **Why it binds:** with 8 mains there is no hope of estimating
+  per-character parameter posteriors from observed behavior —
+  the profile params are *chosen* (by world-builder from bibles)
+  within clamps, and the population prior is the discipline that
+  keeps the chosen set *plausible as a sample*: 8 draws should
+  not all sit on the same side of `μ_pop`, should not produce a
+  trait combination outside the population ellipsoid (P992), and
+  should show the declared correlations approximately.
+- **James-Stein honesty:** even the *means* of a small cast should
+  shrink toward the population center — a cast whose mean suggs
+  sits 2σ above the population isn't a discovery, it's a
+  sampling/fitting artifact (Efron & Morris 1977; shrinkage is
+  CONSENSUS methodology). `pool_k_main` (0.7) and
+  `pool_k_ambient` (0.9) set the shrinkage the *fitting* layer
+  applies when it ever tunes a profile from behavioral data —
+  posterior = `pool_k · MLE + (1−pool_k) · pop_mean` (ridge-
+  equivalent; HYPOTHESIS magnitudes, methodology CONSENSUS).
+
+## 77. Partial pooling — the ambient mixture
+
+Ambients formalize as a finite mixture over archetypes:
+
+```
+τ_ambient ~ Σ_k π_k · Archetype_k      // k ≤ arche_mix_n (5)
+p_ambient  = archetype_mean + residual,  |residual| ≤ (1−pool_k_ambient)·clamp_width
+```
+
+- `arche_mix_ver = "v1"` names the archetype table — the existing
+  age-band/modifier structure of character-memory-profiles.md
+  becomes the formal mixture components (band C young-adult,
+  band E older, shopkeeper-social, trauma-history, routine-heavy
+  — the §62 example rows are the seeds).
+- Ambient profiles are *assigned* deterministically
+  (`charId:bibleHash` scope, same as §73.5): the same ambient has
+  the same memory personality across runs and rebuilds (P991).
+- The residual bound is the whole point: an ambient may deviate
+  at most 10% of a clamp width from its archetype — cheap
+  differentiation without per-head fitting. A "special" ambient
+  is again the promotion signal from §72.
+- Mains are not mixture members — they are individual draws
+  (§76). The distinction is ontological: mains get bibles,
+  ambients get *priors*.
+
+## 78. New params (spec §7 v5.41 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| synth_route | {main:"replay", ambient:"density"} | pop (enum) | P982 — route declaration per class |
+| shadow_tick_mult | 4.0 | pop | P982/P993 — replay tick stride |
+| shadow_diet_p | 0.6 | pop | P993 — shadow event-diet fraction |
+| bible_anchor_tol_yr | 0.5 | pop | P983 — anchor placement tolerance |
+| reanchor_max | 20 | harness | P982 — rejection bound per keep-anchor |
+| era_density_ver | "v1" | pop (table ver) | P986 — sampler table identity |
+| era_floor_p | 0.25 | pop | P986 — distant-era permastore fraction |
+| synth_seed_scope | "charId:bibleHash" | pop | P991 — synthesis determinism scope |
+| do_ops | {setParam,setTrait,injectEvent,setState,armClock} | harness (enum) | P988 — intervention registry |
+| crn_scope | "probe-pair" | harness | P987 — pairing mandate |
+| pool_k_main | 0.7 | pop — HYPOTHESIS | P990/P992 — main shrinkage |
+| pool_k_ambient | 0.9 | pop — HYPOTHESIS | P991 — ambient residual bound |
+| pop_table_ver | "v1" | pop (table ver) | P990/P992 — prior moments table |
+| arche_mix_ver | "v1" | pop (table ver) | P991 — archetype mixture table |
+| bible_contradict_null | 0.0 | locked null | P983 — synth vs canon consistency |
+| synth_mark_null | 0.0 | locked null | P984 — provenance invisible |
+| past_fact_null | 0.0 | locked null | P985 — past writes no canon |
+| crn_paired_null | 0.0 | locked null | P987 — comparative arms paired |
+
+18 entries, **0 per-character** — same discipline as Part VIII:
+cold start, interventions, and pooling are population-level
+infrastructure. The only character-visible artifact is `S₀`
+itself, which is indistinguishable from lived state by design.
+
+## 79. Formal/consistency probes (P982–P993)
+
+- **P982 cold-start indistinguishability (MUST):** run the
+  corpus's age-conditional anchors on (a) a replay-synthesized
+  70yo S₀ and (b) a 70yo whose store was lived forward from 0 —
+  same anchor verdicts, era-density histograms within chi-square
+  band; keep-anchors retrievable at a₀ post-rejection.
+- **P983 the past respects the bible (MUST — locked null):**
+  fuzz 10³ bible sets; every synthesized record's canonical-
+  checkable fields (place@time, people co-presence, dates vs
+  move-in/death anchors) consistent with canon;
+  `bible_contradict_null = 0`.
+- **P984 the invisible seam (MUST — locked null):** toggle `synth`
+  on paired identical stores under CRN; all three observable
+  channels + emitted content statistically identical;
+  `synth_mark_null = 0`.
+- **P985 the past mints no history (MUST — locked null):**
+  cold-start any character; canonical ledger delta = ∅, canonical
+  RelEdge delta = ∅, other characters' stores untouched;
+  `past_fact_null = 0`.
+- **P986 synth passes the age anchors (SHOULD):** synthesized
+  pasts specifically satisfy A05 (earliest-memory age ∈
+  [3.0,4.2]) and A06 (bump decades 2–3 mass > 4–6) — the two
+  era-structure anchors, graded on both routes.
+- **P987 paired arms or nothing (MUST — locked null):** lint
+  every comparative probe manifest — arms share the seed, the
+  `do()` site is the sole divergence, `crn_paired_null = 0`;
+  realized arm covariance reported; `crn_broken` flags counted.
+- **P988 declared interventions only (MUST — process):** static
+  scan of probe scripts — all state mutations route through the
+  five `do_ops`; locked-null targets refuse `do(setParam)`;
+  `setState` marks the run `synthetic` and excludes it from
+  corpus grading.
+- **P989 intervention locality (SHOULD):** `do(setTrait, A, …)`
+  under CRN leaves every other character's store bit-identical —
+  interventions respect the §39 information boundary.
+- **P990 prior recovery (SHOULD):** fit the hierarchical layer on
+  population synthetic data; recovered `μ_pop`/`Σ_pop` within
+  tolerance of `pop_table_ver`; per-char posteriors moved
+  exactly `pool_k` of the distance from pop-mean to MLE.
+- **P991 ambient determinism (MUST):** same `charId:bibleHash` →
+  same archetype assignment and residuals across rebuilds;
+  residuals within `(1−pool_k_ambient)` bound; ambient profile
+  never mutates on a bible-unchanged rebuild.
+- **P992 the cast is a plausible sample (SHOULD):** the 8 mains'
+  trait vectors: means inside the population ellipsoid at the
+  declared Mahalanobis radius, declared Σ_pop correlations
+  approximately present, no vector outside `pop_table_ver`
+  support — violations are fitting artifacts, not discoveries.
+- **P993 cold-start budget (OBSERVE):** report wall-clock +
+  record counts for a 70y shadow replay at declared
+  `shadow_tick_mult`/`shadow_diet_p` vs the §64 corpus budget —
+  no gate; the numbers publish so a future version can tighten
+  or relax the diet with evidence.
+
+Registry: P1–P993. v93 suite: P982–P985, P987, P988, P991 MUST
+(incl. locked-null probes P983–P985, P987); P986, P989, P990,
+P992 SHOULD; P993 OBSERVE.
+
+## 80. Summary for game-systems
+
+Three deliverables. **The cold start** (§§70–73): characters get a
+past by *sampling* one — mains by shadow replay of the real kernels
+on a sparse diet (the age structure comes out emergent, which is
+why replay is worth it), ambients by the era-density marginal —
+with five invariants binding both routes: corpus-indistinguishable,
+canon-consistent, provenance-invisible, history-silent,
+deterministic. The single most important line in this part is
+`past_fact_null`: a memory is a private claim about the past, and
+a generated memory is a generated *claim* — the world does not owe
+it truth. **The intervention calculus** (§§74–75): five declared
+`do()` operators are the only way probes may touch state, and
+comparative probes must pair arms under common random numbers —
+this is what turns "trait X seemed to matter" into a measured
+effect. **The population prior** (§§76–77): traits are draws from a
+versioned population table with real covariances; fitting shrinks
+toward it (`pool_k`); ambients are a 5-archetype mixture with
+bounded residuals — the cast is a plausible human sample, and
+world-builder's profile choices are graded against that, not just
+clamped. Zero new per-character params, zero new record fields,
+zero new psychology — like Part VIII, this part changes what the
+spec *owes* (a past, an intervention discipline, a population),
+not what records *do* once they exist.

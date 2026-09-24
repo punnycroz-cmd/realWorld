@@ -9371,3 +9371,92 @@ P981 MUST; P974, P977–P979 SHOULD.
   Kim, Ferrin, Cooper & Dirks 2004 (*JAP* 89:104 —
   violation-type contingent repair); Tomlinson, Dineen &
   Lewicki 2004.
+
+## 190. v93 suite (P982–P993) — formal-model IX
+
+Probes for the cold-start, intervention-calculus, and
+population-prior layer: synthesized pasts graded like lived
+ones, do() as the only mutation path, paired-arm variance
+discipline, and the cast graded as a population sample.
+Locked nulls probe-enforced.
+
+- **P982 cold-start indistinguishability (MUST):** corpus
+  age-conditional anchors run on a replay-synthesized 70yo
+  S₀ vs a genuinely-lived 70yo store — same anchor verdicts,
+  era-density histograms within chi-square band;
+  `anchor_keep` anchors retrievable at a₀.
+- **P983 the past respects the bible (MUST — locked
+  null):** fuzz 10³ bible sets; every synth record's
+  canon-checkable fields consistent with declared facts;
+  `bible_contradict_null = 0`.
+- **P984 the invisible seam (MUST — locked null):** toggle
+  `synth` on paired identical stores under CRN; all three
+  observable channels + emitted content identical;
+  `synth_mark_null = 0`.
+- **P985 the past mints no history (MUST — locked
+  null):** cold start writes zero canonical ledger rows,
+  zero canonical RelEdges, zero other-character state;
+  `past_fact_null = 0`.
+- **P986 synth passes the age anchors (SHOULD):**
+  synthesized pasts satisfy A05 (earliest-memory age
+  [3.0,4.2]) and A06 (bump mass decades 2–3 > 4–6) on both
+  routes — replay emergently, density by construction.
+- **P987 paired arms or nothing (MUST — locked null):**
+  comparative-probe manifests share one seed; the do() site
+  is the sole divergence; `crn_paired_null = 0`; realized
+  arm covariance reported; `crn_broken` flagged.
+- **P988 declared interventions only (MUST — process):**
+  probe scripts mutate state only via `do_ops`;
+  `do(setParam)` on locked nulls refuses; `setState` marks
+  the run `synthetic`, excluded from corpus grading.
+- **P989 intervention locality (SHOULD):**
+  `do(setTrait, A, …)` under CRN leaves other characters'
+  stores bit-identical — §39 boundary holds under
+  intervention.
+- **P990 prior recovery (SHOULD):** hierarchical fit on
+  population synthetic data recovers `pop_table_ver`
+  moments; per-char posteriors moved exactly `pool_k` of
+  pop-mean→MLE distance.
+- **P991 ambient determinism (MUST):** same
+  `charId:bibleHash` → same archetype + residuals across
+  rebuilds; residuals ≤ `(1−pool_k_ambient)`·clamp; no drift
+  on bible-unchanged rebuild.
+- **P992 the cast is a plausible sample (SHOULD):** the 8
+  mains' trait vectors inside the population ellipsoid;
+  declared Σ_pop correlations approximately present;
+  out-of-support vector = fitting bug.
+- **P993 cold-start budget (OBSERVE):** report replay
+  wall-clock/record counts vs the §64 corpus budget —
+  publish, don't gate.
+
+Registry: P1–P993. v93 suite: P982–P985, P987, P988, P991
+MUST (incl. locked-null probes P983–P985, P987); P986,
+P989, P990, P992 SHOULD; P993 OBSERVE.
+
+## 191. Sources verified this version (P982–P993 backing)
+
+- **Cold start / autobiographical structure:** Bartlett 1932
+  (reconstruction is the memory); Conway & Pleydell-Pearce
+  2000 (*Psych Rev* 107:261 — self-memory system, lifetime
+  periods vs event-specific knowledge); Neisser 1981 (John
+  Dean testimony — confident gist-built recall); Linton
+  1982 (diary — most of life leaves no trace); Brewer 1988
+  (randomly-sampled events — mundane dominates); Wagenaar
+  1986 (*Cognitive Psychol.* 18:225 — own-diary cue
+  asymmetries); Bahrick 1984 (permastore); Johnson,
+  Hashtroudi & Lindsay 1993 (*Psychol. Bull.* 114:3 —
+  source monitoring cannot separate lived from
+  reconstructed); Nelson & Fivush 2004 + Tustin & Hayne
+  2010 (earliest-memory ages); Rubin & Schulkind 1997
+  (bump); Berntsen & Rubin 2004 (life script).
+- **Interventions / paired-run methodology:** Pearl 2009
+  (do-operator — notational borrowing only, no causal-
+  inference claim); Law 2015 (*Simulation Modeling and
+  Analysis* — common random numbers, variance reduction);
+  Glasserman & Yao 1992 (CRN correlation conditions).
+- **Population prior / pooling:** Efron & Morris 1977
+  (*JASA* 72:311 — Stein shrinkage); Gelman & Hill 2007
+  (partial pooling discipline); Gudjonsson 2003
+  (suggestibility–compliance dissociation → trait
+  covariance); Unsworth 2019 (*Why Human Memory Fails* —
+  individual-difference moments).

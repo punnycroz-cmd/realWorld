@@ -3839,3 +3839,47 @@ Chartrand 2003; van Baaren et al. 2004; Prentice & Miller
 Schweitzer, Hershey & Bradlow 2006; Kim, Ferrin, Cooper &
 Dirks 2004; Tomlinson, Dineen & Lewicki 2004 — probes
 P970–P981.
+
+## 71. v93 adds — formal-model IX (the cold start, the do(), the population)
+
+Part IX of `formal-model.md` (§§70–80) is infrastructure
+again — but three literature threads carry the psychology
+behind the plumbing.
+
+- **A past is reconstructed, not stored — so a generated
+  past isn't cheating.** Bartlett 1932 established that
+  remembering is reconstruction; Neisser 1981's John Dean
+  analysis showed confident, detailed recall assembled from
+  gist. Johnson, Hashtroudi & Lindsay 1993 (*Psychol. Bull.*
+  114:3): source monitoring cannot reliably separate lived
+  events from told/imaged reconstructions — which licenses
+  `synth_mark_null`: a synthesized record needs no special
+  status because humans' own records have none. → cold-start
+  invariants FM§73.
+- **Most of a life leaves no trace.** Linton 1982's diary,
+  Brewer 1988's randomly-sampled events, Wagenaar 1986's
+  cue-asymmetry study: the retrievable residue of a life is
+  a thin, cue-structured sample dominated by anchors and
+  rehearsed gist — Conway & Pleydell-Pearce 2000's
+  lifetime-periods knowledge vs event-specific episodics,
+  Bahrick 1984 permastore. → shadow replay's sparse diet +
+  era-density sampler's `era_floor_p` (FM§§71–72).
+- **Era structure is graded, not painted.** Nelson & Fivush
+  2004 / Tustin & Hayne 2010 (earliest memory ~3.5y) and
+  Rubin & Schulkind 1997 / Berntsen & Rubin 2004 (bump,
+  life script) are already anchors A05/A06 — Part IX's move
+  is grading *synthesized* pasts against the same anchors:
+  replay gets the shape emergently, the density sampler by
+  construction, both checked (P986).
+- **Methodology that isn't psychology but binds anyway.**
+  Pearl 2009 (do() — borrowed mechanically); Law 2015 /
+  Glasserman & Yao 1992 (common random numbers — paired-arm
+  comparisons are the only honest way to measure a trait's
+  effect in a stochastic sim); Efron & Morris 1977 +
+  Gelman & Hill 2007 (shrinkage/partial pooling — with 8
+  mains, per-head parameter claims shrink toward the
+  population or they're noise); Gudjonsson 2003 and
+  Unsworth 2019 supply the real trait covariances
+  `pop_table_ver` may declare — and where the literature is
+  silent, the table declares independence rather than
+  inventing correlation.

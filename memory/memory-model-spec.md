@@ -1,5 +1,38 @@
-# Memory Model Spec v5.40 — implementable human-like memory for RW characters
+# Memory Model Spec v5.41 — implementable human-like memory for RW characters
 
+> **v5.41 note (formal-model IX — the cold start, the
+> intervention calculus, the population prior):**
+> `memory/formal-model.md` Part IX (§§70–80) formalizes the
+> three surfaces the spec assumed but never specified — where
+> a cast's past comes from, how probes may intervene, and what
+> population the trait vectors are drawn from. **The cold
+> start** — S₀ is a posterior sample, not a load: mains run
+> shadow replay (real kernels, `shadow_tick_mult` coarse
+> stride, `shadow_diet_p` sparse diet, bible anchors injected
+> with rejection on `anchor_keep`), ambients take the
+> era-density marginal (`era_density_ver`, `era_floor_p`)
+> (Bartlett 1932; Conway & Pleydell-Pearce 2000; Linton 1982;
+> Brewer 1988) — FM§§70–72. **Five synth invariants** —
+> corpus-indistinguishable (A05/A06 graded on both routes),
+> `bible_contradict_null`, `synth_mark_null`,
+> `past_fact_null` (a generated memory is a private CLAIM —
+> it mints zero canon), deterministic at
+> `synth_seed_scope = charId:bibleHash` — FM§73.
+> **Intervention calculus** — five `do_ops` (setParam,
+> setTrait, injectEvent, setState, armClock) are the ONLY
+> legal probe mutations; `setState` tags runs `synthetic`
+> and excludes them from anchor grading (Pearl 2009 —
+> mechanical borrowing only) — FM§74. **Common random
+> numbers** — comparative probes MUST pair arms on one seed;
+> `crn_paired_null` locked, realized covariance reported
+> (Law 2015) — FM§75. **The population prior** — traits are
+> draws from `pop_table_ver` (μ/Σ per axis, real covariances
+> only — Gudjonsson 2003; Unsworth 2019); fitting shrinks
+> `pool_k_main`/`pool_k_ambient` toward the prior
+> (Efron & Morris 1977); ambients are a 5-archetype mixture
+> with bounded residuals (`arche_mix_ver`) — FM§§76–77.
+> +14 scalars/enums +4 locked nulls; §10 contract adds.
+> Probes P982–P993.
 > **v5.40 note (social-memory IX — the talk evaporates,
 > the ties fade, the maps lie):** `memory/social-memory.md`
 > Part IX (§§126–140) prices the channel structure the
@@ -13814,6 +13847,30 @@ MemoryParams = {
 //   `apology_partial`, `assumed_agree`, `mimicked:true`,
 //   `norm_shift`, `trust_recover`; reuses `claimed_mine`.
 //   All snapshot-additive; absent = legacy.
+// v5.41 additions (formal-model IX — FM§§70–77)
+"synth_route": {"main":"replay","ambient":"density"},
+"shadow_tick_mult": 4.0, "shadow_diet_p": 0.6,       // §71
+"bible_anchor_tol_yr": 0.5, "reanchor_max": 20,      // §71
+"era_density_ver": "v1", "era_floor_p": 0.25,        // §72
+"synth_seed_scope": "charId:bibleHash",              // §73
+"do_ops": ["setParam","setTrait","injectEvent",
+"setState","armClock"],                              // §74
+"crn_scope": "probe-pair",                           // §75
+"pool_k_main": 0.7, "pool_k_ambient": 0.9,           // §§76–77
+"pop_table_ver": "v1", "arche_mix_ver": "v1",        // §§76–77
+// v5.41 locked nulls: bible_contradict_null (synth
+//   records never contradict canon — P983);
+//   synth_mark_null (provenance invisible to all
+//   channels — P984); past_fact_null (cold start mints
+//   zero canonical ledger/RelEdge/SocialMap entries —
+//   P985); crn_paired_null (comparative probe arms
+//   share one seed — P987).
+// v5.41 fields: record M-tier audit flag `synth` (audit
+//   only — synth_mark_null); run tag `synthetic` on
+//   setState runs; Event `bible_anchor:true` +
+//   `anchor_keep:true` + `era_context:{ageLo,ageHi,
+//   place,occupation}` spans. All snapshot-additive;
+//   absent = legacy.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -15959,6 +16016,48 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 26 scalars + 1 trait + 10
     locked nulls.
   - Probes P970–P981.
+- v5.41 additions (formal-model.md Part IX §§70–80):
+  - `coldStart(charId, bible) -> S₀` — harness entry:
+    synthesizes the initial store per `synth_route` —
+    mains by shadow replay (real kernels at
+    `shadow_tick_mult`, `shadow_diet_p` event diet,
+    bible anchors injected `bible_anchor:true` with
+    `anchor_keep` rejection ≤ `reanchor_max`), ambients
+    by the `era_density_ver` marginal with `era_floor_p`
+    distant-era permastore fraction (FM§§70–72).
+  - **New event fields (world/bible-supplied):**
+    `bible_anchor:true` + `anchor_keep:true` (declared
+    canonical anchors the past conditions on);
+    `era_context:{ageLo, ageHi, place, occupation}`
+    spans that tilt the shadow diet (FM§71).
+  - **New record/run fields:** M-tier audit flag
+    `synth` on cold-started records (invisible to all
+    channels — `synth_mark_null`); run tag `synthetic`
+    on any run containing a `do(setState)` — excluded
+    from corpus grading automatically (FM§74).
+  - `doOp(op, ...)` — the only legal probe-side state
+    mutation; ops ∈ `do_ops` {setParam, setTrait,
+    injectEvent, setState, armClock}; locked-null
+    targets refuse (FM§74). Comparative probe
+    manifests MUST declare one shared seed —
+    `crn_paired_null`; realized arm covariance
+    reported, `crn_broken` flagged (FM§75).
+  - `deriveProfile(charId, archetypeId?)` — ambient
+    profiles drawn deterministically from
+    `arche_mix_ver` under `synth_seed_scope`,
+    residuals bounded by `(1−pool_k_ambient)`; fitting
+    layer applies `pool_k_*` shrinkage toward
+    `pop_table_ver` moments (FM§§76–77).
+  - **Locked boundaries game-systems must honor:**
+    `past_fact_null` (cold start mints ZERO canonical
+    ledger rows, canonical RelEdges, SocialMap
+    entries, or other-character PersonModel fields —
+    a generated memory is a private claim, never
+    history), `bible_contradict_null`,
+    `synth_mark_null`, `crn_paired_null`.
+  - **New params (§7):** 14 scalars/enums + 4 locked
+    nulls; 0 per-character.
+  - Probes P982–P993.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
