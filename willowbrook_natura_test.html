@@ -28459,6 +28459,44 @@ function sfInitWorld(){
     if(wornCells.length)
       SF_DECALS.push({ kind: 'worn', cells: wornCells,
                        x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
+
+    /* ---- v75: wildflower drifts — the Dolores lawn isn't a uniform
+       carpet: California poppies and lupine seed in loose drifts along
+       the open slopes where the maintenance mower skips (real Mission
+       parks carry orange drifts through spring and reseed every year).
+       Blobs spawn on hashed grass cells, grow irregular ellipses, and
+       refuse cells the decals/wear layer already owns. */
+    const meadowCells = [];
+    for(let wy = pby0; wy <= pby1; wy++)
+      for(let wx = pbx0; wx <= pbx1; wx++){
+        if(sfTile(wx, wy) !== 13) continue;
+        if(SF_GROUND_OVR.has(wx + ',' + wy)) continue;   // courts/wear/dirt own it
+        if(phash(wx, wy, 6200) > 0.012) continue;        // ~1.2% seed cells
+        const cx = wx + 0.5, cy = wy + 0.5,
+              rx = 2 + phash(wx, wy, 6201) * 4,
+              ry = 1.5 + phash(wx, wy, 6202) * 3,
+              kind = phash(wx, wy, 6203) < 0.72 ? 0 : 1; // 0 poppy 1 lupine
+        const x0 = Math.max(pbx0, Math.floor(cx - rx)),
+              x1 = Math.min(pbx1, Math.ceil(cx + rx)),
+              y0 = Math.max(pby0, Math.floor(cy - ry)),
+              y1 = Math.min(pby1, Math.ceil(cy + ry));
+        for(let my = y0; my <= y1; my++)
+          for(let mx = x0; mx <= x1; mx++){
+            if(sfTile(mx, my) !== 13) continue;
+            if(SF_GROUND_OVR.has(mx + ',' + my)) continue;
+            const ex = (mx + 0.5 - cx) / rx, ey = (my + 0.5 - cy) / ry,
+                  r2 = ex * ex + ey * ey;
+            if(r2 > 1) continue;
+            // ragged drift edge — blooms thin out, not clip
+            if(phash(mx, my, 6204) > 0.25 + (1 - r2) * 0.9) continue;
+            meadowCells.push([mx, my, 1 - r2, kind]);
+            SF_GROUND_OVR.set(mx + ',' + my,
+                              kind ? '#6a8448' : '#86994a');
+          }
+      }
+    if(meadowCells.length)
+      SF_DECALS.push({ kind: 'meadow', cells: meadowCells,
+                       x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
   }
 
   // interiors for the key locations (door-teleport model)
@@ -33913,6 +33951,40 @@ function sfDecalChunk(g, cx, cy){
                      Y + phash(wy, wx, 1745) * csz * 0.7, 3, 2);
         }
       }
+    } else if(d.kind === 'meadow'){
+      /* v75: wildflower drifts — each cell gets a yellowed turf wash,
+         then stippled bloom dots: California poppies (orange cups) or
+         lupine (violet spikes). Density scales with the drift weight w
+         so patches read as drifts, not confetti. */
+      for(const [wx, wy, w, kind] of d.cells){
+        const X = wx * csz - ox, Y = wy * csz - oy;
+        if(X > CHN * csz + 4 || X < -csz - 4 || Y > CHN * csz + 4 || Y < -csz - 4)
+          continue;
+        g.fillStyle = kind ? `rgba(122,142,76,${0.28 + w * 0.3})`
+                           : `rgba(140,150,70,${0.26 + w * 0.3})`;
+        g.fillRect(X, Y, csz + 0.5, csz + 0.5);
+        const nB = Math.round(6 + w * 16);
+        for(let s2 = 0; s2 < nB; s2++){
+          const hx = phash(wx + s2 * 3, wy, 6210 + kind) * csz,
+                hy = phash(wy, wx + s2 * 5, 6212 + kind) * csz;
+          if(kind === 0){ // poppy cup: gold heart + orange petal
+            g.fillStyle = phash(s2, wx + wy, 6214) < 0.3
+              ? '#f0b83a' : '#ee7820';
+            g.fillRect(X + hx, Y + hy, 2, 2);
+            if(phash(s2, wx, 6215) < 0.4)
+              g.fillRect(X + hx + 1, Y + hy - 1, 1, 1);
+          } else {        // lupine: stacked violet spike
+            g.fillStyle = phash(s2, wx + wy, 6216) < 0.4
+              ? '#7a5ab0' : '#9a7ac8';
+            g.fillRect(X + hx, Y + hy - 1, 1, 3);
+          }
+        }
+        // sparse green stems between blooms
+        g.fillStyle = 'rgba(70,110,52,0.5)';
+        for(let s2 = 0; s2 < 4; s2++)
+          g.fillRect(X + phash(wx, wy * 7 + s2, 6218) * csz,
+                     Y + phash(wy, wx * 5 + s2, 6219) * csz, 1, 2);
+      }
     }
   }
   g.restore();
@@ -34934,12 +35006,23 @@ function sfRenderWorld(cw, ch){
         // v7: modulated by the gust envelope — canopies breathe in waves
         // v32: second-harmonic leaf shiver on gusts + the crown center
         // drifts downwind (foliage streams, trunk stays planted)
-        const sway = vegK
-          ? (Math.sin(SF_WX.t * 1.7 + o.x * 0.05 + o.y * 0.03) * 0.022 +
-             Math.sin(SF_WX.t * 4.6 + o.x * 0.13 + o.y * 0.07) *
-             0.010 * SF_WX.gust) *
-            (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4)
-          : 0;
+        // v75: gusts are a FIELD, not per-tree dice — a wave crest
+        // sweeps downwind at ~0.8x wind speed (real gust fronts advect),
+        // so crowns rock in coherent traveling waves across the park
+        // instead of every tree keeping its own clock. A small hashed
+        // jitter keeps neighboring crowns from syncing perfectly, and
+        // the fast shiver harmonic stays per-tree.
+        const sway = vegK ? (() => {
+          const wdx = Math.cos(W.windAng || 0), wdy = Math.sin(W.windAng || 0),
+                along = (o.x * wdx + o.y * wdy) / SF_PXM,   // meters downwind
+                wSpd = 3 + (W.windSpd || 0) * 0.8,          // crest advection m/s
+                wPh = (along - SF_WX.t * wSpd) / 34 * Math.PI * 2 +
+                      phash(0, o.wx + o.wy, 6230) * 0.9;
+          return (Math.sin(wPh) * 0.022 +
+                  Math.sin(SF_WX.t * 4.6 + o.x * 0.13 + o.y * 0.07) *
+                  0.010 * SF_WX.gust) *
+                 (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4);
+        })() : 0;
         // v62: aerial relief displacement — the crown leans radially
         // outward from the nadir, pivoting at the root so the trunk and
         // its ground shadow stay planted
@@ -36880,6 +36963,43 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         if(s1 && s1t){ ctx.moveTo(s1[0], s1[1]); ctx.lineTo(r1[0], r1[1]); ctx.moveTo(s1t[0], s1t[1]); ctx.lineTo(r1t[0], r1t[1]); }
         ctx.stroke();
       }
+      /* v75: balcony garden — half the slabs keep a rail box that spills
+         trailing foliage over the lip. Strands hang on their own gust
+         phase (the same wind field the crowns ride) and drop a faint
+         shade on the wall they cover. Deterministic per building+slab. */
+      if(det === 2 && !night && phash(i, ei + bn, 6201) < 0.5){
+        const nTr = 2 + (phash(i, bn, 6202) * 3 | 0),
+              swA = 0.05 * Math.min(1.4, (W.windSpd || 0) * (0.4 + SF_WX.gust)),
+              swP0 = SF_WX.t * (2.2 + (W.windSpd || 0) * 1.1);
+        for(let s3 = 0; s3 < nTr; s3++){
+          const tu = (s3 + 0.5) / nTr + (phash(s3, i, 6203) - 0.5) * 0.18,
+                hx = b0x + (b1x - b0x) * tu + nx * pj * 0.9,
+                hy = b0y + (b1y - b0y) * tu + ny * pj * 0.9,
+                drop = 0.35 + phash(s3, i, 6204) * 0.5;
+          // the strand's wall shade first, then the beads on top
+          quad([[hx - ux * 0.1, hy - uy * 0.1, zS],
+                [hx + ux * 0.1, hy + uy * 0.1, zS],
+                [hx + ux * 0.12, hy + uy * 0.12, zS - drop],
+                [hx - ux * 0.12, hy - uy * 0.12, zS - drop]],
+               'rgba(16,20,12,0.20)');
+          for(let k = 0; k <= 4; k++){
+            const tt = k / 4,
+                  wob = Math.sin(swP0 + s3 * 1.9 + i + tt * 2.6) * swA * tt;
+            const q = pr(hx + ux * wob + nx * wob * 0.4,
+                         hy + uy * wob + ny * wob * 0.4,
+                         zS - drop * tt);
+            if(!q) continue;
+            const rp = Math.max(1, (0.10 - tt * 0.035) * F / q[2]);
+            ctx.fillStyle = shade(k % 2 ? '#3e6a34' : '#2c5224',
+                                  Math.min(1.2, lit + 0.05));
+            ctx.beginPath(); ctx.arc(q[0], q[1], rp, 0, Math.PI * 2); ctx.fill();
+            if(k < 2 && phash(s3, k + i, 6205) < 0.5){ // bloom near the lip
+              ctx.fillStyle = shade('#d8688a', Math.min(1.2, lit));
+              ctx.fillRect(q[0] - 1, q[1] - rp - 1, 2.4, 2.4);
+            }
+          }
+        }
+      }
     }
   }
 
@@ -38224,6 +38344,69 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.beginPath();
         ctx.arc(q[0] - tailS * s * 0.55, q[1] - s * 1.7, s * 0.42,
                 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  /* v75: living walls — the street camera finally grows the same
+     climbing vines the top-down bake has always painted (same hash keys
+     1640–1644 / 3800–3805 with w.i == ei, so a wall that greens from
+     above greens from the sidewalk too). Plain ivy OR the Mission's
+     signature bougainvillea drape: wandering strands hug the paint ~6cm
+     proud, press a contact shade onto the wall, shiver at their free
+     tips on the gust envelope, and set papery magenta bracts only on
+     the SUNLIT upper growth (sunK gates it — a canyon-shaded north wall
+     greens but never flowers, matching the bake). */
+  if(det >= 1 && !isShop && !mural && ny > 0.15 &&
+     phash(i, ei, 1640) < 0.34){
+    const boug = phash(i, ei, 3800) < 0.5,
+          t0 = 0.1 + phash(i, ei, 1641) * 0.5,
+          climb = 0.35 + phash(i, ei, 1642) * 0.45,
+          strands = boug ? 2 : 1,
+          nV = Math.round(6 + climb * (boug ? 16 : 10)),
+          vinG = night ? '#1a2812' : '#4a7c3a',
+          vinD = night ? '#121c0c' : '#346028',
+          swV = 0.05 * Math.min(1.4, (W.windSpd || 0) * (0.4 + SF_WX.gust)),
+          swP = SF_WX.t * (2.0 + (W.windSpd || 0) * 0.9);
+    for(let s2 = 0; s2 < strands; s2++){
+      const so = s2 ? (phash(i, ei, 3801) - 0.5) * 0.22 : 0;
+      for(let k = 0; k < nV; k++){
+        const f = (k / nV) * climb * (s2 ? 0.78 : 1),
+              t = t0 + so + Math.sin(k * 1.7 + s2 * 2.1) * 0.03 + f * 0.08,
+              tipK = f / Math.max(0.01, climb),
+              swx = Math.sin(swP + k * 1.31 + i + s2 * 2.7) * swV * tipK,
+              vx = x1 + ex * t + nx * 0.06 + ux * swx,
+              vy = y1 + ey * t + ny * 0.06 + uy * swx,
+              vz = f * hm;
+        const q = pr(vx, vy, vz); if(!q) continue;
+        const rM = (boug ? 0.20 : 0.16) - f * 0.08 +
+                   phash(k, i + s2, 1643) * 0.07,
+              rpx = Math.max(1.2, rM * F / q[2]);
+        // the leaf mass presses a shade onto the paint behind it
+        ctx.fillStyle = `rgba(18,14,10,${(0.10 * Math.min(1, lit)).toFixed(3)})`;
+        ctx.beginPath();
+        ctx.arc(q[0] - nx * rpx * 0.4, q[1] + rpx * 0.3,
+                rpx * 1.05, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = shade(k % 3 ? vinG : vinD,
+                              Math.min(1.3, lit + 0.14));
+        ctx.beginPath(); ctx.arc(q[0], q[1], rpx, 0, Math.PI * 2); ctx.fill();
+        if(!night && phash(k, ei, 1644) < 0.4){ // sunlit leaf catch
+          ctx.fillStyle = shade('#6a9a4e', Math.min(1.25, lit));
+          ctx.fillRect(q[0] - rpx * 0.4, q[1] - rpx * 0.5,
+                       rpx * 0.6, rpx * 0.45);
+        }
+        // papery bracts only where the real sun reaches the upper vine
+        if(boug && f > climb * 0.42 &&
+           phash(k, i + s2 * 7, 3802) < 0.24 + sunK * 0.6){
+          const bc = ['#d6387f', '#b02868', '#e85a9a', '#8e2058'][(k + s2) % 4];
+          ctx.fillStyle = shade(bc, Math.min(1.3, lit + 0.18));
+          ctx.beginPath();
+          ctx.arc(q[0] + (phash(k, s2, 3803) - 0.5) * rpx * 2.2,
+                  q[1] - rpx * (0.7 + phash(k, s2, 3804) * 1.2),
+                  rpx * (0.7 + phash(k, s2, 3805) * 0.5), 0, Math.PI * 2);
+          ctx.fill();
+        }
       }
     }
   }
@@ -40916,7 +41099,14 @@ function sfRenderStreet(cw, ch){
           // v31: crowns lean on the wind — a horizontal shear pivoted at
           // the root, so trunks stay planted while foliage streams
           // v32: a faster leaf-shiver harmonic rides the gust envelope
-          const lean = (Math.sin(SF_WX.t * 1.4 + o.x * 0.04 + o.y * 0.03) *
+          // v75: same advecting gust field as the top view — the lean
+          // wave crest sweeps downwind so a whole row rocks in sequence
+          const wdxL = Math.cos(W.windAng || 0), wdyL = Math.sin(W.windAng || 0),
+                alongL = (o.x * wdxL + o.y * wdyL) / SF_PXM,
+                wSpdL = 3 + (W.windSpd || 0) * 0.8,
+                wPhL = (alongL - SF_WX.t * wSpdL) / 34 * Math.PI * 2 +
+                       phash(0, o.wx + o.wy, 6230) * 0.9;
+          const lean = (Math.sin(wPhL) *
                         (0.015 + SF_WX.gust * 0.05 + W.storm * 0.08) +
                         Math.sin(SF_WX.t * 4.3 + o.x * 0.09 + o.y * 0.05) *
                         0.012 * SF_WX.gust) *

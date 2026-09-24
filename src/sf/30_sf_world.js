@@ -1033,6 +1033,44 @@ function sfInitWorld(){
     if(wornCells.length)
       SF_DECALS.push({ kind: 'worn', cells: wornCells,
                        x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
+
+    /* ---- v75: wildflower drifts — the Dolores lawn isn't a uniform
+       carpet: California poppies and lupine seed in loose drifts along
+       the open slopes where the maintenance mower skips (real Mission
+       parks carry orange drifts through spring and reseed every year).
+       Blobs spawn on hashed grass cells, grow irregular ellipses, and
+       refuse cells the decals/wear layer already owns. */
+    const meadowCells = [];
+    for(let wy = pby0; wy <= pby1; wy++)
+      for(let wx = pbx0; wx <= pbx1; wx++){
+        if(sfTile(wx, wy) !== 13) continue;
+        if(SF_GROUND_OVR.has(wx + ',' + wy)) continue;   // courts/wear/dirt own it
+        if(phash(wx, wy, 6200) > 0.012) continue;        // ~1.2% seed cells
+        const cx = wx + 0.5, cy = wy + 0.5,
+              rx = 2 + phash(wx, wy, 6201) * 4,
+              ry = 1.5 + phash(wx, wy, 6202) * 3,
+              kind = phash(wx, wy, 6203) < 0.72 ? 0 : 1; // 0 poppy 1 lupine
+        const x0 = Math.max(pbx0, Math.floor(cx - rx)),
+              x1 = Math.min(pbx1, Math.ceil(cx + rx)),
+              y0 = Math.max(pby0, Math.floor(cy - ry)),
+              y1 = Math.min(pby1, Math.ceil(cy + ry));
+        for(let my = y0; my <= y1; my++)
+          for(let mx = x0; mx <= x1; mx++){
+            if(sfTile(mx, my) !== 13) continue;
+            if(SF_GROUND_OVR.has(mx + ',' + my)) continue;
+            const ex = (mx + 0.5 - cx) / rx, ey = (my + 0.5 - cy) / ry,
+                  r2 = ex * ex + ey * ey;
+            if(r2 > 1) continue;
+            // ragged drift edge — blooms thin out, not clip
+            if(phash(mx, my, 6204) > 0.25 + (1 - r2) * 0.9) continue;
+            meadowCells.push([mx, my, 1 - r2, kind]);
+            SF_GROUND_OVR.set(mx + ',' + my,
+                              kind ? '#6a8448' : '#86994a');
+          }
+      }
+    if(meadowCells.length)
+      SF_DECALS.push({ kind: 'meadow', cells: meadowCells,
+                       x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
   }
 
   // interiors for the key locations (door-teleport model)
