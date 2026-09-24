@@ -4188,3 +4188,362 @@ knots expand). Locked nulls: `strat_teach_null`,
   that never touch stored fields — game-systems must honor
   the bit-identical invariant (P1192) or the ledger can't
   arbitrate "what actually happened."
+
+# Part XI — v124: what still works, what lies about it, and
+# what bends last (the spared channel, the clouding overlay,
+# and the cohort the character was born into)
+
+Parts I–X priced capacity loss, engagement, and the felt
+calendar. What remains are the asymmetries that make the
+profile human rather than uniformly worse: channels that are
+**age-flat by design** (automatic frequency registration,
+self-referential encoding), overlays that **cloud reversibly**
+(late-life depression) or **announce early** (odor
+identification), report-layer lies that **invert sign**
+(the SCD→anosognosia U), the semantic store's **late and
+smaller bend**, the applied-numeric leak behind elder
+financial vulnerability, and the fact that **age knots are
+stamped by birth year, not just birthday** — the cohort
+correction that makes two 75-year-olds different people.
+
+## 153. The counter that runs itself — automaticity exemption
+
+Hasher & Zacks 1979 (*J. Exp. Psychol.: General* 108:356 —
+the automatic/effortful framework); Hasher & Zacks 1984
+(*Am. Psychol.* 39:1372 — frequency, spatial location,
+temporal order claimed age-invariant); **Naveh-Benjamin
+1989** (*Dev. Neuropsychol.* 5:245 — verified: spatial and
+temporal coding DO age; only frequency-of-occurrence
+survives the automaticity claim); Ellis 1991 (replication
+caution). The durable residue: **counting how often is
+cheap and doesn't age; noting where/when is effortful and
+does.** Mechanism, spec §4.84: fields of class
+`freq_count` (how many times I've seen X, heard the joke,
+run this errand) mint with `auto_freq_flat` — exempt from
+every age encode multiplier in Parts I–X. Where/when
+fields get no such pass. Locked `auto_loc_null` (P1321):
+spatial/temporal fields must ride the normal age legs —
+a build that exempts them re-adopts Hasher & Zacks'
+failed strong claim.
+
+## 154. The choice flatters itself — choice-supportive drift
+
+**Mather & Johnson 2000** (*Psychol. Aging* 15:596 —
+verified: older adults attribute more positive and fewer
+negative features to chosen vs rejected options; the age
+gap persists when recognition and source ID are equated —
+the bias is attributional, not informational); Mather,
+Shafir & Johnson 2000 (*Psychol. Sci.* 11:132);
+**Henkel & Mather 2007** (*J. Mem. Lang.* — verified: the
+bias keys on *believed* choice, not actual choice —
+misattributing which option was picked flips the whole
+pattern). Mechanism, spec §6.329: decision records carry
+`chosen:{optionId}`; on each retell/report, feature fields
+drift `choicesup_w(age)` toward positive-on-chosen /
+negative-on-rejected valence. The distortion is
+belief-anchored: if §5.140-style misattribution flips
+`believed_chosen`, the drift flips with it. Locked
+`choicesup_val_neutral_null` (P1322): valence-neutral
+features of both options unmoved — the bias is evaluative,
+not additive noise.
+
+## 155. The self still pays — self-reference spared
+
+**Gutchess, Kensinger, Yoon & Schacter 2007** (*Psychol.
+Aging* 22:823 — verified: the self-referential encoding
+advantage is preserved into old age, item and source);
+Glisky & Marquine 2009 (benefit survives into MCI);
+Leshikar, Dulas & Duarte 2015 (meta — self-reference among
+the most age-robust encode boosts). Mechanism, spec §4.85:
+`w_self` contribution to E is multiplied by `selfrel_keep`
+(1.0, age-flat) — the spared channel that makes
+`effort_disc`'s payoff formula (§4.71) work for the old:
+self-relevant material still clears the effort bar.
+Locked `selfrel_third_null` (P1323): other-referential
+encoding (relating material to a third party) gets no
+spared leg — the exemption is self-specific, not
+relational-generic.
+
+## 156. The cloud lifts — late-life depression overlay
+
+**Byers & Yaffe 2011** (*Nat. Rev. Neurol.* 7:323 —
+verified: late-life depression roughly doubles subsequent
+dementia risk); Jorm 2000 (the pseudodementia question —
+depressive "dementia" is effort, not storage); **Williams
+et al. 2007** (overgeneral autobiographical memory in
+depression — the specificity collapse is an encode/retrieve
+style, reversible with remission); Salloway et al. 1996
+(executive-heavy deficit profile). Mechanism, spec §4.86:
+state `depr:true` applies `dep_enc_tax` on effortful E
+legs only, `dep_ogm` bias toward categorical-level mints
+(general-detail, thin specifics), `dep_neg_skew` on the
+rehearsal sampler (negative-valence records overdrawn);
+`dep_remit_tau` governs reversal — legs decay back over
+~90 sim-days when `depr` clears. Locked `dep_sem_null`
+(P1324): semantic store untouched — pseudodementia clouds
+episodic effort, not knowledge.
+
+## 157. The nose tells first — odor-ID as leading indicator
+
+**Wilson, Arnold, Schneider, Tang & Bennett 2007** (*Arch.
+Gen. Psychiatry* 64:802 — verified: poor odor
+identification predicts incident MCI); Wilson et al. 2011
+(*Neurology* — odor-ID decline steepens before cognitive
+decline); Devanand et al. 2010 (*Biol. Psychiatry* —
+UPSIT adds predictive value beyond episodic tests);
+scholarly caution: Olofsson et al. 2020 (the lead is real
+but individual-level diagnosis is noisy). Mechanism, spec
+§4.87: profile state `odor_id_eff` on its own knot curve
+leading the episodic legs by `odor_enc_lead` (~5 sim-years);
+it both (a) scales `sense:"odor"` cue benefit minted at
+encode (the §5.141 Proust channel narrows at intake —
+companion to §27's sensory decline) and (b) serves as the
+validation harness's cheapest prodromal probe. Locked
+`odor_sem_null` (P1325): odor *naming* attenuation stays
+at `ecue_name_att` — the early loss is perceptual
+identification, not the semantic label.
+
+## 158. The deposit was young — idea density into reserve
+
+**Snowdon et al. 1996** (*JAMA* 275:528 — verified Nun
+Study: idea density in early-life writing predicted
+late-life cognitive impairment and Alzheimer pathology);
+Riley, Snowdon, Desrosiers & Markesbery 2005
+(*Neurobiol. Aging* — linguistic ability in early life,
+not late, carries the signal). Mechanism, spec §4.88:
+authored trait `idea_dens` ∈[0,1] deposits
+`idea_dens·idea_dens_w` into `reserve`-eff at profile
+mint, alongside education and `job_cplx` (§4.69) — a
+third reserve channel that is **front-loaded**: it was
+earned at 20 and never re-earned. Locked
+`idea_late_null` (P1326): late-life verbal output
+richness does NOT backfill reserve — Snowdon's asymmetry
+is temporal, not cumulative.
+
+## 159. The complaint goes quiet — the awareness U-inversion
+
+**Wilson et al. 2015** (*Neurology* 85 — verified: memory
+awareness stable then declines sharply ~2.6 years before
+dementia onset, mean annual −0.32; TDP-43, tangles,
+infarcts drive it); Jessen et al. 2014 (SCD — the
+*complaint* peaks in the pre-deficit window, §98's leg);
+Vannini et al. 2017 (*Neurology* — anosognosia tracks
+molecular burden). The full arc is an **inverted-U of
+monitoring accuracy**: healthy old complain about real
+decline (SCD), the prodromal stop noticing (anosognosia).
+Mechanism, spec §5.145: `aware_eff(age_eff, pathol)` =
+SCD hump `aware_scd_h` peaked at `aware_scd_mu` minus
+`aware_invert_k`·prodrome_progress; report policy reads
+the residual — confident silence replaces complaint as
+the prodrome deepens. Locked `aware_perf_null` (P1327):
+the inversion perturbs report confidence only; objective
+S/R slopes are unchanged — a monitoring-layer lie, not
+extra decline.
+
+## 160. The crystal bends last — semantic terminal leg
+
+**Rönnlund, Nyberg, Bäckman & Nilsson 2005** (*Psychol.
+Aging* 20:3 — verified Betula: semantic memory minor
+increments to ~55, smaller decrements than episodic in
+old age); Salthouse 2014 (*Psychol. Aging* — longitudinal
+vocabulary finally turns down in the 70s); Singer et al.
+2003 (terminal-decline semantic component). The plateau
+(§43) is real but not immortal: semantic accretion rate
+→0 by the 60s and inverts late, **always shallower than
+the episodic slope**. Mechanism, spec §4.89:
+`sem_bend(age)` applies a small positive beta_semantic
+increment late, doubled under `terminal`/`prodrome`
+state via `sem_bend_k`. Locked `sem_bend_healthy_null`
+(P1328): the semantic decrement must stay ≤0.4× the
+episodic leg at every knot — Rönnlund's ordering, never
+a second episodic cliff.
+
+## 161. The ledger miscounts — applied-numeric leak
+
+**Triebel et al. 2009** (*Neurology* 73:928 — verified:
+financial capacity is among the first instrumental
+abilities to decline in MCI/AD); Bangma et al. 2017
+(*Neuropsychol. Rev.* meta — applied money skills fall
+before declarative numeracy); Lichtenberg 2016 (the
+exploitation surface — confidence holds while applied
+accuracy falls); Finucane & Gullion 2010. The human
+shape: the character still *knows* what things cost
+(declarative price knowledge — semantic, §160-gentle)
+but miscomputes change, double-pays, misremembers what
+they paid — and reports it with intact confidence.
+Mechanism: spec §4.90 taxes S on `kind:"transact"`
+records' numeric-detail fields at `fin_num_hl(age)`;
+spec §5.146 splits report — `fin_conf_keep` holds
+emitted confidence near base while accuracy falls.
+Locked `fin_decl_null` (P1329): declarative price
+fields (`"what X costs"` semantic facts) exempt — the
+leak is applied-numeric only.
+
+## 162. The knots are stamped at birth — cohort shift
+
+**Rönnlund & Nilsson 2009** (*Psychol. Aging* 24:816 —
+verified: successive cohorts outperform predecessors at
+the same age — Flynn-like memory drift); Schaie 2009
+(Seattle Longitudinal — cohort differences rival age
+differences); Rönnlund et al. 2005 (§160 — educational-
+attainment cohorts explain much of the cross-sectional/
+longitudinal discrepancy). RW consequence: two 75-year-
+olds born 1930 and 1970 sit on **different knot tables** —
+education, nutrition, smoking norms moved the whole
+curve. Mechanism, spec §4.91: profile scalar
+`cohort_shift` (years, range ±8) translates every
+`age_eff` knot lookup for the character; derived at
+mint from `birthYear` + education. Locked
+`cohort_within_null` (P1330): within a cohort the age
+slope must still hold — cohort shifts the curve, it
+never flattens it.
+
+## 163. Part XI knot rows (extends §149; age_eff unless noted)
+
+| param | 55 | 65 | 75 | 85 | source |
+|---|---|---|---|---|---|
+| odor_id_eff (§4.87) | 1.0 | 0.9 | 0.7 | 0.45 | Wilson 2007, 2011; Devanand 2010 |
+| choicesup_w (§6.329) | 0.15 | 0.2 | 0.28 | 0.35 | Mather & Johnson 2000 |
+| fin_num_hl (§4.90) | 1.0 | 1.2 | 1.6 | 2.0 | Triebel 2009 (param ours) |
+| sem_bend (§4.89) | −0.02 | 0 | 0.05 | 0.1 | Rönnlund 2005; Salthouse 2014 |
+| aware_scd_h hump (§5.145) | +0.1 | +0.25 | +0.2 | +0.05 | Jessen 2014; Wilson 2015 |
+
+State-gated (no pure-age knots): `auto_freq_flat` flag;
+`selfrel_keep` 1.0 flat; `dep_enc_tax` 0.3, `dep_ogm`
+0.25, `dep_neg_skew` 0.2, `dep_remit_tau` 90d under
+`depr:true`; `aware_invert_k` 0.4 under `prodrome`;
+`idea_dens` trait [0,1] authored; `idea_dens_w` 0.35;
+`odor_enc_lead` 5 sim-y; `fin_conf_keep` 0.95;
+`cohort_shift` profile scalar ±8y. Locked nulls:
+`auto_loc_null`, `choicesup_val_neutral_null`,
+`selfrel_third_null`, `dep_sem_null`, `odor_sem_null`,
+`idea_late_null`, `aware_perf_null`,
+`sem_bend_healthy_null`, `fin_decl_null`,
+`cohort_within_null`. New emissions/fields/state:
+`freq_count` field class, `chosen:{optionId}` +
+`believed_chosen` on decision records, `depr` overlay
+state, `odor_id_eff` profile state, `idea_dens` trait,
+`aware_eff` report scalar, `cohort_shift` profile field.
+
+## 164. Spec changes v5.69 → v5.70 (delta summary)
+
+| # | Change | Grounding |
+|---|---|---|
+| N1 | §4.84: `auto_freq_flat` exempts freq_count class from age encode legs; locked `auto_loc_null` | §153 |
+| N2 | §6.329: `choicesup_w` belief-anchored valence drift on decision records; locked `choicesup_val_neutral_null` | §154 |
+| N3 | §4.85: `selfrel_keep` age-flat on w_self; locked `selfrel_third_null` | §155 |
+| N4 | §4.86: `depr` overlay — effort tax + OGM mint bias + negative rehearsal skew, remit tau; locked `dep_sem_null` | §156 |
+| N5 | §4.87: `odor_id_eff` leading knot curve + odor-cue encode erosion; locked `odor_sem_null` | §157 |
+| N6 | §4.88: `idea_dens` front-loaded reserve deposit; locked `idea_late_null` | §158 |
+| N7 | §5.145: `aware_eff` inverted-U (SCD hump − prodrome inversion) feeding report confidence; locked `aware_perf_null` | §159 |
+| N8 | §4.89: `sem_bend` late semantic leg ≤0.4× episodic; locked `sem_bend_healthy_null` | §160 |
+| N9 | §§4.90+5.146: `fin_num_hl` on transact numeric fields + `fin_conf_keep` report split; locked `fin_decl_null` | §161 |
+| N10 | §4.91: `cohort_shift` profile scalar translates all age_eff knots; locked `cohort_within_null` | §162 |
+
+New params: `auto_freq_flat`, `selfrel_keep`,
+`dep_enc_tax`, `dep_ogm`, `dep_neg_skew`,
+`dep_remit_tau`, `odor_id_eff` (knots),
+`odor_enc_lead`, `idea_dens`, `idea_dens_w`,
+`sem_bend` (knots), `sem_bend_k`, `fin_num_hl`
+(knots), `fin_conf_keep`, `aware_scd_mu`,
+`aware_scd_h`, `aware_invert_k`, `choicesup_w`
+(knots), `cohort_shift` — 19 named (~27 scalars once
+knots expand). Locked nulls: `auto_loc_null`,
+`choicesup_val_neutral_null`, `selfrel_third_null`,
+`dep_sem_null`, `odor_sem_null`, `idea_late_null`,
+`aware_perf_null`, `sem_bend_healthy_null`,
+`fin_decl_null`, `cohort_within_null`. New
+emissions/fields/state: `freq_count` class,
+`chosen`/`believed_chosen` fields, `depr` state,
+`odor_id_eff`, `idea_dens` trait, `aware_eff`,
+`cohort_shift`.
+
+## 165. Validation probes P1321–P1330
+
+- **P1321 automaticity is frequency-only (MUST):**
+  age≥70 vs ≤40 mints — `freq_count` fields ΔE ≤5%
+  while same-event where/when fields show the normal
+  age tax; a build exempting location/time fails
+  `auto_loc_null`.
+- **P1322 choice bias is valence-only (MUST):**
+  10 retells of decision records — chosen-option
+  positive features +≥15% S-drift at 75, rejected
+  negative −≥10%, neutral features within ±2% —
+  `choicesup_val_neutral_null`.
+- **P1323 self-reference spared (SHOULD):** self-vs-
+  other-referential encode advantage at 75 ≥90% of the
+  advantage at 30; third-party referential shows normal
+  age tax — `selfrel_third_null`.
+- **P1324 depression clouds effort only (MUST):**
+  `depr:true` cut effortful-leg mints ≥20%, OGM mints
+  +≥15%, semantic mints within ±3%, and all legs return
+  within `dep_remit_tau`±20% after `depr` clears —
+  `dep_sem_null` + reversibility.
+- **P1325 nose leads (SHOULD):** `odor_id_eff` crosses
+  the 0.8 line ≥4 sim-years before episodic legs do;
+  odor-naming attenuation unchanged —
+  `odor_sem_null`.
+- **P1326 idea density is front-loaded (MUST):**
+  `idea_dens`± profiles differ in reserve-eff at mint;
+  5000 late-life verbose mints move reserve ≤1% —
+  `idea_late_null`.
+- **P1327 awareness inverts (MUST):** report
+  confidence — complaint rises into `aware_scd_mu`,
+  then falls `aware_invert_k` per prodrome unit while
+  objective accuracy slope is unchanged —
+  `aware_perf_null`.
+- **P1328 crystal bends last (SHOULD):** healthy 80s
+  semantic decrement ≤0.4× episodic at every knot;
+  terminal gate doubles it; never exceeds —
+  `sem_bend_healthy_null`.
+- **P1329 ledger splits (SHOULD):** transact numeric
+  fields decay per `fin_num_hl` while declarative
+  price facts ride §160 and emitted confidence stays
+  ≥`fin_conf_keep` — `fin_decl_null`.
+- **P1330 cohort shifts, never flattens (MUST):**
+  same-age 1930/1970-cohort characters differ on knot
+  outputs by the shift; within-cohort age slope still
+  significant — `cohort_within_null`.
+
+## 166. Part XI honest limits
+
+- `auto_freq_flat` rests on Naveh-Benjamin's *partial*
+  refutation — frequency survived, space/time didn't,
+  but even the frequency claim has replication cracks
+  (Ellis 1991). The flat flag is a strong simplification;
+  P1321's ≤5% band is the contract.
+- `choicesup_w` knots interpolate Mather & Johnson's
+  two-group comparison; midlife is extrapolated. The
+  belief-anchored flip (`believed_chosen`) is the
+  load-bearing claim — Henkel & Mather showed belief,
+  not fact, drives it.
+- `dep_*` unifies effort tax, OGM, and rehearsal skew
+  under one state flag; clinically these decouple
+  (psychomotor vs cognitive vs affective). The lump is
+  licensed by Jorm's effort account; the remit tau is
+  our parameter, not a measured constant.
+- `odor_id_eff`'s 5-year lead is a group-level hazard
+  (Wilson 2007); individual predictiveness is noisy —
+  it's a diagnostic observable, not a per-character
+  clock.
+- `idea_dens` inherits the Nun Study's narrow sample
+  (women, religious order, educated). As a trait it's
+  authored, not sampled — world-builder supplies the
+  biography that justifies it.
+- `aware_eff` merges two literatures (SCD complaint
+  rise; Wilson's unawareness cliff) that measure
+  different instruments. The inverted-U is our
+  composition; `aware_perf_null` keeps the lie on the
+  monitoring layer where both papers put it.
+- `sem_bend`'s terminal doubling is extrapolated —
+  Rönnlund measured healthy community samples; the
+  healthy-ordering null is the sourced claim, the
+  terminal gate is hypothesis.
+- `fin_*` prices capacity, not victimization; Triebel's
+  data are clinician-rated capacity — the confidence-
+  accuracy split at report is our construction of
+  Lichtenberg's exploitation observation.
+- `cohort_shift` as a uniform knot translation is the
+  simplest honest form; real cohort effects are
+  domain-specific (education-weighted). ±8y range and
+  the within-cohort null are the falsifiable edges.

@@ -12642,7 +12642,8 @@ probes P1301–P1310.
   tails) with zero mean shift — the noise-vs-bias
   discriminator; `fok_store_null` — stored S untouched.
 
-Probe registry: P1–P1320 (v123 adds P1311–P1320). MUST:
+Probe registry: P1–P1320 (v123 adds P1311–P1320; v124 adds
+P1321–P1330 in §250 below — registry now P1–P1330). MUST:
 P1311, P1312, P1313, P1314, P1315, P1317 (four locked-null
 legs + TOT signature, direction split, era shift, RIF
 U-shape, immunity, savings). SHOULD: P1316, P1318, P1319,
@@ -12710,3 +12711,125 @@ P1320.
 
 → age-development.md §§126–135; spec v5.69 §§4.80–4.83 +
 §§5.139–5.144; probes P1311–P1320.
+
+## 250. v124 probe specs (P1321–P1330 — age-decline XI, the spared channels, the clouding overlays, the cohort stamp)
+
+Each probe runs on the harness battery per §14 conventions;
+locked-null probes are MUST.
+
+- **P1321 automaticity is frequency-only (MUST):** characters
+  age≥70 vs ≤40 encode event batches with freq_count,
+  where-, and when-fields. Contract: `freq_count` ΔE ≤5%
+  across age groups; where/when fields show the normal age
+  legs. A build exempting location/time fields fails
+  `auto_loc_null` (Hasher & Zacks 1979/1984; Naveh-Benjamin
+  1989 — the partial refutation IS the spec).
+- **P1322 choice bias is valence-only (MUST):** 10 retells
+  of decision records at 75 — believed-chosen positive
+  features drift +≥15%, believed-chosen negative −≥10%,
+  rejected mirrored; valence-neutral features of both
+  options within ±2% — `choicesup_val_neutral_null`
+  (Mather & Johnson 2000; Henkel & Mather 2007). Sub-test:
+  flip `believed_chosen` — drift direction flips.
+- **P1323 self-reference spared (SHOULD):** self-referential
+  encode advantage over neutral at 75 ≥90% of the 30y
+  advantage; third-party referential advantage shows normal
+  age tax — `selfrel_third_null` (Gutchess et al. 2007;
+  Leshikar et al. 2015).
+- **P1324 depression clouds effort only (MUST):**
+  `depr:true` — effortful-leg mints −≥20%, OGM-biased
+  mints +≥15%, semantic mints ±3%; after `depr` clears,
+  all legs recover within `dep_remit_tau`±20% —
+  `dep_sem_null` + reversibility (Byers & Yaffe 2011;
+  Jorm 2000; Williams et al. 2007).
+- **P1325 nose leads (SHOULD):** `odor_id_eff` crosses 0.8
+  ≥4 sim-years before the episodic legs do; odor-naming
+  attenuation (`ecue_name_att`) unchanged —
+  `odor_sem_null` (Wilson et al. 2007, 2011; Devanand
+  2010).
+- **P1326 idea density is front-loaded (MUST):** paired
+  profiles `idea_dens` 0.2 vs 0.8 differ in reserve-eff
+  at mint by ≈0.35·Δ; 5000 late-life verbose mints move
+  reserve ≤1% — `idea_late_null` (Snowdon et al. 1996;
+  Riley et al. 2005).
+- **P1327 awareness inverts (MUST):** emitted report
+  confidence rises into `aware_scd_mu` (SCD hump), then
+  falls `aware_invert_k` per prodrome unit; objective
+  accuracy slope identical across prodrome bins —
+  `aware_perf_null` (Wilson et al. 2015; Jessen 2014).
+- **P1328 crystal bends last (SHOULD):** healthy 80s
+  semantic decrement ≤0.4× episodic at every knot;
+  `terminal` gate doubles it and never exceeds —
+  `sem_bend_healthy_null` (Rönnlund et al. 2005;
+  Salthouse 2014).
+- **P1329 ledger splits (SHOULD):** `kind:"transact"`
+  numeric-detail fields decay per `fin_num_hl`;
+  declarative price facts ride the §160 slope; emitted
+  confidence ≥`fin_conf_keep`·base — `fin_decl_null`
+  (Triebel et al. 2009; Lichtenberg 2016).
+- **P1330 cohort shifts, never flattens (MUST):** same-age
+  1930/1970-cohort characters differ on knot outputs by
+  `cohort_shift`; within-cohort age slope remains
+  significant — `cohort_within_null` (Rönnlund & Nilsson
+  2009; Schaie 2009).
+
+Probe registry: P1–P1330. v124 MUST: P1321, P1322, P1324,
+P1326, P1327, P1330. SHOULD: P1323, P1325, P1328, P1329.
+
+## 251. Sources verified this version (P1321–P1330 backing)
+
+- **Automaticity (CONSENSUS partial refutation):** Hasher &
+  Zacks 1979 (*JEP:G* 108:356); Hasher & Zacks 1984
+  (*Am. Psychol.* 39:1372); **Naveh-Benjamin 1989** (*Dev.
+  Neuropsychol.* 5:245 — verified: frequency survives,
+  spatial/temporal age); Ellis 1991 (replication caution —
+  even the frequency arm has cracks; flagged in AgD§166).
+- **Choice-supportive memory (CONSENSUS; age amplification
+  verified):** **Mather & Johnson 2000** (*Psychol. Aging*
+  15:596 — verified: age gap persists under equated
+  recognition); Mather, Shafir & Johnson 2000 (*Psychol.
+  Sci.* 11:132); **Henkel & Mather 2007** (*J. Mem. Lang.*
+  — verified: belief-anchored, not fact-anchored).
+- **Self-reference preserved (CONSENSUS):** **Gutchess,
+  Kensinger, Yoon & Schacter 2007** (*Psychol. Aging*
+  22:823 — verified); Glisky & Marquine 2009 (survives
+  into MCI); Leshikar, Dulas & Duarte 2015 meta.
+- **Late-life depression (CONSENSUS risk; mechanism
+  DEBATED):** **Byers & Yaffe 2011** (*Nat. Rev. Neurol.*
+  7:323 — verified ~2× dementia risk); Jorm 2000
+  (pseudodementia = effort account — the reversible leg);
+  **Williams et al. 2007** (OGM in depression); Salloway
+  et al. 1996.
+- **Odor identification leading (CONSENSUS association;
+  individual diagnosis noisy):** **Wilson, Arnold,
+  Schneider, Tang & Bennett 2007** (*Arch. Gen. Psychiatry*
+  64:802 — verified); Wilson et al. 2011 (*Neurology*);
+  Devanand et al. 2010 (*Biol. Psychiatry*); Olofsson et
+  al. 2020 (caution).
+- **Idea density (CONSENSUS landmark; narrow sample):**
+  **Snowdon et al. 1996** (*JAMA* 275:528 — verified Nun
+  Study); Riley, Snowdon, Desrosiers & Markesbery 2005
+  (*Neurobiol. Aging*).
+- **Awareness inversion (CONSENSUS two halves; the U is our
+  composition):** **Wilson et al. 2015** (*Neurology* —
+  verified: unawareness −0.32/yr from ~2.6y pre-onset;
+  TDP-43/tau/infarcts); Jessen et al. 2014 (SCD hump);
+  Vannini et al. 2017.
+- **Semantic bend (CONSENSUS ordering; terminal gate
+  hypothesis):** **Rönnlund, Nyberg, Bäckman & Nilsson
+  2005** (*Psychol. Aging* 20:3 — verified: semantic
+  increments to ~55, smaller late decrements); Salthouse
+  2014; Singer et al. 2003.
+- **Financial capacity (CONSENSUS early-fall; confidence
+  split our construction):** **Triebel et al. 2009**
+  (*Neurology* 73:928 — verified first-instrumental
+  decline); Bangma et al. 2017 (*Neuropsychol. Rev.*
+  meta); Lichtenberg 2016; Finucane & Gullion 2010.
+- **Cohort effects (CONSENSUS):** **Rönnlund & Nilsson
+  2009** (*Psychol. Aging* 24:816 — verified successive-
+  cohort gains); Schaie 2009 (Seattle Longitudinal);
+  Rönnlund et al. 2005 (education explains the
+  cross-sectional/longitudinal discrepancy).
+
+→ age-decline.md §§153–166; spec v5.70 §§4.84–4.91 +
+§§5.145–5.146 + §6.329; probes P1321–P1330.

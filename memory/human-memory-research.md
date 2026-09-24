@@ -5524,3 +5524,81 @@ probes P1291–P1300.
   `fok_old_*`); §7 +23 scalars +6 knot curves +10 locked
   nulls +`stereo_val` trait +`told_to` edge +`tot:true`
   state; §10 contract; probes P1311–P1320.
+
+## 99. v124 source block — the spared channels, the clouding overlays, the cohort stamp (age-decline XI)
+
+- **Automaticity, partially refuted (CONSENSUS on the
+  residue):** Hasher & Zacks 1979 (*JEP:G* 108:356) and
+  1984 (*Am. Psychol.* 39:1372) proposed frequency,
+  spatial location, and temporal order as automatic,
+  age-invariant encodings. **Naveh-Benjamin 1989** (*Dev.
+  Neuropsychol.* 5:245 — verified) refuted the spatial/
+  temporal arms; frequency-of-occurrence is the surviving
+  claim, and even it has replication cracks (Ellis 1991).
+  → `auto_freq_flat` (§4.84) exempts freq_count only;
+  `auto_loc_null` keeps the refutation falsifiable.
+- **Choice-supportive memory (CONSENSUS; age-amplified):**
+  **Mather & Johnson 2000** (*Psychol. Aging* 15:596 —
+  verified: older adults' chosen-option attributions more
+  positive, gap survives equated recognition); Mather,
+  Shafir & Johnson 2000 (*Psychol. Sci.* 11:132);
+  **Henkel & Mather 2007** (*J. Mem. Lang.* — verified:
+  the bias follows *believed* choice; misattributing which
+  option was picked flips the pattern). → `choicesup_*`
+  (§6.329), belief-anchored, `choicesup_val_neutral_null`.
+- **Self-reference spared (CONSENSUS):** **Gutchess,
+  Kensinger, Yoon & Schacter 2007** (*Psychol. Aging*
+  22:823 — verified preserved advantage, item+source);
+  Glisky & Marquine 2009 (persists into MCI); Leshikar,
+  Dulas & Duarte 2015 (meta — among the most age-robust
+  encode boosts). → `selfrel_keep` (§4.85),
+  `selfrel_third_null`.
+- **Late-life depression (CONSENSUS association; mechanism
+  DEBATED):** **Byers & Yaffe 2011** (*Nat. Rev. Neurol.*
+  7:323 — verified ~2× subsequent dementia risk); Jorm
+  2000 (pseudodementia = effort/retrieval, not storage —
+  licenses the reversible overlay); **Williams et al.
+  2007** (OGM as style, remitting); Salloway et al. 1996
+  (executive-heavy profile). → `dep_*` (§4.86),
+  `dep_sem_null` + remit contract.
+- **Odor identification leads (CONSENSUS association):
+  ** **Wilson, Arnold, Schneider, Tang & Bennett 2007**
+  (*Arch. Gen. Psychiatry* 64:802 — verified odor-ID
+  predicts incident MCI); Wilson et al. 2011; Devanand et
+  al. 2010; Olofsson et al. 2020 (individual-level
+  caution). → `odor_id_eff` (§4.87), `odor_sem_null`.
+- **Idea density (CONSENSUS landmark; narrow sample):**
+  **Snowdon et al. 1996** (*JAMA* 275:528 — verified Nun
+  Study: early-life linguistic density predicts late-life
+  impairment/pathology); Riley et al. 2005 (the signal is
+  in the early writing). → `idea_dens` front-loaded
+  deposit (§4.88), `idea_late_null`.
+- **Awareness inversion (CONSENSUS halves; U-shape our
+  composition):** **Wilson et al. 2015** (*Neurology* —
+  verified: awareness stable until ~2.6y pre-dementia,
+  then −0.32/yr; TDP-43/tau/infarcts); Jessen et al.
+  2014 (SCD complaint peak); Vannini et al. 2017. →
+  `aware_eff` inverted-U (§5.145), `aware_perf_null`.
+- **Semantic bend (CONSENSUS ordering):** **Rönnlund,
+  Nyberg, Bäckman & Nilsson 2005** (*Psychol. Aging*
+  20:3 — verified: semantic increments to ~55, smaller
+  late decrements than episodic; cohort/education explains
+  the cross-sectional/longitudinal gap); Salthouse 2014;
+  Singer et al. 2003. → `sem_bend` (§4.89),
+  `sem_bend_healthy_null` (≤0.4× episodic).
+- **Financial capacity (CONSENSUS early-fall):** **Triebel
+  et al. 2009** (*Neurology* 73:928 — verified among the
+  first instrumental abilities to decline); Bangma et al.
+  2017 meta; Lichtenberg 2016 (exploitation = intact
+  confidence over fallen accuracy); Finucane & Gullion
+  2010. → `fin_num_hl` + `fin_conf_keep` (§§4.90/5.146),
+  `fin_decl_null`.
+- **Cohort effects (CONSENSUS):** **Rönnlund & Nilsson
+  2009** (*Psychol. Aging* 24:816 — verified successive-
+  cohort memory gains); Schaie 2009 (Seattle
+  Longitudinal). → `cohort_shift` (§4.91),
+  `cohort_within_null`.
+
+→ age-decline.md Part XI §§153–166; spec v5.70
+§§4.84–4.91 + §§5.145–5.146 + §6.329; probes
+P1321–P1330.
