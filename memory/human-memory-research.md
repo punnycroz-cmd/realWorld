@@ -4187,3 +4187,65 @@ The control layer of cognitive aging, ten mechanisms:
   `soc_narrow` most speculative (framework→budget);
   `vantage_age_leg` deliberately small; `cue_chain_max` a
   contract cap. → AD §§125–138; probes P1055–P1064.
+
+## 78. v101 sources — emotional-memory IX (EM Part IX → spec v5.49)
+
+New primary/secondary sources brought in this pass (each § in
+`emotional-memory.md` Part IX; probes P1065–P1074):
+
+- **Tambini, Rimmele, Phelps & Davachi 2017** (*Nat.
+  Neurosci.* 20:271 — verified via web: E→N order boosts
+  neutral recollection 9–33 min later; N→E order null; gain
+  tracks emotional brain-state reinstatement, not item
+  arousal; prolonged exposure required) + **Dunsmoor, Murty,
+  Davachi & Phelps 2015** (*Nature* 520:345 — retroactive
+  concept-mediated strengthening, the CondEntry route) →
+  §4.57 `hangover_*` + locked `hangover_retro_null`; P1065.
+- **Baumeister, Bratslavsky, Finkenauer & Vohs 2001** (*Rev.
+  Gen. Psychol.* 5:323 — "bad is stronger than good") +
+  **Rozin & Royzman 2001** (negativity-bias taxonomy) +
+  **Taylor 1991** (mobilization counterweight) → §4.58
+  `neg_potency` + locked `potency_repair_null`; P1066.
+- **Gilovich & Medvec 1995** (*Psychol. Rev.* 102:379 —
+  action↔inaction regret crossover) + **Roese & Summerville
+  2005** (opportunity gate; regret most-named emotion) +
+  **Medvec, Madey & Gilovich 1995** (bronze > silver) →
+  §4.59 `regret_inaction_mult`/`counterfac_gain` + locked
+  `regret_reopen_null`; P1067.
+- **Miller 1996** (*Embarrassment: Poise and Peril* — mild,
+  social, persistently intrusive) + **Huppert, Roth & Foa
+  2003** → §5.111 `cringe_intrude`/`cringe_cue_sim` +
+  locked `cringe_fab_null`; P1069.
+- **Redelmeier & Kahneman 1996** (*Pain* 66:3 — verified:
+  remembered pain ≈ peak+end, duration neglected) +
+  **Redelmeier, Katz & Kahneman 2003** (gentle-tail exploit)
+  + **Wirtz et al. 2003** (remembered affect drives
+  repeat-intent) → §6.232 `pain_*`; P1072.
+- **Whitehouse & Lanman 2014** (*Curr. Anthropol.* 55:674 —
+  identity fusion via shared dysphoria) + **Páez et al.
+  2007** + **Konvalinka et al. 2011** (arousal synchrony
+  bonds watchers) → §6.233 `co_arousal_*` + locked
+  `fuse_abuse_null`; P1073.
+- **Roozendaal, Okuda, Van der Zee & McGaugh 2006** (*PNAS*
+  103:6741 — verified: glucocorticoid consolidation boost
+  requires concurrent noradrenergic arousal) + **van
+  Stegeren et al. 2010** + **Shields et al. 2017** meta →
+  §6.234 `gc_na_gate` + locked `gc_solo_null`; P1074.
+- **Ehlers & Clark 2000** (*Behav. Res. Ther.* 38:319 —
+  data-driven processing, perceptually-cued intrusions) +
+  **Brewin, Dalgleish & Joseph 1996** (SAM/VAM) + **Ehlers,
+  Hackmann & Michael 2004** → §5.112 `percept_cue_w` +
+  locked `percept_gate_null`; P1070.
+- **Yoo, Gujar, Hu, Jolesz & Walker 2007** (*Curr. Biol.*
+  17:R877 — verified: ~60% amygdala hyper-reactivity post
+  deprivation, PFC disconnect) + **Tempesta et al. 2018** +
+  **Walker & van der Helm 2009** → §4.60 `sleeploss_*` +
+  locked `sdep_recall_null`; P1068.
+- **Clark, Milberg & Erber 1988** + **Eich 1995** (arousal
+  state-dependency — thinnest base, sub-`w_msd` clamp) →
+  §5.113 `arousal_match_w`; P1071.
+- **Honest limits:** `hangover_tau` curve ours; `neg_potency`
+  unification is compression; regret decay-mapping ours;
+  cringe age-gradient inferred; `co_arousal_bond` magnitudes
+  unpriced; `na_gate` linearizes a non-monotonic interaction;
+  sdep partial-debt scaling extrapolated. → EM §§112–125.

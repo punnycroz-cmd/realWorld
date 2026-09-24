@@ -10170,3 +10170,113 @@ P1063 SHOULD; P1060, P1061 COULD.
   age_leg` kept tiny deliberately; `cue_chain_max` is a
   contract cap, not a probabilistic claim. → AD Part IX
   §§125–134; probes P1055–P1064.
+
+## 208. v101 probes — the carrier layer (P1065–P1074)
+
+- **P1065 hangover forward (MUST, order-lock):** neutral
+  records minted 15 min post-arousal-arm recollect better
+  than pre-arm controls (≥1.3× recollection-class recalls);
+  N→E reversal produces NO backward boost —
+  `hangover_retro_null` structure-checked. Tambini 2017.
+- **P1066 potency scalar (MUST, sign-lock):** matched
+  ±0.8-valence events at fixed arousal mint with negative
+  hotter by `neg_potency`; post-mint regulation unaffected
+  (`potency_repair_null`); 2×-potency profile scales
+  proportionally. Baumeister 2001; Rozin & Royzman 2001.
+- **P1067 regret crossover (MUST, shape-lock):** at t+7d
+  action regrets out-surface inaction regrets; at t+365d the
+  ordering inverts; `opportunity:false` decisions never mint
+  `regret`. Gilovich & Medvec 1995; Roese & Summerville 2005.
+- **P1068 sleep-debt skew (SHOULD):** encoding with
+  `sleep_debt > sdep_thresh` raises negative-record S ≥1.4×
+  vs rested control, positive ≤1.0×; rested-record retrieval
+  unchanged (`sdep_recall_null`). Yoo 2007.
+- **P1069 cringe persistence (SHOULD):** embarrass-tagged
+  records surface ≥2× matched-neutral intrusions over 30d at
+  sim 0.35–0.5; emissions carry content (never `aff_flash`);
+  age-20 profile ≥ age-60; FAB discount exempt
+  (`cringe_fab_null`). Miller 1996.
+- **P1070 perceptual bypass (MUST, scope-lock):** sensory-only
+  cue matching a trauma record's smell field fires intrusion
+  without θ; identical cue on a neutral record does NOT
+  bypass (`percept_gate_null`). Ehlers & Clark 2000;
+  Brewin 1996.
+- **P1071 arousal match (COULD):** recall P rises with
+  arousal-state match between mint and test; effect ≤`w_msd`;
+  clamp ≤0.15 respected. Clark 1988; Eich 1995.
+- **P1072 pain peak-end (MUST):** reported pain ≈
+  0.7·peak + 0.3·end independent of duration; `gentle_tail`
+  arm reports lower remembered pain; decision contexts weight
+  ×`pain_avoid_gain`. Redelmeier & Kahneman 1996; Redelmeier
+  et al. 2003.
+- **P1073 shared-arousal fusion (SHOULD):** co-encoded
+  ≥0.5-arousal events mint stronger AND raise pairwise bond;
+  one-sided arousal boosts encoding only; world-forced
+  arousal with no event source does neither
+  (`fuse_abuse_null`). Whitehouse & Lanman 2014; Konvalinka
+  2011.
+- **P1074 two-factor gate (MUST, sign-lock):** high cortisol
+  + high arousal → consolidation gain; high cortisol +
+  arousal <`gc_na_thresh` → gain ≈0, never negative
+  (`gc_solo_null`); retrieval penalty fires in both arms.
+  Roozendaal 2006.
+
+Registry: P1–P1074. v101 suite: P1065, P1066, P1067, P1070,
+P1072, P1074 MUST (P1065, P1070, P1074 locked-null class);
+P1068, P1069, P1073 SHOULD; P1071 COULD.
+
+## 209. Sources verified this version (P1065–P1074 backing)
+
+- **Hangover:** Tambini, Rimmele, Phelps & Davachi 2017
+  (*Nat. Neurosci.* 20:271 — verified: E→N order boosts
+  neutral recollection 9–33 min later; N→E null; state
+  reinstatement, not item arousal); Dunsmoor, Murty, Davachi
+  & Phelps 2015 (*Nature* 520:345 — retroactive concept-
+  mediated strengthening, routed via CondEntries).
+- **Negativity potency:** Baumeister, Bratslavsky,
+  Finkenauer & Vohs 2001 (*Rev. Gen. Psychol.* 5:323 — "bad
+  is stronger than good"); Rozin & Royzman 2001
+  (potency/steepness/mobility taxonomy); Taylor 1991
+  (mobilization counterweight → `potency_repair_null`).
+- **Regret:** Gilovich & Medvec 1995 (*Psychol. Rev.* 102:379
+  — action↔inaction temporal crossover); Roese & Summerville
+  2005 (opportunity breeds regret); Medvec, Madey & Gilovich
+  1995 (bronze > silver — counterfactual direction).
+- **Embarrassment intrusions:** Miller 1996 (*Embarrassment:
+  Poise and Peril* — persistence as involuntary recall);
+  Huppert, Roth & Foa 2003 (social-evaluative intrusions).
+  Frequency/age magnitudes ours — flagged.
+- **Pain:** Redelmeier & Kahneman 1996 (*Pain* 66:3 —
+  verified: peak+end, duration neglect); Redelmeier, Katz &
+  Kahneman 2003 (gentle-tail lengthening improves recalled
+  pain); Wirtz, Kruger, Scollon & Diener 2003 (remembered
+  affect predicts repeat-intent).
+- **Shared fusion:** Whitehouse & Lanman 2014 (*Curr.
+  Anthropol.* 55:674 — dysphoric shared experience fuses);
+  Páez, Basabe et al. 2007 (collective emotional gatherings
+  → social integration); Konvalinka et al. 2011 (fire-walking
+  arousal synchrony incl. watchers); Durkheim 1912 ancestor.
+- **Two-factor gate:** Roozendaal, Okuda, Van der Zee &
+  McGaugh 2006 (*PNAS* 103:6741 — verified: glucocorticoid
+  consolidation boost requires concurrent amygdala NA);
+  van Stegeren et al. 2010; Shields, Sazma, McCullough &
+  Yonelinas 2017 meta.
+- **Perceptual triggers:** Ehlers & Clark 2000 (*Behav. Res.
+  Ther.* 38:319 — data-driven processing, sensory-cue
+  intrusions); Brewin, Dalgleish & Joseph 1996 (VAM/SAM);
+  Ehlers, Hackmann & Michael 2004 (intrusions match worst-
+  moment sensory detail).
+- **Sleep-debt skew:** Yoo, Gujar, Hu, Jolesz & Walker 2007
+  (*Curr. Biol.* 17:R877 — verified: ~60% amygdala hyper-
+  reactivity, PFC disconnect); Tempesta et al. 2018
+  (sleep-dep affective meta); Walker & van der Helm 2009.
+- **Arousal-state matching:** Clark, Milberg & Erber 1988;
+  Eich 1995 — thinnest base this pass; sub-`w_msd` by
+  design; COULD-tier.
+- **Honest limits marked:** `hangover_tau` 12-min is our
+  curve-fit to a 9–33-min window; `neg_potency` unification
+  is modeling compression; regret decay-multiplier is our
+  mechanism story; cringe age-gradient inferred; `co_arousal_
+  bond` magnitudes unpriced by sources; `na_gate` ramp
+  linearizes a non-monotonic interaction. → EM Part IX
+  §§112–121; probes P1065–P1074.

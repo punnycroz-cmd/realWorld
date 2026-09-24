@@ -1,5 +1,45 @@
-# Memory Model Spec v5.48 — implementable human-like memory for RW characters
+# Memory Model Spec v5.49 — implementable human-like memory for RW characters
 
+> **v5.49 note (emotional-memory IX — the arousal that
+> outlives its event: the hangover window, the unpaid regret,
+> the borrowed fear, the gate cortisol can't open alone —
+> EM§§112–121):** ten mechanisms where affect acts as a
+> *carrier* across events rather than a property of one.
+> (a) **Emotional hangover** — sustained arousal opens a
+> ~30-min character-state window boosting *subsequent*
+> neutral encoding (`hangover_gain/tau/win`); locked
+> `hangover_retro_null` (Tambini et al. 2017, N→E order
+> control) — §4.57. (b) **Negativity potency, unified** —
+> `neg_potency` ≈1.7 mint-time scalar on negative valence;
+> locked `potency_repair_null` (Baumeister 2001; Rozin &
+> Royzman 2001; Taylor 1991 mobility) — §4.58. (c) **Un-acted
+> regret stays hot** — `regret_inaction_mult` half-rate decay
+> on `action_taken:false`+`opportunity` records; sim-satellite
+> minting via `counterfac_gain`; locked `regret_reopen_null`
+> (Gilovich & Medvec 1995; Roese & Summerville 2005) — §4.59.
+> (d) **Sleep-debt encoding skew** — `sleeploss_neg_gain`/
+> `sleeploss_pos_pen` mint-side only; locked `sdep_recall_null`
+> (Yoo et al. 2007) — §4.60. (e) **Cringe intrusions** —
+> `cringe_intrude` + cheap `cringe_cue_sim` on embarrass-tagged
+> records, strong 15–30 age leg; locked `cringe_fab_null`
+> (Miller 1996) — §5.111. (f) **Perceptual bypass** —
+> `percept_cue_w`/`percept_thresh` fire trauma intrusions on
+> sensory-signature match with no θ; locked
+> `percept_gate_null` (Ehlers & Clark 2000; Brewin 1996) —
+> §5.112. (g) **Arousal-state matching** — `arousal_match_w`
+> 0.08, clamped below `w_msd` (Clark 1988; Eich 1995;
+> weakest base, COULD-tier) — §5.113. (h) **Pain remembers
+> the peak** — `pain_peak_w`/`pain_inflate`/`pain_avoid_gain`,
+> `gentle_tail` flag is the Redelmeier exploit — §6.232.
+> (i) **Shared arousal fuses** — `co_arousal_gain` on E0 +
+> `co_arousal_bond` on the pairwise matrix, dysphoric ×1.5;
+> locked `fuse_abuse_null` (Whitehouse & Lanman 2014;
+> Konvalinka 2011) — §6.233. (j) **Two-factor stress gate** —
+> `gc_na_gate` makes the consolidation term multiplicative
+> on concurrent arousal; locked `gc_solo_null` (Roozendaal
+> et al. 2006) — §6.234. §7 +14 named params +6 locked
+> nulls; §10 contract adds; probes P1065–P1074.
+>
 > **v5.48 note (age-decline IX — the control layer retires
 > piecemeal: speed fails before strength, the debunk feeds the
 > claim, the chosen few stay sharp — AD§§125–134):** ten
@@ -5515,6 +5555,73 @@ fields flat. Downstream: prospective intentions encoded old
 carry fewer contextual anchors — part of the §87 time-based
 PM deficit is encoding poverty, not just retrieval failure.
 
+### 4.57 The hangover window — `hangover_gain/tau/win` (new in v5.49)
+
+EM§112; Tambini, Rimmele, Phelps & Davachi 2017 (Nat
+Neurosci, verified: neutral items 9–33 min post-emotional
+block recollect better — emotional brain state carries
+forward); Dunsmoor et al. 2015 (retroactive sibling,
+concept-mediated — already routed via §4.9 CondEntries).
+
+A record minted with arousal ≥ `hangover_arm` (0.65) sets
+character state `{hangover_until, hangover_amp}`; records
+minted within `hangover_win` (30 sim-min) gain
+`E0 += hangover_amp·hangover_gain·exp(−Δt/hangover_tau)`
+(`gain` 0.25, `tau` 12 min), valence-blind. A stronger
+arming event refreshes `amp = max(old·exp(−Δ/τ), new)` —
+no stacking. **Locked `hangover_retro_null`:** no backward
+leg — records minted before the arming event never gain
+from it (the N→E control). The window lives on the
+character, not the record — one `C.arousal_now`-adjacent
+state field (§4.60 and §6.234 read sibling state).
+
+### 4.58 Bad outweighs good — `neg_potency` (new in v5.49)
+
+EM§113; Baumeister, Bratslavsky, Finkenauer & Vohs 2001;
+Rozin & Royzman 2001; Taylor 1991 (mobility counterweight).
+
+Mint-time valence asymmetry unified into one scalar:
+`E0 *= (1 + neg_potency·max(0, −valence))`, `neg_potency`
+≈1.7 (clamp 0.8–2.5, free per-profile trait). Post-mint
+negative legs (`neg_fidelity`, `neg_affect_decay`,
+rumination draw) unchanged — they govern survival, this
+governs birth. **Locked `potency_repair_null`:** the scalar
+never enters regulation/repair equations (Taylor's
+mobilization). **Frozen `potency_age_null`:** no age leg —
+the older-adult positivity shift lives in `pos_retrieve_bias`
+and the SST gate, not mint.
+
+### 4.59 The un-acted regret stays hot — `regret_inaction_mult` (new in v5.49)
+
+EM§114; Gilovich & Medvec 1995 (action regrets dominate
+short-run, inaction long-run); Roese & Summerville 2005
+(opportunity gate); Medvec, Madey & Gilovich 1995.
+
+Decision records flagged `action_taken:false` +
+`opportunity:true` (world supplies both on decision events)
+mint `regret:true` and decay at `beta·regret_inaction_mult`
+(0.5); the taken branch decays normally — the asymmetry is
+a crossover, not a level shift. Voluntary recall of a
+`regret` record mints a §6.199 `sim` satellite of the
+unlived branch at `counterfac_gain` (0.4). A later
+closing record (the option pursued, or opportunity→false)
+kills the multiplier. **Locked `regret_reopen_null`:** a
+`regret` tag never re-arms once `opportunity` flips false.
+
+### 4.60 Skipped sleep skews dark — `sleeploss_*` (new in v5.49)
+
+EM§120; Yoo, Gujar, Hu, Jolesz & Walker 2007 (Curr Biol,
+verified: ~60% amygdala hyper-reactivity to negative
+stimuli, PFC disconnect, one night total deprivation);
+Tempesta et al. 2018; Walker & van der Helm 2009.
+
+When `sleep_debt` > `sdep_thresh` (≈1 night): negative mints
+`w_emo ×(1+sleeploss_neg_gain)` (0.6), positive mints
+`w_emo ×(1−sleeploss_pos_pen)` (0.25), `neg_potency` +0.3.
+Encoding skew only. **Locked `sdep_recall_null`:** sleep
+debt never enters the retrieval equation — retrieval costs
+ride `daLoad`, no double-count.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -8227,6 +8334,53 @@ proper-name referent fields only: `1.0@55 → 1.4@65 → 2.0@75 →
 2.6@85`. Failed name retrieval emits `name_block:true` and
 the referent-confident fallback ("the tenant, you know the
 one") — the name fails, the person doesn't (P1056).
+
+### 5.111 Cringe intrusions — `cringe_intrude` (new in v5.49)
+
+EM§115; Miller 1996 (embarrassment: mild, social, unusually
+persistent as involuntary recall); Huppert, Roth & Foa 2003.
+
+`discrete:embarrass` records add `cringe_intrude` (0.3) to
+involuntary-draw weight and run a lowered cue bar: any
+{location, audience-member present, activity-type} matching
+at `simOp ≥ cringe_cue_sim` (0.35 — below the ordinary
+intrusion floor) fires the emission WITH content (never
+`aff_flash`). Witness presence drops the bar a further 0.15.
+Age knots: `1.0@20 → 0.8@35 → 0.5@50 → 0.35@65` — cringe is
+a young-self phenomenon. **Locked `cringe_fab_null`:**
+embarrassment tags are exempt from the §19 FAB self-gate
+discount — cringe fades on the intrusion schedule, not the
+healing schedule (P1069).
+
+### 5.112 The sensory trigger needs no search — `percept_cue_w` (new in v5.49)
+
+EM§119; Ehlers & Clark 2000 (data-driven processing →
+perceptually-cued intrusions); Brewin, Dalgleish & Joseph
+1996 (SAM layer); Ehlers, Hackmann & Michael 2004.
+
+`trauma:true` records carry `percept_cue_w` (0.8): when
+`cueContext.sensory` fields match the record's sensory
+verbatim fields at `simOp ≥ percept_thresh` (0.55), the
+intrusion emission fires on the ambient scan per tick —
+θ never consulted, no voluntary search. The cue is the
+sensory signature (rain-on-tin), which is why trauma
+triggers feel arbitrary. **Locked `percept_gate_null`:**
+non-trauma records never bypass θ on sensory match — the
+bakery smell routes through §29's Proust channel (P1070).
+Non-reinforced firings apply §21 reconsolidation-window
+extinction to the CondEntry, not the record.
+
+### 5.113 The body is a context — `arousal_match_w` (new in v5.49)
+
+EM§121; Clark, Milberg & Erber 1988; Eich 1995. Weakest
+empirical base in the pass — deliberately sub-`w_msd`.
+
+`drive(m)` gains `+ arousal_match_w·(1 − |C.arousal_now −
+m.emotional.arousal_at_mint|)`, `arousal_match_w` 0.08
+(clamp 0–0.15). Calm characters lose voluntary access to
+panic-era records and vice versa — the §5.112 perceptual
+bypass is what still reaches state-locked trauma records.
+No age leg (P1071, COULD).
 
 ---
 
@@ -12971,6 +13125,60 @@ affect channel — the well-worn story is the least felt
 (P1063). The age leg is deliberately small; retell_n must
 dominate or the parametrization is overfit.
 
+### 6.232 Pain remembers the peak — `pain_*` (new in v5.49)
+
+EM§116; Redelmeier & Kahneman 1996 (verified: remembered
+pain tracks peak+end, not duration); Redelmeier, Katz &
+Kahneman 2003 (the gentle-tail exploit); Wirtz et al. 2003
+(remembered affect drives repeat-decisions).
+
+`pain:true` events (world tags procedures/injuries) report
+pain at recall as `pain_inflate·(peak·pain_peak_w +
+end·(1−pain_peak_w))` — `pain_peak_w` 0.7, `pain_inflate`
+1.1 once verbatim intensity fields decay (peak-end is the
+surviving anchor). Decision contexts weight the record by
+`pain_avoid_gain` (0.5) — remembered pain is the policy
+input. `gentle_tail:true` on the event halves the end
+contribution — duration-extension with a dull tail
+literally improves the memory (P1072).
+
+### 6.233 Shared arousal fuses — `co_arousal_*` (new in v5.49)
+
+EM§117; Whitehouse & Lanman 2014 (identity fusion via
+shared dysphoria); Páez et al. 2007 (collective emotional
+gatherings); Konvalinka et al. 2011 (arousal synchrony
+bonds watchers too).
+
+≥2 characters encoding the same event with arousal ≥
+`co_arousal_min` (0.5): each mints `E0 += co_arousal_gain`
+(0.2) AND the substrate pairwise bond gains
+`co_arousal_bond·min(arousal_i, arousal_j)` (0.15 — the
+weaker arousal sets the fuse). Negative shared arousal
+multiplies the bond leg ×1.5 (dysphoric ≫ euphoric).
+Low-arousal bystanders get the encoding boost only.
+**Locked `fuse_abuse_null`:** world-forced arousal with no
+event source fuses nothing — the gate reads the arousal's
+source field (P1073).
+
+### 6.234 The two-factor stress gate — `gc_na_gate` (new in v5.49)
+
+EM§118; Roozendaal, Okuda, Van der Zee & McGaugh 2006
+(PNAS, verified: glucocorticoid consolidation enhancement
+requires concurrent noradrenergic arousal); van Stegeren
+2010; Shields et al. 2017.
+
+The §4 consolidation-side stress term reparametrizes from
+additive to gated: `consol_gain = stress_consol_k·
+C.cortisol·min(1, C.arousal_now / gc_na_thresh)` with
+`gc_na_thresh` 0.4. Numb absorption gets no bump; racing
+absorption does. The §5.1 retrieval-side
+`stress_retrieve_loss` is unchanged and does NOT read the
+gate (glucocorticoid retrieval impairment is NA-independent).
+**Locked `gc_solo_null`:** `na_gate→0` sends gain to 0,
+never negative — quiet cortisol is inert, not corrosive
+(P1074). Interface: reads the same `C.arousal_now` field
+§4.57's hangover and §5.113's state-match consume.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -14973,6 +15181,41 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.49 additions (emotional-memory IX — EM§§112–121)
+"hangover_arm": 0.65, "hangover_gain": 0.25,
+"hangover_tau": 12, "hangover_win": 30,        // §4.57 (sim-min)
+"neg_potency": 1.7,                            // §4.58 (clamp 0.8–2.5)
+"regret_inaction_mult": 0.5, "counterfac_gain": 0.4, // §4.59
+"sdep_thresh": 1.0, "sleeploss_neg_gain": 0.6,
+"sleeploss_pos_pen": 0.25,                     // §4.60
+"cringe_intrude": 0.3, "cringe_cue_sim": 0.35, // §5.111
+"percept_cue_w": 0.8, "percept_thresh": 0.55,  // §5.112
+"arousal_match_w": 0.08,                       // §5.113 (clamp ≤0.15)
+"pain_peak_w": 0.7, "pain_inflate": 1.1,
+"pain_avoid_gain": 0.5,                        // §6.232
+"co_arousal_min": 0.5, "co_arousal_gain": 0.2,
+"co_arousal_bond": 0.15,                       // §6.233
+"gc_na_thresh": 0.4, "stress_consol_k": 0.3,   // §6.234
+// v5.49 knot-table updates (existing params, new age knots):
+//   cringe_intrude: ×cringe_age_mult(age_eff)
+//     1.0@20 → 0.8@35 → 0.5@50 → 0.35@65       (§5.111)
+//   hangover_gain: 1.0@30 → 0.8@60 → 0.6@80    (§4.57, HYPOTHESIS)
+// v5.49 locked nulls: hangover_retro_null (no backward
+//   hangover boost — P1065); potency_repair_null (neg_potency
+//   never enters regulation — P1066); regret_reopen_null
+//   (opportunity:false never re-arms regret — P1067);
+//   cringe_fab_null (embarrass tags exempt from FAB self-gate
+//   — P1069); percept_gate_null (non-trauma sensory match
+//   never bypasses θ — P1070); gc_solo_null (quiet cortisol
+//   inert, never corrosive — P1074); sdep_recall_null (sleep
+//   debt never enters retrieval — P1068). Frozen:
+//   potency_age_null (no age leg on neg_potency).
+// v5.49 fields/flags: character state {hangover_until,
+//   hangover_amp}; record flags `regret:true`, `pain:true`,
+//   `gentle_tail:true`, `action_taken:false` +
+//   `opportunity:true` on decision events (world supplies);
+//   `C.arousal_now` context field consumed by §4.57/§5.113/
+//   §6.234. All snapshot-additive; absent = legacy.
 // v5.48 additions (age-decline IX — AD§§125–134)
 "disc_tag_hl": 3,                                // §6.230 (days)
 "soc_top_q": 0.25, "rp_benefit_knee": 65,        // §5.107/§5.108
@@ -17397,6 +17640,39 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.49 additions (emotional-memory.md §§112–121 — the
+  carrier layer):
+  - **New character state:** `{hangover_until, hangover_amp}`
+    — a window, not a record field; refresh is
+    `max(old·exp(−Δ/τ), new)`, never additive (§4.57). New
+    context field `C.arousal_now` feeds §§4.57/5.113/6.234 —
+    game-systems supplies it once; three consumers.
+  - **World-supplied flags:** `pain:true`, `gentle_tail:true`
+    on procedural events (§6.232); `action_taken` +
+    `opportunity` on decision events (§4.59). Absent flags =
+    mechanism inert — snapshot-additive.
+  - **Field-scope contracts:** `percept_cue_w` applies ONLY
+    to `trauma:true` records (`percept_gate_null` — §5.112);
+    `neg_potency` is mint-time only, never enters regulation
+    or retrieval (`potency_repair_null`, §4.58); sleep-debt
+    skew is encode-side only (`sdep_recall_null`, §4.60).
+  - **Gate contract:** `gc_na_gate` multiplies the
+    consolidation term only — the §5.1 retrieval penalty must
+    NOT read it (§6.234). `na_gate→0` floors at 0
+    (`gc_solo_null`), never drives gain negative.
+  - **Substrate contract:** `co_arousal_bond` writes to the
+    pairwise relationship matrix and requires BOTH arousals
+    ≥`co_arousal_min`; bystander boost is E0-only (§6.233).
+    World-forced arousal without an event source fuses
+    nothing (`fuse_abuse_null`) — gate on arousal source.
+  - **Locked boundaries game-systems must honor:**
+    `hangover_retro_null`, `potency_repair_null`,
+    `regret_reopen_null`, `cringe_fab_null`,
+    `percept_gate_null`, `gc_solo_null`, `sdep_recall_null`;
+    frozen `potency_age_null`.
+  - **New params (§7):** 14 named (17 scalars) + 2 knot
+    rows + 7 locked nulls + 1 frozen.
+  - Probes P1065–P1074.
 - v5.48 additions (age-decline.md §§125–134 — the control layer):
   - **New emissions/fields:** `name_block:true` (proper-name
     TOT with referent-confident fallback phrasing — §5.110);

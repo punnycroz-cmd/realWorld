@@ -1219,6 +1219,16 @@ needs both.
 | rp_benefit_knee | 55 | 75 | benefit-knee age; must stay < rif_age_tail (v5.48, order-locked P1059) |
 | vantage_retell_gain / vantage_age_leg | 0.0 / 0.0 | 0.1 / 0.005 | per-retell vantage shift cap 0.6 / per-yr≥60 cap 0.15 (v5.48) |
 | relive_mult | 0.5 | 1.0 | affect-channel tax on observer-vantage recalls (v5.48) |
+| hangover_gain / hangover_tau / hangover_win | 0.0 / 6 / 10 | 0.5 / 20 / 45 | post-arousal neutral-encoding window (v5.49); hangover_arm fixed 0.65 |
+| neg_potency | 0.8 | 2.5 | mint-time negative-valence weighting (v5.49); frozen potency_age_null — no age leg |
+| regret_inaction_mult / counterfac_gain | 0.2 / 0.0 | 0.8 / 0.8 | inaction-regret decay mult + sim-satellite mint gain (v5.49) |
+| sdep_thresh / sleeploss_neg_gain / sleeploss_pos_pen | 0.5 / 0.0 / 0.0 | 2.0 / 1.0 / 0.5 | sleep-debt encoding skew (v5.49, encode-only) |
+| cringe_intrude / cringe_cue_sim | 0.0 / 0.2 | 0.6 / 0.55 | embarrass-tag intrusion weight + lowered cue bar (v5.49, age-knotted) |
+| percept_cue_w / percept_thresh | 0.0 / 0.4 | 1.0 / 0.7 | trauma-only sensory bypass, θ-free (v5.49, percept_gate_null) |
+| arousal_match_w | 0.0 | 0.15 | body-state context term, must stay < w_msd (v5.49) |
+| pain_peak_w / pain_inflate / pain_avoid_gain | 0.5 / 1.0 / 0.0 | 0.9 / 1.4 / 1.0 | peak-end pain report + decision weight (v5.49) |
+| co_arousal_min / co_arousal_gain / co_arousal_bond | 0.3 / 0.0 / 0.0 | 0.8 / 0.4 / 0.4 | shared-arousal encode boost + pairwise bond leg (v5.49) |
+| gc_na_thresh / stress_consol_k | 0.2 / 0.0 | 0.6 / 0.6 | noradrenergic gate on glucocorticoid consolidation (v5.49) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -5084,3 +5094,71 @@ not buy:
   seconds and then is *right* — `ret_lat_mult` stretches the
   window, `lat_strength_null` keeps the answer true.
   Sources AD§§125–134; probes P1055–P1064.
+
+## 81. v5.49 note (emotional-memory IX — the carrier layer: which dials are trait-free and which are bible-shaped)
+
+Ten mechanisms (EM Part IX, spec §§4.57–4.60, §§5.111–5.113,
+§§6.232–6.234); clamp rows added in §0. What a bible may and
+may not buy:
+
+- **`neg_potency` — the cheapest diversity lever in the doc.**
+  Free per-profile trait, 0.8–2.5, no age leg (frozen
+  `potency_age_null`). The sunny main can run 1.1, the
+  anxious one 2.3; at equal |valence| a negative event mints
+  ~1.35× hotter at the default. It buys the *mint* only —
+  `potency_repair_null` keeps it out of every regulation
+  equation, so it never double-taxes healing.
+- **`hangover_gain` — neuroticism reads it.** The 30-min
+  post-arousal encoding window scales with `neurot`; a
+  low-reactive main barely arms it. World texture: the
+  mundane hour after the fight is what she remembers.
+- **`cringe_intrude` — a young-cast parameter.** Strongest
+  age gradient in the batch (1.0@20 → 0.35@65). Young mains
+  keep resurfacing intact embarrassments on cheap cues;
+  elders mostly just decay. No bible pin — the knots are
+  population-level; only `discrete:embarrass` records carry
+  the weight.
+- **`regret_inaction_mult` — backstory feeds it, not
+  personality.** The mechanism needs `action_taken:false` +
+  `opportunity:true` on decision events; a bible that leaves
+  doors open (the un-pursued degree, the un-sent letter)
+  mints long-lived regret records that accumulate `sim`
+  satellites. A foreclosed life mints none — by construction.
+- **`percept_cue_w` — trauma records only, no exceptions.**
+  `percept_gate_null` is locked for everyone: a bible may
+  NOT give a non-trauma record a sensory bypass. What varies
+  is which sensory fields the trauma record carries — rain,
+  a cologne, a song — and those come from the event, not
+  the trait sheet.
+- **`arousal_match_w` — kept sub-`w_msd` on purpose.**
+  Clamp 0–0.15 for all profiles; the state-locked-memory
+  phenomenology it enables (calm self can't reach panic-era
+  records) is carried by the §5.112 bypass in the cases that
+  matter. Weakest empirical base in the batch — do not
+  express it as a character signature.
+- **`co_arousal_bond` — population parameter, world-shaped
+  trigger.** Both parties must run ≥`co_arousal_min` for the
+  bond leg; the weaker arousal sets the fuse. A bible
+  supplies *occasions* (shared crisis, shared vigil), not
+  magnitudes. `fuse_abuse_null` is locked: staged arousal
+  without an event source cannot manufacture found-family.
+- **`pain_*` — procedural events, world-flagged.** The
+  `gentle_tail` exploit is legal and cheap: a dull cool-down
+  on a painful event lowers its remembered pain. Profiles
+  vary only `pain_avoid_gain` (the avoidant main's
+  remembered dentist weighs more).
+- **`gc_na_thresh` / `stress_consol_k` — the numb-absorption
+  gate.** Flat population parameters. The cast-level
+  consequence: the character who receives catastrophe while
+  numb encodes it *less* consolidated than the one who
+  receives it racing — shock-then-numbness is a real memory
+  profile, not a bug.
+- **Emergent cast shadows:** (a) the young main whose
+  embarrassing Tuesday intrudes for a decade on any return
+  to the venue — `cringe_intrude` + `cringe_cue_sim`;
+  (b) the pair who survived the blackout night and are
+  bonded out of proportion to the night — `co_arousal_bond`
+  on shared dysphoria; (c) the one who heard the diagnosis
+  in flat affect and genuinely remembers it *thinner* than
+  the sister who screamed — `gc_na_gate`.
+  Sources EM§§112–121; probes P1065–P1074.
