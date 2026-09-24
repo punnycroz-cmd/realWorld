@@ -1,6 +1,6 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v123 — art rebase v61→v65 (street-dressing build) + Steam markup
+**Status: v136 — art rebase v65→v67 (lens-rebuild build) + Steam markup
 variant + local store-page preview + post-launch page lifecycle,
 2026-09-23.**
 Supersedes v108.
@@ -178,7 +178,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v65-A..D.png` (4 ready, aerial-camera build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v67-A..D.png` (4 ready, lens-rebuild build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -192,9 +192,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v65-D (director view — the hook), v65-B
-(street level), v65-C (Dolores Park), v16-int-cafe (interior vignette),
-then v65-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v67-D (director view — the hook), v67-B
+(street level), v67-C (Dolores Park), v16-int-cafe (interior vignette),
+then v67-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -253,7 +253,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v65-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v67-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -356,17 +356,17 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v65-D "director view" → "Director
-mode over the rooftops toward distant cumulus shower cells — REC cluster
-and DIRECTOR badge up top, wind-leaned rain shafts under the far cells.";
-v65-B street level → "Street-level up the block past dressed storefronts —
-window boxes, stoop pots, parked cars on the curb, name tags overhead,
-marine haze softening the far end."; v65-C park → "Dolores Park from
-overhead — perimeter streets, the palm allée, mow-striped lawns ringed by
-two rows of facades."; v65-A overhead → "The Mission block around 24th and
-Mission from the new aerial camera — rooftops and pawns leaning outward
-from the frame nadir, crowns in early leaf-turn, inspector open on a
-resident."; v16-int-cafe → "Interior vignette behind the glass: the café
+`press-kit/captions.txt` as canonical): v67-D "director view" → "Director
+mode over the rooftops and laundry lines under a clean autumn sky — REC
+cluster and DIRECTOR badge up top, the rebuilt lens rendering one
+weather-driven visibility distance."; v67-B street level → "Street-level
+close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
+storefronts, parked cars, leaves drifting, name tags overhead."; v67-C
+park → "Dolores Park from overhead — crown-genome trees in rust and gold
+across the mow-striped lawns, no two alike, tennis courts on the south
+edge."; v67-A overhead → "The Mission block around 24th and Mission from
+overhead on an autumn afternoon — leaves drifting over rooftops and
+parked cars, dressed facades, inspector open on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
 venue from the street camera."; v1 pair → "Same engine, day one — the
 before/after that anchors the devlog series."
 
@@ -391,7 +391,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v65-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v67-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -491,7 +491,7 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v61 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v67 build) | shipped |
 
 ---
 
@@ -1026,7 +1026,7 @@ Cadence: announcements are events, not a drip — never post "stay tuned".
 
 ## 32. Seasonal store-art freshness rule
 
-The sim runs on the real calendar — the v61 captures are the September
+The sim runs on the real calendar — the v67 captures are the autumn
 turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
 crowns while the live block is in spring is a quiet lie.
 

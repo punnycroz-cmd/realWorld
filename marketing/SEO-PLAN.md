@@ -384,17 +384,19 @@ the owner instead of competing — same rule as internal-link §6.
 - Day 60/90: review cannibalization register vs. actual query→page mapping;
   fold learnings into the calendar's next 12 weeks.
 
-**Debt register (carried, honest):** *(v135: audit baseline 97 pass /
-49 warn / 0 fail — warns = 20 placeholder-canonical + 29 raster-size;
-warn count rose 43→49 because the gallery refresh moved shots to the
-v65 set.)*
-1. `shots/v65-A.png` (2.06MB) and `v65-C.png` (2.07MB) breached the 2MB
-   PNG-fallback ceiling after the v53→v65 gallery refresh — **fixed this
-   pass:** lossless PNG re-encode (compress_level 9) → 1.94MB / 1.95MB.
-   `v65-B.png` (1.43MB) and `v65-D.png` (1.60MB) remain accepted raster
-   debt — webp companions serve modern browsers; PNGs are fallback only.
-   Recheck on the next art rebase; if a future refresh pushes past 2MB
-   again, drop the PNG fallback rather than shipping a heavier page.
+**Debt register (carried, honest):** *(v136: gallery rebase v65→v67 —
+audit baseline 97 pass / 42 warn / 0 fail; warns = 20
+placeholder-canonical + 22 raster-size; raster warns fell 29→22 because
+v67-A/C now serve webp directly with no PNG `<img>` fallback.)*
+1. `shots/v67-A.png` (2.13MB) and `v67-C.png` (2.24MB) breach the 2MB
+   PNG-fallback ceiling — lossless re-encode was already optimal this
+   time (source files are per-row filtered, zlib-9; a re-filter +
+   re-deflate pass produced byte-identical output). Per the rule set at
+   v135, **the PNG fallback is dropped for these two shots:** their
+   `<img>` tags serve `.webp` directly (all modern browsers; the PNGs
+   remain on disk as "Full size" downloads only). `v67-B.png` (0.95MB)
+   and `v67-D.png` (1.00MB) keep the normal PNG fallback. Recheck on
+   the next art rebase.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
    gallery copy until then; expect a CTR jump at G12 flip.
 3. Article JSON-LD still pending (§5) — journal posts need their own URLs

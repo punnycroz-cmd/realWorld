@@ -21,7 +21,7 @@ uncommitted work-in-progress).
 **One-command gate worksheet:** `./tools/gonogo.sh` prints all 18 gates with
 live AUTO status for the mechanical ones and a pre-filled §6 block for the
 owner decision thread. Last run **2026-09-23 (v128): 3/18 auto-green** — G5
-(gallery at published v65), G9 (zip fresh), G18 (accuracy sweep clean); the
+(gallery at published v67), G9 (zip fresh), G18 (accuracy sweep clean); the
 rest await owner/track triggers, as expected pre-launch.
 **Checklist self-audit:** `./tools/checklist_audit.py` mechanically verifies
 the checklist against the tree it describes — gate contiguity, every gate has
@@ -324,6 +324,8 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | staging_dryrun.sh (v128, shots v65) | 41 pass / 2 warn / 0 fail — warns: domain ×2 only |
 | 2026-09-23 | tools/preflight.sh (v128) | 8 pass / 5 warn / 0 fail — GO; warns all owner-gated (G3/G4/G8/G12/uncommitted); accuracy_sweep 5/32/0, seo_audit 97/49/0, brand_audit 0/0, trailer --check 8 programs/62 shots 0 fail |
 | 2026-09-23 | tools/traffic_probe.sh (v134, first run, vs local static staging) | warm 20/20 PASS (all sitemap URLs); load 80/80 200s @ conc=16 (avg 14 ms, p95 ~37 ms — correctness signal only); headers 0 pass / 10 warn / 0 fail — correctly bound to the Caddyfile contract (bare http.server sends none) |
+| 2026-09-23 | gallery refresh v65→v67 (v136) | art-v67 lens rebuild (chromatic fringing / scanline blur / film grain retired; sfVisKm weather-driven visibility; carries art-v66 crown-genome trees + autumn leaf-fall); shots + kit screenshots swapped, captions/alt-text/README/whats-new/deadline-desk/contact-sheet/fact-sheet/one-sheet/b-roll/embargo refs updated, keyart/banners/og-card rebaked on v67-D; v67-A/C PNGs breach the 2MB fallback ceiling → PNG fallback dropped for those two per the v135 rule (webp-only `<img>`, PNGs kept as downloads); dist zip rebuilt (58 files) |
+| 2026-09-23 | staging_dryrun.sh + preflight.sh (v136, shots v67) | dry-run 40 pass / 3 warn / 0 fail (domain ×2 + 2 on-disk PNGs >2MB — expected, fallbacks dropped); seo 97/42/0; accuracy 5/32/0; checklist 14/0/0; preflight 8 pass / 5 warn / 0 fail GO (warns all owner-gated) |
 
 ## §11 Rehearsal coverage matrix
 

@@ -1,7 +1,20 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v65-* is the current development build).
+build they were captured from (v67-* is the current development build).
+
+## v136 — 2026-09-23
+- Screenshots rebased v65→**v67** (the lens rebuild: lateral chromatic
+  fringing, scanline blur, and film grain retired; vignette softened;
+  one weather-driven visibility number now drives haze, the horizon
+  marine band, and the skyline veil — a cleaner frame at ~5 fewer
+  full-frame passes; carries art-v66's crown-genome trees — turned by
+  the in-world calendar, flipped per instance — with autumn leaf-fall
+  drifting over the block).
+  Site shots, kit screenshots, key art, og-card, banners, store capsules
+  rebaked; captions, README, fact-sheet, index, contact-sheet,
+  deadline-desk, b-roll, one-sheet, embargo-briefing refs updated.
+- `whats-new.md` extended: arc now covers v53→v55→v56→v59→v61→v65→v67.
 
 ## v128 — 2026-09-23
 - Screenshots rebased v61→**v65** (the street dresses up: parklets in

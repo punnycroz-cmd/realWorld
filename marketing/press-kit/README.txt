@@ -35,7 +35,7 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v55 → v59 → v61 → v65, for "what's new" coverage and
+                     v53 → v55 → v59 → v61 → v65 → v67, for "what's new" coverage and
                      update posts
   one-sheet.html     Single-page printable sell sheet — the whole pitch
                      on one page; Print → PDF works
@@ -64,17 +64,15 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v65-* = current renderer (street dressing —
-                     cast-iron tree grate wells, water-meter covers and
-                     vault panels in the sidewalk cells; on the v61
-                     weather set: patchy Karl fog, distant cumulus
-                     shower cells with wind-leaned rain shafts and
-                     virga on the skyline, the re-framed Dolores
-                     overlook — perimeter
-                     streets and facades ring the lawns — on top of the
-                     v55 September turn: leaf-turn crowns, contour mow
-                     stripes, leaf-fall; the v54 facade dressing; and
-                     the v53 street furniture + palm allée work);
+                     v67-* = current renderer (the lens rebuild —
+                     chromatic fringing, scanline blur, and film grain
+                     retired; one weather-driven visibility number now
+                     drives the haze, the horizon marine band, and the
+                     skyline veil; crown-genome trees turned by the
+                     in-world calendar, autumn leaf-fall; carries the
+                     v65 street dressing, v64 sidewalk ironwork, the
+                     v61 weather field, and the re-framed Dolores
+                     overlook underneath);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

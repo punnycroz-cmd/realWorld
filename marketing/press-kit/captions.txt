@@ -13,33 +13,32 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v65-A.png       1440x900 (approx)
-  The Mission block around 24th and Mission from overhead on a late-
-  September afternoon, under patchy Karl fog: street grid, parked cars,
-  crosswalks, curb-edge props, crowns in early leaf-turn. The resident
-  inspector is open on Jules, a hired resident, between things on
-  Guerrero — needs, mood, and recent thoughts are all
-  spectator-readable. The HUD shown is the real spectator chrome of
-  the development build.
+screenshots/v67-A.png       1440x900 (approx)
+  The Mission block around 24th and Mission from overhead on an autumn
+  afternoon (in-world Day 22): leaves drifting over rooftops and parked
+  cars, dressed facades, crowns in full turn. The resident inspector is
+  open on Jules, a hired resident, between things on Guerrero — needs,
+  mood, and recent thoughts are all spectator-readable. The HUD shown
+  is the real spectator chrome of the development build.
 
-screenshots/v65-B.png       1440x900 (approx)
-  Street-level view up the block past dressed storefronts and stoops:
-  window boxes, AC sleeves, stoop pots, parked cars along the curb,
-  a cast-iron tree grate and sidewalk utility lids at the curb line,
-  residents carrying name tags overhead — marine haze softening the
-  far end of the street.
+screenshots/v67-B.png       1440x900 (approx)
+  Street-level close view of Jules on the sidewalk with Priya and Dani
+  mid-block: dressed storefronts and stoops, window boxes, AC sleeves,
+  parked cars along the curb, leaves drifting — residents carrying
+  name tags overhead.
 
-screenshots/v65-C.png       1440x900 (approx)
-  Dolores Park from overhead in the re-framed overlook: perimeter
-  streets, the palm allée, and two rows of facades ring the mow-striped
-  lawns. The park finally reads as a park inside a neighborhood, not
-  open field.
+screenshots/v67-C.png       1440x900 (approx)
+  Dolores Park from overhead in the re-framed overlook: crown-genome
+  trees in rust and gold across the mow-striped lawns — every crown
+  grown from a genome atlas and flipped per instance, so no two read
+  alike — tennis courts holding the south edge, perimeter streets and
+  facades ringing the park.
 
-screenshots/v65-D.png       1440x900 (approx)
-  Director mode over the rooftops toward distant cumulus shower cells
-  on the skyline: REC cluster and DIRECTOR badge up top, wind-leaned
-  rain shafts under the far cells. Weather you can see coming — the
-  camera treats the neighborhood like a film set.
+screenshots/v67-D.png       1440x900 (approx)
+  Director mode over the rooftops and laundry lines under a clean
+  autumn sky: REC cluster and DIRECTOR badge up top, the rebuilt lens
+  rendering one weather-driven visibility distance instead of stacked
+  effects — the camera treats the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -49,7 +48,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v65-A / v65-B.
+  First art pass, for before/after coverage. Pair with v67-A / v67-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

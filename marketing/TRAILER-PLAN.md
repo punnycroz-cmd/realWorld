@@ -481,7 +481,7 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v65 series + v64/v62/v61/v59/v55 era sets + v52
+`marketing/trailer/` (§11), stills in `site/shots/` (v67 series + v65/v64/v62/v61/v59/v55 era sets + v52
 interior quartet + v16 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures

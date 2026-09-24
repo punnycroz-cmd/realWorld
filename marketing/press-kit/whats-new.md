@@ -2,17 +2,17 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v65-*.png` = build v65). Everything below is
+the build (`screenshots/v67-*.png` = build v67). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v65** (September 2026).
+Current development build: **v67** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, four more passes landed:
+Since the v55 editorial set, six more passes landed:
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -39,6 +39,17 @@ Since the v55 editorial set, four more passes landed:
   catenary garlands and wall-bracket porch flags on the facades — all
   of it wind-driven off the same W.windAng/W.windSpd the weather uses,
   so the bunting flutters when the wind picks up.
+- **v67 — the lens rebuild.** The camera stopped showing off: lateral
+  chromatic fringing, the scanline blur pass, and film grain are all
+  retired, and the vignette is softened. What remains is one honest
+  number — a visibility distance computed live from the weather — that
+  now drives the haze, the marine band on the horizon, and the veil
+  over the skyline. The frame is cleaner and cheaper to draw (about
+  five fewer full-frame passes). The trees got their own upgrade along
+  the way: every crown is grown from a genome atlas, turned by the
+  in-world calendar and flipped per instance, so no two read alike —
+  and in the v67 captures the autumn leaf-fall is drifting over the
+  block.
 
 Earlier arc (still in the before/after shots):
 
@@ -66,13 +77,15 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v65-A.png` (current) — same top-down framing of the
-  block, sixty iterations apart.
-- `screenshots/v65-C.png` is the Dolores Park overhead in its re-framed
+  `screenshots/v67-A.png` (current) — same top-down framing of the
+  block, sixty-six iterations apart.
+- `screenshots/v67-C.png` is the Dolores Park overhead in its re-framed
   form: the telling detail is the ring of streets and facades — a
-  maintained city park, not open field.
-- `screenshots/v65-D.png` carries the v61-era headline: director mode over
-  the rooftops with shower cells working the skyline.
+  maintained city park, not open field — plus the crown-genome trees,
+  no two alike.
+- `screenshots/v67-D.png` carries the v67 headline: director mode over
+  the rooftops through the rebuilt lens — one weather-driven
+  visibility number, no stacked effects.
 
 ## Still true (unchanged by these passes)
 
