@@ -1,6 +1,6 @@
 {
- "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare, cooling grammar, double-surface contingency, fair misfires, posture vocabulary. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
- "schema_version": "drama-v6",
+ "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare, cooling grammar, double-surface contingency, fair misfires, posture vocabulary, drift record, object dramaturgy, composition rule. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
+ "schema_version": "drama-v7",
  "seed_states": [
   "dormant",
   "pressured",
@@ -946,6 +946,49 @@
    ],
    "legible_shadow": "who's in the car and who sits where; an errand that took longer than its list",
    "exhaustion": "monthly at most — a ride arranged to isolate two people is staging"
+  },
+  {
+   "id": "P-27",
+   "condition": "delivery morning — supplier crates and invoices on the wholesale-row sidewalk",
+   "produced_by": "the supplier loop's own delivery cadence",
+   "feeds": [
+    "F1",
+    "S6"
+   ],
+   "legible_shadow": "Tomás counting crates; a clipboard invoice; prices in the air",
+   "exhaustion": "per the loop's real cadence — crates are props of the route, never planted"
+  },
+  {
+   "id": "P-28",
+   "condition": "the borrowed-key errand — watering plants, feeding a cat while someone's away",
+   "produced_by": "the block's mutual-favor texture",
+   "feeds": [
+    "F5",
+    "F2"
+   ],
+   "legible_shadow": "a key on a hook that isn't yours; a door opened for somebody",
+   "exhaustion": "rare — keys exist because absences do; a key lent to engineer proximity is staging"
+  },
+  {
+   "id": "P-29",
+   "condition": "the shared-dessert appearance — a birthday or small win producing a plate that travels between counters",
+   "produced_by": "the block's ordinary occasions",
+   "feeds": [
+    "F4",
+    "F3"
+   ],
+   "legible_shadow": "a candle in a pastry; who carries the plate and who takes the first slice",
+   "exhaustion": "real dates only — a celebration invented for pressure is a prop department"
+  },
+  {
+   "id": "P-30",
+   "condition": "rain-day ritual transfer — cafecito hour or a park ritual relocating indoors under weather",
+   "produced_by": "the weather layer + the rituals' own elasticity",
+   "feeds": [
+    "F5"
+   ],
+   "legible_shadow": "the plants alone in the rain; Carmen's chair inside the café",
+   "exhaustion": "the ritual may move, never cancel for pressure; weather is flat (§17 identical-twin)"
   }
  ],
  "state_evidence": {
@@ -1730,6 +1773,116 @@
    "never aimed — a misfire engineered to land a specific wrong conclusion is scripting aimed at the audience (§37 forbids direction-by-viewer)",
    "they spend nothing and are never scheduled — 'a misleading glance' is a reading, not a condition; there is no misfire lever",
    "corrections apply to the audience too — the block never stages a scene to correct a spectator's wrong read; the archive's honesty is the correction"
+  ]
+ },
+ "drift_record": {
+  "doc": "drama-notes §45 — what a weekly drift review appends: exactly one immutable record per block-week window, internal bookkeeping only, never a world event and never a spectator surface",
+  "fields": [
+   "window",
+   "states",
+   "postures",
+   "spend",
+   "shadows",
+   "flags",
+   "notes"
+  ],
+  "field_notes": {
+   "window": "the block-week under review — one record per window, in order",
+   "states": "per-seed observed state; every changed state carries its §21 evidence pointer; unchanged seeds record as 'unchanged', not silence",
+   "postures": "§43 vocabulary entries only — one per fuse max, never prose that sneaks in a plan",
+   "spend": "which catalog conditions produced ledger events and which seeds consumed budget — observed, never planned",
+   "shadows": "the pressure- and brink-rung tells that rendered, per seed — the §12 audit trail",
+   "flags": "review artifacts only",
+   "notes": "free text — where a reordered season preference gets written down"
+  },
+  "flags_enum": [
+   "comedy_drought",
+   "compound_surface",
+   "stacked_week",
+   "crowded_frame",
+   "fix_forward",
+   "missing_review"
+  ],
+  "rules": [
+   "append-only and immutable — a wrong read is fixed forward in the next record, never rewritten",
+   "a quiet week is a record too — a window with no entry flags missing_review at the next review; never backfilled",
+   "postures and spend stay honestly separated — what the manager preferred vs. what the world produced",
+   "records never write to the world — not the ledger, not a character, not a seed state; they report observations, states stay observed (§21)",
+   "internal vocabulary end to end — a record may name seeds and fuses; nothing in it is briefing-safe or feed-safe"
+  ]
+ },
+ "drift_log": [],
+ "object_dramaturgy": {
+  "doc": "drama-notes §46 — the secret-objects registry: objects are the fairest shadows (seen without being read); custody is ledger-visible",
+  "objects": [
+   {
+    "object": "the flyer",
+    "held_by": [
+     "C1",
+     "C7"
+    ],
+    "may_appear": "an apron pocket; under the counter; changing hands (P-03)",
+    "never": "its text legible on camera; posted publicly before a publish event; a second copy appearing by convenience"
+   },
+   {
+    "object": "the notebook (La Esperanza)",
+    "held_by": [
+     "C8"
+    ],
+    "may_appear": "the supplier loop; the 3 p.m. table — always closed or almost",
+    "never": "opened for a non-holder; left behind as a beat; explained on sight"
+   },
+   {
+    "object": "the sketchbook",
+    "held_by": [
+     "C2"
+    ],
+    "may_appear": "café tables; 9418 at odd hours",
+    "never": "opened by anyone but Jules — a page may be glimpsed in passing, never studied"
+   },
+   {
+    "object": "the chalkboard",
+    "held_by": [
+     "C3"
+    ],
+    "may_appear": "the public wall at Mudhaus — the one object that is its own venue",
+    "never": "spelling a name; converging faster than one legible step per pressured window (P-09)"
+   },
+   {
+    "object": "the unread letter",
+    "held_by": [
+     "C6"
+    ],
+    "may_appear": "moved between surfaces; read twice; kept from Jules's sight-line",
+    "never": "opened on camera — the envelope is the entire shadow"
+   },
+   {
+    "object": "rent envelopes",
+    "held_by": [
+     "C4",
+     "C5",
+     "C2"
+    ],
+    "may_appear": "counters; the first of the month; pockets",
+    "never": "a legible amount — numbers stay interior"
+   }
+  ],
+  "rules": [
+   "custody is ledger-visible — an object changing hands is a world event or it didn't happen; objects can't teleport and are never planted",
+   "shown vs. opened — an object shown is a shadow; an object opened is the holder's own act",
+   "lost or destroyed is off-register (P-03) — objects persist the way secrets do",
+   "a new secret-object meets the pressure-row bar (§30): producing routine + §12 shadow + registry row, or it's a prop"
+  ]
+ },
+ "composition_rule": {
+  "doc": "drama-notes §47 — one shadow per frame: the cap on how many tells may land in a single camera-readable beat; binds the display ceiling, never the characters",
+  "rules": [
+   "one shadow per beat — a frame holding two seeds' tells is a stacked week in miniature and reads as the camera telling on itself",
+   "echo exemption — adjacent-fuse whisper-grade texture may share a frame with a louder shadow as venue texture, never as a second signal",
+   "brink exclusivity — a frame containing a brink tell carries no other shadow and no same-fuse comedy beat (§33)",
+   "triangulation happens across scenes, not within them — the audience does the synthesis, the render never does it for them",
+   "the rule binds the display ceiling, not the characters — ordinary lives intersecting is just the neighborhood",
+   "a crowded frame is a review flag (crowded_frame, §45) — logged at drift review like a stacked week, never retro-scrubbed"
   ]
  },
  "posture_vocabulary": {

@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v107)
+# Playtest Harness — "Real World / The Mission" (world v108)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -337,6 +337,15 @@ One person can wear every hat; four real testers is the intended shape.
   an honest 'over by ~N min' line, honors the surface filter, never
   picks a done scenario, and copies out as a [world-playtest-plan]
   block; the harness gate's v107 marks at key rw_playtest_v107.
+  PT99 (drama board v108) is a showrunner-side audit — the v108
+  direction layer verified as bookkeeping and permission structures,
+  never scripts: the drift record (§45) as a seven-field append-only
+  review schema that never writes to the world, object dramaturgy
+  (§46) as a custody table for the six secret-objects (shown is a
+  shadow, opened is the holder's act), and the composition rule (§47)
+  capping one shadow per frame with brink exclusivity; the pressure
+  catalog's sixth tranche brings it to P-30 and drama.html renders
+  all three new sections with mirrored counts.
 
 ## 3. Running a session
 

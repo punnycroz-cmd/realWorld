@@ -387,7 +387,7 @@ const PUB = Object.values(PT.surfaces)
 
 /* ============ G9 drama ============ */
 {
-  const g = gate('drama', 'drama registry invariants (states, fuses, knowledge disjointness, internal-only)');
+  const g = gate('drama', 'drama registry invariants (states, fuses, knowledge disjointness, internal-only; v108 drift-record/object/composition contracts)');
   try {
     const D = JSONF('drama.json');
     const states = new Set(D.seed_states);
@@ -671,6 +671,50 @@ const PUB = Object.values(PT.surfaces)
           add(g, 'fail', 'drama.html', null, 'POSTURE count != posture_vocabulary.postures');
         if (!PSR || PSR.length !== (PV.rules || []).length)
           add(g, 'fail', 'drama.html', null, 'POSTURERULES count != posture_vocabulary.rules');
+      }
+      /* ---- v108 blocks (schema drama-v7 or later) ---- */
+      if (/^drama-v[7-9]\d*$/.test(D.schema_version || '')) {
+        /* drift_record: the seven fields + flags enum + immutable/internal fences (§45) */
+        const DRC = D.drift_record || {};
+        for (const f of ['window', 'states', 'postures', 'spend', 'shadows', 'flags', 'notes'])
+          if (!(DRC.fields || []).includes(f)) add(g, 'fail', 'drama.json', null, `drift_record.fields missing "${f}"`);
+        if (!(DRC.flags_enum || []).length) add(g, 'fail', 'drama.json', null, 'drift_record.flags_enum missing — flags are the review vocabulary');
+        if (!(DRC.rules || []).some(r => /append-only|immutable/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'drift_record must keep the append-only/immutable rule');
+        if (!(DRC.rules || []).some(r => /never write to the world|internal/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'drift_record must fence records off world state + spectator surfaces');
+        if (!Array.isArray(D.drift_log)) add(g, 'fail', 'drama.json', null, 'drift_log must be an array (append-only review log)');
+        /* object_dramaturgy: every row needs holder/appears/never; holders are mains (§46) */
+        const OB = (D.object_dramaturgy || {}).objects || [];
+        if (!OB.length) add(g, 'fail', 'drama.json', null, 'object_dramaturgy.objects empty');
+        for (const o of OB) {
+          for (const k of ['object', 'held_by', 'may_appear', 'never'])
+            if (!o[k]) add(g, 'fail', 'drama.json', null, `object_dramaturgy row "${o.object}": missing ${k}`);
+          for (const c of o.held_by || [])
+            if (!CID.test(c)) add(g, 'fail', 'drama.json', null, `object "${o.object}": holder "${c}" is not a main id`);
+        }
+        /* composition_rule: one-shadow cap + brink exclusivity (§47) */
+        const CMPR = (D.composition_rule || {}).rules || [];
+        if (!CMPR.length) add(g, 'fail', 'drama.json', null, 'composition_rule.rules empty');
+        if (!CMPR.some(r => /one shadow/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'composition_rule must carry the one-shadow-per-beat cap');
+        if (!CMPR.some(r => /brink/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'composition_rule must keep brink exclusivity');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['driftrec', 'objects', 'compose'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const DRF2 = grab('DRIFTREC'), DRR = grab('DRIFTRECRULES'),
+              OBJ = grab('OBJECTS'), OBR = grab('OBJECTRULES'), CMP = grab('COMPOSE');
+        if (!DRF2 || DRF2.length !== (DRC.fields || []).length)
+          add(g, 'fail', 'drama.html', null, 'DRIFTREC count != drift_record.fields');
+        if (!DRR || DRR.length !== (DRC.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'DRIFTRECRULES count != drift_record.rules');
+        if (!OBJ || OBJ.length !== OB.length)
+          add(g, 'fail', 'drama.html', null, 'OBJECTS count != object_dramaturgy.objects');
+        if (!OBR || OBR.length !== ((D.object_dramaturgy || {}).rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'OBJECTRULES count != object_dramaturgy.rules');
+        if (!CMP || CMP.length !== CMPR.length)
+          add(g, 'fail', 'drama.html', null, 'COMPOSE count != composition_rule.rules');
       }
     }
     /* seeds must never be reachable from spectator contracts */

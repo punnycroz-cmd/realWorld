@@ -2130,6 +2130,27 @@ const PTS=[
   ck:["The plan block reads as a session invite — ordered, estimated, reasoned; no verdicts leak into it",
     "Harness gate: '98 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall",
     "An emptied plan box clears the card; a reload with the box set re-renders the plan from persisted state"]},
+]},
+{id:"PT99",title:"Drama board v108 — drift record, object dramaturgy, composition rule",min:9,
+ persona:"showrunner-side reviewer — wants the v108 direction layer verified as bookkeeping schema and permission structures, not scripts",
+ goal:"Verify the v108 drama-direction pass: drama.json drama-v7 carries the drift-record schema (seven fields, flags enum, append-only/immutable + never-write-to-world fences, empty drift_log array), the secret-objects registry (six objects, custody ledger-visible, shown-vs-opened), and the composition rule (one shadow per frame, echo exemption, brink exclusivity); pressure catalog grows to P-30; drama.html renders all three new sections; every new note stays a disposition/condition/weight/protection per the §19 checklist.",
+ surfaces:["audit"],steps:[
+ {do:"Read drama-notes.md §§45–48 against the §19 legality checklist. For each new rule or table row, name which of the four legal forms it is.",
+  exp:"Every statement resolves to a permission, ceiling, weight, or protection — the drift record is a bookkeeping schema (reports observations, never writes state), object dramaturgy is a custody permission structure (shown is a shadow, opened is the holder's act), the composition rule caps the display ceiling per frame. No line predicts an outcome the feed could falsify in a week.",
+  ck:["Drift record: seven fields; append-only and immutable; a quiet week is still a record (missing_review flag, never backfilled); records never write to the world",
+    "Object dramaturgy: custody is ledger-visible; no teleporting or planting; shown vs. opened split; new objects meet the pressure-row bar",
+    "Composition rule: one shadow per beat; echo exemption is whisper-grade only; a brink tell owns its frame; crowded_frame is a review flag, never a retro-scrub",
+    "P-27–P-30 each name a producing system that already exists + a legible shadow + an exhaustion rule"]},
+ {do:"Open drama.html (file://) and scroll the three new sections plus the pressure catalog.",
+  exp:"The drift record table renders seven field rows plus the rule list; object dramaturgy renders six object rows with holder/appears/never plus the rule list; the composition rule renders its six rules; the pressure catalog now runs P-01–P-30 with the sixth-tranche rows (delivery morning, borrowed-key errand, shared-dessert appearance, rain-day ritual transfer).",
+  ck:["All three new sections render populated — no empty list/tbody, no console errors",
+    "DRIFTREC/OBJECTS/COMPOSE counts match drama.json field/object/rule counts",
+    "Object 'never' columns stay honest — the flyer's text and the letter's contents never render; every holder is a C-id"]},
+ {do:"Run node world/audit.js from the repo root and read the drama + harness gates.",
+  exp:"The drama gate passes the v108 checks: schema drama-v7, drift_record fields/flags/fence content, drift_log is an array, object rows carry held_by valid main ids, composition_rule carries the one-shadow cap + brink exclusivity, and html mirror counts (DRIFTREC/DRIFTRECRULES/OBJECTS/OBJECTRULES/COMPOSE). Harness gate reports 99 scenarios at the v107 key.",
+  ck:["Drama gate: 0 fail; detail reports '10 seeds · 30 pressure rows · schema drama-v7'",
+    "A missing drift field, an object holder off the C-id pattern, or an html count mismatch would FAIL — spot-check",
+    "Harness gate: '99 scenarios · N checkpoints · key rw_playtest_v107'; 0 fail overall"]},
 ]}
 ];
 
