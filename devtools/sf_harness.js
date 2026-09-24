@@ -69,7 +69,10 @@ const api = eval(m[1] + `
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
-    sfWireShadow, sfPalmRow, SF_DECALS })`);
+    sfWireShadow, sfPalmRow, SF_DECALS,
+    updateHUD,
+    setInsp: (i2) => { inspectedPawnIdx = i2; },
+    getCtrl: () => controlledPawnIdx })`);
 
 (async () => {
   if(!api.boot){ console.error('no boot'); process.exit(2); }
@@ -482,6 +485,34 @@ const api = eval(m[1] + `
     let nWorn = 0;
     for(const d of api.SF_DECALS) if(d.kind === 'worn') nWorn += d.cells.length;
     ok(nWorn > 40, 'desire lines worn across the lawn (' + nWorn + ' cells)');
+  }
+
+  // v57: possession ban — the spectator shell's Take Control handler is a
+  // verified no-op for EVERY cast member in SF mode (C1–C8 absolute, and
+  // ambient residents too: possession enters only through the game-systems
+  // request pipeline, never a dev button). Click it programmatically on a
+  // main and on an ambient; nothing may flip.
+  {
+    const btn = document.getElementById('btn-toggle-ctrl');
+    ok(btn && typeof btn.onclick === 'function',
+       'btn-toggle-ctrl handler registered');
+    const c1 = api.VILLAGERS.findIndex(v => v._castId === 'C1');
+    const amb = api.VILLAGERS.findIndex(v => !/^C[1-8]$/.test(v._castId || ''));
+    ok(c1 >= 0 && amb >= 0, 'main + ambient indices resolve');
+    for(const idx of [c1, amb]){
+      if(idx < 0) continue;
+      api.setInsp(idx);
+      const before = api.VILLAGERS.map(v => !!v.isNPC);
+      const ctrl0 = api.getCtrl();
+      btn.onclick();
+      const after = api.VILLAGERS.map(v => !!v.isNPC);
+      ok(after.every((f2, j) => f2 === before[j]) &&
+         api.getCtrl() === ctrl0,
+         'Take Control is a no-op on ' +
+         (api.VILLAGERS[idx]._castId || 'ambient') +
+         ' (possession ban holds)');
+    }
+    api.setInsp(c1 >= 0 ? c1 : 0);
   }
 
   console.log('---');

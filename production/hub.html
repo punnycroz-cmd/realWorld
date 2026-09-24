@@ -6402,7 +6402,8 @@ function renderChibiPawn(v, cw, ch){
   // Name tag
   if(cam.zoom >= 0.8){
     ctx.font = 'bold 11px system-ui, sans-serif';
-    const tag = v.name + (v === VILLAGERS[controlledPawnIdx] ? ' ★' : '');
+    const tag = v.name + (v === VILLAGERS[controlledPawnIdx] &&
+      !(typeof SF_MODE !== 'undefined' && SF_MODE) ? ' ★' : '');
     const tw = ctx.measureText(tag).width;
     ctx.fillStyle = 'rgba(15,23,42,0.85)';
     ctx.fillRect(sx - tw/2 - 4, sy - 78 * cam.zoom, tw + 8, 15);
@@ -6809,9 +6810,21 @@ function updateHUD(){
 
   const isCtrl = (v === VILLAGERS[controlledPawnIdx]);
   const badge = document.getElementById('pi-badge');
-  badge.textContent = isCtrl ? 'Controlled' : 'Autonomous AI';
-  badge.className = isCtrl ? 'pi-badge controlled' : 'pi-badge';
-  document.getElementById('btn-toggle-ctrl').textContent = isCtrl ? 'Release to AI' : 'Take Control';
+  const SF_UI = typeof SF_MODE !== 'undefined' && SF_MODE;
+  if(SF_UI){
+    // v54: spectator vocabulary — cast status, never "Controlled"
+    const isMain = /^C[1-8]$/.test(v._castId || '');
+    badge.textContent = isMain ? '🔒 MAIN CAST' : 'RESIDENT';
+    badge.className = isMain ? 'pi-badge controlled' : 'pi-badge';
+    badge.title = 'AI-driven — nobody can possess this character';
+  } else {
+    badge.textContent = isCtrl ? 'Controlled' : 'Autonomous AI';
+    badge.className = isCtrl ? 'pi-badge controlled' : 'pi-badge';
+    badge.title = '';
+  }
+  const tglBtn = document.getElementById('btn-toggle-ctrl');
+  if(SF_UI){ if(tglBtn) tglBtn.style.display = 'none'; }
+  else if(tglBtn) tglBtn.textContent = isCtrl ? 'Release to AI' : 'Take Control';
 
   // Swimming trait badge
   const sBadge = document.getElementById('pi-swim-badge');
@@ -6827,13 +6840,33 @@ function updateHUD(){
 
   // Live status label
   let actStr = 'Resting peacefully';
-  if(v.state === 'drown_panic') actStr = '🚨 DROWNING! Panicking in deep water - cannot swim!';
-  else if(v.state === 'swim') actStr = 'Swimming gracefully across deep lake';
-  else if(v.state === 'wade') actStr = 'Wading in refreshing lake shallows';
-  else if(v.state === 'work') actStr = `Working diligently (${(v.workProgress*100).toFixed(0)}%)`;
-  else if(v.state === 'walk') actStr = 'Walking down village path';
-  else if(v.state === 'sleep') actStr = 'Sleeping soundly in bed';
-  else if(v.body && v.body.hydration < 0.25) actStr = 'Looking for water to drink';
+  if(SF_UI){
+    /* v54: honest labels — the old default called every unlisted state
+       "Resting peacefully", so a barista mid-conversation read as asleep.
+       In the Mission shell every state gets its own line and the
+       fallback implies nothing. */
+    const SF_ACT = {
+      idle: 'Between things', rest: 'Taking a breather',
+      talk: 'In conversation', sit: 'Sitting', serve: 'Serving customers',
+      carry: 'Carrying supplies', eat: 'Eating', drink: 'Getting a drink',
+      phone: 'On the phone', move: 'On the move',
+      walk: 'Walking the block',
+      work: `Working a shift (${(v.workProgress*100).toFixed(0)}%)`,
+      sleep: 'Asleep',
+      swim: 'Swimming', wade: 'Wading',
+      drown_panic: '🚨 DROWNING! Panicking in deep water - cannot swim!',
+    };
+    actStr = SF_ACT[v.state] ||
+      (v.body && v.body.hydration < 0.25 ? 'Looking for water' : 'Out and about');
+  } else {
+    if(v.state === 'drown_panic') actStr = '🚨 DROWNING! Panicking in deep water - cannot swim!';
+    else if(v.state === 'swim') actStr = 'Swimming gracefully across deep lake';
+    else if(v.state === 'wade') actStr = 'Wading in refreshing lake shallows';
+    else if(v.state === 'work') actStr = `Working diligently (${(v.workProgress*100).toFixed(0)}%)`;
+    else if(v.state === 'walk') actStr = 'Walking down village path';
+    else if(v.state === 'sleep') actStr = 'Sleeping soundly in bed';
+    else if(v.body && v.body.hydration < 0.25) actStr = 'Looking for water to drink';
+  }
   document.getElementById('pi-act-label').textContent = actStr;
 
   // Real-time biological meters
@@ -6959,6 +6992,10 @@ function initControls(){
   });
 
   document.getElementById('btn-toggle-ctrl').onclick = () => {
+    // v54: in the spectator shell possession is off the table entirely —
+    // the button is hidden and the path is a verified no-op even if
+    // invoked programmatically (protects C1–C8 absolutely).
+    if(typeof SF_MODE !== 'undefined' && SF_MODE) return;
     const v = VILLAGERS[inspectedPawnIdx];
     if(v === VILLAGERS[controlledPawnIdx]){
       v.isNPC = true;
@@ -13237,10 +13274,18 @@ updateHUD = function(){
   __hud14();
   const v = VILLAGERS[inspectedPawnIdx] || VILLAGERS[0];
   const se = document.getElementById('pi-skills');
+  const SF_ROW = typeof SF_MODE !== 'undefined' && SF_MODE;
   if(v && se){
-    ensureSkills(v);
-    const top = SKILLS.map(s => ({ s: s, l: v.skills[s].lvl })).sort((a, b) => b.l - a.l).slice(0, 3);
-    se.textContent = '🛠 ' + top.map(t => t.s + ' ' + t.l.toFixed(1)).join(' · ');
+    if(SF_ROW){
+      // v54: no medieval skill sheet on a barista — show cast role tags
+      const wk = v.equippedTool && v.equippedTool.kind && v.equippedTool.kind !== 'none'
+        ? ' · ' + v.equippedTool.kind : '';
+      se.textContent = '🏷 ' + (v._castId || 'resident') + wk;
+    } else {
+      ensureSkills(v);
+      const top = SKILLS.map(s => ({ s: s, l: v.skills[s].lvl })).sort((a, b) => b.l - a.l).slice(0, 3);
+      se.textContent = '🛠 ' + top.map(t => t.s + ' ' + t.l.toFixed(1)).join(' · ');
+    }
   }
   const ge = document.getElementById('pi-gear');
   if(v && ge){
@@ -13250,7 +13295,8 @@ updateHUD = function(){
       if(g) bits.push(g.type + ((g.dur || 1) < 0.3 ? '✂' : ''));
     }
     const w = (v.body && v.body.wounds || []).length;
-    ge.textContent = (bits.length ? '👕 ' + bits.join(', ') : '👕 ragged') +
+    ge.textContent = (bits.length ? '👕 ' + bits.join(', ')
+                                 : (SF_ROW ? '👕 everyday wear' : '👕 ragged')) +
       (w ? ' · 🤕 ' + w + ' wound(s)' : '') + (v.downed ? ' · DOWN (' + v.downed.cause + ')' : '');
   }
 };
@@ -21803,19 +21849,28 @@ let SF_ROADW = null, SF_ROADAX = null, SF_ROADOFF = null;
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 8, sfCypress: 7, sfPlanter: 5,
-                      sfCar: 15, sfPole: 5 };
+                      sfCar: 15, sfPole: 5,
+                      // v53: small enough that a pawn detours around, not
+                      // into — and sfPicnic is intentionally absent (a
+                      // blanket is ground, you can cross it)
+                      sfHydrant: 5, sfTrashCan: 5, sfNewsBox: 7,
+                      sfBikeRack: 8 };
+const SF_PICNIC = []; // v53: Dolores lawn blanket sites (render-gated)
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
 const SF_DECALS = [];
 const SF_GROUND_OVR = new Map(); // "wx,wy" -> street-view fill color
 /* v40: perimeter palm allée — a park-edge grass cell carries a palm
    every ~7 cells (~14m) along the edge axis, phase-offset per row, the
-   way Dolores Park's palms actually ring the lawn. Pure + deterministic. */
+   way Dolores Park's palms actually ring the lawn. Pure + deterministic.
+   v54: spacing tightened to every ~4 cells (~8m) — at diorama zoom the
+   old cadence scattered into isolated blobs; a real allée reads as a
+   ROW, and the row is what tells the eye "city park, not field". */
 function sfPalmRow(wx, wy){
   const horiz = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11;
   const u = horiz ? wx : wy, per = horiz ? wy : wx;
-  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 7);
-  return ((u + off) % 7) === 0;
+  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 4);
+  return ((u + off) % 4) === 0;
 }
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
@@ -22148,6 +22203,7 @@ function sfInitWorld(){
   VILLAGE_OBJECTS.length = 0;
   SF_PROP_CELL.clear();
   SF_PROP_DRAW.clear();
+  SF_PICNIC.length = 0;
   const occ = new Set(); // occupied cells (any prop) for spacing checks
   for(const p of SF_MAP.props){
     const kind = p.k === 'tree' ? 'sfTree' : p.k === 'palm' ? 'sfPalm'
@@ -22229,8 +22285,8 @@ function sfInitWorld(){
               nParkVeg++;
             }
           }
-        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 4)){
-          // v40: perimeter palm allée — a tall palm every ~7 cells along
+        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 3)){
+          // v40: perimeter palm allée — a tall palm every ~4 cells along
           // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
@@ -22363,6 +22419,116 @@ function sfInitWorld(){
       if(lst[k].slot - lst[k - 1].slot > 16) continue;
       SF_WIRES.push({ x1: lst[k - 1].o.x, y1: lst[k - 1].o.y,
                       x2: lst[k].o.x, y2: lst[k].o.y });
+    }
+  }
+
+  /* ---- v53: the furniture layer — the small grounded objects a real
+     Mission sidewalk carries. Fire hydrants ride the curb edge (a rare
+     gold one honors the repainted hydrant at 20th & Church), dark green
+     litter drums and chained news boxes hold the crosswalk corners,
+     bike racks with locked bikes cluster near shop doors, and the
+     Dolores lawn seeds picnic-blanket spots whose occupancy the weather
+     and the hour decide at render time (sfPicnicFill). All placements
+     are pure hashes of (wx, wy) — the set never depends on load order. */
+  let nHydr = 0, nCan = 0, nBox = 0, nRack = 0;
+  const doorCells = [...SF_DOORS.keys()].map(k => k.split(',').map(Number));
+  for(let wy = 1; wy < SF_M.gh - 1; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1; wx++){
+      const t = sfTile(wx, wy);
+      if(t === 11){
+        // curb-side cell? which side faces the street, and which axis
+        let ax = 0, ay = 0, ox = 0, oy = 0;
+        if(sfTile(wx, wy - 1) === 10){ ax = 1; oy = -12; }
+        else if(sfTile(wx, wy + 1) === 10){ ax = 1; oy = 12; }
+        else if(sfTile(wx - 1, wy) === 10){ ay = 1; ox = -12; }
+        else if(sfTile(wx + 1, wy) === 10){ ay = 1; ox = 12; }
+        else continue;
+        const cornerish = sfTile(wx + ax * 2, wy + ay * 2) === 16 ||
+                          sfTile(wx - ax * 2, wy - ay * 2) === 16 ||
+                          sfTile(wx + ax * 3, wy + ay * 3) === 16 ||
+                          sfTile(wx - ax * 3, wy - ay * 3) === 16 ||
+                          sfTile(wx + ax, wy + ay) === 16 ||
+                          sfTile(wx - ax, wy - ay) === 16;
+        if(occNear(wx, wy, 0)) continue;
+        const slot = ax ? wx : wy;
+        if(cornerish){
+          // corner curb cell: litter drum or a news-box row most often,
+          // a hydrant sometimes — real corners carry all three
+          const r = phash(wx, wy, 5320);
+          if(r < 0.30 && nCan < 900){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7 + (ax ? (phash(wx, wy, 5321) - 0.5) * 12 : 0),
+                                      oy * 0.7 + (ay ? (phash(wx, wy, 5321) - 0.5) * 12 : 0));
+            nCan++;
+          } else if(r < 0.55 && nBox < 500){
+            addVeg('sfNewsBox', wx, wy,
+                   ox * 0.6 + (ax ? (phash(wx, wy, 5322) - 0.5) * 8 : -ox * 0.15),
+                   oy * 0.6 + (ay ? (phash(wx, wy, 5322) - 0.5) * 8 : -oy * 0.15))
+              .v = Math.floor(phash(wx, wy, 5323) * 5);
+            nBox++;
+          } else if(r < 0.72 && nHydr < 800){
+            const o = addVeg('sfHydrant', wx, wy, ox, oy);
+            // golden hydrant: rare, and only on cells ringing the park
+            o.v = (phash(wx, wy, 5324) < 0.04 &&
+                   Math.abs(wx - 300) < 60 && Math.abs(wy - 200) < 120) ? 1 : 0;
+            nHydr++;
+          }
+        } else {
+          // mid-block curb cell: hydrants on an ~11m cadence, drums and
+          // racks thinner — and never inside a door threshold
+          if(slot % 11 === (ax ? 4 : 7) && nHydr < 800 &&
+             phash(wx, wy, 5325) < 0.8 && !doorNear(wx, wy, 1)){
+            addVeg('sfHydrant', wx, wy, ox, oy).v = 0;
+            nHydr++;
+          } else if(slot % 17 === (ax ? 9 : 3) && nCan < 900 &&
+                    phash(wx, wy, 5326) < 0.5 && !doorNear(wx, wy, 1)){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7, oy * 0.7);
+            nCan++;
+          }
+          // bike racks cluster within 4 cells of a shop door — coffee
+          // and taqueria frontage is where SF actually staples them
+          if(nRack < 350 && phash(wx, wy, 5327) < 0.30 && !doorNear(wx, wy, 1)){
+            let nearDoor = false;
+            for(const [dx, dy] of doorCells)
+              if(Math.abs(dx - wx) <= 4 && Math.abs(dy - wy) <= 4){ nearDoor = true; break; }
+            if(nearDoor){
+              addVeg('sfBikeRack', wx, wy, ox * 0.8, oy * 0.8)
+                .v = Math.floor(phash(wx, wy, 5328) * 3);
+              nRack++;
+            }
+          }
+        }
+      } else if(t === 13){
+        /* Dolores lawn picnic spots — a fixed pool of blanket sites on
+           open grass (kept clear of tree trunks and off the paths).
+           sfPicnicFill() at render decides which are occupied: a warm
+           clear afternoon fills the slope, rain or night empties it.
+           Blankets arrive in GROUPS — real Dolores lawns are patchworks
+           of abutting spreads, so a seeded site tries to pull in a
+           neighbor blanket 40% of the time. */
+        if(SF_PICNIC.length >= 1500) continue;
+        if(phash(wx, wy, 5330) > 0.115) continue;
+        if(occNear(wx, wy, 0)) continue;
+        const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
+                         sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        if(nearPath && phash(wx, wy, 5331) < 0.55) continue; // sparse on the walk edge
+        const o = addVeg('sfPicnic', wx, wy,
+                         (phash(wx, wy, 5332) - 0.5) * 14,
+                         (phash(wy, wx, 5333) - 0.5) * 14);
+        o.v = Math.floor(phash(wx, wy, 5334) * 6);
+        SF_PICNIC.push(o);
+        if(phash(wx, wy, 5335) < 0.45 && SF_PICNIC.length < 1500){
+          // a friend blanket one cell over — shares the same sunny patch
+          const bx = wx + (phash(wx, wy, 5336) < 0.5 ? 1 : -1),
+                by = wy + (phash(wx, wy, 5337) < 0.5 ? 1 : -1);
+          if(sfTile(bx, by) === 13 && !occNear(bx, by, 0)){
+            const o2 = addVeg('sfPicnic', bx, by,
+                              (phash(bx, by, 5332) - 0.5) * 14,
+                              (phash(by, bx, 5333) - 0.5) * 14);
+            o2.v = Math.floor(phash(bx, by, 5334) * 6);
+            SF_PICNIC.push(o2);
+          }
+        }
+      }
     }
   }
 
@@ -23256,10 +23422,11 @@ function sfLobeCaps(g, blobs, col){
   for(const [bx, by, rx, ry] of blobs)
     paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, col);
 }
-function sfLeafyTree(v){
+function sfLeafyTree(v, lf, ld){
   // broad park tree: forked trunk under a leaf-cluster crown
   const s = paMk(56, 64), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // under-canopy occlusion mass (keeps the core deep)
   const blobs = SF_CROWN.tree[v].lobes;
   for(const [bx, by, rx, ry] of blobs) paEllipse(g, bx, by + 1, rx, ry, ld[1]);
@@ -23493,9 +23660,10 @@ function sfPlanterSpr(){
    sfVegSideSpr: SIDE-ELEVATION silhouettes for the street camera — a
    trunk rising into real crown architecture, instead of the top-down
    crown sprite pasted upright (which read as a green balloon). */
-function sfBigTreeSpr(v){
+function sfBigTreeSpr(v, lf, ld){
   const s = paMk(128, 120), g = s.g;
-  const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+  const tr = MAT.trunk;
+  lf = lf || MAT.leaf; ld = ld || MAT.leafDeep;
   // v0 spreading live-oak mass, v1 taller elm vase, v2 flat-top plane tree
   const blobs = SF_CROWN.big[v].lobes;
   for(const [bx,by,rx,ry] of blobs) paEllipse(g, bx, by + 2, rx, ry, ld[1]);
@@ -23523,12 +23691,12 @@ function sfSideCrown(g, blobs, seed, lf, ld){
                  { n: Math.round(rx * ry * 1.7) });
   }
 }
-function sfVegSideSpr(kind, v){
+function sfVegSideSpr(kind, v, lf0, ld0){
   if(kind === 'tree'){
     // park / OSM broadleaf seen from the sidewalk: real trunk into a
     // layered crown (~7-9m tall at draw scale)
     const s = paMk(110, 175), g = s.g;
-    const tr = MAT.trunk, lf = MAT.leaf, ld = MAT.leafDeep;
+    const tr = MAT.trunk, lf = lf0 || MAT.leaf, ld = ld0 || MAT.leafDeep;
     // tapered trunk + scaffold limbs
     for(let y = 0; y < 78; y++){
       const w2 = Math.max(1.4, 3.4 - y * 0.022), x = 55 + Math.round(y * 0.02);
@@ -23709,9 +23877,176 @@ function sfPoleSpr(dir){
   else { paR(g, 2, 6, 10, 2, wd[2]); paPX(g, 2, 6, wd[0]); paPX(g, 11, 6, wd[0]); }
   return s;
 }
+/* ---- v53 street furniture: the small iron-and-concrete layer every
+   real Mission sidewalk carries. Plan-view sprites; the street camera
+   draws the same objects as projected 3-D miniatures in
+   sfStreetFurniture() (32_sf_render) so neither view floats them. ---- */
+/* SF fire hydrant — the low-pressure white body with its domed bonnet
+   and twin side caps. v=1 paints it gold: the one at 20th & Church is
+   repainted every April 18, so a rare golden hydrant lives on the
+   Dolores-corner cells. */
+function sfHydrantSpr(v){
+  const s = paMk(14, 18), g = s.g;
+  const C = v === 1 ? rampOf('#d8a824') : rampOf('#e8e4da');
+  const D = v === 1 ? rampOf('#9a7014') : rampOf('#b0aca0');
+  paEllipse(g, 7, 15.5, 5.5, 1.8, 'rgba(24,18,10,0.3)');
+  paR(g, 4, 6, 6, 9, C[3]);                       // barrel
+  paR(g, 4, 6, 2, 9, C[4]);                       // sun-side barrel light
+  paR(g, 8, 6, 2, 9, D[2]);                       // lee side
+  paEllipse(g, 7, 6, 3.4, 2.6, C[4]);             // bonnet dome
+  paPX(g, 7, 3, C[5]); paPX(g, 6, 4, C[5]);
+  paR(g, 2, 8, 2, 3, D[1]); paR(g, 10, 8, 2, 3, D[1]); // side caps
+  paPX(g, 2, 8, C[4]); paPX(g, 11, 8, C[4]);
+  paR(g, 3, 14, 8, 2, D[1]);                      // flange base
+  paR(g, 5, 16, 4, 1, D[0]);
+  return s;
+}
+/* SF corner litter basket — the dark green drum on a concrete foot,
+   black liner lip over the rim. */
+function sfTrashCanSpr(){
+  const s = paMk(14, 18), g = s.g;
+  const G = rampOf('#2e4632'), K = rampOf('#161a14');
+  paEllipse(g, 7, 15.5, 5.5, 2, 'rgba(24,18,10,0.3)');
+  paR(g, 3, 5, 8, 10, G[2]);
+  paR(g, 3, 5, 3, 10, G[3]);
+  paR(g, 9, 5, 2, 10, G[1]);
+  paEllipse(g, 7, 5, 4.4, 2.2, K[3]);             // open black mouth
+  paEllipse(g, 7, 5, 4.4, 1.1, K[1]);
+  paR(g, 3, 7, 8, 1, G[0]);                       // strap band
+  paR(g, 4, 15, 6, 1, G[0]);                      // foot
+  paPX(g, 4, 6, G[4]); paPX(g, 5, 9, G[3]);
+  return s;
+}
+/* News boxes — the row of chained single-sheet boxes real corners hold.
+   v picks 1-3 boxes and their parody-press colors. */
+function sfNewsBoxSpr(v){
+  const s = paMk(30, 18), g = s.g;
+  const cols = [rampOf('#d8b828'), rampOf('#b03030'), rampOf('#2a6a7a'),
+                rampOf('#e8e4da')];
+  paEllipse(g, 15, 16, 13, 1.6, 'rgba(24,18,10,0.3)');
+  const n = 1 + (v % 3);
+  for(let i = 0; i < n; i++){
+    const C = cols[(v + i) % cols.length];
+    const x = 3 + i * 9;
+    paR(g, x, 4, 8, 11, C[2]);                    // body
+    paR(g, x, 4, 8, 3, C[3]);                     // lid
+    paR(g, x + 1, 8, 6, 5, rampOf('#3a4a55')[1]); // window
+    paR(g, x + 1, 8, 6, 1, '#e8e4da');            // paper stack edge
+    paR(g, x, 15, 8, 1, '#22201c');               // feet
+    paPX(g, x + 1, 4, C[5]);
+  }
+  return s;
+}
+/* Sidewalk bike rack — inverted-U hoops with real bikes locked on.
+   Plan view: thin tire ellipses, triangle frames, seat/handlebar ticks. */
+function sfBikeRackSpr(v){
+  const s = paMk(36, 20), g = s.g;
+  const ir = rampOf('#3c4044');
+  const bikeCols = [rampOf('#a03838'), rampOf('#3a5a8a'), rampOf('#e0d8c8'),
+                    rampOf('#4a6a44')];
+  paEllipse(g, 18, 17.5, 16, 1.8, 'rgba(24,18,10,0.28)');
+  const nBike = v === 2 ? 2 : 1;
+  // hoops behind the bikes
+  for(const hx of [8, 20]){
+    paR(g, hx, 5, 2, 9, ir[1]);
+    paR(g, hx, 5, 6, 2, ir[2]);
+    paR(g, hx + 4, 5, 2, 9, ir[1]);
+    paPX(g, hx, 5, ir[4]); paPX(g, hx + 4, 5, ir[4]);
+  }
+  for(let b = 0; b < nBike; b++){
+    const C = bikeCols[(v * 2 + b) % bikeCols.length];
+    const oy = b * 8;
+    // wheels: thin ellipses
+    for(const wx of [9 + b * 10, 21 + b * 10]){
+      paEllipse(g, wx, 12 + oy, 4, 2.4, '#1c1a18');
+      paEllipse(g, wx, 12 + oy, 2.8, 1.4, rampOf('#565a63')[3]);
+    }
+    // frame triangle + seat + bars
+    paLine(g, 9 + b * 10, 12 + oy, 15 + b * 10, 6 + oy, C[3]);
+    paLine(g, 15 + b * 10, 6 + oy, 21 + b * 10, 12 + oy, C[3]);
+    paLine(g, 9 + b * 10, 12 + oy, 21 + b * 10, 12 + oy, C[2]);
+    paPX(g, 14 + b * 10, 5 + oy, '#1c1a18');
+    paLine(g, 21 + b * 10, 12 + oy, 23 + b * 10, 7 + oy, '#2a2c30');
+    paPX(g, 24 + b * 10, 7 + oy, '#1c1a18');
+  }
+  return s;
+}
+/* Dolores picnic blanket — the park's true ground cover. 2.2x2.8m cloth
+   anchored to the lawn: gingham / stripes / solids, a corner cooler,
+   tote bag, and 0-2 reclining sunbathers drawn as plan-view figures. */
+const SF_BLANKET_COLS = [
+  { base: '#d84c44', pat: 'gingham' }, { base: '#2e8aa8', pat: 'stripe' },
+  { base: '#e0b23a', pat: 'solid' },   { base: '#8a5ab8', pat: 'gingham' },
+  { base: '#f0e8da', pat: 'stripe' },  { base: '#3f8a52', pat: 'solid' }];
+const SF_SKIN = ['#e8c8a0', '#c89868', '#8a6248', '#f0d8b8', '#6e4a32'];
+const SF_SHIRT = ['#d85040', '#4a7ab0', '#e8e0d0', '#e0a030', '#5a8a5a',
+                  '#30343c', '#c878a0'];
+function sfBlanketSpr(v){
+  const s = paMk(38, 46), g = s.g;
+  const B = SF_BLANKET_COLS[v % SF_BLANKET_COLS.length];
+  const C = rampOf(B.base);
+  // soft under-shadow + cloth with slightly ragged edge
+  paEllipse(g, 19, 24, 18, 21, 'rgba(20,30,14,0.18)');
+  paR(g, 3, 4, 32, 38, C[3]);
+  paR(g, 3, 4, 32, 2, C[4]); paR(g, 3, 4, 2, 38, C[4]);
+  paR(g, 3, 40, 32, 2, C[2]); paR(g, 33, 4, 2, 38, C[2]);
+  if(B.pat === 'gingham'){
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 3, C[2]);
+      paR(g, 7 + k * 7, 4, 3, 38, C[2]);
+    }
+    for(let k = 0; k < 5; k++){
+      paR(g, 3, 9 + k * 7, 32, 1, C[5]);
+      paR(g, 7 + k * 7, 4, 1, 38, C[5]);
+    }
+  } else if(B.pat === 'stripe'){
+    for(let k = 0; k < 4; k++) paR(g, 3, 8 + k * 10, 32, 4, C[2]);
+    paR(g, 3, 4, 32, 3, C[5]);
+  } else {
+    paR(g, 8, 9, 22, 28, C[2]); paR(g, 10, 11, 18, 24, C[3]);
+  }
+  paNoise(g, 3, 4, 32, 38, [C[2], C[4]], 0.08, 5300 + v);
+  // cooler box on a corner + a tote slumped beside it
+  const cool = rampOf('#d8d8e0'), tote = rampOf(SF_SHIRT[(v + 3) % SF_SHIRT.length]);
+  paR(g, 26, 34, 8, 7, cool[3]); paR(g, 26, 34, 8, 2, cool[5]);
+  paPX(g, 29, 37, cool[1]);
+  paR(g, 5, 34, 6, 6, tote[2]); paEllipse(g, 8, 34, 3, 2, tote[3]);
+  // sunbathers: head + torso + kicked-out legs, all inside the cloth
+  const nP = phash(v, 3, 5310) < 0.3 ? 0 : (phash(v, 5, 5311) < 0.55 ? 1 : 2);
+  for(let p = 0; p < nP; p++){
+    const px = 10 + p * 12 + Math.floor(phash(v, p, 5312) * 3),
+          py = 12 + Math.floor(phash(p, v, 5313) * 4);
+    const skin = rampOf(SF_SKIN[(v + p) % SF_SKIN.length]);
+    const shirt = rampOf(SF_SHIRT[(v + p * 2) % SF_SHIRT.length]);
+    const prone = phash(v, p, 5314) < 0.5;      // belly-down sunning
+    paEllipse(g, px, py + 8, 4.4, 6.5, prone ? skin[3] : shirt[3]); // torso
+    paEllipse(g, px, py + 8, 4.4, 2, prone ? skin[2] : shirt[2]);
+    paBlob(g, px, py + 1, 3.1, skin[2]);                          // head
+    paPX(g, px - 1, py, skin[4]); paPX(g, px + 1, py, skin[4]);
+    paBlob(g, px, py - 1, 1.6, '#2c2018');                        // hair
+    // legs trail toward the bottom of the cloth
+    paLine(g, px - 2, py + 13, px - 3, py + 19, skin[3]);
+    paLine(g, px + 2, py + 13, px + 3, py + 18, skin[3]);
+    paPX(g, px - 3, py + 20, skin[2]); paPX(g, px + 3, py + 19, skin[2]);
+    if(phash(v, p, 5315) < 0.4){ // book or phone held over the face
+      paR(g, px - 2, py - 4, 4, 3, '#e8e4da'); paPX(g, px, py - 4, '#8a2c2c');
+    }
+  }
+  return s;
+}
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
+  /* v55: THE TURNING — Mission autumn crown sets. Real SF fall color is
+     modest and species-patchy: ginkgo/liquidambar gold, ornamental pear
+     rust, a few wine-red stragglers — never the whole canopy at once.
+     Same SF_CROWN lobe geometry as the green sets (shadow contract
+     holds); only the palette flips. */
+  const SF_FALL = [
+    [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
+    [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
+    [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+  V.treeA = [0, 1, 2].map(v => sfLeafyTree(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.palm = [sfPalmTree(0), sfPalmTree(1)];
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
@@ -23732,10 +24067,23 @@ function buildSfVeg(){
   // v31: park-scale crowns (top view) + side-elevation silhouettes
   // (street view) — drawn instead of the plan-view crown sprites
   V.bigTree = [sfBigTreeSpr(0), sfBigTreeSpr(1), sfBigTreeSpr(2)];
+  V.bigTreeA = [0, 1, 2].map(v => sfBigTreeSpr(v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sideTree = [sfVegSideSpr('tree', 0), sfVegSideSpr('tree', 1), sfVegSideSpr('tree', 2)];
+  V.sideTreeA = [0, 1, 2].map(v => sfVegSideSpr('tree', v, SF_FALL[v][0], SF_FALL[v][1]));
   V.sidePalm = [sfVegSideSpr('palm', 0), sfVegSideSpr('palm', 1)];
   V.sideStreet = [sfFicusSideSpr(), sfVegSideSpr('street', 1), sfVegSideSpr('street', 2)];
   V.sideCypress = [sfVegSideSpr('cypress', 0), sfVegSideSpr('cypress', 1)];
+  // v53: the furniture layer — hydrant (v1 = the golden one), corner
+  // litter drum, chained news boxes, bike rack with locked bikes, and
+  // the Dolores picnic blanket set (6 cloth variants)
+  V.hydrant = [sfHydrantSpr(0), sfHydrantSpr(1)];
+  V.trashCan = sfTrashCanSpr();
+  V.newsBox = [sfNewsBoxSpr(0), sfNewsBoxSpr(1), sfNewsBoxSpr(2),
+               sfNewsBoxSpr(3), sfNewsBoxSpr(4)];
+  V.bikeRack = [sfBikeRackSpr(0), sfBikeRackSpr(1), sfBikeRackSpr(2)];
+  V.blanket = [];
+  for(let bv = 0; bv < SF_BLANKET_COLS.length; bv++)
+    V.blanket.push(sfBlanketSpr(bv));
 }
 
 /* ---------------- Victorian facade compiler ----------------
@@ -25098,12 +25446,33 @@ if(SF_MODE && typeof document !== 'undefined'){
     '<span><kbd>O</kbd> Orbit</span>' +
     '<span><kbd>Z</kbd>/<kbd>X</kbd> Lens</span>' +
     '<span><kbd>Scroll</kbd> Dolly</span>' +
-    '<span><kbd>WASD</kbd> Fly</span>' +
+    '<span><kbd>WASD</kbd> Fly camera</span>' +
     '<span><kbd>R</kbd>/<kbd>F</kbd> Up/Down</span>' +
     '<span><kbd>L</kbd> Lens</span>' +
     '<span><kbd>G</kbd> Cutaway</span>' +
     '<span><kbd>T</kbd> Track</span>' +
     '<span><kbd>1-9</kbd> Marks</span>';
+  /* v54: spectator UI realignment — this is a broadcast console, never a
+     game HUD. No element may imply the viewer can BE someone in the
+     world: the title is the show's name, Take Control is gone entirely
+     (the C1–C8 possession ban is absolute), and the only action channel
+     offered is a request into the REQUESTS tab. */
+  if(typeof document.querySelector === 'function'){
+    const ttl = document.querySelector('#top .title');
+    if(ttl) ttl.textContent = 'REAL WORLD · THE MISSION';
+  }
+  const tgl = document.getElementById('btn-toggle-ctrl');
+  if(tgl) tgl.style.display = 'none';
+  const acts = typeof document.querySelector === 'function' &&
+             document.querySelector('.pi-actions');
+  if(acts && !document.getElementById('btn-make-req')){
+    acts.insertAdjacentHTML('beforeend',
+      '<button class="btn" id="btn-make-req" title="Send a request into the world">✉ Request</button>');
+    document.getElementById('btn-make-req').onclick = () => {
+      const tb = document.querySelector('#rwTabs button[data-t="req"]');
+      if(tb) tb.click();
+    };
+  }
 }
 
 /* ---------------- v26: LENS — camera post-processing rig -------------
@@ -25258,7 +25627,9 @@ function sfLensEnd(cw, ch){
        the glare fades exactly as the disc leaves the gate. */
     if(B){
       ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = 0.05 + 0.13 * SF_LENS.sunK;
+      // v56: glare falls off quadratically — a dry clear afternoon stays
+      // crisp off-axis instead of the whole frame milking over
+      ctx.globalAlpha = 0.02 + 0.11 * SF_LENS.sunK * SF_LENS.sunK;
       ctx.drawImage(B, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
@@ -25437,6 +25808,28 @@ function sfGrassDry(wx, wy){
                 ? 0.55 : 1;
   return d * irrig * (0.35 + 0.65 * phash(wx, wy, 3820));
 }
+/* ---------------- v55: THE TURNING — the leaf-fall calendar ------------
+   SF autumn is real but patchy: the ginkgos and liquidambars on the
+   streets go gold while the park's evergreen mass stays green, and the
+   exposed crowns on the open lawn turn first (radiation chill + wind
+   stress). sfFallTurn is pure in the sim month (peak ~late Oct);
+   sfTreeTurns decides per-prop whether THIS crown went — deterministic
+   so sprites, shadows, litter and both cameras all agree. Palms and
+   cypress are evergreen and never turn. */
+function sfFallTurn(){
+  const mo = (typeof W !== 'undefined' && W.month) ||
+             ({ Winter: 1, Spring: 4, Summer: 7, Autumn: 10 })[W.season] || 9;
+  return clamp(1 - Math.abs(mo - 10.5) / 3.0, 0, 1);
+}
+function sfTreeTurns(o){
+  return phash(o.wx, o.wy, 5520) < sfFallTurn() * (o.big ? 0.62 : 0.45);
+}
+/* mow-stripe band: the ride-on mower follows the slope, so passes run
+   along elevation contours — alternating light/dark bands ~2.5m tall */
+function sfMowBand(wx, wy){
+  return Math.floor(sfElevM((wx + 0.5) * SF_M.cell_m,
+                            (wy + 0.5) * SF_M.cell_m) / 1.25) & 1;
+}
 /* ---------------- v23: street-canyon sun occlusion ----------------
    The Mission's signature light: a low sun fires down the street grid,
    so the row on the sunward side throws the whole canyon into shade
@@ -25516,6 +25909,24 @@ function sfSoftEllipse(cx, cy, rx, ry, rot, a, soft){
   ctx.fillStyle = g2;
   ctx.beginPath(); ctx.arc(0, 0, 1, 0, Math.PI * 2); ctx.fill();
   ctx.restore();
+}
+/* v53: Dolores lawn occupancy — how much of the picnic-blanket pool is
+   in use right now. A warm clear afternoon packs the slope (the real
+   park fills to the paths on a sunny Saturday); rain, wet grass, Karl
+   cover, early morning, and night thin it out. Pure in the sim state —
+   same answer from every camera and every frame. */
+function sfPicnicFill(){
+  if(isNight()) return 0;
+  const warm = clamp((W.temp - 9) / 16, 0, 1);             // cold lawn empties
+  const sunF = clamp(SF_SUN.day * 1.9 + 0.1, 0, 1);        // overcast keeps some
+  const hourF = W.tod < 9 ? 0.05 : W.tod < 11 ? 0.45 :
+                W.tod < 19 ? 1 : W.tod < 20.5 ? 0.5 : 0.08;
+  const wetF = 1 - Math.min(1, W.rain * 1.6 + (SF_WX.wet > 0.55 ? 0.65 : 0) +
+                            (SF_WX.cover || 0) * 0.12);
+  return clamp(0.9 * warm * (0.45 + 0.55 * sunF) * hourF * wetF, 0, 0.92);
+}
+function sfPicnicOn(o){
+  return phash(o.wx, o.wy, 5340) < sfPicnicFill();
 }
 function sfLampsLit(){ return isNight() || SF_SUN.el < 0.09; }
 function sfLampPool(cx, cy, r){
@@ -25976,6 +26387,44 @@ function sfCloudSprite(i, q, warmQ){
   SF_CLOUD_SPR.set(key, cvv);
   if(SF_CLOUD_SPR.size > 120)
     SF_CLOUD_SPR.delete(SF_CLOUD_SPR.keys().next().value);
+  return cvv;
+}
+/* ---------------- v56: cloud-shaped shadows ---------------------------
+   The top-view shadow pass used to stamp a smooth radial blob per cloud,
+   so the streets read as generic smears unrelated to the lumpy cumulus
+   overhead. Now the SAME lobe layout the sky sprite bakes is re-rendered
+   as a dark silhouette plate — same phash salts, same domes, denser core
+   with a soft penumbra fringe — so the ground shadow looks like the
+   cloud that casts it. Drawn smeared along the boundary-layer wind, the
+   same axis the streets are organized on. */
+const SF_CLOUD_SH = new Map();
+function sfCloudShadowSprite(i){
+  const hit = SF_CLOUD_SH.get(i);
+  if(hit) return hit;
+  if(typeof document === 'undefined') return null;
+  const c = sfClouds()[i];
+  const W2 = Math.ceil(c.r * 2.7), H2 = Math.ceil(c.r * 1.6);
+  const cvv = document.createElement('canvas');
+  cvv.width = W2; cvv.height = H2;
+  const g = cvv.getContext('2d');
+  const cx = W2 / 2, cy = H2 * 0.68;
+  const np = 7 + Math.floor(phash(i, 61, 1760) * 4);
+  for(let k = 0; k < np; k++){
+    const fx = (phash(i, k, 1761) - 0.5) * 2;
+    const domeK = 1 - fx * fx * 0.72;
+    const px = cx + fx * W2 * 0.34 + (phash(k, i, 1764) - 0.5) * c.r * 0.22;
+    const py = cy - (0.10 + phash(k, i, 1762) * 0.62) * H2 * domeK;
+    const rr = c.r * (0.30 + phash(i, k, 1763) * 0.34) * (0.55 + domeK * 0.45);
+    const g2 = g.createRadialGradient(px, py, rr * 0.2, px, py, rr * 1.3);
+    g2.addColorStop(0, 'rgba(22,30,52,0.9)');
+    g2.addColorStop(0.55, 'rgba(24,32,54,0.5)');
+    g2.addColorStop(1, 'rgba(24,32,54,0)');
+    g.fillStyle = g2;
+    g.beginPath(); g.arc(px, py, rr * 1.3, 0, Math.PI * 2); g.fill();
+  }
+  SF_CLOUD_SH.set(i, cvv);
+  if(SF_CLOUD_SH.size > 64)
+    SF_CLOUD_SH.delete(SF_CLOUD_SH.keys().next().value);
   return cvv;
 }
 /* screen-space rain shared by both SF views */
@@ -26805,6 +27254,29 @@ function sfTerrChunk(cx, cy, wetQ){
       const spr = sfTerrainTile(wx, wy, tt);
       const sx = ix * csz;
       if(spr && spr.c) g.drawImage(spr.c, sx, sy, csz, sh);
+      // v55: the mowed lawn — Dolores' grass is cut in contour-following
+      // passes, not random meadow. Alternating light/dark bands along
+      // elevation contours (albedo change, drawn under the light passes
+      // so hillshade + sun key still modulate it), plus autumn leaf-fall
+      // speckle that thickens with the turn.
+      if(tt === 13){
+        if(sfMowBand(wx, wy)){
+          g.fillStyle = 'rgba(20,44,30,0.11)';
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        } else {
+          g.fillStyle = 'rgba(255,246,206,0.09)';
+          g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+        }
+        if(phash(wx, wy, 5570) < sfFallTurn() * 0.5){
+          const LC2 = ['#c8983a', '#a4582c', '#8a5c22'];
+          for(let k2 = 0; k2 < 3; k2++){
+            g.fillStyle = LC2[(wx + wy + k2) % 3];
+            g.fillRect(sx + phash(wx, wy * 3 + k2, 5571) * (csz - 3),
+                       sy + phash(wy, wx * 5 + k2, 5572) * (sh - 2),
+                       2.5, 1.6);
+          }
+        }
+      }
       // v37: hillshade — the landform reads under the real sun: slopes
       // angled at it catch warm light, shying slopes take cool fill
       {
@@ -27306,7 +27778,10 @@ function sfRenderWorld(cw, ch){
       // ground-contact radius in meters (drives the always-on AO disc)
       let spr = null, shadeR = 0, propM = 0, footM = 0;
       if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
-        spr = o.big ? V.bigTree[ti] : V.tree[ti]; shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
+        const ar = sfTreeTurns(o);   // v55: this crown turned for autumn
+        spr = o.big ? (ar ? V.bigTreeA : V.bigTree)[ti]
+                    : (ar ? V.treeA : V.tree)[ti];
+        shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0];
         // v40: the ficus (v0) throws a real canopy-sized shade pool
@@ -27319,6 +27794,30 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
+      // v53: the furniture layer — low objects, real heights for the
+      // sun throw, footprint discs so none of them float
+      else if(o.kind === 'sfHydrant' && V.hydrant){ spr = V.hydrant[o.v || 0]; propM = 0.6; footM = 0.3; }
+      else if(o.kind === 'sfTrashCan' && V.trashCan){ spr = V.trashCan; propM = 0.85; footM = 0.4; }
+      else if(o.kind === 'sfNewsBox' && V.newsBox){ spr = V.newsBox[o.v || 0]; propM = 1.1; footM = 0.6; }
+      else if(o.kind === 'sfBikeRack' && V.bikeRack){ spr = V.bikeRack[o.v || 0]; propM = 0.9; footM = 0.9; }
+      else if(o.kind === 'sfPicnic' && V.blanket){
+        // weather- and hour-gated lawn life: empty spots don't draw
+        if(!sfPicnicOn(o)) continue;
+        const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
+        const sy = Math.round(sfSY(o.y, ch));
+        const sprB = V.blanket[o.v || 0];
+        const bw = sprB.c.width * cam.zoom, bh = sprB.c.height * cam.zoom;
+        // cloth lies ON the ground: no cast streak, just the baked
+        // under-shadow plus a stub of sun-throw for the people/cooler
+        if(!isNight() && SF_SUN.day > 0.08){
+          const hmPx = 0.35 * SF_PXM * cam.zoom;
+          sfSoftEllipse(sx + SF_SUN.x * hmPx * 0.5, sy + SF_SUN.y * hmPx * 0.5 * SF_TILT,
+                        bw * 0.4, bh * 0.3, Math.atan2(SF_SUN.y * SF_TILT, SF_SUN.x),
+                        0.18 * Math.min(1, SF_SUN.day + 0.3), 0.5);
+        }
+        ctx.drawImage(sprB.c, sx - bw / 2, sy - bh / 2, bw, bh);
+        continue;
+      }
       const sprC = spr && (spr.c || spr);
       if(o.kind === 'sfCar' && sprC){
         // v17: parked car — low slab: hard contact shadow + a short
@@ -27439,12 +27938,16 @@ function sfRenderWorld(cw, ch){
         // of each crown (pink trumpet petals, ginkgo gold, plain leaf).
         // Deterministic per prop; denser under the big park crowns.
         if(vegK && cam.zoom >= 0.55 && !isNight()){
-          const LC = o.kind === 'sfStreetTree'
+          const turnL = o.kind === 'sfTree' && sfTreeTurns(o);
+          const LC = turnL ? ['#c8983a','#a4582c','#8a5c22','#e0bc50']
+            : o.kind === 'sfStreetTree'
             ? (o.v === 1 ? ['#f0b8d0','#e0a0bc','#f8dce8'] :
                o.v === 2 ? ['#d8a84a','#c09038','#e8c86a'] :
                            ['#5a7a3a','#6b8a44','#48682e'])
             : ['#5a7a3a','#718c46','#486830'];
-          const nL = o.big ? 22 : (o.kind === 'sfStreetTree' ? (o.v === 0 ? 15 : 9) : 12);
+          // v55: turned crowns shed a real carpet, not a sprinkle
+          const nL = turnL ? (o.big ? 42 : 24)
+                   : o.big ? 22 : (o.kind === 'sfStreetTree' ? (o.v === 0 ? 15 : 9) : 12);
           const wdx = Math.cos(W.windAng || 0), wdy = Math.sin(W.windAng || 0);
           const lee = shadeR * 0.4 * (0.4 + SF_WX.gust * 0.8);
           for(let li = 0; li < nL; li++){
@@ -27454,6 +27957,53 @@ function sfRenderWorld(cw, ch){
             ctx.fillRect(Math.round(sx + Math.cos(a) * rr + wdx * lee * cam.zoom),
                          Math.round(sy + Math.sin(a) * rr * SF_TILT + wdy * lee * SF_TILT * cam.zoom),
                          Math.max(1, 1.6 * cam.zoom), Math.max(1, 1.1 * cam.zoom));
+          }
+        }
+        // v55: leaf-fall drizzle — on gusts, turned crowns shed: each
+        // leaf cycles crown->ground on its own clock, fluttering sideways
+        // on the wind vector. Same deterministic hash grammar as litter.
+        if(o.kind === 'sfTree' && sfTreeTurns(o) && !isNight() &&
+           SF_WX.gust > 0.12 && cam.zoom >= 0.45){
+          const wdx2 = Math.cos(W.windAng || 0), wdy2 = Math.sin(W.windAng || 0);
+          const nF = (o.big ? 7 : 4);
+          const LCf = ['#d8a83e', '#b5622e', '#b0483e'];
+          for(let fi = 0; fi < nF; fi++){
+            const ph2 = (SF_WX.t * (0.22 + phash(fi, o.wx, 5530) * 0.2) +
+                         phash(fi, o.wy, 5531)) % 1;
+            const fx = sx + (phash(fi, o.wx + o.wy, 5532) - 0.5) * pw * 0.7 +
+                       wdx2 * ph2 * 30 * cam.zoom +
+                       Math.sin(ph2 * 11 + fi * 2.3) * 3.5 * cam.zoom;
+            const fy = sy - ph * 0.55 + ph2 * (ph * 0.5 + 8 * cam.zoom) +
+                       wdy2 * ph2 * 12 * cam.zoom;
+            ctx.fillStyle = LCf[fi % 3];
+            ctx.globalAlpha = ph2 < 0.85 ? 1 : (1 - ph2) / 0.15;
+            ctx.fillRect(Math.round(fx), Math.round(fy),
+                         Math.max(1, 2 * cam.zoom), Math.max(1, 1.4 * cam.zoom));
+          }
+          ctx.globalAlpha = 1;
+        }
+        // v55: fallen fronds — real Mission palms drop brown fronds that
+        // lie where they fall, rachis arcs combed downwind
+        if(o.kind === 'sfPalm' && cam.zoom >= 0.55 &&
+           phash(o.wx, o.wy, 5560) < 0.6){
+          const wdx3 = Math.cos(W.windAng || 0), wdy3 = Math.sin(W.windAng || 0);
+          const nFr = 1 + (phash(o.wx, o.wy, 5561) < 0.4 ? 1 : 0);
+          for(let fi = 0; fi < nFr; fi++){
+            const fa = phash(fi, o.wx, 5562) * Math.PI * 2,
+                  fd = (4 + phash(fi, o.wy, 5563) * 7) * cam.zoom;
+            const fx = sx + Math.cos(fa) * fd + wdx3 * 3 * cam.zoom,
+                  fy = sy + Math.sin(fa) * fd * SF_TILT + wdy3 * 2 * cam.zoom;
+            const hang = Math.atan2(wdy3 * SF_TILT, wdx3) +
+                         (phash(fi, o.wy, 5564) - 0.5) * 0.7;
+            ctx.strokeStyle = fi ? '#7a5a30' : '#8a6a38';
+            ctx.lineWidth = Math.max(1, 1.3 * cam.zoom);
+            ctx.beginPath();
+            ctx.moveTo(fx, fy);
+            ctx.quadraticCurveTo(fx + Math.cos(hang) * 6 * cam.zoom,
+                                 fy + Math.sin(hang) * 6 * cam.zoom - 2 * cam.zoom,
+                                 fx + Math.cos(hang) * 11 * cam.zoom,
+                                 fy + Math.sin(hang) * 11 * cam.zoom);
+            ctx.stroke();
           }
         }
         // v49: queen-palm fruit trusses — heavy orange bunches hanging
@@ -27626,17 +28176,22 @@ function sfRenderWorld(cw, ch){
       const rr = c.r * SF_PXM * cam.zoom * 1.5;
       if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
       const a = Math.min(0.5, 0.55 * c.a * (0.3 + 0.7 * cover));
-      const g = ctx.createRadialGradient(sx, sy, rr * 0.15, sx, sy, rr);
-      g.addColorStop(0, `rgba(28,36,58,${a})`);
-      g.addColorStop(1, 'rgba(28,36,58,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      // v41: streets cast STREETS — each shadow smears along the boundary-
-      // layer wind (the axis its cloud row is organized on), so the ground
-      // reads as parallel shade lanes with sunlit gaps, not round blobs
+      // v56: the shadow IS the cloud — its own lobe silhouette plate
+      // dropped along the sun vector, smeared along the boundary-layer
+      // wind (the v41 street axis) so shade lanes keep their direction
+      const sh = sfCloudShadowSprite(i);
+      if(!sh) continue;
+      const sc = (rr * 2) / sh.width;
       const wrot = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
-      ctx.ellipse(sx, sy, rr * 1.7, rr * 0.55 * SF_TILT, wrot, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(wrot);
+      ctx.scale(1.3, 0.6 * SF_TILT);
+      ctx.globalAlpha = Math.min(1, a * 1.35);
+      ctx.drawImage(sh, -sh.width * sc / 2, -sh.height * sc * 0.62,
+                    sh.width * sc, sh.height * sc);
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
     // 2b3. v47: sunbreaks — the lanes BETWEEN the shade streets are full
     // sun: warm pools pushed half a street-spacing across the wind from
@@ -28068,9 +28623,23 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   const gapK = night ? 0 : sfSunGapK(b.x / SF_PXM, b.y / SF_PXM) * SF_SUN.day;
   const lit = (0.55 + 0.5 * Math.max(0, sunK) * SF_SUN.day +
                0.05 * Math.max(0, sunK)) * dim * (1 + 0.30 * gapK);
-  const wallCol = gapK > 0.3
-    ? mix(sfSunWallCol(wallBase, sunK), '#ffe0a8', Math.min(0.3, gapK * 0.3))
-    : sfSunWallCol(wallBase, sunK);
+  /* v57: wet facades — rain wets the walls it actually strikes. The
+     soaking memory SF_WX.wet darkens every facade a little (damp paint),
+     but the face looking INTO the wind takes the driven rain and soaks
+     nearly twice as deep; Karl's sheet wets everything it swallows.
+     Same wetness memory as the pavement, so wall and street dry together. */
+  const wvx = Math.cos(W.windAng || 0), wvy = Math.sin(W.windAng || 0);
+  const wetW = clamp(
+      SF_WX.wet * (0.45 + 0.55 * Math.max(0, -(nx * wvx + ny * wvy))) +
+      0.2 * sfKarlK(), 0, 1);
+  const wallCol = (wetW > 0.03 ? shade(
+      gapK > 0.3 ? mix(sfSunWallCol(wallBase, sunK), '#ffe0a8',
+                       Math.min(0.3, gapK * 0.3))
+                 : sfSunWallCol(wallBase, sunK),
+      1 - 0.22 * wetW)
+    : (gapK > 0.3 ? mix(sfSunWallCol(wallBase, sunK), '#ffe0a8',
+                       Math.min(0.3, gapK * 0.3))
+                  : sfSunWallCol(wallBase, sunK)));
   const para = 0.5 + phash(i, 17, 1406) * 0.35;
   const ux = ex / L, uy = ey / L;
   const quad = (pts, fill) => {
@@ -28240,6 +28809,24 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.closePath(); ctx.fill();
       }
     }
+  }
+
+  /* v57: wet sheen — a soaked facade is a slick surface: the film of
+     water returns the sky. The cool band strengthens up-wall where the
+     film runs uninterrupted and fades to dry paint at the pavement
+     splash zone (which reads darker, via the AO band above). */
+  if(wetW > 0.06){
+    const sT = Math.min(t1[1], t2[1]), sB = Math.max(g1[1], g2[1]);
+    const sg2 = ctx.createLinearGradient(0, sT, 0, sB);
+    sg2.addColorStop(0, `rgba(198,216,238,${(0.11 * wetW).toFixed(3)})`);
+    sg2.addColorStop(0.55, `rgba(198,216,238,${(0.05 * wetW).toFixed(3)})`);
+    sg2.addColorStop(0.92, 'rgba(198,216,238,0)');
+    sg2.addColorStop(1, 'rgba(198,216,238,0)');
+    ctx.fillStyle = sg2;
+    ctx.beginPath();
+    ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+    ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+    ctx.closePath(); ctx.fill();
   }
 
   // v20: wood siding courses + rain-weathering on near walls. Real Mission
@@ -28902,11 +29489,120 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   for(let f = isShop ? 1 : 0; f < floors; f++){
     const zB = hm * f / floors + 0.55, zT = hm * (f + 1) / floors - 0.5;
     if(mural && zB < muralZ1) continue;
+    /* v57: belt course — a thin stringcourse crowns each floor line on
+       italianate/stick fronts, the horizontal rule real Mission rows
+       carry between stories. It projects ~9cm: a sun-lit top lip, a
+       trim-colored face, and a hairline shadow thrown onto the floor
+       below by the same sun vector that slides the eave band. */
+    if(det >= 1 && style !== 2 && f > 0){
+      const zc = hm * f / floors + 0.02;
+      quad([[x1, y1, zc - 0.26], [x2, y2, zc - 0.26],
+            [x2, y2, zc - 0.16], [x1, y1, zc - 0.16]],
+           `rgba(20,14,9,${0.20 * Math.min(1, dim + 0.3)})`);   // cast line below
+      quad([[x1, y1, zc - 0.16], [x2, y2, zc - 0.16],
+            [x2, y2, zc + 0.02], [x1, y1, zc + 0.02]],
+           shade(ACC, Math.min(1.1, 0.8 * lit + 0.25)));        // face
+      quad([[x1, y1, zc + 0.02], [x2, y2, zc + 0.02],
+            [x2 + nx * 0.09, y2 + ny * 0.09, zc + 0.02],
+            [x1 + nx * 0.09, y1 + ny * 0.09, zc + 0.02]],
+           shade(ACC, Math.min(1.35, 0.9 + 0.45 * Math.max(0, sunK) *
+               SF_SUN.day)));                                   // top lip
+    }
     for(let k = 0; k < bays; k++){
       const t = (k + 0.5) / bays;
       if(f === 0 && Math.abs(t - doorT) < 0.14) continue;
       if(f === 0 && garU > 0 && Math.abs(t - garU) < 0.13) continue;
       drawWin(x1 + ex * t, y1 + ey * t, zB, zT, 1.15);
+      /* v54: lived-in exteriors — what hangs OFF the glass, not just what
+         sits behind it. Per-window deterministic states: iron window
+         boxes spilling geraniums, sleeve AC units staining the stucco
+         below, Juliet rails on the tall parlor openings. Each is a real
+         projection that takes sun on its own face. */
+      if(det === 2 && !mural){
+        const dr = phash(i * 7 + k, f * 13 + ei, 5401);
+        const wx2 = x1 + ex * t, wy2 = y1 + ey * t;
+        if(dr < 0.15){
+          // window box: ledge board proud of the wall, soil, leaf clumps
+          const bw = 0.78, bx0 = wx2 - ux * bw, by0 = wy2 - uy * bw,
+                bx1 = wx2 + ux * bw, by1 = wy2 + uy * bw;
+          quad([[bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.30],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.30],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.02],
+                [bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.02]],
+               shade('#7a4a30', Math.min(1.2, lit + 0.1)));
+          quad([[bx0, by0, zB - 0.02], [bx1, by1, zB - 0.02],
+                [bx1 + nx * 0.16, by1 + ny * 0.16, zB - 0.02],
+                [bx0 + nx * 0.16, by0 + ny * 0.16, zB - 0.02]],
+               'rgba(30,22,14,0.85)');
+          const nb2 = 3;
+          for(let m = 0; m < nb2; m++){
+            const uu = (m + 0.5) / nb2,
+                  mx = bx0 + (bx1 - bx0) * uu + nx * 0.10,
+                  my = by0 + (by1 - by0) * uu + ny * 0.10;
+            quad([[mx - ux * 0.14, my - uy * 0.14, zB - 0.02],
+                  [mx + ux * 0.14, my + uy * 0.14, zB - 0.02],
+                  [mx + ux * 0.14, my + uy * 0.14, zB + 0.26],
+                  [mx - ux * 0.14, my - uy * 0.14, zB + 0.26]],
+                 shade('#3e6a34', Math.min(1.25, lit + 0.15)));
+            const fl = phash(m, i * 31 + k, 5409) < 0.7;
+            if(fl){
+              const fp = pr(mx, my + 0, zB + 0.30);
+              if(fp){
+                ctx.fillStyle = ['#d8506a', '#e8a83c', '#e8e0e0'][m % 3];
+                ctx.fillRect(fp[0] - 1.6, fp[1] - 1.6, 3.2, 3.2);
+              }
+            }
+          }
+        } else if(dr < 0.24){
+          // sleeve AC unit under the sill + the rust stain it weeps
+          const aw = 0.55, ax0 = wx2 - ux * aw, ay0 = wy2 - uy * aw,
+                ax1 = wx2 + ux * aw, ay1 = wy2 + uy * aw;
+          quad([[ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.52],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.52],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.10],
+                [ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.10]],
+               shade('#b8b4a8', Math.min(1.15, lit)));
+          quad([[ax0, ay0, zB - 0.10], [ax1, ay1, zB - 0.10],
+                [ax1 + nx * 0.34, ay1 + ny * 0.34, zB - 0.10],
+                [ax0 + nx * 0.34, ay0 + ny * 0.34, zB - 0.10]],
+               shade('#d8d4c8', Math.min(1.15, lit)));
+          const gA2 = pr(ax0 + nx * 0.35, ay0 + ny * 0.35, zB - 0.16),
+                gB2 = pr(ax1 + nx * 0.35, ay1 + ny * 0.35, zB - 0.16),
+                gA3 = pr(ax0 + nx * 0.35, ay0 + ny * 0.35, zB - 0.26),
+                gB3 = pr(ax1 + nx * 0.35, ay1 + ny * 0.35, zB - 0.26);
+          if(gA2 && gB2 && gA3 && gB3){
+            ctx.strokeStyle = 'rgba(40,38,32,0.6)'; ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(gA2[0], gA2[1]); ctx.lineTo(gB2[0], gB2[1]);
+            ctx.moveTo(gA3[0], gA3[1]); ctx.lineTo(gB3[0], gB3[1]);
+            ctx.stroke();
+          }
+          quad([[wx2 - ux * 0.10, wy2 - uy * 0.10, zB - 0.52],
+                [wx2 + ux * 0.10, wy2 + uy * 0.10, zB - 0.52],
+                [wx2 + ux * 0.10, wy2 + uy * 0.10, zB - 1.1],
+                [wx2 - ux * 0.10, wy2 - uy * 0.10, zB - 1.1]],
+               'rgba(96,72,44,0.28)');
+        } else if(dr < 0.34 && f === 0 && zT - zB > 1.4){
+          // Juliet rail: the tall parlor sash gets an iron guard
+          const jw = 0.85, j0 = pr(wx2 - ux * jw + nx * 0.12, wy2 - uy * jw + ny * 0.12, zB + 0.05),
+                j1 = pr(wx2 + ux * jw + nx * 0.12, wy2 + uy * jw + ny * 0.12, zB + 0.05),
+                j0t = pr(wx2 - ux * jw + nx * 0.12, wy2 - uy * jw + ny * 0.12, zB + 0.85),
+                j1t = pr(wx2 + ux * jw + nx * 0.12, wy2 + uy * jw + ny * 0.12, zB + 0.85);
+          if(j0 && j1 && j0t && j1t){
+            ctx.strokeStyle = 'rgba(26,22,18,0.85)'; ctx.lineWidth = 1.1;
+            ctx.beginPath();
+            ctx.moveTo(j0t[0], j0t[1]); ctx.lineTo(j1t[0], j1t[1]);
+            ctx.moveTo(j0[0], j0[1]); ctx.lineTo(j1[0], j1[1]);
+            const nb3 = 5;
+            for(let m = 0; m <= nb3; m++){
+              const uu = m / nb3;
+              ctx.moveTo(j0[0] + (j1[0] - j0[0]) * uu, j0[1] + (j1[1] - j0[1]) * uu);
+              ctx.lineTo(j0t[0] + (j1t[0] - j0t[0]) * uu, j0t[1] + (j1t[1] - j0t[1]) * uu);
+            }
+            ctx.stroke();
+          }
+        }
+      }
     }
   }
 
@@ -29297,6 +29993,68 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         ctx.beginPath(); ctx.moveTo(bk[0], bk[1]); ctx.lineTo(bk2[0], bk2[1]); ctx.stroke();
       }
     }
+    /* v57: dusk signage — when the streetlights come on the shop signs
+       light too: a warm backlit halo washes the wall behind the fascia,
+       and the blade sign picks up a neon edge on its street face.
+       Cause is sfLampsLit() — the same civil-dusk switch as the lamps. */
+    if(sfLampsLit() && gA && gB){
+      const hb0 = pr(sx0, sy0, 3.4), hb1 = pr(sx1, sy1, 3.4);
+      if(hb0 && hb1){
+        const hg = ctx.createLinearGradient(0, Math.min(hb0[1], hb1[1]),
+                                            0, Math.max(gA[1], gB[1]));
+        hg.addColorStop(0, 'rgba(255,214,140,0.20)');
+        hg.addColorStop(0.35, 'rgba(255,190,110,0.07)');
+        hg.addColorStop(1, 'rgba(255,190,110,0)');
+        ctx.fillStyle = hg;
+        ctx.fillRect(Math.min(hb0[0], hb1[0]) - 4, Math.min(hb0[1], hb1[1]),
+                     Math.abs(hb1[0] - hb0[0]) + 8,
+                     Math.max(gA[1], gB[1]) - Math.min(hb0[1], hb1[1]));
+      }
+      const bn = pr(blx + nx * 0.6, bly + ny * 0.6, 4.4),
+            bw2 = pr(blx, bly, 4.4);
+      if(bn && bw2){
+        ctx.strokeStyle = 'rgba(255,120,90,0.85)'; ctx.lineWidth = 1.6;
+        ctx.beginPath(); ctx.moveTo(bw2[0], bw2[1]); ctx.lineTo(bn[0], bn[1]); ctx.stroke();
+        const bg = ctx.createRadialGradient(bn[0], bn[1], 0.5,
+                                            bn[0], bn[1], 14);
+        bg.addColorStop(0, 'rgba(255,140,100,0.30)');
+        bg.addColorStop(1, 'rgba(255,140,100,0)');
+        ctx.fillStyle = bg;
+        ctx.fillRect(bn[0] - 14, bn[1] - 14, 28, 28);
+      }
+    }
+    /* v54: sidewalk A-board — the chalked sandwich board every Mission
+       cafe kicks out onto the pavement each morning. Two legs splayed
+       toward the street, chalk panel facing foot traffic. */
+    if(det >= 1){
+      const abx = x1 + ex * (s1 + 0.06) + nx * 1.55,
+            aby = y1 + ey * (s1 + 0.06) + ny * 1.55;
+      const awx = ux * 0.42, awy = uy * 0.42;   // half-width along curb
+      const splay = 0.30;
+      // street face (chalk board) + back leg — the hinge rides z 0.95
+      quad([[abx - awx + nx * splay, aby - awy + ny * splay, 0.02],
+            [abx + awx + nx * splay, aby + awy + ny * splay, 0.02],
+            [abx + awx, aby + awy, 0.95],
+            [abx - awx, aby - awy, 0.95]],
+           shade('#2a2620', Math.min(1.15, lit)));
+      quad([[abx - awx - nx * splay, aby - awy - ny * splay, 0.02],
+            [abx + awx - nx * splay, aby + awy - ny * splay, 0.02],
+            [abx + awx, aby + awy, 0.95],
+            [abx - awx, aby - awy, 0.95]],
+           shade('#4a3f30', Math.min(1.1, lit)));
+      // chalk scribbles on the street face — menu lines, not text
+      const c0 = pr(abx - awx * 0.62 + nx * splay * 0.6, aby - awy * 0.62 + ny * splay * 0.6, 0.62),
+            c1 = pr(abx + awx * 0.62 + nx * splay * 0.6, aby + awy * 0.62 + ny * splay * 0.6, 0.62),
+            c2 = pr(abx - awx * 0.62 + nx * splay * 0.8, aby - awy * 0.62 + ny * splay * 0.8, 0.34),
+            c3 = pr(abx + awx * 0.35 + nx * splay * 0.8, aby + awy * 0.35 + ny * splay * 0.8, 0.34);
+      if(c0 && c1 && c2 && c3){
+        ctx.strokeStyle = 'rgba(232,226,204,0.75)'; ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(c0[0], c0[1]); ctx.lineTo(c1[0], c1[1]);
+        ctx.moveTo(c2[0], c2[1]); ctx.lineTo(c3[0], c3[1]);
+        ctx.stroke();
+      }
+    }
   } else if(L > 5){
     // residential ground floor. v30: raised-basement grammar — italianate
     // and stick fronts lift the parlor floor ~1.15m: garage (or a garden
@@ -29464,6 +30222,78 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         }
       }
     }
+
+  /* v54: entry dressing — the things that make a doorway an ADDRESS.
+     A brass number plaque on the wall beside the door (the building's
+     real house number), a mailbox row under it, and potted plants
+     flanking the foot of the stoop — the Mission's universal stoop
+     grammar. Each pot reads sun on its own face. */
+  if(det >= 1 && !isShop){
+    const pz = 1.55 + rD;
+    // house number plate at eye level, hinge side of the alcove
+    const nx0 = dx + ux * (alcHw + 0.30), ny0 = dy + uy * (alcHw + 0.30);
+    const pN = pr(nx0 + nx * 0.02, ny0 + ny * 0.02, pz + 0.24),
+          pN2 = pr(nx0 + nx * 0.02, ny0 + ny * 0.02, pz - 0.10);
+    if(pN && pN2 && b.hn){
+      const ph = Math.abs(pN[1] - pN2[1]);
+      if(ph > 3){
+        const pw = Math.max(ph * 1.9, 7);
+        ctx.fillStyle = shade(ACC, Math.max(0.5, dim));
+        ctx.fillRect(pN[0] - pw / 2, pN[1], pw, ph);
+        ctx.fillStyle = '#f4ead0';
+        ctx.font = `bold ${Math.max(4, ph * 0.62)}px serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(String(b.hn).slice(0, 5), pN[0], pN[1] + ph / 2);
+        ctx.textBaseline = 'alphabetic';
+      }
+    }
+    // mailbox row just inside the alcove's sunny cheek
+    const mb0 = pr(dx - ux * (alcHw + 0.28) + nx * 0.05, dy - uy * (alcHw + 0.28) + ny * 0.05, 1.05 + rD),
+          mb1 = pr(dx - ux * (alcHw + 0.28) + nx * 0.05, dy - uy * (alcHw + 0.28) + ny * 0.05, 0.72 + rD);
+    if(mb0 && mb1 && Math.abs(mb0[1] - mb1[1]) > 3){
+      const mw = Math.abs(mb0[1] - mb1[1]) * 2.1;
+      ctx.fillStyle = shade('#4a4438', Math.min(1.1, lit));
+      ctx.fillRect(mb1[0] - mw / 2, mb0[1], mw, mb1[1] - mb0[1]);
+      ctx.strokeStyle = 'rgba(220,205,170,0.5)'; ctx.lineWidth = 1;
+      const nm2 = 2;
+      for(let m = 0; m < nm2; m++){
+        const yy = mb0[1] + (mb1[1] - mb0[1]) * (m + 0.5) / nm2;
+        ctx.beginPath(); ctx.moveTo(mb1[0] - mw / 2 + 1, yy);
+        ctx.lineTo(mb1[0] + mw / 2 - 1, yy); ctx.stroke();
+      }
+    }
+    // potted plants flanking the stoop foot — half the row has them
+    if(phash(i, ei, 5418) < 0.5){
+      for(const sgn of [-1, 1]){
+        if(phash(i * 3 + sgn, ei, 5419) < 0.3) continue;
+        const px2 = dx + ux * sgn * 1.45 + nx * (rD ? 1.75 : 1.15),
+              py2 = dy + uy * sgn * 1.45 + ny * (rD ? 1.75 : 1.15);
+        // terracotta pot: two stacked quads, rim lip
+        quad([[px2 - ux * 0.16, py2 - uy * 0.16, 0.02],
+              [px2 + ux * 0.16, py2 + uy * 0.16, 0.02],
+              [px2 + ux * 0.14 + nx * 0.03, py2 + uy * 0.14 + ny * 0.03, 0.38],
+              [px2 - ux * 0.14 + nx * 0.03, py2 - uy * 0.14 + ny * 0.03, 0.38]],
+             shade('#a05a38', Math.min(1.2, lit)));
+        quad([[px2 - ux * 0.19, py2 - uy * 0.19, 0.38],
+              [px2 + ux * 0.19, py2 + uy * 0.19, 0.38],
+              [px2 + ux * 0.19, py2 + uy * 0.19, 0.46],
+              [px2 - ux * 0.19, py2 - uy * 0.19, 0.46]],
+             shade('#8a4c2e', Math.min(1.2, lit)));
+        // foliage tuft — three blobs, taller on the sunward edge
+        const tall = 0.55 + 0.45 * Math.max(0, sfSunFaceK(nx, ny));
+        quad([[px2 - ux * 0.20, py2 - uy * 0.20, 0.44],
+              [px2 + ux * 0.20, py2 + uy * 0.20, 0.44],
+              [px2 + ux * 0.20, py2 + uy * 0.20, 0.44 + tall],
+              [px2 - ux * 0.20, py2 - uy * 0.20, 0.44 + tall]],
+             shade('#3a6630', Math.min(1.2, lit + 0.05)));
+        const tp2 = pr(px2, py2, 0.44 + tall);
+        if(tp2){
+          ctx.fillStyle = shade('#4a7a3a', Math.min(1.25, lit + 0.15));
+          ctx.beginPath(); ctx.arc(tp2[0], tp2[1], Math.max(1.5, 0.16 * F / (tp2[2] || 1)), 0, Math.PI * 2); ctx.fill();
+        }
+      }
+    }
+  }
   }
 
   /* v30: corner boards + downspouts — real SF wood fronts end in a wide
@@ -30226,14 +31056,17 @@ function sfRenderStreet(cw, ch){
         ctx.beginPath(); ctx.arc(sxh, syh, hr * 1.05, 0, Math.PI * 2); ctx.stroke();
       }
     }
-    // v24: the SAME cloud field, projected at 130m altitude — now drawn as
-    // baked cumulus sprites: lumpy domes lit along the sun's screen
-    // bearing, grey level bases, hazed out with distance. Replaces the
-    // old five-ellipse flat blobs.
+    // v24+v56: the SAME cloud field, projected at 130m altitude — baked
+    // cumulus sprites, lumpy domes lit along the sun's screen bearing,
+    // grey level bases, hazed out with distance. The draw now resolves to
+    // a screen-rect list FIRST: the crepuscular pass needs the silhouette
+    // gaps before any pixel lands, and the rays draw UNDER the bodies so
+    // the deck occludes its own light.
     const cs2 = sfClouds(), nC = Math.ceil(cs2.length * (0.25 + 0.75 * cover));
     const sSA = Math.atan2(-0.85, sunSide >= 0 ? 0.55 : -0.55);
     const sq2 = ((Math.round(sSA / (Math.PI / 4)) % 8) + 8) % 8;
     const warmQ2 = wK > 0.45 ? 1 : 0;
+    const clL = [];        // [cx, topY, w, h, alpha, sprite]
     for(let i = 0; i < nC; i++){
       const c = cs2[i];
       const [cx2, cy2] = sfCloudPos(c);
@@ -30244,9 +31077,76 @@ function sfRenderStreet(cw, ch){
       const sc2 = F / p[2] * (0.45 + cover * 0.85);  // v41: same cover-size law as the diorama
       const w = spr.width * sc2 * 0.8, h = spr.height * sc2 * 0.8;
       if(w < 8 || w > cw * 1.8) continue;
-      ctx.globalAlpha = clamp(0.95 - p[2] / 850, 0.22, 0.9) *
-                        (0.55 + 0.45 * cover) * c.a;
-      ctx.drawImage(spr, p[0] - w / 2, p[1] - h * 0.6, w, h);
+      clL.push([p[0], p[1] - h * 0.6, w, h,
+                clamp(0.95 - p[2] / 850, 0.22, 0.9) *
+                (0.55 + 0.45 * cover) * c.a, spr]);
+    }
+    /* v56: crepuscular rays born of real gaps — replaces v50's seven fixed
+       decorative lanes (art-feedback: causeless rays read as glitch). A
+       beam exists only where two deck silhouettes leave a lit slot near
+       the sun's bearing — or where the disc itself sits eclipsed behind a
+       body and vents past its edges. Every beam fans outward from the sun
+       through its gap and dies with distance; all boundaries are gradient
+       falloffs, nothing here can draw a hard-edged wedge. */
+    if(sunFwd > 0.15 && W.rain < 0.4 && cover > 0.06 && cover < 0.85){
+      const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
+      const sy3 = horizon - sunUp * F * 0.72;
+      const iv = [];
+      for(const c2 of clL)
+        iv.push([c2[0] - c2[2] * 0.42, c2[0] + c2[2] * 0.42,
+                 c2[1] + c2[3] * 0.38]);   // silhouette [l, r, midY]
+      iv.sort((a, b) => a[0] - b[0]);
+      const gaps = [];                     // [anchorX, anchorY, width]
+      for(let k = 0; k + 1 < iv.length; k++){
+        const gw = iv[k + 1][0] - iv[k][1];
+        if(gw < F * 0.03 || gw > F * 0.9) continue;
+        const ay = Math.min(iv[k][2], iv[k + 1][2]);
+        if(ay > horizon + 10) continue;
+        gaps.push([(iv[k + 1][0] + iv[k][1]) / 2, ay, gw]);
+      }
+      for(const c2 of iv)
+        if(sx3 > c2[0] && sx3 < c2[1]){
+          gaps.push([c2[0], c2[2], F * 0.10], [c2[1], c2[2], F * 0.10]);
+        }
+      gaps.sort((a, b) => b[2] - a[2]);
+      const beamA = 0.4 * cover * (1 - cover * 0.45) * SF_SUN.day;
+      for(let k = 0; k < Math.min(6, gaps.length); k++){
+        const ax = gaps[k][0], ay = gaps[k][1], gw = gaps[k][2];
+        if(Math.abs(ax - sx3) > F * 1.7) continue;
+        let dx = ax - sx3, dy = ay - sy3;
+        const dl = Math.hypot(dx, dy);
+        if(dl < F * 0.06) continue;
+        dx /= dl; dy /= dl;
+        if(dy < 0.15){                    // light falls, it does not skim
+          dy = 0.15;
+          const dl2 = Math.hypot(dx, dy); dx /= dl2; dy /= dl2;
+        }
+        const L = F * (0.55 + 0.45 * phash(k, 96, 5301));
+        const laneA = beamA * clamp(gw / (F * 0.22), 0.2, 1) *
+                      (0.6 + phash(k, 97, 5302) * 0.4);
+        for(let s = 0; s < 7; s++){
+          const t = s / 6;
+          const bx = ax + dx * L * t, by = ay + dy * L * t;
+          if(by > horizon + 60) break;
+          const rad = (0.016 + t * 0.07) * F *
+                      (0.7 + phash(k * 7 + s, 98, 5303) * 0.5);
+          const a = laneA * (1 - t * 0.75) * 0.5;
+          if(a < 0.004 || rad < 3) continue;
+          const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
+          g.addColorStop(0, `rgba(255,238,196,${a})`);
+          g.addColorStop(0.55, `rgba(255,234,186,${a * 0.5})`);
+          g.addColorStop(1, 'rgba(255,232,180,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.ellipse(bx, by, rad, rad * 0.42, Math.atan2(dy, dx),
+                      0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+    for(const c2 of clL){
+      ctx.globalAlpha = c2[4];
+      ctx.drawImage(c2[5], c2[0] - c2[2] / 2, c2[1], c2[2], c2[3]);
     }
     ctx.globalAlpha = 1;
     // v7: high cirrus — wind-sheared ice streaks on clear days
@@ -30264,41 +31164,31 @@ function sfRenderStreet(cw, ch){
       }
       ctx.lineCap = 'butt';
     }
-    // v7+v50: crepuscular sun shafts — the v7 hard arc wedges read as
-    // glitch triangles whenever the disc sat off-frame (art-feedback).
-    // v50 rebuilds them as volumetric light LANES: each lane is a chain
-    // of overlapping radial-gradient billows descending along its ray,
-    // warm late-afternoon tone, thinning with distance from the disc.
-    // Every boundary is a gradient falloff — no polygon edges at all.
-    if(sunFwd > 0.15 && W.rain < 0.4 && cover < 0.8){
-      const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
-      const sy3 = horizon - sunUp * F * 0.72;
-      // v47 physics kept: sunbreak lanes overhead are real gaps in the
-      // deck, so lane strength follows cover and drifts with the gaps
-      const shaftA = 0.16 * (1 - cover * 0.55);
-      for(let k = 0; k < 7; k++){
-        const ang = 0.42 + k * 0.24 + Math.sin(SF_WX.t * 0.2 + k) * 0.03;
-        const dx = Math.cos(ang), dy = Math.sin(ang);
-        const laneA = shaftA * (0.45 + phash(k, 96, 5301) * 0.75);
-        for(let s = 0; s < 7; s++){
-          const t = 0.10 + s * 0.15;                  // fraction along the ray
-          const bx = sx3 + dx * F * 1.1 * t,
-                by = sy3 + dy * F * 1.1 * t;
-          if(bx < -F || bx > cw + F || by > ch + 40) break;
-          const rad = (0.020 + t * 0.085) * F *
-                      (0.75 + phash(k * 7 + s, 97, 5302) * 0.5);
-          const a = laneA * (1 - t * 0.72);
-          if(a < 0.004 || rad < 3) continue;
-          const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
-          g.addColorStop(0, `rgba(255,238,196,${a})`);
-          g.addColorStop(0.55, `rgba(255,234,186,${a * 0.5})`);
-          g.addColorStop(1, 'rgba(255,232,180,0)');
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.ellipse(bx, by, rad, rad * 0.42, ang, 0, Math.PI * 2);
-          ctx.fill();
-        }
+    /* v56: the far field — a compass ring of distant cumulus holding at
+       2.4-4km on fixed bearings, so the sky has depth on EVERY heading,
+       not only where the local deck happens to drift. They draw small and
+       faint above the horizon; the skyline silhouette and the marine haze
+       band that render after them do the veiling, the way real distance
+       grays a cloud over the East Bay hills. */
+    if(cover < 0.75 && W.rain < 0.5){
+      const nF = Math.floor(7 + cover * 18);
+      for(let k = 0; k < nF; k++){
+        const bAng = phash(k, 71, 5560) * Math.PI * 2;
+        const dist = 2100 + phash(k, 72, 5561) * 1700;
+        const p = pr(camX + Math.cos(bAng) * dist,
+                     camY + Math.sin(bAng) * dist,
+                     380 + phash(k, 73, 5562) * 420);
+        if(!p) continue;
+        const spr = sfCloudSprite(k % 8, sq2, warmQ2);
+        if(!spr) continue;
+        const sc3 = F / p[2] * (0.6 + cover * 0.6);
+        const w = spr.width * sc3 * 2.4, h = spr.height * sc3 * 2.4;
+        if(w < 16) continue;
+        ctx.globalAlpha = (0.58 - cover * 0.12) *
+                          clamp(1 - (p[2] - 2100) / 2600, 0.45, 1);
+        ctx.drawImage(spr, p[0] - w / 2, p[1] - h * 0.55, w, h);
       }
+      ctx.globalAlpha = 1;
     }
     // v7: stratus deck — when the marine layer wins, the whole sky greys out
     if(cover > 0.55){
@@ -31755,11 +32645,97 @@ function sfRenderStreet(cw, ch){
         }
         continue;
       }
+      if(o.kind === 'sfPicnic'){
+        /* v53: a picnic blanket lies IN the ground plane — project its
+           four cloth corners through sfGroundZ so it drapes the slope,
+           then sit the sunbathers/cooler on it as low lumps. Occupancy
+           is weather- and hour-gated by sfPicnicFill. */
+        if(!sfPicnicOn(o)) continue;
+        const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+        const hw = 1.1, hh = 1.4;  // half-extents in meters
+        const qA = pr(mx - hw, my - hh, sfGroundZ(mx - hw, my - hh) + 0.02),
+              qB = pr(mx + hw, my - hh, sfGroundZ(mx + hw, my - hh) + 0.02),
+              qC = pr(mx + hw, my + hh, sfGroundZ(mx + hw, my + hh) + 0.02),
+              qD = pr(mx - hw, my + hh, sfGroundZ(mx - hw, my + hh) + 0.02);
+        if(!qA || !qB || !qC || !qD) continue;
+        const BC = SF_BLANKET_COLS[(o.v || 0) % SF_BLANKET_COLS.length];
+        const ramp = rampOf(BC.base);
+        // cloth shadow first — the blanket presses a soft pad on the grass
+        ctx.fillStyle = `rgba(14,16,8,${night ? 0.26 : 0.16})`;
+        ctx.beginPath();
+        ctx.moveTo(qA[0], qA[1]); ctx.lineTo(qB[0], qB[1]);
+        ctx.lineTo(qC[0], qC[1] + 0.06 * sc); ctx.lineTo(qD[0], qD[1] + 0.06 * sc);
+        ctx.closePath(); ctx.fill();
+        ctx.fillStyle = night ? ramp[1] : ramp[3];
+        ctx.beginPath();
+        ctx.moveTo(qA[0], qA[1]); ctx.lineTo(qB[0], qB[1]);
+        ctx.lineTo(qC[0], qC[1]); ctx.lineTo(qD[0], qD[1]);
+        ctx.closePath(); ctx.fill();
+        // pattern: gingham/stripe stripes along the quad's own axes
+        ctx.save(); ctx.clip();
+        ctx.strokeStyle = ramp[2]; ctx.lineWidth = Math.max(0.7, 0.05 * sc);
+        for(let k = 1; k < 4; k++){
+          const t = k / 4;
+          ctx.beginPath();
+          ctx.moveTo(qA[0] + (qB[0] - qA[0]) * t, qA[1] + (qB[1] - qA[1]) * t);
+          ctx.lineTo(qD[0] + (qC[0] - qD[0]) * t, qD[1] + (qC[1] - qD[1]) * t);
+          ctx.stroke();
+          if(BC.pat !== 'stripe'){
+            ctx.beginPath();
+            ctx.moveTo(qA[0] + (qD[0] - qA[0]) * t, qA[1] + (qD[1] - qA[1]) * t);
+            ctx.lineTo(qB[0] + (qC[0] - qB[0]) * t, qB[1] + (qC[1] - qB[1]) * t);
+            ctx.stroke();
+          }
+        }
+        ctx.restore();
+        // sun stub thrown off the people/cooler — low occluder, short throw
+        if(!night && SF_SUN.day > 0.08){
+          const tx2 = mx + SF_SUN.x * 0.45, ty2 = my + SF_SUN.y * 0.45;
+          const tp2 = pr(tx2, ty2, sfGroundZ(tx2, ty2));
+          if(tp2) sfSoftEllipse((p[0] + tp2[0]) / 2, (p[1] + tp2[1]) / 2,
+                               Math.hypot(tp2[0] - p[0], tp2[1] - p[1]) / 2 + 0.4 * sc,
+                               0.3 * sc, Math.atan2(tp2[1] - p[1], tp2[0] - p[0]),
+                               0.16 * Math.min(1, SF_SUN.day + 0.3), 0.5);
+        }
+        // occupants: low skin/shirt mounds lying on the cloth, foreshortened
+        const nP2 = phash(o.v, 3, 5310) < 0.3 ? 0 :
+                    (phash(o.v, 5, 5311) < 0.55 ? 1 : 2);
+        for(let pi = 0; pi < nP2; pi++){
+          const fx2 = (pi - (nP2 - 1) / 2) * 0.5 + (phash(o.v, pi, 5312) - 0.5) * 0.3;
+          const fy2 = (phash(pi, o.v, 5313) - 0.5) * 0.8;
+          const bp = pr(mx + fx2, my + fy2,
+                        sfGroundZ(mx + fx2, my + fy2) + 0.03);
+          if(!bp) continue;
+          const skin = rampOf(SF_SKIN[(o.v + pi) % SF_SKIN.length]);
+          const shirt = rampOf(SF_SHIRT[(o.v + pi * 2) % SF_SHIRT.length]);
+          const prone = phash(o.v, pi, 5314) < 0.5;
+          ctx.fillStyle = prone ? skin[2] : shirt[2];
+          ctx.beginPath();
+          ctx.ellipse(bp[0], bp[1] - 0.06 * sc, 0.5 * sc, 0.14 * sc,
+                      0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = skin[3];
+          ctx.beginPath();
+          ctx.arc(bp[0] - 0.42 * sc, bp[1] - 0.14 * sc, 0.11 * sc,
+                  0, Math.PI * 2); ctx.fill();
+        }
+        // cooler box on the cloth edge — a real cuboid, lid catches sun
+        const cb = pr(mx + 0.8, my + 1.0, sfGroundZ(mx + 0.8, my + 1.0));
+        if(cb){
+          const cw3 = 0.35 * sc, chh3 = 0.3 * sc;
+          ctx.fillStyle = '#b8b8c4';
+          ctx.fillRect(cb[0] - cw3 / 2, cb[1] - chh3, cw3, chh3);
+          ctx.fillStyle = '#e8e8f0';
+          ctx.fillRect(cb[0] - cw3 / 2, cb[1] - chh3, cw3, chh3 * 0.3);
+        }
+        continue;
+      }
       const V = PA.sfVeg;
       let spr = null, hm = 5, shadowR = 0;
       // v31: vegetation draws in ELEVATION — real trunk-to-crown
       // silhouettes at their true heights, not the plan-view crown blit
-      if(o.kind === 'sfTree'){ spr = V.sideTree[Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0]; hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
+      if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * V.sideTree.length) | 0;
+        spr = (sfTreeTurns(o) ? V.sideTreeA : V.sideTree)[ti];   // v55 autumn
+        hm = o.big ? 8.6 : 7.0; shadowR = 1.9; }
       else if(o.kind === 'sfPalm'){ spr = V.sidePalm[Math.abs(hash2(o.wx, o.wy, 8) * V.sidePalm.length) | 0]; hm = 10.5; shadowR = 1.1; }
       else if(o.kind === 'sfStreetTree'){ spr = V.sideStreet[o.v != null ? o.v : 0];
         // v40: ficus stands taller with a crown that spans the curb lane
@@ -31770,6 +32746,11 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; shadowR = 0.6; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; shadowR = 0.45; }
+      // v53 furniture — real meter heights, knee-to-waist occluders
+      else if(o.kind === 'sfHydrant'){ spr = V.hydrant[o.v || 0]; hm = 0.62; shadowR = 0.28; }
+      else if(o.kind === 'sfTrashCan'){ spr = V.trashCan; hm = 0.85; shadowR = 0.35; }
+      else if(o.kind === 'sfNewsBox'){ spr = V.newsBox[o.v || 0]; hm = 1.05; shadowR = 0.5; }
+      else if(o.kind === 'sfBikeRack'){ spr = V.bikeRack[o.v || 0]; hm = 0.85; shadowR = 0.7; }
       const sprC = spr && (spr.c || spr);
       if(sprC){
         const ph = hm * sc, pw = ph * (sprC.width / sprC.height);
@@ -31939,6 +32920,16 @@ function sfRenderStreet(cw, ch){
           ctx.ellipse(p[0], p[1], pw * 0.4, pw * 0.12, 0, 0, Math.PI * 2);
           ctx.fill();
         }
+        /* v54: face=3 (world +x) mirrors the profile-left sprite as one
+           unit — the sprite AND its source-atop key/fill passes flip
+           together, exactly like the legacy paCharDraw mirror. The
+           ground shadows stay OUTSIDE: they follow the sun vector, not
+           the pawn's facing. Without this every eastbound pawn moonwalks. */
+        const mir54 = pv.face === 3 && pv.state !== 'sit';
+        if(mir54){
+          ctx.save();
+          ctx.translate(p[0] * 2, 0); ctx.scale(-1, 1);
+        }
         ctx.drawImage(fr, p[0] - pw / 2, p[1] - ph, pw, ph);
         /* v42: key & fill — the same two sources that light the street
            light the person. Sun in front of the camera = warm key on the
@@ -31982,6 +32973,7 @@ function sfRenderStreet(cw, ch){
             ctx.globalCompositeOperation = 'source-over';
           }
         }
+        if(mir54) ctx.restore();
         // v25: umbrella over rain-caught pawns — canopy arc tilted into
         // the wind's lateral component, shaft down to the hand
         const uc2 = sfUmbrellaCol(pv);
@@ -32577,59 +33569,131 @@ function sfRenderInterior(cw, ch, v){
     }
   }
 
-  /* --- v43: the room is lived in, not staged ---
-     Wall clock on the left wall reads the real sim clock; the hall
-     door opens on the right wall; flats get a radiator under the
-     windows and (sometimes) the house cat asleep on the sill. */
+  /* --- v52: the room is metric now ------------------------------
+     The shell has always been one-point perspective; this pass finally
+     treats it as a real room. A pinhole camera stands in the doorway at
+     eye height and the vanishing point becomes a projection: props are
+     placed in meters (x lateral from room center, z depth from the door,
+     h height) and projected through it. Furniture is true cuboids with
+     separately lit top/front/side faces, pendant lamps shrink with
+     depth, pictures hang ON the receding side walls, occupants scale by
+     1/z, and every prop casts its shadow along the real sun vector that
+     enters through the windows. */
+  const RM_W = 7;                                        // room width (m)
+  const eyeH = (bB - vpy) * RM_W / (bR - bL);            // doorway eye height
+  const roomH = eyeH + (vpy - bT) * RM_W / (bR - bL);    // ceiling height
+  const RM_D = 8.4 + phash(seed, 0, 5200) * 1.6;         // back-wall depth (m)
+  const RM_F = (bR - bL) * RM_D / RM_W;                  // focal length, px·m
+  const RM = (x, z, h) => {
+    const zz = Math.max(1.1, z);
+    return { x: vpx + x * RM_F / zz, y: vpy + (eyeH - h) * RM_F / zz, s: RM_F / zz };
+  };
+  const zNear = eyeH * RM_F / (ch - vpy);                // closest visible depth
+  // the sun enters through the back-wall windows and travels toward the
+  // door: floor shadows run toward the camera, sideways with toX, and
+  // stretch with cot(el) exactly like the shadows outside
+  const cotEl = clamp(1 / Math.tan(Math.max(0.08, SF_SUN.el || 0.6)), 0.4, 2.6);
+  const shX = -SF_SUN.toX * cotEl * 0.8, shZ = -0.7 * cotEl;
+  function rmPoly(pts, fill){
+    ctx.fillStyle = fill; ctx.beginPath();
+    ctx.moveTo(pts[0].x, pts[0].y);
+    for(let i = 1; i < pts.length; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    ctx.closePath(); ctx.fill();
+  }
+  // soft floor shadow: the footprint extruded along the sun's floor vector
+  function rmShadow(x0, z0, x1, z1, h, a){
+    const dx = shX * h, dz = shZ * h;
+    rmPoly([RM(x0, z0, 0), RM(x1, z0, 0), RM(x1 + dx, z0 + dz, 0),
+            RM(x1 + dx, z1 + dz, 0), RM(x0 + dx, z1 + dz, 0), RM(x0 + dx, z0 + dz, 0)],
+           `rgba(24,16,9,${a})`);
+  }
+  // cuboid: near face + top (when below eye level) + the side that faces
+  // the room center. Top faces catch the window sun; sides sit in shade.
+  function rmBox(x0, z0, x1, z1, h0, h1, col){
+    const xc = (x0 + x1) / 2;
+    if(Math.abs(xc) > (x1 - x0) / 2 - 0.01){
+      const xs = xc > 0 ? x0 : x1;
+      rmPoly([RM(xs, z1, h0), RM(xs, z1, h1), RM(xs, z0, h1), RM(xs, z0, h0)],
+             shade(col, 0.64));
+    }
+    rmPoly([RM(x0, z0, h0), RM(x1, z0, h0), RM(x1, z0, h1), RM(x0, z0, h1)], col);
+    if(h1 < eyeH * 1.02)
+      rmPoly([RM(x0, z0, h1), RM(x1, z0, h1), RM(x1, z1, h1), RM(x0, z1, h1)],
+             sunIn ? mix(shade(col, 1.22), '#ffe4b0', 0.30 * sunK) : shade(col, 1.18));
+  }
+  // horizontal disc (table tops, rugs, lamp pools) — foreshortened for eye height
+  function rmDisc(x, z, r, h, fill){
+    const p = RM(x, z, h);
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.ellipse(p.x, p.y, r * p.s, r * p.s * Math.max(0.10, (eyeH - h) / z), 0, 0, Math.PI * 2);
+    ctx.fill();
+    return p;
+  }
+  // quad hanging on a side wall plane (sgn -1 left / +1 right)
+  function rmWallQuad(sgn, z0, z1, h0, h1, fill){
+    const x = sgn * RM_W / 2;
+    rmPoly([RM(x, z0, h0), RM(x, z1, h0), RM(x, z1, h1), RM(x, z0, h1)], fill);
+  }
+  // quad on an interior partition face x=const between z0..z1
+  function rmFaceX(x, z0, z1, h0, h1, fill){
+    rmPoly([RM(x, z0, h0), RM(x, z1, h0), RM(x, z1, h1), RM(x, z0, h1)], fill);
+  }
+
+  // wall clock on the left wall reads the real sim clock — compressed by
+  // the receding wall exactly like every other depth feature
   {
-    const kx = bL * 0.52, ky = bT + (bB - bT) * 0.34, kr = 15;
+    const zc = 5.0, p = RM(-RM_W / 2, zc, 2.05),
+          kr = 0.22 * p.s, krx = kr * (RM_W / 2) / zc;
     ctx.fillStyle = '#e8e0cc';
-    ctx.beginPath(); ctx.arc(kx, ky, kr, 0, Math.PI * 2); ctx.fill();
+    ctx.beginPath(); ctx.ellipse(p.x, p.y, krx, kr, 0, 0, Math.PI * 2); ctx.fill();
     ctx.strokeStyle = '#2c2418'; ctx.lineWidth = 2; ctx.stroke();
     ctx.strokeStyle = '#3a3028'; ctx.lineWidth = 1;
     ctx.beginPath();
     for(let k = 0; k < 12; k++){
       const a = k / 12 * Math.PI * 2;
-      ctx.moveTo(kx + Math.cos(a) * kr * 0.82, ky + Math.sin(a) * kr * 0.82);
-      ctx.lineTo(kx + Math.cos(a) * kr * 0.94, ky + Math.sin(a) * kr * 0.94);
+      ctx.moveTo(p.x + Math.cos(a) * krx * 0.82, p.y + Math.sin(a) * kr * 0.82);
+      ctx.lineTo(p.x + Math.cos(a) * krx * 0.94, p.y + Math.sin(a) * kr * 0.94);
     }
     const hr = ((W.tod || 12) % 12) / 12 * Math.PI * 2 - Math.PI / 2,
           mn = ((W.tod || 0) % 1) * Math.PI * 2 - Math.PI / 2;
-    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(hr) * kr * 0.5, ky + Math.sin(hr) * kr * 0.5);
-    ctx.moveTo(kx, ky); ctx.lineTo(kx + Math.cos(mn) * kr * 0.78, ky + Math.sin(mn) * kr * 0.78);
+    ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(hr) * krx * 0.5, p.y + Math.sin(hr) * kr * 0.5);
+    ctx.moveTo(p.x, p.y); ctx.lineTo(p.x + Math.cos(mn) * krx * 0.78, p.y + Math.sin(mn) * kr * 0.78);
     ctx.stroke();
   }
-  // hall doorway on the right wall — a darker opening with a lit transom
+  // hall door on the right wall — a real projected opening, not a decal
   {
-    const dx0 = bR + (cw - bR) * 0.28, dx1 = bR + (cw - bR) * 0.62;
-    const dT = bT + (ch * 0.06) * 0.9, dB = bB + (ch - bB) * 0.42;
-    ctx.fillStyle = '#241a10';
-    ctx.beginPath();
-    ctx.moveTo(dx0, dT + 8); ctx.lineTo(dx1, dT); ctx.lineTo(dx1, dB - 10);
-    ctx.lineTo(dx0, dB); ctx.closePath(); ctx.fill();
+    const lit = lamps || night;
+    rmWallQuad(1, 4.1, 5.1, 0, 2.1, '#241a10');
+    rmWallQuad(1, 4.25, 4.95, 0.14, 1.95, '#31241a');   // recessed panel
     ctx.strokeStyle = shade('#e8dcc8', 0.8); ctx.lineWidth = 3;
-    ctx.stroke();
-    ctx.fillStyle = (lamps || night) ? 'rgba(255,206,120,0.5)' : 'rgba(160,150,130,0.35)';
-    ctx.beginPath();
-    ctx.moveTo(dx0 + 4, dT + 12); ctx.lineTo(dx1 - 4, dT + 5);
-    ctx.lineTo(dx1 - 4, dT + 20); ctx.lineTo(dx0 + 4, dT + 26);
-    ctx.closePath(); ctx.fill();
+    const dPts = [RM(RM_W / 2, 4.1, 0), RM(RM_W / 2, 5.1, 0),
+                  RM(RM_W / 2, 5.1, 2.1), RM(RM_W / 2, 4.1, 2.1)];
+    ctx.beginPath(); ctx.moveTo(dPts[0].x, dPts[0].y);
+    for(let i = 1; i < 4; i++) ctx.lineTo(dPts[i].x, dPts[i].y);
+    ctx.closePath(); ctx.stroke();
+    rmWallQuad(1, 4.2, 5.0, 2.16, 2.46,                 // lit transom
+               lit ? 'rgba(255,206,120,0.55)' : 'rgba(160,150,130,0.3)');
+    const knob = RM(RM_W / 2, 4.35, 1.0);
+    ctx.fillStyle = '#c8a44a';
+    ctx.beginPath(); ctx.arc(knob.x, knob.y, 2.5, 0, Math.PI * 2); ctx.fill();
   }
 
-  /* --- furniture, per archetype --- */
+  /* --- furniture, per archetype — all in meters --- */
   const lampGlow = lamps || night;
   if(shop){
-    // back-bar shelves with cups/jars
+    // back-bar shelves moved to the LEFT wall (they were floating inside
+    // the storefront glass before) — two projected boards with cups
     for(let s = 0; s < 2; s++){
-      const sy = bT + (bB - bT) * (0.16 + s * 0.12);
-      const sx0 = bL + (bR - bL) * 0.10, sx1 = sx0 + (bR - bL) * 0.26;
-      ctx.fillStyle = '#4a3626'; ctx.fillRect(sx0, sy, sx1 - sx0, 4);
+      const sh = 1.45 + s * 0.42;
+      rmWallQuad(-1, 5.9, 7.6, sh, sh + 0.06, '#4a3626');
       for(let k = 0; k < 6; k++){
-        ctx.fillStyle = ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][k % 4];
-        ctx.fillRect(sx0 + 4 + k * (sx1 - sx0 - 8) / 6, sy - 8, 6, 8);
+        const cz = 6.05 + k * 0.24 + phash(k, s, seed + 1912) * 0.06;
+        rmWallQuad(-1, cz, cz + 0.13, sh + 0.06, sh + 0.24,
+                   ['#c9b89a', '#8a5a3a', '#5a7a8a', '#d8d0c0'][(k + s) % 4]);
       }
     }
-    // menu board
+    // menu board stays on the back wall (it IS the back wall)
     const mx0 = bR - (bR - bL) * 0.34, my0 = bT + (bB - bT) * 0.10;
     ctx.fillStyle = '#2a2620';
     ctx.fillRect(mx0, my0, (bR - bL) * 0.24, (bB - bT) * 0.34);
@@ -32642,47 +33706,9 @@ function sfRenderInterior(cw, ch, v){
       ctx.lineTo(mx0 + (bR - bL) * 0.24 - 8 - phash(k, seed, 1910) * 30, my0 + 10 + k * 11);
       ctx.stroke();
     }
-    // the counter: front face + lighter top, espresso machine + pastry case
-    const cx0 = cw * 0.52, cx1 = cw * 0.94, cy0 = ch * 0.62, cy1 = ch * 0.80;
-    ctx.fillStyle = '#5a3a22'; ctx.fillRect(cx0, cy0, cx1 - cx0, cy1 - cy0);
-    ctx.fillStyle = '#8a6a45'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 12);
-    ctx.fillStyle = '#c8b490'; ctx.fillRect(cx0 - 8, cy0 - 10, cx1 - cx0 + 16, 3);
-    // espresso machine silhouette
-    ctx.fillStyle = '#2c2c30';
-    ctx.fillRect(cx0 + 14, cy0 - 46, 54, 38);
-    ctx.fillStyle = '#b8bcc4'; ctx.fillRect(cx0 + 20, cy0 - 40, 42, 8);
-    ctx.fillStyle = '#d8a44a'; ctx.fillRect(cx0 + 24, cy0 - 24, 8, 10);
-    // pastry case: glass dome over warm crumb
-    ctx.fillStyle = '#7a4a26'; ctx.fillRect(cx1 - 78, cy0 - 20, 60, 10);
-    ctx.fillStyle = 'rgba(210,228,240,0.5)';
-    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 20, 30, 14, 0, Math.PI, 0); ctx.fill();
-    ctx.fillStyle = '#e0b060';
-    ctx.beginPath(); ctx.ellipse(cx1 - 48, cy0 - 22, 22, 8, 0, Math.PI, 0); ctx.fill();
-    // v35: espresso machine breathes steam while the café is open
-    if(arch === 'cafe' && !night){
-      ctx.strokeStyle = 'rgba(240,240,235,0.4)'; ctx.lineWidth = 2;
-      ctx.beginPath();
-      const ph = Math.floor(SF_WX.t * 2);
-      for(let k = 0; k < 3; k++){
-        const sx2 = cx0 + 30 + k * 9, sy2 = cy0 - 48;
-        const w = Math.sin(ph + k * 2.1) * 5;
-        ctx.moveTo(sx2, sy2);
-        ctx.quadraticCurveTo(sx2 + w, sy2 - 12, sx2 + w * 0.4, sy2 - 24);
-      }
-      ctx.stroke();
-    }
-    // v35: taqueria — salsa bar along the left wall, papel picado overhead
+    // v52: taqueria — papel picado overhead (ceiling, screen-space ok)
     if(arch === 'taqueria'){
-      const sbx = cw * 0.06, sby = ch * 0.60, sbw = cw * 0.16, sbh = ch * 0.16;
-      ctx.fillStyle = 'rgba(20,14,8,0.35)';
-      ctx.beginPath(); ctx.ellipse(sbx + sbw / 2, sby + sbh + 6, sbw * 0.62, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#8a2f24'; ctx.fillRect(sbx, sby, sbw, sbh);
-      ctx.fillStyle = '#c8b490'; ctx.fillRect(sbx - 4, sby - 8, sbw + 8, 10);
-      for(let k = 0; k < 3; k++){ // salsa bowls: roja, verde, crema
-        ctx.fillStyle = ['#b03020', '#4a7a2e', '#e8d8b0'][k];
-        ctx.beginPath(); ctx.ellipse(sbx + 16 + k * (sbw - 32) / 2, sby - 12, 8, 4.5, 0, 0, Math.PI * 2); ctx.fill();
-      }
-      for(const [y0, sag] of [[ch * 0.06, 26], [ch * 0.13, 20]]){ // papel picado strings
+      for(const [y0, sag] of [[ch * 0.06, 26], [ch * 0.13, 20]]){
         ctx.strokeStyle = 'rgba(40,30,20,0.8)'; ctx.lineWidth = 1;
         ctx.beginPath(); ctx.moveTo(cw * 0.10, y0);
         ctx.quadraticCurveTo(cw * 0.5, y0 + sag * 2, cw * 0.90, y0); ctx.stroke();
@@ -32695,22 +33721,28 @@ function sfRenderInterior(cw, ch, v){
           ctx.closePath(); ctx.fill();
         }
       }
+      // salsa bar along the left wall — a projected counter now
+      rmShadow(-3.3, 4.8, -2.3, 6.0, 1.0, sunIn ? 0.26 * sunK + 0.08 : 0.15);
+      rmBox(-3.3, 4.8, -2.3, 6.0, 0, 1.0, '#8a2f24');
+      rmBox(-3.36, 4.74, -2.24, 6.06, 1.0, 1.07, '#c8b490');
+      for(let k = 0; k < 3; k++)  // roja, verde, crema
+        rmDisc(-2.8, 5.0 + k * 0.5, 0.09, 1.07, ['#b03020', '#4a7a2e', '#e8d8b0'][k]);
     }
-    // v35: hardware — a tall aisle shelf silhouette right of center and a
-    // pegboard square on the back wall hung with tool shadows
+    // v52: hardware — tall aisle shelf as a real cuboid with goods on the
+    // face that looks into the room
     if(arch === 'hardware'){
-      const axx = cw * 0.10, axy = ch * 0.44, axw = cw * 0.11, axh = ch * 0.42;
-      ctx.fillStyle = 'rgba(20,14,8,0.4)';
-      ctx.beginPath(); ctx.ellipse(axx + axw / 2, axy + axh + 4, axw * 0.7, 9, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#3c4048'; ctx.fillRect(axx, axy, axw, axh);
+      rmShadow(-3.3, 4.2, -2.0, 7.4, 2.2, sunIn ? 0.26 * sunK + 0.08 : 0.16);
+      rmBox(-3.3, 4.2, -2.0, 7.4, 0, 2.2, '#3c4048');
       for(let s = 0; s < 5; s++){
-        const sy = axy + 8 + s * (axh - 16) / 5;
-        ctx.fillStyle = '#5a6068'; ctx.fillRect(axx + 3, sy, axw - 6, 3);
-        for(let k = 0; k < 5; k++){
-          ctx.fillStyle = ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80', '#4a6a4a'][Math.floor(phash(k, s, seed + 3880) * 5)];
-          ctx.fillRect(axx + 6 + k * (axw - 12) / 5, sy - 9, (axw - 12) / 6, 9);
+        const sh = 0.35 + s * 0.42;
+        rmFaceX(-2.0, 4.25, 7.35, sh, sh + 0.035, '#5a6068');
+        for(let k = 0; k < 6; k++){
+          const gz = 4.35 + k * 0.5 + phash(k, s, seed + 3880) * 0.12;
+          rmFaceX(-2.0, gz, gz + 0.3, sh + 0.035, sh + 0.035 + 0.16 + phash(k, s, seed + 3884) * 0.14,
+                  ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80', '#4a6a4a'][Math.floor(phash(k, s, seed + 3885) * 5)]);
         }
       }
+      // pegboard on the back wall with hung tool silhouettes
       const pgx = bL + (bR - bL) * 0.06, pgy = bT + (bB - bT) * 0.12;
       const pgw = (bR - bL) * 0.22, pgh = (bB - bT) * 0.30;
       ctx.fillStyle = '#8a7a5a'; ctx.fillRect(pgx, pgy, pgw, pgh);
@@ -32719,65 +33751,100 @@ function sfRenderInterior(cw, ch, v){
         ctx.fillRect(pgx + 6 + phash(k, seed, 3881) * (pgw - 18),
                      pgy + 6 + phash(k, seed, 3882) * (pgh - 18), 4, 10 + phash(k, seed, 3883) * 8);
     }
-    // cafe tables + chairs between camera and counter
-    for(let k = 0; k < 2; k++){
-      const tx = cw * (0.16 + k * 0.18), ty = ch * (0.78 + k * 0.06);
-      const tr = cw * 0.055;
-      ctx.fillStyle = 'rgba(20,14,8,0.35)';
-      ctx.beginPath(); ctx.ellipse(tx, ty + tr * 0.5, tr * 1.1, tr * 0.3, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(tx - 3, ty, 6, tr * 0.9);
-      ctx.fillStyle = '#d8cba8';
-      ctx.beginPath(); ctx.ellipse(tx, ty, tr, tr * 0.34, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.strokeStyle = '#8a6a45'; ctx.lineWidth = 2; ctx.stroke();
-      for(const cs of [-1, 1]){ // chairs
-        ctx.fillStyle = '#4a3626';
-        ctx.fillRect(tx + cs * tr * 1.35 - 6, ty - 14, 12, 26);
+    // cafe tables + chairs, placed in the room and shrinking with depth
+    const tbls = arch === 'hardware' ? [] : [[-1.7, 4.7], [-0.3, 6.2], [-2.5, 6.9]];
+    for(const [tx, tz] of tbls){
+      if(tz > RM_D - 0.9) continue;
+      rmShadow(tx - 0.5, tz - 0.4, tx + 0.5, tz + 0.4, 0.75, sunIn ? 0.26 * sunK + 0.06 : 0.13);
+      for(const cs of [-1, 1]){  // chairs: small cuboids flanking the table
+        const chx = tx + cs * 0.78;
+        rmBox(chx - 0.2, tz - 0.2, chx + 0.2, tz + 0.2, 0, 0.45, '#4a3626');
+        rmBox(chx + (cs > 0 ? 0.08 : -0.28), tz - 0.2, chx + (cs > 0 ? 0.28 : -0.08), tz + 0.2, 0.45, 0.92, '#4a3626');
       }
+      { // pedestal + disc top
+        const pb = RM(tx, tz, 0), pt = RM(tx, tz, 0.72);
+        ctx.strokeStyle = '#3a2c1c'; ctx.lineWidth = Math.max(2, 0.05 * pb.s);
+        ctx.beginPath(); ctx.moveTo(pb.x, pb.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+        rmDisc(tx, tz, 0.5, 0.74, '#d8cba8');
+        const p = RM(tx, tz, 0.74);
+        ctx.strokeStyle = '#8a6a45'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        ctx.ellipse(p.x, p.y, 0.5 * p.s, 0.5 * p.s * Math.max(0.10, (eyeH - 0.74) / tz), 0, 0, Math.PI * 2);
+        ctx.stroke();
+      }
+    }
+    // the counter: a real box you could lean on, stone top overhang
+    rmShadow(0.9, 4.2, 3.3, 5.3, 1.05, sunIn ? 0.30 * sunK + 0.08 : 0.16);
+    rmBox(0.9, 4.2, 3.3, 5.3, 0, 1.05, '#5a3a22');
+    rmBox(0.82, 4.12, 3.38, 5.34, 1.05, 1.12, '#c8b490');
+    // espresso machine + pastry case ride the counter top
+    rmBox(1.05, 4.35, 1.7, 5.05, 1.12, 1.62, '#2c2c30');
+    rmBox(1.12, 4.33, 1.63, 4.52, 1.50, 1.56, '#b8bcc4');
+    {
+      const p = RM(1.32, 4.32, 1.30);
+      ctx.fillStyle = '#d8a44a'; ctx.fillRect(p.x - 3, p.y - 3, 6, 6);
+      // steam while the café is open
+      if(arch === 'cafe' && !night){
+        ctx.strokeStyle = 'rgba(240,240,235,0.4)'; ctx.lineWidth = 2;
+        ctx.beginPath();
+        const ph = Math.floor(SF_WX.t * 2), st = RM(1.35, 4.5, 1.62);
+        for(let k = 0; k < 3; k++){
+          const sx2 = st.x - 12 + k * 9, sy2 = st.y;
+          const w = Math.sin(ph + k * 2.1) * 5;
+          ctx.moveTo(sx2, sy2);
+          ctx.quadraticCurveTo(sx2 + w, sy2 - 12, sx2 + w * 0.4, sy2 - 24);
+        }
+        ctx.stroke();
+      }
+    }
+    rmBox(2.5, 4.35, 3.15, 5.0, 1.12, 1.42, '#7a4a26');
+    { // glass dome over the pastry case, warm crumb inside
+      const p = RM(2.82, 4.33, 1.42), gw = 0.34 * p.s, gh = 0.22 * p.s;
+      ctx.fillStyle = '#e0b060';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + gh * 0.4, gw * 0.7, gh * 0.4, 0, Math.PI, 0); ctx.fill();
+      ctx.fillStyle = 'rgba(210,228,240,0.45)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y, gw * 0.5, gh * 0.55, 0, Math.PI, 0); ctx.fill();
     }
   } else {
     // flat: rug, sofa, bookshelf, floor lamp, framed art, sill plant
-    ctx.fillStyle = shop ? '#7a4a3a' : '#8a4a42';
-    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.16, ch * 0.075, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.strokeStyle = '#5e342e'; ctx.lineWidth = 3;
-    ctx.beginPath(); ctx.ellipse(vpx, ch * 0.82, cw * 0.13, ch * 0.058, 0, 0, Math.PI * 2); ctx.stroke();
-    // sofa against the left wall
-    const sox = cw * 0.10, soy = ch * 0.66;
-    ctx.fillStyle = 'rgba(20,14,8,0.35)';
-    ctx.beginPath(); ctx.ellipse(sox + 60, soy + 66, 72, 14, 0, 0, Math.PI * 2); ctx.fill();
-    ctx.fillStyle = '#5a6a58';
-    ctx.fillRect(sox, soy, 120, 56);
-    ctx.fillStyle = '#6d7e6a'; ctx.fillRect(sox, soy - 22, 120, 26);
-    ctx.fillStyle = '#4a5848';
-    ctx.fillRect(sox, soy + 20, 12, 36); ctx.fillRect(sox + 108, soy + 20, 12, 36);
-    ctx.fillStyle = '#c9a86a'; ctx.fillRect(sox + 16, soy - 14, 26, 18);
-    ctx.fillStyle = '#a85a5a'; ctx.fillRect(sox + 76, soy - 14, 26, 18);
-    // bookshelf right
-    const bsx = cw * 0.80, bsy = ch * 0.42, bsw = cw * 0.14, bsh = ch * 0.34;
-    ctx.fillStyle = '#4a3423'; ctx.fillRect(bsx, bsy, bsw, bsh);
+    rmDisc(0, 5.6, 1.35, 0.01, '#8a4a42');
+    rmDisc(0, 5.6, 0.95, 0.012, '#7c443c');
+    // sofa against the left wall: seat + back + arms + cushions
+    rmShadow(-3.4, 4.4, -2.35, 6.6, 0.95, sunIn ? 0.26 * sunK + 0.08 : 0.15);
+    rmBox(-3.4, 4.4, -2.35, 6.6, 0, 0.45, '#5a6a58');
+    rmBox(-3.42, 4.4, -2.95, 6.6, 0.45, 0.95, '#4a5848');
+    rmBox(-3.4, 4.4, -2.35, 4.85, 0.45, 0.72, '#52624f');
+    rmBox(-3.4, 6.15, -2.35, 6.6, 0.45, 0.72, '#52624f');
+    rmBox(-3.32, 4.95, -2.45, 5.7, 0.45, 0.58, '#c9a86a');
+    rmBox(-3.32, 5.75, -2.45, 6.5, 0.45, 0.58, '#a85a5a');
+    // bookshelf on the right wall, deep enough to clear the hall door —
+    // books on the face toward the room
+    const bsZ1 = Math.min(8.2, RM_D - 0.4);
+    rmShadow(2.55, 5.7, 3.42, bsZ1, 2.15, sunIn ? 0.26 * sunK + 0.08 : 0.16);
+    rmBox(2.55, 5.7, 3.42, bsZ1, 0, 2.15, '#4a3423');
     for(let s = 0; s < 4; s++){
-      const sy = bsy + 12 + s * (bsh - 20) / 4;
-      ctx.fillStyle = '#3a281a'; ctx.fillRect(bsx + 5, sy, bsw - 10, 3);
-      for(let k = 0; k < 9; k++){
-        const bh2 = 12 + phash(k, s, seed + 1915) * 10;
-        ctx.fillStyle = ['#8a4a3a', '#3a5a7a', '#7a8a4a', '#b0905a', '#5a4a7a'][Math.floor(phash(k, s, seed + 1916) * 5)];
-        ctx.fillRect(bsx + 8 + k * (bsw - 16) / 9, sy - bh2 + 2, (bsw - 16) / 11, bh2);
+      const sh = 0.42 + s * 0.45;
+      rmFaceX(2.55, 5.75, bsZ1 - 0.05, sh, sh + 0.035, '#3a281a');
+      for(let k = 0; k < 8; k++){
+        const bz = 5.85 + k * ((bsZ1 - 6.15) / 8) + phash(k, s, seed + 1915) * 0.06;
+        rmFaceX(2.55, bz, bz + 0.19, sh + 0.035, sh + 0.035 + 0.16 + phash(k, s, seed + 1916) * 0.12,
+                ['#8a4a3a', '#3a5a7a', '#7a8a4a', '#b0905a', '#5a4a7a'][Math.floor(phash(k, s, seed + 1917) * 5)]);
       }
     }
-    // framed pictures on the back wall — v43: a cluster, not a pair
-    for(let k = 0; k < 2; k++){
-      const fx = bL + (bR - bL) * (0.06 + k * 0.82), fy = bT + (bB - bT) * 0.16;
-      ctx.fillStyle = '#3a2c1c'; ctx.fillRect(fx, fy, 44, 56);
-      ctx.fillStyle = ['#7a9ab0', '#b0785a'][k];
-      ctx.fillRect(fx + 4, fy + 4, 36, 48);
-    }
-    for(let k = 0; k < 3; k++){    // snapshot cluster beside the left frame
+    // framed art hangs ON the side walls now — it recedes with the room
+    rmWallQuad(-1, 6.9, 7.7, 1.5, 2.25, '#3a2c1c');
+    rmWallQuad(-1, 6.98, 7.62, 1.57, 2.18, '#7a9ab0');
+    rmWallQuad(-1, 7.9, 8.5, 1.45, 2.1, '#3a2c1c');
+    rmWallQuad(-1, 7.98, 8.42, 1.52, 2.03, '#b0785a');
+    // snapshot cluster between the back-wall windows
+    for(let k = 0; k < 3; k++){
       const fx = bL + (bR - bL) * (0.50 + phash(k, seed, 4350) * 0.05),
             fy = bT + (bB - bT) * (0.15 + k * 0.13);
       ctx.fillStyle = '#4a3a28'; ctx.fillRect(fx, fy, 16, 20);
       ctx.fillStyle = ['#c9b89a', '#8aa0b0', '#b0905a'][k];
       ctx.fillRect(fx + 2, fy + 2, 12, 16);
     }
-    // v43: steam radiator under each window — the SF flat staple
+    // steam radiator under each window — the SF flat staple (back wall)
     let wi = 0;
     for(const [wx0, wy0, wx1, wy1] of winRects){
       const rx0 = wx0 + 4, rx1 = wx1 - 4, ry = bB - 6, rh = 26;
@@ -32805,85 +33872,96 @@ function sfRenderInterior(cw, ch, v){
         ctx.quadraticCurveTo(cx2 + 18, cy2 - 2, cx2 + 16, cy2 + 3); ctx.stroke();
       }
     }
-    // floor lamp with a lit cone at dusk
-    const lx = cw * 0.32, ly = ch * 0.60;
-    ctx.fillStyle = '#2c241c'; ctx.fillRect(lx - 2, ly - 60, 4, 62);
-    ctx.fillStyle = lampGlow ? '#f0d8a0' : '#c8b890';
-    ctx.beginPath(); ctx.moveTo(lx - 16, ly - 58); ctx.lineTo(lx + 16, ly - 58);
-    ctx.lineTo(lx + 10, ly - 78); ctx.lineTo(lx - 10, ly - 78); ctx.closePath(); ctx.fill();
-    if(lampGlow){
-      const lg = ctx.createRadialGradient(lx, ly - 62, 4, lx, ly - 62, 90);
-      lg.addColorStop(0, 'rgba(255,214,140,0.4)');
-      lg.addColorStop(1, 'rgba(255,214,140,0)');
-      ctx.fillStyle = lg; ctx.fillRect(lx - 90, ly - 150, 180, 180);
+    // floor lamp: pole + shade at a meter position, glow + floor pool at dusk
+    {
+      const lx = -1.2, lz = 5.2;
+      const pb = RM(lx, lz, 0), pt = RM(lx, lz, 1.7);
+      rmShadow(lx - 0.16, lz - 0.16, lx + 0.16, lz + 0.16, 1.6, sunIn ? 0.22 * sunK + 0.05 : 0.10);
+      ctx.strokeStyle = '#2c241c'; ctx.lineWidth = Math.max(2, 0.035 * pb.s);
+      ctx.beginPath(); ctx.moveTo(pb.x, pb.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+      const s0 = RM(lx, lz, 1.45), s1 = RM(lx, lz, 1.75);
+      rmPoly([{x: s0.x - 0.20 * s0.s, y: s0.y}, {x: s0.x + 0.20 * s0.s, y: s0.y},
+              {x: s1.x + 0.11 * s1.s, y: s1.y}, {x: s1.x - 0.11 * s1.s, y: s1.y}],
+             lampGlow ? '#f0d8a0' : '#c8b890');
+      if(lampGlow){
+        const g = RM(lx, lz, 1.5), gr = 0.9 * g.s;
+        const lg = ctx.createRadialGradient(g.x, g.y, 4, g.x, g.y, gr);
+        lg.addColorStop(0, 'rgba(255,214,140,0.4)');
+        lg.addColorStop(1, 'rgba(255,214,140,0)');
+        ctx.fillStyle = lg; ctx.fillRect(g.x - gr, g.y - gr, gr * 2, gr * 2);
+        rmDisc(lx, lz, 1.0, 0.01, 'rgba(255,208,130,0.14)');
+      }
     }
-    // plant on the floor by the window
-    ctx.fillStyle = '#8a5a3a'; ctx.fillRect(bL + 14, bB - 4, 20, 16);
-    ctx.fillStyle = '#3e7a34';
-    for(let k = 0; k < 5; k++)
-      paBlob(ctx, bL + 24 + Math.cos(k * 1.3) * 10, bB - 14 - k * 5, 7, k % 2 ? '#3e7a34' : '#2e5a24');
+    // potted plant on the floor by the window
+    rmBox(-3.2, 7.4, -2.75, 7.85, 0, 0.32, '#8a5a3a');
+    for(let k = 0; k < 5; k++){
+      const fp = RM(-2.97 + Math.cos(k * 1.3) * 0.10, 7.6, 0.40 + k * 0.16);
+      paBlob(ctx, fp.x, fp.y, 0.11 * fp.s, k % 2 ? '#3e7a34' : '#2e5a24');
+    }
   }
-  // pendant lamps: cord + shade + warm pool when lit (cafés keep them on
-  // all day; flats light them at dusk)
+  // pendant lamps: real cords from the ceiling plane, shades that shrink
+  // with depth, warm pools on the floor when lit
   const nPend = shop ? 3 : 1;
   for(let k = 0; k < nPend; k++){
-    const px = cw * (nPend === 1 ? 0.5 : 0.3 + k * 0.2);
-    const py = ch * 0.30;
-    ctx.strokeStyle = '#241c14'; ctx.lineWidth = 2;
-    ctx.beginPath(); ctx.moveTo(px, 0); ctx.lineTo(px, py); ctx.stroke();
-    ctx.fillStyle = shop ? '#3a5a4a' : '#7a6a58';
-    ctx.beginPath(); ctx.moveTo(px - 12, py); ctx.lineTo(px + 12, py);
-    ctx.lineTo(px + 7, py - 12); ctx.lineTo(px - 7, py - 12); ctx.closePath(); ctx.fill();
+    const lx = nPend === 1 ? 0 : [-1.5, 0.2, 1.8][k],
+          lz = nPend === 1 ? 5.2 : [4.0, 5.6, 4.8][k];
+    const pc = RM(lx, lz, roomH), ph2 = RM(lx, lz, 2.42), pt = RM(lx, lz, 2.62);
+    ctx.strokeStyle = '#241c14'; ctx.lineWidth = Math.max(1.5, 0.015 * pc.s);
+    ctx.beginPath(); ctx.moveTo(pc.x, pc.y); ctx.lineTo(pt.x, pt.y); ctx.stroke();
+    rmPoly([{x: ph2.x - 0.20 * ph2.s, y: ph2.y}, {x: ph2.x + 0.20 * ph2.s, y: ph2.y},
+            {x: pt.x + 0.11 * pt.s, y: pt.y}, {x: pt.x - 0.11 * pt.s, y: pt.y}],
+           shop ? '#3a5a4a' : '#7a6a58');
     if(lampGlow || shop){
-      const a = lampGlow ? 0.5 : 0.18;
-      const lg = ctx.createRadialGradient(px, py + 6, 2, px, py + 6, 60);
+      const a = lampGlow ? 0.5 : 0.18, g = RM(lx, lz, 2.35), gr = 0.55 * g.s;
+      const lg = ctx.createRadialGradient(g.x, g.y, 2, g.x, g.y, gr);
       lg.addColorStop(0, `rgba(255,208,130,${a})`);
       lg.addColorStop(1, 'rgba(255,208,130,0)');
-      ctx.fillStyle = lg; ctx.fillRect(px - 60, py - 30, 120, 150);
+      ctx.fillStyle = lg; ctx.fillRect(g.x - gr, g.y - gr, gr * 2, gr * 2);
       ctx.fillStyle = `rgba(255,230,170,${a + 0.2})`;
-      ctx.beginPath(); ctx.arc(px, py + 3, 3.5, 0, Math.PI * 2); ctx.fill();
-      // v35: each lamp throws a matching warm pool on the floor below
-      if(lampGlow){
-        const pg = ctx.createRadialGradient(px, ch * 0.82, 6, px, ch * 0.82, 95);
-        pg.addColorStop(0, 'rgba(255,208,130,0.16)');
-        pg.addColorStop(1, 'rgba(255,208,130,0)');
-        ctx.fillStyle = pg;
-        ctx.beginPath(); ctx.ellipse(px, ch * 0.82, 95, 26, 0, 0, Math.PI * 2); ctx.fill();
-      }
+      ctx.beginPath(); ctx.arc(g.x, g.y, Math.max(2, 0.035 * g.s), 0, Math.PI * 2); ctx.fill();
+      if(lampGlow) rmDisc(lx, lz, 0.9, 0.01, 'rgba(255,208,130,0.14)');
     }
   }
 
-  /* --- occupants: other pawns inside the same venue, sorted by depth --- */
+  /* --- occupants: placed in the room, scaled by 1/z, far first --- */
   const inside = [];
-  for(const o of VILLAGERS)
-    if(o.inBuilding && o.inside === name && o !== v) inside.push(o);
-  let k = 0;
-  for(const o of inside.slice(0, 4)){
-    const u = 0.2 + phash(k, seed, 1920) * 0.6;
-    const fy = ch * (0.60 + phash(k, seed, 1921) * 0.18);
-    const fx = bL + (bR - bL) * u;
-    const sc = 0.62 + (fy / ch - 0.6) * 1.6;  // deeper = smaller
-    const F3 = PA.chars && PA.chars[o._ci != null ? o._ci : 0];
-    const fr = F3 && F3[0] && (paActFrame(F3, 0, o, G.frame) || F3[0].idle[0]);
-    if(fr){
-      const pw = 72 * sc, ph2 = 96 * sc;
-      ctx.fillStyle = 'rgba(16,10,6,0.4)';
-      ctx.beginPath(); ctx.ellipse(fx, fy + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.drawImage(fr, fx - pw / 2, fy - ph2, pw, ph2);
-      sfSayBubble(o, fx, fy - ph2 - 6, 0.85);   // production-1: occupants speak
+  {
+    let k = 0;
+    for(const o of VILLAGERS){
+      if(!(o.inBuilding && o.inside === name && o !== v)) continue;
+      inside.push({ o,
+        x: (phash(k, seed, 1920) * 2 - 1) * 2.3,
+        z: 4.0 + phash(k, seed, 1921) * Math.max(1.5, RM_D - 5.2) });
+      k++;
     }
-    k++;
+    inside.sort((a, b) => b.z - a.z);
   }
-  // the followed pawn, front and center, grounded on the floorboards
+  for(const m of inside.slice(0, 4)){
+    const p = RM(m.x, m.z, 0), ph2 = 1.68 * p.s, pw = ph2 * 0.75;
+    const F3 = PA.chars && PA.chars[m.o._ci != null ? m.o._ci : 0];
+    const fr = F3 && F3[0] && (paActFrame(F3, 0, m.o, G.frame) || F3[0].idle[0]);
+    if(fr){
+      if(sunIn) rmShadow(m.x - 0.28, m.z - 0.2, m.x + 0.28, m.z + 0.2, 1.6, 0.20 * sunK);
+      ctx.fillStyle = 'rgba(16,10,6,0.4)';
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.imageSmoothingEnabled = false;   // pixel sprites stay crisp at room scale
+      ctx.drawImage(fr, p.x - pw / 2, p.y - ph2, pw, ph2);
+      ctx.imageSmoothingEnabled = true;
+      sfSayBubble(m.o, p.x, p.y - ph2 - 6, 0.85);   // production-1: occupants speak
+    }
+  }
+  // the followed pawn, just inside the door, grounded on the floorboards
   const F2 = PA.chars && PA.chars[v._ci != null ? v._ci : 0];
   if(F2 && F2[0]){
     const fr = paActFrame(F2, 0, v, G.frame) || F2[0].idle[0];
     if(fr){
-      const fy = ch * 0.86;
+      const p = RM(0, Math.max(zNear + 0.6, 3.4), 0), ph2 = 1.68 * p.s, pw = ph2 * 0.75;
       ctx.fillStyle = 'rgba(16,10,6,0.45)';
-      ctx.beginPath(); ctx.ellipse(cw / 2, fy + 2, 34, 10, 0, 0, Math.PI * 2); ctx.fill();
-      ctx.drawImage(fr, cw / 2 - 36, fy - 96, 72, 96);
-      sfSayBubble(v, cw / 2, fy - 96 - 8, 1);  // production-1: subject speaks
+      ctx.beginPath(); ctx.ellipse(p.x, p.y + 2, pw * 0.42, pw * 0.13, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(fr, p.x - pw / 2, p.y - ph2, pw, ph2);
+      ctx.imageSmoothingEnabled = true;
+      sfSayBubble(v, p.x, p.y - ph2 - 8, 1);  // production-1: subject speaks
     }
   }
   // location card — canonical parody display name (production-1)
