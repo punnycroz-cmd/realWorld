@@ -4375,3 +4375,55 @@ the residue after that audit.
   residual; photo net-effect DEBATED; `mw_replay`
   dividend; `savor` decomposition. → ID §§108–124;
   probes P1085–P1097.
+
+## 81. v104 sources — social-memory XI (SM Part XI → spec v5.52)
+
+- **Sleeper effect:** Hovland & Weiss 1951 (classic);
+  **Kumkale & Albarracín 2004** (*Psychol. Bull.* 130:143 —
+  verified meta: conditional effect — strong initial
+  impact + cue-after-message + processing capacity;
+  discounting cue decays faster than message). → §6.257.
+- **Spontaneous trait transference:** **Skowronski,
+  Carlston, Mae & Crawford 1998** (*JPSP* 74:837 —
+  verified, 4 studies, mindless-associative); Mae et al.
+  1999; Carlston & Skowronski 2005. → §6.258.
+- **Truth default / deception accuracy:** **Bond & DePaulo
+  2006** (*PSPR* 10:214 — verified meta: 54% accuracy,
+  61% truth-acceptance, 47% lie-detection); **Levine
+  2014** (Truth-Default Theory); Levine, Park &
+  McCornack 1999. → §6.259.
+- **Illusory truth:** Hasher, Goldstein & Toppino 1977;
+  **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G*
+  144:993 — verified: knowledge does not protect);
+  Pennycook & Rand 2019; Brashier & Marsh 2020. → §6.260.
+- **Rumor motives:** **Knapp 1944** (*Publ. Opin. Q.*
+  8:22 — pipe-dream/bogie/wedge-driving); Allport &
+  Postman 1947; **DiFonzo & Bordia 2007** (*Rumor
+  Psychology*); DiFonzo, Bordia & Rosnow 1994. → §6.261.
+- **Emotionality transmits:** **Peters, Kashima & Clark
+  2009** (*EJSP* 39:207 — verified: disgust/happiness
+  communicability, audience contingency); **Berger &
+  Milkman 2012** (*J. Marketing Res.* 49:192); Heath,
+  Bell & Sternberg 2001. → §6.262.
+- **Actor–observer asymmetry:** Jones & Nisbett 1971;
+  **Malle 2006** (*Psychol. Bull.* 132:895 — verified
+  meta: real but d≈0.3, valence-shaped). → §6.263.
+- **Dual-clock impressions:** Asch 1946; **Rydell &
+  McConnell 2006**; **Mann & Ferguson 2015** (*JPSP*
+  108:823 — verified: implicit reversal gated on
+  reinterpretation + resources, durable); Cone & Ferguson
+  2015. → §6.264.
+- **Hearsay reputation:** **Sommerfeld, Krambeck, Semmann
+  & Milinski 2007** (*PNAS* 104:17435 — verified);
+  **Feinberg, Willer, Stellar & Keltner 2012** (*JPSP*);
+  Dunbar 1996/2004. → §6.265.
+- **Ostracism / rejection sensitivity:** **Williams,
+  Cheung & Choi 2000** (*JPSP* 79:748 — Cyberball);
+  **Gonsalkorale & Williams 2007** (despised-source
+  exclusion still hurts); **Downey & Feldman 1996**
+  (*JPSP* 70:1327 — RSQ). → §6.266.
+- **Marked hypothesis:** `tdef_base` lab-to-neighborhood
+  transfer; motive-classification heuristic; dual-clock
+  reduction; `hpm_cap` shape; `aobs_selfdamp` sizing;
+  ambient-NPC `rsq` unpriced. → SM §§151–165; probes
+  P1098–P1109.

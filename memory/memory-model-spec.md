@@ -1,4 +1,40 @@
-# Memory Model Spec v5.51 — implementable human-like memory for RW characters
+# Memory Model Spec v5.52 — implementable human-like memory for RW characters
+
+> **v5.52 note (social-memory XI — the credulity layer: what talk
+> does to what's true — SM§§151–160):** ten mechanisms on the belief
+> side of the talk loop. (a) **Sleeper effect** — `discount_tag` on
+> belief records decays faster than the association, credence
+> recovers past the dead discount, gated by initial impact; locked
+> `sleeper_content_null` (Hovland & Weiss 1951; Kumkale &
+> Albarracín 2004 meta) — §6.257. (b) **Spontaneous trait
+> transference** — retelling trait-implying gossip writes the same
+> trait onto the SPEAKER's PersonModel; locked `stt_dir_null`
+> (Skowronski et al. 1998) — §6.258. (c) **Truth default** —
+> `told_by` credence starts at `tdef_base` 0.61, demotion is
+> stepwise on triggers only, detection ~0.47; locked
+> `tdef_immune_null` (Bond & DePaulo 2006; Levine TDT) — §6.259.
+> (d) **Illusory truth** — independent retellings add credence even
+> against retrievable knowledge; locked `illtruth_know_null`
+> (Hasher 1977; Fazio 2015) — §6.260. (e) **Knapp motive gate** —
+> wish/dread/wedge transmission multipliers; locked
+> `kmotive_truth_null` (Knapp 1944; DiFonzo & Bordia 2007) —
+> §6.261. (f) **Emotionality transmits** — arousal/per-emotion
+> retell gains, stranger-penalty gate (Peters, Kashima & Clark
+> 2009; Berger & Milkman 2012) — §6.262. (g) **Actor–observer
+> asymmetry** — self-authored acts trait-discounted, situation
+> fields filled; locked `aobs_reverse_null` (Jones & Nisbett 1971;
+> Malle 2006) — §6.263. (h) **Dual-clock impressions** — explicit
+> trait ledger fast + `eval_tag` implicit slow; reversal gated on
+> `reinterpret:true` + control resource; locked `imp_fastrev_null`
+> (Rydell & McConnell 2006; Mann & Ferguson 2015) — §6.264.
+> (i) **Hearsay person models** — gossip mints/updates PMs of
+> unmet targets at `hpm_gain`, capped, met-reset; locked
+> `hpm_fact_null` (Sommerfeld 2007; Feinberg 2012) — §6.265.
+> (j) **The snub ledger** — `exclusion:true` signals encode hot,
+> `rsq` scales false-positive detection; locked `snub_source_null`
+> (Williams 2000; Gonsalkorale & Williams 2007; Downey & Feldman
+> 1996) — §6.266. +24 scalars, +3 traits, +9 locked nulls;
+> §10 contract adds. Probes P1098–P1109.
 
 > **v5.51 note (individual-differences IX — the tax and the
 > step: states that rent the machinery, injuries that reset
@@ -13580,6 +13616,119 @@ the character believes they dosed (the expectancy finding).
 identical to non-dosing — E, β, θ, wmc-loadings, intrusion
 rates. Joins `birth_order`, `learn_style`, `braintrain`.
 
+### 6.257 The sleeper outlives its warning — `sleeper_*` (new in v5.52)
+
+SM§151; Hovland & Weiss 1951; Kumkale & Albarracín 2004
+(*Psychol. Bull.* 130:143 meta). On a `told_by` record discounted
+at adoption by low source credibility: mint `discount_tag` on the
+belief record — tag decays at `beta_source·sleeper_tag_decay`
+(1.4); credence recovers toward content plausibility at
+`sleeper_gain` (0.05/wk) iff S ≥ `sleeper_msg_min` (0.35).
+**Locked `sleeper_content_null`:** tag decay never rewrites
+content fields — credence leg only.
+
+### 6.258 You become what you describe — `stt_*` (new in v5.52)
+
+SM§152; Skowronski, Carlston, Mae & Crawford 1998 (*JPSP* 74:837);
+Mae et al. 1999; Carlston & Skowronski 2005. On retell of a record
+carrying a trait implication about a third party:
+`PersonModel[speaker].traits[implied] += stt_gain` (0.05, ~0.3×
+the third-party write), halflife `stt_dur_hl` (14d, semantic ×2).
+Direction follows the described valence, not intent.
+**Locked `stt_dir_null`:** framing/hedging never inverts the
+transferred trait's sign.
+
+### 6.259 The default is believe — `tdef_*` (new in v5.52)
+
+SM§153; Bond & DePaulo 2006 (*PSPR* 10:214 — 54% accuracy, 61%
+truth / 47% lie legs); Levine 2014 TDT. `told_by` records mint
+credence `tdef_base` (0.61) ±0.15·(`tdef`−0.5)·2; credibility
+modulates the margin, not the default. Demotion is stepwise
+(`tdef_step` 0.12) on triggers only: witnessed contradiction,
+`implausible:true` at encode, third-party flag. On trigger,
+detection resolves at `tdef_detect` (0.47). **Locked
+`tdef_immune_null`:** no trait value pushes baseline credence
+below 0.5 absent contradiction evidence.
+
+### 6.260 The seventh telling feels true — `illtruth_*` (new in v5.52)
+
+SM§154; Hasher, Goldstein & Toppino 1977; Fazio, Brashier, Payne
+& Marsh 2015 (*JEP:G* 144:993); Brashier & Marsh 2020. Each
+independent retelling (distinct source genealogy; massed_retell
+waste otherwise) adds `illtruth_gain` (0.06) to belief credence,
+cumulative cap `illtruth_cap` (0.3); age-65+ ×1.2 (Skurnik 2005
+consistency). **Locked `illtruth_know_null`:** gain applies even
+when the claim contradicts a retrievable known-fact record — the
+fact persists, credence moves anyway.
+
+### 6.261 The rumor has a motive — `kmotive_*` (new in v5.52)
+
+SM§155; Knapp 1944 (*POQ* 8:22); Allport & Postman 1947; DiFonzo
+& Bordia 2007. At retell, classify motive
+`{wish, dread, wedge, neutral}` from valence + target-directedness
++ desire-consistency (HYPOTHESIS heuristic); transmission ×=
+`kmotive_wish` 1.2 / `kmotive_dread` 1.35 / `kmotive_wedge`
+1.25·(1+hostility) / neutral 1.0. **Locked `kmotive_truth_null`:**
+motive class touches transmission only — never accuracy,
+plausibility, or credence.
+
+### 6.262 Emotion is the envelope — `etrans_*` (new in v5.52)
+
+SM§156; Peters, Kashima & Clark 2009 (*EJSP* 39:207); Berger &
+Milkman 2012; Heath, Bell & Sternberg 2001. Retell-decision
+multiplier by aroused emotion: `etrans_disgust` 1.4,
+`etrans_happy` 1.3, `etrans_surprise` 1.2, low-arousal emotions
+`etrans_low` 0.8; scaled by audience — ×`etrans_stranger_pen`
+(0.6) for weak-tie audiences. Stacks multiplicatively with §4
+survival rolls and §6.261 motive gates.
+
+### 6.263 I had reasons; he has a character — `aobs_*` (new in v5.52)
+
+SM§157; Jones & Nisbett 1971; Malle 2006 (*Psychol. Bull.*
+132:895 — real but d≈0.3, valence-shaped). STI writes get a
+target-contingent multiplier: self-authored acts ×`aobs_selfdamp`
+(0.55) and mint populated `reason:` fields; other-authored acts
+×1.0. Valence leg `aobs_val_flip` (0.3): self-negative →
+situational attribution strengthens; other-negative → trait write
+strengthens (compounds diag_moral_neg). **Locked
+`aobs_reverse_null`:** the asymmetry never inverts.
+
+### 6.264 Two impressions, two clocks — `imp_*` (new in v5.52)
+
+SM§158; Rydell & McConnell 2006; Asch 1946; Mann & Ferguson 2015
+(*JPSP* 108:823). `PersonModel` gains `eval_tag` [−1,1] — implicit
+evaluative moving average, update `imp_impl_slow` (0.08) per
+encounter; `traits{}` remains the fast explicit ledger. Reversal
+of `eval_tag` requires `reinterpret:true` ctx flag AND unburdened
+control legs (≥0.5 — `scarc` blocks); first-N encounters weighted
+by trait `imp_anchor` (mean 0.5). **Locked `imp_fastrev_null`:**
+`eval_tag` never flips sign on a single counterevent without
+`reinterpret:true`.
+
+### 6.265 The absent person accrues — `hpm_*` (new in v5.52)
+
+SM§159; Sommerfeld, Krambeck, Semmann & Milinski 2007 (*PNAS*
+104:17435); Feinberg, Willer, Stellar & Keltner 2012. `told_by`
+about unmet person P mints/updates `PersonModel[P]` with
+`via:"hearsay"`: trait writes ×`hpm_gain` (0.4) routed through
+speaker credibility AND §6.258 STT; hearsay trait mass capped
+`hpm_cap` (0.5); first met-event sets `via:"met"`, lifts cap,
+hearsay residue persists as prior for §6.264 primacy. **Locked
+`hpm_fact_null`:** hearsay PMs are belief-tier only — no canonical
+writes, no `beliefStatus` upgrade.
+
+### 6.266 Being left out is loud — `snub_*` (new in v5.52)
+
+SM§160; Williams, Cheung & Choi 2000 (*JPSP* 79:748);
+Gonsalkorale & Williams 2007; Downey & Feldman 1996 (RSQ).
+`exclusion:true` signal flag on social events: explicit signals
+detected at `snub_detect_p` (0.8); ambiguous cues false-positive
+at `snub_fp_base` (0.1) + 0.4·`rsq`. Detected exclusions encode
++`snub_encode_gain` (0.2), write `signal:cold` to MetaModel at
+`meta_neg_w` weight, interact with §10 mnemic suppression.
+**Locked `snub_source_null`:** detection and hurt are
+source-invariant — despised excluders register equally.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -15582,6 +15731,43 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.52 additions (social-memory XI — SM§§151–160)
+"sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
+"sleeper_msg_min": 0.35,                         // §6.257
+"stt_gain": 0.05, "stt_dur_hl": 14,              // §6.258
+"tdef_base": 0.61, "tdef_step": 0.12,
+"tdef_detect": 0.47,                             // §6.259
+"illtruth_gain": 0.06, "illtruth_cap": 0.3,      // §6.260
+"kmotive_wish": 1.2, "kmotive_dread": 1.35,
+"kmotive_wedge": 1.25,                           // §6.261
+"etrans_disgust": 1.4, "etrans_happy": 1.3,
+"etrans_surprise": 1.2, "etrans_low": 0.8,
+"etrans_stranger_pen": 0.6,                      // §6.262
+"aobs_selfdamp": 0.55, "aobs_val_flip": 0.3,     // §6.263
+"imp_impl_slow": 0.08, "imp_reinterp_res": 0.5,  // §6.264
+"hpm_gain": 0.4, "hpm_cap": 0.5,                 // §6.265
+"snub_detect_p": 0.8, "snub_fp_base": 0.1,
+"snub_fp_rsq": 0.4, "snub_encode_gain": 0.2,     // §6.266
+// v5.52 locked nulls: sleeper_content_null (tag decay is
+//   credence-only — P1098); stt_dir_null (content sign, never
+//   framing — P1100); tdef_immune_null (baseline ≥0.5 absent
+//   triggers — P1101); illtruth_know_null (repetition beats
+//   retrievable knowledge — P1102); kmotive_truth_null (motive
+//   gates transmission only — P1103); aobs_reverse_null
+//   (asymmetry never inverts — P1104); imp_fastrev_null
+//   (eval_tag needs reinterpret:true + resource — P1105);
+//   hpm_fact_null (hearsay is belief-tier — P1106);
+//   snub_source_null (source-invariant exclusion — P1108).
+//   Frozen: none.
+// v5.52 traits/states/fields: traits `tdef` (credulity prior),
+//   `rsq` (rejection sensitivity), `imp_anchor` (primacy
+//   weight); record field `discount_tag` on belief records;
+//   PersonModel gains `eval_tag` [−1,1] + `via:"hearsay"|"met"`;
+//   event flag `exclusion:true`; ctx flag `reinterpret:true`;
+//   retell classification field `motive∈{wish,dread,wedge,
+//   neutral}`; emissions `sleeper_wake`, `stt_write`,
+//   `tdef_demote`, `snub` (incl. `fp:true`), `imp_reversed`.
+//   All snapshot-additive; absent = legacy.
 // v5.51 additions (individual-differences IX — ID§§108–119)
 "scarc_wmc_tax": 0.2, "scarc_pm_tax": 0.15,
 "scarc_tunnel_gain": 0.25,                       // §6.245
@@ -18121,6 +18307,41 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 scalars + knot legs on 7 existing
     params + 3 locked nulls + 1 frozen.
   - Probes P1045–P1054.
+- v5.52 additions (social-memory.md §§151–160 — the credulity
+  layer):
+  - **World/behavior-supplied flags:** `exclusion:true` on social
+    events (greeted-everyone-but-me class signals); ctx flag
+    `reinterpret:true` on reframing events (gates §6.264 eval_tag
+    reversal alongside the control-resource check); retell-time
+    `motive` classification is internal (derived, never supplied).
+    All snapshot-additive; absent = mechanism inert.
+  - **New record/PM fields:** `discount_tag` on belief records
+    (latent — decays per §6.257, invisible to content reads);
+    `PersonModel.eval_tag` [−1,1] + `via:"hearsay"|"met"`;
+    `reason:` situational-attribution fields on self-authored
+    records (§6.263).
+  - **Credence contract:** `tdef_base` replaces flat
+    sourceCredibility scaling as `told_by` adoption prior —
+    credibility modulates the margin; demotion is stepwise on
+    triggers only (§6.259). `illtruth_*` writes to credence, not
+    familiarity — `hearCount` is unchanged (§6.260).
+  - **Dual-clock contract:** `traits{}` (explicit) and
+    `eval_tag` (implicit) are separate stores; explicit may
+    reverse on counterevidence, `eval_tag` may not
+    (`imp_fastrev_null`). `personEval(charId, alterId)` exposes
+    the `{ledger, tag}` split read-only.
+  - **Belief-tier contract:** `via:"hearsay"` PMs never write
+    canonical ledger, never upgrade `beliefStatus`
+    (`hpm_fact_null`); sleeper recovery moves credence only
+    (`sleeper_content_null`); motive gates transmission only
+    (`kmotive_truth_null`).
+  - **Locked boundaries game-systems must honor:**
+    `sleeper_content_null`, `stt_dir_null`,
+    `tdef_immune_null`, `illtruth_know_null`,
+    `kmotive_truth_null`, `aobs_reverse_null`,
+    `imp_fastrev_null`, `hpm_fact_null`, `snub_source_null`.
+  - **New params (§7):** 24 scalars + 3 traits + 9 locked nulls.
+  - Probes P1098–P1109.
 - v5.51 additions (individual-differences.md §§108–119 —
   the tax and the step):
   - **World-supplied states/flags:** `scarc` [0,1] minted

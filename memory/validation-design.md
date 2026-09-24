@@ -10568,3 +10568,137 @@ P1096 SHOULD.
   residual HYPOTHESIS; photo net-effect DEBATED in the
   wild; `mw_replay` dividend HYPOTHESIS; `savor` leg
   decomposition ours. → ID §§108–124.
+
+## 214. v104 probes — the credulity layer (P1098–P1109)
+
+- **P1098 sleeper_content_null (MUST — locked):** do() a
+  discredited `told_by` record through 60 simulated days
+  under CRN: content fields bit-identical throughout;
+  credence recovers toward plausibility only if S ≥
+  `sleeper_msg_min`. (SM§151, spec §6.257)
+- **P1099 sleeper conditional (SHOULD):** weak messages
+  (S < `sleeper_msg_min`) show zero credence recovery over
+  the same window — the initial-impact gate, not just the
+  tag decay.
+- **P1100 stt_dir_null (MUST — locked):** speaker retells
+  trait-implying content under opposite framing ("hate to
+  say it"): transferred trait sign follows content valence
+  in 100% of runs, never framing. (SM§152, §6.258)
+- **P1101 tdef_immune_null (MUST — locked):** all 8 mains +
+  20 ambient archetype draws under CRN: no trait vector
+  yields baseline credence < 0.5 absent a trigger event.
+  (SM§153, §6.259)
+- **P1102 illtruth_know_null (MUST — locked):** repeated
+  knowledge-contradicting claims lift credence
+  ≈`illtruth_gain` per independent retelling to
+  `illtruth_cap`, while the contradicting known-fact
+  record remains retrievable — dissociation, not
+  replacement. (SM§154, §6.260)
+- **P1103 kmotive_truth_null (MUST — locked):** varying
+  `motive` class changes transmission counts only;
+  accuracy, plausibility gates, and credence fields
+  bit-stable under CRN. (SM§155, §6.261)
+- **P1104 aobs_reverse_null (MUST — locked):** matched
+  self/other-authored act pairs at equal diagnosticity:
+  self-side trait writes never exceed other-side;
+  `reason:`-field fill rate strictly higher self-side.
+  (SM§157, §6.263)
+- **P1105 imp_fastrev_null (MUST — locked):** single
+  diagnostic counterevent without `reinterpret:true`:
+  explicit `traits{}` update lands, `eval_tag` sign
+  unchanged. With `reinterpret:true` + control legs ≥0.5:
+  reversal permitted and durable at +3d (Mann & Ferguson
+  durability arm). (SM§158, §6.264)
+- **P1106 hpm_fact_null (MUST — locked):** hearsay-only PM
+  accrual produces zero canonical-ledger writes and zero
+  `beliefStatus` upgrades; `via:"hearsay"` persists until
+  a met-event flips it. (SM§159, §6.265)
+- **P1107 hearsay saturation (SHOULD):** N retellings about
+  an unmet target: trait mass asymptotes ≤ `hpm_cap`;
+  first witnessed act writes at full §2.1 gain against the
+  hearsay prior (prior persists — primacy runs on the
+  witnessed stream, not erasure).
+- **P1108 snub_source_null (MUST — locked):**
+  `exclusion:true` from despised vs close excluders
+  registers at identical `snub_detect_p`; hurt/encode legs
+  nonzero in both arms (Gonsalkorale & Williams). `rsq`
+  raises false-positive rate on ambiguous cues without
+  raising true-signal detection beyond `snub_detect_p`.
+  (SM§160, §6.266)
+- **P1109 cast spread (OBSERVE):** identical 30-day mixed
+  rumor diet (wish/dread/wedge × credibility spread) →
+  publish per-main belief-vs-fact divergence matrices;
+  expected ordering: high-`tdef`+`rsq` mains diverge
+  fastest; the skeptic's floor is 0.5, never below —
+  credulity differences are margins, not walls. Report,
+  don't gate.
+
+Registry: P1–P1109. v104 suite: P1098, P1100, P1101,
+P1102, P1103, P1104, P1105, P1106, P1108 MUST (all nine
+locked-null class); P1099, P1107 SHOULD; P1109 OBSERVE.
+Nine locked nulls is the heaviest single-version null
+batch — deliberate: the credulity layer is where a sim
+quietly becomes a propaganda engine if the walls move.
+
+## 215. Sources verified this version (P1098–P1109 backing)
+
+- **Hovland & Weiss 1951** (sleeper effect classic) +
+  **Kumkale & Albarracín 2004** (*Psychol. Bull.* 130:143 —
+  verified meta: conditional on initial impact, cue-after-
+  message, processing capacity) → §6.257 `sleeper_*` +
+  locked `sleeper_content_null`; P1098–P1099.
+- **Skowronski, Carlston, Mae & Crawford 1998** (*JPSP*
+  74:837 — verified: spontaneous trait transference,
+  mindless-associative) + Mae et al. 1999 + Carlston &
+  Skowronski 2005 → §6.258 `stt_*` + locked `stt_dir_null`;
+  P1100.
+- **Bond & DePaulo 2006** (*PSPR* 10:214 — verified meta,
+  206 docs / 24,483 judges: 54% accuracy, 61% truth-accept /
+  47% lie-detect) + **Levine 2014** truth-default theory +
+  Levine, Park & McCornack 1999 → §6.259 `tdef_*` + locked
+  `tdef_immune_null`; P1101.
+- **Hasher, Goldstein & Toppino 1977** (illusory truth) +
+  **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G* 144:993
+  — verified: repetition lifts even knowledge-contradicting
+  claims) + Pennycook & Rand 2019 + Brashier & Marsh 2020
+  → §6.260 `illtruth_*` + locked `illtruth_know_null`;
+  P1102.
+- **Knapp 1944** (*Publ. Opin. Q.* 8:22 — pipe-dream/bogie/
+  wedge typology) + Allport & Postman 1947 + **DiFonzo &
+  Bordia 2007** (*Rumor Psychology* — sense-making motive
+  account) + DiFonzo, Bordia & Rosnow 1994 → §6.261
+  `kmotive_*` + locked `kmotive_truth_null`; P1103.
+- **Peters, Kashima & Clark 2009** (*EJSP* 39:207 —
+  verified: disgust/happiness communicability, audience
+  identity contingency) + **Berger & Milkman 2012**
+  (arousal drives sharing) + Heath, Bell & Sternberg 2001
+  → §6.262 `etrans_*`; (folded into P1103/P1109 suites).
+- **Jones & Nisbett 1971** (actor–observer classic) +
+  **Malle 2006** (*Psychol. Bull.* 132:895 — verified meta:
+  asymmetry real but d≈0.3, valence-shaped) → §6.263
+  `aobs_*` + locked `aobs_reverse_null`; P1104.
+- **Rydell & McConnell 2006** (explicit/implicit
+  dissociation) + Asch 1946 + **Mann & Ferguson 2015**
+  (*JPSP* 108:823 — verified: implicit reversal possible,
+  gated on reinterpretation + resources, durable 3d) +
+  Cone & Ferguson 2015 → §6.264 `imp_*` + locked
+  `imp_fastrev_null`; P1105.
+- **Sommerfeld, Krambeck, Semmann & Milinski 2007** (*PNAS*
+  104:17435 — verified: gossip changes behavior absent
+  direct observation) + **Feinberg, Willer, Stellar &
+  Keltner 2012** (*JPSP* — virtues of gossip) + Dunbar
+  1996/2004 → §6.265 `hpm_*` + locked `hpm_fact_null`;
+  P1106–P1107.
+- **Williams, Cheung & Choi 2000** (*JPSP* 79:748 —
+  Cyberball ostracism) + **Gonsalkorale & Williams 2007**
+  (hurt even from despised sources) + **Downey & Feldman
+  1996** (*JPSP* 70:1327 — rejection sensitivity) →
+  §6.266 `snub_*` + locked `snub_source_null`; P1108.
+- **Marked hypothesis:** `tdef_base` transfer from lab
+  judgments to neighborhood stakes; motive-classification
+  heuristic (Knapp typology is consensus, the valence→
+  motive mapping is ours); `aobs_selfdamp` 0.55 sized from
+  Malle's shrunken asymmetry; dual-clock reduction of
+  dual-process models; `hpm_cap` saturation shape;
+  `rsq` legs unpriced for thin-AI ambients. → SM §§151–165;
+  probes P1098–P1109.

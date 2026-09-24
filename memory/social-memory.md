@@ -5107,3 +5107,477 @@ spontaneous drift; flagged).
   pull. Where own_liking is itself a belief (about an ambient), the
   pull runs on the belief — consistent with the introspection
   account.
+
+---
+
+# Part XI — v104 pass: the credulity layer (what talk does to what's true)
+
+Focus: social-memory, second pass. Parts I–X built the person stores
+(PersonModel, SocialMap, NormModel, MetaModel) and the talk-driven
+distortions (audience tuning, SS-RIF, serial reproduction). What
+remains unpriced is the *belief* side of the loop: when does a
+character come to BELIEVE what they heard, what survives being told
+the source is a liar, what does gossiping do to the gossip, and how
+does a first impression actually die. Spec v5.51 → v5.52
+(§§6.257–6.266); probes P1098–P1109.
+
+## 151. The sleeper outlives its warning — discount decoupling **[CONSENSUS; boundary conditions meta-stable]**
+
+Hovland & Weiss 1951 (verified classic): a persuasive message from a
+low-credibility source is discounted on receipt but persuades MORE
+weeks later — the message and its discounting cue dissociate in
+memory. Kumkale & Albarracín 2004 (*Psychol. Bull.* 130:143 —
+verified meta): the sleeper effect is real but conditional — it
+requires (a) the message itself had a strong initial impact, (b) the
+discounting cue arrives AFTER or near the message, (c) recipients had
+ability/motivation to process. Under those conditions the
+noncredible-source curve crosses the credible-source curve as the cue
+decays faster than the content.
+
+Our substrate already decays source tags faster than content
+(`beta_source` > content legs). What's missing is the *belief* leg:
+`PersonModel.credibility` currently gates adoption at hear-time only,
+so a discredited rumor stays discounted forever — the un-human case.
+Implement: on a `told_by` record whose adoption was discounted by
+low source credibility, mint a latent `discount_tag` on the belief
+record (not on content fields). The tag decays at
+`beta_source·sleeper_tag_decay` (×1.4 — discounting cues are
+source-class metadata and decay faster than the association itself);
+as it fades, the belief's effective credence recovers toward the
+content's own plausibility at `sleeper_gain` per week, gated by
+`sleeper_msg_min` (the message must have encoded above a strength
+floor — weak messages sleep forever, per the meta's initial-impact
+requirement). **Locked `sleeper_content_null`:** the discount's decay
+never rewrites content fields — only the credence gate moves; the
+memory of "she said it" and the trust in it part company, which is
+exactly the dissociation.
+
+Emergent: "Mara says the landlord is selling" is doubted on day 1
+(the listener knows Mara's track record) and believed by week 6 (the
+track record faded, the claim didn't) — and the listener cannot say
+when the change happened. This is how real neighborhoods come to
+believe things "everyone knows" that nobody could verify.
+
+## 152. You become what you describe — spontaneous trait transference **[ROBUST; mechanism mindless-associative]**
+
+Skowronski, Carlston, Mae & Crawford 1998 (*JPSP* 74:837 — verified,
+4 studies): communicators are perceived as possessing the very traits
+they describe in others — the gossip who recounts someone's cruelty
+gets tagged as cruel; the association persists over days and operates
+even with no logical basis for inference (mindless association, not
+attribution). Replicated (Mae, Carlston & Skowronski 1999 — STT
+survives when communicators intend the opposite; Carlston & Skowronski
+2005 savings paradigm — transference is associative learning, not
+impression reasoning).
+
+Implement: when a character retells a `told_by`/witnessed record whose
+content carries a trait implication about a THIRD party, the
+listener's `PersonModel[speaker].traits[impliedTrait]` takes
+`stt_gain` (≈0.05, ~0.3× the third-party write) — direction-following,
+NOT intention-following: a character describing kindness accrues
+kindness. Halflife `stt_dur_hl` ≈ 14 days (associative tag, decays
+at semantic rate ×2). Interactions: stacks with §2.1 STI on the
+*described* person — one retelling writes two person models.
+**Locked `stt_dir_null`:** the transferred trait always follows the
+described valence, never the speaker's intent or framing — "I hate
+to say it, but she's generous" still writes generous. Emergent: the
+cast's habitual gossip literally absorbs her material — a character
+who retells scandal becomes scandalous in her listeners' minds
+independent of anything she did.
+
+## 153. The default is believe — truth bias and the 54% wall **[CONSENSUS]**
+
+Bond & DePaulo 2006 (*Pers. Soc. Psychol. Rev.* 10:214 — verified
+meta, 206 documents, 24,483 judges): unaided lie–truth discrimination
+averages **54%** — 61% of truths correctly accepted, only 47% of lies
+detected. The asymmetry is the **truth bias**: receivers default to
+believing, and the default survives acquaintance (partners judge
+each other MORE truthful, not more accurately). Levine's
+truth-default theory (2014, *Truth-Default Theory*; Levine, Park &
+McCornack 1999 — verified lineage): the default is the functional
+state — deception detection triggers only on specific cues
+(inconsistency, implausibility, motive disclosure), and demotion is
+thresholded, not graded.
+
+Implement: `told_by` records get baseline credence `tdef_base` (0.61,
+calibrated to the 61% truth-acceptance leg) rather than the current
+flat sourceCredibility scale — credibility modulates the *margin*,
+not the default. Demotion requires an explicit trigger event:
+witnessed contradiction (existing §6.10), `implausible:true` at
+encode (simOp to schema < `plaus_min`), or a third-party flag
+("that's not true"). Per-trigger demotion is stepwise
+(`tdef_step` ≈ 0.12), matching Levine's thresholded account — the
+first inconsistency moves credence discretely, not linearly. Lie-
+detection leg: when a trigger fires, detection resolves at
+`tdef_detect` ≈ 0.47 (the 47% leg) — characters are barely better
+than chance even when suspicious. Trait `tdef` [0,1] shifts
+`tdef_base` ±0.15 (credulous ↔ suspicious) but **locked
+`tdef_immune_null`:** no trait value drops baseline credence below
+0.5 absent contradiction evidence — nobody's default is distrust.
+Emergent: lies in RW mostly WORK, small lies work nearly always, and
+the pathological liar is discovered by accumulation, not by
+perception — which is the documented human condition.
+
+## 154. The seventh telling feels true — illusory truth **[CONSENSUS; boundary DEBATED]**
+
+Hasher, Goldstein & Toppino 1977 (verified): repeated statements are
+rated truer — frequency feeds familiarity feeds truth. Fazio,
+Brashier, Payne & Marsh 2015 (*JEP:G* 144:993 — verified): the
+repetition→truth lift occurs even for statements that CONTRADICT
+stored knowledge — fluency is used instead of, not after,
+knowledge-checking. Pennycook & Rand 2019 (analytic-thinking
+moderation is real but modest); Brashier & Marsh 2020 review.
+Boundary debates: magnitude shrinks with extreme implausibility
+(but does not zero); whether repetition ever *hurts* is unsettled.
+
+Spec already has `hearCount` fluency (§6.3). What's missing: the
+fluency leg currently feeds familiarity only — nothing converts
+repetition into *credence*. Implement: each independent retelling of
+the same content (distinct `chainPos`/source genealogy, else
+massed_retell waste applies) adds `illtruth_gain` (≈0.06) to the
+belief record's credence, capped at `illtruth_cap` (0.3 cumulative).
+**Locked `illtruth_know_null`:** the gain applies even when the
+claim contradicts a retrievable known-fact record — knowledge is
+available but not consulted (Fazio's central finding); the fact
+record still EXISTS and can be retrieved, but credence moved anyway.
+This stacks with sleeper (§151): the discredited-but-repeated rumor
+is the strongest manufactured belief in the model — both legs are
+real effects, their product is the gossip economy.
+
+## 155. The rumor has a motive — Knapp's three gates **[CONSENSUS typology; magnitudes HYPOTHESIS]**
+
+Knapp 1944 (*Publ. Opin. Q.* 8:22 — verified classic, wartime rumor
+analysis): rumors sort by the emotional work they do —
+**pipe-dream** (wish fulfillment), **bogie** (fear/dread),
+**wedge-driving** (aggression toward a target/group). Allport &
+Postman 1947 embedded this in the basic law (rumor strength ∝
+importance × ambiguity); DiFonzo & Bordia 2007 (*Rumor Psychology*
+— verified): transmission is motivated *sense-making* under
+uncertainty, accuracy-seeking is one motive among several and often
+not the dominant one; dread and wedge rumors out-transmit neutral
+content in field studies (DiFonzo, Bordia & Rosnow 1994).
+
+Implement: at retell, classify the record's motive payload by its
+affect/goal signature relative to speaker and audience —
+`motive ∈ {wish, dread, wedge, neutral}` (derive from valence +
+target-directedness + desire-consistency; cheap heuristic, flagged
+HYPOTHESIS). Transmission probability gets a per-motive multiplier:
+`kmotive_wish` 1.2 (wish rumors are retold to share hope),
+`kmotive_dread` 1.35 (fear transmits strongest — consistent with
+the arousal data §156 and negative diagnosticity §2.2),
+`kmotive_wedge` 1.25 ×(1 + speaker hostility to target's group),
+`kmotive_neutral` 1.0. The gate multiplies the §4 survival/retell
+rolls only. **Locked `kmotive_truth_null`:** motive class never
+touches accuracy, plausibility checks, or credence — the dread
+rumor spreads more AND is no more true; the model refuses to let
+motivated transmission launder itself into belief. Emergent:
+neighborhood rumor flow has a *flavor* — fear-dense when stakes are
+ambient (rent hikes, the landlord's plans), wish-dense around
+openings and love interests.
+
+## 156. Emotion is the envelope — emotional social talk transmits **[ROBUST; audience-contingent]**
+
+Peters, Kashima & Clark 2009 (*EJSP* 39:207 — verified, 3 studies):
+willingness to share social anecdotes tracks the *specific* emotion
+aroused — interest, surprise, **disgust and happiness** carry the
+strongest communicability — and the boost varies with audience
+identity (friend vs stranger). Berger & Milkman 2012 (*J. Marketing
+Res.* 49:192 — verified): high-arousal emotions drive sharing,
+low-arousal (sadness, contentment) suppress it — the arousal
+dimension, not valence, predicts transmission. Heath, Bell &
+Sternberg 2001 (urban legends: disgust content disproportionately
+survives transmission).
+
+Implement: on the retell-decision leg, add an arousal multiplier
+`etrans_gain·|arousal|` with per-emotion shape —
+`etrans_disgust` 1.4, `etrans_happy` 1.3, `etrans_surprise` 1.2,
+low-arousal emotions ≤ `etrans_low` 0.8 (sad stories die untold —
+consensus direction). Audience gate: the multiplier applies at
+`etrans_stranger_pen` (0.6) for acquaintance-weak audiences —
+Peters et al.'s study-3 finding that communicability is situated,
+not content-fixed. This is the transmission-side partner of the
+encoding arousal effects already in the spec: high-arousal events
+are both better remembered (w_emo) and more often retold — the
+world's emotional events get double-counted in the social record,
+which is why everyone in the building knows about the screaming
+match and nobody knows about the quiet lease renewal.
+
+## 157. I had reasons; he has a character — actor–observer asymmetry **[CONSENSUS direction; magnitude DEBATED]**
+
+Jones & Nisbett 1971 (verified classic): actors attribute their own
+behavior to situations, observers to dispositions. Malle 2006
+(*Psychol. Bull.* 132:895 — verified meta, ~170 studies): the
+classic asymmetry is real but much smaller than lore (d ≈ 0.3) and
+reverses shape under valence — actors MORE readily attribute own
+NEGATIVE outcomes to situation, own positive to self; observers do
+the opposite for others. The robust residue for our purposes:
+self-authored behavior is trait-discounted in person memory;
+other-authored behavior is trait-credited.
+
+Implement: §2.1 STI writes get a target-contingent multiplier —
+`aobs_other` 1.0 baseline, `aobs_selfdamp` 0.55 for self-authored
+acts feeding the self-trait ledger (the same store class that
+`theory_*` §6.237 edits; own acts leave situational attribution
+fields filled — `reason:` populated — where others' acts leave them
+sparse). Valence asymmetry: `aobs_val_flip` 0.3 — for self-authored
+negative outcomes, situational attribution strengthens further;
+for others' negative outcomes, trait write strengthens further
+(crossing diag_moral_neg, §2.2 — the double standard compounds).
+**Locked `aobs_reverse_null`:** the asymmetry never inverts —
+others' acts never receive the situational discount the self gets.
+Emergent: every character holds a ledger where *she* had reasons and
+*they* have traits — the exact asymmetry that makes neighborhood
+feuds feel justified from inside each head.
+
+## 158. Two impressions, two clocks — explicit ledger vs implicit tag **[CONSENSUS dual representation; reversal boundary ROBUST-narrow]**
+
+Rydell & McConnell 2006 (verified program): explicit and implicit
+attitudes toward the same person dissociate — explicit impressions
+update on single diagnostic counterevidence, implicit evaluations
+change only gradually with repeated exposure. Asch 1946 primacy is
+the founding claim; the modern resolution is dual-process, not
+primacy-denial. Mann & Ferguson 2015 (*JPSP* 108:823 — verified, 7
+experiments): implicit evaluations CAN fully reverse — but ONLY
+when the new information prompts *reinterpretation of the prior
+material*, requires at least moderate cognitive resources, and the
+reversal persists days. Cone & Ferguson 2015 (Bob's redemption is
+real but gated). So: fast store, slow store, and a narrow door
+between them.
+
+Implement: split `PersonModel`'s evaluative leg into
+`traits{}` (explicit ledger — updates per §2.1–2.2, fast, reverses
+on counterevidence) and `eval_tag` (implicit — single [−1,1] moving
+average, update rate `imp_impl_slow` ≈ 0.08/encounter, no
+single-event reversal). Reversal requires a `reinterpret:true`
+context flag (the behavior layer must emit "the old story was
+wrong about her" — a reframing scene, not just counterevidence)
+AND spare control resource (wmc legs unburdened — reuse the §6.245
+`scarc` tax as a blocker: stressed characters' implicit tags never
+re-revise). Primacy: first-N encounters' eval writes weighted
+`imp_anchor` (trait, [0,1]; the early sample seeds the moving
+average's mass point). **Locked `imp_fastrev_null`:** `eval_tag`
+never flips sign on a single counterevent without
+`reinterpret:true` — counterevidence alone updates the ledger, not
+the gut. Emergent and very human: a character can tell you in detail
+why her opinion of the landlord changed — explicit ledger fully
+revised — while her face still tightens when he walks in; the gut
+trail lags the testimony by a season.
+
+## 159. The absent person accrues — hearsay person models **[CONSENSUS function; store mechanics HYPOTHESIS]**
+
+Sommerfeld, Krambeck, Semmann & Milinski 2007 (*PNAS* 104:17435 —
+verified): gossip transmits reputation information that changes
+behavior even when direct observation was available — hearers act on
+secondhand person evaluations. Feinberg, Willer, Stellar & Keltner
+2012 (*JPSP* — verified: "the virtues of gossip") — reputational
+gossip protects cooperators and deters exploiters; receivers'
+behavior toward never-met targets shifts on gossip alone. Dunbar's
+social-grooming account (1996/2004) makes gossip the majority of
+human talk (~2/3 of conversation time is social topics).
+
+Implement: a `told_by` record about person P mints or updates
+`PersonModel[P]` even when the listener has never met P —
+provenance flag `via:"hearsay"`. Trait writes from hearsay carry
+`hpm_gain` (0.4 — discounted vs witnessed 1.0) and route through
+the speaker's credibility (learned, §9) AND STT (§152 — the speaker
+pays for their material). `eval_tag` for hearsay persons updates at
+the same slow rate — gossip writes the gut too. Cap: hearsay-derived
+trait mass per person capped at `hpm_cap` (0.5) — a stranger's model
+saturates on talk alone; meeting them resets `via` to `"met"` and
+lifts the cap (first encounters re-key the model — the primacy
+sample in §158 then applies to witnessed acts, not the hearsay
+residue, which persists as a prior). **Locked `hpm_fact_null`:**
+hearsay PM writes are belief-tier only — they never reach canonical
+ledger or count as witnessed for `beliefStatus` purposes; the
+*record of what was said* is factual, the *model built from it* is
+belief. Emergent: the neighborhood's ambient NPCs have reputations
+before they have scenes; a new tenant arrives already storied.
+
+## 160. Being left out is loud — the snub ledger **[CONSENSUS detection; trait amplification ROBUST]**
+
+Williams, Cheung & Choi 2000 (*JPSP* 79:748 — verified, Cyberball):
+minimal exclusion — even from strangers, even in a ball-toss game
+with no stakes — registers immediately and painfully. Gonsalkorale
+& Williams 2007 (verified): ostracism hurts even when the excluder
+is a despised outgroup (KKK Cyberball) — detection does not
+discriminate by source value. Downey & Feldman 1996 (*JPSP* 70:1327
+— verified, rejection sensitivity): the trait `rsq` amplifies both
+detection (ambiguous cues read as exclusion — more false positives)
+and aftermath (exclusion memories loom larger, intrude more).
+
+Implement: social events carry an optional `exclusion:true` signal
+flag (the behavior layer mints it: greeted-everyone-but-me,
+conversation closed on approach, invitation omission at a known
+gathering). Detection: `snub_detect_p` base 0.8 on explicit signals,
+plus a `rsq`-scaled false-positive leg on ambiguous ones
+(`snub_fp_base` 0.1 + 0.4·rsq — the anxious hear exclusion in
+noise). Detected exclusions encode with `snub_encode_gain` (+0.2 E —
+they are salient events), carry `selfRelevance` high (feeding §10
+mnemic-neglect suppression — note the built-in tension: the snub is
+encoded hot and recalled cold, and both legs are real), and write a
+negative `signal:cold` to the relevant MetaModel dyad(s) — feeding
+the metaself (§145) at `meta_neg_w` weight. **Locked
+`snub_source_null`:** detection and hurt are source-invariant —
+exclusion by a despised character still registers (the sim may not
+let likable excluders exempt themselves, and the despised cannot
+hurt less by being despised). Emergent: characters accumulate snub
+ledgers the ambient layer never intended — a busy baker who missed
+one wave owns a cold-reading neighbor's resentment for a season.
+
+## 161. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121, 136, 146)
+
+- **`distrust` / paranoid-adjacent:** `tdef` ↓ (floor at
+  `tdef_immune_null` — suspicion lowers the default, never below
+  chance); `snub_fp_base` ↑; `imp_anchor` ↑ (priors hold).
+- **social_anx / `rsq` high:** `snub_fp_base` ↑↑, `snub_encode_gain`
+  ↑; exclusion intrusions at rumin-scaled rates. Pairs with `lgap_k`
+  (Part X): the anxious character both underestimates being liked
+  AND over-detects being excluded — the double audit.
+- **`rumin`:** `sleeper_gain` ↑ (rehearsal keeps the message live
+  while the tag dies); `illtruth` accrual faster on self-relevant
+  rumors — she repeats the slight internally too.
+- **`open`/`greg`:** `kmotive_wish` usage ↑ (wish-tellers are
+  affiliative); `etrans_*` gate weaker (talks to strangers nearly
+  flat-rate — `etrans_stranger_pen` toward 1).
+- **`aggr`/dominance:** `kmotive_wedge` ↑; `stt` self-risk real —
+  the wedge-teller accrues the wedge traits.
+- **`sociometer`-weighted self_est:** mnemic × snub interaction —
+  snubs suppress from recall but the `eval_tag` of self-adjacent
+  person models still degrades (double bookkeeping, both real).
+- **age:** `illtruth_gain` mildly ↑ at 65+ (familiarity-to-truth
+  reliance grows with source-memory decline — Skurnik et al. 2005,
+  already our `gist_false_p` machinery; keep a modest +0.2
+  multiplier, DEBATED). `snub_detect_p` flat — exclusion detection
+  is age-invariant [HYPOTHESIS, no strong age literature]. `imp_*`
+  reversal gating tightens with control-layer decline (older
+  characters reinterpret less often — the resource gate does it).
+- **`fs`/`media_m` (habitual secondhand consumption):** `hpm_gain` ↑
+  toward witnessed rates — heavy media consumers treat hearsay as
+  experience [HYPOTHESIS].
+
+## 162. Spec changes in v5.52 (summary)
+
+- **New mechanisms (§§6.257–6.266):** sleeper discount decoupling
+  (`discount_tag` on belief records, tag-decay faster than
+  association); spontaneous trait transference on retell (speaker
+  PM write at `stt_gain`); truth-default credence (`tdef_base`,
+  stepwise demotion on triggers only); illusory-truth credence leg
+  on `hearCount` (`illtruth_gain` per independent retelling, cap);
+  Knapp motive gate on transmission (`motive∈{wish,dread,wedge,
+  neutral}` multipliers); emotionality transmission gain (per-
+  emotion `etrans_*`, stranger-penalty gate); actor–observer
+  asymmetry on STI (`aobs_selfdamp`, valence flip); dual-clock
+  person evaluation (`eval_tag` implicit leg, `reinterpret:true`
+  gate + resource gate, `imp_anchor` primacy); hearsay person
+  models (`via:"hearsay"`, `hpm_gain`/`hpm_cap`, met-reset);
+  the snub ledger (`exclusion:true` signals, `rsq` false-positive
+  leg, metaself write). Eight locked nulls.
+- **New traits (§7 IndivTraits):** `tdef` (credulity prior),
+  `rsq` (rejection sensitivity), `imp_anchor` (primacy weight) —
+  all bible-pinnable.
+- **New scalars (pop):** ~24 — see §163.
+- **Emissions:** `sleeper_wake` (belief recovered past discount),
+  `stt_write` audit, `tdef_demote` step log, `snub` detection
+  events (incl. `fp:true`), `imp_reversed` milestone.
+- **Contract:** `personEval(charId, alterId)` exposes the
+  `{ledger, tag}` split read-only; `via` provenance readable on
+  PMs. Snapshot-additive; absent = legacy.
+
+## 163. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+- `sleeper_tag_decay` 1.4 (×beta_source); `sleeper_gain` 0.05/wk;
+  `sleeper_msg_min` 0.35 (S floor — Kumkale's initial-impact gate).
+- `stt_gain` 0.05; `stt_dur_hl` 14d.
+- `tdef_base` 0.61 (Bond & DePaulo truth leg); `tdef_step` 0.12;
+  `tdef_detect` 0.47 (lie leg); trait `tdef` mean 0.5 ±0.15.
+- `illtruth_gain` 0.06/independent retell; `illtruth_cap` 0.3;
+  age-65+ mult 1.2.
+- `kmotive_wish` 1.2 / `kmotive_dread` 1.35 / `kmotive_wedge` 1.25 /
+  neutral 1.0 — sized so a week of dread-rumor flow visibly
+  outweighs neutral; all within [0.8, 1.8] clamps.
+- `etrans_disgust` 1.4 / `etrans_happy` 1.3 / `etrans_surprise` 1.2 /
+  `etrans_low` 0.8 / `etrans_stranger_pen` 0.6.
+- `aobs_selfdamp` 0.55; `aobs_val_flip` 0.3 (Malle's reduced-but-real
+  asymmetry — sized below the 1971 lore, above zero).
+- `imp_impl_slow` 0.08/encounter; `imp_anchor` mean 0.5;
+  `imp_reinterp_min_res` = wmc legs ≥0.5 unburdened.
+- `hpm_gain` 0.4; `hpm_cap` 0.5.
+- `snub_detect_p` 0.8; `snub_fp_base` 0.1 + 0.4·rsq;
+  `snub_encode_gain` 0.2.
+
+## 164. Validation probes (P1098–P1109)
+
+- **P1098 sleeper_content_null (MUST — locked):** do() a discredited
+  `told_by` record through 60 simulated days under CRN: content
+  fields bit-identical throughout; credence leg monotone-recovers
+  only if S ≥ `sleeper_msg_min`.
+- **P1099 sleeper conditional (SHOULD):** weak messages (S < min)
+  show zero credence recovery — the gate, not just the decay.
+- **P1100 stt_dir_null (MUST — locked):** speaker describes
+  trait-implying content with opposite framing ("hate to say it")
+  — transferred trait sign follows content, never framing.
+- **P1101 tdef_immune_null (MUST — locked):** across all 8 mains +
+  ambient draws under CRN, no trait vector yields baseline credence
+  < 0.5 absent a trigger event.
+- **P1102 illtruth_know_null (MUST — locked):** repeated
+  knowledge-contradicting claims still lift credence by
+  ≈`illtruth_gain`/independent retell, capped — the known-fact
+  record remains retrievable while the false belief's credence
+  moves (dissociation, not replacement).
+- **P1103 kmotive_truth_null (MUST — locked):** motive class
+  changes transmission counts, changes nothing in accuracy,
+  plausibility gates, or credence fields.
+- **P1104 aobs_reverse_null (MUST — locked):** across identical
+  act-pairs (self vs other authored), self-side trait writes never
+  exceed other-side at equal diagnosticity; situational-field
+  fill rate self > other.
+- **P1105 imp_fastrev_null (MUST — locked):** single diagnostic
+  counterevent without `reinterpret:true` — explicit ledger
+  updates, `eval_tag` sign unchanged. With `reinterpret:true` +
+  resources ≥ gate, tag reversal permitted and durable at +3d
+  (Mann & Ferguson arms).
+- **P1106 hpm_fact_null (MUST — locked):** hearsay-only PM writes
+  produce zero canonical-ledger writes and zero `beliefStatus`
+  upgrades; `via:"hearsay"` persists until a met-event.
+- **P1107 hearsay saturation (SHOULD):** repeated hearsay about an
+  unmet target asymptotes at `hpm_cap`; first witnessed act writes
+  at full gain against the hearsay prior.
+- **P1108 snub_source_null (MUST — locked):** `exclusion:true` from
+  despised/ambient excluders registers at the same `snub_detect_p`
+  as from close others (Gonsalkorale & Williams arm); hurt leg
+  nonzero in both.
+- **P1109 cast spread (OBSERVE):** identical 30-day rumor diet
+  (mixed wish/dread/wedge, mixed source credibility) → publish
+  per-main belief-vs-fact divergence matrices; expected ordering:
+  high-`tdef`+`rsq` mains diverge fastest; Victor flat-ish
+  (low `tdef` floor is the trait's only defense — never below it).
+  Report, don't gate.
+
+## 165. Honest limits (Part XI)
+
+- **The sleeper's conditional form is honored, not guaranteed.**
+  Kumkale & Albarracín's meta says the effect needs initial impact
+  + processing capacity + cue timing; we implement the gates but a
+  sim that never produces strong messages will never see the effect
+  — which is correct, not a bug, and P1099 exists to prove the gate.
+- **Truth-default theory is a framework, not a rate card.** The
+  0.61/0.47 legs come from Bond & DePaulo's pooled lab judgments;
+  neighborhood-context rates (where stakes and repeated interaction
+  differ) are unmeasured. `tdef_base` is the one parameter here most
+  likely to need live calibration.
+- **The motive classification heuristic is ours.** Knapp's typology
+  is consensus; mapping valence+directedness onto it mechanically is
+  HYPOTHESIS — expect misclassification on sarcasm and mixed
+  motives, which humans also misclassify.
+- **Dual-clock is a simplification of dual-process.** Real implicit
+  evaluation likely involves multiple systems; our two-rate model
+  captures the dissociation + gated reversal, not the full
+  architecture (Rydell & McConnell's own model is finer-grained).
+- **Rejection sensitivity on ambient NPCs is unpriced.** `rsq`
+  effects assume a full brain; thin-AI ambients get the
+  `snub_encode_gain` leg only — stated so nobody mistakes ambient
+  indifference for a personality trait.
+- **Hearsay cap mechanics are invented.** The consensus says
+  secondhand reputation is weaker than firsthand; `hpm_cap` 0.5 and
+  the met-reset are our shape, sized so talk saturates below the
+  witnessed ceiling.

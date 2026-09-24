@@ -1251,6 +1251,17 @@ needs both.
 | mw_rate / mw_replay | 0.0 / 0.0 | 0.06 / 0.3 | internal-capture rate + intrusion dividend (v5.51) |
 | savor_attend / savor_rehearse / savor_fade_buf | 0.0 / 0.0 / 0.0 | 0.35 / 0.6 / 0.5 | positive-channel attend/rehearse/fade-buffer (v5.51) |
 | mdose_expect_conf | 0.0 | 0.25 | microdose expectancy leg — all objective params locked (v5.51) |
+| sleeper_tag_decay / sleeper_gain / sleeper_msg_min | 0.8 / 0.0 / 0.15 | 2.0 / 0.15 / 0.6 | discount-tag decay + credence recovery + impact gate (v5.52) |
+| stt_gain / stt_dur_hl | 0.0 / 4 | 0.15 / 40 | trait transference write + associative halflife days (v5.52) |
+| tdef_base / tdef_step / tdef_detect | 0.5 / 0.05 / 0.3 | 0.75 / 0.25 / 0.6 | truth-default prior, trigger step, lie-detection leg (v5.52) |
+| tdef / rsq / imp_anchor (traits) | 0.0 | 1.0 | bible-set credulity / rejection sensitivity / primacy weight (v5.52) |
+| illtruth_gain / illtruth_cap | 0.0 / 0.1 | 0.15 / 0.6 | repetition→credence leg + cumulative cap (v5.52) |
+| kmotive_wish / kmotive_dread / kmotive_wedge | 0.8 / 0.8 / 0.8 | 1.8 / 1.8 / 1.8 | Knapp motive transmission multipliers (v5.52) |
+| etrans_disgust / etrans_happy / etrans_surprise / etrans_low / etrans_stranger_pen | 0.8 / 0.8 / 0.8 / 0.5 / 0.3 | 1.8 / 1.8 / 1.8 / 1.0 / 1.0 | emotionality transmission + audience gate (v5.52) |
+| aobs_selfdamp / aobs_val_flip | 0.2 / 0.0 | 0.9 / 0.6 | actor–observer self-discount + valence flip (v5.52) |
+| imp_impl_slow / imp_reinterp_res | 0.02 / 0.3 | 0.2 / 0.8 | implicit-tag rate + reversal resource gate (v5.52) |
+| hpm_gain / hpm_cap | 0.1 / 0.2 | 0.7 / 0.8 | hearsay PM write discount + saturation cap (v5.52) |
+| snub_detect_p / snub_fp_base / snub_fp_rsq / snub_encode_gain | 0.5 / 0.0 / 0.0 / 0.0 | 1.0 / 0.3 / 0.7 / 0.4 | exclusion detection + rsq false-positive leg + encode gain (v5.52) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -5343,3 +5354,60 @@ character, not things a character is:
   `mdose_enhance_null` is locked for all profiles; the
   folk claim is the design surface, the store is not.
   Sources ID§§108–119; probes P1085–P1097.
+
+## 84. v5.52 note (social-memory XI — the credulity layer: what a bible may believe)
+
+Ten mechanisms (SM Part XI, spec §§6.257–6.266); clamp rows
+added in §0. Three bible-pinnable traits this batch — the
+belief posture of a character is now as authored as her
+memory hardware:
+
+- **`tdef` — the credulity prior.** [0,1], pop mean 0.5,
+  shifts `tdef_base` ±0.15 but is FLOORED: `tdef_immune_null`
+  keeps baseline credence ≥0.5 for everyone — a bible can
+  write the neighborhood skeptic, never the neighborhood
+  un-deceivable. Co-samples with `distrust` (+0.4) but is
+  NOT the same dial: `distrust` colors evaluation, `tdef`
+  sets the default. Emergent pairing to avoid stacking:
+  high `tdef` + high `illtruth` exposure = the character
+  who believes everything twice.
+- **`rsq` — rejection sensitivity.** [0,1]; drives BOTH the
+  false-positive snub leg (ambiguous cues read as exclusion
+  at +0.4·rsq) and the aftermath weight. Co-samples with
+  `social_anx` (+0.5), `neurot` (+0.3), anti-loads
+  `self_est`. A high-`rsq` bible writes a character who
+  manufactures snubs the ambient layer never sent — and
+  the `fp:true` emission means the audit trail can tell
+  real exclusion from heard-ghosts.
+- **`imp_anchor` — the primacy weight.** [0,1], mean 0.5;
+  how much the first-N encounters mass the `eval_tag`
+  moving average. High anchors = the character whose gut
+  verdict on people is set in week one and whom
+  `reinterpret:true` scenes must work hardest to move
+  (with the control-resource gate, a chronically `scarc`-
+  burdened high-anchor elder is nearly un-revisable —
+  pair deliberately).
+- **State/flag supply contract:** `exclusion:true` (world
+  mints), `reinterpret:true` (behavior layer mints on
+  reframing scenes), `discount_tag`/`via`/`eval_tag` are
+  store-internal. Nothing new a bible writes directly —
+  the bible sets susceptibility, the world sets occasions.
+- **Nine locked nulls** (`sleeper_content_null`,
+  `stt_dir_null`, `tdef_immune_null`, `illtruth_know_null`,
+  `kmotive_truth_null`, `aobs_reverse_null`,
+  `imp_fastrev_null`, `hpm_fact_null`, `snub_source_null`)
+  are all profile-flat — no bible may buy its way around
+  the credulity layer. That is the point of the layer:
+  everyone believes, everyone absorbs what they repeat,
+  everyone's gut lags their testimony.
+- **Emergent cast shadows:** (a) the gossip who becomes
+  her material (`stt_gain` — listeners tag her with the
+  traits she retails); (b) the discredited source whose
+  warning outlives its discount (`sleeper_*` — "everyone
+  knows" manufactured on schedule); (c) the skeptic who
+  still believes (`tdef_immune_null` — Victor's floor is
+  0.5, not 0.2); (d) the elder whose kindness toward a
+  new tenant is gut-slow (`imp_impl_slow` + thin
+  `reinterpret` occasions); (e) the anxiously loved one
+  whose snub ledger fills with phantoms (`rsq` + `fp:true`).
+  Sources SM§§151–160; probes P1098–P1109.
