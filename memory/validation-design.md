@@ -7247,3 +7247,168 @@ P822 the asymmetry lock).
   magnitudes, the age knots, trait composites (disg_prop,
   anx_eff), the once-per-window rule, and field/mixin forms are
   RW HYPOTHESES.
+
+## 156. New probes P825–P834 (v78 suite — false-memory VII)
+
+- **P825 sleeper effect (MUST — ordering + cap lock):**
+  identical claim, low-cred source; arm A discounting cue
+  AFTER the message, arm B BEFORE. Arm A: `sourceDiscount`
+  decays, `sourceCredibility_eff` rises, deferred adoption
+  on re-encounter at ~sleeper_k — but never exceeding the
+  matched high-cred arm's initial mint (sleeper_grow_null).
+  Arm B: `low_cred` source tag, no sleeper leg. FAIL if the
+  ordering gate is ignored or deferred adoption outgrows
+  the counterfactual.
+- **P826 warning backfire (MUST):** claim marked `debunked`
+  ×3 vs ×1; same-day evaluation shows ×3 better-protected;
+  aged past tag death on a 70y profile, ×3 rates TRUER than
+  ×1 (warn_backfire_k on dead-tag familiarity). 30y profile
+  shows the crossover later/smaller (warn_tag_mult age leg).
+  frame_content_null — the claim candidate is intact;
+  only `tag_str` died.
+- **P827 Spinozan gate (MUST):** identical false claims to
+  matched hearers under `C.load` 0.8 vs 0: the load arm
+  shows higher `accepted` residue and higher later truth_p;
+  calm arm's `unbelieve` marks stick and suppress §6.3
+  adoption. Idle 30 sim-days → residues unchanged
+  (spinoza_revert_null — FAIL on spontaneous revert).
+- **P828 illusory truth vs knowledge (MUST — locked
+  null):** claim contradicting a strength-0.9 semantic,
+  heard ×5: truth_p rises by ~illus_truth_k·log1p(5) anyway
+  (knowledge_gate_null); the ADOPTION arm still pays
+  know_protect_mult. factCheck:true posture halves the
+  truth_p rise. FAIL if knowledge zeroes the fluency leg.
+- **P829 hindsight bend (MUST — locked null):** record with
+  `predict` field, verbatim-strong vs verbatim-weak arms,
+  matched `outcomeEvent`: weak arm reports bent ≈hind_k
+  toward outcome with +hind_conf_boost and
+  `inevitable:true` at bend>0.5; strong arm reports clean
+  with `nailed_it:true`. Stored estimate candidates
+  byte-identical in both arms (hind_store_null).
+- **P830 innuendo mint (MUST — locked null):**
+  askAbout{presupposes:"the broken lease"} vs assertion
+  control: insinuated candidate mints at ~insinu_strength×
+  assertion strength, `deniable:true`, presupposed object
+  candidate at +presuppose_gain; NO episodic record in any
+  arm (insin_episode_null — FAIL if "I saw it" mints).
+  checker profile emits insinuation_noticed and the mint
+  is suppressed.
+- **P831 planting recipe (MUST):** minimal arm (1 session,
+  no imagery/pressure/scaffold) ≈0.25 adoption-class rate
+  (Loftus-mall); full arm (3 sessions, guided imagery +
+  pressure + 3 true scaffolds + authority) ≈0.6–0.7
+  belief-tier mints, of which ~40% promote to recollection
+  under imagery-rich self-retells (the 70/28 Wade-recode
+  split). Scaffold-free vs scaffolded arms differ by the
+  known_veto gate.
+- **P832 child implant (SHOULD):** identical recipe planted
+  on an adult for claimed encodeAge-6 vs encodeAge-25
+  events: childhood arm adopts at ~plant_child_mult rate;
+  minted records carry amnesia-era dating flags.
+- **P833 déjà vu (MUST — locked null):** novel venue with
+  config-masked simOp 0.8 vs 0.4 to a sub-θ record: 0.8 arm
+  emits deja_vu{familiarity≈0.8, matched:false}; no record
+  minted (deja_store_null — FAIL on any mint); rate halves
+  on a 70y profile (deja_age_slope); second visit inside
+  deja_cool does not re-emit.
+- **P834 source poison (SHOULD — hypothesis-flagged):**
+  detected-false claim on source S: (a) S's future p_adopt
+  cut by source_poison_k; (b) S's adopted near-radius
+  (simOp>poison_radius) candidates lose
+  source_poison_k·candStrength once; (c) far-radius
+  unchanged; (d) weakened claims remain reportable
+  (poison_reveal_null — store ≠ speech).
+
+Registry: P1–P834. v78 suite: P825–P834 — P825–P831, P833
+MUST; P832, P834 SHOULD. Locked-null arms: P825 (ordering +
+grow cap), P826 (frame/content), P827 (revert), P828
+(knowledge gate), P829 (store), P830 (episode), P833
+(store), P834 (reveal).
+
+## 157. Sources verified this version (P825–P834 backing)
+
+- **Sleeper effect (P825):** Hovland & Weiss 1951 (*J.
+  Abnorm. Soc. Psychol.* 46:424 — verified: dissociation
+  hypothesis, credibility persuasion crossover); Pratkanis,
+  Greenwald, Leippe & Baumgardner 1988 (*Psych. Bull.*
+  104:53 — verified: 17 qualifying tests, AFTER-ordering
+  requirement, differential decay); Kumkale & Albarracín
+  2004 (*Psych. Bull.* 130:143 — verified meta-analysis,
+  relative sleeper durable). Anchors `disc_decay_mult`,
+  `sleeper_k`, ordering gate, `sleeper_grow_null` (§6.164).
+- **Warning backfire (P826):** Skurnik, Yoon, Park &
+  Schwarz 2005 (*J. Consum. Res.* 31:713 — verified:
+  repeated "false" labels → more "true" endorsements after
+  3-day delay in older adults; familiarity outlives
+  truth-specifying context); companion fluency literature
+  Hasher et al. 1977, Hawkins & Hoch 1992. Anchors
+  `warn_tag_mult`, `warn_backfire_k`, `tag_min`,
+  `frame_content_null` (§6.165).
+- **Spinozan acceptance (P827):** Gilbert, Krull & Malone
+  1990 (*JPSP* 59:601 — verified: comprehension entails
+  acceptance; load → false-recalled-as-true); Gilbert,
+  Tafarodi & Malone 1993 (*JPSP* 65:221 — verified:
+  "you can't not believe everything you read"); Gilbert
+  1991 (*Am. Psychol.* 46:107 — verified: Spinoza vs
+  Descartes systems); Hasson, Simmons & Todorov 2005
+  (instruction-level dissociation — boundary caveat).
+  Anchors `spinoza_cost`, `load_unbelieve_pen`,
+  `spinoza_revert_null` (§6.166).
+- **Illusory truth (P828):** Hasher, Goldstein & Toppino
+  1977 (*JVLVB* 16:107 — verified); Fazio, Brashier, Payne
+  & Marsh 2015 (*JEP:G* 144:993 — verified: repetition→
+  truth even against stored knowledge); Pennycook, Cannon
+  & Rand 2018 (*JEP:G* 147:1865 — verified: single-exposure
+  lift on real fake-news headlines); Begg, Anas & Farinacci
+  1992 (*JEP:G* 121:446 — verified: fluency/recollection
+  dissociation). Anchors `illus_truth_k`, `illus_truth_cap`,
+  `knowledge_gate_null`, `factCheck_halve` (§6.167).
+- **Hindsight (P829):** Fischhoff 1975 (*JEP:HPP* 1:288 —
+  verified: reconstructed estimates bend toward outcomes,
+  subjects unaware); Fischhoff & Beyth 1975 (creeping
+  determinism); Hoffrage, Hertwig & Gigerenzer 2000
+  (*JEP:LMC* 26:566 — verified RAFT: outcome recruited when
+  original unretrievable); Roese & Vohs 2012 (*Persp.
+  Psychol. Sci.* 7:411 — verified: three stacked levels).
+  Anchors `hind_k`, `hind_conf_boost`, `hind_store_null`,
+  `inevitable`/`nailed_it` (§6.168).
+- **Innuendo/presupposition (P830):** Wegner, Wenzlaff,
+  Kerker & Beattie 1981 (*JPSP* 41:67 — verified:
+  interrogative/negated innuendo ≈ assertions for
+  impressions); Loftus & Zanni 1975 (*Cogn. Psychol.*
+  7:560 — verified: the/a article presupposition, ~2×
+  false-object endorsement); Loftus 1975 (presupposing
+  questions). Anchors `insinu_strength`, `presuppose_gain`,
+  `deniable`, `insin_episode_null` (§6.169).
+- **Planting recipe (P831, P832):** Shaw & Porter 2015
+  (*Psych. Sci.* 26:291 — verified: 70% false memory/
+  belief of police-contact crime in 3 interviews, M=12.18
+  police details); Wade, Garry & Pezdek 2018 (*Psych. Sci.*
+  29:503 — verified recode: 26–30% recollection-grade, the
+  rest belief-tier — encoded as `plant_belief_floor`);
+  Loftus & Pickrell 1995 (*Psych. Ann.* 25:720 — verified:
+  ~25% mall); Ceci, Loftus, Leichtman & Bruck 1994
+  (Samuel Stone — verified: ~50% preschooler assent under
+  repeated suggestion). Anchors `plant_*`, `scaffold_unit`
+  (§6.170).
+- **Déjà vu (P833):** Brown 2003 (*Psych. Bull.* 129:394 —
+  verified review: incidence, age decline); Cleary 2008
+  (*Curr. Dir. Psychol. Sci.* 17:353 — verified:
+  recognition without identification); Cleary et al. 2012
+  (*Conscious. Cogn.* 21:969 — verified: VR spatial-config
+  familiarity). Anchors `deja_thresh`, `deja_age_slope`,
+  `deja_cool`, `deja_store_null` (§6.171).
+- **Source poison (P834):** forward discounting established
+  (Hovland line; Kumkale & Albarracín 2004; correction/
+  retraction literature — Ecker et al.); the retroactive
+  sibling-weakening leg is flagged RW HYPOTHESIS (no direct
+  study; P834(b) is the calibration target).
+- **Established vs hypothesis summary:** directions
+  CONSENSUS (sleeper relative pattern, warning backfire,
+  acceptance-first, repetition→truth incl. the knowledge
+  failure, hindsight reconstruction, innuendo effect,
+  planting-recipe efficacy, familiarity-without-source,
+  forward credibility discounting). Magnitudes, the
+  belief/recollection promotion share, retro poisoning,
+  field/flag operationalizations, and all locked-null
+  mechanizations are RW HYPOTHESES.

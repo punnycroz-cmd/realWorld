@@ -3052,3 +3052,513 @@ in prose style.
 - **Detection's scrutiny proxy** (warned ×1.4, rushed ×0.6,
   checker ×1.2) is assembled from Tousignant's reading-time
   result — a fair mechanization, but the multipliers are ours.
+
+# PART VII (v78) — the credibility layer: who to believe is
+# itself a memory, and it decays on its own clock
+
+**Scope:** Parts I–VI priced distortion of *content*. Part VII
+prices distortion of *trust*: the evaluator and the evaluated
+are stored on different decay tiers, so the source-discount
+dies before the claim (sleeper effect), the "false" tag dies
+before the familiarity it was meant to flag (warning
+backfire), comprehension itself mints provisional belief
+(Spinozan acceptance), bare repetition mints truth even when
+stored knowledge objects (illusory truth), the outcome rewrites
+the estimate (hindsight), the question smuggles the claim
+(innuendo/presupposition), the full planting recipe finally
+gets a composite price (Shaw & Porter — and the Wade recode),
+the scene that is merely familiar emits déjà vu (no record
+required), and one caught lie poisons the teller's whole
+ledger (schema guilt — our hypothesis). The through-line for
+RW: **credibility is a field with its own beta, and it is
+higher than the content's.** Every believability judgment a
+character makes is reconstructive — never a lookup.
+
+## 76. The discount decays first — the sleeper effect
+
+- **Hovland & Weiss 1951** (*J. Abnorm. Soc. Psychol.* 46:424
+  — verified): a low-credibility source's persuasion initially
+  suppressed, then **grew over four weeks** while the
+  high-credibility source's persuasion decayed — the
+  dissociation hypothesis: the discounting cue is learned but
+  forgotten faster than the message content.
+- **Pratkanis, Greenwald, Leippe & Baumgardner 1988**
+  (*Psych. Bull.* 104:53 — verified): 17 qualifying tests —
+  the sleeper effect is real but conditional: it requires the
+  discounting cue to arrive AFTER the message and to decay
+  differentially. **Decay-before-cue ordering kills it.**
+- **Kumkale & Albarracín 2004** (*Psych. Bull.* 130:143 —
+  verified meta, 72 studies): a durable discounting-cue effect
+  — the sleeper pattern replicates when cue and content are
+  dissociable and the cue is memorable-but-forgotten; absolute
+  sleeper (persuasion rising over baseline) is rarer than
+  relative sleeper (less decay than the high-cred arm).
+- Established: differential forgetting of source vs content.
+  Debated: absolute vs relative sleeper — our model produces
+  the relative pattern for free.
+
+**Spec consequence — §6.164:** claims heard from a
+low-credibility source mint a candidate with
+`sourceDiscount` field = 1−sourceCredibility, decaying at
+`beta_source·disc_decay_mult` (1.6 — the discount is
+source-tier, not content-tier). Adoption evaluation uses
+`sourceCredibility_eff = 1 − sourceDiscount·sourceDiscount`
+— as the discount field decays, effective credibility rises
+toward 1 and **deferred adoption becomes possible on
+re-encounter** (`sleeper_k` 0.12 fraction of surviving
+content strength contributing on each re-presentation once
+discount < 0.3). Ordering gate: discounting info arriving
+BEFORE the claim mints a pre-emptive `low_cred` source tag
+on the *source*, not the claim — no sleeper leg (Pratkanis
+ordering condition). Locked null `sleeper_grow_null`:
+deferred adoption never exceeds what initial full-credibility
+would have minted — relative sleeper only.
+
+## 77. The warning rots — "false" becomes "true"
+
+- **Skurnik, Yoon, Park & Schwarz 2005** (*J. Consum. Res.*
+  31:713 — verified): repeatedly flagging a claim false helped
+  older adults immediately — but after **3 days**, more prior
+  warnings → more likely to call it TRUE. Familiarity for the
+  claim outlived recollection of the truth-specifying context.
+  Young adults showed the same direction, smaller magnitude.
+- Companion: **Fazio et al. 2015** (§79) — repetition-to-truth
+  works even against stored knowledge; **Wegner et al. 1985**
+  innuendo corollary §81. The mechanism is the frame/content
+  tier split — this file's §30 (denial backfire) priced the
+  *negation* frame; warnings are the *epistemic* frame.
+- Established: warning tags are context-tier fields and die
+  faster than content familiarity in older adults; young
+  adults show residual effects at longer delays.
+
+**Spec consequence — §6.165:** `disputed`, `warned`, and
+`debunked` marks on claim records get their own strength =
+`tag_str` decaying at `beta_source·warn_tag_mult` (2.0; +0.5
+extra past age_eff 60 — Skurnik's older-adult leg). When
+claim familiarity survives but the mark is below
+`tag_min` (0.15): the claim evaluates as *endorsed* with
+`warn_backfire_k` (0.15) bonus on truth_p — the reteller's
+correction became the recommender's evidence. Re-warning a
+still-tagged claim refreshes the tag (immunity window); the
+paradox only fires across the decay gap. Locked null
+`frame_content_null`: a rotted warning never deletes the
+claim candidate — flags die, claims persist (same asymmetry
+as §30's neg_frame_mult, generalized).
+
+## 78. To understand is to accept — the Spinozan gate
+
+- **Gilbert, Krull & Malone 1990** (*JPSP* 59:601 —
+  verified): comprehending a proposition entails momentarily
+  accepting it; unacceptance is a SECOND step requiring
+  resources. Cognitive load during presentation → false
+  claims later recalled as true at elevated rates.
+- **Gilbert, Tafarodi & Malone 1993** (*JPSP* 65:221 —
+  verified): "you can't not believe everything you read" —
+  load (digit-shadowing) left participants marking patently
+  false statements as true; interruption at presentation, not
+  just at judgment, produces it.
+- **Gilbert 1991** (*Am. Psychol.* 46:107 — verified):
+  Spinoza vs Descartes framing; the acceptance-first
+  architecture is the default. Hasson, Simmons & Todorov
+  2005 — belief vs mere exposure dissociation in instructions.
+- Established: acceptance precedes rejection; load/cognitive
+  busyness leaves residues of accepted-false content.
+  Debated: whether the mechanism is verification cost or
+  later recollective deficit (we mechanize the former as the
+  gate, the latter via ordinary tag decay — they compound).
+
+**Spec consequence — §6.166:** every comprehended claim mints
+its candidate in state `accepted` FIRST; the `unbelieve` op
+(cost `spinoza_cost` 0.3 of a reasoning tick, plus
+`load_unbelieve_pen` 0.5 under `C.load`/`rushed`/`intox`) is
+the only path to `disputed`/`rejected` marks. Under load the
+op fails silently — the claim stays `accepted` and ordinary
+§6.3 machinery treats it as unchallenged content thereafter.
+`checker`/`meta_conf`/`verbal` raise unbelieve success;
+`distrust` raises the attempt probability (you must try
+before you can fail). Locked null `spinoza_revert_null`:
+an `accepted` residue does NOT spontaneously revert — only
+re-encounter, disputation, or deliberate review flips it.
+RW payoff: the rushed, multitasking character is
+structurally more gullible — load is a suggestibility state.
+
+## 79. Repetition mints truth — and knowledge doesn't guard
+
+- **Hasher, Goldstein & Toppino 1977** (*JVLVB* 16:107 —
+  verified): repeated statements rated truer — frequency→
+  confidence, the original illusory truth result.
+- **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G* 144:993 —
+  verified): repetition raised truth ratings even for claims
+  participants demonstrably KNEW were wrong (stored-knowledge
+  probes) — fluency beats retrieval of the contradicting fact.
+- **Pennycook, Cannon & Rand 2018** (*JEP:G* 147:1865 —
+  verified): a single prior exposure raised perceived accuracy
+  of real fake-news headlines — small per-hit (≈+0.06 on a
+  4-pt scale) but cumulative; replicated across partisan
+  slant. Unsworth &? — one-shot effect confirmed.
+- **Begg, Anas & Farinacci 1992** (*JEP:G* 121:446 —
+  verified): dissociation logic — familiarity processed faster
+  than recollection; truth judged from processing fluency,
+  not content evaluation.
+- Established: repetition→truth is consensus at small,
+  reliable magnitude; the Fazio knowledge-failure is
+  replicated. Debated: whether fluency or familiarity-with-
+  source does the work — mechanization is fluency, per Begg.
+
+**Spec consequence — §6.167:** claim records carry
+`hearCount` (exists); truth_p on evaluation gets
+`+ illus_truth_k·log1p(hearCount)` (0.10, cap
+`illus_truth_cap` 0.35 — Pennycook-scale per-hit) INDEPENDENT
+of p_adopt machinery — belief without adoption of new
+content. **Locked null `knowledge_gate_null`:** a
+contradicting semantic record at ANY strength does not zero
+the bonus — it applies `know_protect_mult` (exists, v1.5) to
+the ADOPTION arm only; the fluency leg is ungated (Fazio).
+`factCheck` context posture (deliberate scrutiny, P46-style)
+halves it — the guard is attention, not storage.
+
+## 80. Knew it all along — the outcome bends the estimate
+
+- **Fischhoff 1975** (*JEP:HPP* 1:288 — verified): told the
+  outcome, subjects' reconstructed prior probabilities shifted
+  toward it — and they believed they'd said it. Creeping
+  determinism (Fischhoff & Beyth 1975).
+- **Hoffrage, Hertwig & Gigerenzer 2000** (*JEP:LMC* 26:566
+  — verified RAFT): hindsight bias is reconstruction — the
+  outcome is recruited as an anchor when the original judgment
+  isn't retrievable; bias scales with retrieval failure, not
+  with the record's strength per se.
+- **Roese & Vohs 2012** (*Persp. Psychol. Sci.* 7:411 —
+  verified): three stacked levels — memory distortion
+  ("I said it"), inevitability ("had to happen"), foreseeability
+  ("I knew it"); each can occur alone. Meta estimates across
+  domains d≈0.4–0.9.
+- Established: hindsight distortion of remembered estimates is
+  consensus and mechanistically reconstructive. Our §56
+  ("why minted on demand") is the causal sibling; this is the
+  quantitative-field version.
+
+**Spec consequence — §6.168:** records with quantitative
+estimate fields (`expect`,`predict`,`bet`) gain a hindsight
+leg: when an `outcomeEvent` matching the field's referent
+lands and the estimate field is later REPORTED (not stored)
+— reported value = `mix(orig, outcome_val, hind_k)` with
+`hind_k` 0.35 scaled by (1−field verbatim strength) (RAFT —
+bias is largest exactly where the trace is gone); reported
+confidence += `hind_conf_boost` 0.15. **Locked null
+`hind_store_null`:** the stored estimate never rewrites —
+the bend is emission-side; a verbatim-perfect estimate
+reports clean (and gets `nailed_it` flag — humans DO feel
+vindicated when the trace survives). `inevitable` emission
+field marks reports where the bend exceeds 0.5 — the
+audience hears "obviously" while the record says otherwise.
+
+## 81. The question is a claim — innuendo and presupposition
+
+- **Wegner, Wenzlaff, Kerker & Beattie 1981** (*JPSP*
+  41:67 — verified): innuendo headlines ("Is Bob connected
+  with the Mafia?" phrased as questions/denials) produced
+  impressions nearly as negative as direct assertions —
+  interrogative and negated frames carried the charge.
+- **Loftus & Zanni 1975** (*Cogn. Psychol.* 7:560 —
+  verified): "the" vs "a" article — presupposed existence
+  ("did you see THE broken headlight") raised false
+  endorsement of non-present objects (12–15% vs 6–7% class).
+- **Loftus 1975** (*Cogn. Psychol.* 7:560 series —
+  verified): presupposing questions minted false details at
+  ~2× yes-rates — the presupposed content is comprehended
+  (§78) before it is evaluated.
+- Established: questions with presupposed/insinuated content
+  are a real false-memory channel, weaker than assertion but
+  deniable — the perfect rumor register for RW.
+
+**Spec consequence — §6.169:** `askAbout{presupposes:F}`
+interactions mint an `insinuated:true` candidate at
+`insinu_strength` 0.35× the assertion equivalent, flagged
+frame `interrogative`; `presuppose_gain` 0.15 extra on
+existence fields (the-article logic — presupposed OBJECTS
+minted as scene candidates at low strength, ready for §6.3
+adoption on any later mention). Insinuated candidates inherit
+sourceCredibility of the ASKER but carry `deniable:true` —
+the asker never said it. **Locked null `insin_episode_null`:**
+innuendo mints claim/impression candidates and person-entry
+eval shifts ONLY — never an episodic "I saw it" record
+(same discipline as `fame_episode_null`, §70). Detection
+arm: `checker` characters mark the frame `insinuation_noticed`
+— suppresses the mint, not the awkwardness.
+
+## 82. The planting recipe, priced — and the recode debate
+
+- **Shaw & Porter 2015** (*Psych. Sci.* 26:291 — verified):
+  three suggestive interviews → **70%** (21/30) classified
+  with rich false memories of a police-contact crime in early
+  adolescence; 11 of 15 assaulters generated police-specific
+  detail (M=12.18 details). Ingredients: true scaffolding
+  details from parents, guided-imagery instructions,
+  interviewer confidence, social pressure, suggestive
+  retrieval techniques across sessions.
+- **Wade, Garry & Pezdek 2018** (*Psych. Sci.* 29:503 —
+  verified recode): rescoring Shaw & Porter's data separating
+  *belief* from *memory* coding → **26–30%** meet false-MEMORY
+  criteria; the rest are false beliefs or partial
+  reconstructions. **The 70% is belief+memory; ~28% is
+  recollection-grade.** Our §7 belief-vs-recollection split is
+  literally the variable at issue.
+- **Loftus & Pickrell 1995** (*Psych. Ann.* 25:720 —
+  verified): lost-in-the-mall, ~25% (≈6/24) partial/full
+  false memory at 1–2 mild suggestive interviews.
+- **Ceci et al. 1994** (Samuel Stone studies; Ceci, Loftus,
+  Leichtman & Bruck — verified): preschoolers under repeated
+  suggestive interviewing assented to false events ~50%+ and
+  elaborated non-present details; ~25% in strongest arms.
+- Established: multi-session guided imagery + authority +
+  true scaffolding plants rich false autobiographical
+  content; rates scale with sessions and ingredient count.
+  Debated: belief vs recollection coding (Wade recode) —
+  we implement BOTH tiers.
+
+**Spec consequence — §6.170:** formalize the composite
+`plantGain = plant_base · imagery_eff · pressure_eff ·
+scaffold_eff · authority_eff · session_count^plant_session_exp`
+(0.5 exponent — diminishing but compounding returns;
+Loftus-mall ≈ single-session minimal recipe → ~0.25
+equivalent; full Shaw–Porter recipe → the high arm).
+`plant_belief_floor` 0.6: planted content lands in the
+belief tier (§7 beliefStatus) first; only `imagery`-rich
+reconstruction + repeated self-retell promote to
+recollection tier — reproducing the 70/28 split
+structurally. `plant_child_mult` (1.8 at encodeAge<8 —
+Ceci) applied at encoding-age of the claimed event, not
+current age: you can plant a childhood memory on an adult
+as if through a child's mind. `scaffold` = count of true
+details woven in (each +`scaffold_unit` 0.08 plausibility
+equivalent); contradicting known-fact count subtracts
+`known_veto` per the existing plausibility gate — which is
+why the recipe needs TRUE details.
+
+## 83. Déjà vu — the familiarity signal with no record
+
+- **Brown 2003** (*Psych. Bull.* 129:394 — verified review):
+  déjà vu incidence ~60–80% lifetime; declines with age,
+  rises with travel/education/stress; no pathology needed.
+- **Cleary 2008** (*Curr. Dir. Psychol. Sci.* 17:353 —
+  verified): recognition without identification — a scene
+  can produce the familiarity signal while the contributing
+  record is unretrievable; déjà vu is this state with the
+  extra conviction that it CAN'T be right.
+- **Cleary, Ryals & Nomi 2009 / Cleary et al. 2012**
+  (*Conscious. Cogn.* 21:969 — verified): virtual-reality
+  scenes sharing spatial CONFIGURATION with studied scenes
+  produced déjà-vu-like familiarity without recall —
+  config-matching, not item matching, is the cue.
+- Established: familiarity-without-identification is
+  real and config-based; the phenomenology is signal
+  without source. Frequency/age numbers are survey-grade.
+
+**Spec consequence — §6.171:** new emission `deja_vu` —
+when a place/scene cue pattern hits `simOp ≥ deja_thresh`
+(0.75, config-masked — layout/places weights only, not
+items) against ANY stored record whose own retrieval fails
+θ, emit `deja_vu:true` with `familiarity` = the simOp value
+and `matched=false` — the character feels certain-yet-impossible.
+Rate scales ×(1−`deja_age_slope`·age_eff/60) (0.5 — Brown's
+decline), +0.2·travel-novelty context (new places in familiar
+layouts — Cleary config). **Locked null `deja_store_null`:**
+the episode mints NO record — it is a retrieval-side signal;
+later "I've been here" claims from it route through ordinary
+confab_fill, not a stored scene. Frequency is low —
+`deja_cool` 30 sim-days per character.
+
+## 84. The caught lie poisons the ledger — schema guilt
+
+- **Anchors (established direction, OUR mechanism):**
+  source-credibility generalization is textbook persuasion
+  (Hovland line; Kumkale & Albarracín 2004 — low-cred sources
+  discount ALL their claims); **Ecker et al.** correction
+  literature — a retracted source's OTHER claims retain less
+  traction; **"liar" trait attribution** generalizes in person
+  perception (negative-trait halo — established).
+- What no study pins: whether detecting ONE false claim from
+  a source retroactively weakens that source's already-adopted
+  claims. The forward case (future claims discounted) is
+  certain; the retroactive leg is our modeling choice.
+
+**Spec consequence — §6.172 (RW HYPOTHESIS, flagged):**
+when a claim candidate is detected-false (§6.121 detection
+gate or explicit `dispute` resolution against it), apply
+`source_poison_k` 0.25 multiplicative weakening to:
+  (a) **forward** — all future p_adopt on that source
+      (established — credibility drop);
+  (b) **retro** — surviving adopted candidates carrying that
+      source tag get `candStrength × (1−source_poison_k)`
+      ONCE, and their `sourceDiscount` field refreshes
+      (HYPOTHESIS — the "he lied about that too?" audit).
+Radius `poison_radius` limits retro to claims with
+simOp > 0.4 to the exposed one — thematically unrelated
+claims take only the forward discount (a caught lie about
+the rent doesn't poison their recipe tips). Locked null
+`poison_reveal_null`: the poison applies to stored
+strength, never to what the character can still SAY —
+they can repeat a claim they no longer quite believe.
+
+## 85. Spec changes in v5.26 (summary)
+
+- **§6.164** `sourceDiscount` field + deferred adoption —
+  the sleeper effect; ordering gate on pre-warnings.
+- **§6.165** warning-tag decay tier (`warn_tag_mult`) +
+  `warn_backfire_k` truth bonus post-decay.
+- **§6.166** `accepted`-first ingest + `unbelieve` op with
+  load penalty — Spinozan acceptance.
+- **§6.167** `illus_truth_k` fluency→truth leg, ungated by
+  stored knowledge (locked `knowledge_gate_null`).
+- **§6.168** hindsight bend on reported estimate fields;
+  `hind_store_null` locked; `inevitable`/`nailed_it` audit.
+- **§6.169** `insinuated`/`presupposed` candidate mints;
+  `insin_episode_null` locked.
+- **§6.170** composite `plantGain` + `plant_belief_floor`
+  (belief tier before recollection — the Wade recode
+  encoded); `plant_child_mult` on encodeAge.
+- **§6.171** `deja_vu` emission, config-sim gated, no store
+  (`deja_store_null` locked).
+- **§6.172** `source_poison_k` forward+retro credibility
+  audit, `poison_radius` scope limit (HYPOTHESIS-flagged).
+- **§7** +22 params, +6 locked nulls.
+- **§10** contract: candidate field `sourceDiscount`,
+  `insinuated`/`deniable`; claim field `hearCount` truth
+  leg; Event `presupposes`; context `factCheck`,
+  `travel_novel`; emissions `deja_vu`, `inevitable`,
+  `nailed_it`, `insinuation_noticed`; op `unbelieve`,
+  `outcomeEvent` matching.
+
+## 86. Parameter guidance and probes
+
+```json
+// v78 false-memory VII parameter block (§7 append)
+"disc_decay_mult": 1.6,   // §76 source-discount decay vs content
+"sleeper_k": 0.12,        // §76 deferred-adoption gain on re-encounter
+"warn_tag_mult": 2.0,     // §77 warning-tag decay; +0.5 past 60
+"warn_backfire_k": 0.15,  // §77 truth bonus after tag death
+"tag_min": 0.15,          // §77 mark-below-threshold gate
+"spinoza_cost": 0.3,      // §78 unbelieve op cost
+"load_unbelieve_pen": 0.5,// §78 load/rush/intox failure penalty
+"illus_truth_k": 0.10,    // §79 per-log-rep truth lift
+"illus_truth_cap": 0.35,  // §79 cumulative cap (Pennycook-scale)
+"factCheck_halve": 0.5,   // §79 deliberate-scrutiny halving
+"hind_k": 0.35,           // §80 outcome-bend max on weak fields
+"hind_conf_boost": 0.15,  // §80 "I knew it" confidence lift
+"insinu_strength": 0.35,  // §81 fraction of assertion equivalent
+"presuppose_gain": 0.15,  // §81 existence-field presupposition bonus
+"plant_base": 0.10,       // §82 per-session base (minimal recipe ≈ mall)
+"plant_session_exp": 0.5, // §82 sublinear session compounding
+"plant_belief_floor": 0.6,// §82 landed-in-belief share
+"plant_child_mult": 1.8,  // §82 encodeAge<8 claimed-event multiplier
+"scaffold_unit": 0.08,    // §82 per-true-detail plausibility gain
+"deja_thresh": 0.75,      // §83 config-sim threshold
+"deja_age_slope": 0.5,    // §83 decline with age_eff
+"deja_cool": 30,          // §83 sim-day per-character cooldown
+"source_poison_k": 0.25,  // §84 forward+retro audit magnitude
+"poison_radius": 0.4      // §84 simOp radius for retro leg
+```
+
+Trait loading: `distrust` raises unbelieve-attempt rate and
+halves `insinu_strength` uptake (§81's notice arm scales with
+`checker`); `meta_conf` raises factCheck posture availability;
+`imagery` and `fantasy` raise `plantGain` promotion to
+recollection tier (§82); `dissoc` unloads §78 load penalty
+(dissociators pay less because they verify less — HYPOTHESIS);
+`aging_rate` scales `warn_tag_mult` and `deja_age_slope`.
+Age: `warn_tag_mult` +0.5 past 60 (Skurnik); `plant_child_mult`
+on encodeAge (Ceci); hindsight larger in older adults
+(Roese & Vohs: memory-distortion level rises with age).
+
+**Probes P825–P834** (validation-design.md §156):
+- **P825 sleeper effect (MUST — ordering lock):** low-cred
+  source claim, discounting cue AFTER message vs BEFORE:
+  the after-arm shows rising effective credibility and
+  deferred adoption on re-encounter; the before-arm never
+  does. Absolute growth capped by sleeper_grow_null —
+  FAIL if deferred adoption exceeds the high-cred arm's.
+- **P826 warning backfire (MUST):** claim flagged
+  `debunked` ×3 vs ×1, aged past warn-tag death on a
+  70y profile: the ×3 arm rates TRUER (familiarity minus
+  dead tag); same-day test shows the reverse order
+  (immediate protection). Young profile shows smaller
+  crossover. Locked: the claim candidate survives intact —
+  only the mark died.
+- **P827 Spinozan gate (MUST):** identical false claims,
+  hearer under `load` vs calm: load arm shows elevated
+  `accepted` residue and higher later true-ratings; calm
+  arm's unbelieve marks stick. `spinoza_revert_null` —
+  residues never auto-flip.
+- **P828 illusory truth vs knowledge (MUST — locked
+  null):** claims contradicting a strength-0.9 stored
+  semantic, repeated ×5: truth_p rises anyway
+  (knowledge_gate_null — the fluency leg is ungated);
+  p_adopt arm still protected by know_protect_mult.
+  factCheck posture halves the rise.
+- **P829 hindsight bend (MUST — locked null):** estimate
+  field verbatim-weak vs verbatim-strong, matched outcome
+  event: weak arm reports bent ~hind_k toward outcome with
+  +hind_conf_boost and `inevitable:true`; strong arm
+  reports clean with `nailed_it:true`. STORED candidates
+  byte-identical both arms (hind_store_null).
+- **P830 innuendo mint (MUST — locked null):**
+  askAbout{presupposes:"the broken lease"} → insinuated
+  candidate at ~0.35 strength + scene-object candidate;
+  never an episodic record (insin_episode_null — FAIL if
+  "I saw it" mints). checker profiles emit
+  insinuation_noticed and suppress the mint.
+- **P831 planting recipe (MUST):** Loftus-mall arm (1
+  session, minimal) ≈0.25 adoption-class rate; full
+  Shaw–Porter arm (3 sessions, guided imagery + pressure +
+  3 true scaffolds + authority) ≈0.6–0.7 belief-tier, of
+  which ~0.4 share promotes to recollection tier under
+  self-retells (reproduces 70/28 split). Scaffold-free arm
+  fails the plausibility gate (known_veto).
+- **P832 child implant (SHOULD):** same recipe planted on
+  an adult for an encodeAge-6 event vs encodeAge-25 event:
+  the childhood arm adopts at plant_child_mult rate; the
+  claimed event carries amnesia-era dating flags.
+- **P833 déjà vu (MUST — locked null):** novel venue with
+  config-sim 0.8 vs 0.4 to a sub-θ record: the 0.8 arm
+  emits deja_vu{familiarity≈0.8, matched:false}; NO record
+  minted (deja_store_null); emission rate halves on a 70y
+  profile; deja_cool suppresses immediate repeats.
+- **P834 source poison (SHOULD — hypothesis):** detected-
+  false claim on source S: (a) S's future p_adopt cut;
+  (b) S's surviving thematically-near adopted claims lose
+  source_poison_k strength once; (c) far-radius claims
+  unchanged; (d) character can still REPEAT the weakened
+  claims (poison_reveal_null — store ≠ speech).
+
+## 87. Honest limits (Part VII)
+
+- **Sleeper effect's absolute growth is contested** — we
+  implement the relative-sleeper mechanism (differential
+  decay + deferred adoption) and lock the absolute-growth
+  cap; Pratkanis's ordering condition is enforced as a gate.
+- **Skurnik's older-adult crossover is the strong finding;**
+  the young-adult residual is direction-consistent but
+  smaller — our +0.5 age increment is a calibration guess,
+  and real effect sizes vary with domain (consumer claims).
+- **Spinozan acceptance is real but its boundary is debated**
+  (Hasson et al. 2005 show instruction-level dissociations);
+  we implement the load-failure gate, not a universal
+  believe-everything default — `distrust`/`checker` profiles
+  run the unbelieve op often and cheaply by proxy.
+- **Shaw & Porter's 70% is belief-AND-memory** — Wade et
+  al.'s recode (~26–30% recollection-grade) is why
+  `plant_belief_floor` exists; the recipe prices both tiers
+  and the promotion between them is the honest uncertainty.
+- **Innuendo magnitudes are 1981-vintage** (Wegner single
+  studies); the direction is secure, the 0.35 ratio is ours.
+- **Déjà vu incidence numbers are self-report surveys**;
+  config-sim gating follows Cleary's lab logic, the
+  thresholds are tuned, not measured.
+- **Schema guilt's retro leg is explicitly ours** — forward
+  credibility discounting is established; retroactive
+  weakening of already-adopted claims is a plausible
+  generalization we flag HYPOTHESIS and scope with
+  `poison_radius`. If evidence shows no retro audit in
+  humans, P834's (b) arm becomes the calibration target to
+  soften, not the structure to remove.

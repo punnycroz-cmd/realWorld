@@ -2843,3 +2843,71 @@ literature; probe registry P815–P824:
   dissociations all CONSENSUS; magnitudes, age knots, trait
   composites (`disg_prop`, `anx_eff`), window constants, and
   all field/mixin operationalizations are RW HYPOTHESES.
+
+## 56. Addendum — v78 anchors (false-memory VII, spec v5.26)
+
+Nine credibility-layer mechanisms; probe registry P825–P834:
+
+- **Sleeper effect (P825):** Hovland & Weiss 1951 (*J. Abnorm.
+  Soc. Psychol.* 46:424 — verified: dissociation hypothesis);
+  Pratkanis, Greenwald, Leippe & Baumgardner 1988 (*Psych.
+  Bull.* 104:53 — verified: AFTER-ordering requirement);
+  Kumkale & Albarracín 2004 (*Psych. Bull.* 130:143 — verified
+  meta). Anchors §6.164 `disc_decay_mult`, `sleeper_k`,
+  `sleeper_grow_null`.
+- **Warning backfire (P826):** Skurnik, Yoon, Park & Schwarz
+  2005 (*J. Consum. Res.* 31:713 — verified: repeated "false"
+  labels → "true" endorsements after 3-day delay, older
+  adults worst); Hawkins & Hoch 1992; Hasher et al. 1977
+  companion fluency line. Anchors §6.165 `warn_tag_mult`,
+  `warn_backfire_k`, `frame_content_null`.
+- **Spinozan acceptance (P827):** Gilbert, Krull & Malone
+  1990 (*JPSP* 59:601 — verified); Gilbert, Tafarodi & Malone
+  1993 (*JPSP* 65:221 — verified); Gilbert 1991 (*Am.
+  Psychol.* 46:107 — verified); Hasson, Simmons & Todorov
+  2005 (boundary caveat). Anchors §6.166 `spinoza_cost`,
+  `load_unbelieve_pen`, `spinoza_revert_null`.
+- **Illusory truth (P828):** Hasher, Goldstein & Toppino 1977
+  (*JVLVB* 16:107 — verified); Fazio, Brashier, Payne & Marsh
+  2015 (*JEP:G* 144:993 — verified: knowledge doesn't
+  protect); Pennycook, Cannon & Rand 2018 (*JEP:G* 147:1865 —
+  verified: single-exposure lift on fake news); Begg, Anas &
+  Farinacci 1992 (*JEP:G* 121:446 — fluency mechanism).
+  Anchors §6.167 `illus_truth_k/cap`, `knowledge_gate_null`,
+  `factCheck_halve`.
+- **Hindsight (P829):** Fischhoff 1975 (*JEP:HPP* 1:288 —
+  verified); Fischhoff & Beyth 1975; Hoffrage, Hertwig &
+  Gigerenzer 2000 (*JEP:LMC* 26:566 — verified RAFT);
+  Roese & Vohs 2012 (*Persp. Psychol. Sci.* 7:411 — verified
+  three-level account). Anchors §6.168 `hind_k`,
+  `hind_conf_boost`, `hind_store_null`.
+- **Innuendo/presupposition (P830):** Wegner, Wenzlaff,
+  Kerker & Beattie 1981 (*JPSP* 41:67 — verified:
+  interrogative ≈ assertion for impressions); Loftus & Zanni
+  1975 (*Cogn. Psychol.* 7:560 — verified: the/a article
+  presupposition ~2× false-object rate). Anchors §6.169
+  `insinu_strength`, `presuppose_gain`, `insin_episode_null`.
+- **Planting recipe (P831–P832):** Shaw & Porter 2015
+  (*Psych. Sci.* 26:291 — verified: 70% rich false crime
+  memories/beliefs in 3 interviews); Wade, Garry & Pezdek
+  2018 (*Psych. Sci.* 29:503 — verified recode: 26–30%
+  recollection-grade — belief/memory split encoded);
+  Loftus & Pickrell 1995 (*Psych. Ann.* 25:720 — ~25% mall);
+  Ceci, Loftus, Leichtman & Bruck 1994 (Samuel Stone —
+  ~50% preschooler assent). Anchors §6.170 `plant_*`,
+  `scaffold_unit`.
+- **Déjà vu (P833):** Brown 2003 (*Psych. Bull.* 129:394 —
+  verified review); Cleary 2008 (*Curr. Dir. Psychol. Sci.*
+  17:353 — verified: recognition without identification);
+  Cleary et al. 2012 (*Conscious. Cogn.* 21:969 — verified
+  VR config familiarity). Anchors §6.171 `deja_*`.
+- **Source poison (P834):** forward credibility discounting
+  established (Hovland line; Kumkale & Albarracín 2004;
+  retraction/correction literature); the retroactive
+  sibling-weakening leg is RW HYPOTHESIS. Anchors §6.172
+  `source_poison_k`, `poison_radius`, `poison_reveal_null`.
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (incl. the Fazio knowledge-failure
+  and the Wade belief/memory recode); magnitudes, age
+  increments, promotion shares, the retro-poison leg, and
+  all field mechanizations are RW HYPOTHESES.

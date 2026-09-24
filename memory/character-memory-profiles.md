@@ -1072,6 +1072,16 @@ needs both.
 | dis_extinct_mult / dis_cc_mult / disg_prop_gain | 0.2 / 0.5 / 0.0 | 0.8 / 1.0 / 0.6 | disgust extinction resistance / countercond. wash / propensity mint (v5.25) |
 | repair_base / repair_cap / repair_thresh / repair_lift | 0.0 / 0.3 / 0.2 / 0.0 | 0.6 / 0.9 / 0.6 / 0.25 | mood-repair recall reach/cap/gate/lift (v5.25) |
 | felt_window | 7 | 21 | felt-vs-believed report seam, days (v5.25) |
+| disc_decay_mult / sleeper_k | 1.0 / 0.0 | 2.4 / 0.3 | source-discount decay rate + deferred-adoption gain (v5.26) |
+| warn_tag_mult / warn_backfire_k / tag_min | 1.2 / 0.0 / 0.05 | 3.0 / 0.3 / 0.3 | warning-mark decay + post-decay truth bonus + mark floor (v5.26) |
+| spinoza_cost / load_unbelieve_pen | 0.1 / 0.2 | 0.6 / 0.8 | unbelieve-op cost + load failure penalty (v5.26) |
+| illus_truth_k / illus_truth_cap / factCheck_halve | 0.0 / 0.1 / 0.3 | 0.2 / 0.6 / 0.8 | repetition→truth gain/cap + scrutiny halving (v5.26) |
+| hind_k / hind_conf_boost | 0.1 / 0.0 | 0.6 / 0.3 | hindsight bend + "knew it" confidence (v5.26) |
+| insinu_strength / presuppose_gain | 0.1 / 0.0 | 0.6 / 0.3 | innuendo mint fraction + presupposition bonus (v5.26) |
+| plant_base / plant_session_exp / plant_belief_floor | 0.03 / 0.3 / 0.3 | 0.2 / 0.8 / 0.9 | planting-recipe base/session compounding/belief landing (v5.26) |
+| plant_child_mult / scaffold_unit | 1.0 / 0.02 | 2.6 / 0.15 | encodeAge<8 plant multiplier + per-true-detail scaffold (v5.26) |
+| deja_thresh / deja_age_slope / deja_cool | 0.6 / 0.2 / 14 | 0.9 / 0.8 / 90 | déjà-vu config gate / age decline / sim-day cooldown (v5.26) |
+| source_poison_k / poison_radius | 0.1 / 0.2 | 0.5 / 0.6 | caught-lie audit magnitude + simOp retro radius (v5.26) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3768,3 +3778,68 @@ NOT the v4.6 memorability channel; loads extra + open, mild
   *says* the breakup destroyed them over a record of tired
   relief — but the record keeps the truth and a strong cue can
   still refire it.
+
+## 60. v5.26 note (false-memory VII — the credibility layer)
+
+Ten clamp rows added in §0. **No new traits** — the layer
+loads on existing axes: `distrust` (unbelieve attempts,
+innuendo resistance), `checker` (unbelieve success,
+`insinuation_noticed`), `meta_conf` (factCheck posture),
+`imagery`/`fantasy` (plantGain recollection promotion),
+`dissoc` (unloads the load penalty — dissociators verify
+less, HYPOTHESIS), `aging_rate` (warn_tag_mult +
+deja_age_slope scaling). Bible-facing notes:
+
+- **The busy mind is the gullible mind (§6.166):** claims
+  land `accepted` by default; rejecting them is a resource
+  op that fails under `C.load`/rushed/intoxication. A main
+  written as chronically overloaded will absorb rumor as
+  fact — not from stupidity, from never spending the
+  unbelieve. High-`distrust`/`checker` characters pay the
+  cost routinely; trusting-but-harried profiles are the
+  propagators.
+- **Debunking ages badly (§6.165):** a correction protects
+  while its tag lives, then — past ~the warning-tag decay
+  window — each past debunking becomes familiarity, and
+  familiarity reads as truth. The elder profile
+  (warn_tag_mult +0.5 past 60) crosses over first —
+  Skurnik's paradox. World-builder: a *repeated* correction
+  campaign is structurally risky; the repair is the
+  rival-tag mint, not the flag.
+- **Cheap shots work quietly (§6.169):** questions mint
+  `insinuated`/`deniable` candidates at ~a third of
+  assertion strength and presupposed objects mint scene
+  candidates — an insinuating questioner moves impressions
+  without ever being quotable. `checker` mains notice the
+  frame (`insinuation_noticed`) and suppress the mint;
+  nobody else does.
+- **Planting is a recipe, not a vibe (§6.170):** belief-tier
+  implantation needs sessions + guided imagery + pressure +
+  authority + TRUE scaffolding details; recollection-grade
+  ("I remember doing it") needs `imagery`-rich self-retells
+  on top. A childhood-dated claim on an adult uses the
+  CHILD's susceptibility (`plant_child_mult`) — the lever
+  is encodeAge, not current age. Bibles: a main whose
+  backstory was told TO them (parent's account, cult
+  framing, therapy reconstruction) is a planted-memory
+  candidate — write the recipe into the history.
+- **"I knew it" is a report, not a record (§6.168):**
+  hindsight bends the SPOKEN estimate toward the outcome
+  on weak verbatim; the stored estimate stays honest
+  (`hind_store_null`). The audit fields `inevitable`/
+  `nailed_it` let a main feel vindicated when the trace
+  actually survives — don't write omniscient hindsight;
+  write confident reconstruction.
+- **Déjà vu is signal without source (§6.171):**
+  `deja_vu` fires on config-similar places against
+  unretrievable records — the new café in the old layout.
+  It mints nothing (`deja_store_null`); if a character
+  later "remembers being here," that's confab_fill doing
+  ordinary work. Declines with age; rises with travel.
+- **A caught lie audits the ledger (§6.172):** forward —
+  the liar's next claims discount; retro — their adopted
+  claims near the exposed one lose a quarter of strength
+  ONCE (hypothesis-flagged). But `poison_reveal_null`:
+  weakened ≠ unspeakable — a main can keep repeating a
+  claim they no longer quite believe. Write the
+  double-entry: the ledger thins while the mouth continues.

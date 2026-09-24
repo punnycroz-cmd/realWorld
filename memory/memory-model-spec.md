@@ -1,4 +1,48 @@
-# Memory Model Spec v5.25 — implementable human-like memory for RW characters
+# Memory Model Spec v5.26 — implementable human-like memory for RW characters
+
+> **v5.26 note (false-memory VII — the credibility layer):**
+> `memory/false-memory.md` Part VII (§§76–84) prices the
+> distortions of *trust* — the evaluator and the evaluated
+> decay on different tiers. **Sleeper effect** — claim
+> candidates carry `sourceDiscount` decaying faster than
+> content (`disc_decay_mult` 1.6); rotted discounts enable
+> deferred adoption on re-encounter, ordering-gated and
+> capped (locked `sleeper_grow_null`; Hovland & Weiss 1951;
+> Pratkanis et al. 1988; Kumkale & Albarracín 2004) — §6.164.
+> **Warning backfire** — `debunked`/`warned` marks decay at
+> `beta_source·warn_tag_mult` while claim familiarity
+> survives; past `tag_min` the repeated warning endorses
+> (`warn_backfire_k`; Skurnik et al. 2005; locked
+> `frame_content_null`) — §6.165. **Spinozan acceptance** —
+> claims mint `accepted` first; `unbelieve` is a resource-cost
+> op that fails under load/rush/intox (Gilbert et al.
+> 1990/1993; locked `spinoza_revert_null`) — §6.166.
+> **Illusory truth** — `illus_truth_k·log1p(hearCount)`
+> truth lift ungated by stored knowledge (locked
+> `knowledge_gate_null`; Hasher et al. 1977; Fazio et al.
+> 2015; Pennycook et al. 2018); `factCheck` posture halves —
+> §6.167. **Hindsight** — reported estimates bend toward
+> matched outcomes by `hind_k`·(1−verbatim), stored fields
+> byte-identical (locked `hind_store_null`; `inevitable`/
+> `nailed_it` audit; Fischhoff 1975; RAFT) — §6.168.
+> **Innuendo** — `presupposes`/`interrogative` frames mint
+> `insinuated`/`deniable` candidates at `insinu_strength`,
+> never episodic records (locked `insin_episode_null`;
+> Wegner et al. 1981; Loftus & Zanni 1975) — §6.169.
+> **Planting recipe** — composite `plantGain` over sessions,
+> `plant_belief_floor` belief-tier landing encodes the Wade
+> et al. 2018 recode (70% belief+memory / ~28% recollection);
+> `plant_child_mult` on encodeAge (Shaw & Porter 2015; Loftus
+> & Pickrell 1995; Ceci et al. 1994) — §6.170. **Déjà vu** —
+> config-masked `simOp ≥ deja_thresh` against sub-θ records
+> emits `deja_vu{familiarity, matched:false}` with NO mint
+> (locked `deja_store_null`; Cleary 2008/2012; Brown 2003)
+> — §6.171. **Source poison** — a detected-false claim cuts
+> that source's future p_adopt AND once-weakened near-radius
+> siblings (retro leg = RW HYPOTHESIS, `poison_radius`
+> scoped; locked `poison_reveal_null` — store ≠ speech) —
+> §6.172. +22 params, +6 locked nulls; §10 contract adds.
+> Registry P825–P834.
 
 > **v5.25 note (emotional-memory VII — the uses of feeling):**
 > `memory/emotional-memory.md` Part VII (§§84–93) prices the
@@ -9867,6 +9911,152 @@ stored; the true tag still refires on a strong cue. Below
 encodeAge ~10 `felt_window` halves (weaker episodic access —
 HYPOTHESIS, EM§95).
 
+### 6.164 The sleeper leg — the discount dies before the claim (new in v5.26)
+
+Claim candidates (§6.3 machinery) mint `sourceDiscount =
+1 − sourceCredibility` when heard from low-cred sources,
+decaying at `beta_source·disc_decay_mult` (1.6 — credibility
+is a source-tier field; content is content-tier — Hovland &
+Weiss 1951 dissociation). Effective credibility on any later
+evaluation/re-encounter: `sourceCredibility_eff =
+1 − sourceDiscount²`. Once `sourceDiscount < 0.3`,
+re-presentation of surviving content mints deferred adoption
+at `sleeper_k` (0.12) × surviving content strength — persuasion
+arriving late, on the discount's grave (Kumkale & Albarracín
+2004 — relative sleeper). **Ordering gate:** discounting info
+arriving BEFORE the claim tags the SOURCE `low_cred`, not the
+claim — no sleeper leg (Pratkanis et al. 1988). **Locked null
+`sleeper_grow_null`:** deferred adoption ≤ what initial
+full-credibility minting would have produced — no absolute
+growth beyond the high-cred counterfactual.
+
+### 6.165 The warning rots — the tag dies, the claim stays (new in v5.26)
+
+Epistemic marks on claim records (`disputed`, `warned`,
+`debunked` — world-minted on correction events) carry
+`tag_str` decaying at `beta_source·warn_tag_mult` (2.0; +0.5
+past age_eff 60 — Skurnik et al. 2005). While
+`tag_str ≥ tag_min` (0.15): marks behave as today (dispute_mult,
+warn_mult). Below `tag_min`: the claim's truth_p evaluation
+gets `+ warn_backfire_k·min(1, warnCount/3)` (0.15) — each
+past warning was a repetition, and repetitions are
+familiarity, and familiarity is truth (§6.167 leg). Re-warning
+while `tag_str` lives refreshes it (protection window — the
+paradox needs the decay gap). **Locked null
+`frame_content_null`:** mark death never touches the claim
+candidate — flags rot, content persists (§30's asymmetry,
+generalized to epistemic frames).
+
+### 6.166 Spinozan acceptance — comprehension mints belief (new in v5.26)
+
+Every comprehended claim mints its candidate in state
+`accepted` FIRST (Gilbert, Krull & Malone 1990). The only
+path to `disputed`/`rejected` is the `unbelieve` op: cost
+`spinoza_cost` (0.3 reasoning-tick), success penalized
+`load_unbelieve_pen` (0.5) under `C.load`/`rushed`/
+`intox`/`sleepdep` — the busy mind keeps what it merely
+understood (Gilbert, Tafarodi & Malone 1993). Attempt rate
+scales with `distrust`; success with `checker`, `meta_conf`,
+`verbal`. Failed/absent unbelieve → candidate stays
+`accepted` and ages into ordinary content. **Locked null
+`spinoza_revert_null`:** accepted residues never
+spontaneously revert — re-encounter, live dispute, or
+deliberate review only. Load is a suggestibility state.
+
+### 6.167 Illusory truth — the fluency leg is ungated (new in v5.26)
+
+On truth_p evaluation of any claim record:
+`truth_p += illus_truth_k·log1p(hearCount)` (0.10,
+cap `illus_truth_cap` 0.35 — Pennycook et al. 2018 per-hit
+scale, cumulative like Hasher et al. 1977). **Locked null
+`knowledge_gate_null`:** contradicting stored semantics gate
+the §6.3 ADOPTION arm via `know_protect_mult` (v1.5) but
+NEVER zero the fluency leg — characters rate familiar
+falsehoods truer against what they demonstrably know (Fazio
+et al. 2015). `factCheck` context posture (deliberate
+scrutiny) halves the bonus (`factCheck_halve` 0.5) —
+attention is the guard, not storage.
+
+### 6.168 Hindsight — the outcome bends the report, not the record (new in v5.26)
+
+Records with quantitative estimate fields (`expect`,
+`predict`, `bet`): when a matching `outcomeEvent` lands,
+later REPORTED values bend — `reported =
+orig + hind_k·(1−field_verbatim)·(outcome−orig)` (0.35;
+RAFT — Hoffrage, Hertwig & Gigerenzer 2000: the bend is
+largest exactly where the trace is gone); reported
+confidence += `hind_conf_boost` (0.15). Audit: bend > 0.5
+emits `inevitable:true`; verbatim-surviving accurate
+estimates emit `nailed_it:true` (vindication is real too —
+Fischhoff 1975). **Locked null `hind_store_null`:** stored
+estimate candidates never rewrite — the bend is
+emission-side reconstruction; the record keeps what was
+actually thought.
+
+### 6.169 Innuendo and presupposition — the question smuggles the claim (new in v5.26)
+
+`askAbout`/`hearAccount` frames carrying `presupposes:F` or
+`frame:"interrogative"` mint `insinuated:true` candidates at
+`insinu_strength` (0.35) × assertion-equivalent strength —
+Wegner et al. 1981: questions nearly match assertions for
+impressions. `presuppose_gain` (0.15) extra on
+existence/object fields — "the broken lease" mints the
+object candidate (Loftus & Zanni 1975). Candidates carry
+`deniable:true` — the source said nothing assertable.
+**Locked null `insin_episode_null`:** innuendo mints claim
+and person-eval candidates ONLY — never episodic "I was
+there" content (fame_episode_null discipline, §6.120).
+`checker` profiles emit `insinuation_noticed` and suppress
+the mint.
+
+### 6.170 The planting recipe — composite, belief-first (new in v5.26)
+
+`plantGain = plant_base (0.10) · imagery_eff · pressure_eff
+· scaffold_eff · authority_eff · sessions^plant_session_exp
+(0.5)` evaluated per suggestive-interview session.
+Minimal recipe (1 session, no imagery/pressure/scaffold)
+reproduces the Loftus & Pickrell ~0.25 class; full recipe
+reaches the Shaw & Porter 2015 arm. **Belief-first landing:
+`plant_belief_floor` 0.6** — planted content mints at
+beliefStatus=belief; promotion to recollection tier needs
+`imagery`-rich self-retells (promotion share ≈0.4 — Wade,
+Garry & Pezdek 2018 recode: 70% belief+memory, ~28%
+recollection-grade). `plant_child_mult` 1.8 applies to the
+CLAIMED event's encodeAge<8 (Ceci et al. 1994) — planting a
+childhood memory routes through the child's mind.
+`scaffold_eff = 1 + scaffold_unit·n_true_details` (0.08);
+contradicted known facts still invoke `known_veto`.
+
+### 6.171 Déjà vu — familiarity with no record (new in v5.26)
+
+Place/scene cue evaluation with config mask (layout + place
+weights, item fields ignored): if `simOp ≥ deja_thresh` (0.75)
+against ANY record whose own retrieval fails θ, emit
+`deja_vu{ familiarity: simOp, matched:false }` — Cleary
+2008's recognition-without-identification, Cleary et al.
+2012's config account. Rate ×(1−`deja_age_slope`·age_eff/60)
+(0.5 — Brown 2003 decline); `travel_novel` context +0.2.
+**Locked null `deja_store_null`:** no record minted — the
+signal is retrieval-side; later "I've been here" claims are
+ordinary confab_fill, not stored scenes. `deja_cool` 30
+sim-days per character keeps it rare.
+
+### 6.172 Source poison — the caught lie audits the ledger (new in v5.26)
+
+When a claim candidate is detected-false (§6.121 gate or
+resolved `dispute` against it): (a) **forward** — that
+source's `sourceCredibility` ×(1−`source_poison_k` 0.25)
+for future p_adopt (established — credibility drop,
+Kumkale & Albarracín 2004); (b) **retro (RW HYPOTHESIS)** —
+surviving adopted candidates from the same source with
+`simOp > poison_radius` (0.4) to the exposed claim lose
+`candStrength × source_poison_k` ONCE and refresh
+`sourceDiscount` — the "he lied about that too" audit.
+Far-radius claims take only the forward discount. **Locked
+null `poison_reveal_null`:** poison moves stored strength,
+never reportability — the character can still repeat a claim
+they no longer quite believe.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -11330,6 +11520,39 @@ MemoryParams = {
 //   context `anxiety_state`; emission `reciprocate`/
 //   `distanced`/`cold_read`/`felt_believed_gap`; new trait
 //   `humor` (extra + open loading, mild −neurot).
+// v5.26 additions (false-memory VII — FM§§76–84)
+"disc_decay_mult": 1.6, "sleeper_k": 0.12,       // §6.164
+"warn_tag_mult": 2.0, "warn_backfire_k": 0.15,
+"tag_min": 0.15,                                  // §6.165
+"spinoza_cost": 0.3, "load_unbelieve_pen": 0.5,   // §6.166
+"illus_truth_k": 0.10, "illus_truth_cap": 0.35,
+"factCheck_halve": 0.5,                           // §6.167
+"hind_k": 0.35, "hind_conf_boost": 0.15,          // §6.168
+"insinu_strength": 0.35, "presuppose_gain": 0.15, // §6.169
+"plant_base": 0.10, "plant_session_exp": 0.5,
+"plant_belief_floor": 0.6, "plant_child_mult": 1.8,
+"scaffold_unit": 0.08,                            // §6.170
+"deja_thresh": 0.75, "deja_age_slope": 0.5,
+"deja_cool": 30,                                  // §6.171
+"source_poison_k": 0.25, "poison_radius": 0.4,    // §6.172
+// v5.26 locked nulls: sleeper_grow_null (deferred adoption
+//   never exceeds the high-cred counterfactual — P825);
+//   frame_content_null (dead warning marks never delete the
+//   claim — P826); spinoza_revert_null (accepted residues
+//   never auto-revert — P827); knowledge_gate_null (fluency
+//   leg ungated by stored knowledge — P828); hind_store_null
+//   (hindsight bends reports, never stored fields — P829);
+//   insin_episode_null (innuendo never mints episodic
+//   records — P830); deja_store_null (déjà vu mints nothing —
+//   P833); poison_reveal_null (poison ≠ reportability —
+//   P834).
+// v5.26 fields: candidate `sourceDiscount`/`insinuated`/
+//   `deniable`; claim `warnCount`/`tag_str`/`hearCount` truth
+//   leg; Event `presupposes`; context `factCheck`,
+//   `travel_novel`, `C.load`; emissions `deja_vu`,
+//   `inevitable`, `nailed_it`, `insinuation_noticed`; ops
+//   `unbelieve`, `outcomeEvent` matching; sourceCredibility
+//   field update for §6.172.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -12887,6 +13110,40 @@ not resolved (DEBATED magnitude). P509/P511.
   - All snapshot-additive, absent = legacy; existing fields
     (`attachment`, `persp`, `humor` memorability, CondEntry
     `emotion` enum incl. disgust) unchanged in meaning.
+- v5.26 additions (false-memory.md Part VII §§76–84):
+  - **Candidate fields:** `sourceDiscount` ∈[0,1] (§6.164 —
+    minted on low-cred hearsay, source-tier decay);
+    `insinuated:true` + `deniable:true` + `frame:"interrogative"`
+    (§6.169 — question/presupposition mints).
+  - **Claim-record fields:** `warnCount`, `tag_str` (§6.165 —
+    epistemic-mark decay tier); `hearCount` now feeds the
+    `truth_p` fluency leg (§6.167) in addition to rep_gain.
+  - **Event field:** `presupposes:<field>` on askAbout/
+    hearAccount frames (§6.169); `outcomeEvent` matching
+    against `expect`/`predict`/`bet` estimate fields
+    (§6.168 — world flags resolved predictions).
+  - **Context fields:** `factCheck:true` posture (§6.167 —
+    deliberate scrutiny), `travel_novel` (§6.171),
+    `C.load` (§6.166 — busy/rushed/intox composite, world
+    or state-supplied).
+  - **Ops:** `unbelieve` (§6.166 — resource-cost rejection
+    of an `accepted` candidate; load-gated);
+    `outcomeEvent` matching (§6.168).
+  - **Emission fields:** `deja_vu{familiarity,matched:false}`
+    (§6.171), `inevitable:true` / `nailed_it:true`
+    (§6.168 audit), `insinuation_noticed:true` (§6.169
+    checker arm).
+  - **sourceCredibility** is now a mutable per-source field
+    (§6.172 — forward poison on detected-false claims; the
+    §6.164 `sourceDiscount` per-claim field is separate).
+  - **Locked nulls:** `sleeper_grow_null`,
+    `frame_content_null`, `spinoza_revert_null`,
+    `knowledge_gate_null`, `hind_store_null`,
+    `insin_episode_null`, `deja_store_null`,
+    `poison_reveal_null`.
+  - All snapshot-additive, absent = legacy; no new traits
+    (loads on `distrust`, `checker`, `meta_conf`, `imagery`,
+    `fantasy`, `dissoc`, `aging_rate` — all existing).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
