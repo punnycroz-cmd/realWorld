@@ -207,6 +207,28 @@ drift shows as wrong math, not wrong claims).
   rather than live prices. At the launch flip, change PreOrder → InStock in
   this block in the same commit as the body attribute.
 
+## 1h. Page components (v127)
+
+- **Co-sponsor section** (`#split`, between `#scenes` and `#subs`) — the
+  group-night mechanic the page never explained: when a shared resource is
+  already claimed, the form offers three paths — queue (−15%, ≤24 h visible
+  hold, expiry auto-refunds), wait (free, feed shows every live claim), or
+  co-sign a *running* identical-intent request. Co-sponsoring is priced
+  honestly per `world/requests.json` `co_sponsor` + `world/request-ui.md` §8:
+  same flat block price (explicitly NOT a discount), compatible class,
+  auto-runs on a passing screen, cap 4 sponsors, every sponsor named on the
+  feed line, scope = declared intents (weather today, venue events later).
+  Worked-example table: same-sky co-sign vs. different-forecast queues.
+  Cross-links the `#scene-calc` share link for planning; TOC chip "Bring
+  friends" added.
+- **Fineprint +1 row** — "Co-sponsors pay full price" restates the queue-skip-
+  not-discount rule at body size, keeping `#fineprint`'s every-catch promise
+  true.
+- **Quick answers +1** — "Can we split the cost of a request?" in BOTH the
+  visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful):
+  credits are non-transferable so no literal splitting; co-sponsor is the
+  same-price path; the scene link is the planning path. No new prices.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
