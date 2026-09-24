@@ -14981,3 +14981,140 @@ Registry extends P1–P1491. Sources in §281.
 
 → memory-model-spec.md v5.85 §§6.407–6.420;
 probes P1492–P1505.
+
+## 282. v140 probe specs (P1506–P1516 —
+social-memory XIV: the unequal books II)
+
+Registry extends P1–P1505. Sources in §283.
+All probes assume §§6.421–6.430 minted fields
+carry `prov` labels; P1516 audits that
+property globally.
+
+- **P1506 secret pops, not concealment (MUST —
+  `sec_int_null`):** arm A `secret:true` record,
+  target never co-present for 30 sim-days →
+  mind-pop count elevated ×(1+`sec_pop_boost`)
+  vs matched non-secret; `sec_pop_cost` accrues.
+  Arm B concealment-heavy (target co-present,
+  topic-adjacent cues daily) with pops disabled
+  → zero cost accrual. Any cost minted on a
+  concealment event fails.
+- **P1507 forgiven record intact (MUST —
+  `forgive_erase_null`):** offense record
+  → `forgive_event` → snapshot diff: strength,
+  specificity, retrieval eligibility
+  bit-identical; avoidance weight −60%,
+  retaliation −70%; original cue still fires.
+- **P1508 disclosure gap (MUST —
+  `discl_equal_null`):** scripted `disclosed_to`
+  event → discloser PM closeness delta strictly
+  > listener delta; `MetaModel.intimacy_gap`
+  positive; any observer-surface dump labels the
+  gap INFERRED. Symmetric mints fail.
+- **P1509 asymmetric forgetting books (MUST —
+  `forgot_equal_null`):** staged witnessed
+  `recall_fail:about:B` → B holds `forgot_me`
+  (eval −`forgot_sting`, retell-eligible) while
+  A holds `emb` (lighter, faster-decaying);
+  neither record readable as the other's.
+- **P1510 vindication asymmetry (MUST —
+  `toldya_sym_null`):** advice → advisee ignores
+  → `outcome_bad` → advisor record strength
+  rises ~`toldya_boost` and stays retell-
+  eligible; advisee-side recall probability of
+  the receipt record falls via the suppression
+  leg; advisee mints no `vindicated`.
+- **P1511 provenance precedes content death
+  (MUST — `prov_sticky_null`):** `learned_from`
+  record aged past `prov_tau` → field re-labels
+  `prov:"common"` while content still retrieves;
+  a merge pinning provenance legs to content
+  legs fails.
+- **P1512 two honest contracts (MUST —
+  `scope_canon_null`):** one promise, two
+  holders, N=20 retells → creditor `scope_cred`
+  inflates, debtor `scope_debt` deflates,
+  monotone within `scope_cap`; no canonical
+  terms field in any record, store, or feed.
+- **P1513 blindness gates processing not
+  storage (MUST — `bb_erase_null`):** betrayal
+  at `dependence` 0.8 vs 0.2 — high-dep arm
+  shows suppressed eval-tag and retell legs,
+  identical record strength; dependence then
+  zeroed → cue-driven retrieval restores full
+  eligibility (unblinding).
+- **P1514 compression topology (MUST —
+  `net_exact_null`):** seed a known ego-network
+  (triad-heavy + sparse pendant ties + kin) →
+  `netRecall` output: triad-internal edge recall
+  > pendant recall ~2×, kin privileged, reported
+  closure > true closure by ~`net_close_bias`;
+  RelEdge store bit-identical throughout.
+- **P1515 witnessed-only kindness (MUST —
+  `rem_kind_auto_null`):** `recall_ok:about:B`
+  unobserved → no mint; witnessed →
+  `PersonModel[A].responsiveness` +`rem_kind_
+  gain`·stale factor; stale-record recall mints
+  more than fresh-record recall.
+- **P1516 provenance audit (MUST —
+  production-3 honesty):** enumerate every
+  field minted by §§6.421–6.430 across a 30-day
+  sim → `prov` ∈ {observed, inferred, restated,
+  common} on 100% of mints; `intent`-class and
+  `MetaModel` fields appear as OBSERVED on zero
+  observer-facing dumps.
+
+## 283. Sources verified this version
+(P1506–P1516 backing)
+
+- **Slepian, Chun & Mason 2017** (*JPSP*
+  113:1–33 — verified: >13,000 secrets; mind-
+  wandering frequency, NOT concealment
+  frequency, predicts reduced well-being);
+  Wegner, Lane & Petri 1994; Lane & Wegner
+  1995 (preoccupation model); Wegner 1994
+  (ironic process).
+- **McCullough, Rachal, Sandage et al. 1998**
+  (*JPSP* 75:1586 — forgiving tracks reduced
+  avoidance + revenge, two dissociable
+  channels); Worthington REACH; Exline,
+  Worthington, Hill & McCullough 2003 —
+  forgiveness ≠ memory change.
+- **Collins & Miller 1994** (*Psych. Bull.*
+  116:457 — disclosure→liking meta);
+  Jourard 1971; Gouldner 1960 reciprocity.
+  The teller-listener intimacy asymmetry
+  itself is flagged HYPOTHESIS.
+- **Reis, Clark & Holmes 2004**; **Maisel &
+  Gable 2009** (*JPSP* 96:123 — perceived
+  partner responsiveness → intimacy); Reis &
+  Shaver 1988 responsiveness model.
+- **Yaniv & Kleinberger 2000** (*OBHDP*
+  83:260 — WOA ~0.2–0.4); **Bonaccio & Dalal
+  2006** (*J. Behav. Decis. Making* 19:127);
+  advisor-overestimates-impact asymmetry
+  (Yaniv 2004).
+- **Johnson, Hashtroudi & Lindsay 1993**
+  (*Psych. Bull.* 114:3 — source-monitoring
+  framework; source attributes decay faster
+  than content).
+- **Kunda 1990** (*Psych. Sci.* 1:311 —
+  motivated reasoning); **Thompson &
+  Loewenstein 1992** (*OBHDP* 51:176 —
+  egocentric fairness, honestly divergent
+  readings of identical agreements).
+- **Freyd 1996** (betrayal trauma theory);
+  **Freyd, DePrince & Gleaves 2007**
+  (*Psych. Rev.* 114:400 — meta: worse memory
+  for high-dependence betrayal, phenomenon
+  replicated, mechanism contested); **Smith &
+  Freyd 2014** (institutional betrayal).
+- **Brashears 2013** (*Sci. Rep.* 3:1513 —
+  verified: triadic closure + kin labels ~50%
+  recall gain; patterns + exceptions, not edge
+  lists); **Brashears & Quintane 2015**
+  (*Soc. Netw.* 44:300 — triad/group encoding,
+  not dyads).
+
+→ memory-model-spec.md v5.86 §§6.421–6.430;
+probes P1506–P1516.

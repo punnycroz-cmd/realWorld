@@ -1,4 +1,59 @@
-# Memory Model Spec v5.85 — implementable human-like memory for RW characters
+# Memory Model Spec v5.86 — implementable human-like memory for RW characters
+
+> **v5.86 note (social-memory XIV — the unequal
+> books II: the secret that thinks of itself, the
+> forgiveness that never erases, the teller who
+> feels closer, the insult of being forgotten, the
+> advisor's vindication, the credit that evaporates,
+> each side's promise, the betrayal half-seen, the
+> compressed neighborhood, and remembering itself
+> as a kindness):** `memory/social-memory.md` Part
+> XIV (§§197–206) prices the production-3 unequal-
+> knowledge layer. **Secrets** — `secret:true`
+> records join the §5.84 mind-pop queue
+> (`sec_pop_boost`); cost rides pop count, never
+> concealment (`sec_int_null`; Slepian, Chun &
+> Mason 2017, verified). **Forgiveness** —
+> `forgiven:true` reprices avoid/revenge response
+> channels only; strength and retrievability
+> untouched (`forgive_erase_null`; McCullough et
+> al. 1998 two-channel dissociation).
+> **Disclosure asymmetry** — `discl_self_gain` >
+> `discl_recv_gain`; the difference accrues to
+> `MetaModel.intimacy_gap` (`discl_equal_null`;
+> Collins & Miller 1994 + HYPOTHESIS asymmetry).
+> **Being forgotten** — witnessed `recall_fail`
+> mints victim `forgot_me` sting vs forgetter `emb`
+> embarrassment, asymmetric books
+> (`forgot_equal_null`; Reis responsiveness lit).
+> **Advisor vindication** — `outcome_bad` after
+> ignored advice boosts advisor record
+> (`toldya_boost`) and suppresses advisee receipt
+> (`toldya_sym_null`; Yaniv & Kleinberger 2000 +
+> §174 generation leg). **Provenance erosion** —
+> `learned_from` decays on `prov_tau`, re-labels
+> `prov:"common"` below threshold
+> (`prov_sticky_null`; Johnson et al. 1993).
+> **Promise scope drift** — per-role `scope_cred`/
+> `scope_debt` fields drift ±`scope_drift`, no
+> canonical term-set ever (`scope_canon_null`;
+> Kunda 1990 + Thompson & Loewenstein 1992).
+> **Betrayal blindness** — dependence ≥
+> `bb_dep_thresh` suppresses eval/retell legs,
+> record intact and restorable
+> (`bb_erase_null`; Freyd 1996; Freyd, DePrince &
+> Gleaves 2007). **Network compression** —
+> `netRecall` returns triad/kin-boosted,
+> weak-tie-thinned, closure-inflated graphs
+> (`net_exact_null`; Brashears 2013, verified;
+> Brashears & Quintane 2015). **Witnessed recall**
+> — `recall_ok` observed mints `responsiveness`
+> EMA on the rememberer, staleness-scaled
+> (`rem_kind_auto_null`; Maisel & Gable 2009).
+> §§6.421–6.430; §7 +20 scalars +3 record fields
+> +1 dyad field +10 locked nulls; probes
+> P1506–P1516.
+> (Prior notes v4.x–v5.85 in the version log.)
 
 > **v5.85 note (individual-differences XII — the
 > résumé and the wear: the level that isn't a slope,
@@ -19628,6 +19683,149 @@ bilingual profiles differ from monolingual ONLY on
 the §11 language-of-encoding and §86 TOT legs,
 which stay INTACT (asymmetric ban, P1505).
 
+### 6.421 The secret that thinks of itself — `sec_*` (new in v5.86)
+
+SM§197; **Slepian, Chun & Mason 2017** (*JPSP*
+113:1 — verified: mind-wandering to secrets, not
+concealment moments, predicts the cost);
+Wegner, Lane & Petri 1994.
+
+`secret:true` records enter the §5.84 pop queue at
+rate ×(1+`sec_pop_boost`) (0.8) regardless of
+concealment history. `sec_conceal_state` (target
+co-present + topic-adjacent cue) arms the §5.102
+repress leg while live only. `sec_pop_cost` (0.02)
+accrues per pop into fatigue/rumination. Locked
+`sec_int_null` (P1506): concealment events never
+carry the cost.
+
+### 6.422 Forgiven ≠ forgotten — `forg_*` (new in v5.86)
+
+SM§198; McCullough, Rachal et al. 1998 (*JPSP*
+75:1586 — two dissociable channels); Exline et
+al. 2003.
+
+`forgive_event` writes `forgiven:true` on the
+offense record; avoidance weight ×(1−
+`forg_avoid_damp`) (0.6), retaliation weight
+×(1−`forg_revenge_damp`) (0.7). `strength`,
+`specificity`, retrieval eligibility untouched.
+Locked `forgive_erase_null` (P1507): forgiveness
+never decrements the record.
+
+### 6.423 The discloser's inflation — `discl_*` II (new in v5.86)
+
+SM§199; Collins & Miller 1994 meta (disclosure→
+liking, CONSENSUS); felt-intimacy asymmetry
+[HYPOTHESIS — beautiful-mess §144 adjacency].
+
+`disclosed_to:B` mints A-side closeness
+`discl_self_gain` (0.08·intimacy) vs B-side
+`discl_recv_gain` (0.05·intimacy·cred factor);
+delta accrues to `MetaModel.intimacy_gap`
+(INFERRED-tier). Locked `discl_equal_null`
+(P1508).
+
+### 6.424 Forgetting me is the insult — `forgot_*` (new in v5.86)
+
+SM§200; Reis, Clark & Holmes 2004; Maisel &
+Gable 2009 responsiveness lit; metamemory
+asymmetry (search failure vs evidence event).
+
+Witnessed `recall_fail:about:B` mints on B:
+`forgot_me` record, eval ×`forgot_sting` (0.15),
+retell-eligible, feeds §6.430 responsiveness EMA
+down; mints on A: `emb` record, `forgot_self_emb`
+(0.05), faster decay, retell-suppressed. Locked
+`forgot_equal_null` (P1509): the two mints never
+share weight.
+
+### 6.425 The advisor's vindication — `toldya_*` (new in v5.86)
+
+SM§201; Yaniv & Kleinberger 2000 (WOA 0.2–0.4);
+Bonaccio & Dalal 2006; §174 generation leg.
+
+`told_by` advice records carry `role:{advisor,
+advisee}`. On `outcome_bad` + ignored advice:
+advisor-side `vindicated:true`, strength
+×(1+`toldya_boost`) (0.4), retell-priority up;
+advisee-side routes through §10 mnemic-neglect
+suppression (`self_rel:true`). Locked
+`toldya_sym_null` (P1510): advisee never mints
+`vindicated`.
+
+### 6.426 Credit evaporates — `prov_*` II (new in v5.86)
+
+SM§202; Johnson, Hashtroudi & Lindsay 1993
+(source monitoring); complements §6.399 `gen_by`
+cryptomnesia (idea ownership — this leg is
+knowledge provenance).
+
+`learned_from:X` fields ride source leg
+`prov_tau` (45d, ≈`beta_source`×1.5); below
+`prov_thresh` (0.08) re-label `prov:"common"`.
+Content legs untouched. Locked `prov_sticky_null`
+(P1511): provenance never pinned to content decay.
+
+### 6.427 Each side's promise — `scope_*` (new in v5.86)
+
+SM§203; Kunda 1990 motivated reconstruction;
+Thompson & Loewenstein 1992 egocentric fairness
+[DEBATED magnitude]; extends §67 ledger.
+
+`promise` records mint per-role `scope_cred`/
+`scope_debt` (OBSERVED terms at mint); each
+holder's retell drifts own copy ±`scope_drift`
+(0.02, creditor +/debtor −), asymptote
+`scope_cap` (±0.2). Locked `scope_canon_null`
+(P1512): no canonical term-set anywhere — shared
+stores, feeds, and ledgers carry only per-holder
+copies.
+
+### 6.428 Betrayal blindness — `bb_*` (new in v5.86)
+
+SM§204; Freyd 1996; **Freyd, DePrince & Gleaves
+2007** (*Psych. Rev.* 114:400 meta); Smith &
+Freyd 2014 institutional ext. Phenomenon
+CONSENSUS; mechanism DEBATED.
+
+`betrayal` events where `PersonModel[src]
+.dependence` ≥ `bb_dep_thresh` (0.6) mint with
+eval-tag write ×(1−`bb_eval_supp`) (0.5) and
+retell eligibility ×(1−`bb_retell_supp`) (0.4);
+record strength intact. Dependence end unblinds
+via existing context-shift retrieval. Locked
+`bb_erase_null` (P1513): blindness gates
+processing/broadcast, never storage.
+
+### 6.429 The compressed neighborhood — `net_*` (new in v5.86)
+
+SM§205; **Brashears 2013** (*Sci. Rep.* 3:1513 —
+verified: triad+kin ~50% recall gain); Brashears
+& Quintane 2015 (*Soc. Netw.* 44:300 — triadic
+encoding).
+
+`netRecall()` returns ego-network via compression:
+closed-triad edges at base rate; unclosed/weak
+edges drop `net_drop_p` (0.35, +0.1 @75+);
+missing mutual-contact edges fill
+`net_close_bias` (0.2); kin-labeled edges exempt
+from drop. Report layer only — the RelEdge store
+stays verbatim. Locked `net_exact_null` (P1514).
+
+### 6.430 Remembering is itself a kindness — `rem_kind_*` (new in v5.86)
+
+SM§206; Reis & Shaver 1988; Maisel & Gable 2009
+(*JPSP* 96:123); positive leg of §6.424.
+
+`recall_ok:about:B` witnessed by B mints
+`PersonModel[A].responsiveness` EMA +=
+`rem_kind_gain` (0.06), ×(1+`rem_kind_stale`·
+record_age_norm) (0.5); τ ~60d. Locked
+`rem_kind_auto_null` (P1515): unwitnessed recall
+mints nothing — the kindness is being SEEN to
+remember.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -22202,6 +22400,38 @@ MemoryParams = {
 //   steel_null (P1504); vitd_* + omega3_* +
 //   bil_res_* bans (P1505 — mandated nulls 8–10).
 //   All snapshot-additive; absent = legacy.
+// v5.86 additions (social-memory XIV v140 —
+//   SM§§197–206, §§6.421–6.430, the unequal books II)
+"sec_pop_boost": 0.8, "sec_pop_cost": 0.02,      // §6.421
+"forg_avoid_damp": 0.6, "forg_revenge_damp": 0.7, // §6.422
+"discl_self_gain": 0.08, "discl_recv_gain": 0.05,
+"discl_recv_cred": 0.3,                         // §6.423
+"forgot_sting": 0.15, "forgot_self_emb": 0.05,   // §6.424
+"toldya_boost": 0.4,                            // §6.425
+"prov_tau": 45, "prov_thresh": 0.08,             // §6.426
+"scope_drift": 0.02, "scope_cap": 0.2,           // §6.427
+"bb_dep_thresh": 0.6, "bb_eval_supp": 0.5,
+"bb_retell_supp": 0.4,                          // §6.428
+"net_drop_p": 0.35, "net_close_bias": 0.2,       // §6.429
+"rem_kind_gain": 0.06, "rem_kind_stale": 0.5,    // §6.430
+// v5.86 record fields: `forgiven` (bool),
+//   `vindicated` (bool), `forgot_me`/`emb`
+//   (record kinds), `scope_cred`/`scope_debt`
+//   (per-role promise copies), `role:{advisor,
+//   advisee}` on `told_by`, `prov:"common"`
+//   re-label; dyad field `MetaModel.intimacy_gap`;
+//   PM field `responsiveness` (EMA, τ~60d);
+//   context flag `sec_conceal_state`; PM field
+//   `dependence` read by §6.428 (world-supplied).
+// v5.86 locked nulls: sec_int_null (P1506);
+//   forgive_erase_null (P1507); discl_equal_null
+//   (P1508); forgot_equal_null (P1509);
+//   toldya_sym_null (P1510); prov_sticky_null
+//   (P1511); scope_canon_null (P1512);
+//   bb_erase_null (P1513); net_exact_null
+//   (P1514); rem_kind_auto_null (P1515).
+//   All snapshot-additive; absent = legacy.
+//   Provenance audit: P1516.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -25474,6 +25704,53 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 26 scalars + 11
     traits + 5 states/flags + 16 locked nulls.
   - Probes P1492–P1505.
+- v5.86 additions (social-memory.md Part XIV
+  §§197–206 — the unequal books II: secrets,
+  repairs, and the versions only one head keeps):
+  - **Secret-burden contract (§6.421):**
+    `secret:true` joins the pop queue at
+    `sec_pop_boost` regardless of concealment;
+    `sec_pop_cost` rides pops only;
+    `sec_int_null` (P1506).
+  - **Forgiveness contract (§6.422):**
+    `forgiven:true` reprices avoid/revenge
+    channels; strength/retrievability untouched;
+    `forgive_erase_null` (P1507).
+  - **Disclosure-gap contract (§6.423):**
+    `discl_self_gain` > `discl_recv_gain`; delta
+    accrues to `MetaModel.intimacy_gap`
+    (INFERRED); `discl_equal_null` (P1508).
+  - **Forgotten-me contract (§6.424):**
+    witnessed `recall_fail` mints victim
+    `forgot_me` vs forgetter `emb`, asymmetric;
+    `forgot_equal_null` (P1509).
+  - **Vindication contract (§6.425):**
+    `told_by` role tags; `outcome_bad` boosts
+    advisor, suppresses advisee;
+    `toldya_sym_null` (P1510).
+  - **Provenance-erosion contract (§6.426):**
+    `learned_from` on `prov_tau`, re-labels
+    `prov:"common"`; `prov_sticky_null` (P1511).
+  - **Scope-drift contract (§6.427):** per-role
+    `scope_cred`/`scope_debt` drift ±`scope_drift`
+    to `scope_cap`; `scope_canon_null` (P1512) —
+    no canonical term-set exists anywhere.
+  - **Betrayal-blindness contract (§6.428):**
+    dependence-gated eval/retell suppression,
+    record intact + restorable;
+    `bb_erase_null` (P1513).
+  - **Network-compression contract (§6.429):**
+    `netRecall` triad/kin boost, `net_drop_p`,
+    `net_close_bias`; report layer only, RelEdge
+    store verbatim; `net_exact_null` (P1514).
+  - **Witnessed-kindness contract (§6.430):**
+    observed `recall_ok` mints `responsiveness`
+    EMA on the rememberer, staleness-scaled;
+    `rem_kind_auto_null` (P1515).
+  - **New params (§7):** 20 scalars + 3 record
+    fields + 1 dyad field + 10 locked nulls.
+  - Probes P1506–P1516 (P1516 = provenance
+    audit of all new mints).
 - v5.82 additions (age-decline.md Part XII
   §§167–176 — the mouth that wanders, the idea
   that changes owners, the dyad that edits, the

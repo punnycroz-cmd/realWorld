@@ -6587,3 +6587,475 @@ prejudice as memory mechanics.
   surface — treat collective trait inventories as
   world-builder prejudice content, curated, never
   auto-derived from gameplay statistics.
+
+# Part XIV — v140 pass: the unequal books II (secrets that think of themselves, repairs that don't erase, and the versions only one head keeps)
+
+Parts I–XIII built the person model, the talk ecology, the
+dyad's ledgers, the room, the metaself, the credulity layer,
+and the intention layer. The production-3 mandate (Astra
+review §3: *unequal knowledge — promises remembered
+differently, partial information, disclosure and repair*)
+exposes what is still thin: the spec keeps secrets as tags
+but never priced the *keeper's* side; repair (§130 apology,
+§135 second chance) damped the sting but left the record's
+fate implicit; and the ledger has promise asymmetry (§67)
+but not *term* asymmetry — two parties can keep different
+contracts and each believe theirs verbatim. Part XIV adds
+ten mechanisms + eight locked nulls, all additive. Every
+new minted field carries OBSERVED vs INFERRED provenance;
+the unequal books are the feature, not a bug to reconcile.
+
+## 197. The secret that thinks of itself — keeper's burden **[CONSENSUS phenomenon; attention pricing HYPOTHESIS]**
+
+Slepian, Chun & Mason 2017 (*JPSP* 113:1–33 — verified;
+ten studies, >13,000 secrets): the dominant cost of secrecy
+is not concealment-in-interaction — that is *rare* — it is
+**spontaneous mind-wandering to the secret** in the target's
+absence. Pop frequency predicts reduced well-being;
+concealment frequency does not (independent legs). Earlier:
+Wegner, Lane & Petri 1994; Lane & Wegner 1995 preoccupation
+model — secrets become hyperaccessible under suppression
+pressure (ironic-process adjacency: Wegner 1994).
+
+Implement: records minted `secret:true` (world or §23
+confidentiality tag) join the mind-pop queue (§5.84) at
+rate ×(1+`sec_pop_boost`) (0.8), *independent of whether
+concealment was ever required* — a secret never challenged
+still intrudes. `sec_conceal_state` is a separate context
+flag (target co-present + topic-adjacent cue) that arms the
+§5.102 failed-search repress leg only while live.
+Well-being/mood cost attaches to the *pop count*
+(`sec_pop_cost` 0.02/pop into the fatigue/rumination
+channel), never to concealment events — **locked
+`sec_int_null`**: concealment moments may never carry the
+cost term; the paper's finding is that interactional hiding
+is not the harm. Emergent: a character carrying a secret
+drifts to it at idle ticks — viewers see the tell (a pause,
+a subject-change) that is INFERRED-tier for observers but
+OBSERVED-tier for the keeper's own introspection surface.
+
+## 198. Forgiven ≠ forgotten — repair reprices the response, never the record **[CONSENSUS direction; mapping HYPOTHESIS]**
+
+McCullough, Rachal, Sandage et al. 1998 (*JPSP* 75:1586 —
+forgiving tracks reduced avoidance and revenge motivation,
+two dissociable channels); Worthington REACH model;
+Exline, Worthington, Hill & McCullough 2003 review —
+forgiveness and memory are not the same variable: people
+report forgiving offenses they still recall in detail, and
+unforgiven detail fades on its own schedule. Clinically
+consensus: "forgive and forget" is a folk phrase, not a
+mechanism — offense records persist post-forgiveness.
+
+Implement: a `forgive_event` (apology accepted, repair
+completed — §130's `apology` leg decides *whether*) writes
+`forgiven:true` on the offense record. Effect: the record's
+response channels re-price — avoidance motivation and
+revenge/retaliation weight ×(1−`forg_resp_damp`) (0.6) —
+while `strength`, `specificity`, and retrieval eligibility
+are UNTOUCHED. Two dissociable dampers (McCullough's two
+channels): `forg_avoid_damp` (0.6) vs `forg_revenge_damp`
+(0.7) — forgiveness kills retaliation faster than it
+restores proximity. **Locked `forgive_erase_null`:**
+forgiveness may never decrement strength or mint a deletion
+flag — a merge that fades the forgiven record fails
+P1507. Emergent: a repaired betrayal still cues on the
+anniversary, still flavors gist recall ("we had that bad
+patch"), still feeds §58 eval-consistent reconstruction —
+it just no longer *directs behavior*; a character can truly
+act reconciled while carrying the scar legibly.
+
+## 199. The discloser's inflation — intimacy reads bigger to the teller **[CONSENSUS effects (disclosure→liking); asymmetry HYPOTHESIS]**
+
+Collins & Miller 1994 (*Psych. Bull.* 116:457 meta):
+self-disclosure raises liking — disclosers like listeners
+more, and intimate disclosures draw liking back, both
+effects modest. Jourard 1971 and the reciprocity norm
+(Gouldner 1960) describe the dyadic pressure. The
+*asymmetry of felt intimacy* — the discloser experiences
+the event as more revealing/closer than the listener
+does — is our modeling hypothesis: consistent with the
+beautiful-mess gap (§144 — vulnerability cheaper for the
+watcher) and the disclosure side of §39, but no direct
+magnitude estimate exists [HYPOTHESIS].
+
+Implement: on `disclosed_to:B` emission (existing talk
+channel), A's `PersonModel[B].closeness` +=
+`discl_self_gain` (0.08·intimacy) while B's record of the
+same event mints `closeness` += `discl_recv_gain`
+(0.05·intimacy·(1+`discl_recv_cred`·B.cred[A])). The
+difference accrues into a per-dyad field
+`MetaModel.intimacy_gap` (§X metaself store): A believes
+the dyad closer than B does — readable INFERRED-side only.
+**Locked `discl_equal_null`:** gains may never be
+symmetrized; the gap is the mechanism. Emergent: serial
+self-disclosers live slightly ahead of their relationships
+— they act on closeness the partner has not signed, which
+produces oversharing embarrassment and premature-intimacy
+conflict without any scripted beat.
+
+## 200. Forgetting me is the insult — the asymmetric books of being forgotten **[CONSENSUS components; composite HYPOTHESIS]**
+
+Perceived partner responsiveness literature (Reis, Clark
+& Holmes 2004; Maisel & Gable 2009): being remembered —
+details, preferences, prior disclosures — is a core
+responsiveness signal; its absence reads as low regard.
+Metamemory asymmetry: the forgetter experiences a search
+failure (private, excusable); the forgotten experiences an
+evidence event (public, diagnostic) — "I'm not important
+enough to remember." Self-referential weighting (§10
+mnemic-neglect adjacency) amplifies the victim's leg.
+
+Implement: a witnessed `recall_fail:about:B` event (A fails
+to produce B's name/detail/disclosure within the retrieval
+window) mints asymmetrically: on B, a `forgot_me` record —
+negative eval ×`forgot_sting` (0.15), routed to the
+responsiveness ledger (§206 EMA), retell-eligible ("he
+forgot I told him"); on A, an `emb` record — embarrassment
+weight `forgot_self_emb` (0.05), faster decay, retell-
+suppressed. **Locked `forgot_equal_null`:** the two mints
+may never share weight — the asymmetry is the finding.
+Emergent: an elder character with declining name-retrieval
+(§5.64, name-TOT legs) accrues `forgot_me` marks on
+neighbors without intending a single slight — age-graded
+social cost produced by the memory model alone.
+
+## 201. "I told you" — the advisor's vindication persistence **[CONSENSUS asymmetry (advice); memory legs HYPOTHESIS]**
+
+§183 priced the advisee's discounting (WOA ~0.3–0.4,
+Yaniv & Kleinberger 2000; Bonaccio & Dalal 2006). The
+*memory* asymmetry is the unpriced half: advisors remember
+advice given more durably than advisees remember advice
+received (generation-effect adjacency — §174 my-line bias:
+emitted content is self-generated for the advisor, heard
+content is reception for the advisee). Post-outcome, the
+advisor's record vindicates; the advisee's receipt record
+faces self-protective suppression (§10 mnemic-neglect
+machinery: the "you warned me" record is negative
+self-referential feedback for the advisee).
+
+Implement: `told_by` advice records carry
+`role:{advisor,advisee}`. On a matching `outcome_bad`
+event where the advisee's chosen action diverged from the
+advice: advisor-side mint `vindicated:true` — strength
+×(1+`toldya_boost`) (0.4), retell-priority up; advisee-
+side applies mnemic-neglect suppression leg
+`neg_supp` (existing §10 machinery, gate `self_rel:true`).
+**Locked `toldya_sym_null`:** no symmetric boost — the
+advisee may not mint `vindicated` for having ignored.
+Emergent: the advisor remembers the warning at full
+strength years on; the advisee's copy thins — the
+canonical "I told you / you never told me" is now
+*produced by two correct weightings*, and both parties
+are honestly certain.
+
+## 202. Credit evaporates — knowledge-provenance erosion **[CONSENSUS mechanism (source monitoring); rate HYPOTHESIS]**
+
+Johnson, Hashtroudi & Lindsay 1993 (*Psych. Bull.* 114:3 —
+source-monitoring framework): content and source decay on
+different legs; source attributes are lost faster under
+interference. Source amnesia produces "I knew that already"
+— the fact survives, the teacher dissolves (§11 in-category
+confusion handles *which* source; this leg handles source
+*existence*). Consequence domain: who-taught-me credit,
+contribution disputes, idea provenance (§134 drift is
+self-ward; this is upstream — the tag rots before it can
+drift).
+
+Implement: `learned_from:X` fields ride a dedicated source
+leg with half-life `prov_tau` (shorter than content τ —
+calibrate to `beta_source`×1.5); below `prov_thresh` the
+field re-labels `prov:"common"` — the knowledge is now
+"everyone knows that." **Locked `prov_sticky_null`:**
+provenance legs may never be pinned equal to content legs
+— a merge that freezes learned_from fails P1511. Emergent:
+the resident who taught half the block a skill watches the
+block converge on "everyone knows how" — contribution
+credit dies quietly, and a later "I learned it from her"
+correction reads as generous but unverifiable.
+
+## 203. Each side's promise — scope drift on the commitment record **[HYPOTHESIS composite; components CONSENSUS]**
+
+§67 built the promise ledger's *existence* asymmetry
+(creditor remembers, debtor forgets). The *content*
+asymmetry is unmolded: motivated-reasoning machinery
+(Kunda 1990, *Psych. Sci.* 1:311 — goals bias the
+construction and evaluation of evidence) plus the §58
+eval-consistent rewrite predict each party's copy drifts
+toward its own interest: the creditor's remembered scope
+inflates ("he said he'd handle all of it"), the debtor's
+deflates ("I said I'd try"). Egocentric fairness
+(Thompson & Loewenstein 1992, *OBHDP* 51:176 — disputants
+hold honestly divergent readings of the same agreement)
+is the nearest direct evidence [DEBATED magnitude].
+
+Implement: `promise` records mint per-role scope fields
+`scope_cred`/`scope_debt` (both initialized to the emitted
+terms — OBSERVED at mint). On each retell/rehearsal, the
+holder's copy drifts: creditor's `scope_cred` +=
+`scope_drift` (0.02/event), debtor's `scope_debt` −=
+`scope_drift`; both asymptote at `scope_cap` (±0.2).
+The two records live in two heads — there is no canonical
+term-set to appeal to (game-systems must NOT add one:
+locked `scope_canon_null`). Resolution requires a new
+*joint event* (renegotiation/witness recall), not a lookup.
+Emergent: a dispute between two honest characters with no
+liar — the signature production-3 beat, memory-produced.
+
+## 204. Betrayal blindness — dependence suppresses the seeing **[CONSENSUS phenomenon; mechanism DEBATED]**
+
+Freyd 1996 (*Betrayal Trauma*); Freyd, DePrince & Gleaves
+2007 (*Psych. Rev.* 114:400 — meta-analysis): betrayal by
+a needed/trusted other is detected less and recalled less
+than equivalent betrayal by a stranger — the "blindness"
+that keeps a dependent relationship viable. Smith & Freyd
+2014 institutional-betrayal extension. Mechanism debated
+(attention-gating vs motivated reconstruction vs
+dissociation); the *phenomenon* — worse memory for
+high-dependence betrayal — is replicated [CONSENSUS
+existence, DEBATED account].
+
+Implement: `betrayal`-tagged events from a target whose
+`PersonModel[target].dependence` ≥ `bb_dep_thresh` (0.6)
+mint with two suppressed legs — eval-tag write
+×(1−`bb_eval_supp`) (0.5) and retell eligibility
+×(1−`bb_retell_supp`) (0.4). The record itself is intact
+(strength/specificity untouched): blindness gates
+*processing and broadcast*, never storage. **Locked
+`bb_erase_null`:** blindness may never delete or weaken
+the record — it must remain cue-retrievable (a later
+safe context — dependence ended — can unblind it via the
+existing context-shift retrieval path). Emergent: the
+dependent tenant half-notices the landlord's slight and
+cannot say why; after moving out, the same record cues
+fully — "how did I not see it" is produced, not scripted.
+
+## 205. The compressed neighborhood — structural recall of who-knows-whom **[CONSENSUS; magnitudes ROBUST]**
+
+Brashears 2013 (*Sci. Rep.* 3:1513 — verified): humans
+recall social networks via compression heuristics — ties
+inside closed triads and kin-labeled ties are remembered
+~50% better than equivalent unstructured ties; people
+store the *pattern* plus exceptions, not the edge list.
+Brashears & Quintane 2015 (*Soc. Netw.* 44:300): encoding
+operates on triads/groups, not dyads. This complements
+§128 (stale-map lag — *temporal* staleness) and §189
+(event-roster fill — *presence* reconstruction): this is
+the *persistent topology* error — who is connected to
+whom is recalled systematically wrong.
+
+Implement: `netRecall()` (ego-network query) returns the
+relationship graph through compression: edges inside
+closed triads recall at base rate; unclosed/weak edges
+drop at `net_drop_p` (0.35); recalled graphs over-
+estimate closure — missing edges between mutual
+contacts fill at `net_close_bias` (0.2). Kin-labeled
+edges exempt from the drop leg. **Locked
+`net_exact_null`:** no verbatim graph store; all network
+recall passes compression. Emergent: a character
+"remembers" two neighbors as friends because each is
+friends with her — a triad she closed herself; and the
+newcomer's actual ties are half-missing from everyone's
+maps until triads form around them.
+
+## 206. Remembering is itself a kindness — witnessed recall mints responsiveness **[CONSENSUS components; wiring HYPOTHESIS]**
+
+Reis & Shaver 1988; Maisel & Gable 2009 (*JPSP* 96:123 —
+perceived partner responsiveness, including *being
+accurately remembered*, predicts intimacy growth); §200
+priced the failure side. The positive leg: when A's
+retrieval produces B's detail/disclosure correctly in
+front of B, B records responsiveness evidence on A —
+"she remembered" is itself a social act that accrues.
+
+Implement: `recall_ok:about:B` observed by B mints on
+B's `PersonModel[A].responsiveness` (slow EMA,
+`rem_kind_gain` 0.06/event, τ ~60d) — the ledger §200
+decrements. Routine correct recall does not spike;
+the gain scales with the *staleness* of the retrieved
+record (remembering an old small thing is worth more —
+`rem_kind_stale` multiplier, ×(1+0.5·record_age_norm)).
+**Locked `rem_kind_auto_null`:** no mint without the
+observation — unwitnessed recall buys nothing (the
+kindness is in the *being seen to remember*). Emergent:
+the neighbor who remembers your sister's name from June
+accrues warmth no compliment could buy — the model's
+first mechanism where good memory *is* the social
+behavior, produced by retrieval success, not a script.
+
+## 207. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121, 136, 146, 161, 176, 192)
+
+- `rej_sens` (v5.83): amplifies `forgot_sting` and
+  `intimacy_gap` felt-side ×(1+0.5·rej_sens); suppresses
+  `sec_pop_cost` reporting (private gate §6.417).
+- `consc`: narrows `scope_drift` (the conscientious debtor
+  drifts less); raises `discl_recv_cred` reliability.
+- `age_eff`: name/detail `recall_fail` frequency already
+  routed via §5.64 — §200 mints ride it unchanged;
+  `bb_dep_thresh` lowers mildly in late life (dependence
+  structure shifts); `net_drop_p` +0.1 at 75+ knot.
+- `meta_mem`: dampens `toldya_boost` overclaim and
+  `scope_drift` self-serving leg.
+- `lonely` (felt, v5.85): amplifies `forgot_sting` and
+  `sec_pop_boost` (isolated keepers mind-wander more);
+  does NOT change `rem_kind_gain` received — felt
+  isolation filters incoming kindness, not its mint.
+
+## 208. Spec changes in v5.86 (summary)
+
+All additive; all fields carry OBSERVED/INFERRED
+provenance; sections §§6.421–6.430.
+
+- **§6.421 `sec_*`** (keeper's burden): `secret:true` →
+  mind-pop queue ×(1+`sec_pop_boost`); `sec_conceal_state`
+  context flag; `sec_pop_cost` on pops only;
+  `sec_int_null` locked.
+- **§6.422 `forg_*`** (forgiven ≠ forgotten):
+  `forgiven:true` reprices avoid/revenge channels
+  (`forg_avoid_damp`, `forg_revenge_damp`); strength
+  untouched; `forgive_erase_null` locked.
+- **§6.423 `discl_*`** (discloser's inflation):
+  `discl_self_gain` > `discl_recv_gain`; gap accrues to
+  `MetaModel.intimacy_gap`; `discl_equal_null` locked.
+- **§6.424 `forgot_*`** (forgetting me): witnessed
+  `recall_fail` mints `forgot_me` (victim, sting, slow)
+  vs `emb` (forgetter, mild, fast); `forgot_equal_null`.
+- **§6.425 `toldya_*`** (advisor's vindication):
+  role-tagged advice records; `outcome_bad` mints
+  advisor `vindicated` boost + advisee suppression leg;
+  `toldya_sym_null` locked.
+- **§6.426 `prov_*`** (credit evaporates):
+  `learned_from` on source leg `prov_tau`; below
+  `prov_thresh` re-labels `prov:"common"`;
+  `prov_sticky_null` locked.
+- **§6.427 `scope_*`** (each side's promise): per-role
+  `scope_cred`/`scope_debt` drift ±`scope_drift` capped
+  `scope_cap`; `scope_canon_null` locked — no canonical
+  term-set.
+- **§6.428 `bb_*`** (betrayal blindness): dependence-
+  gated eval/retell suppression, record intact;
+  `bb_erase_null` locked.
+- **§6.429 `net_*`** (compressed neighborhood):
+  `netRecall` compression — triad/kin boost,
+  `net_drop_p`, `net_close_bias`; `net_exact_null`.
+- **§6.430 `rem_kind_*`** (remembering as kindness):
+  witnessed `recall_ok` mints responsiveness EMA,
+  staleness-scaled; `rem_kind_auto_null` locked.
+
+## 209. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+```
+sec_pop_boost   0.8   [0.4,1.4]   // §6.421 pops vs conceal
+sec_pop_cost    0.02  [0.01,0.04] // per-pop fatigue cost
+forg_avoid_damp 0.6   [0.4,0.8]   // §6.422 avoidance leg
+forg_revenge_damp 0.7 [0.5,0.9]   // retaliation damps more
+discl_self_gain 0.08  [0.04,0.12] // §6.423 teller closeness
+discl_recv_gain 0.05  [0.02,0.08] // listener closeness
+forgot_sting    0.15  [0.08,0.25] // §6.424 victim eval
+forgot_self_emb 0.05  [0.02,0.10] // forgetter embarrassment
+toldya_boost    0.4   [0.2,0.6]   // §6.425 vindication
+prov_tau        45d   [20,90]     // §6.426 source half-life
+prov_thresh     0.08  [0.04,0.15] // re-label to "common"
+scope_drift     0.02  [0.01,0.04] // §6.427 per retell
+scope_cap       0.2   [0.1,0.35]  // asymptote, ±
+bb_dep_thresh   0.6   [0.4,0.8]   // §6.428 dependence gate
+bb_eval_supp    0.5   [0.3,0.7]   // eval-tag suppression
+bb_retell_supp  0.4   [0.2,0.6]   // broadcast suppression
+net_drop_p      0.35  [0.2,0.5]   // §6.429 weak-tie drop
+net_close_bias  0.2   [0.1,0.35]  // closure inflation
+rem_kind_gain   0.06  [0.03,0.10] // §6.430 per witnessed hit
+rem_kind_stale  0.5   [0.25,0.75] // stale-record multiplier
+```
+
+## 210. Validation probes (P1506–P1516)
+
+- **P1506 secret pops, not concealment (MUST —
+  `sec_int_null`):** a `secret:true` record whose target
+  is never co-present must still mint mind-pops at
+  boosted rate; a concealment-heavy secret with zero pops
+  must show no `sec_pop_cost` accrual. Any cost keyed to
+  concealment events fails.
+- **P1507 forgiven record intact (MUST —
+  `forgive_erase_null`):** post-`forgive_event`, record
+  strength/specificity bit-identical; retrieval on the
+  original cue still fires; avoidance/revenge weights
+  damped. Any strength decrement fails.
+- **P1508 disclosure gap (MUST — `discl_equal_null`):**
+  same `disclosed_to` event produces strictly larger
+  closeness delta on the discloser's PM than the
+  listener's; `intimacy_gap` is INFERRED-labeled on any
+  observer surface.
+- **P1509 asymmetric forgetting books (MUST —
+  `forgot_equal_null`):** witnessed `recall_fail` mints
+  victim eval > forgetter eval, victim record slower
+  decay; the two records are not reconcilable by lookup.
+- **P1510 vindication asymmetry (MUST —
+  `toldya_sym_null`):** after ignored advice + bad
+  outcome, advisor-side strength rises and advisee-side
+  recall probability falls (suppression leg); advisee
+  may not mint `vindicated`.
+- **P1511 provenance precedes content death (MUST —
+  `prov_sticky_null`):** `learned_from` re-labels to
+  `prov:"common"` while content remains recallable;
+  content legs frozen to source legs fails.
+- **P1512 two honest contracts (MUST —
+  `scope_canon_null`):** after N retells, creditor copy
+  inflates and debtor copy deflates monotonically within
+  `scope_cap`; no canonical terms field exists in either
+  record or any shared store.
+- **P1513 blindness gates processing not storage (MUST —
+  `bb_erase_null`):** high-dependence betrayal mints
+  suppressed eval/retell legs but full-strength record;
+  after dependence ends, cue-driven retrieval restores
+  the record to normal eligibility.
+- **P1514 compression topology (MUST —
+  `net_exact_null`):** `netRecall` on a known graph:
+  triad-internal edges > weak edges recalled; kin-labeled
+  edges privileged; reported closure > true closure.
+- **P1515 witnessed-only kindness (MUST —
+  `rem_kind_auto_null`):** `recall_ok` unobserved mints
+  nothing; observed mints `responsiveness` on the
+  *rememberer's* PM; stale records mint more.
+- **P1516 provenance audit (MUST — production-3):**
+  every new minted field from §§6.421–6.430 carries
+  `prov` ∈ {observed, inferred, restated, common};
+  `intent`-class and `MetaModel` fields never surface as
+  OBSERVED in any observer-facing dump.
+
+## 211. Honest limits (Part XIV)
+
+- **The disclosure asymmetry is priced on a hypothesis.**
+  Disclosure→liking is meta-analytic; the *felt-intimacy
+  gap between teller and listener* is inferred from the
+  beautiful-mess asymmetry, not measured. `discl_self_gain`
+  vs `discl_recv_gain` ordering is the commitment; the
+  0.08/0.05 magnitudes are starting calibrations.
+- **Scope drift has no direct memory experiment.**
+  Thompson & Loewenstein measured divergent fairness
+  readings, not drift-over-retell. The per-event 0.02
+  rate is ours; the *direction* (self-serving) is
+  Kunda-consistent. If disputes prove too common in sim,
+  halve `scope_drift` before touching the cap.
+- **Betrayal blindness's mechanism is contested.** We
+  implement the phenomenon (suppressed processing under
+  dependence) without choosing attention-gating vs
+  dissociation. If Freyd's account is wrong and the
+  effect is pure motivated reconstruction, §204's legs
+  still produce the right *behavior* — but the
+  dependence-gate shape may need revision.
+- **Responsiveness EMA is a modeling construct.** The
+  literature measures perceived responsiveness as a
+  state judgment, not an event accumulator. Our EMA is
+  the cheapest faithful shape; it conflates "how
+  responsive were they last month" with "how much have
+  they ever remembered me."
+- **Compression operates on recall, not on the store.**
+  `netRecall` distorts the *reported* graph; the
+  underlying RelEdge store stays true. A merge that
+  compresses the store itself corrupts every downstream
+  social mechanism — flagged here because it is the
+  easiest wrong reading of §205.
+- **Mind-pops for secrets share the §5.84 queue.** The
+  boost is a weight, not a new channel — a character
+  saturated with secrets crowds out benign pops, which is
+  intended (Slepian's preoccupation) but uncalibrated for
+  many-secret profiles.
