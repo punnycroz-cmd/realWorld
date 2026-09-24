@@ -3186,6 +3186,331 @@ function sfStreetPlume(pr, fx, fy, zB, capX, capY, sc, seed, night){
     ctx.beginPath(); ctx.arc(px, py, r, 0, Math.PI * 2); ctx.fill();
   }
 }
+/* v83: street-view paint of ONE catalog entry (sfRoofCatalog, 31_sf_art)
+   — the same prop the baked top-down sprite drew at (e.mx, e.my), so the
+   water tank / bulkhead / clothesline / penthouse you see from above is
+   the object rising over this parapet. e.k is the bake kind (0-22).
+   Heights in meters above the roof plane hm. */
+function sfStreetRoofProp(pr, b, e, hm, F, night, DX, DY){
+  const base = pr(e.mx, e.my, hm);
+  if(!base || base[2] > 150) return;
+  const sc = F / base[2], M = Math.max, bx = base[0], by = base[1];
+  const seed = phash(b.i, Math.round(e.mx * 7 + e.my * 31), 7800);
+  const ln = (x0, y0, z0, x1, y1, z1, w, col) => {
+    const a = pr(x0, y0, z0), c = pr(x1, y1, z1);
+    if(!a || !c) return;
+    ctx.strokeStyle = col; ctx.lineWidth = M(0.6, w * sc);
+    ctx.beginPath(); ctx.moveTo(a[0], a[1]); ctx.lineTo(c[0], c[1]); ctx.stroke();
+  };
+  const quad = (pts, col) => {
+    ctx.beginPath(); let ok = false;
+    for(const [qx, qy, qz] of pts){
+      const p = pr(qx, qy, qz); if(!p) return;
+      ok ? ctx.lineTo(p[0], p[1]) : ctx.moveTo(p[0], p[1]); ok = true;
+    }
+    ctx.closePath(); ctx.fillStyle = col; ctx.fill();
+  };
+  const dim = night ? 0.42 : 1;
+  switch(e.k){
+    case 0: // mushroom vent: stem + cap dome
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 0.45, 0.14, night ? '#2a2725' : '#5a5348');
+      ctx.fillStyle = night ? '#2e2a26' : '#7a7060';
+      ctx.beginPath();
+      ctx.ellipse(bx, by - M(1, 0.5 * sc), M(1.6, 0.5 * sc), M(1, 0.3 * sc), 0, Math.PI, 0);
+      ctx.fill();
+      break;
+    case 1: { // AC unit: box + fan grille
+      const bw = M(2.5, 1.1 * sc), bh = M(2, 0.7 * sc);
+      ctx.fillStyle = night ? '#242120' : shade('#8a8478', dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#1c1a18' : '#5a564e';
+      ctx.beginPath(); ctx.ellipse(bx, by - bh * 0.5, bw * 0.28, bh * 0.3, 0, 0, Math.PI * 2); ctx.fill();
+      break;
+    }
+    case 2: { // pipe stack + steam wisp
+      const tp = pr(e.mx, e.my, hm + 1.3);
+      if(!tp) break;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 1.3, 0.16, night ? '#2a2725' : '#6a6a62');
+      ctx.fillStyle = night ? '#322e2a' : '#8a8478';
+      ctx.beginPath(); ctx.ellipse(tp[0], tp[1], M(1.2, 0.22 * sc), M(0.8, 0.09 * sc), 0, 0, Math.PI * 2); ctx.fill();
+      sfStreetPlume(pr, e.mx, e.my, hm + 0.8, tp[0], tp[1] - 0.15 * sc, sc * 0.5, seed, night);
+      break;
+    }
+    case 3: { // brick chimney + cap + live smoke (the bake's anchor)
+      const bw = M(3, 0.8 * sc), bh = M(4, 1.9 * sc);
+      ctx.fillStyle = night ? '#241d1a' : '#8a5a48';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2622' : '#c89078';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.14));
+      ctx.fillStyle = night ? '#1c1815' : '#6a4034';
+      ctx.fillRect(bx - bw / 2 - 1, by - bh - 2, bw + 2, 2.5);
+      sfStreetPlume(pr, e.mx, e.my, hm + 2, bx, by - bh - 4, sc, seed, night);
+      break;
+    }
+    case 4: { // rooftop water tank — legs, banded barrel, cone cap
+      const tb = pr(e.mx, e.my, hm + 1.4), tt = pr(e.mx, e.my, hm + 3.4),
+            tp = pr(e.mx, e.my, hm + 4.2);
+      if(!tb || !tt || !tp) break;
+      const rw = M(3, 1.6 * sc);
+      for(const off of [-0.7, 0.7]){
+        const pl = pr(e.mx + off, e.my, hm), pt2 = pr(e.mx + off * 0.6, e.my, hm + 1.4);
+        if(pl && pt2){
+          ctx.strokeStyle = night ? '#1c1a18' : '#4a4038';
+          ctx.lineWidth = M(1, 0.12 * sc);
+          ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(pt2[0], pt2[1]); ctx.stroke();
+        }
+      }
+      ctx.fillStyle = night ? '#262220' : '#7a6a58';
+      ctx.fillRect(tb[0] - rw, tt[1], rw * 2, tb[1] - tt[1]);
+      ctx.fillStyle = night ? '#1e1c1a' : '#54483c';
+      ctx.fillRect(tb[0] - rw, tb[1] - (tb[1] - tt[1]) * 0.45, rw * 2, M(1, (tb[1] - tt[1]) * 0.08));
+      ctx.fillStyle = night ? '#2e2a26' : '#8a765e';
+      ctx.beginPath();
+      ctx.moveTo(tb[0] - rw, tt[1]); ctx.lineTo(tb[0] + rw, tt[1]);
+      ctx.lineTo(tp[0], tp[1]); ctx.closePath(); ctx.fill();
+      break;
+    }
+    case 5: case 14: { // solar array / water heater: slab tilted sunward
+      const tx = -SF_SUN.x, ty = -SF_SUN.y, tl = Math.hypot(tx, ty) || 1;
+      const ax = tx / tl, ay = ty / tl, px2 = -ay, py2 = ax;
+      const s = e.k === 14 ? 0.8 : 1.1;
+      quad([[e.mx - px2 * s - ax * 0.7, e.my - py2 * s - ay * 0.7, hm + 0.15],
+            [e.mx + px2 * s - ax * 0.7, e.my + py2 * s - ay * 0.7, hm + 0.15],
+            [e.mx + px2 * s + ax * 0.7, e.my + py2 * s + ay * 0.7, hm + 0.6],
+            [e.mx - px2 * s + ax * 0.7, e.my - py2 * s + ay * 0.7, hm + 0.6]],
+           night ? '#141c26' : '#1e3450');
+      if(e.k === 14){ // insulated tank on the high side
+        const tq = pr(e.mx + ax * 1.2, e.my + ay * 1.2, hm + 0.9);
+        if(tq){
+          ctx.fillStyle = night ? '#2a2826' : '#b8b4a8';
+          ctx.beginPath(); ctx.ellipse(tq[0], tq[1], M(1.6, 0.5 * sc), M(1, 0.4 * sc), 0, 0, Math.PI * 2); ctx.fill();
+        }
+      }
+      break;
+    }
+    case 6: { // roof hatch: low box, lit cap
+      const bw = M(2.5, 0.9 * sc), bh = M(2.5, 1.0 * sc);
+      ctx.fillStyle = night ? '#242120' : shade('#8a8478', 0.95 * dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2a27' : '#a8a298';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.16));
+      break;
+    }
+    case 7: { // antenna mast + crossbars
+      const hgt = 3 + phash(b.i, Math.round(e.mx), 1509) * 2;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + hgt, 0.07, night ? '#242120' : '#4a4a48');
+      const tp = pr(e.mx, e.my, hm + hgt);
+      if(tp){
+        const bw = M(2, 0.8 * sc);
+        ctx.strokeStyle = night ? '#242120' : '#4a4a48';
+        ctx.lineWidth = M(0.6, 0.05 * sc);
+        for(const zz of [0.78, 0.92]){
+          const py = by + (tp[1] - by) * zz;
+          ctx.beginPath(); ctx.moveTo(tp[0] - bw * (1 - zz * 0.4), py);
+          ctx.lineTo(tp[0] + bw * (1 - zz * 0.4), py); ctx.stroke();
+        }
+        ctx.fillStyle = '#c94040';
+        ctx.fillRect(tp[0] - 0.5, tp[1] - 1, M(1, 0.06 * sc), M(1, 0.06 * sc));
+      }
+      break;
+    }
+    case 8: { // satellite dish on a stub pole
+      const tp = pr(e.mx, e.my, hm + 1.1);
+      if(!tp) break;
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 1.0, 0.08, night ? '#2a2725' : '#6a6a66');
+      ctx.fillStyle = night ? '#2e2b29' : '#c8c8c0';
+      ctx.beginPath();
+      ctx.ellipse(tp[0], tp[1], M(2, 0.55 * sc), M(1.2, 0.3 * sc), -0.5, 0, Math.PI * 2);
+      ctx.fill();
+      break;
+    }
+    case 10: { // clothesline: two posts, sagging line, laundry swinging
+      //   on the gust envelope — the bake animates it from above
+      const dir = phash(b.i, Math.round(e.my * 13), 3620) < 0.5;
+      const ax = dir ? 1 : 0, ay = dir ? 0 : 1, half = 1.4;
+      const p0 = pr(e.mx - ax * half, e.my - ay * half, hm + 1.5),
+            p1 = pr(e.mx + ax * half, e.my + ay * half, hm + 1.5);
+      if(!p0 || !p1) break;
+      ln(e.mx - ax * half, e.my - ay * half, hm, e.mx - ax * half, e.my - ay * half, hm + 1.6, 0.1, '#5a554e');
+      ln(e.mx + ax * half, e.my + ay * half, hm, e.mx + ax * half, e.my + ay * half, hm + 1.6, 0.1, '#5a554e');
+      ctx.strokeStyle = night ? '#1a1816' : '#3a3a38';
+      ctx.lineWidth = M(0.5, 0.04 * sc);
+      const sag = sc * 0.22;
+      ctx.beginPath();
+      for(let s2 = 0; s2 <= 10; s2++){
+        const t = s2 / 10, sx = p0[0] + (p1[0] - p0[0]) * t,
+              sy = p0[1] + (p1[1] - p0[1]) * t + Math.sin(t * Math.PI) * sag;
+        s2 ? ctx.lineTo(sx, sy) : ctx.moveTo(sx, sy);
+      }
+      ctx.stroke();
+      const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+      const gust = SF_WX.gust || 0.5;
+      const cloth = ['#e8e0d0', '#7a94b8', '#c86a6a'];
+      for(let c3 = 0; c3 < 3; c3++){
+        const t = 0.22 + c3 * 0.28;
+        const sx = p0[0] + (p1[0] - p0[0]) * t,
+              sy = p0[1] + (p1[1] - p0[1]) * t + Math.sin(t * Math.PI) * sag;
+        const sw = Math.sin(now * (1.5 + gust * 2.4) + c3 * 1.9 + seed * 6);
+        ctx.save(); ctx.translate(sx, sy); ctx.rotate(sw * 0.24 * (0.4 + gust));
+        ctx.fillStyle = night ? shade(cloth[c3], 0.4) : cloth[c3];
+        ctx.fillRect(-M(1, 0.28 * sc), 0, M(2, 0.56 * sc), M(2, (0.7 + sw * 0.12) * sc));
+        ctx.restore();
+      }
+      break;
+    }
+    case 11: { // roof garden bed: soil slab + leaf tufts
+      quad([[e.mx - 0.9, e.my - 0.6, hm + 0.1], [e.mx + 0.9, e.my - 0.6, hm + 0.1],
+            [e.mx + 0.9, e.my + 0.6, hm + 0.1], [e.mx - 0.9, e.my + 0.6, hm + 0.1]],
+           night ? '#1c2018' : '#5a4632');
+      ctx.fillStyle = night ? '#243020' : '#4e7a44';
+      for(let g2 = -1; g2 <= 1; g2++){
+        const q = pr(e.mx + g2 * 0.5, e.my, hm + 0.3);
+        if(q){ ctx.beginPath(); ctx.arc(q[0], q[1], M(1, 0.22 * sc), 0, Math.PI * 2); ctx.fill(); }
+      }
+      break;
+    }
+    case 12: { // exhaust fan: curb + dome + spinning blades
+      const bw = M(2, 0.6 * sc);
+      ctx.fillStyle = night ? '#242120' : '#7a766e';
+      ctx.fillRect(bx - bw / 2, by - M(1.5, 0.4 * sc), bw, M(1.5, 0.4 * sc));
+      ctx.fillStyle = night ? '#2e2c2a' : '#9aa0a4';
+      ctx.beginPath(); ctx.ellipse(bx, by - M(2, 0.55 * sc), M(2, 0.55 * sc), M(1.4, 0.32 * sc), 0, Math.PI, 0); ctx.fill();
+      const now = (typeof performance !== 'undefined' ? performance.now() : Date.now()) / 1000;
+      const rot = now * (4 + Math.max(0.4, W.windSpd || 0.8) * 4) + seed * 6.28;
+      ctx.strokeStyle = night ? 'rgba(120,128,138,0.5)' : 'rgba(238,242,246,0.8)';
+      ctx.lineWidth = M(0.6, 0.05 * sc);
+      for(let s2 = 0; s2 < 3; s2++){
+        const an = rot + s2 * Math.PI * 2 / 3;
+        ctx.beginPath(); ctx.moveTo(bx, by - 0.55 * sc);
+        ctx.lineTo(bx + Math.cos(an) * 0.5 * sc, by - 0.55 * sc + Math.sin(an) * 0.3 * sc);
+        ctx.stroke();
+      }
+      break;
+    }
+    case 13: { // stair bulkhead: slab box, cap flashing, shade-side door
+      const bw = M(3.5, 1.3 * sc), bh = M(4, 1.9 * sc);
+      ctx.fillStyle = night ? '#262220' : shade('#8a8478', 1.05 * dim);
+      ctx.fillRect(bx - bw / 2, by - bh, bw, bh);
+      ctx.fillStyle = night ? '#2e2a27' : '#a09a8e';
+      ctx.fillRect(bx - bw / 2, by - bh, bw, M(1, bh * 0.12));
+      ctx.fillStyle = night ? '#181614' : '#3a342e';
+      const dox = SF_SUN.x > 0 ? -1 : 1;
+      ctx.fillRect(bx + dox * bw * 0.22 - bw * 0.1, by - bh * 0.55, bw * 0.2, bh * 0.55);
+      break;
+    }
+    case 15: { // pergola: four posts + slat roof throwing striped shade
+      const pw = 1.1, pd = 0.8, hz = 2.3;
+      for(const [ox, oy] of [[-1, -1], [1, -1], [-1, 1], [1, 1]])
+        ln(e.mx + ox * pw, e.my + oy * pd, hm, e.mx + ox * pw, e.my + oy * pd, hm + hz, 0.12, night ? '#241f1c' : '#5a4a38');
+      quad([[e.mx - pw, e.my - pd, hm + hz], [e.mx + pw, e.my - pd, hm + hz],
+            [e.mx + pw, e.my + pd, hm + hz], [e.mx - pw, e.my + pd, hm + hz]],
+           night ? 'rgba(30,26,22,0.7)' : 'rgba(138,111,78,0.55)');
+      for(let s2 = 0; s2 < 5; s2++){
+        const t = s2 / 4;
+        ln(e.mx - pw - 0.1, e.my - pd + t * pd * 2, hm + hz + 0.06,
+           e.mx + pw + 0.1, e.my - pd + t * pd * 2, hm + hz + 0.06,
+           0.08, night ? '#2a2622' : '#8a6f4e');
+      }
+      break;
+    }
+    case 16: { // container garden: terracotta pots + leaf tufts
+      const nPt = 3 + Math.floor(phash(b.i, Math.round(e.mx * 5), 3212) * 3);
+      for(let p3 = 0; p3 < nPt; p3++){
+        const q = pr(e.mx + (p3 - nPt / 2) * 0.45, e.my, hm);
+        if(!q) continue;
+        ctx.fillStyle = night ? '#241f1c' : '#a05a38';
+        ctx.fillRect(q[0] - M(1, 0.16 * sc), q[1] - M(1, 0.2 * sc), M(2, 0.32 * sc), M(1.5, 0.2 * sc));
+        ctx.fillStyle = night ? '#1e2818' : '#4e7a44';
+        ctx.beginPath(); ctx.arc(q[0], q[1] - M(1.5, 0.3 * sc), M(1.2, 0.24 * sc), 0, Math.PI * 2); ctx.fill();
+      }
+      break;
+    }
+    case 17: { // conduit run + vent elbow
+      const run = 1.2 + phash(b.i, Math.round(e.my * 3), 3216) * 1.2;
+      const dr = phash(b.i, Math.round(e.mx * 3), 3217) < 0.5;
+      ln(e.mx - (dr ? run / 2 : 0), e.my - (dr ? 0 : run / 2), hm + 0.15,
+         e.mx + (dr ? run / 2 : 0), e.my + (dr ? 0 : run / 2), hm + 0.15,
+         0.12, night ? '#2a2725' : '#8a8478');
+      ln(e.mx, e.my, hm, e.mx, e.my, hm + 0.5, 0.14, night ? '#2a2725' : '#8a8478');
+      break;
+    }
+    case 18: { // HVAC duct run: galvanized trunk + gooseneck
+      const horiz = phash(b.i, Math.round(e.mx * 11), 3300) < 0.5;
+      const len = 1.4 + phash(b.i, Math.round(e.my * 11), 3301) * 1.2;
+      const x0 = e.mx - (horiz ? len / 2 : 0), y0 = e.my - (horiz ? 0 : len / 2);
+      quad([[x0, y0, hm + 0.3], [e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.3],
+            [e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.62],
+            [x0, y0, hm + 0.62]],
+           night ? '#242628' : '#9aa2a8');
+      ln(x0, y0, hm + 0.62, e.mx + (horiz ? len / 2 : 0.3), e.my + (horiz ? 0.3 : len / 2), hm + 0.62,
+         0.05, night ? '#30343a' : '#c8d0d6');
+      break;
+    }
+    case 21: { // penthouse pop-up — a real second massing over the parapet:
+      //   sun-keyed camera-facing walls, sash windows, its own cap rim
+      const H = 2.5, x0 = e.mx0, y0 = e.my0, x1 = e.mx0 + e.mw, y1 = e.my0 + e.md;
+      const wBase = SF_WALL_COLS[Math.floor(phash(b.i, 7, 1300) * SF_WALL_COLS.length)];
+      const faces = [
+        [[x0, y1], [x1, y1], [0, 1]],   // south
+        [[x1, y0], [x1, y1], [1, 0]],   // east
+        [[x0, y0], [x0, y1], [-1, 0]],  // west
+        [[x0, y0], [x1, y0], [0, -1]],  // north
+      ];
+      for(const [pa, pb, nv] of faces){
+        if(nv[0] * -DX + nv[1] * -DY <= 0.05) continue;
+        const k2 = clamp(nv[0] * SF_SUN.toX + nv[1] * SF_SUN.toY, -1, 1);
+        quad([[pa[0], pa[1], hm], [pb[0], pb[1], hm],
+              [pb[0], pb[1], hm + H], [pa[0], pa[1], hm + H]],
+             night ? '#26221f' : sfSunWallCol(wBase, k2));
+        // sashes on the tall face
+        const Lm = Math.hypot(pb[0] - pa[0], pb[1] - pa[1]);
+        const nWin = Math.max(1, Math.floor(Lm / 2.6));
+        for(let k2w = 0; k2w < nWin; k2w++){
+          const t = (k2w + 0.5) / nWin;
+          const wx = pa[0] + (pb[0] - pa[0]) * t, wy = pa[1] + (pb[1] - pa[1]) * t;
+          quad([[wx - 0.28, wy - nv[1] * 0.02, hm + 0.9], [wx + 0.28, wy - nv[1] * 0.02, hm + 0.9],
+                [wx + 0.28, wy - nv[1] * 0.02, hm + 1.7], [wx - 0.28, wy - nv[1] * 0.02, hm + 1.7]],
+               night ? '#16202a' : '#7a94a8');
+        }
+      }
+      // cap + parapet rim
+      quad([[x0, y0, hm + H], [x1, y0, hm + H], [x1, y1, hm + H], [x0, y1, hm + H]],
+           night ? '#221f1d' : shade('#8a8478', 1.05));
+      const c0 = pr(x0, y0, hm + H + 0.18), c1 = pr(x1, y1, hm + H + 0.18);
+      if(c0 && c1){
+        ctx.strokeStyle = night ? '#1a1816' : '#e8e0d0';
+        ctx.lineWidth = M(0.8, 0.06 * F / c0[2]);
+        ctx.beginPath();
+        for(const [cx2, cy2] of [[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]){
+          const p = pr(cx2, cy2, hm + H + 0.18);
+          if(!p) break;
+          ctx.lineTo(p[0], p[1]);
+        }
+        ctx.stroke();
+      }
+      break;
+    }
+    case 22: { // roof deck — its umbrella canopy pokes over the parapet
+      if(e.ux == null) break;
+      const ub = pr(e.ux, e.uy, hm), ut = pr(e.ux, e.uy, hm + 2.0);
+      if(!ub || !ut || ub[2] > 140) break;
+      const sc2 = F / ub[2];
+      ctx.strokeStyle = night ? '#2a241e' : '#8a6a45';
+      ctx.lineWidth = M(0.7, 0.07 * sc2);
+      ctx.beginPath(); ctx.moveTo(ub[0], ub[1]); ctx.lineTo(ut[0], ut[1]); ctx.stroke();
+      const rw = M(3, 1.35 * sc2);
+      ctx.fillStyle = night ? '#3a3028' : (e.res ? '#c96a4a' : '#d8e8f0');
+      ctx.beginPath();
+      ctx.moveTo(ut[0] - rw, ut[1]);
+      ctx.quadraticCurveTo(ut[0], ut[1] - rw * 0.7, ut[0] + rw, ut[1]);
+      ctx.closePath(); ctx.fill();
+      ctx.strokeStyle = night ? '#241f1c' : (e.res ? '#e08a62' : '#e8f0f6');
+      ctx.lineWidth = M(0.6, 0.05 * sc2);
+      ctx.beginPath(); ctx.moveTo(ut[0] - rw, ut[1]); ctx.lineTo(ut[0] + rw, ut[1]); ctx.stroke();
+      break;
+    }
+  }
+}
 /* seamless cloud-dapple texture: blobs drawn 9-way wrapped so the tile
    repeats without seams as it scrolls on the wind */
 let SF_DAPPLE = null;
@@ -9697,6 +10022,50 @@ function sfRenderStreet(cw, ch){
               ctx.strokeStyle = night ? '#3a3430' : shingR[5];
               ctx.lineWidth = Math.max(1, 0.14 * F / pa2[2]);
               ctx.beginPath(); ctx.moveTo(pa2[0], pa2[1]); ctx.lineTo(pb2[0], pb2[1]); ctx.stroke();
+              /* v83: cast-iron ridge cresting on Victorian gables — same
+                 gate as the bake (salt 3610): a dark rail standing 0.3m
+                 proud of the ridge on upright ticks, finial balls at the
+                 gable ends. */
+              if(!isShopR && phash(b.i, 76, 3610) < 0.45 && pa2[2] < 140){
+                const cA = RFm.alongX ? pr(rA, RFm.cy, hm + riseM + 0.3)
+                                      : pr(RFm.cx, rA, hm + riseM + 0.3);
+                const cB = RFm.alongX ? pr(rB, RFm.cy, hm + riseM + 0.3)
+                                      : pr(RFm.cx, rB, hm + riseM + 0.3);
+                if(cA && cB){
+                  const ic = night ? '#1e1a17' : '#2e2a26';
+                  ctx.strokeStyle = ic;
+                  ctx.lineWidth = Math.max(0.7, 0.09 * F / cA[2]);
+                  ctx.beginPath(); ctx.moveTo(cA[0], cA[1]); ctx.lineTo(cB[0], cB[1]); ctx.stroke();
+                  const nT = Math.min(24, Math.max(2,
+                    Math.floor(Math.hypot(cB[0] - cA[0], cB[1] - cA[1]) / Math.max(2, 0.4 * F / cA[2]))));
+                  ctx.lineWidth = Math.max(0.5, 0.05 * F / cA[2]);
+                  for(let t3 = 0; t3 <= nT; t3++){
+                    const tt = t3 / nT;
+                    ctx.beginPath();
+                    ctx.moveTo(pa2[0] + (pb2[0] - pa2[0]) * tt,
+                               pa2[1] + (pb2[1] - pa2[1]) * tt);
+                    ctx.lineTo(cA[0] + (cB[0] - cA[0]) * tt,
+                               cA[1] + (cB[1] - cA[1]) * tt);
+                    ctx.stroke();
+                  }
+                  // finial knobs at both gable ends
+                  for(const cP of [cA, cB]){
+                    const tp = RFm.alongX
+                      ? pr(cP === cA ? rA : rB, RFm.cy, hm + riseM + 0.55)
+                      : pr(RFm.cx, cP === cA ? rA : rB, hm + riseM + 0.55);
+                    ctx.fillStyle = night ? '#2a251f' : '#d8cba0';
+                    ctx.beginPath();
+                    ctx.arc(cP[0], cP[1] - Math.max(1, 0.1 * F / cP[2]),
+                            Math.max(1.2, 0.13 * F / cP[2]), 0, Math.PI * 2);
+                    ctx.fill();
+                    if(tp){
+                      ctx.strokeStyle = ic;
+                      ctx.lineWidth = Math.max(0.5, 0.04 * F / cP[2]);
+                      ctx.beginPath(); ctx.moveTo(cP[0], cP[1]); ctx.lineTo(tp[0], tp[1]); ctx.stroke();
+                    }
+                  }
+                }
+              }
             }
           }
         } else if(rk === 'mansard'){
@@ -9718,6 +10087,21 @@ function sfRenderStreet(cw, ch){
             fillProj([[a[0], a[1], hm], [bq[0], bq[1], hm],
                       [RFm.cx, RFm.cy, hm + riseM]],
                      colAt(edgeLitM(a, bq)));
+          }
+          // v83: apex finial on crested Victorians (same 3610 gate)
+          if(!isShopR && phash(b.i, 76, 3610) < 0.45){
+            const ap = pr(RFm.cx, RFm.cy, hm + riseM),
+                  at = pr(RFm.cx, RFm.cy, hm + riseM + 0.6);
+            if(ap && at && ap[2] < 140){
+              ctx.strokeStyle = night ? '#1e1a17' : '#2e2a26';
+              ctx.lineWidth = Math.max(0.6, 0.05 * F / ap[2]);
+              ctx.beginPath(); ctx.moveTo(ap[0], ap[1]); ctx.lineTo(at[0], at[1]); ctx.stroke();
+              ctx.fillStyle = night ? '#2a251f' : '#d8cba0';
+              ctx.beginPath();
+              ctx.arc(at[0], at[1] - Math.max(1, 0.08 * F / ap[2]),
+                      Math.max(1.2, 0.12 * F / ap[2]), 0, Math.PI * 2);
+              ctx.fill();
+            }
           }
         }
         // wet sheen + aerial haze over the pitched silhouette
@@ -9834,6 +10218,23 @@ function sfRenderStreet(cw, ch){
       for(const [x, y] of P){ cxm += x; cym += y; }
       cxm /= P.length; cym /= P.length;
       const axU = RFm.alongX ? [1, 0] : [0, 1];
+      /* v83: flat roofs render the BAKE'S catalog (sfRoofCatalog) — the
+         water tank / clothesline / bulkhead / penthouse you see from
+         above is the same object projected here over the parapet.
+         Painter order: far to near by camera depth. */
+      const rcat83 = !pitched ? sfRoofCatalog(b) : null;
+      if(rcat83 && rcat83.length){
+        const items83 = [];
+        for(const e of rcat83){
+          if(e.k === 9 || e.k === 19 || e.k === 20) continue; // flat details
+          const bp = pr(e.mx, e.my, hm);
+          if(!bp || bp[2] > 150) continue;
+          items83.push([bp[2], e]);
+        }
+        items83.sort((a2, b2) => b2[0] - a2[0]);
+        for(const it of items83)
+          sfStreetRoofProp(pr, b, it[1], hm, F, night, DX, DY);
+      } else
       for(let k = 0; k < nRoof; k++){
         const e2 = P[Math.floor(phash(b.i, k, 1505) * P.length)];
         const t = 0.25 + phash(k, b.i, 1506) * 0.5;
