@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DECK TITLE — Real World — The Mission</title>
+<!--
+  REAL WORLD — slide deck master (BRAND.md §18)
+  ─────────────────────────────────────────────
+  · Duplicate this file per deck. Zero dependencies, works offline.
+  · Navigate: ←/→, space, or click. `#3` deep-links a slide.
+  · Export: print → PDF (each .slide is one page, landscape).
+  · Rules that matter (see README.md for the full list):
+      - Asphalt background, Paper text — never a light deck.
+      - ONE amber element per slide (.amber — a number, a rule, a name).
+      - Screenshots go in .shot plates with a "development build" caption.
+      - Chart series order: amber → green → red → fog, then repeat.
+      - Last slide = .s-end: icon + ONE approved tagline. Nothing else.
+  · Palette hexes are embedded on purpose (file must stand alone) and are
+    pinned by tools/brand_audit.py check 8b — if the palette changes,
+    regenerate this file's :root in the same commit.
+-->
+<style>
+:root{
+  --bg:#14161c; --bg-2:#1b1e27; --panel:#1d2029; --border:#2c303c;
+  --text:#ece7dc; --muted:#9aa0ae; --accent:#e8a04c;
+  --accent-2:#4f9d69; --accent-3:#d4645c; --ink:#1a1206;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{background:var(--bg)}
+body{
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  background:var(--bg); color:var(--text); overflow:hidden;
+}
+.deck{position:relative}
+.slide{
+  display:none; position:relative; width:100vw; height:100vh;
+  padding:7vh 8vw; flex-direction:column; justify-content:center;
+  background:var(--bg);
+}
+.slide.on{display:flex}
+/* slide furniture */
+.kicker{font-size:1.4vh; letter-spacing:.3em; text-transform:uppercase;
+  color:var(--muted); margin-bottom:2.2vh}
+.rule{width:64px;height:2px;background:var(--border);margin:2.6vh 0}
+.rule.amber{background:var(--accent)}
+/* slide kinds */
+.s-title{align-items:center;text-align:center}
+.s-title img{width:min(120px,12vh);margin-bottom:3vh}
+.s-title h1{font-size:7.5vh;font-weight:800;letter-spacing:.04em;
+  text-transform:uppercase}
+.s-title .sub{font-size:2.2vh;font-weight:700;letter-spacing:.3em;
+  color:var(--accent);text-transform:uppercase;margin-top:1.6vh}
+.s-statement h2{font-size:6.2vh;font-weight:700;line-height:1.15;
+  max-width:22ch}
+.s-statement p{margin-top:2.4vh;font-size:2.4vh;color:var(--muted);
+  max-width:60ch}
+.s-split{display:none}
+.s-split.on{display:grid;grid-template-columns:1.1fr .9fr;gap:5vw;
+  align-items:center}
+.s-split h2{font-size:4.6vh;line-height:1.2;margin-bottom:2vh}
+.s-split li{font-size:2.3vh;margin:1.4vh 0;list-style:none;
+  padding-left:1.6em;position:relative;color:var(--text)}
+.s-split li::before{content:"—";position:absolute;left:0;
+  color:var(--muted)}
+.s-stats{display:none}
+.s-stats.on{display:grid;grid-template-columns:repeat(3,1fr);gap:3vw;
+  align-items:center}
+.s-stats .stat b{display:block;font-size:7vh;font-weight:800}
+.s-stats .stat span{font-size:2vh;color:var(--muted);line-height:1.4;
+  display:block;margin-top:1vh}
+.s-shot figure{background:var(--bg-2);border:1px solid var(--border);
+  border-radius:12px;padding:2.4vh;max-width:72vw;margin:0 auto}
+.s-shot img{width:100%;display:block;border-radius:6px}
+.s-shot figcaption{margin-top:1.4vh;font-size:1.7vh;color:var(--muted)}
+.s-end{align-items:center;text-align:center}
+.s-end img{width:min(110px,11vh);margin-bottom:2.6vh}
+.s-end p{font-size:3vh;font-weight:600}
+/* helpers */
+.amber{color:var(--accent)}
+.green{color:var(--accent-2)} .red{color:var(--accent-3)}
+.muted{color:var(--muted)}
+.ink-chip{display:inline-block;background:var(--accent);color:var(--ink);
+  font-weight:700;border-radius:6px;padding:.2em .5em}
+/* slide counter + progress */
+.counter{position:fixed;right:2vw;bottom:2vh;font-size:1.5vh;
+  color:var(--muted);letter-spacing:.15em;z-index:9}
+.progress{position:fixed;left:0;bottom:0;height:2px;background:var(--accent);
+  width:0;z-index:9;transition:width .15s linear}
+@media (prefers-reduced-motion:reduce){.progress{transition:none}}
+/* print: one slide per landscape page */
+@media print{
+  body{overflow:visible}
+  .slide{display:flex!important;page-break-after:always;width:100%;
+    height:100vh}
+  .counter,.progress{display:none}
+}
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <!-- 1 · TITLE — icon + wordmark text + subtitle. One slide only. -->
+  <section class="slide s-title">
+    <img src="../../site/assets/logo-icon.svg" alt="">
+    <h1>Real World</h1>
+    <p class="sub">The Mission</p>
+    <p class="muted" style="margin-top:3vh;font-size:2vh">
+      DECK SUBTITLE — e.g. "press briefing · 2026" · presenter name</p>
+  </section>
+
+  <!-- 2 · STATEMENT — one sentence, ≤ 12 words. The thesis. -->
+  <section class="slide s-statement">
+    <p class="kicker">The product</p>
+    <h2>A neighborhood that's alive whether you're watching or not.</h2>
+    <div class="rule amber"></div>
+    <p>One supporting line, plain and sourced — every number on a slide
+    answers to BRAND.md §10 the same as site copy.</p>
+  </section>
+
+  <!-- 3 · SPLIT — heading + ≤5 bullets of ≤6 words, optional figure column -->
+  <section class="slide s-split">
+    <div>
+      <p class="kicker">How it works</p>
+      <h2>Watch free. <span class="amber">Reach in</span> — never control.</h2>
+      <div class="rule"></div>
+      <ul>
+        <li>Watching is free, forever.</li>
+        <li>Requests are screened and public.</li>
+        <li>Resolved as opportunities.</li>
+        <li>The eight mains can't be possessed.</li>
+      </ul>
+    </div>
+    <figure class="shot-fig">
+      <!-- screenshot on a plate, or delete the figure for a full-text split -->
+      <div style="background:var(--panel);border:1px solid var(--border);
+        border-radius:12px;aspect-ratio:16/9"></div>
+      <figcaption class="muted" style="font-size:1.6vh;margin-top:1vh">
+        Development build — replace with a real capture.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 4 · STATS — 3 stats max, one amber number only -->
+  <section class="slide s-stats">
+    <div class="stat"><b class="amber">28</b>
+      <span>residents, always on — 8 mains, 20 ambients</span></div>
+    <div class="stat"><b>24/7</b>
+      <span>the sim runs whether anyone watches</span></div>
+    <div class="stat"><b>0</b>
+      <span>characters anyone — including us — can possess</span></div>
+  </section>
+
+  <!-- 5 · SHOT — a real capture on a plate, never full-bleed -->
+  <section class="slide s-shot">
+    <p class="kicker">The block</p>
+    <figure>
+      <!-- <img src="../../site/shots/v60-D.png" alt="…"> -->
+      <div style="background:var(--panel);aspect-ratio:16/9;border-radius:6px"></div>
+      <figcaption>Development build · replace with a real capture from
+        <code>site/shots/</code>.</figcaption>
+    </figure>
+  </section>
+
+  <!-- 6 · STATEMENT — the ask / the close -->
+  <section class="slide s-statement">
+    <p class="kicker">The ask</p>
+    <h2>One clear ask, one <span class="amber">amber</span> word.</h2>
+    <div class="rule"></div>
+    <p>What you want from the room, in writing.</p>
+  </section>
+
+  <!-- 7 · END CARD — icon + one approved tagline. Nothing else. -->
+  <section class="slide s-end">
+    <img src="../../site/assets/logo-icon.svg" alt="">
+    <p>Watch free. Pay to reach in.</p>
+  </section>
+
+</div>
+<div class="counter" aria-hidden="true">1 / 7</div>
+<div class="progress" aria-hidden="true"></div>
+<script>
+(function(){
+  var s=[].slice.call(document.querySelectorAll('.slide')), i=0,
+      c=document.querySelector('.counter'),
+      p=document.querySelector('.progress');
+  function show(n){
+    i=Math.max(0,Math.min(s.length-1,n));
+    s.forEach(function(el,j){el.classList.toggle('on',j===i)});
+    c.textContent=(i+1)+' / '+s.length;
+    p.style.width=((i+1)/s.length*100)+'%';
+    history.replaceState(null,'','#'+(i+1));
+  }
+  var m=location.hash.match(/^#(\d+)$/); if(m)i=+m[1]-1;
+  show(i);
+  addEventListener('keydown',function(e){
+    if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown')show(i+1);
+    if(e.key==='ArrowLeft'||e.key==='PageUp')show(i-1);
+    if(e.key==='Home')show(0); if(e.key==='End')show(s.length-1);
+  });
+  addEventListener('click',function(){show(i+1)});
+})();
+</script>
+</body>
+</html>

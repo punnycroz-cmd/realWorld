@@ -98,8 +98,8 @@ drift shows as wrong math, not wrong claims).
   ladder, PPP-adjusted local prices, published table; no arbitrage because
   credits are non-transferable; EU/UK tax-inclusive). No invented local
   numbers — the table itself publishes at launch. Replaces the old bullet.
-- **Quick answers** (`#quick`) — six pricing-specific `<details>` plus a
-  **FAQPage JSON-LD** block in `<head>` (same six questions, verbatim-faithful
+- **Quick answers** (`#quick`) — pricing-specific `<details>` plus a
+  **FAQPage JSON-LD** block in `<head>` (same questions, verbatim-faithful
   wording). Scoped to money questions so it doesn't duplicate faq.html's
   broader FAQPage.
 - **Estimator "First pack" toggle** (`#cc-first` + `FIRST_BONUS = 1.5` in
@@ -155,6 +155,108 @@ drift shows as wrong math, not wrong claims).
 - **Quick answers +1** — "Is a subscription worth it?" pointing at the
   widget (deliberately not in the FAQPage JSON-LD — the answer is
   interactive, not a fixed text answer).
+
+## 1f. Page components (v97)
+
+- **Per-hour comparison** (`#hourly`, `.cph`) — a pure-CSS proportional bar
+  strip pricing ONE HOUR four ways: watching $0, compatible ~$0.85 (90 cr),
+  exclusive ~$3.30 (360 cr), and one external scale anchor (a typical US
+  movie ticket ~$11/2 hr ≈ $5.50/hr — hedged in copy as "for scale, not a
+  claim about anyone else's product"). All RW figures derive from §2 rates;
+  the whole block is `role="img"` with a full-text `aria-label` since the
+  bars are decorative proportions. No JS.
+- **Shareable scene links** (`#sc-share` in the scene builder, same IIFE in
+  `js/pricing.js`) — the builder's state serializes to a URL hash
+  (`#scene=<item>:<qty>,...|<q><s>`): ingredient picks + queued/surge flags
+  only, never amounts or identity. "Copy a link to this scene" writes the
+  full URL via `navigator.clipboard` and falls back to `history.replaceState`
+  + an "in the address bar" note. On load, `#scene=` hashes restore picks
+  (clamped to item maxima; unknown items ignored) and set `preset:"link"` on
+  the `scene_calc` event. Share completion emits `share_click` with the new
+  `surface:"scene"` prop (demo.js keeps emitting without it — spec allows
+  the subset). No price math lives in the hash, so a shared link stays true
+  even if the ladder changes — it re-prices from the current constants.
+- **Who pays for the free channel** (`#whopays`) — a three-card business-model
+  explainer placed between "a month, priced" and regional pricing: watchers
+  ($0, no ad breaks — rewarded ads are opt-in for players and pay credits),
+  players (à-la-carte agency purchases fund the world, posted publicly),
+  subscribers (the predictable floor). Deliberately carries no conversion
+  percentages — qualitative only, nothing invented.
+- **Quick answers +1** — "What does an hour inside the world cost?" (~90 cr
+  ≈$0.85 compatible / ~76 cr queued / 360 cr ≈$3.38 exclusive, pointing at
+  `#hourly`), added to BOTH the visible `<details>` list and the FAQPage
+  JSON-LD so they stay verbatim-faithful.
+
+## 1g. Page components (v112)
+
+- **"The fine print — set in type you can actually read"** (`#fineprint`,
+  `.fineprint` / `.fp-row` in style.css) — a `<dl>` of ten rows that reprints
+  every catch, cap, and asterisk from the page at body size: provisional
+  state (flip-aware prov/final copy), closed-loop credits, spend caps, ad
+  caps + adults-only, sell-the-ask-not-the-outcome, public-feed attribution,
+  subscription caveats, non-purchasable fairness, regional method, and the
+  ledger-first change rule. Nothing new is disclosed here — every row is a
+  restatement of a rule printed elsewhere on the page, which is the point.
+  Placed between `#promise` and `#history`; TOC chip added.
+- **Missing anchors fixed** — the property-ladder and cosmetics sections
+  gained `id="ladder"` / `id="cosmetics"` and TOC chips; they were the only
+  two major sections unreachable by anchor.
+- **OfferCatalog JSON-LD** — a second structured-data block listing all six
+  packs + both subscriptions as `Offer`s with `price`/`priceCurrency`,
+  marked `"availability": "PreOrder"` so crawlers see the pre-launch state
+  rather than live prices. At the launch flip, change PreOrder → InStock in
+  this block in the same commit as the body attribute.
+
+## 1h. Page components (v127)
+
+- **Co-sponsor section** (`#split`, between `#scenes` and `#subs`) — the
+  group-night mechanic the page never explained: when a shared resource is
+  already claimed, the form offers three paths — queue (−15%, ≤24 h visible
+  hold, expiry auto-refunds), wait (free, feed shows every live claim), or
+  co-sign a *running* identical-intent request. Co-sponsoring is priced
+  honestly per `world/requests.json` `co_sponsor` + `world/request-ui.md` §8:
+  same flat block price (explicitly NOT a discount), compatible class,
+  auto-runs on a passing screen, cap 4 sponsors, every sponsor named on the
+  feed line, scope = declared intents (weather today, venue events later).
+  Worked-example table: same-sky co-sign vs. different-forecast queues.
+  Cross-links the `#scene-calc` share link for planning; TOC chip "Bring
+  friends" added.
+- **Fineprint +1 row** — "Co-sponsors pay full price" restates the queue-skip-
+  not-discount rule at body size, keeping `#fineprint`'s every-catch promise
+  true.
+- **Quick answers +1** — "Can we split the cost of a request?" in BOTH the
+  visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful):
+  credits are non-transferable so no literal splitting; co-sponsor is the
+  same-price path; the scene link is the planning path. No new prices.
+
+## 1i. Page components (v142)
+
+- **The life of a credit** (`#journey`, `.cpath` in style.css) — a 4-step
+  ordered flow between `#receipt` and `#hourly`: buy → declare → lock
+  upfront → "or it comes back" (queue expiry/deny 100%, declined nudge 50%,
+  admin override pro-rated). The last step is styled `cp-back` (accent-2
+  border/counter) — the refund path is the visual destination, which is the
+  point. Closing line: "there is no fifth outcome" — the closed loop as the
+  anti-theft/anti-RMT feature. Pure HTML/CSS counters, no JS.
+- **Playing at $0 — the honest math** (`#zero`, `.zero-ledger`/`.zr`) —
+  between `#whopays` and `#regional`: three cards (the show $0 / rewarded
+  ads 2 cr·view 5/day·25/wk → ≤50 cr ≈$0.45/wk / what that buys) plus a
+  two-column ledger of free-path math: ~2 short sessions a week from ads,
+  ~10 weeks of daily views to a 500-cr character slot, and the $4.99
+  Starter (825 cr with the one-time +50% first-purchase bonus) as the
+  printed shortcut. Deliberately says "real, but not fast" — honest funnel
+  copy, not a guilt wall. Closing note restates that rep/tenure/landlord
+  standing is earn-only at equal speed for everyone.
+- **The vocabulary, defined** (`#terms`, reuses `.fineprint`/`.fp-row`) —
+  an 8-term glossary between `#history` and `#quick`: credit, compatible,
+  exclusive, queued, surge, co-sponsor, stipend, game dollars. Every
+  definition restates its canonical number; nothing new is priced.
+- **Quick answers +1** — "Can I play without paying anything?" in BOTH the
+  visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful,
+  pointing at `#zero`).
+- **TOC chips** — "A credit's life" (#journey), "Play at $0" (#zero),
+  "Vocabulary" (#terms). Section count now 24; all anchors verified to
+  resolve.
 
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 

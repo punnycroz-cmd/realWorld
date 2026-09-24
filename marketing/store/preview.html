@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow">
+<title>LOCAL PREVIEW — itch.io page mock · Real World — The Mission</title>
+<style>
+  /* §11 palette tokens (site/assets/brand-tokens.json) */
+  :root{
+    --asphalt:#14161c; --facade:#1d2029; --paper:#ece7dc;
+    --fog:#9aa0ae; --amber:#e8a04c; --cornice:#2c303c;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#0e0f13;color:var(--paper);
+    font:15px/1.6 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+  .localbanner{background:#5a2c2c;color:#ffd9a8;text-align:center;
+    padding:8px 12px;font-weight:700;letter-spacing:.06em;font-size:13px}
+  .itchbar{background:#22242b;border-bottom:1px solid var(--cornice);
+    padding:10px 20px;color:var(--fog);font-size:13px;display:flex;gap:16px}
+  .itchbar b{color:#fa5c5c;font-weight:700}
+  .page{max-width:960px;margin:0 auto;background:var(--asphalt);
+    border-left:1px solid var(--cornice);border-right:1px solid var(--cornice)}
+  header.pagehead{padding:28px 36px 0}
+  header.pagehead img.banner{width:100%;border-radius:6px;display:block}
+  h1{font-size:30px;margin:18px 0 4px;color:var(--paper)}
+  .tagline{color:var(--fog);margin:0 0 14px;font-size:15px}
+  .byline{color:var(--fog);font-size:13px;margin-bottom:20px}
+  .byline a{color:var(--amber)}
+  .cols{display:grid;grid-template-columns:1fr 260px;gap:28px;padding:0 36px 40px}
+  @media(max-width:760px){.cols{grid-template-columns:1fr}}
+  .cover{width:100%;border-radius:4px;border:1px solid var(--cornice)}
+  .meta{background:var(--facade);border:1px solid var(--cornice);
+    border-radius:6px;padding:14px 16px;margin-top:16px;font-size:13px}
+  .meta table{width:100%;border-collapse:collapse}
+  .meta td{padding:4px 0;vertical-align:top}
+  .meta td:first-child{color:var(--fog);width:42%}
+  .meta a{color:var(--amber);text-decoration:none}
+  .ctablock{display:flex;gap:10px;margin:16px 0}
+  .btn{background:var(--amber);color:#17130c;font-weight:700;border:0;
+    border-radius:5px;padding:10px 18px;font-size:15px;cursor:default}
+  .btn.ghost{background:transparent;color:var(--amber);
+    border:1px solid var(--amber)}
+  .body h2{font-size:19px;margin:26px 0 6px;color:var(--paper)}
+  .body p{margin:10px 0}
+  .body strong{color:var(--amber)}
+  .body table{width:100%;border-collapse:collapse;font-size:14px;margin:10px 0}
+  .body th,.body td{border-bottom:1px solid var(--cornice);padding:6px 8px;
+    text-align:left;vertical-align:top}
+  .body th{color:var(--fog);font-weight:600}
+  .shots{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:14px 0}
+  .shots img{width:100%;border-radius:4px;border:1px solid var(--cornice)}
+  .honesty{background:var(--facade);border-left:3px solid var(--amber);
+    padding:12px 16px;margin:18px 0;font-size:14px}
+  .legal{color:var(--fog);font-size:12.5px;border-top:1px solid var(--cornice);
+    margin-top:26px;padding-top:14px}
+  .follow{color:var(--fog);font-size:13px;text-align:center;
+    border-top:1px solid var(--cornice);padding:14px}
+</style>
+</head>
+<body>
+<div class="localbanner">LOCAL PREVIEW — nothing published · renders STORE-COPY.md §1–§2/§26 · update this file in the same commit as any copy edit (§35)</div>
+<div class="itchbar"><b>itch.io</b><span>Browse games · …</span><span style="margin-left:auto">mock chrome, not real</span></div>
+
+<div class="page">
+  <header class="pagehead">
+    <img class="banner" src="../site/assets/banner-x-1500x500.png" alt="Real World banner — Mission rooftops at dusk" onerror="this.style.display='none'">
+    <h1>Real World — The Mission</h1>
+    <p class="tagline">A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in when you're ready.</p>
+    <p class="byline">A simulation by <a href="#">[STUDIO NAME]</a> · <span>In development — live dev build</span></p>
+  </header>
+
+  <div class="cols">
+    <main class="body">
+      <div class="ctablock">
+        <button class="btn" type="button">Watch the neighborhood — free</button>
+        <button class="btn ghost" type="button">Follow for the devlog</button>
+      </div>
+
+      <div class="shots">
+        <img src="../press-kit/screenshots/v76-D.png" alt="Director mode over the rooftops and laundry lines under silver-lined cumulus — REC cluster and DIRECTOR badge up top, the rebuilt lens rendering one weather-driven visibility distance">
+        <img src="../press-kit/screenshots/v76-B.png" alt="Street-level close view of Jules on the sidewalk, Priya and Dani mid-block — dressed storefronts, parked cars, leaves drifting, name tags overhead">
+        <img src="../press-kit/screenshots/v76-C.png" alt="Dolores Park from overhead — crown-genome trees in rust and gold across meadow-drifted lawns, a crepuscular light lane landing between the shadows, tennis courts on the south edge">
+        <img src="../press-kit/screenshots/v76-A.png" alt="The Mission block around 24th and Guerrero from overhead on an autumn afternoon — leaves drifting over rooftops and parked cars, dressed facades, inspector open on a resident">
+      </div>
+
+      <h2>Real World is a neighborhood, not a level.</h2>
+      <p>Set on real streets around Dolores Park in San Francisco's Mission
+      District, Real World is a persistent life simulation where twenty-eight
+      fictional residents — eight main characters with full AI minds, twenty
+      ambient neighbors — live, work, feud, and make up around the clock. The
+      world runs whether you're watching or not.</p>
+
+      <h2>Watching is the free heart of the game.</h2>
+      <p>Follow any resident through their day. Read the public request feed —
+      every intervention anyone has bought, attributed and priced in the open.
+      Catch up on the week's drama like a serial. Observation never costs
+      anything.</p>
+
+      <h2>When watching isn't enough, buy a moment — not the world.</h2>
+      <p>File a request: a declared action with a declared duration, priced
+      upfront in credits and capped hard. Possess your own character for thirty
+      minutes. Call for rain over the park. Nudge a neighbor — an ask, not
+      mind-control; they can say no. Requests sort themselves into exclusive,
+      compatible, or queued; expire unfired and you're auto-refunded. When time
+      runs out, the AI takes the character back seamlessly.</p>
+
+      <h2>Or move in.</h2>
+      <p>Hire a character onto the cast — the only one you'll ever control —
+      rent a room in game dollars, work a job at Mudhaus or Auerbach Hardware,
+      save toward a deed. The ladder is the Mission's oldest story: tenant,
+      owner, landlord. Miss rent and you can be evicted, same as anyone.</p>
+
+      <h2>How it works</h2>
+      <p><strong>1. Watch</strong> — open the neighborhood, follow anyone, read
+      the public feed. Free forever.<br>
+      <strong>2. Request</strong> — when you want to act, file a time-boxed
+      request priced in credits upfront.<br>
+      <strong>3. Move in</strong> — hire a character onto the cast, rent a room,
+      work a job, climb the tenant → owner → landlord ladder.</p>
+
+      <h2>The request menu <span style="color:var(--fog);font-size:13px">(current proposal — finalized before launch)</span></h2>
+      <table>
+        <tr><th>Ask</th><th>Cost (1 credit ≈ $0.01)</th></tr>
+        <tr><td>Possess your own character</td><td>1.5 cr/min, 15–120 min — 30 min ≈ 45 cr</td></tr>
+        <tr><td>Camera director (spectator-side only)</td><td>10 cr / 30 min</td></tr>
+        <tr><td>NPC nudge (an ask — they can decline; 50% back if they do)</td><td>40 cr flat</td></tr>
+        <tr><td>Weather block over the neighborhood</td><td>40 / 70 / 100 cr for 1 / 2 / 4 h</td></tr>
+        <tr><td>Event trigger at a venue or the park</td><td>200 cr flat</td></tr>
+        <tr><td>Hire a character onto the cast</td><td>500 cr one-time, human name review, slot-capped</td></tr>
+      </table>
+      <p>Queued requests cost 15% less and auto-refund if they expire unfired.
+      Exclusive actions get human review; surge pricing (×1.5–2.5) is always
+      shown before you pay, and cooldowns are never purchasable. Denied
+      requests never bill.</p>
+
+      <div class="honesty">
+        <strong>Honesty box</strong>
+        <ul style="margin:8px 0 0;padding-left:18px">
+          <li>Everything in the screenshots is a real development-build capture.</li>
+          <li>The eight main characters can never be possessed by anyone, including us.</li>
+          <li>No loot boxes, no cash-out, no ads inside the sim view. Rewarded ads are opt-in from the wallet screen only, capped per day.</li>
+        </ul>
+      </div>
+
+      <h2>What we don't sell</h2>
+      <p>No loot boxes, no gacha, no cash-out, no crypto, no voice lines.
+      Credits are non-transferable and never redeemable for money.</p>
+
+      <p class="legal">All characters, businesses-as-populated, and addresses in
+      Real World are fictional or system-generated. The streets are real; the
+      people are not.</p>
+    </main>
+
+    <aside>
+      <img class="cover" src="capsules/itch-cover-630x500.png" alt="Real World cover — lit windows over Mission rooftops">
+      <div class="meta">
+        <table>
+          <tr><td>Status</td><td>In development — live dev build, watching free from day one</td></tr>
+          <tr><td>Platforms</td><td>HTML5 (any modern browser; mobile-friendly)</td></tr>
+          <tr><td>Author</td><td>[STUDIO NAME]</td></tr>
+          <tr><td>Genre</td><td>Simulation</td></tr>
+          <tr><td>Made with</td><td>Custom canvas renderer + LLM-driven residents</td></tr>
+          <tr><td>Session length</td><td>Any — drop-in spectator model</td></tr>
+          <tr><td>Inputs</td><td>Mouse/touch; keyboard not required</td></tr>
+          <tr><td>Tags</td><td>life-sim · simulation · ai · persistent-world · spectator · browser · drama · economy · sandbox · indie</td></tr>
+          <tr><td>Links</td><td><a href="#">Website</a> · <a href="#">Public feed</a> · <a href="#">Press kit</a> · <a href="#">Community rules</a> <span style="color:var(--fog)">(# = &lt;domain&gt; placeholder + UTM, §26)</span></td></tr>
+        </table>
+      </div>
+      <div class="meta">
+        <strong style="font-size:12px;color:var(--fog)">FIELD STATE (§36)</strong>
+        <p style="margin:6px 0 0">S0 draft → S1 launch week → S2 day-30 quote
+        slot → S3 status flip. Each transition is a §9-style packet.</p>
+      </div>
+    </aside>
+  </div>
+
+  <div class="follow">Follow for the devlog — every update, no noise.</div>
+</div>
+</body>
+</html>

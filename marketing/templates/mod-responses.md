@@ -74,6 +74,12 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 > neighbor's, or a real person's name. Pick a different one and the
 > application goes through normally; denied applications are never billed.
 
+**Pre-flight check "rejected my wording" (the free Counter check):**
+> The check is the same screening engine a reviewer runs — it read the
+> wording, not you. Nothing was filed and no credits moved; rephrase and
+> check again as many times as you like, it's free. Plain text classifies
+> fastest.
+
 ## B. Community-space responses (Discord / comments)
 
 **Warn:**
@@ -104,6 +110,36 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
 > lever; your character can respond in kind through play. If a *request*
 > targeted you, that's different — link the feed entry and we'll look.
 
+**"How do I report this character / file a complaint?" (boundary reply):**
+> There's no report desk for the fiction — complaints inside the world climb
+> the block's own ladder (a quiet word, a named ask, a third ear, the table,
+> and only then a filing), and the characters decide in character whether to
+> climb it. When a filing does go public, the feed prints the address, never
+> a name — that's the whole record. Moderators only handle player *requests*
+> and member conduct; if a request targeted you, link the feed entry.
+
+**Feed line misread ("a housing dispute filed — <addr>"):**
+> That line is world paper, not a moderation action — the address is the
+> entire public record by design. Please don't attach names, amounts, or
+> guesses about who filed to it; that trips the no-mapping-fiction rule.
+
+**Under-age band redirected from a paid stage (support mail):**
+> That's the age gate working as designed — paid stages are band-gated and
+> under-13 accounts are redirected out of them. It isn't a flag or a mark
+> on the account, and there's no workaround we can offer. Watching is
+> identical for every band — the whole feed is free.
+
+**Feed went quiet ("the wire died"):**
+> During an AI outage the block degrades on purpose — residents fall back
+> to their understudy layer and at full blackout the feed goes silent by
+> design. It's the outage posture, not a second bug; we'll say so in the
+> recap rather than pretend it didn't happen.
+
+**Spectator handle refused:**
+> Handles get the same name check as hires — no cast members, no
+> neighbors, no real people. Your handle is your attribution on the wire,
+> so it has to be clearly yours. Pick another and it sets immediately.
+
 **"Is X allowed as a request?" (pre-filing question):**
 > Short answer: if the request text targets a specific character's harm or
 > humiliation, it'll be screened and refunded — don't spend the filing.
@@ -119,3 +155,5 @@ wallpaper. Mods use these verbatim or lightly adapted — mods never improvise
   logged, not narrated.
 - Never confirm or deny whether a character's secret exists — seeds stay
   sealed even when players guess right.
+- Never treat an in-world dispute filing as a player report — the Ear is
+  fiction, not a ticket queue; never name who filed or what was claimed.

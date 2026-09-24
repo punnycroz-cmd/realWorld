@@ -29,7 +29,7 @@ from collections import defaultdict
 STAGE_EVENTS = {
     "pageview": {"pageview"},
     "engaged": {"cta_click", "scroll_depth", "screenshot_view", "share_click",
-                "price_calc", "request_simulated"},
+                "price_calc", "scene_calc", "sub_calc", "request_simulated"},
     "community": {"community_join", "recap_open", "watch_party_rsvp"},
     "watch_start": {"watch_start"},
     "request_submitted": {"request_submitted"},

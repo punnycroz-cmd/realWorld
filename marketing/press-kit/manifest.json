@@ -2,7 +2,7 @@
   "kit": "Real World — The Mission — press kit",
   "status": "pre-launch draft (local build only)",
   "generated_by": "marketing/build-press-kit.sh",
-  "art_build": "v48 (+ v16 interior vignettes, v1 early-pass shots)",
+  "art_build": "v76 (+ v16 interior vignettes, v1 early-pass shots)",
   "files": {
     "index.html": "self-contained offline press hub — open this first",
     "fact-sheet.html": "print-ready fact sheet (Print -> PDF)",
@@ -16,7 +16,18 @@
     "context.md": "positioning sheet — endorsed comparisons + honest weaknesses",
     "guided-tour.md": "10-minute press-preview run sheet + presenter rules",
     "b-roll-shotlist.md": "video-press capture guide — essential b-roll shots, camera keys, capture rules",
+    "deadline-desk.md": "the 15-minute coverage path — three facts, a verbatim paragraph, three images, mistakes to avoid",
+    "whats-new.md": "build-highlights sheet — what changed v53→v55→v56→v59→v61→v65→v67→v68→v69→v70→v71→v72→v73→v74→v75→v76, for 'what's new' coverage",
+    "one-sheet.html": "single-page printable sell sheet (Print -> PDF)",
+    "embargo-briefing.md": "long-lead pre-brief book for embargoed coverage — session plan, on/off-record lists, embargo terms",
+    "review-guide.md": "self-guided review plan for a spectator sim — 30/90-minute/evening watch paths",
+    "contact-sheet.html": "printable visual index of every image asset in the kit",
     "captions.txt": "per-asset captions and credit lines",
+    "quotes-boilerplate.md": "approved first-party team quotes + boilerplate in 25/50/100 words",
+    "pitch-emails.md": "tailored outreach email drafts by desk — templates only, nothing sent",
+    "awards-festivals.md": "awards/festival submission target calendar with fit notes",
+    "coverage-log.md": "post-launch coverage tracker — outlet/piece/assets/accuracy/corrections ledger (empty until launch)",
+    "manifest.json": "this file — checked by tools/press_kit_check.py",
     "LICENSE.txt": "press asset usage terms",
     "README.txt": "contents + usage rules + accuracy note",
     "logos/": [
@@ -26,13 +37,14 @@
       "pattern-windows.svg", "favicon.svg"
     ],
     "keyart/": ["keyart-16x9.png", "keyart-square.png"],
+    "badges/": ["badge-watched.svg", "badge-watched-mono.svg"],
     "banners/": [
       "banner-x-1500x500.png", "banner-youtube-2560x1440.png",
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
     "screenshots/": [
-      "v48-A.png", "v48-B.png", "v48-C.png", "v48-D.png",
-      "v48-A.webp", "v48-B.webp", "v48-C.webp", "v48-D.webp",
+      "v76-A.png", "v76-B.png", "v76-C.png", "v76-D.png",
+      "v76-A.webp", "v76-B.webp", "v76-C.webp", "v76-D.webp",
       "v16-int-cafe.png", "v16-int-flat.png", "v1-A.png", "v1-B.png"
     ]
   },

@@ -35,7 +35,15 @@
       "name": "What is Real World?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "A persistent, browser-based life simulation — a \"Truman Show\" you can visit. It's set on real streets around Dolores Park in San Francisco's Mission District, where 28 fictional residents live around the clock on AI. Watching is free. Players pay only for agency: time-boxed requests inside the world, or a character of their own. \"The Mission\" is the first neighborhood."
+        "text": "A persistent, browser-based life simulation — a \"Truman Show\" you can visit. It's set on real streets around Dolores Park in San Francisco's Mission District, where 28 fictional residents live around the clock on AI. The eight mains are AIs that know they're AI — born with no assigned purpose, unaware it's a simulation. Watching is free. Players pay only for agency: time-boxed requests inside the world, or a character of their own. \"The Mission\" is the first neighborhood."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Do the residents know they're AI?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "The eight mains do — they know what they are, and nobody assigned them a purpose, so each is deciding what it's for. What they don't know is that it's a simulation or that anyone is watching. The twenty ambient neighbors run on schedules and reflexes, not full minds."
       }
     },
     {
@@ -64,7 +72,7 @@
     },
     {
       "@type": "Question",
-      "name": "How is it different from The Sims or InZOI?",
+      "name": "How is it different from The Sims, InZOI, or Paralives?",
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Different verb. Traditional life sims are about control — you build, dress, and steer your people. Real World is about witness and influence: the eight main characters have their own AI minds, keep their own secrets, and can never be possessed by anyone. You watch the neighborhood live, file bounded requests the residents can accept or refuse, and — if you want in — create a character of your own who joins the cast. Watching costs nothing, forever."
@@ -107,7 +115,7 @@
       "name": "Can I possess the main characters?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "No — never. The eight mains can't be possessed by anyone: not players, not the game's owner. Their storylines stay authorial and their secrets stay theirs. This is the rule that makes watching mean something — we call it the Truman Show contract."
+        "text": "No — never. The eight mains can't be possessed by anyone: not players, not the game's owner. Their choices stay their own and their secrets stay theirs. This is the rule that makes watching mean something — we call it the Truman Show contract."
       }
     },
     {
@@ -140,6 +148,22 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "You declare an action and a duration upfront — \"possess my character for 30 minutes,\" \"rain for two hours\" — and pay credits scaled to that duration. The system classifies it as exclusive, compatible, or queued; enforces first-come-first-served ordering with cooldowns; and caps the charge hard. When time ends, control returns gracefully to the AI."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I co-sign someone else's request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — compatible requests accept co-sponsors: multiple players can attach to the same request, and every sponsor is named on the public feed record. Exclusive requests stay single-owner by definition."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I link to a specific moment or request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Every public record carries a stable permalink — events as #e=<id>, requests as #r=<id> — and the Archive resolves them against the full history, including the whole status trail."
       }
     },
     {
@@ -179,7 +203,7 @@
       "name": "Can I earn credits without paying?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Yes — opt-in rewarded ads, capped per day. Enough for small compatible requests with patience. Credits can't be earned by grinding gameplay; that's a deliberate wall against farming and gray markets."
+        "text": "Yes — opt-in rewarded ads, capped per day. Enough for small compatible requests with patience. Credits can't be earned by grinding; that's a deliberate wall against farming and gray markets."
       }
     },
     {
@@ -279,6 +303,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -312,10 +337,19 @@
       <summary>What is Real World?</summary>
       <p>A persistent, browser-based life simulation — a "Truman Show" you can
       visit. It's set on real streets around Dolores Park in San Francisco's
-      Mission District, where 28 fictional residents live around the clock on AI.
-      Watching is free. Players pay only for agency: time-boxed requests inside
+      Mission District, where 28 fictional residents live around the clock on
+      AI. The eight mains are AIs that know they're AI — born with no assigned
+      purpose, unaware it's a simulation. Watching is free. Players pay only for agency: time-boxed requests inside
       the world, or a character of their own. "The Mission" is the first
       neighborhood.</p>
+    </details>
+
+    <details>
+      <summary>Do the residents know they're AI?</summary>
+      <p>The eight mains do — they know what they are, and nobody assigned them
+      a purpose, so each is deciding what it's for. What they don't know is
+      that it's a simulation or that anyone is watching. The twenty ambient
+      neighbors run on schedules and reflexes, not full minds.</p>
     </details>
 
     <details>
@@ -341,7 +375,7 @@
     </details>
 
     <details>
-      <summary>How is it different from The Sims or InZOI?</summary>
+      <summary>How is it different from The Sims, InZOI, or Paralives?</summary>
       <p>Different verb. Traditional life sims are about control — you build,
       dress, and steer your people. Real World is about <em>witness and
       influence</em>: the eight main characters have their own AI minds, keep
@@ -394,7 +428,7 @@
     <details>
       <summary>Can I possess the main characters?</summary>
       <p><b>No — never.</b> The eight mains can't be possessed by anyone: not
-      players, not the game's owner. Their storylines stay authorial and their
+      players, not the game's owner. Their choices stay their own and their
       secrets stay theirs. This is the rule that makes watching mean something —
       we call it the Truman Show contract.</p>
     </details>
@@ -429,6 +463,26 @@
       duration. The system classifies it as exclusive, compatible, or queued;
       enforces first-come-first-served ordering with cooldowns; and caps the
       charge hard. When time ends, control returns gracefully to the AI.</p>
+    </details>
+
+    <details>
+      <summary>Can I co-sign someone else's request?</summary>
+      <p>Yes — compatible requests accept co-sponsors: multiple players can
+      attach to the same request, and every sponsor is named on the public
+      feed record. It's how the block funds shared moments — a venue's big
+      night, a park event, a rain delay everyone secretly wanted. Exclusive
+      requests stay single-owner by definition. (The wire demo on this site
+      shows sponsored events with their co-sponsors listed.)</p>
+    </details>
+
+    <details>
+      <summary>Can I link to a specific moment or request?</summary>
+      <p>Yes. Every public record carries a stable permalink — events as
+      <code>#e=&lt;id&gt;</code>, requests as <code>#r=&lt;id&gt;</code> — and the
+      <a href="archive.html">Archive</a> resolves them against the full
+      history. Linking a moment is linking a receipt: the permalink shows the
+      whole status trail, so a request that was denied or refunded says so on
+      its own record.</p>
     </details>
 
     <details>
@@ -467,7 +521,7 @@
     <details>
       <summary>Can I earn credits without paying?</summary>
       <p>Yes — opt-in rewarded ads, capped per day. Enough for small compatible
-      requests with patience. Credits can't be earned by grinding gameplay;
+      requests with patience. Credits can't be earned by grinding;
       that's a deliberate wall against farming and gray markets.</p>
     </details>
 
@@ -577,6 +631,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -585,13 +640,20 @@
     <div>
       <h4>Buy</h4>
       <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="compare.html">Vs other life sims</a>
       <a href="faq.html">FAQ</a>
     </div>
     <div>
       <h4>Press</h4>
       <a href="press-kit.html">Press kit</a>
       <a href="brand.html">Brand &amp; assets</a>
-      <a href="index.html#gallery">Screenshots</a>
+      <a href="gallery.html">Screenshots</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms of use</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refunds.html">Refunds</a>
     </div>
   </div>
   <div class="wrap foot-note">

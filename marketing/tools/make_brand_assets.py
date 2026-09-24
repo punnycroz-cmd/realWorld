@@ -19,7 +19,7 @@ from PIL import Image, ImageDraw, ImageFont, ImageFilter
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 ASSETS = os.path.join(ROOT, "site", "assets")
 KEYART = os.path.join(ROOT, "press-kit", "keyart")
-SHOT = os.path.join(ROOT, "site", "shots", "v48-D.png")
+SHOT = os.path.join(ROOT, "site", "shots", "v76-D.png")
 
 BG = (20, 22, 28, 255)          # --bg
 PANEL = (29, 32, 41, 255)       # --panel
@@ -192,6 +192,54 @@ def draw_library_capsule(tw=600, th=900):
     return img.convert("RGB")
 
 
+def draw_library_hero(tw=3840, th=1240):
+    """Steam library hero (STORE-COPY.md §4). The published still is 1440x900,
+    so a straight 3840-wide crop would upscale ~2.9x and smear. Instead:
+    mirrored-edge panorama — a center crop of the shot (HUD edge removed)
+    at ~2x, flanked by blurred wings mirrored from the same frame, lockup
+    in the left safe zone. Steam rule observed: logo only, no other text."""
+    shot = Image.open(SHOT).convert("RGB")
+    # drop dev-HUD left edge, the DIRECTOR badge strip up top, and the
+    # status bar along the bottom
+    shot = shot.crop((330, 170, shot.width, shot.height - 60))
+    img = Image.new("RGB", (tw, th), (10, 11, 15))
+    # wings: heavy-blurred stretch of the frame fills the full canvas first
+    bg = crop_resize(shot, tw, th).filter(ImageFilter.GaussianBlur(28))
+    img.paste(bg, (0, 0))
+    # crisp center panel at ~1.6x source scale
+    pw = int(tw * 0.46)
+    panel = crop_resize(shot, pw, th)
+    img.paste(panel, ((tw - pw) // 2, 0))
+    # soft seams where panel meets wings
+    seam = Image.new("L", (int(tw * 0.06), th), 0)
+    sd = ImageDraw.Draw(seam)
+    for x in range(seam.width):
+        sd.line([(x, 0), (x, th)], fill=int(255 * x / seam.width))
+    dark = Image.new("RGB", seam.size, (10, 11, 15))
+    px = (tw - pw) // 2
+    img.paste(dark, (px - seam.width, 0), Image.eval(seam, lambda v: 255 - v))
+    img.paste(dark, (px + pw, 0), seam)
+    # readability gradient for the logo zone (left third)
+    grad = Image.new("L", (1, th))
+    for y in range(th):
+        grad.putpixel((0, y), int(120 + 100 * (y / th)))
+    grad = grad.resize((tw, th))
+    left = Image.new("L", (tw, th), 0)
+    ld = ImageDraw.Draw(left)
+    for x in range(tw):
+        a = int(255 * max(0.0, 1 - x / (tw * 0.42)))
+        ld.line([(x, 0), (x, th)], fill=a)
+    mask = Image.composite(grad, Image.new("L", (tw, th), 0), left)
+    img = Image.composite(Image.new("RGB", (tw, th), (10, 11, 15)), img, mask)
+    lock = draw_lockup()
+    lw = int(tw * 0.22)
+    lh = int(lock.height * (lw / lock.width))
+    lock = lock.resize((lw, lh), Image.LANCZOS)
+    img = img.convert("RGBA")
+    img.alpha_composite(lock, (int(tw * 0.045), int(th * 0.5 - lh * 0.55)))
+    return img.convert("RGB")
+
+
 def draw_banner(tw, th, tagline, icon_frac=0.62, text_cx=None):
     """Social profile banner: darkened build capture + icon + lockup text,
     all content inside the center safe zone. text_cx = horizontal center
@@ -287,6 +335,9 @@ def main():
         os.path.join(STORE, "steam-vertical-374x448.png"))
     draw_library_capsule().save(
         os.path.join(STORE, "steam-library-600x900.png"))
+    draw_library_hero().save(
+        os.path.join(STORE, "steam-library-hero-3840x1240.png"),
+        optimize=True)
     bg = draw_capsule(1438, 810, logo=False)
     bg = bg.filter(ImageFilter.GaussianBlur(6))
     bg.save(os.path.join(STORE, "steam-page-bg-1438x810.png"),

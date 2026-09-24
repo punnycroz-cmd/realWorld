@@ -28,7 +28,11 @@ screenshot caption, and devlog claim must trace to:
   generic descriptors in all copy since the v22/v27 sweeps), or
 - the request-pipeline/moderation contract (`world/moderation.json` +
   `world/moderation-tooling.md`, world v8) — the source for any claim about
-  screening, deny codes, SLAs, or appeals.
+  screening, deny codes, SLAs, or appeals, or
+- the locked user-direction (`user-decision` shared-inbox entries — e.g.
+  PRODUCTION-2 becoming-AI, 2026-09-23). Direction entries may be cited as
+  *intent* only, and only where BRAND §1a permits; claims about what the
+  build *does* still require shipped code on a pinned branch.
 
 If it can't be linked or pointed to, it isn't said. Quiet weeks get
 reported as quiet weeks. Never-do list lives in LAUNCH-CHECKLIST §8.
@@ -95,8 +99,11 @@ recap-format.md production notes).
   style; `post-meta` line carries type + date + build tag.
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
-- RSS: declared intent on the page ("ships with the live site") — add
-  `feed.xml` when the domain lands; it's a static file, same pipeline.
+- RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
+  per published devlog (14 today), placeholder domain swept by
+  `tools/swap_domain.sh` like every other URL; journal.html carries the
+  `rel=alternate` link. Rule: item count must equal devlog count on the
+  page — add an item in the same commit as the post.
 
 ## 5. SEO role of the journal
 
@@ -119,6 +126,7 @@ village"), recaps target branded/community queries. Rules:
 | Spoilers | tease season-one material, never confirm (SOCIAL §4) | self-check |
 | Publication | any public surface — site deploy, social post, press send | **owner, explicitly** |
 | Sourcing | recaps only report linkable feed events | self-check |
+| Direction | becoming-AI framing held off public pages until production-2 ships (BRAND §1a dependency note) | self-check vs BRAND |
 
 ## 7. Gap register (what this strategy still needs)
 
@@ -146,14 +154,32 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 7 — "Now hiring: the block posts real jobs" | live on `journal.html` (v57); record at `marketing/content/devlog-07-now-hiring.md` | world-v31 `market.md`/`market.json`, game-v8 `41_game_systems_hiring.js`, `requests.json` hire row |
 | Devlog 8 — "The wallet shows its math" | live on `journal.html` (v72); record at `marketing/content/devlog-08-the-wallet.md` | world-v32 `requests.json → wallet/appeals/co_sponsor/session_extend` + `request-ui.md` §8 |
 | Devlog 9 — "Every door has a tryout" | live on `journal.html` (v72); record at `marketing/content/devlog-09-every-door-has-a-tryout.md` | world-v45 `applications.md`/`applications.json` (16 job arcs, 8 housing rows, decline bank, never-list) + `apply.html` |
+| Devlog 10 — "The Ear: complaints climb a ladder" | live on `journal.html` (v87); record at `marketing/content/devlog-10-the-ear.md` | world-v59 `grievances.md`/`grievances.json` (5-rung ladder, 24 work + 7 housing rows, 2 offstage parody orgs) + `grievance.html`; game-v11 `gsFileDispute`/`gsResolveDispute` |
+| Devlog 11 — "The menu is the truth." | live on `journal.html` (v102); record at `marketing/content/devlog-11-the-menu.md` | world-v72 `menus.md`/`menus.json` (20 door venues, 101 items, sig/`ask`/`when` rules, board-agreement gate G15c) + `menus.html` ("The Board") |
+| Devlog 12 — "Joining the cast means signing a lease." | live on `journal.html` (v117); record at `marketing/content/devlog-12-joining-the-cast.md` | world-v77 `creation-ui.md`/`creation.json` v25 (6 steps, shared `RWScreen`, bill-on-approval 500 cr, seat waitlist, BLOCK_CAP proposal 12) + `create.html`; game-v8 `billOnApproval` |
+| Devlog 13 — "The block wakes up in waves." | live on `journal.html` (v132); record at `marketing/content/devlog-13-the-commute.md` | world-v87 `commute.json`/`commute.md` (22 routes, 6 modes incl. real Muni lines, leave windows + weather deltas, 10 overlaps, `building_pulse`, 4 non-commuters, INTERNAL-tier privacy contract) + `commute.html` |
+| Devlog 14 — "The paper cuts both ways." | live on `journal.html` (v147); record at `marketing/content/devlog-14-the-counter-paper.md` | world-v96 `leases.json`/`lease-ui.md` §§49–54 (`rw_lease_v96`: assignments w/ clean-ledger gate + deposit carry, buyouts as offers w/ 30-day cooldown + BUYOUT code, prepaid credit cap 3× w/ oldest-first drawdown, history letter once-per-tenancy; `feed_wording.never` +4) + `lease.html` v6 |
+| Devlog 15 — "The bench takes requests." | live on `journal.html` (v147); record at `marketing/content/devlog-15-the-bench.md` | world-v99 `crowd.json` (`pull_protocol`: 15–90 min, ≤3/day, ≤2 concurrent, ≥60 min cooldown, one-zone-step bounds, role-bound, minors never pullable, wire-invisible) + `coverage` A01–A20 (understudy/sign/open/pack reads) + `crowd-sim.md` §§26–28, `crowd.html` |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
 storefront-layer devlog (world-v44 `storefronts.json` fascia/window/
-aframe/flyers/neon copy — draft once the art track renders the authored
-text on glass, so the post can show it); lease-ledger devlog deep-dive (devlog-3 covers the intro;
-a ledger-mechanics follow-up still has room), a transparency note format
-for moderation stats once the live feed emits `moderation.json`-shaped
-events, a wire.html-screenshot post if the world/art tracks publish a
-spectator-app capture, memory-model explainer once game-systems implements
-the memory spec (research-only today — do not preview).
+aframe/flyers/neon copy — still gated: art-v43 shipped the storefront
+glass/menu-board/neon render *boxes* but not the authored text on them;
+draft once the render draws the authored copy so the post can show it);
+commerce-layer devlog (devlog-11 covered the catalog; the "order-
+something" request type + character commerce are gated on the game
+track consuming `menus.json` — draft when it lands);
+lease-ledger deep-dive is now PARTIALLY covered — devlog-14
+shipped the counter-paper instruments; a pure ledger-mechanics
+follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room,
+a wire.html-screenshot
+post if the world/art tracks publish a spectator-app capture,
+memory-model explainer once game-systems implements
+the memory spec (research-only today — do not preview),
+production-2 announcement post (the becoming-AI reveal is the biggest
+story we hold — draft when sf/production-2 is pinned; gated per BRAND
+§1a and the new Direction gate in §6). The moderation
+transparency-note format is no longer backlog — the template ships at
+`templates/transparency-report.md` (fill when the live feed emits
+`moderation.json`-shaped stats).
