@@ -1,6 +1,14 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v129 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v144 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v144 added the lifecycle layer: NEW `community/scale-plan.md` — the missing
+second half of the blueprint's "busy 6-channel" rule: stay-small covenant (no
+member-count goals, no growth levers that buy drive-by joins), growth tiers
+T0–T3 keyed to scorecard manual counts + mod-action load (slow mode, two
+approved channel splits, verification-gate timing, mod-ratio rule), the
+downward path (quiet server → consolidated cadence → collapsed read-only
+surface), raid-as-load-signal wiring into incident-comms, and the honest
+sunset sequence.)
 (v129 added the recognition layer: NEW `community/regulars-program.md` —
 the `@regular` spec: observable-only eligibility, opt-in conferral with
 copy-ready DM, consent-gated site roster, never-purchasable rule, explicit
@@ -109,6 +117,7 @@ numbers from the events capture + manual Discord counts).
 | Programming calendar — `community/programming-calendar.md` | Stage 2 retention: one weekly grid all cadence slots land on (recap, rumor thread, clinic, town hall) with quiet-week fallbacks + copy-ready prompts | BUILT (v84), OWNER-GATED to run |
 | Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
 | Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |
+| Scale plan — `community/scale-plan.md` | Server lifecycle: stay-small covenant, growth tiers T0–T3 (slow mode, channel splits, verification gate, mod ratio), quiet/dead-server path, sunset sequence | BUILT (v144), OWNER-GATED to run |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -354,7 +363,7 @@ ticket? (Market report flags this UX question as existential.)
 | Discord server | free tier; community toggle | OWNER-GATED creation — spec is machine-checkable: `community/server-blueprint.json` + `server_blueprint.py --render/--check` (v99) |
 | Devlog host | itch.io devlog (bundled with store presence) | OWNER-GATED account |
 | Feed→Discord mirror | manual curation at launch; bot post-launch | DESIGNED (v99 `community/feed-mirror-bot-spec.md`) — build OWNER-GATED + blocked on feed-mirror §5 trigger; not a launch dep |
-| Moderation tooling | Discord native + rules channel | SUFFICIENT at launch scale |
+| Moderation tooling | Discord native + rules channel | SUFFICIENT at launch scale — growth/shrink tiers in `community/scale-plan.md` |
 | Status/comms channel | `#announcements` + recap honesty | BUILT into plan |
 | Analytics on joins | Discord member count, manual weekly note | feeds ANALYTICS.md weekly report |
 
@@ -393,7 +402,8 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
   subreddit/forum revisit; seeding retro per `community/first-100.md` §5;
   funnel metrics review — four scorecard weeks vs. `funnel-scorecard.md` §2
   targets; re-set targets in writing (scorecard §5.3, no silent goalpost
-  moves).
+  moves); tier check per `community/scale-plan.md` §2 (T0 still true? any
+  T1 triggers hit?) and, if so, the first re-set of the plan's thresholds.
 
 ## 10. Open dependencies
 
