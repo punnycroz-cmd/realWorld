@@ -37754,6 +37754,32 @@ function sfDollhouse(b, name, cw, ch){
     }
     ctx.stroke();
   }
+  /* v85: real floor plans — the deep end of every interior is a second
+     room now: a tiled kitchen for the cafés, a stock room for the
+     hardware store, a bedroom or kitchen for the flats. Its floor
+     finish differs from the front room before the partition goes in. */
+  const zS = RM_D - (2.6 + phash(seed, 5, 8500) * 0.9);   // partition depth
+  const dgx = -2.1 + phash(seed, 6, 8501) * 4.2;          // doorway lateral
+  const bedFlat = !shop && phash(seed, 7, 8502) < 0.45;
+  {
+    rmRect(-3.5, zS, 3.5, RM_D,
+           shop ? 'rgba(196,190,178,0.55)'
+         : bedFlat ? 'rgba(80,64,88,0.35)' : 'rgba(126,114,98,0.45)');
+    if(shop || !bedFlat){          // kitchen/stock tile grid
+      ctx.strokeStyle = 'rgba(60,56,50,0.30)';
+      ctx.lineWidth = Math.max(0.5, cam.zoom * 0.8);
+      ctx.beginPath();
+      for(let z = zS + 0.6; z < RM_D; z += 0.6){
+        const a = rmP(-3.5, z), c2 = rmP(3.5, z);
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+      }
+      for(let x = -3.3; x <= 3.3; x += 0.6){
+        const a = rmP(x, zS), c2 = rmP(x, RM_D);
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(c2[0], c2[1]);
+      }
+      ctx.stroke();
+    }
+  }
   // party walls — in a footprint wider than the room (a whole row of
   // shops shares one building record) the venue is one unit; walls at
   // x=±3.5 keep it readable instead of a hall the size of the block
@@ -37801,14 +37827,14 @@ function sfDollhouse(b, name, cw, ch){
     rmRect(0.9, 4.2, 3.3, 4.45, '#c8b490');           // stone top edge
     rmRect(1.05, 4.35, 1.7, 5.05, '#2c2c30');         // espresso machine
     rmRect(2.5, 4.35, 3.15, 5.0, '#7a4a26');          // pastry case
-    rmRect(-3.5, 5.9, -3.15, 7.6, '#4a3626');         // back-bar shelves
+    rmRect(-3.5, 5.9, -3.15, Math.min(7.6, zS - 0.15), '#4a3626'); // back-bar shelves
     if(arch === 'taqueria')
-      rmRect(-3.3, 4.8, -2.3, 6.0, '#8a2f24');        // salsa bar
+      rmRect(-3.3, 4.8, -2.3, Math.min(6.0, zS - 0.15), '#8a2f24'); // salsa bar
     if(arch === 'hardware')
-      rmRect(-3.3, 4.2, -2.0, 7.4, '#3c4048');        // aisle shelf
+      rmRect(-3.3, 4.2, -2.0, Math.min(7.4, zS - 0.15), '#3c4048'); // aisle shelf
     if(arch !== 'hardware'){
       for(const [tx, tz] of [[-1.7, 4.7], [-0.3, 6.2], [-2.5, 6.9]]){
-        if(tz > RM_D - 0.9) continue;
+        if(tz > zS - 0.7) continue;   // v85: tables stay in the front room
         rmDisc(tx, tz, 0.5, '#d8cba8');
         rmRect(tx - 0.98, tz - 0.2, tx - 0.58, tz + 0.2, fur);
         rmRect(tx + 0.58, tz - 0.2, tx + 0.98, tz + 0.2, fur);
@@ -37833,17 +37859,78 @@ function sfDollhouse(b, name, cw, ch){
   } else {
     rmDisc(0, 5.6, 1.35, '#8a4a42');                  // rug
     rmDisc(0, 5.6, 0.95, '#7c443c');
-    rmRect(-3.4, 4.4, -2.35, 6.6, '#5a6a58');         // sofa
+    rmRect(-3.4, 4.4, -2.35, Math.min(6.6, zS - 0.2), '#5a6a58'); // sofa
     rmRect(-3.32, 4.95, -2.45, 5.7, '#c9a86a');
     rmRect(-3.32, 5.75, -2.45, 6.5, '#a85a5a');
-    rmRect(2.55, 5.7, 3.42, Math.min(8.2, RM_D - 0.4), fur); // bookshelf
+    rmRect(2.55, 5.7, 3.42, Math.min(8.2, zS - 0.15), fur); // bookshelf stays front
     rmDisc(-1.2, 5.2, 0.16, '#2c241c');               // floor lamp
-    rmRect(-3.2, 7.4, -2.75, 7.85, '#8a5a3a');        // potted plant
-    rmDisc(-2.97, 7.6, 0.28, '#3e7a34');
-    rmRect(-3.5, 6.9, -3.35, 7.7, '#3a2c1c');         // wall art
-    rmRect(-3.5, 7.9, -3.35, 8.5, '#3a2c1c');
+    const plZ = Math.min(7.4, zS - 1.5);              // plant stays front of the partition
+    rmRect(-3.2, plZ, -2.75, plZ + 0.45, '#8a5a3a');  // potted plant
+    rmDisc(-2.97, plZ + 0.2, 0.28, '#3e7a34');
+    rmRect(-3.5, 6.9, -3.35, Math.min(7.7, zS - 0.1), '#3a2c1c');   // wall art
+    rmRect(-3.5, 7.9, -3.35, Math.min(8.5, zS - 0.1), '#3a2c1c');
     // sewing table by the window (Carmen's flat) / desk for the others
-    if(phash(seed, 2, 7100) < 0.5) rmRect(0.8, 7.6, 1.9, 8.2, furT);
+    if(phash(seed, 2, 7100) < 0.5 && zS - 0.3 > 7.9)
+      rmRect(0.8, 7.6, 1.9, Math.min(8.2, zS - 0.2), furT);
+  }
+  /* v85: the partition itself — a wall across the room with a cased
+     doorway, then the back room's fixtures behind it. The doorway
+     position is the same `dgx` the walk-in view renders on the left
+     wall, so both views agree about the same floor plan. */
+  {
+    const wc = shade(SF_INT_WALL[arch][0], 0.5);
+    rmRect(-3.5, zS - 0.07, dgx - 0.48, zS + 0.07, wc);
+    rmRect(dgx + 0.48, zS - 0.07, 3.5, zS + 0.07, wc);
+    // casing ticks + door leaf swung into the front room
+    rmRect(dgx - 0.56, zS - 0.11, dgx - 0.42, zS + 0.11, '#3a2c1c');
+    rmRect(dgx + 0.42, zS - 0.11, dgx + 0.56, zS + 0.11, '#3a2c1c');
+    {
+      const dl0 = rmP(dgx - 0.44, zS), dl1 = rmP(dgx - 0.44 + 0.66, zS - 0.66);
+      ctx.strokeStyle = '#4a3626';
+      ctx.lineWidth = Math.max(1.2, 2 * cam.zoom);
+      ctx.beginPath(); ctx.moveTo(dl0[0], dl0[1]); ctx.lineTo(dl1[0], dl1[1]); ctx.stroke();
+    }
+    if(shop){
+      if(arch === 'hardware'){
+        // stock room: shelf rows + boxed goods + a pallet stack
+        rmRect(-3.3, zS + 0.4, -0.4, zS + 1.0, '#3c4048');
+        rmRect(-3.3, zS + 1.5, -0.4, zS + 2.1, '#3c4048');
+        for(let k = 0; k < 8; k++)
+          rmRect(-3.2 + k * 0.33, zS + 0.5, -3.05 + k * 0.33, zS + 0.9,
+                 ['#b8542e', '#c8a030', '#6a7a8a', '#8a8a80'][k % 4]);
+        rmRect(0.4, zS + 0.4, 3.3, zS + 1.6, '#5a5148');
+      } else {
+        // kitchen: steel prep line on the back wall — range burners,
+        // sink, a prep table with plate stacks, steam table (taqueria)
+        rmRect(-3.3, RM_D - 0.75, 0.4, RM_D - 0.15, '#8a8f94');
+        rmRect(-3.3, RM_D - 0.75, 0.4, RM_D - 0.60, '#b8bcc4');
+        for(let k = 0; k < 4; k++)
+          rmDisc(-2.9 + k * 0.55, RM_D - 0.45, 0.14, '#2c2c30');
+        rmDisc(0.1, RM_D - 0.45, 0.2, '#5a6a72');
+        rmRect(1.0, zS + 0.5, 3.2, zS + 1.15, '#7a6a58');
+        rmRect(1.0, zS + 0.5, 3.2, zS + 0.62, '#c8b490');
+        for(let k = 0; k < 4; k++)
+          rmDisc(1.4 + k * 0.5, zS + 0.85, 0.11, ['#e8e0d0', '#d8cba8'][k % 2]);
+        if(arch === 'taqueria')
+          rmRect(-1.4, zS + 0.5, -0.4, zS + 1.3, '#8a2f24');
+      }
+    } else if(bedFlat){
+      rmRect(-3.35, zS + 0.35, -1.45, zS + 2.25, '#6a4a5a');  // bed
+      rmRect(-3.35, zS + 0.35, -1.45, zS + 0.85, '#e8dcc8');  // pillow end
+      rmRect(-1.55, zS + 0.35, -1.35, zS + 2.25, '#4a3626');  // footboard
+      rmRect(1.6, RM_D - 0.9, 3.3, RM_D - 0.2, '#5a4530');    // dresser
+      rmDisc(0.4, zS + 1.3, 0.7, '#8a4a42');                  // bedside rug
+    } else {
+      // flat kitchen: counter run + range discs + sink, fridge, table
+      rmRect(-3.3, RM_D - 0.75, 0.9, RM_D - 0.15, '#7a7268');
+      rmRect(-3.3, RM_D - 0.75, 0.9, RM_D - 0.60, '#d8d0c0');
+      rmDisc(-1.2, RM_D - 0.45, 0.18, '#4a5a62');
+      for(let k = 0; k < 3; k++)
+        rmDisc(-2.7 + k * 0.5, RM_D - 0.45, 0.13, '#2c2c30');
+      rmRect(1.4, RM_D - 1.6, 2.2, RM_D - 0.2, '#c8ccd0');    // fridge
+      rmDisc(2.9, zS + 0.9, 0.45, '#d8cba8');                 // cafe table
+      rmRect(2.5, zS + 1.5, 3.3, zS + 1.9, fur);
+    }
   }
   // furniture mass shade — a soft block thrown away from the window sun
   if(sunIn){
@@ -38358,6 +38445,34 @@ function sfRenderInterior(cw, ch, v){
     const knob = RM(RM_W / 2, 4.35, 1.0);
     ctx.fillStyle = '#c8a44a';
     ctx.beginPath(); ctx.arc(knob.x, knob.y, 2.5, 0, Math.PI * 2); ctx.fill();
+  }
+  /* v85: the back room shows through a second cased opening on the
+     left wall — the same back room the dollhouse draws behind its
+     partition (kitchen for the venues, kitchen or bedroom for the
+     flats). A real opening: dark jamb, lit far wall, fixture
+     silhouettes, warm spill on the floorboards. */
+  {
+    const dz0 = 2.9, dz1 = 4.0;
+    const lit2 = lamps || night;
+    rmWallQuad(-1, dz0, dz1, 0, 2.15, '#1a120a');              // jamb dark
+    const bg2 = ctx.createLinearGradient(0, RM(-RM_W / 2, dz1, 1.9).y,
+                                         0, RM(-RM_W / 2, dz1, 0.12).y);
+    bg2.addColorStop(0, lit2 ? '#6a4a24' : '#54432e');
+    bg2.addColorStop(1, lit2 ? '#8a5e30' : '#463626');
+    rmWallQuad(-1, dz0 + 0.16, dz1 - 0.16, 0.12, 1.9, bg2);    // lit far wall
+    // fixture silhouettes inside: counter line + hung pots / shelf line
+    rmWallQuad(-1, dz0 + 0.3, dz1 - 0.3, 0.88, 0.98, '#2a1e12');
+    for(let k = 0; k < 3; k++)
+      rmWallQuad(-1, dz0 + 0.4 + k * 0.3, dz0 + 0.52 + k * 0.3, 1.3, 1.62,
+                 '#241a10');
+    ctx.strokeStyle = shade('#e8dcc8', 0.8); ctx.lineWidth = 2.5;
+    const jp = [RM(-RM_W / 2, dz0, 0), RM(-RM_W / 2, dz1, 0),
+                RM(-RM_W / 2, dz1, 2.15), RM(-RM_W / 2, dz0, 2.15)];
+    ctx.beginPath(); ctx.moveTo(jp[0].x, jp[0].y);
+    for(let i = 1; i < 4; i++) ctx.lineTo(jp[i].x, jp[i].y);
+    ctx.closePath(); ctx.stroke();
+    if(lit2) rmDisc(-2.9, (dz0 + dz1) / 2, 0.85, 0.01,
+                    'rgba(255,200,120,0.15)');                 // spill
   }
 
   /* --- furniture, per archetype — all in meters --- */
