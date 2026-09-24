@@ -8,10 +8,10 @@
     <lastmod>2026-09-23</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
-    <image:image><image:loc>https://realworld-game.example/shots/v53-A.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v53-B.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v53-C.png</image:loc></image:image>
-    <image:image><image:loc>https://realworld-game.example/shots/v53-D.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-cafe.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v16-int-flat.png</image:loc></image:image>
   </url>
@@ -45,6 +45,10 @@
     <lastmod>2026-09-23</lastmod>
 <changefreq>monthly</changefreq>
     <priority>0.7</priority>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-A.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-B.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-C.png</image:loc></image:image>
+    <image:image><image:loc>https://realworld-game.example/shots/v61-D.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v59-A.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v59-B.png</image:loc></image:image>
     <image:image><image:loc>https://realworld-game.example/shots/v59-C.png</image:loc></image:image>
