@@ -24345,6 +24345,92 @@ function sfBlanketSpr(v){
   }
   return s;
 }
+/* ---- v66: THE GENETIC CANOPY — no two park trees share a silhouette.
+   sfCrownGen composes a unique lobe skeleton per genome (a dominant
+   leader, a jittered ring of satellites, a low skirt); sfCrownBake
+   draws each through the same leaf-cluster engine. Sixteen genomes bake
+   per (size × turn state) at boot, and a per-instance mirror flip keyed
+   on the tree's own hash doubles the silhouettes. Autumn now turns
+   LOBES, not trees — a turning crown carries green/gold/rust patches at
+   once the way real liquidambars do, and turned lobes bake slightly
+   deflated (shedding). The shadow pass re-reads the SAME generated
+   lobes (sfCrownSpec in 32_sf_render), so ground shade stays
+   crown-true. */
+const SF_FALL = [
+  [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
+  [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
+  [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+const SF_GREEN_SET = [
+  [MAT.leaf, MAT.leafDeep],
+  [rampOf('#6a8a3e'), rampOf('#3e5a26')],   // olive
+  [rampOf('#4a7c34'), rampOf('#2c5222')],   // deep laurel
+  [rampOf('#7fa248'), rampOf('#4a6c2e')]];  // bright new growth
+function sfCrownGen(big, vi, turn){
+  const W0 = big ? 128 : 56, H0 = big ? 120 : 64;
+  const seed = (big ? 6100 : 6000) + vi * 97 + turn * 31;
+  const cx = W0 / 2, cy = big ? 56 : 27;
+  const lobes = [];
+  const push = (x, y, rx, ry) => {
+    const t2 = turn ? (phash(lobes.length, seed, 9) < 0.74 ? 1 : 0) : 0;
+    lobes.push([Math.max(rx + 2, Math.min(W0 - rx - 2, x)),
+                Math.max(ry + 2, Math.min(big ? 96 : 52, y)), rx, ry, t2]);
+  };
+  // dominant leader
+  push(cx + (phash(0, seed, 1) - 0.5) * (big ? 16 : 7),
+       cy + (phash(1, seed, 2) - 0.5) * (big ? 12 : 6),
+       (big ? 26 : 13) + phash(2, seed, 3) * (big ? 10 : 6),
+       (big ? 17 : 9) + phash(3, seed, 4) * (big ? 8 : 4));
+  // jittered satellite ring
+  const n = (big ? 7 : 5) + Math.floor(phash(4, seed, 5) * 3),
+        a0 = phash(5, seed, 6) * Math.PI * 2;
+  for(let k = 0; k < n; k++){
+    const a = a0 + k * (Math.PI * 2 / n) + (phash(k, seed, 7) - 0.5) * 0.7,
+          d = (big ? 26 : 11) + phash(k, seed, 8) * (big ? 14 : 6);
+    push(cx + Math.cos(a) * d, cy + Math.sin(a) * d * 0.7,
+         (big ? 12 : 6) + phash(k, seed, 10) * (big ? 10 : 4),
+         (big ? 9 : 4.5) + phash(k, seed, 11) * (big ? 6 : 3));
+  }
+  // low skirt lobe — crowns shade their own trunk side
+  push(cx + (phash(8, seed, 12) - 0.5) * (big ? 14 : 6), cy + (big ? 28 : 16),
+       (big ? 22 : 13) + phash(9, seed, 13) * (big ? 6 : 3), big ? 11 : 6);
+  if(turn && !lobes.some(l => l[4])) lobes[0][4] = 1;
+  return { w: W0, h: H0, lobes };
+}
+function sfCrownBake(spec, big, vi){
+  const s = paMk(spec.w, spec.h), g = s.g;
+  const tr = MAT.trunk, lobes = spec.lobes;
+  const [glf, gld] = SF_GREEN_SET[vi % SF_GREEN_SET.length];
+  for(let bi = 0; bi < lobes.length; bi++){
+    const [bx, by, rx, ry, t2] = lobes[bi];
+    paEllipse(g, bx, by + (big ? 2 : 1), rx, ry,
+              (t2 ? SF_FALL[(vi + bi) % 3][1] : gld)[1]);
+  }
+  // trunk + forked scaffold (same grammar as the clone sets)
+  if(big){
+    paR(g, 62, 96, 5, 20, tr[2]); paR(g, 63, 96, 2, 20, tr[3]);
+    paLine(g, 63, 100, 44, 84, tr[2]); paLine(g, 64, 100, 84, 82, tr[2]);
+    paLine(g, 63, 104, 52, 90, tr[3]); paLine(g, 64, 104, 74, 88, tr[3]);
+    sfBranchFan(g, 64, 92, lobes, tr[1]);
+  } else {
+    paLine(g, 27, 60, 27, 40, tr[2]); paLine(g, 28, 60, 28, 40, tr[3]);
+    paLine(g, 27, 44, 20, 36, tr[2]); paLine(g, 28, 44, 36, 34, tr[2]);
+    paLine(g, 27, 48, 22, 42, tr[3]); paLine(g, 28, 48, 33, 42, tr[3]);
+    sfBranchFan(g, 28, 42, lobes, tr[1]);
+  }
+  for(let bi = 0; bi < lobes.length; bi++){
+    const [bx, by, rx, ry, t2] = lobes[bi];
+    const [lf, ld] = t2 ? SF_FALL[(vi + bi) % 3] : [glf, gld];
+    // sun-cap on the lobe's upper-left face, in the lobe's own palette
+    paEllipse(g, bx - rx * 0.3, by - ry * 0.34, rx * 0.42, ry * 0.3, lf[3]);
+    const sk = t2 ? 0.9 : 1;   // turned lobes shed — slightly deflated
+    sfLeafCanopy(g, bx, by, rx * sk, ry * sk,
+                 (big ? 6200 : 6300) + vi * 53 + bi, lf, ld,
+                 { n: Math.round(rx * ry * (big ? 1.9 : 2.2)) });
+  }
+  paEllipse(g, big ? 40 : 19, big ? 22 : 11, big ? 6 : 4, big ? 3 : 2, glf[5]);
+  return s;
+}
+
 function buildSfVeg(){
   const V = PA.sfVeg = PA.sfVeg || {};
   V.tree = [sfLeafyTree(0), sfLeafyTree(1), sfLeafyTree(2)];
@@ -24352,12 +24438,20 @@ function buildSfVeg(){
      modest and species-patchy: ginkgo/liquidambar gold, ornamental pear
      rust, a few wine-red stragglers — never the whole canopy at once.
      Same SF_CROWN lobe geometry as the green sets (shadow contract
-     holds); only the palette flips. */
-  const SF_FALL = [
-    [rampOf('#d8a83e'), rampOf('#8a6420')],   // ginkgo gold
-    [rampOf('#b5622e'), rampOf('#7a3c1c')],   // rust orange
-    [rampOf('#b0483e'), rampOf('#722822')]];  // wine red
+     holds); only the palette flips. (v66: SF_FALL hoisted module-level
+     for the genetic canopy.) */
   V.treeA = [0, 1, 2].map(v => sfLeafyTree(v, SF_FALL[v][0], SF_FALL[v][1]));
+  /* v66: genetic canopy atlas — 16 unique genomes per size x turn
+     state; the renderer mirrors each instance for ~32 silhouettes. */
+  V.crownN = 16;
+  V.crown = { tree: [[], []], big: [[], []] };
+  for(const bk of [false, true])
+    for(let t = 0; t < 2; t++)
+      for(let vi = 0; vi < V.crownN; vi++){
+        const spec = sfCrownGen(bk, vi, t);
+        V.crown[bk ? 'big' : 'tree'][t].push(
+          { spec, spr: sfCrownBake(spec, bk, vi) });
+      }
   V.palm = [sfPalmTree(0), sfPalmTree(1)];
   V.bench = sfBenchSpr();
   V.lampOff = sfLampSpr(false);
@@ -26431,8 +26525,20 @@ function sfTreeWellM(o){ return o && o.v === 0 ? 1.05 : 0.8; }
 function sfCrownSpec(kind, o){
   const C = typeof SF_CROWN !== 'undefined' ? SF_CROWN : null;
   if(!C) return null;
-  if(kind === 'sfTree')
+  if(kind === 'sfTree'){
+    /* v66: the genetic canopy — the shade pass re-reads the SAME
+       generated lobe skeleton the sprite was baked from, mirrored on
+       the instance flip bit, so ground shade stays crown-true. */
+    const V = PA.sfVeg;
+    if(V && V.crown){
+      const vi = Math.abs(hash2(o.wx, o.wy, 7) * (V.crownN || 16)) | 0;
+      const e = V.crown[o.big ? 'big' : 'tree'][sfTreeTurns(o) ? 1 : 0]
+                 [Math.min(vi, (V.crownN || 16) - 1)];
+      if(e) return { w: e.spec.w, h: e.spec.h, lobes: e.spec.lobes,
+                     flip: (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1 };
+    }
     return (o.big ? C.big : C.tree)[Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
+  }
   if(kind === 'sfStreetTree') return C.street[o.v != null ? o.v : 0];
   if(kind === 'sfCypress')
     return C.cypress[Math.abs(hash2(o.wx, o.wy, 9) * C.cypress.length) | 0];
@@ -28523,10 +28629,18 @@ function sfRenderWorld(cw, ch){
       // v19: propM = real height in meters (drives sun throw), footM =
       // ground-contact radius in meters (drives the always-on AO disc)
       let spr = null, shadeR = 0, propM = 0, footM = 0;
-      if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
+      if(o.kind === 'sfTree'){
         const ar = sfTreeTurns(o);   // v55: this crown turned for autumn
-        spr = o.big ? (ar ? V.bigTreeA : V.bigTree)[ti]
-                    : (ar ? V.treeA : V.tree)[ti];
+        // v66: genetic canopy — a unique genome per tree (16 baked per
+        // size x turn state); falls back to the v55 clone sets
+        const ti = Math.abs(hash2(o.wx, o.wy, 7) * (V.crownN || 3)) | 0;
+        const ge = V.crown &&
+          V.crown[o.big ? 'big' : 'tree'][ar ? 1 : 0]
+           [Math.min(ti, (V.crownN || 16) - 1)];
+        spr = ge ? ge.spr
+                 : (o.big ? (ar ? V.bigTreeA : V.bigTree)
+                          : (ar ? V.treeA : V.tree))
+                   [Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
         shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0];
@@ -28671,7 +28785,7 @@ function sfRenderWorld(cw, ch){
                 const lb = spec.lobes[li];
                 const rr = Math.max(lb[2], lb[3]);
                 sfSoftEllipse(
-                  sx + (lb[0] - spec.w / 2) * cam.zoom + shx,
+                  sx + ((spec.flip ? spec.w - lb[0] : lb[0]) - spec.w / 2) * cam.zoom + shx,
                   sy + (lb[1] - spec.h + 4) * cam.zoom + shy,
                   rr * cam.zoom * stretch,
                   Math.max(1.4 * cam.zoom, rr * 0.5 * cam.zoom * Math.max(0.45, SF_TILT)),
@@ -28879,14 +28993,19 @@ function sfRenderWorld(cw, ch){
         // v62: aerial relief displacement — the crown leans radially
         // outward from the nadir, pivoting at the root so the trunk and
         // its ground shadow stay planted
+        // v66: per-instance mirror — the tree's own hash flips its
+        // genome crown, doubling the silhouettes (shade pass mirrors
+        // the same lobes in sfCrownSpec)
+        const flipC = o.kind === 'sfTree' &&
+                      (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1;
         ctx.save();
         sfTopLean(o.x, o.y, sx, sy);
-        if(sway){
-          ctx.translate(sx, sy); ctx.rotate(sway);
-          const wlx = Math.cos(W.windAng || 0) * sway * ph * 0.5,
-                wly = Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT;
-          ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
-        } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        ctx.translate(sx, sy);
+        if(sway) ctx.rotate(sway);
+        if(flipC) ctx.scale(-1, 1);
+        const wlx = sway ? Math.cos(W.windAng || 0) * sway * ph * 0.5 : 0,
+              wly = sway ? Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT : 0;
+        ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
         ctx.restore();
         // v31: crowns answer the REAL sun — a warm wash on the sunward
         // flank of the crown, cool sky-fill lee, and light-dapple
@@ -34292,6 +34411,11 @@ function sfRenderStreet(cw, ch){
                        Math.cos(W.windAng - SF_CAM.yaw);
           ctx.save(); ctx.translate(p[0], p[1]);
           ctx.transform(1, 0, lean, 1, 0, 0);
+          // v66: street view mirrors the same instance flip as the
+          // crown genome overhead — silhouettes agree between cameras
+          if(o.kind === 'sfTree' &&
+             (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1)
+            ctx.scale(-1, 1);
           ctx.drawImage(sprC, -pw / 2, -ph, pw, ph);
           ctx.restore();
           // v31: crown answers the real sun bearing — warm wash on the

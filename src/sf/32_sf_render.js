@@ -728,8 +728,20 @@ function sfTreeWellM(o){ return o && o.v === 0 ? 1.05 : 0.8; }
 function sfCrownSpec(kind, o){
   const C = typeof SF_CROWN !== 'undefined' ? SF_CROWN : null;
   if(!C) return null;
-  if(kind === 'sfTree')
+  if(kind === 'sfTree'){
+    /* v66: the genetic canopy — the shade pass re-reads the SAME
+       generated lobe skeleton the sprite was baked from, mirrored on
+       the instance flip bit, so ground shade stays crown-true. */
+    const V = PA.sfVeg;
+    if(V && V.crown){
+      const vi = Math.abs(hash2(o.wx, o.wy, 7) * (V.crownN || 16)) | 0;
+      const e = V.crown[o.big ? 'big' : 'tree'][sfTreeTurns(o) ? 1 : 0]
+                 [Math.min(vi, (V.crownN || 16) - 1)];
+      if(e) return { w: e.spec.w, h: e.spec.h, lobes: e.spec.lobes,
+                     flip: (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1 };
+    }
     return (o.big ? C.big : C.tree)[Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
+  }
   if(kind === 'sfStreetTree') return C.street[o.v != null ? o.v : 0];
   if(kind === 'sfCypress')
     return C.cypress[Math.abs(hash2(o.wx, o.wy, 9) * C.cypress.length) | 0];
@@ -2820,10 +2832,18 @@ function sfRenderWorld(cw, ch){
       // v19: propM = real height in meters (drives sun throw), footM =
       // ground-contact radius in meters (drives the always-on AO disc)
       let spr = null, shadeR = 0, propM = 0, footM = 0;
-      if(o.kind === 'sfTree'){ const ti = Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0;
+      if(o.kind === 'sfTree'){
         const ar = sfTreeTurns(o);   // v55: this crown turned for autumn
-        spr = o.big ? (ar ? V.bigTreeA : V.bigTree)[ti]
-                    : (ar ? V.treeA : V.tree)[ti];
+        // v66: genetic canopy — a unique genome per tree (16 baked per
+        // size x turn state); falls back to the v55 clone sets
+        const ti = Math.abs(hash2(o.wx, o.wy, 7) * (V.crownN || 3)) | 0;
+        const ge = V.crown &&
+          V.crown[o.big ? 'big' : 'tree'][ar ? 1 : 0]
+           [Math.min(ti, (V.crownN || 16) - 1)];
+        spr = ge ? ge.spr
+                 : (o.big ? (ar ? V.bigTreeA : V.bigTree)
+                          : (ar ? V.treeA : V.tree))
+                   [Math.abs(hash2(o.wx, o.wy, 7) * 3) | 0];
         shadeR = o.big ? 26 : 15; footM = o.big ? 0.8 : 0.55; }
       else if(o.kind === 'sfPalm'){ spr = V.palm[Math.abs(hash2(o.wx, o.wy, 8) * V.palm.length) | 0]; shadeR = 9; footM = 0.4; }
       else if(o.kind === 'sfStreetTree'){ spr = V.streetTree[o.v != null ? o.v : 0];
@@ -2968,7 +2988,7 @@ function sfRenderWorld(cw, ch){
                 const lb = spec.lobes[li];
                 const rr = Math.max(lb[2], lb[3]);
                 sfSoftEllipse(
-                  sx + (lb[0] - spec.w / 2) * cam.zoom + shx,
+                  sx + ((spec.flip ? spec.w - lb[0] : lb[0]) - spec.w / 2) * cam.zoom + shx,
                   sy + (lb[1] - spec.h + 4) * cam.zoom + shy,
                   rr * cam.zoom * stretch,
                   Math.max(1.4 * cam.zoom, rr * 0.5 * cam.zoom * Math.max(0.45, SF_TILT)),
@@ -3176,14 +3196,19 @@ function sfRenderWorld(cw, ch){
         // v62: aerial relief displacement — the crown leans radially
         // outward from the nadir, pivoting at the root so the trunk and
         // its ground shadow stay planted
+        // v66: per-instance mirror — the tree's own hash flips its
+        // genome crown, doubling the silhouettes (shade pass mirrors
+        // the same lobes in sfCrownSpec)
+        const flipC = o.kind === 'sfTree' &&
+                      (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1;
         ctx.save();
         sfTopLean(o.x, o.y, sx, sy);
-        if(sway){
-          ctx.translate(sx, sy); ctx.rotate(sway);
-          const wlx = Math.cos(W.windAng || 0) * sway * ph * 0.5,
-                wly = Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT;
-          ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
-        } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        ctx.translate(sx, sy);
+        if(sway) ctx.rotate(sway);
+        if(flipC) ctx.scale(-1, 1);
+        const wlx = sway ? Math.cos(W.windAng || 0) * sway * ph * 0.5 : 0,
+              wly = sway ? Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT : 0;
+        ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
         ctx.restore();
         // v31: crowns answer the REAL sun — a warm wash on the sunward
         // flank of the crown, cool sky-fill lee, and light-dapple
@@ -8589,6 +8614,11 @@ function sfRenderStreet(cw, ch){
                        Math.cos(W.windAng - SF_CAM.yaw);
           ctx.save(); ctx.translate(p[0], p[1]);
           ctx.transform(1, 0, lean, 1, 0, 0);
+          // v66: street view mirrors the same instance flip as the
+          // crown genome overhead — silhouettes agree between cameras
+          if(o.kind === 'sfTree' &&
+             (Math.abs(hash2(o.wx, o.wy, 6007) * 2) | 0) === 1)
+            ctx.scale(-1, 1);
           ctx.drawImage(sprC, -pw / 2, -ph, pw, ph);
           ctx.restore();
           // v31: crown answers the real sun bearing — warm wash on the
