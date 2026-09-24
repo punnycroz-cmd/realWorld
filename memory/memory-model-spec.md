@@ -1,4 +1,44 @@
-# Memory Model Spec v5.68 — implementable human-like memory for RW characters
+# Memory Model Spec v5.69 — implementable human-like memory for RW characters
+
+> **v5.69 note (age-development XI — the lifespan's
+> retrieval shapes):** `memory/age-development.md` Part XI
+> (§§126–135) prices ten lifespan legs left unpriced.
+> **TOT/name block** — failed name retrieval terminates in
+> `tot:true` with age-graded partials and spontaneous
+> resolution (`tot_*`); locked `tot_sem_null` — the block
+> is phonology-only (Burke et al. 1991; Cohen & Faulkner
+> 1986). **Destination memory** — retells mint `told_to`
+> edges at `dest_mult(age)`; confident misses endorse
+> repeat-telling; locked `dest_src_null` — direction-
+> locked, source arm age-flat (Gopie & MacLeod 2009;
+> Gopie, Craik & Hasher 2010). **Era-keyed senses** —
+> cue `sense:"odor"` re-aims era weighting to <10y,
+> `"music"` to the bump; locked `ecue_name_null` —
+> naming the odor halves the shift (Willander & Larsson
+> 2006, 2007; Chu & Downes 2000). **The late inhibitor** —
+> `rif_amp(age)` gates retrieval-practice suppression:
+> zero under ~6, intact to ~75, declining after (Aslan &
+> Bäuml 2010, 2013); locked `rif_item_null`.
+> **Part-cue harm** — supplied subsets tax the unsupplied
+> remainder through `rif_amp`, so young children are
+> IMMUNE, not just weak (Slamecka; Zellner & Bäuml);
+> locked `partcue_free_null`. **The eval frame** —
+> `eval:true` contexts tax the old via `stereo_w`·
+> `stereo_val`·leg; locked `stereo_impl_null` (Hess et
+> al. 2003). **Savings** — below-floor traces mint
+> re-encodes at discount, infant latents at the larger
+> fraction; locked `savings_recall_null` (Ebbinghaus;
+> Perris et al. 1990). **Own-age bias** — person-identity
+> fields mint at `ownage_gain`·gaussian(Δage), contact-
+> attenuated; locked `ownage_sem_null` (Anastasi & Rhodes
+> 2005). **Divided-encoder** — `ctx.divided` cost is
+> U-shaped in age; locked `da_ret_over_null` keeps encode
+> above retrieval (Craik et al. 1996; Anderson et al.
+> 1998). **FOK noise** — old arm adds variance, not bias
+> (child arm stays biased-high); locked `fok_store_null`
+> (Souchay et al. 2007). Spec §§4.80–4.83, §§5.139–5.144,
+> §7 +23 scalars +6 knot curves +10 locked nulls +1 trait
+> +1 edge field +1 state, §10 contract; probes P1311–P1320.
 
 > **v5.68 note (retrieval-cues XI — the cue's crowd, clock,
 > and breath):** `memory/retrieval-cues.md` Part XI
@@ -6641,6 +6681,93 @@ back-filled or normalized away. Composes with §4.78 —
 script fills are the *slot* version of gist inference.
 P1207.
 
+### 4.80 The test frame taxes the old — `stereo_*` (new in v5.69)
+
+AD§131; Hess, Auman, Colcombe & Rahhal 2003 (*J. Gerontol.
+B* 58:P3 — verified); Chasteen et al. 2005 (*Psychol.
+Aging* 20:671); Hess & Hinson 2006 (high-constraint
+boundary). Mint or bout under context flag `eval:true`
+(explicitly framed as a test of memory) taxes profiles
+≥55:
+
+```
+eval_eff = stereo_w (0.12)·stereo_val·stereo_leg(age_now)
+stereo_val ∈ [0,1] — authored trait (how much memory
+    competence matters to this character); never sampled
+    >0.6 without a bible line
+stereo_leg: 0@<55 → 0.5@62 → 1.0@70–78 → 0.5@85
+    (dissipation — the very old stop defending the
+     threatened identity)
+E_eff ×= 1 − eval_eff            // encode leg — fewer
+                                 // edges, not thinner
+                                 // fields (strategy
+                                 // degradation)
+drive  ×= 1 − 0.7·eval_eff       // retrieval leg, only
+                                 // eval:true + deadline
+                                 // bouts
+```
+
+Locked `stereo_impl_null` (P1316): incidental/implicit
+legs exempt — the tax exists only under the evaluative
+frame.
+
+### 4.81 What relearning remembers — `savings_*` (new in v5.69)
+
+AD§132; Ebbinghaus 1885; Perris, Myers & Clifton 1990
+(*Child Dev.* 61:1477); Hartshorn 2003; Nelson 1978.
+Any record with `0 < S < recall_floor` carries
+`savings:true`. A new event matching it (simOp ≥
+re-encode threshold) mints at discount:
+
+```
+E_new = E · (1 + savings_gain(encodeAge_old)·S/S_floor)
+savings_gain: 0.5 adult; savings_inf_gain 0.8 for
+    below-wall traces (encodeAge <3)
+```
+
+Locked `savings_recall_null` (P1317): savings acts on
+RE-ENCODE only — never lifts the old trace's S, never
+surfaces it, never repairs fields.
+
+### 4.82 Faces know their own age — `ownage_*` (new in v5.69)
+
+AD§133; Anastasi & Rhodes 2005 (*Mem. Cognit.* —
+verified own-age bias across young/middle/old); Rhodes &
+Anastasi 2012 (*Psychol. Bull.* meta — contact-mediated);
+Wright & Stroud 2002. Person-record identity fields
+(face↔name↔person edges) mint with:
+
+```
+ownage_match = exp(−(Δage/ownage_sigma)²),
+    Δage = |age_self − age_target|, ownage_sigma 15
+E_identity ×= 1 + ownage_gain (0.2)·ownage_match·
+    (1 − ownage_contact (0.5)·otherAgeExposure)
+otherAgeExposure = running fraction of person-mints in
+    the target's decade (social ledger read)
+```
+
+Locked `ownage_sem_null` (P1318): semantic fields of the
+other-age person mint unbiased.
+
+### 4.83 Two tasks, one encoder — `da_enc_*` (new in v5.69)
+
+AD§134; Craik, Govoni, Naveh-Benjamin & Anderson 1996
+(*JEP:LMC* 22:165 — verified encode-side age asymmetry);
+Anderson, Craik & Naveh-Benjamin 1998 (*Psychol. Aging*
+13:405 — encode arm carries the interaction);
+Naveh-Benjamin, Guez & Marom 2003 (child arm). Mints
+under `ctx.divided:true`:
+
+```
+E_eff ×= 1 − da_enc_tax (0.25)·da_enc_age(age_now)
+da_enc_age: 1.4@5 → 1.2@8 → 1.0@15 → 1.0@45 →
+            1.3@60 → 1.7@75 → 2.0@88     // U-shaped
+```
+
+Locked `da_ret_over_null` (P1319): the encode leg must
+exceed the §5.132 retrieval leg at every age knot —
+Anderson's ordering.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -9957,6 +10084,134 @@ the §96 latent-query arm. Locked `warmth_conf_null`
 (P1310): `warmth` modulates persistence only — it must
 never enter emitted-field confidence (feeling close is not
 being right).
+
+### 5.139 The name that won't come — `tot_*` (new in v5.69)
+
+AD§126; Burke, MacKay, Worthley & Wade 1991 (*JML*
+30:542 — verified age rise); Cohen & Faulkner 1986
+(*Br. J. Dev. Psychol.* 4:187 — proper names worst,
+elderly "empty gap"); Brown & McNeill 1966 (partials);
+Maylor 1990. A failed emit on a `proper_noun`/`person`
+name field can terminate in `tot:true` instead of clean
+miss:
+
+```
+P(tot | failed emit, name field) =
+    tot_p_base (0.05)·tot_name_mult (2.0)·tot_age
+tot_age(age_now): 1.0@30 → 1.3@55 → 1.8@70 → 2.2@85
+partials: P(first-letter/syllable partial in the block) =
+    tot_partial(age): 0.7@30 → 0.6@60 → 0.35@75 → 0.25@85
+resolution: tot_resolved emitted at tot_resolve_p 0.15/day
+    (spontaneous pop-up)
+```
+
+Locked `tot_sem_null` (P1311): the block freezes the
+name/phonology field only — the person's semantic record
+stays fully retrievable.
+
+### 5.140 The story told twice — `dest_*` (new in v5.69)
+
+AD§127; Gopie & MacLeod 2009 (*Psychol. Sci.* 20:1492 —
+verified: destination < source, self-focus mechanism);
+Gopie, Craik & Hasher 2010 (*Psychol. Aging* 25:922 —
+verified: old disproportionately impaired; confident
+misses → repeat-telling; source arm age-flat). Retell
+emissions mint `told_to:{charId}` edges:
+
+```
+dest_E = E_retell·dest_mult(age_now)·(1 −
+         dest_selffocus (0.15)·selfFocus)
+dest_mult: 1.0@40 → 0.85@55 → 0.6@70 → 0.4@85
+novelty check reads told_to; on a miss, old profiles add
+    dest_miss_conf (0.3) to the "never told" judgment —
+    the repeat is endorsed, not merely unchecked
+```
+
+Locked `dest_src_null` (P1312): the deficit is
+direction-locked — `heard_from` edges ride normal source
+machinery; symmetric degradation fails the probe.
+
+### 5.141 The smell picks the decade — `ecue_*` (new in v5.69)
+
+AD§128; Willander & Larsson 2006 (*Psychon. Bull. Rev.*
+13:240 — verified: odor cues peak <10y, word/picture at
+11–20; more reliving, less rehearsed); Chu & Downes 2000
+(*Cognition* 75:B41); Willander & Larsson 2007 (naming
+attenuates the shift); Janata, Tomic & Rakowski 2007.
+Cue `sense` tag re-aims era weighting:
+
+```
+sense:"odor"  → era gaussian on encodeAge:
+    mu ecue_odor_mu 6, sigma ecue_odor_sigma 4,
+    weight ecue_odor_w 0.35
+sense:"music" → mu ecue_music_mu 20, weight
+    ecue_music_w 0.25            // the bump era
+absent/other  → standard bump weighting (§3)
+odor-cued emits: +ecue_reliving (0.2) reliving mass,
+    −ecue_unrehearsed (0.3) prior-rehearsal mass
+```
+
+Locked `ecue_name_null` (P1313): `odor_named:true`
+attenuates the era shift by `ecue_name_att` (0.5) —
+verbalizing the smell routes retrieval through concept.
+
+### 5.142 The inhibitor arrives late — `rif_*` (new in v5.69)
+
+AD§129; Aslan & Bäuml 2010 (*Psychon. Bull. Rev.* 17:704
+— verified: deficient in kindergarteners, intact in
+schoolchildren); Zellner & Bäuml 2005 (*Mem. Cognit.*
+33:396); Aslan, Bäuml & Pastötter 2007 (*Psychol. Sci.*
+18:72 — young-old intact); Aslan & Bäuml 2013
+(*Psychol. Aging* — verified: declines >75). Selective
+successful retrieval of m suppresses same-category
+competitors sharing the cue:
+
+```
+drive_i ×= 1 − rif_w (0.25)·rif_amp(age_eff)·
+    overlap(m, m_i)        // overlap = simOp on shared
+                           // cue mask
+rif_amp: 0@<5 → 0.3@6 → 0.7@8 → 1.0@10 → 1.0@75 →
+         0.7@80 → 0.4@88
+```
+
+Locked `rif_item_null` (P1314): suppression hits only
+unpracticed competitors sharing the retrieval cue — never
+the retrieved item, never cross-category neighbors.
+
+### 5.143 Half the cues hurt — `partcue_*` (new in v5.69)
+
+AD§130; Slamecka 1968; Zellner & Bäuml 2005 (inhibition-
+mediated); Basden & Basden 1995. When a cue supplies k
+of n fields/items, the UNSUPPLIED remainder is taxed by
+the §5.142 inhibitor:
+
+```
+P(unsupplied recalled) ×= 1 − partcue_w (0.3)·
+    rif_amp(age_eff)
+```
+
+The `rif_amp` gate is the mechanism: profiles <6 are
+immune (cues neutral, not harmful); >75 harm drains.
+Locked `partcue_free_null` (P1315): supplied fields'
+recall unchanged.
+
+### 5.144 "I know that I know" — loosening at both ends — `fok_old_*` (new in v5.69)
+
+AD§135; Souchay, Moulin, Clarys, Taconnat & Isingrini
+2007 (*Neuropsychology* 21:491 — verified: episodic FOK
+accuracy declines with age); Souchay & Isingrini 2004;
+Hertzog, Sinclair & Dunlosky 2010. The `fok_pre` gate's
+signal gains an old arm — noise, not bias:
+
+```
+fok_noise += fok_old_k (0.3)·max(0, age_now−60)/30
+// mean-shift zero: draws err both ways — early quits
+// on recoverable traces AND dead-bout persistence
+```
+
+Children carry the §18 high-BIAS arm; elders carry
+variance. Locked `fok_store_null` (P1320): monitoring
+noise only — stored S is never touched.
 
 ---
 
@@ -18549,6 +18804,53 @@ MemoryParams = {
 //   entry; op catalog gains `evalClass` column
 //   (§16.1). All snapshot-additive; absent = legacy
 //   (evaluatedAt absent → treat as createdDay).
+// v5.69 additions (age-development XI — AD§§126–135)
+"tot_p_base": 0.05, "tot_name_mult": 2.0,
+"tot_resolve_p": 0.15,                              // §5.139
+"dest_selffocus": 0.15, "dest_miss_conf": 0.3,      // §5.140
+"ecue_odor_w": 0.35, "ecue_odor_mu": 6,
+"ecue_odor_sigma": 4, "ecue_music_w": 0.25,
+"ecue_music_mu": 20, "ecue_reliving": 0.2,
+"ecue_unrehearsed": 0.3, "ecue_name_att": 0.5,      // §5.141
+"rif_w": 0.25,                                      // §5.142
+"partcue_w": 0.3,                                   // §5.143
+"stereo_w": 0.12,                                   // §4.80
+"savings_gain": 0.5, "savings_inf_gain": 0.8,       // §4.81
+"ownage_gain": 0.2, "ownage_sigma": 15,
+"ownage_contact": 0.5,                              // §4.82
+"da_enc_tax": 0.25,                                 // §4.83
+"fok_old_k": 0.3,                                   // §5.144
+// v5.69 knot curves (piecewise age knots, lerp between):
+//   tot_age(age_now): 1.0@30 → 1.3@55 → 1.8@70 → 2.2@85
+//   tot_partial(age_now): 0.7@30 → 0.6@60 → 0.35@75 →
+//     0.25@85   (§5.139)
+//   dest_mult(age_now): 1.0@40 → 0.85@55 → 0.6@70 →
+//     0.4@85   (§5.140)
+//   rif_amp(age_eff): 0@<5 → 0.3@6 → 0.7@8 → 1.0@10–75 →
+//     0.7@80 → 0.4@88   (§§5.142–5.143)
+//   stereo_leg(age_now): 0@<55 → 0.5@62 → 1.0@70–78 →
+//     0.5@85   (§4.80)
+//   da_enc_age(age_now): 1.4@5 → 1.2@8 → 1.0@15–45 →
+//     1.3@60 → 1.7@75 → 2.0@88   (§4.83)
+// v5.69 trait/edge/state: profile trait `stereo_val`
+//   ∈[0,1] authored (never sampled >0.6 without a bible
+//   line); retell edge field `told_to:{charId}`; bout-end
+//   state `tot:true` with partial fields; emissions
+//   `tot_resolved`. `ctx.divided:true`/`eval:true` are
+//   context flags the world supplies.
+// v5.69 locked nulls: tot_sem_null (name block is
+//   phonology-only — P1311); dest_src_null (destination
+//   deficit is direction-locked — P1312); ecue_name_null
+//   (naming the odor halves the shift — P1313);
+//   rif_item_null (suppression hits competitors only —
+//   P1314); partcue_free_null (supplied fields unmoved —
+//   P1315); stereo_impl_null (implicit legs exempt —
+//   P1316); savings_recall_null (discount is re-encode
+//   only — P1317); ownage_sem_null (semantic fields
+//   Δage-flat — P1318); da_ret_over_null (encode leg >
+//   retrieval leg at every knot — P1319); fok_store_null
+//   (monitoring noise never touches S — P1320).
+//   All snapshot-additive; absent = legacy.
 // v5.68 additions (retrieval-cues XI — RC§§108–112)
 "cowit_fac": 0.15, "cowit_src_mult": 1.2,
 "cowit_lag_gain": 0.1,                              // §5.134
@@ -21357,6 +21659,54 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.69 additions (age-development.md §§126–135 — the
+  lifespan's retrieval shapes):
+  - **TOT contract (§5.139):** `tot:true` terminates a
+    name-field bout only — `tot_sem_null` (P1311) requires
+    full semantic availability through the block;
+    `tot_resolved` fires on spontaneous resolution, never
+    on forced re-emit of the same bout.
+  - **Destination contract (§5.140):** `told_to` edges
+    mint only on retell emissions; the novelty check
+    reads them, nothing else writes them.
+    `dest_src_null` (P1312): `heard_from` accuracy must
+    stay on normal source slopes — a build that taxes
+    both directions fails the direction split.
+  - **Era-sense contract (§5.141):** `sense` is a cue tag
+    the world supplies; `ecue_name_null` (P1313) —
+    `odor_named:true` attenuates by `ecue_name_att`;
+    the era re-aim changes weighting, never mints.
+  - **RIF contract (§5.142):** suppression is bounded by
+    `rif_w`·overlap and hits only unpracticed
+    cue-sharing competitors — `rif_item_null` (P1314).
+  - **Part-cue contract (§5.143):** `partcue_w` rides
+    `rif_amp` — same inhibitor, no second parameter;
+    `partcue_free_null` (P1315): supplied fields unmoved.
+  - **Eval-frame contract (§4.80):** `eval:true` is a
+    context flag; `stereo_val` is authored trait state.
+    `stereo_impl_null` (P1316): incidental-channel mints
+    must be identical under eval framing.
+  - **Savings contract (§4.81):** the discount applies at
+    RE-ENCODE mint only — `savings_recall_null` (P1317):
+    the latent trace's own S never rises.
+  - **Own-age contract (§4.82):** identity fields only —
+    `ownage_sem_null` (P1318): semantic facts mint
+    Δage-flat.
+  - **Divided-encode contract (§4.83):** `da_enc_age` is
+    U-shaped; `da_ret_over_null` (P1319) — encode leg
+    exceeds the §5.132 retrieval leg at every knot.
+  - **FOK-noise contract (§5.144):** `fok_noise` perturbs
+    the bout-enter decision with zero mean shift;
+    `fok_store_null` (P1320): stored S untouched.
+  - **Locked boundaries game-systems must honor:**
+    `tot_sem_null`, `dest_src_null`, `ecue_name_null`,
+    `rif_item_null`, `partcue_free_null`,
+    `stereo_impl_null`, `savings_recall_null`,
+    `ownage_sem_null`, `da_ret_over_null`,
+    `fok_store_null`.
+  - **New params (§7):** 23 scalars + 6 knot curves + 1
+    trait + 1 edge field + 1 state + 10 locked nulls.
+  - Probes P1311–P1320.
 - v5.68 additions (retrieval-cues.md §§108–112 — the cue's
   crowd, clock, and breath):
   - **Co-witness contract (§5.134):** the completeness leg

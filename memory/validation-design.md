@@ -12593,3 +12593,120 @@ persistence). SHOULD: P1306, P1307, P1310.
 
 → retrieval-cues.md §§108–115; spec v5.68 §§5.134–5.138;
 probes P1301–P1310.
+
+## 248. v123 probe specs (P1311–P1320 — age-development XI, the lifespan's retrieval shapes)
+
+- **P1311 TOT signature (MUST):** batteries forcing
+  proper-name retrieval failures at age≥70 terminate
+  `tot:true` at ≥1.5× the young rate; partial-field
+  emit rate in blocked bouts lower in old (empty gap —
+  Cohen & Faulkner); locked `tot_sem_null` — semantic
+  availability through the block within ±2% of unblocked.
+- **P1312 destination asymmetry (MUST):** scripted
+  retell loops at age≥70 re-fire the same anecdote to
+  the same listener at ≥1.8× young; `dest_src_null` —
+  `heard_from` accuracy age-difference ≤ base source
+  slopes (the direction split is the test).
+- **P1313 odor-era shift (MUST):** `sense:"odor"` cues on
+  ≥60 profiles emit encodeAge<10 records at ≥2× word-cue
+  rate; `ecue_name_null` — `odor_named:true` attenuates
+  ≈`ecue_name_att`; music cues pull encodeAge 15–25.
+- **P1314 RIF U-shape (MUST):** competitor suppression
+  after selective retrieval ≈0 at age<6 (≤0.05),
+  rif_w-scaled at 20–60, intermediate at >80;
+  `rif_item_null` — retrieved item and cross-category
+  neighbors unsuppressed.
+- **P1315 part-cue harm × immunity (MUST):** partial cue
+  sets cost unsupplied fields ∝ rif_amp — adult harm
+  measurable, <6 cost ≤0.05 (immunity, not weakness),
+  >75 intermediate; `partcue_free_null` — supplied
+  fields within ±2%.
+- **P1316 eval-frame tax (SHOULD):** `eval:true` mints at
+  age≥65 differ from neutral by ≥stereo_w·stereo_val;
+  `stereo_impl_null` — incidental mints identical.
+- **P1317 savings without recall (MUST):** below-floor
+  records re-encode at E·(1+savings_gain·S/S_floor),
+  below-wall at the larger `savings_inf_gain`;
+  `savings_recall_null` — latent S never rises, never
+  surfaces.
+- **P1318 own-age bias + contact (SHOULD):** identity-
+  field E peaks Δage≈0, gaussian at ownage_sigma; high
+  `otherAgeExposure` attenuates; `ownage_sem_null` —
+  semantic fields flat in Δage.
+- **P1319 DA asymmetry ordering (SHOULD):** `ctx.divided`
+  encode tax exceeds matched retrieval tax at every age
+  knot (`da_ret_over_null`); da_enc_age endpoints >
+  midpoints (U-shape).
+- **P1320 FOK noise not bias (SHOULD):** age≥65 bouts show
+  elevated FOK-error variance (early-quit AND dead-bout
+  tails) with zero mean shift — the noise-vs-bias
+  discriminator; `fok_store_null` — stored S untouched.
+
+Probe registry: P1–P1320 (v123 adds P1311–P1320). MUST:
+P1311, P1312, P1313, P1314, P1315, P1317 (four locked-null
+legs + TOT signature, direction split, era shift, RIF
+U-shape, immunity, savings). SHOULD: P1316, P1318, P1319,
+P1320.
+
+## 249. Sources verified this version (P1311–P1320 backing)
+
+- **TOT/proper-name block (CONSENSUS):** Burke, MacKay,
+  Worthley & Wade 1991 (*JML* 30:542 — verified: TOT rises
+  with age, transmission-deficit account); Cohen &
+  Faulkner 1986 (*Br. J. Dev. Psychol.* 4:187 — verified:
+  proper names worst; elderly "empty gap," younger adults
+  partials); Brown & McNeill 1966 (*JVLVB* 5:325);
+  Maylor 1990 (*Br. J. Psychol.* 81:123); Brown 1991
+  (*Psychol. Bull.* 109:204 — review).
+- **Destination memory (CONSENSUS asymmetry):** Gopie &
+  MacLeod 2009 (*Psychol. Sci.* 20:1492 — verified:
+  destination worse than source, self-focus mechanism);
+  Gopie, Craik & Hasher 2010 (*Psychol. Aging* 25:922 —
+  verified: old disproportionately impaired, confident
+  misses; source arm no age difference).
+- **Era-keyed senses (CONSENSUS odor shift; music arm
+  thinner):** Willander & Larsson 2006 (*Psychon. Bull.
+  Rev.* 13:240 — verified: odor bump <10y vs word/picture
+  11–20, more reliving, less rehearsed); Chu & Downes
+  2000 (*Cognition* 75:B41 — Proust bump); Willander &
+  Larsson 2007 (verified: odor-name attenuation); Janata,
+  Tomic & Rakowski 2007 (music → autobiographical).
+- **RIF lifespan (CONSENSUS onset; decline single-study):**
+  Aslan & Bäuml 2010 (*Psychon. Bull. Rev.* 17:704 —
+  verified: kindergarteners deficient, schoolchildren
+  intact); Zellner & Bäuml 2005 (*Mem. Cognit.* 33:396);
+  Aslan, Bäuml & Pastötter 2007 (*Psychol. Sci.* 18:72 —
+  young-old intact); Aslan & Bäuml 2013 (*Psychol. Aging*
+  — verified: decline >75).
+- **Part-list cueing (CONSENSUS effect; inhibition account
+  DEBATED):** Slamecka 1968 (*J. Verb. Learn. Verb.
+  Behav.* 7); Zellner & Bäuml 2005 (inhibition-mediated);
+  Basden & Basden 1995 (strategy account exists — P1315's
+  immunity leg discriminates).
+- **Stereotype threat (CONSENSUS effect, variable size):**
+  Hess, Auman, Colcombe & Rahhal 2003 (*J. Gerontol. B*
+  58:P3 — verified: threat framing lowers old recall,
+  self-relevance moderated); Chasteen et al. 2005
+  (*Psychol. Aging* 20:671); Hess & Hinson 2006
+  (constraint boundary).
+- **Savings (CONSENSUS; infant premium HYPOTHESIS):**
+  Ebbinghaus 1885; Perris, Myers & Clifton 1990 (*Child
+  Dev.* 61:1477 — verified 2.5y newborn-conditioning
+  retention via reactivation); Hartshorn 2003; Nelson 1978.
+- **Own-age bias (CONSENSUS):** Anastasi & Rhodes 2005
+  (*Mem. Cognit.* 33 — verified); Rhodes & Anastasi 2012
+  (*Psychol. Bull.* meta — contact-mediated); Wright &
+  Stroud 2002.
+- **Divided attention (CONSENSUS old arm; child arm
+  thinner):** Craik, Govoni, Naveh-Benjamin & Anderson
+  1996 (*JEP:LMC* 22:165 — verified encode asymmetry);
+  Anderson, Craik & Naveh-Benjamin 1998 (*Psychol. Aging*
+  13:405); Naveh-Benjamin, Guez & Marom 2003.
+- **FOK aging (CONSENSUS decline; noise-form ours):**
+  Souchay, Moulin, Clarys, Taconnat & Isingrini 2007
+  (*Neuropsychology* 21:491 — verified episodic FOK
+  accuracy decline); Souchay & Isingrini 2004; Hertzog,
+  Sinclair & Dunlosky 2010.
+
+→ age-development.md §§126–135; spec v5.69 §§4.80–4.83 +
+§§5.139–5.144; probes P1311–P1320.

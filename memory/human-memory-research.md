@@ -5441,3 +5441,86 @@ probes P1291–P1300.
   fok_pre, `ownname_gate_null`), `warmth_*` (flux-driven
   persistence, `warmth_conf_null`). §7 +19 scalars +5 locked
   nulls +1 derived field; §10 contract; probes P1301–P1310.
+
+## 98. v123 source block — the lifespan's retrieval shapes (age-development XI)
+
+- **TOT/proper-name block (CONSENSUS):** **Burke, MacKay,
+  Worthley & Wade 1991** (*JML* 30:542 — verified: TOT
+  frequency rises with age, phonological transmission
+  deficit); **Cohen & Faulkner 1986** (*Br. J. Dev.
+  Psychol.* 4:187 — verified: proper names most blocked;
+  elderly report "empty gap" without partials where younger
+  adults report first-letter/syllable fragments); Brown &
+  McNeill 1966 (partial-information signature); Maylor 1990
+  (aging and blocking); Brown 1991 (review). → `tot_*`
+  (§5.139, `tot_sem_null`).
+- **Destination memory (CONSENSUS direction-locked
+  asymmetry):** **Gopie & MacLeod 2009** (*Psychol. Sci.*
+  20:1492 — verified: to-whom-told worse than who-told-you,
+  self-focus mechanism); **Gopie, Craik & Hasher 2010**
+  (*Psychol. Aging* 25:922 — verified: old
+  disproportionately impaired on destination vs components;
+  confident misses → repeat-telling; reversed-direction
+  source arm shows no age difference). → `dest_*`,
+  `told_to` edges (§5.140, `dest_src_null`).
+- **Era-keyed senses (CONSENSUS odor arm; music thinner):**
+  **Willander & Larsson 2006** (*Psychon. Bull. Rev.*
+  13:240 — verified: odor-cued autobiographical memories
+  peak first decade vs word/picture 11–20; more reliving,
+  less rehearsed); **Chu & Downes 2000** (*Cognition*
+  75:B41 — the Proust bump); Willander & Larsson 2007
+  (verified: naming the odor attenuates the childhood
+  shift); Janata, Tomic & Rakowski 2007. → `ecue_*`
+  (§5.141, `ecue_name_null`).
+- **RIF lifespan (CONSENSUS onset; old-old decline rests on
+  one study):** **Aslan & Bäuml 2010** (*Psychon. Bull.
+  Rev.* 17:704 — verified: deficient in kindergarteners,
+  intact in schoolchildren); Zellner & Bäuml 2005 (*Mem.
+  Cognit.* 33:396); Aslan, Bäuml & Pastötter 2007
+  (*Psychol. Sci.* 18:72 — young-old intact); **Aslan &
+  Bäuml 2013** (*Psychol. Aging* — verified: decline >75).
+  → `rif_amp(age)` (§5.142, `rif_item_null`).
+- **Part-list cueing (CONSENSUS effect; inhibition account
+  DEBATED):** Slamecka 1968; Zellner & Bäuml 2005 (same-
+  inhibitor account); Basden & Basden 1995 (strategy
+  alternative — P1315's immunity leg discriminates). →
+  `partcue_*` gated on `rif_amp` (§5.143,
+  `partcue_free_null`).
+- **Stereotype threat (CONSENSUS effect, size variable):**
+  **Hess, Auman, Colcombe & Rahhal 2003** (*J. Gerontol. B*
+  58:P3 — verified: memory-test framing lowers old recall,
+  moderated by memory self-relevance); Chasteen et al. 2005
+  (*Psychol. Aging* 20:671); Hess & Hinson 2006
+  (constraint boundary). → `stereo_*` + `stereo_val` trait
+  (§4.80, `stereo_impl_null`).
+- **Savings (CONSENSUS; infant premium HYPOTHESIS):**
+  Ebbinghaus 1885 (relearning faster at zero recall);
+  **Perris, Myers & Clifton 1990** (*Child Dev.* 61:1477 —
+  verified 2.5y newborn-conditioning retention via
+  reactivation); Hartshorn 2003; Nelson 1978. →
+  `savings_*` re-encode discount (§4.81,
+  `savings_recall_null`).
+- **Own-age bias (CONSENSUS):** **Anastasi & Rhodes 2005**
+  (*Mem. Cognit.* 33 — verified own-age face-recognition
+  advantage across age groups); Rhodes & Anastasi 2012
+  (*Psychol. Bull.* meta — contact-mediated); Wright &
+  Stroud 2002. → `ownage_*` (§4.82, `ownage_sem_null`).
+- **Divided attention at encode (CONSENSUS old arm; child
+  arm thinner):** **Craik, Govoni, Naveh-Benjamin &
+  Anderson 1996** (*JEP:LMC* 22:165 — verified encode-side
+  age asymmetry); **Anderson, Craik & Naveh-Benjamin 1998**
+  (*Psychol. Aging* 13:405 — encode arm carries it);
+  Naveh-Benjamin, Guez & Marom 2003. → `da_enc_*` U-shape
+  (§4.83, `da_ret_over_null`).
+- **FOK aging (CONSENSUS decline; noise-form ours):**
+  **Souchay, Moulin, Clarys, Taconnat & Isingrini 2007**
+  (*Neuropsychology* 21:491 — verified episodic FOK
+  accuracy decline); Souchay & Isingrini 2004; Hertzog,
+  Sinclair & Dunlosky 2010. → `fok_old_*` variance leg
+  (§5.144, `fok_store_null`).
+- **Spec consequence (v5.69):** §§4.80–4.83 (`stereo_*`,
+  `savings_*`, `ownage_*`, `da_enc_*`) + §§5.139–5.144
+  (`tot_*`, `dest_*`, `ecue_*`, `rif_*`, `partcue_*`,
+  `fok_old_*`); §7 +23 scalars +6 knot curves +10 locked
+  nulls +`stereo_val` trait +`told_to` edge +`tot:true`
+  state; §10 contract; probes P1311–P1320.
