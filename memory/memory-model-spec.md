@@ -1,5 +1,35 @@
-# Memory Model Spec v5.45 — implementable human-like memory for RW characters
+# Memory Model Spec v5.46 — implementable human-like memory for RW characters
 
+> **v5.46 note (retrieval-cues IX — the sample, the
+> overlap, the gate, the pause, the echo — RC§§92–99):**
+> the retrieval context `C` was a deterministic readout;
+> the variance belongs in the SAMPLING. (a) `C` is minted
+> per bout by per-feature Bernoulli(`ctx_keep_p`, load-
+> narrowed by `ctx_load_pen`) over the scene — the same
+> room legitimately reminds on Tuesday and not Wednesday
+> (SAM; Estes; Lavie); (b) `place_reinstate` upgrades from
+> name-equality to `ctx_overlap` feature-vector match —
+> renovated places reinstate partially, lookalike places
+> cue weakly (mis-reminding), changed places emit
+> `changed_place` + a small `ctx_drift_pull` toward the
+> visited state, plus `gaze_rein_gain` within-location
+> micro-cue (Johansson & Johansson 2014); (c) near-twin
+> candidates within `sep_band` trigger a completion-vs-
+> separation gate — `sep_bias(age)` (U-shaped, Kirwan &
+> Stark) decides between `mixed_up` emission and wrong-pick
+> completion with `comp_merge_p` field borrowing (new
+> retrieve-path distortion operator); (d) interrupted
+> bouts hold `pending_cand` with decaying activation —
+> same-topic interruptions multiply decay by `susp_sim_pen`
+> (Gillie & Broadbent's similarity result), resumption lag
+> scales with duration (Monk); (e) failed voluntary
+> searches arm `openQuery` latent records (Yaniv & Meyer's
+> latent TOT) that the involuntary scan can fire — the pop
+> re-runs on a NEW sampled C (`openq_solve_null` locked:
+> persistence buys a lottery ticket, never access). §§5.98–
+> 5.102; §7 +14 scalars +1 locked null; §10 contract adds;
+> probes P1035–P1044.
+>
 > **v5.45 note (forgetting-curves IX — the one-trial
 > immortal, the clock that reads strength, and the flat
 > forecast):** `memory/forgetting-curves.md` Part IX
@@ -5344,6 +5374,9 @@ cueMatch_ext = 1 − Π_j (1 − min(c_j, 1))                         // saturat
 place reinstate:    if C.place == m.cueVector.place:
                     cueMatch_ext += place_reinstate · (1 + log1p(m.ageDays/30))
                     // grows with memory age — Smith & Vela interval interaction
+                    // v5.46: binary `==` superseded by graded
+                    // ctx_overlap — see §5.99 (back-compat: overlap
+                    // = 1.0 on exact place match)
 mental reinstate:   if C is a guided reconstruction (co-conversationalist
                     describes the scene): += mental_reinstate (≈0.6×
                     place_reinstate)                              // RC§2
@@ -7761,6 +7794,130 @@ repeated exposure to one's own archival events drifts
 practice. A future "improvement" that lets jol load
 the horizon is a bug by this spec, however rational it
 looks.
+
+### 5.98 The sampled scene — C is a draw, not a readout
+(new in v5.46)
+
+RC§92; Raaijmakers & Shiffrin 1981 (SAM — retrieval is
+sampling); Estes 1955; Lavie 1995/2005 (perceptual load
+gates task-irrelevant input — verified).
+
+The scene offers N candidate cue features; `C` keeps each
+per bout with
+
+```
+ctx_keep_p_eff = ctx_keep_p · (1 − ctx_load_pen·load)
+                 // ctx_keep_p 0.7, ctx_load_pen 0.4
+```
+
+`ctx_tau` (existing, ~30 sim-min) sets persistence: inside
+the window the same sample is reused (fixation), beyond it
+the scene is re-sampled — identical rooms yield correlated-
+but-different `C`s. Immediate re-probes share the sample
+(outcomes correlate ~0.6); later probes decorrelate. The
+§5.7 involuntary scan and §5.14 monitor rolls run on the
+SAME sampled `C` — a high-load character does not notice
+the cue that would have reminded them.
+
+### 5.99 Graded reinstatement — ctx_overlap replaces the
+place equality (new in v5.46)
+
+RC§93; Smith & Vela 2001 (benefit graded by reinstated
+overlap); Johansson & Johansson 2014 (*Psych. Sci.* 25:236
+— verified congruent-locus gaze advantage, spatial detail
+most).
+
+```
+ctx_overlap = Σ_f w_f · match_f(C.place_f, m.cueVector.place_f)
+              / Σ_f w_f      // f ∈ {structure, props,
+                             // occupants, sensory_sig}
+reinstate_eff = place_reinstate · ctx_overlap
+                · (1 + log1p(m.ageDays/30))
+```
+
+`ctx_overlap` 1.0 = the old binary win; ~0.5 a renovated
+room; ~0.35 a lookalike venue — weak but nonzero: lawful
+mis-reminding. `changed_place` flag emits when
+`C.place_id == m.cueVector.place` ∧ overlap ∈
+`changed_place_band` [0.3, 0.8] — "it's not how I remember
+it"; each changed-place visit also pulls the record's
+stored place-detail toward the visited state by
+`ctx_drift_pull` 0.02 (HYPOTHESIS — reconsolidation §6.1 +
+schema drift §6.4). `gaze_rein_gain` 0.05 additive cue mass
+when attention rests on the encoding-congruent
+sub-location — spatial-relational fields only.
+
+### 5.100 The separation gate — near-twins are a decision
+(new in v5.46)
+
+RC§94; Clelland et al. 2009 (*Hippocampus* — verified DG
+separation); Yassa & Stark 2011; Kirwan & Stark 2007
+(*Learn. Mem.* — verified age over-completion); Ngo et
+al. 2019 (child arm — U-shape).
+
+When the top-two candidate cueMatches differ by <
+`sep_band` (0.15), roll the gate before argmax:
+
+```
+P(separate) = sep_bias(age): 0.35@child → 0.65@30
+              → 0.35@70   // U-shaped completion at ends
+separate → emit `mixed_up` + BOTH candidates at −0.15
+           confidence
+complete → argmax wins; with P = comp_merge_p (0.3) one
+           verbatim field migrates from the loser into
+           the winner's reconstruction — retrieve-path
+           distortion (parties blur together)
+```
+
+Gate applies only when a discriminating feature is
+§5.1-encoded in at least one record — never-encoded
+near-twins can only complete. Records outside the band
+are untouched (probe P1039).
+
+### 5.101 The suspended bout — interruption kills the
+un-emitted (new in v5.46)
+
+RC§95; Gillie & Broadbent 1989 (*Psych. Res.* 50:243 —
+verified: similarity + WM demand disrupt, not duration);
+Monk, Trafton & Boehm-Davis 2008 (*JEP:A* 14:299 —
+verified resumption lag ∝ duration; Altmann & Trafton
+goal-decay basis).
+
+A bout interrupted mid-queue suspends its head as
+`pending_cand` with activation A:
+
+```
+per tick suspended: A *= susp_decay (0.85)
+if interruption topic-overlaps pending: A *= susp_sim_pen (0.6)
+resume iff A > susp_floor (0.15) AND a cue reinstates;
+resumption latency += k·(suspension duration)
+A ≤ floor → pending_cand evaporates; emit `lost_it` —
+no retrievable trace (no free rehearsal)
+```
+
+Base survival `susp_keep_p` 0.35 models the non-articulatory
+store — a same-topic interruption kills the pending line
+almost surely: "I was about to mention the rent" dies when
+the other person starts on the rent.
+
+### 5.102 The loaded question — failed searches arm
+openQuery (new in v5.46)
+
+RC§96; Yaniv & Meyer 1987 (latent TOT accessibility —
+verified); Sio & Ormerod 2009 meta (incubation gains real,
+small); Smith & Blankenship 1991 (fresh cue set does the
+work — rides §5.98).
+
+A voluntary search ending in `giveUp`/`tot` arms
+`openQuery{cueVec, armedAt, hl}` with P = `openq_arm` 0.5,
+hl `openq_hl` 2d. The §5.7 involuntary scan checks it at
+`openq_fire` 0.3 (the question primes its own answer); on
+fire: emit `popped`, re-run the original search against
+the NEW sampled `C` — it succeeds because the sample
+changed, not the memory. Locked `openq_solve_null`: a
+popped retrieval obeys the normal threshold exactly —
+persistence buys a lottery ticket, never access. Query
+armed by someone else answering first is disarmed.
 
 ---
 
@@ -14441,6 +14598,24 @@ MemoryParams = {
 "series_edge_gain": 0.15, "series_prox_w": 0.5,// §4.47
 "rec_scale": 30, "rec_floor": 0.02,            // §5.96
 "jol_horizon_w": 0.05, "jol_exp_gain": 0.05,   // §5.97
+// v5.46 additions (retrieval-cues IX — RC§§92–99)
+"ctx_keep_p": 0.7, "ctx_load_pen": 0.4,        // §5.98
+"changed_place_band": [0.3, 0.8],
+"ctx_drift_pull": 0.02, "gaze_rein_gain": 0.05,// §5.99
+"sep_band": 0.15, "comp_merge_p": 0.3,         // §5.100
+"sep_bias_70": 0.35, "sep_bias_30": 0.65,      // §5.100
+"susp_decay": 0.85, "susp_sim_pen": 0.6,
+"susp_floor": 0.15, "susp_keep_p": 0.35,       // §5.101
+"openq_arm": 0.5, "openq_hl": 2, "openq_fire": 0.3, // §5.102
+// v5.46 locked null: openq_solve_null (a popped
+//   query obeys the normal retrieval threshold —
+//   P1042).
+// v5.46 fields/state: `changed_place` +
+//   `mixed_up` + `lost_it` + `popped` emission
+//   flags; `pending_cand` bout state; `openQuery`
+//   record {cueVec, armedAt, hl} on the
+//   intention/open-loop store. All snapshot-additive;
+//   absent = legacy.
 // v5.45 locked nulls: cta_somatic_null (non-GI
 //   illness binds no food — P1029); cta_birth_null
 //   (avoid tag never mints narrative — P1028);
@@ -16743,6 +16918,41 @@ not resolved (DEBATED magnitude). P509/P511.
     `series_edge_leg="first-only"`.
   - **New params (§7):** 12 scalars + 5 locked nulls.
   - Probes P1027–P1034.
+- v5.46 additions (retrieval-cues.md §§92–99):
+  - **Retrieval-context contract change:** `C` is no longer
+    a deterministic scene readout — game-systems mints `C`
+    per bout by per-feature Bernoulli(`ctx_keep_p_eff`) over
+    the scene's features, persists it for `ctx_tau`, and
+    re-samples past it (§5.98). All retrieval paths
+    (voluntary, §5.7 involuntary scan, §5.14 PM monitors,
+    §5.102 openQuery) consume the SAME sampled `C` — the
+    involuntary leg may NOT see features the sample dropped
+    (that is the point of Lavie).
+  - **Place schema extension (world-supplied):**
+    `cueVector.place` gains sub-fields {structure, props,
+    occupants, sensory_sig} feeding `ctx_overlap` (§5.99);
+    `C.place_id` remains the identity key for the
+    `changed_place` gate. Absent sub-fields → overlap
+    falls back to binary (legacy = 1.0 on `==`).
+  - **New emission flags:** `changed_place` (renovated-
+    place metacognition, §5.99); `mixed_up` + dual
+    candidates (separation gate, §5.100); `lost_it`
+    (suspended-bout evaporation, §5.101); `popped`
+    (openQuery resolution, §5.102).
+  - **New state:** `pending_cand` bout suspension record;
+    `openQuery{cueVec, armedAt, hl}` on the
+    intention/open-loop store — game-systems owns expiry
+    at `openq_hl`.
+  - **New distortion operator (retrieve path):**
+    `comp_merge_p` near-twin field borrowing inside
+    §5.100's completion arm — audit-only field migration;
+    the borrowed field carries no `source:` change
+    (that's the mechanism, not a bug).
+  - **Locked boundaries game-systems must honor:**
+    `openq_solve_null` (popped retrievals obey the normal
+    threshold — P1042).
+  - **New params (§7):** 16 scalars + 1 locked null.
+  - Probes P1035–P1044.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

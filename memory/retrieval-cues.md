@@ -3126,3 +3126,259 @@ conversation, which is exactly the human finding.
   Schacter's "flexible orientation" reading). The alternative — a
   learned strategy that persists — is real but unsupported by their
   decay data; `esi_learn_null` makes the choice falsifiable (P917).
+
+# PART IX (v98, 2026-09-23) — the sample, the overlap, the gate, the pause, the echo
+
+v86 and before priced which cues work, how they combine, who they reach,
+and when a search quits. Left unpriced: the retrieval context `C` was
+treated as a deterministic readout of the scene — the same room produces
+the same `C`, so identical contexts could only differ via the output-side
+Bernoulli. That puts all retrieval variability in the die roll and none in
+the *searcher*, which is backwards: the sampling models (Estes; SAM) put
+the variance in what gets SAMPLED. Four consequences cascade: the same
+place legitimately reminds on Tuesday and not Wednesday (§92); a
+renovated or lookalike place partially reinstates — `place_reinstate`'s
+binary `==` was too coarse (§93); when a cue matches two records
+almost-equally the outcome is a discrimination DECISION, not an argmax
+(§94); a search interrupted mid-bout loses its un-emitted candidates in a
+similarity-graded way (§95); and a failed voluntary search doesn't die —
+it arms a latent query that a later cue can trip (§96). Spec changes land
+in `memory-model-spec.md` v5.46 §§5.98–5.102; probes P1035–P1044.
+
+## 92. The searcher samples the scene — retrieval-context resampling
+
+- **Raaijmakers & Shiffrin (1981), SAM** (*Psych. Review* 88:93):
+  retrieval is a sampling-with-recovery process over a cue-conditioned
+  image set; the SAME cue set yields different sampled images across
+  attempts. Probabilistic recall is not output noise — it is sampling
+  variance.
+- **Estes (1955)** stimulus fluctuation — already in the spec for the
+  memory side (state-context drift, §4.22/FC§12.6); v98 adds the missing
+  half: the *searcher's* context is also a fluctuating sample. The room
+  supplies N candidate cue features; the searcher's `C` retains each with
+  `ctx_keep_p` (≈0.7), independently, per retrieval bout.
+- **Perceptual load gates the sample** — Lavie (1995, 2005) perceptual
+  load theory: under high perceptual/cognitive load, task-irrelevant
+  stimuli are not processed (inattentional blindness is the extreme).
+  **[CONSENSUS]** — a busy character literally does not sample peripheral
+  cues: `ctx_keep_p_eff = ctx_keep_p·(1 − ctx_load_pen·load)` — the same
+  mechanism that §34 prices on retrieval-time latency/breadth now also
+  narrows WHICH features enter `C` in the first place.
+- Consequences, all lawful: (a) a re-probe immediately after a failed
+  probe shares most of the sampled `C` — outcomes correlate (~0.6), so
+  "ask again right now" is nearly a re-roll of the same die; (b) a probe
+  hours later re-samples from scratch — outcomes are near-independent —
+  the lawful engine of "I couldn't remember at lunch, it came to me at
+  dinner"; (c) involuntary retrieval (§5.7) inherits the sample: a
+  character in a high-load scene simply doesn't notice the smell that
+  would have reminded them.
+- Model consequence (§5.98): `C` is minted per bout by per-feature
+  Bernoulli(`ctx_keep_p_eff`) over the scene's feature set; identical
+  scenes produce correlated-but-different `C`s. `ctx_tau` (context
+  persistence, ~30 sim-min) sets the decorrelation horizon: within it,
+  the same sample persists (fixations), beyond it, resample.
+
+## 93. Reinstatement is a vector, not a boolean — graded place match
+
+`place_reinstate` fired only on `C.place == m.cueVector.place` — a
+name equality. But Smith & Vela's (2001) meta-analysis found the
+reinstatement benefit *graded* by how much of the encoding context is
+reinstated, and everyday life supplies the intermediate cases the binary
+gate throws away: the renovated kitchen, the apartment re-furnished by
+the next tenant, the café across town with the same espresso smell.
+
+- Model consequence (§5.99): `place_reinstate` becomes
+  `ctx_overlap` — a weighted feature-overlap score over place
+  sub-fields {structure/layout, props, occupants, sensory signature},
+  `reinstate_eff = place_reinstate·ctx_overlap·(1+log1p(ageDays/30))`
+  (age interaction kept). `ctx_overlap`=1 recovers the old binary win;
+  ~0.5 (renovated room) reinstates at half; ~0.35 (lookalike café)
+  still cues — this is the lawful machinery of *mis-reminding*: the
+  wrong place pulling up the right memory.
+- **Changed-place flag** — when `C.place_id == m.cueVector.place` but
+  `ctx_overlap` ∈ `changed_place_band` [0.3, 0.8]: emit `changed_place`
+  — the metacognitive "it's not how I remember it." HYPOTHESIS
+  (reconsolidation §6.1 + schema drift §6.4): the mismatch ALSO nudges
+  the record's stored place-detail toward the current scene —
+  remembering the old café as it looks now; `ctx_drift_pull` 0.02 per
+  changed-place visit.
+- **Gaze reinstatement** (Johansson & Johansson 2014, *Psych. Sci.*
+  25:236 — verified: looking at the encoding-congruent blank locus
+  improves retrieval; incongruent locus does not; spatial-relational
+  detail benefits most): `gaze_rein_gain` ≈ 0.05 additive cue mass when
+  the character's attention rests on the encoding-relevant sub-location —
+  micro-mechanism for "I walked back to where it happened and it came
+  back." Within-location, not between-location.
+- **[CONSENSUS: reinstatement is real, modest, graded. HYPOTHESIS:
+  the changed-place distortion pull and the lookalike mis-reminding
+  rate — direction is literature, magnitudes ours.]**
+
+## 94. Completion or separation — the retrieval gate on near-twins
+
+The spec prices lure rejection at the discrimination task (§4.x,
+Stark/Yassa) but retrieval-time competition was argmax: highest
+cueMatch wins. When two records sit within `sep_band` (≈0.15) of each
+other, humans face a different computation:
+
+- **Pattern completion** — the cue pattern is close enough to one stored
+  trace that the whole trace is reactivated (CA3 auto-association;
+  McClelland, McNaughton & O'Reilly 1995). The wrong twin can be the
+  completed one → lawful misretrieval ("no, that was the OTHER
+  birthday").
+- **Pattern separation** — mismatch detected, two representations kept
+  distinct (DG; Clelland et al. 2009 *Hippocampus* 19:34 — verified;
+  Yassa & Stark 2011 *Trends Neurosci.*). Emission is `mixed_up`: "I'm
+  conflating two different times."
+- **Aging completes** — Kirwan & Stark (2007, *Learn. Mem.* 14:625 —
+  verified): older adults' false alarms to similar lures reflect
+  over-completion; Yassa, Lacy et al. (2011) link it to CA3/DG
+  imbalance. Children complete too (AD§mnemonic-discrimination
+  inverted-U; Ngo et al. 2019) — separation peaks in the middle of
+  life, completion dominates at both ends.
+- **[CONSENSUS: completion/separation trade-off and its age profile.
+  HYPOTHESIS: `sep_band` width and the completion-vs-`mixed_up` split.]**
+- Model consequence (§5.100): when the top-two candidate cueMatches
+  differ by < `sep_band`, roll the gate: with P = `sep_bias(age)` the
+  search separates — emits `mixed_up` plus BOTH candidates at reduced
+  confidence; else completes — argmax wins and `borrow_details`
+  (probability `comp_merge_p` ≈ 0.3) pulls a verbatim field from the
+  loser into the winner's reconstruction (a new distortion operator on
+  the retrieve path — near-twin fields migrate, the mechanism behind
+  "the two parties blur together"). Separation requires the
+  discriminating feature be §5.1-encoded — a character who never encoded
+  WHICH year's party cannot separate; they can only complete.
+
+## 95. The suspended bout — what interruption does to an un-emitted recall
+
+§77 priced when a search gives up; nothing priced what happens to the
+search that gets cut off mid-bout. The interruption literature says the
+suspended search doesn't just pause — it degrades, and *what* interrupts
+matters more than how long:
+
+- **Gillie & Broadbent (1989)** *Psych. Res.* 50:243 — verified: an
+  interruption's length was NOT the disruptor; SIMILARITY of the
+  interpolated material to the suspended task was, as was its working-
+  memory demand (complex arithmetic). The suspended item survives in a
+  non-articulatory store — but competing similar content displaces it.
+- **Monk, Trafton & Boehm-Davis (2008)** *JEP:A* 14:299 — verified:
+  resumption lag grows with interruption duration — Altmann & Trafton's
+  (2002) goal-activation decay: a suspended goal's activation decays
+  while another goal occupies the buffer; resuming requires
+  reactivation, priced in seconds.
+- Model consequence (§5.101): a retrieval bout holds a sorted pending
+  queue; on interruption the queue's head becomes `pending_cand` with
+  activation `A`. Each tick suspended: `A *= susp_decay` (≈0.85); an
+  interruption whose topics OVERLAP the pending candidate's applies
+  `susp_sim_pen` (≈0.6) multiplicatively per tick — a same-topic
+  interruption kills the pending line almost surely ("I was about to
+  say something about the rent" dies when the other person starts on
+  the rent — Gillie & Broadbent's similarity result as the mechanism of
+  "it was on the tip of my tongue, gone"). Resumption: if `A >
+  susp_floor` (≈0.15) AND a cue reinstates, the bout restarts at the
+  pending head with resumption lag ∝ suspension duration; below floor,
+  `pending_cand` evaporates — the character emits "I lost it — it'll
+  come back" (see §96: it might).
+- **[CONSENSUS: similarity > duration for disruption; duration > 0 for
+  lag. HYPOTHESIS: the decay constants and the non-articulatory
+  survival window `susp_keep_p` ≈0.35.]**
+
+## 96. The loaded question — a failed search arms a latent query
+
+- **Yaniv & Meyer (1987)** *J. Mem. Lang.* 26:187 — unresolved TOT items
+  remain in a heightened state of accessibility ("latent memory" for
+  inaccessible targets): the failed search is not erased, it stays
+  loaded.
+- **Incubation** — Sio & Ormerod (2009) meta (*Psych. Bull.* 135:94):
+  putting down an unsolved problem and returning yields real gains
+  (small-to-moderate); Smith & Blankenship (1991): removal of the
+  initial misleading cue set is part of the mechanism — the fresh
+  sample (§92) is what a later attempt buys.
+- Rubin's "memory of the search" diaries and everyday phenomenology
+  agree: "what WAS her name?" resolves hours later, in the shower, on
+  an unrelated cue. **[CONSENSUS that unresolved searches persist and
+  resolve on later cues; DEBATED whether incubation is cue-set decay,
+  unconscious work, or both — we take the cheap, defensible leg: cue-set
+  resampling.]**
+- Model consequence (§5.102): a voluntary search that ends in
+  `giveUp`/`tot` arms an `openQuery` record {cueVector snapshot, armedAt,
+  hl `openq_hl` ≈ 2d} with probability `openq_arm` ≈ 0.5 (higher for
+  self-relevant questions, lower for asked-and-answered-by-someone-else).
+  The §5.7 involuntary scan checks `openQuery` like a nonfocal
+  intention: on cueMatch > `openq_fire` (≈0.3 — low bar, the question
+  primes its own answer) the query fires → emits `popped` ("it just
+  came to me") and re-runs the original search against the NEW sampled
+  `C` — which is why it succeeds: new sample, not new memory.
+- Locked null `openq_solve_null`: firing an openQuery never retrieves a
+  record that the normal threshold wouldn't — the pop uses the same
+  machinery; persistence buys a second lottery ticket, not a better
+  memory.
+
+## 97. Cue hierarchy — v98 additions to the §89 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| sampled C | per-bout Bernoulli feature keep; load narrows — same scene ≠ same C | §92 SAM/Estes/Lavie |
+| graded place overlap | reinstate ∝ ctx_overlap; lookalikes cue at ~⅓; changed places flag + drift-pull | §93 Smith & Vela; HYP |
+| gaze locus | +0.05 spatial-detail cue mass, within-location only | §93 J&J 2014 |
+| near-twin band | <sep_band → separate (`mixed_up`, both out) or complete (wrong pick + field borrow); age completes | §94 Kirwan & Stark; Yassa & Stark |
+| suspension | pending head decays; same-topic interrupt multiplies decay ×0.6; resume needs re-cue + lag ∝ duration | §95 Gillie & Broadbent; Monk |
+| open query | failed search arms 2d latent query; involuntary scan fires it at low threshold; pop = re-run on new C | §96 Yaniv & Meyer; Sio & Ormerod |
+
+## 98. Validation probes P1035–P1044 (v98 suite)
+
+- **P1035 sampling variance (MUST):** identical scene, N=200 probes
+  across decorrelated bouts → recall outcomes vary; immediate re-probe
+  outcome correlation ∈ [0.5, 0.9] — bounded, not 1.0 (would be
+  double-dipping) and not 0 (would deny the shared scene).
+- **P1036 load narrows the sample (SHOULD):** high-load scene vs low-load
+  same scene → involuntary retrieval count and peripheral-cue recall
+  both drop; central-topic recall ~flat (Lavie: load spares focal).
+- **P1037 graded reinstatement (MUST):** place overlap 1.0 / 0.5 /
+  lookalike-0.35 / 0 → monotone decreasing cueMatch; changed_place
+  emitted only in the band; ≥1 lookalike false-cue event in N runs.
+- **P1038 gaze locus (SHOULD):** congruent-locus attention recovers
+  spatial-relational verbatim fields at +≥5% vs incongruent; object-
+  feature fields ~flat (J&J's asymmetry preserved).
+- **P1039 separation gate (MUST):** a near-twin pair (Δ cueMatch <
+  sep_band): `mixed_up` rate > 0.1; wrong-pick rate > 0.05;
+  70yo profile's completion rate ≥ 1.5× the 30yo's; a third record
+  outside the band is unaffected.
+- **P1040 suspended bout (MUST):** same-topic interruption kills
+  pending_cand at ≥ `susp_sim_pen`-consistent rate; unrelated-topic
+  interruption survives at ≥ susp_keep_p; below-floor candidate emits
+  "lost it" and leaves no retrievable trace (no free rehearsal).
+- **P1041 resumption lag (SHOULD):** resume latency scales monotonically
+  with suspension duration; length-of-interruption at fixed similarity
+  affects lag but NOT survival (Gillie & Broadbent's asymmetry).
+- **P1042 loaded question (MUST — locked-null class):** failed search →
+  within openq_hl, a matched cue produces `popped` + successful re-run;
+  after expiry, rate ≈ baseline; `openq_solve_null` — popped retrievals
+  obey the normal threshold exactly.
+- **P1043 re-probe decorrelation (SHOULD):** immediate re-probe
+  correlation > next-day re-probe correlation by ≥0.3.
+- **P1044 changed-place pull (SHOULD):** after K changed-place visits,
+  record's stored place-detail drifts toward the visited state vs
+  no-visit control; pull per visit ≤ ctx_drift_pull cap.
+
+## 99. Honest limits (v98 additions)
+
+- `ctx_keep_p` 0.7 is our stand-in for stimulus-sampling theory — SAM
+  assumes sampling but never prices a scene-feature keep rate; P1035
+  locks the observable (outcome variance + re-probe correlation), not
+  the constant.
+- `ctx_overlap` sub-feature weights are uniform in v5.46; the literature
+  grades overlap only qualitatively. The lookalike mis-reminding rate is
+  a free prediction — real, but unpriced in humans.
+- `ctx_drift_pull` is a modeling hypothesis built on reconsolidation +
+  schema drift; no direct human measure of place-record updating by
+  changed-place visits. Kept small (0.02/visit) and capped by probe.
+- `sep_band`/`sep_bias(age)` translate a neuro-computational account
+  (DG/CA3) to a decision threshold; the age asymmetry direction is
+  Kirwan & Stark consensus, the 1.5× completion ratio in P1039 is ours.
+- `susp_decay`/`susp_sim_pen` quantify Gillie & Broadbent's qualitative
+  similarity result; `susp_keep_p` models their non-articulatory store
+  as survival probability — the store's real capacity is unknown.
+- `openq_arm`/`openq_hl` — Yaniv & Meyer's latency data show persistence,
+  not duration; 2d is a guess bounded by diary phenomenology. The
+  locked-null probe P1042 is the falsifiable part: persistence must
+  never mint access.

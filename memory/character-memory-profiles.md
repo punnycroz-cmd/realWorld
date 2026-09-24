@@ -1203,6 +1203,11 @@ needs both.
 | series_edge_gain / series_prox_w | 0.0 / 0.2 | 0.4 / 0.8 | boundary anchor + adjacency confusion weight (v5.45) |
 | rec_scale / rec_floor | 5 / 0.005 | 90 / 0.1 | strength→recency map + date-tag floor (v5.45) |
 | jol_horizon_w / jol_exp_gain | 0.0 / 0.0 | 0.15 / 0.2 | horizon load (locked-small) + practice correction cap (v5.45) |
+| ctx_keep_p / ctx_load_pen | 0.4 / 0.0 | 0.95 / 0.8 | scene-sample keep rate + load narrowing (v5.46) |
+| gaze_rein_gain / ctx_drift_pull | 0.0 / 0.0 | 0.15 / 0.08 | within-locus micro-cue + changed-place pull (v5.46) |
+| sep_band / comp_merge_p | 0.05 / 0.0 | 0.3 / 0.7 | near-twin gate width + field borrow (v5.46) |
+| susp_decay / susp_sim_pen / susp_floor / susp_keep_p | 0.6 / 0.3 / 0.05 / 0.1 | 0.97 / 0.95 / 0.4 / 0.7 | suspended-bout decay, same-topic kill, floor, store survival (v5.46) |
+| openq_arm / openq_hl / openq_fire | 0.1 / 0.5 | 0.9 / 7 / 0.6 | latent-query arming, half-life days, fire threshold (v5.46) |
 | device_dep | 0.0 | 1.0 | offload-adoption + phone-drain trait (v5.44) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
@@ -4929,3 +4934,56 @@ none trait-pinnable:
   regular forever, without the character ever being
   able to testify to the night itself. Sources FC§41;
   probes P1027–P1034.
+## 78. v5.46 note (retrieval-cues IX — the sample, the
+overlap, the gate, the pause, the echo)
+
+Five mechanisms (RC Part IX, spec §§5.98–5.102); clamp rows
+added in §0 for all ten param groups:
+
+- **`ctx_keep_p`/`ctx_load_pen` — the one lawful
+  personality-adjacent dial.** A low `ctx_keep_p` profile
+  samples thin contexts: fewer reminders, more "I was just
+  there and it didn't click," re-probes that genuinely
+  differ — the distracted character is *made* of this.
+  High-load occupations (barista at rush, ER nurse) ride
+  `ctx_load_pen`, not a bible flag — the world supplies
+  `load`, the param prices its bite. No bible may pin a
+  "photographic context": max 0.95.
+- **`sep_bias(age)` — U-shaped, not trait-shaped.** Both
+  ends of life complete rather than separate (Kirwan &
+  Stark; Ngo): the child merges the two beach trips, the
+  70yo merges the two weddings, the 30yo is the one who
+  says "wait, I'm mixing two times." A bible cannot buy
+  an old character clean discrimination — clamp keeps
+  `sep_bias_70` ≤ `sep_bias_30`. `comp_merge_p` is the
+  gossip engine's best friend: near-twin field borrowing
+  makes "the party where she cried" migrate between
+  tellings.
+- **`susp_*` — the interrupted thought has its own
+  physics.** `susp_sim_pen` is the star: a same-topic
+  interruption kills the pending line (Gillie & Broadbent)
+  — the character cut off *while the other person talks
+  about the rent* loses the rent line specifically.
+  `susp_keep_p` models the non-articulatory store; bibles
+  pin nothing here, the constants are population-level.
+- **`openq_*` — persistence without access.** `openq_arm`
+  is the only bible-adjacent dial (a ruminative character
+  arms more latent queries — the shower-thought
+  personality); `openq_hl`/`openq_fire` are population.
+  `openq_solve_null` is locked for everyone: no profile
+  resolves queries below the normal threshold — a pop is
+  a re-draw on a new sample, never a power-up.
+- **`gaze_rein_gain`/`ctx_drift_pull` — micro and
+  hypothesis.** The gaze bonus is small and spatial-only;
+  the changed-place pull is our smallest HYPOTHESIS
+  constant (0.02/visit, capped by P1044) — a bible cannot
+  declare a character immune to having their childhood
+  kitchen re-papered.
+- **Emergent cast shadows:** (a) the distracted elder who
+  "came back to where it happened" — thin `ctx_keep_p` +
+  `gaze_rein_gain` produces pilgrimages that work; (b) the
+  70yo whose two best stories keep swapping details —
+  `comp_merge_p` at low `sep_bias`; (c) the chronic
+  "it'll come back to me" character — high `openq_arm`,
+  and it does, two days later, in the shower. Sources
+  RC§§92–99; probes P1035–P1044.
