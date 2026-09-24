@@ -27885,6 +27885,66 @@ function sfDecalChunk(g, cx, cy){
             g.stroke();
           }
         }
+        /* v73: sidewalk grammar — Mission walks are scored concrete, not
+           a flat slab. Transverse expansion joints cross the walk every
+           ~2m (one cell) perpendicular to the street axis; a mid-score
+           runs parallel to the curb when the strip is 2+ cells deep.
+           Street view already draws this cross (line ~7553); the atlas
+           bake was missing it. Joints skip ~12% of cells for the real
+           staggered-bay rhythm of repoured panels. */
+        const nR = sfTile(wx, wy - 1) === 10 || sfTile(wx, wy - 1) === 16,
+              sR = sfTile(wx, wy + 1) === 10 || sfTile(wx, wy + 1) === 16,
+              wR = sfTile(wx - 1, wy) === 10 || sfTile(wx - 1, wy) === 16,
+              eR = sfTile(wx + 1, wy) === 10 || sfTile(wx + 1, wy) === 16;
+        const jCol = 'rgba(52,48,40,0.38)';
+        if((nR || sR) && phash(wx, wy, 6010) > 0.12){
+          g.fillStyle = jCol; g.fillRect(sx, sy, 1.2, sh);   // N-S joint
+        }
+        if((wR || eR) && phash(wx, wy, 6011) > 0.12){
+          g.fillStyle = jCol; g.fillRect(sx, sy, csz, 1.2);  // E-W joint
+        }
+        // mid-score parallel to curb, only when the walk continues on
+        // the far side (deep strips get the second score line)
+        g.fillStyle = 'rgba(52,48,40,0.22)';
+        if((nR || sR) && sfTile(wx + 1, wy) === 11 && phash(wx, wy, 6012) > 0.15)
+          g.fillRect(sx, sy + sh * 0.55, csz, 1);
+        if((wR || eR) && sfTile(wx, wy + 1) === 11 && phash(wx, wy, 6013) > 0.15)
+          g.fillRect(sx + csz * 0.55, sy, 1, sh);
+        // gum-spot constellations — the Mission's polka-dotted concrete;
+        // heavier where feet funnel (doors, crosswalk aprons)
+        const funnel = sfTile(wx, wy - 1) === 16 || sfTile(wx, wy + 1) === 16 ||
+                       sfTile(wx - 1, wy) === 16 || sfTile(wx + 1, wy) === 16;
+        const gumDen = SF_DOORS.has(wx + ',' + wy) ? 0.85 : funnel ? 0.5 : 0.22;
+        if(phash(wx, wy, 6020) < gumDen){
+          g.fillStyle = 'rgba(40,38,34,0.5)';
+          const n2 = 1 + (phash(wx, wy, 6021) * 3 | 0);
+          for(let s2 = 0; s2 < n2; s2++){
+            const gx2 = sx + 3 + phash(wx + s2, wy, 6022) * (csz - 7),
+                  gy2 = sy + 3 + phash(wy + s2, wx, 6023) * (sh - 7);
+            g.beginPath();
+            g.ellipse(gx2, gy2, 1.6, Math.max(1, 1.6 * SF_TILT), 0, 0, Math.PI * 2);
+            g.fill();
+          }
+        }
+        // hairline cracks — rare, diagonal, wander off the joint grid
+        if(phash(wx, wy, 6030) < 0.055){
+          g.strokeStyle = 'rgba(46,42,36,0.5)'; g.lineWidth = 1;
+          const cx0 = sx + phash(wx, wy, 6031) * csz * 0.4,
+                cy0 = sy + phash(wy, wx, 6032) * sh * 0.4;
+          g.beginPath(); g.moveTo(cx0, cy0);
+          g.lineTo(cx0 + csz * 0.35, cy0 + sh * (0.2 + phash(wx, wy, 6033) * 0.4));
+          g.lineTo(cx0 + csz * (0.5 + phash(wx, wy, 6034) * 0.3), cy0 + sh * 0.7);
+          g.stroke();
+        }
+        /* threshold wear — the patch of sidewalk in front of a real door
+           is polished dark by foot traffic; a shallow fan spills toward
+           the curb. SF_DOORS holds the legal threshold cells. */
+        if(SF_DOORS.has(wx + ',' + wy)){
+          g.fillStyle = 'rgba(52,50,44,0.30)';
+          g.fillRect(sx + csz * 0.12, sy + sh * 0.12, csz * 0.76, sh * 0.76);
+          g.fillStyle = 'rgba(52,50,44,0.16)';
+          g.fillRect(sx + csz * 0.24, sy + sh * 0.24, csz * 0.52, sh * 0.52);
+        }
       } else if(t === 10){
         /* v44: arterial dressing off the road-width map (built once in
            sfInitWorld). Mission/Guerrero-class streets (7-9 cells) carry
@@ -27976,6 +28036,32 @@ function sfDecalChunk(g, cx, cy){
           if(sfTile(wx, wy + 1) === 16) g.fillStyle = bar, g.fillRect(sx, sy + sh - bw2, csz, bw2);
           if(sfTile(wx - 1, wy) === 16) g.fillStyle = bar, g.fillRect(sx, sy, 4, sh);
           if(sfTile(wx + 1, wy) === 16) g.fillStyle = bar, g.fillRect(sx + csz - 4, sy, 4, sh);
+          /* v73: utility trench scars — SF streets are constantly opened
+             for water/sewer/fiber runs, then repaved as a darker asphalt
+             ribbon with a proud seam. Patches run 4 cells along the
+             street axis in a mid lane; the cross-axis edges carry the
+             saw-cut seam line. */
+          if(!nearX && rw2 >= 5){
+            const along = rax === 1 ? wy : wx,          // axis coord
+                  across = rax === 1 ? wx : wy;
+            if(Math.abs(roff) >= 2 && Math.abs(roff) <= 4 &&
+               phash(across * 31, along >> 2, 6050) < 0.16){
+              g.fillStyle = 'rgba(22,24,30,0.28)';
+              g.fillRect(sx, sy, csz + 0.5, sh + 0.5);
+              g.fillStyle = 'rgba(10,12,16,0.4)';
+              if(rax === 1){
+                g.fillRect(sx, sy, 1.5, sh); g.fillRect(sx + csz - 1.5, sy, 1.5, sh);
+              } else {
+                g.fillRect(sx, sy, csz, 1.5); g.fillRect(sx, sy + sh - 1.5, csz, 1.5);
+              }
+              // patch ends: brighter saw-cut where the run terminates
+              if(phash(across * 31, (along >> 2) + 1, 6050) >= 0.16){
+                g.fillStyle = 'rgba(60,64,72,0.5)';
+                if(rax === 1) g.fillRect(sx, sy + sh - 2, csz, 2);
+                else g.fillRect(sx + csz - 2, sy, 2, sh);
+              }
+            }
+          }
         }
         // gutter shade band along the curb + storm drain grates near
         // crosswalk ends — the dark slot where rain leaves the street
@@ -33466,6 +33552,25 @@ function sfRenderStreet(cw, ch){
                                 :           [2, 4, 12, 10];
           qE(curbC[d], a, bq, cq, dq);
         }
+        /* v73: the same sidewalk grammar the atlas bake carries —
+           threshold wear at real door cells, crosswalk-funnel polish,
+           gum spots. Reads only when the walk is near enough to resolve. */
+        if(cfwd < 60){
+          if(SF_DOORS.has(gx + ',' + gy))
+            subQ(cm * 0.12, cm * 0.12, cm * 0.88, cm * 0.88,
+                 'rgba(52,50,44,0.26)', gz);
+          const fun = (nm & (4 << 0)) || (nm & (4 << 4)) ||
+                      (nm & (4 << 8)) || (nm & (4 << 12));
+          if(fun) subQ(0, 0, cm, cm, 'rgba(52,50,44,0.14)', gz);
+          if(cfwd < 45 && phash(gx, gy, 6020) < (fun ? 0.5 : 0.22)){
+            const n2 = 1 + (phash(gx, gy, 6021) * 3 | 0);
+            for(let s2 = 0; s2 < n2; s2++){
+              const g0 = cm * (0.1 + 0.75 * phash(gx + s2, gy, 6022)),
+                    g1 = cm * (0.1 + 0.75 * phash(gy + s2, gx, 6023));
+              subQ(g0, g1, g0 + 0.12, g1 + 0.12, 'rgba(40,38,34,0.5)', gz);
+            }
+          }
+        }
       }
     } else if(t === 10 && cfwd < 90){
       const gb = 'rgba(16,18,24,0.30)';
@@ -33563,6 +33668,23 @@ function sfRenderStreet(cw, ch){
           if(!nearX && phash(gx, gy, 1771) < 0.045 && cfwd < 50)
             subQ(cm * 0.32, cm * 0.36, cm * 0.68, cm * 0.64,
                  'rgba(38,42,50,0.8)', 0);
+        }
+        /* v73: utility trench scars — same 4-cell-along-axis patches the
+           atlas bake draws, projected as darker repaved ribbons with
+           saw-cut seams on the cross-axis edges. */
+        if(!nearX && rw2 >= 5 && Math.abs(roff) >= 2 && Math.abs(roff) <= 4 &&
+           cfwd < 70){
+          const along = rax === 1 ? gy : gx, across = rax === 1 ? gx : gy;
+          if(phash(across * 31, along >> 2, 6050) < 0.16){
+            subQ(0, 0, cm, cm, 'rgba(22,24,30,0.28)', 0);
+            if(rax === 1){
+              subQ(0, 0, 0.10, cm, 'rgba(10,12,16,0.4)', 0);
+              subQ(cm - 0.10, 0, cm, cm, 'rgba(10,12,16,0.4)', 0);
+            } else {
+              subQ(0, 0, cm, 0.10, 'rgba(10,12,16,0.4)', 0);
+              subQ(0, cm - 0.10, cm, cm, 'rgba(10,12,16,0.4)', 0);
+            }
+          }
         }
       }
     }
