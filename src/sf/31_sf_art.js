@@ -1542,6 +1542,23 @@ function sfBldCanvas(b, wet){
     const cy = pad + hBase * phash(k, b.i, 1902);
     paEllipse(g, cx, cy, 5, 2, 'rgba(180,205,230,0.35)');
   }
+  /* v58: ponding — old flat tar roofs hold standing water for days after
+     rain. A few irregular pools sit in the low spots; each is a dark body
+     (submerged gravel) carrying a sky-reflection rim and a bright glint
+     pushed toward the sun — the same physics as street puddles, from above. */
+  if(wet){
+    const nPd = 1 + Math.floor(phash(b.i, 41, 3400) * 2);
+    for(let k = 0; k < nPd; k++){
+      const cx = pad + (wPx - pad * 2) * (0.15 + 0.7 * phash(b.i, k, 3401));
+      const cy = pad + hBase * (0.2 + 0.6 * phash(k, b.i, 3402));
+      const pr2 = 4 + phash(b.i, k, 3403) * Math.min(9, roofArea / 900);
+      paBlob(g, cx, cy, pr2, 'rgba(26,30,38,0.5)');
+      paBlob(g, cx + SF_SUN.x * 1.4, cy + SF_SUN.y * 1.0,
+             pr2 * 0.72, 'rgba(150,180,210,0.30)');
+      paEllipse(g, cx + SF_SUN.x * 1.8, cy + SF_SUN.y * 1.2 - pr2 * 0.28,
+                pr2 * 0.45, pr2 * 0.15, 'rgba(212,232,246,0.42)');
+    }
+  }
   g.restore();
   // parapet cornice: bright trim along every outward roof edge
   for(let i = 0; i < n; i++){
@@ -1611,6 +1628,23 @@ function sfBldCanvas(b, wet){
         paBlob(g, bx4 + 1.5, by4 - 2.2, 1.4, MAT.leaf[3]);
         if(phash(b.i, p3, 3210) < 0.35) paPX(g, bx4, by4 - 3, '#d05040');
       }
+      /* v58: festoon string lights across the deck — a sagging catenary of
+         warm bulbs between the corner posts (unlit by day in the bake; the
+         street-view pass glows them once sfLampsLit trips). Plus the cooler
+         crate every Mission deck keeps by the chairs. */
+      {
+        const lxA = dx0 + 2, lyA = dy0 + 1,
+              lxB = dx0 + dw - 2, lyB = dy0 + Math.round(dh * 0.45);
+        for(let s2 = 0; s2 <= 14; s2++){
+          const t2 = s2 / 14;
+          const sx3 = lxA + (lxB - lxA) * t2;
+          const sy3 = lyA + (lyB - lyA) * t2 + Math.sin(t2 * Math.PI) * 2.2;
+          paPX(g, Math.round(sx3), Math.round(sy3),
+               s2 % 3 === 1 ? '#d8b868' : '#4a4238');
+        }
+        paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 4, '#4a7a9a');
+        paR(g, dx0 + dw - 7, dy0 + dh - 6, 5, 1, '#c8d8e0');
+      }
     };
     // shop roofs sometimes get a railed sun deck with planks + umbrella
     if(isShop && roofArea > 2400 && phash(b.i, 2, 1370) < 0.6){
@@ -1648,7 +1682,7 @@ function sfBldCanvas(b, wet){
         inside = sfPtInPoly(P, cx, cy + hPx);
       }
       if(!inside) continue;
-      const kind = Math.floor(phash(b.i, k, 1369) * 18); // v22: +5 kinds
+      const kind = Math.floor(phash(b.i, k, 1369) * 21); // v58: +3 kinds
       if(kind === 0){ // mushroom vent
         sfPropShadow(g, cx, cy, 2, 2.2);
         paEllipse(g, cx, cy, 3, 2, ROOF[1]);
@@ -1799,6 +1833,54 @@ function sfBldCanvas(b, wet){
           paEllipse(g, px4, py4 - 0.5, 1.3, 0.9, '#7a4028');
           paBlob(g, px4, py4 - 2, 1.5, p3 % 2 ? MAT.leaf[2] : MAT.leaf[3]);
           if(phash(p3, b.i, 3215) < 0.3) paPX(g, px4, py4 - 3, '#e8c05a');
+        }
+      } else if(kind === 18){ // v58: HVAC duct run — galvanized trunk line
+        // with a welded elbow and gooseneck discharge; sheet metal catches
+        // the sky along its crown
+        const horiz = phash(b.i, k, 3300) < 0.5;
+        const len = 10 + Math.floor(phash(b.i, k, 3301) * 8);
+        sfPropShadow(g, cx, cy, 2.5, len * 0.5);
+        if(horiz){
+          paR(g, cx - len / 2, cy - 1, len, 3, '#9aa2a8');
+          rl(cx - len / 2, cy - 1, cx + len / 2, cy - 1, '#c8d0d6');
+          rl(cx - len / 2, cy + 2, cx + len / 2, cy + 2, '#6a7278');
+          paR(g, cx + len / 2 - 1, cy - 4, 3, 3, '#9aa2a8');
+          paEllipse(g, cx + len / 2 + 1, cy - 5, 2.4, 1.6, '#c8d0d6');
+          paEllipse(g, cx + len / 2 + 1, cy - 5, 1.5, 1, '#6a7278');
+        } else {
+          paR(g, cx - 1, cy - len / 2, 3, len, '#9aa2a8');
+          rl(cx - 1, cy - len / 2, cx - 1, cy + len / 2, '#6a7278');
+          rl(cx + 2, cy - len / 2, cx + 2, cy + len / 2, '#c8d0d6');
+          paR(g, cx - 4, cy - len / 2 - 1, 3, 3, '#9aa2a8');
+          paEllipse(g, cx - 5, cy - len / 2 - 1, 2.4, 1.6, '#c8d0d6');
+        }
+      } else if(kind === 19){ // v58: tar-patch repairs — black mastic
+        // scars every old Mission flat roof collects around its drains,
+        // plus a gravel windrow pushed up by wind and foot traffic
+        const nPt2 = 2 + Math.floor(phash(b.i, k, 3310) * 3);
+        for(let p3 = 0; p3 < nPt2; p3++){
+          const px4 = cx + (phash(p3, k, 3311) - 0.5) * 12;
+          const py4 = cy + (phash(k, p3, 3312) - 0.5) * 8;
+          paBlob(g, px4, py4, 2.5 + phash(p3, b.i, 3313) * 2.5,
+                 wet ? 'rgba(14,16,20,0.55)' : 'rgba(30,28,26,0.45)');
+        }
+        rl(cx - 6, cy + 5, cx + 6, cy + 5, '#3a3835');
+        rl(cx - 6, cy + 6, cx + 5, cy + 6, '#2a2825');
+      } else if(kind === 20){ // v58: sunbather's kit — towel, cooler,
+        // sandals: the Mission roof IS the backyard
+        sfPropShadow(g, cx, cy + 1, 2, 4);
+        const tC = ['#d8685a', '#5a8ab8', '#e0c060'][
+          Math.floor(phash(b.i, k, 3320) * 3)];
+        paR(g, cx - 4, cy - 2, 8, 5, tC);
+        rl(cx - 4, cy - 1, cx + 4, cy - 1, shade(tC, 1.2));
+        rl(cx - 4, cy + 1, cx + 4, cy + 1, shade(tC, 1.2));
+        paR(g, cx + 5, cy - 3, 4, 4, '#4a7a9a');
+        paR(g, cx + 5, cy - 3, 4, 1, '#d8e4ea');
+        paPX(g, cx - 5, cy + 3, '#e8e0d0');
+        paPX(g, cx - 5, cy + 4, '#e8e0d0');
+        if(phash(b.i, k, 3321) < 0.4){ // folded lounge chair
+          rl(cx - 6, cy - 4, cx - 2, cy - 6, '#8a6f52');
+          rl(cx - 6, cy - 4, cx - 6, cy - 1, '#8a6f52');
         }
       } else { // v22 kind 17: conduit run + vent cluster — the bundled
         // pipes HVAC contractors leave crossing old tar roofs

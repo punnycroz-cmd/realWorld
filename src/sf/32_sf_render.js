@@ -7031,6 +7031,15 @@ function sfRenderStreet(cw, ch){
         ctx.closePath(); ctx.fill();
         ctx.strokeStyle = night ? '#1a1816' : shade(ROOF[1], 0.85);
         ctx.lineWidth = 1; ctx.stroke();
+        /* v58: wet tar mirrors the sky — after rain the membrane takes a
+           sky-colored glaze that strengthens toward the far parapet line
+           (grazing-angle reflection). Same physics as the ponding bake. */
+        if(!night && SF_WX.wet > 0.35){
+          const sg = ctx.createLinearGradient(0, yMin, 0, yMax);
+          sg.addColorStop(0, `rgba(186,212,238,${0.20 * SF_WX.wet})`);
+          sg.addColorStop(1, `rgba(186,212,238,${0.05 * SF_WX.wet})`);
+          ctx.fillStyle = sg; ctx.fill();
+        }
         // v9: aerial perspective — far roofs sink into the marine layer
         const rHz = sfHazeA(d.fwd);
         if(rHz > 0.02){
@@ -7253,6 +7262,66 @@ function sfRenderStreet(cw, ch){
             ctx.moveTo(b0[0] + (b1[0] - b0[0]) * t2, b0[1] + (b1[1] - b0[1]) * t2);
             ctx.lineTo(r0[0] + (r1[0] - r0[0]) * t2, r0[1] + (r1[1] - r0[1]) * t2);
             ctx.stroke();
+          }
+          /* v58: festoon string lights clipped along this deck rail — a
+             single sagging wire under the top rail carrying warm bulbs.
+             The bulbs glow once the streetlights come on (sfLampsLit) —
+             same physical trigger as the sodium pools on the street. */
+          const litB = sfLampsLit(), sagA = sc2 * 0.18;
+          ctx.strokeStyle = night ? '#1a1816' : '#3a352e';
+          ctx.lineWidth = Math.max(0.5, 0.04 * sc2);
+          ctx.beginPath();
+          for(let s2 = 0; s2 <= 16; s2++){
+            const t2 = s2 / 16;
+            const xw = r0[0] + (r1[0] - r0[0]) * t2;
+            const yw = r0[1] + (r1[1] - r0[1]) * t2 + Math.sin(t2 * Math.PI) * sagA;
+            s2 ? ctx.lineTo(xw, yw) : ctx.moveTo(xw, yw);
+          }
+          ctx.stroke();
+          for(let s2 = 1; s2 < 8; s2++){
+            const t2 = s2 / 8;
+            const bx5 = r0[0] + (r1[0] - r0[0]) * t2;
+            const by5 = r0[1] + (r1[1] - r0[1]) * t2 +
+                        Math.sin(t2 * Math.PI) * sagA + Math.max(1, sc2 * 0.05);
+            if(litB){
+              ctx.fillStyle = 'rgba(255,190,110,0.25)';
+              ctx.beginPath();
+              ctx.arc(bx5, by5, Math.max(2, sc2 * 0.1), 0, Math.PI * 2);
+              ctx.fill();
+            }
+            ctx.fillStyle = litB ? '#ffd894' : (night ? '#3a3630' : '#c8b070');
+            ctx.beginPath();
+            ctx.arc(bx5, by5, Math.max(0.8, sc2 * 0.04), 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+      }
+      /* v58: parapet pigeons — the Mission's roofline residents. Perched
+         birds dot the camera-facing parapet caps of flat roofs (the same
+         edge-facing test as the rail pass); each is a two-blob silhouette
+         standing on the cap, tinted like the rest of the skyline. */
+      if(!pitched && rpts.length > 2 && d.fwd < 130){
+        for(let e2 = 0; e2 < n; e2++){
+          const a = P[e2], bq = P[(e2 + 1) % n];
+          const ex2 = bq[0] - a[0], ey2 = bq[1] - a[1];
+          const L2 = Math.hypot(ex2, ey2) || 1;
+          let nx2 = ey2 / L2, ny2 = -ex2 / L2;
+          if(b._ccw){ nx2 = -nx2; ny2 = -ny2; }
+          if(nx2 * -DX + ny2 * -DY <= 0.05) continue;
+          const nBird = Math.floor(phash(b.i, e2, 3400) * 4);
+          for(let b3 = 0; b3 < nBird; b3++){
+            const t2 = 0.12 + phash(e2, b3 + b.i, 3401) * 0.76;
+            const q = pr(a[0] + ex2 * t2, a[1] + ey2 * t2, hm + 0.42);
+            if(!q) continue;
+            const bs = Math.max(0.9, 0.13 * F / q[2]);
+            ctx.fillStyle = night ? '#26241f'
+              : (phash(b3, e2, 3402) < 0.25 ? '#8a8a86' : '#4c4c54');
+            ctx.beginPath();
+            ctx.ellipse(q[0], q[1] - bs * 0.5, bs * 1.1, bs * 0.7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.beginPath();
+            ctx.arc(q[0] - bs * 0.9, q[1] - bs * 1.3, bs * 0.45, 0, Math.PI * 2);
+            ctx.fill();
           }
         }
       }
