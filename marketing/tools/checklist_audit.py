@@ -21,6 +21,10 @@ less boring than it should be. This tool mechanically verifies:
      every world analytics_hook being spec'd, playtest PT range) are
      diffed against the live world-sim-world worktree. Skips with a WARN
      when that worktree isn't mounted.
+  9. Rehearsal-log containment: every dated "| YYYY-MM-DD | ... |" table
+     row lives inside §10 (rows pasted at end-of-file get orphaned under
+     later sections and become invisible to gate_freshness.sh). Also:
+     every D0.x task in §3 has a §11 proof-row mention.
 
 Usage: ./tools/checklist_audit.py   (run from marketing/ or repo root)
 Exit:  0 = no FAILs (warns allowed), 1 = any FAIL.
@@ -57,7 +61,7 @@ for l in lines:
         owner_gates.add(int(m.group(1)))
 
 # ── 2/4. coverage matrix ──
-matrix = re.search(r"## §11.*?(?=\n## |\Z)", text, re.S)
+matrix = re.search(r"(?m)^## §11.*?(?=^## |\Z)", text, re.S)
 if not matrix:
     bad("§11 rehearsal coverage matrix not found")
     matrix_text = ""
@@ -210,6 +214,33 @@ else:
             warn("no PT1–PTn citation found in checklist")
     except Exception as e:
         warn(f"playtest.json unreadable: {e}")
+
+# ── 9. rehearsal-log containment + D0 coverage ──
+s10_start = text.find("## §10")
+s11_start = text.find("## §11")
+stray = []
+for i, l in enumerate(lines):
+    if re.match(r"\| 202\d-", l):
+        pos = sum(len(x) + 1 for x in lines[:i])
+        if not (s10_start <= pos < s11_start):
+            stray.append(i + 1)
+if stray:
+    bad(f"dated rehearsal-log rows outside §10 (lines {stray}) — "
+        f"move them inside the §10 table (tools/log_rehearsal.sh)")
+else:
+    ok("all dated rehearsal-log rows live inside §10")
+
+d0_ids = sorted({m.group(0) for l in lines
+                 for m in [re.search(r"D0\.\d+b?", l)] if m})
+# §11 may cite a task as part of a range ("D0.5–D0.8 posts") — expand those
+covered = set(re.findall(r"D0\.\d+b?", matrix_text))
+for m in re.finditer(r"D0\.(\d+)b?\s*[–-]\s*D0\.(\d+)b?", matrix_text):
+    covered.update(f"D0.{n}" for n in range(int(m.group(1)), int(m.group(2)) + 1))
+missing_d0 = [d for d in d0_ids if d not in covered]
+if missing_d0:
+    bad(f"§3 day-0 tasks with no §11 proof-row mention: {missing_d0}")
+else:
+    ok(f"all {len(d0_ids)} D0.x tasks are mentioned in §11")
 
 print(f"\nchecklist audit: {PASS} pass / {WARN} warn / {FAIL} fail")
 sys.exit(1 if FAIL else 0)

@@ -343,6 +343,34 @@
       "status": "PENDING — game build",
       "note": "feed resolves as 'player session ended' either way — the locked neutral wording (world-v95 §46)"
     },
+    "privacy_beat_seen": {
+      "when": "tour beat 6 renders on the `feed-anon` anchor — 'watching leaves no mark … agency is public, presence is private' (game-side; world-v109 §50 — renumbered tour order, privacy precedes reach-in)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the structural privacy promise; any future viewer-list surface would falsify the beat — world-v109 never-list bans it"
+    },
+    "data_card_seen": {
+      "when": "the S2b data card renders between the handle step and the age band — 'kept in this browser's storage, nothing sent anywhere' (game-side; world-v109 §51 — free-tier, outside the band normalizer, u13 sees it too)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "disclosure exposure; states what is kept and where — forward clause 'asks are public, watching is private' is a design constraint, not a feature claim (world-v109 §51/§54)"
+    },
+    "flag_lesson_shown": {
+      "when": "the S4g flag card renders — 'every ask is flaggable; costs nothing, files nothing, silent on the feed, player asks only never residents' (game-side; world-v109 §52 — behind the band normalizer like S4f)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "teaches the viewer's one moderation hand; never framed as a public vote — flags route to the same human review (world-v109 §52)"
+    },
+    "flag_demo_sent": {
+      "when": "the demo affordance 'flag an ask on the feed (demo)' is clicked — marks S.flagged once, deliberately does not touch the feed (game-side; world-v109 §52–§54 — at merge binds per-entry to the human-review queue)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the flag's silence is the lesson — idempotent (second click toasts 'flagged already'), no feed mutation, no flag-specific feed wording (world-v109 §52–§54)"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },
