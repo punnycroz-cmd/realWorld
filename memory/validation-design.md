@@ -14013,9 +14013,12 @@ widened for the 2025 registered-replication null.
 
 → memory-model-spec.md v5.78 §§6.393–6.398;
 probes P1419–P1430.
-Probe registry: P1–P1442. v133 MUST: P1431,
+Probe registry: P1–P1454. v133 MUST: P1431,
 P1433, P1435, P1437, P1438, P1440, P1441.
 SHOULD: P1432, P1434, P1436, P1439, P1442.
+v134 MUST: P1443, P1444, P1445, P1447,
+P1449, P1450, P1451, P1452, P1453, P1454.
+SHOULD: P1446, P1448.
 
 ## 268. v133 probe specs (P1431–P1442 —
 forgetting-curves XII, the neighborhood prices
@@ -14139,3 +14142,106 @@ neighborhood — that IS this pass's claim.
 
 → memory-model-spec.md v5.79 §§4.92–4.95 +
 §§5.147–5.148; probes P1431–P1442.
+
+## 270. v134 probe specs (P1443–P1454 — retrieval-
+cues XIV: address, shelf, hour, listener, lie)
+
+- **P1443 directory-first (MUST):** seed records
+  with a live reachable `holder`; on content-failed
+  searches ≥50% emit a holder pointer instead of a
+  bout; on aged records holder-field recall ≥1.5×
+  content recall (`tx_dir_p`/`tx_where_w` legs).
+- **P1444 `tx_mem_null` (MUST — locked):**
+  directory-hit emissions contain zero content
+  fields — a build where "who knows" produces
+  "what" fails.
+- **P1445 session PI buildup (MUST):** within a
+  session, same-feature-class bout success declines
+  monotonically toward `piq_cap`; per-bout slope
+  within ±50% of `piq_build`.
+- **P1446 `piq_none_null` (SHOULD — locked):** a
+  foreign-class cue restores bout success to within
+  10% of session-first — partial release fails.
+- **P1447 synchrony (MUST):** the elder-vs-young
+  episodic gap at elder-peak hour ≤50% of the gap
+  at elder-trough hour; young adults show the
+  mirror trough.
+- **P1448 `circ_flat_null` (SHOULD — locked):**
+  with `circ_gain=0` the age×hour interaction must
+  vanish — an interaction surviving on other params
+  fails.
+- **P1449 felt-accessibility inflation (MUST):**
+  post-resolution `fok_pre` on the resolved record
+  rises ≥0.5·`retro_fok_inf` and decays with
+  half-life ≈`retro_inf_tau`.
+- **P1450 `retro_acc_null` (MUST — locked):**
+  corr(`fok_bias`, emitted-field accuracy) ≈0 while
+  corr(`fok_bias`, reported confidence) >0 — the
+  monitor lies, the store doesn't.
+- **P1451 audience tuning (MUST):** emitted
+  valence shifts toward `audience.prior` at
+  `tune_msg` for both in-group and out-group rooms
+  — compliance is ungated.
+- **P1452 saying-is-believing (MUST):** in-group +
+  `uptake` retells shift the teller's record toward
+  the tuned emission; shift still detectable ≥14d.
+- **P1453 `tune_free_null` (MUST — locked):**
+  out-group or failed-`uptake` retells produce zero
+  record shift despite identical message tuning.
+- **P1454 schema mismatch (MUST —
+  `schema_free_null` locked):** mismatched scene
+  entry opens a bout on `lastVerified` at ≥3× base
+  rate; fully consistent entry stays at base ±10%;
+  schema-fill intrusions emit `prov:"schema"` at
+  ≈`schemis_intr`.
+
+## 271. Sources verified this version (P1443–P1454
+backing)
+
+- Wegner 1987 (*Theories of Group Behavior*,
+  Springer — transactive memory systems); Wegner
+  1995 (*Soc. Cogn.* 13:319 — computer-network
+  model); **Sparrow, Liu & Wegner 2011** (*Science*
+  333:776 — verified this session: folder/where
+  recall 0.49 vs content 0.23, t(31)=6.70;
+  saved-vs-erased content asymmetry; computer-word
+  Stroop priming after hard questions).
+- **Wickens, Born & Allen 1963** (*JVLVB* 2:440 —
+  PI buildup on item similarity) and **Wickens
+  1970** (*Psychol. Rev.* 77:1 — verified: encoding
+  categories; release keyed to lowest shared
+  feature); Wickens & Clark 1968 (evaluative-class
+  release).
+- **May, Hasher & Stoltzfus 1993** (*Psychol. Sci.*
+  4:326 — verified this session: morning-typed
+  elders vs evening/neutral young; age gap present
+  in late afternoon, absent in morning); May 1999;
+  Intons-Peterson et al. 1998 (synchrony ×
+  chronotype replications).
+- **Christensen-Szalanski & Willham 1991**
+  (*Organ. Behav. Hum. Decis. Process.* 48:147 —
+  verified this session: 122-study meta, r=.17,
+  cognitive > motivational mechanism, ≤27% of
+  decisions shifted); Fischhoff 1975.
+- **Higgins & Rholes 1978** (*JESP* 14:363 —
+  saying-is-believing); **Echterhoff, Higgins &
+  Groll 2005** (*JPSP* 89:257 — verified this
+  session: shared-reality gate — successful
+  identification, in-group, epistemic trust);
+  Echterhoff, Higgins, Kopietz & Groll 2008
+  (*JEP:G* 137:3 — goal manipulation);
+  **Echterhoff, Kopietz & Higgins 2013** (*Soc.
+  Cogn.* 31:162 — wrong-audience elimination);
+  Echterhoff, Higgins & Levine 2009 (review).
+- **Brewer & Treyens 1981** (*Cogn. Psychol.*
+  13:207 — verified this session: 35s office wait,
+  schema-inferred intrusions) and **Pezdek,
+  Whetstone, Reynolds, Askari & Dougherty 1989**
+  (*JEP:LMC* 15:587 — verified: real-world
+  consistency effect, inconsistent objects better
+  recalled/change-detected at 1-day delay); Frank
+  et al. 2018 (schema-incongruent advantage over
+  unrelated baseline).
+
+→ memory-model-spec.md v5.80 §§5.149–5.154; probes
+P1443–P1454.

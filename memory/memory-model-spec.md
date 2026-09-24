@@ -1,4 +1,48 @@
-# Memory Model Spec v5.79 — implementable human-like memory for RW characters
+# Memory Model Spec v5.80 — implementable human-like memory for RW characters
+
+> **v5.80 note (retrieval-cues XIV — the cue has
+> an address, a shelf, an hour, a listener, and a
+> lie):** six retrieval-side channels the cue
+> vector never priced. **Who-knows route** —
+> records minted under expectation-of-access
+> carry `holder`; directory-first retrieval at
+> `tx_dir_p`, own-search at `tx_lazy_mult`,
+> `holder` fields decay at `tx_where_w`
+> advantage (Wegner 1987; Sparrow, Liu & Wegner
+> 2011, verified: where 0.49 vs what 0.23);
+> `tx_mem_null` — the address is not the fact.
+> **Session PI shelf** — same-class cue
+> repetition builds `piq_state` to `piq_cap`;
+> foreign-class cues release fully (Wickens
+> 1963/1970, verified); `piq_none_null`.
+> **Circadian synchrony** — trait
+> `circ_peak_hr`, bout quality gaussian
+> `circ_sigma`/`circ_gain`, elders pay
+> `circ_age_k` more off-peak (May, Hasher &
+> Stoltzfus 1993, verified); `circ_flat_null`.
+> **Retrieval hindsight** — success writes
+> `fok_bias += retro_fok_inf` decaying
+> `retro_inf_tau`; monitor-only (Christensen-
+> Szalanski & Willham 1991, verified meta
+> r=.17); `retro_acc_null`. **Audience tuning**
+> — retell `audience`/`uptake` fields; message
+> shifts `tune_msg`, writeback gated
+> `tune_gate`·`tune_believe` — saying is
+> believing only in a shared room (Higgins &
+> Rholes 1978; Echterhoff et al. 2005/2013,
+> verified); `tune_free_null`. **Schema-mismatch
+> cue** — venue `schema` vector; entry mismatch
+> >`schemis_thresh` opens a bout at
+> `schemis_fac` on the last-verified record;
+> consistent fills emit `prov:"schema"` at
+> `schemis_intr` (Brewer & Treyens 1981; Pezdek
+> et al. 1989, verified); `schema_free_null`.
+> §§5.149–5.154; §7 +16 scalars +1 trait +6
+> locked nulls +fields `holder`/`fok_bias`/
+> `schema`/`audience`/`uptake`/`piq_state`;
+> probes P1443–P1454 in validation-design.md
+> §§270–271. (Prior notes v4.x–v5.79 in the
+> version log.)
 
 > **v5.79 note (forgetting-curves XII — the
 > neighborhood prices the record):** six places
@@ -10948,6 +10992,117 @@ NO `lag_mult` credit, and do not update `prevGapDays`
 ridgeline. Locked `rote_free_null` (P1441): a build
 where cramming behaves like retrieval fails.
 
+### 5.149 The expert's address — `tx_*` (new in v5.80)
+
+RC§116; **Wegner 1987/1995** (transactive directory);
+**Sparrow, Liu & Wegner 2011** (*Science* 333:776 —
+verified: expected access lowers content recall,
+raises where-recall 0.49 vs 0.23). Records minted
+under expectation-of-access carry `holder` (pointer +
+conf to a character/artifact believed to retain the
+fact). At retrieval, before `bout_enter`:
+
+```
+if holder live & reachable:
+    p = tx_dir_p (0.6) → emit holder pointer + ask-social plan
+    else own-bout effort_eff = effort · tx_lazy_mult (0.5)
+holder field decay weight = tx_where_w (2.0)  // the address outlives the fact
+```
+
+Locked `tx_mem_null` (P1444): a directory hit emits
+`holder` only — never mints content fields.
+
+### 5.150 The shelf switch frees it — `piq_*` (new in v5.80)
+
+RC§117; **Wickens, Born & Allen 1963** (*JVLVB* 2:440);
+**Wickens 1970** (*Psychol. Rev.* 77:1 — release from
+PI, keyed to lowest shared encoding feature).
+Per-session accumulator on the cue's dominant
+feature-class:
+
+```
+piq_state[fc] += piq_build (0.12) per same-class bout
+R_eff -= min(piq_state[fc], piq_cap (0.35))
+foreign-class cue → piq_state reset (release is FULL)
+```
+
+Locked `piq_none_null` (P1446): a category switch
+must restore success to within 10% of session-first.
+
+### 5.151 The hour agrees — `circ_*` (new in v5.80)
+
+RC§118; **May, Hasher & Stoltzfus 1993** (*Psychol.
+Sci.* 4:326 — verified: age gap in memory is
+synchrony-bound; elders morning-peak, young evening).
+Authored trait `circ_peak_hr` (bands: ≥60y → 9–11h;
+≤30y → 16–20h; else 12–15h).
+
+```
+circ_m   = exp(−(hour_now − circ_peak_hr)² / (2·circ_sigma²))   // σ 3
+bout_eff = bout_eff·(1 − circ_gain (0.2)·(1−circ_m)·circ_age_w)
+circ_age_w = 1 + circ_age_k (0.5)·max(0, age_now−60)/20
+```
+
+Locked `circ_flat_null` (P1448): a `circ_gain`=0
+build must lose the age×hour interaction.
+
+### 5.152 It was always on the tip — `retro_*` (new in v5.80)
+
+RC§119; **Christensen-Szalanski & Willham 1991**
+(*OBHDP* 48:147 — verified meta, 122 studies, r=.17,
+cognitive mechanism). On bout resolution:
+
+```
+fok_bias[m] += retro_fok_inf (0.25)·emitted_success
+decay: fok_bias·= exp(−Δt/retro_inf_tau)            // τ 7d
+scope: fok_pre + reported confidence ONLY
+```
+
+Locked `retro_acc_null` (P1450): `fok_bias` never
+touches S, emitted-field accuracy, or correction
+channels.
+
+### 5.153 The room bends the telling — `tune_*` (new in v5.80)
+
+RC§120; **Higgins & Rholes 1978** (*JESP* 14:363 —
+saying is believing); **Echterhoff, Higgins & Groll
+2005** (*JPSP* 89:257 — verified: bias only under
+shared reality — in-group audience + identification
+uptake); **Echterhoff et al. 2013** (wrong-room
+elimination). Retell events carry `audience`
+(character + attitudePrior) and `uptake`:
+
+```
+emitted valence += tune_msg (0.3)·audience.prior   // message tunes for any room
+tune_gate = ingroup(audience)·uptake
+record writeback += tune_believe (0.6)·tune_shift (0.15)·prior·tune_gate
+```
+
+Locked `tune_free_null` (P1453): out-group or
+failed-uptake retells produce zero record shift.
+Tuned emissions mark INFERRED-motive for the
+observation UI; the writeback is private.
+
+### 5.154 The moved chair — `schemis_*` (new in v5.80)
+
+RC§121; **Brewer & Treyens 1981** (*Cogn. Psychol.*
+13:207 — verified: schema-inferred intrusions);
+**Pezdek et al. 1989** (*JEP:LMC* 15:587 — verified:
+inconsistent objects better recalled + change-
+detected, 1-day delay). Venue records carry `schema`
+(expectation vector). On scene entry:
+
+```
+if mismatch(observed, schema) > schemis_thresh (0.4):
+    involuntary bout on lastVerified venue record, drive schemis_fac (0.35)
+consistent-unverified elements: schema-fill at schemis_intr (0.1),
+    prov:"schema" — INFERRED tier, never OBSERVED
+```
+
+Locked `schema_free_null` (P1454): a fully
+consistent scene mints no episodic recall beyond
+base.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -20889,6 +21044,30 @@ MemoryParams = {
 //   checkpoints); label_gap_null (P1410 — memory-backed
 //   emission with no display_tier). All snapshot-
 //   additive; absent = legacy.
+// v5.80 additions (retrieval-cues XIV v134 —
+//   RC§§116–121, §§5.149–5.154)
+"tx_dir_p": 0.6, "tx_lazy_mult": 0.5,
+"tx_where_w": 2.0,                           // §5.149
+"piq_build": 0.12, "piq_cap": 0.35,          // §5.150
+"circ_sigma": 3, "circ_gain": 0.2,
+"circ_age_k": 0.5,                           // §5.151
+"retro_fok_inf": 0.25, "retro_inf_tau": 7,   // §5.152
+"tune_msg": 0.3, "tune_shift": 0.15,
+"tune_believe": 0.6,                         // §5.153
+"schemis_thresh": 0.4, "schemis_fac": 0.35,
+"schemis_intr": 0.1,                         // §5.154
+// v5.80 record/event fields: `holder`
+//   (pointer+conf) on access-expected mints;
+//   per-record `fok_bias`; retell event
+//   `audience`/`uptake`; venue `schema`
+//   vector + `lastVerified` pointer; session
+//   `piq_state`; authored trait `circ_peak_hr`.
+// v5.80 locked nulls: tx_mem_null (P1444);
+//   piq_none_null (P1446); circ_flat_null
+//   (P1448); retro_acc_null (P1450);
+//   tune_free_null (P1453); schema_free_null
+//   (P1454). All snapshot-additive; absent =
+//   legacy.
 // v5.79 additions (forgetting-curves XII v133 —
 //   FC§§56–60, §§4.92–4.95 + §§5.147–5.148)
 "emo_nbr_thresh": 0.75, "emo_nbr_tax": 0.20,
@@ -23945,6 +24124,39 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.80 additions (retrieval-cues.md §§116–121 —
+  the cue has an address, a shelf, an hour, a
+  listener, and a lie):
+  - **Who-knows contract (§5.149):** `holder`
+    pointer on access-expected mints; directory-
+    first at `tx_dir_p`; `tx_mem_null` (P1444) —
+    the address never mints the fact.
+  - **Session-PI contract (§5.150):** per-session
+    `piq_state` accumulator, full release on
+    feature-class switch; `piq_none_null`
+    (P1446).
+  - **Synchrony contract (§5.151):** trait
+    `circ_peak_hr` gaussian; `circ_flat_null`
+    (P1448) — the age×hour interaction must live
+    in this term.
+  - **Hindsight contract (§5.152):** `fok_bias`
+    monitor-only writeback; `retro_acc_null`
+    (P1450).
+  - **Audience-tuning contract (§5.153):**
+    message tunes any room; writeback gated by
+    `ingroup·uptake`; `tune_free_null` (P1453).
+    Tuned emissions carry INFERRED-motive
+    labeling for the UI.
+  - **Schema-mismatch contract (§5.154):** venue
+    `schema` + `lastVerified`; mismatch opens a
+    bout at `schemis_fac`; consistent fills emit
+    `prov:"schema"` (INFERRED); `schema_free_null`
+    (P1454).
+  - **New params (§7):** 16 scalars + 1 authored
+    trait + 6 locked nulls + fields `holder`,
+    `fok_bias`, `audience`, `uptake`, `schema`,
+    `lastVerified`, `piq_state`.
+  - Probes P1443–P1454.
 - v5.79 additions (forgetting-curves.md §§56–60 —
   the neighborhood prices the record):
   - **Neighbor-tax contract (§4.92):**

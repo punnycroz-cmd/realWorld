@@ -3904,3 +3904,263 @@ threshold but no momentum term. Spec changes land in
 - `warmth` as an EMA of partials is our continuous stand-in for
   discrete partial-retrieval events; `warmth_ext` 0.4 per tick has no
   direct source — P1309 constrains the ratio, not the constant.
+
+---
+
+# PART XII (v134, 2026-09-24) — the cue has an address, a shelf, an hour, a listener, and a lie
+
+v122 priced the cue's crowd, clock, and breath. v134 prices six
+channels the cue vector never charged for: the pointer that points
+OUT to a person instead of INTO a record (§116), the same-class
+repetition that wears a cue out mid-session and the foreign cue that
+frees it (§117), the hour that agrees or disagrees with the searcher
+(§118), the success that rewrites its own felt accessibility (§119),
+the room that bends the telling and the believing (§120), and the
+moved chair that opens a bout on its own (§121). Spec changes land
+in `memory-model-spec.md` v5.80 §§5.149–5.154; probes P1443–P1454.
+
+## 116. The expert's address — who-knows as a retrieval route
+
+- **Wegner 1987/1995** (*Theories of Group Behavior*, Springer;
+  *Soc. Cogn.* 13:319 — verified as program): transactive memory —
+  couples and teams run a DIRECTORY of who-holds-what, and retrieval
+  routes through the directory before it routes through the store.
+  "Ask her, she keeps track of birthdays" is a memory operation.
+- **Sparrow, Liu & Wegner 2011** (*Science* 333:776 — verified, four
+  experiments): expecting future access lowers recall of content
+  while raising recall of WHERE to get it — folder recall 0.49 vs
+  statement recall 0.23 (t(31)=6.70); and facing hard questions
+  primes the access channel itself (computer-word Stroop
+  interference after hard blocks). **[CONSENSUS that the where-
+  route outcompetes the what-route under expected access; the
+  magnitude is one lab, small n — hold loosely.]**
+- The spec priced cues as pointers INTO records; it never priced
+  the pointer that points OUT — to a person, a notebook, a chat
+  thread. Yet most daily "remembering" in a social sim is exactly
+  this: not recalling the rent figure but knowing the roommate's
+  spreadsheet has it.
+- Model consequence (§5.149): records minted under
+  expectation-of-access carry `holder` (pointer + conf). At
+  retrieval the directory is consulted BEFORE `bout_enter`: a live,
+  reachable `holder` emits the pointer with `tx_dir_p` (0.6) and
+  halves own-search effort (`tx_lazy_mult` 0.5); `holder` fields
+  themselves decay slower (`tx_where_w` 2.0 — the address outlives
+  the fact). Locked `tx_mem_null` (P1444): a directory hit emits
+  `holder` only — it must NEVER mint content fields. "She'll know"
+  is not knowing.
+- RW texture: the mains build an unplanned division of cognitive
+  labor — Jules holds the bar's history, the nurse holds who-
+  takes-what. Kill the directory (character leaves town) and the
+  neighborhood gets measurably dumber at exactly the topics the
+  departed held — consequence continuity you can probe.
+
+## 117. The shelf switch frees it — release from PI at the cue
+
+- **Wickens, Born & Allen 1963** (*JVLVB* 2:440 — verified) and
+  **Wickens 1970** (*Psychol. Rev.* 77:1 — verified): recall decays
+  across successive same-category trials, then RECOVERS sharply
+  when the material switches category — release from proactive
+  interference. PI is keyed to the lowest shared encoding feature;
+  change that feature and the buildup discharges.
+- The spec has cue-overload and output interference but prices the
+  cue's feature-class as neutral. The Wickens result says a
+  retrieval session has memory of its own: three questions about
+  money and the fourth money-question lands on a crowded shelf;
+  ask about the dog instead and the shelf clears.
+- **[CONSENSUS in the short-term paradigm; extending the
+  session-scale PI budget to autobiographical bouts is our
+  HYPOTHESIS — same mechanism family as §21 output interference,
+  different accumulator.]**
+- Model consequence (§5.150): per-session accumulator
+  `piq_state[feat_class] += piq_build` (0.12) on every bout whose
+  dominant cue feature-class repeats; `R_eff` discount caps at
+  `piq_cap` (0.35). A cue drawn from a DIFFERENT dominant class
+  resets the accumulator — release is full, not partial (locked
+  `piq_none_null`, P1446). Interviewer texture: a flat
+  question-list about one topic is the worst protocol the game-
+  systems track can run.
+- RW texture: the interrogating friend who keeps circling "and
+  then what did he say" gets less each lap; the one who breaks to
+  small talk comes back to a cleared shelf — conversation
+  structure is memory policy.
+
+## 118. The hour agrees — synchrony between peak and test
+
+- **May, Hasher & Stoltzfus 1993** (*Psychol. Sci.* 4:326 —
+  verified): most older adults are morning types, most young
+  adults evening/neutral; tested at peak synchrony the age
+  difference in recognition nearly vanishes — the "old memory"
+  deficit is partly a scheduling artifact. Subsequent synchrony
+  work (May 1999; Intons-Peterson et al.) generalizes the
+  direction.
+- **[CONSENSUS for the age×hour interaction in lab tasks;
+  magnitudes modest, and circadian type is a trait not a law.]**
+- Model consequence (§5.151): authored trait `circ_peak_hr`
+  (age-banded: elders 9–11h, young adults 16–20h). Bout effort and
+  emission quality multiply by a gaussian around the peak
+  (`circ_sigma` 3h, `circ_gain` 0.2), with elders paying a wider
+  penalty off-peak (`circ_age_k` 0.5). Locked `circ_flat_null`
+  (P1448): a build with no hour term must fail to reproduce the
+  age×hour interaction — synchrony is doing real work, not noise.
+- RW texture: the grandmother sharpest at breakfast goes vague by
+  dinner while her grandson is just coming online — the same
+  conversation at 9am and 9pm produces different witnesses. Gives
+  the sim a cheap, lawful asymmetry for scheduling scenes.
+
+## 119. It was always on the tip — retrieval's hindsight
+
+- **Christensen-Szalanski & Willham 1991** (*Organ. Behav. Hum.
+  Decis.* 48:147 — verified meta, 122 studies): hindsight bias is
+  real but small (r=.17); cognitive, not motivational, mechanism;
+  up to ~27% of decisions shift under it. The retrieval-side
+  corollary the spec lacks: after a successful recall, FELT
+  accessibility inflates — "I knew that all along" — so the next
+  search for the same record starts with an overconfident FOK.
+- **Fischhoff 1975**; **Koriat's accessibility framework** (reused
+  §112): the accessibility heuristic is recalibrated by the act of
+  access — success writes back to the monitor, not the store.
+- Model consequence (§5.152): on bout resolution, per-record
+  `fok_bias += retro_fok_inf` (0.25 of emitted success), decaying
+  at `retro_inf_tau` (7d); it enters `fok_pre` and reported
+  confidence ONLY. Locked `retro_acc_null` (P1450): the inflation
+  must never touch S, emitted-field accuracy, or correction
+  channels — feeling you always knew is a monitoring lie, not a
+  fact.
+- RW texture: the character who "totally remembered the
+  appointment" after being reminded swears they never forgot —
+  the sim's confidence channel drifts ahead of its accuracy
+  channel, which is exactly how humans report memory.
+
+## 120. The room bends the telling — audience-tuned retrieval
+
+- **Higgins & Rholes 1978** (*JESP* 14:363 — verified, "saying is
+  believing"): describing an ambiguous target to an audience
+  known to like/dislike them tunes the message — and the teller's
+  own subsequent recall drifts toward the tuned version, durable
+  ≥2 weeks.
+- **Echterhoff, Higgins & Groll 2005** (*JPSP* 89:257 — verified):
+  the memory bias requires SHARED REALITY — successful audience
+  identification feedback, in-group audience, epistemic trust;
+  absent for out-group or failed uptake. **Echterhoff et al.
+  2013** (*Soc. Cogn.* 31:162 — verified): the effect is
+  eliminated when the message is learned to have gone to the
+  wrong audience — the gate is relational, not rhetorical.
+  **[CONSENSUS for the gated writeback; magnitudes lab-scale.]**
+- Model consequence (§5.153): retell events carry `audience`
+  (character + attitudePrior) and `uptake` flag. Emission shifts
+  toward the prior at `tune_msg` (0.3 — the message tunes even
+  for out-group rooms, compliance is cheap); WRITEBACK to the
+  teller's record is gated by `tune_gate = ingroup·uptake` at
+  `tune_believe` (0.6 of `tune_shift` 0.15 persists). Locked
+  `tune_free_null` (P1453): out-group or failed-uptake retells
+  leave the record untouched.
+- RW texture: the character who tells the breakup story
+  sympathetically to the ex's friend and harshly to their own
+  sister is genuinely re-encoding two diverging records — rumor
+  polarization produced by lawful retrieval, not by scripted
+  drift. The observation UI must mark tuned emissions as such:
+  the message was INFERRED-motive, the writeback is private.
+
+## 121. The moved chair — schema-mismatch as a cue
+
+- **Brewer & Treyens 1981** (*Cogn. Psychol.* 13:207 — verified):
+  35 seconds in an office; recall mixes seen objects with schema-
+  inferred intrusions (the books that weren't there) — schema
+  supplies what episode didn't store.
+- **Pezdek et al. 1989** (*JEP:LMC* 15:587 — verified): real-world
+  consistency effect — schema-INCONSISTENT objects are better
+  recalled and their changes better detected, even at 1-day delay.
+  The two results are one mechanism seen from both sides:
+  consistent content retrieves from schema (cheap, gist, with
+  intrusion risk); inconsistent content binds to the episode and
+  becomes a mismatch cue on re-entry.
+- Model consequence (§5.154): venue records carry `schema`
+  (expectation vector). On scene entry, observed-vs-schema
+  mismatch above `schemis_thresh` (0.4) opens an involuntary bout
+  on the venue's last-verified record at `schemis_fac` (0.35) —
+  "who moved the chair" IS a retrieval. Consistent-but-unverified
+  elements emit schema-fill at `schemis_intr` (0.1), internally
+  labeled `prov:"schema"` — the honest-provenance hook for the
+  observation UI: schema-fill is INFERRED, never OBSERVED.
+  Locked `schema_free_null` (P1454): a fully consistent scene
+  mints no episodic recall beyond base.
+- RW texture: a resident rearranges the café and the regulars
+  feel it before they can name it; the sim gets "something's
+  different here" as a real retrieval event with a named source,
+  not ambient mood.
+
+## 122. Cue hierarchy — v134 additions to the §113 table
+
+| Cue/condition | Effect | Source |
+|---|---|---|
+| reachable `holder` | directory-first retrieval at 0.6; own-search effort ×0.5; holder field decays at half rate; never mints content (locked) | §116 Wegner 1987; Sparrow 2011 |
+| same-class cue repetition | session PI builds +0.12/bout to 0.35 cap; foreign-class cue releases fully (locked) | §117 Wickens 1963/1970 |
+| circadian synchrony | bout quality gaussian around `circ_peak_hr` (σ3h, gain 0.2); elders pay 1.5× off-peak; flat-hour builds fail (locked) | §118 May, Hasher & Stoltzfus 1993 |
+| successful recall | `fok_bias` +0.25 decaying 7d — felt accessibility inflates; accuracy untouched (locked) | §119 Christensen-Szalanski & Willham 1991 |
+| audience prior × uptake | message tunes 0.3; writeback only under in-group+uptake, 0.6×0.15 persists; wrong-room → nothing (locked) | §120 Higgins & Rholes 1978; Echterhoff 2005/2013 |
+| scene-schema mismatch >0.4 | involuntary bout on last-verified venue record at 0.35; schema-fill intrusions at 0.1 marked INFERRED; consistent scene quiet (locked) | §121 Brewer & Treyens 1981; Pezdek 1989 |
+
+## 123. Validation probes P1443–P1454 (v134 suite)
+
+- **P1443 directory-first (MUST):** with a live reachable `holder`,
+  ≥50% of content-failed searches emit a holder pointer instead of
+  a bout; holder-field recall ≥1.5× content recall on aged records.
+- **P1444 `tx_mem_null` (MUST — locked):** directory-hit emissions
+  contain zero content fields; a build where "who knows" answers
+  "what" fails.
+- **P1445 session PI buildup (MUST):** within-session same-class
+  bout success declines monotonically toward `piq_cap`; slope
+  within ±50% of `piq_build`.
+- **P1446 `piq_none_null` (SHOULD — locked):** a foreign-class cue
+  restores success to within 10% of session-first-bout — partial
+  release fails.
+- **P1447 synchrony (MUST):** age gap in episodic recall at
+  elder-peak hour ≤50% of the gap at elder-trough hour.
+- **P1448 `circ_flat_null` (SHOULD — locked):** `circ_gain=0` must
+  lose the age×hour interaction — interaction driven by other
+  params fails.
+- **P1449 felt-accessibility inflation (MUST):** post-resolution
+  `fok_pre` on the same record rises ≥`retro_fok_inf`×0.5 and
+  decays with half-life ≈`retro_inf_tau`.
+- **P1450 `retro_acc_null` (MUST — locked):** corr(`fok_bias`,
+  emitted-field accuracy) ≈0; corr(`fok_bias`, reported
+  confidence) >0.
+- **P1451 audience tuning (MUST):** emitted valence shifts toward
+  audience prior at `tune_msg` for BOTH in- and out-group rooms.
+- **P1452 saying-is-believing (MUST):** in-group + uptake retells
+  shift the teller's record toward the tuned emission, detectable
+  ≥14d later.
+- **P1453 `tune_free_null` (MUST — locked):** out-group or
+  failed-uptake retells produce zero record shift despite
+  identical message tuning.
+- **P1454 schema mismatch (MUST — `schema_free_null` locked):**
+  mismatched scene entry opens a bout on the last-verified venue
+  record ≥3× base; consistent entry stays at base ±10%;
+  schema-fill intrusions carry `prov:"schema"` at ≈`schemis_intr`.
+
+## 124. Honest limits (v134 additions)
+
+- Sparrow 2011's where-over-what ratio (0.49 vs 0.23) is one lab
+  with trivia statements; we price `tx_where_w` 2.0 from it —
+  direction solid, constant soft. `tx_dir_p`/`tx_lazy_mult` are
+  free parameters bounded only by P1443/P1444.
+- Wickens release-from-PI is a seconds-scale STM paradigm;
+  projecting it onto conversation-scale bouts (`piq_*`) is our
+  HYPOTHESIS — the same feature-class accumulator may not exist
+  at autobiographical grain. P1445/P1446 test OUR contract, not
+  Wickens'.
+- Synchrony magnitudes shrink in replications and interact with
+  chronotype, task, and caffeine; `circ_gain` 0.2 is mid-range,
+  `circ_age_k` is the pass's widest guess.
+- `retro_fok_inf` formalizes hindsight at the record level; the
+  meta measured judgment bias, not per-memory FOK writeback —
+  CONSENSUS direction, our mechanism.
+- Audience tuning is priced on three JPSP/Soc.Cogn. studies from
+  one program; the shared-reality gate is well-replicated within
+  that program but rarely tested outside it. `tune_believe` 0.6
+  is a free split between compliance and belief.
+- Brewer & Treyens intrusions were measured at 35-second
+  encoding; whether `schemis_intr` holds for a character's
+  thousandth café visit is untested — the schema presumably
+  deepens with visits, which the spec leaves as venue-schema
+  drift, unpriced this pass.
