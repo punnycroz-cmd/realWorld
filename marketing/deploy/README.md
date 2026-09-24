@@ -17,6 +17,7 @@ Everything here is LOCAL/draft until the owner gates open
 | `host-contract.md` | What the VPS must provide (user, layout, caddy, maintenance page) — satisfied by `../tools/bootstrap_host.sh`, also the DR rebuild spec (INFRASTRUCTURE.md §12). |
 | `umami-backup.example` | Nightly `pg_dump` cron + restore drill for the self-hosted analytics DB — the one launch artifact git can't reproduce. |
 | `traffic-plan.md` | Launch-day traffic & surge plan: load math, the cache-header contract, day-0 probe sequence, severity→action playbook incl. CDN-front flip, bot stance. Companion: `../tools/traffic_probe.sh`. |
+| `data-rights.md` | Access/deletion request runbook behind `site/privacy.html`'s `privacy@` promise: intake, proportional verification, per-store data map, 30-day SLA, reply templates. Activates with the G6 mail decision. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2);
@@ -58,3 +59,8 @@ Companion tools (all local, nothing publishes):
 - `../tools/runofshow.sh` — countdown dashboard: live done/pending status for
   every mechanical §2 run-of-show item (switches, domain swap, DNS, deploy
   env, kit zip). Read-only; `RW_DOMAIN=<domain>` adds the live DNS row.
+- `../tools/infra_audit.sh` — doc-drift audit for this directory +
+  `INFRASTRUCTURE.md`: every cited path exists and is executable, every
+  `deploy/` artifact is documented, page-count claims match `site/`, the §7
+  header contract holds in BOTH host configs, env vars are defined, and no
+  key-shaped strings leak. Run after any infra-doc or deploy/ edit.

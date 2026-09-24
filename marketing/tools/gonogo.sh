@@ -108,7 +108,7 @@ owner 13 "feed display-filter option A/B/C picked (MODERATION-PLAN §2.3)"
 owner 14 "infrastructure provisioned (INFRASTRUCTURE §5 runbook)"
 track 15 "feed vocab diff vs world/feed.json request_status" "world"
 track 16 "onboarding flow + 32 hooks verified on staging" "world-v95 contract + game emitters"
-owner 17 "human playtest: 0 open blockers on launch candidate (world/playtest.html PT1-PT88)"
+owner 17 "human playtest: 0 open blockers on launch candidate (world/playtest.html PT1-PT92)"
 
 echo
 echo "  AUTO green: $GREEN · pending (owner/track/auto): $PENDING of 18"

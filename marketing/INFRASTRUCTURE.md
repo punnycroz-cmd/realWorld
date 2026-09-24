@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v119 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v149 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -16,7 +16,7 @@ to the game-systems track; this doc only specifies what the game build must
 ```
                          ┌─────────────────────────────┐
    player/press ──HTTPS─▶│  CDN + static site host      │  marketing/site/ as-is
-                         │  (realworld-game.example)    │  14 pages, zero build step
+                         │  (realworld-game.example)    │  21 pages, zero build step
                          └──────────────┬──────────────┘
                                         │ iframe (sandboxed)
                                         ▼
@@ -209,7 +209,7 @@ to include the live DNS row).
 
 `deploy/infra.env.example` is the canonical list. Highlights:
 
-- `RW_DEPLOY_HOST`, `RW_DEPLOY_PATH`, `RW_DEPLOY_USER` — deploy script
+- `RW_DEPLOY_HOST` (user@host), `RW_DEPLOY_PATH`, `RW_DEPLOY_SSH` — deploy script
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` —
   game-side; site never sees them
 - `RW_ANALYTICS_ENDPOINT` — the only value the *site* needs, and it ships
@@ -299,3 +299,25 @@ only real data loss surface is the Umami DB if analytics is self-hosted —
 alternative) removes even that. Verify any rebuild with
 `RW_DEPLOY_HOST=deploy@<new-ip> tools/bootstrap_host.sh --check` before
 flipping DNS — the same check doubles as a drift detector on the live host.
+
+## 13. Ops audits & data rights — keeping this file true
+
+- **Doc-drift audit:** `tools/infra_audit.sh` (v149) mechanically verifies
+  this file + `deploy/README.md` against the tree — cited paths exist and
+  are executable, every `deploy/` artifact is documented, the §1 page count
+  matches `site/`, the §7 header contract holds in both host configs
+  (`Caddyfile` + `netlify.toml`), the §9 env vars are defined in
+  `infra.env.example`, and no key-shaped strings live in `deploy/`/`site/`.
+  First run (v149) caught and fixed real drift: a stale page-count claim
+  (actual 21), `RW_DEPLOY_USER` cited but never defined (user is embedded
+  in `RW_DEPLOY_HOST`), and a naive key-scan that would have false-fired on
+  the `sk_live_...` placeholders. Run it after any edit here or in `deploy/`.
+- **Data rights:** `deploy/data-rights.md` (v149) is the runbook behind
+  `site/privacy.html`'s `privacy@` promise — intake, proportional
+  verification, a per-store data map (what can actually be produced or
+  deleted — spoiler: very little, by design), the 30-day SLA, and reply
+  templates in the house voice. The hard boundary it enforces honestly:
+  the public request feed is permanent and disclosed as such — deletion
+  applies to *account-level* data only; feed entries get handle
+  anonymization, never retro-edits. Activates with the G6 mail decision;
+  first end-to-end drill is a day-30 checklist item.
