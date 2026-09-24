@@ -837,6 +837,53 @@ const PUB = Object.values(PT.surfaces)
       if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67'].includes(OB.storage_key))
         add(g, 'fail', 'onboarding.json', null, 'v81 schema still on an old storage key');
     }
+    /* ---- v95 blocks: the stay ---- */
+    if (OB.version >= 95) {
+      const MUST95 = [
+        [/never run out/i, 'credit rules: no-expiration stated honestly'],
+        [/never cash out/i, 'credit rules: no cash-out stated'],
+        [/never move between accounts/i, 'credit rules: non-transferable stated'],
+        [/\$4\.99\/mo/i, 'Resident price verbatim ($4.99/mo, plan §2.5)'],
+        [/\$11\.99\/mo/i, 'Director price verbatim ($11.99/mo, plan §2.5)'],
+        [/600 cr/, 'Resident stipend quoted (600 cr/mo)'],
+        [/1,500 cr/, 'Director stipend quoted (1,500 cr/mo)'],
+        [/camera director mode/i, 'Director perk verbatim'],
+        [/show credits/i, 'Director show-credits perk verbatim'],
+        [/22 cr/, 'first-visit minimum billable (22 cr)'],
+        [/mid-motion/i, 'visit hand-back wording'],
+        [/stated once|never pushed again/i, 'subs stated-once contract'],
+        [/nothing is metered back|nothing was metered back/i, 'no early-release refund implied']
+      ];
+      for (const [re, label] of MUST95)
+        if (!re.test(html)) add(g, 'fail', 'onboarding.html', null, `missing v95 honesty copy: ${label}`);
+      /* subscriptions must never be framed as a deal */
+      if (/free trial|auto-?renew|best value|save \d+%|limited offer/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'subscription framed as a deal — stated once, verbatim, is the contract');
+      /* S7 reachable, hired-gated, handlers present */
+      if (!html.includes("'S7'"))
+        add(g, 'fail', 'onboarding.html', null, 'S7 stage not reachable in page source');
+      if (!/window\.fileVisit/.test(html) || !/window\.stepOut/.test(html) || !/window\.visitCap/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'first-visit handlers missing');
+      if (!/S\.hired/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'the visit is not gated on hired');
+      if (!/S7:1/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'S7 not in PAID_STAGES — the band normalizer does not front it');
+      if (!/window\.subDemo/.test(html) || !/S\.sub/.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'stipend preview affordance missing or not state-guarded');
+      /* the visit must never promise an early-release refund */
+      if (/step out.{0,80}(refund|credits? back|money back)|release.{0,40}refund/i.test(html))
+        add(g, 'fail', 'onboarding.html', null, 'early release framed as refundable — declared blocks are bought up front');
+      for (const k of ['credit_rules', 'subscription_line', 'first_visit'])
+        if (!OB[k]) add(g, 'fail', 'onboarding.json', null, `v95 contract block '${k}' missing`);
+      if (OB.subscription_line &&
+          (OB.subscription_line.resident.usd_mo !== 4.99 || OB.subscription_line.director.usd_mo !== 11.99 ||
+           OB.subscription_line.resident.cr_mo !== 600 || OB.subscription_line.director.cr_mo !== 1500))
+        add(g, 'fail', 'onboarding.json', null, 'subscription_line drifts from plan §2.5 ($4.99/600 cr · $11.99/1,500 cr)');
+      if (OB.first_visit && OB.first_visit.cr !== 22)
+        add(g, 'fail', 'onboarding.json', null, 'first_visit drifts from plan §2.2 minimum billable (22 cr)');
+      if (['rw_onboard_v25', 'rw_onboard_v39', 'rw_onboard_v53', 'rw_onboard_v67', 'rw_onboard_v81'].includes(OB.storage_key))
+        add(g, 'fail', 'onboarding.json', null, 'v95 schema still on an old storage key');
+    }
     g.detail = `schema v${OB.version} · ${(OB.tour_beats || []).length} beats · key ${OB.storage_key}`;
   } catch (e) { add(g, 'fail', 'onboarding.json', null, 'parse failure: ' + e.message); }
 }

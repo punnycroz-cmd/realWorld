@@ -1,7 +1,7 @@
 {
   "doc": "world/onboarding-ui.md is canonical for behavior + copy. This file is the machine-readable mirror: journey stages, persona fork, tour beats, handle rules, pack ladder, first-ask variants, checklist contract, exit states, analytics hooks, and the never-list. Prices adopt rw-monetization-plan-2026-09-22 §2 (PROPOSAL — do not contradict in player-facing copy).",
-  "version": 81,
-  "storage_key": "rw_onboard_v81",
+  "version": 95,
+  "storage_key": "rw_onboard_v95",
   "stages": [
     { "id": "S0_watch",    "tier": "free", "gate": "none — default state; watching never requires account, credits, or dismissal of anything" },
     { "id": "S0f_fork",    "tier": "free", "gate": "persona fork on the welcome card: 'just watching' vs 'might reach in' — equal weight, both keep the free feed; fork changes emphasis, never access" },
@@ -18,7 +18,8 @@
     { "id": "S4e_queue",   "tier": "paid", "gate": "optional teaching beat — a fixed-safe weather ask filed while the sky is claimed, lands 'queued' at tier −15% (34 cr held); scripted to lapse unactivated → 'queued request expired before activation' + full auto-refund" },
     { "id": "S4f_shared",  "tier": "free", "gate": "optional teaching beat after the queue resolves — 'the other hands': compatible asks run alongside, scripted co-ask lands from a second handle; files nothing, needs no balance, still behind the band normalizer so the watching account never sees ask mechanics" },
     { "id": "S5_resident", "tier": "free", "gate": "fork card: 'hire a character' (→ create.html) and 'keep watching' carry equal weight; the ownership arc is named as context, no funnel" },
-    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" }
+    { "id": "S6_hired",    "tier": "free", "gate": "?hired=1 (post-approval return from create.html): one-time 'first day' card — briefing is public-profile-only, secrets stay redacted, rent is owed, possession is a visit not ownership, offline = thin AI with no 'miss you' nag" },
+    { "id": "S7_visit",    "tier": "paid", "gate": "optional teaching beat off the S6 card — requires hired + band + balance ≥22; a guided 15-min first possession at the compatible minimum billable; 'step out early' and 'jump ahead' exits both hand back to the AI mid-motion with no refund promised" }
   ],
   "persona_fork": {
     "where": "welcome card, before the tour offer",
@@ -146,6 +147,26 @@
     "copy": "if the sky ran exclusive in the last 6 h, the request form shows a surge multiplier — ×1.5 to ×2.5 — before you pay; the price you see is the price filed, nothing is added after",
     "rule": "range quoted verbatim from plan §2.2 — no specific multiplier invented for the demo; surge is taught as 'the form is honest', not demonstrated"
   },
+  "credit_rules": {
+    "where": "S3 wallet card, one fine-print line under the pack ladder — all money-eligible bands (u13 has no wallet)",
+    "copy": "three things credits never do: they never run out, they never cash out, and they never move between accounts — they buy agency here, that's the whole job",
+    "why": "all three are locked constraints (non-transferable / non-redeemable / no cash-out; no expiration or dormancy fees, plan §2.1) — stated once as disclosure before the first purchase, not framed as a feature"
+  },
+  "subscription_line": {
+    "where": "S3 wallet card, one line — the only place onboarding ever mentions subscriptions; inherits every S3 guard (band normalizer, never u13)",
+    "resident": { "usd_mo": 4.99, "cr_mo": 600, "perks_quoted": ["600 cr/mo stipend", "second character slot", "weekly digest"] },
+    "director": { "usd_mo": 11.99, "cr_mo": 1500, "perks_quoted": ["everything in Resident", "1,500 cr/mo", "third slot", "camera director mode", "name in show credits"] },
+    "rule": "contents verbatim from plan §2.5 (PROPOSAL) — no perk beyond the plan's list, no trial, no cancellation terms, no 'best value' styling, stated once and never re-pushed",
+    "demo": "'preview Resident' credits +600 cr once labeled as the stipend — idempotent; it demos the stipend only, no other perk is simulated"
+  },
+  "first_visit": {
+    "where": "S7 — off the S6 first-day card only (hired=1); a paid stage behind the band normalizer, requires balance ≥22",
+    "action": "possession", "block": "15 min", "cr": 22,
+    "why": "the compatible-rate minimum billable (1.5 cr/min × 15, plan §2.2 ≈22 cr) — the one beat no other stage covers: possession is a session, entered, capped, exited, always attributed",
+    "feed_result": "request event 'possession — first visit, 15 min' lands 'running'; 'jump ahead' resolves at the cap, 'step out early' resolves 'player session ended' — locked neutral wording, verbatim from requests.json",
+    "copy_promise": "the briefing stays redacted even to the hirer; step out or let the cap run — the AI resumes mid-motion either way; the time was bought up front, nothing is metered back",
+    "never": "no refund promised on early release (the plan prices declared blocks up front); never framed as owning/keeping/unlocking the character; one-time lesson — after exit the card offers settle"
+  },
   "ownership_arc": {
     "where": "one context line on S5 (non-u13 bands) + the parallel line on S6 — context, not funnel; no button leads to the market",
     "copy_promise": "tenants can buy — listings on the block's market board read like normal listings, priced in game dollars plus a deed fee in credits — and owners can rent out a second unit; the arc is tenant → owner → landlord",
@@ -194,7 +215,13 @@
     "let a surge multiplier surface after payment, or quote a specific multiplier the plan doesn't set (the range ×1.5–2.5 only)",
     "frame compatible coexistence as contention — exclusives contend on the resource, never the player",
     "present the ownership arc as a setup step or a funnel — it is named context at settle, no button attached",
-    "imply a player can buy out, preempt, or see inside another player's session — attribution is public, interiors are not"
+    "imply a player can buy out, preempt, or see inside another player's session — attribution is public, interiors are not",
+    "render the subscription line on the watching account or anywhere the band normalizer hasn't cleared",
+    "style a subscription as best value, default-check it, or re-surface it after the card is seen — stated once is the contract",
+    "invent subscription terms the plan doesn't set — no trial, no cancellation promises, no perk beyond §2.5's list",
+    "promise a refund on early release — declared blocks are bought up front, nothing is metered back",
+    "frame the first visit as owning, keeping, or unlocking the character — a capped session, briefing redacted throughout",
+    "let the stipend demo read as granted spend — it previews the standing order's mechanics, labeled, once"
   ],
   "analytics_hooks": [
     "tour_started", "tour_beat", "tour_completed", "tour_skipped",
@@ -207,6 +234,8 @@
     "band_declared (no band value in props — eligibility is not funnel data)",
     "ads_line_shown", "ad_demo_viewed",
     "admin_beat_seen", "coask_seen", "surge_line_shown",
+    "credit_rules_seen", "subs_line_shown", "sub_stipend_previewed",
+    "first_visit_filed", "visit_ended (cap|stepped_out)",
     "plus marketing's spec'd watch_start / request_submitted / character_created where those actions occur"
   ],
   "demo_limits": "onboarding.html simulates a mini Wire + fork + tour + handle + age band + wallet (+ demo ad views) + guided requests locally; no screen.js call (guided text is fixed-safe); the declined nudge is scripted to decline, the review ask is scripted 'not approved', the queued ask is scripted to lapse, and the co-ask is a scripted second handle — real outcomes are never scripted; at merge anchors bind to real feed.html ids, checklist subscribes to gsViewerState, the reserved-name list is generated from characters.json + ambients.json, and the market-board pointer binds to market.html"

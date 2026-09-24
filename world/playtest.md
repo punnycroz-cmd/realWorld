@@ -237,6 +237,14 @@ One person can wear every hat; four real testers is the intended shape.
   five-posture vocabulary (prefer/hold/shed/observe/recovery); the
   pressure catalog runs P-01–P-26; drama.html renders all four new
   sections; §19 legality checked line by line.
+  PT86 (onboarding v95) walks the seventh pass — the wallet card's
+  credit-rules line (never run out / never cash out / never move
+  between accounts), the stated-once standing orders (Resident
+  $4.99/mo · 600 cr, Director $11.99/mo · 1,500 cr — §2.5 verbatim, a
+  one-shot idempotent stipend preview, structurally absent for u13),
+  and the S7 first visit: a guided 22-cr 15-min possession off the
+  first-day card, both exits (step out / hard cap) handing back
+  mid-motion with no refund promised, one-time lesson then settle.
 
 ## 3. Running a session
 

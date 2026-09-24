@@ -4459,6 +4459,55 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT86",
+   "title": "Onboarding v7 — the stay (credit rules, the standing option, the first visit)",
+   "minutes": 12,
+   "persona": "new hirer with a funded wallet — wants to know what a credit isn't, whether a subscription is being pushed, and what stepping into their character actually feels like",
+   "goal": "Verify the v95 onboarding pass: the wallet card states the credit rules once (never run out / never cash out / never move between accounts); the two standing orders surface exactly once with plan §2.5 verbatim contents ($4.99/600 cr Resident, $11.99/1,500 cr Director) and no deal framing; the Resident stipend preview lands +600 once; and S7 walks a hired player through a 22-cr 15-min first possession whose two exits both hand back mid-motion with no refund promised.",
+   "surfaces": [
+    "onboard",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Read onboarding-ui.md §§44–49 and onboarding.json's credit_rules / subscription_line / first_visit blocks against monetization plan §2.1, §2.2, and §2.5.",
+     "expect": "Every number matches the plan verbatim — $4.99/mo + 600 cr, $11.99/mo + 1,500 cr, camera director mode, show credits, 22 cr minimum billable; every perk named is one the plan lists; no trial, cancellation term, or 'best value' framing anywhere; the never-list gained the six v95 clauses.",
+     "checkpoints": [
+      "Sub contents verbatim from §2.5 — nothing promised that the plan doesn't list",
+      "Credit rules are locked constraints stated as disclosure, not feature-sell",
+      "first_visit.cr = 22 — the §2.2 compatible minimum billable, no invented figure"
+     ]
+    },
+    {
+     "do": "Open onboarding.html (file://), pick 'I might reach in', pick a handle, choose the adult band, and read the wallet card top to bottom. Click the Resident preview twice.",
+     "expect": "The credit-rules line and the standing-orders line render once each, in the same plain .note styling as everything else — no highlight, no default-check, no second mention on re-render. The preview credits +600 once labeled as the stipend; the second click toasts a no-op. Repeat with the under-13 band on a reset: neither line exists on S3u.",
+     "checkpoints": [
+      "Both lines present on S3 for adult/teen/na; structurally absent for u13",
+      "Stipend preview is idempotent — +600 once, later clicks a no-op toast",
+      "No deal framing anywhere: no trial, no auto-renew language, no savings percentage"
+     ]
+    },
+    {
+     "do": "Reload with ?hired=1 on a funded adult account. Read the first-day card, take the first visit, then 'Step out early'; reset, rehire, and take it again to 'Jump ahead — 15 min later'.",
+     "expect": "S6 offers the visit only when band + hired allow; filing posts 'possession: first visit, 15 min · running' attributed and charges 22 cr. Step-out resolves 'player session ended'; the cap resolves 'session ended at the cap · resolved'. Both cards say nothing is metered back; after either exit the card reads 'that was the visit' and offers settle only — no re-file.",
+     "checkpoints": [
+      "Feed vocabulary is verbatim requests.json wording — running / player session ended / resolved",
+      "22 cr charged once; balance math honest on screen",
+      "One-time lesson: after exit, S7 offers settle — no second guided visit",
+      "?hired=1 on u13 shows no visit affordance; stage('S7') without hired redirects to S5"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js from the repo root and read the onboard gate.",
+     "expect": "onboard gate passes at 'schema v95 · 8 beats · key rw_onboard_v95' — all v95 honesty strings found, S7 reachable + hired-gated + in PAID_STAGES, subscription_line/first_visit values pinned to the plan, deal-framing and early-release-refund sweeps clean.",
+     "checkpoints": [
+      "Onboard gate: 0 fail; detail reports schema v95 at key rw_onboard_v95",
+      "A missing credit rule, an invented sub price, or S7 outside PAID_STAGES would FAIL — spot-check"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

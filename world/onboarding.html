@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<title>Real World — Onboarding (first session, v6)</title>
+<title>Real World — Onboarding (first session, v7)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  Onboarding flow — first-session journey (world v81, v6 of the v11 demo).
+  Onboarding flow — first-session journey (world v95, v7 of the v11 demo).
   Self-contained demo: file://-safe, no network. A mini Wire replica
   (subset of feed.json seeds) hosts the tour so every stage is reachable:
 
@@ -26,6 +26,9 @@
       lands alongside yours — coexistence is the multiplayer; no filing)
     → S5 settle (the ownership arc named as context, not funnel)
     → S6 hired return (?hired=1 first-day card)
+    → S7 the first visit (guided 15-min possession of the hired
+      character — step out early or let the hard cap end it; either
+      way the AI resumes mid-motion, nothing metered back)
 
   New in v53 — the time layer: the Archive joins the tour (catching up
   is free), the queued class gets its own honest lesson (hold ≤24 h,
@@ -50,6 +53,14 @@
   states surge is shown before you pay (×1.5–×2.5 range, verbatim from
   plan §2.2); and settle names the tenant → owner → landlord arc as
   context, no funnel.
+  New in v95 — the stay: the wallet card states the credit rules once
+  (never run out / never cash out / never move between accounts) and
+  mentions the two standing orders exactly once (Resident $4.99/mo,
+  Director $11.99/mo — plan §2.5 verbatim, no favorite-tier styling, a
+  one-shot Resident stipend preview); and S7 walks a new hirer through
+  stepping into their character for the first time — 15 min at the
+  compatible minimum (22 cr), briefing still redacted, both exits
+  hand back mid-motion with no refund promised.
   Spec + copy deck: world/onboarding-ui.md.
   Mirror: world/onboarding.json. Prices adopt monetization-plan §2 PROPOSAL —
   do not contradict. Boundaries: watching is free + ungated; nothing is
@@ -254,9 +265,9 @@ function feedAdd(k, html, st){
 }
 
 /* ================= onboarding state ================= */
-var LS='rw_onboard_v81';
+var LS='rw_onboard_v95';
 var S={stage:'S0',beat:0,persona:null,handle:'',bal:0,spentFirst:false,
-  band:null,adViews:0,coask:false,
+  band:null,adViews:0,coask:false,sub:null,visited:false,
   ck:{watch:false,tour:false,handle:false,wallet:false,ask:false,settle:false},
   skipped:{},dismissed:false,parked:false,done:false,returning:false,req:null,hired:false};
 try{var s=JSON.parse(localStorage.getItem(LS)); if(s) S=Object.assign(S,s);}catch(e){}
@@ -356,10 +367,11 @@ function card(tag,body,btns,closable){
 
 /* paid stages — the band question fronts these; it gates the wallet and the
    asks, never the feed, the tour, or the free cards */
-var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1,S4f:1};
+var PAID_STAGES={S3:1,S4:1,S4b:1,S4c:1,S4e:1,S4f:1,S7:1};
 function normalizeStage(){
   if(!S.band && PAID_STAGES[S.stage]) S.stage='S2a';
   if(S.band==='u13' && PAID_STAGES[S.stage]) S.stage='S3u';
+  if(S.stage==='S7' && !S.hired) S.stage='S5'; /* the visit only exists off the first-day card */
 }
 function render(){
   normalizeStage();
@@ -457,6 +469,19 @@ function render(){
       }).join('')+'</div>'+
       '<div class="note">Full ladder, PROPOSAL pricing. First purchase adds +50%, once — '+
       'stated here, not at checkout. Watching needs none of this.</div>'+
+      '<div class="note" id="creditrules">Three things credits never do: they '+
+      '<b>never run out</b>, they <b>never cash out</b>, and they <b>never move '+
+      'between accounts</b>. They buy agency here — that\u2019s the whole job.</div>'+
+      '<div class="note" id="subsline">If you\u2019ll be around a while, two standing '+
+      'orders exist — stated once, here, and never pushed again. <b>Resident — '+
+      '$4.99/mo:</b> 600 cr a month, a second character slot, the weekly digest. '+
+      '<b>Director — $11.99/mo:</b> everything in Resident, plus 1,500 cr a month, '+
+      'a third slot, camera director mode, and your name in the show credits. '+
+      'A pack is a one-time thing; a standing order is for regulars.'+
+      (S.sub
+        ?' <span class="tour-n">— Resident previewed: the 600 cr stipend landed.</span>'
+        :' <span class="suggest" onclick="subDemo()">preview Resident (demo) — the 600 cr stipend lands</span>')+
+      '</div>'+
       (S.band==='adult'
         ?'<div class="note" id="adsline">No card? A sponsored message earns <b>2 cr</b> — '+
           'up to 5 a day, opt-in from this card only. Never in the stream, never '+
@@ -611,8 +636,46 @@ function render(){
       (S.handle?'':'<p class="note">No handle yet — requests attribute by it, so it\u2019s '+
       'worth picking one. Skippable, as always.</p>'),
       (S.handle?'':'<button class="ghost" onclick="stage(\'S2\');S.hired=false">Pick a handle</button>')+
+      ((S.band && S.band!=='u13')
+        ?'<button class="ghost" onclick="stage(\'S7\')">Take the first visit (demo — 15 min, 22 cr)</button>':'')+
       '<button class="go" onclick="S.hired=false;settle()">Got it — to the block</button>', true);
     anchor(null);
+  } else if(S.stage==='S7'){
+    /* the first visit — a guided 15-min possession of the hired character at
+       the compatible minimum billable (1.5 cr/min × 15 = 22 cr, plan §2.2).
+       Both exits hand back to the AI mid-motion; no refund is promised on
+       unused minutes — declared blocks are bought up front. */
+    if(S.visited){
+      h=card('That was the visit',
+        '<p>A session, not a state — entered, capped, exited, attributed. '+
+        'Anything further is an ordinary request; onboarding\u2019s job here is '+
+        'done.</p>',
+        '<button class="go" onclick="S.hired=false;settle()">Settle in</button>');
+    } else if(S.req==='visiting'){
+      h=card('You\u2019re inside — first visit running',
+        '<p>For the next 15 minutes you walk their shift, their errands, their '+
+        'Tuesday. The briefing is still all you see — public profile, surface '+
+        'relationships, routine; secrets stay redacted even to you.</p>'+
+        '<p class="note">The visit is on the feed'+(S.handle?' with <b>'+esc(S.handle)+'</b> on it':'')+
+        ', marked <i>running</i> — possession is a session, always attributed. '+
+        'Step out any time and their own brain resumes mid-motion; or let the '+
+        'clock run — the cap is hard. The time was bought up front; stepping '+
+        'out early ends it, nothing is metered back.</p>',
+        '<button class="go" onclick="visitCap()">Jump ahead — 15 min later</button>'+
+        '<button class="ghost" onclick="stepOut()">Step out early</button>');
+    } else {
+      h=card('The first visit — optional',
+        '<p>One last lesson, the one nobody can describe: <b>stepping in.</b> '+
+        'Fifteen minutes inside the person you hired — the compatible rate\u2019s '+
+        'minimum, 22 cr. You direct the visit; the moment it ends — by your '+
+        'hand or the cap — their own brain takes back over, mid-stride.</p>'+
+        '<p class="note">It files on the public feed like every ask: '+
+        '<i>possession — first visit, 15 min</i>, attributed. A session, not '+
+        'a state — and after it, this card offers settle; further visits are '+
+        'ordinary requests, not onboarding\u2019s job.</p>',
+        (S.bal>=22?'<button class="go" onclick="fileVisit()">Step in — 22 cr</button>':'')+
+        '<button class="ghost" onclick="S.hired=false;settle()">Settle instead</button>');
+    }
   } else if(S.stage==='S5'){
     if(S.band==='u13'){
       h=card('Settle in',
@@ -764,6 +827,45 @@ window.lowBal=function(){
     render();
     toast('Wallet hit zero — the view handed back to the AI mid-motion. No debt, nothing billed past the cap.');
   }, 2400);
+};
+window.subDemo=function(){
+  /* Resident stipend preview — demos what the standing order does, once.
+     S3's guards apply structurally (u13 never sees the card); the band
+     re-check here is belt-and-suspenders like every paid affordance */
+  if(S.band==='u13'||!S.band){toast('Watching account — no wallet.');return;}
+  if(S.sub){toast('Previewed already — the stipend lands once.');return;}
+  S.sub='resident'; S.bal+=600; save();
+  $('wallet').style.display='';$('bal').textContent=S.bal.toLocaleString();
+  render();
+  toast('+600 cr — a month of Resident, previewed (demo).');
+};
+window.fileVisit=function(){
+  /* the first visit — a paid, hired-only stage: band normalizer fronts it,
+     hired is required by the stage itself, 22 cr is the compatible
+     minimum billable (1.5 cr/min × 15, plan §2.2 ≈22 cr quoted as-is) */
+  if(S.band==='u13'||!S.band){toast('Watching account — requests aren\u2019t on this account.');return;}
+  if(!S.hired){stage('S5');return;}
+  if(S.bal<22){toast('Balance too low — the first visit is 22 cr.');return;}
+  S.bal-=22; S.req='visiting'; save();
+  $('bal').textContent=S.bal.toLocaleString();
+  feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — possession: first visit, 15 min','running');
+  render();
+  toast('Filed. For 15 minutes, you walk their Tuesday.');
+};
+window.visitCap=function(){
+  if(S.req!=='visiting'){return;}
+  S.req=null; S.visited=true; feedMin+=15; save();
+  $('feed-clock').innerHTML=hhmm(feedMin)+' <small>block time</small>';
+  feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — possession: first visit · session ended at the cap','resolved');
+  render();
+  toast('The cap held — their own brain took back over, mid-stride.');
+};
+window.stepOut=function(){
+  if(S.req!=='visiting'){return;}
+  S.req=null; S.visited=true; save();
+  feedAdd('request','<b class="who">'+(esc(S.handle)||'you')+'</b> — possession: first visit','player session ended');
+  render();
+  toast('You stepped out — they resumed mid-motion. Nothing was metered back.');
 };
 window.settle=function(){S.ck.settle=true;S.done=true;save();render();};
 

@@ -1,4 +1,4 @@
-# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43)
+# Onboarding — spec & copy deck (world v11; v25 adds §10–16; v39 adds §18–23; v53 adds §24–29; v67 adds §30–36; v81 adds §37–43; v95 adds §44–49)
 
 The **first-session journey**: how a stranger lands on The Wire, learns the
 block for free, and — only if they want agency — walks the shortest honest
@@ -699,3 +699,135 @@ Archive.
   named context at settle, with no button attached.
 - Never imply a player can buy out, preempt, or see inside another
   player's session — attribution is public, interiors are not.
+
+---
+
+## v95 — the seventh pass: the stay
+
+v11–v81 taught a stranger the whole request grammar — every class, every
+honest "no," the house's own visibility — and named the ownership arc. Two
+things the journey still hadn't said out loud: **what a credit actually
+isn't** (the fine print nobody reads until it bites), **that a standing
+order exists at all** (the plan's two subscriptions have never surfaced
+anywhere in onboarding), and **what the first possession feels like** —
+the hire flow ends at S6's first-day card, but nobody has ever walked a
+player through stepping into their character for the first time.
+
+### 44. The credit rules, stated once (S3)
+
+The wallet card gains one fine-print line under the ladder, rendered for
+every money-eligible band (adult / teen / na — u13 has no wallet):
+
+> "Three things credits never do: they **never run out**, they **never
+> cash out**, and they **never move between accounts**. They buy agency
+> here — that's the whole job."
+
+All three are locked design constraints (credits non-transferable /
+non-redeemable / no cash-out; no expiration or dormancy fees per plan
+§2.1) — this is disclosure, not a selling point. Stated once, in plain
+terms, before the first purchase. It is deliberately *not* framed as a
+feature list ("no fees!") — it's the shape of the thing.
+
+### 45. The standing option — subscriptions (S3)
+
+The wallet card gains one more line — the only place onboarding ever
+mentions subscriptions:
+
+> "If you'll be around a while, two standing orders exist — stated once,
+> here, and never pushed again. **Resident — $4.99/mo:** 600 cr a month,
+> a second character slot, the weekly digest. **Director — $11.99/mo:**
+> everything in Resident, plus 1,500 cr a month, a third slot, camera
+> director mode, and your name in the show credits. A pack is a one-time
+> thing; a standing order is for regulars."
+
+- Contents quoted verbatim from plan §2.5 (PROPOSAL) — every perk named
+  is one the plan lists (stipend, slots, digest, camera director mode,
+  show credits); nothing else is promised or implied.
+- **Stated once, honestly:** no "best value" marker, no comparison
+  styling, no default-checked toggle, no trial framing, no recurring
+  prompt on later visits. The card says it exists; that's the whole
+  funnel.
+- A demo affordance (*"preview Resident (demo) — the 600 cr stipend
+  lands"*) credits +600 cr once, labeled as the stipend, so a tester
+  sees what the standing order *does* without inventing mechanics —
+  second click is a no-op toast. It demos the stipend only; no other
+  perk is simulated.
+- Rendered inside S3, so it inherits every existing guard: u13 never
+  sees it, the band normalizer fronts it, teen/na carry the spend-limit
+  line alongside. The handler re-checks the band like every paid
+  affordance.
+
+### 46. The first visit (S7) — possession, walked through once
+
+S6 tells a new hirer what a hired character *isn't*. What it never did
+was walk them into the character. `?hired=1` now ends at a card with a
+third option: **"Take the first visit (demo — 15 min, 22 cr)"** — the
+compatible-rate minimum billable (1.5 cr/min × 15 min, plan §2.2's
+≈22 cr figure quoted as-is).
+
+Filing posts the real feed entry (`possession — first visit, 15 min ·
+running`, attributed) and opens the visit card:
+
+> "You're inside the person you hired — for the next 15 minutes you walk
+> their shift, their errands, their Tuesday. The briefing is still all
+> you see: public profile, surface relationships, routine — secrets stay
+> redacted even to you. Step out any time — the ask ends and their own
+> brain resumes mid-motion. Or let the clock run: the cap is hard, and at
+> 15 minutes they take back over, mid-stride. The time was bought up
+> front — stepping out early ends it; nothing is metered back."
+
+- Two exits, both honest: **"Step out early"** resolves the feed entry
+  as `player session ended` (the locked neutral wording — same line a
+  zeroed wallet logs); **"Jump ahead — 15 min later"** resolves at the
+  cap. Both hand back to the AI mid-motion; neither claims a refund on
+  unused minutes — the plan promises none, so the card says so.
+- S7 is a paid stage — it sits behind the band normalizer like every
+  ask-context card (unset → S2a, u13 → S3u) and additionally requires
+  `hired` + balance ≥ 22; without either, the affordance simply isn't
+  offered on the S6 card.
+- It teaches the one thing no other beat covers: possession is a
+  *session*, not a state — entered, capped, exited, always attributed.
+
+### 47. Edge cases (v95 additions)
+
+| Case | Behavior |
+|------|----------|
+| Balance < 22 at the visit | "Balance too low" toast; nothing filed |
+| `?hired=1` on u13 | S6 renders; the visit affordance doesn't — paid handlers bail on `u13` like every other paid path |
+| Visit affordance without `hired` | not rendered — S7 only exists off the first-day card; `stage('S7')` without `hired` redirects to S5 |
+| Stipend preview clicked twice | idempotent — +600 lands once, later clicks toast a no-op |
+| Step out, then re-enter | the visit is a one-time lesson — after any exit the card offers settle; a second visit would be a normal request, not onboarding's job |
+| Sub line on the watch path | identical card, identical prices — the fork never re-prices; the line is also *skippable* with everything else |
+
+### 48. v95 merge notes
+
+- `storage_key` → `rw_onboard_v95` (v81/v95 states coexist harmlessly;
+  the demo reads only its own key).
+- Feed vocabulary the demo renders: `possession — first visit` +
+  `running` / `player session ended` / `resolved` — all already in
+  `requests.json` vocabulary; nothing invented.
+- New analytics hooks (v95): `credit_rules_seen`, `subs_line_shown`,
+  `sub_stipend_previewed`, `first_visit_filed`, `visit_ended`
+  (cap|stepped_out) — same envelope, stage + opted_out props only.
+- At merge: the sub line's demo affordance is replaced by the real
+  account record; the visit files a normal compatible possession
+  request through `requests.json`'s pipeline — the demo's fixed 15-min
+  block stays demo-only. S7's entry point binds to create.html's real
+  post-approval redirect (`?hired=1` already is).
+
+### 49. What v95 still must never do
+
+- Never render the subscription line on the watching account, or
+  anywhere the band normalizer hasn't cleared — it inherits S3's guards.
+- Never style either subscription as better value, default-check it, or
+  re-surface it after the card is seen — "stated once" is the contract.
+- Never invent subscription terms the plan doesn't set — no trial, no
+  cancellation promises, no perk beyond §2.5's list.
+- Never promise a refund on early release — the plan prices declared
+  blocks up front; the card says the time was bought, nothing metered
+  back.
+- Never frame the first visit as owning, keeping, or unlocking the
+  character — it is a capped session inside a person you hired, and the
+  briefing stays redacted throughout.
+- Never let the stipend demo read as granted spend — it previews the
+  standing order's mechanics, labeled as such, once.
