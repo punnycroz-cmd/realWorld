@@ -48,7 +48,21 @@ if grep -q '"id": "return-7d"' analytics/goals.json 2>/dev/null; then
 else
   p "goals.json missing the return-7d goal — check analytics/goals.json"
 fi
-p "cost per simulated day — owner + game track figure, not measurable from marketing/; record it in the §17 decision log"
+CTS="${RW_COST_TSV:-}"
+if [ -z "$CTS" ] && [ -f analytics/cost-ledger.tsv ]; then
+  CTS="analytics/cost-ledger.tsv"
+fi
+if [ -n "$CTS" ] && [ -f "$CTS" ]; then
+  CJ=$(python3 tools/cost_ledger.py report "$CTS" --json 2>/dev/null)
+  CPS=$(printf '%s' "$CJ" | python3 -c 'import json,sys; v=json.load(sys.stdin).get("cost_per_sim_day"); print("$%.4f"%v if v is not None else "n/a")' 2>/dev/null)
+  SPD=$(printf '%s' "$CJ" | python3 -c 'import json,sys; print("$%.2f"%json.load(sys.stdin).get("spend_total",0))' 2>/dev/null)
+  SMD=$(printf '%s' "$CJ" | python3 -c 'import json,sys; print("%g"%json.load(sys.stdin).get("sim_days_total",0))' 2>/dev/null)
+  T7=$(printf '%s' "$CJ" | python3 -c 'import json,sys; v=json.load(sys.stdin)["trailing_7d"]["cost_per_sim_day"]; print("$%.4f"%v if v is not None else "n/a")' 2>/dev/null)
+  i "cost ledger: $CTS"
+  i "cost/sim-day = ${CPS:-?} (trailing 7d ${T7:-?}) — ${SPD:-?} over ${SMD:-?} sim-days; sim_days rows still come from the game track's sim clock"
+else
+  p "no cost ledger — start one: tools/cost_ledger.py add cost|mod_hours|sim_days <value> <category> [note] (or set RW_COST_TSV=<path>); §17 needs it at T+7d"
+fi
 echo
 
 # ── Stage 2: subscriptions (only after stage 1 is proven) ────────────

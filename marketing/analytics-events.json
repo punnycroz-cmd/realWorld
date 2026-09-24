@@ -459,6 +459,27 @@
       "funnel_stage": "observer",
       "status": "PENDING — game build",
       "note": "feed-vocabulary outcome only — refusal is a legitimate, measured result, not a failure state"
+    },
+    "loop_card_seen": {
+      "when": "the onboarding observer-loop card renders — catch up → follow → predict → inspect → return, shown as a card not a coach-mark (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "exposure to the free observer loop framing; the card is the tour's last beat's companion — no new tour beat added (world-v123 §61)"
+    },
+    "prediction_checked": {
+      "when": "the onboarding prediction demo's pick is checked against its world event — device-local until accounts exist (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the demo pick never writes a feed line — only the world event it checks against is public; stakeless like prediction_made"
+    },
+    "edition_line_seen": {
+      "when": "the catch-up-edition line renders in onboarding — binds to the Archive's last-visit record at merge (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the 'verified changes since your last visit' promise surface — OBSERVED-ledger content only at merge"
     }
   },
   "privacy": {

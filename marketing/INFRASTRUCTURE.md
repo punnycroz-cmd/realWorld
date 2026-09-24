@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v164 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v179 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -158,6 +158,33 @@ At any point in the countdown, `tools/runofshow.sh` prints live done/pending
 status for every mechanical §2 run-of-show item (read-only; set `RW_DOMAIN`
 to include the live DNS row).
 
+### §5a Stage-gated provisioning (production-3 order)
+
+The proof ladder (LAUNCH-CHECKLIST §17) also gates *infrastructure*: a paid
+rail's plumbing is provisioned when its stage opens, not before. Stripe
+(step 6) is NOT part of the stage-1 go session — nothing is for sale while
+return visits are being proven, and a provisioned-but-unused payment
+account is only attack surface and paperwork.
+
+| Stage | Provision in that session | Explicitly deferred |
+|---|---|---|
+| 1 — launch (observation, all free) | steps 0–5 minus Stripe, 7–9: domain, DNS (apex + `play.` + `stats.`), host, TLS, analytics backend, uptime monitor, domain sweep, press kit | Stripe account/products/webhooks (step 6), any paid-tier page flips |
+| 2 — subscriptions open | Stripe account + products for Resident/Director tiers only, webhook consumer, `pricing=final` flip, refunds-page sub rows | sponsorship product lines |
+| 3 — capped sponsorship | sponsorship product(s), attribution rendering on the public feed, delivery/refusal/refund terms live on `refunds.html` | — |
+
+`deploy/stripe-products.json` stays in-repo and rehearsed
+(`tools/stripe_webhook_fixture.py` works with no account) so stage 2 is a
+provisioning session, not a scramble — the fixture rehearsal covers the
+consumer; nothing else is owed ahead of the stage-2 decision row.
+
+Stage-1 measurement duty, both halves runnable from this repo:
+`tools/analytics_retention.py` (return visits, needs the live sidecar) and
+`tools/cost_ledger.py` (cost per simulated day — `analytics/cost-ledger.tsv`
+records `cost`/`mod_hours`/`sim_days` rows; sim-days are the game track's
+sim clock, pasted in by the owner). `tools/stage_gates.sh` reads both
+(`RW_RETENTION_TSV`, `RW_COST_TSV` overrides) and prints the §17 evidence
+block.
+
 ## 6. Deploy & rollback
 
 - **Deploy:** `deploy/deploy-site.sh` — `rsync --delete` to a host path, or
@@ -288,6 +315,13 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   (`deploy/incidents/YYYY-MM-DD-<slug>.md`). Its "what caught it" section
   is how detector gaps become checklist/tool action items instead of
   folklore; incident-comms drafts stay truth-conditional on it.
+- **Stage-1 economics:** `tools/cost_ledger.py` keeps the cost-per-sim-day
+  ledger (`analytics/cost-ledger.tsv`, append-only like the retention
+  sidecar). Cadence: log hosting/inference invoices and `mod_hours` as they
+  land, paste the sim-days figure weekly with the retention pull; the
+  report prints the §17 decision-log line verbatim. "Cost per simulated
+  day" is measured, not remembered — the T+7d stage review cites the
+  report, not an estimate.
 - **Secret rotation:** cadence + procedures in `deploy/secrets-rotation.md`
   (annual sitting, quarterly registrar-lock review, on-suspicion immediate).
   Rotation is deliberately NOT scripted — every rotate is an owner action
