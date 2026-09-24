@@ -4035,7 +4035,18 @@ const PUB = Object.values(PT.surfaces)
       [/refreshQueue/, 'v92 pull-not-poll refresh'],
       [/via bus|via:'bus'/, 'v92 audit via-bus marker'],
       [/CLAIMS/, 'v92 session-claim map (bus locks = merge TODO)'],
-      [/billed on approval/, 'v92 deferred-billing honesty chip']
+      [/billed on approval/, 'v92 deferred-billing honesty chip'],
+      /* v120 writers' docket — the incident log for the writers' room */
+      [/writers.{0,4}docket/i, 'v120 writers docket affordance'],
+      [/toggleDocket|fileIncident/, 'v120 docket handlers'],
+      [/writers_incident/, 'v120 writers_incident record shape'],
+      [/not a moderation action|never a moderation action/i, 'v120 not-moderation honesty'],
+      [/no retcon tool/i, 'v120 no-retcon copy'],
+      [/decide it in the queue/, 'v120 request-id scope guard'],
+      [/contents stay with the writers/, 'v120 counted-not-read copy'],
+      [/cannot cite a\s+secret you cannot see/, 'v120 whitelist-cite honesty'],
+      [/exportDocket|export incident records/, 'v120 incident export'],
+      [/a different ledger for a different room/, 'v120 ledger-separation copy']
     ];
     for (const [re, label] of MUST)
       if (!re.test(mc)) add(g, 'fail', 'mod-console.html', null, `missing required copy/affordance: ${label}`);
@@ -4049,7 +4060,7 @@ const PUB = Object.values(PT.surfaces)
           `CHARS.${id}.${k} outside the reviewer whitelist (${[...WL].join('/')}) — secrets must be absent, not renamed`);
     /* 4b. v78 + v92 contract blocks present in moderation.json */
     for (const k of ['review_locks', 'appeal_workspace', 'handoff_notes', 'reviewer_stats',
-                     'review_seam_v92', 'drift_report'])
+                     'review_seam_v92', 'drift_report', 'writers_docket'])
       if (!MJ[k]) add(g, 'fail', 'moderation.json', null, `contract block "${k}" missing`);
     if (MJ.review_seam_v92) {
       for (const fn of ['gsReviewQueue', 'gsReviewResolve', 'gsEscalateLegal',
@@ -4059,6 +4070,23 @@ const PUB = Object.values(PT.surfaces)
     }
     if (MJ.appeal_workspace && !/ENFORCED/.test(MJ.appeal_workspace.different_reviewer_rule || ''))
       add(g, 'fail', 'moderation.json', null, 'appeal_workspace must state the different-reviewer rule is enforced');
+    /* v120: the writers' docket is a separate ledger — never mod_decision */
+    if (MJ.writers_docket) {
+      if ((MJ.writers_docket.record || {}).rec !== 'writers_incident')
+        add(g, 'fail', 'moderation.json', null, 'writers_docket.record.rec must be writers_incident — never mod_decision');
+      if (!/never the public feed/.test((MJ.writers_docket.rules || []).join(' ')))
+        add(g, 'fail', 'moderation.json', null, 'writers_docket rules must keep incidents off the public feed');
+    }
+    /* v120: the two exports must stay separate — ledger export may not emit
+       writers_incident, the docket export may not emit mod_decision */
+    {
+      const le = mc.match(/function exportLedger[\s\S]*?\n\}/);
+      if (le && /writers_incident/.test(le[0]))
+        add(g, 'fail', 'mod-console.html', null, 'exportLedger must never emit writers_incident — ledgers stay separate');
+      const de = mc.match(/function exportDocket[\s\S]*?\n\}/);
+      if (de && /rec:'mod_decision'|rec:"mod_decision"/.test(de[0]))
+        add(g, 'fail', 'mod-console.html', null, 'exportDocket must never emit mod_decision — ledgers stay separate');
+    }
     /* seeded affordances the demo must keep reachable */
     if (!/claimed_by:'m\.chen'/.test(mc))
       add(g, 'fail', 'mod-console.html', null, 'no seeded claimed item — the lock state must be demoable');

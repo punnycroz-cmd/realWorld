@@ -392,3 +392,39 @@ charged entry, not just exclusives.
 Contract: `moderation.json` gains `display_filter_lab` + a `bench` pointer
 on `display_filter`. Merge note: once the owner picks, the filter is a
 feed-render layer in game-systems; the memo JSON is the config record.
+
+## 12e. v120 — the writers' docket (Mod Console v10)
+
+§1 has always said it: *"if a character does something the writers should
+see, that's a logged incident for the writers' room — not a moderation
+action."* Until now no tool served that sentence — a reviewer watching
+Mars comp a stranger's coffee for the third morning running had nowhere
+to put it except a sticky note. The new header "writers' docket" toggle
+opens the panel:
+
+- **File an incident** — character pick (built from the reviewer whitelist
+  — you cannot cite a secret you cannot see, or pick "the street / no one
+  in particular"), severity (`note` / `concern`), and the observation in
+  the reviewer's own words. A request id in the text is refused — *that's
+  a request; decide it in the queue.* The docket is for the AI's own
+  behavior only.
+- **It touches nothing.** An incident is not a moderation action: not the
+  world, not the feed, not the player, not the AI, not the canonical
+  decision ledger. There is no retcon tool and the docket is not a back
+  door to one. The writers' room reads the queue and decides what, if
+  anything, changes on the page — never the console.
+- **`writers_incident`, never `mod_decision`.** The panel's export emits
+  `writers_incident` records (`{rec, id, ts, filed_by, character,
+  severity, observation}`) — a different ledger for a different room.
+  The audit log stays the only decision record; the ledger export stays
+  decision-only.
+- **Counted, not read, in the studio view.** The shift report carries one
+  aggregate line — "incidents to the writers' room: N — contents stay
+  with the writers; never a moderation action". The seeded docket
+  (wi-031…wi-033: Mars's comp habit, Victor's early closes, Priya's 2 a.m.
+  stairs runs) keeps the three reachable states demoable and models the
+  register: public behavior, specific observation, zero instructions.
+
+Merge note: at merge the bus may carry a `writers_incident` sink for the
+writers' room intake — it must never join the `mod_decision` stream or
+the public feed. Contract: `moderation.json` gains `writers_docket`.

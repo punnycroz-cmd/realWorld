@@ -169,6 +169,15 @@
     "finding_v92": "23 permissive gaps on identical input: 13 missing normalization (leet/spaced/separator/accent evasions pass the bus), 10 lexicon drift (word-form stems 'humiliates', 'get <name> fired', parody-venue venue-lock, real-person names, obfuscation-attempt code absent), 6 player-history cases untestable in stub",
     "rule": "per testing.drift_gate the port may be stricter, never more permissive — the report is the merge artifact for game-systems; world cannot fix the port from this branch"
   },
+  "writers_docket": {
+    "surface": "mod-console 'writers\u2019 docket' panel (world v120) — the incident log for emergent AI behavior, the constructive half of the locked 'no report-the-AI' boundary",
+    "purpose": "reviewers see emergent behavior all shift; when something is worth the writers' eyes it gets filed here. Spec §1 names it: 'a logged incident for the writers' room — not a moderation action.'",
+    "not_a_moderation_action": "an incident touches NOTHING — not the world, not the feed, not the player, not the AI, not the canonical decision ledger. There is no retcon tool; the docket is not a back door to one. The writers decide what, if anything, changes on the page — never the console.",
+    "scope_guard": "file the AI's own behavior only — the form refuses request ids ('that's a request — decide it in the queue'). Character picks come from the reviewer whitelist; you cannot cite a secret you cannot see.",
+    "record": { "rec": "writers_incident", "id": "wi-*", "ts": "YYYY-MM-DD HH:MM", "filed_by": "reviewer handle", "character": "cast id or null ('the street')", "severity": "note | concern", "observation": "free text — what was seen, never an instruction" },
+    "rules": ["observations only, never instructions — the docket carries context to the writers' room, not fix orders", "writers_incident is NOT mod_decision — a different ledger for a different room; the audit log stays the only decision record", "never the public feed, never the player, never exported into the mod ledger export", "shift report counts incidents only — contents stay with the writers"],
+    "merge_target": "writers' room intake queue (studio-side). At merge the game bus may carry a writers_incident sink; it must never join the mod_decision stream or the public feed."
+  },
   "ledger_records": {
     "surface": "mod-console audit log 'export ledger records' (v64)",
     "record": { "rec": "mod_decision", "ts": "YYYY-MM-DD HH:MM", "reviewer": "handle", "request_id": "rq-*", "player": "handle", "decision": "approve|modify|deny|escalate", "code": "reason code or null", "flag_w": "0–3", "appeal_of": "rq-* or null", "feed_line": "public wording — 'request not approved' on every deny class incl. legal; attributed wording on approvals" },

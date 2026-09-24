@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
   Mod Console — the human-review surface for the request pipeline (world v8;
+  v120 adds the writers' docket — the incident log for emergent AI behavior
+  that moderation can never touch: reviewers file observations FOR the
+  writers' room, the console recommends nothing and changes nothing, and
+  the boundary it makes constructive is the locked "no report-the-AI" rule);
   v36 adds the account-flag ledger, the aggregate shift report, and an
   obfuscation-attempt seed row; v50 adds a separator-evasion seed row that
   still lands the real charge after normalization; v64 adds the flag roster
@@ -127,6 +131,7 @@
     <div class="metric"><b><a href="screen-lab.html" style="color:var(--blu);text-decoration:none">Screen Lab →</a></b><span>corpus + try-it</span></div>
     <div class="metric"><b><span id="repBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleReport()">shift report</span></b><span>aggregate only</span></div>
     <div class="metric"><b><span id="rosBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleRoster()">flag roster</span></b><span id="rosSub">internal only</span></div>
+    <div class="metric"><b><span id="docBtn" style="cursor:pointer;color:var(--blu)" onclick="toggleDocket()">writers&rsquo; docket</span></b><span id="docSub">not moderation</span></div>
     <div class="metric" id="mDepth"><b>0</b><span>queue depth</span></div>
     <div class="metric" id="mOldest"><b>0:00</b><span>oldest wait</span></div>
     <div class="metric" id="mMed"><b>—</b><span>median today (SLA 15m)</span></div>
@@ -175,6 +180,32 @@
     the console recommends, it never executes an account action.
   </div>
   <div id="rosterBody"></div>
+</section>
+<section class="panel" id="docketPanel" style="display:none;max-width:900px;margin:0 auto 16px">
+  <h2>Writers&rsquo; docket — observed AI behavior, filed for the writers&rsquo; room</h2>
+  <div class="foot" style="color:var(--dim);font-size:11px;margin-bottom:10px">
+    The one constructive outlet for the locked boundary: there is no
+    &ldquo;report the AI&rdquo; surface and no retcon tool. An incident filed
+    here touches nothing — not the world, not the feed, not the player, not
+    the character. It lands in the writers&rsquo; room queue; the writers
+    decide what, if anything, changes on the page — never the console.
+    File the AI&rsquo;s own behavior only: if what you saw came from a
+    player&rsquo;s request, decide the request — that&rsquo;s the queue&rsquo;s
+    job. Character names come from the reviewer whitelist; you cannot cite a
+    secret you cannot see.
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:10px">
+    <select id="dChar"><option value="">the street / no one in particular</option></select>
+    <select id="dSev"><option value="note">note — worth the writers&rsquo; eyes</option>
+      <option value="concern">concern — writers should read soon</option></select>
+    <button class="ghost" onclick="fileIncident()">file incident</button>
+    <button class="ghost" onclick="exportDocket()">export incident records</button>
+  </div>
+  <input type="text" id="dText" spellcheck="false"
+    placeholder="what was observed — behavior you saw, in your own words; never a request, never a fix order"
+    style="width:100%;margin-bottom:12px">
+  <div id="docketBody"></div>
+  <textarea id="docketOut" spellcheck="false" style="width:100%;min-height:90px;margin-top:8px;font-family:var(--mono);font-size:10.5px;display:none"></textarea>
 </section>
 <div class="toast" id="toast"></div>
 
@@ -882,6 +913,9 @@ function renderReport(){
   var rws=Object.keys(s.by_reviewer);
   if(rws.length) html+='<div class="kv"><span>Decisions this session, by reviewer</span><b>'+
     rws.map(function(r){return r+': '+s.by_reviewer[r];}).join(' · ')+'</b></div>';
+  /* v120 writers' docket — counted here, contents stay with the writers */
+  html+='<div class="kv"><span>Incidents to the writers\u2019 room</span><b>'+(DOCKET.length+SESSION_WI.length)+
+    ' — counted, contents stay with the writers; never a moderation action</b></div>';
   html+='<h2 style="margin:12px 0 6px">Denials + reviews by code</h2>';
   Object.keys(s.by_code).sort(function(a,b){return s.by_code[b]-s.by_code[a];}).forEach(function(k){
     html+='<div class="kv"><span>'+k+'</span><b>'+s.by_code[k]+'</b></div>';
@@ -1000,7 +1034,72 @@ function renderAudit(){
   });
 }
 
-function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); }
+/* ================= writers' docket (v120) — incidents for the writers' room =================
+   The constructive half of "no report-the-AI surface": reviewers SEE emergent
+   behavior all shift; the docket is where an observation goes. It is not a
+   moderation action — it touches nothing (not the world, not the feed, not
+   the player, not the AI). Records export as writers_incident, never
+   mod_decision — a different ledger for a different room. */
+var DOCKET=[ /* seeded prior filings — believable emergent-behavior notes, public behavior only */
+  { id:'wi-031', t:'2026-09-21 08:40', who:'s.oha', char:'c1', sev:'note',
+    text:'Mars comped a stranger\u2019s coffee three mornings running — different stranger each time. Generosity cluster; the writers may want to know it\u2019s become a habit, not a one-off.' },
+  { id:'wi-032', t:'2026-09-22 19:15', who:'m.chen', char:'c7', sev:'note',
+    text:'Victor closed the store ~40 min early twice this week and sat on the stoop with Carmen. Reads as deliberate, not idle — flagging in case it becomes a pattern the street reacts to.' },
+  { id:'wi-033', t:'2026-09-23 02:50', who:'you', char:'c4', sev:'concern',
+    text:'Priya went back out for a second stairs run at 2 a.m. after a full night shift — third late-night loop this week. Not a moderation matter; flagging for the writers in case the exhaustion reads somewhere it shouldn\u2019t.' }
+];
+var SESSION_WI=[];
+function toggleDocket(){
+  var p=$('docketPanel');
+  p.style.display=p.style.display==='none'?'block':'none';
+  if(p.style.display==='block'){ renderDocket(); p.scrollIntoView(); }
+}
+function renderDocket(){
+  var sel=$('dChar');
+  if(!sel.options.length||sel.options.length===1){
+    for(var id in CHARS){
+      var o=document.createElement('option'); o.value=id; o.textContent=CHARS[id].name; sel.appendChild(o);
+    }
+  }
+  var html='';
+  var all=SESSION_WI.concat(DOCKET);
+  if(!all.length){ html='<div class="empty">Nothing filed yet — the docket is for the AI\u2019s own behavior, seen and noted.</div>'; }
+  all.forEach(function(w){
+    var ch=w.char&&CHARS[w.char]?CHARS[w.char].name:'the street';
+    html+='<div class="card"'+(w.sev==='concern'?' style="border-color:var(--acc)"':'')+'><h3>'+w.id+' — '+ch+
+      (w.sev==='concern'?' <span class="flag soft">concern</span>':' <span class="flag soft" style="background:var(--panel2);color:var(--dim)">note</span>')+'</h3>'+
+      '<div class="kv"><span>Filed</span><b>'+w.t+' · '+w.who+'</b></div>'+
+      '<div style="margin-top:6px;font-size:12.5px">'+w.text+'</div></div>';
+  });
+  html+='<div class="foot" style="color:var(--dim);font-size:11px;margin-top:8px">Incidents are observations, not instructions. The writers\u2019 room reads them; nothing on this panel reaches the world, the wire, or the ledger of decisions.</div>';
+  $('docketBody').innerHTML=html;
+  $('docSub').textContent=all.length+' filed · writers only';
+}
+function fileIncident(){
+  var txt=($('dText')&&$('dText').value||'').trim();
+  if(!txt){ toast('An incident needs the observation itself — what did you see?'); return; }
+  if(/^rq-\d+/i.test(txt)){ toast('That\u2019s a request id — decide it in the queue. The docket is for the AI\u2019s own behavior.'); return; }
+  var t=new Date();
+  var id='wi-0'+(34+SESSION_WI.length);
+  SESSION_WI.unshift({ id:id, t:t.toISOString().slice(0,10)+' '+('0'+t.getHours()).slice(-2)+':'+('0'+t.getMinutes()).slice(-2),
+    who:REVIEWER, char:$('dChar').value||null, sev:$('dSev').value, text:txt });
+  $('dText').value='';
+  toast(id+' filed to the writers\u2019 room — it touched nothing. Not the world, not the feed, not the player.');
+  renderDocket();
+}
+function exportDocket(){
+  var recs=SESSION_WI.slice().reverse().concat(DOCKET).map(function(w){
+    return { rec:'writers_incident', id:w.id, ts:w.t, filed_by:w.who,
+      character:w.char, severity:w.sev, observation:w.text };
+  });
+  var t=$('docketOut'); t.style.display='block';
+  t.value=JSON.stringify({records:recs, contract:'moderation.json writers_docket',
+    note:'writers\u2019 room queue — NOT mod_decision records; observations only, never instructions, never the public feed'},null,1);
+  t.select(); try{ document.execCommand('copy'); }catch(e){}
+  toast(recs.length+' writers_incident record(s) — a different ledger for a different room.');
+}
+
+function renderAll(){ renderTabs(); renderQueue(); renderMetrics(); renderDetail(); renderContext(); renderAudit(); renderRoster(); renderDocket(); }
 /* v92 seam boot: live mode pulls the bus once and marks the badge; the demo
    keeps its seeded queue as the contract reference. */
 if(LIVE){

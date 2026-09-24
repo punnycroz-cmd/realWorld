@@ -2353,6 +2353,26 @@ const PTS=[
   ck:["Creation gate: 0 fail — '30 board rows · 4 homes · 28 people · schema v28'",
    "Editing an OPENS at-token to a fake employer (or a who to a name not on the card) fails the gate — the doors can't drift from the block",
    "Harness gate: '108 scenarios · N checkpoints'; mirror gate confirms the PT108 hand-sync"]}
+]},
+{id:"PT109",title:"The writers' docket v120 — incidents for the writers' room in the Mod Console",min:6,
+ persona:"reviewer on shift — just watched a main do something worth the writers' eyes; facilitator checking the docket is the constructive half of the locked 'no report-the-AI' boundary and that it can touch nothing",
+ goal:"Verify the v120 writers' docket on world/mod-console.html: the header toggle opens an incident panel where reviewers file observations FOR the writers' room (whitelist character pick, note/concern severity, free-text observation, request-id refusal), export emits writers_incident records never mod_decision, the shift report counts incidents only — and nothing reaches the world, the feed, the player, or the AI.",
+ surfaces:["mod", "audit"],steps:[
+ {do:"Open mod-console.html (file://) and click 'writers' docket' in the header. Read the panel copy, the seeded filings (wi-031 Mars's comp habit, wi-032 Victor's early closes, wi-033 Priya's 2 a.m. stairs runs), then file an incident: pick 'Jules Park', severity 'concern', type an observation, hit 'file incident'.",
+  exp:"The panel leads with the boundary copy: 'there is no \"report the AI\" surface and no retcon tool. An incident filed here touches nothing — not the world, not the feed, not the player, not the character.' The character select lists whitelist names plus 'the street / no one in particular'. The new filing lands at the top as wi-034 attributed to the active reviewer, amber-bordered as a concern, and the header sub reads '4 filed · writers only'.",
+  ck:["Typing a request id like 'rq-1042 made her cry' is refused: 'That's a request id — decide it in the queue. The docket is for the AI's own behavior.'",
+   "The toast on file says 'it touched nothing. Not the world, not the feed, not the player.' — the filing changes no queue item, no flag, no feed line",
+   "Severity 'concern' renders an amber border and flag chip; 'note' renders a dim chip — the register is modeled by the seeds"]},
+ {do:"Click 'export incident records' and read the JSON. Then open the shift report and find the docket line. Then open the audit-log 'export ledger records' and confirm the separation.",
+  exp:"The export is a writers_incident record set — {rec:'writers_incident', id, ts, filed_by, character, severity, observation} with contract 'moderation.json writers_docket' and the note 'writers' room queue — NOT mod_decision records; observations only, never instructions, never the public feed'. The shift report carries 'Incidents to the writers' room: N — counted, contents stay with the writers; never a moderation action'. The ledger export still emits only mod_decision records — the two ledgers never mix.",
+  ck:["No writers_incident appears in exportLedger output and no mod_decision appears in exportDocket output — a different ledger for a different room",
+   "The shift report counts incidents but shows no observation text — counted, not read",
+   "Audit log (the decision record) shows no entry for the filing — it was never a decision"]},
+ {do:"Run node world/audit.js and read the mod gate.",
+  exp:"The mod gate passes at v120: writers_docket contract block present with record.rec 'writers_incident' and a rules line keeping incidents off the public feed; console affordances pinned (docket toggle, handlers, export, honesty copy, request-id guard, ledger separation).",
+  ck:["Mod gate: 0 fail — taxonomy, corpus mirror, whitelist, and v36…v120 affordances all green",
+   "Renaming the docket record to 'mod_decision' in moderation.json fails the gate — the separation is structural",
+   "Harness gate: '109 scenarios · N checkpoints'; mirror gate confirms the PT109 hand-sync"]}
 ]}
 ];
 
