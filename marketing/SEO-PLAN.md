@@ -1,6 +1,15 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v90 · 2026-09-23 (sixth pass — merged onto production baseline
+**Version:** v105 · 2026-09-23 (seventh pass — SERP re-validation §20:
+the "Paralives alternative" SERP is now *contested* — LIVORA (shipped
+Jul 3 2026), OurLife (May 2026), VirtualSociety (in dev) all surfaced in
+one live query, plus a Guardian mainstream feature; inZOI Online hits
+its Phase-5 large-scale multiplayer window Oct 2026 — the genre is
+spending our marketing budget for us; Truman-Show orphan demand still
+uncontested. Keyword map gains the LIVORA/inZOI-Online clusters; §3
+gains the missing gallery.html row + count fix; §15 shot-debt register
+resynced to v53 filenames).
+**v90** (sixth pass — merged onto production baseline
 `7eb476a`; SERP re-validation: **Paralives shipped** May 25 2026 ($39.99 EA,
 78k peak, mixed) — comparison angle flips from waiting-capture to
 disappointed-demand; InZOI's Canvastown went social-MMO (Sept 2026) —
@@ -70,6 +79,9 @@ first week post-launch; re-score tiers at day-30.
 | games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
 | GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
 | Paralives alternative / Paralives review | Medium | faq comparison block | SHIPPED May 25 2026 ($39.99 EA, 78k peak, mixed — Live Mode thin per critics; §19). Capture post-launch disappointment, never disparage |
+| LIVORA game / LIVORA life sim | Low-med, rising | faq comparison + journal essay | Shipped Jul 3 2026 — "one continuous Life, consequences for years" pitch validates persistent-world messaging but is single-player/single-life. Contrast: their world orbits one protagonist; ours is a neighborhood that doesn't (§20) |
+| inZOI online alternative / games like Canvastown | Low-med, rising | faq + journal essay | Kjun's 2026 roadmap lands Phase-5 large-scale multiplayer ~Oct 2026 (Canvastown #1 40-lot village shipped Jun 2026). Shared-town demand gets primed on KRAFTON's budget — we're the spectator-first answer (§20) |
+| new life sim 2026 / upcoming life sims | Medium | index + journal | The SERP is now a listicle genre (LIVORA/OurLife/VirtualSociety all pitching) — being *on the list* is the play; accuracy-quotable positioning paragraph is built for citation |
 | Burbank game / games like Burbank | Low-med, disappointed | faq comparison + journal essay | Jake Solomon's cancelled "Sims + Truman Show" (Midsummer, closed 2026) — press-proven demand, zero product. §18 |
 | cozy life sim 2026 | Medium | index support copy | Tone match, "but with stakes" |
 
@@ -96,18 +108,19 @@ first week post-launch; re-score tiers at day-30.
 - Real SF business names — parody names only (world/businesses.md canon:
   Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-## 3. Page-by-page spec (all 14 URLs, as shipped)
+## 3. Page-by-page spec (all 20 URLs — 19 indexable + 404, as shipped)
 
 Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
 in markup today.
 
 | Page | Title (shipped) | Primary keyword | Schema | Notes |
 |---|---|---|---|---|
-| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v50-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
+| `/` (index.html) | Real World — A Living Neighborhood You Can Watch | truman show game, AI life sim | ✔ VideoGame | Hero `v53-D` preloaded (webp, fetchpriority=high); #wire feed-strip anchor — "the wire" copy is index-owned, demo.html owns "watch" queries |
 | `/features.html` | Features — The Cast, The Rules, The Economy \| Real World | AI villagers game | ✔ ItemList (v75) | 6-item feature-pillar list mirroring the page's h2 sections |
 | `/cast.html` | The Cast — 8 Main Characters, 20 Neighbors \| Real World | AI characters game, truman show cast | ✔ WebPage | Public profiles only — no drama seeds; venues use canonical parody names |
 | `/how-it-works.html` | How It Works — Watch, Request, Move In \| Real World | persistent AI world | — | 3-step funnel anchors (#watch #request #move-in) |
 | `/demo.html` | Watch the block — Real World | watch AI villagers | ✔ WebPage (isAccessibleForFree) | Funnel front door; embed slot is `data-demo-src`; embeds the real wire app (demo stream) since v61 |
+| `/gallery.html` | Gallery — Real World | real screenshots, gameplay screenshots | ✔ ImageGallery | "No renders" proof page; every file under `shots/` is a real published art capture; image-pack earner (§11) |
 | `/wire.html` | The Wire — Real World spectator feed | AI spectator feed, live AI world | — | Real world-v33 app, verbatim + 4 documented patches; demo-badged until `__aiBridge` exists |
 | `/wire-archive.html` | The Archive — Real World history browser | game event archive | — | Real world-v34 app, verbatim + 3 documented patches; demo-badged; distinct from `/archive.html` (explainer owns "archive" queries, this is the running app) |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
@@ -154,9 +167,10 @@ the brand); log every variant flip + dates in MARKETINGLOG.
 | VideoGame | index | ✔ shipped (genre, platform, free offer, author, `screenshot[]`, `isAccessibleForFree`) |
 | ItemList | features | ✔ shipped (v75) — 6 feature pillars, urls anchored to the page |
 | WebPage + isAccessibleForFree | demo | ✔ shipped |
+| ImageGallery | gallery | ✔ shipped — pairs with sitemap `image:` entries for the image pack |
 | FAQPage | faq | ✔ shipped — MUST mirror visible questions; sync on every edit |
 | Article | journal posts | PENDING — add when posts get their own URLs |
-| BreadcrumbList | all | SKIP — flat 12-page site, no breadcrumbs rendered |
+| BreadcrumbList | all | SKIP — flat 19-page site, no breadcrumbs rendered |
 | Organization | index | PENDING — add with real studio name/logo at domain flip |
 | VideoObject | demo | PENDING — when a trailer/clip file exists locally |
 
@@ -166,7 +180,7 @@ no reviewCount — we have neither and never fake them.
 ## 6. Internal linking
 
 Current architecture: global nav (9 links) + footer (full map) on every page —
-every page is ≤2 clicks from everywhere, which is right at 14 pages.
+every page is ≤2 clicks from everywhere, which is right at 19 pages.
 
 Contextual-link rules (apply to every new page/post):
 
@@ -207,7 +221,7 @@ reported as a quiet week.
 ## 8. Technical SEO — reconciled checklist
 
 Done in markup (verified by `tools/staging_dryrun.sh` **and**
-`tools/seo_audit.py` 66 pass / 0 fail at v60 — the audit runs inside
+`tools/seo_audit.py` 90 pass / 36 warn / 0 fail at v105 — the audit runs inside
 `tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
 - [x] `sitemap.xml` (all 19 indexable pages + image entries + lastmod) & `robots.txt`
@@ -259,8 +273,13 @@ rebase if CWV flags it.
 - **Press hook 3:** "the game whose devlog is written by its NPCs" — recap format.
 - Community seeding post-launch (owner-approved only): life-sim Discords,
   gamedev/AI communities. Draft posts already in `social/drafts/`.
-- Asset hooks that earn embeds: before/after v1→v40 gallery, the public request
-  feed screenshot, the "same angle, seventeen iterations later" image pair.
+- Asset hooks that earn embeds: before/after v1→v53 gallery, the public request
+  feed screenshot, the "same angle, fifty iterations later" image pair.
+- **Press hook 4 (v105):** "the genre's giants are racing to build what this
+  already is" — Guardian-covered Paralives, KRAFTON's inZOI-Online pivot, and
+  new entrants (LIVORA, OurLife, VirtualSociety) make "persistent shared
+  neighborhood" a *category* story, and we're the spectator-first outlier in
+  it (§20). Timing hook: inZOI Phase-5 lands ~Oct 2026.
 
 ---
 
@@ -312,6 +331,7 @@ Two pages must never compete for the same query. Current assignments:
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
+| screenshots / real gameplay captures | gallery | index/features embed shots but link the gallery; neither re-pitches "screenshots" queries |
 
 Rule: if a new page/post wants a keyword already in this table, it links to
 the owner instead of competing — same rule as internal-link §6.
@@ -340,7 +360,7 @@ the owner instead of competing — same rule as internal-link §6.
   fold learnings into the calendar's next 12 weeks.
 
 **Debt register (carried, honest):**
-1. `shots/v50-C.png` is 2.0MB and `v50-A.png` is 1.9MB (accepted — webp
+1. `shots/v53-C.png` is 2.0MB and `v53-A.png` is 1.9MB (accepted — webp
    companions serve modern browsers; PNGs are fallback only). At the 2MB
    ceiling now — recompress or drop the PNG fallback if CWV flags LCP.
 2. `demo.html` embed slot is empty until the game ships — the page ranks on
@@ -381,6 +401,8 @@ already owns the cluster.
 | can you watch old events / is there a history | faq + archive | ✔ answered (v75 — Archive surface exists on-site, demo-badged) |
 | is there a day/night cycle | faq | ✔ answered (v75 — real solar engine, real-time routines; canon since art-v14) |
 | who made it / what engine | press-kit + Organization schema | pending domain flip |
+| is it like LIVORA / inZOI online | faq comparison block | QUEUE — the new Tier-2 clusters (§2, §20); graduate once either query shows up in a channel or the comparison block is next touched |
+| can I watch with other people / is the watch shared | faq | QUEUE — co-sponsor Q covers shared asks; a shared-*spectating* Q waits for a real query |
 
 Rules: a question graduates to faq.html only when (a) a real channel shows the
 query (Search Console, press email, community post) or (b) the answer removes a
@@ -463,3 +485,55 @@ Re-ran the §18 live check. Three findings changed the map:
 **Carried action:** re-run this check every pass. Next check should also
 query "Paralives alternative" SERP composition — whoever ranks there now
 is our real keyword neighbor, not the genre leaders.
+
+## 20. SERP re-validation (v105) — the niche got crowded
+
+Re-ran the carried §19 check ("Paralives alternative" SERP composition +
+inZOI-Online status). Four findings:
+
+1. **"Paralives alternative" is now a contested SERP.** One live query
+   surfaced three shipping/in-dev competitors we'd never tracked:
+   **LIVORA** (Shift The Story, shipped Jul 3 2026 — "one continuous Life,
+   consequences follow you for years"), **OurLife** (WaveyGaming, shipped
+   May 14 2026 — text-forward life sim, Mostly Positive), and
+   **VirtualSociety** (in dev — sandbox worldbuilding, wishlist+Patron).
+   Plus a **Guardian feature** framing Paralives as the Sims challenger —
+   the rivalry story has gone mainstream-press. Read: the genre's
+   "persistent world with consequences" pitch is now *table stakes* in
+   copy, not a differentiator. Our differentiators sharpen to what none
+   of them do: spectator-first, many authored lives in one shared block,
+   and a cast nobody can possess. §2 Tier-2 gains LIVORA + "new life sim
+   2026" rows; §16 gains the queued comparison question.
+2. **inZOI Online hits its large-scale window ~Oct 2026.** Kjun's phased
+   roadmap (confirmed Sept 11 2026 forum post + roadmap reporting):
+   Canvastown #1 (40-lot village) shipped June, #2 (rural, ~50 lots)
+   October, and Phase-5 "hundreds–thousands per server" dedicated-server
+   multiplayer targets October 2026. The biggest-budget competitor is
+   about to teach the mass market that shared persistent towns are the
+   genre's frontier — demand gets primed on KRAFTON's budget, and we are
+   the only spectator-first product waiting for that query. §2 gains the
+   "inZOI online alternative / games like Canvastown" cluster. Watch the
+   Phase-5 launch reception next pass — a buggy or empty launch is a
+   comparison-essay opportunity ("scale isn't the hard part; a block that
+   feels lived-in is"), a good one validates us either way.
+3. **Truman-Show orphan demand: still orphaned.** No new "Truman Show
+   game" product or announcement since v90; Burbank stays cancelled.
+   Tier-1 head term remains ours to lose for a third straight quarter.
+4. **Guardian-tier coverage is a reachable bar.** A mainstream outlet
+   ran a full genre feature on a $39.99 EA indie — our "real Mission
+   block, residents you can never control" pitch is at least as
+   featureable. Press hook 4 added to §10; the honest-numbers devlog
+   (§7 wk-12) is the follow-up bait.
+
+**Actions taken this pass:** §2 Tier-2 +3 rows (LIVORA, inZOI-online/
+Canvastown, new-life-sim-2026); §16 +2 queued questions; §10 press
+hook 4; §3 resynced to the real URL count (gallery.html row added —
+it shipped at some point without a spec row; ImageGallery schema
+confirmed live in markup); §15 debt register resynced v50→v53
+filenames; audit baseline refreshed to 90/36/0.
+
+**Carried to next pass:** re-check inZOI Phase-5 launch reception (did
+October land? empty or alive?); check whether "LIVORA" or "OurLife"
+queries are showing impressions in any channel; if the comparison Q
+graduates, extend the faq comparison block — one row per shipped
+competitor, verbs-contrast only, never disparage.
