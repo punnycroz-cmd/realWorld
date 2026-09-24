@@ -30229,6 +30229,35 @@ const SF_MURAL_SKY = [['#2a88b8', '#f2c14a', '#e87830'],
 const SF_MURAL_HILL = ['#1e5a3a', '#c84838', '#284a78', '#7a3a28', '#d8a028'];
 const SF_TILE_COLS = [['#2a6a6a', '#e8e0c8'], ['#7a2a30', '#e8d8b0'],
                       ['#2a4a6a', '#d8e0e0'], ['#4a5a2a', '#e8e0c0']];
+/* v72: facade material registry — what a wall is actually BUILT of, not
+   just what color it's painted. The Mission's stock is mostly painted
+   wood siding, but a large minority of fronts are real masonry: red
+   pressed brick, brown clinker brick, brick painted over generations
+   ago, or scored stucco on the Edwardian shop rows. The declared skin
+   drives the wall's base color in BOTH cameras (bake + street view) and
+   unlocks the masonry dressing in sfStreetWall: bond coursing, soldier-
+   course lintels, stone sills, quoins and ghost signs. */
+const SF_BRICK_COLS  = ['#8a4a3c', '#7c4438', '#96604a', '#a05848', '#83503e'];
+const SF_CLINKER_COLS = ['#5f463c', '#6b5040'];
+const SF_BRICK_PAINT = ['#c8bcae', '#b9c0c4', '#d0c4a8', '#c4b4a4'];
+const SF_STUCCO_SCORE = ['#d8cbb8', '#c9bda8', '#cfc4b4'];
+function sfFacadeMat(i, ei, L, isShop, mural){
+  if(mural) return null;
+  const r = phash(i, ei, 5501);
+  if(isShop)
+    return r < 0.18 ? 'brick' : (r < 0.28 ? 'brickPaint' : (r < 0.36 ? 'score' : null));
+  if(L < 7) return null;
+  return r < 0.20 ? 'brick'
+       : (r < 0.30 ? 'brickPaint' : (r < 0.36 ? 'clinker' : (r < 0.44 ? 'score' : null)));
+}
+function sfFacadeBase(i, ei, mat, fallback){
+  const tab = mat === 'brick' ? SF_BRICK_COLS
+            : mat === 'clinker' ? SF_CLINKER_COLS
+            : mat === 'brickPaint' ? SF_BRICK_PAINT
+            : mat === 'score' ? SF_STUCCO_SCORE : null;
+  return tab ? tab[Math.floor(phash(i, ei, 5502) * tab.length)] : fallback;
+}
+function sfMasonry(mat){ return mat === 'brick' || mat === 'clinker' || mat === 'brickPaint'; }
 /* user-locked rule: businesses on screen are GTA-style parodies, never
    real SF names. Code keys stay real for routines/lookups — this is the
    display layer. production-1: the canonical parody table is
@@ -30428,7 +30457,12 @@ function sfBldCanvas(b, wet){
     // v14: real sun exposure per face — n·L against the solar bearing,
     // warm-lit sunward / cool sky-fill shaded (same rule as street view)
     const sunK = clamp(w.nx * SF_SUN.toX + w.ny * SF_SUN.toY, -1, 1);
-    const wr = rampOf(sfSunWallCol(wallBase, sunK));
+    // v72: the wall's declared material tints the strip — brick fronts
+    // read brick-red from above exactly like they do from the street
+    const wMat = sfFacadeMat(b.i, w.i, w.len / SF_PXM, isShop,
+                             sfMuralWall(b.i, w.i, w.len, isShop));
+    const wBase = wMat ? sfFacadeBase(b.i, w.i, wMat, wallBase) : wallBase;
+    const wr = rampOf(sfSunWallCol(wBase, sunK));
     g.fillStyle = wr[3];
     g.beginPath();
     g.moveTo(w.x1, w.y1); g.lineTo(w.x2, w.y2);
@@ -30447,12 +30481,25 @@ function sfBldCanvas(b, wet){
     // banding even at top-down zoom — plus the shade band the projecting
     // cornice throws across the wall crown (same physics as street view)
     if(hPx > 14 && w.len > 10){
-      g.strokeStyle = 'rgba(30,24,18,0.10)'; g.lineWidth = 1;
-      g.beginPath();
-      for(let zz = 3; zz < hPx - 5; zz += 3){
-        g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+      if(!sfMasonry(wMat)){   // v72: brick rules out wood coursing
+        g.strokeStyle = 'rgba(30,24,18,0.10)'; g.lineWidth = 1;
+        g.beginPath();
+        for(let zz = 3; zz < hPx - 5; zz += 3){
+          g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+        }
+        g.stroke();
       }
-      g.stroke();
+      // v72: masonry skins carry coarser bond joints instead of the fine
+      // wood courses — a darker ruled grid so brick reads as brick even
+      // in the thin top-down wall strip
+      if(sfMasonry(wMat)){
+        g.strokeStyle = 'rgba(46,30,24,0.16)'; g.lineWidth = 1;
+        g.beginPath();
+        for(let zz = 4; zz < hPx - 5; zz += 5){
+          g.moveTo(w.x1, w.y1 - zz); g.lineTo(w.x2, w.y2 - zz);
+        }
+        g.stroke();
+      }
       const eavA = 0.05 + 0.16 * SF_SUN.day * Math.max(0, sunK);
       g.strokeStyle = `rgba(20,14,8,${eavA})`; g.lineWidth = 4;
       g.beginPath();
@@ -30496,7 +30543,7 @@ function sfBldCanvas(b, wet){
         const [ax, ay] = wallAt(w.x1, w.y1, w.x2, w.y2, uA, 1),
               [bx2, by2] = wallAt(w.x1, w.y1, w.x2, w.y2, uB, 1),
               [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
-        g.fillStyle = sfSunWallCol(shade(wallBase, 0.92), sunK);
+        g.fillStyle = sfSunWallCol(shade(wBase, 0.92), sunK);
         g.beginPath();
         g.moveTo(ax, ay); g.lineTo(bx2, by2);
         g.quadraticCurveTo(mx, my - mhP * 2, ax, ay);
@@ -30511,7 +30558,7 @@ function sfBldCanvas(b, wet){
       if(gh > 0){
         const ghP = gh * 4.2;
         const [mx, my] = wallAt(w.x1, w.y1, w.x2, w.y2, 0.5, 1);
-        const gcol = sfSunWallCol(shade(wallBase, 0.88), sunK);
+        const gcol = sfSunWallCol(shade(wBase, 0.88), sunK);
         g.fillStyle = gcol;
         g.beginPath();
         g.moveTo(w.x1, w.y1 - hPx); g.lineTo(w.x2, w.y2 - hPx);
@@ -30678,7 +30725,7 @@ function sfBldCanvas(b, wet){
       if(nRx * w.nx + nRy * w.ny < 0){ nRx = -nRx; nRy = -nRy; }
       const bayFace = (qx, qy, rx2, ry2, fnx, fny) => {
         const k2 = clamp(fnx * SF_SUN.toX + fny * SF_SUN.toY, -1, 1);
-        g.fillStyle = sfSunWallCol(wallBase, k2);
+        g.fillStyle = sfSunWallCol(wBase, k2);
         g.beginPath();
         g.moveTo(qx, qy - zLoP); g.lineTo(rx2, ry2 - zLoP);
         g.lineTo(rx2, ry2 - zHiP); g.lineTo(qx, qy - zHiP);
@@ -30711,6 +30758,44 @@ function sfBldCanvas(b, wet){
       paLine(g, Math.round(mx2), Math.round(my2 - zHiP),
              Math.round((f1x + f2x) / 2), Math.round((f1y + f2y) / 2 - zHiP),
              shade(ROOF[2], 0.9));
+    }
+
+    /* v72: fire-escape footprint — the street view bolts a grated iron
+       platform ~0.95m off tall residential fronts (same gate salts); from
+       above it reads as a thin dark band floating just off the wall with
+       its own hairline of shade on the pavement. */
+    if(!isShop && w.ny > 0.15 && w.len / SF_PXM > 9 && nFloors >= 2 &&
+       !sfMuralWall(b.i, w.i, w.len, isShop) && phash(b.i, w.i, 1762) < 0.5){
+      const Lm = w.len / SF_PXM;
+      const fe0 = 0.14 + phash(b.i, w.i, 1763) * 0.45,
+            fe1 = fe0 + Math.min(3.4, Lm * 0.34) / Lm;
+      const off = 0.95 * SF_PXM;
+      const [e0x, e0y] = wallAt(w.x1, w.y1, w.x2, w.y2, fe0, 0),
+            [e1x, e1y] = wallAt(w.x1, w.y1, w.x2, w.y2, fe1, 0);
+      // sun-cast hairline first (the ironwork shades the pavement)
+      g.strokeStyle = `rgba(30,38,62,${(0.10 + 0.14 * SF_SUN.day).toFixed(3)})`;
+      g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(e0x + w.nx * off + SF_SUN.x * 2, e0y + w.ny * off + SF_SUN.y * 2);
+      g.lineTo(e1x + w.nx * off + SF_SUN.x * 2, e1y + w.ny * off + SF_SUN.y * 2);
+      g.stroke();
+      g.strokeStyle = 'rgba(38,32,28,0.85)'; g.lineWidth = 2;
+      g.beginPath();
+      g.moveTo(e0x + w.nx * off, e0y + w.ny * off);
+      g.lineTo(e1x + w.nx * off, e1y + w.ny * off);
+      g.moveTo(e0x, e0y); g.lineTo(e0x + w.nx * off, e0y + w.ny * off);
+      g.moveTo(e1x, e1y); g.lineTo(e1x + w.nx * off, e1y + w.ny * off);
+      g.stroke();
+      g.strokeStyle = 'rgba(30,26,22,0.6)'; g.lineWidth = 1;
+      g.beginPath();
+      const nGr = Math.max(2, Math.floor(Math.hypot(e1x - e0x, e1y - e0y) / 7));
+      for(let k = 1; k < nGr; k++){
+        const t2 = k / nGr;
+        g.moveTo(e0x + (e1x - e0x) * t2, e0y + (e1y - e0y) * t2);
+        g.lineTo(e0x + (e1x - e0x) * t2 + w.nx * off,
+                 e0y + (e1y - e0y) * t2 + w.ny * off);
+      }
+      g.stroke();
     }
 
     // v45: Queen Anne turret — collect the front-facing drum site; the
@@ -35371,7 +35456,7 @@ function sfTurretU(i, ei, L, isShop, floors){
 
 function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night, fwd){
   const i = b.i;
-  const wallBase = SF_WALL_COLS[Math.floor(phash(i, 7, 1300) * SF_WALL_COLS.length)];
+  let wallBase = SF_WALL_COLS[Math.floor(phash(i, 7, 1300) * SF_WALL_COLS.length)];
   const TRIM = SF_TRIM_COLS[Math.floor(phash(i, 9, 1301) * SF_TRIM_COLS.length)];
   const isShop = !!b.name || phash(i, 5, 1303) < 0.12;
   const style = Math.floor(phash(i, 13, 1405) * 3); // 0 italianate 1 stick 2 marina
@@ -35379,6 +35464,13 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // hash keys drive the baked top-down sprite in sfBldCanvas)
   const ACC = sfAccentOf(i, TRIM, isShop);
   const mural = sfMuralWall(i, ei, L, isShop);
+  /* v72: the wall's declared skin — red pressed brick, brown clinker,
+     painted-over brick, scored stucco, or the default painted wood. The
+     material rewrites the base color (so the baked sprite agrees) and
+     unlocks the masonry passes below. */
+  const matF = sfFacadeMat(i, ei, L, isShop, mural);
+  const masonry = sfMasonry(matF);
+  if(matF) wallBase = sfFacadeBase(i, ei, matF, wallBase);
   const muralZ1 = mural ? Math.min(hm - 0.9,
     Math.max(2.8, hm * 2 / Math.max(1, Math.round(hm / 3)) - 0.2)) : 0;
   // v10: distance-tiered detail — 2 near / 1 mid / 0 silhouette. Micro-trim
@@ -35611,7 +35703,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
   // v20: wood siding courses + rain-weathering on near walls. Real Mission
   // cladding is horizontal boards — faint courses read as texture, and
   // soot/water streaks bleeding down from sills and the cornice sell age.
-  if(det === 2 && style !== 2){
+  if(det === 2 && style !== 2 && !masonry){   // v72: brick rules out boards
     ctx.strokeStyle = 'rgba(30,24,18,0.11)'; ctx.lineWidth = 1;
     ctx.beginPath();
     for(let z = 0.35; z < hm - 0.8; z += 0.34){
@@ -35632,6 +35724,117 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       ctx.fillStyle = `rgba(40,32,22,${0.08 * dim})`;
       const wpx = Math.max(1.5, F * 0.05 / sA[2]);
       ctx.fillRect(sA[0] - wpx / 2, sA[1], wpx, sB[1] - sA[1]);
+    }
+  }
+
+  /* v72: MASONRY COURSING — a brick wall is not a flat card. Mortar
+     joints rule it into running bond: a bed joint every ~12cm of height,
+     staggered head joints inside each course (near tier only). Painted
+     brick keeps the same bond under paler joints; scored stucco carries
+     the coarser block grid Edwardian shopfronts wear. Everything is
+     clipped to the wall plane and dims with the wall. */
+  if(matF && det >= 1){
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(g1[0], g1[1]); ctx.lineTo(g2[0], g2[1]);
+    ctx.lineTo(p2[0], p2[1]); ctx.lineTo(p1[0], p1[1]);
+    ctx.closePath(); ctx.clip();
+    if(masonry){
+      const jC = matF === 'brickPaint' ? 'rgba(84,74,62,' : 'rgba(44,28,22,';
+      // bed joints — every other course (~24cm) so the bond doesn't moiré
+      ctx.strokeStyle = jC + (det === 2 ? 0.17 : 0.10) + ')';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let z = 0.24; z < hm - 0.5; z += 0.24){
+        const lA = pr(x1, y1, z), lB = pr(x2, y2, z);
+        if(!lA || !lB) continue;
+        ctx.moveTo(lA[0], lA[1]); ctx.lineTo(lB[0], lB[1]);
+      }
+      ctx.stroke();
+      if(det === 2){
+        // head joints, staggered course over course
+        ctx.strokeStyle = jC + '0.14)';
+        ctx.beginPath();
+        for(let z = 0.24, row = 0; z < hm - 0.5; z += 0.48, row++){
+          const off = (row % 2) * 0.33;
+          for(let um = 0.33 + off; um < L; um += 0.66){
+            const jA = pr(x1 + ux * um, y1 + uy * um, z),
+                  jB = pr(x1 + ux * um, y1 + uy * um, Math.min(z + 0.24, hm - 0.5));
+            if(!jA || !jB) continue;
+            ctx.moveTo(jA[0], jA[1]); ctx.lineTo(jB[0], jB[1]);
+          }
+        }
+        ctx.stroke();
+        // a few struck headers — the darker burnt bricks scattered in
+        // a real field, clustered so they read as coursing not noise
+        ctx.fillStyle = 'rgba(38,24,20,0.20)';
+        const nHd = Math.min(26, Math.floor(L * hm / 3));
+        for(let k = 0; k < nHd; k++){
+          const um = phash(i * 3 + k, ei, 5530) * L,
+                z = phash(k, i + ei, 5531) * (hm - 0.8) + 0.3;
+          const hp = pr(x1 + ux * um, y1 + uy * um, z);
+          if(!hp) continue;
+          ctx.fillRect(hp[0], hp[1], Math.max(2, F * 0.06 / hp[2]), Math.max(1, F * 0.03 / hp[2]));
+        }
+      }
+    } else { // scored stucco: shallow block joints
+      ctx.strokeStyle = `rgba(70,60,48,${det === 2 ? 0.13 : 0.08})`;
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for(let z = 0.6; z < hm - 0.5; z += 0.62){
+        const lA = pr(x1, y1, z), lB = pr(x2, y2, z);
+        if(!lA || !lB) continue;
+        ctx.moveTo(lA[0], lA[1]); ctx.lineTo(lB[0], lB[1]);
+      }
+      if(det === 2)
+        for(let um = 0.6; um < L; um += 1.24){
+          const jA = pr(x1 + ux * um, y1 + uy * um, 0.4),
+                jB = pr(x1 + ux * um, y1 + uy * um, hm - 0.5);
+          if(!jA || !jB) continue;
+          ctx.moveTo(jA[0], jA[1]); ctx.lineTo(jB[0], jB[1]);
+        }
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  /* v72: GHOST SIGNS — the faded product ads hand-painted on the big
+     blank side walls of masonry and old wood fronts, the Mission's
+     oldest advertising layer. Paint sits IN the wall plane, follows the
+     wall's perspective, fades toward the parapet where sun bleaches it,
+     and dims with the wall. Parody goods only. */
+  if(det >= 1 && !mural && L > 11 && hm >= 5 &&
+     phash(i, ei, 5520) < 0.30){
+    const words = ['LA PALOMA', 'PAN DE ORO', 'CASA BLANCA', 'EL FARO',
+                   'MISION SODA', 'AZUL BREAD', 'LA ESTRELLA', 'CERVEZA FRIA'];
+    const sub = ['IMPORTADOS', 'DESDE 1911', 'CALIDAD', 'SE VENDE AQUI'];
+    const word = words[Math.floor(phash(i, ei, 5521) * words.length)];
+    const subw = phash(i, ei, 5523) < 0.6
+      ? sub[Math.floor(phash(i, ei, 5524) * sub.length)] : null;
+    const gs0 = pr(x1 + ex * 0.10, y1 + ey * 0.10, hm * 0.60),
+          gs1 = pr(x1 + ex * 0.90, y1 + ey * 0.90, hm * 0.60),
+          gsT = pr(x1 + ex * 0.5, y1 + ey * 0.5, hm * 0.92);
+    if(gs0 && gs1 && gsT){
+      const gw = Math.hypot(gs1[0] - gs0[0], gs1[1] - gs0[1]);
+      const gh2 = Math.abs(gsT[1] - (gs0[1] + gs1[1]) / 2);
+      const fpx = Math.min(gw / (word.length * 0.62), gh2 * 0.72);
+      if(fpx > 7){
+        ctx.save();
+        ctx.translate((gs0[0] + gs1[0]) / 2,
+                      (gs0[1] + gs1[1]) / 2 - gh2 * 0.28);
+        ctx.rotate(Math.atan2(gs1[1] - gs0[1], gs1[0] - gs0[0]));
+        ctx.globalAlpha = 0.20 * Math.max(0.45, dim);
+        ctx.fillStyle = masonry ? '#f4ead0' : '#4a4238';
+        ctx.font = `bold ${fpx}px serif`;
+        ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+        ctx.fillText(word, 0, 0);
+        if(subw){
+          ctx.globalAlpha = 0.16 * Math.max(0.45, dim);
+          ctx.font = `bold ${fpx * 0.38}px serif`;
+          ctx.fillText(subw, 0, fpx * 0.78);
+        }
+        ctx.restore();
+      }
     }
   }
 
@@ -36114,6 +36317,62 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
     ctx.fillStyle = shade(ACC, 1.05);
     ctx.fillRect(pb[0] - r - 2, pb[1], ww + 4, Math.max(1.5, wh * 0.08));
+    /* v72: masonry openings — a soldier-course arch springs over the
+       lintel on brick/clinker fronts (the row of vertical bricks you see
+       over every Mission masonry window), with voussoir ticks and a cast
+       stone sill. Painted brick keeps the arch under a paler joint. */
+    if(masonry && det >= 1){
+      const archC = matF === 'brickPaint' ? 'rgba(96,86,72,0.6)' : 'rgba(52,32,24,0.6)';
+      ctx.strokeStyle = archC; ctx.lineWidth = Math.max(1, ww * 0.08);
+      ctx.beginPath();
+      ctx.arc(pb[0], pt[1] + r, r + 3.2, Math.PI, 0, true);
+      ctx.stroke();
+      if(det === 2){
+        ctx.strokeStyle = archC; ctx.lineWidth = 1;
+        ctx.beginPath();
+        for(let k = -2; k <= 2; k++){
+          const aa = Math.PI + (k + 0.5) * (Math.PI / 5);
+          ctx.moveTo(pb[0] + Math.cos(aa) * (r + 0.5), pt[1] + r + Math.sin(aa) * (r + 0.5));
+          ctx.lineTo(pb[0] + Math.cos(aa) * (r + 5.6), pt[1] + r + Math.sin(aa) * (r + 5.6));
+        }
+        ctx.stroke();
+      }
+      // cast-stone sill — the pale ledge under every masonry opening
+      ctx.fillStyle = shade('#cfc4ae', Math.min(1.1, lit));
+      ctx.fillRect(pb[0] - r - 3, pb[1], ww + 6, Math.max(1.5, wh * 0.07));
+    }
+    /* v72: canvas window awning — sunward sashes on the upper floors
+       wear a striped canvas wedge. It really projects off the wall: the
+       slope takes sun on top, the lip band hangs in shade, and the glass
+       below sits in its shadow. Same physics gate as the glare pass. */
+    if(det === 2 && !night && !mural &&
+       sfSunFaceK(nx, ny) > 0.15 &&
+       phash(Math.round(wx * 17), Math.round(zB * 19), i + 5507) < 0.12){
+      const awn2 = rampOf(['#c9483c', '#3a7a5a', '#3a5a8a', '#c98a2e']
+                          [Math.floor(phash(i, Math.round(wx * 7), 5508) * 4)]);
+      quad([[wx - ux * wm * 0.8, wy - uy * wm * 0.8, zT + 0.14],
+            [wx + ux * wm * 0.8, wy + uy * wm * 0.8, zT + 0.14],
+            [wx + ux * wm * 0.8 + nx * 0.5, wy + uy * wm * 0.8 + ny * 0.5, zT - 0.4],
+            [wx - ux * wm * 0.8 + nx * 0.5, wy - uy * wm * 0.8 + ny * 0.5, zT - 0.4]],
+           awn2[3]);
+      ctx.strokeStyle = awn2[5]; ctx.lineWidth = Math.max(1, ww * 0.12);
+      ctx.beginPath();
+      for(let s = 1; s < 4; s++){
+        const wxs = wx - ux * wm * 0.8 + ux * wm * 1.6 * s / 4,
+              wys = wy - uy * wm * 0.8 + uy * wm * 1.6 * s / 4;
+        const a1 = pr(wxs, wys, zT + 0.14),
+              a2 = pr(wxs + nx * 0.5, wys + ny * 0.5, zT - 0.4);
+        if(a1 && a2){ ctx.moveTo(a1[0], a1[1]); ctx.lineTo(a2[0], a2[1]); }
+      }
+      ctx.stroke();
+      quad([[wx - ux * wm * 0.8 + nx * 0.5, wy - uy * wm * 0.8 + ny * 0.5, zT - 0.4],
+            [wx + ux * wm * 0.8 + nx * 0.5, wy + uy * wm * 0.8 + ny * 0.5, zT - 0.4],
+            [wx + ux * wm * 0.8 + nx * 0.5, wy + uy * wm * 0.8 + ny * 0.5, zT - 0.52],
+            [wx - ux * wm * 0.8 + nx * 0.5, wy - uy * wm * 0.8 + ny * 0.5, zT - 0.52]],
+           awn2[4]);
+      ctx.fillStyle = 'rgba(20,16,12,0.18)';
+      ctx.fillRect(pb[0] - r, pt[1], ww, wh * 0.3);
+    }
     // v5: window flower box on some residential sills
     if(det === 2 && !isShop && phash(Math.round(wx * 13), Math.round(zB * 29), i + 1700) < 0.15){
       const bh = Math.max(1.5, wh * 0.1);
@@ -36129,7 +36388,7 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
         }
       }
     }
-    if(style === 0 && det >= 1){ // italianate hood moulding + keystone
+    if(style === 0 && det >= 1 && !masonry){ // italianate hood moulding + keystone
       ctx.fillRect(pb[0] - r - 2, pt[1] - 1, ww + 4, Math.max(1, wh * 0.05));
       ctx.fillRect(pb[0] - 1, pt[1] - wh * 0.06, 2, wh * 0.08);
     }
@@ -36469,6 +36728,71 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
           ctx.moveTo(hB[0], hB[1]); ctx.lineTo(hR[0], hR[1]); ctx.lineTo(hM[0], hM[1]);
           ctx.closePath(); ctx.fill();
         }
+      }
+    }
+  }
+
+  /* v72: wrought-iron balconies — real projections off tall residential
+     fronts, not decals. A slab bolts to the wall under a first-floor sash,
+     a baluster rail stands on its lip, scrolled brackets carry it from
+     below, and the slab cuts a shade line into the wall's light. Cedes
+     strips the bays, the door and the garage already own. */
+  if(det >= 1 && !isShop && !mural && floors >= 2 && L > 8 && ny > 0.2 &&
+     style !== 2 && phash(i, ei, 5510) < 0.42){
+    const bayOn = phash(i, ei, 1410) < 0.85, nBayC = L > 13 ? 2 : 1;
+    const zS = hm / floors + 0.06, zR = zS + 1.0;
+    for(let bn = 0; bn < 2; bn++){
+      if(bn && L < 15) break;
+      const wi = bn ? bays - 1 : 0;
+      const t = (wi + 0.5) / bays;
+      if(Math.abs(t - doorT) < 0.14) continue;
+      if(garU > 0 && Math.abs(t - garU) < 0.14) continue;
+      if(bayOn){
+        const tb0 = nBayC === 1 ? 0.5 : 0.28, tb1 = nBayC === 1 ? -1 : 0.72;
+        if(Math.abs(t - tb0) < 0.13 || (tb1 > 0 && Math.abs(t - tb1) < 0.13)) continue;
+      }
+      const bxc = x1 + ex * t, byc = y1 + ey * t;
+      const hw2 = Math.min(1.05, L * 0.09), pj = 0.62;
+      const b0x = bxc - ux * hw2, b0y = byc - uy * hw2,
+            b1x = bxc + ux * hw2, b1y = byc + uy * hw2;
+      // shade line where the slab cuts the wall's light
+      quad([[b0x, b0y, zS - 0.3], [b1x, b1y, zS - 0.3],
+            [b1x, b1y, zS], [b0x, b0y, zS]], 'rgba(20,16,12,0.30)');
+      // scrolled brackets under the slab ends
+      for(const uu of [-0.72, 0.72]){
+        const qx = bxc + ux * hw2 * uu, qy = byc + uy * hw2 * uu;
+        quad([[qx - ux * 0.06, qy - uy * 0.06, zS - 0.36],
+              [qx + ux * 0.06, qy + uy * 0.06, zS - 0.36],
+              [qx + ux * 0.06 + nx * 0.42, qy + uy * 0.06 + ny * 0.42, zS],
+              [qx - ux * 0.06 + nx * 0.42, qy - uy * 0.06 + ny * 0.42, zS]],
+             'rgba(30,26,22,0.9)');
+      }
+      // slab top — stone lip catching sun
+      quad([[b0x, b0y, zS], [b1x, b1y, zS],
+            [b1x + nx * pj, b1y + ny * pj, zS], [b0x + nx * pj, b0y + ny * pj, zS]],
+           shade('#5a5148', Math.min(1.15, lit + 0.15)));
+      // railing: top rail + balusters at the lip, returns to the wall
+      const ir2 = night ? 'rgba(16,13,11,0.95)' : 'rgba(34,30,26,0.95)';
+      const r0 = pr(b0x + nx * pj, b0y + ny * pj, zS),
+            r1 = pr(b1x + nx * pj, b1y + ny * pj, zS),
+            r0t = pr(b0x + nx * pj, b0y + ny * pj, zR),
+            r1t = pr(b1x + nx * pj, b1y + ny * pj, zR);
+      if(r0 && r1 && r0t && r1t){
+        ctx.strokeStyle = ir2; ctx.lineWidth = 1.3;
+        ctx.beginPath(); ctx.moveTo(r0t[0], r0t[1]); ctx.lineTo(r1t[0], r1t[1]); ctx.stroke();
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        const nb2 = Math.max(3, Math.floor(Math.abs(r1[0] - r0[0]) / 5));
+        for(let k = 0; k <= nb2; k++){
+          const u = k / nb2;
+          ctx.moveTo(r0[0] + (r1[0] - r0[0]) * u, r0[1] + (r1[1] - r0[1]) * u);
+          ctx.lineTo(r0t[0] + (r1t[0] - r0t[0]) * u, r0t[1] + (r1t[1] - r0t[1]) * u);
+        }
+        const s0 = pr(b0x, b0y, zS), s0t = pr(b0x, b0y, zR),
+              s1 = pr(b1x, b1y, zS), s1t = pr(b1x, b1y, zR);
+        if(s0 && s0t){ ctx.moveTo(s0[0], s0[1]); ctx.lineTo(r0[0], r0[1]); ctx.moveTo(s0t[0], s0t[1]); ctx.lineTo(r0t[0], r0t[1]); }
+        if(s1 && s1t){ ctx.moveTo(s1[0], s1[1]); ctx.lineTo(r1[0], r1[1]); ctx.moveTo(s1t[0], s1t[1]); ctx.lineTo(r1t[0], r1t[1]); }
+        ctx.stroke();
       }
     }
   }
@@ -37086,15 +37410,18 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       quad([[cx - ux * 0.14, cy - uy * 0.14, 0.04], [cx + ux * 0.14, cy + uy * 0.14, 0.04],
             [cx + ux * 0.14, cy + uy * 0.14, hm - 0.55], [cx - ux * 0.14, cy - uy * 0.14, hm - 0.55]],
            shade(cbCol, 0.98));
-      // quoins: alternating blocks proud of the corner (italianate only)
-      if(style === 0){
+      // quoins: alternating blocks proud of the corner — italianate wood
+      // fronts get painted blocks; v72 masonry fronts get cast stone
+      if(style === 0 || masonry){
+        const qC = masonry ? shade('#cfc4ae', Math.min(1.15, lit))
+                           : shade(cbCol, 1.1);
         for(let k = 0; k < Math.floor(hm / 1.1); k++){
           if(k % 2) continue;
           const z = 0.5 + k * 1.1;
           quad([[cx - ux * 0.22, cy - uy * 0.22, z], [cx + ux * 0.22, cy + uy * 0.22, z],
                 [cx + ux * 0.22, cy + uy * 0.22, z + 0.5],
                 [cx - ux * 0.22, cy - uy * 0.22, z + 0.5]],
-               shade(cbCol, 1.1));
+               qC);
         }
       }
     }
