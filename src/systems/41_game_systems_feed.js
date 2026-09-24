@@ -643,6 +643,16 @@ function gsWireFormat(evt){
     case 'lease':
       return gsWireLeaseLines(evt, mk);
 
+    case 'econ':
+      /* v13: payroll Friday is a beat the whole block feels — one
+         texture line, no names, no amounts. Every other econ event
+         (shares, shortfalls, benefit deposits) is INTERNAL money data:
+         considered, withheld, counted by the audit. */
+      if(evt.action === 'payday' && evt.count > 0)
+        return [mk('scene', 'payday — the Mission\u2019s Friday ' +
+          'shifts cash out', {})];
+      return [];
+
     case 'admin': {
       const lbl = GS_WIRE_ADMIN_LABEL[evt.action] ||
         String(evt.action || 'paperwork').replace(/_/g, ' ');

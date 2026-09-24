@@ -273,33 +273,52 @@ function sfSmoothPath(path){
 /* px-space path following; returns true when destination reached */
 function sfFollowPath(v, dtH){
   if(!v.sfPath || !v.sfPath.length){ v.moving = false; return true; }
+  /* v13: clamp the step like every other mover does — at W.speed 4x the
+     unclamped stride (~15px/frame) tunneled into corners, refired the
+     repath every frame, and flickered v.face 2<->3 */
+  const dt = Math.min(dtH, 0.03);
+  v._repathCd = Math.max(0, (v._repathCd || 0) - dt);
   const [wx, wy] = v.sfPath[0];
   const tx = wx * CS + 16, ty = wy * CS + 16;
   const dx = tx - v.x, dy = ty - v.y;
   const d = Math.hypot(dx, dy);
-  const spd = 88 * (dtH * 60);
-  if(d < Math.max(7, spd)){ v.x = tx; v.y = ty; v.sfPath.shift(); return sfFollowPath(v, dtH); }
+  const spd = 88 * (dt * 60);
+  if(d < Math.max(7, spd)){
+    /* v13: stride phase is distance-driven — the walk cycle AND the
+       follow-cam bob scale with ground actually covered, so 4x fast-
+       forward reads as brisk walking, not vibration (jitter item 3) */
+    v.walkPhase += Math.min(d, spd) * 0.0025;
+    v.x = tx; v.y = ty; v.sfPath.shift(); return sfFollowPath(v, dt);
+  }
   const mx = (dx / d) * spd, my = (dy / d) * spd;
   const test = sfCanMoveTo(v.x + mx, v.y + my, v);
-  if(test.ok){ v.x += mx; v.y += my; }
+  let stepped = 0;
+  if(test.ok){ v.x += mx; v.y += my; stepped = spd; }
   else {
     const tx2 = sfCanMoveTo(v.x + mx, v.y, v);
     const ty2 = sfCanMoveTo(v.x, v.y + my, v);
-    if(tx2.ok) v.x += mx;
-    else if(ty2.ok) v.y += my;
+    if(tx2.ok){ v.x += mx; stepped = Math.abs(mx); }
+    else if(ty2.ok){ v.y += my; stepped = Math.abs(my); }
     else {
-      // body radius clipped a corner: repath from here to the final goal
+      // body radius clipped a corner: repath — but not every frame.
+      // A wedged pawn that just repathed stands down a beat instead of
+      // refiring (the refire is what made the facing oscillate).
+      if(v._repathCd > 0){ v.moving = false; return false; }
       const g = v.sfPath[v.sfPath.length - 1];
       const p2 = sfPathfind(Math.floor(v.x / CS), Math.floor(v.y / CS), g[0], g[1], true);
       v.sfPath = p2 || null;
+      v._repathCd = 0.06;
       return !p2;
     }
   }
-  v.walkPhase += dtH * 13;
+  v.walkPhase += stepped * 0.0025;
   v.moving = true;
   v.state = 'walk';
-  if(Math.abs(dx) > Math.abs(dy)) v.face = dx > 0 ? 3 : 2;
-  else v.face = dy < 0 ? 1 : 0;
+  /* face hysteresis: near-diagonal slides keep the current facing —
+     a pawn grazing a wall no longer flips left/right each frame */
+  const ax = Math.abs(dx), ay = Math.abs(dy);
+  if(ax > ay * 1.25) v.face = dx > 0 ? 3 : 2;
+  else if(ay > ax * 1.25) v.face = dy < 0 ? 1 : 0;
   return false;
 }
 function sfGoTo(v, wx, wy){

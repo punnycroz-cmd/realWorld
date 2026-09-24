@@ -88,6 +88,8 @@ systems/41_game_systems_offline.js
 systems/41_game_systems_listings.js
 systems/41_game_systems_reputation.js
 systems/41_game_systems_onboarding.js
+systems/41_game_systems_economy.js
+systems/41_game_systems_timepiece.js
 tests/30_sf_autotest.js
 tests/41_game_systems_autotest.js
 sim/99_boot_hook.js

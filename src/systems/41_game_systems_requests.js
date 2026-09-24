@@ -1387,7 +1387,9 @@ function gsBusSnapshot(){
     crep: (typeof gsCrepSnapshot === 'function')
           ? gsCrepSnapshot() : null,              // v11 block's memory
     onb: (typeof gsOnbSnapshot === 'function')
-         ? gsOnbSnapshot() : null });            // v12 welcome wagon
+         ? gsOnbSnapshot() : null,            // v12 welcome wagon
+    econ: (typeof gsEconSnapshot === 'function')
+          ? gsEconSnapshot() : null });        // v13 Friday payroll
 }
 function gsBusLoad(json){
   try{
@@ -1430,6 +1432,9 @@ function gsBusLoad(json){
     if(typeof gsCrepLoad === 'function' && d.crep) gsCrepLoad(d.crep);
     /* v12: journeys, handles, camera sessions, the analytics ledger */
     if(typeof gsOnbLoad === 'function') gsOnbLoad(d.onb);
+    /* v13: payroll/nut marks + the audit index — restored so a loaded
+       world never double-pays a Friday */
+    if(typeof gsEconLoad === 'function' && d.econ) gsEconLoad(d.econ);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -1467,6 +1472,7 @@ function gsBusReset(){
   if(typeof gsListingReset === 'function') gsListingReset(); // v10
   if(typeof gsCrepReset === 'function') gsCrepReset();       // v11
   if(typeof gsOnbReset === 'function') gsOnbReset();         // v12
+  if(typeof gsEconReset === 'function') gsEconReset();       // v13
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

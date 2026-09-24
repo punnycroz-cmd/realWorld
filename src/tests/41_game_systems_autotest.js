@@ -4154,6 +4154,330 @@ runAutoTest = async function(){
           'gs: v12 the ban holds through onboarding — the welcome ' +
           'never offers the mains');
     }
+
+    /* ==================== v13 — THE FRIDAY PAYROLL ====================
+       canonical payroll off the jobs.json held_by layer, the informal
+       flows, the weekly nut drain, and the owner's back office. The
+       same module set ships the timepiece + standing directive (the
+       three game-feedback fixes). */
+    if(typeof gsEconTick === 'function' && typeof gsEconAudit ===
+       'function'){
+      gsEconReset();                 // the suite owns this stretch of books
+      const FRI = '2026-10-02', SAT = '2026-10-10', NOV = '2026-11-02';
+      gsDollarGrant('C2', 5000, 'v13 stake');
+      gsDollarGrant('C3', 5000, 'v13 stake');
+      gsMarkHired('H90', 'p13', { name: 'Econ Hire' });
+      gsDollarGrant('H90', 50, 'v13 nearly broke');
+
+      /* -- payroll: weekly Friday, variable jitter bounded ---------- */
+      const earn0 = (GS_ECON.rec['C2'] || { earned: 0 }).earned;
+      gsEconTick(FRI);
+      const c2i = GS_ECON_WORK.findIndex(w => w.cid === 'C2');
+      const r2 = gsEconRec('C2');
+      const wkC2 = Math.round(2800 * 12 / 52);
+      const dC2 = r2.earned - earn0;
+      log(r2.marks['w' + c2i] === FRI && dC2 >= wkC2 * 0.9 - 1 &&
+          dC2 <= wkC2 * 1.1 + 1,
+          'gs: v13 Friday pays Jules her barista week — gig jitter ' +
+          'bounded ±10%', 'got ' + dC2 + ' want ~' + wkC2);
+      const c1i = GS_ECON_WORK.findIndex(w => w.cid === 'C1');
+      log((gsEconRec('C1').marks['w' + c1i] === FRI) ===
+          gsBiweeklyDue('C1', FRI),
+          'gs: v13 the biweekly band pays only on its own Friday');
+      const c6m = GS_ECON_WORK.findIndex(w => w.cid === 'C6' &&
+        w.cadence === 'monthly');
+      log(gsEconRec('C6').marks['w' + c6m] === '2026-10',
+          'gs: v13 the pension posts once a month, marked by month');
+
+      /* -- informal flows move real dollars, silently ---------------- */
+      const shareTxn = GS_LEDGER.txns.find(t => t.from === 'C2' &&
+        t.to === 'C6' && t.amt === 700 && /room share/.test(t.reason));
+      log(!!shareTxn &&
+          !GS_FEED.some(e => e.type === 'econ' &&
+            (e.cid || e.from || e.to)),
+          'gs: v13 the cash room share moves real dollars and never ' +
+          'names anyone on the feed');
+
+      /* -- the nut: weekly drain, partial-pay, honest shortfall ------ */
+      gsEconTick(SAT);               // Saturday closes every nutDay
+      const h90 = gsEconRec('H90');
+      log(GS_LEDGER.dollars['H90'] === 0 && h90.nutShort > 0 &&
+          h90.spentNut === 50,
+          'gs: v13 the nut partial-pays food-first and records the ' +
+          'shortfall — never an overdraft');
+
+      /* -- idempotent + honest catch-up across a month boundary ------ */
+      log(gsEconTick(FRI).days === 0,
+          'gs: v13 re-ticking a covered day is a no-op');
+      const snapE = gsEconSnapshot();
+      gsEconReset();
+      const wipedE = GS_ECON.log.length === 0;
+      gsEconLoad(snapE);
+      const novDays = gsEconTick(NOV).days;
+      log(wipedE && novDays > 0 && gsEconTick(NOV).days === 0 &&
+          GS_LEDGER.txns.some(t => t.cur === 'dollars' &&
+            /· 2026-11/.test(t.reason)),
+          'gs: v13 payroll survives the snapshot and the books reopen ' +
+          'into November without double-paying October');
+
+      /* -- the owner's back office ----------------------------------- */
+      const aud = gsEconAudit();
+      log(aud.ok === true,
+          'gs: v13 audit — replayed log equals live balances, both ' +
+          'currencies conserved', aud.bad.slice(0, 2).join('; ') || 'clean');
+      const bk = gsEconBooks('2026-10');
+      log(bk.payroll.paid > 0 && bk.payroll.headcount >= 20 &&
+          bk.payroll.byEmployer['biz:mudhaus'] &&
+          bk.payroll.byEmployer['biz:mudhaus'].headcount >= 2 &&
+          bk.flows.sharesOut === 1400 && bk.nut.groceries > 0,
+          'gs: v13 the monthly statement — payroll by employer, cash ' +
+          'shares, the nut',
+          'paid ' + bk.payroll.paid + ' heads ' + bk.payroll.headcount);
+      const pr13 = gsEconPayroll('2026-10');
+      log(Array.isArray(pr13) && pr13.some(e => e.account === 'biz:mudhaus' &&
+          e.out > 0 && e.float > 0),
+          'gs: v13 the payroll audit names employers, outflow, and the ' +
+          'labeled float');
+      const stb = gsEconStub('C5');
+      log(stb.income === 2600 && stb.nut === 520 && stb.bank >= 0 &&
+          typeof stb.runwayMonths === 'number' && stb.earned > 0,
+          'gs: v13 the money stub reads Marcus — courier income vs ' +
+          'his nut vs his runway');
+      log(Array.isArray(gsEconArrears('2026-10-10')),
+          'gs: v13 the collection queue reads the lease book');
+
+      /* -- wire privacy: Friday is a beat, never a balance ----------- */
+      const pd = gsWireFormat({ n: 900001, type: 'econ',
+                               action: 'payday', count: 12, amt: 99999 });
+      const sh = gsWireFormat({ n: 900002, type: 'econ',
+                               action: 'share_short' });
+      log(pd.length === 1 && /payday/.test(pd[0].text) &&
+          !/\d/.test(pd[0].text) && sh.length === 0,
+          'gs: v13 the wire feels Friday but never prints money');
+      log(GS_FEED.some(e => e.type === 'econ' && e.action === 'payday' &&
+          e.count > 0),
+          'gs: v13 the feed logged the Friday beat');
+    }
+
+    /* ---- v13 the timepiece + standing directive (SF-only) -----------
+       pull-based clocks (rw-time-perception-spec) and the brain's own
+       last will filling the gap between turns. */
+    if(typeof SF_MODE !== 'undefined' && SF_MODE &&
+       typeof gsTimeGlance === 'function' &&
+       typeof sfAgentState === 'function'){
+      const pv = VILLAGERS.find(v => v._castId === 'C2') || VILLAGERS[0];
+      const cid = pv._castId || pv.name;
+      const keepTod = W.tod, keepRain = W.rain, keepStorm = W.storm;
+      const keepX = pv.x, keepY = pv.y, keepInB = pv.inBuilding,
+            keepIns = pv.inside, keepAg = pv.sfAgent,
+            keepState = pv.state;
+      /* the v13 driven-pawn fields all restore — a dirty flag here
+         would gap-lock the pawn for every later test */
+      const keepDrv = pv.sfAgentDriven, keepDir = pv.sfDirective,
+            keepGap = pv.sfGap, keepRes = pv.sfAgentResult,
+            keepRfx = pv.sfReflex, keepSeq = pv._agentSeq,
+            keepDS = pv._dirStreak, keepDg = pv._dirSig;
+      const keepLC = new Map();
+      VILLAGERS.forEach(o => keepLC.set(o, o.lastClockCheck));
+      try{
+        W.tod = 15.8; W.rain = 0; W.storm = 0;
+        pv.lastClockCheck = null; pv.sfAgent = null;
+        pv.sfAgentDriven = false; pv.sfDirective = null;
+        pv.sfGap = false; pv.sfAgentResult = null; pv.sfReflex = null;
+        pv._agentSeq = null; pv._dirStreak = 0; pv._dirSig = null;
+        const s0 = sfAgentState(cid, { turn: 1 });
+        log(!('time' in s0) &&
+            !JSON.stringify(s0).includes('15:48'),
+            'gs: v13 the state payload pushes no clock — pull, not push');
+        log(/haven't checked/.test(s0.felt),
+            'gs: v13 a fresh pawn hasn\'t checked the time yet');
+        const s1 = sfAgentState(cid, { turn: 2, glance: 'phone' });
+        log(s1.glance && s1.glance.ok === true && s1.glance.said === '15:48' &&
+            pv.lastClockCheck && pv.lastClockCheck.source === 'phone' &&
+            pv.lastClockCheck.turn === 2,
+            'gs: v13 a phone glance pulls exact sim time and anchors it');
+        const sFelt = sfAgentState(cid, { turn: 6 });
+        log(/it said 15:48/.test(sFelt.felt) && /turns? ago/.test(sFelt.felt),
+            'gs: v13 felt quotes the last check coarsely — never the now');
+
+        /* wallclock: needs a wall, and the room's clock may lie */
+        pv.inBuilding = false; pv.inside = null;
+        const gOut = sfAgentState(cid, { glance: 'wallclock' }).glance;
+        pv.inBuilding = true; pv.inside = 'Mudhaus Coffee';
+        const gIn = sfAgentState(cid, { glance: 'wallclock' }).glance;
+        log(gOut.ok === false && gIn.ok === true && gIn.said === '15:58',
+            'gs: v13 wall clocks need a wall — Mudhaus runs +10 fast',
+            JSON.stringify(gIn));
+        /* ask: the nearest neighbor quotes THEIR last check — skew
+           propagates socially */
+        pv.inBuilding = false; pv.inside = null;
+        VILLAGERS.forEach(o => { if(o !== pv) o.lastClockCheck =
+          { said: 15.9, at: 15.7, day: W.day, source: 'phone', turn: 1 }; });
+        let nearest = null, nd = 1e9;
+        for(const o of VILLAGERS){
+          if(o === pv || o.inBuilding) continue;
+          const dd = Math.hypot(o.x - pv.x, o.y - pv.y);
+          if(dd < nd){ nd = dd; nearest = o; }
+        }
+        const gAsk = sfAgentState(cid, { glance: 'ask' }).glance;
+        log(gAsk.ok === true && nearest && gAsk.via === nearest.name &&
+            gAsk.quoted === true && pv.lastClockCheck.source === 'ask',
+            'gs: v13 asking the time quotes the neighbor\'s own clock',
+            JSON.stringify(gAsk));
+
+        /* senses read the world, never state a clock */
+        W.tod = 23.4; W.rain = 0;
+        const seN = gsTimeSenses(pv);
+        W.tod = 15.0; W.rain = 0.5;
+        const seR = gsTimeSenses(pv);
+        W.rain = 0; W.tod = 15.8;
+        log(/dark/.test(seN) && /rain|grey/.test(seR) &&
+            !/\d{1,2}:\d{2}/.test(seR) &&
+            gsPoiOpenNow('Haus Coffee', 12) === true &&
+            gsPoiOpenNow('Haus Coffee', 23.5) === false,
+            'gs: v13 senses read light and weather and venue hours — ' +
+            'never a clock');
+
+        /* the Jules fix: rain refuses, shelter routes, door delivers */
+        W.rain = 0.6;
+        const rr = sfAgentAct(cid, { verb: 'rest' });
+        log(rr.ok === false && /rain/.test(rr.err || ''),
+            'gs: v13 outdoor rest in the rain is refused with a ' +
+            'redirect');
+        W.rain = 0;
+        const rs = sfAgentAct(cid, { verb: 'rest' });
+        log(rs.ok === true && pv.sfAgent && pv.sfAgent.shelter &&
+            rs.sheltering != null,
+            'gs: v13 outdoor rest routes to shelter first');
+        if(pv.sfAgent && pv.sfAgent.shelter){
+          const c = pv.sfAgent.shelter.cell;
+          pv.x = c.wx * CS + 16; pv.y = c.wy * CS + 16; pv.sfPath = null;
+          sfNpcTick(pv, 0.016);
+          log(pv.inBuilding === true && pv.state === 'rest',
+              'gs: v13 she goes inside and actually rests');
+        }
+        pv.inBuilding = false; pv.inside = null; pv.sfAgent = null;
+
+        /* standing directive: the brain's durable last will fills the
+           gap — filed as `directive` (sibling), `act.directive`, or the
+           legacy `act.then` spelling, all landing on v.sfDirective */
+        const ra = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+          { directive: { verb: 'work', untilH: 6,
+                         then: { verb: 'idle', why: 'between shifts' },
+                         why: 'shift at the café' } });
+        log(ra.ok === true && pv.sfDirective &&
+            pv.sfDirective.verb === 'work' &&
+            pv.sfDirective.why === 'shift at the café' &&
+            pv.sfAgentDriven === true,
+            'gs: v13 a filed act stores the standing directive as the ' +
+            'pawn\'s durable will');
+        W.tod += 0.5;
+        sfNpcTick(pv, 0.016);
+        log(pv.sfAgent && pv.sfAgent.verb === 'work' &&
+            pv.sfAgent.fromDirective === true &&
+            pv.sfAgent.then && pv.sfAgent.then.verb === 'idle' &&
+            pv.sfAgentResult && pv.sfAgentResult.verb === 'idle' &&
+            pv.sfAgentResult.status === 'expired',
+            'gs: v13 order end reports its outcome and promotes the ' +
+            'directive same-tick — chains carry');
+        const stSt = sfAgentState(cid, {});
+        log(stSt.directive && stSt.directive.verb === 'idle' &&
+            stSt.order && stSt.order.verb === 'work' &&
+            stSt.lastOrder && stSt.lastOrder.status === 'expired' &&
+            stSt.gap === false,
+            'gs: v13 the state shows the brain its order, outcome, ' +
+            'will, and gap');
+        /* the will's horizon bounds every link: after it lapses the
+           pawn stands in the honest gap — never the authored sched */
+        W.tod += 5;   // the work order (holdH ≤2) is long expired
+        sfNpcTick(pv, 0.016);
+        log(pv.sfAgent && pv.sfAgent.verb === 'idle' &&
+            pv.sfDirective && pv.sfDirective.verb === 'idle',
+            'gs: v13 the chain\'s last link promotes and holds until ' +
+            'the will lapses');
+        W.tod += 3;   // past the 6h horizon now — the will is stale
+        sfNpcTick(pv, 0.016); sfNpcTick(pv, 0.016);
+        log(pv.sfAgent === null && pv.sfGap === true &&
+            pv.state === 'idle',
+            'gs: v13 a lapsed will leaves the intention gap — never ' +
+            'the code-authored schedule');
+        const stGap = sfAgentState(cid, {});
+        log(stGap.gap === true && stGap.order === null &&
+            stGap.directive === null,
+            'gs: v13 the gap is visible on the state, not hidden');
+        /* outcome: interrupted — a fresh filing replaces the live
+           order and says so */
+        sfAgentAct(cid, { verb: 'idle', holdH: 1 },
+          { directive: { verb: 'work', untilH: 2,
+                         why: 'shift at the café' } });
+        sfAgentAct(cid, { verb: 'move', to: 'Haus Coffee',
+                          holdH: 1 });
+        log(pv.sfAgentResult && pv.sfAgentResult.status === 'interrupted'
+            && pv.sfAgentResult.interruptedBy === 'new_order' &&
+            pv.sfAgent && pv.sfAgent.verb === 'move',
+            'gs: v13 a mid-flight replacement ends the old order ' +
+            '"interrupted"');
+        /* seq guard: a stale turn cannot stomp the newer filing */
+        pv.sfAgent = null; pv.sfAgentDriven = true;
+        const sNew = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+                                { seq: 40 });
+        const sOld = sfAgentAct(cid, { verb: 'work', holdH: 0.25 },
+                                { seq: 39 });
+        log(sNew.ok === true && sOld.ok === false &&
+            /stale/.test(sOld.err || '') &&
+            pv.sfAgent && pv.sfAgent.verb === 'idle',
+            'gs: v13 a late stale-seq filing is rejected, not applied');
+        /* bad directives are named at filing — unknown verb, missing
+           why on rest, and requests (standing wills never spend) */
+        const bad = sfAgentAct(cid, { verb: 'idle' },
+          { directive: { verb: 'fly' } });
+        const badWhy = sfAgentAct(cid, { verb: 'idle' },
+          { directive: { verb: 'rest' } });
+        const badReq = sfAgentAct(cid, { verb: 'idle' },
+          { directive: { verb: 'request', kind: 'weather' } });
+        log(!!bad.thenDropped && /why/.test(badWhy.thenDropped || '') &&
+            /request/.test(badReq.thenDropped || ''),
+            'gs: v13 nonsense, why-less, and spending directives are ' +
+            'named at filing');
+        /* repeat:false — the will fires exactly once */
+        pv.sfAgent = null; pv.sfDirective = null;
+        sfAgentAct(cid, { verb: 'idle', holdH: 0.25 },
+          { directive: { verb: 'work', holdH: 0.25, repeat: false,
+                         why: 'cover the rush' } });
+        W.tod += 0.5; sfNpcTick(pv, 0.016);
+        const firedOnce = pv.sfAgent && pv.sfAgent.verb === 'work';
+        W.tod += 0.5; sfNpcTick(pv, 0.016);
+        log(firedOnce && pv.sfAgent === null && pv.sfGap === true,
+            'gs: v13 a repeat:false directive fires once, then gaps');
+        /* survival reflex preempts the live order — and reports it */
+        pv.state = 'sleep'; pv.inBuilding = true;
+        pv.sfAgent = { verb: 'work', until: W.day * 24 + W.tod + 1,
+                       done: false };
+        sfNpcTick(pv, 0.016);
+        log(pv.sfReflex && pv.sfReflex.kind === 'asleep' &&
+            pv.sfAgent === null && pv.sfAgentResult &&
+            pv.sfAgentResult.status === 'interrupted' &&
+            /survival/.test(pv.sfAgentResult.interruptedBy || ''),
+            'gs: v13 a survival reflex preempts the order and says why');
+        pv.inBuilding = false; pv.state = 'idle';
+        /* a fresh act while the pawn is asleep wakes it honestly */
+        pv.state = 'sleep';
+        const woke = sfAgentAct(cid, { verb: 'idle', holdH: 0.25 });
+        log(woke.ok === true && pv.state === 'idle' &&
+            pv.sfAgent && pv.sfAgent.verb === 'idle',
+            'gs: v13 a new order is the brain deciding to wake');
+      }finally{
+        W.tod = keepTod; W.rain = keepRain; W.storm = keepStorm;
+        pv.x = keepX; pv.y = keepY; pv.inBuilding = keepInB;
+        pv.inside = keepIns; pv.sfAgent = keepAg; pv.state = keepState;
+        pv.sfAgentDriven = keepDrv; pv.sfDirective = keepDir;
+        pv.sfGap = keepGap; pv.sfAgentResult = keepRes;
+        pv.sfReflex = keepRfx; pv._agentSeq = keepSeq;
+        pv._dirStreak = keepDS; pv._dirSig = keepDg;
+        pv.sfPath = null; pv.moving = false;
+        keepLC.forEach((lc, o) => { o.lastClockCheck = lc; });
+      }
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

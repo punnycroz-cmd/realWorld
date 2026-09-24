@@ -312,13 +312,58 @@ function sfNpcTick(v, dtH){
     if(v.body.fatigue > 0.85 && !v.inBuilding) v.body.fatigue = 0.6;
   }
   // production-1: a parked agent order (36_sf_agent.js, the playtest
-  // bridge) drives this pawn through real sim calls until done/expired,
-  // then the schedule brain resumes. Order channel, not possession.
-  if(v.sfAgent){
-    const a = v.sfAgent;
-    if(a.done || W.tod > a.until) v.sfAgent = null;
-    else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
-    else v.sfAgent = null;
+  // bridge) drives this pawn through real sim calls until done/expired.
+  // Order channel, not possession. v13 ladder (ai-town §5.3):
+  //   reflex → live order → brain-authored directive → intention_gap.
+  // Once a brain files an act the pawn is "driven" and NEVER falls back
+  // to code-authored sfSched — a lapsed will leaves a visible gap
+  // (state 'idle', sfGap true on sfAgentState), not an invented routine.
+  if(v.sfAgent || v.sfAgentDriven){
+    /* survival reflex preempts a live order AND a pending will — it is
+       code, always wins, and is never authored by a brain */
+    const rf = (typeof sfReflexNow === 'function') ? sfReflexNow(v) : null;
+    if(rf && (v.sfAgent || v.sfDirective)){
+      if(v.sfAgent && !v.sfAgent.done)
+        v.sfAgentResult = { verb: v.sfAgent.verb, status: 'interrupted',
+          interruptedBy: 'survival:' + rf, at: W.tod, day: W.day };
+      v.sfAgent = null;
+      v.sfReflex = { kind: rf, at: W.tod, day: W.day };
+      v.sfPath = null; v.moving = false;
+      return;
+    }
+    v.sfReflex = null;
+    if(v.sfAgent){
+      const a = v.sfAgent;
+      if(a.done || sfAbsNow() > a.until){
+        /* §5.4 — every order ends with a reported outcome the brain
+           reads next turn: completed | expired | failed (interrupted
+           is written where the interruption happens) */
+        v.sfAgentResult = { verb: a.verb,
+          status: a.fail ? 'failed' : (a.done ? 'completed' : 'expired'),
+          err: a.fail || null, at: W.tod, day: W.day };
+        /* a promoted directive starts the same tick — no gap frame */
+        v.sfAgent = (typeof sfAgentNext === 'function')
+          ? sfAgentNext(v) : null;
+        if(v.sfAgent && typeof sfAgentTick === 'function'){
+          sfAgentTick(v, v.sfAgent, dtH);
+          return;
+        }
+      }
+      else if(typeof sfAgentTick === 'function'){ sfAgentTick(v, a, dtH); return; }
+      else v.sfAgent = null;
+    }
+    /* no live order: the standing will gets one shot (it may have
+       lapsed mid-order or after a reflex). Else the intention gap
+       stands — empty, visible, honest. */
+    const nxt = (typeof sfAgentNext === 'function') ? sfAgentNext(v) : null;
+    if(nxt){
+      v.sfAgent = nxt; v.sfGap = false;
+      if(typeof sfAgentTick === 'function') sfAgentTick(v, nxt, dtH);
+      return;
+    }
+    v.sfGap = true;
+    v.sfPath = null; v.moving = false; v.state = 'idle';
+    return;
   }
   const sched = v.sfSched;
   if(!sched || !sched.length){ v.state = v.moving ? v.state : 'idle'; return; }

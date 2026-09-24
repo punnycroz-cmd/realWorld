@@ -20,7 +20,11 @@ function loop(timestamp){
 
 function soulTick(v, dtH){
   bodyTick(v, dtH);
-  if(v.isNPC) updateVillagerAI(v, dtH);
+  /* v13: a parked agent order (or the driven flag it leaves behind)
+     ticks through the NPC brain even on the audience-surrogate pawn —
+     the order channel isn't possession, and a driven main must not
+     freeze mid-order just because her slot anchors the camera */
+  if(v.isNPC || v.sfAgent || v.sfAgentDriven) updateVillagerAI(v, dtH);
   else updatePlayerPawn(v, dtH);
 }
 
