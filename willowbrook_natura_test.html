@@ -31686,16 +31686,20 @@ if(SF_MODE && typeof document !== 'undefined'){
    The SF views no longer paint straight to the screen: the scene renders
    into an offscreen frame, then finishes through a physical lens model.
 
-   · top view  — TILT-SHIFT: the axonometric diorama gets a sharp focal
-     band across the subject line; defocus grows toward the frame edges
-     so the neighborhood reads as a photographed miniature.
-   · street    — DEPTH OF FIELD: circle-of-confusion from the ground-
-     plane equation. For a screen row y below the horizon the distance
-     is d = camH·F/(y − horizon); blur scales with the diopter
-     difference |1/d − 1/foc|, so the focal plane stays tack-sharp
-     while near pavement and far blocks melt.
-   · both      — lens vignette + a whisper of film grain + lateral
-     chromatic aberration (v62: red/cyan plates split and re-added).
+   v67: the rig is re-founded on air, not glass. The fake camera-artifact
+   stack (lateral chromatic aberration, scanline DOF/tilt-shift blur,
+   film grain) is RETIRED — in the real world it is the atmosphere that
+   softens a scene, and the sim already scatters light physically
+   (sfHazeA aerial perspective on far geometry, Karl's tongue/wall,
+   rain veils). What remains are effects whose cause exists in the sim:
+
+   · sun ghosts + anamorphic streak — only while the true sun disc is
+     actually in the gate (SF_LENS.sunOn/sunK, published by the sky pass)
+   · veiling glare — a blurred plate screen-composited back only when
+     the sun is in frame (built on demand)
+   · rain droplets — bead on the front element while W.rain is falling
+   · split-tone grade keyed to the real solar warmth + a soft vignette
+   · dutch roll while the camera pans
 
    L toggles the rig. The still-frame cache still works — it now caches
    the pre-lens frame, and the lens pass itself is ~3 canvas blits. */
@@ -31706,19 +31710,6 @@ const SF_LENS = { on: true, mode: 'flat', horizon: 0, camHF: 1, foc: 24,
    painter can answer view-dependent light questions (specular glass) —
    a glint is a property of the eye, not of the wall. */
 const SF_EYE = { x: 0, y: 0, h: 1.7 };
-function sfLensNoise(){
-  if(SF_LENS.noise) return SF_LENS.noise;
-  const c = document.createElement('canvas'); c.width = 160; c.height = 90;
-  const g = c.getContext('2d');
-  const im = g.createImageData(160, 90);
-  for(let i = 0; i < im.data.length; i += 4){
-    const v = 96 + Math.random() * 128;
-    im.data[i] = im.data[i + 1] = im.data[i + 2] = v;
-    im.data[i + 3] = 255;
-  }
-  g.putImageData(im, 0, 0);
-  SF_LENS.noise = c; return c;
-}
 /* Redirect the global ctx at the SF frame. All sf painters draw through
    `ctx`, so the whole pipeline — including the still-frame cache, which
    snapshots ctx.canvas — works unchanged inside the frame. */
@@ -31743,19 +31734,6 @@ function sfLensBegin(cw, ch){
   ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   return true;
 }
-/* Per-scanline defocus alpha (CSS-pixel y). */
-function sfLensAlpha(yCss, ch){
-  if(SF_LENS.mode === 'top'){
-    const d = Math.abs(yCss - ch * 0.5);
-    const t = clamp((d - ch * 0.15) / (ch * 0.30), 0, 1);
-    return t * t * (3 - 2 * t);
-  }
-  // street: real circle of confusion — diopter difference from focus
-  const dy = yCss - SF_LENS.horizon;
-  const d = dy > 1 ? SF_LENS.camHF / dy : Infinity;
-  const dd = Math.abs(1 / d - 1 / SF_LENS.foc);
-  return clamp(dd * 5.5, 0, 0.8);
-}
 function sfLensEnd(cw, ch){
   const g = SF_LENS.fg;
   ctx = SF_LENS.saveCtx;                 // back to the real canvas
@@ -31772,65 +31750,14 @@ function sfLensEnd(cw, ch){
     ctx.drawImage(F, -W / 2, -H / 2);
     ctx.rotate(-SF_LENS.roll); ctx.translate(-W / 2, -H / 2);
   } else {
-    /* v62: lateral chromatic aberration — a real lens disperses the
-       channels: the red plate lands shifted one way, the cyan (G+B)
-       plate the other, so high-contrast silhouettes fringe warm/cool
-       instead of staying surgically clean. The frame is split by
-       multiply masks and re-added with 'lighter'; where the plates
-       overlap the channels recombine to the original color. */
-    if(SF_LENS.mode !== 'flat' && typeof document !== 'undefined'){
-      if(!SF_LENS.caR){
-        SF_LENS.caR = document.createElement('canvas');
-        SF_LENS.caRg = SF_LENS.caR.getContext('2d');
-        SF_LENS.caB = document.createElement('canvas');
-        SF_LENS.caBg = SF_LENS.caB.getContext('2d');
-      }
-      const R2 = SF_LENS.caR, rg = SF_LENS.caRg,
-            B2 = SF_LENS.caB, b2g = SF_LENS.caBg;
-      if(R2.width !== W || R2.height !== H){
-        R2.width = W; R2.height = H; B2.width = W; B2.height = H;
-      }
-      const d2 = Math.max(1, Math.round(W * 0.0011));
-      rg.setTransform(1, 0, 0, 1, 0, 0);
-      rg.clearRect(0, 0, W, H);
-      rg.drawImage(F, d2, 0);
-      rg.globalCompositeOperation = 'multiply';
-      rg.fillStyle = '#ff0000'; rg.fillRect(0, 0, W, H);
-      // multiply flood-fills the transparent border — clip back to the
-      // plate's real alpha before recombining
-      rg.globalCompositeOperation = 'destination-in';
-      rg.drawImage(F, 0, 0);
-      rg.globalCompositeOperation = 'source-over';
-      b2g.setTransform(1, 0, 0, 1, 0, 0);
-      b2g.clearRect(0, 0, W, H);
-      b2g.drawImage(F, -d2, 0);
-      b2g.globalCompositeOperation = 'multiply';
-      b2g.fillStyle = '#00ffff'; b2g.fillRect(0, 0, W, H);
-      b2g.globalCompositeOperation = 'destination-in';
-      b2g.drawImage(F, 0, 0);
-      b2g.globalCompositeOperation = 'source-over';
-      ctx.globalCompositeOperation = 'lighter';
-      ctx.drawImage(R2, 0, 0);
-      ctx.drawImage(B2, 0, 0);
-      ctx.globalCompositeOperation = 'source-over';
-    } else ctx.drawImage(F, 0, 0);
-  }
-  if(SF_LENS.mode !== 'flat' && B && typeof bg.filter !== 'undefined'){
-    const R = Math.max(3, Math.round(H * (SF_LENS.mode === 'top' ? 0.012 : 0.0065)));
-    bg.setTransform(1, 0, 0, 1, 0, 0);
-    bg.clearRect(0, 0, W, H);
-    bg.filter = `blur(${R}px)`;
-    bg.drawImage(F, 0, 0);
-    bg.filter = 'none';
-    const N = 30;
-    for(let i = 0; i < N; i++){
-      const y0 = Math.floor(H * i / N), y1 = Math.ceil(H * (i + 1) / N);
-      const a = sfLensAlpha((y0 + y1) / 2 / dpr, ch);
-      if(a < 0.02) continue;
-      ctx.globalAlpha = a;
-      ctx.drawImage(B, 0, y0, W, y1 - y0, 0, y0, W, y1 - y0);
-    }
-    ctx.globalAlpha = 1;
+    /* v67: the plate lands clean — the camera-artifact stack (chromatic
+       aberration, scanline DOF/tilt-shift, film grain) is gone. In a real
+       atmosphere it is the AIR that softens a scene, not the glass:
+       humidity, the marine layer and rain already scatter light in-world
+       (sfHazeA on every far facade, Karl's tongue and wall, the horizon
+       band). The frame now stays optically honest so those physically-
+       driven effects are the only softening the eye ever sees. */
+    ctx.drawImage(F, 0, 0);
   }
   /* v27: lens ghosts — internal element reflections of the sun disc.
      Real ghosts mirror about the optical center: each ghost sits on the
@@ -31875,8 +31802,16 @@ function sfLensEnd(cw, ch){
     /* v36: veiling glare — a strong source near the axis fogs the whole
        frame. The blurred plate screen-composited back over itself lifts
        the blacks and blooms the highlights; strength follows sunK, so
-       the glare fades exactly as the disc leaves the gate. */
-    if(B){
+       the glare fades exactly as the disc leaves the gate.
+       v67: the plate is built on demand — it only exists while the sun
+       is in the gate, so clear off-axis frames pay nothing. */
+    if(B && typeof bg.filter !== 'undefined'){
+      const R = Math.max(3, Math.round(H * 0.007));
+      bg.setTransform(1, 0, 0, 1, 0, 0);
+      bg.clearRect(0, 0, W, H);
+      bg.filter = `blur(${R}px)`;
+      bg.drawImage(F, 0, 0);
+      bg.filter = 'none';
       ctx.globalCompositeOperation = 'screen';
       // v56: glare falls off quadratically — a dry clear afternoon stays
       // crisp off-axis instead of the whole frame milking over
@@ -31930,26 +31865,16 @@ function sfLensEnd(cw, ch){
     ctx.fillRect(0, 0, W, H);
     ctx.globalCompositeOperation = 'source-over';
   }
-  // lens vignette — light falls off toward the corners of the frame
+  // lens vignette — light falls off toward the corners of the frame.
+  // v67: eased back now that the plate is clean — a gentle natural-
+  // light falloff, not a murk layer hiding grain.
   const vr = Math.hypot(W, H) * 0.62;
-  const vg = ctx.createRadialGradient(W / 2, H / 2, vr * 0.45,
+  const vg = ctx.createRadialGradient(W / 2, H / 2, vr * 0.52,
                                       W / 2, H / 2, vr);
   vg.addColorStop(0, 'rgba(8,6,4,0)');
-  vg.addColorStop(1, 'rgba(8,6,4,0.30)');
+  vg.addColorStop(1, 'rgba(8,6,4,0.20)');
   ctx.fillStyle = vg;
   ctx.fillRect(0, 0, W, H);
-  // film grain — fixed plate, random sub-frame offset each frame
-  if(!SF_LENS.pat && typeof ctx.createPattern === 'function')
-    SF_LENS.pat = ctx.createPattern(sfLensNoise(), 'repeat');
-  if(SF_LENS.pat){
-    ctx.globalAlpha = 0.05;
-    ctx.fillStyle = SF_LENS.pat;
-    const ox = Math.floor(Math.random() * 160), oy = Math.floor(Math.random() * 90);
-    ctx.translate(-ox, -oy);
-    ctx.fillRect(0, 0, W + 160, H + 90);
-    ctx.translate(ox, oy);
-    ctx.globalAlpha = 1;
-  }
   ctx.restore();
 }
 
@@ -32857,6 +32782,20 @@ function sfKarlK(){
   const fetch = clamp(W.windSpd / 2.4, 0, 1);
   return clamp(diur * 0.5 + hum * 0.4 + sfCloudCover() * 0.2 +
                fetch * 0.15 - 0.24, 0, 1);
+}
+/* v67: meteorological visibility — a Koschmieder-style daylight visual
+   range in km, derived from the same drivers every other weather system
+   reads. A dry Mission afternoon holds ~20km+; humidity haze, stratus,
+   rain and Karl's own intrusion each cut it toward the real few-
+   hundred-meter wall. One number now backs every "how far can the eye
+   see" decision: facade airlight (SF_WX.hazeK), the horizon marine band,
+   the skyline veil and the Karl wall. The render no longer fakes depth
+   with a lens — the air itself reports how far it lets light travel. */
+function sfVisKm(){
+  let vis = 24 - clamp(W.hum - 0.40, 0, 0.6) * 20 - sfCloudCover() * 4;
+  vis -= clamp(W.rain, 0, 1) * 16;
+  vis -= sfKarlK() * 18;
+  return clamp(vis, 0.4, 24);
 }
 /* fog region in world meters: the map rect clipped to the half-plane
    upwind of the intrusion front. front 0..1 = fraction of map covered. */
@@ -38059,11 +37998,16 @@ function sfRenderStreet(cw, ch){
       }
     }
   }
-  // v9: aerial perspective strength for this frame — the marine layer's
-  // moisture scatters light, so distant blocks melt toward the horizon
-  // color. Driven by the same humidity/cloud physics as Karl himself.
-  const fogAFrame = night ? 0.3 : clamp(0.16 + (W.hum - 0.55) * 1.7 + W.rain * 0.5, 0.1, 0.9);
-  SF_WX.hazeK = clamp((night ? 0.10 : 0.15) + fogAFrame * 0.55 + cover * 0.15, 0.1, 0.8);
+  // v9+v67: aerial perspective strength for this frame — now read
+  // straight off meteorological visibility (sfVisKm) instead of a
+  // humidity-only blend. Clear dry air keeps mid-field facades crisp;
+  // a fog intrusion reports single-digit km and every far wall, the
+  // skyline and the marine band melt together by the same physics.
+  const visKm = night ? 4 : sfVisKm();
+  SF_WX.visKm = visKm;
+  const fogAFrame = night ? 0.3 : clamp(0.08 + (1 - visKm / 22) * 0.85 +
+                                      W.rain * 0.25, 0.08, 0.9);
+  SF_WX.hazeK = night ? 0.16 : clamp(3.6 / visKm - 0.07, 0.06, 0.85);
   SF_WX.hazeRGB = night ? '52,62,92' : '188,212,230';
   if(!night){
     // v14: sun disc at the TRUE solar bearing/elevation — the same vector
@@ -38354,9 +38298,10 @@ function sfRenderStreet(cw, ch){
     // compass bearings (roofline band, downtown NE, Twin Peaks + Sutro
     // WSW), drawn before Karl so the marine layer veils them correctly
     sfSkyline(cw, horizon, F, useYaw, cover, wK, fogAFrame);
-    // v6: marine layer — Karl the Fog shouldering over the horizon,
-    // growing with humidity; the Mission's signature wall of gray.
-    const fogA = clamp(0.16 + (W.hum - 0.55) * 1.7 + W.rain * 0.5, 0.1, 0.9);
+    // v6: marine layer — Karl the Fog shouldering over the horizon.
+    // v67: strength = the same visibility-derived band as the skyline
+    // veil above, so the wall and the veiling agree by construction.
+    const fogA = fogAFrame;
     const fh = horizon * (0.08 + fogA * 0.45);
     const fg = ctx.createLinearGradient(0, horizon - fh, 0, horizon + 40);
     fg.addColorStop(0, 'rgba(214,224,232,0)');
