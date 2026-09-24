@@ -7837,3 +7837,89 @@ P869 OBSERVE.
   precisely the contested null — asserted as absence);
   bands, channel lognormal choice, obs_noise, shrink factors,
   split fraction — RW HYPOTHESES, probe-gated.
+
+## 164. v82 probe specs (P871–P878 — character-profiles VII: the remembering voice)
+
+Spec v5.30 §§5.79–5.83. All report-layer machinery — probes
+must prove the voice changes the AUDIENCE's evidence without
+touching the store.
+
+- **P871 quote fidelity (MUST — locked null):** scripted
+  witness event with logged verbatim wording; at 30d a
+  `voice_quote` 0.9 profile emits `quote` fields whose token
+  overlap with original wording is at the chance band
+  (constructed share ≈ 1); same profile at 2h (verbatim
+  alive) shows fidelity ∝ S. `quote_fidelity_null = 0`.
+  Basis: Tannen 1986; Sachs 1967; Wade & Clark 1993.
+- **P872 report-option reproduction (MUST — sign-locked):**
+  matched records, free-report context; `report_policy` 0.85
+  vs 0.15 profiles — high-policy emits fewer answers
+  (quantity ↓) with higher mean accuracy (accuracy ↑);
+  forced context collapses the difference via §5.61.
+  Basis: Koriat & Goldsmith 1996.
+- **P873 grain sharpening null (MUST — locked null):**
+  a `grain:"coarse"` emission ("last spring") heard by a
+  listener mints a coarse belief; no downstream path
+  upgrades it to a precise date absent new evidence.
+  `grain_sharpen_null = 0`. Basis: Goldsmith et al. 2002.
+- **P874 inventory floor (MUST — locked null):** `ie_talk`
+  1.4 profile asked about an event with zero stored
+  internal fields emits external-only narration — the mix
+  cannot mint episode content. `ext_floor_null = 0`.
+  Basis: Levine et al. 2002.
+- **P875 FOAK asymmetry (MUST — sign-locked):** identical
+  speaker, two arms: slow-answer (long prePauseMs +
+  answer) lowers hearer estKnow; slow-nonanswer (long
+  pause + `passed:true` + fok_cue) RAISES it. A fast
+  nonanswer must not raise it. `foak_store_null` checked
+  in same run — content S untouched. Basis: Brennan &
+  Williams 1995.
+- **P876 story-mint null (MUST — locked null):**
+  `voice_story` 1.0 retell of an event containing a
+  schema-discordant field suppresses that field in ≥60%
+  of emissions but the RECORD retains it — a later
+  free-recall still surfaces it. Coda fields carry
+  `eval:true` and mint no episodic content on
+  retell-encode. `story_mint_null = 0`. Basis: Marsh 2007.
+- **P877 quote ecology (SHOULD):** quote propensity is
+  age-flat across archetypes (child excluded — different
+  machinery); constructed share rises with record age on
+  the verbatim-decay schedule; hearsay records mint only
+  `constructed:true` quotes. `quote_cascade_null = 0`.
+- **P878 voice distinctness (SHOULD — process):** the 8
+  mains' {voice_quote, report_policy, grain_pref, ie_talk,
+  voice_story} vectors — no pair within L1 distance 0.5;
+  ambient tier draws inside the declared template ranges.
+  Run against cast-profiles.md Part V compiled params.
+
+Registry: P1–P878. v82 suite: P871, P872, P873, P874, P875,
+P876 MUST; P877, P878 SHOULD.
+
+## 165. Sources verified this version (P871–P878 backing)
+
+- **Constructed dialogue:** Tannen 1986 (*Representing* 27 —
+  verified abstract: "not a report at all"; possible→
+  impossible continuum); Tannen 1989 *Talking Voices* ch.4.
+- **Quote reconstruction:** Wade & Clark 1993 (*Memory*
+  1:265); Clark & Gerrig 1990 (*Cognition* 37 —
+  demonstrations, not descriptions).
+- **Monitor-and-control:** Koriat & Goldsmith 1996
+  (*Psych Rev* 103:490 — verified: report option ↑accuracy,
+  ↓quantity, incentive/monitoring-dependent); Goldsmith,
+  Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73 — verified:
+  grain-size regulation, accuracy–informativeness trade).
+- **Detail mix:** Levine et al. 2002 (*Psychol Aging*
+  17:677 — verified: older→external bias, persists under
+  structured probing); Addis, Wong & Schacter 2008
+  (*Neuropsychologia* 46:1363 — style-level spread).
+- **FOAK:** Brennan & Williams 1995 (*J Mem Lang* 34:383 —
+  verified incl. the answer/nonanswer latency asymmetry and
+  filled-pause directions); Smith & Clark 1993 (*Cognition*
+  48:151 — uh<um delay calibration).
+- **Retelling:** Marsh 2007 (*Am J Psychol* 120:533 —
+  tellings retrieved over events; schema shaping).
+- **Established vs hypothesis:** Tannen quote-invention
+  share (≥half) is corpus-claim CONSENSUS; FOAK direction
+  CONSENSUS, magnitude SINGLE-study; trait ranges
+  (voice_quote priors, pass_thr range, foak_gain 0.15) are
+  RW HYPOTHESES, probe-gated by P871–P878.

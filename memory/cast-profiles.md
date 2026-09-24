@@ -1540,3 +1540,119 @@ future_leak_null (rich ≠ remembered), tension_fate_null
 - Garry, Manning, Loftus & Sherman 1996 (*Psychonom Bull Rev*
   3:208 — reused): imagination inflation — the ONLY licensed
   future→past flip path.
+
+# Part V — v82 pass: the remembering voice
+
+Spec refs: v5.30 §§5.79–5.83. Probes P871–P878 filed to
+validation-design.md §164. This pass pins how each main's memory
+SOUNDS — report-layer traits only. Nothing below touches what is
+stored; it shapes what the room hears.
+
+## 24. Per-main voice pins (all five traits; prior passes stand)
+
+### C1 Mars, 29 — `voice_quote 0.4` · `report_policy 0.7` · `grain_pref 0.5` · `ie_talk 1.0` · `voice_story 0.6`
+The manager's register: answers only when sure (policy up —
+she runs a floor, wrong answers cost), moderate quotes
+(paraphrase-first, direct speech when the wording mattered),
+story-shaped but disciplined. estKnow grows steadily —
+the room learns she's careful.
+
+### C2 Jules, 26 — `voice_quote 0.3` · `report_policy 0.35` · `grain_pref 0.4` · `ie_talk 1.0` · `voice_story 0.4`
+Answers freely (newcomer eagerness — low-mid policy) but
+coarse by default (grain under 0.5 means confidence must
+push hard to get a precise claim out of him). Flat story
+shaping — reports arrive in retrieval order, ragged.
+
+### C3 Dani, 24 — `voice_quote 0.9` · `report_policy 0.15` · `grain_pref 0.75` · `ie_talk 1.2` · `voice_story 0.85`
+The cast's `bluff`-adjacent voice: never passes, quotes
+everyone, precise dates and numbers out of thin confidence.
+The fluent-liar file (§14.3) gains its instrument —
+`constructed:true` quotes are her medium. P871 watches:
+her quotes must match original wording at chance.
+
+### C4 Priya, 31 — `voice_quote 0.25` · `report_policy 0.85` · `grain_pref 0.3` · `ie_talk 1.0` · `voice_story 0.3`
+Clinical report discipline: passes rather than guesses
+("I don't remember — I can find out"), coarse when she
+does answer ("sometime last week"), near-zero story
+shaping. Emergent effect via §5.82: her rare, fast,
+correct answers plus honest passes make her estKnow the
+highest in the café — the room trusts the quietest
+memory.
+
+### C5 Marcus, 34 — `voice_quote 0.5` · `report_policy 0.2` · `grain_pref 0.6` · `ie_talk 0.9` · `voice_story 0.5`
+Cheerful guesser: always answers, medium-precision, quotes
+with swagger. The sunny-shallow profile (§5.6 note) now has
+a voice — confident, coarse, right often enough that the
+grain goes unread.
+
+### C6 Carmen, 74 — `voice_quote 0.75` · `report_policy 0.6` · `grain_pref 0.4` · `ie_talk 0.85` · `voice_story 0.9`
+The stoop voice: stories arrive pre-shaped — canonical
+order, discordant bits left out, a coda ("and that was
+the last summer before..."), and quotes of the dead and
+gone — every one `constructed:true`, all of them
+*believable*. ie_talk under 1 stacks commentary-register
+habit on the §5.78c age shift.
+
+### C7 Victor, 58 — `voice_quote 0.6` · `report_policy 0.8` · `grain_pref 0.55` · `ie_talk 0.8` · `voice_story 0.5`
+Quotes to indict (constructed dialogue as prosecution
+exhibit — "and she said to me, 'it's just a little
+rust'"), passes or omits rather than hedges — the
+industrial omitter (§14.7) now has a report criterion to
+match. Commentary-heavy mix, mid story-shape.
+
+### C8 Tomás, 36 — `voice_quote 0.45` · `report_policy 0.5` · `grain_pref 0.35` · `ie_talk 1.1` · `voice_story 0.65`
+The understatement voice: coarse-grained ("it was busy")
+over vivid internals — sensory-happening mix up (kitchen
+life is all internal detail), story shape present but
+deadpan; the coda arrives as a shrug, not a lesson.
+
+### Ambient tier — voice template
+Ambients draw `voice_quote`~U(0.2,0.6), `report_policy`~
+U(0.2,0.7), `grain_pref`~U(0.3,0.7), `ie_talk`~U(0.8,1.2),
+`voice_story`~U(0.2,0.7) — same distribution family as
+mains, no exotic corners. The crowd must sound like the
+cast's neighbors, not their chorus.
+
+## 25. Distinctness — fifth-pass notes
+The five voice traits form a second orthogonal signature
+axis: Dani and Marcus both answer freely (low policy) but
+Dani is precise-invented and Marcus coarse-right; Priya and
+Victor both withhold (high policy) but Priya passes
+honestly while Victor omits strategically; Carmen and Dani
+both story-shape hard but Carmen's quotes carry grief and
+Dani's carry theater. Voice × the narrator's compass (Part
+III) gives 40 free knobs per bible without a single
+collision.
+
+## 26. Probes filed
+P871–P878 → validation-design.md §164. The signature
+checks: P871 quote fidelity null (Dani's quotes ≈ chance
+wording match), P872 Priya-vs-Dani free-report
+accuracy/quantity split, P875 FOAK asymmetry (Priya's slow
+passes RAISE estKnow; Dani's fast answers don't move it).
+
+## 27. Sources added this version
+- Tannen 1986 (*Representing* 27 — verified): constructed
+  dialogue; ≥half of conversational direct quotes never
+  spoken. Tannen 1989 (*Talking Voices*, CUP — verified):
+  ch.4, quotation as creation; codas as evaluation.
+- Wade & Clark 1993 (*Memory* 1:265 — verified): reported
+  speech reconstructed toward teller purposes; Clark &
+  Gerrig 1990 (*Cognition* 37 — verified): quotations as
+  demonstrations.
+- Koriat & Goldsmith 1996 (*Psych Rev* 103:490 — verified):
+  monitor-and-control; report option ↑accuracy ↓quantity.
+- Goldsmith, Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73
+  — verified): strategic grain-size regulation.
+- Levine, Svoboda, Hay, Winocur & Moscovitch 2002
+  (*Psychol Aging* 17:677 — verified): AI internal:external
+  mix; persists under probing. Addis, Wong & Schacter 2008
+  (*Neuropsychologia* 46 — verified): mix as style.
+- Brennan & Williams 1995 (*J Mem Lang* 34:383 — verified):
+  FOAK — latency/filler cues; answer-vs-nonanswer
+  asymmetry. Smith & Clark 1993 (*Cognition* 48 —
+  verified): uh/um delay calibration.
+- Marsh 2007 (*Am J Psychol* 120 — verified): retelling is
+  not remembering; tellings retrieved over events.
+- Sachs 1967 (reused): verbatim wording dies sub-daily.
+- Bartlett 1932 (reused): effort after meaning.

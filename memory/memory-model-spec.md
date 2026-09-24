@@ -1,5 +1,25 @@
-# Memory Model Spec v5.29 — implementable human-like memory for RW characters
+# Memory Model Spec v5.30 — implementable human-like memory for RW characters
 
+> **v5.30 note (character-profiles VII — the remembering
+> voice):** five traits move onto the REPORT layer — what a
+> character's memory looks like from the audience's chair.
+> **Constructed dialogue** — `voice_quote` mints `quote`
+> fields on episodic reports; content is stored wording only
+> while `verbatim.quote` lives, else Tannen-style
+> construction flagged `constructed:true` (Tannen 1986;
+> Wade & Clark 1993) — §5.79. **Report policy** —
+> `report_policy` sets the volunteer-withhold criterion
+> `pass_thr`, `grain_pref` sets answer coarseness
+> (Koriat & Goldsmith 1996; Goldsmith et al. 2002) — §5.80.
+> **Detail mix** — `ie_talk` multiplies the §5.78c age
+> curve's internal share (Levine et al. 2002; Addis et al.
+> 2008) — §5.81. **FOAK** — pauses/fillers on emissions
+> update the hearer's `estKnow` ledger with the Brennan &
+> Williams 1995 answer/nonanswer asymmetry — §5.82.
+> **Story shaping** — `voice_story` reorders/suppresses/
+> codas at retell emission (Marsh 2007; Tannen 1989) —
+> §5.83. +14 params, +5 traits, +6 locked nulls; §10
+> contract adds emission fields + `passed` op outcome.
 > **v5.29 note (formal-model VIII — the anchor corpus
 > instantiated):** `memory/formal-model.md` Part VIII
 > (§§60–69) turns §14.2's empty anchor schema into 18
@@ -6370,6 +6390,158 @@ script-node rate — evaluate on `min(age_eff, 55)`. Locked
 `proc_age_null`: this is the model's deepest spared floor —
 the routine outlives the instance, permanently.
 
+### 5.79 Constructed dialogue — the quote is a retelling, not a record (new in v5.30)
+
+Tannen 1986 (*Representing* 27 — verified): conversational
+"reported speech" is *constructed* dialogue — ≥half of
+conversational direct quotes are utterances never spoken
+(along a possible→impossible continuum); the quote is the
+teller's creation, not a playback. Sachs 1967 (verbatim dies
+sub-daily — §4.16) supplies the store-side fact: wording is
+almost never there to quote. Wade & Clark 1993 (*Memory*
+1:265 — verified): reproduction of quoted speech is
+systematically reconstructed toward the teller's purposes;
+Clark & Gerrig 1990 (*Cognition* 37 — verified): quotations
+are demonstrations — depictions, not descriptions.
+
+Mechanism: on an episodic emission that selects a `speaker`
+field, the report mints a `quote` field (direct-speech
+framing) with p = `voice_quote·quote_norm` (trait × pop
+constant 0.35). Content source forks on the RECORD, not the
+report:
+
+```
+if rec.verbatim.quote alive (S > θ):
+    quote text samples stored wording, fidelity ∝ S
+else:
+    quote constructed from gist fields + PersonModel
+    [speaker].speechStyle — flag constructed:true
+hearsay/toldBy records: always constructed:true — a
+    quote of a quote is depiction²
+```
+
+Age: `voice_quote` propensity is age-flat (older adults quote
+at least as much — verbatim death is invisible to the
+teller); constructed SHARE rises with record age, emergent.
+Locked `quote_fidelity_null` (P871): constructed quotes
+correlate with original wording at chance — a fluent
+quoter is not an accurate quoter. `quote_cascade_null`
+(P877): downstream hearers encode the quote under the
+normal hearsay legs — it gains no verbatim class.
+
+### 5.80 Report policy — the pass, the hedge, the bluff (new in v5.30)
+
+Koriat & Goldsmith 1996 (*Psych Rev* 103:490 — verified):
+free report is a metacognitive CONTROL decision on top of
+monitoring — report option raises accuracy, lowers quantity;
+the criterion is a stable disposition, not a readout of the
+store. Goldsmith, Koriat & Weinberg-Eliezer 2002 (*JEP:G*
+131:73 — verified): the same control layer sets GRAIN —
+coarse answers ("last spring") when unsure, precise when
+sure; accuracy–informativeness trade.
+
+§5.61 supplies the asker's license (context); v5.30 adds the
+person. Two traits:
+
+- **`report_policy` ∈[0,1]** — withholding disposition.
+  Free report: emit iff `conf_out ≥ pass_thr`,
+  `pass_thr = pass_base(0.35) + 0.45·report_policy`.
+  Below threshold → `passed:true` emission ("I don't
+  remember" / "ask Jules") — a clean nonanswer, NOT a
+  retrieval failure (the record may be fine; the criterion
+  did the withholding). Forced contexts bypass (§5.61 —
+  `hedged` leg unchanged). Accuracy/quantity trade
+  sign-locked by P872.
+- **`grain_pref` ∈[0,1]** — default answer precision. On
+  emission of date/place/quantity fields: choose coarse
+  frame with p = `grain_coarse_p = 0.3 + 0.5·grain_pref·
+  (1 − conf_out)` — trait sets the habit, confidence sets
+  the moment. Coarse emission marks `grain:"coarse"`;
+  downstream mints the coarse frame only (a coarse report
+  can't become a precise belief — `grain_sharpen_null`,
+  P873). `bluff` phenotype = low report_policy + high
+  grain precision claims: always answers, always precise,
+  error-prone — the cast needs one.
+
+### 5.81 Detail mix at the microphone — `ie_talk` (new in v5.30)
+
+§5.78c's `ie_shift(age_eff)` is population-only. Levine et
+al. 2002's own spread and the AI literature (Addis, Wong &
+Schacter 2008 *Neuropsychologia* 46 — verified) show the
+internal:external ratio is a STYLE on top of the age
+curve — habitual sensory-happening talkers vs habitual
+commentators. New trait `ie_talk` ∈[0.6,1.4] multiplies the
+internal share prior: `internal_p = ie_shift(age_eff)·
+ie_talk` (clamped [0.05,0.9]). Selection, not minting:
+external (semantic commentary) fields must exist in store —
+locked `ext_floor_null` (P874): a commentator can't narrate
+episode detail they never encoded; a sensory talker can't
+fake commentary either — the mix reweights an inventory.
+
+### 5.82 The listener's FOK — FOAK (new in v5.30)
+
+Brennan & Williams 1995 (*J Mem Lang* 34:383 — verified):
+listeners read speaker certainty from LATENCY and filled
+pauses — long latency before an ANSWER lowers the listener's
+feeling-of-another's-knowing; long latency before a
+NONANSWER raises it (the asymmetry is the signal). Smith &
+Clark 1993 (*Cognition* 48 — verified): uh<um delay
+calibration. Top-down: believed expertise buffers the
+latency penalty (FOAK prior leg, Brennan & Williams
+extension — DEBATED magnitude, direction CONSENSUS).
+
+Mechanism: `ask` responses already carry retrieval time;
+emissions now surface `prePauseMs` + `fillers:int` (report
+layer renders them). Hearer updates
+`PersonModel.estKnow[speaker][topic]`:
+
+```
+answer emitted:   estKnow += foak_gain·(0.5 − norm(pause))
+nonanswer emitted: estKnow += foak_gain·(norm(pause) − 0.5)
+                    · fok_cue (speaker's own FOK marker —
+                      "it's on the tip of my tongue" reads
+                      competent, not blank)
+expertise prior:  penalty × (1 − foak_expert_prior·
+                  believedExpertise[speaker][topic])
+```
+
+foak_gain 0.15, norm(pause) saturates ~5s. This is the
+only §5.x leg where a NONANSWER builds the ledger — the
+audience's model of a character's memory is itself a
+memory object. `foak_store_null` (P875): FOAK updates
+estKnow only — never the heard content's S.
+
+### 5.83 Story-shaped retelling — `voice_story` (new in v5.30)
+
+Bartlett 1932 (effort after meaning — reused); Marsh 2007
+(*Am J Psychol* 120 — verified): retelling is not
+remembering — tellings reorganize toward story shape, and
+later recalls retrieve the TELLING. Tannen 1989 ch.4:
+evaluation codas ("and that's when I knew") are told, not
+stored.
+
+On `retell`/`discuss` emission, trait `voice_story` ∈[0,1]
+drives three report-side transforms — all SELECTION:
+
+```
+story_order_p = 0.4·voice_story   // emitted fields sorted
+    toward canonical narrative order even when retrieval
+    order differed (Barsalou 1988 order freedom — reused)
+discord_suppress = 0.3·voice_story // schema-discordant
+    fields de-selected at emission (record untouched)
+coda_p = 0.5·voice_story          // mint evaluative coda
+    field on the REPORT only
+```
+
+Locked `story_mint_null` (P876): voice_story suppresses and
+reorders — it never mints event content; codas carry
+`eval:true` and mint semantic residue on retell-encode, not
+episodic fields. Marsh's second clause — the telling becomes
+the memory — is NOT new machinery: the retell-encode event
+(§4.13) already records the shaped emission back, so
+story-shaped tellings drift the record on schedule without
+a special path.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -11754,6 +11926,36 @@ MemoryParams = {
 //   (held-out anchors never enter fitting — P866).
 // v5.29 fields: none — harness/pop params only; the
 //   anchor corpus itself is spec §14.2 data, not state.
+// v5.30 additions (character-profiles VII — the
+//   remembering voice; traits in [], pop constants bare)
+"quote_norm": 0.35, "constructed_mark": true,       // §5.79
+"pass_base": 0.35, "pass_range": 0.45,              // §5.80
+"grain_base": 0.3, "grain_conf_k": 0.5,             // §5.80
+"ie_talk_min": 0.6, "ie_talk_max": 1.4,             // §5.81
+"foak_gain": 0.15, "foak_expert_prior": 0.5,
+"pause_sat_ms": 5000,                                // §5.82
+"story_order_k": 0.4, "story_suppress_k": 0.3,
+"coda_k": 0.5,                                      // §5.83
+// v5.30 traits (IndivTraits, bible-pinnable):
+//   voice_quote [0,1], report_policy [0,1],
+//   grain_pref [0,1], ie_talk [0.6,1.4],
+//   voice_story [0,1].
+// v5.30 locked nulls: quote_fidelity_null
+//   (constructed quotes match wording at chance —
+//   P871); quote_cascade_null (quotes mint no
+//   verbatim class downstream — P877);
+//   grain_sharpen_null (coarse reports never mint
+//   precise beliefs — P873); ext_floor_null
+//   (ie_talk reweights inventory, never mints —
+//   P874); foak_store_null (estKnow only, never
+//   content S — P875); story_mint_null (voice_story
+//   selects/reorders/codas, never mints event
+//   content — P876).
+// v5.30 fields: emission `quote` {text,
+//   constructed}, `passed:true`, `grain:"coarse"`,
+//   `prePauseMs`, `fillers`, `coda` {eval:true};
+//   PersonModel `estKnow[speaker][topic]` update
+//   rule (§5.82); no new Event/record fields.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13457,6 +13659,27 @@ not resolved (DEBATED magnitude). P509/P511.
     rep_shrink, anchor_train_frac + 3 locked nulls
     (latent_read_null, exceed_null, anchor_leak_null).
     Probes P859–P870.
+- v5.30 additions (character-profiles VII — §§5.79–5.83):
+  - **Emission fields:** `quote:{text, constructed:true?}`
+    (§5.79 — verbatim-sourced while the field lives, else
+    constructed); `passed:true` + `grain:"coarse"`
+    (§5.80 — report-policy nonanswers and coarse frames);
+    `prePauseMs` + `fillers:int` (§5.82 — surfaced retrieval
+    latency for the FOAK leg); `coda:{text, eval:true}`
+    (§5.83 — report-only evaluation tails).
+  - **PersonModel field:** `estKnow[speaker][topic]` ∈[0,1]
+    (§5.82 — the audience's model of the speaker's memory;
+    updated by pauses with the answer/nonanswer asymmetry;
+    buffered by `believedExpertise`).
+  - **New traits (IndivTraits):** `voice_quote`,
+    `report_policy`, `grain_pref`, `ie_talk` [0.6–1.4],
+    `voice_story` — all report-layer; none touch encode or
+    decay (locked nulls P871–P877 enforce).
+  - **Locked nulls:** `quote_fidelity_null`,
+    `quote_cascade_null`, `grain_sharpen_null`,
+    `ext_floor_null`, `foak_store_null`, `story_mint_null`.
+  - All snapshot-additive, absent = legacy; no Event or
+    record schema changes. Probes P871–P878.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

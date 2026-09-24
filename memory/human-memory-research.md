@@ -3097,3 +3097,74 @@ disagreements it encodes.
   accessibility made operational; latency–strength coupling
   from Wixted & Rohrer 1994; instrument noise (`obs_noise`)
   from psychometric reliability ceilings (~r .7–.9).
+
+## 60. The report layer — memory has a voice, and the voice lies fluently (v82)
+
+A gap audited this pass: the spec modeled what surfaces
+(candidates, fields, hedged flags) but not the *style of the
+surfacing* as a personality. The literature on memory-as-
+performance splits cleanly into speaker-side control and
+listener-side inference:
+
+- **Quoted speech is fiction by default.** Tannen 1986
+  (*Representing* 27 — verified) reframed "reported speech"
+  as *constructed dialogue*: conversational direct quotes
+  include utterances provably never spoken (choral "everybody
+  says", hypothetical "and I almost said", inner speech
+  rendered as dialogue) — the quote is the teller's creation
+  bearing full responsibility, not a playback. Wade & Clark
+  1993 (*Memory* 1:265) show reproduction drifts toward the
+  teller's communicative purpose; Clark & Gerrig 1990
+  (*Cognition* 37) formalize quotation as *demonstration* —
+  a depiction that selects properties, not a description.
+  Store-side corroboration already in the model: Sachs 1967
+  verbatim decay means wording is almost never available to
+  quote — fluency and fidelity decouple completely.
+- **Volunteering is a decision, not a threshold on the
+  trace.** Koriat & Goldsmith 1996 (*Psych Rev* 103:490 —
+  verified): the monitor-and-control model — metacognitive
+  confidence drives a volunteer/withhold decision whose
+  criterion is a stable control policy; granting report
+  option raises accuracy at the cost of quantity, modulated
+  by incentive and monitoring effectiveness. Goldsmith,
+  Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73 — verified)
+  add the second control dial: grain — rememberers coarsen
+  answers ("last spring") to buy accuracy, trading
+  informativeness. Both are person-level dispositions —
+  exactly the trait-shaped hole §5.61's context-level report
+  option left.
+- **What narration is made of.** Levine, Svoboda, Hay,
+  Winocur & Moscovitch 2002 (*Psychol Aging* 17:677 —
+  verified): the Autobiographical Interview's internal
+  (episodic) vs external (semantic/off-event) detail split;
+  older adults shift external — already the §5.78c age curve
+  — but the spread at fixed age is a style (Addis, Wong &
+  Schacter 2008, *Neuropsychologia* 46:1363): habitual
+  sensory-happening talkers vs habitual commentators.
+- **The audience grades the pause.** Brennan & Williams 1995
+  (*J Mem Lang* 34:383 — verified): listeners estimate a
+  speaker's knowing from latency and filled pauses, with an
+  asymmetry worth a mechanism — latency before an ANSWER
+  lowers the feeling-of-another's-knowing, latency before a
+  NONANSWER raises it (a slow "I don't remember" reads as
+  knowledgeable, a fast one as blank). Smith & Clark 1993
+  (*Cognition* 48:151): uh<um as calibrated delay signals.
+  Top-down beliefs about the speaker's expertise modulate
+  the read (FOAK prior leg — direction CONSENSUS, magnitude
+  SINGLE-study DEBATED).
+- **The telling eats the event.** Marsh 2007 (*Am J Psychol*
+  120:533 — verified): retelling is not remembering —
+  tellings reorganize toward story shape and later recall
+  retrieves the telling; Bartlett's effort-after-meaning
+  supplies the selection bias. Tannen 1989's evaluation
+  coda ("and that's when I knew") is told-on-report, minted
+  nowhere in the record.
+- **Model consequence (spec v5.30 §§5.79–5.83):** five
+  report-layer traits — `voice_quote`, `report_policy`,
+  `grain_pref`, `ie_talk`, `voice_story` — plus the FOAK
+  update leg (`estKnow` on PersonModel). All SELECTION or
+  SURFACE: six locked nulls (P871–P877) keep the voice from
+  ever minting content, sharpening grain, or touching
+  stored strength. The persona-level outcome the project
+  wants — "she's always quoting him, and half of it he
+  never said" — is now a first-class profile phenotype.

@@ -1104,6 +1104,15 @@ needs both.
 | adversity_bond_k / adversity_reinstate | 0.1 / 0.0 | 0.4 / 0.25 | shared-adversity bond increment + recall-triggered edge reinstate (v5.28) |
 | we_spill_k | 0.1 | 0.5 | plural-record partner-cue fraction (v5.28) |
 | own_trespass / own_trespass_present / own_yield | 0.05 / 0.1 / 0.0 | 0.5 / 0.6 / 0.3 | story-ownership breach costs + deference bonus (v5.28) |
+| voice_quote | 0.0 | 1.0 | trait — constructed-dialogue propensity on episodic reports (v5.30) |
+| report_policy | 0.0 | 1.0 | trait — volunteer-withhold criterion; high = "I don't remember" unless sure (v5.30) |
+| grain_pref | 0.0 | 1.0 | trait — default answer coarseness; confidence still gates the moment (v5.30) |
+| ie_talk | 0.6 | 1.4 | trait — internal-detail share multiplier on §5.78c age curve (v5.30) |
+| voice_story | 0.0 | 1.0 | trait — story-shape ordering/suppression/coda on retell emission (v5.30) |
+| quote_norm / pass_base / pass_range | 0.2 / 0.2 / 0.3 | 0.5 / 0.5 / 0.6 | pop constants — quote rate norm + pass-threshold base/range (v5.30) |
+| grain_base / grain_conf_k | 0.15 / 0.3 | 0.5 / 0.7 | pop constants — coarse-prior + confidence gate on grain (v5.30) |
+| foak_gain / foak_expert_prior / pause_sat_ms | 0.05 / 0.2 / 3000 | 0.3 / 0.8 / 8000 | pop constants — FOAK update gain, expertise buffer, latency saturation (v5.30) |
+| story_order_k / story_suppress_k / coda_k | 0.2 / 0.15 / 0.3 | 0.6 / 0.5 / 0.7 | pop constants — reorder/suppress/coda scales on voice_story (v5.30) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4020,3 +4029,91 @@ it changes for bibles:
 - World-builder guidance unchanged: trait vectors →
   `deriveParams` → clamps; the corpus doesn't touch
   generation, it audits its outputs.
+
+## 64. v5.30 note (character-profiles VII — the remembering voice)
+
+Nine clamp rows added in §0. This pass moves five new traits onto
+the **report layer** — nothing here touches encoding, decay, or
+record content; these pins decide what a character's memory *sounds
+like* from the audience's chair. Spec §§5.79–5.83.
+
+- **`voice_quote` — the quoter pin.** Pin from how the bible
+  narrates: does the character dramatize ("and he goes,
+  'you're joking'") or paraphrase ("he didn't believe it")?
+  The trap to avoid: voice_quote is NOT accuracy. Tannen 1986 —
+  conversational direct quotes are constructed dialogue; the
+  stored wording is dead within days (Sachs 1967), so every
+  long-ago quote is invention wearing quotation marks, flagged
+  `constructed:true`. A high-quoter is *vivid*, not *reliable*
+  — P871's `quote_fidelity_null` hard-fails any generator that
+  lets quote fluency track real wording. The dissonance is the
+  feature: the most quotable character can be the least
+  faithful one (Dani 0.9), and an audience that learns
+  "she's always quoting" has learned style, not truth.
+- **`report_policy` — who passes.** Koriat & Goldsmith 1996:
+  volunteering vs withholding is a metacognitive control
+  decision — high policy means the character says "I don't
+  remember" or "ask Jules" unless `conf_out ≥ pass_thr`.
+  Crucially a `passed:true` emission is NOT a failed
+  retrieval — the record can be intact; the criterion did
+  the withholding. Pair with phenomenology: Priya (0.85)
+  passes like a nurse charting; Dani (0.15) has never said
+  "I don't know" in her life. Forced contexts (an authority
+  demanding an answer) bypass via §5.61 — under pressure
+  everyone emits, hedged.
+- **`grain_pref` — the coarse-vs-precise habit.** Goldsmith,
+  Koriat & Weinberg-Eliezer 2002: grain is the second control
+  dial — unsure rememberers go coarse ("sometime last
+  spring") rather than wrong. The trait sets the prior,
+  `conf_out` gates the moment. The failure phenotype is
+  `low report_policy + low grain_pref-inverted` — always
+  answers, always precise, often wrong ("March 14th, 2pm"
+  — invented): that's the `bluff` voice, and it is a voice
+  a writer should assign deliberately (one main, max).
+  `grain_sharpen_null` keeps coarse reports honest
+  downstream — a "last spring" can never quietly become a
+  listener's "March 14th."
+- **`ie_talk` — sensory-happening talker vs commentator.**
+  Levine et al. 2002's internal:external detail mix is an
+  age curve AND a style: `ie_talk` multiplies the §5.78c
+  prior. >1 = happenings-locations-thoughts talker (the
+  story feels *in* the event); <1 = commentator (the story
+  is framed by what-it-meant). Carmen sits under 1 not from
+  decline alone but because a lifetime of stoop-telling
+  made commentary her register — the age curve and the
+  trait stack. `ext_floor_null` caps the fantasy: the mix
+  reweights an inventory, it cannot mint one.
+- **`voice_story` — the good-story deformation.** Marsh
+  2007 + Bartlett: retellings get sorted toward narrative
+  order, schema-discordant fields get left out, evaluation
+  codas get attached ("and that's when I knew"). All three
+  are SELECTION — `story_mint_null` (P876) — but because
+  retell-encode writes the emission back (§4.13), a
+  high-story teller's archive slowly converges toward its
+  own tellings. Marsh's "the telling becomes the memory"
+  emerges from the loop; no special drift path exists.
+- **Never pin (mechanism constants):** `quote_norm`,
+  `pass_base`, `pass_range`, `grain_base`, `grain_conf_k`,
+  `foak_gain`, `foak_expert_prior`, `pause_sat_ms`,
+  `story_order_k`, `story_suppress_k`, `coda_k` —
+  population scales all.
+- **FOAK is a listener mechanism, not a trait.** §5.82
+  wires speaker latency/fillers into the audience's
+  `estKnow` ledger with the Brennan & Williams 1995
+  asymmetry — a long pause before an ANSWER lowers the
+  audience's estimate; a long pause before a NONANSWER
+  raises it (a character who takes five seconds to say
+  "I don't remember" is judged to know more than one who
+  answers instantly). Writers get the behavioral readout
+  for free: slow, filler-rich answers now change what the
+  room believes about the speaker's memory.
+- **Emergent cast shadows:** (a) Dani quotes people who
+  never said the thing — charming, deniable, checkable;
+  (b) Priya's passes build estKnow — the room trusts her
+  memory MORE because she refuses to guess; (c) Victor
+  answers or omits, never hedges — industrial report
+  policy; (d) Carmen's stories arrive pre-shaped — order,
+  coda, and a quote or two, all reconstructed; (e) Marcus
+  gives coarse answers cheerfully and is right often
+  enough that nobody notices the grain. Sources §60 of
+  human-memory-research.md; probes P871–P878.
