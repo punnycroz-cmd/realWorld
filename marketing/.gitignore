@@ -1,4 +1,2 @@
-dist/
-deploy/*.local
-deploy/.env*
-trailer/out/*.wav
+# generated weekly metric dumps (tools/metrics_weekly.sh)
+analytics/weekly-*.md

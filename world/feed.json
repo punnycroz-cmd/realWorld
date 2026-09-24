@@ -44,6 +44,46 @@
       "declared_costs": "request rows carry 'N cr · M min' and the detail panel adds 'declared — N cr · M min (paid upfront, hard cap — shown at filing)' from attrs.credits/minutes; the price was public at filing and the wire repeats it",
       "wx_follows_feed": "the header weather line is set by the newest `weather` event (icon guessed from the event's own words — fog/rain/sun/wind/cloud); no fabricated temperature. Applies in demo and live modes alike",
       "keyboard": "adds `d` — toggle the day-so-far card"
+    },
+    "spectator_ui_v61": {
+      "doc": "world v61 — the Director's rail on wire.html (v5). A free preview of the paid view-layer Director pass; still strictly view-layer — no preset, cam, or scrub touches the world, and the page carries no purchase affordance (the pass is filed at the Counter like any request).",
+      "director_bar": "collapsible bar between the day card and the stream (#dirbar; Preview button, `v` key, `#dir=1`); persisted per-viewer under rw_wire_cam; hidden in zen",
+      "cam_presets": "named presets (park lawn / café row / the strip / clarion alley / the night shift) map to venue sets — matching rows get a gold edge (.camhl); a camera MARKS the wire, never filters it",
+      "follow_cam": "selector over mains + ambients + hired residents — rows whose who/mentions hit the follow-cam get the gold edge; labeled 'public whereabouts only'; a follow-cam is a pin on visibility the camera already has, never new coverage",
+      "replay_scrub": "range slider spanning today's wire window [earliest event .. now]; scrubbing shows 'the wire at HH:MM' — the newest events at-or-before that minute, verbatim. It replays the feed's own record; the copy says 'the feed, replayed — the world itself kept running.'",
+      "live_receipt": "request detail gains a 'live record' line from BRIDGE.gsExplainRequest(req) when the bus offers it — status/claim/declared cost/trail count, rendered defensively",
+      "live_occupancy": "venue cards read BRIDGE.gsOccupancy() or gsViewerState().occupancy when offered ({mains,labels,count} per venue); absent, the public-routine picture stands",
+      "pass_pointer": "the Director pass (10 cr/30 min, plan §2.3 PROPOSAL) is pointed at, never sold — 'filed at the Counter like any request' links to request.html",
+      "keyboard": "adds `v` — toggle the director bar; esc closes it before clearing selection"
+    },
+    "spectator_ui_v75": {
+      "doc": "world v75 — the schedule + the person layer on wire.html (v6). Still strictly view-layer: a booked window is read, never filed here; a mute is the viewer's own display, never the record; a character card counts the wire, never the person.",
+      "book_strip": "collapsible 'on the book' bar (#bookbar, `b` key, persisted rw_wire_book) between the live strip and the missed bar — upcoming booked windows (HH:MM · claim · what · holder handle) from an inline BOOKW mirror of bookings.json windows plus, live, gsViewerState().calendar merged deduped by claim+start (start_min or HH:MM accepted). Only windows still ahead of the block clock render — a fired window is already a wire event. Footer links the Book; no prices, no slot-claim affordance — the wire reads the calendar, it never writes it",
+      "char_day": "'their wire today' card (#cday, right rail) — click a cast-strip name or the button on a character's event record; lists every event whose who/attrs.mentions touched them today (newest 8 + an honest remainder count), with the same pin affordance and the standing honesty line 'public whereabouts only — homes are walls; off-the-feed stretches stay off'. Counted from the wire — no invented activity",
+      "thread_mute": "request detail gains 'mute this thread' — that req's lines drop out of the stream and the live-now strip on this viewer's screen only (rw_wire_mute, reversible from the muted list in the Following panel); copy states the wire's record is unchanged and The Archive keeps everything. Muted rows still count in the day card — the recap counts the wire, not your view of it",
+      "search_count": "the search box gains a live 'N matching' counter (#qcount) over the whole feed (text + who + resolved names + venue names) — an honest count, never a ranking",
+      "keyboard": "adds `b` — collapse/expand the on-the-book strip"
+    },
+    "spectator_ui_v89": {
+      "doc": "world v89 — the real wire seam on wire.html (v7). The page now reads the bus's own wire shape (41_game_systems_feed / gsWireTail) instead of a guessed v6 contract; every read is capability-detected and the demo pipeline stands when the bus is absent.",
+      "live_shape": "entries carry {id, n (monotonic feed order — used as seq), t (PT minute-of-day), day (PT date → multi-day separators), kind, text, venue, who, req, status, reason_code, attempt (denied asks show the class only), mentions (top-level — folded into attrs.mentions for the renderers), attrs:{credits, compensated_cr, surge, discount}}",
+      "incremental_sync": "after the join tail, polls prefer BRIDGE.gsWireSince(maxN) — a 50-line tail can't drop events on a busy day; 'load older' calls BRIDGE.gsWirePage({before:oldestN, limit}) and ends at an honest 'top of the record' line",
+      "live_clock": "the block clock follows real PT wall time (America/Los_Angeles) live — daypart label, book-strip 'still ahead' filter, and admin-recency are true",
+      "permit_board": "right-rail panel reads vs.board / gsResourceBoard() — per-claim public state (free/cool/locked/queued + honest times + booked[] markers); read-only, claims are filed at the Counter never here",
+      "co_sessions": "vs.sessions / gsCoSessions() pairs ride the reaching-in-now strip as 'a + b · one scene' cards — the same overlaps the bus logs 'session' feed events for",
+      "wx_sponsors": "vs.weather {wx, untilMin, sponsors} sets the header line 'player-called sky — <wx> until HH:MM · N sponsors'",
+      "wire_stats": "gsWireStats() real shape {total, suppressed, displayFilter, byKind...}: suppressed count renders in the day card as 'withheld — privacy screens, not downtime'; the viewer counter only displays if the bus reports one (no invented audience)",
+      "explain": "gsExplainRequest real shape {note, queuePos, blockedBy[], behind[], on[] claim labels, code} renders as 'the bus says — <note>' + waiting-on/blocked-by lines",
+      "booked_status": "'booked' (a scheduled-window status on bus-forwarded entries, v88 seam) gets a chip style and counts as open on the live strip; the 10 canonical request_status values are unchanged",
+      "follow_sync": "pins write through to BRIDGE.gsWireFollow with bus keys (v:<venue> / m:<char>) — the ONLY write a spectator surface ever makes, and it's the viewer's own pin"
+    },
+    "spectator_ui_v103": {
+      "doc": "world v103 — the record layer on wire.html (v8). The last bus endpoints get honest surfaces; still strictly view-layer.",
+      "pin_readback": "BRIDGE.gsWireFollows() hydrates the Following panel: bus keys v:<venue>/m:<char> map to page v:/c:; each poll adopts bus-side pins set elsewhere; first sync pushes page pins the bus lacks once; unpins never resurrect",
+      "archive_depth": "BRIDGE.gsWireDays() drives the footer link — 'N days on record → The Archive' when the record spans >1 day; honest count, no guessed history",
+      "vocab_coverage": "BRIDGE.gsWireVocabulary() (kinds/statuses/reasonCodes) caches as LIVE_VOCAB; the day card reports 'M of S statuses seen today' — coverage counted from the wire itself",
+      "self_check": "BRIDGE.gsWireAudit() runs on day-card open (not per-poll): 'the bus's self-check — N lines · self-check ok' or the honest issue count; issues are counted, never quoted",
+      "keyboard": "unchanged — d still toggles the day card and now also refreshes the self-check live"
     }
   },
   "event_kinds": [

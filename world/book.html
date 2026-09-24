@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Book</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  The Book — the public booking calendar for exclusive requests (world v74).
+  Every bookable claim gets a 24-h strip: free / locked / cooldown / booked.
+  Filed from request.html's "When" picker; windows carry the holder's handle —
+  attribution is the payoff and the anti-grief surface.
+  Self-contained demo: file://-safe, no network. BOOK below is the inline
+  mirror of bookings.json (hand-synced; the audit gate deep-compares).
+  Seeded windows whose start already passed today roll to tomorrow — the
+  strip always shows the next 24 h.
+  Spec + copy deck: world/bookings.md. Prices: never on this page — a time
+  slot is not an upgrade.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --red:#d4695e; --blu:#6ea8d4; --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:14px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:12px 20px;border-bottom:1px solid var(--line);background:#1c2129}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:15px}
+  .logo span{color:var(--acc)}
+  .srcb{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;text-transform:uppercase;
+    border:1px solid var(--line);border-radius:10px;padding:2px 9px;color:var(--dim)}
+  main{max-width:1060px;margin:0 auto;padding:18px 20px}
+  h2{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);margin:0 0 12px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:16px 18px;margin-bottom:14px}
+  .note{font-size:11.5px;color:var(--dim);font-style:italic}
+  .res{display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:center;
+    padding:10px 0;border-bottom:1px solid var(--line)}
+  .res:last-child{border-bottom:0}
+  .rn{font-weight:600;font-size:13px}
+  .rn .ck{font-family:var(--mono);font-size:10.5px;color:var(--dim);display:block}
+  .strip{position:relative;height:38px;background:var(--panel2);border:1px solid var(--line);
+    border-radius:6px;overflow:hidden;cursor:default}
+  .seg{position:absolute;top:0;bottom:0;border-right:1px solid rgba(0,0,0,.25)}
+  .seg.locked{background:#5a2f2b}
+  .seg.cool{background:#4a3d20}
+  .seg.booked{background:#22384f}
+  .seg.booked:hover{outline:1px solid var(--blu);z-index:2}
+  .now{position:absolute;top:0;bottom:0;width:2px;background:var(--acc);z-index:3}
+  .ticklbl{position:absolute;top:0;font-family:var(--mono);font-size:9px;color:var(--dim);
+    padding:1px 3px;z-index:2;pointer-events:none}
+  .legend{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--dim);margin-top:8px}
+  .legend i{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-2px;margin-right:5px}
+  .detail{margin-top:10px;background:var(--panel2);border:1px solid var(--blu);border-radius:6px;
+    padding:10px 14px;font-size:12.5px;display:none}
+  .detail .who{color:var(--blu)}
+  .rules li{font-size:12.5px;padding:3px 0;color:var(--ink)}
+  .rules li span{color:var(--dim)}
+  .fineprint{max-width:1060px;margin:0 auto;padding:6px 20px 26px;color:var(--dim);font-size:11.5px}
+  .fineprint b{color:var(--ink)}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">Real <span>World</span> — The Book</div>
+  <span class="srcb">mirror — local calendar · file://-safe</span>
+</header>
+
+<main>
+  <div class="panel">
+    <h2>The next 24 hours — shared resources</h2>
+    <div class="note" style="margin-bottom:10px">
+      The book is public — everyone can see what's claimed before they spend.
+      A time slot is not an upgrade: same flat price as filing for the soonest
+      window. Click a blue span to see whose it is.
+    </div>
+    <div id="strips"></div>
+    <div class="legend">
+      <span><i style="background:transparent;border:1px solid var(--line)"></i>free</span>
+      <span><i style="background:#22384f"></i>booked</span>
+      <span><i style="background:#5a2f2b"></i>locked (running now)</span>
+      <span><i style="background:#4a3d20"></i>cooldown — never skippable</span>
+      <span><i style="background:var(--acc)"></i>now</span>
+    </div>
+    <div class="detail" id="detail"></div>
+  </div>
+
+  <div class="panel">
+    <h2>How the book works</h2>
+    <ul class="rules" id="rules"></ul>
+    <div class="note">File from the Requests page — the When picker only offers
+      slots that can legally fire. Queues still exist for "whenever it frees";
+      the book is for "I want Tuesday at dusk."</div>
+  </div>
+</main>
+
+<div class="fineprint">
+  <b>Fairness, in plain sight:</b> first-come-first-served, never auctioned.
+  Bookings never skip cooldowns. Cancel until the window starts for a full
+  refund — after the start it's a live exclusive. Surge, when it applies,
+  keys off the window's hour and is shown before payment.
+</div>
+
+<script>
+/* inline mirror of bookings.json — strip "doc" before diffing */
+const BOOK = {
+  "schema": "book-v1",
+  "version": 74,
+  "rules": {
+    "horizon_h": 24,
+    "slot_min": 30,
+    "bookable": ["weather", "event"],
+    "window_min": { "event": 60, "weather": "the block you bought is the window (60/120/240)" },
+    "review": "human review at filing — exclusives always get eyes; a booked request is already approved when its window arrives",
+    "price": "same flat block price — a time slot is not an upgrade; surge keys off the window's local hour and is shown before payment",
+    "cancel": "full refund until the window starts — after that it is a live exclusive",
+    "conflict": "a booked window claims the resource for that span; an overlapping ask queues for the next free window — FCFS, never auctioned",
+    "cooldown": "bookings never skip cooldowns — the picker never offers a slot that opens inside a cooldown tail",
+    "one_per": "one event per place per 24 h — unchanged",
+    "horizon_note": "the book shows the next 24 h only — farther out is a queue's job, and queued slots already hold ≤24 h"
+  },
+  "resources": [
+    { "claim": "sky",            "name": "Sky (weather)",                          "bookable": ["weather"] },
+    { "claim": "openair",        "name": "Open air (Dolores Park, alleys, blocks)","bookable": ["event"] },
+    { "claim": "venue:mudhaus",  "name": "Mudhaus Coffee",                         "bookable": ["event"] },
+    { "claim": "venue:club600",  "name": "The 600 Club",                           "bookable": ["event"] }
+  ],
+  "windows": [
+    { "claim": "sky",           "start": "07:30", "min": 60,  "who": "marina_w", "what": "fog burn-off for the morning crowd", "state": "booked" },
+    { "claim": "openair",       "start": "09:00", "min": 90,  "who": "leaf",     "what": "park cleanup — Dolores, Saturday",   "state": "booked" },
+    { "claim": "venue:club600", "start": "22:30", "min": 60,  "who": "dvh",      "what": "birthday window — the back corner",   "state": "booked" },
+    { "claim": "venue:mudhaus", "start": "16:00", "min": 60,  "who": "okfm",     "what": "poetry hour — corner tables",          "state": "booked" }
+  ],
+  "feed_shapes": {
+    "doc": "the book adds no new status — it reuses the live feed vocabulary (requests.json feed_vocabulary)",
+    "statuses": ["approved", "running", "resolved", "refunded"],
+    "lines": [
+      "<action> approved · booked for HH:MM",
+      "booked window arrived — <action> fired",
+      "<action> ended",
+      "booked request cancelled before the window — refunded"
+    ],
+    "never": [
+      "a new status chip — booking is a schedule, not a state",
+      "a price on a slot — a time slot is not an upgrade",
+      "a queue position or an auction"
+    ]
+  },
+  "live_seam": {
+    "doc": "merge seam — same pattern as requests.json live_seam",
+    "reads": {
+      "gsViewerState().calendar": "optional — [{claim, start_min, min, who, what}] booked windows render on the strip beside demo seeds, deduped by claim+start"
+    },
+    "write": "gsRequestSubmit gains start_slot (minutes-from-now) when the filer picked a window — the bus books it like any exclusive; absent the field, behavior is today",
+    "fallback": "seeded windows stand in for bookings the bus doesn't name; the strip never lies about what it can't see"
+  },
+  "demo": {
+    "tick_min": 30,
+    "note": "book.html renders the next 24 h live; a seeded window whose start already passed today rolls to tomorrow. In request.html a filed booking counts down at 30 min/tick so the fire path is reachable."
+  }
+};
+
+/* demo current-state stand-ins — same shape as request.html CLAIMS so the
+   strip can show a running lock + a cooldown tail without the bus */
+var CLAIMSTATE = {
+  'sky':           {state:'locked', left:42,  by:'marina_w'},
+  'venue:club600': {state:'locked', left:34,  by:'marina_w'},
+  'openair':       {state:'free'},
+  'venue:mudhaus': {state:'free'}
+};
+
+var H = BOOK.rules.horizon_h * 60;
+var now = new Date();
+var nowMin = now.getHours()*60 + now.getMinutes();
+
+function hhmm(absMin){
+  var m = ((absMin % 1440) + 1440) % 1440;
+  return ('0'+Math.floor(m/60)).slice(-2)+':'+('0'+(m%60)).slice(-2);
+}
+/* a seeded window's absolute start in the next-24h frame */
+function winAbs(w){
+  var p = w.start.split(':'); var s = (+p[0])*60 + (+p[1]);
+  return s < nowMin ? s + 1440 : s;
+}
+function fmtMin(m){ return m>=60 ? Math.floor(m/60)+' h '+(m%60?m%60+' min':'') : m+' min'; }
+
+function render(){
+  var box = document.getElementById('strips'); box.innerHTML='';
+  BOOK.resources.forEach(function(r){
+    var row = document.createElement('div'); row.className='res';
+    row.innerHTML = '<div class="rn">'+r.name+'<span class="ck">'+r.claim+'</span></div>';
+    var strip = document.createElement('div'); strip.className='strip';
+    /* booked windows */
+    BOOK.windows.forEach(function(w){
+      if (w.claim !== r.claim) return;
+      var s = winAbs(w), off = s - nowMin;
+      if (off >= H || off + w.min <= 0) return;
+      var seg = document.createElement('div'); seg.className='seg booked';
+      seg.style.left = (Math.max(0,off)/H*100)+'%';
+      seg.style.width = (w.min/H*100)+'%';
+      seg.title = w.what;
+      seg.onclick = function(){
+        var d = document.getElementById('detail'); d.style.display='block';
+        d.innerHTML = '<span class="who">'+w.who+'</span> booked <b>'+r.name+'</b> · '+
+          hhmm(s)+' → '+hhmm(s+w.min)+' ('+fmtMin(w.min)+')<br>'+
+          '<span class="note" style="display:inline">'+w.what+' · state: '+w.state+
+          ' · cancel free until it starts</span>';
+      };
+      strip.appendChild(seg);
+    });
+    /* live lock / cooldown on the left edge */
+    var c = CLAIMSTATE[r.claim];
+    if (c && (c.state==='locked' || c.state==='cool')){
+      var seg = document.createElement('div'); seg.className='seg '+c.state;
+      seg.style.left='0'; seg.style.width = (Math.min(c.left,H)/H*100)+'%';
+      seg.title = c.state==='locked' ? 'running — '+c.by : 'cooldown';
+      strip.appendChild(seg);
+    }
+    /* hour ticks + now line */
+    for (var t=60; t<H; t+=120){
+      var lb = document.createElement('div'); lb.className='ticklbl';
+      lb.style.left = (t/H*100)+'%'; lb.textContent = hhmm(nowMin+t);
+      strip.appendChild(lb);
+    }
+    var nl = document.createElement('div'); nl.className='now';
+    strip.appendChild(nl);
+    row.appendChild(strip); box.appendChild(row);
+  });
+  var ul = document.getElementById('rules');
+  var lines = [
+    ['bookable','weather + event — the flat-rate exclusives. Sessions stay now-or-queued.'],
+    ['window','events book 60 min; weather books the block it bought. Slots align to the half hour.'],
+    ['review','human review at filing — a booked request is already approved when its window arrives.'],
+    ['cancel','full refund until the window starts.'],
+    ['conflict','overlapping asks queue for the next free window — FCFS, never auctioned.'],
+    ['cooldown','never skippable — slots inside a cooldown tail are never offered.']
+  ];
+  ul.innerHTML=''; ul.style.listStyle='none'; ul.style.padding='0'; ul.style.margin='0';
+  lines.forEach(function(l){
+    var li=document.createElement('li');
+    li.innerHTML='<b>'+l[0]+'</b> <span>— '+l[1]+'</span>';
+    ul.appendChild(li);
+  });
+}
+render();
+setInterval(function(){ now = new Date(); nowMin = now.getHours()*60+now.getMinutes(); render(); }, 30000);
+</script>
+</body>
+</html>

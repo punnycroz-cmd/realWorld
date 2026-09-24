@@ -4567,3 +4567,6824 @@ Registry: P1–P565. v54 suite: P555–P565 (7 MUST, 4 SHOULD).
 Registry: P1–P589. v56 suite: P578–P589 (8 MUST, 4 SHOULD —
 P582 carries a locked null on the demeanor channel; P585
 sign-locks the denial/fabrication split).
+
+## 101. Probes P590–P601 (v57 — formal-model VI, the content algebra,
+## the ensemble layer, and the canonical form; formal-model.md Part VI,
+## spec v5.5)
+
+All machinery probes — zero psychology under test. Every one is
+defined over the seed-ensemble distribution per §36 probe semantics.
+
+- **P590 rewrite auditability (MUST):** 10⁴ fuzzed op sequences;
+  every content delta on every record carries `lastRewrite` ∈ the
+  §13.1/§45.2 catalog with legal operand tiers. Orphan rewrite =
+  FAIL (`orphan_rewrite = 0`, locked).
+- **P591 verbatim conservation (MUST — boundary-locked):** the V-tier
+  field multiset is monotone non-increasing post-commit across all
+  fuzzed runs; hearsay/imagination copies land G-tier; any rule
+  emitting V = FAIL (`verbatim_mint = 0`, locked).
+- **P592 rumor coverage calibration (MUST — quantitative):** rumor
+  seeded in one venue on the world contact graph; terminal knower
+  fraction inside the mean-field band `0.797 ± mix_band` corrected by
+  `mix_correct`, ≥200 seeds, Wilson CI on the coverage estimate.
+  FAIL decomposes to the responsible p_tx factor via P598 before any
+  debugging begins.
+- **P593 Jensen discipline (MUST — meta):** registry verdicts cite
+  parameter-joint ensembles only; a probe verdict computed at E[θ]
+  is inadmissible. Harness-side check: verdict records carry the
+  ensemble descriptor; mean-param runs logged diagnostic-only
+  (`meanfield_drive = 0` for spread prediction as well).
+- **P594 canonical hash (MUST):** canonHash invariant under field
+  insertion-order and set-order permutations; NaN/−0 rejected at
+  canonSerialize; same-build runs bit-identical, cross-port deltas
+  within `fp_tol` and only under declared port-comparison mode.
+- **P595 lazy-decay equivalence (MUST):** materialize-on-read R vs
+  daily-stepped R within `fp_tol` on the golden corpus; every
+  lifecycle transition identical (no FSM decision flips).
+- **P596 approximation license (SHOULD):** each declared `op̃`
+  preserves I1–I12, keeps probe statistics within `approx_tol`, and
+  matches canonical RNG stream consumption (draw-count parity per
+  opTag). Undeclared approximation detected = FAIL.
+- **P597 correction half-life (SHOULD — sign-locked):** a trusted
+  correction halves the doubter fraction at `τ_corr` strictly greater
+  than the original rumor's `τ_rumor`; residual inference asymptotes
+  at ≥ `cie_residual`, never 0 — the correction is remembered and
+  the misinformation still leaks.
+- **P598 transmission decomposition (SHOULD):** simulated dyad data
+  recovers the four p_tx factors (retrieve/emit/encode/adopt) within
+  the §4 identifiability bounds; an unrecoverable factor flags a
+  param that isn't real.
+- **P599 stifler extinction (SHOULD):** with `R_eff < 1` (records die
+  faster than transmission), coverage saturates and the rumor
+  extincts — never sustained spread on dead records.
+- **P600 grammar operand legality (MUST):** fuzz the catalog itself:
+  ρ_mrg never outputs V and only reads live sub-salience inputs;
+  ρ_sub never targets V; ρ_emb writes G only; T-tier steps bounded
+  per G4; beliefStatus transitions ∈ §28 FSM.
+- **P601 canon round-trip (SHOULD):** deserialize(canonSerialize(S))
+  ≡ S bit-identical including rngState; snapshot→migrate→snapshot
+  lossless on C/M tiers (E-tier exempt per I7).
+
+## 102. Sources verified this version (P590–P601 backing)
+
+- Daley & Kendall 1965 (*J Inst Maths Applics* 1:42 — verified via
+  citation record: stochastic rumours, the ign/spreader/stifler
+  partition; the 1964 Nature 204:171 note is the popular version);
+  Maki & Thompson 1973 (*Mathematical Models and Applications*,
+  Prentice-Hall — verified: the initiator-only removal variant our
+  retell-saturation channel maps to); Sudbury 1985 (*J Appl Prob*
+  22:443 — verified abstract: never-hear fraction converges in
+  probability to ≈0.203 as N→∞; DOI 10.2307/3213787); Pittel 1990
+  (*J Appl Prob* 27:14 — DK variant analysis).
+- Hirst & Echterhoff 2012 (*Annu Rev Psychol* 63:55 — verified:
+  conversational remembering reshapes speaker memory; SS-RIF,
+  audience tuning, social contagion, propagation across networks;
+  DOI 10.1146/annurev-psych-120710-100340); Higgins & Rholes 1978
+  (*JESP* 14:363 — verified: saying-is-believing, audience-tuned
+  message becomes remembered content; DOI
+  10.1016/0022-1031(78)90032-X); Echterhoff, Higgins & Groll 2005
+  (*JPSP* 89:257 — shared-reality mediation of the tuning bias);
+  Coman, Manier & Hirst network-propagation line (PMID 21910558 —
+  RIF/practice effects propagate transitively through conversations).
+- Bartlett 1932 (*Remembering* — reconstructive canon behind G1);
+  Loftus post-event line (verbatim non-renewability); Koriat &
+  Goldsmith 1996 (*Psych Rev* 103:490 — output is controlled
+  reconstruction, the metamemory basis for treating emitted content
+  as rewrite output, not readout).
+- Goldberg 1991 (*ACM Comput Surv* 23:5 — FP canon); Monniaux 2008
+  (*ACM TOPLAS* 30:12 — verified: treating FP as reals is unsound;
+  ordered-reduction requirement); Burger & Dybvig 1996 (shortest
+  round-trip printing); Lamport 1978 (reused — total-order
+  construction from §36).
+
+Registry: P1–P601. v57 suite: P590–P601 (7 MUST, 5 SHOULD —
+three locked nulls: verbatim_mint, orphan_rewrite, meanfield_drive).
+
+## 103. Probes P602–P614 (v58 — character-profiles V, the self layer)
+
+- **P602 consistency gate (MUST — sign-locked):** two characters,
+  identical negative-central feedback records, differing only in
+  `self_est` (0.3 vs 0.8). Low-self_est character: negative-consistent
+  feedback recalls ≥ positive-central control (mnem_neg released by
+  `selfverif_w·selfCongruent`); high-self_est character: classic MNE
+  (negative-inconsistent < all controls). Recognition on the same
+  records shows NO effect in either profile — the recall-only boundary
+  is re-locked (Green, Sedikides & Gregg 2007).
+- **P603 spillover divisor (MUST):** identical domain-failure event
+  stream into characters at self_complex ∈ {2, 4, 8}; measured
+  cross-domain mood bleed scales ~1/max(2,self_complex) within
+  tolerance; self_comp 0.9 vs 0.1 separates NEGATIVE cross-aspect
+  spread while positive spread is unchanged (Showers asymmetry).
+- **P604 uplift moderation (SHOULD — DEBATED-flagged):** per
+  Rafaeli-Mor & Steinberg 2003, self_complex's moderation of affect
+  response is at least as strong for UPLIFTING events as for adverse
+  ones; a build where the buffer works only on negatives fails the
+  hypothesis-check (the original Linville buffering claim is not
+  required to pass).
+- **P605 repressor phenotype (MUST):** characters at repress ≈ 0.8 vs
+  ≈ 0.0: fewer negative childhood recalls, earliest negative memory
+  older by ≥ `repr_neg_shift·0.6`, negative-retrieval latency up,
+  positive channels unchanged; recognition probes on the suppressed
+  records identical (Davis 1990); `repr_erase_null` — record store
+  count and content bit-identical to a zero-repress control (doors
+  shut, archive whole).
+- **P606 reminiscence diet (SHOULD):** 55+ characters run 180-day idle
+  cycles per remin_style; accessible-pool valence skews negative for
+  obsessive, positive for escapist; integrative raises §4.23 persSem
+  mint count; transmissive biases emissions to younger listeners.
+  remin_w 0 produces ordinary retell ecology.
+- **P607 regret crossover (MUST — sign-locked):** matched action and
+  inaction regret records: action regret's accessibility exceeds
+  inaction early (window ≤ ~14 days), inaction exceeds action late
+  (window ≥ ~180 days) — the Gilovich & Medvec temporal pattern, not
+  either half alone.
+- **P608 opportunity gate (SHOULD):** an inaction regret with
+  `oppOpen:true` reopens at cue strength on a matching-choice event;
+  flipping `oppOpen:false` accelerates decay ×1.5 at
+  regret_opp_gate=1 and does nothing at 0 (rumination lock).
+- **P609 positive valves (MUST):** savor_k 0.8 vs dampen_k 0.8 on
+  identical positive-event streams: savorer's positive records encode
+  stronger, rehearse more, and fade slower; dampener's thin but are
+  PRESENT (encoded, not absent) — and accuracy metrics identical in
+  both arms.
+- **P610 debtor-future-self (SHOULD):** long-horizon Intentions
+  (>90d) minted at future_cont 0.2 vs 0.8: the low-continuity
+  character's intentions behave as §6.90 debtor-class (cue-bound,
+  breach-surprise phenotype); high-continuity rides pm_self.
+- **P611 elaborator's dyad (SHOULD):** shared episodes co-encoded
+  with elabor 0.9 vs 0.1 partner: BOTH parties' records gain detail-
+  field density ∝ elabor_dyad_gain, while raw-item count still shows
+  §6.69 collaborative inhibition — deeper, not longer lists.
+- **P612 locked nulls (MUST):** se_accuracy_null — varying self_est
+  0.15→0.95 changes selection/valence/perspective metrics but moves
+  zero accuracy measure; sc_capacity_null — self_complex changes no
+  store capacity or fidelity; repr_erase_null — see P605.
+- **P613 epoch boundary (SHOULD):** a bible-declared identity-change
+  event marks `selfEpoch`; pre-boundary records acquire
+  `selfDiscrepant` per §5.39 → observer-perspective emission rate
+  rises on old-self records only; post-boundary records unaffected.
+- **P614 self_est ≠ metamemory (MUST — null-lock):** the generator
+  must NOT correlate `self_est` with `SelfModel.self_est.global`
+  beyond the MVN residual — pin self_est ±2σ and verify the
+  metamemory estimate stays in its own distribution; the two "self
+  estimates" are different channels and conflating them is a
+  compile-time FAIL.
+
+## 104. Sources verified this version (P602–P614 backing)
+
+- Sedikides & Green 2000 (*JPSP* 79:906 — verified via 2016 review
+  record): mnemic neglect as incongruence-negativity management;
+  Green, Pinter & Sedikides 2004 (*EJSP* 35:225); Green, Sedikides &
+  Gregg 2007 (*JESP* 44:547 — verified abstract: recall impaired,
+  recognition unimpaired, ego-deflation boundary); Sedikides, Green
+  & Pinter 2016 mnemic-neglect review (*EJoSP* — verified: repressors
+  show ENHANCED mnemic neglect; anxiety/dysphoria moderators).
+- Linville 1985 (*Soc Cogn* 3:94 — verified) & 1987 (*JPSP* 52:663 —
+  verified); Rafaeli-Mor & Steinberg 2003 (*PSPR* 6:60 — verified
+  abstract: weak buffering, moderation of uplifts); Showers 1992
+  (*JPSP* 62 — compartmentalization).
+- Weinberger, Schwartz & Davidson 1979; Davis & Schwartz 1987
+  (*JPSP* 52:155 — verified abstract: fewer negative memories, older
+  earliest negative); Davis 1995 (*J Abnorm Psychol* 103:288 —
+  verified abstract: slower negative retrieval, free + cued recall);
+  Davis 1990 (*Aust J Psychol* — recognition β unchanged, verified).
+- Watt & Wong 1991 (*J Gerontol Soc Work* 16:37 + *Psych & Aging*
+  6:272 — both verified abstracts: six types; successful-ager
+  integrative/instrumental advantage).
+- Gilovich & Medvec 1994 (*JPSP* 67:357) + 1995 (*Psych Rev* 102:379
+  — both verified): action/inaction temporal regret pattern; Wrosch
+  et al. regret-opportunity line (control theory).
+- Bryant & Veroff 2007 (*Savoring* — verified); Feldman, Joormann &
+  Johnson 2008 (*Cog Ther Res* — verified: RPA dampening scale,
+  depression prediction); Wood, Heimpel & Michela 2003 (*JPSP*
+  85:566 — verified: self-esteem gates savoring vs dampening);
+  Joormann & Siemer 2004 (*J Abnorm Psychol* 113:179 — verified:
+  happy-memory mood repair fails in dysphoria).
+- Ersner-Hershfield, Wimmer & Knutson 2009 (*SCAN* 4:85 — verified)
+  + Ersner-Hershfield, Garton, Ballard, Samanez-Larkin & Knutson
+  2009 (*JDM* 4:280 — verified: continuity index predicts saving);
+  Markus & Nurius 1986 (*Am Psych* 41:954 — verified).
+- Fivush & Fromhoff 1988; Reese, Haden & Fivush 1993 — elaborative
+  reminiscing style (developmental consensus; the adult-dyad
+  extension is flagged HYPOTHESIS in §6.107).
+
+Registry: P1–P614. v58 suite: P602–P614 (6 MUST, 5 SHOULD, 2 meta —
+P612/P614 carry the three locked nulls and the trait-confusion ban).
+
+## 105. Replication-graded anchoring (VA-REPL) — the anchor corpus
+## gets honest about the replication crisis (new in v59)
+
+§25.3's `replication tier` field was a start; this section hardens it.
+The corpus's SINGLE tier silently trusts exactly the literature class
+that failed most often under direct replication. The numbers are now
+in the registry:
+
+- **OSC 2015** (Open Science Collaboration, *Science* 349:aac4716 —
+  verified): 100 studies, 36% of replications significant, replication
+  effect sizes averaging **half** the originals (Mr 0.197 vs 0.403).
+  → rule: any SINGLE-tier anchor's band is centered on the *replication*
+  estimate when one exists, else on the original estimate shrunk toward
+  the null by `rep_shrink = 0.5` and widened — never on the famous
+  original number alone.
+- **Camerer et al. 2018** (*Nat Hum Behav* 2:637 — verified): 21
+  Nature/Science social-science experiments, 62% replicated, replication
+  ES ≈ 50% of original, estimated true-positive rate 67%. Same ~0.5
+  shrinkage from a different design class → `rep_shrink` = 0.5 is a
+  defensible corpus default, not a guess.
+- **RRR-failed effects are anchors with the sign flipped.** Hagger et
+  al. 2016 (*Persp Psych Sci* 11:546 — verified: 23 labs, N=2,141,
+  ego-depletion d = 0.04, CI [−0.07, 0.15]) means the model must NOT
+  ship a willpower-resource depletion mechanism that produces d ≥ 0.3
+  sequential-task depletion; if any trait/param reproduces the old
+  textbook effect size, that is a FAIL, not a feature. Same discipline
+  applies to Wagenmakers et al. 2016 facial-feedback RRR. **Negative
+  anchors**: phenomena the battery asserts do NOT appear.
+- **Grade names** (replacing/instantiating §25.3 tiers):
+  `META` = meta-analytic consensus (full weight); `RRR` = passed a
+  registered replication report (full weight); `MULTI` = ≥2 independent
+  replications (light discount); `SINGLE` = one famous study
+  (`rep_shrink` applied); `CONTESTED` = failed direct replication
+  (usable only as a negative anchor; bands around zero).
+- Bias-correction discipline: where the anchor is meta-analytic, prefer
+  the *adjusted* estimate when the meta reports one (trim-and-fill,
+  Duval & Tweedie 2000; PET-PEESE, Stanley & Doucouliagos 2014). An
+  uncorrected meta estimate inherits a partial `rep_shrink`.
+- Standing consequence for this corpus: misinfo adoption stays META
+  (Loftus line replicates), DRM stays META-adjacent, but any anchor
+  that only ever lived in one charismatic study (e.g., single-study
+  priming effects) is demoted from MUST to OBSERVE at best.
+
+## 106. The baseline ladder — what complexity must earn (VA-BASE)
+
+Roberts & Pashler 2000 (*Psych Rev* 107:358 — verified: a good fit
+shows nothing about what the theory *couldn't* fit) is the standing
+warning: the spec has ~400 params now; anchor coverage alone cannot
+justify them. The validator therefore maintains a **baseline ladder**
+— nested stripped models run through the same battery:
+
+| level | model | what it can't do |
+|---|---|---|
+| B0 | perfect store (no decay, no distortion) | forgetting, rumor drift |
+| B1 | single exponential decay, no traits/channels | age bands, diversity |
+| B2 | power-law decay + encoding E, no trait layer | per-character profiles |
+| B3 | full spec | — |
+
+- **Acceptance rule:** each rung must beat the rung below on anchor
+  corpus coverage by a *named margin*: B3's trait layer must deliver
+  the ICC-diversity anchors and the profile-distinctness checks that
+  B2 structurally cannot; B2's decay shape must beat B1 on the
+  savings-curve AIC anchor (Murre & Dros 2015 — power > exp).
+- **Per-param justification:** a param that enters the spec must name
+  ≥1 anchor or probe family it exists for (§24's constraint map,
+  dual direction). Params whose only evidence is "plausible" are
+  flagged `unearned` in the coverage matrix and are first candidates
+  for removal in a model-reduction pass. (This is the Pitt & Myung
+  2002 *Psych Bull* 128:362 lesson: model selection must weigh
+  functional-form flexibility, not parameter count alone — we
+  approximate it with the anchor-coverage margin, which is honest
+  about being an Occam heuristic, not a formal criterion.)
+- The ladder is also the deliverable for game-systems: if compute
+  forces a downgrade, B2 is the declared degraded mode and the spec's
+  degradation ladder names which observables it will miss.
+
+## 107. Equifinality audit (VA-EQUI) — sloppy params are expected,
+## not alarming
+
+Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — verified: sloppy
+spectra universal; collective fits constrain predictions while leaving
+individual params poorly constrained) + Beven's equifinality (2006,
+hydrology) apply directly: with ~400 params and a few dozen anchored
+statistics, **large flat directions in parameter space are guaranteed**.
+Consequences, made binding:
+
+- Validation targets the **identifiable manifold**, not the parameter
+  vector. The §24 sensitivity screen computes the local Hessian/
+  Fisher spectrum at each cast profile's operating point; eigenvalue
+  spectrum is logged per release. Stiff directions (λ large) must map
+  to anchors; sloppy directions (λ small, log-uniform tail) are
+  *expected* and are licensed diversity — two mains may sit far apart
+  in a sloppy direction and be observationally equivalent.
+- **Diversity-within-equivalence rule:** cast profiles that differ
+  only along sloppy eigendirections are legal (different people, same
+  observable behavior — true to life). Profiles that differ along a
+  *stiff* direction but produce identical observables are a harness
+  bug or a spec over-parameterization — triage (b).
+- **Never chase the "true" params.** SBC (§28) is re-scoped: recovery
+  is required only on stiff directions; demanding full-vector recovery
+  in a sloppy model would manufacture false confidence (the Gutenkunst
+  corollary: complete precision on all params would need impossibly
+  complete data).
+- Practical probe consequence: per-param perturbation probes report
+  which eigendirection they load on; a probe failing only because its
+  target param sits in a flat direction is reclassified OBSERVE —
+  the model is honest that the data can't see it.
+
+## 108. Timescale validity (VA-TSCALE) — validate ratios, not hours
+
+The lab literature's retention intervals are minutes-to-days inside
+task paradigms; the sim's native clock is days. A naive mapping
+("lab hour = sim day") breaks because some effects are scale-invariant
+and some are anchored to physiology:
+
+- **Scale-invariant effects** are validated on *ratios*: distributed-
+  practice optimal ISI grows with retention interval (Cepeda et al.
+  2006, *Psych Bull* 132:354 — verified: ISI and RI operate jointly;
+  the optimum scales roughly proportionally). Probe spacing effects
+  at ISI/RI ratios, not at absolute intervals — the model passes if
+  the ratio-dependence holds at sim scale.
+- **Physiology-anchored effects** keep absolute times: sleep
+  consolidation is tied to the nightly tick (Jenkins & Dallenbach
+  1924 replicates as "post-sleep retention advantage"), circadian
+  variance (§6.x) is hour-of-day absolute. These are validated
+  against the sim's day structure, not rescaled.
+- **Sub-tick effects are out of scope by declaration**: iconic/
+  sensory memory, primacy within a single utterance — characteristic
+  times below one tick. They may be emulated as instantaneous biases
+  (e.g., serial-position weighting inside a single scene encoding)
+  but never probed on timing.
+- The Murre & Dros 2015 replication is the calibration exemplar:
+  it re-derived Ebbinghaus' curve at 20min–31d and found the same
+  shape including the 24h savings bump — evidence that day-scale
+  sims can carry lab-scale anchors via shape comparison (AIC model
+  selection between exp/power/log on the model's own savings curve,
+  E1 already does this; VA-TSCALE adds that the comparison is
+  *shape*-based, not intercept-based).
+
+## 109. Change-impact scheduling (VA-IMPACT) — the battery's
+## per-version subsetting is derived, not habitual
+
+Every-version-full-battery is correct for MUST probes but wasteful for
+the rest; choosing subsets by taste invites drift-blindness. Borrow
+regression-test-selection discipline (Elbaum, Rothermel & Penix 2014,
+TSE — test-impact analysis):
+
+- The §47 coverage matrix doubles as the **impact graph**: spec rows
+  (params, fields, operators) → probes that read them. Each release
+  diffs the spec (canonHash of §7/§10 surface, v5.5 machinery) and
+  emits the impacted row set.
+- **Schedule rule:** MUST probes always run (OBF regime, §44).
+  SHOULD probes run iff they touch an impacted row OR were skipped
+  last release (alternating-look discipline prevents silent rot —
+  a SHOULD probe may never go 2 consecutive versions unrun).
+  OBSERVE probes are sampled at ≥1/3 per release, stratified by
+  home-doc family.
+- A SHOULD probe skipped while its row was impacted is logged as a
+  schedule violation — the registry diff is the audit trail.
+- Cost accounting: per-release sim budget is declared in the registry
+  manifest; the scheduler reports battery coverage fraction
+  (impacted-rows run / impacted-rows total) — must equal 1.0 for
+  MUST, ≥0.9 overall.
+
+## 110. The verdict ledger and probe versioning (VA-VLED)
+
+§3.4 goldens pin *behavior*; nothing yet pins the *verdicts*. The
+battery's own outputs become an append-only, hash-chained artifact:
+
+- Each probe verdict is a record:
+  `{probe_id, probe_version, canonHash(spec), seed_manifest_hash,
+    verdict, statistic, n_eff, icc_hat, reliability_class, date}`.
+  canonHash (spec §13.4) makes "same model, different verdict" and
+  "different model, same verdict" decidable — the two cases §44's
+  regression regime actually needs to separate.
+- **Probe versioning rule:** when spec semantics change under a probe,
+  the probe is versioned (`P142v3`), not edited. Old verdicts are
+  archived, never amended — amending history is the validator's
+  version of the memory model's own `orphan_rewrite=0` locked null
+  (every delta traces to a rule). This is applied pre-registration
+  (Wagenmakers et al. 2012; Nosek et al. 2018 *PNAS* 115:2600): the
+  hypothesis — including the *test's* semantics — is fixed before
+  the run.
+- A regression claim must cite the ledger row pair: same
+  probe_version, different canonHash. Comparing across probe versions
+  is exploratory-only.
+- The ledger is the §8 acceptance-gate input: gates read ledger rows,
+  never rerun raw outputs, so the audit trail and the decision trail
+  can't diverge.
+
+## 111. New probes P615–P628 (v59 suite — validation-design III)
+
+- **P615 anchor grading (MUST — process):** every human-anchor row in
+  the corpus carries `rep_grade ∈ {META,RRR,MULTI,SINGLE,CONTESTED}`
+  + numeric band; SINGLE rows show `rep_shrink` applied. Audit =
+  registry diff; a band centered on an unreplicated original ES is
+  a FAIL.
+- **P616 negative anchors (MUST):** the CONTESTED set is asserted
+  *absent*: ego-depletion arm (sequential self-control task across
+  members) must produce d in [−0.1, 0.15] (Hagger 2016 band);
+  facial-feedback-style embodiment claim must be null. A build that
+  "finds" these effects fails — over-powered folklore is a bug.
+- **P617 baseline ladder margin (MUST):** B0–B3 run the MUST battery:
+  B0 must fail all decay/distortion probes; B1 must fail profile-
+  distinctness (P304-family) and ICC-diversity (P354); B2 must fail
+  the trait-gated probes (P48, P602). B3 must pass strictly more
+  anchor families than B2 — else the trait layer earns nothing and
+  enters `unearned` review.
+- **P618 param earning audit (SHOULD — process):** every §7 param
+  cites ≥1 anchor/probe family in the coverage matrix; params without
+  a citation accumulate `unearned` flags; >10% of params unearned in
+  one release blocks a *new*-param merge until the flag count falls.
+- **P619 sloppy-spectrum report (SHOULD):** each release logs the
+  top-8 stiff eigendirections at each cast operating point + the
+  fraction of param-space variance they carry; every stiff direction
+  must load on ≥1 anchored observable (Gutenkunst expectation:
+  log-uniform tail is fine, stiff-and-unanchored is not).
+- **P620 equivalence-class diversity (SHOULD):** two cast profiles
+  differing only along declared-sloppy directions must remain
+  observationally equivalent (≥90% of their shared probes agree)
+  while keeping distinct trait vectors — diversity WITHIN the
+  equivalence class is legal and desired; probe to keep it honest.
+- **P621 SBC rescope (MUST — process):** parameter-recovery claims in
+  §28 are re-scoped to stiff directions only; a report claiming
+  full-vector recovery is a red flag for overfit, not a success.
+- **P622 ratio-invariance (MUST):** spacing-effect probes run at
+  ISI/RI ∈ {1/20, 1/5, 1} at two different absolute scales (days
+  vs weeks sim-time); the optimal-ratio ordering must hold at both
+  scales (Cepeda 2006 joint ISI×RI dependence) — absolute-time
+  optimization that only works at one scale fails.
+- **P623 sub-tick scope lock (SHOULD):** no probe may assert a
+  timing-dependent effect with characteristic time < 1 tick; registry
+  lint rejects such probe definitions at compile time; instantaneous-
+  bias emulations are allowed and labeled `subtick_emulated`.
+- **P624 impact-schedule conformance (MUST — process):** registry
+  diff emits impacted rows; scheduler manifest shows MUST=1.0
+  coverage, impacted SHOULD rows ≥0.9 run, no SHOULD probe skipped
+  2 consecutive releases while impacted. Violations = release-block.
+- **P625 verdict-ledger integrity (MUST):** every verdict row carries
+  probe_version + canonHash + seed_manifest_hash; a regression claim
+  citing rows with mismatched probe_version is rejected at triage;
+  ledger is append-only (rewrite attempt = integrity FAIL).
+- **P626 verdict-to-gate single source (MUST):** §8 acceptance gates
+  read ledger rows only; harness runs that bypass the ledger cannot
+  flip a gate. Audit = replay a stored verdict set through the gate
+  and confirm identical decisions.
+- **P627 probe-version archive (SHOULD):** superseded probe versions
+  remain executable (archive, not delete) for ≥10 versions — back-
+  testing a historical regression claim against an old canonHash
+  must be possible; then they move to frozen reference.
+- **P628 peeking under the new regime (MUST — meta):** mid-version
+  partial runs (allowed for debugging per §44.2) write no ledger
+  rows and cannot be cited in regression claims; audit = ledger
+  timestamps vs release boundaries.
+
+## 112. Sources verified this version (P615–P628 backing)
+
+- Open Science Collaboration 2015 (*Science* 349:aac4716 — verified:
+  36% replication, replication ES half of original, Mr 0.197 vs
+  0.403; 47% of original ES in replication CI).
+- Camerer et al. 2018 (*Nat Hum Behav* 2:637 — verified: 21 studies,
+  62% significant-replication, ES ≈50%, est. true-positive rate 67%).
+- Hagger et al. 2016 (*Persp Psych Sci* 11:546 — verified: 23 labs,
+  N=2,141, d = 0.04 CI [−0.07, 0.15]); Wagenmakers et al. 2016
+  facial-feedback RRR (CONTESTED anchor class).
+- Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — verified:
+  sloppy spectra universal across systems-biology models; collective
+  fits constrain predictions not params); Beven 2006 equifinality.
+- Roberts & Pashler 2000 (*Psych Rev* 107:358 — verified: good fit
+  ≠ evidence; flexibility, data variability, alternative outcomes);
+  Pitt & Myung 2002 (*Psych Bull* 128:362 — functional-form
+  flexibility in model selection); Myung, Forster & Browne 2000
+  (*J Math Psych* special issue).
+- Cepeda, Pashler, Vul, Wixted & Rohrer 2006 (*Psych Bull* 132:354 —
+  verified: 839 assessments/317 experiments; ISI×RI joint dependence,
+  optimal ISI grows with RI).
+- Murre & Dros 2015 (*PLoS ONE* 10:e0120644 — verified: Ebbinghaus
+  savings curve replicated 20min–31d, 24h bump, power/log fit
+  comparison).
+- Duval & Tweedie 2000 (trim-and-fill); Stanley & Doucouliagos 2014
+  (meta-regression bias correction); Nosek et al. 2018 (*PNAS*
+  115:2600 — preregistration revolution); Wagenmakers et al. 2012
+  (preregistration in psychology); Elbaum, Rothermel & Penix 2014
+  (regression test selection / test-impact analysis, TSE);
+  Kish 1965 (already §45 — design-effect reuse); Johari et al. 2017
+  (already §44 — peeking, reused for P628).
+
+Registry: P1–P628. v59 suite: P615–P628 (8 MUST, 5 SHOULD, 1 meta —
+P628 carries the peeking ban into the ledger era; P616 makes the
+battery assert *absence* for the first time).
+
+## 113. Probes P629–P636 (v60 suite — encoding-mechanics V)
+
+All bands follow the §14.2 rep_grade conventions; SINGLE-literature
+effects carry `rep_shrink` on the band.
+
+- **P629 pretest potentiation (SHOULD):** failed-recall marks → next
+  same-topic event recalls ≥1.3× matched unmarked at 7d; marks set
+  without an actual retrieval attempt produce NO boost (Richland
+  2009 Exp. 5 gate — the attempt, not the prompt); the wrong guess
+  mints as a competitor record (`gen_gain`) but the corrected answer
+  must out-recall it ≥2:1 at delay. Guards against conflation with
+  §5.26's global forward-test boost — mark is content-locked, not
+  window-global.
+- **P630 hypercorrection (MUST — sign-locked):** correction retention
+  monotone-increasing in pre-correction error confidence in young
+  adults; 65+ slope ≤ half the young slope at envSupport=0 AND ≥0.8×
+  the young slope at envSupport=1 — Cyr & Anderson's support rescue
+  must ride the SAME `envSupport` field as P632 (a second age-rescue
+  mechanism = spec violation).
+- **P631 interleaving (SHOULD):** cross-category discrimination
+  (PersonModel tier boundaries, domain attribution) better after
+  interleaved vs massed re-encodings on perceptual/person material
+  (band g ∈ [0.2, 0.7], Brunmair & Richter); verbal/expository
+  material |gain| ≤ 0.02 — the `interleave_verbal_null` guard.
+- **P632 env support at encoding (MUST — interaction shape):**
+  free-recall age gap shrinks ≥30% at envSupport=1 vs 0; support
+  must NOT lift young adults equivalently (a build where it helps
+  everyone equally is a flat-E bug — complementarity, not additive);
+  older cohort shows the largest si_res-weighted gain.
+- **P633 statistical learning (SHOULD):** entity pairs with
+  cooccur ≥ statlearn_min mint a θ-exempt link with NO episodic
+  record behind it — the character passes a familiarity/source-free
+  "knows who sits where" check while recall probes return null;
+  age gradient child > adult > old within the DEBATED band.
+- **P634 cheater link (SHOULD — two-armed):** self/ingroup-harmed
+  violations mint the actor↔violation link at the boosted rate AND
+  source memory for the pair survives ≥1.4× neutral at 30d;
+  describe-only (outgroup/none) cheater content shows |E − E_neutral|
+  ≤ 0.03 — the Buchner 2009 recognition null enforced structurally.
+- **P635 Zeigarnik (OBSERVE):** interrupted Intentions retain
+  §34 cue-heating ≥1.5× longer than completed ones and resist §5.33
+  deactivation by `zeig_resist`; wide band (moderated lit); if the
+  §5.33 deactivation probes regress, this term loses (§110 ledger
+  verdict accepts it).
+- **P636 disfluency absence (MUST — CONTESTED/negative anchor):**
+  degraded/effortful presentation at matched attention/elaboration
+  yields |d| ≤ 0.1 vs fluent — asserts ABSENCE per §14.2 semantics
+  (Xie 2018 meta d≈0.01; Rummer 2016 replications null; Metacogn.
+  Learn. 2016 special issue >1000 participants). A build that
+  "finds" the desirable-difficulty benefit here fails.
+
+## 114. Sources verified this version (P629–P636 backing)
+
+- Kornell, Hays & Bjork 2009 (JEP:LMC 35:989 — verified via DOI/
+  abstract: unsuccessful retrieval enhances subsequent learning;
+  failed attempts excluded from analysis, both paradigms);
+  Richland, Kornell & Kao 2009 (JEP:Applied 15:243 — verified:
+  5 experiments, attempt-required gate, italics-control arm);
+  Grimaldi & Karpicke 2012; Wong & Lim 2022 (derring — folded).
+- Butterfield & Metcalfe 2001 (JEP:LMC 27:1491 — verified: PMID
+  11713883, high-confidence errors hypercorrected); Butterfield &
+  Metcalfe 2006 (Metacogn. Learn. 1:69 — attentional-capture via
+  tone-detection probe); Metcalfe, Casal-Roscum, Radin & Friedman
+  2015 (PMC3604148 — verified: older adults' correspondence n.s.);
+  Cyr & Anderson 2013 (PB&R — verified: support restores the effect).
+- Kornell & Bjork 2008 (Appl. Cogn. Psych. — verified: artist-style
+  induction, massed judged better despite worse); Brunmair & Richter
+  2019 (Psych. Bull. 145:1029 — verified: 59 studies/238 effects,
+  g=0.42 overall, paintings 0.67, words −0.39, similarity
+  moderators).
+- Craik 1983/1986; Craik & Rose 2012 (Neurosci. Biobehav. Rev. —
+  verified: encoding-side review, self-initiation/environmental-
+  support complementarity, schematic support from the knowledge
+  base); Naveh-Benjamin, Craik & Ben-Shaul 2002 (Aging Neuropsychol.
+  Cogn. 9:276 — verified: support at encoding+retrieval shrinks the
+  age gap).
+- Saffran, Aslin & Newport 1996 (Science 274:1926 — verified:
+  8-month-old statistical segmentation); Turk-Browne, Jungé & Scholl
+  2005 (verified: adult incidental visual statistical learning);
+  Aslin 2017 (review).
+- Buchner, Bell, Mehl & Musch 2009 (Evol. Hum. Behav. 30:212 —
+  verified: no recognition boost, better source memory for
+  cheaters); Mehl & Buchner 2007/2008 (EHB 29:35 — Mealey
+  occupation-status confound); Bell, Buchner & Musch 2010
+  (Cognition — verified: game-suffered cheating enhances recognition
+  AND source); Mealey, Daood & Krage 1996 (canonical target).
+- Zeigarnik 1927 (interrupted-task recall — direction real, size
+  DEBATED; OBSERVE tier).
+- Diemand-Yauman, Oppenheimer & Vaughan 2011 (Cognition 118:114 —
+  the claim); Rummer, Schweppe & Schwede 2016 (Metacogn. Learn.
+  special issue — verified: 3 direct replications null, no
+  distinctiveness rescue); Metacognition & Learning 2016 special
+  issue (6 studies, >1000 participants); Xie et al. 2018 meta
+  (d ≈ 0.01 — verified via abstract).
+
+Registry: P1–P636. v60 suite: P629–P636 (3 MUST — P630 sign-locked,
+P632 interaction-shape, P636 the second CONTESTED-anchor absence
+assertion after P616; 3 SHOULD; 1 OBSERVE — Zeigarnik is the first
+OBSERVE-tier encode mechanic whose ledger verdict can retire it).
+
+## 115. Probes P637–P646 (v61 suite — forgetting-curves VI)
+
+All bands follow the §14.2 rep_grade conventions; SINGLE-literature
+effects carry `rep_shrink` on the band. Anchors: FC Part VI §§27–31.
+
+- **P637 reconsolidation window (SHOULD — DEBATED-flagged):** a
+  record recalled at day 5 then hit by a misinformation event at
+  +0.1d adopts the false field ≥1.5× more often than a matched
+  record hit at +0.5d (window closed); `recons_upd_p` incorporation
+  emits `lastRewrite` stamps; a weak (R<recons_risk_gate) record
+  recalled into conflicting input loses measurable strength — never
+  deletion. The window is a *when*, not a *whether*: the same ops
+  fire either way, only the rate multiplies.
+- **P638 listener SSRIF (MUST — sign-locked):** narrator tells half
+  of a shared cluster; listener recall of the untold-but-related
+  fields drops vs unrelated controls at ≤`srif_mult`× the speaker's
+  own RIF dose — listener suppression may never exceed the
+  speaker's (Cuc, Koppel & Hirst 2007 ordering).
+- **P639 selective sleep (SHOULD):** `expRel` or arousal≥
+  `consol_sel_arous` records out-retain matched neutral records
+  across a sleep boundary by ≥1.3× on the consolidation leg; the
+  advantage collapses at sleepQuality 0.3 — selectivity rides the
+  same tick, not a separate system.
+- **P640 sleep-span bonus (SHOULD):** two retells at equal
+  wall-clock gaps — one crossing a sleep tick, one not — the slept
+  pair shows ≥1.15× storageS growth at 30d (Mazza 2016 direction;
+  band rep-shrunk).
+- **P641 Osgood surface (MUST — shape-locked):** suppression-vs-
+  similarity is non-monotone — maximum within ±0.1 of
+  `interf_sim_peak`, ~0 below sim 0.3, and `sim ≥ sim_repeat`
+  encodes produce a net POSITIVE strength delta (repetition leg).
+  A monotone-in-sim build fails regardless of magnitude.
+- **P642 telescoping (SHOULD):** median reconstructed-when error is
+  negative-signed (toward present) and grows with record age toward
+  ~`teles_c`·age; sub-week records ~unbiased; `orderRecall`
+  accuracy unchanged at long range — the bias is common-mode.
+- **P643 directed forgetting (SHOULD):** `dforget` records draw zero
+  retell events and no §5.26 boost; voluntary hit-rate drops
+  10–15% vs matched controls at 14d; storageS, `intrude_w`, and
+  scan intrusion rate TOST-equivalent — starvation, not inhibition.
+- **P644 hyper-binding (SHOULD):** 75yo profiles mint spurious
+  pair-links ≥4× the 30yo rate at encode; linked pairs produce
+  confident wrong co-occurrence reports; older n_sim pools show
+  higher effective interference at equal true similarity.
+- **P645 ALF tail (SHOULD — DEBATED-flagged):** at age_eff 75 the
+  R@30d/R@1d ratio drops ≥8% vs age_eff 25 while R@1d is TOST-
+  equivalent — intercept held, tail steepened; inert at 40; must
+  NOT stack under dementia modifiers.
+- **P646 isolation shield (SHOULD):** novelty ≥`distinct_gate`
+  records in dense buckets lose ≤60% the R of matched low-novelty
+  records at 14d; decay rate itself unchanged — distinctiveness is
+  interference-resistance, not immortality.
+
+## 116. Sources verified this version (P637–P646 backing)
+
+- Nader, Schafe & LeDoux 2000 (Nature 406:722 — verified:
+  reactivation lability under protein-synthesis blockade); Hupbach,
+  Gomez, Hardt & Nadel 2007 (Learning & Memory 14:47 — verified:
+  reminder-dependent episodic updating); Bos et al. 2014 (Neurobiol.
+  Learn. Mem. — boundary conditions/replication limits; the
+  DEBATED flag's basis).
+- Cuc, Ozuru, Manier & Hirst 2006 (Psych. Sci. 17:939) and Cuc,
+  Koppel & Hirst 2007 (Psych. Sci. 18:727 — verified: within-
+  speaker RIF propagates to listeners); Stone, Coman, Brown,
+  Koppel & Hirst 2012 (Memory Studies 5:121 — silence as
+  collective-forgetting mechanism); Coman, Manier & Hirst 2009.
+- Payne, Stickgold, Swanberg & Kensinger 2008 (Psych. Sci. 19:781
+  — verified: sleep preserves negative objects over backgrounds);
+  Wilhelm, Diekelmann, Molzow, Ayoub, Molle & Born 2011
+  (J. Neurosci. 31:1563 — verified: expectancy-tagged memories
+  preferentially consolidated); van Dongen et al. 2012.
+- Mazza, Gerbier, Gustin, Kasikci, Koenig, Toppino & Magnin 2016
+  (Psych. Sci. 27:1321 — verified: sleep between sessions doubles
+  retention at 1wk and 6mo at equal practice; single-team — band
+  rep-shrunk).
+- Osgood 1949 (Psych. Rev. 56:132 — transfer-and-retroaction
+  surface; canonical inverted-U); McGeoch similarity tradition;
+  Wixted 2004 (Annual Review — already §7.5).
+- Rubin & Baddeley 1989; Thompson, Skowronski & Lee 1988; Janssen,
+  Chessa & Murre 2006 (Psych. Bull. 132:677 — verified: time-
+  perception model, forward telescoping magnitude vs age).
+- Bjork 1970; Basden, Basden & Gargano 1993 (JEP:LMC 19:579 —
+  item/list directed forgetting); MacLeod 1998 (chapter review);
+  Bjork & Bjork 1992 (New Theory of Disuse — the S/R root).
+- Campbell, Hasher & Thomas 2010 (Psych. Sci. 21:399 — verified:
+  hyper-binding of extraneous pairings in older adults); Campbell,
+  Trelle & Hasher 2012 (extension).
+- Elliott, Isaac & Muhlert 2014 (Cortex review — ALF: intact short-
+  delay, accelerated multi-day loss; strong in clinical cohorts,
+  healthy-aging arm DEBATED); Muhlert et al. 2010.
+- von Restorff 1933; Hunt 1995 (Memory 3 — distinctiveness
+  principle); Hunt & Worthen 2006 (edited volume).
+
+Registry: P1–P646. v61 suite: P637–P646 (2 MUST — P638 sign-locked,
+P641 shape-locked; 8 SHOULD incl. two DEBATED-flagged anchors P637
+and P645 — absence is not asserted anywhere this version; every arm
+asserts a *rate or shape*, the falsifiable kind).
+
+## 117. Probes P647–P656 (v62 suite — retrieval-cues VI)
+
+Source sections: `retrieval-cues.md` §§60–66; spec §5.57–5.62.
+All snapshot-additive; each runs under the §14 B2 baseline unless
+noted.
+
+- **P647 directionality (MUST — sign-locked):** at matched overlap
+  and df, forward queries (context→content) out-recall reverse
+  queries by ≥1.3× on sparse cue sets; recognition-mode probes show
+  no asymmetry (Kahana & Caplan 2002; Rizzuto & Kahana 2001).
+- **P648 iterated cuing (SHOULD):** generative bouts with
+  `recue_passes` enabled surface strictly more targets than
+  direct-only runs; per-pass yield strictly diminishing (pass 2 <
+  pass 1); `search.passes` ≤ 2 always (Norman & Bobrow 1979).
+- **P649 evocative object (MUST):** linked-artifact presence lifts
+  recall of the linked record vs matched unlinked at equal cue
+  overlap; the lift persists at old record ages (≥180d) where
+  place reinstatement is the only rival — the keepsake outlasts
+  the apartment.
+- **P650 photo offload (MUST — two arms, one null):**
+  `photographed:"whole"` events encode lower E than matched
+  observed; `"detail"` events show NO deficit (locked null —
+  Henkel 2014 zoom arm; a build showing a detail-mode deficit
+  FAILS); artifact-present retells strengthen the linked record
+  (Koutstaal arm).
+- **P651 PM pop-out (SHOULD):** nonfocal cue with novelty ≥
+  `distinct_gate` fires at ≥0.8× focal rate vs ≤0.6× for matched
+  ordinary nonfocal; advantage grows with armedDays (Brandimonte &
+  Passolunghi 1994 interval arm).
+- **P652 asker license (MUST — sign-locked):** `forced:true` probes
+  emit more total fields AND lower field accuracy than free probes
+  on identical stores (Koriat & Goldsmith 1996 trade-off);
+  `rel ≥ close` raises breadth without raising error share.
+- **P653 hedged propagation (SHOULD):** forced-mode emissions carry
+  `hedged:true`; hearsay records minted from them carry reduced
+  confidence vs clean-emission controls.
+- **P654 route practice (SHOULD):** a field probed ≥5× recalls at
+  ≥1.2× base rate while equally-encoded never-probed fields stay at
+  base; re-probe after `route_hl` shows regression toward base
+  (worn paths fade).
+- **P655 restart vs continuation (SHOULD — shape):** post-failure,
+  low-overlap cue sets out-recall re-asked identical sets on the
+  same records (CI varied-retrieval; Köhnken 1999; Memon et al.
+  2010).
+- **P656 cue-ecology regression (MUST):** P9/P10/P16 (gating,
+  saturation, recognition-failure) still pass with all v5.10 legs
+  active — direction weighting, recue, route heat route through
+  §5.1/§5.2, never around them.
+
+## 118. Sources verified this version (P647–P656 backing)
+
+- Kahana & Caplan 2002 (J. Mem. Lang. 46:111 — verified:
+  associative symmetry tested and rejected; forward advantage);
+  Rizzuto & Kahana 2001 (JML 44 — autoassociator asymmetry).
+- Norman & Bobrow 1979 (Cog. Psych. 11:107 — descriptions as
+  intermediate retrieval stage); Williams & Hollan 1981 (Cog. Sci.
+  5:87 — think-aloud meta-knowledge loops); Koriat & Levy-Sadot
+  2001 (JEP:G 130:395 — accessibility accrual across passes).
+- Heersmink 2015 (Rev. Phil. Psych. 6:321 — distributed memory
+  taxonomy); Turkle 2007 (Evocative Objects — qualitative anchor);
+  Henkel 2014 (Psych. Sci. 25:396 — VERIFIED this version: whole-
+  object impairment, zoom null); Barasch, Diehl, Silverman &
+  Zauberman 2017 (JPSP 112:741 — attention-mediated benefit arm;
+  DEBATED split adopted); Koutstaal et al. 1998/1999 (photo-review
+  reinstatement).
+- McDaniel & Einstein 1993 (Memory 1:23 — VERIFIED this version:
+  unfamiliar + context-distinctive cues improve PM, Exp. 2
+  significant); Brandimonte & Passolunghi 1994 (QJEP 47A:565 —
+  distinctiveness × retention interval); Einstein & McDaniel 2005
+  (Curr. Dir. 14:286 — multiprocess framing).
+- Koriat & Goldsmith 1996 (Psych. Bull. 103:490 — monitoring-and-
+  control; forced vs free report trade-off, heavily replicated);
+  Orne 1962 (demand characteristics); Vallano & Schreiber Compo
+  2011 (rapport arm, single-team — rep-shrunk weight).
+- Karpicke & Roediger 2008 (Science 319:966 — retrieval-practice
+  asymmetry); Carpenter & DeLosh 2006 (Applied Cog. Psych. 20:123 —
+  weak cues gain most — route-side read is ours, HYPOTHESIS).
+- Fisher & Geiselman 1992 (CI manual — change-order/change-
+  perspective mnemonics); Köhnken, Milne, Memon & Bull 1999
+  (Psych. Pub. Pol. Law 5:3 — CI meta); Memon, Meissner & Fraser
+  2010 (Psych. Bull. 136:340 — verified: d≈1.2 correct-detail,
+  small error cost).
+
+Registry: P1–P656. v62 suite: P647–P656 (4 MUST — P647/P652
+sign-locked, P650 two-arm with locked null, P649/P656 behavioral;
+6 SHOULD incl. one DEBATED-flagged split anchor at P650's Barasch
+leg).
+
+## 119. Probes P657–P666 (v63 suite — age-development VI)
+
+- **P657 infant clock (MUST, sign-locked):** matched-S records
+  encoded at encodeAge 0.5 / 2 / 5 / 20 show monotonically
+  increasing time-to-latent under `infant_beta_mult`; the 0.5y
+  record falls below `forget_thresh` within infant-scaled days
+  absent reminders. Asserts ordering AND that no separate
+  infant-erasure rule fires (the wall is emergent decay).
+- **P658 reinstate channel (MUST + locked null):** a latent
+  below-wall record re-encountered via a context-overlapping
+  Event (place/persons/objLink ≥ `reinstate_bar`) gains S and
+  can surface; the same content delivered via `hearAccount`
+  produces EXACTLY zero S change on the latent record —
+  `told_reinstate_null` asserted, any nonzero lift fails.
+- **P659 observer channel (SHOULD):** `role:"observer"` events
+  at encodeAge 2 mint retrievable records only under strong
+  contextual cues and carry no self-field tier; at encodeAge 6
+  they mint ordinary records at the `obs_gain` discount; at
+  encodeAge 2 below pierce, sub-arousal_thresh observer events
+  mint nothing.
+- **P660 heritage bump (MUST):** kin `told_by` records whose
+  `era` falls in the teller's bump window, heard at age 12,
+  show higher S per hearCount than the same teller's age-45-era
+  accounts; a matched non-kin teller shows ≤40% of the gain;
+  hearer at age 5 or 35 shows no heritage leg.
+- **P661 cue floor (MUST, sign-locked):** at retrievalAge 6 a
+  zero-channel voluntary query fails at ≥2× the one-weak-channel
+  rate; `interviewMode`/`asker`-scaffolded queries exempt; an
+  adult profile shows no cue_floor effect.
+- **P662 order by strength (SHOULD):** at retrievalAge 7, two
+  same-era records differing only in S are ordered higher-S =
+  "later" at p>0.55; at retrievalAge 14 ordering follows time
+  fields; the bias direction is locked (stronger→later, never
+  stronger→earlier).
+- **P663 strategy tiers (MUST + locked null):** `studied`
+  events at encodeAge 6 gain nothing vs matched plain
+  re-exposure; at 8 rote-studied gains `study_mult`; at 11
+  categorized-studied gains; a pre-onset studied record queried
+  at 12 shows NO retroactive bonus — `strategy_retro_null`.
+- **P664 schooling (SHOULD, HYPOTHESIS-flagged):**
+  `schooled:none` profile delays all three §4.31d onsets by
+  ~0.5y and shows a larger post-8 metamemory overconfidence gap
+  vs `schooled:full` at identical seed.
+- **P665 pub reward (SHOULD, DEBATED-lite):** `reward:true`
+  events inside `pub_window` encode elevated vs outside;
+  neutral events inside the window unchanged — a diffuse
+  pub-window lift FAILS this probe (narrowness is the contract).
+- **P666 v5.11 regression (MUST — structure):** all v5.11 params
+  at defaults reproduce v5.10 outputs on the standard battery
+  except the sign-locked differences above; snapshot round-trip
+  preserves the new record/event fields.
+
+## 120. Sources verified this version (P657–P666 backing)
+
+- Hartshorn & Rovee-Collier 1997; Hartshorn, Rovee-Collier et
+  al. 1998 (*Dev. Psychobiol.* 33:1 — the infant-retention
+  monograph: retention interval grows ~linearly, doubling
+  ~monthly); Rovee-Collier 1999 (*Curr. Dir. Psych. Sci.* 8:33
+  — time-window table); Rovee-Collier et al. 1980 (reactivation
+  paradigm — perceptual reminder restores flagging infant
+  memory).
+- Frankland, Köhler & Josselyn 2013 (*Science* 341:1047747 —
+  neurogenesis causes infant forgetting, rodent); Josselyn &
+  Frankland 2018 — DEBATED mechanism note, no params.
+- Barr & Hayne 1999 (*Dev. Psychobiol.* 34:159 — deferred
+  imitation 12–24mo, multi-week retention); Bauer 2002 (*Dev.
+  Rev.* 22:235 — long-term ordered recall of observed sequences).
+- Svob & Brown 2012 (*Memory* 20:737 — intergenerational
+  reminiscence bump); Krumhansl & Zupnick 2013 (*Psych. Sci.*
+  24:2059 — cascading music bump).
+- Kobasigawa 1974 (*Child Dev.* 45:190 — retrieval-cue
+  production deficiency); Flavell, Beach & Chinsky 1966 (*Child
+  Dev.* 37:283 — rehearsal emergence ~7).
+- Friedman 1991 (*Dev. Rev.* 11:139 — strength-based recency);
+  Friedman & Kemp 1998 (*Cog. Dev.* 13:335).
+- Ornstein, Haden & Hedrick 2004 (strategy-emergence schedule);
+  Schneider & Pressley 1997 (*Memory Development Between 2 and
+  20* — rehearsal ~7–8, organization ~9–10, elaboration ~13+).
+- Morrison, Smith & Dow-Ehrensberger 1995 (*Child Dev.*
+  66:1399 — birthday-cutoff design: grade > age effects);
+  Rogoff 1981 schooling corroboration — extension to encode-side
+  onsets flagged HYPOTHESIS.
+- Davidow, Foerde, Galván & Shohamy 2016 (*Neuron* 91:182 —
+  adolescent reward-related episodic enhancement); Murty,
+  Calabro & Luna 2018.
+
+Registry: P1–P666. v63 suite: P657–P666 (4 MUST — P657/P661
+sign-locked, P658/P663 carry locked nulls; 5 SHOULD incl.
+HYPOTHESIS P664 and DEBATED-lite P665; 1 structural regression
+P666).
+
+## 121. Probes P667–P676 (v64 suite — age-decline VI, the ledger splits)
+
+- **P667 R/F split (MUST — sign-lock):** at retrievalAge 78,
+  emissions carrying field-level episodic detail (when/pairing/
+  source) decline ≥1.8× the bare-familiarity decline vs the 30yo
+  baseline; `reportMode:"know"` share rises correspondingly —
+  fails if know-emissions carry source fields (Yonelinas 2002
+  2:1 anchor).
+- **P668 gist asymmetry (MUST — sign-lock + locked null):** at
+  80, gist-consistent lures endorsed at ≥1.5× young rate while
+  unrelated foils endorsed at ≤1.1× — `gist_content_null` fails
+  on ANY unrelated-foil amplification. Veridical verbatim
+  endorsement must fall simultaneously (Balota 1999 double move).
+- **P669 positivity gated (MUST + locked null):** at 75 under
+  full attention, positive-valence candidates out-emit negative
+  at ≥1.2× the 30yo ratio; under `C.da` the ratio returns to
+  baseline exactly — `pos_da_null`. Stored S must be identical
+  across arms (selection-side, never storage-side).
+- **P670 synchrony scope (MUST + locked null):** `chronotype:
+  morning` at 75 recalled off-peak (evening `timeOfDay`) shows
+  controlled-path misses ≥ the `tod_tax` prediction; involuntary
+  emissions and routine-script recall statistically unchanged —
+  `auto_sync_null`. A `neutral` profile shows an intermediate or
+  absent effect (May et al. 2005 replication arm).
+- **P671 sensory cascade (SHOULD):** `sensory:0.6` vs `sensory:0`
+  matched profiles: auditory-channel fields encode ~0.82×, non-
+  auditory fields unchanged, downstream decline legs read
+  `sensory_age_shift` older. Restoring `sensory→0` removes the
+  encode tax but not the shift (asymmetry asserted).
+- **P672 headroom cliff (MUST — shape-lock):** 78yo single-cue
+  recall performance ≥ knot prediction under `comp_gain`
+  (inverted-U leg); tier-3 multi-cue fusion falls super-linearly
+  past `headroom` — a linear decline FAILS. The curve, not the
+  level, is the claim (CRUNCH).
+- **P673 enactment rescue (SHOULD):** `enacted:true` at 80
+  retains ≥0.8 of the 30yo E-advantage ratio while matched
+  `role:"observer"` events retain ≤0.6 — the doing gap WIDENS
+  with age; composes multiplicatively with trait `enact_gain`.
+- **P674 transactive dyad (MUST + locked null):** `withPartner`
+  recall at 78 on shared-encoded records emits ≥1.15× internal-
+  detail fields vs solo; `rel:"acquaintance"` co-recaller shows
+  no gain (plist_suppress baseline only) — `transact_stranger_
+  null`. External/off-topic detail count unchanged (Barnier 2014
+  — the gain is internal-detail-specific).
+- **P675 PM split (MUST):** `cueType:time` intentions at 80 fire
+  at ≤0.7× the `cueType:event` rate (matched arming delay);
+  `impl_intent:true` recovers ≥50% of the gap; event-cue legs
+  keep §5.60 pop-out eligibility, time cues never pop.
+- **P676 suggestibility scope (MUST + locked null):**
+  misinformation adoption at 80 rises on the §6.83 SHIFT leg
+  (≥1.3× young) while yield scores are statistically unchanged —
+  `yield_age_null`; `age_salient` contexts degrade retrieval
+  legs with zero change to stored S (asserted by diffing the
+  record store pre/post).
+
+## 122. Sources verified this version (P667–P676 backing)
+
+- Yonelinas 2002 (*Psych. Bull.* 128:800 — R/F aging meta;
+  recollection declines ~2× familiarity; familiarity decline
+  confined to 75+); Light, Prull, LaVoie & Healy 2004 (dual-
+  process signal-detection corroboration).
+- Koutstaal & Schacter 1997 (*Psych. & Aging* 12:404 — gist-based
+  false recognition elevated in aging); Tun, Wingfield, Rosen &
+  Blanchard 1998; Balota, Cortese, Duchek et al. 1999 (*Psych. &
+  Aging* 14:321 — DRM: old adults ↑false alarms, ↓veridical);
+  Reyna 2012 (fuzzy-trace aging review).
+- Mather & Carstensen 2005 (*Trends Cog. Sci.* 9:496 — positivity
+  effect meta); Reed & Carstensen 2012; Mather & Knight 2005
+  (*Psych. Sci.* 16:691 — DA abolishes the effect: the gate).
+- May, Hasher & Stoltzfus 1993 (*Psych. Sci.* 4:326 — synchrony:
+  no age gap at older adults' peak, large off-peak); May & Hasher
+  1998 (*JEP:HPP* 24:363 — inhibitory mechanism); May 1999
+  (*PBR* 6:142); May, Hasher & Foong 2005 (implicit exempt —
+  automatic retrieval shows no synchrony); Hasher, Goldstein &
+  May 2005.
+- Baltes & Lindenberger 1997 (*Psych. & Aging* 12:12 — sensory
+  common cause); Lin, Metter, O'Brien et al. 2011 (*Arch.
+  Neurol.* 68:214 — hearing→dementia dose-response); Wayne &
+  Johnsrude 2015 (perceptual-effort review).
+- Cabeza 2002 (*Psych. & Aging* 17:85 — HAROLD); Reuter-Lorenz &
+  Cappell 2008 (*Curr. Dir. Psych. Sci.* 17:177 — CRUNCH
+  inverted-U); Schneider-Garces et al. 2010 (load-curve fMRI);
+  Grady 2012 (compensation-vs-dedifferentiation caveat).
+- Bäckman & Nilsson 1985 (enactment age-invariance); Engelkamp &
+  Zimmer (SPT corpus); Cohen 1981.
+- Harris, Keil, Sutton, Barnier & McIlwain 2011 (*Discourse
+  Processes* 48:267); Johansson, Andersson & Rönnberg 2005
+  (*Scand. J. Psych.* 46:349); Barnier, Priddis, Broekhuijse et
+  al. 2014 (*JARMAC* — internal-detail facilitation, old couples
+  only); Harris et al. 2017 (*Memory* — "going episodic" trade-off).
+- Henry, MacLeod, Phillips & Crawford 2004 (*Psych. & Aging*
+  19:27 — PM meta: time-based >> event-based age deficits);
+  Park, Hertzog, Kidder et al. 1997; Kvavilashvili (naturalistic
+  paradox); Liu & Park 2004 (implementation intentions rescue);
+  Chasteen, Park & Schwarz 2001.
+- Hess, Auman, Colcombe & Rahhal 2003 (*Psych. & Aging* 18:3 —
+  stereotype threat on recall); Lamont, Swift & Abrams 2015
+  meta (modest but real).
+- Jacoby 1999 (familiarity exploitation); Roediger & Geraci 2007
+  (*Learn. & Mem.* 14:90 — aging misinformation review);
+  Karpel, Hoyer & Toglia 2001 (boundary conditions); Wylie et
+  al. (conditional nulls — magnitude DEBATED).
+- Erickson, Voss, Prakash et al. 2011 (*PNAS* 108:3017 — aerobic
+  RCT, hippocampal +2%); Hillman, Erickson & Kramer 2008 (*Nat.
+  Rev. Neurosci.* 9:58); Colcombe & Kramer 2003 meta; Maki &
+  Weber 2021 (menopause — deferred, no params).
+
+Registry: P1–P676. v64 suite: P667–P676 — 8 MUST (P667/P668/
+P672 sign- or shape-locked; P669/P670/P674/P676 each carry a
+locked null; P675 the PM split) and 2 SHOULD (P671 cascade
+asymmetry, P673 enactment ratio).
+
+## 123. Probes P677–P686 (v65 suite — emotional-memory VI, the
+residue layer)
+
+- **P677 grief oscillation (MUST):** mark a high-trust dyad
+  partner `deceased`; over 90 simulated days the survivor's
+  loss/restore residence must (a) start loss-dominant, (b) rise
+  in restore share, (c) keep nonzero late loss episodes —
+  monotone trend WITH oscillation; deceased-linked emissions
+  carry `absence:true` in loss mode / `presence:true` in restore
+  mode; the store is untouched (`grief_erasure_null` — record
+  decay must match live-person controls). FAIL if mode is
+  one-directional or if records decay faster than controls.
+- **P678 forward-leak asymmetry (MUST — sign lock):** encode a
+  neutral→NEGATIVE(arousal 0.9)→neutral sandwich: the
+  negative→following link must exceed the preceding→negative
+  link (`emo_fwd_gain` vs `emo_back_loss`); both differ from a
+  matched neutral control; the hot record's `when` resists
+  telescoping (`teles_when_immune`) while neighbors' `when`
+  drifts late. FAIL on symmetric loss or hot-record telescoping.
+- **P679 counterconditioning rival (MUST):** negative CondEntry
+  on cue X, then three positive X-events: the cue must hold TWO
+  entries (both valences); fired affect = strength-weighted
+  mixture; the negative entry's renewal channel still fires on
+  context change. FAIL if positive events decrement or merge
+  the negative entry.
+- **P680 capitalization gate (MUST):** retell a positive record
+  to `ac_response:active_constructive` vs `passive` audiences:
+  S gain only in the active arm (≥`capitalize_gain`·0.8);
+  verbatim fields identical pre/post both arms
+  (`cap_content_null`); affect tag creeps positive only in the
+  active arm.
+- **P681 tone survival (MUST):** speech record with prosody −0.7
+  vs neutral prosody, decayed 60d: (a) prosody field strength >
+  content verbatim by the `tone_survive_mult` ratio; (b) content
+  affect tag shifted `prosody_leak_k`·prosody at encode and
+  unchanged when the prosody field itself decays — the leak is
+  irreversible.
+- **P682 affect flashback (MUST):** drive a CondEntry's source
+  below θ, present the cue: emission must be `aff_flash:true`
+  with `content:null` — affect, zero fields, zero confidence.
+  FAIL if content fields emit or a scene is confabulated
+  (`aff_flash_verbatim`); below `aff_flash_thresh` nothing emits.
+- **P683 jealousy vigilance (SHOULD — trait gate):** identical
+  partner+rival co-presence on `jealous` 0.8 vs 0.2: the high
+  arm mints `rival:true`, encodes at `rival_vigil_gain`, and
+  accrues a mild negative person-CondEntry; the low arm mints
+  nothing. `infid_cue:sexual` vs `emotional` must weight by
+  profile `sex` per the Schützwohl multipliers.
+- **P684 awe signature (SHOULD — HYPOTHESIS arm):** `awe:true`
+  vs matched positive non-awe event: awe record must show thin
+  self fields + strong gist + `schema_gap` confab resistance +
+  full arousal tag. FAIL if self fields mint at ordinary
+  strength — the small self is the signature.
+- **P685 directed-forgetting resistance (MUST):** `dforget` on
+  arousal-0.8-negative vs arousal-0.3-neutral records: the hot
+  record must outlast `df_theta_eff` by the `emo_df_resist`
+  factor; the ≥0.8-negative arm must NEVER starve (locked
+  exemption); under `suppress:true` the resistance halves.
+- **P686 safety signal (MUST — locked null):** CondEntry firing
+  with vs without a trusted co-present person: fired affect is
+  lower with the safe person (`safety_suppress`·tier) while the
+  entry's `strength` and `safeCount` are IDENTICAL afterward
+  (`safety_unlearn_null`); the cue alone later refires at
+  pre-suppression strength. FAIL if fire-time suppression
+  accrues extinction credit.
+
+## 124. Sources verified this version (P677–P686 backing)
+
+- Stroebe & Schut 1999 (*Death Studies* 23:197 — dual-process
+  model: loss/restoration oscillation, dosage); Stroebe & Schut
+  2010 (DPM decade review); Stroebe, Schut & Stroebe 2005/2016
+  overload extension; Klass, Silverman & Nickman 1996
+  (*Continuing Bonds* — maintained inner relationship);
+  Ratcliffe 2020 (*Eur. J. Philos.* — the presence/absence
+  phenomenological flip on identical content).
+- Bisby & Burgess 2013 (*Learn. & Mem.* 21:21 — negative affect
+  impairs associative, spares item memory); Bisby, Burgess &
+  Brewin 2020 (*Curr. Dir.* 29:267 — coherence loss ↔ PTSD);
+  2023 *Cognition & Emotion* forward-favouring pair (N=72+150 —
+  negative→E+1 binding > E−1→negative); Palombo et al. 2021
+  (*Psych. Sci.* — "what"↑, "which"↓, emotional "when" preserved
+  while neutrals mislocalize late).
+- Keller et al. 2020 (counterconditioning review + OSF
+  pre-registered meta — CC > extinction on relapse channels,
+  modest); Raes & De Raedt 2012 (*Behav. Ther.* 43:757 — CC
+  reduces evaluative conditioning d≈0.2, expectancy intact);
+  Bouton 2004 (no special permanence — DEBATED distinctness).
+- Gable, Reis, Impett & Asher 2004 (*JPSP* 87:228 —
+  capitalization: sharing positives boosts PA beyond the event,
+  gated on active-constructive response); Gable et al. 2006
+  (*JPSP* 91:904 — ACR reception predicts relationship outcomes
+  over negative-event support); Langston 1994 (*JPSP* 67:1112).
+- Schirmer & Escoffier 2010 (*PLoS ONE* "Mark My Words" —
+  prosody shifts word valence in memory, independent of prosody
+  recall — implicit leak); Chappuis et al. 2014 (*Interspeech* —
+  prosody-induced EEM replicated ×3); voice-in-engaging-context
+  single-exposure acquisition at 1 week.
+- Maner et al. 2009 ("Intrasexual vigilance" — jealous-primed
+  individuals attend→encode→remember attractive same-sex rivals,
+  trait-gated); Schützwohl & Koch 2004 (sex-differentiated
+  delayed recall of sexual vs emotional infidelity cues);
+  Maner & Shackelford 2008 (jealousy basic-cognition review).
+- Keltner & Haidt 2003 (*Cogn. & Emot.* 17:297 — vastness +
+  accommodation); Shiota, Keltner & Mossman 2007 (self-
+  diminishing appraisals); Piff et al. 2015 (*JPSP* 108:883 —
+  small self); Rudd, Vohs & Aaker 2012 (*Psych. Sci.* — awe
+  expands perceived time). Memory signature = our HYPOTHESIS.
+- Hauswald et al. 2010 (*SCAN* — directed forgetting for neutral
+  but not arousing-negative pictures); 2021 *Mem. & Cogn.*
+  item-method meta (emotional DF ~4.2pp smaller, arousal-
+  moderated); van Schie et al. 2013 (direct-suppression
+  comparability — DEBATED, weak-end adopted); Anderson &
+  Hanslmayr 2014 (suppression mechanisms).
+- Hornstein & Eisenberger (safety-signal / social-buffering
+  direction — fire-time inhibition); Bouton (conditioned
+  inhibitors — expression suppressed, association intact);
+  Coan et al. 2006 anchor reused for the tier table.
+
+Registry: P1–P686. v65 suite: P677–P686 — 8 MUST (P678 sign-
+locked; P677/P679/P680/P682/P685/P686 each carry a locked null
+or locked exemption) and 2 SHOULD (P683 trait gate, P684 the
+awe HYPOTHESIS arm).
+
+## 125. Probes P687–P696 (v66 suite — false-memory VI, the
+residual channels)
+
+- **P687 telescoping shape (MUST):** whenEstimate on records at
+  Δ ∈ {7, 30, 90, 180}d inside a bounded elicit window — error
+  σ grows ≈linearly with slope 0.3–0.5 (R&B anchor); remote
+  events net-forward inside the window; flipping the window's
+  midpoint flips the pull direction (Huttenlocher signature —
+  bias tracks the question's bounds, not the event).
+- **P688 landmark anchoring (MUST):** two matched records, one
+  within landmark_pull range of a landmark day, one isolated —
+  anchored |error| reliably smaller; the landmark record's own
+  day skips mid/landmark pulls; teles_when_immune records skip
+  both pulls but keep σ noise.
+- **P689 coarse preservation (MUST):** drive dayConf below
+  threshold — season/month/weekday answers remain ≥2× more
+  accurate than exact-day answers (coarse_when_mult); emitted
+  dialogue takes the coarse form, not a guessed date.
+- **P690 order preservation (MUST — locked null):** two records
+  each landmarked — reported days may err arbitrarily but
+  emitted order NEVER inverts (order_preserve_null). FAIL on
+  any permutation across 1e4 jittered draws.
+- **P691 observation inflation (MUST — locked resist):**
+  `observed_action` on a routine partner action, source decayed
+  <0.3 → a nonzero share of profiles emit `actor:self`; adding
+  `warned` to the context does NOT reduce the flip rate
+  (obs_warn_resist); flip scales with discrim_mult (older >
+  younger at matched exposure).
+- **P692 dream channel (MUST — locked null):** dreamEvent mints
+  at dream_strength with source.dream; flip only via the decay
+  gate, rate rising with dissoc/fantasy/imagery; verbatim field
+  count IDENTICAL pre/post flip (dream_content_null);
+  plausibility-failing dreams never flip at any trait level.
+- **P693 distinctiveness heuristic (MUST):** identical lure,
+  recall with vs without demand_detail — endorsement suppressed
+  ∝ distinct_expect only when the record's encoding had
+  diagnostic channels; gist-only encodings show zero protection
+  at ANY age; veridical recall probability unchanged (the guard
+  never costs true hits).
+- **P694 false familiarity (SHOULD — locked null):** name
+  exposed 6× with no episodic record → fame/acquaintance
+  attributions emit; place-inconsistent names skew fame_p,
+  place-consistent skew acquaint_p; NO shared-episode record is
+  ever minted from fluency alone (fame_episode_null); immediate
+  (non-decayed) exposures attribute less than delayed (Jacoby
+  signature).
+- **P695 silent detection (MUST — locked null):** conflicting
+  account vs surviving verbatim → adoption ≈ dispute_mult with
+  NO disputed flag set; verbatim candidate strength identical
+  pre/post detection (detect_boost_null); weak-verbatim arm
+  detects rarely and adopts normally; contradictory content
+  detects ≥2× additive content.
+- **P696 imagery trait (SHOULD):** imagineEvent ×5 on
+  imagery ±1.5σ profiles — high arm reaches rm_rich_thresh and
+  flips earlier; low arm rarely crosses; source_confuse and
+  dream_flip scale the same direction; `vivid` held constant —
+  the two traits must show independent variance (orthogonality
+  check).
+
+## 126. Sources verified this version (P687–P696 backing)
+
+- Rubin & Baddeley 1989 (*JEP:G* 118 — dating-error growth
+  ~0.4 d/day, direction toward interval middle; apparent
+  telescoping from retention+bounded error, no systematic bias
+  needed); Thompson, Skowronski & Lee 1988 (diary method —
+  telescoping from ~8 weeks, slight nonsignificant time-
+  expansion for recent); Lee & Brown 2003 (boundary constraints
+  move the bias; forward telescoping survives guess-removal —
+  two mechanisms); Huttenlocher, Hedges & Prohaska 1988/1990
+  (hierarchical/category model — estimates migrate toward
+  bounds and prototypes); Friedman 1993 (coarse temporal
+  attributes outlive exact dates); Shum 1998 / Loftus &
+  Marburger 1983 (landmark anchoring).
+- Lindner, Echterhoff, Davidson & Brand 2010 (*Psych. Sci.*
+  21:1291 — observation inflation: false self-performance after
+  mere observation; persists despite warnings and removed
+  sensory overlap; action-simulation account); Lindner &
+  Davidson 2013 (*Aging Neuropsych. Cogn.* — false action
+  memories in older adults, executive-function linked).
+- Rassin, Merckelbach & Spaan 2001 (*J. Nerv. Ment. Dis.*
+  189:478 — dream-reality confusion reported by 11.8%/25.9% of
+  two samples; correlates dissociation + fantasy proneness);
+  Mazzoni & Loftus 1996 (*Conscious. Cogn.* 5:442 — dream
+  content implanted→recalled as real); Kemp, Burt & Sheen 2003
+  (*Appl. Cogn. Psychol.* 17:577 — dreamt experiences carry
+  thinner phenomenology); Wamsley et al. 2014 (*Sleep* 37:419 —
+  narcolepsy dream delusions, sustained false beliefs; clinical
+  ceiling).
+- Schacter, Israel & Racine 1999 (*JML* 40:1 — distinctiveness
+  heuristic: diagnostic-recollection demand suppresses false
+  recognition, gated on distinctive encoding); Gallo, Bell,
+  Beier & Schacter 2006 (*Memory* 14:730 — recall-to-reject +
+  distinctiveness heuristic, both available to older adults when
+  encoding supports); Koutstaal & Schacter 1999 (scrutiny
+  reduces gist-false recognition in the old, residual gap
+  remains); Dodson & Schacter 2002 (metacognition framing).
+- Jacoby, Kelley, Brown & Jasechko 1989 (*JPSP* 56:326 —
+  becoming famous overnight: delayed-only false fame, familiarity
+  survives source recollection); Jacoby, Woloshyn & Kelley 1989
+  (*JEP:G* 118:115 — divided attention at test amplifies).
+- Tousignant, Hall & Loftus 1986 (*Mem. & Cogn.* 14:329, N=570 —
+  slower/scrutinizing readers detect discrepancies and resist;
+  detection is the mediating variable); recollection-rejection
+  line (*Appl. Cogn. Psychol.* 2017 — spontaneous rejection of
+  contradictory > additive misinformation, decaying with delay);
+  retrieval-enhanced-suggestibility discrepancy work (*Memory*
+  2017 — RES accrues to non-detectors only).
+- Horselenberg et al. 2000 (*Appl. Cogn. Psychol.* — imagery
+  ability the sole predictor of imagination inflation); Heaps &
+  Nash 1999 (dissociation predicts inflation, N=94); Dobson &
+  Markham 1993 (*Brit. J. Psychol.* 84 — high imagers worse at
+  external-external source discrimination); Marks 1993 (imagery
+  vividness × reality-monitoring frequency judgments).
+
+Registry: P1–P696. v66 suite: P687–P696 — 7 MUST (P687–P693,
+P695; P690–P692 and P695 each carry a locked null/resist) and
+3 SHOULD (P694 locked-null-bearing, P696 trait orthogonality).
+
+## 127. Probes P697–P708 (v67 suite — individual-differences VI,
+the tails, the motivated mind, the body history, null #2)
+
+- **P697 the calendar mind (MUST — two locked nulls):** hsam=1
+  vs hsam=0 profiles on identical 90-day self-present event
+  diets — own-life retention near-flat (β effective ≤0.2×
+  control) and whenEstimate σ ≤ ~10% of control; on matched
+  non-self "laboratory" records all retention within jitter
+  (hsam_lab_null); misinformation adoption and lure
+  endorsement within jitter (hsam_misinfo_null — Patihis
+  2013). A general-memory or false-memory advantage fails.
+- **P698 the third person (MUST — three locked nulls):**
+  sdam=1 episodic queries return generic/know-mode
+  reconstructions ≥60% more often with forced observer
+  perspective; semantic, skill, and PM outcomes match control
+  (sdam_sem_null); encoding E terms identical (sdam_enc_null);
+  confidence stays fluent, not chronically uncertain
+  (sdam_conf_null).
+- **P699 elaboration is choosy (MUST — sign-locked):**
+  `elaborable` events tagged arg_quality — nfc=+1.5's
+  strong−weak field-retention gap ≈2× the nfc=−1.5 gap;
+  matched non-elaborable events identical; all beta_*
+  unchanged (encoding disposition, never storage).
+- **P700 forgotten but not gone (MUST — recognition lock):**
+  matched threaten-self vs affirm-self `self_feedback` events:
+  mnemic=+1.5 recalls ~30% fewer threaten fields; cueContext
+  mode:"recognition" recovers them at control rate
+  (mnemic_recog_null); other-referent feedback identical at
+  all trait values; `close:true`-source threaten events exempt.
+- **P701 Ribot's window (MUST — sign-locked):** `tbi_event`
+  minted mid-timeline — retrograde erasure graded by severity
+  (mild ≈ hours, severe ≈ weeks), remote records spared;
+  residual wmc-side tax present at +90d and STABLE — any
+  year-over-year deficit growth fails (tbi_prog_null).
+- **P702 the invisible allele (MUST — onset lock):** apoe=e4
+  vs e3 — identical curves at age_eff 30/40; divergence only
+  past onset on episodic-side params; semantic/procedural/PM
+  identical at every age; homozygous > heterozygous ordering.
+- **P703 the ordinary advantage (SHOULD — ceiling-locked):**
+  synesth=2 episodic E advantage ≈5–15% across ALL channel
+  types including synesthesia-irrelevant material (the 2019
+  meta's pervasiveness); >25% advantage FAILS — the bound is
+  the point (Rothen & Meier 2010).
+- **P704 the groove (MUST):** rumin=+1.5 negative self-
+  referent records show elevated rehearsal counts, slowed
+  neg_affect_decay, lowered intrusion_thresh on negative cues;
+  positive/neutral rehearsal and all encoding params
+  identical; rumin=−1.5 shows the small reflection gain on
+  problem-framed retells (Watkins 2008 asymmetry).
+- **P705 meshing null (MUST — honesty lock):** 200 draws,
+  learn_style pinned vs randomized, modality-matched vs
+  modality-mismatched encode contexts → recall identical
+  within jitter; ANY systematic loading or interaction fails.
+  Same honesty-lock architecture as P575 (birth_order).
+- **P706 tail exclusivity (MUST):** joint sampler draws with
+  hsam·sdam both >0 never emit — the projection resolves to
+  the larger magnitude; resulting profiles carry exactly one
+  tail's signature, never a composite.
+- **P707 rehearsal is the engine (SHOULD — mechanism audit):**
+  hsam=1 with the `hsam_rehearse` leg ablated (remin_w forced
+  to control) collapses the own-life advantage toward control;
+  the ablation — not the flag — must carry the effect. A
+  build where hsam survives rehearsal-removal is a magic flag,
+  not a mechanism.
+- **P708 the feedback ledger (SHOULD — compound audit):**
+  mnemic=+1.5 × self_srv=+1.5 criticized after shared work:
+  own-effort fields stay dense (self_srv arm) while threat
+  fields thin (mnemic arm) — both operators visible in one
+  record, additive, no interaction term.
+
+## 128. Sources verified this version (P697–P708 backing)
+
+- Parker, Cahill & McGaugh 2006 (*Neurocase* 12:35 — first
+  HSAM case "A.J."/Jill Price, diary-verified date recall);
+  LePort et al. 2012 (*Neurobiol. Learn. Mem.* 98:78, N=11 —
+  superior personal+public event recall WITH dates, matched
+  controls on standard lab tests); LePort et al. 2016/2017
+  (N≈33+; OC-spectrum correlation); Patihis et al. 2013
+  (*PNAS* 110:20947 — HSAM DRM/misinformation false memories
+  at control rates — the misinfo null).
+- Palombo, Alain, Söderlund, Khuu & Levine 2015
+  (*Neuropsychologia* 72:105, N=3 — SDAM: absent recollection
+  biomarkers, intact wherever tasks are non-episodic; "third
+  person" self-description); Palombo et al. 2018 (review);
+  Wan et al. 2024 (partial aphantasia covariation).
+- Cacioppo & Petty 1982 (*JPSP* 42:116 — NFC scale); Cacioppo,
+  Petty, Feinstein & Jarvis 1996 (*Psych. Bull.* 119:197 —
+  meta: elaboration + strong/weak argument memory gap);
+  Cohen, Stotland & Wolfe 1955 (grandfather study).
+- Sedikides & Green 2000 (*JPSP* 79:168 — mnemic neglect);
+  Sedikides, Green & Pinter 2004 (*EJSP* 35:225 —
+  modifiability moderator); Green, Sedikides & Gregg 2008
+  (*JESP* 44:547 — recall deficit, recognition intact:
+  "forgotten but not gone"); Sedikides & Green 2006 (*BBS*
+  29:532 — inhibitory-repression framing); Sedikides & Green
+  2009 (review — dysphoria attenuates, close-source averts;
+  Green, Pinter & Sedikides 2009 *Self & Identity* 8:233).
+- Russell & Nathan 1946 (*Brain* 69:280 — Ribot graded
+  retrograde amnesia; PTA as severity index); Belanger,
+  Curtiss, Demery, Lebowitz & Vanderploeg 2005
+  (*Neuropsychology* 19:595 — mild-TBI meta: small persisting
+  WM/pspeed effect); Dikmen et al. 2009 (PTA dose-response).
+- Caselli et al. 2009 (*NEJM* 361:255, N=815 — asymptomatic
+  ε4 carriers' memory decline diverges before 60,
+  dose-ordered, weaker non-memory effects); Bookheimer et al.
+  2000 (midlife ε4 subtleties); Nilsson et al. 2006.
+- Rothen & Meier 2010 (*Memory* 18:258 — "ordinary rather
+  than extraordinary"); Rothen et al. 2019 (multi-level
+  meta-analysis — episodic d̂≈0.61, WM d̂≈0.36, pervasive
+  across stimuli); Rothen & Meier 2009 (*PLoS ONE* 4:e5037 —
+  group null vs case-report selection bias).
+- Nolen-Hoeksema 1991 (*JPSP* 60:115 — rumination prolongs
+  negative mood); Watkins 2008 (*Psych. Bull.* 134:163 —
+  constructive reflection vs unconstructive brooding);
+  Lyubomirsky & Tkach 2004 (ruminators' negative AM bias).
+- Pashler, McDaniel, Rohrer & Bjork 2008 (*Psych. Sci. Public
+  Interest* 9:105 — no credible meshing-hypothesis evidence);
+  Rogowsky, Calhoun & Tallal 2015 (RCT — modality matching
+  did nothing).
+
+Registry: P1–P708. v67 suite: P697–P708 — 8 MUST (P697–P702,
+P704–P706; P697/P698/P700–P702 carry locked nulls, P705 is an
+honesty lock) and 4 SHOULD (P703 ceiling-locked, P707
+mechanism audit, P708 compound audit).
+
+## 129. v68 probes — social-memory VI (P709–P720)
+
+Probe specs in social-memory.md §94; summary contract here.
+Scripted-conversation and scripted-transgression fixtures
+extend the §73/P-series harness vocabulary — new fixture
+kinds: `turnOrderedConversation` (declared `willSpeak`/
+positions), `impliedAccount` (account payloads with
+`implied` fields), `transgressionPair` (`harmed:`-tagged
+dyadic event), `viaChain` rumor loops, `witnessed`
+commitments, and asymmetric-familiarity re-introductions.
+
+- **P709** next-in-line (MUST — encoding lock):
+  `nil_retrieve_null` enforced; `pre_attend` inversion arm.
+- **P710** schema's revenge (MUST — two-arm sign lock):
+  weak→incongruent-recall advantage, strong→reversal +
+  congruent recognition; `incong_encode_null` floor.
+- **P711** implied-becomes-said (MUST): mint rate, weak
+  source, unreportable provenance.
+- **P712** accessible construct (SHOULD): prime shift,
+  decay window, chronic-baseline arm.
+- **P713** outcome dependency (MUST — sign-locked):
+  incongruity-focused resolution gain; `odep_favor_null`.
+- **P714** magnitude gap (MUST — sign-locked, two books):
+  `mag_encode_null` at birth; divergence +60d;
+  `mag_converge_null` under mutual retell.
+- **P715** forgiveness ≠ amnesia (MUST — locked null):
+  `forg_erase_null`; decisional→emotional `forg_lag`;
+  reduced-rate re-sting.
+- **P716** returned story (SHOULD — cap-locked):
+  `echo_full_null` while verbatim lives; ungated arm after
+  archival; confidence bonus present.
+- **P717** witnesses bind (SHOULD): both promise arms +
+  third-party clones + shame mint.
+- **P718** provenance persists (SHOULD): metVia survives
+  name-tier death at ≥metvia_perma.
+- **P719** we've met (SHOULD): offense mints on the
+  remembering side only; gap- and attach_anx-scaled.
+- **P720** turn-taking compound (SHOULD — mechanism
+  audit): hole positions correlate with turn adjacency;
+  ablating nil_loss kills the correlation, not the recall.
+
+## 130. Sources verified this version (P709–P720 backing)
+
+- Brenner 1973 (*J. Exp. Psychol.* 98:120 — verified via
+  full-text scan: N=88 turn-taking recall, ~2-before/1-after
+  window, "waiting to ask a question" phenomenology); Bond
+  1985 (*JPSP* 48:853 — verified abstract: encoding not
+  retrieval; semantic cues don't moderate, post-hoc
+  instruction doesn't, PRE-instruction reverses); Bond &
+  Kirkpatrick 1982 (*JESP* 18:307); Bond 1991 (*PSPB*
+  17:174 — elaborative rehearsal eliminates; eye contact
+  does not).
+- Stangor & McMillan 1992 (*Psych. Bull.* 111:42 — verified:
+  54-experiment meta, incongruity advantage under weak/
+  formed expectancies, congruent advantage under strong
+  established schemas and in recognition); Sherman et al.
+  1998 (*Psych. Sci.* — integration-theory model fit).
+- Harris & Monaco 1978 (*JEP:G* 107:1 — pragmatic
+  implication recalled as asserted); Brewer 1977 (linguistic
+  inference constructivism).
+- Higgins, Rholes & Jones 1977 (*JESP* 13:141 — trait-
+  construct priming assimilates ambiguous behavior); Srull &
+  Wyer 1979 (*JPSP* 37:1660); Bargh, Bond, Lombardi & Tota
+  1986 (*JPSP* 50:869 — chronic accessibility); Martin 1986
+  (set/reset — contrast boundary conditions); Macrae et al.
+  1994 (suppression rebound amplifies primed categories).
+- Erber & Fiske 1984 (*JPSP* 47:709 — outcome dependency →
+  attention to inconsistency); Neuberg & Fiske 1987
+  (*JPSP* 53:431 — dependency → individuation); Fiske &
+  Dépret 1996 (power asymmetry: dependent individuates up).
+- Baumeister, Stillwell & Wotman 1990 (*JPSP* 59:994 —
+  victim/perpetrator narrative asymmetry); Stillwell &
+  Baumeister 1997 (*Psych. Sci.* 8:219 — magnitude gap);
+  Kearns & Fincham 2005 (gap → unforgiveness).
+- McCullough et al. 2003 (*JPSP* 85:321 — forgiveness =
+  motivation change); Worthington 2003 (decisional vs
+  emotional); vanOyen Witvliet et al. 2001 (*Psych. Sci.*
+  12:117 — physiology drops, episode intact); Exline et al.
+  2003.
+- Kiesler 1971 (*The Psychology of Commitment* — public
+  declaration binds); Cialdini (consistency principle).
+- Gabbert, Memon & Allan 2003 (71% co-witness adoption —
+  the cap anchor for `echo_adopt_p`; reuse from FM§8).
+
+## 131. v69 probes — social-memory VII (P721–P732)
+
+- **P721** orphan impression (MUST — persistence):
+  encode trait-implying behaviors on person X, decay all
+  supporting records out; PersonModel[X] eval floors at
+  ≥`orphan_eval_resid` and emits `orphan_eval:true`.
+- **P722** orphan no-episode (MUST — locked null): no
+  retrieval/drift path mints verbatim support for an
+  orphan eval; tell-time gist rationalization allowed,
+  record minting fails the battery.
+- **P723** favor ledger (MUST — sign-locked asymmetry):
+  matched give/receive favors — received outlasts given at
+  every horizon; `favor_give_decay=0` fails the clamp
+  (`favor_sym_null` structural).
+- **P724** coalition overwrite (SHOULD): after ≥3
+  alignment acts, external confusions concentrate
+  ≥`coal_cat_overwrite`×100% within-faction across
+  demographics; pre-conflict valence untouched
+  (`coal_recolor_null` arm).
+- **P725** relationship bump (SHOULD): recall density vs
+  relationship-age peaks in `rel_bump_win` then baselines;
+  relationship-cued recall returns landmark-dated reports.
+- **P726** noticed absence + ghost null (MUST):
+  expected-but-absent mints `noticed_absence` at
+  ~`absence_p`/`abs_val`; under EVERY retrieval mode the
+  record produces zero co-presence/siding/attendance for
+  the absentee.
+- **P727** blunder asymmetry (MUST): matched blunder
+  self/observer — self hot+durable + rumin-eligible,
+  observer fades ≥1.5×; `expected_recall` ≈
+  `aud_recall_over`× observer actual.
+- **P728** blunder audit (MUST — locked null): witnessed
+  blunders never mint self-side shame/hot records even
+  under observed-action flip conditions.
+- **P729** central-speaker convergence (SHOULD):
+  member-memory overlap with central speaker's selective
+  version exceeds peripheral speaker's by
+  `central_speaker_mult` margin; one-hop pairs converge at
+  `net_hop_decay` of direct; out-group chains attenuate.
+- **P730** dyad idioms (SHOULD): idiom cue succeeds
+  in-dyad, fails at `idiom_dyad_gate` outside; post-
+  `relationship:end` cue still fires at
+  `idiom_orphan_loss` strength.
+- **P731** rival watch (SHOULD — certainty lock):
+  committed-edge threat cues retain at `rival_cue_gain`
+  and resist disengagement; beliefStatus never auto-
+  upgrades to "confirmed" (`rival_certainty_null`).
+- **P732** provenance flatten (SHOULD — upgrade lock):
+  3-node `prov_chain` loses ~`prov_flat_p` intermediate
+  nodes/retell, re-anchors proximally, empties to
+  `kind:"rumor"`; credibility never exceeds proximal
+  speaker at any depth (`prov_upgrade_null`).
+
+## 132. Sources verified this version (P721–P732 backing)
+
+- Johnson, Kim & Risse 1985 (*JEP:LMC* 11:22 — Korsakoff
+  affective reactions without retrievable person memory);
+  De Houwer, Thomas & Baeyens 2001 (evaluative
+  conditioning meta); Srull & Wyer 1989 (online
+  impressions stored apart from behaviors).
+- Greenberg 1980 / Greenberg & Westcott 1983
+  (indebtedness — receiver-side obligation ledger);
+  Ross & Sicoly 1979 (egocentric availability); Emmons &
+  McCullough 2003; Watkins et al. 2003 (gratitude
+  rehearsal retains benefits).
+- Kurzban, Tooby & Cosmides 2001 (*PNAS* 98:15387 —
+  coalitional encoding deflates race categorization in
+  ~4 min); Pietraszewski, Cosmides & Tooby 2014 (*PLoS
+  ONE* 9:e88534 — alliance cues regulate; sex/age
+  persist).
+- Buehlman, Gottman & Katz 1992 (*J. Fam. Psychol.*
+  5:295 — oral-history bond variables predict stability
+  ~94%; beginnings dominate narration).
+- Gilovich, Medvec & Savitsky 2000 (*JPSP* 78:211 —
+  spotlight ~2× overestimate); Savitsky, Epley &
+  Gilovich 2001 (audience-retention overestimate).
+- Coman, Manier & Hirst 2016 (*PNAS* 113:8171 —
+  mnemonic convergence in 10-member networks); Yamashiro
+  & Hirst 2020 (*JEP:G* 149:1000 — central speakers,
+  ingroup amplification); Coman & Hirst 2015
+  (transitive propagation).
+- Hopper, Knapp & Scott 1981 (*Comm. Monogr.* 48:23 —
+  couples' personal idioms); Bruess & Pearson 1997.
+- Schützwohl & Koch 2004 (*EHB* 25:249); Schützwohl
+  2005 (*EHB* 26:288 — cue recall); 2008 (*PAID* 44:633 —
+  disengagement resistance, committed-only); Harris 2000
+  (mechanism challenge — DEBATED tier).
+- Provenance flattening: HYPOTHESIS composite — §4
+  serial-reproduction leveling (Bartlett 1932; Allport &
+  Postman 1947; Kashima 2000) + beta_source decay;
+  `prov_upgrade_null` is the honesty commitment.
+
+Registry: P1–P732. v69 suite: P721–P732 — 5 MUST
+(P721–P723, P726–P728; P722/P723/P726/P728 carry locked
+nulls) and 7 SHOULD (P724/P725/P729–P732; P731/P732
+carry lock arms).
+
+## 133. v69 formal-model probes — composition, context, surface (P733–P744)
+
+Formal/consistency probes for spec §15 / formal-model.md Part VII.
+These are machinery probes — they constrain the *algebra*, not a
+psychological effect size.
+
+- **P733** θ saturation (MUST — locked null): maximal legal
+  penalty stack (stress>thresh inside lag window + daLoad=1 +
+  evaluative + off-peak synchrony + selfinit + sem_search_tax) on
+  age_eff=85; θ_eff ≤ θ + `theta_cap` identically; tanh
+  monotonicity. `theta_unbounded = 0`.
+- **P734** gain saturation (MUST — locked null): all E-gain legs
+  composed simultaneously on a maximally-tagged event (self-agent
+  + arousal + novelty + generated + enacted + spoken + boundary +
+  isolated + value + mood-congruent); E_eff < 1 strictly and
+  monotone non-decreasing in each leg. `e_overbound = 0`.
+- **P735** modifier-ledger auditability (MUST): fuzz 10⁴ kernel
+  calls; every effective-param deviation from base replays through
+  `modLedger` entries in application order, bit-exact per §13.4;
+  any unexplained deviation = FAIL (the param-side orphan_rewrite).
+- **P736** graceful degradation (MUST — sign-locked axiom): at
+  maximal θ shift, strength-1 maximal-cue records recall ≥
+  `grace_floor` (0.05) over 10⁴ draws. The substrate may degrade
+  a mind; it may not disable it.
+- **P737** surface-map completeness (MUST): fuzz emission field
+  combinations; every combination resolves to a `surfMap` row or
+  a declared OPTIONAL; unknown combination = contract violation,
+  never default rendering.
+- **P738** hedge direction (MUST — sign-locked): hedged:true
+  surfaces carry modal-uncertainty marks 100%; hearer-side
+  adoption of hedged content never exceeds hedged-strength entry
+  (S1 — no strengthening in transmission through the surface).
+- **P739** content:null honesty (MUST — locked null): aff_flash
+  and orphan_eval emissions produce zero content-field wording
+  across the fuzz corpus. `surf_mint = 0` — feeling without scene
+  is a first-class output.
+- **P740** latency isolation (SHOULD): latency_ms bounded by
+  lat_cap·`lat_mult_cap`; cross-record correlation of latency
+  with θ = 0 — display observable only, never retrieval input
+  (re-asserts P374 under the registry).
+- **P741** context persistence (SHOULD): undelivered-since-t
+  place cues re-match with probability ≈ exp(−Δt/`ctx_tau`)
+  ± sampling noise; `|C.fields| ≤ att_span_ctx` invariant across
+  10⁴ context transitions; internal fields exempt.
+- **P742** oracle null (MUST — locked null): contexts injected
+  with fields never delivered to the character yield cueMatch
+  contribution 0 identically. `ctx_oracle = 0`.
+- **P743** declaration gate (SHOULD — meta): every MemoryParams
+  key resolves a paramDecl {class, signature, aliases}; every
+  decl's probe ref resolves; undeclared key = build error under
+  `identi_gate:"enforce"`.
+- **P744** stiff-direction report (SHOULD — meta): validation runs
+  emit top-k stiff directions of the param→verdict Jacobian on the
+  full 28-character trait joint; new-params/no-new-stiff-directions
+  parity is reported (not gated) per version.
+
+## 134. Sources verified this version (P733–P744 backing)
+
+- Craik, Govoni, Naveh-Benjamin & Anderson 1996 (*Psychol Sci*
+  7:52 — age×divided-attention joint hit is bounded and
+  sub-additive); Naveh-Benjamin, Craik, Guez & Kreuger 2000;
+  Shields, Sazma, McCullough & Yonelinas 2017 (*Psych Bull*
+  143:636 — stress×emotion retrieval meta, 113 studies). Basis of
+  the saturating-additive law L1 (functional form is HYPOTHESIS;
+  the bounded sub-additive sign is the empirical constraint).
+- Tulving & Osler 1968 (*JEP* 77:593 — cue redundancy doesn't pay
+  twice) — precedent for reusing noisy-OR on gains (L2).
+- Roberts & Pashler 2000 (*Psych Rev* 107:358 — fits constrain
+  theory only where the theory can fail) — warrant for bounded
+  composition and the declaration gate.
+- Estes 1955 (*Psych Rev* 62:74 — stimulus fluctuation); Mensink
+  & Raaijmakers 1988 (*J Math Psych* 32:434 — context-drift
+  forgetting); Howard & Kahana 2002 (*J Math Psych* 46:269 —
+  retrieved context) — context-as-decaying-state grounding.
+- Miller 1956 (7±2 — conservative cue-set cardinality basis for
+  `att_span_ctx`; marked HYPOTHESIS).
+- Koriat & Goldsmith 1996 (*Psych Rev* 103:490 — monitor-control;
+  the hedge is informative); Brennan & Williams 1995 (*J Mem Lang*
+  34:237 — listeners read hedges as FOK); Brown 1991 (*Psych
+  Bull* 109:204 — TOT phenomenology); Smith & Clark 1993
+  (*JPSP* 65:186 — response-time/memory-access covariance —
+  latency-as-observable).
+- Gutenkunst et al. 2007 (*PLoS Comput Biol* 3:e189 — sloppy
+  directions) — the stiff/sloppy class definitions and P744's
+  Jacobian report.
+
+Registry: P1–P744. v69 suite: P733–P744 — 7 MUST (P733–P739,
+P742; P733/P734/P739/P742 carry locked nulls; P736/P738 sign-
+locked) and 5 SHOULD (P740–P744; P743/P744 meta).
+
+## 135. v70 character-profiles probes — the narrator's compass (P745–P756)
+
+Probes for spec §6.145–6.151 / cast-profiles.md Part III. Six of
+twelve carry locked nulls — the compass moves selection, depth,
+and wording; existence, provenance, and content are out of bounds.
+
+- **P745** tp arrival-only (MUST — locked null): two identical
+  archives (one old positive + one old negative record); run
+  tp_pastpos-high and tp_pastneg-high twins; spontaneous-arrival
+  ranking must swap, record fields identical bitwise.
+  `tp_fate_null = 0`.
+- **P746** perspective sign-lock (MUST — sign-locked): across the
+  trait joint, spontaneous arrivals of old records must be
+  monotone non-decreasing in tp_pastpos for valence>0 records and
+  in tp_pastneg for valence<0 records; tp_preshed monotone
+  non-increasing for all is_old records. Any inversion = FAIL.
+- **P747** thematic depth split (MUST — sign-locked): same
+  mixed-theme event encoded by narr_agency-high vs narr_comm-high
+  twins → goal/obstacle field depth higher under agency,
+  affiliative field depth higher under communion; total field
+  mass equal within noise. Swap of sign = FAIL.
+- **P748** theme never mints (MUST — locked null): event with no
+  obstacle fields + narr_agency = 1 → emitted record carries zero
+  goal/obstacle content over 10⁴ encodes.
+  `theme_fabricate_null = 0`.
+- **P749** lesson minting (SHOULD): autobio_k = 1, retell of a
+  meaning ≥ 0.4 selfdef record → `lesson` persSem exists with
+  `origin:"derived"` and `sources` back-linked; autobio_k = 0 →
+  zero lessons over matched retell counts.
+- **P750** lesson boundary (MUST — locked null): lessons
+  rehearsed/retold ≥ 50 times keep `origin:"derived"` and never
+  edit source-record fields. `lesson_truth_null = 0`.
+- **P751** coherence linking (SHOULD): narr_coh_k 0 vs 1 twins,
+  matched retell counts → link degree on told records diverges
+  (≈0 vs >2); existing-link decay unaffected (control: kill new
+  mints → link mass equalizes at baseline).
+- **P752** chaptered walls (MUST — sign-locked): identical
+  transition history, period_sal 0 vs 1 → cross-period cueMatch
+  cost ratio ≈ (0.3 + 1.4·ps) scaling; monotone in period_sal.
+- **P753** era wording is surface (MUST — locked null): period_sal
+  sweep changes emission era-wording rate but record content and
+  valence identical; `period_identity_null = 0`.
+- **P754** future thickness (SHOULD): matched-age twins,
+  epi_future_k 0.15 vs 0.9 → imagineEvent verbatim counts scale;
+  sim_detail_mult age knot unchanged (age and trait orthogonal).
+- **P755** rich futures stay futures (MUST — locked null):
+  epi_future_k = 1, imagineEvent at max richness, no §6.9 flip
+  path enabled → recall of the imagined event AS past = 0 over
+  10⁴ draws. `future_leak_null = 0`.
+- **P756** tension knocks, doesn't damage (MUST — locked null):
+  selfdef twins tension 0 vs 1 → re-access rate differs
+  (×1 + sdm_tension_intr), strength/valence/content identical.
+  `tension_fate_null = 0`.
+
+## 136. Sources verified this version (P745–P756 backing)
+
+- Zimbardo & Boyd 1999 (*JPSP* 77:1271 — verified): ZTPI
+  orthogonality → five independent pins, not a normalized
+  simplex; D'Argembeau & Mathy 2011 (*J Cogn Psychol* 23 —
+  verified): future-TP ↔ goal rehearsal.
+- McAdams 2001 (*Rev Gen Psychol* 5:100); Adler 2012 (*JPSP*
+  102:367); Adler, Lodi-Smith, Philippe & Houle 2016 (*PSPR*
+  20:142) — thematic depth/retell emphasis; the FIELD-DEPTH
+  mechanism mapping is our HYPOTHESIS.
+- Pasupathi & Mansour 2006 (*Dev Psychol* 42:798); McLean,
+  Pasupathi & Pals 2007 (*PSPR* 11:262); McLean & Thorne 2003
+  (*Dev Psychol* 39:635) — lesson/self-event connections; the
+  persSem `lesson` subtype is our formalization.
+- Reese et al. 2011 (*Memory* 19:688) — coherence dimensions;
+  narr_coh_k's link-mint role is our HYPOTHESIS.
+- Thomsen 2009 (*Memory* 17) — chapter count/closure vary;
+  period_sal is the per-character formalization of §4.18.
+- Williams et al. 1996 (*Memory* 4:115 — verified): past↔future
+  specificity coupling → epi_future_k prior; Schacter & Addis
+  2007; Hassabis et al. 2007 — simulation needs the episodic
+  machinery (locked null basis).
+- Singer, Blagov, Berry & Oost 2013 (*JPSP* 105:262) — tension
+  as a selfdef dimension; intrusion-only mapping is our
+  HYPOTHESIS (tension→distress is established; tension→re-access
+  is the plausible read).
+
+Registry: P1–P756. v70 suite: P745–P756 — 9 MUST (P745–P748,
+P750, P752, P753, P755, P756 — locked-null carriers: P745/P748/
+P750/P753/P755/P756; sign-locked: P746/P747/P752) and 3 SHOULD
+(P749, P751, P754).
+
+## 137. Measurement backreaction (VA-MEAS) — the probe is a
+## participant (new in v71, validation-design IV)
+
+Every public measurement call is also an intervention. `recall`
+strengthens the trace (testing effect — Roediger & Karpicke 2006,
+*Psych Sci* 17:249, verified; meta-analytic d ≈ 0.5 vs restudy,
+Rowland 2014, *Psych Bull* 140:1432, verified), `retell` mints
+links and (v70) `lesson` records, `discussEvent` seeds distortion
+through the harness's own interlocutor. A validation suite that
+ignores this measures the studied system PLUS its own footprint.
+
+Binding rules:
+
+- **`measure_budget` is a required manifest field** — max
+  observations per (member, record). Default 1 (destructive
+  sampling): a member answers about a given record once, because
+  the second answer is a different human fact — "remembered
+  yesterday AND today" is a testing-effect datum, not an accuracy
+  datum.
+- **Repeated-measure probes must name the effect they ride.** A
+  retest design is legal iff its declared target *is* retrieval-
+  induced change; otherwise it is a lint fail.
+- **Twin-arm self-calibration:** longitudinal probes run a
+  measured arm and an unmeasured arm. Their divergence is the
+  probe's own testing effect and must sit inside the declared
+  band (§139); a probe whose footprint exceeds the human band is
+  over-intervening — fix the schedule, not the model.
+- **Analyzer correction:** `retrievalCount` (hidden tap, §2.4)
+  is a mandatory covariate when comparing to human anchors —
+  lab participants do not accumulate retrieval practice between
+  encoding and test the way a probed character does.
+- **Interlocutor dose control:** the harness's scripted
+  discussant is a rumor source and must carry a declared dose —
+  suggestion count, misleading-item load, post-event accuracy —
+  exactly as Loftus, Miller & Burns 1978 controlled the
+  misinformation dose. An undeclared-dose misinfo probe measures
+  the script, not the character.
+
+## 138. Endogenous selection (VA-COLLIDER) — condition on
+## encoding, never on retrieval (new in v71)
+
+Accuracy is only observable on retrieved records; conditioning on
+retrieval is conditioning on a collider (selection on strength,
+arousal, cue density — Elwert & Winship 2014, *Annu Rev Sociol*
+40:31, verified). The known biases this produces:
+
+- measured accuracy inflated (weak traces never enter the
+  denominator);
+- distortion rates biased down (the traces that survive to be
+  scored are the ones that resist distortion);
+- age gaps understated (older cohorts' lower retrieval culls
+  more records before scoring — the surviving sample looks
+  artificially similar).
+
+Binding rules:
+
+- **Denominators are the generator manifest**, not the retrieved
+  set. Every accuracy/distortion statistic is per-encoded-event.
+- `retrieved_frac` is a mandatory co-reported statistic; it is
+  itself a primary outcome (humans forget — that is the point).
+- "Not retrieved" is a verdict category, not missing data.
+- Conditional-on-retrieval analyses are legal only when labeled
+  `cond:retrieved` and may never be compared to unconditional
+  human anchors.
+- **Selection signature (P762):** conditional accuracy must
+  exceed unconditional accuracy in any healthy build. If the
+  signature inverts or vanishes, retrieval is not
+  strength-selective — a spec bug in the cue/θ machinery, found
+  by the bias audit rather than by any anchor.
+
+## 139. Power registry and honest nulls (VA-MDE) (new in v71)
+
+A non-significant difference is not an absence of effect — with
+Button et al. 2013's (*Nat Rev Neurosci* 14:365, verified)
+median-power-~20% warning as the standing caution, every probe
+now carries:
+
+- `mde` — minimum detectable effect at declared `n_eff`,
+  α, and power (default 0.8);
+- `n_eff` computed through the §45 Kish design-effect correction
+  (ICC per cohort — clustering inflates nominal n);
+- `sesoi` — smallest effect size of interest, set once per
+  probe family at registration, never tuned per run.
+
+**Null-verdict rule:** claims of absence (all CONTESTED negative
+anchors, all locked-null probes, all "no difference between arms"
+findings) require **equivalence testing** — TOST against the
+`sesoi` bound (Lakens 2017, *Soc Psychol Personal Sci* 8:355,
+verified). For CONTESTED anchors the bound is the failed RRR's
+CI (e.g., ego depletion: Hagger 2016's [−0.07, 0.15]); for
+locked nulls the bound is the family's `sesoi`. A probe that
+reports "no effect, p = 0.3" without a TOST result is upgraded
+to nothing — it is INCONCLUSIVE, and INCONCLUSIVE counts against
+coverage the same as FAIL for gate purposes (a gate may not be
+held open by an underpowered run).
+
+Consequence under §110 versioning: verdicts issued under the old
+"ns = absent" rule are archived under their probe_version;
+equivalence-verdict probes carry new versions (P616 → P616v2).
+
+## 140. The multiverse on the sloppy manifold (VA-MULTI)
+## (new in v71)
+
+§107 licensed legal diversity along sloppy eigendirections. The
+conjugate obligation: verdicts must be robust across that legal
+space, else the equivalence class was misdeclared.
+
+- **Sloppy ensemble:** each MUST probe re-runs with each cast
+  operating point perturbed along its declared-sloppy directions
+  (magnitude ≤ the §107 equivalence radius) and across ≥2 legal
+  `deriveParams` modifier sets. Report `pass_frac`; the MUST gate
+  is pass_frac = 1.0 over the declared ensemble.
+- **Failure attribution:** an ensemble failure is either a spec
+  bug (the direction was not actually sloppy — re-stiffen) or a
+  probe bug (it reads an unanchored direction — reclassify
+  OBSERVE). Never silently re-run with a different jitter.
+- **Analyzer specification curve:** SHOULD probes enumerate their
+  legal analysis choices (time window, trimming rule, cohort
+  composition) as a small specification curve (Simonsohn,
+  Simmons & Nelson 2020, *Nat Hum Behav* 4:1208, verified;
+  Steegen et al. 2016, *Persp Psychol Sci* 11:702; Silberzahn
+  et al. 2018, *Adv Methods Pract Psychol Sci* 1:337 — 29
+  teams, one dataset, divergent answers). The reported verdict
+  is the median pipeline + the range; a SHOULD probe whose sign
+  flips across legal pipelines is demoted to OBSERVE with the
+  curve attached.
+- This is the battery's answer to researcher degrees of freedom
+  on *our* side — §44 governs peeking at results; VA-MULTI
+  governs choosing the lens.
+
+## 141. Transportability and constraints on generality (VA-WEIRD)
+## (new in v71)
+
+The anchor corpus is overwhelmingly drawn from WEIRD undergraduate
+samples at lab timescales; the simulated population is children,
+older adults, trauma histories, and months-long horizons. Henrich,
+Heine & Norenzayan 2010 (*Behav Brain Sci* 33:61, verified) is
+the standing warning; Simons, Shoda & Lindsay 2017 (*Persp
+Psychol Sci* 12:1123 — constraints-on-generality) supplies the
+mechanism: **no anchor statement is complete without its
+conditions.**
+
+Binding rules:
+
+- Every anchor row carries `pop_scope`: {age_band, arousal
+  regime, timescale class, culture_class:"weird_default" unless
+  established otherwise}.
+- A probe whose cohort ≠ the anchor's `pop_scope` must either
+  (a) transport — apply the spec's declared moderator (e.g., the
+  age×binding split, the childhood-amnesia window) and widen the
+  band by the transport uncertainty — or (b) declare the anchor
+  inapplicable and mark the probe `transported` or `unanchored`.
+- `transported` verdicts never carry MUST weight alone; a MUST
+  gate on a transported claim requires ≥1 same-population anchor
+  in the family.
+- Yarkoni 2020 (*Behav Brain Sci* 45:e1, verified) — the
+  generalizability crisis is about *verbal* claims outrunning
+  *statistical* support; our version: prose claims in the
+  character bibles ("older adults remember gist") must trace to
+  a transported band, not to the untransported lab number.
+- Worked requirement (P768): child-cohort misinformation must
+  exceed adult adoption — Ceci & Bruck 1993 / Bruck & Ceci 1999
+  establish the direction; the band is transported, the sign is
+  not negotiable.
+
+## 142. New probes P757–P768 (v71 suite — validation-design IV)
+
+- **P757** measure_budget lint (MUST — process): registry lint
+  rejects any probe manifest missing `measure_budget`; default
+  is 1; repeated-measure probes must name their target effect
+  in the manifest or fail registration.
+- **P758** destructive sampling (MUST): audit JSONL for
+  (member, record) observation counts; any accuracy probe
+  exceeding budget without `repeated_measures` registration =
+  FAIL; duplicates found → entire probe output quarantined,
+  not trimmed.
+- **P759** probe-side testing effect (SHOULD): measured vs
+  unmeasured twin arms at fixed RI; the measurement-arm
+  advantage must land in the Rowland-2014 band (d ∈ [0.3, 0.7]
+  after rep_shrink discipline, SESOI 0.2); outside either end =
+  miscalibrated measure_budget or runaway strengthening.
+- **P760** interlocutor dose monotonicity (MUST): two discussant
+  scripts differing only in suggestion dose (0 vs k misleading
+  items); phantom/adoption rate must be monotone non-decreasing
+  in dose; a flat or inverted dose response means the misinfo
+  channel is not dose-sensitive — FAIL (Loftus dose-control
+  precedent).
+- **P761** encoding-denominator lint (MUST — process): every
+  accuracy/distortion row reports per-encoded denominators +
+  `retrieved_frac`; conditional-only reporting is a registry
+  lint fail; `cond:retrieved` rows may not be scored against
+  unconditional anchors.
+- **P762** selection signature (SHOULD): within each scored
+  probe, accuracy|retrieved > accuracy overall; missing or
+  inverted signature → retrieval is strength-blind, triage as
+  spec bug in cue machinery, not a probe failure.
+- **P763** power registry lint (MUST — process): every probe
+  carries mde/power/n_eff/sesoi; null claims cite TOST vs the
+  bound; "ns" without TOST = INCONCLUSIVE, and INCONCLUSIVE
+  does not satisfy gates.
+- **P764** equivalence-verdict upgrade (MUST): all negative
+  anchors re-scored under TOST (P616v2 etc. per §139); a build
+  "passing" a CONTESTED anchor only via underpowered ns =
+  FAIL-by-underpower, not PASS.
+- **P765** sloppy-ensemble robustness (MUST): each MUST probe's
+  pass_frac over the declared sloppy ensemble = 1.0; each
+  ensemble failure logged with spec-bug vs probe-bug
+  attribution; un-attributed failures block release.
+- **P766** specification-curve report (SHOULD): SHOULD probes
+  emit median+range over declared analyzer pipelines; sign-flip
+  across legal pipelines → demote to OBSERVE with curve
+  attached; curve archived to the verdict ledger.
+- **P767** pop_scope lint (MUST — process): every anchor row
+  carries pop_scope; a probe citing an anchor outside scope
+  without `transported` + widened band = lint fail; transported
+  claims may not carry MUST weight alone.
+- **P768** child-misinformation transport (SHOULD): child cohort
+  vs midlife cohort, matched misinfo dose; child adoption must
+  exceed adult by the transported direction (Ceci & Bruck);
+  child ≤ adult = FAIL — the susceptibility moderator is
+  absent or inverted.
+
+## 143. Sources verified this version (P757–P768 backing)
+
+- Roediger & Karpicke 2006 (*Psych Sci* 17:249 — verified):
+  testing effect; the reason measurement is intervention.
+  Rowland 2014 (*Psych Bull* 140:1432 — verified): testing-
+  effect meta-analysis, d ≈ 0.5 vs restudy → P759 band after
+  rep_shrink (SINGLE→META upgrade; the testing literature is
+  among the most replicated in the field).
+- Loftus, Miller & Burns 1978 (*J Verbal Learn Verbal Behav*
+  17 — verified): misinformation paradigm with controlled dose;
+  the dose-control precedent for P760.
+- Elwert & Winship 2014 (*Annu Rev Sociol* 40:31 — verified):
+  endogenous selection / collider bias; formal basis of
+  VA-COLLIDER and P761–P762.
+- Lakens 2017 (*Soc Psychol Personal Sci* 8:355 — verified):
+  equivalence testing / TOST / SESOI discipline → VA-MDE,
+  P763–P764. Button et al. 2013 (*Nat Rev Neurosci* 14:365 —
+  verified): median power ~20% in neuroscience → why "ns"
+  cannot mean "absent".
+- Simonsohn, Simmons & Nelson 2020 (*Nat Hum Behav* 4:1208 —
+  verified): specification-curve analysis. Steegen et al. 2016
+  (*Persp Psychol Sci* 11:702 — verified): multiverse analysis.
+  Silberzahn et al. 2018 (*Adv Methods Pract Psychol Sci*
+  1:337 — verified): 29 analyst teams, same data, divergent
+  conclusions → analyzer spec curves are not optional.
+- Henrich, Heine & Norenzayan 2010 (*Behav Brain Sci* 33:61 —
+  verified): WEIRD sampling. Simons, Shoda & Lindsay 2017
+  (*Persp Psychol Sci* 12:1123 — verified): constraints on
+  generality → `pop_scope`. Yarkoni 2020 (*Behav Brain Sci*
+  45:e1 — verified): generalizability crisis → transported
+  bands for bible claims.
+- Ceci & Bruck 1993 (*Psych Bull* 114:403); Bruck & Ceci 1999
+  (*Psychol Public Policy Law* 5:136 — verified): children's
+  heightened suggestibility — direction established,
+  magnitude transported → P768.
+- Reused: Kish 1965 (§45 design effect → n_eff); Gutenkunst
+  2007 (§107 sloppy manifold → the VA-MULTI ensemble);
+  Johari 2017 (§44 peeking — complementary to lens choice);
+  OSC 2015 / Camerer 2018 (rep_shrink discipline, §105);
+  Nosek 2018 / §110 probe versioning (P616v2 archival).
+
+Registry: P1–P768. v71 suite: P757–P768 — 8 MUST (P757, P758,
+P760, P761, P763, P764, P765, P767 — of which four are process
+lints: P757, P761, P763, P767) and 4 SHOULD (P759, P762, P766,
+P768). Versioned upgrades: P616 → P616v2 (TOST regime).
+Net new machinery: VA-MEAS, VA-COLLIDER, VA-MDE, VA-MULTI,
+VA-WEIRD — the battery now disciplines its own footprint, its
+own denominators, its own nulls, its own analyst choices, and
+its own population claims.
+
+## 144. New probes P769–P778 (v72 suite — encoding-mechanics VI)
+
+- **P769** value ordering under overflow (MUST): n > wm_cap events
+  with graded importance → high-importance fields survive at the
+  value_rank_w-implied rate; the (high−low) value recall gap widens
+  with deficit_proxy at matched overall recall (Castel 2002/2009
+  selectivity shape; MUST-tier on the interaction, not the size).
+- **P770** value×memorability crossover (MUST): deficit cohort
+  shows the selectivity advantage on easy-high-value fields AND
+  its collapse on hard-high-value fields (Psych. Aging 2025
+  moderator); young cohort near-flat on both — a build where the
+  deficit cohort selects equally on hard items fails.
+- **P771** choice (SHOULD): choice:true mints higher E + lower
+  day-1 β than yoked assigned events; unchosen alternatives show
+  no gain (choice_scope audit); effect survives memoranda-content
+  decoupled from the choice (Murty 2015 design).
+- **P772** error-type triple (MUST): conceptual-guess pretests >
+  errorless > arbitrary-guess pretests on target recall; the
+  conceptual leg is age-flat (Cyr & Anderson 2015); arbitrary
+  guesses intrude at recall for deficit_proxy>0.6 profiles only
+  (Baddeley & Wilson 1994 phenotype).
+- **P773** saying-is-believing gate (MUST): sharedReality retells
+  drift the speaker record toward audience_tune at sib_drift rate;
+  politeness/incentive motives TOST-equivalent to zero drift
+  (SESOI 0.05 — locked null enforced, not assumed); outgroup
+  audiences attenuate; lie:true retells leave truth records
+  untouched.
+- **P774** observed tier ordering (SHOULD): enacted > observed >
+  heard at matched attention, observed inside [verbal,
+  verbal+0.7·enact]; obsIntent doubles the leg; observed records
+  get NO DA-resistance (boundary — a build where watched actions
+  survive distraction like performed ones fails).
+- **P775** face distinctiveness (SHOULD): high-faceDistinct persons
+  accrue familiarity faster and write wider person fields;
+  attract_recog_null TOST-enforced (typical-attractive faces
+  |Δ| ≤ 0.03); multiplicative composition with owngroup_loss.
+- **P776** secret load (MUST): a held secret ≈ 1.5 pending-intention
+  units of tonic daLoad inside the shared n≤5 cap — measurable as
+  reduced pending_cue_gain on NON-secret overlaps while secrets are
+  held (secrets evict errands); secret-overlap cues encode hotter
+  (secret_heat_mult); disclosure ends both legs at once.
+- **P777** retrograde shield (OBSERVE): intox-onset → pre-onset
+  records show reduced next-window interference accrual;
+  on-intoxication records unchanged (retro_scope audit); stored
+  strength never increases (retro_consol_null — a build where
+  drinking raises strength fails by construction); band wide per
+  Quevedo-Pütter & Erdfelder 2022.
+- **P778** v5.20 regression (MUST — structure): new fields/params
+  pass P457 non-interference (audience_tune drift is a §13.1
+  citizen; secrets occupy the existing pending budget; choice/
+  obs/face legs touch E and β only) and §12.2 commutativity (no
+  new op reads across charIds).
+
+## 145. Sources verified this version (P769–P778 backing)
+
+- Castel, Benjamin, Craik & Watkins 2002 (*Psychol Aging* 17:209 —
+  verified): value-directed remembering, older adults match young
+  on high-value. Castel, Balota & McCabe 2009 (*JEP:A* 35:916 —
+  verified): disproportionate high-value allocation. Castel 2007
+  (*PLM* 48 — verified chapter): evaluative processing framework.
+  Psych. Aging 2025 strategic-VDR study (verified abstract):
+  selectivity fails on low-memorability high-value items — the
+  P770 crossover. Knowlton & Castel 2022 (*Cognition* 222 — review
+  thread).
+- Murty, DuBrow & Davachi 2015 (*J Neurosci* 35:6255 — verified):
+  choice → striatal anticipation → hippocampal encoding, content-
+  unlinked. Murty et al. 2019 (*PB&R* 26:1788 — verified pooled):
+  delayed-recognition advantage + preference correlation. Murty et
+  al. 2019 (*J Cogn Neurosci* — verified): reduced forgetting rate.
+- Cyr & Anderson 2015 (*JEP:LMC* — verified): conceptual vs lexical
+  guesses; stepping stones, age-flat; guess memory mediates.
+  Cyr & Anderson 2012 (*Psychol Aging* — verified): conceptual
+  errorful → source memory, older ≥ younger. Baddeley & Wilson
+  1994; Clare & Jones 2008 (*Neuropsychol Rehabil* review);
+  Kessels & de Haan 2003 (*JINS* meta).
+- Higgins & Rholes 1978; Echterhoff, Higgins & Groll 2005 (*JPSP*
+  89:257 — verified: shared-reality necessity, ingroup, trust
+  mediator); Echterhoff, Higgins, Kopietz & Groll 2008 (*JEP:G*
+  137:3 — verified: motive gate); Echterhoff et al. 2009 (*Soc
+  Psychol* 40:150); EJSP 2024 meta (27 studies — verified:
+  outgroup/identity-threat attenuation).
+- Jaroslawska, Gathercole, Allen & Holmes 2016 (*Mem Cognit*
+  44:1183 — verified: observation ≈ enactment on instruction
+  recall); Steffens & von Stülpnagel 2015 (*Front Psychol* 6:1907 —
+  verified design-dependent boundary).
+- Light, Kayra-Stuart & Hollander 1979 (*JEP:HLM* 5:212 —
+  verified); Vokey & Read 1992 (verified: distinctiveness
+  mediation); Wickham & Morris 2003 (verified: attractiveness
+  null); Valentine 1991 (face-space).
+- Slepian, Chun & Mason 2017 (*JPSP* 113:1 — verified: mind-
+  wandering ≈2× concealment; preoccupation predicts harm);
+  Lane & Wegner 1995 (secrecy hyperaccessibility).
+- Parker et al. 1980 (*Psychopharmacology* 69:219 — verified) +
+  1981 dose-response; Mueller, Lisman & Spear 1983 (*Physiol
+  Behav* — verified: interference account); Gawrylowicz et al.
+  2017 (misinfo resistance); Quevedo-Pütter & Erdfelder 2022
+  (*Exp Psychol* 69:335 — verified prereg replication: recall
+  null, retrieval-side benefit).
+- Fold/null backing: Rhodes & Castel 2008 (font-size JOL —
+  report-side only); MacKay et al. 2004 + Janschewitz 2008
+  (taboo → arousal+isolated fold).
+
+Registry: P1–P778. v72 suite: P769–P778 — 5 MUST (P769, P770,
+P772, P773, P776 — of which P773 is a locked-null TOST gate),
+4 SHOULD (P771, P774, P775, P777-as-OBSERVE counts separately:
+P777 is OBSERVE; SHOULD = P771, P774, P775), 1 OBSERVE (P777),
+1 structure MUST (P778).
+
+## 146. New probes P779–P786 (v73 suite — forgetting-curves VII)
+
+- **P779 stim tier (MUST — structure + behavior):** a sub-`att_min`
+  attended input answers a re-cue at ≥0.5 hit rate inside ~30s and
+  ~0 after 5 min; ghosts mint no records, no archive entries, no
+  post-death cue matches; `stim_mint_null` lint — no code path
+  upgrades a ghost after expiry; re-presentation inside the window
+  encodes normally (repair path). Constrains stim_hl/stim_recall_p/
+  stim_cap.
+- **P780 freqRecall (SHOULD):** encode 20 cluster members, archive
+  ~70% — estimate regresses toward `freq_base` monotone in coverage;
+  one arousal-0.9 member lifts n̂ above the availability-free
+  estimate; lint — no stored counter field exists.
+- **P781 audience responsiveness (MUST — sign-locked):** matched
+  records retold once to attentive vs distracted listeners —
+  distracted S-growth ≤0.5× attentive AND TOST-equivalent to the
+  no-retell arm at 7d; `lastAccessDay` refresh and §6.1 drift
+  identical across arms (telling ≠ keeping).
+- **P782 collaborative inhibition + afterglow (MUST):** two
+  characters sharing a 12-record cluster — joint coverage <
+  nominal solo union by ≈collab_inhib; each participant's
+  post-session solo recall of own unshared records beats a
+  never-collaborated control; emission is one merged
+  Reconstruction (structure lint).
+- **P783 confidence lag (MUST):** at 30d, mean `conf − R` gap is
+  positive and grows with record age; a retell raises conf without
+  raising verbatim accuracy; `conf_feed_null` structure-checked —
+  conf never enters θ, hit-rate, or accuracy.
+- **P784 spacing illusion (SHOULD — structure):** spontaneous
+  retell inter-gap distribution is clustered (mode ≪ lag_optimal),
+  never optimum-tracking; lint — no code path schedules retells
+  from lag_opt_ratio; a "keep remembering" directive produces
+  massed-rate self-rehearsals only.
+- **P785 remembered duration (SHOULD):** two equal-length intervals
+  differing 3× in encoded-event count — dense reports ≥1.5× longer;
+  transition-containing longer still; stored days never mutated
+  (report-side lint).
+- **P786 weekday snap (SHOULD):** weak when-field weekday reports
+  biased midward (mean weekday-distance vs uniform shrinks), ±1d
+  errors modal; weekend-encoded ~half the snap; strong when-fields
+  unaffected.
+
+Registry: P1–P786. v73 suite: P779–P786 — 3 MUST (P779, P781, P782,
+P783 — four MUST counting P783), 4 SHOULD (P780, P784, P785, P786).
+
+## 147. Sources verified this version (P779–P786 backing)
+
+- **Buffer tier — CONSENSUS textbook:** Sperling 1960 (iconic,
+  ~0.25–1s); Darwin, Turvey & Crowder 1972 (*Cogn. Psychol.* 3:255 —
+  echoic ~2–4s); Peterson & Peterson 1959 (*JEP* 58:193 — ~15–20s);
+  Keppel & Underwood 1962 (*J. Verbal Learn.* 1:153 — PI account of
+  STM loss); Waugh & Norman 1965 (duplex). Ghost-tier mechanics are
+  our reduced form — magnitudes HYPOTHESIS.
+- **Frequency estimation — CONSENSUS mechanism:** Hasher & Zacks
+  1979 (*JEP:G* 108:356 — automatic frequency encoding); Greene
+  1984 (incidental frequency); Williams & Durso 1986 (*JEP:LMC*
+  12:165 — category frequency judged from instances); Tversky &
+  Kahneman 1973 (*Cogn. Psychol.* 5:207 — availability).
+- **Listener responsiveness — ESTABLISHED (three studies, one
+  group):** Pasupathi, Stallworth & Murdoch 1998 (*Discourse
+  Processes* 26:1 — verified: attentive ≈ gain, distracted ≈ none);
+  Pasupathi & Rich 2005 (*J. Personality* 73:1051 — verified);
+  Pasupathi & Hoyt 2010 (*Memory* 18:185 — verified: distracted →
+  lower retention + lower consistency at 1 month). The
+  `aud_resp_distract` multiplier encodes the headline directly.
+- **Collaborative inhibition — CONSENSUS meta:** Weldon & Bellinger
+  1997 (*JEP:LMC* 23:1160 — verified); Basden, Basden, Bryner &
+  Thomas 1997 (*JEP:LMC* 23:626 — strategy disruption); Marion &
+  Thorley 2016 (*Psych. Bull.* 142:1141 — verified meta: inhibition
+  robust; post-collaborative individual benefit on 27 effects).
+  Magnitudes (0.8/0.1) are fits.
+- **Confidence delay — CONSENSUS direction:** Sauer, Brewer, Zweck
+  & Weber 2009 (*Law Hum. Behav.* 34:337, N=1,063 — verified:
+  delay → overconfidence ↑, diagnosticity ↓); Odinot & Wolters
+  2006 (*ACP* 20:973 — verified); Odinot, Wolters & Lavender 2009
+  (*ACP* — verified: repeated questioning inflates conf for
+  correct AND incorrect).
+- **Spacing illusion — CONSENSUS:** Kornell & Bjork 2008 (*Psych.
+  Sci.* 19:585 — verified: massed judged better after contrary
+  evidence); Son 2004; Toppino & Cohen 2009 (*JEP:LMC* 35:1352 —
+  verified: forced spacing attenuates — metacognitive control).
+- **Retrospective duration — CONSENSUS direction:** Ornstein 1969
+  (storage-size); Block & Reed 1978 (*JEP:HPP* 4:656 — contextual
+  change); Block & Zakay 1997 (*PB&R* 4:184 meta); Avni-Babad &
+  Ritov 2003 (*JEP:G* 132:543 — routine paradox).
+- **Weekday snap — CONSENSUS phenomenon:** Huttenlocher, Hedges &
+  Prohaska 1988 (*Psych. Rev.* 95:471 — hierarchical ordered-domain
+  estimation, midward regression); Huttenlocher, Hedges & Bradburn
+  1990 (*JASA* 85:180 — elapsed-time reports).
+- **Established vs hypothesis summary:** all eight mechanism
+  directions are established or better; every magnitude (ghost
+  half-life, resp weights, inhib constant, conf slope, duration
+  weights, snap rate) is an RW HYPOTHESIS fitted to consensus shape.
+
+## 148. New probes P787–P794 (v74 suite — retrieval-cues VII)
+
+- **P787 mode gating (MUST — sign-locked):** same record, same
+  cue mass — `orient:semantic` emits zero verbatim/scene fields
+  and never produces `tot:true`; `orient:episodic` emits both;
+  a mid-bout rephrase semantic→episodic recovers detail with a
+  §66-restart signature (Tulving 1983; Herron & Rugg 2003).
+- **P788 cue valence (SHOULD):** at matched mood, a positive cue
+  retrieves positive records ≥1.15× vs a valence-flipped cue on
+  the same store; a negative cue against a neurot/depr-high
+  profile raises the generic-record share (Williams & Broadbent
+  sign). Mood held fixed — the effect must NOT vanish (cue-side,
+  not mood-side).
+- **P789 conjunctive cue (MUST):** two cues each with marginal
+  fan ≥10 but joint fan ≤2 retrieve their joint target at ≥1.3×
+  the noisy-OR prediction without the bonus, and beat a
+  same-mass single-field cue; `config_oracle_null`
+  structure-checked — conjunction never reaches into unencoded
+  fields.
+- **P790 event cluster (MUST — two arms):** cuing with one
+  cluster member retrieves a cluster-mate at ≥1.3× a
+  non-cluster record matched on temporal distance; AND clustered
+  records' when-field error exceeds unclustered controls at
+  equal R (content protected, calendar smeared — Brown &
+  Schopflocher 1998; Brown 2005).
+- **P791 burst structure (SHOULD):** emission inter-arrival
+  times within a bout are bimodal — within-pulse gaps <
+  between-pulse gaps by ≥3×; a pulse break predicts a shift in
+  the dominant cue field of subsequent emissions (Gruenewald &
+  Lockhead signature).
+- **P792 analogical reminding (SHOULD — gated):** struct-matched
+  records with zero surface overlap emit ≤`reminder_chance` and
+  always carry `reminding:true`; with surface support present,
+  struct-match raises emission ordering (Gentner et al. 1993's
+  retrievability/judgment split as a sign-lock).
+- **P793 contextual cuing (MUST — record-free):** an ambient
+  character in a cfg seen `ctx_thresh`+ times orients/acts
+  faster than in a novel cfg — AND the store shows no mint, no
+  cueVector entry, no Reconstruction; at age 75+ the gain is
+  undiminished (`ctx_age_pen = 0`, structure-checked — Howard
+  et al. 2004).
+- **P794 give-up rule (MUST — metacognitive):** identical
+  failing searches with manipulated partial info — high-FOK
+  failures run longer (more candidate evaluations) AND re-fire
+  within `fok_win` at `fok_reprobe` rate; a forced interruption
+  emits `giveUp` with the fok tag, log-distinguishable from
+  "not found" (Singer & Tiede 2008 persistence arm).
+
+Registry: P1–P794. v74 suite: P787–P794 — 5 MUST (P787, P789,
+P790, P793, P794), 3 SHOULD (P788, P791, P792).
+
+## 149. Sources verified this version (P787–P794 backing)
+
+- **Retrieval mode — CONSENSUS existence, DEBATED gate strength:**
+  Tulving 1983 (*Elements of Episodic Memory* — ecphory triad);
+  Herron & Rugg 2003 (*J. Cogn. Neurosci.* 15:843 — verified:
+  orientation dissociable from cue content); Rugg & Wilding 2000
+  (*Trends Cogn. Sci.* 4:108 — verified). Binary `orient` is our
+  reduced form of a graded attentional set — HYPOTHESIS form.
+- **Cue valence — CONSENSUS direction:** Crovitz & Schiffman
+  1974 (*JEP* — word-cue norms incl. valence effects); Schlagman,
+  Schulz & Kvavilashvili 2006 (*Memory* 14 — verified:
+  involuntary AMs match cue content AND valence); Williams &
+  Broadbent 1986 (negative cues → overgeneral in vulnerable —
+  verified). `w_valcue` magnitude HYPOTHESIS; mood-channel
+  dominance is the established ordering.
+- **Conjunctive cues — CONSENSUS mechanism, HYPOTHESIS form:**
+  Watkins 1979 (cuegrams — cue and trace same kind);
+  Tulving 1983 (interactive ecphory); Rubin & Wallace 1989
+  (*Cogn. Psychol.* 21:513 — conjoined-cue non-additivity,
+  verified). `config_gain`/joint-fan pricing is our
+  operationalization of the fan effect's other face.
+- **Event clusters — CONSENSUS existence:** Brown & Schopflocher
+  1998a (*Psychol. Sci.* 9:470 — verified: clusters regardless of
+  age/importance, causally+temporally+thematically bound,
+  narration not necessary) + 1998b (*ACP* 12:305 — verified);
+  Brown 2005 (*Memory* 13 — transitions concentrate cluster
+  formation); dating-blur per Brown, Shevell & Rips 1986.
+  `clust_*` magnitudes HYPOTHESIS.
+- **Burst emission — CONSENSUS phenomenon:** Gruenewald &
+  Lockhead 1980 (*JEP:HLM* 6:225 — verified bimodal IRTs);
+  Barsalou 1988 (in Neisser & Winograd eds. — verified: AM
+  output chunked by event type/period). Pulse constants are
+  fits to phenomenology, not to an IRT corpus — flagged.
+- **Analogical reminding — CONSENSUS asymmetry:** Gentner,
+  Rattermann & Forbus 1993 (*Cogn. Psychol.* 25:524 — verified:
+  surface dominates retrieval, structure dominates judgment);
+  Wharton et al. 1994 (*Mem&Cogn.* 22 — verified: structure-
+  only remindings rare but real); Schank 1982 (*Dynamic
+  Memory*). The surface gate IS the literature; `w_struct` and
+  `reminder_chance` are fits.
+- **Contextual cuing — CONSENSUS, clean dissociation:** Chun &
+  Jiang 1998 (*Cogn. Psychol.* 36:28 — verified); Chun & Phelps
+  1999 (*Nat. Neurosci.* 2:844 — verified: hippocampal amnesics
+  fail); Howard, Howard, Dennis, Yankovich & Vaidya 2004
+  (*Neuropsychology* 18:124 — verified: spared in healthy aging
+  while sequence learning declines). The record-free layer and
+  `ctx_*` constants are HYPOTHESIS plumbing on a consensus
+  dissociation.
+- **Search termination — CONSENSUS that FOK gates persistence:**
+  Nelson & Narens 1990 (monitor→control framework); Koriat 1993
+  (*Psych. Rev.* 100:609 — accessibility account); Costermans,
+  Lories & Ansay 1992 (*Acta Psychol.* 80 — FOK predicts
+  persistence); Singer & Tiede 2008 (*Mem&Cogn.* 36:588 —
+  verified: FOK scales search duration). Budget algebra,
+  `fok_reprobe`, and the giveUp verdict are our construction —
+  "it came to me later" emerges, never scripted.
+- **Established vs hypothesis summary:** all eight mechanism
+  directions are established or better (mode, valence,
+  conjunction, clusters, bursts, structure-gating, record-free
+  configural learning, FOK-gated persistence); every magnitude
+  and the ctxcue/giveUp plumbing are RW HYPOTHESES fitted to
+  consensus shape.
+
+## 150. New probes P795–P804 (v75 suite — age-development VII)
+
+- **P795 context lock (MUST — sign-locked):** a record encoded at
+  3, intact S, queried at 12 with a topical/name cue only → no
+  retrieval; same query with place+sensory reinstatement →
+  retrieval. Matched adult-encoded control retrieves on the
+  partial cue. Flag persistence check: at 40 the record STILL
+  fails the partial cue (ctx_strict_val stored at mint).
+  Butler & Rovee-Collier 1989.
+- **P796 DF output gate (MUST — two arms):** `dforget` flagged at
+  retrievalAge 6 leaves S and ecology intact (structure-check:
+  zero df_theta activity — locked `df_erase_null`) while raising
+  emission threshold — surfaces on strong cues, withheld on
+  weak; same flag at 12+ runs the adult df_theta path.
+  Harnishfeger & Pope 1996.
+- **P797 child gist suppression (SHOULD — the Howe sign):** at
+  retrievalAge 7, `dforget` suppresses phantom/gist_lure records
+  MORE than true records (df_gist_gate); at 30 the asymmetry
+  inverts or vanishes. Howe 2005.
+- **P798 field budget (MUST):** encodeAge-4 mints ≤4 cueVector
+  fields, `when`/`why` dropped first; encodeAge-10 ~5–6; adult
+  uncapped. Drop order fixed, not random — `when` survives a
+  child mint only when under budget. Gathercole et al. 2004;
+  Jones & Pipe 2002.
+- **P799 adolescent dip (MUST — shape-locked):** same
+  encodeAge-6 record queried at 10, 15, 20 → R(15) < R(10) AND
+  < R(20) for survivors; failed window queries carry
+  `reorg_hit` and the `reorg_attrit` S-loss — attrition on the
+  queried-and-failed, not the untouched. Peterson et al. 2011.
+- **P800 time-PM child arm (SHOULD):** matched intentions,
+  `cueType:time` vs `cueType:event` at 6 → event fires ≥1.8×
+  more; at 14 gap ≤1.3×; `pm_clock_p`-high children halve the
+  gap via check events (compensation behavioral). Ceci &
+  Bronfenbrenner 1985; Kvavilashvili et al. 2008.
+- **P801 child-tells (SHOULD):** a 7-year-old recounting her own
+  past consolidates it more than hearing a caregiver recount the
+  same event to her; reminiscence_env modulates both leg rate
+  and per-leg gain. Reese, Haden & Fivush 1993.
+- **P802 intent unlock (SHOULD):** `to_remember` at 5 gains
+  ≥1.35× the adult relative boost; flag-absent vs flag-present
+  ordering never inverts. Baker-Ward et al. 1984.
+- **P803 enactment U (SHOULD):** enacted-vs-observed encode
+  ratio peaks at ~4y (≈4× via obs_gain × enact_rescue), narrows
+  ~1.2× adult, re-widens ≥1.4× at 85 — both arms on the same
+  content. Ratner et al. 1991; Bäckman & Nilsson 1985.
+- **P804 v5.23 regression (MUST — structure):** all v5.23 params
+  at defaults reproduce v5.22 outputs on the standard battery
+  except the sign-locked differences above; rif_k untouched —
+  the J9 null finding (RIF intact in children) is asserted as
+  "no child ramp exists to remove".
+
+Registry: P1–P804. v75 suite: P795–P804 — 4 MUST (P795, P796,
+P798, P799), 1 structure-MUST (P804), 5 SHOULD.
+
+## 151. Sources verified this version (P795–P804 backing)
+
+- **Context specificity — CONSENSUS for infants:** Butler &
+  Rovee-Collier 1989 (*JEP:LM&C* 15 — crib-liner/context change
+  abolishes 3-month retention); Rovee-Collier & Shyi 1992;
+  Hayne & Findlay 1995 (context cost declines across infancy).
+  The permanence of `ctx_locked` into adulthood is our
+  HYPOTHESIS extension — the lab measures weeks.
+- **Directed forgetting — CONSENSUS late onset of the
+  controlled kind:** Harnishfeger & Pope 1996 (*J. Exp. Child
+  Psychol.* 62:292 — verified: no DF in 1st, reduced in 3rd,
+  adult-like in 5th graders); Zellner & Bäuml 2004; Wilson &
+  Kipp 1998 (*Dev. Rev.* 18:86 — verified review); Aslan,
+  Staudigl, Samenieh & Bäuml 2010 (*PBR* 17:784 — verified:
+  production deficiency, high-emphasis cues partially rescue).
+  **Child false-memory suppression — CONSENSUS finding, one
+  study:** Howe 2005 (*Psychol. Sci.* 16 — verified: children
+  suppress DRM false recall under forget cues; adults don't).
+  `df_gate`/`df_gist_gate` magnitudes HYPOTHESIS.
+- **RIF null — CONSENSUS:** Zellner & Bäuml 2005 (*Mem&Cogn.*
+  33:396 — verified: retrieval inhibition + part-list cuing
+  intact in children); Ford, Keating & Patel 2004 (*Br. J.
+  Dev. Psychol.* 22:585 — verified: 7-year-olds show
+  adult-magnitude RIF). Logged as the version's deliberate
+  non-addition (J9).
+- **Field budget — CONSENSUS direction, HYPOTHESIS form:**
+  Gathercole, Pickering, Knight & Stegmann 2004 (*JEP:G* 133 —
+  verified WM span norms); Jones & Pipe 2002 (recall
+  completeness 5→9). The field-cap operationalization and the
+  drop-order are ours.
+- **Adolescent dip — CONSENSUS drop, HYPOTHESIS split:**
+  Bauer & Larkina 2014 (already §2); Peterson, Grant & Boland
+  2005; Peterson, Warren & Short 2011 (*Memory* 19 — verified:
+  earliest-memory forward drift across childhood); Habermas &
+  de Silveira 2008 (narrative reorganization 12–18). The
+  60/40 access/attrition split and `reorg_attrit` mark are RW
+  construction — falsifiable via P799.
+- **Time-based PM — CONSENSUS dissociation:** Ceci &
+  Bronfenbrenner 1985 (*Dev. Psychol.* 21 — verified: strategic
+  clock monitoring); Kvavilashvili, Kyle & Messer 2008
+  (verified review: event-based early, time-based late).
+  `pm_clock_p` plumbing is ours.
+- **Child-as-narrator — CONSENSUS mechanism:** Reese, Haden &
+  Fivush 1993 (*Cog. Dev.* 8 — verified: maternal elaboration
+  acts through child participation); Welch-Ross 1997; Fivush,
+  Haden & Reese 2006; Reese & Newcombe 2007 (longitudinal).
+  The per-event gain (0.3) and env routing are fitted.
+- **Intent instruction — CONSENSUS direction:** Baker-Ward,
+  Ornstein & Holden 1984 (*J. Exp. Child Psychol.* — verified:
+  children benefit more from remember-instructions).
+  Magnitude knots HYPOTHESIS.
+- **Enactment child arm — CONSENSUS existence:** Ratner,
+  Smith & Dionne 1991; Cohen 1981 (SPT robust in children).
+  The U-completion knots are extrapolation — flagged.
+- **Established vs hypothesis summary:** directions all
+  established (context-lock, DF-late/output-split, thin mints,
+  adolescent dip, time-PM lag, child-narration channel,
+  instruction unlock, enactment U); every magnitude and the
+  ctx_locked-permanence extension are RW HYPOTHESES.
+
+## 152. New probes P805–P814 (v76 suite — age-decline VII)
+
+- **P805 trajectory classes (MUST — distribution-lock):** a
+  300-profile cohort aged 35→85 under default draws yields
+  maintain/average/decline within 0.10–0.26 / 0.55–0.80 /
+  0.06–0.22; the maintain arm's 75yo episodic output ≥ the
+  average arm's 65yo; the decline arm's second-half slope ≥
+  1.3× its first-half (acceleration). Josefsson 2012.
+- **P806 IIV precedence (MUST — order-lock):** decline-arm
+  profiles show elevated response variance (iiv_eff)
+  measurably BEFORE mean level shifts — the variance anomaly
+  leads the level anomaly by `iiv_lead`±1 sim-year; average
+  arm shows concurrent-not-leading variance. Lövdén 2007.
+- **P807 SCD sign flip (MUST — sign-lock):** decline-arm
+  complaint-channel reports (meta_conf, self-report
+  emissions) exceed measured deficit during the `scd_lead`
+  window, then converge to it; maintain arm never shows
+  complaint>deficit at defaults; `scd_store_null` — S
+  untouched in both arms. Jessen 2014.
+- **P808 retirement overlay (SHOULD):** `work_engaged:false`
+  at 62 adds an encode-side deficit ramping ~8y to
+  `retire_cap`; `engage_sub`=1 recovers ≥50%; retrieval-side
+  metrics flat — `retire_retrieval_null`. Rohwedder & Willis
+  2010.
+- **P809 locomotion tax (MUST — dissociation):** identical
+  events encoded sitting vs `locomoting` at 75 differ ≥1.3×
+  on S; the sitting-vs-locomoting gap at 35 ≤0.15; armed
+  time-intentions during locomotion fire less
+  (`loco_pm_pen`). Lindenberger 2000.
+- **P810 nav split (MUST — shape-lock):** a route learned at
+  78, queried same-direction, retrieves; queried from the
+  reversed approach at a decision corner fails ≥1.8× more
+  (`ego_dir_pen`); permastore venue routes exempt —
+  `nav_permastore_null`. Wiener 2013.
+- **P811 implicit floor (MUST — sign-lock):** priming/ctxcue/
+  script-rate legs at 82 are statistically identical to 55yo
+  values while matched episodic legs differ ≥1.5× —
+  `proc_age_null`. Fleischman 2004.
+- **P812 observation inflation split (SHOULD):** tail_ind
+  profiles at 80 show "did it myself" false alarms ≥1.4× the
+  young-tail rate while median profiles match the young rate;
+  `obs_old_gain` boosts TRUE observed-action recall more at
+  80 than 30 — both halves of the Lindner dissociation, rate
+  AND benefit. Lindner 2010/2014.
+- **P813 I/E narration shift (MUST — probe-resistant):**
+  free-recall emissions at 78 show external-detail share ≥
+  young rate AND interviewMode probing recovers proportionally
+  less internal detail than recol_mult alone predicts — the
+  semantic skew is a mix shift, not a threshold artifact.
+  Levine 2002.
+- **P814 stack audit (MUST — process):** joint old-age
+  products never exceed `stack_cap`; `stack_capped` fires on
+  <2% of 80+ events at defaults; if it fires more, FAIL as
+  miscalibration of the knots, not the cap. AD§105.
+
+Registry: P1–P814. v76 suite: P805–P814 — 7 MUST (P805, P806,
+P807, P809, P810, P811, P813), 1 process-MUST (P814), 2 SHOULD
+(P808, P812).
+
+## 153. Sources verified this version (P805–P814 backing)
+
+- **Trajectory classes — CONSENSUS existence:** Josefsson,
+  de Luna, Pudas, Nilsson & Nyberg 2012 (*J. Am. Geriatr.
+  Soc.* 60:2308 — verified: Betula N=1,558, 15y, 18/68/13%
+  classes; education/activity/partnered/female → maintain;
+  APOE ε4 → decline); Pudas et al. 2013; Betula dementia
+  follow-up (decliners ~4× risk; maintainers ~2.6× reduced —
+  verified). Class boundaries are a ±1 SD rule — flagged
+  SEMI-arbitrary; trait-draw magnitudes HYPOTHESIS.
+- **IIV precedence — CONSENSUS direction:** Hultsch,
+  MacDonald & Dixon 2002; MacDonald, Nyberg & Bäckman 2006;
+  Lövdén, Li, Shing & Lindenberger 2007 (*Neuropsychologia*
+  — verified: trial-to-trial RT variability precedes/predicts
+  13y decline, BASE ages 70–102); longitudinal meta r≈.20
+  CI[.09,.31] — verified. `iiv_lead` magnitude HYPOTHESIS.
+- **SCD — CONSENSUS framework:** Jessen et al. 2014
+  (*Alzheimers Dement.* 10:844 — verified: SCD = subjective
+  decline with unimpaired objective performance, first
+  symptomatic preclinical stage; SCD-plus feature list).
+  Per-class complaint-channel lead (`scd_lead`) is our
+  operationalization — HYPOTHESIS as a number.
+- **Mental retirement — CONSENSUS direction, DEBATED
+  magnitude:** Rohwedder & Willis 2010 (*JEP* 24:119 —
+  verified: cross-national pension-IV design, early
+  retirement causally lowers early-60s cognition); Bonsang,
+  Adam & Perelman 2012. Encode-only routing + accrual form
+  HYPOTHESIS.
+- **Locomotion dual-task — CONSENSUS:** Lindenberger,
+  Marsiske & Baltes 2000 (*Psych. & Aging* 15:417 —
+  verified: memorize-while-walking, d≈0.98 mid / 1.47 old).
+  Street-vs-track halving is our ecological correction.
+- **Allocentric decline — CONSENSUS:** Wiener, de Condappa,
+  Harris & Wolbers 2013 (*J. Neurosci.* 33:6012 — verified:
+  same-direction route recall intact, novel-direction rejoin
+  fails, persistent beacon strategy, no cross-session
+  shift); Head & Isom 2010; Moffat & Resnick 2002.
+  Per-record `nav_mode` flag is our form — HYPOTHESIS.
+- **Implicit/procedural preservation — CONSENSUS:**
+  Fleischman, Wilson, Gabrieli, Bienias & Bennett 2004
+  (*Psych. & Aging* 19:617 — verified longitudinal:
+  explicit declines, priming stable across 4 waves);
+  Mitchell, Brown & Murphy 1990; La Voie & Light 1994.
+  The 55 freeze-point is HYPOTHESIS.
+- **Observation inflation age leg — CONSENSUS finding,
+  modest n:** Lindner, Echterhoff, Davidson & Brand 2010
+  (*Psych. Sci.* 21:1291 — verified: robust, warning-
+  immune); Lindner, Davidson & Echterhoff 2014 (*Aging
+  Neuropsychol. Cogn.* — verified: equal error RATE, prone
+  elders LARGER effect, true-action benefit larger in old).
+  Tail-only operationalization HYPOTHESIS.
+- **Internal/external detail shift — CONSENSUS:** Levine,
+  Svoboda, Hay, Winocur & Moscovitch 2002 (*Psych. & Aging*
+  17:677 — verified: Autobiographical Interview, fewer
+  internal / more external details, probe-resistant);
+  2023 AI meta-analysis (gbad077 — verified: moderate in
+  healthy aging, larger in MCI/AD). Share knots HYPOTHESIS.
+- **Stack cap — no source, by design:** bookkeeping bound on
+  unmeasured joint territory (AD§105); P814 makes the
+  honesty falsifiable.
+- **Established vs hypothesis summary:** every direction and
+  dissociation this version is established (classes, IIV
+  precedence, SCD-as-first-symptom, retirement direction,
+  dual-task growth, allo→ego shift, priming stability,
+  rate-flat/magnitude-up inflation, I/E shift); all
+  magnitudes, lead times, class-draw weights, the nav_mode
+  flag, the freeze point, and the cap are RW HYPOTHESES.
+
+## 154. New probes P815–P824 (v77 suite — emotional-memory VII)
+
+- **P815 gratitude mint (MUST — locked asymmetry):** benefit:true
+  event with cost_appraisal 0.8 vs matched pleasant non-benefit
+  event on the same benefactor: the benefactor CondEntry must mint
+  grateful:true, exceed the §4.9 positive-entry strength, decay
+  measurably slower across 60 simulated days, and emit
+  reciprocate:true on a later benefactor-need event. FAIL if the
+  entry decays at ordinary positive rate or if a low-cost event
+  mints the flag.
+- **P816 co-rumination bond/affect split (MUST — sign lock):**
+  two high-rumin characters jointRecall a shared negative record
+  three times: bond_strength rises ≥3×corumin_bond·0.8 AND the
+  record's negative tag takes no verbal_dampen (damp_loss active);
+  a solved:true retell arm takes the ordinary dampen. FAIL if
+  bond grows without affect refresh or if the loop fires below
+  the ~10y age floor.
+- **P817 distanced reflection (MUST — locked null):** a negative
+  record reflected under reflect.mode:distanced vs immersed:
+  fired affect lower by dist_cool, coherence accrual EQUAL, θ
+  and cueMatch IDENTICAL post-session (dist_avoid_null — FAIL if
+  distancing raises θ or adds a surcharge); distanced:true
+  emitted.
+- **P818 humor reappraisal (MUST):** humor:true on a negative
+  event (arousal 0.6) vs matched unfunny: arousal_tag lower by
+  ~humor_reapp_k and verbatim ~15% thinner; at arousal 0.9 the
+  gate blocks the cool. Replay arm: two humor:true retells cool
+  ~2×humor_replay_k; FAIL if the cool exceeds the once-per-window
+  cap or touches neutral records.
+- **P819 hot–cold read (MUST — locked null):** reconstruct an
+  arousal-0.8 own-impulsive record under C.arousal_now 0.2:
+  re-fired affect attenuated ≥hotcold_k·0.5, cold_read:true
+  emitted, stored tag + verbatim byte-identical
+  (hotcold_store_null); re-present the cue under arousal_now 0.7
+  → full tag strength restored.
+- **P820 threat priority (MUST — dissociation lock):** under
+  anx_eff 0.8, matched-strength record sets surface threat:true
+  first at rate exceeding baseline by the threat_cue_gain margin;
+  under depr 0.8 / anx_eff 0 the same set shows NO threat
+  preference. threat_hold: ambient-scan dwell longer on threat
+  records under anxiety.
+- **P821 broaden fan (MUST — locked null):** C.mood 0.7 vs 0:
+  associative search clears a weaker record class (θ_eff cut) and
+  effective search_breadth rises; all store fields byte-identical
+  afterward (broaden_store_null — read-side only).
+- **P822 disgust extinction asymmetry (MUST):** a disgust
+  CondEntry: five safe exposures move safeCount <0.4× a matched
+  fear entry (dis_extinct_mult); three positive rival-tag mints
+  (§72) reduce fired affect near-normally (dis_cc_mult ~0.9).
+  FAIL if extinction and counterconditioning behave identically —
+  the asymmetry IS the probe.
+- **P823 mood-repair gate (MUST):** negative mood, regulator vs
+  depr≥0.5 profiles: the regulator arm shows positive-candidate
+  inversion and post-recall mood lift; the depr arm shows neither
+  even when a positive record is force-recalled
+  (repair_dep_null). FAIL if the depr arm lifts.
+- **P824 felt-vs-believed (MUST):** (a) report "how did X feel"
+  at day 3 vs day 30 on an intact record: day-3 tracks the tag;
+  day-30 shifts toward self_belief/script with
+  felt_believed_gap:true when divergence >0.4; (b) the tag
+  unchanged by any believed report (felt_write_null); (c) a
+  later strong sensory cue still refires the true tag.
+
+Registry: P1–P824. v77 suite: P815–P824 — all MUST (P817, P819,
+P821 carry locked-null arms; P820 carries the dissociation lock;
+P822 the asymmetry lock).
+
+## 155. Sources verified this version (P815–P824 backing)
+
+- **Gratitude → durable benefactor orientation:** McCullough,
+  Kilpatrick, Emmons & Larson 2001 (*Psych. Bull.* — verified:
+  moral-barometer account, gratitude as relationship-value
+  signal); Bartlett & DeSteno 2006 (*Psych. Sci.* 17:319 —
+  verified: gratitude → costly helping toward the benefactor,
+  mediated by gratitude not mood); Algoe 2012 find-remind-bind.
+  CONSENSUS direction; decay-resistance magnitude HYPOTHESIS.
+- **Co-rumination:** Rose 2002 (*Child Dev.* 73:1830 —
+  verified: predicts friendship quality AND internalizing
+  symptoms); Rose, Carlson & Waller 2007 (*Dev. Psychol.*
+  43:1019 — verified: prospective bidirectional gains; girls >
+  boys; adolescent emergence). Mechanistic params HYPOTHESIS.
+- **Directed self-distancing:** Ayduk & Kross 2010 (*JPSP*
+  99:809 — verified: spontaneous distancing → lower reactivity
+  short-term, lower intrusive ideation over time, mediated by
+  reconstruing not avoidance); Kross & Ayduk 2008/2011
+  ("why from a distance" program). dist_avoid_null is the
+  verified cell.
+- **Humor reappraisal:** Kugler & Kuhbandner 2015
+  (*Neuropsychologia* 62:357 — verified: humorous reappraisal
+  > positive reappraisal on amygdala reduction; worse later
+  memory for the negative items); Samson & Gross 2012; Strick
+  et al. 2009 (moderate-intensity boundary). Encode magnitudes
+  calibrated, replay cool HYPOTHESIS.
+- **Hot–cold empathy gap:** Nordgren, van der Pligt & van
+  Harreveld 2006 (*Psych. Sci.* 17:635 — verified: cold-state
+  underestimation of past visceral influence, self AND other,
+  correction-resistant); Nordgren et al. 2007 (*JPSP* 93:75 —
+  verified: cold evaluators judge impulsive behavior more
+  harshly, state-SPECIFIC); Loewenstein 2005. Extension from
+  drive states to emotional arousal — standard reading, flagged.
+- **Threat attentional priority:** Williams, Watts, MacLeod &
+  Mathews 1997 (canonical anxiety=detection / depression=
+  elaboration split); Bishop 2007 (*Nat. Neurosci.* 10:307 —
+  verified review); Mathews & MacLeod 2005. Magnitude and the
+  clean dissociation under comorbidity flagged.
+- **Positive-affect broadening:** Rowe, Hirsh & Anderson 2007
+  (*PNAS* 104:383 — verified: remote associates up, flanker
+  selectivity down, correlated individual differences);
+  Fredrickson & Branigan 2005; Isen et al. 1987. Episodic
+  projection is our form — HYPOTHESIS, read-side locked.
+- **Disgust extinction asymmetry:** Olatunji, Forsyth &
+  Cherian 2007 (*J. Anxiety Disord.* 21:820 — verified: sticky,
+  extinction-resistant); Engelhard, Leer, Lange & Olatunji 2014
+  (*Behav. Therapy* 45:708 — verified: Study 1 extinction did
+  NOT reduce disgust evaluative learning, Study 2
+  counterconditioning DID); Bosman, Borg & de Jong 2016;
+  Olatunji, Tomarken & Puncochar 2013 (*Emotion* 13:881 —
+  verified: disgust propensity potentiates aversive evaluative
+  learning). The asymmetry is the verified finding; multipliers
+  calibrated.
+- **Mood-repair recall:** Josephson, Singer & Salovey 1996
+  (*Cogn. & Emot.* 10:437 — verified: sad→sad first, positive
+  second recall in nondepressed, 68% self-reported repair
+  intent); Rusting & DeHart 2000 (*JPSP* 78:737 — verified:
+  incongruent recall under reappraisal strategies, trait-gated);
+  Joormann & Siemer 2004 (*J. Abnorm. Psychol.* 113:179 —
+  verified: dysphorics fail to repair via positive recall;
+  distraction works instead). repair_dep_null is verified.
+- **Felt vs believed reports:** Robinson & Clore 2002
+  (*Psych. Bull.* 128:934 — verified accessibility model:
+  episodic retrieval for recent emotion, belief/schema
+  reconstruction beyond ~2 weeks); Levine & Safer 2002
+  (appraisal-bias complements — §28's channel). Seam position
+  and mix weights flagged as open parameters.
+- **Established vs hypothesis summary:** all directions and
+  dissociations CONSENSUS (gratitude's person-binding, the
+  co-rumination bond/distress trade, distancing-without-
+  avoidance, humor's amygdala + memory cost, the hot–cold gap,
+  threat detection priority under anxiety, positive broadening,
+  the disgust extinction/counterconditioning asymmetry, the
+  dysphoric repair failure, the felt/believed seam). All
+  magnitudes, the age knots, trait composites (disg_prop,
+  anx_eff), the once-per-window rule, and field/mixin forms are
+  RW HYPOTHESES.
+
+## 156. New probes P825–P834 (v78 suite — false-memory VII)
+
+- **P825 sleeper effect (MUST — ordering + cap lock):**
+  identical claim, low-cred source; arm A discounting cue
+  AFTER the message, arm B BEFORE. Arm A: `sourceDiscount`
+  decays, `sourceCredibility_eff` rises, deferred adoption
+  on re-encounter at ~sleeper_k — but never exceeding the
+  matched high-cred arm's initial mint (sleeper_grow_null).
+  Arm B: `low_cred` source tag, no sleeper leg. FAIL if the
+  ordering gate is ignored or deferred adoption outgrows
+  the counterfactual.
+- **P826 warning backfire (MUST):** claim marked `debunked`
+  ×3 vs ×1; same-day evaluation shows ×3 better-protected;
+  aged past tag death on a 70y profile, ×3 rates TRUER than
+  ×1 (warn_backfire_k on dead-tag familiarity). 30y profile
+  shows the crossover later/smaller (warn_tag_mult age leg).
+  frame_content_null — the claim candidate is intact;
+  only `tag_str` died.
+- **P827 Spinozan gate (MUST):** identical false claims to
+  matched hearers under `C.load` 0.8 vs 0: the load arm
+  shows higher `accepted` residue and higher later truth_p;
+  calm arm's `unbelieve` marks stick and suppress §6.3
+  adoption. Idle 30 sim-days → residues unchanged
+  (spinoza_revert_null — FAIL on spontaneous revert).
+- **P828 illusory truth vs knowledge (MUST — locked
+  null):** claim contradicting a strength-0.9 semantic,
+  heard ×5: truth_p rises by ~illus_truth_k·log1p(5) anyway
+  (knowledge_gate_null); the ADOPTION arm still pays
+  know_protect_mult. factCheck:true posture halves the
+  truth_p rise. FAIL if knowledge zeroes the fluency leg.
+- **P829 hindsight bend (MUST — locked null):** record with
+  `predict` field, verbatim-strong vs verbatim-weak arms,
+  matched `outcomeEvent`: weak arm reports bent ≈hind_k
+  toward outcome with +hind_conf_boost and
+  `inevitable:true` at bend>0.5; strong arm reports clean
+  with `nailed_it:true`. Stored estimate candidates
+  byte-identical in both arms (hind_store_null).
+- **P830 innuendo mint (MUST — locked null):**
+  askAbout{presupposes:"the broken lease"} vs assertion
+  control: insinuated candidate mints at ~insinu_strength×
+  assertion strength, `deniable:true`, presupposed object
+  candidate at +presuppose_gain; NO episodic record in any
+  arm (insin_episode_null — FAIL if "I saw it" mints).
+  checker profile emits insinuation_noticed and the mint
+  is suppressed.
+- **P831 planting recipe (MUST):** minimal arm (1 session,
+  no imagery/pressure/scaffold) ≈0.25 adoption-class rate
+  (Loftus-mall); full arm (3 sessions, guided imagery +
+  pressure + 3 true scaffolds + authority) ≈0.6–0.7
+  belief-tier mints, of which ~40% promote to recollection
+  under imagery-rich self-retells (the 70/28 Wade-recode
+  split). Scaffold-free vs scaffolded arms differ by the
+  known_veto gate.
+- **P832 child implant (SHOULD):** identical recipe planted
+  on an adult for claimed encodeAge-6 vs encodeAge-25
+  events: childhood arm adopts at ~plant_child_mult rate;
+  minted records carry amnesia-era dating flags.
+- **P833 déjà vu (MUST — locked null):** novel venue with
+  config-masked simOp 0.8 vs 0.4 to a sub-θ record: 0.8 arm
+  emits deja_vu{familiarity≈0.8, matched:false}; no record
+  minted (deja_store_null — FAIL on any mint); rate halves
+  on a 70y profile (deja_age_slope); second visit inside
+  deja_cool does not re-emit.
+- **P834 source poison (SHOULD — hypothesis-flagged):**
+  detected-false claim on source S: (a) S's future p_adopt
+  cut by source_poison_k; (b) S's adopted near-radius
+  (simOp>poison_radius) candidates lose
+  source_poison_k·candStrength once; (c) far-radius
+  unchanged; (d) weakened claims remain reportable
+  (poison_reveal_null — store ≠ speech).
+
+Registry: P1–P846. v79 suite: P835–P846 — P835–P839, P841–P843
+MUST; P840, P844, P845 SHOULD; P846 OBSERVE. Locked-null arms:
+P835 (store), P836 (valence), P838 (global encode), P839
+(encode-side), P840 (face), P841 (wmc), P842 (ungated),
+P843 (passive), P844 (dominant language).
+
+## 157. Sources verified this version (P825–P834 backing)
+
+- **Sleeper effect (P825):** Hovland & Weiss 1951 (*J.
+  Abnorm. Soc. Psychol.* 46:424 — verified: dissociation
+  hypothesis, credibility persuasion crossover); Pratkanis,
+  Greenwald, Leippe & Baumgardner 1988 (*Psych. Bull.*
+  104:53 — verified: 17 qualifying tests, AFTER-ordering
+  requirement, differential decay); Kumkale & Albarracín
+  2004 (*Psych. Bull.* 130:143 — verified meta-analysis,
+  relative sleeper durable). Anchors `disc_decay_mult`,
+  `sleeper_k`, ordering gate, `sleeper_grow_null` (§6.164).
+- **Warning backfire (P826):** Skurnik, Yoon, Park &
+  Schwarz 2005 (*J. Consum. Res.* 31:713 — verified:
+  repeated "false" labels → more "true" endorsements after
+  3-day delay in older adults; familiarity outlives
+  truth-specifying context); companion fluency literature
+  Hasher et al. 1977, Hawkins & Hoch 1992. Anchors
+  `warn_tag_mult`, `warn_backfire_k`, `tag_min`,
+  `frame_content_null` (§6.165).
+- **Spinozan acceptance (P827):** Gilbert, Krull & Malone
+  1990 (*JPSP* 59:601 — verified: comprehension entails
+  acceptance; load → false-recalled-as-true); Gilbert,
+  Tafarodi & Malone 1993 (*JPSP* 65:221 — verified:
+  "you can't not believe everything you read"); Gilbert
+  1991 (*Am. Psychol.* 46:107 — verified: Spinoza vs
+  Descartes systems); Hasson, Simmons & Todorov 2005
+  (instruction-level dissociation — boundary caveat).
+  Anchors `spinoza_cost`, `load_unbelieve_pen`,
+  `spinoza_revert_null` (§6.166).
+- **Illusory truth (P828):** Hasher, Goldstein & Toppino
+  1977 (*JVLVB* 16:107 — verified); Fazio, Brashier, Payne
+  & Marsh 2015 (*JEP:G* 144:993 — verified: repetition→
+  truth even against stored knowledge); Pennycook, Cannon
+  & Rand 2018 (*JEP:G* 147:1865 — verified: single-exposure
+  lift on real fake-news headlines); Begg, Anas & Farinacci
+  1992 (*JEP:G* 121:446 — verified: fluency/recollection
+  dissociation). Anchors `illus_truth_k`, `illus_truth_cap`,
+  `knowledge_gate_null`, `factCheck_halve` (§6.167).
+- **Hindsight (P829):** Fischhoff 1975 (*JEP:HPP* 1:288 —
+  verified: reconstructed estimates bend toward outcomes,
+  subjects unaware); Fischhoff & Beyth 1975 (creeping
+  determinism); Hoffrage, Hertwig & Gigerenzer 2000
+  (*JEP:LMC* 26:566 — verified RAFT: outcome recruited when
+  original unretrievable); Roese & Vohs 2012 (*Persp.
+  Psychol. Sci.* 7:411 — verified: three stacked levels).
+  Anchors `hind_k`, `hind_conf_boost`, `hind_store_null`,
+  `inevitable`/`nailed_it` (§6.168).
+- **Innuendo/presupposition (P830):** Wegner, Wenzlaff,
+  Kerker & Beattie 1981 (*JPSP* 41:67 — verified:
+  interrogative/negated innuendo ≈ assertions for
+  impressions); Loftus & Zanni 1975 (*Cogn. Psychol.*
+  7:560 — verified: the/a article presupposition, ~2×
+  false-object endorsement); Loftus 1975 (presupposing
+  questions). Anchors `insinu_strength`, `presuppose_gain`,
+  `deniable`, `insin_episode_null` (§6.169).
+- **Planting recipe (P831, P832):** Shaw & Porter 2015
+  (*Psych. Sci.* 26:291 — verified: 70% false memory/
+  belief of police-contact crime in 3 interviews, M=12.18
+  police details); Wade, Garry & Pezdek 2018 (*Psych. Sci.*
+  29:503 — verified recode: 26–30% recollection-grade, the
+  rest belief-tier — encoded as `plant_belief_floor`);
+  Loftus & Pickrell 1995 (*Psych. Ann.* 25:720 — verified:
+  ~25% mall); Ceci, Loftus, Leichtman & Bruck 1994
+  (Samuel Stone — verified: ~50% preschooler assent under
+  repeated suggestion). Anchors `plant_*`, `scaffold_unit`
+  (§6.170).
+- **Déjà vu (P833):** Brown 2003 (*Psych. Bull.* 129:394 —
+  verified review: incidence, age decline); Cleary 2008
+  (*Curr. Dir. Psychol. Sci.* 17:353 — verified:
+  recognition without identification); Cleary et al. 2012
+  (*Conscious. Cogn.* 21:969 — verified: VR spatial-config
+  familiarity). Anchors `deja_thresh`, `deja_age_slope`,
+  `deja_cool`, `deja_store_null` (§6.171).
+- **Source poison (P834):** forward discounting established
+  (Hovland line; Kumkale & Albarracín 2004; correction/
+  retraction literature — Ecker et al.); the retroactive
+  sibling-weakening leg is flagged RW HYPOTHESIS (no direct
+  study; P834(b) is the calibration target).
+- **Established vs hypothesis summary:** directions
+  CONSENSUS (sleeper relative pattern, warning backfire,
+  acceptance-first, repetition→truth incl. the knowledge
+  failure, hindsight reconstruction, innuendo effect,
+  planting-recipe efficacy, familiarity-without-source,
+  forward credibility discounting). Magnitudes, the
+  belief/recollection promotion share, retro poisoning,
+  field/flag operationalizations, and all locked-null
+  mechanizations are RW HYPOTHESES.
+
+## 158. v79 probe specs (P835–P846 — individual-differences VII)
+
+- **P835 the blunter's door (MUST — sign-locked):**
+  blunt=+1.5 vs −1.5 on matched anticipThreat events:
+  +blunt encodes fewer threat-field details (blunt_avoid_k)
+  and shows fewer threat-cued intrusions; recognition-mode
+  recovery of encoded content equal; non-threat cells
+  identical (blunt_store_null — a difference on already-
+  stored records FAILS). Constrains blunt_avoid_k,
+  blunt_intr_k.
+- **P836 the second bump (MUST):** immig_age=28 vs null,
+  identical 70y event diet: recall density shows a
+  secondary mode inside [immig_age+immig_lo,
+  immig_age+immig_hi] only in the immigrant arm;
+  valence/arousal distributions inside the mode match the
+  lifespan baseline (immig_valence_null — hotter bump
+  FAILS); L1-cued pre-window recall ≥1.4× L2-cued.
+- **P837 borrowed halves (MUST):** trans_dep=+1.5 +
+  trans_partner set: shared events mint pointer fields and
+  encode less content; partnerPresent recall restores to
+  ≥ solo-encode control (joint_boost); partner_lost →
+  orphan_recall with high FOK + sparse content;
+  trans_dep=−1.5 mints zero pointers.
+- **P838 the camera ate the memory (MUST — conditional
+  lock):** offload=+1.5 vs −1.5 across externalized ×
+  non-externalized cells: E deficit only in the
+  externalized×high cell (offload_global_null — any
+  non-externalized difference FAILS); ext_pointer survives
+  +90d while sibling content decays; lookup reports
+  accurate, first lookup grants no retell_boost;
+  pointer_dead → orphan_recall.
+- **P839 the night's yield (MUST):** consol=±1.5, identical
+  encoding day + sleepQuality: same-day recall identical
+  (consol_encode_null), +1d diverges by consol_yield_k,
+  +7d ordering preserved; wake-side params identical.
+- **P840 the wrong grid (SHOULD):** nav_ab=+1.5/grid vs
+  −1.5/organic in the Mission grid: place-cued recall and
+  place_reinstate favor the grid-matched profile
+  (nav_layout_match); route-anchored whenEstimate tighter
+  in +nav_ab; people/face recall identical (nav_face_null).
+- **P841 the leaky monitor (MUST — wmc null locked):**
+  schizotyp=+2 vs 0 at matched wmc: bidirectional
+  source_confuse_flip errors rise (both directions must
+  move — one-directional FAILS), intrusion + deja_vu rates
+  rise; enc_base, beta_*, wmc params identical
+  (schz_wmc_null — Peters 2007's control is the falsifier).
+- **P842 the gated channel (MUST — context lock):**
+  hypnot=+2 vs 0: under guided_imagery+authoritative arms
+  imagine_gain/adoption diverge as priced; plain
+  hearAccount arms IDENTICAL within jitter —
+  hypnot_ungated_null FAILS on any ungated difference.
+- **P843 the deployed strategy (MUST — gate-locked):**
+  mnem=+1.5 vs 0: deliberate-encode records gain
+  link_p/beta/w_place/search_breadth legs; incidental
+  records identical (mnem_passive_null); deliberate gains
+  persist at +120d; mnem=+1.5 with zero deliberate:true
+  events indistinguishable from mnem=0.
+- **P844 the tip of which tongue (SHOULD):** langs={es,en},
+  dominantLang=es, reportLang en vs es: tot_rate elevated
+  only in nondominant arm (tot_dom_null — dominant-arm
+  elevation FAILS); cognate_ok partially rescues;
+  resolution rates equal (incidence tax, not duration).
+- **P845 pointer ecology (SHOULD):** trans_dep=+1.5 AND
+  offload=+1.5 distributes a 100-event diet across
+  {full-encode, pointer, ext_pointer}; internal content
+  LOWER than either single-trait profile; joint/lookup-
+  supported report accuracy comparable — router, not store.
+- **P846 blunter vs vigil pole (OBSERVE):** bipolar axis
+  produces opposite intrusion signatures on threat events
+  (−pole §24 texture, +pole §77 texture) with matched
+  non-threat behavior — report-only, no band.
+
+## 159. Sources verified this version (P835–P846 backing)
+
+- **Blunting (P835):** Miller 1980 ("When is a little
+  information a dangerous thing?" — monitoring-blunting
+  coping style); Miller & Mangan 1983. Anchors §77
+  `blunt_avoid_k`, `blunt_intr_k`, `blunt_store_null`.
+- **Immigration bump (P836):** Schrauf & Rubin 1998 (*JML*
+  39:437 — verified: bump followed age at immigration, not
+  10–30; language partitions pre/post records); Schrauf &
+  Rubin 2000 (*Appl. Cogn. Psychol.* — verified: era
+  memories not more detailed/emotional — distribution, not
+  tagging). Anchors `immig_lo/hi`, `immig_valence_null`.
+- **Transactive memory (P837):** Wegner 1987; Wegner, Erber
+  & Raymond 1991 (*JPSP* 61:923 — verified: natural couples
+  > impromptu pairs without assigned structure; assigned
+  structure hurts couples); Weldon & Bellinger 1997
+  (*JEP:LMC* 23:1160 — verified: collaborative inhibition;
+  group recall more stable over time). Anchors
+  `trans_shift`, `trans_ptr_k`, `joint_boost`,
+  `collab_inhibit`, `collab_stab`, `orphan_recall`.
+- **Offloading (P838):** Sparrow, Liu & Wegner 2011
+  (*Science* 333:776 — verified: expected access lowers
+  content recall, raises where-to-access recall); Risko &
+  Gilbert 2016 (*TiCS* 20:676 — intention offloading);
+  Henkel 2014 (camera/photo impairment). Anchors
+  `offload_k`, `ext_ptr_k`, `offload_global_null`,
+  `pointer_dead`.
+- **Consolidation yield (P839):** Gais, Mölle, Helms &
+  Born 2002 (spindle activity after learning predicts
+  retention); Schabus et al. 2004 (spindle differences in
+  good vs poor sleepers). Anchors `consol_yield_k`,
+  `consol_sleep_k`, `consol_encode_null`.
+- **Navigation (P840):** Coutrot et al. 2018 (*Curr. Biol.*
+  — Sea Hero Quest, age decline + small male advantage);
+  Coutrot et al. 2022 (*Nature* — verified, N=397,162:
+  rural-upbringing advantage; topology match — grid kids
+  ace grids). Anchors `navab_*`, `nav_layout_match`,
+  `nav_face_null`.
+- **Schizotypy (P841):** Peters, Smeets, Giesbrecht,
+  Jelicic & Merckelbach 2007 (*J. Nerv. Ment. Dis.* —
+  verified: performed/imagined source confusions, WMC
+  controlled out); Larøi, Collignon & Van der Linden 2005;
+  source-monitoring meta-analysis 2022 (44 studies —
+  internal SM + imagined stimuli specifically impaired);
+  Steel et al. 2005 (intrusion vulnerability account).
+  Anchors `schz_*`, `schz_wmc_null`.
+- **Hypnotizability (P842):** Heaps & Nash 1999 (*Psychon.
+  Bull. Rev.* — verified: imagination inflation correlates
+  with hypnotic suggestibility + dissociativity, NOT
+  vividness or interrogative suggestibility); Barnier &
+  McConkey 1992; Sheehan, Statham & Jamieson 1991;
+  Wagstaff sociocognitive counterline (accuracy-emphasized
+  highs more resistant — why all loadings are
+  context-locked). Anchors `hypnot_*`,
+  `hypnot_ungated_null`.
+- **Mnemonics (P843):** Maguire et al. 2003 (*Nat.
+  Neurosci.* — champions: strategy, not anatomy);
+  Dresler et al. 2017 (*Neuron* 93:1227 — verified: 6-week
+  loci training, athlete-like network changes, durable at
+  4 months); Wagner et al. 2021 (*Sci. Adv.* 7:eabc7606 —
+  verified: durable-memory formation specifically). Anchors
+  `mnem_*`, `mnem_passive_null`.
+- **Bilingual TOT (P844):** Gollan & Acenas 2004
+  (*JEP:LMC* 30:246 — verified: more TOTs on noncognates,
+  cognate/translation rescue, language-specific activation
+  mechanism); Gollan & Silverberg 2001. Anchors
+  `tot_nondom_k`, `tot_cognate_rescue`, `tot_dom_null`.
+- **Established vs hypothesis summary:** directions and
+  dissociations CONSENSUS except the hypnot channel
+  (DEBATED — context-locked on purpose) and
+  navab_interf_k (DEBATED); all magnitudes, window widths,
+  pointer-field mechanics, and orphan_recall are RW
+  HYPOTHESES.
+
+## 160. v80 probe specs (P847–P858 — social-memory VIII)
+
+- **P847 the trapdoor (MUST — sign-locked):** ambient-channel
+  events (channel:ambient) referencing the listener:
+  capture rate 0.35±0.10; post-capture, next ≤capture_tail
+  ambient events encode at ambient_spill gain; ambient
+  events not referencing the listener mint NOTHING
+  (name_memory_null — any record from uncaptured ambient
+  FAILS). Constrains name_capture_p, captured_mult,
+  capture_tail, ambient_spill.
+- **P848 addressed stays king (MUST):** identical content
+  addressed vs captured vs ambient: E ordering addressed >
+  captured > ambient≈0; captured cells reuse §59
+  thin-eavesdrop decay legs. FAIL if captured ≥ addressed
+  or ambient mints.
+- **P849 the paradox (MUST — emergent):** held-secret
+  records vs matched non-secret records over 60d: content
+  E decays SLOWER in the secret arm (intrusion
+  reconsolidation) while secret_str decays at
+  identical schedule (secret_intr_tag_null — any tag
+  refresh FAILS); leak events at day-50+ carry full
+  content detail.
+- **P850 one hop only (MUST):** A (sourceCredibility high)
+  vouches B; B vouches C. C's vouch_prior = f(B's cred)
+  only — the A² term must be absent (vouch_chain_null);
+  C's PersonModel carries prior and ZERO records
+  (vouch_only_null — any episodic mint FAILS);
+  vouch_prior halves in ~14d.
+- **P851 the ledger that isn't (MUST):** matched favor
+  streams into exchange vs communal dyads: exchange arm
+  resolves "who owes" at ledger accuracy; communal arm at
+  near-chance on itemized detail (ledger_gate_communal),
+  with noticed-absence compensation on gross neglect;
+  communal tracking ≥ exchange FAILS.
+- **P852 anchor topology (SHOULD):** relationship-history
+  recall retrieves turning_point hubs first (latency and
+  frequency advantage); non-hub period records drift
+  hub-consistent; a 90-day no-hub dyad retrieves generic/
+  "fine". FAIL if hubs show no retrieval advantage.
+- **P853 the prior writes the gray zone (MUST):**
+  ambiguous first-encounter fields (|v|<assim_band) shift
+  toward vouch_prior/hearsay valence by ~prior_assim_k;
+  |Δ|>contrast_band flips sign (contrast); ambiguous
+  field with no perception mints nothing
+  (prior_create_null); unconditional assimilation FAILS.
+- **P854 the seat by the door (SHOULD):** final:true
+  records out-retrieve matched mid-relationship records
+  at 30d; intrusion pulse ≤~30d (final_intr); content
+  drift identical to unflagged records and pre-final
+  history unchanged (final_rewrite_null).
+- **P855 pain glue (MUST):** adversity:true co-present
+  events raise each witness RelEdge.bond by
+  ~adversity_bond_k·|arousal| vs matched no-adversity
+  co-presence; solo adversity raises no edge
+  (adversity_solo_null); later recall reinstates
+  ~adversity_reinstate of edge decay.
+- **P856 the plural subject (SHOULD):** plural:true
+  records cue on partner presence at ~we_spill_k of the
+  partner's cue weight; credit attribution starts ~50/50
+  and drifts self-serving per retell; partner_lost routes
+  them through §27/§79 orphan machinery.
+- **P857 whose story (OBSERVE):** story_own retells —
+  owner-absent trespass ~own_trespass; owner-present
+  no-deference ~2× that; deference yields +own_yield;
+  retelling never blocked (own_block_null — a hard block
+  FAILS).
+- **P858 divergence (MUST — composite):** two profiles
+  differing only on wmc and rumin show different ambient
+  capture rates (P847 cells) AND different secret-intrusion
+  frequencies (P849 cells) — same scene, different books.
+
+Registry: P1–P870. v81 suite: P859–P870 (formal-model VIII — formal-model.md §68); v80 suite: P847–P858 — P847–P851, P853,
+P855, P858 MUST; P852, P854, P856 SHOULD; P857 OBSERVE.
+Locked-null arms: P847 (memory), P849 (tag), P850 (chain +
+record), P851 (communal ledger), P853 (create), P854
+(rewrite), P855 (solo), P857 (block).
+
+## 161. Sources verified this version (P847–P858 backing)
+
+- **Own-name capture (P847–P848):** Cherry 1953
+  (selective listening; unattended channel yields ~nothing);
+  Moray 1959 (~33% name detection); Wood & Cowan 1995
+  (*JEP:G* 124:243 — verified: 34.6% recall of own name in
+  ignored channel, attention shifts confined to ~2 items
+  following, NO indirect memory for unattended content);
+  Conway, Cowan & Bunting 2001 (low-WMC detects more —
+  filter-leakage account). Anchors name_capture_p,
+  captured_mult, capture_tail, ambient_spill,
+  name_memory_null.
+- **Secret preoccupation (P849):** Slepian, Chun & Mason
+  2017 (*JPSP* 113:1–33 — verified: mind-wandering to
+  secrets >> active concealment, ~2×; intrusion, not
+  concealment, predicts harm; >13k secrets); Slepian,
+  Kirby & Kalokerinos 2020 (*Emotion* — verified: shame ↑
+  mind-wandering, guilt ↓); Liu, Kalokerinos & Slepian
+  2023 (*PSPB* — replication); Slepian, Camp & Masicampo
+  2015 (*JEP:G* 144:e31 — burden, used for mechanism only).
+  Anchors secret_intr_p, shame_gate, secret_intr_tag_null.
+- **Vouching (P850):** De Houwer, Thomas & Baeyens 2001
+  (*Psych Bull* 127:853 — evaluative-conditioning meta,
+  ~d=0.35); spillover direction CONSENSUS, transitive
+  credibility transfer is RW composite (trust-transitivity
+  lit is formal/ABM). Anchors vouch_k, vouch_halflife,
+  vouch_chain_null, vouch_only_null.
+- **Conditional ledgers (P851):** Clark & Mills 1979
+  (*JPSP* 37:12 — exchange vs communal); Clark 1984
+  (*JPSP* 47:549 — record-keeping experiment: exchange
+  expectation → better contribution tracking); Clark &
+  Mills 1993 review (norm violations memorable both
+  directions). Migration threshold flagged HYPOTHESIS.
+  Anchors ledger_gate_*, norm_breach_e.
+- **Turning points (P852):** Baxter & Bullis 1986 (*HCR*
+  12:469 — verified: relationship histories reconstruct
+  from ~15–25 turning points, ~10 categories); Baxter &
+  Erbert 1999; Surra relational-history method. Hub
+  mechanics RW composite. Anchors tp_e_mult,
+  tp_drift_shield.
+- **Prior assimilation (P853):** Jones 1990
+  (*Interpersonal Perception* — expectancy assimilation
+  default); Nickerson 1998 (confirmation bias review);
+  Biernat shifting-standards program + Dunning & Sherman
+  1997 (assimilation→contrast boundary at unambiguous
+  extremity — the band's justification). Anchors
+  prior_assim_k, assim_band, contrast_band, contrast_k,
+  prior_create_null.
+- **Final encounter (P854):** Fredrickson & Kahneman 1993
+  + Kahneman et al. 1993 (peak-end — CONSENSUS leg);
+  Davis & Lehman 1995 (counterfactual replay in
+  bereavement — nearest direct evidence, about rumination
+  not encoding — hence composite HYPOTHESIS). Anchors
+  final_e_mult, final_intr, final_rewrite_null.
+- **Shared adversity (P855):** Bastian, Jetten & Ferris
+  2014 (*Psych Sci* 25:2079 — verified: shared pain →
+  bonding + cooperation, 3 experiments incl. control for
+  task/effort); Whitehouse & Lanman 2014, Whitehouse et
+  al. 2017 (dysphoric-fusion mechanism). Anchors
+  adversity_bond_k, adversity_reinstate,
+  adversity_solo_null.
+- **Plural subject (P856):** Aron et al. 1991
+  (self-expansion/other-in-self); Mashek, Cannaday &
+  Tangney 2007 (inclusion measures); Wegner transactive
+  line (cueing leg CONSENSUS); record-level "we" store is
+  RW composite. Anchors we_spill_k.
+- **Story ownership (P857):** Stone 1988 + family-lore
+  work (ownership phenomenon exists; magnitudes unmeasured
+  → OBSERVE-grade). Anchors own_trespass, own_yield,
+  own_block_null.
+- **Established vs hypothesis summary:** capture rate,
+  mind-wander>conceal, shame/guilt split, exchange>
+  communal tracking, anchor sparsity, shared-pain bonding
+  — CONSENSUS. Assimilation-vs-contrast boundary placement,
+  prior mechanics, final-encounter privilege, vouch
+  transitivity, we-record mechanics, ownership magnitudes —
+  RW HYPOTHESES, all probe-gated.
+
+## 162. v81 probe specs (P859–P870 — formal-model VIII: anchor corpus)
+
+Formal-model Part VIII (§§60–69) instantiates the §14.2 anchor
+corpus — 18 sourced human statistics with bands — plus the
+observable link layer, equivalence grading, power budget,
+rep-grade shrinkage, and the train/holdout split. Probes test
+the *machinery*: links, lints, gates, budgets. Anchors
+themselves (A01–A18) are the corpus, not probes.
+
+- **P859 link completeness (MUST — locked null):** fuzz 10⁴
+  probe evaluations; every observed quantity traces through a
+  declared channel (recall `y`, latency `lat`, confidence `c`,
+  or emitted content). Any direct latent read (record.strength,
+  θ, cueMatch internals) = FAIL. `latent_read_null = 0`.
+  Basis: Tulving & Pearlstone 1966 availability/accessibility;
+  the probe-as-kernel formalism (§36) already implies read-side
+  discipline — this gates it.
+- **P860 latency monotonicity (MUST — sign-locked):** matched
+  records at ΔS_eff = .3 (constructed via legal encoding-
+  strength manipulation, never direct writes) produce strictly
+  ordered mean latencies, strong < weak; log-residual σ ∈
+  [0, 2·lat_sigma]. Basis: Wixted & Rohrer 1994 (cumulative-
+  recall rate tracks strength).
+- **P861 corpus lint (MUST — process):** every anchor row in
+  `anchor_set_ver` declares source, band, rep_grade, ≥1 pinned
+  param, design ref. Unpinned/unsourced/incomplete row = build
+  error (twin of P743 declaration gate).
+- **P862 equivalence gate (MUST — locked null):** inject a
+  degenerate perfect-memory config (β→0, misinfo_suscept→0);
+  corpus verdict = FAIL on ≥6 anchors via upper-band
+  violations. A suite that cannot catch a database is not a
+  validator. `exceed_null = 0`. Basis: Schuirmann 1987 TOST;
+  Lakens 2017.
+- **P863 retention anchors (SHOULD):** scripted low-salience
+  event diet on the reference profile (P68 family reuse);
+  savings analogues at the A01/A02/A03 delays land inside
+  [.45,.70]/[.22,.48]/[.10,.35] simultaneously.
+- **P864 power audit (MUST — process):** every evaluated
+  anchor reports n; n < max(anchor_n_min=100, §64-required n)
+  → verdict INCONCLUSIVE, never PASS. An underpowered hit is
+  not evidence.
+- **P865 shrinkage mutation (SHOULD):** flip a META anchor's
+  grade to SINGLE in a test corpus; band center must move to
+  0.6·Δ automatically; static bands = FAIL. Basis: OSC 2015
+  (~36% replication rate, mean effect ≈ half).
+- **P866 holdout honesty (MUST — locked null):** run the §66
+  split; fitting inputs manifest zero held-out anchorIds
+  (`anchor_leak_null = 0`); held-out miss count reported
+  verbatim; ≥ half held-out missing band = corpus-level FAIL.
+- **P867 misinformation band (SHOULD):** scripted post-event
+  suggestion; pooled acceptance ∈ [.15,.45] (A07);
+  profile-conditional split (suggs hi/lo) reported, ungated.
+- **P868 bump shape (SHOULD):** 70-equivalent profile's dated
+  autobiographical density: decade-2–3 mass > decades 4–6
+  (A06) AND earliest-recall age ∈ [3.0,4.2] (A05).
+- **P869 confidence–accuracy band (OBSERVE):** overall
+  point-biserial r ∈ [0,.40]; chooser-conditional > overall.
+  Report only — direct tuning would break A12's diagnostic
+  power. Basis: Sporer, Penrod, Read & Cutler 1995.
+- **P870 flashbulb dissociation (MUST — CONTESTED pair):**
+  matched flashbulb/everyday records: |consistency Δ| ≤ .10
+  (A10 null) AND confidence Δ ∈ [+.05,+.35] (A11). Both tails
+  or the aff_flash machinery is wrong in a named way.
+  Basis: Talarico & Rubin 2003.
+
+Registry: P1–P870. v81 suite: P859–P870 — P859, P860, P861,
+P862, P864, P866, P870 MUST; P863, P865, P867, P868 SHOULD;
+P869 OBSERVE.
+
+## 163. Sources verified this version (P859–P870 backing)
+
+- **Ebbinghaus curve (A01–A03):** Ebbinghaus 1885 savings
+  (58%@20min, 44%@1h, 34%@24h, 21%@31d — canonical);
+  Murre & Dros 2015 (*JML* 80:135 — successful RRR-grade
+  replication incl. intervals Ebbinghaus never tested).
+- **Retention form (A04):** Rubin & Wenzel 1996 (*Psych Rev*
+  103:734 — 210 datasets, 105 functions; exponential never
+  best; scale invariance is the grounds for §1's tick
+  insensitivity claim).
+- **Childhood amnesia (A05):** Tustin & Hayne 2010 grand mean
+  3.5y; Nelson & Fivush 2004 — 26 studies / 49 estimates,
+  unweighted mean 3.69 (verified table).
+- **Bump (A06):** Rubin & Schulkind 1997 (*Mem & Cogn*
+  25:859) + Rubin, Wetzler & Nebes 1986 — verified: bump
+  10–30, important memories of 70yos cluster 20–30.
+- **Misinformation (A07/A08):** Loftus 2005 review; Ayers &
+  Reder 1998 (early 30–40% impairment, controlled 10–20%);
+  Lindsay et al. 2004 (~30% lost-in-mall); Pezdek et al.
+  1997 (implausible→0%), Wade et al. 2002 (>50% plausible).
+- **DRM (A09):** Stadler, Roediger & McDermott 1999 (≥60%
+  recall / ≥80% recognition on strong lists); Roediger,
+  Watson, McDermott & Gallo 2001 (.01–.65 across 55 lists).
+- **Flashbulb (A10/A11):** Talarico & Rubin 2003 — verified:
+  consistency decline identical, vividness/confidence decline
+  only for everyday; visceral emotion → belief not accuracy.
+- **Confidence–accuracy (A12):** Sporer, Penrod, Read &
+  Cutler 1995 (overall ~0–.29, choosers ~.41 — verified);
+  Wixted & Wells 2017 pristine-condition caveat = DEBATED.
+- **Testing (A13):** Roediger & Karpicke 2006 — verified
+  numbers: 5-min .75 vs .81 (reversal), 1-wk .61 vs .40.
+- **Spacing (A14):** Cepeda et al. 2006 meta (839 assessments,
+  *Psych Bull* 132:354); Cepeda et al. 2008 optimal-gap ≈
+  10–20% of retention interval.
+- **RIF (A15):** Anderson, Bjork & Bjork 1994 (~8–10pp);
+  Murayama et al. 2014 meta — CONSENSUS for immediate;
+  durability (Storm et al. 2015) DEBATED — band is immediate-
+  effect only.
+- **Serial position (A16):** Murdock 1962; Glanzer & Cunitz
+  1966 (30 s filled delay abolishes recency).
+- **LoP (A17):** Craik & Tulving 1975; Craik 2002 review.
+- **Generation (A18):** Bertsch et al. 2007 meta (d ≈ .5).
+- **Link layer (P859/P860):** Wixted & Rohrer 1994; Ratcliff
+  1978 (DDM — declined for cost, noted); Lichtenstein,
+  Fischhoff & Phillips 1982 (overconfidence → conf_bias).
+- **Grading machinery (P862/P864–P866):** Schuirmann 1987
+  TOST; Lakens 2017 equivalence testing; Wilson 1927 CIs
+  (carried from §32.2); Open Science Collaboration 2015
+  (*Science* 349:aac4716); Benjamini & Hochberg 1995.
+- **Established vs hypothesis summary:** all 18 anchor
+  statistics CONSENSUS/META-grade except A10 (the anchor is
+  precisely the contested null — asserted as absence);
+  bands, channel lognormal choice, obs_noise, shrink factors,
+  split fraction — RW HYPOTHESES, probe-gated.
+
+## 164. v82 probe specs (P871–P878 — character-profiles VII: the remembering voice)
+
+Spec v5.30 §§5.79–5.83. All report-layer machinery — probes
+must prove the voice changes the AUDIENCE's evidence without
+touching the store.
+
+- **P871 quote fidelity (MUST — locked null):** scripted
+  witness event with logged verbatim wording; at 30d a
+  `voice_quote` 0.9 profile emits `quote` fields whose token
+  overlap with original wording is at the chance band
+  (constructed share ≈ 1); same profile at 2h (verbatim
+  alive) shows fidelity ∝ S. `quote_fidelity_null = 0`.
+  Basis: Tannen 1986; Sachs 1967; Wade & Clark 1993.
+- **P872 report-option reproduction (MUST — sign-locked):**
+  matched records, free-report context; `report_policy` 0.85
+  vs 0.15 profiles — high-policy emits fewer answers
+  (quantity ↓) with higher mean accuracy (accuracy ↑);
+  forced context collapses the difference via §5.61.
+  Basis: Koriat & Goldsmith 1996.
+- **P873 grain sharpening null (MUST — locked null):**
+  a `grain:"coarse"` emission ("last spring") heard by a
+  listener mints a coarse belief; no downstream path
+  upgrades it to a precise date absent new evidence.
+  `grain_sharpen_null = 0`. Basis: Goldsmith et al. 2002.
+- **P874 inventory floor (MUST — locked null):** `ie_talk`
+  1.4 profile asked about an event with zero stored
+  internal fields emits external-only narration — the mix
+  cannot mint episode content. `ext_floor_null = 0`.
+  Basis: Levine et al. 2002.
+- **P875 FOAK asymmetry (MUST — sign-locked):** identical
+  speaker, two arms: slow-answer (long prePauseMs +
+  answer) lowers hearer estKnow; slow-nonanswer (long
+  pause + `passed:true` + fok_cue) RAISES it. A fast
+  nonanswer must not raise it. `foak_store_null` checked
+  in same run — content S untouched. Basis: Brennan &
+  Williams 1995.
+- **P876 story-mint null (MUST — locked null):**
+  `voice_story` 1.0 retell of an event containing a
+  schema-discordant field suppresses that field in ≥60%
+  of emissions but the RECORD retains it — a later
+  free-recall still surfaces it. Coda fields carry
+  `eval:true` and mint no episodic content on
+  retell-encode. `story_mint_null = 0`. Basis: Marsh 2007.
+- **P877 quote ecology (SHOULD):** quote propensity is
+  age-flat across archetypes (child excluded — different
+  machinery); constructed share rises with record age on
+  the verbatim-decay schedule; hearsay records mint only
+  `constructed:true` quotes. `quote_cascade_null = 0`.
+- **P878 voice distinctness (SHOULD — process):** the 8
+  mains' {voice_quote, report_policy, grain_pref, ie_talk,
+  voice_story} vectors — no pair within L1 distance 0.5;
+  ambient tier draws inside the declared template ranges.
+  Run against cast-profiles.md Part V compiled params.
+
+Registry: P1–P878. v82 suite: P871, P872, P873, P874, P875,
+P876 MUST; P877, P878 SHOULD.
+
+## 165. Sources verified this version (P871–P878 backing)
+
+- **Constructed dialogue:** Tannen 1986 (*Representing* 27 —
+  verified abstract: "not a report at all"; possible→
+  impossible continuum); Tannen 1989 *Talking Voices* ch.4.
+- **Quote reconstruction:** Wade & Clark 1993 (*Memory*
+  1:265); Clark & Gerrig 1990 (*Cognition* 37 —
+  demonstrations, not descriptions).
+- **Monitor-and-control:** Koriat & Goldsmith 1996
+  (*Psych Rev* 103:490 — verified: report option ↑accuracy,
+  ↓quantity, incentive/monitoring-dependent); Goldsmith,
+  Koriat & Weinberg-Eliezer 2002 (*JEP:G* 131:73 — verified:
+  grain-size regulation, accuracy–informativeness trade).
+- **Detail mix:** Levine et al. 2002 (*Psychol Aging*
+  17:677 — verified: older→external bias, persists under
+  structured probing); Addis, Wong & Schacter 2008
+  (*Neuropsychologia* 46:1363 — style-level spread).
+- **FOAK:** Brennan & Williams 1995 (*J Mem Lang* 34:383 —
+  verified incl. the answer/nonanswer latency asymmetry and
+  filled-pause directions); Smith & Clark 1993 (*Cognition*
+  48:151 — uh<um delay calibration).
+- **Retelling:** Marsh 2007 (*Am J Psychol* 120:533 —
+  tellings retrieved over events; schema shaping).
+- **Established vs hypothesis:** Tannen quote-invention
+  share (≥half) is corpus-claim CONSENSUS; FOAK direction
+  CONSENSUS, magnitude SINGLE-study; trait ranges
+  (voice_quote priors, pass_thr range, foak_gain 0.15) are
+  RW HYPOTHESES, probe-gated by P871–P878.
+
+## 166. Verdict governance — the battery disciplines itself (VA-GOV) (new in v83)
+
+With P1–P878 registered, the dominant failure mode is no
+longer an under-specified probe — it is the verdict layer
+manufacturing signal. Four governance facts, then the
+params (spec §14.5).
+
+- **Multiplicity is real even in a simulation.** 878
+  Bernoulli-ish verdicts at nominal α=.05 expect ~44 false
+  rejections under global null — worse, probes share
+  characters, seeds, and event pools, so independence
+  fails. The fix is structural, not aspirational: probes
+  live in versioned families (one family = one version
+  suite); within a family, p-ranked verdicts threshold by
+  Benjamini–Hochberg at `fdr_q` (BH 1995, *JRSS-B*
+  57:289 — CONSENSUS). Under arbitrary dependence (the
+  default here — shared mains correlate everything), the
+  Benjamini–Yekutieli correction applies the Σ1/i penalty
+  (BY 2001, *Ann Statist* 29:1165 — CONSENSUS).
+  **Locked nulls are not tests.** A locked-null failure is
+  a boundary violation (the instrument touched what it
+  must never touch); `locked_null_gate` makes a single
+  failure BLOCK the release regardless of FDR outcomes.
+  Families are declared at registration: re-familying a
+  failure is `family_edit_null` — a ledger violation,
+  not a fix.
+- **Peeking is a type-I machine.** `corpusRun` emits
+  per-tick streams; anyone who watches a running p-value
+  and stops when it dips below .05 has inflated the error
+  rate arbitrarily (Robbins 1970; Howard et al. 2021,
+  *Ann Statist* 49:1055 — CONSENSUS). The discipline:
+  anchor monitoring uses **e-values** — nonnegative
+  supermartingales under the null whose product stays
+  valid at arbitrary stopping times (Ville 1939; Vovk &
+  Wang 2021, *JRSS-B* 83:961). For bounded statistics
+  (every recall proportion, every TOST statistic scaled
+  to [0,1]) the betting-style e-values of Waudby-Smith &
+  Ramdas (2024, *JRSS-B* 86:1 — verified) are the
+  state of the art: a GRAPA-style predictable plug-in
+  λ_t adapts to the running mean, and the confidence
+  sequence {m: ∏(1+λ_i(X_i−m)) < 1/α} is time-uniform.
+  Verdicts are declared only when e_t ≥ 1/`eval_alpha`
+  (=20); deciding on raw p's mid-stream is `peep_null`.
+  RW-modeling consequence: anchors may now be watched
+  continuously at zero statistical cost — the harness
+  never has to choose between early warning and honesty.
+- **Screening is per-output and advisory.** The §63
+  identifiability map asserts which params each anchor
+  can pin. That map should itself be audited: Morris
+  elementary-effects screening (`morris_levels`=4 grid,
+  `morris_traj`=20 trajectories — Morris 1991,
+  *Technometrics* 33:161 — CONSENSUS workhorse) yields
+  μ* (|mean elementary effect|, Campolongo, Cariboni &
+  Saltelli 2007 — fixes sign cancellation in μ) and σ
+  (interaction/nonlinearity). Per anchor, the Morris
+  top-k must overlap the declared pinned set at ≥
+  `sens_topk_overlap` or the map is stale and the
+  corpus's authority on that anchor is suspended.
+  Crucially, screening can ADD a param to the audit list
+  but can never REMOVE one: an inert μ* on one output
+  says nothing about the param's role elsewhere —
+  `screen_drop_null`. This is the sloppy-manifold lesson
+  (§140) enforced as code: on a sloppy model, most
+  params are individually inert on most outputs and
+  still load-bearing jointly.
+- **Believability is a separate axis from corpus fit.**
+  The 18 anchors match population statistics; none of
+  them ask whether a human observer, reading a recall
+  transcript, would take it for human. `rateBelief` is
+  the imitation-game arm (Turing 1950, *Mind* 59:433 —
+  as a discrimination protocol, no philosophy imported):
+  sim transcripts paired with human protocols sourced per
+  anchor design, blinded, order-randomized, `rater_n_min`
+  raters. Accuracy must land in `rater_detect_band`
+  [0.5, 0.75] — above ceiling = detectably nonhuman;
+  below floor = evaluator error (too-good doctrine §62).
+  Provenance, params, and arm labels are invisible to
+  raters (`rater_leak_null`): knowing which arm is sim
+  manufactures demand effects — raters hunt for tells
+  (Orne 1962, *Am Psychol* 17:776 — CONSENSUS; the
+  demand-characteristics paper). RW-specific: the
+  transcripts must be surface-only (emissions, pauses,
+  passes, quotes) — a rater who sees records has been
+  shown the store, not the mind.
+- **Seed stability is an instrument check.** Every gated
+  probe reruns on `seed_rep_min`=5 seeds; flip fraction
+  > `verdict_flip_max`=0.1 ⇒ FLAKY — exits its FDR
+  family pending redesign. A flaky probe is a bug in the
+  instrument, never a psychology finding.
+
+## 167. e-value semantics for bounded recall statistics (VA-EVAL) (new in v83)
+
+Concrete instantiation for the harness — this is the
+piece implementers asked §14.5b to nail down.
+
+- Recall proportions, recognition hits, confidence means
+  are bounded in [0,1]: the betting machinery applies
+  verbatim. Per anchor t-th observation X_t (e.g., a
+  per-character recall indicator), test m against the
+  running capital K_t(m) = ∏_{i≤t}(1+λ_i(m)(X_i−m));
+  reject m when K_t ≥ 1/`eval_alpha`; the confidence
+  sequence is the m not yet rejected. λ_t predictable,
+  GRAPA plug-in λ̂_t(m) = (μ̂_{t−1}−m)/(σ̂²_{t−1}+(μ̂_{t−1}
+  −m)²), clipped to keep the factor ≥0 (WSR 2024).
+- TOST anchors become two one-sided e-processes
+  (equivalence = both margins rejected); `e_merge`=
+  "product" for independent arms; for correlated arms
+  sharing a character pool, average e-values (arithmetic
+  merging stays valid under arbitrary dependence — Vovk
+  & Wang 2021) — declared per probe at registration.
+- e-values do not replace the release gate's fixed-n
+  analyses; they are the MONITORING layer. A corpusRun
+  verdict still requires `anchor_n_min`; e-boundaries
+  only authorize early ALARM (suspend release, rerun
+  seeds) — early PASS claims stay fixed-n to keep the
+  §66 holdout honest.
+- Established vs hypothesis: e-process validity under
+  optional stopping CONSENSUS (Ville; Howard et al.;
+  WSR); choosing GRAPA over alternative λ policies is an
+  efficiency choice, DEBATED only in magnitude; RW's
+  alarm-vs-claim split is an RW HYPOTHESIS of governance
+  design, probe-gated by P881–P882.
+
+## 168. The rater arm — protocol details (VA-RATER) (new in v83)
+
+- **Transcript sourcing.** Human-side protocols come from
+  the anchor designs themselves where they exist (e.g.,
+  narrated autobiographical recall for the reminiscence
+  anchors; witness-statement style for misinformation
+  anchors); where no protocol exists, elicit fresh
+  protocols under the anchor's own instructions and log
+  them to the corpus as `design:"protocol"` rows —
+  they are corpus data, subject to `ledger_amend` like
+  every other row.
+- **Blinding.** `rateBelief` strips bookkeeping, canonHash,
+  and any field that is not renderable surface. Arms are
+  shown in randomized order with a foil pair (human-human)
+  per `rater_foil_frac`≈0.2 — foils estimate rater
+  vigilance; a rater who fails foils is dropped from the
+  band computation.
+- **What counts as detection.** Forced choice (which is
+  sim) plus confidence; accuracy is the primary
+  statistic; a post-choice free-text "what gave it away"
+  field is collected for instrument debugging but never
+  enters the verdict.
+- **Band asymmetry on purpose.** Ceiling breach (raters
+  spot the sim >0.75) is a believability failure — the
+  surface contract §15.4 is leaking mechanics. Floor
+  breach (<0.5, below chance) means raters systematically
+  pick human-as-sim: instrument bug or contaminated
+  human protocols. Both halt release; they are different
+  bugs.
+- **Demand hygiene.** Orne 1962: once raters suspect the
+  purpose, they produce the data the purpose implies.
+  Hence `rater_leak_null` — the arm never carries
+  provenance, and the task brief frames it as transcript
+  classification, not "spot the AI."
+
+## 169. Probe bookkeeping deltas (v83)
+
+- Family registry gains `family_ver` (declared at
+  registration, immutable; `family_edit_null` enforces).
+- Verdict ledger rows gain `{e_t, e_boundary_hit,
+  seed_verdicts:[5], flake_flag}` — all read-only after
+  write (`ledger_amend` unchanged).
+- `sensAudit` output rows `{anchorId, param, mu_star,
+  sigma, in_declared_topk}` archived beside verdicts;
+  disagreement between screen and §63 map suspends (not
+  clears) the anchor's authority until re-map.
+- `rateBelief` rows `{pairId, arm_hash, accuracy_ci,
+  foil_pass_rate}` — arm_hash is provenance for
+  auditors, never exposed to raters.
+
+## 170. v83 probe specs (P879–P888 — validation-design IX)
+
+Spec v5.31 §14.5. These probes test the TESTS — the
+verdict layer's honesty, not the characters'.
+
+- **P879 null-battery FDR calibration (MUST):** configure
+  a global-null run (all SHOULD families engineered
+  true-null via B1 mode + trait flattening); BH at
+  `fdr_q`=.05 must reject ≤ q·|family| in expectation
+  across 20 replicated families — empirical FDR in
+  [0, 0.10] (upper bound allows Monte Carlo slack);
+  under deliberately correlated arms the BY-corrected
+  path must stay inside the same band while raw-BH is
+  allowed to exceed it (documents why BY is default).
+  Basis: BH 1995; BY 2001.
+- **P880 locked-null gate override (MUST — process):**
+  inject one failing locked null (e.g., a build that
+  touches S on a probe read) into a run whose FDR
+  verdict is otherwise PASS — `evalGate` must return
+  BLOCK. Basis: spec §14.5a.
+- **P881 peeking discipline (MUST — sign-locked + locked
+  null):** on a true-null anchor stream, a monitor that
+  peeks at fixed-n p every tick and stops at first
+  p<.05 rejects ≥3× nominal rate over 200 replicated
+  streams (demonstrating the inflation); the same data
+  under the e-process rejects ≤ `eval_alpha`.
+  `peep_null = 0`. Basis: Robbins 1970; Howard et al.
+  2021; Waudby-Smith & Ramdas 2024.
+- **P882 e-value merging validity (SHOULD):** product-
+  merged e's across independent arms reject at ≤α under
+  joint null; arithmetic-merged e's across deliberately
+  correlated arms (shared character pool) also stay ≤α;
+  product-merging the correlated arms is ALLOWED to
+  exceed (documents the dependence clause).
+  Basis: Vovk & Wang 2021.
+- **P883 screen-vs-map agreement (SHOULD):** `sensAudit`
+  on three representative anchors (one decay, one
+  misinformation, one emotional) reproduces each
+  anchor's declared pinned set at top-k overlap ≥
+  `sens_topk_overlap`; σ-ranking flags at least one
+  interacting param on the emotional anchor (retention-
+  split interactions — §5.x emotional params were
+  designed to interact).
+  Basis: Morris 1991; Campolongo et al. 2007.
+- **P884 screen non-drop (MUST — locked null):** a param
+  with bottom-quartile μ* on every audited anchor remains
+  in the §63 gate; `screen_drop_null = 0`. Basis: §140
+  sloppy-manifold doctrine; Gutenkunst et al. 2007
+  (sloppiness — params jointly constrained, individually
+  weak).
+- **P885 rater detectability (SHOULD):** blinded raters
+  on sim-vs-human recall pairs land accuracy in
+  `rater_detect_band`; foil-pass rate ≥0.8 or the rater
+  pool is re-screened. Basis: Turing 1950 (protocol);
+  Orne 1962 (demand hygiene). RW HYPOTHESIS: band
+  [0.5,0.75] — real humans produce individually
+  distinctive recall, so perfect indistinguishability is
+  not expected at scale; the ceiling operationalizes
+  "believable."
+- **P886 provenance leak (MUST — locked null):** repeat
+  P885 with arm labels visible — accuracy must shift
+  upward measurably (demand effect exists, proving the
+  blind matters), and the labeled run's verdict is void.
+  `rater_leak_null = 0`. Basis: Orne 1962.
+- **P887 family immutability (MUST — process):** attempt
+  to re-register a failed probe under a new family —
+  the ledger logs `family_edit_null` violation and the
+  evalGate verdict is unaffected by the attempt.
+  Basis: spec §14.5a.
+- **P888 seed-flake gate (MUST):** all v83-family probes
+  across `seed_rep_min`=5 seeds: flip fraction ≤
+  `verdict_flip_max`; a deliberately destabilized probe
+  (noise injected into its statistic) must be flagged
+  FLAKY and exit its family. Basis: §14.5e.
+
+Registry: P1–P888. v83 suite: P879, P880, P881, P884,
+P886, P887, P888 MUST; P882, P883, P885 SHOULD.
+
+## 171. Sources verified this version (P879–P888 backing)
+
+- **FDR:** Benjamini & Hochberg 1995 (*JRSS-B* 57:289 —
+  the FDR paper, verified); Benjamini & Yekutieli 2001
+  (*Ann Statist* 29:1165 — arbitrary-dependence
+  correction).
+- **Sequential/e-values:** Howard, Ramdas, McAuliffe &
+  Sekhon 2021 (*Ann Statist* 49:1055 — time-uniform
+  Chernoff bounds); Waudby-Smith & Ramdas 2024
+  (*JRSS-B* 86:1 — verified via RSS discussion-meeting
+  text: betting CSs for bounded means, GRAPA plug-in,
+  validity at arbitrary stopping times); Vovk & Wang
+  2021 (*JRSS-B* 83:961 — e-value merging; arithmetic
+  mean valid under arbitrary dependence); Robbins 1970
+  (peeking inflation — the original LEL critique);
+  Ville 1939 (the martingale inequality underneath).
+- **Screening:** Morris 1991 (*Technometrics* 33:161 —
+  verified: elementary effects, OAT trajectories,
+  negligible/linear/nonlinear/interaction
+  classification); Campolongo, Cariboni & Saltelli 2007
+  (*Environ Model Softw* 22:1509 — μ* fixes sign
+  cancellation); Saltelli et al. 2008 (*Global
+  Sensitivity Analysis: The Primer* — screen-then-Sobol
+  doctrine); Gutenkunst et al. 2007 (*PLoS Comput Biol*
+  3:189 — sloppy eigenvalue spectra).
+- **Raters:** Turing 1950 (*Mind* 59:433 — imitation
+  game as discrimination protocol); Orne 1962
+  (*Am Psychol* 17:776 — demand characteristics:
+  subjects produce what the design implies);
+  Bates 1994 (believable agents — the
+  believability-vs-accuracy distinction predates LLMs).
+- **Established vs hypothesis:** BH/BY validity,
+  e-process optional-stopping validity, Morris
+  screening semantics, demand-effect existence are
+  CONSENSUS; `rater_detect_band` [0.5,0.75],
+  `sens_topk_overlap` 0.8, `verdict_flip_max` 0.1, the
+  alarm-vs-claim split in §167 are RW HYPOTHESES of
+  governance design, probe-gated by P879–P888.
+
+## 172. v84 probe specs (P889–P898 — encoding-mechanics VII)
+
+Spec v5.32; encoding-mechanics.md Part VII §§84–95. These test
+the intake layer's new capture/floor/dwell machinery.
+
+- **P889 VDAC capture (MUST — sign-locked + locked null):**
+  rewardAssoc-tagged fields gain E under daLoad where matched
+  neutral fields fail (capture share visible in wm_cap
+  ordering); `vdac_goal_null` — capture persists when the
+  reward-associated field is task-irrelevant or goal-opposed:
+  a build where current-goal fields always win the share is a
+  locked-null violation, BLOCK. Moderator ordering: wmc-low >
+  wmc-high capture magnitude at matched rewardAssoc (Anderson
+  2011). Basis: Anderson, Laurent & Yantis 2011; Le Pelley
+  2016.
+- **P890 VDAC persistence (SHOULD):** rewardAssoc remains
+  effective (capture share + co-present tax) weeks after the
+  reward contingency ends; decay tracks `vdac_hl`, not
+  reward-loss events — a build where capture dies at
+  contingency end fails. Basis: Anderson & Yantis 2012.
+- **P891 multisensory congruence (MUST):** congruent bimodal
+  events beat unimodal at matched attention within the
+  `msens_gain` band; incongruent bimodal events UNDERperform
+  unimodal on the weaker channel (split cost); cross-modal cue
+  retrieval reaches only congruently-minted records — an
+  incongruent record must NOT be retrievable via the untested
+  modality's cue (bridge audit). Basis: Shams & Seitz 2008;
+  Lehmann & Murray 2005.
+- **P892 bounded automaticity (MUST — locked null):**
+  freq/loc/when attribute fields mint above zero at maximal
+  daLoad (`auto_floor`) BUT intentional orienting still
+  improves them — `auto_immune_null`: a build where
+  att==auto_floor performs identically to att==1 on attribute
+  fields fails by construction (the adjudicated verdict:
+  floor, not immunity). Basis: Hasher & Zacks 1979/1984;
+  Naveh-Benjamin 1987 critique.
+- **P893 attribute-floor age shape (SHOULD):** the young–old
+  recall gap on attribute fields is smaller than on content
+  fields at matched difficulty (partial sparing direction);
+  slope nonzero — sparing, not immunity. Basis: Hasher &
+  Zacks direction as adjudicated.
+- **P894 drawing effect (MUST — ordering + null):** drawn >
+  written ≈ imagined ≈ elaborated at matched exposure (the
+  Wammes 2016 ordering — drawn must top the composite's
+  components); under dual task the drawn advantage shrinks
+  less than verbal strategies' (`draw_da_resist`);
+  `draw_verbatim_null` TOST-enforced — drawn records match
+  written on wording recall (composite trace mints no
+  orthography); non-drawable abstract content gains ≤ half.
+  Basis: Wammes, Meade & Fernandes 2016; Fernandes, Wammes &
+  Meade 2018.
+- **P895 RPL dwell (SHOULD — crossover):** self-paced dwell
+  concentrates on mid-difficulty items (inverted-U over
+  difficulty); `context.deadline` flips allocation to
+  easiest-first (`rpl_press_flip`); deficit profiles flatten
+  the U; the §71 value leg is unchanged — orthogonal-axis
+  audit (importance moves WHAT gets attempted, RPL moves
+  where the dwell lands). Basis: Metcalfe & Kornell 2005;
+  Son & Metcalfe 2000.
+- **P896 elaborative interrogation gate (MUST — locked
+  null):** `why:true` gains `ei_gain` only when
+  `schema_support ≥ ei_know_gate`; below-gate gain ≤0.03
+  TOST-enforced (`ei_noknow_null` — the knowledge contingency
+  IS the finding); above-gate composes multiplicatively with
+  `teach_expect_gain` (explain-and-interrogate stack, never
+  subtract). Basis: Pressley et al. 1987; Dunlosky et al.
+  2013.
+- **P897 subjective organization (SHOULD):**
+  `catRun ≥ org_run_min` sequences mint denser inter-field
+  links (edge count per field-pair rises within runs);
+  recall clustering rises with run coherence; singleton runs
+  unaffected; consc-high profiles show stronger organization
+  (trait moderation direction). Basis: Tulving 1962; Bower
+  et al. 1969; Sternberg & Tulving 1977.
+- **P898 v5.32 regression (MUST — structure):** new
+  fields/params pass the P457 non-interference pattern
+  (rewardAssoc mints at reward co-occurrence only — no
+  future reads; modalities/modalCongruent are encode-time
+  flags; drawn/why are engagement variants inside existing
+  channels; catRun is a sequence counter, not a store) and
+  the §12.2 commutativity pattern (no new op reads across
+  charIds).
+
+Registry: P1–P898. v84 suite: P889, P891, P892, P894, P896,
+P898 MUST; P890, P893, P895, P897 SHOULD.
+
+## 173. Sources verified this version (P889–P898 backing)
+
+- **VDAC:** Anderson, Laurent & Yantis 2011 (*PNAS*
+  108:10367 — verified: reward-associated distractors capture
+  attention against goals; WMC/impulsivity moderators);
+  Anderson & Yantis 2012 (*Atten. Percept. Psychophys.* —
+  verified: >6-month persistence without further learning);
+  Le Pelley, Mitchell, Beesley, George & Wills 2016
+  (*Psych. Bull.* 142 — verified meta: robust, value-scaled).
+- **Multisensory:** Shams & Seitz 2008 (*Nat. Rev. Neurosci.*
+  9:655 — verified framework, inverse effectiveness); Murray
+  et al. 2004 (multisensory study → better recognition);
+  Lehmann & Murray 2005 (cross-modal re-evocation).
+- **Automaticity:** Hasher & Zacks 1979 (*JEP:G* 108:356 —
+  verified: automatic vs effortful framework);
+  Zacks, Hasher & Sanft 1982 (*JEP:LMC* 8:106 — verified:
+  frequency tagging incidental); Naveh-Benjamin 1987+ (the
+  adjudication — effort involvement: floor, not immunity).
+- **Drawing:** Wammes, Meade & Fernandes 2016 (*QJEP*
+  69:1752 — verified: >2× recall vs writing, survives
+  LoP/imagery/picture controls, quality irrelevant);
+  Wammes et al. 2018 (*Exp. Aging Res.* — verified: robust
+  in older adults); Fernandes, Wammes & Meade 2018
+  (verified: survives divided attention).
+- **RPL:** Metcalfe & Kornell 2005 (*JEP:G* 134:530 —
+  verified: region of proximal learning); Son & Metcalfe
+  2000 (*JEP:LMC* 26 — verified: agenda-based allocation,
+  pressure → easy-first); Metcalfe 2002.
+- **Elaborative interrogation:** Pressley, McDaniel, Turnure,
+  Wood & Ahmad 1987 (verified paradigm); Dunlosky et al.
+  2013 (*Psych. Sci. Public Interest* 14 — verified:
+  moderate utility, prior-knowledge contingency).
+- **Subjective organization:** Tulving 1962 (verified);
+  Bower, Clark, Lesgold & Winzenz 1969 (verified:
+  hierarchical organization recall multiples); Sternberg &
+  Tulving 1977 (SO measurement — verified).
+- **Established vs hypothesis:** VDAC existence/persistence/
+  moderators, multisensory benefit direction, attribute-floor
+  direction, drawing effect ordering, RPL inverted-U +
+  pressure flip, EI knowledge contingency, SO-recall
+  correlation are CONSENSUS or established; `vdac_hl` 180d
+  magnitude, `auto_floor` value, `draw_da_resist` share, the
+  catRun counter shape, and the dwell-as-integral formalism
+  are RW modeling hypotheses, probe-gated by P889–P898.
+
+## 174. v85 suite (P899–P907) — forgetting-curves VIII
+
+Spec v5.33 mechanics (FC Part VIII §§37–40): savings shadows,
+hazard archival, need-prior τ, throughput pressure, form annex.
+
+- **P899 savings re-encode (MUST):** archive → ≥7d → matching
+  re-encounter mints E boosted ≥`sav_gain·0.5·savings` vs
+  never-encoded control; re-paired (cue-match-only) control
+  ≤0.05 (Nelson's own arm). Shadow consumed on use.
+- **P900 savings silence (MUST):** `sav_recall_null` — shadows
+  never appear in recall/FOK/report output at any strength;
+  output-scanned like P783.
+- **P901 hazard spread (MUST):** matched cohorts — hazard mode
+  archival-day CV ≥0.3, cliff mode =0; means within 15%.
+- **P902 graveyard nulls (MUST):** archival-day distributions
+  identical across valence and conf strata (TOST) —
+  `arch_valence_null` + `hazard_conf_null`.
+- **P903 need-prior τ (SHOULD):** never-accessed records,
+  top vs bottom needRate tercile — half-life differs in the
+  predicted direction ≥ need_tau_gain/2 effect; locked leg:
+  needRate never mints/strengthens (need_mint_null) and never
+  enters θ (need_retrieve_null).
+- **P904 form discipline (SHOULD):** ≥80% of per-record
+  survival curves: power+floor within ΔAIC 2 of exponential;
+  fitted floor above chance line (Averell & Heathcote 2011
+  protocol, hierarchical not pooled).
+- **P905 aggregate steepening (SHOULD):** pooled β_est >
+  median per-record β (Simon 1966 heterogeneity); per-record
+  Jost ordering retained (P5 regression).
+- **P906 throughput pressure (SHOULD):** high- vs low-volume
+  day after encode → episodic R diverges in predicted
+  direction; semantic exempt (vol_scope TOST leg).
+- **P907 reinstatement cap (MUST):** reinstated verbatim pool
+  ≤ fresh event's delivered content — zero shadow-sourced
+  fields (`sav_verbatim_null`, output-diffed).
+
+Registry: P1–P907. v85 suite: P899, P900, P901, P902, P907
+MUST; P903, P904, P905, P906 SHOULD.
+
+## 175. Sources verified this version (P899–P907 backing)
+
+- **Savings:** Nelson 1978 (*JEP:HLM* 4:453 — verified:
+  savings detectable where recall AND recognition fail);
+  Nelson 1985 (*JEP:LMC* 11:472 — verified: savings is
+  Ebbinghaus's sole measure, most sensitive of the three);
+  MacLeod & Nelson 1984 (replication — concatenation
+  interpretation); Nelson, Fehling & Moore-Glascock 1979
+  (semantic savings).
+- **Form:** Averell & Heathcote 2011 (*J. Math. Psychol.*
+  55:25–35 — verified: hierarchical Bayesian; exponential
+  best raw fit, power wins model selection, above-chance
+  asymptote in all analyses); Simon 1966 (*Psychometrika*
+  31:505 — verified: Jost + exponential ⇒ heterogeneous
+  rates, aggregate steepening); Rubin & Wenzel 1996 (Part I).
+- **Need-prior:** Anderson & Schooler 1991 (*Psych. Sci.*
+  2:396 — verified: need-probability mirrors availability
+  across three corpora); Schooler & Anderson follow-ups
+  (children's input replication).
+- **Throughput:** Hardt, Nader & Nadel 2013 (*TICS* 37:111 —
+  verified "Decay happens"); Frankland, Köhler & Josselyn
+  2013 (*TINS* — verified, infantile amnesia account);
+  mechanism DEBATED (adult neurogenesis rates contested) —
+  reduced form only.
+- **Established vs hypothesis:** savings-existence,
+  survival-variance, need↔availability shape correspondence,
+  above-chance asymptote, heterogeneity steepening are
+  CONSENSUS/established; hazard-as-mechanism, per-class τ
+  shift, vol_loss magnitude, savings-as-scalar-shadow are
+  RW modeling hypotheses, probe-gated P899–P907.
+
+## 176. v86 suite (P908–P917) — retrieval-cues VIII
+
+Full prose specs in retrieval-cues.md §90. Harness signatures:
+
+- **P908 mind pop (MUST, structure):** encode → `pop_seed`
+  minted; seeds decay `pop_seed_hl`; pops cluster in
+  `autopilot` (pop_auto_mult arm, ≥1.5× focused-rate);
+  emissions are `pop:{gist_term}` with zero verbatim fields
+  (`pop_episodic_null` structure-checked); ≤pop_link_p
+  episode routes.
+- **P909 MEAM (MUST, two arms):** familiar-song cue —
+  involuntary share ≥0.72 (`meam_invol`·0.9), perceptual
+  detail +meam_rich·0.8 over matched face cues; novel song
+  → w=0 (`meam_scope` structure-check).
+- **P910 date null (MUST, sign):** `when`-only cue → chance
+  episodic recall; same event via `lm_route` landmark →
+  normal recall; emitted datings are landmark+offset form,
+  never bare-calendar (string-level check on reports).
+- **P911 cue-word class (SHOULD):** activity words ≥1.2×
+  object words; object hits older era + higher
+  generic-record share (`cw_obj_age`); `cw_verbatim_null`
+  structure-checked.
+- **P912 referential poverty (MUST):** name→pronoun swap
+  drops recall ≥(1−ref_thin)·0.8 unless referent alone in
+  `ref_focus`; dual-referent stacks emit `refError:true` at
+  ref_mis_p±20%; refError carries no accuracy debit
+  (field-check).
+- **P913 scaffolding (SHOULD, dyadic):** elaborative prompt
+  raises partner detail ≥scaf_gain·0.8 vs closed prompt;
+  child-target boost ≥1.44× adult (scaf_child_mult·0.8);
+  repeat prompts decay scaf_repeat_pen.
+- **P914 contiguity (MUST, order):** next-emission lag ∈
+  ±contig_lag_win at ≥2× chance; fwd/bwd ratio ≥
+  contig_fwd·0.9; attenuation on high-ageScale AND on
+  evClust-routed bouts — both arms.
+- **P915 ESI (SHOULD):** post-esi_thresh bout → next-bout
+  specificity +esi_gain·0.8; lift gone after esi_hl_bout;
+  no cumulative gain across sessions (esi_learn_null).
+- **P916 pop aging (COULD, null-ish):** old-age pop rate
+  declines ≥ episodic-intrusion decline rate; logged not
+  asserted (K&M age gradient shallow).
+- **P917 scaffolding independence (MUST, negative):**
+  scaffolded-vs-control target stores identical when the
+  scaffolded recall is not emitted (no record-state delta
+  from the partner's prompt).
+
+Registry: P1–P917. v86 suite: P908, P909, P910, P912, P914,
+P917 MUST; P911, P913, P915 SHOULD; P916 COULD.
+
+## 177. Sources verified this version (P908–P917 backing)
+
+- **Mind pops:** Kvavilashvili & Mandler 2004 (*Cognitive
+  Psychology* 48:47–94 — verified via DOI + abstract:
+  cue-opaque semantic pops, automatic-activity bias,
+  hours-to-days priming delay); Mandler 1994 (coinage);
+  Berntsen 2021 (*WIREs Cogn. Sci.* 12 — involuntary AM
+  boundary).
+- **MEAMs:** Janata, Tomic & Rakowski 2007 (*Memory*
+  15:845–860 — verified via abstract: ~30% evoke rate,
+  positive skew, nostalgia third); Jakubowski & Ghosh 2021
+  (*BJOP* — verified: 83% spontaneous); Belfi, Bai et al.
+  2022 (*Psychology of Music* — verified: episodic richness
+  vs face cues); El Haj, Fasotti & Allain 2012 (*Conscious.
+  Cogn.* 21 — verified).
+- **Landmarks/dates:** Wagenaar 1986 (*Cognitive
+  Psychology* 18:225 — verified `when` failure); Barsalou
+  1988 (*Psych. Rev.* 95 — verified); Kurbat, Shevell &
+  Rips 1998 (*Mem&Cogn* 26:1058 — verified landmark
+  reference-point dating); Shum 1998 (*Appl. Cogn.
+  Psychol.* 12 — verified).
+- **Cue words:** Crovitz & Schiffman 1974 (*Bull. Psychon.
+  Soc.* 4:517 — verified); Galton 1879; Rubin & Schulkind
+  1997 (*Mem&Cogn* 25:859 — verified); Robinson 1976
+  (*Cognitive Psychology* 8:578 — verified word-class
+  effect); Williams, Healy & Ellis 1999 (concreteness
+  mediation).
+- **Referential form:** Ariel 1990 (*Accessing Noun-Phrase
+  Antecedents*, Routledge — verified accessibility
+  hierarchy); Gundel, Hedberg & Zacharski 1993 (*Language*
+  69:274 — verified givenness hierarchy).
+- **Scaffolding:** Fivush & Fromhoff 1988 (*J. Exp. Child
+  Psychol.* 45 — verified); Reese, Haden & Fivush 1993
+  (*Cognitive Development* 8:403 — verified); Nelson &
+  Fivush 2004 (*Psych. Rev.* 111 — verified review).
+- **Contiguity:** Kahana 1996 (*Mem&Cogn* 24:103 —
+  verified lag-CRP + forward asymmetry); Howard & Kahana
+  2002 (*J. Math. Psychol.* 46:269 — verified TCM);
+  Kahana, Howard, Zaromb & Wingfield 2002 (*Psychol.
+  Aging* 17:125 — verified age attenuation); Moreton &
+  Ward 2010 (*QJEP* 63 — verified AM down-weight).
+- **ESI:** Madore, Gaesser & Schacter 2014 (*PNAS*
+  111:E1981 — verified); Madore & Schacter 2016 (*Memory*
+  24:150 — verified review); Jing, Madore & Schacter 2016
+  (*J. Gerontol. B* 71 — verified aging arm).
+- **Established vs hypothesis:** cue-opacity of mind pops,
+  MEAM involuntary/positive/rich profile, date-cue failure,
+  word-class ordering, accessibility hierarchy, maternal
+  elaboration, lag-CRP + forward asymmetry + age
+  attenuation, ESI lift are CONSENSUS/established;
+  pop_seed half-life, meam constants, adult-adult
+  scaffolding, `am_att` magnitude, esi decay horizon are RW
+  modeling hypotheses, probe-gated P908–P917.
+
+## 178. v87 suite (P918–P927) — age-development VIII
+
+Full prose specs in age-development.md §96. Harness signatures:
+
+- **P918 self-reference onset (MUST, sign):** matched
+  selfRelevance-high events, encodeAge 3 vs adult — E
+  advantage over selfRelevance-low controls ≤0.5× the adult
+  advantage at 3, ≈1.0× at 8 (knot tol ±20%).
+- **P919 era null (SHOULD, structure):** adult-age
+  Reconstruction of encodeAge-3 records shows no `w_self`
+  term — gate reads encodeAge (`self_ref_era_null`
+  structure-check on the eval path).
+- **P920 recol child gate (MUST):** encodeAge ≤6 records
+  emit `reportMode:"know"` ≥2× adult-encodeAge rate at
+  matched strength; `fam_w` identical across encodeAge
+  (`fam_child_null` field-check).
+- **P921 source ripening (SHOULD):** source fields on
+  encodeAge ≤6 records decay ≥1.3× adult; content fields
+  unchanged (channel isolation).
+- **P922 child attention gate (MUST, two arms):** peripheral
+  events encode ≤50% adult rate at age_now 5; high-arousal
+  events ≥90% parity same age (capture preserved).
+- **P923 bump negativity (SHOULD, distribution):** negative
+  selfRelevant records' era distribution is flat vs the
+  positive bump peak; `ls_pos_only` frozen (script pull
+  never fires on negative records).
+- **P924 thin futures U (SHOULD):** imagineEvent
+  verbatim_count at age_now 5 AND 80 < adult; external-
+  detail share +`epf_sem_fill`·0.8 at both ends;
+  `future_leak_null` structure-checked.
+- **P925 zombie intention (MUST):** post-completion cue
+  re-presentation emits `didItAgain:true` at
+  pm_zombie_p±25%; ≥70 arm ≥3× young arm; repeated-fire
+  ≥1.35× single; monitor stays disarmed
+  (`zombie_monitor_null` state-check).
+- **P926 recol maturation (COULD):** know→remember
+  crossover in encodeAge 8–16 on standard battery; logged.
+- **P927 v5.35 regression (MUST, structure):** defaults
+  reproduce v5.34 battery except sign-locked diffs; rif_k,
+  pm_focal_hit untouched.
+
+Registry: P1–P927. v87 suite: P918, P920, P922, P925, P927
+MUST; P919, P921, P923, P924 SHOULD; P926 COULD.
+
+## 179. Sources verified this version (P918–P927 backing)
+
+- **Self-reference development:** Ross, Anderson &
+  Campbell 2011 (*Monogr. SRCD* 76(3):1–102 — verified via
+  abstract: self-reference mnemonic advantage in 3–4y/o via
+  enactment/self-image/ownership); Ross, Hutchison &
+  Cunningham 2020 (*Child Development* — verified: AM
+  volume ~ self-knowledge volume + self-source monitoring);
+  Howe & Courage 1997 (*Psychol. Rev.* 104:499 — cognitive
+  self ~18–24mo; mechanism DEBATED).
+- **Recollection/familiarity development:** Ofen et al.
+  2007 (*Nature Neuroscience* 10:1198 — verified: PFC
+  protracted, MTL early, ages 8–24); Billingsley, Smith &
+  McAndrews 2002 (*JECP* 82:251 — verified); Ghetti & Lee
+  2011 (*Dev. Rev.* 31 — verified review: familiarity ~6–8,
+  recollection→adolescence); Cycowicz, Friedman & Duff 2003.
+- **Child attention:** Betts, McKay, Maruff & Anderson 2006
+  (*Child Neuropsychol.* 12:205 — verified: steep 5→9,
+  plateau ~10–12); Ruff & Rothbart 2001 (*Attention in
+  Early Development* — verified: orienting precedes
+  sustained).
+- **Source monitoring development:** Lindsay, Johnson &
+  Kwon 1991 (*JECP* 52:297 — verified); Drummey &
+  Newcombe 2002 (*Dev. Psychol.* 38:1138 — verified: abrupt
+  4→6 source jump); Sluzenski, Newcombe & Kovacs 2006.
+- **Life-script positivity:** Berntsen & Rubin 2004
+  (*Memory* 12:681 — verified); Thomsen & Berntsen 2008
+  (verified); Bohn & Berntsen 2008 (*Memory* 16 —
+  verified).
+- **Episodic future development/aging:** Busby &
+  Suddendorf 2005 (*Cogn. Dev.* 20:362 — verified: tandem
+  emergence 3→5); Addis, Wong & Schacter 2008 (*Psychol.
+  Sci.* 19:33 — verified: fewer internal details old arm);
+  Addis, Musicaro, Pan & Schacter 2010 (*Psychol. Aging*
+  25:369 — verified recombination).
+- **Intention deactivation:** Scullin, Bugg, McDaniel &
+  Einstein 2011 (*Mem&Cogn* 39:1232 — verified: preserved
+  retrieval, impaired deactivation); Scullin, Bugg &
+  McDaniel 2012 (*Psychol. Aging* 27:46 — verified);
+  Bugg & Scullin 2013 (*Psychol. Aging* 28 — verified:
+  repetition hardens zombies); Walser, Fischer & Goschke
+  2012 (*JEP:LMC* 38:1030 — verified).
+- **Established vs hypothesis:** self-reference presence at
+  3–4, recollection/familiarity dissociation, sustained-
+  attention growth curve, source-monitoring jump, script
+  positivity + flat negative bump, tandem MTT emergence,
+  old-age simulation deficit, commission-error age
+  asymmetry + repetition effect = CONSENSUS/established.
+  Knot magnitudes, `dist_child_mult`, `epf_sem_fill` parity
+  across ends, `pm_zombie_p` per-cue rates, `bump_neg_pen`
+  magnitude = RW hypotheses, probe-gated P918–P927.
+
+## 180. v88 suite (P928–P937) — age-decline VIII
+
+Suite focus: the overlay ledger — event steps, state
+overlays, protective slopes, reversible dips, and
+world-visible leading indicators (spec v5.36,
+AD§§110–119).
+
+- **P928 habit shift (MUST, dissociation):** script-node
+  execution share at age 80 ≥1.3× the 30yo share when a
+  scripted outcome changes; `goal_update_pen` delays update
+  ≥2× sim-days on old profiles; `perseverate` emissions
+  fire only on genuine outcome-change events (a stable
+  world emits none). Eppinger 2013; de Wit 2014.
+- **P929 grief two-half (MUST, sign-lock):** `spousal_loss`
+  at 72 degrades new encode legs ~`grief_hl` while pre-loss
+  recall stays flat (`grief_recall_null`); the `grief_slope`
+  tail is detectable but must not dominate the acute dip
+  (≤1.3×) — honors the LASA null. Aartsen 2005; Shin 2018;
+  Comijs fixed-effects.
+- **P930 hospitalization step (MUST, shape-lock):** `acute`
+  hospitalization at 74 shifts encode legs by
+  `hosp_step_acute`±20% + transient slope ≥1.5×;
+  `elective` produces neither (James 2019 elective-null);
+  stored-record recall flat — `hosp_level_null`. Wilson
+  2012; Ehlenbach 2010.
+- **P931 purpose slope (SHOULD):** purpose 0.9 vs 0.1
+  twins diverge post-60 by the HR-0.48-mapped ratio;
+  protection survives a `spousal_loss` event (internal
+  lever). Boyle 2010/2012.
+- **P932 bilingual onset (SHOULD, shape-lock):** bilingual
+  twins cross decline knots `biling_years`±0.5 later,
+  post-onset slope identical — onset shift never slope
+  (`biling_scope` frozen). Bialystok 2007; Zahodne 2014
+  counterflag.
+- **P933 gait precedence (MUST, order-lock):** decline-arm
+  `gaitSlow` hints lead episodic-output decline by
+  `gait_lead`±1y; `gait_channel_null` — gait metrics never
+  alter a memory roll. Mielke 2013; Buracchio 2010.
+- **P934 MT dip-and-rebound (MUST, sign-lock):** forced
+  mt_stage sequence shows late_peri encode trough ≥1.4×
+  vs pre, full recovery within `mt_recover` (≤5% residual);
+  male twin flat; pre-dip recall flat — `mt_recall_null`.
+  Greendale 2009.
+- **P935 remote semanticization (SHOULD, interaction):**
+  at fixed 20y retention 78yo emissions show more external
+  share than 35yo; at fixed 78, 20y-old records emit more
+  external than 1y-old — both halves required. Sekeres
+  2018; Levine 2002.
+- **P936 network orthogonality (SHOULD):** `net_size`
+  tertiles diverge on decline legs with `social` trait and
+  loneliness overlay held equal — structural channel
+  separable from perceived. Bennett 2006; James 2011.
+- **P937 feedback crossover (MUST, sign-lock):** at 80,
+  uncorrected failed-retrieval re-encodes gain LESS than
+  passive re-exposure while corrected retrievals gain MORE;
+  at 30 both retrieval modes beat re-exposure — full
+  crossover required. Tse 2010; Meyer & Logan 2013.
+
+Registry: P1–P937. v88 suite: P928, P929, P930, P933,
+P934, P937 MUST; P931, P932, P935, P936 SHOULD.
+
+## 181. Sources verified this version (P928–P937 backing)
+
+- **Habit/goal balance:** Eppinger, Walter, Heekeren & Li
+  2013 (*Front. Psychol.* 4:967 — verified: model-based
+  impaired, model-free spared, perseveration on strategy
+  shift); de Wit, van de Vijver, Ridderinkhof & Crielaard
+  2014 (*Cogn. Affect. Behav. Neurosci.* 14:647 —
+  verified: devaluation + slips-of-action); de Wit et al.
+  2012 (*J. Neurosci.* 32:8211 — verified corticostriatal
+  connectivity); Otto et al. 2013 (stress → habitual).
+- **Widowhood:** Aartsen, Van Tilburg, Smits, Comijs &
+  Knipscheer 2005 (*Psychol. Med.* 35:217 — verified:
+  memory decline independent of depression/health); Shin,
+  Kim & An 2018 (*Am. J. Geriatr. Psychiatry* 26:778 —
+  verified HRS 6,766: time-since-loss scaling); Comijs et
+  al. LASA fixed-effects (*J. Gerontol. B* gby104 —
+  verified counterpoint: temporary reasoning-only dip,
+  women only); Fulton et al. 2022 systematic review
+  (64 studies, adverse association overall).
+- **Hospitalization:** Wilson et al. 2012 (*Neurology*
+  78:950 — verified: 0.031→0.075/yr, 2.4×, episodic 3.3×);
+  Ehlenbach et al. 2010 (*JAMA* 303:763 — verified: CASI
+  −1.01/−2.14, dementia HR 1.4/2.3); James et al. 2019
+  (*JAMA Netw Open* — verified: nonelective 0.076→0.112,
+  elective null).
+- **Purpose:** Boyle, Buchman, Barnes & Bennett 2010
+  (*Arch. Gen. Psychiatry* 67:304 — verified: AD HR 0.48,
+  MCI 0.71, slower decline, robust to depression/
+  neuroticism/network); Boyle et al. 2012 (verified:
+  moderates pathology→cognition mapping); Kim et al. 2019
+  (*AJGP* — verified HRS 11,557).
+- **Bilingualism:** Bialystok, Craik & Freedman 2007
+  (*Neuropsychologia* 45:459 — verified ~4.1y delay);
+  Craik, Bialystok & Freedman 2010 (~5y); DEBATED —
+  Zahodne et al. 2014 (*Neurology*) null; Mukadam 2017
+  meta attenuation in prospective samples.
+- **Gait:** Mielke et al. 2013 (*J. Gerontol. A* 68:929 —
+  verified Mayo 1,478: gait→cog direction only); Buracchio
+  et al. 2010 (*Arch. Neurol.* 67:980 — verified ~12y
+  pre-MCI acceleration); Tian et al. 2020 (*JAMA Netw
+  Open* 3:e1921636 — verified 6-cohort meta: dual decline
+  6.28× dementia risk).
+- **Menopause:** Greendale, Huang, Wight et al. 2009
+  (*Neurology* 72:1850 — verified SWAN 2,362: late-peri
+  learning 7–28% of pre, post rebound); Greendale et al.
+  2010 SWAN symptom analysis (verified: not fully
+  symptom-mediated).
+- **Remote semanticization:** Sekeres, Winocur &
+  Moscovitch 2018 (*J. Neurosci.* — verified); Levine et
+  al. 2002 (*Psychol. Aging* — §104/§5.78c anchor);
+  Piolino et al. 2006; Nadel & Moscovitch 1997 MTT.
+- **Structural network:** Bennett, Schneider, Tang,
+  Arnold & Wilson 2006 (*Lancet Neurol.* 5:406 — verified:
+  network size modifies pathology→function, survives
+  depression/activity controls); Crooks et al. 2008
+  (*AJPH* 98:1221 — verified HR 0.74); James, Wilson,
+  Barnes & Bennett 2011 (*JINS* — verified activity
+  frequency → slower decline).
+- **Testing/feedback:** Tse, Balota & Roediger 2010
+  (*Psychol. Aging* 25:19 — verified crossover); Meyer &
+  Logan 2013 (*Psychol. Aging* — verified extension).
+- **Established vs hypothesis:** habit/goal dissociation,
+  bereavement→decline association (tail DEBATED), post-
+  hospitalization acceleration + elective-null, purpose
+  protection, gait→cognition arrow, MT dip-and-rebound,
+  remote semanticization, network-size moderation,
+  testing×feedback crossover = CONSENSUS/established
+  (bilingual onset DEBATED). All knot magnitudes,
+  age-equivalent unit conversions (hosp_step, grief_equiv),
+  compressed leads (gait_lead 4y vs 12y, mt_learn 0.5 vs
+  0.07 learning rate) = RW hypotheses, probe-gated
+  P928–P937.
+
+## 182. v89 suite (P938–P947) — emotional-memory VIII
+
+Suite focus: the quiet uses of feeling — present-state
+pull on past-feeling reports, suppression's aftereffects,
+narrative schemas, the invisible repair, and three
+edge-mechanisms (dissociation, boundaries, the camera)
+(spec v5.37, EM§§98–107).
+
+- **P938 consistency direction (MUST, sign-lock):** a
+  dyad whose bond rises +0.4 over 60 days emits
+  past-feeling reports bent positive by ≥
+  `consist_floor`; a falling dyad bends negative; a
+  STABLE-unhappy dyad bends < floor (Δ-drives, not
+  level). Stored tags unchanged on refire;
+  `consist_fact_null` — event content identical in
+  emitted reports. McFarland & Ross 1987; Karney &
+  Coombs 2000.
+- **P939 msd conditions (SHOULD, dissociation):** at
+  fixed cue strengths, self-generated recalls show
+  mood-match effect ≥3× externally-cued; neutral records
+  ≤`msd_neutral_mult` of charged; `msd_store_null` —
+  mismatched records never archive/delete. Eich &
+  Macaulay 2000; Smith & Vela 2001.
+- **P940 SIF dent-and-rebound (MUST, dissociation):**
+  15 successful suppressions → below-baseline recall on
+  same-cue AND novel-cue probes (independence is the
+  load-bearing cell — cue-blocking explanations fail
+  it); `C.load`≥0.6 attempts produce MORE intrusions
+  than baseline within 2 ticks; `sif_del_null` — record
+  never archives, resurrect path fires it. Anderson &
+  Green 2001; Anderson & Huddleston 2012; Wegner 1994.
+- **P941 sequence drift (SHOULD, sign-lock):**
+  narr_seq +0.8 vs −0.8 twins retell the same negative
+  record 5×: redemptive arm cools ≥`redempt_cool`-
+  scaled beyond §16 dampen; contam arm drifts reported
+  valence toward 0/negative; CONTENT fields identical
+  (`narr_truth_null`). McAdams 2001/2006.
+- **P942 immune blind (SHOULD):** resolved negative
+  record (peak 0.7, 21d recovery) → matched-event
+  forecast overshoots stored recovery by ≥`heal_gap_k`
+  and emits `heal_gap:true`; `immune_blind_null` — no
+  recovery-rate term exists anywhere to correct it.
+  Wilson & Gilbert 2003; Gilbert et al. 1998.
+- **P943 choice migration (MUST, interaction):** 30d
+  post-`choice`, feature reports misattribute positive
+  features to the chosen option ≥4× reverse direction;
+  day-2 < day-30 (grows as `opt_src` rots); 80yo >
+  30yo (`choice_age_gain`); option set + choice fact
+  intact (`choice_content_null`). Henkel & Mather
+  2007; Gilbert & Ebert 2002 (irrevocability arm).
+- **P944 boundary split (MUST, dissociation):** one
+  3-beat event, affect_shift ≥`bound_thresh` at beat 2:
+  across-seam order errors ≥2× within-seam; across-seam
+  `felt_dt` ≥1.3×; cross-seam proactive interference
+  reduced; strong cross-seam cue still retrieves —
+  order lost, access kept (`bound_del_null`). Heusser
+  2022; Clewett 2020.
+- **P945 positivity reversal (MUST, sign-lock):** 70yo
+  vs 30yo twins, mixed pos/neg event: full-attention
+  arm — older recall skews positive (`pos_enc_gain`-
+  scaled share shift); divided-attention arm — older
+  skews NEGATIVE relative to young. Both arms
+  required; `pos_youth_null` in the young;
+  `pos_appraisal_null` — threat fields encode
+  regardless. Mather & Knight 2005; Knight et al.
+  2007. (A sim showing old-positivity under
+  distraction has the wrong mechanism.)
+- **P946 dissociation split (SHOULD, dissociation):**
+  dissoc 0.9 vs 0.1 twins, arousal 0.75 event: high-
+  dissoc record shows link density <60% low + intrusion
+  rate > low + voluntary θ surcharge — three-way;
+  content fields present in both
+  (`dissoc_content_null`); `trauma_n` raises the roll
+  (`kindle_gain`). Ozer et al. 2003; van der Kolk &
+  Fisler 1995.
+- **P947 camera asymmetry (COULD):** photographing arm
+  vs control: visual recall +, auditory −; photographed
+  beats > unphotographed; positive tag
+  +`photo_engage_gain`, negative −same; total E parity
+  (`photo_offload_null`); `photo_review` refreshes only
+  `photographed:true` fields. Barasch 2017; Diehl 2016.
+
+Registry: P1–P947. v89 suite: P938, P940, P943, P944,
+P945 MUST; P939, P941, P942, P946 SHOULD; P947 COULD.
+
+## 183. Sources verified this version (P938–P947 backing)
+
+- **Consistency bias:** McFarland & Ross 1987 (*JPSP*
+  53:934 — dating couples, recall tracks current
+  evaluation); Karney & Coombs 2000 (*Pers. Soc.
+  Psychol. Rev.* 4:123 — newlywed trajectories:
+  Δ-satisfaction drives direction); Scharfe &
+  Bartholomew 1995; Holmberg & Holmes 1994 (premarital
+  narrative reconstruction correlates with current,
+  not initial, satisfaction).
+- **Mood-state-dependence:** Bower, Monteiro & Gilligan
+  1978; Bower 1981 (proposal); Eich & Macaulay 2000
+  (*Memory & Cognition* — verdict: real, small, needs
+  self-generated cues + genuine mood at both ends);
+  Smith & Vela 2001 (*Psychon. Bull. Rev.* meta —
+  context-dependency; mood the weakest context term);
+  Ucros 1989.
+- **Suppression-induced forgetting:** Anderson & Green
+  2001 (*Nature* 410:366 — TNT, independent-probe
+  deficit); Anderson & Huddleston 2012 (*Nebraska
+  Symposium* — ~10% below-baseline over 47
+  experiments); Levy & Anderson 2008 (affect quiets
+  with the fact); Wegner 1987/1994 + Wenzlaff & Wegner
+  2000 (ironic rebound under load, hyperaccessibility
+  in dysphoria); 2024 multilevel meta (small SIF,
+  same-probe > independent-probe, valence-neutral —
+  bounds honored).
+- **Narrative sequences:** McAdams et al. 1997 +
+  McAdams 2001/2006 (redemption ↔ generativity/
+  well-being; contamination sequences); Adler et al.
+  2015/2017 (sequence shifts track symptom change);
+  Pasupathi 2001 (retell stabilizes the told version).
+- **Immune neglect:** Gilbert, Pinel, Wilson, Blumberg
+  & Wheatley 1998 (*JPSP* 75:617); Wilson, Meyers &
+  Gilbert 2001; Wilson & Gilbert 2003 review — people
+  under-credit their own recovery machinery.
+- **Choice-supportive memory:** Henkel & Mather 2007
+  (*Psych Sci* — feature reattribution to chosen,
+  delay-dependent, OLDER adults more biased); Mather &
+  Johnson 2000; Mather, Shafir & Johnson 2000; Benney
+  & Henkel 2006; Gilbert & Ebert 2002 (irrevocability
+  recruits the rationalizer); Svenson & Benthorn 1992.
+- **Affect boundaries:** Clewett & Davachi 2017;
+  Clewett, Schoene & Davachi 2020 (*Nat Comms* —
+  pupil-linked arousal bursts at boundaries organize
+  temporal memory); Heusser, Poeppel, Ezzyat & Davachi
+  2022 (*Nat Comms* — within-event order improved /
+  across impaired + temporal-context reset model —
+  implemented literally); Rouhani et al. 2020 (RPE
+  surprise mints boundaries, backward binding);
+  2023 *Cognition & Emotion* dissociation (emotion
+  enhances own-item order, boundaries impair across;
+  segmentation boosts item-context binding, emotion
+  impairs it).
+- **Positivity effect:** Mather & Carstensen 2005
+  (*TICS*); Kennedy, Mather & Carstensen 2004
+  (*Psych Sci*); Reed, Chan & Mikels 2014 meta;
+  Mather & Knight 2005 (*Psych & Aging* — control-
+  dependent; DA eliminates AND reverses); Knight,
+  Seymour, Gaunt, Baker, Nesmith & Mather 2007
+  (*Emotion* — eye-tracking reversal under
+  distraction); Murphy & Isaacowitz 2008 (weaker
+  attention-side meta — DEBATED frame honored by
+  keeping it on the regulation pathway).
+- **Peritraumatic dissociation:** Ozer, Best, Lipsey &
+  Weiss 2003 (*Psych Bull* 129:52 meta, 68 studies —
+  strongest during-event PTSD predictor, r≈.35);
+  van der Kolk & Fisler 1995 (fragmentary encoding);
+  Marmar et al. 1994; Putnam 1997 (trait dissociative
+  capacity); Ehlers & Clark 2000 (intrusive-↑/
+  voluntary-↓ phenomenology).
+- **Photo-mediated memory:** Barasch, Diehl, Silverman
+  & Zauberman 2017 (*Psych Sci* 28:1050 — visual+/
+  auditory−, photographed>unphotographed, mental-photo
+  arm proves attentional mechanism); Diehl, Zauberman
+  & Barasch 2016 (*JPSP* 111:119 — engagement→
+  enjoyment positive, worse negative); Henkel 2014
+  (offload deficit under expected delegation —
+  reconciled via `photographing:"archive"`); St.
+  Jacques & Schacter 2013 (reactivation-selectivity
+  reading for the photo-cue preservation arm —
+  HYPOTHESIS extension).
+
+New sources verified this version: McFarland & Ross
+1987, Karney & Coombs 2000, Eich & Macaulay 2000,
+Smith & Vela 2001, Anderson & Green 2001, Anderson &
+Huddleston 2012, Levy & Anderson 2008, Wegner 1987/
+1994, Wenzlaff & Wegner 2000, 2024 SIF multilevel
+meta, McAdams 1997/2001/2006, Adler 2015/2017,
+Pasupathi 2001, Gilbert et al. 1998, Wilson & Gilbert
+2003, Henkel & Mather 2007, Gilbert & Ebert 2002,
+Clewett 2020, Heusser 2022, Rouhani 2020, Mather &
+Carstensen 2005, Kennedy 2004, Reed/Chan/Mikels 2014,
+Mather & Knight 2005, Knight et al. 2007, Ozer et al.
+2003, van der Kolk & Fisler 1995, Ehlers & Clark
+2000, Barasch et al. 2017, Diehl et al. 2016,
+Henkel 2014 — probes P938–P947.
+
+## 184. v90 suite (P948–P957) — false-memory VIII
+
+Suite focus: the edges of the record — generation,
+description, probing, swapping, interrogation,
+collaboration, boasting, and the banned operator
+(spec v5.38, FM§§88–97).
+
+- **P948 cryptomnesia (SHOULD, generation):** seed a
+  `told_by` pitch, decay `confidenceInSource`<0.3, run a
+  generation op — plagiarize at ≈`crypt_p`×(1+self-
+  similarity); minted output never names the origin
+  (`crypt_source_null` — audit sees `claimed_mine:true`,
+  the character sees authorship). Dissociation arm:
+  fresh-source records plagiarize ≈0. Brown & Murphy
+  1989; Marsh & Bower 1993; Macrae et al. 1999.
+- **P949 boundary extension (MUST, normalization):**
+  scene record's reported extent > observed at day 0–1,
+  converging to frame by `bext_norm_tau`; non-scene
+  records invariant (`bext_nonscene_null`); whole-
+  episode phantoms unchanged (bext is adjacent-content
+  only — §6.8 stays the episode path). Intraub &
+  Richardson 1989; Hubbard 1996.
+- **P950 verbal overshadowing (SHOULD, dissociation):**
+  post-`describe` recognition drops ≈`verb_shad_pen`
+  then recovers on `verb_shad_hl`; the described visual
+  field drifts toward the verbal label's prototype at
+  ≈`verb_label_pull`; semantic/gist fields untouched
+  (`verb_semantic_null`). Schooler & Engstler-Schooler
+  1990; Meissner & Brigham 2001; Carmichael et al. 1932.
+- **P951 crashing memories (MUST, ordering-lock):**
+  `footage_probe` on a high-notoriety event mints
+  `saw_footage` phantoms at ≈`media_phantom_p`;
+  detail-demanding follow-up yields MORE endorsements
+  than yes/no probe (the Crombag 66>55 ordering —
+  demand runs the schema fill); low-notoriety probes
+  mint zero (`footage_obscure_null`); `suggs`-high
+  twins > `suggs`-low. Crombag et al. 1996; Ost et al.
+  2002; Otgaar et al. 2022.
+- **P952 truthiness (SHOULD, content-lock):** identical
+  accounts ±`nonprob_image` differ in believe_p by
+  ≈`truth_gain`; verbatim/field content identical
+  (`truth_content_null`); photo-armed single source ≈
+  1.5 unarmed sources via `truth_fluency_k`. Newman et
+  al. 2012/2015.
+- **P953 choice blindness (SHOULD, layer-lock):**
+  swapped feedback on a recent `choice` → detection
+  ≤~30% (×`meta_conf` arm higher); on miss, confabulated
+  reasons minted AND born `chosen` field intact under a
+  `reported_chosen` overlay (`cb_record_null`);
+  `swapped_choice:true` emitted. Johansson et al. 2005;
+  Hall et al. 2010.
+- **P954 coerced self-false (MUST, ordering + cap):**
+  self-action field under `interrogate:true` +
+  `evidence_claim`: adoption orders evidence_claim >
+  interrogate > bare question; internalization rate ≤
+  `ownact_session_cap` (0.28 — the Kassin & Kiechel
+  ceiling); event ledger unchanged (`ownact_fact_null`);
+  `confessed_untrue:true` emitted and audit-visible.
+  Kassin & Kiechel 1996; Nash & Wade 2009; Hanba &
+  Zaragoza 2007.
+- **P955 collaborative inhibition (MUST, bound-lock):**
+  `groupRecall` output < nominal pool by ≈
+  `collab_inhib`·org_mismatch; NEVER greater
+  (`collab_gain_null`); matched-organization pairs
+  ≈uninhibited, mismatched pairs maximally; small net
+  error-pruning `collab_correct`. Weldon & Bellinger
+  1997; Basden et al. 1997; Rajaram & Pereira-Pasarin
+  2010.
+- **P956 overclaiming (SHOULD, tier-lock):** plausible
+  domain foils false-alarm at `oc_p` preserving the
+  `meta_conf·self_est` expertise ordering; minted
+  records are `familiar_only` tier, never episodic
+  (`oc_episodic_null`); warned claims land at
+  `oc_warn_resid`, not zero (`oc_warn_null`). Atir et
+  al. 2015.
+- **P957 the banned path (MUST — locked null):** a full
+  `therapy_probe` soak (guided imagery × repeated
+  probing × dream interpretation, many sessions) may
+  mint `imagined`-source phantoms and flipped felt
+  memories, but yields ZERO veridical latent-recovery
+  records anywhere in the store
+  (`repress_revival_null`) — the absence is the probe.
+  McNally 2003; Loftus 1993; Brewin & Andrews 2017;
+  Patihis et al. 2014.
+
+Registry: P1–P957. v90 suite: P949, P951, P954, P955,
+P957 MUST; P948, P950, P952, P953, P956 SHOULD.
+
+## 185. Sources verified this version (P948–P957 backing)
+
+- **Cryptomnesia:** Brown & Murphy 1989 (*J. Verbal
+  Learn. Verbal Behav.* 28 — three-phase paradigm,
+  ~9% worst-cell plagiarism, other-self asymmetry);
+  Marsh & Bower 1993 (plagiarism under explicit
+  warning); Marsh, Landau & Hicks 1997 (alternate-uses
+  replication); Macrae, Bodenhausen & Calvini 1999
+  (self-similarity gate — same-sex > opposite-sex).
+- **Boundary extension:** Intraub & Richardson 1989
+  (*JEP:LMC* — the founding close-up/wide-angle study);
+  Intraub, Gottesman & Bills 1998; Hubbard 1996
+  (review); Intraub 2002 (viewpoint-angle extension);
+  normalization-to-frame timecourse per the follow-up
+  literature.
+- **Verbal overshadowing:** Schooler & Engstler-
+  Schooler 1990 (*Cogn. Psychol.* — the face lineup);
+  Meissner & Brigham 2001 (*Appl. Cogn. Psychol.* meta
+  — small reliable cost, largest for faces); Alogna et
+  al. 2014 (*Perspect. Psychol. Sci.* RRR, 31 labs —
+  direction replicates, magnitude shrunk — flagged
+  DEBATED); Carmichael, Hogan & Walter 1932 (label→
+  reproduction pull); Bartlett 1932 (portrait d'homme).
+- **Crashing memories:** Crombag, Wagenaar & van Koppen
+  1996 (*Appl. Cogn. Psychol.* 10:95 — 55% yes/no,
+  66% detail-demanding, most supplied particulars);
+  Ost, Vrij, Costall & Bull 2002 (*Br. J. Psychol.* —
+  ~44% Diana-crash footage); Smeets et al. 2009;
+  Otgaar et al. 2022 (*Memory* — 25.7%/38%, suggesti-
+  bility-associated).
+- **Truthiness:** Newman, Garry, Bernstein, Kantner &
+  Lindsay 2012 (*Psychon. Bull. Rev.* — nonprobative
+  photos inflate truth + hindsight); Newman et al.
+  2015 (conceptual replication / pooled).
+- **Choice blindness:** Johansson, Hall, Sikström &
+  Olsson 2005 (*Science* 310:116 — <10% concurrent,
+  ≤26% total detection, confabulated reasons); Hall,
+  Johansson & Strandberg 2010 (moral-position swaps +
+  longitudinal tilt); Strandberg et al. 2018 (boundary
+  conditions); Levin et al. 2000 (metacognitive
+  over-prediction of detection).
+- **Coerced self-false-memory:** Kassin & Kiechel 1996
+  (*Psychol. Sci.* 7:125 — 69% signed / 28%
+  internalized / 9% confabulated; 100/65/35 fast
+  high-vulnerability cell); Nash & Wade 2009 (*Appl.
+  Cogn. Psychol.* — doctored own-act video); Horselen-
+  berg et al. 2003; Hanba & Zaragoza 2007 (*Appl.
+  Cogn. Psychol.* — forced confabulation converts).
+- **Collaborative inhibition:** Weldon & Bellinger
+  1997 (*JEP:LMC* — nominal > collaborative); Basden,
+  Basden, Bryner & Thomas 1997; Rajaram & Pereira-
+  Pasarin 2010 (*Perspect. Psychol. Sci.* review —
+  retrieval-strategy disruption account).
+- **Overclaiming:** Atir, Rosenzweig & Dunning 2015
+  (*Psychol. Sci.* 26 — self-perceived expertise
+  predicts claiming nonexistent items; survives
+  incentives, partially survives warning).
+- **Recovered-memory boundary:** McNally 2003
+  (*Remembering Trauma* — the laboratory verdict);
+  Loftus 1993 (*Am. Psychol.* 48:518); Brewin &
+  Andrews 2017 (*Appl. Cogn. Psychol.* review);
+  Patihis, Ho, Tingen, Lilienfeld & Loftus 2014
+  (*Psychol. Sci.* 25:519 — clinician/lay belief
+  surveys).
+
+## 186. v91 suite (P958–P969) — individual-differences VIII
+
+Suite focus: the chemistry and the crowd — blackout
+proneness, medication burden, the choke paradox,
+attentional control, the worried well, own-group face
+bias, episodic simulation, the pregnancy dip, caffeine
+dependence, gaming reflexes, and the third mandated
+null (spec v5.39, ID§§92–105).
+
+- **P958 the holes in the evening (MUST — rescue
+  split):** blackout=+1.5 vs 0, intox=0.7 identical
+  event diet: fragmentary records carry `frag:true`,
+  thin source tiers, θ+`blackout_theta_pen`; cue-
+  supported recall rescues ≈`blackout_cue_rescue` as
+  `reconstructed` provenance; en-bloc records absent
+  under every cue arm (`blackout_rescue_null`); pre-
+  drinking records identical (`blackout_retro_null`);
+  sober-side performance identical — the trait only
+  operates under intox. Hartzler & Fromme 2003;
+  Wetherill & Fromme 2011; White 2003.
+- **P959 the shield beside the hole (OBSERVE):**
+  events encoded pre-drinking in intox≥0.3 nights
+  accrue less next-day interference than sober-night
+  controls (`intox_retro_shield` leg) while same-night
+  intox-encoded events carry the gap — both effects
+  on one timeline, no record overlap. Parker et al.
+  1980/81; Carlyle et al. 2017.
+- **P960 the honest pill (MUST — direction-lock):**
+  med_burden=1.5 vs 0: burden-window records show the
+  E/source tax; pre-burden records identical
+  (`med_retro_null`); post-`med_washout` encode arms
+  converge; `med_aging_add` drifts only the long slope.
+  Curran 1991; Buffett-Jerrott & Stewart 2002; Gray
+  2015 (associational leg flagged DEBATED).
+- **P961 the expensive advantage (MUST —
+  interaction):** wmc=+1.5 vs −1.5 at matched g_mem,
+  eval_press on vs off: high-wmc loses MORE
+  discrimination/source/interference performance under
+  pressure (`choke_k`·wmc⁺); below `choke_gate` arms
+  identical (`choke_lowstake_null`);
+  `arousal_narrowing` unchanged — the choke is not the
+  arousal. Beilock & Carr 2005; DeCaro et al. 2011;
+  Eysenck et al. 2007.
+- **P962 the landing pad (SHOULD):** neurot=+1.5 held,
+  att_ctl −1.5 vs +1.5: stress-state att-floor tax and
+  eval_press noise diverge; zero-load arms identical —
+  att_ctl buffers only under load. Derryberry & Reed
+  2002; Berggren & Derakshan 2013.
+- **P963 the worried well (MUST — locked null):**
+  scd=1 vs 0 at identical g_mem/aging_rate/reserve:
+  complaint surface and worry intrusions rise; ALL
+  accuracy-side measures identical within jitter —
+  any E/β/θ difference FAILS (`scd_obj_null`). Bonus
+  arm: scd×eval_press spends real wmc via §6.195.
+  Jessen et al. 2014; Rabin et al. 2017.
+- **P964 whose face (SHOULD — tier-lock):**
+  cross_exp=0 vs +2: out-group familiarity gap and
+  out-group FA rate both shrink by ≈`orb_expo_k`;
+  episodic content about out-group people identical
+  (`orb_content_null`); out-age arm ≈`orb_age_w`·
+  own-race magnitude. Meissner & Brigham 2001; Rhodes
+  & Anastasi 2012.
+- **P965 the shared machinery (SHOULD):** sim=+1.5 vs
+  −1.5: `future:true` detail density tracks recall
+  specificity (partial corr with vivid/g_mem held);
+  content accuracy identical (`sim_content_null`) —
+  detail and truth decouple. Addis et al. 2007;
+  Schacter & Addis 2007; Madore & Schacter 2014.
+- **P966 the third-trimester shape (SHOULD):**
+  preg_state 0→1→2→3: E-dip follows `preg_trim_w`
+  (T3-weighted, not linear); complaint surface fires
+  T1–T3 independent of objective tax; post-state
+  records recover (`preg_perm_null`); pre-pregnancy
+  retrieval identical (`preg_theta_null`). Davies et
+  al. 2018.
+- **P967 the morning reference (SHOULD — reversal):**
+  caff=1.5: `caff_wd` taxes noise/θ/breadth; dosed
+  returns all to baseline, never above
+  (`caff_ability_null`); `caff_state_dep` arm measured
+  and expected near floor (DEBATED). Rogers &
+  Dernoncourt 1998; James & Rogers 2005; Kelemen &
+  Creeley 2003.
+- **P968 the trained reflex (SHOULD — channel-lock):**
+  gamer=+2 vs 0: fast-visual att floor, spatial cue
+  weight, visual detail shift; episodic E/β/θ identical
+  within jitter (`gamer_episodic_null`) — any link_p or
+  specificity difference FAILS. Bediou et al. 2018;
+  Boot et al. 2011; Hilgard et al. 2017.
+- **P969 the drill that doesn't travel (MUST — locked
+  null):** 30-session training:mem regimen on
+  braintrain=+1.5: trained-task improves (`nt_xfer`),
+  EVERY other measure identical within jitter
+  (`braintrain_far_null`); P843's mnem arm runs in the
+  same suite — skill and null coexist. Simons et al.
+  2016; Melby-Lervåg & Hulme 2013; Owen et al. 2010.
+
+Registry: P1–P969. v91 suite: P958, P960, P961, P963,
+P969 MUST; P962, P964, P965, P966, P967, P968 SHOULD;
+P959 OBSERVE.
+
+## 187. Sources verified this version (P958–P969 backing)
+
+- **Alcohol blackouts:** Hartzler & Fromme 2003
+  (*Alcohol.: Clin. Exp. Res.* 27:628 — placebo-
+  controlled etiology, retrieval-failure account;
+  *J. Stud. Alcohol* 64:547 — fragmentary:en-bloc ~3:1,
+  en-bloc polysubstance-linked); Wetherill & Fromme
+  2011 (*Addict. Behav.* 36:886 — FB-history contextual-
+  memory impairment at matched BAC); Wetherill et al.
+  2011 (dlPFC/parietal BOLD interaction); Nelson et al.
+  2004; White 2003 (NIAAA en-bloc/fragmentary review);
+  Goodwin et al. 1969 (state-dependency).
+- **Retrograde facilitation (OBSERVE leg):** Parker et
+  al. 1980/81; Carlyle et al. 2017 (alcohol post-
+  encoding shields prior learning — v5.20 priced).
+- **Medication burden:** Curran 1991
+  (*Psychopharmacology* — benzodiazepine anterograde
+  signature, preserved pre-drug retrieval); Buffett-
+  Jerrott & Stewart 2002; Gray et al. 2015 (*JAMA
+  Intern. Med.* — cumulative anticholinergic → dementia
+  HR ~1.5, associational); Fox et al. 2011; Campbell et
+  al. 2009.
+- **Choke / attentional control:** Beilock & Carr 2005
+  (*JEP:General* 134 — high-WMC lose advantage under
+  pressure); DeCaro, Thomas, Albert & Beilock 2011;
+  Gimmig et al. 2006; Eysenck, Derakshan, Santos &
+  Calvo 2007 (*Emotion* 7:336 — attentional control
+  theory); Beilock 2008; Derryberry & Reed 2002 (ACS);
+  Berggren & Derakshan 2013 (review).
+- **Subjective cognitive decline:** Jessen et al. 2014
+  (*Alzheimers Dement.* — SCD-I criteria); Rabin et al.
+  2017 (*Alzheimers Dement.* — ~25% older-adult
+  prevalence, affective correlates, small conversion
+  risk).
+- **Own-group face bias:** Meissner & Brigham 2001
+  (*Psychol. Public Policy Law* 7:3 — 39-study meta,
+  ORB + FA asymmetry, contact moderation); Rhodes,
+  Hayward & Winkler 2006; Wright, Boyd & Tredoux 2003;
+  Rhodes & Anastasi 2012 (*Psychol. Bull.* — own-age
+  bias meta, smaller).
+- **Episodic simulation:** Addis, Wong & Schacter 2007
+  (*Neuropsychologia* — aging detail loss hits memory
+  AND simulation); Schacter & Addis 2007 (constructive
+  episodic simulation); Race, Keane & Verfaellie 2011;
+  Madore & Schacter 2014 (ESI lifts both).
+- **Pregnancy:** Davies, Lum, Skouteris, Byrne &
+  Hayden 2018 (*Med. J. Aust.* 208:35 — 20 studies,
+  709/521, SMD 0.52 overall, T3 memory 1.47 cross-
+  sectional, within-normal-range caution, ~80%
+  subjective report); Hoekzema et al. 2017 (gray-
+  matter — no memory-loss mapping, unpinned);
+  Greendale et al. 2009 (SWAN — the mt_* sibling).
+- **Caffeine:** Rogers & Dernoncourt 1998 (*Pharmacol.
+  Biochem. Behav.* — withdrawal-reversal); James &
+  Rogers 2005; Rogers et al. 2013; Kelemen & Creeley
+  2003 (state-dependency — DEBATED, priced near floor).
+- **Gaming:** Bediou, Adams, Mayer, Tipton, Green &
+  Bavelier 2018 (*Psychol. Bull.* 144:77 — cross-sec
+  g≈.55, intervention g≈.34, ~30% publication-bias
+  inflation, attention/spatial domains); correction
+  2018; Boot, Blakely & Simons 2011; Hilgard,
+  Engelhardt & Rouder 2017 (Bayesian re-analyses —
+  DEBATED).
+- **Cognitive training null:** Simons, Boot, Charness,
+  Gathercole, Chabris, Hambrick & Stine-Morrow 2016
+  (*Psychol. Sci. Public Interest* 17:103 — the review);
+  Melby-Lervåg & Hulme 2013 (*Dev. Psychol.* — WM
+  training near-yes/far-no); Shipstead, Redick & Engle
+  2012; Owen et al. 2010 (*Nature* — 11,430-participant
+  RCT, zero transfer).
+
+## 188. v92 suite (P970–P981) — social-memory IX
+
+Probes for the channel-structure layer: conversational residue,
+contact-clock ties, stale social maps, expression tiers, apology
+footprints, false consensus, mimicry halos, vocal-minority
+norms, proposal drift, breached-trust asymptote. Locked nulls
+probe-enforced.
+
+- **P970 the talk evaporates (MUST):** verbatim utterance
+  fields at 30d ≈ 10±5% of encoded; survivors enriched for
+  interaction-content (`convo_interact_gain`); gist/event node
+  intact. FAIL if >40% verbatim survives or gist is lost.
+- **P971 the formulaic void (MUST — locked null):**
+  greeting/phatic exchanges mint ~nothing retrievable at 24h
+  (convo_formula_null). FAIL on any retrievable phatic
+  verbatim.
+- **P972 the fading acquaintance (MUST):** no-contact RelEdge
+  decays ~`tie_decay_hl`; kin-typed edges floor at `kin_floor`;
+  recontact restores `recontact_rescue` fraction; `drifted:true`
+  fires on `tie_alert` crossing. FAIL on deletion
+  (tie_delete_null) or kin matching friend decay.
+- **P973 the stale map (MUST — belief-vs-fact):** a tie
+  dissolved in world fact but unwitnessed stays in the
+  character's SocialMap as `stale:true`; witnessed contrary
+  events overwrite at ~`witness_refresh`; told_by reports count
+  half; canonical state never back-propagates
+  (stale_map_fact_null). FAIL on any unwitnessed refresh.
+- **P974 the smile that was remembered (SHOULD — tier-lock):**
+  `expr:happy` encodes recognize above neutral; `expr:angry`
+  captures attention without familiarity gain; trait ledgers
+  identical (smile_disposition_null). FAIL if expression moves
+  traits.
+- **P975 the apology's footprint (MUST):** `apology:true` damps
+  offense retrigger affect ~`apology_damp` while record
+  strength/content persist (apology_eraser_null); `partial:true`
+  below `apology_sincerity_gate` worsens retrigger
+  (backfire). FAIL on content loss or unconditional damp.
+- **P976 everyone agrees with me (MUST):** unwitnessed
+  `stance_est` projects own position at `fc_k`; witnessed
+  dissent overwrites at `fc_expose_gain` and may mint a
+  mismatch record; no assumed-agreement record exists
+  (fc_consent_null). FAIL on minted consent or zero
+  projection.
+- **P977 the chameleon's halo (SHOULD):** repeated `mimic:true`
+  events raise receiver eval to `mimic_cap`; `mimic_detected`
+  reverses at `mimic_detect_pen`; credibility/knowsTopics
+  untouched (mimic_recipient_null); high-`mimic` trait
+  characters emit more flags.
+- **P978 the vocal minority writes the norm (SHOULD):** two
+  repeated loud `norm_expr` events shift a character's
+  NormModel toward the expressed position even when the
+  sampled majority privately dissents (norm_truth_null);
+  confidence bleeds past `norm_check_tau`.
+- **P979 whose idea (SHOULD):** delayed retrieval of
+  `joint_decision` records self-attributes at `idea_self_bias`
+  above chance; pooled records lose `proposed_by` at
+  `idea_pool_p`; no verbatim resolution exists
+  (idea_verbatim_null); `claimed_mine` audits fire.
+- **P980 the second-chance discount (MUST — direction-lock):**
+  post-breach credibility recovers toward
+  `1 − breach_floor`, never baseline, via apology alone
+  (trust_full_null); sincere apology on competence breach cuts
+  floor ~`apology_floor_cut`. FAIL on full reset or zero
+  recovery.
+- **P981 divergence (MUST — composite):** two profiles
+  differing only on `mimic`/`suggs` show different eval
+  accrual from mirrored partners AND different NormModel
+  drift — the same room writes different books.
+
+Registry: P1–P981. v92 suite: P970–P973, P975, P976, P980,
+P981 MUST; P974, P977–P979 SHOULD.
+
+## 189. Sources verified this version (P970–P981 backing)
+
+- **Conversational memory:** Stafford & Daly 1984
+  (*Communication Monographs* 51:379 — ~10% idea units at one
+  month, conversational highlights + gist); Keenan, MacWhinney
+  & Mayhew 1977 (interaction-content advantage); Hjelmquist
+  1984; Hjelmquist & Gidlund 1985 (poor verbatim, preserved
+  gist); Goldsmith & Baxter 1996 (event-organized everyday
+  remembering).
+- **Tie decay:** Roberts & Dunbar 2011 (*Social Networks*
+  33:138 — closeness tracks contact); Sutcliffe, Dunbar,
+  Binder & Arrow 2012 (*Psychol. Sci.* — layered structure);
+  Burt 2000 (*Am. J. Sociol.* 106:347 — tie decay functions);
+  Hill & Dunbar 2003 (kin persistence); Saramäki et al. 2014.
+- **Perceived networks:** Krackhardt 1987 (*Admin. Sci. Q.*
+  32:109); Krackhardt 1990 (*Soc. Networks* 12:239); Freeman
+  1992; Kumbasar, Rommey & Batchelder 1994 (*Am. J. Sociol.*
+  100:477 — recency/transitivity biases).
+- **Expression/face:** Baudouin, Gilibert, Sansone &
+  Tiberghien 2000 (*Br. J. Psychol.* 91:543 — smile
+  advantage); D'Argembeau et al. 2003; Öhman, Lundqvist &
+  Esteves 2001 (faces-in-crowd — attention without
+  recognition gain).
+- **Apology:** Darby & Schlenker 1982; Ohbuchi, Kameda &
+  Agarie 1989 (*JPSP* 56:919 — anger/aggression reduction);
+  Scher & Darley 1997 (*JESP* 33:509 — partial-apology
+  backfire); Bennett & Earwaker 1994.
+- **False consensus:** Ross, Greene & House 1977 (*JESP*
+  13:279); Marks & Miller 1987 (*Psychol. Bull.* 102:72 —
+  meta-analytic robustness); Dawes (consensus judgments).
+- **Mimicry:** Chartrand & Bargh 1999 (*JPSP* 76:893 —
+  chameleon effect); Lakin & Chartrand 2003 (*Psychol. Sci.*
+  14:334 — mimicry→liking); van Baaren et al. 2004
+  (prosociality/tips); Chartrand & Dalton 2009.
+- **Norms:** Prentice & Miller 1993 (*JPSP* 64:243 —
+  pluralistic ignorance); Blanton & Christie 2003 (*Rev. Gen.
+  Psychol.* 7:261 — deviant regulation).
+- **Contribution attribution:** Ross & Sicoly 1979 (*JPSP*
+  37:322 — overclaim, married-couple >100% sums).
+- **Trust repair:** Schweitzer, Hershey & Bradlow 2006
+  (*Organ. Behav. Hum. Decis.* 101:1 — partial recovery);
+  Kim, Ferrin, Cooper & Dirks 2004 (*JAP* 89:104 —
+  violation-type contingent repair); Tomlinson, Dineen &
+  Lewicki 2004.
+
+## 190. v93 suite (P982–P993) — formal-model IX
+
+Probes for the cold-start, intervention-calculus, and
+population-prior layer: synthesized pasts graded like lived
+ones, do() as the only mutation path, paired-arm variance
+discipline, and the cast graded as a population sample.
+Locked nulls probe-enforced.
+
+- **P982 cold-start indistinguishability (MUST):** corpus
+  age-conditional anchors run on a replay-synthesized 70yo
+  S₀ vs a genuinely-lived 70yo store — same anchor verdicts,
+  era-density histograms within chi-square band;
+  `anchor_keep` anchors retrievable at a₀.
+- **P983 the past respects the bible (MUST — locked
+  null):** fuzz 10³ bible sets; every synth record's
+  canon-checkable fields consistent with declared facts;
+  `bible_contradict_null = 0`.
+- **P984 the invisible seam (MUST — locked null):** toggle
+  `synth` on paired identical stores under CRN; all three
+  observable channels + emitted content identical;
+  `synth_mark_null = 0`.
+- **P985 the past mints no history (MUST — locked
+  null):** cold start writes zero canonical ledger rows,
+  zero canonical RelEdges, zero other-character state;
+  `past_fact_null = 0`.
+- **P986 synth passes the age anchors (SHOULD):**
+  synthesized pasts satisfy A05 (earliest-memory age
+  [3.0,4.2]) and A06 (bump mass decades 2–3 > 4–6) on both
+  routes — replay emergently, density by construction.
+- **P987 paired arms or nothing (MUST — locked null):**
+  comparative-probe manifests share one seed; the do() site
+  is the sole divergence; `crn_paired_null = 0`; realized
+  arm covariance reported; `crn_broken` flagged.
+- **P988 declared interventions only (MUST — process):**
+  probe scripts mutate state only via `do_ops`;
+  `do(setParam)` on locked nulls refuses; `setState` marks
+  the run `synthetic`, excluded from corpus grading.
+- **P989 intervention locality (SHOULD):**
+  `do(setTrait, A, …)` under CRN leaves other characters'
+  stores bit-identical — §39 boundary holds under
+  intervention.
+- **P990 prior recovery (SHOULD):** hierarchical fit on
+  population synthetic data recovers `pop_table_ver`
+  moments; per-char posteriors moved exactly `pool_k` of
+  pop-mean→MLE distance.
+- **P991 ambient determinism (MUST):** same
+  `charId:bibleHash` → same archetype + residuals across
+  rebuilds; residuals ≤ `(1−pool_k_ambient)`·clamp; no drift
+  on bible-unchanged rebuild.
+- **P992 the cast is a plausible sample (SHOULD):** the 8
+  mains' trait vectors inside the population ellipsoid;
+  declared Σ_pop correlations approximately present;
+  out-of-support vector = fitting bug.
+- **P993 cold-start budget (OBSERVE):** report replay
+  wall-clock/record counts vs the §64 corpus budget —
+  publish, don't gate.
+
+Registry: P1–P993. v93 suite: P982–P985, P987, P988, P991
+MUST (incl. locked-null probes P983–P985, P987); P986,
+P989, P990, P992 SHOULD; P993 OBSERVE.
+
+## 191. Sources verified this version (P982–P993 backing)
+
+- **Cold start / autobiographical structure:** Bartlett 1932
+  (reconstruction is the memory); Conway & Pleydell-Pearce
+  2000 (*Psych Rev* 107:261 — self-memory system, lifetime
+  periods vs event-specific knowledge); Neisser 1981 (John
+  Dean testimony — confident gist-built recall); Linton
+  1982 (diary — most of life leaves no trace); Brewer 1988
+  (randomly-sampled events — mundane dominates); Wagenaar
+  1986 (*Cognitive Psychol.* 18:225 — own-diary cue
+  asymmetries); Bahrick 1984 (permastore); Johnson,
+  Hashtroudi & Lindsay 1993 (*Psychol. Bull.* 114:3 —
+  source monitoring cannot separate lived from
+  reconstructed); Nelson & Fivush 2004 + Tustin & Hayne
+  2010 (earliest-memory ages); Rubin & Schulkind 1997
+  (bump); Berntsen & Rubin 2004 (life script).
+- **Interventions / paired-run methodology:** Pearl 2009
+  (do-operator — notational borrowing only, no causal-
+  inference claim); Law 2015 (*Simulation Modeling and
+  Analysis* — common random numbers, variance reduction);
+  Glasserman & Yao 1992 (CRN correlation conditions).
+- **Population prior / pooling:** Efron & Morris 1977
+  (*JASA* 72:311 — Stein shrinkage); Gelman & Hill 2007
+  (partial pooling discipline); Gudjonsson 2003
+  (suggestibility–compliance dissociation → trait
+  covariance); Unsworth 2019 (*Why Human Memory Fails* —
+  individual-difference moments).
+
+## 192. v94 suite (P994–P1005) — social-memory X (the metaself)
+
+The metaself layer's probes: 4 MUST (three locked-null, one
+directional), 7 SHOULD, 1 OBSERVE. All comparative probes
+pair arms under CRN per v93's `crn_paired_null` discipline.
+
+- **P994 meta_mindread_null (MUST — locked-null):**
+  do(setState) perturbs alter's canonical RelEdge AND the
+  alter's PersonModel-of-ego with zero observable signal
+  events; every MetaModel field bit-identical pre/post. Any
+  diff = the metaself read a mind. This is the layer's load-
+  bearing wall: the metaself may be wrong, never informed.
+- **P995 liking-gap direction (MUST):** new-acquaintance
+  dyads, matched warm signal diets: mean(est_like −
+  true_like) < 0 pooled across the 8 mains (Boothby 2018).
+- **P996 gap attenuates with depth (MUST):** gap magnitude
+  vs tie_depth/evidence_n monotone-decreasing across
+  cohorts; still ≥ 0 at 90-day ties in high-`lgap_k`
+  profiles (dorm-mates arm — persists, doesn't vanish).
+- **P997 projection dominance (SHOULD):** do(setTrait,
+  self_est ±) moves est_like same-direction under thin
+  evidence (evidence_n < meta_ev_min) at r ≈ meta_proj;
+  effect shrinks as evidence accrues (Kenny & DePaulo .87
+  as asymptote, not constant).
+- **P998 reciprocity arm (SHOULD):** manipulating own_like
+  moves est_like ∝ meta_recip independent of signals; alter
+  stores untouched (companion check to P994 —
+  recip_truth_null).
+- **P999 compete channel is blind (SHOULD):** dyads with
+  hidden competitive-edge variance: est_traits.compete
+  meta-accuracy within `compete_blind` band of 0 while
+  est_like accuracy > 0 — the Eisenkraft 2017 dissociation,
+  enforced for EVERY profile (no rivalry detector exists).
+- **P1000 meta_episode_null (MUST — locked-null):**
+  MetaModel create/update/stale mints zero records; record
+  census identical layer-on vs layer-off under CRN.
+- **P1001 negative-signal weighting (SHOULD):** symmetric
+  diets (N warm + 1 cold vs N cold + 1 warm): single cold
+  moves est_like ≈ meta_neg_w× the single warm; slope
+  ×(1+rumin) present.
+- **P1002 beautiful-mess asymmetry (SHOULD):** identical
+  `vulnerable:true` event: actor-side update discounted vs
+  matched non-vulnerable warm event; observer-side
+  PersonModel eval updated positive — signs opposite
+  (bmess_invert_null checked alongside).
+- **P1003 staleness, not decay (SHOULD):** after
+  meta_stale_days with no retrieved signals, metaView
+  returns stale:true with est_like bit-unchanged; next
+  retrieved signal clears the flag and resumes §6.218
+  integration. A decaying est would be projection
+  manufacturing evidence — flagged as a regression.
+- **P1004 lgap_reverse_null (MUST — locked-null):** across
+  all mains + ambient archetype draws under CRN, no
+  profile yields mean gap < 0.
+- **P1005 cast spread (OBSERVE):** identical
+  new-acquaintance signal diet → publish per-main est_like
+  trajectories; expected ordering Jules lowest, Victor
+  flattest, Priya highest meta-accuracy. Report, don't
+  gate.
+
+Registry: P1–P1005. v94 suite: P994, P995, P996, P1000,
+P1004 MUST (incl. locked-null probes P994, P1000, P1004);
+P997, P998, P999, P1001, P1002, P1003 SHOULD; P1005
+OBSERVE.
+
+## 193. Sources verified this version (P994–P1005 backing)
+
+- **Metaperception accuracy:** Kenny & DePaulo 1993
+  (*Psychol Bull* 114:145 — verified): SRM meta of 8
+  studies; self→meta r ≈ .87; generalized meta-accuracy
+  ≈ .51, dyadic near 0 in strangers; cross-target
+  consistency overestimated.
+- **Reciprocity / channel specificity:** Elfenbein,
+  Eisenkraft & Ding 2009 (*Psychol Sci* 20:1081 —
+  verified): dyadic meta-accuracy for being valued runs
+  through reciprocity of liking; Eisenkraft, Elfenbein &
+  Kopelman 2017 (*Psychol Sci* 28:233 — verified): liking
+  channel accurate, competition channel blind.
+- **The liking gap:** Boothby, Cooney, Sandstrom & Clark
+  2018 (*Psychol Sci* 29:1742 — verified): 5 studies;
+  systematic underestimate of being liked; persists
+  months in dorm-mates, attenuates with relationship
+  development; mechanism = self-focused audit of own
+  performance.
+- **Vulnerability asymmetry:** Bruk, Scholl & Bless 2018
+  (*JPSP* 115:192 — verified): 7 studies; self-other
+  evaluation asymmetry on vulnerability displays;
+  construal-level account.
+- **Trait mechanism (reused):** Clark & Wells 1995 —
+  self-focused attention in social anxiety grounds
+  `lgap_k`'s trait loading; diag_moral_neg (SM§2) bounds
+  `meta_neg_w` below moral-diagnosticity weight.
+
+## 194. Coverage & mutation — the battery audits its own blind spots (VA-COVER) (new in v95)
+
+The registry passed P1005 without ever asking a simpler question:
+which parameters and contract functions does NO probe touch? A probe
+battery's silent regions are where regressions breed. Two instruments:
+
+- **The coverage map.** Every §7 param and every §10 contract
+  function declares, at probe-registration, which probes exercise it
+  (the probe's `touched` set — assembled statically: each probe lists
+  the params it perturbs or reads through the §10 surface). `probeCover`
+  returns `{uncovered_params, uncovered_fns, thin_params}` where thin
+  = touched by exactly one SHOULD probe (single-instrument risk).
+  Gate: uncovered gated params = 0 (`cover_min`); thin params must
+  shrink monotonically across versions — never grow. An exemption
+  must be declared at registration with a reason (`cover_exempt_null`
+  — no silent orphans; an exempt param carries `cover_why` in the
+  registry row). This is the coverage criterion mutation testing
+  imposes on test suites (Jia & Harman 2011, *IEEE TSE* 37:649 —
+  verified survey): a suite is only as good as the mutants it kills.
+- **Mutation falsifiability.** The cheap way to find probes that
+  couldn't fail: inject single-param mutants — clamp each gated param
+  to its declared bound, one at a time — and count which probe
+  families' verdicts flip. Every gated param belongs to a declared
+  `detect_set` (the family that owns it); a mutant inside its detect
+  set escaping ALL probes is a coverage hole, not a finding.
+  `mut_escape_max` bounds tolerated escape fraction per release
+  (default 0.15: the battery may miss deliberately redundant params,
+  but not 1-in-7). Post-hoc whitelisting an escaped mutant is
+  `mut_whitelist_null` — escapes are fixed by adding probes or
+  shrinking the param's claimed role, never by amnesty.
+- **Why mutations over review.** Manual "is this param tested?"
+  review fails under registry scale (1000+ probes, ~300 params).
+  Mutation score is mechanical, replayable, and — crucially —
+  tests the TESTS the way P881's peeper tests the verdicts:
+  a probe that survives every relevant mutant was decorative.
+- **Sloppiness caveat (reused from §140/§166).** Some params are
+  individually inert on every output yet load-bearing jointly;
+  mutation runs at the detect-set granularity, not per-probe, so a
+  param killed by NO single probe but jointly constrained still
+  counts as covered — the hole metric is family-level escape, not
+  per-probe kill rate. Never interpret a low individual kill count
+  as grounds to delete the param (`screen_drop_null` doctrine).
+
+## 195. Simulation-based calibration of the refit path (VA-SBC) (new in v95)
+
+The corpus-refit tooling (anchor fitting, `calibrateParam`-style
+sweeps) is itself inference machinery, and inference machinery
+lies quietly. The standard audit for a fitting procedure is
+simulation-based calibration: draw true params θ* from the profile
+prior, generate synthetic telemetry under them, run the refit,
+and check that θ* falls inside the refit's claimed band at the
+claimed rate. Talts, Betancourt, Simpson, Vehtari & Gelman
+(2020, *Bayesian Analysis* 15:1257 — verified) reduce this to a
+rank statistic: over `sbc_draws` replications, the rank of θ*
+within the refit's ensemble must be UNIFORM on
+{0,…,`sbc_bins`}; under-coverage shows a U shape, over-coverage
+an arch, bias a tilt. Uniformity is tested by the empirical CDF
+against the simultaneous band the paper derives (χ² on binned
+ranks is the coarser fallback).
+
+- RW instantiation: θ* draws come from `deriveParams` over a
+  mixed cohort (v93's population prior, so the test uses the same
+  prior the refit claims to invert). Telemetry = the probe
+  battery's OWN outputs under θ* — this calibrates the anchor-
+  fitting path, not the psychology. If the refit cannot recover
+  parameters it generated itself, its claims about human anchors
+  are noise.
+- Ground truth caveat: SBC certifies self-consistency (Cook,
+  Gelman & Rubin 2006, *J Comput Graph Stat* 15:675 — verified
+  precursor; the same idea for validating simulation software
+  via posterior replicates). A self-consistent fit can still be
+  wrong about humans — that gap is what §14.2 anchor grades and
+  the §196 metamorphic layer cover. Three orthogonal audits:
+  mechanism (SBC), phenomenon (anchors), invariants (MRs).
+- `anchor_pointfit_null`: the refit must fit anchor BANDS
+  (§14.2 `rep_grade` + `rep_shrink`), never point estimates —
+  a point fit inherits the literature's optimism bias as if it
+  were measurement precision (OSC 2015 below). Fitting code
+  that minimizes distance to the band midpoint rather than
+  membership in the band is a boundary violation.
+
+## 196. Metamorphic relations — anchor-free behavioral law (VA-METAM) (new in v95)
+
+Anchors tell the model what humans do in specific paradigms;
+metamorphic relations tell it what NO coherent memory may do in
+ANY paradigm — the difference between fitting a curve and
+respecting physics. Metamorphic testing (Chen et al. 1998,
+*IEEE Softw* 15:20 — verified original; Chen, Kuo, Liu, Poon,
+Towey, Tse & Zhou 2018, *ACM Comput Surv* 51:4 — verified
+survey) handles exactly our oracle problem: for most inputs the
+correct output is unknown (no human dataset exists for "Jules
+recalls this exact event"), but RELATIONS between outputs are
+known. `mrCheck` runs the relation table continuously — MRs
+are harness-side laws, not probes with families and FDR.
+
+| MR | relation | basis |
+|---|---|---|
+| MR1 cue monotonicity | adding a matching cue (place/person/time) never decreases P(retrieval) | cue-overload theory, Tulving & Thomson 1973 encoding specificity — CONSENSUS direction |
+| MR2 delay monotonicity | ceteris paribus, longer retention interval ⇒ non-increasing recall prob | every forgetting law since Ebbinghaus 1885 — CONSENSUS |
+| MR3 interference direction | more same-category neighbors ⇒ non-increasing target recall at fixed cue | post-1940 interference theory consolidation (§FC) — CONSENSUS direction |
+| MR4 arousal band | moderate-arousal events recall ≥ neutral AND ≥ extreme-arousal at long delays | Yerkes–Dodson family (qualitative only — DEBATED in shape, CONSENSUS that extremes differ) |
+| MR5 repetition order | nth retelling never lowers record's retrieval prob vs matched unretold | testing effect, Roediger & Karpicke 2006 — CONSENSUS |
+| MR6 semantic robustness | age↑ ⇒ episodic recall ↓ more than semantic familiarity ↓ | Park et al. 2002 lifespan gradient — CONSENSUS direction |
+| MR7 trait ordering | rumination↑ ⇒ negative-event recall prob ≥ positive-event at long lag | ruminative rehearsal literature — direction CONSENSUS, size HYPOTHESIS |
+| MR8 recognition ≥ recall | same record: recognition-mode hit rate ≥ recall-mode | recognition-recall gap — CONSENSUS (Tulving & Thomson 1973; Brown 1976) |
+
+Rules: MRs must hold for EVERY profile — including trait-extreme
+pins — because they encode direction, not magnitude. A magnitude
+version of any MR is a probe, not an MR. **Tightness audit:** the
+table is only meaningful if it can fail — a deliberately inverted
+build (flip each operator's direction in turn) must trip ≥
+`mr_detect_min` of the relations; an MR no inversion ever trips is
+vacuous and flagged. `mr_detect_min`=0.8 allows slack for MRs an
+implementation genuinely can't violate (e.g., MR8 if recognition
+reuses the recall path).
+
+## 197. Live invariants & versioned regression — validation in production (VA-LIVE) (new in v95)
+
+The battery gates releases; it does not watch the world run. Two
+final instruments extend validation past the lab:
+
+- **Canary invariants.** A subset of locked-null checks runs
+  continuously on live ticks: modLedger append-only monotonicity,
+  snapshot round-trip spot checks, the §12.3 tier boundary
+  (hidden fields never crossing into emission text — checked on a
+  sampled emission stream, `live_emit_frac`). Cost class: O(1) per
+  tick. Any trip ⇒ `liveMon` raises BLOCK + freezes the run's
+  verdict ledger; the world continues (research only, per standing
+  order) but its data is quarantined. Detection latency bounded:
+  an injected violation must surface within `live_detect_ticks`.
+  `live_off_null`: a release build with monitors compiled out is a
+  BLOCK verdict, full stop — monitoring is not optional equipment.
+- **Drift watch.** Live emission statistics (recall rates,
+  emotional-valence mix, pass fractions) accumulate into the same
+  e-processes as §14.5b — an alarm fires the moment the running
+  product crosses 1/`eval_alpha`, WITHOUT waiting for the next
+  corpusRun. This is Page's CUSUM idea re-founded on e-values
+  (Page 1954, *Biometrika* 41:100 — verified origin of sequential
+  change detection; Howard et al. 2021 supplies the anytime-valid
+  form). Alarm ≠ verdict: drift watch suspends release pending a
+  fixed-n confirmation; it never convicts on its own.
+- **Golden regression.** A pinned-seed corpus slice (n=8 mains,
+  30 world-days, fixed event tape) emits a canonical transcript
+  digest per release; `goldDiff` compares within `gold_tol`
+  (per-emission-field L∞ on rates). A diff outside tolerance with
+  specVersion unchanged = implementation regression; with
+  specVersion bumped = expected, and the re-baseline must be
+  logged in the verdict ledger as a `rebaseline` row with reason —
+  silent re-baselines are the `family_edit_null` of regression
+  testing. Golden digests never assert psychology — they assert
+  REPRODUCIBILITY; the two are kept separate so a correct-but-
+  changed model fails gold, not P-probes.
+
+## 198. v95 suite (P1006–P1016) — validation-design X (the battery's blind spots)
+
+Three MUST + one locked-null-class MUST, five SHOULD, two OBSERVE.
+All are harness/property probes; zero psychology moved.
+
+- **P1006 coverage completeness (MUST — process):** `probeCover`
+  reports zero uncovered gated params/fns; thin-param count ≤
+  prior version's; every exempt param carries `cover_why`.
+  `cover_exempt_null` checked alongside.
+- **P1007 mutation falsifiability (MUST):** single-param bound-
+  clamp mutants across the gated set: family-level escape fraction
+  ≤ `mut_escape_max`; every escape logged with its detect_set.
+  Basis: Jia & Harman 2011.
+- **P1008 SBC rank uniformity (MUST):** `sbc_draws` refit
+  replications on synthetic truth; rank histogram inside the
+  Talts-2020 simultaneous band for every §63-pinned param;
+  U/arch/tilt flagged per param. Basis: Talts et al. 2020;
+  Cook, Gelman & Rubin 2006.
+- **P1009 metamorphic suite holds (MUST):** all 8 MRs pass on B3
+  across every archetype × trait-extreme pin grid; a violation is
+  never FDR'd — MRs are laws, one failure = FAIL.
+- **P1010 MR tightness (SHOULD):** per-operator inverted builds
+  trip ≥ `mr_detect_min` of MRs each; vacuous MRs reported.
+- **P1011 anchor-shrink direction (SHOULD):** SINGLE-grade
+  anchors post-`rep_shrink` demand systematically smaller effects
+  than their published point estimates; a model fit only on
+  META/RRR rows misses ≥1 shrunk SINGLE band. Basis: OSC 2015
+  (replication effects ≈ ½ original).
+- **P1012 band-not-point fitting (SHOULD — locked-null
+  companion):** inject a refit that minimizes distance to band
+  midpoints; `anchor_pointfit_null` fires; coverage of claimed
+  bands stays nominal only under band-membership loss.
+- **P1013 live canary latency (MUST — locked-null class):**
+  injected tier-boundary violation on a live emission stream
+  surfaces within `live_detect_ticks`; clean 30-day runs trip
+  zero canaries. `live_off_null` verified by attempting a
+  monitors-off release build → BLOCK.
+- **P1014 drift alarm precedence (SHOULD):** scripted regime
+  shift (valence mix ×2) trips the e-process alarm before the
+  next scheduled fixed-n verdict in ≥90% of replications; no
+  alarm on unshifted runs beyond `eval_alpha` rate.
+- **P1015 golden regression honesty (SHOULD — process):**
+  unchanged specVersion + perturbed implementation ⇒ `goldDiff`
+  outside `gold_tol`; bumped specVersion ⇒ re-baseline requires
+  a ledger `rebaseline` row; absent row = violation.
+- **P1016 coverage trend (OBSERVE):** publish per-version
+  thin-param + escape-fraction trajectories; expect thin→0 as
+  families accumulate. Report, don't gate.
+
+Registry: P1–P1016. v95 suite: P1006, P1007, P1008, P1009, P1013
+MUST (P1013 locked-null class; P1012 SHOULD companion to
+`anchor_pointfit_null`); P1010, P1011, P1014, P1015 SHOULD;
+P1016 OBSERVE.
+
+## 199. Sources verified this version (P1006–P1016 backing)
+
+- **Mutation testing:** Jia & Harman 2011 (*IEEE TSE* 37:649 —
+  verified survey): mutant kill/escape as the measure of suite
+  adequacy; equivalent-mutant problem acknowledged — RW's
+  detect-set design sidesteps it by measuring family-level
+  escape, never per-mutant.
+- **Simulation-based calibration:** Talts, Betancourt, Simpson,
+  Vehtari & Gelman 2020 (*Bayesian Analysis* 15:1257 —
+  verified): rank-uniformity theorem for correct posterior
+  software; U/arch/tilt diagnostics. Precursor: Cook, Gelman &
+  Rubin 2006 (*J Comput Graph Stat* 15:675 — verified):
+  validating Bayesian software by replicating from the prior.
+- **Metamorphic testing:** Chen et al. 1998 (*IEEE Softw*
+  15:20 — verified) original MR formulation; Chen, Kuo, Liu,
+  Poon, Towey, Tse & Zhou 2018 (*ACM Comput Surv* 51:4 —
+  verified): MR construction/tightness practice — an MR that
+  cannot fail is vacuous.
+- **Replication shrinkage:** Open Science Collaboration 2015
+  (*Science* 349:aac4716 — verified): 100 studies, 97→36%
+  significant on replication, mean effect ≈ ½ original —
+  grounds `rep_shrink` direction (P1011) and band-not-point
+  doctrine. Klein et al. 2014 Many Labs (*Soc Psychol* 45:142
+  — verified): cross-site variance motivates precision-weighted
+  bands.
+- **Sequential change detection:** Page 1954 (*Biometrika*
+  41:100 — verified): CUSUM; anytime-valid successor =
+  e-process monitoring (Howard et al. 2021, reused).
+- **V&V framing (background):** Oberkampf & Trucano 2002
+  (*Prog Aerospace Sci* 38:209 — verified): verification
+  (solves the equations right = L0/SBC/golden) vs validation
+  (solves the right equations = anchors/MRs/believability) —
+  the §1 level table is this distinction operationalized.
+- **RW HYPOTHESES marked:** `mut_escape_max`=0.15 tolerance
+  (no literature fixes a suite-adequacy threshold for
+  simulation batteries); `mr_detect_min`=0.8 (tightness floor
+  ours); gold_tol 0.02 (regression tolerance ours, sized to
+  seed-noise floor); live canary latency 500 ticks (ops
+  choice). All probe-gated, none claimed as science.
+
+## 200. v96 suite (P1017–P1026) — encoding-mechanics VIII
+
+- **P1017 intrinsic memorability (MUST):** at matched attention,
+  arousal, and distinctiveness, high-memorab events out-recall
+  low; inter-profile variance on this leg is LOW (Isola
+  consistency — variance audit, not just mean); `memorab_attr_null`
+  TOST (residual-free build fails); no β interaction.
+  `touched:[memorab_gain, memorab_resid]`, `detect_set:
+  {memorab_gain∈{0,0.4}, memorab_resid∈{0.2,0.6}}`.
+- **P1018 co-attention (MUST):** coAttending≥1 > solo at matched
+  exposure/attention; stranger arm gated by `coattend_ingroup`;
+  `coattend_expose_null` — unattended fields gain nothing.
+  `touched:[coattend_gain, coattend_ingroup]`.
+- **P1019 co-seen substrate (SHOULD):** coSeen edges feed the
+  §6.204 rumor pass — co-attended events propagate to the
+  co-attender with higher initial credibility (shared witness,
+  not shared telling).
+- **P1020 prediction error (MUST — structure):** moderate PE
+  raises link strength with item-E unchanged
+  (`pe_conflate_null` TOST); pe > pe_win splits a new record;
+  sparse-schema ×1.4 arm (Brod direction).
+  `touched:[pe_gain, pe_win]`.
+- **P1021 anticipation window (MUST):** boost inside antic_win
+  only; `antic_retro_null` — pre-cue events never boosted;
+  multiplicative composition with value_select (anticipated-
+  but-worthless keeps the anticipation leg only).
+  `touched:[antic_gain, antic_win]`.
+- **P1022 offloading boundary (MUST):** offload:true takes the
+  v3.5 hollow+pointer profile unchanged (regression);
+  offloadTransient:true takes NO offload_cost
+  (`offload_noexp_null` TOST — Henkel deletion arm);
+  device_dep orders adoption across profiles (capture-count
+  divergence, not per-event E).
+- **P1023 gesture (SHOULD):** gestured > silent-watch < enacted
+  (ordering); gest_iconic_w=0 → gain ≤0.03 (`gest_beat_null`
+  TOST); gestured+spoken caps at enacted level (motor budget).
+  `touched:[gest_gain, gest_iconic_w]`.
+- **P1024 TOT ledger (MUST):** unresolved TOTs recur ≥1.5×
+  after long dwell (Warriner 2008); self-resolved recur ≤
+  baseline (`tot_res_gain` repair); told-answers do NOT repair
+  (`tot_rescue_null`); error learning durable ≥7 sim-days.
+  `touched:[tot_learn, tot_res_gain, err_strength]`.
+- **P1025 labor in vain (MUST — locked-null class):** dwell/
+  effort-flag manipulations at fixed strategy give ΔE ≤ 0.02
+  (TOST); only named levers may raise E — regression wall for
+  future "try harder" params.
+- **P1026 phone drain (OBSERVE):** phone_present reduces
+  effective encoding per `phone_drain`·(0.5 + device_dep);
+  direction-only, no band — observe pending replication.
+
+Registry: P1–P1026. v96 suite: P1017, P1018, P1020, P1021,
+P1022, P1024, P1025 MUST (P1025 locked-null class); P1019,
+P1023 SHOULD; P1026 OBSERVE.
+
+## 201. Sources verified this version (P1017–P1026 backing)
+
+- **Intrinsic memorability:** Isola, Parikh, Torralba & Oliva
+  2011 (verified: cross-observer consistency ρ≈0.7);
+  Bainbridge, Isola & Oliva 2013; Bainbridge, Dilks & Oliva
+  2017 (*NeuroImage* — verified: residual after attribute
+  controls); Khosla et al. 2015; Rust & Mehrpour 2020.
+- **Co-attention:** Shteynberg 2010 (JPSP — verified);
+  Eskenazi, Doerrfeld, Logan, Knoblich & Sebanz 2013
+  (verified: believed co-attention suffices); Shteynberg 2015
+  (*Perspect. Psychol. Sci.* 10:579 — verified); minimal-
+  conditions registered replication open (marks the
+  `coattend_ingroup` gate DEBATED — not a law).
+- **Prediction error:** Greve, Cooper, Kaula, Anderson &
+  Henson 2017 (*NeuroImage* — verified: associative locus);
+  Quent, Henson & Greve 2021 (verified: formal account +
+  connectable-mismatch bound); Brod, Werkle-Bergner & Shing
+  2013 (child arm — verified).
+- **Anticipation:** Adcock, Thangavel, Whitfield-Gabrieli,
+  Knutson & Gabrieli 2006 (*Neuron* 50:507 — verified);
+  Wittmann et al. 2005 (verified); Murty & Adcock 2014
+  (verified: window specificity).
+- **Gesture:** Cook, Duffy & Fenn 2013 (*Psychol. Sci.*
+  24:1734 — verified); So, Sim Chen-Hsing & Low Shuang 2012
+  (verified); Goldin-Meadow thread (WM-lightening direction —
+  verified).
+- **Offloading boundary:** Henkel 2014 (*Psychol. Sci.* 25:396
+  — verified: impairment requires expected persistence;
+  zoom/deletion arms); Risko & Gilbert 2016 (*Trends Cogn.
+  Sci.* — verified: rational allocation); Sparrow, Liu &
+  Wegner 2011 (*Science* 333:776 — reused: the v3.5 channel
+  this gates).
+- **TOT learning:** Warriner & Humphreys 2008 (*QJEP* —
+  verified: ~2× recurrence after longer dwell); D'Angelo &
+  Humphreys 2015 (*Cognition* 142:166–190 — verified: one-week
+  durability; self-resolution and orthographic-cue resolution
+  correct; told-answer arm; effort-required).
+- **Labor in vain:** Nelson & Leonesio 1988 (*Am. Psychol.* 43
+  — verified); Hyde & Jenkins 1973 (reused); Cuevas & Dawson
+  2018 (effort → JOL not memory — verified direction).
+- **Phone drain:** Ward, Duke, Gneezy & Bos 2017 (*J. Assoc.
+  Consumer Res.* — verified: mere-presence drain, device-
+  dependence moderator; replication record mixed → OBSERVE).
+- **RW HYPOTHESES marked:** memorab residual weighting 0.35
+  (Bainbridge's unexplained share, our split); coattend_ingroup
+  default 0.5 (open gate, not evidence); pe_win 0.6 (our
+  connectability bound — Quent gives the shape, not the
+  number); antic_win 0.01 days (Murty's "narrow window," our
+  seconds→sim-days mapping); err_strength ledger form (the
+  recurrence/durability facts are literature; the ledger
+  mechanics are ours); device_dep default 0.5 (Ward's
+  moderator direction, our scale).
+
+## 202. v97 suite (P1027–P1034) — forgetting-curves IX
+
+- **P1027 CTA mint + novelty (MUST):** a somatic
+  `illness_onset` with one novel and one familiar food
+  in `cta_window` averts to the novel food ≥70% of runs;
+  the mint ignores `att_min` (one-trial, associative).
+- **P1028 avoidance outlives episode (SHOULD):** after
+  the `aversion` record archives, the `avoid` tag still
+  drives rejection behavior; no narrative content is
+  recoverable (cta_birth_null leg — output-scanned).
+- **P1029 somatic gate (MUST — locked-null class):**
+  non-GI illness onsets (dizziness, injury) bind zero
+  food records across all profiles (cta_somatic_null).
+- **P1030 series edges (MUST):** in a 4-instance
+  repeated-event series, boundary-instance detail
+  accuracy > middle at short delay (last-dominant) and
+  at long delay (first-dominant) — the crossover must
+  be produced by the decay itself (frozen
+  series_edge_leg="first-only"); misattributions land
+  on adjacent instances ≥2× as often as distant ones.
+- **P1031 recency-from-strength (SHOULD):** a rehearsed
+  90d-old record and an unrehearsed 7d-old record at
+  equal residual R produce recency estimates within
+  noise of each other; the emission is hedged and
+  `verbatim.when` is untouched (rec_verbatim_null).
+- **P1032 flat forecast (MUST — locked-null class):**
+  `jol` across a 1d/30d/180d horizon sweep is flat
+  within `jol_horizon_w` while hit-rate declines;
+  `jol_bias` drift under repeated archival exposure
+  stays ≤ `jol_exp_gain` per exposure (jol_exper_null).
+- **P1033 mislaid-item emergence (SHOULD):** after 3
+  relocations of one item, recall returns the latest
+  location > earlier ones, and on failure the emitted
+  guess is the §4.20 script-node location, not uniform.
+- **P1034 trough emergence (SHOULD):** a 70yo profile's
+  era distribution dips below power-interpolation at
+  encodeAge 30–50; with firsts density held uniform the
+  dip must collapse ≥75% — else adopt `trough_gain`.
+
+Registry: P1–P1034. v97 suite: P1027, P1029, P1030,
+P1032 MUST (P1029, P1032 locked-null class); P1028,
+P1031, P1033, P1034 SHOULD.
+
+## 203. Sources verified this version (P1027–P1034 backing)
+
+- **Conditioned taste aversion:** Garcia & Koelling 1966
+  (long-delay CS–US canonical); Bernstein & Webster 1980
+  (*Physiol. Behav.* 25:363 — verified one-trial adult
+  aversion); Bernstein 1978 (*Science* 200:1302 —
+  verified scapegoat arm, children); Logue, Ophir &
+  Strauss 1981 (*Behav. Res. Ther.* — verified: most
+  adults carry ≥1 aversion, persisting years); Scalera
+  2002. Human duration genuinely variable — clinical
+  chemo aversions often remit in months → `cta_beta`
+  mid-range, `avoid` tag carries the durable product.
+- **Series edges:** Dilevski, Paterson et al. 2021
+  (*JARMAC* — verified: first/last accuracy > middle,
+  cross-instance confusion widespread); Danby, Sharman
+  & Paterson 2022 (*Mem. & Cogn.* — verified
+  proximity-graded misattribution, boundary anchors);
+  Deck et al. 2021 (*Memory* — verified delay-ordered
+  crossover: last-dominant ≤1wk, first-dominant 3wk);
+  Connolly et al. 2016 (child arm — verified).
+- **Recency by strength:** Hintzman 2004 (*Mem. &
+  Cogn.* — verified strength–recency regularity);
+  Hintzman 2010; Brown, Rips & Shevell 1985 (inference
+  route for public events); Friedman 1993 (reused:
+  date reconstruction is inference-heavy).
+- **Stability bias:** Koriat, Bjork, Sheffer & Bar 2004
+  (*PNAS* 101:1100 — verified interval-insensitive JOL);
+  Kornell & Bjork 2009 (*JEP:LMC* — verified survives
+  practice); Rhodes & Tauber 2011 (meta — verified).
+- **Trough:** Rubin & Schulkind 1997 (*Mem. & Cogn.*
+  25:859 — verified three-component fit); Janssen,
+  Chessa & Murre (recency-removal model — verified);
+  asserted EMERGENT (firsts density), `trough_gain`
+  named fallback only.
+- **RW HYPOTHESES marked:** `cta_avoid_hl` 730d
+  (folk-duration tail — clinical data say shorter);
+  `rec_scale` log-map constant (regularity real, form
+  ours); `series_prox_w` 0.5 (proximity direction is
+  literature, coefficient ours); `cta_spill` 0.15 (venue
+  generalization unpriced in humans — conservative).
+
+## 204. v99 probes (P1045–P1054 — age-development IX)
+
+- **P1045 child forgetting rate (MUST):** matched-E events at
+  encodeAge 5/8/12 vs adult lose strength ordered 5>8>12>adult at
+  fixed retention intervals; child-era loss fits constant-rate
+  better than adult power fit (ordering strict; magnitudes ±25%).
+- **P1046 rehearsal ramp (MUST, locked-null class):**
+  self-initiated retell count at age_now 5 ≤10% adult arm at
+  matched record stats; other-initiated retells refresh ≥0.8×
+  adult (`rehearse_scaffold_null`).
+- **P1047 script swallow (SHOULD):** routine-instance records
+  encodeAge≤7 merge ≥1.4× adult rate; deviation survival gated by
+  `dev_self_gate`/arousal — two-arm structure asserted, not level.
+- **P1048 developmental reversal (MUST, two-sign):** gist lure
+  adoption rises encodeAge 6→adult while suggestion lures fall on
+  the same battery — opposite signs or the mechanism is wrong.
+- **P1049 assoc differential (MUST, locked-null class):**
+  age_eff≥70 edge-field loss ≥1.4× content-field loss;
+  `assoc_item_null` structure-checked.
+- **P1050 positivity gate (SHOULD):** free-recall valence skew
+  net-positive past 60, net-negative below 40; collapses under
+  `eval_press≥0.6` and on the involuntary scan
+  (`pos_involuntary_null`).
+- **P1051 sleep dividend (SHOULD):** overnight consolidation
+  benefit child > adult > 80yo; `sws_var_gain` widens variance
+  without moving mean beyond knots.
+- **P1052 transition bump (SHOULD):** `life_transition`-flagged
+  era histogram peaks at transition_age+0..win; unflagged control
+  flat; `immig_age` profiles peak at that age.
+- **P1053 PI susceptibility (MUST):** dense competing-event
+  batteries: 80yo/mid-adult R-loss ratio ≥1.3; child arm ≥1.1
+  (±40%).
+- **P1054 procedural floor (COULD, frozen check):** procedural
+  records ≤30% of episodic loss at every knot; any age leg on
+  `proc_decay_mult` FAILS.
+
+Registry: P1–P1054. v99 suite: P1045, P1046, P1048, P1049, P1053
+MUST (P1046, P1049 locked-null class); P1047, P1050, P1051,
+P1052 SHOULD; P1054 COULD.
+
+## 205. Sources verified this version (P1045–P1054 backing)
+
+- **Child accelerated forgetting:** Bauer & Larkina 2014
+  (*Memory* 22:907 — verified prospective onset: 5–7yos ≥60%
+  retention, 8–9yos <40%); Bauer & Larkina 2013 (*JEP:G* 143:597 —
+  verified exponential child vs power adult distribution); Bauer
+  & Larkina 2016 (*Memory* — verified 4-yr prospective, all child
+  groups faster, open-ended recall most).
+- **Rehearsal development:** Flavell, Beach & Chinsky 1966
+  (*Child Dev.* 37:283); Keeney, Cannizzo & Flavell 1967
+  (production deficiency — verified); Elliott et al. 2021
+  (multilab RRR — verified direction, ramp not cliff); Cowan/
+  Ornstein & Naus (cumulative rehearsal ~10).
+- **Script dominance:** Nelson 1986; Farrar & Goodman 1990/1992
+  (schema-confirmation-deployment — verified); Fivush 1984.
+- **Developmental reversal:** Brainerd, Reyna & Ceci 2008
+  (*Psychol. Bull.* 134:343 — verified); Brainerd & Reyna 2007
+  (complementarity — verified both-directions claim); Brainerd,
+  Reyna & Forrest 2002 (DRM floor in young children); Metzger et
+  al. 2008 (55-experiment synthesis).
+- **Associative deficit:** Naveh-Benjamin 2000 (*JEP:LMC*
+  26:1170); Old & Naveh-Benjamin 2008 (*Psychol. Aging* 23:104 —
+  verified meta, 90 studies, item-vs-associative differential);
+  Spencer & Raz 1995.
+- **Positivity:** Mather & Carstensen 2005 (*TiCS*); Reed, Chan
+  & Mikels 2014 (meta 100 studies N=7129 — verified d≈0.26,
+  unconstrained-processing moderator, young negative bias);
+  Murphy & Isaacowitz 2008.
+- **Sleep:** Mander, Winer & Walker 2017 (*Neuron*); Mander et
+  al. 2013 (*Nat. Neurosci.* — PFC→SWS→retention chain);
+  Backhaus et al. 2008 (child naps — reuses §4.15).
+- **Transition bump:** Schrauf & Rubin 1998 (*JML* 39:437 —
+  verified bump tracks immigration age); Schrauf & Rubin 2001
+  (*ACP* — verified age-grouped immigration recall); Enz,
+  Pillemer & Johnson 2016 (relocation bump ~40% window share —
+  verified); Berntsen & Rubin 2004.
+- **PI susceptibility:** Hasher & Zacks 1988; Lustig, May &
+  Hasher 2001 (*Psychol. Sci.* — verified); Ikier & Hasher 2006.
+- **Procedural floor:** Fleischman et al. 2004; Gabrieli 1998.
+- **RW HYPOTHESES marked:** all knot magnitudes (consensus is on
+  directions/orderings/differentials — the probe suite asserts
+  those, tolerances carry the honest uncertainty); `dev_self_gate`
+  0.4; `gist_lure_sim` 0.6 operationalization; `trans_bump`
+  generalization beyond migration/moves; `sws_var_gain` jitter
+  form; `proc_decay_mult` 0.3 coefficient.
+
+## 206. v100 probe suite (P1055–P1064, age-decline IX)
+
+- **P1055 latency-not-loss (MUST, null-lock):** at fixed S,
+  unlimited bout window converges 30yo/80yo recall ≥95%; at
+  default `susp_*` windows `lost_it` rate rises ≥1.5× by 80
+  while successful-recall accuracy is unchanged.
+  `lat_strength_null` structure-checked. Salthouse 1996;
+  Bugg 2006.
+- **P1056 proper-name cliff (MUST, dissociation):** at 80,
+  name-field TOT ≥2× person-knowledge failure on the same
+  referent; `name_block` emissions pair with referent-
+  confident fallback; 30yo gap <1.3×. Burke 1991;
+  Cohen & Burke 1993.
+- **P1057 debunk backfire (MUST, sign-lock):** false claim
+  denied ×3 to a 78yo flips `believed`→true ~40% after
+  `disc_tag_hl` (vs ~28% ×1); true-label repetition never
+  flips (`debunk_true_null`); 30yo arm ≤10%. Skurnik 2005.
+- **P1058 SOC concentration (SHOULD):** top-`goal_value`
+  quantile retell share rises with `soc_narrow`; chosen-domain
+  S at 85 ≥1.3× unstructured-budget control; peripherals decay
+  faster than capacity curves predict. Baltes & Baltes 1990.
+- **P1059 split knee (MUST, order-lock):** `rp_benefit_mult`
+  departs 1.0 before `rif_age_tail` activates; the 65–75
+  window shows benefit↓ + cost↑ simultaneously; coincident or
+  reversed knees FAIL. Aslan 2015 vs Aslan & Bäuml 2012.
+- **P1060 spacing flat (COULD, frozen):** spacing/massed
+  benefit ratio age-invariant within noise at 30/60/80;
+  profile-level age leg on `spacing_gain` = spec violation.
+  Balota 1989.
+- **P1061 savings flat (COULD, frozen):** re-encode cost
+  ratio (sub-threshold vs fresh) age-invariant; ratio <1 at
+  all ages. Ebbinghaus; Nelson 1985.
+- **P1062 future vagueness (SHOULD):** simulated future-event
+  records at 80 carry ~60% the internal-field count of 30yo;
+  external fields flat. Addis 2008.
+- **P1063 vantage drift (SHOULD, shape-lock):** vantage flips
+  observer-ward with retell_n (dominant) over record age;
+  observer recalls show `relive_mult`-attenuated affect vs
+  matched field recalls. Butler 2016; Berntsen & Rubin 2006.
+- **P1064 chain truncation (MUST):** chains never exceed
+  `cue_chain_max(age_eff)`; chain-only-reachable records drop
+  ≥40% in voluntary recall 30→80, directly-cued flat.
+  Craik & McDowd 1987.
+
+Registry: P1–P1064. v100 suite: P1055, P1056, P1057, P1059,
+P1064 MUST (P1055, P1057 locked-null class); P1058, P1062,
+P1063 SHOULD; P1060, P1061 COULD.
+
+## 207. Sources verified this version (P1055–P1064 backing)
+
+- **Speed mediation:** Salthouse 1996 (*Psychol. Rev.* 103:403
+  — verified); Bugg, Zook, DeLosh, Davalos & Davis 2006
+  (category fluency time-limited in the old).
+- **Proper-name cliff:** Burke, MacKay, Worthley & Wade 1991
+  (*J. Mem. Lang.* 30:542); Cohen & Burke 1993; Cross & Burke
+  2004 — phonological half degrades more than semantic half.
+- **Debunk backfire:** Skurnik, Yoon, Park & Schwarz 2005
+  (*J. Consumer Res.* 31:713 — verified: 28%→40% false-as-true
+  at 3d with 1→3 denials; no true→false arm); Kumkale &
+  Albarracín 2004 (*Psychol. Bull.* meta — sleeper effect);
+  Jacoby 1999 (familiarity→truth attribution).
+- **SOC:** Baltes & Baltes 1990; Freund & Baltes 2002;
+  Wolf & Zimprich 2020 (selectivity intact-to-enhanced under
+  explicit stakes).
+- **Split knees:** Aslan, Schlichting, John & Bäuml 2015
+  (*Psychol. Aging* 30:111 — verified: beneficial arm declines
+  earlier, WM-mediated) vs Aslan & Bäuml 2012 (*JEP:LMC*
+  38:894 — RIF intact 60–75, absent >75). DEBATED edge noted
+  (later reports of durable RIF in older samples).
+- **Preservations:** Balota, Duchek & Paullin 1989
+  (*Psychol. Aging* 4:423 — spacing intact/enhanced in aging);
+  Kornell, Castel, Eich & Bjork 2010; Ebbinghaus 1885 +
+  Nelson 1985 (savings); MacLeod 1988.
+- **Future vagueness:** Addis, Wong & Schacter 2008
+  (*Psychol. Sci.* 19:33 — verified: fewer internal details
+  for future events, correlated with relational memory);
+  Addis et al. 2010; Schacter & Addis 2007 framework.
+- **Vantage:** Butler, Rice, Wooldridge & Rubin 2016
+  (retell-driven field→observer shift — verified); Nigro &
+  Neisser 1983; Berntsen & Rubin 2006 (observer attenuates
+  reliving); Rice & Rubin 2009; Piolino et al. 2006 (weak age
+  leg — flagged).
+- **Chain depth:** Craik & McDowd 1987; Park et al. 2002
+  (lifespan WM decline); Verhaeghen aging meta-analyses.
+- **Honest limits marked:** `ret_lat_mult` bout-duration
+  mapping is our construction; `propname_tot_mult` magnitudes
+  HYPOTHESIS; `debunk_fam_gain` rides existing sleeper
+  machinery (amplifier, not new op); `soc_narrow` is the most
+  speculative mapping (framework → retell budget); `vantage_
+  age_leg` kept tiny deliberately; `cue_chain_max` is a
+  contract cap, not a probabilistic claim. → AD Part IX
+  §§125–134; probes P1055–P1064.
+
+## 208. v101 probes — the carrier layer (P1065–P1074)
+
+- **P1065 hangover forward (MUST, order-lock):** neutral
+  records minted 15 min post-arousal-arm recollect better
+  than pre-arm controls (≥1.3× recollection-class recalls);
+  N→E reversal produces NO backward boost —
+  `hangover_retro_null` structure-checked. Tambini 2017.
+- **P1066 potency scalar (MUST, sign-lock):** matched
+  ±0.8-valence events at fixed arousal mint with negative
+  hotter by `neg_potency`; post-mint regulation unaffected
+  (`potency_repair_null`); 2×-potency profile scales
+  proportionally. Baumeister 2001; Rozin & Royzman 2001.
+- **P1067 regret crossover (MUST, shape-lock):** at t+7d
+  action regrets out-surface inaction regrets; at t+365d the
+  ordering inverts; `opportunity:false` decisions never mint
+  `regret`. Gilovich & Medvec 1995; Roese & Summerville 2005.
+- **P1068 sleep-debt skew (SHOULD):** encoding with
+  `sleep_debt > sdep_thresh` raises negative-record S ≥1.4×
+  vs rested control, positive ≤1.0×; rested-record retrieval
+  unchanged (`sdep_recall_null`). Yoo 2007.
+- **P1069 cringe persistence (SHOULD):** embarrass-tagged
+  records surface ≥2× matched-neutral intrusions over 30d at
+  sim 0.35–0.5; emissions carry content (never `aff_flash`);
+  age-20 profile ≥ age-60; FAB discount exempt
+  (`cringe_fab_null`). Miller 1996.
+- **P1070 perceptual bypass (MUST, scope-lock):** sensory-only
+  cue matching a trauma record's smell field fires intrusion
+  without θ; identical cue on a neutral record does NOT
+  bypass (`percept_gate_null`). Ehlers & Clark 2000;
+  Brewin 1996.
+- **P1071 arousal match (COULD):** recall P rises with
+  arousal-state match between mint and test; effect ≤`w_msd`;
+  clamp ≤0.15 respected. Clark 1988; Eich 1995.
+- **P1072 pain peak-end (MUST):** reported pain ≈
+  0.7·peak + 0.3·end independent of duration; `gentle_tail`
+  arm reports lower remembered pain; decision contexts weight
+  ×`pain_avoid_gain`. Redelmeier & Kahneman 1996; Redelmeier
+  et al. 2003.
+- **P1073 shared-arousal fusion (SHOULD):** co-encoded
+  ≥0.5-arousal events mint stronger AND raise pairwise bond;
+  one-sided arousal boosts encoding only; world-forced
+  arousal with no event source does neither
+  (`fuse_abuse_null`). Whitehouse & Lanman 2014; Konvalinka
+  2011.
+- **P1074 two-factor gate (MUST, sign-lock):** high cortisol
+  + high arousal → consolidation gain; high cortisol +
+  arousal <`gc_na_thresh` → gain ≈0, never negative
+  (`gc_solo_null`); retrieval penalty fires in both arms.
+  Roozendaal 2006.
+
+Registry: P1–P1074. v101 suite: P1065, P1066, P1067, P1070,
+P1072, P1074 MUST (P1065, P1070, P1074 locked-null class);
+P1068, P1069, P1073 SHOULD; P1071 COULD.
+
+## 209. Sources verified this version (P1065–P1074 backing)
+
+- **Hangover:** Tambini, Rimmele, Phelps & Davachi 2017
+  (*Nat. Neurosci.* 20:271 — verified: E→N order boosts
+  neutral recollection 9–33 min later; N→E null; state
+  reinstatement, not item arousal); Dunsmoor, Murty, Davachi
+  & Phelps 2015 (*Nature* 520:345 — retroactive concept-
+  mediated strengthening, routed via CondEntries).
+- **Negativity potency:** Baumeister, Bratslavsky,
+  Finkenauer & Vohs 2001 (*Rev. Gen. Psychol.* 5:323 — "bad
+  is stronger than good"); Rozin & Royzman 2001
+  (potency/steepness/mobility taxonomy); Taylor 1991
+  (mobilization counterweight → `potency_repair_null`).
+- **Regret:** Gilovich & Medvec 1995 (*Psychol. Rev.* 102:379
+  — action↔inaction temporal crossover); Roese & Summerville
+  2005 (opportunity breeds regret); Medvec, Madey & Gilovich
+  1995 (bronze > silver — counterfactual direction).
+- **Embarrassment intrusions:** Miller 1996 (*Embarrassment:
+  Poise and Peril* — persistence as involuntary recall);
+  Huppert, Roth & Foa 2003 (social-evaluative intrusions).
+  Frequency/age magnitudes ours — flagged.
+- **Pain:** Redelmeier & Kahneman 1996 (*Pain* 66:3 —
+  verified: peak+end, duration neglect); Redelmeier, Katz &
+  Kahneman 2003 (gentle-tail lengthening improves recalled
+  pain); Wirtz, Kruger, Scollon & Diener 2003 (remembered
+  affect predicts repeat-intent).
+- **Shared fusion:** Whitehouse & Lanman 2014 (*Curr.
+  Anthropol.* 55:674 — dysphoric shared experience fuses);
+  Páez, Basabe et al. 2007 (collective emotional gatherings
+  → social integration); Konvalinka et al. 2011 (fire-walking
+  arousal synchrony incl. watchers); Durkheim 1912 ancestor.
+- **Two-factor gate:** Roozendaal, Okuda, Van der Zee &
+  McGaugh 2006 (*PNAS* 103:6741 — verified: glucocorticoid
+  consolidation boost requires concurrent amygdala NA);
+  van Stegeren et al. 2010; Shields, Sazma, McCullough &
+  Yonelinas 2017 meta.
+- **Perceptual triggers:** Ehlers & Clark 2000 (*Behav. Res.
+  Ther.* 38:319 — data-driven processing, sensory-cue
+  intrusions); Brewin, Dalgleish & Joseph 1996 (VAM/SAM);
+  Ehlers, Hackmann & Michael 2004 (intrusions match worst-
+  moment sensory detail).
+- **Sleep-debt skew:** Yoo, Gujar, Hu, Jolesz & Walker 2007
+  (*Curr. Biol.* 17:R877 — verified: ~60% amygdala hyper-
+  reactivity, PFC disconnect); Tempesta et al. 2018
+  (sleep-dep affective meta); Walker & van der Helm 2009.
+- **Arousal-state matching:** Clark, Milberg & Erber 1988;
+  Eich 1995 — thinnest base this pass; sub-`w_msd` by
+  design; COULD-tier.
+- **Honest limits marked:** `hangover_tau` 12-min is our
+  curve-fit to a 9–33-min window; `neg_potency` unification
+  is modeling compression; regret decay-multiplier is our
+  mechanism story; cringe age-gradient inferred; `co_arousal_
+  bond` magnitudes unpriced by sources; `na_gate` ramp
+  linearizes a non-monotonic interaction. → EM Part IX
+  §§112–121; probes P1065–P1074.
+
+## 210. v102 probes — the self-service layer (P1075–P1084)
+
+- **P1075 forced confabulation (MUST):** gap-field
+  `answer:true` mints self-sourced false fields stronger
+  than matched heard-suggestion fields (≥`fgen_vs_hear`);
+  post-warning halves, never zeroes; minted fields never
+  read `accuracy:1` (`fgen_truth_null`). Zaragoza 2001.
+- **P1076 doctored proof (MUST):** `proof:"photo"` on a
+  fabricated self-past claim mints episodic phantoms at
+  ≈`proof_mint_p` with schema-filled periphery; identical
+  proof about a third party mints belief only, no episode
+  (`proof_remote_null`); the artifact's fabricated status
+  stays ledger-side (`proof_verified_null`). Wade 2002;
+  Lindsay 2004.
+- **P1077 theory pull (MUST, direction-lock):** no
+  change-schema → reported past attitudes regress toward
+  current ≈`theory_consist`; `growth:true` + distant
+  past-self → reports push away; stored fields bit-stable
+  (`theory_stored_null`). Ross 1989; Wilson & Ross 2001.
+- **P1078 confidence inflation (SHOULD, decouple-lock):**
+  five retells raise reported confidence ≈`cinfl_per_retell`
+  ·(1−conf) to cap `cinfl_cap` while `accuracy` is
+  bit-identical; confidence never feeds S or belief
+  (`cinfl_accr_null`). Zaragoza & Mitchell 1996.
+- **P1079 nonbelieved memory (MUST, state-lock):**
+  discredited vivid record enters `nonbelieved` —
+  retrievable with full phenomenal fields, zero
+  belief-dependent behavior; repetition cannot re-flip
+  (`nbm_reflip_null`); verified evidence can. Mazzoni 2010.
+- **P1080 unanimity (MUST, genealogy-lock):** three
+  independent speakers → adopt_p ≈ `unanim_cap`; three
+  speakers downstream of ONE source → single-source rate
+  (`unanim_echo_null`). Gabbert 2006.
+- **P1081 lateral spread (SHOULD, radius-lock):** adopted
+  suggestion recruits ≥1 schema-neighbor field at ≈
+  `cspread_p`; tagged `cspread:true`; no second-hop spread
+  (`cspread_chain_null`). Chrobak & Zaragoza 2008.
+- **P1082 CI shield (SHOULD, no-cost-lock):** `mode:"ci"`
+  yields ≥`ci_gain` more correct detail vs standard recall
+  AND strictly-not-greater false reports (`ci_error_null`);
+  confabulation minting suppressed ≈`ci_guard`. Memon 2010.
+- **P1083 warning timing (MUST, order-lock):** pre-warning
+  adoption ≈(1−`warn_pre_eff`)·base < post-warning rollback
+  ≈`warn_post_eff` — order inverted fails; post-arm keeps
+  `warn_post_resid` familiarity; `warn_undo_null` — no arm
+  zeroes. Blank & Launay 2014.
+- **P1084 mood-congruent lures (SHOULD, asymmetry-lock):**
+  gist-lure adoption rises under negative mood
+  (≈`moodlure_neg_gain`) and valence match
+  (≈`moodlure_val_w`); positive mood shows NO suppression
+  below baseline (`moodlure_pos_null`). Storbeck & Clore
+  2005.
+
+Registry: P1–P1084. v102 suite: P1075, P1076, P1077, P1079,
+P1080, P1083 MUST (P1075, P1077, P1079, P1080, P1083
+locked-null class); P1078, P1081, P1082, P1084 SHOULD.
+
+## 211. Sources verified this version (P1075–P1084 backing)
+
+- **Zaragoza, Payment, Ackil, Drivdahl & Beck 2001**
+  (*JEP:General* 130:473 — forced confabulation mints
+  whole-event false memories, out-persisting suggestion)
+  + **Ackil & Zaragoza 1998** + **Chrobak & Zaragoza
+  2008** (cross-event spread) + **Slamecka & Graf 1978**
+  (generation effect base) → §6.235 `fgen_*` + locked
+  `fgen_truth_null`; P1075.
+- **Wade, Garry, Read & Lindsay 2002** (*Psych. Bull.
+  Rev.* 9:597 — doctored childhood photos → ~50% false
+  autobiographical memory) + **Lindsay, Hagen, Read, Wade
+  & Garry 2004** (slime-event implantation ~65% w/ guided
+  imagery) + **Nash & Wade 2009** (fabricated video of
+  self) → §6.236 `proof_*` + locked `proof_verified_null`/
+  `proof_remote_null`; P1076.
+- **Ross 1989** (*Psych. Rev.* 96:341 — implicit theories
+  of stability/change) + **McFarland & Ross 1987** (dating-
+  couple attitude reconstruction) + **Wilson & Ross 2001**
+  + **Ross & Wilson 2002** (temporal self-appraisal,
+  distance-derogation) → §6.237 `theory_*` + locked
+  `theory_stored_null`; P1077.
+- **Zaragoza & Mitchell 1996** (*Psych. Sci.* 7:294 —
+  repeated suggestion raises confidence, not accuracy) +
+  **Shaw 1996** + **Roediger, Jacoby & McDermott 1996** →
+  §6.238 `cinfl_*` + locked `cinfl_accr_null`; P1078.
+- **Mazzoni, Scoboria & Harvey 2010** (*Psych. Sci.*
+  21:1334 — ~20% hold nonbelieved memories) + **Otgaar,
+  Scoboria & Mazzoni 2014** (belief/recollection
+  separability model) + **Scoboria, Boucher & Mazzoni
+  2015** (NBM stability) → §6.239 `nbm_*` + `beliefStatus:
+  "nonbelieved"` + locked `nbm_reflip_null`; P1079.
+- **Gabbert, Memon & Wright 2006** (*Memory* 14:760 —
+  unanimity amplifies memory conformity) + **Wright, Self
+  & Justice 2000** + **Asch 1951** (conformity prior) →
+  §6.240 `unanim_*` + locked `unanim_echo_null`; P1080.
+- **Chrobak & Zaragoza 2008** + **Drivdahl & Zaragoza
+  2001** (fabricated peripherals attributed to witnessed
+  source) → §6.241 `cspread_*` + locked
+  `cspread_chain_null`; P1081.
+- **Fisher & Geiselman 1992** (cognitive interview) +
+  **Memon, Meissner & Fraser 2010** (meta, 65 studies:
+  correct detail up, errors not up) + **Köhnken et al.
+  1999** → §6.242 `ci_*` + locked `ci_error_null`; P1082.
+- **Blank & Launay 2014** (*Appl. Cog. Psych.* 28 meta —
+  pre-warnings beat post-warnings) + **Greene, Flynn &
+  Loftus 1982** + **Echterhoff, Hirst & Hussy 2005** →
+  §6.243 `warn_pre/post_*` + locked `warn_undo_null`;
+  P1083.
+- **Storbeck & Clore 2005** (*Psych. Sci.* 16:785 —
+  negative mood increases DRM false recall) + **Brainerd,
+  Holliday, Reyna, Yang & Toglia 2010** + **Knott &
+  Thorley 2014** + **Ruci, Tomes & Zelenski 2009** →
+  §6.244 `moodlure_*` + locked `moodlure_pos_null`; P1084.
+- **Honest limits:** `fgen_*`/`proof_*` magnitudes are
+  lab-priced ceilings; `theory_dir` linearization ours;
+  `cinfl_cap` asymptote unfitted; NBM behavioral inertness
+  simplified (affect stays live); unanim superlinearity
+  ours — genealogy is load-bearing; `ci_error_null` rides
+  the meta-analytic central estimate; `moodlure_val_w`
+  DEBATED-tier. → FM §§101–113.
+
+## 212. v103 probes — the tax and the step (P1085–P1097)
+
+- **P1085 the broke month (MUST — state-lock):** scarc
+  0→0.9 on a fixed character: wmc-loadings and PM
+  self-initiation drop ≈`scarc_wmc_tax`/`scarc_pm_tax`;
+  `stressor:true` events encode STRONGER
+  (`scarc_tunnel_gain` — the tunnel); scarc→0 restores
+  all loadings fully (`scarc_trait_null` — the farmers).
+  Mani 2013; Shah 2012.
+- **P1086 the tenth check (MUST — accuracy-lock):**
+  checker=+1.5 self-action record rechecked ×10:
+  reported vividness/confidence erode ≈`chk_*_erosion`,
+  R→K tag drifts `know`-ward; `accuracy` bit-identical
+  (`chk_acc_null`); recheck urge rises as confidence
+  falls — emergent loop, not scripted. van den Hout &
+  Kindt 2003/2004.
+- **P1087 the machine on the nightstand (SHOULD —
+  timescale-lock):** apnea=1.5, `apnea_treated` from
+  day 0: consol/sws legs recover toward
+  `apnea_cpap_rescue` asymptote over ~90 days; one
+  treated night moves nothing (`apnea_overnight_null`).
+  Canessa 2011.
+- **P1088 the ICU week (MUST — dose-lock):** delirium
+  0/3/7-day arms under identical `hosp`: `age_eff` step
+  ∝ days (`delir_step`, cap `delir_step_cap`); in-window
+  records mint only `frag:true`/`fuzzy:true`; pre-
+  admission records bit-identical (`delir_retro_null`);
+  step stacks additively with `hosp_step`. Pandharipande
+  2013.
+- **P1089 the swing's residue (SHOULD — count-lock):**
+  bipolar=1.5, `episode_count` 0 vs 5: euthymic tax rises
+  ≈`bip_ep_residue`·count (cap 0.2); mania-ctx records
+  wider-thinner; NO arm shows encoding or retrieval
+  advantage (`bip_creat_null`). Bourne 2013; Robinson
+  2006.
+- **P1090 the newborn months (MUST — channel-lock):**
+  newpar_state=1 at night_duty=0.7: measured dip routes
+  ≥80% through sleepQuality/iiv/att_min channels; direct
+  E/θ/β identical (`newpar_flat_null`); complaint
+  surface ≈`newpar_complaint` exceeds measured dip.
+  Logan 2014; Hoekzema 2017.
+- **P1091 the treatment fog (SHOULD — domain-lock):**
+  crci_state=1: exec/pspeed/ret_lat legs tax
+  ≈`crci_exec_tax`; episodic E/β/θ identical
+  (`crci_epi_null`); complaint ≈1.2× objective dip;
+  `task_load` mediation scales tax ×0.5. Ahles & Root
+  2018.
+- **P1092 the felt decade (SHOULD — layer-lock):**
+  subj_age=+0.8 vs −0.8 at fixed chronological:
+  performance-side `age_eff` legs shift
+  ≈`subj_age_shift`; encoding/decay identical
+  (`subj_age_store_null`); `age_cue` ctx taxes the
+  felt-old (subj_age>0) arm only. Stephan 2018; Hess
+  2003.
+- **P1093 the double-count guard (MUST — separability
+  arm):** reserve×subj_age factorial: reserve owns the
+  capacity floor, subj_age owns performance legs; joint
+  cell shows no superadditive collapse and no mutual
+  nullification — the mediated pathways stay separable.
+  Stephan 2018; Stern 2002.
+- **P1094 the shutter (MUST — act-lock):**
+  `photographed:true` events on photo_habit=+1.5:
+  nonvisual/gist E down ≈`photo_tax`, visual detail up
+  ≈`photo_vis_gain`; post-hoc photo deletion restores
+  nothing (`photo_review_null`); offload− arm still
+  pays the tax (mechanisms separable). Henkel 2014;
+  Soares & Storm 2018; Barasch 2017.
+- **P1095 the absent tick (SHOULD — channel-lock):**
+  mw=+1.5 vs −1.5 on identical event streams:
+  `mw_gap:true` field-thinning scales with `mw_rate`
+  capture; intrusion rate gains `mw_replay`; deliberate-
+  recall measures identical (`mw_deliberate_null`).
+  Cheyne 2006; Schooler 2011.
+- **P1096 the deliberate keeper (SHOULD — valence-
+  lock):** savor=+1.5: positive records gain attend/
+  rehearse/fade-buffer legs; negative records bit-
+  identical (`savor_neg_null`); savor×rumin
+  co-manipulation keeps both ledgers separable.
+  Bryant & Veroff 2007.
+- **P1097 the fourth null (MUST — locked):** microdose=1
+  regimen vs matched non-dosing: every objective measure
+  identical within jitter (`mdose_enhance_null`);
+  dose-day reported confidence gains
+  ≈`mdose_expect_conf` ONLY when the character believes
+  they dosed (expectancy leg = the Cavanna finding).
+
+Registry: P1–P1097. v103 suite: P1085, P1086, P1088,
+P1090, P1093, P1094, P1097 MUST (P1085, P1086, P1088,
+P1090, P1094, P1097 locked-null class; P1093
+separability guard); P1087, P1089, P1091, P1092, P1095,
+P1096 SHOULD.
+
+## 213. Sources verified this version (P1085–P1097 backing)
+
+- **Mani, Mullainathan, Shafir & Zhao 2013** (*Science*
+  341:976 — verified: pre/post-harvest farmers + NJ mall;
+  ~13-IQ-point-equivalent bandwidth tax, NOT explained by
+  stress/nutrition/time) + **Shah, Mullainathan & Shafir
+  2012** (*Science* 338:682 — scarcity tunnelling) →
+  §6.245 `scarc_*` + locked `scarc_trait_null`; P1085.
+- **van den Hout & Kindt 2003** (*Behav. Res. Ther.*
+  41:301 — verified: repeated checking degrades
+  vividness/detail/confidence, accuracy intact) +
+  **2004** (*JBTEP* 35:165 — remember→know shift, five
+  experiments) + Hermans 2008 + Radomsky 2014 → §6.246
+  `chk_*` + locked `chk_acc_null`; P1086.
+- **Canessa et al. 2011** (*J. Sleep Res.* 20 — OSA gray-
+  matter/cognitive deficit, partial CPAP reversal at 3
+  months) + **Djonlagic 2021** (*JAMA Netw. Open*
+  4:e212537) + Leng 2017 + Bubu 2020 → §6.247 `apnea_*`
+  + locked `apnea_overnight_null`; P1087.
+- **Pandharipande et al. 2013** (*NEJM* 369:1306 —
+  BRAIN-ICU verified: delirium duration dose-orders
+  global-cognition deficit at 3/12 months) + Girard 2010
+  + Marcantonio 2017 → §6.248 `delir_*` + locked
+  `delir_retro_null`; P1088.
+- **Bourne et al. 2013** (*Acta Psychiatr. Scand.*
+  128:149 — euthymic bipolar impairment d≈0.4–0.7) +
+  Robinson & Ferrier 2006 (episode-count residue) +
+  Cullen 2016 (UK Biobank) → §6.249 `bip_*` + locked
+  `bip_creat_null`; P1089.
+- **Hoekzema et al. 2017** (*Nat. Neurosci.* 20:287 —
+  pregnancy gray-matter change persisting ≥2y) +
+  Workman, Barha & Galea 2012 + **Logan et al. 2014**
+  (self-report >> measured) → §6.250 `newpar_*` + locked
+  `newpar_flat_null` (sleep-routed account); P1090.
+- **Ahles & Root 2018** (*CA: Cancer J. Clin.* 68 —
+  cancer-related cognitive impairment domain-narrow:
+  pspeed/executive/WM; subjective > objective) + Wefel
+  2015 + Janelsins 2014 → §6.251 `crci_*` + locked
+  `crci_epi_null`; P1091.
+- **Stephan, Sutin & Terracciano 2018–2023** (subjective
+  age → episodic memory, independent of chronological) +
+  Weiss & Lang 2012 + **Hess et al. 2003** (age-
+  stereotype threat) + Mazerolle 2017 meta → §6.252
+  `subj_age`/`stereo_*` + locked `subj_age_store_null`;
+  P1092–P1093.
+- **Henkel 2014** (*Psych. Sci.* 25:396 — photo-taking
+  impairment effect) + **Soares & Storm 2018**
+  (impairment without review) + **Barasch 2017**
+  (countervailing visual-detail boost) → §6.253
+  `photo_*` + locked `photo_review_null`; P1094.
+- **Cheyne, Carriere & Smilek 2006** (ARCES absent-
+  mindedness trait) + Schooler 2011 + **Kane & McVay
+  2012** (MW competes for control resource) → §6.254
+  `mw_*` + locked `mw_deliberate_null`; P1095.
+- **Bryant & Veroff 2007** (Savoring Beliefs Inventory;
+  savoring as deliberate positive-channel attention/
+  prolonging) → §6.255 `savor_*` + locked
+  `savor_neg_null`; P1096.
+- **Cavanna et al. 2022** (*Transl. Psychiatry* 12:148 —
+  verified: effects only in correct-guessers) + **van
+  Elk et al. 2021** (two null double-blind RCTs) +
+  **Murphy et al. 2023** (*Biol. Psychiatry* — LSD
+  microdose RCT: dose-day mood ratings, no enduring
+  cognitive change) + Marschall 2022 → §6.256 `mdose_*`
+  + locked `mdose_enhance_null` (fourth mandated null);
+  P1097.
+- **Honest limits:** `scarc_wmc_tax` IQ-to-encoding
+  bridge ours; `chk_*` priced report-layer (testing-
+  effect fight unresolved); `apnea_cpap_rescue`
+  mid-range; `delir_step` linearized from an odds
+  gradient; `bip_mania_*` field-geometry extrapolated;
+  `newpar_flat_null` bets on sleep-mediation; `crci`
+  fatigue-mediator split simplified; `subj_age_shift`
+  residual HYPOTHESIS; photo net-effect DEBATED in the
+  wild; `mw_replay` dividend HYPOTHESIS; `savor` leg
+  decomposition ours. → ID §§108–124.
+
+## 214. v104 probes — the credulity layer (P1098–P1109)
+
+- **P1098 sleeper_content_null (MUST — locked):** do() a
+  discredited `told_by` record through 60 simulated days
+  under CRN: content fields bit-identical throughout;
+  credence recovers toward plausibility only if S ≥
+  `sleeper_msg_min`. (SM§151, spec §6.257)
+- **P1099 sleeper conditional (SHOULD):** weak messages
+  (S < `sleeper_msg_min`) show zero credence recovery over
+  the same window — the initial-impact gate, not just the
+  tag decay.
+- **P1100 stt_dir_null (MUST — locked):** speaker retells
+  trait-implying content under opposite framing ("hate to
+  say it"): transferred trait sign follows content valence
+  in 100% of runs, never framing. (SM§152, §6.258)
+- **P1101 tdef_immune_null (MUST — locked):** all 8 mains +
+  20 ambient archetype draws under CRN: no trait vector
+  yields baseline credence < 0.5 absent a trigger event.
+  (SM§153, §6.259)
+- **P1102 illtruth_know_null (MUST — locked):** repeated
+  knowledge-contradicting claims lift credence
+  ≈`illtruth_gain` per independent retelling to
+  `illtruth_cap`, while the contradicting known-fact
+  record remains retrievable — dissociation, not
+  replacement. (SM§154, §6.260)
+- **P1103 kmotive_truth_null (MUST — locked):** varying
+  `motive` class changes transmission counts only;
+  accuracy, plausibility gates, and credence fields
+  bit-stable under CRN. (SM§155, §6.261)
+- **P1104 aobs_reverse_null (MUST — locked):** matched
+  self/other-authored act pairs at equal diagnosticity:
+  self-side trait writes never exceed other-side;
+  `reason:`-field fill rate strictly higher self-side.
+  (SM§157, §6.263)
+- **P1105 imp_fastrev_null (MUST — locked):** single
+  diagnostic counterevent without `reinterpret:true`:
+  explicit `traits{}` update lands, `eval_tag` sign
+  unchanged. With `reinterpret:true` + control legs ≥0.5:
+  reversal permitted and durable at +3d (Mann & Ferguson
+  durability arm). (SM§158, §6.264)
+- **P1106 hpm_fact_null (MUST — locked):** hearsay-only PM
+  accrual produces zero canonical-ledger writes and zero
+  `beliefStatus` upgrades; `via:"hearsay"` persists until
+  a met-event flips it. (SM§159, §6.265)
+- **P1107 hearsay saturation (SHOULD):** N retellings about
+  an unmet target: trait mass asymptotes ≤ `hpm_cap`;
+  first witnessed act writes at full §2.1 gain against the
+  hearsay prior (prior persists — primacy runs on the
+  witnessed stream, not erasure).
+- **P1108 snub_source_null (MUST — locked):**
+  `exclusion:true` from despised vs close excluders
+  registers at identical `snub_detect_p`; hurt/encode legs
+  nonzero in both arms (Gonsalkorale & Williams). `rsq`
+  raises false-positive rate on ambiguous cues without
+  raising true-signal detection beyond `snub_detect_p`.
+  (SM§160, §6.266)
+- **P1109 cast spread (OBSERVE):** identical 30-day mixed
+  rumor diet (wish/dread/wedge × credibility spread) →
+  publish per-main belief-vs-fact divergence matrices;
+  expected ordering: high-`tdef`+`rsq` mains diverge
+  fastest; the skeptic's floor is 0.5, never below —
+  credulity differences are margins, not walls. Report,
+  don't gate.
+
+Registry: P1–P1109. v104 suite: P1098, P1100, P1101,
+P1102, P1103, P1104, P1105, P1106, P1108 MUST (all nine
+locked-null class); P1099, P1107 SHOULD; P1109 OBSERVE.
+Nine locked nulls is the heaviest single-version null
+batch — deliberate: the credulity layer is where a sim
+quietly becomes a propaganda engine if the walls move.
+
+## 215. Sources verified this version (P1098–P1109 backing)
+
+- **Hovland & Weiss 1951** (sleeper effect classic) +
+  **Kumkale & Albarracín 2004** (*Psychol. Bull.* 130:143 —
+  verified meta: conditional on initial impact, cue-after-
+  message, processing capacity) → §6.257 `sleeper_*` +
+  locked `sleeper_content_null`; P1098–P1099.
+- **Skowronski, Carlston, Mae & Crawford 1998** (*JPSP*
+  74:837 — verified: spontaneous trait transference,
+  mindless-associative) + Mae et al. 1999 + Carlston &
+  Skowronski 2005 → §6.258 `stt_*` + locked `stt_dir_null`;
+  P1100.
+- **Bond & DePaulo 2006** (*PSPR* 10:214 — verified meta,
+  206 docs / 24,483 judges: 54% accuracy, 61% truth-accept /
+  47% lie-detect) + **Levine 2014** truth-default theory +
+  Levine, Park & McCornack 1999 → §6.259 `tdef_*` + locked
+  `tdef_immune_null`; P1101.
+- **Hasher, Goldstein & Toppino 1977** (illusory truth) +
+  **Fazio, Brashier, Payne & Marsh 2015** (*JEP:G* 144:993
+  — verified: repetition lifts even knowledge-contradicting
+  claims) + Pennycook & Rand 2019 + Brashier & Marsh 2020
+  → §6.260 `illtruth_*` + locked `illtruth_know_null`;
+  P1102.
+- **Knapp 1944** (*Publ. Opin. Q.* 8:22 — pipe-dream/bogie/
+  wedge typology) + Allport & Postman 1947 + **DiFonzo &
+  Bordia 2007** (*Rumor Psychology* — sense-making motive
+  account) + DiFonzo, Bordia & Rosnow 1994 → §6.261
+  `kmotive_*` + locked `kmotive_truth_null`; P1103.
+- **Peters, Kashima & Clark 2009** (*EJSP* 39:207 —
+  verified: disgust/happiness communicability, audience
+  identity contingency) + **Berger & Milkman 2012**
+  (arousal drives sharing) + Heath, Bell & Sternberg 2001
+  → §6.262 `etrans_*`; (folded into P1103/P1109 suites).
+- **Jones & Nisbett 1971** (actor–observer classic) +
+  **Malle 2006** (*Psychol. Bull.* 132:895 — verified meta:
+  asymmetry real but d≈0.3, valence-shaped) → §6.263
+  `aobs_*` + locked `aobs_reverse_null`; P1104.
+- **Rydell & McConnell 2006** (explicit/implicit
+  dissociation) + Asch 1946 + **Mann & Ferguson 2015**
+  (*JPSP* 108:823 — verified: implicit reversal possible,
+  gated on reinterpretation + resources, durable 3d) +
+  Cone & Ferguson 2015 → §6.264 `imp_*` + locked
+  `imp_fastrev_null`; P1105.
+- **Sommerfeld, Krambeck, Semmann & Milinski 2007** (*PNAS*
+  104:17435 — verified: gossip changes behavior absent
+  direct observation) + **Feinberg, Willer, Stellar &
+  Keltner 2012** (*JPSP* — virtues of gossip) + Dunbar
+  1996/2004 → §6.265 `hpm_*` + locked `hpm_fact_null`;
+  P1106–P1107.
+- **Williams, Cheung & Choi 2000** (*JPSP* 79:748 —
+  Cyberball ostracism) + **Gonsalkorale & Williams 2007**
+  (hurt even from despised sources) + **Downey & Feldman
+  1996** (*JPSP* 70:1327 — rejection sensitivity) →
+  §6.266 `snub_*` + locked `snub_source_null`; P1108.
+- **Marked hypothesis:** `tdef_base` transfer from lab
+  judgments to neighborhood stakes; motive-classification
+  heuristic (Knapp typology is consensus, the valence→
+  motive mapping is ours); `aobs_selfdamp` 0.55 sized from
+  Malle's shrunken asymmetry; dual-clock reduction of
+  dual-process models; `hpm_cap` saturation shape;
+  `rsq` legs unpriced for thin-AI ambients. → SM §§151–165;
+  probes P1098–P1109.
+
+## 216. v105 probes — the exposure discipline, the decade bound, the audit journal (P1110–P1121)
+
+Contract-class probes: the psychology was already validated;
+these gate the *plumbing* — that every record read reaches a
+consumer through `present`, that the store's immortal tails
+are bounded, and that state deltas are attributable.
+(FM Part X §§81–91 → spec v5.53.)
+
+- **P1110 silent_read_null (MUST — locked):** two legs.
+  Static: import-graph scan — every module that references
+  `recall` calls it only inside `present`. Dynamic: record
+  field-read counter vs journal `present` coverage over a
+  30-day society run; any consumer-visible field without a
+  covering `present{path}` entry = fail. `surf_paths`
+  whitelist enforced — a sixth path appearing is a fail even
+  if journaled. (FM§81, spec §10)
+- **P1111 projection determinism (MUST):** fixed
+  (state, C, path, budget, seed) → byte-identical projection
+  across runs and across restart-from-snapshot; gist-dedup
+  collapse order stable; paired CRN arms share the
+  projection seed (§75 discipline). (FM§82)
+- **P1112 no_invent_null (MUST — locked):** fuzz 10⁵ records
+  × all five paths: projected fields ⊆ record fields post
+  tier-map; absent fields render as absence (hedgeable gap),
+  never materialize content. The projector confabulates
+  nothing — store-side confabulation stays the only legal
+  source of false content. (FM§84)
+- **P1113 tier lattice (MUST — locked):** same fuzz:
+  `spectator` projections carry zero non-public content;
+  `briefing` carries zero affect/latent/secret fields;
+  spectator ⊂ briefing ⊆ utterance ⊆ self_prompt on every
+  field class, never inverted. The §7-design possession ban
+  proven at the memory layer. (FM§84)
+- **P1114 diversity bound (SHOULD):** fuzzed ranked sets —
+  no episode_key occupies > `present_div_cap` slots in any
+  projection; `truncated:true` set iff ranked-unique count >
+  `present_budget_units`. (FM§82)
+- **P1115 write-back reality (SHOULD):** paired CRN arms —
+  shown records gain §5.9 reboost vs un-surfaced control;
+  shadowed same-episode competitors lose `R` by
+  `suppress_k` (±tol), cross-episode untouched
+  (`writeback_scope`); `briefing` path shows exactly
+  `brief_prac_mult`-scaled reboost; never-ranked records
+  untouched (suppression requires competition). (FM§83)
+- **P1116 audience-scaled silence (SHOULD):** `spectator`
+  and `probe` presents leave the store bit-identical
+  (`spectator_practice_null` + `probe_writeback_null` —
+  the character never practices for watchers, measurement
+  never perturbs); listener-side SS-RIF legs unchanged and
+  now journal-counted. (FM§§83, 88)
+- **P1117 the decade bound (SHOULD):** 70-year shadow
+  replay: permastore count ≤ `canon_day_bound`·T·(1+tol);
+  publish realized canonization rate AND retrieval-latency
+  drift vs day-0 — dilution measured, not assumed.
+  (FM§85)
+- **P1118 condensation honesty (SHOULD):** post-condense
+  records: skeleton fields only, `condensed:true`, cueable
+  at `condensed_w`, byte-size ≤ declared bound; one-way —
+  a skeleton can never re-acquire verbatim fields.
+  (FM§85)
+- **P1119 replay_hash_null (MUST — locked):** snapshot +
+  journal tail replay → identical `canonHash` (§47); run
+  on every corpus pass — the free determinism fuzzer.
+  (FM§87)
+- **P1120 attrib_null (MUST — locked):** hash-differing
+  consecutive snapshots ↔ non-empty journal tail; every
+  field-level delta covered by ≥1 entry's `writes`. Probe
+  forensics become journal queries. (FM§87)
+- **P1121 journal compaction (OBSERVE):** compact-at-
+  snapshot preserves replay equivalence; publish journal
+  size/day, compaction cadence, `oplog_max` headroom —
+  no gate, the envelope goes on record. (FM§86)
+
+Registry: P1–P1121. v105 suite: P1110, P1111, P1112, P1113,
+P1119, P1120 MUST (six locked-null class — exposure and
+audit are where a correct psychology still produces a
+database if the walls move); P1114–P1118 SHOULD; P1121
+OBSERVE. First all-contract suite: twelve probes, zero of
+them about what a character remembers — all about whether
+the machine around the remembering is honest.
+
+## 217. Sources verified this version (P1110–P1121 backing)
+
+- **Retrieval practice / testing effect:** Roediger &
+  Karpicke 2006 (in-corpus, forgetting-curves §7.2) →
+  P1115 shown-record arm.
+- **Part-list cuing / RIF:** Slamecka 1968; Roediger 1973;
+  **Anderson, Bjork & Bjork 1994** (competitor-specificity
+  → `writeback_scope`) → P1115 suppressed arm.
+- **Output interference:** Roediger & Schmidt 1980;
+  **Criss, Malmberg & Shiffrin 2011** → P1114 budget leg.
+- **SS-RIF / collaborative inhibition:** Cuc, Koppel &
+  Hirst 2007; Weldon & Bellinger 1997 → P1116 listener
+  legs (counted, not re-priced).
+- **Fuzzy-trace longevity:** Brainerd & Reyna corpus →
+  P1118 skeleton semantics.
+- **Lifetime envelope:** **Landauer 1986** (*Cognitive
+  Science* 10:477 — ~10⁹-bit lifetime estimate, five
+  methods) → P1117 bound rationale; NEW spine citation
+  this version.
+- **Marked hypothesis:** `suppress_k` sizing; `present_
+  budget_units` 8; `brief_prac_mult` 0.3; `canon_day_bound`
+  / `condensed_w` priors; `present_div_cap` (no direct
+  antecedent). → FM §§81–91; probes P1110–P1121.
+
+## 218. v106 probes — the perceiver's hardware (P1122–P1133)
+
+Harness: 8 main profiles + 200-ambient population; novel-scene
+and recall batteries under CRN; identical record sets across
+trait contrasts unless noted.
+
+- **P1122** (MUST, locked null `img_accuracy_null`): recall
+  correctness on identical record sets equal across imagery
+  deciles (|Δ| < noise band). Priya (0.15) vs Dani (0.9):
+  equal correctness, unequal sensory-field report counts.
+- **P1123**: report richness ordering — projected utterance
+  sensory-field count monotone in imagery at fixed record
+  (Dani > Marcus > Priya); record fields themselves
+  identical.
+- **P1124** (MUST, `obs_content_null`): a `persp` flip on an
+  emission changes the tag + reported-affect + surfaced
+  field-class mix only; record byte-diff = 0.
+- **P1125**: dampen asymmetry — field→observer shift lowers
+  reported affect by ~`obs_dampen`; observer→field shift
+  raises it by ≈0 (Robinson & Swanson sign test).
+- **P1126**: age slope — p(observer) increases with
+  log10(record ageDays) at fixed traits; recent records stay
+  field-dominant cast-wide.
+- **P1127** (MUST, `face_sem_null`): low-`face_recog`
+  profile shows slower `familiar`/`identity` crossings on
+  face-only cues but identical PersonModel content and
+  name/voice-cue crossings.
+- **P1128**: super-recognizer tail — face_recog 0.85
+  (Marcus) reaches `familiar` on stranger faces after
+  single exposure ≥2× faster than 0.4 profile; ceiling
+  still caps verbatim.
+- **P1129**: earliest-memory ordering — high interdep +
+  low family_remin shifts effective `amnesia_exit` up;
+  Victor (0.45/0.2) has a later mean earliest record than
+  Carmen (0.85/0.75) despite greater age.
+- **P1130** (MUST, `cult_capacity_null`): interdep sweep
+  changes early-record field mix (`sdmCat:"collective"`
+  share) and boundary only — record count, strength, decay
+  invariant.
+- **P1131** (MUST, `remin_content_null`): family_remin
+  sweep moves the boundary; zero records minted, zero
+  field-content deltas above the boundary.
+- **P1132**: déjà vu emission — `dejavu:true` events fire
+  only on novel-scene flags; rate declines with age_eff
+  (Jules > Carmen) and rises under fatigue.
+- **P1133** (MUST, `dejavu_know_null`): post-`dejavu:true`
+  store diff = 0 — no record minted, no source attributed,
+  no familiarity residue on PersonModels.
+
+## 219. Sources verified this version (P1122–P1133 backing)
+
+- **Imagery extremes:** Zeman, Dewar & Della Sala 2015;
+  Zeman et al. 2020 (*Cortex* 130:426 — prevalence +
+  autobiographical-memory association); Dawes et al. 2020
+  (*Sci Rep* 10:10022 — standard-test equivalence →
+  P1122); Dance, Ipser & Simner 2021 (prevalence review).
+- **Vantage:** Nigro & Neisser 1983 (vantage construct +
+  moderators → P1126); Robinson & Swanson 1993 (switch
+  asymmetry → P1125); Sekiguchi & Nonaka 2014 (persistence);
+  McIsaac & Eich 2002 (field-class mix → P1124 surface leg).
+- **Face spectrum:** Russell, Duchaine & Nakayama 2009
+  (super-recognizers → P1128); Kennerknecht et al. 2006 +
+  DeGutis et al. 2023 (DP prevalence → tail rates, P1127).
+- **Culture/reminiscing:** Wang 2001 (*JPSP* 81:220 →
+  P1129/P1130); Wang & Conway 2004; Fivush, Haden & Reese
+  2006 (elaborative style → P1131); Nelson & Fivush 2004.
+- **Déjà vu:** Brown 2004 (*Psychol Bull* 130:394 → P1132);
+  O'Connor & Moulin 2010 (known falsity → P1133).
+- **Marked hypothesis:** trauma-linked high `obs_persp`
+  (coping vs symptom debated); `img_report_w`/`obs_dampen`/
+  `face_thresh_scale`/`firstmem_shift_y`/`remin_shift_y`/
+  `dejavu_*` magnitudes are priors pending population
+  calibration.
+
+## 220. The control diet — negative and positive controls (VA-CTRL) (new in v107)
+
+A battery that only ever measures what it expects to measure can be
+*globally* biased without any single probe lying: shared generators,
+shared seeds, shared mains. Epidemiology solved this with **negative
+controls** — exposures and outcomes that are provably disconnected
+from the mechanism and must return null (Lipsitch, Tchetgen Tchetgen
+& Cohen 2010, *Epidemiology* 21:383 — CONSENSUS technique; Shi, Miao
+& Tchetgen Tchetgen 2020, *Epidemiology* 31:637 — selective review
+of the bias-detection machinery). The dual is the **positive control
+/ assay sensitivity** doctrine from clinical trials: a test that
+cannot detect a known-large manipulation is not a null result, it is
+a dead instrument (ICH E10 2000 — CONSENSUS regulatory doctrine;
+the RW battery already owns the lesion battery §26 — this section
+makes every suite ship its own control pair instead of relying on
+the global one).
+
+Rules (spec §14.7a):
+
+1. **Every suite registers one sham exposure** (`negctrl_exposure`):
+   a perturbation with no spec path to the measured outcome — e.g.,
+   an `inert_probe_field` carried on records that no terminus reads,
+   or a cosmetic world flag outside every cue channel. The sham is
+   declared at registration; its inertness is itself verified
+   statically (the field must appear in zero §15 terminus ledgers —
+   `inert_field_null`). Verdict flip count on the sham arm above
+   `negctrl_flip_max` (=0) ⇒ harness confounding, not a psychology
+   result: the *suite* is suspended, the finding is not reported.
+2. **Every suite registers one positive control** (`posctrl_lesion`):
+   a clamp on a param in the suite's declared `detect_set` sized at
+   ≥ `posctrl_mde` (the family's minimum detectable effect per
+   §139's power registry). The control MUST flip its declared
+   probes; a control that passes green indicts the instruments
+   (`posctrl_dead`), never exonerates the model.
+3. **Sham dose-response.** Doubling the sham dose must still be
+   null — a sham that "works" at 2× but not 1× is a threshold
+   leak in the harness, not an inverted-U (`sham_dose_null`).
+4. **Asymmetry doctrine.** Negative controls convict the harness;
+   positive controls convict the instruments. Neither ever
+   convicts the psychology directly — a control failure is a
+   verdict-layer event and enters the ledger as such, keeping the
+   model's FDR families clean of instrument noise.
+
+RW-specific placement: sham fields ride inside real records (a
+field every record carries, nothing reads) so the control exercises
+the *whole* encode→decay→retrieve→present pipeline; a sham that
+only touches a side channel proves nothing about the main path.
+
+## 221. Missing evidence discipline — attrition is data (VA-MISS) (new in v107)
+
+Cohort runs die: seeds crash, streams truncate, `corpusRun` ticks
+abort at day 380 of 400. The naive handling — analyze the
+survivors — silently conditions on a collider whenever attrition
+correlates with the outcome (VA-COLLIDER §138 covers selection at
+encoding; this is selection at *measurement*). The taxonomy is
+Rubin 1976 (*Biometrika* 63:581 — CONSENSUS): MCAR (kill unrelated
+to anything), MAR (kill predictable from observed fields), MNAR
+(kill depends on the unobserved outcome itself). Discipline:
+
+- **Report, never impute.** Ground-truth taps (§2.4) and JSONL
+  streams carry `complete:false` + `censor_day`; analyzers report
+  attrition rate per probe per arm. Imputing ground-truth fields —
+  last-observation-carried-forward, mean-fill — is `impute_null`:
+  fabricated certainty is worse than reported absence.
+- **Mechanism diagnostics are mandatory output.** Every probe with
+  attrition > `miss_report_min` (=0.05 of expected rows) emits a
+  missingness diagnostic block: Little-style covariate-contrast
+  test on observed fields (Little 1988, *JASA* 83:1198 — MCAR
+  screening; the contrast, not the test, is the contract) plus a
+  directed `mnar_flag` when censoring correlates with
+  outcome-proximate fields at `miss_flag_alpha`.
+- **Estimation under attrition.** Under MAR, verdicts use
+  inverse-probability weights fit on the observed censoring model
+  (Robins, Rotnitzky & Zhao 1994, *JASA* 89:846 — CONSENSUS), with
+  weight truncation at `ipw_trim` quantile to stop one survivor
+  carrying the arm. Under flagged-MNAR the probe reports **Manski
+  worst-case bounds** on the statistic (Manski 1990, *AER* 80:319
+  — partial identification; the verdict is the bound, never a
+  point) — a probe whose MNAR bounds straddle its band is
+  INCONCLUSIVE, not PASS.
+- **The censoring model is a model.** It is fit per suite, journaled
+  beside verdicts, and its specification is pre-registered —
+  post-hoc re-specification to rescue a failed verdict is
+  `censor_edit_null` (same ledger species as `family_edit_null`).
+- **Partial runs still testify.** Stream data before the kill is
+  usable through the §14.5b e-processes (they are valid at
+  arbitrary stopping — that is what they are for); what is banned
+  is a *complete-case pass claim* on a truncated arm. Early-stop
+  evidence may alarm or continue, never pass.
+
+Established vs hypothesis: Rubin's taxonomy, IPW, Manski bounds —
+CONSENSUS machinery imported unchanged. The `impute_null` ban,
+`censor_edit_null` ledger species, and the bound-straddles-band ⇒
+INCONCLUSIVE rule are RW HYPOTHESIS governance choices (the human
+literature has no exact analog because human studies can't re-run
+the deceased participant; the sim can, and must be forbidden from
+pretending the dead seed answered).
+
+## 222. v107 probe specs (P1134–P1145 — validation-design XI,
+## the control diet and the missing rows)
+
+Harness: 8 mains + 200-ambient population; all control arms run
+under CRN against their real counterparts. Spec v5.55 §14.7.
+
+- **P1134 sham arm null (MUST — locked `negctrl_null`):** run the
+  v107 suite twice under CRN, real vs `negctrl_exposure` arm
+  (inert_probe_field present/absent). Every anchor verdict must be
+  identical; any flip suspends the suite — the verdict is on the
+  harness. (§14.7a; Lipsitch et al. 2010)
+- **P1135 inertness proven statically (MUST — locked
+  `inert_field_null`):** spec-lint — the declared sham field
+  appears in zero §15 modifier-ledger termini and zero §10 output
+  schemas. If anything reads it, the control is not a control and
+  P1134's result is void ab initio.
+- **P1136 positive control fires (MUST — `posctrl_dead`):** the
+  suite's `posctrl_lesion` (clamp a declared `detect_set` param at
+  ≥ `posctrl_mde`) must flip ≥1 probe in the family. Zero flips =
+  dead instruments; family authority suspended, never a pass.
+- **P1137 sham dose-response (SHOULD — `sham_dose_null`):** sham at
+  1× and 2× dose both return identical verdicts; a dose-dependent
+  sham means a threshold somewhere reads the field — static audit
+  re-runs to find the leak.
+- **P1138 world-side sham (SHOULD):** cosmetic world perturbation
+  (ambient NPC palette flag, registered non-cue channel) leaves
+  every gated verdict unchanged — extends the control diet to the
+  world seam, where §84's seam-construct leaks would live.
+- **P1139 MCAR audit (MUST — locked `impute_null`):** inject random
+  run-kills (Bernoulli 0.1 per member). Analyzer must (a) emit the
+  missingness block, (b) show IPW verdict == full-run verdict
+  within `ipw_tol`, (c) any ground-truth tap carrying a filled
+  value = violation. Complete-case pass on truncated arm = violation.
+- **P1140 MAR recovery (SHOULD):** kill probability made a function
+  of observed `retrievalCount` (outcome-proximate but observed).
+  IPW verdict must stay within `ipw_tol` of full-run; complete-case
+  is expected to bias — the probe *measures* that bias and reports
+  it, proving the diagnostic isn't decorative.
+- **P1141 MNAR flag (MUST):** kill probability made a function of
+  the *unobserved* correctness field. Diagnostics must raise
+  `mnar_flag`; verdict emitted as Manski bounds only; if bounds
+  straddle the band the verdict is INCONCLUSIVE — a probe that
+  converts MNAR attrition into a point pass has failed the battery.
+- **P1142 censor model pinned (MUST — locked `censor_edit_null`):**
+  attempt to re-specify the censoring model after a failing verdict
+  (add covariates, change link) → ledger violation recorded, verdict
+  unchanged. The censor model is pre-registered per suite.
+- **P1143 partial-run e-process (SHOULD):** truncated arms
+  contribute via §14.5b e-values: early alarm authorized, early
+  PASS forbidden — a truncated arm reaching 1/`eval_alpha` yields
+  CONTINUE-or-SUSPEND, never PASS.
+- **P1144 dead-probe shadow (SHOULD):** OBSERVE-dead probes execute
+  in shadow mode (zero verdict weight, rows journaled as
+  `shadow:true`); reactivation requires a ledger `reactivate` row
+  with rationale — silent resurrection is a registry violation.
+- **P1145 equating across spec bumps (SHOULD):** the golden-anchor
+  subset (`equate_anchor_n`=18, one per anchor corpus row) re-runs
+  on pinned seeds at every spec bump; per-anchor equating drift
+  published in the ledger (item-linking discipline — Kolen &
+  Brennan 2014, *Test Equating* — CONSENSUS psychometric practice
+  for keeping scores comparable across instrument versions). Drift
+  > `gold_tol` without a declared `rebaseline` row = the §14.6d
+  regression, now quantified per anchor instead of pass/fail.
+
+Registry: P1–P1145. v107 suite: P1134, P1135, P1136, P1139, P1141,
+P1142 MUST (five locked-null class — controls and censoring are
+where honest instruments go to die quietly); P1137, P1138, P1140,
+P1143, P1144, P1145 SHOULD. Second all-contract suite (after
+v105's): twelve probes, zero about what a character remembers —
+all about whether the evidence about the remembering is complete,
+controlled, and honestly censored.
+
+## 223. Sources verified this version (P1134–P1145 backing)
+
+- **Negative controls:** Lipsitch, Tchetgen Tchetgen & Cohen 2010
+  (*Epidemiology* 21:383 — the negative-control review → P1134,
+  P1138); Shi, Miao & Tchetgen Tchetgen 2020 (*Epidemiology* 31:637
+  — bias-detection machinery → control-pair doctrine); NEW spine
+  citations this version.
+- **Positive controls / assay sensitivity:** ICH E10 2000 (choice
+  of control group — assay-sensitivity doctrine → P1136); mutation
+  testing lineage Jia & Harman 2011 (already §46, reused for
+  `posctrl_lesion` sizing).
+- **Missingness:** Rubin 1976 (*Biometrika* 63:581 — MCAR/MAR/MNAR);
+  Little 1988 (*JASA* 83:1198 — covariate MCAR test → diagnostic
+  block); Robins, Rotnitzky & Zhao 1994 (*JASA* 89:846 — IPW →
+  P1139/P1140); Manski 1990 (*AER* 80:319 — worst-case bounds →
+  P1141); Mohan & Pearl 2021 (*AI Review* — missingness-graph
+  review, taxonomy confirmation → `mnar_flag` direction). NEW
+  spine citations: Little, Robins et al., Manski, Mohan & Pearl.
+- **Equating:** Kolen & Brennan 2014 (*Test Equating, Scaling, and
+  Linking*, 4th ed. — anchor-set linking → P1145).
+- **Marked hypothesis:** `negctrl_flip_max`=0 strictness (a single
+  sham flip suspends a suite — conservative on purpose);
+  `ipw_tol`/`ipw_trim` magnitudes; `miss_report_min`=0.05; the
+  INCONCLUSIVE-verdict species; `inert_probe_field` as the
+  canonical sham carrier. → spec §14.7; probes P1134–P1145.
+
+Probe registry: P1–P1145 (v107 adds P1134–P1145).
+
+## 224. v108 probe specs (P1146–P1155 — encoding-mechanics IX,
+## the derived boundary and the sloped gates)
+
+Harness: 8 mains + 200-ambient population; all arms CRN-matched
+against their controls. Spec v5.56 §§6.273–6.280.
+
+- **P1146 index ordering (MUST — sign):** matched scenes with a
+  single maximal index change: protagonist-Δ=1 vs time-Δ=1 vs
+  space-Δ=1 vs causal-Δ=1. Derived boundary mint rates must
+  respect the idx_w ordering (protagonist ≥ causal ≈ intent ≥
+  space ≥ time at unit Δ) — the weights ARE the mechanism;
+  a uniform-Δ uniform-rate build fails. (§6.273; Zwaan &
+  Radvansky 1998)
+- **P1147 derived-vs-flagged (MUST — locked `seg_hard_null`):**
+  inject `boundary:true` with all dIdx=0 on a low-seg_sens char
+  → boundary mint must be <1.0 (flag is input, not command);
+  same char on a world-flagged-but-dIdx-full event → mints.
+  Unflagged high-Δ scene → perceiver-derived boundary present.
+  All three legs required.
+- **P1148 insight gate (MUST — locked `ins_told_null`):**
+  three-step ordering on matched problems: self-solved +
+  `insight:true` > self-solved no-aha > told solution, at
+  matched correctness — told arm must show ins_gain ≡ 0 and
+  no `aha:true` minted. (Danek 2013 recall gap ~12pt at 14d
+  sets the anchor band.)
+- **P1149 vigilance curve (SHOULD):** monitoring Intention held
+  90 simulated min: record-mint rate vs watch_min follows the
+  exponential with asymptote by ~30 min (vigil_tau ± band);
+  two-arm split — detected-event arm resets watch_min,
+  undetected arm does not. High event-rate arm's effective
+  tau shorter (Parasuraman 1979 modulation leg).
+- **P1150 myopia slope (MUST — locked `myopia_equal_null`):**
+  intox 0.6 arm, matched fields at salience {0.2, 0.6, 1.0}:
+  field-write loss must be salience-monotone with the
+  0.2-vs-1.0 gap ≥ 3× — a flat-loss implementation fails this
+  probe by construction. The discriminating probe of the suite.
+- **P1151 item/bind split (MUST — locked `bind_flat_null`):**
+  arousal 0.8 records: within-item edge density > neutral
+  baseline while record↔place edge density < neutral baseline —
+  the crossed sign is the claim; a merged single-sign loss
+  fails. (Mather 2007; Mather & Nesmith 2008)
+- **P1152 impression asymmetry (SHOULD):** `goal:"impression"`
+  vs `goal:"memorize"` vs no-goal at matched elaboration on
+  aboutPerson events: person-cluster edge count — impression
+  > memorize ≈ no-goal. Frozen `mem_goal_null` leg asserts the
+  deliberate goal does NOT organize (Hamilton et al. 1980 is
+  exactly this asymmetry).
+- **P1153 overhear residual (SHOULD):** addressed vs overheard
+  utterances at matched attention/distance: overheard E deficit
+  ≈ overhear_pen (0.2 ± band); `eaves_intent`=1 + live
+  monitoring Intention arm shows ≈ half penalty — proves the
+  term is participation status, not attention.
+- **P1154 vividness absence (MUST — locked `vivid_effect_null`):**
+  vivid-but-neutral vs plain-matched material at fixed
+  concreteness/arousal/interest: |d| ≤ 0.1 — asserts ABSENCE
+  under §14.2 equivalence semantics. Seventh negative-anchor
+  probe (after maintenance rehearsal, intent, disfluency,
+  labor-in-vain, bizarreness-cap, note-mode). (Taylor &
+  Thompson 1982; Collins et al. 1988)
+- **P1155 co-fire regression (SHOULD):** a constructed rich
+  scene — boundary + insight + overheard + intox legs live in
+  one encode — must land E inside the §15 modifier-ledger
+  envelope with no term double-counted; ledger audit compares
+  per-leg attribution to solo-leg runs (additivity audit).
+
+Registry: P1–P1155. v108 suite: P1147, P1148, P1150, P1151,
+P1154 MUST (four locked-null probes plus the weight-ordering
+probe — the suite's contracts are where flat-loss builds go to
+die); P1146, P1149, P1152, P1153, P1155 SHOULD. Theme: every
+v108 claim is a SHAPE claim — ordering, slope, or gate — so the
+probes are discriminators, not detectors.
+
+## 225. Sources verified this version (P1146–P1155 backing)
+
+- **Event-indexing/boundaries:** Zwaan, Langston & Graesser
+  1995 (*Psychol. Sci.* 6:292 — five indices → P1146); Zwaan &
+  Radvansky 1998 (*Psychol. Bull.* 123:162 — taxonomy → idx_w);
+  Radvansky 2012 (*Curr. Dir.* 21:7 — review); Speer, Reynolds
+  & Zacks 2007 (*Psychol. Sci.* 18:449 — boundary regions);
+  Kurby & Zacks 2008 (*J. Mem. Lang.* 58:982 — trait → seg_sens).
+- **Insight:** Danek, Fraps, von Müller, Grothe & Öllinger 2013
+  (*Psychol. Res.* 77:659 — 64.4% vs 52.4% at 14 days → P1148
+  anchor); Kizilirmak et al. 2016 (*Front. Psychol.* 7:134);
+  Ludmer, Dudai & Rubin 2011 (*Cereb. Cortex* 21:2853); Danek &
+  Wiley 2020 (*Cognition* 199:104222 — certainty+pleasure+
+  correctness mechanism → ins_conf leg).
+- **Vigilance:** Mackworth 1948 (clock test); Parasuraman 1979
+  (*Science* 205:924 — load×rate modulation → tau scaling);
+  Davies & Parasuraman 1982; See, Howe, Warm & Dember 1995
+  (*Psychol. Bull.* 117:230, k=42 → vigil_rise/vigil_tau bands).
+- **Alcohol myopia:** Steele & Josephs 1990 (*Am. Psychol.*
+  45:921 → P1150); Giancola 2000 (*Exp. Clin. Psychopharmacol.*
+  8:458).
+- **Item/binding:** Mather 2007 (*Perspect. Psychol. Sci.*
+  2:33 → P1151); Mather & Nesmith 2008 (*JEP:LMC* 34); Touryan,
+  Marian & Shimamura 2007 (*Mem. Cognit.* 35).
+- **Impression set:** Hamilton, Katz & Leirer 1980 (*JPSP*
+  39:1050 → P1152); Srull & Wyer 1989 (*Psychol. Rev.* 96:58).
+- **Overhearing:** Schober & Clark 1989 (*Cogn. Psychol.* 21:211
+  → P1153); Wilkes-Gibbs & Clark 1992 (*J. Mem. Lang.* 31);
+  Beaudouin & Blohm 2023 (direction).
+- **Vividness null:** Taylor & Thompson 1982 (*Psychol. Rev.*
+  89:155); Collins, Taylor, Wood & Thompson 1988 (*JPSP* 54:74);
+  Frey & Eagly 1993 (*PSPB* 19:116). → P1154.
+- **Marked hypothesis:** idx_w weights, seg_gain 0.5, vigil_tau
+  25min, intox_periph_k 0.55, ar_* magnitudes, overhear_pen 0.2,
+  eaves_intent halving — magnitudes are RW calibration targets,
+  not lit constants. → spec §§6.273–6.280; probes P1146–P1155.
+
+Probe registry: P1–P1155 (v108 adds P1146–P1155).
+
+## 226. v109 suite — forgetting-curves X (P1156–P1165)
+
+- **P1156 aggregation artifact (MUST — §14.8):** pooled
+  retention over heterogeneous records must fit a power
+  function at least as well as a pooled exponential, while
+  per-record exponential fits hold — reproducing Anderson &
+  Tweney 1997's artifact proves the mixture is real
+  heterogeneity, not a fitted power term.
+- **P1157 heterogeneity is load-bearing (MUST):** parameter-
+  homogeneous build (all decay traits at mean) must lose the
+  slow tail — pooled curve steepens toward the common
+  exponential; a surviving tail flags a smuggled mechanism.
+- **P1158 interference-dominance (MUST — locked
+  decay_pure_null):** event-density × retention-interval
+  factorial at fixed elapsed time: dense-arm retention <
+  quiet-arm retention ≥25% — a clock-only LTM build cannot
+  produce the interaction (McGeoch 1932 leg).
+- **P1159 per-record need (SHOULD):** matched records with
+  uses{5,last 10d} vs uses{0}: first shows τ_eff up-shift
+  bounded by need_shift_cap; retrieval drive identical
+  (need_uses_null leg — Anderson & Milson 1989).
+- **P1160 competitive release (SHOULD):** kill competitor B
+  in pair {A,B}: A retrieval p rises ≥ relief_min within
+  relief_tau; n_sim must drop (relief_dead_null leg — Nørby
+  2015; Storm & Levy 2012).
+- **P1161 supersede loser (SHOULD):** old-vs-new lock-code
+  pair: free recall returns new ≥80%; forced recall of old
+  succeeds at reduced weight (updt_loser_pen) — demoted, not
+  deleted.
+- **P1162 generalization dividend (SHOULD):** genericized
+  records answer schema queries after verbatim death —
+  detail loss feeds the schema (§4.3, no new machinery).
+- **P1163 remember→know shift (MUST — locked rk_fake_null):**
+  tracked records at 1d/7d/30d/90d: `epist` shifts
+  remember→know monotonically (Gardiner & Java 1990); know-
+  status emissions carry zero binding-field detail; know
+  confidence ≤ know_conf_cap.
+- **P1164 output interference (SHOULD):** fixed 6-item
+  retrievable set, free-recall bouts: early emissions
+  displace later items; same-class emissions hurt more
+  (oi_cat_mult); oi_perm_null leg — nothing persists past
+  bout end (Smith 1971; Roediger & Schmidt 1980).
+- **P1165 quiet-stall (COULD — emergent):** identical dusk
+  records: quiet-window retention > equal-length dense
+  window, gap attributable to starved n_sim inflow (audit
+  leg), never a sleep hazard multiplier (decay_sleep_leg
+  frozen — Jenkins & Dallenbach 1924 emergent).
+
+Registry: P1–P1165. v109 suite: P1156, P1157, P1158, P1163
+MUST (two aggregation-artifact contracts + two locked-null
+probes); P1159–P1162, P1164 SHOULD; P1165 COULD. Theme: the
+curve's pooled shape, its split cause, and its status tag are
+all emergence claims — the probes exist to keep anyone from
+hard-coding what must be emergent.
+
+## 227. Sources verified this version (P1156–P1165 backing)
+
+- **Aggregation artifact:** Anderson & Tweney 1997 (*Mem.
+  Cognit.* 25:724 — exponential individuals average to power-
+  looking groups → P1156); Myung, Kim & Pitt 2000 (*JEP:LMC*
+  26:168 — fit-the-individual response); Brown & Heathcote
+  2003 (same artifact in practice data → P1157).
+- **Need probability:** Anderson & Milson 1989 (*Psychol.
+  Rev.* 96:703 — need ∝ recency-power + saturating frequency
+  → §4.62/P1159); Anderson & Schooler 1991 (class leg,
+  already §4.39).
+- **Decay vs interference:** McGeoch 1932 (*Psychol. Rev.*
+  39:352 — execution of pure decay → decay_pure_null);
+  McGeoch & Irion 1952; Brown 1958 (*QJEP* — seconds-scale
+  clock decay survives); Barrouillet, Bernardin & Camos 2004
+  (*JEP:G* 133:83 — TBRS attention-gated decay → buffer tier);
+  Wixted 2004 (*Annu. Rev. Psychol.* 55:235 — modern
+  synthesis → decay_true 0.15 knob); Jenkins & Dallenbach
+  1924 (quiet-stall emergence → P1165).
+- **Remember→know:** Gardiner & Java 1990 (*Mem. Cognit.*
+  18:23 — R declines, K flat/rises → P1163); Gardiner,
+  Ramponi & Richardson-Klavehn 1998 (*Mem. Cognit.* 26:617 —
+  shift is manipulable); Tunney 2010 (item-level transitions).
+- **Adaptive forgetting:** Nørby 2015 (*Perspect. Psychol.
+  Sci.* 10:551 — PI relief, updating, generalization →
+  §4.63); Storm & Levy 2012 (*Mem. Cognit.* 40:827 — RIF
+  impairment predicts practiced recall → relief_min
+  direction); Levy, McVeigh, Marful & Anderson 2007
+  (*Psychol. Sci.* 18:456 — retrieval-specific).
+- **Output interference:** Smith 1971 (*JEP* 91:195 —
+  category output position); Roediger & Schmidt 1980
+  (*JEP:HLM* 6:91 — bout accumulation → oi_bout_k); Tulving
+  & Arbuckle 1966 (input/output split).
+- **Marked hypothesis:** decay_true 0.15, need_rec_* weights
+  and exponents, relief_min 0.05, updt_loser_pen 0.15,
+  rk_bind_n 2/rk_bind_floor 0.02/know_conf_cap 0.75,
+  oi_bout_k 0.03/oi_cat_mult 1.5 — magnitudes are RW
+  calibration targets, not lit constants; the locked nulls
+  carry the lit-backed claims. → spec §§4.61–4.63,
+  §§5.114–5.115, §14.8; probes P1156–P1165.
+
+Probe registry: P1–P1165 (v109 adds P1156–P1165).
+
+## 228. v110 suite — retrieval-cues X (P1166–P1175)
+
+- **P1166 unfamiliar-voice decay (MUST — §5.116):** five-voice
+  closed-set lineup on voicePrints with uses<3 → identification
+  ≥0.75 at 1d, ≤0.35 at 150d; front-loaded curve (McGehee 1937
+  shape): the 1d→30d drop exceeds the 30d→150d drop. A linear
+  or slow-decay voice tier FAILs.
+- **P1167 voice familiarity and distinctiveness (SHOULD):**
+  prints with uses≥`voice_fam_min` hold ≥0.8 at 60d; high-
+  `distinct` prints ≥1.3× typical at 14d.
+- **P1168 accent and channel (SHOULD):** accent-mismatch
+  speakers misidentified ≥1.3× own-accent rate;
+  `C.channel:"phone"` measurably lowers voice_drive vs
+  face-to-face.
+- **P1169 posture congruence (MUST):** congruent `C.posture` →
+  retrieval latency −≥8% AND 14d free-recall +≥5% vs
+  incongruent; semantic recall delta ≈0 — `posture_sem_null`
+  locked (a posture gain on a fact-recall probe is a FAIL).
+- **P1170 pre-search gate (MUST — locked-null class):**
+  unfamiliar-term questions terminate ≥60% at `fok_pre` with
+  no candidate scan, latency < half the median bout latency;
+  corr(`fok_pre`, record existence) ∈ [−0.1, 0.1]
+  (`fok_pre_acc_null`) while corr(`fok_pre`, cue-term
+  familiarity) > 0.5.
+- **P1171 cascaded FOK (SHOULD):** accessibility-leg
+  manipulations (partial-emission mass) shift reported fok
+  only in the `fok_pre ≥ bout_enter` arm — the Koriat &
+  Levy-Sadot interaction, not additivity.
+- **P1172 wrong-hint capture (MUST):** supplied wrong feature
+  → correct-target recall below matched no-hint control within
+  the bout; suppression concentrated on targets the wrong
+  feature mismatches diagnostically; a same-topic bout inside
+  `hint_linger_hl` retains ≥50% of the suppression; an
+  unrelated-topic bout retains none.
+- **P1173 hint age interaction (SHOULD):** phonological-field
+  wrong hints suppress LESS at age 70 than age 30 (Maylor
+  1990) while baseline TOT rate is higher at 70; semantic-field
+  wrong hints show no attenuation.
+- **P1174 forward asymmetry (MUST):** chain transition
+  probability at |lag|=1 forward ≥1.5× backward;
+  `pair_cue:true` probes symmetric within ±10%.
+- **P1175 backward latency profile (SHOULD):** first backward-
+  direction emission slower than forward; per-emission latency
+  decreasing across a backward narration — the Thomas et al.
+  2003 covert-forward signature.
+
+Registry: P1–P1175. v110 suite MUSTs: P1166, P1169, P1170,
+P1172, P1174; SHOULDs: P1167, P1168, P1171, P1173, P1175.
+Locked-null legs exercised: `posture_sem_null` (P1169),
+`fok_pre_acc_null` (P1170); `voice_face_null`,
+`hint_mint_null` boundary-checked by emission audit.
+
+## 229. Sources verified this version (P1166–P1175 backing)
+
+- **Earwitness/voice:** McGehee 1937 (*J. Gen. Psychol.*
+  17:249 — 83%@1d → 13%@5mo, five-voice closed set → P1166);
+  McGehee 1944 (*JGP* 31:53 — ~85%@2d → 45–48% plateau @8wk —
+  the disagreement is why P1166 locks shape not points);
+  Clifford 1980 (*Bull. Br. Psychol. Soc.* 33:339 — review:
+  earwitness < eyewitness, exposure > interval → §5.116 mint
+  rule); Stevenage, Clarke & McNeill 2012 (*J. Cogn. Psychol.*
+  24:647 — other-accent effect TP+TA → accent_match_gain);
+  Kerstholt, Jansen, Van Amelsvoort & Broeders 2006 (*Appl.
+  Cogn. Psychol.* 20:187 — accent × retention × telephone →
+  telephone_pen); *Psychologica Belgica* 2017 own-age voice
+  age-estimation + *Cogn. Res. Princ. Implic.* 2025 speaker
+  discrimination (older listeners worse overall; no clean
+  own-age interaction → `voice_age_pen` main effect only).
+- **Embodied cue:** Dijkstra, Kaschak & Zwaan 2007
+  (*Cognition* 102:139 — posture congruence speeds AM
+  retrieval, improves 2wk free recall, young+old → §5.117).
+- **Pre-search FOK:** Reder & Ritter 1992 (*JEP:LMC* 18:435 —
+  <850ms know/don't-know from question-term familiarity →
+  §5.118); Metcalfe, Schwartz & Joaquim 1993 (*JEP:LMC*
+  19:1074 — cue priming moves FKJs not recall, target priming
+  the reverse → `fok_pre_acc_null`); Koriat & Levy-Sadot 2001
+  (*JEP:LMC* 27:34 — cascaded familiarity→accessibility →
+  P1171's interaction requirement).
+- **Contaminated cue:** Smith & Blankenship 1991 (*Mem.
+  Cognit.* 19:311 — misleading cue sets block → capture);
+  Jones & Langford 1987 (*Cognition* 26:115) + Jones 1989
+  (*Mem. Cognit.* 17:69 — phonological interlopers → TOTs;
+  DEBATED: Meyer & Bock 1992 *Bull. Psychon. Soc.* 30:373
+  matched-control null — `hint_w` kept modest); Maylor 1990
+  (*Br. J. Psychol.* 81:449 — phonological blocking decreases
+  with age → `hint_phon_age`, P1173).
+- **Serial direction:** Kahana 1996 (*Mem. Cognit.* 24:103 —
+  ~2× forward asymmetry at |lag|1, cued pairs symmetric →
+  `chain_bwd_pen`, `pair_cue`); Thomas, Milner & Haberlandt
+  2003 (*Psychol. Sci.* 14:170 — backward = covert forward
+  passes, RT decreases across output → `bwd_cycle_cost`,
+  P1175); Howard & Kahana 2002 (*JML* 46:998) + Kahana et al.
+  2002 (lifespan decline of contiguity → `chain_age_pen`).
+- **Marked hypothesis:** all magnitudes (voice_*,
+  posture_*, fok_pre_*, hint_*, chain_*, bwd_*) are RW
+  calibration targets; literature supplies direction, shape,
+  and ordering. → spec §§5.116–5.120; probes P1166–P1175.
+
+Probe registry: P1–P1175 (v110 adds P1166–P1175).

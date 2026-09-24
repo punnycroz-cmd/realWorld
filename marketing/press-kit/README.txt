@@ -30,7 +30,33 @@ Contents
   b-roll-shotlist.md Video-press capture guide: six essential b-roll
                      shots + optional color shots, camera keys, capture
                      rules for anyone filming the dev build
+  deadline-desk.md   The 15-minute coverage path for journalists on
+                     deadline: three checkable facts, a verbatim-safe
+                     paragraph, three go-to images, the five mistakes
+                     to avoid, corrections policy
+  whats-new.md       Build-highlights sheet: what changed in the renderer
+                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76, for "what's new" coverage and
+                     update posts
+  one-sheet.html     Single-page printable sell sheet — the whole pitch
+                     on one page; Print → PDF works
+  embargo-briefing.md  Long-lead pre-brief book for coverage under
+                     embargo: what we show, what we don't, embargo terms
+  review-guide.md    How to review a spectator sim — a self-guided
+                     30/90-minute/evening watch plan with what to look for
+  contact-sheet.html Printable visual index of every image asset in the
+                     kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
+  quotes-boilerplate.md  Approved first-party team quotes (usable
+                     verbatim, attributed "the Real World team") +
+                     boilerplate in 25/50/100 words
+  pitch-emails.md    Outreach email drafts by desk — games press,
+                     tech/AI press, creators, podcasts. TEMPLATES ONLY:
+                     nothing has been sent; send rules inside.
+  awards-festivals.md  Awards & festival submission target calendar —
+                     fit notes, what each needs, verify-dates warning
+  coverage-log.md    Post-launch coverage tracker — who covered us,
+                     what they used, accuracy check, corrections sent
+                     (empty template until coverage begins)
   LICENSE.txt        Press asset usage terms
   manifest.json      Machine-readable kit manifest
   logos/             Primary lockup (light text, for dark bgs) +
@@ -41,17 +67,23 @@ Contents
                      Usage rules: marketing/BRAND.md §7.
   keyart/            1920x1080 and 1080x1080 key art (built on a real
                      development-build capture)
+  badges/            "WATCHED ON REAL WORLD" creator/embed badge —
+                     color + single-ink (currentColor) SVGs for stream
+                     overlays, video corners, article footers.
   banners/           Pre-sized channel headers: X 1500x500, YouTube
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v48-* = current renderer (murals, parody signage,
-                     polychrome trim, fire escapes, stoops, garage bays,
-                     false-front gables, lived-in ground line — areaway
-                     lightwells, toter bins, tag ghosts, cornice pigeons —
-                     Mission ficus street trees, Dolores palm allée +
-                     worn desire-lines, parked cars);
+                     v76-* = current renderer (the lens rebuild —
+                     chromatic fringing, scanline blur, and film grain
+                     retired; one weather-driven visibility number now
+                     drives the haze, the horizon marine band, and the
+                     skyline veil; crown-genome trees turned by the
+                     in-world calendar, autumn leaf-fall; carries the
+                     v65 street dressing, v64 sidewalk ironwork, the
+                     v61 weather field, and the re-framed Dolores
+                     overlook underneath);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

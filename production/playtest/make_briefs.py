@@ -20,10 +20,13 @@ Usage: python3 make_briefs.py  -> writes agents/C*/BRIEF.md
 import pathlib, re, sys
 
 HERE = pathlib.Path(__file__).resolve().parent
-BIBLES = (HERE.parent.parent.parent / 'world-sim-world' /
-          'world' / 'characters')
+# production-2: prefer the tree's OWN merged world/characters (the pinned
+# world SHA) — the sibling world-sim-world worktree is a moving tip and
+# would leak uncommitted/next-version bibles into a deterministic build.
+BIBLES = HERE.parent.parent / 'world' / 'characters'
 if not BIBLES.exists():
-    BIBLES = (HERE.parent.parent / 'world' / 'characters')
+    BIBLES = (HERE.parent.parent.parent / 'world-sim-world' /
+              'world' / 'characters')
 
 CAST = {
     'C1': 'c1-marisol-delgado.md', 'C2': 'c2-jules-park.md',

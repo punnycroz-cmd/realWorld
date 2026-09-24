@@ -105,19 +105,28 @@ let SF_ROADW = null, SF_ROADAX = null, SF_ROADOFF = null;
 const SF_PROP_DRAW = new Map(); // v11: "cx,cy" chunk -> [objs] render index
 const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       sfStreetTree: 8, sfCypress: 7, sfPlanter: 5,
-                      sfCar: 15, sfPole: 5 };
+                      sfCar: 15, sfPole: 5,
+                      // v53: small enough that a pawn detours around, not
+                      // into — and sfPicnic is intentionally absent (a
+                      // blanket is ground, you can cross it)
+                      sfHydrant: 5, sfTrashCan: 5, sfNewsBox: 7,
+                      sfBikeRack: 8, sfAgave: 4, sfEchium: 4 };
+const SF_PICNIC = []; // v53: Dolores lawn blanket sites (render-gated)
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
 const SF_DECALS = [];
 const SF_GROUND_OVR = new Map(); // "wx,wy" -> street-view fill color
 /* v40: perimeter palm allée — a park-edge grass cell carries a palm
    every ~7 cells (~14m) along the edge axis, phase-offset per row, the
-   way Dolores Park's palms actually ring the lawn. Pure + deterministic. */
+   way Dolores Park's palms actually ring the lawn. Pure + deterministic.
+   v54: spacing tightened to every ~4 cells (~8m) — at diorama zoom the
+   old cadence scattered into isolated blobs; a real allée reads as a
+   ROW, and the row is what tells the eye "city park, not field". */
 function sfPalmRow(wx, wy){
   const horiz = sfTile(wx, wy - 1) === 11 || sfTile(wx, wy + 1) === 11;
   const u = horiz ? wx : wy, per = horiz ? wy : wx;
-  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 7);
-  return ((u + off) % 7) === 0;
+  const off = Math.floor(phash(per, 13, horiz ? 1674 : 1675) * 4);
+  return ((u + off) % 4) === 0;
 }
 function sfPropIndex(o){
   const k = o.wx + ',' + o.wy;
@@ -469,6 +478,7 @@ function sfInitWorld(){
   VILLAGE_OBJECTS.length = 0;
   SF_PROP_CELL.clear();
   SF_PROP_DRAW.clear();
+  SF_PICNIC.length = 0;
   const occ = new Set(); // occupied cells (any prop) for spacing checks
   for(const p of SF_MAP.props){
     const kind = p.k === 'tree' ? 'sfTree' : p.k === 'palm' ? 'sfPalm'
@@ -550,11 +560,37 @@ function sfInitWorld(){
               nParkVeg++;
             }
           }
-        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 4)){
-          // v40: perimeter palm allée — a tall palm every ~7 cells along
+        } else if(nearWalk && sfPalmRow(wx, wy) && !occNear(wx, wy, 3)){
+          // v40: perimeter palm allée — a tall palm every ~4 cells along
           // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
+          nParkVeg++;
+          // v59: agaves ring the palm root — the real Dolores beds tuck
+          // century-plant rosettes under the allée trunks
+          for(const [ax, ay] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+            const gx = wx + ax, gy = wy + ay;
+            if(sfTile(gx, gy) !== 13 || occNear(gx, gy, 1) ||
+               phash(gx, gy, 5701) > 0.42 || nParkVeg >= 1600) continue;
+            addVeg('sfAgave', gx, gy,
+                   (phash(gx, gy, 5702) - 0.5) * 10,
+                   (phash(gy, gx, 5703) - 0.5) * 10).v =
+                   phash(gx, gy, 5704) < 0.3 ? 1 : 0;
+            nParkVeg++;
+          }
+        } else if(nearWalk && !occNear(wx, wy, 1) &&
+                  phash(wx, wy, 5700) < 0.55){
+          // v59: the bedded edge — park cells that face the sidewalk and
+          // didn't take a palm carry a maintained border band: echium
+          // towers, agave rosettes, clipped shrubs, flowerbeds in a
+          // deterministic mix. A continuous planted margin is what makes
+          // the lawn read "kept city park" instead of open field.
+          const eb = phash(wx, wy, 5705);
+          addVeg(eb < 0.30 ? 'sfEchium' : eb < 0.52 ? 'sfAgave'
+               : eb < 0.80 ? 'sfShrub' : 'sfFlowerBed', wx, wy,
+                 (phash(wx, wy, 5706) - 0.5) * 10,
+                 (phash(wy, wx, 5707) - 0.5) * 10).v =
+                 phash(wx, wy, 5708) < 0.35 ? 1 : 0;
           nParkVeg++;
         } else if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
           addVeg('sfFlowerBed', wx, wy,
@@ -647,6 +683,81 @@ function sfInitWorld(){
       VILLAGE_OBJECTS.push(o); sfPropIndex(o); nCars++;
     }
   }
+  /* ---- v65 streetrooms: parklets + collection-day curb bins ----
+     SF invented the parklet: a cafe's frontage spills into the curb lane
+     on a raised deck — rail, planters, tables — exactly where a parked
+     car would sit. One deterministic deck per POI shopfront whose curb
+     lane is free of parked cars and crosswalk approaches; the deck
+     claims the slot a car's hash skipped. Residential frontage gets the
+     Recology three-cart row (recycle/compost/landfill) at the curb on
+     the block's hash-assigned pickup morning. */
+  let nParklet = 0;
+  for(const p of SF_POIS){
+    if(nParklet >= 80) break;
+    if(p.bld == null || p.bld < 0) continue;
+    const d = SF_DOOR_OF.get(p.bld);
+    if(!d) continue;
+    // the sidewalk cell at the door tells which side the curb lane is on
+    let sAx = 0, sAy = 0, sOx = 0, sOy = 0;
+    for(const [ox2, oy2] of [[0, -1], [0, 1], [-1, 0], [1, 0]]){
+      const sx = d.wx + ox2, sy = d.wy + oy2;
+      if(sfTile(sx, sy) !== 11) continue;
+      if(sfTile(sx, sy - 1) === 10){ sAx = 1; sOy = -1; }
+      else if(sfTile(sx, sy + 1) === 10){ sAx = 1; sOy = 1; }
+      else if(sfTile(sx - 1, sy) === 10){ sAy = 1; sOx = -1; }
+      else if(sfTile(sx + 1, sy) === 10){ sAy = 1; sOx = 1; }
+      else continue;
+      break;
+    }
+    if(!sAx && !sAy) continue;
+    let best = null, bestH = 2;
+    for(let k = -5; k <= 5; k++){
+      const px2 = d.wx + sOx + sAx * k, py2 = d.wy + sOy + sAy * k;
+      if(sfTile(px2, py2) !== 10) continue;
+      // still on the same curb run — sidewalk on the curb side, street
+      // continuing along the axis on both deck ends
+      if(sfTile(px2 - sOx, py2 - sOy) !== 11) continue;
+      if(sfTile(px2 + sAx, py2 + sAy) !== 10 ||
+         sfTile(px2 - sAx, py2 - sAy) !== 10) continue;
+      if(nearCross(px2, py2, sAx, sAy)) continue;
+      // the deck footprint straddles ~1.5 slots; no parked car may stand
+      // in any of them (same gate the car pass uses, salt 1690)
+      const slot = sAx ? px2 : py2, cross = sAx ? py2 : px2;
+      if(phash(slot, cross, 1690) <= 0.17 ||
+         phash(slot + 1, cross, 1690) <= 0.17 ||
+         phash(slot - 1, cross, 1690) <= 0.17) continue;
+      const h = phash(px2, py2, 5910) + Math.abs(k) * 0.05;
+      if(h < bestH){ bestH = h; best = { px: px2, py: py2 }; }
+    }
+    if(!best) continue;
+    const o = { kind: 'sfParklet',
+      x: best.px * CS + 16 + sOx * 9, y: best.py * CS + 16 + sOy * 9,
+      wx: best.px, wy: best.py, dir: sAx ? 0 : 1,
+      v: Math.floor(phash(best.px, best.py, 5911) * 3) };
+    VILLAGE_OBJECTS.push(o); sfPropIndex(o); nParklet++;
+  }
+  /* Recology curb rows — on a block's pickup morning the three carts
+     line the curb in front of the houses. A frontage cell is sidewalk
+     pinned between a building face (12) and the street (10); ~1 in 6
+     fronts have theirs out, and never across a door threshold. */
+  let nBins = 0;
+  for(let wy = 1; wy < SF_M.gh - 1 && nBins < 900; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1 && nBins < 900; wx++){
+      if(sfTile(wx, wy) !== 11) continue;
+      let bx2 = 0, by2 = 0;
+      if(sfTile(wx, wy - 1) === 12 && sfTile(wx, wy + 1) === 10) by2 = 1;
+      else if(sfTile(wx, wy + 1) === 12 && sfTile(wx, wy - 1) === 10) by2 = -1;
+      else if(sfTile(wx - 1, wy) === 12 && sfTile(wx + 1, wy) === 10) bx2 = 1;
+      else if(sfTile(wx + 1, wy) === 12 && sfTile(wx - 1, wy) === 10) bx2 = -1;
+      else continue;
+      if(phash(wx, wy, 5920) > 0.16) continue;
+      if(doorNear(wx, wy, 1) || occNear(wx, wy, 0)) continue;
+      const o = addVeg('sfBins', wx, wy, bx2 * 10, by2 * 10);
+      o.dir = bx2 ? 1 : 0;   // carts line up ALONG the street axis
+      nBins++;
+    }
+  }
+
   /* ---- v20: utility poles + overhead wire runs ----
      Mission streets carry pole lines along the sidewalk edge — a pole
      every ~9 cells, then catenary spans to the next pole up the run.
@@ -684,6 +795,116 @@ function sfInitWorld(){
       if(lst[k].slot - lst[k - 1].slot > 16) continue;
       SF_WIRES.push({ x1: lst[k - 1].o.x, y1: lst[k - 1].o.y,
                       x2: lst[k].o.x, y2: lst[k].o.y });
+    }
+  }
+
+  /* ---- v53: the furniture layer — the small grounded objects a real
+     Mission sidewalk carries. Fire hydrants ride the curb edge (a rare
+     gold one honors the repainted hydrant at 20th & Church), dark green
+     litter drums and chained news boxes hold the crosswalk corners,
+     bike racks with locked bikes cluster near shop doors, and the
+     Dolores lawn seeds picnic-blanket spots whose occupancy the weather
+     and the hour decide at render time (sfPicnicFill). All placements
+     are pure hashes of (wx, wy) — the set never depends on load order. */
+  let nHydr = 0, nCan = 0, nBox = 0, nRack = 0;
+  const doorCells = [...SF_DOORS.keys()].map(k => k.split(',').map(Number));
+  for(let wy = 1; wy < SF_M.gh - 1; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1; wx++){
+      const t = sfTile(wx, wy);
+      if(t === 11){
+        // curb-side cell? which side faces the street, and which axis
+        let ax = 0, ay = 0, ox = 0, oy = 0;
+        if(sfTile(wx, wy - 1) === 10){ ax = 1; oy = -12; }
+        else if(sfTile(wx, wy + 1) === 10){ ax = 1; oy = 12; }
+        else if(sfTile(wx - 1, wy) === 10){ ay = 1; ox = -12; }
+        else if(sfTile(wx + 1, wy) === 10){ ay = 1; ox = 12; }
+        else continue;
+        const cornerish = sfTile(wx + ax * 2, wy + ay * 2) === 16 ||
+                          sfTile(wx - ax * 2, wy - ay * 2) === 16 ||
+                          sfTile(wx + ax * 3, wy + ay * 3) === 16 ||
+                          sfTile(wx - ax * 3, wy - ay * 3) === 16 ||
+                          sfTile(wx + ax, wy + ay) === 16 ||
+                          sfTile(wx - ax, wy - ay) === 16;
+        if(occNear(wx, wy, 0)) continue;
+        const slot = ax ? wx : wy;
+        if(cornerish){
+          // corner curb cell: litter drum or a news-box row most often,
+          // a hydrant sometimes — real corners carry all three
+          const r = phash(wx, wy, 5320);
+          if(r < 0.30 && nCan < 900){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7 + (ax ? (phash(wx, wy, 5321) - 0.5) * 12 : 0),
+                                      oy * 0.7 + (ay ? (phash(wx, wy, 5321) - 0.5) * 12 : 0));
+            nCan++;
+          } else if(r < 0.55 && nBox < 500){
+            addVeg('sfNewsBox', wx, wy,
+                   ox * 0.6 + (ax ? (phash(wx, wy, 5322) - 0.5) * 8 : -ox * 0.15),
+                   oy * 0.6 + (ay ? (phash(wx, wy, 5322) - 0.5) * 8 : -oy * 0.15))
+              .v = Math.floor(phash(wx, wy, 5323) * 5);
+            nBox++;
+          } else if(r < 0.72 && nHydr < 800){
+            const o = addVeg('sfHydrant', wx, wy, ox, oy);
+            // golden hydrant: rare, and only on cells ringing the park
+            o.v = (phash(wx, wy, 5324) < 0.04 &&
+                   Math.abs(wx - 300) < 60 && Math.abs(wy - 200) < 120) ? 1 : 0;
+            nHydr++;
+          }
+        } else {
+          // mid-block curb cell: hydrants on an ~11m cadence, drums and
+          // racks thinner — and never inside a door threshold
+          if(slot % 11 === (ax ? 4 : 7) && nHydr < 800 &&
+             phash(wx, wy, 5325) < 0.8 && !doorNear(wx, wy, 1)){
+            addVeg('sfHydrant', wx, wy, ox, oy).v = 0;
+            nHydr++;
+          } else if(slot % 17 === (ax ? 9 : 3) && nCan < 900 &&
+                    phash(wx, wy, 5326) < 0.5 && !doorNear(wx, wy, 1)){
+            addVeg('sfTrashCan', wx, wy, ox * 0.7, oy * 0.7);
+            nCan++;
+          }
+          // bike racks cluster within 4 cells of a shop door — coffee
+          // and taqueria frontage is where SF actually staples them
+          if(nRack < 350 && phash(wx, wy, 5327) < 0.30 && !doorNear(wx, wy, 1)){
+            let nearDoor = false;
+            for(const [dx, dy] of doorCells)
+              if(Math.abs(dx - wx) <= 4 && Math.abs(dy - wy) <= 4){ nearDoor = true; break; }
+            if(nearDoor){
+              addVeg('sfBikeRack', wx, wy, ox * 0.8, oy * 0.8)
+                .v = Math.floor(phash(wx, wy, 5328) * 3);
+              nRack++;
+            }
+          }
+        }
+      } else if(t === 13){
+        /* Dolores lawn picnic spots — a fixed pool of blanket sites on
+           open grass (kept clear of tree trunks and off the paths).
+           sfPicnicFill() at render decides which are occupied: a warm
+           clear afternoon fills the slope, rain or night empties it.
+           Blankets arrive in GROUPS — real Dolores lawns are patchworks
+           of abutting spreads, so a seeded site tries to pull in a
+           neighbor blanket 40% of the time. */
+        if(SF_PICNIC.length >= 1500) continue;
+        if(phash(wx, wy, 5330) > 0.115) continue;
+        if(occNear(wx, wy, 0)) continue;
+        const nearPath = sfTile(wx, wy - 1) === 15 || sfTile(wx, wy + 1) === 15 ||
+                         sfTile(wx - 1, wy) === 15 || sfTile(wx + 1, wy) === 15;
+        if(nearPath && phash(wx, wy, 5331) < 0.55) continue; // sparse on the walk edge
+        const o = addVeg('sfPicnic', wx, wy,
+                         (phash(wx, wy, 5332) - 0.5) * 14,
+                         (phash(wy, wx, 5333) - 0.5) * 14);
+        o.v = Math.floor(phash(wx, wy, 5334) * 6);
+        SF_PICNIC.push(o);
+        if(phash(wx, wy, 5335) < 0.45 && SF_PICNIC.length < 1500){
+          // a friend blanket one cell over — shares the same sunny patch
+          const bx = wx + (phash(wx, wy, 5336) < 0.5 ? 1 : -1),
+                by = wy + (phash(wx, wy, 5337) < 0.5 ? 1 : -1);
+          if(sfTile(bx, by) === 13 && !occNear(bx, by, 0)){
+            const o2 = addVeg('sfPicnic', bx, by,
+                              (phash(bx, by, 5332) - 0.5) * 14,
+                              (phash(by, bx, 5333) - 0.5) * 14);
+            o2.v = Math.floor(phash(bx, by, 5334) * 6);
+            SF_PICNIC.push(o2);
+          }
+        }
+      }
     }
   }
 
@@ -830,6 +1051,44 @@ function sfInitWorld(){
       }
     if(wornCells.length)
       SF_DECALS.push({ kind: 'worn', cells: wornCells,
+                       x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
+
+    /* ---- v75: wildflower drifts — the Dolores lawn isn't a uniform
+       carpet: California poppies and lupine seed in loose drifts along
+       the open slopes where the maintenance mower skips (real Mission
+       parks carry orange drifts through spring and reseed every year).
+       Blobs spawn on hashed grass cells, grow irregular ellipses, and
+       refuse cells the decals/wear layer already owns. */
+    const meadowCells = [];
+    for(let wy = pby0; wy <= pby1; wy++)
+      for(let wx = pbx0; wx <= pbx1; wx++){
+        if(sfTile(wx, wy) !== 13) continue;
+        if(SF_GROUND_OVR.has(wx + ',' + wy)) continue;   // courts/wear/dirt own it
+        if(phash(wx, wy, 6200) > 0.012) continue;        // ~1.2% seed cells
+        const cx = wx + 0.5, cy = wy + 0.5,
+              rx = 2 + phash(wx, wy, 6201) * 4,
+              ry = 1.5 + phash(wx, wy, 6202) * 3,
+              kind = phash(wx, wy, 6203) < 0.72 ? 0 : 1; // 0 poppy 1 lupine
+        const x0 = Math.max(pbx0, Math.floor(cx - rx)),
+              x1 = Math.min(pbx1, Math.ceil(cx + rx)),
+              y0 = Math.max(pby0, Math.floor(cy - ry)),
+              y1 = Math.min(pby1, Math.ceil(cy + ry));
+        for(let my = y0; my <= y1; my++)
+          for(let mx = x0; mx <= x1; mx++){
+            if(sfTile(mx, my) !== 13) continue;
+            if(SF_GROUND_OVR.has(mx + ',' + my)) continue;
+            const ex = (mx + 0.5 - cx) / rx, ey = (my + 0.5 - cy) / ry,
+                  r2 = ex * ex + ey * ey;
+            if(r2 > 1) continue;
+            // ragged drift edge — blooms thin out, not clip
+            if(phash(mx, my, 6204) > 0.25 + (1 - r2) * 0.9) continue;
+            meadowCells.push([mx, my, 1 - r2, kind]);
+            SF_GROUND_OVR.set(mx + ',' + my,
+                              kind ? '#6a8448' : '#86994a');
+          }
+      }
+    if(meadowCells.length)
+      SF_DECALS.push({ kind: 'meadow', cells: meadowCells,
                        x0: pbx0, y0: pby0, x1: pbx1 + 1, y1: pby1 + 1 });
   }
 

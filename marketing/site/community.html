@@ -4,12 +4,12 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Community — Real World</title>
-<meta name="description" content="The neighborhood watch: weekly recaps of the public request feed, watch parties, and the path from watching to moving in. Spaces open at launch.">
+<meta name="description" content="The neighborhood watch: a weekly recap from the public request feed, watch parties, a request clinic, and the watcher-to-resident path. Opens at launch.">
 <link rel="canonical" href="https://realworld-game.example/community.html"><!-- PLACEHOLDER domain: replace at launch -->
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="Real World">
 <meta property="og:title" content="Real World — Community">
-<meta property="og:description" content="Watch together, follow the feed, read the weekly recap. Community spaces open at launch — here's exactly what we're building.">
+<meta property="og:description" content="Watch together, follow the feed, read the weekly recap. Community spaces open at launch — here's exactly what we're building, channel by channel.">
 <meta property="og:url" content="https://realworld-game.example/community.html"><!-- PLACEHOLDER domain -->
 <meta property="og:image" content="assets/og-card.png">
 <meta property="og:image:width" content="1200">
@@ -24,6 +24,15 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
 <link rel="stylesheet" href="css/style.css">
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "Real World — Community",
+  "description": "Community page for Real World: weekly recap, feed discussion, watch parties, and the spectator-to-resident path. Spaces open at launch.",
+  "isPartOf": { "@type": "WebSite", "name": "Real World" }
+}
+</script>
 </head>
 <body data-page="community">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -37,6 +46,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html" class="active" aria-current="page">Community</a>
       <a href="journal.html">Journal</a>
@@ -62,36 +72,105 @@
     </p>
     <div class="btn-row">
       <a class="btn btn-primary" href="how-it-works.html" data-rw-event="cta_click" data-rw-props='{"cta":"community-hero","dest":"how-it-works"}'>How watching works</a>
-      <a class="btn btn-ghost" href="index.html#gallery" data-rw-event="cta_click" data-rw-props='{"cta":"community-hero","dest":"gallery"}'>See the block</a>
+      <a class="btn btn-ghost" href="gallery.html" data-rw-event="cta_click" data-rw-props='{"cta":"community-hero","dest":"gallery"}'>See the block</a>
     </div>
   </div>
 </section>
 
-<!-- WHAT THE COMMUNITY IS -->
+<!-- A WEEK ON THE BLOCK -->
 <section>
   <div class="wrap">
-    <p class="eyebrow">The offer</p>
-    <h2>Built for people who watch first.</h2>
+    <p class="eyebrow">The programming</p>
+    <h2>A week on the block.</h2>
+    <p>The community runs on a fixed weekly grid — small on purpose. A weekly
+    recap that never misses beats a daily cadence that dies in week three, and a
+    quiet week gets reported as a quiet week.</p>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>When</th><th>What</th><th>Where</th></tr>
+      <tr><td>Sundays 18:00 PT</td><td><b>This Week on the Block</b> — the recap. Which requests ran, which expired and refunded, what the residents did with it. Only real feed events.</td><td>#announcements + <a href="journal.html">the Journal</a></td></tr>
+      <tr><td>Sundays 18:05 PT</td><td><b>Open-rumor thread</b> — one reply thread under the recap for what's still unconfirmed. If the recap has no open rumor, the thread simply doesn't run; we never invent one.</td><td>#the-block</td></tr>
+      <tr><td>Wednesdays 19:00 PT</td><td><b>Request clinic</b> — a walk through one or two filed requests end-to-end: the text, the classification, the outcome. How newcomers learn what "compatible" actually means.</td><td>#help-requests</td></tr>
+      <tr><td>First Saturday, monthly 18:00 PT</td><td><b>Town hall</b> — one-hour text AMA. Roadmap questions get honest "don't know / not decided" answers; pricing answers match the <a href="pricing.html">pricing page</a> verbatim.</td><td>#the-block</td></tr>
+      <tr><td>When the feed says so</td><td><b>Watch parties</b> — big requests (a storm over Dolores Park, a rooftop set) get a coordinated viewing, with a voice channel for whoever wants it.</td><td>#watch-party + #rooftop</td></tr>
+      <tr><td>Daily, as it happens</td><td><b>Feed mirrors</b> — notable public request-feed entries, mirrored and discussed. Capped; the feed itself is always the full record.</td><td>#the-feed (read-only)</td></tr>
+    </table>
+    </div>
+  </div>
+</section>
+
+<!-- INSIDE THE SERVER -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The space</p>
+    <h2>Eight channels. That's the whole server.</h2>
+    <p>A quiet forty-channel server reads dead; a busy handful reads alive. This
+    is the full channel map — the server itself is created on launch day and
+    verified against this blueprint before the invite link goes live here.</p>
     <div class="grid grid-3">
-      <div class="card">
-        <h3>The weekly recap</h3>
-        <p><b>This Week on the Block</b> — every Sunday, a digest of what actually
-        happened: which requests ran, which expired and refunded, what the
-        residents did with it. Only real events; a quiet week gets reported as a
-        quiet week.</p>
-      </div>
-      <div class="card">
-        <h3>Feed talk</h3>
-        <p>Every paid intervention is attributed on the public request feed —
-        which means the community can follow the drama of <i>who is trying to
-        do what</i>, not just what happened. Half the show is the attempt.</p>
-      </div>
-      <div class="card">
-        <h3>Watch parties</h3>
-        <p>Big requests — a storm over Dolores Park, a rooftop set — are worth
-        watching together. The community calendar coordinates around the feed,
-        not around our marketing schedule.</p>
-      </div>
+      <div class="card"><h3>#the-block</h3><p>The living room. General chat — who did what, what's still unconfirmed, whether Marisol meant that. Rules and the standing feedback asks stay pinned.</p></div>
+      <div class="card"><h3>#the-feed</h3><p>Read-only mirror of notable request-feed entries. Watching who is <i>trying</i> to do what is half the show — discussion happens in #the-block.</p></div>
+      <div class="card"><h3>#watch-party + #rooftop</h3><p>Coordinating simultaneous viewing when a big request lands. #rooftop is the voice channel; listening in is as welcome as talking.</p></div>
+      <div class="card"><h3>#help-requests</h3><p>"How do I file a request" and "what does compatible mean" support. How-it-works and pricing links pinned.</p></div>
+      <div class="card"><h3>#feedback</h3><p>Bugs and suggestions, triaged weekly and routed to the build. When a fix traces back to something you reported, the recap says so.</p></div>
+      <div class="card"><h3>#announcements</h3><p>Posts from the team only. The weekly recap lives here first, then on the <a href="journal.html">Journal</a> and socials.</p></div>
+      <div class="card"><h3>#clips</h3><p>Your captures of the feed and the block — screenshots, clips, the moment you were watching when it happened. The best of the community's own eyes, with credit.</p></div>
+    </div>
+    <p class="muted" style="margin-top:1rem">Invite link: <b>opens at launch.</b>
+    We'd rather show you the blueprint than a dead link — the invite appears
+    here the day the server exists and passes its own checklist.</p>
+  </div>
+</section>
+
+<!-- WHAT THE RECAP LOOKS LIKE -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The retention engine</p>
+    <h2>What a recap actually contains.</h2>
+    <p>Every Sunday's issue is assembled from the same public archive anyone can
+    browse — never from our imagination. The shape:</p>
+    <div class="grid grid-2">
+      <div class="card"><h3>The headline</h3><p>The week lead: a player-called weather event, a notable request outcome, or the biggest crowd beat — whichever the feed says was biggest.</p></div>
+      <div class="card"><h3>Request beats</h3><p>Every request that ran, attributed by the name on the feed. Expired and refunded requests are counted in the open — the attempts are part of the story.</p></div>
+      <div class="card"><h3>Resident beats</h3><p>What the eight main characters did with their week — from their public behavior only. Secrets and private drama stay sealed; that's the contract that makes the show real.</p></div>
+      <div class="card"><h3>The numbers + an open rumor</h3><p>Request counts by outcome, straight from the ledger — and one unconfirmed thread the neighborhood is still arguing about, labeled unconfirmed.</p></div>
+    </div>
+    <p style="margin-top:1.5rem">Back issues will live on the
+    <a href="journal.html">Journal</a>; the raw record behind every issue is the
+    public <a href="archive.html">Archive</a>, free to read always.</p>
+  </div>
+</section>
+
+<!-- SAMPLE ISSUE -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Read one before it exists</p>
+    <h2>A sample issue, start to finish.</h2>
+    <p>This is a real generated draft of the recap format — assembled by our
+    recap tool from the development build's public archive. It's marked demo
+    data because it is: the week it describes happened inside a test build,
+    not on the live block. The shape, the honesty, and the refusal to pad a
+    quiet week are what launch issues will carry.</p>
+    <div class="recap-issue">
+      <p class="issue-meta">Demo data · generated by build_recap.py · dev-build archive 2026-09-17 → 09-23</p>
+      <h3>This Week on the Block — 2026-09-17 → 2026-09-23</h3>
+      <p><b>Drizzle over the park, 2 h — called by marina_w</b></p>
+      <ul>
+        <li>@dvh: possess — own baker, 45 min</li>
+        <li>@kes: camera director — 30 min</li>
+        <li>@leaf: event — park cleanup at Dolores Park</li>
+        <li>@marina_w: weather — drizzle over Dolores Park, 2 h</li>
+      </ul>
+      <p>Meanwhile on the block:</p>
+      <ul>
+        <li>Jules out for the morning run — north path loops</li>
+        <li>Mars in early at Mudhaus — opening, counter</li>
+        <li>Priya headed in to SF General — a twelves day</li>
+      </ul>
+      <p><b>10 requests filed. 5 ran. 3 refunded — the feed shows all of it.</b></p>
+      <p>Mission Unfiltered posted: “Two Receipts, One Counter” — anonymous, as always</p>
+      <p>Still unconfirmed on the block: Buy-Rite is about to raise the price of the good bread.</p>
+      <p class="issue-foot">Numbers pulled from the public request feed. Quiet beats reported as quiet. Nothing invented.</p>
     </div>
   </div>
 </section>
@@ -101,7 +180,7 @@
   <div class="wrap">
     <p class="eyebrow">From watcher to resident</p>
     <h2>The ladder, rung by rung.</h2>
-    <div class="grid grid-3 steps">
+    <div class="grid grid-4 steps">
       <div class="card">
         <span class="num">1</span>
         <h3>Lurk</h3>
@@ -111,8 +190,11 @@
       <div class="card">
         <span class="num">2</span>
         <h3>Join</h3>
-        <p>Community channels open on launch day: general chat, a feed-discussion
-        channel, watch parties, and a place to ask how requests work.</p>
+        <p>Community channels open on launch day. Accept the house rules, pick up
+        the cosmetic resident role, find a thread worth arguing about.</p>
+        <p class="regulars-line"><span class="tag">@regular</span> Stick around
+        and the block notices — a recognition role, never for sale. Roster
+        opens with the server; names appear with consent only.</p>
       </div>
       <div class="card">
         <span class="num">3</span>
@@ -120,6 +202,12 @@
         <p>File your first request — a small, compatible one costs cents — or
         create a character and move in. When you do, the feed shows your name,
         and the recap might too.</p>
+      </div>
+      <div class="card">
+        <span class="num">4</span>
+        <h3>Bring someone</h3>
+        <p>Clip the moment you were watching for, post it in #clips, and send a
+        friend the feed. Watching is free — the best referral pitch we have.</p>
       </div>
     </div>
   </div>
@@ -156,6 +244,12 @@
         <p>Bug reports and suggestions get triaged weekly and routed to the
         build. When a fix traces back to the community, the recap says so.</p>
       </div>
+      <div class="card">
+        <h3>Small on purpose</h3>
+        <p>We don't chase member counts — no invite contests, no growth
+        milestones, no post-to-stay mechanics. A lurker who only reads the
+        recaps is a successful member; watching is the product.</p>
+      </div>
     </div>
     <p style="margin-top:1.5rem">The full rules — what requests can't ask for,
     how review works, escalation, appeals — live on the
@@ -189,6 +283,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -197,13 +292,20 @@
     <div>
       <h4>Buy</h4>
       <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="compare.html">Vs other life sims</a>
       <a href="faq.html">FAQ</a>
     </div>
     <div>
       <h4>Press</h4>
       <a href="press-kit.html">Press kit</a>
       <a href="brand.html">Brand &amp; assets</a>
-      <a href="index.html#gallery">Screenshots</a>
+      <a href="gallery.html">Screenshots</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms of use</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refunds.html">Refunds</a>
     </div>
   </div>
   <div class="wrap foot-note">

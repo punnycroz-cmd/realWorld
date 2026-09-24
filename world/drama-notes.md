@@ -1,10 +1,18 @@
-# Drama Direction Notes — "The Mission" (world v52)
+# Drama Direction Notes — "The Mission" (world v94)
 
 *v10 origin; v24 added the note grammar, pressure catalog, residue playbook,
 week shapes, and substrate handoff; v38 added evidence standards, drift review,
 hire integration, teller biases, stall/season-boundary policy, and pressure
-catalog second tranche; v52 adds tell ladders (graded legible shadows per
-seed) and venue dramaturgy (where each fuse's shadows may land).*
+catalog second tranche; v52 added tell ladders (graded legible shadows per
+seed) and venue dramaturgy (where each fuse's shadows may land); v66 added the
+fuse interference matrix, audience suspicion calibration, the comedy-duty
+roster, the residue nursery, and pressure catalog third tranche; v80 added
+daypart dramaturgy (where shadows land in time), the offscreen doctrine
+(viewership is never a pressure input), surface-window aftercare per fuse,
+and pressure catalog fourth tranche; v94 adds the cooling grammar (how a
+pressured fuse goes quiet), the double-surface contingency, the fair-misfire
+register, the drift-review posture vocabulary, and pressure catalog fifth
+tranche.*
 
 **Audience:** the character AI brains (via their system context), the future
 drama-pacing manager (game-systems substrate item 9), reviewers of this
@@ -819,11 +827,424 @@ Two corollaries:
 - New pressure-catalog rows need: a producing system that already exists,
   a legible shadow, and an exhaustion rule. If any of the three is
   missing, the row is a wish, not a pressure.
-- Tell-ladder edits (§28) and venue-map edits (§29) sync across all three
-  artifacts the same way; a brink tell that names its fact gets deleted,
-  not moved down a rung.
+- Tell-ladder edits (§28), venue-map edits (§29), daypart-map edits (§36),
+  aftercare edits (§38), and the v94 rule blocks (§§40–43) sync across all
+  three artifacts the same way; a brink tell that names its fact gets
+  deleted, not moved down a rung.
 - `world/audit.js` gate `drama` checks the JSON's structural invariants
   (states in enum, fuse ids valid, holders/suspects/must_not_know
   pairwise disjoint). It cannot check legality of *notes* — §19 is human.
 - Landlord casting remains TBD; Victor's notes are written to survive
   either casting (his *fiction* is fixed; only the formal game-role is open).
+
+## 31. Fuse interference matrix
+
+§8's compounding exception says interlocked fuses may share a pressured
+window. This matrix makes "interlocked" auditable: every unordered fuse
+pair carries exactly one relation, and the relation is a *permission*,
+never a summons. `drama.json` mirrors it as `fuse_interference`.
+
+| Relation | Meaning |
+|---|---|---|
+| `interlocked` | The same event read from different sides — the pair may share a pressured window (compounding, not stacking) |
+| `adjacent` | Shared characters or venues — one fuse's pressure may *echo* as texture in the other's spaces, but the echo spends no budget and pressuring both is a stacked week |
+| `independent` | No shared mechanics — co-pressuring is always a stacked week; shed one |
+| `masked` | During the louder fuse's surface window, the masked fuse's display ceiling drops one rung (brink→pressure, pressure→whisper) — its shadows get *read through* the bigger story, which is realistic, not wasted |
+
+The matrix:
+
+| Pair | Relation | Why |
+|---|---|---|---|
+| F1·F2 | interlocked | The sale crisis is what crowds the kitchens — compression is F1's pressure doing F2's work |
+| F1·F3 | adjacent | Jules's housing stakes ride F1, but the crush is its own material; F1 may echo as Jules narrating worry, nothing more |
+| F1·F4 | interlocked | S6 makes the buildings Tomás's collateral — the loan is the mechanical tie, not a thematic one |
+| F1·F5 | interlocked | Carmen's exposure is the sale's sharpest edge; F5's gentle-and-rare cap still applies *inside* the compound |
+| F1·F6 | interlocked | The blog is F1's public vector; a pressured F6 means the discovery cone is shrinking |
+| F2·F3 | masked | If F2 surfaces, Jules's crush-shadows get read through the wreckage — F3's ceiling drops a rung for the window (§3-F3: witness, not resolution) |
+| F2·F4 | independent | No shared mechanics; parallel quiet is fine, joint pressure isn't |
+| F2·F5 | independent | Carmen's fragility doesn't compound with the flat's secret |
+| F2·F6 | adjacent | A surfaced F2 is blog-shaped news; Mars *declining* to cover a friend's reveal is her texture, not pressure |
+| F3·F4 | independent | The two quiet fuses never compound |
+| F3·F5 | adjacent | C2/C6 mutual hiding-as-care — the adjacency is emotional, not mechanical |
+| F3·F6 | adjacent | Jules's outsider narration grazes the blog mystery |
+| F4·F5 | independent | — |
+| F4·F6 | adjacent | Mars sits on both ends; deliberation texture may bleed between them without either pressuring the other |
+| F5·F6 | adjacent | A surfaced F5 could be Unfiltered-shaped — but F5's cap means the adjacency is a temptation Mars may only feel, never a lever |
+
+Standing rules:
+
+- **Echoes are free, pressure costs.** An adjacent fuse's texture may show
+  up inside another's pressured window; it just may not consume budget or
+  advance a state. If an echo starts reading as a second pressured fuse,
+  the matrix was mislabeled — fix the label at drift review, don't shed
+  the echo retroactively.
+- **Masking is directional and time-boxed.** It applies only while the
+  louder fuse is `surfaced`-window hot (the 2–4 block days around the
+  surface event), then lifts on its own. Nobody unmasks a seed by effort.
+- **The matrix is a ceiling, not a quota.** An interlocked pair sharing a
+  window is *permitted*, never owed. Most pressured windows stay single.
+
+## 32. Audience suspicion calibration
+
+§28 grades what shadows may show; this section grades what the audience
+may *conclude* from them. Each rung carries a **suspicion ceiling** — the
+most a careful viewer is allowed to be sure of. A shadow that would let
+the audience *state the fact* (not suspect it — state it) exceeds its
+rung no matter how subtle it looked on paper. `drama.json` mirrors it as
+`suspicion_calibration`.
+
+| Seed | Whisper ceiling | Pressure ceiling | Brink ceiling |
+|---|---|---|---|
+| S1 | "Victor seems off lately" | "something is up with the buildings or the landlord" | "the two Guerrero buildings specifically are in play" — never "a written offer exists" |
+| S2 | "the blog is local, someone who knows the block" | "the blogger might be someone we watch" | "Mars is holding a post back" — never certainty she *is* Unfiltered |
+| S3 | "Dani's art has a recurring figure" | "Dani and Marcus orbit each other" | "they're involved, and Priya doesn't know" — the lit end allows a nearer brink, never duration or seriousness |
+| S4 | "Jules's paperwork is odd" | "Jules might not be on the lease" | "Jules's tenancy couldn't survive scrutiny" — never "unpermitted" named as fact |
+| S5 | "Carmen is deeply rooted here" | "Carmen is worried about something she won't say" | "the worry is housing-shaped" — never the income or the nowhere-to-go |
+| S6 | "Tomás has a plan" | "the plan has a name and a price" | "money moved between Tomás and Victor" — never the amount, never the handshake's terms |
+| S7 | "the 3 p.m. coffee is a fixture" | "Tomás's attention is specific" | "the audience may be surer than Marisol" — the ceiling never includes *her* seeing it |
+| S8 | "Jules draws a recurring figure" | "the figure is Priya; Jules lingers" | "the audience names the crush before the block does" — ahead-of-character is the design here, not a leak |
+| S9 | "Marcus is generous and thin" | "money is tight at 9457" | "the arrears are ledger-real" — never a figure |
+| S10 | "Priya does the shared labor" | "Priya is keeping count" | "the tally is about to be spoken aloud" — never a guarantee it is |
+
+Standing rules:
+
+- **The rewatch test.** Knowing everything, a viewer rewatching a rung's
+  shadows should find them *fair* — present but honestly ambiguous. A
+  shadow that only makes sense in hindsight is fine; a shadow that only
+  makes sense because the renderer knew the secret is a leak.
+- **Ceilings are per-rung and cumulative.** A brink window may still show
+  whisper and pressure tells; it may not show a shadow that collapses the
+  distance between "fairly sure" and "certain." The surface event does
+  the certainty.
+- **S8 is the calibrated exception.** Jules's crush is *designed* to run
+  ahead of the characters — its ceilings are higher at every rung and
+  that's correct, not a leak to fix.
+- **Suspicion is measured in the audience, not the block.** A brink tell
+  the characters shrug off is still a brink tell; calibration is about
+  what the *viewer* can hold, since the viewer is the product.
+
+## 33. Comedy duty — the contrast roster
+
+§2 makes comedy load-bearing; this section makes it *accountable*. Comedy
+is a standing condition of the characters, never a beat the pacing layer
+may schedule — but its **absence is observable**, and that's the knob.
+
+- **The drought flag.** A pressured window that produced zero comic
+  texture anywhere on the block gets flagged `comedy_drought` at drift
+  review (§22 step list, implicitly — see `drama.json`). The response is
+  never "add jokes": it's a posture note preferring venues/characters
+  whose ordinary texture is comic (the counter, the benches, the
+  supplier loop's earnestness) over the next window. The drought flag is
+  a review artifact, never a world event.
+- **Comedy lands next to the shadow, never on it.** A joke that deflates
+  its own fuse's brink tell is misregistered — the laugh comes from the
+  *other* 90% of the block living its life.
+- **Nobody is the joke because of their secret.** Carmen's fragility,
+  Priya's tally, Jules's crush — these may sit near comedy but never be
+  its target. The audience laughs with the block, not at its wounds.
+
+The roster (who carries contrast when a fuse is pressured, and the
+forbidden register):
+
+| Fuse | Natural comedy carriers | Never |
+|---|---|---|---|
+| F1 | Mars's deadpan at the counter; Malik's inflated retellings of whatever's public; Gus insisting it's always been like this | jokes that land eviction-shaped fear on Jules or Carmen; a wink that names the offer |
+| F2 | the 9457 flat's domestic rhythm; June/Zee gossiping about the wrong venue entirely | any bit that reads as the show winking at the secret — the comedy must stay deniable |
+| F3 | Jules's over-narration catching up with itself; latte-art seriousness | mocking the crush; Priya rendered clueless for a laugh |
+| F4 | the supplier loop's earnestness; Tomás's five-year-plan energy treated as normal | the joke being "she can't see it" — said to her or staged for the camera |
+| F5 | comedy lives strictly off-stoop — the park chorus, café banter | comedy at the stoop, about health, or at Carmen's expense in any register |
+| F6 | the block's guessing-game about who writes Unfiltered — a parlor game, played gently | a character "testing" Mars; the joke depending on her being caught |
+
+## 34. The residue nursery
+
+§15 says resolved fuses leave residue; §25 says residue becomes the next
+fuse map's raw material at a declared season boundary. The nursery is the
+holding pen between those two facts — a list of *candidate seeds* that
+residue is gesturing at. `drama.json` mirrors it as `residue_nursery`.
+
+Rules:
+
+- **Dormant-only, boundary-only.** A nursery candidate can never be
+  pressured; it isn't a seed yet. Promotion to the seed registry happens
+  only at a declared season boundary (§25) and only when the candidate's
+  underlying fact is authored into a bible — the nursery names
+  tendencies, the bibles own facts.
+- **No mid-arc minting.** A fuse must be `resolved` before its residue
+  can nominate a candidate. Nothing enters the nursery while its parent
+  is still burning.
+- **Residue seeds inherit no secret by default.** A candidate grown from
+  residue describes a *new situation* (a habit, a monument, a changed
+  ritual) — if it needs a held-secret core, that secret is authored at
+  promotion in the bible, never backfilled.
+- **Internal vocabulary.** Nursery candidates never appear on any
+  spectator surface, same rule as the seed registry itself.
+
+Current candidates (all prospective — none exists until its parent
+resolves):
+
+| Id | From | Tendency it gestures at | What promotion would need |
+|---|---|---|---|
+| N1 | F1 residue (the trust tax) | the documentation habit — tenants keeping paper, photographing repairs, quoting the lease | a bible-level fact about who starts keeping records and what they collect |
+| N2 | F6 residue (the named power) | Marisol's first secret of her own — the woman who banks everyone's secrets holding one | the secret itself, authored in C1's bible at promotion — never invented here |
+| N3 | F2 residue (the renegotiated flat) | the flat's new arrangement as its own tension — whatever shape three people settle into | the resolved shape of 9457, observed in canon, not presumed |
+| N4 | F4 residue (the almost) | the 3 p.m. monument — spoken or unspoken, the ritual's new shape carrying its own next question | the post-F4 shape of the ritual; promotion waits for the residue to have one |
+
+## 35. Pressure catalog — third tranche
+
+Same legality as §14/§26: each row is something the world already
+produces. `drama.json` mirrors; the audit gate enforces id format and the
+produced-by/shadow/exhaustion triple.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-16 | A lease-renewal window arriving | the lease system's own term/m2m cadence reaching a renewal date | F1, S9 | renewal-shaped paperwork; a terms conversation someone wasn't ready for | per-lease calendar — renewals can't be summoned, only awaited |
+| P-17 | Weekend crowd density as cover | the crowd system's weekend patterns — a busy park is where two people can be unremarkable together | F2, F4 | two people findable in a crowd is how they're seen together; shared festivals of nothing | weekends only by construction; a crowd is never summoned for pressure |
+| P-18 | Closing-time geometry | venues' posted hours compressing the last people in the room | F3, F4 | chairs on tables; the last-two-in-the-room geometry; "we're closing" as punctuation | posted hours only — hours never flex for pressure; once per evening by construction |
+
+## 36. Daypart dramaturgy — where shadows land in time
+
+§29 maps *where* a shadow may land in space; this section maps *when*. The
+block's day has a grain — the café opening, the errand hours, the fixed 3 p.m.
+coffee, closing time, the flats at night — and a shadow reads differently in
+each slot. This is a permission structure, same rule as the venue map: it says
+a daypart may carry a fuse's shadow, never that it must. `drama.json` mirrors
+it as `daypart_dramaturgy`.
+
+| Daypart | Whose shadows read strongest here | The never |
+|---|---|---|
+| First hour (café open → ~9 a.m.) | F6 (Mars setting the counter's tone for the day), S9 (the errand that appears near the first) | a brink tell before the block is awake — the first hour is whisper-grade only; mornings are the show's downbeat, not its stage |
+| Midday errands (late morning–2 p.m.) | F1 via S6 (the supplier loop), F1 (clipboard strangers, notices landing in daylight) | a shadow staged at a venue the character has no routine reason to be in — dayparts never manufacture presence; they only color presence the schedule already produced |
+| The 3 p.m. hour | F4 alone — Tomás and Mars's coffee is the block's fixed point | any other fuse's shadow competing inside the ritual — the 3 p.m. hour is spoken for; other seeds' echoes wait their turn |
+| Closing time (venue-dependent, evening) | F3, F4 (P-18's last-two-in-the-room geometry) | hours flexed for pressure (P-18's own cap); a brink tell that exists only because closing was engineered early |
+| The flats at night (9457, 9418 interiors) | F2, S10, S9 — domestic space is where the flat's secrets live | a brink shadow with no daylight re-readable trace — interior movement must still cast a §12 shadow a spectator can reconstruct (§11.10) |
+| Overnight | none — the block sleeps | a fuse that moves overnight: a state transition with no legible daytime shadow is drama that outran the camera; §21's evidence rule already makes it void — this row makes the *intent* explicit |
+
+Corollaries:
+
+- **Daypart ceilings are per-slot, not cumulative permission.** A brink tell
+  in the flats at night doesn't license a second one at closing time — §28's
+  exhaustion rule (one brink per pressured seed per review window) governs
+  across all slots.
+- **The fixed points are sacred.** The 3 p.m. coffee, cafecito hour, Tuesday
+  repairs, Sunday cooking — these rituals are the clock the audience reads the
+  block by. A ritual *disrupted* is itself a pressure tell (P-07); a ritual
+  *moved* is a renderer bug, not direction.
+- **Time pressure is flat pressure.** Per §9 and the identical-twin test, a
+  requested event lands in whichever daypart it lands in — the pacing layer
+  never schedules a requested party into "the slot where F2 is likeliest to
+  crack." Slots describe where pressure reads, not where it's aimed.
+
+## 37. The offscreen doctrine — viewership is never an input
+
+The block runs 24/7 whether or not anyone is watching, and the spectator
+count is a product metric, not a world fact. This section fences viewership
+out of the drama machinery entirely. `drama.json` mirrors it as
+`offscreen_doctrine`.
+
+- **The world runs whole unwatched.** A 3 a.m. grocery run, a stoop
+  conversation no camera catches, a Tuesday repair on a dead feed day — all
+  of it happens at full fidelity, because the characters don't know the
+  difference and the sim doesn't either.
+- **Audience size is not pressure.** The pacing layer may not read spectator
+  counts, feed traffic, or request volume as inputs. A brink tell during a
+  viewer drought spends exactly the same budget as one during sweeps — and an
+  unwatched brink still counts toward §28's exhaustion cap. The ledger
+  doesn't care who saw it.
+- **No prime-time steering.** Pressure never concentrates where the cameras
+  or the viewers are. A fuse's shadows distribute across the venues and
+  dayparts the characters' real routines produce (§29, §36) — if the
+  distribution starts tracking the audience instead of the routines, that's
+  a drift-review violation, same class as coincidence engineering.
+- **The archive is the catch-up, not a spoiler feed.** An unwatched surface
+  event is reconstructed through the archive's ordinary record — what the
+  block saw is what a late viewer can piece together. The archive never
+  reveals more than a live viewer could have seen (§12's rule applied in
+  retrospect).
+- **Renderer neutrality.** The same shadow renders identically at any
+  spectator count — the renderer doesn't "hold" a brink for a bigger
+  audience or thin a pressured week when nobody's on. Camera direction
+  (world/cameras contract) is a view layer; it follows the world, it never
+  cues it.
+- **Characters never feel watched.** This is §18's data-minimization rule
+  restated for direction: no brain receives viewership, and no direction
+  note may describe a character "performing" or "going quiet because eyes
+  are on them." Self-consciousness is in-character only when it's about the
+  *block* watching — the benches, the counter, the neighbors. The audience
+  is the weather of our product, not of their world.
+
+The doctrine in one sentence: **the show is a window, not a stage** — and
+every note in this file stays true with zero viewers, which is the cheapest
+legality test there is.
+
+## 38. Surface-window aftercare — the first days after a fuse breaks
+
+§15 covers residue; this covers the *window* — the 2–4 block days between a
+surface event and the recovery week settling (§16). The window has its own
+direction because it's the most mishandled stretch in serial drama: the
+temptation is to pay everything off at once. `drama.json` mirrors the
+per-fuse table as `surface_aftercare`.
+
+| Fuse | Window texture | Protected during the window |
+|---|---|---|
+| F1 (the sale said aloud) | paperwork becomes block fact — the flyer stops being an object and starts being a topic; tenants re-read every kindness for motive | Victor's process — his rational, unemotional call (locked personality) must not be rushed by the noise his avoidance created; C6 and C2's fear is felt, never performed |
+| F2 (the secret out) | the flat's furniture of politeness — who cooks, who knocks, who leaves a room; Marisol's hurt-at-concealment ticking underneath | Priya's choices — the aftermath is hers to pace; nobody else's reconciliation or schadenfreude may be staged around her |
+| F3 (the crush named) | Jules's correspondent pose finally has a cost to narrate; the block kindly doesn't mention it | the crush's dignity — a named crush is not a license for the block to matchmake or tease |
+| F4 (the almost, spoken) | the 3 p.m. ritual's new shape — kept, changed, or quietly ended; whichever it is, the ritual itself is the residue | Tomás's pace — an unplanned move already cost him; the window may not demand a second one |
+| F5 (Carmen's exposure known) | help arriving as exchange or not arriving — hemming for groceries, a fixed shelf, an escorted walk that was "already happening" | dignity, always — no pity framing, no block consensus about what to "do about" Carmen; she sets the terms of being helped |
+| F6 (the blogger unmasked or the post published) | everyone re-reading old posts looking for themselves; the counter's small talk turning careful | Mars's standing — the block decides what the blog meant through ordinary treatment, not a reckoning scene |
+
+Standing rules:
+
+- **One window at a time.** Two surface windows overlapping is a stacked
+  week with extra steps — the interference matrix (§31) governs which fuse's
+  aftercare may echo in the other's spaces.
+- **Aftercare spends nothing.** The window is a spend ban on *new* pressure
+  routes; existing texture (rumor corrections, changed routines) isn't
+  spend, it's residue landing.
+- **The window ends when the routines do.** Recovery isn't declared; the
+  drift review observes that the new furniture has become furniture — then
+  the seed's state moves to `resolved`/`residue` per §21's evidence rule.
+
+## 39. Pressure catalog — fourth tranche
+
+Same legality as §14/§26/§35: each row is something the world already
+produces — a producer, a legible shadow, an exhaustion rule, or it's a
+wish, not a pressure.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-19 | Curb night — bins out on the shared curb the evening before collection | the buildings' weekly sanitation routine | F5, F1-adjacent, S4 | two households' bins side by side; a held curb conversation; who takes whose bins back | weekly by construction; the curb is a whisper venue — a brink tell at the curb is off-register |
+| P-20 | Shift-change handoff — the between-shifts ten minutes at a staffed venue | the venues' posted shift schedules (jobs/shifts cadence) | F2, F6 | two staff in the doorway; a handoff that runs long; the apron change | per posted schedule only — a handoff can't be extended for pressure; at most once per shift boundary |
+| P-21 | The shared-landing mail sort — a building's tenants sorting a common mailbox | the multi-unit buildings' shared mailboxes + ordinary mis-sorts | S4, F1 | mail set aside on the ledge; a name the building doesn't know held a beat too long | daily delivery cadence; a mis-sort is rare — two in a week is a scripted beat |
+| P-22 | The chorus's last lap — Esther and Ray's final bench of the evening | the park chorus's own schedule | all (echo only) | the bench math ending the day; a last look carried home | nightly by construction; they notice and carry — they never pursue, and the lap never produces a first knower (§7) |
+
+## 40. Cooling grammar — how a fuse goes quiet
+
+§8 spends pressure; §25 blesses the stall. Between them sits the unmarked
+middle: a `pressured` seed whose routes have stopped producing. Cooling is a
+*direction concept* — it describes how the shadows thin, never a mechanism
+that thins them. `drama.json` mirrors it as `cooling_grammar`.
+
+- **Descent goes through the rungs.** A pressured seed sheds pressure →
+  whisper over a review window; a brink-loud seed passes through the pressure
+  rung on the way down. A cliff-edge — brink tells on Friday, nothing by
+  Monday — reads as the world changing its mind, which is scripted feel
+  without a script. The sim thins shadows by thinning the producing
+  conditions (Victor's counter hours regular again, the flyer folded away),
+  never by scrubbing them.
+- **Afterglow is required.** A cooled seed keeps whisper-grade texture for at
+  least one drift-review window after its last pressured day — the block does
+  not instantly forget it almost-knew. The flyer exists in a drawer;
+  rehearsal sentences leave a man quieter at the counter.
+- **Cooling spends nothing and refunds nothing.** A cooling seed stops
+  consuming the pressure budget the moment its routes go quiet; it never
+  banks the difference. Budget is per-window (§8), not an account.
+- **Re-pressuring needs fresh evidence.** A cooled seed returns to
+  `pressured` only through §21's qualifying evidence — a new route-produced
+  event, not residual warmth. Last week's inspection can't keep this week's
+  fuse warm; if it could, nothing would ever cool.
+- **A surfaced fuse never cools.** Surface events route to aftercare (§38)
+  and residue (§15), not back down the ladder. Cooling is strictly the
+  pressured-seed exit; a seed that almost surfaced and didn't is the block's
+  most honest kind of week.
+
+## 41. The double-surface contingency
+
+Two fuses may surface inside the same window — emergence owes us nothing,
+including spacing. This section exists so the contingency is *handled*, never
+prevented. `drama.json` mirrors it as `double_surface`.
+
+- **It is canon, full stop.** Nobody delays a second surface to protect the
+  first's window — a held beat is a script (§11.1). If the week produces two
+  surfaces, the week has two surfaces.
+- **The louder fuse's aftercare governs the calendar.** Which is louder is
+  observed (which surface produces more ledger-visible movement), never
+  assigned — if neither is louder, the windows simply overlap and §38's
+  per-fuse rules both apply.
+- **Protections never mask.** §31's `masked` relation governs *display
+  ceilings* — the quieter fuse's brink drops a rung because the audience is
+  reading through the bigger story. Its §38 `protected` column holds in
+  full: masking can dim a shadow, it cannot touch what a character is owed.
+- **Recovery windows merge, not stack.** One shared recovery of the longer
+  window's length — the block absorbs once, not twice. A merged recovery is
+  still a spend ban on new pressure.
+- **The archive must separate them.** A late viewer has to be able to
+  reconstruct the quieter surface as its own event — two surfaces ledgered
+  as one composite beat is an archive failure, same class as drama that
+  outran the camera (§11.10).
+- **The drift review flags it, never untangles it.** A double surface gets a
+  `compound_surface` note in the review record — observed, logged, moved on.
+
+## 42. Fair misfires — the honest mislead
+
+Not every shadow belongs to the seed it points at. Victor performs a kindness
+that isn't avoidance; Mars goes quiet for a reason that isn't the draft;
+two arrivals ninety seconds apart are just two arrivals. This is not noise
+to eliminate — a block where every glance means something is a puzzle box,
+not a neighborhood. `drama.json` mirrors it as `fair_misfires`.
+
+- **Whisper-rung only.** A behavior that reads as a tell but isn't may exist
+  freely at whisper grade — the rung where everything is deniable anyway. At
+  pressure and brink rungs a shadow must belong to its true seed: a
+  loud-looking misfire is a leak in the wrong direction, letting the audience
+  *state* a wrong fact with rung-appropriate confidence.
+- **Retroactive fairness is the test.** Knowing the truth, a viewer rewatching
+  a misfire must find it reads as the ordinary thing it was — §32's rewatch
+  test applied in reverse. A shadow that only made sense because the renderer
+  knew where to look is a planted clue, and planted clues are coincidence
+  engineering aimed at the audience (§37 forbids direction-by-viewer).
+- **Never aimed.** A misfire may not be engineered to land a *specific wrong
+  conclusion* — the difference between honest ambiguity and a red herring is
+  intent, and intent aimed at the audience is scripting by another name.
+- **They spend nothing and are never scheduled.** Misfires are just honest
+  ambiguity the renderer doesn't scrub. There is no misfire budget because
+  there is no misfire lever — the catalog lists only conditions the world
+  produces; "a misleading glance" is not a condition, it's a reading.
+- **Corrections apply to the audience too.** The block never gets a scene
+  whose purpose is correcting a spectator's wrong read — the archive's
+  honesty (§37) is the correction; the viewers' wrongness is their own
+  material.
+
+## 43. Posture vocabulary — what a drift review may set
+
+§22 step 5 sets "next week's posture" without defining what a posture is.
+This is the vocabulary — the *only* five things a review may write into the
+budget posture. `drama.json` mirrors it as `posture_vocabulary`.
+
+| Posture | Meaning |
+|---|---|
+| `prefer(fuse)` | If this fuse's own routes produce events this window, spend there first — the soft steering the showrunner is allowed |
+| `hold(fuse)` | Keep this fuse at slow tick even if its routes produce — its shadows stay under the pressure rung; the routes' events still land, the emphasis doesn't follow |
+| `shed(fuse)` | Prefer letting this fuse's conditions thin — no new spends; cooling grammar (§40) applies |
+| `observe` | No preference — the manager only watches. The quiet-week default and the stall posture (§25) |
+| `recovery` | Forced, not chosen — auto-set by a surface/resolution per §8; expires when the drift review observes the routines have settled (§38) |
+
+Standing rules:
+
+- **One posture per fuse per window**, and postures are written to
+  `drama.json` and the drift record — never to the world. A posture is a
+  preference among conditions the world already produces; it cannot create
+  a condition. `prefer` on a fuse whose routes don't fire spends nothing.
+- **`recovery` outranks every other posture** and cancels any `prefer` on
+  contact — a surface event ends the preference game until the block
+  settles.
+- **A posture that reads as a plan is a violation.** "prefer F2 until it
+  surfaces" names an outcome (§19.5) — the legal form is "prefer F2 this
+  window," re-decided every review, honest about being wrong.
+- **Postures are the audit trail.** The budget ledger records posture +
+  spend per window; a reviewer should be able to answer "why was F4 loud
+  this week" from the record alone — or the answer is "emergence," which
+  is also recorded.
+
+## 44. Pressure catalog — fifth tranche
+
+Same legality as §14/§26/§35/§39: a producing system that already exists, a
+legible shadow, an exhaustion rule — or it's a wish, not a pressure.
+`drama.json` mirrors.
+
+| Id | Condition | Produced by | Feeds | Legible shadow | Exhaustion rule |
+|---|---|---|---|---|---|
+| P-23 | Laundry-night overlap — the laundromat's weekly evening crowd putting mains in the same folding line | Golden Hour's ordinary weekly rhythm | F2, F3 | two dryers and a shared wait; folding side by side; the long quiet of a rinse cycle | weekly by construction; the laundromat is whisper-grade — shared time, never staging |
+| P-24 | The borrowed-thing return trip — an object lent weeks ago finally coming back (umbrella, book, dish) | the block's ordinary borrowing texture | F4, F3 | the return as a second knock; a reason for contact already spent once | rare — a return invented weekly is a prop department; objects return once |
+| P-25 | A venue's posted closed day — supply run, deep clean, a real reason on the door | the businesses' own closure cadence | F6, F1-adjacent | a sign on the door; regulars rerouted to a second-choice counter | rare + real reason only — a venue never closes *for* pressure; the closure reroutes presence, it doesn't aim it |
+| P-26 | The group errand — one car, three errands, a shared ride | neighbors' ordinary cooperation | F2, F5-adjacent | who's in the car and who sits where; an errand that took longer than its list | monthly at most — a ride arranged to isolate two people is staging |

@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Real World — The Last Shift (exit layer)</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!--
+  Exit-layer demo — "The Last Shift" (world v73). Internal posture tool.
+  Self-contained: file://-safe, no network. Machine source: world/exits.json
+  (mirrored inline below as EXITS — hand-synced, deep-compared by the audit
+  exits gate). Shows: how work ends at every employer on the board (notice
+  norm, who takes the news, last-shift texture, reference worth, what's
+  left behind) and how every registry building empties (notice window,
+  deposit clock, turnover scope, relist path). Conditions, never scripts.
+  Boundaries: parody names only; game dollars only — never credits, never
+  USD; feed shapes print the door, never the name.
+-->
+<style>
+  :root{
+    --bg:#14171c; --panel:#1c2129; --panel2:#232a34; --ink:#e8e4da;
+    --dim:#9a927f; --line:#333c48; --acc:#e0b34c; --grn:#5fae7f;
+    --blu:#6ea8d4; --pink:#d48bb0; --rust:#d47e5f;
+    --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font:13.5px/1.5 'Segoe UI',system-ui,sans-serif;color:var(--ink);background:var(--bg)}
+  header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid var(--line);background:var(--panel);flex-wrap:wrap}
+  .logo{font-weight:700;letter-spacing:.14em;text-transform:uppercase;font-size:14px}
+  .logo span{color:var(--acc)}
+  .tgl{display:flex;gap:5px;align-items:center;font-size:11px;color:var(--dim)}
+  .tgl button{font:inherit;font-size:11px;font-weight:600;border:1px solid var(--line);border-radius:9px;
+    padding:3px 10px;background:var(--panel2);color:var(--dim);cursor:pointer}
+  .tgl button.on{color:var(--acc);border-color:var(--acc)}
+  .count{font-size:11px;color:var(--dim);font-family:var(--mono)}
+  main{max-width:1240px;margin:0 auto;padding:16px 18px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(360px,1fr));gap:14px}
+  .card{background:#20242c;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+  .hd{background:#262a20;border-bottom:3px solid #3f4434;padding:10px 14px;
+    font-family:var(--mono);font-weight:700;letter-spacing:.1em;font-size:13px;
+    text-transform:uppercase;color:var(--acc)}
+  .hd.hous{background:#20262c;color:var(--blu)}
+  .hd .tag{float:right;font-size:9.5px;letter-spacing:.08em;font-weight:600;margin-top:3px;color:var(--dim)}
+  .bd{padding:10px 14px;font-size:12px}
+  .bd .row{margin-bottom:7px}
+  .bd .k{font-size:9px;letter-spacing:.09em;text-transform:uppercase;color:var(--rust);display:block;margin-bottom:1px}
+  .bd .v{color:var(--ink)}
+  .bd .v.dim{color:var(--dim)}
+  .tex{border-top:1px dashed #2a313c;padding:8px 14px;color:var(--dim);font-size:11.5px;font-style:italic}
+  .nd{font-family:var(--mono);font-size:11px;color:var(--grn);white-space:nowrap}
+  .fine{font-size:11.5px;color:var(--dim);font-style:italic;margin:14px 0}
+  .feed{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 14px;margin-bottom:16px;font-size:12px}
+  .feed h3{margin:0 0 6px;font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--dim);font-weight:600}
+  .feed code{font-family:var(--mono);color:var(--blu);font-size:11.5px}
+  .feed .never{color:var(--rust);font-size:11px}
+</style>
+</head>
+<body>
+<header>
+  <div class="logo">REAL <span>WORLD</span> — THE LAST SHIFT</div>
+  <div class="tgl" id="sideTgl">side <button data-v="work" class="on">work</button><button data-v="housing" class="on">housing</button></div>
+  <div class="tgl" id="kindTgl">kind <button data-v="" class="on">all</button><button data-v="notice">noticed</button><button data-v="none">no-notice</button></div>
+  <span class="count" id="cnt"></span>
+</header>
+<main>
+  <p class="fine">How things end. Every row is authored texture — notice norms, who takes the news,
+  last-shift shape, what a reference is worth, what stays behind. <b>Conditions, never scripts</b>:
+  nobody is obliged to leave, give notice, or say anything. The paper mechanics (deposit clock,
+  walkthrough, service) live in the lease layer; this is what they look like.</p>
+  <div class="feed" id="feedbox"></div>
+  <div class="grid" id="grid"></div>
+</main>
+<script>
+/* ---- inline mirror of world/exits.json (hand-synced, v73) ---- */
+const EXITS = {
+ "doc": "The Last Shift — the exit layer (world v73). How work ends and how units empty: notice norms, who takes the news, last-shift texture, references, what gets left behind; notice-to-vacate windows, the 21-day deposit clock, turnover scope, relist path. Conditions and texture, never scripts — a character decides in character whether to give notice at all. Pairs with applications.json (the ask side) and leases.json (the paper side — deposit disposition and walkthrough are its mechanics; this file supplies the texture they render). All money is game dollars. Surface bar: every field is briefing-safe — what a coworker or neighbor could observe. No seeds, no secrets, no meta-currency figures.",
+ "version": 73,
+ "schema": "exits-v1",
+ "job_exit_kinds": {
+  "notice_given": "the two weeks — said to someone's face or written on the card; the block's default and the only exit that buys a reference",
+  "faded_out": "the slow quit — shifts drop off the board until the name does; common where the schedule is the relationship",
+  "walked_mid_shift": "the apron on the counter — rare, loud, and remembered; the day the texture is the story",
+  "seasonal_end": "the calendar did it — nobody quit, the posting just expired; the warmest exit because it was always going to happen",
+  "let_go": "the other direction — the employer ends it; texture is the decider's, the dignity is the leaver's",
+  "retired_out": "the long goodbye — pension paperwork, a cake if the place is the kind, a name that stays on the regulars list"
+ },
+ "housing_exit_kinds": {
+  "notice_to_vacate": "the 30-day letter — paper, dated, the clock the tenant starts",
+  "lease_end": "the term simply runs out — no drama, a choice both sides saw coming",
+  "bought_out": "the tenant becomes the owner — the progression-arc exit; the unit leaves the rental stock",
+  "evicted": "admin-layer only — the filing's end state; texture is the moved boxes, never a feed name",
+  "household_split": "the share dissolves — the payer who was never on the lease leaves with no paper trail at all"
+ },
+ "work": [
+  {
+   "employer": "Mudhaus Coffee",
+   "venue_id": "mudhaus",
+   "notice_days": 14,
+   "notice_to": "Marisol (c1) — at the counter before 9:00 or after the 14:00 lull; never mid-rush. She asks one question — 'last day?' — writes it on the schedule board, and starts reading reply cards the same afternoon",
+   "last_shift": "whoever's leaving pulls the closing they trained on; the regulars learn it by the second-to-last day because the house knows a goodbye tilt in the milk. Reyes (a01) usually covers the overlap shift — the quiet handoff nobody announces",
+   "reference": "Marisol gives real ones — two sentences, specific, said to a person not a form. Jules's name carries weight at every coffee counter in the neighborhood because Marisol's word does",
+   "stays": "the punch card by the register, the name on the board until the next hire's first Saturday",
+   "texture": "a short-staffed week is the tell — the board shows the gap before anyone says it aloud"
+  },
+  {
+   "employer": "Taqueria El Farolote",
+   "venue_id": "el-farolote",
+   "notice_days": 14,
+   "notice_to": "Tomás (c8) — in the kitchen, hands working, after the lunch rush. He nods, asks 'you good?' once, and the next schedule still has your name on it until the day",
+   "last_shift": "the leaver works the line through the last ticket like any other night; the send-off is the family meal — somebody always makes the thing the leaver ordered most",
+   "reference": "Tomás vouches in person, kitchen-to-kitchen — 'worked my line two years' is the whole letter and kitchens take it",
+   "stays": "the knife roll if it's the house's; a name scratched into the walk-in door frame goes back years",
+   "texture": "line cooks leave kitchens all over the city; El Farolote's exits are quiet because its shifts are honest"
+  },
+  {
+   "employer": "Flying Pannier Courier Co-op",
+   "venue_id": "flying-pannier",
+   "notice_days": 7,
+   "notice_to": "the manifest board — you take your name off the rotation yourself, then tell whoever's dispatching. The co-op has no boss to resign to; the exit is a vote counted",
+   "last_shift": "a last route sheet like any other; the goodbye is the riders buying the leaver a beer at the end of the alley stand-down",
+   "reference": "the co-op's word travels rider-to-rider — Marcus's (c5) route reputation is the reference; nobody writes anything",
+   "stays": "a locker slot, a name on the winter-gear shelf",
+   "texture": "intake twice a year means departures are seasonal-shaped — the roster breathes rather than churns"
+  },
+  {
+   "employer": "MuleIt",
+   "venue_id": "muleit",
+   "notice_days": 0,
+   "notice_to": "nobody — you stop opening the app. The exit interview is a push notification asking why your rating dropped",
+   "last_shift": "indistinguishable from every other shift; there is no last shift, only a last delivery",
+   "reference": "none — the star rating is the whole file and it doesn't transfer anywhere",
+   "stays": "the insulated bag, paid off in the first month whether anyone remembers or not",
+   "texture": "churn is the business model; 'always hiring' on the board is this row's shadow"
+  },
+  {
+   "employer": "Buy-Rite Market",
+   "venue_id": "buy-rite-market",
+   "notice_days": 14,
+   "notice_to": "the shift lead, in the back by the loading door — the notice goes in the spiral notebook that is the store's whole HR department",
+   "last_shift": "the leaver gets scheduled for a closing with the lead they liked most; the send-off is a sheet cake from the bakery case with the name spelled wrong",
+   "reference": "the lead gives a phone reference; 'showed up, did the aisle, no drama' is the highest grade it issues",
+   "stays": "a locker in the break room, cleared same day — next hire needs it Monday",
+   "texture": "grocery turnover is constant city-wide; here it reads as ordinary, not troubled"
+  },
+  {
+   "employer": "Buy-Rite Creamery",
+   "venue_id": "buy-rite-creamery",
+   "notice_days": 14,
+   "notice_to": "whoever's scooping beside you tells the manager — the counter is four feet wide; there is no private way to quit",
+   "last_shift": "the leaver's last weekend line is the long one — a scooping send-off, tips split like always",
+   "reference": "the manager's reference is honest to a fault: hours kept, till accuracy, how the leaver handled a twenty-minute line",
+   "stays": "the scoop that's 'yours' gets reassigned; nobody talks about the seniority of scoops but everyone knows it",
+   "texture": "part-time work for younger hires — exits cluster on school calendars"
+  },
+  {
+   "employer": "Dolores Perk",
+   "venue_id": "dolores-perk",
+   "notice_days": 14,
+   "notice_to": "the owner, across the counter — a staff this small has no procedure, so the notice is just the truth said early",
+   "last_shift": "the regulars turn up on the last day like they knew — they did; the tip jar runs heavy",
+   "reference": "a personal call — the owner knows every café owner on the corridor and says the leaver's name like a recommendation all by itself",
+   "stays": "a mug with a chip, claimed by consensus as the leaver's, retired to the back shelf",
+   "texture": "one-counter shop; an exit reshuffles everyone's Saturday"
+  },
+  {
+   "employer": "Baguette About It Bakery",
+   "venue_id": "baguette-about-it",
+   "notice_days": 14,
+   "notice_to": "Hana (a16) if it's the counter staff, the owner if it's Hana — either way it's said before the 4:00 bake starts, because the day's whole shape is set by who's in",
+   "last_shift": "a last 4–13: the leaver's station done right one more time; the counter staff send off their own with the leftover rack at noon",
+   "reference": "Hana's written reference is terse and precise — bake consistency, early attendance — and every bakery on the corridor reads it correctly",
+   "stays": "the recipe card in the leaver's handwriting stays in the box; bakeries keep each other's handwriting for years",
+   "texture": "the holiday temp slot (nov15–dec24) ends by calendar — seasonal_end, the kind that needs no notice"
+  },
+  {
+   "employer": "Il Delfino",
+   "venue_id": "il-delfino",
+   "notice_days": 14,
+   "notice_to": "the floor manager, during line-up before service — servers' notices are announced to the room because the section map has to be redrawn same night",
+   "last_shift": "a Friday if they earned it — the leaver gets the good section one last time, tips pooled as usual, and the staff meal runs long",
+   "reference": "the manager's reference names covers-per-night and whether the leaver's sidework was ever found undone — the two things the next restaurant actually asks",
+   "stays": "a wine key, a name on the section map until Monday's redraw",
+   "texture": "restaurant turnover is the fastest on the board — two open server slots is the steady state, not a crisis"
+  },
+  {
+   "employer": "Auerbach Hardware",
+   "venue_id": "auerbach",
+   "notice_days": 14,
+   "notice_to": "Victor (c7), between customers — he listens, asks 'when', writes it in the ledger himself, and the conversation is over in under a minute. Rational, kind, unemotional: he thanks people for the notice and means it",
+   "last_shift": "a normal Tuesday — Victor doesn't do send-offs, but the leaver's last lunch order is on the store",
+   "reference": "the best reference on the board for trade work: 'reliable, honest with customers, knows stock' in Victor's flat delivery carries like a certification",
+   "stays": "the apron hook by the register — there are four, and a name tape stays until the next clerk's goes up",
+   "texture": "a mostly-solo operation; a clerk leaving is a real hole, and Victor absorbs it himself before he posts the card"
+  },
+  {
+   "employer": "Marooned Records",
+   "venue_id": "marooned",
+   "notice_days": 14,
+   "notice_to": "the owner, in the back between the crates — word-of-mouth hiring means word-of-mouth leaving; you tell the person who put your name forward first",
+   "last_shift": "one last weekend — twelve hours, the leaver plays whatever they want all Sunday",
+   "reference": "informal and real: the owner tells the next shop 'they held weekends for a year' — the whole reference",
+   "stays": "a staff pick card in the leaver's handwriting stays in the bin until it sells",
+   "texture": "the slot is word-of-mouth only — exits arrive the same way: someone hears before a card ever exists"
+  },
+  {
+   "employer": "Golden Hour Laundromat",
+   "venue_id": "golden-hour",
+   "notice_days": 7,
+   "notice_to": "the owner by phone — the evening attendant works alone, so the notice is a call, not a conversation",
+   "last_shift": "a solo closing like every other: mop, refund slips sorted, machines counted down. The send-off is the owner leaving a card in the supply closet",
+   "reference": "minimal — 'reliable evenings' is the whole file; this job's reference lives or dies on never missing a night",
+   "stays": "a key on the ring, the mop head preference nobody else shares",
+   "texture": "fifteen hours a week, solo — exits are quiet and the listing goes back on the board within days"
+  },
+  {
+   "employer": "Folsom Auto & Sons",
+   "venue_id": "folsom-auto",
+   "notice_days": 14,
+   "notice_to": "the shop foreman, at the toolbox before the first lift — you say it standing, not sitting",
+   "last_shift": "the leaver finishes their open tickets; the shop buys lunch on the last Friday and somebody always makes the joke about finally getting the good bay",
+   "reference": "the foreman's call names certifications and comebacks — the two numbers every shop asks about; Gus's (a10) name is the one that carries",
+   "stays": "a bay, a drawer in the shared toolbox that stays labeled until the new mechanic's first paycheck",
+   "texture": "trade exits are formal-ish even in a small shop — paperwork is real where liability is real"
+  },
+  {
+   "employer": "Needlepointe Tattoo",
+   "venue_id": "needlepointe",
+   "notice_days": 30,
+   "notice_to": "the shop owner, between appointments — a chair is a month of booked clients; notice is really a calendar handover",
+   "last_shift": "the leaver's existing bookings finish out; a guest chair at another shop is the usual next step and the block watches where it lands",
+   "reference": "the portfolio is the reference — Bex's (a14) chair reputation follows the work, not the shop's word",
+   "stays": "flash on the wall until it's claimed; the chair itself is the only real asset",
+   "texture": "commission-weighted: leaving is a client-book migration, and both sides feel it in the pocketbook for a month"
+  },
+  {
+   "employer": "Bloom & Doom Flowers",
+   "venue_id": "bloom-and-doom",
+   "notice_days": 14,
+   "notice_to": "Ida (a18) for counter help — said before the morning delivery, because the stem count is planned around who's in",
+   "last_shift": "a wedding Saturday if one lands — the leaver works their last event table; the send-off is an arrangement made from whatever was about to wilt, which is the house's idea of a joke and a compliment",
+   "reference": "Ida names reliability at event deadlines — 'she was never the reason a bride waited' is the whole letter",
+   "stays": "a pair of shears in the apron drawer; the apron drawer remembers everyone",
+   "texture": "the eight-hour Saturday slot turns over on school-year rhythm — exits cluster in May and September"
+  },
+  {
+   "employer": "Malik's Mini Mart",
+   "venue_id": "maliks",
+   "notice_days": 14,
+   "notice_to": "Malik (a03) himself — owner-clerk, so the notice is the whole conversation; on a thin margin he asks 'can you give me three weeks' and usually gets it",
+   "last_shift": "a normal counter day; the send-off is Malik comping the leaver's groceries for the week — the store's margin stretched as far as it goes",
+   "reference": "Malik gives honest phone references — 'trusted with the drawer' is the phrase that matters and he does not say it lightly",
+   "stays": "a name tape on the smock peg; the smocks are shared and outlast everyone",
+   "texture": "thin margin means every departure is felt in the owner's own hours until the slot fills"
+  },
+  {
+   "employer": "Frutería Las Palmas",
+   "venue_id": "las-palmas",
+   "notice_days": 3,
+   "notice_to": "the growers' market manager or Luz (a07) herself — informal cash work; three days is a courtesy, not a rule, and giving it keeps the stall a friendly door",
+   "last_shift": "a last market day, cash settled at close same as always; the send-off is a bag of whatever's ripe — cash work ends cash-simple",
+   "reference": "word travels the growers' circle — 'shows up before dawn, good with regulars' is the entire reference and it is enough",
+   "stays": "a stall apron, a crate tag with a name on it",
+   "texture": "informal work has informal exits — the notice that matters is the one that keeps the next season open"
+  },
+  {
+   "employer": "Mission Branch Library",
+   "venue_id": null,
+   "notice_days": 14,
+   "notice_to": "the branch manager, in writing — public work runs on paper: a resignation memo, a transition plan, a last-day date on the staff calendar",
+   "last_shift": "a last desk shift; the goodbye is a card signed by every regular patron who heard — Vera's (a11) eventual exit, whenever it comes, will be the longest card on the block",
+   "reference": "a real written reference on letterhead — the library's is the most formal reference this board produces",
+   "stays": "a nameplate, a reading-list bookmark file that outlives its maker",
+   "texture": "public-sector exits are slow and documented — the paper is the texture"
+  },
+  {
+   "employer": "SF General",
+   "venue_id": null,
+   "notice_days": 28,
+   "notice_to": "the charge nurse, then HR — two weeks is the custom but the unit asks a month because scheduling three-by-twelves takes one",
+   "last_shift": "a last rotation; the send-off is the break room — somebody always makes the sign, and the night-shift version is quieter and means more",
+   "reference": "credential + charge-nurse reference; Priya's (c4) and Asha's (a09) names carry unit weight — 'I would work a code with them' is the sentence that matters",
+   "stays": "a locker, a badge that deactivates at midnight on the last day — hospital exits have a literal switch",
+   "texture": "the CNA/tech openings churn fastest — the gap between credential cost and pay is where hospital turnover lives"
+  },
+  {
+   "employer": "Dog-walking (independent)",
+   "venue_id": null,
+   "notice_days": 14,
+   "notice_to": "the clients, one at a time — Doro (a02) would hand each owner a date and a recommended replacement; independent work has no boss, so every client is a separate resignation",
+   "last_shift": "a last round of walks — the dogs don't know, the owners do; the texture is leashes handed over, not a party",
+   "reference": "the client list itself is the reference — a walker's book transfers or it doesn't, and a warm handoff is worth more than any letter",
+   "stays": "a spare-keys ring, the treat pouch",
+   "texture": "independent work exits as a book-of-business handoff — the humane version takes weeks"
+  },
+  {
+   "employer": "Construction (Folsom lot)",
+   "venue_id": null,
+   "notice_days": 3,
+   "notice_to": "the site foreman, at the trailer — labor exits are short-notice by convention; a day's warning is professional, a week's is generous",
+   "last_shift": "the leaver works to the whistle like any other day; the send-off is the crew saying the name at the end-of-shift tailgate — a handshake line, no paper",
+   "reference": "the foreman's word to the next site — 'good hands, shows up, works safe'; Cole (a17) leaving would get exactly that",
+   "stays": "a hard-hat sticker, a name in the sign-in book that ends mid-column",
+   "texture": "jobs end when the pour ends — some exits are the site finishing, not the worker quitting"
+  },
+  {
+   "employer": "Nimbus9 (remote)",
+   "venue_id": "nimbus9",
+   "notice_days": 14,
+   "notice_to": "a video call with a manager nobody on the block has met — remote exits happen on a screen in a bedroom at 9457-adjacent housing stock; the neighbors learn at the farewell dinner, not the resignation",
+   "last_shift": "a last sprint review; the laptop gets boxed and shipped — the exit's physical evidence is a courier label",
+   "reference": "a manager reference over email; Nadia's (a13) next job hears 'shipped, reviewed well, stayed calm in incidents' — remote work's vocabulary",
+   "stays": "a company laptop (returned), a standing desk that was always hers",
+   "texture": "the only employer with no door on the block — its exits leave no physical trace on the street at all"
+  },
+  {
+   "employer": "Busking (park corners)",
+   "venue_id": null,
+   "notice_days": 0,
+   "notice_to": "the corner's custom — Sam (a08) would tell the morning regulars himself; a pitch is held by presence and courtesy, not by any document",
+   "last_shift": "a last Sunday set at the usual corner; the send-off is the other players taking the afternoon slot unprompted — the park's way of marking a chair",
+   "reference": "none — the hat is the ledger; a busker's reputation is audible, not written",
+   "stays": "nothing — the corner was never owned, only kept",
+   "texture": "informal to the root: an exit is an empty corner one Sunday, then a new player the next"
+  },
+  {
+   "employer": "Hemming (word of mouth)",
+   "venue_id": null,
+   "notice_days": 0,
+   "notice_to": "the customers, as the work finishes — Carmen (c6) winds down a word-of-mouth practice by finishing the basket and not taking new mending; the exit is a taper, not a date",
+   "last_shift": "the last hem delivered in the brown paper she always uses; no last day, just a last piece",
+   "reference": "the work itself — every altered jacket on the block is a walking reference",
+   "stays": "the pin cushion, the good scissors — the tools retire with the hands",
+   "texture": "informal atop a pension: an exit here is a slowing, and the neighborhood notices it as fewer bags by the door"
+  }
+ ],
+ "housing": [
+  {
+   "building_id": "bld-g9418",
+   "address": "9418 Guerrero St",
+   "notice_days": 30,
+   "deposit_clock_days": 21,
+   "turnover_scope": "owner-direct — Victor walks the unit with the outgoing tenant, notes it against the move-in card, and does the paint touch-up himself on a Tuesday",
+   "relist": "the corkboard card and the door's paper — B went up owner-direct and it will come back the same way; no listing site touches this building",
+   "texture": "a two-unit Victorian with one tenant since 1989 — a vacancy here is an event; the hallway notices the quiet before the card goes up"
+  },
+  {
+   "building_id": "bld-g9457",
+   "address": "9457 Guerrero St",
+   "notice_days": 30,
+   "deposit_clock_days": 21,
+   "turnover_scope": "owner-direct — same Tuesday-table process; the contested-raise history means every notice in this building gets read twice",
+   "relist": "the board + word of mouth through the hallway — units here fill faster than the card's days-on-board because tenants' friends ask first",
+   "texture": "three stacked flats with a live dispute upstairs — a turnover here is watched by everyone who's ever argued a raise"
+  },
+  {
+   "building_id": "bld-c9127",
+   "address": "9127 Capp St",
+   "notice_days": 30,
+   "deposit_clock_days": 21,
+   "turnover_scope": "manager-run — studios turn over on a checklist: clean, patch, key the lock; the mailbox ear becomes the mailbox exit — paper to the management address, walkthrough by appointment",
+   "relist": "the board card, typed — Capp studios are the block's starter units and the card rarely lasts a fortnight",
+   "texture": "four small studios, no hallway culture — a move-out is a truck on Capp and a door that stays shut"
+  },
+  {
+   "building_id": "bld-g9263",
+   "address": "9263 Geneva Ave",
+   "notice_days": 30,
+   "deposit_clock_days": 21,
+   "turnover_scope": "leaseholder-mediated — the family lease means a vacancy is really a household decision first; the owner hears after the cousins have already talked about who might take the room",
+   "relist": "word of mouth inside the family network — this flat has never been on the board; rooms move through the cousins' circle",
+   "texture": "a room-share flat — the informal payer's exit (Dani's $700 share) leaves no paper at all, just a quieter kitchen"
+  },
+  {
+   "building_id": "bld-f9344",
+   "address": "9344 Folsom St",
+   "notice_days": 30,
+   "deposit_clock_days": 21,
+   "turnover_scope": "admin-mailbox — studios, single tenants: notice to the management mailbox, walkthrough scheduled by reply, deposit on the clock like everywhere else",
+   "relist": "the board — studio cards at this price point move fast; a Folsom studio is a week's vacancy, not a month",
+   "texture": "Tomás's building — single-tenant studios where a turnover is a cleaning day and a fresh key"
+  },
+  {
+   "building_id": "bld-m9102",
+   "address": "9102 Mission St",
+   "notice_days": null,
+   "deposit_clock_days": null,
+   "turnover_scope": "owner-occupied — Victor lives over his own store; there is no tenant to give notice and no deposit to return. The only 'exit' this flat knows is a sale, and that's a different ledger",
+   "relist": "n/a — never lists; the mixed-use flat is held, not rented",
+   "texture": "the one door on the block where the exit layer is empty by construction — a kept unit, not a turnover"
+  },
+  {
+   "building_id": "ambient-ring",
+   "address": null,
+   "notice_days": null,
+   "deposit_clock_days": null,
+   "turnover_scope": "off-registry — ambient households' arrangements are their own; a vacancy in the ring is invisible to the board until a promotion mints a real address per the address spec",
+   "relist": "off-registry — rooms move through the same informal networks that stock the ring",
+   "texture": "the ring churns quietly — households appear and thin out a block beyond the registry's edge"
+  }
+ ],
+ "feed_shapes": {
+  "contract": "the door, never the name — same rule as the grievance layer. A departure is public only where the world can already see it: a card coming down, a card going up, a last-shift beat the venue's own texture makes visible. Filings, deposits, and notice letters are never feed events — they're ledger facts the parties hold",
+  "work": [
+   "a job opening posted — <venue>",
+   "a card came down — <venue>",
+   "a new face behind the counter — <venue>"
+  ],
+  "housing": [
+   "a unit back on the board — <address>",
+   "a card came down — <address>",
+   "a tenant gave notice — <address>"
+  ],
+  "never": [
+   "names of leavers",
+   "reasons for leaving",
+   "deposit amounts or deductions",
+   "who declined whom",
+   "a quit or an eviction as a named event"
+  ]
+ }
+};
+
+const $=id=>document.getElementById(id);
+let side={work:true,housing:true}, kind="";
+$("sideTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  side[b.dataset.v]=!side[b.dataset.v]; b.classList.toggle("on",side[b.dataset.v]); render();});
+$("kindTgl").querySelectorAll("button").forEach(b=>b.onclick=()=>{
+  kind=b.dataset.v;
+  $("kindTgl").querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b)); render();});
+
+function esc(s){return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;");}
+function row(k,v){return v==null?`<div class="row"><span class="k">${k}</span><span class="v dim">—</span></div>`
+  :`<div class="row"><span class="k">${k}</span><span class="v">${esc(v)}</span></div>`;}
+
+function render(){
+  const g=$("grid"); g.innerHTML=""; let n=0;
+  if(side.work) for(const r of EXITS.work){
+    const noticed=r.notice_days>0;
+    if(kind==="notice"&&!noticed)continue;
+    if(kind==="none"&&noticed)continue;
+    const el=document.createElement("div"); el.className="card";
+    el.innerHTML=`<div class="hd">${esc(r.employer)}<span class="tag">work · <span class="nd">${
+      r.notice_days?r.notice_days+"d notice":"no notice norm"}</span></span></div>
+      <div class="bd">${row("notice to",r.notice_to)}${row("last shift",r.last_shift)}
+      ${row("reference",r.reference)}${row("stays behind",r.stays)}</div>
+      <div class="tex">${esc(r.texture)}</div>`;
+    g.appendChild(el); n++;
+  }
+  if(side.housing) for(const r of EXITS.housing){
+    const noticed=r.notice_days>0;
+    if(kind==="notice"&&!noticed)continue;
+    if(kind==="none"&&noticed)continue;
+    const el=document.createElement("div"); el.className="card";
+    el.innerHTML=`<div class="hd hous">${esc(r.address||"ambient ring")}<span class="tag">housing · <span class="nd">${
+      r.notice_days?r.notice_days+"d / "+r.deposit_clock_days+"d deposit":"off-registry"}</span></span></div>
+      <div class="bd">${row("turnover",r.turnover_scope)}${row("relist path",r.relist)}</div>
+      <div class="tex">${esc(r.texture)}</div>`;
+    g.appendChild(el); n++;
+  }
+  $("cnt").textContent=n+" cards · schema v"+EXITS.version;
+  const fs=EXITS.feed_shapes;
+  $("feedbox").innerHTML=`<h3>Feed shapes — the door, never the name</h3>`+
+    fs.work.concat(fs.housing).map(l=>`<code>${esc(l)}</code>`).join(" · ")+
+    `<br><span class="never">never: ${esc(fs.never.join(" · "))}</span>`;
+}
+render();
+</script>
+</body>
+</html>

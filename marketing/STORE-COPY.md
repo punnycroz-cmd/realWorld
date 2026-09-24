@@ -1,12 +1,16 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v78 — store-operations depth pass (store-page FAQ, refund/support
-copy, itch community policy, wishlist posture, other-storefront audit) +
-v48 art rebase, 2026-09-24.** Supersedes v63.
+**Status: v153 — NEW §38 in-product purchase microcopy (wallet sheet,
+ads opt-in, checkout cards, state cards, session strings, co-sponsor,
+money-UI deny-list — every string mapped to `world/requests.json`
+contract blocks); store/preview.html screenshot drift fixed (v71→v76,
+caught by store_copy_check — 4 fails now clean), 2026-09-24.**
+Supersedes v152.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
-`tools/make_brand_assets.py` — the only outstanding art dependency is the
-Steam library hero (§4). This document is the single source of truth for
+`tools/make_brand_assets.py` — with v138 the full §4 set including the
+Steam library hero exists on disk (the hero is a generated interim, §37).
+This document is the single source of truth for
 storefront copy: master copy plus per-platform variants (itch.io primary,
 Steam conditional), field-length checks, capsule/hero art specs, disclosure
 matrix, and a paste-ready submission packet (§9). All claims verified
@@ -177,7 +181,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v48-A..D.png` (4 ready, grounded-shadow build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v76-A..D.png` (4 ready, v76 crepuscular-lanes build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -191,9 +195,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v48-D (director view — the hook), v48-B
-(street level), v48-C (Dolores Park), v16-int-cafe (interior vignette),
-then v48-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v76-D (director view — the hook), v76-B
+(street level), v76-C (Dolores Park), v16-int-cafe (interior vignette),
+then v76-A and the v1 before/after pair lower down for dev-minded readers.
 
 ---
 
@@ -252,13 +256,13 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v48-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v76-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
 | Steam | Vertical capsule | 374×448 | **Done** — `store/capsules/steam-vertical-374x448.png` |
 | Steam | Library capsule | 600×900 | **Done** — `store/capsules/steam-library-600x900.png` |
-| Steam | Library hero | 3840×1240 | **FLAG** — needs commission or 2× upscale pass (art-track request) |
+| Steam | Library hero | 3840×1240 | **Done (interim)** — `store/capsules/steam-library-hero-3840x1240.png`, generated composite (blurred wings + crisp center panel + lockup); replace with commissioned art if the Steam page ever becomes real (§37) |
 | Steam | Client logo | transparent PNG | **Done** — `store/capsules/steam-client-logo.png` |
 | Steam | Page background | 1438×810 max | **Done** — `store/capsules/steam-page-bg-1438x810.png` (397 KB < 500 KB) |
 | Social | OG / Twitter card | 1200×630 | **Done** — `site/assets/og-card.png` |
@@ -355,13 +359,19 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v48-D "director view" → "Aerial view
-of the Mission block at golden hour — the spectator camera's home position.";
-v48-B street level → "Street-level view: facades, parody storefront signage,
-a resident mid-errand."; v48-C park → "Dolores Park edge — palms, lawn,
-residents on routines."; v16-int-cafe → "Interior vignette behind the glass:
-the café venue from the street camera."; v1 pair → "Same engine, day one —
-the before/after that anchors the devlog series."
+`press-kit/captions.txt` as canonical): v76-D "director view" → "Director
+mode over the rooftops and laundry lines under silver-lined cumulus —
+REC cluster and DIRECTOR badge up top, the rebuilt lens rendering one
+weather-driven visibility distance."; v76-B street level → "Street-level
+close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
+storefronts, parked cars, leaves drifting, name tags overhead."; v76-C
+park → "Dolores Park from overhead — crown-genome trees in rust and gold
+across meadow-drifted lawns, a crepuscular light lane landing between
+the shadows, tennis courts on the south edge."; v76-A overhead → "The Mission block around 24th and Guerrero from
+overhead on an autumn afternoon — leaves drifting over rooftops and
+parked cars, dressed facades, inspector open on a resident."; v16-int-cafe → "Interior vignette behind the glass: the café
+venue from the street camera."; v1 pair → "Same engine, day one — the
+before/after that anchors the devlog series."
 
 **Feed-vocabulary note for storefront copy:** if marketing ever quotes feed
 statuses on a store page, the canonical vocabulary is `world/requests.json`
@@ -384,7 +394,7 @@ drafted; submission is owner-gated like everything else.
 | Tagline | 60 | `A neighborhood that never stops performing.` (43) |
 | Description | 260 | `A persistent AI neighborhood on a real Mission District block. 28 fictional residents live around the clock — watch free, forever. Reach in with a time-boxed request, or move in yourself: rent, work, own the block.` (214) |
 | Topics | 3–4 | `Simulation` `Indie Games` `Artificial Intelligence` `Free` |
-| Media | — | gallery: `keyart-16x9.png` + `v48-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
+| Media | — | gallery: `keyart-16x9.png` + `v76-D/B/C` stills; video slot: `trailer/out/animatic-hero.mp4` until the real trailer exists |
 | Launch day | — | Tuesday–Thursday, 00:01 PT, per PH convention — fold into the LAUNCH-CHECKLIST T-minus run sheet when scheduled |
 
 **Maker's first comment** (posted at launch, from the dev account — no
@@ -484,7 +494,15 @@ source contract changes, the claim changes — never the reverse.
 | Public feed vocabulary (requested…player session ended) | `requests.json` feed_vocabulary | shipped contract |
 | Real streets, parody businesses, generated addresses | `world/businesses.md` + user-decision 2026-09-22 | shipped contract |
 | LLM-driven residents; no voice lines; no loot boxes/gacha/RMT | design doc (voice/TTS cut; monetization bans) | design |
-| Screenshots = real development-build captures | `site/shots/` (art-v48 build) | shipped |
+| Screenshots = real development-build captures | `site/shots/` (art-v76 build) | shipped |
+| Wallet packs $0.99–$99.99 / 100–14,000 cr, +50% first buy, $200/day cap | `requests.json` wallet.packs/first_purchase_bonus/daily_spend_cap | contract (numbers PROPOSAL) |
+| Rewarded ads 2 cr/view, 5/day, 25/week, wallet-only placement | `requests.json` wallet.rewarded_ads | contract (PROPOSAL) |
+| Queued countdown string, expiry auto-refund | `requests.json` queue_hold.display/expiry | shipped contract (locked string) |
+| Modified-approval offer card: trim only, decline free, price diff refunds | `requests.json` approve_modified | shipped contract |
+| Appeal = private, 72 h, different reviewer; 2 classes not appealable | `requests.json` appeals | shipped contract |
+| Low-balance toast ≤15 min, extend at class rate within cap | `requests.json` session_controls/session_extend | shipped contract |
+| Briefing card = public profile only; secrets absent by schema | `requests.json` possession_briefing | shipped contract |
+| Co-sponsor same-price, ≤4, named on feed | `requests.json` co_sponsor | shipped contract |
 
 ---
 
@@ -768,7 +786,7 @@ in the long description, disclosure matrix gains moderated-UGC + AI-content
 rows, new §9 submission packet + caption/alt-text set + feed-vocabulary
 rule. Update when: monetization numbers finalize, Steam wrapper decision
 made, the library hero lands, or the request catalog/feed vocabulary changes
-(grep this file for the old rates). **v48 changes:** new §10 Product Hunt
+(grep this file for the old rates). **v50 changes:** new §10 Product Hunt
 launch card, §11 itch page theme palette (from brand tokens), §12 Steam
 system-requirements block, §13 A/B short-description variants, §14 claim
 ledger mapping every store claim to its source contract; gallery/capsules/
@@ -795,10 +813,10 @@ renumbered §15→§20; §8/§9 now route through the checker.
 **v53 changes:** gallery/capsules/keyart rebased to the art-v36 build
 (Karl's marine layer over the Mission; boom-rig/veiling-glare lens work);
 trailer EDL + all animatics/thumbnails rebuilt on v36 stills.
-**v78 changes:** gallery/capsules/keyart/og-card rebased to the art-v48
+**v78 changes:** gallery/capsules/keyart/og-card rebased to the art-v50
 build (lived-in ground line: areaway lightwells, toter bins, garage-door
 throwies, cornice pigeons — same framings/weather pins as v47); trailer
-EDL + animatics/thumbs rebuilt on v48 stills. New §20 store-page FAQ
+EDL + animatics/thumbs rebuilt on v50 stills. New §20 store-page FAQ
 block (8 Q&As, purchase-adjacent register), §21 refund/support/billing
 copy (verbatim refund policy + support table + chargeback stance), §22
 itch.io community & comments policy (first comment, reply SLA, ratings
@@ -806,4 +824,572 @@ rules, devlog cadence), §23 wishlist/"coming soon" posture (itch follow
 ask; Steam coming-soon gates incl. "To be announced" only), §24
 other-storefront audit (Epic/GOG/Humble/portals/mobile verdicts);
 versioning note renumbered §20→§25; §14 claim-ledger art-build cite
-refreshed v40→v48.
+refreshed v40→v50.
+
+**v93 changes:** art rebase v50→v53 (specular window glints, eave-shadow
+shear, lamplit spill — autumn-turn build): §2.4/§2.5/§4 screenshot
+refs, §9 caption set rewritten to match `press-kit/captions.txt` v53
+wording (inspector on Jules, Karl pooling at the park edges, REC cluster),
+§10 media row, §14 ledger cite. Capsules/keyart/og-card already rebaked on
+v55-D at v91 — no asset work needed, this was pure copy drift (caught by
+`store_copy_check.py`: the v50-A..D range check FAILED). New §26 itch.io
+complete field map (every project-edit field incl. sidebar "more
+information" + external links with UTMs), §27 store-update SOP (the
+rebase drill that this drift proved necessary — grep pattern + script
+order + checker gate), §28 bundle-invitation stance (decline; why a live
+free page can't bundle).
+
+**v108 changes:** four new sections closing the remaining decision gaps
+on the conditional Steam path — §29 Steam platform-feature decisions
+(achievements/leaderboards/workshop/Deck all NO; trading cards deferred;
+a badge is a claim), §30 festival & event stance (Next Fest declined —
+the honest demo is the free spectator layer, not a scripted slice; jams
+declined; awards gated on real feed history), §31 Steam announcement
+drafts (launch / major-update / seasonal — the announcements surface as
+the change-log of record for §5 disclosures), §32 seasonal store-art
+freshness rule (store shots never lag the live world's season by more
+than one — solstice/equinox trigger wired into §27), §33 owner-decision
+register (14-row consolidated table of every PLACEHOLDER/FLAG/PROPOSAL
+in the doc). No copy claims changed; §27 gained the seasonal trigger row.
+
+**v123 changes:** art rebase v55→v61 (real aerial camera — rooftops,
+trees, and pawns lean outward from the frame nadir; lateral chromatic
+aberration on the lens): §2.4/§2.5/§4 screenshot refs, §9 caption set
+rewritten to match `press-kit/captions.txt` v61 wording (cumulus shower
+cells, marine haze, re-framed park overlook), §10 media row, §14 ledger
+cite, §32 seasonal note. Capsules/keyart/og-card already rebaked on
+v61-D at v122 — no asset work needed. New §34 Steam markup (BBCode)
+about-section variant — paste-ready, since Steam takes no Markdown;
+§35 local store-page preview (`store/preview.html`) + preview-drift
+rule; §36 post-launch page lifecycle (day-7/30/90 copy states). §27 SOP
+unchanged; §33 register gained no new rows (preview is local-only).
+
+**v153 changes:** NEW §38 in-product purchase microcopy — the canonical
+string deck for every money surface inside the product: §38.1 wallet
+sheet (pack display names + framings on the contract-locked
+`wallet.packs` ids, no-expire/non-transferable line, first-purchase
++50% flag, $200/day-cap surface, ledger header), §38.2 rewarded-ads
+opt-in card, §38.3 per-action request checkout cards (button carries
+the price; refund line on every card), §38.4 post-submit state cards
+reusing feed_vocabulary verbatim incl. the locked queue-hold countdown
+string and the private appeal path, §38.5 possession session strings
+(briefing-card "not redacted — absent" header, low-balance toast,
+extend, end-early, cap handoff, thin-AI wakeup), §38.6 co-sponsor card,
+§38.7 money-UI deny-list. §14 claim ledger gains 8 rows mapping the new
+strings to their `requests.json` blocks. Also fixed real drift:
+`store/preview.html` still pointed at the deleted v71 screenshot set —
+rebased to v76 with §9 caption wording (store_copy_check 4→0 fails).
+No store-page copy (§1–§3) changed; §33 register unchanged (pack
+prices remain under the existing PROPOSAL row 4).
+
+---
+
+## 26. itch.io complete field map (every project-edit field)
+
+§2.1 covers the headline fields; this table is the rest of the edit form so
+submission day is transcription, not decisions. `PLACEHOLDER` rows are
+owner-gated (LAUNCH-CHECKLIST gates noted).
+
+| itch field | Value | Source |
+|---|---|---|
+| Project URL slug | `real-world-the-mission` | title, §2.1 |
+| Classification | Games | — |
+| Kind of project | HTML | browser-native |
+| Release status | In development | §2.1 early-access flag |
+| Pricing | $0 (free); "pay what you want" OFF | donations bypass credits, §2.1 |
+| Genre | Simulation | primary + only honest genre |
+| Tags | §2.3 ordered list | ≤10 shown |
+| Cover | `store/capsules/itch-cover-630x500.png` | §4 |
+| Theme palette | §11 verbatim token values | brand-tokens.json |
+| Header image | `banners/banner-x-1500x500.png` | §11 |
+| Viewport/embed | 1280×720, click-to-run, fullscreen on | §2.5 |
+| Comments | ON — policy §22 | first comment pre-drafted |
+| External links | see link table below | — |
+| Visibility | Draft → owner review → public | §9 step 10 |
+
+**External links** (itch shows these as page links; every one carries UTM
+per ANALYTICS.md conventions — `utm_source=itch&utm_medium=store`):
+
+| Label | URL |
+|---|---|
+| Website | `https://<domain>/?utm_source=itch&utm_medium=store` |
+| Watch the neighborhood | `https://<domain>/demo.html?utm_source=itch&utm_medium=store` |
+| The Wire (public feed) | `https://<domain>/wire.html?utm_source=itch&utm_medium=store` |
+| Press kit | `https://<domain>/press-kit.html?utm_source=itch&utm_medium=store` |
+| Community rules | `https://<domain>/rules.html?utm_source=itch&utm_medium=store` |
+
+**"More information" sidebar** (itch's standard metadata block — publish it
+honest):
+
+| Sidebar field | Value |
+|---|---|
+| Status | In development — live dev build, watching free from day one |
+| Platforms | HTML5 (any modern browser; mobile-friendly) |
+| Author | `[STUDIO NAME]` (**PLACEHOLDER** — owner-gated, G6) |
+| Made with | Custom canvas renderer + LLM-driven residents (disclosed, §5) |
+| Session length | Any — drop-in spectator model |
+| Inputs | Mouse/touch; keyboard not required |
+| Links | Website · Public feed · Press kit · Community rules (UTM table above) |
+
+Never fill fields we can't honor: no "local multiplayer" flag, no
+controller-support flag, no release date until the owner commits one.
+
+---
+
+## 27. Store-update SOP (the rebase drill)
+
+Every art rebase or contract change has drifted this file once — this is
+the checklist that prevents it. Run in order; each step has a verify.
+
+| # | Trigger: new art build published (`v{N}-A..D` in `published/`) |
+|---|---|
+| 1 | Copy shots to `site/shots/` + `press-kit/screenshots/`, regenerate `.webp` |
+| 2 | Re-pin `SHOT` in `tools/make_brand_assets.py` → `v{N}-D`, rerun it (capsules, keyart, og-card, banners) |
+| 3 | `bash build-press-kit.sh` — rebuilds the dist zip |
+| 4 | `rg -n "v\d+-(A|B|C|D)" STORE-COPY.md` — every stale ref must move to `v{N}` (§2.4, §2.5, §4, §9, §10, §14) |
+| 5 | Rewrite §9 caption set + `captions.txt` to describe the *new* frames — never carry over weather/fog claims |
+| 6 | `python3 tools/store_copy_check.py` → 0 fail; `tools/preflight.sh` → GO |
+| 7 | Append a versioning-note line (§25) naming the build and its visual signature |
+
+| # | Trigger: `world/requests.json` rates or feed vocabulary change |
+|---|---|
+| 1 | `rg -n "cr|credit" STORE-COPY.md` — §2.2 menu, §13 variants, §14 ledger must match verbatim |
+| 2 | `rg -n "request_status\|feed_vocabulary" world/requests.json` — compare against §9 feed-vocabulary note |
+| 3 | If a PROPOSAL number finalizes, flip its label here and in PRICING-PAGE-CONTENT.md in the same commit — never half-final |
+
+| # | Trigger: calendar — solstice/equinox (§32 seasonal freshness) |
+|---|---|
+| 1 | Check the live world's season vs the current `v{N}` set's captions |
+| 2 | If a seasonal build exists in `published/`, run the art-build drill above; if not, keep the old shots — never recolor to fake a season |
+
+Rule of thumb: **copy cites builds, builds don't cite copy.** The claim
+ledger (§14) is the index of what to re-verify; if it's not in §14, it
+shouldn't be in the copy.
+
+---
+
+## 28. Bundle invitations — standing answer
+
+itch charity bundles and game-jam collections invite pages, not
+executable builds — so the question will come up. The answer is **no, on
+principle**:
+
+- Watching is already free — a bundle can't add value to the product.
+- A bundle "key" can never grant credits: paid agency is priced per
+  request against the live economy, and currency issued outside Stripe is
+  untraceable (breaks the two-walled-currencies claim, §5).
+- Bundle buyers reasonably expect downloadable games; ours is a live
+  shared shard — an installable copy would be a lie about the product.
+
+If the owner ever wants bundle-adjacent charity: offer the devlog/press
+materials (keyart, caption pack) to a bundle's promotional assets, never
+the product itself. Same verdict for Steam key bundles / gray-market
+resellers — no keys exist to sell.
+
+---
+
+## 29. Steam platform-feature decisions (checklist for the conditional page)
+
+Steam's partner form asks about a dozen features; each is a yes/no that
+becomes a store-page badge. Decided once here so the conditional page is
+transcription, not deliberation. Rule: **a badge is a claim — we only
+check features the product actually has.**
+
+| Steam feature | Decision | Why |
+|---|---|---|
+| Achievements | **NO** | No achievement system exists in the design. If game-systems ever ships one, it must be in-world first; never list badges for unbuilt features. |
+| Trading cards / points shop | **DEFER** (post-wrapper, owner decision) | Cosmetic marketplace fluff; needs the wrapper plus item art. If done, card art reuses `press-kit/` assets — no new commission. |
+| Steam Cloud | **NO** | The world is server-side; claiming Cloud saves is a lie (already §3.1). |
+| Steam Workshop / mods | **NO** | One shared server shard — there is no local install to mod. |
+| Leaderboards | **NO** | There is no win state; a leaderboard would contradict the design's anti-grief posture. |
+| Steam Deck verified | **NO — mark "Unsupported"** | Honest until a wrapper exists and is tested on-device. Note in the Deck field: "browser-native; runs in any modern browser including Deck's." |
+| Remote Play Together | **NO** | Spectator-only shared shard; nothing to remote-play. |
+| Family Sharing | default OFF (IAP products are excluded by Valve anyway) | No local license to share. |
+| VR | **NO** | Not in the design. |
+| Localization flags | **English only** | §7 audit; no baked-in copy in capsule art, so the page itself stays honest. |
+| Controller support | **NO** | Mouse/touch only (§3.1). |
+| MMO flag | **NO** | §3.1 — one shared world, many viewers; "Massively Multiplayer" would misdescribe it. |
+
+---
+
+## 30. Festival & event stance (where the page gets shown)
+
+| Event / surface | Verdict | Why / conditions |
+|---|---|---|
+| Steam Next Fest | **NO** (revisit post-wrapper) | Requires a downloadable demo — the product is browser-native. Worse, a scripted "demo slice" of a persistent shared world would be a lie about it: the honest demo is the free spectator layer itself, which needs no festival slot. If a wrapper ever ships, enter only if the demo build is the real spectator mode pointed at the live shard. |
+| itch.io game jams | **NO** | Page-only project, not a jam build; entering one would look like astroturfing. |
+| Store seasonal sales | **YES, under §18 rules** | Flat dates + price, no urgency theater, disclosure line verbatim. |
+| Steam "events" / announcements | owner-gated | §31 drafts exist; posting is a launch-decision like everything else. |
+| Awards / showcases (IGF, indie showcases) | owner decision, post-launch | Only enter once the request economy has real history to show — the same rule as Steam review keys (§3.4): an empty feed misrepresents the product. |
+
+The pattern: **we never trade a scripted impression for reach.** Every
+surface that would show a fake or empty version of the block is declined.
+
+---
+
+## 31. Steam announcement drafts (conditional — post-wrapper)
+
+Mirror of the §16 itch devlog cadence for Steam's announcement surface.
+Same voice, same honesty contract; post manually, nothing scheduled.
+
+**Announcement 1 — launch** · title: *Real World is live — watching is
+free, forever.* Body: three-sentence pitch (§1.3 ¶1), the spectator-first
+rule ("you never pay to watch"), link off-platform to the public request
+feed, the §1.5 legal line. No discount tied to launch — the paid layer is
+already priced upfront.
+
+**Announcement 2 — first major update** · title pattern: *Update: <what
+changed on the block>.* Body: 3 bullets of shipped changes (never
+roadmap), one screenshot, one feed pull-quote. If an update changes any
+§5 disclosure row, this is where it's disclosed — announcements are the
+change-log of record for store claims.
+
+**Announcement 3 — seasonal** · title: *The block turned <season>.* Body:
+one paragraph on the world's real calendar carrying into the sim, one
+seasonal screenshot, reminder that watching is free. These are the only
+recurring announcements — they cost nothing and prove the world persists.
+
+Cadence: announcements are events, not a drip — never post "stay tuned".
+
+---
+
+## 32. Seasonal store-art freshness rule
+
+The sim runs on the real calendar — the v76 captures are the autumn
+turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
+crowns while the live block is in spring is a quiet lie.
+
+- **Trigger:** at each solstice/equinox (and whenever the art track
+  publishes a seasonal build), run the §27 rebase drill. Store
+  screenshots must never lag the live world's season by more than one.
+- **Scope:** `site/shots/` latest set, `press-kit/screenshots/`,
+  capsules/keyart/og-card re-bake — the full §27 table, nothing partial.
+- **Non-seasonal shots are exempt:** interiors (v16 pair) and the v1
+  before/after carry no seasonal claim; keep them.
+- **Never fake a season:** if no current-season build exists, keep the
+  old shots and their honest captions — do not recolor or filter.
+
+---
+
+## 33. Owner-decision register (everything gated, one table)
+
+Every PLACEHOLDER/FLAG/PROPOSAL/owner-gated item in this document,
+consolidated. Nothing in §1–§36 ships until its row here is decided.
+Cross-refs: LAUNCH-CHECKLIST.md gates, INFRASTRUCTURE.md §secrets.
+
+| # | Decision needed | Blocks | Where noted |
+|---|---|---|---|
+| 1 | Domain name | every URL, UTM table (§26), support email | LAUNCH-CHECKLIST G3/G6 |
+| 2 | Studio/author name | itch sidebar, Steam partner, press kit | §26 sidebar, G6 |
+| 3 | `support@` address | §21 support block, itch field | §21, G6 |
+| 4 | Final pricing numbers | all PROPOSAL rows — §5 disclosure, §2.2 menu, PRICING-PAGE-CONTENT | §14 ledger |
+| 5 | Steam wrapper: build or not | entire §3 path + §29 badges + §30/§31 | §3, §24 |
+| 6 | Steam library hero commission/upscale | §4 FLAG row — last missing asset | §4 |
+| 7 | Stripe account + product creation | credit packs, subscriptions | deploy/stripe-products.json, INFRA |
+| 8 | Launch date / go-public call | §9 step 10, §23 posture, PH §10 | checklist |
+| 9 | First subscription discount | §18 rule 4 | §18 |
+| 10 | Product Hunt launch-day roster | §10 card | §10 |
+| 11 | Bundle exception (charity) | §28 standing "no" | §28 |
+| 12 | Under-13 spectator privacy pass | age-gating copy, §6 | §6, checklist |
+| 13 | Trading cards post-wrapper | §29 defer row | §29 |
+| 14 | Awards/showcase entries | §30 verdict row | §30 |
+
+Two rules for this table: **a decided row gets executed, not re-opened**
+(change means editing the doc, not improvising at the form); and **no
+row may be decided by omission** — a store field left blank at the form
+is a decision the table should have recorded.
+
+---
+
+## 34. Steam "about this game" markup variant (paste-ready)
+
+Steam's description field is not Markdown — it uses Steam's own bracket
+markup (`[h2]`, `[b]`, `[list]`, `[*]`, `[url]`). Below is §1.3 + §2.2
+re-rendered verbatim in that dialect so the conditional page is still
+transcription, not translation. Keep both versions in sync: **edit §1.3
+first, then re-render this block** (it is derived, not canonical).
+
+```text
+[h2]Real World is a neighborhood, not a level.[/h2]
+
+Set on real streets around Dolores Park in San Francisco's Mission
+District, Real World is a persistent life simulation where twenty-eight
+fictional residents — eight main characters with full AI minds, twenty
+ambient neighbors — live, work, feud, and make up around the clock. The
+world runs whether you're watching or not.
+
+[h2]Watching is the free heart of the game.[/h2]
+
+Follow any resident through their day. Read the public request feed —
+every intervention anyone has bought, attributed and priced in the open.
+Catch up on the week's drama like a serial. Observation never costs
+anything.
+
+[h2]When watching isn't enough, buy a moment — not the world.[/h2]
+
+File a request: a declared action with a declared duration, priced
+upfront in credits and capped hard. Possess your own character for
+thirty minutes. Call for rain over the park. Nudge a neighbor — an ask,
+not mind-control; they can say no. Requests sort themselves into
+exclusive, compatible, or queued; expire unfired and you're
+auto-refunded. When time runs out, the AI takes the character back
+seamlessly.
+
+[h2]Or move in.[/h2]
+
+Hire a character onto the cast — the only one you'll ever control —
+rent a room in game dollars, work a job at Mudhaus or Auerbach
+Hardware, save toward a deed. The ladder is the Mission's oldest story:
+tenant, owner, landlord. Miss rent and you can be evicted, same as
+anyone.
+
+[h2]The one rule that matters[/h2]
+
+The eight mains can never be possessed — not by players, not by us.
+Their secrets stay theirs. What you watch is real because nobody can
+fake it.
+
+[h2]What we don't sell[/h2]
+
+[list]
+[*] No loot boxes, no gacha
+[*] No cash-out, no crypto
+[*] No voice lines
+[*] Credits are non-transferable and never redeemable for money
+[/list]
+
+[h2]The request menu (current proposal — finalized before launch)[/h2]
+
+[list]
+[*] Possess your own character — 1.5 cr/min, 15–120 min
+[*] Camera director (spectator-side only) — 10 cr / 30 min
+[*] NPC nudge (an ask — they can decline; 50% back if they do) — 40 cr
+[*] Weather block over the neighborhood — 40 / 70 / 100 cr for 1 / 2 / 4 h
+[*] Event trigger at a venue or the park — 200 cr
+[*] Hire a character onto the cast — 500 cr one-time, human name review
+[/list]
+
+Queued requests cost 15% less and auto-refund if they expire unfired.
+Exclusive actions get human review; surge pricing (×1.5–2.5) is always
+shown before you pay, and cooldowns are never purchasable. Denied
+requests never bill.
+
+[i]All characters, businesses-as-populated, and addresses in Real World
+are fictional or system-generated. The streets are real; the people are
+not.[/i]
+```
+
+Steam formatting notes: em-dashes and curly quotes render fine; tables
+do not exist (hence `[list]`); images are uploaded via Steam's own
+screenshot slots, never inlined with `[img]` — the about section stays
+text-only. If Steam's parser ever strips an em-dash, replace with `—`
+spaced hyphens; do not rewrite the sentences.
+
+---
+
+## 35. Local store-page preview (`store/preview.html`)
+
+`store/preview.html` is a local-only mock of the itch.io project page —
+banner, title, tagline, cover capsule, §2.2 body, screenshot strip in
+the §2.5 order, and the §26 "more information" sidebar — rendered on the
+§11 palette so the owner can review the page as it will read before a
+single field is pasted. Open it from disk; no server, no analytics, no
+outbound links (all `<domain>` URLs rendered as `#`, marked).
+
+**Preview-drift rule:** the preview is a render of this document, not a
+second source of truth. Any copy edit to §1–§2 or §26 must be mirrored
+into `store/preview.html` in the same commit — treat a stale preview the
+same as stale copy (§27 applies: it is part of the rebase drill's
+grep surface). The file carries a visible "LOCAL PREVIEW — nothing
+published" banner so it can never be mistaken for a real listing.
+
+**Steam variant:** none built. Steam's page chrome is not ours to mock
+accurately; the capsule set (§4) plus the §34 markup block is the honest
+preview for the conditional page.
+
+---
+
+## 36. Post-launch page lifecycle (day-7/30/90 copy states)
+
+The store page is not a fixed paste — it has four copy states, each
+with a trigger and an owner-visible diff. Nothing here is scheduled;
+each state is a §9-style packet applied by hand.
+
+| State | Trigger | What changes on the page |
+|---|---|---|
+| **S0 draft** | now → go-call | Page-only project (§2.5), "in development" status, devlog Post 1 staged. |
+| **S1 launch week** | visibility → public | First comment posted (§22 rule 1), devlog Post 1 live, follow ask (§23) at page bottom. No copy edits — launch-day pages stay stable for screenshot consistency in press coverage. |
+| **S2 day 7–30** | first real feed history | Devlog Posts 2–3 (§16). If the request feed has produced a genuinely quotable moment, ONE pull-quote may be added under the honesty box — sourced, attributed, dated; never invented. Tagline A/B rotation (§13) may begin only after week 1 baseline CTR exists. |
+| **S3 day 90+** | steady state / "in development" review | When the sim's public build is the product people actually use, the early-access label comes off — owner decision, one commit flipping §2.1/§26 status rows + the sidebar "Status" line together (never half-flipped). |
+
+Rules that never change across states: the §1.5 legal line is on every
+state's page; a state transition never removes the honesty box or the
+request menu; PROPOSAL pricing language leaves only when §33 row 4 is
+decided — at which point every state updates in one commit.
+
+---
+
+## 37. Generated-asset provenance + preview-drift guard (v138)
+
+Two housekeeping rules now have teeth.
+
+**Library hero provenance.** `steam-library-hero-3840x1240.png` is a
+generated composite, not a capture: blurred wings stretched from the
+v76-D frame, a crisp center panel (~1.6× source), and the standard
+lockup in the left safe zone. It is honest Steam library art (logo only,
+no text — per the §4 text rule) and ship-able as-is, but it is flagged
+**interim**: if the conditional Steam page ever becomes real, commission
+or re-render a true 3840-wide hero and drop it in under the same
+filename — no copy changes needed. Provenance lives in
+`tools/make_brand_assets.py` (`draw_library_hero`), not in this doc.
+
+**Preview-drift guard.** §35's rule — preview.html must mirror this doc
+in the same commit — is now mechanical: `tools/store_copy_check.py`
+checks 8–9 fail on any dead local `<img>` in preview.html and on any
+capsule whose real pixel size contradicts its filename. First run of
+the new checks caught two real drifts: the screenshot strip still
+pointed at the deleted v61 press-kit set (rebased to v71 with §9
+captions) and the banner path pointed at a `site/assets/banners/`
+subdirectory that doesn't exist. Wired into `tools/preflight.sh` as
+step 5e, so the drift class fails the go-gate, not just a by-hand audit.
+
+---
+
+## 38. In-product purchase microcopy (the store surface inside the product)
+
+The storefront page is not the only place copy sells. The wallet sheet,
+the request form, and every money-adjacent card inside the product are
+store copy with smaller boxes — and the same honesty contract. This
+section is the canonical string deck. Every string maps to a shipped
+contract block in `world/requests.json` (cited per table); none of it is
+aspirational UI. Game track implements; marketing owns the wording.
+
+**Rules for money surfaces (all of them, always):**
+
+1. **The feed vocabulary is the only vocabulary.** In-product status
+   strings reuse `feed_vocabulary` verbatim — "not approved", never
+   "denied"; "player session ended", never "timed out". If the string a
+   player sees privately differs from what the feed shows publicly,
+   that's a bug.
+2. **Every number is shown before payment** — the surge multiplier
+   included (fairness_invariants). A price discovered after the click is
+   a dark pattern; we don't ship those.
+3. **No urgency, no loss frames.** Money UI never says "almost gone",
+   "don't miss out", "only X left", or runs a countdown that isn't the
+   real 24 h queue-hold clock. The one true countdown string is
+   contract-locked (§38.4).
+4. **Refunds are stated where the money moves**, not buried in a policy
+   page — every confirm card carries its refund line.
+
+### 38.1 Wallet sheet (credit packs)
+
+Pack ids are contract-locked (`wallet.packs`); display names and
+one-line framings below are the copy layer. All prices PROPOSAL until
+§33 row 4 lands.
+
+| id | Display name | Price | Credits | One-line framing (shown under the name) |
+|---|---|---|---|---|
+| pocket | Pocket | $0.99 | 100 | A nudge and change — the smallest honest way in. |
+| starter | Starter | $4.99 | 550 | A hire, or a string of small asks. |
+| regular | Regular | $9.99 | 1,150 | An afternoon on the block. |
+| plus | Plus | $19.99 | 2,500 | Weather and a weekend of watching closer. |
+| pro | Pro | $49.99 | 6,750 | For players who run the board, not just the feed. |
+| mogul | Mogul | $99.99 | 14,000 | The landlord pack — name fits, promise doesn't change. |
+
+Above the pack list, one line, verbatim:
+
+> Credits never expire. They're non-transferable and never redeemable
+> for money — they buy moments on the block, nothing else.
+
+First purchase (contract `first_purchase_bonus`, mult 0.5, once): the
+sheet flags it **before** the first buy —
+
+> First purchase +50% — applies once, to whichever pack you pick first.
+
+Daily spend cap (`daily_spend_cap_usd: 200`): only surfaces when hit —
+
+> That's today's $200 spend cap. The block will still be here tomorrow —
+> and watching is free.
+
+Ledger header (`wallet.ledger`):
+
+> Your ledger — every charge, refund, and earn, itemized. The public
+> feed shows refunds; this shows everything.
+
+### 38.2 Rewarded ads opt-in card (`wallet.rewarded_ads`)
+
+The card lives in the wallet sheet only — never in the sim view.
+
+> **Earn 2 credits** — watch one short ad. Up to 5 a day, 25 a week.
+> Always your call; the neighborhood never interrupts you with one.
+
+Declined/empty state: no card at all — the opt-in is a button ("Earn
+credits"), not a resident prompt.
+
+### 38.3 Request checkout cards (`actions[]`)
+
+Pattern: **title · class chip · price block · refund line · confirm
+button**. The confirm button always carries the price — never a bare
+"Confirm".
+
+| Action | Confirm button | Body copy (under the price) | Refund line |
+|---|---|---|---|
+| possess | `Possess — {N} cr` | You get {duration} of your character. The briefing card above is everything you'll know — their secrets aren't in it because they aren't for sale. | Unused minutes at end-early aren't refunded; the cap is the price. |
+| weather | `Request weather — {40/70/100} cr` | One sky, one block, {1/2/4} hours. Human-reviewed; global cooldown applies to everyone. | Not approved → full refund. Auto, no ask needed. |
+| nudge | `Send the nudge — 40 cr` | An ask, not mind-control. {Name} can say no — and sometimes they will. | Declined → 50% back, automatic. |
+| event | `Trigger event — 200 cr` | One per venue per day, drama-manager-mediated. It fires on schedule and says your name on the feed. | Not approved → full refund. |
+| camera | `Direct the camera — 10 cr / 30 min` | Spectator-side only. The world doesn't change; your view of it does. | Flat block, no per-minute drift. |
+| hire | `Hire onto the cast — 500 cr` | One-time per character, slot-capped. Every name passes human review. Housing after that is game dollars — earned in-world. | Application not approved → never bills. |
+
+Queued-class chip (`classes.queued`): `Queued −15% · activates first-come, first-served · expires refunded`.
+
+Surge line (shown only when active, always pre-payment):
+`Surge ×{1.5–2.5} — shown because it's real. No hidden rate, ever.`
+
+### 38.4 State cards (post-submit)
+
+| State | Card header | Body line |
+|---|---|---|
+| in_review | `In review` | A person is reading it. Denials refund in full; you'll never be billed for a no. |
+| queued | `Queued` | `hold {H} h {M} min left of 24 h · expiry auto-refunds` — contract string, locked verbatim (`queue_hold.display`). |
+| running | `Running` | On the feed, with your name on it — same as everyone's. |
+| approved (modified) | `Approved — modified` | See the offer below. Old terms → new terms, old price → new price. Accept or decline; declining costs nothing (`approve_modified`). |
+| not approved | `Request not approved` | Full refund already in your ledger. No reason is public — that's the rule for everyone. A different reviewer can take a second look within 72 h. `Appeal` (private path, `appeals`). |
+| resolved / refunded | `Resolved` / `Refunded` | Logged to the feed and your ledger. |
+
+### 38.5 Session strings (possession live)
+
+| Moment | String | Source |
+|---|---|---|
+| Briefing card header | `Everything on this card is public-record level. Secrets: not redacted — absent.` | `possession_briefing.secrets` verbatim intent |
+| Brain state | `suspended — AI resumes on release` | `session_controls.brain_state_shown` |
+| Low balance | `≈15 funded minutes left — top up to keep going` + one-click wallet link | `session_controls.low_balance_warning` |
+| Extend | `+{N} min — {rate} cr` (disabled + wallet link when balance short) | `session_extend` |
+| End early | `End session — the AI takes over gracefully. Unused minutes aren't refunded.` | `session_controls.end_early` |
+| Cap handoff | `Time's up — {name}'s AI is back. Feed: "player session ended".` | fairness_invariants hard cap |
+| Thin-AI wakeup | `Welcome back — {name} kept the routine. The block did too.` | design doc thin-AI model |
+
+### 38.6 Co-sponsor card (`co_sponsor`)
+
+> **Join the request — {price} cr** · Same price as the filer paid —
+> you're buying the same world event, not a discount. Up to 4 sponsors;
+> every name goes on the feed line.
+
+### 38.7 What money UI never says
+
+A standing deny-list for any surface that touches a price (extends the
+checker's banned-word scan):
+
+- "Limited time" / "hurry" / "almost gone" — no countdown that isn't
+  the queue-hold clock.
+- "You earned" for anything that wasn't earned in-world — pack buys are
+  purchases, not achievements.
+- "Just $0.99" — minimizing a price is a nudge we banned.
+- "Free credits" for rewarded ads — they're earned, say so ("Earn 2
+  credits").
+- Any framing of credits as value storage ("worth $X") — credits buy
+  requests; the §1.5 line is the whole truth.
+
+Same-commit rule: a change to `world/requests.json` wallet/session/
+appeal blocks invalidates the matching string here — §27 trigger row 2
+covers it; grep `requests.json` block names against §38.

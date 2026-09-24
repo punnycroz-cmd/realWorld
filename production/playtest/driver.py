@@ -30,7 +30,7 @@ Run:
   /home/hatch/workspace/village-game/tmp/.venv/bin/python \\
       production/playtest/driver.py --scripted --sim-hours 8
 """
-import argparse, json, os, pathlib, queue, subprocess, sys, threading, time
+import argparse, json, os, pathlib, queue, sqlite3, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from playwright.sync_api import sync_playwright
@@ -53,11 +53,14 @@ STATE = {'seq': {}, 'last_reflect_day': {}}
 class H(BaseHTTPRequestHandler):
     def _reply(self, code, obj):
         body = json.dumps(obj).encode()
-        self.send_response(code)
-        self.send_header('Content-Type', 'application/json')
-        self.send_header('Content-Length', str(len(body)))
-        self.end_headers()
-        self.wfile.write(body)
+        try:
+            self.send_response(code)
+            self.send_header('Content-Type', 'application/json')
+            self.send_header('Content-Length', str(len(body)))
+            self.end_headers()
+            self.wfile.write(body)
+        except (BrokenPipeError, ConnectionResetError):
+            pass   # the brain's curl already hung up — nothing to tell it
     def log_message(self, *a):
         pass
     def do_GET(self):
@@ -70,7 +73,7 @@ class H(BaseHTTPRequestHandler):
             ev = threading.Event(); box = {}
             jobs.put(('state', cid, box, ev, {'glance': glance,
                                              'reflect': reflect}))
-            if not ev.wait(30):
+            if not ev.wait(75):
                 self._reply(504, {'err': 'world busy'}); return
             self._reply(200, box.get('res', {'err': 'no state'}))
             return
@@ -86,7 +89,7 @@ class H(BaseHTTPRequestHandler):
                 self._reply(400, {'err': 'bad json: %s' % e}); return
             ev = threading.Event(); box = {}
             jobs.put(('act', body, box, ev, None))
-            if not ev.wait(30):
+            if not ev.wait(75):
                 self._reply(504, {'err': 'world busy'}); return
             self._reply(200, box.get('res', {'err': 'no result'}))
             return
@@ -187,6 +190,32 @@ def scripted_reflect(cid, st):
 CAM_PLAN = ['streetlv', 'overlook', 'roof', 'streetlv', 'follow-last',
             'overlook', 'follow-last', 'roof']
 
+SESSIONS_DB = os.path.expanduser('~/.local/share/devin/cli/sessions.db')
+
+def devin_has_session(cwd):
+    """-c/--continue hard-fails ('failed to start ACP agent session')
+    when the cwd has no prior session — only pass it once one exists."""
+    try:
+        con = sqlite3.connect('file:%s?mode=ro' % SESSIONS_DB, uri=True,
+                              timeout=2)
+        n = con.execute('select count(*) from sessions where '
+                        'working_directory=?', (str(cwd),)).fetchone()[0]
+        con.close()
+        return n > 0
+    except Exception:
+        return False
+
+def devin_cmd(cid, prompt, export=None):
+    cwd = HERE / 'agents' / cid
+    cmd = ['devin']
+    if devin_has_session(cwd):
+        cmd.append('-c')
+    cmd += ['-p', prompt, '--permission-mode', 'dangerous',
+            '--respect-workspace-trust', 'false']
+    if export:
+        cmd += ['--export', str(export)]
+    return cmd
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--sim-hours', type=float, default=12)
@@ -199,6 +228,11 @@ def main():
                     help='stop after N brain calls (0 = unbounded)')
     ap.add_argument('--shot-every', type=float, default=20,
                     help='seconds between screenshots')
+    ap.add_argument('--no-withhold', action='store_true',
+                    help='skip the failure-honesty probe (default: once '
+                         'per main, withhold the brain turn at a '
+                         'directive_expiry boundary and confirm the '
+                         'visible intention_gap)')
     args = ap.parse_args()
 
     LOG.write_text('')
@@ -244,10 +278,37 @@ def main():
               flush=True)
 
         seq_of = STATE['seq']
-        last_actor = None
-        cam_i = 0
+        last_actor = [None]
+        cam_i = [0]
         shot_at = time.time()
         calls = [0]
+        turn_n = [0]          # global turn counter — one shot per turn
+        seq2turn = {}         # (cid, seq) -> turn, joins /act rows to shots
+        withheld = set()      # mains whose boundary turn was withheld
+        gap_ok = set()        # mains whose gap was then observed
+
+        def take_turn_shot(cid, kind):
+            """one screenshot per dispatched turn, rotating the rig."""
+            cam = CAM_PLAN[cam_i[0] % len(CAM_PLAN)]; cam_i[0] += 1
+            try:
+                if cam == 'follow-last':
+                    tgt = last_actor[0] or cid
+                    pg.evaluate("""(cid) => {
+                      const i = VILLAGERS.findIndex(v => v._castId === cid);
+                      if(i >= 0){ inspectedPawnIdx = i; SF_VIEW='street';
+                        SF_CAM.director=false; SF_CAM._lastPawn=-1;
+                        sfCamSnap(); } }""", tgt)
+                else:
+                    pg.evaluate(f"__aiBridge.sfCamWatch('{cam}')")
+            except Exception:
+                pass
+            name = f'turn{turn_n[0]:04d}-{cid}-{kind}.png'
+            try:
+                pg.screenshot(path=str(TURNS / name), timeout=30000)
+            except Exception as e:
+                print(f'[driver] shot fail {name}: {e}', flush=True)
+                name = None
+            return name, cam
 
         def pump(timeout=0.25):
             """drain world-bound HTTP jobs (state/act from brain sessions)"""
@@ -277,10 +338,12 @@ def main():
                 stats.setdefault(cid, {'calls':0,'ok':0,'err':0,'by_kind':{}})
                 stats[cid]['calls'] += 1
                 stats[cid]['ok' if res.get('ok') else 'err'] += 1
+                last_actor[0] = cid
                 log(cid=cid, act=payload.get('act'),
                     directive=payload.get('directive'),
                     reason=payload.get('reason'), result=res,
-                    seq=payload.get('seq'))
+                    seq=payload.get('seq'),
+                    turn=seq2turn.get((cid, payload.get('seq'))))
                 box['res'] = res; ev.set()
             return True
 
@@ -318,13 +381,11 @@ def main():
                       + 'Do the ritual in BRIEF.md: curl /state, '
                         'POST /act once (include "seq":' + str(seq) +
                         '), journal one line, stop.')
-            cmd = ['devin', '-c', '-p', prompt,
-                   '--permission-mode', 'dangerous',
-                   '--respect-workspace-trust', 'false',
-                   '--export', str(TRANSC / f'{cid}.atif.json')]
-            p = subprocess.Popen(cmd, cwd=str(HERE/'agents'/cid),
-                                 stdout=subprocess.PIPE,
-                                 stderr=subprocess.STDOUT, text=True)
+            p = subprocess.Popen(
+                devin_cmd(cid, prompt, TRANSC / f'{cid}.atif.json'),
+                cwd=str(HERE/'agents'/cid),
+                stdout=subprocess.PIPE,
+                stderr=subprocess.STDOUT, text=True)
             return {'proc': p}
 
         pending_procs = {}
@@ -344,11 +405,67 @@ def main():
                 due = slot.get('due')
                 if not due:
                     continue
+                # failure-honesty probe (user order): once per main,
+                # withhold the brain turn — at a directive_expiry boundary
+                # when one comes due; otherwise the first non-convo
+                # trigger while a directive is live stands in (the will
+                # still lapses at its untilH, unrefiled). Either way the
+                # sim must show a visible intention_gap — never silent
+                # busyness, never sfSched.
+                if (not args.no_withhold and cid not in withheld
+                        and due['kind'] not in ('convo_floor',
+                                                'convo_invite')):
+                    has_dir = pg.evaluate(
+                        '(c) => { const v = VILLAGERS.find('
+                        'x => x._castId === c); return !!(v && '
+                        'v.sfDirective && v.sfDirective.until > '
+                        'sfAbsNow()); }', cid)
+                    if due['kind'] == 'directive_expiry' or has_dir:
+                        withheld.add(cid)
+                        # mark the pending head as dispatched — the dead-
+                        # brain recovery path re-surfaces it after ~0.75
+                        # sim-h, so the will really does run unrefiled
+                        # into the gap (a one-iteration skip isn't an
+                        # absence, it's a blink)
+                        pg.evaluate(
+                            """(c) => { const v = VILLAGERS.find(
+                               x => x._castId === c);
+                               const d = v && v.sfDisp;
+                               if(d && d.pending[0])
+                                 d.pending[0].dispatchedAt = sfAbsNow(); }""",
+                            cid)
+                        turn_n[0] += 1
+                        shot, cam = take_turn_shot(cid, 'withheld')
+                        log(turn=turn_n[0], cid=cid, withheld=due['kind'],
+                            tier=due.get('tier'), cam=cam, shot=shot,
+                            detail=due.get('detail'), had_directive=has_dir,
+                            note='brain turn withheld at directive boundary')
+                        print(f'[driver] {cid} withheld at boundary '
+                              f'({due["kind"]})', flush=True)
+                        continue
+                turn_n[0] += 1
+                shot, cam = take_turn_shot(cid, due['kind'])
+                seq2turn[(cid, seq_of.get(cid, 0) + 1)] = turn_n[0]
                 r = dispatch(cid, due)
+                log(turn=turn_n[0], cid=cid, dispatched=due['kind'],
+                    tier=due.get('tier'), detail=due.get('detail'),
+                    cam=cam, shot=shot)
+                # the engine surfacing a 'gap' trigger for a withheld
+                # main IS the confirmation — the lapse is real state
+                if (due['kind'] == 'gap' and cid in withheld
+                        and cid not in gap_ok):
+                    gap_ok.add(cid)
+                    log(turn=turn_n[0], cid=cid, gap_confirmed=True,
+                        note='engine dispatched gap — withheld will '
+                             'lapsed into a visible intention_gap')
+                    print(f'[driver] {cid} intention_gap CONFIRMED '
+                          '(dispatch)', flush=True)
                 if r.get('proc') is not None:
                     pending_procs[cid] = r['proc']
-                if due.get('tier') == 'T1' and not args.scripted:
-                    pass   # async — sessions answer via HTTP jobs
+                # screenshots serialize the loop — drain any waiting
+                # /state and /act jobs before the next dispatch's shot
+                while pump(0):
+                    pass
             # retire finished devin sessions
             for cid, p in list(pending_procs.items()):
                 if p.poll() is not None:
@@ -357,33 +474,45 @@ def main():
                         devin_tail=out[-400:])
                     del pending_procs[cid]
             pump(0.25)
-            # camera + shot cadence
+            # ambient cadence: positions + gap scan + a wide shot
             if time.time() >= shot_at:
                 shot_at = time.time() + args.shot_every
-                cam = CAM_PLAN[cam_i % len(CAM_PLAN)]; cam_i += 1
-                if cam == 'follow-last' and last_actor:
-                    pg.evaluate("""(cid) => {
-                      const i = VILLAGERS.findIndex(v => v._castId === cid);
-                      if(i >= 0){ inspectedPawnIdx = i; SF_VIEW='street';
-                        SF_CAM.director=false; SF_CAM._lastPawn=-1;
-                        sfCamSnap(); } }""", last_actor)
-                elif cam != 'follow-last':
-                    pg.evaluate(f"__aiBridge.sfCamWatch('{cam}')")
-                pg.screenshot(path=str(TURNS /
-                              f't{int(sim_now):03d}.png'))
                 pos = pg.evaluate("""() => Object.fromEntries(
                     VILLAGERS.filter(v => v._castId).map(v => [v._castId, {
                       x: Math.round(v.x), y: Math.round(v.y),
                       st: v.state, gap: !!v.sfGap,
-                      inside: v.inside || null }]))""")
+                      inside: v.inside || null,
+                      order: v.sfAgent ? v.sfAgent.verb : null,
+                      dir: v.sfDirective ? v.sfDirective.verb : null,
+                      convo: v.sfConvo ? v.sfConvo.state : null }]))""")
                 gaps = [c for c, s in pos.items()
                         if s.get('gap') and c in CAST]
-                log(sim_now=sim_now, cam=cam, pos=pos, gaps=gaps)
+                for c in gaps:
+                    if c in withheld and c not in gap_ok:
+                        gap_ok.add(c)
+                        log(cid=c, gap_confirmed=True,
+                            note='withheld will -> visible intention_gap')
+                        print(f'[driver] {c} intention_gap CONFIRMED',
+                              flush=True)
+                log(sim_now=sim_now, pos=pos, gaps=gaps)
                 print(f'[driver] t+{sim_now - t0:.2f}h — '
                       f'calls {calls[0]}, gaps {gaps}', flush=True)
 
+        # drain in-flight brain sessions (their /act POSTs still land)
+        t_drain = time.time() + 300
+        while pending_procs and time.time() < t_drain:
+            pump(0.5)
+            for cid, p in list(pending_procs.items()):
+                if p.poll() is not None:
+                    out = (p.stdout.read() if p.stdout else '') or ''
+                    log(cid=cid, devin_rc=p.returncode,
+                        devin_tail=out[-400:])
+                    del pending_procs[cid]
+
         # ---- the daily reflect: one T2 turn per main at run end ----
-        for cid in CAST:
+        # (skipped on --max-calls probes — sanity runs shouldn't spawn
+        #  eight extra brain sessions)
+        for cid in ([] if args.max_calls else CAST):
             st = pg.evaluate(
                 '(a) => __aiBridge.sfAgentState(a.cid, {reflect:1})',
                 {'cid': cid}) or {}
@@ -406,12 +535,27 @@ def main():
                           'Bedtime: file ONE POST with act.verb=reflect '
                           '(1-3 insights in your own voice) and a sleep '
                           'directive. Check /state?reflect=1 first.')
-                subprocess.Popen(
-                    ['devin', '-c', '-p', prompt,
-                     '--permission-mode', 'dangerous',
-                     '--respect-workspace-trust', 'false'],
-                    cwd=str(HERE/'agents'/cid))
-        pump(2); pump(2)
+                turn_n[0] += 1
+                shot, cam = take_turn_shot(cid, 'reflect')
+                seq2turn[(cid, seq)] = turn_n[0]
+                log(turn=turn_n[0], cid=cid, dispatched='reflect',
+                    tier='T2', cam=cam, shot=shot)
+                pending_procs[cid] = subprocess.Popen(
+                    devin_cmd(cid, prompt, TRANSC / f'{cid}.atif.json'),
+                    cwd=str(HERE/'agents'/cid),
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True)
+        # let the T2 filings land — sessions answer over HTTP, so keep
+        # pumping until every reflect session exits (bounded)
+        t_end = time.time() + 600
+        while pending_procs and time.time() < t_end:
+            pump(0.5)
+            for cid, p in list(pending_procs.items()):
+                if p.poll() is not None:
+                    out = (p.stdout.read() if p.stdout else '') or ''
+                    log(cid=cid, devin_rc=p.returncode,
+                        devin_tail=out[-400:])
+                    del pending_procs[cid]
         ctx.close()
         br.close()
     srv.shutdown()

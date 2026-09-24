@@ -68,13 +68,17 @@ def report(evts, week=None, uniques_path=None):
     ctas = Counter()
     outbound = Counter()
     notfound = Counter()
-    engaged_secs = defaultdict(int)
+    engaged_secs = defaultdict(list)
     scroll_marks = Counter()
     shares = Counter()
     calc_uses = Counter()
     calc_mins = []
+    scene_items = Counter()
+    scene_presets = Counter()
     sub_verdicts = Counter()
     sim_uses = Counter()
+    sim_screened = Counter()
+    cams = Counter()
     onboard = Counter()
     tour_skip_beats = Counter()
     personas = Counter()
@@ -104,6 +108,8 @@ def report(evts, week=None, uniques_path=None):
                 refs[e["ref"]] += 1
         elif name == "cta_click":
             ctas[props.get("cta") or "?"] += 1
+            if props.get("cam"):
+                cams[props["cam"]] += 1
         elif name == "screenshot_view":
             shots[(props.get("shot") or "?").split("/")[-1]] += 1
         elif name == "outbound_click":
@@ -111,7 +117,8 @@ def report(evts, week=None, uniques_path=None):
         elif name == "scroll_depth":
             scroll_marks[props.get("depth")] += 1
         elif name == "engaged_time":
-            engaged_secs[props.get("page") or path or "?"] += int(props.get("seconds") or 0)
+            engaged_secs[props.get("page") or path or "?"].append(
+                int(props.get("seconds") or 0))
         elif name == "share_click":
             shares[props.get("method") or "?"] += 1
         elif name == "price_calc":
@@ -125,10 +132,18 @@ def report(evts, week=None, uniques_path=None):
             calc_uses[key] += 1
             if props.get("minutes"):
                 calc_mins.append(int(props["minutes"]))
+        elif name == "scene_calc":
+            for pair in str(props.get("items") or "").split(","):
+                item, _, qty = pair.partition(":")
+                if item and item != "empty":
+                    scene_items[item] += int(qty) if qty.isdigit() else 1
+            if props.get("preset"):
+                scene_presets[props["preset"]] += 1
         elif name == "sub_calc":
             sub_verdicts[props.get("verdict") or "?"] += 1
         elif name == "request_simulated":
             sim_uses[f'{props.get("action") or "?"}/{props.get("class") or "?"}'] += 1
+            sim_screened[props.get("screened") or "?"] += 1
         elif name in ("tour_started", "tour_beat", "tour_completed", "tour_skipped",
                       "handle_set", "wallet_explained", "topup_shown",
                       "first_request_filed", "onboard_dismissed",
@@ -210,8 +225,12 @@ def report(evts, week=None, uniques_path=None):
             f"≥{m}%: {scroll_marks[m]}" for m in sorted(scroll_marks)) + f" (of {total} marks)")
         out.append("")
     if engaged_secs:
-        out.append("**engaged seconds by page:** " + ", ".join(
-            f"{p}: {s}s" for p, s in sorted(engaged_secs.items(), key=lambda kv: -kv[1])))
+        def med(xs):
+            xs = sorted(xs)
+            return xs[len(xs) // 2] if xs else 0
+        out.append("**engaged seconds by page (median | total):** " + ", ".join(
+            f"{p}: {med(v)}s | {sum(v)}s"
+            for p, v in sorted(engaged_secs.items(), key=lambda kv: -sum(kv[1]))))
         out.append("")
     if shares:
         out.append("**shares by method:** " + ", ".join(f"{m} ({n})" for m, n in shares.most_common()))
@@ -222,6 +241,18 @@ def report(evts, week=None, uniques_path=None):
             f"{k} ({n})" for k, n in calc_uses.most_common())
             + f" — avg {avg_min} priced per use")
         out.append("")
+    if scene_items:
+        out.append("**scene builder item mix (qty summed):** " + ", ".join(
+            f"{k} ×{n}" for k, n in scene_items.most_common())
+            + (" — presets tapped: " + ", ".join(
+                f"{k} ({n})" for k, n in scene_presets.most_common())
+               if scene_presets else ""))
+        out.append("")
+    if cams:
+        out.append("**demo camera picks:** " + ", ".join(
+            f"{c} ({n})" for c, n in cams.most_common())
+            + " — which spectator angle visitors try")
+        out.append("")
     if sub_verdicts:
         out.append("**sub breakeven verdicts:** " + ", ".join(
             f"{k} ({n})" for k, n in sub_verdicts.most_common())
@@ -230,6 +261,9 @@ def report(evts, week=None, uniques_path=None):
     if sim_uses:
         out.append("**request simulator (action/class):** " + ", ".join(
             f"{k} ({n})" for k, n in sim_uses.most_common()))
+        out.append("**request simulator screen codes:** " + ", ".join(
+            f"{k} ({n})" for k, n in sim_screened.most_common())
+            + " — how the toy screen classifies visitor wording")
         out.append("")
     if onboard:
         out.append("**onboarding (world-v11/v25/v39/v53 hooks, game-side):** " + ", ".join(

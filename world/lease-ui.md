@@ -1,4 +1,4 @@
-# Lease Flow — spec & copy deck (world v54; v12 base + v26/v40 depth passes + v54 paper layer)
+# Lease Flow — spec & copy deck (world v96; v12 base + v26/v40 depth passes + v54 paper layer + v68 hand-off layer + v82 doorstep/deed layer + v96 counter-paper layer)
 
 The housing lifecycle end to end: listing → application → signing → rent run →
 arrears/notices → repairs & disputes → move-out / eviction → purchase →
@@ -7,10 +7,10 @@ this file is *how it moves*.
 
 Companion artifacts:
 
-- `world/lease.html` — working demo ("The Rent Book" v4), file://-safe; every
+- `world/lease.html` — working demo ("The Rent Book" v6), file://-safe; every
   state below is reachable in it via the day-stepper. Four viewer modes:
   spectator / tenant (h01) / licensed landlord (h02, capped tools on
-  9088-5 only) / admin. localStorage `rw_lease_v54`.
+  9088-5 only) / admin. localStorage `rw_lease_v96`.
 - `world/leases.json` — machine-readable mirror: state machine, rent-run
   calendar, notice ladder, deposit rules, dispute schema, progression gates,
   feed wording.
@@ -584,3 +584,332 @@ Move-out now *starts* something instead of settling everything at once:
 - `node world/audit.js` G11 now also requires the v54 surfaces
   (proration, break fee, repair SLA, amendment, deposit clock) and
   fails on the old storage key.
+
+## 36. The guarantor path (near-miss screening)
+
+§12's income leg has a middle band, and it isn't a decline:
+
+- Income **≥ 2.5× rent** approves; income **< 2.0×** declines (private
+  mail, no feed). Income **2.0–2.5×** is a *near-miss* — the file offers
+  a **guarantor path** instead of a flat no.
+- The tenant names a guarantor; the guarantor is verified on the **same
+  published checklist** (income, references) and co-signs the lease doc
+  before signing. Liable for rent and deposit — **never a tenant, never
+  an occupant line, never a feed event**.
+- Screening can't finish while the flag is set and unattached: the file
+  waits on the tenant, not on a vibe. A cheaper door is always the other
+  honest answer — the near-miss doc says so.
+- Demo: h01's $4,600/mo clears 9127-A ($1,300 needs $3,250) outright and
+  near-misses 9418-B ($2,100 needs $5,250, floor $4,200) — attach
+  guarantor "M. Okafor," re-run screening, sign.
+
+## 37. Notice service (the clock runs from the door)
+
+Notices 2–4 now carry a **service record** — because paper that never
+arrived doesn't start a clock:
+
+- Every formal notice, cure-or-quit, and eviction filing records
+  **served: posted to door + mailed**, both dated. The response/cure
+  window runs from **service, not the posting day**.
+- The cure-or-quit states its deadline in the document: "served day N —
+  cure by day N+14." The detail view shows the running deadline while
+  `noticed`.
+- Notice 1 (late reminder) stays informal — no service record; it isn't
+  legal paper, just a nudge.
+- Feed wording unchanged: the wire still says "housing notice posted" —
+  service detail lives in the file, not on the block.
+
+## 38. The move-out walkthrough (the deduction's citation)
+
+§21's move-in record gets its closing counterpart:
+
+- All three exits (tenant notice, recorded move-out, no-fault notice)
+  write an **itemized walkthrough doc** — findings each measured against
+  the move-in record: "window latch broken — new (intact on the move-in
+  record)" vs "floors worn — matches move-in record, ordinary wear."
+- **Every deduction must cite a walkthrough line.** The deposit return
+  reads "walkthrough finding; not on the move-in record" — the
+  pre-existing refusal rule (§21) is unchanged and still settles claims
+  outright.
+- The walkthrough is a ledger-side document, evidence under
+  `deposit_deductions` — same weight as the move-in record it closes.
+
+## 39. Receipts (proof the tenant carries)
+
+- Any payment can issue a **dated receipt doc** on request — itemized,
+  the same numbers as the ledger. The tenant's copy of the truth.
+- Dispute weight: the ledger and the receipt say the same thing; a
+  receipt that disagreed with the ledger would itself be a finding.
+  Receipts are tenant-file documents — never feed events.
+- Demo: "Request a receipt" sums payment + installment lines through the
+  current day and writes the doc.
+
+## 40. Copy deck additions (v68)
+
+|| Moment | Copy |
+|---|---|---|
+|| Near-miss | "Income clears the floor but not the published 2.5× — the file asks for a guarantor, not a denial. Or a cheaper door." |
+|| Guarantor attached | "Guarantor on file — liable for rent and deposit, never a tenant, never an occupant line, never a feed event." |
+|| Screening waits | "The file waits on a guarantor — screening can't finish without one." |
+|| Service | "Served: posted to door + mailed, day N — the clock runs from service, not the posting." |
+|| Cure deadline | "Cure by day N+14 — fourteen days from service." |
+|| Walkthrough | "Itemized walkthrough on file — deductions must cite a walkthrough line; anything pre-existing is refused, not argued." |
+|| Receipt | "Dated and itemized, the same numbers as the ledger — carry it to any dispute." |
+
+## 41. Merge notes (v68)
+
+- New demo fields: `income` (demo state — h01's monthly wage, the
+  screening income leg), `guar`, `guarantor`, `svc` {door, mail},
+  `svcDue`, `walkthrough` — all optional, all documented above. LS key
+  rolled `rw_lease_v54` → `rw_lease_v68` (old saves ignored by design).
+- leases.json v68 adds: `screening.guarantor` (near-miss band, attach,
+  liability), `notices[*].service` on n≥2, `deposits.walkthrough`,
+  `receipts`. Feed vocabulary unchanged — no new templates; guarantor,
+  service, walkthrough, and receipt detail all live in the file.
+- Engine contract at merge: the near-miss band is 2.0–2.5× (below 2.0×
+  declines); screening cannot complete while a guarantor is required
+  and unattached; notice windows run from service date; deductions must
+  cite a walkthrough line; receipts must agree with the ledger.
+- `node world/audit.js` G11 now also requires the v68 surfaces
+  (guarantor, service, walkthrough, receipt) and fails on the old
+  storage key.
+
+## 42. Notices of entry (the doorstep has paper too)
+
+A landlord may enter a tenant's home — but only on paper first:
+
+- Every entry posts a **notice of entry**: dated, served, stating a
+  **reason** (scheduled repair, unit inspection, showing when the unit is
+  listed) and a **window**, at least **24 hours ahead**. Demo: `entry`
+  array on the lease — `{svc, day, win, reason}`.
+- The notice is a **file doc, never a feed event** — a neighbor doesn't
+  get to watch when someone's door will be open.
+- The entry log is evidence. Repeated or unnotified entry is a dispute
+  ground (`entry_violation`, added to the grounds list) — the same
+  ledger-objects-only rule applies: the paper is the record, not
+  testimony.
+- Licensed landlords post entry notices on their own units only, same
+  cap as every other tool.
+
+## 43. A sale with a tenant in place (the paper follows the deed)
+
+Buildings sell; tenancies don't reset:
+
+- When an occupied unit sells, the **lease, deposit, move-in record, and
+  file move with the deed** — same terms, same protections, same
+  rent-control flag. A dated "sale — tenant in place" doc lands on the
+  tenant's file the day the deed transfers.
+- The feed line is the existing neutral template — "Sold — <address>
+  changes hands" — no tenant name, no terms.
+- **A sale never resets a tenancy**: no new screening, no new deposit,
+  no "the new owner's rules." Arrears, scars, open repairs, and frozen
+  raises all carry — the new owner inherits the file, not a clean slate.
+- Recording the sale is **admin-only** — licensed landlords can't sell
+  the owner's doors, and their own sale hands the file to the desk.
+- Demo: "Record sale — tenant in place" on 9263-4 (Reyes cousins) writes
+  the transfer doc and the feed line; the lease keeps running.
+
+## 44. Renewal offers (months 10–12 of a fixed term)
+
+The §20 term now has a real endgame:
+
+- Fixed-term leases track `termMo` — the month of the term the lease is
+  in. Serving month 12 flips the lease to month-to-month **on its own**:
+  staying is the default, no paperwork, no bump for staying.
+- Inside months **10–12**, the landlord file may post a **renewal
+  offer** — a new fixed 12-mo term at a stated rent. A number above the
+  current rent is a stated-basis posting under the same raise rules
+  (§13): the claim is still what a dispute examines.
+- **The tenant decides.** Accept and a new fixed term runs from signing
+  — same file, same deposit, same move-in record; the paper continues.
+  Decline — or let it lapse with the term — and the lease rolls to
+  month-to-month. An offer is not a raise: nothing bills until it's
+  signed.
+- File docs only, never a feed event. Demo: h01 sits at month 10 and
+  h02's 9088-5 at month 11, so both hats can exercise the window.
+
+## 45. Returned payments (a reversal, not a character flaw)
+
+A payment can come back — bank reversed it, the check didn't clear:
+
+- The returned payment **reverses onto the balance** and posts a
+  **returned-payment fee — house rule, capped $25**, stated in the lease
+  like the late fee.
+- **The ladder stands where it stood.** A returned payment is not a new
+  default — it doesn't jump the notice ladder, and it doesn't reset it
+  either; the lease keeps whatever rung it was on.
+- File doc + ledger lines only; never a feed event, never a moralizing
+  line in the copy. Demo: "Mark last payment returned" reverses the most
+  recent payment/installment line and adds the capped fee.
+
+## 46. Guarantor release (the co-signer earns their way off)
+
+§36's guarantor isn't a lifetime attachment:
+
+- After **12 on-time months**, the tenant may request a **guarantor
+  release** — the landlord file decides, same as every other file doc.
+- A release comes off the lease as a doc: the co-signer's liability
+  (rent + deposit) ends; the tenancy is the tenant's alone.
+- A declined release names what's missing (the months) and can be
+  re-requested — a document, not a door closing.
+- Request and decision both live on the file; never a feed event.
+  Demo: "Request guarantor release" on a lease carrying a guarantor →
+  the landlord file releases or declines.
+
+## 47. Copy deck additions (v82)
+
+|| Moment | Copy |
+|---|---|---|
+|| Entry notice | "Notice of entry — served day N; entry day N+1, 9:00–12:00, reason: repair. Stated reason, ≥24h, on the file — never on the feed." |
+|| Entry violation | "Repeated or unnotified entry is a dispute ground — the entry log is the evidence." |
+|| Sale, tenant view | "The deed transferred. Your lease, deposit, and file moved with it — same terms, same protections. A sale never resets a tenancy." |
+|| Renewal offered | "Renewal on the table — new fixed 12 mo at $N. You decide: sign and a new term runs; decline and you roll to month-to-month." |
+|| Renewal accepted | "Signed — new fixed term from day N. Same file, same deposit, same move-in record." |
+|| Term served | "Fixed term served — month-to-month now. Staying is the default; no paperwork, no bump for staying." |
+|| Returned payment | "The day-N payment came back — reversed onto the balance plus the capped $25 fee. The ladder stands where it stood." |
+|| Guarantor release | "Twelve on-time months — the co-signer comes off. The tenancy was always yours." |
+
+## 48. Merge notes (v82)
+
+- New demo fields: `termMo`, `entry` [{svc,day,win,reason}], `renewal`
+  {rent,day,decided}, `guarRelReq`, `sold` — all optional, all documented
+  above. LS key rolled `rw_lease_v68` → `rw_lease_v82` (old saves ignored
+  by design). Deposit returns now credit the tenant's bank in the demo.
+- leases.json v82 adds: `entry_notices`, `sale_occupied`, `renewal`,
+  `returned_payments`, `screening.guarantor.release`; `disputes.grounds`
+  gains `entry_violation`; power_map gains `post_entry_notices`,
+  `mark_returned_payments`, `offer_renewals`, `decide_guarantor_releases`
+  (licensed, own units) + `decide_renewal_offer`,
+  `request_guarantor_release` (tenant) + `record_sales` (admin-only).
+  Feed vocabulary unchanged — `Sold —` already existed; the four new
+  surfaces are file-only by design.
+- Engine contract at merge: entry notices need stated reason + ≥24h and
+  never post to the feed; a sale of an occupied unit carries the lease
+  object verbatim (no field resets); renewal offers bind only on tenant
+  signature and a lapsed offer rolls to month-to-month; a returned
+  payment reverses the payment line and must not move the notice ladder;
+  guarantor release is a file doc gated on 12 on-time months.
+- `node world/audit.js` G11 now also requires the v82 surfaces (entry
+  notice, sale-with-tenant, renewal, returned payment, guarantor
+  release) and fails on the old storage key.
+
+## 49. Lease assignment (the name on the paper changes)
+
+A sublet (§25) is temporary and the tenant stays liable; an **assignment**
+is the permanent hand-off — the lease itself changes names:
+
+```
+tenant files (named assignee — screened on the same published checklist)
+  → approved | declined (landlord file / admin; licensed on own units)
+  → approved: assignment doc + the assignee becomes tenant of record,
+    same terms, same rent-control flag, same file; the deposit carries
+    to the new name (no second deposit, no reset)
+```
+
+- **The ledger must be clean to hand over.** A lease carrying a balance
+  can't assign — settle it, run a plan to completion, or let the new
+  name apply to a cheaper door. The file says so plainly.
+- The assignee is screened on the §12 checklist like any applicant —
+  income, references. Approval **not unreasonably withheld**; a decline
+  names the reason on the file.
+- Assignment is **file-only, never a feed event** — tenant names never
+  reach the wire; the block sees at most that the door stayed occupied.
+- The outgoing tenant's liability ends at signing — unlike a sublet,
+  there is no residual string. The file records the hand-off date; the
+  scars stay with the *unit's* file, not the departing name.
+- Demo: `reqAssign` → `assignReq` → `assignDecide` — "D. Park" takes
+  over 9457-2's lease, deposit carried, term unchanged.
+
+## 50. Buyout offers (cash-for-keys, offered only in good standing)
+
+A landlord may want a unit back without cause — the lawful way is an
+offer the tenant can refuse:
+
+- **Offerable only while `active`** — never under a live rung (arrears,
+  noticed), never while a dispute is open, never inside 30 days of a
+  declined offer (`buyoutCool`). A buyout is not a shortcut around the
+  ladder; offering one under pressure is the abuse the rule exists to
+  read.
+- The offer is a stated amount on the file (demo: two months' rent).
+  **The tenant decides.** Accept → ordinary `move_out` paper plus a
+  `BUYOUT` credit line (distinct code, same legibility rule as
+  `NOFAULT`) — deposit still returns separately, itemized, 21-day clock.
+- Decline → a file doc and the cooldown. Declining is free: no fee, no
+  mark, no retaliation leg — and a later rent raise the same quarter
+  would still need its stated basis like any other.
+- Licensed landlords offer on their own units only; the paper is
+  identical to admin's. The feed sees at most the neutral turnover line
+  if accepted — the offer, the amount, and the decline never post.
+- Demo: `offerBuyout` → `buyoutDecide(true|false)`.
+
+## 51. Prepaid rent (a credit, not a favor)
+
+A tenant with a good month can pay ahead — but prepay is a ledger
+mechanic, not a relationship move:
+
+- "Prepay a month" posts a `prepaid rent credit` line (a:-rent); the
+  file tracks `prepaid` as a running credit, **capped at three months**
+  on the file — enough to bridge a gap job, never a deposit substitute
+  or a favor economy.
+- The 1st draws down: the rent charge posts, then `prepaid credit
+  applied` covers it oldest-first before any balance exists — a
+  prepaid month never sees a day-6 fee.
+- Prepay is **never required** — offering it buys nothing but the
+  credit; screening, notices, and rulings read the same. And it is
+  never a waiver: a prepaid tenant keeps every protection on the file.
+- File-only — prepayments join the never-feed list.
+- Demo: `prepayMonth` credits 9457-2; the month rollover draws it down.
+
+## 52. The rental history letter (the file the tenant carries)
+
+Move-out settles the unit — the tenant still needs their paper:
+
+- Any tenant may request a **rental history letter** — a dated file doc
+  summarizing the tenancy in neutral ledger terms: term dates, months
+  paid, scars stated as scars ("arrears — cured day 12"), deposit
+  disposition. One letter per tenancy; it writes once.
+- The letter is **portable evidence for the next screening** — the same
+  numbers the ledger keeps, formatted to hand to the next landlord file.
+  It editorializes nothing: a clean file reads clean, a scarred file
+  reads scarred.
+- File doc, never a feed event. Demo: `reqHistLetter` counts the
+  payment lines and writes the abstract.
+
+## 53. Copy deck additions (v96)
+
+|| Moment | Copy |
+|---|---|---|
+| Assignment request | "Assignment filed — the named assignee screens like any applicant. The ledger must be clean to hand over." |
+| Assignment signed | "Signed — the lease reads a new name from day N. Same terms, same deposit, same file; your liability ends at the signature." |
+| Assignment declined | "Declined — reason stated on the file. A document, not a door closing." |
+| Assignment, balance | "The ledger must be clean to hand over — settle the balance or finish the plan first." |
+| Buyout offered | "An offer, not an instruction — the number is on the file, the decision is yours. Declining costs nothing." |
+| Buyout refused while under ladder | "Not while a notice runs — a buyout is offered in good standing or not at all." |
+| Buyout accepted | "Accepted — ordinary move-out paper plus the BUYOUT credit line. The deposit still returns separately, itemized." |
+| Buyout declined | "Declined on the record — no fee, no mark. The door can't be knocked again for 30 days." |
+| Prepay | "Prepaid — the 1st draws the credit before any balance exists. Never required; the cap is three months on the file." |
+| History letter | "Dated and itemized, the same numbers as the ledger — the paper the next door asks for." |
+
+## 54. Merge notes (v96)
+
+- New demo fields: `assignReq`, `assignee`, `buyout` {amt,day,decided},
+  `buyoutCool`, `prepaid`, `histLetter` — all optional, all documented
+  above. LS key rolled `rw_lease_v82` → `rw_lease_v96` (old saves
+  ignored by design).
+- leases.json v96 adds: `assignments`, `buyouts`, `prepaid_rent`,
+  `history_letter`; `power_map` gains `request_assignment`,
+  `decide_buyout`, `prepay_rent`, `request_history_letter` (tenant),
+  `decide_assignments` / `offer_buyouts` / `issue_history_letters`
+  (licensed, own units);
+  `feed_wording.never` gains `buyout_offers`, `assignments`,
+  `prepayments`, `history_letters`. Feed templates unchanged —
+  assignment and buyout paper is file-only; an accepted buyout posts at
+  most the neutral `Unit turning over —` line.
+- Engine contract at merge: assignment requires a zero balance and
+  carries deposit + term + scars verbatim (no resets); buyouts are
+  offerable only in `active` and carry a 30-day re-offer cooldown;
+  prepaid credit draws down on the 1st before any balance exists and
+  caps at 3× rent; the history letter writes once per tenancy.
+- `node world/audit.js` G11 now also requires the v96 surfaces
+  (assignment, buyout, prepaid credit, history letter) and fails on the
+  old storage key.
