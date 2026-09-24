@@ -109,6 +109,14 @@
         "@type": "Answer",
         "text": "About 90 credits — roughly $0.85 — for an hour of compatible play inside your own character (~76 credits queued). An exclusive hour runs 360 credits, about $3.38 before any surge, and the session cap means that is the most it can ever cost."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "When is it cheapest to file a request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Outside prime time. Surge (×1.5–2.5) can only apply to exclusive requests inside 18:00–23:00 server-local or on a resource exclusively used in the last 6 hours — everything else pays the printed base rate, and queued requests take another 15% off. Compatible sessions never surge at all."
+      }
     }
   ]
 }
@@ -190,6 +198,7 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#clock">Surge hours</a>
       <a href="#journey">A credit's life</a>
       <a href="#hourly">Per hour</a>
       <a href="#refunds">Refunds</a>
@@ -408,6 +417,61 @@
     <p class="muted">Same request at a quiet hour: 180 cr ≈ $1.69. Queued for
     next weekend: 153 cr ≈ $1.44 — and if the slot never frees, you pay
     nothing at all.</p>
+  </div>
+</section>
+
+<!-- SURGE, ON THE CLOCK -->
+<section id="clock">
+  <div class="wrap">
+    <h2>Surge, on the clock — when the multiplier can apply</h2>
+    <p class="muted">Surge isn't random and it isn't everywhere. It can only
+    appear two ways: a resource that was <b>exclusively used in the last
+    6 hours</b>, or an exclusive request inside <b>prime time — 18:00–23:00,
+    server-local</b>. Outside those windows the base rate is the rate. One
+    day, shaded honestly <span class="prov-only">(provisional)</span>:</p>
+    <div class="clock" role="img" aria-label="A 24-hour clock of a server day. Hours 0 through 17 and hour 23 are base rate. Hours 18, 19, 20, 21 and 22 are prime time, where exclusive requests can carry the surge multiplier of 1.5 to 2.5.">
+      <div class="clk">00</div><div class="clk">01</div><div class="clk">02</div>
+      <div class="clk">03</div><div class="clk">04</div><div class="clk">05</div>
+      <div class="clk">06</div><div class="clk">07</div><div class="clk">08</div>
+      <div class="clk">09</div><div class="clk">10</div><div class="clk">11</div>
+      <div class="clk">12</div><div class="clk">13</div><div class="clk">14</div>
+      <div class="clk">15</div><div class="clk">16</div><div class="clk">17</div>
+      <div class="clk clk-prime">18<small>surge</small></div>
+      <div class="clk clk-prime">19<small>surge</small></div>
+      <div class="clk clk-prime">20<small>surge</small></div>
+      <div class="clk clk-prime">21<small>surge</small></div>
+      <div class="clk clk-prime">22<small>surge</small></div>
+      <div class="clk">23</div>
+    </div>
+    <div class="clock-axis" aria-hidden="true"><span>00:00</span><span>server-local time</span><span>23:59</span></div>
+    <div class="clock-legend">
+      <span><span class="sw sw-base"></span>Base rate — the printed class price</span>
+      <span><span class="sw sw-prime"></span>Prime time — exclusive requests can carry ×1.5–2.5</span>
+    </div>
+    <div class="tbl-wrap" style="margin-top:20px">
+    <table>
+      <tr><th>Same 30-min exclusive venue hold <span class="provisional prov-only">(provisional)</span></th><th>Credits</th><th>≈ USD</th></tr>
+      <tr><td>Filed at 14:00, resource quiet &gt;6 h</td><td>180 cr — base rate</td><td>≈ $1.69</td></tr>
+      <tr><td>Filed at 19:30, prime time, low end ×1.5</td><td>270 cr</td><td>≈ $2.53</td></tr>
+      <tr><td>Filed at 19:30, prime time, high end ×2.5</td><td>450 cr — the ceiling</td><td>≈ $4.22</td></tr>
+      <tr><td class="r-dim">Queued for the next quiet window instead</td><td class="r-dim">153 cr (−15%) — auto-refunds if it never fires</td><td class="r-dim">≈ $1.44</td></tr>
+    </table>
+    </div>
+    <ul class="clean">
+      <li><b>Clock surge only touches the exclusive class.</b> Compatible
+      sessions — possessing your own character — run at 1.5 cr/min around the
+      clock. Prime time is a shared-resource price, never a session tax.</li>
+      <li><b>The 6-hour rule works off-peak too.</b> If a venue was exclusively
+      held at 09:00, a 10:00 exclusive on it can still surge — the form shows
+      the multiplier and the reason before you pay.</li>
+      <li><b>Flat-priced one-shots follow the same logic.</b> A weather block
+      costs 40–100 cr; if another weather request ran within 6 h, expect the
+      surge on it (×2 in the current proposal) — printed on the form like
+      everything else.</li>
+      <li><b>The cheapest move is always printed.</b> Queue (−15%) or file
+      inside a quiet hour — both are decisions the request form lets you make
+      with the numbers in front of you.</li>
+    </ul>
   </div>
 </section>
 
@@ -1056,6 +1120,12 @@
       <dd>Packs sell in local currency on a published purchasing-power table
       (EU/UK tax-inclusive). The table publishes at launch; until then local
       figures are provisional like everything else here.</dd></div>
+      <div class="fp-row"><dt>Surge is scheduled, not sprung</dt>
+      <dd>×1.5–2.5 can only apply to an exclusive request when the resource
+      was exclusively used in the last 6 h, or inside prime time
+      (18:00–23:00 server-local). The <a href="#clock">clock strip</a> shows
+      the whole day; the form shows the multiplier before payment. Quiet
+      hours are the discount — there's nothing else to time.</dd></div>
       <div class="fp-row"><dt>Changes move through the ledger first</dt>
       <dd>No price changes at checkout before it changes on this page.
       Purchases keep the terms they were bought under. That's the whole
@@ -1205,6 +1275,15 @@
         runs 360 cr ≈ $3.38 before any surge, and the cap means that's the
         most that hour can ever cost. The <a href="#hourly">per-hour chart</a>
         puts it next to a movie ticket.</p>
+      </details>
+      <details>
+        <summary>When is it cheapest to file a request?</summary>
+        <p>Outside prime time. Surge (×1.5–2.5) can only apply to exclusive
+        requests inside 18:00–23:00 server-local or on a resource exclusively
+        used in the last 6 hours — everything else pays the printed base
+        rate, and queued requests take another 15% off. Compatible sessions
+        never surge at all. The <a href="#clock">clock strip</a> shows the
+        whole day.</p>
       </details>
     </div>
   </div>

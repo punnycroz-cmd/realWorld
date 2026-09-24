@@ -258,6 +258,28 @@ drift shows as wrong math, not wrong claims).
   "Vocabulary" (#terms). Section count now 24; all anchors verified to
   resolve.
 
+## 1j. Page components (v157)
+
+- **"Surge, on the clock"** (`#clock`, `.clock`/`.clk`/`.clk-prime` in
+  style.css) — a 24-cell pure-CSS strip between `#receipt` and `#journey`
+  shading the prime-time band (18:00–23:00 server-local, hours 18–22 lit)
+  where the ×1.5–2.5 exclusive-class surge can apply. The two trigger
+  conditions are restated verbatim from the monetization plan (recent
+  exclusive use <6 h OR prime-time window); a worked table prices the same
+  30-min venue hold at 14:00 base (180 cr ≈$1.69) vs 19:30 low/high surge
+  (270/450 cr ≈$2.53/4.22) vs queued-for-quiet (153 cr ≈$1.44). Bullets
+  clarify the boundaries: compatible sessions never surge, the 6-h rule
+  works off-peak, and weather one-shots carry their own ×2 surge proposal.
+  `role="img"` with a full-text aria-label; no JS.
+- **Fineprint +1 row** — "Surge is scheduled, not sprung" restates both
+  surge triggers and the quiet-hours discount at body size, keeping
+  `#fineprint`'s every-catch promise true.
+- **Quick answers +1** — "When is it cheapest to file a request?" in BOTH
+  the visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful,
+  pointing at `#clock`).
+- **TOC chip** — "Surge hours" (#clock) between "A receipt" and "A
+  credit's life". Section count now 25; all anchors verified to resolve.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
