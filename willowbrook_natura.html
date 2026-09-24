@@ -25621,7 +25621,9 @@ function sfLensEnd(cw, ch){
        the glare fades exactly as the disc leaves the gate. */
     if(B){
       ctx.globalCompositeOperation = 'screen';
-      ctx.globalAlpha = 0.05 + 0.13 * SF_LENS.sunK;
+      // v56: glare falls off quadratically — a dry clear afternoon stays
+      // crisp off-axis instead of the whole frame milking over
+      ctx.globalAlpha = 0.02 + 0.11 * SF_LENS.sunK * SF_LENS.sunK;
       ctx.drawImage(B, 0, 0);
       ctx.globalCompositeOperation = 'source-over';
       ctx.globalAlpha = 1;
@@ -26379,6 +26381,44 @@ function sfCloudSprite(i, q, warmQ){
   SF_CLOUD_SPR.set(key, cvv);
   if(SF_CLOUD_SPR.size > 120)
     SF_CLOUD_SPR.delete(SF_CLOUD_SPR.keys().next().value);
+  return cvv;
+}
+/* ---------------- v56: cloud-shaped shadows ---------------------------
+   The top-view shadow pass used to stamp a smooth radial blob per cloud,
+   so the streets read as generic smears unrelated to the lumpy cumulus
+   overhead. Now the SAME lobe layout the sky sprite bakes is re-rendered
+   as a dark silhouette plate — same phash salts, same domes, denser core
+   with a soft penumbra fringe — so the ground shadow looks like the
+   cloud that casts it. Drawn smeared along the boundary-layer wind, the
+   same axis the streets are organized on. */
+const SF_CLOUD_SH = new Map();
+function sfCloudShadowSprite(i){
+  const hit = SF_CLOUD_SH.get(i);
+  if(hit) return hit;
+  if(typeof document === 'undefined') return null;
+  const c = sfClouds()[i];
+  const W2 = Math.ceil(c.r * 2.7), H2 = Math.ceil(c.r * 1.6);
+  const cvv = document.createElement('canvas');
+  cvv.width = W2; cvv.height = H2;
+  const g = cvv.getContext('2d');
+  const cx = W2 / 2, cy = H2 * 0.68;
+  const np = 7 + Math.floor(phash(i, 61, 1760) * 4);
+  for(let k = 0; k < np; k++){
+    const fx = (phash(i, k, 1761) - 0.5) * 2;
+    const domeK = 1 - fx * fx * 0.72;
+    const px = cx + fx * W2 * 0.34 + (phash(k, i, 1764) - 0.5) * c.r * 0.22;
+    const py = cy - (0.10 + phash(k, i, 1762) * 0.62) * H2 * domeK;
+    const rr = c.r * (0.30 + phash(i, k, 1763) * 0.34) * (0.55 + domeK * 0.45);
+    const g2 = g.createRadialGradient(px, py, rr * 0.2, px, py, rr * 1.3);
+    g2.addColorStop(0, 'rgba(22,30,52,0.9)');
+    g2.addColorStop(0.55, 'rgba(24,32,54,0.5)');
+    g2.addColorStop(1, 'rgba(24,32,54,0)');
+    g.fillStyle = g2;
+    g.beginPath(); g.arc(px, py, rr * 1.3, 0, Math.PI * 2); g.fill();
+  }
+  SF_CLOUD_SH.set(i, cvv);
+  if(SF_CLOUD_SH.size > 64)
+    SF_CLOUD_SH.delete(SF_CLOUD_SH.keys().next().value);
   return cvv;
 }
 /* screen-space rain shared by both SF views */
@@ -28130,17 +28170,22 @@ function sfRenderWorld(cw, ch){
       const rr = c.r * SF_PXM * cam.zoom * 1.5;
       if(sx + rr < 0 || sx - rr > cw || sy + rr < 0 || sy - rr > ch) continue;
       const a = Math.min(0.5, 0.55 * c.a * (0.3 + 0.7 * cover));
-      const g = ctx.createRadialGradient(sx, sy, rr * 0.15, sx, sy, rr);
-      g.addColorStop(0, `rgba(28,36,58,${a})`);
-      g.addColorStop(1, 'rgba(28,36,58,0)');
-      ctx.fillStyle = g;
-      ctx.beginPath();
-      // v41: streets cast STREETS — each shadow smears along the boundary-
-      // layer wind (the axis its cloud row is organized on), so the ground
-      // reads as parallel shade lanes with sunlit gaps, not round blobs
+      // v56: the shadow IS the cloud — its own lobe silhouette plate
+      // dropped along the sun vector, smeared along the boundary-layer
+      // wind (the v41 street axis) so shade lanes keep their direction
+      const sh = sfCloudShadowSprite(i);
+      if(!sh) continue;
+      const sc = (rr * 2) / sh.width;
       const wrot = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
-      ctx.ellipse(sx, sy, rr * 1.7, rr * 0.55 * SF_TILT, wrot, 0, Math.PI * 2);
-      ctx.fill();
+      ctx.save();
+      ctx.translate(sx, sy);
+      ctx.rotate(wrot);
+      ctx.scale(1.3, 0.6 * SF_TILT);
+      ctx.globalAlpha = Math.min(1, a * 1.35);
+      ctx.drawImage(sh, -sh.width * sc / 2, -sh.height * sc * 0.62,
+                    sh.width * sc, sh.height * sc);
+      ctx.restore();
+      ctx.globalAlpha = 1;
     }
     // 2b3. v47: sunbreaks — the lanes BETWEEN the shade streets are full
     // sun: warm pools pushed half a street-spacing across the wind from
@@ -30924,14 +30969,17 @@ function sfRenderStreet(cw, ch){
         ctx.beginPath(); ctx.arc(sxh, syh, hr * 1.05, 0, Math.PI * 2); ctx.stroke();
       }
     }
-    // v24: the SAME cloud field, projected at 130m altitude — now drawn as
-    // baked cumulus sprites: lumpy domes lit along the sun's screen
-    // bearing, grey level bases, hazed out with distance. Replaces the
-    // old five-ellipse flat blobs.
+    // v24+v56: the SAME cloud field, projected at 130m altitude — baked
+    // cumulus sprites, lumpy domes lit along the sun's screen bearing,
+    // grey level bases, hazed out with distance. The draw now resolves to
+    // a screen-rect list FIRST: the crepuscular pass needs the silhouette
+    // gaps before any pixel lands, and the rays draw UNDER the bodies so
+    // the deck occludes its own light.
     const cs2 = sfClouds(), nC = Math.ceil(cs2.length * (0.25 + 0.75 * cover));
     const sSA = Math.atan2(-0.85, sunSide >= 0 ? 0.55 : -0.55);
     const sq2 = ((Math.round(sSA / (Math.PI / 4)) % 8) + 8) % 8;
     const warmQ2 = wK > 0.45 ? 1 : 0;
+    const clL = [];        // [cx, topY, w, h, alpha, sprite]
     for(let i = 0; i < nC; i++){
       const c = cs2[i];
       const [cx2, cy2] = sfCloudPos(c);
@@ -30942,9 +30990,76 @@ function sfRenderStreet(cw, ch){
       const sc2 = F / p[2] * (0.45 + cover * 0.85);  // v41: same cover-size law as the diorama
       const w = spr.width * sc2 * 0.8, h = spr.height * sc2 * 0.8;
       if(w < 8 || w > cw * 1.8) continue;
-      ctx.globalAlpha = clamp(0.95 - p[2] / 850, 0.22, 0.9) *
-                        (0.55 + 0.45 * cover) * c.a;
-      ctx.drawImage(spr, p[0] - w / 2, p[1] - h * 0.6, w, h);
+      clL.push([p[0], p[1] - h * 0.6, w, h,
+                clamp(0.95 - p[2] / 850, 0.22, 0.9) *
+                (0.55 + 0.45 * cover) * c.a, spr]);
+    }
+    /* v56: crepuscular rays born of real gaps — replaces v50's seven fixed
+       decorative lanes (art-feedback: causeless rays read as glitch). A
+       beam exists only where two deck silhouettes leave a lit slot near
+       the sun's bearing — or where the disc itself sits eclipsed behind a
+       body and vents past its edges. Every beam fans outward from the sun
+       through its gap and dies with distance; all boundaries are gradient
+       falloffs, nothing here can draw a hard-edged wedge. */
+    if(sunFwd > 0.15 && W.rain < 0.4 && cover > 0.06 && cover < 0.85){
+      const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
+      const sy3 = horizon - sunUp * F * 0.72;
+      const iv = [];
+      for(const c2 of clL)
+        iv.push([c2[0] - c2[2] * 0.42, c2[0] + c2[2] * 0.42,
+                 c2[1] + c2[3] * 0.38]);   // silhouette [l, r, midY]
+      iv.sort((a, b) => a[0] - b[0]);
+      const gaps = [];                     // [anchorX, anchorY, width]
+      for(let k = 0; k + 1 < iv.length; k++){
+        const gw = iv[k + 1][0] - iv[k][1];
+        if(gw < F * 0.03 || gw > F * 0.9) continue;
+        const ay = Math.min(iv[k][2], iv[k + 1][2]);
+        if(ay > horizon + 10) continue;
+        gaps.push([(iv[k + 1][0] + iv[k][1]) / 2, ay, gw]);
+      }
+      for(const c2 of iv)
+        if(sx3 > c2[0] && sx3 < c2[1]){
+          gaps.push([c2[0], c2[2], F * 0.10], [c2[1], c2[2], F * 0.10]);
+        }
+      gaps.sort((a, b) => b[2] - a[2]);
+      const beamA = 0.4 * cover * (1 - cover * 0.45) * SF_SUN.day;
+      for(let k = 0; k < Math.min(6, gaps.length); k++){
+        const ax = gaps[k][0], ay = gaps[k][1], gw = gaps[k][2];
+        if(Math.abs(ax - sx3) > F * 1.7) continue;
+        let dx = ax - sx3, dy = ay - sy3;
+        const dl = Math.hypot(dx, dy);
+        if(dl < F * 0.06) continue;
+        dx /= dl; dy /= dl;
+        if(dy < 0.15){                    // light falls, it does not skim
+          dy = 0.15;
+          const dl2 = Math.hypot(dx, dy); dx /= dl2; dy /= dl2;
+        }
+        const L = F * (0.55 + 0.45 * phash(k, 96, 5301));
+        const laneA = beamA * clamp(gw / (F * 0.22), 0.2, 1) *
+                      (0.6 + phash(k, 97, 5302) * 0.4);
+        for(let s = 0; s < 7; s++){
+          const t = s / 6;
+          const bx = ax + dx * L * t, by = ay + dy * L * t;
+          if(by > horizon + 60) break;
+          const rad = (0.016 + t * 0.07) * F *
+                      (0.7 + phash(k * 7 + s, 98, 5303) * 0.5);
+          const a = laneA * (1 - t * 0.75) * 0.5;
+          if(a < 0.004 || rad < 3) continue;
+          const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
+          g.addColorStop(0, `rgba(255,238,196,${a})`);
+          g.addColorStop(0.55, `rgba(255,234,186,${a * 0.5})`);
+          g.addColorStop(1, 'rgba(255,232,180,0)');
+          ctx.fillStyle = g;
+          ctx.beginPath();
+          ctx.ellipse(bx, by, rad, rad * 0.42, Math.atan2(dy, dx),
+                      0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+    for(const c2 of clL){
+      ctx.globalAlpha = c2[4];
+      ctx.drawImage(c2[5], c2[0] - c2[2] / 2, c2[1], c2[2], c2[3]);
     }
     ctx.globalAlpha = 1;
     // v7: high cirrus — wind-sheared ice streaks on clear days
@@ -30962,41 +31077,31 @@ function sfRenderStreet(cw, ch){
       }
       ctx.lineCap = 'butt';
     }
-    // v7+v50: crepuscular sun shafts — the v7 hard arc wedges read as
-    // glitch triangles whenever the disc sat off-frame (art-feedback).
-    // v50 rebuilds them as volumetric light LANES: each lane is a chain
-    // of overlapping radial-gradient billows descending along its ray,
-    // warm late-afternoon tone, thinning with distance from the disc.
-    // Every boundary is a gradient falloff — no polygon edges at all.
-    if(sunFwd > 0.15 && W.rain < 0.4 && cover < 0.8){
-      const sx3 = cw / 2 + (sunSide / Math.max(0.4, sunFwd)) * F * 0.9;
-      const sy3 = horizon - sunUp * F * 0.72;
-      // v47 physics kept: sunbreak lanes overhead are real gaps in the
-      // deck, so lane strength follows cover and drifts with the gaps
-      const shaftA = 0.16 * (1 - cover * 0.55);
-      for(let k = 0; k < 7; k++){
-        const ang = 0.42 + k * 0.24 + Math.sin(SF_WX.t * 0.2 + k) * 0.03;
-        const dx = Math.cos(ang), dy = Math.sin(ang);
-        const laneA = shaftA * (0.45 + phash(k, 96, 5301) * 0.75);
-        for(let s = 0; s < 7; s++){
-          const t = 0.10 + s * 0.15;                  // fraction along the ray
-          const bx = sx3 + dx * F * 1.1 * t,
-                by = sy3 + dy * F * 1.1 * t;
-          if(bx < -F || bx > cw + F || by > ch + 40) break;
-          const rad = (0.020 + t * 0.085) * F *
-                      (0.75 + phash(k * 7 + s, 97, 5302) * 0.5);
-          const a = laneA * (1 - t * 0.72);
-          if(a < 0.004 || rad < 3) continue;
-          const g = ctx.createRadialGradient(bx, by, 0, bx, by, rad);
-          g.addColorStop(0, `rgba(255,238,196,${a})`);
-          g.addColorStop(0.55, `rgba(255,234,186,${a * 0.5})`);
-          g.addColorStop(1, 'rgba(255,232,180,0)');
-          ctx.fillStyle = g;
-          ctx.beginPath();
-          ctx.ellipse(bx, by, rad, rad * 0.42, ang, 0, Math.PI * 2);
-          ctx.fill();
-        }
+    /* v56: the far field — a compass ring of distant cumulus holding at
+       2.4-4km on fixed bearings, so the sky has depth on EVERY heading,
+       not only where the local deck happens to drift. They draw small and
+       faint above the horizon; the skyline silhouette and the marine haze
+       band that render after them do the veiling, the way real distance
+       grays a cloud over the East Bay hills. */
+    if(cover < 0.75 && W.rain < 0.5){
+      const nF = Math.floor(7 + cover * 18);
+      for(let k = 0; k < nF; k++){
+        const bAng = phash(k, 71, 5560) * Math.PI * 2;
+        const dist = 2100 + phash(k, 72, 5561) * 1700;
+        const p = pr(camX + Math.cos(bAng) * dist,
+                     camY + Math.sin(bAng) * dist,
+                     380 + phash(k, 73, 5562) * 420);
+        if(!p) continue;
+        const spr = sfCloudSprite(k % 8, sq2, warmQ2);
+        if(!spr) continue;
+        const sc3 = F / p[2] * (0.6 + cover * 0.6);
+        const w = spr.width * sc3 * 2.4, h = spr.height * sc3 * 2.4;
+        if(w < 16) continue;
+        ctx.globalAlpha = (0.58 - cover * 0.12) *
+                          clamp(1 - (p[2] - 2100) / 2600, 0.45, 1);
+        ctx.drawImage(spr, p[0] - w / 2, p[1] - h * 0.55, w, h);
       }
+      ctx.globalAlpha = 1;
     }
     // v7: stratus deck — when the marine layer wins, the whole sky greys out
     if(cover > 0.55){
