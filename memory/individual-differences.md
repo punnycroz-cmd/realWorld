@@ -3561,3 +3561,696 @@ grew_rural·nav_ab  +0.25  (Coutrot 2022 — CONSENSUS direction)
   catalog (§13.1) must classify: pointer/ext_pointer are
   T-tier (tags) with write-once pointer targets — they
   decay like verbatim but are never rewritten.
+
+
+# Part VIII — v91: the eighth axis of difference (the chemistry
+# and the crowd — intoxication tails, the medicated mind, the
+# pressurized choke, the worried well, the face from the other
+# group, the imagined future, the pregnant pause, the caffeine
+# clock, the gamer's attention, and the third mandated null)
+
+Parts I–VII built the trait layer from ability, affect, clinical
+phenotypes, autobiographical tails, ego bookkeeping, and storage
+location. Part VIII turns to the axes the earlier parts skipped
+because they live in the *state* more than the trait — the
+pharmacology of the evening (§92, §93, §100), the situational
+pressure that interacts with the trait (§94, §95), and the
+complaint that outruns the record (§96, §99). Two axes are
+social-structural (§97 cross-group exposure, §101 gaming
+history), one is the imagination that shares the remembering
+machinery (§98), and §102 is the third mandated null — a trait
+the model keeps in the vector *only* to record that training
+it doesn't transfer. Every section cites its sources, marks
+CONSENSUS / DEBATED / HYPOTHESIS, prices its levers in §7-
+compatible params, and ends falsifiable (§106 probes
+P958–P969; §105 nulls are the part that can be killed).
+
+Convention reminder: σ-traits are N(0,1) unless noted; [0,2]
+traits are one-tailed severities; demographic fields are
+bible-set. `state` fields are context, not traits.
+
+## 92. `blackout` — the evening with holes in it (alcohol's
+## individual tail)
+
+The acute intoxication *params* exist since v1.9
+(`intox_encode_mult`, `intox_state_dep`, and v5.20's
+`intox_retro_shield` OBSERVE leg) — but the trait layer never
+priced WHY two people at matched BAC leave the party with
+different nights. The alcohol-administration literature is
+unusually direct: at matched blood-alcohol concentrations,
+only *some* drinkers black out (Hartzler & Fromme 2003,
+*Alcohol.: Clin. Exp. Res.* 27:628 — placebo-controlled;
+Nelson et al. 2004). Fragmentary blackouts — cue-rescuable
+gaps — outnumber en bloc (total, permanent) episodes ~3:1 in
+heavy-drinking young adults (Hartzler & Fromme 2003, *J. Stud.
+Alcohol* 64:547, TLFB). The fragmentary deficit is a
+*contextual/source-memory* failure: FB-history drinkers show
+differential dlPFC/parietal BOLD under alcohol at matched
+task performance (Wetherill & Fromme 2011, *Addict. Behav.*
+36:886; Wetherill et al. 2011) — an inherent retrieval
+vulnerability, not a bigger dose.
+
+Model — trait `blackout` [0,2] (bible-settable, correlates
+with drinking history, NOT with g_mem): under intox ≥
+`blackout_bac` (0.6 on the v1.9 intox scale), records are
+minted with two failure modes:
+
+- **fragmentary** (default, p = `blackout_frag_p`·blackout):
+  the record survives but its source/context fields are
+  written thin (source-tier strength ×`blackout_ctx_pen`),
+  voluntary retrieval θ is raised by `blackout_theta_pen`,
+  and the record carries `frag:true`. The gap is a retrieval
+  gap: sufficient cue support (`blackout_cue_rescue` 0.7 —
+  other drinkers' accounts, photos, place reinstatement)
+  partially rescues it, matching Hartzler & Fromme's "poor
+  retrieval" conclusion. Reconstructed fragments carry
+  `reconstructed` provenance — a rescued fragment is told-
+  back memory, not relived memory.
+- **en bloc** (p = `blackout_enbloc_p`·blackout, requires
+  intox ≥ `blackout_enbloc_bac` 0.8): the record is never
+  minted — att_min fails at encode. No cue rescues it;
+  `blackout_rescue_null` locked (en-bloc gaps are gone, not
+  hidden — White 2003 NIAAA review). What remains is the
+  *inference* of the gap: morning-after narrators routinely
+  confabulate into it via §6.9 imagineEvent — which is
+  exactly the documented phenomenology.
+
+Locked null `blackout_retro_null`: blackout is anterograde —
+records born before intox-onset are never erased by the
+drinking that follows. (The *facilitation* leg — post-
+encoding alcohol shielding prior learning from interference
+— already rides `intox_retro_shield`, OBSERVE tier, v5.20;
+Parker et al. 1980/81; Carlyle et al. 2017.)
+
+[CONSENSUS for the trait's existence, the fragmentary/en-bloc
+distinction, and the anterograde-only direction; DEBATED for
+exact BAC gates and the rescue fraction — cue-rescue in the
+lab is assisted recall, and the field's "rescue" is ours by
+analogy.]
+
+## 93. `med_burden` — the pill that taxes tomorrow (sedative /
+## anticholinergic load)
+
+Two pharmacologies, one trait, because both produce the same
+signature — a clean anterograde tax with preserved retrieval
+of pre-medication records. Benzodiazepines produce dose-
+related *anterograde* amnesia: acquisition impaired, retrieval
+of pre-drug material intact or even slightly improved (Curran
+1991, *Psychopharmacology* review; Buffett-Jerrott & Stewart
+2002 — the retrograde-facilitation cousin of §92's shield).
+Cumulative anticholinergic burden predicts incident cognitive
+impairment in community-dwelling elders (Gray et al. 2015,
+*JAMA Intern. Med.* — ≥3y cumulative use, adjusted dementia
+HR ~1.5; Fox et al. 2011 — anticholinergic burden score
+predicts 2y memory decline; Campbell et al. 2009).
+
+Model — trait `med_burden` [0,2] (bible-set; 0 = none,
+1 = nightly sleep-aid / anxiolytic regular, 2 = high
+anticholinergic load): while `med_burden > 0`, records are
+born with E ×(1 − `med_antro_tax`·med_burden) and source-tier
+strength ×(1 − `med_source_pen`·med_burden). Both effects are
+anterograde only — locked null `med_retro_null`: no operator
+may degrade a record that predates the medication window.
+Loadings additionally tax `search_breadth` (−1·0.1/σ scaled
+by burden — sedation, not aging) and `ret_noise` (+0.02/σ).
+Critically the burden is *state-shaped*: a character who
+stops the medication recovers the encoding side within the
+med-washout window (`med_washout` 3d), matching the acute-
+vs-chronic dissociation (Curran 1991 acute; Gray 2015's
+cumulative leg we price as a slow `aging_rate` addend
++0.05·med_burden — DEBATED causal).
+
+[CONSENSUS anterograde-direction and preserved-retrieval
+dissociation; DEBATED the cumulative → dementia path (HR
+associational); HYPOTHESIS the washout window.]
+
+## 94. `eval_press` — the choke that picks on the strong
+## (pressure × ability interaction, not a trait)
+
+The surprise of the pressure literature is the sign. High-
+working-memory individuals choke *more* under evaluative
+pressure — the very people the task normally favors lose
+their advantage precisely when the stakes rise (Beilock &
+Carr 2005, *JEP:General* 134 — high-pressure math splits the
+WMC groups; DeCaro, Thomas, Albert & Beilock 2011 — pressure
+degrades high-WMC performance on strategy-demanding tasks;
+Gimmig et al. 2006). The mechanism-priced reading: pressure
+doesn't shrink capacity, it *spends* it — worry and
+situation-monitoring occupy the same wmc the task needs
+(Eysenck, Derakshan, Santos & Calvo 2007, *Emotion* 7:336 —
+attentional control theory; Beilock 2008 math-anxiety
+mediation).
+
+Model — context flag `eval_press:true` on events (auditions,
+public confrontations, observed performance — world-supplied;
+never ambient): during eval_press events, all wmc-driven
+loadings are taxed ∝ the character's OWN wmc level:
+`choke_k`·wmc⁺ — the regression-to-mean paradox. A wmc=+1.5
+character loses more discrimination, source-monitoring, and
+interference-resistance than a wmc=−1 character, who had less
+to lose. Param `choke_wmc_k` (0.5) scales the interaction;
+`choke_gate` (0.6) is the minimum stake/novelty the world must
+supply. Locked null `choke_lowstake_null`: below the gate the
+interaction is zero — pressure without stakes doesn't choke
+anyone (the effect needs the evaluation, not the arousal —
+arousal narrowing already lives in `arousal_narrowing`).
+
+[CONSENSUS for the high-WMC paradox direction and the
+attentional-control mechanism; DEBATED for the transfer to
+*memory encoding* specifically — most choke studies price
+performance, not storage; our loading is the hypothesis
+extension, flagged.]
+
+## 95. `att_ctl` — the trait underneath the anxiety
+## (control as its own axis)
+
+Attentional control theory's individual-difference payload is
+that anxiety's memory cost is *mediated by control*, not by
+worry directly: trait attentional control (Attentional Control
+Scale; Derryberry & Reed 2002) predicts how much of one's wmc
+survives under load, and low att_ctl is the channel through
+which trait anxiety reaches performance (Eysenck et al. 2007;
+Berggren & Derakshan 2013 review). Two people at identical
+`neurot` differ in whether the worry actually lands on the
+encoding.
+
+Model — trait `att_ctl` N(0,1), positively correlated with
+wmc but distinct (r +0.5 — control is measured by self-
+regulation, not capacity). Loadings: `att_min` resilience
+under `stress`-state and `anx`-state events (+0.06/σ — the
+floor moves less); `ret_noise` under eval_press (−0.02/σ);
+`plist_suppress` resistance small; `search_breadth` under
+load retained. `att_ctl` is the buffer `wmc` lacks: wmc is
+how much you hold, att_ctl is whether worry gets into it.
+
+[CONSENSUS that att_ctl moderates anxiety's cognitive cost;
+HYPOTHESIS per-param routing — the literature prices task
+performance, our split is the model's guess.]
+
+## 96. `scd` — the worried well (complaint without deficit)
+
+Subjective cognitive decline is a formal phenotype: self-
+reported memory worsening *with objective performance in the
+normal range* (Jessen et al. 2014, *Alzheimers Dement.*
+SCD-I criteria; Rabin et al. 2017, *Alzheimers Dement.* —
+SCD prevalence ~1 in 4 older adults; associated with worry/
+depressive affect more than with measured decline; small but
+real elevated conversion risk — the phenotype is real even
+when the deficit isn't). The memory-sim lesson: complaint
+and accuracy are *different channels*, and a whole class of
+character lives in the gap.
+
+Model — trait `scd` [0,1] (bible-set; correlates neurot +
+0.4, meta_conf −0.5, checker +0.3): `scd_complaint_gain`
+(0.6) multiplies the complaint surface (self-report snippets,
+worry mentions); `scd_worry_intr` (0.1) adds a light
+intrusion weight on health/evaluative-cued involuntary
+recall; and the hard boundary — locked null `scd_obj_null`:
+`scd` may NOT touch E, β, θ, or any accuracy-side param. The
+character *feels* worse without performing worse. (When the
+bible wants real decline it pins `aging_rate`/`reserve` —
+scd is the phenotype where they don't.) The interaction
+that matters: scd × eval_press raises `choke` cost via the
+worry channel — the worried well can spend their way into a
+real deficit on stage, which is exactly Berggren &
+Derakshan's point.
+
+[CONSENSUS the complaint-accuracy dissociation and its
+affective correlates; DEBATED the conversion-risk size —
+we price zero objective signal, which is the phenotype's
+definition, not a bet against the risk.]
+
+## 97. `cross_exp` — the face from the other group (own-group
+## bias as an exposure trait)
+
+The own-race bias is one of face memory's most replicated
+findings: own-group faces are remembered better than other-
+group faces (Meissner & Brigham 2001, *Psychol. Public Policy
+Law* 7:3 meta — ORB ~1.4× recognition advantage across 39
+studies), with a matching out-group false-alarm cost. The
+malleable part is *exposure*: cross-group contact/experience
+attenuates the bias (Meissner & Brigham 2001 — contact
+hypothesis support moderate; Rhodes, Hayward & Winkler 2006;
+Wright, Boyd & Tredoux 2003 — own-group bias grows with
+segregation). The own-age bias is the smaller sibling
+(Rhodes & Anastasi 2012, *Psychol. Bull.* meta — own-age
+recognition advantage, smaller and less consistent than
+own-race; we price it at half strength).
+
+Model — trait `cross_exp` [0,2] (bible-set from biography —
+neighborhood composition, workplace, relationships; Mission
+District characters get honest distributions): face/identity
+records on out-group targets are encoded with familiarity
+accrual ×(1 − `orb_face_pen`·(1 − `orb_expo_k`·cross_exp)),
+out-group false-alarms +`orb_fa_gain`·(1 − same rescale).
+The exposure term is the trait's point: `orb_expo_k` 0.6 —
+a maximally cross-exposed character keeps ~60% of the bias
+reduction the literature reports. Locked null
+`orb_content_null`: ORB touches face/identity tiers ONLY —
+episodic content, actions, and verbatim fields are
+unaffected (the bias is in face processing, not in what
+people did — Meissner & Brigham's tasks are recognition
+tasks). `orb_age` flag (0.5 weight) rides the same loadings
+for age-group mismatches (Rhodes & Anastasi 2012).
+
+[CONSENSUS for ORB existence and direction incl. the FA
+asymmetry; DEBATED for the contact-attenuation size —
+correlational; the [0,2] exposure scaling is HYPOTHESIS.]
+
+## 98. `sim` — the imagination that shares the machinery
+## (episodic simulation trait)
+
+Remembering and imagining the future are the same system:
+episodic detail in recalled events and in constructed future
+events correlate within person (Addis, Wong & Schacter 2007,
+*Neuropsychologia* — older adults' episodic-detail loss hits
+memory AND future simulation together; Schacter & Addis
+2007 constructive episodic simulation hypothesis; Race,
+Keane & Verfaellie 2011 — amnesics impoverished in both).
+The individual-difference consequence: a character rich in
+episodic detail should also construct rich plans, fears,
+and daydreams — and the deficit direction holds too (§64
+sdam already produces thin futures; `sim` generalizes it).
+
+Model — trait `sim` N(0,1), correlated with vivid +0.4 and
+g_mem +0.3 (shared episodic substrate): future-oriented
+records (plan, anticipate, dread, daydream — minted via
+existing imagineEvent with `future:true`) inherit detail
+density ∝ `sim` — `sim_detail_link` (0.5) is the coupling
+coefficient between a character's specificity and their
+future-detail. The esi coupling (v5.34 `esi_gain`) is the
+bridge: episodic-specificity-induction effects ride the
+same axis (Madore & Schacter 2014 — ESI lifts BOTH recall
+detail and simulation detail; a single substrate move).
+Locked null `sim_content_null`: simulation detail cannot
+manufacture *content accuracy* — a high-sim character
+imagines richly and is wrong richly (the system shares
+machinery, not truth — Schacter & Addis's own adaptive-
+error argument).
+
+[CONSENSUS the memory-simulation coupling; DEBATED whether
+trait sim exists apart from episodic ability — we price it
+separable-but-correlated, falsifiable via P965's partial-
+correlation arm.]
+
+## 99. `preg_state` — the pause that's smaller than the
+## complaint (baby brain, priced honestly)
+
+The complaint is real and the deficit is real — but the
+deficit is *small*, trimester-shaped, and stays inside the
+normal range. The meta-analysis is the honest source:
+Davies, Lum, Skouteris, Byrne & Hayden 2018 (*Med. J.
+Aust.* 208:35 — 20 studies, 709 pregnant / 521 control:
+overall SMD 0.52 [0.07–0.97]; third-trimester memory SMD
+~1.47 cross-sectionally, but longitudinal declines develop
+T1→T2 and the authors stress performance remains within
+normal ranges; ~4/5 women report subjective changes).
+Complaint ≫ effect — the subjective-objective gap is the
+phenomenon, like §96 and like v5.36's mt_complaint for the
+menopause transition (Greendale et al. 2009 SWAN).
+
+Model — state field `preg_state` ∈ {0,1,2,3} (world-set;
+trimester): records born in trimester t encode with E
+×(1 − `preg_enc_dip`·preg_trim_w[t]) where
+preg_trim_w = [0, 0.6, 1.0] (T1, T2, T3 weighting — the
+meta-analytic shape, not a linear ramp); executive-side
+params tax `preg_exec_dip` on search_breadth and att_min
+resilience only in T3. Complaint surface rides
+`preg_complaint` (0.8 — the 4/5 subjective share),
+independent of whether any objective tax fired — the
+character who encodes normally still *reports* fog.
+Locked nulls: `preg_perm_null` — no permanent deficit
+parameter; the dip ends with the state (postpartum
+resolution; long-term gray-matter findings — Hoekzema
+2017 — exist but do not map to measurable memory loss in
+our sources, so we don't pay for them); `preg_theta_null`
+— retrieval of pre-pregnancy records untouched (the dip
+is at the door, like §93).
+
+[CONSENSUS the effect is real, small, T3-weighted, and
+complaint-heavy; DEBATED mechanism (hormonal vs sleep vs
+load — we don't adjudicate); the exact weights are
+HYPOTHESIS-fitted to the meta-analytic shape.]
+
+## 100. `caff` — the clock in the cup (dependence, not boost)
+
+Caffeine's honest memory story is the withdrawal-reversal
+account: habitual consumers don't get a boost — they get a
+*penalty while abstinent*, and the "benefit" of the morning
+cup is removing a self-imposed tax (Rogers & Dernoncourt
+1998, *Pharmacol. Biochem. Behav.*; James & Rogers 2005;
+Rogers et al. 2013). Acute caffeine state-dependency for
+memory is weak and contested (Kelemen & Creeley 2003 found
+state-dependent effects; larger literatures mostly null —
+DEBATED, we price tiny).
+
+Model — trait `caff` [0,2] (habitual dependence level):
+- `caff_wd` state (world-set: >18h since habitual dose):
+  `ret_noise` +`caff_wd_tax`·caff, `theta` +0.03·caff,
+  `search_breadth` −1·0.05·caff — the withdrawal tax that
+  IS the dependence effect.
+- `caff_state_dep` (0.02): tiny w_msd-style bonus for
+  caffeinated-state matching — deliberately near the floor,
+  flagged DEBATED.
+- Locked null `caff_ability_null`: `caff` never touches
+  E0/β/θ baselines while dosed — habitual caffeine is
+  baseline-neutral (Rogers' reversal logic: on-drug
+  performance is the reference, not an enhancement).
+
+[CONSENSUS withdrawal-reversal is the dominant account;
+DEBATED the residual state-dependency — priced near zero
+on purpose.]
+
+## 101. `gamer` — the reflexes that don't carry (small, and
+## told to stay small)
+
+Action-video-game experience is the strongest candidate in
+the "habit shapes cognition" literature and the honest
+verdict is *small and channel-locked*: habitual action
+gamers outperform on top-down attention and spatial
+cognition (Bediou, Adams, Mayer, Tipton, Green & Bavelier
+2018, *Psychol. Bull.* 144:77 — cross-sectional g≈0.55,
+intervention g≈0.34, with publication-bias inflation ~30%
+and the boot/Simons critique hanging over causal claims —
+Boot, Blakely & Simons 2011; Hilgard, Engelhardt & Rouder
+2017 Bayesian re-analyses). What the literature does NOT
+support is a general episodic-memory advantage.
+
+Model — trait `gamer` [0,2] (habitual action-gaming):
+loadings restricted to the channels the meta-analysis
+endorses — `att_min` −0.01·gamer (slightly easier floor
+on fast visual events), `w_place` +0.02·gamer (spatial
+cue weight), `sensory` visual-field detail +`gamer_vis_k`
+(0.03). Locked null `gamer_episodic_null`: no loading may
+touch E0, β, θ, link_p, or any episodic-content param —
+the attention advantage does not buy a better store
+(Bediou's own domain map puts episodic memory outside the
+gains; the episodic store doesn't know about your K/D).
+
+[CONSENSUS direction on attention/spatial, small effects;
+DEBATED causality — we price as correlation (trait, not
+treatment); HYPOTHESIS which of our params best maps their
+domains.]
+
+## 102. `braintrain` — the third mandated null (training that
+## doesn't travel)
+
+The verdict on cognitive training is unusually clean for
+this field: practice on memory tasks improves performance
+*on those tasks*, and transfer to untrained abilities —
+"far transfer," the thing a general `g_mem` loading would
+be — is not supported (Simons, Boot, Charness, Gathercole,
+Chabris, Hambrick & Stine-Morrow 2016, *Psychol. Sci.
+Public Interest* 17:103 — the definitive review: brain-
+game claims outrun evidence; Melby-Lervåg & Hulme 2013,
+*Dev. Psychol.* — WM training: near transfer yes, far
+transfer no, no maintenance; Shipstead, Redick & Engle
+2012; Owen et al. 2010, *Nature* — 11,430-participant
+RCT: trained gains, zero transfer). This joins
+`birth_order` (§58) and `learn_style` (§71) as a documented
+null kept *in the vector* on purpose — because bibles and
+players will reach for it.
+
+Model — `braintrain` ∈ [0,2] exists in IndivTraits with
+**every loading fixed 0.0** except a single frozen near-
+transfer channel: `nt_xfer` (0.15) may boost performance
+on the *specific trained task family* only — mnemonic
+drill improves the drill, never the store. Locked null
+`braintrain_far_null`: no parameter may be raised by
+`braintrain` except through `nt_xfer`'s task-locked gate.
+A character who does memory exercises every morning is
+indistinguishable from one who doesn't — except at the
+exercises. P969 probes the absence.
+
+[CONSENSUS — this is among the best-documented nulls in
+the applied literature.]
+
+## 103. Cross-version interactions (audit)
+
+- **blackout × intox_* (v1.9/v5.20):** the trait scales,
+  the params gate — `blackout` without intox ≥ bac is
+  inert; intox without `blackout` yields the population
+  floor rates only. `intox_retro_shield` is untouched
+  (anterograde-direction consistency: shield and blackout
+  never overlap on a record).
+- **med_burden × sleep/consol (§81):** sedative load often
+  *improves* reported sleep while taxing encoding — corr
+  med_burden·sleep −0.1 is intentionally small; the
+  trade-off is the point (subjective rest, objective tax).
+- **eval_press × stereo_suscept (v? age-decline §):
+  stereotype threat already exists — eval_press is the
+  STAKES gate; stereo_salience is the IDENTITY gate. They
+  multiply on an elder being publicly evaluated — both
+  gates required for the full documented effect, either
+  alone yields its own half. No param shared; check P961
+  keeps them separable.
+- **att_ctl × neurot (§2.3):** neurot supplies the worry,
+  att_ctl decides if it lands — corr +0.5 to wmc, −0.3 to
+  neurot; identical neurot, split att_ctl = split outcomes.
+- **scd × meta_conf (§17):** scd is the phenotype-level
+  expression — meta_conf −0.5 is the population pull; a
+  bible may pin high scd with neutral meta_conf for a
+  specifically-memory-anxious character. Aging real
+  decline rides aging_rate/reserve, never scd.
+- **cross_exp × face_ability (§20):** ability is the
+  store, exposure is the bias — a super-recognizer can
+  still show ORB; the loadings multiply on out-group
+  targets only. `orb_content_null` keeps them tier-clean.
+- **sim × sdam/hsam (§63–64):** sim is the continuous
+  axis, the tails clamp it — hsam sim is high by
+  construction (shared substrate); sdam sim is low
+  (thin futures documented, §"thin futures" v87 — this
+  formalizes the earlier qualitative claim).
+- **preg_state × task_load (§55):** the dip is
+  *additive* with busy-day load — pregnancy taxes are
+  encoded on top of, not instead of, state load. Watch
+  the sum vs clamps.
+- **caff × chronotype (§2):** withdrawal compounds a
+  mismatched morning — the params are independent
+  (state vs phase) and both fire; no special-casing.
+- **gamer × media_m (§51):** media_m is the *cost* axis
+  (split-attention habit), gamer the *trained-attention*
+  axis — correlating +0.15 only; a character can be
+  both (the literature's multitasking gamers are not a
+  contradiction).
+- **braintrain × mnem (§85):** the mandated null and
+  the priced skill are NOT in tension — mnem prices
+  *strategy deployment on real material* (Wagner 2021
+  durability), braintrain-null prices *far transfer
+  from drill*. Both are simultaneously true in the
+  literature; P969 vs P843 is the check.
+
+## 104. Extended trait vector, R additions, loading table
+## (Part VIII)
+
+```json
+IndivTraits += {
+  "blackout":   0.0,   // §92 — alcohol-vulnerability tail [0,2]
+  "med_burden": 0.0,   // §93 — sedative/anticholinergic load [0,2]
+  "att_ctl":    0.0,   // §95 — attentional control (ACS)
+  "scd":        0.0,   // §96 — subjective-decline phenotype [0,1]
+  "cross_exp":  0.0,   // §97 — cross-group exposure [0,2]
+  "sim":        0.0,   // §98 — episodic simulation ability
+  "caff":       0.0,   // §100 — habitual caffeine level [0,2]
+  "gamer":      0.0,   // §101 — action-gaming history [0,2]
+  "braintrain": 0.0,   // §102 — DOCUMENTED NULL (near-xfer only)
+  // state fields (not traits):
+  //   preg_state {0,1,2,3}, caff_wd 0|1, eval_press ctx flag
+}
+```
+
+R additions (sparse, HYPOTHESIS unless noted):
+
+```
+blackout·stress      +0.15  (drinking-history composite — sampling)
+blackout·early_adv   +0.20  (co-traveling risk — sampling corr)
+med_burden·aging_rate +0.15 (medicated skews older — sampling)
+med_burden·sleep     −0.10  (sedated rest ≠ good sleep)
+att_ctl·wmc          +0.50  (control vs capacity — CONSENSUS dir.)
+att_ctl·neurot       −0.30  (anxiety cost mediated — Eysenck 2007)
+scd·neurot           +0.40  (Rabin 2017 — CONSENSUS dir.)
+scd·meta_conf        −0.50
+scd·checker          +0.30
+cross_exp·social     +0.20  (exposure tracks contact — sampling)
+sim·vivid            +0.40  (shared imagery — CONSENSUS dir.)
+sim·g_mem            +0.30  (shared episodic substrate — Addis)
+sim·open             +0.20
+caff·chronotype      +0.15  (evening types lean on the cup — sampling)
+gamer·media_m        +0.15  (habit overlap — sampling)
+gamer·nav_ab         +0.15  (spatial channel — CONSENSUS dir.)
+braintrain·*         0.0    (mandated — see §102)
+```
+
+### Loading table additions (rows beyond §88)
+
+| trait | param | loading | tier / source |
+|---|---|---|---|
+| blackout | frag-mint p under intox≥gate | ·+0.6·b | CONSENSUS (Hartzler & Fromme 2003) |
+| blackout | source-tier ×(1−ctx_pen), θ+pen | ctx 0.4, θ 0.15 | CONSENSUS dir. (Wetherill 2011) |
+| blackout | en-bloc mint p (intox≥0.8) | ·+0.15·b | CONSENSUS (3:1 frag:enbloc) |
+| med_burden | E ×(1−antro_tax·m), src ×(1−pen·m) | tax 0.25, pen 0.3 | CONSENSUS (Curran 1991; Gray 2015) |
+| med_burden | search_breadth / ret_noise | −0.1/σ, +0.02/σ | CONSENSUS dir. (sedation) |
+| med_burden | aging_rate addend | +0.05·m | DEBATED (Gray 2015 associational) |
+| eval_press | wmc-loadings ×(1−choke_k·wmc⁺) | k 0.4·gate | CONSENSUS dir. (Beilock & Carr 2005) |
+| att_ctl | att_min under stress/anx ctx | −0.06/σ tax-reduction | CONSENSUS dir. (Derryberry 2002) |
+| att_ctl | ret_noise under eval_press | −0.02/σ | CONSENSUS dir. |
+| scd | complaint surface / worry intr | +0.6·s / +0.1·s | CONSENSUS (Jessen 2014; Rabin 2017) |
+| scd | (all accuracy params) | 0.0 — LOCKED | CONSENSUS (phenotype def.) |
+| cross_exp | orb rescale (1−expo_k·x) | expo_k 0.6 | DEBATED (contact lit.) |
+| (orb mech) | out-group fam ×(1−pen)/fa +gain | pen 0.3, gain 0.15 | CONSENSUS (Meissner & Brigham 2001) |
+| sim | future-record detail ∝ specificity | link 0.5 | CONSENSUS (Addis 2007; Madore 2014) |
+| preg_state | E ×(1−dip·w[t]), exec T3 | dip 0.15, exec 0.1 | CONSENSUS shape (Davies 2018) |
+| preg_state | complaint share | 0.8 | CONSENSUS (4/5 subjective) |
+| caff | caff_wd state: noise/θ/breadth | tax 0.08·c | CONSENSUS (Rogers 1998) |
+| caff | state-dep w_msd add | +0.02·c | DEBATED (Kelemen 2003) |
+| gamer | att_min / w_place / vis detail | −0.01/+0.02/+0.03 | CONSENSUS dir., small (Bediou 2018) |
+| gamer | (episodic params) | 0.0 — LOCKED | CONSENSUS domain-map |
+| braintrain | nt_xfer task-locked only | +0.15 frozen | CONSENSUS (Simons 2016) |
+| braintrain | (all else) | 0.0 — LOCKED | CONSENSUS (Melby-Lervåg 2013) |
+
+## 105. New explicit nulls (Part VIII's falsifiable edge)
+
+- `blackout_retro_null`, `blackout_rescue_null` (en-bloc
+  arm): the drinking erases forward only; en-bloc gaps
+  are gone, not archived (P958).
+- `med_retro_null`: the pill taxes tomorrow, never
+  yesterday (P960).
+- `choke_lowstake_null`: pressure without stakes chokes
+  no one (P961).
+- `scd_obj_null`: complaint may never touch accuracy
+  (P963).
+- `orb_content_null`: group bias lives in the face tiers
+  only (P964).
+- `sim_content_null`: rich imagination buys detail, not
+  truth (P965).
+- `preg_perm_null`, `preg_theta_null`: the dip ends with
+  the state, and it never reaches backward (P966).
+- `caff_ability_null`: dosed performance is reference,
+  never enhanced (P967).
+- `gamer_episodic_null`: attention doesn't buy a store
+  (P968).
+- `braintrain_far_null`: drill improves the drill — the
+  third mandated null (P969).
+
+## 106. Falsifiable probes (P958–P969; validation-design §186)
+
+- **P958 the holes in the evening (MUST — rescue
+  split):** blackout=+1.5 vs 0, intox=0.7 identical
+  nights: fragmentary records carry frag:true, source
+  fields thin, θ up — and cue-supported recall rescues
+  ~`blackout_cue_rescue` fraction as `reconstructed`;
+  en-bloc records absent under ANY cue (rescue_null);
+  pre-drinking records identical across arms
+  (retro_null); sober-history performance identical
+  (the trait only operates under intox).
+- **P959 the shield beside the hole (OBSERVE):** events
+  encoded pre-drinking in intox≥0.3 nights accrue less
+  next-day interference than sober-night controls
+  (v5.20's Parker leg) WHILE the same night's
+  intox-encoded events carry the gap — the two effects
+  must coexist on one timeline.
+- **P960 the honest pill (MUST — direction-lock):**
+  med_burden=1.5 vs 0: records born during burden show
+  the E/source tax; records born pre-burden identical
+  (retro_null); post-washout (≥med_washout) encode arms
+  converge; aging_rate addend drifts only the long
+  slope.
+- **P961 the expensive advantage (MUST — interaction):
+  ** wmc=+1.5 vs −1.5 at matched g_mem, eval_press on
+  vs off: high-wmc loses MORE discrimination/source/
+  interference performance under pressure; below
+  choke_gate both arms identical (lowstake_null);
+  arousal_narrowing unchanged (the choke is not the
+  arousal).
+- **P962 the landing pad (SHOULD):** neurot=+1.5 held,
+  att_ctl −1.5 vs +1.5: stress-state encoding tax and
+  eval_press noise both diverge; baseline (no stress,
+  no pressure) arms identical — att_ctl buffers only
+  under load.
+- **P963 the worried well (MUST — locked null):**
+  scd=1 vs 0 at identical g_mem/aging_rate/reserve:
+  complaint surface and worry intrusions rise, ALL
+  accuracy-side measures identical within jitter —
+  any E/β/θ difference FAILS (scd_obj_null). Bonus
+  arm: scd × eval_press spends real wmc via choke —
+  the felt deficit can self-fulfill on stage.
+- **P964 whose face (SHOULD — tier-lock):** cross_exp=0
+  vs +2: out-group face familiarity gap and out-group
+  FA rate both shrink by ~orb_expo_k; episodic content
+  about out-group people identical (orb_content_null);
+  own-age arm shows the half-weight effect.
+- **P965 the shared machinery (SHOULD):** sim=+1.5 vs
+  −1.5: future:true records' detail density tracks
+  recall specificity (partial corr with vivid/g_mem
+  controlled); content accuracy identical across arms
+  (sim_content_null) — detail and truth must decouple.
+- **P966 the third-trimester shape (SHOULD):**
+  preg_state 0→1→2→3 sequence: E-dip follows
+  preg_trim_w shape (T3-weighted, not linear);
+  complaint surface fires in T1–T3 independently of
+  any objective tax; post-state records recover
+  (perm_null); pre-pregnancy retrieval identical
+  (theta_null).
+- **P967 the morning reference (SHOULD — reversal
+  account):** caff=1.5: caff_wd state taxes noise/θ/
+  breadth; dosed state returns all three to baseline —
+  never above (caff_ability_null); state-dep bonus arm
+  measured and expected small (DEBATED).
+- **P968 the trained reflex (SHOULD — channel-lock):**
+  gamer=+2 vs 0: fast-visual att floor and spatial cue
+  weight shift, episodic E/β/θ identical within jitter
+  (gamer_episodic_null); any link_p or specificity
+  difference FAILS.
+- **P969 the drill that doesn't travel (MUST — locked
+  null):** a 30-session training:mem regimen on
+  braintrain=+1.5: trained-task performance improves
+  (nt_xfer), EVERY other measure identical to the
+  no-training arm within jitter (braintrain_far_null)
+  — and P843's mnem comparison runs in the same suite
+  to prove the skill/null distinction holds.
+
+## 107. Part VIII honest limits
+
+- The blackout trait compresses two literatures:
+  Hartzler & Fromme's etiology work says fragmentary
+  blackouts are *retrieval* failure — our model writes
+  thin source fields + raised θ, which is a storage-
+  flavored implementation of a retrieval claim. The
+  behavioral signature matches; the mechanism label
+  is ours.
+- `choke`'s extension from task performance to memory
+  encoding is a hypothesis, not a citation — Beilock's
+  math studies don't measure what gets stored. P961
+  can falsify the extension.
+- `med_burden` merges two pharmacologies (benzo +
+  anticholinergic) that differ in receptor and
+  phenomenology; the shared anterograde signature
+  justifies one trait at our granularity, but a bible
+  wanting *benzodiazepine specifically* should note it
+  — the cumulative `aging_rate` leg (Gray 2015) is
+  associational and stays DEBATED.
+- `cross_exp` treats exposure as one axis; the contact
+  literature distinguishes quality vs quantity and the
+  own-age bias is thinner (Rhodes & Anastasi's meta is
+  half the size of the own-race one). The expo_k=0.6
+  rescale is a fit, not a finding.
+- `sim` is priced separable-but-correlated with g_mem —
+  the constructive-episodic-simulation literature
+  *itself* is split on whether they're one factor.
+  P965's partial-correlation arm is the honest test.
+- `preg_state`'s weights are meta-analytic SHAPE
+  (T3-weighted, complaint-heavy); the mechanism could
+  be sleep disruption (which would argue for routing
+  through the `sleep` trait instead) — we kept a
+  dedicated state because the complaint-accuracy
+  decoupling needs its own lever.
+- `caff`'s state-dependency arm is priced near zero
+  against a mostly-null literature — if future work
+  revives it, the param is already there at the floor.
+- `gamer` and `braintrain` together encode the field's
+  two-sided verdict: genre-matched habits move their
+  channels a little (Bediou), generic drill moves
+  nothing (Simons). If the next big meta-analysis
+  flips the causality verdict on action games, `gamer`
+  is one commit away from joining `braintrain` as a
+  fourth null — the trait slot stays either way.

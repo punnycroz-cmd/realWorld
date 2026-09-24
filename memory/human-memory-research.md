@@ -3672,3 +3672,84 @@ Basden, Basden, Bryner & Thomas 1997, Rajaram &
 Pereira-Pasarin 2010, Atir, Rosenzweig & Dunning 2015,
 McNally 2003, Loftus 1993, Brewin & Andrews 2017,
 Patihis et al. 2014 — probes P948–P957.
+## 69. v91 adds — individual-differences VIII (the chemistry and the crowd)
+
+Part VIII of individual-differences.md (§§92–107) prices
+the axes that live in the state more than the trait —
+pharmacology, pressure, exposure — plus the complaint
+that outruns the record and the third mandated null:
+
+- **The evening's holes are a person, not a dose.** At
+  matched intoxication, only some drinkers gap —
+  `blackout` [0,2] prices the fragmentary (thin-source,
+  `frag:true`, cue-rescuable as `reconstructed`) vs
+  en-bloc (never minted, `blackout_rescue_null`) split
+  from Hartzler & Fromme 2003 (3:1 ratio; retrieval-
+  failure account) and Wetherill & Fromme 2011 (dlPFC/
+  parietal interaction at matched performance). The
+  direction is anterograde-only (`blackout_retro_null`),
+  consistent with v5.20's `intox_retro_shield` — the
+  same night can hold a shield and a hole.
+- **The pill taxes tomorrow.** `med_burden` merges the
+  benzodiazepine (Curran 1991; Buffett-Jerrott &
+  Stewart 2002) and anticholinergic (Gray 2015; Fox
+  2011) signatures into one anterograde-only load with
+  a `med_washout` recovery and a DEBATED cumulative
+  `med_aging_add` leg.
+- **Pressure picks on the strong.** `eval_press` +
+  `choke_k`·wmc⁺ encodes Beilock & Carr 2005's paradox:
+  high-wmc characters lose the most under evaluation,
+  because worry spends the very capacity the task
+  favored (Eysenck et al. 2007 ACT). `att_ctl` is the
+  buffer axis that decides whether `neurot`'s worry
+  reaches the record (Derryberry & Reed 2002) — two
+  characters can share the anxiety and split the cost.
+- **Complaint and accuracy are different channels.**
+  `scd` prices the worried well (Jessen 2014; Rabin
+  2017) with `scd_obj_null` locked; `preg_state` prices
+  the same dissociation inside a real small deficit —
+  Davies et al. 2018's T3-weighted dip at 0.8 complaint
+  share, `preg_perm_null`/`preg_theta_null` keeping it
+  anterograde and temporary. Both join v5.36's
+  `mt_complaint` as the model's complaint>effect
+  family.
+- **Exposure rescales the face tiers.** `cross_exp`
+  damps `orb_*` out-group penalties (Meissner &
+  Brigham 2001; Rhodes & Anastasi 2012 half-weight own-
+  age leg) with `orb_content_null` keeping the bias in
+  face/identity only.
+- **The imagination shares the machinery.** `sim`
+  couples `future:true` detail to `specificity` via
+  `sim_detail_link` (Addis 2007; Madore & Schacter
+  2014) — `sim_content_null` holds the line that
+  detail is not truth.
+- **Two honest ceilings and a locked absence.** `caff`
+  prices dependence not boost (`caff_ability_null`;
+  Rogers & Dernoncourt 1998); `gamer` prices reflexes
+  not store (`gamer_episodic_null`; Bediou 2018's
+  bias-inflated g≈.55/.34 against Boot/Hilgard
+  critiques); `braintrain` becomes the third mandated
+  null — `nt_xfer` only, `braintrain_far_null`
+  (Simons 2016; Melby-Lervåg & Hulme 2013; Owen 2010's
+  11,430-person zero-transfer RCT).
+
+New sources verified this version: Hartzler & Fromme
+2003a/2003b, Wetherill & Fromme 2011, Wetherill et al.
+2011, Nelson et al. 2004, White 2003, Goodwin et al.
+1969, Parker et al. 1980/81, Carlyle et al. 2017,
+Curran 1991, Buffett-Jerrott & Stewart 2002, Gray et
+al. 2015, Fox et al. 2011, Campbell et al. 2009,
+Beilock & Carr 2005, DeCaro et al. 2011, Gimmig et al.
+2006, Eysenck et al. 2007, Beilock 2008, Derryberry &
+Reed 2002, Berggren & Derakshan 2013, Jessen et al.
+2014, Rabin et al. 2017, Meissner & Brigham 2001,
+Rhodes et al. 2006, Wright et al. 2003, Rhodes &
+Anastasi 2012, Addis et al. 2007, Schacter & Addis
+2007, Race et al. 2011, Madore & Schacter 2014, Davies
+et al. 2018, Hoekzema et al. 2017, Greendale et al.
+2009, Rogers & Dernoncourt 1998, James & Rogers 2005,
+Rogers et al. 2013, Kelemen & Creeley 2003, Bediou et
+al. 2018 (+2018 correction), Boot et al. 2011, Hilgard
+et al. 2017, Simons et al. 2016, Melby-Lervåg & Hulme
+2013, Shipstead et al. 2012, Owen et al. 2010 —
+probes P958–P969.

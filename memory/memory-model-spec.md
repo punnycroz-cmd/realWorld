@@ -1,5 +1,45 @@
-# Memory Model Spec v5.38 — implementable human-like memory for RW characters
+# Memory Model Spec v5.39 — implementable human-like memory for RW characters
 
+> **v5.39 note (individual-differences VIII — the chemistry
+> and the crowd):** `memory/individual-differences.md` Part
+> VIII (§§92–107) prices the state-flavored axes the trait
+> layer skipped — pharmacology, pressure, exposure, and the
+> complaint that outruns the record. **Alcohol blackouts** —
+> trait `blackout` gates fragmentary (cue-rescuable,
+> `frag:true`, thin-source) vs en-bloc (never minted) gaps
+> under intox ≥ `blackout_bac`; locked `blackout_retro_null`
+> + `blackout_rescue_null` (Hartzler & Fromme 2003; Wetherill
+> & Fromme 2011; White 2003) — §6.193. **Medication burden** —
+> `med_burden` taxes E/source anterograde-only with a
+> `med_washout` recovery; locked `med_retro_null` (Curran
+> 1991; Gray 2015) — §6.194. **Evaluative-pressure choke** —
+> `eval_press` ctx taxes wmc-loadings ∝ own wmc (the high-
+> ability paradox); locked `choke_lowstake_null` (Beilock &
+> Carr 2005; Eysenck 2007) — §6.195. **Attentional control** —
+> `att_ctl` buffers anxiety's cost (Derryberry & Reed 2002)
+> — §6.196. **Subjective cognitive decline** — `scd` raises
+> complaint/worry surfaces with `scd_obj_null` locked —
+> the worried well (Jessen 2014; Rabin 2017) — §6.197.
+> **Cross-group face bias** — `cross_exp` rescales `orb_*`
+> out-group face penalties; locked `orb_content_null`
+> (Meissner & Brigham 2001; Rhodes & Anastasi 2012) —
+> §6.198. **Episodic simulation** — `sim` couples future-
+> record detail to specificity via `sim_detail_link`;
+> locked `sim_content_null` (Addis 2007; Madore 2014) —
+> §6.199. **Pregnancy dip** — `preg_state` trims E/exec by
+> trimester weight with 0.8 complaint share; locked
+> `preg_perm_null` + `preg_theta_null` (Davies et al. 2018)
+> — §6.200. **Caffeine dependence** — `caff_wd` state taxes
+> noise/θ/breadth; dosed = reference (`caff_ability_null`;
+> Rogers & Dernoncourt 1998) — §6.201. **Gaming habit** —
+> `gamer` moves attention/spatial channels only; locked
+> `gamer_episodic_null` (Bediou et al. 2018, bias-inflated
+> g≈.55/.34) — §6.202. **The third mandated null** —
+> `braintrain` joins birth_order/learn_style: near-transfer
+> `nt_xfer` only, `braintrain_far_null` locked (Simons et
+> al. 2016; Melby-Lervåg & Hulme 2013) — §6.203. +30
+> scalars, +9 traits, +3 state fields, +11 locked nulls;
+> §10 contract adds. Probes P958–P969.
 > **v5.38 note (false-memory VIII — the edges of the
 > record):** `memory/false-memory.md` Part VIII
 > (§§88–97) prices the failure modes that live at the
@@ -11554,6 +11594,177 @@ laypeople endorse it; characters may too). The absence
 is itself probed: P957 runs a full therapy-probe soak and
 asserts zero veridical latent-recovery records.
 
+### 6.193 The evening with holes — alcohol blackout trait (new in v5.39)
+
+Acute intox params (v1.9 `intox_encode_mult`,
+`intox_state_dep`; v5.20 `intox_retro_shield`) give the
+population rates; trait `blackout` [0,2] gives the
+individual tail — at matched intox, only some drinkers gap
+(Hartzler & Fromme 2003; Wetherill & Fromme 2011). Under
+`intox ≥ blackout_bac` (0.6): records mint fragmentary at
+`p = blackout_frag_p·blackout` — `frag:true`, source-tier
+strength ×(1−`blackout_ctx_pen`), voluntary θ
++`blackout_theta_pen`; cue-supported recall rescues up to
+`blackout_cue_rescue` (0.7) of fragments, always as
+`reconstructed` provenance (the rescued fragment is a
+told-back, not a relived). Under `intox ≥
+blackout_enbloc_bac` (0.8): en-bloc minting at
+`blackout_enbloc_p·blackout` — the record is never written
+(att_min fails at encode). **Locked nulls:**
+`blackout_rescue_null` — no cue recovers an en-bloc gap;
+`blackout_retro_null` — drinking erases forward only;
+pre-intox records are never degraded (they may be shielded
+per `intox_retro_shield` — the two never overlap on a
+record). Emission `blackout_gap` on the gap boundary.
+Sober-side performance is trait-invariant — the trait only
+operates under intox.
+
+### 6.194 The honest pill — sedative/anticholinergic burden (new in v5.39)
+
+Trait `med_burden` [0,2] (bible-set): while active,
+records encode E ×(1−`med_antro_tax`·med_burden) and
+source ×(1−`med_source_pen`·med_burden); `search_breadth`
+and `ret_noise` take the sedation legs (anterograde
+signature — Curran 1991; Buffett-Jerrott & Stewart 2002;
+Gray et al. 2015). **Locked null `med_retro_null`:** no
+operator may degrade a record predating the medication
+window. Post-cessation, encode-side recovers within
+`med_washout` (3d); a slow `med_aging_add` (0.05·burden on
+aging_rate) prices the cumulative-associational leg
+(DEBATED — Gray 2015). Emission `med_dip:true` on taxed
+records (audit only, never rendered as flavor).
+
+### 6.195 Pressure spends the advantage — the choke interaction (new in v5.39)
+
+Context flag `eval_press:true` (world-supplied; requires
+stake ≥ `choke_gate` 0.6): during eval_press events all
+wmc-driven loadings are taxed ∝ the character's own wmc —
+`choke_k`·wmc⁺ (0.4). High-wmc characters lose MORE
+discrimination, source-monitoring, and interference
+resistance than low-wmc characters under evaluation — the
+paradox of the strong (Beilock & Carr 2005; DeCaro et al.
+2011; mechanism per Eysenck et al. 2007 attentional
+control theory). **Locked null `choke_lowstake_null`:**
+below `choke_gate` the interaction is exactly zero —
+pressure without stakes chokes no one; the arousal leg
+already lives in `arousal_narrowing` and is untouched.
+Emission `choked:true` when the tax exceeds `choke_emit`
+(0.15) of a character's nominal wmc-margin.
+
+### 6.196 Control decides if the worry lands — `att_ctl` (new in v5.39)
+
+Trait `att_ctl` N(0,1) (r +0.5 wmc, −0.3 neurot —
+Derryberry & Reed 2002 ACS; Eysenck et al. 2007). It is
+the buffer wmc lacks: under `stress`-state / `anx`-state /
+`eval_press` contexts, att_ctl reduces the att_min tax by
+`attctl_buf` (0.06/σ) and `ret_noise` add by
+`attctl_noise_buf` (0.02/σ); at zero load, zero effect —
+the trait is invisible until there's something to buffer.
+`plist_suppress` resistance small (+0.02/σ). Anxiety
+supplies the worry (neurot); att_ctl decides whether it
+reaches the record.
+
+### 6.197 The worried well — subjective cognitive decline (new in v5.39)
+
+Trait `scd` [0,1] (SCD-I criteria — Jessen et al. 2014;
+Rabin et al. 2017): complaint surface ×(1+
+`scd_complaint_gain`·scd) (0.6) and health/evaluative-cued
+intrusion weight +`scd_worry_intr`·scd (0.1). **Locked
+null `scd_obj_null`:** `scd` may not touch E, β, θ, or any
+accuracy-side param — complaint and accuracy are different
+channels by the phenotype's definition. Interaction: scd ×
+eval_press feeds §6.195 through the worry channel — the
+felt deficit can spend real wmc on stage. Emission
+`scd_complaint:true` on complaint-surface emits (world may
+render as dialogue texture).
+
+### 6.198 Whose face — own-group bias and exposure (new in v5.39)
+
+Face/identity records on out-group targets: familiarity
+accrual ×(1−`orb_face_pen`·orb_eff) and out-group false-
+alarm +`orb_fa_gain`·orb_eff, where `orb_eff = (1 −
+orb_expo_k·cross_exp)` — trait `cross_exp` [0,2] rescales
+the bias (expo_k 0.6; Meissner & Brigham 2001 — ~1.4×
+own-group advantage; contact-attenuation DEBATED).
+`orb_age_w` (0.5) applies the same machinery at half
+weight to out-AGE targets (Rhodes & Anastasi 2012). **Locked
+null `orb_content_null`:** ORB touches face/identity tiers
+only — episodic content, actions, verbatim unaffected.
+Record field `in_group:true` tag on face records carries
+the group verdict (world supplies group assignment).
+
+### 6.199 The shared machinery — episodic simulation trait (new in v5.39)
+
+Trait `sim` N(0,1) (r +0.4 vivid, +0.3 g_mem, +0.2 open):
+`future:true` records (plans, anticipations, dreads,
+daydreams via §6.9 imagineEvent) mint detail density =
+specificity + `sim_detail_link`·sim (0.5) — recall detail
+and imagined-future detail ride one substrate (Addis, Wong
+& Schacter 2007; Schacter & Addis 2007; Madore & Schacter
+2014 ESI bridge — rides existing `esi_gain`). **Locked
+null `sim_content_null`:** simulation detail cannot raise
+content accuracy — high-sim characters are wrong richly.
+hsam/sdam tails clamp `sim` (shared-substrate consistency
+with §63–64).
+
+### 6.200 The smaller-than-reported pause — pregnancy state (new in v5.39)
+
+State `preg_state` ∈ {0,1,2,3} (world-set trimester):
+records born in trimester t encode E ×(1−
+`preg_enc_dip`·preg_trim_w[t]) with preg_trim_w =
+[0,0.6,1.0] (T1,T2,T3 — meta-analytic shape, not linear);
+T3 additionally taxes `search_breadth`/att-floor by
+`preg_exec_dip` (0.1). Complaint surface rides
+`preg_complaint` (0.8 — the 4/5 subjective share),
+independent of whether the objective tax fired (Davies et
+al. 2018 — small real deficit, large complaint, stays in
+normal range). **Locked nulls:** `preg_perm_null` — the
+dip ends with the state; `preg_theta_null` — pre-
+pregnancy retrieval untouched (anterograde only).
+Additive with `task_load` (§55), not instead of.
+
+### 6.201 The cup is a reference — caffeine dependence (new in v5.39)
+
+Trait `caff` [0,2]; state `caff_wd` (world-set withdrawal):
+under caff_wd, `ret_noise` +`caff_wd_tax`·caff (0.08),
+θ +`caff_wd_theta`·caff (0.03), `search_breadth`
+−`caff_wd_breadth`·caff (0.05). Dosed state returns all to
+baseline — **locked null `caff_ability_null`:** no
+baseline E/β/θ gain while dosed (withdrawal-reversal
+account — Rogers & Dernoncourt 1998; James & Rogers 2005).
+`caff_state_dep` (0.02) — tiny w_msd-style matching bonus,
+DEBATED (Kelemen & Creeley 2003 vs mostly-null
+literature; priced at the floor).
+
+### 6.202 Trained reflexes, untouched store — `gamer` (new in v5.39)
+
+Trait `gamer` [0,2]: loadings restricted to the meta-
+analytic channels — `att_min` −`gamer_att_gain`·gamer
+(0.01, fast-visual events), `w_place` +
+`gamer_spatial_gain`·gamer (0.02), visual-field detail
++`gamer_vis_k`·gamer (0.03) (Bediou et al. 2018 —
+attention/spatial only; cross-sec g≈.55, intervention
+g≈.34, ~30% publication-bias inflation, causality
+DEBATED — Boot, Blakely & Simons 2011; Hilgard et al.
+2017). **Locked null `gamer_episodic_null`:** no gamer
+loading may touch E0, β, θ, link_p, or specificity — the
+reflexes don't carry into the store.
+
+### 6.203 The drill that doesn't travel — the third mandated null (new in v5.39)
+
+`braintrain` ∈[0,2] exists in IndivTraits with every
+loading fixed 0.0 except the frozen near-transfer channel
+`nt_xfer` (0.15): improvement on the specific trained task
+family only — drill improves the drill, never the store
+(Simons et al. 2016; Melby-Lervåg & Hulme 2013; Owen et
+al. 2010 — 11,430-participant RCT, zero transfer). **Locked
+null `braintrain_far_null`:** no parameter may be raised
+by `braintrain` except through `nt_xfer`'s task-locked
+gate; P969 probes the absence alongside P843's `mnem`
+arm — strategy deployment on real material (priced,
+§6-§85) vs far transfer from drill (banned) are both true
+at once, and the suite proves it.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -13384,6 +13595,46 @@ MemoryParams = {
 "collab_inhib": 0.3, "collab_correct": 0.1,
 "collab_org_k": 0.5,                         // §6.190
 "oc_gain": 0.25, "oc_warn_resid": 0.6,       // §6.191
+// v5.39 additions (individual-differences VIII — ID§§92–102)
+"blackout_bac": 0.6, "blackout_frag_p": 0.5,
+"blackout_ctx_pen": 0.4, "blackout_theta_pen": 0.15,
+"blackout_cue_rescue": 0.7,
+"blackout_enbloc_bac": 0.8, "blackout_enbloc_p": 0.15, // §6.193
+"med_antro_tax": 0.25, "med_source_pen": 0.3,
+"med_washout": 3.0, "med_aging_add": 0.05,   // §6.194
+"choke_k": 0.4, "choke_gate": 0.6,
+"choke_emit": 0.15,                          // §6.195
+"attctl_buf": 0.06, "attctl_noise_buf": 0.02,// §6.196
+"scd_complaint_gain": 0.6, "scd_worry_intr": 0.1, // §6.197
+"orb_face_pen": 0.3, "orb_fa_gain": 0.15,
+"orb_expo_k": 0.6, "orb_age_w": 0.5,         // §6.198
+"sim_detail_link": 0.5,                      // §6.199
+"preg_enc_dip": 0.15, "preg_exec_dip": 0.1,
+"preg_complaint": 0.8,                       // §6.200
+"caff_wd_tax": 0.08, "caff_wd_theta": 0.03,
+"caff_wd_breadth": 0.05, "caff_state_dep": 0.02, // §6.201
+"gamer_att_gain": 0.01, "gamer_spatial_gain": 0.02,
+"gamer_vis_k": 0.03,                         // §6.202
+"nt_xfer": 0.15,                             // §6.203
+// v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
+//   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
+//   `braintrain` (mandated null — ID§104); state fields
+//   `preg_state` {0..3}, `caff_wd`, `eval_press` ctx flag.
+// v5.39 locked nulls: blackout_retro_null +
+//   blackout_rescue_null (P958); med_retro_null (P960);
+//   choke_lowstake_null (P961); scd_obj_null (P963);
+//   orb_content_null (P964); sim_content_null (P965);
+//   preg_perm_null + preg_theta_null (P966);
+//   caff_ability_null (P967); gamer_episodic_null
+//   (P968); braintrain_far_null (P969).
+// v5.39 frozen: nt_xfer gate ("trained-task only");
+//   preg_trim_w = [0, 0.6, 1.0] shape.
+// v5.39 fields/state: record `frag:true`,
+//   `reconstructed` provenance on rescued fragments,
+//   `in_group:true` on face records, `future:true` on
+//   imagined; emissions `blackout_gap`, `med_dip`,
+//   `choked:true`, `scd_complaint:true`. All
+//   snapshot-additive.
 // v5.38 trait: none — levers reuse `suggs`,
 //   `meta_conf`, `self_est`, `imagery`, `verbal`,
 //   `social` (FM§99).
@@ -13463,8 +13714,12 @@ plus bible-set demographic fields `immig_age`, `grew_rural`,
 `home_layout`, `dominantLang`, `trans_partner` — ID Part VII
 §87; v5.37 adds `narr_seq` — redemption↔contamination
 sequence schema, bible-pinnable, event-rewritable only —
-EM Part VIII §101) — sampled MVN(0, R) with the sparse correlation matrix in
-`individual-differences.md` §4/§17/§30/§43/§60/§73/§87 (pinned traits conditioned per the
+EM Part VIII §101; v5.39 adds `blackout`, `med_burden`,
+`att_ctl`, `scd`, `cross_exp`, `sim`, `caff`, `gamer`, and
+the third locked-null `braintrain`, plus state fields
+`preg_state`, `caff_wd`, `eval_press` — ID Part VIII §104)
+— sampled MVN(0, R) with the sparse correlation matrix in
+`individual-differences.md` §4/§17/§30/§43/§60/§73/§87/§104 (pinned traits conditioned per the
 §17 MVN-conditioning formula), then projected through the loading tables
 (§3/§17/§88 there) onto these params, plus ±5% residual jitter. This replaces
 v0's independent ±10% jitter: real individual differences are
@@ -15437,6 +15692,42 @@ not resolved (DEBATED magnitude). P509/P511.
     levers reuse `suggs`, `meta_conf`, `self_est`,
     `imagery`, `verbal`, `social`.
   - Probes P948–P957.
+- v5.39 additions (individual-differences.md Part VIII
+  §§92–107):
+  - **New traits (IndivTraits, §7):** `blackout`,
+    `med_burden`, `att_ctl`, `scd`, `cross_exp`, `sim`,
+    `caff`, `gamer` (all bible-pinnable), and mandated
+    null `braintrain`. R-matrix rows in ID§104.
+  - **New state/context fields:** `preg_state` {0,1,2,3}
+    (world-set trimester), `caff_wd` (world-set caffeine
+    withdrawal), `eval_press:true` event context flag
+    (world-supplied stakes ≥ `choke_gate`).
+  - **New record fields:** `frag:true` + thin source
+    tiers on fragmentary-blackout records (§6.193),
+    `reconstructed` provenance on cue-rescued fragments,
+    `in_group:true` tag on face/identity records (world
+    supplies group assignment, §6.198), `future:true`
+    tag on imagineEvent outputs (§6.199). All
+    snapshot-additive; absent = legacy.
+  - **New emissions (world-renderable):** `blackout_gap`
+    (gap boundary — mornings-after), `med_dip:true`
+    (audit-only), `choked:true` (eval_press tax exceeded
+    margin), `scd_complaint:true` (world may render as
+    dialogue texture).
+  - **Locked boundaries game-systems must honor:**
+    `blackout_rescue_null` + `blackout_retro_null`
+    (en-bloc gone, pre-drink safe), `med_retro_null`
+    (anterograde only), `choke_lowstake_null`,
+    `scd_obj_null` (complaint never touches accuracy),
+    `orb_content_null` (face tiers only),
+    `sim_content_null` (detail ≠ truth),
+    `preg_perm_null` + `preg_theta_null`,
+    `caff_ability_null`, `gamer_episodic_null`,
+    `braintrain_far_null` (the third mandated null).
+  - **New params (§7):** 30 scalars + 2 frozen
+    (`nt_xfer` gate; `preg_trim_w` shape) + 11 locked
+    nulls.
+  - Probes P958–P969.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

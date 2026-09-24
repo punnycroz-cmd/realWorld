@@ -9083,3 +9083,174 @@ P957 MUST; P948, P950, P952, P953, P956 SHOULD.
   Patihis, Ho, Tingen, Lilienfeld & Loftus 2014
   (*Psychol. Sci.* 25:519 — clinician/lay belief
   surveys).
+
+## 186. v91 suite (P958–P969) — individual-differences VIII
+
+Suite focus: the chemistry and the crowd — blackout
+proneness, medication burden, the choke paradox,
+attentional control, the worried well, own-group face
+bias, episodic simulation, the pregnancy dip, caffeine
+dependence, gaming reflexes, and the third mandated
+null (spec v5.39, ID§§92–105).
+
+- **P958 the holes in the evening (MUST — rescue
+  split):** blackout=+1.5 vs 0, intox=0.7 identical
+  event diet: fragmentary records carry `frag:true`,
+  thin source tiers, θ+`blackout_theta_pen`; cue-
+  supported recall rescues ≈`blackout_cue_rescue` as
+  `reconstructed` provenance; en-bloc records absent
+  under every cue arm (`blackout_rescue_null`); pre-
+  drinking records identical (`blackout_retro_null`);
+  sober-side performance identical — the trait only
+  operates under intox. Hartzler & Fromme 2003;
+  Wetherill & Fromme 2011; White 2003.
+- **P959 the shield beside the hole (OBSERVE):**
+  events encoded pre-drinking in intox≥0.3 nights
+  accrue less next-day interference than sober-night
+  controls (`intox_retro_shield` leg) while same-night
+  intox-encoded events carry the gap — both effects
+  on one timeline, no record overlap. Parker et al.
+  1980/81; Carlyle et al. 2017.
+- **P960 the honest pill (MUST — direction-lock):**
+  med_burden=1.5 vs 0: burden-window records show the
+  E/source tax; pre-burden records identical
+  (`med_retro_null`); post-`med_washout` encode arms
+  converge; `med_aging_add` drifts only the long slope.
+  Curran 1991; Buffett-Jerrott & Stewart 2002; Gray
+  2015 (associational leg flagged DEBATED).
+- **P961 the expensive advantage (MUST —
+  interaction):** wmc=+1.5 vs −1.5 at matched g_mem,
+  eval_press on vs off: high-wmc loses MORE
+  discrimination/source/interference performance under
+  pressure (`choke_k`·wmc⁺); below `choke_gate` arms
+  identical (`choke_lowstake_null`);
+  `arousal_narrowing` unchanged — the choke is not the
+  arousal. Beilock & Carr 2005; DeCaro et al. 2011;
+  Eysenck et al. 2007.
+- **P962 the landing pad (SHOULD):** neurot=+1.5 held,
+  att_ctl −1.5 vs +1.5: stress-state att-floor tax and
+  eval_press noise diverge; zero-load arms identical —
+  att_ctl buffers only under load. Derryberry & Reed
+  2002; Berggren & Derakshan 2013.
+- **P963 the worried well (MUST — locked null):**
+  scd=1 vs 0 at identical g_mem/aging_rate/reserve:
+  complaint surface and worry intrusions rise; ALL
+  accuracy-side measures identical within jitter —
+  any E/β/θ difference FAILS (`scd_obj_null`). Bonus
+  arm: scd×eval_press spends real wmc via §6.195.
+  Jessen et al. 2014; Rabin et al. 2017.
+- **P964 whose face (SHOULD — tier-lock):**
+  cross_exp=0 vs +2: out-group familiarity gap and
+  out-group FA rate both shrink by ≈`orb_expo_k`;
+  episodic content about out-group people identical
+  (`orb_content_null`); out-age arm ≈`orb_age_w`·
+  own-race magnitude. Meissner & Brigham 2001; Rhodes
+  & Anastasi 2012.
+- **P965 the shared machinery (SHOULD):** sim=+1.5 vs
+  −1.5: `future:true` detail density tracks recall
+  specificity (partial corr with vivid/g_mem held);
+  content accuracy identical (`sim_content_null`) —
+  detail and truth decouple. Addis et al. 2007;
+  Schacter & Addis 2007; Madore & Schacter 2014.
+- **P966 the third-trimester shape (SHOULD):**
+  preg_state 0→1→2→3: E-dip follows `preg_trim_w`
+  (T3-weighted, not linear); complaint surface fires
+  T1–T3 independent of objective tax; post-state
+  records recover (`preg_perm_null`); pre-pregnancy
+  retrieval identical (`preg_theta_null`). Davies et
+  al. 2018.
+- **P967 the morning reference (SHOULD — reversal):**
+  caff=1.5: `caff_wd` taxes noise/θ/breadth; dosed
+  returns all to baseline, never above
+  (`caff_ability_null`); `caff_state_dep` arm measured
+  and expected near floor (DEBATED). Rogers &
+  Dernoncourt 1998; James & Rogers 2005; Kelemen &
+  Creeley 2003.
+- **P968 the trained reflex (SHOULD — channel-lock):**
+  gamer=+2 vs 0: fast-visual att floor, spatial cue
+  weight, visual detail shift; episodic E/β/θ identical
+  within jitter (`gamer_episodic_null`) — any link_p or
+  specificity difference FAILS. Bediou et al. 2018;
+  Boot et al. 2011; Hilgard et al. 2017.
+- **P969 the drill that doesn't travel (MUST — locked
+  null):** 30-session training:mem regimen on
+  braintrain=+1.5: trained-task improves (`nt_xfer`),
+  EVERY other measure identical within jitter
+  (`braintrain_far_null`); P843's mnem arm runs in the
+  same suite — skill and null coexist. Simons et al.
+  2016; Melby-Lervåg & Hulme 2013; Owen et al. 2010.
+
+Registry: P1–P969. v91 suite: P958, P960, P961, P963,
+P969 MUST; P962, P964, P965, P966, P967, P968 SHOULD;
+P959 OBSERVE.
+
+## 187. Sources verified this version (P958–P969 backing)
+
+- **Alcohol blackouts:** Hartzler & Fromme 2003
+  (*Alcohol.: Clin. Exp. Res.* 27:628 — placebo-
+  controlled etiology, retrieval-failure account;
+  *J. Stud. Alcohol* 64:547 — fragmentary:en-bloc ~3:1,
+  en-bloc polysubstance-linked); Wetherill & Fromme
+  2011 (*Addict. Behav.* 36:886 — FB-history contextual-
+  memory impairment at matched BAC); Wetherill et al.
+  2011 (dlPFC/parietal BOLD interaction); Nelson et al.
+  2004; White 2003 (NIAAA en-bloc/fragmentary review);
+  Goodwin et al. 1969 (state-dependency).
+- **Retrograde facilitation (OBSERVE leg):** Parker et
+  al. 1980/81; Carlyle et al. 2017 (alcohol post-
+  encoding shields prior learning — v5.20 priced).
+- **Medication burden:** Curran 1991
+  (*Psychopharmacology* — benzodiazepine anterograde
+  signature, preserved pre-drug retrieval); Buffett-
+  Jerrott & Stewart 2002; Gray et al. 2015 (*JAMA
+  Intern. Med.* — cumulative anticholinergic → dementia
+  HR ~1.5, associational); Fox et al. 2011; Campbell et
+  al. 2009.
+- **Choke / attentional control:** Beilock & Carr 2005
+  (*JEP:General* 134 — high-WMC lose advantage under
+  pressure); DeCaro, Thomas, Albert & Beilock 2011;
+  Gimmig et al. 2006; Eysenck, Derakshan, Santos &
+  Calvo 2007 (*Emotion* 7:336 — attentional control
+  theory); Beilock 2008; Derryberry & Reed 2002 (ACS);
+  Berggren & Derakshan 2013 (review).
+- **Subjective cognitive decline:** Jessen et al. 2014
+  (*Alzheimers Dement.* — SCD-I criteria); Rabin et al.
+  2017 (*Alzheimers Dement.* — ~25% older-adult
+  prevalence, affective correlates, small conversion
+  risk).
+- **Own-group face bias:** Meissner & Brigham 2001
+  (*Psychol. Public Policy Law* 7:3 — 39-study meta,
+  ORB + FA asymmetry, contact moderation); Rhodes,
+  Hayward & Winkler 2006; Wright, Boyd & Tredoux 2003;
+  Rhodes & Anastasi 2012 (*Psychol. Bull.* — own-age
+  bias meta, smaller).
+- **Episodic simulation:** Addis, Wong & Schacter 2007
+  (*Neuropsychologia* — aging detail loss hits memory
+  AND simulation); Schacter & Addis 2007 (constructive
+  episodic simulation); Race, Keane & Verfaellie 2011;
+  Madore & Schacter 2014 (ESI lifts both).
+- **Pregnancy:** Davies, Lum, Skouteris, Byrne &
+  Hayden 2018 (*Med. J. Aust.* 208:35 — 20 studies,
+  709/521, SMD 0.52 overall, T3 memory 1.47 cross-
+  sectional, within-normal-range caution, ~80%
+  subjective report); Hoekzema et al. 2017 (gray-
+  matter — no memory-loss mapping, unpinned);
+  Greendale et al. 2009 (SWAN — the mt_* sibling).
+- **Caffeine:** Rogers & Dernoncourt 1998 (*Pharmacol.
+  Biochem. Behav.* — withdrawal-reversal); James &
+  Rogers 2005; Rogers et al. 2013; Kelemen & Creeley
+  2003 (state-dependency — DEBATED, priced near floor).
+- **Gaming:** Bediou, Adams, Mayer, Tipton, Green &
+  Bavelier 2018 (*Psychol. Bull.* 144:77 — cross-sec
+  g≈.55, intervention g≈.34, ~30% publication-bias
+  inflation, attention/spatial domains); correction
+  2018; Boot, Blakely & Simons 2011; Hilgard,
+  Engelhardt & Rouder 2017 (Bayesian re-analyses —
+  DEBATED).
+- **Cognitive training null:** Simons, Boot, Charness,
+  Gathercole, Chabris, Hambrick & Stine-Morrow 2016
+  (*Psychol. Sci. Public Interest* 17:103 — the review);
+  Melby-Lervåg & Hulme 2013 (*Dev. Psychol.* — WM
+  training near-yes/far-no); Shipstead, Redick & Engle
+  2012; Owen et al. 2010 (*Nature* — 11,430-participant
+  RCT, zero transfer).

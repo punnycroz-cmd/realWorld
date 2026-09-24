@@ -1167,6 +1167,16 @@ needs both.
 | ownact_suscept / interrogate_gain / ownact_internalize / ownact_session_cap | 1.0 / 1.0 / 0.0 / 0.1 | 3.0 / 2.0 / 0.5 / 0.5 | coerced self-false-memory under interrogation (v5.38) |
 | collab_inhib / collab_correct / collab_org_k | 0.1 / 0.0 / 0.0 | 0.45 / 0.25 / 1.0 | collaborative inhibition vs nominal pool (v5.38) |
 | oc_gain / oc_warn_resid | 0.0 / 0.3 | 0.5 / 1.0 | overclaiming foil acceptance + warning residual (v5.38) |
+| blackout_bac / blackout_frag_p / blackout_ctx_pen / blackout_theta_pen / blackout_cue_rescue / blackout_enbloc_bac / blackout_enbloc_p | 0.4 / 0.0 / 0.0 / 0.0 / 0.4 / 0.6 / 0.0 | 0.9 / 0.9 / 0.8 / 0.4 / 0.95 / 0.95 / 0.4 | blackout gates + fragmentary/en-bloc rates (v5.39) |
+| med_antro_tax / med_source_pen / med_washout / med_aging_add | 0.0 / 0.0 / 1.0 / 0.0 | 0.5 / 0.5 / 14 / 0.15 | medication burden anterograde tax + washout + cumulative leg (v5.39) |
+| choke_k / choke_gate / choke_emit | 0.0 / 0.4 / 0.05 | 0.8 / 0.9 / 0.4 | eval-pressure choke interaction (v5.39) |
+| attctl_buf / attctl_noise_buf | 0.0 / 0.0 | 0.15 / 0.06 | attentional-control buffer (v5.39) |
+| scd_complaint_gain / scd_worry_intr | 0.0 / 0.0 | 1.2 / 0.3 | worried-well complaint surface (v5.39) |
+| orb_face_pen / orb_fa_gain / orb_expo_k / orb_age_w | 0.0 / 0.0 / 0.0 / 0.0 | 0.6 / 0.4 / 1.0 / 1.0 | own-group face bias + exposure rescale (v5.39) |
+| sim_detail_link | 0.0 | 1.0 | memory↔simulation detail coupling (v5.39) |
+| preg_enc_dip / preg_exec_dip / preg_complaint | 0.0 / 0.0 / 0.0 | 0.4 / 0.3 / 1.0 | pregnancy trimester dip + complaint share (v5.39) |
+| caff_wd_tax / caff_wd_theta / caff_wd_breadth / caff_state_dep | 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.1 / 0.15 / 0.08 | caffeine withdrawal tax + tiny state-dep (v5.39) |
+| gamer_att_gain / gamer_spatial_gain / gamer_vis_k / nt_xfer | 0.0 / 0.0 / 0.0 / 0.0 | 0.05 / 0.08 / 0.1 / 0.3 | gaming channel gains + near-transfer channel (v5.39) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4497,3 +4507,80 @@ Pinning guidance:
   `collab_gain_null`, `oc_episodic_null`, `oc_warn_null`,
   `repress_revival_null`; frozen `collab_scope` —
   probe-enforced (P948–P957).
+
+## 72. v5.39 note (individual-differences VIII — the chemistry and the crowd)
+
+Eleven clamp rows added in §0. **Nine new traits, three new
+state fields, and the third mandated null.**
+
+Pinning guidance:
+
+- **`blackout` [0,2] is the trait behind a night that
+  returns with holes.** Pin it from drinking history, not
+  from "forgetful" — a sober blackout=+1.5 character is
+  indistinguishable from blackout=0 (P958). The trait
+  decides whether an intoxicated evening mints
+  fragmentary records (thin source, cue-rescuable,
+  `frag:true`) or en-bloc absence. `blackout_cue_rescue`
+  means friends and photos bring back *reconstructed*
+  fragments — told-back, never relived.
+- **`med_burden` [0,2] is bible-set and anterograde-
+  only.** A nightly-sleep-aid elder (burden ~1) encodes
+  tomorrow worse while remembering yesterday fine —
+  `med_retro_null` is locked. Cessation recovers the
+  encode side in `med_washout` days; only the slow
+  `med_aging_add` leg persists (DEBATED).
+- **`eval_press` is a world flag, never pinned** — the
+  world decides who's on stage. What the bible owns is
+  `wmc` and `att_ctl`: the choke paradox means your
+  *sharpest* character loses the most under evaluation
+  (Beilock & Carr 2005), and `att_ctl` is the buffer
+  that decides whether trait anxiety actually lands on
+  the record. A calm-under-pressure profile is high
+  att_ctl, not low neurot — the worry can be there
+  without reaching the encoding.
+- **`scd` [0,1] is the worried well.** Pin it for a
+  character who *complains* about their memory while
+  performing normally — `scd_obj_null` locked means the
+  complaint can never touch accuracy. For real decline,
+  pin `aging_rate`/`reserve`; scd is what it feels like
+  when those are fine. The cruelty worth writing: scd ×
+  eval_press spends real wmc — the character who fears
+  their memory is failing can make it fail on stage.
+- **`cross_exp` [0,2] comes from biography, not
+  tolerance.** It's exposure (neighborhood, workplace,
+  relationships), and it rescales the own-group face
+  penalty `orb_eff` — a sheltered character misremembers
+  out-group faces, a cross-exposed one less so. The
+  bias lives in the face tiers only (`orb_content_null`);
+  what out-group people *did* is remembered fine. The
+  world supplies group assignment on `in_group` tags.
+- **`sim` couples the imagination to the record.** High-
+  sim characters build rich plans and dreads (future:true
+  records inherit their specificity), but
+  `sim_content_null` means detail buys richness, not
+  truth — they imagine wrongly, vividly.
+- **`preg_state`, `caff_wd`, `eval_press` are world
+  fields** — bibles may note them (a pregnant season, a
+  coffee habit) but the dips, taxes, and gates are
+  population machinery. `preg`'s honest shape: T3-
+  weighted dip, 0.8 complaint share whether or not
+  anything objective fired, full post-state recovery
+  (`preg_perm_null`).
+- **`caff`/`gamer` are habit axes with honest ceilings.**
+  caff prices *dependence* — the withdrawal tax, never
+  a boost (`caff_ability_null`); gamer prices
+  *reflexes* — attention/spatial only
+  (`gamer_episodic_null`). Neither buys a better store.
+- **`braintrain` is the third mandated null** — pin it
+  only to record that a character drills; the drill
+  improves the drill (`nt_xfer`) and nothing else
+  (`braintrain_far_null`). P969 probes the absence.
+- **Never pin:** locked nulls `blackout_retro_null`,
+  `blackout_rescue_null`, `med_retro_null`,
+  `choke_lowstake_null`, `scd_obj_null`,
+  `orb_content_null`, `sim_content_null`,
+  `preg_perm_null`, `preg_theta_null`,
+  `caff_ability_null`, `gamer_episodic_null`,
+  `braintrain_far_null`; frozen `nt_xfer` gate and
+  `preg_trim_w` shape — probe-enforced (P958–P969).
