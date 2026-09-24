@@ -462,6 +462,17 @@ One person can wear every hat; four real testers is the intended shape.
   pin the vacancy↔promoted_to round-trips, the vacated coverage marks,
   the retired-surface bars, the residents clause, the OCCASIONS/VACANCIES
   mirrors, the ≤1.4 modesty cap, and the no-attendance-fields rule.
+  PT117 (favors v128) audits the informal-obligations layer — "The
+  Counter Tab": 44 arrangements across all 20 door venues (key_holding /
+  shift_cover / tab_line / lend / hold / watch / pass / favor_owed),
+  each naming the party that CARRIES the standing cost and a since-line
+  origin; between parties resolving to real businesses or c/s/a person
+  ids, with offstage orgs legal inside between but never keying; the
+  open/counter/quiet visibility ladder redacting quiet rows below
+  internal clearance in favor.html exactly like secret web edges; and
+  game-dollar balances confined to tab_line. The audit's v128 marks pin
+  the doors-key-it coverage, the carries contract, the closed
+  vocabularies, the deep FAV mirror, and the clearance-redaction paths.
 
 ## 3. Running a session
 
@@ -676,7 +687,7 @@ node world/audit.js          # human-readable, exits 1 on any FAIL
 node world/audit.js --json   # machine report: build tag, timestamp, per-gate status+hits
 ```
 
-Thirty gates: **corpus** (screen.js × screen-corpus.json — engine version,
+Thirty-three gates: **corpus** (screen.js × screen-corpus.json — engine version,
 expected-vs-actual per case, ≥3 cases + near-miss per non-pass code), **names**
 (no real SF businesses in world content), **addresses** (residential = 9xxx),
 **prices** (proposal §2 numbers only; on in-world surfaces only deed fees may
@@ -748,7 +759,12 @@ employer/building coverage, door-not-name feed shapes, game dollars
 only), **book** (bookings.json ↔ book.html ↔ request.html BOOKW: no
 repricing, feed-vocabulary reuse, seeded windows), **commute**
 (commute.json ↔ commute.html: route/employer/home integrity, minors
-never routed, weather deltas are suggestions, no prices).
+never routed, weather deltas are suggestions, no prices), **favs**
+(favors.json ↔ favor.html: FAV deep mirror, doors key arrangements and
+every door carries ≥1, kind/visibility closed vocab, between parties
+resolve and the keyed venue is always one, carries ∈ between ∪
+{staff,both}, since required, tab_line balances game dollars only,
+quiet rows redact below internal clearance).
 
 REVIEW hits are contexts a regex can't adjudicate (e.g. a parody-name mapping
 table that legitimately cites the real name). They print with `file:line` and

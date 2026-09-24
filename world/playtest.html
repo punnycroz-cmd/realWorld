@@ -34,7 +34,7 @@
   become a persisted re-test list (#verify / S.verify / 'still broken'
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
-  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions).
+  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions, PT117 + favors v128 obligations layer).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -257,6 +257,7 @@ const SURF={
   homes:{file:"homes.html",name:"The Fridge Door"},
   rules:{file:"rules.html",name:"The Fine Print"},
   firsts:{file:"firsts.html",name:"The First Week"},
+  favors:{file:"favor.html",name:"The Counter Tab"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
@@ -2534,6 +2535,26 @@ const PTS=[
   ck:["Crowd gate: 0 fail with the vacancies/occasions tail on the detail line",
    "Respawning ctr-flash or res-needlepointe-chair, or flag-free resident greet pairs, would FAIL — spot-check one",
    "Harness gate still reads its own key; overall 0 fail"]}
+]},
+{id:"PT117",title:"The Counter Tab v128 — the informal-obligations layer (who owes whom)",min:8,
+ persona:"writer checking whether the business layer can carry consequence continuity — obligations that attach to people, cost someone something, and can lapse",
+ goal:"Verify the v128 favors layer: favors.json registers 44 informal arrangements across all 20 door venues (keys/tabs/holds/lends/watches/passes/favors owed); every arrangement names a carries party — the standing cost is always legible; between parties resolve to real businesses or c/s/a person ids and may include offstage orgs (Calle Justa borrows chairs) while never keying one; visibility tiers stratify knowledge (open/counter/quiet) and favor.html redacts quiet rows below internal clearance like secret web edges; balances are game dollars only; businesses.md §10 + businesses.json favor_layer register the layer; the favs audit gate passes.",
+ surfaces:["favors","audit","directory"],steps:[
+ {do:"Open favor.html at public clearance, then flip to staff and internal. Count quiet rows (5) disappearing below internal and counter rows below staff.",
+  exp:"Clearance gating works exactly like secret web edges: quiet arrangements (the key swap, the alarm key, the stall fee) never render at public; counter rows need staff+.",
+  ck:["public shows only open rows; staff adds counter; internal shows all 44",
+   "the counter line reports 'N shown · M above clearance' honestly",
+   "a venue whose rows are all hidden shows the honest empty state, not a blank card"]},
+ {do:"Read the arrangements for Mudhaus, El Farolote, and Needlepointe in favors.json; check carries, since, and the kind vocabulary against kind_keys.",
+  exp:"Every arrangement names who bears the standing cost (carries ∈ between ∪ {staff,both}); every one has a since — the origin a counter would tell; kinds are the closed set; tab_lines carry game-dollar balances only.",
+  ck:["carries is never absent — interdependence is structural, not implied",
+   "fav-ndl-01 names s1 as a party and carrier — obligations attach to people, not roles",
+   "offstage calle-justa appears inside between but keys nothing — doors key it, anyone may be a party"]},
+ {do:"Run node world/audit.js and check the favs gate line; then try public-clearance wording — confirm no arrangement prose leaks a quiet obligation into feed-safe text.",
+  exp:"favs gate passes with 'schema v128 · 20 doors · 44 arrangements · 5 quiet · 6 tabs'; banned-vocabulary sweep keeps terms/note on the obligation bar.",
+  ck:["favs PASS with the expected detail line",
+   "no arrangement reads as a script — all are standing invitations that may lapse",
+   "businesses.md §10 and businesses.json favor_layer describe the layer consistently"]}
 ]}
 ];
 

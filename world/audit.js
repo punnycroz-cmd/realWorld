@@ -62,6 +62,13 @@
                 liquor only on liquor_venues, health_score only on
                 food_venues inside score_range; former names invented,
                 ghost_sign requires a former entry; no people, no money
+    favs      — favors.json ↔ favor.html FAV mirror; arrangements keyed by
+                door venues only, every door ≥1; kind/visibility closed
+                vocab; between parties resolve (business or c/s/a id), keyed
+                venue ∈ between, carries ∈ between ∪ {staff,both}; since
+                required; tab_line balance game dollars only; quiet rows
+                redact on public clearance in the demo; banned vocabulary +
+                money-figure sweep on prose fields
     rules     — house-rules.json ↔ rules.html RULE mirror; doors keys ==
                 door tiers exactly; every door states every fact_key;
                 closed vocabularies only; posted-sign consistency (cash /
@@ -2938,6 +2945,91 @@ const PUB = Object.values(PT.surfaces)
     }
     g.detail = `schema v${PJ.version} · ${doorIds.size} walls · ${nPapers} papers · ${nPend} pending · ${nFormer} former · ${nGhost} ghost signs`;
   } catch (e) { add(g, 'fail', 'permits.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15g2 favs — the obligations layer (v128) ============ */
+{
+  const g = gate('favs', 'favors contract (favors.json ↔ favor.html; doors key it; carries mandatory; quiet redacts; game dollars only)');
+  try {
+    const FJ = JSONF('favors.json');
+    const BJ = JSONF('businesses.json');
+    const html = rd('favor.html');
+    const m = html.match(/const FAV\s*=\s*(\{[\s\S]*?\n\};)/);
+    if (!m) throw new Error('inline FAV not found in favor.html');
+    const FAV = eval('(' + m[1].replace(/;\s*$/, '') + ')');
+    if (FAV.version !== FJ.version)
+      add(g, 'fail', 'favor.html', null, `FAV version ${FAV.version} != favors.json ${FJ.version}`);
+    for (const k of ['kind_keys', 'visibility_keys', 'party_forms', 'arrangements'])
+      if (JSON.stringify(FAV[k] ?? null) !== JSON.stringify(FJ[k] ?? null))
+        add(g, 'fail', 'favor.html', null, `FAV.${k} drifted from favors.json`);
+    const DOOR = new Set(['anchor', 'street']);
+    const ids = new Set(BJ.businesses.map(b => b.id));
+    const PID = /^(c[1-8]|s[1-3]|a(0[1-9]|1[0-9]|20))$/i;
+    const kinds = new Set(Object.keys(FJ.kind_keys || {}));
+    const vis = new Set(Object.keys(FJ.visibility_keys || {}));
+    const BANNED = [/unfiltered/i, /\bsecret\b/i, /\bseed\b/i, /possess/i, /\bcredit/i, /\bUSD\b/i, /\bscript/i, /\$\s?\d/, /\b\d[\d,]*\s*cr\b/i];
+    const doorIds = new Set(BJ.businesses.filter(b => DOOR.has(b.tier)).map(b => b.id));
+    const keyed = new Set(Object.keys(FJ.arrangements || {}));
+    for (const b of BJ.businesses) {
+      if (DOOR.has(b.tier) && !keyed.has(b.id))
+        add(g, 'fail', 'favors.json', null, `${b.id} (${b.tier}) has a door but no arrangements`);
+      if (!DOOR.has(b.tier) && keyed.has(b.id))
+        add(g, 'fail', 'favors.json', null, `${b.id} (${b.tier}) keys arrangements — doors only`);
+    }
+    const seen = new Set();
+    let n = 0, nQuiet = 0, nTab = 0;
+    for (const vid of keyed) {
+      if (!ids.has(vid)) { add(g, 'fail', 'favors.json', null, `arrangements key "${vid}" is not a business`); continue; }
+      const rows = FJ.arrangements[vid];
+      if (!Array.isArray(rows) || !rows.length) { add(g, 'fail', 'favors.json', null, `${vid}: empty arrangements`); continue; }
+      for (const a of rows) {
+        n++;
+        const tag = a.id || `${vid}:unnamed`;
+        if (!/^fav-[a-z0-9]+-\d+$/.test(a.id || ''))
+          add(g, 'fail', 'favors.json', null, `${tag}: bad id "${a.id}"`);
+        if (seen.has(a.id)) add(g, 'fail', 'favors.json', null, `${tag}: duplicate id`);
+        seen.add(a.id);
+        if (!kinds.has(a.kind)) add(g, 'fail', 'favors.json', null, `${tag}: kind "${a.kind}" not in kind_keys`);
+        if (!vis.has(a.visibility)) add(g, 'fail', 'favors.json', null, `${tag}: visibility "${a.visibility}" not in visibility_keys`);
+        if (a.visibility === 'quiet') nQuiet++;
+        const btwn = a.between || [];
+        if (!Array.isArray(btwn) || btwn.length < 2 || new Set(btwn).size !== btwn.length)
+          add(g, 'fail', 'favors.json', null, `${tag}: between needs ≥2 distinct parties`);
+        else {
+          if (!btwn.includes(vid))
+            add(g, 'fail', 'favors.json', null, `${tag}: keyed venue ${vid} not in between`);
+          for (const p of btwn)
+            if (!ids.has(p) && !PID.test(String(p)))
+              add(g, 'fail', 'favors.json', null, `${tag}: party "${p}" is neither a business nor a cast/supporting/ambient id`);
+          if (!(btwn.includes(a.carries) || a.carries === 'staff' || a.carries === 'both'))
+            add(g, 'fail', 'favors.json', null, `${tag}: carries "${a.carries}" not a party/staff/both — someone must bear the cost`);
+          if (a.carries === 'both' && btwn.length !== 2)
+            add(g, 'fail', 'favors.json', null, `${tag}: carries "both" requires exactly 2 parties`);
+        }
+        for (const f of ['since', 'terms', 'note'])
+          if (!a[f] || String(a[f]).length < 6)
+            add(g, 'fail', 'favors.json', null, `${tag}: ${f} missing or too thin — an obligation has a past and a texture`);
+        for (const s of [a.since, a.terms, a.note])
+          for (const re of BANNED)
+            if (re.test(String(s)))
+              add(g, 'fail', 'favors.json', null, `${tag}: "${s}" banned vocabulary/money figure (${re})`);
+        if (a.kind === 'tab_line') {
+          nTab++;
+          if (typeof a.balance !== 'number' || a.balance < 0)
+            add(g, 'fail', 'favors.json', null, `${tag}: tab_line needs a game-dollar balance ≥ 0`);
+        } else if (a.balance != null)
+          add(g, 'fail', 'favors.json', null, `${tag}: balance belongs to tab_line only`);
+      }
+    }
+    /* quiet rows must redact at public/staff-below clearance in the demo */
+    if (!/a\.visibility==='quiet'&&LVL\[clr\]<2/.test(html))
+      add(g, 'fail', 'favor.html', null, 'quiet rows have no clearance-redaction path');
+    if (!/a\.visibility==='counter'&&LVL\[clr\]<1/.test(html))
+      add(g, 'fail', 'favor.html', null, 'counter rows have no clearance-redaction path');
+    if (!/Internal posture|never ship/i.test(html))
+      add(g, 'fail', 'favor.html', null, 'missing internal/never-ship marker');
+    g.detail = `schema v${FJ.version} · ${keyed.size} doors · ${n} arrangements · ${nQuiet} quiet · ${nTab} tabs`;
+  } catch (e) { add(g, 'fail', 'favors.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G15h rules — the fine-print layer (v114) ============ */

@@ -51,7 +51,10 @@
    "world/exits.md",
    "world/homes.html",
    "world/homes.json",
-   "world/homes.md"
+   "world/homes.md",
+   "world/favor.html",
+   "world/favors.json",
+   "world/favors.md"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -242,6 +245,11 @@
   "firsts": {
    "file": "firsts.html",
    "name": "The First Week",
+   "tier": "internal"
+  },
+  "favors": {
+   "file": "favor.html",
+   "name": "The Counter Tab",
    "tier": "internal"
   }
  },
@@ -5782,6 +5790,47 @@
       "Crowd gate: 0 fail with the vacancies/occasions tail on the detail line",
       "Respawning ctr-flash or res-needlepointe-chair, or flag-free resident greet pairs, would FAIL — spot-check one",
       "Harness gate still reads its own key; overall 0 fail"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT117",
+   "title": "The Counter Tab v128 — the informal-obligations layer (who owes whom)",
+   "minutes": 8,
+   "persona": "writer checking whether the business layer can carry consequence continuity — obligations that attach to people, cost someone something, and can lapse",
+   "goal": "Verify the v128 favors layer: favors.json registers 44 informal arrangements across all 20 door venues (keys/tabs/holds/lends/watches/passes/favors owed); every arrangement names a carries party — the standing cost is always legible; between parties resolve to real businesses or c/s/a person ids and may include offstage orgs (Calle Justa borrows chairs) while never keying one; visibility tiers stratify knowledge (open/counter/quiet) and favor.html redacts quiet rows below internal clearance like secret web edges; balances are game dollars only; businesses.md §10 + businesses.json favor_layer register the layer; the favs audit gate passes.",
+   "surfaces": [
+    "favors",
+    "audit",
+    "directory"
+   ],
+   "steps": [
+    {
+     "do": "Open favor.html at public clearance, then flip to staff and internal. Count quiet rows (5) disappearing below internal and counter rows below staff.",
+     "expect": "Clearance gating works exactly like secret web edges: quiet arrangements (the key swap, the alarm key, the stall fee) never render at public; counter rows need staff+.",
+     "checkpoints": [
+      "public shows only open rows; staff adds counter; internal shows all 44",
+      "the counter line reports 'N shown · M above clearance' honestly",
+      "a venue whose rows are all hidden shows the honest empty state, not a blank card"
+     ]
+    },
+    {
+     "do": "Read the arrangements for Mudhaus, El Farolote, and Needlepointe in favors.json; check carries, since, and the kind vocabulary against kind_keys.",
+     "expect": "Every arrangement names who bears the standing cost (carries ∈ between ∪ {staff,both}); every one has a since — the origin a counter would tell; kinds are the closed set; tab_lines carry game-dollar balances only.",
+     "checkpoints": [
+      "carries is never absent — interdependence is structural, not implied",
+      "fav-ndl-01 names s1 as a party and carrier — obligations attach to people, not roles",
+      "offstage calle-justa appears inside between but keys nothing — doors key it, anyone may be a party"
+     ]
+    },
+    {
+     "do": "Run node world/audit.js and check the favs gate line; then try public-clearance wording — confirm no arrangement prose leaks a quiet obligation into feed-safe text.",
+     "expect": "favs gate passes with 'schema v128 · 20 doors · 44 arrangements · 5 quiet · 6 tabs'; banned-vocabulary sweep keeps terms/note on the obligation bar.",
+     "checkpoints": [
+      "favs PASS with the expected detail line",
+      "no arrangement reads as a script — all are standing invitations that may lapse",
+      "businesses.md §10 and businesses.json favor_layer describe the layer consistently"
      ]
     }
    ]
