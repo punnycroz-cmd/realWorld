@@ -1,22 +1,24 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v128 (2026-09-23);
-all stills rebased to the **art-v64** build — the street-detail build
+**Status:** production-ready plan + rendered animatics, v140 (2026-09-24);
+all stills on the **art-v64** build — the street-detail build
 (cast-iron tree grate wells + sidewalk utility lids over the v63
-wall-impostor atlas), current latest published. The v64 rebase re-pinned every
-`redact` rect (pawn name tags + the DIRECTOR badge moved between builds)
-and added an eighth cut: the 40s **"Booking Cut"** (§7.5) dramatizing
-the game-v14 bookings/calendar seam. The §4 sunbeam caveat stays closed
+wall-impostor atlas). v140 added a ninth cut: the 44s **"Cast Cut"** (§7.6)
+— the ensemble teaser that introduces all eight mains by their public
+routines and lands the possession ban as the thesis beat. Prior baseline:
+v128 rebase to art-v64 (re-pinned every `redact` rect) + the 40s
+**"Booking Cut"** (§7.5). The §4 sunbeam caveat stays closed
 (the v56 fix carried forward).
 Earlier baseline: v110 rebase to art-v56 (sunbeam fix build) + the 45s
 "One Day" cut and `dusk` grade; v95 rebase to art-v55 plus the art-v52
 metric-projection **interior stills** (v52-INT-{cafe,flat,hw,taq}) — the
 trailer goes indoors (hero S5b, Move-In M5, thumbnail #4, Day Y3).
-Eight cuts now exist as real mp4s — hero 90s, teaser 15s, the
+Nine cuts now exist as real mp4s — hero 90s, teaser 15s, the
 9:16 vertical 30s, a 6s bumper, the 50s "Feed Cut" alternate-concept
 trailer (§7.2, added v65), the 60s "Move-In Cut" player-journey
-trailer (§7.3, added v80), the 45s "One Day" cut (§7.4, v110), and the
-40s "Booking Cut" (§7.5, v125) —
+trailer (§7.3, added v80), the 45s "One Day" cut (§7.4, v110), the
+40s "Booking Cut" (§7.5, v125), and the 44s "Cast Cut" ensemble
+teaser (§7.6, v140) —
 `trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Upload-ready metadata (titles, descriptions,
@@ -71,6 +73,7 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Move-In Cut (alt concept) | 60 s | 16:9 | how-it-works embed, store-page second video, onboarding ad — rendered (§7.3) |
 | One Day Cut (alt concept) | 45 s | 16:9 | second social slot, store ambience video, streamer interstitial — rendered (§7.4) |
 | Booking Cut (alt concept) | 40 s | 16:9 | feature-announce post, how-it-works embed, devlog on the request pipeline — rendered (§7.5) |
+| Cast Cut (alt concept) | 44 s | 16:9 | cast-announce posts, press-kit character embed, store page third video — rendered (§7.6) |
 | Thumbnail stills | — | 16:9 | YouTube/itch — four concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
@@ -426,6 +429,61 @@ how-it-works page's request section, and a devlog clip on "the request
 pipeline grew a calendar." Not a hero candidate — it's a depth cut for
 viewers already sold on watching.
 
+### 7.6 The Cast Cut — ensemble teaser (v140 — rendered)
+
+`edl.json` carries a ninth `"cast"` program (44 s, 16:9) rendered to
+`out/animatic-cast.mp4` + `captions-cast.srt` + `board-cast.png`
+(+ scratch bed). Sixth creative concept — the *ensemble's* trailer: meet
+the eight mains through the public record of their routines, then land
+the thesis — they can't be hired, they can't be steered. Where the Feed
+Cut proved the rules and Move-In sold joining, this one sells *who you'd
+be watching* — the cut that answers "okay, but who lives there?"
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | C1 feedline cold open | `06:01 — Mars opened Mudhaus.` types on black |
+| 0:04–0:08 | C2 Mudhaus interior (v52-INT-cafe) | "Mars — the hub. Mudhaus opens when she says so." |
+| 0:08–0:12 | C3 taqueria interior (v52-INT-taq) | "Tomás — the patient planner. Lead cook at El Farolote." |
+| 0:12–0:16 | C4 hardware interior (v52-INT-hw) | "Vic — the landlord with two drawers." |
+| 0:16–0:20 | C5 Dolores Park overhead | "Priya — the caretaker triaging herself." |
+| 0:20–0:26 | C6 ambient feed ticking | "Jules. Dani. Carmen. Marcus. The rest of the eight." |
+| 0:26–0:32 | C7 request card: possess Mars (cast) — `× DENIED · REFUNDED` | "The cast can't be hired. Their drama is the sim's." |
+| 0:32–0:36 | C8 rooftops, `night` grade | "Eight mains. Twenty neighbors. Nobody steers them." |
+| 0:36–0:39 | C9 feedline button | `00:12 — Mars closed Mudhaus.` |
+| 0:39–0:44 | C10 end card | "REAL WORLD — THE MISSION. Watch free. Meet them on the feed. {{URL}}" |
+
+**Accuracy anchors (verify before ship):**
+
+- **Names and beats are public-record only.** Every card line mirrors
+  `world/characters.json` v56 cast fields — archetype + day job are
+  briefing-safe public facts (Mars manages Mudhaus, Tomás cooks at El
+  Farolote, Vic owns Auerbach Hardware and the Guerrero buildings, Priya
+  is an RN). No secrets, no interiority claims, no invented backstory.
+  "The caretaker triaging herself" / "the landlord with two drawers" are
+  the cast-bible archetype phrasings verbatim — flavor, not mechanics.
+- **C7 is the thesis and the ban's proof.** Same denied-possession beat
+  as the Feed Cut's F6 — `verdict: "denied"`, `DENIED — never ran`,
+  refund logged. In this cut it's not a counterexample; it's the point.
+- **"Nobody steers them"** is design truth #4 — the mains are authored
+  by the sim; requests inject as opportunities, never as puppeteering.
+  No shot implies player control of a cast member; the only possession
+  shown is refused.
+- **Feed lines stay in the real feed's voice** — `HH:MM — name did
+  thing` format, parody venue names only, Jules' Unit 3B line reused
+  verbatim from the hero S6 mock for consistency.
+- The end-card tagline rotates to "Watch free. Meet them on the feed." —
+  same promise as the hero, aimed at the character sheet.
+- Interior stills (C2–C4) and both UI mocks (C6–C7) carry
+  `recapture: true`; the exteriors may ship from stills in a pinch.
+  HUD-free crops: interiors `[360,60,1440,825]`, exteriors
+  `[330,100,1440,794]` — same rects as every other cut.
+
+**Placement:** cast-announce posts (one per main if the social calendar
+wants a drip), the press-kit character embed (journalists get the
+ensemble in 44 seconds), the store page's third video slot, and a
+bio-pin on social profiles — it's the best single answer to "who is
+this game about?"
+
 ## 8. Thumbnail concepts (v95 — rendered)
 
 All four are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
@@ -472,6 +530,9 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 - [ ] (Move-In) create/lease cards match the live contracts
       (world/creation.json + world/leases.json at ship date); handle is a
       fictional player handle, not a cast name.
+- [ ] (Cast Cut) card lines match `world/characters.json` cast fields at
+      ship date (archetype + day job only — no secrets); C7 denied
+      possession never runs; no beat implies steering a main.
 - [x] No v49-D-era sunbeam renders in frame — RESOLVED: all stills rebased
       to art-v56 (the fix build) at v110, to art-v62 (aerial camera +
       lens CA) at v125, and to art-v64 (street detail) at v128. Re-check only if the art track ships a
@@ -493,11 +554,11 @@ Parody names are RESOLVED (`world/parody-names.json`).
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Eight programs
+- **`edl.json`** — machine-readable edit decision list. Nine programs
   (`hero` 90s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
   `feed` 50s — the §7.2 alternate concept, `movein` 60s — the §7.3
   player-journey cut, `day` 45s — the §7.4 24/7-sim cut, `booking` 40s —
-  the §7.5 scheduled-requests cut)
+  the §7.5 scheduled-requests cut, `cast` 44s — the §7.6 ensemble teaser)
   plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
   (`wet`/`night`/`dusk` — dusk added v110 for the One Day light arc), possession chip +

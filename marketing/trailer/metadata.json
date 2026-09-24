@@ -124,6 +124,25 @@
     "0:35 watch free"
    ],
    "slot": "feature-announce post, how-it-works embed, request-pipeline devlog"
+  },
+  "cast": {
+   "file": "out/animatic-cast.mp4",
+   "length_s": 44,
+   "title": "Real World — The Mission | Meet the Cast",
+   "thumbnail": "thumb-inside.png",
+   "description": "Eight fictional residents anchor a real Mission block — Mars, Jules, Dani, Priya, Marcus, Carmen, Vic, Tomás. They can't be hired and they can't be steered; their drama is the sim's. Watching them is free.\n\n{{URL}}\n\nDevelopment-build footage.",
+   "chapters": [
+    "0:00 06:01 — Mars opened Mudhaus",
+    "0:04 Mars — the hub",
+    "0:08 Tomás — the patient planner",
+    "0:12 Vic — the landlord",
+    "0:16 Priya — the caretaker",
+    "0:20 the rest of the eight",
+    "0:26 the cast can't be hired",
+    "0:32 nobody steers them",
+    "0:39 end card"
+   ],
+   "use": "cast-announce posts, press-kit character embed, store page third video, social bio-pin"
   }
  }
 }
