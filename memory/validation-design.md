@@ -10882,4 +10882,200 @@ trait contrasts unless noted.
   `dejavu_*` magnitudes are priors pending population
   calibration.
 
-Probe registry: P1–P1133 (v106 adds P1122–P1133).
+## 220. The control diet — negative and positive controls (VA-CTRL) (new in v107)
+
+A battery that only ever measures what it expects to measure can be
+*globally* biased without any single probe lying: shared generators,
+shared seeds, shared mains. Epidemiology solved this with **negative
+controls** — exposures and outcomes that are provably disconnected
+from the mechanism and must return null (Lipsitch, Tchetgen Tchetgen
+& Cohen 2010, *Epidemiology* 21:383 — CONSENSUS technique; Shi, Miao
+& Tchetgen Tchetgen 2020, *Epidemiology* 31:637 — selective review
+of the bias-detection machinery). The dual is the **positive control
+/ assay sensitivity** doctrine from clinical trials: a test that
+cannot detect a known-large manipulation is not a null result, it is
+a dead instrument (ICH E10 2000 — CONSENSUS regulatory doctrine;
+the RW battery already owns the lesion battery §26 — this section
+makes every suite ship its own control pair instead of relying on
+the global one).
+
+Rules (spec §14.7a):
+
+1. **Every suite registers one sham exposure** (`negctrl_exposure`):
+   a perturbation with no spec path to the measured outcome — e.g.,
+   an `inert_probe_field` carried on records that no terminus reads,
+   or a cosmetic world flag outside every cue channel. The sham is
+   declared at registration; its inertness is itself verified
+   statically (the field must appear in zero §15 terminus ledgers —
+   `inert_field_null`). Verdict flip count on the sham arm above
+   `negctrl_flip_max` (=0) ⇒ harness confounding, not a psychology
+   result: the *suite* is suspended, the finding is not reported.
+2. **Every suite registers one positive control** (`posctrl_lesion`):
+   a clamp on a param in the suite's declared `detect_set` sized at
+   ≥ `posctrl_mde` (the family's minimum detectable effect per
+   §139's power registry). The control MUST flip its declared
+   probes; a control that passes green indicts the instruments
+   (`posctrl_dead`), never exonerates the model.
+3. **Sham dose-response.** Doubling the sham dose must still be
+   null — a sham that "works" at 2× but not 1× is a threshold
+   leak in the harness, not an inverted-U (`sham_dose_null`).
+4. **Asymmetry doctrine.** Negative controls convict the harness;
+   positive controls convict the instruments. Neither ever
+   convicts the psychology directly — a control failure is a
+   verdict-layer event and enters the ledger as such, keeping the
+   model's FDR families clean of instrument noise.
+
+RW-specific placement: sham fields ride inside real records (a
+field every record carries, nothing reads) so the control exercises
+the *whole* encode→decay→retrieve→present pipeline; a sham that
+only touches a side channel proves nothing about the main path.
+
+## 221. Missing evidence discipline — attrition is data (VA-MISS) (new in v107)
+
+Cohort runs die: seeds crash, streams truncate, `corpusRun` ticks
+abort at day 380 of 400. The naive handling — analyze the
+survivors — silently conditions on a collider whenever attrition
+correlates with the outcome (VA-COLLIDER §138 covers selection at
+encoding; this is selection at *measurement*). The taxonomy is
+Rubin 1976 (*Biometrika* 63:581 — CONSENSUS): MCAR (kill unrelated
+to anything), MAR (kill predictable from observed fields), MNAR
+(kill depends on the unobserved outcome itself). Discipline:
+
+- **Report, never impute.** Ground-truth taps (§2.4) and JSONL
+  streams carry `complete:false` + `censor_day`; analyzers report
+  attrition rate per probe per arm. Imputing ground-truth fields —
+  last-observation-carried-forward, mean-fill — is `impute_null`:
+  fabricated certainty is worse than reported absence.
+- **Mechanism diagnostics are mandatory output.** Every probe with
+  attrition > `miss_report_min` (=0.05 of expected rows) emits a
+  missingness diagnostic block: Little-style covariate-contrast
+  test on observed fields (Little 1988, *JASA* 83:1198 — MCAR
+  screening; the contrast, not the test, is the contract) plus a
+  directed `mnar_flag` when censoring correlates with
+  outcome-proximate fields at `miss_flag_alpha`.
+- **Estimation under attrition.** Under MAR, verdicts use
+  inverse-probability weights fit on the observed censoring model
+  (Robins, Rotnitzky & Zhao 1994, *JASA* 89:846 — CONSENSUS), with
+  weight truncation at `ipw_trim` quantile to stop one survivor
+  carrying the arm. Under flagged-MNAR the probe reports **Manski
+  worst-case bounds** on the statistic (Manski 1990, *AER* 80:319
+  — partial identification; the verdict is the bound, never a
+  point) — a probe whose MNAR bounds straddle its band is
+  INCONCLUSIVE, not PASS.
+- **The censoring model is a model.** It is fit per suite, journaled
+  beside verdicts, and its specification is pre-registered —
+  post-hoc re-specification to rescue a failed verdict is
+  `censor_edit_null` (same ledger species as `family_edit_null`).
+- **Partial runs still testify.** Stream data before the kill is
+  usable through the §14.5b e-processes (they are valid at
+  arbitrary stopping — that is what they are for); what is banned
+  is a *complete-case pass claim* on a truncated arm. Early-stop
+  evidence may alarm or continue, never pass.
+
+Established vs hypothesis: Rubin's taxonomy, IPW, Manski bounds —
+CONSENSUS machinery imported unchanged. The `impute_null` ban,
+`censor_edit_null` ledger species, and the bound-straddles-band ⇒
+INCONCLUSIVE rule are RW HYPOTHESIS governance choices (the human
+literature has no exact analog because human studies can't re-run
+the deceased participant; the sim can, and must be forbidden from
+pretending the dead seed answered).
+
+## 222. v107 probe specs (P1134–P1145 — validation-design XI,
+## the control diet and the missing rows)
+
+Harness: 8 mains + 200-ambient population; all control arms run
+under CRN against their real counterparts. Spec v5.55 §14.7.
+
+- **P1134 sham arm null (MUST — locked `negctrl_null`):** run the
+  v107 suite twice under CRN, real vs `negctrl_exposure` arm
+  (inert_probe_field present/absent). Every anchor verdict must be
+  identical; any flip suspends the suite — the verdict is on the
+  harness. (§14.7a; Lipsitch et al. 2010)
+- **P1135 inertness proven statically (MUST — locked
+  `inert_field_null`):** spec-lint — the declared sham field
+  appears in zero §15 modifier-ledger termini and zero §10 output
+  schemas. If anything reads it, the control is not a control and
+  P1134's result is void ab initio.
+- **P1136 positive control fires (MUST — `posctrl_dead`):** the
+  suite's `posctrl_lesion` (clamp a declared `detect_set` param at
+  ≥ `posctrl_mde`) must flip ≥1 probe in the family. Zero flips =
+  dead instruments; family authority suspended, never a pass.
+- **P1137 sham dose-response (SHOULD — `sham_dose_null`):** sham at
+  1× and 2× dose both return identical verdicts; a dose-dependent
+  sham means a threshold somewhere reads the field — static audit
+  re-runs to find the leak.
+- **P1138 world-side sham (SHOULD):** cosmetic world perturbation
+  (ambient NPC palette flag, registered non-cue channel) leaves
+  every gated verdict unchanged — extends the control diet to the
+  world seam, where §84's seam-construct leaks would live.
+- **P1139 MCAR audit (MUST — locked `impute_null`):** inject random
+  run-kills (Bernoulli 0.1 per member). Analyzer must (a) emit the
+  missingness block, (b) show IPW verdict == full-run verdict
+  within `ipw_tol`, (c) any ground-truth tap carrying a filled
+  value = violation. Complete-case pass on truncated arm = violation.
+- **P1140 MAR recovery (SHOULD):** kill probability made a function
+  of observed `retrievalCount` (outcome-proximate but observed).
+  IPW verdict must stay within `ipw_tol` of full-run; complete-case
+  is expected to bias — the probe *measures* that bias and reports
+  it, proving the diagnostic isn't decorative.
+- **P1141 MNAR flag (MUST):** kill probability made a function of
+  the *unobserved* correctness field. Diagnostics must raise
+  `mnar_flag`; verdict emitted as Manski bounds only; if bounds
+  straddle the band the verdict is INCONCLUSIVE — a probe that
+  converts MNAR attrition into a point pass has failed the battery.
+- **P1142 censor model pinned (MUST — locked `censor_edit_null`):**
+  attempt to re-specify the censoring model after a failing verdict
+  (add covariates, change link) → ledger violation recorded, verdict
+  unchanged. The censor model is pre-registered per suite.
+- **P1143 partial-run e-process (SHOULD):** truncated arms
+  contribute via §14.5b e-values: early alarm authorized, early
+  PASS forbidden — a truncated arm reaching 1/`eval_alpha` yields
+  CONTINUE-or-SUSPEND, never PASS.
+- **P1144 dead-probe shadow (SHOULD):** OBSERVE-dead probes execute
+  in shadow mode (zero verdict weight, rows journaled as
+  `shadow:true`); reactivation requires a ledger `reactivate` row
+  with rationale — silent resurrection is a registry violation.
+- **P1145 equating across spec bumps (SHOULD):** the golden-anchor
+  subset (`equate_anchor_n`=18, one per anchor corpus row) re-runs
+  on pinned seeds at every spec bump; per-anchor equating drift
+  published in the ledger (item-linking discipline — Kolen &
+  Brennan 2014, *Test Equating* — CONSENSUS psychometric practice
+  for keeping scores comparable across instrument versions). Drift
+  > `gold_tol` without a declared `rebaseline` row = the §14.6d
+  regression, now quantified per anchor instead of pass/fail.
+
+Registry: P1–P1145. v107 suite: P1134, P1135, P1136, P1139, P1141,
+P1142 MUST (five locked-null class — controls and censoring are
+where honest instruments go to die quietly); P1137, P1138, P1140,
+P1143, P1144, P1145 SHOULD. Second all-contract suite (after
+v105's): twelve probes, zero about what a character remembers —
+all about whether the evidence about the remembering is complete,
+controlled, and honestly censored.
+
+## 223. Sources verified this version (P1134–P1145 backing)
+
+- **Negative controls:** Lipsitch, Tchetgen Tchetgen & Cohen 2010
+  (*Epidemiology* 21:383 — the negative-control review → P1134,
+  P1138); Shi, Miao & Tchetgen Tchetgen 2020 (*Epidemiology* 31:637
+  — bias-detection machinery → control-pair doctrine); NEW spine
+  citations this version.
+- **Positive controls / assay sensitivity:** ICH E10 2000 (choice
+  of control group — assay-sensitivity doctrine → P1136); mutation
+  testing lineage Jia & Harman 2011 (already §46, reused for
+  `posctrl_lesion` sizing).
+- **Missingness:** Rubin 1976 (*Biometrika* 63:581 — MCAR/MAR/MNAR);
+  Little 1988 (*JASA* 83:1198 — covariate MCAR test → diagnostic
+  block); Robins, Rotnitzky & Zhao 1994 (*JASA* 89:846 — IPW →
+  P1139/P1140); Manski 1990 (*AER* 80:319 — worst-case bounds →
+  P1141); Mohan & Pearl 2021 (*AI Review* — missingness-graph
+  review, taxonomy confirmation → `mnar_flag` direction). NEW
+  spine citations: Little, Robins et al., Manski, Mohan & Pearl.
+- **Equating:** Kolen & Brennan 2014 (*Test Equating, Scaling, and
+  Linking*, 4th ed. — anchor-set linking → P1145).
+- **Marked hypothesis:** `negctrl_flip_max`=0 strictness (a single
+  sham flip suspends a suite — conservative on purpose);
+  `ipw_tol`/`ipw_trim` magnitudes; `miss_report_min`=0.05; the
+  INCONCLUSIVE-verdict species; `inert_probe_field` as the
+  canonical sham carrier. → spec §14.7; probes P1134–P1145.
+
+Probe registry: P1–P1145 (v107 adds P1134–P1145).

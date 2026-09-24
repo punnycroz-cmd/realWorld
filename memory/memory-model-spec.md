@@ -1,5 +1,15 @@
-# Memory Model Spec v5.54 — implementable human-like memory for RW characters
+# Memory Model Spec v5.55 — implementable human-like memory for RW characters
 
+> **v5.55 note (validation-design XI — the control diet and the
+> missing rows):** `memory/validation-design.md` §§220–223 + spec
+> §14.7 give every probe suite a registered negative/positive
+> control pair (`negctrl_exposure`, `posctrl_lesion`) and make
+> attrition a reported, modeled quantity (missingness blocks,
+> IPW under MAR, Manski bounds under MNAR). No psychology moved:
+> controls convict the harness, never the characters. New locked
+> nulls: `inert_field`, `impute`, `censor_edit`, `negctrl`. Probes
+> P1134–P1145.
+>
 > **v5.54 note (character-profiles VIII — the perceiver's
 > hardware):** `character-memory-profiles.md` §86 + spec
 > §§6.267–6.272 add the *experienced* shape of recall as a
@@ -19109,6 +19119,49 @@ bumped re-baselines require a ledger `rebaseline` row.
 | cover_exempt / mut_whitelist / anchor_pointfit / live_off | 0.0 each | locked nulls — §14.6a–d |
 
 Probes P1006–P1016 in validation-design.md §198.
+
+### 14.7 Control pairs and missingness discipline (new in v5.55)
+
+With P1–P1133 registered, the residual risks are harness-level:
+shared generators/mains/seeds can bias *every* verdict at once,
+and cohort attrition can silently condition measurement on a
+collider. Two instruments, all harness-tier — no psychology moved.
+Rationale in validation-design.md §§220–221.
+
+**(a) Control pairs.** Every suite registers one `negctrl_exposure`
+(a declared inert field — `inert_probe_field` on records or a
+registered non-cue world flag) and one `posctrl_lesion` (a clamp
+on a `detect_set` param at ≥ `posctrl_mde`). Static lint proves
+inertness: the sham field appears in zero §15 termini and zero
+§10 schemas (`inert_field_null`). Any verdict flip on the sham
+arm (`negctrl_null`, `negctrl_flip_max`=0) suspends the suite —
+controls convict the harness, never the model. A positive control
+that flips nothing in its declared family marks the instruments
+dead (`posctrl_dead`), never a pass. Sham dose-response at 2×
+must stay null (`sham_dose_null`).
+
+**(b) Missingness.** Streams carry `complete:false` + `censor_day`;
+attrition > `miss_report_min` triggers a mandatory diagnostic
+block (Little-style covariate contrast + `mnar_flag` at
+`miss_flag_alpha`). Estimation: IPW on a pre-registered censoring
+model under MAR (`ipw_trim` weight truncation); Manski worst-case
+bounds under flagged-MNAR — bounds straddling the band ⇒ verdict
+INCONCLUSIVE, never PASS. Imputing ground-truth taps is
+`impute_null`; re-specifying the censor model after a failing
+verdict is `censor_edit_null`. Truncated arms may alarm via the
+§14.5b e-processes but may never claim early PASS.
+
+| param | default | notes |
+|---|---|---|
+| negctrl_flip_max | 0 | harness — sham-arm flip tolerance (strict) |
+| posctrl_mde | family MDE | pop — positive-control sizing per §139 registry |
+| miss_report_min | 0.05 | pop — attrition fraction triggering diagnostics |
+| miss_flag_alpha | 0.01 | pop — `mnar_flag` contrast threshold |
+| ipw_tol / ipw_trim | 0.03 / 0.95 | pop — IPW verdict tolerance / weight-trim quantile |
+| equate_anchor_n | 18 | harness — golden-anchor linking set size |
+| inert_field / negctrl / sham_dose / impute / censor_edit | 0.0 each | locked nulls — §14.7a–b |
+
+Probes P1134–P1145 in validation-design.md §222.
 
 ## 15. Composition, context, and surface annex (new in v5.18)
 
