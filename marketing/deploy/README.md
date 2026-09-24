@@ -16,6 +16,7 @@ Everything here is LOCAL/draft until the owner gates open
 | `umami.compose.example` | Self-hosted analytics backend spec (Umami + Postgres) for `stats.<domain>` — matches the Caddyfile `stats.` reverse_proxy block. Fill 2 secrets on the host, `docker compose up -d`, then `../tools/flip_flags.sh --set endpoint=...`. |
 | `host-contract.md` | What the VPS must provide (user, layout, caddy, maintenance page) — satisfied by `../tools/bootstrap_host.sh`, also the DR rebuild spec (INFRASTRUCTURE.md §12). |
 | `umami-backup.example` | Nightly `pg_dump` cron + restore drill for the self-hosted analytics DB — the one launch artifact git can't reproduce. |
+| `traffic-plan.md` | Launch-day traffic & surge plan: load math, the cache-header contract, day-0 probe sequence, severity→action playbook incl. CDN-front flip, bot stance. Companion: `../tools/traffic_probe.sh`. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2);
@@ -35,6 +36,10 @@ Companion tools (all local, nothing publishes):
   serves a fake host over HTTP, injects a corrupted release, asserts
   `release_manifest.py --verify` + `prod_smoke.sh` catch it, then proves the
   rollback flip restores a green site.
+- `../tools/traffic_probe.sh <base>` — traffic readiness: `headers`
+  verifies the Caddyfile cache/security contract is actually served,
+  `warm` primes caches via sitemap URLs, `load` runs a concurrent-GET
+  probe with latency stats. See `traffic-plan.md`.
 - `../tools/release_manifest.py` — emits/verifies `release.json`
   (git sha, deploy time, file count, `tree_sha256`); `--verify <dir>`
   re-hashes a deployed release against its own manifest.

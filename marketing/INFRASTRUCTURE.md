@@ -265,6 +265,10 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   on the host re-hashes the tree against its manifest (catches corrupted
   or tampered files). A release.json 404 just warns — pre-v89 releases
   and edge-stripped JSON both produce that.
+- **Traffic readiness:** `deploy/traffic-plan.md` is the launch-day load
+  plan — the cache-header contract, the T-2h probe sequence
+  (`tools/traffic_probe.sh headers|warm|load`), and the severity→action
+  surge playbook including the CDN-front flip for the VPS path.
 - **Incident drill:** `tools/incident_drill.sh` rehearses the actual
   failure loop, not just mechanics — fake host + HTTP server, deploy a
   good release (baseline smoke green), inject a corrupted release
