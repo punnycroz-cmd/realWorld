@@ -1,5 +1,8 @@
 # Caught on the Block — the viewer-clip prompt series (UGC intake)
 
+Masthead: `site/assets/masthead-caught.svg` (BRAND.md §21 — the sanctioned
+Class-B lockup; prompt cards set the same DejaVu Bold / casing / palette).
+
 Channel: X + Bluesky (prompts), TikTok/Shorts (prompt-card variant) ·
 Timing: weekly, Saturdays 10:00 PT starting T+3; extra prompts on big
 feed days · Assets: none required — text prompts; optional

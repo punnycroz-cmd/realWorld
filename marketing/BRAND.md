@@ -1,7 +1,11 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v160 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
-v160 adds §20, the naming constitution: three name classes, the registry of
+**Version:** v175 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+v175 adds §21, the program-masthead layer: named formats (Class A surfaces
+and Class B programs) get sanctioned SVG mastheads — type + cornice rule +
+one lit window — so a program can never accidentally grow its own logo.
+Masters live in `site/assets/masthead-*.svg`, mirrored into the press kit.
+v160 added §20, the naming constitution: three name classes, the registry of
 every approved name, and the coinage rules — plus a visual misuse board
 (`site/assets/logo-misuse.svg`, embedded on the brand book page).
 This version adopts the locked **becoming-AI direction** (user-decision
@@ -713,3 +717,68 @@ an artifact, no colloquial is promoted anywhere. Keep it that way —
 `tools/brand_audit.py` covers the mechanical casing checks, and this
 registry is the human gate for meaning (§17). When a new name lands, add
 its row here in the same commit as its first public use.
+
+---
+
+## 21. Program identity — mastheads for named formats
+
+A registered name (§20) deserves a face, but a program must never grow its
+own logo — the lit-window tile is the product's mark, full stop. The
+sanctioned face is the **masthead**: a typographic lockup, one per named
+format, kept as an SVG master in `site/assets/` and mirrored into
+`press-kit/mastheads/`.
+
+### Anatomy
+
+- **Kicker** — Fog `#9aa0ae`, DejaVu Bold ~26 px, uppercase, ~0.3em
+  tracking, ≤ 4 words. It names the *slot* ("Sunday recap", "Viewer
+  clips", "Devlogs & block reports"), not a slogan — kickers are factual,
+  never taglines (§3 bank stays the only tagline source).
+- **Title** — Paper `#ece7dc`, DejaVu Bold ~76–84 px, the registered name
+  spelled and cased exactly as its §20 registry row (a standalone title
+  capitalizes its first letter: "The Journal", but "This Week on the
+  Block" / "Caught on the Block" keep their registry casing).
+- **Cornice rule** — a 3 px `#2c303c` hairline under the title, full
+  width. The cornice is the program's furniture; it is what makes a
+  masthead read as *part of the block* rather than a sub-brand.
+- **One lit window** — a single amber window square (`#e8a04c`, 52×58,
+  rx 6, opacity .9) may sit at the right edge. Exactly one — the motif
+  says "a light is on here," not "here is a second logo." Never the full
+  3×3 grid (that's the tile's), never recolored, never animated.
+
+### Class rules
+
+| Class | Rule |
+|---|---|
+| **A — surfaces** | May sit the canonical tile beside the title (scaled, never redrawn — the group is copied verbatim from `logo-icon.svg`). The tile still belongs to the product; the masthead borrows it. |
+| **B — programs** | Type + cornice + one lit window only. Never the tile, never any other mark — a program with its own logo is a sub-brand, banned by §20 rule 6. |
+| **C — colloquials** | Never get mastheads. Lowercase in running text forever; the moment one needs a masthead it graduates via §20 rule 8. |
+
+### Registry of mastheads
+
+| Masthead | Name (§20 class) | File | Used on |
+|---|---|---|---|
+| The Journal | A | `masthead-journal.svg` | `journal.html` hero, press kit, social recap posts |
+| This Week on the Block | B | `masthead-recap.svg` | `journal.html` format preview, Sunday recap posts (raster `social/cards/card-recap.png` sets the same type) |
+| Caught on the Block | B | `masthead-caught.svg` | `social/drafts/caught-on-the-block.md` header, community clip posts |
+
+### Usage rules
+
+- **Dark surfaces only.** Paper text disappears on white; on light
+  contexts set the program name in dark-ink type (`logo-primary-dark`
+  palette) with no masthead art. Email never embeds mastheads (§16: no
+  images required to read).
+- **One masthead per named format, one format per masthead.** New Class-B
+  registrations add their master + registry row + press-kit mirror in the
+  same commit — a masthead without a §20 row is an unlicensed name.
+- **Min width 480 px.** Below that set the title in plain text with the
+  kicker as an eyebrow — a shrunken masthead is worse than none.
+- **Rasters derive from masters.** Social cards (`tools/make_social_cards.py`)
+  set the same DejaVu Bold / palette / casing; if a masthead changes, the
+  cards are regenerated, not re-typeset.
+- **Never inside the logo clear space.** A masthead and the product lockup
+  share a layout but never a header — page heroes show either the product
+  lockup *or* a program masthead, not both stacked.
+
+`tools/brand_audit.py` check 1 enforces that every masthead named in
+`brand-tokens.json` exists and that the press-kit mirrors are byte-identical.

@@ -77,6 +77,11 @@ Contents
   banners/           Pre-sized channel headers: X 1500x500, YouTube
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
+  mastheads/         Typographic mastheads for our named formats —
+                     The Journal (surface, borrows the tile), This Week
+                     on the Block + Caught on the Block (programs: type,
+                     cornice rule, one lit window; never their own logo).
+                     Dark surfaces only. Rules: marketing/BRAND.md §21.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
                      v81-* = current renderer (coverage grammar — the

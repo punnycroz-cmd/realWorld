@@ -1,7 +1,7 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "Real World — The Mission brand tokens",
-  "version": "42.0",
+  "version": "43.0",
   "canonical_source": "marketing/BRAND.md — when this file and BRAND.md disagree, BRAND.md wins; fix this file in the same commit",
   "color": {
     "bg":        { "value": "#14161c", "name": "Asphalt",          "role": "page background" },
@@ -55,6 +55,11 @@
     "banner-youtube-2560x1440.png":"YouTube channel art — safe zone = center 1546x423",
     "banner-discord-960x540.png":  "Discord server banner (Boost L2+)",
     "banner-linkedin-1584x396.png":"LinkedIn page cover — text center-right"
+  },
+  "mastheads": {
+    "masthead-journal.svg": "The Journal (Class A surface) — tile beside title; dark surfaces only",
+    "masthead-recap.svg":   "This Week on the Block (Class B program) — type + cornice rule + one lit window",
+    "masthead-caught.svg":  "Caught on the Block (Class B program) — viewer clips series masthead"
   },
   "voice": {
     "one_line": "a neighbor who knows the block — warm, plain-spoken, slightly wry",

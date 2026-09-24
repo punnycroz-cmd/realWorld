@@ -111,6 +111,7 @@ date. The founder quote slot below stays empty until the user writes one:
 | Contact sheet | **Available** — printable visual index of every image asset in the kit | `press-kit/contact-sheet.html` |
 | Social banners | **Available** — X/YouTube/Discord/LinkedIn, safe-zone padded | `press-kit/banners/` |
 | Creator badge | **Available** — "WATCHED ON REAL WORLD" embed badge, color + mono SVGs | `press-kit/badges/` |
+| Program mastheads | **Available** — The Journal + This Week on the Block + Caught on the Block typographic mastheads (BRAND.md §21; dark surfaces only) | `press-kit/mastheads/` |
 | Captions/credits | **Available** — per-asset caption + credit line | `press-kit/captions.txt` |
 | Coverage log | **Available** — post-launch tracker: per-piece ledger, misstated-claims checklist, corrections + inbound-contact tables (empty until launch) | `press-kit/coverage-log.md` |
 | Asset license | **Available** — editorial usage terms | `press-kit/LICENSE.txt` |

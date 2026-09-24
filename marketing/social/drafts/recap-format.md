@@ -1,5 +1,8 @@
 # "This Week on the Block" — recurring recap template
 
+Masthead: `site/assets/masthead-recap.svg` (BRAND.md §21 — sanctioned
+Class-B lockup; `social/cards/card-recap.png` sets the same type).
+
 Cadence: every Sunday, all primary channels (X thread or single post +
 image; Bluesky condensed; itch devlog long-form monthly roll-up).
 Source material: the public request feed + observed character activity.

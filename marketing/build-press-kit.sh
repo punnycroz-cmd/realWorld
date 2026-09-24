@@ -23,6 +23,9 @@ cp site/assets/logo-primary.svg site/assets/logo-primary.png \
 mkdir -p "$KIT/badges"
 cp site/assets/badge-watched.svg site/assets/badge-watched-mono.svg \
    "$KIT/badges/"
+mkdir -p "$KIT/mastheads"
+cp site/assets/masthead-journal.svg site/assets/masthead-recap.svg \
+   site/assets/masthead-caught.svg "$KIT/mastheads/"
 cp site/shots/v81-A.png site/shots/v81-B.png site/shots/v81-C.png \
    site/shots/v81-D.png site/shots/v16-int-cafe.png site/shots/v16-int-flat.png \
    site/shots/v1-A.png site/shots/v1-B.png \

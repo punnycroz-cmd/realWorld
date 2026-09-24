@@ -43,6 +43,9 @@
       "banner-x-1500x500.png", "banner-youtube-2560x1440.png",
       "banner-discord-960x540.png", "banner-linkedin-1584x396.png"
     ],
+    "mastheads/": [
+      "masthead-journal.svg", "masthead-recap.svg", "masthead-caught.svg"
+    ],
     "screenshots/": [
       "v81-A.png", "v81-B.png", "v81-C.png", "v81-D.png",
       "v81-A.webp", "v81-B.webp", "v81-C.webp", "v81-D.webp",

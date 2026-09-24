@@ -33,7 +33,8 @@ MANIFEST = KIT / "manifest.json"
 CAPTIONS = KIT / "captions.txt"
 INDEX = KIT / "index.html"
 DIST = ROOT / "dist"
-ASSET_DIRS = ("logos", "keyart", "badges", "banners", "screenshots")
+ASSET_DIRS = ("logos", "keyart", "badges", "banners", "mastheads",
+              "screenshots")
 
 P = W = F = 0
 

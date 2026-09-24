@@ -82,6 +82,15 @@ banners/banner-x-1500x500.png        X/Twitter header.
 banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).
 banners/banner-discord-960x540.png   Discord banner.
 banners/banner-linkedin-1584x396.png LinkedIn banner.
+
+mastheads/masthead-journal.svg   The Journal surface masthead — the
+                                   lit-window tile beside the title
+                                   (Class A; dark surfaces only).
+mastheads/masthead-recap.svg     This Week on the Block masthead —
+                                   Sunday recap program; type + cornice
+                                   rule + one lit window (Class B).
+mastheads/masthead-caught.svg    Caught on the Block masthead —
+                                   viewer-clips series (Class B).
   All banners: darkened development-build capture + lockup, tagline
   "Watch free. Pay to reach in." Center content sits in crop-safe zones.
 

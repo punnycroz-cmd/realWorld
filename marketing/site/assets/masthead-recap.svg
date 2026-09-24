@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 200" role="img" aria-label="This Week on the Block — Sunday recap masthead">
+  <!-- Class-B program masthead (BRAND.md §21): type + cornice rule + one lit
+       window. Programs never get their own logo — the tile mark stays the
+       product's. Dark surfaces only. -->
+  <text x="0" y="46" font-family="DejaVu Sans, system-ui, sans-serif" font-weight="700" font-size="26" fill="#9aa0ae" letter-spacing="8">SUNDAY RECAP</text>
+  <text x="0" y="132" font-family="DejaVu Sans, system-ui, sans-serif" font-weight="700" font-size="76" fill="#ece7dc">This Week on the Block</text>
+  <rect x="0" y="170" width="1200" height="3" fill="#2c303c"/>
+  <rect x="1136" y="40" width="52" height="58" rx="6" fill="#e8a04c" opacity=".9"/>
+</svg>
