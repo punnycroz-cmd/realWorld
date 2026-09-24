@@ -2534,3 +2534,61 @@ This version's sources are methodological — they discipline the
   lives and all are honored structurally. The sim-level weights
   (drift rates, multipliers, cap sharing) are RW HYPOTHESES —
   calibration on consensus bases.
+
+## 51. Addendum — v73 anchors (forgetting-curves VII, spec v5.21)
+
+- **The tier below the record — CONSENSUS, textbook.** Sperling
+  1960 (iconic ~0.25–1s); Darwin, Turvey & Crowder 1972 (*Cogn.
+  Psychol.* 3:255 — echoic ~2–4s); Peterson & Peterson 1959
+  (*JEP* 58:193 — ~18s unrehearsed); Keppel & Underwood 1962
+  (*JVL* 1:153 — the short-term "decay" is proactive interference:
+  trial 1 barely decays). Waugh & Norman 1965 (duplex frame).
+  → §4.34 `stim` ghost tier (`stim_E`/`stim_hl`/`stim_recall_p`/
+  `stim_cap`), locked `stim_mint_null`. Ghost mechanics are our
+  reduced form — magnitudes HYPOTHESIS.
+- **Frequency is reconstructed, not counted — CONSENSUS.**
+  Hasher & Zacks 1979 (*JEP:G* 108:356 — automatic frequency
+  encoding); Greene 1984; Williams & Durso 1986 (*JEP:LMC* 12:165);
+  Tversky & Kahneman 1973 (availability lift). → §5.66
+  `freqRecall` (coverage-weighted count + schema prior +
+  `avail_freq_k`).
+- **The listener is a decay variable — ESTABLISHED (one group,
+  three studies).** Pasupathi, Stallworth & Murdoch 1998
+  (*Discourse Processes* 26:1 — attentive vs distracted vs
+  no-retell); Pasupathi & Rich 2005 (*J. Personality* 73:1051);
+  Pasupathi & Hoyt 2010 (*Memory* 18:185 — 1-month retention and
+  consistency drop under distracted listening). → `aud_resp` on
+  retells (`aud_resp_distract` 0.3); elaboration-mediation is
+  their framework.
+- **Two heads recall less than their parts — CONSENSUS meta.**
+  Weldon & Bellinger 1997 (*JEP:LMC* 23:1160); Basden, Basden,
+  Bryner & Thomas 1997 (*JEP:LMC* 23:626 — retrieval-strategy
+  disruption); Marion & Thorley 2016 (*Psych. Bull.* 142:1141 —
+  75 effects: inhibition robust; 27 effects: post-collaborative
+  benefit). → §5.67 `jointRecall` (`collab_inhib` 0.8,
+  `postcollab_gain` 0.1); magnitudes ours.
+- **Confidence decays slower than content — CONSENSUS direction.**
+  Sauer, Brewer, Zweck & Weber 2009 (*Law Hum. Behav.* 34:337 —
+  delay → overconfidence); Odinot & Wolters 2006 (*ACP* 20:973);
+  Odinot, Wolters & Lavender 2009 (*ACP* — repeated questioning
+  inflates conf on correct and incorrect alike). → conf channel
+  β·`conf_beta_mult` 0.6; locked `conf_feed_null`.
+- **The spacing illusion — CONSENSUS.** Kornell & Bjork 2008
+  (*Psych. Sci.* 19:585 — massed judged better even after
+  contrary performance); Son 2004; Toppino & Cohen 2009
+  (*JEP:LMC* 35:1352 — dishonored spacing attenuates). → locked
+  `spacing_opt_null`: no lag-scheduled retells; deliberate
+  self-rehearsal is massed.
+- **Remembered duration — CONSENSUS direction.** Ornstein 1969
+  (storage-size); Block & Reed 1978 (contextual change); Block &
+  Zakay 1997 meta; Avni-Babad & Ritov 2003 (*JEP:G* 132:543 —
+  routine paradox). → §5.68 `recallDuration` (`dur_ev_w`,
+  `dur_trans_w`) — report-side, the retrospective mirror of t_eff.
+- **Weekday schema — CONSENSUS phenomenon.** Huttenlocher, Hedges
+  & Prohaska 1988 (*Psych. Rev.* 95:471 — hierarchical
+  ordered-domain estimation, midward regression); Huttenlocher,
+  Hedges & Bradburn 1990 (*JASA*). → §6.15 `dow_snap`.
+- **Established vs hypothesis summary:** all eight directions are
+  consensus or better; every magnitude is an RW fit flagged
+  HYPOTHESIS. Probes P779–P786 (3–4 MUST, 4 SHOULD — see
+  validation-design §146).

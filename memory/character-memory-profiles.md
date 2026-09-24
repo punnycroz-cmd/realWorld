@@ -1019,6 +1019,14 @@ needs both.
 | face_dist_gain | 0.0 | 0.5 | distinctive-face write/accrual gain (v5.20) |
 | secret_load_mult / secret_heat_mult | 0.5 / 1.0 | 3.0 / 2.0 | secret tonic load + cue-heating (v5.20) |
 | intox_retro_shield | 0.0 | 0.8 | pre-onset interference shield, OBSERVE (v5.20) |
+| stim_E / stim_hl | 0.1 / 0.0001 | 0.5 / 0.001 | ghost tier strength + half-life in days (v5.21) |
+| stim_recall_p / stim_cap | 0.3 / 1 | 0.9 / 4 | ghost recoverability + shelf depth (v5.21) |
+| avail_freq_k | 0.0 | 1.5 | availability lift on count estimates (v5.21) |
+| aud_resp_distract | 0.0 | 0.6 | distracted-listener retell value floor (v5.21) |
+| collab_inhib / postcollab_gain | 0.6 / 0.0 | 0.95 / 0.3 | joint-recall penalty + afterglow (v5.21) |
+| conf_beta_mult | 0.3 | 0.9 | confidence-channel decay vs content (v5.21) |
+| dur_ev_w / dur_trans_w | 0.0 / 0.0 | 0.9 / 2.0 | remembered-duration density + transition weights (v5.21) |
+| dow_snap | 0.0 | 0.4 | weekday-report midward regression (v5.21) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3494,3 +3502,34 @@ emergent shadow:
 - **Observed tier (§75):** `obsIntent` is the apprentice flag —
   bibles that say "learns by watching" should ensure the world tags
   their watch events accordingly; the gain is mechanism, not trait.
+
+## 55. v5.21 note (forgetting-curves VII — all mechanism, no traits)
+
+Eight clamp rows added in §0 for the v5.21 machinery. **Zero new
+trait pins** — every new param is a mechanism constant, an ecology
+flag, or a report-side estimator. Bible-facing notes:
+
+- **The stim tier (§4.34):** characters now have a recoverable
+  "didn't catch that" buffer — ~30 seconds, ~2 items. A bible that
+  says "he's always half-listening" now has a priced behavioral
+  signature: frequent ghost recoveries requested, almost none
+  landing as records. Nothing to pin; it emerges from `att_min`.
+- **The audience arm (§4.13):** `aud_resp` is world-supplied —
+  who a character's *friends* are (attentive vs distracted
+  listeners) now literally shapes how durable their retold stories
+  are. A main surrounded by distracted listeners rehearses without
+  consolidating — their stories stay hot but don't deepen. Casting
+  consequence: the good listener is a memory-keeper for others.
+- **Joint recall (§5.67):** `jointRecall` is a session-level op,
+  not a trait — but note the emergent: two mains reminiscing produce
+  a narrower shared version than either holds privately, and each
+  leaves with their own residue refreshed. Canonization pressure is
+  now priced.
+- **Confidence channel (§3):** `conf_beta_mult` is a mechanism
+  constant; characters already differ in conf via `conf_bias`/
+  `meta_cal` — this adds only that EVERYONE's certainty decays
+  slower than their content. Old certainties accumulate.
+- **Estimators are report-side:** `freqRecall` and `recallDuration`
+  never touch stores — a character who "always" exaggerates
+  frequencies does so through `avail_freq_k` (salience-weighted
+  counts), not through a bigger number dial.

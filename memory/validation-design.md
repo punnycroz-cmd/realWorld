@@ -6653,3 +6653,97 @@ P772, P773, P776 — of which P773 is a locked-null TOST gate),
 4 SHOULD (P771, P774, P775, P777-as-OBSERVE counts separately:
 P777 is OBSERVE; SHOULD = P771, P774, P775), 1 OBSERVE (P777),
 1 structure MUST (P778).
+
+## 146. New probes P779–P786 (v73 suite — forgetting-curves VII)
+
+- **P779 stim tier (MUST — structure + behavior):** a sub-`att_min`
+  attended input answers a re-cue at ≥0.5 hit rate inside ~30s and
+  ~0 after 5 min; ghosts mint no records, no archive entries, no
+  post-death cue matches; `stim_mint_null` lint — no code path
+  upgrades a ghost after expiry; re-presentation inside the window
+  encodes normally (repair path). Constrains stim_hl/stim_recall_p/
+  stim_cap.
+- **P780 freqRecall (SHOULD):** encode 20 cluster members, archive
+  ~70% — estimate regresses toward `freq_base` monotone in coverage;
+  one arousal-0.9 member lifts n̂ above the availability-free
+  estimate; lint — no stored counter field exists.
+- **P781 audience responsiveness (MUST — sign-locked):** matched
+  records retold once to attentive vs distracted listeners —
+  distracted S-growth ≤0.5× attentive AND TOST-equivalent to the
+  no-retell arm at 7d; `lastAccessDay` refresh and §6.1 drift
+  identical across arms (telling ≠ keeping).
+- **P782 collaborative inhibition + afterglow (MUST):** two
+  characters sharing a 12-record cluster — joint coverage <
+  nominal solo union by ≈collab_inhib; each participant's
+  post-session solo recall of own unshared records beats a
+  never-collaborated control; emission is one merged
+  Reconstruction (structure lint).
+- **P783 confidence lag (MUST):** at 30d, mean `conf − R` gap is
+  positive and grows with record age; a retell raises conf without
+  raising verbatim accuracy; `conf_feed_null` structure-checked —
+  conf never enters θ, hit-rate, or accuracy.
+- **P784 spacing illusion (SHOULD — structure):** spontaneous
+  retell inter-gap distribution is clustered (mode ≪ lag_optimal),
+  never optimum-tracking; lint — no code path schedules retells
+  from lag_opt_ratio; a "keep remembering" directive produces
+  massed-rate self-rehearsals only.
+- **P785 remembered duration (SHOULD):** two equal-length intervals
+  differing 3× in encoded-event count — dense reports ≥1.5× longer;
+  transition-containing longer still; stored days never mutated
+  (report-side lint).
+- **P786 weekday snap (SHOULD):** weak when-field weekday reports
+  biased midward (mean weekday-distance vs uniform shrinks), ±1d
+  errors modal; weekend-encoded ~half the snap; strong when-fields
+  unaffected.
+
+Registry: P1–P786. v73 suite: P779–P786 — 3 MUST (P779, P781, P782,
+P783 — four MUST counting P783), 4 SHOULD (P780, P784, P785, P786).
+
+## 147. Sources verified this version (P779–P786 backing)
+
+- **Buffer tier — CONSENSUS textbook:** Sperling 1960 (iconic,
+  ~0.25–1s); Darwin, Turvey & Crowder 1972 (*Cogn. Psychol.* 3:255 —
+  echoic ~2–4s); Peterson & Peterson 1959 (*JEP* 58:193 — ~15–20s);
+  Keppel & Underwood 1962 (*J. Verbal Learn.* 1:153 — PI account of
+  STM loss); Waugh & Norman 1965 (duplex). Ghost-tier mechanics are
+  our reduced form — magnitudes HYPOTHESIS.
+- **Frequency estimation — CONSENSUS mechanism:** Hasher & Zacks
+  1979 (*JEP:G* 108:356 — automatic frequency encoding); Greene
+  1984 (incidental frequency); Williams & Durso 1986 (*JEP:LMC*
+  12:165 — category frequency judged from instances); Tversky &
+  Kahneman 1973 (*Cogn. Psychol.* 5:207 — availability).
+- **Listener responsiveness — ESTABLISHED (three studies, one
+  group):** Pasupathi, Stallworth & Murdoch 1998 (*Discourse
+  Processes* 26:1 — verified: attentive ≈ gain, distracted ≈ none);
+  Pasupathi & Rich 2005 (*J. Personality* 73:1051 — verified);
+  Pasupathi & Hoyt 2010 (*Memory* 18:185 — verified: distracted →
+  lower retention + lower consistency at 1 month). The
+  `aud_resp_distract` multiplier encodes the headline directly.
+- **Collaborative inhibition — CONSENSUS meta:** Weldon & Bellinger
+  1997 (*JEP:LMC* 23:1160 — verified); Basden, Basden, Bryner &
+  Thomas 1997 (*JEP:LMC* 23:626 — strategy disruption); Marion &
+  Thorley 2016 (*Psych. Bull.* 142:1141 — verified meta: inhibition
+  robust; post-collaborative individual benefit on 27 effects).
+  Magnitudes (0.8/0.1) are fits.
+- **Confidence delay — CONSENSUS direction:** Sauer, Brewer, Zweck
+  & Weber 2009 (*Law Hum. Behav.* 34:337, N=1,063 — verified:
+  delay → overconfidence ↑, diagnosticity ↓); Odinot & Wolters
+  2006 (*ACP* 20:973 — verified); Odinot, Wolters & Lavender 2009
+  (*ACP* — verified: repeated questioning inflates conf for
+  correct AND incorrect).
+- **Spacing illusion — CONSENSUS:** Kornell & Bjork 2008 (*Psych.
+  Sci.* 19:585 — verified: massed judged better after contrary
+  evidence); Son 2004; Toppino & Cohen 2009 (*JEP:LMC* 35:1352 —
+  verified: forced spacing attenuates — metacognitive control).
+- **Retrospective duration — CONSENSUS direction:** Ornstein 1969
+  (storage-size); Block & Reed 1978 (*JEP:HPP* 4:656 — contextual
+  change); Block & Zakay 1997 (*PB&R* 4:184 meta); Avni-Babad &
+  Ritov 2003 (*JEP:G* 132:543 — routine paradox).
+- **Weekday snap — CONSENSUS phenomenon:** Huttenlocher, Hedges &
+  Prohaska 1988 (*Psych. Rev.* 95:471 — hierarchical ordered-domain
+  estimation, midward regression); Huttenlocher, Hedges & Bradburn
+  1990 (*JASA* 85:180 — elapsed-time reports).
+- **Established vs hypothesis summary:** all eight mechanism
+  directions are established or better; every magnitude (ghost
+  half-life, resp weights, inhib constant, conf slope, duration
+  weights, snap rate) is an RW HYPOTHESIS fitted to consensus shape.

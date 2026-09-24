@@ -2168,3 +2168,403 @@ the same record under normal ecology would sit at the plain-gist row.
   literature's boundary is fuzzier (some evidence from 60s onward).
   The ramp is piecewise-linear against `age_eff`, so reserve/fitness
   terms modulate it like every other decline parameter.
+
+---
+
+# Part VII — v73 deepening: below the record and above the list — the buffer tier, counts, audiences, joint recall, confidence lag, metacognitive spacing, and remembered duration
+
+Parts I–VI priced the curve from seconds-of-labile-window to decades-of-
+permastore. What remained unpriced: (a) the **tier below the record** —
+the seconds-scale buffer where most experienced content dies before ever
+becoming a memory; (b) the **estimation layer** — characters are asked
+"how many times" and "how long", and those answers are reconstructions on
+their own decay schedule; (c) the **audience as a decay variable** — the
+same retelling consolidates or evaporates depending on who listened;
+(d) **joint recall** — two rememberers together retrieve less than their
+parts but leave each other stronger; (e) **confidence as its own decay
+channel** — slower than the content it certifies; (f) the **metacognitive
+spacing illusion** — the human reason no character rehearses optimally;
+(g) **retrospective duration** — remembered time is made of events, not
+calendar; (h) the **weekday schema** — date reports migrate toward the
+middle of the week. Claims tagged [CONSENSUS] / [DEBATED] / [HYPOTHESIS].
+
+## 32. New primary sources
+
+### 32.1 The tier below the record — sensory ghosts and the 18-second shelf — Sperling 1960; Darwin, Turvey & Crowder 1972; Peterson & Peterson 1959; Keppel & Underwood 1962
+
+The timescale ladder has a bottom rung the spec never priced: content
+that was *registered* but never *encoded*. Sperling 1960: iconic visual
+registration persists ~0.25–1s. Darwin, Turvey & Crowder 1972 (*Cognitive
+Psychology* 3:255): echoic auditory registration persists ~2–4s — "what
+did you say?" can still be answered a breath later. Peterson & Peterson
+1959 (*JEP* 58:193): an unrehearsed item survives ~15–20s in short-term
+store before evaporating. Keppel & Underwood 1962 (*J. Verbal Learning*
+1:153) supplied the crucial reinterpretation: the first trial of the
+day shows almost NO short-term loss — the "decay" is **proactive
+interference**, not a timer [CONSENSUS findings; the decay-vs-PI reading
+is the field's own resolution and matches our Wixted stance, §7.5].
+Whole-report/attentional-capture work (Sperling's partial report; the
+inattentional-blindness tradition) fixes the behavioral consequence:
+unattended content leaves essentially nothing; marginally-attended
+content leaves a ghost that is retrievable for tens of seconds, then
+never again.
+
+**Spec consequence — the `stim` tier (new §4.34).** The §2 encode gate
+currently has two outcomes: above `att_min` → record, below → nothing.
+v73 adds a third: candidates that drew some attention but fell under
+`att_min` mint a **`stim` ghost** — not a record: no verbatim fields, no
+archive path, no drift, no links. A ghost holds {topic fragment, coarse
+place/people if present, strength = stim_E (0.3)} and decays on
+`stim_hl` (0.0003d ≈ 26s); while alive it answers a re-cue at
+`stim_recall_p` (0.6 — "sorry, what was that?" works for half a minute);
+dead ghosts leave nothing — including nothing for the archive scan,
+TMR, or olfactory resurrection. `stim_cap` 2: only the freshest ghosts
+exist (Keppel & Underwood: the shelf is interference-limited, not
+time-limited — the third ghost pushes out the first). Locked null
+`stim_mint_null`: a ghost can never be upgraded into a record *after
+the fact* — it can only inform a NEW encode if the world re-presents
+the content inside the window (the "wait, say that again" repair).
+Emergent: the ambient stream a character half-heard is literally
+recoverable this minute and unrecoverable forever after — the human
+distinction between "I didn't catch that" (fixable) and "I don't
+remember" (not). Probe P779.
+
+### 32.2 Frequency estimates decay toward the base rate — Hasher & Zacks 1979; Greene 1984; Tversky & Kahneman 1973
+
+Hasher & Zacks 1979 (*JEP:G* 108:356): frequency of occurrence is
+encoded **automatically**, without intent, and the encoding is
+remarkably insensitive to practice and individual differences. Greene
+1984 and Williams & Durso 1986 (*JEP:LMC* 12:165 — frequency judged
+across category members): frequency estimates are reconstructed from
+*available instances*, not a stored counter — which means they
+inherit every property of the availability channel: as member records
+die, the estimate compresses toward the category's schema prior;
+salient members overweight the count (Tversky & Kahneman 1973
+availability: estimate ∝ ease of retrieval, not true frequency)
+[CONSENSUS mechanism; the blend weights are ours — HYPOTHESIS].
+
+**Spec consequence — `freqRecall(clusterKey)` (new §5.66).** No count
+is ever stored. On demand:
+
+```
+live   = live records in the cue-similar cluster
+cover  = live.count / max(1, cluster.everEncoded)      // survivorship
+n̂      = cover · live_count_effective + (1 − cover) · freq_base
+live_count_effective = Σ_i (1 + avail_freq_k·arousal_i)   // availability lift
+freq_base = schema prior for the cluster (script rate — §4.20 nodes
+            supply it; default = cluster mean historical rate)
+```
+
+`avail_freq_k` 0.5: one vivid betrayal counts double in "she's always
+doing this". Emergent: early after a routine forms, the estimate tracks
+reality; as instances merge/die the answer drifts to "the usual amount"
+— and one salient outburst inflates the remembered rate for months
+while the humdrum majority evaporates. This is the *counting* analog of
+orderRecall (§5.40): another quantity humans reconstruct rather than
+store. Probe P780.
+
+### 32.3 The audience co-signs the memory — listener responsiveness gates retell value — Pasupathi, Stallworth & Murdoch 1998; Pasupathi & Rich 2005; Pasupathi & Hoyt 2010
+
+Pasupathi, Stallworth & Murdoch 1998 (*Discourse Processes* 26:1):
+retelling an event to an **attentive** listener improved the teller's
+own long-term retention; retelling to a **distracted** listener was
+statistically indistinguishable from *not retelling at all*. Pasupathi
+& Rich 2005 (*J. Personality* 73:1051 — inattentive listening undermines
+self-verification) and Pasupathi & Hoyt 2010 (*Memory* 18:185 —
+distracted listeners → lower retention AND lower narrative consistency
+at one month) replicate and sharpen it; the proposed mechanism is
+conversational co-construction — responsive listeners elicit longer,
+more elaborated tellings [CONSENSUS direction across three studies;
+the elaboration-mediation account is their framework — mechanism
+moderately supported]. This is a *decay-relevant* social fact: the
+rehearsal value of a retell is set by the room, not just by the teller.
+
+**Spec consequence — `aud_resp` on retells (§4.13/§5.9 revision).**
+Retell S-growth and the §5.9 reboost are multiplied by
+`aud_resp_mult`: attentive listener 1.0, neutral 0.8, **distracted
+`aud_resp_distract` 0.3** — a distracted retell is near-worthless as
+rehearsal (it still refreshes `lastAccessDay` and still runs §6.1
+drift — the teller still *tells*, the world just doesn't consolidate
+it). The world supplies the value from the listener's current
+engagement state; when the ecology draw is replaced by real
+conversations (§4.13's standing note), listener attention is a natural
+per-tick input. Emergent: a character who only ever tells the distracted
+roommate keeps *telling* but stops *keeping*; being heard is a mnemonic
+service the social world provides — the attentive friend literally
+maintains your past. Also interacts with §74 saying-is-believing:
+shared-reality tuning drifts the record AND attentive listening grows
+it — the two audience channels are orthogonal (drift vs durability).
+Probe P781.
+
+### 32.4 Two heads recall less than their parts — collaborative inhibition, and the afterglow — Weldon & Bellinger 1997; Basden et al. 1997; Marion & Thorley 2016
+
+Weldon & Bellinger 1997 (*JEP:LMC* 23:1160): a group recalling together
+retrieves **less than the pooled non-redundant output of the same
+individuals alone** (the nominal group). Basden, Basden, Bryner &
+Thomas 1997 (*JEP:LMC* 23:626): the deficit is retrieval-strategy
+disruption — each member's own search plan is broken up by the others'
+output order. Marion & Thorley 2016 (*Psych. Bull.* 142:1141 — 75
+effects, 64 studies): collaborative inhibition is robust, worse in
+larger groups and for uncategorized content; and the same meta's second
+arm (27 effects) finds **post-collaborative benefit** — individuals
+recall MORE afterward than individuals who never collaborated
+(re-exposure + cross-cueing leave a residue) [CONSENSUS both directions;
+the dyad-scale parameters are ours]. This is a *social forgetting
+curve*: the pair's joint coverage is subadditive in-session but leaves
+each member's residual memory enriched.
+
+**Spec consequence — `jointRecall(charIds, cue)` (new §5.67).**
+Session coverage = `collab_inhib` (0.8) × the nominal union — output
+order is dominated by whichever participant's retrieval route is
+strongest (the other's route is disrupted, exactly per Basden);
+emission is a single merged Reconstruction. Afterwards, each
+participant's **own unretold same-cluster records** take two opposing
+doses: SSRIF suppression on omitted-but-related content (§27.2, already
+live) AND `postcollab_gain` (0.1) S-side reboost on their surviving
+records — hearing the other's telling re-exposed the event (the
+meta's postcollab arm). Emergent: two survivors reminiscing produce a
+shared version that is *narrower* than either's private memory, yet
+each walks away with their own residue refreshed — the public story
+converges while private stocks quietly deepen. Also the honest
+micro-foundation for §6.24 canonization: the canonical version is what
+survived everyone's suppressed alternatives. Probe P782.
+
+### 32.5 Confidence outlives the content it certifies — Sauer et al. 2009; Odinot & Wolters 2006; Odinot, Wolters & Lavender 2009
+
+Sauer, Brewer, Zweck & Weber 2009 (*Law & Human Behavior* 34:337,
+N=1,063): across a retention interval of weeks, accuracy fell while
+**overconfidence grew** — delayed witnesses were less right and more
+sure. Odinot & Wolters 2006 (*ACP* 20:973): confidence does decline
+with delay, but shallowly and miscalibrated; Odinot, Wolters & Lavender
+2009 (*ACP*): repeated partial questioning **inflates confidence for
+correct and incorrect answers alike** without improving accuracy
+[CONSENSUS direction — confidence is stickier than content and is
+question-driven; the conf decay constant is our fit]. The spec already
+decouples the fields (§3) and already inflates conf on retell (+0.05);
+what was missing is that `conf` itself *decays on its own slower
+schedule* — currently confidence is effectively frozen between boosts.
+
+**Spec consequence — the conf channel decays (§3 revision).** Stored
+`confidence` decays `conf *= (1 + t/τ)^(-β·conf_beta_mult)` with
+`conf_beta_mult` 0.6 — certainty fades slower than the content it
+certifies, so `conf/R` rises with age automatically (the Sauer
+signature) and the +0.05 retell bump keeps older-told stories pinned
+high regardless of field survival (Odinot confidence-inflation arm).
+Locked null `conf_feed_null`: conf still never feeds accuracy, θ, or
+hit-probability — it is a *report-side* quantity end to end. Emergent:
+the 90-day-old memory arrives thin and arrives *certain* — "I'm
+positive" delivered over a mostly-gone record, which is the human
+condition, not a bug. Probe P783.
+
+### 32.6 Nobody schedules optimally — the metacognitive spacing illusion — Kornell & Bjork 2008; Son 2004; Toppino & Cohen 2009
+
+Kornell & Bjork 2008 (*Psych. Sci.* 19:585): even after their own test
+scores demonstrated spacing's advantage, participants **rated massing
+as more effective** — fluency during massed practice masquerades as
+learning. Son 2004 (*JEP:LMC* 30:601) shows metacognitive spacing
+choices are real but late-developing; Toppino & Cohen 2009 (*JEP:LMC*
+35:1352) add the control finding — spacing forced against the learner's
+choice barely helps adults: the benefit rides partly on the chooser's
+own engagement [CONSENSUS: spontaneous practice policy is
+massed-biased and misjudged]. For RW this is a *negative* design
+result: the retell ecology must NOT implement the §7.1 lag optimum —
+no character distributes rehearsal rationally.
+
+**Spec consequence — locked `spacing_opt_null` (§4.13 note).** Retell
+fires are cue-driven (p_retell draw, §4.13) or event-driven (real
+conversations) — never scheduled. A character deliberately trying to
+keep a memory alive ("I must not forget this") self-rehearses on the
+*massed* schedule — immediate repetitions inside one episode, earning
+`massed_retell_mult` rates (§7.1) — the wrong-but-human policy. The
+spaced benefit is emergent, not strategic: characters who seem to have
+"good memory hygiene" are just characters whose *lives* deliver
+well-spaced cues. This is a model-honesty null, not a feature: probe
+P784 is a structure lint (no parameter path may inject lag-optimal
+scheduling) plus a distributional check (spontaneous retell gaps are
+clustered, not optimum-tracking).
+
+### 32.7 Remembered duration is made of events — Ornstein 1969; Block & Reed 1978; Block & Zakay 1997; Avni-Babad & Ritov 2003
+
+Retrospective duration estimation is governed by **storage size and
+contextual change**, not clock time: intervals remembered as long are
+intervals containing many encoded events and many contextual shifts
+(Ornstein 1969 *On the Experience of Time* — storage-size model; Block
+& Reed 1978 — contextual-change model; Block & Zakay 1997 meta-analysis
+*Psychon. Bull. Rev.* 4:184 — retrospective judgments track information
+encoded). The lived corollary — the **routine/vacation paradox**
+(Avni-Babad & Ritov 2003 *JEP:G* 132:543): routine intervals feel long
+in the moment but are remembered as short; eventful intervals feel
+short in the moment but are remembered as long [CONSENSUS direction;
+weights ours]. This is the mirror of `t_eff` (§12.4): event density
+ages *records* forward and stretches *remembered intervals* — one
+mechanism, two signs, and the pairing is the human phenomenology:
+the packed fortnight both blurs (per-event) and looms (per-interval).
+
+**Spec consequence — `recallDuration(interval)` (new §5.68).**
+Reported duration of a past interval:
+
+```
+dur̂ = days_true · (1 + dur_ev_w·log1p(n_encoded/ev_day_norm − 1)
+                    + dur_trans_w·log1p(n_transitions))
+    bounded to [0.3·days_true, 3·days_true]
+dur_ev_w 0.4, dur_trans_w 1.0
+```
+
+`n_encoded`/`n_transitions` = this character's own counts inside the
+interval (reuse §4.18 period/transition bookkeeping). Emergent: the
+quiet month "flew by" in retrospect while the week of the move still
+looms large — and the same density that made each event blurrier
+(t_eff) makes the span *longer* in report. Probe P785.
+
+### 32.8 Dates migrate toward Wednesday — the weekday schema — Huttenlocher, Hedges & Prohaska 1988
+
+Huttenlocher, Hedges & Prohaska 1988 (*Psych. Rev.* 95:471,
+"Hierarchical organization in ordered domains"): reports of an event's
+day-of-week are generated by a **prototype/category model** — estimates
+regress toward the middle of the weekly category; errors concentrate at
+±1 day and are *biased midward*, not uniform (related findings in
+Huttenlocher, Hedges & Bradburn 1990 *JASA* on elapsed-time reports)
+[CONSENSUS phenomenon — category-based estimation of cyclical
+quantities]. Our when-drift (§6, plus §27.6 telescoping) currently adds
+scale noise and a signed pull but no *categorical* prior.
+
+**Spec consequence — weekday snap (§6 when-drift revision).** When a
+when-report emits a weekday (or day-granular date) from a weak
+`verbatim.when`, the sampled day snaps toward the category center by
+`dow_snap` (0.15) · (1 − when_strength): distant-weekday reports
+migrate toward mid-week; weekend events are the least-snapped (the
+weekend is its own marked category — the model's two-category
+coarseness is deliberate). Errors sit modal at ±1d. Emergent: "that
+was… Tuesday? Wednesday?" — plausible wrongness with the right error
+shape. Probe P786.
+
+### 32.9 Supporting citations (no new mechanism)
+
+- **Waugh & Norman 1965** — primary vs secondary memory; the buffer
+  tier's conceptual parent (duplex memory).
+- **Saul & Underwood / Wickens** PI-release line — the stim_cap
+  bucket interpretation (§32.1) rides the same cue-overload account as
+  §7.5.
+- **Harris, Paterson & Kemp 2008** — collaborative recall in intimate
+  couples: familiar dyads inhibit less; supports `collab_inhib` being
+  a trait-flavored per-dyad value if ever needed (kept flat for now).
+- **Son 2010** — children's spacing choices; ages the §32.6 null:
+  metacognitive scheduling develops late, so child profiles are even
+  further from optimal — no param, just direction.
+
+## 33. Spec deltas (v5.20 → v5.21)
+
+| # | Change | Grounding |
+|---|---|---|
+| C57 | NEW §4.34 stim tier: sub-`att_min` attended candidates mint ghosts (stim_E 0.3, `stim_hl` 0.0003d, `stim_recall_p` 0.6, `stim_cap` 2); dead ghosts leave nothing; locked `stim_mint_null` | §32.1 |
+| C58 | NEW §5.66 `freqRecall(clusterKey)`: coverage-weighted live count + schema prior; availability lift `avail_freq_k` 0.5 | §32.2 |
+| C59 | §4.13/§5.9: retell S-growth + reboost × `aud_resp_mult` (1.0/0.8/`aud_resp_distract` 0.3) — listener engagement is a decay variable | §32.3 |
+| C60 | NEW §5.67 `jointRecall(charIds, cue)`: coverage × `collab_inhib` 0.8, merged emission, dominant-route ordering; post-session `postcollab_gain` 0.1 on own surviving cluster records (SSRIF unchanged) | §32.4 |
+| C61 | §3: `confidence` decays on its own channel at β·`conf_beta_mult` (0.6); locked `conf_feed_null` (conf never drives accuracy/θ/hit-rate) | §32.5 |
+| C62 | §4.13: locked `spacing_opt_null` — retell ecology is cue-driven, never lag-scheduled; deliberate self-rehearsal is massed | §32.6 |
+| C63 | NEW §5.68 `recallDuration(interval)`: report ∝ encoded density + transitions (`dur_ev_w` 0.4, `dur_trans_w` 1.0, bound [0.3,3]×days_true) | §32.7 |
+| C64 | §6 when-drift: weekday reports snap midward by `dow_snap` 0.15·(1−when_strength); weekend category exempt | §32.8 |
+
+New MemoryParams (all optional, defaults above): `stim_E`, `stim_hl`,
+`stim_recall_p`, `stim_cap`, `avail_freq_k`, `aud_resp_distract`,
+`collab_inhib`, `postcollab_gain`, `conf_beta_mult`, `dur_ev_w`,
+`dur_trans_w`, `dow_snap`.
+Locked nulls: `stim_mint_null`, `conf_feed_null`, `spacing_opt_null`.
+New contract ops: `freqRecall(charId, clusterKey)`,
+`jointRecall(charIds, cue)`, `recallDuration(charId, interval)`.
+New Event field: `aud_resp ∈ {attentive, neutral, distracted}` on
+retell/discuss emissions (default neutral).
+
+## 34. Retention table — added rows (defaults, game days)
+
+| record class | half-life | R@1d | R@7d | R@30d | R@365d |
+|---|---|---|---|---|---|
+| stim ghost (never a record) | ~26s | 0 | 0 | 0 | 0 |
+| retell to distracted listener (S leg only) | — | ~0.3× growth | — | — | — |
+| conf channel, no retells (E .6 gist) | ~5.5d-equiv | .55 | .40 | .25 | .10 |
+| same record's R (contrast) | 3.6d | .42 | .24 | .12 | .05 |
+| pair joint coverage vs nominal union | — | 0.8× | — | — | — |
+| postcollab own-record S | — | +0.1 bump | — | — | — |
+| remembered duration, idle month (0.5× load) | — | ≈0.8× true | — | — | — |
+| remembered duration, move month (3× load + transition) | — | ≈2.3× true | — | — | — |
+| weak when-field weekday report | — | snapped midward; ±1d modal | — | — | — |
+
+The conf row is the headline: confidence and content now diverge
+deterministically with age — the Sauer overconfidence signature emerges
+from `conf_beta_mult` alone, no special flag.
+
+## 35. New probes P779–P786
+
+- **P779 stim tier (MUST):** a sub-`att_min` attended input answers a
+  re-cue at ≥0.5 hit rate inside 30s and ~0 after 5 min; ghosts mint no
+  records, no archive entries, no cue matches post-death
+  (`stim_mint_null` structure-checked); a re-presented event inside the
+  window encodes normally (the repair path).
+- **P780 freqRecall (SHOULD):** encode 20 cluster members, let 70%
+  archive — the estimate regresses toward `freq_base` as cover falls
+  (monotone in coverage); a single arousal-0.9 member lifts n̂ ≥ the
+  availability-free estimate; estimate is a reconstruction — no stored
+  counter field exists (lint).
+- **P781 audience responsiveness (MUST — sign-locked):** matched
+  records retold once to attentive vs distracted listeners — distracted
+  S-growth ≤ 0.5× attentive and statistically indistinguishable from
+  no-retell at 7d (TOST against the no-retell arm); `lastAccessDay`
+  still refreshes and §6.1 drift still applies (telling ≠ keeping).
+- **P782 collaborative inhibition + afterglow (MUST):** two characters
+  sharing a 12-record cluster — joint coverage < pooled solo union by
+  ≈20% (collab_inhib), while each participant's *post-session solo*
+  recall of own unshared records beats a never-collaborated control
+  (postcollab_gain); merged emission is a single Reconstruction.
+- **P783 confidence lag (MUST):** at 30d, mean `conf − R` gap is
+  positive and grows with age; a retell raises conf but not verbatim
+  accuracy; `conf` never enters θ, hit-rate, or accuracy computations
+  (locked null, structure-checked).
+- **P784 spacing illusion (SHOULD — structure):** spontaneous retell
+  inter-gap distribution is clustered (mode < lag_optimal by ≥2×), not
+  optimum-tracking; lint: no code path schedules a retell from
+  lag_opt_ratio; a deliberate "keep remembering" directive issues
+  massed-rate self-rehearsals only.
+- **P785 remembered duration (SHOULD):** two equal-length intervals
+  differing 3× in encoded-event count — the dense one reports ≥1.5×
+  longer; a transition-containing interval reports longer still;
+  report is report-side only (stored days never mutated).
+- **P786 weekday snap (SHOULD):** weak when-field weekday reports are
+  biased midward (mean absolute weekday distance shrinks vs uniform),
+  ±1d errors modal; weekend-encoded records show ~half the snap
+  (category boundary); strong when-fields unaffected.
+
+## 36. Honest limits (additions)
+
+- The stim tier is a *convenience* tier, not a sensory store — it
+  exists to make "I didn't catch that" a recoverable state and to
+  place a hard floor under what can ever become a memory. Its numbers
+  (26s, cap 2) sit at the buffer end of the cited ranges; iconic/
+  echoic sub-second structure is deliberately collapsed into one
+  ghost class — finer would buy nothing behavioral.
+- `aud_resp` is supplied by the world; until the social engine reports
+  real listener engagement, the neutral default (0.8) keeps the term
+  near-inert — by design. The literature's mechanism is elaboration
+  mediated: our multiplier is the reduced form, and P781's TOST arm
+  encodes exactly the literature's headline (distracted ≈ none).
+- `jointRecall` is a dyad/small-group model; the meta shows inhibition
+  grows with group size — `collab_inhib` flat is the conservative
+  read. Post-collaborative benefit is priced as S-side re-exposure,
+  which the meta partly attributes to ordinary re-study — our
+  implementation routes it through the existing reboost rather than
+  minting re-encodes, which keeps the audit clean but may understate
+  the benefit.
+- `conf_beta_mult` makes confidence a second decay channel; the
+  alternative (conf as pure function of retrieval ease) was rejected —
+  Sauer shows delayed overconfidence even when retrieval is hard.
+  Still, conf remains report-side by locked null; if playtests show
+  characters *acting* more certain than they should, the bug is in the
+  consumer, not this channel.
+- `freqRecall` and `recallDuration` are estimators, not stores — both
+  deliberately refuse a counter. If a consumer caches their outputs
+  and mutates them, that is a §12.3 boundary violation.
+- `dow_snap`'s weekend exemption is a modeling convenience (two
+  categories); the literature supports richer category structure —
+  adopt more only if probes demand it.
+- `spacing_opt_null` is deliberately a *null*: it forbids a behavior
+  humans don't have, which is unusual for a spec but exactly right for
+  a spec that must produce humans.

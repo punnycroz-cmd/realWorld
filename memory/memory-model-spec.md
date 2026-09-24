@@ -1,4 +1,36 @@
-# Memory Model Spec v5.20 — implementable human-like memory for RW characters
+# Memory Model Spec v5.21 — implementable human-like memory for RW characters
+
+> **v5.21 note (forgetting-curves VII — below the record, above the
+> list):** `memory/forgetting-curves.md` Part VII (§§32–36) fills the
+> timescale ladder's missing rungs and the estimation layer. **The
+> stim tier** — sub-`att_min` attended inputs mint `stim` ghosts
+> (stim_hl ≈26s, cap 2, recoverable inside the window, dead forever
+> after; locked `stim_mint_null` — a ghost can never be upgraded
+> post-hoc; Sperling 1960; Darwin, Turvey & Crowder 1972; Peterson &
+> Peterson 1959; Keppel & Underwood 1962 PI account) — §4.34.
+> **freqRecall** — counts are reconstructed, never stored: coverage-
+> weighted live count + schema prior + availability lift
+> `avail_freq_k` (Hasher & Zacks 1979; Greene 1984; Williams & Durso
+> 1986; Tversky & Kahneman 1973) — §5.66. **The audience co-signs** —
+> retell S-growth/reboost × `aud_resp_mult`; distracted listeners ≈ no
+> retell on the S leg (Pasupathi, Stallworth & Murdoch 1998;
+> Pasupathi & Hoyt 2010) — §4.13. **Collaborative inhibition +
+> afterglow** — `jointRecall` coverage × `collab_inhib` 0.8, then
+> post-session `postcollab_gain` on own unshared records (Weldon &
+> Bellinger 1997; Basden et al. 1997; Marion & Thorley 2016 meta) —
+> §5.67. **Confidence outlives content** — `confidence` decays on its
+> own channel at β·`conf_beta_mult` 0.6; `conf − R` gap grows with
+> age (Sauer et al. 2009; Odinot & Wolters 2006); locked
+> `conf_feed_null` — §3. **The spacing illusion** — locked
+> `spacing_opt_null`: retells are cue-driven, never lag-scheduled;
+> deliberate self-rehearsal is massed (Kornell & Bjork 2008;
+> Toppino & Cohen 2009) — §4.13. **Remembered duration** —
+> `recallDuration` reports intervals ∝ encoded density + transitions,
+> the retrospective mirror of t_eff (Ornstein 1969; Block & Reed
+> 1978; Block & Zakay 1997; Avni-Babad & Ritov 2003) — §5.68.
+> **Weekday snap** — weak when-reports migrate midward (`dow_snap`;
+> Huttenlocher, Hedges & Prohaska 1988) — §6.15. +12 params, +3
+> locked nulls; §10 contract adds. Registry P779–P786.
 
 > **v5.20 note (encoding-mechanics VI — value, choice, errors,
 > audiences, faces, secrets, and one fragile shield):**
@@ -2811,7 +2843,16 @@ flashbulb pattern. **v0.5 floor:** records with `arousal ≥
 flashbulb_thresh` (0.85) never let `confidence` fall below
 `flashbulb_conf_floor` (0.9) — flashbulb detail decays at ordinary rates
 while certainty stays pinned (Talarico & Rubin 2003; emotional-memory.md
-§5).
+§5). **v5.21 — confidence is its own decay channel:** stored
+`confidence` decays on the power law at β·`conf_beta_mult` (0.6) —
+certainty fades slower than the content it certifies, so `conf − R`
+widens with age automatically (Sauer, Brewer, Zweck & Weber 2009 —
+delay grows overconfidence; Odinot & Wolters 2006 — conf declines but
+stays miscalibrated); the +0.05/retell bump still applies (Odinot,
+Wolters & Lavender 2009 — repeated questioning inflates confidence for
+correct and incorrect answers alike). Locked `conf_feed_null`: conf
+never enters accuracy, θ, or hit-probability — report-side end to end
+(forgetting-curves.md §32.5).
 
 **v0.9 deepening — fluency and hard-easy calibration** (formal-model.md
 §13): reported confidence, not stored confidence, gets two adjustments
@@ -3330,6 +3371,19 @@ of records get rehearsed toward permanence while the rest ride the
 β=0.5 slope — survivorship, not a second functional form
 (forgetting-curves.md §7.9). When the real social/rumor engine exists,
 replace the Bernoulli draw with actual conversation opportunities.
+
+**v5.21 — the audience co-signs:** retell/discuss events carry
+`aud_resp ∈ {attentive, neutral, distracted}` (default neutral);
+S-growth and the §5.9 reboost multiply by `aud_resp_mult` = 1.0 / 0.8 /
+`aud_resp_distract` (0.3). A distracted retell still refreshes
+`lastAccessDay` and still runs §6.1 drift — telling ≠ keeping
+(Pasupathi, Stallworth & Murdoch 1998; Pasupathi & Hoyt 2010;
+forgetting-curves.md §32.3). **Locked `spacing_opt_null`:** retells
+fire from cues and conversations, never from a schedule — a character
+deliberately trying not to forget self-rehearses on the *massed*
+schedule (`massed_retell_mult` rates), the human metacognitive error
+(Kornell & Bjork 2008; Toppino & Cohen 2009; forgetting-curves.md
+§32.6).
 
 **v2.6 — expanding retrieval (RC§23):** a retell/rehearsal whose gap
 since `lastAccessDay` exceeds the record's previous access gap earns
@@ -3945,6 +3999,27 @@ the gap stays a gap), duration via §45 `dur_dil`, arousal tag
 kept FULL (awe is the positive-arousal exception — goosebumps
 are arousal). Place-linked semantic "awe-places" node gains a
 boosted link (revisiting re-primes via §4.30 place reinstate).
+
+### 4.34 The stim tier — the shelf below the record (new in v5.21)
+
+(FC§32.1; Sperling 1960 iconic ~0.25–1s; Darwin, Turvey & Crowder
+1972 echoic ~2–4s; Peterson & Peterson 1959 ~15–20s unrehearsed;
+Keppel & Underwood 1962 — short-term loss is proactive interference,
+not a timer.) The §2 encode gate has three outcomes, not two: inputs
+that drew some attention but fell under `att_min` mint a **`stim`
+ghost** — `{topic fragment, coarse place/people, strength = stim_E
+(0.3)}` — NOT a record: no verbatim fields, no archive path, no
+links, no drift. Ghosts decay at `stim_hl` (0.0003d ≈ 26s) and while
+alive answer a re-cue at `stim_recall_p` (0.6) — "sorry, what was
+that?" works for half a minute. `stim_cap` 2 (interference-limited
+shelf — the third ghost evicts the first). Dead ghosts leave nothing
+for any downstream machinery. **Locked `stim_mint_null`:** a ghost
+can never be upgraded into a record after the fact — it can only
+inform a NEW encode when the world re-presents the content inside
+the window (the "wait, say that again" repair). Emergent: the
+half-heard ambient stream is recoverable this minute and
+unrecoverable forever after — the human gap between "didn't catch
+it" and "don't remember it."
 
 ---
 
@@ -5649,6 +5724,59 @@ Locked `aff_flash_verbatim` = 0: an aff_flash NEVER emits
 content — if the episode can't be retrieved, the flashback
 can't contain it (no false-picture minting).
 
+### 5.66 freqRecall — counts are reconstructed, never stored (new in v5.21)
+
+(FC§32.2; Hasher & Zacks 1979 automatic frequency encoding; Greene
+1984; Williams & Durso 1986; Tversky & Kahneman 1973 availability.)
+`freqRecall(charId, clusterKey)` computes an estimate on demand —
+no count field exists anywhere:
+
+```
+live   = live records in the cue-similar cluster
+cover  = live.count / max(1, cluster.everEncoded)
+n̂      = cover · Σ_i(1 + avail_freq_k·arousal_i) + (1 − cover)·freq_base
+avail_freq_k 0.5; freq_base = §4.20 script-node rate, else cluster's
+historical mean
+```
+
+Emergent: estimates track reality while members live, regress to the
+schema prior as they archive, and a single high-arousal member
+inflates the remembered rate — "she's always doing this" priced.
+
+### 5.67 jointRecall — two heads, less than the sum (new in v5.21)
+
+(FC§32.4; Weldon & Bellinger 1997; Basden, Basden, Bryner & Thomas
+1997 retrieval-strategy disruption; Marion & Thorley 2016 meta —
+inhibition robust, post-collaborative individual benefit real.)
+`jointRecall(charIds, cue)` runs a shared-session recall: session
+coverage = `collab_inhib` (0.8) × the nominal union of the
+participants' solo draws; emission order is dominated by the
+strongest retrieval route present (the others' routes are
+disrupted); output is ONE merged Reconstruction. Post-session, each
+participant's surviving own-cluster unshared records get
+`postcollab_gain` (0.1) S-side reboost (re-exposure arm) while the
+SSRIF machinery (§5.8/§27.2) still suppresses omitted-but-related
+content — the public story narrows, private residue deepens.
+
+### 5.68 recallDuration — remembered time is made of events (new in v5.21)
+
+(FC§32.7; Ornstein 1969 storage-size; Block & Reed 1978 contextual
+change; Block & Zakay 1997 meta; Avni-Babad & Ritov 2003
+routine/vacation paradox.) `recallDuration(charId, interval)`
+reports a remembered interval length, never a stored one:
+
+```
+dur̂ = days_true · clamp(1 + dur_ev_w·log1p(n_enc/ev_day_norm − 1)
+                        + dur_trans_w·log1p(n_transitions), 0.3, 3)
+dur_ev_w 0.4, dur_trans_w 1.0
+```
+
+`n_enc`/`n_transitions` = the character's own encode and §4.18
+transition counts inside the interval. The retrospective mirror of
+`t_eff` (§4.1): event density ages each record forward AND stretches
+the remembered span — the packed fortnight blurs per-event and
+looms per-interval; the idle month "flew by." Report-side only.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -6226,6 +6354,13 @@ if verbatim.when dead, with prob round_p: snap to nearest of
 // cases hurts the exceptions (Berntsen & Rubin 2004; Bohn &
 // Berntsen 2011). A character with no script_age table gets flat
 // priors — graceful default.
+// v5.21 — weekday snap (FC§32.8; Huttenlocher, Hedges & Prohaska
+// 1988, hierarchical category estimation): when a day-granular
+// report emits a weekday from a weak verbatim.when, the sampled
+// day regresses toward the weekly category center by
+// dow_snap·(1 − when_strength) (0.15); weekend-encoded events
+// snap at half rate (the weekend is its own category). Errors
+// modal at ±1d, biased midward.
 ```
 
 (Janssen, Chessa & Murre 2006 — sign and crossover; Huttenlocher,
@@ -10435,6 +10570,23 @@ MemoryParams = {
 //   engagement enum + "observed"; retell emission fields
 //   `audience_tune`/`tune_motive`/`aud_ingroup`; `confidential`
 //   records join the pending set.
+// v5.21 additions (forgetting-curves VII — FC Part VII §§32–36)
+"stim_E": 0.3, "stim_hl": 0.0003, "stim_recall_p": 0.6,
+"stim_cap": 2,                                    // §4.34 ghost tier
+"avail_freq_k": 0.5,                              // §5.66 availability lift
+"aud_resp_distract": 0.3,                         // §4.13 listener arm
+"collab_inhib": 0.8, "postcollab_gain": 0.1,      // §5.67
+"conf_beta_mult": 0.6,                            // §3 conf channel
+"dur_ev_w": 0.4, "dur_trans_w": 1.0,              // §5.68
+"dow_snap": 0.15,                                 // §6.15 weekday snap
+// v5.21 locked nulls: stim_mint_null (ghosts never upgrade
+//   post-hoc — P779); conf_feed_null (conf never enters
+//   accuracy/θ/hit-rate — P783); spacing_opt_null (no lag-optimal
+//   retell scheduling — P784).
+// v5.21 ops/fields: `freqRecall(charId, clusterKey)`,
+//   `jointRecall(charIds, cue)`, `recallDuration(charId, interval)`;
+//   emission field `aud_resp:{attentive,neutral,distracted}`;
+//   `stim` ghost class (non-record).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -11860,6 +12012,28 @@ not resolved (DEBATED magnitude). P509/P511.
   - Intoxication: `context.intox ≥ 0.3` activates the pre-onset
     interference shield (§78) — `retro_scope = "pre-only"`
     frozen; OBSERVE tier, wide bands.
+  - All snapshot-additive, absent = legacy; no new traits.
+- v5.21 additions (forgetting-curves.md Part VII §§32–36):
+  - **`stim` ghost class** (§4.34) — sub-`att_min` attended inputs
+    mint non-record ghosts: `stim_E`/`stim_hl`/`stim_recall_p`/
+    `stim_cap`; dead ghosts leave no trace anywhere; locked
+    `stim_mint_null` (re-presentation inside the window encodes a
+    NEW record — the ghost only informs, never upgrades).
+  - **New contract ops:** `freqRecall(charId, clusterKey)` (§5.66 —
+    reconstructed count, no stored counters),
+    `jointRecall(charIds, cue)` (§5.67 — `collab_inhib` coverage,
+    merged emission, `postcollab_gain` afterglow),
+    `recallDuration(charId, interval)` (§5.68 — report-side
+    remembered duration).
+  - **Emission field:** `aud_resp:{attentive,neutral,distracted}`
+    on retell/discuss events (§4.13 — world supplies listener
+    engagement; default neutral).
+  - **conf channel:** `confidence` decays at β·`conf_beta_mult`
+    (§3); locked `conf_feed_null`.
+  - **§6.15:** weekday reports snap midward via `dow_snap` on weak
+    when-fields (weekend half-rate).
+  - **Locked `spacing_opt_null`:** no retell scheduling from
+    lag_opt_ratio (§4.13).
   - All snapshot-additive, absent = legacy; no new traits.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
