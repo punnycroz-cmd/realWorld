@@ -31245,6 +31245,37 @@ function sfCamSnap(){ SF_CAM._snap = true; }
    sfSY() is the one projection every ground point passes through. */
 const SF_TILT = 0.62;
 function sfSY(wyPx, ch){ return (wyPx - cam.y) * cam.zoom * SF_TILT + ch / 2; }
+
+/* v62: the top view is a REAL aerial camera now, not an orthographic map.
+   A virtual platform flies SF_TOP_ALT_M meters over the map nadir at
+   screen center. Height above the ground plane displaces a point
+   radially outward from the nadir by r·h/H — true relief displacement,
+   the same optics that make rooftops lean away from the center of an
+   aerial photograph. Buildings lean more toward the frame edges, taller
+   masses lean farther, and zooming out widens the view so the lean
+   grows — a real camera, not a stylistic tilt.
+   sfTopLean returns the affine [shearX, scaleYdelta] for
+   ctx.transform(1, 0, a, 1+b, 0, 0) about an object's ground anchor;
+   sfTopLeanShift returns the screen-px displacement of a point hPx
+   (world px) above ground at (wx, wy) — for labels and crown furniture. */
+const SF_TOP_ALT_M = 240;
+function sfTopLean(wx, wy, ax, ay){
+  const H = SF_TOP_ALT_M * SF_PXM;
+  // clamp the slope: at extreme wide views the far edge would otherwise
+  // shear past the physical silhouette the bake can support
+  const a = clamp(-(wx - cam.x) / H, -0.32, 0.32);
+  const b = clamp(-(wy - cam.y) * SF_TILT / H, -0.32, 0.32);
+  if(Math.abs(a) < 0.002 && Math.abs(b) < 0.002) return false;
+  ctx.translate(ax, ay);
+  ctx.transform(1, 0, a, 1 + b, 0, 0);
+  ctx.translate(-ax, -ay);
+  return true;
+}
+function sfTopLeanShift(wx, wy, hPx){
+  const H = SF_TOP_ALT_M * SF_PXM;
+  return [clamp((wx - cam.x) / H, -0.32, 0.32) * hPx * cam.zoom,
+          clamp((wy - cam.y) * SF_TILT / H, -0.32, 0.32) * hPx * cam.zoom];
+}
 function sfCamYawOf(v){
   const DV = [[0, 1], [0, -1], [-1, 0], [1, 0]][v ? v.face : 0] || [0, 1];
   return Math.atan2(DV[1], DV[0]);
@@ -31390,7 +31421,8 @@ if(SF_MODE && typeof document !== 'undefined'){
      is d = camH·F/(y − horizon); blur scales with the diopter
      difference |1/d − 1/foc|, so the focal plane stays tack-sharp
      while near pavement and far blocks melt.
-   · both      — lens vignette + a whisper of film grain.
+   · both      — lens vignette + a whisper of film grain + lateral
+     chromatic aberration (v62: red/cyan plates split and re-added).
 
    L toggles the rig. The still-frame cache still works — it now caches
    the pre-lens frame, and the lens pass itself is ~3 canvas blits. */
@@ -31466,7 +31498,50 @@ function sfLensEnd(cw, ch){
     ctx.translate(W / 2, H / 2); ctx.rotate(SF_LENS.roll);
     ctx.drawImage(F, -W / 2, -H / 2);
     ctx.rotate(-SF_LENS.roll); ctx.translate(-W / 2, -H / 2);
-  } else ctx.drawImage(F, 0, 0);
+  } else {
+    /* v62: lateral chromatic aberration — a real lens disperses the
+       channels: the red plate lands shifted one way, the cyan (G+B)
+       plate the other, so high-contrast silhouettes fringe warm/cool
+       instead of staying surgically clean. The frame is split by
+       multiply masks and re-added with 'lighter'; where the plates
+       overlap the channels recombine to the original color. */
+    if(SF_LENS.mode !== 'flat' && typeof document !== 'undefined'){
+      if(!SF_LENS.caR){
+        SF_LENS.caR = document.createElement('canvas');
+        SF_LENS.caRg = SF_LENS.caR.getContext('2d');
+        SF_LENS.caB = document.createElement('canvas');
+        SF_LENS.caBg = SF_LENS.caB.getContext('2d');
+      }
+      const R2 = SF_LENS.caR, rg = SF_LENS.caRg,
+            B2 = SF_LENS.caB, b2g = SF_LENS.caBg;
+      if(R2.width !== W || R2.height !== H){
+        R2.width = W; R2.height = H; B2.width = W; B2.height = H;
+      }
+      const d2 = Math.max(1, Math.round(W * 0.0011));
+      rg.setTransform(1, 0, 0, 1, 0, 0);
+      rg.clearRect(0, 0, W, H);
+      rg.drawImage(F, d2, 0);
+      rg.globalCompositeOperation = 'multiply';
+      rg.fillStyle = '#ff0000'; rg.fillRect(0, 0, W, H);
+      // multiply flood-fills the transparent border — clip back to the
+      // plate's real alpha before recombining
+      rg.globalCompositeOperation = 'destination-in';
+      rg.drawImage(F, 0, 0);
+      rg.globalCompositeOperation = 'source-over';
+      b2g.setTransform(1, 0, 0, 1, 0, 0);
+      b2g.clearRect(0, 0, W, H);
+      b2g.drawImage(F, -d2, 0);
+      b2g.globalCompositeOperation = 'multiply';
+      b2g.fillStyle = '#00ffff'; b2g.fillRect(0, 0, W, H);
+      b2g.globalCompositeOperation = 'destination-in';
+      b2g.drawImage(F, 0, 0);
+      b2g.globalCompositeOperation = 'source-over';
+      ctx.globalCompositeOperation = 'lighter';
+      ctx.drawImage(R2, 0, 0);
+      ctx.drawImage(B2, 0, 0);
+      ctx.globalCompositeOperation = 'source-over';
+    } else ctx.drawImage(F, 0, 0);
+  }
   if(SF_LENS.mode !== 'flat' && B && typeof bg.filter !== 'undefined'){
     const R = Math.max(3, Math.round(H * (SF_LENS.mode === 'top' ? 0.012 : 0.0065)));
     bg.setTransform(1, 0, 0, 1, 0, 0);
@@ -33847,6 +33922,12 @@ function sfRenderWorld(cw, ch){
           cover = true; SF_TOPMARK = [psx, psy];
         }
       }
+      // v62: aerial relief displacement — the sprite leans radially
+      // outward from the frame nadir, pivoting on its south footprint
+      // line so the base stays glued to the pavement
+      ctx.save();
+      sfTopLean(b.x, b.by1, (b.x - cam.x) * cam.zoom + cw / 2,
+                sfSY(b.by1, ch));
       ctx.globalAlpha = cover ? 0.45 : 1;
       ctx.drawImage(art.c, sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
       ctx.globalAlpha = 1;
@@ -33882,13 +33963,16 @@ function sfRenderWorld(cw, ch){
         ctx.strokeRect(sx, sy, art.c.width * cam.zoom, art.c.height * cam.zoom);
         ctx.setLineDash([]);
       }
+      ctx.restore();
       // production-1: label routed through canonical parody display name
       const dn = sfSignName(b);
       if(cam.zoom >= 0.9 && dn){
         ctx.font = 'bold 10px sans-serif';
         ctx.textAlign = 'center';
-        const lx = Math.round((b.x - cam.x) * cam.zoom + cw / 2);
-        const ly = Math.round(sfSY(b.by0, ch) - b.hPx * cam.zoom - 8);
+        // v62: the label rides the displaced roof, not the ground plan
+        const lsh = sfTopLeanShift(b.x, b.y, b.hPx);
+        const lx = Math.round((b.x - cam.x) * cam.zoom + cw / 2 + lsh[0]);
+        const ly = Math.round(sfSY(b.by0, ch) - b.hPx * cam.zoom - 8 + lsh[1]);
         const tw = ctx.measureText(dn).width;
         ctx.fillStyle = 'rgba(15,23,42,0.85)';
         ctx.fillRect(lx - tw / 2 - 4, ly - 11, tw + 8, 14);
@@ -34116,13 +34200,16 @@ function sfRenderWorld(cw, ch){
           const wdx2 = Math.cos(W.windAng || 0), wdy2 = Math.sin(W.windAng || 0);
           const nF = (o.big ? 7 : 4);
           const LCf = ['#d8a83e', '#b5622e', '#b0483e'];
+          // v62: falling leaves leave from the leaned crown, not the
+          // trunk — half the top-of-crown aerial displacement
+          const dsh = sfTopLeanShift(o.x, o.y, ph * 0.5 / cam.zoom);
           for(let fi = 0; fi < nF; fi++){
             const ph2 = (SF_WX.t * (0.22 + phash(fi, o.wx, 5530) * 0.2) +
                          phash(fi, o.wy, 5531)) % 1;
-            const fx = sx + (phash(fi, o.wx + o.wy, 5532) - 0.5) * pw * 0.7 +
+            const fx = sx + dsh[0] + (phash(fi, o.wx + o.wy, 5532) - 0.5) * pw * 0.7 +
                        wdx2 * ph2 * 30 * cam.zoom +
                        Math.sin(ph2 * 11 + fi * 2.3) * 3.5 * cam.zoom;
-            const fy = sy - ph * 0.55 + ph2 * (ph * 0.5 + 8 * cam.zoom) +
+            const fy = sy + dsh[1] - ph * 0.55 + ph2 * (ph * 0.5 + 8 * cam.zoom) +
                        wdy2 * ph2 * 12 * cam.zoom;
             ctx.fillStyle = LCf[fi % 3];
             ctx.globalAlpha = ph2 < 0.85 ? 1 : (1 - ph2) / 0.15;
@@ -34160,12 +34247,15 @@ function sfRenderWorld(cw, ch){
         // of the year; the parrots work them over)
         if(o.kind === 'sfPalm' && !isNight()){
           const nF = 6 + (Math.abs(hash2(o.wx, o.wy, 5120) * 5) | 0);
-          const fcy = sy - ph * 0.44;
+          // v62: the truss hangs at crown height, so it leans with the
+          // crown — offset by the aerial displacement at 0.44·ph
+          const tsh = sfTopLeanShift(o.x, o.y, ph * 0.44 / cam.zoom);
+          const fcx = sx + tsh[0], fcy = sy + tsh[1] - ph * 0.44;
           for(let fi = 0; fi < nF; fi++){
             const fa = phash(fi, o.wx, 5121) * Math.PI * 2,
                   fr2 = phash(fi, o.wy, 5122) * 3.4 * cam.zoom;
             ctx.fillStyle = fi % 3 ? '#e08828' : '#c96e1e';
-            ctx.fillRect(Math.round(sx + Math.cos(fa) * fr2 - 1.5 * cam.zoom),
+            ctx.fillRect(Math.round(fcx + Math.cos(fa) * fr2 - 1.5 * cam.zoom),
                          Math.round(fcy + Math.sin(fa) * fr2 * 0.5 +
                                     fi * 0.9 * cam.zoom),
                          Math.max(1, 2.2 * cam.zoom), Math.max(1, 1.7 * cam.zoom));
@@ -34181,13 +34271,18 @@ function sfRenderWorld(cw, ch){
              0.010 * SF_WX.gust) *
             (0.3 + SF_WX.gust * 0.9 + W.storm * 1.4)
           : 0;
+        // v62: aerial relief displacement — the crown leans radially
+        // outward from the nadir, pivoting at the root so the trunk and
+        // its ground shadow stay planted
+        ctx.save();
+        sfTopLean(o.x, o.y, sx, sy);
         if(sway){
-          ctx.save(); ctx.translate(sx, sy); ctx.rotate(sway);
+          ctx.translate(sx, sy); ctx.rotate(sway);
           const wlx = Math.cos(W.windAng || 0) * sway * ph * 0.5,
                 wly = Math.sin(W.windAng || 0) * sway * ph * 0.5 * SF_TILT;
           ctx.drawImage(sprC, -pw / 2 + wlx, -ph + 4 * cam.zoom + wly, pw, ph);
-          ctx.restore();
         } else ctx.drawImage(sprC, sx - pw / 2, sy - ph + 4 * cam.zoom, pw, ph);
+        ctx.restore();
         // v31: crowns answer the REAL sun — a warm wash on the sunward
         // flank of the crown, cool sky-fill lee, and light-dapple
         // speckles where sun leaks through onto the shadowed ground
@@ -34269,6 +34364,10 @@ function sfRenderWorld(cw, ch){
                       Math.atan2(shy, shx),
                       0.28 * Math.min(1, SF_SUN.day + 0.3), sfUmbra(len));
       }
+      // v62: pawns lean like every other upright mass — 1.6m is small,
+      // but at the frame edges the aerial displacement is real
+      ctx.save();
+      sfTopLean(v.x, v.y, sx, sy);
       renderChibiPawn(d.v, cw, ch);
       // v25: umbrella — seen from above the canopy IS what you see;
       // it hides the pawn, tilts into the wind, seams + lee-side shade
@@ -34296,6 +34395,7 @@ function sfRenderWorld(cw, ch){
                     ur * 0.62, ur * 0.62 * SF_TILT, 0, 0, Math.PI * 2);
         ctx.fill();
       }
+      ctx.restore();
     }
   }
 
@@ -40332,6 +40432,7 @@ function sfRenderInterior(cw, ch, v){
   ctx.font = '11px sans-serif'; ctx.fillStyle = '#d8c8b0';
   ctx.fillText(lab, cw / 2, ch * 0.045 + 34);
 }
+
 
 /* =====================================================================
    PART SF-4: THE CAST — 28 Mission residents, homes, routines.

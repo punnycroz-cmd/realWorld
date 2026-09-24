@@ -68,7 +68,7 @@ const api = eval(m[1] + `
     sfVegSideSpr, sfBigTreeSpr, sfDrySeason, sfGrassDry, VILLAGE_OBJECTS,
     sfSkyLobeA, sfBounceK, sfCanyonShade, SF_SUN,
     sfKarlK, sfKarlPoly, sfKarlFront, sfIntArch, sfRenderInterior,
-    sfCellField,
+    sfCellField, sfTopLean, sfTopLeanShift, SF_TOP_ALT_M, cam,
     sfBoomClip, sfSegHitT, sfElevM, sfParapetKind, sfMissionH,
     sfWireShadow, sfPalmRow, SF_DECALS,
     updateHUD,
@@ -414,6 +414,38 @@ const api = eval(m[1] + `
     const kfDry = Math.max(-0.006, 0.2 * 0.010 - 0.005);
     ok(kfWet > 0 && kfDry < 0,
        'fog drip: karlK 0.9 soaks (' + kfWet.toFixed(4) + '), 0.2 dries');
+  }
+
+  // v62: the top camera is a real aerial platform — relief displacement
+  // is zero at the nadir, radially outward everywhere else, linear in
+  // both height and distance, and grounded at the anchor.
+  {
+    ok(api.SF_TOP_ALT_M > 100 && api.SF_TOP_ALT_M < 2000,
+       'aerial platform altitude is a plausible photo altitude (' +
+       api.SF_TOP_ALT_M + 'm)');
+    const cx = api.cam.x, cy = api.cam.y;
+    const s0 = api.sfTopLeanShift(cx, cy, 60);
+    ok(Math.abs(s0[0]) < 1e-9 && Math.abs(s0[1]) < 1e-9,
+       'nadir: zero displacement at frame center');
+    const sE = api.sfTopLeanShift(cx + 500, cy, 60);
+    ok(sE[0] > 0, 'east of nadir leans east (outward), got ' + sE[0].toFixed(2));
+    const sW = api.sfTopLeanShift(cx - 500, cy, 60);
+    ok(sW[0] < 0, 'west of nadir leans west (outward), got ' + sW[0].toFixed(2));
+    const sN = api.sfTopLeanShift(cx, cy - 500, 60);
+    ok(sN[1] < 0, 'north of nadir leans north/up, got ' + sN[1].toFixed(2));
+    const sS = api.sfTopLeanShift(cx, cy + 500, 60);
+    ok(sS[1] > 0, 'south of nadir leans south/down, got ' + sS[1].toFixed(2));
+    const sE2 = api.sfTopLeanShift(cx + 1000, cy, 60);
+    ok(Math.abs(sE2[0] - sE[0] * 2) < 1e-6,
+       'displacement is linear in distance from nadir');
+    const sTall = api.sfTopLeanShift(cx + 500, cy, 120);
+    ok(Math.abs(sTall[0] - sE[0] * 2) < 1e-6,
+       'displacement is linear in height (taller leans farther)');
+    // grounded: the transform must leave the anchor itself unmoved —
+    // sfTopLean shears about (ax, ay), so a point AT the pivot stays
+    ok(api.sfTopLean(cx + 500, cy, 100, 100) === true &&
+       api.sfTopLean(cx, cy, 100, 100) === false,
+       'sfTopLean returns false at the nadir, true off-center');
   }
 
   // v35: interior archetypes resolve per venue name/label
