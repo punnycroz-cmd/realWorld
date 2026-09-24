@@ -1120,6 +1120,10 @@ needs both.
 | rpl_focus / rpl_press_flip | 0.0 / 0.0 | 0.7 / 1.0 | mid-difficulty dwell concentration + deadline easiest-first flip (v5.32) |
 | ei_gain / ei_know_gate | 0.0 / 0.0 | 0.35 / 0.8 | why-probing E bonus + schema gate (v5.32) |
 | org_gain / org_run_min | 0.0 / 2 | 0.4 / 4 | within-run link_p multiplier + catRun trigger (v5.32) |
+| sav_beta / sav_gain / sav_cap / sav_match_thresh | 0.02 / 0.0 / 0.2 / 0.4 | 0.3 / 0.8 / 0.8 / 0.9 | savings-shadow decay, re-encode boost, cap, match gate (v5.33) |
+| arch_k / arch_exp / hazard_band | 0.1 / 1.0 / 1.1 | 1.5 / 4.0 / 3.0 | archival lottery rate/exponent/band (v5.33) |
+| need_tau_gain / need_ema_k | 0.0 / 0.02 | 0.6 / 0.3 | need-prior τ shift + EMA rate (v5.33) |
+| vol_loss / vol_norm | 0.0 / 6 | 0.4 / 30 | throughput tax + daily encode norm (v5.33) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4170,3 +4174,36 @@ pins**; the personality work arrives through existing traits.
   locked nulls `vdac_goal_null`, `auto_immune_null`,
   `draw_verbatim_null`, `ei_noknow_null`, `gum_gain` are
   probe-enforced (P889–P898).
+
+## 66. v5.33 note (forgetting-curves VIII — the fade's fate)
+
+Spec v5.33; forgetting-curves.md Part VIII §§37–40. All twelve
+params are mechanism constants or pop stats — **no new trait
+pins**.
+
+- **`sav_*` are population constants.** Everyone leaves savings
+  shadows; what differs per character is *what gets re-encountered*
+  (a routine-bound shut-in re-meets the same cues and reinstates
+  often; a wanderer's shadows die unvisited). Do not pin sav_gain
+  on a "sentimental" bible — the residue is storage physics, not
+  feeling; sentimentality lives in retell/seek-out rates upstream.
+- **`arch_*` are identical across profiles.** The lottery is the
+  point — per-character luck must not be pinned. A bible may not
+  declare "she never forgets faces" by lowering arch_k; faces die
+  by R, and R is set by §2 encoding legs. Ambient NPCs may run
+  `arch_mode:"cliff"` — their forgetting is off-camera.
+- **`need_tau_gain`/`need_ema_k` are pop constants.** What varies
+  is the *ecology* — a creature of habit builds high needRate on
+  few classes (tight, durable memory world); a novelty-seeker
+  spreads it thin. Emergent from routine, never pinned.
+- **`vol_loss`/`vol_norm` stay flat.** A high-throughput
+  lifestyle (barista on a Saturday, event-heavy socialite)
+  experiences more blur — that's the *world's* input via
+  encodeCount_day, not a trait. Pinning vol_loss low on a
+  "sharp" character would double-count `g_mem`/`wmc` which
+  already move E.
+- **Never pin:** all v5.33 params are mechanism constants;
+  frozen `sav_scope`, `vol_scope`; locked nulls
+  `sav_recall_null`, `sav_verbatim_null`, `arch_valence_null`,
+  `hazard_conf_null`, `need_mint_null`, `need_retrieve_null`
+  are probe-enforced (P899–P907).

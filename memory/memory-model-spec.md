@@ -1,5 +1,31 @@
-# Memory Model Spec v5.32 — implementable human-like memory for RW characters
+# Memory Model Spec v5.33 — implementable human-like memory for RW characters
 
+> **v5.33 note (forgetting-curves VIII — the fate of the
+> fade):** four properties of the fade itself.
+> **Savings shadow** — archival no longer deletes: the
+> record drops its content to a `savings` scalar + match-key
+> (β_sav 0.1, cap `sav_cap`); a matching re-encounter
+> (`sav_match_thresh`) mints the new record at
+> `E×(1+sav_gain·savings)`, `reinstated:true` — subthreshold
+> residue buys relearning speed, never content (Nelson 1978,
+> 1985; locked `sav_recall_null`/`sav_verbatim_null`).
+> **Hazard archival** — below `forget_thresh·hazard_band` the
+> daily archive decision is a seeded lottery
+> `λ=arch_k·(thresh/R)^arch_exp`, not a cliff (`arch_mode`
+> switch); hazard reads R only — `arch_valence_null`,
+> `hazard_conf_null`. **Need-prior τ** — per-character
+> `needRate[class]` EMA (`need_ema_k`) over accesses shifts
+> τ_eff ±`need_tau_gain`; retention-side only — locked
+> `need_mint_null`/`need_retrieve_null` (Anderson & Schooler
+> 1991; the per-class shift is HYPOTHESIS). **Throughput
+> pressure** — same-day encoding volume above `vol_norm`
+> taxes episodic R by `vol_loss` (Hardt, Nader & Nadel 2013;
+> Frankland 2013 — mechanism DEBATED, frozen
+> `vol_scope:"episodic"`). **Form annex** — power+floor
+> reaffirmed at the individual level (Averell & Heathcote
+> 2011; aggregate-vs-individual β divergence is now P905,
+> Simon 1966). +12 params, +6 locked nulls, +2 frozen.
+> Probes P899–P907.
 > **v5.32 note (encoding-mechanics VII — what takes the
 > share without permission):** six new intake mechanisms.
 > **VDAC** — fields co-encoded with reward carry
@@ -4511,6 +4537,98 @@ locked; retrieval evaluation at §5.78c. Locked
 `nav_permastore_null`: records tied to §4.20 script-node /
 permastore venues mint neither mode — the 40-year neighborhood
 is exempt; only novel routes carry the flag.
+
+### 4.37 Savings shadow — death leaves a residue (new in v5.33)
+
+Nelson 1978 (*JEP:HLM* 4:453 — verified): items nonrecallable
+AND nonrecognizable at 4 weeks still show significant savings
+on one relearning trial vs re-paired controls; Nelson 1985
+(*JEP:LMC* 11:472 — verified): savings is the most sensitive
+retention measure — subthreshold traces exist and re-increment
+("concatenation", MacLeod & Nelson 1984). **[CONSENSUS]**
+
+Mechanism: when a record archives (§4.4/§4.38), it converts to
+a **savings shadow**: `savings = min(S_at_archival, sav_cap)`
++ the match-key (`cueKeys` + content hash); all other content
+dropped. The shadow decays on its own slow curve —
+`R_sav = savings·(1+t/τ)^(-sav_beta)` (β_sav 0.1, near-semantic
+rate). On `encodeEvent`, if cue+content overlap with a shadow
+≥ `sav_match_thresh` (0.6), the new record mints at
+`E_new ×= (1 + sav_gain·savings)` and is flagged
+`reinstated:true`; the shadow is consumed (re-encoding replaces
+it — concatenation, not coexistence). Locked nulls:
+`sav_recall_null` — shadows never surface in recall/FOK/report
+(P900); `sav_verbatim_null` — reinstatement raises E only; the
+new record's verbatim pool is bounded by the fresh event's
+delivered content (P907). Frozen `sav_scope="reencode-only"`:
+re-pairing (cue match, content mismatch) gains ≈0 — Nelson's
+own control arm.
+
+### 4.38 Hazard archival — the graveyard is a lottery (new in v5.33)
+
+The deterministic `forget_thresh` crossing makes every record
+of a class die on the same day — maximally unhuman. Survival
+analysis is the honest formalism (Bahrick's own presentation
+is a survival discontinuity, §2.3/§4.7). Replace the cliff:
+
+```
+if R < forget_thresh·hazard_band (1.5):
+    λ_day = arch_k·(forget_thresh/R)^arch_exp   // 0.5, 2.0
+    archive iff rand(charId, recordId, day) < 1−exp(−λ_day)
+```
+
+Seeded per (char, record, day) — replay-deterministic per §14.
+`arch_mode ∈ {"hazard","cliff"}` lets the harness A/B; ambient
+NPCs may keep the cliff (their forgetting is off-camera).
+Expected survival ≈ the old crossing; archival-day CV ≥0.3.
+Locked nulls: `arch_valence_null` (hazard reads R only — P902),
+`hazard_conf_null` (confident dead stay dead; §3 conf channel
+never enters the lottery). **[HYPOTHESIS implementation of
+CONSENSUS variance.]**
+
+### 4.39 Need-prior τ — the environment's side of the curve (new in v5.33)
+
+Anderson & Schooler 1991 (*Psych. Sci.* 2:396 — verified):
+the probability a memory will be needed follows the same
+recency/frequency/spacing statistics as memory availability
+(NYT headlines, child-directed speech, e-mail correspondents).
+**[CONSENSUS at species level; per-class modulation is our
+HYPOTHESIS.]**
+
+Per-character statistic `needRate[class]` — EMA
+(`need_ema_k` 0.1/day) over recall + re-encode events keyed by
+cue-class (topic/person/venue cue keys, §5.2). Effective time
+constant `τ_eff = τ·(1 + need_tau_gain·z)`, `need_tau_gain`
+0.3, z = clipped standardized needRate (±1). A never-accessed
+record about a frequently-referenced class holds longer τ than
+its twin about a dead context — the block you walk past daily
+fades slower than the block you visited once, even before any
+retelling. Locked nulls: `need_mint_null` (hot class never
+mints/strengthens — the prior moves τ, never E or S; P903
+locked leg); `need_retrieve_null` (θ stays cue-pure — need is
+retention-side only; rehearsal already handles access).
+
+### 4.40 Throughput pressure — dense days blur old days (new in v5.33)
+
+Hardt, Nader & Nadel 2013 (*TICS* 37:111 — verified): forgetting
+is partly active remodeling — new-trace integration destabilizes
+existing traces; Frankland, Köhler & Josselyn 2013 (*TINS* —
+verified) route infantile amnesia through the same account.
+**[Mechanism DEBATED; reduced form implemented.]**
+
+Daily global volume term, orthogonal to §4.2 (cue-shared
+competition) — this is traffic, not twinning:
+
+```
+vol_pressure = encodeCount_day / vol_norm        // vol_norm 12
+R *= 1 − vol_loss·max(0, vol_pressure − 1)       // vol_loss 0.15
+```
+
+Frozen `vol_scope="episodic"` — semantic/procedural exempt
+(§4.7 permastore dynamics, §1 skill split). Age-flat by
+construction — infancy already carries §4.31 machinery; do not
+double-count. A chaotic week costs the *older* trace, not just
+its competitors.
 
 ---
 
@@ -12094,6 +12212,26 @@ MemoryParams = {
 //   `why:true`, `context.deadline`; record attribute-floor
 //   mint rule on freq/loc/when; `catRun` sequence counter
 //   at encode.
+// v5.33 additions (forgetting-curves VIII — FC§§37–40)
+"sav_beta": 0.1, "sav_gain": 0.4, "sav_cap": 0.5,
+"sav_match_thresh": 0.6,                          // §4.37
+"arch_k": 0.5, "arch_exp": 2.0, "hazard_band": 1.5,
+"arch_mode": "hazard",                            // §4.38
+"need_tau_gain": 0.3, "need_ema_k": 0.1,          // §4.39
+"vol_loss": 0.15, "vol_norm": 12,                 // §4.40
+// v5.33 locked nulls: sav_recall_null (shadows never surface
+//   in recall/FOK/report — P900); sav_verbatim_null
+//   (reinstatement buys E, never ghost fields — P907);
+//   arch_valence_null + hazard_conf_null (the lottery reads
+//   R only — P902); need_mint_null + need_retrieve_null
+//   (need-prior is retention-side only — P903).
+// v5.33 frozen: sav_scope="reencode-only" (re-pairing gains
+//   ≈0 — Nelson's control arm); vol_scope="episodic".
+// v5.33 fields: savings shadow record state (`savings` +
+//   match-key, non-record, snapshot-additive); new-record
+//   flag `reinstated:true`; per-char `needRate[class]` EMA
+//   stat (non-record); `encodeCount_day` daily counter;
+//   `arch_mode` mode enum. No Event schema changes.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13876,6 +14014,33 @@ not resolved (DEBATED magnitude). P509/P511.
     gum_gain) + 2 frozen (vdac_scope, msens_congr_gate).
     All snapshot-additive, absent = legacy. Probes
     P889–P898.
+- v5.33 additions (forgetting-curves.md Part VIII §§37–40):
+  - **Archival → savings shadow** (§4.37): a record crossing
+    the archival line leaves `savings` + match-key instead of
+    deleting; matching re-encounter mints
+    `E×(1+sav_gain·savings)` with `reinstated:true`, consuming
+    the shadow. `sav_recall_null`, `sav_verbatim_null`,
+    frozen `sav_scope`.
+  - **`arch_mode` hazard archival** (§4.38): below
+    `forget_thresh·hazard_band`, daily archive is a seeded
+    lottery (`arch_k`, `arch_exp`); `"cliff"` retains the
+    old crossing (ambient NPCs / A/B). `arch_valence_null`,
+    `hazard_conf_null`.
+  - **`needRate[class]`** (§4.39): per-char EMA stat over
+    access events per cue-class; modulates τ_eff ±
+    `need_tau_gain`. Retention-side only —
+    `need_mint_null`, `need_retrieve_null`.
+  - **`vol_loss`/`vol_norm`** (§4.40): episodic R taxed by
+    same-day `encodeCount_day` above norm; frozen
+    `vol_scope:"episodic"`.
+  - **New params (§7):** 12 — sav_beta, sav_gain, sav_cap,
+    sav_match_thresh, arch_k, arch_exp, hazard_band,
+    arch_mode, need_tau_gain, need_ema_k, vol_loss, vol_norm
+    + 6 locked nulls + 2 frozen.
+  - All snapshot-additive, absent = legacy; no Event schema
+    changes; `reinstated` + shadow state + needRate are
+    hidden/harness-readable like other state. Probes
+    P899–P907.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

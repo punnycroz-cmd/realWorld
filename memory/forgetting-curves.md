@@ -2568,3 +2568,220 @@ from `conf_beta_mult` alone, no special flag.
 - `spacing_opt_null` is deliberately a *null*: it forbids a behavior
   humans don't have, which is unusual for a spec but exactly right for
   a spec that must produce humans.
+
+---
+
+# Part VIII — v85 deepening: below the threshold, the dice, and the environment's prior — savings, hazard archival, need-adaptive τ, the individual curve, and throughput pressure
+
+Seven passes priced what a record *is* and how fast it fades. This pass
+prices four properties of the fade itself that Parts I–VII left smooth and
+deterministic: **what survives below recall** (savings), **whether death is
+a line or a lottery** (hazard), **whose side the curve is on** (the
+environment's need statistics), and **what a dense life does to old
+traces** (throughput pressure). Plus the form-debate annex we owe §1.
+
+## 37. New primary sources
+
+### 37.1 Savings below zero — Nelson 1978; Nelson 1985
+
+Nelson 1978 (*JEP:HLM* 4:453 — verified): after four weeks, number–word
+pairs were **nonrecallable and nonrecognizable** — yet a single relearning
+trial showed significant savings over re-paired controls. Subthreshold
+traces are real and *incrementable*: relearning re-adds to the residue
+rather than starting over ("concatenation"; MacLeod & Nelson 1984
+replication — verified). Nelson 1985 (*JEP:LMC* 11:472 — verified):
+savings during relearning was Ebbinghaus's *sole* retention measure and is
+the most sensitive measure of residual information — more sensitive than
+recognition, which is more sensitive than recall.
+**[CONSENSUS: savings outlives recall and recognition]**
+
+**RW consequence:** the current spec's archive is too final. A record that
+crosses `forget_thresh` leaves nothing — but human "forgotten" material
+re-learns faster for years. Model it: archival converts the record into a
+**savings shadow** — a `savings` scalar (init = S at archival, capped
+`sav_cap` 0.5) decaying at its own slow curve (β_sav 0.1 — near-semantic),
+with all content fields dropped except a match-key (`cueKeys` +
+content-hash). Re-encounter: an event whose cue+content overlap with the
+shadow ≥ `sav_match_thresh` (0.6) mints a new record at
+`E_new ×= (1 + sav_gain·savings)` and carries `reinstated:true`. Nelson's
+re-pairing control is the locked null: savings requires the *same*
+pairing — a re-encounter that overlaps the cue but not the content gains
+nothing (`sav_recall_null`/`sav_verbatim_null`, §40.3).
+Behavioral texture this buys for free: a character re-meeting an old
+flame's street, a former regular's order, a childhood playground game —
+"it comes back fast" — without the old record ever being retrievable.
+
+### 37.2 Hazard, not threshold — archival is stochastic
+
+Survival analysis is the honest formalism for "does this record still
+exist": Bahrick 1984's own presentation is a survival discontinuity
+(Part I §2.3), and the to-be-archived population is exactly the
+right-censored tail. A deterministic `forget_thresh` crossing makes every
+record of a class die on the same day — maximally unhuman (people keep
+*some* trivia for decades and lose some salient things in a week).
+**[HYPOTHESIS implementation of CONSENSUS variance — individual survival
+is visibly stochastic in every diary corpus; the lab never measures the
+per-item lottery because items are pooled.]**
+
+Implement a daily archival hazard below the wall:
+
+```
+if R < forget_thresh·hazard_band (1.5):
+    λ_day = arch_k · (forget_thresh / R)^arch_exp      // arch_k 0.5, arch_exp 2
+    archive iff rand(charId, recordId, day) < 1 − exp(−λ_day)
+```
+
+Seeded RNG keeps runs reproducible (§14 determinism discipline). Mean
+survival ≈ the old deterministic crossing; variance is the point — CV of
+archival day ≥ 0.3. Locked nulls: hazard reads **R only** — never valence
+(`arch_valence_null`; negativity/positivity is priced at encoding, not at
+the graveyard), never confidence (`hazard_conf_null` — confident dead
+things stay dead; P902, P783-consistent).
+
+### 37.3 The environment's prior — Anderson & Schooler 1991
+
+Anderson & Schooler 1991 (*Psych. Sci.* 2:396 — verified): the probability
+that a memory will be *needed* follows the same recency/frequency/spacing
+regularities as memory availability itself — across NYT headlines,
+parental speech to children, and e-mail correspondents. Memory's form is
+rational given the environment's statistics. Schooler & Anderson's later
+work replicates the correspondence for word use in children's input.
+**[CONSENSUS that need-probability and availability share their shape;
+our per-class τ shift is a modeling HYPOTHESIS.]**
+
+Two consequences, one adopted, one rejected:
+
+- **Adopted — class-level τ modulation.** Maintain per-character
+  `needRate[class]` — an EMA (`need_ema_k` 0.1/day) over retrieval +
+  re-encode events on each cue-class (topic, person, venue — the §5.2
+  cue keys). Effective τ_eff = τ·(1 + need_tau_gain·z_clipped),
+  `need_tau_gain` 0.3, z clipped to ±1. A never-accessed record about a
+  *frequently-referenced* class (the corner café, the co-tenant) holds a
+  longer τ than an identical record about a once-visited context. The
+  claim is deliberately narrow: the prior moves τ, never E, never S —
+  `need_mint_null` (P903): a hot class never mints or strengthens a
+  record that wasn't accessed.
+- **Rejected — need-driven retrieval ordering.** Anderson's model uses
+  need-probability as the retrieval prior. Our §5.4 θ is already
+  cue-driven; adding a need prior there would double-count rehearsal
+  (frequent classes are strong because they get recalled, not because a
+  statistician blesses them). The τ channel captures the *retention*
+  side; the *access* side stays cue-pure. Locked `need_retrieve_null`.
+
+### 37.4 The individual curve — Averell & Heathcote 2011; Simon 1966
+
+Averell & Heathcote 2011 (*J. Math. Psychol.* 55:25–35 — verified):
+hierarchical Bayesian fits of cued recall + stem completion from 1 min to
+28 days. Raw fit quality favored an **exponential per individual**, but
+Bayesian model selection (which prices mimicry between candidate forms)
+favored the **power function**; and *every* analysis supported an
+**above-chance asymptote** — some briefly-studied memories are effectively
+permanent. This is the strongest modern evidence that our §1 form choice
+(power + floor) is right *at the individual level*, not just in
+aggregates — the averaging objection is answered hierarchically.
+
+Simon 1966 (*Psychometrika* 31:505 — verified): Jost's law + exponential
+decay forces **heterogeneous decay constants** — items differ in
+forgetting rate, so pooled curves steepen relative to the per-item curve.
+Our β jitter per character/record class produces this for free; the probe
+is the aggregate-vs-individual divergence (P905): pooled β_est must
+exceed the median per-record β.
+
+Form annex verdict: **power + floor stays.** New discipline: the form
+question is now a *standing identifiability note* — any future curve
+proposal must beat the incumbent on held-out survival data, per §14's
+anchor machinery, not on vibes.
+
+### 37.5 Throughput pressure — Hardt, Nader & Nadel 2013; Frankland et al. 2013
+
+Hardt, Nader & Nadel 2013 (*TICS* 37:111 — verified): "decay happens" —
+forgetting is partly an *active* remodeling process; neurogenesis (new
+neuron integration) destabilizes existing hippocampal traces.
+Frankland, Köhler & Josselyn 2013 (*TINS* — verified): the same mechanism
+is their account of infantile amnesia — high plasticity epochs clear old
+traces. **[Mechanism DEBATED — neurogenesis rates in adult humans are
+contested; the reduced-form claim — dense encoding epochs tax old
+retrieval beyond pairwise interference — is well-supported and is what
+we implement.]**
+
+Implement as a daily volume term, orthogonal to §4.2 pairwise
+interference (which is cue-shared competition; this is global traffic):
+
+```
+vol_pressure = encodeCount_day / vol_norm            // vol_norm 12 events/day
+R *= 1 − vol_loss·max(0, vol_pressure − 1)           // vol_loss 0.15, episodic only
+```
+
+RW texture: a character's chaotic week costs their *older* memories, not
+just the competing twins — "it's been such a blur lately." Age-free by
+construction (the pressure is ecological, not neural); kids' amnesia
+already carries its own §4.31 machinery — do not stack a second infancy
+account. Frozen `vol_scope = "episodic"` (semantic/procedural exempt —
+semantic lives in §4.7 permastore dynamics).
+
+## 38. What changed in the spec (v5.32 → v5.33)
+
+| # | Change | Grounding |
+|---|---|---|
+| C-fc8-1 | New §4.37 savings shadow: archived records leave `savings` (β_sav 0.1, cap 0.5); matching re-encounter mints `E×(1+sav_gain·savings)`, `reinstated:true`; re-pairing gains nothing | §37.1 |
+| C-fc8-2 | New §4.38 hazard archival: daily λ below `forget_thresh·hazard_band`, seeded RNG; replaces the deterministic cliff (deterministic kept as `arch_mode:"hazard"|"cliff"` switch for harness A/B) | §37.2 |
+| C-fc8-3 | New §4.39 need-prior τ: per-char per-cue-class `needRate` EMA modulates τ_eff ±30%; retention-side only | §37.3 |
+| C-fc8-4 | New §4.40 throughput pressure: episodic R taxed by same-day encoding volume above `vol_norm` | §37.5 |
+| C-fc8-5 | Form annex: power+floor reaffirmed at the *individual* level; aggregate-vs-individual β divergence is now a probe | §37.4 |
+
+New params: `sav_beta 0.1 [0.02–0.3]`, `sav_gain 0.4 [0–0.8]`,
+`sav_cap 0.5 [0.2–0.8]`, `sav_match_thresh 0.6 [0.4–0.9]`,
+`arch_k 0.5 [0.1–1.5]`, `arch_exp 2.0 [1–4]`, `hazard_band 1.5 [1.1–3]`,
+`arch_mode "hazard"`, `need_tau_gain 0.3 [0–0.6]`, `need_ema_k 0.1
+[0.02–0.3]`, `vol_loss 0.15 [0–0.4]`, `vol_norm 12 [6–30]`.
+Locked nulls: `sav_recall_null` (shadows never surface),
+`sav_verbatim_null` (reinstatement buys E, never ghost content),
+`arch_valence_null`, `hazard_conf_null`, `need_mint_null`,
+`need_retrieve_null`. Frozen: `sav_scope="reencode-only"`,
+`vol_scope="episodic"`.
+
+## 39. Validation probes (P899–P907)
+
+- **P899 savings re-encode (MUST):** archive a record, wait ≥7d,
+  re-encounter matching event → new E boosted by ≥`sav_gain·0.5·savings`
+  vs an identical never-encoded control; re-paired (cue-match-only)
+  control gains ≤0.05.
+- **P900 savings silence (MUST):** savings shadows never appear in
+  recall/FOK/report output at any strength (locked null, output-scanned).
+- **P901 hazard spread (MUST):** two matched cohorts — archival-day CV
+  ≥0.3 in hazard mode, =0 in cliff mode; mean archival day within 15% of
+  the deterministic counterpart.
+- **P902 valence/conf null at the graveyard (MUST):** matched +/−
+  valence and high/low conf records show identical archival-day
+  distributions (TOST).
+- **P903 need-prior τ (SHOULD):** never-accessed records in the top vs
+  bottom needRate tercile differ in half-life in the predicted direction;
+  needRate shows zero minting/strengthening (locked null leg).
+- **P904 individual form discipline (SHOULD):** on ≥80% of per-record
+  survival curves, power+floor within ΔAIC 2 of exponential — and the
+  fitted floor sits above the chance line (Averell & Heathcote protocol).
+- **P905 aggregate steepening (SHOULD):** pooled β_est > median per-record
+  β (Simon 1966 heterogeneity); per-record fits retain Jost ordering.
+- **P906 throughput pressure (SHOULD):** matched records followed by a
+  high-volume vs low-volume encoding day — high-volume arm decays
+  measurably faster; semantic records exempt (vol_scope, TOST).
+- **P907 reinstatement cap (MUST):** reinstated record verbatim ≤ fresh
+  event's delivered content — the shadow contributes zero fields.
+
+## 40. Honest limits (additions)
+
+- The savings shadow is a *capacity* claim, not a content claim — Nelson's
+  savings measured relearning speed, and our shadow inherits exactly that
+  (match-key + scalar, nothing verbatim). Richer residue would double-book
+  with §6 phantom/gist machinery.
+- Hazard archival makes survival a lottery the *implementer* must seed
+  deterministically — unsampled runs (ambient NPCs) keep the cliff; the
+  hazard is for mains whose individual forgetting is on-camera.
+- `needRate` is a per-character statistic; Anderson & Schooler's claim is
+  about *species-level* adaptation to environmental statistics. Per-class
+  τ modulation is our reduced form — if P903 fails, drop the τ term and
+  keep the estimator for report-relevance hedging only.
+- `vol_loss` is ecology, not neurology — the neurogenesis mechanism is
+  debated, so the term is deliberately tiny and episodic-scoped; if
+  playtests show busy characters implausibly blank, halve before
+  doubting the sign.

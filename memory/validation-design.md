@@ -8344,3 +8344,73 @@ P898 MUST; P890, P893, P895, P897 SHOULD.
   magnitude, `auto_floor` value, `draw_da_resist` share, the
   catRun counter shape, and the dwell-as-integral formalism
   are RW modeling hypotheses, probe-gated by P889–P898.
+
+## 174. v85 suite (P899–P907) — forgetting-curves VIII
+
+Spec v5.33 mechanics (FC Part VIII §§37–40): savings shadows,
+hazard archival, need-prior τ, throughput pressure, form annex.
+
+- **P899 savings re-encode (MUST):** archive → ≥7d → matching
+  re-encounter mints E boosted ≥`sav_gain·0.5·savings` vs
+  never-encoded control; re-paired (cue-match-only) control
+  ≤0.05 (Nelson's own arm). Shadow consumed on use.
+- **P900 savings silence (MUST):** `sav_recall_null` — shadows
+  never appear in recall/FOK/report output at any strength;
+  output-scanned like P783.
+- **P901 hazard spread (MUST):** matched cohorts — hazard mode
+  archival-day CV ≥0.3, cliff mode =0; means within 15%.
+- **P902 graveyard nulls (MUST):** archival-day distributions
+  identical across valence and conf strata (TOST) —
+  `arch_valence_null` + `hazard_conf_null`.
+- **P903 need-prior τ (SHOULD):** never-accessed records,
+  top vs bottom needRate tercile — half-life differs in the
+  predicted direction ≥ need_tau_gain/2 effect; locked leg:
+  needRate never mints/strengthens (need_mint_null) and never
+  enters θ (need_retrieve_null).
+- **P904 form discipline (SHOULD):** ≥80% of per-record
+  survival curves: power+floor within ΔAIC 2 of exponential;
+  fitted floor above chance line (Averell & Heathcote 2011
+  protocol, hierarchical not pooled).
+- **P905 aggregate steepening (SHOULD):** pooled β_est >
+  median per-record β (Simon 1966 heterogeneity); per-record
+  Jost ordering retained (P5 regression).
+- **P906 throughput pressure (SHOULD):** high- vs low-volume
+  day after encode → episodic R diverges in predicted
+  direction; semantic exempt (vol_scope TOST leg).
+- **P907 reinstatement cap (MUST):** reinstated verbatim pool
+  ≤ fresh event's delivered content — zero shadow-sourced
+  fields (`sav_verbatim_null`, output-diffed).
+
+Registry: P1–P907. v85 suite: P899, P900, P901, P902, P907
+MUST; P903, P904, P905, P906 SHOULD.
+
+## 175. Sources verified this version (P899–P907 backing)
+
+- **Savings:** Nelson 1978 (*JEP:HLM* 4:453 — verified:
+  savings detectable where recall AND recognition fail);
+  Nelson 1985 (*JEP:LMC* 11:472 — verified: savings is
+  Ebbinghaus's sole measure, most sensitive of the three);
+  MacLeod & Nelson 1984 (replication — concatenation
+  interpretation); Nelson, Fehling & Moore-Glascock 1979
+  (semantic savings).
+- **Form:** Averell & Heathcote 2011 (*J. Math. Psychol.*
+  55:25–35 — verified: hierarchical Bayesian; exponential
+  best raw fit, power wins model selection, above-chance
+  asymptote in all analyses); Simon 1966 (*Psychometrika*
+  31:505 — verified: Jost + exponential ⇒ heterogeneous
+  rates, aggregate steepening); Rubin & Wenzel 1996 (Part I).
+- **Need-prior:** Anderson & Schooler 1991 (*Psych. Sci.*
+  2:396 — verified: need-probability mirrors availability
+  across three corpora); Schooler & Anderson follow-ups
+  (children's input replication).
+- **Throughput:** Hardt, Nader & Nadel 2013 (*TICS* 37:111 —
+  verified "Decay happens"); Frankland, Köhler & Josselyn
+  2013 (*TINS* — verified, infantile amnesia account);
+  mechanism DEBATED (adult neurogenesis rates contested) —
+  reduced form only.
+- **Established vs hypothesis:** savings-existence,
+  survival-variance, need↔availability shape correspondence,
+  above-chance asymptote, heterogeneity steepening are
+  CONSENSUS/established; hazard-as-mechanism, per-class τ
+  shift, vol_loss magnitude, savings-as-scalar-shadow are
+  RW modeling hypotheses, probe-gated P899–P907.

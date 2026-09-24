@@ -3283,3 +3283,42 @@ floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
   routine-holder's organized days encode densely; the chaotic
   character's interleaved errands mint as fragments — the
   encode-side root of event clusters.
+
+## 63. v85 sources (forgetting-curves VIII — the fade's fate)
+
+- **Nelson 1978** (*JEP:HLM* 4:453 — verified): savings
+  detectable for items nonrecallable AND nonrecognizable —
+  subthreshold traces are real and re-incrementable.
+- **Nelson 1985** (*JEP:LMC* 11:472 — verified): savings
+  during relearning is the most sensitive retention measure —
+  sensitivity order savings > recognition > recall.
+- **MacLeod & Nelson 1984** (verified replication): savings
+  on nonretrieved items after one relearning trial;
+  "concatenation" account.
+- **Averell & Heathcote 2011** (*J. Math. Psychol.* 55:25–35
+  — verified): hierarchical fits answer the averaging
+  objection — exponential best per-subject fit but power wins
+  Bayesian model selection; above-chance asymptote in all
+  analyses (briefly-studied memories can be permanent).
+- **Simon 1966** (*Psychometrika* 31:505 — verified): Jost's
+  law + exponential implies heterogeneous decay constants —
+  pooled curves steepen vs per-item.
+- **Anderson & Schooler 1991** (*Psych. Sci.* 2:396 —
+  verified): need-probability statistics (NYT headlines,
+  child-directed speech, e-mail) mirror memory-availability
+  regularities — memory's form is rational given the
+  environment.
+- **Hardt, Nader & Nadel 2013** (*TICS* 37:111 — verified):
+  "decay happens" — forgetting as active remodeling;
+  neurogenesis destabilizes existing traces.
+- **Frankland, Köhler & Josselyn 2013** (*TINS* — verified):
+  neurogenesis account of infantile amnesia — high-plasticity
+  epochs clear old traces. Mechanism DEBATED (adult human
+  neurogenesis contested); RW implements only the reduced
+  form (§4.40).
+- **Established vs hypothesis:** savings existence and
+  sensitivity order, per-individual power+floor adequacy,
+  heterogeneity steepening, need↔availability correspondence
+  = CONSENSUS/established. Hazard lottery, needRate τ
+  modulation, vol_loss ecology term, scalar savings shadow =
+  RW hypotheses (P899–P907).
