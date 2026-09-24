@@ -2491,6 +2491,9 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; propM = 0.8; footM = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; propM = 0.35; footM = 0.9; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
+      // v59: Mission garden palette — agave rosettes + echium towers
+      else if(o.kind === 'sfAgave' && V.agave){ spr = V.agave[o.v || 0]; propM = 0.7; footM = 0.7; }
+      else if(o.kind === 'sfEchium' && V.echium){ spr = V.echium[o.v || 0]; propM = 1.2; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
       // v53: the furniture layer — low objects, real heights for the
@@ -2633,6 +2636,29 @@ function sfRenderWorld(cw, ch){
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         const vegK = o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
                      o.kind === 'sfPalm' || o.kind === 'sfCypress';
+        // v59: mulch ring — park trees stand in a kept dirt collar at the
+        // dripline, not bare grass (SF Rec & Park beds the bases)
+        if(o.kind === 'sfTree' && cam.zoom >= 0.35){
+          const mr = (o.big ? 1.3 : 0.9) * SF_PXM * cam.zoom;
+          ctx.fillStyle = '#4a3826';
+          ctx.beginPath();
+          ctx.ellipse(sx, sy + cam.zoom, mr, Math.max(1.5, mr * SF_TILT), 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#5c4830';
+          ctx.beginPath();
+          ctx.ellipse(sx - mr * 0.18, sy + cam.zoom - mr * 0.1, mr * 0.72,
+                      Math.max(1.2, mr * SF_TILT * 0.72), 0, 0, Math.PI * 2);
+          ctx.fill();
+          // a few bark chips + a light crescent where the sun catches
+          ctx.fillStyle = '#6b5638';
+          for(let mi = 0; mi < 5; mi++){
+            const ma = phash(mi, o.wx + o.wy, 5730) * Math.PI * 2,
+                  md = phash(mi, o.wy, 5731) * mr * 0.8;
+            ctx.fillRect(Math.round(sx + Math.cos(ma) * md),
+                         Math.round(sy + cam.zoom + Math.sin(ma) * md * SF_TILT),
+                         Math.max(1, 1.2 * cam.zoom), Math.max(1, 0.9 * cam.zoom));
+          }
+        }
         // v31: leaf litter — wind-combed leaf/petal fall drifted leeward
         // of each crown (pink trumpet petals, ginkgo gold, plain leaf).
         // Deterministic per prop; denser under the big park crowns.
@@ -2769,6 +2795,29 @@ function sfRenderWorld(cw, ch){
             const rr = Math.sqrt(phash(di, o.wy * 11 + o.wx, 3463)) * shadeR * cam.zoom;
             ctx.fillRect(Math.round(dcx + Math.cos(a) * rr),
                          Math.round(dcy + Math.sin(a) * rr * 0.5), 1.6, 1.2);
+          }
+        }
+        // v59: wet foliage — rain-soaked crowns darken (wet cuticle
+        // absorbs light) and glint a cool sky sheen on the sun-facing
+        // flank; the same SF_WX.wet that wets the walls and roofs
+        if(vegK && SF_WX.wet > 0.25){
+          const wetA = Math.min(0.9, SF_WX.wet);
+          ctx.fillStyle = `rgba(14,24,18,${0.14 * wetA})`;
+          ctx.beginPath();
+          ctx.ellipse(sx, sy - ph * 0.55, pw * 0.46, ph * 0.4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          if(!isNight() && SF_SUN.day > 0.05){
+            const sux2 = SF_SUN.toX, suy2 = SF_SUN.toY * SF_TILT;
+            const sl3 = Math.hypot(sux2, suy2) || 1;
+            ctx.strokeStyle = `rgba(200,220,235,${(0.22 * wetA *
+                               Math.max(0.25, SF_SUN.day)).toFixed(3)})`;
+            ctx.lineWidth = Math.max(1, 1.2 * cam.zoom);
+            ctx.beginPath();
+            ctx.ellipse(sx + sux2 / sl3 * pw * 0.14,
+                        sy - ph * 0.58 + suy2 / sl3 * pw * 0.1,
+                        pw * 0.34, ph * 0.3,
+                        Math.atan2(suy2, sux2), -0.9, 0.9);
+            ctx.stroke();
           }
         }
         // v15: lit lamp spills a warm sodium pool on the pavement
@@ -7514,6 +7563,9 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; shadowR = 0.6; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; shadowR = 0.45; }
+      // v59: Mission garden palette in elevation
+      else if(o.kind === 'sfAgave' && V.sideAgave){ spr = V.sideAgave[o.v || 0]; hm = 0.8; shadowR = 0.6; }
+      else if(o.kind === 'sfEchium' && V.sideEchium){ spr = V.sideEchium[o.v || 0]; hm = 1.7; shadowR = 0.5; }
       // v53 furniture — real meter heights, knee-to-waist occluders
       else if(o.kind === 'sfHydrant'){ spr = V.hydrant[o.v || 0]; hm = 0.62; shadowR = 0.28; }
       else if(o.kind === 'sfTrashCan'){ spr = V.trashCan; hm = 0.85; shadowR = 0.35; }

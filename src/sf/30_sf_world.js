@@ -110,7 +110,7 @@ const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       // into — and sfPicnic is intentionally absent (a
                       // blanket is ground, you can cross it)
                       sfHydrant: 5, sfTrashCan: 5, sfNewsBox: 7,
-                      sfBikeRack: 8 };
+                      sfBikeRack: 8, sfAgave: 4, sfEchium: 4 };
 const SF_PICNIC = []; // v53: Dolores lawn blanket sites (render-gated)
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
@@ -546,6 +546,32 @@ function sfInitWorld(){
           // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
+          nParkVeg++;
+          // v59: agaves ring the palm root — the real Dolores beds tuck
+          // century-plant rosettes under the allée trunks
+          for(const [ax, ay] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+            const gx = wx + ax, gy = wy + ay;
+            if(sfTile(gx, gy) !== 13 || occNear(gx, gy, 1) ||
+               phash(gx, gy, 5701) > 0.42 || nParkVeg >= 1600) continue;
+            addVeg('sfAgave', gx, gy,
+                   (phash(gx, gy, 5702) - 0.5) * 10,
+                   (phash(gy, gx, 5703) - 0.5) * 10).v =
+                   phash(gx, gy, 5704) < 0.3 ? 1 : 0;
+            nParkVeg++;
+          }
+        } else if(nearWalk && !occNear(wx, wy, 1) &&
+                  phash(wx, wy, 5700) < 0.55){
+          // v59: the bedded edge — park cells that face the sidewalk and
+          // didn't take a palm carry a maintained border band: echium
+          // towers, agave rosettes, clipped shrubs, flowerbeds in a
+          // deterministic mix. A continuous planted margin is what makes
+          // the lawn read "kept city park" instead of open field.
+          const eb = phash(wx, wy, 5705);
+          addVeg(eb < 0.30 ? 'sfEchium' : eb < 0.52 ? 'sfAgave'
+               : eb < 0.80 ? 'sfShrub' : 'sfFlowerBed', wx, wy,
+                 (phash(wx, wy, 5706) - 0.5) * 10,
+                 (phash(wy, wx, 5707) - 0.5) * 10).v =
+                 phash(wx, wy, 5708) < 0.35 ? 1 : 0;
           nParkVeg++;
         } else if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
           addVeg('sfFlowerBed', wx, wy,

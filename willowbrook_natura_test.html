@@ -27534,7 +27534,7 @@ const SF_PROP_RAD = { sfLamp: 8, sfBench: 12, sfTree: 9, sfPalm: 9,
                       // into — and sfPicnic is intentionally absent (a
                       // blanket is ground, you can cross it)
                       sfHydrant: 5, sfTrashCan: 5, sfNewsBox: 7,
-                      sfBikeRack: 8 };
+                      sfBikeRack: 8, sfAgave: 4, sfEchium: 4 };
 const SF_PICNIC = []; // v53: Dolores lawn blanket sites (render-gated)
 /* v17 ground decals: world-cell rects baked into the terrain atlas —
    Dolores Park courts/playground/worn grass + per-curb paint. */
@@ -27970,6 +27970,32 @@ function sfInitWorld(){
           // the park edge, the row Dolores Park actually wears
           addVeg('sfPalm', wx, wy,
                  (phash(wx, wy, 1669) - 0.5) * 8, (phash(wy, wx, 1676) - 0.5) * 8);
+          nParkVeg++;
+          // v59: agaves ring the palm root — the real Dolores beds tuck
+          // century-plant rosettes under the allée trunks
+          for(const [ax, ay] of [[1, 0], [-1, 0], [0, 1], [0, -1]]){
+            const gx = wx + ax, gy = wy + ay;
+            if(sfTile(gx, gy) !== 13 || occNear(gx, gy, 1) ||
+               phash(gx, gy, 5701) > 0.42 || nParkVeg >= 1600) continue;
+            addVeg('sfAgave', gx, gy,
+                   (phash(gx, gy, 5702) - 0.5) * 10,
+                   (phash(gy, gx, 5703) - 0.5) * 10).v =
+                   phash(gx, gy, 5704) < 0.3 ? 1 : 0;
+            nParkVeg++;
+          }
+        } else if(nearWalk && !occNear(wx, wy, 1) &&
+                  phash(wx, wy, 5700) < 0.55){
+          // v59: the bedded edge — park cells that face the sidewalk and
+          // didn't take a palm carry a maintained border band: echium
+          // towers, agave rosettes, clipped shrubs, flowerbeds in a
+          // deterministic mix. A continuous planted margin is what makes
+          // the lawn read "kept city park" instead of open field.
+          const eb = phash(wx, wy, 5705);
+          addVeg(eb < 0.30 ? 'sfEchium' : eb < 0.52 ? 'sfAgave'
+               : eb < 0.80 ? 'sfShrub' : 'sfFlowerBed', wx, wy,
+                 (phash(wx, wy, 5706) - 0.5) * 10,
+                 (phash(wy, wx, 5707) - 0.5) * 10).v =
+                 phash(wx, wy, 5708) < 0.35 ? 1 : 0;
           nParkVeg++;
         } else if(nearPath && h1 < 0.045 && !occNear(wx, wy, 1)){
           addVeg('sfFlowerBed', wx, wy,
@@ -29333,6 +29359,67 @@ function sfPlanterSpr(){
     paBlob(g, bx, by, 1.1, c);
   return s;
 }
+/* ---- v59: Mission garden palette — agave rosettes + echium spires.
+   The neighborhood's signature succulent planting: century-plant
+   rosettes ringing the Dolores palms, Pride of Madeira towers in the
+   border beds. Both drought plants — they read SF, not generic park. */
+function sfAgaveSpr(v){
+  // century plant from above: a star of thick tapered leaves, pale
+  // margins, dark terminal spines. v1 = variegated 'marginata'.
+  const s = paMk(40, 34), g = s.g;
+  const lf = rampOf(v === 0 ? '#5f9089' : '#6fa08a');
+  const marg = v === 0 ? '#a8ccc0' : '#e8d88a';
+  paEllipse(g, 20, 26, 15, 5, 'rgba(24,18,10,0.28)');   // sit shadow
+  paEllipse(g, 20, 25, 13, 4.4, MAT.dirt[2]);          // mulch collar
+  paNoise(g, 8, 22, 24, 6, [MAT.dirt[0], MAT.dirt[3]], 0.3, 5700 + v);
+  const cx = 20, cy = 16;
+  for(let f = 0; f < 11; f++){
+    const ang = -Math.PI * 0.08 - f * (Math.PI * 2 / 11) +
+                (phash(f, v, 5701) - 0.5) * 0.22;
+    const len = 9 + phash(f, v, 5702) * 5 - (f % 3);
+    const dx = Math.cos(ang), dy = Math.sin(ang);
+    for(let k = 1; k <= len; k++){
+      const px = cx + dx * k, py = cy + dy * k * 0.62 + k * k * 0.02;
+      const wpx = Math.max(0.6, 2.4 - k * 0.16);       // leaf tapers out
+      const cc = k > len - 2 ? '#2e4038'               // dark spine tip
+               : (k % 2 ? lf[3] : lf[2]);
+      paEllipse(g, px, py, wpx, Math.max(0.7, wpx * 0.55), cc);
+      if(k > 1 && k < len - 1)                          // pale margin
+        paPX(g, Math.round(px - dy * wpx), Math.round(py + dx * wpx * 0.5), marg);
+    }
+    paPX(g, Math.round(cx + dx * (len + 1)),           // terminal spine
+           Math.round(cy + dy * (len + 1) * 0.62 + len * len * 0.02), '#24352e');
+  }
+  paBlob(g, cx, cy + 1, 3.2, lf[1]);                    // dark heart
+  paPX(g, cx - 1, cy, lf[5]); paPX(g, cx + 1, cy, lf[4]);
+  return s;
+}
+function sfEchiumSpr(v){
+  // Pride of Madeira: silvery leaf mound carrying upright violet flower
+  // cones — the purple candles that stripe Mission gardens April-June,
+  // browning to seed heads through September (v1 = seed-spent).
+  const s = paMk(36, 40), g = s.g;
+  const lf = rampOf('#7a9a72'), ld = rampOf('#4a6a46');
+  paEllipse(g, 18, 34, 14, 4, 'rgba(24,18,10,0.28)');
+  paEllipse(g, 18, 30, 13, 6, ld[1]);
+  sfLeafCanopy(g, 18, 29, 12, 5.5, 5710 + v, lf, ld, { n: 40 });
+  // flower cones — dense speckled spikes rising off the mound
+  const cols = v === 0 ? ['#8a5ad0', '#a878e8', '#6a42b0', '#c098f0']
+                       : ['#8a6a50', '#a8845e', '#6a5038', '#c0a078'];
+  const spikes = [[13, 20, 9], [20, 16, 12], [26, 21, 8]];
+  for(let si = 0; si < spikes.length; si++){
+    const [bx, by, hh] = spikes[si];
+    for(let k = 0; k < hh; k++){
+      const wpx = Math.max(0.8, 2.8 * (1 - k / hh));   // cone taper
+      paEllipse(g, bx + Math.round((phash(k, si, 5711) - 0.5)),
+                by - k, wpx, Math.max(0.8, wpx * 0.7),
+                cols[(k + si) % cols.length]);
+      if(k % 2 === 0) paPX(g, Math.round(bx - wpx), by - k, '#e8e0f8');
+    }
+    paPX(g, bx, by - hh, cols[1]);                      // lit tip
+  }
+  return s;
+}
 /* ---- v31: URBAN FOREST — elevation vegetation + park canopy masses ----
    sfBigTreeSpr: 128px park-scale crown (~8m at 16px/m) — the broad
    multi-lobed canopies Dolores Park actually carries, built from the
@@ -29451,6 +29538,55 @@ function sfVegSideSpr(kind, v, lf0, ld0){
         }
       }
       paPX(g, Math.round(tx + fx * len), Math.round(ty + fy * len * 0.55 + len * len * 0.05), lf[5]);
+    }
+    return s;
+  }
+  if(kind === 'agave'){
+    // century plant in profile: stiff tapered leaves cupped upward from
+    // a ground rosette, pale margins, needle tips
+    const s = paMk(56, 46), g = s.g;
+    const lf = rampOf(v === 0 ? '#5f9089' : '#6fa08a');
+    const marg = v === 0 ? '#a8ccc0' : '#e8d88a';
+    paEllipse(g, 28, 43, 20, 3, 'rgba(24,18,10,0.3)');
+    paEllipse(g, 28, 42, 17, 2.6, MAT.dirt[2]);
+    for(let f = 0; f < 9; f++){
+      const sp = (f - 4) / 4;                          // -1..1 spread
+      const len = 26 - Math.abs(sp) * 12 + phash(f, v, 5720) * 4;
+      for(let k = 0; k < len; k++){
+        const t = k / len;
+        const px = 28 + sp * (4 + t * 14), py = 42 - k * (1 - Math.abs(sp) * 0.28);
+        const wpx = Math.max(0.7, 2.6 * (1 - t) + 0.4);
+        paEllipse(g, px, py, wpx, 1.1, k > len - 3 ? '#2e4038' : (k % 2 ? lf[3] : lf[2]));
+        if(k > 2 && k < len - 2 && k % 2 === 0)
+          paPX(g, Math.round(px - wpx), Math.round(py), marg);
+      }
+      paPX(g, Math.round(28 + sp * 18), Math.round(42 - len * (1 - Math.abs(sp) * 0.28)), '#24352e');
+    }
+    paBlob(g, 28, 40, 4, lf[1]);
+    return s;
+  }
+  if(kind === 'echium'){
+    // Pride of Madeira in profile: silvery leaf mound + tall violet
+    // flower candles — the unmistakable Mission-garden vertical
+    const s = paMk(48, 110), g = s.g;
+    const lf = rampOf('#7a9a72'), ld = rampOf('#4a6a46');
+    paEllipse(g, 24, 106, 18, 3, 'rgba(24,18,10,0.3)');
+    paEllipse(g, 24, 100, 15, 8, ld[1]);
+    sfLeafCanopy(g, 24, 98, 14, 7, 5725 + v, lf, ld, { n: 46 });
+    const cols = v === 0 ? ['#8a5ad0', '#a878e8', '#6a42b0', '#c098f0']
+                         : ['#8a6a50', '#a8845e', '#6a5038', '#c0a078'];
+    const spikes = [[15, 40], [25, 26], [34, 48]];
+    for(let si = 0; si < spikes.length; si++){
+      const [bx, top] = spikes[si];
+      const hh = 96 - top;
+      for(let k = 0; k < hh; k += 1.4){
+        const t = k / hh, wpx = Math.max(0.9, 3.2 * (1 - t));
+        paEllipse(g, bx + (phash(k, si, 5726) - 0.5) * 1.6, 96 - k,
+                  wpx, 1.5, cols[(Math.floor(k) + si) % cols.length]);
+        if(Math.floor(k) % 3 === 0)
+          paPX(g, Math.round(bx - wpx), Math.round(96 - k), '#e8e0f8');
+      }
+      paPX(g, bx, top, cols[1]);
     }
     return s;
   }
@@ -29737,6 +29873,11 @@ function buildSfVeg(){
   V.shrub = [sfShrubSpr(0), sfShrubSpr(1)];
   V.flowerbed = [sfFlowerBedSpr(0), sfFlowerBedSpr(1)];
   V.planter = sfPlanterSpr();
+  // v59: Mission garden palette — agave rosettes + echium towers
+  V.agave = [sfAgaveSpr(0), sfAgaveSpr(1)];
+  V.echium = [sfEchiumSpr(0), sfEchiumSpr(1)];
+  V.sideAgave = [sfVegSideSpr('agave', 0), sfVegSideSpr('agave', 1)];
+  V.sideEchium = [sfVegSideSpr('echium', 0), sfVegSideSpr('echium', 1)];
   // v17: V.car[v*2 + dir] — dir 0 = E-W street (horizontal), 1 = N-S
   V.car = [];
   for(let cv = 0; cv < 8; cv++){
@@ -33554,6 +33695,9 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; propM = 0.8; footM = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; propM = 0.35; footM = 0.9; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; propM = 0.7; footM = 0.6; }
+      // v59: Mission garden palette — agave rosettes + echium towers
+      else if(o.kind === 'sfAgave' && V.agave){ spr = V.agave[o.v || 0]; propM = 0.7; footM = 0.7; }
+      else if(o.kind === 'sfEchium' && V.echium){ spr = V.echium[o.v || 0]; propM = 1.2; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
       // v53: the furniture layer — low objects, real heights for the
@@ -33696,6 +33840,29 @@ function sfRenderWorld(cw, ch){
         const pw = sprC.width * cam.zoom, ph = sprC.height * cam.zoom;
         const vegK = o.kind === 'sfTree' || o.kind === 'sfStreetTree' ||
                      o.kind === 'sfPalm' || o.kind === 'sfCypress';
+        // v59: mulch ring — park trees stand in a kept dirt collar at the
+        // dripline, not bare grass (SF Rec & Park beds the bases)
+        if(o.kind === 'sfTree' && cam.zoom >= 0.35){
+          const mr = (o.big ? 1.3 : 0.9) * SF_PXM * cam.zoom;
+          ctx.fillStyle = '#4a3826';
+          ctx.beginPath();
+          ctx.ellipse(sx, sy + cam.zoom, mr, Math.max(1.5, mr * SF_TILT), 0, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = '#5c4830';
+          ctx.beginPath();
+          ctx.ellipse(sx - mr * 0.18, sy + cam.zoom - mr * 0.1, mr * 0.72,
+                      Math.max(1.2, mr * SF_TILT * 0.72), 0, 0, Math.PI * 2);
+          ctx.fill();
+          // a few bark chips + a light crescent where the sun catches
+          ctx.fillStyle = '#6b5638';
+          for(let mi = 0; mi < 5; mi++){
+            const ma = phash(mi, o.wx + o.wy, 5730) * Math.PI * 2,
+                  md = phash(mi, o.wy, 5731) * mr * 0.8;
+            ctx.fillRect(Math.round(sx + Math.cos(ma) * md),
+                         Math.round(sy + cam.zoom + Math.sin(ma) * md * SF_TILT),
+                         Math.max(1, 1.2 * cam.zoom), Math.max(1, 0.9 * cam.zoom));
+          }
+        }
         // v31: leaf litter — wind-combed leaf/petal fall drifted leeward
         // of each crown (pink trumpet petals, ginkgo gold, plain leaf).
         // Deterministic per prop; denser under the big park crowns.
@@ -33832,6 +33999,29 @@ function sfRenderWorld(cw, ch){
             const rr = Math.sqrt(phash(di, o.wy * 11 + o.wx, 3463)) * shadeR * cam.zoom;
             ctx.fillRect(Math.round(dcx + Math.cos(a) * rr),
                          Math.round(dcy + Math.sin(a) * rr * 0.5), 1.6, 1.2);
+          }
+        }
+        // v59: wet foliage — rain-soaked crowns darken (wet cuticle
+        // absorbs light) and glint a cool sky sheen on the sun-facing
+        // flank; the same SF_WX.wet that wets the walls and roofs
+        if(vegK && SF_WX.wet > 0.25){
+          const wetA = Math.min(0.9, SF_WX.wet);
+          ctx.fillStyle = `rgba(14,24,18,${0.14 * wetA})`;
+          ctx.beginPath();
+          ctx.ellipse(sx, sy - ph * 0.55, pw * 0.46, ph * 0.4, 0, 0, Math.PI * 2);
+          ctx.fill();
+          if(!isNight() && SF_SUN.day > 0.05){
+            const sux2 = SF_SUN.toX, suy2 = SF_SUN.toY * SF_TILT;
+            const sl3 = Math.hypot(sux2, suy2) || 1;
+            ctx.strokeStyle = `rgba(200,220,235,${(0.22 * wetA *
+                               Math.max(0.25, SF_SUN.day)).toFixed(3)})`;
+            ctx.lineWidth = Math.max(1, 1.2 * cam.zoom);
+            ctx.beginPath();
+            ctx.ellipse(sx + sux2 / sl3 * pw * 0.14,
+                        sy - ph * 0.58 + suy2 / sl3 * pw * 0.1,
+                        pw * 0.34, ph * 0.3,
+                        Math.atan2(suy2, sux2), -0.9, 0.9);
+            ctx.stroke();
           }
         }
         // v15: lit lamp spills a warm sodium pool on the pavement
@@ -38577,6 +38767,9 @@ function sfRenderStreet(cw, ch){
       else if(o.kind === 'sfShrub'){ spr = V.shrub[Math.abs(hash2(o.wx, o.wy, 10) * V.shrub.length) | 0]; hm = 0.9; shadowR = 0.7; }
       else if(o.kind === 'sfFlowerBed'){ spr = V.flowerbed[Math.abs(hash2(o.wx, o.wy, 11) * V.flowerbed.length) | 0]; hm = 0.5; shadowR = 0.6; }
       else if(o.kind === 'sfPlanter'){ spr = V.planter; hm = 0.7; shadowR = 0.45; }
+      // v59: Mission garden palette in elevation
+      else if(o.kind === 'sfAgave' && V.sideAgave){ spr = V.sideAgave[o.v || 0]; hm = 0.8; shadowR = 0.6; }
+      else if(o.kind === 'sfEchium' && V.sideEchium){ spr = V.sideEchium[o.v || 0]; hm = 1.7; shadowR = 0.5; }
       // v53 furniture — real meter heights, knee-to-waist occluders
       else if(o.kind === 'sfHydrant'){ spr = V.hydrant[o.v || 0]; hm = 0.62; shadowR = 0.28; }
       else if(o.kind === 'sfTrashCan'){ spr = V.trashCan; hm = 0.85; shadowR = 0.35; }
