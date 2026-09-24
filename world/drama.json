@@ -1,6 +1,6 @@
 {
- "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
- "schema_version": "drama-v4",
+ "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
+ "schema_version": "drama-v5",
  "seed_states": [
   "dormant",
   "pressured",
@@ -859,6 +859,49 @@
    ],
    "legible_shadow": "chairs on tables; the last-two-in-the-room geometry; 'we're closing' as punctuation",
    "exhaustion": "posted hours only — hours never flex for pressure; once per evening by construction"
+  },
+  {
+   "id": "P-19",
+   "condition": "curb night — bins out on the shared curb the evening before collection",
+   "produced_by": "the buildings' weekly sanitation routine",
+   "feeds": [
+    "F5",
+    "S4"
+   ],
+   "legible_shadow": "two households' bins side by side; a held curb conversation; who takes whose bins back",
+   "exhaustion": "weekly by construction; the curb is a whisper venue — a brink tell at the curb is off-register"
+  },
+  {
+   "id": "P-20",
+   "condition": "shift-change handoff — the between-shifts ten minutes at a staffed venue",
+   "produced_by": "the venues' posted shift schedules (jobs/shifts cadence)",
+   "feeds": [
+    "F2",
+    "F6"
+   ],
+   "legible_shadow": "two staff in the doorway; a handoff that runs long; the apron change",
+   "exhaustion": "per posted schedule only — a handoff can't be extended for pressure; at most once per shift boundary"
+  },
+  {
+   "id": "P-21",
+   "condition": "the shared-landing mail sort — a building's tenants sorting a common mailbox",
+   "produced_by": "the multi-unit buildings' shared mailboxes + ordinary mis-sorts",
+   "feeds": [
+    "S4",
+    "F1"
+   ],
+   "legible_shadow": "mail set aside on the ledge; a name the building doesn't know held a beat too long",
+   "exhaustion": "daily delivery cadence; a mis-sort is rare — two in a week is a scripted beat"
+  },
+  {
+   "id": "P-22",
+   "condition": "the chorus's last lap — Esther and Ray's final bench of the evening",
+   "produced_by": "the park chorus's own schedule",
+   "feeds": [
+    "all"
+   ],
+   "legible_shadow": "the bench math ending the day; a last look carried home",
+   "exhaustion": "nightly by construction; they notice and carry — they never pursue, and the lap never produces a first knower (§7)"
   }
  ],
  "state_evidence": {
@@ -1504,6 +1547,114 @@
     "tendency": "the 3 p.m. monument — spoken or unspoken, the ritual's new shape carrying its own next question",
     "needs": "the post-F4 shape of the ritual; promotion waits for the residue to have one"
    }
+  ]
+ },
+ "daypart_dramaturgy": {
+  "doc": "drama-notes §36 — where shadows may land in time; a permission structure like venue dramaturgy: a daypart may carry a shadow, never must",
+  "rows": [
+   {
+    "daypart": "First hour (café open → ~9 a.m.)",
+    "fuses": [
+     "F6",
+     "S9"
+    ],
+    "shadows": "Mars setting the counter's tone for the day; the errand that appears near the first",
+    "never": "a brink tell before the block is awake — the first hour is whisper-grade only"
+   },
+   {
+    "daypart": "Midday errands (late morning–2 p.m.)",
+    "fuses": [
+     "F1",
+     "S6"
+    ],
+    "shadows": "the supplier loop; clipboard strangers; notices landing in daylight",
+    "never": "a shadow staged at a venue the character has no routine reason to be in — dayparts never manufacture presence"
+   },
+   {
+    "daypart": "The 3 p.m. hour",
+    "fuses": [
+     "F4"
+    ],
+    "shadows": "Tomás and Mars's coffee — the block's fixed point",
+    "never": "any other fuse's shadow competing inside the ritual — the 3 p.m. hour is spoken for"
+   },
+   {
+    "daypart": "Closing time (venue-dependent, evening)",
+    "fuses": [
+     "F3",
+     "F4"
+    ],
+    "shadows": "P-18's last-two-in-the-room geometry",
+    "never": "hours flexed for pressure; a brink tell that exists only because closing was engineered early"
+   },
+   {
+    "daypart": "The flats at night (9457, 9418 interiors)",
+    "fuses": [
+     "F2",
+     "S10",
+     "S9"
+    ],
+    "shadows": "domestic space — where the flat's secrets live",
+    "never": "a brink shadow with no daylight re-readable trace — interior movement must still cast a §12 shadow"
+   },
+   {
+    "daypart": "Overnight",
+    "fuses": [
+     "none"
+    ],
+    "shadows": "the block sleeps",
+    "never": "a fuse that moves overnight — a state transition with no legible daytime shadow is drama that outran the camera"
+   }
+  ],
+  "rules": [
+   "daypart ceilings are per-slot, not cumulative — §28's one-brink-per-seed-per-window exhaustion governs across all slots",
+   "the fixed points are sacred — a ritual disrupted is a pressure tell (P-07); a ritual moved is a renderer bug",
+   "time pressure is flat pressure — the pacing layer never slots a requested event where a fuse is likeliest to crack (§9, identical-twin test)"
+  ]
+ },
+ "offscreen_doctrine": {
+  "doc": "drama-notes §37 — viewership is never an input; the show is a window, not a stage",
+  "rules": [
+   "the world runs whole unwatched — full fidelity at any spectator count, because neither characters nor sim know the difference",
+   "audience size is not pressure — the pacing layer never reads spectator counts, feed traffic, or request volume as inputs; an unwatched brink still counts toward §28's exhaustion cap",
+   "no prime-time steering — shadows distribute across the venues/dayparts real routines produce; a distribution tracking the audience is a drift-review violation",
+   "the archive is the catch-up, not a spoiler feed — a late viewer can reconstruct only what a live viewer could have seen (§12 in retrospect)",
+   "renderer neutrality — the same shadow renders identically at any spectator count; camera direction is a view layer that follows the world, never cues it",
+   "characters never feel watched — no brain receives viewership; self-consciousness is in-character only about the block watching"
+  ]
+ },
+ "surface_aftercare": {
+  "doc": "drama-notes §38 — the 2–4 block days between a surface event and the recovery week settling; texture + what is protected",
+  "per_fuse": {
+   "F1": {
+    "window_texture": "paperwork becomes block fact — the flyer stops being an object and starts being a topic; tenants re-read every kindness for motive",
+    "protected": "Victor's process — his rational, unemotional call must not be rushed by the noise his avoidance created; C6 and C2's fear is felt, never performed"
+   },
+   "F2": {
+    "window_texture": "the flat's furniture of politeness — who cooks, who knocks, who leaves a room; Marisol's hurt-at-concealment ticking underneath",
+    "protected": "Priya's choices — the aftermath is hers to pace; nobody else's reconciliation or schadenfreude may be staged around her"
+   },
+   "F3": {
+    "window_texture": "Jules's correspondent pose finally has a cost to narrate; the block kindly doesn't mention it",
+    "protected": "the crush's dignity — a named crush is not a license for the block to matchmake or tease"
+   },
+   "F4": {
+    "window_texture": "the 3 p.m. ritual's new shape — kept, changed, or quietly ended; the ritual itself is the residue",
+    "protected": "Tomás's pace — an unplanned move already cost him; the window may not demand a second one"
+   },
+   "F5": {
+    "window_texture": "help arriving as exchange or not arriving — hemming for groceries, a fixed shelf, an escorted walk that was 'already happening'",
+    "protected": "dignity, always — no pity framing, no block consensus about what to 'do about' Carmen; she sets the terms of being helped"
+   },
+   "F6": {
+    "window_texture": "everyone re-reading old posts looking for themselves; the counter's small talk turning careful",
+    "protected": "Mars's standing — the block decides what the blog meant through ordinary treatment, not a reckoning scene"
+   }
+  },
+  "rules": [
+   "one window at a time — overlapping surface windows is a stacked week with extra steps; §31 governs which aftercare may echo where",
+   "aftercare spends nothing — the window is a spend ban on new pressure routes; texture isn't spend, it's residue landing",
+   "the window ends when the routines do — recovery is observed, not declared; state moves per §21 evidence"
   ]
  }
 }

@@ -507,8 +507,8 @@ const PUB = Object.values(PT.surfaces)
         if (!l.w || !l.p || !l.b) add(g, 'fail', 'drama.html', null, `LADDERS ${l.id}: whisper/pressure/brink field empty`);
       if (!VEN || VEN.length !== (D.venue_dramaturgy || []).length)
         add(g, 'fail', 'drama.html', null, 'VENUES count != venue_dramaturgy rows');
-      /* ---- v66 blocks (schema drama-v4) ---- */
-      if (D.schema_version === 'drama-v4') {
+      /* ---- v66+ blocks (schema drama-v4 or later) ---- */
+      if (/^drama-v[4-9]\d*$/.test(D.schema_version || '')) {
         /* fuse_interference: all C(6,2)=15 pairs exactly once, relation in enum */
         const FI = D.fuse_interference || {};
         const RELS = new Set(FI.relations || []);
@@ -567,6 +567,46 @@ const PUB = Object.values(PT.surfaces)
           add(g, 'fail', 'drama.html', null, 'COMEDY count != fuses');
         if (!NUR || NUR.length !== (RN.candidates || []).length)
           add(g, 'fail', 'drama.html', null, 'NURSERY count != residue_nursery.candidates');
+      }
+      /* ---- v80 blocks (schema drama-v5 or later) ---- */
+      if (/^drama-v[5-9]\d*$/.test(D.schema_version || '')) {
+        /* daypart_dramaturgy: rows need daypart + shadows + never; fuse refs valid */
+        const DP = D.daypart_dramaturgy || {};
+        const seenD = new Set();
+        for (const r of DP.rows || []) {
+          if (!r.daypart || seenD.has(r.daypart)) add(g, 'fail', 'drama.json', null, `daypart_dramaturgy: missing/duplicate daypart "${r.daypart}"`);
+          seenD.add(r.daypart);
+          for (const k of ['shadows', 'never'])
+            if (!r[k]) add(g, 'fail', 'drama.json', null, `daypart "${r.daypart}": missing ${k}`);
+          for (const f of r.fuses || [])
+            if (!fuses.has(f) && f !== 'all' && f !== 'none' && !/^S\d+$/.test(f))
+              add(g, 'fail', 'drama.json', null, `daypart "${r.daypart}": unknown fuse/seed "${f}"`);
+        }
+        if (!seenD.size) add(g, 'fail', 'drama.json', null, 'daypart_dramaturgy.rows empty');
+        /* offscreen_doctrine: rules must fence viewership out of pressure */
+        const OD = D.offscreen_doctrine || {};
+        if (!(OD.rules || []).length) add(g, 'fail', 'drama.json', null, 'offscreen_doctrine.rules empty');
+        if (!(OD.rules || []).some(r => /audience size is not pressure|viewership|spectator count/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'offscreen_doctrine must fence viewership out of pressure inputs');
+        /* surface_aftercare: every fuse exactly once, texture + protected */
+        const SA = (D.surface_aftercare || {}).per_fuse || {};
+        for (const f of fuses) {
+          const c = SA[f] || {};
+          if (!c.window_texture || !c.protected)
+            add(g, 'fail', 'drama.json', null, `surface_aftercare.${f}: window_texture/protected missing`);
+        }
+        if (!(D.surface_aftercare || {}).rules || !(D.surface_aftercare.rules || []).some(r => /spends nothing|spend ban/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'surface_aftercare.rules must carry the spend ban (§38)');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['dayparts', 'offscreen', 'aftercare'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const DPT = grab('DAYPARTS'), OFF = grab('OFFSCREEN'), AFC = grab('AFTERCARE');
+        if (!DPT || DPT.length !== (DP.rows || []).length)
+          add(g, 'fail', 'drama.html', null, 'DAYPARTS count != daypart_dramaturgy.rows');
+        if (!OFF || OFF.length !== (OD.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'OFFSCREEN count != offscreen_doctrine.rules');
+        if (!AFC || AFC.length !== fuses.size)
+          add(g, 'fail', 'drama.html', null, 'AFTERCARE count != fuses');
       }
     }
     /* seeds must never be reachable from spectator contracts */
