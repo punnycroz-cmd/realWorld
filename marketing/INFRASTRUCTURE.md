@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v149 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v164 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -216,6 +216,10 @@ to include the live DNS row).
   as a public `data-endpoint` attribute (not secret)
 - Uptime-monitor webhook/email — owner config
 
+Rotation & compromise are a separate runbook: `deploy/secrets-rotation.md`
+(per-secret rotate procedure, blast radius, cadence, and the leak playbook —
+rotate FIRST at the issuer, scrub history later, never the reverse).
+
 ## 10. Owner decisions still open
 
 1. Real domain name (drives G3 sweep, DNS, OG URLs, email addresses).
@@ -248,7 +252,10 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is the
   ONE artifact git can't reproduce — `deploy/umami-backup.example` ships the
   nightly `pg_dump` cron + restore drill so the policy is ready before G8,
-  not deferred to it.
+  not deferred to it. Standing guard: `tools/backup_verify.sh latest
+  /srv/backup/umami` appended to that cron fails (and mails via MAILTO) if
+  the newest dump is stale, gzip-corrupt, or a hollow non-pg_dump file —
+  the "backup is silently broken" case uptime probes can't see.
 - **TLS:** Caddy auto-renews ~30 days out; the 14-day monitor alert means
   renewal already failed once — check 80/443 reachability and LE
   rate-limits, don't wait for day 0.
@@ -276,6 +283,15 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   verify MISMATCH + prod_smoke FAIL), then flip the rollback symlink and
   assert green again. Run it whenever deploy-site.sh, prod_smoke.sh, or
   the release layout change. Rehearsed PASS 2026-09-23 (v89).
+- **After an incident:** every SEV-1/2 gets a postmortem within 48 h —
+  `deploy/incident-postmortem.md` is the template + filing convention
+  (`deploy/incidents/YYYY-MM-DD-<slug>.md`). Its "what caught it" section
+  is how detector gaps become checklist/tool action items instead of
+  folklore; incident-comms drafts stay truth-conditional on it.
+- **Secret rotation:** cadence + procedures in `deploy/secrets-rotation.md`
+  (annual sitting, quarterly registrar-lock review, on-suspicion immediate).
+  Rotation is deliberately NOT scripted — every rotate is an owner action
+  at an issuer dashboard or over SSH.
 
 ## 12. Disaster recovery — host loss
 

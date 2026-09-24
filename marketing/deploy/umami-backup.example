@@ -37,5 +37,9 @@
 #   restores at provisioning time, then spot-check monthly (uptime_probe
 #   covers the service, not the backup — check file mtimes in the same cron
 #   mail/log review).
+# - Cheaper standing guard, no docker needed: append
+#     && /path/to/tools/backup_verify.sh latest /srv/backup/umami
+#   to the cron line — it fails (and mails via cron MAILTO) if the newest
+#   dump is stale, corrupt, or a hollow non-pg_dump file.
 # - If analytics lands on a hosted Plausible/Umami cloud instead (G8
 #   alternative), this file is moot — export via the provider's tools.
