@@ -109,6 +109,8 @@
     <button data-t="led">Ledger</button>
     <button data-t="cast">Cast</button>
     <button data-t="house">Housing</button>
+    <button data-t="drive">Drive</button>
+    <button data-t="archive">Archive</button>
   </div>
   <div id="rwBody"></div>
 </div>
@@ -540,9 +542,183 @@
     });
   }
 
+  /* ---------- DRIVE: catalytic actions on a live possession ----------
+     bounded verbs → instant delivery → observable consequence. The AI
+     may refuse (convo invite only — a main's brain decides). Every beat
+     lands in the session's intervention trail (gsPossessLog). */
+  var driveCid = null, driveLast = null;
+  function mySessions(){
+    var out = [];
+    if(typeof GS_POSSESS === 'object')
+      for(var c in GS_POSSESS)
+        if(GS_POSSESS[c] && GS_POSSESS[c].playerId === pid()) out.push(c);
+    return out;
+  }
+  function renderDrive(){
+    var sess = mySessions();
+    if(driveCid && sess.indexOf(driveCid) < 0) driveCid = null;
+    if(!driveCid && sess.length) driveCid = sess[0];
+    var h = '<div class="rw-sec">catalytic actions — hook → bounded verb ' +
+      '→ visible consequence · every beat logged</div>';
+    h += '<label>possessed pawn (live session)</label><select id="dvPawn">';
+    sess.forEach(function(c){
+      h += '<option value="' + c + '"' + (c === driveCid ? ' selected' : '') +
+        '>' + esc(charLabel(c)) + ' (' + c + ')</option>'; });
+    h += '</select>';
+    if(!sess.length)
+      h += '<div class="hint">no live possession — file a possess request ' +
+           'for one of your hires (Requests → possess), it activates here. ' +
+           'The 8 mains refuse absolutely.</div>';
+    h += '<div id="dvCard"></div>';
+    h += '<div class="rw-sec">intervention log — what the camera saw</div>' +
+         '<div id="dvLog"></div>';
+    body.innerHTML = h;
+    var sel = $('dvPawn');
+    if(sel) sel.onchange = function(){ driveCid = sel.value; driveLast = null; renderDrive(); };
+    renderDriveCard(); renderDriveLog();
+  }
+  function driveVerb(fn, arg){
+    var r;
+    try{ r = B()[fn] ? B()[fn](driveCid, pid(), arg) : { ok:false, err:'no_bridge' }; }
+    catch(e){ r = { ok:false, err: String(e && e.message || e) }; }
+    driveLast = { fn: fn, arg: arg, r: r, at: new Date().toLocaleTimeString() };
+    renderDriveCard(); renderDriveLog();
+  }
+  function renderDriveCard(){
+    var el = $('dvCard'); if(!el) return;
+    var cid = driveCid;
+    if(!cid){ el.innerHTML = ''; return; }
+    var v = VILLAGERS.find(function(x){ return x._castId === cid; });
+    var s = GS_POSSESS[cid] || {};
+    var meter = (B().gsRequestMeter && s.reqId) ? (B().gsRequestMeter(s.reqId) || {}) : {};
+    var h = '<div class="rq"><div class="rr"><b>' + esc(charLabel(cid)) + '</b>' +
+      '<span class="st">' + esc(s.inside || (v && v.inside) || 'outside') +
+      (meter.remainingMin != null ? ' · ' + meter.remainingMin.toFixed(1) + 'min' : '') +
+      ' · spent $' + (s.spent || 0) + '</span></div>';
+    /* verbs */
+    h += '<div class="rw-cams" style="margin-top:6px">';
+    h += '<button data-v="scene">scene</button>';
+    h += '<button data-v="enter">enter ▸</button>';
+    h += '<button data-v="exit">exit</button>';
+    h += '<button data-v="menu">menu</button>';
+    h += '<button data-v="buy">buy ▸</button>';
+    h += '<button data-v="greet">greet ▸</button>';
+    h += '<button data-v="rest">rest</button></div>';
+    h += '<div id="dvArgs"></div>';
+    if(driveLast){
+      var r = driveLast.r || {};
+      h += '<div class="quote" style="color:' + (r.ok ? '#5fae7f' : '#d4695e') + '">' +
+        esc(driveLast.at + ' · ' + driveLast.fn + (driveLast.arg ? ' ' + driveLast.arg : '') +
+        ' → ' + (r.ok ? 'delivered' : 'refused: ' + (r.err || '?')) ) + '</div>';
+      if(r.ok && (r.board || r.items || r.scene || r.text))
+        h += '<div class="hint" style="font-style:normal">' +
+             esc(JSON.stringify(r).slice(0, 400)) + '</div>';
+    }
+    h += '</div>';
+    el.innerHTML = h;
+    el.querySelectorAll('button[data-v]').forEach(function(b){
+      b.onclick = function(){ drivePick(b.dataset.v); };
+    });
+  }
+  function drivePick(v){
+    var cid = driveCid; if(!cid) return;
+    if(v === 'exit' || v === 'rest' || v === 'scene' || v === 'menu'){
+      driveVerb('gsPossess' + v.charAt(0).toUpperCase() + v.slice(1)); return;
+    }
+    /* arg pickers */
+    var el = $('dvArgs'), h = '';
+    if(v === 'enter'){
+      h = '<label>venue</label><select id="dvA"><option value="home">home</option>';
+      (typeof GS_BOARDS === 'object' ? Object.keys(GS_BOARDS) : []).forEach(function(n){
+        var b = GS_BOARDS[n];
+        if(b && !b.openAir) h += '<option>' + esc(n) + '</option>'; });
+      h += '</select>';
+    } else if(v === 'buy'){
+      var m = B().gsPossessMenu ? B().gsPossessMenu(cid, pid()) : null;
+      if(!m || !m.ok){ driveLast = { fn:'gsPossessMenu', r: m || {ok:false,err:'no_menu'},
+          at: new Date().toLocaleTimeString() }; renderDriveCard(); return; }
+      h = '<label>off the board — ' + esc(m.venue) + ' · $' + m.balance + ' on you</label><select id="dvA">';
+      (m.items || []).forEach(function(i){
+        h += '<option value="' + esc(i.id || i.label) + '">' + esc(i.label) +
+             ' — $' + i.cost + '</option>'; });
+      h += '</select>';
+    } else if(v === 'greet'){
+      h = '<label>neighbor</label><select id="dvA">';
+      liveCast().forEach(function(x){
+        if(x._castId !== cid)
+          h += '<option value="' + x._castId + '">' + esc(x.name) + '</option>'; });
+      h += '</select><div class="hint">a hello is only an invite — the ' +
+           'main\u2019s own brain decides whether to talk back.</div>';
+    }
+    h += '<button class="act" id="dvGo">do it</button>';
+    el.innerHTML = h;
+    $('dvGo').onclick = function(){
+      var arg = ($('dvA')||{}).value;
+      driveVerb('gsPossess' + v.charAt(0).toUpperCase() + v.slice(1), arg);
+    };
+  }
+  function renderDriveLog(){
+    var el = $('dvLog'); if(!el) return;
+    var cid = driveCid; if(!cid){ el.innerHTML = ''; return; }
+    var log = (B().gsPossessLog ? B().gsPossessLog(cid) : []);
+    var sess = GS_POSSESS[cid] || {};
+    var acts = sess.acts || [];
+    var h = '<ul class="wl">';
+    acts.slice(-14).reverse().forEach(function(a){
+      h += '<li><span class="t">' + fmtT(a.m) + '</span>' +
+        '<span class="k scene">' + esc(a.k) + '</span>' + esc(a.t) + '</li>'; });
+    h += '</ul>';
+    var deb = (B().gsPossessDebrief ? B().gsPossessDebrief(cid) : null);
+    if(deb)
+      h += '<div class="hint">last handoff: ' + esc(JSON.stringify(deb).slice(0, 220)) + '</div>';
+    if(!acts.length && !deb) h += '<div class="hint">no beats yet — drive something.</div>';
+    el.innerHTML = h;
+  }
+
+  /* ---------- ARCHIVE: the catch-up edition ----------
+     fast replay over archived days (gsWireArchiveDay) + the one live
+     timeline (today). Honest gaps stated, never interpolated. */
+  var archDay = null;
+  function renderArchive(){
+    var days = (B().gsWireDays ? B().gsWireDays() : []);
+    var h = '<div class="rw-sec">the archive — catch-up edition</div>';
+    if(!days.length){
+      h += '<div class="hint">nothing archived yet — the live feed ' +
+           'writes days as they complete.</div>';
+      body.innerHTML = h; return;
+    }
+    if(!archDay || days.indexOf(archDay) < 0) archDay = days[days.length - 1];
+    h += '<label>day</label><select id="arDay">';
+    days.slice().reverse().forEach(function(d){
+      var today = d === days[days.length - 1];
+      h += '<option value="' + esc(d) + '"' + (d === archDay ? ' selected' : '') +
+        '>' + esc(d) + (today ? ' ● still being written' : '') + '</option>'; });
+    h += '</select><div id="arDayBody"></div>';
+    body.innerHTML = h;
+    $('arDay').onchange = function(){ archDay = $('arDay').value; renderArchive(); };
+    renderArchiveDay();
+  }
+  function renderArchiveDay(){
+    var el = $('arDayBody'); if(!el || !archDay) return;
+    var day = B().gsWireArchiveDay ? B().gsWireArchiveDay(archDay) : null;
+    var evs = [];
+    if(Array.isArray(day)) evs = day;
+    else if(day && Array.isArray(day.events)) evs = day.events;
+    else if(day && Array.isArray(day.entries)) evs = day.entries;
+    var h = '<ul class="wl">';
+    evs.forEach(function(e){
+      h += '<li><span class="t">' + fmtT(e.t != null ? e.t : e.min) + '</span>' +
+        '<span class="k ' + esc(e.kind || e.type || '') + '">' + esc(e.kind || e.type || '') + '</span>' +
+        esc(e.text || e.line || e.label || '') + '</li>'; });
+    h += '</ul>';
+    if(!evs.length) h += '<div class="hint">— off the feed: nothing on the public record for this day —</div>';
+    el.innerHTML = h;
+  }
+
   /* ---------- tabs + header ---------- */
   var TABS = { watch: renderWatch, wire: renderWire, req: renderReq,
-               led: renderLedger, cast: renderCast, house: renderHousing };
+               led: renderLedger, cast: renderCast, house: renderHousing,
+               drive: renderDrive, archive: renderArchive };
   document.querySelectorAll('#rwTabs button').forEach(function(b){
     b.onclick = function(){
       tab = b.dataset.t;
