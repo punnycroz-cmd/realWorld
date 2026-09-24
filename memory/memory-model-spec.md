@@ -1,4 +1,35 @@
-# Memory Model Spec v5.63 — implementable human-like memory for RW characters
+# Memory Model Spec v5.64 — implementable human-like memory for RW characters
+
+> **v5.64 note (social-memory XII — the room keeps the
+> books):** `memory/social-memory.md` Part XII (§§166–
+> 180) adds the observer layer — memory written by
+> watching, not acting. **First glance** — `firstlook`
+> sketch minted at first exposure, confidence grows but
+> content frozen (Willis & Todorov 2006); locked
+> `firstlook_mut_null`. **Familiar strangers** — `seen:`
+> co-presence accrues `familiarity` only (Milgram 1972);
+> locked `fs_identity_null`. **Status buys the slot** —
+> `actorStatus` lifts face/identity/sociospatial encode
+> (Ratcliff et al. 2011). **Watching the snub** —
+> `vic_snub` muted observer record + excluder eval leg
+> (Wesselmann 2009); locked `vic_exceed_null`.
+> **Standing by watching** — third-party witnessed acts
+> update PM at `obs_eval_gain` 0.6, ordered
+> self>witnessed>hearsay (Nowak & Sigmund 1998);
+> locked `obs_standing_null`. **Moral contagion** —
+> `moral:true` content tag adds ~1.2×/marker diffusion,
+> out-group-bounded (Brady 2017); locked
+> `moremo_acc_null`. **Synchrony** — `sync:true` writes
+> eval_tag/E only (Wiltermuth & Heath 2009); locked
+> `sync_trait_null`. **The tease's two books** —
+> mitigation loss one-way (Kowalski 2000; Kruger 2006);
+> locked `tease_benign_null`. **My line, their line** —
+> `selfsaid_gain` on speaker:self fields (Slamecka &
+> Graf 1978); locked `selfsaid_echo_null`. **Helper/
+> hinderer floor** — pre-abstraction `pm_eval_raw` leg
+> (Hamlin, Wynn & Bloom 2007); locked `hh_trait_null`.
+> Spec §§6.308–6.317 + §7 params + §10 contract; probes
+> P1231–P1244.
 
 > **v5.63 note (individual-differences X — the ear that
 > spends, the pill that borrows, the transition that
@@ -15627,6 +15658,167 @@ feeds `rumin_k` on that cluster only. Stacks with
 residue only via world-decided `depr`/`trauma`
 conversion.
 
+### 6.308 First glance — `firstlook_*` (new in v5.64)
+
+SM§166; Willis & Todorov 2006 (*Psych. Sci.* 17:592 —
+100 ms suffices; more exposure buys confidence, not
+revision); Olivola et al. 2014 review (impressions
+predict outcomes, not character).
+
+On first `met`/`seen` with a new personId, prob
+`firstlook_p` (0.85): mint `PersonModel.firstlook =
+{sketch, conf}` — low-magnitude trait sketch from the
+event's `face_trait` proxy fields only (world-supplied;
+absent → no sketch). Per further exposure in-encounter:
+`conf += firstlook_conf_gain` (0.1, cap 0.9); sketch
+values frozen. The sketch seeds `eval_tag`/`imp_anchor`
+priors; behavioral evidence updates `traits{}`/`eval_tag`
+normally. **Locked `firstlook_mut_null`:** exposure
+without behavior mutates confidence only, never sketch
+content.
+
+### 6.309 The regular nobody knows — `fs_*` (new in v5.64)
+
+SM§167; Milgram 1972/1977 (89% recognize ≥1 familiar
+stranger, mean 4.0 vs 1.5 spoken-to; observation +
+repetition + no interaction; off-turf meeting raises
+introduction).
+
+New op class `seen:` (co-presence, no interaction):
+`familiarity += fs_gain` (0.15) per occurrence, cap
+`fs_cap` (0.85); bypasses `face_ceiling` as a repeat-
+encounter path. `identityStrength`/`nameStrength`/
+`traits{}` unreachable by `seen:`. A `met` event with
+`familiarity > 0.5` and zero prior `met` gets
+`fs_intro_gain` (0.2) identity-encode bonus; emits
+`fs_met`. **Locked `fs_identity_null`:** co-presence
+alone mints no identity/name/trait fields and no event
+records.
+
+### 6.310 Status buys the face slot — `status_face_*` (new in v5.64)
+
+SM§168; Ratcliff, Hugenberg, Shriver & Bernstein 2011
+(*PSPB* 37:1003 — high-status faces better recognized,
+attended, identity–location bound, holistic); Dalmaso
+2012 (gaze); Ratcliff 2012 (anger persists on high-
+status faces).
+
+Event field `actorStatus` ∈[0,1] (world-supplied):
+`familiarity`/`identityStrength` accrual and `who`→
+`where` binding ×(1 + `status_face_gain`·status) (0.4);
+angry-expression records' `arousal_tag` ×(1 +
+`status_anger_gain`·status) (0.3). Child scaling
+`min(1, age/16)`.
+
+### 6.311 Watching the snub — `vic_snub_*` (new in v5.64)
+
+SM§169; Wesselmann, Bagg & Williams 2009 (*JESP*
+45:1308); Masten et al. 2013 review (9 studies; stronger
+under perspective-taking, trait empathy, closeness);
+Wesselmann 2017 (observers compensate target, penalize
+sources — impression-of-sources is the stronger
+mediator).
+
+Co-present non-target at `exclusion:true`: writes muted
+self-record `vic_snub:true`, need-threat valence
+×`vic_snub_k` (0.4), scaled ×(1+0.4·emp), ×`vic_snub_close`
+(1.5) for relationship-tier targets; excluder PMs take a
+`diag_moral_neg`-class eval write at `obs_eval_gain`
+(§6.312). Source-invariant per `snub_source_null`.
+**Locked `vic_exceed_null`:** observer write strictly
+below what the same event writes on the target, all
+trait settings.
+
+### 6.312 Standing by watching — `obs_*` (new in v5.64)
+
+SM§170; Nowak & Sigmund 1998 (*Nature* 393:573 — image
+scoring); Wedekind & Milinski 2000 (*Science* 288:850);
+Milinski, Semmann & Krambeck 2002 (*Nature* 415:424 —
+gossip resolves ambiguity); Fehr & Fischbacher 2003.
+
+Events with `agent ≠ self` AND `target ≠ self` run the
+§2.1 STI/diag write to the agent's PM at `obs_eval_gain`
+(0.6); provenance `via:"witnessed"`. Ordering contract:
+self-target 1.0 > witnessed 0.6 > hearsay `hpm_gain` 0.4.
+`eval_tag` moves at `obs_eval_gain`·`imp_impl_slow`.
+**Locked `obs_standing_null`:** third-party observation
+updates PM eval/traits only — no canonical-ledger
+writes, no `beliefStatus` upgrades.
+
+### 6.313 Moral emotion is the payload — `moremo_*` (new in v5.64)
+
+SM§171; Brady, Wills, Jost, Tucker & Van Bavel 2017
+(*PNAS* 114:7313 — N=563k, ~+20% diffusion per moral-
+emotional word, group-bounded); Berger & Milkman 2012.
+
+Retell/hop survival: content tagged `moral:true` ×
+`moremo_gain` (1.2/marker); cross-group audiences
+×`moremo_outgroup_pen` (0.6). Shares one ceiling with
+`etrans_*` legs: combined transmission multiplier ≤
+`trans_cap` (1.6). **Locked `moremo_acc_null`:**
+moral-emotional tagging moves reach only — credence,
+accuracy, plausibility gates untouched.
+
+### 6.314 Moving together — `sync_*` (new in v5.64)
+
+SM§172; Wiltermuth & Heath 2009 (*Psych. Sci.* 20:1 —
+synchrony → cooperation at personal cost); Valdesolo
+2010; Hove & Risen 2009. Mechanism debated; memory legs
+RW hypothesis.
+
+Event flag `sync:true` (co-timed shared activity): each
+co-participant PM `eval_tag += sync_aff_gain` (0.08, once
+per event, per-pair cap `sync_aff_cap` 0.4); event record
+E += `sync_enc` (0.1) on co-participant fields.
+**Locked `sync_trait_null`:** synchrony writes eval_tag
+and E only — never `traits{}`, never content.
+
+### 6.315 The tease's two books — `tease_*` (new in v5.64)
+
+SM§173; Kowalski 2000 (*PSPB* 26:231 — perpetrator:
+funnier, less damaging, guiltier); Kruger, Gordon &
+Kuban 2006 (*JPSP* 90:412 — mitigation fails to reach
+the target).
+
+`tease:true` events: target-side encodes literal content
+at full `w_emo_neg`; mitigation fields drop at
+`tease_mitigate_loss` (0.5 at encode — scaled ×(1+0.4·
+shame-adjacent traits)). Perpetrator-side record:
+valence ×`tease_perp_damp` (0.5) + small guilt leg.
+Target retells carry unmitigated content (§5 tuning
+composes). Emits `tease_gap` (per-role valence
+divergence). **Locked `tease_benign_null`:** benign
+intent is one-way-lost at encode — no later inference
+restores it into the target's record.
+
+### 6.316 My line, their line — `selfsaid_*` (new in v5.64)
+
+SM§174; Slamecka & Graf 1978 (*JEP:HLM* 4:592 —
+generation effect); Fischer et al. 2015 (own
+contributions kept in conversation); largely preserved
+in healthy aging (0.8× at 65+).
+
+Dialogue records: verbatim fields `speaker:self` encode
+at E ×(1 + `selfsaid_gain`) (0.25); `speaker:other`
+baseline. Produces per-participant transcript asymmetry.
+**Locked `selfsaid_echo_null`:** retention-only — no
+credence, no beliefStatus upgrade from remembering your
+own words.
+
+### 6.317 Helper and hinderer — `pm_eval_raw` (new in v5.64)
+
+SM§175; Hamlin, Wynn & Bloom 2007 (*Nature* 450:557 —
+6–10-mo infants choose helper over hinderer); Hamlin
+2013 review (relational from the start).
+
+For `age < soc_abstract_age` (≈7): §2.1 STI is replaced
+by `pm_eval_raw` writes on the eval_tag leg only
+(helper +, hinderer −, `hh_gain` 0.5); `traits{}` stays
+empty. At `soc_abstract_age` the trait ledger opens,
+seeded by accumulated eval_tag. **Locked
+`hh_trait_null`:** pre-abstraction eval writes never
+mint `traits{}` fields.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -17872,6 +18064,36 @@ MemoryParams = {
 //   `mood_source`; event flags `labeled:true`,
 //   `closed:true`, `scope:"remote"`. All snapshot-
 //   additive; absent = legacy.
+// v5.64 additions (social-memory XII — SM§§166–175)
+"firstlook_p": 0.85, "firstlook_conf_gain": 0.1,      // §6.308
+"fs_gain": 0.15, "fs_cap": 0.85, "fs_intro_gain": 0.2,// §6.309
+"status_face_gain": 0.4, "status_anger_gain": 0.3,    // §6.310
+"vic_snub_k": 0.4, "vic_snub_close": 1.5,             // §6.311
+"obs_eval_gain": 0.6,                                 // §6.312
+"moremo_gain": 1.2, "moremo_outgroup_pen": 0.6,
+"trans_cap": 1.6,                                     // §6.313
+"sync_aff_gain": 0.08, "sync_aff_cap": 0.4,
+"sync_enc": 0.1,                                      // §6.314
+"tease_mitigate_loss": 0.5, "tease_perp_damp": 0.5,   // §6.315
+"selfsaid_gain": 0.25,                                // §6.316
+"hh_gain": 0.5, "soc_abstract_age": 7,                // §6.317
+// v5.64 locked nulls: firstlook_mut_null (exposure grows
+//   confidence only — P1231); fs_identity_null (co-presence
+//   never mints identity — P1232); vic_exceed_null (below the
+//   target's own — P1235); obs_standing_null (PM only, no
+//   facts — P1236); moremo_acc_null (reach only — P1237);
+//   sync_trait_null (eval/E only — P1238); tease_benign_null
+//   (intent one-way-lost — P1239); selfsaid_echo_null
+//   (retention, not credence — P1240); hh_trait_null (no
+//   traits before abstraction — P1241). Frozen: none.
+// v5.64 fields: `seen:` op class (co-presence, no
+//   interaction); `PersonModel.firstlook{sketch,conf}`;
+//   `via:"witnessed"` joins "hearsay"/"met"; `vic_snub:true`
+//   self-records; `pm_eval_raw` eval leg; event fields
+//   `actorStatus` [0,1], `sync:true`, `tease:true`,
+//   `moral:true` content tag; `face_trait` proxy fields.
+//   Emissions: `firstlook_mint`, `fs_met`, `vic_snub`,
+//   `tease_gap`. All snapshot-additive; absent = legacy.
 // v5.63 additions (individual-differences X — ID§§125–137)
 "hear_effort_tax": 0.2, "hear_src_tax": 0.15,
 "hear_social_drag": 0.3, "hear_aid_rescue": 0.4,
@@ -20606,6 +20828,39 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.64 additions (social-memory.md §§166–175 — the room
+  keeps the books):
+  - **New op class + flags (world/behavior-supplied):**
+    `seen:` co-presence events (same place+time, no
+    interaction — the familiar-stranger minting path);
+    `actorStatus` [0,1] on social events; `sync:true`
+    (co-timed shared activity); `tease:true` (negative
+    surface + benign intent marker); `moral:true`
+    content tag (fairness/betrayal/harm frames);
+    `face_trait` appearance-proxy fields on `met`/`seen`.
+    All snapshot-additive; absent = mechanism inert.
+  - **New record/PM fields:** `PersonModel.firstlook
+    {sketch, conf}`; `via:"witnessed"` (third arm,
+    ordering 1.0 self > 0.6 witnessed > 0.4 hearsay);
+    `vic_snub:true` self-records; `pm_eval_raw` leg on
+    `eval_tag` for age < `soc_abstract_age`.
+  - **Reach-vs-truth contract:** `moremo_*` moves
+    transmission reach only (`moremo_acc_null`);
+    `selfsaid_gain` moves retention only
+    (`selfsaid_echo_null`); `obs_*`/`seen:` move PM
+    fields only (`obs_standing_null`, `fs_identity_null`)
+    — no observer leg mints canonical facts.
+  - **Locked boundaries game-systems must honor:**
+    `firstlook_mut_null`, `fs_identity_null`,
+    `vic_exceed_null`, `obs_standing_null`,
+    `moremo_acc_null`, `sync_trait_null`,
+    `tease_benign_null`, `selfsaid_echo_null`,
+    `hh_trait_null`.
+  - **New params (§7):** 21 scalars + 9 locked nulls;
+    emissions `firstlook_mint`, `fs_met`, `vic_snub`,
+    `tease_gap`; `personEval` read-only gains the `via`
+    arm.
+  - Probes P1231–P1244.
 - v5.52 additions (social-memory.md §§151–160 — the credulity
   layer):
   - **World/behavior-supplied flags:** `exclusion:true` on social

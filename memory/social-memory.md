@@ -5581,3 +5581,450 @@ one wave owns a cold-reading neighbor's resentment for a season.
   secondhand reputation is weaker than firsthand; `hpm_cap` 0.5 and
   the met-reset are our shape, sized so talk saturates below the
   witnessed ceiling.
+
+---
+
+# Part XII — v116 pass: the room keeps the books
+(watching, standing, first glances, and the bystander ledger)
+
+Parts I–XI modeled the dyad: who tells whom, who owes whom, what talk
+does to each end. The missing half is the **third position** — the
+character who is *in the room but not in the exchange*. Humans read
+faces in 100 ms, recognize strangers they've never spoken to, encode
+status into the face slot itself, hurt when others are excluded, update
+reputations by watching third-party acts, and keep two different books
+on the same tease depending on which end they were on. Part XII adds
+the observer layer: ten mechanisms + eight locked nulls, all additive.
+
+## 166. First glance in 100 ms — the impression arrives before the person **[CONSENSUS; boundary conditions DEBATED]**
+
+Willis & Todorov 2006 (*Psych. Sci.* 17:592 — five experiments):
+trait judgments (attractiveness, likeability, trustworthiness,
+competence, aggressiveness) made after a **100-ms** face exposure
+correlate highly (r ≈ .6–.7) with unconstrained judgments. From 100→
+500 ms judgments got *more negative* and confidence rose; 500→1000 ms
+changed almost nothing but confidence again. More time buys certainty,
+not revision — the impression is written at the door and the rest of
+the exposure mostly argues with itself. Boundary: judged-from-face
+traits are appearance inference, not accuracy — Todorov's own program
+(Olivola et al. 2014 review) shows these impressions predict
+*outcomes* (elections, sentencing) far better than they predict actual
+character [DEBATED validity; CONSENSUS existence].
+
+Implement: on first `met`/`seen` event with a new `personId`, mint
+`PersonModel.firstlook = {traits sketch, conf}` at prob `firstlook_p`
+(0.85) — a low-magnitude trait sketch derived from whatever
+appearance/demeanor fields the event carries (`face_trait` proxy,
+supplied by world-builder; absent → no sketch, never invented). Each
+further exposure within the same encounter: `firstlook.conf +=
+firstlook_conf_gain` (0.1/encounter, cap 0.9) with the trait values
+**frozen**. Subsequent *behavioral* evidence updates `traits{}`/
+`eval_tag` normally — the firstlook sketch is an initial value for the
+implicit leg (`imp_anchor` gates how much it drags). **Locked
+`firstlook_mut_null`:** exposure duration/repetition without behavior
+never mutates the sketch — only confidence (Willis & Todorov arms).
+
+## 167. The regular nobody knows — familiar strangers **[CONSENSUS phenomenon; store mechanics HYPOTHESIS]**
+
+Milgram 1972/1977 (*The Familiar Stranger: An Aspect of Urban
+Anonymity*): photographing morning commuters and returning a week
+later — **89%** recognized at least one photographed stranger; mean
+**4.0** recognized-never-spoken-to vs 1.5 spoken-to; "sociometric
+stars" (vendors, distinctive regulars) recognized by many; commuters
+reported imagined biographies — a "fantasy relationship." Milgram's
+three conditions: observation, repetition, **no interaction**. Meeting
+a familiar stranger off-turf (different city) dramatically raises
+introduction likelihood — recognition survives context loss because
+it was never bound to context. Berkeley 2004 replication: 77.8%.
+
+This is the PersonModel cascade's natural resting state: `familiarity`
+high, `identityStrength`/`nameStrength` zero — but it needs a minting
+path that isn't `met`. Implement: `seen:` co-presence events (same
+place+time bucket, no interaction) accrue `familiarity +=
+fs_gain` (0.15) per occurrence, cap `fs_cap` (0.85) — bypassing
+`face_ceiling` exactly as §1's repeat-encounter rule but with the
+identity tier unreachable (`fs_identity_null` — locked: no identity,
+name, or trait fields from co-presence alone; Milgram's fantasy
+biographies live in `confab`-class records if they form at all).
+Context-displaced contact: a `met` event with `familiarity > 0.5` and
+zero prior `met` gets `fs_intro_gain` (0.2) on identity encode — the
+"you're the person from the park" recognition bonus. Emergent: a
+character can feel grief-adjacent disruption when a familiar stranger
+vanishes — recognized absence of a never-known person, the
+street-corner shape of loneliness.
+
+## 168. Status buys the face slot — privileged processing of the powerful **[ROBUST]**
+
+Ratcliff, Hugenberg, Shriver & Bernstein 2011 (*PSPB* 37:1003 — three
+experiments): faces of high-status targets are better recognized,
+receive more attention, get stronger identity–location binding, and
+are processed more *holistically* (expert-style) than low-status
+targets — strategic resource allocation, not halo. Companion work:
+high-status faces draw longer gaze and stronger gaze-cuing (Dalmaso
+et al. 2012); anger is perceived sooner and persisting longer on
+high-status faces (Ratcliff et al. 2012, "scorn of status").
+
+Implement: event `actorStatus` ∈[0,1] (world-supplied — landlord,
+employer, known fixture, sociometric star) multiplies the face/
+identity encode legs: `familiarity`/`identityStrength` accrual
+×(1 + `status_face_gain`·status) (0.4); the `who`→`where` binding
+field gets the same multiplier (their Exp. 2 sociospatial result).
+Extend `status` onto the watched-threat path: `arousal_tag` of an
+angry-expression record ×(1 + `status_anger_gain`·status) (0.3).
+Age note: status-attunement is an adult social-cognition leg — scale
+by `min(1, age/16)` under the child band (Hamlin floor §175 covers
+the preverbal helper/hinderer case; status as a *category* is a
+learned currency).
+
+## 169. Watching the snub — vicarious ostracism **[CONSENSUS existence; dose magnitudes HYPOTHESIS]**
+
+Wesselmann, Bagg & Williams 2009 (*JESP* 45:1308 — "I Feel Your
+Pain"): observers who merely watch a Cyberball exclusion game report
+lowered need satisfaction and mood — social pain without being the
+target. Masten et al. 2013 (*Front. Hum. Neurosci.* 7:153) review:
+nine studies, replicated in children and adults; **enhanced** by
+perspective-taking instructions, trait empathy, and closeness to the
+target; occurs even when observers dislike the target. Wesselmann et
+al. 2017: observers compensate the target and penalize the sources —
+the impression of the *excluders* is the stronger mediator.
+
+Implement: a character co-present at an `exclusion:true` event where
+they are not the target writes a muted self-side record
+(`vic_snub:true`, need-threat valence ×`vic_snub_k` 0.4, scaled by
+`emp` trait and by closeness to the target — `vic_snub_close` ×1.5
+for relationship-tier targets) AND the excluders' PMs take a
+`diag_moral_neg`-class negative eval write at `obs_eval_gain`
+(§170 — the two legs land in one event). **Locked `vic_exceed_null`:**
+the vicarious write is capped strictly below what the same event
+would write on the actual target — empathy approaches, never
+crosses, first-person exclusion. Emergent: a character who watched
+the clique freeze someone out carries their own small wound and a
+darkened view of the freezers — public cruelty costs witnesses, not
+just victims.
+
+## 170. Standing by watching — the third-party reputation update **[CONSENSUS mechanism family; weights HYPOTHESIS]**
+
+Indirect reciprocity is the formal backbone of reputation: Nowak &
+Sigmund 1998 (*Nature* 393:573 — image score: observers who witness
+A help B raise A's standing even though B never reciprocated to
+them); Wedekind & Milinski 2000 (*Science* 288:850 — humans
+cooperate on observed reputation); Milinski, Semmann & Krambeck 2002
+(*Nature* 415:424 — gossip resolves reputation ambiguity); Fehr &
+Fischbacher 2003 review. The observer's update is the *load-bearing*
+leg of neighborhood reputation — most of what anyone "knows" about
+anyone else was witnessed or heard, never experienced.
+
+§159 built hearsay PMs (`via:"hearsay"`, capped); this is the
+**witnessed** arm. Implement: an event with `agent ≠ self` AND
+`target ≠ self` still runs the §2.1 STI write to the agent's PM at
+`obs_eval_gain` (0.6 — below the target-of-action 1.0, above the
+hearsay `hpm_gain` 0.4; ordering witnessed > told > heard-about is
+the contract) with `via:"witnessed"` provenance. The dual-clock
+applies: `eval_tag` moves at `obs_eval_gain`·`imp_impl_slow`; the
+explicit `traits{}` ledger takes the full diag-weighted write.
+**Locked `obs_standing_null`:** third-party observation updates PM
+eval/traits only — it never mints canonical-ledger facts or upgrades
+`beliefStatus` on content the observer didn't experience. Emergent:
+the neighborhood's map of who-is-decent forms in rooms the
+character didn't act in; the landlord's reputation is mostly other
+people's evictions watched from the sidewalk.
+
+## 171. Moral emotion is the payload — the 20%-per-word contagion **[CONSENSUS field result; lab mechanism ROBUST]**
+
+Brady, Wills, Jost, Tucker & Van Bavel 2017 (*PNAS* 114:7313 —
+N=563,312 tweets): each additional moral-emotional word increased a
+message's diffusion by **~20%**, within ideological group boundaries
+more than across — moral contagion is real, measurable, and
+group-bounded. Convergent: Berger & Milkman 2012 (high-arousal
+content more viral); emotional content drives transmission in chains
+(§156's `etrans_*` already prices the *channel*; this is the
+*content* tag — a rumor about a betrayal transmits faster than an
+equally arousing rumor about a party).
+
+Implement: retell/hop survival gets a `moremo` leg — content tagged
+`moral:true` (world supplies: fairness, betrayal, purity, harm
+frames — the moral dictionary, not the arousal tag) ×`moremo_gain`
+(1.2 per moral-emotional marker, cap `moremo_cap` 1.6 combined with
+`etrans_*` — the two multiplicative legs share one ceiling so a
+disgusting betrayal rumor outruns everything but can't run
+infinite). Out-group audiences take `moremo_outgroup_pen` (0.6 —
+Brady's boundary). **Locked `moremo_acc_null`:** moral-emotional
+tagging moves *transmission reach only* — credence, accuracy,
+plausibility gates untouched (a rumor doesn't get truer because it
+spread).
+
+## 172. Moving together — synchrony writes affiliation **[ROBUST effect; mechanism DEBATED]**
+
+Wiltermuth & Heath 2009 (*Psych. Sci.* 20:1 — three experiments:
+walking in step, synchronous singing/tapping → more cooperation in
+public-goods and dilemma games, even at personal cost); Valdesolo,
+Ouyang & DeSteno 2010 (*JESP* 46:693 — synchronous rocking →
+perceived similarity + rapport); Hove & Risen 2009 (interpersonal
+synchrony → affiliation). The cooperation/rapport effect replicates;
+whether the substrate is shared-attention, self-other blurring, or
+entrainment is unresolved [DEBATED mechanism]. The memory-side
+formulation is ours [HYPOTHESIS].
+
+Implement: events flagged `sync:true` (dancing, marching, chanting,
+clapping in time — world tags co-timed shared activity) write a
+direct affiliation leg: each co-participant PM `eval_tag +=
+sync_aff_gain` (0.08, one write per event, cap `sync_aff_cap` 0.4
+per pair — synchrony warms, it doesn't convince) and the event
+record itself takes `sync_enc` (0.1) E gain on co-participant fields
+(you remember who moved with you). **Locked `sync_trait_null`:**
+synchrony writes eval_tag/affiliation and E only — never `traits{}`,
+never content. Emergent: the parade, the protest chant, the
+wedding dance all leave warm trace on everyone present —
+community glue that bypasses conversation entirely.
+
+## 173. "I was only kidding" — the tease's asymmetric books **[ROBUST direction; magnitudes HYPOTHESIS]**
+
+Kowalski 2000 (*PSPB* 26:231): victims and perpetrators narrate the
+same teasing incident differently — perpetrators rate it more
+humorous and less damaging (though guiltier); victims' narratives
+concentrate on appearance/relationship content. Kruger, Gordon &
+Kuban 2006 (*JPSP* 90:412): teasers' mitigating signals ("just
+kidding," tone, gesture) systematically **fail to reach the
+target** — the negative literal content lands; the benign intent
+doesn't. This is §86's magnitude gap specialized: not a crime but a
+joke — the smallest harm with the same two-book structure, and the
+most frequent one a neighborhood produces.
+
+Implement: `tease:true` events (world tags banter/ribbing with a
+negative surface + benign intent marker): the target-side record
+encodes at full `w_emo_neg` on the literal content while mitigation
+fields drop at `tease_mitigate_loss` (0.5 — half the softening
+never survives encode); the perpetrator-side record gets
+`tease_perp_damp` (0.5 valence damping — remembered as funny) plus
+a small guilt leg if `rumin`-adjacent traits fire. If the target
+retells the tease, the retold version carries the unmitigated
+content — §5 audience tuning then lets the target's own memory
+darken further with each retelling. **Locked `tease_benign_null`:**
+the teaser's benign intent is *not recoverable* by the target's
+record — mitigation is a one-way loss; no later inference can
+restore intent the target never encoded. Emergent: two characters
+leave the same joke with incompatible memories; "it was just a
+joke" and "they humiliated me" are both true in-world.
+
+## 174. My line, their line — generation asymmetry in conversation **[CONSENSUS effect; dialogue application HYPOTHESIS]**
+
+Slamecka & Graf 1978 (*JEP:HLM* 4:592 — generation effect):
+self-produced material is remembered better than read/heard material.
+Applied to dialogue: speakers recall their own contributions better
+than their interlocutor's (conversation-memory studies — Fischer et
+al. 2015; the self-generation advantage survives turn-taking).
+Distinct from §35 destination memory (who I told) and Ross & Sicoly
+overclaim (how much was mine): this is raw content retention —
+**your own sentences keep**.
+
+Implement: on dialogue records, verbatim fields with `speaker:self`
+encode at E ×(1 + `selfsaid_gain`) (0.25); `speaker:other` fields
+baseline. The same event thus produces asymmetric records in the two
+participants — each keeps their own lines and gist-loses the other's
+(the daily substrate of "no, that's not what I said" disputes —
+each side's memory genuinely favors their own transcript). Age:
+generation effect is largely preserved in healthy aging (meta:
+generation advantage persists with small attenuation) — `selfsaid_gain`
+ages flat to ~0.8× at 65+ [HYPOTHESIS; mild]. **Locked
+`selfsaid_echo_null`:** the gain is retention-only — self-said
+content gains no credence, no beliefStatus upgrade; remembering your
+own words isn't evidence they're true.
+
+## 175. Helper and hinderer — the preverbal ledger **[CONSENSUS in infants; lifespan extension HYPOTHESIS]**
+
+Hamlin, Wynn & Bloom 2007 (*Nature* 450:557): 6- and 10-month-olds
+who watched a climber helped vs hindered overwhelmingly chose and
+reached for the helper — social evaluation of third-party acts is
+preverbal, before trait language, before STI's abstract machinery.
+Follow-ups (Hamlin, Wynn, Bloom & Mahajan 2011; Hamlin 2013 review):
+infants also prefer those who are nice to liked others and mean to
+disliked others — the evaluation is relational from the start.
+
+This gives the child-age band its person-model floor: PM writes are
+not trait-only. Implement: for `age < soc_abstract_age` (≈7, aligned
+with existing child-band knot), §2.1 STI trait writes are replaced
+by raw valence/approach writes — `pm_eval_raw` on the eval_tag leg
+only (helper +, hinderer −, at `hh_gain` 0.5) with zero `traits{}`
+fields (no abstraction yet — "she's nice" not "she is generous").
+The trait ledger opens at `soc_abstract_age` and `eval_tag` seeds it
+(the preverbal likes/dislikes become the child's first impression
+priors). **Locked `hh_trait_null`:** pre-abstraction eval writes
+never mint `traits{}` fields — the ledger stays valence until the
+machinery exists. Emergent: the kid main character can know that the
+neighbor is *scary* long before he could say why — accurate approach/
+avoid gradients under a blank trait ledger.
+
+## 176. Trait and age loadings (extends §§12, 28, 44, 60, 76, 91, 106, 121, 136, 146, 161)
+
+- `emp` (empathy trait, existing): scales `vic_snub_k` ×(1+0.4·emp)
+  and `sync_aff_gain` ×(1+0.3·emp) — the empath carries more of the
+  room's wounds and bonds.
+- `rsq`: amplifies `tease` target-side encode ×(1+0.5·rsq) and the
+  vicarious leg only when the observer identifies with the target
+  (perceived-similarity gate, ×1.3) — rejection-sensitive characters
+  feel watched exclusions selectively.
+- `status_seek` (existing social-motive trait if present, else
+  `extra` proxy): status_face_gain ×(1+0.3·status_seek) — climbers
+  remember the powerful.
+- `vigil` (existing): status_anger_gain ×(1+0.4·vigil) — threat-
+  monitors overweight dominant anger.
+- `lonely` (v5.63): familiar-stranger `fs_gain` ×(1+0.5·lonely) —
+  the lonely mind accrues more never-met faces (perceived-scarcity
+  attention to the crowd); `vic_snub_k` ×(1+0.3·lonely).
+- `age`: `selfsaid_gain` flat→0.8× at 65+; `status_face_gain` flat
+  (learned currency, not declining); `soc_abstract_age` ~7 gates the
+  §175 eval floor; `firstlook_p` flat — face impressions are as
+  fast at 70 as at 20 [HYPOTHESIS].
+- `social_anx`/`shame`-adjacent traits: `tease_mitigate_loss` ×(1+
+  0.4·shame) — the shame-prone target encodes even less of the
+  mitigation.
+- `tdef` (v5.52): `moremo` credence-side null means credulity doesn't
+  amplify moral contagion — but `tdef`-high characters are the same
+  ones whose adoption of the arrived rumor is elevated; composition
+  is the point.
+
+## 177. Spec changes in v5.64 (summary)
+
+- **New mechanisms (§§6.308–6.317):** first-look sketch + confidence
+  decoupling (`firstlook_*`, `face_trait` proxy); familiar-stranger
+  minting path (`seen:` co-presence accrual, `fs_*`, off-turf intro
+  bonus); status-privileged face/identity/sociospatial encode
+  (`status_face_gain`, `status_anger_gain`, `actorStatus` field);
+  vicarious ostracism (`vic_snub_*` muted self-record + excluder
+  eval leg); witnessed third-party standing updates (`obs_eval_gain`,
+  `via:"witnessed"`); moral-emotional contagion content leg
+  (`moremo_*`, shared `trans_cap` with `etrans_*`); synchrony
+  affiliation + encode legs (`sync_*`, `sync:true` flag); teasing
+  asymmetry (`tease_*`, `tease:true` flag); self-said generation gain
+  (`selfsaid_gain` on `speaker:self` fields); preverbal eval floor
+  (`pm_eval_raw`, `soc_abstract_age` gate). Eight locked nulls.
+- **New record/PM fields:** `PersonModel.firstlook{sketch,conf}`;
+  `PersonModel.via:"witnessed"` (joins "hearsay"/"met");
+  `vic_snub:true` on self-records; `pm_eval_raw` leg on eval_tag;
+  `moral:true` content tag.
+- **New scalars (pop):** ~22 — see §179.
+- **Emissions:** `firstlook_mint` audit; `fs_met` recognition
+  milestone (familiar stranger introduced); `vic_snub` observer
+  write; `tease_gap` per-role valence divergence log.
+- **Contract:** `personEval` read-only gains the `via` arm;
+  `seen:` event class added to the op catalog (co-presence, no
+  interaction); all snapshot-additive; absent = legacy.
+
+## 178. Parameter guidance (defaults; clamp ranges in profiles §0)
+
+- `firstlook_p` 0.85; `firstlook_conf_gain` 0.1/encounter, cap 0.9;
+  `firstlook_mut_null` locked.
+- `fs_gain` 0.15/co-presence; `fs_cap` 0.85; `fs_intro_gain` 0.2;
+  `fs_identity_null` locked.
+- `status_face_gain` 0.4; `status_anger_gain` 0.3; child-band
+  `min(1, age/16)` scaling.
+- `vic_snub_k` 0.4; `vic_snub_close` ×1.5 (relationship-tier target);
+  `vic_exceed_null` locked.
+- `obs_eval_gain` 0.6 (ordering: 1.0 self-target > 0.6 witnessed >
+  0.4 hearsay — `obs_standing_null` locked).
+- `moremo_gain` 1.2/marker; `moremo_outgroup_pen` 0.6; shared
+  `trans_cap` 1.6; `moremo_acc_null` locked.
+- `sync_aff_gain` 0.08/event; `sync_aff_cap` 0.4/pair; `sync_enc`
+  0.1; `sync_trait_null` locked.
+- `tease_mitigate_loss` 0.5; `tease_perp_damp` 0.5;
+  `tease_benign_null` locked.
+- `selfsaid_gain` 0.25 (0.8× at 65+); `selfsaid_echo_null` locked.
+- `hh_gain` 0.5; `soc_abstract_age` 7; `hh_trait_null` locked.
+
+## 179. Validation probes (P1231–P1244)
+
+- **P1231 firstlook_freeze_null (MUST — locked):** a novel face at
+  1 vs 10 exposures, no behavior: trait sketch bit-identical, conf
+  higher — exposure grows certainty, never content.
+- **P1232 fs_identity_null (MUST — locked):** 40 `seen:` co-presences
+  with no `met`: `familiarity` ≥0.8, identity/name/traits all zero;
+  a subsequent `met` shows the `fs_intro_gain` identity bonus.
+- **P1233 fs_content_null (MUST):** co-presence alone mints zero
+  event records and zero canonical-ledger writes — the crowd stays
+  scenery until it speaks.
+- **P1234 status_face (SHOULD):** identical faces, actorStatus 0.9
+  vs 0.1: high-status arm shows ~1.4× familiarity/identity accrual
+  and stronger who→where binding; angry-expression arousal elevated
+  in the high arm.
+- **P1235 vic_snub (MUST — dose-lock):** observer at exclusion
+  event: muted self-record written (≈0.4× target's) + excluder eval
+  leg; `vic_exceed_null` — observer's record never exceeds the
+  target's at any `emp`/closeness setting; source-invariant like
+  `snub_source_null` (despised excluders still register).
+- **P1236 obs_standing_null (MUST — locked):** witnessed third-party
+  acts move PM eval/traits at `obs_eval_gain`, produce zero
+  canonical-ledger writes and zero beliefStatus upgrades; ordering
+  self > witnessed > hearsay holds at all gains.
+- **P1237 moremo_reach_null (MUST — locked):** matched rumors,
+  `moral:true` vs not: diffusion counts differ (~1.2×/marker, capped),
+  credence/accuracy/plausibility bit-identical; out-group arm shows
+  the `moremo_outgroup_pen` suppression.
+- **P1238 sync_scope_null (MUST — locked):** `sync:true` events
+  write eval_tag + E only — `traits{}` untouched; per-pair accrual
+  saturates at `sync_aff_cap`.
+- **P1239 tease_asymmetry (MUST — sign-lock):** `tease:true` with
+  full mitigation: target record ≈unmitigated negative (≥0.5 loss
+  on mitigation fields), perpetrator record damped; retelling the
+  target's version darkens it further (§5 composition);
+  `tease_benign_null` — no path restores intent into the target's
+  record.
+- **P1240 selfsaid_null (MUST — locked):** dialogue pair under CRN:
+  each side's `speaker:self` fields survive at ~1.25× the other's;
+  credence fields identical — retention asymmetry, no truth
+  asymmetry.
+- **P1241 hh_floor (MUST — locked):** age-5 profile watching
+  helper/hinderer acts: `eval_tag` diverges (+/−), `traits{}`
+  empty (`hh_trait_null`); at `soc_abstract_age` the trait ledger
+  opens seeded by the accumulated tag.
+- **P1242 observer_absence (SHOULD):** a character absent from 30
+  days of block gossip still accumulates PM drift via witnessed
+  sidewalk acts + hearsay arms — verify both channels land and
+  `via` provenance stays readable.
+- **P1243 cast spread (OBSERVE):** identical tease/exclusion/
+  synchrony diet across the 8 mains → publish divergence of PM
+  eval maps; expected ordering: high-`emp`+`rsq` mains carry the
+  heaviest vicarious load; `status_seek`-high mains show the
+  steepest status-face gradients. Report, don't gate.
+- **P1244 composition cap (MUST):** moral+emotional+sync+status
+  rumor maximally stacked: transmission multiplier ≤ `trans_cap`
+  (1.6) — the legs share a ceiling, they don't multiply free.
+
+## 180. Honest limits (Part XII)
+
+- **Face-trait sketches are consensual impressions, not truth.**
+  Willis & Todorov measure what perceivers *infer*, not what's
+  accurate — the `face_trait` proxy is world-supplied appearance
+  data, and bible authors should treat `firstlook` sketches as the
+  character's prejudices, not the world's facts. This is the
+  feature, not a leak.
+- **Familiar-stranger numbers are 1972 Manhattan.** Milgram's 89%/4.0
+  are era- and density-bound; `fs_gain`/`fs_cap` are sized so a
+  dense Mission block reproduces "a handful of regulars," not a
+  census. The phenomenon is consensus; the dose is ours.
+- **Status is world-defined and therefore world-biased.** If the
+  world hands `actorStatus` from a narrow status model, characters
+  inherit that distortion — which is realistic (status is socially
+  constructed) but means the memory layer faithfully amplifies
+  whatever hierarchy the world simulates.
+- **Vicarious ostracism dose is extrapolated.** The lab result is
+  self-report needs/mood after minutes of observation; mapping to a
+  0.4× record dose and a persistence profile is our calibration.
+  The locked asymmetry (below the target's) is the part that must
+  never slip.
+- **Moral contagion is measured on Twitter.** Brady's 20% is
+  platform diffusion; face-to-face gossip has richer channels and
+  faster decay — `moremo_gain` 1.2 treats it as directional
+  calibration, not a physical constant. The out-group boundary is
+  the reliable part.
+- **Synchrony's memory leg is our invention.** The cooperation/
+  affiliation results are solid; `sync_enc` (better memory for who
+  moved with you) is a plausible extension, not a cited finding.
+- **The tease asymmetry presumes the mitigation-loss direction.**
+  Kowalski/Kruger show targets *under-receive* mitigation; whether
+  that's encode-time loss (our model) or retrieval-time discount is
+  undetermined — we chose encode because it composes cleanly with
+  §5 retelling.
+- **Preverbal floor is a modeled gradient, not a switch.** Real
+  trait abstraction ramps over years; `soc_abstract_age` is a step
+  at ~7 for implementability — the eval_tag seeding means the step
+  doesn't need to carry the whole transition.

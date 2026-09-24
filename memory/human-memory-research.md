@@ -5016,3 +5016,93 @@ not the biography — plus the fifth mandated null.
   P1218–P1230 test the structures (channel,
   selectivity, stage, reversal, perception-gap), not
   the fitted knots.
+
+## 91. v116 additions — the room keeps the books (social-memory XII)
+
+Sources newly added for Part XII (§§166–175): the
+observer layer — memory written by watching, not
+acting.
+
+- **First-glance impressions:** Willis & Todorov 2006
+  (*Psych. Sci.* 17:592 — 100-ms judgments ≈
+  unconstrained; 100→500 ms: more negative + more
+  confident; confidence grows, content doesn't);
+  Olivola, Funk & Todorov 2014 review (*Trends Cogn.
+  Sci.* — face impressions predict real outcomes but
+  not real character). Spec §6.308 `firstlook_*` +
+  locked `firstlook_mut_null`.
+- **Familiar strangers:** Milgram 1972/1977 (*The
+  Familiar Stranger: An Aspect of Urban Anonymity* —
+  commuter photo experiment: 89% recognize ≥1, mean
+  4.0 recognized-never-spoken vs 1.5 spoken; three
+  conditions: observation, repetition, no interaction;
+  sociometric stars; off-turf meeting raises
+  introduction); Berkeley 2004 partial replication
+  (77.8%). Spec §6.309 `fs_*` + locked
+  `fs_identity_null`.
+- **Status in face memory:** Ratcliff, Hugenberg,
+  Shriver & Bernstein 2011 (*PSPB* 37:1003 — high-
+  status faces better recognized, more attended,
+  stronger identity–location binding, more holistic);
+  Dalmaso et al. 2012 (*Biol. Lett.* — status gates
+  gaze cuing); Ratcliff et al. 2012 (*Soc. Cogn.*
+  30:631 — anger perceived sooner/longer on high-
+  status faces). Spec §6.310 `status_face_*`.
+- **Vicarious ostracism:** Wesselmann, Bagg & Williams
+  2009 (*JESP* 45:1308 — "I Feel Your Pain":
+  observation alone lowers need satisfaction);
+  Masten et al. 2013 (*Front. Hum. Neurosci.* 7:153 —
+  9-study review; enhanced by perspective-taking,
+  trait empathy, target closeness); Wesselmann et al.
+  2017 (impression-of-sources the stronger mediator).
+  Spec §6.311 `vic_snub_*` + locked `vic_exceed_null`.
+- **Indirect reciprocity / standing:** Nowak & Sigmund
+  1998 (*Nature* 393:573 — image scoring formalized);
+  Wedekind & Milinski 2000 (*Science* 288:850 —
+  cooperation tracks observed reputation); Milinski,
+  Semmann & Krambeck 2002 (*Nature* 415:424 — gossip
+  resolves reputation); Fehr & Fischbacher 2003
+  review. Spec §6.312 `obs_eval_gain` + locked
+  `obs_standing_null`.
+- **Moral contagion:** Brady, Wills, Jost, Tucker &
+  Van Bavel 2017 (*PNAS* 114:7313 — N=563,312;
+  ~+20% diffusion per moral-emotional word; within-
+  group > between-group); Berger & Milkman 2012
+  (high-arousal virality). Spec §6.313 `moremo_*` +
+  locked `moremo_acc_null`.
+- **Synchrony:** Wiltermuth & Heath 2009 (*Psych.
+  Sci.* 20:1 — synchrony → cooperation at personal
+  cost, 3 experiments); Valdesolo, Ouyang & DeSteno
+  2010 (*JESP* 46:693); Hove & Risen 2009. Memory
+  legs marked hypothesis. Spec §6.314 `sync_*` +
+  locked `sync_trait_null`.
+- **Teasing asymmetry:** Kowalski 2000 (*PSPB* 26:231
+  — victims vs perpetrators narrate teasing
+  differently; perpetrators: funnier, less damaging,
+  guiltier); Kruger, Gordon & Kuban 2006 (*JPSP*
+  90:412 — mitigating intent systematically fails to
+  reach the target); Kowalski, Howerton & McKenzie
+  2001; Leary et al. 2003 narrative follow-ups. Spec
+  §6.315 `tease_*` + locked `tease_benign_null`.
+- **Generation effect in dialogue:** Slamecka & Graf
+  1978 (*JEP:HLM* 4:592); Fischer et al. 2015
+  (conversational self-production advantage); aging
+  metas (generation advantage largely preserved).
+  Spec §6.316 `selfsaid_gain` + locked
+  `selfsaid_echo_null`.
+- **Preverbal social evaluation:** Hamlin, Wynn &
+  Bloom 2007 (*Nature* 450:557 — 6- and 10-mo-olds
+  prefer helper over hinderer); Hamlin, Wynn, Bloom
+  & Mahajan 2011 (relational evaluation — mean to
+  the disliked counts as good); Hamlin 2013 review.
+  Spec §6.317 `pm_eval_raw` + `soc_abstract_age` +
+  locked `hh_trait_null`.
+- **Marked hypothesis:** the per-encounter conf gain,
+  fs_gain/fs_cap dose, vic_snub 0.4 dose, obs ordering
+  1.0/0.6/0.4, moremo 1.2/marker + shared trans_cap,
+  sync memory legs, tease mitigation-loss-at-encode
+  placement, and soc_abstract_age step are RW
+  calibrations — directions and exclusions are cited,
+  magnitudes are ours. Probes P1231–P1244 test the
+  structures (freeze, lock, dose-order, one-way,
+  ceiling), not the fitted knots.

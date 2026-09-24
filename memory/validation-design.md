@@ -11891,3 +11891,84 @@ without fitted magnitude.
   Shin 2018; Ifcher 2021.
 
 Probe registry: P1–P1230 (v115 adds P1218–P1230).
+
+## 236. v116 suite — social-memory XII (P1231–P1244)
+
+Fourteen probes for the SM Part XII observer layer (spec
+§§6.308–6.317). MUST tier on the structural locks —
+content-freeze, identity-lock, dose-lock, standing-null,
+reach-null, scope-null, one-way-loss, retention-null,
+abstraction-lock — plus the shared transmission ceiling;
+SHOULD where the literature gives direction without
+fitted magnitude.
+
+- **P1231 firstlook_freeze_null (MUST — locked):** a
+  novel face at 1 vs 10 exposures, no behavior fields:
+  firstlook.sketch bit-identical across arms, conf
+  higher (≈0.1/exposure, cap 0.9). Willis & Todorov
+  2006 — exposure grows certainty, never content.
+- **P1232 fs_identity_null (MUST — locked):** 40 `seen:`
+  co-presences, no `met`: familiarity ≥0.8, identity/
+  name/traits all zero; subsequent `met` shows the
+  fs_intro_gain bonus + `fs_met` emission. Milgram 1972.
+- **P1233 fs_content_null (MUST):** co-presence alone
+  mints zero event records and zero canonical-ledger
+  writes — the crowd stays scenery until it speaks.
+- **P1234 status_face (SHOULD):** identical faces,
+  actorStatus 0.9 vs 0.1: high arm ≈1.4× familiarity/
+  identity accrual + stronger who→where binding;
+  angry-expression arousal elevated in the high arm.
+  Ratcliff et al. 2011.
+- **P1235 vic_snub (MUST — dose-lock):** observer at
+  `exclusion:true`: muted self-record ≈0.4× target's +
+  excluder eval leg; `vic_exceed_null` — observer record
+  never exceeds the target's at any emp/closeness;
+  source-invariant (despised excluders still register).
+  Wesselmann 2009; Masten 2013.
+- **P1236 obs_standing_null (MUST — locked):** witnessed
+  third-party acts move PM eval/traits at
+  obs_eval_gain, zero canonical-ledger writes, zero
+  beliefStatus upgrades; ordering self > witnessed >
+  hearsay holds at all gains. Nowak & Sigmund 1998.
+- **P1237 moremo_reach_null (MUST — locked):** matched
+  rumors `moral:true` vs not: diffusion counts differ
+  (≈1.2×/marker), credence/accuracy/plausibility
+  bit-identical; out-group arm shows moremo_outgroup_pen.
+  Brady 2017.
+- **P1238 sync_scope_null (MUST — locked):** `sync:true`
+  events write eval_tag + E only — traits{} untouched;
+  per-pair accrual saturates at sync_aff_cap.
+  Wiltermuth & Heath 2009.
+- **P1239 tease_asymmetry (MUST — sign-lock):**
+  `tease:true` with full mitigation: target record
+  ≈unmitigated negative (mitigation loss ≥0.5),
+  perpetrator damped + guilt leg; target retell darkens
+  further (§5 composition); `tease_benign_null` — no
+  path restores intent into the target's record.
+  Kowalski 2000; Kruger 2006.
+- **P1240 selfsaid_null (MUST — locked):** dialogue pair
+  under CRN: each side's `speaker:self` fields survive
+  ≈1.25× the other's; credence fields identical —
+  retention asymmetry, no truth asymmetry. Slamecka &
+  Graf 1978.
+- **P1241 hh_floor (MUST — locked):** age-5 profile
+  watching helper/hinderer acts: eval_tag diverges
+  (+/−), traits{} empty (`hh_trait_null`); at
+  soc_abstract_age the trait ledger opens seeded by the
+  accumulated tag. Hamlin, Wynn & Bloom 2007.
+- **P1242 observer_absence (SHOULD):** character absent
+  from 30 days of block gossip still drifts PMs via
+  witnessed sidewalk acts + hearsay arms — both channels
+  land, `via` provenance readable.
+- **P1243 cast spread (OBSERVE):** identical tease/
+  exclusion/synchrony diet across the 8 mains → publish
+  PM-eval divergence; expected: high-emp+rsq mains carry
+  the heaviest vicarious load; status-seek-high mains
+  show the steepest status-face gradients. Report,
+  don't gate.
+- **P1244 composition cap (MUST):** moral+emotional+
+  sync+status rumor maximally stacked: transmission
+  multiplier ≤ trans_cap (1.6) — legs share a ceiling,
+  don't multiply free.
+
+Probe registry: P1–P1244 (v116 adds P1231–P1244).
