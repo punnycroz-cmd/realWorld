@@ -14013,3 +14013,129 @@ widened for the 2025 registered-replication null.
 
 → memory-model-spec.md v5.78 §§6.393–6.398;
 probes P1419–P1430.
+Probe registry: P1–P1442. v133 MUST: P1431,
+P1433, P1435, P1437, P1438, P1440, P1441.
+SHOULD: P1432, P1434, P1436, P1439, P1442.
+
+## 268. v133 probe specs (P1431–P1442 —
+forgetting-curves XII, the neighborhood prices
+the record; spec v5.79 §§4.92–4.95 +
+§§5.147–5.148)
+
+Harness: 8 mains + 200-ambient pop; CRN-matched
+arms. Interference-arm probes hold encode
+strength constant and vary only the
+neighborhood — that IS this pass's claim.
+
+- **P1431 neighbor tax (MUST — locked
+  `emo_free_null`):** neutral records minted
+  inside `emo_nbr_win` of an
+  `arousal ≥ emo_nbr_thresh` mint recall lower
+  at day-1-equivalent than matched
+  distant-window controls; a no-tax build
+  fails. The spike's advantage must be partly
+  paid for by its neighbors (Strange et al.
+  2003).
+- **P1432 anterograde leg (SHOULD):** records
+  minted *after* the spike within the window
+  also dip (Most et al. 2005 emotion-induced
+  blindness); anterograde magnitude ≤
+  retrograde — the Strange ordering.
+- **P1433 post-encoding credit (MUST — locked
+  `post_emo_instant_null`):** records minted in
+  `(emo_nbr_win, post_emo_win]` before a spike
+  exceed no-spike controls at day 3; hour-1
+  test shows no advantage — the credit is a
+  consolidation-leg posting, not mint strength.
+- **P1434 two-window ordering (SHOULD):** in a
+  single run, the inner window shows the tax
+  sign and the outer window shows the credit
+  sign — coexistence IS the falsifiable content;
+  the boundary value itself is calibration debt.
+- **P1435 suppression recovery (MUST — locked
+  `supp_perm_null`):** an RI-suppressed record
+  recovers ≥30% of its `supp` over 7 game-days
+  with the competitor live and uncued;
+  permanent-only builds flat.
+- **P1436 recovery timescale (SHOULD — locked
+  `supp_instant_null`):** measured `supp`
+  half-life ∈ [1.5, 6]d at defaults; one-tick
+  full-recovery builds fail.
+- **P1437 resurfacing (MUST):** a suppressed
+  record below retrieval θ at day 1 is reachable
+  by a maximal cue (`resurrect_thresh`) by day
+  14 with zero new encoding — recovery must be
+  access (`R_eff`), not re-write of `strength`.
+- **P1438 sleep armor (MUST — locked
+  `sleep_fragile_null`):** records crossing a
+  sleep tick accrue less new §4.94 `supp` than
+  matched awake-epoch controls over the next
+  24h — the Jenkins&Dallenbach shield is
+  passive; this leg is the active one
+  (Ellenbogen et al. 2006).
+- **P1439 armor decay (SHOULD):** measured
+  shield effect at day 3 ≤ half its day-1
+  value — armor is a day-scale asset.
+- **P1440 context-varied retell (MUST — locked
+  `ctx_same_null`):** two retells in disjoint
+  contexts yield more S than two in matched
+  contexts at equal gaps and equal effort;
+  matched-context retells earn ≤
+  `ctx_var_floor` share regardless of gap.
+- **P1441 rote null (MUST — locked
+  `rote_free_null`):** `rote:true` retells
+  (ctx overlap > `rote_ctx`, gap < `rote_gap`,
+  effort < `rote_effort`) earn ≤ `rote_mult`
+  share of normal S-gain and zero `lag_mult`
+  credit; a cram-friendly build fails.
+- **P1442 delayed-first-retell (SHOULD):** under
+  the retell ecology, first retell at
+  `lag_ratio(T)·T` outperforms immediate first
+  retell at equal total retell count —
+  Karpicke & Roediger 2007's operative factor
+  inside our machinery.
+
+## 269. Sources verified this version (P1431–P1442
+— the neighborhood prices the record)
+
+- Strange, Hurlemann & Dolan 2003 (*PNAS*
+  100:13626 — verified: coupled emotional
+  enhancement + retrograde neighbor decrement;
+  abolished by propranolol and bilateral
+  amygdala damage); Hurlemann et al. 2005
+  (*J. Neurosci.* 25:6343); Most, Chun,
+  Widders & Zald 2005 (*Psychol. Sci.* 16:949 —
+  emotion-induced blindness, anterograde);
+  Knight & Mather 2009 (*Psychol. Aging*
+  24:197 — divided-attention bound).
+- Nielson & Powless 2007 (*Mem. Cognit.* 35:40
+  — post-encoding arousal ≤30 min enhances
+  delayed recall, delay-selective); Nielson,
+  Yee & Erickson 2005; Cahill, Gorski & Le
+  2003; McGaugh 2000 (consolidation-modulation
+  review — verified tradition).
+- Underwood 1948 (*JEP* 38:29 — spontaneous
+  recovery of suppressed associations); Briggs
+  1954 (*JEP* 47:285 — RI loss partially remits
+  with delay); Postman, Stark & Fraser 1968
+  (*JVLVB* 7:672 — temporal dissociation of
+  PI/RI); Wheeler 1995 (*Mem. Cognit.* 23:335
+  — RIF recovery ~24–72h); Anderson 2003
+  (RIF persistence review).
+- Ellenbogen, Hulbert, Stickgold, Dinges &
+  Thompson-Schill 2006 (*Curr. Biol.* 16:1290 —
+  verified: post-sleep resistance to subsequent
+  interference); Ellenbogen et al. 2009
+  (extension, future-RI arm).
+- Glenberg 1979 (*Mem. Cognit.* 7:95 —
+  component-levels/contextual-variability
+  account of spacing); Bjork & Whitten 1974
+  (temporal distinctiveness antecedent).
+- Craik & Watkins 1973 (*JVLVB* 12:599 —
+  maintenance rehearsal adds nothing to LTM);
+  Karpicke & Roediger 2007 (*JEP:LMC* 33:704 —
+  verified: delayed first test is the operative
+  factor; expanding ≈ equal at long delay).
+
+→ memory-model-spec.md v5.79 §§4.92–4.95 +
+§§5.147–5.148; probes P1431–P1442.

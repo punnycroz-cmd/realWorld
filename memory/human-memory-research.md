@@ -6094,3 +6094,68 @@ scalars, +6 locked nulls, Event fields
 `chosen`/`odor`/`odorName`/`suppressing`/
 `construal`, record flag `pattern:true` + field
 `ctx_odor`); probes P1419–P1430.
+
+## 107. v133 — the neighborhood prices the record (forgetting-curves §§56–60)
+
+**Emotional spikes tax their neighbors
+(ESTABLISHED).** Strange, Hurlemann & Dolan
+2003 (*PNAS* 100:13626 — verified): enhanced
+memory for an emotional item is coupled to
+impaired memory for the immediately preceding
+neutral item; abolished by propranolol and
+amygdala damage. Most et al. 2005 extend the
+cost anterograde (emotion-induced blindness);
+Knight & Mather 2009 bound it under divided
+attention. Priced as `emo_nbr_*` — an encode
+tax, not a slope; `emo_free_null` makes the
+spike's advantage paid. The human truth for
+RW: everyone keeps the fight; nobody keeps the
+minute before it.
+
+**…and credit what came an hour before
+(ESTABLISHED direction).** Nielson & Powless
+2007 (*Mem. Cognit.* 35:40): arousal induced
+≤30 min *after* learning enhances delayed
+recall — post-encoding consolidation
+modulation (McGaugh 2000; Cahill et al. 2003),
+delay-selective. Priced as `post_emo_gain`
+posted at the sleep tick — `post_emo_instant_null`
+guards the double-pricing. The two-window
+partition (cost inside ~30 min, credit outside)
+is our formalization; coexistence is probed
+(P1434), the boundary is calibration debt.
+
+**Interference is a lease, not a deed
+(ESTABLISHED).** Underwood 1948; Briggs 1954;
+Postman, Stark & Fraser 1968; Wheeler 1995:
+suppressed traces recover with delay as the
+competitor fades — no new learning required.
+The spec's §4.2 permanent write was wrong in
+kind; v5.79 splits it `interf_perm_frac`/`supp`
+with `supp` decaying at `supp_recover` and
+`R_eff = R·(1−supp)` — suppression costs
+retrieval, not storage. This is the substrate
+of "it suddenly came back to me."
+
+**Sleep buys armor (ESTABLISHED direction).**
+Ellenbogen et al. 2006 (*Curr. Biol.* 16:1290 —
+verified): post-sleep records resist
+*subsequent* interference — active
+consolidation, not just absence of input.
+`interf_shield` on the sleep tick, decaying
+~day-scale. Magnitude is the pass's thinnest
+number; the probe bands it loosely.
+
+**The retell must be a new occasion
+(ESTABLISHED mechanism family).** Glenberg 1979
+(component-levels: spacing's dividend is
+contextual differentiation) + Craik & Watkins
+1973 (maintenance rehearsal adds nothing to
+LTM) + Karpicke & Roediger 2007 (*JEP:LMC*
+33:704 — verified: delayed effortful first
+retrieval is the operative factor). `ctx_var_*`
+prices where/with-whom where `lag_mult` priced
+when; `rote:true` prices the retell's form.
+The traveling story consolidates; the
+same-chair retell and the under-breath name
+cram earn the floor.

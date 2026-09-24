@@ -3744,3 +3744,340 @@ self-cue accumulator. Frozen: `lag_opt_ratio` (fallback only).
   mostly land on the procedural side, so the asymmetry shows up
   mainly as *variance across mains* via job mix, not as a
   within-person contrast.
+
+
+# Part XII — v133 deepening: the spike's neighbors pay, the hour
+after owes it, the suppression was a lease, sleep buys armor, and
+two ways a retell earns nothing
+
+Eleven passes priced the curve's slope and shape. This pass prices
+six places where the curve is a *function of the neighborhood*, not
+of the record: the item next to an emotional spike is born damaged;
+the same spike an hour later *helps* what preceded it; interference
+suppression is a decaying lease that lapses as the competitor
+fades; a crossed sleep tick buys armor against tomorrow's similar
+events; and the retell ecology's benefit is conditional on the
+retell being a new occasion — same-chair retells and rote
+repetition earn almost nothing. Claims tagged
+[CONSENSUS] / [DEBATED] / [HYPOTHESIS] as before.
+
+## 56. New primary sources
+
+### 56.1 The spike's neighbors pay — emotion-induced retrograde amnesia — Strange, Hurlemann & Dolan 2003
+
+Strange, Hurlemann & Dolan 2003 (*PNAS* 100:13626 — verified):
+a single emotionally aversive word presented among neutral words
+is recalled better AND **the word immediately preceding it is
+recalled worse** — the enhancement and the decrement are coupled,
+both abolished by propranolol (β-adrenergic blockade) and by
+bilateral amygdala damage. Hurlemann et al. 2005 (*J. Neurosci.*
+25:6343) extended to anterograde cost; Most, Chun, Widders &
+Zald 2005 (*Psychol. Sci.* 16:949 — "emotion-induced blindness")
+showed the *following* item is missed under rapid presentation —
+attention captured by the emotional stimulus blinds the
+peri-stimulus window. Knight & Mather 2009 (*Psychol. Aging*
+24:197) bound it: under divided attention or separated lists the
+cost shrinks or flips — the mechanism is attentional capture at
+encode, not a hormonal wash [CONSENSUS phenomenon — peri-
+emotional neighbors are penalized; magnitude and the sex-skew
+(Strange found it stronger in women) DEBATED; boundary conditions
+DEBATED].
+
+**Spec consequence — `emo_nbr_*`, an encode-time neighborhood
+tax.** When an event mints with `arousal ≥ emo_nbr_thresh` (0.75),
+episodic records minted within `emo_nbr_win` (0.02d ≈ 30 game-min
+— order ±1–2 events) take `E *= (1 − emo_nbr_tax)` (0.20),
+except: neighbors with their own `arousal ≥ 0.6` are exempt (two
+spikes don't tax each other), and the tax is halved when the
+neighbor's mint ran under `da_enc` divided attention (Knight &
+Mather). The tax lands on E, not on the record's later decay —
+the neighbor is *born thin*, the classic encoding-failure face of
+forgetting. Locked `emo_free_null`: a build where the arousal
+dividend arrives with no neighborhood cost fails P1431 — the
+spike's advantage is partly *paid for*.
+
+RW behavior: the fight at the dinner party is remembered by
+everyone; what was said in the minute before it — the errand
+mentioned, the name introduced — is the thing nobody can quite
+reconstruct. Unequal knowledge lands here: the co-present
+characters each keep the spike and each lose the edge.
+
+### 56.2 …and the hour after owes it a debt — post-encoding arousal enhancement — Nielson & Powless 2007
+
+The same noradrenergic mechanism runs the other sign on a slower
+clock. Nielson & Powless 2007 (*Memory & Cognition* 35:40 —
+verified tradition): arousal induced **up to ~30 min after**
+learning enhances delayed recall of the preceding neutral
+material — post-encoding consolidation modulation (McGaugh 2000;
+Cahill, Gorski & Le 2003: post-learning arousal/stress improves
+delayed memory). Nielson, Yee & Erickson 2005: the effect is
+delay-selective — nothing at immediate test, a clear gain at one
+week [CONSENSUS direction — post-encoding arousal modulates
+consolidation; the window's width (~30 min in the lab) and the
+interaction with §56.1's item-level cost DEBATED — the lab
+paradigms are list-shaped, RW events are scene-shaped].
+
+**Spec consequence — `post_emo_*`, a consolidation-leg credit.**
+A record minted in `post_emo_win` — (emo_nbr_win, 0.04d ≈ 1
+game-hour] — *before* a high-arousal mint gains a deferred
+S-credit: `post_emo_gain` (0.10) applied at the next sleep tick,
+never at mint (double-pricing guard — §51.4's gate means arousal's
+dividend posts late anyway; this one is arousal the *record*
+never felt). The two windows partition: inside `emo_nbr_win` the
+neighbor pays the attentional tax (§56.1); in the wider window it
+collects the hormonal credit. Both are honest readings of one
+biology at two timescales. Locked `post_emo_instant_null`: the
+credit must post at sleep — an immediate-strength implementation
+fails P1433's hour-1 leg.
+
+RW behavior: the quiet half-hour before the accident is the part
+that survives — the ordinary afternoon is pinned to the calendar
+by the thing that ended it.
+
+### 56.3 The suppression was a lease — interference dissipates with the competitor — Briggs 1954; Underwood 1948; Postman, Stark & Fraser 1968; Wheeler 1995
+
+§4.2 writes interference as a permanent strength hit; §4.63's
+release fires only when the competitor *dies*. The classic
+literature says suppression is **transient**: Underwood 1948
+(*J. Exp. Psychol.* 38:29) and Briggs 1954 (*J. Exp. Psychol.*
+47:285) showed recovery of original-list recall over delay as
+interpolated responses weaken — spontaneous recovery of the
+suppressed trace without new learning. Postman, Stark & Fraser
+1968 (*JVLVB* 7:672): RI-specific loss partially remits with
+time. Wheeler 1995 (*Memory & Cognition* 23:335) measured
+retrieval-induced forgetting recovering over ~24–72 h. The modern
+read: suppression tracks the *competitor's current accessibility*,
+so the competitor's own decay is the release schedule [CONSENSUS
+that suppressed items recover with delay; whether recovery is
+passive decay or context-shift DEBATED — we implement passive,
+it is the same observable].
+
+**Spec consequence — §4.2 split into permanent and leased
+legs.** Each interference hit divides: `interf_perm_frac` (0.4)
+of the strength loss is permanent (trace overlap, McGeoch); the
+rest accrues to a per-record `supp` state that decays per daily
+tick at `supp_recover` (0.10/day), plus the §4.63 full release
+on competitor archival. RIF suppression (§5.8) writes into the
+same `supp` state, decaying at `rif_recover_tau` (2d). Retrieval
+reads `R_eff = R·(1 − supp)` — suppression costs retrieval, not
+storage, so a maximally cued reach (§4.4 `resurrect_thresh`)
+can still land a heavily suppressed record: the "it suddenly came
+back to me" is now structural, not a special case. Locked
+`supp_perm_null` (a permanent-only build fails P1435) and
+`supp_instant_null` (recovery in one tick fails the timescale
+leg P1436).
+
+RW behavior: the argument that blotted out what Marta actually
+said on Tuesday fades *because the argument itself fades* — and
+two weeks later, on the same corner, the Tuesday conversation
+surfaces. Forgetting that forgets itself.
+
+### 56.4 Sleep buys armor, not just strength — post-sleep interference resistance — Ellenbogen, Hulbert, Stickgold, Dinges & Thompson-Schill 2006
+
+§4.6 makes pre-sleep records interference-*exposed*; Ellenbogen
+et al. 2006 (*Curr. Biol.* 16:1290 — verified) add the other
+direction: memories that have crossed a sleep episode are
+**resistant to subsequent interference** — sleepers recall more
+than an equivalent awake interval specifically in the face of
+post-sleep competing material (2009 follow-up replicates and
+extends to resistance against future RI). The Jenkins &
+Dallenbach shield is passive (less input); this is active —
+consolidation hardens the trace against what comes next
+[CONSENSUS direction — post-sleep interference resistance is
+replicated; mechanism (active consolidation vs mere encoding
+absence) DEBATED].
+
+**Spec consequence — `interf_shield` on the sleep tick.**
+Records crossing a sleep tick gain `shield = interf_shield`
+(0.4): subsequent §4.2 interference accrual against them runs at
+`×(1 − shield)`; the shield decays `shield *= (1 −
+interf_shield_decay)` (0.3/day — armor is worth most in the next
+day or two, then the record rejoins the pool). Complements
+`consol_beta_mult` (decay side) without touching it. Locked
+`sleep_fragile_null`: post-sleep records must accrue *less* new
+suppression than matched awake-epoch records — a build where
+sleep only slows decay fails P1438.
+
+RW behavior: the night's sleep is why yesterday's conversation
+survives today's three similar conversations — the characters who
+sleep on it keep it.
+
+### 56.5 The same chair tells it worse — contextual variability is the retell dividend — Glenberg 1979
+
+The spec's `lag_mult` prices *when* a retell happens; Glenberg
+1979 (*Memory & Cognition* 7:95 — component-levels theory)
+explains *why spacing works at all*: each repetition in a
+different context adds contextual elements to the trace; massed
+repetitions share their context and add nothing new. The spacing
+benefit is contextual differentiation, not elapsed time itself —
+consistent with the §12.6 internal-context drift machinery
+[CONSENSUS that contextual variability mediates spacing;
+component-levels as the specific account is one of several —
+study-phase retrieval (Pyc & Rawson, already §5.9) and encoding
+variability both survive; we implement the observable, not the
+theory].
+
+**Spec consequence — retell gain scales with context novelty.**
+Records store `lastAccessCtx` (compressed cue vector of the
+previous access context). A rehearsal/retell's §4.11/§5.9
+S-growth multiplies by
+
+```
+ctx_var = 1 − overlap(C_now, lastAccessCtx)
+gain_eff = gain · (ctx_var_floor + (1 − ctx_var_floor)·ctx_var)
+```
+
+`ctx_var_floor` 0.3 — even a bit-identical retell refreshes
+`lastAccessDay` and runs §6.1 drift, but earns the floor share.
+Locked `ctx_same_null`: retells under a matched context must
+earn ≤ floor share regardless of gap — the lag machinery prices
+time, this prices place.
+
+RW behavior: the story improves when it travels — told at the
+bar, retold on the walk home, it consolidates; told three times
+to the same person in the same chair, it mostly doesn't.
+
+### 56.6 Rote is not rehearsal — maintenance repetition earns the floor — Craik & Watkins 1973; Karpicke & Roediger 2007
+
+The encoding side already honors Craik & Watkins 1973 (*JVLVB*
+12:599 — maintenance rehearsal sustains STM, adds nothing to
+LTM). The retell ecology needs the same gate: a repetition that
+is not a *retrieval* is not a rehearsal. Karpicke & Roediger 2007
+(*JEP:LMC* 33:704 — verified): the operative factor is delaying
+the first test to make retrieval effortful — massed re-exposure
+and easy retrievals contribute little at long delay. The two
+findings price the *form* of a retell where `lag_mult` priced
+the timing [CONSENSUS that rote repetition ≠ retrieval practice;
+the effort-vs-contextual-variability attribution DEBATED —
+§56.5 and this section each implement one leg and the probes
+keep them separable].
+
+**Spec consequence — `rote:true` retells earn `rote_mult`.**
+A retell event mints `rote:true` when all three hold: retrieval
+context overlaps `lastAccessCtx` above `rote_ctx` (0.8), gap <
+`rote_gap` (0.25d), and the §5.9 effort term (1−R_pre) <
+`rote_effort` (0.2) — i.e., the "repetition" was cheap recall of
+a still-warm trace in the same chair. `rote:true` retells get
+S-growth ×`rote_mult` (0.2), earn NO `lag_mult` credit (rote
+massed reps cannot ride the ridgeline), and do not update
+`prevGapDays`. Locked `rote_free_null`: a build where cramming
+behaves like retrieval fails P1441.
+
+RW behavior: the character who repeats the name under their
+breath at the party still forgets it by Friday; the one who was
+*asked* about it a day later keeps it.
+
+### 56.7 Supporting citations (no new mechanism)
+
+- Tulving & Pearlstone 1966 — availability vs accessibility;
+  the `supp`/`R_eff` split is the spec's standing commitment to
+  it (backstops §56.3).
+- Bjork & Whitten 1974 — recency as temporal distinctiveness;
+  the ratio logic behind ctx_var's overlap term.
+- Talamini et al. 2008 — sleep × interference interaction;
+  background for the shield's one-day scale.
+- Anderson 2003 — RIF's "when does it end" review; Wheeler 1995
+  supplies the timescale we actually encode.
+
+## 57. What changed in the spec (v5.78 → v5.79)
+
+| # | Change | Grounding |
+|---|---|---|
+| C-fc12-1 | New §4.92 `emo_nbr_*`: high-arousal mints tax neighbors inside `emo_nbr_win` at mint; exemption for co-hot neighbors; halved under `da_enc`; locked `emo_free_null` | §56.1 |
+| C-fc12-2 | New §4.93 `post_emo_*`: records in `(emo_nbr_win, post_emo_win]` before a spike gain `post_emo_gain` posted at next sleep tick; locked `post_emo_instant_null` | §56.2 |
+| C-fc12-3 | §4.2 revision: interference loss splits `interf_perm_frac`/`supp`; `supp` decays at `supp_recover` + §4.63 release; RIF writes `supp` at `rif_recover_tau`; `R_eff = R·(1−supp)`; locked `supp_perm_null`, `supp_instant_null` | §56.3 |
+| C-fc12-4 | §4.6 addendum `interf_shield*`: sleep tick grants interference resistance decaying at `interf_shield_decay`; locked `sleep_fragile_null` | §56.4 |
+| C-fc12-5 | New §5.147 `ctx_var_*`: retell S-growth scaled by context novelty vs `lastAccessCtx`; locked `ctx_same_null` | §56.5 |
+| C-fc12-6 | New §5.148 `rote_*`: `rote:true` retells earn `rote_mult`, no lag credit, no `prevGapDays` update; locked `rote_free_null` | §56.6 |
+
+New params: `emo_nbr_thresh 0.75 [0.5–0.9]`, `emo_nbr_tax 0.20
+[0–0.4]`, `emo_nbr_win 0.02 [0.003–0.06]`, `post_emo_gain 0.10
+[0–0.3]`, `post_emo_win 0.04 [0.02–0.12]`, `interf_perm_frac
+0.4 [0–1]`, `supp_recover 0.10 [0.02–0.3]`, `rif_recover_tau 2
+[0.5–7]`, `interf_shield 0.4 [0–0.7]`, `interf_shield_decay 0.3
+[0.1–0.6]`, `ctx_var_floor 0.3 [0–0.6]`, `rote_ctx 0.8 [0.5–0.95]`,
+`rote_gap 0.25 [0–1]`, `rote_mult 0.2 [0–0.5]`, `rote_effort 0.2
+[0–0.5]`. Locked nulls: `emo_free_null`, `post_emo_instant_null`,
+`supp_perm_null`, `supp_instant_null`, `sleep_fragile_null`,
+`ctx_same_null`, `rote_free_null`. New fields/state: record
+fields `supp`, `shield`, `lastAccessCtx`; retell flag
+`rote:true`.
+
+## 58. Retention table — added rows (defaults, game days)
+
+| record class | mechanism | visible effect |
+|---|---|---|
+| neutral event ±30 min of a high-arousal mint | emo_nbr_tax | born thin — the pre-fight minute is what nobody keeps |
+| neutral event 30–60 min before a spike | post_emo_gain | survives *better* than no-spike control — but only after sleep |
+| RI-suppressed record, competitor still live | supp decay | ~30%+ of suppression remits over a week; resurfaces on a strong cue |
+| record crossing a sleep tick | interf_shield | tomorrow's similar events tax it ~40% less, armor fades by ~day 3 |
+| retell in a disjoint context | ctx_var | same gap, more S — the traveling story consolidates |
+| same-chair retell / under-breath name cram | rote:true | refreshes lastAccessDay, earns ~20% S — Friday forgets anyway |
+
+## 59. Validation probes (P1431–P1442)
+
+- **P1431 neighbor tax (MUST):** neutral records minted inside
+  `emo_nbr_win` of an `arousal ≥ emo_nbr_thresh` mint recall lower
+  at day 1 than matched distant controls; `emo_free_null` leg —
+  a no-tax build fails.
+- **P1432 anterograde leg (SHOULD):** records minted *after* the
+  spike within the window also dip; anterograde magnitude ≤
+  retrograde (the Strange ordering).
+- **P1433 post-encoding gain (MUST):** records minted in
+  `(emo_nbr_win, post_emo_win]` before a spike exceed no-spike
+  controls at day 3; hour-1 test shows nothing —
+  `post_emo_instant_null` leg.
+- **P1434 two-window ordering (SHOULD):** adjacent-window taxed
+  and outer-window boosted signs coexist in one run — the
+  partition is the claim.
+- **P1435 suppression recovery (MUST):** an RI-suppressed record
+  recovers ≥30% of its suppression over 7d with the competitor
+  live and uncued; `supp_perm_null` leg flat.
+- **P1436 recovery timescale (SHOULD):** measured `supp`
+  half-life ∈ [1.5, 6]d at defaults; `supp_instant_null` leg —
+  one-tick full recovery fails.
+- **P1437 resurfacing (MUST):** a suppressed record below
+  retrieval threshold at day 1 is reachable by a maximal cue by
+  day 14 with no new encoding — recovery must be *access*, not
+  re-write.
+- **P1438 sleep armor (MUST):** records crossing a sleep tick
+  accrue less new §4.2/`supp` suppression than matched
+  awake-epoch controls over the next 24h; `sleep_fragile_null`.
+- **P1439 armor decay (SHOULD):** shield effect at day 3 ≤ half
+  its day-1 value.
+- **P1440 context-varied retell (MUST):** two retells in disjoint
+  contexts yield more S than two in matched contexts at equal
+  gaps; `ctx_same_null` leg.
+- **P1441 rote null (MUST):** `rote:true` retells earn ≤
+  `rote_mult` share of normal S-gain and zero lag credit;
+  `rote_free_null` leg — a cram-friendly build fails.
+- **P1442 delayed-first-retell (SHOULD):** under the retell
+  ecology, first retell at `lag_ratio(T)·T` outperforms immediate
+  first retell at equal retell count — Karpicke & Roediger's
+  operative factor under our machinery.
+
+## 60. Honest limits (additions)
+
+- The two-window split (§56.1 cost inside ~30 min, §56.2 credit
+  inside ~1 h) reads lab paradigms onto scene-scale events; the
+  *partition* is our formalization, not a measured boundary —
+  P1434 tests coexistence, not the boundary value.
+- `emo_nbr_win` in game-minutes assumes RW event granularity is
+  comparable to Strange's item adjacency; if events are hours
+  wide, the window is a *same-scene* tax and the param should be
+  read in events not minutes — flagged as calibration debt.
+- `supp` as a single scalar per record conflates multiple
+  competitor sources; the decay is correct only if competitors
+  fade roughly together — dense-pool records may under-recover.
+  Probe bands it loosely.
+- `interf_shield` magnitude is the least-sourced number this
+  pass — Ellenbogen gives the phenomenon and one-day scale, not
+  a coefficient; 0.4 is a mid-range choice, range wide.
+- `ctx_var` reuses the §5.2 overlap machinery, so it inherits
+  whatever the cue-vector representation can't express — a
+  retell to a *different audience in the same room* may score
+  more context-novel than the human phenomenology would.
+- `rote:true`'s three-way gate is deliberately conservative —
+  it must catch cramming without taxing genuine conversational
+  retells, which usually satisfy ≥1 non-rote clause; if P1441
+  strains, tighten `rote_ctx`, not `rote_mult`.

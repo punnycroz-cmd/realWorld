@@ -1,4 +1,43 @@
-# Memory Model Spec v5.78 — implementable human-like memory for RW characters
+# Memory Model Spec v5.79 — implementable human-like memory for RW characters
+
+> **v5.79 note (forgetting-curves XII — the
+> neighborhood prices the record):** six places
+> where retention is a function of the
+> neighborhood, not the record. **Neighbor tax**
+> — `arousal ≥ emo_nbr_thresh` mints tax
+> neighbors inside `emo_nbr_win` (±~30 game-min)
+> at `emo_nbr_tax`, co-hot neighbors exempt,
+> `da_enc` halves it (Strange, Hurlemann & Dolan
+> 2003, verified; Knight & Mather 2009 bounds);
+> `emo_free_null` — the spike's advantage is
+> partly paid for. **Post-encoding credit** —
+> records in `(emo_nbr_win, post_emo_win]`
+> before a spike gain `post_emo_gain` posted at
+> the next sleep tick, never at mint
+> (Nielson & Powless 2007); `post_emo_instant_null`.
+> **Suppression is a lease** — §4.2 loss splits
+> `interf_perm_frac`/`supp`; `supp` decays at
+> `supp_recover`, RIF shares the state at
+> `rif_recover_tau`, retrieval reads
+> `R_eff = R·(1−supp)` (Briggs 1954; Underwood
+> 1948; Wheeler 1995); `supp_perm_null` +
+> `supp_instant_null`. **Sleep armor** — the
+> sleep tick grants `interf_shield` decaying at
+> `interf_shield_decay` (Ellenbogen et al. 2006);
+> `sleep_fragile_null`. **Context-varied retell**
+> — retell S-growth scaled by context novelty vs
+> `lastAccessCtx`, floor `ctx_var_floor`
+> (Glenberg 1979); `ctx_same_null`. **Rote is
+> not rehearsal** — `rote:true` retells (same
+> context, gap<`rote_gap`, effort<`rote_effort`)
+> earn `rote_mult`, no lag credit, no
+> `prevGapDays` (Craik & Watkins 1973; Karpicke &
+> Roediger 2007); `rote_free_null`. §§4.92–4.95,
+> §§5.147–5.148; §7 +15 scalars +7 locked nulls
+> +record fields `supp`/`shield`/`lastAccessCtx`
+> +retell flag `rote:true`; probes P1431–P1442
+> in validation-design.md §§268–269. (Prior
+> notes v4.x–v5.78 in the version log.)
 
 > **v5.78 note (encoding-mechanics — the will, the
 > want, the pattern, the smell, the bear, the
@@ -7305,6 +7344,90 @@ Locked `cohort_within_null` (P1330): within a cohort the
 age slope must still hold — the shift translates, never
 flattens.
 
+### 4.92 The spike's neighbors pay — `emo_nbr_*` (new in v5.79)
+
+FC§56.1; **Strange, Hurlemann & Dolan 2003** (*PNAS*
+100:13626 — verified): memory for an emotional item is
+enhanced AND the item immediately preceding it is
+impaired — coupled, β-adrenergic, amygdala-dependent;
+Most et al. 2005 (emotion-induced blindness) extends
+anterograde; Knight & Mather 2009 bound it under
+divided attention. When an event mints with
+`arousal ≥ emo_nbr_thresh` (0.75):
+
+```
+for each episodic record minted within emo_nbr_win
+  (0.02d ≈ 30 game-min, order ±1–2 events):
+    if nbr.arousal < 0.6:  nbr.E *= (1 − emo_nbr_tax)   // 0.20
+    if nbr minted under da_enc divided attention:
+        tax ×= 0.5                                    // Knight & Mather
+```
+
+The tax lands on E at mint — the neighbor is born thin,
+an encoding-failure forgetting, not a faster slope.
+Locked `emo_free_null` (P1431): the arousal dividend
+must arrive with the neighborhood cost.
+
+### 4.93 The hour after owes it — `post_emo_*` (new in v5.79)
+
+FC§56.2; **Nielson & Powless 2007** (*Mem. Cogn.* 35:40
+— post-encoding arousal up to ~30 min enhances delayed
+recall); McGaugh 2000; Cahill, Gorski & Le 2003. A
+record minted in `(emo_nbr_win, post_emo_win]` (0.04d ≈
+1 game-hour) *before* a high-arousal mint accrues a
+deferred credit:
+
+```
+post_emo_pending += post_emo_gain   // 0.10, posted at
+                                    // next sleep tick → S
+```
+
+Never immediate — double-pricing guard consistent with
+§51.4's `emo_del_gate`. The windows partition:
+attentional cost inside `emo_nbr_win`, consolidation
+credit outside it — one biology, two timescales.
+Locked `post_emo_instant_null` (P1433): an
+at-mint implementation fails the hour-1 leg.
+
+### 4.94 The suppression was a lease — `supp`/`supp_recover` (new in v5.79)
+
+FC§56.3; **Briggs 1954** (*JEP* 47:285); **Underwood
+1948** (*JEP* 38:29); **Postman, Stark & Fraser 1968**
+(*JVLVB* 7:672); **Wheeler 1995** (*Mem. Cogn.* 23:335
+— RIF recovers over ~24–72h). §4.2's per-hit strength
+loss splits:
+
+```
+on each interference hit:  strength *= (1 − interf_k·similarity·interf_perm_frac)   // 0.4
+                           supp     += interf_k·similarity·(1 − interf_perm_frac)
+daily tick:                supp *= (1 − supp_recover)            // 0.10/day
+RIF (§5.8) writes the same supp state, decaying at rif_recover_tau (2d)
+retrieval reads:           R_eff = R·(1 − supp)
+§4.63 relief_* unchanged — competitor archival releases the rest
+```
+
+Suppression costs retrieval, not storage — a maximal
+cue (`resurrect_thresh`, §4.4) still lands a heavily
+suppressed record: structural resurfacing. Locked
+`supp_perm_null` (P1435 — permanent-only builds fail)
+and `supp_instant_null` (P1436 — recovery in one tick
+fails the timescale leg).
+
+### 4.95 Sleep buys armor — `interf_shield_*` (new in v5.79)
+
+FC§56.4; **Ellenbogen, Hulbert, Stickgold, Dinges &
+Thompson-Schill 2006** (*Curr. Biol.* 16:1290 —
+verified): memories that crossed a sleep episode resist
+*subsequent* interference (2009 follow-up extends).
+At each sleep tick, each record crossing it gains
+`shield = interf_shield` (0.4); subsequent §4.2/§4.94
+interference accrual against it runs at `×(1 − shield)`;
+`shield *= (1 − interf_shield_decay)` (0.3/day —
+armor fades by ~day 3). Complements `consol_beta_mult`
+(decay side) untouched. Locked `sleep_fragile_null`
+(P1438): post-sleep records must accrue less new
+suppression than matched awake-epoch controls.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -10783,6 +10906,47 @@ emitted_conf = max(emitted_conf, fin_conf_keep (0.95) · base_conf)
 No null of its own — paired with `fin_decl_null`
 (P1329) which pins the accuracy side to applied-numeric
 fields only.
+
+### 5.147 The same chair tells it worse — `ctx_var_*` (new in v5.79)
+
+FC§56.5; **Glenberg 1979** (*Mem. Cogn.* 7:95 —
+component-levels: spacing's benefit is contextual
+differentiation). Records carry `lastAccessCtx`
+(compressed cue vector of the previous access context,
+written on every successful recall/retell). A
+rehearsal's §4.11/§5.9 S-growth multiplies by
+
+```
+ctx_var  = 1 − overlap(C_now, lastAccessCtx)
+gain_eff = gain · (ctx_var_floor + (1−ctx_var_floor)·ctx_var)   // floor 0.3
+```
+
+A bit-identical retell still refreshes `lastAccessDay`
+and runs §6.1 drift — it just earns the floor share.
+`lag_mult` prices *when*; this prices *where/with whom*.
+Locked `ctx_same_null` (P1440): matched-context retells
+must earn ≤ floor share regardless of gap.
+
+### 5.148 Rote is not rehearsal — `rote_*` (new in v5.79)
+
+FC§56.6; **Craik & Watkins 1973** (*JVLVB* 12:599 —
+maintenance rehearsal adds nothing to LTM);
+**Karpicke & Roediger 2007** (*JEP:LMC* 33:704 —
+verified; the operative factor is a delayed, effortful
+first retrieval). A retell event mints `rote:true`
+when ALL hold:
+
+```
+overlap(C_now, lastAccessCtx) > rote_ctx (0.8)
+AND gap < rote_gap (0.25d)
+AND §5.9 effort term (1 − R_pre) < rote_effort (0.2)
+```
+
+`rote:true` retells earn S-growth ×`rote_mult` (0.2),
+NO `lag_mult` credit, and do not update `prevGapDays`
+— a repetition that wasn't a retrieval can't ride the
+ridgeline. Locked `rote_free_null` (P1441): a build
+where cramming behaves like retrieval fails.
 
 ---
 
@@ -20725,6 +20889,28 @@ MemoryParams = {
 //   checkpoints); label_gap_null (P1410 — memory-backed
 //   emission with no display_tier). All snapshot-
 //   additive; absent = legacy.
+// v5.79 additions (forgetting-curves XII v133 —
+//   FC§§56–60, §§4.92–4.95 + §§5.147–5.148)
+"emo_nbr_thresh": 0.75, "emo_nbr_tax": 0.20,
+"emo_nbr_win": 0.02,                           // §4.92
+"post_emo_gain": 0.10, "post_emo_win": 0.04,   // §4.93
+"interf_perm_frac": 0.4, "supp_recover": 0.10,
+"rif_recover_tau": 2,                          // §4.94
+"interf_shield": 0.4, "interf_shield_decay": 0.3, // §4.95
+"ctx_var_floor": 0.3,                          // §5.147
+"rote_ctx": 0.8, "rote_gap": 0.25,
+"rote_mult": 0.2, "rote_effort": 0.2,          // §5.148
+// v5.79 record fields/state: `supp`, `shield`,
+//   `lastAccessCtx`; retell flag `rote:true`;
+//   pending consolidation credit
+//   `post_emo_pending`.
+// v5.79 locked nulls: emo_free_null (P1431);
+//   post_emo_instant_null (P1433);
+//   supp_perm_null (P1435); supp_instant_null
+//   (P1436); sleep_fragile_null (P1438);
+//   ctx_same_null (P1440); rote_free_null
+//   (P1441). All snapshot-additive; absent =
+//   legacy.
 // v5.78 additions (encoding-mechanics v132 — EM§§133–138,
 //   §§6.393–6.398)
 "choice_gain": 0.10, "choice_opt_min": 2,
@@ -23759,6 +23945,47 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.79 additions (forgetting-curves.md §§56–60 —
+  the neighborhood prices the record):
+  - **Neighbor-tax contract (§4.92):**
+    `arousal ≥ emo_nbr_thresh` mints tax records
+    inside `emo_nbr_win` at `emo_nbr_tax`;
+    co-hot neighbors exempt; `da_enc` halves —
+    `emo_free_null` (P1431) makes the spike's
+    advantage paid, never free.
+  - **Post-encoding contract (§4.93):**
+    records in `(emo_nbr_win, post_emo_win]`
+    before a spike earn `post_emo_gain` posted at
+    the next sleep tick only —
+    `post_emo_instant_null` (P1433).
+  - **Lease contract (§4.94):** interference loss
+    splits `interf_perm_frac`/`supp`; `supp`
+    decays at `supp_recover`, RIF shares the
+    state at `rif_recover_tau`; retrieval reads
+    `R_eff = R·(1−supp)` — `supp_perm_null`
+    (P1435) and `supp_instant_null` (P1436).
+  - **Armor contract (§4.95):** the sleep tick
+    grants `interf_shield` on future accrual,
+    decaying at `interf_shield_decay` —
+    `sleep_fragile_null` (P1438).
+  - **Context contract (§5.147):** retell
+    S-growth scales with `1−overlap(C_now,
+    lastAccessCtx)`, floor `ctx_var_floor` —
+    `ctx_same_null` (P1440).
+  - **Rote contract (§5.148):** `rote:true`
+    retells earn `rote_mult`, no lag credit, no
+    `prevGapDays` update — `rote_free_null`
+    (P1441).
+  - **Locked boundaries game-systems must
+    honor:** `emo_free_null`,
+    `post_emo_instant_null`, `supp_perm_null`,
+    `supp_instant_null`, `sleep_fragile_null`,
+    `ctx_same_null`, `rote_free_null`.
+  - **New params (§7):** 15 scalars + 7 locked
+    nulls; record fields `supp`, `shield`,
+    `lastAccessCtx`, `post_emo_pending`; retell
+    flag `rote:true`.
+  - Probes P1431–P1442.
 - v5.78 additions (encoding-mechanics.md §§133–138 —
   the volitional/breadth/pattern/odor/suppression/
   construal intake channels):
