@@ -5087,6 +5087,221 @@ runAutoTest = async function(){
         keepLC.forEach((lc, o) => { o.lastClockCheck = lc; });
       }
     }
+
+    /* ==================== v17: THE COUNTY RECORDER ====================
+       parcels + Prop-13 roll + the secured tax calendar + the Rent
+       Board fee + the public record. Runs on reset state — every
+       building here is minted by the suite, so nothing leans on the
+       live SF seed. Bare block keeps names scoped. */
+    if(typeof gsParcelOf === 'function'){
+      /* -- parcels + APNs -------------------------------------------- */
+      const cb = gsRegisterBuilding({ street: 'Parcel Lane',
+        owner_id: 'landlord' });
+      const cu1 = gsRegisterUnit(cb.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 1800, rent_controlled: true });
+      const cu2 = gsRegisterUnit(cb.id, { unit_code: 'B', bedrooms: 1,
+        base_rent: 2000, rent_controlled: false });
+      const cp = gsParcelOf(cb.id);
+      log(cp && cp.kind === 'building' && /^9\d{3}-\d{3}$/.test(cp.apn) &&
+          cp.bld_id === cb.id && cp.unit_id === null &&
+          cp.status === 'active',
+          'gs: v17 a building enrols as a parcel with a 9xxx-lot APN');
+      log(gsParcelOf(cb.id) === cp && GS_PARC.apnUsed[cp.apn] === true,
+          'gs: v17 parcel minting is idempotent — same key, same record');
+      log(gsParcelOf(cu1.id) === null && gsParcelOf(cu2.id) === null,
+          'gs: v17 an unsold door has no condo parcel — it rides the ' +
+          'building roll');
+
+      /* -- Prop 13: factored base under market, deterministic -------- */
+      const mkt = gsParcelMarket(cb.id);
+      const a26 = gsAssessedValue(cp, 2026), a20 = gsAssessedValue(cp, 2020);
+      log(mkt === 545000 && a26 === gsAssessedValue(cp, 2026) &&
+          a26 < mkt && a26 > a20,
+          'gs: v17 assessed rides the factored base — under market, ' +
+          'growing 2%/yr, deterministic');
+      const condo0 = gsAssessSale(cu2.id, 450000, '2026-08-15');
+      log(condo0 && condo0.kind === 'condo' && condo0.unit_id === cu2.id &&
+          condo0.apn !== cp.apn && condo0.basis.length === 1 &&
+          condo0.basis[0].yr === 2026 && condo0.basis[0].amt === 450000 &&
+          gsAssessedValue(condo0, 2026) === 300000,
+          'gs: v17 a sale carves a condo parcel rebased at the price — ' +
+          'assessed stays capped at market (the Prop-8 floor rule)');
+      log(gsParcelMarket(cb.id) === 260000 &&
+          gsParcelOf(cu2.id) === condo0,
+          'gs: v17 the building roll stops counting the sold door');
+      const asBefore = gsAssessedValue(cp, 2026);
+      const adu = gsConvertGarage(cb.id, { bedrooms: 0, base_rent: 900 });
+      log(adu && cp.basis.length === 2 &&
+          cp.basis[1].amt === GS_CNT_CFG.aduCost &&
+          gsAssessedValue(cp, 2026) === asBefore + GS_CNT_CFG.aduCost,
+          'gs: v17 a garage conversion adds a base-year segment — the ' +
+          'old basis keeps its factor');
+
+      /* -- a real escrow buy drives the hook ------------------------- */
+      const hb = gsRegisterBuilding({ street: 'Escrow Lane',
+        owner_id: 'landlord' });
+      const hu = gsRegisterUnit(hb.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 1500 });
+      gsMarkHired('H90', 'p17');
+      gsCreditGrant('p17', 60000, 'v17 stake');
+      gsDollarGrant('H90', 300000, 'v17 savings');
+      gsListUnit(hu.id, { kind: 'sale', ask: 250000, by: 'landlord' });
+      const buy17 = gsSubmitRequest({ playerId: 'p17', kind: 'buy',
+        target: hu.id, durationMin: 1,
+        params: { buyerId: 'H90', date: '2026-08-20' } }, 96000);
+      const condoB = GS_PARC.parcels[hu.id];
+      log(buy17.status === 'active' && condoB && condoB.kind === 'condo' &&
+          condoB.basis.length === 1 && condoB.basis[0].amt === 250000 &&
+          gsParcelImpounded(condoB) === true,
+          'gs: v17 escrow close rebases the carved condo — and its deed ' +
+          'book takes it off the installment plan');
+      /* an addition after the sale lands as its own segment — the roll
+         values it (and the deed book's monthly impound follows) */
+      gsAssessImprove(hu.id, 80000, '2026-09-01');
+      log(condoB.basis.length === 2 && condoB.basis[1].amt === 80000 &&
+          gsAssessedValue(condoB) === 225000,
+          'gs: v17 new construction on a sold door segments its own ' +
+          'parcel — market still caps the assessed line');
+
+      /* -- the secured roll: real CA calendar ------------------------ */
+      /* a penniless owner — the auto-collect can't settle, so the bill
+         walks the real delinquency path. (The suite's landlord account
+         is flush from earlier blocks.) */
+      const tb = gsRegisterBuilding({ street: 'Levy Street',
+        owner_id: 'broke_owner' });
+      const tu = gsRegisterUnit(tb.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 2000, rent_controlled: true });
+      const tp = gsParcelOf(tb.id);
+      const levy27 = Math.round(gsAssessedValue(tp, 2026) *
+        GS_CNT_CFG.rate);
+      /* the flush landlord settles its own roll on posting; the broke
+         owner is the delinquency story */
+      gsDollarGrant('landlord', 5000000, 'v17 roll float');
+      gsAssessorTick('2026-11-01');
+      const b1 = GS_PARC.bills.find(x => x.key === tb.id && x.inst === 1);
+      log(b1 && b1.fy === 2027 && b1.posted === '2026-11-01' &&
+          b1.dueBy === '2026-12-10' && b1.fee === 59 &&
+          b1.amt === Math.ceil(levy27 / 2) + 59 &&
+          b1.assessed === gsAssessedValue(tp, 2026) &&
+          !GS_PARC.bills.some(x => x.key === hu.id),
+          'gs: v17 installment 1 posts Nov 1 with the Rent Board fee ' +
+          'in full — impounded deeds get no bill');
+      gsAssessorTick('2027-02-01');
+      const b2 = GS_PARC.bills.find(x => x.key === tb.id && x.inst === 2);
+      log(b2 && b2.fy === 2027 && b2.dueBy === '2027-04-10' &&
+          b2.fee === 0 && b2.amt === levy27 - Math.ceil(levy27 / 2),
+          'gs: v17 installment 2 posts Feb 1 — same assessment, no fee');
+      /* no double posting on a repeat day */
+      gsAssessorTick('2027-02-01');
+      log(GS_PARC.bills.filter(x => x.key === tb.id).length === 2,
+          'gs: v17 the roll never posts the same installment twice');
+
+      /* -- delinquency, default, redemption --------------------------- */
+      gsAssessorTick('2026-12-10');
+      log(b1.status === 'delinquent' &&
+          b1.penalty === Math.round(b1.amt * GS_CNT_CFG.latePct) &&
+          gsWire({ limit: 600 }).some(e =>
+            /tax bill went past due/.test(e.text) &&
+            e.text.indexOf('$') < 0 &&
+            /Parcel Lane|Levy Street|Escrow Lane|Notice Avenue/.test(e.text)),
+          'gs: v17 a missed installment goes delinquent at Dec 10 — a ' +
+          'published address, never an amount');
+      gsDollarGrant('broke_owner', 100, 'v17 float');
+      const part = gsPayTaxBill(b1.id, 100);
+      log(part.ok && part.paid === 100 && b1.paid === 100 &&
+          b1.status === 'delinquent',
+          'gs: v17 a partial payment is a real partial payment');
+      gsAssessorTick('2027-04-10');
+      gsAssessorTick('2027-07-01');
+      log(b1.status === 'defaulted' && b2.status === 'defaulted' &&
+          tp.defaulted === true &&
+          gsWire({ limit: 800 }).some(e =>
+            /tax default/.test(e.text)),
+          'gs: v17 the year-end sweep defaults the open book — publicly');
+      gsDollarGrant('broke_owner', 5000000, 'v17 redemption float');
+      gsPayTaxBill(b1.id);                       // pays bill+penalty
+      log(b1.status === 'paid' && tp.defaulted === true,
+          'gs: v17 paying one defaulted bill leaves the flag while ' +
+          'another stands');
+      gsPayTaxBill(b2.id);
+      log(b2.status === 'paid' && tp.defaulted === false &&
+          gsWire({ limit: 900 }).some(e => /tax default cleared/.test(e.text)),
+          'gs: v17 redemption clears the flag when the last default pays');
+
+      /* -- the Rent Board gate ---------------------------------------- */
+      const nb = gsRegisterBuilding({ street: 'Notice Avenue',
+        owner_id: 'landlord' });
+      const nu = gsRegisterUnit(nb.id, { unit_code: 'A', bedrooms: 1,
+        base_rent: 1000, rent_controlled: true });
+      gsSignLease(nu.id, 'T17', { start: '2020-01-01',
+        monthly_rent: 1000 });
+      const np = gsParcelOf(nb.id);
+      const deniedRB = gsRaiseRent(nu.id, 1070, { date: '2028-03-01' });
+      log(!deniedRB.ok && deniedRB.reason === 'rentboard_unregistered' &&
+          np.rbThrough < 2028,
+          'gs: v17 an unregistered controlled unit cannot take an ' +
+          'increase');
+      gsAssessorTick('2027-11-01');    // FY2028 inst1 posts + auto-pays
+      const nb1 = GS_PARC.bills.find(x => x.key === nb.id &&
+        x.inst === 1 && x.fy === 2028);
+      const raiseOk = gsRaiseRent(nu.id, 1070, { date: '2028-03-01' });
+      log(nb1 && nb1.status === 'paid' && np.rbThrough === 2028 &&
+          raiseOk.ok === true,
+          'gs: v17 the paid fee registers the parcel — the allowance ' +
+          'banks normally');
+      const deedB17 = gsDeedOf(hu.id);
+      log(deedB17 && deedB17.taxMo ===
+          Math.round(gsAssessedValue(condoB) * GS_CNT_CFG.rate / 12) &&
+          deedB17.taxMo !== Math.round(250000 * 0.0118 / 12),
+          'gs: v17 the deed book\'s monthly impound re-syncs off the ' +
+          'roll — the county\'s number reached the monthly book');
+
+      /* -- retirement: the map keeps the number ---------------------- */
+      const condoApn = condoB.apn;
+      gsRetireUnit(hu.id);
+      log(condoB.status === 'retired' &&
+          GS_PARC.apnUsed[condoApn] === true &&
+          gsParcelOf(hu.id) === condoB,
+          'gs: v17 a retired condo keeps its APN — the record stays, ' +
+          'the number never reissues');
+      const cbApn = cp.apn;
+      gsRetireBuilding(cb.id);
+      const cbBillN = GS_PARC.bills.filter(x =>
+        x.key === cb.id || x.key === cu2.id).length;
+      gsAssessorTick('2028-02-01');
+      log(cp.status === 'retired' && condo0.status === 'retired' &&
+          GS_PARC.apnUsed[cbApn] === true &&
+          GS_PARC.bills.filter(x =>
+            x.key === cb.id || x.key === cu2.id).length === cbBillN,
+          'gs: v17 retiring a building retires its parcel book — the ' +
+          'roll posts nothing more to it');
+
+      /* -- the public record + snapshot ------------------------------- */
+      const rec = gsParcelView(gsAddressOf(tb.id));
+      log(rec && rec.apn === tp.apn && rec.owner === 'broke_owner' &&
+          typeof rec.assessed === 'number' &&
+          gsParcelByApn(tp.apn).apn === tp.apn &&
+          gsTaxRoll().some(r => r.key === tb.id),
+          'gs: v17 the assessor card reads by address or APN — public ' +
+          'record shape');
+      const snap17 = gsBusSnapshot();
+      gsBusReset();
+      log(Object.keys(GS_PARC.parcels).length === 0 &&
+          gsBusLoad(snap17) &&
+          GS_PARC.parcels[tb.id].apn === tp.apn &&
+          GS_PARC.bills.length > 0 &&
+          GS_PARC.apnUsed[condoApn] === true,
+          'gs: v17 the roll rides the bus snapshot — parcels, APNs, ' +
+          'bills verbatim');
+      const vs17 = gsViewerState();
+      const stats = gsCountyStats();
+      const audit17 = gsAssessorAudit();
+      log(vs17.county && vs17.county.parcels === stats.parcels &&
+          stats.assessed > 0 && audit17.ok === true,
+          'gs: v17 county stats surface on the viewer card and the ' +
+          'assessor audit runs clean',
+          audit17.issues.slice(0, 3).join('; ') || 'clean');
+    }
   }catch(e){
     log(false, 'gs: suite threw', String(e && e.message || e));
   }finally{

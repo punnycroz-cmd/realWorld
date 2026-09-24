@@ -2052,6 +2052,11 @@ function gsViewerState(nowMin){
     /* v15: the city's posted closures — a hold is a public fact (the
        admin line that declared it already aired on the wire) */
     holds: (typeof gsHoldList === 'function') ? gsHoldList(now) : [],
+    /* v17: the county's public roll — parcel counts, total assessed,
+       open delinquencies. Assessor records are public in real life;
+       per-parcel detail comes from gsParcelView */
+    county: (typeof gsCountyStats === 'function')
+      ? gsCountyStats() : null,
   };
 }
 function gsActiveSessions(now){
@@ -2123,7 +2128,9 @@ function gsBusSnapshot(){
     econ: (typeof gsEconSnapshot === 'function')
           ? gsEconSnapshot() : null,          // v13 Friday payroll
     civic: (typeof gsCivicSnapshot === 'function')
-           ? gsCivicSnapshot() : null });     // v15 municipal code
+           ? gsCivicSnapshot() : null,     // v15 municipal code
+    assessor: (typeof gsAssessorSnapshot === 'function')
+              ? gsAssessorSnapshot() : null }); // v17 the county roll
 }
 function gsBusLoad(json){
   try{
@@ -2172,6 +2179,8 @@ function gsBusLoad(json){
     /* v15: declared city holds ride back verbatim — the closure a save
        carried still fences the same claims */
     if(typeof gsCivicLoad === 'function') gsCivicLoad(d.civic);
+    /* v17: the county roll — parcels, APN lots, bills, defaults */
+    if(typeof gsAssessorLoad === 'function') gsAssessorLoad(d.assessor);
     /* v5: hired cast are world residents — any whose body is missing
        walks back on stage before we re-assert possession on them */
     if(typeof gsSpawnHired === 'function')
@@ -2211,6 +2220,7 @@ function gsBusReset(){
   if(typeof gsOnbReset === 'function') gsOnbReset();         // v12
   if(typeof gsEconReset === 'function') gsEconReset();       // v13
   if(typeof gsCivicReset === 'function') gsCivicReset();     // v15
+  if(typeof gsAssessorReset === 'function') gsAssessorReset(); // v17
 }
 
 /* ---- bridge surface (read-only viewer API + request filing) ---- */

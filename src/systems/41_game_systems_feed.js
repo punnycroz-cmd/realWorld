@@ -123,6 +123,13 @@ const GS_WIRE_WX_LABEL = {
   rain: 'Rain', storm: 'A storm', clear: 'Clear skies',
   fog: 'Fog', heatwave: 'A heatwave',
 };
+/* v17: the county's beats — delinquent tax lists really are published;
+   address only, never the amount (money stays off housing lines). */
+const GS_WIRE_COUNTY = {
+  tax_delinquent: 'a county tax bill went past due',
+  tax_defaulted: "the county's book shows a tax default",
+  tax_redeemed: 'a tax default cleared',
+};
 const GS_WIRE_ADMIN_LABEL = {
   revoke: 'a running request was ended',
   mint: 'an address was minted',
@@ -708,6 +715,15 @@ function gsWireFormat(evt){
 
     case 'lease':
       return gsWireLeaseLines(evt, mk);
+
+    case 'county': {
+      /* v17 the roll — only the public-record beats print (a bill
+         posting is routine paperwork, withheld like rent_paid) */
+      const cl = GS_WIRE_COUNTY[evt.action];
+      if(!cl) return [];
+      return [mk('housing', cl + ' — ' +
+        (evt.address || 'a Mission address'))];
+    }
 
     case 'econ':
       /* v13: payroll Friday is a beat the whole block feels — one
