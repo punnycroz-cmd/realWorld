@@ -5,37 +5,45 @@ Credit line for all images:  "Real World (in development) — [STUDIO NAME]"
 Replace [STUDIO NAME] at launch. Keep the "in development" wording.
 
 keyart/keyart-16x9.png      1920x1080
-  Key art: a development-build capture of the Mission block at golden
-  hour under the Real World title. Hero image for articles and listings.
+  Key art: a development-build capture of Mission rooftops toward
+  distant shower cells under the Real World title. Hero image for
+  articles and listings.
 
 keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v48-A.png       1440x900 (approx)
-  The Mission block at 24th and Mission from overhead as Karl — the
-  marine layer — rolls in: fog sheets pool over the rooftops while a
-  sunbreak lane keeps the street grid lit below. The character panel
-  shows Jules, a hired resident, mid-routine; the harness UI is
-  development chrome, not part of the shipped spectator view.
+screenshots/v76-A.png       1440x900 (approx)
+  The Mission block around 24th and Mission from overhead on an autumn
+  afternoon (in-world Day 22): leaves drifting over rooftops and parked
+  cars, dressed facades, crowns in full turn. The resident inspector is
+  open on Jules, a hired resident, between things on Guerrero — needs,
+  mood, and recent thoughts are all spectator-readable. The HUD shown
+  is the real spectator chrome of the development build.
 
-screenshots/v48-B.png       1440x900 (approx)
-  Street-level inside the fog: Jules stands mid-block while facades,
-  stoops and parked cars dissolve into the marine layer. Neighbors' name
-  tags (Dani, Priya) hold at their doors.
+screenshots/v76-B.png       1440x900 (approx)
+  Street-level close view of Jules on the sidewalk with Priya and Dani
+  mid-block: dressed storefronts and stoops, canvas awnings, window
+  boxes, parked cars along the curb, leaves drifting — residents
+  carrying name tags overhead.
 
-screenshots/v48-C.png       1440x900 (approx)
-  Dolores Park from above under the fog tongue — the palm allée lines the
-  paths, worn desire-lines cut the grass where residents actually walk,
-  and mature crowns show through the marine layer. The neighborhood's
-  back yard, gone quiet gray-green.
+screenshots/v76-C.png       1440x900 (approx)
+  Dolores Park from overhead: crown-genome trees in rust and gold —
+  every crown grown from a genome atlas and flipped per instance, so no
+  two read alike — poppy and lupine meadow drifts stippled across the
+  lawns, tennis courts holding the south edge, perimeter streets and
+  facades ringing the park. A crepuscular lane — a warm volumetric
+  streak from a cloud body to the sun-gap it shades — lands on the
+  lawns between the shadows.
 
-screenshots/v48-D.png       1440x900 (approx)
-  Director mode under a broken-cumulus evening sky: REC cluster and
-  DIRECTOR badge up top, crepuscular shafts raking the roofline, pastel
-  facades stepping with the slope of the block, Mission ficus street
-  trees over the sidewalk, a named resident (Carme) on the corner. The
-  camera treats the neighborhood like a film set.
+screenshots/v76-D.png       1440x900 (approx)
+  Director mode at street level: Victorian fronts climbing with ivy
+  and bougainvillea strands — sun-warmed magenta bracts where the light
+  hits — balcony gardens trailing, laundry lines overhead riding an
+  advecting gust field, cumulus overhead carrying sun-side silver
+  linings. REC cluster and DIRECTOR badge up top, the rebuilt lens
+  rendering one weather-driven visibility distance instead of stacked
+  effects — the camera treats the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -45,17 +53,31 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v48-A / v48-B.
+  First art pass, for before/after coverage. Pair with v76-A / v76-B.
 
-logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
+screenshots/v76-A.webp / v76-B.webp / v76-C.webp / v76-D.webp
+  Lightweight web companions of the four v76 captures above — same
+  frames, smaller files, for pages that prefer webp.
+
+logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.
+logos/logo-primary.png         Raster of the same lockup (dark bgs only).
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.
-logos/logo-icon.svg/.png       The lit-window mark, square.
+logos/logo-primary-mono.svg    Single-ink primary lockup (inherits text
+                               color) — one-color print, overlays.
+logos/logo-icon.svg            The lit-window mark, square.
+logos/logo-icon.png            Raster of the same mark.
 logos/logo-icon-mono.svg       Single-ink version (inherits text color).
 logos/favicon.svg              Site favicon.
 logos/logo-stacked.svg         Stacked lockup — vertical spaces.
 logos/logo-icon-animated.svg   Animated lit-window icon (SMIL; motion for
                                feeds/video bumpers where SVG animation plays).
 logos/pattern-windows.svg      Repeating lit-window pattern — backgrounds.
+
+badges/badge-watched.svg           "WATCHED ON REAL WORLD" embed badge —
+                                   stream overlays, video corners, article
+                                   footers. Dark surfaces only.
+badges/badge-watched-mono.svg      Single-ink badge (inherits text color)
+                                   for overlays and one-color print.
 
 banners/banner-x-1500x500.png        X/Twitter header.
 banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).

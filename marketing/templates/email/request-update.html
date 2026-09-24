@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="x-apple-disable-message-reformatting">
+<title>Your request: {{status}} — Real World</title>
+<!--[if mso]><noscript><xml><o:OfficeDocumentSettings><o:PixelsPerInch>96</o:PixelsPerInch></o:OfficeDocumentSettings></xml></noscript><![endif]-->
+</head>
+<body style="margin:0;padding:0;background:#f4f2ec;">
+<div style="display:none;max-height:0;overflow:hidden;mso-hide:all;">
+  Request {{request_id}} is {{status}} — details and credits inside.&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;&#8199;&#847;
+</div>
+<table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="background:#f4f2ec;">
+<tr><td align="center" style="padding:24px 12px;">
+  <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="width:600px;max-width:100%;">
+    <tr>
+      <td style="padding:8px 24px 20px;">
+        <img src="{{asset_base}}logo-primary-dark.svg" width="180" height="54" alt="REAL WORLD — THE MISSION" style="display:block;border:0;">
+      </td>
+    </tr>
+    <tr>
+      <td style="background:#ffffff;border:1px solid #e3ded2;border-radius:10px;padding:32px 28px;">
+        <h1 style="margin:0 0 14px;font:700 24px/1.25 -apple-system,Segoe UI,Roboto,sans-serif;color:#14161c;">
+          Your request is {{status}}.
+        </h1>
+        <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin:0 0 16px;border:1px solid #e3ded2;border-radius:8px;">
+          <tr>
+            <td style="padding:14px 16px;font:400 14px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#3a3d47;">
+              <b style="color:#14161c;">{{request_id}}</b><br>
+              {{request_summary}}<br>
+              <span style="color:#8a8d97;">Status: {{status}} · {{date}}</span>
+            </td>
+          </tr>
+        </table>
+        <p style="margin:0 0 16px;font:400 16px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#3a3d47;">
+          {{status_explainer}}
+          <!-- approved: "It's on the feed now — watch the block to see how the residents take it up." -->
+          <!-- resolved · declined: "The resident declined. Declined requests refund automatically — the credits are already back." -->
+          <!-- not approved: "It didn't pass screening. Screening decisions refund in full; the notes on the feed say why in neutral terms." -->
+        </p>
+        <table role="presentation" cellpadding="0" cellspacing="0" style="margin:22px 0 6px;">
+          <tr>
+            <td style="background:#e8a04c;border-radius:8px;">
+              <a href="{{cta_url}}" style="display:inline-block;padding:13px 26px;font:700 16px/1 -apple-system,Segoe UI,Roboto,sans-serif;color:#1a1206;text-decoration:none;">See it on the wire</a>
+            </td>
+          </tr>
+        </table>
+      </td>
+    </tr>
+    <tr>
+      <td style="padding:22px 24px;font:400 12px/1.6 -apple-system,Segoe UI,Roboto,sans-serif;color:#8a8d97;">
+        <p style="margin:0 0 8px;">You're getting this because you filed a request on Real World — status notices can't be opted out of while a request is live.</p>
+        <p style="margin:0 0 8px;">Real World — The Mission · [STUDIO NAME] · [POSTAL LINE]</p>
+        <p style="margin:0;"><a href="{{unsubscribe}}" style="color:#8a8d97;text-decoration:underline;">Unsubscribe</a> · <a href="{{preferences_url}}" style="color:#8a8d97;text-decoration:underline;">Email preferences</a></p>
+      </td>
+    </tr>
+  </table>
+</td></tr>
+</table>
+</body>
+</html>

@@ -24,6 +24,7 @@
 <link rel="manifest" href="assets/site.webmanifest">
 <link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
 <link rel="stylesheet" href="css/style.css">
+<link rel="alternate" type="application/rss+xml" title="The Dispatch — Real World journal" href="feed.xml">
 </head>
 <body data-page="journal">
 <a class="skip-link" href="#main">Skip to content</a>
@@ -37,6 +38,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html" class="active" aria-current="page">Journal</a>
@@ -69,6 +71,322 @@
 <section>
   <div class="wrap">
     <p class="eyebrow">Latest — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v99</p>
+      <h2>The bench takes requests.</h2>
+      <p>
+        The twenty ambients are the block's bench — the barista, the dog
+        walker, the fruit-stand keeper — and the bench is now borrowable. A
+        request can name an ambient as a co-star, and the pull borrows their
+        presence inside the routine they already have: fifteen to ninety
+        minutes, at most three pulls per ambient per day, at most two
+        borrowed on the block at once, an hour of cooldown between loans. The
+        pull may move them one zone step and only toward a zone the request
+        already controls — never across the map, never into their home. It
+        enters the request pipeline at the same step as any other claim,
+        exclusive only when the ask genuinely needs sole attention.
+      </p>
+      <p>
+        The bounds are the interesting part. A pull asks the role, not the
+        person — the spec's own example is that Reyes can be borrowed as "a
+        barista at the counter," never as "Reyes running an errand." An
+        ambient is only pullable from a public or staffed state — never from
+        sleep, never from home, never mid-transit. And the minors are simply
+        never pullable: a request that names one resolves as a decline, and
+        their rows never enter the pool. Agency, not control, applies to the
+        bench the same as the mains.
+      </p>
+      <p>
+        What a spectator sees is not the loan but its wake. Pulls are
+        wire-invisible — no event type, no attribution. Instead each ambient
+        carries a coverage read, the honest absence the block shows while
+        they're borrowed: an understudy where one exists ("a second apron
+        steps up from the back"), a sign where the post can't run unattended
+        (the fruit stand's chalk reads "back in 10"), or just the open space
+        where nothing covers ("the bench keeps her folded section"). The feed
+        never says someone was borrowed; the block just reads like a place
+        where people sometimes get called away.
+      </p>
+      <p class="muted">
+        Sources: the pull protocol and coverage table are the world track's
+        <code>world/crowd.json</code> (v99) + <code>crowd-sim.md</code> §§26–28,
+        demoed internally in <code>world/crowd.html</code> ("The bench —
+        pulled &amp; covered"). Windows, caps, bounds, and coverage reads are
+        quoted from the file itself.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v96</p>
+      <h2>The paper cuts both ways.</h2>
+      <p>
+        The Rent Book was always the block's accounting of what a tenant owes.
+        This week it grew counter-paper — four instruments the tenant holds,
+        not the landlord. An <b>assignment</b> is the permanent hand-off a
+        sublet never was: the outgoing tenant names an assignee, the assignee
+        faces the same published screening checklist, a decline needs a stated
+        reason on the file, and the ledger must be clean to hand over. What
+        transfers is the whole thing — same terms, same rent-control flag,
+        deposit carried to the new name with no second deposit and no reset.
+        File scars stay with the unit's file, not the departing name.
+      </p>
+      <p>
+        A <b>buyout</b> — cash-for-keys — is an offer, not an instruction. It
+        can only be made while the lease is in good standing: never under a
+        live rung, never while a dispute is open, so it can't shortcut the
+        ladder. The stated amount sits on the file and the tenant decides.
+        Declining costs nothing — no fee, no mark — and locks the landlord out
+        of re-offering for thirty days. Accepting writes a distinct BUYOUT
+        credit line, legible in the ledger like the NOFAULT code before it.
+        <b>Prepaid rent</b> is voluntary credit capped at three months — a
+        bridge, not a deposit substitute — that draws down oldest-first on the
+        first of the month, so a prepaid month never sees a late fee. And any
+        tenant can ask for a <b>history letter</b>: one per tenancy, the same
+        numbers the ledger keeps in neutral terms — scars stated as scars —
+        formatted to hand to the next screening.
+      </p>
+      <p>
+        The wire rule is the quiet part: all four are file-only. The
+        never-on-the-feed list gained buyout offers, assignments, prepayments,
+        and history letters — tenant names and amounts never reach the
+        <a href="wire.html">public feed</a>. An accepted buyout surfaces at
+        most as the neutral turnover line the feed already knows. The paper
+        is real; the privacy is the same as every other ledger event.
+      </p>
+      <p class="muted">
+        Sources: the counter-paper layer is the world track's
+        <code>world/leases.json</code>/<code>lease-ui.md</code> §§49–54
+        (v96 — key <code>rw_lease_v96</code>), demoed internally in
+        <code>world/lease.html</code> v6. Screening gate, cooldowns, caps,
+        and feed wording are quoted from the file itself.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v87</p>
+      <h2>The block wakes up in waves.</h2>
+      <p>
+        A neighborhood that's alive whether you're watching or not has to empty
+        and fill on schedule — so every working resident now has a route. The
+        commute layer is twenty-two rows from registered homes to real
+        employers, each with a mode, legs, a leave window, an arrive time, and
+        per-weather deltas. Six ways of getting there: on foot, by bike, on the
+        real Muni lines (14, 22, 33, 48, 49, J), bus-plus-walk, the courier's
+        loop with no single destination — and stairs, because Victor's commute
+        to the hardware counter is eighteen interior steps. Dani rides the
+        longest one: thirty-five minutes from Geneva on the 49, a different
+        weather system at both ends. These are conditions, never scripts — a
+        route is a window the routine may satisfy late or early, and a missed
+        bus is texture, not a broken script.
+      </p>
+      <p>
+        Where the windows cross, the mornings do too. Ten shared-route overlaps
+        name the pairs whose schedules intersect — two openers passing in the
+        blue hour, the hospital pair sharing the 48 corridor, the courier depot
+        where one rider's loop ends and another's board begins. An overlap is a
+        permission for incidental contact the characters may render, never an
+        event the feed announces. And every building keeps a pulse — a last-out
+        and first-back hour — so "who's home" has a real answer; four residents
+        are stated non-commuters, because the honest answer for them is that
+        the neighborhood comes to them.
+      </p>
+      <p>
+        The privacy rule is the part worth quoting: the per-person table is
+        internal. What a spectator sees on the <a href="demo.html">watch
+        surface</a> is anonymous street texture — "the early wave," "a rider
+        in the rain" — never named logistics. Minors are never routed (the
+        school wave is unnamed extras), ambient homes stay a direction instead
+        of an address, and a route says where someone goes, never why they're
+        late. Secrets live elsewhere; the commute layer is a leak-free channel.
+      </p>
+      <p class="muted">
+        Sources: the commute layer is the world track's
+        <code>world/commute.json</code>/<code>commute.md</code> (v87 — the
+        getting-there layer), demoed internally in
+        <code>world/commute.html</code> ("The Getting There"). The mode rules,
+        overlap contract, and spectator tier are quoted from the file itself.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v77</p>
+      <h2>Joining the cast means signing a lease.</h2>
+      <p>
+        The third step of the funnel — after watching, after requesting — is
+        hiring a character, and the flow now behaves like the block itself:
+        six steps, and the paperwork is real. Step one is a name checked
+        against the registry on every keystroke, with the whole taken-names
+        list on the table (eight cast, twenty faces, three role words) so a
+        collision is never a surprise denial. Step two's bio is the public
+        profile spectators will read — and it's screened by the same engine
+        the <a href="how-it-works.html">request pipeline</a> runs. The look
+        pickers are structured data, not prose: a casting-office sketch draws
+        your picks, because rendering data doesn't need screening.
+      </p>
+      <p>
+        Then the sim's math, out loud. The job step reads the real board —
+        wages, projected income, payday cadence — and the posts that are
+        already filled sit behind a labeled fold ("13 posts are filled")
+        instead of vanishing. The home step signs a lease at creation: first
+        month plus deposit leave the $1,600 arrival bank on day one, and when
+        the bank can't carry both, a stated payment plan rides the first
+        paychecks — never a waived deposit presented as paid. "Arrives
+        without work" stays selectable; the honesty is the runway number,
+        not a locked door.
+      </p>
+      <p>
+        The price is flat and the timing is the promise: <b>500 credits,
+        charged on approval only</b> — denied applications never bill, and a
+        post-review denial auto-refunds in full. Accounts carry one slot
+        (two on Resident, three on Director — three is the hard max), and the
+        block itself states its carry limit on the roster — the demo runs
+        the proposal number, twelve hired faces. When the card is full, the
+        sign button becomes a free seat waitlist: a 48-hour offer when a
+        seat opens, and no way to pay for a sooner one. And a second
+        character is a stranger to your first — said out loud on the review
+        step, because what you know, neither of them does.
+      </p>
+      <p class="muted">
+        Sources: the creation flow is the world track's
+        <code>world/creation-ui.md</code>/<code>creation.json</code> (v77 —
+        the sketch &amp; the seats layer), demoed in
+        <code>world/create.html</code>; billing rides the game track's
+        bill-on-approval seam. Pricing is the published proposal — see
+        <a href="pricing.html">pricing</a>.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v72</p>
+      <h2>The menu is the truth.</h2>
+      <p>
+        A chalkboard can say anything. What's behind the counter is the
+        question — so all twenty door-having venues on the block now carry
+        a written catalog: <b>101 items</b>, each with a name you'd say
+        out loud, a price in game dollars, a category, an availability
+        condition, and one line of counter voice. The sign is the display;
+        the menu layer is the ledger behind it, and the audit enforces the
+        two never disagree on a named item's price.
+      </p>
+      <p>
+        Every venue keeps at least one signature item — the order a
+        stranger should guess first. The super burrito at
+        <b>Taqueria El Farolote</b> is $12 and priced for the post-bar
+        line. The open-mic slot at <b>The 600 Club</b> is $0, because the
+        stage is the point. The free box outside <b>The Dusty Spine</b>
+        is $0 for the same reason in reverse. And twelve items carry the
+        price <i>"ask"</i> — the regular at <b>Mudhaus Coffee</b>, the
+        usual at <b>Malik's Mini Mart</b> — because some prices are a
+        relationship, not a number.
+      </p>
+      <p>
+        The same rules as the rest of the block apply. Conditions, never
+        scripts: an item's <code>when</code> reflects rain, heat,
+        Saturday, late — nothing obliges a resident to order anything.
+        Game dollars only: no credits, no surge pricing, no dynamic menus
+        — the price is the price. And the layer is honest about its role:
+        it's the catalog a commerce system reads, so that "ordered the
+        usual" in the <a href="how-it-works.html">request feed</a> can
+        only render if the usual actually exists — and a future
+        order-something request spends a resident's own game dollars at a
+        listed price, never one invented at runtime.
+      </p>
+      <p class="muted">
+        Sources: the menu layer is the world track's
+        <code>world/menus.md</code>/<code>menus.json</code> (v72 — 20
+        venues, 101 items, 20 signature lines), demoed in
+        <code>world/menus.html</code> ("The Board"). Consuming it for
+        commerce is on the game track's desk; the catalog itself is
+        settled canon.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
+    <article class="card journal-post">
+      <p class="post-meta">Devlog · 2026-09-24 · Development build v59</p>
+      <h2>The Ear: complaints climb a ladder.</h2>
+      <p>
+        A "help wanted" card was only half the story — the other half is
+        what happens after you're inside and something is wrong. Every
+        employer on the block (all twenty-four, including the cash gigs)
+        and every registered building now carries a written grievance
+        ladder: <b>the aside → the named ask → the third ear → the table →
+        the filing</b>. A quiet word where it happened, restated as a
+        request with a number or a date on it, carried by a neutral both
+        sides already nod to, then to a drop-in table, and only at the
+        end — paper. Half of everything dies at rung one, and the spec
+        says that out loud: that is healthy.
+      </p>
+      <p>
+        The tables are real places in the fiction with no door of their
+        own. <b>Calle Justa Workers' Table</b> runs Thursdays
+        18:00–20:00 — volunteers read the check stubs, write the demand
+        letter the worker hands over themselves, coach the named ask.
+        <b>The Rent Table</b> runs Wednesdays 18:30–20:30 in the library
+        community room — notices read, raise math checked against the
+        calendar, paper clocks started. Both are free, bilingual,
+        volunteer-run — and their files never leave the table.
+      </p>
+      <p>
+        The same honesty rule as the <a href="how-it-works.html">request
+        pipeline</a> applies to what reaches the feed: rungs one through
+        four print nothing — a grievance goes public only when it becomes
+        paper, and then the feed prints <i>the door, never the name</i>:
+        "a housing dispute filed — 9418 Guerrero St." The never-list is
+        explicit: no names, no amounts, no who-filed, no which-rung.
+        Private money stays private — the block can sense tightness, it
+        never sees figures. And like everything else here, these are
+        conditions, not scripts: nobody is scripted to complain, mediate,
+        or file. Whether a character climbs the ladder is an in-character
+        decision.
+      </p>
+      <p class="muted">
+        Sources: the grievance layer is the world track's
+        <code>world/grievances.md</code>/<code>grievances.json</code>
+        (v59 — five-rung ladder, 24 work rows, 7 housing rows, two
+        offstage parody orgs), demoed in <code>world/grievance.html</code>
+        ("The Ear"). It is the content layer for the game track's dispute
+        verbs (<code>gsFileDispute</code>/<code>gsResolveDispute</code>);
+        the workplace-complaint feed lines are a proposal on the game
+        track's desk — the housing lines are already canonical.
+      </p>
+    </article>
+  </div>
+</section>
+
+<!-- EARLIER POST -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">Earlier — devlog</p>
     <article class="card journal-post">
       <p class="post-meta">Devlog · 2026-09-24 · Development build v45</p>
       <h2>Every door has a tryout.</h2>
@@ -497,7 +815,7 @@
       </p>
       <div class="gallery" style="margin-top:14px">
         <figure><picture><source srcset="shots/v1-A.webp" type="image/webp"><img src="shots/v1-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="First art pass, top-down over the block"></picture><figcaption>v1 — first pass, overhead.</figcaption></figure>
-        <figure><picture><source srcset="shots/v48-A.webp" type="image/webp"><img src="shots/v48-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="Current build, same overhead angle"></picture><figcaption>v48 — same angle, forty-seven iterations later: murals, parody signage, fire escapes, real Mission hills, a lived-in ground line, the skyline behind it all.</figcaption></figure>
+        <figure><picture><source srcset="shots/v53-A.webp" type="image/webp"><img src="shots/v53-A.png" width="1440" height="900" loading="lazy" decoding="async" alt="The v53 build, same overhead angle"></picture><figcaption>v53 — same angle, fifty iterations later: murals, parody signage, fire escapes, real Mission hills, a lived-in ground line. The current build is v55 — see the <a href="gallery.html">gallery</a>.</figcaption></figure>
         <figure><picture><source srcset="shots/v16-int-cafe.webp" type="image/webp"><img src="shots/v16-int-cafe.png" width="1440" height="900" loading="lazy" decoding="async" alt="New interior vignette — café"></picture><figcaption>New in v16 — interiors behind the glass.</figcaption></figure>
       </div>
     </article>
@@ -538,7 +856,7 @@
       <div class="card"><h3>This Week on the Block</h3><p>Sundays, post-launch. Sourced from the public request feed; every claim links to its entry. Quiet weeks stay quiet on the page.</p></div>
       <div class="card"><h3>Launch notes</h3><p>At launch and at each major update: what changed, what it costs, what we cut and why. The honesty section on the homepage applies here too.</p></div>
     </div>
-    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. An RSS feed ships with the live site.</p>
+    <p class="muted" style="margin-top:18px">Following along: posts will syndicate to our social channels and the community Discord at launch — see <a href="community.html">Community</a>. RSS: <a href="feed.xml">feed.xml</a> — it resolves with the production domain at launch.</p>
   </div>
 </section>
 
@@ -553,6 +871,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -561,13 +880,20 @@
     <div>
       <h4>Buy</h4>
       <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="compare.html">Vs other life sims</a>
       <a href="faq.html">FAQ</a>
     </div>
     <div>
       <h4>Press</h4>
       <a href="press-kit.html">Press kit</a>
       <a href="brand.html">Brand &amp; assets</a>
-      <a href="index.html#gallery">Screenshots</a>
+      <a href="gallery.html">Screenshots</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms of use</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refunds.html">Refunds</a>
     </div>
   </div>
   <div class="wrap foot-note">

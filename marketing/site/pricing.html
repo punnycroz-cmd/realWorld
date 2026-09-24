@@ -85,7 +85,49 @@
         "@type": "Answer",
         "text": "No — credits are non-transferable by design. It's the same rule that blocks trading, cash-out, and every gray market around them."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Can we split the cost of a request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Not literally — credits are non-transferable. But if a running request is doing exactly what you wanted, you can co-sponsor the live claim: same flat block price (not a discount), up to 4 sponsors, and every sponsor is named on the public feed. A different intent queues at −15% or waits for the window."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I play without paying anything?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes — watching is free forever, and players can earn credits with opt-in rewarded ads: 2 credits a view, capped at 50 credits a week. That covers a couple of short sessions weekly; a character slot (500 credits) takes about ten weeks of daily views. The free path is real but slow."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What does an hour inside the world cost?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "About 90 credits — roughly $0.85 — for an hour of compatible play inside your own character (~76 credits queued). An exclusive hour runs 360 credits, about $3.38 before any surge, and the session cap means that is the most it can ever cost."
+      }
     }
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "OfferCatalog",
+  "name": "Real World — credits & subscriptions",
+  "description": "Pre-launch planning price list for Real World: The Mission. All offers are provisional until launch; watching the simulation is always free.",
+  "itemListElement": [
+    {"@type": "Offer", "name": "Pocket pack — 100 credits", "price": "0.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Starter pack — 550 credits", "price": "4.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Regular pack — 1,150 credits", "price": "9.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Plus pack — 2,500 credits", "price": "19.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Pro pack — 6,750 credits", "price": "49.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Mogul pack — 14,000 credits", "price": "99.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Resident subscription (monthly)", "price": "4.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"},
+    {"@type": "Offer", "name": "Director subscription (monthly)", "price": "11.99", "priceCurrency": "USD", "availability": "https://schema.org/PreOrder"}
   ]
 }
 </script>
@@ -115,6 +157,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -147,17 +190,26 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#journey">A credit's life</a>
+      <a href="#hourly">Per hour</a>
       <a href="#refunds">Refunds</a>
       <a href="#oneshots">One-shots</a>
       <a href="#scenes">Price a scene</a>
+      <a href="#split">Bring friends</a>
       <a href="#subs">Subscriptions</a>
       <a href="#worthit">Worth it?</a>
       <a href="#compare">Compare tiers</a>
       <a href="#cast">Joining the cast</a>
+      <a href="#ladder">Property ladder</a>
+      <a href="#cosmetics">Cosmetics</a>
       <a href="#month">A month, priced</a>
+      <a href="#whopays">Who pays</a>
+      <a href="#zero">Play at $0</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
+      <a href="#fineprint">The fine print</a>
       <a href="#history">Price ledger</a>
+      <a href="#terms">Vocabulary</a>
       <a href="#quick">Quick answers</a>
       <a href="#never">Never for sale</a>
     </nav>
@@ -249,7 +301,7 @@
     <div class="notice green"><b>Or earn them.</b> Opt-in rewarded ads pay
     <b>2 credits per view</b>, capped at 5 per day — about $0.45 a week of free
     credits. Enough for a small request, deliberately never a wage. Credits can't
-    be farmed by gameplay grinding; that's the wall that keeps gray markets out.</div>
+    be farmed by grinding; that's the wall that keeps gray markets out.</div>
     <div class="grid grid-3" style="margin-top:24px">
       <div class="card stat"><div class="big">~22 cr</div><div class="lbl">15 minutes inside your own character — about twenty cents</div></div>
       <div class="card stat"><div class="big">40–100 cr</div><div class="lbl">a weather block, credited to you on the public feed</div></div>
@@ -356,6 +408,70 @@
     <p class="muted">Same request at a quiet hour: 180 cr ≈ $1.69. Queued for
     next weekend: 153 cr ≈ $1.44 — and if the slot never frees, you pay
     nothing at all.</p>
+  </div>
+</section>
+
+<!-- LIFE OF A CREDIT -->
+<section id="journey">
+  <div class="wrap">
+    <h2>The life of a credit</h2>
+    <p class="muted">A credit can only ever be in two places — your balance,
+    or on its way back to it. The whole trip, start to finish:</p>
+    <ol class="cpath">
+      <li><b>You buy a pack.</b>Credits land in your balance and sit there.
+      No expiration, no dormancy fees, nothing that shrinks while you sleep.</li>
+      <li><b>You declare a request.</b>Action plus exact duration, typed on
+      the form. The price — surge included — is on the screen before you
+      commit.</li>
+      <li><b>Credits lock upfront.</b>The quoted amount leaves your balance
+      at confirm, and the cap is hard: that quote is the most the session
+      can ever cost.</li>
+      <li class="cp-back"><b>Or it comes back.</b>Queue expires → 100%.
+      Denied in review → 100%. Nudge declined in character → 50%. Admin
+      ends it early → pro-rated. Refunds are automatic, not a support
+      ticket.</li>
+    </ol>
+    <p class="muted">There is no fifth outcome. No credit can be lost to a
+    roll, a market, or another player — the loop is closed by design, which
+    is also why there's nothing to steal.</p>
+  </div>
+</section>
+
+<!-- COST PER HOUR -->
+<section id="hourly">
+  <div class="wrap">
+    <h2>What an hour costs, for scale</h2>
+    <p class="muted">Agency is priced per minute, which makes it easy to
+    compare like-for-like — one hour, four ways. Bars are proportional to
+    dollars per hour; the last row is a typical US movie ticket (~$11 for
+    ~2 hours of runtime) shown for scale, not as a claim about anyone
+    else's product <span class="prov-only">(our rows provisional)</span>.</p>
+    <div class="cph" role="img" aria-label="Dollars per hour of entertainment: watching Real World is free, a compatible session is about $0.85 per hour, an exclusive session about $3.30 per hour, and a typical US movie ticket about $5.50 per hour of runtime">
+      <div class="cph-row">
+        <span class="cph-name">Watching, all cameras</span>
+        <span class="cph-track"><span class="cph-bar cph-free" style="width:1%"></span></span>
+        <span class="cph-usd">$0/hr — always</span>
+      </div>
+      <div class="cph-row">
+        <span class="cph-name">Compatible session</span>
+        <span class="cph-track"><span class="cph-bar" style="width:15.5%"></span></span>
+        <span class="cph-usd">~$0.85/hr <span class="muted">(90 cr)</span></span>
+      </div>
+      <div class="cph-row">
+        <span class="cph-name">Exclusive session</span>
+        <span class="cph-track"><span class="cph-bar" style="width:60%"></span></span>
+        <span class="cph-usd">~$3.30/hr <span class="muted">(360 cr)</span></span>
+      </div>
+      <div class="cph-row cph-ref">
+        <span class="cph-name">A movie ticket <span class="muted">(typical US)</span></span>
+        <span class="cph-track"><span class="cph-bar" style="width:100%"></span></span>
+        <span class="cph-usd">~$5.50/hr of runtime</span>
+      </div>
+    </div>
+    <p class="muted">The honest read: an hour inside your own character costs
+    about what the tip on a coffee costs. Queued, the same hour is ~76 cr —
+    ≈72¢. And the top row is why this page exists at all: the spectator game
+    is the product, and it's free.</p>
   </div>
 </section>
 
@@ -497,12 +613,70 @@
           <span class="cc-pack" id="sc-pack"></span>
           <span class="cc-note" id="sc-note"></span>
         </div>
+        <div class="scene-share">
+          <button type="button" class="scene-chip" id="sc-share">Copy a link to this scene</button>
+          <span class="muted" id="sc-share-note">The link encodes your picks in the address — no amounts, no tracking. Send it to whoever's splitting the night.</span>
+        </div>
       </fieldset>
       <noscript><p class="muted" style="margin-top:14px">The scene builder needs JavaScript — the four worked scenes above are priced with the same tables.</p></noscript>
     </div>
     <p class="muted">A scene is never a hidden bundle — every ingredient is the
     same line item from the tables above, bought separately at checkout. This
     widget exists so the total is never a surprise.</p>
+  </div>
+</section>
+
+<!-- CO-SPONSORING / GROUP NIGHTS -->
+<section id="split">
+  <div class="wrap">
+    <h2>Bring friends — the three paths when a slot is taken</h2>
+    <p class="muted">Shared resources lock one claim at a time. If the thing you
+    wanted is already running or booked, the request form doesn't just say no —
+    it offers three honest paths, each priced upfront.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>Queue it</h3><p>Take the next slot at
+      <b>class rate −15%</b>. The hold shows its ≤24-hour countdown on the
+      card, and if the slot never frees the charge auto-refunds in full.
+      Cheapest path, slowest path.</p></div>
+      <div class="card"><h3>Wait for it</h3><p>Costs nothing. Every live claim
+      posts to the public feed with the buyer's handle attached, so you can
+      see what's running, what's queued, and when the window opens.</p></div>
+      <div class="card"><h3>Co-sign it</h3><p>If a <i>running</i> request is
+      doing exactly what you wanted — the identical declared intent — you can
+      co-sponsor the live claim instead of queueing behind it. It auto-runs
+      the moment it passes the same screening.</p></div>
+    </div>
+    <div class="notice"><b>Co-sponsoring is not a discount.</b> You pay the same
+    flat block price as the running request — you're buying the same world
+    event, not a cheaper copy of it. What you skip is the queue; what you get
+    is your name on the call. Up to <b>4 sponsors</b> per claim and every one
+    of them is named on the feed line — co-signed weather reads
+    <i>"fog cleared — requested by @ana, @june"</i>, not an anonymous purchase.</div>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>Worked example <span class="provisional prov-only">(provisional)</span></th><th>What happens</th></tr>
+      <tr><td>@ana buys a fog-clearing block (40–100 cr)</td><td>Runs now, or on its approved schedule — @ana is named on the feed.</td></tr>
+      <tr><td>@june wants the <i>same</i> cleared sky</td><td>Co-sponsors the live claim: same flat block price, passes screening, both names post on the feed line.</td></tr>
+      <tr><td>@mo wants <i>rain</i> instead</td><td>A different forecast is a different intent — it can't co-sign. It queues (−15%) or waits for the window.</td></tr>
+    </table>
+    </div>
+    <ul class="clean">
+      <li><b>Why no group discount?</b> A co-sponsor isn't half of one purchase
+      — it's a second player buying the same event. Keeping the price flat is
+      what lets the feed stay honest: the world event cost what it cost, no
+      matter how many names are on it.</li>
+      <li><b>Nobody can cover someone else's bill.</b> Credits are
+      non-transferable, so each sponsor pays their own way — splitting a night
+      means planning together, not pooling a wallet.</li>
+      <li><b>Planning together?</b> Build the scene in the
+      <a href="#scene-calc">scene builder</a> and hit <i>Copy a link to this
+      scene</i> — the link carries the picks, not the prices, so it re-prices
+      itself from whatever the current list says.</li>
+      <li><b>Scope today:</b> co-sponsoring ships on declared intents —
+      weather overrides first; venue events can adopt the same rule later.
+      Sessions inside your own character are already compatible — they never
+      needed it.</li>
+    </ul>
   </div>
 </section>
 
@@ -642,7 +816,7 @@
 </section>
 
 <!-- PROPERTY LADDER -->
-<section>
+<section id="ladder">
   <div class="wrap">
     <h2>The property ladder</h2>
     <div class="tbl-wrap">
@@ -661,7 +835,7 @@
 </section>
 
 <!-- COSMETICS -->
-<section>
+<section id="cosmetics">
   <div class="wrap">
     <h2>Cosmetics — direct purchase only</h2>
     <p class="muted">Outfits 150–400 cr, premium sets 600–900 cr, furniture
@@ -708,6 +882,72 @@
     <p class="muted">None of these is a target we engineer toward. There are
     no streaks, no expiring credits, no spend-to-win dials — the $0 column is
     a complete product.</p>
+  </div>
+</section>
+
+<!-- WHO PAYS -->
+<section id="whopays">
+  <div class="wrap">
+    <h2>Who pays for the free channel</h2>
+    <p class="muted">Fair question — a 24/7 simulated neighborhood isn't free
+    to run. Here's the whole business model in three cards, because "how does
+    the free thing make money" deserves a straight answer:</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>Watchers — $0</h3><p>Most visitors will only ever
+      watch, and the model is built for that. The spectator feed carries no
+      ad breaks and no paywall — rewarded ads exist, but only for players who
+      opt in, and they pay out in credits, never interrupt the show.</p></div>
+      <div class="card"><h3>Players — à la carte</h3><p>Requests, one-shots,
+      and character slots are the revenue. Buying a foggy morning or an hour
+      as yourself funds the world everyone else watches — and every purchase
+      posts publicly, so the funding is as visible as the show.</p></div>
+      <div class="card"><h3>Subscribers — the floor</h3><p>Resident and
+      Director stipends are the predictable base that keeps the lights on
+      between big nights. Both are optional, both are cancellable, and neither
+      buys anything a free account can't reach on its own time.</p></div>
+    </div>
+    <p class="muted">What the model never does: sell the cast, sell outcomes,
+    sell a cash-out, or put a coin slot on the watch button. If the free tier
+    ever needs to shrink to keep the lights on, that decision will be argued
+    here in public — the <a href="#history">price ledger</a> is where it
+    would be written down.</p>
+  </div>
+</section>
+
+<!-- PLAYING AT $0 -->
+<section id="zero">
+  <div class="wrap">
+    <h2>Playing at $0 — the honest math</h2>
+    <p class="muted">The free tier isn't a demo and we won't pretend it's a
+    treadmill either. Here's exactly how far zero dollars goes — including
+    the part where we tell you it's slow.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>The show — $0, always</h3><p>Every camera, the
+      public request feed, recaps, the archive. No ad breaks, no paywall,
+      no "free trial" that expires. Most visitors only ever watch, and the
+      business model is built for that.</p></div>
+      <div class="card"><h3>Rewarded ads — opt-in, 18+</h3><p>Players can
+      earn 2 credits per completed view, capped at 5 views/day and
+      25/week — up to 50 cr ≈ $0.45 of free credits a week. They never
+      interrupt the spectator feed, and minors never see them.</p></div>
+      <div class="card"><h3>What that buys</h3><p>A 15-min compatible
+      session is ~22 cr (~19 queued), so a week of daily views covers
+      roughly two short sessions. A character slot — 500 cr — is about ten
+      weeks of the same. Real, but not fast.</p></div>
+    </div>
+    <div class="zero-ledger" role="table" aria-label="Free-path math at a glance">
+      <div class="zr" role="row"><b>Watching, forever</b><span role="cell">$0</span></div>
+      <div class="zr" role="row"><b>Max earnable via rewarded ads</b><span role="cell">50 cr / week ≈ $0.45</span></div>
+      <div class="zr" role="row"><b>≈ one 15-min compatible session every</b><span role="cell">~2–3 days of views</span></div>
+      <div class="zr" role="row"><b>≈ one character slot (500 cr) after</b><span role="cell">~10 weeks of views</span></div>
+      <div class="zr" role="row"><b>…or skip the grind — Starter pack, 550 cr</b><span role="cell">$4.99 once</span></div>
+      <div class="zr" role="row"><b>…first purchase bonus on that pack (+50%)</b><span role="cell">825 cr</span></div>
+    </div>
+    <p class="muted">What free never unlocks faster: reputation, tenure, and
+    landlord standing — those are earned in-world at the same speed for
+    everyone, money included. And there are no streaks or login bonuses to
+    grind; we don't pay you in credits to come back, so the $0 path is
+    exactly what it says and nothing it doesn't.</p>
   </div>
 </section>
 
@@ -762,6 +1002,69 @@
   </div>
 </section>
 
+<!-- THE FINE PRINT, AT READING SIZE -->
+<section id="fineprint">
+  <div class="wrap">
+    <h2>The fine print — set in type you can actually read</h2>
+    <p class="muted">Most stores shrink the part you should read twice. This is
+    every catch, limit, and asterisk on this page, reprinted at body size.
+    If it's not here and it's not above, it doesn't exist.</p>
+    <dl class="fineprint">
+      <div class="fp-row"><dt>Provisional until launch <span class="provisional prov-only">· current state</span></dt>
+      <dd><span class="prov-only">Every figure on this page is a pre-launch planning
+      number anchored to published competitor pricing. Final prices are set at
+      launch; the flip happens once and is recorded in the
+      <a href="#history">ledger</a>.</span><span class="final-only">These are the
+      live launch prices — the provisional state was retired at launch, once, as
+      recorded in the <a href="#history">ledger</a>.</span></dd></div>
+      <div class="fp-row"><dt>Credits are a closed loop</dt>
+      <dd>Non-transferable, non-redeemable, no cash-out, no gifting, no exchange
+      for game dollars in either direction. They never expire and carry no
+      dormancy fee.</dd></div>
+      <div class="fp-row"><dt>Spend is capped</dt>
+      <dd>$200/day per account by default, $500 on verified accounts, hard caps
+      on minor accounts. Caps can't be raised by buying anything.</dd></div>
+      <div class="fp-row"><dt>Rewarded ads are opt-in, adults only</dt>
+      <dd>2 credits per view, 5 views/day and 25/week maximum — ≈$0.45 of free
+      credits a week. A taste, not a wage; they never interrupt the spectator
+      feed.</dd></div>
+      <div class="fp-row"><dt>Requests are sold, outcomes aren't</dt>
+      <dd>You declare the action and the exact duration and pay upfront, capped.
+      A nudge can be declined in character — 50% back. Human review can deny a
+      request — 100% back. Surge (×1.5–2.5) is shown on the form before you
+      pay, never after.</dd></div>
+      <div class="fp-row"><dt>Everything is public</dt>
+      <dd>Every request and every world change posts to the public feed with
+      your handle attached. There is no anonymous spend and no invisible
+      intervention — buying a moment means owning it in the open.</dd></div>
+      <div class="fp-row"><dt>Co-sponsors pay full price</dt>
+      <dd>Joining a running request (identical declared intent, cap 4
+      sponsors, every name on the feed line) costs the same flat block price —
+      it's a queue-skip, not a discount. A different intent can't co-sign; it
+      queues at −15% or waits.</dd></div>
+      <div class="fp-row"><dt>Subscriptions are monthly and cancelable</dt>
+      <dd>Resident $4.99 / Director $11.99. Stipend credits never expire but
+      don't roll demand into next month — the sub keeps charging either way,
+      and the <a href="#worthit">breakeven widget</a> will tell you when packs
+      beat subscribing.</dd></div>
+      <div class="fp-row"><dt>Cooling-off and fairness aren't for sale</dt>
+      <dd>Cooldowns on contested resources can't be skipped with money.
+      Reputation, tenure, and landlord standing are earned in-world only.
+      The eight mains can't be possessed at any price — by anyone, including
+      us.</dd></div>
+      <div class="fp-row"><dt>Local prices differ, the ladder doesn't</dt>
+      <dd>Packs sell in local currency on a published purchasing-power table
+      (EU/UK tax-inclusive). The table publishes at launch; until then local
+      figures are provisional like everything else here.</dd></div>
+      <div class="fp-row"><dt>Changes move through the ledger first</dt>
+      <dd>No price changes at checkout before it changes on this page.
+      Purchases keep the terms they were bought under. That's the whole
+      <a href="#promise">promise</a>, restated in the fine print so it counts
+      twice.</dd></div>
+    </dl>
+  </div>
+</section>
+
 <!-- PRICE-LIST HISTORY -->
 <section id="history">
   <div class="wrap">
@@ -786,6 +1089,47 @@
     <p class="muted final-only">Launch pricing is in effect. Any future change
     lands in this table before it reaches checkout — per
     <a href="#promise">the promise</a>.</p>
+  </div>
+</section>
+
+<!-- VOCABULARY -->
+<section id="terms">
+  <div class="wrap">
+    <h2>The vocabulary, defined</h2>
+    <p class="muted">Eight words this page keeps using — defined once, at
+    reading size, because a price list you can't parse is a price list that
+    isn't honest.</p>
+    <dl class="fineprint">
+      <div class="fp-row"><dt>Credit</dt>
+      <dd>The meta currency, roughly a cent each. Buys agency — requests,
+      one-shots, character slots, cosmetics. Never buys status, never
+      cashes out, never expires.</dd></div>
+      <div class="fp-row"><dt>Compatible</dt>
+      <dd>A request that fits the direction the world is already going.
+      The cheapest class: 1.5 cr/min, up to 120 min.</dd></div>
+      <div class="fp-row"><dt>Exclusive</dt>
+      <dd>A request that locks a shared resource for you — a venue, a
+      weather window. 6 cr/min, capped at 60 min so nobody squats.</dd></div>
+      <div class="fp-row"><dt>Queued</dt>
+      <dd>The same request, filed to fire when the resource frees. −15%,
+      held up to 24 h, auto-refunds in full if it never activates.</dd></div>
+      <div class="fp-row"><dt>Surge</dt>
+      <dd>A ×1.5–2.5 multiplier on resources that are hot — recent
+      exclusive use or prime-time. Always shown on the form before you
+      pay, never added after.</dd></div>
+      <div class="fp-row"><dt>Co-sponsor</dt>
+      <dd>Joining someone's <i>running</i> request when it's doing exactly
+      what you wanted — same flat block price (a queue-skip, not a
+      discount), cap 4 sponsors, every name on the feed.</dd></div>
+      <div class="fp-row"><dt>Stipend</dt>
+      <dd>The monthly credit allowance inside Resident (600 cr) and
+      Director (1,500 cr). Credits never expire, but the subscription
+      keeps charging either way — see <a href="#worthit">the math</a>.</dd></div>
+      <div class="fp-row"><dt>Game dollars</dt>
+      <dd>The in-world currency — earned at jobs ($16–50/hr), spent on
+      rent and living. Credits cannot buy or convert into them, in either
+      direction; that wall is what keeps money out of the simulation.</dd></div>
+    </dl>
   </div>
 </section>
 
@@ -836,6 +1180,32 @@
         <p>No — credits are non-transferable by design. It's the same rule that
         blocks trading, cash-out, and every gray market around them.</p>
       </details>
+      <details>
+        <summary>Can we split the cost of a request?</summary>
+        <p>Not literally — credits are non-transferable, so nobody can pay
+        someone else's share. But if a running request is doing exactly what
+        you wanted, you can <a href="#split">co-sponsor it</a>: same flat
+        price, cap 4 sponsors, every name on the feed. For planning a night,
+        the scene builder's share link carries the picks so each person buys
+        their own.</p>
+      </details>
+      <details>
+        <summary>Can I play without paying anything?</summary>
+        <p>Yes — watching is free forever, and players can earn credits
+        with opt-in rewarded ads: 2 cr a view, capped at 50 cr a week.
+        That's a couple of short sessions weekly, and a character slot
+        (500 cr) at about ten weeks of daily views. The free path is real
+        but slow — the <a href="#zero">honest math</a> is on this page,
+        and the $0.99 Pocket pack exists for exactly that gap.</p>
+      </details>
+      <details>
+        <summary>What does an hour inside the world cost?</summary>
+        <p>About 90 credits — ≈$0.85 — for an hour of compatible play inside
+        your own character (~76 cr ≈72¢ if you queue it). An exclusive hour
+        runs 360 cr ≈ $3.38 before any surge, and the cap means that's the
+        most that hour can ever cost. The <a href="#hourly">per-hour chart</a>
+        puts it next to a movie ticket.</p>
+      </details>
     </div>
   </div>
 </section>
@@ -885,6 +1255,7 @@
       <a href="cast.html">Cast</a>
       <a href="how-it-works.html">How it works</a>
       <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
       <a href="archive.html">Archive</a>
       <a href="community.html">Community</a>
       <a href="journal.html">Journal</a>
@@ -893,13 +1264,20 @@
     <div>
       <h4>Buy</h4>
       <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="compare.html">Vs other life sims</a>
       <a href="faq.html">FAQ</a>
     </div>
     <div>
       <h4>Press</h4>
       <a href="press-kit.html">Press kit</a>
       <a href="brand.html">Brand &amp; assets</a>
-      <a href="index.html#gallery">Screenshots</a>
+      <a href="gallery.html">Screenshots</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms of use</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refunds.html">Refunds</a>
     </div>
   </div>
   <div class="wrap foot-note">

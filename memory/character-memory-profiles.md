@@ -588,6 +588,53 @@ never copying raw.
 | test_fb_req / test_nofb_mult | 0.0 / 0.2 | 0.9 / 1.0 | feedback-gated testing (v5.0) |
 | mon_source_tax / illus_recol_p | 0.0 / 0.0 | 0.3 / 0.4 | recollection-only miscalibration (v5.0) |
 | bump_emit_w | 1.0 | 3.0 | importance-draw bump weight (v5.0) |
+| recol_mult / fam_mult | 0.3 / 0.7 | 1.0 / 1.0 | dual-process emission legs (v5.12; knots at AD§92) |
+| gist_survive_mult | 1.0 | 1.5 | gist-field preservation ≥1 (v5.12) |
+| gist_false_mult | 1.0 | 2.0 | gist-consistent lure endorsement (v5.12; gist-shared only) |
+| pos_gain | 1.0 | 1.5 | positive-candidate emission ranking (v5.12; C.da →1.0) |
+| tod_tax | 0.0 | 0.35 | off-peak controlled-path tax; ages onto synchrony_gain (v5.12) |
+| chronotype | — | — | enum {morning,neutral,evening}; maps to peak_hour (v5.12) |
+| sensory | 0.0 | 1.0 | unaided acuity deficit; bible-set (v5.12) |
+| sens_enc_tax | 0.0 | 0.3 | auditory-channel write loss × sensory (v5.12) |
+| sensory_age_shift | 0 | 6 | age_eff years at sensory=1; non-reversing (v5.12) |
+| comp_gain | 0.0 | 0.15 | low-demand grind bonus, inverted-U (v5.12) |
+| headroom | 0.8 | 2.2 | tier-3 demand ceiling before super-linear fall (v5.12) |
+| enact_rescue | 1.0 | 1.5 | enacted-event E leg, rises w/ age; composes enact_gain (v5.12) |
+| transact_gain | 1.0 | 1.4 | withPartner internal-detail gain; shared history only (v5.12) |
+| pm_time_tax | 1.0 | 1.8 | extra pm_self decline on cueType:time (v5.12) |
+| impl_intent_gain | 0.0 | 0.7 | fraction of pm_time_tax removed by if-then framing (v5.12) |
+| stereo_tax | 0.7 | 1.0 | age_salient retrieval multiplier (v5.12) |
+| sug_age_mult | 1.0 | 1.7 | §6.83 shift-leg age amplifier; yield exempt (v5.12) |
+| fitness_shift | 0 | 3 | max fitness→age_eff years (v5.12; rf_cap 12y combined) |
+| fitness_drift_hl | 0.3 | 3.0 | behavior-drift half-life, years (v5.12, HYPOTHESIS) |
+| tele_slope | 0.2 | 0.6 | day-error σ growth per day of delay (v5.14; R&B 0.4 anchor) |
+| mid_pull / round_bias / landmark_pull | 0.05 / 0.0 / 0.1 | 0.3 / 0.25 / 0.5 | whenEstimate bounded pulls (v5.14) |
+| coarse_when_mult | 0.2 | 0.6 | coarse temporal-field decay mult (v5.14) |
+| obs_inflate_gain | 0.1 | 0.6 | observed-action motor encoding bonus (v5.14) |
+| obs_flip_mult | 0.3 | 2.0 | agency-flip rate on source_confuse_flip (v5.14) |
+| dream_strength | 0.05 | 0.3 | dream-record encoding strength (v5.14) |
+| dream_flip_mult | 0.2 | 1.0 | dream→witnessed flip scaling × dissoc/fantasy/imagery (v5.14) |
+| distinct_expect | 0.2 | 0.8 | demand_detail endorsement suppression (v5.14) |
+| distinct_age_loss | 0.2 | 0.8 | gist-encoding penalty on the guard (v5.14) |
+| fame_thresh | 0.25 | 0.6 | nameFluency attribution threshold (v5.14) |
+| fame_p / acquaint_p | 0.04 / 0.04 | 0.25 / 0.25 | unexplained-familiarity emit rates (v5.14) |
+| detect_gain | 0.25 | 0.8 | silent discrepancy-detection base (v5.14) |
+| imagery | — | — | IndivTraits entry, N(0,1): loads imagine/richness/source_confuse/dream_flip (v5.14); +sensory-cue/report legs (v5.54) |
+| obs_persp | 0.0 | 1.0 | habitual observer-vantage prior (v5.54) |
+| face_recog | 0.0 | 1.0 | face-recognition ability spectrum, DP tail→super-recognizer (v5.54) |
+| interdep | 0.0 | 1.0 | self-construal: independent→interdependent (v5.54) |
+| family_remin | 0.0 | 1.0 | elaborative family reminiscing exposure in childhood (v5.54) |
+| dejavu | 0.0 | 1.0 | déjà vu proneness (v5.54) |
+| img_sensory_w | 0.0 | 0.3 | imagery→w_sensory cue-weight shift (v5.54) |
+| img_report_w | 0.0 | 0.6 | imagery→sensory-field report richness (v5.54) |
+| obs_emo_k | 0.0 | 0.6 | self-conscious emotion→observer conversion (v5.54) |
+| obs_age_slope | 0.0 | 0.2 | record-age→observer drift per log-day (v5.54) |
+| obs_dampen | 0.0 | 0.6 | reported-affect loss on field→observer shift (v5.54) |
+| face_thresh_scale | 0.0 | 1.0 | face_recog→face-cue familiarity crossing (v5.54) |
+| firstmem_shift_y | 0.0 | 1.0 | interdep earliest-memory delay, years (v5.54) |
+| remin_shift_y | 0.0 | 0.8 | family_remin earliest-memory advance, years (v5.54) |
+| interdep_soc_w | 0.0 | 0.8 | collective-vs-self field share on early records (v5.54) |
+| dejavu_base / dejavu_age_slope / dejavu_state_k | 0.005 / 0.0 / 0.0 | 0.05 / 0.08 / 1.0 | déjà vu emission constants (v5.54) |
 
 **v4.0 emotional-memory note (leftover affect):** `savor`/`dampen` are
 the bible's positive-affect dials — a savorer keeps good days warm,
@@ -869,6 +916,367 @@ needs both.
 | ostrac_gain / ostrac_persist / excl_scope_drift / ostrac_vigil | 0.2 / 0 / 0 / 0 | 1.0 / 0.6 / 0.5 / 0.6 | exclusion hot-encode + scope drift (v5.4) |
 | h_dap_thresh / anchor_date_gain | 0.5 / 0 | 0.9 / 0.6 | living-in-history anchor gate (v5.4) |
 | rev_moral_neg / rev_moral_pos / rev_abil / moral_bad_thresh / moral_repair_k | 1.0 / 0.1 / 0.4 / −0.6 / 1.5 | 2.5 / 0.8 / 1.2 / 0.0 / 6 | domain×valence revision gains + redemption tax (v5.4) |
+| self_est | 0.15 | 0.95 | trait — standing self-evaluation; NOT metamemory (v5.6) |
+| selfverif_w | 0.0 | 1.0 | consistency gate on mnem_neg; >0.7 = self-verifier (v5.6) |
+| self_complex | 2 | 8 | self-aspect count — spillover divisor (v5.6) |
+| self_comp | 0.0 | 1.0 | negative-aspect compartmentalization (v5.6) |
+| repress | 0.0 | 1.0 | DERIVED defens·(1−neurot_report) — never pinned (v5.6) |
+| repr_neg_shift | 0.0 | 3.0 | years; earliest-negative-memory shift (v5.6) |
+| remin_w | 0.0 | 1.0 | idle-reminiscence share, 55+ only (v5.6) |
+| counterf_k | 0.0 | 0.4 | near-miss counterfactual mint rate (v5.6) |
+| regret_inact_mult / regret_opp_gate | 0.2 / 0.0 | 0.7 / 1.0 | inaction β-mult + disengagement gate (v5.6) |
+| savor_k / dampen_k | 0.0 / 0.0 | 1.0 / 1.0 | positive-affect valves (v5.6) |
+| future_cont / pself_mint | 0.0 / 0.0 | 1.0 / 0.3 | future-self continuity + pself mint (v5.6) |
+| elabor / elabor_dyad_gain | 0.0 / 0.0 | 1.0 / 0.4 | co-narration style + shared-detail gain (v5.6) |
+| pretest_gain / pretest_win | 0.0 / 0.01 | 0.5 / 0.5d | failed-recall potentiation mark (v5.8) |
+| hypercorr_gain / hypercorr_age_mult | 0.0 / 0.0 | 0.6 / 1.0 | confidence-scaled correction encoding (v5.8) |
+| interleave_gain / interleave_win | 0.0 / 0.1 | 0.4 / 3d | cross-category contrast legs; verbal null locked (v5.8) |
+| jol_fluency_bias | 0.0 | 0.4 | massed-fluency JOL over-read, report-side (v5.8) |
+| env_enc_gain | 0.0 | 0.5 | support→elaboration leg, ×(1−si_res) (v5.8) |
+| statlearn_gain / statlearn_min / statlearn_win / statlearn_age_w | 0.0 / 2 / 7 / 0.0 | 0.3 / 8 / 90d / 1.0 | co-occurrence semantic mint (v5.8) |
+| cheat_link_gain | 0.0 | 0.5 | self/ingroup-harmed actor↔act link (v5.8) |
+| zeig_resist / zeig_win_ext | 0.0 / 0.5 | 0.7 / 4 | interrupted-intention persistence (v5.8, OBSERVE) |
+| recons_win / recons_drift_mult / recons_upd_p / recons_risk | 0.05 / 1.0 / 0.0 / 0.0 | 0.5 / 2.5 / 0.7 / 0.3 | labile window size + in-window edit rates (v5.9, DEBATED) |
+| srif_mult | 0.0 | 1.0 | listener-side RIF share of speaker dose; ≤1 always (v5.9) |
+| consol_sel_w / consol_sel_arous | 0.0 / 0.3 | 0.9 / 0.8 | sleep selectivity weight / arousal gate (v5.9) |
+| sleep_span_gain | 0.0 | 0.4 | slept-gap retell S bonus (v5.9) |
+| interf_sim_peak / interf_sim_width / sim_repeat | 0.4 / 0.15 / 0.85 | 0.7 / 0.5 / 0.97 | Osgood surface shape + repetition boundary (v5.9) |
+| teles_c / teles_tau | 0.0 / 30 | 0.3 / 400 | forward-telescoping bias scale (v5.9) |
+| df_theta | 0.0 | 0.15 | directed-forgetting θ surcharge (v5.9) |
+| hyperbind_gain | 0.0 | 0.4 | spurious-link age ramp ≥55 (v5.9) |
+| alf_gain / alf_onset | 0.0 / 2 | 0.8 / 30 | late-phase tail steepening, age-scaled (v5.9, DEBATED) |
+| distinct_gate / distinct_pi_w | 0.5 / 0.2 | 0.9 / 1.0 | isolation shield on interference (v5.9) |
+| backcue_mult | 0.3 | 0.9 | reverse-query leg weight (v5.10) |
+| recue_passes / recue_breadth | 0 / 0.3 | 3 / 0.9 | iterated-cuing depth + breadth (v5.10) |
+| obj_cue_w | 0.05 | 0.35 | evocative-object standing cue (v5.10) |
+| photo_offload_pen | 0.0 | 0.3 | whole-photo encode tax (v5.10) |
+| pm_popout_gain | 0.0 | 0.4 | distinctive nonfocal PM rescue (v5.10) |
+| forced_floor / rapport_gain | 0.1 / 0.0 | 0.4 / 0.25 | asker license floor + trust breadth (v5.10) |
+| route_gain / route_cap / route_hl | 0.0 / 1.1 / 10 | 0.15 / 2.0 / 90 | worn-path rate, cap, half-life (v5.10) |
+| restart_overlap | 0.2 | 0.7 | fresh-angle restart gate (v5.10) |
+| infant_beta_lo / infant_beta_mid | 4.0 / 2.0 | 12.0 / 6.0 | infant-clock β multiplier endpoints (v5.11) |
+| reinstate_gain / reinstate_bar | 0.0 / 0.4 | 0.8 / 0.85 | perceptual reinstatement below wall (v5.11) |
+| obs_gain_lo | 0.1 | 0.6 | observer-channel 1y knot (v5.11) |
+| heritage_gain / heritage_kin_atten | 0.0 / 0.2 | 0.7 / 0.8 | intergenerational bump legs (v5.11) |
+| free_recall_tax | 1.0 | 3.0 | child no-cue θ multiplier at 5 (v5.11) |
+| order_strength_bias / order_strength_until | 0.0 / 6 | 0.9 / 12 | order-by-strength branch (v5.11) |
+| study_mult | 0.0 | 0.5 | studied-event bonus, tier-gated (v5.11) |
+| rehearsal_on / org_on / elab_on | 5 / 8 / 10 | 9 / 12 / 16 | strategy-tier onsets yrs (v5.11) |
+| school_strat_adv / meta_school_gain | 0.0 / 0.0 | 1.5 / 0.15 | schooling onset-delay + meta gap (v5.11) |
+| pub_reward_gain | 0.0 | 0.3 | adolescent reward overlay leg (v5.11) |
+| schooled | — | — | bible enum {full,partial,none}, mains all full (v5.11) |
+| grief_osc_k / grief_restore_slope | 0.05 / 0.005 | 0.3 / 0.05 | DPM mode-switch + restore slope (v5.13) |
+| grief_pang_gain / restore_suppress | 0.05 / 0.1 | 0.3 / 0.7 | loss-mode intrusion discount / restore suppression (v5.13) |
+| bond_gain / bond_talk_p | 0.0 / 0.0 | 0.06 / 0.15 | continuing-bonds accrual + apostrophe rate (v5.13) |
+| emo_back_loss / emo_fwd_gain | 0.1 / 0.0 | 0.7 / 0.5 | directional leak around hot events (v5.13) |
+| emo_coh_loss | 0.0 | 0.5 | within-event coherence penalty on negatives (v5.13) |
+| cc_eval_gain | 0.2 | 1.0 | counterconditioning rival-tag mint (v5.13) |
+| safety_suppress | 0.1 | 0.6 | trusted-presence fire inhibition (v5.13) |
+| capitalize_gain / cap_val_gain | 0.0 / 0.0 | 0.4 / 0.3 | ACR-gated positive retell re-stamp (v5.13) |
+| tone_survive_mult / prosody_leak_k | 0.2 / 0.0 | 1.0 / 0.4 | prosody field decay ratio + implicit leak (v5.13) |
+| aff_flash_thresh | 0.1 | 0.5 | below-wall CondEntry emission gate (v5.13) |
+| jealous / rival_vigil_gain / rival_stick_k | 0.0 / 0.0 / 0.0 | 1.0 / 0.6 / 0.6 | rival vigilance trait + encode + stickiness (v5.13) |
+| awe_self_loss / awe_gist_gain / awe_gap_resist | 0.1 / 0.0 / 0.0 | 0.7 / 0.6 / 0.8 | small-self encode signature (v5.13) |
+| emo_df_resist | 0.0 | 0.5 | directed-forgetting resistance, ≤0.5 locked (v5.13) |
+| hsam_decay_cut / hsam_rehearse / hsam_date_acc | 0.5 / 0.0 / 0.5 | 0.95 / 0.8 / 0.98 | HSAM own-life decay + rehearsal engine + dating (v5.15) |
+| sdam_thin / sdam_know_shift | 0.3 / 0.0 | 0.9 / 0.6 | SDAM specificity thin + know-shift (v5.15) |
+| nfc_elab_gain / nfc_arg_split | 0.0 / 0.0 | 0.4 / 0.4 | elaborable-event E + strong/weak split (v5.15) |
+| mnemic_shallow / mnemic_theta | 0.0 / 0.0 | 0.7 / 0.8 | feedback not-thought encode + recall θ tax (v5.15) |
+| ribot_loss / ribot_win_mild / ribot_win_severe | 0.3 / 0.25 / 10 | 1.0 / 2.0 / 90 | Ribot retrograde window (v5.15) |
+| tbi_wmc_tax / tbi_ps_tax | 0.0 / 0.0 | 0.3 / 0.3 | stable wmc/pspeed residue (v5.15) |
+| apoe_shift / apoe_slope | 0.0 / 0.0 | 8.0 / 0.4 | ε4 onset shift (y/allele) + slope steepening (v5.15) |
+| syn_gain | 0.0 | 0.2 | pervasive episodic gain, ordinary-bound (v5.15) |
+| rumin_sel / rumin_refl_gain | 0.0 / 0.0 | 0.8 / 0.15 | negative-rehearsal bias + reflection leg (v5.15) |
+| hsam / sdam / nfc / mnemic / tbi / apoe / synesth / rumin / learn_style (traits) | 0 / 0 / −2 / −2 / 0 / e2 / 0 / −2 / — | 1 / 1 / +2 / +2 / 2 / e4 / 2 / +2 / — | new IndivTraits (v5.15); hsam·sdam exclusive; apoe hidden enum; learn_style all-0 lock |
+| nil_win / nil_loss / nil_pre_gain | 1 / 0.2 / 0.0 | 3 / 0.8 / 0.6 | pre-turn encoding hole window/depth/reversal (v5.16) |
+| exp_str_thresh / strong_exp_congr / incong_recog_flip | 0.5 / 0.0 / 0.0 | 0.9 / 0.6 / 0.4 | expectancy-strength incongruity reversal (v5.16) |
+| implied_adopt_p / implied_src_weak | 0.2 / 0.3 | 0.8 / 0.9 | implicature mint + born-weak source (v5.16) |
+| trait_access_gain / prime_persist_hr / ambig_assim_p | 0.0 / 12 / 0.0 | 0.6 / 96 / 0.6 | accessible-construct feed/decay/assimilation (v5.16) |
+| odep_gain / odep_incong_w | 0.1 / 0.5 | 0.8 / 2.5 | dependency attention + incongruity focus (v5.16) |
+| mag_victim_sev / mag_arb_drift / mag_perp_decay | 0.0 / 0.0 / 0.0 | 0.6 / 0.5 / 0.6 | magnitude-gap victim/perp arms (v5.16) |
+| forg_aff_mult / forg_lag | 0.2 / 3 | 1.0 / 60 | forgiveness affect-detach + decisional→emotional lag (v5.16) |
+| echo_adopt_p / echo_conf_bonus | 0.0 / 0.0 | 0.45 / 0.3 | own-story echo adoption cap + conf bonus (v5.16) |
+| wit_cred_boost / wit_debt_boost / wit_breach_conf | 0.0 / 0.0 / 0.0 | 0.5 / 0.5 / 0.6 | witnessed-commitment arms + breach shame conf (v5.16) |
+| metvia_perma / remet_offense_p | 0.7 / 0.0 | 1.0 / 0.7 | provenance anchor + re-meeting offense (v5.16) |
+| orphan_eval_resid | 0.1 | 0.5 | eval floor after evidence dies (v5.17) |
+| favor_recv_bonus / favor_give_decay | 0.0 / 0.1 | 0.4 / 0.8 | favor-ledger receive bonus + give decay (v5.17) |
+| coal_tag_p / coal_overwrite_thresh / coal_cat_overwrite | 0.2 / 2 / 0.3 | 0.9 / 6 / 1.0 | alliance-edge mint + category re-sort (v5.17) |
+| rel_bump_win / rel_bump_gain | 30 / 0.0 | 180 / 0.4 | relationship-onset window + E gain (v5.17) |
+| absence_p / abs_val | 0.2 / −0.4 | 0.8 / 0.0 | noticed-absence mint + valence (v5.17) |
+| blunder_self_keep / blunder_other_decay / aud_recall_over | 0.2 / 1.0 / 1.2 | 0.8 / 2.5 / 3.0 | blunder split + audience-retention overestimate (v5.17) |
+| central_speaker_mult / net_hop_decay | 0.0 / 0.1 | 1.0 / 0.8 | convergence scaling + one-hop propagation (v5.17) |
+| idiom_mint_p / idiom_dyad_gate / idiom_retell_gain / idiom_orphan_loss | 0.1 / 0.6 / 0.0 / 0.1 | 0.6 / 1.0 / 0.5 / 0.8 | dyad-locked cues + dissolution cost (v5.17) |
+| rival_cue_gain / rival_disengage_loss | 0.0 / 0.1 | 0.6 / 0.6 | threat-cue encoding + attention lock (v5.17) |
+| prov_flat_p | 0.1 | 0.7 | provenance-stack thinning per retell (v5.17) |
+| theta_cap | 0.8 | 1.8 | saturating θ accumulator scale (v5.18) |
+| lat_mult_cap | 2.0 | 4.0 | rate-terminus ceiling (v5.18) |
+| grace_floor | 0.02 | 0.15 | worst-case recall floor at θ cap (v5.18) |
+| ctx_tau | 10 | 90 | sim-min context-field persistence (v5.18) |
+| att_span_ctx | 3 | 8 | cueContext cardinality bound (v5.18, HYPOTHESIS) |
+| tp_pastneg / tp_pastpos / tp_preshed / tp_presfat / tp_future | 0.0 | 1.0 | trait pins — ZTPI subscales, independent (v5.19) |
+| narr_agency / narr_comm | 0.0 | 1.0 | trait pins — thematic field-depth (v5.19) |
+| autobio_k | 0.0 | 1.0 | trait pin — lesson-mint rate (v5.19) |
+| narr_coh_k | 0.0 | 1.0 | trait pin — narr_link_gain multiplier (v5.19) |
+| period_sal | 0.0 | 1.0 | trait pin — chapter-wall strength (v5.19) |
+| epi_future_k | 0.15 | 0.95 | trait pin — computed prior, override w/ reason (v5.19) |
+| tp_arrival_k | 0.15 | 0.5 | mechanism — arrival-sampler gain (v5.19) |
+| theme_sel_k | 0.1 | 0.35 | mechanism — field-depth modulation (v5.19) |
+| era_surf_p | 0.05 | 0.3 | mechanism — base era-wording rate (v5.19) |
+| sdm_tension_intr | 0.05 | 0.3 | mechanism — anchor re-access gain (v5.19) |
+| value_rank_w | 0.15 | 0.7 | importance leg in wm_cap ordering (v5.20) |
+| select_sharp | 0.0 | 0.7 | deficit-scaled spill gradient (v5.20) |
+| value_mem_gate | 0.1 | 0.8 | hard-but-valuable selectivity failure (v5.20) |
+| choice_enc_gain / choice_beta_mult | 0.0 / 0.75 | 0.3 / 1.0 | chosen-content E + day-1 β (v5.20) |
+| errful_mediator_gain | 0.0 | 0.4 | conceptual-guess mediator leg (v5.20) |
+| errful_arb_loss / errful_noise | 0.0 / 0.0 | 0.7 / 0.3 | arbitrary-guess attenuation + competitor (v5.20) |
+| sib_drift / sib_trust_w | 0.0 / 0.2 | 0.4 / 1.0 | saying-is-believing drift + trust weight (v5.20) |
+| obs_enc_gain / obs_intent_mult | 0.0 / 1.0 | 0.25 / 3.0 | observed tier + watching-to-learn (v5.20) |
+| face_dist_gain | 0.0 | 0.5 | distinctive-face write/accrual gain (v5.20) |
+| secret_load_mult / secret_heat_mult | 0.5 / 1.0 | 3.0 / 2.0 | secret tonic load + cue-heating (v5.20) |
+| intox_retro_shield | 0.0 | 0.8 | pre-onset interference shield, OBSERVE (v5.20) |
+| stim_E / stim_hl | 0.1 / 0.0001 | 0.5 / 0.001 | ghost tier strength + half-life in days (v5.21) |
+| stim_recall_p / stim_cap | 0.3 / 1 | 0.9 / 4 | ghost recoverability + shelf depth (v5.21) |
+| avail_freq_k | 0.0 | 1.5 | availability lift on count estimates (v5.21) |
+| aud_resp_distract | 0.0 | 0.6 | distracted-listener retell value floor (v5.21) |
+| collab_inhib / postcollab_gain | 0.6 / 0.0 | 0.95 / 0.3 | joint-recall penalty + afterglow (v5.21) |
+| conf_beta_mult | 0.3 | 0.9 | confidence-channel decay vs content (v5.21) |
+| dur_ev_w / dur_trans_w | 0.0 / 0.0 | 0.9 / 2.0 | remembered-duration density + transition weights (v5.21) |
+| dow_snap | 0.0 | 0.4 | weekday-report midward regression (v5.21) |
+| sem_cue_pen | 0.2 | 0.7 | semantic-mode sensory mute (v5.22) |
+| w_valcue / valmismatch_gen | 0.0 / 0.0 | 0.4 / 0.8 | cue-carried valence weight / negative-cue overgeneral arm (v5.22) |
+| config_gain | 0.0 | 0.2 | conjunctive joint-fan bonus (v5.22) |
+| clust_mint_p / clust_cap | 0.0 / 4 | 0.5 / 16 | event-cluster formation rate / size cap (v5.22) |
+| clust_gain / clust_date_blur | 0.0 / 0.0 | 0.6 / 1.0 | cluster-mate emission gain / within-cluster dating smear (v5.22) |
+| lat_pulse / pulse_len | 0.2 / 1 | 0.8 / 6 | within-pulse latency scale / emissions per pulse (v5.22) |
+| pulse_floor / lat_gap / pulse_oi_reset | 0.4 / 1.0 / 0.0 | 1.0 / 4.0 / 0.8 | pulse-end threshold (×θ) / inter-pulse latency / OI reset (v5.22) |
+| w_struct / reminder_chance | 0.0 / 0.0 | 0.3 / 0.1 | structural cue weight / pure-structural reminding rate (v5.22) |
+| ctx_thresh / ctx_gain | 2 / 0.0 | 8 / 0.4 | cfg repetitions to competence / discount (v5.22) |
+| ctx_hl / ctx_cap | 7 / 10 | 60 / 120 | ctxcue decay half-life days / config table size (v5.22) |
+| search_base / search_persist | 2 / 0.5 | 15 / 3.0 | bout budget in candidate-evals / FOK scaling (v5.22) |
+| da_giveup_pen / search_age_pen | 0.0 / 0.0 | 0.8 / 0.6 | load and age search-shortening (v5.22) |
+| fok_reprobe / fok_win | 0.0 / 0.1 | 0.8 / 2.0 | high-FOK re-fire rate / window in days (v5.22) |
+| ctx_strict_lo / _mid / _hi | 1.0 / 1.0 / 1.0 | 4.0 / 3.0 / 2.0 | below-wall ctx-mismatch penalty knots (v5.23) |
+| fb_3y / fb_5y / fb_8y / fb_12y / fb_adult | 2 / 3 / 3 / 4 / 5 | 4 / 5 / 7 / 8 / 12 | field_budget mint caps by encodeAge (v5.23) |
+| intent_boost_lo / _mid | 0.0 / 0.0 | 0.8 / 0.6 | to_remember encode gain knots (v5.23) |
+| df_store_onset | 7 | 13 | dforget storage-vs-gate switchover age (v5.23) |
+| df_gate / df_gist_gate / df_gate_ramp_lo | 0.0 / 0.0 / 0.0 | 1.0 / 0.6 / 0.6 | child report-gate magnitudes (v5.23) |
+| reorg_dip / reorg_attrit | 0.0 / 0.0 | 0.4 / 0.3 | adolescent-dip θ penalty / failed-window S cost (v5.23) |
+| reorg_lo / reorg_hi / reorg_era_min / reorg_era_max | 10 / 15 / 3 / 7 | 14 / 20 / 5 / 11 | dip window and era bounds (v5.23) |
+| pmt_5y / pmt_9y / pmt_14y | 1.0 / 1.0 / 1.0 | 3.0 / 2.2 / 1.6 | time-PM child-side tax knots (v5.23) |
+| pm_clock_p | 0.0 | 0.7 | strategic check rate while time-intention armed (v5.23) |
+| self_reminisce_gain / self_reminisce_until | 0.0 / 7 | 0.6 / 13 | child-tells-own-past consolidation / cutoff (v5.23) |
+| reminisce_env_mod | 0.0 | 0.25 | env modulation of self_reminisce_gain (v5.23) |
+| er_4y / er_10y | 1.0 / 1.0 | 1.6 / 1.4 | enact_rescue child-side knots (v5.23) |
+| traj_maintain_p / traj_decline_p | 0.05 / 0.03 | 0.4 / 0.35 | trajectory class draw bases (v5.24) |
+| maint_slope_mult / decl_accel | 0.2 / 1.0 | 0.9 / 2.2 | post-60 slope modifiers per class (v5.24) |
+| iiv_age_slope / iiv_lead | 0.0 / 0 | 1.2 / 9 | variance growth past 60 / decline-arm lead (v5.24) |
+| scd_lead | 0 | 10 | complaint-channel lead, decline arm only (v5.24) |
+| retire_rate / retire_cap / engage_sub_recover | 0.0 / 0 / 0.0 | 1.2 / 8 / 0.9 | retirement overlay accrual/cap/refund (v5.24) |
+| loco_tax / loco_pm_pen / loco_yield | 0.0 / 0.0 / 0.0 | 0.5 / 0.3 / 0.7 | locomotion encode tax, PM threshold, gait hint (v5.24) |
+| allo_mint_p / ego_dir_pen | 0.1 / 0.0 | 0.95 / 0.8 | nav mint allocentric rate / wrong-heading penalty (v5.24) |
+| obs_infl_age / obs_tail_k / obs_old_gain | 0.8 / 0.0 / 0.0 | 1.8 / 1.0 / 0.4 | observation-inflation age tail + benefit knots (v5.24) |
+| ie_shift / ext_gain | 0.0 / 0.8 | 0.4 / 1.8 | internal:external narration mix drift (v5.24) |
+| stack_cap | 2.0 | 6.0 | joint old-age product ceiling + audit (v5.24) |
+| grat_gain / grat_fade_resist | 0.1 / 0.0 | 0.9 / 0.7 | gratitude person-entry gain + fade resistance (v5.25) |
+| corumin_gate / corumin_bond / corumin_damp_loss | 0.2 / 0.0 / 0.0 | 0.8 / 0.08 / 0.9 | co-rumination gate, bond accrual, dampen denial (v5.25) |
+| dist_cool | 0.1 | 0.8 | distanced-reflection affect cool (v5.25) |
+| humor_reapp_k / humor_replay_k | 0.0 / 0.0 | 0.6 / 0.3 | humor-reappraisal encode cool / retell cool (v5.25) |
+| hotcold_k / hotcold_gap_thresh | 0.2 / 0.3 | 0.8 / 0.7 | hot–cold read attenuation + attribution gate (v5.25) |
+| threat_cue_gain / threat_hold | 0.0 / 0.0 | 0.35 / 0.6 | anxiety detection bonus + disengage hold (v5.25) |
+| broaden_k / mood_broaden_floor | 0.0 / 0.2 | 0.5 / 0.5 | positive-mood fan widening + floor (v5.25) |
+| dis_extinct_mult / dis_cc_mult / disg_prop_gain | 0.2 / 0.5 / 0.0 | 0.8 / 1.0 / 0.6 | disgust extinction resistance / countercond. wash / propensity mint (v5.25) |
+| repair_base / repair_cap / repair_thresh / repair_lift | 0.0 / 0.3 / 0.2 / 0.0 | 0.6 / 0.9 / 0.6 / 0.25 | mood-repair recall reach/cap/gate/lift (v5.25) |
+| felt_window | 7 | 21 | felt-vs-believed report seam, days (v5.25) |
+| disc_decay_mult / sleeper_k | 1.0 / 0.0 | 2.4 / 0.3 | source-discount decay rate + deferred-adoption gain (v5.26) |
+| warn_tag_mult / warn_backfire_k / tag_min | 1.2 / 0.0 / 0.05 | 3.0 / 0.3 / 0.3 | warning-mark decay + post-decay truth bonus + mark floor (v5.26) |
+| spinoza_cost / load_unbelieve_pen | 0.1 / 0.2 | 0.6 / 0.8 | unbelieve-op cost + load failure penalty (v5.26) |
+| illus_truth_k / illus_truth_cap / factCheck_halve | 0.0 / 0.1 / 0.3 | 0.2 / 0.6 / 0.8 | repetition→truth gain/cap + scrutiny halving (v5.26) |
+| hind_k / hind_conf_boost | 0.1 / 0.0 | 0.6 / 0.3 | hindsight bend + "knew it" confidence (v5.26) |
+| insinu_strength / presuppose_gain | 0.1 / 0.0 | 0.6 / 0.3 | innuendo mint fraction + presupposition bonus (v5.26) |
+| plant_base / plant_session_exp / plant_belief_floor | 0.03 / 0.3 / 0.3 | 0.2 / 0.8 / 0.9 | planting-recipe base/session compounding/belief landing (v5.26) |
+| plant_child_mult / scaffold_unit | 1.0 / 0.02 | 2.6 / 0.15 | encodeAge<8 plant multiplier + per-true-detail scaffold (v5.26) |
+| deja_thresh / deja_age_slope / deja_cool | 0.6 / 0.2 / 14 | 0.9 / 0.8 / 90 | déjà-vu config gate / age decline / sim-day cooldown (v5.26) |
+| source_poison_k / poison_radius | 0.1 / 0.2 | 0.5 / 0.6 | caught-lie audit magnitude + simOp retro radius (v5.26) |
+| blunt_avoid_k / blunt_intr_k / blunt_retell_omit | 0.0 / 0.0 / 0.0 | 0.3 / 0.15 / 0.2 | blunting intake filter + intrusion suppression + topic avoidance (v5.27) |
+| blunt_recall_operand | 0.3 | 1.2 | blunt weight inside the vigil recall operand (v5.27) |
+| immig_lo / immig_hi | −6 / 8 | 0 / 20 | second-bump window offsets around immig_age (v5.27) |
+| trans_shift / trans_ptr_k / joint_boost | 0.0 / 0.0 / 0.0 | 0.4 / 0.6 / 0.3 | shared-encode shift, pointer mint, partner-present restore (v5.27) |
+| collab_inhibit / collab_stab | 0.0 / 0.0 | 0.3 / 0.2 | recall-together drive cost + agreed-field drift reduction (v5.27) |
+| offload_k / ext_ptr_k | 0.0 / 0.0 | 0.5 / 0.6 | externalized-content encode cut + ext_pointer mint (v5.27) |
+| consol_yield_k / consol_sleep_k / consol_link_k | 0.0 / 0.0 / 0.0 | 0.3 / 0.3 / 0.15 | per-sleep yield, sleepFactor rescale, post-sleep linking (v5.27) |
+| navab_place_k / navab_reinstate_k / navab_link_k / navab_when_k / navab_interf_k / nav_layout_match | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.4 / 0.2 / 0.3 / 0.1 / 0.2 | nav ability: place weight, reinstate, route linking, when σ, new-route PI, topology match (v5.27) |
+| schz_src_k / schz_flip_k / schz_intr_k / schz_deja_k / schz_phantom_k | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.15 / 0.12 / 0.15 / 0.03 | schizotypy reality-monitoring leak bundle (v5.27) |
+| hypnot_gain / hypnot_yield / hypnot_conf | 0.0 / 0.0 / 0.0 | 0.6 / 0.15 / 0.15 | gated-to-guided-imagery hypnotizability legs (v5.27) |
+| mnem_link_k / mnem_beta_k / mnem_place_k / mnem_search_k | 0.0 / 0.0 / 0.0 / 0 | 0.6 / 0.4 / 0.3 / 3 | deliberate-context mnemonic gains (v5.27) |
+| tot_nondom_k / tot_cognate_rescue | 0.0 / 0.0 | 0.1 / 0.05 | nondominant-language TOT tax + cognate rescue (v5.27) |
+| name_capture_p / captured_mult / capture_tail / ambient_spill | 0.15 / 0.3 / 1 / 0.0 | 0.55 / 0.9 / 4 / 0.4 | ambient-channel own-name trapdoor + post-capture window (v5.28) |
+| secret_intr_p / shame_gate | 0.02 / 0.5 | 0.25 / 3.0 | held-secret idle intrusion rate + shame appraisal multiplier (v5.28) |
+| vouch_k / vouch_halflife | 0.1 / 5 | 0.7 / 30 | endorsement→prior transfer strength + prior half-life days (v5.28) |
+| ledger_gate_exchange / ledger_gate_courtship / ledger_gate_communal / norm_breach_e | 0.8 / 0.4 / 0.05 / 0.0 | 1.0 / 0.9 / 0.5 / 0.3 | relKind gates on favor/promise bookkeeping + breach encode bump (v5.28) |
+| tp_e_mult / tp_drift_shield | 1.0 / 0.2 | 2.0 / 0.8 | turning-point hub encode boost + drift shield (v5.28) |
+| prior_assim_k / assim_band / contrast_band / contrast_k | 0.05 / 0.15 / 0.5 / 0.0 | 0.35 / 0.5 / 0.9 / 0.25 | pre-meeting reputation assimilation window + contrast flip (v5.28) |
+| final_e_mult / final_intr | 1.0 / 0.0 | 1.8 / 0.1 | last-encounter encode boost + intrusion pulse per day (v5.28) |
+| adversity_bond_k / adversity_reinstate | 0.1 / 0.0 | 0.4 / 0.25 | shared-adversity bond increment + recall-triggered edge reinstate (v5.28) |
+| we_spill_k | 0.1 | 0.5 | plural-record partner-cue fraction (v5.28) |
+| own_trespass / own_trespass_present / own_yield | 0.05 / 0.1 / 0.0 | 0.5 / 0.6 / 0.3 | story-ownership breach costs + deference bonus (v5.28) |
+| voice_quote | 0.0 | 1.0 | trait — constructed-dialogue propensity on episodic reports (v5.30) |
+| report_policy | 0.0 | 1.0 | trait — volunteer-withhold criterion; high = "I don't remember" unless sure (v5.30) |
+| grain_pref | 0.0 | 1.0 | trait — default answer coarseness; confidence still gates the moment (v5.30) |
+| ie_talk | 0.6 | 1.4 | trait — internal-detail share multiplier on §5.78c age curve (v5.30) |
+| voice_story | 0.0 | 1.0 | trait — story-shape ordering/suppression/coda on retell emission (v5.30) |
+| quote_norm / pass_base / pass_range | 0.2 / 0.2 / 0.3 | 0.5 / 0.5 / 0.6 | pop constants — quote rate norm + pass-threshold base/range (v5.30) |
+| grain_base / grain_conf_k | 0.15 / 0.3 | 0.5 / 0.7 | pop constants — coarse-prior + confidence gate on grain (v5.30) |
+| foak_gain / foak_expert_prior / pause_sat_ms | 0.05 / 0.2 / 3000 | 0.3 / 0.8 / 8000 | pop constants — FOAK update gain, expertise buffer, latency saturation (v5.30) |
+| story_order_k / story_suppress_k / coda_k | 0.2 / 0.15 / 0.3 | 0.6 / 0.5 / 0.7 | pop constants — reorder/suppress/coda scales on voice_story (v5.30) |
+| vdac_w / vdac_tax / vdac_hl | 0.0 / 0.0 / 30 | 0.7 / 0.4 / 365 | reward-history capture weight, co-present tax, assoc half-life (v5.32) |
+| msens_gain / msens_incong_loss / msens_cue_bridge | 0.0 / 0.0 / 0.0 | 0.35 / 0.45 / 1.0 | congruent multimodal gain, incongruent split cost, cross-modal cue bridges (v5.32) |
+| auto_floor / auto_da_resist | 0.0 / 0.0 | 0.3 / 0.9 | attribute-field (freq/loc/when) attention floor + daLoad attenuation (v5.32) |
+| draw_gain / draw_da_resist | 0.0 / 0.0 | 0.45 / 1.0 | drawn-engagement E bonus + DA immunity share (v5.32) |
+| rpl_focus / rpl_press_flip | 0.0 / 0.0 | 0.7 / 1.0 | mid-difficulty dwell concentration + deadline easiest-first flip (v5.32) |
+| ei_gain / ei_know_gate | 0.0 / 0.0 | 0.35 / 0.8 | why-probing E bonus + schema gate (v5.32) |
+| org_gain / org_run_min | 0.0 / 2 | 0.4 / 4 | within-run link_p multiplier + catRun trigger (v5.32) |
+| sav_beta / sav_gain / sav_cap / sav_match_thresh | 0.02 / 0.0 / 0.2 / 0.4 | 0.3 / 0.8 / 0.8 / 0.9 | savings-shadow decay, re-encode boost, cap, match gate (v5.33) |
+| arch_k / arch_exp / hazard_band | 0.1 / 1.0 / 1.1 | 1.5 / 4.0 / 3.0 | archival lottery rate/exponent/band (v5.33) |
+| need_tau_gain / need_ema_k | 0.0 / 0.02 | 0.6 / 0.3 | need-prior τ shift + EMA rate (v5.33) |
+| vol_loss / vol_norm | 0.0 / 6 | 0.4 / 30 | throughput tax + daily encode norm (v5.33) |
+| pop_rate / pop_auto_mult / pop_seed_hl / pop_link_p / seed_half | 0.0 / 0.5 / 6 / 0.0 / 0.1 | 0.15 / 4.0 / 168 / 0.6 / 0.8 | mind-pop rate, autopilot multiplier, seed half-life (h), episode-link prob, seed r-midpoint (v5.34) |
+| meam_gain / meam_invol / meam_pos / meam_rich | 0.0 / 0.3 / 0.0 / 0.0 | 1.2 / 1.0 / 1.0 / 0.6 | music-cue weight gain, involuntary share, positive pull, richness bonus — all ×trait music (v5.34) |
+| lm_gain / lm_mint_p | 0.0 / 0.0 | 1.0 / 1.0 | landmark cue/route bonus + transition-mint prob (v5.34) |
+| cw_act_gain / cw_aff_gain / cw_obj_age | 0.0 / 0.0 / 0.0 | 0.8 / 0.6 / 0.7 | cue-word class gains + object-word era pull (v5.34) |
+| ref_thin / ref_focus_win / ref_mis_p | 0.2 / 1 / 0.0 | 0.9 / 7 / 0.5 | pronoun weight multiplier, focus stack size, misresolution rate (v5.34) |
+| scaf_gain / scaf_child_mult / scaf_repeat_pen | 0.0 / 1.0 / 0.2 | 0.8 / 3.0 / 0.9 | elaborative-prompt partner boost, child knot, repeat decay (v5.34) |
+| contig_gain / contig_fwd / contig_lag_win / contig_age_pen / am_att | 0.0 / 1.0 / 1 / 0.0 / 0.0 | 0.8 / 3.0 / 5 / 0.8 / 1.0 | encode-neighbor activation, forward asymmetry, lag window, age + AM attenuation (v5.34) |
+| esi_gain / esi_thresh / esi_hl_bout | 0.0 / 0.3 / 1 | 0.6 / 0.95 / 6 | specificity-induction gain, triggering richness, bout half-life (v5.34) |
+| self_ref_2y / self_ref_4y / self_ref_6y | 0.0 / 0.3 / 0.5 | 0.6 / 1.0 / 1.0 | self-reference dividend encodeAge knots (v5.35) |
+| src_child_mult / src_child_exit | 1.0 / 6 | 2.5 / 16 | child source-tag decay multiplier + exit age (v5.35) |
+| att_floor_4y / att_floor_7y / att_floor_10y / dist_child_mult | 0.1 / 0.1 / 0.05 / 1.0 | 0.5 / 0.4 / 0.3 / 2.0 | child attention floor knots + capture multiplier (v5.35) |
+| bump_neg_pen | 0.0 | 1.0 | negative-record era-discount penalty; ≥0.3 default (v5.35) |
+| recol_enc_5y / recol_enc_8y / recol_enc_12y / recol_enc_exit | 0.2 / 0.4 / 0.6 / 12 | 0.8 / 1.0 / 1.0 / 20 | recollection encodeAge knots + exit (v5.35) |
+| sdm_4y / sdm_8y / sdm_14y / epf_sem_fill | 0.2 / 0.4 / 0.8 / 0.0 | 0.8 / 1.0 / 1.0 / 0.6 | future-sim child knots + semantic back-fill (v5.35) |
+| pm_zombie_hl / pm_zombie_repeat / pm_zombie_20 / pm_zombie_50 / pm_zombie_80 | 2 / 1.0 / 0.0 / 0.0 / 0.05 | 60 / 3.0 / 0.1 / 0.2 / 0.5 | completed-intention residual: hl(d), repeat mult, age knots (v5.35) |
+| habit_shift_* / goal_update_pen / habit_stress_gain | 0.0 / 0.0 / 0.0 | 0.5 / 0.8 / 0.5 | habit-vs-goal balance knots + update delay + stress leg (v5.36) |
+| grief_hl / grief_age_equiv / grief_slope | 1.0 / 0.0 / 1.0 | 6.0 / 6.0 / 1.4 | widowhood overlay: decay(y), peak age-equiv, persistent tail (v5.36) |
+| hosp_step_acute / hosp_step_critical / hosp_slope_acute / hosp_slope_critical / hosp_recover_tau | 0.0 / 0.0 / 1.0 / 1.0 / 1.0 | 3.0 / 5.0 / 3.0 / 4.0 / 8.0 | hospitalization step + slope acceleration + recovery (v5.36) |
+| purpose_slope / purpose | 0.0 / 0.0 | 0.6 / 1.0 | purpose-in-life protection strength + trait (v5.36) |
+| biling_years / bilingual | 0.0 / 0 | 4.0 / 1 | bilingual onset shift + flag (v5.36, DEBATED source) |
+| mt_learn_early / mt_learn_late / mt_span / mt_recover / mt_complaint | 0.4 / 0.2 / 2.0 / 0.5 / 0.0 | 1.0 / 0.8 / 8.0 / 3.0 / 1.0 | menopause-transition encode dip + rebound + complaint share (v5.36) |
+| gait_lead | 0.0 | 8.0 | decline-arm motor lead over memory (y) (v5.36) |
+| remote_ie / net_ema_tau / net_slope | 0.0 / 0.25 / 0.0 | 0.8 / 4.0 / 0.4 | remote-record semanticization + structural-network slope (v5.36) |
+| test_gain / test_nofb_80 / study_gain | 1.0 / 0.3 / 0.8 | 1.6 / 1.3 / 1.3 | feedback-gated relearning crossover (v5.36) |
+| rel_consist_k / consist_floor / consist_audit | 0.0 / 0.0 / 0.2 | 0.6 / 0.3 / 0.8 | current-bond pull on reported past feelings (v5.37) |
+| msd_selfgen_gain / msd_extcue_pen / msd_charge_gate / msd_neutral_mult | 0.0 / 0.0 / 0.1 / 0.0 | 4.0 / 1.0 / 0.6 / 0.6 | conditioned mood-state-dependence (v5.37) |
+| sif_pen / sif_load_rebound / sif_rebound_gain / sif_tag_decay | 0.0 / 0.3 / 0.0 / 0.0 | 0.12 / 0.9 / 0.5 / 0.7 | suppression-induced forgetting dent + ironic rebound (v5.37) |
+| redempt_k / redempt_cool / contam_k / narr_seq_shift / narr_seq | 0.0 / 0.0 / 0.0 / 0.0 / −1.0 | 1.0 / 0.4 / 1.0 / 0.15 / 1.0 | redemption↔contamination retell schema + trait (v5.37) |
+| resolve_thin / heal_gap_k | 0.1 | 0.6 / 4.0 | recovery-trace thinness + immune-neglect audit (v5.37) |
+| choice_src_mult / choice_bias_k / choice_fill_gain / choice_age_gain / choice_irrevocable_gain | 0.8 / 0.0 / 0.0 / 1.0 / 0.0 | 2.0 / 0.5 / 0.8 / 2.0 / 0.6 | choice-supportive feature reattribution (v5.37) |
+| bound_thresh / bound_neg_amp / bound_order_pen / bound_within_gain / bound_dist_gain / bound_interf_res | 0.2 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.7 / 0.3 / 0.6 / 0.4 / 0.7 / 0.5 | affect-shift event boundaries (v5.37) |
+| pos_onset / pos_ramp / pos_enc_gain / pos_enc_pen / neg_rebound / pos_theta / pos_broaden_gain | 45 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 65 / 0.05 / 0.6 / 0.4 / 2.0 / 0.15 / 0.6 | positivity effect + distraction reversal (v5.37) |
+| dissoc_arousal_gate / kindle_gain / dissoc_frame_pen / dissoc_coh_start / dissoc_vol_pen / dissoc_intru_gain / dissoc_time_warp | 0.4 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.85 / 0.6 / 0.8 / 0.4 / 0.3 / 0.3 / 0.6 | peritraumatic dissociation record phenotype (v5.37) |
+| photo_vis_gain / photo_aud_pen / photo_frame_gain / photo_engage_gain / photo_verbatim_resist | 0.0 / 0.0 / 0.0 / 0.0 / 0.0 | 0.6 / 0.5 / 0.4 / 0.25 / 0.7 | photo-mediated encode + photo cue (v5.37) |
+| crypt_p / crypt_self_gain / crypt_sim_k | 0.0 / 0.0 / 0.0 | 0.2 / 1.5 / 1.0 | cryptomnesia — generation plagiarizes source-decayed told_by (v5.38) |
+| bext_enc / bext_recon / bext_max_frac / bext_norm_tau | 0.0 / 0.0 / 0.1 / 1 | 0.7 / 0.5 / 0.5 / 14 | boundary extension — schema periphery on scene records, days (v5.38) |
+| verb_shad_pen / verb_shad_hl / verb_label_pull | 0.0 / 1 / 0.0 | 0.4 / 14 / 0.5 | verbal overshadowing decay bump, days + label pull (v5.38) |
+| footage_notor / media_phantom_p / footage_rep_gain | 0.3 / 0.0 / 0.0 | 0.8 / 0.6 / 0.4 | crashing-memory phantom on notoriety gate (v5.38) |
+| truth_gain / truth_fluency_k | 0.0 / 0.0 | 0.3 / 1.0 | nonprobative-image truth lift + corroboration substitution (v5.38) |
+| cb_detect_p / cb_meta_k / cb_confab_gain / cb_persist_gain | 0.0 / 0.0 / 0.0 / 0.0 | 0.4 / 1.0 / 1.0 / 0.3 | choice-blindness detect / confab / persistence (v5.38) |
+| ownact_suscept / interrogate_gain / ownact_internalize / ownact_session_cap | 1.0 / 1.0 / 0.0 / 0.1 | 3.0 / 2.0 / 0.5 / 0.5 | coerced self-false-memory under interrogation (v5.38) |
+| collab_inhib / collab_correct / collab_org_k | 0.1 / 0.0 / 0.0 | 0.45 / 0.25 / 1.0 | collaborative inhibition vs nominal pool (v5.38) |
+| oc_gain / oc_warn_resid | 0.0 / 0.3 | 0.5 / 1.0 | overclaiming foil acceptance + warning residual (v5.38) |
+| blackout_bac / blackout_frag_p / blackout_ctx_pen / blackout_theta_pen / blackout_cue_rescue / blackout_enbloc_bac / blackout_enbloc_p | 0.4 / 0.0 / 0.0 / 0.0 / 0.4 / 0.6 / 0.0 | 0.9 / 0.9 / 0.8 / 0.4 / 0.95 / 0.95 / 0.4 | blackout gates + fragmentary/en-bloc rates (v5.39) |
+| med_antro_tax / med_source_pen / med_washout / med_aging_add | 0.0 / 0.0 / 1.0 / 0.0 | 0.5 / 0.5 / 14 / 0.15 | medication burden anterograde tax + washout + cumulative leg (v5.39) |
+| choke_k / choke_gate / choke_emit | 0.0 / 0.4 / 0.05 | 0.8 / 0.9 / 0.4 | eval-pressure choke interaction (v5.39) |
+| attctl_buf / attctl_noise_buf | 0.0 / 0.0 | 0.15 / 0.06 | attentional-control buffer (v5.39) |
+| scd_complaint_gain / scd_worry_intr | 0.0 / 0.0 | 1.2 / 0.3 | worried-well complaint surface (v5.39) |
+| orb_face_pen / orb_fa_gain / orb_expo_k / orb_age_w | 0.0 / 0.0 / 0.0 / 0.0 | 0.6 / 0.4 / 1.0 / 1.0 | own-group face bias + exposure rescale (v5.39) |
+| sim_detail_link | 0.0 | 1.0 | memory↔simulation detail coupling (v5.39) |
+| preg_enc_dip / preg_exec_dip / preg_complaint | 0.0 / 0.0 / 0.0 | 0.4 / 0.3 / 1.0 | pregnancy trimester dip + complaint share (v5.39) |
+| caff_wd_tax / caff_wd_theta / caff_wd_breadth / caff_state_dep | 0.0 / 0.0 / 0.0 / 0.0 | 0.2 / 0.1 / 0.15 / 0.08 | caffeine withdrawal tax + tiny state-dep (v5.39) |
+| gamer_att_gain / gamer_spatial_gain / gamer_vis_k / nt_xfer | 0.0 / 0.0 / 0.0 / 0.0 | 0.05 / 0.08 / 0.1 / 0.3 | gaming channel gains + near-transfer channel (v5.39) |
+| convo_verbatim_hl / convo_interact_gain / convo_topic_gain / formula_e_mult | 0.1 / 1.0 / 0.0 / 0.0 | 2.0 / 2.5 / 0.5 / 0.2 | talk-residue decay + interaction-content + phatic floor (v5.40) |
+| tie_decay_hl / kin_floor / recontact_rescue / tie_alert | 60 / 0.1 / 0.2 / 0.1 | 720 / 0.7 / 0.9 / 0.6 | bond contact-decay + kin floor + rescue + drift alert (v5.40) |
+| map_tau / witness_refresh | 120 / 0.3 | inf / 1.0 | SocialMap edge decay + witnessed refresh (v5.40) |
+| expr_smile_gain / expr_angry_att | 0.0 / 0.0 | 0.4 / 0.5 | expression-contingent face tiers (v5.40) |
+| apology_damp / apology_backfire / apology_sincerity_gate | 0.0 / 0.0 / 0.2 | 0.6 / 0.4 / 0.7 | apology damp + partial backfire + sincerity gate (v5.40) |
+| fc_k / fc_expose_gain / fc_conf_gain | 0.2 / 0.2 / 0.0 | 0.8 / 0.9 / 0.3 | false-consensus projection + overwrite + confidence (v5.40) |
+| mimic_gain / mimic_cap / mimic_detect_pen | 0.0 / 0.1 / 0.0 | 0.25 / 0.8 / 0.5 | chameleon halo + cap + detected backfire (v5.40) |
+| norm_vocal_w / norm_conf_k / norm_check_tau | 0.8 / 0.05 / 14 | 2.0 / 0.4 / 180 | vocal-minority norm weight + confidence + check decay (v5.40) |
+| idea_self_bias / idea_pool_p | 0.0 / 0.2 | 0.4 / 0.9 | proposal attribution drift + pooling (v5.40) |
+| trust_recover_k / breach_floor / apology_floor_cut | 0.01 / 0.0 / 0.0 | 0.2 / 0.5 / 0.6 | breached-trust recovery + floor + apology cut (v5.40) |
+| meta_ev_min / lgap_tie_cap / lgap_ev_cap / meta_stale_days | 1 / 0.2 / 2 / 30 | 8 / 0.8 / 20 / 240 | metaself evidence gate + gap caps + staleness (v5.42) |
+| bmess_obs / compete_blind / meta_signal_p | 0.0 / 0.02 / 0.4 | 0.4 / 0.3 / 0.95 | observer-side vulnerability bonus + compete noise + signal-mint rate (v5.42) |
+| meta_proj / meta_recip / lgap_k | 0.0 / 0.0 / 0.0 | 1.0 / 1.0 / 1.0 | metaself traits — projection / reciprocity / gap (v5.42) |
+| meta_ev_w / meta_neg_w / bmess_k | 0.2 / 0.5 / 0.0 | 1.0 / 2.0 / 0.5 | metaself traits — evidence rate / neg weighting / self-vuln discount (v5.42) |
+| memorab_gain / memorab_resid | 0.0 / 0.2 | 0.4 / 0.6 | stimulus memorability E leg + unexplained share (v5.44) |
+| coattend_gain / coattend_ingroup | 0.0 / 0.0 | 0.3 / 1.0 | co-attention boost + stranger fraction (v5.44) |
+| pe_gain / pe_win | 0.0 / 0.3 | 0.4 / 1.0 | link-level PE boost + split threshold (v5.44) |
+| antic_gain / antic_win | 0.0 / 0.002 | 0.4 / 0.05 | anticipatory-window boost + reach days (v5.44) |
+| gest_gain / gest_iconic_w | 0.0 / 0.0 | 0.25 / 1.0 | gesture engagement arm + representational share (v5.44) |
+| tot_learn / tot_res_gain | 0.0 / 0.2 | 0.3 / 0.9 | TOT error learning + resolution repair (v5.44) |
+| phone_drain | 0.0 | 0.15 | mere-presence daLoad add — OBSERVE tier (v5.44) |
+| cta_window / cta_novel_w / cta_strength | 0.15 / 0.0 / 0.3 | 0.75 / 1.0 / 0.9 | aversion bind window, novelty targeting, mint E (v5.45) |
+| cta_beta / cta_avoid_hl / cta_spill | 0.02 / 90 / 0.0 | 0.3 / 2000 / 0.4 | aversion decay, avoid-tag half-life, venue spill (v5.45) |
+| series_edge_gain / series_prox_w | 0.0 / 0.2 | 0.4 / 0.8 | boundary anchor + adjacency confusion weight (v5.45) |
+| rec_scale / rec_floor | 5 / 0.005 | 90 / 0.1 | strength→recency map + date-tag floor (v5.45) |
+| jol_horizon_w / jol_exp_gain | 0.0 / 0.0 | 0.15 / 0.2 | horizon load (locked-small) + practice correction cap (v5.45) |
+| ctx_keep_p / ctx_load_pen | 0.4 / 0.0 | 0.95 / 0.8 | scene-sample keep rate + load narrowing (v5.46) |
+| gaze_rein_gain / ctx_drift_pull | 0.0 / 0.0 | 0.15 / 0.08 | within-locus micro-cue + changed-place pull (v5.46) |
+| sep_band / comp_merge_p | 0.05 / 0.0 | 0.3 / 0.7 | near-twin gate width + field borrow (v5.46) |
+| susp_decay / susp_sim_pen / susp_floor / susp_keep_p | 0.6 / 0.3 / 0.05 / 0.1 | 0.97 / 0.95 / 0.4 / 0.7 | suspended-bout decay, same-topic kill, floor, store survival (v5.46) |
+| openq_arm / openq_hl / openq_fire | 0.1 / 0.5 | 0.9 / 7 / 0.6 | latent-query arming, half-life days, fire threshold (v5.46) |
+| device_dep | 0.0 | 1.0 | offload-adoption + phone-drain trait (v5.44) |
+| script_swallow_child / dev_self_gate | 1.0 / 0.2 | 2.0 / 0.7 | child script-merge mult + deviation selfRelevance floor (v5.47) |
+| gist_lure_sim | 0.4 | 0.8 | gist-lure class boundary for §6.3 split (v5.47) |
+| sws_var_gain | 0.0 | 0.4 | per-night sleep-multiplier jitter, age-scaled (v5.47) |
+| trans_bump_gain / trans_bump_win / trans_pi_relief | 0.0 / 1 / 0.0 | 0.5 / 6 / 0.5 | transition-window encode gain, width yrs, post-window PI relief (v5.47) |
+| proc_decay_mult | 0.1 | 0.6 | procedural-class β multiplier, flat — no age leg (v5.47, frozen proc_flat_null) |
+| disc_tag_hl | 1 | 7 | days; discrediting-tag half-life on heard accounts (v5.48) |
+| soc_top_q | 0.1 | 0.4 | goal_value quantile SOC concentrates on (v5.48) |
+| rp_benefit_knee | 55 | 75 | benefit-knee age; must stay < rif_age_tail (v5.48, order-locked P1059) |
+| vantage_retell_gain / vantage_age_leg | 0.0 / 0.0 | 0.1 / 0.005 | per-retell vantage shift cap 0.6 / per-yr≥60 cap 0.15 (v5.48) |
+| relive_mult | 0.5 | 1.0 | affect-channel tax on observer-vantage recalls (v5.48) |
+| hangover_gain / hangover_tau / hangover_win | 0.0 / 6 / 10 | 0.5 / 20 / 45 | post-arousal neutral-encoding window (v5.49); hangover_arm fixed 0.65 |
+| neg_potency | 0.8 | 2.5 | mint-time negative-valence weighting (v5.49); frozen potency_age_null — no age leg |
+| regret_inaction_mult / counterfac_gain | 0.2 / 0.0 | 0.8 / 0.8 | inaction-regret decay mult + sim-satellite mint gain (v5.49) |
+| sdep_thresh / sleeploss_neg_gain / sleeploss_pos_pen | 0.5 / 0.0 / 0.0 | 2.0 / 1.0 / 0.5 | sleep-debt encoding skew (v5.49, encode-only) |
+| cringe_intrude / cringe_cue_sim | 0.0 / 0.2 | 0.6 / 0.55 | embarrass-tag intrusion weight + lowered cue bar (v5.49, age-knotted) |
+| percept_cue_w / percept_thresh | 0.0 / 0.4 | 1.0 / 0.7 | trauma-only sensory bypass, θ-free (v5.49, percept_gate_null) |
+| arousal_match_w | 0.0 | 0.15 | body-state context term, must stay < w_msd (v5.49) |
+| pain_peak_w / pain_inflate / pain_avoid_gain | 0.5 / 1.0 / 0.0 | 0.9 / 1.4 / 1.0 | peak-end pain report + decision weight (v5.49) |
+| co_arousal_min / co_arousal_gain / co_arousal_bond | 0.3 / 0.0 / 0.0 | 0.8 / 0.4 / 0.4 | shared-arousal encode boost + pairwise bond leg (v5.49) |
+| gc_na_thresh / stress_consol_k | 0.2 / 0.0 | 0.6 / 0.6 | noradrenergic gate on glucocorticoid consolidation (v5.49) |
+| fgen_gain / fgen_vs_hear / fgen_warn_resid | 0.2 / 1.0 / 0.2 | 1.5 / 3.0 / 0.8 | self-generated false-content strength + warning residue (v5.50) |
+| proof_lift / proof_mint_p / proof_rich_gain | 0.0 / 0.0 / 0.0 | 0.7 / 0.7 / 0.6 | doctored-evidence autobiographical implantation (v5.50) |
+| theory_consist / theory_change_gain / theory_dist_tau / theory_drift_cap | 0.0 / 0.0 / 1 / 0.2 | 0.7 / 0.6 / 10 / 0.8 | implicit-theory past-self report drift (v5.50, report-only) |
+| cinfl_per_retell / cinfl_cap | 0.0 / 0.1 | 0.2 / 0.6 | rehearsal confidence inflation (v5.50, report-only) |
+| nbm_thresh / nbm_vivid / nbm_decay | 0.1 / 0.25 / 0.2 | 0.35 / 0.6 / 1.0 | nonbelieved-memory entry + fade (v5.50) |
+| unanim_k / unanim_cap | 0.2 / 0.7 | 0.8 / 1.0 | independent-speaker unanimity amplification (v5.50) |
+| cspread_p / cspread_hop / cspread_s_mult | 0.0 / 1 / 0.2 | 0.4 / 2 / 0.8 | one-hop lateral confabulation spread (v5.50) |
+| ci_gain / ci_guard / ci_warn_add | 0.0 / 0.3 / 0.0 | 0.4 / 0.9 / 0.3 | cognitive-interview shield (v5.50) |
+| warn_pre_eff / warn_post_eff / warn_post_resid | 0.3 / 0.0 / 0.1 | 0.9 / 0.5 / 0.5 | warning-timing split (v5.50) |
+| moodlure_neg_gain / moodlure_val_w | 0.0 / 0.0 | 0.8 / 0.5 | negative-mood + valence-match gist-lure gain (v5.50) |
+| scarc_wmc_tax / scarc_pm_tax / scarc_tunnel_gain | 0.0 / 0.0 / 0.0 | 0.4 / 0.3 / 0.5 | scarcity bandwidth tax + stressor tunnel (v5.51, state-gated) |
+| chk_vivid_erosion / chk_conf_erosion / chk_know_shift | 0.0 / 0.0 / 0.0 | 0.35 / 0.45 / 0.6 | per-recheck report-layer erosion (v5.51, accuracy locked) |
+| apnea_consol_tax / apnea_sws_cut / apnea_iiv / apnea_cpap_rescue | 0.0 / 0.0 / 0.0 / 0.0 | 0.4 / 0.5 / 0.06 / 0.7 | nightly consolidation tax, partial cumulative rescue (v5.51) |
+| delir_enc_floor / delir_dream_p / delir_step / delir_step_cap | 0.0 / 0.0 / 0.0 / 0 | 0.15 / 0.4 / 0.4 / 6 | in-window fragment minting + permanent step (v5.51) |
+| bip_euthymic_tax / bip_ep_residue / bip_mania_reach / bip_mania_thin | 0.0 / 0.0 / 0.0 / 0.0 | 0.25 / 0.06 / 0.6 / 0.45 | euthymic residue + episode accrual + manic signature (v5.51) |
+| newpar_sleep_cap / newpar_iiv / newpar_att / newpar_complaint | 0.0 / 0.0 / 0.0 / 0.0 | 0.5 / 0.08 / 0.08 / 1.0 | newborn-months dip, sleep-routed only (v5.51) |
+| crci_exec_tax / crci_complaint | 0.0 / 0.0 | 0.35 / 2.0 | treatment-fog executive tax + complaint overshoot (v5.51) |
+| subj_age_shift / stereo_tax | 0.0 / 0.0 | 6.0 / 0.25 | felt-age performance shift + stereotype-cue tax (v5.51) |
+| photo_tax / photo_vis_gain | 0.0 / 0.0 | 0.35 / 0.25 | shutter tax on nonvisual fields, visual boost (v5.51) |
+| mw_rate / mw_replay | 0.0 / 0.0 | 0.06 / 0.3 | internal-capture rate + intrusion dividend (v5.51) |
+| savor_attend / savor_rehearse / savor_fade_buf | 0.0 / 0.0 / 0.0 | 0.35 / 0.6 / 0.5 | positive-channel attend/rehearse/fade-buffer (v5.51) |
+| mdose_expect_conf | 0.0 | 0.25 | microdose expectancy leg — all objective params locked (v5.51) |
+| sleeper_tag_decay / sleeper_gain / sleeper_msg_min | 0.8 / 0.0 / 0.15 | 2.0 / 0.15 / 0.6 | discount-tag decay + credence recovery + impact gate (v5.52) |
+| stt_gain / stt_dur_hl | 0.0 / 4 | 0.15 / 40 | trait transference write + associative halflife days (v5.52) |
+| tdef_base / tdef_step / tdef_detect | 0.5 / 0.05 / 0.3 | 0.75 / 0.25 / 0.6 | truth-default prior, trigger step, lie-detection leg (v5.52) |
+| tdef / rsq / imp_anchor (traits) | 0.0 | 1.0 | bible-set credulity / rejection sensitivity / primacy weight (v5.52) |
+| illtruth_gain / illtruth_cap | 0.0 / 0.1 | 0.15 / 0.6 | repetition→credence leg + cumulative cap (v5.52) |
+| kmotive_wish / kmotive_dread / kmotive_wedge | 0.8 / 0.8 / 0.8 | 1.8 / 1.8 / 1.8 | Knapp motive transmission multipliers (v5.52) |
+| etrans_disgust / etrans_happy / etrans_surprise / etrans_low / etrans_stranger_pen | 0.8 / 0.8 / 0.8 / 0.5 / 0.3 | 1.8 / 1.8 / 1.8 / 1.0 / 1.0 | emotionality transmission + audience gate (v5.52) |
+| aobs_selfdamp / aobs_val_flip | 0.2 / 0.0 | 0.9 / 0.6 | actor–observer self-discount + valence flip (v5.52) |
+| imp_impl_slow / imp_reinterp_res | 0.02 / 0.3 | 0.2 / 0.8 | implicit-tag rate + reversal resource gate (v5.52) |
+| hpm_gain / hpm_cap | 0.1 / 0.2 | 0.7 / 0.8 | hearsay PM write discount + saturation cap (v5.52) |
+| snub_detect_p / snub_fp_base / snub_fp_rsq / snub_encode_gain | 0.5 / 0.0 / 0.0 / 0.0 | 1.0 / 0.3 / 0.7 / 0.4 | exclusion detection + rsq false-positive leg + encode gain (v5.52) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -1058,8 +1466,8 @@ Apply multiplicatively to the listed param, clamped to §0. Stack at most 3.
 
 | **Stoic / suppressor** (NEW v1.7) | `regulate_style` →0.15; `reg_suppress_cost` →0.3; intrusion_thresh +0.05 (held-in feelings intrude more, not less); verbal_dampen ×0.7 — they retell rarely and flatly | suppression taxes encoding — remembers less of hard days, stays hotter longer (Richards & Gross 2000; emotional-memory.md §17) |
 | **Vicarious absorber / high-empath** (NEW v1.7) | `empathy_trait` →0.9; `contagion_k` ×1.4; `gen_width` +0.05 | hearsay scars them too — secondhand conditioning (Olsson & Phelps 2007) |
-| **HSAM** (NEW v2.5 — population tail, ≤1% incidence; roster dial, unassigned by default) | beta_episodic ×0.15 on selfRelevance≥0.5 records ONLY; §4.3 merge disabled for those records; retell ecology not needed for flat curves; **misinfo_suscept, phantom_p, drift_p, confab_fill UNCHANGED** — Patihis 2013: HSAM is not suggestion- or false-memory-immune, storage is extraordinary, reconstruction is ordinary | decades-old personal events stay dateable and vivid; still gets the details wrong (LePort et al. 2012/2017) |
-| **SDAM** (NEW v2.5 — opposite tail) | beta_episodic +0.4 on selfRelevance≥0.5 records; w_self ×0.7; ret_noise +; specificity −0.2; semantic/procedural params untouched; report-side: `conf` low on own-past episodic, normal on facts | knows the facts of their life without re-living them — "I know it happened, I don't remember it" (Palombo et al. 2015; surfaces as §6.7 nonbelieved memory) |
+| **HSAM** (NEW v2.5 — population tail, ≤1% incidence; roster dial, unassigned by default; SUPERSEDED by the `hsam` trait v5.15, §49) | beta_episodic ×0.15 on selfRelevance≥0.5 records ONLY; §4.3 merge disabled for those records; retell ecology not needed for flat curves; **misinfo_suscept, phantom_p, drift_p, confab_fill UNCHANGED** — Patihis 2013: HSAM is not suggestion- or false-memory-immune, storage is extraordinary, reconstruction is ordinary | decades-old personal events stay dateable and vivid; still gets the details wrong (LePort et al. 2012/2017) |
+| **SDAM** (NEW v2.5 — opposite tail; SUPERSEDED by the `sdam` trait v5.15 — decay leg re-parameterized retrieval-side, §49) | beta_episodic +0.4 on selfRelevance≥0.5 records; w_self ×0.7; ret_noise +; specificity −0.2; semantic/procedural params untouched; report-side: `conf` low on own-past episodic, normal on facts | knows the facts of their life without re-living them — "I know it happened, I don't remember it" (Palombo et al. 2015; surfaces as §6.7 nonbelieved memory) |
 
 Optional derived param `specificity ∈ [0,1]` (default 1): on reconstruction,
 with probability `1−specificity` return the generic/merged memory instead of
@@ -2589,3 +2997,2607 @@ dials — most interact with bible role assignments, not just traits.
   the caught lie outlives its retraction; (d) "who was at the
   party" is always partly fiction; (e) moral reputation is a
   ratchet — cheap to lose, expensive to buy back.
+
+## 40. v5.5 note (formal-model VI — machinery pass)
+
+**No new clamp rows, no new traits.** The v5.5 params
+(`canon_float`, `hash_algo`, `fp_tol`, `approx_tol`, `mix_correct`,
+`mix_band` + three locked nulls) are population/harness machinery —
+they configure the simulator, not a mind. Nothing here is
+bible-pinnable, and that is the point: Part VI formalizes how records
+may legally change (the §13.1 rewrite catalog) and what the society
+should predict (the §13.2 rumor mean-field), both identical for all
+28 characters.
+
+What bible writers DO get from v5.5: the guarantee that a character's
+memory can only lie in 11 named ways (the ρ-rules) — so a character
+who "remembers wrong" is always lying through a spec'd channel
+(misinformation, schema fill, embellishment, audience tuning, the
+liar's ledger), never through a hole. And the Jensen rule (§13.3):
+the block's rumor behavior is a property of the *cast ensemble*, so
+two mains with wild `misinfo_suscept`/`retell` extremes change the
+neighborhood's epidemiology, not just their own heads.
+
+## 41. v5.6 note (character-profiles V — the self that keeps the books)
+
+Clamp rows added in §0 for the sixteen v5.6 params. This pass owns the
+self-view the spec had been borrowing (`tdist_self`, `selfDiscrepant`,
+`mnem_neg` all referenced a self-evaluation that was never a trait) and
+adds the evaluative machinery around it. What bible authors should
+actually touch:
+
+- **`self_est` (trait, 0.15–0.95):** the new bible pin — the person's
+  standing evaluation of their own worth. Pin from the bible's
+  self-regard register ("she knows exactly what she is" → 0.7+; "he
+  apologizes for existing" → ≤0.35). **Do NOT confuse with
+  `SelfModel.self_est.global`** — that is what the character believes
+  about their *memory*; `self_est` is what they believe about
+  *themselves*. A character can hold both combinations, and P614
+  null-locks any generator that conflates them. Loads distancing
+  (§6.15), the §6.100 consistency gate, and the dampen prior (§6.105).
+- **`selfverif_w` (0–1):** the consistency-vs-enhancement dial. Default
+  0.6 — most people prefer feeling good to being confirmed (Swann).
+  >0.7 = the self-verifier who hoards the accurate insult; pair with
+  low `self_est` for the insult-collector phenotype (negative feedback
+  is *consistent* → the mnem_neg penalty releases it → she keeps every
+  slight). This is the mechanism that makes a low-self-view character
+  *not* benefit from mnemic neglect — self-protection protects a view
+  worth protecting.
+- **`self_complex` / `self_comp`:** how many rooms the self has
+  (2–8) and whether the bad rooms have doors (0–1). A bible that
+  writes a one-role character (the store, the job, the widow) is
+  claiming self_complex ≈ 2 — their bad week is TOTAL because the
+  spillover divisor is 2, not because they're fragile. The 2003
+  meta-analysis caveat stands: this is DEBATED as a stress buffer —
+  treat it as a reactivity dial, never a resilience guarantee, and
+  never a capacity dial (`sc_capacity_null` locked).
+- **`repress` is DERIVED, never pinned.** The bible writes
+  defensiveness + "never complains" (low `neurot_report`); the
+  compiler produces the phenotype — thinner negative childhood
+  recall, later first negative memory, slower negative retrieval.
+  Recognition of the same records is untouched (Davis 1990 locked
+  boundary) and `repr_erase_null` forbids record deletion — the
+  repressor's archive is complete behind shut doors. If a bible
+  wants a character who "has no childhood," this is the mechanism —
+  not amnesia pins.
+- **`remin_style` (55+ enum blend):** pin on elders only, from the
+  bible's late-life register. `transmissive` for the block's
+  teacher-archive (C6); `instrumental` for the problem-rehearser;
+  `narrative` for the raconteur; `escapist` for the golden-days
+  nostalgist; `obsessive` for the guilt-replayer; `integrative`
+  for the meaning-maker (the only style that mints persSem
+  synthesis — integrative reminiscence literally semanticizes a
+  life). Styles change what the accessible archive BECOMES over
+  sim-years, so they compound — pick them to match the character's
+  trajectory, not their current mood.
+- **`counterf_k` / `regret_inact_mult` / `regret_opp_gate`:** the
+  regret economy. `counterf_k` loads on rumination-adjacent pins —
+  the near-miss reliver. `regret_opp_gate` is the adaptive dial: 1 =
+  opportunity closed → let it go; →0 = the character who cannot
+  stop grieving what is already impossible (depressive signature —
+  pair with `depr`). The action/inaction half-life split is
+  mechanism, not personality — sign-locked by P607.
+- **`savor_k` / `dampen_k`:** independent valves. The savorer holds
+  a good evening longer; the dampener talks themselves out of it.
+  `dampen_k` has a computed prior from `self_est`/`depr` — pin only
+  to deviate (a high-self-esteem dampener is legal and reads
+  distinctly: confident but joyless). Both move encoding and
+  rehearsal, never accuracy — the dampened event is thin, not false.
+- **`future_cont` / `pself_mint`:** low future_cont is the character
+  who books obligations her future self will experience as someone
+  else's promises — she is reliably surprised by her own calendar
+  (the debtor-channel mapping is the point). `pself_mint` on the
+  dreamer and the dreading — the feared self is a landmark that
+  darkens resembling present events.
+- **`elabor` / `elabor_dyad_gain`:** the interviewer inside the
+  friend — pin on characters who draw stories out of people (the
+  confidante, the bartender-adjacent listener). The gain lands on
+  BOTH parties' records — being known well by an elaborator makes
+  your own archive denser. Adult extension is HYPOTHESIS-flagged;
+  the developmental base (Fivush) is consensus.
+- **Never pin (mechanism constants / locked):** `repr_neg_shift`
+  population scale, the recall-only mnem_neg boundary (recognition
+  spared — Green et al. 2007), `se_accuracy_null` (self-esteem moves
+  selection and valence, NEVER fidelity — a confident character is
+  not a more accurate one), `sc_capacity_null`, `repr_erase_null`,
+  the action/inaction decay sign, `owner:"future-self"` semantics
+  (compiler-set from future_cont, not authored).
+- **Emergent cast shadow:** (a) Victor's childhood is literally
+  thinner on the negative side — the archive is whole, the doors
+  are shut; (b) a low-self_est main keeps every slight because it
+  confirms — mnemic neglect protects only views worth protecting;
+  (c) Carmen's transmissive blend means her archive gets TOLD into
+  shape — teaching stories polish, private ones fade; (d) the
+  newcomer with two self-aspects has the most volatile mood in the
+  cast — same events, divisor 2; (e) the low-future_cont character
+  keeps breaking dates with a stranger who turns out to be herself.
+
+## 42. v5.8 note (encoding-mechanics V — the attempt before the trace)
+
+Clamp rows added in §0 for the nine v5.8 param rows. **None of these
+are trait pins** — every v5.8 dial is a mechanism constant; the
+character differences emerge from the fields and the existing trait
+machinery, not from new bible numbers. What bible authors should
+actually KNOW (the emergent shadow):
+
+- **Older mains get their encoding back through `envSupport`, not
+  through trying harder.** §61's complementarity means a scripted,
+  cued, structured day (regulars, familiar tasks, a spouse who
+  finishes sentences) is when the 70-year-old encodes like a
+  40-year-old; the same character in an unstructured novel setting
+  falls off the curve. Write elders INTO routines and their memory
+  reads younger; drop them into chaos and the deficit appears.
+  Same field, second reader: `envSupport` also rescues the
+  hypercorrection the old otherwise lose (§59 — they CAN update
+  confidently-wrong beliefs, but only when the world scaffolds it).
+- **The kid learns "who sits where" faster than anyone** —
+  `statlearn_age_w` weights the co-occurrence mint toward children
+  (Saffran); a young character accumulates sourced-less social
+  knowledge (who belongs with whom, which routine goes with which
+  hour) with NO episodic record behind it. The elders accumulate it
+  too, just slower — the ambient regular's "the usuals" layer is this
+  channel at population scale.
+- **The failed-recall mark is where believable "oh NOW I remember"
+  moments come from** — a character who reached for a name and
+  missed encodes the correction deeply when it arrives minutes
+  later (§58). It's also where believable "I crammed it and still
+  blanked" come from — `jol_fluency_bias` makes massed preparation
+  FEEL learned (§60's illusion is report-side only; the archive
+  disagrees).
+- **Trust violations weld the actor to the act ONLY when the
+  character had skin in the game** (§63) — "he cheated ME/us" mints
+  the hot link; "she heard he's a cheat" encodes the rumor normally.
+  A bible that wants a character who never lets a betrayal go should
+  make sure the betrayals are in-group, not described.
+- **Never pin:** all 15 v5.8 params are mechanism constants; the
+  three locked nulls (`interleave_verbal_null`, `cheat_recog_null`,
+  `disfluency_gain`) are adjudicated absences, not zeros awaiting
+  tuning.
+
+## 43. v5.9 note (forgetting-curves VI — decay-side constants)
+
+Eleven clamp rows added in §0 for the v5.9 machinery. **None are
+trait pins** — every v5.9 dial is a mechanism constant; profile
+diversity enters through the existing age/trait channels they read:
+
+- **Reconsolidation is a world-timing dial, not a personality dial.**
+  `recons_*` params govern how editable a freshly-recalled memory is;
+  a bible that wants a character "rewritten by every retelling" raises
+  retell ecology / rumination (existing traits), never recons_win —
+  the window is physiology.
+- **Hyper-binding is the age tax bible-writers will feel:** elders
+  mint spurious pair links at encode (≈0.10 at 80 under default
+  ramp), so old characters produce confident wrong co-occurrences
+  AND their interference pools run contaminated — expect "she was
+  there that day" errors and faster crowd-blur from the same cause.
+  `age_eff` carries it, so high-`reserve`/`fitness` elders are
+  partially spared (the ramp rides the same effective-age curve).
+- **ALF is the "sharp yesterday, gone last month" phenotype** —
+  intercept intact, tail steepened past `alf_onset`. Distinct from
+  the general age-β rise (everything faster) and from dementia
+  modifiers (pathological; ALF must NOT stack on them — clamp
+  enforced in §0).
+- **Selective sleep (`expRel`) is a world-builder hook**: events the
+  character knows will matter (a promised telling, a warning, a
+  deadline) consolidate preferentially. Scenes that announce their
+  future relevance literally survive better — authorable via the
+  Event flag, not a trait.
+- **`dforget` vs suppression:** bible guidance — "avoids thinking
+  about it" = suppressEvent (effortful, leaks under trauma); "it's
+  not worth keeping / we agreed never to mention it" = forgetEvent
+  (starvation, no drama). Same ~10–15% surface effect, different
+  machinery, different fiction.
+
+## 44. v5.10 note (retrieval-cues VI — the cue's direction, echo, keeper)
+
+Eight clamp rows added in §0 for the v5.10 machinery. **None are
+trait pins** — all are mechanism constants; bible diversity keeps
+entering through existing channels:
+
+- **`backcue_mult` is a species constant, not a quirk.** Do NOT pin
+  it per-character — individual variation in directionality isn't in
+  the literature. A bible that wants "always knows who but never
+  when" already has it: era/when fields are the weakest cues AND
+  querying them is often a reverse lookup.
+- **`recue_passes` is personality-adjacent through the wrong door.**
+  A persistent thinker isn't a higher `recue_passes` — it's higher
+  `search_breadth`/`fok_retry` (existing). The pass cap is an
+  implementation bound; leave it at 2.
+- **Objects need the world.** `objLink`/`photographed` only do work
+  if events name artifacts — world-builder mints them; a character
+  bible can note "keeps her mother's ring / photographs everything"
+  and the flag does the rest. The photo-offload tax is encode-side:
+  the shutterbug remembers the evening a little thinner unless the
+  shots get reviewed (review = retrieval, the fix is built in).
+- **The asker is a context, not a character.** `forced` probes lower
+  the emission floor — interrogators get MORE words and WORSE ones;
+  `hedged` marks them for the rumor ledger. Rapport gains breadth,
+  never accuracy. Bible note: a character who *feels* interrogated
+  often (paranoid phenotype) lives under forced-floor emissions —
+  that's a style of answer, not a memory defect.
+- **`routeHeat` is invisible bookkeeping** — don't surface it; its
+  product is the difference between the polished six-times-told
+  anecdote and the same record's cold unasked fields. `route_hl`
+  30d keeps paths wearable, not permanent.
+- **`restart_overlap` gates interviews, not people.** The CI
+  contract: after a failed account, change the angle (order,
+  perspective, era) or the counters persist — identical re-asks
+  are the worst probe.
+
+## 45. v5.11 note (age-development VI — infant clock, seen reminder, observer channel, heritage bump)
+
+Eleven clamp rows added in §0 for the v5.11 machinery. **No new
+trait pins** — the diversity this pass adds enters through the
+PROFILE (`schooled` enum) and through the EVENT layer
+(`role:"observer"`, `studied`, `reward`, `era` on accounts), not
+through per-character constants:
+
+- **`schooled` is a backstory fact, not a dial.** All 8 mains are
+  `full`; use `partial`/`none` only where a bible says so
+  (unschooled upbringing, interrupted schooling). Its effects are
+  narrow — strategy onsets +0.5y and a persisting metamemory gap
+  — do not stack it onto `g_mem` (schooling reorganizes memory
+  skills, not raw capacity; Morrison 1995 is a grade-vs-age
+  finding, not an IQ claim).
+- **`infant_beta_*`/`obs_gain`/`free_recall_tax`/`order_strength_*`
+  are age-keyed curves, evaluated inline** — a bible never pins
+  "infant forgetting" because the encoder's age IS the pin. The
+  visible consequence for bibles: a character's childhood
+  backstory seeded with observer events (watched the fight,
+  watched the ritual) mints real but self-field-thin records —
+  write backstory beats as participation OR observation
+  deliberately; they differ.
+- **The heritage leg wants family-story content.** `heritage_gain`
+  fires only when kin tells their OWN bump-era story to a hearer
+  aged 8–30 — world-builder should tag family-anecdote content
+  with `era` (the teller's era) or the leg can't evaluate. A
+  bible note like "raised on her grandmother's Resistance
+  stories" is exactly the input this param prices; without the
+  tag it's a null op.
+- **`told_reinstate_null` is load-bearing.** Below-wall latent
+  records respond to re-ENCOUNTER only. Dialogue must not let a
+  character's earliest memory get "unlocked by being told about
+  it" — the grandmother's retelling mints a NEW told_by record
+  (which §48 gates), it never revives the latent one. The
+  unlock-by-return scene (going back to the house) is legal; the
+  unlock-by-story scene is not.
+- **`pub_reward_gain` stays narrow by construction.** Reward-
+  valenced only, window-scoped only. A bible that wants a teen's
+  memory to be generally hot already has `pub_emo_gain`;
+  `pub_reward_gain` is specifically the-wins-stick — don't route
+  humiliations through it (that's `pub_emo_gain`/`social_eval`).
+
+## 46. v5.12 note (age-decline VI — the ledger splits)
+
+Twenty-one clamp rows added in §0 for the v5.12 machinery. Two
+new PROFILE fields (`chronotype`, `sensory`) and one re-anchored
+existing trait (`fitness`) — the rest is age-keyed knots evaluated
+inline; bibles never pin "recollection" or "gist" directly:
+
+- **`chronotype` is a circadian fact, not a preference tag.** It
+  maps onto the existing `peak_hour` (v0.7) at profile generation;
+  `tod_tax` is the age knot on the off-peak penalty. 65+ mains
+  default `morning` (~75% of real older adults are morning types —
+  May et al. 1993); an `evening` elder is a deliberate beat, and
+  its off-peak window lands in the morning. Locked `auto_sync_null`
+  means the clock NEVER touches involuntary recall or routine
+  scripts — an old character sleepwalks through their morning
+  coffee ritual identically at 7am and 9pm; the tax is for effort.
+- **`sensory` is the cheapest depth cue in the doc.** `sensory:0.5`
+  on a 70+ bible = unaided hearing loss: auditory fields encode at
+  ~0.85× AND the character's decline curves run `sensory_age_shift`
+  years old. The asymmetry is the contract: restoring sensory
+  (hearing aid beat) removes the encode tax going forward but does
+  NOT refund the shift — arrested cause, not reversed cause. Do
+  not stack it with `med_antichol` for "confused elder" flavor;
+  pick the mechanism the story needs.
+- **`fitness` now moves.** It was a static trait (v1.9); v5.12
+  gives it a half-life (`fitness_drift_hl` ~1y). A bible that says
+  "walks the park loop daily" is writing a memory intervention;
+  one that says "used to walk" prices the decay. Combined
+  reserve+fitness age_eff shift is capped at `rf_cap` 12y — an
+  educated marathoner is NOT 20 years younger in the head.
+- **`transact_gain` needs the spouse.** `withPartner` resolves via
+  PersonModel `rel` + shared-encode overlap — a widowed elder
+  loses the leg entirely (compounds the isolation overlay, §40,
+  but they're distinct: one is a retrieval scaffold, one is a
+  decay lift). Long-married couples in the cast recall richer
+  episodic detail together than apart — write them remembering
+  TOGETHER for the effect to show.
+- **`age_salient` is a context, not a trait.** It taxes retrieval
+  legs only for the duration of the flagged scene; nothing is
+  stored differently. Memory-anxious profiles take the bigger hit
+  (Hess's moderation) — pair with high complaint_k, not with
+  low enc_base.
+- **`reportMode:"know"` is output the dialogue layer must honor.**
+  A know-emission is warm recognition with honest blanks — "I
+  KNOW her… is she from the café?" — not a failed recall and not
+  a confabulated one (confab_fill decides whether the blanks get
+  filled). Forcing the old mains to always emit "remember" throws
+  away the whole R/F split.
+
+## 47. v5.13 note (emotional-memory VI — the residue layer:
+the dead, the tone, the rival, the safe hand)
+
+Thirteen clamp rows added in §0 for the v5.13 machinery. One new
+TRAIT (`jealous`), one new PersonModel field pair
+(`deceased`/`deathDay`), one new character state (`grief`), three
+new event tags (`prosody`, `awe`, `infid_cue`), one retell
+context (`ac_response`), two emission modes (`aff_flash`,
+`absence`/`presence` on deceased-linked emissions). Bible-visible
+guidance:
+
+- **`deceased`/`deathDay` is a world-fact, not a bible mood.** Mark
+  the PersonModel; the substrate owns the mode oscillator. A
+  widowed main written before v5.13 (the landlord's late spouse,
+  an ambient's dead sibling) now has a defined memorial ecology:
+  loss-mode days spike cue-triggered pangs, restore-mode days let
+  the same records emit warm presence — and nothing about the
+  RECORDS changes. Bibles may write grief-stage backstory; they
+  must not expect erasure or flat fading (grief_erasure_null).
+- **`jealous` composes with attach_anx but is not it.** A
+  low-anxious, high-jealous character is a real phenotype —
+  specific, behavioral, rival-keyed vigilance with no general
+  worry. Keep the two distinct in bibles; the infid_cue
+  multipliers are sex-mediated per Schützwohl — don't write the
+  direction backward.
+- **`ac_response` is the audience's variable, supplied at retell.**
+  World-side dialogue decides whether the listener was
+  active-constructive; the substrate only reads it. A character
+  whose partner is written flat/unresponsive accrues no
+  capitalization on shared wins — an invisible relationship cost
+  that will show up as dimmer positive records.
+- **`prosody` is a speech-event field.** World events that
+  specify delivery valence (said coldly, said warmly) mint the
+  field and the implicit leak; absent = neutral, nothing
+  happens. The leak's irreversibility is the point — a sarcastic
+  compliment's sting survives the record of the joke.
+- **`awe:true` is an Event tag, not a trait.** Any character can
+  have an awe record; awe-proneness is world-side tagging
+  frequency (§81 raises it at 65+). The signature — thin self,
+  thick gist, unfillable gap — is the emotion's own; don't reach
+  for it on merely-happy events.
+- **`safety_suppress` reads the same trust table as §44.** A
+  character whose best-trusted person is also low-relQuality
+  gets the stranger's-hand residue — check the relationship
+  matrix, not the cast list.
+
+## 48. v5.14 note (false-memory VI — the calendar, the watcher,
+the dream, and the quiet guards)
+
+Fourteen clamp rows added in §0 plus one TRAIT (`imagery`), one
+new op pair (`whenEstimate`, `dreamEvent`), one event tag
+(`observed_action`), one retrieval posture (`demand_detail`),
+one emission (`noticed_discrepancy`), one PersonModel field
+(`nameFluency`). Bible-visible guidance:
+
+- **`imagery` is not `vivid`.** `vivid` (v0.7) controls how much
+  peripheral detail gets written at encoding; `imagery` controls
+  how *world-like* internally generated content is — daydreams,
+  rehearsed lies, dreams. A low-vivid/high-imagery character
+  takes thin notes but hallucinates beautifully: their lies and
+  daydreams are the ones that flip to memories. Keep them
+  orthogonal in bibles.
+- **`whenEstimate` means nobody owns a calendar.** Written
+  characters should not "know" exact dates of unremarked days
+  — bibles may pin landmark days (the accident, the wedding)
+  because the landmark pull makes those stickier, but ordinary
+  Tuesdays drift toward mid-window and round dates. If a plot
+  needs a character to misremember *when* by weeks, give the
+  record low dayConf, not a special exemption.
+- **`observed_action` is a world tag, not a trait.** Any
+  character who watches a housemate cook enough times can end
+  up believing they cooked — but a bible that scripts shared
+  domestic routines is signing up for crossed chore memories;
+  that's the feature.
+- **Dream flips need the traits.** `dreamEvent` mints are cheap
+  and mostly harmless; only high-dissoc/fantasy/imagery
+  characters flip them at meaningful rates. A grounded,
+  concrete-minded main effectively never misremembers a dream —
+  write them that way rather than reaching for dream confusion
+  as a plot lever.
+- **`noticed_discrepancy` is silent.** It's a tell available to
+  the dialogue layer (a pause, a narrowing), not a spoken
+  objection — a character can notice a lie and still say
+  nothing. `demand_detail` is the same for the retrieval side:
+  it's a posture callers set, so a bible-written interrogator or
+  pedant should be flagged as habitually demanding detail.
+- **`nameFluency` is ambient reputation.** An ambient whose name
+  circulates at the bar becomes "somebody" without ever doing
+  anything — bible-visible consequence: famous-adjacent NPCs
+  accrue acquaintance attributions they never earned. This is
+  by design; do not "fix" it in the cast list.
+
+## 49. v5.15 note (individual-differences VI — the tails, the
+motivated mind, the body history, the second null)
+
+Ten clamp rows added in §0 plus nine TRAITS (`hsam`, `sdam`,
+`nfc`, `mnemic`, `tbi`, `apoe`, `synesth`, `rumin`,
+`learn_style`), three new event/context fields
+(`arg_quality`, `self_feedback`, `tbi_event` + `close`/
+`modifiable` moderators). Bible-visible guidance:
+
+- **HSAM/SDAM graduate from modifier to trait.** The v2.5
+  roster modifiers are superseded by the Part VI traits —
+  same targets, now mechanized (hsam_decay_cut 0.85 reproduces
+  the old ×0.15 beta leg exactly; the SDAM modifier's
+  beta_episodic +0.4 leg is RE-PARAMETERIZED as retrieval-side
+  `sdam_thin`/`sdam_know_shift` per Palombo 2015's encoding-
+  intact evidence — drop the old decay leg when adopting).
+  Keep them rare: at most one tail per cast, never both
+  (`hsam`·`sdam` clamp is hard).
+- **An HSAM character still misremembers.** Patihis 2013 is
+  the lock: lab-type encoding and misinformation
+  susceptibility are at control rates. The signature is
+  *dates and own-life detail* — write them as the person who
+  can tell you what Tuesday in March 2009 was like, not as a
+  general-purpose recall machine.
+- **`apoe` is invisible.** No character knows their genotype,
+  and nothing in-world may reveal it — it is a fate parameter
+  for the author, not a fact for the cast. Its only observable
+  is a steeper late-life episodic slope; a 30-year-old ε4
+  carrier must read as memory-ordinary (P702).
+- **`tbi` is a bible field, not a plot device.** Severity
+  0–2, set once at character creation (or a live `tbi_event`);
+  the retrograde gap it carves is real (Ribot window) but the
+  residual tax is small and STABLE — do not write progressive
+  worsening into a `tbi` backstory; that belongs to `disease`
+  or `apoe`.
+- **`mnemic` is not `self_srv`.** Contribution bookkeeping
+  (who did the dishes) is §6.85's axis; mnemic neglect is
+  *feedback*-specific — a high-mnemic character genuinely
+  under-stores the review that stung, while still recognizing
+  it if confronted (the recognition exemption is locked — a
+  bible scene where such a character cannot recognize
+  criticism at all breaks the model).
+- **`nfc` needs world tags.** The trait only bites on events
+  the world marks `elaborable`/`arg_quality` — debates,
+  pitches, arguments. A high-nfc character unprompted will
+  remember *why* the good argument was good; they remember
+  nothing extra about the Tuesday commute.
+- **`rumin` signs the rehearsal policy.** Positive values
+  brood (negative records get unearned retell cycles);
+  negative values reflect (small problem-framing bonus). It
+  composes with `neurot` via R +0.4 — pin both explicitly in
+  bibles when you want the uncorrelated case.
+- **`synesth` is deliberately small.** Meta-pooled effect is
+  real but ordinary-range; the 0.08 loading is priced so no
+  character becomes cinematic. If a bible wants a
+  memorable-detail prodigy, `hsam`/`vivid`/`imagery` is the
+  tool, not synesth.
+- **`learn_style` is flavor text.** Characters may believe in
+  it ("I'm a visual learner") — the field exists so bibles
+  can write that belief — but every loading is locked 0.0.
+  Do not wire instruction modality to it; Pashler 2008 says
+  it does nothing, and P705 enforces the nothing.
+
+## 50. v5.16 note (social-memory VI — the conversation's holes)
+
+Ten clamp rows added in §0, ZERO new traits — every new
+mechanism is situational (world-tagged) or rides existing
+traits. Bible-facing guidance:
+
+- **The talk-holes are invisible.** `nil_loss` cuts encoding
+  just before a character's own speaking turn — but the
+  record carries no "I wasn't listening" flag. Write
+  post-conversation disagreement as patterned confusion
+  about whoever spoke just before each character talked,
+  never as a character reporting the gap (P709 locks
+  retrieval rescue — nobody "thinks harder" their way back
+  to it; they reconstruct or borrow someone's account).
+- **Established impressions reinterpret surprises.** A
+  new acquaintance's shocking act encodes hot (§2.3
+  incongruity); the same act from a 20-year friend gets
+  absorbed toward the schema — `strong_exp_congr` does the
+  bending. Bible consequence: long relationships drift
+  toward mutual confirmation — the surprise stops being
+  data and becomes the exception that "wasn't really her."
+- **Implications don't stay hedged.** World tags
+  `implied` on an account → hearers store the implication
+  as near-asserted gist with weak source. The retell a week
+  later is flat ("she said he was cheating"), and the
+  hearer CANNOT report that it was only implied — that
+  provenance is M-tier. Bibles should write the flattening,
+  not the nuance, downstream.
+- **This morning's words are this afternoon's lens.**
+  `accessibleConstructs` + `ambig_assim_p` mean a character
+  who spent breakfast hearing "dishonest" gossip encodes
+  the suspect's noon ambiguity through it. High-distrust
+  bibles get chronically warm hostile constructs for free —
+  they read ambiguity as threat by default, no priming
+  needed.
+- **`outcome_dep` is a world field, not a trait.** Tenant→
+  landlord, employee→boss, lover→crush: the dependent party
+  individuates — deeper encoding, sharper on violations,
+  slower to commit to a fixed schema. Locked: dependency
+  never flatters — the tenant remembers the landlord's
+  cruelty AND kindness more vividly; resolution, not
+  loyalty.
+- **Two books, one event.** `harmed:{victim,perpetrator}`
+  transgressions encode identically (locked — no birth
+  difference) then diverge: the victim's stays hotter and
+  drifts toward malice, the perpetrator's thins and softens
+  each retell. Mutual retelling WIDENS the gap (locked) —
+  write the fight about "what happened" as two people
+  defending different records, not one truth.
+- **Forgiveness is not amnesia.** `forgiveEvent` detaches
+  the sting (decisional now, emotional over `forg_lag`) but
+  the record is untouched — locked. A forgiven harm is
+  fully recountable, cue-re-stingable at reduced charge.
+  Never write post-forgiveness blankness; write "I've
+  forgiven her — but yes, it happened, exactly like that."
+- **The story that comes home.** `viaChain` distance ≥2
+  lets a character's own distorted tale return as apparent
+  corroboration (echo_adopt_p capped 0.45 while the
+  original lives). Bible payoff: a canonized story fed
+  back through the neighborhood lands as independent
+  confirmation — "M said so too."
+- **Promises in public bind both sides.** `witnessed`
+  commitments strengthen creditor AND debtor arms and mint
+  third-party clones — the audience itself remembers who
+  owes what. A public promise broken emits `shame:true` —
+  the block watched it fail.
+- **`metVia` outlives names.** "We met through Mira at the
+  picnic" is personSEM — it survives when the name is gone.
+  And asymmetric re-introductions mint offense ONLY on the
+  remembering side: being forgotten by someone you remember
+  is the insult, and attach_anx characters mint at ceiling.
+  Never mint offense on the forgetting side (P719).
+
+## 51. v5.17 note (social-memory VII — the ledger nobody keeps)
+
+Ten clamp rows added in §0, ZERO new traits — all loadings
+ride jealous/rumin/attach_*/distrust/self_srv/nfc/sex.
+Bible-facing guidance:
+
+- **Dislike without a why is a first-class state.** When
+  every episode backing an impression has decayed out, the
+  eval floors at `orphan_eval_resid` and emissions carry
+  `orphan_eval:true`. Write it honestly — "can't put my
+  finger on it, something about her" — never invent the
+  justifying scene (locked: orphan evals mint no episodes,
+  P722). Reputation in the cast is partly *unsourced* by
+  design.
+- **The helper forgets; the helped keep the book.**
+  `favor:{giver,receiver}` splits one kindness into a
+  durable received record (+`owed` on the giver's
+  PersonModel) and a fast-fading given record — the split
+  is locked asymmetric (P723). Bible consequence: the
+  cast's generous characters accumulate invisible credit;
+  beneficiaries feel the debt long after the giver moved
+  on. Both read true.
+- **Feuds re-sort who-gets-confused-with-whom.** Three
+  observed alignments flip source-confusion to
+  coalition-first (Kurzban 2001) — during a live feud,
+  bibles should write members of the same camp blurring
+  together across demographics. Locked: the alliance
+  re-sort never recolors pre-conflict records.
+- **Origins get shelf space, middles get thin.** Inside
+  `rel_bump_win` (90d) co-tagged records encode +15% and
+  landmark-index — "how we met" retells rich forever,
+  year-two Tuesday fades. Seed `relStartDay` in the bible
+  or let sustained contact mint it.
+- **The empty chair mints a record.** `expected:[ids]`
+  makes a no-show a thin negative memory — attach_anx
+  characters notice every absence at ceiling, and the
+  record can NEVER leak co-presence for the absentee
+  (ghost-null, P726). Nobody remembers a guest who wasn't
+  there as having been there.
+- **Everyone else forgot your blunder; you didn't.**
+  Self-side embarrassment decays half-rate and feeds
+  rumination; observers fade 1.5×; `aud_recall_over` ~2×
+  means characters act as though the block logged it
+  (spotlight). Write avoidance and over-apology — the
+  audience's actual record is long gone.
+- **The loudest narrator edits the neighborhood.**
+  SS-RIF/practice scale with speaker centrality and
+  propagate one hop — convergence follows the well-
+  connected, not the accurate. Pair with the bible's
+  status field; the quiet character's version dies
+  unheard.
+- **Inside jokes are real memory structures.** `idiom`
+  records retrieve only inside the dyad
+  (`idiom_dyad_gate`) — write "you had to be there"
+  texture; on `relationship:end` they take
+  `idiom_orphan_loss` but keep working, which is exactly
+  the ache of an ex's private language.
+- **Rival watch encodes, never convicts.** Committed-edge
+  `threat` cues encode hot and resist attention cuts
+  (jealous×attach_anx loadings; the sex-linked split is
+  real but shallow — weight it lightly). Locked: vigilance
+  remembers the glance; it never auto-confirms the affair
+  (P731).
+- **"A heard from B who saw C" flattens to "B said."**
+  `prov_chain` loses ~35% of middle links per retell and
+  collapses to bare `rumor` when emptied — write gossip
+  arriving unmoored. Locked: a thinned chain can never
+  exceed the last teller's credibility — hearsay doesn't
+  launder into eyewitness (P732).
+
+## 52. v5.18 note (formal-model VII — bounds on how wrong a context
+can make a mind)
+
+Five clamp rows added in §0 (`theta_cap`, `lat_mult_cap`,
+`grace_floor`, `ctx_tau`, `att_span_ctx` — all population/harness
+machinery, none bible-facing per-character). ZERO new traits.
+This version is pure substrate machinery; the bible-facing guidance
+is about what it *guarantees* writers:
+
+- **There is now a worst case, and it still answers.** No stack of
+  stress + distraction + age + evaluative pressure can push a
+  character's recall below `grace_floor` on their strongest
+  memories. A bible CAN write "the worst day of her life" without
+  worrying the sim produces an automaton — degradation saturates
+  (P736). Humans under maximal load are *bad*, not *broken*.
+- **Modifiers now carry receipts.** Every call-time deviation logs
+  a `modLedger` entry — when a character performs oddly, the trace
+  names the mechanism (stress leg, synchrony leg, DA leg), not
+  "the model felt like it."
+- **The world cannot hand a character a cue they never perceived.**
+  `ctx_oracle` is locked: undelivered cue fields contribute zero
+  at admission. Consequence for world-builder: if you want a smell
+  to trigger Proust, the event must actually deliver it —
+  `sensory:["espresso"]` in the payload or it never existed.
+- **Emissions can't be lied about downstream.** `surfMap` is
+  closed: hedged recalls must surface hedged, `know` modes can't
+  sprout scene detail, `aff_flash`/`orphan_eval` render affect
+  with NO content (`surf_mint` locked). A character who feels
+  unease without a reason literally cannot be given a confabulated
+  reason by the dialogue layer — the surface lies are now contract
+  violations, not style choices.
+- **Every parameter must declare what observes it.** `identi_gate`
+  means a param without a probe signature is a build error. For
+  bible authors: nothing you pin can silently do nothing — if a
+  trait loading doesn't move a declared observable, the harness
+  says so.
+
+## 53. v5.19 note (character-profiles VI — the narrator's compass)
+
+Fifteen clamp rows added in §0. This pass is the bible-richest one
+yet: eleven of the fifteen are trait pins. What bible authors should
+actually touch:
+
+- **`tp_vec` (five pins, independent — NOT normalized):** the
+  strongest single "where does the mind rest" dial set. Pin from the
+  bible's temporal register, not from mood: a character can be
+  cheerful AND past-negative (Victor reads warm-present, arrives
+  cold). **Do NOT use tp_pastneg as a proxy for `depr`** — depression
+  is a phenotype with OGM and consolidation consequences;
+  tp_pastneg is only an arrival weight. They co-load in the cast
+  (Victor carries both) because they co-occur in life, but a
+  tp_pastneg pin without depr is legal and reads differently
+  (nostalgic melancholy ≠ clinical flatness — P745 null-locks any
+  generator that lets tp weights touch record content).
+- **`narr_agency`/`narr_comm`:** what the stories are ABOUT. Pin
+  from the bible's telling style: "she tells it as a plan" →
+  agency; "he tells it as a table of people" → communion. The
+  mechanic is field DEPTH — the same event lands differently
+  (P747), but `theme_fabricate_null` means the unfavored theme's
+  fields exist thin, never missing. Do not confuse with `extra`
+  (sociability) or `consc` (planfulness) — narr_comm is about
+  what the ENCODING privileges, not how sociable the character is.
+- **`autobio_k`:** the experience→residue conversion rate. The
+  most outcome-bearing dial in the pass: at 0.2 a character lives
+  the same year three times (Marcus); at 0.7 every stoop story
+  mints a proposition (Carmen). Pair guidance: autobio_k +
+  script_redeem is the wisdom axis (lessons + redemption-telling
+  compound); autobio_k low + rumin high is the treadmill (re-runs
+  problems, extracts nothing — Victor's slot).
+- **`narr_coh_k`:** wiring, not rooms. Distinct from
+  `self_complex` (structure) — a two-room self can still be
+  tightly linked; a seven-room self can be a junk drawer. Low
+  narr_coh_k + high vivid_detail = the album-of-brilliant-
+  snapshots phenotype.
+- **`period_sal`:** pin by biography — a life with a literal
+  before/after (immigration, widowhood, the move) wants 0.7–0.9;
+  a continuous-life profile wants ≤0.3. Side effect writers
+  should EXPECT: high period_sal + era_surf_p makes the
+  character spontaneously date their own past in dialogue ("in
+  the Miami years") — the surface mark is free color, use it.
+- **`epi_future_k`:** usually DERIVED — the prior couples to
+  vivid_detail and the OGM terms (Williams 1996: generic past ↔
+  generic future is one style). Pin explicitly only for the
+  dreamer-on-thin-archive case (Dani 0.8). `future_leak_null`
+  keeps rich imagined futures from becoming fake memories —
+  the flip needs §6.9 imagination inflation.
+- **`tension` (record field, not a trait):** bible seeds it on
+  selfdef anchors — the unfinishedness. Tense anchors knock
+  more (`sdm_tension_intr`) without weakening — a tense anchor
+  is a STRONG record, not a damaged one (`tension_fate_null`).
+- **Never pin (mechanism constants):** `tp_arrival_k`,
+  `theme_sel_k`, `era_surf_p`, `sdm_tension_intr` — population
+  scales; the per-character surfaces all live on the trait side.
+- **Emergent cast shadow:** (a) Victor's archive visits HIM —
+  past-negative arrivals + fatalistic quiet + the steepest wall;
+  (b) Marcus has the least-narrated archive in the cast — sunny,
+  shallow, lesson-free; (c) Carmen's stoop mints propositions —
+  her memory literally editorializes; (d) Jules's Portland wall
+  is the sharpest under-30 boundary; (e) Dani's futures are
+  thicker than most people's pasts — and can never accidentally
+  become one.
+
+## 54. v5.20 note (encoding-mechanics VI — all ecology, no traits)
+
+Eleven clamp rows added in §0 for the v5.20 machinery. **Zero new
+trait pins** — every new param is a mechanism constant or a
+world-supplied ecology flag. The bible-author-facing surface is the
+emergent shadow:
+
+- **Value routing (§71):** deficit-bearing profiles (older mains,
+  low-wmc) automatically concentrate scarce capacity on important
+  content — and automatically fail on hard-but-important detail
+  (`value_mem_gate`). A bible writer does NOT pin these; they
+  emerge from deficit_proxy. Cast note: an older main remembers the
+  three things that mattered about a tenant meeting and loses the
+  clause they needed — that is the model working, not a bug.
+- **Choice (§72):** world marks `choice:true`; characters with
+  constrained lives (few choice-tagged events) have measurably
+  thinner ownership of their days — an ecology finding the bible
+  can lean on narratively (the character who never chooses).
+- **Secrets (§77):** the drama-seed layer (`confidential:true`)
+  now carries a REAL cost — each held secret is ~1.5 pending
+  intentions of tonic daLoad inside the shared cap. A main holding
+  three secrets is running a degraded encoder all day, and their
+  open errands lose slots. Disclosure frees the slot — confession
+  relieves by mechanism, not by prose.
+- **Saying-is-believing (§74):** gossip-motive tagging matters.
+  `tune_motive` is the world's call per retell; only sharedReality
+  tuning drifts the speaker. The cast's appeasers (high `affil`,
+  politeness-tuned) keep accurate private records; the connectors
+  absorb their own spin.
+- **Faces (§76):** `faceDistinct` is roster-relative — a main with
+  a homogeneous social world finds every newcomer distinctive (more
+  accrual) and a main in a varied world needs more deviation. Same
+  knob, different emergent sociology.
+- **Observed tier (§75):** `obsIntent` is the apprentice flag —
+  bibles that say "learns by watching" should ensure the world tags
+  their watch events accordingly; the gain is mechanism, not trait.
+
+## 55. v5.21 note (forgetting-curves VII — all mechanism, no traits)
+
+Eight clamp rows added in §0 for the v5.21 machinery. **Zero new
+trait pins** — every new param is a mechanism constant, an ecology
+flag, or a report-side estimator. Bible-facing notes:
+
+- **The stim tier (§4.34):** characters now have a recoverable
+  "didn't catch that" buffer — ~30 seconds, ~2 items. A bible that
+  says "he's always half-listening" now has a priced behavioral
+  signature: frequent ghost recoveries requested, almost none
+  landing as records. Nothing to pin; it emerges from `att_min`.
+- **The audience arm (§4.13):** `aud_resp` is world-supplied —
+  who a character's *friends* are (attentive vs distracted
+  listeners) now literally shapes how durable their retold stories
+  are. A main surrounded by distracted listeners rehearses without
+  consolidating — their stories stay hot but don't deepen. Casting
+  consequence: the good listener is a memory-keeper for others.
+- **Joint recall (§5.67):** `jointRecall` is a session-level op,
+  not a trait — but note the emergent: two mains reminiscing produce
+  a narrower shared version than either holds privately, and each
+  leaves with their own residue refreshed. Canonization pressure is
+  now priced.
+- **Confidence channel (§3):** `conf_beta_mult` is a mechanism
+  constant; characters already differ in conf via `conf_bias`/
+  `meta_cal` — this adds only that EVERYONE's certainty decays
+  slower than their content. Old certainties accumulate.
+- **Estimators are report-side:** `freqRecall` and `recallDuration`
+  never touch stores — a character who "always" exaggerates
+  frequencies does so through `avail_freq_k` (salience-weighted
+  counts), not through a bigger number dial.
+
+## 56. v5.22 note (retrieval-cues VII — mode, clusters, pulses, and the quitting bet)
+
+Thirteen clamp rows added in §0 for the v5.22 machinery. **Zero new
+trait pins** — every new param is a mechanism constant or a report-
+side flag; differentiation enters through existing traits (checker
+extends searches; imagery/narr_agency raise `reminder_chance`;
+neurot+depr arm the negative-cue overgeneral arm; ageScale shortens
+`search_budget`). Bible-facing notes:
+
+- **Orient is phrasing, not personality (§5.69):** a bible can't
+  make a character "more semantic" — but *how characters ask each
+  other* now matters: "do you know if she came by?" vs "do you
+  remember when she came by?" are different probes. Writers of
+  interrogation-adjacent scenes (the landlord checking on a
+  tenant) should know the factual phrasing gets the thinner answer.
+- **Clusters are the storyteller's unit (§5.72):** `evClust` is
+  minted from world events — a bible that seeds "the feud with
+  the upstairs neighbor" as a continuing thread literally builds
+  the character a cue structure: poke one episode, the arc
+  surfaces; ask when any episode happened, get a vaguer answer.
+  Story-shaped lives are now the memorable AND the blurry-dated
+  ones — both at once, by the same mechanism.
+- **Pulses make reminiscence legible (§5.73):** emissions carry a
+  `pulse` index — scene direction can pace a character's
+  recollection ("…and then — " pause " — the letter, that's what
+  it was about") without scripting content. The pause is where
+  another character's cue can steer.
+- **Structure is felt, not retrieved (§5.74):** `struct` tags are
+  world-supplied; a main with high `imagery`+`narr_agency` gets
+  the rare pure-structural reminding — "watching her sign felt
+  like the day I—". Keep it rare or it reads as authorial.
+- **ctxcue is the spared floor (§5.75):** age-flat, record-free
+  configural competence — the profile-degraded character who
+  can't tell you what they did still navigates their own kitchen.
+  Nothing to pin in a bible; it's what survives.
+- **The give-up is a tell (§5.76):** `giveUp:{fok}` distinguishes
+  "don't know" from "it's right there" — and the high-fok arm
+  (`fok_reprobe`) is the "it came to me later" event. Checker
+  characters re-search; everyone else quits on the metacognitive
+  bet. No pin — `checker` already exists.
+
+## 57. v5.23 note (age-development VII — the child side of every curve)
+
+Twelve clamp rows added in §0. **Zero new traits** — the child side
+of every curve is driven by encodeAge/retrievalAge knots plus two
+existing dials (`reminisce_env`, `consc`). Bible-facing notes:
+
+- **`reminisce_env` is no longer abstract (§6.152b):** the v1.5
+  dial now works through the child telling her own past. A
+  high-env character bible should literally contain adults who
+  ask "tell me about your day" — the mechanism pays out on the
+  child's narration events, not on ambient warmth. Low-env bibles
+  mint fewer child-tell events; the wall-shift emerges.
+- **The forget cue is a report cue below ~10 (§6.152a):** a child
+  told "don't think about it" still HAS the record — they just
+  don't volunteer it, and their false content suppresses BETTER
+  than an adult's. For bibles: a secret told to a young child is
+  gated, not gone — it surfaces on a strong cue. RIF needs no
+  child tuning (verified intact — v75 null finding).
+- **Thin mints are the character's texture (§4.35b):** a child
+  character's records genuinely lack `when`/`why` fields —
+  downstream, no dialogue should have a 6-year-old volunteer
+  sequence or motivation for an event; they keep who-did-what.
+  Writers get this free if they emit only minted fields.
+- **The adolescent dip is a temporary blackout (§5.77a):** a
+  15-year-old asked about age 6 should fail MORE than either the
+  same character at 10 or at 25 — and the failure itself costs
+  the record. Use it for drama: the teen who can't access the
+  childhood they narrated fluently at 9.
+- **Time intentions need the clock (§5.77b):** a child with a
+  "remember at 3pm" intention emits `check_clock` micro-events —
+  visible behavior the world can render; the checking IS the
+  remembering mechanism.
+- **Doing beats watching hardest in childhood (§4.35d):** ~4×
+  do/watch gap at 4y vs ~1.2× adult — a young character's
+  autobiography is almost entirely self-action.
+
+## 58. v5.24 note (age-decline VII — the trajectory layer)
+
+Ten clamp rows added in §0. **One new profile field, hidden:**
+`traj` — the decline-class draw. **Zero new traits** — the draw
+consumes fitness, apoe, social, sex (already pinned). Bible-facing
+notes:
+
+- **You cannot write `traj`; you can only load the dice
+  (§4.36a):** a bible that wants a sharp-at-90 elder pins high
+  `fitness` + partnered `social` and gets a ~30% maintain draw,
+  not certainty — Betula says trajectory isn't chosen. The class
+  is invisible to the character; write NO character who "knows"
+  they're declining via the class — the only symptom is §5.78b.
+- **The worrier is data (§5.78b):** a decline-arm main
+  self-reports memory loss ~6 sim-years before the harness can
+  measure it — "my memory's going" while still performing. For
+  bibles: this is the gentlest dramatic hook in the system — the
+  character is right and nobody, including them, can prove it.
+  Worried-well mains (high neurot, average traj) complain
+  identically and never decline — do NOT resolve which is which
+  in the text.
+- **Retirement is a memory event (§4.36b):** when a main leaves
+  work, feed `work_engaged:false` and (optionally) `engage_sub`
+  activity flags — a retiree who joins three clubs loses the
+  slope more slowly than one who doesn't. Encode-side only: they
+  don't recall the past worse; they lay down the present worse.
+- **Walking is encoding load (§4.36c):** set `locomoting` on
+  transit events for old mains — the conversation on the walk to
+  the shop is thinner than the same conversation at the table.
+  `loco_yield` is a free stage direction: the elder who stops
+  walking to answer a hard question.
+- **New corners are hard, the neighborhood is exempt (§§4.36d,
+  5.78c):** `nav_mode` only mints on novel routes — a lifelong
+  Mission resident's streets are permastore and NEVER pay
+  ego_dir_pen. The drama lives at the edges: the new café
+  approached from the wrong direction is genuinely unnavigable.
+- **Watch the tail, not the mean (§6.153a):** "I did it myself"
+  inflation is a fantasy/imagery-top-quintile phenomenon at old
+  age — a vivid-imagination elder main is the one who'll claim
+  the chore they only watched. Pin imagery high if you want that
+  beat.
+- **Stories go semantic (§5.78c):** an 80-year-old's
+  reminiscence emits commentary over footage — writers get this
+  free via the detail mix; don't script extra episodic color
+  into old narrations, the model won't produce it and probing
+  won't recover it (Levine persistence).
+- **The routine outlives the instance (§5.78d):** `proc_age_null`
+  freezes implicit legs at 55 — the most impaired main still
+  does the morning whole. Nothing to pin; it's the floor.
+- **The cap is honest (§6.153b):** if `stack_capped` shows up
+  often in playtest logs, the knots are hot — report it, don't
+  raise the cap.
+
+## 59. v5.25 note (emotional-memory VII — the uses of feeling)
+
+Ten clamp rows added in §0. **One new trait:** `humor`
+(reappraisal-family joking style — feeds §6.157's tag-cooling,
+NOT the v4.6 memorability channel; loads extra + open, mild
+−neurot). Bible-facing notes:
+
+- **Kindness needs a cost tag (§6.154):** the gratitude mint
+  only fires when the world marks `benefit:true` — a kindness
+  appraised as costing the giver something. Routine favors mint
+  ordinary positive entries; the memorable debt is the costly
+  one. World-builder: tag the sacrifice, not the smile.
+- **The dark friendship is real (§6.155):** two high-rumin
+  mains who co-rehearse grievances grow closer AND stay sadder —
+  this is the literature's trade, not a bug. `solved:true` on a
+  retell is the escape hatch: resolution talk dampens normally.
+  Bibles: a co-ruminating pair needs BOTH partners ≥0.4 rumin —
+  a ruminator paired with a problem-solver gets the ordinary
+  disclosure path.
+- **Distancing is regulation, not avoidance (§6.156):**
+  `reflect.mode:distanced` cools the re-fired affect while
+  keeping the record fully accessible (locked `dist_avoid_null`).
+  A distanced main still knows exactly what happened — they just
+  stopped bleeding on it. Pin `persp_obs`/`mindful` high for a
+  character who "thinks about it calmly"; pin `rumin` for one
+  who recounts.
+- **The joke has a price (§6.157):** humor-cooled negative
+  records mint ~15% thinner verbatim — the funny main genuinely
+  remembers less of the bad day. Nothing to pin beyond `humor`;
+  the cost is structural.
+- **The calm reader can't feel the fight (§6.158):**
+  `cold_read:true` emissions are the "that wasn't like me"
+  attributions — the record is intact, the heat didn't port.
+  A bible should never let a character's cold-state self-
+  narration be treated as the truth of the hot event.
+- **Anxiety reaches for threat first (§6.159):** under
+  `anxiety_state` or high neurot, threat-tagged records win cue
+  competition — the anxious main's week-review surfaces the bill
+  and the weird look. Depression does NOT get this (locked
+  dissociation) — depr's channel is elaboration/rumination.
+- **Disgust doesn't wash with exposure (§6.161):** a disgust
+  CondEntry barely moves under repeated safe visits; the fix is
+  a rival positive tag on the same cue (counterconditioning).
+  World: if a storyline needs a disgust aversion to heal, write
+  the warm rival event, not montage exposure.
+- **Sad regulators reach for happy records (§6.162):**
+  negative-mood self-recall inverts toward positive candidates
+  in regulator profiles; at depr ≥0.5 both the reach and the
+  lift die (locked `repair_dep_null`) — the depressive main can
+  recall the good time and stay sad. Don't write a depressed
+  character whose mood lifts from positive reminiscence; write
+  them distracted instead.
+- **Asked later, they answer from who they are (§6.163):**
+  beyond ~14 days, emotion reports reconstruct from self-belief
+  and script, not the tag; `felt_believed_gap:true` marks the
+  divergence. A bible may exploit this — the character who
+  *says* the breakup destroyed them over a record of tired
+  relief — but the record keeps the truth and a strong cue can
+  still refire it.
+
+## 60. v5.26 note (false-memory VII — the credibility layer)
+
+Ten clamp rows added in §0. **No new traits** — the layer
+loads on existing axes: `distrust` (unbelieve attempts,
+innuendo resistance), `checker` (unbelieve success,
+`insinuation_noticed`), `meta_conf` (factCheck posture),
+`imagery`/`fantasy` (plantGain recollection promotion),
+`dissoc` (unloads the load penalty — dissociators verify
+less, HYPOTHESIS), `aging_rate` (warn_tag_mult +
+deja_age_slope scaling). Bible-facing notes:
+
+- **The busy mind is the gullible mind (§6.166):** claims
+  land `accepted` by default; rejecting them is a resource
+  op that fails under `C.load`/rushed/intoxication. A main
+  written as chronically overloaded will absorb rumor as
+  fact — not from stupidity, from never spending the
+  unbelieve. High-`distrust`/`checker` characters pay the
+  cost routinely; trusting-but-harried profiles are the
+  propagators.
+- **Debunking ages badly (§6.165):** a correction protects
+  while its tag lives, then — past ~the warning-tag decay
+  window — each past debunking becomes familiarity, and
+  familiarity reads as truth. The elder profile
+  (warn_tag_mult +0.5 past 60) crosses over first —
+  Skurnik's paradox. World-builder: a *repeated* correction
+  campaign is structurally risky; the repair is the
+  rival-tag mint, not the flag.
+- **Cheap shots work quietly (§6.169):** questions mint
+  `insinuated`/`deniable` candidates at ~a third of
+  assertion strength and presupposed objects mint scene
+  candidates — an insinuating questioner moves impressions
+  without ever being quotable. `checker` mains notice the
+  frame (`insinuation_noticed`) and suppress the mint;
+  nobody else does.
+- **Planting is a recipe, not a vibe (§6.170):** belief-tier
+  implantation needs sessions + guided imagery + pressure +
+  authority + TRUE scaffolding details; recollection-grade
+  ("I remember doing it") needs `imagery`-rich self-retells
+  on top. A childhood-dated claim on an adult uses the
+  CHILD's susceptibility (`plant_child_mult`) — the lever
+  is encodeAge, not current age. Bibles: a main whose
+  backstory was told TO them (parent's account, cult
+  framing, therapy reconstruction) is a planted-memory
+  candidate — write the recipe into the history.
+- **"I knew it" is a report, not a record (§6.168):**
+  hindsight bends the SPOKEN estimate toward the outcome
+  on weak verbatim; the stored estimate stays honest
+  (`hind_store_null`). The audit fields `inevitable`/
+  `nailed_it` let a main feel vindicated when the trace
+  actually survives — don't write omniscient hindsight;
+  write confident reconstruction.
+- **Déjà vu is signal without source (§6.171):**
+  `deja_vu` fires on config-similar places against
+  unretrievable records — the new café in the old layout.
+  It mints nothing (`deja_store_null`); if a character
+  later "remembers being here," that's confab_fill doing
+  ordinary work. Declines with age; rises with travel.
+- **A caught lie audits the ledger (§6.172):** forward —
+  the liar's next claims discount; retro — their adopted
+  claims near the exposed one lose a quarter of strength
+  ONCE (hypothesis-flagged). But `poison_reveal_null`:
+  weakened ≠ unspeakable — a main can keep repeating a
+  claim they no longer quite believe. Write the
+  double-entry: the ledger thins while the mouth continues.
+
+## 61. v5.27 note (individual-differences VII — where the memory lives)
+
+Twelve clamp rows added in §0. **Eight new traits**
+(`blunt`, `trans_dep`, `offload`, `consol`, `nav_ab`,
+`schizotyp`, `hypnot`, `mnem`) and **five bible-set fields**
+(`immig_age`, `grew_rural`, `home_layout`, `dominantLang`,
+`trans_partner`). Bible-facing notes:
+
+- **The blunter is not the calm one (§77):** `blunt` is
+  bipolar against `vigil` — a high-blunt main takes in less
+  threat material (warnings, medical news, "we need to
+  talk"), intrudes on it less, and doesn't bring it up,
+  while staying every bit as anxious underneath. Do not
+  write a blunter as fearless; write them as someone who
+  never read the letter.
+- **The immigrant's bump moved (§78):** set `immig_age` on
+  immigrant mains and their life-distribution gets a second
+  dense window around the transition — dense, not hotter
+  (the records are numerous, not more emotional). Pair it
+  with `dominantLang`/`langs`: pre-immigration memories cue
+  better in L1 — the grandmother's childhood comes back in
+  Spanish whether or not the conversation does.
+- **Couples divide the remembering (§79):** `trans_dep` +
+  `trans_partner` makes shared events mint `pointer` fields
+  instead of full content — "she handles the dates." Kill
+  or remove the partner and the pointers orphan:
+  `orphan_recall` — reaching for a memory half that is no
+  longer there. The widower who can't say what year they
+  moved in is not failing to grieve; the storage is gone.
+- **The phone is a memory (§80):** high-`offload` mains
+  encode `ext_pointer` fields (photo roll, chat thread)
+  instead of content on `externalized` events. `lookup`
+  resolves perfectly — the phone never misremembers — but
+  teaches nothing on first use. Lose the phone and the
+  pointers die: the character knows a photo exists and has
+  nothing else.
+- **Same night, different yield (§81):** `consol` separates
+  sleep quantity (`sleep`) from consolidation yield — two
+  mains on identical 7-hour nights bank different amounts
+  of yesterday. Invisible at bedtime; visible at breakfast.
+- **Grids reward the grid-raised (§82):** `nav_ab` +
+  `home_layout`/`grew_rural` — the Mission's street grid
+  literally encodes better in a grid-raised main. A
+  rural-raised newcomer gets lost in places she remembers
+  perfectly once she's there.
+- **The leaky monitor (§83):** `schizotyp` leaks
+  source-monitoring both directions — said→thought and
+  imagined→performed — plus more intrusions and déjà vu.
+  Distinct from `fantasy` (inflation) and `asd`
+  (self/other confusion with few phantoms): schizotyp is
+  the "did I say that or just think it" texture at normal
+  hit-rates.
+- **Hypnotizability stays in its cage (§84):** `hypnot`
+  loads ONLY under `guided_imagery`/`authoritative`
+  contexts — the literature is contested, so outside the
+  gate the trait is inert. If a playtest shows an ungated
+  difference, it's a bug; if the field goes null, the trait
+  joins birth_order and learn_style.
+- **Skill, not superpower (§85):** `mnem` only fires on
+  `deliberate:true` encoding — the mnemonist's grocery list
+  is mighty, her drunk Tuesday is ordinary. Bible pin for
+  the bartender who memorizes every regular's order: it
+  buys nothing at the party.
+- **The tip of which tongue (§86):** bilingual mains pay a
+  TOT tax only in their nondominant language — the fluent
+  abuela blanks on English names, not Spanish ones.
+
+## 62. v5.28 note (social-memory VIII — the gate and the books)
+
+Eleven clamp rows added in §0. **No new traits** — all
+loadings ride existing axes; the new surface is relational
+fields (`relKind`, `vouch_prior`, `bond`) and event tags
+(`channel`, `turning_point`, `final`, `adversity`,
+`plural`, `story_own`). Bible-facing notes:
+
+- **Somebody always hears their name (§111):** the ambient
+  channel is mostly closed — but a main's own name breaks
+  in at ~35%, and low-`wmc` characters hear it MORE (the
+  weak filter leaks). Bibles: the distractible barista
+  catches her name across the café more reliably than the
+  focused novelist does. This is also the world team's
+  license to let background chatter name-drop.
+- **The secret keeps the keeper (§112):** `secret_intr_p`
+  drives idle mind-wandering to held secrets; shame-appraised
+  secrets intrude ~2.5× more than guilt-appraised ones. The
+  emergent behavior to write toward: the character remembers
+  the secret CONTENT perfectly for months while forgetting
+  it was confidential — the leak is fresh-sharp, not vague.
+- **Vouches decay in two weeks (§113):** an endorsement
+  buys a warm prior for ~14d, one hop only. The regular
+  who says "trust me, she's good people" buys the newcomer
+  one favorable first meeting — nothing more. After that
+  the record must earn itself.
+- **Some relationships keep books; some don't (§114):**
+  `relKind` decides whether the favor ledger exists.
+  Exchange ties (landlord-tenant, new acquaintances,
+  shopkeeper) itemize; communal ties (the sister, the old
+  friend) notice only gross neglect — as absence, not debt.
+  Bibles choose `relKind` per dyad, not per character, and
+  new ties start exchange and migrate.
+- **Relationships are remembered as anchors (§115):** a
+  dyad's history retrieves AS its turning points — firsts,
+  the big fight, the crisis survived. A main whose
+  relationship has had no turning point in a season
+  remembers it as "fine, I guess" — write that flatness as
+  accurate, not a sim gap.
+- **Reputation arrives early (§116):** `prior_assim_k`
+  bends only ambiguous first-impression fields toward the
+  heard reputation; blatant contradiction flips to
+  contrast ("nothing like they said"). A character can be
+  pre-sold or pre-poisoned before a single handshake.
+- **The last conversation stays warm ~30d (§117):** a
+  departed friend's final encounter intrudes for about a
+  month and anchors the edge — salience, not content:
+  the goodbye itself still drifts and distorts.
+- **Shared misery is glue (§118):** co-endured adversity
+  raises bond even when the event was pure bad — the
+  blackout, the flood, the shift from hell. Solo suffering
+  builds no edge: the glue is the witnesses.
+- **"We did it" is a real record (§119):** plural events
+  cue on the partner and start credit-splitting at 50/50 —
+  the self-serving boast is acquired one retell at a time.
+  Widowhood orphans them hardest.
+- **Whose story is it (§120):** telling someone's
+  self-defining story costs a small trespass (doubled if
+  they're present without being handed the mic); deference
+  pays a small bond. Ownership prices, never blocks.
+
+## 63. v5.29 note (formal-model VIII — the corpus grades you)
+
+**Zero new clamp rows, zero new traits, zero new per-char
+params.** Part VIII adds only pop/harness machinery — the
+anchor corpus, the link layer, the grading discipline. What
+it changes for bibles:
+
+- **Profiles are now graded against humans, not vibes.** The
+  18-anchor corpus (formal-model.md §61) evaluates the
+  *population* of characters; a bible whose params push a
+  character outside a band (e.g. misinformation resistance
+  ≈ 0, confidence–accuracy ≈ perfect) fails the corpus
+  through `exceed_null` — being *too* good is the failure
+  mode, exactly as the project's core insight requires.
+- **§63 sensitivity runs will name sloppy per-char params.**
+  Any per-character param that moves no anchor and no
+  composite is a freeze candidate — bible authors should
+  expect future notes to prune, not add.
+- **The three channels are the only face a bible shows:**
+  what a character recalls, how fast, how confidently.
+  Latent strengths are never reportable — write phenomenology
+  on the observable side (slow answers, hedged certainty),
+  which is where humans live anyway.
+- World-builder guidance unchanged: trait vectors →
+  `deriveParams` → clamps; the corpus doesn't touch
+  generation, it audits its outputs.
+
+## 64. v5.30 note (character-profiles VII — the remembering voice)
+
+Nine clamp rows added in §0. This pass moves five new traits onto
+the **report layer** — nothing here touches encoding, decay, or
+record content; these pins decide what a character's memory *sounds
+like* from the audience's chair. Spec §§5.79–5.83.
+
+- **`voice_quote` — the quoter pin.** Pin from how the bible
+  narrates: does the character dramatize ("and he goes,
+  'you're joking'") or paraphrase ("he didn't believe it")?
+  The trap to avoid: voice_quote is NOT accuracy. Tannen 1986 —
+  conversational direct quotes are constructed dialogue; the
+  stored wording is dead within days (Sachs 1967), so every
+  long-ago quote is invention wearing quotation marks, flagged
+  `constructed:true`. A high-quoter is *vivid*, not *reliable*
+  — P871's `quote_fidelity_null` hard-fails any generator that
+  lets quote fluency track real wording. The dissonance is the
+  feature: the most quotable character can be the least
+  faithful one (Dani 0.9), and an audience that learns
+  "she's always quoting" has learned style, not truth.
+- **`report_policy` — who passes.** Koriat & Goldsmith 1996:
+  volunteering vs withholding is a metacognitive control
+  decision — high policy means the character says "I don't
+  remember" or "ask Jules" unless `conf_out ≥ pass_thr`.
+  Crucially a `passed:true` emission is NOT a failed
+  retrieval — the record can be intact; the criterion did
+  the withholding. Pair with phenomenology: Priya (0.85)
+  passes like a nurse charting; Dani (0.15) has never said
+  "I don't know" in her life. Forced contexts (an authority
+  demanding an answer) bypass via §5.61 — under pressure
+  everyone emits, hedged.
+- **`grain_pref` — the coarse-vs-precise habit.** Goldsmith,
+  Koriat & Weinberg-Eliezer 2002: grain is the second control
+  dial — unsure rememberers go coarse ("sometime last
+  spring") rather than wrong. The trait sets the prior,
+  `conf_out` gates the moment. The failure phenotype is
+  `low report_policy + low grain_pref-inverted` — always
+  answers, always precise, often wrong ("March 14th, 2pm"
+  — invented): that's the `bluff` voice, and it is a voice
+  a writer should assign deliberately (one main, max).
+  `grain_sharpen_null` keeps coarse reports honest
+  downstream — a "last spring" can never quietly become a
+  listener's "March 14th."
+- **`ie_talk` — sensory-happening talker vs commentator.**
+  Levine et al. 2002's internal:external detail mix is an
+  age curve AND a style: `ie_talk` multiplies the §5.78c
+  prior. >1 = happenings-locations-thoughts talker (the
+  story feels *in* the event); <1 = commentator (the story
+  is framed by what-it-meant). Carmen sits under 1 not from
+  decline alone but because a lifetime of stoop-telling
+  made commentary her register — the age curve and the
+  trait stack. `ext_floor_null` caps the fantasy: the mix
+  reweights an inventory, it cannot mint one.
+- **`voice_story` — the good-story deformation.** Marsh
+  2007 + Bartlett: retellings get sorted toward narrative
+  order, schema-discordant fields get left out, evaluation
+  codas get attached ("and that's when I knew"). All three
+  are SELECTION — `story_mint_null` (P876) — but because
+  retell-encode writes the emission back (§4.13), a
+  high-story teller's archive slowly converges toward its
+  own tellings. Marsh's "the telling becomes the memory"
+  emerges from the loop; no special drift path exists.
+- **Never pin (mechanism constants):** `quote_norm`,
+  `pass_base`, `pass_range`, `grain_base`, `grain_conf_k`,
+  `foak_gain`, `foak_expert_prior`, `pause_sat_ms`,
+  `story_order_k`, `story_suppress_k`, `coda_k` —
+  population scales all.
+- **FOAK is a listener mechanism, not a trait.** §5.82
+  wires speaker latency/fillers into the audience's
+  `estKnow` ledger with the Brennan & Williams 1995
+  asymmetry — a long pause before an ANSWER lowers the
+  audience's estimate; a long pause before a NONANSWER
+  raises it (a character who takes five seconds to say
+  "I don't remember" is judged to know more than one who
+  answers instantly). Writers get the behavioral readout
+  for free: slow, filler-rich answers now change what the
+  room believes about the speaker's memory.
+- **Emergent cast shadows:** (a) Dani quotes people who
+  never said the thing — charming, deniable, checkable;
+  (b) Priya's passes build estKnow — the room trusts her
+  memory MORE because she refuses to guess; (c) Victor
+  answers or omits, never hedges — industrial report
+  policy; (d) Carmen's stories arrive pre-shaped — order,
+  coda, and a quote or two, all reconstructed; (e) Marcus
+  gives coarse answers cheerfully and is right often
+  enough that nobody notices the grain. Sources §60 of
+  human-memory-research.md; probes P871–P878.
+
+## 65. v5.32 note (encoding-mechanics VII — what takes the share)
+
+Spec v5.32; encoding-mechanics.md Part VII §§84–95. All seven
+additions are mechanism constants or pop scales — **no new trait
+pins**; the personality work arrives through existing traits.
+
+- **`vdac_w`/`vdac_tax`/`vdac_hl` stay population constants.**
+  What varies per person is the MODERATOR side: low `wmc` and
+  impulsivity-adjacent traits raise effective capture (Anderson
+  2011 covariation); `intox`/`sleepdep` states widen it. Do not
+  pin `vdac_w` high on a "greedy" bible — capture is a CONTROL
+  failure, not a motive; a disciplined character who cares about
+  money still resists the cue because the resistance is
+  attentional, not valuational. `rewardAssoc` mints only at
+  reward co-occurrence (`vdac_scope`) — a world that tags fields
+  from later outcomes corrupts the mechanism.
+- **`auto_floor`/`auto_da_resist` are adjudicated constants.**
+  The Hasher–Zacks floor is the same for everyone; what ages is
+  everything ABOVE the floor. Profiles express the age shape by
+  leaving the floor flat while effortful params decline — do not
+  lower `auto_floor` on old archetypes (P893).
+- **`draw_gain` is a channel constant, not a hobby.** A
+  sketchbook-keeping bible just routes more events through
+  `engagement:"drawn"` — the gain itself is the same population
+  composite for everyone; quality of drawing is irrelevant
+  (Wammes 2016 — the finding).
+- **`rpl_focus`/`rpl_press_flip` stay flat;** `deficit_proxy`
+  does the age flattening. A bible may mark a character as a
+  crammer (more `context.deadline` exposure via routine), which
+  flips dwell easiest-first — a scheduling habit, not a memory
+  trait.
+- **`ei_know_gate` is the interesting shadow:** the anxious
+  interrogator (high `rumin`, asks why about everything) encodes
+  deep only inside their expertise — why-probing the unfamiliar
+  yields ≈0 (`ei_noknow_null`). Writers get "she understands her
+  own field obsessively and stays shallow elsewhere" for free.
+- **`org_gain` reads through `consc`/narrative traits** — the
+  routine-holder's coherent days mint as blocks (denser links),
+  the chaotic character's interleaved days mint as fragments.
+  Same constant, different ecology.
+- **Never pin:** all sixteen params are mechanism constants or
+  pop scales; `vdac_scope`/`msens_congr_gate` are frozen;
+  locked nulls `vdac_goal_null`, `auto_immune_null`,
+  `draw_verbatim_null`, `ei_noknow_null`, `gum_gain` are
+  probe-enforced (P889–P898).
+
+## 66. v5.33 note (forgetting-curves VIII — the fade's fate)
+
+Spec v5.33; forgetting-curves.md Part VIII §§37–40. All twelve
+params are mechanism constants or pop stats — **no new trait
+pins**.
+
+- **`sav_*` are population constants.** Everyone leaves savings
+  shadows; what differs per character is *what gets re-encountered*
+  (a routine-bound shut-in re-meets the same cues and reinstates
+  often; a wanderer's shadows die unvisited). Do not pin sav_gain
+  on a "sentimental" bible — the residue is storage physics, not
+  feeling; sentimentality lives in retell/seek-out rates upstream.
+- **`arch_*` are identical across profiles.** The lottery is the
+  point — per-character luck must not be pinned. A bible may not
+  declare "she never forgets faces" by lowering arch_k; faces die
+  by R, and R is set by §2 encoding legs. Ambient NPCs may run
+  `arch_mode:"cliff"` — their forgetting is off-camera.
+- **`need_tau_gain`/`need_ema_k` are pop constants.** What varies
+  is the *ecology* — a creature of habit builds high needRate on
+  few classes (tight, durable memory world); a novelty-seeker
+  spreads it thin. Emergent from routine, never pinned.
+- **`vol_loss`/`vol_norm` stay flat.** A high-throughput
+  lifestyle (barista on a Saturday, event-heavy socialite)
+  experiences more blur — that's the *world's* input via
+  encodeCount_day, not a trait. Pinning vol_loss low on a
+  "sharp" character would double-count `g_mem`/`wmc` which
+  already move E.
+- **Never pin:** all v5.33 params are mechanism constants;
+  frozen `sav_scope`, `vol_scope`; locked nulls
+  `sav_recall_null`, `sav_verbatim_null`, `arch_valence_null`,
+  `hazard_conf_null`, `need_mint_null`, `need_retrieve_null`
+  are probe-enforced (P899–P907).
+
+## 67. v5.34 note (retrieval-cues VIII — the cueless pop and the cue that isn't)
+
+Spec v5.34; retrieval-cues.md Part VIII §§81–88. Twenty-eight
+params; **no new trait pins** — all traits used (`music`,
+`elabor`, `open`, `mindful`, `period_sal`) already exist.
+
+- **`pop_*` are pop constants.** Mind-pop RATE may differ
+  emergently (an `open`+low-`mindful` dreamer pops more; a
+  high-throughput life mints more seeds), but a bible may not
+  declare "she never gets random songs stuck in her head" by
+  zeroing `pop_rate` — the phenomenon is universal; the
+  *content* is what differs, and content comes from the
+  encode stream, not a param.
+- **`meam_*` ride trait `music`.** Pin the trait, never the
+  params — a musician character gets high `music` in the
+  bible and the four MEAM terms follow. `meam_scope` is
+  frozen: familiarity is supplied by the world (the jukebox
+  either knows the song or doesn't).
+- **`lm_*` are ecology-shaped.** `period_sal` (v5.19 trait)
+  already moves `lm_mint_p`; a peripatetic character accrues
+  more transition tags because the WORLD supplies more
+  transitions. Do not pin `lm_gain` on a "rooted" bible —
+  landmark value is structural.
+- **`ref_*` are competence-adjacent but pop-level.**
+  Misresolution is a comprehension error, not a memory
+  defect — `ref_mis_p` must NOT be pinned on a "ditsy"
+  profile (the error needs no accuracy debit; everyone does
+  it). What may vary is `ref_focus_win` via `wmc` — that's
+  already the working-memory loading's job, so leave the
+  window flat and let wmc run upstream.
+- **`scaf_*` are partner-side.** `elabor` pins WHO produces
+  elaborative prompts (bible-visible: the reminiscing
+  grandmother archetype legitimately runs high `elabor`);
+  `scaf_gain` itself is the listener-side constant — never
+  pin "she's unscaffoldable."
+- **`contig_*`/`am_att` are order statistics.** Age
+  attenuation is already in `contig_age_pen` (Kahana 2002);
+  the AM down-weight (`am_att`, Moreton & Ward) is
+  population physics. No pins.
+- **`esi_*` are warm-up constants.** The induction lift is
+  real for every profile and matters most where spontaneous
+  specificity is lowest (old-age profiles benefit most in
+  absolute terms via the same `esi_gain` — do not boost it
+  further; Jing et al. 2016's lift is on the standard
+  constant).
+- **Never pin:** locked nulls `pop_episodic_null`,
+  `date_cue_null`, `cw_verbatim_null`, `ref_boost_null`,
+  `esi_learn_null` are probe-enforced (P908–P917); frozen
+  `meam_scope`, `esi_scope`.
+
+## 68. v5.35 note (age-development VIII — the flat terms that weren't)
+
+All seven v5.35 mechanism groups are **population knots** —
+developmental curves, not personality. Pinning guidance:
+
+- **`self_ref_*` are encodeAge physics.** A bible may not
+  declare "she was always self-absorbed" by raising the
+  toddler knots — the gate is about the self-concept's
+  *existence*, not self-focus. Trait `vivid`/`g_mem` already
+  move E upstream; don't double-count.
+- **`recol_enc_*`/`fam_child_null` are per-record, not
+  per-person.** The curve reads `encodeAge`, so it acts
+  identically on every adult's childhood archive — no
+  profile may have a "childhood she remembers vividly" via
+  this parameter (that's what `ctx_locked` pierce events
+  and selfdef anchors are for). The vivid-childhood
+  character is built from *events*, not the curve.
+- **`att_floor_*`/`dist_child_mult` key age_now.** These
+  only matter while a character IS a child; adult mains
+  never feel them. Ambient child NPCs get the defaults —
+  do not pin a "distractible kid" via dist_child_mult;
+  trait `inattn`/`adhd` is the per-child channel.
+- **`bump_neg_pen` and `ls_pos_only` are population.**
+  The flat negative distribution is the literature's shape;
+  a tragic-bump character is authored with `bump_beta_mult`
+  and event valence, never by zeroing bump_neg_pen.
+- **`sdm_*`/`epf_sem_fill` key age_now** (imagination is a
+  current-capacity operation — you simulate with the brain
+  you have). `epi_future_k` remains the per-character trait;
+  the knots are the shared floor.
+- **`pm_zombie_*` are mostly flat.** What varies per
+  character is *how many intentions complete and recur* —
+  a creature-of-routine elder accumulates rehearsed zombies
+  (×`pm_zombie_repeat`) more often than a chaos-liver; that
+  emerges from the world's schedule, not from the param.
+  Trait `consc` may modulate deactivation effort downstream
+  of `pm_zombie_p` — never re-pin the age knots.
+- **Never pin:** locked nulls `self_ref_era_null`,
+  `fam_child_null`, `zombie_monitor_null` are
+  probe-enforced (P918–P927); frozen `ls_pos_only`.
+
+## 69. v5.36 note (age-decline VIII — the overlay ledger)
+
+Nine clamp rows added in §0. **Two new traits:** `purpose`
+(∈[0,1] — what gets her up; bible-pinnable, rewritable by
+goal events only, never ticked) and `bilingual` (∈{0,1} —
+language-use flag, onset shift only, DEBATED source).
+**Three new overlay states** (world-minted, encode-side):
+`grief_decline`, `hosp_step`, `mt_stage`.
+
+Pinning guidance:
+
+- **Most v5.36 params are population/state, not traits.**
+  `habit_shift_*`, `grief_*`, `hosp_*`, `mt_*`, `gait_lead`,
+  `remote_ie`, `net_*`, `test_*` are shared machinery or
+  event-produced state — a bible never sets "she declines
+  harder after the hospital"; the `hospitalization` event
+  does it. The per-character variance lives in *which
+  events happen* and in `purpose`/`bilingual`.
+- **`purpose` is the strongest new lever and the easiest
+  to abuse.** It is not "optimism" and not `consc` — set it
+  from what the character demonstrably organizes her life
+  around (the garden, the case, the tenants). High purpose
+  halves post-60 decline slope; if a bible can't name the
+  purpose, leave it at the cohort mean (~0.5), don't guess.
+- **`bilingual` is a language-use flag, not an ethnicity
+  marker** — and its source is DEBATED (Bialystok 2007 vs
+  Zahodne 2014). It shifts onset `biling_years` only;
+  `biling_scope="onset-only"` is frozen. Do not promise a
+  bilingual character a gentler slope — she gets a later
+  one.
+- **`mt_stage` belongs to the world, not the bible** for
+  characters who will live through the transition in-sim;
+  a bible may seed it for characters created post-40. Male
+  profiles never carry it. `mt_complaint` is honest signal
+  — she notices the dip and she is *right*, unlike the
+  worried-well SCD channel.
+- **`net_size` is computed, not authored** — the substrate
+  counts maintained ties; a bible can't buy a lonely
+  character a big network by fiat. Write the loneliness
+  overlay (§40) through `social`/`isolation` as before.
+- **Never pin:** locked nulls `grief_recall_null`,
+  `hosp_level_null`, `mt_recall_null`, `gait_channel_null`;
+  frozen `biling_scope`, `mt_scope` — probe-enforced
+  (P928–P937).
+
+## 70. v5.37 note (emotional-memory VIII — the quiet uses of feeling)
+
+Ten clamp rows added in §0. **One new trait:** `narr_seq`
+∈[−1,1] (redemption↔contamination retell schema). `dissoc`
+(v1.9) gains its encode roll — no new trait needed.
+
+Pinning guidance:
+
+- **`narr_seq` is a story habit, not optimism.** It answers:
+  when this character tells a bad memory, does the story
+  resolve upward (bad→growth) or rot downward (good→ruined)?
+  Pin from how the bible's *voice* narrates the past, not
+  from mood. Near-zero is the honest default — most people
+  lack a strong sequence signature; ±0.8 is a distinct
+  narrative identity. Event-rewritable only: a real
+  resolution event pushes it up once; a witnessed betrayal
+  pushes it down. Never tick it.
+- **`dissoc` was already pinnable (v1.9) — now it costs
+  something.** Characters with high `dissoc` roll a
+  dissociative encode on arousal ≥0.6 events: the record
+  comes out bound-poor (low link density, low starting
+  coherence, voluntary θ up, intrusion rate up, time-warp
+  either direction). A bible that sets dissoc>0.6 is
+  buying a character whose worst days return as
+  fragments that won't come when called.
+- **`pos_onset`/`pos_ramp` are population machinery — do
+  not pin positivity per-character.** The lever a bible
+  controls is `reserve` (cognitive control): high-control
+  elders get the positivity preference; distracted or
+  low-control elders get the REVERSAL — more negative
+  bias than any adult in the room. A sweet-old-lady
+  profile with low reserve is a contradiction the probe
+  (P945) will expose under load.
+- **`consist_*`, `choice_*`, `bound_*`, `sif_*`, `photo_*`,
+  `msd_*`, `resolve_*` are shared machinery — never pinned
+  per-character. Per-person variance arrives through
+  `rumin` (consist bend, SIF rebound), `self_concept`
+  (consist resistance), `social`/extra (photographing
+  gate), and `trauma_n` (dissoc kindling).
+- **`photographing` is a world/context flag.** Bibles may
+  note camera-habit characters (feeds the world's event
+  minting), but the encode asymmetry itself is fixed
+  population math.
+- **Never pin:** locked nulls `consist_fact_null`,
+  `consist_scope`, `msd_store_null`, `sif_del_null`,
+  `narr_truth_null`, `immune_blind_null`,
+  `choice_content_null`, `choice_rev_null`,
+  `bound_del_null`, `pos_youth_null`, `pos_appraisal_null`,
+  `dissoc_content_null`, `photo_neg_null`,
+  `photo_offload_null`; frozen `msd_scope` —
+  probe-enforced (P938–P947).
+
+## 71. v5.38 note (false-memory VIII — the edges of the record)
+
+Nine clamp rows added in §0. **No new traits** — every new
+lever rides existing ones, which is the point of this
+version's pinning guidance: the false-memory edges sort
+characters along axes the bibles already own.
+
+Pinning guidance:
+
+- **`suggs` is now the phantom gate.** `media_phantom_p`
+  scales with it — the highly suggestible character is the
+  one who saw footage that doesn't exist (Otgaar et al.
+  2022 found the suggestibility association, not
+  compliance). A bible that wants "believes what the feed
+  says" should pin `suggs` high and let `footage_notor`
+  do the rest; a skeptic profile needs `suggs` low AND
+  `checker` high (the §6.6 correction path is their
+  antibody).
+- **`meta_conf`·`self_est` is the overclaiming axis.** The
+  confident self-rated expert false-alarms on plausible
+  domain foils and — the same product — is *better* at
+  detecting a swapped choice (`cb_meta_k`). Confidence
+  buys detection and costs honesty; a humble character
+  misses the swap but never claims the fake band. Do not
+  try to pin `oc_gain` per-character — it's machinery;
+  the trait composite does the differentiating.
+- **`imagery` makes the dangerous phantoms.** Rich imagers
+  mint vivid `saw_footage` and cryptomnesia material —
+  the well-imagined falsehood is the one that flips
+  (reality-monitoring gate, §6.9's rm_rich_thresh still
+  governs). High `imagery` + high `suggs` is the
+  implanted-memory candidate; high `imagery` + low
+  `suggs` is the vivid dreamer who keeps score.
+- **`verbal` loads the label pull.** The articulate
+  character's `describe` does more damage — their labels
+  stick harder (`verb_label_pull`), so the neighborhood's
+  best storyteller is also its worst eyewitness after
+  telling. Pair with `social` for exposure frequency.
+- **`social`/extra gates cryptomnesia exposure.** More
+  heard content → more source-decayed `told_by` material
+  to plagiarize. The outgoing character steals ideas
+  without knowing it; `crypt_self_gain` means they steal
+  from their closest matches — the roommate, the
+  co-worker, the rival who thinks like them.
+- **`interrogate`/`therapy_probe`/`footage_probe`/
+  `nonprob_image` are world/context flags, never pinned**
+  — the world decides who gets interrogated, probed, or
+  shown a blurry photo. Bibles may note interrogation-
+  vulnerable characters (high `suggs`, low `distrust`,
+  high `attach_anx`) but the caps (`ownact_session_cap`)
+  are population machinery.
+- **Never pin:** locked nulls `crypt_source_null`,
+  `bext_nonscene_null`, `verb_semantic_null`,
+  `footage_obscure_null`, `truth_content_null`,
+  `cb_record_null`, `ownact_fact_null`,
+  `collab_gain_null`, `oc_episodic_null`, `oc_warn_null`,
+  `repress_revival_null`; frozen `collab_scope` —
+  probe-enforced (P948–P957).
+
+## 72. v5.39 note (individual-differences VIII — the chemistry and the crowd)
+
+Eleven clamp rows added in §0. **Nine new traits, three new
+state fields, and the third mandated null.**
+
+Pinning guidance:
+
+- **`blackout` [0,2] is the trait behind a night that
+  returns with holes.** Pin it from drinking history, not
+  from "forgetful" — a sober blackout=+1.5 character is
+  indistinguishable from blackout=0 (P958). The trait
+  decides whether an intoxicated evening mints
+  fragmentary records (thin source, cue-rescuable,
+  `frag:true`) or en-bloc absence. `blackout_cue_rescue`
+  means friends and photos bring back *reconstructed*
+  fragments — told-back, never relived.
+- **`med_burden` [0,2] is bible-set and anterograde-
+  only.** A nightly-sleep-aid elder (burden ~1) encodes
+  tomorrow worse while remembering yesterday fine —
+  `med_retro_null` is locked. Cessation recovers the
+  encode side in `med_washout` days; only the slow
+  `med_aging_add` leg persists (DEBATED).
+- **`eval_press` is a world flag, never pinned** — the
+  world decides who's on stage. What the bible owns is
+  `wmc` and `att_ctl`: the choke paradox means your
+  *sharpest* character loses the most under evaluation
+  (Beilock & Carr 2005), and `att_ctl` is the buffer
+  that decides whether trait anxiety actually lands on
+  the record. A calm-under-pressure profile is high
+  att_ctl, not low neurot — the worry can be there
+  without reaching the encoding.
+- **`scd` [0,1] is the worried well.** Pin it for a
+  character who *complains* about their memory while
+  performing normally — `scd_obj_null` locked means the
+  complaint can never touch accuracy. For real decline,
+  pin `aging_rate`/`reserve`; scd is what it feels like
+  when those are fine. The cruelty worth writing: scd ×
+  eval_press spends real wmc — the character who fears
+  their memory is failing can make it fail on stage.
+- **`cross_exp` [0,2] comes from biography, not
+  tolerance.** It's exposure (neighborhood, workplace,
+  relationships), and it rescales the own-group face
+  penalty `orb_eff` — a sheltered character misremembers
+  out-group faces, a cross-exposed one less so. The
+  bias lives in the face tiers only (`orb_content_null`);
+  what out-group people *did* is remembered fine. The
+  world supplies group assignment on `in_group` tags.
+- **`sim` couples the imagination to the record.** High-
+  sim characters build rich plans and dreads (future:true
+  records inherit their specificity), but
+  `sim_content_null` means detail buys richness, not
+  truth — they imagine wrongly, vividly.
+- **`preg_state`, `caff_wd`, `eval_press` are world
+  fields** — bibles may note them (a pregnant season, a
+  coffee habit) but the dips, taxes, and gates are
+  population machinery. `preg`'s honest shape: T3-
+  weighted dip, 0.8 complaint share whether or not
+  anything objective fired, full post-state recovery
+  (`preg_perm_null`).
+- **`caff`/`gamer` are habit axes with honest ceilings.**
+  caff prices *dependence* — the withdrawal tax, never
+  a boost (`caff_ability_null`); gamer prices
+  *reflexes* — attention/spatial only
+  (`gamer_episodic_null`). Neither buys a better store.
+- **`braintrain` is the third mandated null** — pin it
+  only to record that a character drills; the drill
+  improves the drill (`nt_xfer`) and nothing else
+  (`braintrain_far_null`). P969 probes the absence.
+- **Never pin:** locked nulls `blackout_retro_null`,
+  `blackout_rescue_null`, `med_retro_null`,
+  `choke_lowstake_null`, `scd_obj_null`,
+  `orb_content_null`, `sim_content_null`,
+  `preg_perm_null`, `preg_theta_null`,
+  `caff_ability_null`, `gamer_episodic_null`,
+  `braintrain_far_null`; frozen `nt_xfer` gate and
+  `preg_trim_w` shape — probe-enforced (P958–P969).
+
+## 73. v5.40 note (social-memory IX — the talk evaporates, the ties fade, the maps lie)
+
+Eleven new clamp rows above price the social channel structure
+(social-memory.md Part IX §§126–140). What bibles/mods must know:
+
+- **`mimic` [0,2] is bible-pinnable — the chameleon.** Pin it on
+  the character who unconsciously mirrors their conversation
+  partner; it gates how often the world may tag `mimic:true` on
+  their talk. The halo lands on the *listener's* ledger
+  (`mimic_gain`→`mimic_cap`) — the flattered partner likes the
+  mimicker more and learns nothing true
+  (`mimic_recipient_null`). If the world flags
+  `mimic_detected`, the same mechanism backfires
+  (`mimic_detect_pen`). Write it as warmth, not strategy.
+- **Bonds fade on a contact clock, not a sentiment one.**
+  `tie_decay_hl` ~180d means a main who stops seeing an
+  acquaintance drifts below `tie_alert` and emits
+  `drifted:true` — "we used to talk all the time." Kin floor
+  (`kin_floor`) holds family through silence; `recontact_rescue`
+  means re-meeting rebuilds faster than first meeting built.
+  `tie_delete_null` locked — nobody is ever deleted.
+- **The SocialMap is belief, not fact.** Each character's map of
+  who-knows-whom updates only on witnessed events — a dissolved
+  tie nobody saw stays `stale:true`. World-builder: the world's
+  canonical tie state must NEVER back-propagate
+  (`stale_map_fact_null`); stale edges are the feature that lets
+  a character say "last I heard they're still together" and be
+  honestly wrong.
+- **`stance_est` is a projection layer.** With no witnessed
+  evidence a character assumes others hold their position at
+  `fc_k` — false consensus. It mints nothing (`fc_consent_null`),
+  so witnessed dissent lands as *surprise*. High
+  `self_srv`/`meta_conf` profiles project harder; `distrust`
+  projects less.
+- **Apologies damp, never erase.** `apology:true` cuts offense
+  retrigger affect ~0.3; `partial:true` below the sincerity gate
+  makes it *hotter* (`apology_backfire`). The offense record is
+  untouchable (`apology_eraser_null`) — and breached trust
+  recovers only toward `1 − breach_floor` (`trust_full_null`).
+  Long feuds asymptote; they don't resolve at the apology scene.
+- **NormModels hear the loud, not the many.** Per-venue norm
+  records update only on witnessed `norm_expr` events at
+  `norm_vocal_w` — two loud regulars can miswrite the whole
+  block's perceived norm (`norm_truth_null`). Pair with `suggs`
+  (believes the sample) and `checker` (discounts it).
+- **Proposals drift self-ward.** `joint_decision` records lose
+  `proposed_by` at `idea_pool_p` and self-attribute at
+  `idea_self_bias` — "I suggested that" disputes with no
+  verbatim resolution (`idea_verbatim_null`).
+- **Never pin:** locked nulls `convo_formula_null`,
+  `tie_delete_null`, `stale_map_fact_null`,
+  `smile_disposition_null`, `apology_eraser_null`,
+  `fc_consent_null`, `mimic_recipient_null`,
+  `norm_truth_null`, `idea_verbatim_null`,
+  `trust_full_null` — probe-enforced (P970–P981).
+
+## 74. v5.41 note (formal-model IX — the cold start, the intervention calculus, the population prior)
+
+**Zero new clamp rows, zero new traits, zero new per-char
+params.** Part IX (formal-model.md §§70–80) is again pure
+infrastructure — but it changes *where profiles come from*:
+
+- **Bibles declare anchors, not memories.** World-builder
+  writes `{bible_anchor:true}` facts at ages — the cold start
+  samples everything between them from the ordinary event
+  diet and lets most of it die. `anchor_keep:true` marks the
+  anchors that must still be retrievable at spawn age; the
+  sampler enforces them by rejection, so keep the keep-list
+  short — a character who retains every declared fact is the
+  database smell the corpus exists to catch.
+- **`era_context` spans tilt the past, never assert it.**
+  `{ageLo, ageHi, place, occupation}` bends the filler diet
+  (a decade at sea produces sea-flavored blur); it writes no
+  canonical facts — `past_fact_null` means a synthesized
+  memory is a private *claim*. Shared-history anchors
+  between mains must be declared canonical by world BEFORE
+  cold start; the sampler conditions on canon, never mints
+  it. If two mains "remember" a shared event differently,
+  that disagreement is the feature — only canon arbitrates.
+- **Profiles are now draws, not designs.** `pop_table_ver`
+  carries population μ/Σ per trait axis; the cast's trait
+  vectors are graded as a *sample* — means inside the
+  ellipsoid, declared correlations approximately present
+  (P992). Bible authors should still choose within clamps
+  for character reasons, but a cast where everyone sits on
+  the same side of every mean is a fitting artifact, not a
+  creative choice. Ambients are `arche_mix_ver` mixture
+  members with residuals ≤ `(1−pool_k_ambient)` of clamp —
+  an ambient who needs more is a promotion candidate, not a
+  profile.
+- **Never pin:** locked nulls `bible_contradict_null`,
+  `synth_mark_null`, `past_fact_null`, `crn_paired_null` —
+  probe-enforced (P982–P993).
+
+## 75. v5.42 note (social-memory X — the metaself layer)
+
+Four clamp rows added in §0. **Six new traits** (`meta_proj`,
+`meta_recip`, `lgap_k`, `meta_ev_w`, `meta_neg_w`, `bmess_k`)
+— the metaself pins. These shape the store that answers "what
+does she think OF ME?" — a belief layer that is wrong in
+specific, per-person ways. Nothing here mints records
+(`meta_episode_null`); everything reads the existing social
+evidence stream. Spec §§6.214–6.220; per-main pins in
+cast-profiles.md Part VI.
+
+- **`meta_proj` — the projection weight.** Kenny & DePaulo
+  1993's core finding: people judge how others see them mostly
+  from how they see themselves (r ≈ .87 in acquaintances).
+  Pin high on characters whose metaself is a monument —
+  Victor (0.8): he assumes the room reads him as he reads
+  himself, and a lifetime of being the-owner-who-shows-up
+  makes the prior feel like fact. Pin mid on readers-of-rooms
+  (Priya 0.4). WARNING: projection is symmetric — it
+  amplifies whatever self-view exists. A low-`self_est`
+  character with high `meta_proj` doesn't become paranoid;
+  she becomes *accurately pessimistic* — her metaself is bad
+  news delivered by her own self-concept. That is the
+  literature, not a bug.
+- **`meta_recip` — "I like them, so they like me."** The
+  reciprocity arm (Elfenbein et al. 2009). Pin high on warm,
+  trusting profiles (Tomás 0.7 — kitchen loyalty assumes
+  itself returned) and LOW on the guarded (Priya 0.3) or the
+  chronically-rebuffed. Never use it to manufacture
+  mutual-feeling storylines — it writes to MetaModel only
+  (`recip_truth_null`); the alter's real edge is untouched,
+  which is exactly why reciprocity errors hurt: the belief
+  outruns the fact.
+- **`lgap_k` — the liking-gap susceptibility.** Boothby et
+  al. 2018. Pin from self-critical social focus: the
+  newcomer who replays her own performance is the
+  high-`lgap_k` profile (Jules 0.8 — she thinks she's
+  tolerated when she's liked). The genuinely unbothered get
+  low pins (Marcus 0.15 — he never audits a conversation in
+  his life). The gap attenuates with tie depth — DO NOT
+  compensate by zeroing the trait on "secure" profiles; a
+  secure newcomer still carries some gap because the
+  mechanism is perspective, not pathology. The locked null
+  `lgap_reverse_null` means no bible can produce the
+  systematic overestimator — write a vain character via
+  `meta_proj` + high `self_est`, not via negative gap.
+- **`meta_ev_w` — how fast evidence beats the prior.**
+  Trained signal-readers earn high pins (Priya 0.75 —
+  twenty years of watching faces for bad news; Marisol 0.65
+  — a floor manager's metaself is calibrated by tips and
+  turnover). Evidence-immune profiles pin low (Victor 0.25 —
+  feedback bounces off a monument). Do not pin low just to
+  make a character "oblivious" — low `meta_ev_w` +
+  high `meta_proj` is a *stable wrongness*; if you want
+  comic obliviousness pair it with mid `meta_signal_p`
+  ecology (fewer signals minted).
+- **`meta_neg_w` — the cold-shoulder exchange rate.**
+  Default 1.3 (one cold day ≈ two warm ones). Rides
+  `rumin`/`neurot` — pin the upstream traits and let the
+  composite work; explicit pins only for extremes. Carmen
+  gets 0.9 — she has weathered enough slights to discount
+  them; a thin-skinned profile (Dani-adjacent sensibility)
+  pins 1.6+. Deliberately below `diag_moral_neg`'s 1.6 —
+  people discount rudeness faster than immorality.
+- **`bmess_k` — the vulnerability discount.** Bruk et al.
+  2018: own vulnerability reads as mess, others' as beauty.
+  Pin high on perfectionist/shame-adjacent profiles
+  (Victor 0.35 — he would die before apologizing first, and
+  the metaself prices that fear); low on the
+  practiced-vulnerable (Dani 0.1 — she confesses
+  theatrically and barely registers the risk). The locked
+  `bmess_invert_null` means the observer bonus can never
+  leak to the self-side — a character cannot learn "the
+  room loved my breakdown" through this channel; she has to
+  HEAR it said.
+- **Never pin (mechanism constants):** `meta_ev_min`,
+  `lgap_tie_cap`, `lgap_ev_cap`, `meta_stale_days`,
+  `bmess_obs`, `compete_blind`, `meta_signal_p` — population
+  scales all. In particular: no bible may raise
+  `meta_signal_p` to make a character "notice everything" —
+  signal-minting is the world's ecology; what differs per
+  person is what the evidence DOES after it lands.
+- **The compete channel is everyone's blind spot.**
+  `compete_blind` is pop machinery — every profile, from the
+  paranoid to the serene, estimates who-competes-with-them
+  at ≈0 meta-accuracy (Eisenkraft et al. 2017). A bible
+  wanting "she always knows who's gunning for her" must buy
+  it through observed-behavior accuracy (high `meta_ev_w`
+  on cold signals), not through this channel — the
+  literature gives nobody a rivalry detector.
+- **Emergent cast shadows:** (a) Jules leaves every good
+  conversation believing it went worse than it did — for
+  MONTHS, because the gap attenuates slowly and her
+  evidence is thin; (b) Victor's metaself is a statue —
+  neither warmth nor dislike updates it, and the room can
+  turn cold around him for a season before a retrieved
+  signal lands; (c) Priya's metaself is the cast's only
+  calibrated instrument — she notices the cooling before
+  the cooler does, and never flatters herself; (d) Dani's
+  theatrical vulnerability costs her nothing while
+  Victor's rare real one costs him twice — same event,
+  opposite ledgers; (e) Marcus believes everyone likes him
+  and is, by the reciprocity arm, mostly right — the
+  sunniest possible wrongness. Sources §72 of
+  human-memory-research.md; probes P994–P1005.
+
+## 76. v5.44 note (encoding-mechanics VIII — what the stimulus, the room, and the past error bring)
+
+New machinery is nine encode-side mechanisms (EM Part VIII,
+spec §§6.221–6.229); all but one are mechanism constants, not
+trait pins:
+
+- **`memorab_*` — stimulus, not soul.** `memorab_gain` and
+  `memorab_resid` are pop constants: memorability is a
+  property of the EVENT (Isola's cross-observer consistency),
+  so no bible may claim a character "finds everything
+  memorable" or "remembers nothing" through this leg. What a
+  bible CAN pin is the character's attention to the world —
+  the memorab term is small against the attention terms.
+  Locked `memorab_attr_null` means world-builder may not
+  cheat the residual away by tagging only high-arousal events.
+- **`coattend_*` — the shared-gaze gain.** `coattend_gain`
+  pop constant; `coattend_ingroup` is an OPEN gate (stranger
+  co-attention sufficiency is under registered replication —
+  do not pin it to 0 or 1 for any character; it is a world
+  parameter pending the verdict, not a personality).
+  Emergent: the two mains who watch the same sunset mint
+  `coSeen` edges — later, each treats the other as witness,
+  not just hearer.
+- **`pe_*` — surprise you can narrate.** `pe_gain`/`pe_win`
+  constants. Profiles differ through schema density (sparse-
+  schema characters ×1.4 — emergent from the semantic store,
+  not a pin). A worldly character gets FEWER pe boosts — she
+  has less left to violate.
+- **`antic_*` — waiting is an encoding state.** Constants.
+  World supplies `antic:true` when a pre-event cue promised
+  an outcome (the held parcel, the tipped race, the
+  almost-confession). `antic_retro_null` is locked —
+  anticipation never rescues what already happened.
+- **`gest_*` — the hands remember.** Constants; engagement
+  variant world may tag on dialogue events. The gesturer
+  archetype pins nothing here — gesture happens or doesn't;
+  a bible can only make a character someone who TALKS with
+  their hands (world-side behavior).
+- **`device_dep` — the ONE trait this pass adds.** [0,1],
+  bible-pinnable, shared by the offload-adoption leg and
+  OBSERVE-tier `phone_drain`. Pin high on the phone-first
+  profiles (Dani ≈0.8 — the feed is her diary and she
+  encodes parties hollow); pin low on the analog (Victor
+  ≈0.15 — paper ledger, paper memory); mid on everyone
+  else. Do not use it as a generic "distracted" knob —
+  it governs offloading adoption and presence-drain only.
+- **`tot_*` — the trained blank.** `tot_learn`/`tot_res_gain`
+  constants. Emergent: a character who repeatedly almost-
+  retrieves a neighbor's name trains the blank (`err_strength`
+  accumulates) until a self-resolution repairs it — the
+  recurring-TOT resident is now mechanical, not scripted.
+  `tot_rescue_null` is locked: someone telling them the name
+  fixes the moment, not the memory.
+- **`labor_vain_null` — locked for everyone.** No profile
+  earns E by trying harder. Bibles that want a "diligent"
+  rememberer must buy it through strategy traits
+  (`consc` → org/ei draws, `wmc` → attention ordering),
+  never through effort.
+- **`phone_drain` — OBSERVE tier.** Direction-only; do not
+  pin characters against it pending the replication verdict.
+- **Emergent cast shadows:** (a) the co-watcher remembers
+  the block party better than the solo viewer — and holds a
+  witness-edge that makes their later retelling to each
+  other converge; (b) Dani's hollow photo-album memory —
+  strong on where-it-lives, thin on what-it-was — vs
+  Victor's full-fat paper memory of the same event; (c)
+  Priya's schema-dense world gives her the fewest pe boosts
+  — surprise rarely survives her priors; (d) Jules'
+  recurring name-blank trains until the day she finally
+  pulls it unassisted — a tiny private victory the ledger
+  now models. Sources EM§109; probes P1017–P1026.
+
+## 77. v5.45 note (forgetting-curves IX — aversions, the
+strength-clock, series edges, the flat forecast)
+
+Four mechanisms + two emergence contracts (FC Part IX,
+spec §§4.46–4.47, §§5.96–5.97); all mechanism constants,
+none trait-pinnable:
+
+- **`cta_*` — biology, not biography.** Aversion binding
+  is canalized to the gut: no bible may declare a
+  character "never forms food aversions" (the mint
+  ignores `att_min` and traits alike) or "averse to
+  everything." What a bible CAN pin is diet novelty —
+  a habitually adventurous eater simply exposes more
+  candidate targets (`cta_novel_w` does the rest), and
+  the world supplies `illness_onset` events. The
+  `avoid` tag is behavioral, never narrative: a
+  character who stopped going somewhere after one bad
+  meal *cannot* be scripted to explain it — the episode
+  is gone; only the avoidance remains.
+- **`rec_scale`/`rec_floor` — population constants.**
+  Do not pin per-character; the strength→recency map is
+  the lawful source of "I just saw her — actually,
+  months ago." Profiles that rehearse a lot (gossip,
+  retell_boost) systematically under-date their own
+  records — the error is emergent, free.
+- **`jol_horizon_w` — locked-small for everyone.**
+  Every profile is overconfident about its own
+  durability; no bible buys foresight. `jol_bias`
+  remains the only legal personality dial on the
+  forecast (and `jol_exp_gain` caps how much even it
+  can learn).
+- **`series_*` — structure, not soul.** The boundary
+  advantage and adjacency confusion are properties of
+  repeated-event series, not of characters; a
+  high-routine character just generates more series.
+- **Emergent cast shadows:** (a) the 70yo who tells the
+  same four stories flatters the trough — their 40s
+  genuinely held fewer firsts; (b) the character who
+  mislays things weekly emits script-default guesses
+  ("it's always on the hook") that are confidently,
+  legally wrong; (c) the novel-food casualty: one
+  `illness_onset` event and the parody taqueria loses a
+  regular forever, without the character ever being
+  able to testify to the night itself. Sources FC§41;
+  probes P1027–P1034.
+## 78. v5.46 note (retrieval-cues IX — the sample, the
+overlap, the gate, the pause, the echo)
+
+Five mechanisms (RC Part IX, spec §§5.98–5.102); clamp rows
+added in §0 for all ten param groups:
+
+- **`ctx_keep_p`/`ctx_load_pen` — the one lawful
+  personality-adjacent dial.** A low `ctx_keep_p` profile
+  samples thin contexts: fewer reminders, more "I was just
+  there and it didn't click," re-probes that genuinely
+  differ — the distracted character is *made* of this.
+  High-load occupations (barista at rush, ER nurse) ride
+  `ctx_load_pen`, not a bible flag — the world supplies
+  `load`, the param prices its bite. No bible may pin a
+  "photographic context": max 0.95.
+- **`sep_bias(age)` — U-shaped, not trait-shaped.** Both
+  ends of life complete rather than separate (Kirwan &
+  Stark; Ngo): the child merges the two beach trips, the
+  70yo merges the two weddings, the 30yo is the one who
+  says "wait, I'm mixing two times." A bible cannot buy
+  an old character clean discrimination — clamp keeps
+  `sep_bias_70` ≤ `sep_bias_30`. `comp_merge_p` is the
+  gossip engine's best friend: near-twin field borrowing
+  makes "the party where she cried" migrate between
+  tellings.
+- **`susp_*` — the interrupted thought has its own
+  physics.** `susp_sim_pen` is the star: a same-topic
+  interruption kills the pending line (Gillie & Broadbent)
+  — the character cut off *while the other person talks
+  about the rent* loses the rent line specifically.
+  `susp_keep_p` models the non-articulatory store; bibles
+  pin nothing here, the constants are population-level.
+- **`openq_*` — persistence without access.** `openq_arm`
+  is the only bible-adjacent dial (a ruminative character
+  arms more latent queries — the shower-thought
+  personality); `openq_hl`/`openq_fire` are population.
+  `openq_solve_null` is locked for everyone: no profile
+  resolves queries below the normal threshold — a pop is
+  a re-draw on a new sample, never a power-up.
+- **`gaze_rein_gain`/`ctx_drift_pull` — micro and
+  hypothesis.** The gaze bonus is small and spatial-only;
+  the changed-place pull is our smallest HYPOTHESIS
+  constant (0.02/visit, capped by P1044) — a bible cannot
+  declare a character immune to having their childhood
+  kitchen re-papered.
+- **Emergent cast shadows:** (a) the distracted elder who
+  "came back to where it happened" — thin `ctx_keep_p` +
+  `gaze_rein_gain` produces pilgrimages that work; (b) the
+  70yo whose two best stories keep swapping details —
+  `comp_merge_p` at low `sep_bias`; (c) the chronic
+  "it'll come back to me" character — high `openq_arm`,
+  and it does, two days later, in the shower. Sources
+  RC§§92–99; probes P1035–P1044.
+## 79. v5.47 note (age-development IX — the age curves got a second spine)
+
+Nine mechanisms (AD Part IX, spec §§4.48–4.54, §§5.103–5.104,
+§6.3 split); clamp rows added in §0. What a bible may and may not
+buy:
+
+- **`child_forget_mult` / `rehearse_spont_p` / `script_swallow_child`
+  / `gist_false_p` — era params, not personality.** All four read
+  encodeAge; a bible cannot pin a 6yo who "remembers like an
+  adult" — the childhood archive is thin by construction, and the
+  variability lives in what the household retells (scaffold arm),
+  not in the knots. `rehearse_scaffold_null` is locked for
+  everyone: the lonely child's years are thin because nobody
+  retold them — that is the mechanism, and it is legible.
+- **`assoc_mult` — the old-age dial that isn't a knob.** Edges
+  die faster than items at ≥60; `assoc_item_null` is locked so no
+  profile can flatten the differential. The legible signature:
+  recognizes the tenant, can't attach the name, floor, or which
+  conversation. A bible pins `aging_rate`/`reserve` (existing
+  traits) and this follows — nothing new to pin.
+- **`pos_retrieve_bias` — retrieval's leg of positivity.** The
+  encode-side `positivity_gain` (v1.6) is the bible-pinnable
+  dial; the retrieval leg is population-level and `eval_press`-
+  gated — a character under interrogation loses the rosy filter
+  even if her bible bought the rosy encode. `pos_involuntary_null`
+  locked: the rosy filter never fires on the involuntary scan.
+- **`trans_bump` — the bump the world hands you.** `immig_age`
+  (v5.27 bible field) auto-mints the window; other transitions
+  need the world-supplied `life_transition` flag — bibles cannot
+  mint bumps directly, they can only set the ages where life
+  actually turned. `trans_bump_win` clamped ≤6y.
+- **`pi_suscept` / `sws_var_gain` / `proc_decay_mult` —
+  population-level.** No bible pins: PI susceptibility is
+  age_now-driven for everyone, old sleep is noisy sleep for
+  everyone, and `proc_flat_null` freezes the skill floor — the
+  80yo's hands remember what her dates never will.
+- **Emergent cast shadows:** (a) the 7yo NPC whose week is a
+  rumor of itself — `child_forget_mult` + `script_swallow_child`
+  leave script reports and self-relevant scars; (b) the
+  grandmother who accepts the neighbor's paraphrase as fact but
+  rejects the leading question — `gist_false_p` up,
+  suggestion-curve down, same head; (c) the immigrant whose
+  second life out-densities her youth — `immig_age` bumps her
+  arrival years, not her teens. Sources AD§§98–107; probes
+  P1045–P1054.
+
+## 80. v5.48 note (age-decline IX — the control layer is population-level, the choices are bible-shaped)
+
+Ten mechanisms (AD Part IX, spec §§4.55–4.56, §§5.106–5.110,
+§§6.230–6.231); clamp rows added in §0. What a bible may and may
+not buy:
+
+- **`ret_lat_mult` / `cue_chain_max` / `propname_tot_mult` —
+  population legs, no pins.** Every head slows, truncates, and
+  blocks on names on the same knots; `aging_rate`/`reserve`
+  (existing traits) shift the effective age, nothing else.
+  `lat_strength_null` is locked for everyone: a bible may NOT
+  make an elder who "just can't retrieve" at fixed S — she is
+  slow, not empty. The legible signature: answers that arrive
+  one beat late, names replaced by confident descriptions.
+- **`soc_narrow` — the one bible-shaped dial in this batch.**
+  The *degree* is age-driven, but the *contents* are hers: the
+  top `goal_value` quantile it concentrates on is read from
+  the character's actual goal ledger. A bible chooses what she
+  keeps sharp (the garden ledger vs the gossip ledger) — it
+  cannot choose whether narrowing happens.
+- **`debunk_fam_gain` — nobody is immune by personality.**
+  The Skurnik flip is familiarity mechanics, not gullibility:
+  no `skeptic` trait discounts it. What varies across the cast
+  is exposure (how often each hears the denial repeated) — a
+  rumor-substrate property, not a profile property.
+- **`vantage` — retell-driven, mostly.** `vantage_age_leg` is
+  clamped small (≤0.005/yr) deliberately; the storyteller who
+  has told the same story forty times drifts observer at any
+  age. A bible may pin nothing; `retell_n` does the work.
+- **Frozen pair:** `spacing_age_null`, `savings_age_null` —
+  no profile may age the spacing or savings multipliers; the
+  two cheapest interventions are age-invariant by decree.
+- **Emergent cast shadows:** (a) the elder whose correction
+  campaign backfires — deny the rumor twice at Sunday dinner
+  and by Wednesday she *believes* it (`debunk_flipped`);
+  (b) the retired surgeon whose operative memory is pristine
+  and whose Thursdays are gone — `soc_narrow` doing exactly
+  what Baltes & Baltes described; (c) the 80yo who takes ten
+  seconds and then is *right* — `ret_lat_mult` stretches the
+  window, `lat_strength_null` keeps the answer true.
+  Sources AD§§125–134; probes P1055–P1064.
+
+## 81. v5.49 note (emotional-memory IX — the carrier layer: which dials are trait-free and which are bible-shaped)
+
+Ten mechanisms (EM Part IX, spec §§4.57–4.60, §§5.111–5.113,
+§§6.232–6.234); clamp rows added in §0. What a bible may and
+may not buy:
+
+- **`neg_potency` — the cheapest diversity lever in the doc.**
+  Free per-profile trait, 0.8–2.5, no age leg (frozen
+  `potency_age_null`). The sunny main can run 1.1, the
+  anxious one 2.3; at equal |valence| a negative event mints
+  ~1.35× hotter at the default. It buys the *mint* only —
+  `potency_repair_null` keeps it out of every regulation
+  equation, so it never double-taxes healing.
+- **`hangover_gain` — neuroticism reads it.** The 30-min
+  post-arousal encoding window scales with `neurot`; a
+  low-reactive main barely arms it. World texture: the
+  mundane hour after the fight is what she remembers.
+- **`cringe_intrude` — a young-cast parameter.** Strongest
+  age gradient in the batch (1.0@20 → 0.35@65). Young mains
+  keep resurfacing intact embarrassments on cheap cues;
+  elders mostly just decay. No bible pin — the knots are
+  population-level; only `discrete:embarrass` records carry
+  the weight.
+- **`regret_inaction_mult` — backstory feeds it, not
+  personality.** The mechanism needs `action_taken:false` +
+  `opportunity:true` on decision events; a bible that leaves
+  doors open (the un-pursued degree, the un-sent letter)
+  mints long-lived regret records that accumulate `sim`
+  satellites. A foreclosed life mints none — by construction.
+- **`percept_cue_w` — trauma records only, no exceptions.**
+  `percept_gate_null` is locked for everyone: a bible may
+  NOT give a non-trauma record a sensory bypass. What varies
+  is which sensory fields the trauma record carries — rain,
+  a cologne, a song — and those come from the event, not
+  the trait sheet.
+- **`arousal_match_w` — kept sub-`w_msd` on purpose.**
+  Clamp 0–0.15 for all profiles; the state-locked-memory
+  phenomenology it enables (calm self can't reach panic-era
+  records) is carried by the §5.112 bypass in the cases that
+  matter. Weakest empirical base in the batch — do not
+  express it as a character signature.
+- **`co_arousal_bond` — population parameter, world-shaped
+  trigger.** Both parties must run ≥`co_arousal_min` for the
+  bond leg; the weaker arousal sets the fuse. A bible
+  supplies *occasions* (shared crisis, shared vigil), not
+  magnitudes. `fuse_abuse_null` is locked: staged arousal
+  without an event source cannot manufacture found-family.
+- **`pain_*` — procedural events, world-flagged.** The
+  `gentle_tail` exploit is legal and cheap: a dull cool-down
+  on a painful event lowers its remembered pain. Profiles
+  vary only `pain_avoid_gain` (the avoidant main's
+  remembered dentist weighs more).
+- **`gc_na_thresh` / `stress_consol_k` — the numb-absorption
+  gate.** Flat population parameters. The cast-level
+  consequence: the character who receives catastrophe while
+  numb encodes it *less* consolidated than the one who
+  receives it racing — shock-then-numbness is a real memory
+  profile, not a bug.
+- **Emergent cast shadows:** (a) the young main whose
+  embarrassing Tuesday intrudes for a decade on any return
+  to the venue — `cringe_intrude` + `cringe_cue_sim`;
+  (b) the pair who survived the blackout night and are
+  bonded out of proportion to the night — `co_arousal_bond`
+  on shared dysphoria; (c) the one who heard the diagnosis
+  in flat affect and genuinely remembers it *thinner* than
+  the sister who screamed — `gc_na_gate`.
+  Sources EM§§112–121; probes P1065–P1074.
+
+## 82. v5.50 note (false-memory IX — the self-service layer: which lies a bible may tell)
+
+Ten mechanisms (FM Part IX, spec §§6.235–6.244); clamp rows
+added in §0. What a bible may and may not buy:
+
+- **`fgen_gain` — the confabulator's trait.** Scales with
+  `suggs` and `verbal` fluency: the glib main who always
+  has an answer is the one whose answers become her past.
+  The quiet character who says "I don't know" mints almost
+  nothing here — `answer:true` never fires. Personality
+  expressed as interrogation vulnerability.
+- **`proof_*` — a world-supplied trigger, not a trait.**
+  `proof_mint_p` varies only via `suggs`; the *opportunity*
+  (a fabricated photo existing at all) is a world-level
+  act. No bible should pin high `proof_rich_gain` except
+  the vivid `imagery` main — she furnishes the forged
+  memory herself.
+- **`theory_*` — the two most characterful knobs in the
+  batch.** `self_est` high → `growth:true` narratives +
+  `theory_change_gain` derogation (the self-improver whose
+  origin story worsens yearly); `meta_conf` low → drift
+  goes unnoticed. A bible choosing `growth:true` on a
+  main is choosing a character whose past is a moving
+  target by construction.
+- **`cinfl_*` — trait-free by design.** Every reteller
+  inflates; the diversity is in retell *frequency*
+  (social/extraversion exposure), not the rate. The
+  storyteller main reaches `cinfl_cap` in weeks; the
+  reticent one never does — emergence, not parameter.
+- **`nbm_*` — everyone can hold a nonbelieved memory;
+  who accumulates them differs.** Low `nbm_thresh` +
+  high `nbm_vivid` = the character who keeps a museum of
+  disproven scenes (the one whose beliefs get corrected
+  often — gullible then disillusioned). `nbm_reflip_null`
+  is locked for all profiles.
+- **`unanim_*` — population-level; exposure is social.**
+  `unanim_k` flat; what varies is how many independent
+  voices a character's social graph actually supplies.
+  `unanim_echo_null` is the substrate's job — if genealogy
+  tracking is coarse, don't tune around it, fix the
+  genealogy.
+- **`cspread_*` — `confab_fill` is the lever.** High
+  gap-fillers spread adopted suggestions further; clamp
+  `cspread_hop` at 2 maximum — the chain null is locked
+  regardless.
+- **`ci_*` — the protocol is a behavior, not a trait.**
+  Any character can run `mode:"ci"`; the bible decides
+  *who defaults to it* (the patient listener archetype).
+  `ci_guard` high = the interviewer whose questions mint
+  fewer falsehoods in everyone she talks to — a
+  community-level good carried by one character.
+- **`warn_pre/post_*` — flat population.** Timing is the
+  speaker's choice, not the hearer's trait; `suggs`
+  modulates only the base adoption both legs discount.
+- **`moodlure_*` — `neurot` sets exposure time.** The
+  gains are flat; the anxious/depressive main simply
+  spends more ticks in the amplified state. Do not pin
+  `moodlure_neg_gain` per-character — the state, not the
+  sheet, carries it.
+- **Emergent cast shadows:** (a) the glib main whose
+  invented answers become her autobiography (`fgen` +
+  low `meta_conf`); (b) the self-improver whose past
+  keeps worsening on schedule (`theory_change_gain` +
+  `growth:true`); (c) the patient listener whose
+  conversations leave fewer falsehoods behind than they
+  found (`ci_guard`); (d) the disillusioned one with a
+  shelf of vivid scenes she no longer believes
+  (`nbm_thresh`/`nbm_vivid`).
+  Sources FM§§101–110; probes P1075–P1084.
+
+## 83. v5.51 note (individual-differences IX — the tax and the step: which states a bible may set)
+
+Twelve axes (ID Part IX, spec §§6.245–6.256); clamp rows
+added in §0. The bible/state boundary is this batch's whole
+point — half of these are *things that happen to* a
+character, not things a character is:
+
+- **`scarc` — forbidden fruit.** Bibles may not pin `scarc`;
+  the world mints it from ledger-side financial strain
+  (`scarc_trait_null`). What a bible CAN pin is *exposure*:
+  precarious income, thin savings, dependents — the
+  probability that the state fires, not the state itself.
+  The tunnel leg means a broke character is not just
+  degraded — she's *focused*: the rent problem encodes
+  deeper while the surrounding week thins.
+- **`chk_loop` — a mechanism riding an existing trait.**
+  `checker` (Part IV) sets who rechecks; `chk_*` sets what
+  each recheck costs the record's *felt* vividness and
+  confidence. A bible choosing high `checker` is choosing
+  a character who erodes her own memory trust one
+  verification at a time — accuracy never moves, so she
+  stays *right* while feeling *wrong*. That's the OCD-
+  checking signature in miniature.
+- **`apnea` — the quiet trait.** Bible-pinnable [0,2],
+  age/male-skewed sampling (R +0.35/+0.25). `apnea_treated`
+  is a world/state flag — a bible may write the CPAP; the
+  rescue still accrues over ~90 days, never overnight.
+  Emergent shadow: the elder who sleeps "fine" by his own
+  report but consolidates like a much older man.
+- **`delirium` — world event, not trait.** Bibles write
+  the hospitalization; `delirium:{onset,offset,severity}`
+  is a world-supplied overlay. What a bible should know:
+  a 7-day delirium costs ~1 age-year permanently
+  (`delir_step`·days, cap 3y) AND leaves the character
+  owning `fuzzy:true` delusional fragments of a week that
+  mostly didn't happen as remembered — dark, real, and
+  the strongest `hosp_step` amplifier we ship.
+- **`bipolar` — ≤1 per cast, hard stop.** The prevalence
+  honesty rule applies as with `hsam`/`sdam`. The bible
+  sets `episode_count` (backstory leg — each episode is
+  residue). Manic-ctx encoding is *wide and thin*: more
+  people, more novelty, less topic-depth — the party as
+  light, not content. `bip_creat_null` is locked: do not
+  write a creative-genius compensation into the params.
+- **`newpar_state` — the honest dip.** State + `night_duty`
+  share, either parent. All cost routes through
+  sleep/iiv/att (`newpar_flat_null` locked) — the
+  mechanism is the night, not the brain. Complaint leg
+  runs hot (0.6) — she'll *feel* foggier than she is.
+- **`crci_state` — the fog is real but narrow.** Executive/
+  pspeed legs only; the store is untouched
+  (`crci_epi_null`). Complaint≈1.2× the tax — like `scd`
+  with a real thin deficit underneath instead of none.
+- **`subj_age` — a bible's freebie with a boundary.** Pin
+  felt-minus-chronological ([−1,+1], population skews
+  felt-younger); it moves performance-side `age_eff` legs
+  (~3y at ±1, HYPOTHESIS) and gates the `age_cue`
+  stereotype tax — felt-old elders take the stereotype
+  hit; felt-young ones dodge it. `subj_age_store_null`:
+  it never changes what's stored.
+- **`photo_habit` — the reflexive photographer.** [0,2];
+  co-samples with `offload` (+0.35). The tax lands on
+  nonvisual fields at the shutter; visual detail gets a
+  small countervailing boost. Emergent shadow: the
+  character whose camera roll is rich and whose unaided
+  recall of the same days is thin — and who never
+  notices, because the photos resurrect on review.
+- **`mw` — the absent-minded encoding gap.** N(0,1);
+  co-samples with `adhd`/`media_m`, anti-loads `att_ctl`.
+  `mw_gap:true` records are thin-verbatim place-gist —
+  the character was there, wasn't *there*. The
+  `mw_replay` dividend means the same mind also pops
+  unbidden content more often — a wanderer whose
+  memories ambush him.
+- **`savor` — the positive-channel worker.** N(0,1);
+  audit against `rosy`/`fab` stacking — three layers that
+  all lean positive. A high-`savor` bible is choosing
+  deliberate positive rehearsal, not retrospective
+  kindness. `savor_neg_null` locked: savoring never
+  touches negative records — pair with `rumin` only if
+  you want both ledgers hot.
+- **`microdose` — the fourth mandated null.** A bible may
+  write the habit (the character believes it works —
+  `mdose_expect_conf` gives the dose-day confidence bump
+  when believed). Every objective leg stays flat.
+  `mdose_enhance_null` is locked for all profiles; the
+  folk claim is the design surface, the store is not.
+  Sources ID§§108–119; probes P1085–P1097.
+
+## 84. v5.52 note (social-memory XI — the credulity layer: what a bible may believe)
+
+Ten mechanisms (SM Part XI, spec §§6.257–6.266); clamp rows
+added in §0. Three bible-pinnable traits this batch — the
+belief posture of a character is now as authored as her
+memory hardware:
+
+- **`tdef` — the credulity prior.** [0,1], pop mean 0.5,
+  shifts `tdef_base` ±0.15 but is FLOORED: `tdef_immune_null`
+  keeps baseline credence ≥0.5 for everyone — a bible can
+  write the neighborhood skeptic, never the neighborhood
+  un-deceivable. Co-samples with `distrust` (+0.4) but is
+  NOT the same dial: `distrust` colors evaluation, `tdef`
+  sets the default. Emergent pairing to avoid stacking:
+  high `tdef` + high `illtruth` exposure = the character
+  who believes everything twice.
+- **`rsq` — rejection sensitivity.** [0,1]; drives BOTH the
+  false-positive snub leg (ambiguous cues read as exclusion
+  at +0.4·rsq) and the aftermath weight. Co-samples with
+  `social_anx` (+0.5), `neurot` (+0.3), anti-loads
+  `self_est`. A high-`rsq` bible writes a character who
+  manufactures snubs the ambient layer never sent — and
+  the `fp:true` emission means the audit trail can tell
+  real exclusion from heard-ghosts.
+- **`imp_anchor` — the primacy weight.** [0,1], mean 0.5;
+  how much the first-N encounters mass the `eval_tag`
+  moving average. High anchors = the character whose gut
+  verdict on people is set in week one and whom
+  `reinterpret:true` scenes must work hardest to move
+  (with the control-resource gate, a chronically `scarc`-
+  burdened high-anchor elder is nearly un-revisable —
+  pair deliberately).
+- **State/flag supply contract:** `exclusion:true` (world
+  mints), `reinterpret:true` (behavior layer mints on
+  reframing scenes), `discount_tag`/`via`/`eval_tag` are
+  store-internal. Nothing new a bible writes directly —
+  the bible sets susceptibility, the world sets occasions.
+- **Nine locked nulls** (`sleeper_content_null`,
+  `stt_dir_null`, `tdef_immune_null`, `illtruth_know_null`,
+  `kmotive_truth_null`, `aobs_reverse_null`,
+  `imp_fastrev_null`, `hpm_fact_null`, `snub_source_null`)
+  are all profile-flat — no bible may buy its way around
+  the credulity layer. That is the point of the layer:
+  everyone believes, everyone absorbs what they repeat,
+  everyone's gut lags their testimony.
+- **Emergent cast shadows:** (a) the gossip who becomes
+  her material (`stt_gain` — listeners tag her with the
+  traits she retails); (b) the discredited source whose
+  warning outlives its discount (`sleeper_*` — "everyone
+  knows" manufactured on schedule); (c) the skeptic who
+  still believes (`tdef_immune_null` — Victor's floor is
+  0.5, not 0.2); (d) the elder whose kindness toward a
+  new tenant is gut-slow (`imp_impl_slow` + thin
+  `reinterpret` occasions); (e) the anxiously loved one
+  whose snub ledger fills with phantoms (`rsq` + `fp:true`).
+  Sources SM§§151–160; probes P1098–P1109.
+
+## 85. v5.53 note (formal-model X — the exposure discipline: what a bible cannot reach)
+
+**No new clamp rows, no new traits, zero per-character params.**
+The entire v5.53 block is population/harness scope
+(`surf_paths`, `present_*`, `suppress_k`, `tier_table_ver`,
+`archive_condense_age`, `condensed_w`, `canon_day_bound`,
+`oplog_*` + seven locked nulls). A bible writes susceptibility;
+it does not write plumbing — and this batch IS plumbing. What
+world-builder needs to know:
+
+- **Surfacing has a price the bible doesn't set.** Every path
+  that shows a record (`self_prompt`/`utterance`/`briefing`/
+  `spectator`/`probe`) now writes back: shown records practice,
+  shadowed episode-mates suppress (`suppress_k` — flat, pop).
+  A character who retells the same story wears a groove around
+  it; the bible chooses *who* retells (existing `retell_*`,
+  `fab`, `savor`, `rumin` dials), never whether retelling
+  costs.
+- **The possession ban is now a field-level guarantee.** The
+  `briefing`/`spectator` tiers structurally cannot carry
+  affect tags, latent records, secrets, or `synth` flags —
+  enforced by `tier_table_ver`, proven by P1113, journaled by
+  every `present` op. Bibles keep writing SECRETS sections
+  exactly as before; the memory layer now guarantees they stay
+  below the surface.
+- **Gut-vs-ledger asymmetry unchanged.** `eval_tag`,
+  `via:"hearsay"`, `discount_tag` remain store-internal —
+  invisible to spectator/briefing tiers, so a character's
+  hidden dislikes and phantom snubs never leak to viewers
+  except through behavior.
+- **Very old memories are skeletons.** Records archived >365d
+  condense to gist skeletons (`condensed:true`, cue weight
+  0.3, one-way). For old-age bibles this is already the
+  written phenomenology ("the fact outlives the event") — now
+  it's mechanical, not just narrative guidance.
+- **Nothing co-samples.** No trait loads any v5.53 param;
+  existing modifiers and clamp rows unchanged. Sources
+  FM§§81–91; probes P1110–P1121.
+
+## 86. v5.54 note (character-profiles VIII — the perceiver's hardware)
+
+Sixteen clamp rows added in §0. Every prior character-profiles
+pass tuned what the machine *keeps* (encoding, decay, distortion)
+or what it *says* (the report layer, Part VII). This pass tunes
+what the remembering *looks and feels like from inside* — the
+vantage, the vividness, the channel that carries faces, the
+shape of the very first record — plus the little
+familiarity-ghost everyone gets. Five new trait pins, one
+existing trait re-scoped downward (`imagery` gains the
+aphantasia tail), ten pop constants, six locked nulls. Spec
+§§6.267–6.272.
+
+- **`imagery` — re-scoped, not new.** It already loads
+  imagine_gain/rm-richness/dream_flip (v5.14); v5.54 adds the
+  *down* tail and two new legs: `w_sensory` shifts
+  `img_sensory_w`·(imagery−μ) and projected reports carry
+  sensory fields at `img_report_w`·imagery. The base rate is
+  now pinned: extreme aphantasia ≈0.7–1% of population,
+  extreme hyperphantasia ≈2.5–3% (Zeman et al. 2020; Dance et
+  al. 2021 gives the wider weakness band). The load-bearing
+  empirical fact for the spec is NEGATIVE: aphantasics score
+  normally on standard memory tests while reporting
+  impoverished autobiographical recall (Dawes et al. 2020;
+  Zeman et al. 2020 fMRI cohort — autobiographical and
+  imagination tasks differ, standard tests do not). So imagery
+  moves the *experienced and reported* richness, never the
+  stored fidelity — `img_accuracy_null` (P1122) hard-fails any
+  generator that lets imagery touch correctness, and the
+  aphantasic character can carry the block's best archive
+  behind the greyest reports. Pin guidance: leave un-pinned for
+  most of the cast (it's a ~4%-of-humanity tails trait); ONE
+  main may sit in a tail deliberately (cast-profiles §33 gives
+  it to Priya — the chart-minded nurse who knows, never sees).
+- **`obs_persp` — the camera inside the memory.** Nigro &
+  Neisser 1983: every recall arrives field (own eyes) or
+  observer (seeing oneself). Three mechanism legs do most of
+  the work: older records drift observer (`obs_age_slope`),
+  self-conscious/high-emotion scenes arrive observer
+  (`obs_emo_k`), and switching field→observer DAMPENS reported
+  affect while observer→field does not raise it
+  (`obs_dampen` — Robinson & Swanson 1993; Sekiguchi & Nonaka
+  2014, the asymmetry persists ~4 weeks). The trait is the
+  prior on top: high `obs_persp` = the character who watches
+  themselves in their own past — co-sample with
+  `selfconscious`(+0.4) and dissociation-adjacent pins; trauma
+  bibles may push it (observer vantage is a documented
+  peritraumatic marker, DEBATED as coping vs symptom — flag it
+  hypothesis). **`obs_content_null` is the guardrail:**
+  perspective is a RENDER tag on the emission — it changes
+  which field classes report rich (observer: own appearance/
+  position; field: affect/sensation — McIsaac & Eich 2002),
+  never the stored content. A character cannot see themselves
+  "more accurately" from outside; they see themselves
+  *differently*, at an affect discount.
+- **`face_recog` — the channel dial.** Face memory is a
+  near-independent spectrum: developmental prosopagnosia
+  ≈0.9–2.5% at the bottom (Kennerknecht 2006; DeGutis 2023
+  cutoff review), super-recognizers at the top ~1–2%
+  (Russell, Duchaine & Nakayama 2009). Scales ONLY the
+  face-cue leg: effective `face_ceiling`·(0.7+0.6·face_recog)
+  and familiarity-threshold crossings on face cues
+  `face_thresh_scale`·(face_recog−0.5). **`face_sem_null`:**
+  the deficit is channel-local — a face-blind character knows
+  exactly who people are by voice/context/name; their
+  PersonModels are complete, their `familiar` crossings on
+  face alone are slow. This is a gift to writers: the warm
+  character who "never forgets a face" (Marcus 0.85) vs the
+  character who's been politely failing at faces for decades
+  without it ever being about *people*.
+- **`interdep` — the plural childhood.** Wang 2001 (JPSP
+  81:220): American earliest memories land ~6 months before
+  Chinese ones (~3.5y vs ~4y), arrive longer/specific/
+  self-focused vs brief/collective/emotionally neutral — and
+  the memory style tracks the self-construal, not the
+  continent. `interdep` [0,1] is a *biographical* pin (pin
+  from heritage + household talk norms, not personality):
+  shifts the earliest-memory prior `firstmem_shift_y`·interdep
+  and the early-record content mix `interdep_soc_w` toward
+  collective/routine fields. **`cult_capacity_null`:** the
+  construal changes WHICH fields mint and WHEN the archive
+  opens — never strength, count, or decay. A Carmen-bible
+  written interdep-high gets dense family-table childhoods
+  and a slightly later first memory; that is a *texture*,
+  not a handicap.
+- **`family_remin` — where the archive's near edge comes
+  from.** Fivush, Haden & Reese 2006: elaborative maternal
+  reminiscing style → earlier and denser first memories;
+  repetitive style → later. `family_remin` is a backstory pin
+  (the household that did or didn't ask "and then what
+  happened?") whose only action is `remin_shift_y`·(family_
+  remin−μ) off `amnesia_exit`'s effective edge — stacked with
+  the interdep shift in the same units. **`remin_content_
+  null`:** style moves the boundary, never the content — no
+  bible may mint an extra childhood by pinning it 1.0.
+  Emergent pairing: Victor's stern household (0.2) + mid
+  interdep buys him one of the cast's latest first memories —
+  his "I don't remember being young" is now a mechanism, not
+  a mannerism.
+- **`dejavu` — the free ghost.** Brown 2004: ~67% lifetime
+  prevalence, frequency declines with age (r ≈ −0.2 to −0.4
+  across studies), rises with fatigue/stress/travel.
+  `dejavu` scales a rare emission on *novel* scenes:
+  `dejavu_base`·dejavu·exp(−dejavu_age_slope·(age_eff−25)/10)
+  ·(1+dejavu_state_k·fatigue) → familiarity-only event flagged
+  `dejavu:true`. **`dejavu_know_null` is what makes it human:**
+  the emission carries NO source — the character feels
+  recognition and *knows it's false*; nothing is minted,
+  nothing attributed. Cheap, universal, and the audience gets
+  to watch a character trust their own memory a little less
+  for no reason anyone can fix.
+- **Never pin (mechanism constants):** `img_sensory_w`,
+  `img_report_w`, `obs_emo_k`, `obs_age_slope`, `obs_dampen`,
+  `face_thresh_scale`, `firstmem_shift_y`, `remin_shift_y`,
+  `interdep_soc_w`, `dejavu_base`/`_age_slope`/`_state_k` —
+  population scales all. Six locked nulls
+  (`img_accuracy_null`, `obs_content_null`, `face_sem_null`,
+  `cult_capacity_null`, `remin_content_null`,
+  `dejavu_know_null`) are profile-flat by design: the
+  perceiver's hardware changes the *experience* of
+  remembering, never its truth.
+- **Emergent cast shadows:** (a) Priya — aphantasia-adjacent
+  (0.15): greyest reports, best archive; the audience learns
+  vividness≠truth in one character. (b) Dani — hyperphant-
+  adjacent (0.9) + high obs_persp: she watches herself
+  perform her own past; vivid, staged, unreliable. (c) Marcus
+  — super-recognizer-adjacent faces on a shallow archive: he
+  knows everyone, remembers nothing about them. (d) Carmen —
+  interdep-high: her childhood is a table of people, not a
+  self-portrait; her first memory arrives late and plural.
+  (e) Victor — low family_remin: the archive opens late;
+  "before that, nothing" is literal. (f) Jules — highest
+  dejavu in a fatigued-newcomer ecology: the city he just
+  moved to keeps feeling remembered. Sources §83 of
+  human-memory-research.md; probes P1122–P1133.

@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v74 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v149 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -16,7 +16,7 @@ to the game-systems track; this doc only specifies what the game build must
 ```
                          ┌─────────────────────────────┐
    player/press ──HTTPS─▶│  CDN + static site host      │  marketing/site/ as-is
-                         │  (realworld-game.example)    │  14 pages, zero build step
+                         │  (realworld-game.example)    │  21 pages, zero build step
                          └──────────────┬──────────────┘
                                         │ iframe (sandboxed)
                                         ▼
@@ -99,6 +99,21 @@ Marketing-side surfaces already built; these are the integration points:
    nothing under `site/` links or mirrors them, and the deploy script only
    ever rsyncs `site/`. Keep it that way. Playtest findings tagged
    `triage_owner: marketing` (world-v9 `playtest.json`) route to this track.
+8. **The production shell is the embed target** — the merged baseline ships
+   `production/hub.html` (built by `production/build_production.py`; a
+   generated bundle — hand edits are lost on rebuild). Its rail runs the
+   real modules: WATCH (37-camera rig), WIRE (public resolutions),
+   REQUESTS (`gsSubmitRequest` → `gsReviewResolve`), LEDGER (two
+   currencies), CAST (hire flow), HOUSING (leases/listings). The launch
+   flip for `demo.html` (`tools/flip_flags.sh --set demo=<url>`) should
+   point at `play.<domain>` serving this built hub — not a demo path.
+   Serving requirement for the game host: the built `production/` tree over
+   HTTPS, `frame-ancestors` allowing the site origin.
+9. **Legal pages exist now** — `site/terms.html`, `site/privacy.html`,
+   `site/refunds.html` (v104 drafts, footer-wired, in sitemap). Stripe
+   account activation requires public policy URLs; these are them. They are
+   marked "launch draft pending owner legal review" — gate G7 is that
+   review, not the drafting.
 
 ## 4. Environments
 
@@ -127,12 +142,12 @@ GO; it never publishes anything.
 | 0 | `tools/preflight.sh` clean (0 fail) on the commit that will ship | G10 | 2 min |
 | 1 | Owner registers domain; point nameservers (or keep registrar DNS) | G3 | 15 min |
 | 2 | Create DNS records per `deploy/dns-records.example` (apex + `www` redirect + `play.` + `stats.`); verify with `tools/dns_check.sh <domain> [apex-ip]` — exits 1 until every record resolves correctly | G3/G14 | 15 min |
-| 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
+| 3 | Provision host — for VPS+Caddy this is now scripted: `tools/bootstrap_host.sh --emit` (review) → `--apply` with `RW_BOOTSTRAP_HOST=root@<ip>` (packages, ufw, deploy user, `/srv/www/realworld` layout, maintenance page) → `--check` verifies the contract (`deploy/host-contract.md`); or a Pages/Netlify project; deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
 | 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
-| 5 | Stand up analytics backend on `stats.<domain>` — `deploy/umami.compose.example` is the ready Umami+Postgres spec matching the Caddyfile `stats.` block; then `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on all 16 pages in one pass; confirm events in dashboard | G8 | 30 min |
-| 6 | Stripe: create account → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
+| 5 | Stand up analytics backend on `stats.<domain>` — `deploy/umami.compose.example` is the ready Umami+Postgres spec matching the Caddyfile `stats.` block; then `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every page in one pass; confirm events in dashboard | G8 | 30 min |
+| 6 | Stripe: create account (Dashboard asks for public **privacy/terms/refund URLs** — `privacy.html`/`terms.html`/`refunds.html` are drafted since v104 and go live with the site; G7 review must land first) → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
 | 7 | Arm uptime monitoring per `deploy/monitoring.example` (external monitor, or cron `tools/uptime_probe.sh` as the self-hosted stopgap); alert → owner email/SMS | G14 | 10 min |
-| 8 | `tools/swap_domain.sh <domain>` — automated G3 sweep (site/ + deploy/, 24 files today; `--check` verifies zero leftovers, `--revert` restores the placeholder for continued iteration). Dry-run §4 + preflight §3 must go clean after | G3 | 5 min |
+| 8 | `tools/swap_domain.sh <domain>` — automated G3 sweep (site/ + deploy/, 27 files since v104 added the legal pages; `--check` verifies zero leftovers, `--revert` restores the placeholder for continued iteration). Dry-run §4 + preflight §3 must go clean after | G3 | 5 min |
 | 9 | Rebuild press kit (`./build-press-kit.sh`), rerun dry-run | G9/G10 | 10 min |
 
 The remaining owner-gated flips are also one command each — `tools/flip_flags.sh`
@@ -147,7 +162,9 @@ to include the live DNS row).
 
 - **Deploy:** `deploy/deploy-site.sh` — `rsync --delete` to a host path, or
   `caddy` reload. Defaults to `--dry-run`; requires `--apply` and
-  `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir and
+  `RW_DEPLOY_HOST`. Static + atomic: rsync to a `releases/<ts>/` dir, write
+  `release.json` (provenance manifest — `tools/release_manifest.py`: git
+  sha, deploy timestamp, file count, `tree_sha256` over the tree), then
   flip a symlink. On apply it prints the exact rollback command (previous
   release path) and prunes the host to the 5 newest releases.
 - **Rollback:** symlink flip back using the printed command, or redeploy a
@@ -192,7 +209,7 @@ to include the live DNS row).
 
 `deploy/infra.env.example` is the canonical list. Highlights:
 
-- `RW_DEPLOY_HOST`, `RW_DEPLOY_PATH`, `RW_DEPLOY_USER` — deploy script
+- `RW_DEPLOY_HOST` (user@host), `RW_DEPLOY_PATH`, `RW_DEPLOY_SSH` — deploy script
 - `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `STRIPE_PUBLISHABLE_KEY` —
   game-side; site never sees them
 - `RW_ANALYTICS_ENDPOINT` — the only value the *site* needs, and it ships
@@ -207,6 +224,8 @@ to include the live DNS row).
 4. Stripe account + whether to start Stripe-only (recommended) or MoR.
 5. Whether `play.` lives on the same box as the site (Caddy
    `reverse_proxy` block already sketched in `deploy/Caddyfile`).
+6. Legal review of the three drafted policy pages (G7) — counsel or owner
+   sign-off + effective-date fill-in; until then they read as drafts.
 
 ## 11. Day-2 operations (post-launch)
 
@@ -226,8 +245,10 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   what git already holds. Host keeps the 5 newest releases
   (`deploy-site.sh` retention); rollback = symlink flip. The only
   irreplaceable host artifact is `/srv/www/realworld/maintenance.html`
-  (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is
-  game-adjacent — backup policy is set when the backend is picked (G8).
+  (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is the
+  ONE artifact git can't reproduce — `deploy/umami-backup.example` ships the
+  nightly `pg_dump` cron + restore drill so the policy is ready before G8,
+  not deferred to it.
 - **TLS:** Caddy auto-renews ~30 days out; the 14-day monitor alert means
   renewal already failed once — check 80/443 reachability and LE
   rate-limits, don't wait for day 0.
@@ -237,3 +258,66 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
 - **Post-launch verification cadence:** `prod_smoke.sh` after every
   deploy (ship.sh runs it automatically); `uptime_probe.sh` failures →
   LAUNCH-CHECKLIST §5 severity ladder.
+- **Release provenance:** every deployed release carries `/release.json`.
+  `prod_smoke.sh` §5b fetches it and compares `git_sha` to the local
+  HEAD — a mismatch WARNs "host serves a different commit" (catches stale
+  or wrong-checkout deploys); `tools/release_manifest.py --verify <dir>`
+  on the host re-hashes the tree against its manifest (catches corrupted
+  or tampered files). A release.json 404 just warns — pre-v89 releases
+  and edge-stripped JSON both produce that.
+- **Traffic readiness:** `deploy/traffic-plan.md` is the launch-day load
+  plan — the cache-header contract, the T-2h probe sequence
+  (`tools/traffic_probe.sh headers|warm|load`), and the severity→action
+  surge playbook including the CDN-front flip for the VPS path.
+- **Incident drill:** `tools/incident_drill.sh` rehearses the actual
+  failure loop, not just mechanics — fake host + HTTP server, deploy a
+  good release (baseline smoke green), inject a corrupted release
+  (gutted index.html/style.css), assert BOTH detectors fire (manifest
+  verify MISMATCH + prod_smoke FAIL), then flip the rollback symlink and
+  assert green again. Run it whenever deploy-site.sh, prod_smoke.sh, or
+  the release layout change. Rehearsed PASS 2026-09-23 (v89).
+
+## 12. Disaster recovery — host loss
+
+The site is stateless, so "the VPS is gone" is a rebuild, not a restore.
+The contract a replacement host must satisfy is codified in
+`deploy/host-contract.md`; producing it is one command.
+
+| # | Step | Est. |
+|---|---|---|
+| 1 | Order/grab a fresh Debian or Ubuntu VPS (any provider — no lock-in by design) | 10 min |
+| 2 | `RW_BOOTSTRAP_HOST=root@<new-ip> tools/bootstrap_host.sh --apply` — packages (caddy/ufw/rsync/unattended-upgrades), `deploy` user, `/srv/www/realworld` layout, `maintenance.html` staged | 5 min |
+| 3 | Owner adds deploy pubkey; `scp deploy/Caddyfile` → `/etc/caddy/Caddyfile`, `systemctl reload caddy` | 10 min |
+| 4 | DNS: repoint apex/`play.`/`stats.` A-records to the new IP per `deploy/dns-records.example`; verify `tools/dns_check.sh <domain> <new-ip>` | 15 min + TTL |
+| 5 | `deploy/deploy-site.sh --apply` (HEAD redeploys the exact current tree) → `tools/prod_smoke.sh https://<domain>` | 10 min |
+
+**RTO ≈ 1 h** dominated by DNS TTL — keep TTL ≤300 s on apex records at
+launch so the repoint propagates fast. **RPO = 0** for the site (git is the
+source of truth; any past release is `git checkout <tag>` + redeploy). The
+only real data loss surface is the Umami DB if analytics is self-hosted —
+`deploy/umami-backup.example` covers it; a hosted analytics backend (G8
+alternative) removes even that. Verify any rebuild with
+`RW_DEPLOY_HOST=deploy@<new-ip> tools/bootstrap_host.sh --check` before
+flipping DNS — the same check doubles as a drift detector on the live host.
+
+## 13. Ops audits & data rights — keeping this file true
+
+- **Doc-drift audit:** `tools/infra_audit.sh` (v149) mechanically verifies
+  this file + `deploy/README.md` against the tree — cited paths exist and
+  are executable, every `deploy/` artifact is documented, the §1 page count
+  matches `site/`, the §7 header contract holds in both host configs
+  (`Caddyfile` + `netlify.toml`), the §9 env vars are defined in
+  `infra.env.example`, and no key-shaped strings live in `deploy/`/`site/`.
+  First run (v149) caught and fixed real drift: a stale page-count claim
+  (actual 21), `RW_DEPLOY_USER` cited but never defined (user is embedded
+  in `RW_DEPLOY_HOST`), and a naive key-scan that would have false-fired on
+  the `sk_live_...` placeholders. Run it after any edit here or in `deploy/`.
+- **Data rights:** `deploy/data-rights.md` (v149) is the runbook behind
+  `site/privacy.html`'s `privacy@` promise — intake, proportional
+  verification, a per-store data map (what can actually be produced or
+  deleted — spoiler: very little, by design), the 30-day SLA, and reply
+  templates in the house voice. The hard boundary it enforces honestly:
+  the public request feed is permanent and disclosed as such — deletion
+  applies to *account-level* data only; feed entries get handle
+  anonymization, never retro-edits. Activates with the G6 mail decision;
+  first end-to-end drill is a day-30 checklist item.

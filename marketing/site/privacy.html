@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy — Real World</title>
+<meta name="description" content="Privacy policy for Real World: cookieless analytics, no tracking pixels, no accounts on the site, Stripe-hosted checkout, and what the game itself stores.">
+<link rel="canonical" href="https://realworld-game.example/privacy.html"><!-- PLACEHOLDER domain: replace at launch -->
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Real World">
+<meta property="og:title" content="Real World — Privacy">
+<meta property="og:description" content="Cookieless analytics, no tracking pixels, no card data on our servers. The privacy posture is a design decision, not a disclaimer.">
+<meta property="og:url" content="https://realworld-game.example/privacy.html"><!-- PLACEHOLDER domain -->
+<meta property="og:image" content="assets/og-card.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Real World — Privacy">
+<meta name="twitter:description" content="Cookieless analytics, no tracking pixels, no card data on our servers.">
+<meta name="twitter:image" content="assets/og-card.png">
+<link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<link rel="manifest" href="assets/site.webmanifest">
+<link rel="mask-icon" href="assets/safari-pinned-tab.svg" color="#e8a04c">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="privacy">
+<a class="skip-link" href="#main">Skip to content</a>
+<header class="site-header">
+  <div class="nav-wrap">
+    <a class="brand" href="index.html"><img src="assets/favicon.svg" width="34" height="34" alt="" style="border-radius:8px"><span>REAL WORLD<small>The Mission</small></span></a>
+    <button class="nav-toggle" aria-label="Menu" aria-expanded="false">☰</button>
+    <nav class="nav-links">
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="cast.html">Cast</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="archive.html">Archive</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html">Journal</a>
+      <a href="pricing.html">Pricing</a>
+      <a href="faq.html">FAQ</a>
+      <a href="rules.html">Rules</a>
+      <a href="press-kit.html">Press kit</a>
+      <a href="brand.html">Brand &amp; assets</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+
+<section class="hero">
+  <div class="wrap">
+    <div class="pill">Launch draft v1 — pending owner legal review (gate G7); takes effect when the game opens</div>
+    <h1>Privacy, in plain language.</h1>
+    <p class="lead">
+      A game about watching people should be honest about who's watching you.
+      The short version: this site sets <b>no cookies</b>, runs <b>no
+      third-party trackers</b>, and never sees your card number. What little
+      we do collect is listed below — all of it, not the polite parts.
+    </p>
+  </div>
+</section>
+
+<!-- SITE ANALYTICS -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">On this website</p>
+    <h2>What the site collects.</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Anonymous page analytics</h3>
+        <p>When analytics are enabled, a first-party script records page views
+        and button clicks: page path, page title, referring <i>host</i> (never
+        the full URL), language, and campaign parameters on landing. No
+        cookies, no localStorage identifiers, no fingerprinting. Your
+        "session" is a random nonce that dies when the tab closes.</p>
+        <p>Unique-visitor counting happens on our own server with a
+        daily-rotating IP+UA+salt hash — yesterday's count can't be tied to
+        today's, and the client never sends a persistent ID. The backend is
+        self-hosted; nothing goes to an ad network.</p>
+      </div>
+      <div class="card">
+        <h3>What the site never does</h3>
+        <ul>
+          <li>No tracking pixels, no social embeds, no ad-tech scripts.</li>
+          <li>No accounts on the marketing site — there is nothing to log in to.</li>
+          <li>No cross-tab or cross-day visitor identity.</li>
+          <li>No sale or sharing of personal data. There's barely any to sell.</li>
+        </ul>
+        <p>We honor <b>Do Not Track</b>, <b>Global Privacy Control</b>, and
+        <code>?nocollect=1</code>. You can also opt out permanently from the
+        browser — set <code>localStorage "rw:no-collect"</code> to
+        <code>"1"</code>, or just don't visit; we won't know either way.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAME DATA -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">In the game</p>
+    <h2>What playing creates.</h2>
+    <div class="grid grid-3">
+      <div class="card">
+        <h3>Your handle &amp; asks</h3>
+        <p>Spectating needs no account. If you reach in, you pick a public
+        handle — screened so it can't be a cast member's or a real person's
+        name — and your requests carry it on the public feed, permanently.
+        Assume everything you file is public, because it is.</p>
+      </div>
+      <div class="card">
+        <h3>The ledger</h3>
+        <p>Credits spent, refunds issued, and moderation decisions are recorded
+        in a ledger so the money side stays auditable. Public feed entries
+        show your handle and what ran — never your payment details.</p>
+      </div>
+      <div class="card">
+        <h3>What we don't store</h3>
+        <p>Card numbers, bank details, billing addresses beyond what Stripe
+        requires for tax — checkout is hosted by Stripe and card data never
+        touches our servers. Stripe's own privacy policy applies to what it
+        processes.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CHILDREN / RIGHTS -->
+<section>
+  <div class="wrap">
+    <p class="eyebrow">The fine print</p>
+    <h2>Age, retention, and your rights.</h2>
+    <div class="grid grid-2">
+      <div class="card">
+        <h3>Children</h3>
+        <p>Watching is open to everyone — it's a public feed, no account.
+        Under-13 visitors are directed to a spectator-only experience and out
+        of every paid feature: no purchases, no requests, no rewarded ads.
+        Players under 18 get limits on spend-related features; rewarded ad
+        views are adult-only.</p>
+      </div>
+      <div class="card">
+        <h3>Retention &amp; deletion</h3>
+        <p>Site analytics: aggregate counts persist; the per-visitor hash
+        rotates daily. Game-side: your handle, request history, and ledger
+        entries are kept while the world runs — the public feed is the
+        game's memory, and your attributed asks are part of its record.
+        To ask about access or deletion of account-level data, write to
+        the contact below.</p>
+      </div>
+      <div class="card">
+        <h3>Changes</h3>
+        <p>If this policy changes materially — a new collection category, a
+        new processor — it gets a dated entry on this page and a note in the
+        launch journal before it takes effect. The privacy posture
+        (cookieless, self-hosted, no third parties) is a product commitment,
+        not a loophole to close later.</p>
+      </div>
+      <div class="card">
+        <h3>Contact</h3>
+        <p>Questions, access requests, or anything about this page:
+        <b>privacy@realworld-game.example</b> <span class="muted">(placeholder
+        address — activates when the domain is registered; see the press kit
+        for press contact).</span></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section>
+  <div class="wrap" style="text-align:center">
+    <h2>The rest of the paperwork.</h2>
+    <p class="lead" style="margin:0 auto">Terms of use cover credits, requests, and what you're agreeing to. The refund policy lists every case where money moves back.</p>
+    <div class="btn-row" style="justify-content:center">
+      <a class="btn btn-primary" href="terms.html" data-rw-event="cta_click" data-rw-props='{"cta":"privacy-footer","dest":"terms"}'>Terms of use</a>
+      <a class="btn btn-ghost" href="refunds.html" data-rw-event="cta_click" data-rw-props='{"cta":"privacy-footer","dest":"refunds"}'>Refund policy</a>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap foot-grid">
+    <div>
+      <h4>Real World</h4>
+      <a href="index.html">Home</a>
+      <a href="features.html">Features</a>
+      <a href="cast.html">Cast</a>
+      <a href="how-it-works.html">How it works</a>
+      <a href="demo.html">Watch</a>
+      <a href="gallery.html">Gallery</a>
+      <a href="archive.html">Archive</a>
+      <a href="community.html">Community</a>
+      <a href="journal.html">Journal</a>
+      <a href="rules.html">Rules &amp; safety</a>
+    </div>
+    <div>
+      <h4>Buy</h4>
+      <a href="pricing.html">Credits &amp; pricing</a>
+      <a href="compare.html">Vs other life sims</a>
+      <a href="faq.html">FAQ</a>
+    </div>
+    <div>
+      <h4>Press</h4>
+      <a href="press-kit.html">Press kit</a>
+      <a href="brand.html">Brand &amp; assets</a>
+      <a href="gallery.html">Screenshots</a>
+    </div>
+    <div>
+      <h4>Legal</h4>
+      <a href="terms.html">Terms of use</a>
+      <a href="privacy.html">Privacy</a>
+      <a href="refunds.html">Refunds</a>
+    </div>
+  </div>
+  <div class="wrap foot-note">
+    © <span id="year"></span> Real World team. All characters are fictional; the neighborhood is real geography.
+    This is a pre-launch draft site — no live game is implied.
+  </div>
+</footer>
+
+<script src="js/analytics.js" defer></script><!-- inert until data-endpoint is set; see marketing/ANALYTICS.md -->
+<script src="js/main.js"></script>
+</body>
+</html>

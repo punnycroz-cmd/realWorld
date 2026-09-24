@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v81 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v141 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -31,6 +31,24 @@ would contradict the brand. So:
 
 This posture is itself a marketing asset — one line on the privacy page / FAQ at
 launch: *"We measure the funnel, not you: no cookies, no cross-site tracking."*
+
+**The contract is enforced, not just written (v141).**
+`tools/analytics_privacy.py` statically audits `marketing/site/` for violations:
+tracker domains and vendor account-id literals (GA/GTM/UA/AW, Meta/Mixpanel/
+Amplitude/Hotjar/PostHog/Umami-id patterns), banned APIs (`document.cookie`,
+`indexedDB`, `RTCPeerConnection`, canvas readback, `enumerateDevices`,
+`getBattery`, `navigator.plugins`), identifier-shaped `localStorage` keys
+(sessionStorage is session-scoped and allowed; a small allowlist covers
+legitimate user-facing state like `rw_watchcard_v1`), literal remote egress in
+network calls, and — critically — a **committed live endpoint** (the repo must
+ship inert; `data-endpoint` is set at deploy time, §4). Exit 1 on any FAIL.
+It runs inside `analytics_e2e.sh` and `metrics_weekly.sh`, so a privacy
+regression blocks the weekly report the same way spec drift does.
+
+```bash
+python3 marketing/tools/analytics_privacy.py            # audit the shipped site
+python3 marketing/tools/analytics_privacy.py --site DIR # audit a staging copy
+```
 
 ## 2. Tool choice
 
@@ -71,7 +89,7 @@ visit      pageview                     (site — live now)
             └─create character_created  (game — PENDING)
 ```
 
-**Onboarding events (v36 + v51 + v68 + v81):** the world track's onboarding contract
+**Onboarding events (v36 + v53 + v68 + v81):** the world track's onboarding contract
 (`world/onboarding-ui.md` / `world/onboarding.json analytics_hooks`)
 names twenty-one events emitted at merge. v11's nine: `tour_started`,
 `tour_beat`, `tour_completed`, `tour_skipped` (carries `at_beat`),
@@ -215,6 +233,128 @@ first run caught real drift — the spec's page-slug and CTA-slot lists were
 a version behind the site, and `watch_start` was missing the `mode` prop the
 demo emitter already sends. All fixed in `analytics-events.json` (v66).
 
+### Coverage audit — site ↔ spec (v96)
+
+`tools/analytics_coverage.py` is the static twin of the validator: instead of
+checking captured events, it checks the SITE against the spec — no browser,
+no sink, no events needed. Run it after any site page or emitter change:
+
+```bash
+python3 marketing/tools/analytics_coverage.py
+```
+
+It fails (exit 1) when: a page doesn't load `js/analytics.js` or carries a
+`data-page` slug outside the spec's pageview domain; a `data-rw-event` names
+an unknown event or sends undeclared/invalid props; a `window.rw.track()`
+call in `site/js/` does the same; or a spec event marked live on the site has
+no emitter at all. PENDING game-side events warn instead of failing.
+
+Its first run (v96) caught 18 real findings — `cta:"demo-cam"` + a `cam`
+prop, `cta:"gallery-footer"`, and `data-page="gallery"` were all shipped on
+the site but missing from `analytics-events.json`, and `press_kit_download`
+was marked live though the kit zip link isn't published yet. All fixed in
+the spec. `analytics_e2e.sh` and `metrics_weekly.sh` both gate on it.
+
+### Weekly metrics run — one command (v96, extended v111 + v126)
+
+```bash
+./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson]
+```
+
+Validates the capture → audits coverage → renders the §8 block + §7 detail
+labelled with the ISO week of the newest event → appends a **journeys**
+section (`analytics_paths.py`), a **goals** section (`analytics_goals.py`,
+v126), and, when `prev.ndjson` is given, a **wow check** section
+(`analytics_watch.py`) → writes
+`marketing/analytics/weekly-<ISOweek>.md` (gitignored — the committed
+reference output stays `sample-report.md`). Fill "action taken", paste the
+block into MARKETINGLOG.md. Keep last week's capture around — the prev arg
+is what turns a report into a trend.
+
+### Goals gate — what "good week" means (v126)
+
+`analytics/goals.json` is the machine-readable answer to "did the funnel
+hit plan?" — every launch KPI as a graded metric: funnel transitions
+(visit→engaged ≥40%, engaged→watch ≥25%, watch→request ≥10%,
+request→character ≥20% — the funnel-scorecard hypotheses), demand signals
+(calculator use, request simulator, shares), and health guardrails (bounce
+≤60%, 404 share ≤2%, median index attention ≥30s).
+
+```bash
+python3 marketing/tools/analytics_goals.py /tmp/rw-events.ndjson [--strict] [--json]
+```
+
+Each goal grades **PASS / WATCH / MISS / LOW-N / NO-DATA** against a fixed
+target + watch band (default: within 80% of target = WATCH). `LOW-N`
+(denominator < 30 sessions — the same guardrail as `ab_compare.py`) and
+`NO-DATA` (emitter not live yet, e.g. pending game-side events) never grade
+red: a small or quiet week is data quality, not failure. `--strict` exits 1
+on any MISS — wire it into the weekly cron next to
+`analytics_watch.py --strict`.
+
+**Honesty rule:** targets are planning hypotheses sourced from
+`community/funnel-scorecard.md` §2 and the research report. They may be
+revised at the day-30 retro only, in writing — never edited mid-week to
+make a number pass. The same rule governs the funnel scorecard; the two
+files share stage definitions by design.
+
+The local **dashboard** (`analytics/dashboard.html`) renders the same table
+as its "0 · Goals" panel — drop `goals.json` onto the page alongside the
+capture (either order) and it re-grades in-browser, same metric kinds, no
+server.
+
+### Session journeys (v111)
+
+`tools/analytics_paths.py` — the missing "in what order" half of the stack.
+Groups a capture by `sid`, sorts by `ts`, and reads the pageview trail:
+landing pages + bounce rate, exit pages, most common journeys, top
+page→page transitions, and a per-target conversion readout (`--target`,
+default `watch_start`/`request_simulated`/`request_submitted`/
+`character_created`): sessions reaching it, median pages before the first
+hit, the page it fired on, and **assist pages** — pages over-represented in
+converting sessions (lift ≥1.15×, n≥3 — correlation, not causation; a
+high-lift page is a hypothesis for EXPERIMENTS.md, not a verdict).
+
+```bash
+python3 marketing/tools/analytics_paths.py /tmp/rw-events.ndjson --top 8
+```
+
+### Week-over-week watch (v111)
+
+`tools/analytics_watch.py` — diffs two captures and prints a delta table +
+WARN lines: sessions/pageviews moved ≥ ±25% (`--threshold`), any funnel
+stage rate down ≥ threshold, 404s up ≥ +50% or new 404 paths, event names
+missing from `analytics-events.json` (drift caught in the *data*, not just
+the site), median engaged-seconds drop. `--strict` exits 1 on any WARN for
+a cron/CI hook at launch.
+
+```bash
+python3 marketing/tools/analytics_watch.py thisweek.ndjson lastweek.ndjson
+```
+
+### Season trendline (v141)
+
+`tools/analytics_history.py` — the third time axis. `analytics_report.py`
+reads one capture, `analytics_watch.py` diffs two; this lines up **N** kept
+captures and renders one table (sessions, pageviews, engaged/watch/request/
+character reach, bounce, median attention, 404 share) labelled by the ISO
+week of each file's newest event — same rule `metrics_weekly.sh` uses —
+plus ASCII sparklines per metric so a slow decline shows up before a
+`--strict` alarm ever fires. Keep each week's NDJSON (it's also the `prev`
+arg for `analytics_watch.py`) and the whole launch season becomes:
+
+```bash
+python3 marketing/tools/analytics_history.py captures/*.ndjson
+python3 marketing/tools/analytics_history.py w38.ndjson w39.ndjson --json
+```
+
+### Experiment program (v96)
+
+A/B readouts are run through `tools/ab_compare.py`; which tests exist and
+how winners get called lives in **`marketing/EXPERIMENTS.md`** — a registry
+with fixed decision rules (n≥30, two-week confirmation, guardrails). Log
+the test before the tagged link goes out; null results get recorded too.
+
 ### A/B / creative readout (v66)
 
 `tools/ab_compare.py` — splits sessions by a utm dimension (default
@@ -235,10 +375,14 @@ one week's z-score.
 
 `marketing/analytics/dashboard.html` — a standalone, file://-safe page.
 Drop any NDJSON capture on it (or pick the file) and it renders the §7
-four panels in-browser: acquisition, engagement, funnel (+ onboarding
-sub-funnel when the events are present), health. No server, no upload —
+panels in-browser: acquisition, engagement, funnel (+ onboarding
+sub-funnel when the events are present), health, and a **journeys** panel
+(v111 — landing/exit pages, bounce, top transitions and trails from the
+same per-sid logic as `analytics_paths.py`). No server, no upload —
 parsing is local JS. Internal tool, marked `noindex`; do not deploy to
-the public site. Try it with `analytics/sample-week.ndjson`.
+the public site. Try it with `analytics/sample-week.ndjson` (regenerated
+v111 — fixture sessions now navigate multi-page journeys, so the panel
+has real trails to render).
 
 Smoke test without a browser:
 
@@ -277,12 +421,21 @@ One dashboard, four panels — everything derivable from the event spec:
    `share_click` by method (viral loop health); `price_calc` + `scene_calc` +
    `sub_calc` splits (which class/duration/scene-mix/sub-verdict visitors
    price — purchase intent before checkout);
-   `outbound_click` targets.
+   `outbound_click` targets; `cta_click{cam}` camera-preset picks (v96 —
+   which spectator angle visitors try first).
 3. **Funnel:** visit → engaged → watch → request → create, session-joined by
    `sid` + same-day window. First three stages live at launch; last two turn on
    when the game embed emits.
 4. **Health:** 404 pageviews by path (broken-link radar), `?nocollect` rate
    (privacy-conscious audience share — worth knowing, not optimizing).
+5. **Journeys (v111):** landing pages + bounce, exit pages, top
+   transitions and trails, per-target conversion paths with assist-page
+   lift. Rendered by `analytics_paths.py` in the weekly file and by the
+   fifth panel in `dashboard.html`.
+6. **Goals (v126):** the capture graded against `analytics/goals.json` —
+   PASS/WATCH/MISS/LOW-N/NO-DATA per KPI. Rendered by
+   `analytics_goals.py` in the weekly file and by the "0 · Goals" panel in
+   `dashboard.html` (drop goals.json on the page to enable it).
 
 **Targets (honest, from the research report):** the free-watch top of funnel is
 the whole business — optimize `pageview → watch_start` first. TPP-class
@@ -330,6 +483,25 @@ Append to MARKETINGLOG.md weekly once live (fill `{{...}}`):
 - [ ] Production collector implements the §1 daily-hash unique contract
       (or run our sink with `--uniques`); `analytics_report.py --uniques`
       renders the per-day counts
+- [ ] `tools/analytics_coverage.py` clean after any page/emitter change —
+      also gated inside `analytics_e2e.sh` and `metrics_weekly.sh` (v96;
+      v111 fixed the compare/privacy/refunds/terms drift it caught)
+- [ ] `tools/analytics_privacy.py` clean before every deploy — it is the
+      §1 contract made executable: tracker domains, account-id literals,
+      banned APIs, persistent-identifier storage, literal remote egress,
+      and committed live endpoints all FAIL (v141; gated inside
+      `analytics_e2e.sh` and `metrics_weekly.sh`)
+- [ ] Keep each week's NDJSON capture after reporting — it's the `prev`
+      arg that makes `analytics_watch.py` diff work in `metrics_weekly.sh`
+      (v111)
+- [ ] At launch, wire `analytics_watch.py --strict` into a weekly cron/CI
+      step so funnel-stage collapses and 404 spikes page someone (v111);
+      run `analytics_goals.py --strict` in the same job so a MISS pages
+      too (v126)
+- [ ] Review `analytics/goals.json` targets at the day-30 retro, in
+      writing — they are hypotheses, not contracts (v126)
+- [ ] Every A/B test registered in EXPERIMENTS.md before its tagged links
+      go out; decision rules there are fixed, not per-test (v96)
 
 ## 10. Hard rules
 

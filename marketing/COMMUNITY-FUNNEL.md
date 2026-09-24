@@ -1,6 +1,29 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v84 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v144 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v144 added the lifecycle layer: NEW `community/scale-plan.md` — the missing
+second half of the blueprint's "busy 6-channel" rule: stay-small covenant (no
+member-count goals, no growth levers that buy drive-by joins), growth tiers
+T0–T3 keyed to scorecard manual counts + mod-action load (slow mode, two
+approved channel splits, verification-gate timing, mod-ratio rule), the
+downward path (quiet server → consolidated cadence → collapsed read-only
+surface), raid-as-load-signal wiring into incident-comms, and the honest
+sunset sequence.)
+(v129 added the recognition layer: NEW `community/regulars-program.md` —
+the `@regular` spec: observable-only eligibility, opt-in conferral with
+copy-ready DM, consent-gated site roster, never-purchasable rule, explicit
+firewall from `mod-ramp.md`. `site/community.html` gained a rendered sample
+recap issue (the v24 demo draft, clearly labeled demo data, styled by a new
+`.recap-issue` block in style.css) and a regulars line on the Join rung.)
+(v114 rebuilt `site/community.html` end-to-end: the v9 page predated the
+whole ops kit, so it now carries the real offer — the fixed weekly
+programming grid (recap 18:00 / open-rumor 18:05 / clinic Wed 19:00 /
+town hall 1st Sat / watch parties event-driven / feed mirrors daily, from
+`programming-calendar.md`), the full 8-channel map rendered from
+`server-blueprint.json` with the honest invite placeholder kept, a
+"what a recap contains" beats section sourced from `build_recap.py`'s
+structure, and a fourth ladder rung (Bring someone → #clips). Every
+public claim on the page now traces to a runnable file in `community/`.)
 (v9 wrote the pipeline; v24 wired the recap engine to the world track's
 canonical feed/archive contracts — `world/feed.json`, `world/history.json` —
 and shipped `tools/build_recap.py`. v40 added the runnable ops kit under
@@ -19,7 +42,12 @@ slot lands on, with quiet-week fallbacks + copy-ready prompts),
 `community/clips-and-highlights.md` (Stage-5 `#clips` channel spec —
 member captures as the organic advocacy path), and
 `community/incident-comms.md` (community-facing incident playbook —
-holding statements, response clocks, one-voice rule).)
+holding statements, response clocks, one-voice rule). v99 closed the two
+remaining soft spots: `community/server-blueprint.json` + `tools/
+server_blueprint.py` (§3 as machine-checkable data — `--render` prints the
+create-at-go checklist, `--check` verifies a real server export before the
+site links it) and `community/feed-mirror-bot-spec.md` (§8's last SPEC row —
+the post-launch mirror bot fully designed, still gated by feed-mirror §5).)
 **Scope:** spectator → community → player pipeline: surfaces, content strategy,
 moderation, creator outreach, feedback loop, launch infrastructure.
 **Authority:** design doc `rw-game-design-2026-09-22.md` (esp. §5 participation,
@@ -74,7 +102,7 @@ numbers from the events capture + manual Discord counts).
 | Surface | Job in funnel | Status |
 |---|---|---|
 | `site/` landing pages | Stage 0→1: explain, show real captures | BUILT |
-| `site/community.html` | Stage 1→2: describe the community offer honestly pre-launch | BUILT (v9) |
+| `site/community.html` | Stage 1→2: describe the community offer honestly pre-launch | REBUILT (v114) — weekly grid + channel map mirror §5/`server-blueprint.json`; invite placeholder kept, `community_join` event wires onto the real link at go |
 | `site/demo.html` | Stage 0→1 front door: spectator view stub + fallback | BUILT (v11) — go-live is one `data-demo-src` attribute |
 | The Wire — `world/feed.html` (world track) | Stage 1 surface: live spectator feed UI demo | EXISTS on sf/world — borrow as contract, not as an asset |
 | The Archive — `world/history.html` + `world/history.json` (world track) | Stage 1→2: free back-catalog; recap source data | EXISTS on sf/world — `history.json` is the recap input format |
@@ -85,9 +113,11 @@ numbers from the events capture + manual Discord counts).
 | Feedback router — `tools/feedback_router.py` + `community/feedback-batch.template.md` | §7 loop automation: sanitized batch → ready-to-paste inbox entry grouped by owning track | BUILT (v54) |
 | Feed-mirror curation spec — `community/feed-mirror.md` | `#the-feed` manual mirror: selection criteria, verbatim post format, daily routine, bot-scaling trigger | BUILT (v69), OWNER-GATED to run — day-0 dep (D0.8b) |
 | Mod ramp — `community/mod-ramp.md` | Day-14 moderator kit: when/who to recruit, the ask, onboarding, decide-vs-escalate scope, `#mod-log` format, offboarding | BUILT (v69), OWNER-GATED to run |
+| Regulars — `community/regulars-program.md` | Stage 2→5 identity layer: `@regular` recognition role — observable eligibility (no points), opt-in conferral DM, consent-gated site roster, never purchasable, firewall from mod selection | BUILT (v129), OWNER-GATED to run — activates day-30+ |
 | Programming calendar — `community/programming-calendar.md` | Stage 2 retention: one weekly grid all cadence slots land on (recap, rumor thread, clinic, town hall) with quiet-week fallbacks + copy-ready prompts | BUILT (v84), OWNER-GATED to run |
 | Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
 | Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |
+| Scale plan — `community/scale-plan.md` | Server lifecycle: stay-small covenant, growth tiers T0–T3 (slow mode, channel splits, verification gate, mod ratio), quiet/dead-server path, sunset sequence | BUILT (v144), OWNER-GATED to run |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -102,7 +132,19 @@ newsletter (no email infra budgeted; recap posts carry the same job).
 One server, minimal channels. A quiet 40-channel server reads dead; a busy
 6-channel server reads alive.
 
-**Setup checklist (owner-gated, ~1 session):**
+**The checklist is now data.** `community/server-blueprint.json` holds the
+whole server — name, community features, rules-gate text, welcome screen,
+roles, channels with read-only/private flags and pin lists — and
+`tools/server_blueprint.py` is its interface: `--render` prints the steps
+below from the JSON (so this doc and the checklist can't drift),
+`--emit-dump` produces a fill-in audit file, and `--check <dump>` verifies
+the created server (simple dump *or* a Discord guild-template export)
+before the site invite link goes live — name, roles, every channel's
+presence/type, read-only enforcement on `#the-feed`/`#announcements`,
+`#mod-log` privacy, and a warn on any extra public text channel.
+
+**Setup checklist (owner-gated, ~1 session — `server_blueprint.py --render`
+prints this from the blueprint):**
 1. Create server "Real World — The Mission". Community server toggle ON.
 2. Roles: `@owner` (admin), `@mod` (volunteer, appointed post-launch only),
    `@resident` (self-assign via rules acceptance — cosmetic, no gates).
@@ -127,9 +169,14 @@ One server, minimal channels. A quiet 40-channel server reads dead; a busy
 5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
    first-week cadence are copy-ready in `community/welcome-sequence.md`.
 
+6. Verify: `server_blueprint.py --emit-dump > dump.json`, fill it in (or
+   export the guild template), `--check dump.json` — invite link swap
+   happens only on PASS.
+
 **Naming honesty:** Discord invite links on the site stay as labeled
 placeholders (`community.html` shows "opens at launch") until the owner runs
-this checklist. Never link a server that doesn't exist.
+this checklist and the blueprint check passes. Never link a server that
+doesn't exist.
 
 ---
 
@@ -313,10 +360,10 @@ ticket? (Market report flags this UX question as existential.)
 
 | Need | Options | Decision status |
 |---|---|---|
-| Discord server | free tier; community toggle | OWNER-GATED creation, §3 checklist |
+| Discord server | free tier; community toggle | OWNER-GATED creation — spec is machine-checkable: `community/server-blueprint.json` + `server_blueprint.py --render/--check` (v99) |
 | Devlog host | itch.io devlog (bundled with store presence) | OWNER-GATED account |
-| Feed→Discord mirror | manual curation at launch; bot post-launch | SPEC — not a launch dep |
-| Moderation tooling | Discord native + rules channel | SUFFICIENT at launch scale |
+| Feed→Discord mirror | manual curation at launch; bot post-launch | DESIGNED (v99 `community/feed-mirror-bot-spec.md`) — build OWNER-GATED + blocked on feed-mirror §5 trigger; not a launch dep |
+| Moderation tooling | Discord native + rules channel | SUFFICIENT at launch scale — growth/shrink tiers in `community/scale-plan.md` |
 | Status/comms channel | `#announcements` + recap honesty | BUILT into plan |
 | Analytics on joins | Discord member count, manual weekly note | feeds ANALYTICS.md weekly report |
 
@@ -327,8 +374,10 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 
 ## 9. Day-0 / day-7 / day-30 community tasks
 
-- **Day-0:** run §3 checklist (incl. `#clips` + its pinned rules per
-  `community/clips-and-highlights.md` §2); pin rules + feedback asks;
+- **Day-0:** run §3 checklist via `server_blueprint.py --render`, then
+  `--check` the created server before the invite link goes live (incl.
+  `#clips` + its pinned rules per `community/clips-and-highlights.md` §2);
+  pin rules + feedback asks;
   keep `community/incident-comms.md` §2 open in a tab — day-0 is when
   the response clocks first tick; post welcome note
   (all copy in `community/welcome-sequence.md` §2); start the `#the-feed`
@@ -353,7 +402,8 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
   subreddit/forum revisit; seeding retro per `community/first-100.md` §5;
   funnel metrics review — four scorecard weeks vs. `funnel-scorecard.md` §2
   targets; re-set targets in writing (scorecard §5.3, no silent goalpost
-  moves).
+  moves); tier check per `community/scale-plan.md` §2 (T0 still true? any
+  T1 triggers hit?) and, if so, the first re-set of the plan's thresholds.
 
 ## 10. Open dependencies
 

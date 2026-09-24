@@ -62,12 +62,13 @@
     btn.addEventListener("click", function () {
       var shareUrl = location.origin === "null" || location.protocol === "file:"
         ? "https://realworld-game.example/demo.html" // placeholder until launch domain
-        : location.href.split("#")[0];
+        : location.href.split("#")[0] +
+          (typeof idx === "number" && idx > 0 ? "#shot=" + (idx + 1) : "");
       var done = function (msg) {
         if (status) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 4000); }
       };
       var t = function (method) {
-        if (window.rw && window.rw.track) window.rw.track("share_click", { method: method });
+        if (window.rw && window.rw.track) window.rw.track("share_click", { method: method, surface: "demo" });
       };
       if (navigator.share) {
         navigator.share({
@@ -83,6 +84,28 @@
       } else {
         t("manual");
         done("Copy the URL from your address bar to share.");
+      }
+    });
+  }
+
+  // Embed-the-block snippet — copies the iframe code for streamers/creators.
+  var embBtn = document.getElementById("embed-copy");
+  var embStatus = document.getElementById("embed-copy-status");
+  if (embBtn) {
+    embBtn.addEventListener("click", function () {
+      var src = document.getElementById("embed-snippet");
+      var done = function (msg) {
+        if (embStatus) { embStatus.textContent = msg; setTimeout(function () { embStatus.textContent = ""; }, 4000); }
+      };
+      var text = src ? src.value : "";
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(text).then(
+          function () { done("Embed code copied."); },
+          function () { done("Copy failed — select the snippet and copy it by hand."); }
+        );
+      } else if (src && src.select) {
+        src.select();
+        done("Snippet selected — copy it with Ctrl/Cmd+C.");
       }
     });
   }
@@ -208,11 +231,53 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v48-A", "the block from overhead under the marine layer"],
-      ["shots/v48-B", "street-level follow-cam inside the fog"],
-      ["shots/v48-C", "Dolores Park under a drifting fog tongue"],
-      ["shots/v48-D", "director mode — pastel rowhouses on the sloped block"]
+      ["shots/v53-A", "the block from overhead — Jules selected, needs and mood readable"],
+      ["shots/v53-B", "street level — names over heads, leaves in the air"],
+      ["shots/v53-C", "Dolores Park — blankets on the lawns, Karl's fog edging in"],
+      ["shots/v53-D", "director mode — the neighborhood reads like a set"]
     ];
+    // "Label the shot" overlay — one marker set per SHOTS entry. Every label
+    // names something verifiable in the frame itself: the inspector panel,
+    // names over heads, the Wire HUD chip, the REC marker. Nothing here
+    // claims liveness — the captures are labeled as such everywhere else.
+    // Fallback-only: the live HUD names its own surfaces.
+    var MARKS = [
+      [
+        [14, 44, "Resident inspector — needs, mood & skills on select"],
+        [48, 47, "Jules — the selected resident"],
+        [30, 4, "World HUD — day, weather, block time"],
+        [82, 4, "The Wire — every request lands here"],
+        [62, 57, "24th St — the real Mission grid"]
+      ],
+      [
+        [48, 36, "Jules — names over heads, always"],
+        [64, 36, "Priya — out on her routine"],
+        [11, 34, "Dani"],
+        [14, 44, "The same inspector, at street level"],
+        [50, 22, "Facades mid-dress — signage pass in progress"]
+      ],
+      [
+        [48, 34, "Dolores Park — the block's commons"],
+        [86, 30, "The palm allée"],
+        [33, 22, "Blankets out — residents on their own schedules"],
+        [12, 12, "Karl's fog pools at the edges — it edges in, never snaps"]
+      ],
+      [
+        [5, 9, "● REC — director mode"],
+        [50, 14, "DIRECTOR — free framing, still read-only"],
+        [62, 43, "Dressed facades — the block as its own postcard"],
+        [14, 44, "The inspector rides along in every mode"]
+      ]
+    ];
+    // Deep link: #shot=1..4 pins the deck (and its cam chip) on load, so a
+    // shared "this view" link lands on the same capture. The live embed
+    // ignores the hash — live cameras live inside the frame.
+    var hashShot = (function () {
+      var m = /[#&]shot=(\d)/.exec(location.hash || "");
+      if (!m) return -1;
+      var n = parseInt(m[1], 10) - 1;
+      return (n >= 0 && n < SHOTS.length) ? n : -1;
+    })();
     var screen = stage.querySelector(".demo-fallback-screen");
     var img = screen && screen.querySelector("img");
     var srcEl = screen && screen.querySelector("source");
@@ -222,12 +287,44 @@
     var noteText = document.getElementById("demo-note-text");
     var tourBtn = document.getElementById("demo-tour");
     var keysHint = document.getElementById("demo-keys");
+    var camBar = document.getElementById("cam-bar");
+    var camChips = camBar ? camBar.querySelectorAll(".cam-chip") : [];
+    var marksEl = document.getElementById("demo-marks");
+    var labelBtn = document.getElementById("demo-labels");
+    var labelsOn = false;
+
+    function renderMarks() {
+      if (!marksEl) return;
+      marksEl.textContent = "";
+      marksEl.hidden = !labelsOn;
+      marksEl.setAttribute("aria-hidden", labelsOn ? "false" : "true");
+      if (!labelsOn) return;
+      var list = MARKS[idx] || [];
+      for (var m = 0; m < list.length; m++) {
+        var mk = document.createElement("span");
+        mk.className = "demo-mark";
+        mk.style.left = list[m][0] + "%";
+        mk.style.top = list[m][1] + "%";
+        mk.textContent = list[m][2];
+        marksEl.appendChild(mk);
+      }
+    }
     var reduced = window.matchMedia &&
       window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     var idx = 0, touring = false, tourTimer = null, autoTimer = null;
 
+    function markCam(i) {
+      for (var j = 0; j < camChips.length; j++) {
+        var on = parseInt(camChips[j].getAttribute("data-shot"), 10) === i;
+        camChips[j].classList.toggle("is-active", on);
+        camChips[j].setAttribute("aria-pressed", on ? "true" : "false");
+      }
+    }
+
     function show(i, fade) {
       idx = ((i % SHOTS.length) + SHOTS.length) % SHOTS.length;
+      markCam(idx);
+      renderMarks();
       var base = SHOTS[idx][0], label = SHOTS[idx][1];
       var swap = function () {
         if (srcEl) srcEl.setAttribute("srcset", base + ".webp");
@@ -291,7 +388,35 @@
       }, 8000);
     }
 
+    // Camera presets — clicking a chip jumps the deck to its shot and
+    // resets the auto-cycle so the pick actually lands. The chip's own
+    // data-rw-event emits cta_click{cta:"demo-cam",cam:<name>}.
+    function resetAuto() {
+      if (autoTimer) { clearInterval(autoTimer); autoTimer = null; }
+      if (!reduced && !touring) startAuto();
+    }
+    for (var ci = 0; ci < camChips.length; ci++) {
+      (function (chip) {
+        chip.addEventListener("click", function () {
+          if (!screen || !img) return;
+          if (touring) endTour(false);
+          show(parseInt(chip.getAttribute("data-shot"), 10), true);
+          resetAuto();
+        });
+      })(camChips[ci]);
+    }
+
+    if (labelBtn) {
+      labelBtn.addEventListener("click", function () {
+        labelsOn = !labelsOn;
+        labelBtn.setAttribute("aria-pressed", labelsOn ? "true" : "false");
+        labelBtn.textContent = labelsOn ? "Hide the labels" : "Label the shot";
+        renderMarks();
+        // the button's own data-rw-event emits cta_click{cta:"demo-labels"}
+      });
+    }
     if (screen && img) {
+      if (hashShot >= 0) show(hashShot, false);
       if (!reduced) startAuto();
       if (tourBtn) {
         tourBtn.addEventListener("click", function () {
@@ -310,16 +435,76 @@
         } else if (e.key === "ArrowLeft") {
           if (touring) { if (tourTimer) clearTimeout(tourTimer); tourBeat = Math.max(tourBeat - 2, -1); tourStep(); }
           else show(idx - 1, true);
+        } else if (/^[1-4]$/.test(e.key)) {
+          if (touring) endTour(false);
+          show(parseInt(e.key, 10) - 1, true);
+          resetAuto();
+        } else if (e.key === "l" || e.key === "L") {
+          if (labelBtn) labelBtn.click();
         }
       });
     } else {
       if (tourBtn) tourBtn.hidden = true;
     }
   } else {
-    // Live embed resolved — the guided watch and capture deck are fallback-only.
+    // Live embed resolved — guided watch, capture deck and the site-side
+    // camera bar are fallback-only; the live view carries its own camera UI.
     var tb = document.getElementById("demo-tour");
     if (tb) tb.hidden = true;
     var kh = document.getElementById("demo-keys");
     if (kh) kh.hidden = true;
+    var cb = document.getElementById("cam-bar");
+    if (cb) cb.hidden = true;
+    var lb = document.getElementById("demo-labels");
+    if (lb) lb.hidden = true;
+  }
+
+  // First-watch field card — a local checklist for a first visit. State is
+  // stored in localStorage on this device only (key rw_watchcard_v1);
+  // storage failures degrade to a session-only card. Works in both modes.
+  var card = document.getElementById("fieldcard");
+  if (card) {
+    var FC_KEY = "rw_watchcard_v1";
+    var boxes = card.querySelectorAll("input[data-fc]");
+    var count = document.getElementById("fc-count");
+    var reset = document.getElementById("fc-reset");
+    var fcLoad = function () {
+      try { return JSON.parse(localStorage.getItem(FC_KEY) || "{}"); }
+      catch (e) { return {}; }
+    };
+    var fcSave = function (state) {
+      try { localStorage.setItem(FC_KEY, JSON.stringify(state)); } catch (e) {}
+    };
+    var fcState = fcLoad();
+    var fcSync = function () {
+      var done = 0;
+      for (var i = 0; i < boxes.length; i++) {
+        var k = boxes[i].getAttribute("data-fc");
+        boxes[i].checked = !!fcState[k];
+        if (fcState[k]) done++;
+      }
+      if (count) count.textContent = done + " / " + boxes.length;
+    };
+    for (var bi = 0; bi < boxes.length; bi++) {
+      (function (box) {
+        box.addEventListener("change", function () {
+          fcState[box.getAttribute("data-fc")] = box.checked;
+          fcSave(fcState);
+          fcSync();
+          if (window.rw && window.rw.track) {
+            window.rw.track("cta_click", { cta: "demo-fieldcard",
+              item: box.getAttribute("data-fc"), checked: box.checked });
+          }
+        });
+      })(boxes[bi]);
+    }
+    if (reset) {
+      reset.addEventListener("click", function () {
+        fcState = {};
+        fcSave(fcState);
+        fcSync();
+      });
+    }
+    fcSync();
   }
 })();

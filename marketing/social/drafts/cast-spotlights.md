@@ -1,7 +1,9 @@
 # Cast spotlight cards — 8 mains
 
-Format: one X/Bluesky post each. Attach a shot from `site/shots/` +
-`assets/logo-icon.png` watermark corner if composited later. Spoiler rule
+Format: one X/Bluesky post each. Attach the generated card from
+`social/cards/spotlight-c{N}-*.png` (v109 — `tools/make_social_cards.py`;
+fallback: a raw shot from `site/shots/`). Alt text: `social/alt-text.md`
+§cards. Spoiler rule
 (SOCIAL-LAUNCH-PLAN §4): tease, never confirm. Venue names now use the
 canonical parody names from the world track (`world/businesses.md` per
 `world/characters/_index.md`): Mudhaus Coffee, El Farolote, Flying
