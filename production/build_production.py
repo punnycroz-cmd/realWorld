@@ -20,6 +20,7 @@ OUT = HERE / 'hub.html'
 # redirect once before the game script evaluates SF_MODE (module const).
 BOOTSTRAP = """<script>
 /* production bootstrap: force the SF Mission scenario on bare opens */
+window.SF_FORCE = true;   // the hub IS the Mission build — never boot Willowbrook
 if(!/[?&](sf|scenario=sf)\\b/.test(location.search||'')){
   location.replace(location.pathname + '?sf=1' + (location.hash||''));
 }
