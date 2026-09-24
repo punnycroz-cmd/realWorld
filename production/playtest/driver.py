@@ -30,7 +30,7 @@ Run:
   /home/hatch/workspace/village-game/tmp/.venv/bin/python \\
       production/playtest/driver.py --scripted --sim-hours 8
 """
-import argparse, json, os, pathlib, queue, sqlite3, subprocess, sys, threading, time
+import argparse, collections, json, os, pathlib, queue, sqlite3, subprocess, sys, threading, time
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from urllib.parse import urlparse, parse_qs
 from playwright.sync_api import sync_playwright
@@ -291,6 +291,7 @@ def main():
         turn_n = [0]          # global turn counter — one shot per turn
         seq2turn = {}         # (cid, seq) -> turn, joins /act rows to shots
         withheld = set()      # mains whose boundary turn was withheld
+        withhold_n = collections.Counter()  # per-main withhold count
         gap_ok = set()        # mains whose gap was then observed
 
         def take_turn_shot(cid, kind):
@@ -432,7 +433,8 @@ def main():
                 # still lapses at its untilH, unrefiled). Either way the
                 # sim must show a visible intention_gap — never silent
                 # busyness, never sfSched.
-                if (not args.no_withhold and cid not in withheld
+                if (not args.no_withhold and cid not in gap_ok
+                        and withhold_n[cid] < 6
                         and due['kind'] not in ('convo_floor',
                                                 'convo_invite')):
                     has_dir = pg.evaluate(
@@ -440,8 +442,11 @@ def main():
                         'x => x._castId === c); return !!(v && '
                         'v.sfDirective && v.sfDirective.until > '
                         'sfAbsNow()); }', cid)
-                    if due['kind'] == 'directive_expiry' or has_dir:
+                    if (cid in withheld
+                            or due['kind'] == 'directive_expiry'
+                            or has_dir):
                         withheld.add(cid)
+                        withhold_n[cid] += 1
                         # mark the pending head as dispatched — the dead-
                         # brain recovery path re-surfaces it after ~0.75
                         # sim-h, so the will really does run unrefiled
@@ -550,6 +555,21 @@ def main():
                 log(cid=cid, seq=seq, tier='T2', trig={'kind':'reflect'},
                     act=out['act'], directive=out.get('directive'),
                     result=res)
+            elif args.agents:
+                env = dict(os.environ,
+                           RW_TRIG=json.dumps({'kind': 'reflect'}),
+                           RW_SEQ=str(seq),
+                           RW_BASE=f'http://127.0.0.1:{PORT}')
+                turn_n[0] += 1
+                shot, cam = take_turn_shot(cid, 'reflect')
+                seq2turn[(cid, seq)] = turn_n[0]
+                log(turn=turn_n[0], cid=cid, dispatched='reflect',
+                    tier='T2', cam=cam, shot=shot)
+                pending_procs[cid] = subprocess.Popen(
+                    [sys.executable, str(HERE / 'brain_worker.py'), cid],
+                    cwd=str(HERE/'agents'/cid), env=env,
+                    stdout=subprocess.PIPE, stderr=subprocess.STDOUT,
+                    text=True)
             else:
                 prompt = (f'Dispatch seq={seq} kind=reflect tier=T2. '
                           'Bedtime: file ONE POST with act.verb=reflect '
