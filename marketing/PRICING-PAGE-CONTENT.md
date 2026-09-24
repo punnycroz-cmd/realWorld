@@ -303,6 +303,37 @@ drift shows as wrong math, not wrong claims).
   fine print". All anchors verified to resolve; both JSON-LD blocks
   re-validated.
 
+## 1l. Page components (v187)
+
+- **Stage tags** (`.stage-tag` `.s1`/`.s2`/`.s3` in style.css) — a small
+  uppercase pill on the h2 of every section that belongs to a paid rail:
+  "Stage 2 · gated" on packs, requests, one-shots, scenes, co-sponsor,
+  subscriptions, cast slots, property ladder, cosmetics; "Stage 1 · free"
+  on playing at $0. Makes the #order staging legible at the section level
+  instead of only in one card row — a reader landing mid-page from an
+  anchor still sees which gate the prices wait behind. Pure HTML/CSS,
+  no JS; same palette mapping as the notice system (green = free/live,
+  amber = gated paid, red = last/capped).
+- **"The gates, in writing"** (`#gates`, between `#order` and
+  `#fineprint`) — a 3-row table turning the proof-first order into a
+  contract: Gate A (stage 1→2) requires voluntary 7-day return visits
+  weighed against cost per simulated day and moderation load; Gate B
+  (2→3) requires retention holding for subscribers AND non-paying
+  watchers; Gate C (stage 3, capped) requires sponsorships running with
+  published refusal/refund counts. Each row prints its "if it never
+  clears" outcome — permanence included. Closing note states the honest
+  omission: no numeric thresholds printed yet because a bar invented
+  before measurement is theater; each bar publishes in the journal
+  before its stage opens.
+- **Fineprint +1 row** — "The gates are measured in public" restates the
+  gate contract at body size, keeping #fineprint's every-catch promise.
+- **Quick answers +1** — "What has to be true before paid features
+  open?" in BOTH the visible `<details>` list and the FAQPage JSON-LD
+  (verbatim-faithful), pointing at `#gates`.
+- **TOC chip** — "The gates" (#gates) between "The order" and "The
+  fine print". Section count now 27; all anchors verified to resolve;
+  both JSON-LD blocks re-validated.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)
