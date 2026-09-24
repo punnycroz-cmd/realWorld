@@ -37,7 +37,7 @@
      "id": "S2",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-A.png",
+     "src": "v56-A.png",
      "zoom": [
       1.0,
       1.1
@@ -59,7 +59,7 @@
      "id": "S3",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.05,
       1.14
@@ -81,7 +81,7 @@
      "id": "S4",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.0,
       1.08
@@ -103,7 +103,7 @@
      "id": "S5",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-D.png",
+     "src": "v56-D.png",
      "zoom": [
       1.02,
       1.15
@@ -181,7 +181,7 @@
      "id": "S8",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.0,
       1.1
@@ -204,7 +204,7 @@
      "id": "S9",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.1,
       1.18
@@ -230,7 +230,7 @@
      "id": "S10",
      "t": 7.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.18,
       1.1
@@ -273,7 +273,7 @@
      "id": "S12",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-D.png",
+     "src": "v56-D.png",
      "zoom": [
       1.05,
       1.0
@@ -315,7 +315,7 @@
      "id": "T1",
      "t": 4.0,
      "kind": "still",
-     "src": "v53-A.png",
+     "src": "v56-A.png",
      "zoom": [
       1.0,
       1.12
@@ -335,7 +335,7 @@
      "id": "T2",
      "t": 4.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.08,
       1.0
@@ -356,7 +356,7 @@
      "id": "T3",
      "t": 4.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.05,
       1.15
@@ -412,7 +412,7 @@
      "id": "V2",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-A.png",
+     "src": "v56-A.png",
      "zoom": [
       1.0,
       1.12
@@ -434,7 +434,7 @@
      "id": "V3",
      "t": 5.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.06,
       1.0
@@ -457,7 +457,7 @@
      "id": "V4",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.05,
       1.16
@@ -497,7 +497,7 @@
      "id": "V5",
      "t": 5.0,
      "kind": "still",
-     "src": "v53-D.png",
+     "src": "v56-D.png",
      "zoom": [
       1.05,
       1.0
@@ -538,7 +538,7 @@
      "id": "B1",
      "t": 3.0,
      "kind": "still",
-     "src": "v53-A.png",
+     "src": "v56-A.png",
      "zoom": [
       1.0,
       1.12
@@ -621,7 +621,7 @@
      "id": "F4",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.0,
       1.1
@@ -677,7 +677,7 @@
      "id": "F7",
      "t": 5.0,
      "kind": "still",
-     "src": "v53-B.png",
+     "src": "v56-B.png",
      "zoom": [
       1.05,
       1.16
@@ -755,7 +755,7 @@
      "id": "M2",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-A.png",
+     "src": "v56-A.png",
      "zoom": [
       1.0,
       1.1
@@ -879,7 +879,7 @@
      "id": "M7",
      "t": 6.0,
      "kind": "still",
-     "src": "v53-C.png",
+     "src": "v56-C.png",
      "zoom": [
       1.0,
       1.1
@@ -938,12 +938,147 @@
      "note": "End card. {{URL}} placeholder \u2014 swap at upload."
     }
    ]
+  },
+  "day": {
+   "file": "animatic-day.mp4",
+   "captions": "captions-day.srt",
+   "shots": [
+    {
+     "id": "Y1",
+     "t": 4.0,
+     "kind": "feedline",
+     "line": "05:58 — Mars unlocked Mudhaus.",
+     "card": null,
+     "transition": "cut",
+     "audio": "room",
+     "note": "Cold open before dawn — the world's day starts without an audience."
+    },
+    {
+     "id": "Y2",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v56-A.png",
+     "zoom": [1.06, 1.0],
+     "pan": "right",
+     "card": "06:01",
+     "transition": "dip",
+     "crop": [330, 100, 1440, 794],
+     "audio": "room",
+     "note": "Top-down café block at first light. Bare timecard — the clock is the narrator."
+    },
+    {
+     "id": "Y3",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v52-INT-cafe.png",
+     "zoom": [1.0, 1.08],
+     "pan": "right",
+     "card": "09:40 — the morning rush, unsupervised",
+     "transition": "cut",
+     "crop": [360, 60, 1440, 825],
+     "recapture": true,
+     "audio": "room",
+     "note": "Inside Mudhaus mid-rush (v52 interior). Recapture live at ship — a still can't sell 'unsupervised' motion."
+    },
+    {
+     "id": "Y4",
+     "t": 4.0,
+     "kind": "still",
+     "src": "v56-C.png",
+     "zoom": [1.0, 1.1],
+     "pan": "down",
+     "card": "13:15",
+     "transition": "dip",
+     "crop": [330, 100, 1440, 794],
+     "audio": "room",
+     "note": "Dolores Park, midday drift."
+    },
+    {
+     "id": "Y5",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v56-C.png",
+     "zoom": [1.0, 1.08],
+     "pan": "down",
+     "grade": "wet",
+     "card": "15:02 — a request became rain",
+     "transition": "cut",
+     "crop": [330, 100, 1440, 794],
+     "audio": "rain",
+     "note": "Same park, wet grade — the audience's hand passes through once, then the day goes on."
+    },
+    {
+     "id": "Y6",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v56-B.png",
+     "zoom": [1.05, 1.0],
+     "pan": "left",
+     "grade": "dusk",
+     "card": "18:40",
+     "transition": "dip",
+     "crop": [330, 100, 1440, 794],
+     "audio": "swell",
+     "note": "Street level, golden-hour grade — the new 'dusk' sim grade between day and night."
+    },
+    {
+     "id": "Y7",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v56-D.png",
+     "zoom": [1.0, 1.1],
+     "pan": "left",
+     "grade": "night",
+     "card": "22:47",
+     "transition": "dip",
+     "crop": [330, 100, 1440, 794],
+     "audio": "night",
+     "note": "Lamps pooling on the sidewalks — v15-v16 dusk engine look."
+    },
+    {
+     "id": "Y8",
+     "t": 5.0,
+     "kind": "still",
+     "src": "v56-D.png",
+     "zoom": [1.08, 1.0],
+     "pan": "up",
+     "grade": "night",
+     "card": "03:12 — nobody's watching. It's still running.",
+     "transition": "cut",
+     "crop": [330, 100, 1440, 794],
+     "audio": "night",
+     "note": "The thesis beat: the sim runs whether or not you watch (design doc — 24/7 world). Deepest grade of the cut."
+    },
+    {
+     "id": "Y9",
+     "t": 3.0,
+     "kind": "feedline",
+     "line": "05:58 — Mars unlocked Mudhaus.",
+     "card": null,
+     "transition": "cut",
+     "audio": "room",
+     "note": "Loop button: same line as Y1 — tomorrow is identical in shape, different in detail."
+    },
+    {
+     "id": "Y10",
+     "t": 4.0,
+     "kind": "endcard",
+     "title": "REAL WORLD",
+     "subtitle": "T H E   M I S S I O N",
+     "tagline": "It doesn't stop when you look away.",
+     "url": "{{URL}}",
+     "card": null,
+     "transition": "dip",
+     "audio": "resolve",
+     "note": "End card. {{URL}} placeholder — swap at upload."
+    }
+   ]
   }
  },
  "thumbnails": [
   {
    "id": "watcher",
-   "src": "v53-D.png",
+   "src": "v56-D.png",
    "crop": [
     344,
     104,
@@ -969,7 +1104,7 @@
   },
   {
    "id": "handoff",
-   "src": "v53-B.png",
+   "src": "v56-B.png",
    "crop": [
     344,
     104,
@@ -997,7 +1132,7 @@
   },
   {
    "id": "dusk",
-   "src": "v53-D.png",
+   "src": "v56-D.png",
    "crop": [
     344,
     104,

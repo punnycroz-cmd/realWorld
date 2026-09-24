@@ -1,15 +1,19 @@
 # Trailer Plan — Real World ("The Mission")
 
-**Status:** production-ready plan + rendered animatics, v95 (2026-09-23);
-all stills/programs rebased to the art-v55 build plus the new art-v52
+**Status:** production-ready plan + rendered animatics, v110 (2026-09-23);
+all stills rebased to the **art-v56** build — the build that FIXED the
+v49-era sunbeam glitch (art-feedback resolved: beams now emit only from
+real cloud-silhouette gaps, drawn under the deck). The §4 sunbeam caveat
+is closed. v110 also adds a seventh cut: the 45s **"One Day"** timelapse
+(§7.4) plus a new `dusk` sim grade in the renderer.
+Earlier baseline: v95 rebase to art-v55 plus the art-v52
 metric-projection **interior stills** (v52-INT-{cafe,flat,hw,taq}) — the
-trailer now goes indoors (hero S5b, Move-In M5, thumbnail #4). The v95
-rebase also repaired 24 stale v50 still refs the v91 gallery swap left
-behind — `--check` is green again (6 programs, 45 shots, 4 thumbnails).
-Six cuts now exist as real mp4s — hero 90s, teaser 15s, the
+trailer goes indoors (hero S5b, Move-In M5, thumbnail #4, Day Y3).
+Seven cuts now exist as real mp4s — hero 90s, teaser 15s, the
 9:16 vertical 30s, a 6s bumper, the 50s "Feed Cut" alternate-concept
-trailer (§7.2, added v65), and the 60s "Move-In Cut" player-journey
-trailer (§7.3, added v80) — `trailer/out/animatic-*.mp4`, built by
+trailer (§7.2, added v65), the 60s "Move-In Cut" player-journey
+trailer (§7.3, added v80), and the 45s "One Day" cut (§7.4, v110) —
+`trailer/out/animatic-*.mp4`, built by
 `trailer/build-animatic.py` from the machine-readable EDL in
 `trailer/edl.json` (§11). Upload-ready metadata (titles, descriptions,
 tags, chapter markers, thumbnail picks) lives in `trailer/metadata.json`.
@@ -61,7 +65,8 @@ Dolores Perk, Auerbach Hardware, Taqueria El Farolote, Buy-Rite, etc.).
 | Bumper | 6 s | 16:9 | pre-roll, Shorts end-screen, Discord embed — rendered (§7.1) |
 | Feed Cut (alt concept) | 50 s | 16:9 | A/B alternate hero, press embeds, streamer cold-open — rendered (§7.2) |
 | Move-In Cut (alt concept) | 60 s | 16:9 | how-it-works embed, store-page second video, onboarding ad — rendered (§7.3) |
-| Thumbnail stills | — | 16:9 | YouTube/itch — three concepts rendered (§8) |
+| One Day Cut (alt concept) | 45 s | 16:9 | second social slot, store ambience video, streamer interstitial — rendered (§7.4) |
+| Thumbnail stills | — | 16:9 | YouTube/itch — four concepts rendered (§8) |
 
 All footage labeled **"development build — not final"** in the corner bug or
 description until the game ships.
@@ -79,10 +84,10 @@ shot sources keyed to §4.
 | # | Time | Shot | Visual | Text / Audio |
 |---|------|------|--------|--------------|
 | 1 | 0:00–0:05 | S1 | Black. A single line of feed text types on: `06:01 — Mars opened Mudhaus.` | Sound: room tone, espresso machine fades up. |
-| 2 | 0:05–0:11 | S2 | Top-down dawn over the Mudhaus block (v55-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
-| 3 | 0:11–0:18 | S3 | Street-level follow behind a resident walking 24th St (v55-B framing). | **[T]** "Twenty-eight people live here." |
-| 4 | 0:18–0:25 | S4 | Dolores Park overhead, palms and paths (v55-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
-| 5 | 0:25–0:32 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v55-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
+| 2 | 0:05–0:11 | S2 | Top-down dawn over the Mudhaus block (v56-A framing). Slow drift. Tiny pawns move on real streets. | **[T]** "A neighborhood in San Francisco." |
+| 3 | 0:11–0:18 | S3 | Street-level follow behind a resident walking 24th St (v56-B framing). | **[T]** "Twenty-eight people live here." |
+| 4 | 0:18–0:25 | S4 | Dolores Park overhead, palms and paths (v56-C). Pawns drift toward the grass. | **[T]** "They work. They fall in love. They keep secrets." |
+| 5 | 0:25–0:32 | S5 | Director-mode low orbit over Victorian rooftops, water towers, laundry lines (v56-D). Long shadows. | **[T]** "None of them know you're watching." Music: first swell. |
 | 5b | 0:32–0:38 | S5b | **Interior:** inside Mudhaus Coffee (v52-INT-cafe, metric-projection rebuild) — pawns at the counter, HUD-free crop. | **[T]** "Inside, the day is already moving." Sound: espresso machine returns, room tone. |
 | 6 | 0:38–0:45 | S6 | Feed overlay (UI capture): entries tick by — `Jules signed the lease on 9418 Guerrero St, Unit 3B`, `Vic unboxed a shipment at Auerbach Hardware`, `Dani ordered at Dolores Perk. Again.` | **[T]** "Watching is free. Always." |
 | 7 | 0:45–0:52 | S7 | Request card UI fills on screen: `REQUEST: rain — Dolores Park, 2 h — credits/min, declared upfront, hard cap`. Cursor hovers. Approve tick. | **[T]** "Want to reach in? File a request." Sound: a held breath; first thunder. |
@@ -114,10 +119,10 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 
 | ID | Framing | Settings | Source of truth |
 |----|---------|----------|-----------------|
-| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v55-A.png` |
-| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v55-B.png` |
-| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v55-C.png` |
-| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v55-D.png` |
+| S2 | Top-down, slow E→W drift over Mudhaus block | dawn, dry | matches `site/shots/v56-A.png` |
+| S3 | Street-follow behind one walking pawn, 24th St | late afternoon, dry | matches `v56-B.png` |
+| S4 | Top-down Dolores Park, palms + paths | late afternoon, dry | matches `v56-C.png` |
+| S5 | Director-mode low orbit, rooftops/water towers | golden hour | matches `v56-D.png` |
 | S5b | Interior, Mudhaus Coffee counter | day | matches `v52-INT-cafe.png` (art-v52 metric-projection interiors) |
 | S6 | Public feed overlay, entries ticking | any | game-systems feed API (`__aiBridge` viewer state) |
 | S7 | Request card UI: action + duration + credits | n/a | request pipeline, design doc §11 |
@@ -127,14 +132,14 @@ Capture at 1440×900 or higher, UI hidden unless the shot needs it. Pin
 | S11 | Feed montage w/ attribution rows | n/a | every paid intervention is public |
 | S12 | Night grade, lamps pooling | civil dusk | v15-v16 `sfLampsLit()` look |
 
-**Sunbeam caveat (art-feedback, 2026-09-23):** the v49-D Director-mode
-sunbeams were flagged for rework — hard-edged triangles that read as a
-glitch, not light. Do NOT frame any ship capture around the v49 sunbeam
-look; capture against v53-era renders or the post-rework build, whichever
-the art track marks fixed. The gallery/edl stills already hold at v53/v52.
+**Sunbeam caveat — RESOLVED (art-v56, 2026-09-23):** the v49-D Director-mode
+sunbeam glitch (hard-edged triangles) was fixed in art-v56 — beams now emit
+only where real cloud-silhouette gaps sit near the sun's bearing, drawn under
+the deck. All trailer stills are rebased to v56, so no capture carries the
+broken look. If a future build regresses, re-check Director-mode frames only.
 
 **Pre-ship substitutes:** until the game build can run these live, cut the
-trailer against the existing v53/v52 stills with slow push-ins (Ken Burns) and
+trailer against the existing v56/v52 stills with slow push-ins (Ken Burns) and
 mock the feed/request cards as motion graphics labeled "development build."
 **This is exactly what the animatic does** — see §11. The plan marks every
 shot that MUST be re-captured from live footage before the trailer ships:
@@ -329,6 +334,51 @@ pairs, ≤6), `stamp`, `tone` (`good`/`warn`/`accent`).
 - `nightowl_415` is a fictional handle for a *player* resident — not a
   cast-bible name; swap if it collides with a real roster entry at ship.
 
+### 7.4 The One Day Cut — 24/7-sim proof trailer (v110 — rendered)
+
+`edl.json` carries a seventh `"day"` program (45 s, 16:9) rendered to
+`out/animatic-day.mp4` + `captions-day.srt` + `board-day.png` (+ scratch
+bed). Fourth creative concept — the *world's* trailer in the literal sense:
+one full simulated day compressed to 45 seconds, dawn to dawn. Where the
+hero sells watching and Move-In sells joining, this cut sells the claim
+that is hardest to believe in a trailer: **it runs whether or not you
+watch.** The clock is the narrator — bare timecards instead of argument.
+
+| Time | Shot | Text |
+|------|------|------|
+| 0:00–0:04 | Y1 feedline cold open | `05:58 — Mars unlocked Mudhaus.` types on black |
+| 0:04–0:09 | Y2 café block, dawn drift | "06:01" |
+| 0:09–0:14 | Y3 Mudhaus interior (v52-INT-cafe) | "09:40 — the morning rush, unsupervised" |
+| 0:14–0:18 | Y4 Dolores Park, midday | "13:15" |
+| 0:18–0:23 | Y5 same park, wet grade | "15:02 — a request became rain" |
+| 0:23–0:28 | Y6 street level, `dusk` grade | "18:40" |
+| 0:28–0:33 | Y7 rooftops, `night` grade | "22:47" |
+| 0:33–0:38 | Y8 deepest night | "03:12 — nobody's watching. It's still running." |
+| 0:38–0:41 | Y9 feedline button | `05:58 — Mars unlocked Mudhaus.` — the loop closes |
+| 0:41–0:45 | Y10 end card | "REAL WORLD — THE MISSION. It doesn't stop when you look away. {{URL}}" |
+
+**New grade `dusk`** (build-animatic.py): warm amber dim between the plain
+day look and `night` — brightness 0.62, slight desat, amber blend. The cut
+needs four distinct light states (dawn/day/dusk/night) to read as time
+passing; `dusk` fills the gap the `wet`/`night` pair left.
+
+**Accuracy anchors:**
+
+- The thesis is design truth #1 — a 24/7 world that runs unwatched. No
+  mechanic is shown; Y5's rain beat is the same approved-request→weather
+  path the hero dramatizes, and it passes *through* the day rather than
+  stopping it — the point is the world absorbs interventions and continues.
+- Y8's "nobody's watching. It's still running." is a claim about the sim
+  loop, not about a camera feature — keep it.
+- No cast possession, no UI promises; only Y3 (interior still standing in
+  for live footage) carries `recapture: true`. All exteriors may ship from
+  stills in a pinch, like S2–S5/S12.
+
+**Placement:** the second social slot after the hero (the answer to
+"okay, but is it actually alive?"), the store page's ambience video, and
+a streamer interstitial. Also the strongest loop-able cut — Y9 is Y1's
+line verbatim, so a seamless-loop export is one ffmpeg trim away.
+
 ## 8. Thumbnail concepts (v95 — rendered)
 
 All four are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
@@ -336,16 +386,16 @@ All four are now real PNGs at `out/thumb-*.png` (1280×720), rendered by
 in `edl.json` — same stills, brand palette, and redact machinery as the
 animatics:
 
-1. **The watcher** (`thumb-watcher.png`, style `rec`): v55-D director
+1. **The watcher** (`thumb-watcher.png`, style `rec`): v56-D director
    shot, vignette-darkened edges, red "REC · live — 24/7" cluster,
    title small at the bottom. The debug "DIRECTOR" badge is
    redact-blurred. Sells the Truman-Show premise instantly.
-2. **The handoff** (`thumb-handoff.png`, style `split`): v55-B street
+2. **The handoff** (`thumb-handoff.png`, style `split`): v56-B street
    shot split down the middle — left labeled `AI`, right `YOU` on a
    brightened half, orange seam. Pawn name tags are redact-blurred so
    the AI/YOU split can't read as possessing a main. Sells the hook
    mechanic.
-3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v55-D
+3. **The block at dusk** (`thumb-dusk.png`, style `wordmark`): v56-D
    under the night grade, wordmark + accent rule only. Quietest option;
    best for press embeds.
 4. **The inside** (`thumb-inside.png`, style `rec`, v95): v52-INT-cafe
@@ -375,14 +425,15 @@ the video footage itself). Pick one at upload; A/B test later. Reuse
 - [ ] (Move-In) create/lease cards match the live contracts
       (world/creation.json + world/leases.json at ship date); handle is a
       fictional player handle, not a cast name.
-- [ ] No v49-D-era sunbeam renders in frame (art-feedback 2026-09-23) —
-      re-capture against the post-rework build.
+- [x] No v49-D-era sunbeam renders in frame — RESOLVED: all stills rebased
+      to art-v56 (the fix build) at v110. Re-check only if the art track
+      ships a newer canonical build before capture day.
 - [ ] Owner sign-off recorded in LAUNCH-CHECKLIST.md before any upload.
 
 ## 10. Handoff
 
 Everything an editor needs is in this repo: the rendered animatics + EDL in
-`marketing/trailer/` (§11), stills in `site/shots/` (v55 series + v52
+`marketing/trailer/` (§11), stills in `site/shots/` (v56 series + v55 era + v52
 interior quartet + v16 interiors + v1 early-pass pair), brand assets in `site/assets/` +
 `press-kit/`, voice/tone spec in `marketing/BRAND.md`, description copy in
 §6, store context in `STORE-COPY.md`. Open dependencies: live UI captures
@@ -394,13 +445,13 @@ Parody names are RESOLVED (`world/parody-names.json`).
 `marketing/trailer/` contains a self-contained pipeline that turns this plan
 into watchable video:
 
-- **`edl.json`** — machine-readable edit decision list. Six programs
+- **`edl.json`** — machine-readable edit decision list. Seven programs
   (`hero` 90s, `teaser` 15s, `vertical` 30s at `[720,1280]`, `bumper` 6s,
   `feed` 50s — the §7.2 alternate concept, `movein` 60s — the §7.3
-  player-journey cut)
+  player-journey cut, `day` 45s — the §7.4 24/7-sim cut)
   plus the `thumbnails` spec: every shot's
   source still, timing, card text, Ken Burns zoom/pan, color grade
-  (`wet`/`night` simulated the §8 beat and the night look), possession chip +
+  (`wet`/`night`/`dusk` — dusk added v110 for the One Day light arc), possession chip +
   draining timer overlays, `uicard` form mocks (v80 — join/lease cards),
   transition type, a `recapture` flag = the §4
   must-recapture list, and an `audio` preset naming the intended sound bed.

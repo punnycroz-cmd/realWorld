@@ -89,6 +89,26 @@
         "0:55 end card"
       ],
       "use": "how-it-works page embed, store page second video, onboarding ad if approved"
+    },
+    "day": {
+      "file": "out/animatic-day.mp4",
+      "length_s": 45,
+      "title": "Real World — The Mission | One Day",
+      "thumbnail": "thumb-dusk.png",
+      "description": "One full day on the block in 45 seconds — dawn to dawn. It runs whether or not you watch.\n\n{{URL}}\n\nDevelopment-build footage.",
+      "chapters": [
+        "0:00 05:58 — first unlock",
+        "0:04 06:01",
+        "0:09 09:40 — morning rush",
+        "0:14 13:15",
+        "0:18 15:02 — a request became rain",
+        "0:23 18:40",
+        "0:28 22:47",
+        "0:33 03:12 — still running",
+        "0:38 the loop closes",
+        "0:41 end card"
+      ],
+      "use": "second social slot, store page ambience video, streamer interstitial — the 24/7-sim proof cut"
     }
   }
 }
