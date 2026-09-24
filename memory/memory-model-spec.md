@@ -1,4 +1,28 @@
-# Memory Model Spec v5.28 — implementable human-like memory for RW characters
+# Memory Model Spec v5.29 — implementable human-like memory for RW characters
+
+> **v5.29 note (formal-model VIII — the anchor corpus
+> instantiated):** `memory/formal-model.md` Part VIII
+> (§§60–69) turns §14.2's empty anchor schema into 18
+> sourced human statistics with bands and rep grades.
+> **Link layer** — latents (S, θ) are never read; three
+> observable channels only (recall Bernoulli, latency
+> lognormal `lat_a−lat_b·g(p)`, confidence via conf_out),
+> plus instrument noise `obs_noise` — §60.
+> **Equivalence grading** — anchors are TOST bands, not
+> targets: a too-good sim fails (`exceed_null`); CONTESTED
+> rows assert nulls (flashbulb consistency advantage ≈ 0
+> while confidence advantage > 0 — Talarico & Rubin) — §62.
+> **Identifiability map** — each anchor pins the params a
+> ±20% perturbation moves ≥¼ band; unpinned-across-all
+> params freeze to population constants — §63. **Power
+> budget** — `anchor_n_min` 100, corpus ≈ 3 harness runs —
+> §64. **Shrinkage** — `rep_shrink`
+> {META 1, RRR .9, MULTI .8, SINGLE .6} recenters bands
+> toward null (OSC 2015) — §65. **Holdout** —
+> `anchor_train_frac` .8, held-out ids banned from fitting
+> (`anchor_leak_null`), misses = overfit flags — §66.
+> +15 params (all pop/harness), 3 locked nulls, probes
+> P859–P870. Zero new per-char params, fields, psychology.
 
 > **v5.28 note (social-memory VIII — the gate and the
 > books):** `memory/social-memory.md` Part VIII (§§111–125)
@@ -11715,6 +11739,21 @@ MemoryParams = {
 //   `imprinted_by_prior`; cueContext `secret_idle`;
 //   ops `vouch`, `depart`; emissions `name_capture`,
 //   `secret_intrude`, `trespass`, `deference`.
+// v5.29 additions (formal-model VIII — FM§§60–66)
+"obs_link": "logit", "obs_noise": 0.08,                // §60
+"lat_a": 7.2, "lat_b": 0.9, "lat_sigma": 0.4,          // §60
+"conf_scale": 1.0, "conf_bias": 0.05,                  // §60
+"anchor_set_ver": "v1", "anchor_n_min": 100,
+"tost_alpha": 0.05,                                    // §§62–64
+"rep_shrink": {"META":1.0,"RRR":0.9,"MULTI":0.8,
+"SINGLE":0.6},                                         // §65
+"anchor_train_frac": 0.8,                              // §66
+// v5.29 locked nulls: latent_read_null (probes read
+//   channels, never S/θ — P859); exceed_null
+//   (superiority is failure — P862); anchor_leak_null
+//   (held-out anchors never enter fitting — P866).
+// v5.29 fields: none — harness/pop params only; the
+//   anchor corpus itself is spec §14.2 data, not state.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13399,6 +13438,25 @@ not resolved (DEBATED magnitude). P509/P511.
     (loads on wmc, vigil, neurot, rumin, social, distrust,
     attach_anx, trans_dep, consc, suggs, checker, g_mem —
     all existing); probes P847–P858.
+- v5.29 additions (formal-model.md Part VIII §§60–69):
+  - `evalAnchor(anchorId, simStats) -> verdict` — harness
+    entry: corpus row from `anchor_set_ver` table + TOST
+    at `tost_alpha`; verdict ∈ {PASS, FAIL, INCONCLUSIVE}
+    (INCONCLUSIVE when n < max(anchor_n_min, required n)).
+  - `corpusRun(manifest)` — manifest must list only
+    train-split anchorIds; held-out ids in a fitting
+    manifest violate `anchor_leak_null`.
+  - Reconstructions expose nothing new — the §60 link
+    layer is read-side discipline: probes consume recall,
+    latency, confidence, emitted content; latent fields
+    unreadable (`latent_read_null`, already implied by the
+    hidden-flag rule — now a gate, P859).
+  - **New params (§7):** 15 pop/harness — obs_link,
+    obs_noise, lat_a, lat_b, lat_sigma, conf_scale,
+    conf_bias, anchor_set_ver, anchor_n_min, tost_alpha,
+    rep_shrink, anchor_train_frac + 3 locked nulls
+    (latent_read_null, exceed_null, anchor_leak_null).
+    Probes P859–P870.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

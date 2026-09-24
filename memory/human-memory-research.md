@@ -3047,3 +3047,53 @@ and probes P847–P858.
   real social phenomena; no quantitative magnitudes exist —
   all trespass/yield numbers are RW, probe P857 is
   deliberately OBSERVE-grade.
+
+## 59. Addendum — v81 anchors (formal-model VIII, spec v5.29)
+
+Part VIII of `formal-model.md` (§§60–69) instantiates the
+spec §14.2 anchor corpus — the first concrete human numbers
+the model is held to. Full row table at formal-model.md §61;
+full per-probe sourcing at validation-design.md §163. This
+addendum records what the corpus *is* and the load-bearing
+disagreements it encodes.
+
+- **The corpus exists because "human-like" was unfalsifiable.**
+  Eighteen statistics spanning forgetting (Ebbinghaus points,
+  Rubin & Wenzel family verdict), lifespan distribution
+  (childhood-amnesia offset 3.5y — Tustin & Hayne 2010 /
+  Nelson & Fivush 2004's 49-estimate mean 3.69; bump 10–30 —
+  Rubin & Schulkind 1997), distortion (misinformation ~.30 —
+  Loftus 2005 / Ayers & Reder 1998; implantation ~.30 —
+  Lindsay et al. 2004; DRM .01–.65 list-graded — Stadler et
+  al. 1999 / Roediger et al. 2001), calibration (flashbulb
+  dissociation — Talarico & Rubin 2003; confidence–accuracy
+  ≤.3 overall / ~.41 choosers — Sporer et al. 1995), and
+  study-time laws (testing .61/.40 at 1wk — Roediger &
+  Karpicke 2006; spacing ISI/RI ≈ .10–.20 — Cepeda et al.
+  2006, 2008; RIF ~8–10pp — Anderson et al. 1994 / Murayama
+  et al. 2014; delayed recency — Glanzer & Cunitz 1966;
+  LoP ~2× — Craik & Tulving 1975; generation d≈.5 — Bertsch
+  et al. 2007).
+- **Deliberate absences encode honesty:** sleep-consolidation
+  magnitude has no anchor row (Diekelmann & Born 2010 vs
+  Cordi & Rasch 2021 replication failures — mechanism kept,
+  number withheld); Bartlett's serial reproduction is
+  qualitative and grounds §6.12 operators, not a statistic.
+- **The grading is asymmetric on purpose:** equivalence
+  testing (TOST — Schuirmann 1987; Lakens 2017) means
+  *exceeding* humans fails (`exceed_null`) — the corpus is
+  the formal statement that a database is a failed character.
+  CONTESTED rows assert nulls: flashbulb consistency
+  advantage ≈ 0 must coexist with confidence advantage > 0 —
+  the Talarico & Rubin dissociation as a joint constraint.
+- **Shrinkage is epistemics as config:** rep grades
+  {META 1.0, RRR .9, MULTI .8, SINGLE .6} recenter bands
+  toward null — justified by OSC 2015 (~36% replication,
+  mean effect ≈ half). Inflated ground produces inflated
+  humans.
+- **Measurement theory leg:** probes read three observable
+  channels only (recall, latency, confidence + emitted
+  content) — Tulving & Pearlstone 1966 availability/
+  accessibility made operational; latency–strength coupling
+  from Wixted & Rohrer 1994; instrument noise (`obs_noise`)
+  from psychometric reliability ceilings (~r .7–.9).

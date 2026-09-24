@@ -2466,3 +2466,315 @@ parameter file honest as it grows (§56). Zero new storage classes,
 zero new per-character params, zero new psychology — the substrate now
 has a bound on how wrong a context can make a mind, and a complete
 map of what a memory may look like on its way out the mouth.
+
+---
+
+# Part VIII — v81 deepening pass: the anchor corpus, the observable link layer, and the power budget (P859–P870)
+
+Parts I–VII made the spec *internally* implementable — units, schemas,
+operator order, lifecycle, algebra, composition, surfaces. What none of
+that settles is whether the machine produces a *human*. Spec §14.2
+defined an anchor-corpus schema (`{anchorId, statistic, band, source,
+design, rep_grade, rep_shrink_applied}`) but shipped **zero rows** —
+the spec has been falsifiable in principle and unvalidated in practice.
+This part fills the corpus, defines what it means to match a human
+statistic (equivalence, not approximation — a sim that is *better* than
+human fails), formalizes the latent→observable link layer that every
+anchor measurement passes through, and sizes the compute budget so the
+corpus is runnable, not aspirational.
+
+Conventions unchanged: strengths/confidences in [0,1]; every claim
+tagged **CONSENSUS** / **DEBATED** / **HYPOTHESIS**.
+
+## 60. The observable link layer — strength is never observed
+
+Probes measure a character's *outputs*, never its `strength`. The
+spec already treats latent S → observable implicitly at ~a dozen
+sites (recall formula §5, latency ad-hoc, conf_out §3). This section
+declares the link layer explicitly: there are exactly **three
+observable channels**, each a noisy function of latent state, and
+nothing else may be read.
+
+```
+channels(S_eff, θ_eff, ctx) =
+  y   ~ Bernoulli(p_recall)              // the §5 retrieval prob, unchanged
+  lat ~ LogNormal(lat_a − lat_b·g(p_recall) + lat_c·θ_shift, lat_σ)
+  c   = conf_out(p_recall, fluency, …)   // §3 pipeline, unchanged
+```
+
+with `g` the declared link (`obs_link = "logit"`, i.e.
+`g(p) = logit(clip(p, ε, 1−ε))`).
+
+- **Recall channel** — `p_recall` is the existing §5 probability;
+  no new math, only the declaration that *this is the recall
+  observable* (CONSENSUS that recall is the primary observable;
+  Tulving & Pearlstone 1966 availability/accessibility split).
+- **Latency channel** — weak/interfered memories are recalled
+  slowly: cumulative-recall asymptote and rate both track strength
+  (Wixted & Rohrer 1994, *Psych Rev* 101:330 — exponential
+  accumulation `F(t)=λ(1−e^{−βt})` whose β is the retrieval
+  *rate*, our `lat_b` inverse); strength–latency coupling is
+  CONSENSUS at the level of monotonicity; the lognormal error
+  family is standard for RTs (Ratcliff 1978 is the richer
+  alternative — drift-diffusion, overkill here; **HYPOTHESIS** to
+  choose lognormal for cost).
+- **Confidence channel** — `conf_out` already exists (§3);
+  this part adds nothing but the rule that confidence is an
+  *output*, not stored truth — the anchor corpus grades
+  confidence–accuracy relations on reported `c` only.
+- **`obs_noise` (0.08)** — small additive noise on the *measurement*
+  side of every channel, distinct from retrieval stochasticity:
+  human probe responses carry instrument noise (test-retest
+  reliability of memory measures is r ≈ .7–.9, not 1.0 —
+  e.g. Wechsler scale reliabilities, CONSENSUS), so sim observables
+  must not be deterministic given the latent state or the corpus
+  will overfit an instrument humans don't have. **HYPOTHESIS.**
+- **Locked null `latent_read_null`**: probes and surfaces may not
+  read `record.strength`, `θ`, or any latent field directly —
+  only the three channels plus emitted content. A probe that reads
+  S to assert about S is measuring the equation, not the behavior
+  (the §36 probe-as-kernel formalism already implies this; the null
+  makes it a gate).
+
+## 61. The corpus instantiated — 18 anchors
+
+Each row is a §14.2 record. `band` is the sim-side acceptance
+interval in the statistic's own units; `pins` names the spec params
+the anchor's pass/fail is sensitive to (§63 formalizes the map).
+Bands are set ~±(1σ between-study spread) or ±10pp where the
+literature reports a range — not ±5% of point value, which no
+memory statistic survives.
+
+| id | statistic (sim analogue) | human value | band | rep | design | pins |
+|---|---|---|---|---|---|---|
+| A01 | savings at 20 min (retention of same-day encoded low-salience items) | .58 | [.45,.70] | RRR | Ebbinghaus 1885; Murre & Dros 2015 replication reproduced the curve | enc_base, beta classes |
+| A02 | savings at 24 h | .34 | [.22,.48] | RRR | same | beta classes |
+| A03 | savings at 31 d | .21 | [.10,.35] | RRR | same | beta_slow, floor |
+| A04 | best-fit retention family | power/exp-power; pure exp rejected | sign | META | Rubin & Wenzel 1996 — 210 datasets, exponential never wins | decay fn form (locked) |
+| A05 | mean earliest-memory age, yrs | 3.5 | [3.0,4.2] | MULTI | Tustin & Hayne 2010 grand mean; 49-sample mean 3.69 (Nelson & Fivush 2004) | child offset params (age-development.md) |
+| A06 | bump location, older adult | ages 10–30 elevated | decade 2–3 > decades 4–6 | MULTI | Rubin & Schulkind 1997 | bump machinery, encodeAge weighting |
+| A07 | misinformation acceptance rate | ~.30 | [.15,.45] | META | Loftus 2005; early designs 30–40% impairment, controlled 10–20% (Ayers & Reder 1998) | misinfo_suscept, cie_residual |
+| A08 | implanted-event false memory | ~.30 | [.15,.50] | MULTI | Lindsay et al. 2004 (~30%); range 0% implausible→>50% plausible (Pezdek 1997; Wade 2002) | imagine_gain, source_confuse |
+| A09 | DRM false recall, strong lists | ≥.60 | [.40,.75] | META | Stadler, Roediger & McDermott 1999 norms; list range .01–.65 (Roediger, Watson, McDermott & Gallo 2001) | gist/confab machinery |
+| A10 | flashbulb consistency advantage | ≈ 0 | |Δ|≤.10 | CONTESTED | Talarico & Rubin 2003 — consistency declines equally; only confidence/vividness stay high | aff_flash legs |
+| A11 | flashbulb confidence advantage | > 0 | [+.05,+.35] | MULTI | same | conf_emo_gain |
+| A12 | confidence–accuracy r, overall | ≤ .3 | [0.0,.40] | META | Sporer, Penrod, Read & Cutler 1995 (0–.29 overall, ~.41 choosers); Wixted & Wells 2017 pristine-conditions caveat DEBATED | conf_out pipeline |
+| A13 | testing effect, 1 wk | .61 vs .40 | Δ∈[.10,.35] | MULTI | Roediger & Karpicke 2006 (exp 2: .61/.40; 5-min reversal .75/.81) | rehearsal/test gain legs |
+| A14 | spacing: optimal ISI / RI | ~.10–.20 | [.05,.30] | META | Cepeda et al. 2006 meta (839 assessments); Cepeda et al. 2008 | spacing/distributed-practice legs |
+| A15 | RIF impairment, Rp− vs Nrp | ~8–10 pp | [.03,.18] | MULTI | Anderson, Bjork & Bjork 1994; Murayama et al. 2014 meta (durability debated — Storm et al. 2015) | part-list suppression §5.8 |
+| A16 | delayed recency | abolished by ~30 s filled delay | sign | META | Glanzer & Cunitz 1966; Murdock 1962 serial position | recency legs |
+| A17 | levels-of-processing gain | deep ≈ 2× shallow | ratio∈[1.3,3.0] | MULTI | Craik & Tulving 1975; Craik 2002 | elaboration/depth legs |
+| A18 | generation effect | d ≈ .5 | d∈[.25,.75] | META | Bertsch et al. 2007 meta | self-generation legs (§ selfinit) |
+
+Rows deliberately **absent**: sleep-consolidation magnitude
+(Diekelmann & Born 2010 META claim weakened by Cordi & Rasch 2021
+and later replication failures — DEBATED, kept as a mechanism with
+no anchor); eyewitness-specific lineup diagnostics (out of domain);
+Bartlett war-of-ghosts reproduction (qualitative, no statistic —
+it already grounds §6.12 operators, not an anchor row).
+
+## 62. Equivalence semantics — too good is a bug
+
+Human-anchor matching is **equivalence testing**, not minimization:
+
+- Each anchor asserts `ŝ_sim ∈ band`, evaluated as a two
+  one-sided test (TOST, Schuirmann 1987; Lakens 2017 equivalence
+  testing for psychological models) at `tost_alpha = .05` with the
+  band as SESOI. The sim must be *statistically inside* the band,
+  not merely on the right side of zero.
+- **Superiority is failure** (`exceed_null` locked): a character
+  whose misinformation resistance is perfect (A07 ŝ = .02), whose
+  retention is flat, or whose confidence–accuracy r = .9 is not a
+  success — it is a database. The corpus is the formal statement
+  of the project's core insight: the model must fail where humans
+  fail. Every anchor's upper bound is as load-bearing as its lower.
+- **CONTESTED rows** (A10) assert the null: the flashbulb
+  *consistency* advantage must be ≈ 0 even though the *confidence*
+  advantage (A11) must be > 0 — the pair is the Talarico & Rubin
+  dissociation and it is exactly the kind of joint constraint a
+  hand-tuned model silently violates.
+- Sign anchors (A04, A16) need only the qualitative verdict at any
+  powered n.
+
+## 63. Anchors → params — the identifiability map, extended
+
+§4 audited which params are free; §32.3 ranked which are stiff.
+This map answers the inverse question: **which human facts see
+which params**. Rule: an anchor `pins` a param iff a ±20% perturbation
+of that param (all else at a reference profile) moves the anchor
+statistic by ≥ 25% of its band width — measurable in the harness
+(P861 enforces declaration; the sensitivity run computes it).
+
+- **Pinned stiff**: beta classes (A01–A04 pin the whole decay
+  family), enc_base (A01 + A17), misinfo_suscept + cie_residual
+  (A07/A08 jointly — acceptance needs both a door and a residue),
+  the §5.8 suppression legs (A15), recency legs (A16).
+- **Pinned weak** (each sees one anchor): bump machinery (A06),
+  aff_flash confidence leg (A11 — note the flashbulb *content* legs
+  are pinned only by a null, meaning their magnitudes are
+  underdetermined: flagged for freeze-review at next audit),
+  child-offset params (A05 alone sees them — any childhood-encoding
+  param that does NOT move A05 is a candidate for the sloppy set).
+- **Unpinned scan**: run the §32.3 Morris screen restricted to the
+  corpus; params with μ* ≈ 0 across all 18 anchors and all 8
+  composites are formally invisible — freeze to population
+  constants per the §32.1 discipline. Expected candidates (guess,
+  not result): several of the v5.x emission-shaping pop params.
+- **Uncovered anchors**: none of the 18 lack a pin — every anchor
+  was chosen to touch live machinery. If a future anchor is added
+  that no param can reach, that is a *finding*: the spec lacks a
+  mechanism, and the correct response is a mechanism version, not
+  a tolerance widening.
+
+## 64. The power budget — what a corpus run costs
+
+Required n per anchor class (Wilson-based, §32.2 conventions):
+
+- **Proportion anchors** (A01–A03, A07–A09, A13, A15): half-band
+  ≈ .10 → n ≥ p(1−p)(1.96/.10)² ≈ 100 draws at worst case;
+  `anchor_n_min = 100` enforces the floor; tight rows (A10's null,
+  band half-width .10 around 0) need n ≥ 200 for adequate TOST
+  power (~80%). One scripted scenario yields ~10–40 usable draws
+  per character-day → A07 needs ~5–20 character-days of scripted
+  misinformation scenes. Cheap.
+- **Curve anchors** (A01–A03 jointly, A04): fit in log space over
+  ≥ 4 retention decades; the power-family verdict (A04) is a
+  model-comparison sign test across the fit residuals — n is
+  *retention points*, ~500 encoded low-salience items tracked
+  across a 60-day script. This is the single most expensive row.
+- **Distribution anchors** (A05, A06): era-density histograms —
+  ~300 dated memories per simulated 70-year-old; chi-square against
+  the band shape at w = .2 sensitivity needs n ≈ 200 (standard
+  chi-square power table).
+- **Correlation anchors** (A12): r-band [.0,.40] at ρ≈.2 needs
+  n ≈ 150 recall+confidence pairs (Fisher z, two-sided .05).
+
+**Total corpus cost**: one shared 200-day scripted run supplies
+A01–A06, A13–A18 (the event diet already exists — P68 family);
+A07–A12 need ~4 dedicated scenario scripts (misinformation,
+implantation, DRM-style gist lists, flashbulb vs everyday pair).
+Budget ≈ 3 harness runs ≈ the cost of one existing probe family.
+The corpus is cheaper than the probe suite — no excuse to skip it.
+
+## 65. Replication-grade shrinkage — the discipline of believing less
+
+Not all human values deserve equal trust. `rep_shrink` scales the
+*claimed effect* toward its null before the band is placed:
+
+| grade | meaning | shrink |
+|---|---|---|
+| META | meta-analytic consensus | 1.0 |
+| RRR | registered replication survived | 0.9 |
+| MULTI | multiple independent labs | 0.8 |
+| SINGLE | one lab / one design | 0.6 |
+| CONTESTED | replication failed or disputed | assert null band |
+
+Shrinkage widens the *distance the sim must travel* — for an
+effect Δ with grade SINGLE the band centers on 0.6·Δ. Rationale:
+the replication crisis measured ~36% significant replications with
+mean replicated effect ≈ half the original (Open Science
+Collaboration 2015, *Science* 349:aac4716 — CONSENSUS that
+single-study effects inflate). Anchors are the ground the model
+stands on; inflated ground produces inflated humans.
+
+## 66. The holdout protocol — the corpus can be overfit too
+
+With ~70 free params and 18 anchors, moment-matching *will* hit
+every band eventually — that's fitting, not validating. Protocol:
+
+- **Split**: `anchor_train_frac = 0.8` — ~14 anchors are
+  fittable; ~4 (rotate deterministically by `anchor_set_ver`)
+  are **held out**: never shown to any fitting procedure, Morris
+  screen, or manual tuning session.
+- **Gate**: a validation run reports held-out misses as
+  `overfit_flag` entries; ≥ half the held-out rows missing band =
+  FAIL at the corpus level regardless of train-anchor pass count.
+- **Locked null `anchor_leak_null`**: held-out anchor ids must not
+  appear in any fitting-run input manifest; enforced by registry
+  lint (P866). The corpus is the exam; you do not get to see the
+  held-out questions while tuning.
+- Rotating holdout per `anchor_set_ver` bump prevents slow
+  memorization across versions.
+
+## 67. New params (spec §7 v5.29 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| obs_link | "logit" | pop (enum) | P859 — declared latent→recall link |
+| obs_noise | 0.08 | pop — HYPOTHESIS | P859 — instrument noise on all channels |
+| lat_a | 7.2 | pop — log-ms | P860 — latency intercept (~1.3 s at S→0) |
+| lat_b | 0.9 | pop | P860 — strength–latency slope |
+| lat_sigma | 0.4 | pop | P860 — lognormal residual |
+| conf_scale | 1.0 | pop | P869 — reported-confidence gain |
+| conf_bias | 0.05 | pop | P869 — overconfidence intercept (Lichtenstein et al. 1982) |
+| anchor_set_ver | "v1" | pop (table ver) | P861/P866 — corpus identity |
+| anchor_n_min | 100 | harness | P864 — power floor per anchor |
+| tost_alpha | 0.05 | harness | P862 — equivalence level |
+| rep_shrink | {META:1,RRR:.9,MULTI:.8,SINGLE:.6} | harness | P865 |
+| anchor_train_frac | 0.8 | harness | P866 — holdout split |
+| latent_read_null | 0.0 | locked null | P859 — latents unreadable |
+| exceed_null | 0.0 | locked null | P862 — superiority is failure |
+| anchor_leak_null | 0.0 | locked null | P866 — held-out anchors untouchable |
+
+15 entries, **0 per-character** — the corpus grades the whole
+population of characters at once; per-anchor grading by profile
+is the §63 sensitivity run, not new params.
+
+## 68. Formal/consistency probes (P859–P870)
+
+- **P859 link completeness (MUST — locked null):** fuzz 10⁴ probe
+  evaluations; every observed quantity traces through a declared
+  channel (y, lat, c, or emitted content); any direct latent read
+  = FAIL (`latent_read_null = 0`).
+- **P860 latency monotonicity (MUST — sign):** matched records at
+  ΔS = .3 produce mean lat ordered strictly; log-residual σ within
+  [0, 2·lat_sigma]; latency never enters retrieval inputs (P740
+  already gates the display side).
+- **P861 corpus lint (MUST — process):** every anchor row declares
+  source, band, rep_grade, ≥1 pinned param, and a design ref;
+  unpinned or unsourced row = build error (twin of P743).
+- **P862 equivalence gate (MUST — locked null):** inject a
+  degenerate perfect-memory config (β→0, misinfo_suscept→0);
+  corpus verdict = FAIL on ≥ 6 anchors via upper-band violations
+  (`exceed_null = 0`). The suite must be able to catch a database.
+- **P863 retention anchors (SHOULD):** scripted low-salience event
+  diet on the reference profile; savings-analogue statistics at the
+  three anchor delays land in A01–A03 bands simultaneously.
+- **P864 power audit (MUST — process):** every evaluated anchor
+  reports n; n < max(anchor_n_min, §64 required n) = verdict
+  INCONCLUSIVE, never PASS — an underpowered hit is not evidence.
+- **P865 shrinkage mutation (SHOULD):** flip A09's grade
+  META→SINGLE in a test corpus; the band center moves to
+  0.6·Δ automatically; static bands = FAIL.
+- **P866 holdout honesty (MUST — locked null):** run the §66
+  split; fitting inputs contain zero held-out anchorIds
+  (`anchor_leak_null = 0`); held-out miss count reported verbatim.
+- **P867 misinformation band (SHOULD):** scripted post-event
+  suggestion scenario; pooled acceptance in A07 [.15,.45];
+  profile-conditional report (suggs hi/lo) emitted but not gated.
+- **P868 bump shape (SHOULD):** a 70-equivalent profile's dated
+  autobiographical density shows decade-2–3 mass > decades 4–6
+  (A06) AND A05 earliest-recall age in band.
+- **P869 confidence–accuracy band (OBSERVE):** overall r in
+  [0,.40]; chooser-conditional r > overall; report only —
+  the calibration surface is an emergent readout, tuning it
+  directly would break A12's diagnostic power.
+- **P870 flashbulb dissociation (MUST — CONTESTED pair):**
+  matched flashbulb/everyday records: |consistency Δ| ≤ .10 (A10
+  null) AND confidence Δ ∈ [+.05,+.35] (A11) — both tails or the
+  aff_flash machinery is wrong in a specific, named way.
+
+## 69. Summary for game-systems
+
+Three deliverables: the corpus itself (§61 — eighteen sourced
+statistics with bands, the first concrete human numbers the spec
+has ever been held to); the link layer (§60 — latents are never
+read, only the three observable channels, which is what makes
+"the character forgot" and "the probe measured forgetting" the
+same claim); and the grading machinery (§§62–66 — equivalence
+testing so being too good fails, shrinkage so inflated literature
+doesn't inflate characters, a power budget that makes the corpus
+cheaper than one probe family, and a holdout so tuning can't
+memorize the exam). Zero new per-character params, zero new
+record fields, zero new psychology — this part changes what the
+spec *owes*, not what it *does*.

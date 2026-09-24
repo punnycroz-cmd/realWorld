@@ -7630,7 +7630,7 @@ P843 (passive), P844 (dominant language).
   capture rates (P847 cells) AND different secret-intrusion
   frequencies (P849 cells) — same scene, different books.
 
-Registry: P1–P858. v80 suite: P847–P858 — P847–P851, P853,
+Registry: P1–P870. v81 suite: P859–P870 (formal-model VIII — formal-model.md §68); v80 suite: P847–P858 — P847–P851, P853,
 P855, P858 MUST; P852, P854, P856 SHOULD; P857 OBSERVE.
 Locked-null arms: P847 (memory), P849 (tag), P850 (chain +
 record), P851 (communal ledger), P853 (create), P854
@@ -7713,3 +7713,127 @@ record), P851 (communal ledger), P853 (create), P854
   prior mechanics, final-encounter privilege, vouch
   transitivity, we-record mechanics, ownership magnitudes —
   RW HYPOTHESES, all probe-gated.
+
+## 162. v81 probe specs (P859–P870 — formal-model VIII: anchor corpus)
+
+Formal-model Part VIII (§§60–69) instantiates the §14.2 anchor
+corpus — 18 sourced human statistics with bands — plus the
+observable link layer, equivalence grading, power budget,
+rep-grade shrinkage, and the train/holdout split. Probes test
+the *machinery*: links, lints, gates, budgets. Anchors
+themselves (A01–A18) are the corpus, not probes.
+
+- **P859 link completeness (MUST — locked null):** fuzz 10⁴
+  probe evaluations; every observed quantity traces through a
+  declared channel (recall `y`, latency `lat`, confidence `c`,
+  or emitted content). Any direct latent read (record.strength,
+  θ, cueMatch internals) = FAIL. `latent_read_null = 0`.
+  Basis: Tulving & Pearlstone 1966 availability/accessibility;
+  the probe-as-kernel formalism (§36) already implies read-side
+  discipline — this gates it.
+- **P860 latency monotonicity (MUST — sign-locked):** matched
+  records at ΔS_eff = .3 (constructed via legal encoding-
+  strength manipulation, never direct writes) produce strictly
+  ordered mean latencies, strong < weak; log-residual σ ∈
+  [0, 2·lat_sigma]. Basis: Wixted & Rohrer 1994 (cumulative-
+  recall rate tracks strength).
+- **P861 corpus lint (MUST — process):** every anchor row in
+  `anchor_set_ver` declares source, band, rep_grade, ≥1 pinned
+  param, design ref. Unpinned/unsourced/incomplete row = build
+  error (twin of P743 declaration gate).
+- **P862 equivalence gate (MUST — locked null):** inject a
+  degenerate perfect-memory config (β→0, misinfo_suscept→0);
+  corpus verdict = FAIL on ≥6 anchors via upper-band
+  violations. A suite that cannot catch a database is not a
+  validator. `exceed_null = 0`. Basis: Schuirmann 1987 TOST;
+  Lakens 2017.
+- **P863 retention anchors (SHOULD):** scripted low-salience
+  event diet on the reference profile (P68 family reuse);
+  savings analogues at the A01/A02/A03 delays land inside
+  [.45,.70]/[.22,.48]/[.10,.35] simultaneously.
+- **P864 power audit (MUST — process):** every evaluated
+  anchor reports n; n < max(anchor_n_min=100, §64-required n)
+  → verdict INCONCLUSIVE, never PASS. An underpowered hit is
+  not evidence.
+- **P865 shrinkage mutation (SHOULD):** flip a META anchor's
+  grade to SINGLE in a test corpus; band center must move to
+  0.6·Δ automatically; static bands = FAIL. Basis: OSC 2015
+  (~36% replication rate, mean effect ≈ half).
+- **P866 holdout honesty (MUST — locked null):** run the §66
+  split; fitting inputs manifest zero held-out anchorIds
+  (`anchor_leak_null = 0`); held-out miss count reported
+  verbatim; ≥ half held-out missing band = corpus-level FAIL.
+- **P867 misinformation band (SHOULD):** scripted post-event
+  suggestion; pooled acceptance ∈ [.15,.45] (A07);
+  profile-conditional split (suggs hi/lo) reported, ungated.
+- **P868 bump shape (SHOULD):** 70-equivalent profile's dated
+  autobiographical density: decade-2–3 mass > decades 4–6
+  (A06) AND earliest-recall age ∈ [3.0,4.2] (A05).
+- **P869 confidence–accuracy band (OBSERVE):** overall
+  point-biserial r ∈ [0,.40]; chooser-conditional > overall.
+  Report only — direct tuning would break A12's diagnostic
+  power. Basis: Sporer, Penrod, Read & Cutler 1995.
+- **P870 flashbulb dissociation (MUST — CONTESTED pair):**
+  matched flashbulb/everyday records: |consistency Δ| ≤ .10
+  (A10 null) AND confidence Δ ∈ [+.05,+.35] (A11). Both tails
+  or the aff_flash machinery is wrong in a named way.
+  Basis: Talarico & Rubin 2003.
+
+Registry: P1–P870. v81 suite: P859–P870 — P859, P860, P861,
+P862, P864, P866, P870 MUST; P863, P865, P867, P868 SHOULD;
+P869 OBSERVE.
+
+## 163. Sources verified this version (P859–P870 backing)
+
+- **Ebbinghaus curve (A01–A03):** Ebbinghaus 1885 savings
+  (58%@20min, 44%@1h, 34%@24h, 21%@31d — canonical);
+  Murre & Dros 2015 (*JML* 80:135 — successful RRR-grade
+  replication incl. intervals Ebbinghaus never tested).
+- **Retention form (A04):** Rubin & Wenzel 1996 (*Psych Rev*
+  103:734 — 210 datasets, 105 functions; exponential never
+  best; scale invariance is the grounds for §1's tick
+  insensitivity claim).
+- **Childhood amnesia (A05):** Tustin & Hayne 2010 grand mean
+  3.5y; Nelson & Fivush 2004 — 26 studies / 49 estimates,
+  unweighted mean 3.69 (verified table).
+- **Bump (A06):** Rubin & Schulkind 1997 (*Mem & Cogn*
+  25:859) + Rubin, Wetzler & Nebes 1986 — verified: bump
+  10–30, important memories of 70yos cluster 20–30.
+- **Misinformation (A07/A08):** Loftus 2005 review; Ayers &
+  Reder 1998 (early 30–40% impairment, controlled 10–20%);
+  Lindsay et al. 2004 (~30% lost-in-mall); Pezdek et al.
+  1997 (implausible→0%), Wade et al. 2002 (>50% plausible).
+- **DRM (A09):** Stadler, Roediger & McDermott 1999 (≥60%
+  recall / ≥80% recognition on strong lists); Roediger,
+  Watson, McDermott & Gallo 2001 (.01–.65 across 55 lists).
+- **Flashbulb (A10/A11):** Talarico & Rubin 2003 — verified:
+  consistency decline identical, vividness/confidence decline
+  only for everyday; visceral emotion → belief not accuracy.
+- **Confidence–accuracy (A12):** Sporer, Penrod, Read &
+  Cutler 1995 (overall ~0–.29, choosers ~.41 — verified);
+  Wixted & Wells 2017 pristine-condition caveat = DEBATED.
+- **Testing (A13):** Roediger & Karpicke 2006 — verified
+  numbers: 5-min .75 vs .81 (reversal), 1-wk .61 vs .40.
+- **Spacing (A14):** Cepeda et al. 2006 meta (839 assessments,
+  *Psych Bull* 132:354); Cepeda et al. 2008 optimal-gap ≈
+  10–20% of retention interval.
+- **RIF (A15):** Anderson, Bjork & Bjork 1994 (~8–10pp);
+  Murayama et al. 2014 meta — CONSENSUS for immediate;
+  durability (Storm et al. 2015) DEBATED — band is immediate-
+  effect only.
+- **Serial position (A16):** Murdock 1962; Glanzer & Cunitz
+  1966 (30 s filled delay abolishes recency).
+- **LoP (A17):** Craik & Tulving 1975; Craik 2002 review.
+- **Generation (A18):** Bertsch et al. 2007 meta (d ≈ .5).
+- **Link layer (P859/P860):** Wixted & Rohrer 1994; Ratcliff
+  1978 (DDM — declined for cost, noted); Lichtenstein,
+  Fischhoff & Phillips 1982 (overconfidence → conf_bias).
+- **Grading machinery (P862/P864–P866):** Schuirmann 1987
+  TOST; Lakens 2017 equivalence testing; Wilson 1927 CIs
+  (carried from §32.2); Open Science Collaboration 2015
+  (*Science* 349:aac4716); Benjamini & Hochberg 1995.
+- **Established vs hypothesis summary:** all 18 anchor
+  statistics CONSENSUS/META-grade except A10 (the anchor is
+  precisely the contested null — asserted as absence);
+  bands, channel lognormal choice, obs_noise, shrink factors,
+  split fraction — RW HYPOTHESES, probe-gated.

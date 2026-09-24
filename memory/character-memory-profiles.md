@@ -3993,3 +3993,30 @@ fields (`relKind`, `vouch_prior`, `bond`) and event tags
   self-defining story costs a small trespass (doubled if
   they're present without being handed the mic); deference
   pays a small bond. Ownership prices, never blocks.
+
+## 63. v5.29 note (formal-model VIII — the corpus grades you)
+
+**Zero new clamp rows, zero new traits, zero new per-char
+params.** Part VIII adds only pop/harness machinery — the
+anchor corpus, the link layer, the grading discipline. What
+it changes for bibles:
+
+- **Profiles are now graded against humans, not vibes.** The
+  18-anchor corpus (formal-model.md §61) evaluates the
+  *population* of characters; a bible whose params push a
+  character outside a band (e.g. misinformation resistance
+  ≈ 0, confidence–accuracy ≈ perfect) fails the corpus
+  through `exceed_null` — being *too* good is the failure
+  mode, exactly as the project's core insight requires.
+- **§63 sensitivity runs will name sloppy per-char params.**
+  Any per-character param that moves no anchor and no
+  composite is a freeze candidate — bible authors should
+  expect future notes to prune, not add.
+- **The three channels are the only face a bible shows:**
+  what a character recalls, how fast, how confidently.
+  Latent strengths are never reportable — write phenomenology
+  on the observable side (slow answers, hedged certainty),
+  which is where humans live anyway.
+- World-builder guidance unchanged: trait vectors →
+  `deriveParams` → clamps; the corpus doesn't touch
+  generation, it audits its outputs.
