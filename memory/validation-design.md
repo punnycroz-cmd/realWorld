@@ -14797,3 +14797,187 @@ backing)
 
 → memory-model-spec.md v5.84 §5.169 +
 §§6.401–6.406; probes P1485–P1491.
+
+## 280. v139 probe specs (P1492–P1505 —
+individual-differences XII: the résumé and the
+wear)
+
+Registry extends P1–P1491. Sources in §281.
+
+- **P1492 education level-not-slope (MUST —
+  `edu_slope_null`/`edu_epi_slope_null`):**
+  CRN-matched profiles at `edu` 0 vs 2 —
+  level metrics (semantic field density,
+  search breadth, enc level) differ at every
+  snapshot 55→85; every decline-rate measure
+  identical within CI. Any nonzero edu→slope
+  leg fails.
+- **P1493 education mask (SHOULD):** identical
+  `age_eff` accrual, edu 0 vs 2 — complaint/
+  concern surface onset delayed ~`edu_mask_k`·e;
+  underlying decline legs bit-identical. FAIL
+  if the delay touches a store leg.
+- **P1494 cognitive-activity rate (MUST —
+  `cogact_level_null`):** matched `edu`,
+  cog_act 0 vs 2 — baseline equal, beta_episodic
+  slope diverges ~`cogact_slope_gain`; routine
+  retell-mint rate higher in the active arm.
+- **P1495 purpose moderation (SHOULD —
+  `purpose_path_null`):** identical injected
+  age_eff at purpose 0 vs 2 — decline-leg
+  expression attenuated ~`purpose_slope_k`;
+  encode strength of new mints identical;
+  PM-intention survival higher in the
+  purposeful arm.
+- **P1496 counted vs felt (MUST —
+  `socnet_felt_null`):** 2×2 soc_net × lonely.
+  Slope rescue follows LONELY sign; retell/
+  discuss mint counts follow SOC_NET sign;
+  a merge letting headcount rescue loneliness
+  fails (`lonely_crowd_null` re-verified).
+- **P1497 hypertension window (MUST —
+  `htn_late_null`):** htn=2 onset 50 vs 75 —
+  midlife arm accrues ~`htn_slope_k`/yr, late
+  arm ≤30%; `htn_treated` ~40% under untreated;
+  vasc-stack cap honored with smoker+diab.
+- **P1498 CVD step (MUST — `cvd_sem_null`/
+  `cvd_pro_null`):** cvd mint → `age_eff` +~1.5
+  at sev 2 + enc dip decaying at `cvd_acute_tau`;
+  semantic/procedural flat; step strictly below
+  matched `stroke_hist` mint.
+- **P1499 noise split (MUST — `noise_sust_null`
+  + `noise_road_gain_null`):** child under
+  aircraft-class noise — recognition-field tax
+  dose-ordered, sustained attention flat,
+  reverts on `noise_revert_tau`; adult arm
+  ≤0.05; road-class shows no gain.
+- **P1500 alcohol dose (MUST —
+  `alc_mod_null`):** abstinent/moderate/heavy —
+  heavy shows slope + frontal-field legs;
+  moderate bit-identical to abstinent on every
+  terminus (any J-curve mint fails).
+- **P1501 preterm signature (SHOULD —
+  `pt_slope_null`):** preterm=2 shows ordered
+  level taxes (exec > speed > episodic ≈
+  .25/.2/.15) present at 20, rate-unchanged at
+  60; complaint surface elevated.
+- **P1502 nap two-face (MUST —
+  `nap_long_cause_null`):** `nap_event` boosts
+  same-morning mints ~`nap_gain`; `nap_long`-
+  flagged profiles track age_eff but add ZERO
+  causal legs — flagged vs flag-free declining
+  arms identical.
+- **P1503 repress private gate (MUST —
+  `repr_pub_null`/`repr_pos_null`):** matched
+  negative self-referential records — private
+  recall suppressed via §6.102, public/
+  evaluative context restores toward baseline;
+  negative-AM emission specificity −`repr_spec_
+  tax`; positive records identical.
+- **P1504 adversity dose, steel banned (MUST —
+  `steel_null`):** 0/moderate/high advers_cum —
+  high shows enc tax + threat over-match;
+  moderate vs zero must not differ positively
+  on any terminus; `advers_cap` stacking bound
+  with early_adv verified.
+- **P1505 mandated-null battery II (MUST):**
+  `vitd_state`/`omega3_state`/`bil_res` carriers
+  bit-identical to non-carriers at matched
+  everything; bilingual §11 cue-match and §86
+  TOT legs verified INTACT in the same run.
+
+## 281. Sources verified this version
+(P1492–P1505 backing)
+
+- **Lövdén, Fratiglioni, Glymour, Lindenberger
+  & Tucker-Drob 2020** (*Psychol. Sci. Public
+  Interest* 21:6 — verified: education-ability
+  association lifespan-wide; education–decline
+  association negligible; threshold model
+  accounts for dementia risk); **Zahodne et al.
+  2011** (*JINS* 17:1039 — verified, VLS N=1014
+  12y: level yes, rate no, all domains);
+  Wilson et al. 2009 (*Neurology* 73:460);
+  Betula Bayesian arm (Josefsson et al. 2012/
+  frontal — null on change for visuospatial,
+  semantic, episodic).
+- **Wilson, Barnes, Aggarwal, Boyle, Hebert,
+  Mendes de Leon & Evans 2013** (*Neurology*
+  74:1121 — verified: cognitive activity →
+  reduced decline independent of education);
+  Wilson et al. 2003 (*NEJM* 348:868);
+  Salthouse 2006 (reverse-causation critique).
+- **Boyle, Buchman, Barnes & Bennett 2010**
+  (*Arch. Gen. Psychiatry* 67:304 — verified:
+  purpose → reduced incident AD/MCI + slower
+  decline); **Boyle et al. 2012** (*Arch. Gen.
+  Psychiatry* 69:499 — verified, N=246 autopsy:
+  purpose moderates pathology→cognition AND
+  pathology→decline links); Kim et al. 2021
+  (*J. Am. Geriatr. Soc.* — ~6y later onset
+  90th-vs-10th percentile).
+- **Barnes, Mendes de Leon, Wilson, Bienias &
+  Evans 2004** (*Psychol. Aging* 19:531 —
+  verified: network size + activity → slower
+  global decline); **James, Wilson, Barnes &
+  Bennett 2011** (*JINS* 17:998); Wilson et
+  al. 2007 (*Arch. Gen. Psychiatry* 64:234 —
+  loneliness the stronger risk); Rush pathology
+  arm: no network→pathology main effect.
+- **Gottesman, Schneider, Albert et al. 2014**
+  (*JAMA Neurol.* 71:1218 — verified, ARIC
+  N=13,476, 20y: midlife HTN extra −0.056
+  global-z decline; treated −0.050 vs
+  untreated −0.079; midlife window).
+- **Johansen et al. 2023** (*JAMA Neurol.* —
+  pooled cohorts, incident MI → faster
+  subsequent decline); Xue et al. HF cohorts
+  (direction-consistent).
+- **Stansfeld et al. 2005** (*Lancet* 365:1942
+  — verified, RANCH N=2,844 three airports:
+  aircraft noise → reading comprehension +
+  recognition memory, dose-ordered; sustained
+  attention NULL; road noise → episodic
+  increase, unreplicated outlier); **Hygge,
+  Evans & Bullinger 2002** (*Psychol. Sci.*
+  13:469 — Munich prospective, reversible on
+  airport closure).
+- **Sabia et al. 2014** (*Neurology* —
+  Whitehall II heavy midlife drinking ≈ +2y
+  cognitive aging); Topiwala et al. 2017
+  (*BMJ* hippocampal dose); **Stockwell et al.
+  2016** (meta-corrections — abstainer bias
+  kills the J-curve).
+- **Aarnoudse-Moens, Weisglas-Kuperus, van
+  Goudoever & Oosterlaan 2009** (*Pediatrics*
+  124:717 — verified meta: EF −0.57/−0.36 SD,
+  attention +0.43–0.59 SD); Eryigit Madzwamuse
+  et al. 2018 (*JCPP* — adult VP/VLBW at 26y,
+  IQ −1.16 SD, EF persists).
+- **Lovato & Lack 2010** (nap meta — benefit
+  stage/duration-sensitive); **Li et al.
+  2020/2022** (Rush actigraphy — verified
+  bidirectional napping↔AD finding); pooled
+  meta OR~1.4 long-nap↔impairment flagged as
+  marker not cause.
+- **Myers & Derakshan 2004** (*Cogn. Emot.*
+  18:635 — verified: repressors' negative
+  directed-forgetting advantage in PRIVATE
+  self-descriptive condition only); Myers &
+  Brewin 1994 (*J. Abnorm. Psychol.* 103:288);
+  Newman & Hedberg 1999; Hauer et al. —
+  negative-AM specificity.
+- **Lynch et al. HARMONY 2015** (cumulative
+  adversity dose); Holtz/Seery steeling line
+  (DEBATED — upside arm banned).
+- **VITAL cognition ancillary** (null);
+  **DO-HEALTH** 3y (null); **Sydenham,
+  Dangour & Lim 2012** (Cochrane omega-3 —
+  null); **JAD 2017 bilingualism meta**
+  (prospective OR 0.96, CI 0.74–1.23);
+  **Paap & Greenberg 2013**; Paap 2019 —
+  the reserve claim fails prospectively;
+  §11/§86 cost legs stay.
+
+→ memory-model-spec.md v5.85 §§6.407–6.420;
+probes P1492–P1505.

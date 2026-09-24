@@ -1,4 +1,63 @@
-# Memory Model Spec v5.84 — implementable human-like memory for RW characters
+# Memory Model Spec v5.85 — implementable human-like memory for RW characters
+
+> **v5.85 note (individual-differences XII — the
+> résumé and the wear: the level that isn't a slope,
+> the mind that kept working, the reason that slows
+> the slide, the counted crowd, the pressure years,
+> the heart that isn't a stroke, the sound a child
+> can't leave, the decade of drinks, the early birth,
+> the honest nap, the private gate, the count of bad
+> years, and three more refusals):**
+> `memory/individual-differences.md` Part XII
+> (§§164–183) prices the biography layer.
+> **Education** — `edu` pays LEVEL legs (semantic
+> density, fluency, weak episodic) and is banned from
+> every slope (`edu_slope_null`; Lövdén et al. 2020;
+> Zahodne et al. 2011, verified) + `edu_mask_k`
+> detection-lag (threshold model, DEBATED).
+> **Cognitive activity** — `cog_act` damps
+> beta_episodic slope and raises retell-mint ecology;
+> `cogact_level_null` (Wilson et al. 2013; reverse
+> causation discounted in the price). **Purpose** —
+> `purpose` moderates `age_eff`-routed decline legs
+> (Boyle et al. 2012 autopsy interaction, verified)
+> + a HYPOTHESIS-priced PM-intention survival leg.
+> **Social network** — `soc_net` (counted) vs `lonely`
+> (felt): slope rescue follows lonely, rehearsal
+> ecology follows soc_net; `socnet_felt_null`.
+> **Midlife hypertension** — `htn` accrues slope only
+> inside the 45–65 window, treated ×0.6
+> (Gottesman et al. 2014 ARIC, verified);
+> `htn_late_null`. **CVD events** — `cvd_hist` small
+> step + transient dip, stores exempt. **Chronic
+> noise** — child recognition tax dose-ordered and
+> reversible (Stansfeld 2005 RANCH; Hygge 2002,
+> verified); adult leg hypothesis-priced;
+> `noise_sust_null`/`noise_road_gain_null`.
+> **Alcohol history** — heavy-dose slope + frontal
+> fields; moderate arm locked identical to abstinent
+> (`alc_mod_null` — the J-curve is a banned emission;
+> Sabia 2014; Stockwell 2016). **Preterm birth** —
+> ordered level taxes exec>speed>episodic
+> (Aarnoudse-Moens 2009; Eryigit Madzwamuse 2018);
+> `pt_slope_null`. **The honest nap** — `nap_event`
+> consolidates morning mints ×1.1; `nap_long` is a
+> decline-minted marker with locked-zero legs
+> (`nap_long_cause_null`; Li et al. 2022
+> bidirectional). **Repress II** — §6.102 gains the
+> private gate (`repr_pub_null`: public contexts
+> restore recall) and valence-gated specificity tax
+> (Myers & Derakshan 2004, verified).
+> **Cumulative adversity** — `advers_cum` dose counter,
+> encode tax + threat over-match, steeling upside
+> banned (`steel_null`). **Three refusals** —
+> `vitd_null`, `omega3_null`, `bil_res_null`: mandated
+> nulls 8–10 (VITAL/DO-HEALTH/Cochrane nulls; bilingual
+> reserve banned while §11/§86 language costs stay —
+> asymmetric on purpose).
+> §§6.407–6.420; §7 +26 scalars +11 traits +5 states/
+> flags +16 locked nulls; probes P1492–P1505.
+> (Prior notes v4.x–v5.84 in the version log.)
 
 > **v5.84 note (false-memory VI — the label
 > that blesses the unlabeled, the correction
@@ -19354,6 +19413,221 @@ Locked `dread_flat_null` (P1491): matched
 valence± rumor chains must show the survival/
 sharpening asymmetry.
 
+### 6.407 The level that isn't a slope — `edu_*` (new in v5.85)
+
+ID§164; **Lövdén, Fratiglioni, Glymour,
+Lindenberger & Tucker-Drob 2020**; **Zahodne et
+al. 2011** (VLS, verified); Wilson et al. 2009.
+
+`edu` ∈[0,2] authored: semantic-store field
+density ×(1+`edu_sem_gain`·e) (0.15); search/
+fluency legs ×(1+`edu_flu_gain`·e) (0.1);
+enc_base level ×(1+`edu_epi_level`·e) (0.08 —
+weakest on purpose). Locked `edu_slope_null`
+(P1492): no leg may touch decay rate, slope
+multiplier, or age_eff accrual. `edu_mask_k`
+(0.2·e) delays complaint-surface onset under
+objective decline (threshold model, DEBATED —
+detection lag, never resilience).
+
+### 6.408 The mind that kept working — `cogact_*` (new in v5.85)
+
+ID§165; **Wilson et al. 2013** (*Neurology*
+74:1121, verified); Salthouse 2006 reverse-
+causation critique priced into the size.
+
+`cog_act` ∈[0,2] sampled: `beta_episodic` and
+search-aging legs ×(1−`cogact_slope_gain`·c)
+(0.08); routine retell/reflect mint rate
+×(1+`cogact_rehearse`·c) (0.1 — the mechanism
+arm). Locked `cogact_level_null` (P1494): at
+matched `edu`, baseline metrics equal — rate,
+not résumé.
+
+### 6.409 The reason that slows the slide — `purpose_*` (new in v5.85)
+
+ID§166; **Boyle, Buchman, Barnes & Bennett
+2010**; **Boyle et al. 2012** (autopsy-moderation,
+verified); Kim et al. 2021.
+
+`purpose` ∈[0,2] sampled, drifts on life-event
+mints: `age_eff`-routed decline legs ×(1−
+`purpose_slope_k`·p) (0.1 — moderation OF the
+decline machinery, matching the pathology
+interaction, not a second slope). PM-intention
+survival ×(1+`purpose_pm_gain`·p) (0.1 —
+HYPOTHESIS, the commitment-decay tie-in).
+Locked `purpose_path_null` (P1495): encode
+strength and pathology mints untouched.
+
+### 6.410 The counted crowd — `socnet_*` (new in v5.85)
+
+ID§167; **Barnes et al. 2004**; **James et al.
+2011**; Wilson et al. 2007 (loneliness dominates).
+
+`soc_net` ∈[0,2] derived from relationship-store
+edge count + interaction frequency: decline legs
+×(1−`socnet_slope_k`·s) (0.08); discussEvent
+opportunity rate ×(1+`socnet_rehearse`·s) (0.15).
+Stacks additively with `lonely` (~2:1 dominance
+to the subjective axis). Locked `socnet_felt_null`
+(P1496): crowded-but-disconnected gets the
+rehearsal legs, not the slope rescue;
+`lonely_crowd_null` precedent preserved.
+
+### 6.411 The pressure years — `htn_*` (new in v5.85)
+
+ID§168; **Gottesman, Schneider, Albert et al.
+2014** (*JAMA Neurol.* 71:1218 — verified, ARIC
+N=13,476: midlife HTN → extra −0.056 z/20y;
+treated −0.050 vs untreated −0.079).
+
+`htn` ∈[0,2] authored + `htn_onset` age: slope
+accrual `htn_slope_k` (0.1 age-yr/yr at htn=2)
+applies only to sim-years with onset_age ≤
+age_eff < `htn_window_hi` (65), feeding
+`vasc_stack_cap`. `htn_treated:true` → accrual
+×`htn_treated_mult` (0.6). Locked `htn_late_null`
+(P1497): onset ≥70 → legs ≤`htn_late_mult` (0.3).
+
+### 6.412 The event that isn't a stroke — `cvd_*` (new in v5.85)
+
+ID§169; Johansen et al. 2023 (*JAMA Neurol.*,
+pooled incident-MI cohorts); magnitude DEBATED
+(confounding by indication flagged).
+
+`cvd_hist` ∈[0,2] event-minted: `age_eff` +=
+`cvd_step`·sev (1.5 at sev 2 — under
+`stroke_step_k`); slope legs ×(1+`cvd_slope_k`·sev)
+(0.1, `vasc_stack_cap` cluster); post-event enc
+×(1−`cvd_acute_tax`) (0.15, τ=`cvd_acute_tau`
+180d). Locked `cvd_sem_null`/`cvd_pro_null`
+(P1498): stores exempt, `stroke_hist` family.
+
+### 6.413 The sound a child can't leave — `noise_*` (new in v5.85)
+
+ID§170; **Stansfeld et al. 2005** (*Lancet*
+365:1942 — verified, RANCH N=2,844: aircraft →
+recognition memory + reading, sustained attention
+NULL); **Hygge, Evans & Bullinger 2002** (Munich
+prospective — reversible on closure).
+
+`noise_exp` ∈[0,2] derived from residence/
+workplace: age_eff < `noise_child_hi` (13) →
+heard-channel recognition-class fields ×(1−
+`noise_rec_tax`·n) (0.15), reverting at
+`noise_revert_tau` (365d) after removal; adults
+→ attention-gated fields ×(1−`noise_att_tax`·n)
+(0.05, annoyance-mediated HYPOTHESIS). Legs scale
+×(1−0.6·`hear`/2). Locked `noise_sust_null` +
+`noise_road_gain_null` (P1499): sustained
+attention flat; road-class gains banned (RANCH's
+unreplicated outlier).
+
+### 6.414 The decade of drinks — `alchist_*` (new in v5.85)
+
+ID§171; **Sabia et al. 2014** (*Neurology*,
+Whitehall II heavy-midlife ≈ +2y aging);
+Topiwala 2017; Stockwell et al. 2016 (J-curve
+corrections).
+
+`alc_hist` ∈[0,2] authored chronic dose
+(`blackout` event count feeds it): at alc_hist ≥
+`alc_heavy_thr` (1.5) → decline legs ×(1+
+`alc_slope_k`·a) (0.15, `vasc_stack_cap`) and
+frontal/exec field completeness ×(1−
+`alc_exec_tax`·a) (0.15). Below threshold legs →0.
+Locked `alc_mod_null` (P1500): no protection leg
+at any dose; moderate arm bit-identical to
+abstinent on all memory termini.
+
+### 6.415 Born early — `pt_*` (new in v5.85)
+
+ID§172; **Aarnoudse-Moens, Weisglas-Kuperus, van
+Goudoever & Oosterlaan 2009** (*Pediatrics*
+124:717 — verified meta); Eryigit Madzwamuse et
+al. 2018 (adult persistence).
+
+`preterm` ∈[0,2] authored biography flag:
+wmc/exec legs ×(1−`pt_ef_tax`·pt/2) (0.25);
+`pspeed` ×(1−`pt_speed_tax`·pt/2) (0.2);
+episodic encode level ×(1−`pt_epi_tax`·pt/2)
+(0.15); complaint surface +`pt_att_surf` (0.4).
+All LEVEL legs — locked `pt_slope_null` (P1501):
+signature present at 20, rate-unchanged at 60.
+
+### 6.416 The honest nap — `nap_*` (new in v5.85)
+
+ID§173; Lovato & Lack 2010 (nap meta); **Li et
+al. 2020/2022** (Rush actigraphy — long-nap ↔
+decline is bidirectional, consequence not cause).
+
+`nap_event` state (daytime episode <120min within
+10:00–19:00): that morning's mints consolidate at
+×(1+`nap_gain`) (0.1) inside the existing sleep
+channel — never a new channel. `nap_hab` ∈[0,2]
+sets daily probability. `nap_long` flag minted BY
+age_eff/fatigue/`apnea`; locked
+`nap_long_cause_null` (P1502): the flag may
+predict on inspection, causes nothing.
+
+### 6.417 The private gate — `repr_*` II (new in v5.85)
+
+ID§174; **Myers & Derakshan 2004** (*Cogn. Emot.*
+18:635 — verified: enhanced negative forgetting in
+private self-descriptive contexts, gone under
+public/evaluative); Newman & Hedberg 1999;
+Hauer et al. (negative-AM specificity).
+
+Extends §6.102 (derived pin `repress` unchanged):
+negative self-referential records mint with
+specificity ×(1−`repr_spec_tax`) (0.3 — valence-
+gated; `repr_pos_null`). §6.102 access-
+suppression legs fire only in private/self-paced
+contexts; evaluative/public contexts restore —
+locked `repr_pub_null` (P1503).
+
+### 6.418 The count of bad years — `advers_*` (new in v5.85)
+
+ID§175; Lynch et al. HARMONY 2015 (dose);
+Holtz/Seery steeling literature (DEBATED — upside
+arm refused).
+
+`advers_cum` ∈[0,2] event-minted adult-window
+counter (separate from `early_adv`/`ptsd`):
+attention-gated enc ×(1−`advers_enc_tax`·a)
+(0.1); threat-cue over-match +`advers_threat_w`
+(0.1). Encode-tax stacking with `early_adv`
+bounded at `advers_cap` (0.3). Locked
+`steel_null` (P1504): no moderate-dose upside
+leg on any terminus.
+
+### 6.419 The eighth refusal — `vitd_*` (new in v5.85)
+
+ID§176; VITAL cognition ancillary (null);
+DO-HEALTH 3y (null); observational links
+confounded.
+
+`vitd_state` ∈{0,1} med-list flag legal; all
+`vitd_*` legs locked 0.0. Revisit trigger:
+cognition-primary RCT with a positive memory
+endpoint. Same discipline as `fast_null`/`glp1_null`.
+
+### 6.420 The ninth and tenth refusals — `omega3_*` / `bil_res_*` (new in v5.85)
+
+ID§§177–178; Sydenham, Dangour & Lim 2012
+(Cochrane — null); JAD 2017 prospective meta
+(bilingualism OR 0.96); Paap & Greenberg 2013;
+Paap 2019.
+
+`omega3_state` flag legal, `omega3_*` legs locked
+0.0 (revisit: APOE-stratified cognition-primary
+RCT). `bil_res` claim flag banned: `bil_slope_null`,
+`bil_exec_null`, `bil_delay_null` locked 0.0 —
+bilingual profiles differ from monolingual ONLY on
+the §11 language-of-encoding and §86 TOT legs,
+which stay INTACT (asymmetric ban, P1505).
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -21887,6 +22161,47 @@ MemoryParams = {
 //   selfdir_flat_null (P1490);
 //   dread_flat_null (P1491). All snapshot-
 //   additive; absent = legacy.
+// v5.85 additions (individual-differences XII v139 —
+//   ID§§164–183, §§6.407–6.420, the résumé and the wear)
+"edu_sem_gain": 0.15, "edu_flu_gain": 0.1,
+"edu_epi_level": 0.08, "edu_mask_k": 0.2,        // §6.407
+"cogact_slope_gain": 0.08, "cogact_rehearse": 0.1, // §6.408
+"purpose_slope_k": 0.1, "purpose_pm_gain": 0.1,  // §6.409
+"socnet_slope_k": 0.08, "socnet_rehearse": 0.15, // §6.410
+"htn_slope_k": 0.1, "htn_window_hi": 65,
+"htn_treated_mult": 0.6, "htn_late_mult": 0.3,   // §6.411
+"cvd_step": 1.5, "cvd_slope_k": 0.1,
+"cvd_acute_tax": 0.15, "cvd_acute_tau": 180,     // §6.412
+"noise_rec_tax": 0.15, "noise_child_hi": 13,
+"noise_revert_tau": 365, "noise_att_tax": 0.05,  // §6.413
+"alc_heavy_thr": 1.5, "alc_slope_k": 0.15,
+"alc_exec_tax": 0.15,                             // §6.414
+"pt_ef_tax": 0.25, "pt_speed_tax": 0.2,
+"pt_epi_tax": 0.15, "pt_att_surf": 0.4,          // §6.415
+"nap_gain": 0.1,                                  // §6.416
+"repr_spec_tax": 0.3, "repr_priv_gate": true,    // §6.417
+"advers_enc_tax": 0.1, "advers_threat_w": 0.1,
+"advers_cap": 0.3,                                // §6.418
+// v5.85 traits: `edu`, `cog_act`, `purpose`,
+//   `soc_net` (derived), `htn` (+`htn_onset`,
+//   `htn_treated`), `cvd_hist`, `noise_exp`
+//   (derived), `alc_hist`, `preterm`, `nap_hab`,
+//   `advers_cum` (counter) — all ∈[0,2].
+// v5.85 states/flags: `nap_event`, `nap_long`
+//   (marker — legs locked), `vitd_state`,
+//   `omega3_state`, `bil_res` (claim — banned).
+// v5.85 locked nulls: edu_slope_null +
+//   edu_epi_slope_null (P1492); cogact_level_null
+//   (P1494); purpose_path_null (P1495);
+//   socnet_felt_null (P1496); htn_late_null
+//   (P1497); cvd_sem_null + cvd_pro_null (P1498);
+//   noise_sust_null + noise_road_gain_null
+//   (P1499); alc_mod_null (P1500); pt_slope_null
+//   (P1501); nap_long_cause_null (P1502);
+//   repr_pub_null + repr_pos_null (P1503);
+//   steel_null (P1504); vitd_* + omega3_* +
+//   bil_res_* bans (P1505 — mandated nulls 8–10).
+//   All snapshot-additive; absent = legacy.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -25093,6 +25408,72 @@ not resolved (DEBATED magnitude). P509/P511.
     authored trait (`fair_std`) + 1 account
     flag + 4 record fields + 7 locked nulls.
   - Probes P1485–P1491.
+- v5.85 additions (individual-differences.md
+  Part XII §§164–183 — the résumé and the
+  wear):
+  - **Education contract (§6.407):** `edu`
+    pays level legs only (semantic density,
+    fluency, weak episodic); `edu_slope_null`
+    (P1492) bans every decay/slope leg;
+    `edu_mask_k` delays complaint onset —
+    detection lag, never resilience.
+  - **Cognitive-activity contract (§6.408):**
+    `cog_act` damps `beta_episodic` slope and
+    raises retell-mint ecology;
+    `cogact_level_null` (P1494).
+  - **Purpose contract (§6.409):** `purpose`
+    moderates `age_eff`-routed decline legs
+    (autopsy-interaction form) + PM-intention
+    survival (HYPOTHESIS);
+    `purpose_path_null` (P1495).
+  - **Counted-crowd contract (§6.410):**
+    `soc_net` derives from the relationship
+    store; slope rescue follows `lonely`,
+    rehearsal ecology follows `soc_net`;
+    `socnet_felt_null` (P1496).
+  - **Vascular-window contracts
+    (§§6.411–6.412):** `htn` accrues slope
+    only inside the midlife window (treated
+    ×0.6, late-onset ≤0.3 — `htn_late_null`
+    P1497); `cvd_hist` mints a small step +
+    transient enc dip, stores exempt
+    (`cvd_sem_null`/`cvd_pro_null` P1498);
+    both feed `vasc_stack_cap`.
+  - **Noise contract (§6.413):** child
+    recognition tax dose-ordered, reversible
+    on exposure removal; adult leg
+    annoyance-mediated; `noise_sust_null` +
+    `noise_road_gain_null` (P1499).
+  - **Alcohol-history contract (§6.414):**
+    heavy-dose slope + frontal fields;
+    `alc_mod_null` (P1500) — moderate arm
+    bit-identical to abstinent; the J-curve
+    is a banned emission.
+  - **Preterm contract (§6.415):** ordered
+    level taxes exec>speed>episodic;
+    `pt_slope_null` (P1501) — signature is
+    level, not trajectory.
+  - **Nap contract (§6.416):** `nap_event`
+    consolidates that morning's mints;
+    `nap_long` is a decline-minted marker —
+    `nap_long_cause_null` (P1502): predicts,
+    never causes.
+  - **Private-gate contract (§6.417):**
+    §6.102 suppression legs fire only in
+    private contexts; `repr_pub_null` +
+    `repr_pos_null` (P1503).
+  - **Adversity contract (§6.418):**
+    `advers_cum` dose counter, encode tax +
+    threat over-match; `steel_null` (P1504)
+    bans the moderate-adversity upside.
+  - **Refusal contracts (§§6.419–6.420):**
+    `vitd_*`/`omega3_*`/`bil_res_*` legs
+    locked 0 — mandated nulls 8–10; `bil_res`
+    bans the reserve claim while §11/§86
+    language costs stay intact (P1505).
+  - **New params (§7):** 26 scalars + 11
+    traits + 5 states/flags + 16 locked nulls.
+  - Probes P1492–P1505.
 - v5.82 additions (age-decline.md Part XII
   §§167–176 — the mouth that wanders, the idea
   that changes owners, the dyad that edits, the
