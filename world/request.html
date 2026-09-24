@@ -40,6 +40,17 @@
   screens, and human-reviews like any exclusive; approval lands on the
   calendar and fires when the window arrives. A time slot is not an
   upgrade — same flat price; cancel free until the window starts.
+  v88 aligns the live seam with the game-v14 bus as it actually ships:
+  filing calls gsSubmitRequest (gsRequestSubmit kept as a legacy alias)
+  with the bus's own spec keys — kind (event files as street_event),
+  durationMin, note, params, start_slot — and reads the record it
+  returns (denied → neutral toast, never a local charge). Reads grow:
+  gsViewerState().board / gsResourceBoard() drive the claim strip
+  (free/cool/locked + queue depth + booked markers), gsBookCalendar()
+  and gsBookableSlots() feed the When picker when present, and
+  gsPriceQuote() adds a live-check line to the quote — the bus's own
+  math shown before payment, informative never blocking. Feed entries
+  carrying the v14 status "booked" render as a booked chip.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -186,7 +197,7 @@
   .session .ext:disabled{border-color:var(--line);color:var(--dim);cursor:not-allowed}
   .st.appeal{background:#332a1e;color:var(--acc)}
   .st.modified{background:#3a3220;color:var(--acc)}
-  .st.approved{background:#22384f;color:var(--blu)}
+  .st.approved{background:#22384f;color:var(--blu)} .st.booked{background:#22384f;color:var(--blu)}
   .myreq .acc{color:var(--grn);cursor:pointer}
   .myreq .dec{color:var(--dim);cursor:pointer}
   .myreq .acc:hover,.myreq .dec:hover{color:var(--ink)}
@@ -330,7 +341,11 @@
    If the game request bus is present (__aiBridge, sf/game-systems), this
    page reads it: gsViewerState() drives the public feed + resource board,
    gsCoSessions() the co-sponsor lists, gsExplainRequest(id) live receipts.
-   Filing capability-detects gsRequestSubmit — absent on the demo page, so
+   v88: the board also reads gsViewerState().board / gsResourceBoard(),
+   the Book reads gsBookCalendar()/gsBookableSlots(), and the quote gets
+   a gsPriceQuote() live-check line. Filing capability-detects
+   gsSubmitRequest (the bus's real name; gsRequestSubmit honored as a
+   legacy alias) — absent on the demo page, so
    the local pipeline below runs and the badge says so. Same pattern as
    wire.html/create.html; the local sim stays the contract reference. */
 var BRIDGE = (typeof __aiBridge!=="undefined" && __aiBridge && __aiBridge.gsViewerState) ? __aiBridge : null;
@@ -474,13 +489,84 @@ function bkLabel(abs){ var day = abs >= bkNowMin()+1440 ? ' (day after)' :
   (Math.floor(abs/1440) > Math.floor(bkNowMin()/1440) ? ' (tomorrow)' : ' (tonight)');
   return bkHHMM(abs)+day; }
 function bkLen(a, dm){ return a.id==='event' ? 60 : dm; }  /* event window fixed 60; weather = the block bought */
+/* v88 — the picker's offer set: local bkSlots is the contract reference;
+   when the bus carries gsBookableSlots (game-v14) its slots union in —
+   a bookable window the bus knows is always offerable, and a window it
+   refuses simply isn't offered (the local set already excludes
+   lock/cooldown tails and booked spans). Deduped by absolute minute. */
+function bkOfferSlots(ck, a, t, wlen){
+  var out = bkSlots(ck, wlen);
+  if (LIVE && BRIDGE.gsBookableSlots){
+    try{
+      var spec = { kind: busKind(a), target: t.id, durationMin: wlen,
+                   claim: ck, playerId: 'you' };
+      var got = BRIDGE.gsBookableSlots(spec, 6) || [];
+      got.forEach(function(e){
+        var s = bkNormSlot(e);
+        if (s != null && out.indexOf(s) < 0) out.push(s);
+      });
+      out.sort(function(x,y){return x-y;});
+    }catch(e){ /* bus hiccup — local set stands */ }
+  }
+  return out.slice(0, 6);
+}
 
 var MYREQ = [];   // {id, action, label, st, sub, paid, claim, canCancel, canAppeal, modOffer, holdMin, intent, trail, startMin, winMin, winLbl}
 var reqSeq = 100;
 function trail(r, what){ (r.trail = r.trail || []).push({ t:new Date().toTimeString().slice(0,5), what:what }); }
 
 /* status chip labels — feed vocabulary (requests.json feed_vocabulary) */
-var STLBL = { modified: 'approved (modified)' };
+var STLBL = { modified: 'approved (modified)', booked: 'booked' };
+
+/* ================= v88 — the real bus seam =================
+   The game request bus (game-v14+) files through gsSubmitRequest with
+   spec keys {playerId, kind, target, durationMin, params, note,
+   start_slot}. The page's action ids are the public labels; the bus's
+   kind vocabulary differs on one — the event trigger files as
+   'street_event' (game-v14 merge note: world's bookable `event` maps
+   onto the game's existing street_event action). gsRequestSubmit is
+   honored as a legacy alias only. The record the bus returns is the
+   truth: status 'denied' means nothing billed — the local pipeline
+   never runs a denied live filing. */
+function busKind(a){ return a.id==='event' ? 'street_event' : a.id; }
+function busSpec(a, t, dm, text, queued, co, q, winAbs){
+  var spec = {
+    /* bus vocabulary (gsSubmitRequest, game-v14) */
+    playerId: 'you', kind: busKind(a), target: t.id,
+    durationMin: dm || undefined,
+    note: text, params: { text: text, quote_cr: q.total },
+    /* documented world-side contract keys (requests.json live_seam) —
+     * kept alongside so a gsRequestSubmit-shaped alias still parses */
+    action: a.id, duration_min: dm, text: text,
+    queued: !!queued, co_sponsor: !!co, quote_cr: q.total
+  };
+  if (winAbs != null) spec.start_slot = winAbs - bkNowMin();  /* minutes-from-now */
+  return spec;
+}
+/* Normalize a gsBookableSlots() / gsBookCalendar() entry into an absolute
+   minute in the next-24h frame. Accepts numbers (minute-of-day or
+   minutes-from-now, disambiguated by horizon) and objects carrying
+   start_min|startMin|abs|start(HH:MM). */
+function bkNormSlot(e){
+  if (e == null) return null;
+  var now = bkNowMin();
+  if (typeof e === 'number'){
+    if (e > 0 && e <= BOOK_HORIZON_H*60) return now + e;       /* minutes-from-now */
+    var s = e % 1440; return s < now ? s + 1440 : s;           /* minute-of-day */
+  }
+  if (typeof e.abs === 'number') return e.abs;
+  if (typeof e.start_min === 'number'){
+    var sm = e.start_min % 1440; return sm < now ? sm + 1440 : sm;
+  }
+  if (typeof e.startMin === 'number'){
+    var s2 = e.startMin % 1440; return s2 < now ? s2 + 1440 : s2;
+  }
+  if (typeof e.start === 'string' && /^\d{1,2}:\d{2}$/.test(e.start)){
+    var p = e.start.split(':'), s3 = (+p[0])*60 + (+p[1]);
+    return s3 < now ? s3 + 1440 : s3;
+  }
+  return null;
+}
 
 /* demo event hooks — merge points for the analytics spec (marketing
    analytics-events.json PENDING hooks). Local-only: an in-page array the
@@ -661,7 +747,8 @@ function livePoll(){
         liveSeen[e.id]=true;
         var st=(e.status||'resolved'), sk=st.replace(/[ ()]/g,'_');
         var cmap={in_review:'review', approved:'resolved', approved_modified:'modified',
-          not_approved:'resolved', requested:'queued', player_session_ended:'resolved'};
+          not_approved:'resolved', requested:'queued', player_session_ended:'resolved',
+          booked:'booked'};
         sk = cmap[sk] || sk;
         var li=document.createElement('li');
         li.innerHTML='<span class="t">'+(e.t!=null?e.t:'—')+'</span>'+
@@ -680,6 +767,30 @@ function livePoll(){
         c.by = live.who||live.holder||c.by;
       }
     }
+    /* v88 — the public board: gsViewerState().board (game-v7+) or a direct
+       gsResourceBoard() call projects every contended claim as
+       {state:free|cool|locked|queued, leftMin, holder, player, depth,
+       booked[]}. Keys the board doesn't name keep their demo state —
+       the strip never claims a resource is free just because the bus
+       is silent about it. */
+    var board = (vs && vs.board) ||
+      (BRIDGE.gsResourceBoard ? BRIDGE.gsResourceBoard() : null) || {};
+    for (var bk in CLAIMS){
+      var be = board[bk]; if (!be) continue;
+      var cc = CLAIMS[bk];
+      if (be.state==='locked'){ cc.state='locked';
+        cc.left = be.leftMin!=null?be.leftMin:cc.left;
+        cc.by = be.player||be.holder||cc.by; }
+      else if (be.state==='cool'){ cc.state='cool';
+        cc.left = be.leftMin!=null?be.leftMin:cc.left; }
+      else if (be.state==='queued'){ cc.qa = be.depth||cc.qa||1; }
+      else if (be.state==='free' && !cc._demo){ cc.state='free'; cc.qa=0; }
+      if (be.booked && be.booked.length)
+        cc.note = 'booked: ' + be.booked.map(function(w){
+          return (w.start!=null?w.start:bkHHMM(w.start_min||0)) +
+                 (w.who ? ' · '+w.who : '');
+        }).join(', ');
+    }
     if (BRIDGE.gsCoSessions){
       var cos = BRIDGE.gsCoSessions() || {};
       for (var ck in cos) if (CLAIMS[ck])
@@ -689,6 +800,12 @@ function livePoll(){
     /* v74 — booked windows the bus knows land on the picker's avoidance
        set, deduped by claim+start (bookings.json live_seam.reads) */
     var cal = (vs && vs.calendar) || [];
+    /* v88 — gsBookCalendar() (game-v14) is the same public strip the
+       calendar surface reads: {req,claim,res,start_min,min,start,day,
+       who,what} — merged with vs.calendar, deduped by claim+start. */
+    if (BRIDGE.gsBookCalendar){
+      try{ cal = cal.concat(BRIDGE.gsBookCalendar() || []); }catch(e){}
+    }
     cal.forEach(function(w){
       if (!w || !w.claim) return;
       var st = typeof w.start_min==='number' ? bkHHMM(w.start_min) : w.start;
@@ -857,7 +974,7 @@ function refreshQuote(){
       wsel._sig=sig; wsel.innerHTML='';
       var o0=document.createElement('option'); o0.value='';
       o0.textContent='soonest free window (queue if busy)'; wsel.appendChild(o0);
-      bkSlots(ck, wlen).forEach(function(s){
+      bkOfferSlots(ck, a, t, wlen).forEach(function(s){
         var o=document.createElement('option'); o.value=s;
         o.textContent='book '+bkLabel(s)+' → '+bkHHMM(s+wlen);
         wsel.appendChild(o); });
@@ -889,6 +1006,29 @@ function refreshQuote(){
   if (winAbs!=null) html += '<div class="warn" style="color:var(--dim)">Booked windows are already approved when they arrive — cancel free until '+bkHHMM(winAbs)+'.</div>';
   if (a.note) html += '<div class="warn" style="color:var(--dim)">'+a.note+'</div>';
   if (q.total > BAL) html += '<div class="warn">Balance too low — <span class="topup" onclick="openWallet()">open wallet</span> first.</div>';
+  /* v88 — live quote check: gsPriceQuote (game-v7/v14) runs the submit
+     path's own math without mutating anything. Shown as a parity line —
+     informative, never a gate: a bus deny here means filing would refuse
+     before billing, so it warns rather than blocks (same honesty rule as
+     the pre-flight screen). */
+  if (LIVE && BRIDGE.gsPriceQuote){
+    try{
+      var lspec = { playerId:'you', kind: busKind(a), target: t.id,
+                    durationMin: dm || undefined, note: $('intent').value||'' };
+      if (winAbs!=null) lspec.start_slot = winAbs - bkNowMin();
+      var lq = BRIDGE.gsPriceQuote(lspec);
+      if (lq && lq.ok){
+        html += '<div class="line"><span>Live check</span><b>'+lq.total+' cr'+
+          (lq.surge && lq.surge!==1 ? ' · surge ×'+lq.surge : '')+
+          (lq.wouldQueue ? ' · would queue' : '')+
+          (lq.booked && lq.booked.start ? ' · bus books it '+lq.booked.start : '')+
+          ' — the bus\u2019s own math</b></div>';
+      } else if (lq && lq.deny){
+        html += '<div class="warn">Live check — the bus would refuse this as filed ('+
+          lq.deny.replace(/_/g,' ')+'). Filing anyway is safe: refused requests never bill.</div>';
+      }
+    }catch(e){ /* quote check is best-effort — the local quote stands */ }
+  }
   quoteBox.innerHTML = html;
   go.disabled = q.total > BAL || (winAbs==null && busy && !queueMe.checked && !co && a.cls==='exclusive');
   go.textContent = co ? 'Co-sponsor — join the running call' :
@@ -1182,23 +1322,49 @@ go.onclick = function(){
   trail(mine, 'declared — '+mine.declared);
   MYREQ.unshift(mine); renderMine();
 
-  /* v60 — live write path: when the game request bus is bridged, filing
-     goes to it (gsRequestSubmit, the documented merge contract in
-     requests.json live_seam) and the feed/board poll carries the truth.
-     Absent the bridge — every local demo — the simulated pipeline below
-     is the contract reference and runs unchanged. */
-  var liveFile = LIVE && BRIDGE.gsRequestSubmit ? BRIDGE.gsRequestSubmit : null;
+  /* v60/v88 — live write path: when the game request bus is bridged,
+     filing goes to it (gsSubmitRequest — the bus's real name since
+     game-v14; gsRequestSubmit honored as a legacy alias — the
+     documented merge contract in requests.json live_seam) and the
+     feed/board poll carries the truth. The bus returns the request
+     record itself: a 'denied' status means the door refused before
+     billing — the local pipeline never runs a denied live filing, and
+     no local charge lands. Absent the bridge — every local demo — the
+     simulated pipeline below is the contract reference and runs
+     unchanged. */
+  var liveFile = LIVE ? (BRIDGE.gsSubmitRequest || BRIDGE.gsRequestSubmit) : null;
   if (liveFile){
     try{
-      var payload = { action:a.id, target:t.id, duration_min:dm,
-        text:text, queued:queued, co_sponsor:co, quote_cr:q.total };
-      if (winAbs!=null) payload.start_slot = winAbs - bkNowMin();  /* bookings.json live_seam */
-      var rid = liveFile(payload);
-      mine.busId = rid || null;
-      trail(mine, 'filed to the request bus'+(rid?' — '+rid:''));
-      mine.mini+=' · filed live';
+      var rec = liveFile(busSpec(a, t, dm, text, queued, co, q, winAbs));
+      if (rec && typeof rec === 'object'){
+        mine.busId = rec.id || null;
+        if (rec.status === 'denied'){
+          /* the door refused pre-billing — neutral wording, no charge */
+          stage('Not approved', 'fail',
+            'the request bus refused it ('+(rec.reason||'denied').replace(/_/g,' ')+
+            ') — refused requests never bill');
+          mine.st='resolved';
+          mine.sub+=' · not approved ('+(rec.reason||'denied')+') · nothing billed';
+          trail(mine,'bus denied — '+(rec.reason||'denied')+' · nothing billed');
+          feedAdd('you', label+' — request not approved', 'resolved');
+          toast('Request not approved — nothing was billed.');
+        } else {
+          mine.st = rec.status==='queued' ? 'queued' :
+                    rec.status==='booked' ? 'approved' : mine.st;
+          if (rec.status==='booked') mine.booked=true;
+          trail(mine, 'filed to the request bus — '+(rec.id||'?')+
+                      (rec.status ? ' · '+rec.status : ''));
+          mine.mini+=' · filed live'+(rec.status==='queued'?' · queued on the bus':
+                      rec.status==='booked'?' · booked on the bus':'');
+          toast('Filed live — the request bus carries it from here.');
+        }
+      } else {
+        mine.busId = rec || null;
+        trail(mine, 'filed to the request bus'+(rec?' — '+rec:''));
+        mine.mini+=' · filed live';
+        toast('Filed live — the request bus carries it from here.');
+      }
       renderMine(); go.disabled=false;
-      toast('Filed live — the request bus carries it from here.');
       return;
     }catch(err){ trail(mine,'bus refused — local pipeline continues'); }
   }

@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -361,3 +361,60 @@ console (`world/mod-console.html`, v8) runs, implementing the §3 contract +
 reason taxonomy in `world/moderation.json`. At merge, the demo's
 `run/feedAdd` calls become `gsViewerState` subscriptions and `gsRequest*`
 calls; the copy above is final.
+
+## 12. v88 — the real bus seam (game-v14 alignment)
+
+The live seam predates the bus it was meant for: v60 guessed the merge
+contract (`gsRequestSubmit`, `{action, duration_min, text}`), and game-v14
+shipped a different reality — `gsSubmitRequest(spec)` with `{playerId,
+kind, target, durationMin, params, note, start_slot}` plus real read
+surfaces (`gsViewerState().board`, `gsResourceBoard()`, `gsBookCalendar()`,
+`gsBookableSlots()`, `gsPriceQuote()`). v88 closes the gap without
+dropping the local pipeline — it stays the contract reference whenever
+the bridge is absent.
+
+**Write path.** Filing calls `gsSubmitRequest` first, `gsRequestSubmit`
+as a legacy alias only. The spec carries both vocabularies — bus keys
+(`kind` — the event trigger files as `street_event` per the game-v14
+merge note — `durationMin`, `note`, `params`, `start_slot`) alongside
+the documented world keys — so either surface parses it. The returned
+record is the truth: `status:"denied"` means the door refused
+pre-billing (account gate, rate check, intent screen, cooldown — all
+upstream of money), and **no local charge ever lands for a denied live
+filing** — "denied requests never bill" holds on the bus too. `queued`
+and `booked` statuses land on the request card the same way their local
+counterparts do.
+
+**Board reads.** `gsViewerState().board` (or a direct
+`gsResourceBoard()` call) projects every contended claim —
+`{state: free|cool|locked|queued, leftMin, holder, depth, booked[]}` —
+onto the resource strip. Queue depth shows as a count, never a position
+auction; `booked[]` markers render as a `booked HH:MM · who` note on the
+claim. Keys the board doesn't name keep their demo state — the strip
+never calls a resource free just because the bus is silent about it.
+
+**Book reads.** `gsBookCalendar()` merges into the picker's avoidance
+set alongside `vs.calendar`, deduped by claim+start.
+`gsBookableSlots(spec, 6)` unions bus-offered windows into the picker's
+option list — a slot the bus knows is bookable is always offerable, and
+a slot it refuses simply isn't offered. Normalization accepts every
+shape the bus has used: minutes-from-now, minute-of-day, `start_min`,
+`startMin`, `abs`, or `start:"HH:MM"`.
+
+**Live quote check.** When `gsPriceQuote` is present, the quote box
+gains a "Live check" line running the submit path's own math without
+mutating anything — total, surge, would-queue, booked start. A bus deny
+renders as a warning, not a gate (same honesty rule as the pre-flight
+screen): filing anyway is safe because refused requests never bill.
+
+**Feed.** Bus feed entries carrying the v14 status `booked` render a
+booked chip; the rest of the vocabulary map is unchanged.
+
+### v88 copy deck additions
+
+|||| Moment | Copy |
+|||||---|---|
+|||| Live deny | "Request not approved — nothing was billed." |
+|||| Live check | "Live check — N cr · surge ×S — the bus's own math" |
+|||| Live deny line | "the bus would refuse this as filed (<reason>). Filing anyway is safe: refused requests never bill." |
+|||| Board booked note | "booked: 21:30 · marina_w" |

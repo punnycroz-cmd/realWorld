@@ -97,14 +97,18 @@
     "trimmed": "events running under modified terms say so on the fire line"
   },
   "live_seam": {
-    "doc": "v60 — the page is bridged when the game request bus is present (production-1's flag item)",
+    "doc": "v60 — the page is bridged when the game request bus is present (production-1's flag item). v88 aligns the seam with the bus as it actually ships on the game branch.",
     "detect": "window.__aiBridge with gsViewerState — badge reads 'live · __aiBridge', else 'mirror — local pipeline'",
     "reads": {
-      "gsViewerState()": ".feed entries render onto the public feed (deduped by id; status → chip via the feed_vocabulary map); .sessions drive the resource board's locked states by claim key",
+      "gsViewerState()": ".feed entries render onto the public feed (deduped by id; status → chip via the feed_vocabulary map — v88 adds 'booked'); .sessions drive the resource board's locked states by claim key; .board projects every contended claim {state:free|cool|locked|queued, leftMin, holder, depth, booked[]} onto the strip; .calendar feeds the When picker's avoidance set",
+      "gsResourceBoard()": "optional (game-v7+) — direct board read when gsViewerState().board is absent; same claim-key projection",
       "gsCoSessions()": "optional — live sponsor lists for co-sponsorable claims (game-v2 GS_WX_OVR.sponsors)",
-      "gsExplainRequest(id)": "optional — live request detail for the receipt drawer"
+      "gsExplainRequest(id)": "optional — live request detail for the receipt drawer",
+      "gsBookCalendar()": "optional (game-v14) — the public booked-window strip {req,claim,res,start_min,min,start,day,who,what}, merged with vs.calendar deduped by claim+start",
+      "gsBookableSlots(spec,count)": "optional (game-v14) — bus-offered windows union into the When picker; a window the bus refuses is simply never offered",
+      "gsPriceQuote(spec)": "optional (game-v7+) — the pre-payment receipt runs the submit path's math without mutating; rendered as a 'Live check' parity line on the quote — informative, never a gate (a deny warns: refused requests never bill)"
     },
-    "write": "gsRequestSubmit({action, target, duration_min, text, queued, co_sponsor, quote_cr}) — capability-checked at file time; absent → the local pipeline runs as the contract reference; a refused call falls back the same way",
+    "write": "gsSubmitRequest(spec) — the bus's real name since game-v14; gsRequestSubmit is honored as a legacy alias. Spec carries both vocabularies: bus keys {playerId, kind (event files as 'street_event' per the game-v14 merge note), target, durationMin, note, params, start_slot(minutes-from-now)} plus the documented world keys {action, duration_min, text, queued, co_sponsor, quote_cr}. Capability-checked at file time; absent → the local pipeline runs as the contract reference. The returned record is the truth: status 'denied' means the door refused pre-billing — no local charge ever lands for a denied live filing.",
     "fallback": "demo claims/feed stand in for resources the bus doesn't name; a poll hiccup keeps the last good frame"
   },
   "preflight_check": {
@@ -151,8 +155,8 @@
     "cooldown": "bookings never skip cooldowns — the picker never offers a slot that opens inside a cooldown tail",
     "feed_status": "approved",
     "live_seam": {
-      "reads": "gsViewerState().calendar (optional) → picker avoidance set, deduped by claim+start",
-      "write": "gsRequestSubmit gains start_slot (minutes-from-now) when a window was picked"
+      "reads": "gsViewerState().calendar (optional) → picker avoidance set, deduped by claim+start; v88 adds gsBookCalendar() + gsBookableSlots(spec,count) when the bus carries them",
+      "write": "gsSubmitRequest gains start_slot (minutes-from-now) when a window was picked (gsRequestSubmit legacy alias)"
     }
   }
 }

@@ -2225,17 +2225,28 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'request.html', null, 'hire must route to create.html, not file a request');
     if (!html.includes('RW_DEMO_EVENTS'))
       add(g, 'fail', 'request.html', null, 'demo event hooks (RW_DEMO_EVENTS) missing');
-    /* v60 — live seam: the page is bridged when __aiBridge is present */
+    /* v60/v88 — live seam: the page is bridged when __aiBridge is present;
+       v88 aligns the write name + spec keys with the game-v14 bus */
     const LS = RJ.live_seam || {};
-    if (!LS.write || !/gsRequestSubmit/.test(LS.write))
-      add(g, 'fail', 'requests.json', null, 'live_seam.write must name gsRequestSubmit as the merge contract');
+    if (!LS.write || !/gsSubmitRequest/.test(LS.write) || !/gsRequestSubmit/.test(LS.write))
+      add(g, 'fail', 'requests.json', null, 'live_seam.write must name gsSubmitRequest (canonical) + gsRequestSubmit (legacy alias)');
+    if (!/street_event/.test(LS.write) || !/start_slot/.test(LS.write))
+      add(g, 'fail', 'requests.json', null, 'live_seam.write must document the kind map (event→street_event) + start_slot');
     for (const s of ['__aiBridge', 'gsViewerState', 'srcBadge',
                      'mirror — local pipeline', 'live · __aiBridge',
-                     'gsRequestSubmit', 'gsExplainRequest', 'gsCoSessions', 'livePoll'])
+                     'gsSubmitRequest', 'gsRequestSubmit', 'gsExplainRequest', 'gsCoSessions', 'livePoll',
+                     'gsResourceBoard', 'gsBookCalendar', 'gsBookableSlots', 'gsPriceQuote',
+                     'busKind', 'busSpec', 'bkNormSlot'])
       if (!html.includes(s)) add(g, 'fail', 'request.html', null, `live-seam surface missing "${s}"`);
     /* the write path must be capability-guarded — never an unconditional call */
-    if (!/LIVE && BRIDGE\.gsRequestSubmit/.test(html))
-      add(g, 'fail', 'request.html', null, 'gsRequestSubmit must be capability-checked (LIVE && BRIDGE.) before filing');
+    if (!/LIVE \? \(BRIDGE\.gsSubmitRequest \|\| BRIDGE\.gsRequestSubmit\)/.test(html))
+      add(g, 'fail', 'request.html', null, 'filing must capability-check gsSubmitRequest || gsRequestSubmit behind LIVE');
+    /* a denied live filing never runs the local pipeline — the bus record is the truth */
+    if (!/rec\.status === 'denied'/.test(html) || !/nothing was billed|never bill/i.test(html))
+      add(g, 'fail', 'request.html', null, 'bus-denied filings must short-circuit with a no-bill line');
+    /* 'booked' is feed vocabulary + a chip class on both surfaces */
+    if (!/booked:'booked'/.test(html) || !/\.st\.booked/.test(html))
+      add(g, 'fail', 'request.html', null, 'booked status missing from chip map/CSS');
     /* v60 — pre-flight check: same engine, before money moves, never a gate */
     const PF = RJ.preflight_check || {};
     if (!/never blocks filing|does not gate/.test((PF.not_a_shadow_ban || '')))

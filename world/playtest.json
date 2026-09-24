@@ -4168,6 +4168,46 @@
      ]
     }
    ]
+  },
+  {
+   "id": "PT79",
+   "title": "The Real Bus Seam — request UI meets game-v14 (v88)",
+   "minutes": 6,
+   "persona": "tester on the internal request bench — bridging a stub request bus to watch the seam honor the game's own names",
+   "goal": "Verify the v88 live-seam alignment: filing capability-detects gsSubmitRequest (gsRequestSubmit as legacy alias) with bus spec keys {playerId, kind — event files as street_event — durationMin, note, params, start_slot}; the returned record is the truth (denied short-circuits before any local charge); reads grow to gsViewerState().board / gsResourceBoard(), gsBookCalendar(), gsBookableSlots(), and a gsPriceQuote() live-check line; the v14 'booked' status renders a booked chip.",
+   "surfaces": [
+    "request",
+    "audit",
+    "harness"
+   ],
+   "steps": [
+    {
+     "do": "Open world/request.html twice: once bare (badge 'mirror — local pipeline') and once with a stub __aiBridge carrying gsViewerState + gsSubmitRequest + gsBookCalendar + gsBookableSlots + gsPriceQuote (devtools/smoke_request_v88.js is the reference stub).",
+     "expect": "Bare, the page is unchanged — the local pipeline files, screens, reviews, and runs as the contract reference. Bridged, the badge reads 'live · __aiBridge', the public feed ingests bus entries (a 'booked' status lands as a booked chip), and the resource strip takes the bus's own projection: cool claims show leftMin, queued claims show depth as a count, booked[] markers annotate the claim.",
+     "checkpoints": [
+      "The strip never calls a resource free just because the bus is silent — unnamed claims keep demo state",
+      "Queue depth renders as a count, never a position auction",
+      "'booked' is feed vocabulary on both the public feed and the request card"
+     ]
+    },
+    {
+     "do": "On the bridged page pick Weather change, fill the intent box, and read the quote box; then open the When picker.",
+     "expect": "The quote gains a 'Live check' line running gsPriceQuote — the submit path's own math (total, surge, would-queue) shown before payment, informative never blocking. The When picker unions gsBookableSlots output into the local offer set, deduped by absolute minute; a slot the bus refuses simply isn't offered.",
+     "checkpoints": [
+      "A bus deny in gsPriceQuote warns ('refused requests never bill') but does not disable submit — same honesty rule as the pre-flight screen",
+      "Bus slots normalize from minutes-from-now, minute-of-day, start_min/startMin/abs, or 'HH:MM'"
+     ]
+    },
+    {
+     "do": "File a booked weather window on the bridged page; inspect the payload and the request card; then make the stub return {status:'denied', reason:'cooldown'} and file again.",
+     "expect": "The payload is bus-shaped: kind:'weather', durationMin, note, start_slot in minutes-from-now — alongside the documented world keys for the legacy alias. The card mirrors the returned record: booked lands approved/booked with busId. A denied record short-circuits the whole local pipeline — no upfront charge, no deny refund, just 'Request not approved — nothing was billed.'",
+     "checkpoints": [
+      "Event trigger files as kind:'street_event' (the game-v14 merge note)",
+      "A denied live filing never touches the ledger — denied requests never bill holds on the bus",
+      "Run devtools/smoke_request_v88.js — 13/13 green; the request gate in audit.js enforces the seam contract"
+     ]
+    }
+   ]
   }
  ],
  "session_report_schema": {

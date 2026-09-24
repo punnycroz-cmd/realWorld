@@ -188,6 +188,12 @@ One person can wear every hat; four real testers is the intended shape.
   (walk/bike/muni/muni_walk/loop/stairs), the 10 shared-route overlaps
   as openable conditions, weather deltas as modal suggestions, minors
   never routed, and the commute gate's mirror/integrity checks.
+  PT79 (request v88) audits the real bus seam — gsSubmitRequest as the
+  canonical write (gsRequestSubmit legacy alias) with bus spec keys
+  and event→street_event mapping, the returned record as truth
+  (denied short-circuits before any charge), board/calendar/slots/
+  price-quote reads, and the 'booked' feed chip. Reference stub +
+  13-check run: devtools/smoke_request_v88.js.
 
 ## 3. Running a session
 
