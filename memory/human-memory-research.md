@@ -5106,3 +5106,57 @@ acting.
   magnitudes are ours. Probes P1231–P1244 test the
   structures (freeze, lock, dose-order, one-way,
   ceiling), not the fitted knots.
+
+## 92. v117 sources — formal-model XI (FM Part XI → spec v5.65)
+
+**Contract version — mostly zero new psychology.** The three new
+empirical anchors all serve the *owed-work* deadline semantics
+(FM§94) and the decay-as-pure-projection law (FM§93); migration and
+equivalence are systems formalism with no literature claim.
+
+- **Sleep-timing asymmetry (NEW):** **Talamini, Nieuwenhuis,
+  Takashima & Jensen 2008** (*Learning & Memory* 15:233 — "Sleep
+  directly following learning benefits consolidation of spatial
+  associative memory"; verified abstract/full text). Face-location
+  cued recall: 12-h interval containing sleep > equal waking
+  interval; critically, **24 h sleep→wake > wake→sleep** — the
+  consolidation benefit depends on trace stability *at sleep onset*,
+  so a delayed sleep pays a real but discounted debt, not a binary
+  loss. → `consol_deadline_h`, `owed_yield` 0.5 (HYPOTHESIS sizing —
+  the wake-first arm retains roughly half the sleep-first advantage;
+  exact fraction is ours, the asymmetry and its direction are
+  Talamini's); FM§94.
+- **First-night shield (already in-corpus §34):** **Gais, Lucas &
+  Born 2006** — sleep within ~3 h of encoding protects declarative
+  recall vs the same night's sleep delayed a full day. Grounds the
+  deadline's *existence*; the 36-h default (≈1.5 missed nights) is
+  our sizing of the grace window [HYPOTHESIS].
+- **Sleeped memories resist interference (NEW):** **Ellenbogen,
+  Hulbert, Stickgold, Dinges & Thompson-Schill 2006** (*Current
+  Biology* 16:1290 — sleep after learning protects against
+  subsequent associative interference; the shield is conferred by
+  sleep that happened). Supports `owed_full_null`: owed
+  consolidation lands weaker AND less interference-shielded —
+  missing the window is a wound, not a postponement; FM§94.
+- **Power-law non-separability (NEW replication anchor):**
+  **Murre & Dros 2015** (*PLoS ONE* 10(7):e0120644 — verified;
+  faithful replication of Ebbinghaus' savings curve, 20 min–31 day
+  range, plus a 24-h upward jump consistent with a sleep/
+  consolidation leg). Functional-form stakes for FM§93: the
+  retention law is a function of elapsed total, not compounding —
+  exponential would forgive delta-on-delta lazy evaluation,
+  power-law does not (P1246 is the bug-catcher). Also supports the
+  owed-queue existence: their 24-h jump is a deadline op firing.
+- **Scale invariance (already §1):** Rubin & Wenzel 1996 /
+  Wickelgren 1974 — the same power law across minute→year timescales
+  is what makes `ON_READ` evaluation *psychologically* defensible,
+  not merely convenient.
+- **Reconsolidation frame (already §4):** Nader & Hardt 2009 — used
+  by FM§97 only as an analogy for migrate semantics (old content,
+  current interpretation); flagged HYPOTHESIS at the call site.
+- **Marked hypothesis:** `owed_cap` 64, `ambient_err_bound` 0.15/30
+  dark-days, `backlog_order` ledger — harness sizings, measured by
+  P1249/P1255/P1256 not asserted. Zero new per-char params: the
+  Part X pattern (infrastructure is population-scoped) holds.
+
+→ FM §§92–103; spec v5.65; probes P1245–P1256.

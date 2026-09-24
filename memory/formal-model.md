@@ -3769,3 +3769,445 @@ report into a journal query. Zero new per-character params,
 zero new record content fields, zero new mechanisms: this part
 specifies what the existing machine *owes the outside world* —
 an honest surface, a bounded tail, and a legible history.
+
+---
+
+# Part XI — v117 deepening pass: the deferral algebra, the version lattice, and the equivalence contract (P1245–P1256)
+
+Parts I–X hardened *what* the machine computes; this part hardens
+*when* it computes it, *how it survives its own upgrades*, and *what
+"the same memory" means* across optimizations. Three holes remained:
+
+(a) **Evaluation timing was implicit.** §1 said decay must be written
+as `R(t_elapsed)` — a function of elapsed time — but never said which
+ops *may* be deferred to read time, which *must* run at event time,
+and what happens to ops whose natural deadline (first sleep) is
+missed. Every implementation decision about lazy vs eager evaluation
+was ungoverned — the exact class of decision that silently turns a
+psychology into a database.
+
+(b) **`migrate` was a stub.** §30 declared
+`migrate(snap, fromVersion)` in three sentences; the spec has since
+crossed 60+ version bumps (v5.64 at this writing) each asserting
+"snapshot-additive; absent = legacy" — a discipline enforced by
+convention, not by any stated law. The additive-only rule, locked-null
+monotonicity, hash-domain exclusions, and semantics-changed branches
+now get formal standing.
+
+(c) **"Equivalent" had no teeth.** §47 defined canonical form and
+`bit-identical` vs `fp_tol`; §31's degradation ladder promised
+"expected values unchanged"; §48's fast/slow split licensed
+approximations — but no equivalence *relation* was ever defined, so no
+optimization could state what it preserves and no probe could test
+the claim.
+
+## 92. Eval-timing classes — every op has a legal schedule
+
+Every op in the §38 catalog is assigned exactly one class, declared
+in the op catalog itself (new column, P1247 enforces completeness):
+
+| class | semantics | examples |
+|---|---|---|
+| `AT_EVENT` | must run at the event's ledger position; deferral changes the result | interference pair writes (§4.2 asymmetry is order-dependent), CondEntry extinction counters, `firstlook_mint`, source-sensitize marks |
+| `DEADLINE(Δ)` | must run within Δ of its trigger or fall to the owed queue (§94) | sleep-consolidation legs (`consol_deadline_h`), nap gates, grief-onset state mints |
+| `ON_READ` | may be evaluated lazily at first demand after its interval; result identical by §93 | decay `R(t_elapsed)`, `rk_*` remember→know conversion, field-level `res_flag` expiry, `ctx_tau` persistence survival |
+| `NEVER_SKIP` | no degradation level may drop it | canonical-ledger writes, `beliefStatus` FSM transitions, journal appends, `present` tier redaction |
+
+**The semigroup condition (lazy legality).** An op `f(state, Δt)`
+may be class `ON_READ` iff it is a *pure elapsed-time map*:
+`f(f(s, Δt₁), Δt₂) = f(s, Δt₁ + Δt₂)` for all reachable `s` and all
+splits of the interval, AND `f` commutes with every op that can land
+inside the interval. Decay `R(t) = E_adj·(1+t/τ)^(−β) + floor`
+satisfies the first clause trivially — it is a function of `t`
+alone, not of evaluation count (Rubin & Wenzel 1996's
+scale-invariance is what makes this *also* psychologically
+defensible: the same law fits at minute and year scales).
+Interference fails the second clause — a rival encoded at `t+ε`
+inside a lazily-skipped window must see the pre-decay strength it
+actually competed against; evaluate the pair eagerly or the
+asymmetry inverts [CONSENSUS-level math, HYPOTHESIS as policy].
+
+**Corollary (the read is pure).** `ON_READ` ops evaluate into a
+*projection*, never into the store: `lazy_write_null` — a read that
+lands no mutating op leaves every stored field bit-identical,
+including `strength` (the stored value is the last-materialized one;
+the projected value is `R(now − evaluatedAt)`). Materialization —
+writing the projected value back — happens only when a mutating op
+needs the current value as input, and the write is journaled as part
+of that op, not as a free-standing "decay op" (which would violate
+§86 attribution: `attrib_null` counts every delta; a decay write with
+no author would fail P1120). Record field added:
+`evaluatedAt: worldDay` — snapshot-additive, excluded from the
+canonical-hash domain (§96, `hash_domain_ver:"v2"`).
+
+## 93. The lazy-eager equivalence theorem
+
+**Claim.** For any schedule that evaluates each `ON_READ` op at any
+point ≥ its interval start and ≤ first demand, and runs every
+`AT_EVENT`/`DEADLINE`/`NEVER_SKIP` op at its legal position, the
+observable sequence of `present()` outputs is `=_state`-equivalent
+to the eager-every-tick baseline — *provided* no mutating op lands
+inside a deferred window while reading the un-materialized value.
+
+The proviso is the theorem's teeth. Formal restatement: let
+`m(o)` be the materialization point of op `o`; legality requires
+`m(o) ≤` every op whose read-set intersects `o`'s write-set since
+`o`'s trigger. The op catalog already carries read/write sets (§38)
+— lazy legality is a *static* check over the catalog plus a dynamic
+watermark check (`evaluatedAt ≥ last-intersecting-write`), not a
+testing hope. Two failure modes this kills:
+
+- **Double decay.** Two reads at `t₁ < t₂` must not compound:
+  read 2 projects `R(t₂ − evaluatedAt)` off the materialized
+  `R(t₁ − createdDay)` — because power-law decay is NOT multiplicatively
+  separable in this parametrization (`R(a+b) ≠ R(a)·R(b)`), compounding
+  would silently over-forget. The watermark makes the second read a
+  fresh projection of elapsed total, never a delta on a delta (P1246).
+  This is the single most likely bug in a naive lazy implementation —
+  exponential decay forgives the error (it *is* separable), power-law
+  does not, and §1 already committed to power-law.
+- **Phantom rehearsal.** A scan that "checks" a record without
+  surfacing it must not accrue retrieval practice (§5.9) or bump
+  `lastAccessDay` — reads are projections; only ops in the catalog
+  write. `lastAccessDay` updates on *retrieval ops*, not on reads.
+
+## 94. The owed-work queue — deadlines that fire late
+
+`DEADLINE(Δ)` ops that miss their window do not vanish — human
+consolidation degrades with delay, it does not binary-expire
+(Gais, Lucas & Born 2006 — sleep within ~3 h of encoding shields
+cued recall vs the same sleep delayed a full day; Talamini,
+Nieuwenhuis, Takashima & Jensen 2008, *Learn. Mem.* 15:233 — the
+sleep-wake ordering asymmetry: 24 h sleep→wake beats wake→sleep
+because consolidation quality depends on trace stability *at sleep
+onset*, i.e. the debt is real but discounted, not cancelled;
+Ellenbogen et al. 2006 — slept memories resist next-day
+interference, the shield is conferred by the sleep that happened,
+not the sleep owed).
+
+```
+OwedEntry = { opId, triggerDay, deadlineDay, payloadRef,
+              class:"owed", yield: owed_yield }
+```
+
+- On trigger+`consol_deadline_h` (36 h awake-time default —
+  ~1.5 missed nights; HYPOTHESIS sizing off Gais 2006's first-night
+  gradient), an un-run deadline op converts to an `OwedEntry` in the
+  per-character `owedQueue` (snapshot-persisted, journal-visible).
+- The queue drains at the next `sleep` event, *before* that sleep's
+  fresh consolidation legs, at yield `owed_yield` (0.5 — sized so the
+  wake-first arm of Talamini 2008, ≈half the sleep-first benefit,
+  is the model's price for the miss). `owed_full_null` (locked): an
+  owed op never lands at full yield — missing the window is a wound,
+  not a postponement.
+- Bounded: `owed_cap` 64 entries; overflow sheds *oldest first* in
+  §31 ladder order, each shed journaled (`oplog_drop_null` already
+  forbids silent loss — the journal entry IS the not-silent part).
+- Ambient-mode interaction: a thin-mode character's owed queue
+  keeps accrual (the character was awake, sleep debt is a state,
+  not a compute artifact) but drains only on upgrade — declared
+  behavioral delta, §99.
+
+## 95. The deferral catalog — every existing op, classified
+
+Retroactive classification of the §38 op catalog (the table lives in
+the spec annex §16.1; summary here):
+
+| op family | class | why |
+|---|---|---|
+| encode/mint (`encode`, `phantom`, `transplant`, `conjunction`, `firstlook_mint`, `fs_met`, `vic_snub`) | AT_EVENT | mints are ordered against the ledger; a deferred mint would compete against the wrong rivals |
+| interference writes, merges, genericization | AT_EVENT | order-dependent asymmetry (§4.2); also fails the commute clause |
+| decay `R(t)`, `res_flag`/`discount_tag` expiry, ctx persistence survival, R→K conversion | ON_READ | pure `t_elapsed` maps; the workhorses of the lazy license |
+| sleep consolidation legs, nap gate, `grief` onset, `menop` stage transitions | DEADLINE | psychologically windowed; owed-queue fallback |
+| reboost (§5.9), suppress (`suppress_k`), `firstlook` conf growth | AT_EVENT at the `present` op | write-back already declared synchronous (§83); deferral would reorder practice vs suppression |
+| `beliefStatus` FSM, canonical-ledger writes, journal appends, tier redaction | NEVER_SKIP | legal-truth layer; §39 non-interference depends on it |
+| census/maintenance tick-digests | DEADLINE(tick) | harness ops; owed at yield 1.0 (harness debt, not psychological debt — owed_yield applies to consolidation legs only) |
+
+**Rule for future ops:** an op without a declared class fails P1247
+— the catalog row is the spec's forcing function so that "can this
+be lazy?" is never answered ad hoc in a game-systems code review.
+
+## 96. The version lattice — `migrate` gets its laws
+
+§30 promised `migrate(snap, fromVersion)`; this section defines it.
+Spec versions form a **lattice ordered by ancestry** (the git
+merge-base order of `sf/memory` releases — v5.64 ⊒ v5.63 ⊒ …);
+`migrate` is defined on every ancestor edge and **composes**:
+
+```
+migrate(s, v_a→v_c) = migrate( · , v_b→v_c) ∘ migrate(s, v_a→v_b)
+```
+
+for every intermediate `v_b` on the path. Compositionality is a
+*probe* (P1250), not a hope: hash-level equality of the two routes
+on fuzzed snapshots.
+
+**The delta record.** Every version bump ships a machine-readable
+`delta` block (this doc's §7 blocks have been the prose form;
+§16.2 makes it a schema):
+
+```
+Delta = { added:  {field → default},
+          renamed:{old → new},        // alias table, versioned
+          removed:[field],            // → `legacy` verbatim archive
+          semchg: [{field, branchId}],// named migration branch (§97)
+          locked_new:[param],         // nulls locked THIS version
+          params_changed:[key] }      // defaults moved (rare, logged)
+```
+
+**Lattice laws:**
+
+- **A1 additive-only:** `semchg` on a *stored record field* is
+  forbidden below the root — semantics of existing fields may only
+  *narrow* (locked nulls tighten; legs may gain a locked-off arm).
+  Behavioral changes to existing fields go through `params_changed`
+  or new fields, never through silent reinterpretation. This is the
+  formal content of every "snapshot-additive; absent = legacy" line
+  since v0.9 — now it's a law with a probe (P1251).
+- **A2 locked-null monotonicity:** `locked_new` is a monotone set —
+  a param locked at version `v` is locked in every descendant;
+  `null_unlock_null` (locked): no delta may carry a negative
+  `locked_new` entry. Rationale: the corpus's locked nulls are where
+  the *evidence* lives (a bible asking for migraine-driven decline
+  gets Rist 2012, not a dial); unlocking re-opens a decided question
+  without new evidence. New evidence = new param, new section.
+- **A3 hash-domain exclusion:** `canonHash` (§47) computes over the
+  canonical *psychological* state only; `specVersion`, `legacy`,
+  `evaluatedAt`, journal metadata, and all M-tier/harness state are
+  excluded (`hash_domain_ver:"v2"`). Two snapshots identical except
+  bookkeeping hash equal — otherwise every version bump would look
+  like mass forgetting (P1253). `hash_version_null` (locked):
+  version bookkeeping never enters the hash domain.
+- **A4 migrate is total and default-honest:** `migrate` on any
+  ancestor version yields a state where absent fields stand at their
+  declared defaults and `deriveParams` produces the identical
+  parameter vector an un-migrated character would get — defaults are
+  semantics, not serialization accidents (`migrate_silent_null`:
+  migrate produces zero behavioral delta outside §97's declared
+  grandfather list; P1251).
+
+**Journal versioning.** `opLog` entries carry `writer_ver`; replay
+across a migrate boundary replays old entries under their own
+version's op semantics *then* runs `migrate` on the result —
+replay-equivalence (P1119) holds within a version; across versions
+it holds modulo the declared delta (§97). A replay that drifts
+outside the delta is a `ver_replay` violation (P1251 leg).
+
+## 97. The named-branch registry — semantics changes are declared, not discovered
+
+The one legal escape from A1: a `semchg` entry names a `branchId`
+registered in the **branch registry** — a versioned table mapping
+`branchId → {oldFn, newFn, grandfathered:[probeIds], rationale}`.
+Each branch must declare:
+
+- which probes change verdict under the new semantics (the
+  *grandfather list* — e.g., a re-fit `β` table legitimately moves
+  decay-curve probes; they are re-baselined, not failed);
+- a `diffProbe` demonstrating old-vs-new on a fixed script — the
+  branch's own evidence;
+- rationale + source, same standard as any §6 mechanism.
+
+Branches are how the spec corrects itself without gaslighting its
+snapshots: a character whose records were written under v5.52
+semantics carries them into v5.65 with the *content* intact and the
+*interpretation* current — which is, not incidentally, how human
+reconsolidation treats old memories (the trace persists; the
+retrieval frame is today's — Nader & Hardt 2009's update framing,
+already §4's reconsolidation basis, applied here to the *model's own*
+past) [HYPOTHESIS — the analogy is ours].
+
+## 98. The equivalence contract — three relations, one declaration
+
+Every optimization, refactor, or degradation level must declare
+which relation it preserves. Define, for a candidate change `C`:
+
+- **`=_state` (bit-identical):** `hash(S_C) = hash(S)` after every
+  step under CRN. Preserved by: lazy evaluation of `ON_READ` ops
+  (§93, with watermark legality), op reordering within §38 commute
+  classes, journal compaction, snapshot round-trips, `migrate` along
+  pure-additive edges.
+- **`≈_obs` (output-identical):** identical distribution over all
+  `present()` outputs across all reachable contexts and seeds —
+  `=_state` on every projected surface, interior allowed to differ
+  (e.g., materialization timing inside a legal window: stored
+  `evaluatedAt` differs, every surface identical). Test: CRN-paired
+  runs diffed on present outputs, not on snapshots.
+- **`≈_mom` (moment-bounded):** composite observables (§21) within
+  `recov_tol` (0.10) AND probe-level rates within their declared
+  CIs (§32.2). Preserved by: L2 sampled interference (sampling moves
+  variance, not expectation — the §31 promise now has a formal
+  object), ambient cadence scaling, census approximation.
+- **`≈_d(ε)` (bounded divergence):** anything else must carry a
+  declared `ε` — max divergence on the §21 composites between the
+  degraded and reference arm over a stated horizon. The ONLY class
+  allowed to sit here: the thin/ambient downgrade (§99) and
+  explicitly-licensed approximations (§48) — and each must publish
+  its measured `ε`, not just claim one.
+
+`equiv_claim_null` (locked): no code path may claim `=_state` whose
+ops fail the §92 semigroup check or whose writes escape the journal —
+the claim is auditable, not vibes (P1254 runs the declared class's
+test; a path claiming more than it preserves fails on its own
+declaration).
+
+## 99. The ambient bound — what thin mode is allowed to cost
+
+§31 L3/L4 and the world track's `observation tiers`
+(watched/shadowed/dark) leave a formal gap: what error does a
+character accumulate while thin? Now bounded:
+
+- While at L3+, a character's store evolves by the deferred subset:
+  decay projects on read (free, `=_state`), owed queue accrues
+  (drains at yield `owed_yield` on upgrade-sleep), mints and
+  interference writes **do not happen** — events that would have
+  minted records in a dark character are *lost*, and this loss is
+  the declared delta: `ambient_err_bound` 0.15 on §21 composites per
+  30 dark-days, measured by P1255 as the L3-vs-L0 paired-arm
+  divergence.
+- Human-truth justification: a character unobserved by the sim is
+  *living thin days* — thin encoding is the fiction-consistent read
+  (routine, unremarked days genuinely leave sparse traces — the
+  reminiscence literature's "calendar effect": uneventful intervals
+  produce few anchor memories; Robinson 1986, already in-corpus for
+  temporal distribution). The bound exists so "thin" stays honest:
+  an ambient character may not come back *smarter* about its dark
+  period (`ambient_know_null`-class behavior already implied by
+  `fs_identity_null`-style observer locks; the bound quantifies the
+  honest direction — sparse, never confabulated-dense).
+- On upgrade: the owed queue drains, the journal marks the dark
+  interval with a `gap` digest (§86 machinery, same class as
+  possession gaps §6), and composites re-converge within the bound —
+  thin mode is a *debt instrument*, not a different psychology.
+
+## 100. Interaction notes
+
+- **With §83 write-back:** `present`'s reboost/suppress legs are
+  `AT_EVENT`-at-present — a deferred suppression would let a shadowed
+  competitor win a later recall it should have lost. Journal ordering
+  was already the transaction order (§88); the class declaration just
+  makes the timing obligation explicit.
+- **With §31 ladder:** the ladder's shed order is now *derived*, not
+  listed: at each level, shed ops in reverse class-strictness order
+  (`ON_READ` first — deferral is free; `DEADLINE` → owed queue;
+  `AT_EVENT` sampled per L2; `NEVER_SKIP` never). L4's "decay +
+  consolidation only" is the fixed point: at L4 every sheddable op is
+  already shed.
+- **With §48 fast/slow split:** licensed approximations declare
+  `≈_d(ε)`; the split's "slow path exists" clause is what keeps the
+  bound finite — an approximation with no exact fallback can't
+  declare ε it never measures.
+- **With §70–73 cold start:** shadow-past replay runs at synthetic
+  versions = current spec; `synth` journal entries carry
+  `writer_ver` like everything else; a synth replayed across a
+  migrate is still `synth:true` (the flag survives migrate — it's
+  provenance, not semantics).
+- **With §86 journal:** `owedQueue` conversions and sheds are
+  journaled ops; `evaluatedAt` watermark writes are journaled inside
+  their forcing op only (a watermark is bookkeeping, `attrib_null`
+  still holds — the *value* delta belongs to the op).
+
+## 101. New params (spec §7 v5.65 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| consol_deadline_h | 36 | pop (hours) | P1248 — miss window → owed |
+| owed_yield | 0.5 | pop — HYPOTHESIS (Talamini 2008 wake-first ≈ half) | P1248 |
+| owed_cap | 64 | harness | P1249 — overflow sheds journaled |
+| ambient_err_bound | 0.15 | pop — HYPOTHESIS (composite divergence / 30 dark-days) | P1255 |
+| backlog_order | "ledger" | pop (enum) | P1245 — deferred-op order = ledger order |
+| hash_domain_ver | "v2" | pop (table ver) | P1253 — bookkeeping excluded |
+| migrate_strict | "enforce" | harness (enum) | P1250/P1251 — delta registry gate |
+| lazy_write_null | 0.0 | locked null | P1246 — reads never mutate |
+| owed_full_null | 0.0 | locked null | P1248 — owed never lands whole |
+| null_unlock_null | 0.0 | locked null | P1252 — locks are monotone |
+| hash_version_null | 0.0 | locked null | P1253 — bookkeeping ∉ hash |
+| migrate_silent_null | 0.0 | locked null | P1251 — no undeclared delta |
+| equiv_claim_null | 0.0 | locked null | P1254 — claim ≤ proof |
+| eval_skip_null | 0.0 | locked null | P1247 — NEVER_SKIP never defers |
+
+14 entries, **0 per-character** — the Part X pattern holds (timing,
+versioning, and equivalence are substrate infrastructure; a bible
+dial for "how lazy is this character's decay evaluation" would be
+the database failure mode in miniature).
+
+## 102. Formal/consistency probes (P1245–P1256)
+
+- **P1245 lazy-eager equality (MUST):** same ledger, same seeds —
+  decay/R→K/expiry evaluated per-tick vs on-demand → identical
+  `canonHash` at every present boundary; deferred ops in
+  `backlog_order` — the §93 theorem executed as a fuzzer.
+- **P1246 no double decay (MUST — locked null):** two reads at
+  t₁<t₂, no intervening write → second projection equals
+  `R(t₂−createdDay)` computed once, not `R` compounded;
+  `lazy_write_null` — reads leave store bit-identical.
+- **P1247 catalog completeness (MUST — locked null):** static scan —
+  every op in the §38 catalog + every op added by §§6.x legs carries
+  a declared eval class; `eval_skip_null` — no `NEVER_SKIP` op
+  appears in any deferred path at any ladder level.
+- **P1248 owed yield (MUST — dose-lock):** scripted 40-h-awake arm
+  vs slept-on-time arm, same diet: owed-drained consolidation lands
+  at `owed_yield` ± CI of the on-time leg; never 0, never 1
+  (`owed_full_null`). Talamini 2008 ordering reproduced: sleep→wake
+  arm > wake→sleep arm on identical 24-h retention.
+- **P1249 owed overflow honesty (MUST):** `owed_cap` forced overflow
+  → sheds oldest-first, each shed journaled; queue never exceeds
+  cap, never silently empties.
+- **P1250 migrate composes (MUST):** fuzzed v_old snapshots: direct
+  `migrate(v_a→v_c)` vs stepwise through `v_b` → identical
+  `canonHash`; run on every version edge in the corpus.
+- **P1251 additive-only + silent-migrate (MUST — two locked nulls):**
+  migrated snapshots produce `deriveParams` output identical to
+  fresh-derived; probe battery on a migrated state differs from
+  un-migrated only on §97 grandfather lists; `migrate_silent_null`
+  — undeclared behavioral delta is a spec violation, found by the
+  battery not by users.
+- **P1252 lock monotonicity (MUST — locked null):** static scan of
+  delta records across history — `locked_new` sets are monotone
+  increasing; any negative entry fails the build;
+  `null_unlock_null`.
+- **P1253 hash domain (MUST — locked null):** mutate `specVersion`,
+  `legacy`, `evaluatedAt`, journal metadata on a fixed state →
+  `canonHash` unchanged; `hash_version_null`.
+- **P1254 equivalence declarations (SHOULD):** for each code path
+  declaring an equivalence class, run the class's test (CRN snapshot
+  diff for `=_state`, present-output diff for `≈_obs`, composite
+  moments for `≈_mom`); `equiv_claim_null` — over-claiming fails on
+  the declaration itself.
+- **P1255 ambient bound (SHOULD):** paired CRN arms — character dark
+  30 days at L3 vs L0; §21 composites diverge ≤ `ambient_err_bound`;
+  dark-interval mints are absent (sparse), never backfilled-dense;
+  owed queue drains on upgrade-sleep at `owed_yield`.
+- **P1256 eval-timing fuzz (OBSERVE):** randomize legal evaluation
+  schedules across the corpus; publish the spread of §21 composites —
+  measures how much the harness's legality constraints actually bind;
+  expected ≈0 under `=_state` classes, nonzero only where `≈_d` is
+  declared. Report, don't gate.
+
+Registry: P1–P1256. v117 suite: P1245–P1247, P1249–P1253 MUST (the
+locked-null class again — evaluation timing and version drift are
+where a correct psychology silently becomes a database); P1248
+dose-locked MUST; P1254–P1255 SHOULD; P1256 OBSERVE.
+
+## 103. Summary for game-systems
+
+Three deliverables, all contract. **The deferral algebra**
+(§§92–95): every op has a declared eval-timing class — `AT_EVENT`,
+`DEADLINE(Δ)`, `ON_READ`, `NEVER_SKIP` — and lazy evaluation is
+*legal*, not merely possible, exactly where the semigroup condition
+holds (pure `t_elapsed` maps + commute with everything that can land
+in the window). Reads are projections; `evaluatedAt` is the
+watermark; the owed queue is where missed consolidation goes to be
+paid at `owed_yield` — a character who stays up two nights doesn't
+lose the memories, it pays for them. **The version lattice**
+(§§96–97): `migrate` composes along ancestor edges, deltas are
+machine-readable, locks are monotone, bookkeeping never enters the
+hash — sixty version bumps of "snapshot-additive; absent = legacy"
+become four laws with probes. **The equivalence contract**
+(§§98–99): `=_state` / `≈_obs` / `≈_mom` / `≈_d(ε)` — every
+optimization declares its class and the declaration is testable;
+thin mode is a bounded debt instrument (`ambient_err_bound`), and
+dark days leave sparse traces rather than none because that is what
+uneventful days do to people too. Zero new psychology, zero new
+per-character params, zero new content fields — this part specifies
+*when the machine may think, how it survives its authors, and what
+it means for two implementations to be the same mind.*

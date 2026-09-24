@@ -11972,3 +11972,62 @@ fitted magnitude.
   don't multiply free.
 
 Probe registry: P1–P1244 (v116 adds P1231–P1244).
+
+## 237. v117 suite — formal-model XI (P1245–P1256)
+
+Contract-version probes — the suite tests the substrate's *timing,
+versioning, and equivalence claims*, not new psychology. MUSTs are
+the locked-null class: evaluation timing and version drift are where
+a correct psychology silently becomes a database.
+
+- **P1245 lazy-eager equality (MUST):** same ledger + seeds; decay/
+  R→K/expiry evaluated per-tick vs on-demand → identical canonHash
+  at every present boundary; deferred ops run in `backlog_order`
+  (ledger). The §93 theorem executed as a fuzzer — any divergence
+  is a semigroup violation in the op catalog, not a tolerance.
+- **P1246 no double decay (MUST — locked `lazy_write_null`):**
+  two reads at t₁<t₂ with no intervening write → second projection
+  equals `R(t₂−createdDay)` computed once; compounding detection:
+  power-law is NOT separable, so any delta-on-delta evaluation
+  over-forgets measurably. Reads leave the store bit-identical.
+- **P1247 catalog completeness (MUST — locked `eval_skip_null`):**
+  static scan — every §38 op and every §6.x leg declares
+  `evalClass`; no NEVER_SKIP op in any deferred path at any ladder
+  level. Undeclared op = build failure, not a warning.
+- **P1248 owed yield (MUST — dose-locked `owed_full_null`):**
+  scripted 40-h-awake arm vs slept-on-time arm, identical diet:
+  owed-drained consolidation lands at `owed_yield` ± CI of on-time
+  leg; strictly between 0 and 1. Ordering reproduced: sleep→wake >
+  wake→sleep at equal 24-h retention (Talamini et al. 2008).
+- **P1249 owed overflow honesty (MUST):** forced `owed_cap`
+  overflow → oldest-first sheds, every shed journaled; queue
+  never exceeds cap; `oplog_drop_null` applies to shed entries.
+- **P1250 migrate composes (MUST):** fuzzed old-version snapshots:
+  `migrate(v_a→v_c)` ≡ `migrate(v_a→v_b)∘migrate(v_b→v_c)` on
+  canonHash; every version edge in the corpus is tested.
+- **P1251 additive-only + silent-migrate (MUST — locked
+  `migrate_silent_null`):** migrated snapshot → `deriveParams`
+  identical to fresh-derived; full probe battery on migrated state
+  differs only on §16.2 grandfather lists; undeclared behavioral
+  delta = spec violation found by the battery, not by users.
+- **P1252 lock monotonicity (MUST — locked `null_unlock_null`):**
+  static scan of all historical `Delta` records — `locked_new` is
+  a monotone set across the lattice; a negative entry fails build.
+- **P1253 hash domain (MUST — locked `hash_version_null`):**
+  mutate `specVersion`, `legacy`, `evaluatedAt`, journal metadata
+  on a fixed state → canonHash unchanged (hash_domain_ver v2).
+- **P1254 equivalence declarations (SHOULD — `equiv_claim_null`):**
+  for each code path's declared class, run the class test —
+  CRN snapshot diff (=_state), present-output diff (≈_obs),
+  composite moments (≈_mom); a path failing its own declaration
+  fails, regardless of measured divergence.
+- **P1255 ambient bound (SHOULD):** paired CRN arms — character
+  dark 30 days at L3 vs L0: §21 composites diverge ≤
+  `ambient_err_bound` 0.15; dark-interval mints absent (sparse,
+  never dense); owed queue drains at upgrade-sleep at owed_yield.
+- **P1256 eval-timing fuzz (OBSERVE):** randomize legal evaluation
+  schedules across the corpus; publish §21-composite spread —
+  expected ≈0 for =_state/≈_obs classes, nonzero only where ≈_d
+  is declared. Measures whether legality constraints actually bind.
+
+Probe registry: P1–P1256 (v117 adds P1245–P1256).

@@ -1,4 +1,26 @@
-# Memory Model Spec v5.64 — implementable human-like memory for RW characters
+# Memory Model Spec v5.65 — implementable human-like memory for RW characters
+
+> **v5.65 note (formal-model XI — the deferral algebra,
+> the version lattice, the equivalence contract):**
+> `memory/formal-model.md` Part XI (§§92–103) adds zero
+> psychology — it hardens WHEN the machine computes, how
+> snapshots survive upgrades, and what "equivalent" means.
+> **Eval-timing classes** — every op declared `AT_EVENT` /
+> `DEADLINE(Δ)` / `ON_READ` / `NEVER_SKIP`; lazy evaluation
+> legal exactly under the semigroup condition (§93);
+> `evaluatedAt` watermark; `lazy_write_null` (reads are pure).
+> **Owed-work queue** — missed `consol_deadline_h` consolidation
+> drains at next sleep at `owed_yield` 0.5 (Talamini 2008);
+> locked `owed_full_null`. **Version lattice** — `migrate`
+> composes along ancestor edges; additive-only A1, locked-null
+> monotonicity A2 (`null_unlock_null`), bookkeeping excluded
+> from `canonHash` A3 (`hash_version_null`), no silent delta
+> A4 (`migrate_silent_null`); `semchg` branches via named
+> registry. **Equivalence contract** — `=_state` / `≈_obs` /
+> `≈_mom` / `≈_d(ε)`; thin mode bounded by `ambient_err_bound`;
+> locked `equiv_claim_null`, `eval_skip_null`. Spec §16 annex
+> (deferral catalog + delta schema) + §7 params + §10 contract;
+> probes P1245–P1256.
 
 > **v5.64 note (social-memory XII — the room keeps the
 > books):** `memory/social-memory.md` Part XII (§§166–
@@ -18094,6 +18116,29 @@ MemoryParams = {
 //   `moral:true` content tag; `face_trait` proxy fields.
 //   Emissions: `firstlook_mint`, `fs_met`, `vic_snub`,
 //   `tease_gap`. All snapshot-additive; absent = legacy.
+// v5.65 additions (formal-model XI — FM§§92–99; all
+//   pop/harness, zero per-char)
+"consol_deadline_h": 36, "owed_yield": 0.5,          // §94
+"owed_cap": 64, "backlog_order": "ledger",           // §94/§95
+"ambient_err_bound": 0.15,                          // §99 (per 30 dark-days, §21 composites)
+"hash_domain_ver": "v2", "migrate_strict": "enforce" // §96
+// v5.65 locked nulls: lazy_write_null (reads never
+//   mutate — P1246); owed_full_null (owed never lands
+//   whole — P1248); null_unlock_null (locks monotone —
+//   P1252); hash_version_null (bookkeeping ∉ hash —
+//   P1253); migrate_silent_null (no undeclared delta —
+//   P1251); equiv_claim_null (claim ≤ proof — P1254);
+//   eval_skip_null (NEVER_SKIP never defers — P1247).
+// v5.65 state/fields: record `evaluatedAt` watermark
+//   (bookkeeping — excluded from canonHash domain under
+//   hash_domain_ver v2); per-char `owedQueue`
+//   {opId, triggerDay, deadlineDay, payloadRef, yield}
+//   snapshot-persisted + journal-visible; snapshot
+//   `specVersion` + versioned `Delta` registry +
+//   branch registry (§16.2); opLog `writer_ver` per
+//   entry; op catalog gains `evalClass` column
+//   (§16.1). All snapshot-additive; absent = legacy
+//   (evaluatedAt absent → treat as createdDay).
 // v5.63 additions (individual-differences X — ID§§125–137)
 "hear_effort_tax": 0.2, "hear_src_tax": 0.15,
 "hear_social_drag": 0.3, "hear_aid_rescue": 0.4,
@@ -20828,6 +20873,53 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 30 scalars + 8 traits +
     7 state fields + 15 locked nulls.
   - Probes P1218–P1230.
+- v5.65 additions (formal-model.md §§92–103 — the deferral
+  algebra, the version lattice, the equivalence contract):
+  - **Eval-timing contract (FM§92/§95):** every op in the §38
+    catalog carries `evalClass` ∈ {AT_EVENT, DEADLINE(Δ),
+    ON_READ, NEVER_SKIP} (§16.1 table); `ON_READ` legality
+    requires the semigroup condition — pure `t_elapsed` maps
+    that commute with all ops that can land in the deferred
+    window. Reads are projections: `lazy_write_null` — a read
+    never mutates stored fields, never bumps `lastAccessDay`,
+    never accrues §5.9 practice. `evaluatedAt` watermark;
+    power-law decay is NOT multiplicatively separable —
+    deferred evaluation must re-project elapsed total, never
+    compound (P1246).
+  - **Owed-work contract (FM§94):** `DEADLINE` ops missing
+    `consol_deadline_h` convert to `OwedEntry`s, drain at next
+    `sleep` before fresh legs at `owed_yield` 0.5
+    (`owed_full_null` — the miss is a wound, not a
+    postponement); `owed_cap` 64, overflow sheds oldest-first
+    journaled (`oplog_drop_null` applies). Thin-mode queues
+    accrue but drain only on upgrade.
+  - **Migration contract (FM§96–97):** snapshots carry
+    `specVersion`; each version ships a `Delta` record
+    (§16.2); `migrate` composes along ancestor edges (P1250).
+    Laws: A1 additive-only (existing-field semantics narrow
+    only; changes via `semchg` named branches with declared
+    grandfathered probes); A2 `null_unlock_null` — locked
+    nulls are monotone; A3 `hash_version_null` — `specVersion`/
+    `legacy`/`evaluatedAt`/journal metadata excluded from
+    `canonHash` (`hash_domain_ver:"v2"`); A4
+    `migrate_silent_null` — zero behavioral delta outside the
+    branch registry. `opLog` entries carry `writer_ver`;
+    cross-version replay is replay-equivalent modulo declared
+    deltas.
+  - **Equivalence contract (FM§98–99):** every optimization/
+    refactor/degradation declares `=_state` | `≈_obs` |
+    `≈_mom` | `≈_d(ε)`; `equiv_claim_null` — a path may not
+    claim more than its ops' legality proves. Thin/ambient
+    mode is `≈_d(ambient_err_bound)` = 0.15 on §21 composites
+    per 30 dark-days; dark-interval mints are lost (sparse,
+    never backfilled-dense).
+  - **Locked boundaries game-systems must honor:**
+    `lazy_write_null`, `owed_full_null`, `null_unlock_null`,
+    `hash_version_null`, `migrate_silent_null`,
+    `equiv_claim_null`, `eval_skip_null`.
+  - **New params (§7):** 7 scalars/enums + 7 locked nulls —
+    all pop/harness scope, zero per-character.
+  - Probes P1245–P1256.
 - v5.64 additions (social-memory.md §§166–175 — the room
   keeps the books):
   - **New op class + flags (world/behavior-supplied):**
@@ -21951,3 +22043,50 @@ of the param→verdict Jacobian over the full trait joint (P744).
 | theta_unbounded / e_overbound / surf_mint / ctx_oracle | 0.0 each | locked nulls — §52/§55/§54 |
 
 Probes P733–P744 in validation-design.md §133.
+
+## 16. Deferral, migration, and equivalence annex (new in v5.65)
+
+Machinery for formal-model.md Part XI. All harness/contract — no
+psychology moved this version.
+
+### 16.1 The deferral catalog (op `evalClass` column)
+
+| op family | evalClass |
+|---|---|
+| encode/mint ops (encode, phantom, transplant, conjunction, firstlook_mint, fs_met, vic_snub) | AT_EVENT |
+| interference writes, merges, genericization | AT_EVENT |
+| decay R(t), res_flag/discount_tag expiry, ctx persistence survival, R→K conversion | ON_READ |
+| sleep consolidation legs, nap gate, grief onset, menop stage transitions | DEADLINE(consol_deadline_h) |
+| §5.9 reboost, suppress_k, firstlook conf growth | AT_EVENT at present |
+| beliefStatus FSM, canonical-ledger writes, journal appends, tier redaction | NEVER_SKIP |
+| census/maintenance tick-digests | DEADLINE(tick), owed at yield 1.0 |
+
+P1247 enforces: every catalog op + every §6.x leg carries a declared
+class; `eval_skip_null` — NEVER_SKIP appears in no deferred path at
+any degradation level.
+
+### 16.2 The delta record + branch registry
+
+```
+Delta = { added:{field→default}, renamed:{old→new},
+          removed:[field]→legacy, semchg:[{field,branchId}],
+          locked_new:[param], params_changed:[key] }
+Branch = { branchId → {oldFn, newFn, grandfathered:[probeIds],
+                       diffProbe, rationale, source} }
+```
+
+Laws A1–A4 per FM§96: additive-only (narrowing only), locked-null
+monotonicity (`null_unlock_null`), hash-domain exclusion
+(`hash_domain_ver:"v2"` excludes specVersion/legacy/evaluatedAt/
+journal metadata), silent-delta ban (`migrate_silent_null`).
+`migrate_strict:"enforce"` gates `deriveParams` and the probe
+registry on declared deltas. Probes P1250–P1253.
+
+### 16.3 Equivalence classes
+
+`=_state` (canonHash bit-identical under CRN) / `≈_obs` (identical
+present-output distribution) / `≈_mom` (§21 composites within
+recov_tol 0.10 + probe CIs) / `≈_d(ε)` (declared divergence bound —
+thin mode: `ambient_err_bound` 0.15/30 dark-days). Each code path
+declares its class; `equiv_claim_null` makes over-claiming a probe
+failure (P1254). Probes P1245–P1256.
