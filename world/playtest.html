@@ -34,7 +34,7 @@
   become a persisted re-test list (#verify / S.verify / 'still broken'
   follow-up / fix_checks export / [world-playtest-verify] block),
   PT111 + drama v122 consequence layer, PT112 + onboarding v123 the
-  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126).
+  loop, PT113 + lease v124 stakes layer, PT114 + thinai v125 promoted era, PT115 + supporting-resident bibles v126, PT116 + crowd v127 vacancies/occasions).
   Self-contained: file://-safe, no network.
   Pick a scenario, open its surface in the embedded viewer (or a tab),
   mark each checkpoint pass/fail, log findings, export a session report
@@ -2509,6 +2509,31 @@ const PTS=[
   ck:["Bible gate: schema v126 · 8 mains + 3 supporting · 0 fail",
    "Dropping a supporting bible, an interior key outside knows, or the SUPPORTING block in cast.html would FAIL — spot-check",
    "Harness gate: '115 scenarios · N checkpoints · key rw_playtest_v121'; 0 fail overall"]}
+]},
+{id:"PT116",title:"The Crowd v127 — vacancies & occasions (posts that became people; invitations as room tone)",min:8,
+ persona:"regular of the feed who noticed Esther's bench went quiet after her promotion and wants to know whether the block is being honest about it — and whether a flyer on a cork board is allowed to matter",
+ goal:"Verify the v127 ambient-crowd pass: the vacancy layer makes promotion a permanent absence (coverage reads re-keyed, never refilled, residents never pullable, courtesy beats ctr-section/ctr-stool/ctr-flash and the res-needlepointe-chair claim retired); the occasion layer adds three bounded-opportunity shapes (supper table / alley wall workday / cork board) that lift a venue's extras budget ≤1.4 inside their window with extras orbiting but never attending; resident-keyed scenes (bench parliament, evening nurse, parliament in exile) re-key to S-ids and can honestly not happen; greeting pairs reroute to S-ids with resident:true.",
+ surfaces:["crowd","audit"],steps:[
+ {do:"Read crowd-sim.md §§33–35 and crowd.json vacancies + occasions blocks. Confirm each vacancy's was↔S-id round-trips ambients.json promoted_to, and that no vacancy carries refill/understudy/expiry fields.",
+  exp:"Three vacancies (S1 walk-in chair / S2 north bench / S3 counter seat) read as honest permanent absences — 'the chair books by appointment now', 'parliament of one some mornings'. promotion.md is named as the only path to a named face.",
+  ck:["vacancies.list keys are S-ids; each was maps to the ambient whose promoted_to is that S-id",
+   "coverage entries for A05/A09/A14 carry vacated marks and re-worded reads — no understudy, no 'back in 10'",
+   "no vacancy field smells like refill/expiry — the absence never heals"]},
+ {do:"Check the retired surfaces: courtesies.beats loses ctr-section/ctr-stool/ctr-flash, ambient_resources loses res-needlepointe-chair, pull_protocol gains the residents clause. Then the occasion shapes: zones, windows, zone_mult, traces.",
+  exp:"The three beats and the chair claim are gone with a 'retired' note (a resident's gestures are brain-authored; claims on a person are barred). pull_protocol.residents bars S-ids. Three occasion shapes carry zone_mult ≤1.4, legal dayparts/dow, a posture_hint, and a trace that never scores uptake or names who came.",
+  ck:["No courtesy beat or claimable resource is staffed by A05/A09/A14 anywhere in the file",
+   "occ-supper-table (elfarolote, thu evening ×1.2), occ-alley-wall (clarion, sat midday→afternoon ×1.3), occ-cork-board (minimart, always ×1.05)",
+   "occasions rules bar attendance bookkeeping, manufactured pulses, and dispatch — budget arithmetic only"]},
+ {do:"Open crowd.html (file://). Scrub to midday weekday, dry weather: bench parliament shows OPEN — S2 decides, never LIVE. Set wx rain: parliament-in-exile shows OPEN when Ray defects to Dolores Perk. Evening: the evening nurse is OPEN — Asha's call. Try the occasion toggle (supper at evening; wall on weekend midday) and watch the venue board + 24h curve. Read the Vacancies and bench panels.",
+  exp:"Resident-keyed scenes render a pink dot + 'OPEN — S2 Esther decides' rather than LIVE; resident greet chips render dashed with 'her call'; promoted ambients show pink-bordered chips and 'resident → S#' in the bench panel, never pullable. The occasion toggle lifts elfarolote/clarion budgets visibly; the cork board is a standing ×1.05. The Vacancies panel lists all three posts.",
+  ck:["No scene shows LIVE on a resident's behalf — 'her call' language throughout, nothing dispatched",
+   "Occasion toggle moves the budget midpoint + curve without touching mouths/pulses or naming attendees",
+   "Vacancies panel + retired-note comments render; the walk-in chair is absent from claimable resources"]},
+ {do:"Run node world/audit.js and read the crowd gate detail line.",
+  exp:"The crowd gate passes with 'schema v127 · … · 14 courtesies · 20 coverage · 8 mouths · 7 pulses · 3 vacancies · 3 occasions' — the v127 marks live: vacancy↔promoted_to round-trip, vacated coverage marks both sides, retired-beat/resource bars, residents-not-pullable clause, OCCASIONS/VACANCIES mirrors, zone_mult ≤1.4, no attendance fields.",
+  ck:["Crowd gate: 0 fail with the vacancies/occasions tail on the detail line",
+   "Respawning ctr-flash or res-needlepointe-chair, or flag-free resident greet pairs, would FAIL — spot-check one",
+   "Harness gate still reads its own key; overall 0 fail"]}
 ]}
 ];
 

@@ -45,6 +45,14 @@
   dispatch), and the leash: entry intents (through/errand/dwell/
   cover) fix a unit's zones at spawn, despawn cites a mouth, and a
   rolling-60min per-mouth ledger keeps the day a closed loop.
+  v127 adds: the vacancy layer (promotion is a permanent absence —
+  A05/A09/A14's posts are vacated, never covered, as residents S2/S3/S1;
+  their courtesy beats and the walk-in chair claim retire with them) and
+  the occasion layer (crowd.json §occasions — bounded opportunities as
+  budget conditions: a live public invitation lifts its venue's extras
+  modestly, extras orbit but never attend, and the next daypart may
+  carry an aftermath read that never scores uptake). Resident-keyed
+  scenes/greetings render as a person's choice, never a dispatch.
   A clock scrubber + day/shade/weather/event toggles show where the
   two-layer crowd lands. Scenes light up when their *conditions*
   obtain — nobody is sent to fill them.
@@ -127,6 +135,7 @@
   <div class="tgl" id="seaTgl">season <button data-v="6">jun</button><button data-v="9" class="on">sep</button><button data-v="1">jan</button></div>
   <div class="tgl" id="calTgl">cal <button data-v="none" class="on">—</button><button data-v="carnaval-weekend">carnaval</button><button data-v="game-day">game day</button><button data-v="muertos">muertos</button><button data-v="carfree-sunday">car-free</button><button data-v="holiday-week">holiday</button><button data-v="new-year-lull">lull</button></div>
   <div class="tgl" id="evTgl">event <button data-v="none" class="on">none</button><button data-v="party">block party @ park</button><button data-v="lock">exclusive lock @ Mudhaus</button></div>
+  <div class="tgl" id="occTgl">occasion <button data-v="none" class="on">—</button><button data-v="occ-supper-table">supper</button><button data-v="occ-alley-wall">wall</button></div>
 </header>
 <main>
   <div>
@@ -160,6 +169,12 @@
     <div class="panel"><h2>The bench — pulled &amp; covered</h2><div id="bench"></div>
       <div class="fine">v99 — when a request borrows a named ambient (15–90 min, ≤3/day each, ≤2 at once block-wide, ≥60 min cooldown, one zone step max, role-bound), their post keeps an honest read: an understudy extra, a back-in-10 sign, or an honestly empty post. Sleep, home, transit, and minors are never pullable; the loan never appears on the wire — the coverage read is the whole trace.</div>
     </div>
+    <div class="panel"><h2>Vacancies — posts that became people</h2><div id="vacancies"></div>
+      <div class="fine">v127 — promotion is a permanent absence, not a pull. The coverage read stays honest forever; nothing new is spawned into the hole.</div>
+    </div>
+    <div class="panel"><h2>Occasions — invitations as room tone</h2><div id="occasions"></div>
+      <div class="fine">v127 — the crowd-model half of bounded opportunities (drama.json). The header toggle makes an invitation live: the venue's extras budget rises modestly, mouths and pulses don't move, and nobody — extra or named — is marked as attending.</div>
+    </div>
     <div class="panel"><h2>Micro-texture now</h2><div id="micros"></div>
       <div class="fine">Mundane recurring deformations — internal vocabulary, never feed events.</div>
     </div>
@@ -168,7 +183,7 @@
     </div>
     <div class="panel"><h2>Named layer — all 20 ambients now</h2><div class="roster" id="roster"></div>
       <div id="acard"></div>
-      <div class="fine">Click a card for the signature read + variant notes (the ambient week: off-days, rain/storm/heat alternates, personal texture — conditions, never scripts).</div>
+      <div class="fine">Click a card for the signature read + variant notes (the ambient week: off-days, rain/storm/heat alternates, personal texture — conditions, never scripts). Pink-bordered chips are promoted residents — their pattern shown is the ambient-era shape; presence is their choice.</div>
     </div>
     <div class="panel"><h2>Crowd rules under audit</h2><ul class="cant">
       <li><b>Extras spawn/despawn off-camera only</b> — at block edges, through doors. Nothing pops in view.</li>
@@ -185,6 +200,8 @@
       <li><b>Courtesies are conditions.</b> A beat renders only while its ambient's state, an extra's presence, and the cooldown all hold — gesture only, no dialogue, no ledger. Minors appear in no beat.</li>
       <li><b>The bench answers loans.</b> A request can borrow an ambient's presence (in-role, in-bounds, ≤90 min); the post reads understudy / sign / open while they're gone — never a lie, never a feed word. Minors are never pullable.</li>
       <li><b>Bodies cite a mouth.</b> Every spawn/despawn passes one of the eight named anchors inside its live window — nothing pops at an unlisted point. The school gate is the only kid-scale doorway; pulses lift flow, never route a body; the leash fixes zones at spawn and the mouths balance the ledger over each rolling hour.</li>
+      <li><b>Vacated posts stay vacant.</b> Promotion removed three fixtures forever — no understudy, no new regular, no expiry. Residents are never pullable; a request about one is a nudge, not a loan.</li>
+      <li><b>Occasions are conditions.</b> An invitation lifts a room's extras budget ≤1.4 inside its window — extras orbit, never attend. Attendance belongs to people; the trace never scores it.</li>
     </ul></div>
   </div>
 </main>
@@ -316,16 +333,15 @@ const COURTESY=[
  {id:"ctr-stem",amb:"A18",z:["bloomdoom"],st:["serve"],form:"a stem re-cut and paper-wrapped while they wait"},
  {id:"ctr-stamp",amb:"A11",z:["library"],st:["work"],form:"stamp, slide, one tap on the due date"},
  {id:"ctr-hood",amb:"A10",z:["folsom"],st:["work"],form:"rag down first, then the finger under the hood"},
- {id:"ctr-flash",amb:"A14",z:["needlepointe","clarion"],st:["work"],form:"the flash book opened to the right page first try"},
  {id:"ctr-chord",amb:"A08",z:["park","club600"],st:["work","chat"],form:"the nod that opens a set — hat forward, first chord"},
  {id:"ctr-leash",amb:"A02",z:["park"],st:["walk"],form:"the leash handed over mid-stride — a sit-stay that almost holds"},
  {id:"ctr-door",amb:"A06",z:["streets","mudhaus","elfarolote"],st:["carry"],form:"the door held with the box braced on a hip"},
  {id:"ctr-lobby",amb:"A15",z:["streets"],st:["carry"],form:"ten seconds of courier patience — the lobby door held"},
  {id:"ctr-tape",amb:"A17",z:["auerbach"],st:["work"],form:"the tape measure lent — it comes back hooked, unasked"},
  {id:"ctr-outlet",amb:"A13",z:["mudhaus"],st:["phone"],form:"the charger pushed across the corner table"},
- {id:"ctr-section",amb:"A05",z:["park","doloresperk"],st:["sit"],form:"the offered section — paper passed sideways"},
- {id:"ctr-crumbs",amb:"A19",z:["park","doloresperk"],st:["sit"],form:"a pinch of crumbs spared for a stranger's bold pigeon"},
- {id:"ctr-stool",amb:"A09",z:["mudhaus"],st:["idle"],form:"the stool yielded — the seat does the talking"}];
+ {id:"ctr-crumbs",amb:"A19",z:["park","doloresperk"],st:["sit"],form:"a pinch of crumbs spared for a stranger's bold pigeon"}];
+/* v127: ctr-section / ctr-stool / ctr-flash retired with promotion —
+   a resident's gestures are brain-authored, never canned beats */
 /* v99 mirrors: the pull protocol + the coverage map (the bench layer) */
 const PULL={win:[15,90],cap:3,conc:2,cool:60,
  states:["serve","work","idle","sit","rest","chat","walk"]};
@@ -334,16 +350,16 @@ const COVERAGE={
  A02:{post:"the park loops",kind:"open",read:"the route just empties — nobody covers three leashes but her"},
  A03:{post:"the register",kind:"understudy",read:"a cousin-shaped extra rings up behind the till — the pricing gun stays in the drawer"},
  A04:{post:"the pack orbit",kind:"pack",read:"never pullable — the pack keeps its orbit; nothing moves for a request"},
- A05:{post:"the north bench",kind:"open",read:"the bench keeps her folded section — regulars read the empty seat as 'running late'"},
+ A05:{post:"the north bench",kind:"open",read:"the north bench is hers or empty — a resident chooses her mornings; nobody covers a person",vacated:"S2"},
  A06:{post:"the delivery spine",kind:"understudy",read:"another rider takes the run — the hot box keeps moving; only the signature's gone"},
  A07:{post:"the fruit stand",kind:"sign",read:"tarp down, chalk reads 'back in 10' — the stand can't run unattended and won't pretend to"},
  A08:{post:"the pitch",kind:"open",read:"the pitch goes quiet — the chalkboard passes the slot to the next name"},
- A09:{post:"the counter seat",kind:"open",read:"the seat just frees — she's only borrowable off-shift; the ward is never her cover"},
+ A09:{post:"the counter seat",kind:"open",read:"the counter seat fills when a nurse decides it does — she's a customer now, not a fixture",vacated:"S3"},
  A10:{post:"the lift bay",kind:"understudy",read:"the second bay covers — the rag stays in the pocket, the radio stays on"},
  A11:{post:"the front desk",kind:"understudy",read:"a second librarian takes the desk — the returns cart sits mid-aisle, waiting"},
  A12:{post:"the lap loop",kind:"open",read:"the lap count drops by one — nobody covers a jog"},
  A13:{post:"the corner table",kind:"open",read:"the table frees — the padded sleeve goes with her"},
- A14:{post:"the walk-in chair",kind:"sign",read:"the chair holds its claim — a 'flash after 4' card rides the door"},
+ A14:{post:"the walk-in chair",kind:"sign",read:"the chair books by appointment with a person — 'flash after 4' is her call, not a claim window",vacated:"S1"},
  A15:{post:"the paper run",kind:"understudy",read:"a second courier takes the bag — the route doesn't skip a doorstep"},
  A16:{post:"the bakery counter",kind:"sign",read:"the bake doesn't stop — a ring-bell card does the talking at the counter"},
  A17:{post:"the site cut list",kind:"understudy",read:"a crewmate covers the saw — the thermos stays where it is"},
@@ -373,21 +389,21 @@ const LEASH={through:{z:[1,2],dw:"≤90 s/zone",exit:"different mouth"},
  dwell:{z:[1,1],dw:"20–120 min",exit:"any live mouth"},
  cover:{z:[1,1],dw:"the pull window",exit:"on the ambient's return"}};
 const GREETS=[
-  {a:"A05",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"]},
+  {a:"S2",b:"A19",w:"hi",form:"bench-parliament nod",z:["park"],res:1},
   {a:"A01",b:"A13",w:"hi",form:"barista-regular nod",z:["mudhaus"]},
-  {a:"A09",b:"A01",w:"hi",form:"quiet counter recognition",z:["mudhaus"]},
+  {a:"S3",b:"A01",w:"hi",form:"quiet counter recognition",z:["mudhaus"],res:1},
   {a:"A06",b:"A15",w:"lo",form:"chin-raise at speed",z:["streets"]},
   {a:"A07",b:"A04",w:"hi",form:"kid-mango",z:["fruteria","park"],pack:1},
   {a:"A07",b:"A20",w:"hi",form:"kid-mango",z:["fruteria","park"],pack:1},
-  {a:"A03",b:"A05",w:"hi",form:"counter-tab nod",z:["minimart"]},
-  {a:"A14",b:"A08",w:"hi",form:"late-corner pause",z:["club600","park"]},
-  {a:"A11",b:"A05",w:"lo",form:"library-regular wave",z:["park","library"]},
+  {a:"A03",b:"S2",w:"hi",form:"counter-tab nod",z:["minimart"],res:1},
+  {a:"S1",b:"A08",w:"hi",form:"late-corner pause",z:["club600","park"],res:1},
+  {a:"A11",b:"S2",w:"lo",form:"library-regular wave",z:["park","library"],res:1},
   {a:"A16",b:"A02",w:"hi",form:"6 a.m. wave",z:["park","bakery"]},
   {a:"A02",b:"A08",w:"lo",form:"pitch-side dog sniff",z:["park"]},
   {a:"A17",b:"A10",w:"hi",form:"hardware-counter mornings",z:["auerbach","minimart"]},
-  {a:"A14",b:"A18",w:"lo",form:"Clarion neighbors",z:["clarion","bloomdoom"]},
+  {a:"S1",b:"A18",w:"lo",form:"Clarion neighbors",z:["clarion","bloomdoom"],res:1},
   {a:"A12",b:"A19",w:"none",form:"the metronome doesn't stop",z:["park"]},
-  {a:"A12",b:"A05",w:"none",form:"laps don't pause",z:["park"]},
+  {a:"A12",b:"S2",w:"none",form:"laps don't pause",z:["park"],res:1},
   {a:"A04",b:"A20",w:"hi",form:"pack adjacency",z:["park","mudhaus"],pack:1},
   {a:"A10",b:"C7",w:"hi",form:"the truck argument",z:["folsom"],main:1},
   {a:"A15",b:"C5",w:"lo",form:"the wordless race",z:["streets"],main:1}];
@@ -417,13 +433,13 @@ const AMB=[
 const SCENES=[
  {id:"handoff-4am",label:"The 4 a.m. handoff",ck:s=>s.dp==="predawn"&&inZ("A16","bakery")&&s.wx!=="storm",why:"A16 baking · A06 on first runs"},
  {id:"mudhaus-rush",label:"Rush hour at Mudhaus",ck:s=>bandOf("mudhaus")==="busy"||bandOf("mudhaus")==="packed",why:"Mudhaus ≥ busy"},
- {id:"bench-parliament",label:"Bench parliament",ck:s=>["midday","lunch","afternoon"].includes(s.dp)&&inZ("A05","park")&&inZ("A19","park")&&!["rain","storm"].includes(s.wx),why:"A05+A19 benched, dry"},
+ {id:"bench-parliament",label:"Bench parliament",ck:s=>["midday","lunch","afternoon"].includes(s.dp)&&inZ("A19","park")&&!["rain","storm"].includes(s.wx),why:"Ray benched, dry — the parliament needs Esther",res:"S2"},
  {id:"wordless-race",label:"The wordless race",ck:s=>inZ("A15","streets")&&["rush","midday","lunch","afternoon"].includes(s.dp),why:"Omar on the loop; Marcus crossing = proximity"},
  {id:"release-1500",label:"The 15:00 release",ck:s=>s.day==="weekday"&&s.h>=15&&s.h<16.5&&inZ("A04","park"),why:"weekday 15:00–16:30, June out"},
- {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening"&&inZ("A09","mudhaus"),why:"Asha's counter seat 19:30–21"},
+ {id:"evening-nurse",label:"The evening nurse",ck:s=>s.dp==="evening",why:"the counter seat, 19:30ish — Asha's call now",res:"S3"},
  {id:"victor-pickup",label:"Victor's pickup at Gus's",ck:s=>s.day==="weekday"&&["lunch","afternoon"].includes(s.dp)&&inZ("A10","folsom"),why:"weekly — Fridays (demo: weekday afternoons)"},
  {id:"doorway-sets",label:"Doorway sets",ck:s=>(s.wx==="rain"||s.wx==="wind")&&inZ("A08","club600"),why:"Sam under the awning — rain or gusts are the trigger"},
- {id:"parliament-in-exile",label:"Parliament in exile",ck:s=>inZ("A05","doloresperk")&&inZ("A19","doloresperk"),why:"benches untenable — rain, storm, or an all-day fog"},
+ {id:"parliament-in-exile",label:"Parliament in exile",ck:s=>inZ("A19","doloresperk"),why:"benches untenable and Ray at the Perk — Esther's call",res:"S2"},
  {id:"marigold-line",label:"The marigold line",ck:s=>s.annual==="muertos"&&inZ("A18","bloomdoom"),why:"muertos window · Ida working the queue"},
  {id:"game-night-swell",label:"The game-night swell",ck:s=>s.annual==="game-day"&&["evening","night"].includes(s.dp)&&["busy","packed"].includes(bandOf("elfarolote")),why:"home game · jerseys through to dinner"}];
 const ZLABEL={home:"home",mudhaus:"Mudhaus",park:"Dolores Park",club600:"600 Club",minimart:"Mini Mart",fruteria:"fruit stand",elfarolote:"El Farolote",library:"library",clarion:"Clarion Alley",bakery:"bakery",streets:"on the loop",school:"Mission High",sfgeneral:"SF General",folsom:"Folsom Auto",auerbach:"site by Auerbach",bloomdoom:"Bloom & Doom",needlepointe:"Needlepointe",doloresperk:"Dolores Perk",edge:"off-map"};
@@ -432,8 +448,20 @@ const RESOURCES=[
  {id:"res-mudhaus-table",zone:"mudhaus",label:"the neighbor table",staff:"A01",cap:"seats 6",win:[15,60],note:"declared-window reservation; the café keeps serving around it"},
  {id:"res-600-mic",zone:"club600",label:"the open-mic slot",staff:"A08",cap:"one 15-minute set",win:[15,15],note:"books a performance window; the bar stays open"},
  {id:"res-park-pitch",zone:"park",label:"the north pitch",staff:"A08",cap:"one busker pitch",win:[30,120],note:"holds the raised pitch, not the grass around it"},
- {id:"res-fruteria-firstbox",zone:"fruteria",label:"the first box",staff:"A07",cap:"one preorder crate",win:[30,30],note:"claimed by preorder, gone by 9"},
- {id:"res-needlepointe-chair",zone:"needlepointe",label:"the walk-in chair",staff:"A14",cap:"one chair slot",win:[60,180],note:"holds the slot; flash only"}];
+ {id:"res-fruteria-firstbox",zone:"fruteria",label:"the first box",staff:"A07",cap:"one preorder crate",win:[30,30],note:"claimed by preorder, gone by 9"}];
+/* v127: res-needlepointe-chair retired — the walk-in chair is S1 Bex's
+   appointment book now; a claim on it would be a claim on a person */
+/* v127 mirrors: the vacancy layer + the occasion layer */
+const RESID={A05:"S2",A09:"S3",A14:"S1"};
+const RN={S1:"Bex",S2:"Esther",S3:"Asha"};
+const VACANCIES={
+ S1:{was:"A14",post:"the walk-in chair at Needlepointe",venue:"needlepointe",read:"the chair books by appointment now — a resident owns her hours; the 'flash after 4' card is hers to hang or not"},
+ S2:{was:"A05",post:"the north bench",venue:"park",read:"the bench is occupied when she chooses it — parliament of one some mornings; the folded section went home with her"},
+ S3:{was:"A09",post:"the counter seat",venue:"mudhaus",read:"the seat fills when a nurse decides it does — Reyes still knows the order, and the order belongs to a person now"}};
+const OCCASIONS=[
+ {id:"occ-supper-table",label:"the shared supper table",zone:"elfarolote",when:{dow:["thu"],dp:["evening"]},zm:1.2,posture:"dwell units linger at the long table's edge; pair-chat share rises",trace:"the next lunch reads the folded leaves stacked by the door — last night's table put away"},
+ {id:"occ-alley-wall",label:"the alley wall workday",zone:"clarion",when:{dow:["sat"],dp:["midday","lunch","afternoon"]},zm:1.3,posture:"watch-street and lean-wait postures at the alley mouth; the walk slows past fresh paint",trace:"evening reads taped edges and drop cloths — the wall half-done, nobody keeping score"},
+ {id:"occ-cork-board",label:"the cork board",zone:"minimart",when:{},zm:1.05,posture:"errand units pause at the board on the way out — a thirty-second browse",trace:"standing — the board is always up; flyers yellow at their own pace"}];
 /* v43: per-ambient signature + variant notes (prose mirror of ambients.json signature/week/weather) */
 const AMBX={
  A01:{sig:"apron · purposeful · towel over one shoulder",v:"sun: sleeps past 9, errands + some catering gigs · rain/storm: the shift doesn't move · fri: one lottery ticket at Malik's on the walk home"},
@@ -456,7 +484,7 @@ const AMBX={
  A18:{sig:"apron · amble · a basket of loose stems",v:"mon: walks the alley to see what the week did · rain: buckets in off the sidewalk"},
  A19:{sig:"flat-cap · meander · a paper bag of crumbs",v:"rain: retires early — one wet pass for the pigeons · storm: disapproves from his own window · 8:30 and noon: never late for the pigeons"},
  A20:{sig:"headphones-big · meander · a phone held like a camera",v:"weekends: perimeter orbit all day · sun: the pack drifts south toward Luz · rain: compresses to the Mudhaus awning, home earlier"}};
-let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",annual:"none",sel:"mudhaus",month:9,dom:15,fogAllDay:false};
+let S={h:8,day:"weekday",wx:"clear",ev:"none",shade:"none",annual:"none",sel:"mudhaus",month:9,dom:15,fogAllDay:false,occ:"none"};
 function fogStage(h){if(S.wx!=="fog")return null;const st=FOG.profile[daypart(h)];
   if(S.fogAllDay&&st==="burned")return"patchy";return st;}
 function seasonShade(){for(const[id,s]of Object.entries(SEASONS))if(s.months.includes(S.month))return{id,s};return null;}
@@ -517,6 +545,16 @@ function ambWhere(a,h,day,wx){
   return["home","home"];
 }
 function inZ(id,zone){const a=AMB.find(x=>x[0]===id);return ambWhere(a,S.h,S.day,S.wx)[0]===zone;}
+/* v127: an occasion is live when the toggle asserts it and its window
+   holds — the demo's day axis can't express "thu", so selecting an
+   occasion satisfies its dow clause; dayparts still gate on the clock.
+   The cork board is always up (standing shape). */
+function occOn(o,dp){
+  if(o.id!=="occ-cork-board"&&S.occ!==o.id)return false;
+  const w=o.when||{};
+  if(w.dp&&dp&&!w.dp.includes(dp))return false;
+  return true;
+}
 function budgetMid(z,h,day,wx,shade){
   const zd=ZONES[z],dp=daypart(h);
   const o=zd.open;let closed=false;
@@ -549,6 +587,9 @@ function budgetMid(z,h,day,wx,shade){
     if(mc.zone_mult&&mc.zone_mult[z])mid*=mc.zone_mult[z];
     if(mc.zone_floor&&mc.zone_floor[z]&&mc.zone_floor[z][dp2]!=null)mid=Math.max(mid,mc.zone_floor[z][dp2]);
   }
+  /* v127: live occasions lift their venue's extras budget — modestly,
+     like a shade; they never touch mouths, pulses, or a mind */
+  for(const o of OCCASIONS)if(o.zone===z&&occOn(o,dp))mid*=o.zm;
   return mid;
 }
 function bandOf(z){
@@ -576,10 +617,16 @@ function zoneRow(z){
   if(S.ev==="party")mid=Math.round(z==="park"?18:mid*0.7);
   if(S.ev==="lock"&&z==="mudhaus")mid=0;
   const here=AMB.filter(a=>ambWhere(a,S.h,S.day,S.wx)[0]===z);
+  /* v127: a resident pair shows as a possibility, not a fact — the
+     ambient's side is resolvable; the resident's presence is her call */
   const gchips=GREETS.filter(g=>!g.main&&g.w!=="none"&&g.z.includes(z)&&
-    here.some(a=>a[0]===g.a)&&here.some(a=>a[0]===g.b))
-    .map(g=>`<span class="chip g" title="${g.form}">${AMB.find(a=>a[0]===g.a)[1]}↔${AMB.find(a=>a[0]===g.b)[1]}${g.pack?" · pack":""}</span>`).join("");
-  const chips=here.map(a=>`<span class="chip">${a[1]}</span>`).join("")+gchips+
+    (g.res?(here.some(a=>a[0]===g.a||a[0]===g.b)):
+      (here.some(a=>a[0]===g.a)&&here.some(a=>a[0]===g.b))))
+    .map(g=>{const na=RN[g.a]||AMB.find(a=>a[0]===g.a)[1],nb=RN[g.b]||AMB.find(a=>a[0]===g.b)[1];
+      return `<span class="chip g" ${g.res?'style="border-style:dashed"':""} title="${g.form}${g.res?" — the resident greets by her own presence":""}">${na}↔${nb}${g.pack?" · pack":""}${g.res?" · her call":""}</span>`;}).join("");
+  const chips=here.map(a=>RESID[a[0]]
+    ?`<span class="chip" style="border-color:var(--pink)" title="promoted to ${RESID[a[0]]} — a resident; the pattern shown is her ambient-era shape, presence is her choice">${RESID[a[0]]} ${a[1]}</span>`
+    :`<span class="chip">${a[1]}</span>`).join("")+gchips+
     (band!=="closed"&&mid>0?`<span class="chip x">+${mid} extras</span>`:"");
   const pct=band==="closed"?4:{deserted:4,thin:14,steady:38,busy:62,packed:92}[band];
   const col={deserted:"var(--line)",thin:"var(--blu)",steady:"var(--grn)",busy:"var(--acc)",packed:"var(--pink)",closed:"var(--line)"}[band];
@@ -643,7 +690,9 @@ function render(){
   document.getElementById("dp").textContent=dp+" · "+effDay()+(S.shade!=="none"?" · "+S.shade:"")+" · "+S.wx+(S.wx==="fog"?"/"+fogStage(S.h):"")+(S.ev!=="none"?" · "+S.ev:"")+" · "+(seasonShade()?seasonShade().id:"—")+(annualShade()?" · "+S.annual:"");
   document.getElementById("zones").innerHTML=Object.keys(ZONES).map(zoneRow).join("");
   document.getElementById("scenes").innerHTML=SCENES.map(sc=>{
-    const live=sc.ck({...S,dp});return `<div class="scene ${live?'live':''}"><span class="dot"></span><b>${sc.label}</b><span class="why">${live?"LIVE — ":""}${sc.why}</span></div>`;}).join("");
+    const live=sc.ck({...S,dp});
+    const tag=live?(sc.res?`OPEN — ${sc.res} ${RN[sc.res]} decides · `:"LIVE — "):"";
+    return `<div class="scene ${live&&!sc.res?'live':''}"><span class="dot" style="${live&&sc.res?"background:var(--pink)":""}"></span><b>${sc.label}</b><span class="why">${tag}${sc.why}</span></div>`;}).join("");
   document.getElementById("flows").innerHTML=FLOWS.map(flowRow).join("");
   /* v71 postures panel: legal dwell vocabulary for the selected zone's kind */
   const zk=ZONES[S.sel].kind;
@@ -697,13 +746,29 @@ function render(){
     const[z,st]=ambWhere(a,S.h,S.day,S.wx);
     const legal=STMAP[st]||st;
     const cv=COVERAGE[a[0]],minor=a[4]&&a[4].minor;
-    const able=!minor&&z!=="home"&&z!=="edge"&&PULL.states.includes(legal);
-    const tag=minor?"never":able?"pullable now":"not pullable ("+legal+")";
-    const col=minor?"var(--pink)":able?"var(--grn)":"var(--dim)";
+    const res=RESID[a[0]];
+    const able=!minor&&!res&&z!=="home"&&z!=="edge"&&PULL.states.includes(legal);
+    const tag=minor?"never":res?("resident → "+res):able?"pullable now":"not pullable ("+legal+")";
+    const col=minor||res?"var(--pink)":able?"var(--grn)":"var(--dim)";
     return `<div class="flow"><span class="arr">${a[0]} ${a[1]}</span>
       <span style="color:var(--dim)">${cv.post} · ${cv.kind} — ${cv.read}</span>
       <span class="n" style="color:${col}">${tag}</span></div>`;}).join("")+
-    `<div class="fine">windows ${PULL.win[0]}–${PULL.win[1]} min · ≤${PULL.cap}/day each · ≤${PULL.conc} at once · ${PULL.cool} min cooldown</div>`;
+    `<div class="fine">windows ${PULL.win[0]}–${PULL.win[1]} min · ≤${PULL.cap}/day each · ≤${PULL.conc} at once · ${PULL.cool} min cooldown · residents are never pullable — the bench borrows schedules, not people</div>`;
+  /* v127: vacancies — the posts promotion emptied, permanently */
+  document.getElementById("vacancies").innerHTML=Object.entries(VACANCIES).map(([sid,v])=>
+    `<div class="flow"><span class="arr">${sid} ${RN[sid]} <small style="color:var(--dim)">(was ${v.was})</small></span>
+      <span style="color:var(--dim)">${v.post} · ${ZONES[v.venue].label} — ${v.read}</span>
+      <span class="n" style="color:var(--pink)">vacated</span></div>`).join("")+
+    `<div class="fine">A vacancy never expires and never refills — the venue keeps the function and loses the signature. promotion.md is the only path to a named face.</div>`;
+  /* v127: occasions — the standing bounded-opportunity shapes */
+  document.getElementById("occasions").innerHTML=OCCASIONS.map(o=>{
+    const on=occOn(o,daypart(S.h));
+    const whenTxt=[o.when.dow?o.when.dow.join("/"):null,o.when.dp?o.when.dp.join("+"):null].filter(Boolean).join(" · ")||"always up";
+    return `<div class="flow ${on?'':'off'}"><span class="arr">${o.label}</span>
+      <span style="color:var(--dim)">${ZONES[o.zone].label} · ${whenTxt} · extras ×${o.zm} — ${o.posture}</span>
+      <span class="n">${on?"live":"—"}</span></div>`+
+      (on?`<div class="fine" style="margin:-2px 0 4px">trace: ${o.trace}</div>`:"");}).join("")+
+    `<div class="fine">A live invitation lifts a venue's extras budget, never routes a body — extras orbit, the named layer answers by routine. The trace is a read, not a residue: it never scores uptake or names who came.</div>`;
   document.getElementById("micros").innerHTML=MICROS.map(m=>
     `<span class="mic ${microActive(m)?'':'off'}" title="${m.note}">${m.id}</span>`).join("");
   document.getElementById("res").innerHTML=RESOURCES.map(r=>{
@@ -718,14 +783,15 @@ function render(){
     return `<div class="r ${a[4]&&a[4].minor?'minor':''} ${S.ambSel===a[0]?'sel':''}" onclick="S.ambSel=S.ambSel==='${a[0]}'?null:'${a[0]}';render()"><b>${a[0]} ${a[1]}</b><br><span class="st">${PLABELS[st]||st} · ${ZLABEL[z]||z}</span></div>`;}).join("");
   const sel=S.ambSel&&AMB.find(a=>a[0]===S.ambSel);
   document.getElementById("acard").innerHTML=sel?(()=>{const[z,st]=ambWhere(sel,S.h,S.day,S.wx);const x=AMBX[sel[0]]||{};
-    const greets=GREETS.filter(g=>g.w!=="none"&&(g.a===sel[0]||g.b===sel[0])).map(g=>{const o=g.a===sel[0]?g.b:g.a;const n=(AMB.find(a=>a[0]===o)||[0,o])[1];return n+" — "+g.form;}).join("; ");
-    return `<div class="r" style="margin-top:8px;padding:9px 12px"><b>${sel[0]} ${sel[1]}</b> — ${sel[2]}${sel[4]&&sel[4].minor?' · <span style="color:var(--pink)">minor — public-space only</span>':''}
-      <div class="st" style="margin-top:4px">now: ${PLABELS[st]||st} · ${ZLABEL[z]||z}${postureOf(sel,z,st)}</div>
+    const greets=GREETS.filter(g=>g.w!=="none"&&(g.a===sel[0]||g.b===sel[0])).map(g=>{const o=g.a===sel[0]?g.b:g.a;const n=RN[o]||(AMB.find(a=>a[0]===o)||[0,o])[1];return n+(g.res?" (her call)":"")+" — "+g.form;}).join("; ");
+    const res=RESID[sel[0]];
+    return `<div class="r" style="margin-top:8px;padding:9px 12px"><b>${sel[0]} ${sel[1]}</b> — ${sel[2]}${sel[4]&&sel[4].minor?' · <span style="color:var(--pink)">minor — public-space only</span>':''}${res?` · <span style="color:var(--pink)">promoted to ${res} — a resident now</span>`:""}
+      <div class="st" style="margin-top:4px">now: ${PLABELS[st]||st} · ${ZLABEL[z]||z}${res?" <i>(ambient-era pattern — her presence is her own)</i>":""}${postureOf(sel,z,st)}</div>
       <div style="font-size:11.5px;margin-top:5px"><b>signature:</b> ${x.sig||"—"}</div>
       <div style="font-size:11.5px;margin-top:3px"><b>the week:</b> ${x.v||"—"}</div>
       ${greets?`<div style="font-size:11.5px;margin-top:3px"><b>knows:</b> ${greets}</div>`:""}
-      <div style="font-size:11.5px;margin-top:3px"><b>if borrowed:</b> ${COVERAGE[sel[0]].post} · ${COVERAGE[sel[0]].kind} — ${COVERAGE[sel[0]].read}</div>
-      <div class="fine" style="margin-top:5px">Thin tier · zero LLM while ambient · never possessable · promotable via world/promotion.md.</div></div>`;})():"";
+      <div style="font-size:11.5px;margin-top:3px"><b>${res?"the post now":"if borrowed"}:</b> ${COVERAGE[sel[0]].post} · ${COVERAGE[sel[0]].kind} — ${COVERAGE[sel[0]].read}</div>
+      <div class="fine" style="margin-top:5px">${res?"Promoted — a full-brain resident; never pullable, never possessable.":"Thin tier · zero LLM while ambient · never possessable · promotable via world/promotion.md."}</div></div>`;})():"";
   /* 24h curve for selected zone */
   const cv=document.getElementById("curve"),ctx=cv.getContext("2d");
   ctx.clearRect(0,0,cv.width,cv.height);
@@ -742,7 +808,7 @@ function render(){
   [0,4,6,8,10,13,15,19,21].forEach(t=>ctx.fillText(String(t).padStart(2,"0"),t/24*600+1,108));
 }
 document.getElementById("scrub").oninput=e=>{S.h=+e.target.value;render();};
-[["dayTgl","day"],["wxTgl","wx"],["evTgl","ev"],["shTgl","shade"]].forEach(([id,key])=>{
+[["dayTgl","day"],["wxTgl","wx"],["evTgl","ev"],["shTgl","shade"],["occTgl","occ"]].forEach(([id,key])=>{
   document.getElementById(id).querySelectorAll("button").forEach(b=>b.onclick=()=>{
     S[key]=b.dataset.v;document.getElementById(id).querySelectorAll("button").forEach(x=>x.classList.toggle("on",x===b));render();});
 });

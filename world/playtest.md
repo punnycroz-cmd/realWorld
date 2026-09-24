@@ -447,6 +447,21 @@ One person can wear every hat; four real testers is the intended shape.
   cast.html SUPPORTING strip rendering slim cards under the same
   possession ban. The audit's v126 marks pin the supporting checks in
   the bible gate (schema v126 · 8 mains + 3 supporting).
+  PT116 (crowd v127) audits the ambient-crowd consequence pass — the
+  vacancy layer (promotion as permanent absence: A05/A09/A14's posts
+  vacated and never refilled, coverage reads re-keyed, residents barred
+  from the pull pool, ctr-section/ctr-stool/ctr-flash and the
+  needlepointe chair claim retired rather than reassigned) and the
+  occasion layer (three bounded-opportunity shapes — the Thursday supper
+  table, the Saturday alley wall workday, the always-up cork board —
+  lifting a venue's extras budget ≤1.4 inside its window while extras
+  orbit and never attend, and a next-daypart trace that never scores
+  uptake). Resident-keyed scenes and greeting pairs re-key to S-ids: a
+  bench parliament can honestly not happen, and the demo shows 'OPEN —
+  S2 decides', never LIVE on a person's behalf. The audit's v127 marks
+  pin the vacancy↔promoted_to round-trips, the vacated coverage marks,
+  the retired-surface bars, the residents clause, the OCCASIONS/VACANCIES
+  mirrors, the ≤1.4 modesty cap, and the no-attendance-fields rule.
 
 ## 3. Running a session
 

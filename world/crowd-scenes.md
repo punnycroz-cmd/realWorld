@@ -19,10 +19,10 @@ Spectator-facing companion to `world/ambients.md` + `world/ambients/`.
 | 04–06 | **The pre-dawn shift.** Bakery lights, delivery vans, one café opening. The quietest good hour on the feed. | A16 Hana (bake), A06 Kofe (first pickups), C1 Marisol (opening walk) |
 | 06–08 | **Commute front.** Park laps, dog packs, counters opening. | A12 Tom (laps), A02 Doro (north loop), A10 Gus + A17 Cole (shop/site open), A19 Ray arriving |
 | 08–10 | **Rush.** Mudhaus line, fruit stand up, couriers loading. | A01 Reyes + C1/C2/C3 (Mudhaus), A07 Luz (stand), A06/A15 (loops), A03 Malik (door open), C5 Marcus |
-| 10–13 | **Working block.** Shops staffed, park thin, Clarion active. | A10, A17, A14 Bex (alley), A11 Vera (desk), A18 Ida; park: A05 Esther, A19 Ray, A08 Sam (north pitch) |
+| 10–13 | **Working block.** Shops staffed, park thin, Clarion active. | A10, A17, S1 Bex (alley — a resident's hours now), A11 Vera (desk), A18 Ida; park: S2 Esther *when she chooses it*, A19 Ray, A08 Sam (north pitch) |
 | 13–15 | **Lunch + lull.** Taqueria prep, courier surge, school release coming. | A06/A15 (lunch surge), A16 Hana (afternoon errands), C8 Tomás arriving |
 | 15–19 | **The after-school hour.** Park center fills, café second rush, teens on the perimeter. | A04 June + A20 Zee (park/café), A13 Nadia (still at Mudhaus), A02 Doro (second loop), A12 Tom (laps 17–19), benches still held |
-| 18–21 | **Night shift.** 600 Club corner, El Farolote dinner line, nurses decompressing at Mudhaus. | A08 Sam + A14 Bex (600 Club), C8 Tomás (line), A09 Asha (Mudhaus counter seat), A05/A19 home |
+| 18–21 | **Night shift.** 600 Club corner, El Farolote dinner line, nurses decompressing at Mudhaus. | A08 Sam + S1 Bex (600 Club), C8 Tomás (line), S3 Asha (the counter seat, when she takes it), S2/A19 home |
 | 21–24 | **Close-down.** Bar stragglers, late kitchen, courier last runs. | A08/A14 (park south drift), C8 (post-service), A06 last orders |
 | 00–04 | **The empty block.** Streetlights, a cat, nothing. (The honestest hour — don't fill it.) | nobody |
 
@@ -34,25 +34,25 @@ Sunday; Luz's stand shortens.
 
 | Venue | Holds | Peak | Scene quality |
 |---|---|---|---|
-| **Mudhaus Coffee** | 3 mains (C1–C3) + A01 behind bar; A13 all day; A09 evenings; everyone passing | 7:30–9:30, 15–19 | The block's nerve center — the default "watch here" frame |
-| **Dolores Park (center)** | Benches (A05, A19), dog loops (A02), laps (A12), pitches (A08), teens (A04/A20) | 15–19 clear days | The stage itself; crowd is weather-made |
-| **The 600 Club** | A08, A14 nights; C5 leisure | 20–24 | Nightlife pool; open-mic-capable venue |
+| **Mudhaus Coffee** | 3 mains (C1–C3) + A01 behind bar; A13 all day; S3 some evenings; everyone passing | 7:30–9:30, 15–19 | The block's nerve center — the default "watch here" frame |
+| **Dolores Park (center)** | Benches (S2 when she chooses, A19), dog loops (A02), laps (A12), pitches (A08), teens (A04/A20) | 15–19 clear days | The stage itself; crowd is weather-made |
+| **The 600 Club** | A08 nights; S1 by her own lights; C5 leisure | 20–24 | Nightlife pool; open-mic-capable venue |
 | **Malik's Mini Mart** | A03 behind counter; steady drip of everyone | 8:00, 17:30 rushes | The block's rumor interface, one transaction at a time |
 | **Frutería Las Palmas** | A07 + whoever's buying | 1st of month; hot days | Informal-economy counter; kid traffic |
 | **El Farolote** | C8 + A06 pickup window | 13–15, 19–23 | Dinner line; post-bar rush |
 | **Mission Branch Library** | A11 + June exam weeks | Tue–Sat days | Quiet crowd; rain fills it |
-| **Clarion Alley** | A14 on breaks; visitors drifting | afternoons | The art corridor; smoke-break lobby |
+| **Clarion Alley** | S1 by her own schedule; visitors drifting | afternoons | The art corridor; smoke-break lobby |
 
 ## 3. Weather & event modifiers
 
 | Condition | Crowd deformation |
 |---|---|
-| Rain | Park empties (A05/A19 stay home, Doro shortens loops, Sam → 600 Club doorway); Luz tarps and halves the day; library + cafés absorb the overflow; Kofe/Omar keep pace (work doesn't care) |
+| Rain | Park empties (A19 stays home — S2 makes her own call now, Doro shortens loops, Sam → 600 Club doorway); Luz tarps and halves the day; library + cafés absorb the overflow; Kofe/Omar keep pace (work doesn't care) |
 | Fog (v57) | A depth profile, not a binary — deep overnight/commute, burns ~10:30. Park reads thin, cafés tick up; Esther + Ray hold the Dolores Perk window till it burns; Luz opens late; the kids orbit the Mudhaus awning. On an all-day fog the parliament stays in exile |
 | Wind (v57) | Afternoon westerlies (peak 14–18): open-air thins, stands pack early, Sam's pitch moves to the 600 Club doorway; nobody leaves the block, they just hold onto things |
 | Storm / thunder | All outdoor states → `inside` within a block; the feed should read as *emptied*, that's fine |
 | Heat wave | Park fills; Luz stays late and sells out; Hana's bake shortens; 600 Club spills earlier |
-| Dusk (`sfLampsLit`) | Day roles head home; A08/A14 reverse direction; lit windows become the crowd |
+| Dusk (`sfLampsLit`) | Day roles head home; A08 reverses direction; lit windows become the crowd |
 | Player event (block party, street fair) | Ambients within earshot drift toward it, spectate 10–20 min, resume routines — crowd appears *because a crowd would*; Sam plays the edge, Ida reads the flyer |
 | Severe weather × outdoor event | Claims matrix rules (game v2) — ambients vacate contested space |
 
@@ -67,20 +67,27 @@ bits — the things regulars of the feed learn to wait for:
   headphones going on.
 - **Bench parliament** — Esther and Ray, adjacent bench sections,
   arguing about pigeons and the port; Tom's laps as the metronome;
-  Carmen's palm within sight.
+  Carmen's palm within sight. **(v127)** — Esther is S2 now: the bit
+  fires when a resident *chooses* the bench, not because a routine
+  delivered her. Some days the parliament is Ray, the crumbs, and no
+  argument — that read is true, not broken.
 - **The wordless race** — Marcus and Omar, one block at full pace,
   whenever routes cross. Kofe does not participate. Officially.
 - **The 15:00 release** — school lets out; June heads to the park with
   books, Zee's pack materializes on the perimeter; the café refills.
 - **The evening nurse** — Asha's counter seat at Mudhaus, 19:30, phone
   face-down; Priya some nights on the other side of the same tired.
+  **(v127)** — Asha is S3 now; the seat is a person's habit, not a
+  pawn's post. When she goes straight home, the scene simply isn't
+  there.
 - **Victor's pickup at Gus's** — weekly; the argument about whether the
   truck is worth keeping, continued from last week.
 - **Doorway sets** — Sam under the 600 Club awning when it rains:
   smaller crowd, better music.
-- **Parliament in exile** (v57) — Esther and Ray at the Dolores Perk
-  window table whenever the benches are untenable: rain, storm, or an
-  all-day fog. Same argument, worse view of the pigeons.
+- **Parliament in exile** (v57; re-keyed v127) — Esther and Ray at the
+  Dolores Perk window table whenever the benches are untenable: rain,
+  storm, or an all-day fog. Same argument, worse view of the pigeons.
+  Same promotion caveat: S2 decides.
 
 ## 5. What the crowd must never do
 

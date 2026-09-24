@@ -1,4 +1,4 @@
-# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99, v113)
+# Crowd Sim — the block's population model (world v15; deepened v29, v43, v57, v71, v85, v99, v113, v127)
 
 How "The Mission" stays populated on the free feed 24/7 without spending a
 cent of inference. Two layers, one rule set. **This file specifies
@@ -790,3 +790,92 @@ Leash laws:
   overnight. The v85 family rule now binds at the doorway.
 - Mouths and pulses write **no ledger, no feed, no archive** — like
   the extras they gate, they are atmosphere plumbing, not state.
+
+## 33. The vacancy layer (v127)
+
+The v99 bench covers *loans*. Promotion is not a loan. When A05, A09,
+and A14 became residents S2, S3, S1 (v126), their posts didn't get a
+"back in 10" — they stopped being posts at all. `crowd.json §vacancies`
+carries the permanent counterpart of `§coverage`:
+
+- **A vacancy never expires and never refills.** The coverage read stays
+  up permanently — the bench is occupied when Esther chooses it, the
+  counter seat fills when a nurse decides it does — and no new named
+  regular is spawned into the hole. `promotion.md` is the only path to
+  a named face; the crowd model never mints one.
+- **The venue loses the signature, keeps the function.** Mudhaus still
+  serves; Needlepointe still inks. What's gone is the one-glance read —
+  the folded section, the face-down phone, the flash folder. That's the
+  honest cost of promotion: the block loses three fixtures to gain three
+  people.
+- **Scene conditions re-key to S-ids.** `scenes.when.named` may list a
+  resident; the label still describes a *collision*, never a summons.
+  Bench parliament now fires when S2 *chooses* the bench next to A19 —
+  which means it can genuinely not happen, and a parliament of one (Ray,
+  crumbs, no argument) is a true read, not a bug. The evening nurse is
+  the same: Asha takes the seat as a person; some evenings she just goes
+  home and the scene isn't there.
+- **Greetings reroute to the person.** `greeting_matrix` pairs that
+  named A05/A09/A14 now name S2/S3/S1 with `resident:true`. The ambient
+  still nods — what changed is that the other party is free.
+- **Courtesies retire, they don't transfer.** `ctr-section`,
+  `ctr-stool`, `ctr-flash` are gone from `courtesies.beats`. A
+  resident's gestures are brain-authored; canning them would be the
+  costume, not the person. The counters don't get replacement
+  choreography.
+- **The pull pool shrinks honestly.** `pull_protocol.residents` bars
+  S-ids outright — the bench borrows schedules, not people. A request
+  about a resident travels the ordinary §11 nudge path and may be
+  declined. `res-needlepointe-chair` is retired with it: the chair is
+  Bex's appointment book now, and a claim on it would be a claim on a
+  person.
+
+## 34. The occasion layer (v127)
+
+`drama.json §bounded_opportunities` owns what an invitation *is*;
+`crowd.json §occasions` owns what one does to the *room*. A live public
+invitation — a supper table, a wall workday, a cork board — deforms the
+extras budget the way weather does: modestly, at the venue, inside its
+window. The crowd's job is to make the occasion plausible to walk into,
+never to attend it.
+
+- **Budget arithmetic only.** An occasion carries a `zone_mult` ≤1.4 —
+  a lift, never a draw. It changes headcount probability, never a route,
+  a routine, or a mind.
+- **Extras orbit, never attend.** No leash intent becomes "participant."
+  An extra may `dwell` near the long table or pause `errand`-pace at the
+  cork board; it cannot join, help, applaud, or sign. Attendance is a
+  property of people.
+- **The named layer answers by routine.** Whether a main, a resident,
+  or an ambient is *at* an occasion is their own resolution — the crowd
+  model never marks attendance, on the wire or off it.
+- **No manufactured rush.** Occasions never touch mouths or pulse
+  clocks; they draw from the traffic that exists, like a day shade.
+- **The trace is a read, not a residue.** The next daypart may carry
+  the aftermath detail — folded leaves stacked by the door, taped edges
+  on the wall — as posture/zone flavor. It never scores uptake and
+  never names who came. An ignored occasion reads as an untouched room;
+  that read is honest texture, not a failure state.
+- **Sponsored = organic.** A request-created occasion gets the same
+  modesty cap and the same wire silence.
+
+Three standing shapes are authored in `crowd.json §occasions.shapes` —
+the Thursday supper table at El Farolote, the Saturday wall workday in
+Clarion, the minimart cork board that is always up. They are
+*conditions the block may ignore*; the demo's occasion toggle shows the
+budget deformation, and the absence of any attendance bookkeeping is
+the point.
+
+## 35. Boundary additions (v127)
+
+- Vacancy reads, occasion ids, and shape fields are **internal
+  vocabulary** — the wire says band words, scene labels, and (for the
+  invitation itself) the public posting. A spectator sees an empty
+  north bench, never "vacated_to S2."
+- A scene keyed on a resident is still only a **description of
+  collision** — if the resident isn't there, nothing is dispatched.
+  Promotion made several standing bits *rarer and truer*, which is the
+  correct outcome.
+- Occasions write **no ledger, no memory, no archive** — the
+  opportunity record lives in the drama layer; the crowd contributes
+  only room tone and aftermath reads.

@@ -1949,6 +1949,9 @@ const PUB = Object.values(PT.surfaces)
     const AMB = JSONF('ambients.json');
     const ambIds = new Set(AMB.ambients.map(a => a.id));
     const mainIds = new Set(['C1','C2','C3','C4','C5','C6','C7','C8']);
+    /* v127: supporting residents are legal refs — promoted_from ambients */
+    const resIds = new Set(AMB.ambients.filter(a => a.promoted_to).map(a => a.promoted_to));
+    const promoOf = {}; for (const a of AMB.ambients) if (a.promoted_to) promoOf[a.id] = a.promoted_to;
     /* pull an inline `const NAME=<literal>;` block and eval it */
     const pull = (name, close) => {
       const m = html.match(new RegExp('const ' + name + '=(\\' + close[0] + '[\\s\\S]*?\\' + close[1] + ');'));
@@ -2008,8 +2011,8 @@ const PUB = Object.values(PT.surfaces)
       const H = SC.find(x => x.id === s.id);
       if (H && H.label !== s.label) add(g, 'fail', 'crowd.html', null, `scene ${s.id} label drifted`);
       for (const n of s.when.named || [])
-        if (!ambIds.has(n) && !mainIds.has(n))
-          add(g, 'fail', 'crowd.json', null, `scene ${s.id}: named "${n}" is not an ambient or main`);
+        if (!ambIds.has(n) && !mainIds.has(n) && !resIds.has(n))
+          add(g, 'fail', 'crowd.json', null, `scene ${s.id}: named "${n}" is not an ambient, main, or resident`);
       if (s.when.zone && !CJ.zones[s.when.zone])
         add(g, 'fail', 'crowd.json', null, `scene ${s.id}: unknown zone "${s.when.zone}"`);
     }
@@ -2061,14 +2064,21 @@ const PUB = Object.values(PT.surfaces)
     const wOk = new Set(['hi', 'lo', 'none']);
     for (const p of jGr) {
       for (const x of [p.a, p.b])
-        if (!ambIds.has(x) && !mainIds.has(x))
+        if (!ambIds.has(x) && !mainIds.has(x) && !resIds.has(x))
           add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: "${x}" is not a cast id`);
       if (!wOk.has(p.weight)) add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: weight "${p.weight}" not in hi/lo/none`);
       const minor = id => (AMB.ambients.find(a => a.id === id) || {}).minor;
       if ((minor(p.a) || minor(p.b)) && !p.minor_pack)
         add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: minor pair without minor_pack — minors greet in packs only`);
-      if ((ambIds.has(p.a) && ambIds.has(p.b)) === false && !p.main_crossing)
+      const hasMain = mainIds.has(p.a) || mainIds.has(p.b), hasRes = resIds.has(p.a) || resIds.has(p.b);
+      if (hasMain && !p.main_crossing)
         add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: a main pair without main_crossing flag`);
+      /* v127: a resident pair must be flagged — the ambient greets a
+         person by their own presence, never a dispatched pawn */
+      if (hasRes && p.resident !== true)
+        add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: resident pair without resident:true`);
+      if (!hasRes && p.resident)
+        add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: resident flag on a non-resident pair`);
       /* observable-safe: form text carries no seed/meta vocabulary */
       if (/secret|seed|briefing|must_not_know/i.test(p.form || ''))
         add(g, 'fail', 'crowd.json', null, `greet ${p.a}↔${p.b}: meta vocabulary in form text`);
@@ -2408,7 +2418,70 @@ const PUB = Object.values(PT.surfaces)
       add(g, 'fail', 'crowd.json', null, 'leash.no_reentry lost the stops-existing clause');
     if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify([LS, CJ.mouths, CJ.pulse_clocks])))
       add(g, 'fail', 'crowd.json', null, 'meta vocabulary in the mouths/pulses/leash layer');
-    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage · ${jMth.length} mouths · ${jPul.length} pulses`;
+    /* v127: the vacancy layer — promoted ambients' posts vacated, never
+       covered; residents barred from the pull pool; retired surfaces */
+    const VAC = CJ.vacancies || {};
+    const VACH = pull('VACANCIES', '{}'), OCCH = pull('OCCASIONS', '[]');
+    const vKeys = Object.keys(VAC.list || {});
+    for (const sid of vKeys) {
+      const v = VAC.list[sid];
+      if (!resIds.has(sid)) add(g, 'fail', 'crowd.json', null, `vacancy ${sid}: not a promoted resident id`);
+      if (promoOf[v.was] !== sid) add(g, 'fail', 'crowd.json', null, `vacancy ${sid}: was "${v.was}" doesn't round-trip to a promoted_to`);
+      if (!CJ.zones[v.venue]) add(g, 'fail', 'crowd.json', null, `vacancy ${sid}: unknown venue "${v.venue}"`);
+      if (!v.post || !v.read) add(g, 'fail', 'crowd.json', null, `vacancy ${sid}: missing post/read — the absence must read honestly`);
+      for (const k of Object.keys(v)) if (/refill|understudy|cover|expires|replacement/i.test(k))
+        add(g, 'fail', 'crowd.json', null, `vacancy ${sid}: "${k}" — a vacancy never refills, expires, or gets covered`);
+      const H = VACH[sid];
+      if (!H || H.was !== v.was || H.post !== v.post || H.venue !== v.venue || H.read !== v.read)
+        add(g, 'fail', 'crowd.html', null, `VACANCIES.${sid} drifted from crowd.json`);
+    }
+    for (const sid of Object.keys(VACH)) if (!vKeys.includes(sid))
+      add(g, 'fail', 'crowd.html', null, `VACANCIES.${sid} has no crowd.json counterpart`);
+    /* a vacated ambient's coverage entry must carry the vacated mark */
+    for (const [aid, sid] of Object.entries(promoOf)) {
+      const cv = (CJ.coverage || {})[aid];
+      if (!cv || cv.vacated !== sid) add(g, 'fail', 'crowd.json', null, `coverage ${aid}: missing vacated:"${sid}" — promotion is not a pull`);
+      const cvh = pull('COVERAGE', '{}')[aid];
+      if (cvh && cvh.vacated !== sid) add(g, 'fail', 'crowd.html', null, `COVERAGE.${aid} missing the vacated mark`);
+    }
+    /* retired surfaces: no courtesy beat or claimable resource may be
+       staffed by a promoted ambient — their gestures are brain-authored */
+    const retCtr = ['ctr-section', 'ctr-stool', 'ctr-flash'];
+    for (const b of (CJ.courtesies || {}).beats || []) {
+      if (promoOf[b.amb]) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: staffed by a promoted ambient — residents don't get canned beats`);
+      if (retCtr.includes(b.id)) add(g, 'fail', 'crowd.json', null, `courtesy ${b.id}: retired id respawned`);
+    }
+    for (const r of jRes) {
+      if (promoOf[r.staff]) add(g, 'fail', 'crowd.json', null, `resource ${r.id}: staffed by a resident — claims on a person are barred`);
+      if (r.id === 'res-needlepointe-chair') add(g, 'fail', 'crowd.json', null, 'res-needlepointe-chair retired in v127 — the chair is Bex\'s book');
+    }
+    if (!/never pullable|not people/.test((CJ.pull_protocol || {}).residents || ''))
+      add(g, 'fail', 'crowd.json', null, 'pull_protocol.residents missing — the bench borrows schedules, not people');
+    /* v127: the occasion layer — bounded opportunities as room tone */
+    const OCC = CJ.occasions || {};
+    const oShapes = OCC.shapes || [];
+    const jOcc = oShapes.map(o => o.id).sort(), hOcc = OCCH.map(o => o.id).sort();
+    if (JSON.stringify(hOcc) !== JSON.stringify(jOcc))
+      add(g, 'fail', 'crowd.html', null, 'OCCASIONS ids != occasions.shapes ids');
+    const dowOk = new Set(['mon','tue','wed','thu','fri','sat','sun']);
+    for (const o of oShapes) {
+      const H = OCCH.find(x => x.id === o.id);
+      if (H && (H.label !== o.label || H.zone !== o.zone || H.zm !== o.zone_mult))
+        add(g, 'fail', 'crowd.html', null, `OCCASIONS.${o.id} drifted`);
+      if (!CJ.zones[o.zone]) add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: unknown zone "${o.zone}"`);
+      if (!(o.zone_mult > 1 && o.zone_mult <= 1.4))
+        add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: zone_mult ${o.zone_mult} outside (1,1.4] — a lift, never a draw`);
+      for (const dp of (o.when || {}).dayparts || [])
+        if (!dpIds.includes(dp)) add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: unknown daypart "${dp}"`);
+      for (const d of (o.when || {}).dow || [])
+        if (!dowOk.has(d)) add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: bad dow "${d}"`);
+      if (!o.trace) add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: no trace — the aftermath read is the contract`);
+      for (const k of Object.keys(o)) if (/attend|uptake|score|rsvp|guest/i.test(k))
+        add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: "${k}" — the crowd never marks attendance`);
+      if (/secret|seed|briefing|must_not_know/i.test(JSON.stringify(o)))
+        add(g, 'fail', 'crowd.json', null, `occasion ${o.id}: meta vocabulary`);
+    }
+    g.detail = `schema v${CJ.version} · ${jz.length} zones · ${jFl.length} edges · ${jGr.length} pairs · ${jRes.length} resources · ${jA.length} rostered · ${jAnn.length} annual · ${jPos.length} postures · ${jCty.length} courtesies · ${Object.keys(jCov).length} coverage · ${jMth.length} mouths · ${jPul.length} pulses · ${vKeys.length} vacancies · ${jOcc.length} occasions`;
   } catch (e) { add(g, 'fail', 'crowd.json', null, 'parse/check failure: ' + e.message); }
 }
 

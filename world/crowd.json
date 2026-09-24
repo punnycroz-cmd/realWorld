@@ -1,5 +1,5 @@
 {
- "version": 113,
+ "version": 127,
  "updated": "2026-09-24",
  "spec": "world/crowd-sim.md is canonical prose; this file is the machine contract for the two-layer crowd. Named ambients resolve from ambients.json routines; extras are unnamed non-persistent background pawns (budgets below). v29 adds day shades, the flow layer, micro-texture, continuity rules, the appearance palette, and the greeting matrix. Conditions only — nothing here orders a pawn to do anything. v43 adds the ambient work zones (school/sfgeneral/folsom/auerbach/needlepointe/doloresperk — where the named layer actually spends its days) and ambient_resources — claimable sub-venue slots a request can book without locking the venue. v57 adds the shoulder conditions: the marine layer (fog as a depth profile with a burn-off hour and an all-day mode), afternoon wind, and season shades — the climate baseline the day shades and weather ride on. v71 adds the civic year (annual_shades — calendar-window budget conditions: Carnaval, game days, Día de los Muertos, the holiday lull) and the posture palette — the honest idle/dwell vocabulary extras and idle ambients hold (the content-side answer to 'Resting peacefully'). v85 adds the company layer (group_profile — extras spawn as lone/duo/cluster social units with family-shape safeguards, never solo particles) and the counter courtesies (named ambient ↔ anonymous extra pose exchanges — the greeting matrix's downstairs neighbor). v99 adds the bench layer — the pull protocol (how a request borrows a named ambient: window, capacity, bounds, minors never, in-role only) and the coverage map (what each ambient's post reads while borrowed — understudy extra, back-in-10 sign, or an honestly empty bench). v113 adds the mouths & pulses layer — mouths (the eight named spawn/despawn anchors that replace the bare 'edge': transit stairs, bus stops, the school gate, the garage ramp, the pickup curb, the stoops, the west edge), pulse_clocks (seven discrete arrival/departure lifts — train discharge, bus arrival, school bells, shift change, kitchen close, last call), and the leash (entry intents through/errand/dwell/cover plus per-mouth body conservation — the day is a closed loop).",
  "conventions": {
@@ -39,7 +39,9 @@
   "coverage": "v99 — per-ambient absence surface while pulled: kind understudy|sign|open|pack; the post never lies (a tarped stand reads tarped, never 'serving')",
   "mouths": "v113 — named spawn/despawn anchors; every extra enters/leaves through a live mouth, off-camera by position; a mouth is a point with a direction and a per-minute cap, never a zone",
   "pulse_clocks": "v113 — named discrete lifts on a mouth's flow (train/bus cadence, school bells, shift change, kitchen close, last call); budget arithmetic at the doorway, never a dispatch; internal vocabulary",
-  "leash": "v113 — entry intents (through/errand/dwell/cover) fix a unit's zone set and dwell window at spawn; despawn only at a mouth; per-mouth rolling-60min conservation keeps the day a closed loop"
+  "leash": "v113 — entry intents (through/errand/dwell/cover) fix a unit's zone set and dwell window at spawn; despawn only at a mouth; per-mouth rolling-60min conservation keeps the day a closed loop",
+  "vacancies": "v127 — permanent absences left by promotion: a promoted ambient's post is vacated, never covered; the venue keeps the function and loses the signature; no new regular is spawned to fill it (promotion.md is the only path to a named face)",
+  "occasions": "v127 — bounded opportunities as crowd conditions (the population-model half of drama.json bounded_opportunities): a live public invitation modestly lifts its venue's extras budget and leaves a next-daypart trace; extras orbit, never attend; the named layer answers by routine, never by dispatch"
  },
  "dayparts": [
   {
@@ -1180,13 +1182,14 @@
      "afternoon"
     ],
     "named": [
-     "A05",
+     "S2",
      "A19"
     ],
     "weather_not": [
      "rain",
      "storm"
-    ]
+    ],
+    "note": "S2 is a resident now — the bit fires when Esther *chooses* the bench next to Ray; a parliament of one is an honest read, and so is the bench empty"
    }
   },
   {
@@ -1231,9 +1234,10 @@
      "evening"
     ],
     "named": [
-     "A09"
+     "S3"
     ],
-    "zone": "mudhaus"
+    "zone": "mudhaus",
+    "note": "S3 Asha takes the counter seat as a person, not a pawn — some evenings she just goes home; the scene may simply not happen"
    }
   },
   {
@@ -1268,7 +1272,7 @@
    "label": "Parliament in exile",
    "when": {
     "named": [
-     "A05",
+     "S2",
      "A19"
     ],
     "zone": "doloresperk"
@@ -1783,7 +1787,7 @@
   "note": "29 silhouettes × 6 gaits; palette tints hashed per spawn — the same corner never casts the same crowd twice, the same extra never casts a face. v71 adds calendar telltales (jersey-cap, marigold-bag, folding-chair, umbrella-up) — a silhouette can hint the date, never a name. v85 adds kid-backpack — kid-scale vocabulary that exists only inside family clusters under group_profile.shapes.family; it can never spawn lone, pair with a lone adult, or enter a bar or the overnight/night dayparts."
  },
  "greeting_matrix": {
-  "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only",
+  "rule": "familiarity weights between named ambients (mains noted where a routine crosses); a 'hi' weight = likely ≤15 s visual beat on same-zone collision, gated on greetable states; never moves a routine; observable-safe — no seed content; minors greet in public groups only; v127: pairs may name a supporting resident (S-id, flagged resident:true) — the ambient greets a person by their own choice of presence, never a dispatched pawn",
   "weights": {
    "hi": "likely on collision",
    "lo": "rare — a beat worth noticing",
@@ -1791,13 +1795,14 @@
   },
   "pairs": [
    {
-    "a": "A05",
+    "a": "S2",
     "b": "A19",
     "weight": "hi",
-    "form": "bench-parliament nod — the day's argument resumed mid-sentence",
+    "form": "bench-parliament nod — the day's argument resumed mid-sentence — a resident now, greeted as a person",
     "zones": [
      "park"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A01",
@@ -1809,13 +1814,14 @@
     ]
    },
    {
-    "a": "A09",
+    "a": "S3",
     "b": "A01",
     "weight": "hi",
-    "form": "quiet counter recognition — scrubs acknowledged, not discussed",
+    "form": "quiet counter recognition — scrubs acknowledged, not discussed — a resident now, greeted as a person",
     "zones": [
      "mudhaus"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A06",
@@ -1850,32 +1856,35 @@
    },
    {
     "a": "A03",
-    "b": "A05",
+    "b": "S2",
     "weight": "hi",
-    "form": "the counter tab nod — decades of small transactions",
+    "form": "the counter tab nod — decades of small transactions — a resident now, greeted as a person",
     "zones": [
      "minimart"
-    ]
+    ],
+    "resident": true
    },
    {
-    "a": "A14",
+    "a": "S1",
     "b": "A08",
     "weight": "hi",
-    "form": "late-corner pause — smoke break meets pack-up",
+    "form": "late-corner pause — smoke break meets pack-up — a resident now, greeted as a person",
     "zones": [
      "club600",
      "park"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A11",
-    "b": "A05",
+    "b": "S2",
     "weight": "lo",
-    "form": "library-regular wave across the park",
+    "form": "library-regular wave across the park — a resident now, greeted as a person",
     "zones": [
      "park",
      "library"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A16",
@@ -1907,14 +1916,15 @@
     ]
    },
    {
-    "a": "A14",
+    "a": "S1",
     "b": "A18",
     "weight": "lo",
-    "form": "Clarion neighbors — flowers and flash sheets",
+    "form": "Clarion neighbors — flowers and flash sheets — a resident now, greeted as a person",
     "zones": [
      "clarion",
      "bloomdoom"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A12",
@@ -1927,12 +1937,13 @@
    },
    {
     "a": "A12",
-    "b": "A05",
+    "b": "S2",
     "weight": "none",
-    "form": "laps don't pause",
+    "form": "laps don't pause — a resident now, greeted as a person",
     "zones": [
      "park"
-    ]
+    ],
+    "resident": true
    },
    {
     "a": "A04",
@@ -2050,20 +2061,9 @@
      30
     ],
     "note": "Luz's first crate of the day — claimed by preorder, gone by 9; the stand sells around it"
-   },
-   {
-    "id": "res-needlepointe-chair",
-    "zone": "needlepointe",
-    "label": "the walk-in chair",
-    "staff": "A14",
-    "capacity": "one chair slot",
-    "window_min": [
-     60,
-     180
-    ],
-    "note": "Bex's walk-in chair — a claim holds the slot; flash only, nothing the sheet doesn't already show"
    }
-  ]
+  ],
+  "retired": "v127: res-needlepointe-chair retired — the walk-in chair is S1 Bex's appointment book now; claims on it would be claims on a person"
  },
  "annual_shades": {
   "rule": "named calendar-window conditions resolved AFTER season shades and BEFORE day shades; when an annual shade matches, the day_shades layer is suppressed for that day (the holiday owns the day) — weather still stacks on top. Evaluation: all clauses in a window must match (months/dom/dow/nth = nth occurrence of dow in month); 'windows' lists alternatives (first hit wins). Budget arithmetic only — no routine is ever changed, no pawn is summoned. Ids are internal vocabulary — the wire still says band words and scene labels.",
@@ -2709,18 +2709,6 @@
     "form": "rag down first, then the finger pointing under the hood"
    },
    {
-    "id": "ctr-flash",
-    "amb": "A14",
-    "zones": [
-     "needlepointe",
-     "clarion"
-    ],
-    "during": [
-     "work"
-    ],
-    "form": "the flash book opened to the right page first try"
-   },
-   {
     "id": "ctr-chord",
     "amb": "A08",
     "zones": [
@@ -2791,18 +2779,6 @@
     "form": "the charger pushed across the corner table — the outlet shared"
    },
    {
-    "id": "ctr-section",
-    "amb": "A05",
-    "zones": [
-     "park",
-     "doloresperk"
-    ],
-    "during": [
-     "sit"
-    ],
-    "form": "the offered section — paper passed sideways to a benchmate"
-   },
-   {
     "id": "ctr-crumbs",
     "amb": "A19",
     "zones": [
@@ -2813,19 +2789,9 @@
      "sit"
     ],
     "form": "a pinch of crumbs spared for a stranger's bold pigeon"
-   },
-   {
-    "id": "ctr-stool",
-    "amb": "A09",
-    "zones": [
-     "mudhaus"
-    ],
-    "during": [
-     "idle"
-    ],
-    "form": "the stool yielded — scrubs buy nothing extra, the seat does the talking"
    }
-  ]
+  ],
+  "retired": "v127: ctr-section / ctr-stool / ctr-flash retired with promotion — a resident's gestures are brain-authored, never canned beats; their counters don't get replacement choreography"
  },
  "pull_protocol": {
   "window_min": [
@@ -2842,7 +2808,8 @@
   "minors": "A04 and A20 are never pullable — a request naming them resolves as a decline; their rows never enter the pool",
   "role_bound": "the pull asks the role, not the person — Reyes can be borrowed as 'a barista at the counter', never as 'Reyes running an errand'; the ambient stays in-role per ambients.md co-star rules",
   "feed": "pulls are invisible on the wire — no event type, no attribution; spectators see the coverage read, not the loan",
-  "pipeline": "a pull enters the §11 request pipeline at the same step as a resource claim; exclusive-class only when the ask needs sole attention"
+  "pipeline": "a pull enters the §11 request pipeline at the same step as a resource claim; exclusive-class only when the ask needs sole attention",
+  "residents": "promoted residents (S-ids) are never pullable — the bench borrows schedules, not people; a request about a resident travels as a nudge through the ordinary §11 pipeline and may be declined"
  },
  "coverage": {
   "A01": {
@@ -2873,7 +2840,8 @@
    "post": "the north bench",
    "kind": "open",
    "understudy": "none",
-   "read": "the bench keeps her folded section — regulars read the empty seat as 'running late'"
+   "read": "the north bench is hers or empty — a resident chooses her mornings; nobody covers a person",
+   "vacated": "S2"
   },
   "A06": {
    "post": "the delivery spine",
@@ -2897,7 +2865,8 @@
    "post": "the counter seat",
    "kind": "open",
    "understudy": "none",
-   "read": "the seat just frees — she's only borrowable off-shift; the ward is never her cover"
+   "read": "the counter seat fills when a nurse decides it does — she's a customer now, not a fixture",
+   "vacated": "S3"
   },
   "A10": {
    "post": "the lift bay",
@@ -2927,7 +2896,8 @@
    "post": "the walk-in chair",
    "kind": "sign",
    "understudy": "none",
-   "read": "the chair holds its claim — a 'flash after 4' card rides the door"
+   "read": "the chair books by appointment with a person — 'flash after 4' is her call, not a claim window",
+   "vacated": "S1"
   },
   "A15": {
    "post": "the paper run",
@@ -3365,5 +3335,84 @@
   "conservation": "rolling 60-min window per mouth: outflow ≤ inflow + standing resident share — bodies balance at the mouths; the day is a closed loop and the spawner reconciles before it spawns",
   "unit_rule": "despawn honors the v85 unit — a unit leaves together, at a mouth, off-camera; through units exit a different mouth than they entered",
   "no_reentry": "a despawned extra stops existing — walk-chain costume continuity reuses silhouettes, never histories"
+ },
+ "vacancies": {
+  "rule": "promotion is a permanent absence, not a pull — the coverage read stays honest and never expires; a vacated post is never refilled with a new named regular (promotion.md is the only path to a named face); the venue loses the signature, keeps the function",
+  "list": {
+   "S1": {
+    "was": "A14",
+    "post": "the walk-in chair at Needlepointe",
+    "venue": "needlepointe",
+    "read": "the chair books by appointment now — a resident owns her hours; the 'flash after 4' card is hers to hang or not"
+   },
+   "S2": {
+    "was": "A05",
+    "post": "the north bench",
+    "venue": "park",
+    "read": "the bench is occupied when she chooses it — parliament of one some mornings; the folded section went home with her"
+   },
+   "S3": {
+    "was": "A09",
+    "post": "the counter seat",
+    "venue": "mudhaus",
+    "read": "the seat fills when a nurse decides it does — Reyes still knows the order, and the order belongs to a person now"
+   }
+  }
+ },
+ "occasions": {
+  "doc": "crowd-sim §34 — the population-model half of drama.json bounded_opportunities: a live public invitation deforms the extras budget the way weather does. Uptake belongs to characters; the crowd only makes the room plausible.",
+  "rules": [
+   "budget arithmetic only — an occasion lifts a venue's extras budget modestly (≤1.4) inside its window; it never dispatches a body, a pawn, or a person",
+   "extras orbit, never attend — no leash intent becomes 'participant'; an extra may dwell near an occasion, it may not join it",
+   "the named layer answers by routine — a main, resident, or ambient's presence at an occasion is their own; the crowd model never marks attendance",
+   "a pulse is never manufactured for an occasion — mouths and pulse clocks keep their schedules; occasions draw from existing traffic like a shade does",
+   "the trace is a read, not a residue — the next daypart may carry the aftermath detail (stacked chairs, taped edges); it never scores uptake and never names who came",
+   "sponsored invitations enter identically — a request-created occasion gets the same modesty cap and the same silence on the wire as an organic one"
+  ],
+  "shapes": [
+   {
+    "id": "occ-supper-table",
+    "label": "the shared supper table",
+    "zone": "elfarolote",
+    "when": {
+     "dayparts": [
+      "evening"
+     ],
+     "dow": [
+      "thu"
+     ]
+    },
+    "zone_mult": 1.2,
+    "posture_hint": "dwell units linger at the long table's edge; pair-chat share rises",
+    "trace": "the next lunch reads the folded leaves stacked by the door — last night's table put away"
+   },
+   {
+    "id": "occ-alley-wall",
+    "label": "the alley wall workday",
+    "zone": "clarion",
+    "when": {
+     "dow": [
+      "sat"
+     ],
+     "dayparts": [
+      "midday",
+      "lunch",
+      "afternoon"
+     ]
+    },
+    "zone_mult": 1.3,
+    "posture_hint": "watch-street and lean-wait postures at the alley mouth; the walk slows past fresh paint",
+    "trace": "evening reads taped edges and drop cloths — the wall half-done, nobody keeping score"
+   },
+   {
+    "id": "occ-cork-board",
+    "label": "the cork board",
+    "zone": "minimart",
+    "when": {},
+    "zone_mult": 1.05,
+    "posture_hint": "errand units pause at the board on the way out — a thirty-second browse",
+    "trace": "standing — the board is always up; flyers yellow at their own pace"
+   }
+  ]
  }
 }
