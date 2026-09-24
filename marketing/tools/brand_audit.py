@@ -253,6 +253,72 @@ def main():
         ok(f"language lint clean across {len(pages)} pages "
            f"(exempt: {', '.join(sorted(LINT_EXEMPT))})")
 
+    # 8. WCAG contrast — recompute every sanctioned text/background pair from
+    #    tokens.json (no trusting the doc). Two gates: (a) each pair must clear
+    #    its floor; (b) the computed "x.x:1" string must appear verbatim in
+    #    BRAND.md §5 so the published matrix can't drift from the truth.
+    #    paperwarm #f4f2ec is the email surface (§16), not a token.
+    def _lum(hexv):
+        h = hexv.lstrip("#")
+        c = [int(h[i:i + 2], 16) / 255 for i in (0, 2, 4)]
+        c = [v / 12.92 if v <= 0.04045 else ((v + 0.055) / 1.055) ** 2.4
+             for v in c]
+        return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2]
+
+    def _ratio(a, b):
+        la, lb = _lum(a), _lum(b)
+        return (max(la, lb) + 0.05) / (min(la, lb) + 0.05)
+
+    hexes = {k: c["value"] for k, c in tokens["color"].items()}
+    hexes["paperwarm"] = "#f4f2ec"
+    CONTRAST_FLOORS = [  # (fg, bg, minimum, why)
+        ("text", "bg", 7.0, "body text, AAA target"),
+        ("muted", "bg", 4.5, "secondary text, AA floor"),
+        ("accent", "bg", 3.0, "large text/UI only per §5 brand rule"),
+        ("text", "bg-2", 4.5, "body on raised surfaces"),
+        ("muted", "bg-2", 4.5, "secondary on raised surfaces"),
+        ("accent", "bg-2", 3.0, "accent on raised surfaces"),
+        ("text", "panel", 4.5, "body on cards"),
+        ("muted", "panel", 4.5, "secondary on cards"),
+        ("accent", "panel", 3.0, "accent on cards"),
+        ("ink", "accent", 4.5, "the only text on amber fills"),
+        ("bg", "accent-2", 3.0, "status fill label"),
+        ("bg", "accent-3", 3.0, "status fill label"),
+        ("ink", "paperwarm", 7.0, "email body ink, AAA"),
+        ("bg", "paperwarm", 7.0, "email headings, AAA"),
+    ]
+    brand_full = open(os.path.join(ROOT, "BRAND.md")).read()
+    for fg, bg, floor, why in CONTRAST_FLOORS:
+        r = _ratio(hexes[fg], hexes[bg])
+        tag = f"{r:.1f}:1"
+        if r < floor:
+            fail(f"contrast {fg} on {bg} = {tag} < {floor}:1 floor ({why})")
+        elif tag not in brand_full:
+            fail(f"contrast {fg} on {bg} = {tag} passes floor but BRAND.md §5 "
+                 f"doesn't state it — update the verified matrix")
+        else:
+            ok(f"contrast {fg} on {bg} = {tag} (floor {floor}:1, in BRAND.md)")
+    for fg, bg in [("text", "accent"), ("text", "accent-3"),
+                   ("muted", "paperwarm"), ("accent", "paperwarm")]:
+        r = _ratio(hexes[fg], hexes[bg])
+        if r >= 3.0:
+            warn(f"contrast {fg} on {bg} = {r:.1f}:1 — §5 lists this pair as "
+                 f"banned but it now clears 3:1; re-verify the ban")
+
+    # 8b. deck template palette parity — templates/deck/base.html embeds the
+    #     hexes directly (standalone file); it must not fork the palette.
+    deck = os.path.join(ROOT, "templates", "deck", "base.html")
+    if not os.path.exists(deck):
+        fail("templates/deck/base.html missing — BRAND.md §18 cites it")
+    else:
+        body = open(deck).read()
+        missing = [h for k, h in hexes.items()
+                   if k != "paperwarm" and h.lower() not in body.lower()]
+        if missing:
+            fail(f"deck template missing palette hexes: {', '.join(missing)}")
+        else:
+            ok("deck template carries the full palette")
+
     print(f"\n{len(fails)} fail / {len(warns)} warn")
     sys.exit(1 if fails else 0)
 

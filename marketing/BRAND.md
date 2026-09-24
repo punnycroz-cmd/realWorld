@@ -1,6 +1,6 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v100 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v115 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
 Word-level rules (which terms, which casing, which bans) live in
 `marketing/BRAND-LEXICON.md` — this file wins on voice/palette/logo/motion,
 the lexicon wins on vocabulary; keep both in sync.
@@ -173,10 +173,30 @@ The palette is the Mission at dusk: wet asphalt, warm windows, fog.
 Amber is the hero accent — green and red appear at most once per composition
 (exactly as the icon's 3×3 grid uses them: one green, one red, one amber).
 
-**Contrast (WCAG, on `--bg`):** paper `#ece7dc` ≈ 15:1 (AAA); fog `#9aa0ae`
-≈ 5.6:1 (AA); amber `#e8a04c` ≈ 7.4:1 for large text/UI (AA large) — never set
-amber body text under 18 px. Green/red are decorative only; never carry meaning
-alone.
+**Contrast (WCAG 2.1, computed — not estimated).** `tools/brand_audit.py`
+check 8 recomputes these from `brand-tokens.json` on every run and fails if a
+palette edit drops a pair below its floor or this table drifts from the truth:
+
+| Text on dark | on Asphalt `--bg` | on Sidewalk `--bg-2` | on Facade `--panel` |
+|---|---|---|---|
+| Paper `#ece7dc` | 14.7:1 AAA | 13.5:1 AAA | 13.2:1 AAA |
+| Fog `#9aa0ae` | 6.9:1 AA | 6.4:1 AA | 6.2:1 AA |
+| Amber `#e8a04c` | 8.2:1 AAA | 7.6:1 AAA | 7.4:1 AAA |
+
+| Accent fills | Ratio | Rule |
+|---|---|---|
+| Ink `#1a1206` on amber | 8.4:1 AAA | The only text color on amber fills (CTAs, badges) |
+| Asphalt on green / red | 5.5:1 / 5.0:1 | Status fills; never carry meaning by color alone |
+
+**Banned pairs (verified unreadable):** Paper on amber 1.8:1, Paper on red
+2.9:1, Fog on green 1.3:1 — text never sits directly on an accent fill except
+Ink on amber. On Paper-warm `#f4f2ec` (email, §16): Ink 16.6:1 and Asphalt
+16.2:1 are AAA, but Fog 2.3:1 and amber 2.0:1 are unreadable — light surfaces
+take dark ink only, no Fog body text, no amber text.
+
+**Brand rule stricter than WCAG:** amber never sets body text under 18 px even
+though 8.2:1 would allow it — amber is the lit window, not a text color.
+Green/red are decorative only; never carry meaning alone.
 
 **Light contexts:** the palette is dark-first. On light/white surfaces use
 `logo-primary-dark.svg` (ink `#14161c` wordmark) — never invert the standard
@@ -483,3 +503,36 @@ enforcement doc; `base.html` is the only sanctioned skeleton).
   them.
 - Every shipped page/post is accountable to §10. The dry-run script checks
   mechanics; this file is the human gate for meaning.
+
+---
+
+## 18. Presentation & deck identity
+
+Pitches, partner meetings, festival submissions, and press briefings all need
+slides — and a slide deck is a brand surface like any other. The sanctioned
+skeleton is `marketing/templates/deck/base.html` (hand-rolled, zero
+dependencies, keyboard-navigable, prints one slide per page for PDF export);
+rules live in `marketing/templates/deck/README.md`. Headlines:
+
+- **Dark-first, always.** Slides are Asphalt `#14161c` with Paper text — a
+  projected deck is the block at night. Never a light deck, never a gradient
+  background, never a template theme.
+- **One amber element per slide** — a rule, a number, a name, the lit window.
+  More than one and the eye stops trusting it (same rule as §12 text cards).
+- **Screenshots sit on a `--bg` plate** with a Cornice hairline and a
+  "development build" caption (§8) — never full-bleed, never with the logo
+  lockup on top of them.
+- **Chart colors in token order:** amber → green → red → fog, then repeat.
+  Data ink is Paper; gridlines Cornice. No other hues enter the deck.
+- **Type ramp:** title slide wordmark ≥ 48 px equivalent; section statements
+  one sentence, ≤ 12 words; body bullets ≤ 6 words each, max 5 per slide —
+  decks are read at distance.
+- **The end slide is the end card** (§12): icon or breathing icon on `--bg`,
+  one approved tagline, held. No contact-info stuffing — the boilerplate
+  (§11) goes in the speaker notes or the follow-up email, not on the slide.
+- **Number honesty travels to slides:** every stat on a deck slide must trace
+  to the same sources §10 requires for copy. A chart of projected revenue is
+  labeled PROPOSAL like the monetization plan; a resident count is 28 because
+  the world ships 28.
+- **Motion between slides is a cut.** If the deck tool supports transitions,
+  they stay off — the block sets the pace.

@@ -1,16 +1,16 @@
 {
   "$schema": "https://design-tokens.github.io/community-group/format/",
   "name": "Real World — The Mission brand tokens",
-  "version": "41.0",
+  "version": "42.0",
   "canonical_source": "marketing/BRAND.md — when this file and BRAND.md disagree, BRAND.md wins; fix this file in the same commit",
   "color": {
     "bg":        { "value": "#14161c", "name": "Asphalt",          "role": "page background" },
     "bg-2":      { "value": "#1b1e27", "name": "Sidewalk",         "role": "raised surfaces" },
     "panel":     { "value": "#1d2029", "name": "Facade",           "role": "cards, logo tile interior" },
     "border":    { "value": "#2c303c", "name": "Cornice",          "role": "hairlines, frames, parapets" },
-    "text":      { "value": "#ece7dc", "name": "Paper",            "role": "body text on dark", "contrast_on_bg": "15:1 AAA" },
-    "muted":     { "value": "#9aa0ae", "name": "Fog",              "role": "secondary text, nav", "contrast_on_bg": "5.6:1 AA" },
-    "accent":    { "value": "#e8a04c", "name": "Café-light amber", "role": "primary accent, lit window, CTAs", "contrast_on_bg": "7.4:1 AA large — never body text under 18px" },
+    "text":      { "value": "#ece7dc", "name": "Paper",            "role": "body text on dark", "contrast_on_bg": "14.7:1 AAA" },
+    "muted":     { "value": "#9aa0ae", "name": "Fog",              "role": "secondary text, nav", "contrast_on_bg": "6.9:1 AA" },
+    "accent":    { "value": "#e8a04c", "name": "Café-light amber", "role": "primary accent, lit window, CTAs", "contrast_on_bg": "8.2:1 AAA — brand rule still bans body text under 18px" },
     "accent-2":  { "value": "#4f9d69", "name": "Park green",       "role": "secondary accent, success states" },
     "accent-3":  { "value": "#d4645c", "name": "Mural red",        "role": "sparingly: alerts, one window in the mark" },
     "ink":       { "value": "#1a1206", "name": "Ink on amber",     "role": "text/icons on accent fills" }
