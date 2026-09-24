@@ -13128,3 +13128,188 @@ fail.
 
 → false-memory.md Part XI §§129–139; spec v5.72
 §§6.340–6.350; probes P1341–P1351.
+
+## 256. v127 probe specs (P1352–P1365 — individual-
+differences XI, the chart nobody shows)
+
+All arms reuse the P-series harness: profile mint →
+controlled event battery → report-level scoring.
+Unless stated, "field" = record field completeness on
+the canonical ledger, "report" = emitted output.
+
+- **P1352 dyslexia dissociation (MUST, dissociation-
+  lock):** `dyslex`=1 profile vs control, matched
+  heard narrative battery → equal gist accuracy
+  (±5%), name/verbatim fields −0.25..−0.35, `order`-
+  class fields −0.35..−0.45; ≥15% of events mint an
+  offload note (`dys_comp_p`); retrieval legs on
+  stored records bit-equal (`dys_gist_null`,
+  `dys_sem_null`). Swanson 2009; Staels & Van den
+  Broeck 2017.
+- **P1353 deaf reweighting (SHOULD, parity-lock):**
+  `deaf_sign` vs hearing profile on seen-channel
+  battery → total record strength within ±5%
+  (`deaf_total_null`), `w_people`/place fields
+  denser; heard battery mints ONLY under
+  `heard_vicariously`; co-mint with `hear` rejected
+  at sampling. Rönnberg 2004.
+- **P1354 vision rescue arm (MUST, rescue-lock):**
+  `vision`=1 corrected vs uncorrected arms →
+  corrected arm returns ≥`vis_correct_rescue` of
+  (a)+(b) legs; social drag decays slower than the
+  perceptual legs; `dual_sensory` arm shows additive
+  uncapped legs; gist intact (`vis_gist_null`).
+  Lin M.Y. 2013; Maharani 2018 (DEBATED leg).
+- **P1355 stroke step+slope (MUST, step-lock):**
+  `stroke_hist`=2 event mint → `age_eff` +4.0,
+  new-learning rate drops acutely, next-sim-year
+  control-layer slope steeper ~15%; semantic and
+  procedural probes flat (`stroke_sem_null`,
+  `stroke_pro_null`); `stroke_side:L` haircut
+  measurable on verbal fields of pre-event records.
+  Levine 2015.
+- **P1356 epilepsy material-lock (SHOULD, gap-lock):**
+  `epilep_side:L` verbal-field deficit ≈2× spatial
+  leg; `seizure:true` produces a zero-record window
+  ±`ep_gap_min` (gap-leg probe reads the ledger for
+  absence, not distortion); `aed_burden`=1 raises
+  TOT rate; stacked `stroke_side`+`epilep_side`
+  haircut ≤0.6. Bell 2011; Mula 2012.
+- **P1357 HAND ordering (SHOULD, order-lock):**
+  `hiv_hist`=1 legs ordered speed > attention >
+  episodic (0.2/0.15/0.08); `on_art` arm ~0.5× all
+  legs; complaint report < objective deficit
+  (`hiv_monitor_low` — the `scd` inversion).
+  Heaton 2010; Sacktor 2018 (magnitude DEBATED —
+  probe tests ordering not absolute size).
+- **P1358 post-viral dose order (MUST, dose-lock):**
+  arms {persistent sev2, hospitalized, resolved,
+  never} score ordered persistent > hospitalized >
+  resolved > never on objective legs; resolved arm
+  converges to short-case level at `pv_recover_tau`
+  (365d — no switch, `pv_sudden_null`); complaint
+  report vs objective corr ≤0.4
+  (`pv_complaint_null`). Hampshire 2024; Douaud 2022.
+- **P1359 CFS complaint gap (MUST, complaint-lock):**
+  `cfs_state`=1 → objective legs ≤0.3 SD-equivalent,
+  complaint ≥2×; within-bout encode efficiency
+  declines with min_in_bout (fatigability leg) while
+  same records' cross-day strength flat
+  (`cfs_ep_null`). Cockshell & Mathias 2010.
+- **P1360 B12 rescue (MUST, rescue-lock):** untreated
+  `b12_state`=1 mints thin records (enc −0.2);
+  `b12_treated` arm restores ≥`b12_resid_frac` of
+  legs within `b12_rescue_tau`; >2yr deficiency arm
+  keeps residue; retrieval of thin-minted records
+  clean (`b12_ret_null`). Allen 2009; Moorthy 2012.
+- **P1361 thyroid stage cap (SHOULD, cap-lock):**
+  stage-1 (subclinical) legs all ≤0.05
+  (`thy_sub_null`); stage-2 reverses ≥90% on
+  `thy_treated`; complaint premium ×1.8 at both
+  stages. Ritchie & Yeap 2015; Akintola 2015.
+- **P1362 air-pollution two-clock (MUST, clock-lock):**
+  sustained `aqi_annual`≥80 accrues `airpoll_age_k`
+  slope only (no per-event `age_eff` step —
+  `air_loc_null`); `aqi_day`>150 → same-day
+  attention tax resetting next day; stacked with
+  `smoker`, total environmental slope ≤
+  `exposure_slope_cap`; inter-individual spread at
+  matched exposure = 0 (`air_ind_null`). Weuve 2012.
+- **P1363 SAD mediation-lock (MUST, mediation-lock):**
+  `sad_state`=2 with `depr` overlay DISABLED → zero
+  memory legs (`sad_direct_null`); overlay enabled →
+  fractional-strength §4.86 legs appear. The
+  mediation is the finding; a direct leg is a fail.
+- **P1364 postop recovery (MUST, recovery-lock):**
+  `postop`=1 legs decay to ≤10% residual by
+  3×`postop_recover_tau`; ~10% of mints keep a 1.0
+  `age_eff` step (`postop_resid_p`); zero mints
+  under age_eff 50 (`postop_young_null`); `delirium`
+  and `postop` mints are independent on one surgery.
+  Monk 2008; Evered 2018.
+- **P1365 mandated-null battery (MUST, ban-lock):**
+  `fast_state`/`glp1_state` carriers produce bit-
+  identical legs vs non-carriers at matched
+  everything; any nonzero `fast_*`/`glp1_*` param is
+  a harness fail; `multivit` arm differs from
+  control ONLY on `beta_episodic` slope ≥60
+  (`mv_exec_null`, `mv_level_null`). Benau 2014;
+  Vyas 2024.
+
+Probe registry: P1–P1365. v127 MUST: P1352, P1354,
+P1355, P1358, P1359, P1360, P1362, P1363, P1364,
+P1365 (all locked-null legs). SHOULD: P1353, P1356,
+P1357, P1361. P1357's magnitude arm is a DEBATED-
+literature readout — ordering failure is a harness
+fail, size disagreement downgrades to reprice.
+
+## 257. Sources verified this version (P1352–P1365
+backing)
+
+- **Dyslexia WM signature (CONSENSUS):** **Swanson,
+  Zheng & Jerman 2009** (*Read. Writ.* — verbal STM
+  meta); **Staels & Van den Broeck 2017** (serial-
+  order deficit); Beneventi et al. 2010 (gist
+  preserved); Shaywitz phonological tradition. →
+  `dys_*`, `dys_gist_null`, `dys_sem_null`.
+- **Deaf signers' memory (CONSENSUS direction):**
+  **Rönnberg, Rudner & Ingvar 2004** (*Scand. J.
+  Psychol.* — visuospatial WM superior, episodic ≥);
+  Wilson & Emmorey (sign-phonology loop); Cardin
+  2018. → `deaf_*`, `deaf_total_null`.
+- **Vision effortfulness (CONSENSUS direction,
+  rescue DEBATED):** **Lin M.Y. et al. 2013**
+  (*JAMA Intern. Med.*); Zheng 2018 meta;
+  Pichora-Fuller 2016 (framework); Maharani 2018
+  (cataract cohorts — DEBATED rescue). → `vis_*`.
+- **Stroke trajectory (CONSENSUS):** **Levine et al.
+  2015** (*JAMA* 314:41 — verified, REGARDS
+  N=23,572: acute step + faster exec slope);
+  laterality textbook. → `stroke_*`.
+- **Epilepsy memory (CONSENSUS clinical):** **Bell,
+  Lin, Seidenberg & Hermann 2011**; Mula 2012 (AED
+  burden); ictal amnesia textbook. → `ep_*`.
+- **HAND (CONSENSUS existence, magnitude DEBATED):**
+  **Heaton et al. 2010** (*J. Neurovirol.* — CHARTER);
+  Sacktor 2018 (suppression-era rates contested).
+  → `hiv_*`.
+- **Post-COVID cognition (CONSENSUS direction):**
+  **Hampshire et al. 2024** (*NEJM* 390:806 —
+  verified, N=112,964: −0.23/−0.42/−0.35 SD dose
+  order, memory+reasoning+exec most sensitive);
+  **Douaud et al. 2022** (*Nature* — structural).
+  → `pv_*`.
+- **ME/CFS objective deficit (CONSENSUS small):**
+  **Cockshell & Mathias 2010** (meta — speed/att
+  ~0.1–0.3 SD, episodic near-normal). → `cfs_*`.
+- **B12 (CONSENSUS reversible):** **Allen 2009**;
+  Moorthy 2012. → `b12_*`.
+- **Thyroid (dir. CONSENSUS, size small):** Ritchie &
+  Yeap 2015; Akintola 2015 meta (subclinical weak).
+  → `thy_*`, `thy_sub_null`.
+- **Air pollution (dir. CONSENSUS, magnitude ours):**
+  **Weuve et al. 2012** (*Arch. Intern. Med.* —
+  verified); Ailshire & Clarke 2015; Cleland 2022
+  (wildfire acute — DEBATED). → `airpoll_*`, `aq_*`.
+- **SAD mediation (thin literature):** seasonal
+  mood-dip findings; inconsistent direct-memory
+  season effects → mediation-only pricing,
+  `sad_direct_null` is the falsifiable edge.
+- **POCD (CONSENSUS direction, persistence DEBATED):**
+  **Monk et al. 2008** (*Anesthesiology* 108:18 —
+  verified direction); Evered et al. 2018
+  (nomenclature). → `postop_*`.
+- **Multivitamin (DEBATED):** **Vyas et al. 2024**
+  (*Am. J. Clin. Nutr.* — verified, COSMOS meta
+  N≈5,200: episodic +0.06–0.12 SU ≈ 2y; exec/att
+  null); PHS-II null longer. → `mv_*`, null pair.
+- **Fasting (CONSENSUS null):** **Benau et al. 2014**
+  (*Physiol. Behav.* meta — acute effects scatter
+  ~0). → `fast_*` locked zero.
+- **GLP-1 (pending):** EVOKE program; LEADER/REWIND
+  cognition substudies underpowered → two-sided
+  locked null `glp1_*` with explicit revisit
+  trigger.
+
+→ individual-differences.md Part XI §§143–163; spec
+v5.73 §§6.351–6.366; probes P1352–P1365.

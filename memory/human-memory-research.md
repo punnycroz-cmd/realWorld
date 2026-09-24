@@ -5715,3 +5715,89 @@ probes P1341–P1351.
 
 → false-memory.md Part XI §§129–142; spec v5.72
 §§6.340–6.350; validation §§254–255.
+
+## 102. The medical chart as a memory layer (v127
+survey — what the clinic knows that the trait layer
+didn't)
+
+v127's individual-differences work priced conditions
+that sit below the personality layer and above the
+acute-state layer — documented, mechanism-mapped,
+and mostly invisible to the character. Survey of the
+literature classes used:
+
+- **Neurodevelopmental signatures (CONSENSUS):**
+  dyslexia's phonological-loop + serial-order
+  signature (Swanson, Zheng & Jerman 2009 meta;
+  Staels & Van den Broeck 2017) — a lifetime trait
+  that thins name/verbatim/order fields while gist
+  survives intact; deaf signers' channel reweighting
+  (Rönnberg, Rudner & Ingvar 2004) — visuospatial
+  superiority with episodic parity, the cleanest
+  existence proof that memory "capacity" is
+  channel-relative, not scalar.
+- **Sensory economics (CONSENSUS direction):**
+  vision joins hearing under the effortfulness
+  framework (Pichora-Fuller 2016; Lin M.Y. 2013;
+  Zheng 2018) — degraded input spends encoding
+  resources AND supplies worse retrieval cues, so
+  the visual tax compounds where the auditory one
+  doesn't; rescue evidence is weaker than ACHIEVE
+  (Maharani 2018 cohorts, no RCT).
+- **Lesion bookkeeping (CONSENSUS):** Levine 2015
+  (REGARDS) separates stroke's acute acquisition
+  step from its accelerated executive slope — two
+  different ledger entries, not one "decline";
+  epilepsy adds the material-specific field lock
+  (Bell 2011) plus the true zero-record window
+  (ictal gaps) plus a drug-side word-finding tax
+  (Mula 2012).
+- **Subcortical signature (CONSENSUS ordering,
+  magnitude DEBATED):** HAND's speed>attention>
+  episodic ordering (Heaton 2010 CHARTER; Sacktor
+  2018 correction) — the pattern where control-
+  layer legs move and stores stay flat, with
+  under-reporting (the `scd` inversion).
+- **Post-viral bookkeeping (CONSENSUS direction,
+  residue DEBATED):** Hampshire 2024 (NEJM, verified)
+  gives the dose order — persistent > hospitalized >
+  resolved > never — and the crucial finding that
+  resolved persistent cases score like short cases;
+  Douaud 2022's structural residue justifies a
+  small permanent step. Weak symptom-deficit
+  correlation priced literally (`pv_corr` 0.3).
+- **Complaint-vs-deficit dissociations (CONSENSUS
+  pattern, third+ instances):** ME/CFS (Cockshell &
+  Mathias 2010), hypothyroid (Ritchie & Yeap 2015;
+  Akintola 2015), and HAND all show complaint and
+  objective legs decoupled in different directions —
+  the model now has complaint premium, complaint
+  parity, and complaint discount all priced.
+- **Environmental slope traits (dir. CONSENSUS,
+  magnitudes ours):** PM2.5/AQI (Weuve 2012; Ailshire
+  & Clarke 2015; Cleland 2022) priced as cumulative
+  exposure→slope + acute same-day attention — the
+  "why was everyone forgetful that orange week"
+  mechanism, with all environmental slopes sharing
+  `exposure_slope_cap`.
+- **Honest reversibles (CONSENSUS):** B12 (Allen
+  2009) and overt hypothyroid give the model's
+  first genuinely treatable legs — treatment flags
+  kill legs at their taus toward rescue fractions;
+  `rev_state_cap` prevents stacked reversible-cause
+  taxes from zeroing a character.
+- **The supplement boundary (DEBATED):** COSMOS
+  (Vyas 2024, verified) is the strongest supplement
+  RCT signal ever published — and it's +0.06 SD,
+  priced as a ≥60 slope damp with its own domain
+  null honored literally (`mv_exec_null`).
+- **Mandated nulls six and seven:** acute fasting
+  (Benau 2014 meta) and GLP-1 agonists (EVOKE
+  pending) — both parameter-level bans with explicit
+  revisit triggers; glp1's is two-sided because the
+  "fog" complaint claim is as unlicensed as the
+  benefit claim.
+
+→ individual-differences.md Part XI §§143–163; spec
+v5.73 §§6.351–6.366; validation §§256–257
+(P1352–P1365).

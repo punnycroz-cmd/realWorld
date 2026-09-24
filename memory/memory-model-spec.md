@@ -1,4 +1,71 @@
-# Memory Model Spec v5.72 — implementable human-like memory for RW characters
+# Memory Model Spec v5.73 — implementable human-like memory for RW characters
+
+> **v5.73 note (individual-differences XI — the chart
+> nobody shows):** `memory/individual-differences.md`
+> Part XI (§§143–163) prices the medical-history layer:
+> the deficits that were always there, the injuries
+> that leave a chart entry, the air you can't choose,
+> the small reversibles — plus mandated nulls six and
+> seven. **The loop that never buffered** — `dyslex`
+> taxes phonological/name/verbatim and serial-order
+> fields, gist preserved, compensation routing via
+> `dys_comp_p` offload notes (Swanson 2009; Staels &
+> Van den Broeck 2017); locked `dys_gist_null`/
+> `dys_sem_null`. **A different buffer** — `deaf_sign`
+> reweights channels (visuospatial/face gain, heard
+> dead-zone), equal-strength records; `deaf_sign` ⊘
+> `hear` forbidden co-mint (Rönnberg 2004); locked
+> `deaf_total_null`. **The eye that spends** —
+> `vision` mirrors `hear`'s three legs on seen-channel
+> + visual cue-match; `vis_corrected` rescue 0.5
+> (DEBATED — no RCT); `dual_sensory` additive
+> (Lin M.Y. 2013; Pichora-Fuller 2016); locked
+> `vis_gist_null`. **The lesion on the record** —
+> `stroke_hist` = `age_eff` step (4.0y at sev 2) +
+> faster control-layer slope + material-side field
+> haircut (Levine 2015); locked `stroke_sem_null`/
+> `stroke_pro_null`. **The interruption and the pill**
+> — `epilep` material-lock + `seizure:true` zero-
+> record gaps + `aed_burden` TOT tax (Bell 2011;
+> Mula 2012); locked `ep_ret_null`. **The controlled
+> infection's residue** — `hiv_hist` subcortical
+> ordering speed>att>epi, `on_art` halves, complaint
+> under-reports (Heaton 2010; Sacktor 2018 DEBATED);
+> locked `hiv_sem_null`. **The fog that mostly lifts**
+> — `post_viral` dose-ordered (resolved −0.2,
+> persistent −0.35 at sev 2), `pv_recover_tau` 365d,
+> `pv_var_k` era-scaling, small `pv_resid` step
+> (Hampshire 2024; Douaud 2022); locked
+> `pv_sudden_null`/`pv_complaint_null` (complaint-legs
+> corr ≤0.4). **The deficit that won't sit still** —
+> `cfs_state` speed-bound + NEW `cfs_fatigue` in-bout
+> decline leg + complaint premium (Cockshell &
+> Mathias 2010); locked `cfs_ep_null`. **The cheap
+> fix** — `b12_state` enc/att taxes, treated rescue
+> 0.8 at 90d (Allen 2009); locked `b12_ret_null`.
+> **The weak-signal complaint** — `thyroid_state`
+> stage-capped legs (subclinical ≤0.05 — locked
+> `thy_sub_null`), complaint premium, near-full
+> rescue (Ritchie & Yeap 2015). **The air you can't
+> choose** — `air_poll` cumulative exposure →
+> `age_eff` slope 0.2y/yr at poll 2 + `aqi_day`>150
+> same-day attention tax (Weuve 2012; Cleland 2022);
+> locked `air_loc_null`/`air_ind_null`. **The winter
+> that borrows through mood** — `sad_state` is a
+> fractional driver INTO the `depr` overlay ONLY;
+> locked `sad_direct_null` (mediation-lock, P1363).
+> **The surgery that lingers** — `postop` enc/speed
+> taxes, 90d tau, 10% residual step, no mint <50
+> (Monk 2008); locked `postop_young_null`. **The pill
+> that almost works** — `multivit` ≥60 slope-damp on
+> beta_episodic only (Vyas 2024 COSMOS, DEBATED);
+> locked `mv_exec_null`/`mv_level_null`. **Two more
+> refusals** — `fast_null` (Benau 2014) and
+> `glp1_null` (two-sided, EVOKE pending) are
+> parameter-level bans. §§6.351–6.366; §7 +34
+> scalars +8 authored traits +2 caps +17 locked
+> nulls +states/fields; §10 contract; probes
+> P1352–P1365.
 
 > **v5.72 note (false-memory XI — the social-credit
 > layer):** `memory/false-memory.md` Part XI (§§129–139)
@@ -17171,6 +17238,221 @@ normalization pass is a contract violation; `s_true`
 exists only in the canonical ledger for probe
 scoring, never emitted.
 
+### 6.351 The loop that never buffered — `dys_*` (new in v5.73)
+
+ID§143; **Swanson, Zheng & Jerman 2009** (verbal STM
+~0.5–0.9 SD); **Staels & Van den Broeck 2017**
+(serial-order, not item storage); Beneventi 2010.
+
+On profiles with `dyslex` ∈[0,2]: name/verbatim/
+`auditory`-channel fields on heard events mint
+×(1 − `dys_phon_tax`·d) (0.3); `order`-class fields
+mint ×(1 − `dys_serial_tax`·d) (0.4); with prob
+`dys_comp_p`·d (0.15) an offload/written note
+mints alongside. Locked `dys_gist_null`/`dys_sem_null`
+(P1352): gist strength and all retrieval legs
+untouched — thin fields, full-strength record.
+
+### 6.352 A different buffer — `deaf_*` (new in v5.73)
+
+ID§144; **Rönnberg, Rudner & Ingvar 2004**;
+Wilson & Emmorey; Cardin 2018.
+
+`deaf_sign` ∈{0,1}: `w_sensory`/`place` cue-match on
+seen-channel events ×(1+`deaf_vsp_gain`) (0.15);
+`w_people` density +`deaf_face_gain` (0.1); heard
+events mint only under `heard_vicariously`.
+Sampling excludes `hear` (R=−1.0 structural).
+Locked `deaf_total_null` (P1353): matched-salience
+record strength/count equal to hearing profiles —
+the axes reweight, they never shrink.
+
+### 6.353 The eye that spends — `vis_*` (new in v5.73)
+
+ID§145; **Lin M.Y. et al. 2013**; Pichora-Fuller
+2016 (cross-sensory effortfulness); Maharani 2018
+(rescue DEBATED).
+
+`vision` ∈[0,2]: seen-channel E ×(1−`vis_effort_tax`·v)
+(0.15, lands on visual-detail fields); visual cue-
+match ×(1−`vis_cue_tax`·v) (0.2); `social` effective
+−=`vis_social_drag`·v (0.2). `vis_corrected:true`
+rescues `vis_correct_rescue` (0.5) of legs (a)+(b).
+`vision`+`hear` coexist → `dual_sensory` flag: legs
+add, uncapped. Locked `vis_gist_null` (P1354).
+
+### 6.354 The lesion on the record — `stroke_*` (new in v5.73)
+
+ID§146; **Levine et al. 2015** (verified, REGARDS —
+acute step + faster executive slope).
+
+`stroke_hist` ∈[0,2]: at mint `age_eff` +=
+`stroke_step_k`·sev (4.0 at sev 2, forward-step
+ledger); subsequent `pspeed`/`att_ctl`-routed legs
+×(1+`stroke_slope_k`·sev/yr) (0.15); `stroke_side`
+∈{L,R} applies one-time `stroke_mat_tax` (0.2)
+field-completeness haircut on the side-locked
+material class of pre-event records. Locked
+`stroke_sem_null`/`stroke_pro_null` (P1355):
+semantic and procedural stores flat.
+
+### 6.355 The interruption and the pill — `ep_*`/`aed_*` (new in v5.73)
+
+ID§147; **Bell, Lin, Seidenberg & Hermann 2011**
+(left-TLE verbal memory, replicated); Mula 2012
+(topiramate-class fluency).
+
+`epilep` ∈[0,2] + `epilep_side` ∈{L,R}: side-locked
+material fields mint ×(1−`ep_mat_tax`) (0.25),
+lifetime. `seizure:true` → zero-record window
+±`ep_gap_min` (30 sim-min). `aed_burden` ∈[0,1]
+drives TOT/word-finding legs ×`ep_aed_tax` (0.2)
+through §5.139 machinery. Locked `ep_ret_null`
+(P1356): pre-gap records retrieve clean; stacked
+with `stroke_side`, material haircuts cap at 0.6.
+
+### 6.356 The controlled infection's residue — `hiv_*` (new in v5.73)
+
+ID§148; **Heaton et al. 2010** (CHARTER); Sacktor
+2018 (suppression-era magnitude DEBATED).
+
+`hiv_hist` ∈[0,2]: `pspeed`/`search_breadth` legs
+×(1−`hiv_speed_tax`) (0.2); attention-gated fields
+×(1−`hiv_att_tax`) (0.15); `beta_episodic` leg
+×(1−`hiv_epi_small`) (0.08 — deliberately smallest);
+`on_art:true` multiplies all ×`hiv_art_mult` (0.5);
+complaint surface ×`hiv_monitor_low` (0.8 — under-
+report). Locked `hiv_sem_null` (P1357).
+
+### 6.357 The fog that mostly lifts — `pv_*` (new in v5.73)
+
+ID§149; **Hampshire et al. 2024** (verified, NEJM
+REACT — dose-ordered, resolved recovers);
+Douaud et al. 2022.
+
+`post_viral` ∈{none,resolved,persistent} + `pv_sev`
+∈[0,2]: while persistent, enc_base+exec legs
+×(1−`pv_fog_tax`) (0.2), ×(1−`pv_persist_tax`)
+(0.35) at sev 2; late-variant infections scale legs
+×`pv_var_k` (0.6); on resolve, legs decay at
+`pv_recover_tau` (365d); residue `age_eff` +=
+`pv_resid`·sev (0.5 at sev 2). Locked
+`pv_sudden_null`/`pv_complaint_null` (P1358):
+recovery is a tau; complaint-vs-objective corr ≤0.4.
+
+### 6.358 The deficit that won't sit still — `cfs_*` (new in v5.73)
+
+ID§150; **Cockshell & Mathias 2010** (meta — speed/
+attention, small SD); complaint-premium pattern.
+
+`cfs_state` ∈[0,2] overlay: `cfs_speed_tax` (0.25),
+`cfs_att_tax` (0.15), `cfs_epi_small` (0.1); in-bout
+decline — attention/encode legs ×(1−`cfs_fatigue`
+·min_in_bout/60) (0.3); complaint ×`cfs_complaint`
+(2.0). Shares fatigability with `post_viral` at max
+coefficient, stacks enc taxes. Locked `cfs_ep_null`
+(P1359): long-haul episodic strength normal.
+
+### 6.359 The cheap fix — `b12_*` (new in v5.73)
+
+ID§151; **Allen 2009**; Moorthy 2012 (prevalence,
+reversibility).
+
+`b12_state` ∈[0,2]: enc_base ×(1−`b12_enc_tax`·b)
+(0.2); wmc-loadings ×(1−`b12_att_tax`·b) (0.15);
+`b12_treated:true` decays legs at `b12_rescue_tau`
+(90d) toward `1−b12_resid_frac` (0.8; residue only
+if deficiency ran >2 sim-yr). Locked `b12_ret_null`
+(P1360).
+
+### 6.360 The weak-signal complaint — `thy_*` (new in v5.73)
+
+ID§152; Ritchie & Yeap 2015; Akintola 2015
+(subclinical weak/inconsistent).
+
+`thyroid_state` ∈{0,1,2}: enc ×(1−`thy_enc_tax`
+·stage/2) (0.1 at 2, 0.04 at 1); speed ×(1−
+`thy_speed_small`·stage/2) (0.08); complaint
+×`thy_complaint` (1.8); `thy_treated:true` → legs
+to `thy_resid` (0.1). Locked `thy_sub_null`
+(P1361): stage-1 single-parameter legs ≤0.05.
+
+### 6.361 The air you can't choose — `airpoll_*`/`aq_*` (new in v5.73)
+
+ID§153; **Weuve et al. 2012** (verified — ~2y/10µg
+PM10 decade); Ailshire & Clarke 2015; Cleland 2022
+(wildfire acute, DEBATED).
+
+`air_poll` ∈[0,2] cumulative (world `aqi_annual`
+history): sustained ≥`aqi_thresh` (80) accrues
+`airpoll_age_k` (0.2 age-yr/sim-yr at poll 2);
+`aqi_day`>150 → same-day attention-gated encode
+×(1−`aq_day_tax`) (0.1), resets next day.
+Environmental-slope sources share
+`exposure_slope_cap` (0.4 age-yr/yr with `smoker`
+et al.). Locked `air_loc_null`/`air_ind_null`
+(P1362): no per-event step; no invented
+susceptibility spread.
+
+### 6.362 The winter that borrows through mood — `sad_*` (new in v5.73)
+
+ID§154; thin direct literature → mediation-priced.
+
+`sad_state` ∈[0,2] adds `sad_mood_w`·s (0.3)
+fractional weight INTO the §4.86 `depr` overlay —
+all legs (enc tax, overgenerality) arrive via that
+channel at fractional strength. Locked
+`sad_direct_null` (P1363): overlay disabled →
+zero legs. The mediation IS the model.
+
+### 6.363 The surgery that lingers — `postop_*` (new in v5.73)
+
+ID§155; **Monk et al. 2008** (verified direction —
+~40% discharge, ~10–13% at 3mo ≥60); Evered 2018.
+
+World `surgery:true` mints `postop` ∈[0,2] with
+probability scaled by `postop_age_w` (≈0 under
+age_eff 50); legs `postop_enc_tax` (0.3) +
+`postop_speed_tax` (0.25) decay at
+`postop_recover_tau` (90d); `postop_resid_p` (0.1)
+of mints keep a permanent `age_eff` step (1.0).
+Distinct mint from `delirium` (§111) — both may
+fire on one surgery. Locked `postop_young_null`
+(P1364).
+
+### 6.364 The pill that almost works — `mv_*` (new in v5.73)
+
+ID§156; **Vyas et al. 2024** (verified, COSMOS —
+episodic +0.12 SD clinic / +0.06 meta ≈ 2y;
+exec/att null).
+
+`multivit` ∈{0,1} gated `mv_age_gate` (age_eff≥60):
+`beta_episodic` ×(1−`mv_slope_gain`) (0.05 slope
+damp). DEBATED tag — one trial family. Locked
+`mv_exec_null`/`mv_level_null` (P1365): no exec/
+attention leg, no level effect on stored records.
+
+### 6.365 The sixth refusal — `fast_*` (new in v5.73)
+
+ID§157; **Benau et al. 2014** (meta — acute
+fasting effects scatter ~0).
+
+`fast_state` {0,1} may exist as a world flag;
+`fast_enc_leg`, `fast_decay_leg`, `fast_clear_leg`
+are locked 0.0. Any nonzero param minted under
+`fast_*` fails P1365.
+
+### 6.366 The seventh refusal — `glp1_*` (new in v5.73)
+
+ID§158; EVOKE pending; LEADER/REWIND cognition
+substudies underpowered — two-sided null.
+
+`glp1_state` {0,1} may sit on the med list;
+`glp1_enc_leg`, `glp1_slope_leg`, `glp1_fog_leg`
+locked 0.0. Neither benefit nor fog claim is
+licensed; revisit trigger = human cognition-
+primary RCTs. Fails P1365 on any nonzero leg.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -19561,6 +19843,64 @@ MemoryParams = {
 //   commit_priv_null (private emissions don't freeze
 //   — P1350); contrib_sum_null (reported shares may
 //   exceed 1.0 — P1351).
+// v5.73 additions (individual-differences XI —
+//   ID§§143–163, the chart nobody shows)
+"dys_phon_tax": 0.3, "dys_serial_tax": 0.4,
+"dys_comp_p": 0.15,                                // §6.351
+"deaf_vsp_gain": 0.15, "deaf_face_gain": 0.1,      // §6.352
+"vis_effort_tax": 0.15, "vis_cue_tax": 0.2,
+"vis_social_drag": 0.2, "vis_correct_rescue": 0.5, // §6.353
+"stroke_step_k": 4.0, "stroke_slope_k": 0.15,
+"stroke_mat_tax": 0.2,                             // §6.354
+"ep_mat_tax": 0.25, "ep_gap_min": 30,
+"ep_aed_tax": 0.2,                                 // §6.355
+"hiv_speed_tax": 0.2, "hiv_att_tax": 0.15,
+"hiv_epi_small": 0.08, "hiv_art_mult": 0.5,
+"hiv_monitor_low": 0.8,                            // §6.356
+"pv_fog_tax": 0.2, "pv_persist_tax": 0.35,
+"pv_recover_tau": 365, "pv_var_k": 0.6,
+"pv_resid": 0.5, "pv_corr": 0.3,                   // §6.357
+"cfs_speed_tax": 0.25, "cfs_att_tax": 0.15,
+"cfs_epi_small": 0.1, "cfs_fatigue": 0.3,
+"cfs_complaint": 2.0,                              // §6.358
+"b12_enc_tax": 0.2, "b12_att_tax": 0.15,
+"b12_rescue_tau": 90, "b12_resid_frac": 0.8,       // §6.359
+"thy_enc_tax": 0.1, "thy_speed_small": 0.08,
+"thy_complaint": 1.8, "thy_resid": 0.1,            // §6.360
+"airpoll_age_k": 0.2, "aqi_thresh": 80,
+"aq_day_tax": 0.1, "exposure_slope_cap": 0.4,      // §6.361
+"sad_mood_w": 0.3,                                 // §6.362
+"postop_enc_tax": 0.3, "postop_speed_tax": 0.25,
+"postop_recover_tau": 90, "postop_resid_p": 0.1,
+"postop_age_w": 1.0,                               // §6.363
+"mv_age_gate": 60, "mv_slope_gain": 0.05,          // §6.364
+"rev_state_cap": 0.5,                              // §159 cap
+// v5.73 authored traits: `dyslex` ∈[0,2];
+//   `deaf_sign` ∈{0,1} (⊘`hear`); `vision` ∈[0,2]
+//   (age-correlated); `stroke_hist` ∈[0,2] +
+//   `stroke_side` ∈{L,R}; `epilep` ∈[0,2] +
+//   `epilep_side` ∈{L,R}; `hiv_hist` ∈[0,2];
+//   `air_poll` ∈[0,2] (derived from residence);
+//   `multivit` ∈{0,1} (≥60 only).
+// v5.73 states: `post_viral` {none,resolved,
+//   persistent} + `pv_sev` ∈[0,2]; `cfs_state`,
+//   `b12_state` (+`b12_treated`), `postop`,
+//   `sad_state`, `aed_burden`, `aqi_day`,
+//   `thyroid_state` {0,1,2} (+`thy_treated`),
+//   `fast_state`, `glp1_state` (legs locked 0);
+//   flag `dual_sensory`; field class `order`
+//   (serial-sequence fields on records).
+// v5.73 locked nulls: dys_gist_null, dys_sem_null
+//   (P1352); deaf_total_null (P1353); vis_gist_null
+//   (P1354); stroke_sem_null, stroke_pro_null
+//   (P1355); ep_ret_null (P1356); hiv_sem_null
+//   (P1357); pv_sudden_null, pv_complaint_null
+//   (P1358); cfs_ep_null (P1359); b12_ret_null
+//   (P1360); thy_sub_null (P1361); air_loc_null,
+//   air_ind_null (P1362); sad_direct_null (P1363);
+//   postop_young_null (P1364); mv_exec_null,
+//   mv_level_null + fast_* + glp1_* bans (P1365).
+//   All snapshot-additive; absent = legacy.
 // v5.70 additions (age-decline XI — AgD§§153–162)
 "auto_freq_flat": true,                               // §4.84
 "selfrel_keep": 1.0,                                  // §4.85
@@ -22517,6 +22857,88 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.73 additions (individual-differences.md §§143–163
+  — the medical-history layer):
+  - **Dyslexia contract (§6.351):** taxes land on
+    name/verbatim/auditory and `order`-class fields
+    only; `dys_comp_p` mints offload notes, never
+    boosts strength. `dys_gist_null`/`dys_sem_null`
+    (P1352): the record keeps full strength.
+  - **Deafness contract (§6.352):** `deaf_sign`
+    reweights channels; heard mints only under
+    `heard_vicariously`; sampling R=−1.0 vs `hear`.
+    `deaf_total_null` (P1353): equal record strength
+    at matched salience.
+  - **Vision contract (§6.353):** effort + cue legs
+    compound; `vis_corrected` rescues 0.5 of (a)+(b),
+    social drag decays slower. `dual_sensory` is
+    additive, uncapped. `vis_gist_null` (P1354).
+  - **Stroke contract (§6.354):** step writes to the
+    forward-step `age_eff` ledger once; slope leg is
+    control-layer only; `stroke_side` haircut is a
+    one-time field-completeness pass on pre-event
+    records of the locked material class.
+    `stroke_sem_null`/`stroke_pro_null` (P1355).
+  - **Epilepsy contract (§6.355):** `seizure:true`
+    mints a true zero-record window ±`ep_gap_min`;
+    `aed_burden` rides §5.139 TOT machinery.
+    `ep_ret_null` (P1356): pre-gap records clean;
+    material haircuts with `stroke_side` cap 0.6.
+  - **HAND contract (§6.356):** legs ordered
+    speed>att>epi by construction; `on_art` halves;
+    complaint surface under-reports.
+    `hiv_sem_null` (P1357).
+  - **Post-viral contract (§6.357):** dose order
+    persistent > hospitalized > resolved > none;
+    recovery decays at `pv_recover_tau`, never
+    switches; `pv_var_k` scales by infection era.
+    `pv_sudden_null`/`pv_complaint_null` (P1358):
+    complaint-vs-objective corr ≤0.4.
+  - **CFS contract (§6.358):** `cfs_fatigue` declines
+    legs WITHIN a bout; cross-day record strength
+    unaffected. `cfs_ep_null` (P1359); complaint
+    premium ≥2×.
+  - **Reversible-deficiency contract (§§6.359–6.360):**
+    `b12`/`thyroid` legs die on treatment flags at
+    their taus toward rescue fractions; `b12_ret_null`
+    (P1360); `thy_sub_null` (P1361) caps stage-1
+    legs ≤0.05. Reversible-cause attention taxes
+    share `rev_state_cap` (0.5 stacked).
+  - **Air contract (§6.361):** cumulative exposure
+    accrues `age_eff` slope; `aqi_day`>150 is a
+    same-day attention tax that resets. All
+    environmental slopes share `exposure_slope_cap`.
+    `air_loc_null`/`air_ind_null` (P1362).
+  - **SAD contract (§6.362):** `sad_state` writes
+    weight into the §4.86 `depr` overlay only.
+    `sad_direct_null` (P1363): overlay off → zero
+    legs; mediation is the model.
+  - **Postop contract (§6.363):** event-minted,
+    age-gated, tau-recovering; `postop_resid_p` tail
+    keeps a 1.0 age_eff step. `postop_young_null`
+    (P1364): no mint under 50.
+  - **Vitamin contract (§6.364):** `multivit` damps
+    `beta_episodic` slope ≥60 only. `mv_exec_null`/
+    `mv_level_null` (P1365).
+  - **Refusal contracts (§§6.365–6.366):** `fast_*`
+    and `glp1_*` param namespaces are locked at 0.0 —
+    parameter-level bans with revisit triggers, not
+    biology claims (P1365).
+  - **Locked boundaries game-systems must honor:**
+    `dys_gist_null`, `dys_sem_null`,
+    `deaf_total_null`, `vis_gist_null`,
+    `stroke_sem_null`, `stroke_pro_null`,
+    `ep_ret_null`, `hiv_sem_null`, `pv_sudden_null`,
+    `pv_complaint_null`, `cfs_ep_null`,
+    `b12_ret_null`, `thy_sub_null`, `air_loc_null`,
+    `air_ind_null`, `sad_direct_null`,
+    `postop_young_null`, `mv_exec_null`,
+    `mv_level_null`, `fast_*`/`glp1_*` bans.
+  - **New params (§7):** 34 scalars + 8 authored
+    traits + 11 states/flags + 2 caps
+    (`rev_state_cap`, `exposure_slope_cap`) + 17
+    locked nulls + field class `order`.
+  - Probes P1352–P1365.
 - v5.72 additions (false-memory.md §§129–139 — the
   social-credit layer):
   - **Credibility contract (§6.340):** `cred_est` is a

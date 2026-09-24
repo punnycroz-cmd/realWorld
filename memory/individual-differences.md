@@ -5788,3 +5788,775 @@ validation-design §235)
   direction not magnitude. `kin_type` dose-
   ordering follows attachment research convention,
   not a single graded study.
+
+# Part XI — v127: the chart nobody shows (the deficits that were
+# always there, the injuries that leave a chart entry, the air
+# you can't choose, the winter, the small reversibles, the pill
+# that almost works, and two more refusals)
+
+Parts I–X priced the person: traits, states, habits, history.
+What was still missing is the **medical chart the character
+never reads** — conditions that are real individual differences
+with real memory signatures, priced the same way as everything
+else: mechanism-first, direction from consensus, magnitude from
+the best available number, and a locked null wherever the
+popular claim outruns the evidence. Two mandated nulls close
+the part (§§157–158) because 2026's loudest memory claims are
+exactly the ones a Mission District cast would believe.
+
+All sources verified where marked **verified**; effect sizes
+quoted are the published point estimates, our prices are the
+model-side linearizations and are flagged as ours.
+
+## 143. `dyslex` — the loop that never buffered (trait,
+lifetime)
+
+**Consensus:** developmental dyslexia carries a specific,
+material-locked working-memory signature: phonological-loop
+verbal STM is reliably depressed (~0.5–0.9 SD in meta-
+analysis — Swanson, Zheng & Jerman 2009, *Read. Writ.* —
+the largest, most stable effect), **serial-order** recall
+suffers more than item recall (Staels & Van den Broeck
+2017 — order reconstruction, not storage, is the weak leg),
+while gist extraction, visuospatial material, and semantic
+access are essentially normal (Beneventi et al. 2010; the
+"gist preserved" reading is standard in the phonological-
+deficit tradition, Shaywitz). Complaint structure inverts
+`scd`: dyslexic adults often *under*report a deficit they
+have routed around for decades.
+
+**Model:** `dyslex` ∈ [0,2] trait (bible-authored; present
+since encodeAge < 10 — see §146 interaction). Legs:
+(a) **phonological tax** — `w_people` name fields,
+verbatim-quote fields, and `auditory` channel items on
+heard events ×(1 − `dys_phon_tax`·d) (0.3 — names and
+exact wording thin first); (b) **serial tax** — order/
+sequence fields (`order` field class, instructions,
+multi-step errands) ×(1 − `dys_serial_tax`·d) (0.4 —
+the literature's strongest leg); (c) **compensation
+routing** — with prob `dys_comp_p`·d (0.15) a written-
+channel note/`offload` record is minted alongside a heard
+event (the dyslexic adult photographs the menu, asks for
+it in writing — acquired coping, not a memory gain).
+**Locked `dys_gist_null`:** gist, gist-confidence, and
+semantic store untouched — same strength records with
+thinner verbatim/order fields. **Locked `dys_sem_null`:**
+retrieval of what's already stored is clean — the tax is
+at the door (encoding), not the vault.
+
+## 144. `deaf_sign` — a different buffer, not a smaller one
+(trait)
+
+**Consensus:** early/congenital deafness in fluent signers
+does NOT produce a global memory deficit — it produces a
+**reweighted** memory. Rönnberg, Rudner & Ingvar 2004
+(*Scand. J. Psychol.* review): deaf signers show
+*superior* visuospatial working memory and equivalent or
+better episodic memory for visual material; auditory-
+loop tasks (digit span for spoken lists) are irrelevant
+to them, and sign-based STM shows its own phonological-
+analog effects (Wilson & Emmorey — sign phonology loads
+the same loop). Cardin et al. 2018 — plasticity is
+channel-reallocating, not capacity-shrinking.
+
+**Model:** `deaf_sign` ∈ {0,1} trait (bible-authored —
+a deaf main or promoted resident is plausible casting).
+Legs: (a) **visuospatial bonus** — `w_sensory` and
+spatial/`place` cue-match weights on *seen* events ×(1 +
+`deaf_vsp_gain`) (0.15 — small, CONSENSUS direction);
+(b) **face/gaze fidelity** — `w_people` fields on
+co-present events mint denser (`deaf_face_gain` 0.1 —
+signing is a face-language; attention to faces is
+literal); (c) **heard-channel dead zone** — `channel:
+"heard"` events mint ONLY if world-flagged
+`heard_vicariously` (subtitles, written relay); the
+`hear` trait is FORBIDDEN on the same profile (category
+error — see §159). **Locked `deaf_total_null`:** total
+record strength at matched salience is equal — a deaf
+character forgets on the same curves; only the input
+channels' weights differ.
+
+## 145. `vision` — the eye that spends like the ear (trait/
+state pair)
+
+**Consensus direction, rescue debated:** uncorrected
+visual impairment associates with accelerated cognitive
+decline, mirroring `hear`'s triply-routed mechanism —
+effortful seeing taxes encoding (Pichora-Fuller et al.
+2016's effortfulness framework generalizes across
+senses), degraded input thins visual source/context
+fields, and impairment drives withdrawal (Lin M.Y. et
+al. 2013, *JAMA Intern. Med.* — visual impairment +
+worse cognition co-track; Zheng et al. 2018 meta —
+HR ~1.4 for impairment→decline). Correction rescue is
+DEBATED: Maharani et al. 2018 (cataract-surgery cohorts,
+*PLoS One*) found post-surgery slopes resemble unimpaired
+controls, but no ACHIEVE-grade RCT exists for vision.
+
+**Model:** `vision` ∈ [0,2] — the effortfulness mirror
+of `hear`. Legs: (a) `vis_effort_tax` (0.15) on seen-
+channel E, landing on visual-detail/appearance fields;
+(b) `vis_cue_tax` (0.2) on visual cue-match at retrieval
+(worse-encoded visual cues reinstate worse — the tax
+compounds, unlike `hear`'s which is encode-only);
+(c) `vis_social_drag` (0.2) — same withdrawal mediator.
+`vis_corrected:true` (glasses fitted / cataract done —
+world state) rescues `vis_correct_rescue` (0.5 — priced
+above `hear_aid_rescue` because optical correction is
+immediate, not rehabilitative; DEBATED tag retained).
+`hear`+`vision` coexist → `dual_sensory` flag: legs
+(a)+(b) of both ADD (no cap — dual sensory loss is
+super-additive in the literature, but we refuse the
+extra multiplier and take the under-estimate as honest
+loss). **Locked `vis_gist_null`** — same carve as
+`hear_gist_null`.
+
+## 146. `stroke_hist` — the lesion on the record
+(trait-history + step)
+
+**Consensus:** incident stroke produces an **acute
+cognitive step** plus a **faster subsequent slope** —
+not a return to the old trajectory. Levine et al. 2015
+(*JAMA* 314:41 — verified, REGARDS N=23,572, median 6.1y
+follow-up): acute decline in global cognition and new
+learning at event; survivors then decline *faster* on
+global cognition (0.06 pts/yr) and executive function
+(0.63 pts/yr) vs their prestroke slope — the step is
+on acquisition, the slope is on control. Laterality is
+material-specific by textbook (left→verbal, right→
+visuospatial), and the event itself is typically poorly
+remembered (peri-event amnesia — ICU/`hosp` precedent).
+
+**Model:** `stroke_hist` ∈ [0,2] trait (severity-scaled,
+bible-authored — a survivor among the older mains is
+realistic). Three legs: (a) **step** — at event,
+`age_eff` += `stroke_step_k`·sev (4.0 age-yr at sev=2
+— the acute acquisition cost converted to the forward-
+step ledger, same mechanism as `hosp_step`/`delir_step`);
+(b) **slope** — `pspeed`/`att_ctl`-routed legs ×(1 +
+`stroke_slope_k`·sev/yr) (0.15 — Levine's executive-
+function excess, routed through control-layer legs, NOT
+a beta change); (c) **laterality** — world supplies
+`stroke_side` ∈{L,R}: verbal fields take a one-time
+field-completeness haircut `stroke_mat_tax` (0.2) on
+records encoded pre-event retrieval of the affected
+material class (old records aren't erased — their
+material-locked fields thin, CONSENSUS aphasia-
+adjacent). **Locked `stroke_sem_null`:** semantic
+store untouched; **locked `stroke_pro_null`:** procedural
+records untouched (procedural learning is robustly
+spared post-stroke — the survivor still knows HOW to
+cook; they learn new recipes slower).
+
+## 147. `epilep` — the interruption and the pill (trait +
+state)
+
+**Consensus:** chronic epilepsy — especially mesial
+temporal lobe epilepsy — carries material-specific
+episodic deficits matching the `stroke_side` lateral
+split (Bell, Lin, Seidenberg & Hermann 2011 review:
+verbal-memory deficit in left TLE is among the most
+replicated findings in neuropsychology), PLUS a
+recurrent **ictal encoding hole** around seizures
+(retrograde loss for the minutes prior, anterograde
+gap during/after — the event literally doesn't mint).
+Antiseizure-medication burden adds a second, drug-side
+tax — topiramate-class agents hit verbal fluency/word-
+finding at ~0.3–0.5 SD (Mula 2012 review; phenytoin/
+carbamazepine milder).
+
+**Model:** `epilep` ∈ [0,2] trait; `epilep_side` ∈{L,R}
+(material routing identical to §146's). Legs:
+(a) material tax `ep_mat_tax` (0.25) on the side-locked
+field class, lifetime-persistent — minted thin from
+childhood forward; (b) **ictal holes** — world fires
+`seizure:true` → an encoding gap `ep_gap_min` (±30
+sim-min) where no records mint at all (the only
+mechanism in the model that produces a true zero-
+record window besides sleep/blackout); (c) **drug
+tax** — `aed_burden` ∈[0,1] state → word-finding
+fields on heard/verbal records ×(1 − `ep_aed_tax`·b)
+(0.2 — TOT-rate rides §5.139 machinery, not a new
+mechanism). **Locked `ep_ret_null`:** retrieval of
+pre-gap records clean — the holes are encode-time.
+
+## 148. `hiv_hist` — the controlled infection's residue
+(trait-history)
+
+**Consensus:** HIV-associated neurocognitive disorder
+(HAND) in the ART era is attenuated but not gone:
+~30–50% of virally-suppressed patients show measurable
+impairment in the classic papers (Heaton et al. 2010,
+*J. Neurovirol.* — CHARTER; Sacktor 2018 update
+contested whether suppression-era rates are that high —
+DEBATED magnitude), concentrated in **processing speed,
+attention, and working memory** — episodic-store and
+semantic-store measures are the LEAST affected domains.
+The pattern is the subcortical signature: slow and
+thin, not amnestic. Self-report under-predicts the
+deficit (patients are poor monitors of HAND).
+
+**Model:** `hiv_hist` ∈ [0,2] trait-history (suppression
+era, Mission-plausible biography). Legs routed to the
+subcortical signature: (a) `hiv_speed_tax` (0.2) on
+pspeed-loadings and `search_breadth`; (b) `hiv_att_tax`
+(0.15) on attention-gated fields (the thin-encoding
+signature); (c) `hiv_epi_small` (0.08) on beta_episodic
+— deliberately the SMALLEST leg (the literature's own
+ordering); `hiv_art_mult` (0.5) multiplies all three
+down when `on_art:true` (suppression halves the legs —
+Sacktor-consistent middle price); (d) `hiv_monitor_low`
+(0.8) — complaint surface reports LESS than the
+objective deficit (the `scd` inversion). **Locked
+`hiv_sem_null`** — semantic/procedural untouched.
+
+## 149. `post_viral` — the fog that mostly lifts (state +
+residue)
+
+**Consensus direction, persistence debated:** objective
+post-COVID cognitive deficits are real but modest, and
+**dose-ordered by severity and symptom persistence**.
+Hampshire et al. 2024 (*NEJM* 390:806 — verified,
+REACT N=112,964 completers): recovered cases −0.23 SD
+global cognition vs never-infected; unresolved-persistent
+−0.42 SD; hospitalized −0.35 SD; early-variant infections
+worse than later (−0.17 SD step); **memory, reasoning,
+and executive tasks most sensitive**; deficits correlate
+only weakly with reported "brain fog". Douaud et al.
+2022 (*Nature* — UK Biobank pre/post imaging): small
+gray-matter changes even after mild infection. Resolution
+under recovery is genuinely unclear (the resolved-
+persistent group scored like short cases — encouraging).
+
+**Model:** `post_viral` state {none, resolved, persistent}
++ `pv_sev` ∈[0,2] severity tag (hospitalized=2). Legs:
+`pv_fog_tax` (0.2) on enc_base + executive-routed legs
+while state=persistent; `pv_persist_tax` (0.35) at sev=2
+— the dose-ordered top of the range; on state→resolved,
+legs decay over `pv_recover_tau` (365 days — the
+persistent group's recovery lag, priced optimistic per
+Hampshire's resolved-arm result); `pv_var_k` (0.6)
+scales legs down for late-variant infections (2023+
+infection = 0.6× the tax — the variant step is in the
+data). Residue: `age_eff` += `pv_resid`·sev (0.5 age-yr
+at sev=2 — a small permanent step, DEBATED; Douaud's
+structural finding justifies a nonzero residue).
+**Locked `pv_sudden_null`:** no overnight improvement —
+recovery is a tau, not a switch; **locked
+`pv_complaint_null`:** complaint surface and objective
+legs decorrelate (`pv_corr 0.3` — the study's weak
+symptom-deficit correlation priced literally; the
+character who complains least may carry the most fog).
+
+## 150. `cfs_state` — the deficit that won't sit still
+(state, complaint-heavy)
+
+**Consensus:** ME/CFS objective deficits are real but
+small and speed-bound: Cockshell & Mathias 2010
+meta-analysis (~0.1–0.3 SD, concentrated in processing
+speed and attention/WM; episodic-store measures near-
+normal); the subjective complaint is much larger than
+the measurable deficit (the `scd`/`menop` complaint
+premium pattern, third instance), and effort*maintenance*
+is the fragile leg — deficits grow WITHIN a session
+(fatigability), not across days.
+
+**Model:** `cfs_state` ∈ [0,2] overlay state (world-
+supplied; often co-mints with `depr`). Legs:
+`cfs_speed_tax` (0.25), `cfs_att_tax` (0.15),
+`cfs_epi_small` (0.1 — episodic deliberately smallest);
+**fatigability leg** — within-encounter decline:
+attention/encode legs ×(1 − `cfs_fatigue`·min_in_bout/
+60) (`cfs_fatigue` 0.3 — a character whose third hour
+of the party encodes at half the first; NEW shape —
+the literature's signature, not in any prior part);
+`cfs_complaint` (2.0) complaint premium. **Locked
+`cfs_ep_null`** — long-haul episodic records are
+normal-strength; the fog is in the day's efficiency,
+not the vault.
+
+## 151. `b12_state` — the cheap fix (state, reversible)
+
+**Consensus:** B12 deficiency (~6% under 60, up to ~20%
+of older adults — Allen 2009, *Nat. Rev. Cancer*;
+Moorthy et al. 2012) produces a real, dose-related
+encoding/attention deficit that is **substantially
+reversible with supplementation** when caught early —
+one of the few genuinely treatable memory-relevant
+conditions. Chronic untreated deficiency leaves residue.
+
+**Model:** `b12_state` ∈ [0,2] state (world supplies;
+Mission-typical routes: vegan without supplements,
+metformin, age>65 malabsorption). Legs: `b12_enc_tax`
+(0.2) on enc_base and attention-gated fields;
+`b12_att_tax` (0.15) on wmc-loadings. On
+`b12_treated:true`: legs decay at `b12_rescue_tau`
+(90 days) toward `1 − b12_resid_frac` (0.8 rescue —
+20% residue if the deficiency ran >2 sim-years,
+else full). **Locked `b12_ret_null`** — retrieval/
+stores clean; the deficiency mints thin records, it
+doesn't corrupt kept ones.
+
+## 152. `thyroid_state` — the complaint with a weak
+signal (state)
+
+**Consensus-ish, effect size small:** overt hypothyroidism
+impairs memory/attention and reverses with treatment;
+*subclinical* hypothyroidism — the common case — shows
+weak, inconsistent cognitive associations (Ritchie &
+Yeap 2015 review; Akintola et al. 2015 meta — subclinical
+effects at best ~0.1 SD, likely partly confounded).
+The complaint exceeds the objective deficit reliably.
+
+**Model:** `thyroid_state` ∈ {0 none, 1 subclinical,
+2 overt} state. Legs scale by stage: `thy_enc_tax`
+(0.1 at stage 2, 0.04 at stage 1 — honestly small);
+`thy_speed_small` (0.08); `thy_complaint` (1.8 — the
+complaint premium); on `thy_treated:true` legs decay
+to `thy_resid` (0.1 → near-full rescue). **Locked
+`thy_sub_null`:** stage-1 (subclinical) legs may not
+exceed 0.05 on any single parameter — the literature
+can't support more and we refuse the creep.
+
+## 153. `air_poll` — the air you can't choose
+(trait-history + acute state)
+
+**Consensus direction, magnitude debated:** long-term
+PM2.5/PM10 exposure associates with faster cognitive
+decline — Weuve et al. 2012 (*Arch. Intern. Med.*,
+Nurses' Health Study N=19,409 — verified direction):
+~2 extra years of aging per 10 µg/m³ PM10 long-term
+contrast; Ailshire & Clarke 2015 (fine particulate
+× cognition); wildfire-smoke spikes acutely impair
+attention-day performance (Cleland et al. 2022). The
+effect is a *slope* term, not a level — nobody wakes
+up demented from a bad-AQI week, and confounding
+(geography, SES) is real.
+
+**Model:** `air_poll` ∈ [0,2] cumulative exposure trait
+(the substrate integrates world-supplied `aqi_annual`
+history — a decade in the Central Valley scores
+differently than a decade on the coast). Legs:
+(a) **slope** — sustained exposure ≥ `aqi_thresh`
+(80) accrues `airpoll_age_k` (0.2 age-yr/sim-yr at
+poll=2 — Weuve's ~2yr/decade priced mid-range);
+(b) **acute** — `aqi_day` > 150 → same-day
+`aq_day_tax` (0.1) on attention-gated encoding (the
+smoke-day tax: characters encode worse on orange-sky
+days and mostly never know why); recovery is next-day,
+no residue per event. **Locked `air_loc_null`:** the
+acute leg is attention, never a step on `age_eff`;
+**locked `air_ind_null`:** no within-day heterogeneity
+beyond the shared tax — the literature gives no
+individual susceptibility model, we don't invent one.
+
+## 154. `sad_state` — the winter that borrows through
+mood (state, mediated)
+
+**Consensus direction, effect small:** seasonal mood
+dips (subclinical SAD) measurably slow effortful
+processing; the *memory-specific* literature is thin —
+what's documented is a mood-mediated encoding drag,
+not a seasonal memory syndrome (season-of-testing
+effects in large batteries are inconsistent; Morken
+et al. and population cohorts find small winter dips
+in speed/attention more than episodic accuracy).
+
+**Model:** `sad_state` ∈ [0,2] state (world supplies
+season+latitude; SF mild). Legs route ENTIRELY through
+the mood channel: `sad_state` adds to `depr`-lite
+weight `sad_mood_w` (0.3 — a shallower `depr` overlay
+sharing §4.86 legs, including the encoding tax and
+overgenerality at fractional strength). **Locked
+`sad_direct_null`:** no direct encode/decay leg —
+remove the mood pathway and `sad_state` does nothing
+(the honest reading: the season is a cause of mood,
+mood is the cause of the memory effect; priced as
+mediation, testable as mediation — P1363).
+
+## 155. `postop` — the surgery that lingers for weeks
+(state, mostly reversible)
+
+**Consensus direction, persistence debated:** post-
+operative cognitive dysfunction is real, common in
+older patients, and mostly resolves: Monk et al. 2008
+(*Anesthesiology* 108:18 — ISPOCD-grade multi-center,
+verified direction): ~40% at discharge, ~10–13% at 3
+months in patients ≥60; Evered et al. 2018 renamed the
+syndrome class (perioperative neurocognitive disorders)
+and kept the same shape. Long-term persistence beyond
+~1 year is DEBATED (early studies confounded by the
+surgical indication).
+
+**Model:** `postop` ∈ [0,2] state minted at world
+`surgery:true` events (age-scaled: mint probability ×
+`postop_age_w` — near-zero under 50, the Monk risk is
+an older-adult finding). Legs: `postop_enc_tax` (0.3)
++ `postop_speed_tax` (0.25) at mint, decaying at
+`postop_recover_tau` (90 days); `postop_resid_p`
+(0.1) — 10% of minted states keep a small permanent
+`age_eff` step (1.0) — the residual tail priced at
+Monk's 3-month rate. **Locked `postop_young_null`:**
+no mint under age_eff 50 — we refuse to price a
+risk the studies didn't measure.
+
+## 156. `multivit` — the pill that almost works
+(trait-state, DEBATED)
+
+**Debated:** the COSMOS trial's cognitive substudies
+found a *small but real* daily-multivitamin benefit on
+episodic memory: Vyas et al. 2024 (*Am. J. Clin.
+Nutr.* — verified, COSMOS-Clinic N=573 + meta of 3
+substudies N≈5,200): episodic memory +0.12 SD
+(clinic arm) / +0.06 SD (meta) over 2y, framed as
+"equivalent to ~2 years of cognitive aging" — with
+NO benefit on executive/attention composites, in
+well-nourished ≥60 adults. It is the best RCT evidence
+in the supplement literature and still only ~0.06 SD;
+the prior null findings (Physicians' Health Study II)
+are longer but blunter-instrument.
+
+**Model:** `multivit` ∈ {0,1} trait-state (≥60 only —
+the trial population; `mv_age_gate`). Leg:
+`beta_episodic` ×(1 − `mv_slope_gain`) for `age_eff`
+≥60 (`mv_slope_gain` 0.05 — the ~2yr/decade reading
+converted to a slope dampener; DEBATED tag — single
+trial family, sponsor-adjacent cocoa co-design).
+**Locked `mv_exec_null`:** executive/attention legs
+may NOT take the benefit (COSMOS's own null —
+priced literally); **locked `mv_level_null`:** the
+leg is slope-only — a vitamin never improves stored
+records.
+
+## 157. `fast_null` — the sixth mandated null (the
+skipping-breakfast claim)
+
+**Consensus:** acute fasting (16–72h, the range the
+popular claims run) produces no reliable cognitive
+deficit in healthy adults and no reliable benefit —
+Benau et al. 2014 meta-analysis (*Physiol. Behav.*):
+effect sizes scatter around zero across domains;
+small early attention costs in some paradigms, no
+consistent direction. The longevity-adjacent memory
+claims extrapolate from animal work and do not
+survive the human acute window.
+
+**Model:** `fast_state` may exist as a world flag
+(a character fasting is a fact of the day) but
+`fast_enc_leg`, `fast_decay_leg`, `fast_clear_leg`
+are ALL locked at 0.0. The claim this refuses:
+"fasting clears the mind / fog." If a world designer
+wants the claim, they write a mood/expectancy leg
+through `sad`-style mediation — never a direct leg.
+Falsifiable against the model, not against the world.
+
+## 158. `glp1_null` — the seventh mandated null (the
+2026 question, priced honest)
+
+**Debated — evidence pending:** GLP-1 receptor
+agonists (semaglutide-class) carry both popular
+neuroprotection claims and small observational
+signals in opposite directions; randomized cognition
+endpoints are pending/immature (EVOKE trial program;
+LEADER/REWIND cognition substudies underpowered for
+the claim). As of this writing there is NO basis for
+a human-memory leg in either direction — and a 2026
+Mission cast would absolutely have opinions about it.
+
+**Model:** `glp1_state` may exist on the med list but
+`glp1_enc_leg`, `glp1_slope_leg`, `glp1_fog_leg` are
+locked at 0.0 pending human cognition-endpoint RCTs.
+The null is two-sided by design — neither the benefit
+claim nor the "brain fog" complaint claim is licensed.
+(This is `microdose`'s discipline applied to a drug
+class with real trials coming — the null carries an
+explicit revisit trigger: unblinded cognition-primary
+RCTs with memory endpoints.)
+
+## 159. Cross-version interactions (audit)
+
+- **`deaf_sign` ⊘ `hear`:** forbidden co-mint — a
+  signed-language profile has no hearing-loss axis to
+  price. The sampling matrix enforces exclusion, not
+  interaction (R entry −1.0 structural).
+- **`vision` × `hear` (`dual_sensory`):** additive,
+  uncapped legs; the literature's super-additivity is
+  noted and deliberately under-priced (§145).
+- **`stroke_hist` × `tbi` (§67):** BOTH steps stack on
+  the same `age_eff` ledger; `stroke_side` and `tbi`'s
+  diffuse profile are orthogonal — a right-TBI +
+  left-stroke profile is legal (different mechanisms).
+- **`epilep_side` × `stroke_side`:** same material-
+  locked field classes; stacking is additive on field
+  completeness, capped at 0.6 total haircut (a floor —
+  some fields always survive).
+- **`post_viral` × `cfs_state`:** co-mint legal and
+  common (post-viral fatigue IS one ME/CFS route —
+  the states share the fatigability leg; legs do not
+  double — `cfs_fatigue` takes max of the two
+  coefficients, `enc` taxes stack).
+- **`b12`/`thyroid`/`cfs`/`depr` overlap:** all four
+  share attention-gated field legs — the
+  `vasc_stack_cap` precedent extends to a
+  `rev_state_cap`: reversible-cause states' stacked
+  attention taxes cap at 0.5 total (a character on
+  metformin + hypothyroid + exhausted does not encode
+  at zero — the cap is honest guardrail, not
+  literature-fitted).
+- **`multivit` × `b12_treated`:** orthogonal — one is
+  slope-dampener ≥60 (COSMOS), the other is a treated-
+  deficiency rescue; both may coexist (the supplement-
+  taking vegan is a Mission archetype).
+- **`postop` × `delirium` (§111):** distinct mints —
+  delirium is an acute confusional state with its own
+  step ledger; `postop` is the slower cognitive tail.
+  A surgery can mint BOTH (delirium at bedside, POCD
+  at the 3-month follow-up) — the literature's own
+  two-stage picture.
+- **`sad_state` × `depr` (§34):** `sad` is a fractional-
+  weight driver INTO the `depr` overlay, not a second
+  overlay — the same complaints stack once, through
+  §4.86 legs.
+- **`hiv_hist` × `scd` (§96):** anti-correlated
+  complaint surfaces — `hiv_monitor_low` under-reports
+  a real deficit, `scd` over-reports an absent one.
+  A profile carrying both nets toward parity — which
+  is the clinically observed awkward case.
+- **`air_poll` × `smoker` (§130):** both are exposure-
+  slope traits; legs ADD but share the
+  `exposure_slope_cap` (0.4 age-yr/yr total from all
+  environmental-exposure sources — the literature's
+  comorbidity structure doesn't support unbounded
+  stacking).
+- **`fast_null`/`glp1_null` × everything:** the nulls
+  are parameter-level bans; any merge that mints a
+  leg under either name fails P1365.
+
+## 160. Extended trait vector, R additions, loading
+table (Part XI)
+
+Extended authored/sampled axes (all optional, absent =
+0/legacy):
+
+```
+trait additions:
+  dyslex      ∈[0,2]   sampled rarer in profiles (0.08 prev)
+  deaf_sign   ∈{0,1}   authored only
+  vision      ∈[0,2]   age-correlated sampling (like hear)
+  stroke_hist ∈[0,2]   authored (biography needs a date)
+  epilep      ∈[0,2]   authored; epilep_side ∈{L,R}
+  hiv_hist    ∈[0,2]   authored (era-consistent biography)
+  air_poll    ∈[0,2]   derived from residence history
+  multivit    ∈{0,1}   sampled ≥60, R-corr +0.2 health-consc.
+state additions:
+  post_viral  {none,resolved,persistent} + pv_sev ∈[0,2]
+  cfs_state   ∈[0,2]   overlay
+  b12_state   ∈[0,2]   overlay (treated flag)
+  thyroid_state {0,1,2} overlay (treated flag)
+  postop      ∈[0,2]   event-minted
+  sad_state   ∈[0,2]   seasonal overlay
+  aed_burden  ∈[0,1]   med-list state
+  aqi_day     scalar   world-supplied daily
+  fast_state  {0,1}    world flag, legs locked 0
+  glp1_state  {0,1}    med list, legs locked 0
+R-matrix additions (sampling correlations):
+  vision↔hear           +0.45   (shared age/sensory etiology)
+  dyslex↔adhd           +0.30   (comorbidity, real)
+  cfs_state↔depr        +0.35   (overlap, not identity)
+  post_viral↔cfs_state  +0.40   (post-viral is a route in)
+  air_poll↔smoker       +0.25   (exposure comorbidity)
+  thyroid_state↔depr    +0.20
+  deaf_sign↔hear        −1.00   (structural exclusion)
+```
+
+### Loading table additions (rows beyond §139)
+
+| trait/state | target leg | price | status |
+|---|---|---|---|
+| dyslex | w_people/verbatim/order fields | −0.3/−0.3/−0.4 @d=1 | CONSENSUS (Swanson 2009; Staels 2017) |
+| deaf_sign | w_sensory/w_people on seen | +0.15/+0.1 | CONSENSUS dir. (Rönnberg 2004) |
+| vision | enc seen-channel + vis cue-match | −0.15/−0.2 @v=1 | CONSENSUS dir.; rescue DEBATED |
+| stroke_hist | age_eff step + pspeed slope | +4.0y; +0.15/y | CONSENSUS (Levine 2015) |
+| epilep | material fields + aed TOT | −0.25; −0.2 | CONSENSUS (Bell 2011; Mula 2012) |
+| hiv_hist | pspeed/att/epi | −0.2/−0.15/−0.08 | CONSENSUS dir.; magnitude DEBATED |
+| post_viral | enc_base+exec while persistent | −0.2..−0.35 | CONSENSUS dir. (Hampshire 2024) |
+| cfs_state | speed/att + in-bout fatigue | −0.25/−0.15/0.3 | CONSENSUS dir. (Cockshell 2010) |
+| b12_state | enc/att while untreated | −0.2/−0.15 | CONSENSUS; rescue CONSENSUS |
+| thyroid_state | enc/speed small + complaint | −0.1/−0.08/×1.8 | dir. CONSENSUS, size small |
+| air_poll | age_eff slope + aqi_day att | +0.2y/y; −0.1 | dir. CONSENSUS (Weuve 2012) |
+| sad_state | →depr overlay weight only | 0.3 weight | mediation-priced (small lit) |
+| postop | enc+speed, 90d tau | −0.3/−0.25 | CONSENSUS (Monk 2008) |
+| multivit | beta_episodic damp ≥60 | −0.05 | DEBATED (Vyas 2024) |
+| fast_null / glp1_null | all legs | 0.0 LOCKED | mandated nulls 6+7 |
+
+## 161. New explicit nulls (Part XI's falsifiable edge)
+
+- `dys_gist_null`, `dys_sem_null` — verbatim/order
+  fields thin; gist and retrieval untouched.
+- `deaf_total_null` — equal-strength records at matched
+  salience; only channel weights differ.
+- `vis_gist_null` — effort tax is field-level, gist
+  survives.
+- `stroke_sem_null`, `stroke_pro_null` — semantic and
+  procedural stores untouched.
+- `ep_ret_null` — gaps are encode-time; kept records
+  retrieve clean.
+- `hiv_sem_null` — subcortical signature; stores flat.
+- `pv_sudden_null`, `pv_complaint_null` — recovery is
+  a tau; complaints and legs decorrelate.
+- `cfs_ep_null` — long-haul episodic strength normal;
+  the deficit is in-day efficiency.
+- `b12_ret_null` — thin-minted, never corrupted.
+- `thy_sub_null` — subclinical legs capped at 0.05.
+- `air_loc_null`, `air_ind_null` — acute leg is
+  attention-only; no invented susceptibility spread.
+- `sad_direct_null` — mediation-lock: no direct legs.
+- `postop_young_null` — no mint under age_eff 50.
+- `mv_exec_null`, `mv_level_null` — COSMOS's own
+  domain-null honored; slope-only pricing.
+- `fast_*_null`, `glp1_*_null` — mandated nulls six
+  and seven, parameter-level.
+
+## 162. Falsifiable probes (P1352–P1365; validation-
+design §256)
+
+- **P1352 dyslexia dissociation (MUST):** matched heard
+  narrative → `dyslex`=1 profile returns equal gist
+  accuracy, thinner name/verbatim fields (−0.3), worse
+  order reconstruction (−0.4); `dys_comp_p` arm mints
+  an offload note ≥15% of the time.
+- **P1353 deaf reweighting (SHOULD):** `deaf_sign`
+  profile recalls seen events at ≥ parity strength
+  with denser face/place fields; heard-channel mints
+  only on `heard_vicariously`; total record count at
+  matched salience within ±5% of hearing profile.
+- **P1354 vision rescue arm (MUST):** `vis_corrected:
+  true` returns (a)+(b) legs to ≥`vis_correct_rescue`
+  of baseline; social drag lags (slower decay).
+- **P1355 stroke step+slope (MUST):** at event mint,
+  `age_eff` +4.0 at sev=2, new-learning rate drops
+  acutely, subsequent-year control-layer slope
+  steepens ~15%; semantic/procedural probes flat.
+- **P1356 epilepsy material-lock (SHOULD):** `epilep_
+  side:L` thins verbal fields ~2× the spatial leg;
+  `seizure:true` produces a zero-record window
+  ±`ep_gap_min`; `aed_burden`=1 raises TOT rate.
+- **P1357 HAND ordering (SHOULD):** legs ordered
+  speed > attention > episodic; `on_art:true` halves
+  them; complaint surface reports below objective
+  deficit (`hiv_monitor_low`).
+- **P1358 post-viral dose order (MUST):** objective
+  deficit ordered persistent > hospitalized >
+  resolved > none at matched sev; resolved arm
+  converges toward short-case level at
+  `pv_recover_tau`; complaint strength and objective
+  legs correlate ≤0.4.
+- **P1359 CFS complaint gap (MUST):** objective
+  legs ≤0.3 SD-equivalent, complaint surface ≥2×;
+  within-bout encode efficiency declines measurably
+  while same-day cross-day strength stays flat.
+- **P1360 B12 rescue (MUST):** `b12_treated:true`
+  restores ≥`b12_resid_frac` of legs within
+  `b12_rescue_tau`; untreated arm keeps thin-minting.
+- **P1361 thyroid stage cap (SHOULD):** stage-1 legs
+  all ≤0.05; stage-2 legs reverse ≥90% on treatment;
+  complaint premium present at both stages.
+- **P1362 air-pollution two-clock (MUST):** sustained
+  `aqi_annual`≥80 accrues `airpoll_age_k` slope;
+  `aqi_day`>150 produces same-day attention tax that
+  fully resets next day; no `age_eff` step from any
+  single event (`air_loc_null`).
+- **P1363 SAD mediation-lock (MUST):** `sad_state`=
+  2 with `depr` overlay DISABLED produces zero legs;
+  with overlay on, fractional-strength §4.86 legs
+  appear. The mediation is the model.
+- **P1364 postop recovery (MUST):** `postop`=1 legs
+  decay to ≤10% residual by 3×`postop_recover_tau`;
+  `postop_resid_p`~10% of mints keep a 1.0 age_eff
+  step; zero mints under age_eff 50.
+- **P1365 mandated-null battery (MUST):** profiles
+  carrying `fast_state`/`glp1_state` produce bit-
+  identical memory legs to non-carriers at matched
+  everything; any param minted under `fast_*`/
+  `glp1_*` nonzero fails. `mv_exec_null`/`mv_level_
+  null` legs verified in the same run (vitamin arm
+  differs ONLY on beta_episodic slope ≥60).
+
+## 163. Part XI honest limits
+
+- `dyslex`'s three-leg split (phonological/serial/
+  compensation) decomposes a literature that reports
+  task-level scores, not per-field weights — the
+  0.3/0.4/0.15 prices are ours. The `dys_comp_p`
+  routing leg is plausible adult behavior with thin
+  quantitative backing; it is the part's weakest-
+  sourced leg.
+- `deaf_sign`'s bonus legs are priced CONSERVATIVE:
+  Rönnberg's reviews support visuospatial superiority
+  but give no clean field-level scalar; 0.15/0.1 are
+  direction-faithful floors. The `heard_vicariously`
+  gate is our mechanism, not literature.
+- `vision`'s `vis_correct_rescue` 0.5 exceeds the
+  evidence quality (no ACHIEVE-grade RCT) — we priced
+  optical correction's immediacy above hearing-aid
+  rescue on mechanism grounds and flagged it DEBATED.
+- `stroke_hist`'s `stroke_step_k` 4.0 converts Levine's
+  SIS/WLL deltas into age-years — the conversion is
+  ours (the paper's own "years of aging" framing
+  justifies the form, not the number). `stroke_mat_
+  tax` applies a laterality literature built on aphasia
+  batteries to our field classes.
+- `epilep`'s `ep_gap_min` ±30 is a textbook interval,
+  not a fitted parameter; real ictal amnesia windows
+  vary minutes-to-hours. `ep_aed_tax` prices the
+  topiramate-class worst case; an `aed_burden` on
+  lamotrigine-class should ride ~0.05 (drug hetero-
+  geneity compressed into one axis — documented
+  simplification).
+- `hiv_hist`'s `hiv_art_mult` 0.5 is a middle price in
+  a genuinely contested magnitude literature (Heaton
+  vs Sacktor-era corrections); the leg ORDERING is
+  what we're confident in, and P1357 tests ordering
+  not absolute size.
+- `post_viral`'s `pv_resid` permanent step is the
+  part's most-watched parameter — Douaud's structural
+  finding vs Hampshire's resolved-arm recovery pull
+  opposite directions; 0.5 age-yr at sev=2 splits
+  them. `pv_var_k` era-scaling assumes future
+  variants stay on the milder side of the −0.17 SD
+  step.
+- `cfs_state`'s `cfs_fatigue` in-bout decay is the
+  finding (fatigability) but the /60-min timescale is
+  interpolated from session-length studies; sim-bout
+  timescales need game-systems' bout-length reality
+  check.
+- `b12`/`thyroid` rescue fractions (0.8/0.9) are
+  clinically conventional ("treat early, mostly
+  recovers") not meta-analytic numbers — the
+  literature reports responder proportions, not
+  leg-recovery fractions.
+- `air_poll`'s `airpoll_age_k` 0.2/yr at poll=2 maps
+  Weuve's ~2yr/decade-at-10µg contrast into our
+  [0,2] exposure scale — the mapping is our
+  linearization; `aqi_day` acute tax leans on one
+  wildfire-era study class (Cleland 2022) and is the
+  weakest-sourced leg in the section.
+- `sad_state`'s mediation-only pricing is the honest
+  read of a thin literature — if a direct seasonal
+  memory effect ever replicates, `sad_direct_null`
+  fails loudly by design.
+- `postop`'s `postop_resid_p` 0.1 is Monk's 3-month
+  elderly rate; whether the residual is surgical-
+  indication confounding (the DEBATED part) is
+  priced into the flag, not removed.
+- `multivit` is priced as a real-but-tiny slope damp
+  — the COSMOS result is one trial family and the
+  prior PHS-II null is longer; `mv_slope_gain` 0.05
+  is the kind of parameter a single replication
+  could zero. The nulls (`mv_exec_null`,
+  `mv_level_null`) are the more durable part.
+- `fast_null`/`glp1_null` are bans on legs, not
+  claims about biology — both carry revisit triggers
+  (human cognition-endpoint RCTs), and glp1's is
+  explicitly two-sided (the "fog" complaint claim is
+  as unlicensed as the benefit claim).
