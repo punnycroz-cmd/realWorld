@@ -27048,6 +27048,7 @@ function sfCloudSprite(i, q, warmQ){
   const ang = q * Math.PI / 4;                 // screen-space sun bearing
   const ux = Math.cos(ang), uy = Math.sin(ang); // (uy < 0 = sun overhead)
   const np = 7 + Math.floor(phash(i, 61, 1760) * 4);
+  const lobes = [];                          // v76: kept for the rim pass
   for(let k = 0; k < np; k++){
     const fx = (phash(i, k, 1761) - 0.5) * 2;              // -1..1 across base
     const domeK = 1 - fx * fx * 0.72;                      // tallest mid-cloud
@@ -27057,6 +27058,7 @@ function sfCloudSprite(i, q, warmQ){
     // lobe lit by its offset along the sun bearing + dome height
     const lit = clamp(0.45 + ((px - cx) / W2) * ux * 1.6 +
                     ((py - cy) / H2) * uy * 1.4 - (py - cy) / H2 * 0.35, 0, 1);
+    lobes.push([px, py, rr, lit]);
     let hi = mix('#dfe6ef', '#ffffff', lit);
     let lo = mix('#7e8ca4', '#bcc8d8', lit);
     if(warmQ){ hi = mix(hi, '#ffe9c2', 0.5); lo = mix(lo, '#a394a8', 0.45); }
@@ -27068,6 +27070,21 @@ function sfCloudSprite(i, q, warmQ){
     g2.addColorStop(1, `rgba(${lc.r},${lc.g},${lc.b},0)`);
     g.fillStyle = g2;
     g.beginPath(); g.arc(px, py, rr, 0, Math.PI * 2); g.fill();
+  }
+  /* v76: silver lining — forward-scattered sunlight rims the sun-facing
+     edge of every dome (the same bearing (ux,uy) the lobe shading uses).
+     Strongest where the lobe already reads lit, so the rim and the body
+     never disagree about where the sun is; warmed at golden hour. */
+  const rimA = Math.atan2(uy, ux);
+  for(const L2 of lobes){
+    const ra = (0.10 + 0.45 * L2[3]) * (warmQ ? 1.15 : 1);
+    if(ra < 0.06) continue;
+    g.strokeStyle = warmQ ? `rgba(255,240,205,${ra})`
+                          : `rgba(255,253,240,${ra})`;
+    g.lineWidth = Math.max(1.2, L2[2] * 0.22);
+    g.beginPath();
+    g.arc(L2[0], L2[1], L2[2] * 0.88, rimA - 0.95, rimA + 0.95);
+    g.stroke();
   }
   // flat shaded base — cumulus bottoms are grey, level and sharp-edged
   const bg = g.createLinearGradient(0, cy - H2 * 0.18, 0, cy + H2 * 0.1);
@@ -29560,6 +29577,56 @@ function sfRenderWorld(cw, ch){
         const wrot2 = Math.atan2(Math.sin(W.windAng) * SF_TILT, Math.cos(W.windAng));
         ctx.ellipse(sx, sy, rr * 1.6, rr * 0.5 * SF_TILT, wrot2, 0, Math.PI * 2);
         ctx.fill();
+      }
+    }
+    /* 2b4. v76: crepuscular lanes in the diorama — the street view has
+       drawn god-rays through cloud gaps since v56; the top view only
+       ever showed where they LAND (the sunbreak pools above). Now each
+       gap vents a visible beam: a warm volumetric streak descending
+       from the cloud body that bounds the gap to the lit lane on the
+       streets, using the same gap geometry sfGapBlobs resolves (wind-
+       normal shift + ground projection along -sun*altitude). Low sun
+       lengthens and warms the lanes; the cumulus bodies render after
+       this pass and occlude their own light, so no beam ever appears
+       in front of the cloud that makes it. */
+    if(SF_SUN.day > 0.15){
+      const cs3 = sfClouds(), nR = Math.ceil(cs3.length * (0.25 + 0.75 * cover));
+      const nxv3 = -Math.sin(W.windAng), nyv3 = Math.cos(W.windAng);
+      const lift3 = 34 * 4.2 * cam.zoom;       // same diorama altitude as the bodies
+      const rayA = (0.09 + 0.24 * SF_SUN.warm) * SF_SUN.day *
+                   (1 - cover * 0.6);
+      if(rayA > 0.015){
+        for(let i = 0; i < nR; i++){
+          const c = cs3[i];
+          const [cxm, cym] = sfCloudPos(c);
+          // the gap this cloud bounds = sfGapBlobs' ground spot
+          const gx = cxm + nxv3 * SF_GAP_SHIFT - SF_SUN.x * SF_CLOUD_ALT;
+          const gy = cym + nyv3 * SF_GAP_SHIFT - SF_SUN.y * SF_CLOUD_ALT;
+          const bx = (cxm * SF_PXM - cam.x) * cam.zoom + cw / 2;
+          const by = sfSY(cym * SF_PXM, ch) - lift3 * 0.55;
+          const ex = (gx * SF_PXM - cam.x) * cam.zoom + cw / 2;
+          const ey = sfSY(gy * SF_PXM, ch);
+          if(ex < -90 || ex > cw + 90 || ey < -90 || ey > ch + 90) continue;
+          const dx = ex - bx, dy = ey - by, dl = Math.hypot(dx, dy);
+          if(dl < 28 || dl > ch * 1.5) continue;
+          const bAng = Math.atan2(dy, dx);
+          for(let s = 0; s < 9; s++){
+            const t = s / 8;
+            const px = bx + dx * t, py = by + dy * t;
+            const rad = (5 + t * 44) * cam.zoom *
+                        (0.7 + phash(i * 9 + s, 74, 6301) * 0.5);
+            const a = rayA * c.a * (0.2 + t * 0.8) * (1 - t * 0.4);
+            if(a < 0.006 || rad < 2) continue;
+            const g3 = ctx.createRadialGradient(px, py, 0, px, py, rad);
+            g3.addColorStop(0, `rgba(255,236,190,${a})`);
+            g3.addColorStop(0.6, `rgba(255,230,178,${a * 0.45})`);
+            g3.addColorStop(1, 'rgba(255,228,176,0)');
+            ctx.fillStyle = g3;
+            ctx.beginPath();
+            ctx.ellipse(px, py, rad, rad * 0.55, bAng, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
       }
     }
   }
@@ -33436,6 +33503,7 @@ function sfRenderStreet(cw, ch){
         const L = F * (0.55 + 0.45 * phash(k, 96, 5301));
         const laneA = beamA * clamp(gw / (F * 0.22), 0.2, 1) *
                       (0.6 + phash(k, 97, 5302) * 0.4);
+        let footX = 0, footY = 0, footR = 0;
         for(let s = 0; s < 7; s++){
           const t = s / 6;
           const bx = ax + dx * L * t, by = ay + dy * L * t;
@@ -33452,6 +33520,24 @@ function sfRenderStreet(cw, ch){
           ctx.beginPath();
           ctx.ellipse(bx, by, rad, rad * 0.42, Math.atan2(dy, dx),
                       0, Math.PI * 2);
+          ctx.fill();
+          footX = bx; footY = by; footR = rad;
+        }
+        /* v76: the beam LANDS — where a lane reaches the far facade band
+           it spills a warm splash of light, the street-view twin of the
+           top view's sunbreak pool. Without it every ray used to fade
+           mid-air for no physical reason. */
+        if(footR > 3 && footY > horizon - F * 0.4){
+          const pa = laneA * 0.6;
+          const pg = ctx.createRadialGradient(footX, footY, 0,
+                                              footX, footY, footR * 2.6);
+          pg.addColorStop(0, `rgba(255,238,192,${pa})`);
+          pg.addColorStop(0.55, `rgba(255,230,178,${pa * 0.45})`);
+          pg.addColorStop(1, 'rgba(255,228,172,0)');
+          ctx.fillStyle = pg;
+          ctx.beginPath();
+          ctx.ellipse(footX, footY, footR * 2.6, footR * 0.95,
+                      Math.atan2(dy, dx), 0, Math.PI * 2);
           ctx.fill();
         }
       }
