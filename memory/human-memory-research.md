@@ -2638,3 +2638,54 @@ This version's sources are methodological — they discipline the
   cluster two-arm, record-free ctxcue, metacognitive quitting)
   + 3 SHOULD. All magnitudes RW HYPOTHESES; all directions
   established.
+
+## 53. Addendum — v75 anchors (age-development VII, spec v5.23)
+
+- **Infant context dependence:** Butler & Rovee-Collier 1989
+  (*JEP:LM&C* 15 — verified: context/crib-liner change abolishes
+  retention at 3 months); Rovee-Collier & Shyi 1992; Hayne &
+  Findlay 1995 (context-shift cost falls across infancy).
+  Anchors `ctx_locked`/`ctx_strict` (§4.35a/§5.77a); the
+  lifetime persistence of the flag is the flagged extension.
+- **Controlled vs automatic inhibition in development:**
+  Harnishfeger & Pope 1996 (*J. Exp. Child Psychol.* 62:292 —
+  verified: DF absent 1st grade, reduced 3rd, intact 5th);
+  Wilson & Kipp 1998 (*Dev. Rev.* 18:86 — verified review);
+  Aslan, Staudigl, Samenieh & Bäuml 2010 (*PBR* 17:784 —
+  verified production-deficiency account); Zellner & Bäuml 2004.
+  Anchors `df_store_onset`/`df_gate`/`df_gate_ramp` (§6.152a).
+- **Child suppression of false content:** Howe 2005 (*Psychol.
+  Sci.* 16 — verified: children suppress DRM false recall under
+  directed-forget cues where adults do not — output-gated gist).
+  Anchors `df_gist_gate` (§6.152a).
+- **RIF intact early — the version's null:** Zellner & Bäuml
+  2005 (*Mem&Cogn.* 33:396 — verified: retrieval inhibition and
+  part-list cuing intact in children); Ford, Keating & Patel
+  2004 (*Br. J. Dev. Psychol.* 22:585 — verified: adult-
+  magnitude RIF at 7). Result: NO child rif ramp (J9).
+- **Working memory & event completeness:** Gathercole,
+  Pickering, Knight & Stegmann 2004 (*JEP:G* 133 — verified span
+  norms); Jones & Pipe 2002 (children's event recall
+  completeness 5→9). Anchors `field_budget` (§4.35b).
+- **Adolescent forward drift:** Peterson, Grant & Boland 2005;
+  Peterson, Warren & Short 2011 (*Memory* 19 — verified:
+  earliest-memory age advances across childhood); Habermas &
+  de Silveira 2008 (life-narrative reorganization). Anchors
+  `reorg_dip`/`reorg_attrit` (§5.77a).
+- **Time-based prospective memory:** Ceci & Bronfenbrenner 1985
+  (*Dev. Psychol.* 21 — verified: strategic clock monitoring
+  develops through middle childhood); Kvavilashvili, Kyle &
+  Messer 2008 (verified review — event-based early, time-based
+  late). Anchors `pmt_*` child knots + `pm_clock_p` (§5.77b).
+- **Joint reminiscing / child-as-narrator:** Reese, Haden &
+  Fivush 1993 (*Cog. Dev.* 8 — verified); Welch-Ross 1997;
+  Fivush, Haden & Reese 2006; Reese & Newcombe 2007
+  (longitudinal — verified). Anchors `self_reminisce_gain` +
+  `reminisce_env` rerouting (§6.152b).
+- **Intentional-encoding instruction:** Baker-Ward, Ornstein &
+  Holden 1984 (*J. Exp. Child Psychol.* — verified: children
+  gain more from remember-instructions). Anchors
+  `intent_boost` (§4.35c).
+- **Enactment in children:** Ratner, Smith & Dionne 1991;
+  Cohen 1981 (SPT robust ≥3–4). Anchors `er_4y`/`er_10y`
+  (§4.35d — completes the U with age-decline §85's old knots).

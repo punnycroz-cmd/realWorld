@@ -1040,6 +1040,18 @@ needs both.
 | search_base / search_persist | 2 / 0.5 | 15 / 3.0 | bout budget in candidate-evals / FOK scaling (v5.22) |
 | da_giveup_pen / search_age_pen | 0.0 / 0.0 | 0.8 / 0.6 | load and age search-shortening (v5.22) |
 | fok_reprobe / fok_win | 0.0 / 0.1 | 0.8 / 2.0 | high-FOK re-fire rate / window in days (v5.22) |
+| ctx_strict_lo / _mid / _hi | 1.0 / 1.0 / 1.0 | 4.0 / 3.0 / 2.0 | below-wall ctx-mismatch penalty knots (v5.23) |
+| fb_3y / fb_5y / fb_8y / fb_12y / fb_adult | 2 / 3 / 3 / 4 / 5 | 4 / 5 / 7 / 8 / 12 | field_budget mint caps by encodeAge (v5.23) |
+| intent_boost_lo / _mid | 0.0 / 0.0 | 0.8 / 0.6 | to_remember encode gain knots (v5.23) |
+| df_store_onset | 7 | 13 | dforget storage-vs-gate switchover age (v5.23) |
+| df_gate / df_gist_gate / df_gate_ramp_lo | 0.0 / 0.0 / 0.0 | 1.0 / 0.6 / 0.6 | child report-gate magnitudes (v5.23) |
+| reorg_dip / reorg_attrit | 0.0 / 0.0 | 0.4 / 0.3 | adolescent-dip θ penalty / failed-window S cost (v5.23) |
+| reorg_lo / reorg_hi / reorg_era_min / reorg_era_max | 10 / 15 / 3 / 7 | 14 / 20 / 5 / 11 | dip window and era bounds (v5.23) |
+| pmt_5y / pmt_9y / pmt_14y | 1.0 / 1.0 / 1.0 | 3.0 / 2.2 / 1.6 | time-PM child-side tax knots (v5.23) |
+| pm_clock_p | 0.0 | 0.7 | strategic check rate while time-intention armed (v5.23) |
+| self_reminisce_gain / self_reminisce_until | 0.0 / 7 | 0.6 / 13 | child-tells-own-past consolidation / cutoff (v5.23) |
+| reminisce_env_mod | 0.0 | 0.25 | env modulation of self_reminisce_gain (v5.23) |
+| er_4y / er_10y | 1.0 / 1.0 | 1.6 / 1.4 | enact_rescue child-side knots (v5.23) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -3587,3 +3599,39 @@ neurot+depr arm the negative-cue overgeneral arm; ageScale shortens
   (`fok_reprobe`) is the "it came to me later" event. Checker
   characters re-search; everyone else quits on the metacognitive
   bet. No pin — `checker` already exists.
+
+## 57. v5.23 note (age-development VII — the child side of every curve)
+
+Twelve clamp rows added in §0. **Zero new traits** — the child side
+of every curve is driven by encodeAge/retrievalAge knots plus two
+existing dials (`reminisce_env`, `consc`). Bible-facing notes:
+
+- **`reminisce_env` is no longer abstract (§6.152b):** the v1.5
+  dial now works through the child telling her own past. A
+  high-env character bible should literally contain adults who
+  ask "tell me about your day" — the mechanism pays out on the
+  child's narration events, not on ambient warmth. Low-env bibles
+  mint fewer child-tell events; the wall-shift emerges.
+- **The forget cue is a report cue below ~10 (§6.152a):** a child
+  told "don't think about it" still HAS the record — they just
+  don't volunteer it, and their false content suppresses BETTER
+  than an adult's. For bibles: a secret told to a young child is
+  gated, not gone — it surfaces on a strong cue. RIF needs no
+  child tuning (verified intact — v75 null finding).
+- **Thin mints are the character's texture (§4.35b):** a child
+  character's records genuinely lack `when`/`why` fields —
+  downstream, no dialogue should have a 6-year-old volunteer
+  sequence or motivation for an event; they keep who-did-what.
+  Writers get this free if they emit only minted fields.
+- **The adolescent dip is a temporary blackout (§5.77a):** a
+  15-year-old asked about age 6 should fail MORE than either the
+  same character at 10 or at 25 — and the failure itself costs
+  the record. Use it for drama: the teen who can't access the
+  childhood they narrated fluently at 9.
+- **Time intentions need the clock (§5.77b):** a child with a
+  "remember at 3pm" intention emits `check_clock` micro-events —
+  visible behavior the world can render; the checking IS the
+  remembering mechanism.
+- **Doing beats watching hardest in childhood (§4.35d):** ~4×
+  do/watch gap at 4y vs ~1.2× adult — a young character's
+  autobiography is almost entirely self-action.

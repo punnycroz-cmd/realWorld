@@ -1,4 +1,35 @@
-# Memory Model Spec v5.22 — implementable human-like memory for RW characters
+# Memory Model Spec v5.23 — implementable human-like memory for RW characters
+
+> **v5.23 note (age-development VII — the child side of the
+> lock):** `memory/age-development.md` Part VII (§§75–82) prices
+> seven child-side legs. **Context-locked traces** — below-wall
+> records mint `ctx_locked:true`; simOp place/sensory mismatch
+> ×`ctx_strict(encodeAge)` 2.5@<3→1.0@exit, stored at mint,
+> permanent — early memories answer only to near-exact
+> reinstatement (Butler & Rovee-Collier 1989; Hayne & Findlay
+> 1995) — §4.35a. **DF output gate** — below `df_store_onset`
+> (10) `dforget` never starves the store (locked
+> `df_erase_null`); it gates EMISSION, and gist/phantom tags
+> gate harder (`df_gist_gate` — Howe 2005 child asymmetry);
+> RIF needs no child ramp — verified intact (Zellner & Bäuml
+> 2005) — §6.152a. **Field budget** — `field_budget(encodeAge)`
+> 3@3→8@adult caps minted fields, children drop `when`/`why`
+> first (Gathercole et al. 2004; Jones & Pipe 2002) — §4.35b.
+> **Adolescent dip** — `reorg_dip` +0.2 θ on era [4,9] records
+> during retrievalAge [12,18]; failed window queries cost
+> `reorg_attrit` S (Peterson et al. 2011; Habermas & de
+> Silveira 2008) — §5.77a. **Time-PM child arm** —
+> `pm_time_tax` U completed (2.2@5→1.2@14 joins old side);
+> `pm_clock_p` strategic-check leg (Ceci & Bronfenbrenner
+> 1985; Kvavilashvili et al. 2008) — §5.77b. **The child
+> tells it** — `self_reminisce_gain` 0.3 <10;
+> `reminisce_env` rerouted through this leg (Reese, Haden &
+> Fivush 1993) — §6.152b. **Intent unlock** —
+> `intent_boost(encodeAge)` 0.4@4→0.1 adult on
+> `to_remember:true` (Baker-Ward et al. 1984) — §4.35c.
+> **Enactment U completed** — `enact_rescue` child knots
+> 1.3@4→1.15@10 (Ratner et al. 1991) — §4.35d. +17 params,
+> +1 locked null; §10 contract adds. Registry P795–P804.
 
 > **v5.22 note (retrieval-cues VII — the cue's mode, company, and
 > quitting time):** `memory/retrieval-cues.md` Part VII (§§70–80)
@@ -4050,6 +4081,44 @@ half-heard ambient stream is recoverable this minute and
 unrecoverable forever after — the human gap between "didn't catch
 it" and "don't remember it."
 
+### 4.35 Child encode legs — the lock, the thin mint, the
+instruction, the hands (new in v5.23)
+
+**4.35a Context-locked mint** (AD§75; Butler & Rovee-Collier
+1989; Hayne & Findlay 1995): records with `encodeAge <
+amnesia_exit_eff` mint with `ctx_locked:true` — a permanent
+flag storing `ctx_strict_val = ctx_strict(encodeAge)` (knots
+2.5@<3y → 1.8@4y → 1.3@6y → 1.0@exit). Evaluated at retrieval
+(§5.77a): the flag is mint-time and never decays — a below-wall
+trace reads only under near-exact reinstatement for life.
+
+**4.35b Field budget** (AD§77; Gathercole, Pickering, Knight &
+Stegmann 2004; Jones & Pipe 2002): at mint, cueVector/verbatim
+field count is capped at `field_budget(encodeAge)` — knots
+3@3y → 4@5y → 5@8y → 6@12y → 8@adult (adult = uncapped, current
+behavior). Child overflow drops by a FIXED fill order —
+`people` > `action/topic` > `place` > `sensory` > `when` >
+`why/emotion` (temporal and thematic fields drop first; the
+reverse of the adult arousal-truncation order). Not decay —
+the fields were never written; thin mints are why later cues
+can't reach early records even when S survives.
+
+**4.35c Intent unlock** (AD§81; Baker-Ward, Ornstein & Holden
+1984): Event flag `to_remember:true` (world supplies — the
+character was told to remember this) applies
+`E *= (1 + intent_boost(encodeAge))` — knots 0.4@4y → 0.3@8y →
+0.15@12y → 0.1@adult. Children gain MORE from the instruction
+because they aren't already strategy-spontaneous
+(production-deficiency flip side, §66). Stacks under
+`field_budget` — raises E, not field count.
+
+**4.35d Enactment child arm** (AD§82; Ratner, Smith & Dionne
+1991; Cohen 1981): `enact_rescue(age)` (v5.12, old-side knots)
+gains child knots — full curve 1.3@4y → 1.15@10y → 1.1@adult →
+1.25@75 → 1.4@85 (U in age). Applies to `enacted:true` events
+as before; stacks AGAINST `obs_gain` (§4.31c) — at 4y the
+do/watch gap is ~4×, at adult ~1.2×, at 85 ≥1.4×.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -5942,6 +6011,40 @@ frustrated termination that arms `fok_reprobe` (0.4) — a pending
 re-fire within `fok_win` (0.5d) on the next related cue, the
 "it came to me later" event. Involuntary bouts get budget ≈1 —
 an involuntary memory arrives or doesn't.
+
+### 5.77 Child retrieval legs — the lock reads, the dip bites,
+the clock checks (new in v5.23)
+
+**5.77a Context-lock evaluation + the adolescent dip**
+(AD§§75, 78). For `ctx_locked` records (§4.35a): simOp
+`place` and `sensory` field mismatches are penalized
+×`ctx_strict_val` (stored at mint) — partial-context cues
+(name, topic, "when you were little") carry ~no mass against
+below-wall records at ANY retrievalAge; full-context
+reinstatement (right place + right smell) retrieves nearly
+normally (Butler & Rovee-Collier 1989 — the trace is intact,
+only the room unlocks it). Separately: during
+`retrievalAge ∈ [reorg_lo 12, reorg_hi 18]`, records with
+`encodeAge ∈ [reorg_era_min 4, reorg_era_max 9]` pay θ
+`+reorg_dip` (0.2) — the adolescent reorganization dip
+(Peterson, Warren & Short 2011; Habermas & de Silveira 2008).
+Two-armed: the penalty lifts at `reorg_hi` for surviving
+records (pure access failure), but a query that FAILS inside
+the window marks the record `reorg_hit` and costs it
+`S *= (1 − reorg_attrit)`, `reorg_attrit` 0.15, once only —
+use it or lose it; the unqueried archive is untouched.
+
+**5.77b Time-based intentions — the child arm** (AD§79; Ceci
+& Bronfenbrenner 1985; Kvavilashvili, Kyle & Messer 2008):
+`pm_time_tax(age)` gains child knots completing the U —
+2.2@5y → 1.6@9y → 1.2@14y → 1.0@adult → (existing) 1.6@85.
+`cueType:event` unchanged (event-based PM intact from ~5).
+Compensation: characters with an armed time-intention emit
+`check_clock` micro-events at rate `pm_clock_p` (0.3 ×consc
+loading); each check inside `pm_win` halves that check's
+remaining tax — strategic monitoring, not a param override.
+Below `cue_floor` (§5.63) a child additionally cannot
+GENERATE the reminder context — the two taxes stack.
 
 ---
 
@@ -9384,6 +9487,40 @@ selfdef_cue_gain polish, and never degrades the anchor's
 strength (tension ≠ damage; a tense anchor is a strong
 record, not a weak one) (P756). P756.
 
+### 6.152 The forget cue's two ages — report gate below, ecology
+above; and the child as own narrator (new in v5.23)
+
+**6.152a Directed-forget age split** (AD§76; Harnishfeger &
+Pope 1996; Wilson & Kipp 1998; Aslan et al. 2010; Howe 2005):
+`dforget` on a record flagged at `retrievalAge <
+df_store_onset` (10) does NOT run `df_theta` ecology-starving
+— storage is untouched (`df_erase_null` already locked: the
+op never deletes). Instead the flag becomes a report gate:
+the record's emission requires retrieval mass
+×(1 + `df_gate`·`df_gate_ramp(retrievalAge)`), `df_gate` 0.5,
+`df_gate_ramp` knots 0.3@5y → 1.0@10y (first graders show
+hardly any forget-cue effect). Records tagged
+`phantom`/`gist_lure` pay an additional
+×(1 + `df_gist_gate`), `df_gist_gate` 0.3 — the Howe 2005
+asymmetry: children's effortfully-generated false content is
+suppressible at output where adults' is automatic. From
+`df_store_onset` the flag runs the standard `df_theta` path.
+RIF (`rif_k`, §5.x) intentionally has NO child ramp — verified
+intact at 7 (Zellner & Bäuml 2005; Ford et al. 2004); the
+controlled/automatic split IS the developmental story.
+
+**6.152b The child tells it** (AD§80; Reese, Haden & Fivush
+1993; Fivush, Haden & Reese 2006; Reese & Newcombe 2007):
+`hearAccount`/retell where teller == the record's subject and
+`retrievalAge < self_reminisce_until` (10) consolidates at
+`S *= (1 + self_reminisce_gain)`, `self_reminisce_gain` 0.3.
+`reminisce_env` (v1.5 profile dial) now acts THROUGH this leg
+rather than as a floating scalar: env modulates the gain
+±`reminisce_env_mod` (0.1) and world-side modulates the rate
+of child-tells-own-past events — elaborative households
+produce more child narration AND get more per telling; the
+wall-shift (`amnesia_exit_eff`) is produced, not assumed.
+
 
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
@@ -10775,6 +10912,28 @@ MemoryParams = {
 //   record evClust + struct; ctxcue cfg table (non-record);
 //   emission fields `pulse`, `reminding:true`, `giveUp:{fok}`;
 //   Event `continues:eventId` cluster hint.
+// v5.23 additions (age-development VII — AD§§75–82)
+"ctx_strict_lo": 2.5, "ctx_strict_mid": 1.8,   // §4.35a/§5.77a
+"ctx_strict_hi": 1.3,                          // knots 2.5@<3→1.8@4→1.3@6→1.0@exit
+"fb_3y": 3, "fb_5y": 4, "fb_8y": 5,            // §4.35b field_budget
+"fb_12y": 6, "fb_adult": 8,
+"intent_boost_lo": 0.4, "intent_boost_mid": 0.3, // §4.35c 0.4@4→0.1 adult
+"df_store_onset": 10, "df_gate": 0.5,          // §6.152a report gate
+"df_gist_gate": 0.3, "df_gate_ramp_lo": 0.3,   // 0.3@5→1.0@10
+"reorg_dip": 0.2, "reorg_lo": 12, "reorg_hi": 18, // §5.77a dip
+"reorg_era_min": 4, "reorg_era_max": 9,
+"reorg_attrit": 0.15,
+"pmt_5y": 2.2, "pmt_9y": 1.6, "pmt_14y": 1.2,  // §5.77b child arm
+"pm_clock_p": 0.3,                             // consc-loaded check rate
+"self_reminisce_gain": 0.3, "self_reminisce_until": 10, // §6.152b
+"reminisce_env_mod": 0.1,
+"er_4y": 1.3, "er_10y": 1.15,                  // §4.35d enact child arm
+// v5.23 locked null: df_erase_null (dforget never deletes at ANY
+//   age — below onset it doesn't even starve ecology; P796).
+// v5.23 fields: record `ctx_locked` + `ctx_strict_val` (mint,
+//   permanent), `reorg_hit` (once-only attrition mark);
+//   Event `to_remember`; emission `check_clock` micro-event.
+//   RIF child ramp REJECTED — null finding (AD§76, J9).
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -12247,6 +12406,30 @@ not resolved (DEBATED magnitude). P509/P511.
     bonus counts encoded fields only.
   - All snapshot-additive, absent = legacy; no new traits
     (checker, imagery, narr_agency, neurot, depr already exist).
+- v5.23 additions (age-development.md Part VII §§75–82):
+  - **Record fields:** `ctx_locked:true` + `ctx_strict_val`
+    minted on `encodeAge < amnesia_exit_eff` (§4.35a —
+    permanent; §5.77a evaluates the penalty);
+    `reorg_hit` once-only mark on window-failed records.
+  - **Event field:** `to_remember:true` (§4.35c — world
+    supplies "the character was told to remember this").
+  - **`dforget` age split** (§6.152a): below
+    `df_store_onset` (10) the flag is a report gate, not an
+    ecology starve — callers see the same flag, the engine
+    routes by age; locked `df_erase_null` at all ages.
+  - **`pm_time_tax` U completed** (§5.77b): child knots
+    join the existing old-side curve; `check_clock`
+    micro-events (rate `pm_clock_p`) may be emitted while a
+    time-intention is armed — world may render them as the
+    child literally checking.
+  - **`reminisce_env` rerouted** (§6.152b): the profile dial
+    now modulates `self_reminisce_gain` and the world-side
+    rate of child-tells-own-past retells — same dial, real
+    channel.
+  - **`enact_rescue` child knots** (§4.35d): U completed;
+    `enacted:true` unchanged as the trigger field.
+  - All snapshot-additive, absent = legacy; no new traits
+    (reminisce_env, consc already exist).
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 

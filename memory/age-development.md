@@ -2177,3 +2177,357 @@ circuits, not just firsts/transitions.
   adolescent reward-memory literature is young (single-digit
   core papers) — keep it window-scoped and reward-only; do not
   widen without new sources.
+
+# Part VII — v75 deepening (2026-09-23): the lock that keeps the key, the forget cue that isn't, the thin mint, the adolescent blackout, the intention that needs a clock, the child who tells it, the instruction that lands, and doing beats watching (the child side)
+
+Seven unpriced legs this pass. Four corrections/sharpenings of
+earlier informal claims: (a) below-the-wall traces are not just
+weak — they are **context-locked**, which is a retrieval-side
+constraint no earlier version modeled; (b) the directed-forget
+operator's child side was assumed absent — verified this version:
+it is **present but output-shaped** (storage intact, report
+suppressed, and FALSE content suppressed better than in adults);
+(c) `pm_time_tax` had old-side knots only — the child side is the
+steeper arm; (d) `reminiscence_env` was a black-box bible dial —
+the literature says its active channel is **the child doing the
+telling**, now mechanized. Sources re-verified inline.
+
+## 75. Below the wall the key is the room itself — context-locked traces
+
+- **Infant retention is context-bound, and the binding loosens
+  with age.** Butler & Rovee-Collier 1989 (*JEP:LM&C* 15): in the
+  mobile-conjugate paradigm, changing the crib liner or the
+  surrounding visual context abolishes 3-month-olds' retention
+  that would otherwise be near-perfect; Rovee-Collier & Shyi 1992
+  and Hayne & Findlay 1995 (context-shift work): the cost of a
+  context change falls steeply across the first year and remains
+  elevated through toddlerhood relative to adults.
+  **[CONSENSUS]**
+- **This is a RETRIEVAL constraint on a stored trace, not an
+  encoding failure** — the same infant re-tested in the original
+  context shows full retention after delays that would be
+  forgotten under a changed context (Butler & Rovee-Collier 1989).
+  The trace is fine; only the original room can read it.
+- **Persistence past the wall — HYPOTHESIS extension.** The infant
+  literature measures weeks, not decades. Our modeling claim:
+  records minted while `encodeAge < amnesia_exit_eff` carry the
+  constraint for life — which is exactly the phenomenology of
+  early memories surfacing ONLY on near-exact reinstatement (the
+  smell of that kitchen, never "tell me about being four").
+
+**Spec consequence (v5.23):** records with
+`encodeAge < amnesia_exit_eff` mint with `ctx_locked:true`
+(permanent flag). At retrieval, for ctx_locked records, the
+simOp mismatch penalty on `place` and `sensory` fields is
+multiplied by `ctx_strict(encodeAge)` — knots 2.5@<3y → 1.8@4y →
+1.3@6y → 1.0@exit — evaluated at mint and stored, so it never
+decays. Net effect: a below-wall record's effective retrieval
+mass under a partial-context cue (name, topic, "when you were
+little") is negligible; under full-context reinstatement it is
+nearly normal. This stacks with `infant_beta_mult` (§4.31a — the
+fast clock) and `reinstate_gain` (§4.31b — the seen reminder):
+the infant literature's triad is now the spec's triad.
+
+## 76. The forget cue is a report cue in childhood — controlled vs output DF
+
+- **Listwise directed forgetting is late.** Harnishfeger & Pope
+  1996 (*J. Exp. Child Psychol.* 62:292 — verified): first
+  graders show NO List-1 forgetting, third graders a reduced
+  effect, fifth graders adult-like. Zellner & Bäuml 2004 (2nd vs
+  4th graders): no forget-cue effect in the younger band.
+  Wilson & Kipp 1998 (*Dev. Rev.* 18:86) — the review.
+  **[CONSENSUS]**
+- **But it is a production deficiency, not a competence wall.**
+  Aslan, Staudigl, Samenieh & Bäuml 2010 (*Psychon. Bull. Rev.*
+  17:784 — verified): with high-emphasis cues young children
+  show partial DF — the mechanism exists but isn't recruited
+  spontaneously, mirroring §66's production-deficiency frame.
+- **The child asymmetry nobody had priced:** Howe 2005
+  (*Psychol. Sci.* 16 — verified): under a directed-forget cue,
+  children (5/7/11) suppress FALSE recall (DRM lures) while
+  adults do NOT. Children's gist-false output is effortfully
+  generated and therefore suppressible at the report gate;
+  adults' is automatic. The same instruction that does nothing
+  to a child's true-memory storage DOES clean their false
+  output.
+- **Automatic inhibition is already there.** Zellner & Bäuml
+  2005 (*Mem&Cogn.* 33:396 — verified): retrieval-induced
+  forgetting and part-list cuing effects are intact in children
+  — RIF needs NO new child ramp (earlier drafts assumed a late
+  onset; the data says otherwise). Ford, Keating & Patel 2004
+  (*Br. J. Dev. Psychol.* 22:585): 7-year-olds show
+  adult-magnitude RIF. The DF/RIF dissociation in childhood is
+  the controlled/automatic split itself.
+
+**Spec consequence (v5.23):** `dforget` splits by age at flagging.
+Below `df_store_onset` (10) the flag does NOT engage `df_theta`
+ecology-starving (storage untouched — locked `df_erase_null`
+already guarantees no deletion); instead it sets a report gate:
+emission of the flagged record requires retrieval mass
+×(1 + `df_gate`, 0.5), and records with `phantom`/`gist_lure`
+tags pay an additional ×(1 + `df_gist_gate`, 0.3) — the Howe
+asymmetry, child-only. From `df_store_onset` to adult the flag
+moves onto the standard `df_theta` path. Below ~7 the gate is
+weak too (first graders "show hardly any effect of the forget
+cue at all" — scale `df_gate` by `df_gate_ramp` 0.3@5→1.0@10).
+
+## 77. Children mint thin records — the field budget
+
+- **Children's event reports are sparser, and the sparsity is in
+  the record, not just the telling.** Jones & Pipe 2002
+  (children's event recall 5→9: completeness and accuracy both
+  rise); Fivush & Haden — children's narratives of the same
+  event contain fewer elements. Working-memory span growth
+  (Gathercole, Pickering, Knight & Stegmann 2004 — verified
+  norms) bounds how much of an ongoing event gets written.
+  **[CONSENSUS direction; field-count mapping HYPOTHESIS]**
+- **What gets kept is not random.** Young children keep agents
+  and actions (who did what) and drop temporal order, location
+  detail, and thematic connections — consistent with §67
+  (Friedman: ordering by strength, not time) and §37 (scripts
+  swallow instances — the dropped fields are exactly the ones
+  that individuate instances).
+
+**Spec consequence (v5.23):** `field_budget(encodeAge)` caps the
+number of cueVector/verbatim fields written at mint — knots
+3@3y → 4@5y → 5@8y → 6@12y → 8@adult (adult = current behavior,
+no cap). Overflow drops by a fixed fill order, children keeping
+`people` > `action/topic` > `place` > `sensory` > `when` >
+`why/emotion` (temporal and thematic fields drop FIRST — the
+opposite of adult truncation, where `when` dies first under
+arousal but `why` survives). Downstream consequence is emergent
+and load-bearing: a thin cueVector means fewer cue channels can
+reach the record later — part of what §2's amnesia wall IS, now
+priced as a mint-side mechanism rather than only decay.
+
+## 78. The adolescent dip — teens lose the childhood they had at eight
+
+- **The amnesia is made during childhood** (§2, Bauer & Larkina
+  2014): children who recalled ≥60% of early events at 5–7
+  recall <40% at 8–9 — the loss is visible while they are still
+  children.
+- **It deepens through adolescence, then the floor holds.**
+  Peterson, Grant & Boland 2005 and Peterson, Warren & Short
+  2011 (*Memory* 19): children's reported earliest-memory age
+  drifts forward as they age — events recalled at 8 are gone or
+  re-dated at 12. Habermas & de Silveira 2008: the life-narrative
+  reorganization of §29 coincides with the sparsest recall of
+  the pre-10 era. Adolescents are reorganizing the archive, and
+  during the reorganization access is worst.
+  **[CONSENSUS that childhood recall drops across 8→18; the
+  recovery claim is partial — some access returns in adulthood
+  (the bump-era records re-densify), some does not — HYPOTHESIS
+  split below]**
+
+**Spec consequence (v5.23):** `reorg_dip` — during
+`retrievalAge ∈ [reorg_lo 12, reorg_hi 18]`, records with
+`encodeAge ∈ [reorg_era_min 4, reorg_era_max 9]` pay a θ
+penalty `+reorg_dip` (0.2). Two-armed: 60% of the penalty is
+pure access (lifts at `reorg_hi`), 40% is real attrition —
+records queried-and-failed inside the window take a one-time
+`S *= (1 − reorg_attrit 0.15)` (a failed search during the
+reorganization costs the trace; successful retrievals inside
+the window are exempt — use it or lose it, adolescent-edition).
+
+## 79. The intention needs a clock — time-based PM is the late arm
+
+- **Event-based prospective memory is early.** Kvavilashvili,
+  Kyle & Messer 2008 (review — verified): event-based PM is
+  demonstrable in preschoolers and near-mature by ~7 when the
+  cue is salient; §31 already priced the interruption hazard.
+- **Time-based PM is late because it is strategy-based.** Ceci
+  & Bronfenbrenner 1985 (*Dev. Psychol.* 21 — verified):
+  children's time-based remembering depends on strategic clock
+  monitoring, which develops through middle childhood — the
+  children who pass are the ones who check. Without an external
+  reminder the young child's time-bound intention simply does
+  not fire. **[CONSENSUS]**
+
+**Spec consequence (v5.23):** `pm_time_tax` (v5.12, old-side
+knots 1.0@50→1.6@85) gains child knots — the full curve is now
+U-shaped in log-age: 2.2@5y → 1.6@9y → 1.2@14y → 1.0@adult →
+1.6@85. Event-based `pm_self` unchanged on the child side
+(intact early). Compensation leg: `pm_clock_p` (0.3 scaled by
+consc) — a child with an armed time-intention emits periodic
+`check_clock` micro-events; each check inside `pm_win` restores
+half the tax. The child who checks the clock IS the child who
+remembers — the mechanism, not a correlation.
+
+## 80. The child tells the story — reminiscence_env's active channel
+
+- **Joint reminiscing consolidates, and the child's own
+  contribution is the active ingredient.** Reese, Haden &
+  Fivush 1993 (*Cog. Dev.* 8 — verified: mothers' elaborations
+  at encoding predict children's later recall, acting through
+  the child's own participation); Welch-Ross 1997; Fivush,
+  Haden & Reese 2006 — elaborative maternal style works by
+  drawing the CHILD into producing the narrative. Reese &
+  Newcombe 2007 (longitudinal): the outcome is earlier
+  autobiographical onset and more coherent early memories —
+  already priced as `reminiscence_env` (v1.5) but the delivery
+  channel was a black box. **[CONSENSUS mechanism]**
+
+**Spec consequence (v5.23):** `hearAccount`/retell where the
+teller IS the child and the content is the child's own past:
+`S *= (1 + self_reminisce_gain)`, 0.3 at `retrievalAge <
+self_reminisce_until` (10), vs adult retell_boost baseline.
+`reminiscence_env` now acts through this leg instead of as a
+free-floating consolidation scalar: the env dial modulates both
+the rate of child-tells-own-past events (world-side frequency)
+and the gain itself (±`reminisce_env_mod` 0.1 around the knot).
+Low-env households mint fewer child-tell events AND gain less
+per event — the mechanism produces the wall-shift (§12's
+`amnesia_exit_eff`) rather than assuming it.
+
+## 81. "Try to remember" — the instruction that lands on children
+
+- **Intentional-encoding instructions help children MORE than
+  adults** — the production-deficiency flip side. Baker-Ward,
+  Ornstein & Holden 1984 (*J. Exp. Child Psychol.* — verified):
+  children told to remember show a large encoding benefit that
+  spontaneous encoding lacks; adults gain less because they are
+  already strategy-spontaneous. The same instruction is a
+  nudge for an adult and an unlock for a six-year-old.
+  **[CONSENSUS direction; magnitude knots HYPOTHESIS]**
+
+**Spec consequence (v5.23):** Event flag `to_remember:true`
+(the character was told / told themselves to remember this —
+bedtime "remember this for the dentist," a parent's "don't
+forget what happened today"). Encoding gain
+`E *= (1 + intent_boost(encodeAge))` — knots 0.4@4y → 0.3@8y →
+0.15@12y → 0.1@adult. Stacks under `field_budget` (the
+instruction raises E, not the field count — a told child
+remembers MORE of the same thin record).
+
+## 82. Doing beats watching — enactment's child side
+
+- **The enactment effect (subject-performed tasks) is robust
+  from ~3–4 and proportionally LARGER in young children** —
+  Ratner, Smith & Dionne 1991 (enactment improves children's
+  recall; Cohen 1981). §4.31c priced the observer side
+  (`obs_gain`, watched-not-done); §85 of age-decline priced the
+  old side (`enact_rescue` 1.1@65→1.4@85). The child knot was
+  the missing end of the curve. **[CONSENSUS existence; child
+  knot magnitudes HYPOTHESIS]**
+
+**Spec consequence (v5.23):** `enact_rescue` gains child knots —
+full curve now 1.3@4y → 1.15@10y → 1.1@adult plateau →
+(existing) 1.25@75 → 1.4@85 — a U in age with its widest arms
+at the ends, which is the shape the SPT literature draws
+(Bäckman & Nilsson 1985 old side; Ratner et al. child side).
+Note the asymmetry now explicit: for a 4-year-old, watching an
+event mints at `obs_gain` 0.3 while doing it mints at
+enact-boosted full strength — a ~4× self/other gap at an age
+where the adult gap is ~1.4×. Children are made of what they
+did, not what they saw.
+
+## 83. Knot-table revision summary (v5.12)
+
+| curve | change | source |
+|---|---|---|
+| simOp ctx mismatch | `ctx_strict(encodeAge)` 2.5@<3→1.0@exit on `ctx_locked` records | Butler & Rovee-Collier 1989; Hayne & Findlay 1995 |
+| dforget below onset | storage untouched; report gate `df_gate` 0.5 ×`df_gate_ramp`; gist +`df_gist_gate` 0.3 | Harnishfeger & Pope 1996; Howe 2005 |
+| RIF/part-list | NO new params — verified intact in children; existing rif_k stands | Zellner & Bäuml 2005; Ford et al. 2004 |
+| mint | `field_budget(encodeAge)` 3@3→8@adult; child drop-order when/why first | Gathercole et al. 2004; Jones & Pipe 2002 |
+| θ | `reorg_dip` +0.2 on era [4,9] records during [12,18]; fail→`reorg_attrit` | Peterson et al. 2011; Habermas & de Silveira 2008 |
+| pm_time_tax | child knots 2.2@5→1.2@14 join old side; `pm_clock_p` 0.3 check leg | Ceci & Bronfenbrenner 1985; Kvavilashvili et al. 2008 |
+| retell | `self_reminisce_gain` 0.3 child-tells-own-past <10; `reminisce_env` routes through it | Reese, Haden & Fivush 1993; Reese & Newcombe 2007 |
+| E | `intent_boost(encodeAge)` 0.4@4→0.1 adult on `to_remember` | Baker-Ward, Ornstein & Holden 1984 |
+| enact_rescue | child knots 1.3@4→1.15@10 join old-side U | Ratner et al. 1991; Cohen 1981 |
+
+## 84. Spec changes (v5.22 → v5.23) — delta table
+
+| # | change | where (source) |
+|---|---|---|
+| J1 | `ctx_locked` mint flag + `ctx_strict` knots on simOp ctx penalty | §75 (Butler & Rovee-Collier 1989) |
+| J2 | `dforget` age split: `df_store_onset` 10; report-gate path `df_gate`/`df_gist_gate`/`df_gate_ramp` below | §76 (Harnishfeger & Pope; Howe 2005) |
+| J3 | `field_budget` mint cap + child drop-order | §77 (Gathercole 2004; Jones & Pipe 2002) |
+| J4 | `reorg_dip` θ penalty + `reorg_attrit` on failed queries | §78 (Peterson 2011) |
+| J5 | `pm_time_tax` child knots + `pm_clock_p` check leg | §79 (Ceci & Bronfenbrenner 1985) |
+| J6 | `self_reminisce_gain` leg; `reminisce_env` rerouted through it | §80 (Reese, Haden & Fivush 1993) |
+| J7 | `intent_boost` knots on `to_remember` | §81 (Baker-Ward 1984) |
+| J8 | `enact_rescue` child knots — U completed | §82 (Ratner 1991) |
+| J9 | RIF child ramp considered and REJECTED — null finding logged (intact early) | §76 (Zellner & Bäuml 2005) |
+
+## 85. Validation probes (P795–P804; registry continues P1–P794)
+
+- **P795 context lock (MUST, sign-locked):** a record encoded at
+  3, intact S, queried at 12 with a topical/name cue only → no
+  retrieval; same query with place+sensory reinstatement →
+  retrieval. A matched adult-encoded control retrieves on the
+  partial cue. The flag persists — at 40 the record STILL fails
+  the partial cue.
+- **P796 DF output gate (MUST, two arms):** `dforget` on a
+  6-year-old's record leaves S and ecology intact
+  (structure-check: zero df_theta activity) while raising
+  emission threshold — the record surfaces on strong cues, is
+  withheld on weak ones; same flag at 12+ runs the adult
+  df_theta path (starved ecology).
+- **P797 child gist suppression (SHOULD — the Howe sign):** at
+  retrievalAge 7, `dforget` suppresses phantom/gist_lure-tagged
+  records MORE than true records (df_gist_gate active); at 30
+  the asymmetry inverts or vanishes (adults can't gate the
+  false output).
+- **P798 field budget (MUST):** encodeAge-4 mints carry ≤3–4
+  cueVector fields with `when`/`why` dropped first; encodeAge-10
+  mints carry ~5–6; adult mints uncapped. Drop order is
+  fixed-order, not random — `when` survives a child mint only
+  when field count is under budget.
+- **P799 adolescent dip (MUST, shape-locked):** the same
+  encodeAge-6 record queried at 10, 15, 20 → R(15) < R(10) AND
+  < R(20) for SURVIVING records; records whose query failed
+  inside the window show the `reorg_attrit` S-loss mark —
+  attrition concentrated on the queried-and-failed, not the
+  untouched.
+- **P800 time-PM child arm (SHOULD):** identical intentions,
+  `cueType:time` vs `cueType:event` at 6 → event fires ≥1.8×
+  more; at 14 the gap narrows to ≤1.3×; `pm_clock_p`-high
+  children halve the gap (compensation is behavioral, not a
+  param edit).
+- **P801 child-tells (SHOULD):** a 7-year-old recounting her own
+  past event consolidates it more than hearing a caregiver
+  recount the same event to her; reminiscence_env-modulated
+  households differ in BOTH leg rate and per-leg gain.
+- **P802 intent unlock (SHOULD):** `to_remember` events at 5
+  gain ≥1.35× the adult relative boost; flag absent at 5 vs
+  present at 25 shows no reverse ordering.
+- **P803 enactment U (SHOULD):** enacted-vs-observed encode
+  ratio is largest at ~4 (≈4× via obs_gain × enact_rescue),
+  narrows to ~1.2× at adult, re-widens ≥1.4× at 85 —
+  both arms of the U against the same event content.
+- **P804 v5.23 regression (MUST — structure):** all v5.23
+  params at defaults reproduce v5.22 outputs on the standard
+  battery except the sign-locked differences above; rif_k
+  untouched (J9 null).
+
+## 86. Honest limits, seventh pass
+
+- `ctx_strict`'s persistence past `amnesia_exit_eff` is our
+  extension — the infant literature measures weeks. The
+  phenomenological claim (early memories need full reinstatement)
+  is folklore-consistent but not lab-verified at decadal scale;
+  P795 tests the sign, the decade-persistence is the bet.
+- The DF output gate maps a listwise-lab finding onto an
+  autobiographical record — `df_gate`/`df_gist_gate` magnitudes
+  are fitted; the DIRECTION (report-side, false-first) is the
+  verified datum.
+- `field_budget`'s fill order is inferred from what children
+  report (agents/actions early, when/why late); whether dropped
+  fields were never encoded or encoded-and-dead is debated —
+  we chose never-encoded (cheaper, and consistent with the
+  completeness findings).
+- `reorg_dip`'s 60/40 access/attrition split is a modeling
+  decision; the literature shows the drop but not its
+  permanence structure. The `reorg_attrit` mark makes the
+  hypothesis falsifiable (P799).
+- `pm_clock_p` treats clock-checking as a trait-modulated
+  behavior propensity — Ceci & Bronfenbrenner measured the
+  STRATEGY; the per-character propensity is our plumbing.
+- `self_reminisce_gain` routes `reminisce_env` through a
+  mechanism the literature supports directionally, but the
+  per-event gain (0.3) and env modulation (±0.1) are fitted.
+- `intent_boost` extends list-learning instruction effects to
+  event encoding — HYPOTHESIS map, SHOULD-tier only.
+- `enact_rescue` child knots (1.3@4) extrapolate SPT ratios
+  across paradigms; the U shape is right, the exact child arm
+  is a fit.

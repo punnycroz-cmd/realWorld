@@ -6861,3 +6861,117 @@ P790, P793, P794), 3 SHOULD (P788, P791, P792).
   configural learning, FOK-gated persistence); every magnitude
   and the ctxcue/giveUp plumbing are RW HYPOTHESES fitted to
   consensus shape.
+
+## 150. New probes P795–P804 (v75 suite — age-development VII)
+
+- **P795 context lock (MUST — sign-locked):** a record encoded at
+  3, intact S, queried at 12 with a topical/name cue only → no
+  retrieval; same query with place+sensory reinstatement →
+  retrieval. Matched adult-encoded control retrieves on the
+  partial cue. Flag persistence check: at 40 the record STILL
+  fails the partial cue (ctx_strict_val stored at mint).
+  Butler & Rovee-Collier 1989.
+- **P796 DF output gate (MUST — two arms):** `dforget` flagged at
+  retrievalAge 6 leaves S and ecology intact (structure-check:
+  zero df_theta activity — locked `df_erase_null`) while raising
+  emission threshold — surfaces on strong cues, withheld on
+  weak; same flag at 12+ runs the adult df_theta path.
+  Harnishfeger & Pope 1996.
+- **P797 child gist suppression (SHOULD — the Howe sign):** at
+  retrievalAge 7, `dforget` suppresses phantom/gist_lure records
+  MORE than true records (df_gist_gate); at 30 the asymmetry
+  inverts or vanishes. Howe 2005.
+- **P798 field budget (MUST):** encodeAge-4 mints ≤4 cueVector
+  fields, `when`/`why` dropped first; encodeAge-10 ~5–6; adult
+  uncapped. Drop order fixed, not random — `when` survives a
+  child mint only when under budget. Gathercole et al. 2004;
+  Jones & Pipe 2002.
+- **P799 adolescent dip (MUST — shape-locked):** same
+  encodeAge-6 record queried at 10, 15, 20 → R(15) < R(10) AND
+  < R(20) for survivors; failed window queries carry
+  `reorg_hit` and the `reorg_attrit` S-loss — attrition on the
+  queried-and-failed, not the untouched. Peterson et al. 2011.
+- **P800 time-PM child arm (SHOULD):** matched intentions,
+  `cueType:time` vs `cueType:event` at 6 → event fires ≥1.8×
+  more; at 14 gap ≤1.3×; `pm_clock_p`-high children halve the
+  gap via check events (compensation behavioral). Ceci &
+  Bronfenbrenner 1985; Kvavilashvili et al. 2008.
+- **P801 child-tells (SHOULD):** a 7-year-old recounting her own
+  past consolidates it more than hearing a caregiver recount the
+  same event to her; reminiscence_env modulates both leg rate
+  and per-leg gain. Reese, Haden & Fivush 1993.
+- **P802 intent unlock (SHOULD):** `to_remember` at 5 gains
+  ≥1.35× the adult relative boost; flag-absent vs flag-present
+  ordering never inverts. Baker-Ward et al. 1984.
+- **P803 enactment U (SHOULD):** enacted-vs-observed encode
+  ratio peaks at ~4y (≈4× via obs_gain × enact_rescue), narrows
+  ~1.2× adult, re-widens ≥1.4× at 85 — both arms on the same
+  content. Ratner et al. 1991; Bäckman & Nilsson 1985.
+- **P804 v5.23 regression (MUST — structure):** all v5.23 params
+  at defaults reproduce v5.22 outputs on the standard battery
+  except the sign-locked differences above; rif_k untouched —
+  the J9 null finding (RIF intact in children) is asserted as
+  "no child ramp exists to remove".
+
+Registry: P1–P804. v75 suite: P795–P804 — 4 MUST (P795, P796,
+P798, P799), 1 structure-MUST (P804), 5 SHOULD.
+
+## 151. Sources verified this version (P795–P804 backing)
+
+- **Context specificity — CONSENSUS for infants:** Butler &
+  Rovee-Collier 1989 (*JEP:LM&C* 15 — crib-liner/context change
+  abolishes 3-month retention); Rovee-Collier & Shyi 1992;
+  Hayne & Findlay 1995 (context cost declines across infancy).
+  The permanence of `ctx_locked` into adulthood is our
+  HYPOTHESIS extension — the lab measures weeks.
+- **Directed forgetting — CONSENSUS late onset of the
+  controlled kind:** Harnishfeger & Pope 1996 (*J. Exp. Child
+  Psychol.* 62:292 — verified: no DF in 1st, reduced in 3rd,
+  adult-like in 5th graders); Zellner & Bäuml 2004; Wilson &
+  Kipp 1998 (*Dev. Rev.* 18:86 — verified review); Aslan,
+  Staudigl, Samenieh & Bäuml 2010 (*PBR* 17:784 — verified:
+  production deficiency, high-emphasis cues partially rescue).
+  **Child false-memory suppression — CONSENSUS finding, one
+  study:** Howe 2005 (*Psychol. Sci.* 16 — verified: children
+  suppress DRM false recall under forget cues; adults don't).
+  `df_gate`/`df_gist_gate` magnitudes HYPOTHESIS.
+- **RIF null — CONSENSUS:** Zellner & Bäuml 2005 (*Mem&Cogn.*
+  33:396 — verified: retrieval inhibition + part-list cuing
+  intact in children); Ford, Keating & Patel 2004 (*Br. J.
+  Dev. Psychol.* 22:585 — verified: 7-year-olds show
+  adult-magnitude RIF). Logged as the version's deliberate
+  non-addition (J9).
+- **Field budget — CONSENSUS direction, HYPOTHESIS form:**
+  Gathercole, Pickering, Knight & Stegmann 2004 (*JEP:G* 133 —
+  verified WM span norms); Jones & Pipe 2002 (recall
+  completeness 5→9). The field-cap operationalization and the
+  drop-order are ours.
+- **Adolescent dip — CONSENSUS drop, HYPOTHESIS split:**
+  Bauer & Larkina 2014 (already §2); Peterson, Grant & Boland
+  2005; Peterson, Warren & Short 2011 (*Memory* 19 — verified:
+  earliest-memory forward drift across childhood); Habermas &
+  de Silveira 2008 (narrative reorganization 12–18). The
+  60/40 access/attrition split and `reorg_attrit` mark are RW
+  construction — falsifiable via P799.
+- **Time-based PM — CONSENSUS dissociation:** Ceci &
+  Bronfenbrenner 1985 (*Dev. Psychol.* 21 — verified: strategic
+  clock monitoring); Kvavilashvili, Kyle & Messer 2008
+  (verified review: event-based early, time-based late).
+  `pm_clock_p` plumbing is ours.
+- **Child-as-narrator — CONSENSUS mechanism:** Reese, Haden &
+  Fivush 1993 (*Cog. Dev.* 8 — verified: maternal elaboration
+  acts through child participation); Welch-Ross 1997; Fivush,
+  Haden & Reese 2006; Reese & Newcombe 2007 (longitudinal).
+  The per-event gain (0.3) and env routing are fitted.
+- **Intent instruction — CONSENSUS direction:** Baker-Ward,
+  Ornstein & Holden 1984 (*J. Exp. Child Psychol.* — verified:
+  children benefit more from remember-instructions).
+  Magnitude knots HYPOTHESIS.
+- **Enactment child arm — CONSENSUS existence:** Ratner,
+  Smith & Dionne 1991; Cohen 1981 (SPT robust in children).
+  The U-completion knots are extrapolation — flagged.
+- **Established vs hypothesis summary:** directions all
+  established (context-lock, DF-late/output-split, thin mints,
+  adolescent dip, time-PM lag, child-narration channel,
+  instruction unlock, enactment U); every magnitude and the
+  ctx_locked-permanence extension are RW HYPOTHESES.
