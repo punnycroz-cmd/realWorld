@@ -5755,8 +5755,9 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
       }
     }
     // blade sign: bracketed panel perpendicular to the wall at the shop edge
+    // (blx/bly hoisted: the v57 dusk neon-edge block below reuses them)
+    const blx = x1 + ex * 0.9, bly = y1 + ey * 0.9;
     {
-      const blx = x1 + ex * 0.9, bly = y1 + ey * 0.9;
       quad([[blx, bly, 3.9], [blx + nx * 0.6, bly + ny * 0.6, 3.9],
             [blx + nx * 0.6, bly + ny * 0.6, 4.9], [blx, bly, 4.9]],
            shade(signC, Math.max(0.5, dim) * 1.15));

@@ -102,7 +102,8 @@ try {
     gsResourceBoard: (typeof gsResourceBoard!=='undefined'?gsResourceBoard:null),
     gsHireJobs: (typeof GS_JOBS!=='undefined'?GS_JOBS:null),
     sfFindPOI, sfGoTo, sfNpcTick, sfPoiDoor, sfPathfind, sfEnterPOI,
-    sfExitPOI, sfFollowPath, CS })`);
+    sfExitPOI, sfFollowPath, sfAgentAct, sfAgentState, sfDispatchPoll,
+    sfIsMain, CS })`);
 } catch (e) {
   console.error('PAGE LOAD FAILED:', e.message);
   console.error(e.stack.split('\n').slice(0, 8).join('\n'));
@@ -151,19 +152,44 @@ const nowMin = () => Date.now() / 60000;
   check(api.W.tod !== tod0 || api.W.day !== undefined, 'world clock advances',
     'tod ' + tod0.toFixed(2) + ' -> ' + api.W.tod.toFixed(2) + ' day ' + api.W.day);
 
-  /* schedule adherence: at tod~13 Marisol's block says 'serve at Haus
-     Coffee' — the thin-AI follower should have her at the door/inside.
-     (C2 Jules is the audience surrogate — isNPC=false by design, she is
-     the player's own pawn and does not run a schedule.) */
+  /* v16 contract — the mains run NO code schedule: Marisol boots
+     sfAgentDriven with no sfSched and stands in the intention_gap until
+     a brain files. Assert the takeover is gone, then file a REAL order
+     through the contract and watch the ladder execute it: move to Haus
+     Coffee, directive promotes to the work shift on arrival. */
   const mars = api.VILLAGERS.find(v => v._castId === 'C1');
   const haus = api.sfFindPOI('Haus Coffee');
   const hDoor = haus && api.sfPoiDoor(haus);
+  check(mars.sfAgentDriven === true && !mars.sfSched,
+    'no code schedule: Marisol is brain-driven',
+    'sfAgentDriven=' + mars.sfAgentDriven + ' sfSched=' + !!mars.sfSched);
+  const stGap = api.sfAgentState('C1');
+  check(stGap && stGap.gap === true,
+    'a brainless main shows the honest intention_gap (never a ghost schedule)',
+    'gap=' + (stGap && stGap.gap) + ' state=' + (stGap && stGap.state));
+  const filed = api.sfAgentAct('C1',
+    { verb: 'move', to: 'Haus Coffee', holdH: 1.5,
+      why: 'opening shift — the machine won\'t warm itself' },
+    { directive: { verb: 'work', to: 'Haus Coffee',
+                   why: 'my counter until the lull', untilH: 4,
+                   repeat: true }, seq: 1 });
+  check(filed && filed.ok === true, 'contract filing accepted',
+    JSON.stringify(filed && filed.err || filed && filed.order && filed.order.verb));
+  let guard = 0;
+  while (guard++ < 4000 &&
+         !(mars.sfAgentResult && mars.sfAgentResult.status === 'completed' &&
+           mars.sfAgentResult.verb === 'move'))
+    api.simTick(0.02);
   const mDist = hDoor && Math.hypot(mars.x - (hDoor.wx * api.CS + 16),
                                     mars.y - (hDoor.wy * api.CS + 16)) / api.CS;
   check(mars.inside === 'Haus Coffee' || mDist < 12,
-    'schedule adherence: Marisol works her Haus Coffee shift',
+    'the ladder executed it: Marisol works her Haus Coffee shift',
     'state=' + mars.state + ' inside=' + (mars.inside || mars.inBuilding) +
-    ' distToDoor=' + (mDist != null ? mDist.toFixed(1) + ' cells' : '?'));
+    ' distToDoor=' + (mDist != null ? mDist.toFixed(1) + ' cells' : '?') +
+    ' lastOrder=' + JSON.stringify(mars.sfAgentResult || null));
+  check(mars.sfAgent && mars.sfAgent.verb === 'work',
+    'directive promoted same-tick: the will holds the shift',
+    'live order=' + (mars.sfAgent && mars.sfAgent.verb));
 
   /* and a real walk on the production path: Haus Coffee -> El Farolote */
   const faro = api.sfFindPOI('Taqueria El Farolito');

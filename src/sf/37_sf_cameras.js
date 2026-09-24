@@ -227,8 +227,13 @@ function sfCamPipDraw(cw, ch){
     SF_PIP.cv = document.createElement('canvas');
     SF_PIP.cv.width = 384; SF_PIP.cv.height = 216;
   }
-  if(!SF_PIP.view)
+  if(!SF_PIP.view){
+    const had = SF_CAM_VIEWS['pip'];
     SF_PIP.view = sfCamMake({ id: 'pip', preset: SF_PIP.feeds[SF_PIP.fi], dpr: 1 });
+    /* PiP is rig plumbing, not a spectator view — keep the record (its
+       smoothing state persists) but never list it in sfCamList() */
+    if(had) SF_CAM_VIEWS['pip'] = had; else delete SF_CAM_VIEWS['pip'];
+  }
   if(!SF_PIP.view) return;
   /* ~5 Hz refresh: a parked feed still breathes (pawns, wind, clouds)
      but never costs more than one fifth of the frame budget. The chrome
