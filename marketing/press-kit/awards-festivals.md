@@ -31,7 +31,7 @@ requires a shipped game before launch.
 
 - `one-sheet.html` → Print → PDF as the jury one-pager
 - `fact-sheet.html` → Print → PDF
-- `screenshots/v83-D.png` + `v83-A.png` + `v83-C.png` (the three
+- `screenshots/v84-D.png` + `v84-A.png` + `v84-C.png` (the three
   framings: director hook, dollhouse, park)
 - `keyart/keyart-16x9.png` for listing art
 - Boilerplate: `quotes-boilerplate.md` (100-word version)

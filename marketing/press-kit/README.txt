@@ -35,8 +35,11 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76 → v80 → v83, for "what's new" coverage and
+                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76 → v80 → v83 → v84, for "what's new" coverage and
                      update posts
+  story-desk.md      How to cover a living world: the free observer loop,
+                     the anatomy of a thread (choice → consequence),
+                     where threads live, accuracy rules for coverage
   ai-transparency.md  AI disclosure sheet — what's AI-driven, what
                      isn't, where the data goes, the control rules.
                      For "is this AI slop?" questions and AI-desk
@@ -84,13 +87,14 @@ Contents
                      Dark surfaces only. Rules: marketing/BRAND.md §21.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v83-* = current renderer (the roof catalog — flat roofs
-                     bake real decks, furniture and penthouse pop-ups,
-                     projected identically overhead and at street level;
-                     pitched ridges gain widow's-walk cresting and
-                     finials; carries the v81 coverage-grammar camera,
-                     the v80 sky-visibility shade field, and the
-                     re-framed Dolores overlook underneath);
+                     v84-* = current renderer (the ground-truth pass —
+                     street cells gate the warm key on direct-beam
+                     visibility and fall to skylit umbra in shade,
+                     facade contrast is up, and a sun-driven frame grade
+                     shapes contrast/exposure on the world plate;
+                     carries the v83 roof catalog, the v81
+                     coverage-grammar camera, and the v80 sky-visibility
+                     shade field underneath);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

@@ -5,14 +5,19 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v83 current; v81/v80/v76/v75/v71/v65/v61/v59/v55/v54/v53 kept for era posts)
+## Published shots (`site/shots/`, development build v83 current on the site gallery — v84 newest in the folder, kit-rebased at v182, gallery swap owed; v81/v80/v76/v75/v71/v65/v61/v59/v55/v54/v53 kept for era posts)
 
 | File | Alt text |
 |---|---|
+| `v84-A` | Top-down view of the Mission block in the spectator shell — the Mudhaus Coffee dollhouse cutaway open, Jules inside, Marcus and Victor at the door, sunlit pavement reading warm against shaded cells, the rooftop-over-park feed live in the corner monitor. Development build. |
+| `v84-B` | Street-level close view of Jules on the sidewalk in the spectator shell — inspector card left, camera rail below, Priya and Dani mid-block, the pavement splitting sunlit beam from open shade. Development build. |
+| `v84-C` | Dolores Park from overhead — autumn crowns over meadow drifts, picnic blankets, tennis courts holding the south edge, the sun-driven frame grade over the plate. Development build. |
+| `v84-D` | Director-mode street view up at dressed fronts and ridge-crested rooftops — REC cluster and DIRECTOR badge, the corner monitor's viewfinder strip reading EV and compass. Development build. |
 | `v83-A` | Top-down view of the Mission block in the spectator shell — the Mudhaus Coffee dollhouse cutaway open, Jules inside, Marcus and Victor at the door, flat roofs carrying their furniture catalogs, the rooftop-over-park feed live in the corner monitor. Development build. |
 | `v83-B` | Street-level close view of Jules on the sidewalk in the spectator shell — inspector card left, camera rail below, Priya and Dani mid-block. Development build. |
 | `v83-C` | Dolores Park from overhead — autumn crowns over meadow drifts, tennis courts holding the south edge, the Wire rooftop monitor in the corner. Development build. |
 | `v83-D` | Director-mode street view up at pitched rooftops with ridge cresting and finials against the sky — REC cluster and DIRECTOR badge, viewfinder strip reading EV and compass. Development build. |
+| `v83-A`–`v83-D` | The roof-catalog build — furnished flat roofs, penthouse pop-ups, ridge cresting and finials. Still the current site-gallery set; v84 is the newest in the folder. |
 | `v81-A`–`v81-D` | The coverage-grammar build — look-room pans, two-shot composer with amber partner brackets, thirds-grid guides. Era set; v83 is the current build. |
 | `v80-A`–`v80-D` | The shade-knows-the-sky build — sky-visibility field, building-scale shade pools, self-shadowing props. Era set; v83 is the current build. |
 | `v80-B` | Street-level close view of Jules on the sidewalk with Priya and Dani mid-block — dressed facades, parked cars along the curb, leaves drifting. Development build. |

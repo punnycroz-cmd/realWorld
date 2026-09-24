@@ -463,6 +463,12 @@ to v81-C.)*
 penthouse pop-ups, ridge cresting + finials; v82 was an invisible perf
 pass); v81 section demoted to archive. Same webp-only rule reapplied
 to v83-C.)*
+*(v182: press-kit rebase v83→v84 — ground-truth shading (direct-beam
+gating, skylit umbra, sun-driven frame grade). Kit + store/alt-text
+refs moved; site gallery stays on v83 until the next landing-website
+focus — v84 files already in `site/shots/`, so the swap is a caption
+edit. v84-C PNG (2.28MB) is over the 2MB ceiling — webp-only `<img>`
+when the gallery rebases.)*
 1. `shots/v81-C.png` (2.23MB) breaches the 2MB
    PNG-fallback ceiling. Per the rule set at
    v135, **the PNG fallback is dropped for this shot:** its

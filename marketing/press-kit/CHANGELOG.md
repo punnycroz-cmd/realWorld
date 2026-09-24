@@ -1,7 +1,28 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v83-* is the current development build).
+build they were captured from (v84-* is the current development build).
+
+## v182 — 2026-09-24
+- Screenshots rebased v83→**v84** (art's ground-truth pass: street
+  ground cells gate the warm key on direct-beam visibility and fall to
+  skylit umbra in shade, facade contrast up, top-down cast shadows
+  deeper, a sun-driven frame grade on the world plate before optics).
+  Kit screenshots + webp (PIL q82) swapped; captions, README, manifest,
+  fact-sheet, index, contact-sheet, deadline-desk, b-roll, one-sheet,
+  embargo-briefing, awards-festivals, pitch-emails, whats-new (v84
+  bullet, count 19→20) updated; `make_brand_assets.py` SHOT pin → v84-D.
+  v83 files kept in site/shots/ (site gallery still on v83 — it rebases
+  on the next landing-website focus).
+- NEW `story-desk.md` — how to cover a living world: the free observer
+  loop (catch up → follow someone → predict → inspect → revise →
+  return), the anatomy of a thread, where threads live, and the
+  accuracy rules for coverage. Aligns the kit with the production-3
+  content direction: clips show an unexpected choice and its later
+  consequence, never an empty street camera.
+- `screenshots/v84-C.png` (2.28MB) breaches the 2MB PNG ceiling — PNG
+  ships in the kit as a full-size download; the site will use the webp
+  per the v135 rule when the gallery rebases.
 
 ## v181 — 2026-09-24
 - Screenshots rebased v81→**v83** (art's roof-catalog pass: flat roofs

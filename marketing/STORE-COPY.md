@@ -187,7 +187,7 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Asset | Spec | Status |
 |---|---|---|
 | Cover image | 630×500 PNG | **Done** — `store/capsules/itch-cover-630x500.png` (site copy at `site/assets/cover-itch-630x500.png`) |
-| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v83-A..D.png` (4 ready, v83 roof-catalog build) |
+| Screenshots | ≥3, 16:9 | `press-kit/screenshots/v84-A..D.png` (4 ready, v84 ground-truth-shading build) |
 | Embed/splash | 1280×720 or auto | `keyart-16x9.png` ready |
 | Social image | OG ≥1200×630 | `site/assets/og-card.png` ready |
 
@@ -201,9 +201,9 @@ itch max is ~10 displayed tags; lead with: `life-sim` `simulation` `ai`
 | Mobile-friendly flag | Yes — touch input supported per design |
 | Until the build ships | Publish as a **page-only project** (cover + description + screenshots, no embed) — itch allows non-playable pages; do not fake a build |
 
-Screenshots order on the page: v83-D (director view — the hook), v83-B
-(street level), v83-C (Dolores Park), v16-int-cafe (interior vignette),
-then v83-A and the v1 before/after pair lower down for dev-minded readers.
+Screenshots order on the page: v84-D (director view — the hook), v84-B
+(street level), v84-C (Dolores Park), v16-int-cafe (interior vignette),
+then v84-A and the v1 before/after pair lower down for dev-minded readers.
 Second tier — UI-proof captures from `production/smoke/` (the shipped
 shell, real UI): see §40 for the bench and ordering.
 
@@ -264,7 +264,7 @@ refresh.
 | Platform | Asset | Size (px) | Status |
 |---|---|---|---|
 | itch.io | Cover image | 630×500 | **Done** — `store/capsules/itch-cover-630x500.png` |
-| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v83-A..D` |
+| itch.io | Screenshot set | 1440×900 | **Done** — `press-kit/screenshots/v84-A..D` |
 | Steam | Header capsule | 460×215 | **Done** — `store/capsules/steam-header-460x215.png` |
 | Steam | Small capsule | 231×87 | **Done** — `store/capsules/steam-small-231x87.png` |
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
@@ -367,15 +367,15 @@ Steam (conditional): same packet with §3 fields + §4 capsule set; the only
 missing asset is the library hero (§4 FLAG row).
 
 **Screenshot alt-text / caption set** (store forms + a11y, keep with
-`press-kit/captions.txt` as canonical): v83-D "director view" → "Director
+`press-kit/captions.txt` as canonical): v84-D "director view" → "Director
 mode at street level: the thirds grid and center cross up on the
 composition guides, the viewfinder strip reading lens, EV, compass and
-height — REC cluster and DIRECTOR badge up top."; v83-B street level → "Street-level
+height — REC cluster and DIRECTOR badge up top."; v84-B street level → "Street-level
 close view of Jules on the sidewalk, Priya and Dani mid-block — dressed
-storefronts, parked cars, leaves drifting, name tags overhead."; v83-C
+storefronts, parked cars, leaves drifting, name tags overhead."; v84-C
 park → "Dolores Park from overhead — crown-genome trees in rust and gold
-across meadow-drifted lawns, building-scale shade pooling on the east
-edge, tennis courts on the south edge."; v83-A overhead → "The Mission block from
+across meadow-drifted lawns, tennis courts on the south edge, the
+sun-driven frame grade over the whole plate."; v84-A overhead → "The Mission block from
 overhead on an autumn afternoon — the Mudhaus Coffee dollhouse cutaway
 open with Jules inside the drawn floor plan, the rooftop-over-park
 camera feed live in the corner monitor."; v16-int-cafe → "Interior vignette behind the glass: the café

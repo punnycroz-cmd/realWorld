@@ -2,17 +2,26 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v83-*.png` = build v83). Everything below is
+the build (`screenshots/v84-*.png` = build v84). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v83** (September 2026).
+Current development build: **v84** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, nineteen more passes landed:
+Since the v55 editorial set, twenty more passes landed:
+
+- **v84 — the ground learned the difference between sun and shade.**
+  Street ground cells now gate the warm key light on whether the direct
+  beam actually lands there — everywhere else falls to a cooler skylit
+  umbra, so a crosswalk in shadow and one in sun stop reading as the
+  same pavement. Facade contrast is up, the top-down cast shadows got
+  a touch deeper, and a sun-driven frame grade shapes contrast,
+  saturation, and brightness on the world plate before the optics pass.
+  Subtle in stills, obvious in motion: the block reads lit, not flat.
 
 - **v83 — the roofs got furnished.** Every flat roof now bakes a real,
   deterministic catalog of what's up there — decks, furniture,
@@ -173,19 +182,21 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v83-A.png` (current) — same top-down framing of the
-  block, eighty iterations apart.
-- `screenshots/v83-C.png` is the Dolores Park overhead: the telling
+  `screenshots/v84-A.png` (current) — same top-down framing of the
+  block, eighty-three iterations apart.
+- `screenshots/v84-C.png` is the Dolores Park overhead: the telling
   details are the ring of streets and facades — a maintained city park,
   not open field — the crown-genome trees, no two alike, the meadow
-  drifts stippled across the lawns, and building-scale shade pooling
-  on the east edge.
-- `screenshots/v83-A.png` carries the dollhouse headline plus the
+  drifts stippled across the lawns, and the sun-driven frame grade
+  lifting the whole plate.
+- `screenshots/v84-A.png` carries the dollhouse headline plus the
   picture-in-picture rig: the Mudhaus Coffee cutaway open on the
   overhead — the building ghosted, a real floor plan inside the
   footprint, residents still tagged inside it — while the Wire's
-  rooftop-over-park feed runs live in the corner monitor.
-- `screenshots/v83-D.png` is the coverage-grammar headline: director
+  rooftop-over-park feed runs live in the corner monitor. Look at the
+  pavement: sunlit cells carry the warm key, shaded cells the skylit
+  umbra.
+- `screenshots/v84-D.png` is the coverage-grammar headline: director
   mode with the thirds grid and center cross up, the viewfinder strip
   reading lens, EV, compass, and height — the block staged like a
   film set.
