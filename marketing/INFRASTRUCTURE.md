@@ -1,6 +1,6 @@
 # Launch Infrastructure — Real World ("The Mission")
 
-**Version:** v104 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v119 · 2026-09-23 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** planned + rehearsed locally. **Nothing below is provisioned or live.**
 Every account creation, DNS change, and paid service is owner-gated. This file is
 the plan so that "go" is a provisioning session, not an architecture debate.
@@ -142,7 +142,7 @@ GO; it never publishes anything.
 | 0 | `tools/preflight.sh` clean (0 fail) on the commit that will ship | G10 | 2 min |
 | 1 | Owner registers domain; point nameservers (or keep registrar DNS) | G3 | 15 min |
 | 2 | Create DNS records per `deploy/dns-records.example` (apex + `www` redirect + `play.` + `stats.`); verify with `tools/dns_check.sh <domain> [apex-ip]` — exits 1 until every record resolves correctly | G3/G14 | 15 min |
-| 3 | Provision host (VPS+Caddy or Pages/Netlify project); deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
+| 3 | Provision host — for VPS+Caddy this is now scripted: `tools/bootstrap_host.sh --emit` (review) → `--apply` with `RW_BOOTSTRAP_HOST=root@<ip>` (packages, ufw, deploy user, `/srv/www/realworld` layout, maintenance page) → `--check` verifies the contract (`deploy/host-contract.md`); or a Pages/Netlify project; deploy via `deploy/deploy-site.sh --apply` or git-connected host | G14 | 30 min |
 | 4 | Verify TLS auto-issued; run `tools/prod_smoke.sh https://<domain>` | G14/D0.2 | 10 min |
 | 5 | Stand up analytics backend on `stats.<domain>` — `deploy/umami.compose.example` is the ready Umami+Postgres spec matching the Caddyfile `stats.` block; then `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every page in one pass; confirm events in dashboard | G8 | 30 min |
 | 6 | Stripe: create account (Dashboard asks for public **privacy/terms/refund URLs** — `privacy.html`/`terms.html`/`refunds.html` are drafted since v104 and go live with the site; G7 review must land first) → `deploy/stripe-products.json` → create products/prices (Dashboard or CLI) → test-mode purchase → webhook to game crediting path. The consumer itself can be rehearsed BEFORE the account exists: `tools/stripe_webhook_fixture.py` emits a correctly-signed `checkout.session.completed` + `Stripe-Signature` header (HMAC-SHA256 over `t.body`) for a local endpoint | G14 | 45 min |
@@ -245,8 +245,10 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   what git already holds. Host keeps the 5 newest releases
   (`deploy-site.sh` retention); rollback = symlink flip. The only
   irreplaceable host artifact is `/srv/www/realworld/maintenance.html`
-  (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is
-  game-adjacent — backup policy is set when the backend is picked (G8).
+  (re-copyable from `deploy/`). Analytics DB (if self-hosted Umami) is the
+  ONE artifact git can't reproduce — `deploy/umami-backup.example` ships the
+  nightly `pg_dump` cron + restore drill so the policy is ready before G8,
+  not deferred to it.
 - **TLS:** Caddy auto-renews ~30 days out; the 14-day monitor alert means
   renewal already failed once — check 80/443 reachability and LE
   rate-limits, don't wait for day 0.
@@ -270,3 +272,26 @@ What keeps the surface healthy after D0.1 — all runnable from this repo.
   verify MISMATCH + prod_smoke FAIL), then flip the rollback symlink and
   assert green again. Run it whenever deploy-site.sh, prod_smoke.sh, or
   the release layout change. Rehearsed PASS 2026-09-23 (v89).
+
+## 12. Disaster recovery — host loss
+
+The site is stateless, so "the VPS is gone" is a rebuild, not a restore.
+The contract a replacement host must satisfy is codified in
+`deploy/host-contract.md`; producing it is one command.
+
+| # | Step | Est. |
+|---|---|---|
+| 1 | Order/grab a fresh Debian or Ubuntu VPS (any provider — no lock-in by design) | 10 min |
+| 2 | `RW_BOOTSTRAP_HOST=root@<new-ip> tools/bootstrap_host.sh --apply` — packages (caddy/ufw/rsync/unattended-upgrades), `deploy` user, `/srv/www/realworld` layout, `maintenance.html` staged | 5 min |
+| 3 | Owner adds deploy pubkey; `scp deploy/Caddyfile` → `/etc/caddy/Caddyfile`, `systemctl reload caddy` | 10 min |
+| 4 | DNS: repoint apex/`play.`/`stats.` A-records to the new IP per `deploy/dns-records.example`; verify `tools/dns_check.sh <domain> <new-ip>` | 15 min + TTL |
+| 5 | `deploy/deploy-site.sh --apply` (HEAD redeploys the exact current tree) → `tools/prod_smoke.sh https://<domain>` | 10 min |
+
+**RTO ≈ 1 h** dominated by DNS TTL — keep TTL ≤300 s on apex records at
+launch so the repoint propagates fast. **RPO = 0** for the site (git is the
+source of truth; any past release is `git checkout <tag>` + redeploy). The
+only real data loss surface is the Umami DB if analytics is self-hosted —
+`deploy/umami-backup.example` covers it; a hosted analytics backend (G8
+alternative) removes even that. Verify any rebuild with
+`RW_DEPLOY_HOST=deploy@<new-ip> tools/bootstrap_host.sh --check` before
+flipping DNS — the same check doubles as a drift detector on the live host.

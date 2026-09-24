@@ -1,0 +1,41 @@
+# umami-backup — analytics DB backup spec for the self-hosted stats box
+#
+# Companion to umami.compose.example. The site is stateless, but the Umami
+# Postgres DB is the ONE launch-surface artifact git can't reproduce — losing
+# it means losing funnel history (ANALYTICS.md dashboards, weekly report
+# inputs). Keep it boring: nightly pg_dump to a timestamped file, 30-day
+# local retention, optional off-box copy.
+#
+# Install on the stats host (or same VPS, different dir) as root/cron:
+
+# /etc/cron.d/umami-backup
+#   m  h dom mon dow user  command
+#   17 4 * * *   root  /srv/backup/umami-backup.sh >> /srv/backup/umami.log 2>&1
+
+# /srv/backup/umami-backup.sh
+#   #!/usr/bin/env bash
+#   set -euo pipefail
+#   DIR=/srv/backup/umami
+#   mkdir -p "$DIR"
+#   TS=$(date +%Y%m%d-%H%M%S)
+#   # container name matches umami.compose.example's db service
+#   docker exec umami-db-1 pg_dump -U umami -d umami \
+#     | gzip > "$DIR/umami-$TS.sql.gz"
+#   # 30-day retention
+#   find "$DIR" -name 'umami-*.sql.gz' -mtime +30 -delete
+#   # OPTIONAL off-box copy (owner's choice of destination):
+#   # rsync -az "$DIR/umami-$TS.sql.gz" owner@backup-host:/backups/umami/
+#
+# Restore drill (rehearse once at provisioning, log it in LAUNCH-CHECKLIST §10):
+#   gunzip -c /srv/backup/umami/umami-<ts>.sql.gz \
+#     | docker exec -i umami-db-1 psql -U umami -d umami
+#
+# Notes:
+# - Contains NO PII beyond what cookieless Umami stores (no IPs persisted by
+#   default config); still treat dumps as private — never commit, never ship.
+# - A missed night is not an incident; a failed restore is. Verify one dump
+#   restores at provisioning time, then spot-check monthly (uptime_probe
+#   covers the service, not the backup — check file mtimes in the same cron
+#   mail/log review).
+# - If analytics lands on a hosted Plausible/Umami cloud instead (G8
+#   alternative), this file is moot — export via the provider's tools.

@@ -287,6 +287,27 @@
       "status": "PENDING — game build",
       "note": "opt-in rewarded path only — never pre-roll/mid-session; no countdown/cap-pressure props"
     },
+    "admin_beat_seen": {
+      "when": "the onboarding beat anchored on a real admin feed event renders (game-side; world-v81 §42 — requires the `feed-admin` anchor on the real Wire at merge)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "teaches admin-attribution transparency; stage + opt-out only — never which admin action"
+    },
+    "coask_seen": {
+      "when": "the scripted compatible co-ask card surfaces on the onboarding feed (game-side; world-v81 — becomes a real spectator's compatible request at merge)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "measures the coexistence lesson's reach; no contention framing — only exclusives contend (world-v81 §43)"
+    },
+    "surge_line_shown": {
+      "when": "the surge-pricing disclosure line renders on the ask card (game-side; world-v81 — quotes the plan §2.2 range verbatim, never a specific multiplier)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the honesty line; surge never surfaces post-payment (world-v81 §43)"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },

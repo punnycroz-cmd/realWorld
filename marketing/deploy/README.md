@@ -14,6 +14,8 @@ Everything here is LOCAL/draft until the owner gates open
 | `infra.env.example` | Secrets/env inventory. Copy to `infra.env.local` (gitignored) at provisioning; never commit values. |
 | `monitoring.example` | Uptime/alert spec: 6 HTTP probes, TLS-expiry alerting, 2-severity routing, per-failure response playbook. Feed to any external monitor, or cron `../tools/uptime_probe.sh` as the self-hosted stopgap. |
 | `umami.compose.example` | Self-hosted analytics backend spec (Umami + Postgres) for `stats.<domain>` — matches the Caddyfile `stats.` reverse_proxy block. Fill 2 secrets on the host, `docker compose up -d`, then `../tools/flip_flags.sh --set endpoint=...`. |
+| `host-contract.md` | What the VPS must provide (user, layout, caddy, maintenance page) — satisfied by `../tools/bootstrap_host.sh`, also the DR rebuild spec (INFRASTRUCTURE.md §12). |
+| `umami-backup.example` | Nightly `pg_dump` cron + restore drill for the self-hosted analytics DB — the one launch artifact git can't reproduce. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2);
@@ -44,6 +46,10 @@ Companion tools (all local, nothing publishes):
   `--set key=value`, `--check` reports, `--revert` restores pre-launch state.
 - `../tools/dns_check.sh <domain> [apex-ip]` — read-only verification that
   live DNS matches `dns-records.example` (apex/www/play/stats); runbook step 2.
+- `../tools/bootstrap_host.sh` — first-time host prep as code: bare = plan,
+  `--emit` writes the reviewed-as-root provision script, `--apply` provisions
+  over SSH (`RW_BOOTSTRAP_HOST=root@<ip>`), `--check` verifies a live host
+  against `host-contract.md`, `--check-local` rehearses the FS layout.
 - `../tools/runofshow.sh` — countdown dashboard: live done/pending status for
   every mechanical §2 run-of-show item (switches, domain swap, DNS, deploy
   env, kit zip). Read-only; `RW_DOMAIN=<domain>` adds the live DNS row.
