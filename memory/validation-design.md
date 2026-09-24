@@ -13699,3 +13699,184 @@ P1393, P1394, P1395, P1396, P1397, P1398,
 P1399, P1402, P1404 (all locked-null legs +
 the compile-tier invariants). SHOULD: P1400,
 P1401, P1403.
+
+## 264. v131 probe specs (P1405–P1418 — the
+consequence-continuity layer; spec v5.77 §14.9)
+
+The Astra review's three load-bearing demands —
+unequal knowledge, honest provenance, demonstrated
+longitudinal persistence — become executable here.
+Every probe in this suite runs against the §14.9
+contracts; the fixture is one shared missed-
+commitment scenario (`scenario_arm` ∈
+{admit,deny,control}) reused across all arms.
+
+- **P1405 pairId divergence (MUST):** fixture mints
+  a promise between two characters; both stores
+  carry `pairId`-stamped records. Probe both heads
+  at +1/+7/+21 sim-days under identical cues:
+  retrieval outcomes must differ in detail/θ
+  pattern with Cohen's d ≥ `pair_recall_mde` in ≥
+  half of seeded dyads; bit-identical paired recall
+  = shared-truth bug = fail. Unequal knowledge is
+  the null hypothesis to REJECT, not to produce on
+  demand — asymmetry must emerge from per-head
+  encoding, not a diverge() op.
+- **P1406 remembered disappointment (MUST —
+  locked null):** breach arm; at
+  `persist_probe_days` the wronged party's
+  cooperation/approach rate toward the breacher
+  shifts below the `untouched_arm` baseline by ≥
+  `repair_margin`. Then record-deletion ablation:
+  remove the breach record, replay the window —
+  the signature must collapse to baseline.
+  Signature surviving deletion = `memless_behav_null`
+  fail (the engine prescribed a reaction; memory
+  did not mediate it).
+- **P1407 voluntary repair (MUST — locked null):**
+  breach arm vs untouched arm vs memory-lesioned
+  arm (breach records suppressed): repair-rate
+  lift ≥ `repair_margin` over untouched AND
+  repair-rate in lesioned arm ≈ untouched.
+  Identical repair across breach/lesioned arms =
+  `repair_script_null` fail. The engine must not
+  prescribe either reaction (Astra §3).
+- **P1408 deception scar (SHOULD):** admit vs deny
+  arms, `persist_probe_days` horizon, trustworthy-
+  act series held constant across arms: deny-arm
+  trust trajectory asymptote ≥ `deception_asym`
+  below admit-arm; promise-injection accelerates
+  both arms without closing the gap (Schweitzer,
+  Hershey & Bradlow 2006).
+- **P1409 partial disclosure (MUST):** fixture
+  variant — B is told subset S ⊂ event E via
+  `disclose`; B's store scanned: fields ⊆ S ∪
+  confabulation-bounded fills; every downstream
+  emission from B traces `prov_chain` to TOLD-tier
+  with correct hops; B never emits E-fields it was
+  not told (`tell_obs_null` still holds; this
+  probe measures the gradient, not the boundary).
+- **P1410 provenance audit (MUST — locked null):**
+  full-stream scan across all observation
+  surfaces: every memory-backed emission carries
+  `display_tier` ∈ {OBSERVED,TOLD,INFERRED,UNKNOWN};
+  absent tier = `label_gap_null` fail. Sampled
+  audit: human reference labels vs emitted tiers,
+  Cohen's κ ≥ `kappa_prov_min` 0.80.
+- **P1411 INFERRED-as-fact (MUST):** deliberate
+  mislabel injection on test emissions: any
+  INFERRED-tier content rendered as ledger fact on
+  any surface = verdict-fail; extends the §6.378
+  store lattice (`infer_verb_null`,
+  `prov_up_null`) to the UI boundary the art
+  track consumes.
+- **P1412 persistence reliability (SHOULD):**
+  per-character memory measures (retrieval success,
+  θ distribution, affect-tag survival) sampled
+  daily across `persist_probe_days`: ICC(2,k) ≥
+  `icc_persist_min` 0.60 per character
+  (Shrout & Fleiss 1979, ICC form pre-registered);
+  pooling characters banned (§14.8 discipline
+  extended to time).
+- **P1413 revised-priority persistence (SHOULD):**
+  post-breach goal-weight shifts must persist ≥
+  `priority_persist_d` 7 sim-days to count as
+  revised priorities; growth-curve slope over the
+  window non-zero in the breach arm, null in
+  untouched (Singer & Willett 2003 two-level
+  growth spec).
+- **P1414 within-person variability (SHOULD):**
+  Fleeson 2001 check — within-person momentary
+  behavioral variance must remain ≫ between-person
+  trait variance; a sim that collapses to trait
+  determinism to pass P1412/P1413 fails here.
+- **P1415 promoted parity (MUST):** the four
+  promoted residents (Bex/Esther/Asha/Kofe) run
+  the P1405–P1407 fixture legs with mains-tier
+  pass bars on promoted-era records; ambient-era
+  legs keep the v130 know-tier caps — promotion
+  buys forward memory quality, never retroactive
+  detail.
+- **P1416 coverage gate (SHOULD):** registry
+  cross-check — every locked-null param and every
+  §6.x/§14.x contract maps to ≥1 live probe;
+  coverage < `cover_gate_min` 0.9 fails the suite
+  and lists the unwired params (the spec→wired
+  gap made measurable).
+- **P1417 untouched-arm discipline (MUST):**
+  every longitudinal probe in this suite ships its
+  matched no-intervention run (`untouched_arm`
+  true); a verdict computed without the control
+  arm is INCONCLUSIVE, never PASS (Astra §5:
+  preserve untouched comparison runs).
+- **P1418 fast-clock honesty (SHOULD — locked
+  null):** accelerated replay over a window
+  containing scheduled commitment cues: every cue
+  fires or expires by its own rule; zero skipped
+  checkpoints = `ffwd_checkpoint_null`.
+  McDaniel, Einstein, Graham & Rall 2004 —
+  interruptions, not delays, kill delayed
+  intentions; a fast clock that drops cues
+  manufactures amnesia.
+
+## 265. Sources verified this version (P1405–P1418
+— consequence continuity)
+
+- **Trust repair / deception scar (CONSENSUS
+  direction, single-paradigm dose):** Schweitzer,
+  Hershey & Bradlow 2006 (*OBHDP* 101:1 —
+  verified): trustworthy-act series restores
+  breach-damaged trust; breach+deception never
+  fully recovers even with promise+apology;
+  promise speeds recovery. `deception_asym` 0.15
+  is our dose on their direction — HYPOTHESIS.
+  Kim, Ferrin, Cooper & Dirks 2004 (*JAP* 89:104):
+  apology > denial for integrity violations —
+  the admit/deny arm contrast.
+- **Dyadic asymmetry (CONSENSUS method):** Kenny
+  & La Voie 1984 SRM; Kenny & DePaulo 1993
+  (*Psychol Bull* 114:145): actor/partner/
+  relationship variance partition — the
+  `srm_actor_min` sanity bound formalizes
+  "two heads, two truths."
+- **Egocentric shared-event memory (CONSENSUS):**
+  Ross & Sicoly 1979 (*JPSP* 37:322): married
+  couples over-claim contributions — paired
+  recalls of one event legitimately diverge.
+- **Reliability (CONSENSUS method):** Shrout &
+  Fleiss 1979 (*Psych Bull* 86:420 — verified):
+  six ICC forms, choice must be pre-registered;
+  `icc_persist_min` uses ICC(2,k). Cohen 1960
+  (*Educ Psychol Meas* 20:37): κ for the
+  provenance label audit. Fleeson 2001 (*JPSP*
+  80:1011): within-person variability ≫ trait —
+  P1414's anti-determinism check. Singer &
+  Willett 2003: growth-curve spec for P1413.
+- **Prospective-memory cues (CONSENSUS):**
+  McDaniel, Einstein, Graham & Rall 2004 (*Appl
+  Cog Psych* 18 — verified): interruptions, not
+  delays, break delayed intentions — grounds
+  `ffwd_checkpoint_null`. Einstein & McDaniel
+  1990/2005; Goschke & Kuhl 1993 intention
+  superiority — commitment records are
+  intention-kind, already in the store contract.
+- **Agent-sim validation precedent (CONSENSUS
+  method, DEBATED weight):** Park et al. 2023
+  (*UIST* — verified): interview probes +
+  ablation arms as the evaluation unit;
+  believability judged by raters. We adopt the
+  ablation-as-proof pattern (P1406/P1407) but
+  reject self-report as evidence of cognition —
+  Astra §1: generated explanations are
+  self-reports, not privileged access. Our
+  probes measure ledger+behavior, never the
+  character's own account.
+
+→ memory-model-spec.md v5.77 §14.9; probes
+P1405–P1418.
+
+Probe registry: P1–P1418. v131 MUST: P1405,
+P1406, P1407, P1409, P1410, P1411, P1415,
+P1417 (the causal-wiring and honesty legs).
+SHOULD: P1408, P1412, P1413, P1414, P1416,
+P1418.

@@ -1,4 +1,45 @@
-# Memory Model Spec v5.76 — implementable human-like memory for RW characters
+# Memory Model Spec v5.77 — implementable human-like memory for RW characters
+
+> **v5.77 note (validation-design XI — consequence-
+> continuity contracts):** the battery gains the
+> longitudinal instruments the Astra direction made
+> load-bearing — unequal knowledge, honest provenance,
+> and the spec→wired gap. **Dyad-pair bookkeeping** —
+> every shared event registers a `pairId`; per-party
+> records are sampled independently, so a promise
+> lives in two heads with two decay clocks (Kenny SRM
+> partition sanity bounds). **Breach/repair scenario
+> schema** — a standard missed-commitment fixture
+> carrying breach arm (honest-admission vs denial),
+> matched `untouched_arm` control run, and
+> `persist_probe_days` window; remembered
+> disappointment must be *memory-mediated*
+> (`memless_behav_null` — deleting the record collapses
+> the signature) and repair must be *emergent*
+> (`repair_script_null` — identical repair rate in a
+> memory-lesioned arm = fail). **Deception scar** —
+> Schweitzer, Hershey & Bradlow 2006: breach+denial
+> recovery asymptotes `deception_asym` below
+> breach+admission. **Provenance audit** — every
+> memory-backed surface emission carries a
+> `display_tier` (`label_gap_null`); audited κ ≥
+> `kappa_prov_min` 0.80 against human-tier labels
+> (Cohen 1960). **Persistence measurement** — trait
+> memory measures report ICC(2,k) ≥
+> `icc_persist_min` 0.60 across `persist_probe_days`
+> (Shrout & Fleiss 1979); revised priorities must
+> persist ≥ `priority_persist_d` 7 sim-days (Fleeson
+> 2001 within-person variability check — the sim must
+> not collapse to trait determinism). **Two-clock
+> honesty** — accelerated replay skips zero commitment
+> checkpoints (`ffwd_checkpoint_null`). **Coverage
+> gate** — locked-null params without ≥1 live probe
+> fail at `cover_gate_min` 0.9 (the battery audits its
+> own wiring, per the Astra spec→wired finding).
+> §14.9; §7 +10 scalars +4 locked
+> nulls; probes P1405–P1418 in
+> validation-design.md §§264–265. (Prior notes
+> v4.x–v5.76 in the version log.)
 
 > **v5.76 note (character-profiles X — the promoted
 > tier):** `memory/cast-profiles.md` Part VIII gives the
@@ -20516,6 +20557,26 @@ MemoryParams = {
 //   (P1399); minor_promote_null (P1404);
 //   demote_keep_null (P1401). All snapshot-additive;
 //   absent = legacy.
+// v5.77 additions (validation-design XI — §14.9,
+//   consequence-continuity contracts; all pop/harness,
+//   no psychology moved)
+"persist_probe_days": 21, "icc_persist_min": 0.6,
+"kappa_prov_min": 0.8, "pair_recall_mde": 0.3,
+"repair_margin": 0.2, "deception_asym": 0.15,
+"priority_persist_d": 7, "srm_actor_min": 0.2,
+"cover_gate_min": 0.9, "untouched_arm": true,
+// v5.77 record fields/ops: `pairId` on shared-event
+//   records; `scenario_arm` ∈{admit,deny,control} on
+//   fixture mints; no new character-facing ops.
+// v5.77 locked nulls: memless_behav_null (P1406 —
+//   behavioral signature must collapse when the
+//   mediating record is deleted); repair_script_null
+//   (P1407 — identical repair rate in the
+//   memory-lesioned arm = fail); ffwd_checkpoint_null
+//   (P1418 — accelerated replay skips zero commitment
+//   checkpoints); label_gap_null (P1410 — memory-backed
+//   emission with no display_tier). All snapshot-
+//   additive; absent = legacy.
 // v5.75 additions (formal-model XII — FM§§104–116,
 //   the epistemic layer)
 "si_early_gain": 1.2, "sc_retain": 0.7,
@@ -23528,6 +23589,43 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.77 additions (validation-design.md §§264–265 —
+  consequence-continuity contracts; all §14.9
+  harness, no psychology moved):
+  - **Dyad contract (§14.9a):** shared events mint
+    per-head records under one `pairId`; SRM
+    partition enforced — actor-variance share ≥
+    `srm_actor_min`.
+  - **Fixture contract (§14.9b):** the breach/repair
+    fixture carries `scenario_arm` ∈
+    {admit,deny,control} + mandatory `untouched_arm`;
+    `memless_behav_null` (P1406) and
+    `repair_script_null` (P1407) make persistence
+    and repair prove they are memory-mediated, not
+    scripted.
+  - **Scar contract (§14.9c):** deny-arm trust
+    asymptote ≥ `deception_asym` below admit-arm
+    (Schweitzer et al. 2006).
+  - **Audit contract (§14.9d):** every memory-backed
+    emission carries `display_tier`
+    (`label_gap_null`, P1410); label audits pass at
+    κ ≥ `kappa_prov_min`.
+  - **Reliability contract (§14.9e):** longitudinal
+    measures report ICC(2,k) ≥ `icc_persist_min`;
+    revised priorities persist ≥ `priority_persist_d`;
+    within-person variance stays ≫ trait variance.
+  - **Clock contract (§14.9f):** fast replay drops
+    zero commitment checkpoints —
+    `ffwd_checkpoint_null` (P1418).
+  - **Gate contract (§14.9g):** locked-null/contract
+    live-probe coverage ≥ `cover_gate_min`.
+  - **Locked boundaries game-systems must honor:**
+    `memless_behav_null`, `repair_script_null`,
+    `ffwd_checkpoint_null`, `label_gap_null`.
+  - **New params (§7):** 10 scalars + 4 locked
+    nulls; fields `pairId`, `scenario_arm`; no new
+    character-facing ops.
+  - Probes P1405–P1418.
 - v5.76 additions (cast-profiles.md §§42–48 — the
   promoted tier):
   - **Era contract (§6.386):** `era` immutable at
@@ -25144,6 +25242,109 @@ heterogeneity — the heterogeneity is load-bearing, and the
 battery's job is to prove it, not to fit the famous shape.
 
 Probes P1156–P1157 in validation-design.md §226.
+
+### 14.9 Consequence-continuity contracts (new in v5.77)
+
+The Astra direction makes three things load-bearing that
+the battery previously treated as emergent niceties:
+unequal knowledge, honest provenance, and demonstrated
+longitudinal persistence. This section is all
+harness/contract — no psychology moved.
+
+**(a) Dyad-pair bookkeeping.** Every shared event
+(conversation, promise, witnessed act) mints records in
+each participant's store stamped with a common `pairId`;
+encoding, decay, and retrieval run independently per
+head — a promise lives in two heads with two decay
+clocks. Variance partition per Kenny's Social Relations
+Model (Kenny & La Voie 1984): across dyad batteries,
+actor-variance share ≥ `srm_actor_min` 0.2 — identical
+paired recalls (shared truth collapsed to one store) or
+uncorrelated noise both fail.
+
+**(b) Breach/repair fixture.** A standard missed-
+commitment scenario (collaborator skips a shared meal
+prep; Astra §3's own test) is declared once and reused:
+`scenario_arm` ∈ {admit, deny, control}; each run ships
+a matched `untouched_arm` comparison run with the
+intervention withheld (Astra §5: preserve untouched
+comparison runs). Two causal-wiring gates, both locked
+nulls: `memless_behav_null` — deleting the breach
+record must collapse the disappointment signature
+(avoidance/cooperation shift) in the probed window; a
+signature that survives deletion is scripted, not
+remembered. `repair_script_null` — voluntary repair
+must lift repair-rate ≥ `repair_margin` 0.2 over the
+untouched arm AND must vanish in a memory-lesioned arm;
+repair that fires identically without memory is a rule,
+not a repair.
+
+**(c) Deception scar.** Schweitzer, Hershey & Bradlow
+2006 (OBHDP 101:1): trust after breach + consistent
+trustworthy acts recovers; after breach + denial it
+asymptotes below — even with promise and apology.
+Two-arm longitudinal probe: deny-arm trust trajectory
+must level ≥ `deception_asym` 0.15 below admit-arm at
+`persist_probe_days` horizon; a promise accelerates
+recovery in both arms but does not close the gap.
+CONSENSUS-adjacent (single well-powered lab paradigm;
+direction replicated in trust literatures) — the dose
+is our modeling choice, flagged HYPOTHESIS.
+
+**(d) Provenance audit.** Every memory-backed surface
+emission carries `display_tier` (§6.378 lattice);
+absent tier = `label_gap_null` failure. Periodic audit:
+human-tier reference labels vs emitted labels,
+Cohen's κ ≥ `kappa_prov_min` 0.80 (Cohen 1960); INFERRED
+content rendered as fact is a verdict-fail under the
+existing `infer_verb_null`/`prov_up_null` lattice —
+this probe audits the *surfaces*, where v5.75 audited
+the store.
+
+**(e) Persistence measurement.** Longitudinal probes
+report reliability, not just means: trait-level memory
+measures per character across `persist_probe_days` 21
+sim-days must reach ICC(2,k) ≥ `icc_persist_min` 0.60
+(Shrout & Fleiss 1979 — the six-form choice is
+pre-registered; pooling characters is banned,
+§14.8's artifact discipline extends to time). Revised
+priorities count only if the goal-weight shift
+persists ≥ `priority_persist_d` 7 sim-days; within-
+person momentary variance must remain ≫ trait variance
+(Fleeson 2001 — the sim may not collapse to trait
+determinism to fake stability).
+
+**(f) Two-clock honesty.** Accelerated replay
+(Astra §5's fast clock) may compress quiet periods but
+skips zero commitment checkpoints: every prospective-
+memory cue scheduled inside the window must fire or
+expire by its own rule — `ffwd_checkpoint_null`.
+McDaniel, Einstein, Graham & Rall 2004: interruptions,
+not delays, break delayed intentions — a fast clock
+that silently drops cues manufactures amnesia.
+
+**(g) Coverage gate.** Registry cross-check: every
+locked-null param and every §6.x contract must have
+≥1 live probe; coverage < `cover_gate_min` 0.9 fails
+the suite. Spec-only machinery is infrastructure, not
+demonstrated behavior — this gate is the battery's
+answer to the spec→wired gap.
+
+| param | default | notes |
+|---|---|---|
+| persist_probe_days | 21 | harness — longitudinal window per probe |
+| icc_persist_min | 0.60 | pop — ICC(2,k) floor, Shrout & Fleiss 1979 |
+| kappa_prov_min | 0.80 | harness — provenance label-audit κ (Cohen 1960) |
+| pair_recall_mde | 0.30 | pop — min detectable dyad divergence (Cohen's d) |
+| repair_margin | 0.20 | pop — repair-rate lift over untouched arm |
+| deception_asym | 0.15 | pop — deny-vs-admit trust asymptote gap (Schweitzer 2006 dose = HYPOTHESIS) |
+| priority_persist_d | 7 | pop — sim-days a revised priority must persist |
+| srm_actor_min | 0.20 | pop — min actor-variance share in dyad partition |
+| cover_gate_min | 0.90 | harness — locked-null/contract live-probe coverage |
+| untouched_arm | true | harness — matched no-intervention run mandatory |
+| memless_behav / repair_script / ffwd_checkpoint / label_gap | 0.0 each | locked nulls — §14.9b,d,f |
+
+Probes P1405–P1418 in validation-design.md §264.
 
 ## 15. Composition, context, and surface annex (new in v5.18)
 
