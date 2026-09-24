@@ -4656,3 +4656,617 @@ Probes P1075–P1084 (one per section):
   but its size is the weakest number in the batch** —
   `moodlure_val_w` is DEBATED-tier; probe P1084 locks the
   asymmetry, not the magnitude.
+
+# PART X (v114) — the construction channels: what the mind
+# adds unprompted, the windows that arm it, the media that
+# gate it, the nods that harden it, and the sensitization
+# that unrings the bell
+
+**Scope:** Parts I–IX calibrated *exogenous* false memory —
+suggestion, conformity, evidence, interviews, warnings. Part
+X turns to the constructions no liar is needed for: the
+inference minted at encode (§114), the script step the mind
+fills because the script demanded it (§119), the collective
+gist that makes a neighborhood misremember *the same way*
+(§118), the familiarity that arrives stripped of its source
+and gets re-dated as an old acquaintance (§124). Around
+them, the arming windows: acute stress thickens gist at the
+expense of verbatim (§115), a just-taken recall test
+*raises* later suggestibility (§116 — the reversed testing
+effect), divided attention at retrieval loosens the source
+criterion (§120), and imagination of a planned act mints
+"I did it" (§125). The gate is plausibility, and the media
+that lift it (§117). The hardener is the listener's nod
+(§121). The correction channels close the Part: the teller's
+own slant drifts her own record (§123), and — the
+counterweight the literature only delivered in 2021 —
+sensitization *reverses* planted memories without touching
+true ones (§122). Twelve sections, §§114–125; spec changes
+§126; params/probes §127; limits §128.
+
+## 114. The implication becomes the event — pragmatic inference
+
+Brewer (1977, *Cognitive Psychology* 9:185 — "Memory for the
+pragmatic implications of sentences") showed that what a
+sentence *implies* is recalled as what it *said*: "The
+karate champion hit the cinder block" is later remembered
+as "broke the cinder block"; "the flimsy shelf weakened"
+becomes "collapsed". The inference is not an error added at
+test — it is committed at comprehension, because language
+understanding is inference. Alba & Hasher (1983,
+*Psychological Bulletin* 93:203) placed this inside
+schema-driven reconstruction generally. Chan & McDermott
+(2006, *JEP:LMC* 32:394) showed the effect for *events*:
+actions pragmatically implied by a narrative are later
+falsely recalled as having been stated, at rates tracking
+the DRM curve.
+
+Model consequence: encoding is not transcription. When an
+event's gist strongly implies a field value that was never
+observed, the implied value is minted at birth as an
+`inferred:true` field — weak, sourceless, but real content
+from the first consolidation onward.
+
+```
+at encode, per content field f:
+  if f unobserved AND gistImplied(f) ≥ infer_thresh (≈0.5):
+    with p = infer_mint_p (≈0.25) · script_strength:
+      mint f = impliedValue; flag inferred:true;
+      strength × infer_str_mult (≈0.5); source: none
+```
+
+Inferred fields carry NO verbatim confidence — locked
+`infer_verb_null` (they can carry gist confidence; Brewer's
+subjects were confident, but the confidence is semantic,
+not episodic). Downstream they behave like ordinary weak
+fields: correctable, spreadable (§6.241), driftable.
+P1206.
+
+## 115. Stress thickens the gist — cortisol and false recognition
+
+Payne, Nadel, Allen, Thomas & Jacobs (2002, *Stress* 5:227):
+acute stress (cold-pressor) around encoding *increased* DRM
+false recognition while leaving or reducing correct recall.
+Payne et al. (2006, *Behavioral Neuroscience* 120:697) and
+Payne et al. (2007, *Neurobiology of Learning and Memory*
+87:305) replicated with cortisol dose-response — the effect
+is glucocorticoid-mediated consolidation, not arousal per
+se. The mechanism is fuzzy-trace shaped: stress impairs
+verbatim/trace-item consolidation more than gist, so the
+gist lure — which verbatim would have vetoed — passes.
+
+This is the *opposite* sign from stress's effect on central
+detail (§4.x stress encoding), and it must be modeled as a
+valence-of-detail split, not a single "stress is bad" knob:
+
+```
+if stress_at_encode ≥ stress_gist_thresh (≈0.6):
+  verbatim-field decay β × (1 + stress_verb_loss ≈0.15)
+  gist-lure adoption p_adopt × (1 + stress_gist_gain ≈0.35)
+```
+
+Locked `stress_verb_null` — the verbatim leg is a *loss*,
+never a gain; acute stress never improves item detail.
+(Consolidation-window glucocorticoid enhancement of the
+emotional core is already §4.x and is a different
+mechanism.) DEBATED: timing — most lab stressors bracket
+encoding; post-encoding stress legs exist (Smeets et al.
+2008) but are thinner. P1211.
+
+## 116. The rehearsal that arms the rumor — retrieval-enhanced suggestibility
+
+Chan, Thomas & Bulevich (2009, *Psychological Science*
+20:66 — "Recalling a witnessed event increases eyewitness
+suggestibility"): witnesses who took an immediate cued
+recall test were *more* susceptible to later misinformation
+than untested witnesses — roughly double the adoption. Chan
+& Langley (2011, *JEP:LMC* 37:917) confirmed it survives a
+one-week delay and dissociated the mechanisms: testing (a)
+enhances *learning* of subsequent misinformation (reduced
+proactive interference — the just-recalled set is a clean
+slate) and (b) reactivates the original trace into a
+labile window. Thomas, Bulevich & Chan (2010, *JML*
+63:149) showed a warning restores testing's protective
+effect — the door opens, but a guard can stand in it.
+
+This deepens Part III's §31 reactivation window: the window
+is not uniform — *just-retrieved fields* carry the premium.
+
+```
+on successful recall of field f (not merely reactivation):
+  arm res_flag(f) for res_hl ≈ 1.0 day
+  within window: p_adopt(f) × (1 + res_boost ≈0.6)
+  §6.x warn_pre still applies multiplicatively on top
+  older adults: res_age_leg(age_eff) ×1.0@30 → ×1.3@75
+```
+
+Locked `res_nt_null` — fields NOT recalled before the
+misinformation show no premium; the bump is retrieval-
+gated, not event-gated. RW consequence: a character who
+just told a story is *most* corruptible about it right
+after — gossip after storytelling is the danger window.
+P1212.
+
+## 117. Plausibility is the gate — and the media that lift it
+
+Pezdek, Finger & Hodge (1997, *Psychological Science*
+8:437) planted plausible vs implausible childhood events:
+the plausible false event ("lost in a mall" class) took in
+~25% of children; the implausible one (a rectal enema) in
+~3%. Pezdek & Hodge (1999) extended to adults; Scoboria et
+al. (2017, *Memory* 25:146) mega-analysis: under suggestive
+paradigms ~30% reach full false memory, but only for events
+inside the subject's plausible autobiography. Plausibility
+is not a bias on adoption — it is the *gate* on whether a
+narrative candidate can be minted as a life-event at all.
+
+Two media lift the gate by changing the judged plausibility
+rather than the evidence: Lindsay, Hagen, Read, Wade &
+Garry (2004, *Psychological Science* 15:149) — a real
+childhood photo roughly doubled false-event rates vs
+narrative alone; and vouching — a suggestion carried by a
+trusted kin source (Hyman, Husband & Billings 1995,
+*Applied Cognitive Psychology* 9:181 — the false-familial-
+informant procedure) inherits the voucher's credibility.
+
+```
+implant/adopt of whole-event candidates:
+  p_mint_eff = p_mint · plaus^plaus_exp (exp ≈1.5)
+  photo media: plaus_eff = min(1, plaus · photo_plaus_mult ≈1.8)
+  trusted-voucher source: p_mint_eff × vouch_mult ≈1.4
+```
+
+Locked `plaus_floor_null` — below `plaus_floor` (≈0.15) no
+medium or voucher mints the event; Pezdek's 3% is a floor,
+not a mode. §5.x doctored-evidence (§6.236) composes:
+`proof` multiplies *through* this gate, never around it.
+P1213.
+
+## 118. The crowd misremembers together — collective gist
+
+Prasad & Bainbridge (2022, *Psychological Science* 33:1971
+— the Visual Mandela Effect): people share *specific,
+consistent* false memories for widely shared images (the
+Fruit of the Loom cornucopia, Pikachu's tail) — and the
+false version is the same one across people, chosen over
+veridical foils with matched familiarity. The error is not
+individual noise; it is a shared schema prior pulling
+reconstruction the same direction for everyone who shares
+the schema. Convergent: communal false memories for
+national events (Stone, Hirst & colleagues' work on
+shared mnemonic practice).
+
+RW consequence — the important one for a believable
+neighborhood: errors should *correlate* across characters
+who share a schema. A shared false detail about the pier
+fire spreads not by rumor alone but because every resident
+reconstructs toward the same neighborhood gist.
+
+```
+reconstruction of ambiguous fields (strength < cgist_amb_thresh ≈0.4):
+  field value pulled toward population-mode value with
+  weight cgist_w ≈0.15 · sharedSchema(char, mode)
+```
+
+Locked `cgist_personal_null` — idiosyncratic fields (no
+population mode exists) are immune; the pull requires a
+*shared* schema, which is why the crowd converges on the
+SAME wrong answer rather than different wrong answers.
+P1208.
+
+## 119. The script mints the skipped step — script-pointer + tag
+
+Graesser, Woll, Kowalski & Smith (1980, *JEP:HLM* 6:503 —
+the SP+T model): script-typical actions that were
+*mentioned* and actions that were *skipped* are later
+nearly indistinguishable — typical actions are copied into
+the trace wholesale at comprehension. Atypical actions get
+a pointer + tag and are remembered *better*, early. Bower,
+Black & Turner (1979, *Cognitive Psychology* 11:177): false
+recognition of typical-but-absent script actions grows with
+delay and with number of related script instances heard —
+the classic dose-dependent schema false memory.
+
+Model consequence: at encoding AND at every reconstruction,
+typical-but-unwitnessed acts of an instantiated script are
+minted at `script_mint_p`, rising with record age (the
+verbatim tag that would veto them fades first):
+
+```
+per script-act slot unwitnessed:
+  p_mint = script_mint_p (≈0.3) · script_strength
+           · (1 + script_mint_delay_k·log1p(age_days))
+```
+
+Locked `script_atyp_null` — minted fills are always the
+typical script action; the mechanism never back-fills an
+atypical variant (tags protect, they don't migrate).
+Composes with §114 inference (`inferred:true` fills) — the
+script channel is the *slot* version of the same gist
+force. P1207.
+
+## 120. Recall on one foot — divided attention at retrieval
+
+Divided attention at encoding is famous for halving what
+gets stored (Jacoby, Woloshyn & Kelley 1989, *JEP:G*
+118:115). The retrieval leg is the false-memory lever:
+divided attention *at test* selectively impairs
+recollection while leaving familiarity intact (Skinner &
+Fernandes 2008, *Psychology and Aging* 23:990; DA-at-
+retrieval meta-literature) — and source monitoring, being
+recollection's job, degrades first. The distracted
+rememberer keeps the feeling and loses the ledger: familiar
+content passes its source check on reduced scrutiny.
+
+```
+retrieval under divided attention (attn_ret < da_ret_thresh ≈0.5):
+  source-monitoring criterion shifts: src_check_drive
+    × (1 − da_ret_src_lax ≈0.2)
+  → p_adopt of familiar-but-missourced content rises
+```
+
+Locked `da_fam_null` — familiarity drive itself is
+unchanged; the effect is entirely a criterion shift, which
+is why the character *feels* just as sure while being
+wronger. P1209.
+
+## 121. The nod after the answer — post-recall feedback
+
+Wells & Bradfield (1998, *Psychological Science* 9:215 —
+"Good, you identified the suspect"): witnesses given
+confirming feedback afterward inflated not only confidence
+but *retrospective reports of the encoding conditions* —
+how good their view was, how much attention they paid.
+Douglass & Steblay's (2006, *Applied Cognitive Psychology*
+20:859) meta-analysis across 15 studies confirmed a
+moderate, robust inflation; the effect does not require
+immediate feedback and survives delay. Feedback reaches
+backward and rewrites the remembered episode's own quality
+fields.
+
+```
+on emitted recall receiving feedback:
+  "confirm":  reported confidence += fb_conf_gain (≈0.12)
+              encoding-quality fields (view, attention)
+              reconstruct upward at ≈half that gain
+  "disconfirm": confidence −= fb_disc_gain (≈0.06) —
+              asymmetric: praise inflates ~2× what doubt
+              deflates (Wells & Bradfield direction)
+```
+
+Locked `fb_acc_null` — accuracy is untouched; feedback
+moves confidence and self-report of quality, never the
+stored content. A nod can't fix a wrong memory — it can
+only make it walk taller. P1214.
+
+## 122. Unringing the bell — sensitization reverses the planted
+
+Oeberst, Wachendörfer, Imhoff & Blank (2021, *PNAS* 118:
+e2026447118) implanted rich false autobiographical memories
+(27% under minimal suggestion, 56% under massive) — then
+*reversed* them with two portable techniques: source
+sensitization ("this may come from your family's stories,
+not your memory") and false-memory sensitization by a
+*new* interviewer ("interviews can create false memories").
+Both returned false endorsement to baseline while true-
+memory endorsement stayed high and unaffected; at 1-year
+follow-up false endorsement was ~5%. See also Murphy et
+al.'s debriefing work (unringing-the-bell line).
+
+This is the missing op the spec needed: correction that
+removes the record, not just the belief. Distinguish from
+§2 continued influence (corrections to *facts* don't
+erase); sensitization works on *self* memories by
+relocating their source, not disputing their content.
+
+```
+reversal ops, targeted at minted/suggested records:
+  source-sensitization: P(record un-believed) = sens_src_k ≈0.5
+    per delivery when external-source attribution offered
+  fm-sensitization (new source): P = sens_fm_k ≈0.35
+  deliverable by any speaker ≠ the original planter
+```
+
+Locked `sens_true_null` — the same delivery to a
+veridically-encoded record leaves endorsement untouched
+(Oeberst's clean asymmetry: the technique is specific to
+false memories, which is precisely why it matters). P1215.
+
+## 123. The slant you told becomes the event — audience tuning
+
+Higgins & Rholes (1978, *JPSP* 36:363 — "saying is
+believing"): speakers who tuned their description of a
+target toward an audience's attitude later remembered the
+target more in line with *their own message* than with the
+original information. The retelling is not just a report —
+it is a rewrite. Convergent self-generation channels:
+Pickel (2004) and Chrobak & Zaragoza's line on self-
+generated misinformation (Part IX §101) — but the audience-
+tuning leg is subtler: no fabrication, just selection and
+spin, and it still drifts the store.
+
+```
+on biased retell (audience-tuned, valence-shifted):
+  own record fields drift toward emitted version by
+  slant_k ≈0.10 per bout at reconsolidation —
+  only for fields whose emitted variant is
+  gist-congruent with the record
+```
+
+Locked `slant_contra_null` — slants *incongruent* with the
+record's own gist don't drift it (Higgins's effect follows
+the message only when the message is a plausible
+reconstruction). RW: a character who spins a story for a
+partisan listener slowly comes to remember the spin.
+P1216.
+
+## 124. The overnight celebrity — stripped familiarity re-dates itself
+
+Jacoby, Kelley, Brown & Jasechko (1989, *JPSP* 56:326 —
+"Becoming famous overnight"): nonfamous names read in an
+earlier list were judged *famous* a day later — the
+familiarity survived, the source tag died, and the
+misattribution defaulted to the only available channel: the
+distant past. The effect requires the delay (immediate test
+→ no fame errors) and is *larger* in populations with weak
+source monitoring (Dywan & Jacoby 1990, elderly).
+
+Model consequence: records or fragments retrieved with
+source strength below `fame_src_floor` after `fame_lag`
+don't just float sourceless (§6 source-monitoring already
+covers adoption) — they are *re-dated*: the familiarity is
+attributed to an old, generic origin ("I've always known
+this", "that name is from around here").
+
+```
+if src_strength < fame_src_floor (≈0.25) AND
+   age_days ≥ fame_lag (≈2 days):
+  with p = fame_p (≈0.12) · fame_age_leg(age_eff)
+         (×1.0@30 → ×1.4@75):
+    re-date source to generic-old origin; conf intact
+```
+
+Locked `fame_fresh_null` — records younger than the lag are
+immune; the delay is the mechanism (familiarity must outlive
+its source tag). P1210.
+
+## 125. Imagining doing is half of doing — action imagination inflation
+
+Goff & Roediger (1998, *Psychological Science* 9:20):
+participants who *imagined* performing simple actions
+("break the toothpick") were more likely to later claim
+they had performed them — imagination inflation for
+*actions*, tracking §5's verbal imagination inflation into
+the motor domain. Thomas & Loftus (2002, *Memory* 10:297)
+extended to bizarre acts — imagining explaining "why you
+did it" is enough. The mechanism: imagination and
+performance share the action representation, and the
+source tag is the only difference.
+
+```
+on imagining/planning bout for action a (needs an existing
+plan/intent/imagined record — never ex nihilo):
+  per bout: p += act_imag_k (≈0.08) toward minting
+  "performed" variant of a; cap act_imag_cap ≈0.4
+  plausibility gate §6.290 applies (bizarre acts can mint —
+  Thomas & Loftus — but through the same gate)
+```
+
+Locked `act_imag_intent_null` — no intent/imagination
+record, no minting; the mechanism inflates *imagined* acts,
+it does not invent acts. P1217.
+
+## 126. Spec changes in v5.62 (summary)
+
+- **§4.78 pragmatic inference** — gist-implied unobserved
+  fields mint `inferred:true` at `infer_mint_p`·script_
+  strength, strength ×`infer_str_mult`; `infer_verb_null`
+  locked. (Brewer 1977; Alba & Hasher 1983; Chan &
+  McDermott 2006.)
+- **§4.79 script gap-fill** — unwitnessed typical script
+  slots mint at `script_mint_p` rising with
+  `script_mint_delay_k`·log(age); `script_atyp_null`
+  locked. (Graesser et al. 1980; Bower et al. 1979.)
+- **§5.131 collective gist** — ambiguous fields pulled
+  toward population-mode value by `cgist_w`·sharedSchema;
+  `cgist_personal_null` locked. (Prasad & Bainbridge 2022.)
+- **§5.132 divided-attention retrieval** — `attn_ret` <
+  `da_ret_thresh` cuts source-check drive by
+  `da_ret_src_lax`; `da_fam_null` locked. (Skinner &
+  Fernandes 2008; Jacoby et al. 1989.)
+- **§5.133 stripped-familiarity re-dating** — source <
+  `fame_src_floor` after `fame_lag` re-dates to generic-old
+  at `fame_p`·`fame_age_leg`; `fame_fresh_null` locked.
+  (Jacoby et al. 1989; Dywan & Jacoby 1990.)
+- **§6.288 stress-gist split** — `stress_gist_gain` on
+  gist-lure adoption, `stress_verb_loss` on verbatim decay,
+  gated by `stress_gist_thresh`; `stress_verb_null` locked.
+  (Payne et al. 2002, 2006, 2007.)
+- **§6.289 retrieval-enhanced suggestibility** — recalled
+  fields arm `res_flag` for `res_hl`; p_adopt ×
+  (1+`res_boost`), age leg `res_age_leg`; `res_nt_null`
+  locked. (Chan et al. 2009; Chan & Langley 2011.)
+- **§6.290 plausibility gate + media** — `p_mint ·
+  plaus^plaus_exp`, photo `photo_plaus_mult`, voucher
+  `vouch_mult`; `plaus_floor_null` locked. (Pezdek et al.
+  1997; Lindsay et al. 2004; Hyman et al. 1995.)
+- **§6.291 post-recall feedback** — confirm `fb_conf_gain`
+  on reported confidence + half-gain on quality fields;
+  disconfirm `fb_disc_gain` asymmetric; `fb_acc_null`
+  locked. (Wells & Bradfield 1998; Douglass & Steblay 2006.)
+- **§6.292 sensitization reversals** — `sens_src_k` /
+  `sens_fm_k` un-believe minted records; `sens_true_null`
+  locked. (Oeberst et al. 2021.)
+- **§6.293 audience-tuning drift** — biased retells drift
+  own record `slant_k`/bout, gist-congruent only;
+  `slant_contra_null` locked. (Higgins & Rholes 1978.)
+- **§6.294 action imagination inflation** — imagined-
+  action bouts mint "performed" at `act_imag_k`, cap
+  `act_imag_cap`; `act_imag_intent_null` locked. (Goff &
+  Roediger 1998; Thomas & Loftus 2002.)
+
+## 127. Parameter guidance and probes
+
+- `infer_mint_p` 0.25 / `infer_str_mult` 0.5 — Brewer's
+  rates were high for strongly-implied instrument verbs
+  (~60% endorsement of the implied form) but the lab
+  supplies one implication per sentence; RW events carry
+  many weak implications, so mint-p is set low and gated by
+  `infer_thresh` on gist-implication strength. `infer_verb_
+  null` is the falsifiable claim: no inferred field ever
+  carries verbatim confidence.
+- `script_mint_p` 0.3, `script_mint_delay_k` 1.5 — Bower
+  et al.'s delay-growth is the load-bearing shape: minted
+  script fills must *increase* with record age, never
+  decrease. `script_atyp_null`: atypical tags never get
+  normalized into fills.
+- `cgist_w` 0.15 — deliberately small; the probe tests
+  *correlation* (same wrong value across schema-sharing
+  characters), not magnitude. `cgist_personal_null` is the
+  specificity claim: no shared schema, no pull.
+- `da_ret_src_lax` 0.2 — a criterion shift, not a storage
+  effect; `da_fam_null` locks the dissociation (familiarity
+  intact under the same load).
+- `fame_p` 0.12, `fame_lag` 2.0d, `fame_age_leg` — the lag
+  is the mechanism; `fame_fresh_null` makes the lock
+  structural rather than tuned.
+- `stress_gist_gain` 0.35 / `stress_verb_loss` 0.15 /
+  `stress_gist_thresh` 0.6 — Payne's direction is locked:
+  `stress_verb_null` (verbatim never gains). Magnitudes are
+  calibration targets; cortisol dose-response is real but
+  the field mapping is ours.
+- `res_boost` 0.6 / `res_hl` 1.0d / `res_window` — Chan's
+  doubling was under immediate misinformation; the decay
+  arm (1d half-life) is our extrapolation of the
+  reconsolidation window. `res_nt_null` keeps it retrieval-
+  gated. `res_age_leg` ×1.3@75 (RES found in older adults).
+- `plaus_exp` 1.5 / `plaus_floor` 0.15 / `photo_plaus_mult`
+  1.8 / `vouch_mult` 1.4 — Pezdek's 25%/3% split and
+  Lindsay's ~2× photo lift set the anchor points;
+  `plaus_floor_null` makes the gate absolute.
+- `fb_conf_gain` 0.12 / `fb_disc_gain` −0.06 — the 2:1
+  asymmetry follows Wells & Bradfield's direction;
+  `fb_acc_null` is the clean claim: confidence and
+  retrospective quality reports move, content doesn't.
+- `sens_src_k` 0.5 / `sens_fm_k` 0.35 — Oeberst's reversal
+  returned endorsement to baseline over one session; these
+  are per-delivery probabilities so a single sensitization
+  halves the planted record's belief mass. `sens_true_null`
+  is the specificity claim — true records untouched.
+- `slant_k` 0.10/bout — slow by design; audience tuning is
+  a cumulative rewrite. `slant_contra_null`: only gist-
+  congruent slants drift.
+- `act_imag_k` 0.08/bout, `act_imag_cap` 0.4 — Goff &
+  Roediger needed repeated imagination; the cap keeps a
+  single daydream from minting a deed. `act_imag_intent_
+  null`: no plan/imagined record → no channel.
+
+Probes P1206–P1217 (extends registry past P1205):
+
+- **P1206 pragmatic inference (MUST, confidence-lock):**
+  events with strong gist implications mint `inferred:true`
+  fields ≈infer_mint_p·script_strength; inferred fields
+  never carry verbatim confidence (`infer_verb_null`).
+  Brewer 1977; Chan & McDermott 2006.
+- **P1207 script gap-fill (MUST, delay-lock):** typical
+  unwitnessed script acts appear in recall at
+  ≈script_mint_p and rise with record age; tagged-atypical
+  acts never appear as fills (`script_atyp_null`).
+  Graesser et al. 1980.
+- **P1208 collective gist (MUST, correlation-lock):**
+  ambiguous fields in schema-sharing characters converge
+  on the SAME wrong value at rate ∝cgist_w·sharedSchema;
+  idiosyncratic fields show zero convergence
+  (`cgist_personal_null`). Prasad & Bainbridge 2022.
+- **P1209 DA at retrieval (SHOULD, dissociation-lock):**
+  divided attention at recall raises missourced adoption
+  by ≈da_ret_src_lax while familiarity drive is bit-
+  identical (`da_fam_null`). Skinner & Fernandes 2008.
+- **P1210 fame lag (MUST, lag-lock):** source-stripped
+  records older than fame_lag re-date to generic-old at
+  ≈fame_p; younger records immune (`fame_fresh_null`);
+  age leg rises. Jacoby et al. 1989.
+- **P1211 stress-gist split (MUST, sign-lock):** acute
+  encode-time stress ↑gist-lure adoption AND ↓verbatim
+  retention; verbatim never gains (`stress_verb_null`).
+  Payne et al. 2002, 2007.
+- **P1212 RES window (MUST, gate-lock):** just-recalled
+  fields adopt subsequent misinfo at ×(1+res_boost) for
+  res_hl; un-recalled sibling fields flat (`res_nt_null`);
+  pre-warning still suppresses. Chan et al. 2009.
+- **P1213 plausibility gate (MUST, floor-lock):** implant
+  rates scale plaus^plaus_exp; below plaus_floor no medium
+  or voucher mints (`plaus_floor_null`); photo multiplies
+  plaus_eff not the rate. Pezdek et al. 1997; Lindsay et
+  al. 2004.
+- **P1214 post-recall feedback (SHOULD, null-lock):**
+  confirmatory feedback inflates reported confidence and
+  quality fields, disconfirmatory deflates less; stored
+  content identical (`fb_acc_null`). Wells & Bradfield
+  1998.
+- **P1215 sensitization reversal (MUST, specificity-lock):**
+  sens ops return planted-record endorsement toward
+  baseline; veridical records statistically untouched
+  (`sens_true_null`). Oeberst et al. 2021.
+- **P1216 audience-tuning drift (SHOULD, direction-lock):**
+  gist-congruent biased retells drift own record ≈slant_k/
+  bout; incongruent slants do not (`slant_contra_null`).
+  Higgins & Rholes 1978.
+- **P1217 action imagination (SHOULD, gate-lock):**
+  repeated imagining of a planned act mints "performed"
+  claims toward act_imag_cap; absent any plan/imagined
+  record the channel is dead (`act_imag_intent_null`).
+  Goff & Roediger 1998.
+
+## 128. Honest limits (Part X)
+
+- **Pragmatic inference mints at encode — a choice.** The
+  literature can't cleanly separate comprehension-time
+  inference from test-time reconstruction; we put it at
+  birth because SP+T evidence (§119) implies comprehension
+  does the copying. If implementation prefers retrieval-
+  time, `infer_mint_p` can fire at first recall instead —
+  behaviorally equivalent under our probes.
+- **The stress-gist split uses a single gate on a
+  dose-response curve.** Payne's cortisol findings are
+  graded; our `stress_gist_thresh` binary is the cheap
+  version. Timing legs (pre- vs post-encoding stressor)
+  are thinner literature and deliberately omitted.
+- **RES's decay arm is our extrapolation.** Chan &
+  Langley showed the effect survives a week; `res_hl` 1d
+  for the *premium* window is a guess between the
+  reconsolidation window (hours) and the PI-reduction leg
+  (persists). P1212 tests the gate, not the half-life.
+- **Plausibility is a scalar we impose.** Real
+  plausibility is judged per-person against biography;
+  `plaus` must be world-supplied (does this event fit this
+  character's life?), and `plaus_exp` is a shape, not a
+  fitted exponent.
+- **Collective gist needs a population mode to exist.**
+  `sharedSchema` presumes the world can say which schemas
+  two characters share — tractable for venue/neighborhood
+  gists, murkier for media-consumed content. RW note: this
+  is the channel that makes neighborhoods share *specific*
+  false lore; keep `cgist_w` small or the sim converges.
+- **Fame re-dating flattens Jacoby's paradigm.** The lab
+  effect is fame-specific; we generalize "familiarity
+  without source → old generic origin". The generalization
+  is the hypothesis; the lag-lock is the check.
+- **Feedback asymmetry is directional, not fitted.** The
+  2:1 confirm/disconfirm ratio follows the direction of
+  Wells & Bradfield's findings, not a measured ratio.
+- **Sensitization's `sens_true_null` is the load-bearing
+  claim** — Oeberst's specificity is what makes the op
+  worth shipping; if implementation ever lets sensitization
+  erode true records, it becomes a generic doubt ray and
+  the channel should be cut.
+- **Audience tuning assumes emitted slant is stored.** We
+  drift the record toward the emitted version only at
+  reconsolidation and only gist-congruent — the honest
+  minimal version of Higgins; real "saying is believing"
+  may also work through forgetting of untuned detail.
+- **Action inflation's intent-gate is protective, not
+  literal** — Goff & Roediger's paradigm supplies the act
+  script externally; we require an internal plan/imagined
+  record so the channel can't mint deeds ex nihilo, which
+  is stricter than the lab.

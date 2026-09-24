@@ -4827,3 +4827,90 @@ distraction/reappraisal trace split.
   (reception-vs-content, gate-vs-blink, lens-vs-content,
   mode-lock, report-vs-store, hide-vs-cool) — probes
   P1196–P1205 test those structures, not the fitted knots.
+
+## 89. v114 additions — the constructed, the armed, the gated, the unringed (false-memory X)
+
+False-memory Part X (§§114–125) sources — comprehension-
+time inference, script gap-fill, collective gist, divided-
+attention retrieval, stripped familiarity, stress-gist
+split, retrieval-enhanced suggestibility, the plausibility
+gate and its media, post-recall feedback, sensitization
+reversal, audience tuning, action imagination.
+
+- **Pragmatic inference:** Brewer 1977 (*Cognitive
+  Psychology* 9:185 — implied instruments/causes recalled
+  as stated); Alba & Hasher 1983 (*Psychological Bulletin*
+  93:203 — schema reconstruction review); Chan & McDermott
+  2006 (*JEP:LMC* 32:394 — pragmatic-inference false recall
+  of narrative events). Spec §4.78 `infer_*` + locked
+  `infer_verb_null`.
+- **Script gap-fill:** Graesser, Woll, Kowalski & Smith
+  1980 (*JEP:HLM* 6:503 — script-pointer + tag); Bower,
+  Black & Turner 1979 (*Cognitive Psychology* 11:177 —
+  delay-growing typical-act false recognition). Spec §4.79
+  `script_*` + locked `script_atyp_null`.
+- **Collective gist:** Prasad & Bainbridge 2022
+  (*Psychological Science* 33:1971 — Visual Mandela
+  Effect: shared, specific, consistent false memories for
+  shared icons). Spec §5.131 `cgist_*` + locked
+  `cgist_personal_null`.
+- **Divided attention at retrieval:** Skinner & Fernandes
+  2008 (*Psychology and Aging* 23:990 — DA at retrieval
+  impairs recollection, spares familiarity); Jacoby,
+  Woloshyn & Kelley 1989 (encode-side leg). Spec §5.132
+  `da_ret_*` + locked `da_fam_null`.
+- **Overnight fame / stripped familiarity:** Jacoby,
+  Kelley, Brown & Jasechko 1989 (*JPSP* 56:326 — delay-
+  required familiarity misattribution to the past); Dywan
+  & Jacoby 1990 (elderly amplified). Spec §5.133 `fame_*`
+  + locked `fame_fresh_null`.
+- **Stress-gist split:** Payne, Nadel, Allen, Thomas &
+  Jacobs 2002 (*Stress* 5:227); Payne et al. 2006
+  (*Behavioral Neuroscience* 120:697); Payne et al. 2007
+  (*Neurobiology of Learning and Memory* 87:305 —
+  cortisol dose-response). Spec §6.288 `stress_gist_*` +
+  locked `stress_verb_null`.
+- **Retrieval-enhanced suggestibility:** Chan, Thomas &
+  Bulevich 2009 (*Psychological Science* 20:66 — reversed
+  testing effect, ~doubled adoption); Chan & Langley 2011
+  (*JEP:LMC* 37:917 — dual mechanism, 1-week persistence);
+  Thomas, Bulevich & Chan 2010 (*JML* 63:149 — warning
+  restores protection). Spec §6.289 `res_*` + locked
+  `res_nt_null`.
+- **Plausibility gate and media:** Pezdek, Finger & Hodge
+  1997 (*Psychological Science* 8:437 — ~25% plausible /
+  ~3% implausible); Pezdek & Hodge 1999; Scoboria et al.
+  2017 (*Memory* 25:146 — mega-analysis); Lindsay, Hagen,
+  Read, Wade & Garry 2004 (*Psychological Science* 15:149
+  — photo ~doubles); Hyman, Husband & Billings 1995
+  (false-familial-informant vouching). Spec §6.290
+  `plaus_*`/`vouch_mult`/`photo_plaus_mult` + locked
+  `plaus_floor_null`.
+- **Post-recall feedback:** Wells & Bradfield 1998
+  (*Psychological Science* 9:215 — confirming feedback
+  inflates confidence AND retrospective quality reports);
+  Douglass & Steblay 2006 (*Applied Cognitive Psychology*
+  20:859 — meta-analysis). Spec §6.291 `fb_*` + locked
+  `fb_acc_null`.
+- **Sensitization reversal:** Oeberst, Wachendörfer,
+  Imhoff & Blank 2021 (*PNAS* 118:e2026447118 — source and
+  false-memory sensitization reverse implanted memories to
+  baseline; true memories unaffected; ~5% at 1-y). Spec
+  §6.292 `sens_*` + locked `sens_true_null`.
+- **Audience tuning:** Higgins & Rholes 1978 (*JPSP*
+  36:363 — "saying is believing"). Spec §6.293 `slant_k` +
+  locked `slant_contra_null`.
+- **Action imagination inflation:** Goff & Roediger 1998
+  (*Psychological Science* 9:20); Thomas & Loftus 2002
+  (*Memory* 10:297 — bizarre acts implantable via
+  imagination). Spec §6.294 `act_imag_*` + locked
+  `act_imag_intent_null`.
+- **Marked hypothesis:** magnitudes are RW calibration
+  targets; the literature supplies the structures —
+  mint-at-encode (inference/script), correlation-not-
+  magnitude (collective gist), criterion-not-drive (DA),
+  lag-as-mechanism (fame), split-sign (stress), retrieval-
+  gate (RES), floor (plausibility), report-vs-store
+  (feedback), specificity (sensitization), direction
+  (slant), intent-gate (action). Probes P1206–P1217 test
+  those, not the knots.

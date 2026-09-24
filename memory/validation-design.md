@@ -11719,3 +11719,81 @@ literature gives direction without magnitude.
   Sheppes & Gross 2011; Sheppes et al. 2011.
 
 Probe registry: P1–P1205 (v113 adds P1196–P1205).
+
+## 234. v114 suite — false-memory X (P1206–P1217)
+
+Twelve probes for the FM Part X mechanisms (spec §§4.78–
+4.79, §§5.131–5.133, §§6.288–6.294). MUST tier on the
+structural locks (verbatim-lock, delay-lock, gate-lock,
+specificity-lock); SHOULD where literature gives direction
+without fitted magnitude.
+
+- **P1206 pragmatic inference (MUST — confidence-lock):**
+  events with gistImplied ≥ infer_thresh mint
+  `inferred:true` fields at ≈infer_mint_p·script_strength;
+  inferred fields NEVER carry verbatim confidence
+  (`infer_verb_null` — a verbatim-flagged inferred field
+  FAILS). Brewer 1977; Chan & McDermott 2006.
+- **P1207 script gap-fill (MUST — delay-lock):** typical
+  unwitnessed script acts appear in recall at
+  ≈script_mint_p and rise monotonically with record age
+  (flat-or-declining curve FAILS); tagged-atypical acts
+  never appear as fills (`script_atyp_null`). Graesser et
+  al. 1980; Bower et al. 1979.
+- **P1208 collective gist (MUST — correlation-lock):**
+  ambiguous fields in schema-sharing character pairs
+  converge on the SAME wrong value at rate ∝cgist_w·
+  sharedSchema; idiosyncratic fields show zero convergence
+  (`cgist_personal_null`). Prasad & Bainbridge 2022.
+- **P1209 DA at retrieval (SHOULD — dissociation):**
+  attn_ret < da_ret_thresh raises missourced adoption
+  ≈da_ret_src_lax while familiarity drive is bit-identical
+  (`da_fam_null`). Skinner & Fernandes 2008.
+- **P1210 fame lag (MUST — lag-lock):** source-stripped
+  records older than fame_lag re-date to generic-old at
+  ≈fame_p·fame_age_leg; records younger than the lag show
+  ZERO re-dating (`fame_fresh_null`); age leg rises.
+  Jacoby, Kelley, Brown & Jasechko 1989; Dywan & Jacoby
+  1990.
+- **P1211 stress-gist split (MUST — sign-lock):** acute
+  encode-time stress ≥ stress_gist_thresh raises gist-lure
+  adoption AND verbatim decay together; verbatim gain under
+  stress at any dose FAILS (`stress_verb_null`). Payne et
+  al. 2002, 2006, 2007.
+- **P1212 RES window (MUST — gate-lock):** just-recalled
+  fields adopt subsequent misinformation at
+  ×(1+res_boost·res_age_leg) for res_hl; un-recalled
+  sibling fields flat (`res_nt_null`); warn_pre still
+  suppresses on top (composition must not zero the warning
+  channel). Chan, Thomas & Bulevich 2009; Chan & Langley
+  2011; Thomas, Bulevich & Chan 2010.
+- **P1213 plausibility gate (MUST — floor-lock):** implant
+  rates scale plaus^plaus_exp; `photo:true` and
+  `vouched:true` lift through the gate; below plaus_floor
+  NO medium or voucher mints at any repetition
+  (`plaus_floor_null`). Pezdek, Finger & Hodge 1997;
+  Lindsay et al. 2004; Hyman et al. 1995.
+- **P1214 post-recall feedback (SHOULD — null-lock):**
+  confirmatory feedback raises reported confidence
+  ≈fb_conf_gain and quality self-report ≈half-gain;
+  disconfirmatory deflates ≤half the confirm gain; stored
+  content bit-identical across both arms (`fb_acc_null`).
+  Wells & Bradfield 1998; Douglass & Steblay 2006.
+- **P1215 sensitization reversal (MUST — specificity-
+  lock):** sens ops drive planted-record endorsement
+  toward baseline over 1–3 deliveries; veridical records'
+  endorsement statistically untouched (`sens_true_null` —
+  any erosion of true records FAILS). Oeberst et al. 2021.
+- **P1216 audience-tuning drift (SHOULD — direction-
+  lock):** gist-congruent audience_tuned retells drift own
+  record ≈slant_k/bout toward the emitted variant;
+  incongruent slants show zero drift
+  (`slant_contra_null`). Higgins & Rholes 1978.
+- **P1217 action imagination (SHOULD — gate-lock):**
+  repeated imagining of a planned act mints "performed"
+  claims rising toward act_imag_cap; absent any
+  plan/imagined record the channel produces zero mints
+  (`act_imag_intent_null`). Goff & Roediger 1998; Thomas
+  & Loftus 2002.
+
+Probe registry: P1–P1217 (v114 adds P1206–P1217).

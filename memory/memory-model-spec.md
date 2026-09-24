@@ -1,5 +1,61 @@
-# Memory Model Spec v5.61 — implementable human-like memory for RW characters
+# Memory Model Spec v5.62 — implementable human-like memory for RW characters
 
+> **v5.62 note (false-memory X — the minted implication,
+> the skipped step filled, the crowd's shared wrong answer,
+> the rehearsed-armed rumor, the stress-thickened gist, the
+> plausibility gate, the listener's nod, the teller's own
+> drift, the stripped familiarity, the imagined deed, the
+> distracted ledger, and the sensitization that unrings the
+> bell):** `memory/false-memory.md` Part X (§§114–125) +
+> spec §§4.78–4.79, §§5.131–5.133, §§6.288–6.294.
+> **The implication becomes the event** — gist-implied
+> unobserved fields mint `inferred:true` at
+> `infer_mint_p`·script_strength (Brewer 1977; Chan &
+> McDermott 2006); locked `infer_verb_null`. **The script
+> mints the skipped step** — typical unwitnessed script
+> slots fill at `script_mint_p`, rising with record age
+> (Graesser et al. 1980; Bower et al. 1979); locked
+> `script_atyp_null`. **The crowd misremembers together** —
+> ambiguous fields pulled toward population-mode value by
+> `cgist_w`·sharedSchema (Prasad & Bainbridge 2022);
+> locked `cgist_personal_null`. **Recall on one foot** —
+> divided attention at retrieval cuts source-check drive
+> `da_ret_src_lax`, familiarity untouched (Skinner &
+> Fernandes 2008); locked `da_fam_null`. **The overnight
+> celebrity** — source-stripped records past `fame_lag`
+> re-date to generic-old at `fame_p` (Jacoby et al. 1989);
+> locked `fame_fresh_null`. **Stress thickens the gist** —
+> acute encode stress ↑gist-lure adoption
+> (`stress_gist_gain`) AND ↓verbatim (`stress_verb_loss`),
+> never the reverse (Payne et al. 2002/2007); locked
+> `stress_verb_null`. **The rehearsal that arms the
+> rumor** — just-recalled fields carry a `res_flag`
+> susceptibility premium ×(1+`res_boost`) for `res_hl`
+> (Chan, Thomas & Bulevich 2009 — reversed testing);
+> locked `res_nt_null`. **Plausibility is the gate** —
+> whole-event implant scales `plaus^plaus_exp`; photos and
+> kin vouching lift plausibility, never bypass the floor
+> (Pezdek et al. 1997; Lindsay et al. 2004); locked
+> `plaus_floor_null`. **The nod after the answer** —
+> confirmatory feedback inflates reported confidence and
+> quality fields, content bit-identical (Wells & Bradfield
+> 1998); locked `fb_acc_null`. **Unringing the bell** —
+> source- and false-memory-sensitization un-believe planted
+> records at `sens_src_k`/`sens_fm_k`, true records
+> untouched (Oeberst et al. 2021); locked
+> `sens_true_null`. **The slant you told** — audience-tuned
+> retells drift own record `slant_k`/bout, gist-congruent
+> only (Higgins & Rholes 1978); locked `slant_contra_null`.
+> **Imagining doing is half of doing** — imagined planned
+> acts mint "performed" claims at `act_imag_k`, intent-
+> gated (Goff & Roediger 1998); locked
+> `act_imag_intent_null`. Locked nulls: `infer_verb_null`,
+> `script_atyp_null`, `cgist_personal_null`, `da_fam_null`,
+> `fame_fresh_null`, `stress_verb_null`, `res_nt_null`,
+> `plaus_floor_null`, `fb_acc_null`, `sens_true_null`,
+> `slant_contra_null`, `act_imag_intent_null`. Probes
+> P1206–P1217.
+>
 > **v5.61 note (emotional-memory X — the news heard, the
 > gate on the gift, the named feeling, the open arc, the
 > lens, the explained mood, the rehearsed anger, the hot
@@ -6343,6 +6399,54 @@ from `zeig_resist` (intention-level, encoding-mechanics
 **Locked `unresolv_neutral_null`:** interrupted neutral
 events take no premium via this channel. P1199.
 
+### 4.78 The implication becomes the event — `infer_*` (new in v5.62)
+
+FM§114; Brewer 1977 (*Cognitive Psychology* 9:185 —
+implied instruments remembered as stated); Alba & Hasher
+1983 (*Psychological Bulletin* 93:203); Chan & McDermott
+2006 (*JEP:LMC* 32:394 — pragmatic-inference false recall
+tracks the DRM curve). Encoding is not transcription:
+when an event's gist strongly implies a field value that
+was never observed, the implied value is minted at birth:
+
+```
+per unobserved content field f at encode:
+  if gistImplied(f) ≥ infer_thresh (≈0.5):
+    with p = infer_mint_p (≈0.25)·script_strength:
+      mint f = impliedValue; flag inferred:true;
+      strength × infer_str_mult (≈0.5); source: none
+```
+
+**Locked `infer_verb_null`:** inferred fields never carry
+verbatim confidence — gist confidence only (Brewer's
+confidence is semantic, not episodic). Otherwise they are
+ordinary weak fields: correctable, spreadable (§6.241),
+driftable. P1206.
+
+### 4.79 The script mints the skipped step — `script_*` (new in v5.62)
+
+FM§119; Graesser, Woll, Kowalski & Smith 1980 (*JEP:HLM*
+6:503 — script-pointer + tag: typical actions copied
+wholesale, atypical tagged); Bower, Black & Turner 1979
+(*Cognitive Psychology* 11:177 — typical-but-absent acts
+falsely recalled, growing with delay and script-instance
+dose). At encode AND at each reconstruction, typical
+unwitnessed acts of an instantiated script are minted:
+
+```
+per unwitnessed script-act slot:
+  p_mint = script_mint_p (≈0.3)·script_strength
+           ·(1 + script_mint_delay_k·log1p(age_days))
+           // delay_k ≈1.5 — the verbatim veto-tag fades
+           // first; fills grow with age, never shrink
+```
+
+**Locked `script_atyp_null`:** minted fills are always the
+typical script action; tagged-atypical acts are never
+back-filled or normalized away. Composes with §4.78 —
+script fills are the *slot* version of gist inference.
+P1207.
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -9463,6 +9567,65 @@ premium decays by `closure_decay` (0.3)/day — relief over
 ~3 days, never a snap shut. Emergent: the half-finished
 fight resurfaces in the shower for nights, then dies within
 days of the make-up conversation. P1199.
+
+### 5.131 The crowd misremembers together — `cgist_*` (new in v5.62)
+
+FM§118; Prasad & Bainbridge 2022 (*Psychological Science*
+33:1971 — Visual Mandela Effect: consistent, shared false
+memories across people; the same wrong answer, chosen over
+veridical foils). Reconstruction of ambiguous fields is
+pulled toward the population-mode value — errors correlate
+across characters who share the schema:
+
+```
+per reconstructed field with strength < cgist_amb_thresh (≈0.4):
+  value pulled toward population-mode value with weight
+  cgist_w (≈0.15)·sharedSchema(char, mode)
+```
+
+**Locked `cgist_personal_null`:** idiosyncratic fields —
+no population mode exists — take zero pull; the mechanism
+converges characters on the SAME wrong answer, which is
+the falsifiable signature. RW: this is the channel that
+gives a neighborhood shared false lore. P1208.
+
+### 5.132 Recall on one foot — `da_ret_*` (new in v5.62)
+
+FM§120; Skinner & Fernandes 2008 (*Psychology and Aging*
+23:990 — divided attention at retrieval selectively
+impairs recollection, spares familiarity); Jacoby,
+Woloshyn & Kelley 1989 (the encode-side leg). When
+`attn_ret < da_ret_thresh` (≈0.5):
+
+```
+src_check_drive × (1 − da_ret_src_lax ≈0.2)
+  → p_adopt of familiar-but-missourced content rises;
+  the character feels just as sure while being wronger
+```
+
+**Locked `da_fam_null`:** familiarity drive is bit-
+identical under load — the effect is a criterion shift
+only. P1209.
+
+### 5.133 The overnight celebrity — `fame_*` (new in v5.62)
+
+FM§124; Jacoby, Kelley, Brown & Jasechko 1989 (*JPSP*
+56:326 — becoming famous overnight: familiarity survives,
+source tag dies, misattribution defaults to the distant
+past; delay REQUIRED); Dywan & Jacoby 1990 (larger in
+elderly). Records retrieved with source strength below
+`fame_src_floor` (≈0.25) after `fame_lag` (≈2 days) are
+re-dated:
+
+```
+with p = fame_p (≈0.12)·fame_age_leg(age_eff):
+  source → generic-old origin ("always known", "from
+  around here"); confidence intact
+```
+
+**Locked `fame_fresh_null`:** records younger than
+`fame_lag` are immune — the delay is the mechanism
+(familiarity must outlive its source tag). P1210.
 
 ---
 
@@ -15008,6 +15171,164 @@ tele_shift_eff = tele_shift · (1 − tele_emo_resist·arousal)
 Report-side only — the P1192 stored-timestamp invariant
 holds (P1204 inherits it).
 
+### 6.288 Stress thickens the gist — `stress_gist_*` (new in v5.62)
+
+FM§115; Payne, Nadel, Allen, Thomas & Jacobs 2002
+(*Stress* 5:227 — acute stress ↑DRM false recognition);
+Payne et al. 2006 (*Behavioral Neuroscience* 120:697) and
+2007 (*Neurobiology of Learning and Memory* 87:305 —
+glucocorticoid dose-response; verbatim/consolidation hit,
+gist lure passes the lost veto). Split-sign op — NOT a
+"stress is bad" scalar:
+
+```
+if stress_at_encode ≥ stress_gist_thresh (≈0.6):
+  verbatim-field decay β × (1 + stress_verb_loss ≈0.15)
+  gist-lure p_adopt × (1 + stress_gist_gain ≈0.35)
+```
+
+**Locked `stress_verb_null`:** the verbatim leg is a loss,
+never a gain — acute stress never improves item detail.
+Distinct from §4.x emotional-core consolidation (different
+mechanism, different sign). P1211.
+
+### 6.289 The rehearsal that arms the rumor — `res_*` (new in v5.62)
+
+FM§116; Chan, Thomas & Bulevich 2009 (*Psychological
+Science* 20:66 — immediate recall ~doubles later
+misinformation adoption; reversed testing effect); Chan &
+Langley 2011 (*JEP:LMC* 37:917 — survives 1-week delay;
+dual mechanism: enhanced misinfo learning + reactivated-
+trace lability); Thomas, Bulevich & Chan 2010 (*JML*
+63:149 — warning restores protection). Deepens §31's
+reactivation window: *just-retrieved* fields carry the
+premium:
+
+```
+on successful recall of field f:
+  arm res_flag(f) for res_hl ≈ 1.0 day
+  within window: p_adopt(f) × (1 + res_boost ≈0.6
+                 ·res_age_leg(age_eff))
+                 // res_age_leg: ×1.0@30 → ×1.3@75
+  warn_pre (§6.243) still applies multiplicatively
+```
+
+**Locked `res_nt_null`:** fields NOT recalled before the
+misinformation show no premium — retrieval-gated, not
+event-gated. RW: a character who just told a story is
+most corruptible about it right after. P1212.
+
+### 6.290 Plausibility is the gate — `plaus_*`/`vouch_mult`/`photo_plaus_mult` (new in v5.62)
+
+FM§117; Pezdek, Finger & Hodge 1997 (*Psychological
+Science* 8:437 — plausible ~25% vs implausible ~3%
+implantation); Pezdek & Hodge 1999; Scoboria et al. 2017
+(*Memory* 25:146 — mega-analysis ~30% full false memory,
+plausible autobiography only). Gate, not bias:
+
+```
+whole-event implant/adopt:
+  p_mint_eff = p_mint·plaus^plaus_exp (exp ≈1.5)
+  photo medium: plaus_eff = min(1, plaus·photo_plaus_mult
+    ≈1.8)   // Lindsay, Hagen, Read, Wade & Garry 2004 —
+            // real photo ~doubles vs narrative alone
+  trusted-voucher source: ×vouch_mult ≈1.4
+            // Hyman, Husband & Billings 1995
+```
+
+**Locked `plaus_floor_null`:** below `plaus_floor` (≈0.15)
+NO medium or voucher mints — Pezdek's ~3% is a floor, not
+a mode. §6.236 doctored-evidence composes THROUGH this
+gate, never around it. `plaus` is world-supplied (does
+this event fit this character's biography?). P1213.
+
+### 6.291 The nod after the answer — `fb_*` (new in v5.62)
+
+FM§121; Wells & Bradfield 1998 (*Psychological Science*
+9:215 — confirming feedback inflates confidence AND
+retrospective encoding-quality reports); Douglass &
+Steblay 2006 (*Applied Cognitive Psychology* 20:859 —
+meta, 15 studies; no immediacy required). Feedback
+reaches backward:
+
+```
+on emitted recall receiving feedback:
+  "confirm":    reported confidence += fb_conf_gain (≈0.12)
+                encoding-quality fields (view, attention)
+                reconstruct upward ≈ half-gain
+  "disconfirm": confidence −= fb_disc_gain (≈0.06)
+                // ~2:1 asymmetry — praise inflates more
+                // than doubt deflates
+```
+
+**Locked `fb_acc_null`:** stored content and accuracy are
+untouched — confidence and quality self-report only. A
+nod can't fix a wrong memory. P1214.
+
+### 6.292 Unringing the bell — `sens_*` reversals (new in v5.62)
+
+FM§122; Oeberst, Wachendörfer, Imhoff & Blank 2021
+(*PNAS* 118:e2026447118 — implanted rich false memories
+reversed to baseline by source sensitization and by
+false-memory sensitization from a NEW interviewer; true
+memories unaffected; ~5% at 1-y follow-up). The removal
+op the spec lacked — correction of *self* memories by
+relocating source, distinct from §2 continued-influence
+(fact corrections don't erase):
+
+```
+targeting minted/suggested records only:
+  source-sensitization delivery: P(un-believe) =
+    sens_src_k ≈0.5 per delivery
+  fm-sensitization (speaker ≠ planter): sens_fm_k ≈0.35
+```
+
+**Locked `sens_true_null`:** the same delivery to a
+veridically-encoded record leaves endorsement statistically
+untouched — the specificity is the finding; if it ever
+erodes true records it is a generic doubt ray and the
+channel should be cut. P1215.
+
+### 6.293 The slant you told becomes the event — `slant_*` (new in v5.62)
+
+FM§123; Higgins & Rholes 1978 (*JPSP* 36:363 — "saying is
+believing": audience-tuned descriptions reshape own later
+memory toward the message); complements §6.235 self-
+generation — no fabrication needed, selection and spin
+suffice:
+
+```
+on biased retell (audience-tuned/valence-shifted):
+  own record fields drift toward emitted variant by
+  slant_k ≈0.10/bout at reconsolidation — gist-congruent
+  variants only
+```
+
+**Locked `slant_contra_null`:** slants incongruent with
+the record's own gist produce zero drift. RW: the
+character who spins a story for a partisan listener
+slowly remembers the spin. P1216.
+
+### 6.294 Imagining doing is half of doing — `act_imag_*` (new in v5.62)
+
+FM§125; Goff & Roediger 1998 (*Psychological Science*
+9:20 — imagined actions later claimed as performed);
+Thomas & Loftus 2002 (*Memory* 10:297 — extends to
+bizarre acts). §5's imagination inflation in the motor
+domain:
+
+```
+per imagining/planning bout for action a
+(REQUIRES existing plan/intent/imagined record):
+  p += act_imag_k (≈0.08) toward minting "performed"
+  variant; cap act_imag_cap ≈0.4
+  §6.290 plausibility gate applies
+```
+
+**Locked `act_imag_intent_null`:** no intent/imagination
+record → channel dead; the mechanism inflates imagined
+acts, never invents acts ex nihilo. P1217.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -17548,6 +17869,52 @@ MemoryParams = {
 //   `rewrote_feelings`, `rebound`, `seq_redempt`/
 //   `seq_contam`, `heal_gap`, `rationalized`,
 //   `photo_gap`. All snapshot-additive.
+// v5.62 additions (false-memory X — FM§§114–125)
+"infer_mint_p": 0.25, "infer_str_mult": 0.5,
+"infer_thresh": 0.5,                              // §4.78
+"script_mint_p": 0.3, "script_mint_delay_k": 1.5, // §4.79
+"cgist_w": 0.15, "cgist_amb_thresh": 0.4,         // §5.131
+"da_ret_src_lax": 0.2, "da_ret_thresh": 0.5,      // §5.132
+"fame_p": 0.12, "fame_lag": 2.0,
+"fame_src_floor": 0.25,                           // §5.133
+"stress_gist_gain": 0.35, "stress_gist_thresh": 0.6,
+"stress_verb_loss": 0.15,                         // §6.288
+"res_boost": 0.6, "res_hl": 1.0,                  // §6.289
+"plaus_exp": 1.5, "plaus_floor": 0.15,
+"vouch_mult": 1.4, "photo_plaus_mult": 1.8,       // §6.290
+"fb_conf_gain": 0.12, "fb_disc_gain": 0.06,       // §6.291
+"sens_src_k": 0.5, "sens_fm_k": 0.35,             // §6.292
+"slant_k": 0.10,                                  // §6.293
+"act_imag_k": 0.08, "act_imag_cap": 0.4,          // §6.294
+// v5.62 knot tables (functions, not scalars):
+//   res_age_leg(age_eff): ×1.0@30 → ×1.3@75    (§6.289)
+//   fame_age_leg(age_eff): ×1.0@30 → ×1.4@75   (§5.133)
+// v5.62 locked nulls: infer_verb_null (inferred fields
+//   never carry verbatim confidence — P1206);
+//   script_atyp_null (atypical tags never become fills —
+//   P1207); cgist_personal_null (no shared schema, no
+//   pull — P1208); da_fam_null (familiarity bit-identical
+//   under DA — P1209); fame_fresh_null (records < fame_lag
+//   immune — P1210); stress_verb_null (verbatim never
+//   gains under stress — P1211); res_nt_null (un-recalled
+//   fields take no premium — P1212); plaus_floor_null
+//   (no medium/voucher mints below floor — P1213);
+//   fb_acc_null (feedback never touches content — P1214);
+//   sens_true_null (sensitization spares veridical
+//   records — P1215); slant_contra_null (incongruent
+//   slants never drift — P1216); act_imag_intent_null
+//   (no intent record, no minting — P1217).
+// v5.62 fields/state: field flag `inferred:true`; record
+//   per-field `res_flag` (expires res_hl); context
+//   `attn_ret` (retrieval attention, reuses attn scale);
+//   event field `plaus` ∈[0,1] (world-supplied biography
+//   fit), media flag `photo:true`, source flag
+//   `vouched:true`; emission `feedback:"confirm"|
+//   "disconfirm"` on recall reports; reversal ops
+//   `source_sensitize`/`fm_sensitize` (speaker ≠ planter);
+//   retell flag `audience_tuned:true`; action records
+//   `planned`/`imagined` gain mintable `performed`
+//   variant. All snapshot-additive; absent = legacy.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -20336,6 +20703,70 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 15 scalars + 7 locked nulls +
     4 knot functions + 7 field/state additions. Probes
     P1196–P1205.
+
+- v5.62 additions (false-memory X — FM§§114–125, spec
+  §§4.78–4.79, §§5.131–5.133, §§6.288–6.294):
+  - **Inference contract:** unobserved fields with
+    gistImplied ≥ `infer_thresh` mint `inferred:true` at
+    `infer_mint_p`·script_strength, strength
+    ×`infer_str_mult`, source:none — never verbatim
+    confidence (`infer_verb_null` — P1206).
+  - **Script contract:** unwitnessed typical script slots
+    mint at `script_mint_p` rising with
+    `script_mint_delay_k`·log(age); atypical tags never
+    fill (`script_atyp_null` — P1207).
+  - **Collective-gist contract:** reconstruction of weak
+    fields pulls toward population-mode value at
+    `cgist_w`·sharedSchema — game-systems/world must
+    supply `sharedSchema(char, mode)` and a population
+    mode per shared-schema field; idiosyncratic fields
+    immune (`cgist_personal_null` — P1208).
+  - **DA-retrieval contract:** `attn_ret` < `da_ret_thresh`
+    cuts src_check drive by `da_ret_src_lax`; familiarity
+    bit-identical (`da_fam_null` — P1209).
+  - **Fame-lag contract:** source < `fame_src_floor` AND
+    age ≥ `fame_lag` may re-date to generic-old at
+    `fame_p`·`fame_age_leg`; fresh records immune
+    (`fame_fresh_null` — P1210).
+  - **Stress-gist contract:** encode-time stress ≥
+    `stress_gist_thresh` raises gist-lure adoption
+    (`stress_gist_gain`) AND verbatim decay
+    (`stress_verb_loss`); verbatim never gains
+    (`stress_verb_null` — P1211).
+  - **RES contract:** successful recall arms `res_flag`
+    for `res_hl`; adopt premium ×(1+`res_boost`
+    ·`res_age_leg`); un-recalled fields flat
+    (`res_nt_null`); §6.243 warning composes on top
+    (P1212).
+  - **Plausibility contract:** whole-event implant scales
+    `plaus`^`plaus_exp`; `photo:true` lifts plaus_eff,
+    `vouched:true` multiplies rate; nothing mints below
+    `plaus_floor` (`plaus_floor_null` — P1213). World
+    supplies `plaus` from biography fit.
+  - **Feedback contract:** `feedback` emissions move
+    reported confidence (+`fb_conf_gain` / −`fb_disc_gain`)
+    and quality self-report only; stored content identical
+    (`fb_acc_null` — P1214).
+  - **Sensitization contract:** `source_sensitize` /
+    `fm_sensitize` ops un-believe minted/suggested records
+    at `sens_src_k`/`sens_fm_k`; veridical records
+    untouched (`sens_true_null` — P1215).
+  - **Slant contract:** `audience_tuned:true` retells
+    drift own record `slant_k`/bout at reconsolidation,
+    gist-congruent only (`slant_contra_null` — P1216).
+  - **Action-imagination contract:** `planned`/`imagined`
+    action records mint `performed` variants at
+    `act_imag_k`/bout capped `act_imag_cap`; no intent
+    record, no channel (`act_imag_intent_null` — P1217).
+  - **Locked boundaries game-systems must honor:**
+    `infer_verb_null`, `script_atyp_null`,
+    `cgist_personal_null`, `da_fam_null`,
+    `fame_fresh_null`, `stress_verb_null`, `res_nt_null`,
+    `plaus_floor_null`, `fb_acc_null`, `sens_true_null`,
+    `slant_contra_null`, `act_imag_intent_null`.
+  - **New params (§7):** 22 scalars + 12 locked nulls +
+    2 knot functions + 8 field/state additions. Probes
+    P1206–P1217.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
