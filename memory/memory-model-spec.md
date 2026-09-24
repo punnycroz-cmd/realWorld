@@ -1,4 +1,43 @@
-# Memory Model Spec v5.52 — implementable human-like memory for RW characters
+# Memory Model Spec v5.53 — implementable human-like memory for RW characters
+
+> **v5.53 note (formal-model X — the exposure discipline, the
+> decade bound, the audit journal):** `memory/formal-model.md`
+> Part X (§§81–91) formalizes the last three assumed-but-
+> unspecified surfaces; zero new psychology, zero new per-char
+> params — pure contract. **The exposure discipline** —
+> `present(charId, C, path, budget)` is the ONLY legal consumer
+> of `recall` output (`surf_paths`: self_prompt / utterance /
+> briefing / spectator / probe); projection = gist dedup +
+> `present_div_cap` + `present_budget_units` + tiered field
+> redaction (`tier_table_ver` — possession ban enforced at the
+> field level) + journaled emission; **every surfacing is a
+> retrieval event**: shown records get §5.9 reboost scaled per
+> path (`brief_prac_mult` 0.3 on briefing; zero on spectator/
+> probe), shadowed same-episode competitors take `suppress_k`
+> R-discount — part-list cuing / RIF / output interference made
+> mandatory, not optional (Slamecka 1968; Roediger 1973;
+> Anderson, Bjork & Bjork 1994; Roediger & Schmidt 1980;
+> Roediger & Karpicke 2006; Cuc, Koppel & Hirst 2007 — all
+> already in-corpus; the contract is new) — FM§§81–83.
+> **Locked nulls:** `silent_read_null`, `no_invent_null`
+> (projection ⊆ record fields — the simulator never confabulates
+> *for* the character), `spectator_practice_null`,
+> `probe_writeback_null` — FM§§81–84. **The decade bound** —
+> permastore is a one-way ratchet bounded by `canon_day_bound`
+> 0.3/day (~7.7k records over 70y — inside Landauer's envelope;
+> retrieval dilution is the real cost, now measured by P1117);
+> archived records condense to gist skeletons at
+> `archive_condense_age` 365d, cueable at `condensed_w` 0.3,
+> one-way (Brainerd & Reyna FTT; Landauer 1986) — FM§85.
+> **The audit journal** — per-char hash-chained `opLog`
+> (seq/day/op/reads/writes/prev_hash), tick-digest for
+> maintenance ops, compacted at snapshot boundaries
+> (`oplog_compact_at`, `oplog_max` ring bound,
+> `oplog_drop_null`); replay equivalence `replay_hash_null` —
+> snapshot+tail reproduces canonHash (the free determinism
+> fuzzer); `attrib_null` — every field delta journal-covered —
+> FM§§86–88. +14 scalars/enums, +6 locked nulls; §10 contract
+> adds. Probes P1110–P1121.
 
 > **v5.52 note (social-memory XI — the credulity layer: what talk
 > does to what's true — SM§§151–160):** ten mechanisms on the belief
@@ -15731,6 +15770,31 @@ MemoryParams = {
 //   record {cueVec, armedAt, hl} on the
 //   intention/open-loop store. All snapshot-additive;
 //   absent = legacy.
+// v5.53 additions (formal-model X — FM§§81–88; all pop/harness,
+//   zero per-char)
+"surf_paths": ["self_prompt","utterance","briefing","spectator","probe"],
+"present_budget_units": 8, "present_div_cap": 3,   // §82
+"gist_dedup_ver": "v1",
+"suppress_k": 0.02, "writeback_scope": "episode-bucket",
+"brief_prac_mult": 0.3,                            // §83
+"tier_table_ver": "v1",                            // §84
+"archive_condense_age": 365, "condensed_w": 0.3,   // §85
+"canon_day_bound": 0.3,                            // §85
+"oplog_max": 10000, "oplog_compact_at": "snapshot" // §86
+// v5.53 locked nulls: silent_read_null (recall consumed only via
+//   present — P1110); no_invent_null (projection ⊆ record fields
+//   — P1112); spectator_practice_null (watchers never reboost —
+//   P1116); probe_writeback_null (measurement doesn't perturb —
+//   P1116/P1120); replay_hash_null (journal replay = canonHash —
+//   P1119); attrib_null (every delta journal-covered — P1120);
+//   oplog_drop_null (full journal compacts, never silently drops
+//   — P1121).
+// v5.53 state/fields: per-char append-only `opLog` (hash-chained
+//   journal, M-tier audit — never projected); journal flag
+//   `synth:true` on cold-start ops; record flag `condensed:true`
+//   on archive skeletons; present op emission
+//   `{path, shown, shadowed, suppressed, truncated}`. All
+//   snapshot-additive; absent = legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -18357,6 +18421,43 @@ not resolved (DEBATED magnitude). P509/P511.
     (`apnea`, `bipolar`, `subj_age`, `photo_habit`, `mw`,
     `savor`, `microdose`) are bible-set. `scarc_trait_null`
     forbids the state leaking into identity.
+- v5.53 additions (formal-model.md §§81–91 — the exposure
+  discipline, the decade bound, the audit journal):
+  - **`present()` is the only consumer of `recall`:** every
+    path that takes record content outside the memory module —
+    `self_prompt`, `utterance`, `briefing`, `spectator`,
+    `probe` — routes through `present(charId, C, path, budget)`
+    (`silent_read_null`). Projection order: gist dedup →
+    `present_div_cap` per-episode cap → `present_budget_units`
+    fill → tier redaction → journal → write-back. Deterministic
+    under CRN (P1111).
+  - **Write-back contract (FM§83):** `path:"self_prompt"` and
+    `"utterance"` carry §5.9 reboost on shown + `suppress_k`
+    on shadowed episode-bucket competitors; `"briefing"` at
+    `brief_prac_mult`; `"spectator"`/`"probe"` write NOTHING
+    (`spectator_practice_null`, `probe_writeback_null` — the
+    character never practices for watchers; measurement never
+    perturbs).
+  - **Redaction contract (FM§84):** `tier_table_ver` field map;
+    spectator ⊂ briefing ⊆ utterance ⊆ self_prompt lattice;
+    `no_invent_null` — projected fields ⊆ record fields; an
+    absent field surfaces as absence, never as fabricated
+    content. Possession briefings carry surface-tier fields
+    only — the §7-design possession ban enforced at the
+    memory layer.
+  - **Growth contract (FM§85):** permastore influx bounded by
+    `canon_day_bound`; archived records condense to
+    `condensed:true` gist skeletons at `archive_condense_age`,
+    cueable at `condensed_w`, one-way — skeletons cannot be
+    re-verbatimized.
+  - **Audit contract (FM§§86–87):** every state-mutating op
+    plus every `present` logs to hash-chained `opLog`;
+    maintenance ops log tick-digests; compaction at snapshot
+    boundaries (`oplog_drop_null` — never silent loss);
+    `replay_hash_null` + `attrib_null` locked.
+  - **New params (§7):** 14 scalars/enums + 7 locked nulls —
+    all pop/harness scope, zero per-character.
+  - Probes P1110–P1121.
   - **Report-vs-store contracts:** `chk_*` erodes reported
     vividness/confidence and the R/K tag — `accuracy`
     unreachable (`chk_acc_null`); `subj_age` moves

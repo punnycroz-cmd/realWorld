@@ -4427,3 +4427,52 @@ the residue after that audit.
   reduction; `hpm_cap` shape; `aobs_selfdamp` sizing;
   ambient-NPC `rsq` unpriced. → SM §§151–165; probes
   P1098–P1109.
+
+## 82. v105 sources — formal-model X (FM Part X → spec v5.53)
+
+**Contract version — zero new psychology.** Every citation below is
+already verified in-corpus; this section records which existing
+results the new *contracts* lean on, plus the one new spine source
+(Landauer 1986) that §85's decade bound stands on.
+
+- **Retrieval practice (the write-back leg):** **Roediger &
+  Karpicke 2006** (*Psychol. Sci.* 17:249 — testing effect,
+  verified in-corpus) → `present` shown-record reboost
+  (§5.9 reuse); FM§83.
+- **Part-list cuing / competitor suppression:** Slamecka 1968;
+  Roediger 1973; **Anderson, Bjork & Bjork 1994** (*JEP:LMC*
+  20:1063 — RIF, competitor-specific); → `suppress_k`,
+  `writeback_scope:"episode-bucket"`; FM§§82–83.
+- **Output interference (the budget leg):** Roediger & Schmidt
+  1980; **Criss, Malmberg & Shiffrin 2011** (*J. Memory Lang.*
+  64 — output-position decline) → `present_budget_units`;
+  FM§82.
+- **Socially shared RIF / collaborative inhibition:**
+  **Cuc, Koppel & Hirst 2007** (*Psychol. Sci.* 18:727 —
+  listeners forget what speakers omit); **Weldon & Bellinger
+  1997** (*JEP:LMC* 23:1160 — pairs recall less than pooled
+  nominal) → listener-side legs stay in SM§6, now *counted*
+  via the journal; FM§§81, 88.
+- **Gist-outlives-verbatim (the condensation leg):**
+  Brainerd & Reyna fuzzy-trace corpus (already §45's basis) →
+  `archive_condense_age`, `condensed_w`, one-way skeletons;
+  FM§85.
+- **Lifetime capacity envelope (NEW to this section):**
+  **Landauer 1986** (*Cognitive Science* 10:477 — "How much
+  do people remember? Some estimates of the quantity of
+  learned information": ~10⁹ bits across a lifetime across
+  five independent estimation methods; massive lossy
+  compression is the norm). `canon_day_bound` = 0.3/day ⇒
+  ≤7.7k permanent records over 70y sits orders of magnitude
+  inside the envelope — the binding constraint is retrieval
+  dilution (P1117), not storage; FM§85.
+- **Marked hypothesis:** `suppress_k` 0.02 sizing (pop scalar
+  from SS-RIF ≈ half speaker RIF — effect sizes are lab-scale,
+  our accumulation is cumulative); `present_budget_units` 8
+  (Miller-class working-set analogy, not a fitted number);
+  `brief_prac_mult` 0.3 (briefing-as-read discount —
+  possession suspension makes it near-inert anyway);
+  `canon_day_bound` 0.3/day and `condensed_w` 0.3 (priors,
+  measured by P1117/P1118 not asserted); `present_div_cap` 3
+  (antagonist-flood guard — ours, no direct literature
+  antecedent). → FM §§81–91; probes P1110–P1121.

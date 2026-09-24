@@ -5411,3 +5411,42 @@ memory hardware:
   `reinterpret` occasions); (e) the anxiously loved one
   whose snub ledger fills with phantoms (`rsq` + `fp:true`).
   Sources SM§§151–160; probes P1098–P1109.
+
+## 85. v5.53 note (formal-model X — the exposure discipline: what a bible cannot reach)
+
+**No new clamp rows, no new traits, zero per-character params.**
+The entire v5.53 block is population/harness scope
+(`surf_paths`, `present_*`, `suppress_k`, `tier_table_ver`,
+`archive_condense_age`, `condensed_w`, `canon_day_bound`,
+`oplog_*` + seven locked nulls). A bible writes susceptibility;
+it does not write plumbing — and this batch IS plumbing. What
+world-builder needs to know:
+
+- **Surfacing has a price the bible doesn't set.** Every path
+  that shows a record (`self_prompt`/`utterance`/`briefing`/
+  `spectator`/`probe`) now writes back: shown records practice,
+  shadowed episode-mates suppress (`suppress_k` — flat, pop).
+  A character who retells the same story wears a groove around
+  it; the bible chooses *who* retells (existing `retell_*`,
+  `fab`, `savor`, `rumin` dials), never whether retelling
+  costs.
+- **The possession ban is now a field-level guarantee.** The
+  `briefing`/`spectator` tiers structurally cannot carry
+  affect tags, latent records, secrets, or `synth` flags —
+  enforced by `tier_table_ver`, proven by P1113, journaled by
+  every `present` op. Bibles keep writing SECRETS sections
+  exactly as before; the memory layer now guarantees they stay
+  below the surface.
+- **Gut-vs-ledger asymmetry unchanged.** `eval_tag`,
+  `via:"hearsay"`, `discount_tag` remain store-internal —
+  invisible to spectator/briefing tiers, so a character's
+  hidden dislikes and phantom snubs never leak to viewers
+  except through behavior.
+- **Very old memories are skeletons.** Records archived >365d
+  condense to gist skeletons (`condensed:true`, cue weight
+  0.3, one-way). For old-age bibles this is already the
+  written phenomenology ("the fact outlives the event") — now
+  it's mechanical, not just narrative guidance.
+- **Nothing co-samples.** No trait loads any v5.53 param;
+  existing modifiers and clamp rows unchanged. Sources
+  FM§§81–91; probes P1110–P1121.

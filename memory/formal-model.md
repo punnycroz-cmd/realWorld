@@ -3274,3 +3274,498 @@ clamped. Zero new per-character params, zero new record fields,
 zero new psychology — like Part VIII, this part changes what the
 spec *owes* (a past, an intervention discipline, a population),
 not what records *do* once they exist.
+
+# Part X — v105 deepening pass: the exposure discipline, the decade bound, and the audit journal (P1110–P1121)
+
+Parts I–IX formalized the store: how records are born, decay,
+merge, cue, distort, surface, and die; how the society version
+composes; how probes grade it; how a cast is born with a past.
+Three surfaces remain that Parts I–IX *assumed* without
+specifying, and all three are places where a correct psychology
+can still produce a database-shaped character:
+
+1. **The exposure discipline.** `recall()` (§3.2) returns ranked
+   records; somewhere downstream, a brain, a mouth, a briefing, or
+   a spectator feed *consumes* them. Parts I–IX never said which
+   consumption paths are legal, what a projection may contain, or
+   what the act of showing a record does to the records it didn't
+   show. Yet the psychology is already in the corpus and it is
+   not optional: retrieval practice strengthens the retrieved
+   (Roediger & Karpicke 2006 — forgetting-curves §7.2), and the
+   retrieval *suppresses its unretrieved competitors* (part-list
+   cuing — Slamecka 1968, Roediger 1973; retrieval-induced
+   forgetting — Anderson, Bjork & Bjork 1994; output
+   interference — Roediger & Schmidt 1980; retrieval-cues §11).
+   In the social channel it is stronger still: a listener who
+   co-retrieves forgets what the speaker left out (SS-RIF —
+   Cuc, Koppel & Hirst 2007; social-memory §6), and two
+   characters recounting together recall *less* than their
+   pooled stores (collaborative inhibition — Weldon &
+   Bellinger 1997; forgetting-curves §32.4). A `recall()` whose
+   output is consumed invisibly is a silent read: it strengthens
+   nothing, suppresses nothing, and — worst — leaks whatever the
+   consumer wants to see. That is the database behavior. The
+   exposure discipline closes it.
+
+2. **The decade bound.** §20's census workbook proved the live
+   store is self-limiting under a fixed λ — but it stopped at
+   the live store. Two growth terms outlive it: `permastore`
+   records never decay (Bahrick 1984 — §4.7), so canonization
+   is a one-way ratchet accumulating immortal records linearly
+   in time; and `archived` records were never given a size or
+   field-decay law. Over a 70-year replay (§70) or a 3-year
+   live run, are the tails bounded? Nobody has checked. A spec
+   that ships without a decade bound bets the whole world on
+   an unmeasured integral.
+
+3. **The audit journal.** §38's op catalog declared atomicity
+   and commutativity; §47 declared a canonical state hash. But
+   nothing yet *connects* a state delta to the ops that caused
+   it. When a probe fails at day 214, the only forensic tool is
+   diffing snapshots — O(days²) and uninformative inside a tick.
+   A hash-chained per-character op journal gives replay
+   equivalence, per-delta attribution, and — critically — makes
+   the silent-read null (§81) *checkable*: every record read
+   that reaches a consumer must appear in the journal.
+
+As in Parts VIII–IX: **zero new psychology, zero new
+per-character params, zero new record content fields.** The
+psychology cited above is already shipped mechanics
+(§5.9 reboost, SS-RIF in `discussEvent`, output interference in
+`recall` breadth) — this part formalizes the *contract* that
+makes those mechanics unavoidable, plus two infrastructure
+layers. CONSENSUS/DEBATED/HYPOTHESIS tags unchanged.
+
+## 81. The silent-read loophole — `reads_through` invariant
+
+**Formal statement.** Define the consumer set
+`surf_paths = {self_prompt, utterance, briefing, spectator,
+probe}`. Every path by which record content reaches any consumer
+outside the memory module MUST route through one declared
+operator `present(charId, C, path, budget)`; `present` is the
+ONLY legal consumer of `recall` output.
+
+```
+  ∀ consumer-visible record field f:
+    ∃ op in journal of type present with path ∈ surf_paths
+    such that f ∈ projection(present)
+  →  silent_read_null = 0            (locked null, P1110)
+```
+
+Rationale is not bureaucratic. Three concrete failure modes the
+invariant kills:
+
+- **Undeclared practice.** A dialogue system that feeds the
+  character's prompt by scanning the store directly gets free
+  reboost-free re-exposure — or worse, *accidental* reboost if it
+  reuses the retrieval path. Under `reads_through`, every such
+  read is a `present` op with a declared `path`, and the
+  write-back ledger (§83) prices it. A character whose
+  possessions, briefing, and prompt all see the same record
+  in one day has now *practiced* it three times — the journal
+  shows it; the invisible version never would.
+- **Tier violation.** §39's information boundary partitions
+  state C/M/E; the exposure paths are where that boundary is
+  *crossed on purpose*. `briefing` (possession handoff) and
+  `spectator` (viewer feed) are M-tier surfaces that must never
+  carry C-tier content (secrets, drama seeds, latent records).
+  Routing all five through one operator makes the redaction
+  tier (§84) a single audit point instead of five scattered
+  filter sites.
+- **Probe contamination.** A probe harness that reads records
+  directly to compute its statistics *changes the state it
+  measures* if the read path shares any reboost logic.
+  `path:"probe"` is declared read-only (no write-back, §83) —
+  the projection exists so measurement is explicit, and the
+  probe's projections are excluded from the character's
+  observable channels (P1116 control arm).
+
+**DEBATED/HYPOTHESIS:** whether covert (listener-side) retrieval
+should also be a `present` op. Resolution: NO — SS-RIF already
+runs inside `discussEvent` on the listener's store (social-memory
+§6); making listener covert retrieval a consumer surface would
+double-count. `present` covers only paths that *leave* the
+module. Covert co-retrieval stays a listener-side mechanism with
+its own `attention` scaling.
+
+## 82. `present()` — the projection contract
+
+Signature and order:
+
+```
+  present(charId, C, path, budget):
+    1. ranked  = recall(charId, C, search_breadth)     [§3.2]
+    2. dedup   = collapse ranked by gist_key — first
+                 (highest-activation) instance survives;
+                 later same-gist records are SHADOWED,
+                 not deleted                     [§45.1 fields]
+    3. diverse = walk dedup; cap records sharing the
+                 same episode_key at present_div_cap;
+                 overflow is shadowed
+    4. fill    = take first budget units of diverse
+    5. project = apply redaction tier(path) field-map
+                 [§84]
+    6. journal = emit present{path, shown:[ids],
+                 shadowed:[ids], suppressed:[ids]}  [§87]
+    7. writeback = apply §83 effects to shown ∪
+                 suppressed                        [§83]
+    return project
+```
+
+Contract terms:
+
+- **`budget`** is denominated in *exposure units* (records
+  surfaced), default `present_budget_units` = 8 — sized from
+  output-interference collapse: recall yield saturates and then
+  degrades as output count grows (Roediger & Schmidt 1980;
+  Criss, Malmberg & Shiffrin 2011). The brain may ask for more;
+  `present` returns at most `budget` and reports `truncated:true`.
+  **HYPOTHESIS** sizing: 8 ≈ Miller-class working set, chosen so
+  a prompt never drowns in one event — tunable per path, not per
+  character.
+- **`gist_dedup`** (key `gist_dedup_ver`) prevents the merge
+  products of §45's rewrite catalog from double-surfacing: a
+  generic + its surviving episodic parent share gist_key; the
+  generic wins by activation usually, the parent shadows. This
+  is what stops "I remember the time I..." followed by the same
+  story told twice in different words.
+- **`present_div_cap`** (default 3) is the antagonist-flood
+  guard: without it, a hot episode fills the whole budget and
+  the character becomes the database that returns "top-k of one
+  query". Human recall in a neutral context interleaves —
+  temporal contiguity (§14) already biases toward clusters; the
+  cap is the *diversity* correction the contiguity walk needs.
+- **Determinism.** `present` is pure in `state × C × path ×
+  budget × seed`; the CRN discipline (§75) applies — paired
+  arms share the projection seed (P1111).
+- **`shadowed` vs `suppressed`.** Shadowed records were ranked
+  but excluded by dedup/diversity/budget — they receive §83
+  suppression (they were competitors). Records never ranked are
+  untouched: suppression requires having *competed*, matching
+  the RIF dependence on cue-overlap (Anderson et al. 1994 —
+  suppression is competitor-specific, not global).
+
+## 83. The write-back ledger — surfacing is a memory event
+
+Every `present` op carries a write-back priced by `path`:
+
+| path | shown records | shadowed/suppressed | rationale |
+|---|---|---|---|
+| self_prompt | §5.9 reboost (s_gain, lag_mult) — full | `suppress_k` decay on R, episode-bucket only | covert self-retrieval = testing (Roediger & Karpicke 2006) |
+| utterance | reboost + retellCount++ (existing §6.11 path) | `suppress_k` on competitors; listener-side SS-RIF unchanged (SM§6) | retelling is the strongest practice |
+| briefing | reboost × `brief_prac_mult` (0.3) | none — possessed suspension: store frozen anyway (§6) | briefing is a read, not a remembrance |
+| spectator | none | none | the world watches; the character does not practice for viewers |
+| probe | none | none | measurement must not perturb — locked |
+
+Mechanics:
+
+- **Suppression target.** `suppress_k` (default 0.02, pop
+  scalar — HYPOTHESIS, sized from SS-RIF effect ≈ half of
+  speaker RIF; listener legs already priced in SM§6) applies a
+  multiplicative R-discount `R *= (1 − suppress_k)` to each
+  suppressed record, episode-bucket scoped, once per `present`.
+  It is deliberately small: part-list cuing effects are real
+  but modest (Slamecka 1968), and the cumulative mechanism —
+  a story told often crowds out its neighbors — is the
+  emergent phenomenon (the rehearsed anecdote that *replaces*
+  the event it was about — Bartlett 1932 schema drift, already
+  the merge catalog's semantics; now it has its second edge:
+  the untold neighbors fade).
+- **`writeback_scope: "episode-bucket"`** — suppression keys
+  on the same bucket used by §3.1 interference pairing
+  (dominant cue key). Suppression never crosses episodes: a
+  character recounting their wedding does not suppress their
+  job memories. This is the competitor-specificity axiom of
+  RIF (Anderson et al. 1994) made operational.
+- **No double counting.** A record both shown and suppressed
+  in the same op is impossible by construction (shown ∩
+  suppressed = ∅ — dedup happens before write-back).
+- **Locked nulls.** `silent_read_null` (§81);
+  `probe_writeback_null` — probe-path present emits zero
+  write-back (P1120 control); `spectator_practice_null` —
+  spectator projections never reboost (the character does not
+  know they were watched — Truman-critical: possession ban is
+  §7 of the design doc, and the memory layer must not leak
+  viewership into strength).
+
+**Why this matters for the core insight:** humans do not
+"query" memory; they *retell* it, and every retelling edits
+the store. §83 makes the edit mandatory — any surface that
+shows a record pays the practice cost and the suppression
+cost, so a system that over-surfaces a record literally
+wears a groove around it. Database reads are free; human
+recall never is. That asymmetry is now in the contract.
+
+## 84. Redaction tiers — the field map
+
+`tier_table_ver` ("v1") declares, per path, which field tiers
+pass:
+
+| field class | self_prompt | utterance | briefing | spectator |
+|---|---|---|---|---|
+| verbatim/gist content | ✓ | ✓ | ✓ (surface only) | ✓ (public events only) |
+| affect tags | ✓ | ✓ (shapes phrasing) | ✗ | ✗ |
+| `latent:true` / belief C-tier | ✓ (as FOK/tip-of-tongue, never content) | ✗ | ✗ | ✗ |
+| `synth` audit flag | ✗ | ✗ | ✗ | ✗ |
+| `drama-seed` / secret fields | ✓ (own only) | ✗ unless disclosed | ✗ | ✗ |
+| provenance (`told_by` chain) | ✓ | ✓ (attribution hedges) | ✗ | ✗ |
+
+Two axioms:
+
+- **No-invention (locked `no_invent_null`, P1112):** the
+  projection contains only fields present in the record —
+  `project(m) ⊆ fields(m)` after tier map. An absent field is
+  rendered as absence (a gap the dialogue layer may hedge
+  around), never filled by the projector. Confabulation is a
+  *store* operation (false-memory parts) that happens upstream;
+  the projector confabulates nothing. This is the formal wall
+  between "the character misremembers" (allowed — it happened
+  in the store) and "the rendering misremembers for them"
+  (forbidden — that would be the simulator lying).
+- **Tier monotonicity:** spectator ⊂ briefing ⊆ utterance ⊆
+  self_prompt on every field class — the table above is a
+  lattice, and a build that lets `briefing` carry affect tags
+  or `spectator` carry C-tier content fails P1113 outright.
+
+The possession-briefing row encodes the design doc §7 rule
+("possession never reveals secrets") at the memory layer: the
+briefing sees what a *public profile* would show — surface
+relationships, routine, disclosed history — never the latent
+store. The journal logs `briefing` presents like any other, so
+post-hoc audit can prove no secret field ever crossed.
+
+## 85. The decade bound — permastore is a ratchet
+
+§20 sized the *live* store. The two immortalizing sinks need
+their own arithmetic.
+
+**Permastore accumulation.** Canonization moves episodic
+records to `permastore`-class permanence (§4.7: β→0 at
+`permastore_age`/`permastore_thresh`). The influx is the §20
+rehearsal rate:
+
+```
+  r_canon ≈ λ · P(reaches canon_thresh before death)
+          ≤ λ · retell_base·E·(1+share_k·|affect|)·T_cohort
+```
+
+With §20's numbers (λ ≤ 40/day, r_day ≤ 0.023), the generous
+bound is `canon_day_bound` = 0.3 records/day/capita reaching
+permanence (≈2% of the 15/day that survive the week —
+HYPOTHESIS bound, probe-measured not asserted). Over a 70-year
+life that is ≤ 0.3·25550 ≈ **7,700 permanent records** — versus
+Landauer's ~10⁹-bit lifetime estimate this is comfortably
+inside budget at ≤1 KB/record (~60 MB equivalent is nothing;
+the store is not the constraint). The constraint that *does*
+bind is **retrieval dilution**: a 70-year-old with 7,700
+permanent + ~800 live records searched by cue-overlap has a
+larger denominator. This is already priced — `n_sim` enters
+retrieval latency (§5.x latency_ms) and interference pairing —
+but P1117 now *measures* the dilution directly rather than
+trusting the parameterization.
+
+**Archived-store condensation.** `archived` records still hold
+full verbatim fields (never specified otherwise). Decade rule:
+at `archive_condense_age` (365 days in archive), an archived
+record condenses to a **gist skeleton** — `{episode_key,
+affect_tag, era, participants[], valence}` — verbatim fields
+dropped, `condensed:true`. The skeleton stays cueable at
+reduced weight (`condensed_w` = 0.3) and can still be *named*
+("I think I had a teacher like that") but carries no content —
+which is exactly the phenomenology of a seventy-year-old
+recalling early childhood: the *fact* of the event outlives
+the event. Grounding: gist-vs-verbatim longevity is the whole
+Fuzzy-Trace result (Brainerd & Reyna — already §45's basis);
+Landauer's own estimate implies massive lossy compression is
+the norm, not the exception. **HYPOTHESIS:** the 365d constant
+and 0.3 weight are priors; P1118 measures, not asserts.
+
+Envelope summary (mains, 70y): live ≤ cap_episodic (2,000 —
+burst bound, §20), permastore ≤ ~7.7k, archive-skeletons ≤
+`λ·T·condense_frac` bounded by journal. Store stays O(10⁴)
+records per head — a size the similarity operator can scan.
+
+## 86. The audit journal — `opLog`
+
+Per-character, append-only, hash-chained:
+
+```
+  entry = {seq, day, op, args_hash, reads:[ids], writes:[ids],
+           prev_hash} ; chain_hash = H(chain_hash, entry)
+```
+
+- **Coverage.** Every §38-catalog op that mutates memory state
+  logs one entry; `present` logs even though it is
+  read-dominant (its write-back is the mutation). Ops that
+  read-and-forget without consumer contact (internal
+  maintenance: consolidation pairing, decay pass) log at
+  coarser granularity — tick-level digest, not per-record —
+  bounded by `oplog_tick_digest:true`.
+- **Compaction.** At each `memorySnapshot` boundary the journal
+  is compacted to `{anchor: snapshot_hash, tail: entries since
+  snapshot}` — `oplog_compact_at:"snapshot"`. Replay from
+  snapshot + tail reproduces state identically (P1119);
+  compaction is what makes the journal O(days) rather than
+  O(lifetime).
+- **`oplog_max`** (10,000 entries, harness) is a diagnostic
+  ring bound — exceeding it forces a snapshot+compact cycle,
+  never silent loss (`oplog_drop_null` locked: a full journal
+  that drops entries undigested is a spec violation).
+
+## 87. What the journal buys — replay equivalence and attribution
+
+Two theorems-as-probes:
+
+- **Replay equivalence (P1119, locked `replay_hash_null`):**
+  for any snapshot S_t and journal tail J[t..t+n], replaying
+  the ops in order (deterministic ops under their logged seeds;
+  CRN scope applies) yields state with identical `canonHash`
+  (§47). Non-determinism anywhere in the op catalog becomes
+  visible as a replay divergence — the journal is the cheapest
+  determinism fuzzer the system can run, and it runs free on
+  every corpus pass.
+- **Attribution completeness (P1120, locked `attrib_null`):**
+  `canonHash(S_t+n) ≠ canonHash(S_t)` iff journal tail
+  non-empty, and every field-level delta between the two states
+  is covered by at least one entry's `writes`. When a probe
+  fails ("character should have forgotten X by day 30"), the
+  forensic question "which ops kept X alive" is a journal
+  query, not a re-run.
+
+And the loop-closer: **`present` entries make the exposure
+discipline auditable.** Counting `present{path:spectator}`
+against a record's `secret:true` fields across a whole run
+proves the tier map held — the §39 boundary moves from
+"trusted code" to "checked evidence".
+
+## 88. Interaction notes
+
+- **With §54 (context lifecycle):** `present` consumes C but
+  does not extend it — surfacing a memory does not make its
+  context "current" (the diner does not become the diner's
+  smell). Context renewal stays encode/retrieval-side.
+- **With §38 commutativity:** `present` ops on disjoint
+  characters commute trivially; same-character `present` ops
+  commute only if their shown∪suppressed sets are disjoint —
+  declared in the op catalog.
+- **With §70 cold start:** shadow replay writes journal
+  entries on a `synth:true` journal flag — replay-visible but
+  `synth_mark_null`-compliant (the flag is M-tier audit, never
+  projected).
+- **With §26.2 dyadic order:** in a dialogue tick, speaker
+  `present{utterance}` precedes listener covert-retrieval
+  write-back — the journal ordering IS the transaction order
+  already declared; this just names where it lands.
+
+## 89. New params (spec §7 v5.53 block) — audit-compliant
+
+| param | value | scope | probe |
+|---|---|---|---|
+| surf_paths | {self_prompt, utterance, briefing, spectator, probe} | pop (enum) | P1110 — consumer whitelist |
+| present_budget_units | 8 | pop | P1111/P1114 — exposure budget |
+| present_div_cap | 3 | pop | P1114 — per-episode flood guard |
+| gist_dedup_ver | "v1" | pop (table ver) | P1111 — dedup key identity |
+| suppress_k | 0.02 | pop — HYPOTHESIS | P1115 — shadowed-competitor R discount |
+| writeback_scope | "episode-bucket" | pop (enum) | P1115 — suppression scope |
+| brief_prac_mult | 0.3 | pop | P1115 — briefing practice fraction |
+| tier_table_ver | "v1" | pop (table ver) | P1113 — redaction map identity |
+| archive_condense_age | 365 | pop (days) | P1118 — archive→skeleton delay |
+| condensed_w | 0.3 | pop | P1118 — skeleton cue weight |
+| canon_day_bound | 0.3 | pop — HYPOTHESIS | P1117 — permanence influx bound |
+| oplog_max | 10000 | harness | P1121 — ring bound |
+| oplog_compact_at | "snapshot" | harness (enum) | P1119/P1121 — compaction trigger |
+| silent_read_null | 0.0 | locked null | P1110 |
+| no_invent_null | 0.0 | locked null | P1112 |
+| spectator_practice_null | 0.0 | locked null | P1116 |
+| probe_writeback_null | 0.0 | locked null | P1120 |
+| replay_hash_null | 0.0 | locked null | P1119 |
+| attrib_null | 0.0 | locked null | P1120 |
+| oplog_drop_null | 0.0 | locked null | P1121 |
+
+20 entries, **0 per-character** — the pattern holds: exposure,
+growth, and audit are population/harness infrastructure. The
+only character-visible artifact is what surfaces — and it was
+always supposed to surface through a contract, it just never
+had one.
+
+## 90. Formal/consistency probes (P1110–P1121)
+
+- **P1110 the silent read (MUST — locked null):** static scan —
+  every module that imports `recall` calls it only inside
+  `present`; dynamic check — instrumented counter on record
+  field reads vs journal `present` coverage across a 30-day
+  society run; `silent_read_null = 0`.
+- **P1111 projection determinism (MUST):** same state, C, path,
+  budget, seed → byte-identical projection across runs and
+  across process restarts from snapshot; gist_dedup collapse
+  order stable.
+- **P1112 no invention (MUST — locked null):** fuzz 10⁵
+  records × all paths: projected fields ⊆ record fields post
+  tier-map; absent field never materializes; `no_invent_null`.
+- **P1113 tiers hold (MUST — locked null):** across fuzz,
+  `briefing` projections contain zero affect/latent/secret
+  fields; `spectator` contains zero non-public content; tier
+  lattice never inverts. (This is the possession-ban probe at
+  the memory layer.)
+- **P1114 diversity bound (SHOULD):** over fuzzed ranked sets,
+  no episode_key occupies > `present_div_cap` slots; `truncated`
+  flag set exactly when fill < ranked-unique count.
+- **P1115 the write-back is real (SHOULD):** paired CRN arms —
+  surfaced records show §5.9 reboost vs un-surfaced control;
+  shadowed same-episode competitors show `R` lower by
+  `suppress_k` (±tolerance); briefing path shows
+  `brief_prac_mult`-scaled reboost only.
+- **P1116 audience-scaled silence (SHOULD):** spectator-path
+  present leaves store bit-identical (`spectator_practice_null`
+  + `probe_writeback_null`); utterance path in dialogue
+  suppresses listener competitors ∝ listener attention — the
+  SM§6 SS-RIF legs unchanged, now *counted* via journal.
+- **P1117 the decade bound (SHOULD):** 70-year shadow replay:
+  permastore count ≤ `canon_day_bound`·T·(1+tol); report
+  realized rate + retrieval-latency drift vs day-0 baseline —
+  dilution is measured, not assumed.
+- **P1118 condensation is honest (SHOULD):** post-condense
+  records: skeleton fields present, verbatim absent,
+  `condensed:true`; still cueable at `condensed_w`; byte size
+  per skeleton ≤ declared bound; skeletons cannot be
+  un-condensed or re-verbatimized (one-way).
+- **P1119 replay equivalence (MUST — locked null):** snapshot +
+  journal tail replay → identical canonHash; run on every
+  corpus pass as the free determinism fuzzer.
+- **P1120 attribution completeness (MUST — locked null):**
+  hash-differing consecutive snapshots ↔ non-empty journal
+  tail; every field delta covered by an entry's `writes`;
+  `attrib_null = 0`.
+- **P1121 journal compaction (OBSERVE):** compact-at-snapshot
+  preserves replay equivalence; report journal size/day and
+  compaction cadence — no gate, publishes the envelope.
+
+Registry: P1–P1121. v105 suite: P1110–P1113, P1119, P1120 MUST
+(six locked-null class — exposure and audit are where a correct
+psychology still produces a database if the walls move);
+P1114–P1118 SHOULD; P1121 OBSERVE.
+
+## 91. Summary for game-systems
+
+Three deliverables, all contract, no psychology. **The exposure
+discipline** (§§81–84): `present()` is the only legal consumer
+of `recall()`; every surfacing path is declared (`surf_paths`),
+budgeted (`present_budget_units`), deduplicated by gist,
+diversity-capped, redacted by a versioned tier lattice
+(`tier_table_ver` — the possession ban enforced at the field
+level), and priced by write-back — shown records practice,
+shadowed competitors suppress. A read that leaves the module
+without a `present` op is a spec violation detectable in the
+journal. **The decade bound** (§85): permastore is a one-way
+ratchet bounded by `canon_day_bound`; archives condense to
+gist skeletons at `archive_condense_age` — the store stays
+O(10⁴) per head over a full life, and P1117 measures the
+retrieval dilution the bound creates. **The audit journal**
+(§§86–87): hash-chained per-character op log, compacted at
+snapshots, giving replay equivalence (P1119 — the free
+determinism fuzzer) and per-delta attribution (P1120) — which
+together turn "the character remembered wrong" from a bug
+report into a journal query. Zero new per-character params,
+zero new record content fields, zero new mechanisms: this part
+specifies what the existing machine *owes the outside world* —
+an honest surface, a bounded tail, and a legible history.

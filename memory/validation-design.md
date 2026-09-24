@@ -10702,3 +10702,108 @@ quietly becomes a propaganda engine if the walls move.
   dual-process models; `hpm_cap` saturation shape;
   `rsq` legs unpriced for thin-AI ambients. → SM §§151–165;
   probes P1098–P1109.
+
+## 216. v105 probes — the exposure discipline, the decade bound, the audit journal (P1110–P1121)
+
+Contract-class probes: the psychology was already validated;
+these gate the *plumbing* — that every record read reaches a
+consumer through `present`, that the store's immortal tails
+are bounded, and that state deltas are attributable.
+(FM Part X §§81–91 → spec v5.53.)
+
+- **P1110 silent_read_null (MUST — locked):** two legs.
+  Static: import-graph scan — every module that references
+  `recall` calls it only inside `present`. Dynamic: record
+  field-read counter vs journal `present` coverage over a
+  30-day society run; any consumer-visible field without a
+  covering `present{path}` entry = fail. `surf_paths`
+  whitelist enforced — a sixth path appearing is a fail even
+  if journaled. (FM§81, spec §10)
+- **P1111 projection determinism (MUST):** fixed
+  (state, C, path, budget, seed) → byte-identical projection
+  across runs and across restart-from-snapshot; gist-dedup
+  collapse order stable; paired CRN arms share the
+  projection seed (§75 discipline). (FM§82)
+- **P1112 no_invent_null (MUST — locked):** fuzz 10⁵ records
+  × all five paths: projected fields ⊆ record fields post
+  tier-map; absent fields render as absence (hedgeable gap),
+  never materialize content. The projector confabulates
+  nothing — store-side confabulation stays the only legal
+  source of false content. (FM§84)
+- **P1113 tier lattice (MUST — locked):** same fuzz:
+  `spectator` projections carry zero non-public content;
+  `briefing` carries zero affect/latent/secret fields;
+  spectator ⊂ briefing ⊆ utterance ⊆ self_prompt on every
+  field class, never inverted. The §7-design possession ban
+  proven at the memory layer. (FM§84)
+- **P1114 diversity bound (SHOULD):** fuzzed ranked sets —
+  no episode_key occupies > `present_div_cap` slots in any
+  projection; `truncated:true` set iff ranked-unique count >
+  `present_budget_units`. (FM§82)
+- **P1115 write-back reality (SHOULD):** paired CRN arms —
+  shown records gain §5.9 reboost vs un-surfaced control;
+  shadowed same-episode competitors lose `R` by
+  `suppress_k` (±tol), cross-episode untouched
+  (`writeback_scope`); `briefing` path shows exactly
+  `brief_prac_mult`-scaled reboost; never-ranked records
+  untouched (suppression requires competition). (FM§83)
+- **P1116 audience-scaled silence (SHOULD):** `spectator`
+  and `probe` presents leave the store bit-identical
+  (`spectator_practice_null` + `probe_writeback_null` —
+  the character never practices for watchers, measurement
+  never perturbs); listener-side SS-RIF legs unchanged and
+  now journal-counted. (FM§§83, 88)
+- **P1117 the decade bound (SHOULD):** 70-year shadow
+  replay: permastore count ≤ `canon_day_bound`·T·(1+tol);
+  publish realized canonization rate AND retrieval-latency
+  drift vs day-0 — dilution measured, not assumed.
+  (FM§85)
+- **P1118 condensation honesty (SHOULD):** post-condense
+  records: skeleton fields only, `condensed:true`, cueable
+  at `condensed_w`, byte-size ≤ declared bound; one-way —
+  a skeleton can never re-acquire verbatim fields.
+  (FM§85)
+- **P1119 replay_hash_null (MUST — locked):** snapshot +
+  journal tail replay → identical `canonHash` (§47); run
+  on every corpus pass — the free determinism fuzzer.
+  (FM§87)
+- **P1120 attrib_null (MUST — locked):** hash-differing
+  consecutive snapshots ↔ non-empty journal tail; every
+  field-level delta covered by ≥1 entry's `writes`. Probe
+  forensics become journal queries. (FM§87)
+- **P1121 journal compaction (OBSERVE):** compact-at-
+  snapshot preserves replay equivalence; publish journal
+  size/day, compaction cadence, `oplog_max` headroom —
+  no gate, the envelope goes on record. (FM§86)
+
+Registry: P1–P1121. v105 suite: P1110, P1111, P1112, P1113,
+P1119, P1120 MUST (six locked-null class — exposure and
+audit are where a correct psychology still produces a
+database if the walls move); P1114–P1118 SHOULD; P1121
+OBSERVE. First all-contract suite: twelve probes, zero of
+them about what a character remembers — all about whether
+the machine around the remembering is honest.
+
+## 217. Sources verified this version (P1110–P1121 backing)
+
+- **Retrieval practice / testing effect:** Roediger &
+  Karpicke 2006 (in-corpus, forgetting-curves §7.2) →
+  P1115 shown-record arm.
+- **Part-list cuing / RIF:** Slamecka 1968; Roediger 1973;
+  **Anderson, Bjork & Bjork 1994** (competitor-specificity
+  → `writeback_scope`) → P1115 suppressed arm.
+- **Output interference:** Roediger & Schmidt 1980;
+  **Criss, Malmberg & Shiffrin 2011** → P1114 budget leg.
+- **SS-RIF / collaborative inhibition:** Cuc, Koppel &
+  Hirst 2007; Weldon & Bellinger 1997 → P1116 listener
+  legs (counted, not re-priced).
+- **Fuzzy-trace longevity:** Brainerd & Reyna corpus →
+  P1118 skeleton semantics.
+- **Lifetime envelope:** **Landauer 1986** (*Cognitive
+  Science* 10:477 — ~10⁹-bit lifetime estimate, five
+  methods) → P1117 bound rationale; NEW spine citation
+  this version.
+- **Marked hypothesis:** `suppress_k` sizing; `present_
+  budget_units` 8; `brief_prac_mult` 0.3; `canon_day_bound`
+  / `condensed_w` priors; `present_div_cap` (no direct
+  antecedent). → FM §§81–91; probes P1110–P1121.
