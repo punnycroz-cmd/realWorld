@@ -34,6 +34,25 @@ site, the short for X/Bluesky/Mastodon.
 ## Character spotlight cards
 
 Pattern: name + one concrete detail + "fictional resident." Example:
-"Card: MARISOL V. — runs the counter at El Farolote, knows everyone's
+"Card: MARISOL DELGADO — opens Mudhaus Coffee at six, knows everyone's
 order, keeps one opinion to herself. A fictional resident of Real World."
 Never describe a resident's secret on the card (spoiler rule §4).
+
+## Generated cards (`social/cards/` — v109)
+
+| Card | Alt text |
+|---|---|
+| `spotlight-c1-marisol` | Card: Marisol Delgado — opens Mudhaus Coffee at six, knows everyone's order. A fictional resident of Real World. Background: real capture of the Mudhaus interior, development build. |
+| `spotlight-c2-jules` | Card: Jules Park — new here too, three weeks on the block. A fictional resident of Real World. Background: street-level view of the block, development build. |
+| `spotlight-c3-dani` | Card: Dani Reyes — draws the chalkboards at Mudhaus. A fictional resident of Real World. Background: apartment interior, development build. |
+| `spotlight-c4-priya` | Card: Priya Raman — med-surg nurse, three 12s a week. A fictional resident of Real World. Background: the Mission block from above, development build. |
+| `spotlight-c5-marcus` | Card: Marcus Bell — courier who knows every porch on the block. A fictional resident of Real World. Background: block overhead in fall, development build. |
+| `spotlight-c6-carmen` | Card: Carmen Echeverría — same palm in Dolores Park every afternoon. A fictional resident of Real World. Background: Dolores Park from above, development build. |
+| `spotlight-c7-victor` | Card: Victor Auerbach — behind the counter at Auerbach Hardware, nine to six. A fictional resident of Real World. Background: hardware-store interior, development build. |
+| `spotlight-c8-tomas` | Card: Tomás Herrera — works the line at El Farolote five nights a week. A fictional resident of Real World. Background: taqueria interior, development build. |
+| `card-teaser-tomorrow` | "Tomorrow." over a director-mode dusk shot of the Mission block — REC badge visible. Development build. |
+| `card-teaser-tomorrow-sq` | Same as above, square crop for TikTok/IG cover frames. |
+| `card-recap` | "This Week on the Block" title card over Dolores Park — a recap of real events from the public feed. Development build. |
+| `card-receipt` | A receipt panel on a blurred block background: "The Counter — every request leaves a receipt," with rows for filing, the free wording check, and public status. DEMO badge in the corner. |
+| `card-empty-feed` | "The feed is empty. Be the first." over Dolores Park in fog. Development build. |
+| `card-watchfree` | "Watch free." over the Mission block from above — twenty-eight characters, your requests on the public feed. Development build. |

@@ -1,11 +1,12 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v94 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v109 — launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
 community playtest night + Move-In Week arc + Limits arc + Parrot Watch
 arc + Counter arc (request receipts) + automated pre-send checker
 (`tools/social_check.py`) + machine-readable calendar
-(`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export),
+(`social/schedule.json` → `tools/social_schedule.py` CSV/ICS export) +
+generated post-ready cards (`social/cards/` ← `tools/make_social_cards.py`),
 2026-09-23.
 LOCAL ONLY.** Nothing in this
 plan has been posted, scheduled, or registered. Every account creation, every
@@ -100,7 +101,8 @@ its channel, timing slot, required asset, and character-count check.
 | `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
 | `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
 | `counter-arc.md` | 4-post "every request leaves a receipt" series on the Counter — the board, the free wording check, the `rq-` receipt, co-sponsoring (v94; post-launch only, canon: world-v60 request-ui.md/requests.json live_seam) | 4 |
-| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template (v40) | full asset set |
+| `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
+| `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
 
 **Spoiler rule for cast spotlights:** the drama seed (Marisol = anonymous
 author of "Mission Unfiltered") is *load-bearing season-one material*. Cards
