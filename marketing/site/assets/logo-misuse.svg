@@ -1,0 +1,114 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1160 600" role="img" aria-label="Real World logo misuse board: six examples of incorrect logo usage">
+  <defs>
+    <g id="icon">
+      <rect width="512" height="512" rx="112" fill="#14161c"/>
+      <rect width="512" height="512" rx="112" fill="none" stroke="#2c303c" stroke-width="6"/>
+      <rect x="92" y="108" width="328" height="24" fill="#2c303c"/>
+      <rect x="106" y="128" width="300" height="302" fill="#1d2029"/>
+      <rect x="206" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="306" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="124" y="158" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="124" y="256" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="124" y="354" width="64" height="72" rx="8" fill="#4f9d69"/>
+      <rect x="224" y="158" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="224" y="256" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="224" y="354" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="324" y="158" width="64" height="72" rx="8" fill="#d4645c"/>
+      <rect x="324" y="256" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="324" y="354" width="64" height="72" rx="8" fill="#788092"/>
+    </g>
+    <g id="icon-recolored">
+      <rect width="512" height="512" rx="112" fill="#14161c"/>
+      <rect width="512" height="512" rx="112" fill="none" stroke="#2c303c" stroke-width="6"/>
+      <rect x="92" y="108" width="328" height="24" fill="#2c303c"/>
+      <rect x="106" y="128" width="300" height="302" fill="#1d2029"/>
+      <rect x="206" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="306" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="124" y="158" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="124" y="256" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="124" y="354" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="224" y="158" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="224" y="256" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="224" y="354" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="324" y="158" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="324" y="256" width="64" height="72" rx="8" fill="#e8a04c"/>
+      <rect x="324" y="354" width="64" height="72" rx="8" fill="#e8a04c"/>
+    </g>
+    <g id="icon-moved">
+      <rect width="512" height="512" rx="112" fill="#14161c"/>
+      <rect width="512" height="512" rx="112" fill="none" stroke="#2c303c" stroke-width="6"/>
+      <rect x="92" y="108" width="328" height="24" fill="#2c303c"/>
+      <rect x="106" y="128" width="300" height="302" fill="#1d2029"/>
+      <rect x="206" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="306" y="128" width="4" height="302" fill="#2c303c"/>
+      <rect x="124" y="158" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="124" y="256" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="124" y="354" width="64" height="72" rx="8" fill="#4f9d69"/>
+      <rect x="224" y="158" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="224" y="256" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="224" y="354" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="324" y="158" width="64" height="72" rx="8" fill="#d4645c"/>
+      <rect x="324" y="256" width="64" height="72" rx="8" fill="#788092"/>
+      <rect x="324" y="354" width="64" height="72" rx="8" fill="#e8a04c"/>
+    </g>
+    <g id="xmark" stroke="#d4645c" stroke-width="10" stroke-linecap="round">
+      <line x1="-18" y1="-18" x2="18" y2="18"/>
+      <line x1="-18" y1="18" x2="18" y2="-18"/>
+    </g>
+    <style>
+      .cap { font: 600 20px system-ui, sans-serif; fill: #e8e6df; }
+      .sub { font: 15px system-ui, sans-serif; fill: #788092; }
+    </style>
+  </defs>
+
+  <rect width="1160" height="600" fill="#14161c"/>
+  <text x="40" y="46" class="cap" font-size="24">Six ways not to use it.</text>
+  <text x="40" y="72" class="sub">The tile is a facade. You don&#8217;t repaint a neighbor&#8217;s windows.</text>
+
+  <!-- Row 1 -->
+  <g transform="translate(40,96)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <use href="#icon" transform="translate(70,44) scale(0.40 0.26)"/>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t stretch it.</text>
+  </g>
+  <g transform="translate(410,96)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <use href="#icon-recolored" transform="translate(80,32) scale(0.30)"/>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t recolor the windows.</text>
+  </g>
+  <g transform="translate(780,96)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <use href="#icon-moved" transform="translate(80,32) scale(0.30)"/>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t move the lit window.</text>
+  </g>
+
+  <!-- Row 2 -->
+  <g transform="translate(40,336)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <ellipse cx="172" cy="188" rx="110" ry="16" fill="#e8a04c" opacity="0.35"/>
+    <use href="#icon" transform="translate(80,26) scale(0.30)"/>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t add glows or shadows.</text>
+  </g>
+  <g transform="translate(410,336)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <use href="#icon" transform="translate(172,109) rotate(14) scale(0.30) translate(-256,-256)"/>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t rotate it.</text>
+  </g>
+  <g transform="translate(780,336)">
+    <rect width="340" height="218" rx="12" fill="#1b1e27" stroke="#2c303c"/>
+    <g transform="translate(80,26) scale(0.30)">
+      <rect width="512" height="512" rx="112" fill="#e8a04c"/>
+      <rect x="40" y="60" width="432" height="150" fill="#d4645c"/>
+      <rect x="40" y="220" width="432" height="120" fill="#4f9d69"/>
+      <rect x="40" y="350" width="432" height="130" fill="#788092"/>
+      <use href="#icon"/>
+    </g>
+    <use href="#xmark" transform="translate(306,30)"/>
+    <text x="20" y="192" class="cap">Don&#8217;t set it on a busy ground.</text>
+  </g>
+</svg>

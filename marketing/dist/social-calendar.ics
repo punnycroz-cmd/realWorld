@@ -4,7 +4,7 @@ PRODID:-//real-world-marketing//social-schedule//EN
 CALSCALE:GREGORIAN
 BEGIN:VEVENT
 UID:social-schedule-undated@realworld
-DTSTAMP:20260924T125559Z
+DTSTAMP:20260924T152001Z
 DTSTART;VALUE=DATE:20260923
 SUMMARY:Real World social calendar — launch_date not set (schedule.json)
 END:VEVENT

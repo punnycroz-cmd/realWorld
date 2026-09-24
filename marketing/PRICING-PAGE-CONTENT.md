@@ -258,6 +258,82 @@ drift shows as wrong math, not wrong claims).
   "Vocabulary" (#terms). Section count now 24; all anchors verified to
   resolve.
 
+## 1j. Page components (v157)
+
+- **"Surge, on the clock"** (`#clock`, `.clock`/`.clk`/`.clk-prime` in
+  style.css) — a 24-cell pure-CSS strip between `#receipt` and `#journey`
+  shading the prime-time band (18:00–23:00 server-local, hours 18–22 lit)
+  where the ×1.5–2.5 exclusive-class surge can apply. The two trigger
+  conditions are restated verbatim from the monetization plan (recent
+  exclusive use <6 h OR prime-time window); a worked table prices the same
+  30-min venue hold at 14:00 base (180 cr ≈$1.69) vs 19:30 low/high surge
+  (270/450 cr ≈$2.53/4.22) vs queued-for-quiet (153 cr ≈$1.44). Bullets
+  clarify the boundaries: compatible sessions never surge, the 6-h rule
+  works off-peak, and weather one-shots carry their own ×2 surge proposal.
+  `role="img"` with a full-text aria-label; no JS.
+- **Fineprint +1 row** — "Surge is scheduled, not sprung" restates both
+  surge triggers and the quiet-hours discount at body size, keeping
+  `#fineprint`'s every-catch promise true.
+- **Quick answers +1** — "When is it cheapest to file a request?" in BOTH
+  the visible `<details>` list and the FAQPage JSON-LD (verbatim-faithful,
+  pointing at `#clock`).
+- **TOC chip** — "Surge hours" (#clock) between "A receipt" and "A
+  credit's life". Section count now 25; all anchors verified to resolve.
+
+## 1k. Page components (v172)
+
+- **"What turns on, and when"** (`#order`, `.grid grid-3` card row between
+  `#promise` and `#fineprint`) — the proof-first staging that the
+  monetization direction (Astra review, 2026-09-24) locks in: stage 1 is
+  free observation (watching, catch-up edition, thread-following,
+  stakeless predictions, one bounded invitation) measured against cost
+  per simulated day; stage 2 is subscriptions for archival depth /
+  custom editions / creator-export tools (the Resident/Director tiers
+  above stay provisional until then); stage 3 is capped, publicly
+  attributed opportunity sponsorship with explicit delivery/refusal/
+  refund terms. Closing line prints the three at-no-stage nevers: no
+  "unlimited living worlds" packages, no consciousness claims, no credit
+  economy before repeat interest is proven. Pure HTML, no JS.
+- **Fineprint +1 row** — "Paid rails open in stages" restates the gate at
+  body size and adds the honest edge: "provisional" can mean "never."
+- **Quick answers +1** — "Is everything on this page for sale on day
+  one?" in BOTH the visible `<details>` list and the FAQPage JSON-LD
+  (verbatim-faithful), pointing at `#order`.
+- **TOC chip** — "The order" (#order) between "The promise" and "The
+  fine print". All anchors verified to resolve; both JSON-LD blocks
+  re-validated.
+
+## 1l. Page components (v187)
+
+- **Stage tags** (`.stage-tag` `.s1`/`.s2`/`.s3` in style.css) — a small
+  uppercase pill on the h2 of every section that belongs to a paid rail:
+  "Stage 2 · gated" on packs, requests, one-shots, scenes, co-sponsor,
+  subscriptions, cast slots, property ladder, cosmetics; "Stage 1 · free"
+  on playing at $0. Makes the #order staging legible at the section level
+  instead of only in one card row — a reader landing mid-page from an
+  anchor still sees which gate the prices wait behind. Pure HTML/CSS,
+  no JS; same palette mapping as the notice system (green = free/live,
+  amber = gated paid, red = last/capped).
+- **"The gates, in writing"** (`#gates`, between `#order` and
+  `#fineprint`) — a 3-row table turning the proof-first order into a
+  contract: Gate A (stage 1→2) requires voluntary 7-day return visits
+  weighed against cost per simulated day and moderation load; Gate B
+  (2→3) requires retention holding for subscribers AND non-paying
+  watchers; Gate C (stage 3, capped) requires sponsorships running with
+  published refusal/refund counts. Each row prints its "if it never
+  clears" outcome — permanence included. Closing note states the honest
+  omission: no numeric thresholds printed yet because a bar invented
+  before measurement is theater; each bar publishes in the journal
+  before its stage opens.
+- **Fineprint +1 row** — "The gates are measured in public" restates the
+  gate contract at body size, keeping #fineprint's every-catch promise.
+- **Quick answers +1** — "What has to be true before paid features
+  open?" in BOTH the visible `<details>` list and the FAQPage JSON-LD
+  (verbatim-faithful), pointing at `#gates`.
+- **TOC chip** — "The gates" (#gates) between "The order" and "The
+  fine print". Section count now 27; all anchors verified to resolve;
+  both JSON-LD blocks re-validated.
+
 ## 2. Canonical numbers (PROPOSAL — from monetization plan §2)
 
 ### Credit packs (~$0.01/cr effective Schelling point)

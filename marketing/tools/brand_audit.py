@@ -42,6 +42,7 @@ SITE = os.path.join(ROOT, "site")
 ASSETS = os.path.join(SITE, "assets")
 KIT_LOGOS = os.path.join(ROOT, "press-kit", "logos")
 KIT_BADGES = os.path.join(ROOT, "press-kit", "badges")
+KIT_MASTHEADS = os.path.join(ROOT, "press-kit", "mastheads")
 
 fails, warns = [], []
 
@@ -139,7 +140,7 @@ def main():
     tokens = json.load(open(os.path.join(ASSETS, "brand-tokens.json")))
 
     # 1. named assets exist
-    for group in ("logo", "banner_files", "badge_files"):
+    for group in ("logo", "banner_files", "badge_files", "mastheads"):
         if group not in tokens:
             continue
         files = tokens[group]["files"] if group == "logo" else tokens[group]
@@ -204,6 +205,19 @@ def main():
             else:
                 fail(f"press-kit/badges/{name} differs from site/assets master "
                      f"— rerun build-press-kit.sh")
+
+    # 4c. press-kit masthead parity
+    if os.path.isdir(KIT_MASTHEADS):
+        for name in sorted(os.listdir(KIT_MASTHEADS)):
+            master = os.path.join(ASSETS, name)
+            copy = os.path.join(KIT_MASTHEADS, name)
+            if not os.path.exists(master):
+                warn(f"press-kit/mastheads/{name} has no site/assets master")
+            elif sha(master) == sha(copy):
+                ok(f"press-kit masthead identical: {name}")
+            else:
+                fail(f"press-kit/mastheads/{name} differs from site/assets "
+                     f"master — rerun build-press-kit.sh")
 
     # 5. icon links on every page
     required = ["assets/favicon.svg", "assets/favicon-32.png",

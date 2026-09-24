@@ -1441,6 +1441,495 @@
           "note": "End card. {{URL}} placeholder flips at ship."
         }
       ]
+    },
+    "briefing": {
+      "file": "animatic-briefing.mp4",
+      "captions": "captions-briefing.srt",
+      "shots": [
+        {
+          "id": "Q1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "09:17 — @wren's hire joined the roster: \"Rook\".",
+          "card": null,
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Cold open. A player-hired character lands on the roster — public feed, attributed."
+        },
+        {
+          "id": "Q2",
+          "t": 7.0,
+          "kind": "uicard",
+          "title": "possession briefing",
+          "sub": "hire: rook · 30 min",
+          "lines": [
+            [
+              "routine",
+              "Mudhaus open → park → home"
+            ],
+            [
+              "surface ties",
+              "Mars — boss · Vic — landlord"
+            ],
+            [
+              "workplace",
+              "counter shift, weekdays"
+            ],
+            [
+              "secrets",
+              "",
+              "redacted"
+            ],
+            [
+              "drama seeds",
+              "",
+              "redacted"
+            ]
+          ],
+          "stamp": "PUBLIC RECORD ONLY",
+          "tone": "accent",
+          "card": "Your briefing is public record. The secrets stay sealed.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "Design §7 verbatim: briefing = public profile + surface relationships + daily routine; own and others' secrets redacted. The sealed rows are the thesis."
+        },
+        {
+          "id": "Q3",
+          "t": 7.0,
+          "kind": "requestcard",
+          "fields": {
+            "action": "possess: rook (your hire)",
+            "duration": "30 min · hard cap",
+            "cost": "credits/min · declared upfront",
+            "status": "REVIEWED → live"
+          },
+          "verdict": "approved",
+          "card": "File the request. Take the wheel.",
+          "transition": "cut",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Action + duration + cost declared upfront, review step visible — same contract as hero S7."
+        },
+        {
+          "id": "Q4",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v64-B.png",
+          "zoom": [
+            1.05,
+            1.16
+          ],
+          "pan": "right",
+          "chip": [
+            "AI",
+            "YOU"
+          ],
+          "card": "You're at the wheel — public knowledge only.",
+          "transition": "dip",
+          "recapture": true,
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "redact": [
+            [
+              288,
+              232,
+              338,
+              256
+            ],
+            [
+              358,
+              262,
+              412,
+              288
+            ]
+          ],
+          "audio": "room",
+          "note": "Possession flip. Debug pawn name tags blurred (F7 rects) — the chip must never read as driving a main. Ship cut shows the hired character."
+        },
+        {
+          "id": "Q5",
+          "t": 6.0,
+          "kind": "feed",
+          "lines": [
+            "09:31  Rook fished for gossip at the counter. Mars changed the subject.",
+            "09:44  Rook clocked out early. The feed noticed.",
+            "09:52  Priya waved at Rook. They'd met before — the briefing said so."
+          ],
+          "card": "What you don't know, you find out like everyone else.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Discovery is played, not bought — a possessed hire learns secrets the viewer way: by watching them happen."
+        },
+        {
+          "id": "Q6",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v64-D.png",
+          "zoom": [
+            1.02,
+            1.12
+          ],
+          "pan": "left",
+          "grade": "night",
+          "chip": [
+            "YOU",
+            "AI"
+          ],
+          "timer": true,
+          "card": "Time's up. The sim takes the wheel back. Nothing spilled.",
+          "transition": "dip",
+          "recapture": true,
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "audio": "night",
+          "note": "Hard-cap handoff at dusk/night — the LLM brain resumes seamlessly on release (design §7)."
+        },
+        {
+          "id": "Q7",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "10:17 — Rook's window ended. The secrets stayed sealed.",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "Button. The window closes; the redaction held."
+        },
+        {
+          "id": "Q8",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Drive your hire. The secrets aren't for sale.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "End card. {{URL}} placeholder flips at ship."
+        }
+      ]
+    },
+    "consequence": {
+      "file": "animatic-consequence.mp4",
+      "captions": "captions-consequence.srt",
+      "shots": [
+        {
+          "id": "R1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "15:00 — Tomás took the corner seat at Mudhaus.",
+          "card": null,
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Cold open on a routine — the kind of detail a regular viewer learns by watching."
+        },
+        {
+          "id": "R2",
+          "t": 7.0,
+          "kind": "feed",
+          "lines": [
+            "DAY 7   15:00  Tomás took the corner seat at Mudhaus.",
+            "DAY 8   15:00  Tomás took the corner seat at Mudhaus.",
+            "DAY 9   15:00  Tomás took the corner seat at Mudhaus."
+          ],
+          "card": "Some things you could set your watch to.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "Repetition reads instantly: three identical lines, three day stamps. Establishes the ritual the cut will break. Ritual detail borrows the production-2 playtest beat (Tomás's 3pm ritual) — re-cut from real feed history at ship."
+        },
+        {
+          "id": "R3",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "DAY 10 · 15:00 — the corner seat stayed empty.",
+          "card": null,
+          "transition": "cut",
+          "note": "The break lands in silence — no sting, no narrator. An unexpected choice (or an unexplained absence) is the hook."
+        },
+        {
+          "id": "R4",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v52-INT-cafe.png",
+          "zoom": [
+            1.0,
+            1.1
+          ],
+          "pan": "left",
+          "card": "Nobody explains it. There is no narrator.",
+          "transition": "dip",
+          "recapture": true,
+          "crop": [
+            360,
+            60,
+            1440,
+            825
+          ],
+          "audio": "room",
+          "note": "The world doesn't editorialize — interpretation is the viewer's job. Interior still; recapture live at ship."
+        },
+        {
+          "id": "R5",
+          "t": 8.0,
+          "kind": "uicard",
+          "title": "since you last watched",
+          "sub": "catch-up · days 10–12",
+          "lines": [
+            [
+              "tomás",
+              "missed the ritual · day 10"
+            ],
+            [
+              "mars",
+              "kept the seat empty · day 11"
+            ],
+            [
+              "priya",
+              "asked after him · day 12"
+            ]
+          ],
+          "stamp": "VERIFIED CHANGES",
+          "tone": "accent",
+          "card": "You leave for a week. The block keeps score.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "CONCEPT UI — the production-3 'catch-up edition': up to three verified changes since the viewer's last visit (Astra direction §5). Not a shipped screen yet; the mock sells the return loop, and 'verified' is the load-bearing word."
+        },
+        {
+          "id": "R6",
+          "t": 6.0,
+          "kind": "still",
+          "src": "v64-B.png",
+          "zoom": [
+            1.08,
+            1.0
+          ],
+          "pan": "right",
+          "grade": "dusk",
+          "card": "Same street. A different neighborhood.",
+          "transition": "dip",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "audio": "room",
+          "note": "The return beat — familiar framing, shifted light. Consequence continuity is visible, not claimed."
+        },
+        {
+          "id": "R7",
+          "t": 7.0,
+          "kind": "feed",
+          "lines": [
+            "DAY 12  15:00  Tomás came back. Mars had kept the seat.",
+            "DAY 12  15:41  He stayed forty minutes past the usual.",
+            "DAY 12  15:43  Priya stopped by. First time in weeks."
+          ],
+          "card": "A choice on day 10 changed day 12. Nobody scripted it.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "The payoff: observable consequence, no inferred motive. Every line is an event a viewer could have watched happen — never a peek at hidden memory (Astra §5: never present hidden state as public fact)."
+        },
+        {
+          "id": "R8",
+          "t": 5.0,
+          "kind": "uicard",
+          "title": "your call",
+          "sub": "day 13 · 15:00",
+          "lines": [
+            [
+              "does he go back?",
+              "you said: yes"
+            ]
+          ],
+          "stamp": "NO STAKES — JUST YOUR NAME ON IT",
+          "tone": "good",
+          "card": "Make the call. Come back and check.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "CONCEPT UI — the non-wager prediction beat of the free observer loop (catch up → follow → predict → inspect → return). Deliberately stakeless: no wager, no reward, just a marked guess to revisit."
+        },
+        {
+          "id": "R9",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Come back tomorrow. It'll be different.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "End card sells the return visit — the production-3 north star. {{URL}} placeholder flips at ship."
+        }
+      ]
+    },
+    "loop": {
+      "file": "animatic-loop.mp4",
+      "captions": "captions-loop.srt",
+      "shots": [
+        {
+          "id": "L1",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "09:03 — you opened the feed. Six days away.",
+          "card": null,
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Cold open from the viewer's side for once — every other cut opens on the block; this one opens on the gap since your last visit. Session-line mock; recapture the real return banner at ship."
+        },
+        {
+          "id": "L2",
+          "t": 7.0,
+          "kind": "uicard",
+          "title": "since you last watched",
+          "sub": "catch-up · days 10–12",
+          "lines": [
+            [
+              "tomás",
+              "missed the ritual · day 10"
+            ],
+            [
+              "mars",
+              "kept the seat empty · day 11"
+            ],
+            [
+              "priya",
+              "asked after him · day 12"
+            ]
+          ],
+          "stamp": "VERIFIED CHANGES",
+          "tone": "accent",
+          "card": "1 · Catch up. The block kept score.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "CONCEPT UI — production-3 catch-up edition (≤3 verified changes since last visit, Astra §5). Same Tomás thread as the Consequence Cut so the two cuts can cross-link; 'verified' is load-bearing — only observable events, never inferred motive."
+        },
+        {
+          "id": "L3",
+          "t": 6.0,
+          "kind": "uicard",
+          "title": "follow a thread",
+          "sub": "free · no account needed",
+          "lines": [
+            [
+              "thread",
+              "tomás · the corner seat"
+            ],
+            [
+              "notify",
+              "on any mention"
+            ],
+            [
+              "visibility",
+              "public feed only"
+            ]
+          ],
+          "stamp": "FOLLOWING",
+          "tone": "good",
+          "card": "2 · Choose someone to follow.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "keys",
+          "note": "CONCEPT UI — thread following (Astra §5: subscribe to a character or commitment). 'public feed only' row is the accuracy guard: following grants attention, not access — no private state is unlocked."
+        },
+        {
+          "id": "L4",
+          "t": 5.0,
+          "kind": "uicard",
+          "title": "your call",
+          "sub": "day 13 · 15:00",
+          "lines": [
+            [
+              "does he go back?",
+              "you said: yes"
+            ]
+          ],
+          "stamp": "NO STAKES — JUST YOUR NAME ON IT",
+          "tone": "good",
+          "card": "3 · Make the call. Nothing riding on it but being right.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "CONCEPT UI — the non-wager prediction (Astra §6). Stamp is verbatim from the Consequence Cut's R8: a marked guess, never a bet. No betting/wagering mechanics exist or are implied."
+        },
+        {
+          "id": "L5",
+          "t": 7.0,
+          "kind": "feed",
+          "lines": [
+            "DAY 13  15:00  the corner seat stayed empty.",
+            "DAY 13  15:02  Tomás took the window table instead.",
+            "DAY 13  15:04  Mars brought his usual over anyway."
+          ],
+          "card": "4 · Check what actually happened.",
+          "transition": "dip",
+          "recapture": true,
+          "audio": "ticks",
+          "note": "The inspect-the-outcome beat. All three lines are observable events — the prediction resolves against footage, not a scoreboard. 'Mars brought his usual' is consequence texture, not a claimed motive."
+        },
+        {
+          "id": "L6",
+          "t": 4.0,
+          "kind": "feedline",
+          "line": "DAY 13 · 15:02 — your call missed. Now you know him better.",
+          "card": "5 · Being wrong is the interesting part.",
+          "transition": "cut",
+          "audio": "ticks",
+          "note": "Revise-your-understanding beat — the loop's honest payoff: a missed prediction is information, not a loss. No penalty surface exists, so none is shown."
+        },
+        {
+          "id": "L7",
+          "t": 5.0,
+          "kind": "still",
+          "src": "v64-C.png",
+          "zoom": [
+            1.0,
+            1.08
+          ],
+          "pan": "left",
+          "grade": "dusk",
+          "card": "6 · Come back tomorrow. The thread keeps going.",
+          "transition": "dip",
+          "crop": [
+            330,
+            100,
+            1440,
+            794
+          ],
+          "audio": "room",
+          "note": "Return beat — park overhead under the dusk grade. Exterior still may ship in a pinch; recapture nice-to-have."
+        },
+        {
+          "id": "L8",
+          "t": 5.0,
+          "kind": "endcard",
+          "title": "REAL WORLD",
+          "subtitle": "T H E   M I S S I O N",
+          "tagline": "Catch up. Follow. Call it. Come back.",
+          "url": "{{URL}}",
+          "card": null,
+          "transition": "dip",
+          "audio": "resolve",
+          "note": "End card recites the loop as the tagline. {{URL}} placeholder flips at ship."
+        }
+      ]
     }
   },
   "thumbnails": [

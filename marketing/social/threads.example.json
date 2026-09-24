@@ -1,0 +1,106 @@
+{
+ "version": 184,
+ "schema": "social-threads/v1",
+ "notes": "FIXTURE for tools/thread_check.py — worked examples only, NOT real threads. Every URL is example.invalid; the dates are illustrative. One of each pipeline state: a called-and-resolved loop (clean close), a resolved Call with no follow-up (broken promise — FAIL), a fresh open thread (Call candidate), a stale one, and a closed-quiet one.",
+ "threads": [
+  {
+   "id": "t-ex1",
+   "title": "Jules's first shift cover",
+   "residents": ["c2-jules", "c5-marcus"],
+   "opened": "2026-10-03",
+   "source": "observed",
+   "status": "resolved",
+   "tone": "kindness",
+   "thread_url": "https://example.invalid/feed/t-ex1",
+   "call": {
+    "draft": "TC2", "posted": true,
+    "post_url": "https://example.invalid/x/call1",
+    "posted_date": "2026-10-04", "deadline": "2026-10-06",
+    "tally": {"yes_pct": 61}, "audience_right": true
+   },
+   "resolution": {
+    "resolved_date": "2026-10-06",
+    "evidence_url": "https://example.invalid/feed/ev-881",
+    "followup_draft": "TF-yes", "followup_posted": true,
+    "followup_url": "https://example.invalid/x/fu1"
+   },
+   "cc_pair": {"draft": "CC2", "posted": true,
+               "post_url": "https://example.invalid/tiktok/cc1"}
+  },
+  {
+   "id": "t-ex2",
+   "title": "Will Victor answer the flyer letter",
+   "residents": ["c7-victor"],
+   "opened": "2026-10-05",
+   "source": "request:rq-1042",
+   "status": "resolved",
+   "tone": "conflict",
+   "thread_url": "https://example.invalid/feed/t-ex2",
+   "call": {
+    "draft": "TC4", "posted": true,
+    "post_url": "https://example.invalid/x/call2",
+    "posted_date": "2026-10-06", "deadline": "2026-10-08",
+    "tally": {"yes_pct": 44}, "audience_right": null
+   },
+   "resolution": {
+    "resolved_date": "2026-10-07",
+    "evidence_url": "https://example.invalid/feed/ev-912",
+    "followup_draft": null, "followup_posted": false,
+    "followup_url": null
+   },
+   "cc_pair": {"draft": null, "posted": false, "post_url": null}
+  },
+  {
+   "id": "t-ex3",
+   "title": "Priya's Tuesday routine broke",
+   "residents": ["c4-priya"],
+   "opened": "2026-10-09",
+   "source": "observed",
+   "status": "open",
+   "tone": "competence",
+   "thread_url": "https://example.invalid/feed/t-ex3",
+   "call": {"draft": null, "posted": false, "post_url": null,
+            "posted_date": null, "deadline": null,
+            "tally": null, "audience_right": null},
+   "resolution": {"resolved_date": null, "evidence_url": null,
+                  "followup_draft": null, "followup_posted": false,
+                  "followup_url": null},
+   "cc_pair": {"draft": null, "posted": false, "post_url": null}
+  },
+  {
+   "id": "t-ex4",
+   "title": "The roof-garden key favor",
+   "residents": ["c6-carmen", "c8-tomas"],
+   "opened": "2026-09-28",
+   "source": "viewer-clip:@watcher_k",
+   "status": "open",
+   "tone": "mixed",
+   "thread_url": "https://example.invalid/feed/t-ex4",
+   "call": {"draft": "TC3", "posted": true,
+            "post_url": "https://example.invalid/x/call4",
+            "posted_date": "2026-10-01", "deadline": "2026-10-03",
+            "tally": {"yes_pct": null}, "audience_right": null},
+   "resolution": {"resolved_date": null, "evidence_url": null,
+                  "followup_draft": null, "followup_posted": false,
+                  "followup_url": null},
+   "cc_pair": {"draft": null, "posted": false, "post_url": null}
+  },
+  {
+   "id": "t-ex5",
+   "title": "Marisol's missed meetup",
+   "residents": ["c1-marisol", "c3-dani"],
+   "opened": "2026-09-30",
+   "source": "observed",
+   "status": "closed-quiet",
+   "tone": "conflict",
+   "thread_url": "https://example.invalid/feed/t-ex5",
+   "call": {"draft": null, "posted": false, "post_url": null,
+            "posted_date": null, "deadline": null,
+            "tally": null, "audience_right": null},
+   "resolution": {"resolved_date": null, "evidence_url": null,
+                  "followup_draft": null, "followup_posted": false,
+                  "followup_url": null},
+   "cc_pair": {"draft": null, "posted": false, "post_url": null}
+  }
+ ]
+}

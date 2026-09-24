@@ -1,6 +1,17 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v145 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+**Version:** v190 · 2026-09-24 · **Status:** LOCAL — launch-ready reference.
+v190 adds §22, the product-voice layer: the register the product's own
+surfaces speak in (statuses verbatim, facts-not-scores, decline is an
+ending) lives in `marketing/UI-VOICE.md`; `tools/ui_voice_check.py` is
+the mechanical gate and runs as preflight step 1d.
+v175 adds §21, the program-masthead layer: named formats (Class A surfaces
+and Class B programs) get sanctioned SVG mastheads — type + cornice rule +
+one lit window — so a program can never accidentally grow its own logo.
+Masters live in `site/assets/masthead-*.svg`, mirrored into the press kit.
+v160 added §20, the naming constitution: three name classes, the registry of
+every approved name, and the coinage rules — plus a visual misuse board
+(`site/assets/logo-misuse.svg`, embedded on the brand book page).
 This version adopts the locked **becoming-AI direction** (user-decision
 2026-09-23, PRODUCTION-2): the mains are AIs that *know they're AI*, embodied
 on the block, unaware it's a simulation, born with no assigned purpose. The
@@ -118,7 +129,8 @@ are allowed and encouraged.
 
 These names are owned by the world track's app shells; marketing copy uses
 them verbatim and never coins new surface names without a world-track
-artifact to point at.
+artifact to point at. The full naming system — classes, registry, and how
+new names get coined — is §20.
 
 ---
 
@@ -133,7 +145,7 @@ experiment):
 | A neighborhood that never stops performing. | Primary alt | Store tagline field (44 chars, fits everything) |
 | Watch free. Pay to reach in. | **Punchy/short** | Square key art, social banners, trailer end card |
 | The Truman Show you can visit. | Descriptive | FAQ, press one-pager — always in quotes; it's an analogy, not a title |
-| They know they're AI. The rest is up to them. | **Vision-era** | The becoming-AI tagline (§1a). Approved for key art, hero support, and press once production-2 ships; hold on public pages until then |
+| They know they're AI. The rest is up to them. | **Live** | The becoming-AI tagline (§1a). Production-2 shipped (v177, `1980949`) — approved for public pages, key art, hero support, and press; first public use: devlog 18 |
 
 Rules: sentence case, period included. Never append "!" — the brand is calm,
 not hyped. Never pair a tagline with a claim we can't ship ("possess anyone",
@@ -628,3 +640,185 @@ check 9 gates the mechanical half on every `site/*.html` page.
   diegetic-first, so muting loses nothing the captions don't carry.
 - **The Wire's live badge pulses, not flashes** — no flashing content
   anywhere; attention is earned by the block, not the blink rate.
+
+---
+
+## 20. Brand architecture — the naming constitution
+
+Names are load-bearing here: the product sells a neighborhood, and
+neighborhoods are named by the people who live in them, not by a marketing
+department. Every name we use falls into exactly one of three classes, and
+each class has its own casing rule and its own owner. A name's class is
+fixed at coinage — nothing gets promoted quietly.
+
+### Classes
+
+| Class | What it is | Casing | Who coins it |
+|---|---|---|---|
+| **A — product & surfaces** | The product and its app shells: things with a URL. | Title case; surfaces take a leading "The" | The track that ships the artifact (world) |
+| **B — programs & series** | Recurring editorial/community formats: things with a calendar slot. | Title case; may embed "the Block" as a proper element | Marketing, registered below before first use |
+| **C — colloquial** | How neighbors talk: generics, never trademarks. | lowercase, always | Anyone; they describe, they don't name |
+
+### Registry — every approved name
+
+| Name | Class | Artifact it points at | Notes |
+|---|---|---|---|
+| **Real World** | A | the product | two words, title case, no leading "The" (§2) |
+| **Real World — The Mission** | A | first formal reference | em dash, never a colon (§2) |
+| **The Mission** | A | the neighborhood | in-world shorthand once established |
+| **The Wire** | A | `wire.html` — live spectator feed | world-track shell |
+| **The Archive** | A | `wire-archive.html` — history browser | world-track shell |
+| **Join the Cast** | A | `world/create.html` — character creation | world-track surface; as a verb phrase it stays lowercase "join the cast" (lexicon §1) |
+| **the Journal** | A | `site/journal.html` — devlog + recap home | lowercase "the" mid-sentence: "in the Journal" |
+| **This Week on the Block** | B | Sunday recap — `journal.html` + `social/drafts/recap-format.md` | "the Block" is part of the title, so it keeps its capital inside the name |
+| **Caught on the Block** | B | weekly UGC clip prompt — `social/drafts/caught-on-the-block.md` | same rule |
+| **the block** | C | the neighborhood, in voice | never capitalized outside a Class-B title |
+| **the feed** | C | The Wire, spoken about | never "the Feed" |
+| **the cast** | C | the 8 mains collectively | |
+| **watch party** | C | community event type — `community/watch-party-playbook.md` | an event *can be* a watch party; there is no "Watch Party™" |
+| **request clinic** | C | Wednesday help session — `community/request-clinic-kit.md` | lowercase even on the calendar |
+| **town hall** | C | first-Saturday owner session | lowercase |
+
+### Coinage rules
+
+1. **A name must point at a real artifact.** No name without a page, a
+   file, a calendar slot, or a shipped shell. If the artifact doesn't
+   exist yet, the name doesn't either — drafts may experiment, the
+   registry may not.
+2. **Class A is sealed.** Marketing never coins product or surface names;
+   they arrive with the world track's app shells. A proposal goes through
+   the inbox, not into copy.
+3. **Class B names prefer a concrete neighborhood noun** — Block, Wire,
+   Archive, Journal, Cast. They sound like things a neighbor named, not
+   things a growth team A/B tested.
+4. **"the Block" is the only promoted colloquial** allowed inside a
+   Class-B title, and only as a full proper element — never "theBlock",
+   never "Da Block", never alone as "The Block" (that would make the
+   neighborhood a franchise).
+5. **One leading "The" per name.** Surfaces earned theirs; programs don't
+   take one ("The This Week on the Block" is wrong twice).
+6. **No sub-brands.** Never "Real World X" for a program or feature —
+   the product name is not a prefix. If a name can't stand without it,
+   it isn't a name.
+7. **No startup shapes.** No "-ify/-ly/-hub/-space", no portmanteaus, no
+   verb-names ("Requestly"). Banned by the same rule that bans hype words
+   (§4): the brand is a place, not a platform.
+8. **Colloquials stay lowercase forever.** If a Class-C term graduates to
+   a titled program, it gets a registry row in the same commit as its
+   first capitalized use. Mid-document promotion is a bug.
+9. **In-world names come from in-world authorities** — residents from the
+   bibles, venues from `world/businesses.md`, per lexicon §4. Marketing
+   never invents a resident, venue, or street.
+10. **Test: would a neighbor call it this?** "The Wire" passes — it's
+    what you'd call the feed if you watched it nightly. "Engagement
+    Portal" does not.
+
+### Drift watch
+
+A v160 sweep of `marketing/` found the corpus already conformant: every
+"the Block" capital sits inside a Class-B title, every program name has
+an artifact, no colloquial is promoted anywhere. Keep it that way —
+`tools/brand_audit.py` covers the mechanical casing checks, and this
+registry is the human gate for meaning (§17). When a new name lands, add
+its row here in the same commit as its first public use.
+
+---
+
+## 21. Program identity — mastheads for named formats
+
+A registered name (§20) deserves a face, but a program must never grow its
+own logo — the lit-window tile is the product's mark, full stop. The
+sanctioned face is the **masthead**: a typographic lockup, one per named
+format, kept as an SVG master in `site/assets/` and mirrored into
+`press-kit/mastheads/`.
+
+### Anatomy
+
+- **Kicker** — Fog `#9aa0ae`, DejaVu Bold ~26 px, uppercase, ~0.3em
+  tracking, ≤ 4 words. It names the *slot* ("Sunday recap", "Viewer
+  clips", "Devlogs & block reports"), not a slogan — kickers are factual,
+  never taglines (§3 bank stays the only tagline source).
+- **Title** — Paper `#ece7dc`, DejaVu Bold ~76–84 px, the registered name
+  spelled and cased exactly as its §20 registry row (a standalone title
+  capitalizes its first letter: "The Journal", but "This Week on the
+  Block" / "Caught on the Block" keep their registry casing).
+- **Cornice rule** — a 3 px `#2c303c` hairline under the title, full
+  width. The cornice is the program's furniture; it is what makes a
+  masthead read as *part of the block* rather than a sub-brand.
+- **One lit window** — a single amber window square (`#e8a04c`, 52×58,
+  rx 6, opacity .9) may sit at the right edge. Exactly one — the motif
+  says "a light is on here," not "here is a second logo." Never the full
+  3×3 grid (that's the tile's), never recolored, never animated.
+
+### Class rules
+
+| Class | Rule |
+|---|---|
+| **A — surfaces** | May sit the canonical tile beside the title (scaled, never redrawn — the group is copied verbatim from `logo-icon.svg`). The tile still belongs to the product; the masthead borrows it. |
+| **B — programs** | Type + cornice + one lit window only. Never the tile, never any other mark — a program with its own logo is a sub-brand, banned by §20 rule 6. |
+| **C — colloquials** | Never get mastheads. Lowercase in running text forever; the moment one needs a masthead it graduates via §20 rule 8. |
+
+### Registry of mastheads
+
+| Masthead | Name (§20 class) | File | Used on |
+|---|---|---|---|
+| The Journal | A | `masthead-journal.svg` | `journal.html` hero, press kit, social recap posts |
+| This Week on the Block | B | `masthead-recap.svg` | `journal.html` format preview, Sunday recap posts (raster `social/cards/card-recap.png` sets the same type) |
+| Caught on the Block | B | `masthead-caught.svg` | `social/drafts/caught-on-the-block.md` header, community clip posts |
+
+### Usage rules
+
+- **Dark surfaces only.** Paper text disappears on white; on light
+  contexts set the program name in dark-ink type (`logo-primary-dark`
+  palette) with no masthead art. Email never embeds mastheads (§16: no
+  images required to read).
+- **One masthead per named format, one format per masthead.** New Class-B
+  registrations add their master + registry row + press-kit mirror in the
+  same commit — a masthead without a §20 row is an unlicensed name.
+- **Min width 480 px.** Below that set the title in plain text with the
+  kicker as an eyebrow — a shrunken masthead is worse than none.
+- **Rasters derive from masters.** Social cards (`tools/make_social_cards.py`)
+  set the same DejaVu Bold / palette / casing; if a masthead changes, the
+  cards are regenerated, not re-typeset.
+- **Never inside the logo clear space.** A masthead and the product lockup
+  share a layout but never a header — page heroes show either the product
+  lockup *or* a program masthead, not both stacked.
+
+`tools/brand_audit.py` check 1 enforces that every masthead named in
+`brand-tokens.json` exists and that the press-kit mirrors are byte-identical.
+
+---
+
+## 22. Product voice — the register the product speaks in
+
+The brand doesn't stop at the browser chrome. The product's own strings —
+status chips, feed lines, card titles, toasts, empty states — speak in the
+same register, codified in `marketing/UI-VOICE.md`. Summary of the rules
+(the file is canonical):
+
+- **Statuses are verbatim and lowercase** — the `feed_vocabulary` strings
+  from `world/requests.json` (`requested`, `in_review`, `approved`,
+  `approved (modified)`, `running`, `queued`, `booked`, `resolved`,
+  `resolved · declined`, `refunded`, `not approved`, `denied`,
+  `admin action`, `player session ended`) are never title-cased,
+  paraphrased, or softened — in the product or in our quotes of it.
+- **Facts, not scores.** Endings report events; nothing grades the player
+  or the block. A declined nudge mints no artifact and reads as an ending,
+  not an error.
+- **Honesty lines print on the card**, never in tooltips or fine print.
+- **Decline carries no apology** — no "sorry", "unfortunately", no retry
+  pressure; "Your request: not approved." is the whole sentence.
+- **The audience is never a character** — in-world strings never address
+  viewers inside the fiction; attribution is filer handle + "posted at a
+  viewer's request".
+- **Empty states say what's true**; lapse is honest decay, not failure.
+
+Ownership: the world track owns shipped strings; this brand owns the
+register. When they disagree on a word, the shipped string wins and
+UI-VOICE.md updates in the same commit.
+
+Enforcement: `tools/ui_voice_check.py` lints `site/*.html`,
+`site/js/demo-sim.js`, `templates/`, and `social/drafts/` — every
+`·`-joined status sequence must use canonical tokens, no apology/hype word
+or `!` may share a line with a status, and `STATUS_CLS` keys must stay
+inside the canonical set. It runs as `tools/preflight.sh` step 1d.

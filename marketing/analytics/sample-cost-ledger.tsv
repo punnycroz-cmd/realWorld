@@ -1,0 +1,15 @@
+# Sample cost ledger — fictional week for `cost_ledger.py` rehearsal.
+# Format: date <TAB> kind <TAB> value <TAB> category <TAB> note
+# kinds: cost ($) · mod_hours (hours, rated via --rate) · sim_days
+2026-09-14	cost	12.00	hosting	vps month (prorated week)
+2026-09-14	cost	31.40	inference	brain calls week 1
+2026-09-15	sim_days	9	block uptime 9 sim-days
+2026-09-16	mod_hours	1.5	review	request-queue sweep
+2026-09-17	sim_days	8	quiet Tuesday
+2026-09-17	cost	3.80	inference	spike after cast spotlight
+2026-09-18	sim_days	7	
+2026-09-19	sim_days	6	weekend dip
+2026-09-20	sim_days	8	
+2026-09-20	mod_hours	1.0	review	weekly report read
+2026-09-21	cost	28.90	inference	brain calls week 2 partial
+2026-09-21	sim_days	4	partial day, deploy rehearsal

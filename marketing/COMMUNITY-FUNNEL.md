@@ -1,6 +1,42 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v144 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v189 · 2026-09-24 · branch `sf/marketing` · LOCAL ONLY
+(v189 closed the observer loop's last unsurfaced steps: NEW
+`community/thread-following.md` — the `#beats` forum spec covering
+*follow* and *revise* (the recap owns catch-up, `prediction-ledger.md`
+owns predict/inspect). One forum post = one open, observable situation
+with a falsifier ("we'd know this mattered if…"); observable-evidence
+only, guesses labeled, "went quiet" an honest close, closing posts end
+with "what we got wrong." Hard firewall written in: follow counts never
+steer the world — resident promotion follows recurring relationships,
+not community popularity (Production-3 direction). Wired: blueprint
+gains the `#beats` forum channel (v99→v189), programming-calendar gains
+the Sun 18:15 beat sweep, scorecard gains `open_beats`/`beats_resolved`/
+`repeat_beat_followers` manual counts (proxy for `thread_followed` until
+it ships), `site/community.html` renders the ninth channel + sweep row.)
+(v174 added the observer-loop ritual layer: NEW `community/prediction-ledger.md`
+— the stakeless weekly "calls" thread that gives the Production-3 free
+observer loop (catch up → follow → predict → inspect → revise → return) a
+community surface before the in-product prediction feature exists:
+valid-call rules (observable outcomes only, never motives, no stakes,
+unresolved is honest), evidence-linked resolution against the archive,
+misses published equally, and wiring into the Sunday slot, the recap's
+"resolved calls" line, and the scorecard (`repeat_callers` as the
+community-side proxy for the return-visit metric until the six PENDING
+observer events ship). `programming-calendar.md` gained the Sun 18:10
+slot + opener, `funnel-scorecard.md` the calls counts, and
+`clips-and-highlights.md` §3a the choice→consequence pair format —
+member clips now point at the same verified-pair standard as owned posts.)
+(v159 closed the funnel's last two holes: NEW `community/re-engagement.md`
+— the lapsed-member path: observable-only lapse signals, the honest hooks
+the world already produces (open rumors, watch-party triggers, credited
+fixes, seasonal beats), a never-do list applying the stay-small covenant
+to lapse (no re-engagement DMs, no streaks, no guilt), and the returning-
+poster health line for the scorecard; and NEW `community/request-clinic-kit.md`
+— the Wednesday clinic made runnable end-to-end: agenda, three worked
+examples (compatible ~$0.25 class / exclusive human-reviewed / denied+
+refunded), copy-ready answers to the recurring questions, quiet-week
+fallback, and its Stage 2→3 funnel wiring.)
 (v144 added the lifecycle layer: NEW `community/scale-plan.md` — the missing
 second half of the blueprint's "busy 6-channel" rule: stay-small covenant (no
 member-count goals, no growth levers that buy drive-by joins), growth tiers
@@ -118,6 +154,10 @@ numbers from the events capture + manual Discord counts).
 | Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
 | Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |
 | Scale plan — `community/scale-plan.md` | Server lifecycle: stay-small covenant, growth tiers T0–T3 (slow mode, channel splits, verification gate, mod ratio), quiet/dead-server path, sunset sequence | BUILT (v144), OWNER-GATED to run |
+| Request clinic kit — `community/request-clinic-kit.md` | Stage 2→3 in public: the Wednesday clinic runnable — agenda, worked examples (compatible/exclusive/denied), canned answers, quiet-week fallback | BUILT (v159), OWNER-GATED to run |
+| Re-engagement — `community/re-engagement.md` | The lapsed-member path: observable-only lapse signals, honest re-entry hooks (open rumors, watch parties, credited fixes), covenant never-do list, scorecard health line | BUILT (v159), OWNER-GATED to run |
+| Prediction ledger — `community/prediction-ledger.md` | Stage 1→2 observer-loop ritual: weekly stakeless "calls" on open beats — observable outcomes only, evidence-linked resolution, misses published, `repeat_callers` as the return-visit proxy until `prediction_made`/`outcome_inspected` ship | BUILT (v174), OWNER-GATED to run — activates with the Sunday recap slot |
+| Beats forum — `community/thread-following.md` | Stage 1→2 follow + revise: `#beats` forum — one post per open observable situation, falsifier in the opening post, "went quiet" is honest, closing posts state what the thread got wrong; follow counts never feed the world | BUILT (v189), OWNER-GATED to run — channel is in `server-blueprint.json`; 2–5 open beats max |
 | itch.io devlog | Long-form Stage 1→2 + SEO | DRAFTED cadence, OWNER-GATED account |
 | Shared inbox (`devin-reviews/sf-shared-inbox.md`) | Stage 2→dev feedback loop | LIVE (internal) |
 
@@ -164,6 +204,11 @@ prints this from the blueprint):**
    - `#clips` — member captures of the feed/neighborhood; the Stage-5
      advocacy surface. Pin-ready rules + upstream flow in
      `community/clips-and-highlights.md`.
+   - `#beats` — forum channel: one thread per open, observable situation
+     (a standing offer, a landed invitation, an open rumor). The follow +
+     revise surface of the observer loop. Rules, post formats, sweep
+     cadence, and the never-steer-the-world firewall in
+     `community/thread-following.md`.
 4. Bots: none required at launch. (If raid protection becomes needed: a
    verification-gate bot is the only acceptable addition — decide then.)
 5. Server rules: see §4.2. Welcome flow, rules-gate text, pinned posts, and
@@ -249,7 +294,9 @@ Per design doc §11 — the community-facing summary the site/mods can quote:
 | Launch day | Announcement thread | — | `social/drafts/launch-thread.md` |
 | Launch week | Seeded discussion questions | — | `social/drafts/seeded-questions.md` |
 | Sun 18:05 (with recap) | Open-rumor thread | recap's unconfirmed hook | `community/programming-calendar.md` §3 |
-| Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/programming-calendar.md` §3 |
+| Sun 18:10 (with recap) | Weekly calls thread | the week's open beats | `community/prediction-ledger.md` (v174 — rules, resolution, failure modes) |
+| Sun 18:15 (with recap) | Beat sweep | the week's record vs. open beats | `community/thread-following.md` (v189 — §4; quiet week posts nothing) |
+| Wed 19:00 | Request clinic | 1–2 filed requests (or archive example) | `community/request-clinic-kit.md` (v159 — agenda, worked examples, canned answers) |
 | Monthly (1st Sat) | Town hall text AMA | — | `community/programming-calendar.md` §2/§3 |
 
 Every recurring slot lands on the single weekly grid in
@@ -389,7 +436,8 @@ hosting, and game hosting are covered in LAUNCH-CHECKLIST gates, not here.
 - **Day-14:** mod-recruitment need check per `community/mod-ramp.md` §1 —
   defer to day-30 if none of the triggers apply.
 - **Day-7:** first full recap + first open-rumor thread; first request
-  clinic if any request was filed (`programming-calendar.md` §1); first
+  clinic — run from `community/request-clinic-kit.md` (§3 worked examples
+  cover the nothing-filed case); first
   watch party if the feed qualifies
   (`community/watch-party-playbook.md` §1 triggers); creator-variant outreach
   draft; triage first `#feedback` batch via `feedback_router.py` into shared

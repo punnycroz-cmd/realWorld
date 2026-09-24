@@ -35,8 +35,15 @@ Contents
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
   whats-new.md       Build-highlights sheet: what changed in the renderer
-                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76, for "what's new" coverage and
+                     v53 → v55 → v59 → v61 → v65 → v67 → v71 → v75 → v76 → v80 → v83 → v84, for "what's new" coverage and
                      update posts
+  story-desk.md      How to cover a living world: the free observer loop,
+                     the anatomy of a thread (choice → consequence),
+                     where threads live, accuracy rules for coverage
+  ai-transparency.md  AI disclosure sheet — what's AI-driven, what
+                     isn't, where the data goes, the control rules.
+                     For "is this AI slop?" questions and AI-desk
+                     coverage.
   one-sheet.html     Single-page printable sell sheet — the whole pitch
                      on one page; Print → PDF works
   embargo-briefing.md  Long-lead pre-brief book for coverage under
@@ -73,17 +80,21 @@ Contents
   banners/           Pre-sized channel headers: X 1500x500, YouTube
                      2560x1440, Discord 960x540, LinkedIn 1584x396 —
                      content inside center safe zones.
+  mastheads/         Typographic mastheads for our named formats —
+                     The Journal (surface, borrows the tile), This Week
+                     on the Block + Caught on the Block (programs: type,
+                     cornice rule, one lit window; never their own logo).
+                     Dark surfaces only. Rules: marketing/BRAND.md §21.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v76-* = current renderer (the lens rebuild —
-                     chromatic fringing, scanline blur, and film grain
-                     retired; one weather-driven visibility number now
-                     drives the haze, the horizon marine band, and the
-                     skyline veil; crown-genome trees turned by the
-                     in-world calendar, autumn leaf-fall; carries the
-                     v65 street dressing, v64 sidewalk ironwork, the
-                     v61 weather field, and the re-framed Dolores
-                     overlook underneath);
+                     v84-* = current renderer (the ground-truth pass —
+                     street cells gate the warm key on direct-beam
+                     visibility and fall to skylit umbra in shade,
+                     facade contrast is up, and a sun-driven frame grade
+                     shapes contrast/exposure on the world plate;
+                     carries the v83 roof catalog, the v81
+                     coverage-grammar camera, and the v80 sky-visibility
+                     shade field underneath);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Real World — one-command weekly metrics run (LOCAL ONLY).
 #
-#   ./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson]
+#   ./marketing/tools/metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson] [retention.tsv]
 #
 # The whole Monday ritual in one shot:
 #   1. validate the capture against analytics-events.json (hard gate —
@@ -23,15 +23,19 @@
 #
 # Optional second arg: the sink's --uniques sidecar TSV (daily-hash counts).
 # Optional third arg: last week's NDJSON capture for the wow diff.
+# Optional fourth arg: the sink's --retention sidecar TSV (windowed hashes)
+#   — appends the "### retention" block (analytics_retention.py) and feeds
+#   the returning_viewers_7d goal inside "### goals" (v171, §1a).
 #
 # Exit 1 if validation or coverage fails — the report is only generated
 # for a capture that conforms.
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-NDJSON="${1:?usage: metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson]}"
+NDJSON="${1:?usage: metrics_weekly.sh <capture.ndjson> [uniques.tsv] [prev.ndjson] [retention.tsv]}"
 UNIQUES="${2:-}"
 PREV="${3:-}"
+RETENTION="${4:-}"
 
 echo "[weekly] 1/4 validating capture"
 python3 tools/analytics_validate.py "$NDJSON" --warn-extra-props
@@ -70,12 +74,18 @@ else
   python3 tools/analytics_report.py "$NDJSON" --week "$WEEK" > "$OUT"
 fi
 
-echo "[weekly] 4/4 journey analysis${PREV:+ + wow check} + goals"
+echo "[weekly] 4/4 journey analysis${PREV:+ + wow check} + goals${RETENTION:+ + retention}"
 {
   echo ""
   python3 tools/analytics_paths.py "$NDJSON" --top 8
   echo ""
-  python3 tools/analytics_goals.py "$NDJSON"
+  if [ -n "$RETENTION" ]; then
+    python3 tools/analytics_goals.py "$NDJSON" --retention "$RETENTION"
+    echo ""
+    python3 tools/analytics_retention.py "$RETENTION"
+  else
+    python3 tools/analytics_goals.py "$NDJSON"
+  fi
 } >> "$OUT"
 if [ -n "$PREV" ]; then
   { echo ""; python3 tools/analytics_watch.py "$NDJSON" "$PREV"; } >> "$OUT"

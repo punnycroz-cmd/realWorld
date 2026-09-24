@@ -2,17 +2,48 @@
 
 For "what changed" pieces, update posts, and second-look coverage. Each
 entry names the renderer build the screenshots encode — the filename is
-the build (`screenshots/v76-*.png` = build v76). Everything below is
+the build (`screenshots/v84-*.png` = build v84). Everything below is
 verifiable in the current captures; nothing here is a promise about
 future work.
 
-Current development build: **v76** (September 2026).
+Current development build: **v84** (September 2026).
 
 ---
 
 ## The short version
 
-Since the v55 editorial set, eleven more passes landed:
+Since the v55 editorial set, twenty more passes landed:
+
+- **v84 — the ground learned the difference between sun and shade.**
+  Street ground cells now gate the warm key light on whether the direct
+  beam actually lands there — everywhere else falls to a cooler skylit
+  umbra, so a crosswalk in shadow and one in sun stop reading as the
+  same pavement. Facade contrast is up, the top-down cast shadows got
+  a touch deeper, and a sun-driven frame grade shapes contrast,
+  saturation, and brightness on the world plate before the optics pass.
+  Subtle in stills, obvious in motion: the block reads lit, not flat.
+
+- **v83 — the roofs got furnished.** Every flat roof now bakes a real,
+  deterministic catalog of what's up there — decks, furniture,
+  penthouse pop-ups with sun-keyed walls that cast their own shadows —
+  and the street-level view projects the same catalog, so a rooftop
+  reads the same from above and from the sidewalk. Pitched ridges gain
+  widow's-walk cresting and hip-apex finials. Because the catalog lives
+  in world meters rather than pixels, a roof deck is an addressable
+  place the simulation can use, not just paint.
+- **v82 — the invisible pass.** Frame-scoped field memoization and a
+  lazy heightfield roughly halved the street pass's per-frame script
+  cost. Nothing new to look at — everything smoother to watch.
+
+- **v81 — the camera learned coverage grammar.** The spectator rig got
+  a director's vocabulary: the follow-cam pans into a subject's
+  look-room off smoothed lateral velocity, composes a two-shot when a
+  second resident joins the conversation — the boom widens, amber
+  partner brackets come up, a 2-SHOT flag lights — and gusts buffet
+  the lens scaled by exposure and crosswind. A director's thirds grid
+  and center cross ride on the H key (on by default), the viewfinder
+  strip reads EV, compass, and height, and switching to a parked
+  camera feed now glides instead of snapping.
 
 - **v56 — the far field.** The skyline got a sky: a stratus deck and
   far-field cloud layer behind the rooftops, so the neighborhood sits
@@ -91,6 +122,18 @@ Since the v55 editorial set, eleven more passes landed:
   a field: a gust crest advects downwind through trees and leaning
   facades as one traveling wave instead of each element swaying to its
   own phase.
+- **v80 — the light learned what's in the way.** A sky-visibility field
+  is marched through the building masses and the tree crowns' real
+  volumes and baked into the ground: building-scale shade pools on the
+  park's east edge, crown-shadow dapple lands on the lawns, and every
+  resident, car and prop self-shadows against the same field and gets
+  skylight fill only where the sky is actually open.
+- **v79 — the rooftops woke up.** Big flat roofs now carry murals —
+  serape stripes and sunbursts painted where only the roof cameras and
+  the pigeons see them — and the roofscape animates: chimney smoke
+  leans with the wind, turbine fans spin up in the gusts, laundry
+  swings on its lines, and pigeon flocks flush off the parapets on a
+  flush schedule, trailing sun-vector shadows.
 - **v76 — the clouds learned to give the light back.** Crepuscular
   lanes: each cloud in the top view now throws a warm volumetric
   streak from its body down to the sun-gap it shades, so light
@@ -139,20 +182,24 @@ distant shower is a thing happening over there, not a skybox texture.
 ## For before/after coverage
 
 - Pair `screenshots/v1-A.png` (first art pass) against
-  `screenshots/v76-A.png` (current) — same top-down framing of the
-  block, seventy iterations apart.
-- `screenshots/v76-C.png` is the Dolores Park overhead: the telling
+  `screenshots/v84-A.png` (current) — same top-down framing of the
+  block, eighty-three iterations apart.
+- `screenshots/v84-C.png` is the Dolores Park overhead: the telling
   details are the ring of streets and facades — a maintained city park,
-  not open field — the crown-genome trees, no two alike, the poppy/lupine meadow drifts
-  stippled across the lawns, and a crepuscular light lane landing on
-  the grass between the cloud shadows.
-- `screenshots/v76-A.png` carries the dollhouse headline: the Mudhaus
-  Coffee cutaway open on the overhead — the building ghosted, a real
-  floor plan inside the footprint, residents still tagged inside it.
-- `screenshots/v76-D.png` is the v72–v76 street-level arc in one frame:
-  declared wall materials, awnings and ghost signs, living-wall ivy and
-  bougainvillea, laundry lines riding the traveling gust field, silver-lined
-  cumulus overhead.
+  not open field — the crown-genome trees, no two alike, the meadow
+  drifts stippled across the lawns, and the sun-driven frame grade
+  lifting the whole plate.
+- `screenshots/v84-A.png` carries the dollhouse headline plus the
+  picture-in-picture rig: the Mudhaus Coffee cutaway open on the
+  overhead — the building ghosted, a real floor plan inside the
+  footprint, residents still tagged inside it — while the Wire's
+  rooftop-over-park feed runs live in the corner monitor. Look at the
+  pavement: sunlit cells carry the warm key, shaded cells the skylit
+  umbra.
+- `screenshots/v84-D.png` is the coverage-grammar headline: director
+  mode with the thirds grid and center cross up, the viewfinder strip
+  reading lens, EV, compass, and height — the block staged like a
+  film set.
 
 ## Still true (unchanged by these passes)
 

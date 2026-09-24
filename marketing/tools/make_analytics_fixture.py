@@ -13,6 +13,7 @@ Usage:
 import argparse
 import json
 import random
+import time
 
 PAGES = [
     ("/", "index", 30), ("/features.html", "features", 14),
@@ -48,15 +49,26 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--sessions", type=int, default=220)
     ap.add_argument("--seed", type=int, default=21)
+    ap.add_argument("--minutes", type=int, default=0,
+                    help="compress the week into the last N minutes ending now "
+                         "(fresh timestamps, sorted output — for analytics_live.py demos)")
     args = ap.parse_args()
     rnd = random.Random(args.seed)
 
     total_w = sum(w for _, _, w in PAGES)
-    base_ts = 1_758_000_000_000  # arbitrary fixed epoch ms
+    if args.minutes:
+        base_ts = int(time.time() * 1000) - args.minutes * 60000
+        span_ms = args.minutes * 60000
+    else:
+        base_ts = 1_758_000_000_000  # arbitrary fixed epoch ms
+        span_ms = 7 * 24 * 3600 * 1000
+
+    _buf = []
+    _emit = _buf.append if args.minutes else lambda e: print(json.dumps(e, sort_keys=True))
 
     for i in range(args.sessions):
         sid = f"s{i:04x}{rnd.getrandbits(24):06x}"
-        ts = base_ts + rnd.randrange(7 * 24 * 3600 * 1000)
+        ts = base_ts + rnd.randrange(span_ms)
         r = rnd.randrange(total_w)
         acc = 0
         for path, slug, w in PAGES:
@@ -65,7 +77,7 @@ def main():
                 break
         utm = rnd.choice(UTMS) if rnd.random() < 0.45 else {}
         ref = rnd.choice(REFS)
-        yield_evt = lambda *a, **k: print(json.dumps(evt(*a, **k), sort_keys=True))
+        yield_evt = lambda *a, **k: _emit(evt(*a, **k))
 
         vw = rnd.choice([390, 768, 1440, 1920])
         lang = rnd.choice(["en-US", "en-GB", "en-US", "de-DE"])
@@ -238,6 +250,34 @@ def main():
                 yield_evt("returning_session", "/demo.html", sid,
                           {"stage": "s0", "opted_out": False},
                           utm=utm, ref=ref, ts=ts + 14000)
+            if rnd.random() < 0.45:  # observer loop (v171, production-3)
+                yield_evt("catchup_edition_viewed", "/demo.html", sid,
+                          {"items": rnd.randint(0, 3)},
+                          utm=utm, ref=ref, ts=ts + 20000)
+                if rnd.random() < 0.75:
+                    yield_evt("thread_followed", "/demo.html", sid,
+                              {"target_kind": rnd.choice(
+                                  ["character", "commitment", "thread"])},
+                              utm=utm, ref=ref, ts=ts + 24000)
+                    if rnd.random() < 0.55:
+                        yield_evt("prediction_made", "/demo.html", sid,
+                                  {"target_kind": rnd.choice(
+                                      ["character", "commitment", "thread"])},
+                                  utm=utm, ref=ref, ts=ts + 30000)
+                        if rnd.random() < 0.4:
+                            yield_evt("outcome_inspected", "/demo.html", sid,
+                                      {"verdict": rnd.choice(
+                                          ["hit", "miss", "unresolved"])},
+                                      utm=utm, ref=ref, ts=ts + 45000)
+                if rnd.random() < 0.15:  # bounded free intervention trial
+                    yield_evt("invite_submitted", "/demo.html", sid,
+                              {"kind": rnd.choice(
+                                  ["invitation", "workspace", "project"])},
+                              utm=utm, ref=ref, ts=ts + 36000)
+                    yield_evt("invite_outcome_seen", "/demo.html", sid,
+                              {"outcome": rnd.choice(
+                                  ["delivered", "refused", "expired"])},
+                              utm=utm, ref=ref, ts=ts + 50000)
             if rnd.random() < 0.22:  # request
                 yield_evt("request_submitted", "/demo.html", sid,
                           {"class": rnd.choice(["compatible", "exclusive", "queued"]),
@@ -250,6 +290,10 @@ def main():
         yield_evt("engaged_time", path, sid,
                   {"seconds": rnd.randrange(4, 300), "page": slug},
                   utm=utm, ref=ref, ts=ts + 300000)
+
+    if args.minutes:  # chronological stream — what a live capture looks like
+        for e in sorted(_buf, key=lambda e: e["ts"]):
+            print(json.dumps(e, sort_keys=True))
 
 
 if __name__ == "__main__":

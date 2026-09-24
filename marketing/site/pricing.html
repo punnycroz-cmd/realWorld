@@ -109,6 +109,30 @@
         "@type": "Answer",
         "text": "About 90 credits — roughly $0.85 — for an hour of compatible play inside your own character (~76 credits queued). An exclusive hour runs 360 credits, about $3.38 before any surge, and the session cap means that is the most it can ever cost."
       }
+    },
+    {
+      "@type": "Question",
+      "name": "Is everything on this page for sale on day one?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No — the page is the whole plan, opened in stages. Watching, catch-up, thread-following, and stakeless predictions are free from day one and stay free. Credit packs, subscriptions, and capped attributed sponsorship each wait for the stage before them to prove people return; a stage that never arrives means those prices never go live."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What has to be true before paid features open?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Each stage has a written proof, not a vibe. Stage 2 (credit packs, character slots, subscriptions) waits for outsiders to understand a consequence and return voluntarily over a week, measured alongside the cost of a simulated day. Stage 3 (capped, publicly attributed sponsorship) waits for retention to hold with the paid rails live, non-paying watchers included. Each gate's bar publishes before the stage above it can open."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "When is it cheapest to file a request?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Outside prime time. Surge (×1.5–2.5) can only apply to exclusive requests inside 18:00–23:00 server-local or on a resource exclusively used in the last 6 hours — everything else pays the printed base rate, and queued requests take another 15% off. Compatible sessions never surge at all."
+      }
     }
   ]
 }
@@ -190,6 +214,7 @@
       <a href="#packs">Packs</a>
       <a href="#requests">Requests</a>
       <a href="#receipt">A receipt</a>
+      <a href="#clock">Surge hours</a>
       <a href="#journey">A credit's life</a>
       <a href="#hourly">Per hour</a>
       <a href="#refunds">Refunds</a>
@@ -207,6 +232,8 @@
       <a href="#zero">Play at $0</a>
       <a href="#regional">Regional pricing</a>
       <a href="#promise">The promise</a>
+      <a href="#order">The order</a>
+      <a href="#gates">The gates</a>
       <a href="#fineprint">The fine print</a>
       <a href="#history">Price ledger</a>
       <a href="#terms">Vocabulary</a>
@@ -219,7 +246,7 @@
 <!-- CREDIT PACKS -->
 <section id="packs">
   <div class="wrap">
-    <h2>Credit packs</h2>
+    <h2>Credit packs <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Credits are spent on requests, world changes, and character
     creation. They're non-transferable, never redeemable for money, and never
     expire. About a cent each — the same unit price players already know from
@@ -313,7 +340,7 @@
 <!-- REQUEST PRICING -->
 <section id="requests">
   <div class="wrap">
-    <h2>What requests cost</h2>
+    <h2>What requests cost <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Every request declares its action and exact duration upfront
     and pays in credits scaled to that duration. Hard cap — no overruns, no debt.
     When time ends, control hands back gracefully to the AI.</p>
@@ -411,6 +438,61 @@
   </div>
 </section>
 
+<!-- SURGE, ON THE CLOCK -->
+<section id="clock">
+  <div class="wrap">
+    <h2>Surge, on the clock — when the multiplier can apply</h2>
+    <p class="muted">Surge isn't random and it isn't everywhere. It can only
+    appear two ways: a resource that was <b>exclusively used in the last
+    6 hours</b>, or an exclusive request inside <b>prime time — 18:00–23:00,
+    server-local</b>. Outside those windows the base rate is the rate. One
+    day, shaded honestly <span class="prov-only">(provisional)</span>:</p>
+    <div class="clock" role="img" aria-label="A 24-hour clock of a server day. Hours 0 through 17 and hour 23 are base rate. Hours 18, 19, 20, 21 and 22 are prime time, where exclusive requests can carry the surge multiplier of 1.5 to 2.5.">
+      <div class="clk">00</div><div class="clk">01</div><div class="clk">02</div>
+      <div class="clk">03</div><div class="clk">04</div><div class="clk">05</div>
+      <div class="clk">06</div><div class="clk">07</div><div class="clk">08</div>
+      <div class="clk">09</div><div class="clk">10</div><div class="clk">11</div>
+      <div class="clk">12</div><div class="clk">13</div><div class="clk">14</div>
+      <div class="clk">15</div><div class="clk">16</div><div class="clk">17</div>
+      <div class="clk clk-prime">18<small>surge</small></div>
+      <div class="clk clk-prime">19<small>surge</small></div>
+      <div class="clk clk-prime">20<small>surge</small></div>
+      <div class="clk clk-prime">21<small>surge</small></div>
+      <div class="clk clk-prime">22<small>surge</small></div>
+      <div class="clk">23</div>
+    </div>
+    <div class="clock-axis" aria-hidden="true"><span>00:00</span><span>server-local time</span><span>23:59</span></div>
+    <div class="clock-legend">
+      <span><span class="sw sw-base"></span>Base rate — the printed class price</span>
+      <span><span class="sw sw-prime"></span>Prime time — exclusive requests can carry ×1.5–2.5</span>
+    </div>
+    <div class="tbl-wrap" style="margin-top:20px">
+    <table>
+      <tr><th>Same 30-min exclusive venue hold <span class="provisional prov-only">(provisional)</span></th><th>Credits</th><th>≈ USD</th></tr>
+      <tr><td>Filed at 14:00, resource quiet &gt;6 h</td><td>180 cr — base rate</td><td>≈ $1.69</td></tr>
+      <tr><td>Filed at 19:30, prime time, low end ×1.5</td><td>270 cr</td><td>≈ $2.53</td></tr>
+      <tr><td>Filed at 19:30, prime time, high end ×2.5</td><td>450 cr — the ceiling</td><td>≈ $4.22</td></tr>
+      <tr><td class="r-dim">Queued for the next quiet window instead</td><td class="r-dim">153 cr (−15%) — auto-refunds if it never fires</td><td class="r-dim">≈ $1.44</td></tr>
+    </table>
+    </div>
+    <ul class="clean">
+      <li><b>Clock surge only touches the exclusive class.</b> Compatible
+      sessions — possessing your own character — run at 1.5 cr/min around the
+      clock. Prime time is a shared-resource price, never a session tax.</li>
+      <li><b>The 6-hour rule works off-peak too.</b> If a venue was exclusively
+      held at 09:00, a 10:00 exclusive on it can still surge — the form shows
+      the multiplier and the reason before you pay.</li>
+      <li><b>Flat-priced one-shots follow the same logic.</b> A weather block
+      costs 40–100 cr; if another weather request ran within 6 h, expect the
+      surge on it (×2 in the current proposal) — printed on the form like
+      everything else.</li>
+      <li><b>The cheapest move is always printed.</b> Queue (−15%) or file
+      inside a quiet hour — both are decisions the request form lets you make
+      with the numbers in front of you.</li>
+    </ul>
+  </div>
+</section>
+
 <!-- LIFE OF A CREDIT -->
 <section id="journey">
   <div class="wrap">
@@ -502,7 +584,7 @@
 <!-- ONE-SHOT ACTIONS -->
 <section id="oneshots">
   <div class="wrap">
-    <h2>One-shot actions</h2>
+    <h2>One-shot actions <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Not every intervention is a session. Flat prices, declared
     upfront <span class="provisional prov-only">(all provisional)</span>:</p>
     <div class="tbl-wrap">
@@ -523,7 +605,7 @@
 <!-- PRICE A SCENE -->
 <section id="scenes">
   <div class="wrap">
-    <h2>Price a whole scene, not just a line item</h2>
+    <h2>Price a whole scene, not just a line item <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Nobody buys "6 credits per minute" — they buy a foggy
     morning, an hour as themselves, a party with their name on it. So here are
     four real scenes, priced end-to-end with the numbers above
@@ -629,7 +711,7 @@
 <!-- CO-SPONSORING / GROUP NIGHTS -->
 <section id="split">
   <div class="wrap">
-    <h2>Bring friends — the three paths when a slot is taken</h2>
+    <h2>Bring friends — the three paths when a slot is taken <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Shared resources lock one claim at a time. If the thing you
     wanted is already running or booked, the request form doesn't just say no —
     it offers three honest paths, each priced upfront.</p>
@@ -683,7 +765,7 @@
 <!-- SUBSCRIPTIONS -->
 <section id="subs">
   <div class="wrap">
-    <h2>Subscriptions <span class="provisional prov-only">(provisional)</span></h2>
+    <h2>Subscriptions <span class="provisional prov-only">(provisional)</span> <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Optional, monthly, cancelable. Perks are discounted currency,
     convenience, and cosmetics — never power over free players.</p>
     <div class="grid grid-2">
@@ -795,7 +877,7 @@
 <!-- CHARACTER CREATION -->
 <section id="cast">
   <div class="wrap">
-    <h2>Joining the cast</h2>
+    <h2>Joining the cast <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <div class="grid grid-2">
       <div class="card">
         <h3>Character slot — 500 credits <span class="provisional prov-only">provisional</span></h3>
@@ -818,7 +900,7 @@
 <!-- PROPERTY LADDER -->
 <section id="ladder">
   <div class="wrap">
-    <h2>The property ladder</h2>
+    <h2>The property ladder <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <div class="tbl-wrap">
     <table>
       <tr><th>Step</th><th>Paid in</th><th>Cost <span class="provisional prov-only">(provisional)</span></th></tr>
@@ -837,7 +919,7 @@
 <!-- COSMETICS -->
 <section id="cosmetics">
   <div class="wrap">
-    <h2>Cosmetics — direct purchase only</h2>
+    <h2>Cosmetics — direct purchase only <span class="stage-tag s2">Stage 2 · gated</span></h2>
     <p class="muted">Outfits 150–400 cr, premium sets 600–900 cr, furniture
     100–1,200 cr, vanity touches (renames, unit plaques) 100–250 cr
     <span class="prov-only">— all provisional</span>. Everything is previewed
@@ -917,7 +999,7 @@
 <!-- PLAYING AT $0 -->
 <section id="zero">
   <div class="wrap">
-    <h2>Playing at $0 — the honest math</h2>
+    <h2>Playing at $0 — the honest math <span class="stage-tag s1">Stage 1 · free</span></h2>
     <p class="muted">The free tier isn't a demo and we won't pretend it's a
     treadmill either. Here's exactly how far zero dollars goes — including
     the part where we tell you it's slow.</p>
@@ -1002,6 +1084,91 @@
   </div>
 </section>
 
+<!-- THE ORDER -->
+<section id="order">
+  <div class="wrap">
+    <h2>What turns on, and when</h2>
+    <p class="muted">Everything above is the full plan — but a plan with an
+    order, not a switchboard. Paid rails open in three stages, each gated on
+    the one before it proving itself. Nothing on this page is sold before its
+    stage opens.</p>
+    <div class="grid grid-3">
+      <div class="card"><h3>1 · Prove people come back</h3><p>First: watching,
+      the catch-up edition, thread-following, and stakeless predictions — all
+      free, plus one bounded invitation so an observer can try reaching in
+      once. The only question that matters now is whether you understand a
+      consequence and return for it. We measure return visits against what a
+      simulated day costs before any business arithmetic gets to matter.</p></div>
+      <div class="card"><h3>2 · Depth for regulars</h3><p>Only once people
+      return on their own: subscriptions for archival depth, custom editions,
+      and creator/export tools — the Resident and Director tiers specced
+      above. Basic watching and enough catch-up stay free at every stage;
+      the sub buys depth for regulars, never a door for everyone else.</p></div>
+      <div class="card"><h3>3 · Attributed sponsorship</h3><p>Only after both:
+      capped, publicly attributed sponsorship of opportunities — an
+      invitation a character can accept or refuse, with explicit delivery,
+      refusal, and refund terms. Never bought affection, never a guaranteed
+      outcome, never an auction where money escalates the disruption.</p></div>
+    </div>
+    <p class="muted">And at no stage, ever: no "unlimited living worlds"
+    packages, no claims that the characters are conscious, and no credit
+    economy opened before repeat interest is proven. If a stage never
+    arrives, the rails above it never open — the provisional label is a
+    promise, not a countdown.</p>
+  </div>
+</section>
+
+<!-- THE GATES, IN WRITING -->
+<section id="gates">
+  <div class="wrap">
+    <h2>The gates, in writing</h2>
+    <p class="muted">"Prove it first" only means something if the proof has a
+    shape. This table is the shape: what has to be true before each paid rail
+    opens, what gets measured to decide it, and what happens if the world
+    never gives that answer. The measurement posts to the
+    <a href="journal.html">journal</a>; the result lands in the
+    <a href="#history">ledger</a> before the stage opens — nobody grades this
+    homework in private.</p>
+    <div class="tbl-wrap">
+    <table>
+      <tr><th>Gate</th><th>What must be true</th><th>What gets measured</th><th>If it never clears</th></tr>
+      <tr>
+        <td><b>A</b> — Stage 1 → 2<br><span class="stage-tag s1">Live first</span></td>
+        <td>Outsiders understand a consequence and come back for it on their
+        own — over a week, not a launch-day spike.</td>
+        <td>Voluntary return visits over 7 days, weighed alongside the cost
+        of a simulated day and the moderation load it took to stay open.</td>
+        <td>Packs, slots, and subscriptions stay provisional — permanently,
+        if that's the answer. Watching stays free regardless.</td>
+      </tr>
+      <tr>
+        <td><b>B</b> — Stage 2 → 3<br><span class="stage-tag s2">Next</span></td>
+        <td>Retention holds with the paid rails live — depth sells because
+        regulars want it, not because a gate squeezed anyone.</td>
+        <td>Return rate of subscribers <i>and</i> non-paying watchers. The
+        free channel has to stay healthy, not just the revenue line.</td>
+        <td>Sponsorship never opens. Opportunities stay invitations a
+        character can refuse — unbought.</td>
+      </tr>
+      <tr>
+        <td><b>C</b> — Stage 3, capped<br><span class="stage-tag s3">Last</span></td>
+        <td>Sponsored opportunities run with explicit delivery, refusal, and
+        refund terms, publicly attributed — and refusals actually happen.</td>
+        <td>Every sponsorship named on the public feed. Refusal and refund
+        counts published alongside receipts, not just the receipts.</td>
+        <td>There is no stage 4. Nothing above this line is ever for sale —
+        see <a href="#never">what money can never do</a>.</td>
+      </tr>
+    </table>
+    </div>
+    <p class="muted">One deliberate omission: no numeric thresholds are printed
+    here yet, because a bar invented before measurement begins is theater.
+    Each gate's bar publishes in the journal <i>before</i> the stage above it
+    can open — the promise is the order and the daylight, not a number we
+    haven't earned.</p>
+  </div>
+</section>
+
 <!-- THE FINE PRINT, AT READING SIZE -->
 <section id="fineprint">
   <div class="wrap">
@@ -1056,6 +1223,25 @@
       <dd>Packs sell in local currency on a published purchasing-power table
       (EU/UK tax-inclusive). The table publishes at launch; until then local
       figures are provisional like everything else here.</dd></div>
+      <div class="fp-row"><dt>Surge is scheduled, not sprung</dt>
+      <dd>×1.5–2.5 can only apply to an exclusive request when the resource
+      was exclusively used in the last 6 h, or inside prime time
+      (18:00–23:00 server-local). The <a href="#clock">clock strip</a> shows
+      the whole day; the form shows the multiplier before payment. Quiet
+      hours are the discount — there's nothing else to time.</dd></div>
+      <div class="fp-row"><dt>Paid rails open in stages</dt>
+      <dd>Watching and catch-up are free at launch and stay free. Credit
+      packs, subscriptions, and sponsorship activate in that order, each
+      gated on the previous stage proving people return — see
+      <a href="#order">the order</a>. A stage that never arrives means its
+      prices never go live; "provisional" can mean "never," and that's a
+      feature.</dd></div>
+      <div class="fp-row"><dt>The gates are measured in public</dt>
+      <dd>Each stage's gate has a written proof — return visits against cost
+      per simulated day for stage 2, retained watchers free and paid for
+      stage 3 — published before the rail opens. The <a href="#gates">gate
+      table</a> is the contract; "provisional" stays honest because the bar
+      can't move in secret.</dd></div>
       <div class="fp-row"><dt>Changes move through the ledger first</dt>
       <dd>No price changes at checkout before it changes on this page.
       Purchases keep the terms they were bought under. That's the whole
@@ -1205,6 +1391,34 @@
         runs 360 cr ≈ $3.38 before any surge, and the cap means that's the
         most that hour can ever cost. The <a href="#hourly">per-hour chart</a>
         puts it next to a movie ticket.</p>
+      </details>
+      <details>
+        <summary>Is everything on this page for sale on day one?</summary>
+        <p>No — this page is the whole plan, opened in stages. Watching,
+        catch-up, thread-following, and predictions are free from day one
+        and stay free. Packs, subscriptions, and attributed sponsorship
+        each wait for the stage before them to prove people actually
+        return — <a href="#order">the order</a> spells out the gates. If a
+        stage never arrives, those prices never go live.</p>
+      </details>
+      <details>
+        <summary>What has to be true before paid features open?</summary>
+        <p>Each stage has a written proof, not a vibe. Stage 2 (packs, slots,
+        subscriptions) waits for outsiders to understand a consequence and
+        return voluntarily over a week — measured alongside the cost of a
+        simulated day. Stage 3 (attributed sponsorship) waits for retention
+        to hold with the paid rails live, free watchers included. The
+        <a href="#gates">gate table</a> is the contract, and each bar
+        publishes before the stage above it can open.</p>
+      </details>
+      <details>
+        <summary>When is it cheapest to file a request?</summary>
+        <p>Outside prime time. Surge (×1.5–2.5) can only apply to exclusive
+        requests inside 18:00–23:00 server-local or on a resource exclusively
+        used in the last 6 hours — everything else pays the printed base
+        rate, and queued requests take another 15% off. Compatible sessions
+        never surge at all. The <a href="#clock">clock strip</a> shows the
+        whole day.</p>
       </details>
     </div>
   </div>

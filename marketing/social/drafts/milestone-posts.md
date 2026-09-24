@@ -117,6 +117,20 @@ on the first reshare that clears all four gates in
 `reshare-playbook.md` §1; if the first permission takes weeks, M11
 waits weeks. Never post it about a reshare we haven't actually run.
 
+**M12 — first return-visit cohort (fires once; min 8 days post-launch)**
+> {{N}} of you watched the block on more than one day this week.
+> Nobody had to. That's the whole experiment — a neighborhood you
+> come back to because something you saw isn't finished yet.
+> Catch up anytime: {{WATCH_URL}}
+
+Attach: none, or `cards/card-watchfree.png`.
+Rule: counter is `returning_viewers_7d` — unique viewers on ≥2
+distinct days in the trailing week, from analytics. This is the
+production-3 north star made public: the honest number, not a
+vanity count. If the number is small, it still posts — "61 of you"
+is a better sentence than silence. Never inflate with bots,
+sessions, or pageviews; viewers only.
+
 ---
 
 ## Rules that apply to every milestone

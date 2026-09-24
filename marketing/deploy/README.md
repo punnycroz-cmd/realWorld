@@ -18,6 +18,8 @@ Everything here is LOCAL/draft until the owner gates open
 | `umami-backup.example` | Nightly `pg_dump` cron + restore drill for the self-hosted analytics DB — the one launch artifact git can't reproduce. |
 | `traffic-plan.md` | Launch-day traffic & surge plan: load math, the cache-header contract, day-0 probe sequence, severity→action playbook incl. CDN-front flip, bot stance. Companion: `../tools/traffic_probe.sh`. |
 | `data-rights.md` | Access/deletion request runbook behind `site/privacy.html`'s `privacy@` promise: intake, proportional verification, per-store data map, 30-day SLA, reply templates. Activates with the G6 mail decision. |
+| `secrets-rotation.md` | Rotation & compromise runbook for the `infra.env.example` inventory: per-secret rotate procedure + blast radius + cadence, leak playbook (rotate FIRST, scrub later), quarterly/annual calendar. |
+| `incident-postmortem.md` | SEV-1/2 postmortem template + filing convention (`deploy/incidents/YYYY-MM-DD-<slug>.md`, created on first use). The doc that happens after `../tools/incident_drill.sh`'s loop fires for real. |
 
 Post-deploy verification: `../tools/prod_smoke.sh https://<domain>` — the
 production counterpart of `staging_dryrun.sh` (LAUNCH-CHECKLIST D0.2);
@@ -59,6 +61,11 @@ Companion tools (all local, nothing publishes):
 - `../tools/runofshow.sh` — countdown dashboard: live done/pending status for
   every mechanical §2 run-of-show item (switches, domain swap, DNS, deploy
   env, kit zip). Read-only; `RW_DOMAIN=<domain>` adds the live DNS row.
+- `../tools/backup_verify.sh` — proves a `umami-*.sql.gz` is a real pg_dump
+  (gzip integrity, dump header, core Umami tables, row payload) without
+  docker/Postgres; `latest <dir> [h]` also checks the newest dump is fresh —
+  pair it with the `umami-backup.example` cron so a hollow backup mails the
+  owner instead of failing silently for 30 days.
 - `../tools/infra_audit.sh` — doc-drift audit for this directory +
   `INFRASTRUCTURE.md`: every cited path exists and is executable, every
   `deploy/` artifact is documented, page-count claims match `site/`, the §7

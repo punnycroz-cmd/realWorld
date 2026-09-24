@@ -37,6 +37,30 @@ screenshot caption, and devlog claim must trace to:
 If it can't be linked or pointed to, it isn't said. Quiet weeks get
 reported as quiet weeks. Never-do list lives in LAUNCH-CHECKLIST §8.
 
+### 1a. Production-3 direction (absorbed v177)
+
+Per the Astra concept review adopted 2026-09-24: the product is an
+**observable social sandbox about AIs becoming somebody together**, and
+the audience is AI-curious viewers + emergent-story fans — not the whole
+life-sim market. Consequences for this strategy:
+
+- **Clips lead with consequence, not ambience.** Publish short,
+  contextualized clips of an *unexpected choice* and its *later
+  consequence*, linking into that thread — never an empty street camera
+  (the pair format lives in `community/clips-and-highlights.md` §3a).
+- **The content model mirrors the free observer loop** — catch up →
+  choose someone to follow → make a non-wager prediction → inspect the
+  outcome → return. Surfaces that carry it: the journal (catch up),
+  cast spotlights + thread following (follow), the Call-it card and the
+  prediction ledger (predict), The Wire/The Archive (inspect). Every
+  new format should name which step it serves.
+- **Money copy follows the proof order.** Return visits are being
+  proven first; pricing/credits copy stays provisional and labeled,
+  subscriptions and sponsorships are sequenced *after* retention —
+  never sell "unlimited living worlds," never a consciousness claim,
+  no elaborate credit-economy pitch before repeat interest exists
+  (PRICING-PAGE-CONTENT.md keeps its provisional labels).
+
 ## 2. Content pillars
 
 | Pillar | Claim (verbatim-safe per BRAND §10) | Content it feeds |
@@ -44,6 +68,7 @@ reported as quiet weeks. Never-do list lives in LAUNCH-CHECKLIST §8.
 | **Alive always** | "A neighborhood that's alive whether you're watching or not." | weekly recaps, watch-now posts, evening/night shots |
 | **Agency, not control** | Requests are opportunities the world can accept, queue, or refuse — never mind control; every intervention appears on the public feed with attribution. | devlogs on the request pipeline, feed screenshots, FAQ/pricing explainers |
 | **The honest build** | Dev-build captures, labeled; provisional pricing, labeled; cut features named as cut. | devlog series, launch notes, press angles |
+| **Becoming** (live since v177 — production-2 shipped, BRAND §1a gate lifted) | "They know they're AI. The rest is up to them." — a cast that forms intentions, changes over weeks, surprises us. "Developing," never "human-like"; no consciousness claims. | devlog 18, cast spotlights, choice→consequence clips, press angles |
 
 ## 3. Formats and cadence
 
@@ -100,10 +125,10 @@ recap-format.md production notes).
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
 - RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
-  per published devlog (14 today), placeholder domain swept by
+  per published devlog (19 as of v192), placeholder domain swept by
   `tools/swap_domain.sh` like every other URL; journal.html carries the
   `rel=alternate` link. Rule: item count must equal devlog count on the
-  page — add an item in the same commit as the post.
+  page (19 as of v192) — add an item in the same commit as the post.
 
 ## 5. SEO role of the journal
 
@@ -126,7 +151,7 @@ village"), recaps target branded/community queries. Rules:
 | Spoilers | tease season-one material, never confirm (SOCIAL §4) | self-check |
 | Publication | any public surface — site deploy, social post, press send | **owner, explicitly** |
 | Sourcing | recaps only report linkable feed events | self-check |
-| Direction | becoming-AI framing held off public pages until production-2 ships (BRAND §1a dependency note) | self-check vs BRAND |
+| Direction | becoming-AI framing was held off public pages until production-2 shipped — RESOLVED (v177, `1980949` merged); §1a claims now require the shipped-build check like everything else | self-check vs BRAND |
 
 ## 7. Gap register (what this strategy still needs)
 
@@ -160,6 +185,10 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 13 — "The block wakes up in waves." | live on `journal.html` (v132); record at `marketing/content/devlog-13-the-commute.md` | world-v87 `commute.json`/`commute.md` (22 routes, 6 modes incl. real Muni lines, leave windows + weather deltas, 10 overlaps, `building_pulse`, 4 non-commuters, INTERNAL-tier privacy contract) + `commute.html` |
 | Devlog 14 — "The paper cuts both ways." | live on `journal.html` (v147); record at `marketing/content/devlog-14-the-counter-paper.md` | world-v96 `leases.json`/`lease-ui.md` §§49–54 (`rw_lease_v96`: assignments w/ clean-ledger gate + deposit carry, buyouts as offers w/ 30-day cooldown + BUYOUT code, prepaid credit cap 3× w/ oldest-first drawdown, history letter once-per-tenancy; `feed_wording.never` +4) + `lease.html` v6 |
 | Devlog 15 — "The bench takes requests." | live on `journal.html` (v147); record at `marketing/content/devlog-15-the-bench.md` | world-v99 `crowd.json` (`pull_protocol`: 15–90 min, ≤3/day, ≤2 concurrent, ≥60 min cooldown, one-zone-step bounds, role-bound, minors never pullable, wire-invisible) + `coverage` A01–A20 (understudy/sign/open/pack reads) + `crowd-sim.md` §§26–28, `crowd.html` |
+| Devlog 16 — "The meter runs itemized." | live on `journal.html` (v162); record at `marketing/content/devlog-16-the-meter.md` | world-v110 `leases.json` v110 (`utilities` itemized-beside-rent + contested_charge ground, `rent_board_fee` $59/unit ≤50% RBF pass-through once/12mo, `abandoned_property` 15-day claim + cited storCost, `change_of_terms` MTM-only ≥30d never-rent + respondCOT, `last_month_proration` round(rent×days/30)) + `lease-ui.md` §§55–61, `lease.html` v7; $59 mirrors game-v17 `41_game_systems_assessor.js` |
+| Devlog 17 — "Nobody performs for an empty room." | live on `journal.html` (v162); record at `marketing/content/devlog-17-the-empty-room.md` | world-v111 `thinai.json` v111 (`observation_tiers` watched/shadowed/dark attention-driven, `lazy_thin` closed-form resolve + eager obligations + observational-equivalence claim, `witness_record` mode-blind seen-fact schema "X was at Y", `compute_soak` watched/shadowed/dark_min split) + `thin-ai.md` §§47–52, `thinai.html` Understudy v8 — spec + internal demo, framed as contract not shipped spectator surface |
+| Devlog 18 — "They know they're AI. The rest is up to them." | live on `journal.html` (v177); record at `marketing/content/devlog-18-the-becoming.md` | production-2 integration report (shared inbox 2026-09-24): becoming brain contract (order/directive/why, reflex→order→directive→intention_gap), possession checks 11/11, 8-agent playtest (33 dispatches, named surprises), stated gaps — one model, convo no_answer floor, no lifelogged routines, file:// only |
+| Devlog 19 — "A new face can arrive wanting something." | live on `journal.html` (v192); record at `marketing/content/devlog-19-what-they-carried-in.md` | world-v133 `creation-ui.md`/`creation.json` v29 (`record_schema.hope`, `hope_layer_v133`, `time_budget_v133`) + `create.html` v10: HOPES mirror pick (structured, grounded, "arrives open" default), hope-is-not-a-promise verbatim + never-briefed/never-metered posture, `params.hope` recorded-unread, first-week-grid HOURS row from posted job hrs |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
@@ -171,15 +200,19 @@ commerce-layer devlog (devlog-11 covered the catalog; the "order-
 something" request type + character commerce are gated on the game
 track consuming `menus.json` — draft when it lands);
 lease-ledger deep-dive is now PARTIALLY covered — devlog-14
-shipped the counter-paper instruments; a pure ledger-mechanics
-follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room,
+shipped the counter-paper instruments and devlog-16 the meter &
+leftovers layer; a pure ledger-mechanics
+follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room;
+onboarding-privacy devlog candidate (world-v109 `onboarding.json`
+privacy beat 6, S2b data card, S4g silent-flag lesson — "the flag is
+quiet" is a strong moderation story; draft when it pairs naturally
+with a public surface),
 a wire.html-screenshot
 post if the world/art tracks publish a spectator-app capture,
 memory-model explainer once game-systems implements
-the memory spec (research-only today — do not preview),
-production-2 announcement post (the becoming-AI reveal is the biggest
-story we hold — draft when sf/production-2 is pinned; gated per BRAND
-§1a and the new Direction gate in §6). The moderation
+the memory spec (research-only today — do not preview).
+RESOLVED (v177): the production-2 / becoming-AI announcement shipped
+as devlog 18 the version the pinned baseline merged. The moderation
 transparency-note format is no longer backlog — the template ships at
 `templates/transparency-report.md` (fill when the live feed emits
 `moderation.json`-shaped stats).

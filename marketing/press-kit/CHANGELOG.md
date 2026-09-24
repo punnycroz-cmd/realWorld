@@ -1,7 +1,82 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v76-* is the current development build).
+build they were captured from (v84-* is the current development build).
+
+## v182 — 2026-09-24
+- Screenshots rebased v83→**v84** (art's ground-truth pass: street
+  ground cells gate the warm key on direct-beam visibility and fall to
+  skylit umbra in shade, facade contrast up, top-down cast shadows
+  deeper, a sun-driven frame grade on the world plate before optics).
+  Kit screenshots + webp (PIL q82) swapped; captions, README, manifest,
+  fact-sheet, index, contact-sheet, deadline-desk, b-roll, one-sheet,
+  embargo-briefing, awards-festivals, pitch-emails, whats-new (v84
+  bullet, count 19→20) updated; `make_brand_assets.py` SHOT pin → v84-D.
+  v83 files kept in site/shots/ (site gallery still on v83 — it rebases
+  on the next landing-website focus).
+- NEW `story-desk.md` — how to cover a living world: the free observer
+  loop (catch up → follow someone → predict → inspect → revise →
+  return), the anatomy of a thread, where threads live, and the
+  accuracy rules for coverage. Aligns the kit with the production-3
+  content direction: clips show an unexpected choice and its later
+  consequence, never an empty street camera.
+- `screenshots/v84-C.png` (2.28MB) breaches the 2MB PNG ceiling — PNG
+  ships in the kit as a full-size download; the site will use the webp
+  per the v135 rule when the gallery rebases.
+
+## v181 — 2026-09-24
+- Screenshots rebased v81→**v83** (art's roof-catalog pass: flat roofs
+  bake a deterministic furniture/deck/penthouse-pop-up catalog in world
+  meters, projected identically in overhead and street views; pitched
+  ridges gain widow's-walk cresting + hip-apex finials. v82 between them
+  was an invisible perf pass — frame-scoped field memoization, street
+  render ~halved). Site gallery/index/demo/press-kit/sitemap, kit
+  screenshots + webp (PIL q82) swapped; README, captions, manifest,
+  fact-sheet, whats-new (v83 + v82 bullets, count 17→19), deadline-desk,
+  b-roll, one-sheet, embargo-briefing, awards, pitch-emails refs updated;
+  v81 shots demoted to the gallery archive (files kept in site/shots/).
+- `screenshots/v83-C.png` (2.23MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
+- Demo page fallback deck + "label the shot" marker sets moved to the
+  v83 frames (positions re-checked against the new captures).
+
+## v167 — 2026-09-24
+- Screenshots rebased v80→**v81** (art's coverage-grammar pass:
+  follow-cam look-room pan off smoothed lateral velocity, two-shot
+  composer with boom widen + amber partner brackets + 2-SHOT flag,
+  gust buffeting scaled by lens exposure × crosswind, director thirds
+  grid + center cross on `SF_CAM.guides` (H key), viewfinder strip
+  reading EV/compass/height, feed switching that glides instead of
+  snapping). Site shots, kit screenshots swapped; captions, README,
+  manifest, fact-sheet, index, contact-sheet, deadline-desk, b-roll,
+  one-sheet, embargo-briefing, awards-festivals, pitch-emails,
+  whats-new, alt-text, store-copy, store preview, checklist refs
+  updated; `make_brand_assets.py` SHOT pin repointed to v81-D; v80
+  shots demoted to the gallery archive (files kept in site/shots/).
+- `screenshots/v81-C.png` (2.23MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
+- NEW `ai-transparency.md` — AI disclosure one-pager: what's
+  AI-driven (resident minds, request classification), what isn't
+  (visuals, writing, audio, your data), the control rules, storefront
+  AI-disclosure field answers, and red lines for coverage.
+
+## v166 — 2026-09-24
+- Screenshots rebased v76→**v80** (art shipped two passes mid-version:
+  v79 rooftop murals + wind-blown roofscape, then v80 — a raymarched
+  sky-visibility field through building masses and crown volumes:
+  building-scale shade pools on the park's east edge, crown-shadow
+  dapple on the lawns, props/residents self-shadow and pick up skylight
+  fill only from open sky). Site shots, kit screenshots, key art,
+  og-card, banners rebaked on v80-D; captions, README, manifest,
+  fact-sheet, index, contact-sheet, deadline-desk, b-roll, one-sheet,
+  embargo-briefing, whats-new, alt-text, store-copy refs updated; v76
+  shots demoted to the gallery archive section (files kept in
+  site/shots/).
+- `screenshots/v80-C.png` (2.24MB) breaches the 2MB PNG ceiling —
+  webp-only `<img>` on the site per the v135 rule; PNG ships in the
+  kit as a full-size download.
 
 ## v152 — 2026-09-24
 - Screenshots rebased v75→**v76** (crepuscular lanes — each cloud

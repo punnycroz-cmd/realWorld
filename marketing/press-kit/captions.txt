@@ -13,37 +13,41 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v76-A.png       1440x900 (approx)
-  The Mission block around 24th and Mission from overhead on an autumn
-  afternoon (in-world Day 22): leaves drifting over rooftops and parked
-  cars, dressed facades, crowns in full turn. The resident inspector is
-  open on Jules, a hired resident, between things on Guerrero — needs,
-  mood, and recent thoughts are all spectator-readable. The HUD shown
-  is the real spectator chrome of the development build.
+screenshots/v84-A.png       1440x900 (approx)
+  The Mission block from overhead on an autumn afternoon (in-world
+  Day 22): the Mudhaus Coffee dollhouse cutaway open on the block —
+  the building ghosted, a real floor plan drawn inside the footprint,
+  Jules tagged inside it, Marcus and Victor at the door. The Wire's
+  rooftop camera feed composites live into the corner monitor with
+  DIRECTOR chrome and a viewfinder strip reading lens, EV, compass,
+  and height. The ground itself now reads lit vs. shaded — street cells
+  carry the warm key only where the direct beam lands, skylit umbra
+  where it doesn't. The HUD shown is the real spectator chrome of the
+  development build.
 
-screenshots/v76-B.png       1440x900 (approx)
+screenshots/v84-B.png       1440x900 (approx)
   Street-level close view of Jules on the sidewalk with Priya and Dani
-  mid-block: dressed storefronts and stoops, canvas awnings, window
-  boxes, parked cars along the curb, leaves drifting — residents
-  carrying name tags overhead.
+  mid-block: dressed storefronts and stoops, parked cars along the
+  curb, leaves drifting — residents carrying name tags overhead, the
+  rooftop-over-park monitor live in the corner. The pavement reads
+  sunlit in the beam and open shade out of it.
 
-screenshots/v76-C.png       1440x900 (approx)
+screenshots/v84-C.png       1440x900 (approx)
   Dolores Park from overhead: crown-genome trees in rust and gold —
   every crown grown from a genome atlas and flipped per instance, so no
-  two read alike — poppy and lupine meadow drifts stippled across the
-  lawns, tennis courts holding the south edge, perimeter streets and
-  facades ringing the park. A crepuscular lane — a warm volumetric
-  streak from a cloud body to the sun-gap it shades — lands on the
-  lawns between the shadows.
+  two read alike — meadow drifts stippled across the lawns, picnic
+  blankets on the grass, tennis courts holding the south edge,
+  perimeter streets ringing the park — all under the renderer's
+  sun-driven frame grade, contrast and exposure computed on the world
+  plate before the optics pass.
 
-screenshots/v76-D.png       1440x900 (approx)
-  Director mode at street level: Victorian fronts climbing with ivy
-  and bougainvillea strands — sun-warmed magenta bracts where the light
-  hits — balcony gardens trailing, laundry lines overhead riding an
-  advecting gust field, cumulus overhead carrying sun-side silver
-  linings. REC cluster and DIRECTOR badge up top, the rebuilt lens
-  rendering one weather-driven visibility distance instead of stacked
-  effects — the camera treats the neighborhood like a film set.
+screenshots/v84-D.png       1440x900 (approx)
+  Director mode at street level: the thirds grid and center cross up on
+  the composition guides (H key), REC cluster and DIRECTOR badge, the
+  corner monitor's viewfinder strip reading 50mm, f2.0, EV+0.0, compass
+  and height — dressed fronts and ridge-crested rooftops under a clean
+  sky. The camera rig treats the neighborhood like a film set because,
+  to a spectator, it is one.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -53,10 +57,10 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v76-A / v76-B.
+  First art pass, for before/after coverage. Pair with v84-A / v84-B.
 
-screenshots/v76-A.webp / v76-B.webp / v76-C.webp / v76-D.webp
-  Lightweight web companions of the four v76 captures above — same
+screenshots/v84-A.webp / v84-B.webp / v84-C.webp / v84-D.webp
+  Lightweight web companions of the four v84 captures above — same
   frames, smaller files, for pages that prefer webp.
 
 logos/logo-primary.svg         Light-text lockup — DARK BACKGROUNDS ONLY.
@@ -83,6 +87,15 @@ banners/banner-x-1500x500.png        X/Twitter header.
 banners/banner-youtube-2560x1440.png YouTube channel art (safe-zone padded).
 banners/banner-discord-960x540.png   Discord banner.
 banners/banner-linkedin-1584x396.png LinkedIn banner.
+
+mastheads/masthead-journal.svg   The Journal surface masthead — the
+                                   lit-window tile beside the title
+                                   (Class A; dark surfaces only).
+mastheads/masthead-recap.svg     This Week on the Block masthead —
+                                   Sunday recap program; type + cornice
+                                   rule + one lit window (Class B).
+mastheads/masthead-caught.svg    Caught on the Block masthead —
+                                   viewer-clips series (Class B).
   All banners: darkened development-build capture + lockup, tagline
   "Watch free. Pay to reach in." Center content sits in crop-safe zones.
 

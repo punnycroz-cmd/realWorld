@@ -32,9 +32,9 @@ echo "[e2e] 1/6 generating fixture -> $WORK/fixture.ndjson"
 python3 tools/make_analytics_fixture.py --sessions 220 > "$WORK/fixture.ndjson"
 wc -l < "$WORK/fixture.ndjson" | xargs echo "[e2e] fixture events:"
 
-echo "[e2e] 2/6 starting sink on :$SINK_PORT (with --uniques sidecar)"
+echo "[e2e] 2/6 starting sink on :$SINK_PORT (with --uniques + --retention sidecars)"
 python3 tools/analytics_sink.py --port "$SINK_PORT" --out "$WORK/captured.ndjson" \
-    --uniques "$WORK/uniques.tsv" &
+    --uniques "$WORK/uniques.tsv" --retention "$WORK/retention.tsv" &
 PIDS+=($!)
 sleep 0.5
 
@@ -55,6 +55,21 @@ grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}	[0-9a-f]{20}$' "$WORK/uniques.tsv" \
 ! grep -Eq '127\.0\.0\.1|curl/' "$WORK/uniques.tsv" \
   || { echo "[e2e] FAIL: uniques sidecar leaked raw IP/UA"; exit 1; }
 echo "[e2e] uniques sidecar: $(wc -l < "$WORK/uniques.tsv") hashed rows, no raw IP/UA"
+# retention sidecar (v171): same shape, windowed hash — must also never leak IP/UA
+grep -Eq '^[0-9]{4}-[0-9]{2}-[0-9]{2}	[0-9a-f]{20}$' "$WORK/retention.tsv" \
+  || { echo "[e2e] FAIL: retention sidecar malformed"; exit 1; }
+! grep -Eq '127\.0\.0\.1|curl/' "$WORK/retention.tsv" \
+  || { echo "[e2e] FAIL: retention sidecar leaked raw IP/UA"; exit 1; }
+python3 tools/analytics_retention.py "$WORK/retention.tsv" > "$WORK/retention.md" \
+  || { echo "[e2e] FAIL: analytics_retention.py crashed"; exit 1; }
+grep -q "returning_viewers_7d" "$WORK/retention.md" \
+  || { echo "[e2e] FAIL: retention output missing returning_viewers_7d"; exit 1; }
+python3 tools/analytics_goals.py "$WORK/captured.ndjson" \
+    --retention "$WORK/retention.tsv" > "$WORK/goals.md" \
+  || { echo "[e2e] FAIL: analytics_goals.py --retention crashed"; exit 1; }
+grep -q "return-7d" "$WORK/goals.md" \
+  || { echo "[e2e] FAIL: goals output missing return-7d row"; exit 1; }
+echo "[e2e] retention sidecar + analytics_retention + goals --retention: ok"
 
 echo "[e2e] 4/6 generating report -> $WORK/report.md"
 python3 tools/analytics_report.py "$WORK/captured.ndjson" --week e2e \
@@ -92,6 +107,12 @@ python3 tools/analytics_history.py "$WORK/prev.ndjson" "$WORK/captured.ndjson" \
 grep -q "trends" "$WORK/history.md" \
   || { echo "[e2e] FAIL: history output missing trends block"; exit 1; }
 echo "[e2e] analytics_history -> $WORK/history.md"
+python3 tools/make_analytics_fixture.py --sessions 60 --minutes 30 > "$WORK/live.ndjson"
+python3 tools/analytics_live.py "$WORK/live.ndjson" --once --strict > "$WORK/live.txt" \
+  || { echo "[e2e] FAIL: analytics_live --strict fired on clean fixture"; exit 1; }
+grep -q "funnel" "$WORK/live.txt" \
+  || { echo "[e2e] FAIL: live monitor produced no funnel block"; exit 1; }
+echo "[e2e] analytics_live -> $WORK/live.txt"
 echo "[e2e] report head:"; head -8 "$WORK/report.md"
 
 echo "[e2e] 6/6 serving site on :$SITE_PORT (endpoint via ?rw_endpoint=)"

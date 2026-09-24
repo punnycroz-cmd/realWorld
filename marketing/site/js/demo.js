@@ -231,10 +231,10 @@
   // ←/→ always flip manually; the guided watch borrows the same deck.
   if (!url) {
     var SHOTS = [
-      ["shots/v53-A", "the block from overhead — Jules selected, needs and mood readable"],
-      ["shots/v53-B", "street level — names over heads, leaves in the air"],
-      ["shots/v53-C", "Dolores Park — blankets on the lawns, Karl's fog edging in"],
-      ["shots/v53-D", "director mode — the neighborhood reads like a set"]
+      ["shots/v85-A", "the block from overhead — Jules inside Mudhaus, the cutaway open on the café floor and its back room"],
+      ["shots/v85-B", "street level on 24th — Jules on the follow-cam, Priya and Dani mid-block"],
+      ["shots/v85-C", "Dolores Park from above — autumn crowns, tennis courts at the south end"],
+      ["shots/v85-D", "rooftop height down the block — dressed facades and rooflines, the director bug riding the corner"]
     ];
     // "Label the shot" overlay — one marker set per SHOTS entry. Every label
     // names something verifiable in the frame itself: the inspector panel,
@@ -243,30 +243,35 @@
     // Fallback-only: the live HUD names its own surfaces.
     var MARKS = [
       [
-        [14, 44, "Resident inspector — needs, mood & skills on select"],
-        [48, 47, "Jules — the selected resident"],
-        [30, 4, "World HUD — day, weather, block time"],
-        [82, 4, "The Wire — every request lands here"],
-        [62, 57, "24th St — the real Mission grid"]
+        [14, 62, "Resident inspector — needs, mood & the 'why' panel on select"],
+        [53, 43, "Jules — selected, inside Mudhaus Coffee"],
+        [48, 32, "Marcus & Victor — names over heads"],
+        [56, 38, "Dollhouse cutaway — the café floor, counter & back room"],
+        [10, 3, "World HUD — Day 22, weather, block time"],
+        [85, 18, "The Wire — LIVE rooftop cam over Dolores Park"],
+        [50, 27, "Mudhaus Coffee — a parody storefront, by design"]
       ],
       [
-        [48, 36, "Jules — names over heads, always"],
-        [64, 36, "Priya — out on her routine"],
-        [11, 34, "Dani"],
-        [14, 44, "The same inspector, at street level"],
-        [50, 22, "Facades mid-dress — signage pass in progress"]
+        [53, 45, "Jules — follow-cam close, never steering"],
+        [45, 38, "Priya — out on her routine"],
+        [8, 38, "Dani — by the window, mid-block"],
+        [14, 62, "The same inspector, at street level"],
+        [48, 11, "STORE — every sign on the block is a parody name"],
+        [85, 18, "The Wire — still LIVE in the corner"]
       ],
       [
-        [48, 34, "Dolores Park — the block's commons"],
-        [86, 30, "The palm allée"],
-        [33, 22, "Blankets out — residents on their own schedules"],
-        [12, 12, "Karl's fog pools at the edges — it edges in, never snaps"]
+        [52, 46, "Jules — out on the lawns"],
+        [17, 20, "Autumn crowns — the park's own calendar"],
+        [27, 89, "Tennis courts at the park's south end"],
+        [50, 33, "The park paths — the block's commons"],
+        [85, 18, "The Wire — rooftop cam, same frame"]
       ],
       [
-        [5, 9, "● REC — director mode"],
-        [50, 14, "DIRECTOR — free framing, still read-only"],
-        [62, 43, "Dressed facades — the block as its own postcard"],
-        [14, 44, "The inspector rides along in every mode"]
+        [5, 8, "● REC — director mode"],
+        [49, 15, "DIRECTOR — free framing, still read-only"],
+        [54, 28, "STORE — signage pass, parody names only"],
+        [44, 70, "Carmen — out front, mid-block"],
+        [14, 62, "The inspector rides along in every mode"]
       ]
     ];
     // Deep link: #shot=1..4 pins the deck (and its cam chip) on load, so a
@@ -345,10 +350,10 @@
     // spectator would be looking for. The notes describe the captures, not a
     // live feed, and say so on the card. ~12 s per beat.
     var TOUR = [
-      [0, "Start overhead. The fog band on the rooftops is the world's own weather — it keeps its schedule whether or not a camera is up here. Spectators get this roofline view for free."],
-      [1, "Now street level. This is the follow-cam the spectator view is built around: close enough to read the block — who opened the café, who isn't speaking to whom — never close enough to steer it."],
+      [0, "Start overhead. The inspector is open on Jules — needs, mood, even the 'why' panel are readable at a glance. Top right is the Wire's rooftop cam over the park: the feed's own eye, already in the frame."],
+      [1, "Now street level. This is the follow-cam the spectator view is built around: close enough to read the block — Jules mid-errand, Dani mid-sentence — never close enough to steer it."],
       [2, "Dolores Park, the block's commons. Viewer requests tend to land here because everyone watching can see them land — every intervention is public and attributed."],
-      [3, "Director mode. Framing the shot is part of watching; the pastel rowhouses on the hill are the postcard the feed writes under. When the build ships, this deck retires — live needs no script."]
+      [3, "Director mode, rooftop height. Framing the shot is part of watching; the dressed facades down the hill are the postcard the feed writes under. When the build ships, this deck retires — live needs no script."]
     ];
     var tourBeat = -1;
     function tourStep() {
@@ -415,6 +420,63 @@
         // the button's own data-rw-event emits cta_click{cta:"demo-labels"}
       });
     }
+
+    // Clip this frame — exports the current capture as a captioned PNG card.
+    // The watermark is the honesty: every clip says "development capture" in
+    // the image itself, so a shared frame can't be passed off as live. Falls
+    // back to downloading the raw capture where the canvas can't export
+    // (file:// taint) — same file, just without the caption band.
+    var clipBtn = document.getElementById("demo-clip");
+    var clipSay = function (msg) {
+      if (status) { status.textContent = msg; setTimeout(function () { status.textContent = ""; }, 4000); }
+    };
+    if (clipBtn) {
+      clipBtn.addEventListener("click", function () {
+        var base = SHOTS[idx][0], label = SHOTS[idx][1];
+        var raw = function () {
+          var a = document.createElement("a");
+          a.href = base + ".png";
+          a.download = "realworld-capture-" + base.split("/").pop() + ".png";
+          document.body.appendChild(a); a.click(); a.remove();
+          clipSay("Saved the raw capture — captioned clips need http(s).");
+        };
+        var im = new Image();
+        im.onload = function () {
+          try {
+            var band = 96;
+            var cv = document.createElement("canvas");
+            cv.width = im.naturalWidth;
+            cv.height = im.naturalHeight + band;
+            var cx = cv.getContext("2d");
+            cx.fillStyle = "#0b0e14";
+            cx.fillRect(0, 0, cv.width, cv.height);
+            cx.drawImage(im, 0, 0);
+            cx.fillStyle = "#e8a04c";
+            cx.font = "600 28px system-ui, sans-serif";
+            cx.fillText("REAL WORLD · THE MISSION — development capture", 28, im.naturalHeight + 40);
+            cx.fillStyle = "#9aa3b2";
+            cx.font = "22px system-ui, sans-serif";
+            cx.fillText(label + " — not a live feed; the spectator build isn't wired in yet",
+              28, im.naturalHeight + 74);
+            cv.toBlob(function (b) {
+              if (!b) { raw(); return; }
+              var u = URL.createObjectURL(b);
+              var a = document.createElement("a");
+              a.href = u;
+              a.download = "realworld-clip-" + base.split("/").pop() + ".png";
+              document.body.appendChild(a); a.click(); a.remove();
+              setTimeout(function () { URL.revokeObjectURL(u); }, 4000);
+              clipSay("Clip saved — captioned, watermark in.");
+              if (window.rw && window.rw.track) {
+                window.rw.track("cta_click", { cta: "demo-clip-done" });
+              }
+            }, "image/png");
+          } catch (e) { raw(); }
+        };
+        im.onerror = raw;
+        im.src = base + ".png";
+      });
+    }
     if (screen && img) {
       if (hashShot >= 0) show(hashShot, false);
       if (!reduced) startAuto();
@@ -441,6 +503,8 @@
           resetAuto();
         } else if (e.key === "l" || e.key === "L") {
           if (labelBtn) labelBtn.click();
+        } else if (e.key === "c" || e.key === "C") {
+          if (clipBtn) clipBtn.click();
         }
       });
     } else {
@@ -457,6 +521,8 @@
     if (cb) cb.hidden = true;
     var lb = document.getElementById("demo-labels");
     if (lb) lb.hidden = true;
+    var cp = document.getElementById("demo-clip");
+    if (cp) cp.hidden = true;
   }
 
   // First-watch field card — a local checklist for a first visit. State is
@@ -506,5 +572,181 @@
       });
     }
     fcSync();
+  }
+
+  // "Call it" — a non-wager prediction card: the observer loop's prediction
+  // step (watch → call it → come back → settle). Calls are stored in
+  // localStorage rw_calls_v1 on this device only — nothing is sent, scored,
+  // or ranked, and settling (hit/miss) is the visitor's own read of the
+  // feed/Archive, not an oracle. Works in both modes; at launch checking a
+  // call means opening the live Wire under that resident's name.
+  var callBox = document.getElementById("callbox");
+  if (callBox) {
+    var CALL_KEY = "rw_calls_v1";
+    var CALL_MAX = 12;
+    var WHO = {
+      mars: "Mars", jules: "Jules", dani: "Dani", priya: "Priya",
+      marcus: "Marcus", carmen: "Carmen", victor: "Victor",
+      tomas: "Tomás", block: "The block"
+    };
+    var PROMPTS = [
+      "Jules skips the morning run if it's raining",
+      "Mars paints a new Mudhaus window line before Friday",
+      "Priya takes the same café seat after a night shift",
+      "Victor closes the hardware counter early on a sunny day",
+      "Tomás is on the supplier loop before the cafés open",
+      "Marcus's Thursday jam by the park draws a crowd",
+      "Carmen is out front when the fog burns off",
+      "Dani rewrites the chalkboard after a busy rush"
+    ];
+    var whoEl = document.getElementById("call-who");
+    var textEl = document.getElementById("call-text");
+    var logBtn = document.getElementById("call-log");
+    var promptBtn = document.getElementById("call-prompt");
+    var rowsEl = document.getElementById("call-rows");
+    var emptyEl = document.getElementById("call-empty");
+    var tallyEl = document.getElementById("call-tally");
+    var clearBtn = document.getElementById("call-clear");
+    var promptIdx = 0;
+
+    var callLoad = function () {
+      try {
+        var v = JSON.parse(localStorage.getItem(CALL_KEY) || "[]");
+        return (v && v.length !== undefined) ? v : [];
+      } catch (e) { return []; }
+    };
+    var callSave = function (list) {
+      try { localStorage.setItem(CALL_KEY, JSON.stringify(list)); } catch (e) {}
+    };
+    var calls = callLoad();
+
+    var callDate = function (ts) {
+      try {
+        return new Intl.DateTimeFormat("en-US", {
+          timeZone: "America/Los_Angeles",
+          month: "short", day: "numeric", hour: "2-digit", minute: "2-digit"
+        }).format(new Date(ts)) + " PT";
+      } catch (e) { return ""; }
+    };
+
+    var renderCalls = function () {
+      rowsEl.textContent = "";
+      var open = 0, hit = 0, miss = 0;
+      for (var i = 0; i < calls.length; i++) {
+        var c = calls[i];
+        if (c.st === "hit") hit++;
+        else if (c.st === "miss") miss++;
+        else open++;
+        var row = document.createElement("div");
+        row.className = "call-row" + (c.st !== "open" ? " is-settled" : "");
+        var who = WHO[c.who] || "The block";
+        var head = document.createElement("p");
+        head.className = "call-text";
+        head.textContent = c.text;
+        var meta = document.createElement("span");
+        meta.className = "call-meta";
+        meta.textContent = who + " · called " + callDate(c.ts);
+        row.appendChild(head);
+        row.appendChild(meta);
+        if (c.st === "open") {
+          var acts = document.createElement("span");
+          acts.className = "call-acts";
+          var mk = function (label, st, cta) {
+            var b = document.createElement("button");
+            b.type = "button";
+            b.className = "call-btn";
+            b.textContent = label;
+            b.setAttribute("data-i", i);
+            b.setAttribute("data-st", st);
+            b.setAttribute("data-cta", cta);
+            acts.appendChild(b);
+          };
+          mk("Called it", "hit", "demo-call-hit");
+          mk("Missed it", "miss", "demo-call-miss");
+          mk("Drop it", "drop", "demo-call-drop");
+          row.appendChild(acts);
+        } else {
+          var st = document.createElement("span");
+          st.className = "call-verdict " + (c.st === "hit" ? "is-hit" : "is-miss");
+          st.textContent = c.st === "hit" ? "called it" : "missed it";
+          row.appendChild(st);
+        }
+        rowsEl.appendChild(row);
+      }
+      emptyEl.hidden = calls.length > 0;
+      if (!calls.length) rowsEl.appendChild(emptyEl);
+      var parts = [];
+      if (open) parts.push(open + " open");
+      if (hit) parts.push(hit + " called");
+      if (miss) parts.push(miss + " missed");
+      tallyEl.textContent = parts.length
+        ? "Your card: " + parts.join(" · ")
+        : "";
+      clearBtn.hidden = !(hit + miss > 0);
+    };
+
+    var trackCall = function (cta, who) {
+      if (window.rw && window.rw.track) {
+        window.rw.track("cta_click", { cta: cta, item: who });
+      }
+    };
+
+    if (logBtn && textEl && whoEl) {
+      logBtn.addEventListener("click", function () {
+        var t = textEl.value.replace(/\s+/g, " ").trim();
+        if (!t) {
+          textEl.focus();
+          textEl.placeholder = PROMPTS[promptIdx % PROMPTS.length];
+          promptIdx++;
+          return;
+        }
+        var open = 0;
+        for (var i = 0; i < calls.length; i++) if (calls[i].st === "open") open++;
+        if (open >= CALL_MAX) {
+          tallyEl.textContent = "Card's full — settle or drop a call first.";
+          return;
+        }
+        calls.push({ who: whoEl.value, text: t, ts: Date.now(), st: "open" });
+        callSave(calls);
+        textEl.value = "";
+        renderCalls();
+        trackCall("demo-call-log", whoEl.value);
+      });
+    }
+    if (promptBtn && textEl) {
+      promptBtn.addEventListener("click", function () {
+        textEl.value = PROMPTS[promptIdx % PROMPTS.length];
+        promptIdx++;
+        textEl.focus();
+      });
+    }
+    if (rowsEl) {
+      rowsEl.addEventListener("click", function (e) {
+        var b = e.target;
+        if (!b || !b.getAttribute || b.getAttribute("data-i") === null) return;
+        var i = parseInt(b.getAttribute("data-i"), 10);
+        var st = b.getAttribute("data-st");
+        if (!(i >= 0 && i < calls.length)) return;
+        var who = calls[i].who;
+        if (st === "drop") calls.splice(i, 1);
+        else calls[i].st = st;
+        callSave(calls);
+        renderCalls();
+        trackCall(b.getAttribute("data-cta"), who);
+      });
+    }
+    if (clearBtn) {
+      clearBtn.addEventListener("click", function () {
+        var keep = [];
+        for (var i = 0; i < calls.length; i++) {
+          if (calls[i].st === "open") keep.push(calls[i]);
+        }
+        calls = keep;
+        callSave(calls);
+        renderCalls();
+        trackCall("demo-call-clear", "-");
+      });
+    }
+    renderCalls();
   }
 })();

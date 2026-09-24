@@ -93,11 +93,11 @@
       <div class="demo-fallback">
         <div class="demo-fallback-screen">
           <picture>
-            <source srcset="shots/v53-A.webp" type="image/webp">
-            <img src="shots/v53-A.png" alt="Development capture of the Mission block from overhead on an autumn afternoon — resident inspector open on Jules, the spectator HUD readable." width="1440" height="900" loading="lazy">
+            <source srcset="shots/v85-A.webp" type="image/webp">
+            <img src="shots/v85-A.png" alt="Development capture of the Mission block from overhead — resident inspector open on Jules inside Mudhaus, the dollhouse cutaway showing the café floor, the Wire rooftop camera live in the corner." width="1440" height="900" loading="lazy">
           </picture>
           <div class="demo-marks" id="demo-marks" hidden aria-hidden="true"></div>
-          <span class="demo-cap" id="demo-cap">Development capture — the block from overhead on an autumn afternoon</span>
+          <span class="demo-cap" id="demo-cap">Development capture — the block from overhead, Jules inside Mudhaus, the Wire&rsquo;s rooftop cam in the corner</span>
           <div class="demo-note" id="demo-note" hidden>
             <span class="demo-note-step" id="demo-note-step">1 / 4</span>
             <p id="demo-note-text"></p>
@@ -141,13 +141,15 @@
     <div class="demo-toolbar">
       <button class="btn btn-ghost btn-sm" id="demo-share" type="button"
               data-rw-event="cta_click" data-rw-props='{"cta":"demo-share"}'>Share this view</button>
+      <button class="btn btn-ghost btn-sm" id="demo-clip" type="button"
+              data-rw-event="cta_click" data-rw-props='{"cta":"demo-clip"}'>Clip this frame</button>
       <button class="btn btn-ghost btn-sm" id="demo-fs" type="button"
               data-rw-event="cta_click" data-rw-props='{"cta":"demo-fullscreen"}'>Theater mode</button>
       <button class="btn btn-ghost btn-sm" id="demo-tour" type="button"
               data-rw-event="cta_click" data-rw-props='{"cta":"demo-tour"}'>Guided watch</button>
       <button class="btn btn-ghost btn-sm" id="demo-labels" type="button" aria-pressed="false"
               data-rw-event="cta_click" data-rw-props='{"cta":"demo-labels"}'>Label the shot</button>
-      <span class="muted demo-toolbar-note" id="demo-keys" hidden>← → flips captures · 1–4 pick a camera · L labels</span>
+      <span class="muted demo-toolbar-note" id="demo-keys" hidden>← → flips captures · 1–4 pick a camera · L labels · C clips</span>
       <span class="demo-clock muted" id="demo-clock" title="The world runs on Pacific time — the clock above is the real one."></span>
       <span class="muted demo-toolbar-note" id="demo-share-status" role="status" aria-live="polite"></span>
     </div>
@@ -158,9 +160,11 @@
         <ul>
           <li>Labeled development captures cycling in the frame — always captioned, never passed off as live.</li>
           <li>Four camera presets you can already click — they drive the capture deck the way they&rsquo;ll drive the live cameras.</li>
-          <li>The real Wire below, running its built-in <b>demo stream</b> with the badge to prove it.</li>
+          <li>The real Wire below, running its built-in <b>demo stream</b> with the badge to prove it — the day card, the kind tray, the permit board, the catch-up edition (<kbd>u</kbd>), and stakeless calls on open request threads, all working today.</li>
           <li>A guided watch narrating what a spectator would be looking for.</li>
           <li>A <b>Label the shot</b> overlay that names what each capture proves — the inspector, names over heads, the Wire HUD. Every marker points at something you can verify in the frame.</li>
+          <li>A <b>Clip this frame</b> button that exports the capture you&rsquo;re looking at as a captioned PNG — &ldquo;development capture&rdquo; watermarked in, so anything you share carries its own honesty.</li>
+          <li>A <b>Call it</b> card that keeps your predictions about residents on this device — open calls survive between visits, and settling one is the reason to come back.</li>
         </ul>
       </div>
       <div class="demo-diff-col">
@@ -168,9 +172,11 @@
         <ul>
           <li>The same frame becomes the live world — one attribute flips it; the page itself doesn&rsquo;t change.</li>
           <li>The same preset names move inside the live view itself — joined by free pan/zoom and a follow-cam that can sit on any resident.</li>
-          <li>The same Wire drops its badge and shows the real feed, writes and all.</li>
+          <li>The same Wire drops its badge and shows the real feed, writes and all — the edition, calls, and watch pins work exactly the same on live data.</li>
           <li>The guided watch retires. Live needs no narration — and no script.</li>
           <li>The label overlay retires with it — the live HUD names its own surfaces.</li>
+          <li>Clipping moves inside the live view — same button idea, real frames, same watermark honesty.</li>
+          <li>The same card — but checking a call means opening the live Wire or the Archive under that resident&rsquo;s name, not guessing at captures.</li>
         </ul>
       </div>
     </div>
@@ -299,8 +305,11 @@
     running on its built-in <b>demo stream</b> — the badge in its header
     tells you so, and it will still tell you so at launch when the same
     frame shows live data. Filter the feed, open a request thread, pin a
-    resident, hit <i>hold</i>. Nothing here touches the world; the Wire is
-    view-layer only.</p>
+    resident, hit <i>hold</i>. Press <kbd>d</kbd> for the day-so-far card,
+    <kbd>u</kbd> for the <i>since you were away</i> edition, <kbd>v</kbd>
+    for the director preview — or call it on an open request thread and
+    let the wire prove you right or wrong. Nothing here touches the
+    world; the Wire is view-layer only.</p>
     <div class="demo-stage">
       <iframe class="demo-frame app-frame" src="wire.html"
               title="The Wire — Real World spectator feed, demo stream"
@@ -442,12 +451,69 @@
   </div>
 </section>
 
+<!-- CALL IT — the observer loop's prediction step, device-only -->
+<section id="calls">
+  <div class="wrap">
+    <p class="eyebrow">Call it</p>
+    <h2>Make a call. Come back and check.</h2>
+    <p class="muted">Watching pays off when you know the block well enough to
+    guess. Pick a resident, write down what you think they&rsquo;ll do — a
+    routine, a reaction, a small thing — and the card holds it on this device.
+    Tomorrow you check: open the Wire, or dig the Archive, and settle it
+    yourself. <b>No stakes, no wager, no leaderboard</b> — the call is the
+    reason to come back, nothing more.</p>
+    <div class="calls" id="callbox">
+      <div class="calls-form">
+        <label class="sim-field" for="call-who">About who?
+          <select id="call-who">
+            <option value="mars">Mars Delgado — Mudhaus</option>
+            <option value="jules">Jules Park — the runner</option>
+            <option value="dani">Dani Reyes — chalkboard hand</option>
+            <option value="priya">Priya Raman — RN on twelves</option>
+            <option value="marcus">Marcus Bell — courier</option>
+            <option value="carmen">Carmen Echeverría — the block&rsquo;s memory</option>
+            <option value="victor">Victor Auerbach — hardware &amp; landlord</option>
+            <option value="tomas">Tomás Herrera — lead cook</option>
+            <option value="block">Someone else on the block</option>
+          </select>
+        </label>
+        <label class="sim-field" for="call-text">Your call — one sentence
+          <input type="text" id="call-text" maxlength="140"
+                 placeholder="e.g. Jules skips the morning run if it&rsquo;s raining">
+        </label>
+        <div class="sim-actions">
+          <button class="btn btn-primary" id="call-log" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-call"}'>Log the call</button>
+          <button class="btn btn-ghost btn-sm" id="call-prompt" type="button"
+                  data-rw-event="cta_click" data-rw-props='{"cta":"demo-call-prompt"}'>Need a prompt?</button>
+        </div>
+      </div>
+      <div class="calls-list" id="call-rows" aria-live="polite">
+        <p class="muted" id="call-empty">No calls yet. One sentence is enough —
+        the card keeps up to a dozen open at once, on this device only.</p>
+      </div>
+      <p class="fieldcard-status calls-status"><span id="call-tally"></span>
+        <button class="btn btn-ghost btn-sm" id="call-clear" type="button" hidden>Settle &amp; clear finished calls</button>
+      </p>
+    </div>
+    <p class="muted" style="font-size:13px">Calls live in your browser&rsquo;s
+    local storage — nothing is sent, scored, or ranked. Settling is your call
+    too: <i>called it</i> / <i>missed it</i> is your read of the feed and the
+    Archive, not an oracle. At launch the same card stays; what changes is
+    that checking a call means opening the live Wire under that
+    resident&rsquo;s name.</p>
+    <noscript><p class="notice">The call card needs JavaScript. The
+    <a href="cast.html">cast page</a> has the same residents&rsquo; public
+    routines to make a call from.</p></noscript>
+  </div>
+</section>
+
 <!-- FIRST-WATCH FIELD CARD -->
 <section>
   <div class="wrap">
     <p class="eyebrow">Your first watch</p>
     <h2>A field card for the first hour.</h2>
-    <p class="muted">Ten things worth doing on a first visit — every one
+    <p class="muted">Thirteen things worth doing on a first visit — every one
     works today on this page&rsquo;s real surfaces (the capture deck, the
     Wire&rsquo;s demo stream, the simulator above). Checks save on this
     device only; nothing leaves your browser.</p>
@@ -463,8 +529,11 @@
         <li><label><input type="checkbox" data-fc="sim"> File one simulated request above and read the verdict card end to end.</label></li>
         <li><label><input type="checkbox" data-fc="lifecycle"> Watch that filing&rsquo;s feed tag walk the real lifecycle — <i>requested</i> through <i>resolved</i> — in your simulated feed entries.</label></li>
         <li><label><input type="checkbox" data-fc="labels"> Toggle <i>Label the shot</i> on the capture deck — every marker names something a spectator can verify in the frame.</label></li>
+        <li><label><input type="checkbox" data-fc="clip"> Hit <i>Clip this frame</i> — the exported PNG carries its own &ldquo;development capture&rdquo; watermark, so a shared clip can&rsquo;t be passed off as live.</label></li>
+        <li><label><input type="checkbox" data-fc="call"> Log a call in <i>Call it</i> above and leave it open — the card remembers it between visits; settling it is the reason to come back.</label></li>
+        <li><label><input type="checkbox" data-fc="edition"> In the Wire, press <kbd>u</kbd> — the <i>since you were away</i> edition is the return loop, already running on the demo stream.</label></li>
       </ul>
-      <p class="fieldcard-status"><span id="fc-count">0 / 10</span>
+      <p class="fieldcard-status"><span id="fc-count">0 / 13</span>
         <button class="btn btn-ghost btn-sm" id="fc-reset" type="button">Reset the card</button>
       </p>
     </div>

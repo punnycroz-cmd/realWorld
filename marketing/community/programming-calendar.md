@@ -22,6 +22,8 @@ six kept promises beats one with twelve aspirational ones.
 |---|---|---|---|---|
 | Recap drop | Sun 18:00 | `#announcements` | "This Week on the Block" — `tools/build_recap.py` draft, owner-edited | "A quiet week on the block" — publish anyway, one paragraph |
 | Open-rumor thread | Sun 18:05 | `#the-block` | Reply-thread under the recap ping: "what's still unconfirmed?" — recap's rumor hook is the seed | Skip silently if the recap has no open rumor; never invent one |
+| Weekly calls | Sun 18:10 | `#the-block` | Stakeless prediction thread on the week's open beats — spec in `prediction-ledger.md`; resolved calls get a line in next week's recap | Skip if no open beats; carried-over calls still resolve whenever the record moves |
+| Beat sweep | Sun 18:15 | `#beats` forum | Owner walks open beats against the week's record — resolves what's resolvable, posts one-line evidence updates, closes what closed ("went quiet" is honest) — spec in `thread-following.md` §4 | Quiet week posts nothing; that is the design, not a missed slot |
 | Request clinic | Wed 19:00 | `#help-requests` | Owner walks 1–2 filed requests end-to-end: text → classification → outcome. Teaching the vocabulary | If no requests were filed, repost a historical example from the archive |
 | Watch party | Event-driven | `#watch-party` + `#rooftop` voice | Only when `watch-party-playbook.md` §1 triggers fire — never on a fixed night | None needed; absence is correct behavior |
 | `#the-feed` mirror | Daily, ≤4 posts | `#the-feed` | Manual curation per `feed-mirror.md` — not a calendar slot, it's a standing routine | Quiet days mirror nothing; that's the design |
@@ -41,6 +43,12 @@ six kept promises beats one with twelve aspirational ones.
 > Still unconfirmed after this week: {{RUMOR_HOOK}} — the archive says
 > what happened, not what anyone meant by it. What do you think is going
 > on? (Label guesses as guesses; the feed never confirms speculation.)
+
+**Weekly calls opener (post under the recap):**
+> Calls for this week — what's still open on the block: {{OPEN_BEATS}}.
+> Call what you think the record shows next. Observable outcomes only,
+> no stakes, unresolved is honest. We check them against next Sunday's
+> recap.
 
 **Request clinic opener:**
 > Clinic night. Walking through {{REQUEST_DESC}} start to finish —

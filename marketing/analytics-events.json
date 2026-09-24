@@ -26,11 +26,11 @@
     "cta_click": {
       "when": "click on any element carrying data-rw-event=\"cta_click\"",
       "props": {
-        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer",
-        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms",
+        "cta": "slot name: hero|walkthrough|footer|nav|pricing-teaser|faq-exit|404-exit|demo-hero|demo-ladder|demo-fallback|demo-fullscreen|demo-share|demo-sim|demo-example|demo-fieldcard|demo-tour|demo-tour-done|demo-wire|demo-cam|demo-quiz|demo-embed|demo-labels|demo-clip|demo-clip-done|demo-call|demo-call-prompt|demo-call-log|demo-call-hit|demo-call-miss|demo-call-drop|demo-call-clear|archive-hero|archive-pair|archive-footer|brand-footer|cast|community-hero|community-footer|features-cast|index-wire|rules-footer|gallery-footer|compare-footer|privacy-footer|refunds-footer|local-build",
+        "dest": "logical destination: how-it-works|features|pricing|faq|index|demo|cast|journal|community|rules|press-kit|gallery|watch|wire|wire-archive|compare|privacy|refunds|terms|hub",
         "href": "raw href (same-site)",
         "cam": "demo camera preset — only on cta=demo-cam: overhead|street|park|director (v96)",
-        "item": "field-card item key — only on cta=demo-fieldcard (v101): deck|parody|routine|fog|wire|quiet|theater|sim",
+        "item": "field-card item key — only on cta=demo-fieldcard (v101): deck|parody|routine|fog|wire|quiet|theater|sim|lifecycle|labels|clip|call; resident key on cta=demo-call-* (v176): mars|jules|dani|priya|marcus|carmen|victor|tomas|block",
         "checked": "bool — only on cta=demo-fieldcard (v101)"
       },
       "funnel_stage": "visit → engaged"
@@ -343,6 +343,34 @@
       "status": "PENDING — game build",
       "note": "feed resolves as 'player session ended' either way — the locked neutral wording (world-v95 §46)"
     },
+    "privacy_beat_seen": {
+      "when": "tour beat 6 renders on the `feed-anon` anchor — 'watching leaves no mark … agency is public, presence is private' (game-side; world-v109 §50 — renumbered tour order, privacy precedes reach-in)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "counts exposure of the structural privacy promise; any future viewer-list surface would falsify the beat — world-v109 never-list bans it"
+    },
+    "data_card_seen": {
+      "when": "the S2b data card renders between the handle step and the age band — 'kept in this browser's storage, nothing sent anywhere' (game-side; world-v109 §51 — free-tier, outside the band normalizer, u13 sees it too)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "disclosure exposure; states what is kept and where — forward clause 'asks are public, watching is private' is a design constraint, not a feature claim (world-v109 §51/§54)"
+    },
+    "flag_lesson_shown": {
+      "when": "the S4g flag card renders — 'every ask is flaggable; costs nothing, files nothing, silent on the feed, player asks only never residents' (game-side; world-v109 §52 — behind the band normalizer like S4f)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "teaches the viewer's one moderation hand; never framed as a public vote — flags route to the same human review (world-v109 §52)"
+    },
+    "flag_demo_sent": {
+      "when": "the demo affordance 'flag an ask on the feed (demo)' is clicked — marks S.flagged once, deliberately does not touch the feed (game-side; world-v109 §52–§54 — at merge binds per-entry to the human-review queue)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the flag's silence is the lesson — idempotent (second click toasts 'flagged already'), no feed mutation, no flag-specific feed wording (world-v109 §52–§54)"
+    },
     "hired_return": {
       "when": "post-hire return via ?hired=1 deep link → first-day card S6 (game-side; world-v39 hired_return block)",
       "props": { "stage": "onboarding stage id" },
@@ -389,12 +417,75 @@
       "funnel_stage": "community",
       "status": "PENDING — Discord-side, manual count at launch (community/watch-party-playbook.md §3)",
       "note": "no per-member data — a count, not a list"
+    },
+    "catchup_edition_viewed": {
+      "when": "the catch-up edition renders for a returning viewer — up to three verified changes since their last visit, each linked to footage (game-side; production-3 observer loop step 1)",
+      "props": { "items": "int 0-3 — verified changes shown" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "count of verified changes only — never which characters/threads they were about"
+    },
+    "thread_followed": {
+      "when": "viewer follows a character or commitment thread (game-side; observer loop step 2 — 'choose someone to follow')",
+      "props": { "target_kind": "character|commitment|thread" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "kind only — never WHICH character/thread; follows are viewer-side state, not bus writes"
+    },
+    "prediction_made": {
+      "when": "viewer records a non-wager prediction on a followed thread (game-side; observer loop step 3)",
+      "props": { "target_kind": "character|commitment|thread" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "stakeless by design — never carries a wager, amount, or the prediction text"
+    },
+    "outcome_inspected": {
+      "when": "viewer returns to check a prediction against the recorded outcome (game-side; observer loop step 4 — 'inspect the outcome, revise your understanding')",
+      "props": { "verdict": "hit|miss|unresolved" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "the revise-your-understanding moment; the loop's proof that watching produces knowledge"
+    },
+    "invite_submitted": {
+      "when": "viewer files one bounded invitation/opportunity (game-side; the free intervention trial — notice an unmet opportunity → submit → see delivery or refusal)",
+      "props": { "kind": "invitation|workspace|project" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "bounded + attributed by design; kind only — never the invite text or target"
+    },
+    "invite_outcome_seen": {
+      "when": "the delivery/refusal result of a bounded invite is shown (game-side; instant delivery feedback, no promised emotional result)",
+      "props": { "outcome": "delivered|refused|expired" },
+      "funnel_stage": "observer",
+      "status": "PENDING — game build",
+      "note": "feed-vocabulary outcome only — refusal is a legitimate, measured result, not a failure state"
+    },
+    "loop_card_seen": {
+      "when": "the onboarding observer-loop card renders — catch up → follow → predict → inspect → return, shown as a card not a coach-mark (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "exposure to the free observer loop framing; the card is the tour's last beat's companion — no new tour beat added (world-v123 §61)"
+    },
+    "prediction_checked": {
+      "when": "the onboarding prediction demo's pick is checked against its world event — device-local until accounts exist (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the demo pick never writes a feed line — only the world event it checks against is public; stakeless like prediction_made"
+    },
+    "edition_line_seen": {
+      "when": "the catch-up-edition line renders in onboarding — binds to the Archive's last-visit record at merge (game-side; world-v123 §61)",
+      "props": { "stage": "onboarding stage id", "opted_out": "bool" },
+      "funnel_stage": "onboard",
+      "status": "PENDING — game build",
+      "note": "the 'verified changes since your last visit' promise surface — OBSERVED-ledger content only at merge"
     }
   },
   "privacy": {
     "cookies": false,
     "persistent_ids": false,
-    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81)",
+    "ip_storage": "server-side daily-rotating hash only (salt + IP + UA + date); raw IPs never stored — implemented in analytics_sink.py --uniques (v81). OPTIONAL second sidecar --retention (v171): windowed hash stable <=30 days for return-visit counting (ANALYTICS.md §1a) — opt-in, separate file, salts memory-only",
     "opt_out": ["navigator.doNotTrack", "navigator.globalPrivacyControl", "?nocollect=1", "localStorage rw:no-collect=1", "rw.optOut()"],
     "inert_by_default": true
   }

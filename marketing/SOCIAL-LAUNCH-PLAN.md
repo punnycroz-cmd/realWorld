@@ -1,6 +1,15 @@
 # Social Launch Plan — Real World ("The Mission")
 
-**Status: v139 — launch-ready drafts + reply bank + capture plan + Reddit
+**Status: v184 — the open-loops ledger: `social/threads.json` +
+`tools/thread_check.py` are now the machine-readable spine connecting
+The Call (opens loops) to the follow-up posts and Choice → Consequence
+(closes them) — broken-promise detector, stale-thread sweep, C→C tone
+ratio, audience scoreboard. Earlier: production-3 direction absorbed;
+return visits are the
+north star, the flagship clip format is Choice → Consequence
+(`social/drafts/choice-and-consequence.md`), and non-wager prediction
+prompts (`social/drafts/the-call.md`) make the free observer loop
+social; plus launch-ready drafts + reply bank + capture plan + Reddit
 posts + incident comms + rent-week arc + alt-text bank + Archive arc +
 community playtest night + Move-In Week arc + Limits arc + Parrot Watch
 arc + Counter arc (request receipts) + milestone post layer
@@ -32,13 +41,23 @@ Companion files:
 
 ## 1. Strategy in one paragraph
 
-Real World's marketing asset IS the product: a watchable neighborhood. Every
-social beat is built to move a scroller one step — **see a moment → watch the
-block live → file a request → move in**. We never ask people to imagine the
-game; we show them a resident mid-drama and let the feed do the rest. The
-free-watch tier is the top of funnel, so every post's job is to earn a click
-to the spectator view, not to sell credits. Credit spend happens after the
-world has already hooked them.
+Real World's marketing asset IS the product: a watchable neighborhood
+where choices keep mattering after the clip ends. Per the production-3
+direction (2026-09-24): the audience is AI-curious viewers and
+emergent-story fans, and the metric that decides everything is
+**voluntary return visits over a week** — measured alongside cost per
+simulated day. Every social beat is built to move a scroller into the
+free observer loop — **catch up → choose someone to follow → make a
+non-wager prediction → inspect the outcome → revise → return**. The
+flagship format is the Choice → Consequence pair
+(`drafts/choice-and-consequence.md`): an unexpected choice, the honest
+gap, the later consequence, a link into the thread — never an empty
+street camera. We never ask people to imagine the game; we show a
+resident mid-choice and let the feed do the rest. Monetization is
+sequenced and stays out of the hook: prove return visits first, then
+subscriptions for depth, then capped attributed sponsorship — posts
+sell watching and following, not credits. Credit spend, if it ever
+matters, happens after the world has already hooked them.
 
 ## 2. Channel strategy
 
@@ -107,11 +126,14 @@ its channel, timing slot, required asset, and character-count check.
 | `offline-and-limits.md` | 5-post evergreen "the rules are the pitch" series — possession ban, attributed feed, no money out, the Understudy fallback (world-v55), the session cap (v79) | 5 |
 | `parrot-watch.md` | 3-post mini-arc on the wild parakeets (art-v49 render feature + real local lore; `{{PARROT_CLIP}}` is the bank's only unfilled asset) (v79) | 3 |
 | `counter-arc.md` | 4-post "every request leaves a receipt" series on the Counter — the board, the free wording check, the `rq-` receipt, co-sponsoring (v94; post-launch only, canon: world-v60 request-ui.md/requests.json live_seam) | 4 |
-| `milestone-posts.md` | 11 trigger-fired posts keyed to real counters (first request, 100 watchers, first hire, first decline, rent-cycle close, 1k/5k/10k requests, week-one numbers, first ruling, quiet-week card, first viewer reshare) — fires on truth, never schedule (v124, M11 v139) | 11 |
+| `milestone-posts.md` | 12 trigger-fired posts keyed to real counters (first request, 100 watchers, first hire, first decline, rent-cycle close, 1k/5k/10k requests, week-one numbers, first ruling, quiet-week card, first viewer reshare, first return-visit cohort) — fires on truth, never schedule (v124, M11 v139, M12 v169) | 12 |
 | `reshare-playbook.md` | Viewer-UGC amplification: 4-gate permission rules, never-reshare list, permission templates, 6 reshare + 3 streamer captions, clip-of-the-week format, consent ledger (v139) | 6 templates + 9 captions |
 | `pinned-comments.md` | Pinned-comment / self-reply bank — the link + context slot TikTok/YouTube/X bury (v139) | 8 |
 | `launch-watchalong.md` | Launch-day live-narration runbook — one clock-stamped thread reporting what the block actually does all day; scheduled + event beats, silence rules, reusable for any big feed day (v154) | 7 spine + 4 event templates |
 | `caught-on-the-block.md` | "Caught on the Block" weekly UGC prompt — solicits viewer clips into the reshare-playbook 4-gate flow; feeds M11 + clip-of-the-week (v154, post-launch only) | 6 prompts + 1 caption |
+| `choice-and-consequence.md` | THE flagship format (production-3): an unexpected choice, the honest gap, the later consequence, a thread link — verified pairs only, never staged (v169) | 6 drafts + format spec |
+| `the-call.md` | Non-wager prediction prompts — the "predict" step of the observer loop; opens loops that Choice → Consequence closes (v169) | 5 calls + 3 follow-ups |
+| `../threads.json` | The open-loops ledger — one row per watchable thread; every Call registers before posting, every resolution cites a feed permalink, every resolved called thread owes a follow-up (v184; audited by `tools/thread_check.py`) | registry (empty until launch) |
 | `../alt-text.md` | Alt-text bank for every shot/asset + feed-screenshot template + generated cards (v40, cards v109) | full asset set |
 | `../post-review.md` | Weekly social retro: per-post scorecard, rerun/keep/kill rules, consent ledger, three-decision output feeding edits back into this bank (v139) | template |
 | `../cards/` | Post-ready generated card images: 8 cast spotlights, T-1 teaser (+square), recap masthead, Counter receipt (DEMO-badged), empty-feed honesty card, watch-free CTA (v109, `tools/make_social_cards.py`) | 14 PNGs |
@@ -190,6 +212,14 @@ Sustainable rhythm, fed by the product itself.
 - **Parrot Watch arc:** T+14 → T+16 or first quiet weekend — the wild-
   parakeet mini-series (`parrot-watch.md`). Prefers a live `{{PARROT_CLIP}}`
   capture post-launch; degrades to stills.
+- **Choice → Consequence:** 1–2/week from T+3, the flagship clip
+  (`choice-and-consequence.md`) — a verified unexpected choice + its
+  later consequence + the thread link. Fires on truth, not the
+  calendar; a week with no verified pair ships nothing from this file.
+- **The Call:** 1–2/week from T+3 (`the-call.md`) — non-wager
+  prediction prompts on genuinely pending threads; every Call gets a
+  follow-up post when the feed resolves. Calls and C→C pairs are one
+  pipeline: open loop → closed loop.
 - **Caught on the Block:** weekly Saturday prompt from T+3
   (`caught-on-the-block.md`) — the intake half of viewer reshares:
   asks spectators to clip what they catch, routes everything through
@@ -220,6 +250,34 @@ window closes, M8 is owner-gated, M10 max once/month and not before
 T+14. Full drafts + rules: `social/drafts/milestone-posts.md`. These sit
 *outside* `schedule.json` deliberately — they have no day offsets; they
 slot into whichever week the counter trips.
+
+### The open-loops ledger — `social/threads.json` (v184)
+
+The Call and Choice → Consequence are one pipeline; the ledger is its
+audit trail. One row per watchable thread — an observable situation
+whose outcome is genuinely undecided. Lifecycle:
+
+1. **Open** — a thread surfaces on the feed; add a row (`status: open`,
+   `thread_url` required — no permalink, no post).
+2. **Call** — a TC1–TC5 post registers in the row *before* it goes out.
+   Polls cap at 48h or use "no deadline" wording.
+3. **Resolve** — the feed stamps an outcome: `status: resolved` +
+   `evidence_url`. A called thread now owes a TF-* follow-up post;
+   `tools/thread_check.py --report` FAILs on any resolved called
+   thread without one (the-call.md: an unanswered Call is a broken
+   promise).
+4. **Close the loop** — follow-up posted; the resolved pair is now a
+   verified C→C candidate. `cc_pair.posted` may only be true on
+   resolved threads — the checker enforces consequence-before-clip.
+5. **Retire** — `stale` (open >14d, swept weekly) or `closed-quiet`
+   (ended without a legible outcome — no post, keep the row).
+
+`python3 tools/thread_check.py --report` prints the pipeline: Call
+candidates, overdue polls, C→C-eligible pairs, the tone-ratio check
+(≥1 non-conflict pair per conflict pair), and the audience scoreboard
+("the audience is X–Y against the block" — the recurring meta-post the
+ledger makes countable). Rows are append-only; retire via status,
+never delete. Fixture for a dry run: `social/threads.example.json`.
 
 ## 6. Launch-day runbook (operational)
 
@@ -285,12 +343,21 @@ Pre-send checklist (every post):
 - [ ] No fake testimonials, invented quotes, or fabricated player behavior.
 - [ ] No "coming soon" on cut features (voice/TTS v1, ambient-NPC
       possession/economies, cash-out, loot boxes).
+- [ ] No consciousness claims and no "alive/aware/feels" framing —
+      posts describe what residents DO, never what they feel or
+      "realize". No "unlimited living worlds" or "infinite stories".
+- [ ] Monetization sequencing respected (production-3): posts sell
+      watching/following/predicting — never lead with credits, subs,
+      or sponsorship while return visits are still unproven.
 - [ ] Pricing numbers match the monetization plan and carry PROPOSAL status
       where the site does.
 - [ ] Screenshots are from `site/shots/` (real captures), labeled
       "development build" pre-launch; every image post carries alt text
       from `social/alt-text.md`.
 - [ ] Marisol/season-one secrets teased, not confirmed (§4 spoiler rule).
+- [ ] Call/C→C posts: the thread row exists in `social/threads.json`
+      and `python3 tools/thread_check.py --report` is clean (no broken
+      promises, no C→C on unresolved threads).
 - [ ] `python3 tools/social_check.py` is clean for the file being sent
       (0 FAIL; every WARN read and accepted — the checker automates the
       mechanical half of this list: banned words, real business names,
@@ -306,9 +373,15 @@ utm_medium   = organic | bio | thread | clip | recap | spotlight | reshare
 utm_campaign = launch | week1 | ongoing
 ```
 
-Funnel we're optimizing: **profile visit → site → spectator view →
-request/credit purchase → character creation.** Weekly metrics note goes in
-MARKETINGLOG.md (template: ANALYTICS.md weekly report + `analytics_report.py`).
+Funnel we're optimizing (production-3): **profile visit → site →
+catch-up → follow a resident/thread → predict → return.** Paid
+catalytic actions sit downstream of proven return visits, not in the
+funnel's spine. North-star metric: **7-day voluntary return rate**
+(unique viewers who watch on ≥2 distinct days in a trailing week —
+the M12 counter), reported alongside **cost per simulated day** so
+the business arithmetic is never postponed. Weekly metrics note goes
+in MARKETINGLOG.md (template: ANALYTICS.md weekly report +
+`analytics_report.py`).
 
 ## 10. Risks & notes
 
