@@ -1,6 +1,19 @@
 # SEO Plan — Real World ("The Mission")
 
-**Version:** v150 · 2026-09-24 (tenth pass — SERP re-validation §24:
+**Version:** v165 · 2026-09-24 (eleventh pass — SERP re-validation §25:
+fact-correction pass. American Arcadia was logged at v150 as *upcoming* —
+it actually **shipped November 15, 2023** (Very Positive, ~1.8k Steam
+reviews; consoles May 2025); the compare card and register notes are
+corrected, and the contrast (*scripted escape with an ending* vs. *a
+block that never ends*) stands unchanged. LIVORA kept sprinting — a
+Property/Landlord update Sep 19 plus 5.0 Sep 23 — now including a
+landlord system, still strictly one-life single-player. The biggest
+shift: **the watchable-AI-town fantasy itself gained claimants** —
+EmemeTown (Steam, TBA: upload a fave, nudge it by conversation, "an AI
+reality show") and Tokenbury-scale hobby builds. compare.html's second
+ring grows to five cards; the register gains the watchable cluster.
+inZOI Phase-5 unchanged: Oct 2026 *target*, "R&D-driven.")
+**v150** (tenth pass — SERP re-validation §24:
 the Truman-Show SERP is no longer a pure eulogy — Out of the Blue's
 *American Arcadia* shipped its trailer cycle into the phrase's results
 (Eurogamer, Mar 2026); still nobody ships a *persistent spectator* life
@@ -93,7 +106,7 @@ first week post-launch; re-score tiers at day-30.
 
 | Keyword | Intent | Landing page | Why we win |
 |---|---|---|---|
-| truman show game | High — the pitch itself | index | Phrase does our explaining; no *persistent-sim* incumbent — American Arcadia (upcoming narrative escape game) now shares the SERP, so copy must say "a neighborhood that never ends," never imply an escape story (§24) |
+| truman show game | High — the pitch itself | index | Phrase does our explaining; no *persistent-sim* incumbent — American Arcadia (shipped 2023, scripted escape) and EmemeTown (TBA, fave-nudging) now share the SERP, so copy must say "a neighborhood that never ends" and "the cast can say no," never imply an escape story or direct control (§24, §25) |
 | AI life sim / AI life simulation game | High | index, features | InZOI mainstreamed the term; ride the wake |
 | watch AI villagers / AI villagers game | High | demo, features | Smallville/AI-Town interest never got a product |
 | persistent AI world | Medium | features, how-it-works | "Runs 24/7 whether you watch or not" |
@@ -109,8 +122,9 @@ first week post-launch; re-score tiers at day-30.
 | games like Twitch Plays Pokémon | Low-med | journal essay | Collective-agency ancestry — honest lineage post |
 | GTA RP browser game | Low | journal essay | "Second life with job and rent" is proven demand (FiveM) |
 | Paralives alternative / Paralives review | Medium | faq comparison block | SHIPPED May 25 2026 ($39.99 EA, 78k peak, mixed — Live Mode thin per critics; §19). Capture post-launch disappointment, never disparage |
-| LIVORA game / LIVORA life sim | Low-med, rising | compare (second-ring block) + faq comparison + journal essay | Shipped Jul 3 2026, iterating ~weekly — 5.0 landed Sep 23 2026 (5 fictional countries, 36 locations, visas/education). Still single-protagonist, single-player, no shared or spectator surface. Contrast: their world orbits one life; ours is a neighborhood that doesn't (§20, §24) |
-| American Arcadia / games like American Arcadia | Low-med | compare (second-ring block) + journal essay | Out of the Blue's upcoming "Truman-Show-esque" reality-show escape game (proper trailer hit Eurogamer Mar 2026) — the phrase's SERP now has a living claimant. It's a scripted single-player escape story; we contrast *leave the show* vs. *live in the block* — never disparage (§24) |
+| LIVORA game / LIVORA life sim | Low-med, rising | compare (second-ring block) + faq comparison + journal essay | Shipped Jul 3 2026, iterating ~weekly — Property/Justice/Business (incl. Landlord Life) Sep 19, then 5.0 Sep 23 2026 (5 fictional countries, 36 locations, visas/education). Still single-protagonist, single-player, no shared or spectator surface. Contrast: their world orbits one life; ours is a neighborhood that doesn't (§20, §24, §25) |
+| American Arcadia / games like American Arcadia | Low-med | compare (second-ring block) + journal essay | Out of the Blue's "Truman-Show-esque" escape game — **shipped Nov 15 2023** (v165 corrects the v150 "upcoming" record; Very Positive, consoles May 2025). A finished, scripted single-player story: we contrast *leave the show* vs. *live in the block* — never disparage (§24, §25) |
+| EmemeTown / AI reality show game / watchable AI town | Low-med, rising | compare (second-ring block) + journal essay | The fantasy itself got claimants (§25): EmemeTown (Steam, TBA) sells "upload your fave, set its personality, nudge by conversation"; Tokenbury-scale hobby sims stream watchable villages. Contrast is the social contract — their fave is steered directly; our asks are public, moderated, refusable |
 | inZOI online alternative / games like Canvastown | Low-med, rising | compare (second-ring block) + faq + journal essay | Phase-5 dedicated servers re-confirmed as an Oct 2026 *target* in the updated roadmap Part 2 — still aspirational ("R&D-driven, dates may shift"). Canvastown is hosted RP: ~50 players per AR Company channel, assigned roles, one avatar each — KRAFTON itself now says "like a movie director, cast your actors." Our contrast: the cast is AI; the show runs itself, you don't host it (§23, §24) |
 | new life sim 2026 / upcoming life sims | Medium | index + journal | The SERP is now a listicle genre (LIVORA/OurLife/VirtualSociety all pitching) — being *on the list* is the play; accuracy-quotable positioning paragraph is built for citation |
 | Burbank game / games like Burbank | Low-med, disappointed | faq comparison + journal essay | Jake Solomon's cancelled "Sims + Truman Show" (Midsummer, closed 2026) — press-proven demand, zero product. §18 |
@@ -362,7 +376,7 @@ Two pages must never compete for the same query. Current assignments:
 | pricing / credits / cost | pricing | faq answers redirect to pricing, never restate numbers |
 | cast / characters | cast | features names roles only |
 | sims/inzoi/paralives alternative | compare (long-form table) + faq (comparison Q links over) | journal essays link back, don't re-rank; index/features name competitors never |
-| livora / canvastown / american arcadia / burbank | compare (second-ring block) + faq comparison | journal essays link back; index/features name competitors never (v150) |
+| livora / canvastown / american arcadia / burbank / ememetown / watchable ai town | compare (second-ring block) + faq comparison | journal essays link back; index/features name competitors never (v150, v165) |
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |
@@ -398,7 +412,12 @@ the owner instead of competing — same rule as internal-link §6.
 - Day 60/90: review cannibalization register vs. actual query→page mapping;
   fold learnings into the calendar's next 12 weeks.
 
-**Debt register (carried, honest):** *(v150: fixed the register-vs-content
+**Debt register (carried, honest):** *(v165: corrected the American
+Arcadia record — v150 logged it "upcoming," it shipped Nov 15 2023; both
+the compare card and register notes fixed. Second ring grew to five
+cards (EmemeTown & the hobbyist ring). Audit baseline 97 pass / 45 warn /
+0 fail — warns all placeholder-canonical + accepted raster-size.)*
+*(v150: fixed the register-vs-content
 gap — `seo/query-register.csv` owned "livora game/life sim" queries to
 compare.html while the page never named them; second-ring block shipped
 this pass. Audit baseline 97 pass / 43 warn / 0 fail — warns are
@@ -460,7 +479,8 @@ already owns the cluster.
 | is there a day/night cycle | faq | ✔ answered (v75 — real solar engine, real-time routines; canon since art-v14) |
 | who made it / what engine | press-kit + Organization schema | pending domain flip |
 | is it like LIVORA / inZOI online | faq comparison block | QUEUE — the new Tier-2 clusters (§2, §20); compare.html now answers it on-page (v150 second-ring block); graduate to faq once either query shows in a channel |
-| is it like American Arcadia / the Truman Show escape game | faq comparison block | QUEUE — v150 SERP finding; contrast is escape-story vs. live-in-block; graduate on first real query |
+| is it like American Arcadia / the Truman Show escape game | faq comparison block | QUEUE — v150 SERP finding (shipped 2023 per v165 correction); contrast is escape-story vs. live-in-block; graduate on first real query |
+| is it like EmemeTown / can I talk a character into things | faq comparison block | QUEUE — v165 SERP finding; answer contrasts direct chat-nudging with our public, moderated, refusable request feed; graduate on first real query |
 | can I watch with other people / is the watch shared | faq | QUEUE — co-sponsor Q covers shared asks; a shared-*spectating* Q waits for a real query |
 
 Rules: a question graduates to faq.html only when (a) a real channel shows the
@@ -797,3 +817,70 @@ surface; five updates in three weeks means the next check can't wait a
 full cycle. American Arcadia — if it gets a sequel/DLC announcement,
 the Truman-Show SERP hardens; watch wishlist/press velocity. Landlord +
 sitcom + arcadia clusters promote on first real impressions per §15.
+
+## 25. SERP re-validation (v165) — correction pass: the fantasy itself got claimants
+
+Re-ran the standing §24 battery (`truman show game` · `paralives
+alternative` · `LIVORA update` · `inZOI Phase-5 / Canvastown` ·
+`new life sim 2026` · `watch AI villagers` · `american arcadia`).
+Four findings, all sourced:
+
+1. **CORRECTION: American Arcadia shipped November 15, 2023 — it was
+   never upcoming.** The v150 pass logged it as an upcoming title with
+   "proper trailer hit Eurogamer Mar 2026"; the record is wrong. Steam
+   shows release Nov 15 2023, ~1,814 reviews at 93% (Very Positive),
+   consoles May 2025, $19.99 (store.steampowered.com/app/1249040;
+   Wikipedia). The *strategic* read survives the correction — a
+   scripted single-player escape story is still the opposite of a
+   persistent block — but the "living claimant / watch wishlist
+   velocity" framing is retired: it's a three-year-old, well-loved,
+   finished game whose long tail proves the fantasy sells. Copy rule
+   unchanged. Lesson logged: competitor-status claims get a shipped-
+   date check on every pass, not just a name-presence check.
+2. **The watchable-AI-town fantasy gained real claimants.** EmemeTown
+   (Steam, release TBA) is the closest anyone has shipped a page to our
+   pitch: upload a favorite character, set NPC personalities in natural
+   language, watch them live "as if it were an AI reality show," and
+   intervene *through conversation*. Tokenbury (GitHub) streams a
+   watchable AI village "while the public watches in real time," openly
+   citing Generative Agents and "Truman Show vibes." Neither is a shared
+   persistent neighborhood with a public, moderated request economy —
+   EmemeTown's core verb is private chat-nudging of your fave; ours is
+   a public, attributed, refusable request. That's now a second-ring
+   compare card, not just a register note, because "AI reality show" is
+   a phrase a real storefront is spending on. Honest risk: if EmemeTown
+   ships multiplayer (its Steam page lists it as a full-version plan),
+   re-evaluate — direct-nudge + shared world would crowd our Tier-1
+   "watch AI villagers" harder than LIVORA ever could.
+3. **LIVORA's sprint continued — and it shipped a landlord.** Between
+   the v150 check and this pass: 4.3 Deeper Life (Sep 13), Property /
+   Justice & Lasting Consequences / Business Growth incl. **Property
+   Portfolio & Landlord Life** (Sep 19), then 5.0 (Sep 23). That's four
+   substantial updates in ~2.5 weeks. Still single-protagonist,
+   single-player, private save — zero spectator surface. Implication:
+   our Tier-3 `landlord sim` cluster now competes with a shipped
+   landlord system in a private-life frame; the journal essay angle
+   shifts from "landlord fantasy underserved" to "a landlord the whole
+   audience can watch" — the public-record angle is the differentiator.
+4. **inZOI Phase-5: unchanged.** October 2026 dedicated-server target
+   (hundreds–thousands/server, Canvastown #2 ~50 lots) still labeled
+   "R&D-driven, dates may shift"; separate multiplayer team; Kjun's
+   "cast your actors" framing stands. No new action — watch October.
+
+**Actions taken this pass:** §2 Tier-1 + Tier-2 rows updated (Arcadia
+correction, LIVORA landlord, NEW EmemeTown/watchable cluster); §13 +1
+cluster folded into the second-ring row; §15 debt register notes the
+correction; §16 +1 queued question (EmemeTown / talk-a-character-into-
+things); `seo/query-register.csv` +3 rows net (56 total — Arcadia notes
+corrected, watchable cluster added); compare.html second ring 4→5 cards
+(NEW "EmemeTown & the hobbyist ring"), Arcadia + LIVORA cards corrected;
+audit baseline 97 pass / 45 warn / 0 fail.
+
+**Carried to next pass:** EmemeTown — does a release date or multiplayer
+news land (its Steam "full version" plans list multiplayer + world
+creation; either would force a Tier-1 rethink). inZOI Phase-5 — October
+is next month; ship/no-ship and reception decide the "scale isn't the
+hard part" essay's tone. LIVORA — keep the ~weekly watch; any shared or
+spectator surface triggers same-day compare review per §24 rule 4.
+Landlord + sitcom + arcadia + watchable clusters promote on first real
+impressions per §15.
