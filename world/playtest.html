@@ -2290,6 +2290,29 @@ const PTS=[
    "The gate line is honest before money moves: 'deed 1/30 days … — not met yet' plus the warn strip; the refusal refunds in full, nothing is kept",
    "Request gate passes at v116: deed_fee_cr deep-equals leases.json progression.owner, license_cr equals progression.landlord.license_cr, gate count mirrors, every deedCr figure in the demo is a real ladder fee, and the surge exemption for paper:/listing: is present",
    "Harness gate: '105 scenarios · N checkpoints'; mirror gate confirms the PT105 hand-sync"]}
+]},
+{id:"PT106",title:"The attention layer v117 — kind lens + hour grid + thread watch on the wire",min:8,
+ persona:"settled-in spectator — pins a couple of venues, watches request threads for sport; facilitator checking that every new affordance is honest counting, never invented salience",
+ goal:"Verify the v117 attention layer on world/wire.html: the kind tray counts the wire by kind and isolates the stream (ANDed with the main filter); the day card's hour grid shades 24 cells by the wire's own per-hour counts and jumps to an hour's first line; 'watch this thread' flags a request's lines for the viewer only; the new-events pill counts pending lines that hit pins/watches.",
+ surfaces:["wire", "audit"],steps:[
+ {do:"Open wire.html (file://) and let the demo tick a few cycles. Read the kind tray under the filter chips: one chip per kind actually on the wire, each with its count. Click 'weather', then 'press', then 'all kinds'; press g to cycle.",
+  exp:"The tray lists only kinds present today (counts match the rows they would show — spot-check 'weather' against the seed fog line). Picking a kind isolates the stream to it; the main filter still applies on top ('the block' + 'weather' shows weather only, requests stay out). g cycles through present kinds then off. The footer note reads 'the wire counted by kind — a lens, never a ranking' and chip order follows the fixed vocabulary, never the counts.",
+  ck:[
+   "Tray chips carry honest counts and only present kinds — no 'quiet' chip until a quiet line exists",
+   "kindPick ANDs with the main filter and the search box still narrows inside it; 'all kinds' or a second click clears",
+   "g cycles kinds then off; the keys card lists it — 'cycle the kind lens — kinds today, counted'"]},
+ {do:"Open 'the day so far' (d or the bar). Read the 24-cell hour grid, hover a few cells, click the hour holding the seeded 06:15 run line and then a dead hour.",
+  exp:"The grid sits inside the day card above the honesty footer — each cell's opacity tracks the wire's own count for that hour, empty hours sit near-invisible, tooltips read 'HH:00 — N events on the wire'. Clicking a live hour selects and centers its FIRST line; clicking an hour whose rows are older than the loaded page toasts 'that hour is older than the loaded page — load older first' rather than faking a jump.",
+  ck:[
+   "Cell counts sum to the wire's own total — the shape is counted, not curated (the fnote says so)",
+   "The jump targets the hour's earliest line so the viewer reads forward, not backward",
+   "A dead hour (no events) does nothing but an honest 'nothing on the wire in that hour' toast"]},
+ {do:"Open a request event's record and hit 'watch this thread'. Watch its rows pick up ◆, its reaching-in-now card edge green, and the Following panel's 'watching' list (latest status + unwatch). Scroll down a few screens and let a watched thread advance. Then unwatch from the panel, mute the same thread, and unmute. Run node world/audit.js.",
+  exp:"Watching persists (rw_wire_watch) and is viewer-side only — the detail copy reads 'muted or watched — your screen only; the wire's record is unchanged and The Archive keeps everything', and the watchlist header adds 'a watch flags the thread's new lines for you only — the record is everyone's'. When new events accrue behind the scroll position, the pill reads 'N new — jump to top · M on your pins' counting pin/watch hits. The audit's wire gate pins the whole layer including the rule that toggleWatch never touches the bus.",
+  ck:[
+   "A watched req's new line carries ◆ for this viewer only; the live-strip card goes green-edged; unwatch reverses cleanly",
+   "The pill tail counts pins AND watched threads honestly — scroll back to top and it clears",
+   "Wire gate: 0 fail at v117 (kindtray/hourgrid/watchlist affordances, spectator_ui_v117 keys, toggleWatch may not call BRIDGE/gsWire/fetch, KIND_ORDER must be the fixed vocabulary order). Harness gate: '106 scenarios · N checkpoints'; mirror gate confirms the PT106 hand-sync"]}
 ]}
 ];
 

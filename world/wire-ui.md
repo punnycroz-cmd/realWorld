@@ -1,10 +1,10 @@
-# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103)
+# The Wire — spectator feed application spec & copy deck (world v19; v3 @ v33 · v4 @ v47 · v5 @ v61 · v6 @ v75 · v7 @ v89 · v8 @ v103 · v9 @ v117)
 
 `world/wire.html` is the **full spectator surface**: the free core's primary
 window, superseding `feed.html` (v5, kept as the lightweight minimal variant).
 Everything in `feed-ui.md` §1–§4 (two provenances, event vocabulary, display
 rules, daypart density) still applies — this file specifies what v2 adds on
-top.
+top. Current page version: **v9 (world v117)** — §15.
 
 - Demo: `world/wire.html` (file://-safe; dual data source — see §2).
 - Schema: `world/feed.json` (v19 additions: `req`, permalinks, follows,
@@ -513,3 +513,80 @@ pipeline untouched.
 | Self-check clean | "the bus's self-check — N lines · self-check ok" |
 | Self-check issues | "N lines · M issues flagged by the record" |
 | Pin read-back note | (no new copy — pins adopted silently; the Following panel's standing copy already says it filters the wire and never touches the world) |
+
+## 15. v117 — the attention layer (world v117)
+
+Three additions that answer the settling-in viewer's next questions —
+*"what kinds of things happen here?"*, *"when did today get busy?"*, and
+*"tell me when that request moves"* — all strictly view-layer. Nothing in
+this section writes to the bus: `gsWireFollow` remains the page's only
+write, and a watch isn't even that — it's pure display state on the
+viewer's own screen.
+
+### The kind tray — the wire counted by kind
+
+- `#kindtray`, a second filter row under the main chips: one chip per
+  event kind **actually on the wire today**, each carrying its honest
+  count (`weather 3 · press 1`). Kinds absent today get no chip — the
+  tray describes the record, it doesn't promise coverage.
+- Clicking a kind chip isolates the stream to that kind — AND-combined
+  with the main filter, so `the block` + `weather` reads the way it
+  sounds. Click again (or `all kinds`) clears. `g` cycles through the
+  kinds present, then off.
+- Footer note on the tray is the contract: *"the wire counted by kind —
+  a lens, never a ranking."* Kind order is the fixed `event_kinds`
+  vocabulary order, never count-sorted — a ranked tray would invent
+  salience the feed doesn't have.
+
+### The hour grid — the shape the wire drew
+
+- The day card gains `#hourgrid`: 24 cells shaded by the wire's own
+  per-hour event count (opacity ∝ count/max; empty hours sit at 7%).
+  Cell text is the raw count; the tooltip reads "HH:00 — N events on
+  the wire."
+- Clicking an hour selects and scrolls to that hour's **first line**
+  (the honest reading point — forward from there). If that hour's rows
+  are older than the loaded page, an honest toast says so: *"that hour
+  is older than the loaded page — load older first."* No fake jumps.
+- Copy: *"the shape the wire drew today — click an hour to jump to its
+  first line. Counted, not curated."* It's the day card's own counting,
+  drawn — never a promise about tomorrow.
+
+### Thread watch — the mute's mirror
+
+- A request event's detail gains **watch this thread** beside the mute
+  (`rw_wire_watch`, persisted, reversible from the Following panel).
+  Watched threads' rows carry a small `◆` marker (title: *"watched
+  thread — your screen only"*); their live-strip cards edge green.
+- The Following panel gains a `watching` list beside `muted threads`:
+  each entry shows the req id + its latest status chip + unwatch.
+- Honesty copy (shared with mute): *"muted or watched — your screen
+  only; the wire's record is unchanged and The Archive keeps
+  everything."* Watchlist header: *"a watch flags the thread's new
+  lines for you only — the record is everyone's."*
+- Deliberately weaker than a pin: a watch never writes `gsWireFollow`
+  (it isn't server-side state at all), never filters the stream, and
+  can't surface anything — it only marks what's already public.
+
+### The pin-aware pill
+
+- The "N new — jump to top" pill gains a counted tail: `· M on your
+  pins` when pending events hit a pinned venue/character or a watched
+  thread. Same count, same click — it answers *"is any of that for
+  me?"* without a notification system, a badge economy, or a sound.
+
+### Copy deck — v117 strings
+
+| Moment | Copy |
+|---|---|
+| Kind tray label / note | "kinds" · "the wire counted by kind — a lens, never a ranking" |
+| Kind chip | "\<kind\> N" (count from the wire) · clear chip "all kinds" |
+| Hour cell tooltip | "HH:00 — N events on the wire" |
+| Hour grid note | "the shape the wire drew today — click an hour to jump to its first line. Counted, not curated." |
+| Hour jump miss | "that hour is older than the loaded page — load older first" |
+| Watch button | "watch this thread" → "unwatch this thread" |
+| Watch/mute honesty | "muted or watched — your screen only; the wire's record is unchanged and The Archive keeps everything." |
+| Watchlist label / note | "watching" · "a watch flags the thread's new lines for you only — the record is everyone's." |
+| Watched row marker | "◆" (title: "watched thread — your screen only") |
+| Pill tail | "· M on your pins" |
+| `g` key | "cycle the kind lens — kinds today, counted" |

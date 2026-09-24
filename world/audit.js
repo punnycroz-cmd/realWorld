@@ -3317,6 +3317,31 @@ const PUB = Object.values(PT.surfaces)
     for (const k of ['pin_readback', 'archive_depth', 'vocab_coverage',
       'self_check', 'keyboard'])
       if (!V103[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v103.${k} missing`);
+    /* v117 affordances + contract keys (the attention layer) */
+    for (const s of ['id="kindtray"', 'id="hourgrid"', 'id="watchlist"',
+      'renderKinds', 'kindCounts', 'cycleKind', 'kindPick', 'KIND_ORDER',
+      'hcell', 'toggleWatch', 'watching', 'rw_wire_watch', 'pendingMine',
+      'data-watch', 'watch this thread', 'unwatch', 'on your pins',
+      'the shape the wire drew', 'a lens, never a ranking',
+      'Counted, not curated', 'the record is everyone',
+      'older than the loaded page', "'g'"])
+      if (!html.includes(s)) add(g, 'fail', 'wire.html', null, `v117 affordance "${s}" absent`);
+    const V117 = (FJ.spectator_ui || {}).spectator_ui_v117 || {};
+    for (const k of ['kind_tray', 'hour_grid', 'thread_watch',
+      'pin_aware_pill', 'keyboard'])
+      if (!V117[k]) add(g, 'fail', 'feed.json', null, `spectator_ui_v117.${k} missing`);
+    /* v117 honesty: a watch is pure display state — toggleWatch may never
+       reach the bus (gsWireFollow stays the page's only write, pins only) */
+    {
+      const m = html.match(/function toggleWatch\(req\)\{[\s\S]*?\n\}/);
+      if (!m) add(g, 'fail', 'wire.html', null, 'toggleWatch body not found');
+      else if (/BRIDGE|gsWire|fetch|XMLHttpRequest/.test(m[0]))
+        add(g, 'fail', 'wire.html', null, 'toggleWatch reaches the bus — a watch is viewer-side display state, never a write');
+    }
+    /* kind chips must not rank: the tray order is the fixed event_kinds
+       vocabulary order, not a count sort */
+    if (!/KIND_ORDER=\[/.test(html))
+      add(g, 'fail', 'wire.html', null, 'KIND_ORDER fixed-order list missing — a count-sorted tray would invent salience');
     /* v103 honesty: pin read-back is adopt-only — the sync may never
        delete a page pin (an unpin already wrote false through the bus) */
     {
@@ -3369,7 +3394,7 @@ const PUB = Object.values(PT.surfaces)
       `${(FJ.demo_seeds || []).length} seeds mirrored · v33 keys: ${Object.keys(V33).join(',') || 'none'} · ` +
       `v47 keys: ${Object.keys(V47).join(',') || 'none'} · v61 keys: ${Object.keys(V61).join(',') || 'none'} · ` +
       `v75 keys: ${Object.keys(V75).join(',') || 'none'} · v89 keys: ${Object.keys(V89).join(',') || 'none'} · ` +
-      `v103 keys: ${Object.keys(V103).join(',') || 'none'}`;
+      `v103 keys: ${Object.keys(V103).join(',') || 'none'} · v117 keys: ${Object.keys(V117).join(',') || 'none'}`;
   } catch (e) { add(g, 'fail', 'feed.json', null, 'parse/check failure: ' + e.message); }
 }
 

@@ -91,6 +91,16 @@
       day card's withheld-count honesty line (privacy, not downtime).
     - follow pins sync to the bus endpoint gsWireFollow (v:/m: keys) —
       the only write this page makes is the viewer's own pin.
+  New in v9 (world v117) — the attention layer:
+    - kind tray — the wire counted by kind ("weather 3 · press 1 …"):
+      one chip per kind actually on the wire today; click isolates that
+      kind, `g` cycles, click again clears. A lens, never a ranking.
+    - the hour grid in the day card — 24 cells shaded by the wire's own
+      per-hour count; clicking an hour jumps to its first line.
+    - thread watch — a request's detail gains "watch this thread":
+      its new lines carry a ◆ for you only (rw_wire_watch), the watched
+      list lives beside muted threads, and the new-events pill counts
+      what landed on your pins and watches. The record is unchanged.
   New in v8 (world v103) — the record layer:
     - pin read-back: gsWireFollows() hydrates the Following panel from
       the bus's own pin set on join and adopts new bus-side pins each
@@ -361,6 +371,24 @@
   .pboard .pb .pnote{color:var(--dim);flex:1;font-size:11.5px}
   .pboard .pb .pwho{color:var(--blu);flex:none;font-size:11px}
   .pboard .pfoot{margin-top:8px;color:var(--dim);font-size:11px}
+
+  /* ---- v117: the attention layer ---- */
+  .kindtray{display:none;gap:6px;flex-wrap:wrap;align-items:center;margin:-4px 0 10px}
+  .kindtray .ktlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+  .kindtray .ktnote{font-size:10.5px;color:var(--dim);font-style:italic}
+  .kchip{font:inherit;font-size:10.5px;padding:2px 9px;border-radius:10px;cursor:pointer;
+    border:1px solid var(--line);background:var(--panel2);color:var(--dim)}
+  .kchip.on{color:var(--acc);border-color:var(--acc);background:#2a2618}
+  .kchip .n{color:var(--acc);font-family:var(--mono);font-size:9.5px}
+  .hgrid{display:flex;gap:2px;margin:8px 0 2px}
+  .hcell{flex:1;min-width:0;height:20px;border-radius:3px;background:var(--blu);
+    font-family:var(--mono);font-size:8.5px;color:#10151b;text-align:center;
+    line-height:20px;cursor:pointer;overflow:hidden}
+  .hcell:hover{outline:1px solid var(--acc)}
+  .wire .wm{color:var(--grn);font-size:9px;margin-left:5px}
+  .lncard.wch{border-color:var(--grn)}
+  .watchlist{margin-top:10px;border-top:1px dashed var(--line);padding-top:8px;font-size:12px}
+  .watchlist .mlab{font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
 </style>
 </head>
 <body>
@@ -404,6 +432,7 @@
       <span class="qcount" id="qcount"></span>
       <button class="chip" id="dens" title="toggle compact rows" style="flex:none">density</button>
     </div>
+    <div class="kindtray" id="kindtray" aria-label="the wire counted by kind — a lens, never a ranking"></div>
     <div class="livenow" id="livenow" aria-label="requests live on the block right now"></div>
     <div class="bookbar" id="bookbar" aria-label="on the book — upcoming booked windows"></div>
     <div class="missed" id="missedbar" aria-label="what was on the wire before you tuned in"></div>
@@ -460,6 +489,7 @@
         venue or a character on the left — free, instant, reversible. It filters the wire;
         it never touches the world.</div>
       <div class="mutelist" id="mutelist" style="display:none"></div>
+      <div class="watchlist" id="watchlist" style="display:none"></div>
     </section>
   </div>
 </main>
@@ -489,6 +519,7 @@
       <tr><td class="k">d</td><td>the day so far — the wire, counted</td></tr>
       <tr><td class="k">v</td><td>director preview — cam presets, follow-cam, replay scrub</td></tr>
       <tr><td class="k">b</td><td>on the book — upcoming booked windows</td></tr>
+      <tr><td class="k">g</td><td>cycle the kind lens — kinds today, counted</td></tr>
       <tr><td class="k">esc</td><td>back out — popover, zen, selection, search</td></tr>
       <tr><td class="k">?</td><td>this card</td></tr>
     </table>
@@ -687,6 +718,56 @@ function toggleMute(req){
   saveMuted(); renderFollows(); renderWire(); renderDetail();
 }
 
+/* v117 — thread watch: the mute's mirror. A watched request's lines get
+   a ◆ for this viewer only and its updates are counted in the new-events
+   pill. Viewer-side, persisted (rw_wire_watch); the wire's record — and
+   everyone else's screen — is unchanged. A watch never writes to the
+   bus: unlike a pin it is pure display state, so nothing leaves the page. */
+var watching={};
+try{ watching=JSON.parse(localStorage.getItem('rw_wire_watch')||'{}'); }catch(e){}
+function saveWatching(){ try{ localStorage.setItem('rw_wire_watch',JSON.stringify(watching)); }catch(e){} }
+function toggleWatch(req){
+  if (watching[req]) delete watching[req]; else watching[req]=true;
+  saveWatching(); renderFollows(); renderWire(); renderDetail();
+}
+
+/* v117 — the kind tray: the wire counted by kind. Chips exist only for
+   kinds actually on the wire (a count, never a ranking); picking one
+   isolates the stream to it — stacked on the main filter, so "requests"
+   + "the block" reads the way it sounds. */
+var kindPick=null;
+var KIND_ORDER=['move','scene','venue','weather','request','admin','press','housing','cast','quiet'];
+function kindCounts(){
+  var ct={};
+  FEED.forEach(function(e){ ct[e.kind]=(ct[e.kind]||0)+1; });
+  var ks=KIND_ORDER.filter(function(k){return ct[k];})
+    .concat(Object.keys(ct).filter(function(k){return KIND_ORDER.indexOf(k)<0;}));
+  return {order:ks, ct:ct};
+}
+function renderKinds(){
+  var tray=document.getElementById('kindtray');
+  if (!FEED.length){ tray.style.display='none'; tray.innerHTML=''; return; }
+  var kc=kindCounts();
+  tray.style.display='flex';
+  tray.innerHTML='<span class="ktlab">kinds</span>'+
+    kc.order.map(function(k){
+      return '<button class="kchip'+(kindPick===k?' on':'')+'" data-k="'+k+'">'+
+        esc(k)+' <span class="n">'+kc.ct[k]+'</span></button>';
+    }).join('')+
+    (kindPick?'<button class="kchip" data-k="">all kinds</button>':'')+
+    '<span class="ktnote">the wire counted by kind — a lens, never a ranking</span>';
+  tray.querySelectorAll('.kchip').forEach(function(c){
+    c.onclick=function(){ kindPick=c.dataset.k||null; page=1; renderWire(); };
+  });
+}
+function cycleKind(){
+  var ks=kindCounts().order;
+  var i=ks.indexOf(kindPick);
+  kindPick = (i+1>ks.length-1) ? null : ks[i+1];
+  if (i===-1 && ks.length) kindPick=ks[0];
+  page=1; renderWire();
+}
+
 /* their wire today — a per-character card counted from the wire itself */
 var cdayId=null;
 function renderCharDay(){
@@ -749,6 +830,7 @@ function kindVisible(e){
   else if (filter==='admin') ok = e.kind==='admin';
   else if (filter==='followed') ok = followsMatch(e);
   else ok = e.kind!=='request' && e.kind!=='admin' && e.kind!=='quiet';
+  if (ok && kindPick) ok = e.kind===kindPick;   /* v117 — the kind lens */
   if (ok && query){
     var hay = (e.text+' '+(e.who||'')+' '+(CHAR_NAME[e.who]||'')+' '+(VENUE_NAME[e.venue]||'')).toLowerCase();
     ok = hay.indexOf(query.toLowerCase())>=0;
@@ -766,6 +848,7 @@ function rowHtml(e){
   if (e.attrs && e.attrs.credits) txt += ' <span class="cr">'+e.attrs.credits+' cr'+
     (e.attrs.minutes?' · '+e.attrs.minutes+' min':'')+'</span>';
   if (e.attrs && e.attrs.compensated_cr) txt += ' <i style="color:var(--dim)">affected players compensated '+e.attrs.compensated_cr+' cr</i>';
+  if (e.req && watching[e.req]) txt += ' <span class="wm" title="watched thread — your screen only">◆</span>';
   var cls = (e.id===selId?' sel':'')+(followsMatch(e)?' fol':'')+(e.kind==='quiet'?' quietline':'')+
     (e.t<joinT?' early':'')+(dirOpen&&camMatch(e)?' camhl':'');
   return '<li class="ev'+cls+'" data-id="'+e.id+'" tabindex="0"><span class="t">'+fmt(e.t)+'</span>'+
@@ -815,7 +898,7 @@ function renderWire(){
     li.onclick=function(){ select(li.dataset.id); };
     li.onkeydown=function(ev){ if(ev.key==='Enter') select(li.dataset.id); };
   });
-  renderLiveNow(); renderDayBar(); renderBook(); renderQCount();
+  renderLiveNow(); renderDayBar(); renderBook(); renderQCount(); renderKinds();
   if (cdayId) renderCharDay();
 }
 function renderQCount(){
@@ -848,7 +931,7 @@ function renderLiveNow(){
   var cards = order.filter(function(r){ return LIVE_STATUSES[latest[r].status]; })
                    .slice(0,6).map(function(r){
     var l=latest[r];
-    return '<span class="lncard" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
+    return '<span class="lncard'+(watching[r]?' wch':'')+'" data-id="'+l.id+'" title="request '+esc(r)+' — open the trail">'+
       '<span class="who">'+esc(l.who||'?')+'</span>'+
       '<span class="st '+stKey(l.status)+'">'+esc(l.status)+'</span></span>';
   });
@@ -879,22 +962,27 @@ function renderLiveNow(){
 /* new-events pill: never yank scroll */
 var wireEl = document.getElementById('wire');
 var stickTop = true;
+var pendingMine=0;   /* v117 — of the pending new lines, how many hit a pin or a watched thread */
 window.addEventListener('scroll', function(){
   stickTop = window.scrollY < 120;
-  if (stickTop && pendingNew){ pendingNew=0; renderWire(); updatePill(); }
+  if (stickTop && pendingNew){ pendingNew=0; pendingMine=0; renderWire(); updatePill(); }
 });
 function updatePill(){
   var p=document.getElementById('newpill');
-  if (pendingNew>0){ p.style.display='block'; p.textContent = pendingNew+' new — jump to top'; }
+  if (pendingNew>0){ p.style.display='block';
+    p.textContent = pendingNew+' new — jump to top'+(pendingMine?' · '+pendingMine+' on your pins':''); }
   else p.style.display='none';
 }
 document.getElementById('newpill').onclick=function(){
-  pendingNew=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
+  pendingNew=0; pendingMine=0; window.scrollTo({top:0,behavior:'smooth'}); renderWire(); updatePill();
 };
 function ingest(e){
   push(e); applyWx(e);
   if (held){ heldCount++; updateHoldBar(); return; }
-  if (stickTop || selId) renderWire(); else { pendingNew++; updatePill(); }
+  if (stickTop || selId) renderWire();
+  else { pendingNew++;
+    if (followsMatch(e)||(e.req&&watching[e.req])) pendingMine++;
+    updatePill(); }
 }
 
 /* ================= v47: the recap layer =================
@@ -966,9 +1054,34 @@ function renderDayBar(){
         esc(String(LIVE_AUDIT.total||0))+' lines · '+
         (LIVE_AUDIT.ok?'self-check ok':(LIVE_AUDIT.issues||[]).length+' issue'+
           ((LIVE_AUDIT.issues||[]).length===1?'':'s')+' flagged by the record')+'</b></div>';
+    /* v117 — the hour grid: the wire's own per-hour counts as a 24-cell
+       strip. Clicking an hour jumps to its first line — a reading aid,
+       not a chart of anything the feed didn't already say. */
+    var hours=new Array(24).fill(0);
+    FEED.forEach(function(e){ hours[Math.min(23,Math.floor(e.t/60))]++; });
+    var hmx=1; hours.forEach(function(n){ if(n>hmx)hmx=n; });
+    h+='<div class="hgrid" id="hourgrid">'+hours.map(function(n,hh){
+      return '<div class="hcell" data-h="'+hh+'" title="'+
+        ('0'+hh).slice(-2)+':00 — '+n+' event'+(n===1?'':'s')+' on the wire"'+
+        ' style="opacity:'+(n?(0.22+0.78*n/hmx):0.07)+'">'+(n||'')+'</div>';
+    }).join('')+'</div>';
+    h+='<div class="fnote">the shape the wire drew today — click an hour to jump to '+
+      'its first line. Counted, not curated.</div>';
     h+='<div class="fnote">these are the wire’s own events counted — no editorial pick, '+
       'no ranking, nothing extra a camera couldn’t see.</div>';
     card.innerHTML=h; card.classList.add('open');
+    card.querySelectorAll('.hcell').forEach(function(c){
+      c.onclick=function(){
+        var hh=+c.dataset.h, target=null;
+        FEED.forEach(function(e){ if (Math.floor(e.t/60)===hh) target=e; }); /* FEED is newest-first — last hit is the hour's first line */
+        if (!target){ toast('nothing on the wire in that hour'); return; }
+        var el=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (!el){ toast('that hour is older than the loaded page — load older first'); return; }
+        selId=target.id; renderWire(); renderDetail();
+        var el2=document.querySelector('#wire .ev[data-id="'+target.id+'"]');
+        if (el2){ el2.scrollIntoView({block:'center'}); el2.focus(); }
+      };
+    });
   } else card.classList.remove('open');
 }
 function toggleDay(){
@@ -1171,7 +1284,9 @@ function renderDetail(){
     /* v75 — thread mute: viewer-side only, the wire's record is unchanged */
     h+='<div class="meta"><button class="dbtn'+(muted[e.req]?' on':'')+'" data-mute="'+esc(e.req)+'">'+
       (muted[e.req]?'unmute this thread':'mute this thread')+'</button>'+
-      ' <span style="color:var(--dim)">muted on your screen only — the wire\u2019s record '+
+      ' <button class="dbtn'+(watching[e.req]?' on':'')+'" data-watch="'+esc(e.req)+'">'+
+      (watching[e.req]?'unwatch this thread':'watch this thread')+'</button>'+
+      ' <span style="color:var(--dim)">muted or watched — your screen only; the wire\u2019s record '+
       'is unchanged and The Archive keeps everything.</span></div>';
     var tr=trailFor(e.req);
     h+='<div class="meta" style="margin-top:8px">request '+esc(e.req)+' — lifecycle:</div><ul class="trail">';
@@ -1222,6 +1337,9 @@ function renderDetail(){
   box.querySelectorAll('.dbtn[data-mute]').forEach(function(c){
     c.onclick=function(){ toggleMute(c.dataset.mute); };
   });
+  box.querySelectorAll('.dbtn[data-watch]').forEach(function(c){
+    c.onclick=function(){ toggleWatch(c.dataset.watch); };
+  });
   box.querySelectorAll('.dbtn[data-cd]').forEach(function(c){
     c.onclick=function(){ openCharDay(c.dataset.cd); };
   });
@@ -1236,19 +1354,20 @@ function renderFollows(){
   var list=document.getElementById('folllist');
   if (!keys.length){
     list.innerHTML='Nothing pinned. Follow a venue or a character on the left — free, instant, reversible. It filters the wire; it never touches the world.';
-    return;
-  }
+  } else {
   list.innerHTML=keys.map(function(k){
     var label = k[0]==='v' ? VENUE_NAME[k.slice(2)]||k : (CHAR_NAME[k.slice(2)]||k)+' <span style="color:var(--dim)">(public whereabouts only)</span>';
     return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+label+
       ' <span class="pin on" data-k="'+k+'" style="float:right">unpin</span></div>';
   }).join('');
+  }
   list.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete follows[p.dataset.k]; saveFollows(); renderFollows(); renderVenues(); renderCast(); renderWire(); };
   });
   /* v75 — muted threads live here too: viewer-side only, reversible */
   var mk=Object.keys(muted), ml=document.getElementById('mutelist');
-  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; return; }
+  if (!mk.length){ ml.style.display='none'; ml.innerHTML=''; }
+  else {
   ml.style.display='block';
   ml.innerHTML='<div class="mlab">muted threads</div>'+
     '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">muted on your screen only — '+
@@ -1259,6 +1378,25 @@ function renderFollows(){
     }).join('');
   ml.querySelectorAll('.pin').forEach(function(p){
     p.onclick=function(){ delete muted[p.dataset.m]; saveMuted(); renderFollows(); renderWire(); renderDetail(); };
+  });
+  }
+  /* v117 — watched threads sit beside muted ones: a watch flags the
+     thread's lines for you only (◆ + a counted pill line); the wire's
+     record is everyone's and stays unchanged. */
+  var wk=Object.keys(watching), wl=document.getElementById('watchlist');
+  if (!wk.length){ wl.style.display='none'; wl.innerHTML=''; return; }
+  wl.style.display='block';
+  wl.innerHTML='<div class="mlab">watching</div>'+
+    '<div style="color:var(--dim);font-size:11px;margin:2px 0 6px">a watch flags the thread\u2019s '+
+    'new lines for you only — the record is everyone\u2019s.</div>'+
+    wk.map(function(r){
+      var tr=trailFor(r), lt=tr.length?tr[tr.length-1].status:null;
+      return '<div style="padding:3px 0;border-bottom:1px solid var(--line)">'+esc(r)+
+        (lt?' <span class="st '+stKey(lt)+'">'+esc(lt)+'</span>':'')+
+        ' <span class="pin" data-w="'+esc(r)+'" style="float:right">unwatch</span></div>';
+    }).join('');
+  wl.querySelectorAll('.pin').forEach(function(p){
+    p.onclick=function(){ delete watching[p.dataset.w]; saveWatching(); renderFollows(); renderWire(); renderDetail(); };
   });
 }
 function toggleFollow(k){
@@ -1681,6 +1819,7 @@ document.addEventListener('keydown', function(ev){
   else if (ev.key==='d'){ toggleDay(); }
   else if (ev.key==='v'){ toggleDir(); }
   else if (ev.key==='b'){ toggleBook(); }
+  else if (ev.key==='g'){ cycleKind(); }
   else if (ev.key==='?'){ toggleKeys(document.getElementById('keypop').style.display!=='block'); }
   else if (ev.key==='Escape'){
     if (document.getElementById('keypop').style.display==='block') toggleKeys(false);

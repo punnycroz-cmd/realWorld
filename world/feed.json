@@ -84,6 +84,14 @@
       "vocab_coverage": "BRIDGE.gsWireVocabulary() (kinds/statuses/reasonCodes) caches as LIVE_VOCAB; the day card reports 'M of S statuses seen today' — coverage counted from the wire itself",
       "self_check": "BRIDGE.gsWireAudit() runs on day-card open (not per-poll): 'the bus's self-check — N lines · self-check ok' or the honest issue count; issues are counted, never quoted",
       "keyboard": "unchanged — d still toggles the day card and now also refreshes the self-check live"
+    },
+    "spectator_ui_v117": {
+      "doc": "world v117 — the attention layer on wire.html (v9). Viewer-side only: a kind lens, a per-hour shape strip, and thread watch. Nothing here writes to the bus or changes the record — a watch is not even a pin (gsWireFollow stays the page's only write).",
+      "kind_tray": "#kindtray under the filters — one chip per kind actually on the wire today, each with its honest count ('weather 3'); click isolates the stream to that kind (AND-combined with the main filter), click again or 'all kinds' clears; footer note: 'a lens, never a ranking'",
+      "hour_grid": "the day card gains #hourgrid — 24 cells shaded by the wire's own per-hour event count; clicking an hour selects + scrolls to that hour's first line, or honestly toasts 'older than the loaded page — load older first'. Copy: 'the shape the wire drew today — counted, not curated.'",
+      "thread_watch": "request detail gains 'watch this thread' beside the mute (rw_wire_watch, reversible): the thread's rows carry a ◆ for this viewer only, its live-strip card edges green, and the watched list sits beside muted threads in the Following panel with latest status + unwatch. No bus write — a watch is pure display state",
+      "pin_aware_pill": "the 'N new — jump to top' pill gains '· M on your pins' when pending events hit a pinned venue/character or a watched thread — an honest count, never a notification system",
+      "keyboard": "adds `g` — cycle the kind lens through the kinds present today, then off"
     }
   },
   "event_kinds": [
