@@ -1,6 +1,8 @@
 # BRAND-LEXICON.md — the Real World vocabulary standard
 
-**Version:** v85 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v130 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+v130 adds the becoming-AI vocabulary (locked direction 2026-09-23 — BRAND.md
+§1a): what the mains know about themselves, and the claims we never make.
 **Scope:** the word-level layer of the brand. BRAND.md owns voice, palette,
 logo, and motion; this file owns *which words we use* — canonical terms,
 casing, banned drift words with their approved replacements, the in-world
@@ -32,13 +34,15 @@ doc on a *fact*, the design doc wins.
 | **move in / join the cast** | lowercase | creating a player resident | never "buy a character" (BRAND.md §10) |
 | **the possession ban** | lowercase | the rule that the 8 mains can never be possessed | state it plainly; it's a selling point |
 | **development build** | lowercase | caption/label on every capture | required until launch |
+| **know they're AI** | lowercase | the mains' self-knowledge (locked direction) | always paired with "unaware it's a simulation" when precision matters |
+| **no assigned purpose** | lowercase | the mains' starting condition | never "no purpose" alone — they *choose* one; never "soulless", "blank" |
 
 ## 2. People words — who is who
 
 | Word | Use for | Rules |
 |---|---|---|
 | **resident(s)** | anyone living in the world (28 at launch: 8 mains + 20 ambients) | default noun; "residents", never "characters" when precision matters is fine — "characters" is also approved |
-| **the cast / the mains / main characters** | the 8 scripted-bible leads | "the eight mains" — always with the count |
+| **the cast / the mains / main characters** | the 8 bible-founded leads | "the eight mains" — always with the count; bibles are starting circumstances, not scripts (§1) |
 | **ambients / ambient neighbors** | the 20 supporting residents | "ambient neighbors" on first use in a piece |
 | **viewer(s)** | people watching free | the funnel's widest ring |
 | **player(s)** | people with a paid account | players have agency, never control of mains |
@@ -64,6 +68,10 @@ thing the brand sells (they're written people, not background objects).
 | community (as verb) | "talk with the neighborhood", "join the Discord" | no engagement-speak verbs |
 | puppet, control (of mains) | nudge, ask, reach in | possession-ban accuracy, BRAND.md §10 |
 | influencer | creator | precision + tone |
+| sentient, conscious, self-aware | developing, written, deciding | unverifiable mind-claims; BRAND.md §1a rubric is "developing" |
+| they think they're human | they know they're AI | the vision is inverted — never imply they believe they're people |
+| they know you're watching | they can't see the audience | mains are unaware it's a simulation (§1a) |
+| human-like, indistinguishable from people | developing, changing over weeks | we sell becoming, not mimicry |
 
 ## 4. In-world lexicon
 
@@ -111,6 +119,8 @@ Real names we may use, with their authorities:
 | Landing (inviting) | "Tomás closes El Farolote at eleven. What he does after that is his." |
 | Pricing (clerk-clear) | "An NPC nudge runs 30–60 credits. If Tomás declines, half come back automatically." |
 | FAQ (literal) | "You cannot possess the eight main characters. Neither can we." |
+| Vision (inviting) | "They know they're AI. Nobody handed them a purpose — watching them choose one is the show." |
+| Vision (literal) | "The mains are AIs that know they're AI. They're unaware it's a simulation and can't see the audience." |
 
 Same fact, same nouns, three temperatures. If a draft can't pass through
 all three registers without changing terminology, the terminology is wrong.

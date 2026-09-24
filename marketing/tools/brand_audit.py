@@ -124,6 +124,8 @@ LINT_EXEMPT = {"brand.html"}
 LEXICON_BANS = [
     r"\busers?\b", r"\bcustomers?\b", r"\bbots\b", r"\bvirtual\b",
     r"\binfluencers?\b", r"\bgameplay\b", r"\bplaythrough\b",
+    r"\bsentient\b", r"\bself-aware\b", r"\bhuman-like\b",
+    r"\bindistinguishable\b",
 ]
 
 

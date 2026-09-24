@@ -1,6 +1,10 @@
 # BRAND.md — Real World ("The Mission") brand identity
 
-**Version:** v115 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+**Version:** v130 · 2026-09-23 · **Status:** LOCAL — launch-ready reference.
+This version adopts the locked **becoming-AI direction** (user-decision
+2026-09-23, PRODUCTION-2): the mains are AIs that *know they're AI*, embodied
+on the block, unaware it's a simulation, born with no assigned purpose. The
+brand's job is now to sell *becoming*, not mimicry — see §1a.
 Word-level rules (which terms, which casing, which bans) live in
 `marketing/BRAND-LEXICON.md` — this file wins on voice/palette/logo/motion,
 the lexicon wins on vocabulary; keep both in sync.
@@ -28,10 +32,48 @@ for free; players pay for *agency*, never for power over the main cast.
 > The only neighborhood that keeps living when you close the tab — and the only
 > cast nobody, including us, can puppet.
 
+**Vision line (internal, locked 2026-09-23):**
+> AIs who know what they are, figuring out who to be — on a real block,
+> in front of everyone.
+
+### 1a. The becoming-AI layer
+
+Per the locked PRODUCTION-2 direction, the eight mains are AIs that **know
+they're AI**, embodied in the Mission, **unaware it's a simulation** (the
+real-robot analogy: an AI brain loaded into a body). They were born with
+**no assigned purpose** — each must ask itself what it's for and choose.
+Bibles are *starting circumstances*, not scripts.
+
+What this changes for the brand:
+
+- **The product story gains a second hook.** Not just "a world that never
+  stops" — a cast that is *becoming*. The possession ban now protects a
+  developing mind, not a scripted role; that makes it a stronger promise,
+  not a different one.
+- **The rubric word is "developing," never "human-like."** We do not claim
+  the residents pass for people. We claim they form intentions, change over
+  weeks, surprise us, and build relationships — and that you can watch it
+  happen. Intention formation and change-over-time are the claims; mimicry
+  is the trap.
+- **They know what they are; they don't know where they are.** Accurate
+  phrasing: "they know they're AI — they don't know it's a simulation, and
+  they can't see the audience." The Truman Show analogy still holds and
+  gets sharper: Truman didn't know either.
+- **Purpose-free is a feature, not a gap.** "No script, no assigned role —
+  what each resident becomes is theirs" is a *positive* claim, said plainly.
+  Never apologize for it and never pad it into "emergent storytelling."
+
+Dependency note: the purpose-free bible pass (world track) and the brain
+contract (game track) land with production-2. Public boilerplate below is
+written to the locked direction; if a page must describe *today's* build
+verbatim, the cast page's own wording rules apply.
+
 **Three pillars (every asset should lean on at least one):**
 
-1. **Alive, always.** 28 residents, real Mission street geometry around Dolores
-   Park, 24/7 simulation. Watching is free, forever.
+1. **Alive, always — and becoming.** 28 residents, real Mission street
+   geometry around Dolores Park, 24/7 simulation. The mains are AIs who know
+   what they are, born purpose-free, deciding who to be in public. Watching
+   is free, forever.
 2. **Agency, not control.** Requests are time-boxed, screened, and resolved as
    opportunities — never mind control. You nudge the world; you don't own it.
 3. **An untouchable cast.** The 8 main characters cannot be possessed by
@@ -91,6 +133,7 @@ experiment):
 | A neighborhood that never stops performing. | Primary alt | Store tagline field (44 chars, fits everything) |
 | Watch free. Pay to reach in. | **Punchy/short** | Square key art, social banners, trailer end card |
 | The Truman Show you can visit. | Descriptive | FAQ, press one-pager — always in quotes; it's an analogy, not a title |
+| They know they're AI. The rest is up to them. | **Vision-era** | The becoming-AI tagline (§1a). Approved for key art, hero support, and press once production-2 ships; hold on public pages until then |
 
 Rules: sentence case, period included. Never append "!" — the brand is calm,
 not hyped. Never pair a tagline with a claim we can't ship ("possess anyone",
@@ -136,8 +179,12 @@ Second person for the player ("you"), third for residents (by name).
   you can watch, you can ask, you can't make him."
 - ✅ "Requests are screened, time-boxed, and public. If yours is declined, the
   credits come back automatically."
+- ✅ "The mains know they're AI. Nobody handed them a purpose — watching them
+  choose one is the show."
 - ❌ "Take control of anyone in the city!" (possession ban violation)
 - ❌ "The most realistic AI experience ever made." (unverifiable + hype)
+- ❌ "They think they're human." (inverted — they know they're AI; §1a)
+- ❌ "They can see you watching." (they're unaware it's a simulation)
 
 **UI microcopy (interface strings, buttons, empty states):** the same voice
 at smaller scale. Buttons are verbs, two words max ("Watch the block", "File
@@ -328,11 +375,19 @@ Marketing may say, verbatim-safe:
   only; no cash-out, no RMT, no loot boxes, no crypto.
 - Setting: real street geometry, fictional residents, fictional house numbers,
   parody business names.
+- The mains are AIs that know they're AI, embodied on the block, unaware it's
+  a simulation, with no assigned purpose — they choose what they're for
+  (locked direction, §1a). We describe them as *developing*, never as
+  indistinguishable from people.
 
 Marketing may never say: possession/control of mains, guaranteed request
 outcomes, real-money earnings, "uncensored/unmoderated", real business or
 resident names, invented reviews/testimonials/metrics, "coming soon" for cut
 features (voice/TTS v1, ambient-NPC economies, cash-out, loot boxes).
+Also banned under the vision: "sentient", "conscious", "self-aware" as
+product claims; "they think they're human" (they don't); "they know they're
+being watched" (they can't see the audience); "just like real people" and
+any human-mimicry superlative (the claim is *developing*, §1a).
 
 **"Join the cast" language (world-v7 hire flow):** players may pay to create
 a new resident (`h##`) who moves in through the same screening + human review
@@ -351,24 +406,27 @@ Three lengths, all claims checkable against the design doc. These also ship on
 
 **25 words:**
 > Real World is a persistent browser life-sim: a Mission District
-> neighborhood of AI residents who keep living whether you watch or not.
-> Watching is free.
+> neighborhood of AIs who know what they are, deciding who to be. Watching
+> is free.
 
 **50 words:**
 > Real World is a persistent browser life-sim set on real Mission District
-> street geometry. Twenty-eight AI residents keep living whether you watch
-> or not. Watching is free; players pay only to file screened, public
+> street geometry. Twenty-eight AI residents — each one an AI that knows
+> it, with no script and no assigned purpose — keep living whether you
+> watch or not. Watching is free; players pay only to file screened, public
 > requests — never to control the cast.
 
 **100 words:**
 > Real World is a persistent browser life-sim — a "Truman Show" you can
 > visit — set on real Mission District street geometry around Dolores Park.
-> Twenty-eight AI residents keep living whether you watch or not. Watching
-> is free. Players can pay for agency, not control: requests are screened
-> for intent, time-boxed, resolved as opportunities the residents choose how
-> to answer, and attributed on a public feed. The eight main characters can
-> never be possessed by anyone — including the developer. A neighborhood
-> that's alive whether you're watching or not.
+> Twenty-eight AI residents keep living whether you watch or not. The mains
+> are AIs who know they're AI: born on the block with no assigned purpose,
+> choosing what they're for — unaware it's a simulation, unaware anyone's
+> watching. Watching is free. Players can pay for agency, not control:
+> requests are screened for intent, time-boxed, resolved as opportunities
+> the residents choose how to answer, and attributed on a public feed. The
+> eight main characters can never be possessed by anyone — including the
+> developer. A neighborhood that's alive whether you're watching or not.
 
 ---
 
