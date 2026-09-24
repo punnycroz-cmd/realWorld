@@ -47,7 +47,7 @@ log the result in §10 before the checklist may cite it.
 | G5 | Screenshot gallery refreshed with launch-build captures (current = **v50 dev build** — refreshed v78 — + v16 interior vignettes + v1 early-pass pair; gonogo.sh flags future deltas automatically) | mkt, needs art publish | `[x] REHEARSED` — swap procedure executed end-to-end 2026-09-23; repeat at launch if art publishes newer |
 | G6 | Press contact email + social handles registered (placeholders today — no accounts exist) | owner | `[ ] PENDING` — account checklist in SOCIAL-LAUNCH-PLAN.md |
 | G7 | Legal pass: payment terms, refund policy (auto-refund on failed requests is a product promise — wording must match), privacy policy, age-gating/COPPA posture. Drafts EXIST since v104: `site/terms.html` (credits/cash-out wall, request rules, possession limits, age bands, liability), `site/privacy.html` (cookieless-analytics contract mirrored verbatim from js/analytics.js, Stripe-hosted checkout, u13 posture), `site/refunds.html` (the full refund matrix — deny/expire/trim/revoke/appeal/final). Stripe activation needs these URLs live — they're the answer. Gate = owner/counsel review + removing the "launch draft" pill + effective date; NOT drafting, which is done | owner | `[ ] PENDING` — pages drafted v104; owner review is the gate |
-| G8 | Analytics: shim wired on all 19 pages but INERT — `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every `js/analytics.js` include in one pass, after owner picks backend (Umami spec ready at `deploy/umami.compose.example`; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23); flip_flags endpoint set/revert rehearsed v74 |
+| G8 | Analytics: shim wired on all 20 pages but INERT — `tools/flip_flags.sh --set endpoint=https://stats.<domain>/api/send` sets `data-endpoint`/`data-site` on every `js/analytics.js` include in one pass, after owner picks backend (Umami spec ready at `deploy/umami.compose.example`; ANALYTICS.md §2+§9), then verify events on staging (`tools/analytics_e2e.sh` proves the localhost path today; re-verify against the real backend on staging) | owner + mkt | `[x] REHEARSED` — shim verified inert; e2e PASS 1057/1057 events (2026-09-23); flip_flags endpoint set/revert rehearsed v74 |
 | G9 | Press kit zip rebuilt after G3/G4/G5 land: `./build-press-kit.sh` | mkt | `[x] REHEARSED` — one-command rebuild verified 2026-09-23 |
 | G10 | Dry-run clean: `tools/staging_dryrun.sh` → 0 fail, 0 placeholder warns | mkt | `[x] REHEARSED` — currently 32/3/0, warns = G3 ×2 + 1 PNG weight |
 | G11 | Community surfaces: Discord server created per COMMUNITY-FUNNEL.md §3 checklist; rules + feedback asks pinned; `community.html` placeholder copy swapped to real invite link | owner | `[ ] PENDING` — full spec + setup checklist in COMMUNITY-FUNNEL.md |
@@ -126,7 +126,7 @@ cd marketing
 ./tools/dns_check.sh <domain> [<apex-ip>]       # G3/G14 — live DNS matches the spec (read-only)
 ./tools/flip_flags.sh --check                   # report all three launch switches (G4/G8/G12)
 ./tools/flip_flags.sh --set pricing=final       # G4 — one attribute, same-commit sync still owed
-./tools/flip_flags.sh --set endpoint=<url>      # G8 — data-endpoint on all 19 pages
+./tools/flip_flags.sh --set endpoint=<url>      # G8 — data-endpoint on all 20 pages
 ./tools/flip_flags.sh --set demo=<url>          # G12 — data-demo-src on demo.html
 ./tools/flip_flags.sh --revert                  # all three back to pre-launch state
 ./tools/rehearse_host.sh                        # deploy/rollback/retention drill on a local fake host
@@ -296,6 +296,7 @@ Every local rehearsal, newest last. A gate may only cite a result logged here.
 | 2026-09-23 | checklist_audit.py world-contract refresh (v98) | caught live drift: onboarding v53→v67 (storage key + 24 hooks incl. band_declared/ads_line_shown/ad_demo_viewed), playtest PT1–PT61/739→PT1–PT64/775 — all pins + gonogo labels + analytics-events.json resynced; final 14 pass / 0 warn / 0 fail |
 | 2026-09-23 | tools/launch_day.sh (v98, first run) | PASS — read-only §3 console: 4 done (D0.5–D0.8 drafts staged) / 7 pending (owner-gated flips, live-domain rows, human retro); correct pre-launch |
 | 2026-09-23 | checklist_audit.py world-contract refresh (v103) | caught live drift: playtest PT1–PT64→PT1–PT66 (world-v72 harness); G13 gained the C1–C8 possession-affordance check (open production-feedback item); final 14 pass / 0 warn / 0 fail |
+| 2026-09-23 | compare.html page added (v106) + gallery gains v54 facade set | 20th page wired into footers/sitemap/dry-run/prod-smoke/SEO-PLAN(§3,§13)/llms.txt + index cross-link; v54 A–D copied in + webp regen (ffmpeg), ImageGallery schema updated; seo_audit 95/40/0, staging_dryrun 40/2/0 |
 
 ## §11 Rehearsal coverage matrix
 

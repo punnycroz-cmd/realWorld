@@ -108,7 +108,7 @@ first week post-launch; re-score tiers at day-30.
 - Real SF business names — parody names only (world/businesses.md canon:
   Mudhaus Coffee, El Farolote, Flying Pannier, Auerbach Hardware).
 
-## 3. Page-by-page spec (all 20 URLs — 19 indexable + 404, as shipped)
+## 3. Page-by-page spec (all 21 URLs — 20 indexable + 404, as shipped)
 
 Title ≤60 chars, meta ≤155 chars, one H1, canonical, OG+Twitter cards. ✔ = live
 in markup today.
@@ -125,6 +125,7 @@ in markup today.
 | `/wire-archive.html` | The Archive — Real World history browser | game event archive | — | Real world-v34 app, verbatim + 3 documented patches; demo-badged; distinct from `/archive.html` (explainer owns "archive" queries, this is the running app) |
 | `/archive.html` | The Archive — Real World | game history browser, event archive | ✔ WebPage (isAccessibleForFree) | Explainer for the world-v20 Archive surface; owns "archive/history" queries — recap/archive *pages* stay a §17 future surface |
 | `/pricing.html` | Credits & Pricing — Real World | AI life sim pricing | — | `data-pricing` provisional flag; flip runbook in PRICING-PAGE-CONTENT.md; scene builder + worked scenes (v67) |
+| `/compare.html` | Real World vs Sims, inZOI, Paralives — honest compare | paralives alternative, games like the sims | ✔ Article | v106 — comparison-table page; co-owns the competitor cluster with faq (§13 updated); facts sourced to §20 SERP pass |
 | `/faq.html` | FAQ — Real World | AI life sim questions, sims alternative | ✔ FAQPage | 31 Qs (jobs Q v60; multiplayer/missed-events/day-night v75; co-sponsor + permalink Qs v90); JSON-LD ↔ visible parity enforced by seo_audit.py |
 | `/brand.html` | Brand & Press Assets — Real World | (utility) | — | Logo downloads, palette, boilerplate; feeds press-kit |
 | `/press-kit.html` | Press Kit — Real World | (utility) | — | Links the zip; fact sheet |
@@ -170,7 +171,7 @@ the brand); log every variant flip + dates in MARKETINGLOG.
 | ImageGallery | gallery | ✔ shipped — pairs with sitemap `image:` entries for the image pack |
 | FAQPage | faq | ✔ shipped — MUST mirror visible questions; sync on every edit |
 | Article | journal posts | PENDING — add when posts get their own URLs |
-| BreadcrumbList | all | SKIP — flat 19-page site, no breadcrumbs rendered |
+| BreadcrumbList | all | SKIP — flat 20-page site, no breadcrumbs rendered |
 | Organization | index | PENDING — add with real studio name/logo at domain flip |
 | VideoObject | demo | PENDING — when a trailer/clip file exists locally |
 
@@ -180,7 +181,7 @@ no reviewCount — we have neither and never fake them.
 ## 6. Internal linking
 
 Current architecture: global nav (9 links) + footer (full map) on every page —
-every page is ≤2 clicks from everywhere, which is right at 19 pages.
+every page is ≤2 clicks from everywhere, which is right at 20 pages.
 
 Contextual-link rules (apply to every new page/post):
 
@@ -224,8 +225,8 @@ Done in markup (verified by `tools/staging_dryrun.sh` **and**
 `tools/seo_audit.py` 90 pass / 36 warn / 0 fail at v105 — the audit runs inside
 `tools/preflight.sh` step [1b], so regressions block a GO verdict):
 - [x] Semantic HTML, one H1/page, alt text on every shot
-- [x] `sitemap.xml` (all 19 indexable pages + image entries + lastmod) & `robots.txt`
-- [x] OG/Twitter cards on all 19 indexable pages; og:image 1200×630; og:site_name (v15)
+- [x] `sitemap.xml` (all 20 indexable pages + image entries + lastmod) & `robots.txt`
+- [x] OG/Twitter cards on all 20 indexable pages; og:image 1200×630; og:site_name (v15)
 - [x] Canonical URLs on every page
 - [x] VideoGame / WebPage / FAQPage JSON-LD — all parse
 - [x] webp companions + lazy-loading + width/height attrs (no CLS)
@@ -327,7 +328,7 @@ Two pages must never compete for the same query. Current assignments:
 | possess/control AI character | how-it-works + faq | features mentions the ban once, links over |
 | pricing / credits / cost | pricing | faq answers redirect to pricing, never restate numbers |
 | cast / characters | cast | features names roles only |
-| sims/inzoi/paralives alternative | faq (comparison Q) | journal essays link back to faq, don't re-rank |
+| sims/inzoi/paralives alternative | compare (long-form table) + faq (comparison Q links over) | journal essays link back, don't re-rank; index/features name competitors never |
 | mission district / dolores park | index | features keeps place as support copy |
 | history / archive / past events | archive | demo owns "watch/live"; future event pages (§17) hang under this owner |
 | jobs / hire a character / job board | faq (question form) + how-it-works (mechanic) | features keeps jobs as a cast-economy fact, links over |

@@ -27,6 +27,7 @@ Street names and landmarks are real.
 - [Features](features.html): cast rules, requests, public feed, economy
 - [The Cast](cast.html): public profiles of all 28 residents + venue directory
 - [Pricing](pricing.html): credit packs, request pricing, subscriptions
+- [Vs other life sims](compare.html): honest comparison vs The Sims 4, inZOI, Paralives
 - [FAQ](faq.html): 31 questions, answered straight (includes the cuts)
 - [Journal](journal.html): devlogs and, post-launch, weekly recaps of the feed
 - [Rules & Safety](rules.html): moderation model and conduct rules
