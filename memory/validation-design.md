@@ -8213,3 +8213,134 @@ P886, P887, P888 MUST; P882, P883, P885 SHOULD.
   `sens_topk_overlap` 0.8, `verdict_flip_max` 0.1, the
   alarm-vs-claim split in §167 are RW HYPOTHESES of
   governance design, probe-gated by P879–P888.
+
+## 172. v84 probe specs (P889–P898 — encoding-mechanics VII)
+
+Spec v5.32; encoding-mechanics.md Part VII §§84–95. These test
+the intake layer's new capture/floor/dwell machinery.
+
+- **P889 VDAC capture (MUST — sign-locked + locked null):**
+  rewardAssoc-tagged fields gain E under daLoad where matched
+  neutral fields fail (capture share visible in wm_cap
+  ordering); `vdac_goal_null` — capture persists when the
+  reward-associated field is task-irrelevant or goal-opposed:
+  a build where current-goal fields always win the share is a
+  locked-null violation, BLOCK. Moderator ordering: wmc-low >
+  wmc-high capture magnitude at matched rewardAssoc (Anderson
+  2011). Basis: Anderson, Laurent & Yantis 2011; Le Pelley
+  2016.
+- **P890 VDAC persistence (SHOULD):** rewardAssoc remains
+  effective (capture share + co-present tax) weeks after the
+  reward contingency ends; decay tracks `vdac_hl`, not
+  reward-loss events — a build where capture dies at
+  contingency end fails. Basis: Anderson & Yantis 2012.
+- **P891 multisensory congruence (MUST):** congruent bimodal
+  events beat unimodal at matched attention within the
+  `msens_gain` band; incongruent bimodal events UNDERperform
+  unimodal on the weaker channel (split cost); cross-modal cue
+  retrieval reaches only congruently-minted records — an
+  incongruent record must NOT be retrievable via the untested
+  modality's cue (bridge audit). Basis: Shams & Seitz 2008;
+  Lehmann & Murray 2005.
+- **P892 bounded automaticity (MUST — locked null):**
+  freq/loc/when attribute fields mint above zero at maximal
+  daLoad (`auto_floor`) BUT intentional orienting still
+  improves them — `auto_immune_null`: a build where
+  att==auto_floor performs identically to att==1 on attribute
+  fields fails by construction (the adjudicated verdict:
+  floor, not immunity). Basis: Hasher & Zacks 1979/1984;
+  Naveh-Benjamin 1987 critique.
+- **P893 attribute-floor age shape (SHOULD):** the young–old
+  recall gap on attribute fields is smaller than on content
+  fields at matched difficulty (partial sparing direction);
+  slope nonzero — sparing, not immunity. Basis: Hasher &
+  Zacks direction as adjudicated.
+- **P894 drawing effect (MUST — ordering + null):** drawn >
+  written ≈ imagined ≈ elaborated at matched exposure (the
+  Wammes 2016 ordering — drawn must top the composite's
+  components); under dual task the drawn advantage shrinks
+  less than verbal strategies' (`draw_da_resist`);
+  `draw_verbatim_null` TOST-enforced — drawn records match
+  written on wording recall (composite trace mints no
+  orthography); non-drawable abstract content gains ≤ half.
+  Basis: Wammes, Meade & Fernandes 2016; Fernandes, Wammes &
+  Meade 2018.
+- **P895 RPL dwell (SHOULD — crossover):** self-paced dwell
+  concentrates on mid-difficulty items (inverted-U over
+  difficulty); `context.deadline` flips allocation to
+  easiest-first (`rpl_press_flip`); deficit profiles flatten
+  the U; the §71 value leg is unchanged — orthogonal-axis
+  audit (importance moves WHAT gets attempted, RPL moves
+  where the dwell lands). Basis: Metcalfe & Kornell 2005;
+  Son & Metcalfe 2000.
+- **P896 elaborative interrogation gate (MUST — locked
+  null):** `why:true` gains `ei_gain` only when
+  `schema_support ≥ ei_know_gate`; below-gate gain ≤0.03
+  TOST-enforced (`ei_noknow_null` — the knowledge contingency
+  IS the finding); above-gate composes multiplicatively with
+  `teach_expect_gain` (explain-and-interrogate stack, never
+  subtract). Basis: Pressley et al. 1987; Dunlosky et al.
+  2013.
+- **P897 subjective organization (SHOULD):**
+  `catRun ≥ org_run_min` sequences mint denser inter-field
+  links (edge count per field-pair rises within runs);
+  recall clustering rises with run coherence; singleton runs
+  unaffected; consc-high profiles show stronger organization
+  (trait moderation direction). Basis: Tulving 1962; Bower
+  et al. 1969; Sternberg & Tulving 1977.
+- **P898 v5.32 regression (MUST — structure):** new
+  fields/params pass the P457 non-interference pattern
+  (rewardAssoc mints at reward co-occurrence only — no
+  future reads; modalities/modalCongruent are encode-time
+  flags; drawn/why are engagement variants inside existing
+  channels; catRun is a sequence counter, not a store) and
+  the §12.2 commutativity pattern (no new op reads across
+  charIds).
+
+Registry: P1–P898. v84 suite: P889, P891, P892, P894, P896,
+P898 MUST; P890, P893, P895, P897 SHOULD.
+
+## 173. Sources verified this version (P889–P898 backing)
+
+- **VDAC:** Anderson, Laurent & Yantis 2011 (*PNAS*
+  108:10367 — verified: reward-associated distractors capture
+  attention against goals; WMC/impulsivity moderators);
+  Anderson & Yantis 2012 (*Atten. Percept. Psychophys.* —
+  verified: >6-month persistence without further learning);
+  Le Pelley, Mitchell, Beesley, George & Wills 2016
+  (*Psych. Bull.* 142 — verified meta: robust, value-scaled).
+- **Multisensory:** Shams & Seitz 2008 (*Nat. Rev. Neurosci.*
+  9:655 — verified framework, inverse effectiveness); Murray
+  et al. 2004 (multisensory study → better recognition);
+  Lehmann & Murray 2005 (cross-modal re-evocation).
+- **Automaticity:** Hasher & Zacks 1979 (*JEP:G* 108:356 —
+  verified: automatic vs effortful framework);
+  Zacks, Hasher & Sanft 1982 (*JEP:LMC* 8:106 — verified:
+  frequency tagging incidental); Naveh-Benjamin 1987+ (the
+  adjudication — effort involvement: floor, not immunity).
+- **Drawing:** Wammes, Meade & Fernandes 2016 (*QJEP*
+  69:1752 — verified: >2× recall vs writing, survives
+  LoP/imagery/picture controls, quality irrelevant);
+  Wammes et al. 2018 (*Exp. Aging Res.* — verified: robust
+  in older adults); Fernandes, Wammes & Meade 2018
+  (verified: survives divided attention).
+- **RPL:** Metcalfe & Kornell 2005 (*JEP:G* 134:530 —
+  verified: region of proximal learning); Son & Metcalfe
+  2000 (*JEP:LMC* 26 — verified: agenda-based allocation,
+  pressure → easy-first); Metcalfe 2002.
+- **Elaborative interrogation:** Pressley, McDaniel, Turnure,
+  Wood & Ahmad 1987 (verified paradigm); Dunlosky et al.
+  2013 (*Psych. Sci. Public Interest* 14 — verified:
+  moderate utility, prior-knowledge contingency).
+- **Subjective organization:** Tulving 1962 (verified);
+  Bower, Clark, Lesgold & Winzenz 1969 (verified:
+  hierarchical organization recall multiples); Sternberg &
+  Tulving 1977 (SO measurement — verified).
+- **Established vs hypothesis:** VDAC existence/persistence/
+  moderators, multisensory benefit direction, attribute-floor
+  direction, drawing effect ordering, RPL inverted-U +
+  pressure flip, EI knowledge contingency, SO-recall
+  correlation are CONSENSUS or established; `vdac_hl` 180d
+  magnitude, `auto_floor` value, `draw_da_resist` share, the
+  catRun counter shape, and the dwell-as-integral formalism
+  are RW modeling hypotheses, probe-gated by P889–P898.

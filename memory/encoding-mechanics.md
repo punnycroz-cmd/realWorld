@@ -2533,3 +2533,410 @@ faceDistinct — Wickham & Morris 2003), `retro_consol_null = 0`
   replication: recall null, retrieval-side benefit → OBSERVE tier).
 - Deliberate-null/fold sources: Rhodes & Castel 2008 (font-size JOL);
   MacKay et al. 2004 + Janschewitz 2008 (taboo fold).
+
+# Part VII — encoding-mechanics, seventh pass (v84 focus)
+
+**Version tag:** spec v5.32. Parts I–VI priced processing depth,
+motivational state, capacity competition, the gate's exceptions,
+the attempts/scaffolds that precede encoding, and the value/choice/
+audience triage of the scarce encoder. Part VII prices six things
+that survived the previous sweeps: **involuntary capture by reward
+history** (VDAC — attention the goal never authorized), **congruent
+multisensory co-occurrence** (two channels, one trace, cross-modal
+cue bridges), **the adjudicated residue of automatic encoding**
+(freq/loc/when get a floor, not immunity), **drawing as an
+engagement channel** (the composite trace that beats writing,
+picturing, and elaborating), **difficulty-based dwell allocation**
+(region of proximal learning and its deadline flip — the axis the
+value machinery doesn't own), **elaborative interrogation**
+(why-probing, gated by prior knowledge), and **subjective
+organization at birth** (category-coherent runs mint denser
+links). 16 new params, 5 locked nulls, 1 frozen gate, 10 probes
+(P889–P898).
+
+## 84. Value-driven attentional capture — the ledger keeps what paid before (CONSENSUS phenomenon; persistence ESTABLISHED)
+
+Anderson, Laurent & Yantis (2011, PNAS 108:10367 — verified):
+stimuli associated with reward during a training phase capture
+attention when they later appear as task-IRRELEVANT distractors —
+involuntary, independent of goals and of physical salience.
+Anderson & Yantis (2012, Atten. Percept. Psychophys. — verified):
+the capture persists over half a year with no further reward.
+Le Pelley, Mitchell, Beesley, George & Wills (2016, Psych. Bull.
+142 — verified meta): robust across paradigms; magnitude scales
+with reward value. The moderators are the finding for a sim:
+vulnerability covaries with working-memory capacity and trait
+impulsivity (Anderson 2011) — the low-wmc, high-impulsivity
+character is the one whose attention gets pulled by the cue that
+used to pay. Distinct from §71 value-directed remembering: VDR is
+strategic (the character *chooses* to spend on what matters); VDAC
+is stimulus-driven (the reward-stained field *takes* the share).
+
+**Formalization.** Fields may carry `rewardAssoc ∈[0,1]`, minted
+when a field co-occurs with a reward outcome and decaying with
+half-life `vdac_hl` (180d — the 2012 persistence finding). At
+encode, the §31 wm_cap ordering key gains an involuntary leg:
+
+```
+orderKey += vdac_w·field.rewardAssoc          (vdac_w ≈ 0.3)
+```
+
+The captured share is not free: co-present fields pay a tax —
+
+```
+E(field) *= (1 − vdac_tax·maxOther.rewardAssoc)   (vdac_tax ≈ 0.15)
+```
+
+— the reward-cued distractor literally steals encoding from what
+the character was trying to attend. Two locked boundaries:
+`vdac_goal_null` (capture occurs identically when the reward-
+associated field is task-irrelevant or goal-opposed — gating by
+current goal would make it VDR and is a verdict error) and
+`vdac_scope` (frozen: rewardAssoc mints only on reward co-
+occurrence; it is never read forward from later outcomes — a
+record can't be retroactively stained). Trait loading: `wmc` low
+and impulsivity-adjacent traits raise effective capture (Anderson
+2011 moderators); `intox`/`sleepdep` states widen it (the
+fatigued bartender can't not see the tip jar move).
+
+RW consequence: the cue that paid once — the corner where the tip
+was big, the seat where the compliment landed — pulls the eye
+months later, and whatever else was in the scene mints thinner.
+
+## 85. Congruent multisensory co-occurrence — two channels, one trace (ESTABLISHED; incongruent split is the sim's own gate)
+
+Shams & Seitz (2008, Nat. Rev. Neurosci. 9:655 — verified
+framework): congruent multisensory inputs are learned better and
+faster than unisensory equivalents; the benefit is maximal when
+each modality alone is weak (inverse effectiveness). Murray et
+al. (2004 — verified) and Lehmann & Murray (2005 — verified):
+multisensory events at study yield better subsequent recognition,
+and unisensory cues can re-evoke the multisensory trace. The
+incongruent side is the attention-split cost the sim already owns
+elsewhere (daLoad); here it gets a specific gate.
+
+**Formalization.** Events carry `modalities` — a multiset of
+engaged channels ({visual,auditory,olfactory,tactile,gustatory})
+and a `modalCongruent` flag resolved by the world (spatially/
+temporally/semantically coincident channels). Congruent bimodal+
+events mint `E *= (1 + msens_gain)` (0.12) AND the record's
+cueVector gains cross-modal edges at rate `msens_cue_bridge`
+(0.4) — an olfactory cue can retrieve an event whose strongest
+field was visual, provided the modalities were congruent at
+birth. Incongruent simultaneous modalities do NOT gain; instead
+they cost — `E *= (1 − msens_incong_loss)` (0.15) on the weaker
+channel's fields (the split-attention tax). Frozen gate
+`msens_congr_gate = "field-congruent"`: congruence is evaluated
+per field-pair, not per event — the sizzling fajita platter
+(sight+sound+smell, congruent) gains; the TV behind the speaker
+(incongruent audio) pays.
+
+## 86. The automaticity floor — freq/loc/when mint without permission (ADJUDICATED — floor real, immunity dead)
+
+Hasher & Zacks (1979, JEP:G 108:356 — verified): frequency,
+spatial location, and temporal order are encoded "automatically"
+— minimal attentional cost, no intention required, no practice
+benefit; and (the strong claim) invariant across age and stress.
+Zacks, Hasher & Sanft (1982, JEP:LMC 8:106 — verified): frequency
+tagging holds under incidental conditions. The adjudication:
+Naveh-Benjamin (1987) and successors showed intention DOES help
+these attributes and divided attention DOES degrade them — the
+attributes are cheaper to encode, not free. Verdict: a floor,
+not immunity. The literature keeps the direction (attribute
+encoding is the most age-resistant of the deliberate measures)
+while killing the strong-invariance claim.
+
+**Formalization.** Attribute-class fields — `freq`, `loc`,
+`when` — mint at a floor: their effective attention is
+`max(att, auto_floor)` (0.12) regardless of the attention gate,
+and daLoad applies at reduced rate `×(1 − auto_da_resist)` (0.5).
+Above the floor they behave normally: oriented study improves
+them, which is what kills the Hasher–Zacks strong claim. Locked
+null `auto_immune_null`: the floor is a floor, never a ceiling —
+a build where att==auto_floor performs identically to att==1 on
+attribute fields fails by construction. The age shape: the
+young–old gap on attribute fields is smaller than on content
+fields at matched difficulty (partial sparing, not zero).
+
+## 87. Drawing — the composite trace that beats its parts (ESTABLISHED; mechanism is the composite, not any component)
+
+Wammes, Meade & Fernandes (2016, QJEP 69:1752 — verified):
+drawing a to-be-remembered word roughly doubles later recall vs
+writing it — and beats deep-LoP description, mental imagery, and
+picture viewing; survives 4-second encoding windows and classroom
+conditions; quality of drawing irrelevant. The mechanism is the
+seamless integration of visual + motor + spatial + semantic into
+one trace — synergistic, greater than the sum. Wammes et al.
+(2018, Exp. Aging Res. — verified): robust in older adults;
+Fernandes, Wammes & Meade (2018 — verified): survives divided
+attention where other strategies collapse.
+
+**Formalization.** `engagement:"drawn"` joins the engagement
+tier. Drawn events mint `E += draw_gain` (0.18) — larger than
+`obs_enc_gain`, positioned as a composite of enactment +
+elaboration + concreteness — AND carry `draw_da_resist` (0.6)
+partial immunity to daLoad (the 2018 finding: the multimodal
+trace survives what verbal strategies can't). Gate: the content
+must be drawable — `ei`-style abstract content gains at most half
+(`drawable` flag resolved by the world; abstract fields get
+`draw_gain × 0.5`). Locked null `draw_verbatim_null`: drawing
+mints no verbatim wording — the trace is composite, not
+orthographic; a character who drew the diagram remembers the
+SHAPE, not the label text.
+
+## 88. Region of proximal learning — dwell follows difficulty, not just value (ESTABLISHED mechanism; the deadline flip is the exploitable part)
+
+Metcalfe & Kornell (2005, JEP:G 134:530 — verified) and Son &
+Metcalfe (2000, JEP:LMC 26 — verified): self-paced study time is
+allocated to items of INTERMEDIATE difficulty — the region of
+proximal learning — not to the easiest (already known) or hardest
+(unlearnable in the window). Under time pressure or high stakes
+the policy flips to easiest-first (the agenda shifts to maximize
+hits). Distinct from §71's value leg: importance orders WHAT is
+worth learning; RPL orders WHERE the dwell lands given a fixed
+budget — a high-value hopeless item is exactly what the RPL
+encoder skips.
+
+**Formalization.** Inside the wm_cap ordering, dwell allocation
+(the time-share feeding the E integral) gains a difficulty leg:
+
+```
+dwell(field) ∝ rpl_focus·(1 − |difficulty − 0.5|·2)   (rpl_focus ≈ 0.3)
+```
+
+— an inverted-U centered on mid-difficulty. Under
+`context.deadline` or `stakes` pressure the policy flips:
+`dwell ∝ rpl_press_flip·(1 − difficulty)` (0.5) — easiest-first.
+`deficit_proxy` flattens the inverted-U (the older encoder can't
+implement the discriminative policy — consistent with §71's
+selectivity machinery, same deficit at a different axis).
+Hypothesis-level formalization of established behavioral
+phenomenon; probes P895 must show both modes.
+
+## 89. Elaborative interrogation — the why-question mints, if the schema can catch it (ESTABLISHED effect; knowledge gate is the boundary)
+
+Pressley, McDaniel, Turnure, Wood & Ahmad (1987 — verified):
+asking "why" about to-be-learned facts produces large recall
+gains vs unelaborated study. Dunlosky et al. (2013, Psych. Sci.
+Public Interest 14 — verified review): moderate-utility rating,
+but the benefit is contingent on PRIOR domain knowledge — why-
+probing knowledge-poor material yields little (the learner has
+nothing to elaborate with). This is the encoding-side sibling of
+the §5.x explanation machinery: the causal why weaves the new
+fact into existing structure — but only if structure exists.
+
+**Formalization.** Events flagged `why:true` (self-directed or
+co-narrated causal probing — "why would the landlord fix it
+fast?") mint `E += ei_gain` (0.12), gated multiplicatively by the
+domain's `schema_support` above threshold `ei_know_gate` (0.4):
+below the gate the gain collapses toward zero. Locked null
+`ei_noknow_null`: why-probing on schema-poor content gains
+≤0.03 — the null is the finding (Dunlosky 2013 contingency);
+a build where novices gain full `ei_gain` fails. Composes with
+teach_expect and sib machinery (the character who explains to the
+room interrogates as they go).
+
+## 90. Subjective organization at birth — coherent runs mint denser links (ESTABLISHED direction; the run-length shape is RW formalization)
+
+Tulving (1962 — verified): subjects impose idiosyncratic
+organization on unrelated lists, and subjective organization
+predicts recall. Bower, Clark, Lesgold & Winzenz (1969 —
+verified): hierarchically organized material is recalled at
+multiples of scrambled control — organization at INPUT is the
+mechanism. Sternberg & Tulving (1977 — verified): SO is
+measurable per-person, stable, and correlated with free recall.
+The encoding-side claim: when consecutive events share topic/
+category membership, the encoder exploits the coherence —
+inter-field links mint denser inside a coherent run than across
+category boundaries.
+
+**Formalization.** Track `catRun` — the count of consecutive
+events sharing topic-hash with the previous event (world-supplied
+or PersonModel topic). When `catRun ≥ org_run_min` (2), each new
+within-run field pair mints links at `link_p·(1 + org_gain)`
+(0.15); a category break resets catRun to 0. The result:
+clustered encoding for clustered experience — the afternoon spent
+on the lease negotiation mints as a block, the errands that
+interleaved it mint as fragments. Trait loading: `consc`/
+narrative-coherence traits raise effective org_gain (the
+organizer builds runs out of material the chaotic character
+experiences as scatter); this is the encode-side root of the
+§5.72 event-cluster machinery.
+
+## 91. Deliberate non-adds (v84)
+
+- **Chewing gum at encoding:** Wilkinson et al. 2002 positive;
+  Tucha et al. 2004+ nulls; meta verdict inconsistent/context-
+  dependent. Locked fold `gum_gain = 0` — any residual is
+  arousal/freshness, priced elsewhere.
+- **Glucose facilitation:** Sünram-Lea meta shows small,
+  state-dependent effects contingent on demand/fasting — folds
+  into physiological arousal machinery; no dedicated param.
+- **Acute exercise DURING encoding:** dual-task cost owns the
+  concurrent case; post-encoding exercise is consolidation-side
+  (rest_gain family owns the window). No encode param.
+- **Action-video-game transfer:** a trait/attention-bandwidth
+  claim (Bavelier et al.), not an event mechanism — folds into
+  wmc/attention traits.
+- **Acute mindfulness induction:** `mindful` trait owns the
+  standing version; state induction effects are small and
+  contested — no new param.
+- **Verbal vs pictorial presentation mode:** `concrete_gain` +
+  imagery machinery own the modality content difference; the
+  drawing pass (§87) is the production-side claim, not
+  presentation.
+- **Rehearsal/strategy instruction effects:** strategy_use and
+  intent_boost own the deliberate-strategy channel; per-strategy
+  constants would double-count.
+
+## 92. Parameter summary (new in v5.32 spec table)
+
+| param | default | range (clamp) | mechanism | evidence |
+|---|---|---|---|---|
+| `vdac_w` | 0.3 | 0–0.7 | reward-history leg in wm_cap ordering | Anderson, Laurent & Yantis 2011; Le Pelley 2016 |
+| `vdac_tax` | 0.15 | 0–0.4 | E loss on co-present fields when captured | Anderson 2011 distractor cost |
+| `vdac_hl` | 180 | 30–365 | rewardAssoc half-life (days) | Anderson & Yantis 2012 persistence |
+| `msens_gain` | 0.12 | 0–0.35 | congruent multimodal E multiplier | Shams & Seitz 2008; Murray 2004 |
+| `msens_incong_loss` | 0.15 | 0–0.45 | split-attention cost on incongruent | split-attention lit |
+| `msens_cue_bridge` | 0.4 | 0–1 | cross-modal cue-edge fraction | Lehmann & Murray 2005 |
+| `auto_floor` | 0.12 | 0–0.3 | attribute-field attention floor | Hasher & Zacks 1979 (as adjudicated) |
+| `auto_da_resist` | 0.5 | 0–0.9 | daLoad attenuation on attribute fields | partial automaticity verdict |
+| `draw_gain` | 0.18 | 0–0.45 | drawn-engagement E bonus | Wammes, Meade & Fernandes 2016 |
+| `draw_da_resist` | 0.6 | 0–1 | DA immunity share on drawn trace | Fernandes, Wammes & Meade 2018 |
+| `rpl_focus` | 0.3 | 0–0.7 | mid-difficulty dwell concentration | Metcalfe & Kornell 2005 |
+| `rpl_press_flip` | 0.5 | 0–1 | deadline → easiest-first policy shift | Son & Metcalfe 2000 |
+| `ei_gain` | 0.12 | 0–0.35 | why-probing E bonus | Pressley et al. 1987 |
+| `ei_know_gate` | 0.4 | 0–0.8 | schema-support gate on ei_gain | Dunlosky et al. 2013 contingency |
+| `org_gain` | 0.15 | 0–0.4 | within-run link_p multiplier | Bower 1969; Tulving 1962 |
+| `org_run_min` | 2 | 2–4 | catRun length to trigger org_gain | SO/chunking lit |
+
+**Frozen constants (v5.32):** `vdac_scope` (rewardAssoc mints at
+reward co-occurrence, never retroactive), `msens_congr_gate =
+"field-congruent"`. **Locked nulls:** `vdac_goal_null` (goal-
+irrelevance does not prevent capture — Anderson 2011),
+`auto_immune_null` (floor not ceiling — Naveh-Benjamin critique),
+`draw_verbatim_null` (composite trace mints no orthographic
+verbatim), `ei_noknow_null` (schema-poor why-probing gains ≈0 —
+Dunlosky 2013), `gum_gain = 0` (fold).
+
+## 93. Validation probes P889–P898
+
+- **P889 (MUST) VDAC capture:** rewardAssoc-tagged fields gain E
+  under daLoad where matched neutral fields fail;
+  `vdac_goal_null` enforced — capture persists when the reward-
+  associated field is task-irrelevant (a build where current-goal
+  fields always win fails); wmc-low profiles show larger capture
+  (moderator ordering, Anderson 2011).
+- **P890 (SHOULD) VDAC persistence:** rewardAssoc remains
+  effective (cue-heating + capture share) after contingency ends;
+  decay follows vdac_hl, not reward-loss events (Anderson &
+  Yantis 2012 — six-month persistence shape).
+- **P891 (MUST) multisensory:** congruent bimodal > unimodal at
+  matched attention (msens_gain band); incongruent bimodal <
+  unimodal on the weaker channel (split cost); cross-modal cue
+  retrieval works only for congruently-minted records (bridge
+  audit — an incongruent record must NOT be reachable via the
+  untested modality's cue).
+- **P892 (MUST — bounded automaticity):** freq/loc/when fields
+  mint above zero at maximal daLoad (auto_floor) BUT intentional
+  orienting still improves them (auto_immune_null — a build where
+  floor==ceiling fails); gap between attribute and content fields
+  under load is positive and bounded.
+- **P893 (SHOULD) age invariance:** attribute-field young–old gap
+  smaller than content-field gap at matched difficulty (Hasher &
+  Zacks direction); nonzero slope — partial sparing, not
+  immunity (the adjudicated verdict, not the strong claim).
+- **P894 (MUST) drawing:** drawn > written ≈ imagined ≈
+  elaborated at matched exposure (Wammes 2016 ordering); under
+  dual task the drawn advantage shrinks less than verbal
+  strategies' (draw_da_resist); `draw_verbatim_null` TOST-
+  enforced (drawn records match written on wording recall);
+  abstract (non-drawable) content gains ≤ half the gain.
+- **P895 (SHOULD) RPL allocation:** self-paced dwell concentrates
+  on mid-difficulty items (inverted-U over difficulty); deadline
+  context flips to easiest-first (rpl_press_flip); deficit
+  profiles flatten the U (Metcalfe & Kornell + deficit
+  prediction); value leg unchanged — orthogonal axis audit.
+- **P896 (MUST — gate) elaborative interrogation:** why:true
+  gains ei_gain only when schema_support ≥ ei_know_gate;
+  below-gate gain ≤0.03 (TOST ei_noknow_null); above-gate the
+  gain composes multiplicatively with teach_expect (explaining
+  and interrogating stack, never subtract).
+- **P897 (SHOULD) subjective organization:** catRun≥org_run_min
+  sequences mint denser link edges (edge count per field-pair);
+  recall clustering rises with run coherence; singleton runs
+  unaffected; consc-high profiles show stronger runs → more
+  organization (trait moderation direction).
+- **P898 (MUST — structure) v5.32 regression:** new fields/params
+  pass the P457 non-interference pattern (rewardAssoc mints at
+  reward co-occurrence only — no future reads; modalities/
+  modalCongruent are encode-time flags; drawn/rpl/why are
+  engagement variants inside existing channels; catRun is a
+  sequence counter, not a store) and the §12.2 commutativity
+  pattern (no new op reads across charIds).
+
+## 94. Spec deltas delivered (v5.32)
+
+- `memory-model-spec.md` → v5.32: §2 +6 mechanism bullets
+  (VDAC reward-history capture + tax, multisensory congruence
+  + incongruent split, attribute automaticity floor, drawing
+  engagement, RPL dwell + deadline flip, elaborative
+  interrogation gate, subjective-organization runs); params
+  +16 (+5 locked nulls, +1 frozen + vdac_scope); §10 contract
+  additions — Event fields `rewardAssoc ∈[0,1]`, `modalities`
+  multiset + `modalCongruent`, `engagement:"drawn"` +
+  `drawable`, `why:true`, `context.deadline`; record attribute
+  floor on freq/loc/when; `catRun` sequence counter on encode.
+  All optional w/ defaults; backward compatible.
+- `character-memory-profiles.md`: §0 +16 clamp rows; §65 v5.32
+  note — none are trait pins (all mechanism constants); emergent
+  shadows (the low-wmc character's attention leaks toward old
+  reward cues; the anxious interrogator encodes deep only where
+  they already know the terrain; the routine-holder's coherent
+  days mint as blocks).
+- `validation-design.md`: §§172–174 — probes P889–P898 +
+  sources. Registry P1–P898.
+- `human-memory-research.md`: §62 v84 summary appended.
+
+## 95. Sources new to this version (all verified 2026-09-23)
+
+- Anderson, Laurent & Yantis 2011 (PNAS 108:10367 — verified:
+  reward-associated distractors capture attention against goals;
+  WMC/impulsivity moderators); Anderson & Yantis 2012 (Atten.
+  Percept. Psychophys. — verified: >6-month persistence);
+  Le Pelley, Mitchell, Beesley, George & Wills 2016 (Psych.
+  Bull. 142 — verified meta: value-driven capture robust,
+  value-scaled); Anderson 2016 (Psych. Bull. — reward history
+  as attentional habit).
+- Shams & Seitz 2008 (Nat. Rev. Neurosci. 9:655 — verified
+  multisensory-learning framework, inverse effectiveness);
+  Murray et al. 2004 (multisensory study → better recognition);
+  Lehmann & Murray 2005 (cross-modal re-evocation of the
+  multisensory trace).
+- Hasher & Zacks 1979 (JEP:G 108:356 — verified: automatic vs
+  effortful framework, frequency/spatial/temporal claims);
+  Zacks, Hasher & Sanft 1982 (JEP:LMC 8:106 — verified:
+  frequency tagging under incidental conditions); Naveh-Benjamin
+  1987 (the adjudication — intent and attention do matter:
+  floor, not immunity).
+- Wammes, Meade & Fernandes 2016 (QJEP 69:1752 — verified:
+  >2× recall vs writing, survives LoP/imagery/picture controls,
+  4s encoding OK, quality irrelevant); Wammes et al. 2018 (Exp.
+  Aging Res. — verified: robust in older adults); Fernandes,
+  Wammes & Meade 2018 (verified: survives divided attention);
+  Meade & Fernandes 2020 (meta thread).
+- Metcalfe & Kornell 2005 (JEP:G 134:530 — verified: region of
+  proximal learning); Son & Metcalfe 2000 (JEP:LMC 26 —
+  verified: agenda-based allocation, pressure → easy-first
+  shift); Metcalfe 2002 (RPL under time constraints).
+- Pressley, McDaniel, Turnure, Wood & Ahmad 1987 (elaborative
+  interrogation paradigm — verified); Dunlosky et al. 2013
+  (Psych. Sci. Public Interest 14 — verified: moderate utility,
+  prior-knowledge contingency).
+- Tulving 1962 (subjective organization — verified); Bower,
+  Clark, Lesgold & Winzenz 1969 (hierarchical organization
+  recall multiples — verified); Sternberg & Tulving 1977 (SO
+  measurement — verified).
+- Deliberate-null/fold sources: Wilkinson et al. 2002 + Tucha
+  (gum inconsistency); Sünram-Lea (glucose, state-dependent);
+  Bavelier (AVG transfer — trait not event).

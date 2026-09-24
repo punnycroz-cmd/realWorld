@@ -1113,6 +1113,13 @@ needs both.
 | grain_base / grain_conf_k | 0.15 / 0.3 | 0.5 / 0.7 | pop constants — coarse-prior + confidence gate on grain (v5.30) |
 | foak_gain / foak_expert_prior / pause_sat_ms | 0.05 / 0.2 / 3000 | 0.3 / 0.8 / 8000 | pop constants — FOAK update gain, expertise buffer, latency saturation (v5.30) |
 | story_order_k / story_suppress_k / coda_k | 0.2 / 0.15 / 0.3 | 0.6 / 0.5 / 0.7 | pop constants — reorder/suppress/coda scales on voice_story (v5.30) |
+| vdac_w / vdac_tax / vdac_hl | 0.0 / 0.0 / 30 | 0.7 / 0.4 / 365 | reward-history capture weight, co-present tax, assoc half-life (v5.32) |
+| msens_gain / msens_incong_loss / msens_cue_bridge | 0.0 / 0.0 / 0.0 | 0.35 / 0.45 / 1.0 | congruent multimodal gain, incongruent split cost, cross-modal cue bridges (v5.32) |
+| auto_floor / auto_da_resist | 0.0 / 0.0 | 0.3 / 0.9 | attribute-field (freq/loc/when) attention floor + daLoad attenuation (v5.32) |
+| draw_gain / draw_da_resist | 0.0 / 0.0 | 0.45 / 1.0 | drawn-engagement E bonus + DA immunity share (v5.32) |
+| rpl_focus / rpl_press_flip | 0.0 / 0.0 | 0.7 / 1.0 | mid-difficulty dwell concentration + deadline easiest-first flip (v5.32) |
+| ei_gain / ei_know_gate | 0.0 / 0.0 | 0.35 / 0.8 | why-probing E bonus + schema gate (v5.32) |
+| org_gain / org_run_min | 0.0 / 2 | 0.4 / 4 | within-run link_p multiplier + catRun trigger (v5.32) |
 
 **v1.0 profile-compiler note:** profiles are now *compiled*, not
 hand-tuned — `profile-generation.md` §1 specifies the full
@@ -4117,3 +4124,49 @@ like* from the audience's chair. Spec §§5.79–5.83.
   gives coarse answers cheerfully and is right often
   enough that nobody notices the grain. Sources §60 of
   human-memory-research.md; probes P871–P878.
+
+## 65. v5.32 note (encoding-mechanics VII — what takes the share)
+
+Spec v5.32; encoding-mechanics.md Part VII §§84–95. All seven
+additions are mechanism constants or pop scales — **no new trait
+pins**; the personality work arrives through existing traits.
+
+- **`vdac_w`/`vdac_tax`/`vdac_hl` stay population constants.**
+  What varies per person is the MODERATOR side: low `wmc` and
+  impulsivity-adjacent traits raise effective capture (Anderson
+  2011 covariation); `intox`/`sleepdep` states widen it. Do not
+  pin `vdac_w` high on a "greedy" bible — capture is a CONTROL
+  failure, not a motive; a disciplined character who cares about
+  money still resists the cue because the resistance is
+  attentional, not valuational. `rewardAssoc` mints only at
+  reward co-occurrence (`vdac_scope`) — a world that tags fields
+  from later outcomes corrupts the mechanism.
+- **`auto_floor`/`auto_da_resist` are adjudicated constants.**
+  The Hasher–Zacks floor is the same for everyone; what ages is
+  everything ABOVE the floor. Profiles express the age shape by
+  leaving the floor flat while effortful params decline — do not
+  lower `auto_floor` on old archetypes (P893).
+- **`draw_gain` is a channel constant, not a hobby.** A
+  sketchbook-keeping bible just routes more events through
+  `engagement:"drawn"` — the gain itself is the same population
+  composite for everyone; quality of drawing is irrelevant
+  (Wammes 2016 — the finding).
+- **`rpl_focus`/`rpl_press_flip` stay flat;** `deficit_proxy`
+  does the age flattening. A bible may mark a character as a
+  crammer (more `context.deadline` exposure via routine), which
+  flips dwell easiest-first — a scheduling habit, not a memory
+  trait.
+- **`ei_know_gate` is the interesting shadow:** the anxious
+  interrogator (high `rumin`, asks why about everything) encodes
+  deep only inside their expertise — why-probing the unfamiliar
+  yields ≈0 (`ei_noknow_null`). Writers get "she understands her
+  own field obsessively and stays shallow elsewhere" for free.
+- **`org_gain` reads through `consc`/narrative traits** — the
+  routine-holder's coherent days mint as blocks (denser links),
+  the chaotic character's interleaved days mint as fragments.
+  Same constant, different ecology.
+- **Never pin:** all sixteen params are mechanism constants or
+  pop scales; `vdac_scope`/`msens_congr_gate` are frozen;
+  locked nulls `vdac_goal_null`, `auto_immune_null`,
+  `draw_verbatim_null`, `ei_noknow_null`, `gum_gain` are
+  probe-enforced (P889–P898).

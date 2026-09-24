@@ -3216,3 +3216,70 @@ validation-design.md §§166–171 (probes P879–P888).
   PersonModel changes. Every claim the corpus makes about the
   characters is now made by an instrument that is itself
   falsifiable (P879–P888).
+
+## 62. v84 — what takes the share without permission (encoding-mechanics VII, spec v5.32)
+
+Sixth pass priced value/choice/audience triage. Seventh pass
+prices what was left: the involuntary, the composite, the
+floor, the dwell, and the run. Spec v5.32; encoding-mechanics.md
+§§84–95; probes P889–P898; +16 params, +5 locked nulls
+(incl. `gum_gain`), +2 frozen.
+
+- **Attention doesn't need the goal's permission.** Value-driven
+  attentional capture (Anderson, Laurent & Yantis 2011, *PNAS*
+  108:10367 — verified): stimuli that once predicted reward
+  capture attention when they reappear as task-irrelevant
+  distractors — involuntary, persistent (Anderson & Yantis 2012:
+  >6 months), scaled by reward value (Le Pelley et al. 2016
+  meta), and moderated by WMC and impulsivity. Distinct from
+  §71's VDR — that was strategic spending; this is capture.
+  Fields co-encoded with reward carry `rewardAssoc` (half-life
+  `vdac_hl` 180d) buying wm_cap share (`vdac_w`) and taxing
+  co-present fields (`vdac_tax`). Locked `vdac_goal_null`:
+  goal-irrelevance must not prevent capture — that IS the
+  finding. Frozen `vdac_scope`: no retroactive staining.
+  Cast shadow: the corner where the tip was big pulls the
+  low-wmc bartender's eye months later, and whatever else was
+  in the scene mints thinner.
+- **Two congruent channels mint one trace with two doors.**
+  Congruent bimodal+ events gain `msens_gain` and mint
+  cross-modal cue bridges (`msens_cue_bridge`) — the smell
+  retrieves the sight (Shams & Seitz 2008; Lehmann & Murray
+  2005). Incongruent co-occurrence pays `msens_incong_loss` —
+  the TV behind the speaker costs the conversation. Frozen
+  `msens_congr_gate`: congruence is judged per field-pair.
+- **Hasher & Zacks, adjudicated.** Frequency, location, and
+  temporal order encode at a floor (`auto_floor`) with
+  attenuated daLoad cost (`auto_da_resist`) — but intent still
+  helps, so `auto_immune_null` locks the floor from becoming a
+  ceiling (Naveh-Benjamin 1987 critique). The floor survives:
+  attribute fields are the most age-resistant of the deliberate
+  measures (P893 partial-sparing shape).
+- **Drawing beats its parts.** The drawing effect (Wammes,
+  Meade & Fernandes 2016 — >2× recall vs writing, survives
+  LoP/imagery/picture controls) is a composite trace:
+  `engagement:"drawn"` mints `draw_gain` with `draw_da_resist`
+  (robust under divided attention and in older adults, 2018).
+  `draw_verbatim_null`: the composite mints shapes, not
+  orthography — she remembers the diagram's layout, not its
+  labels.
+- **Dwell follows difficulty, not value.** Region of proximal
+  learning (Metcalfe & Kornell 2005): self-paced dwell
+  concentrates mid-difficulty (`rpl_focus` inverted-U); under
+  deadline it flips easiest-first (`rpl_press_flip`; Son &
+  Metcalfe 2000). The deficit encoder flattens the U — the same
+  deficit that breaks value selectivity breaks difficulty
+  selectivity.
+- **Why-probing needs something to grab.** Elaborative
+  interrogation (`why:true` → `ei_gain`) is gated by
+  `schema_support ≥ ei_know_gate`; `ei_noknow_null` locks it —
+  asking why about the unfamiliar yields ≈0 (Pressley 1987;
+  Dunlosky 2013 contingency). The obsessive explainer is deep
+  inside her expertise and shallow outside it — emergent, not
+  pinned.
+- **Coherent days mint as blocks.** `catRun ≥ org_run_min`
+  consecutive same-topic events mint links at
+  `link_p·(1+org_gain)` (Tulving 1962; Bower 1969). The
+  routine-holder's organized days encode densely; the chaotic
+  character's interleaved errands mint as fragments — the
+  encode-side root of event clusters.

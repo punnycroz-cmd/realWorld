@@ -1,5 +1,36 @@
-# Memory Model Spec v5.31 — implementable human-like memory for RW characters
+# Memory Model Spec v5.32 — implementable human-like memory for RW characters
 
+> **v5.32 note (encoding-mechanics VII — what takes the
+> share without permission):** six new intake mechanisms.
+> **VDAC** — fields co-encoded with reward carry
+> `rewardAssoc` (half-life `vdac_hl` 180d) that buys wm_cap
+> share involuntarily (`vdac_w`) and taxes co-present fields
+> (`vdac_tax`); locked `vdac_goal_null` — goal-irrelevance
+> does not prevent capture (Anderson, Laurent & Yantis 2011;
+> Anderson & Yantis 2012; Le Pelley 2016). **Multisensory
+> congruence** — `modalities` + `modalCongruent`: congruent
+> bimodal events mint `×(1+msens_gain)` plus cross-modal cue
+> bridges (`msens_cue_bridge`); incongruent splits pay
+> `msens_incong_loss` (Shams & Seitz 2008). **Attribute
+> automaticity floor** — `freq`/`loc`/`when` fields mint at
+> `auto_floor` with `auto_da_resist` attenuated daLoad; the
+> Hasher–Zacks claim survives as a FLOOR, not immunity —
+> locked `auto_immune_null` (Naveh-Benjamin adjudication).
+> **Drawing** — `engagement:"drawn"` mints `draw_gain` with
+> `draw_da_resist` partial DA immunity; locked
+> `draw_verbatim_null` (Wammes, Meade & Fernandes 2016).
+> **Region of proximal learning** — dwell concentrates on
+> mid-difficulty fields (`rpl_focus` inverted-U), flipping
+> to easiest-first under `context.deadline`
+> (`rpl_press_flip`; Metcalfe & Kornell 2005; Son & Metcalfe
+> 2000). **Elaborative interrogation** — `why:true` mints
+> `ei_gain` gated by `schema_support ≥ ei_know_gate`; locked
+> `ei_noknow_null` (Pressley 1987; Dunlosky 2013).
+> **Subjective organization** — category-coherent runs
+> (`catRun ≥ org_run_min`) mint links at
+> `link_p·(1+org_gain)` (Tulving 1962; Bower 1969).
+> +16 params, +5 locked nulls, +1 frozen gate (+vdac_scope).
+> Probes P889–P898.
 > **v5.31 note (validation-design IX — the battery
 > disciplines itself):** 878 probes only mean something if
 > the verdict layer is honest. §14.5 adds the governance
@@ -3153,6 +3184,45 @@ Postman 1964; Hyde & Jenkins 1973).
   "pre-only"`; locked `retro_consol_null = 0` — shield never raises
   strength (the consolidation account failed); Quevedo-Pütter &
   Erdfelder 2022 replication fragility keeps this OBSERVE.
+- **VDAC (v5.32):** fields carry `rewardAssoc ∈[0,1]` (minted at
+  reward co-occurrence, half-life `vdac_hl` 180d); wm_cap ordering
+  gains `vdac_w·rewardAssoc` involuntarily and co-present fields
+  pay `E ×= (1 − vdac_tax·maxRewardAssoc)` — capture the goal
+  never authorized. Locked `vdac_goal_null` (goal-irrelevance does
+  not prevent capture); frozen `vdac_scope` (no retroactive
+  staining). wmc-low / impulsive profiles capture harder
+  (Anderson, Laurent & Yantis 2011; Anderson & Yantis 2012;
+  Le Pelley et al. 2016).
+- **Multisensory congruence (v5.32):** `modalities` multiset +
+  `modalCongruent` flag; congruent bimodal+ events mint
+  `E ×= (1+msens_gain)` and cueVector gains cross-modal edges at
+  `msens_cue_bridge`; incongruent channels pay
+  `E ×= (1−msens_incong_loss)` on the weaker channel. Frozen
+  `msens_congr_gate` — congruence judged per field-pair (Shams &
+  Seitz 2008; Lehmann & Murray 2005).
+- **Attribute floor (v5.32):** `freq`/`loc`/`when` fields mint at
+  effective attention `max(att, auto_floor)` with daLoad
+  ×(1−`auto_da_resist`) — adjudicated Hasher–Zacks: floor, not
+  immunity; locked `auto_immune_null` (intent still helps —
+  Naveh-Benjamin critique).
+- **Drawing (v5.32):** `engagement:"drawn"` mints
+  `E += draw_gain` (composite visual+motor+spatial+semantic
+  trace, halved for non-drawable content) with `draw_da_resist`
+  partial DA immunity; locked `draw_verbatim_null` (Wammes,
+  Meade & Fernandes 2016; robust under DA and in aging 2018).
+- **RPL dwell (v5.32):** self-paced dwell ∝
+  `rpl_focus·(1−|difficulty−0.5|·2)` — mid-difficulty
+  concentration; under `context.deadline`/`stakes` flips to
+  `rpl_press_flip·(1−difficulty)` easiest-first; deficit flattens
+  the U (Metcalfe & Kornell 2005; Son & Metcalfe 2000).
+- **Elaborative interrogation (v5.32):** `why:true` events mint
+  `E += ei_gain` gated by `schema_support ≥ ei_know_gate`; below
+  gate ≈0 — locked `ei_noknow_null` (Pressley et al. 1987;
+  Dunlosky et al. 2013 contingency).
+- **Subjective organization (v5.32):** `catRun` counts consecutive
+  same-topic events; at `catRun ≥ org_run_min` within-run field
+  pairs mint links at `link_p·(1+org_gain)` — coherent days
+  encode as blocks (Tulving 1962; Bower et al. 1969).
 
 Create the record with `strength = E`, `confidence = base_conf(E)`, `accuracy = 1`.
 
@@ -11998,6 +12068,32 @@ MemoryParams = {
 //   see provenance or internals — P886).
 // v5.31 fields: none — harness governance only; no
 //   Event/record/PersonModel/emission changes.
+// v5.32 additions (encoding-mechanics VII — EM§§84–95)
+"vdac_w": 0.3, "vdac_tax": 0.15, "vdac_hl": 180,   // §84
+"msens_gain": 0.12, "msens_incong_loss": 0.15,
+"msens_cue_bridge": 0.4,                          // §85
+"auto_floor": 0.12, "auto_da_resist": 0.5,        // §86
+"draw_gain": 0.18, "draw_da_resist": 0.6,         // §87
+"rpl_focus": 0.3, "rpl_press_flip": 0.5,          // §88
+"ei_gain": 0.12, "ei_know_gate": 0.4,             // §89
+"org_gain": 0.15, "org_run_min": 2,               // §90
+// v5.32 locked nulls: vdac_goal_null (goal-
+//   irrelevance does not prevent reward-history capture —
+//   P889); auto_immune_null (attribute floor is not a
+//   ceiling; intent still helps — P892); draw_verbatim_null
+//   (drawn records mint no orthographic verbatim — P894);
+//   ei_noknow_null (schema-poor why-probing gains ≈0 —
+//   P896); gum_gain = 0 (chewing-gum fold — inconsistent
+//   lit).
+// v5.32 frozen: vdac_scope (rewardAssoc mints only at
+//   reward co-occurrence, never retroactive);
+//   msens_congr_gate = "field-congruent".
+// v5.32 fields: Event `rewardAssoc` ∈[0,1] (per-field,
+//   half-life vdac_hl), `modalities` multiset +
+//   `modalCongruent`, `engagement:"drawn"` + `drawable`,
+//   `why:true`, `context.deadline`; record attribute-floor
+//   mint rule on freq/loc/when; `catRun` sequence counter
+//   at encode.
 ```
 
 **Trait layer (v0.7):** parameter vectors are generated from a small
@@ -13742,6 +13838,44 @@ not resolved (DEBATED magnitude). P509/P511.
     rater_detect_band, seed_rep_min, verdict_flip_max + 4 locked
     nulls (family_edit_null, peep_null, screen_drop_null,
     rater_leak_null). Probes P879–P888.
+- v5.32 additions (encoding-mechanics.md Part VII §§84–95):
+  - `encodeEvent` — `event.fields[]` may carry `rewardAssoc`
+    ∈[0,1] (minted at reward co-occurrence; decays at
+    `vdac_hl`; never retroactive — `vdac_scope`); capture
+    adds `vdac_w·rewardAssoc` to wm_cap ordering and taxes
+    co-present fields (`vdac_tax`); `vdac_goal_null` —
+    irrelevance does not prevent capture (§84).
+  - `encodeEvent` — `event.modalities` multiset +
+    `modalCongruent` flag: congruent mints
+    `×(1+msens_gain)` + cross-modal cueVector bridges
+    (`msens_cue_bridge`); incongruent pays
+    `×(1−msens_incong_loss)` on weaker-channel fields (§85).
+  - record mint rule: `freq`/`loc`/`when` attribute fields
+    evaluate attention at `max(att, auto_floor)` with daLoad
+    ×(1−`auto_da_resist`) — floor, not immunity
+    (`auto_immune_null`, §86).
+  - `engagement:"drawn"` — composite-trace E bonus
+    (`draw_gain`, halved for non-`drawable` content) with
+    `draw_da_resist` partial DA immunity; mints no verbatim
+    wording (`draw_verbatim_null`, §87).
+  - `context.deadline` — RPL dwell mode: absent →
+    mid-difficulty concentration (`rpl_focus`); present →
+    easiest-first (`rpl_press_flip`) (§88).
+  - `event.why:true` — elaborative-interrogation gain
+    `ei_gain` gated by `schema_support ≥ ei_know_gate`;
+    `ei_noknow_null` (§89).
+  - encode-side `catRun` counter: ≥`org_run_min` consecutive
+    same-topic events mint within-run links at
+    `link_p·(1+org_gain)` (§90).
+  - **New params (§7):** vdac_w, vdac_tax, vdac_hl,
+    msens_gain, msens_incong_loss, msens_cue_bridge,
+    auto_floor, auto_da_resist, draw_gain, draw_da_resist,
+    rpl_focus, rpl_press_flip, ei_gain, ei_know_gate,
+    org_gain, org_run_min + 5 locked nulls (vdac_goal_null,
+    auto_immune_null, draw_verbatim_null, ei_noknow_null,
+    gum_gain) + 2 frozen (vdac_scope, msens_congr_gate).
+    All snapshot-additive, absent = legacy. Probes
+    P889–P898.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
