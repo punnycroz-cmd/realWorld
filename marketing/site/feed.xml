@@ -14,6 +14,20 @@
   <lastBuildDate>Thu, 24 Sep 2026 00:00:00 -0700</lastBuildDate>
 
   <item>
+    <title>Nobody performs for an empty room.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-17</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The Understudy contract for the unobserved tick: watched/shadowed/dark attention tiers, lazy resolve with observational equivalence, obligations that settle anyway, and a mode-blind witness record that can only say "X was at Y".</description>
+  </item>
+  <item>
+    <title>The meter runs itemized.</title>
+    <link>https://realworld-game.example/journal.html</link>
+    <guid isPermaLink="false">devlog-16</guid>
+    <pubDate>Thu, 24 Sep 2026 00:00:00 -0700</pubDate>
+    <description>The Rent Book's meter &amp; leftovers layer: tenant-paid utilities itemized beside rent, a capped annual Rent Board fee pass-through, a 15-day abandoned-property claim window, change-of-terms docs that can never carry rent, and last-month proration — all file and ledger, never feed.</description>
+  </item>
+  <item>
     <title>The bench takes requests.</title>
     <link>https://realworld-game.example/journal.html</link>
     <guid isPermaLink="false">devlog-15</guid>

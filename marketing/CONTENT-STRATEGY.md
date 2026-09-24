@@ -100,7 +100,7 @@ recap-format.md production notes).
 - `data-page="journal"` for analytics; no embed, no JS dependency —
   renders on `file://` and with JS off.
 - RSS: `site/feed.xml` ships in the tree (v117) — RSS 2.0, one `<item>`
-  per published devlog (14 today), placeholder domain swept by
+  per published devlog (17 today), placeholder domain swept by
   `tools/swap_domain.sh` like every other URL; journal.html carries the
   `rel=alternate` link. Rule: item count must equal devlog count on the
   page — add an item in the same commit as the post.
@@ -160,6 +160,8 @@ village"), recaps target branded/community queries. Rules:
 | Devlog 13 — "The block wakes up in waves." | live on `journal.html` (v132); record at `marketing/content/devlog-13-the-commute.md` | world-v87 `commute.json`/`commute.md` (22 routes, 6 modes incl. real Muni lines, leave windows + weather deltas, 10 overlaps, `building_pulse`, 4 non-commuters, INTERNAL-tier privacy contract) + `commute.html` |
 | Devlog 14 — "The paper cuts both ways." | live on `journal.html` (v147); record at `marketing/content/devlog-14-the-counter-paper.md` | world-v96 `leases.json`/`lease-ui.md` §§49–54 (`rw_lease_v96`: assignments w/ clean-ledger gate + deposit carry, buyouts as offers w/ 30-day cooldown + BUYOUT code, prepaid credit cap 3× w/ oldest-first drawdown, history letter once-per-tenancy; `feed_wording.never` +4) + `lease.html` v6 |
 | Devlog 15 — "The bench takes requests." | live on `journal.html` (v147); record at `marketing/content/devlog-15-the-bench.md` | world-v99 `crowd.json` (`pull_protocol`: 15–90 min, ≤3/day, ≤2 concurrent, ≥60 min cooldown, one-zone-step bounds, role-bound, minors never pullable, wire-invisible) + `coverage` A01–A20 (understudy/sign/open/pack reads) + `crowd-sim.md` §§26–28, `crowd.html` |
+| Devlog 16 — "The meter runs itemized." | live on `journal.html` (v162); record at `marketing/content/devlog-16-the-meter.md` | world-v110 `leases.json` v110 (`utilities` itemized-beside-rent + contested_charge ground, `rent_board_fee` $59/unit ≤50% RBF pass-through once/12mo, `abandoned_property` 15-day claim + cited storCost, `change_of_terms` MTM-only ≥30d never-rent + respondCOT, `last_month_proration` round(rent×days/30)) + `lease-ui.md` §§55–61, `lease.html` v7; $59 mirrors game-v17 `41_game_systems_assessor.js` |
+| Devlog 17 — "Nobody performs for an empty room." | live on `journal.html` (v162); record at `marketing/content/devlog-17-the-empty-room.md` | world-v111 `thinai.json` v111 (`observation_tiers` watched/shadowed/dark attention-driven, `lazy_thin` closed-form resolve + eager obligations + observational-equivalence claim, `witness_record` mode-blind seen-fact schema "X was at Y", `compute_soak` watched/shadowed/dark_min split) + `thin-ai.md` §§47–52, `thinai.html` Understudy v8 — spec + internal demo, framed as contract not shipped spectator surface |
 | Recap format preview | live on `journal.html`, labeled illustrative | feed-vocabulary contract (`world/feed.json`) |
 
 Backlog (write when the source lands — never ahead of it):
@@ -171,8 +173,13 @@ commerce-layer devlog (devlog-11 covered the catalog; the "order-
 something" request type + character commerce are gated on the game
 track consuming `menus.json` — draft when it lands);
 lease-ledger deep-dive is now PARTIALLY covered — devlog-14
-shipped the counter-paper instruments; a pure ledger-mechanics
-follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room,
+shipped the counter-paper instruments and devlog-16 the meter &
+leftovers layer; a pure ledger-mechanics
+follow-up (scars, NOFAULT/BUYOUT legibility coding) still has room;
+onboarding-privacy devlog candidate (world-v109 `onboarding.json`
+privacy beat 6, S2b data card, S4g silent-flag lesson — "the flag is
+quiet" is a strong moderation story; draft when it pairs naturally
+with a public surface),
 a wire.html-screenshot
 post if the world/art tracks publish a spectator-app capture,
 memory-model explainer once game-systems implements
