@@ -62,6 +62,12 @@
                 liquor only on liquor_venues, health_score only on
                 food_venues inside score_range; former names invented,
                 ghost_sign requires a former entry; no people, no money
+    rules     — house-rules.json ↔ rules.html RULE mirror; doors keys ==
+                door tiers exactly; every door states every fact_key;
+                closed vocabularies only; posted-sign consistency (cash /
+                card_min / restroom code / receipt wifi / tab agrees with
+                regulars.json); no people; pay_min is the only money
+                figure — a policy, never a price
     homes     — homes.json ↔ homes.html HOMES mirror; home/vacant unit_ids
                 ⊆ registry seed units + ambient-ring; occupants ⊆ cast ids
                 ∪ household lease ids; perks employers ⊆ jobs.json;
@@ -267,7 +273,7 @@ const PUB = Object.values(PT.surfaces)
     'shifts.json', 'budgets.json', 'storefronts.json', 'storefront.html',
     'applications.json', 'apply.html', 'grievances.json', 'grievance.html',
     'exits.json', 'exit.html', 'permits.json', 'permit.html',
-    'homes.json', 'homes.html']);
+    'homes.json', 'homes.html', 'house-rules.json', 'rules.html']);
   for (const f of ALL) {
     const inworld = INWORLD.has(f) || f.startsWith('businesses/') || f.startsWith('jobs/') || f.startsWith('housing/');
     const lines = rd(f).split('\n');
@@ -2613,6 +2619,92 @@ const PUB = Object.values(PT.surfaces)
     }
     g.detail = `schema v${PJ.version} · ${doorIds.size} walls · ${nPapers} papers · ${nPend} pending · ${nFormer} former · ${nGhost} ghost signs`;
   } catch (e) { add(g, 'fail', 'permits.json', null, 'parse/check failure: ' + e.message); }
+}
+
+/* ============ G15h rules — the fine-print layer (v114) ============ */
+{
+  const g = gate('rules', 'house-rules contract (house-rules.json ↔ rules.html; doors only; full house; closed vocab; sign-posted consistency; tab agrees with regulars; no people, policy money only)');
+  try {
+    const RJ = JSONF('house-rules.json');
+    const BJ = JSONF('businesses.json');
+    const REG = JSONF('regulars.json');
+    const html = rd('rules.html');
+    const m = html.match(/const RULE\s*=\s*(\{[\s\S]*?\});/);
+    if (!m) throw new Error('inline RULE not found in rules.html');
+    const RI = eval('(' + m[1] + ')');
+    const DOOR = new Set(['anchor', 'street']);
+    const doorIds = new Set(BJ.businesses.filter(b => DOOR.has(b.tier)).map(b => b.id));
+    /* inline mirror: RULE must field-match house-rules.json */
+    if (RI.version !== RJ.version)
+      add(g, 'fail', 'rules.html', null, `RULE version ${RI.version} != house-rules.json ${RJ.version}`);
+    for (const k of ['fact_keys', 'where_keys', 'rules', 'doors'])
+      if (JSON.stringify(RI[k] ?? null) !== JSON.stringify(RJ[k] ?? null))
+        add(g, 'fail', 'rules.html', null, `RULE.${k} drifted from house-rules.json`);
+    const facts = new Set(Object.keys(RJ.fact_keys || {}));
+    const wheres = new Set(Object.keys(RJ.where_keys || {}));
+    const CASTID = /\b[ca](?:[1-8]|0[1-9]|1[0-9]|20)\b/i;
+    const BANNED = [/unfiltered/i, /\bsecret/i, /possess/i, /\bcredit\b/i, /\bUSD\b/i];
+    /* doors-only coverage, both directions */
+    for (const id of doorIds)
+      if (!RJ.doors[id]) add(g, 'fail', 'house-rules.json', null, `${id} has a door but no house rules`);
+    for (const id of Object.keys(RJ.doors || {}))
+      if (!doorIds.has(id)) add(g, 'fail', 'house-rules.json', null, `rules "${id}" is not a door-tier business`);
+    let nSigns = 0;
+    for (const [id, d] of Object.entries(RJ.doors || {})) {
+      if (!doorIds.has(id)) continue;
+      const h = d.house || {};
+      /* full house: every fact_key present, in-vocabulary */
+      for (const k of facts) {
+        if (!(k in h)) add(g, 'fail', 'house-rules.json', null, `${id}: house missing fact "${k}"`);
+        else if (!Object.keys(RJ.fact_keys[k]).includes(h[k]))
+          add(g, 'fail', 'house-rules.json', null, `${id}: ${k} "${h[k]}" not in fact_keys`);
+      }
+      for (const k of Object.keys(h))
+        if (k !== 'pay_min' && !facts.has(k))
+          add(g, 'fail', 'house-rules.json', null, `${id}: unknown house fact "${k}"`);
+      const posted = d.posted || [];
+      /* sign-posted consistency: a policy nobody posts doesn't exist */
+      const signAt = w => posted.filter(s => s.where === w);
+      const signHit = re => posted.some(s => re.test(String(s.text)));
+      if (h.pay === 'card_min') {
+        if (typeof h.pay_min !== 'number' || h.pay_min <= 0)
+          add(g, 'fail', 'house-rules.json', null, `${id}: card_min without a positive pay_min`);
+        else if (!signHit(new RegExp('\\$?' + h.pay_min + '[^\\d].*card|card.*\\$?' + h.pay_min, 'i')))
+          add(g, 'fail', 'house-rules.json', null, `${id}: card_min $${h.pay_min} has no posted sign naming it`);
+      } else if (h.pay_min != null)
+        add(g, 'fail', 'house-rules.json', null, `${id}: pay_min on a non-card_min door`);
+      if (h.pay === 'cash_only' && !signHit(/\bcash\b/i))
+        add(g, 'fail', 'house-rules.json', null, `${id}: cash_only with no posted CASH sign`);
+      if (h.restroom === 'code'
+          && !posted.some(s => /code|restroom/i.test(String(s.text)) && (s.where === 'restroom_door' || s.where === 'register')))
+        add(g, 'fail', 'house-rules.json', null, `${id}: restroom code needs a sign at restroom_door or register`);
+      if (h.wifi === 'receipt'
+          && !posted.some(s => /wi-?fi/i.test(String(s.text)) && /receipt/i.test(String(s.text))))
+        add(g, 'fail', 'house-rules.json', null, `${id}: receipt wifi needs a posted sign pointing at the receipt`);
+      if (h.tab === 'regulars'
+          && !(REG.regulars || {})[id]?.some(r => r.tab))
+        add(g, 'fail', 'house-rules.json', null, `${id}: tab "regulars" but regulars.json keeps no tab here`);
+      /* posted signs: shaped, in-key, on the bars */
+      if (!posted.length) add(g, 'fail', 'house-rules.json', null, `${id}: empty posted — every door tapes something`);
+      for (const s of posted) {
+        nSigns++;
+        const tag = `${id}:${String(s.text).slice(0, 30)}`;
+        if (!s.text || typeof s.text !== 'string')
+          add(g, 'fail', 'house-rules.json', null, `${id}: posted sign with no text`);
+        else {
+          if (s.text.length > 90) add(g, 'fail', 'house-rules.json', null, `${tag}: sign too long — taped signs are terse`);
+          for (const re of BANNED)
+            if (re.test(s.text)) add(g, 'fail', 'house-rules.json', null, `${tag}: "${s.text}" breaches the sign bar (${re})`);
+          if (CASTID.test(s.text)) add(g, 'fail', 'house-rules.json', null, `${tag}: cast id on a sign — no people on the wall`);
+          for (const mm of String(s.text).matchAll(/\$\s?(\d+(?:\.\d+)?)/g))
+            if (h.pay !== 'card_min' || +mm[1] !== h.pay_min)
+              add(g, 'fail', 'house-rules.json', null, `${tag}: "$${mm[1]}" on a sign — pay_min is the only money figure`);
+        }
+        if (!wheres.has(s.where)) add(g, 'fail', 'house-rules.json', null, `${tag}: where "${s.where}" not in where_keys`);
+      }
+    }
+    g.detail = `schema v${RJ.version} · ${doorIds.size} doors · ${nSigns} posted signs`;
+  } catch (e) { add(g, 'fail', 'house-rules.json', null, 'parse/check failure: ' + e.message); }
 }
 
 /* ============ G15g homes — the household layer (v101) ============ */

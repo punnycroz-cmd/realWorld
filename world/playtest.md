@@ -373,6 +373,18 @@ One person can wear every hat; four real testers is the intended shape.
   v113 block fails an 'edge'-touching flow edge without a mouth,
   a pulse whose dir contradicts its mouth, kid_scale anywhere but
   m-gate, or meta vocabulary in the new blocks.
+  PT103 (The Fine Print v114) audits the house-rules layer — the
+  twenty door venues each carrying a full set of machine-readable
+  house facts (pay / restroom / wifi / laptops / dogs /
+  outside_food / linger / tab — silence is not a policy) plus the
+  posted sign copy a camera reads, pinned to where it hangs; the
+  consistency rules bind the two surfaces (cash posts CASH, a card
+  minimum posts its number, a restroom code posts at the door, a
+  house tab agrees with regulars.json). The audit's v114 rules
+  gate fails a dollar figure on a sign other than the card
+  minimum, a sign naming a person or carrying a 'when X then Y',
+  an offstage org with a door, or any drift between rules.html's
+  inline RULE and house-rules.json.
 
 ## 3. Running a session
 

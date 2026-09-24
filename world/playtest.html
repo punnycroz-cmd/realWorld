@@ -250,6 +250,7 @@ const SURF={
   commute:{file:"commute.html",name:"The Getting There"},
   permits:{file:"permit.html",name:"The Permit Wall"},
   homes:{file:"homes.html",name:"The Fridge Door"},
+  rules:{file:"rules.html",name:"The Fine Print"},
   audit:{file:"audit.js",name:"Boundary Audit",tool:1,run:"node world/audit.js"},
   screen:{file:"screen.js",name:"Screen Engine",tool:1,run:"exercised via Screen Lab — engine module only"},
   flab:{file:"filter-lab.html",name:"Privacy Screen Lab",tool:1},
@@ -2219,6 +2220,29 @@ const PTS=[
    "Crowd gate: 0 fail; detail reports 8 mouths · 7 pulses",
    "An edge touching 'edge' without a mouth, or a pulse dir contradicting its mouth's dir, would FAIL — spot-check",
    "Harness gate: '102 scenarios · N checkpoints'; mirror gate confirms the PT102 hand-sync"]}
+]},
+{id:"PT103",title:"The fine-print layer v114 — per-door house facts + posted sign copy",min:8,
+ persona:"systems reviewer — wants proof the rooms feel *run*: every door venue carries a full set of machine-readable house facts, and the taped signs a camera reads agree with them — conditions on the room, never scripts for characters",
+ goal:"Verify the v114 house-rules layer on world/rules.html: doors keys equal the anchor+street tier business ids exactly (20 doors — offstage orgs and reserved names carry no house rules); every door states every fact_key exactly once (silence is not a policy); posted signs pin to where_keys and agree with the facts (cash_only posts CASH, card_min posts its minimum, restroom:code posts at the door or register, wifi:receipt points at the receipt, tab:regulars matches regulars.json tab rows); pay_min is the only money figure.",
+ surfaces:["rules","audit"],steps:[
+ {do:"Read house-rules.md §§1–5 and house-rules.json's fact_keys / where_keys / rules / doors blocks against the layers beneath (businesses registry, storefronts, menus, permits).",
+  exp:"Every statement resolves to a condition on the room or a sign on the wall — fact vocabularies are closed (a venue with no wifi policy still says wifi:'none'); the consistency rules are stated as agreements between the two surfaces, not behaviors; §5 bars the layer from pricing, menus, permits, rumor feeds, and character scripts.",
+  ck:[
+   "doors has exactly 20 keys — anchor+street tier ids only; Flying Pannier, MuleIt, Nimbus9, Mission Unfiltered, Calle Justa, The Rent Table and the three reserved names have no door",
+   "Every door's house block carries all eight fact_keys exactly once — pay/restroom/wifi/laptops/dogs/outside_food/linger/tab",
+   "maliks is the card_min door — pay_min:5 game dollars, and its register sign names the minimum; it is the only money figure in the layer"]},
+ {do:"Open rules.html (file://). Read the fact-vocabulary legend, then run each filter chip (cash only, card minimum, wi-fi, laptops, dogs, house tab) and spot-read three door cards end to end.",
+  exp:"The Fine Print renders each door as a card: structured facts as chips (hard postures highlighted) and posted sign copy with its where-tag; filters narrow the grid honestly; the header carries the internal posture line 'conditions, never scripts'; no card names a person and no sign carries a price or a 'when X then Y'.",
+  ck:[
+   "Filtering 'cash only' leaves exactly the cash_only doors — and each shows a posted CASH sign somewhere on the card",
+   "golden-hour's register sign reads CASH ONLY — QUARTERS AT THE CHANGE MACHINE: the cash posture and the posted line agree",
+   "A sign naming a dollar figure other than a card minimum, or naming a neighbor, is a fail — the sign bar is enforced"]},
+ {do:"Run node world/audit.js and read the rules gate.",
+  exp:"Rules gate passes at version 114: RULE mirror deep-equals house-rules.json (version, fact_keys, where_keys, rules, doors); doors ⊆ anchor+street tier ids; full-house fact coverage; closed vocabularies on facts and where; sign-posted consistency for cash/card_min/restroom-code/wifi-receipt; tab:regulars agrees with regulars.json tab rows; no people named; pay_min the only money figure.",
+  ck:[
+   "Rules gate: 0 fail",
+   "A dollar figure on a sign (other than the card minimum), a 'secret' in sign copy, or a cash_only door with no posted CASH sign would FAIL — spot-check",
+   "Harness gate: '103 scenarios · N checkpoints'; mirror gate confirms the PT103 hand-sync"]}
 ]}
 ];
 
