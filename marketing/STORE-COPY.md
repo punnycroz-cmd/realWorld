@@ -1,8 +1,9 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v93 — art-v53 rebase (screenshots/captions/ledger) + itch.io
-complete field map + store-update SOP + bundle stance, 2026-09-23.**
-Supersedes v78.
+**Status: v108 — Steam platform-feature decisions + festival/event stance +
+Steam announcement drafts + seasonal art-freshness rule + owner-decision
+register, 2026-09-23.**
+Supersedes v93.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
 `tools/make_brand_assets.py` — the only outstanding art dependency is the
@@ -824,6 +825,19 @@ rebase drill that this drift proved necessary — grep pattern + script
 order + checker gate), §28 bundle-invitation stance (decline; why a live
 free page can't bundle).
 
+**v108 changes:** four new sections closing the remaining decision gaps
+on the conditional Steam path — §29 Steam platform-feature decisions
+(achievements/leaderboards/workshop/Deck all NO; trading cards deferred;
+a badge is a claim), §30 festival & event stance (Next Fest declined —
+the honest demo is the free spectator layer, not a scripted slice; jams
+declined; awards gated on real feed history), §31 Steam announcement
+drafts (launch / major-update / seasonal — the announcements surface as
+the change-log of record for §5 disclosures), §32 seasonal store-art
+freshness rule (store shots never lag the live world's season by more
+than one — solstice/equinox trigger wired into §27), §33 owner-decision
+register (14-row consolidated table of every PLACEHOLDER/FLAG/PROPOSAL
+in the doc). No copy claims changed; §27 gained the seasonal trigger row.
+
 ---
 
 ## 26. itch.io complete field map (every project-edit field)
@@ -899,6 +913,11 @@ the checklist that prevents it. Run in order; each step has a verify.
 | 2 | `rg -n "request_status\|feed_vocabulary" world/requests.json` — compare against §9 feed-vocabulary note |
 | 3 | If a PROPOSAL number finalizes, flip its label here and in PRICING-PAGE-CONTENT.md in the same commit — never half-final |
 
+| # | Trigger: calendar — solstice/equinox (§32 seasonal freshness) |
+|---|---|
+| 1 | Check the live world's season vs the current `v{N}` set's captions |
+| 2 | If a seasonal build exists in `published/`, run the art-build drill above; if not, keep the old shots — never recolor to fake a season |
+
 Rule of thumb: **copy cites builds, builds don't cite copy.** The claim
 ledger (§14) is the index of what to re-verify; if it's not in §14, it
 shouldn't be in the copy.
@@ -922,3 +941,116 @@ If the owner ever wants bundle-adjacent charity: offer the devlog/press
 materials (keyart, caption pack) to a bundle's promotional assets, never
 the product itself. Same verdict for Steam key bundles / gray-market
 resellers — no keys exist to sell.
+
+---
+
+## 29. Steam platform-feature decisions (checklist for the conditional page)
+
+Steam's partner form asks about a dozen features; each is a yes/no that
+becomes a store-page badge. Decided once here so the conditional page is
+transcription, not deliberation. Rule: **a badge is a claim — we only
+check features the product actually has.**
+
+| Steam feature | Decision | Why |
+|---|---|---|
+| Achievements | **NO** | No achievement system exists in the design. If game-systems ever ships one, it must be in-world first; never list badges for unbuilt features. |
+| Trading cards / points shop | **DEFER** (post-wrapper, owner decision) | Cosmetic marketplace fluff; needs the wrapper plus item art. If done, card art reuses `press-kit/` assets — no new commission. |
+| Steam Cloud | **NO** | The world is server-side; claiming Cloud saves is a lie (already §3.1). |
+| Steam Workshop / mods | **NO** | One shared server shard — there is no local install to mod. |
+| Leaderboards | **NO** | There is no win state; a leaderboard would contradict the design's anti-grief posture. |
+| Steam Deck verified | **NO — mark "Unsupported"** | Honest until a wrapper exists and is tested on-device. Note in the Deck field: "browser-native; runs in any modern browser including Deck's." |
+| Remote Play Together | **NO** | Spectator-only shared shard; nothing to remote-play. |
+| Family Sharing | default OFF (IAP products are excluded by Valve anyway) | No local license to share. |
+| VR | **NO** | Not in the design. |
+| Localization flags | **English only** | §7 audit; no baked-in copy in capsule art, so the page itself stays honest. |
+| Controller support | **NO** | Mouse/touch only (§3.1). |
+| MMO flag | **NO** | §3.1 — one shared world, many viewers; "Massively Multiplayer" would misdescribe it. |
+
+---
+
+## 30. Festival & event stance (where the page gets shown)
+
+| Event / surface | Verdict | Why / conditions |
+|---|---|---|
+| Steam Next Fest | **NO** (revisit post-wrapper) | Requires a downloadable demo — the product is browser-native. Worse, a scripted "demo slice" of a persistent shared world would be a lie about it: the honest demo is the free spectator layer itself, which needs no festival slot. If a wrapper ever ships, enter only if the demo build is the real spectator mode pointed at the live shard. |
+| itch.io game jams | **NO** | Page-only project, not a jam build; entering one would look like astroturfing. |
+| Store seasonal sales | **YES, under §18 rules** | Flat dates + price, no urgency theater, disclosure line verbatim. |
+| Steam "events" / announcements | owner-gated | §31 drafts exist; posting is a launch-decision like everything else. |
+| Awards / showcases (IGF, indie showcases) | owner decision, post-launch | Only enter once the request economy has real history to show — the same rule as Steam review keys (§3.4): an empty feed misrepresents the product. |
+
+The pattern: **we never trade a scripted impression for reach.** Every
+surface that would show a fake or empty version of the block is declined.
+
+---
+
+## 31. Steam announcement drafts (conditional — post-wrapper)
+
+Mirror of the §16 itch devlog cadence for Steam's announcement surface.
+Same voice, same honesty contract; post manually, nothing scheduled.
+
+**Announcement 1 — launch** · title: *Real World is live — watching is
+free, forever.* Body: three-sentence pitch (§1.3 ¶1), the spectator-first
+rule ("you never pay to watch"), link off-platform to the public request
+feed, the §1.5 legal line. No discount tied to launch — the paid layer is
+already priced upfront.
+
+**Announcement 2 — first major update** · title pattern: *Update: <what
+changed on the block>.* Body: 3 bullets of shipped changes (never
+roadmap), one screenshot, one feed pull-quote. If an update changes any
+§5 disclosure row, this is where it's disclosed — announcements are the
+change-log of record for store claims.
+
+**Announcement 3 — seasonal** · title: *The block turned <season>.* Body:
+one paragraph on the world's real calendar carrying into the sim, one
+seasonal screenshot, reminder that watching is free. These are the only
+recurring announcements — they cost nothing and prove the world persists.
+
+Cadence: announcements are events, not a drip — never post "stay tuned".
+
+---
+
+## 32. Seasonal store-art freshness rule
+
+The sim runs on the real calendar — the v55 captures are the September
+turn (mow stripes, ginkgo gold, leaf-fall). A store page showing autumn
+crowns while the live block is in spring is a quiet lie.
+
+- **Trigger:** at each solstice/equinox (and whenever the art track
+  publishes a seasonal build), run the §27 rebase drill. Store
+  screenshots must never lag the live world's season by more than one.
+- **Scope:** `site/shots/` latest set, `press-kit/screenshots/`,
+  capsules/keyart/og-card re-bake — the full §27 table, nothing partial.
+- **Non-seasonal shots are exempt:** interiors (v16 pair) and the v1
+  before/after carry no seasonal claim; keep them.
+- **Never fake a season:** if no current-season build exists, keep the
+  old shots and their honest captions — do not recolor or filter.
+
+---
+
+## 33. Owner-decision register (everything gated, one table)
+
+Every PLACEHOLDER/FLAG/PROPOSAL/owner-gated item in this document,
+consolidated. Nothing in §1–§28 ships until its row here is decided.
+Cross-refs: LAUNCH-CHECKLIST.md gates, INFRASTRUCTURE.md §secrets.
+
+| # | Decision needed | Blocks | Where noted |
+|---|---|---|---|
+| 1 | Domain name | every URL, UTM table (§26), support email | LAUNCH-CHECKLIST G3/G6 |
+| 2 | Studio/author name | itch sidebar, Steam partner, press kit | §26 sidebar, G6 |
+| 3 | `support@` address | §21 support block, itch field | §21, G6 |
+| 4 | Final pricing numbers | all PROPOSAL rows — §5 disclosure, §2.2 menu, PRICING-PAGE-CONTENT | §14 ledger |
+| 5 | Steam wrapper: build or not | entire §3 path + §29 badges + §30/§31 | §3, §24 |
+| 6 | Steam library hero commission/upscale | §4 FLAG row — last missing asset | §4 |
+| 7 | Stripe account + product creation | credit packs, subscriptions | deploy/stripe-products.json, INFRA |
+| 8 | Launch date / go-public call | §9 step 10, §23 posture, PH §10 | checklist |
+| 9 | First subscription discount | §18 rule 4 | §18 |
+| 10 | Product Hunt launch-day roster | §10 card | §10 |
+| 11 | Bundle exception (charity) | §28 standing "no" | §28 |
+| 12 | Under-13 spectator privacy pass | age-gating copy, §6 | §6, checklist |
+| 13 | Trading cards post-wrapper | §29 defer row | §29 |
+| 14 | Awards/showcase entries | §30 verdict row | §30 |
+
+Two rules for this table: **a decided row gets executed, not re-opened**
+(change means editing the doc, not improvising at the form); and **no
+row may be decided by omission** — a store field left blank at the form
+is a decision the table should have recorded.
