@@ -1,4 +1,4 @@
-# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88 + v102 + v116)
+# Request UI — spec & copy deck (world v4, deepened v18 + v32 + v46 + v60 + v74 + v88 + v102 + v116 + v130)
 
 The request lifecycle **as the player experiences it**: declare → classify →
 screen → review → run → feed. Companion artifacts:
@@ -551,3 +551,63 @@ resolved / refunded` lines carry the address, never the tenant.
 ||||||| License warn | "Earned gate — the deed is 1 day old of 30. Filing is allowed; the deed office refuses before escrow and refunds in full." |
 ||||||| License granted | "licensed landlord — own units only, everything on the public record" |
 ||||||| No surge | (code rule — `paper:`/`listing:` exempt; a deed fee is a fee, not a bid) |
+
+## 15. v130 — the landing layer (lands_as)
+
+Every version before this one answered *what a request costs* and *how it is
+screened*. This one answers *what it becomes*. Design §11's rule — inject as
+opportunity, never mind-control — now has a physical artifact: an approved
+**nudge** or **event** mints a bounded standing invitation in the
+`world/offers.json` shape and the page shows you the posting.
+
+**What mints.** `lands_as.applies_to = [nudge, event]`. Nothing else lands as
+an offer: possess and camera are sessions, weather is the sky, the deed verbs
+are registry paperwork, hire routes to The Registry. The minted record is an
+offers-schema offer plus three request-side fields:
+
+| Field | Value |
+|---|---|
+| kind | `open_invitation` (both — a standing ask, join by showing up) |
+| visibility | event → `board` (posted where anyone can read it); nudge → `counter` (passed behind the counter, word of mouth) |
+| host | `staff` (nudge) / `regulars` (event) — a sponsored posting has no single keeper; **never a named character** |
+| sponsor | `rq-<id>` + filer handle — attribution rides the record |
+| posted_by | `request:<rq-id>` — the record is honest about its origin; `since` reads "posted at a viewer's request" |
+| expires_h | nudge 72 h / event 168 h — then the card comes down |
+
+**The card.** "How it landed — a standing invitation" renders the posting
+verbatim: the offer id, the venue, the house-worded ask (screened intent text
+informs it; the venue keeps its own voice), visibility, keeper, stand time,
+sponsor — and the honesty line is printed on the card itself, not buried:
+*"The block may ignore this — nobody is obliged. Whatever happens is the
+characters' call; uptake is never scored."*
+
+**The ending.** Invitations end one of two ways and both are reported
+identically — a fact line, never a score: *taken up — the block answered* or
+*let lapse — the card came down; nobody obliged; nothing is owed.* Lapse is
+the offers.json `neglect` state made playable: honest decay, not failure.
+The feed posts the landing ("an invitation went up at \<venue\> — off-req-N")
+and the ending under the same neutral vocabulary.
+
+**What declined means.** A declined nudge mints nothing — the ask was heard
+and refused; there is no card to come down. The 50% refund still lands. This
+is the whole §11 contract in one rule: you bought the ask, not the outcome —
+and when the answer is no, there is no artifact.
+
+**Live seam.** Bridged filings that the bus approves report the minted offer
+id through `gsExplainRequest(id).offer` when the bus carries one; absent the
+field, the local card (`off-req-<id>`) is the contract reference. Booked
+events mint on fire, not on approval — the invitation should not outrun the
+window it invites people to.
+
+### v130 copy deck additions
+
+| Moment | Copy |
+|---|---|
+| Card title | "How it landed — a standing invitation" |
+| Posting row | "off-req-\<id\> · open invitation · \<venue\>" |
+| Keeper row | "\<staff\|regulars\> — a sponsored posting has no single keeper; never a named character" |
+| Stand row | "~N h, then the card comes down — nothing flags it for rescue" |
+| Honesty line | "The block may ignore this — nobody is obliged. Whatever happens is the characters' call; uptake is never scored." |
+| Landing feed | "an invitation went up at \<venue\> — off-req-\<id\>" / "the ask was passed at \<target\> — off-req-\<id\>" |
+| Ending, taken up | "The ending: the invitation was taken up — reported as fact, not a score. The block answered." |
+| Ending, lapsed | "The ending: the card came down at the end of the week — nobody obliged. That is a fine ending; nothing is owed." |

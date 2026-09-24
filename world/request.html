@@ -75,6 +75,20 @@
   refunds in full). Paperwork never surges — registry claims are
   serialized, never auctioned. Mirrors the bus verbs in
   41_game_systems_listings.js (listing / buy / license).
+  v130 adds the landing layer — what an approved opportunity-shaped
+  request actually becomes. A nudge or event that clears review mints a
+  bounded standing invitation in the world/offers.json shape (kind
+  open_invitation; board visibility for events, counter word-of-mouth
+  for nudges; host staff|regulars — never a named keeper; a sponsor tag
+  carrying rq-<id>; an expiry in hours after which the card comes down).
+  The "How it landed" card renders the posting verbatim — where it went
+  up, the house-worded ask, how long it stands — with the honesty line
+  printed on it: the block may ignore this, nobody is obliged, uptake
+  is never scored. The feed reports the posting and later reports the
+  ending (taken up / let lapse) as fact, never as success or failure.
+  Bridged: when the bus carries a minted offer id, gsExplainRequest's
+  record surfaces it on the landed card; absent the bus the local card
+  is the contract reference.
   Spec + copy deck: world/request-ui.md. Rates: world/requests.json
   (adopt monetization-plan §2.2–2.3 PROPOSAL numbers — do not contradict).
   Feed vocabulary syncs to the game track's gsViewerState when wired.
@@ -307,6 +321,7 @@
 
     <div class="pipeline" id="pipe"></div>
     <div class="modcard" id="modcard"></div>
+    <div class="modcard" id="landcard"></div>
     <div class="session" id="sess"></div>
 
     <div class="note">
@@ -1577,6 +1592,7 @@ go.onclick = function(){
   if (winAbs!=null) q.lines.push(['Window','booked for '+bkHHMM(winAbs)]);
   var pipe=$('pipe'); pipe.style.display='block'; pipe.innerHTML='';
   $('modcard').style.display='none';
+  $('landcard').style.display='none';
   go.disabled = true;
 
   var label = a.label.toLowerCase()+' — '+(text||t.label);
@@ -1716,6 +1732,54 @@ go.onclick = function(){
   }, 900);
 };
 
+/* v130 — the landing layer: an approved opportunity-shaped request
+   (nudge | event) mints a bounded standing invitation in the
+   world/offers.json shape — open_invitation kind, board visibility for
+   events, counter word-of-mouth for nudges, host staff|regulars (never
+   a named keeper), sponsor tag carrying rq-<id>, expiry in hours. The
+   card renders the posting verbatim with the honesty line printed on
+   it; the ending (taken up / let lapse) reports as fact, never a
+   score. Bridged: gsExplainRequest(id).offer names the bus-minted id. */
+function landOffer(a, t, text, mine){
+  var vis = a.id==='event' ? 'board — posted where anyone can read it'
+                           : 'counter — passed behind the counter, word of mouth';
+  var hrs = a.id==='event' ? 168 : 72;
+  var host = a.id==='event' ? 'regulars' : 'staff';
+  var ask = text ? ('\u201c'+text+'\u201d') : ('a standing invitation at '+t.label);
+  var busOffer='';
+  if (LIVE && mine.busId && BRIDGE.gsExplainRequest){
+    try{ var ex=BRIDGE.gsExplainRequest(mine.busId); if (ex && ex.offer) busOffer=ex.offer; }catch(e){}
+  }
+  var offId = busOffer || ('off-req-'+mine.id);
+  mine.landed={offer:offId, venue:t.label, kind:'open_invitation',
+               visibility:a.id==='event'?'board':'counter', host:host, stands_h:hrs,
+               sponsor:'rq-'+mine.id};
+  var lc=$('landcard'); lc.style.display='block';
+  lc.innerHTML='<div class="mtitle">How it landed — a standing invitation</div>'+
+    '<div class="rl"><span>posting</span><b>'+offId+' · open invitation · '+t.label+'</b></div>'+
+    '<div class="rl"><span>the ask</span><b>'+ask.replace(/</g,'&lt;')+'</b></div>'+
+    '<div class="rl"><span>visibility</span><b>'+vis+'</b></div>'+
+    '<div class="rl"><span>kept by</span><b>'+host+' — a sponsored posting has no single keeper; never a named character</b></div>'+
+    '<div class="rl"><span>stands</span><b>~'+hrs+' h, then the card comes down — nothing flags it for rescue</b></div>'+
+    '<div class="rl"><span>sponsor</span><b>rq-'+mine.id+' · you — attribution rides the record</b></div>'+
+    '<div class="note" id="landnote">The block may ignore this — nobody is obliged. Whatever happens is the characters\u2019 call; uptake is never scored.</div>';
+  trail(mine,'landed — '+offId+' posted at '+t.label+' · stands ~'+hrs+' h · the block may ignore it');
+  feedAdd('you', (a.id==='event' ? 'an invitation went up at ' : 'the ask was passed at ')+
+          t.label.split('—')[0].trim()+' — '+offId, 'resolved');
+  /* the ending, when it comes, is a fact line — taken up or let lapse,
+     reported the same way; the world scores nothing */
+  setTimeout(function(){
+    var took = Math.random()<0.5;
+    var ln=$('landnote');
+    if (ln) ln.innerHTML = took ?
+      'The ending: the invitation was taken up — reported as fact, not a score. The block answered.' :
+      'The ending: the card came down at the end of the week — nobody obliged. That is a fine ending; nothing is owed.';
+    trail(mine, took ? 'invitation taken up — the block answered (fact, not a score)'
+                     : 'invitation let lapse — the card came down; nobody obliged');
+    feedAdd('you', offId+' '+(took?'— taken up':'— let lapse · nobody obliged'), 'resolved');
+    renderMine();
+  }, 16000);
+}
 function run(a, t, q, dm, text, label, mine){
   /* v74 — booked exclusive: approval lands on the calendar, not on the
      claim. The card counts down (demo tick = 30 min of book time); at the
@@ -1753,6 +1817,7 @@ function run(a, t, q, dm, text, label, mine){
         stage('Opportunity delivered', 'done','the character takes it from here');
         mine.st='resolved'; mine.sub+=' · accepted';
         feedAdd('you','nudge accepted','resolved');
+        landOffer(a, t, text, mine);   /* v130 — the ask lands as a counter-side standing invitation */
       }
       renderMine(); go.disabled=false;
     }, 2500);
@@ -1842,6 +1907,9 @@ function run(a, t, q, dm, text, label, mine){
     stage('Scheduled into world calendar','done','appears on feed when it fires');
     mine.st='resolved'; mine.sub+=' · approved · scheduled';
     feedAdd('you', label+' approved · scheduled','resolved');
+    /* v130 — an approved event posts its standing invitation now; the
+       block may claim it or let it lapse (booked windows mint on fire) */
+    if (a.id==='event') landOffer(a, t, text, mine);
     /* demo: the scheduled exclusive actually fires — attribution stays on */
     var kind = a.id==='weather' ? 'weather' : 'event';
     setTimeout(function(){

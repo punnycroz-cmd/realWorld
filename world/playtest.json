@@ -57,7 +57,8 @@
    "world/favors.md",
    "world/offer.html",
    "world/offers.json",
-   "world/offers.md"
+   "world/offers.md",
+   "world/requests.json"
   ],
   "not_under_test": [
    "llm behavior (sim STOPPED — no live world exists)",
@@ -5879,6 +5880,47 @@
       "offs PASS with the expected detail line",
       "jobs.json and housing.json both carry an offers_layer pointer",
       "a missed Thursday table or an unclaimed garden bed reads as a thing that happened, not a thing that failed"
+     ]
+    }
+   ]
+  },
+  {
+   "id": "PT119",
+   "title": "The Landing Layer v130 — what an approved request becomes (a posting, never a turnout)",
+   "minutes": 8,
+   "persona": "player who filed a nudge last week, watched it say 'accepted', and wants to know what that actually bought — and whether anyone is allowed to just ignore it",
+   "goal": "Verify the v130 landing layer: requests.json lands_as mints a bounded standing invitation in the offers.json shape for approved nudges and events only (open_invitation; board visibility for events, counter for nudges; host staff|regulars — never a named character; sponsor tag carrying rq-<id>; expires_h 72/168); request.html renders the 'How it landed' card with the posting verbatim and the honesty line printed on it; the ending reports taken-up or let-lapse as fact, never a score; a declined nudge mints nothing; the request audit gate's v130 marks pass.",
+   "surfaces": [
+    "request",
+    "offers",
+    "audit"
+   ],
+   "steps": [
+    {
+     "do": "Open request.html, file an NPC nudge with a plausible ask (e.g. 'Dana takes the long way through the park'), and let it run. If the demo declines it, file again until accepted — note that the decline minted nothing.",
+     "expect": "On acceptance a 'How it landed — a standing invitation' card appears: posting id off-req-<n>, open invitation, counter visibility (word of mouth), kept by staff with 'a sponsored posting has no single keeper; never a named character', stands ~72 h, sponsor rq-<n> · you, and the honesty line 'The block may ignore this — nobody is obliged… uptake is never scored.' The feed shows 'the ask was passed at <target> — off-req-<n>'.",
+     "checkpoints": [
+      "the landed card renders all six rows plus the honesty line — nothing promises a response",
+      "a declined nudge shows 'Declined by character' + 50% refund and NO landed card — the refusal mints no artifact",
+      "the receipt trail gains 'landed — off-req-<n> posted … the block may ignore it'"
+     ]
+    },
+    {
+     "do": "File an event trigger at a venue (soonest window, no booking). Wait for human review to approve, then watch the card, the feed, and the ~16 s ending line.",
+     "expect": "On approval the landed card mints board visibility, host 'regulars', stands ~168 h. The feed posts 'an invitation went up at <venue> — off-req-<n>' under the same neutral vocabulary as everything else. The ending line is one of two fact reports — 'taken up — reported as fact, not a score' or 'the card came down … nobody obliged. That is a fine ending' — styled identically either way.",
+     "checkpoints": [
+      "board visibility + regulars host + 168 h for events; counter + staff + 72 h for nudges",
+      "the ending never reads as success/failure — same styling, 'fact, not a score' / 'a fine ending' wording",
+      "weather, possess, camera, and the deed verbs mint no landed card — lands_as.never is honored"
+     ]
+    },
+    {
+     "do": "Read requests.json lands_as block against offers.json: shape_keys ⊆ the offers schema (+sponsor/expires_h/posted_by), kind/visibility values inside offers vocab, host rule 'staff | regulars — never a named character', since 'posted at a viewer's request'. Then run node world/audit.js.",
+     "expect": "lands_as reads as the machine mirror of §15: a request buys the posting, never the turnout; the record is honest about its origin; lapse = the offers neglect state, nothing flags it for rescue. Request gate passes with the 'lands nudge+event' tail on its detail line.",
+     "checkpoints": [
+      "every shape_key is an offers-schema key or one of sponsor/expires_h/posted_by",
+      "fairness_invariants gained 'a request buys the posting, never the turnout — uptake is never scored'",
+      "request gate: 0 fail; a named-character host or a success metric would FAIL — spot-check one"
      ]
     }
    ]

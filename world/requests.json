@@ -177,6 +177,25 @@
     "feed": "listing/buy/license post the same feed vocabulary — running/resolved/refunded lines carry the address, never the tenant",
     "bus_params": "buy files params.buyerId + params.ask; listing files params.kind (sale|rent)"
   },
+  "lands_as": {
+    "doc": "v130 — the landing layer: what an approved opportunity-shaped request becomes in-world. Inject-as-opportunity (design §11) mints a bounded standing invitation in the world/offers.json shape — a posted ask the block may claim, renegotiate, or ignore. A request buys the posting, never the turnout.",
+    "applies_to": ["nudge", "event"],
+    "never": ["possess", "camera", "weather", "listing", "buy", "license", "hire"],
+    "mints": {
+      "shape_keys": ["kind", "visibility", "host", "ask", "cost", "capacity", "cadence", "since", "changes", "neglect", "sponsor", "expires_h", "posted_by"],
+      "kind": { "event": "open_invitation", "nudge": "open_invitation" },
+      "visibility": { "event": "board", "nudge": "counter" },
+      "host": "staff | regulars — a sponsored posting has no single keeper; never a named character (nobody is obliged to keep it)",
+      "sponsor": "{rq: 'rq-<id>', handle} — attribution rides the record: the feed names the filer, the offer names the sponsor",
+      "posted_by": "request:<rq-id> — the record is honest about its origin; since reads 'posted at a viewer's request'",
+      "expires_h": { "nudge": 72, "event": 168 },
+      "player_text": "the screened intent text may inform the ask; the posted wording is house-worded — screening happens on the request, the venue keeps its own voice"
+    },
+    "feed": "the feed line reports the posting — 'an invitation went up at <venue> (requested by X)' — never 'the NPCs will…'; uptake is never scored: a later line may report what happened ('the table filled' / 'the card came down unread') as fact, not as success or failure",
+    "lapse": "at expiry the invitation lapses to its neglect state — the card comes down; nothing flags it for rescue and no one is owed an explanation",
+    "honesty": "the landed card never promises a response; 'the block may ignore this — nobody is obliged' is printed on the card itself, and uptake is never scored",
+    "live_seam": "bridged: a terminal approved meter on a nudge/event reports the minted offer id when the bus carries one (lands_as read: gsExplainRequest(id).offer); absent → the local landed card is the contract reference"
+  },
   "fairness_invariants": [
     "cooldowns never purchasable",
     "surge multiplier shown before payment",
@@ -185,7 +204,8 @@
     "admin overrides compensate affected players",
     "no auctions for slots; FCFS within class",
     "a time slot is not an upgrade — booking never reprices",
-    "registry paperwork never surges — a deed fee is a fee, not a bid"
+    "registry paperwork never surges — a deed fee is a fee, not a bid",
+    "a request buys the posting, never the turnout — uptake is never scored"
   ],
   "booking": {
     "doc": "v74 — the Book: scheduled exclusives. Spec world/bookings.md; machine mirror world/bookings.json; public calendar surface world/book.html; the When picker in request.html.",

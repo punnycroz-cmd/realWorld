@@ -485,6 +485,17 @@ One person can wear every hat; four real testers is the intended shape.
   script. The audit's v129 marks pin the doors+buildings coverage, the
   host vocabulary, the mandatory changes/neglect pair, the deep OFF
   mirror, and the quiet/counter clearance-redaction paths.
+  PT119 (request v130) audits the landing layer — what an approved
+  nudge or event *becomes*: a bounded standing invitation minted in the
+  offers.json shape (open_invitation; board for events, counter for
+  nudges; host staff|regulars, never a named character; sponsor tag
+  carrying rq-<id>; expiry in hours), rendered on the "How it landed"
+  card with the honesty line printed on it — the block may ignore this,
+  nobody is obliged, uptake is never scored. A declined nudge mints
+  nothing; endings report taken-up or let-lapse as fact, never success
+  or failure. The audit's v130 marks pin the lands_as contract against
+  the offers schema and vocabularies, the host rule, the new fairness
+  invariant, and the locked card copy.
 
 ## 3. Running a session
 

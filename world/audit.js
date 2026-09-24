@@ -103,7 +103,10 @@
                 events fire, hire routes to create.html, demo hooks;
                 dark-pattern vocabulary absent; v60: live seam
                 (__aiBridge detect, capability-guarded gsRequestSubmit),
-                pre-flight check (free, never a gate), receipt drawer
+                pre-flight check (free, never a gate), receipt drawer;
+                v130: lands_as mints offers.json-shaped invitations —
+                kind/visibility ⊆ offers vocab, host never a named
+                character, uptake never scored, honesty line locked
     wire      — feed.json ↔ wire.html: every event kind/status has a chip
                 style; honesty strings + live seam + v33 affordances present;
                 demo seeds mirrored; NO button offers a world-touching verb
@@ -3707,7 +3710,47 @@ const PUB = Object.values(PT.surfaces)
     for (const m of html.matchAll(/deedCr:(\d+)/g))
       if (!Object.values((LPROG.owner || {}).deed_fee_cr || {}).includes(+m[1]))
         add(g, 'fail', 'request.html', null, `deedCr ${m[1]} is not a ladder tier fee`);
-    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'}`;
+    /* v130 — the landing layer: approved nudges/events mint a bounded
+       standing invitation in the offers.json shape; the card carries the
+       honesty line and the ending reports as fact, never a score */
+    const LA = RJ.lands_as || {};
+    const OFFJ = JSONF('offers.json');
+    const ACTIDS = new Set(RJ.actions.map(x => x.id));
+    if (!LA.doc || !(LA.applies_to || []).length)
+      add(g, 'fail', 'requests.json', null, 'lands_as block missing (v130)');
+    for (const id of LA.applies_to || [])
+      if (!ACTIDS.has(id)) add(g, 'fail', 'requests.json', null, `lands_as applies_to "${id}" not an action`);
+    for (const id of ['nudge', 'event'])
+      if (!(LA.applies_to || []).includes(id))
+        add(g, 'fail', 'requests.json', null, `lands_as must cover ${id}`);
+    for (const id of LA.never || [])
+      if ((LA.applies_to || []).includes(id))
+        add(g, 'fail', 'requests.json', null, `lands_as never/applies overlap: ${id}`);
+    const M = LA.mints || {};
+    const OFFKEYS = new Set(['id', 'kind', 'visibility', 'host', 'ask', 'cost', 'capacity',
+      'cadence', 'since', 'changes', 'neglect', 'sponsor', 'expires_h', 'posted_by']);
+    for (const k of M.shape_keys || [])
+      if (!OFFKEYS.has(k)) add(g, 'fail', 'requests.json', null, `lands_as shape key "${k}" outside the offers schema`);
+    for (const [a2, kk] of Object.entries(M.kind || {}))
+      if (!OFFJ.kind_keys[kk]) add(g, 'fail', 'requests.json', null, `lands_as kind "${kk}" (${a2}) not an offers kind`);
+    for (const [a2, vv] of Object.entries(M.visibility || {}))
+      if (!OFFJ.visibility_keys[vv]) add(g, 'fail', 'requests.json', null, `lands_as visibility "${vv}" (${a2}) not an offers visibility`);
+    for (const [a2, h] of Object.entries(M.expires_h || {}))
+      if (typeof h !== 'number' || h <= 0) add(g, 'fail', 'requests.json', null, `lands_as expires_h.${a2} must be a positive hour count`);
+    if (!/may ignore/.test(LA.honesty || '') || !/never scored/.test(LA.honesty || ''))
+      add(g, 'fail', 'requests.json', null, 'lands_as honesty line missing (may ignore / never scored)');
+    if (!/never scored|not as success/i.test(LA.feed || ''))
+      add(g, 'fail', 'requests.json', null, 'lands_as feed contract must bar uptake scoring');
+    if (!/staff/.test(M.host || '') || !/regulars/.test(M.host || '') || !/never a named/.test(M.host || ''))
+      add(g, 'fail', 'requests.json', null, 'lands_as host must be staff|regulars, never a named keeper');
+    if (!(RJ.fairness_invariants || []).some(s => /never the turnout|never scored/.test(s)))
+      add(g, 'fail', 'requests.json', null, 'fairness_invariants missing the posting-not-turnout rule');
+    for (const s of ['landcard', 'landOffer', 'How it landed', 'standing invitation',
+                     'may ignore this', 'nobody is obliged', 'uptake is never scored',
+                     'an invitation went up at', 'let lapse', 'not a score',
+                     'no single keeper', 'card comes down'])
+      if (!html.includes(s)) add(g, 'fail', 'request.html', null, `v130 landing surface missing "${s}"`);
+    g.detail = `${RJ.actions.length} actions · ${RJ.wallet.packs.length} packs · appeal ${RJ.appeals.window_h} h · co-sponsor cap ${co.cap} · approve-modified ${am.feed_status || 'MISSING'} · seam ${LS.write ? 'wired' : 'MISSING'} · lands ${(LA.applies_to || []).join('+') || 'MISSING'}`;
   } catch (e) { add(g, 'fail', 'requests.json', null, 'parse/check failure: ' + e.message); }
 }
 
