@@ -2839,6 +2839,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfAgave' && V.agave){ spr = V.agave[o.v || 0]; propM = 0.7; footM = 0.7; }
       else if(o.kind === 'sfEchium' && V.echium){ spr = V.echium[o.v || 0]; propM = 1.2; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
+      else if(o.kind === 'sfParklet' && V.parklet) spr = V.parklet[o.dir || 0][o.v || 0];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
       // v53: the furniture layer — low objects, real heights for the
       // sun throw, footprint discs so none of them float
@@ -2846,6 +2847,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfTrashCan' && V.trashCan){ spr = V.trashCan; propM = 0.85; footM = 0.4; }
       else if(o.kind === 'sfNewsBox' && V.newsBox){ spr = V.newsBox[o.v || 0]; propM = 1.1; footM = 0.6; }
       else if(o.kind === 'sfBikeRack' && V.bikeRack){ spr = V.bikeRack[o.v || 0]; propM = 0.9; footM = 0.9; }
+      else if(o.kind === 'sfBins' && V.bins){ spr = V.bins[o.dir || 0]; propM = 0.95; footM = 0.8; }
       else if(o.kind === 'sfPicnic' && V.blanket){
         // weather- and hour-gated lawn life: empty spots don't draw
         if(!sfPicnicOn(o)) continue;
@@ -2898,6 +2900,30 @@ function sfRenderWorld(cw, ch){
                       sa - 0.55, sa + 0.55);
           ctx.stroke();
         }
+        continue;
+      }
+      if(o.kind === 'sfParklet' && sprC){
+        /* v65: curb-lane parklet — a low deck (0.16m) with a 1.05m
+           perimeter rail. Plan-view deck sprite over a contact pad plus
+           the rail's short sun-throw on the asphalt; umbrella variants
+           add their own canopy streak. */
+        const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
+        const sy = Math.round(sfSY(o.y, ch));
+        const cw2 = sprC.width * cam.zoom, chh = sprC.height * cam.zoom;
+        ctx.fillStyle = 'rgba(16,13,9,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(sx, sy + cam.zoom, cw2 * 0.5, chh * 0.48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if(!isNight() && SF_SUN.day > 0.08){
+          const hmPx = 1.05 * SF_PXM * cam.zoom;
+          const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+          sfSoftEllipse(sx + shx, sy + shy,
+                        cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
+                        chh * 0.5, Math.atan2(shy, shx),
+                        0.2 * Math.min(1, SF_SUN.day + 0.3),
+                        sfUmbra(Math.hypot(shx, shy)));
+        }
+        ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
         continue;
       }
       if(sprC){
@@ -5841,6 +5867,107 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  /* v65: facade garnish — Calle 24 papel-picado strings and porch
+     bracket flags. Both stand ~0.3m proud of the wall on real sag
+     curves and answer the same wind field the trees lean to: pennants
+     cant along-wall downwind, flag cloth streams off the pole tip and
+     wraps along the face when the wind blows into it. The impostor
+     bake key already folds in windAng + rain, so baked walls stay
+     honest to the gust they were baked under. */
+  if(det >= 1 && !mural && ny > 0.05 && hm > 5.2 && W.windSpd != null){
+    const wAlong = wvx * ux + wvy * uy;
+    if(phash(i, ei, 5930) < (isShop ? 0.6 : 0.16)){
+      // the garland rides at the mid-facade band — over the shop awning,
+      // across the parlor windows — and never above the parapet
+      const pz = Math.min(isShop ? 4.3 : 3.45, hm + para - 1.6);
+      const pu0 = 0.07, pu1 = 0.93, sag = clamp(L * 0.055, 0.22, 0.6);
+      const off = 0.3;
+      const PP = ['#d8402e', '#e89820', '#28a0b0', '#d0488a', '#58a038', '#7848c8'];
+      const nF = Math.max(4, Math.floor(L * (pu1 - pu0) / 0.52));
+      const cord = t => pr(x1 + ex * (pu0 + (pu1 - pu0) * t) + nx * off,
+                           y1 + ey * (pu0 + (pu1 - pu0) * t) + ny * off,
+                           pz - sag * Math.sin(Math.PI * t));
+      ctx.strokeStyle = 'rgba(30,24,18,0.8)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      let cs = false;
+      for(let k = 0; k <= 8; k++){
+        const c = cord(k / 8); if(!c){ cs = false; continue; }
+        cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
+      }
+      ctx.stroke();
+      const cant = clamp(wAlong * (W.windSpd || 0), -1, 1) * 0.28;
+      const shift = Math.floor(phash(i, ei, 5932) * 6);
+      for(let k = 0; k < nF; k++){
+        const t0 = pu0 + (pu1 - pu0) * (k + 0.12) / nF,
+              t1 = pu0 + (pu1 - pu0) * (k + 0.88) / nF;
+        const a = cord((t0 - pu0) / (pu1 - pu0)),
+              bq = cord((t1 - pu0) / (pu1 - pu0));
+        if(!a || !bq) continue;
+        const kick = cant * (0.7 + 0.6 * phash(i, k, 5931));
+        const c1 = pr(x1 + ex * t1 + nx * off + ux * kick,
+                      y1 + ey * t1 + ny * off + uy * kick,
+                      pz - sag * Math.sin(Math.PI * (t1 - pu0) / (pu1 - pu0)) - 0.62);
+        const c0 = pr(x1 + ex * t0 + nx * off + ux * kick,
+                      y1 + ey * t0 + ny * off + uy * kick,
+                      pz - sag * Math.sin(Math.PI * (t0 - pu0) / (pu1 - pu0)) -
+                      0.62 * (1 - 0.12 * Math.sin(k * 2.1)));
+        if(!c0 || !c1) continue;
+        ctx.fillStyle = shade(PP[(k + shift) % 6],
+                              Math.max(0.5, Math.min(1.15, lit)));
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(bq[0], bq[1]);
+        ctx.lineTo(c1[0], c1[1]); ctx.lineTo(c0[0], c0[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // porch flag on a wall bracket — cloth streams downwind off the tip
+    if(phash(i, ei, 5940) < (isShop ? 0.34 : 0.2)){
+      const fu = 0.08 + phash(i, ei, 5941) * 0.16;
+      const fz = Math.min(isShop ? 4.9 : 4.1, hm + para - 1.35);
+      const fx = x1 + ex * fu, fy = y1 + ey * fu;
+      const b0 = pr(fx + nx * 0.06, fy + ny * 0.06, fz - 0.5),
+            tip = pr(fx + nx * 1.05, fy + ny * 1.05, fz + 0.85);
+      if(b0 && tip){
+        ctx.strokeStyle = night ? '#141008' : '#2c241c';
+        ctx.lineWidth = Math.max(1.2, F * 0.02 / tip[2]);
+        ctx.beginPath(); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(tip[0], tip[1]); ctx.stroke();
+        let dxw = wvx, dyw = wvy;
+        const into = dxw * nx + dyw * ny;
+        if(into < -0.2){ dxw -= nx * into; dyw -= ny * into; }
+        const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
+        const FL = 1.0, FH = 0.6,
+              flut = 0.06 * Math.min(1.5, W.windSpd || 0);
+        const stripe = phash(i, ei, 5942) < 0.45
+          ? ['#d8402e', '#e89820', '#4a9a5a']
+          : [['#28457a'], ['#a03838'], ['#3a7a5a'], ['#d8d0c0']][Math.floor(phash(i, ei, 5943) * 4)];
+        for(let s2 = 0; s2 < stripe.length; s2++){
+          ctx.fillStyle = shade(stripe[s2], Math.max(0.5, Math.min(1.1, lit)));
+          ctx.beginPath();
+          let started = false;
+          for(let k = 0; k <= 3; k++){
+            const t = k / 3,
+                  wave = Math.sin(t * 4.4 + i * 1.7 + s2) * flut * t;
+            const q = pr(fx + nx * 1.05 + dxw * FL * t - dyw * wave,
+                         fy + ny * 1.05 + dyw * FL * t + dxw * wave,
+                         fz + 0.85 - FH * s2 / stripe.length - 0.05 * t);
+            if(!q){ started = false; continue; }
+            started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+            started = true;
+          }
+          for(let k = 3; k >= 0; k--){
+            const t = k / 3,
+                  wave = Math.sin(t * 4.4 + i * 1.7 + s2) * flut * t;
+            const q = pr(fx + nx * 1.05 + dxw * FL * t - dyw * wave,
+                         fy + ny * 1.05 + dyw * FL * t + dxw * wave,
+                         fz + 0.85 - FH * (s2 + 1) / stripe.length - 0.05 * t);
+            if(q) ctx.lineTo(q[0], q[1]);
+          }
+          ctx.closePath(); ctx.fill();
+        }
+      }
+    }
+  }
+
   // v9: distance haze toward the horizon color, driven by live humidity
   const hz = sfHazeA(fwd);
   if(hz > 0.02){
@@ -5957,6 +6084,153 @@ function sfCarStreet(o, pr, F, night){
         ctx.fillRect(lp[0] - 0.1 * sc, lp[1] - 0.06 * sc, 0.2 * sc, 0.12 * sc);
       }
     }
+  }
+}
+/* v65: curb-lane parklet in the street view — a raised cedar deck with
+   a waist-high rail, planter boxes at the ends, and the same furniture
+   variants the top-down sprite bakes (tables / umbrella / bench). The
+   deck stands in the parking lane a car's hash skipped. */
+function sfParkletStreet(o, pr, F, night){
+  const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const oz = sfGroundZ(mx, my);
+  const p = pr(mx, my, oz); if(!p) return;
+  const sc = F / p[2];
+  const ax = o.dir === 0 ? 1 : 0, ay = o.dir === 0 ? 0 : 1,
+        bx = ay, by = ax;
+  const hl = 2.6, hw = 0.95, dz = 0.16, rail = 1.05;
+  const pt = (a, b2, z) => pr(mx + ax * a + bx * b2, my + ay * a + by * b2, oz + z);
+  const shadeO = night ? 0.45 : 1;
+  // contact shade + the rail's short sun streak on the asphalt
+  ctx.fillStyle = 'rgba(14,11,8,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(p[0], p[1], hl * sc, hw * sc * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+  if(!night && SF_SUN.day > 0.08){
+    const tp = pr(mx + SF_SUN.x * rail, my + SF_SUN.y * rail,
+                  sfGroundZ(mx + SF_SUN.x * rail, my + SF_SUN.y * rail));
+    if(tp) sfSoftEllipse((p[0] + tp[0]) / 2, (p[1] + tp[1]) / 2,
+                         hl * sc + Math.hypot(tp[0] - p[0], tp[1] - p[1]) / 2,
+                         hw * sc * 0.45,
+                         Math.atan2(tp[1] - p[1], tp[0] - p[0]),
+                         0.22 * Math.min(1, SF_SUN.day + 0.3),
+                         sfUmbra(Math.hypot(tp[0] - p[0], tp[1] - p[1])));
+  }
+  // deck slab: side skirt + board top
+  const quadP = (pts, fill) => {
+    ctx.fillStyle = fill; ctx.beginPath();
+    let st = false;
+    for(const q of pts){ if(!q) return; st ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); st = true; }
+    ctx.closePath(); ctx.fill();
+  };
+  quadP([pt(-hl, -hw, 0), pt(hl, -hw, 0), pt(hl, -hw, dz), pt(-hl, -hw, dz)],
+        shade('#7a5f3c', 0.72 * shadeO));
+  quadP([pt(-hl, hw, 0), pt(hl, hw, 0), pt(hl, hw, dz), pt(-hl, hw, dz)],
+        shade('#7a5f3c', 0.6 * shadeO));
+  quadP([pt(-hl, -hw, dz), pt(hl, -hw, dz), pt(hl, hw, dz), pt(-hl, hw, dz)],
+        shade('#9a7a50', (0.85 + 0.3 * Math.max(0, sfSunFaceK(0, -1))) * shadeO));
+  // board seams across the short axis
+  ctx.strokeStyle = 'rgba(40,30,18,0.5)'; ctx.lineWidth = 1;
+  for(let k = -hl + 0.65; k < hl - 0.3; k += 0.65){
+    const s0 = pt(k, -hw, dz + 0.01), s1 = pt(k, hw, dz + 0.01);
+    if(!s0 || !s1) continue;
+    ctx.beginPath(); ctx.moveTo(s0[0], s0[1]); ctx.lineTo(s1[0], s1[1]); ctx.stroke();
+  }
+  // perimeter rail: posts on the long edges + ends, two rail runs
+  const iron = night ? '#14100c' : '#34383c';
+  ctx.strokeStyle = iron;
+  for(let k = -hl; k <= hl + 0.01; k += 1.3){
+    for(const e2 of [-hw, hw]){
+      const b0 = pt(Math.min(k, hl), e2, dz), t0 = pt(Math.min(k, hl), e2, rail);
+      if(!b0 || !t0) continue;
+      ctx.lineWidth = Math.max(1, 0.09 * sc);
+      ctx.beginPath(); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(t0[0], t0[1]); ctx.stroke();
+    }
+  }
+  for(const e2 of [-hw, hw]){
+    const r0 = pt(-hl, e2, rail), r1 = pt(hl, e2, rail),
+          m0 = pt(-hl, e2, rail * 0.55), m1 = pt(hl, e2, rail * 0.55);
+    if(r0 && r1){
+      ctx.lineWidth = Math.max(1.2, 0.12 * sc);
+      ctx.beginPath(); ctx.moveTo(r0[0], r0[1]); ctx.lineTo(r1[0], r1[1]); ctx.stroke();
+    }
+    if(m0 && m1){
+      ctx.lineWidth = Math.max(1, 0.07 * sc);
+      ctx.beginPath(); ctx.moveTo(m0[0], m0[1]); ctx.lineTo(m1[0], m1[1]); ctx.stroke();
+    }
+  }
+  // planter boxes anchoring the ends — soil + leaf tufts over the rail
+  for(const e of [-1, 1]){
+    const cxa = e * (hl - 0.35);
+    quadP([pt(cxa - 0.3, -hw + 0.1, dz), pt(cxa + 0.3, -hw + 0.1, dz),
+           pt(cxa + 0.3, hw - 0.1, dz), pt(cxa - 0.3, hw - 0.1, dz)],
+          shade('#5a4a34', shadeO));
+    for(let m = 0; m < 5; m++){
+      const gq = pt(cxa - 0.24 + (m % 3) * 0.24,
+                    -hw + 0.3 + m * 0.32, dz + 0.28 + (m % 2) * 0.12);
+      if(!gq) continue;
+      ctx.fillStyle = m % 2 ? '#4a7a3a' : '#5a8a42';
+      ctx.beginPath(); ctx.arc(gq[0], gq[1], Math.max(1.4, 0.14 * sc), 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // furniture by variant (mirrors sfParkletSpr)
+  const furn = night ? '#1c1812' : '#2c241c';
+  if(o.v === 1){
+    const pl = pt(0, 0, dz), tp2 = pt(0, 0, 2.1);
+    if(pl && tp2){
+      ctx.strokeStyle = furn; ctx.lineWidth = Math.max(1, 0.07 * sc);
+      ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(tp2[0], tp2[1]); ctx.stroke();
+      ctx.fillStyle = '#b8542e';
+      ctx.beginPath();
+      ctx.ellipse(tp2[0], tp2[1], 1.35 * sc, Math.max(1.5, 0.45 * sc), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,235,200,0.35)';
+      ctx.beginPath();
+      ctx.ellipse(tp2[0] - 0.3 * sc, tp2[1] - 0.1 * sc, 0.7 * sc, 0.2 * sc, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else {
+    for(const e of (o.v === 2 ? [0] : [-0.9, 0.9])){
+      const tb = pt(e, 0, 0.72), lg = pt(e, 0, dz);
+      if(!tb || !lg) continue;
+      ctx.strokeStyle = furn; ctx.lineWidth = Math.max(1, 0.06 * sc);
+      ctx.beginPath(); ctx.moveTo(lg[0], lg[1]); ctx.lineTo(tb[0], tb[1]); ctx.stroke();
+      ctx.fillStyle = '#8a8074';
+      ctx.beginPath();
+      ctx.ellipse(tb[0], tb[1], (o.v === 2 ? 1.1 : 0.42) * sc,
+                  Math.max(1.2, 0.16 * sc), 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+/* v65: the Recology three-cart row in street view — blue/green/black
+   cuboids along the curb axis, lids shut, wheels to the street. */
+function sfBinsStreet(o, pr, F, night){
+  const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const oz = sfGroundZ(mx, my);
+  const p = pr(mx, my, oz); if(!p) return;
+  const sc = F / p[2];
+  const ax = o.dir === 0 ? 1 : 0, ay = o.dir === 0 ? 0 : 1,
+        bx = ay, by = ax;
+  const cols = ['#3a68b0', '#4e7a3a', '#2e2c28'];
+  ctx.fillStyle = 'rgba(14,11,8,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(p[0], p[1], 1.1 * sc, Math.max(1.2, 0.3 * sc), 0, 0, Math.PI * 2); ctx.fill();
+  for(let k = -1; k <= 1; k++){
+    const col = shade(cols[k + 1], night ? 0.45 : 1);
+    const hw2 = 0.26, hd = 0.3, h = 1.02;
+    const cq = (a, b2, z) => pr(mx + ax * (k * 0.62 + a) + bx * b2,
+                                my + ay * (k * 0.62 + a) + by * b2, oz + z);
+    // front + top + sun-side faces of a small cuboid
+    const F2 = (pts, fill) => {
+      const pp = pts.map(q => cq(q[0], q[1], q[2]));
+      if(pp.some(q => !q)) return;
+      ctx.fillStyle = fill; ctx.beginPath();
+      ctx.moveTo(pp[0][0], pp[0][1]);
+      for(let q = 1; q < pp.length; q++) ctx.lineTo(pp[q][0], pp[q][1]);
+      ctx.closePath(); ctx.fill();
+    };
+    F2([[-hw2, -hd, 0], [hw2, -hd, 0], [hw2, -hd, h], [-hw2, -hd, h]], col);
+    F2([[-hw2, hd, 0], [hw2, hd, 0], [hw2, hd, h], [-hw2, hd, h]], shade(col, 0.8));
+    F2([[-hw2, -hd, h], [hw2, -hd, h], [hw2, hd, h], [-hw2, hd, h]], shade(col, 1.18));
   }
 }
 /* ---------------- v63: WALL IMPOSTOR ATLAS ----------------
@@ -8042,6 +8316,8 @@ function sfRenderStreet(cw, ch){
     } else if(d.k === 'p'){
       const o = d.o;
       if(o.kind === 'sfCar'){ sfCarStreet(o, pr, F, night); continue; }
+      if(o.kind === 'sfParklet'){ sfParkletStreet(o, pr, F, night); continue; }
+      if(o.kind === 'sfBins'){ sfBinsStreet(o, pr, F, night); continue; }
       // v28: props stand on the surface under them — a pole planted on
       // the sidewalk starts at curb height, not inside the slab
       const oz = sfGroundZ(o.x / SF_PXM, o.y / SF_PXM);

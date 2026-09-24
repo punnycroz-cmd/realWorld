@@ -664,6 +664,81 @@ function sfInitWorld(){
       VILLAGE_OBJECTS.push(o); sfPropIndex(o); nCars++;
     }
   }
+  /* ---- v65 streetrooms: parklets + collection-day curb bins ----
+     SF invented the parklet: a cafe's frontage spills into the curb lane
+     on a raised deck — rail, planters, tables — exactly where a parked
+     car would sit. One deterministic deck per POI shopfront whose curb
+     lane is free of parked cars and crosswalk approaches; the deck
+     claims the slot a car's hash skipped. Residential frontage gets the
+     Recology three-cart row (recycle/compost/landfill) at the curb on
+     the block's hash-assigned pickup morning. */
+  let nParklet = 0;
+  for(const p of SF_POIS){
+    if(nParklet >= 80) break;
+    if(p.bld == null || p.bld < 0) continue;
+    const d = SF_DOOR_OF.get(p.bld);
+    if(!d) continue;
+    // the sidewalk cell at the door tells which side the curb lane is on
+    let sAx = 0, sAy = 0, sOx = 0, sOy = 0;
+    for(const [ox2, oy2] of [[0, -1], [0, 1], [-1, 0], [1, 0]]){
+      const sx = d.wx + ox2, sy = d.wy + oy2;
+      if(sfTile(sx, sy) !== 11) continue;
+      if(sfTile(sx, sy - 1) === 10){ sAx = 1; sOy = -1; }
+      else if(sfTile(sx, sy + 1) === 10){ sAx = 1; sOy = 1; }
+      else if(sfTile(sx - 1, sy) === 10){ sAy = 1; sOx = -1; }
+      else if(sfTile(sx + 1, sy) === 10){ sAy = 1; sOx = 1; }
+      else continue;
+      break;
+    }
+    if(!sAx && !sAy) continue;
+    let best = null, bestH = 2;
+    for(let k = -5; k <= 5; k++){
+      const px2 = d.wx + sOx + sAx * k, py2 = d.wy + sOy + sAy * k;
+      if(sfTile(px2, py2) !== 10) continue;
+      // still on the same curb run — sidewalk on the curb side, street
+      // continuing along the axis on both deck ends
+      if(sfTile(px2 - sOx, py2 - sOy) !== 11) continue;
+      if(sfTile(px2 + sAx, py2 + sAy) !== 10 ||
+         sfTile(px2 - sAx, py2 - sAy) !== 10) continue;
+      if(nearCross(px2, py2, sAx, sAy)) continue;
+      // the deck footprint straddles ~1.5 slots; no parked car may stand
+      // in any of them (same gate the car pass uses, salt 1690)
+      const slot = sAx ? px2 : py2, cross = sAx ? py2 : px2;
+      if(phash(slot, cross, 1690) <= 0.17 ||
+         phash(slot + 1, cross, 1690) <= 0.17 ||
+         phash(slot - 1, cross, 1690) <= 0.17) continue;
+      const h = phash(px2, py2, 5910) + Math.abs(k) * 0.05;
+      if(h < bestH){ bestH = h; best = { px: px2, py: py2 }; }
+    }
+    if(!best) continue;
+    const o = { kind: 'sfParklet',
+      x: best.px * CS + 16 + sOx * 9, y: best.py * CS + 16 + sOy * 9,
+      wx: best.px, wy: best.py, dir: sAx ? 0 : 1,
+      v: Math.floor(phash(best.px, best.py, 5911) * 3) };
+    VILLAGE_OBJECTS.push(o); sfPropIndex(o); nParklet++;
+  }
+  /* Recology curb rows — on a block's pickup morning the three carts
+     line the curb in front of the houses. A frontage cell is sidewalk
+     pinned between a building face (12) and the street (10); ~1 in 6
+     fronts have theirs out, and never across a door threshold. */
+  let nBins = 0;
+  for(let wy = 1; wy < SF_M.gh - 1 && nBins < 900; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1 && nBins < 900; wx++){
+      if(sfTile(wx, wy) !== 11) continue;
+      let bx2 = 0, by2 = 0;
+      if(sfTile(wx, wy - 1) === 12 && sfTile(wx, wy + 1) === 10) by2 = 1;
+      else if(sfTile(wx, wy + 1) === 12 && sfTile(wx, wy - 1) === 10) by2 = -1;
+      else if(sfTile(wx - 1, wy) === 12 && sfTile(wx + 1, wy) === 10) bx2 = 1;
+      else if(sfTile(wx + 1, wy) === 12 && sfTile(wx - 1, wy) === 10) bx2 = -1;
+      else continue;
+      if(phash(wx, wy, 5920) > 0.16) continue;
+      if(doorNear(wx, wy, 1) || occNear(wx, wy, 0)) continue;
+      const o = addVeg('sfBins', wx, wy, bx2 * 10, by2 * 10);
+      o.dir = bx2 ? 1 : 0;   // carts line up ALONG the street axis
+      nBins++;
+    }
+  }
+
   /* ---- v20: utility poles + overhead wire runs ----
      Mission streets carry pole lines along the sidewalk edge — a pole
      every ~9 cells, then catenary spans to the next pole up the run.

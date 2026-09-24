@@ -28088,6 +28088,81 @@ function sfInitWorld(){
       VILLAGE_OBJECTS.push(o); sfPropIndex(o); nCars++;
     }
   }
+  /* ---- v65 streetrooms: parklets + collection-day curb bins ----
+     SF invented the parklet: a cafe's frontage spills into the curb lane
+     on a raised deck — rail, planters, tables — exactly where a parked
+     car would sit. One deterministic deck per POI shopfront whose curb
+     lane is free of parked cars and crosswalk approaches; the deck
+     claims the slot a car's hash skipped. Residential frontage gets the
+     Recology three-cart row (recycle/compost/landfill) at the curb on
+     the block's hash-assigned pickup morning. */
+  let nParklet = 0;
+  for(const p of SF_POIS){
+    if(nParklet >= 80) break;
+    if(p.bld == null || p.bld < 0) continue;
+    const d = SF_DOOR_OF.get(p.bld);
+    if(!d) continue;
+    // the sidewalk cell at the door tells which side the curb lane is on
+    let sAx = 0, sAy = 0, sOx = 0, sOy = 0;
+    for(const [ox2, oy2] of [[0, -1], [0, 1], [-1, 0], [1, 0]]){
+      const sx = d.wx + ox2, sy = d.wy + oy2;
+      if(sfTile(sx, sy) !== 11) continue;
+      if(sfTile(sx, sy - 1) === 10){ sAx = 1; sOy = -1; }
+      else if(sfTile(sx, sy + 1) === 10){ sAx = 1; sOy = 1; }
+      else if(sfTile(sx - 1, sy) === 10){ sAy = 1; sOx = -1; }
+      else if(sfTile(sx + 1, sy) === 10){ sAy = 1; sOx = 1; }
+      else continue;
+      break;
+    }
+    if(!sAx && !sAy) continue;
+    let best = null, bestH = 2;
+    for(let k = -5; k <= 5; k++){
+      const px2 = d.wx + sOx + sAx * k, py2 = d.wy + sOy + sAy * k;
+      if(sfTile(px2, py2) !== 10) continue;
+      // still on the same curb run — sidewalk on the curb side, street
+      // continuing along the axis on both deck ends
+      if(sfTile(px2 - sOx, py2 - sOy) !== 11) continue;
+      if(sfTile(px2 + sAx, py2 + sAy) !== 10 ||
+         sfTile(px2 - sAx, py2 - sAy) !== 10) continue;
+      if(nearCross(px2, py2, sAx, sAy)) continue;
+      // the deck footprint straddles ~1.5 slots; no parked car may stand
+      // in any of them (same gate the car pass uses, salt 1690)
+      const slot = sAx ? px2 : py2, cross = sAx ? py2 : px2;
+      if(phash(slot, cross, 1690) <= 0.17 ||
+         phash(slot + 1, cross, 1690) <= 0.17 ||
+         phash(slot - 1, cross, 1690) <= 0.17) continue;
+      const h = phash(px2, py2, 5910) + Math.abs(k) * 0.05;
+      if(h < bestH){ bestH = h; best = { px: px2, py: py2 }; }
+    }
+    if(!best) continue;
+    const o = { kind: 'sfParklet',
+      x: best.px * CS + 16 + sOx * 9, y: best.py * CS + 16 + sOy * 9,
+      wx: best.px, wy: best.py, dir: sAx ? 0 : 1,
+      v: Math.floor(phash(best.px, best.py, 5911) * 3) };
+    VILLAGE_OBJECTS.push(o); sfPropIndex(o); nParklet++;
+  }
+  /* Recology curb rows — on a block's pickup morning the three carts
+     line the curb in front of the houses. A frontage cell is sidewalk
+     pinned between a building face (12) and the street (10); ~1 in 6
+     fronts have theirs out, and never across a door threshold. */
+  let nBins = 0;
+  for(let wy = 1; wy < SF_M.gh - 1 && nBins < 900; wy++){
+    for(let wx = 1; wx < SF_M.gw - 1 && nBins < 900; wx++){
+      if(sfTile(wx, wy) !== 11) continue;
+      let bx2 = 0, by2 = 0;
+      if(sfTile(wx, wy - 1) === 12 && sfTile(wx, wy + 1) === 10) by2 = 1;
+      else if(sfTile(wx, wy + 1) === 12 && sfTile(wx, wy - 1) === 10) by2 = -1;
+      else if(sfTile(wx - 1, wy) === 12 && sfTile(wx + 1, wy) === 10) bx2 = 1;
+      else if(sfTile(wx + 1, wy) === 12 && sfTile(wx - 1, wy) === 10) bx2 = -1;
+      else continue;
+      if(phash(wx, wy, 5920) > 0.16) continue;
+      if(doorNear(wx, wy, 1) || occNear(wx, wy, 0)) continue;
+      const o = addVeg('sfBins', wx, wy, bx2 * 10, by2 * 10);
+      o.dir = bx2 ? 1 : 0;   // carts line up ALONG the street axis
+      nBins++;
+    }
+  }
+
   /* ---- v20: utility poles + overhead wire runs ----
      Mission streets carry pole lines along the sidewalk edge — a pole
      every ~9 cells, then catenary spans to the next pole up the run.
@@ -29787,6 +29862,106 @@ function sfBikeRackSpr(v){
   }
   return s;
 }
+/* ---- v65 streetrooms ----
+   sfParkletSpr(dir, v) — plan view of the curb-lane deck every Mission
+   cafe claims under the parklet program: a cedar platform ~5.2x1.8m
+   ringed by a steel rail on the traffic sides, planter boxes on the
+   ends, and furniture that varies by variant (v0 two cafe tables,
+   v1 umbrella + table, v2 bench + planter). dir 0 = E-W street. */
+function sfParkletSpr(dir, v){
+  const w = dir === 0 ? 88 : 32, h = dir === 0 ? 32 : 88;
+  const s = paMk(w, h), g = s.g;
+  const WD = rampOf('#9a7a50'), IR = rampOf('#34383c'),
+        PL = rampOf('#5a4a34'), LF = rampOf('#4a7a3a');
+  const L = dir === 0 ? w : h;
+  // soft under-shadow pad
+  paEllipse(g, w / 2, h / 2 + 1, w * 0.48, h * 0.44, 'rgba(20,16,10,0.25)');
+  // deck boards: base + seams across the short axis + sun/weather strips
+  paR(g, 2, 2, w - 4, h - 4, WD[3]);
+  for(let k = 8; k < L - 4; k += 7){
+    if(dir === 0) paR(g, k, 3, 1, h - 6, WD[1]);
+    else paR(g, 3, k, w - 6, 1, WD[1]);
+  }
+  if(dir === 0){ paR(g, 2, 2, w - 4, 2, WD[4]); paR(g, 2, h - 5, w - 4, 3, WD[1]); }
+  else { paR(g, 2, 2, 2, h - 4, WD[4]); paR(g, w - 5, 2, 3, h - 4, WD[1]); }
+  // perimeter rail: posts + rails on both long edges and the ends —
+  // reads as the dark frame that keeps the deck honest to the lane
+  if(dir === 0){
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < w - 6; k += 12){
+      paPX(g, k, 2, IR[0]); paPX(g, k, h - 3, IR[0]);
+    }
+  } else {
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < h - 6; k += 12){
+      paPX(g, 2, k, IR[0]); paPX(g, w - 3, k, IR[0]);
+    }
+  }
+  // planter boxes anchoring the ends — soil + leaf tufts
+  const bx = dir === 0 ? 4 : w / 2 - 5, by = dir === 0 ? h / 2 - 5 : 4;
+  for(const e of [0, 1]){
+    const px2 = bx + (dir === 0 ? e * (w - 18) : 0),
+          py2 = by + (dir === 0 ? 0 : e * (h - 18));
+    paR(g, px2, py2, 10, 10, PL[2]);
+    paR(g, px2 + 1, py2 + 1, 8, 8, '#2c2418');
+    for(let m = 0; m < 4; m++)
+      paPX(g, px2 + 2 + (m * 3) % 7, py2 + 2 + (m * 5) % 6, LF[m % 2 ? 3 : 4]);
+  }
+  // furniture by variant
+  const cx = w / 2, cy = h / 2;
+  if(v === 1){
+    // umbrella: canopy disc + pole pixel, warm canvas against the deck
+    const UC = rampOf('#b8542e');
+    paEllipse(g, cx, cy, 9, 7, UC[2]);
+    paEllipse(g, cx - 2, cy - 2, 5, 4, UC[3]);
+    paEllipse(g, cx, cy, 3.5, 2.6, UC[4]);
+    paPX(g, cx, cy, '#241c12');
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              4, 3, '#26221c');   // second table
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              3, 2.2, '#8a8074');
+  } else if(v === 2){
+    // bench along one edge + extra green trough
+    if(dir === 0){
+      paR(g, cx - 14, cy - 2, 28, 4, PL[3]); paR(g, cx - 14, cy - 2, 28, 1, PL[4]);
+      paR(g, cx - 14, cy + 6, 28, 4, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx - 12 + m * 5, cy + 7, LF[3 + (m & 1)]);
+    } else {
+      paR(g, cx - 2, cy - 14, 4, 28, PL[3]); paR(g, cx - 2, cy - 14, 1, 28, PL[4]);
+      paR(g, cx + 6, cy - 14, 4, 28, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx + 7, cy - 12 + m * 5, LF[3 + (m & 1)]);
+    }
+  } else {
+    // two cafe tables + chair ticks
+    for(const e of [-1, 1]){
+      const tx = cx + e * 14 * (dir === 0 ? 1 : 0),
+            ty = cy + e * 14 * (dir === 0 ? 0 : 1);
+      paEllipse(g, tx, ty, 4.5, 3.4, '#26221c');
+      paEllipse(g, tx, ty, 3.4, 2.5, '#a8988a');
+      paPX(g, tx, ty, '#3a342c');
+      if(dir === 0){ paR(g, tx - 1, ty - 6, 2, 3, '#4a4640'); paR(g, tx - 1, ty + 4, 2, 3, '#4a4640'); }
+      else { paR(g, tx - 6, ty - 1, 3, 2, '#4a4640'); paR(g, tx + 4, ty - 1, 3, 2, '#4a4640'); }
+    }
+  }
+  return s;
+}
+/* sfBinsSpr(dir) — the Recology three-cart row every SF frontage puts
+   out on pickup morning: recycle blue, compost green, landfill black,
+   lids shut, wheels toward the curb. Plan view, row along the axis. */
+function sfBinsSpr(dir){
+  const s = paMk(dir === 0 ? 26 : 12, dir === 0 ? 12 : 26), g = s.g;
+  const cols = ['#3a68b0', '#4e7a3a', '#2e2c28'];
+  for(let i = 0; i < 3; i++){
+    const x = dir === 0 ? 1 + i * 8 : 2, y = dir === 0 ? 2 : 1 + i * 8;
+    paR(g, x, y, 7, 9, shade(cols[i], 0.9));
+    paR(g, x, y, 7, 2, shade(cols[i], 1.15));          // lid lip
+    paR(g, x, y + 7, 7, 2, shade(cols[i], 0.6));       // wheel shadow
+    paPX(g, x + 1, y + 1, shade(cols[i], 1.3));
+  }
+  return s;
+}
 /* Dolores picnic blanket — the park's true ground cover. 2.2x2.8m cloth
    anchored to the lawn: gingham / stripes / solids, a corner cooler,
    tote bag, and 0-2 reclining sunbathers drawn as plan-view figures. */
@@ -29902,6 +30077,10 @@ function buildSfVeg(){
   V.newsBox = [sfNewsBoxSpr(0), sfNewsBoxSpr(1), sfNewsBoxSpr(2),
                sfNewsBoxSpr(3), sfNewsBoxSpr(4)];
   V.bikeRack = [sfBikeRackSpr(0), sfBikeRackSpr(1), sfBikeRackSpr(2)];
+  // v65: curb-lane parklet decks ([dir][v]) + the Recology cart row
+  V.parklet = [[0, 1, 2].map(v => sfParkletSpr(0, v)),
+               [0, 1, 2].map(v => sfParkletSpr(1, v))];
+  V.bins = [sfBinsSpr(0), sfBinsSpr(1)];
   V.blanket = [];
   for(let bv = 0; bv < SF_BLANKET_COLS.length; bv++)
     V.blanket.push(sfBlanketSpr(bv));
@@ -34043,6 +34222,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfAgave' && V.agave){ spr = V.agave[o.v || 0]; propM = 0.7; footM = 0.7; }
       else if(o.kind === 'sfEchium' && V.echium){ spr = V.echium[o.v || 0]; propM = 1.2; footM = 0.6; }
       else if(o.kind === 'sfCar' && V.car) spr = V.car[o.v * 2 + o.dir];
+      else if(o.kind === 'sfParklet' && V.parklet) spr = V.parklet[o.dir || 0][o.v || 0];
       else if(o.kind === 'sfPole' && V.pole){ spr = V.pole[o.dir || 0]; footM = 0.3; }
       // v53: the furniture layer — low objects, real heights for the
       // sun throw, footprint discs so none of them float
@@ -34050,6 +34230,7 @@ function sfRenderWorld(cw, ch){
       else if(o.kind === 'sfTrashCan' && V.trashCan){ spr = V.trashCan; propM = 0.85; footM = 0.4; }
       else if(o.kind === 'sfNewsBox' && V.newsBox){ spr = V.newsBox[o.v || 0]; propM = 1.1; footM = 0.6; }
       else if(o.kind === 'sfBikeRack' && V.bikeRack){ spr = V.bikeRack[o.v || 0]; propM = 0.9; footM = 0.9; }
+      else if(o.kind === 'sfBins' && V.bins){ spr = V.bins[o.dir || 0]; propM = 0.95; footM = 0.8; }
       else if(o.kind === 'sfPicnic' && V.blanket){
         // weather- and hour-gated lawn life: empty spots don't draw
         if(!sfPicnicOn(o)) continue;
@@ -34102,6 +34283,30 @@ function sfRenderWorld(cw, ch){
                       sa - 0.55, sa + 0.55);
           ctx.stroke();
         }
+        continue;
+      }
+      if(o.kind === 'sfParklet' && sprC){
+        /* v65: curb-lane parklet — a low deck (0.16m) with a 1.05m
+           perimeter rail. Plan-view deck sprite over a contact pad plus
+           the rail's short sun-throw on the asphalt; umbrella variants
+           add their own canopy streak. */
+        const sx = Math.round((o.x - cam.x) * cam.zoom + cw / 2);
+        const sy = Math.round(sfSY(o.y, ch));
+        const cw2 = sprC.width * cam.zoom, chh = sprC.height * cam.zoom;
+        ctx.fillStyle = 'rgba(16,13,9,0.3)';
+        ctx.beginPath();
+        ctx.ellipse(sx, sy + cam.zoom, cw2 * 0.5, chh * 0.48, 0, 0, Math.PI * 2);
+        ctx.fill();
+        if(!isNight() && SF_SUN.day > 0.08){
+          const hmPx = 1.05 * SF_PXM * cam.zoom;
+          const shx = SF_SUN.x * hmPx * 0.5, shy = SF_SUN.y * hmPx * 0.5 * SF_TILT;
+          sfSoftEllipse(sx + shx, sy + shy,
+                        cw2 * 0.52 + Math.hypot(shx, shy) * 0.4,
+                        chh * 0.5, Math.atan2(shy, shx),
+                        0.2 * Math.min(1, SF_SUN.day + 0.3),
+                        sfUmbra(Math.hypot(shx, shy)));
+        }
+        ctx.drawImage(sprC, sx - cw2 / 2, sy - chh / 2, cw2, chh);
         continue;
       }
       if(sprC){
@@ -37045,6 +37250,107 @@ function sfStreetWall(b, ei, x1, y1, x2, y2, ex, ey, L, nx, ny, hm, pr, F, night
     }
   }
 
+  /* v65: facade garnish — Calle 24 papel-picado strings and porch
+     bracket flags. Both stand ~0.3m proud of the wall on real sag
+     curves and answer the same wind field the trees lean to: pennants
+     cant along-wall downwind, flag cloth streams off the pole tip and
+     wraps along the face when the wind blows into it. The impostor
+     bake key already folds in windAng + rain, so baked walls stay
+     honest to the gust they were baked under. */
+  if(det >= 1 && !mural && ny > 0.05 && hm > 5.2 && W.windSpd != null){
+    const wAlong = wvx * ux + wvy * uy;
+    if(phash(i, ei, 5930) < (isShop ? 0.6 : 0.16)){
+      // the garland rides at the mid-facade band — over the shop awning,
+      // across the parlor windows — and never above the parapet
+      const pz = Math.min(isShop ? 4.3 : 3.45, hm + para - 1.6);
+      const pu0 = 0.07, pu1 = 0.93, sag = clamp(L * 0.055, 0.22, 0.6);
+      const off = 0.3;
+      const PP = ['#d8402e', '#e89820', '#28a0b0', '#d0488a', '#58a038', '#7848c8'];
+      const nF = Math.max(4, Math.floor(L * (pu1 - pu0) / 0.52));
+      const cord = t => pr(x1 + ex * (pu0 + (pu1 - pu0) * t) + nx * off,
+                           y1 + ey * (pu0 + (pu1 - pu0) * t) + ny * off,
+                           pz - sag * Math.sin(Math.PI * t));
+      ctx.strokeStyle = 'rgba(30,24,18,0.8)'; ctx.lineWidth = 1;
+      ctx.beginPath();
+      let cs = false;
+      for(let k = 0; k <= 8; k++){
+        const c = cord(k / 8); if(!c){ cs = false; continue; }
+        cs ? ctx.lineTo(c[0], c[1]) : ctx.moveTo(c[0], c[1]); cs = true;
+      }
+      ctx.stroke();
+      const cant = clamp(wAlong * (W.windSpd || 0), -1, 1) * 0.28;
+      const shift = Math.floor(phash(i, ei, 5932) * 6);
+      for(let k = 0; k < nF; k++){
+        const t0 = pu0 + (pu1 - pu0) * (k + 0.12) / nF,
+              t1 = pu0 + (pu1 - pu0) * (k + 0.88) / nF;
+        const a = cord((t0 - pu0) / (pu1 - pu0)),
+              bq = cord((t1 - pu0) / (pu1 - pu0));
+        if(!a || !bq) continue;
+        const kick = cant * (0.7 + 0.6 * phash(i, k, 5931));
+        const c1 = pr(x1 + ex * t1 + nx * off + ux * kick,
+                      y1 + ey * t1 + ny * off + uy * kick,
+                      pz - sag * Math.sin(Math.PI * (t1 - pu0) / (pu1 - pu0)) - 0.62);
+        const c0 = pr(x1 + ex * t0 + nx * off + ux * kick,
+                      y1 + ey * t0 + ny * off + uy * kick,
+                      pz - sag * Math.sin(Math.PI * (t0 - pu0) / (pu1 - pu0)) -
+                      0.62 * (1 - 0.12 * Math.sin(k * 2.1)));
+        if(!c0 || !c1) continue;
+        ctx.fillStyle = shade(PP[(k + shift) % 6],
+                              Math.max(0.5, Math.min(1.15, lit)));
+        ctx.beginPath();
+        ctx.moveTo(a[0], a[1]); ctx.lineTo(bq[0], bq[1]);
+        ctx.lineTo(c1[0], c1[1]); ctx.lineTo(c0[0], c0[1]);
+        ctx.closePath(); ctx.fill();
+      }
+    }
+    // porch flag on a wall bracket — cloth streams downwind off the tip
+    if(phash(i, ei, 5940) < (isShop ? 0.34 : 0.2)){
+      const fu = 0.08 + phash(i, ei, 5941) * 0.16;
+      const fz = Math.min(isShop ? 4.9 : 4.1, hm + para - 1.35);
+      const fx = x1 + ex * fu, fy = y1 + ey * fu;
+      const b0 = pr(fx + nx * 0.06, fy + ny * 0.06, fz - 0.5),
+            tip = pr(fx + nx * 1.05, fy + ny * 1.05, fz + 0.85);
+      if(b0 && tip){
+        ctx.strokeStyle = night ? '#141008' : '#2c241c';
+        ctx.lineWidth = Math.max(1.2, F * 0.02 / tip[2]);
+        ctx.beginPath(); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(tip[0], tip[1]); ctx.stroke();
+        let dxw = wvx, dyw = wvy;
+        const into = dxw * nx + dyw * ny;
+        if(into < -0.2){ dxw -= nx * into; dyw -= ny * into; }
+        const wl = Math.hypot(dxw, dyw) || 1; dxw /= wl; dyw /= wl;
+        const FL = 1.0, FH = 0.6,
+              flut = 0.06 * Math.min(1.5, W.windSpd || 0);
+        const stripe = phash(i, ei, 5942) < 0.45
+          ? ['#d8402e', '#e89820', '#4a9a5a']
+          : [['#28457a'], ['#a03838'], ['#3a7a5a'], ['#d8d0c0']][Math.floor(phash(i, ei, 5943) * 4)];
+        for(let s2 = 0; s2 < stripe.length; s2++){
+          ctx.fillStyle = shade(stripe[s2], Math.max(0.5, Math.min(1.1, lit)));
+          ctx.beginPath();
+          let started = false;
+          for(let k = 0; k <= 3; k++){
+            const t = k / 3,
+                  wave = Math.sin(t * 4.4 + i * 1.7 + s2) * flut * t;
+            const q = pr(fx + nx * 1.05 + dxw * FL * t - dyw * wave,
+                         fy + ny * 1.05 + dyw * FL * t + dxw * wave,
+                         fz + 0.85 - FH * s2 / stripe.length - 0.05 * t);
+            if(!q){ started = false; continue; }
+            started ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]);
+            started = true;
+          }
+          for(let k = 3; k >= 0; k--){
+            const t = k / 3,
+                  wave = Math.sin(t * 4.4 + i * 1.7 + s2) * flut * t;
+            const q = pr(fx + nx * 1.05 + dxw * FL * t - dyw * wave,
+                         fy + ny * 1.05 + dyw * FL * t + dxw * wave,
+                         fz + 0.85 - FH * (s2 + 1) / stripe.length - 0.05 * t);
+            if(q) ctx.lineTo(q[0], q[1]);
+          }
+          ctx.closePath(); ctx.fill();
+        }
+      }
+    }
+  }
+
   // v9: distance haze toward the horizon color, driven by live humidity
   const hz = sfHazeA(fwd);
   if(hz > 0.02){
@@ -37161,6 +37467,153 @@ function sfCarStreet(o, pr, F, night){
         ctx.fillRect(lp[0] - 0.1 * sc, lp[1] - 0.06 * sc, 0.2 * sc, 0.12 * sc);
       }
     }
+  }
+}
+/* v65: curb-lane parklet in the street view — a raised cedar deck with
+   a waist-high rail, planter boxes at the ends, and the same furniture
+   variants the top-down sprite bakes (tables / umbrella / bench). The
+   deck stands in the parking lane a car's hash skipped. */
+function sfParkletStreet(o, pr, F, night){
+  const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const oz = sfGroundZ(mx, my);
+  const p = pr(mx, my, oz); if(!p) return;
+  const sc = F / p[2];
+  const ax = o.dir === 0 ? 1 : 0, ay = o.dir === 0 ? 0 : 1,
+        bx = ay, by = ax;
+  const hl = 2.6, hw = 0.95, dz = 0.16, rail = 1.05;
+  const pt = (a, b2, z) => pr(mx + ax * a + bx * b2, my + ay * a + by * b2, oz + z);
+  const shadeO = night ? 0.45 : 1;
+  // contact shade + the rail's short sun streak on the asphalt
+  ctx.fillStyle = 'rgba(14,11,8,0.4)';
+  ctx.beginPath();
+  ctx.ellipse(p[0], p[1], hl * sc, hw * sc * 0.5, 0, 0, Math.PI * 2); ctx.fill();
+  if(!night && SF_SUN.day > 0.08){
+    const tp = pr(mx + SF_SUN.x * rail, my + SF_SUN.y * rail,
+                  sfGroundZ(mx + SF_SUN.x * rail, my + SF_SUN.y * rail));
+    if(tp) sfSoftEllipse((p[0] + tp[0]) / 2, (p[1] + tp[1]) / 2,
+                         hl * sc + Math.hypot(tp[0] - p[0], tp[1] - p[1]) / 2,
+                         hw * sc * 0.45,
+                         Math.atan2(tp[1] - p[1], tp[0] - p[0]),
+                         0.22 * Math.min(1, SF_SUN.day + 0.3),
+                         sfUmbra(Math.hypot(tp[0] - p[0], tp[1] - p[1])));
+  }
+  // deck slab: side skirt + board top
+  const quadP = (pts, fill) => {
+    ctx.fillStyle = fill; ctx.beginPath();
+    let st = false;
+    for(const q of pts){ if(!q) return; st ? ctx.lineTo(q[0], q[1]) : ctx.moveTo(q[0], q[1]); st = true; }
+    ctx.closePath(); ctx.fill();
+  };
+  quadP([pt(-hl, -hw, 0), pt(hl, -hw, 0), pt(hl, -hw, dz), pt(-hl, -hw, dz)],
+        shade('#7a5f3c', 0.72 * shadeO));
+  quadP([pt(-hl, hw, 0), pt(hl, hw, 0), pt(hl, hw, dz), pt(-hl, hw, dz)],
+        shade('#7a5f3c', 0.6 * shadeO));
+  quadP([pt(-hl, -hw, dz), pt(hl, -hw, dz), pt(hl, hw, dz), pt(-hl, hw, dz)],
+        shade('#9a7a50', (0.85 + 0.3 * Math.max(0, sfSunFaceK(0, -1))) * shadeO));
+  // board seams across the short axis
+  ctx.strokeStyle = 'rgba(40,30,18,0.5)'; ctx.lineWidth = 1;
+  for(let k = -hl + 0.65; k < hl - 0.3; k += 0.65){
+    const s0 = pt(k, -hw, dz + 0.01), s1 = pt(k, hw, dz + 0.01);
+    if(!s0 || !s1) continue;
+    ctx.beginPath(); ctx.moveTo(s0[0], s0[1]); ctx.lineTo(s1[0], s1[1]); ctx.stroke();
+  }
+  // perimeter rail: posts on the long edges + ends, two rail runs
+  const iron = night ? '#14100c' : '#34383c';
+  ctx.strokeStyle = iron;
+  for(let k = -hl; k <= hl + 0.01; k += 1.3){
+    for(const e2 of [-hw, hw]){
+      const b0 = pt(Math.min(k, hl), e2, dz), t0 = pt(Math.min(k, hl), e2, rail);
+      if(!b0 || !t0) continue;
+      ctx.lineWidth = Math.max(1, 0.09 * sc);
+      ctx.beginPath(); ctx.moveTo(b0[0], b0[1]); ctx.lineTo(t0[0], t0[1]); ctx.stroke();
+    }
+  }
+  for(const e2 of [-hw, hw]){
+    const r0 = pt(-hl, e2, rail), r1 = pt(hl, e2, rail),
+          m0 = pt(-hl, e2, rail * 0.55), m1 = pt(hl, e2, rail * 0.55);
+    if(r0 && r1){
+      ctx.lineWidth = Math.max(1.2, 0.12 * sc);
+      ctx.beginPath(); ctx.moveTo(r0[0], r0[1]); ctx.lineTo(r1[0], r1[1]); ctx.stroke();
+    }
+    if(m0 && m1){
+      ctx.lineWidth = Math.max(1, 0.07 * sc);
+      ctx.beginPath(); ctx.moveTo(m0[0], m0[1]); ctx.lineTo(m1[0], m1[1]); ctx.stroke();
+    }
+  }
+  // planter boxes anchoring the ends — soil + leaf tufts over the rail
+  for(const e of [-1, 1]){
+    const cxa = e * (hl - 0.35);
+    quadP([pt(cxa - 0.3, -hw + 0.1, dz), pt(cxa + 0.3, -hw + 0.1, dz),
+           pt(cxa + 0.3, hw - 0.1, dz), pt(cxa - 0.3, hw - 0.1, dz)],
+          shade('#5a4a34', shadeO));
+    for(let m = 0; m < 5; m++){
+      const gq = pt(cxa - 0.24 + (m % 3) * 0.24,
+                    -hw + 0.3 + m * 0.32, dz + 0.28 + (m % 2) * 0.12);
+      if(!gq) continue;
+      ctx.fillStyle = m % 2 ? '#4a7a3a' : '#5a8a42';
+      ctx.beginPath(); ctx.arc(gq[0], gq[1], Math.max(1.4, 0.14 * sc), 0, Math.PI * 2); ctx.fill();
+    }
+  }
+  // furniture by variant (mirrors sfParkletSpr)
+  const furn = night ? '#1c1812' : '#2c241c';
+  if(o.v === 1){
+    const pl = pt(0, 0, dz), tp2 = pt(0, 0, 2.1);
+    if(pl && tp2){
+      ctx.strokeStyle = furn; ctx.lineWidth = Math.max(1, 0.07 * sc);
+      ctx.beginPath(); ctx.moveTo(pl[0], pl[1]); ctx.lineTo(tp2[0], tp2[1]); ctx.stroke();
+      ctx.fillStyle = '#b8542e';
+      ctx.beginPath();
+      ctx.ellipse(tp2[0], tp2[1], 1.35 * sc, Math.max(1.5, 0.45 * sc), 0, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = 'rgba(255,235,200,0.35)';
+      ctx.beginPath();
+      ctx.ellipse(tp2[0] - 0.3 * sc, tp2[1] - 0.1 * sc, 0.7 * sc, 0.2 * sc, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  } else {
+    for(const e of (o.v === 2 ? [0] : [-0.9, 0.9])){
+      const tb = pt(e, 0, 0.72), lg = pt(e, 0, dz);
+      if(!tb || !lg) continue;
+      ctx.strokeStyle = furn; ctx.lineWidth = Math.max(1, 0.06 * sc);
+      ctx.beginPath(); ctx.moveTo(lg[0], lg[1]); ctx.lineTo(tb[0], tb[1]); ctx.stroke();
+      ctx.fillStyle = '#8a8074';
+      ctx.beginPath();
+      ctx.ellipse(tb[0], tb[1], (o.v === 2 ? 1.1 : 0.42) * sc,
+                  Math.max(1.2, 0.16 * sc), 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+}
+/* v65: the Recology three-cart row in street view — blue/green/black
+   cuboids along the curb axis, lids shut, wheels to the street. */
+function sfBinsStreet(o, pr, F, night){
+  const mx = o.x / SF_PXM, my = o.y / SF_PXM;
+  const oz = sfGroundZ(mx, my);
+  const p = pr(mx, my, oz); if(!p) return;
+  const sc = F / p[2];
+  const ax = o.dir === 0 ? 1 : 0, ay = o.dir === 0 ? 0 : 1,
+        bx = ay, by = ax;
+  const cols = ['#3a68b0', '#4e7a3a', '#2e2c28'];
+  ctx.fillStyle = 'rgba(14,11,8,0.35)';
+  ctx.beginPath();
+  ctx.ellipse(p[0], p[1], 1.1 * sc, Math.max(1.2, 0.3 * sc), 0, 0, Math.PI * 2); ctx.fill();
+  for(let k = -1; k <= 1; k++){
+    const col = shade(cols[k + 1], night ? 0.45 : 1);
+    const hw2 = 0.26, hd = 0.3, h = 1.02;
+    const cq = (a, b2, z) => pr(mx + ax * (k * 0.62 + a) + bx * b2,
+                                my + ay * (k * 0.62 + a) + by * b2, oz + z);
+    // front + top + sun-side faces of a small cuboid
+    const F2 = (pts, fill) => {
+      const pp = pts.map(q => cq(q[0], q[1], q[2]));
+      if(pp.some(q => !q)) return;
+      ctx.fillStyle = fill; ctx.beginPath();
+      ctx.moveTo(pp[0][0], pp[0][1]);
+      for(let q = 1; q < pp.length; q++) ctx.lineTo(pp[q][0], pp[q][1]);
+      ctx.closePath(); ctx.fill();
+    };
+    F2([[-hw2, -hd, 0], [hw2, -hd, 0], [hw2, -hd, h], [-hw2, -hd, h]], col);
+    F2([[-hw2, hd, 0], [hw2, hd, 0], [hw2, hd, h], [-hw2, hd, h]], shade(col, 0.8));
+    F2([[-hw2, -hd, h], [hw2, -hd, h], [hw2, hd, h], [-hw2, hd, h]], shade(col, 1.18));
   }
 }
 /* ---------------- v63: WALL IMPOSTOR ATLAS ----------------
@@ -39246,6 +39699,8 @@ function sfRenderStreet(cw, ch){
     } else if(d.k === 'p'){
       const o = d.o;
       if(o.kind === 'sfCar'){ sfCarStreet(o, pr, F, night); continue; }
+      if(o.kind === 'sfParklet'){ sfParkletStreet(o, pr, F, night); continue; }
+      if(o.kind === 'sfBins'){ sfBinsStreet(o, pr, F, night); continue; }
       // v28: props stand on the surface under them — a pole planted on
       // the sidewalk starts at curb height, not inside the slab
       const oz = sfGroundZ(o.x / SF_PXM, o.y / SF_PXM);

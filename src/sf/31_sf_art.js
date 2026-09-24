@@ -947,6 +947,106 @@ function sfBikeRackSpr(v){
   }
   return s;
 }
+/* ---- v65 streetrooms ----
+   sfParkletSpr(dir, v) — plan view of the curb-lane deck every Mission
+   cafe claims under the parklet program: a cedar platform ~5.2x1.8m
+   ringed by a steel rail on the traffic sides, planter boxes on the
+   ends, and furniture that varies by variant (v0 two cafe tables,
+   v1 umbrella + table, v2 bench + planter). dir 0 = E-W street. */
+function sfParkletSpr(dir, v){
+  const w = dir === 0 ? 88 : 32, h = dir === 0 ? 32 : 88;
+  const s = paMk(w, h), g = s.g;
+  const WD = rampOf('#9a7a50'), IR = rampOf('#34383c'),
+        PL = rampOf('#5a4a34'), LF = rampOf('#4a7a3a');
+  const L = dir === 0 ? w : h;
+  // soft under-shadow pad
+  paEllipse(g, w / 2, h / 2 + 1, w * 0.48, h * 0.44, 'rgba(20,16,10,0.25)');
+  // deck boards: base + seams across the short axis + sun/weather strips
+  paR(g, 2, 2, w - 4, h - 4, WD[3]);
+  for(let k = 8; k < L - 4; k += 7){
+    if(dir === 0) paR(g, k, 3, 1, h - 6, WD[1]);
+    else paR(g, 3, k, w - 6, 1, WD[1]);
+  }
+  if(dir === 0){ paR(g, 2, 2, w - 4, 2, WD[4]); paR(g, 2, h - 5, w - 4, 3, WD[1]); }
+  else { paR(g, 2, 2, 2, h - 4, WD[4]); paR(g, w - 5, 2, 3, h - 4, WD[1]); }
+  // perimeter rail: posts + rails on both long edges and the ends —
+  // reads as the dark frame that keeps the deck honest to the lane
+  if(dir === 0){
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < w - 6; k += 12){
+      paPX(g, k, 2, IR[0]); paPX(g, k, h - 3, IR[0]);
+    }
+  } else {
+    paR(g, 2, 2, w - 4, 1, IR[2]); paR(g, 2, h - 3, w - 4, 1, IR[2]);
+    paR(g, 2, 2, 1, h - 4, IR[2]); paR(g, w - 3, 2, 1, h - 4, IR[2]);
+    for(let k = 10; k < h - 6; k += 12){
+      paPX(g, 2, k, IR[0]); paPX(g, w - 3, k, IR[0]);
+    }
+  }
+  // planter boxes anchoring the ends — soil + leaf tufts
+  const bx = dir === 0 ? 4 : w / 2 - 5, by = dir === 0 ? h / 2 - 5 : 4;
+  for(const e of [0, 1]){
+    const px2 = bx + (dir === 0 ? e * (w - 18) : 0),
+          py2 = by + (dir === 0 ? 0 : e * (h - 18));
+    paR(g, px2, py2, 10, 10, PL[2]);
+    paR(g, px2 + 1, py2 + 1, 8, 8, '#2c2418');
+    for(let m = 0; m < 4; m++)
+      paPX(g, px2 + 2 + (m * 3) % 7, py2 + 2 + (m * 5) % 6, LF[m % 2 ? 3 : 4]);
+  }
+  // furniture by variant
+  const cx = w / 2, cy = h / 2;
+  if(v === 1){
+    // umbrella: canopy disc + pole pixel, warm canvas against the deck
+    const UC = rampOf('#b8542e');
+    paEllipse(g, cx, cy, 9, 7, UC[2]);
+    paEllipse(g, cx - 2, cy - 2, 5, 4, UC[3]);
+    paEllipse(g, cx, cy, 3.5, 2.6, UC[4]);
+    paPX(g, cx, cy, '#241c12');
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              4, 3, '#26221c');   // second table
+    paEllipse(g, cx + 20 * (dir === 0 ? 1 : 0), cy + 20 * (dir === 0 ? 0 : 1),
+              3, 2.2, '#8a8074');
+  } else if(v === 2){
+    // bench along one edge + extra green trough
+    if(dir === 0){
+      paR(g, cx - 14, cy - 2, 28, 4, PL[3]); paR(g, cx - 14, cy - 2, 28, 1, PL[4]);
+      paR(g, cx - 14, cy + 6, 28, 4, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx - 12 + m * 5, cy + 7, LF[3 + (m & 1)]);
+    } else {
+      paR(g, cx - 2, cy - 14, 4, 28, PL[3]); paR(g, cx - 2, cy - 14, 1, 28, PL[4]);
+      paR(g, cx + 6, cy - 14, 4, 28, '#2c2418');
+      for(let m = 0; m < 6; m++) paPX(g, cx + 7, cy - 12 + m * 5, LF[3 + (m & 1)]);
+    }
+  } else {
+    // two cafe tables + chair ticks
+    for(const e of [-1, 1]){
+      const tx = cx + e * 14 * (dir === 0 ? 1 : 0),
+            ty = cy + e * 14 * (dir === 0 ? 0 : 1);
+      paEllipse(g, tx, ty, 4.5, 3.4, '#26221c');
+      paEllipse(g, tx, ty, 3.4, 2.5, '#a8988a');
+      paPX(g, tx, ty, '#3a342c');
+      if(dir === 0){ paR(g, tx - 1, ty - 6, 2, 3, '#4a4640'); paR(g, tx - 1, ty + 4, 2, 3, '#4a4640'); }
+      else { paR(g, tx - 6, ty - 1, 3, 2, '#4a4640'); paR(g, tx + 4, ty - 1, 3, 2, '#4a4640'); }
+    }
+  }
+  return s;
+}
+/* sfBinsSpr(dir) — the Recology three-cart row every SF frontage puts
+   out on pickup morning: recycle blue, compost green, landfill black,
+   lids shut, wheels toward the curb. Plan view, row along the axis. */
+function sfBinsSpr(dir){
+  const s = paMk(dir === 0 ? 26 : 12, dir === 0 ? 12 : 26), g = s.g;
+  const cols = ['#3a68b0', '#4e7a3a', '#2e2c28'];
+  for(let i = 0; i < 3; i++){
+    const x = dir === 0 ? 1 + i * 8 : 2, y = dir === 0 ? 2 : 1 + i * 8;
+    paR(g, x, y, 7, 9, shade(cols[i], 0.9));
+    paR(g, x, y, 7, 2, shade(cols[i], 1.15));          // lid lip
+    paR(g, x, y + 7, 7, 2, shade(cols[i], 0.6));       // wheel shadow
+    paPX(g, x + 1, y + 1, shade(cols[i], 1.3));
+  }
+  return s;
+}
 /* Dolores picnic blanket — the park's true ground cover. 2.2x2.8m cloth
    anchored to the lawn: gingham / stripes / solids, a corner cooler,
    tote bag, and 0-2 reclining sunbathers drawn as plan-view figures. */
@@ -1062,6 +1162,10 @@ function buildSfVeg(){
   V.newsBox = [sfNewsBoxSpr(0), sfNewsBoxSpr(1), sfNewsBoxSpr(2),
                sfNewsBoxSpr(3), sfNewsBoxSpr(4)];
   V.bikeRack = [sfBikeRackSpr(0), sfBikeRackSpr(1), sfBikeRackSpr(2)];
+  // v65: curb-lane parklet decks ([dir][v]) + the Recology cart row
+  V.parklet = [[0, 1, 2].map(v => sfParkletSpr(0, v)),
+               [0, 1, 2].map(v => sfParkletSpr(1, v))];
+  V.bins = [sfBinsSpr(0), sfBinsSpr(1)];
   V.blanket = [];
   for(let bv = 0; bv < SF_BLANKET_COLS.length; bv++)
     V.blanket.push(sfBlanketSpr(bv));
