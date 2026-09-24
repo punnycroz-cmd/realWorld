@@ -146,6 +146,18 @@ else
   ok "press-kit integrity: $PKLINE"
 fi
 
+# ── 5e. Store-copy integrity — field lengths, assets, preview drift ──
+echo "[5e] store-copy integrity"
+SC=$(./tools/store_copy_check.py 2>&1)
+echo "$SC" | grep -E '^\s+FAIL' || true
+SCLINE=$(echo "$SC" | tail -1)
+echo "       $SCLINE"
+if echo "$SCLINE" | grep -qE '[1-9][0-9]* fail'; then
+  bad "store-copy integrity has failures (above)"
+else
+  ok "store-copy integrity: $SCLINE"
+fi
+
 # ── 6. Tree state (informational) ──
 echo "[6] worktree"
 if git rev-parse --is-inside-work-tree >/dev/null 2>&1; then

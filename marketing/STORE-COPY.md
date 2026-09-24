@@ -1,13 +1,14 @@
 # Store Copy — Real World ("The Mission")
 
-**Status: v136 — art rebase v65→v67 (lens-rebuild build) + Steam markup
-variant + local store-page preview + post-launch page lifecycle,
+**Status: v138 — preview rebase v61→v67 (dead-image fix), Steam library
+hero generated (§4 FLAG closed), store_copy_check wired into preflight,
 2026-09-23.**
-Supersedes v108.
+Supersedes v136.
 Not submitted anywhere. Capsule art is real files under `store/capsules/`
 (see `store/README.md`), regenerated from the current hero shot by
-`tools/make_brand_assets.py` — the only outstanding art dependency is the
-Steam library hero (§4). This document is the single source of truth for
+`tools/make_brand_assets.py` — with v138 the full §4 set including the
+Steam library hero exists on disk (the hero is a generated interim, §37).
+This document is the single source of truth for
 storefront copy: master copy plus per-platform variants (itch.io primary,
 Steam conditional), field-length checks, capsule/hero art specs, disclosure
 matrix, and a paste-ready submission packet (§9). All claims verified
@@ -259,7 +260,7 @@ refresh.
 | Steam | Main capsule | 616×353 | **Done** — `store/capsules/steam-main-616x353.png` |
 | Steam | Vertical capsule | 374×448 | **Done** — `store/capsules/steam-vertical-374x448.png` |
 | Steam | Library capsule | 600×900 | **Done** — `store/capsules/steam-library-600x900.png` |
-| Steam | Library hero | 3840×1240 | **FLAG** — needs commission or 2× upscale pass (art-track request) |
+| Steam | Library hero | 3840×1240 | **Done (interim)** — `store/capsules/steam-library-hero-3840x1240.png`, generated composite (blurred wings + crisp center panel + lockup); replace with commissioned art if the Steam page ever becomes real (§37) |
 | Steam | Client logo | transparent PNG | **Done** — `store/capsules/steam-client-logo.png` |
 | Steam | Page background | 1438×810 max | **Done** — `store/capsules/steam-page-bg-1438x810.png` (397 KB < 500 KB) |
 | Social | OG / Twitter card | 1200×630 | **Done** — `site/assets/og-card.png` |
@@ -1197,3 +1198,29 @@ Rules that never change across states: the §1.5 legal line is on every
 state's page; a state transition never removes the honesty box or the
 request menu; PROPOSAL pricing language leaves only when §33 row 4 is
 decided — at which point every state updates in one commit.
+
+---
+
+## 37. Generated-asset provenance + preview-drift guard (v138)
+
+Two housekeeping rules now have teeth.
+
+**Library hero provenance.** `steam-library-hero-3840x1240.png` is a
+generated composite, not a capture: blurred wings stretched from the
+v67-D frame, a crisp center panel (~1.6× source), and the standard
+lockup in the left safe zone. It is honest Steam library art (logo only,
+no text — per the §4 text rule) and ship-able as-is, but it is flagged
+**interim**: if the conditional Steam page ever becomes real, commission
+or re-render a true 3840-wide hero and drop it in under the same
+filename — no copy changes needed. Provenance lives in
+`tools/make_brand_assets.py` (`draw_library_hero`), not in this doc.
+
+**Preview-drift guard.** §35's rule — preview.html must mirror this doc
+in the same commit — is now mechanical: `tools/store_copy_check.py`
+checks 8–9 fail on any dead local `<img>` in preview.html and on any
+capsule whose real pixel size contradicts its filename. First run of
+the new checks caught two real drifts: the screenshot strip still
+pointed at the deleted v61 press-kit set (rebased to v67 with §9
+captions) and the banner path pointed at a `site/assets/banners/`
+subdirectory that doesn't exist. Wired into `tools/preflight.sh` as
+step 5e, so the drift class fails the go-gate, not just a by-hand audit.

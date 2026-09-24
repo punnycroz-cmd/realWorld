@@ -15,6 +15,10 @@ Checks, all derived from the doc itself (no external state):
   7. Marketing-tone ban list never appears in store copy text
      (revolutionary, addictive, guaranteed, #1, best-in-class,
      groundbreaking, "free money").
+  8. store/preview.html — every local img src exists on disk (drift
+     guard for §35: a deleted screenshot era must fail here).
+  9. Capsule filenames declaring a pixel size (name-WWWxHHH.ext)
+     actually measure that size on disk.
 
 Usage: python3 tools/store_copy_check.py
 Exit 0 = clean. Exit 1 = one or more FAIL lines.
@@ -199,6 +203,43 @@ def main():
     for w in banned:
         if re.search(w, low):
             fail(f"banned marketing word present: {w!r}")
+
+    # --- 8. preview.html drift guard: local img srcs must exist
+    preview = ROOT / "store" / "preview.html"
+    if not preview.exists():
+        fail("store/preview.html missing (§35 preview required)")
+    else:
+        srcs = re.findall(r'<img[^>]+src="([^"#]+)"',
+                          preview.read_text(encoding="utf-8"))
+        n = 0
+        for src in srcs:
+            if src.startswith(("http:", "https:", "data:")):
+                continue
+            n += 1
+            p = (preview.parent / src).resolve()
+            if p.exists():
+                ok(f"preview img exists: {src}")
+            else:
+                fail(f"preview img dead: {src}")
+        if n == 0:
+            warn("preview.html has no local <img> srcs to check")
+
+    # --- 9. capsule filename size must match real dimensions
+    caps = ROOT / "store" / "capsules"
+    try:
+        from PIL import Image
+        for f in sorted(caps.glob("*-*.png")):
+            m = re.search(r"-(\d+)x(\d+)\.png$", f.name)
+            if not m:
+                continue
+            w, h = int(m.group(1)), int(m.group(2))
+            with Image.open(f) as im:
+                if im.size == (w, h):
+                    ok(f"capsule dims {w}x{h}: {f.name}")
+                else:
+                    fail(f"capsule dims {im.size} != {w}x{h}: {f.name}")
+    except ImportError:
+        warn("PIL unavailable — capsule dimension check skipped")
 
     print(f"\n{len(fails)} fail / {len(warns)} warn — {DOC.name}")
     return 1 if fails else 0
