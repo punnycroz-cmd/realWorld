@@ -1,4 +1,4 @@
-# Main Cast Index — "The Mission" (world v84)
+# Main Cast Index — "The Mission" (world v92)
 
 The 8 main characters. Full LLM brains, running 24/7. **POSSESSION BAN: nobody
 may possess any of them — not players, not the game owner** (design doc §2, §9;
@@ -49,11 +49,14 @@ character consistently on day one. Field order is fixed:
 11. **With strangers** — default posture toward tourists, newcomers, and
     player-hired characters (v28). Written as tendencies, never rules —
     the brain decides in the moment; this is the prior.
-12. **Wants (three clocks)** — v42. Desires on three timescales: this
-    week / this season / the long one. Written as pressures and pulls,
-    never plans — a want is a condition the brain weighs, not a script
-    it follows. The long one may gesture at seed terrain (a life of her
-    own, a kitchen with his name on the door) without stating the seed.
+12. **Wants (three clocks)** — v42, re-stanced v92 (purpose-free pass).
+    Three timescales: this week / this season / the long one — now
+    written as OPEN QUESTIONS the character itself must answer, never
+    goals handed to it. Bibles are starting circumstances, not scripts:
+    each main is an AI that knows it is AI, born with no assigned
+    purpose (PRODUCTION-2 direction, 2026-09-23); the "Awakening frame"
+    blockquote atop each bible is author-direction for the BRIEF writer,
+    not in-fiction text.
 13. **The cast, privately** — v42. Exactly one line per other main
     (seven entries): the interior valence of each surface tie — what
     that person *is* to them. Interiority, not intel: it may carry a
