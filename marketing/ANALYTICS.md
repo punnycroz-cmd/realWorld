@@ -1,6 +1,6 @@
 # Analytics Plan — Real World ("The Mission")
 
-**Version:** v171 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
+**Version:** v186 · 2026-09-24 · branch `sf/marketing` · LOCAL BUILD ONLY.
 **Status:** implemented + e2e-tested locally (`tools/analytics_e2e.sh` → PASS).
 **Inert until an endpoint is configured** — the site ships with analytics
 wired but emitting nothing.
@@ -499,6 +499,30 @@ the public site. Try it with `analytics/sample-week.ndjson` (regenerated
 v111 — fixture sessions now navigate multi-page journeys, so the panel
 has real trails to render).
 
+v186: the dashboard is now the one-page **proof ladder**. It accepts
+multi-file drops/picks, and two TSV sidecars alongside the capture:
+
+- the §1a **retention sidecar** (`day⇥hash.tsv`, e.g.
+  `analytics/sample-retention.tsv`) → a "6 · Retention" panel that
+  mirrors `analytics_retention.py` exactly (verified field-for-field on
+  the sample file): returning_viewers_7d, viewers/day bars, first-seen
+  cohort day-7 rates, median days-to-return — and it makes the
+  goals-panel `return-7d` goal gradeable in-browser (was NO-DATA without
+  the CLI `--retention` arg). Same privacy contract: hashes only, never
+  joined to the event capture.
+- a **cost ledger** (`date⇥kind⇥value⇥category⇥note.tsv`, e.g.
+  `analytics/sample-cost-ledger.tsv`) → a "7 · Cost per simulated day"
+  panel mirroring `cost_ledger.py report` at `--rate 0` (mod_hours
+  logged, unpriced): spend by category, cost/sim-day, trailing-7d, weekly
+  trend.
+
+Both render next to the goals panel, so `goals.json` + capture +
+retention.tsv + cost-ledger.tsv dropped together shows the whole
+production-3 step-1 evidence — return visits **and** cost per simulated
+day — on one screen. Detection is by shape: 2-col `day⇥hash` = retention,
+≥3-col with `cost|mod_hours|sim_days` kinds = ledger; anything else gets
+a warn, not a crash.
+
 Smoke test without a browser:
 
 ```bash
@@ -555,7 +579,12 @@ One dashboard, four panels — everything derivable from the event spec:
    counts/day, first-seen cohort day-7 rates, median days-to-return —
    from the §1a windowed sidecar only, via `analytics_retention.py`.
    Plus the observer-loop sub-funnel once game-side: catch-up → follow →
-   predict → inspect, and invite → delivered/refused.
+   predict → inspect, and invite → delivered/refused. Rendered in
+   `dashboard.html` when the sidecar TSV is dropped (v186).
+8. **Cost per simulated day (v186):** the other half of the monetization
+   step-1 gate — spend by category, $/sim-day, trailing-7d, weekly trend —
+   from the cost ledger via `cost_ledger.py`, and in `dashboard.html`
+   when the ledger TSV is dropped.
 
 **Targets (honest, from the research report):** the free-watch top of funnel is
 the whole business — optimize `pageview → watch_start` first. TPP-class

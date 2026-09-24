@@ -63,9 +63,11 @@
   of the public site.</p>
 </header>
 <main>
-  <div id="drop"><b>Drop an .ndjson capture here</b><br>or click to choose a file —
-    also accepts <code>goals.json</code> (adds the goals panel)
-    <input type="file" id="file" accept=".ndjson,.json,.txt" hidden></div>
+  <div id="drop"><b>Drop an .ndjson capture here</b><br>or click to choose files —
+    also accepts <code>goals.json</code> (goals panel), the retention sidecar
+    <code>day⇥hash.tsv</code> (retention panel + return-7d goal), and a
+    <code>cost-ledger.tsv</code> (cost-per-sim-day panel)
+    <input type="file" id="file" accept=".ndjson,.json,.tsv,.txt" multiple hidden></div>
   <div id="out"></div>
 </main>
 <footer>Privacy contract: sessions are tab-nonces, not visitor ids; unique
@@ -81,7 +83,7 @@ var ONBOARD = ["persona_chosen","tour_started","handle_set","handle_taken_shown"
                "first_request_filed","tour_completed","returning_session"];
 var drop = document.getElementById("drop"), out = document.getElementById("out");
 var file = document.getElementById("file");
-var LAST_EVTS=null, LAST_NAME="", GOALS=null;
+var LAST_EVTS=null, LAST_NAME="", GOALS=null, RET=null, COST=null;
 
 function esc(s){return String(s).replace(/[&<>"]/g,function(c){
   return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c];});}
@@ -175,6 +177,8 @@ function render(evts, fname){
   var h='';
   h+='<div class="grid">';
   if(GOALS) h+=goalPanel(evts);
+  if(RET) h+=retPanel();
+  if(COST) h+=costPanel();
 
   // Summary strip
   var span = tmax>tmin ? Math.round((tmax-tmin)/86400000)+"d span" : "single batch";
@@ -276,6 +280,11 @@ function goalEval(g, idx){
   }
   if(m.kind==="notfound_pageview_share")
     return {v:idx.pageviews?idx.notfound/idx.pageviews:null, n:idx.pageviews};
+  if(m.kind==="returning_viewers_7d"){
+    // v186: gradeable in-browser once the §1a retention sidecar is dropped.
+    if(!RET) return {v:null,n:0};
+    return {v:RET.returning_7d, n:RET.viewers_7d};
+  }
   if(m.kind==="median_engaged_seconds"){
     var xs=(m.page?idx.engSec[m.page]||[]:
       [].concat.apply([],Object.keys(idx.engSec).map(function(k){return idx.engSec[k];}))
@@ -324,13 +333,172 @@ function goalPanel(evts){
     if(st==="MISS")misses++;
     var d=g.direction==="at_least"?"≥":"≤";
     var fmt=function(v){if(v==null)return "—";
-      return g.unit==="s"?Math.round(v)+"s":(100*v).toFixed(1)+"%";};
+      if(g.unit==="s")return Math.round(v)+"s";
+      if(g.unit==="count")return String(Math.round(v));
+      return (100*v).toFixed(1)+"%";};
     h+='<div class="kv"><span>'+esc(g.id)+
       ' <em style="color:var(--mut)">'+d+fmt(g.target)+' · n='+r.n+'</em></span>'
       +'<span style="color:'+cls[st]+'">'+fmt(r.v)+' · '+st+'</span></div>';
   });
   h+='<p class="note">PASS/WATCH/MISS vs targets · LOW-N &lt; min_n · '+
     'NO-DATA = emitter not live. '+(misses?misses+" MISS — investigate.":"All clear.")+'</p></div>';
+  return h;
+}
+
+// --- retention sidecar (v186): mirrors tools/analytics_retention.py ----
+// Input is the §1a windowed-hash TSV (YYYY-MM-DD<TAB>hash). Same privacy
+// contract as the CLI: hashes only, never joined to the event capture.
+function isoWeek(d){ // d = "YYYY-MM-DD" -> "YYYY-Www"
+  var t=new Date(d+"T00:00:00Z"); if(isNaN(t))return null;
+  var day=(t.getUTCDay()+6)%7; t.setUTCDate(t.getUTCDate()-day+3);
+  var first=new Date(Date.UTC(t.getUTCFullYear(),0,4));
+  var fday=(first.getUTCDay()+6)%7; first.setUTCDate(first.getUTCDate()-fday+3);
+  var w=Math.round((t-first)/(7*86400000))+1;
+  return t.getUTCFullYear()+"-W"+(w<10?"0":"")+w;
+}
+function ord(d){return Date.parse(d+"T00:00:00Z")/86400000;}
+function analyzeRetention(text){
+  var daysOf={}, bad=0;
+  text.split(/\r?\n/).forEach(function(line){
+    line=line.replace(/\r?$/,""); if(!line)return;
+    var c=line.split("\t");
+    if(c.length!==2||!/^\d{4}-\d{2}-\d{2}$/.test(c[0])){bad++;return;}
+    (daysOf[c[1]]=daysOf[c[1]]||{})[c[0]]=1;
+  });
+  var hashes=Object.keys(daysOf);
+  if(!hashes.length)return null;
+  var allDays={}; hashes.forEach(function(h){
+    for(var d in daysOf[h]) allDays[d]=1; });
+  var days=Object.keys(allDays).sort();
+  var newest=days[days.length-1], no=ord(newest);
+  var win7={}; for(var k=0;k<7;k++){
+    win7[new Date((no-k)*86400000).toISOString().slice(0,10)]=1; }
+  var perDay={}; days.forEach(function(d){perDay[d]=0;});
+  var ret7=0, view7=0, multi=0, gaps=[], cohorts={};
+  hashes.forEach(function(h){
+    var ds=Object.keys(daysOf[h]).sort();
+    ds.forEach(function(d){perDay[d]++;});
+    var inWin=ds.filter(function(d){return win7[d];});
+    if(inWin.length)view7++;
+    if(inWin.length>=2)ret7++;
+    if(ds.length>=2)multi++;
+    var first=ds[0], wk=isoWeek(first);
+    if(wk){cohorts[wk]=cohorts[wk]||{n:0,returned:0};cohorts[wk].n++;}
+    var later=ds.filter(function(d){return ord(d)>ord(first);});
+    if(later.length){
+      var gap=Math.min.apply(null,later.map(function(d){return ord(d)-ord(first);}));
+      gaps.push(gap);
+      if(gap<=7&&wk)cohorts[wk].returned++;
+    }
+  });
+  gaps.sort(function(a,b){return a-b;});
+  var med=gaps.length?(gaps.length%2?gaps[(gaps.length-1)/2]:
+    (gaps[gaps.length/2-1]+gaps[gaps.length/2])/2):null;
+  return {span:[days[0],newest], days:days.length, viewers_total:hashes.length,
+    per_day:perDay, viewers_7d:view7, returning_7d:ret7,
+    return_share_7d:view7?ret7/view7:null,
+    multi_day_share:hashes.length?multi/hashes.length:null,
+    median_days_to_return:med, cohorts:cohorts, bad:bad};
+}
+function retPanel(){
+  var r=RET;
+  var h='<div class="panel"><h2>6 · Retention — the north star (§1a sidecar)</h2>'
+    +'<div class="kv"><span>span</span><span>'+r.span[0]+' → '+r.span[1]
+    +' ('+r.days+'d, '+r.viewers_total+' viewers)</span></div>'
+    +'<div class="kv"><span>returning_viewers_7d (M12)</span><span>'
+    +r.returning_7d+' of '+r.viewers_7d+' ('
+    +(r.return_share_7d!=null?(100*r.return_share_7d).toFixed(1)+'%':'—')
+    +')</span></div>'
+    +'<div class="kv"><span>multi-day share (span)</span><span>'
+    +(r.multi_day_share!=null?(100*r.multi_day_share).toFixed(1)+'%':'—')
+    +'</span></div>'
+    +'<div class="kv"><span>median days to first return</span><span>'
+    +(r.median_days_to_return!=null?r.median_days_to_return:'—')+'</span></div>'
+    +'<p class="note">viewers per day</p>';
+  var dmax=0; for(var d in r.per_day) if(r.per_day[d]>dmax)dmax=r.per_day[d];
+  Object.keys(r.per_day).sort().forEach(function(d){
+    h+=bar(d,r.per_day[d],dmax); });
+  var wks=Object.keys(r.cohorts).sort();
+  if(wks.length){
+    h+='<p class="note">first-seen cohorts — day-7 return</p>';
+    wks.forEach(function(w){var c=r.cohorts[w];
+      h+='<div class="kv"><span>'+w+'</span><span>'+c.returned+'/'+c.n
+        +' ('+(c.n?(100*c.returned/c.n).toFixed(1):'—')+'%)</span></div>';});
+  }
+  h+='<p class="note">Windowed hashes break at every salt rotation — a '
+    +'viewer silent across a boundary counts as new (undercounts returns; '
+    +'the honest direction). Never joined to the event capture.</p></div>';
+  return h;
+}
+
+// --- cost ledger (v186): mirrors tools/cost_ledger.py report -----------
+// TSV: date<TAB>kind<TAB>value<TAB>category<TAB>note ; kinds:
+// cost ($) · mod_hours (hours — logged, unpriced, like --rate 0) · sim_days.
+function analyzeCost(text){
+  var rows=[], bad=0;
+  text.split(/\r?\n/).forEach(function(line){
+    line=line.replace(/\r?$/,""); if(!line||/^#/.test(line))return;
+    var c=line.split("\t");
+    if(c.length<3||!/^\d{4}-\d{2}-\d{2}$/.test(c[0])
+       ||["cost","mod_hours","sim_days"].indexOf(c[1])<0
+       ||isNaN(+c[2])){bad++;return;}
+    rows.push({date:c[0],kind:c[1],value:+c[2],cat:c[3]||"other"});
+  });
+  if(!rows.length)return null;
+  var days=rows.map(function(r){return r.date;}).sort();
+  var end=days[days.length-1], eo=ord(end);
+  var spend=0, sim=0, modH=0, byCat={};
+  rows.forEach(function(r){
+    if(r.kind==="sim_days"){sim+=r.value;return;}
+    var d=r.kind==="cost"?r.value:0; // mod_hours unpriced (rate 0)
+    if(r.kind==="mod_hours")modH+=r.value;
+    spend+=d; byCat[r.cat]=(byCat[r.cat]||0)+d;
+  });
+  var w7s=0, w7sim=0;
+  rows.forEach(function(r){
+    var o=ord(r.date); if(o<eo-6||o>eo)return;
+    if(r.kind==="sim_days")w7sim+=r.value; else if(r.kind==="cost")w7s+=r.value;
+  });
+  var weekly=[], ws=ord(days[0]); ws-= (new Date(ws*86400000).getUTCDay()+6)%7;
+  while(ws<=eo){
+    var we=Math.min(ws+6,eo), s=0, sm=0;
+    rows.forEach(function(r){var o=ord(r.date);
+      if(o<ws||o>we)return;
+      if(r.kind==="sim_days")sm+=r.value; else if(r.kind==="cost")s+=r.value;});
+    weekly.push({week:new Date(ws*86400000).toISOString().slice(0,10),
+      spend:s, sim:sm, per:sm>0?s/sm:null});
+    ws+=7;
+  }
+  return {entries:rows.length, span:[days[0],end], spend_total:spend,
+    sim_days_total:sim, cost_per_sim_day:sim>0?spend/sim:null,
+    t7:{spend:w7s, sim:w7sim, per:w7sim>0?w7s/w7sim:null},
+    by_cat:byCat, mod_hours:modH, weekly:weekly, bad:bad};
+}
+function costPanel(){
+  var r=COST;
+  var fmt=function(v){return v==null?"n/a":"$"+v.toFixed(4);};
+  var h='<div class="panel"><h2>7 · Cost per simulated day (§17 evidence)</h2>'
+    +'<div class="kv"><span>span</span><span>'+r.span[0]+' → '+r.span[1]
+    +' · '+r.entries+' rows</span></div>'
+    +'<div class="kv"><span>spend total</span><span>$'+r.spend_total.toFixed(2)
+    +'</span></div>';
+  Object.keys(r.by_cat).sort().forEach(function(c){
+    h+='<div class="kv"><span>&nbsp;&nbsp;'+esc(c)+'</span><span>$'
+      +r.by_cat[c].toFixed(2)+'</span></div>';});
+  if(r.mod_hours) h+='<div class="kv"><span>moderation hours</span><span>'
+    +r.mod_hours+'h (unpriced)</span></div>';
+  h+='<div class="kv"><span>sim-days total</span><span>'+r.sim_days_total
+    +'</span></div>'
+    +'<div class="kv"><span>cost / sim-day</span><span>'
+    +fmt(r.cost_per_sim_day)+'</span></div>'
+    +'<div class="kv"><span>trailing 7d</span><span>$'+r.t7.spend.toFixed(2)
+    +' / '+r.t7.sim+' sim-days = '+fmt(r.t7.per)+'/day</span></div>'
+    +'<p class="note">weekly trend</p>';
+  r.weekly.forEach(function(w){
+    h+='<div class="kv"><span>'+w.week+'</span><span>$'+w.spend.toFixed(2)
+      +' · '+w.sim+'sd · '+fmt(w.per)+'</span></div>';});
+  h+='<p class="note">mod_hours are logged, not priced (the CLI --rate 0 '
+    +'default). sim_days rows come from the game track\'s sim clock.</p></div>';
   return h;
 }
 
@@ -345,7 +513,24 @@ function ingest(text, fname){
       else out.innerHTML='<p class="note">goals.json loaded — now drop a capture.</p>';
       return;
     }
-  }catch(x){/* not a single JSON doc — NDJSON path */}
+  }catch(x){/* not a single JSON doc — NDJSON/TSV path */}
+  // v186: TSV sidecars — retention (day⇥hash) or cost ledger (5-col kinds).
+  var first=(text.split(/\r?\n/).filter(function(l){
+    return l.trim()&&!/^#/.test(l.trim());})[0])||"";
+  if(first.indexOf("\t")>=0){
+    var cols=first.split("\t").length;
+    if(cols===2){
+      RET=analyzeRetention(text);
+      if(RET){rerender(fname,"retention sidecar");return;}
+    } else {
+      COST=analyzeCost(text);
+      if(COST){rerender(fname,"cost ledger");return;}
+    }
+    out.innerHTML='<p class="warn">'+esc(fname)+
+      ' looks like a TSV but parses as neither a retention sidecar '+
+      '(day⇥hash) nor a cost ledger (date⇥kind⇥value⇥…).</p>';
+    return;
+  }
   var evts=[], bad=0;
   text.split(/\r?\n/).forEach(function(line){
     line=line.trim(); if(!line) return;
@@ -361,22 +546,31 @@ function ingest(text, fname){
   render(evts, fname+(bad?" — "+bad+" bad lines skipped":""));
 }
 
+function rerender(fname, what){
+  if(LAST_EVTS){render(LAST_EVTS,LAST_NAME+" + "+fname);}
+  else out.innerHTML='<p class="note">'+esc(what)+' ('+esc(fname)+
+    ') loaded — now drop a capture.</p>';
+}
+
 drop.addEventListener("click",function(){file.click();});
 file.addEventListener("change",function(){
-  var f=file.files[0]; if(!f)return;
-  var r=new FileReader();
-  r.onload=function(){ingest(r.result,f.name);};
-  r.readAsText(f);
+  Array.prototype.forEach.call(file.files,function(f){
+    var r=new FileReader();
+    r.onload=function(){ingest(r.result,f.name);};
+    r.readAsText(f);
+  });
+  file.value="";
 });
 ["dragover","dragenter"].forEach(function(ev){drop.addEventListener(ev,function(e){
   e.preventDefault();drop.classList.add("over");});});
 ["dragleave","drop"].forEach(function(ev){drop.addEventListener(ev,function(e){
   e.preventDefault();drop.classList.remove("over");});});
 drop.addEventListener("drop",function(e){
-  var f=e.dataTransfer.files[0]; if(!f)return;
-  var r=new FileReader();
-  r.onload=function(){ingest(r.result,f.name);};
-  r.readAsText(f);
+  Array.prototype.forEach.call(e.dataTransfer.files,function(f){
+    var r=new FileReader();
+    r.onload=function(){ingest(r.result,f.name);};
+    r.readAsText(f);
+  });
 });
 })();
 </script>
