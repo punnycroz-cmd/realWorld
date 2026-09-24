@@ -9553,3 +9553,250 @@ OBSERVE.
   self-focused attention in social anxiety grounds
   `lgap_k`'s trait loading; diag_moral_neg (SM§2) bounds
   `meta_neg_w` below moral-diagnosticity weight.
+
+## 194. Coverage & mutation — the battery audits its own blind spots (VA-COVER) (new in v95)
+
+The registry passed P1005 without ever asking a simpler question:
+which parameters and contract functions does NO probe touch? A probe
+battery's silent regions are where regressions breed. Two instruments:
+
+- **The coverage map.** Every §7 param and every §10 contract
+  function declares, at probe-registration, which probes exercise it
+  (the probe's `touched` set — assembled statically: each probe lists
+  the params it perturbs or reads through the §10 surface). `probeCover`
+  returns `{uncovered_params, uncovered_fns, thin_params}` where thin
+  = touched by exactly one SHOULD probe (single-instrument risk).
+  Gate: uncovered gated params = 0 (`cover_min`); thin params must
+  shrink monotonically across versions — never grow. An exemption
+  must be declared at registration with a reason (`cover_exempt_null`
+  — no silent orphans; an exempt param carries `cover_why` in the
+  registry row). This is the coverage criterion mutation testing
+  imposes on test suites (Jia & Harman 2011, *IEEE TSE* 37:649 —
+  verified survey): a suite is only as good as the mutants it kills.
+- **Mutation falsifiability.** The cheap way to find probes that
+  couldn't fail: inject single-param mutants — clamp each gated param
+  to its declared bound, one at a time — and count which probe
+  families' verdicts flip. Every gated param belongs to a declared
+  `detect_set` (the family that owns it); a mutant inside its detect
+  set escaping ALL probes is a coverage hole, not a finding.
+  `mut_escape_max` bounds tolerated escape fraction per release
+  (default 0.15: the battery may miss deliberately redundant params,
+  but not 1-in-7). Post-hoc whitelisting an escaped mutant is
+  `mut_whitelist_null` — escapes are fixed by adding probes or
+  shrinking the param's claimed role, never by amnesty.
+- **Why mutations over review.** Manual "is this param tested?"
+  review fails under registry scale (1000+ probes, ~300 params).
+  Mutation score is mechanical, replayable, and — crucially —
+  tests the TESTS the way P881's peeper tests the verdicts:
+  a probe that survives every relevant mutant was decorative.
+- **Sloppiness caveat (reused from §140/§166).** Some params are
+  individually inert on every output yet load-bearing jointly;
+  mutation runs at the detect-set granularity, not per-probe, so a
+  param killed by NO single probe but jointly constrained still
+  counts as covered — the hole metric is family-level escape, not
+  per-probe kill rate. Never interpret a low individual kill count
+  as grounds to delete the param (`screen_drop_null` doctrine).
+
+## 195. Simulation-based calibration of the refit path (VA-SBC) (new in v95)
+
+The corpus-refit tooling (anchor fitting, `calibrateParam`-style
+sweeps) is itself inference machinery, and inference machinery
+lies quietly. The standard audit for a fitting procedure is
+simulation-based calibration: draw true params θ* from the profile
+prior, generate synthetic telemetry under them, run the refit,
+and check that θ* falls inside the refit's claimed band at the
+claimed rate. Talts, Betancourt, Simpson, Vehtari & Gelman
+(2020, *Bayesian Analysis* 15:1257 — verified) reduce this to a
+rank statistic: over `sbc_draws` replications, the rank of θ*
+within the refit's ensemble must be UNIFORM on
+{0,…,`sbc_bins`}; under-coverage shows a U shape, over-coverage
+an arch, bias a tilt. Uniformity is tested by the empirical CDF
+against the simultaneous band the paper derives (χ² on binned
+ranks is the coarser fallback).
+
+- RW instantiation: θ* draws come from `deriveParams` over a
+  mixed cohort (v93's population prior, so the test uses the same
+  prior the refit claims to invert). Telemetry = the probe
+  battery's OWN outputs under θ* — this calibrates the anchor-
+  fitting path, not the psychology. If the refit cannot recover
+  parameters it generated itself, its claims about human anchors
+  are noise.
+- Ground truth caveat: SBC certifies self-consistency (Cook,
+  Gelman & Rubin 2006, *J Comput Graph Stat* 15:675 — verified
+  precursor; the same idea for validating simulation software
+  via posterior replicates). A self-consistent fit can still be
+  wrong about humans — that gap is what §14.2 anchor grades and
+  the §196 metamorphic layer cover. Three orthogonal audits:
+  mechanism (SBC), phenomenon (anchors), invariants (MRs).
+- `anchor_pointfit_null`: the refit must fit anchor BANDS
+  (§14.2 `rep_grade` + `rep_shrink`), never point estimates —
+  a point fit inherits the literature's optimism bias as if it
+  were measurement precision (OSC 2015 below). Fitting code
+  that minimizes distance to the band midpoint rather than
+  membership in the band is a boundary violation.
+
+## 196. Metamorphic relations — anchor-free behavioral law (VA-METAM) (new in v95)
+
+Anchors tell the model what humans do in specific paradigms;
+metamorphic relations tell it what NO coherent memory may do in
+ANY paradigm — the difference between fitting a curve and
+respecting physics. Metamorphic testing (Chen et al. 1998,
+*IEEE Softw* 15:20 — verified original; Chen, Kuo, Liu, Poon,
+Towey, Tse & Zhou 2018, *ACM Comput Surv* 51:4 — verified
+survey) handles exactly our oracle problem: for most inputs the
+correct output is unknown (no human dataset exists for "Jules
+recalls this exact event"), but RELATIONS between outputs are
+known. `mrCheck` runs the relation table continuously — MRs
+are harness-side laws, not probes with families and FDR.
+
+| MR | relation | basis |
+|---|---|---|
+| MR1 cue monotonicity | adding a matching cue (place/person/time) never decreases P(retrieval) | cue-overload theory, Tulving & Thomson 1973 encoding specificity — CONSENSUS direction |
+| MR2 delay monotonicity | ceteris paribus, longer retention interval ⇒ non-increasing recall prob | every forgetting law since Ebbinghaus 1885 — CONSENSUS |
+| MR3 interference direction | more same-category neighbors ⇒ non-increasing target recall at fixed cue | post-1940 interference theory consolidation (§FC) — CONSENSUS direction |
+| MR4 arousal band | moderate-arousal events recall ≥ neutral AND ≥ extreme-arousal at long delays | Yerkes–Dodson family (qualitative only — DEBATED in shape, CONSENSUS that extremes differ) |
+| MR5 repetition order | nth retelling never lowers record's retrieval prob vs matched unretold | testing effect, Roediger & Karpicke 2006 — CONSENSUS |
+| MR6 semantic robustness | age↑ ⇒ episodic recall ↓ more than semantic familiarity ↓ | Park et al. 2002 lifespan gradient — CONSENSUS direction |
+| MR7 trait ordering | rumination↑ ⇒ negative-event recall prob ≥ positive-event at long lag | ruminative rehearsal literature — direction CONSENSUS, size HYPOTHESIS |
+| MR8 recognition ≥ recall | same record: recognition-mode hit rate ≥ recall-mode | recognition-recall gap — CONSENSUS (Tulving & Thomson 1973; Brown 1976) |
+
+Rules: MRs must hold for EVERY profile — including trait-extreme
+pins — because they encode direction, not magnitude. A magnitude
+version of any MR is a probe, not an MR. **Tightness audit:** the
+table is only meaningful if it can fail — a deliberately inverted
+build (flip each operator's direction in turn) must trip ≥
+`mr_detect_min` of the relations; an MR no inversion ever trips is
+vacuous and flagged. `mr_detect_min`=0.8 allows slack for MRs an
+implementation genuinely can't violate (e.g., MR8 if recognition
+reuses the recall path).
+
+## 197. Live invariants & versioned regression — validation in production (VA-LIVE) (new in v95)
+
+The battery gates releases; it does not watch the world run. Two
+final instruments extend validation past the lab:
+
+- **Canary invariants.** A subset of locked-null checks runs
+  continuously on live ticks: modLedger append-only monotonicity,
+  snapshot round-trip spot checks, the §12.3 tier boundary
+  (hidden fields never crossing into emission text — checked on a
+  sampled emission stream, `live_emit_frac`). Cost class: O(1) per
+  tick. Any trip ⇒ `liveMon` raises BLOCK + freezes the run's
+  verdict ledger; the world continues (research only, per standing
+  order) but its data is quarantined. Detection latency bounded:
+  an injected violation must surface within `live_detect_ticks`.
+  `live_off_null`: a release build with monitors compiled out is a
+  BLOCK verdict, full stop — monitoring is not optional equipment.
+- **Drift watch.** Live emission statistics (recall rates,
+  emotional-valence mix, pass fractions) accumulate into the same
+  e-processes as §14.5b — an alarm fires the moment the running
+  product crosses 1/`eval_alpha`, WITHOUT waiting for the next
+  corpusRun. This is Page's CUSUM idea re-founded on e-values
+  (Page 1954, *Biometrika* 41:100 — verified origin of sequential
+  change detection; Howard et al. 2021 supplies the anytime-valid
+  form). Alarm ≠ verdict: drift watch suspends release pending a
+  fixed-n confirmation; it never convicts on its own.
+- **Golden regression.** A pinned-seed corpus slice (n=8 mains,
+  30 world-days, fixed event tape) emits a canonical transcript
+  digest per release; `goldDiff` compares within `gold_tol`
+  (per-emission-field L∞ on rates). A diff outside tolerance with
+  specVersion unchanged = implementation regression; with
+  specVersion bumped = expected, and the re-baseline must be
+  logged in the verdict ledger as a `rebaseline` row with reason —
+  silent re-baselines are the `family_edit_null` of regression
+  testing. Golden digests never assert psychology — they assert
+  REPRODUCIBILITY; the two are kept separate so a correct-but-
+  changed model fails gold, not P-probes.
+
+## 198. v95 suite (P1006–P1016) — validation-design X (the battery's blind spots)
+
+Three MUST + one locked-null-class MUST, five SHOULD, two OBSERVE.
+All are harness/property probes; zero psychology moved.
+
+- **P1006 coverage completeness (MUST — process):** `probeCover`
+  reports zero uncovered gated params/fns; thin-param count ≤
+  prior version's; every exempt param carries `cover_why`.
+  `cover_exempt_null` checked alongside.
+- **P1007 mutation falsifiability (MUST):** single-param bound-
+  clamp mutants across the gated set: family-level escape fraction
+  ≤ `mut_escape_max`; every escape logged with its detect_set.
+  Basis: Jia & Harman 2011.
+- **P1008 SBC rank uniformity (MUST):** `sbc_draws` refit
+  replications on synthetic truth; rank histogram inside the
+  Talts-2020 simultaneous band for every §63-pinned param;
+  U/arch/tilt flagged per param. Basis: Talts et al. 2020;
+  Cook, Gelman & Rubin 2006.
+- **P1009 metamorphic suite holds (MUST):** all 8 MRs pass on B3
+  across every archetype × trait-extreme pin grid; a violation is
+  never FDR'd — MRs are laws, one failure = FAIL.
+- **P1010 MR tightness (SHOULD):** per-operator inverted builds
+  trip ≥ `mr_detect_min` of MRs each; vacuous MRs reported.
+- **P1011 anchor-shrink direction (SHOULD):** SINGLE-grade
+  anchors post-`rep_shrink` demand systematically smaller effects
+  than their published point estimates; a model fit only on
+  META/RRR rows misses ≥1 shrunk SINGLE band. Basis: OSC 2015
+  (replication effects ≈ ½ original).
+- **P1012 band-not-point fitting (SHOULD — locked-null
+  companion):** inject a refit that minimizes distance to band
+  midpoints; `anchor_pointfit_null` fires; coverage of claimed
+  bands stays nominal only under band-membership loss.
+- **P1013 live canary latency (MUST — locked-null class):**
+  injected tier-boundary violation on a live emission stream
+  surfaces within `live_detect_ticks`; clean 30-day runs trip
+  zero canaries. `live_off_null` verified by attempting a
+  monitors-off release build → BLOCK.
+- **P1014 drift alarm precedence (SHOULD):** scripted regime
+  shift (valence mix ×2) trips the e-process alarm before the
+  next scheduled fixed-n verdict in ≥90% of replications; no
+  alarm on unshifted runs beyond `eval_alpha` rate.
+- **P1015 golden regression honesty (SHOULD — process):**
+  unchanged specVersion + perturbed implementation ⇒ `goldDiff`
+  outside `gold_tol`; bumped specVersion ⇒ re-baseline requires
+  a ledger `rebaseline` row; absent row = violation.
+- **P1016 coverage trend (OBSERVE):** publish per-version
+  thin-param + escape-fraction trajectories; expect thin→0 as
+  families accumulate. Report, don't gate.
+
+Registry: P1–P1016. v95 suite: P1006, P1007, P1008, P1009, P1013
+MUST (P1013 locked-null class; P1012 SHOULD companion to
+`anchor_pointfit_null`); P1010, P1011, P1014, P1015 SHOULD;
+P1016 OBSERVE.
+
+## 199. Sources verified this version (P1006–P1016 backing)
+
+- **Mutation testing:** Jia & Harman 2011 (*IEEE TSE* 37:649 —
+  verified survey): mutant kill/escape as the measure of suite
+  adequacy; equivalent-mutant problem acknowledged — RW's
+  detect-set design sidesteps it by measuring family-level
+  escape, never per-mutant.
+- **Simulation-based calibration:** Talts, Betancourt, Simpson,
+  Vehtari & Gelman 2020 (*Bayesian Analysis* 15:1257 —
+  verified): rank-uniformity theorem for correct posterior
+  software; U/arch/tilt diagnostics. Precursor: Cook, Gelman &
+  Rubin 2006 (*J Comput Graph Stat* 15:675 — verified):
+  validating Bayesian software by replicating from the prior.
+- **Metamorphic testing:** Chen et al. 1998 (*IEEE Softw*
+  15:20 — verified) original MR formulation; Chen, Kuo, Liu,
+  Poon, Towey, Tse & Zhou 2018 (*ACM Comput Surv* 51:4 —
+  verified): MR construction/tightness practice — an MR that
+  cannot fail is vacuous.
+- **Replication shrinkage:** Open Science Collaboration 2015
+  (*Science* 349:aac4716 — verified): 100 studies, 97→36%
+  significant on replication, mean effect ≈ ½ original —
+  grounds `rep_shrink` direction (P1011) and band-not-point
+  doctrine. Klein et al. 2014 Many Labs (*Soc Psychol* 45:142
+  — verified): cross-site variance motivates precision-weighted
+  bands.
+- **Sequential change detection:** Page 1954 (*Biometrika*
+  41:100 — verified): CUSUM; anytime-valid successor =
+  e-process monitoring (Howard et al. 2021, reused).
+- **V&V framing (background):** Oberkampf & Trucano 2002
+  (*Prog Aerospace Sci* 38:209 — verified): verification
+  (solves the equations right = L0/SBC/golden) vs validation
+  (solves the right equations = anchors/MRs/believability) —
+  the §1 level table is this distinction operationalized.
+- **RW HYPOTHESES marked:** `mut_escape_max`=0.15 tolerance
+  (no literature fixes a suite-adequacy threshold for
+  simulation batteries); `mr_detect_min`=0.8 (tightness floor
+  ours); gold_tol 0.02 (regression tolerance ours, sized to
+  seed-noise floor); live canary latency 500 ticks (ops
+  choice). All probe-gated, none claimed as science.

@@ -3938,3 +3938,37 @@ is already modeled as PersonModel). Key verified sources:
   retest stability, not measured drift; hypervigilant
   threat-metaperception deferred as a different
   mechanism. → SM Part X §§141–150.
+
+## §73. Methodology appendix — validation science sources (v95)
+
+Not memory psychology — the statistics of knowing whether a model
+of memory is right. Sources behind validation-design.md §§194–199:
+
+- **Talts, Betancourt, Simpson, Vehtari & Gelman 2020** (*Bayesian
+  Analysis* 15:1257 — verified): simulation-based calibration; the
+  rank-uniformity theorem and U/arch/tilt diagnostics. If our
+  refit path can't recover parameters it generated itself, its
+  claims about human anchors are noise.
+- **Cook, Gelman & Rubin 2006** (*J Comput Graph Stat* 15:675 —
+  verified): validating Bayesian software by replicating from the
+  prior — the SBC precursor.
+- **Chen et al. 1998** (*IEEE Softw* 15:20 — verified) + **Chen,
+  Kuo, Liu, Poon, Towey, Tse & Zhou 2018** (*ACM Comput Surv*
+  51:4 — verified): metamorphic testing — when no oracle exists,
+  relations between outputs still must hold; an MR that can't
+  fail is vacuous (our `mr_detect_min` tightness audit).
+- **Jia & Harman 2011** (*IEEE TSE* 37:649 — verified): mutation
+  testing survey; suite adequacy = mutant kill; equivalent-mutant
+  caveat handled via family-level detect sets.
+- **Open Science Collaboration 2015** (*Science* 349:aac4716 —
+  verified): replication effects ≈ half the published size —
+  justifies band-membership fitting + `rep_shrink` direction.
+- **Klein et al. 2014** Many Labs (*Soc Psychol* 45:142 —
+  verified): cross-site variance motivates precision-weighted
+  anchor bands.
+- **Page 1954** (*Biometrika* 41:100 — verified): CUSUM — the
+  ancestor of the e-process drift watch (Howard et al. 2021
+  supplies anytime-valid form).
+- **Oberkampf & Trucano 2002** (*Prog Aerospace Sci* 38:209 —
+  verified): verification vs validation distinction — our L0/SBC/
+  golden layers verify; anchors/MRs/raters validate.

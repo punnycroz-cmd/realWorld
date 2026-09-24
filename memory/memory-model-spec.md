@@ -1,5 +1,27 @@
-# Memory Model Spec v5.42 — implementable human-like memory for RW characters
+# Memory Model Spec v5.43 — implementable human-like memory for RW characters
 
+> **v5.43 note (validation-design X — the battery audits its
+> own blind spots):** `memory/validation-design.md` §§194–199
+> adds the fourth governance layer — the instruments that check
+> the instruments. (a) **Coverage + mutation** (`probeCover`,
+> `mutRun`): every gated param/fn must live in ≥1 probe's
+> `touched` set; bound-clamp mutants may not escape their
+> detect-set family beyond `mut_escape_max`. (b) **Simulation-
+> based calibration** (`sbcReport`): the anchor-refit path must
+> recover its own synthetic truth — rank-uniformity band per
+> Talts et al. 2020. (c) **Metamorphic relations** (`mrCheck`):
+> 8 anchor-free directional laws (cue/delay/interference
+> monotonicity, recognition ≥ recall, …) that must hold for
+> every profile, audited for tightness against inverted builds.
+> (d) **Live invariants + golden regression** (`liveMon`,
+> `goldDiff`): canary locked-null checks on live ticks,
+> e-process drift watch, pinned-seed transcript digests.
+> New §14.6 annex; +8 pop/harness scalars, +4 locked nulls
+> (`cover_exempt_null`, `mut_whitelist_null`,
+> `anchor_pointfit_null`, `live_off_null`); §10 contract adds
+> the five harness functions. Zero psychology moved; probes
+> P1006–P1016.
+>
 > **v5.42 note (social-memory X — the metaself layer):**
 > `memory/social-memory.md` Part X (§§141–150) adds the missing
 > half of social perception: what a character believes OTHERS
@@ -14048,6 +14070,24 @@ MemoryParams = {
 //   `felt_liked`/`felt_disliked`, `gap_close` milestone,
 //   `meta_stale` audit. All snapshot-additive; absent =
 //   legacy.
+// v5.43 additions (validation-design X — VD§§194–199; all
+//   pop/harness)
+"cover_min": 1.0, "mut_escape_max": 0.15,          // §194
+"sbc_draws": 256, "sbc_bins": 20,                  // §195
+"mr_detect_min": 0.8,                              // §196
+"live_detect_ticks": 500, "live_emit_frac": 0.05,  // §197
+"gold_tol": 0.02,
+// v5.43 locked nulls: cover_exempt_null (P1006 —
+//   uncovered params need a registered cover_why);
+//   mut_whitelist_null (P1007 — escaped mutants are
+//   never amnestied post hoc); anchor_pointfit_null
+//   (P1012 — refit minimizes band membership, never
+//   distance to midpoints); live_off_null (P1013 —
+//   monitors-off release = BLOCK).
+// v5.43 fields: none — harness governance only; probe
+//   registry rows gain `touched[]`, `detect_set`,
+//   `cover_why?`; verdict ledger gains `rebaseline`
+//   row kind. No Event/record/PersonModel changes.
 // v5.39 traits: `blackout`, `med_burden`, `att_ctl`,
 //   `scd`, `cross_exp`, `sim`, `caff`, `gamer`,
 //   `braintrain` (mandated null — ID§104); state fields
@@ -16269,6 +16309,26 @@ not resolved (DEBATED magnitude). P509/P511.
   - **New params (§7):** 7 pop scalars + 6 traits +
     5 locked nulls.
   - Probes P994–P1005.
+- v5.43 additions (validation-design.md §§194–199):
+  - **Harness functions (all harness-tier, never
+    character-visible):** `probeCover()` →
+    `{uncovered_params, uncovered_fns, thin_params}`;
+    `mutRun(param)` → bound-clamp mutant verdict diff;
+    `sbcReport()` → per-param rank histogram + band
+    test; `mrCheck()` → 8-relation metamorphic suite
+    verdict; `liveMon()` → canary/drift status +
+    quarantine flag; `goldDiff()` → transcript digest
+    distance vs `gold_tol`.
+  - **Registry fields:** probe rows gain `touched[]`,
+    `detect_set`, optional `cover_why`; verdict ledger
+    gains `rebaseline` rows (specVersion-bumped golden
+    re-baselines must be logged, never silent).
+  - **Locked boundaries game-systems must honor:**
+    `cover_exempt_null`, `mut_whitelist_null`,
+    `anchor_pointfit_null`, `live_off_null`.
+  - **New params (§7):** 8 pop/harness scalars + 4
+    locked nulls. Zero psychology moved.
+  - Probes P1006–P1016.
 
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
@@ -16589,6 +16649,69 @@ never a psychology finding).
 | family_edit / peep / screen_drop / rater_leak | 0.0 each | locked nulls — §14.5a–d |
 
 Probes P879–P888 in validation-design.md §170.
+
+### 14.6 Coverage, calibration, metamorphic law, live watch (new in v5.43)
+
+The battery's blind spots are now the risk: with P1–P1005
+registered, an untested param can regress invisibly and the
+verdict layer would still report green. Four instruments,
+all harness-tier — no psychology moved.
+
+**(a) Coverage + mutation.** Every §7 param and §10 contract
+fn declares which probes touch it (`touched` set at probe
+registration). `probeCover` reports orphans and thin params
+(single-instrument coverage). `cover_min`=1.0 for gated
+params; exemptions need a registered `cover_why`
+(`cover_exempt_null`). `mutRun` clamps each gated param to
+its bound and requires a verdict flip somewhere in its
+declared `detect_set` family; escape fraction above
+`mut_escape_max` flags a coverage hole (mutation-testing
+doctrine, Jia & Harman 2011). Escapes are fixed by adding
+probes, never by amnesty (`mut_whitelist_null`). Family-level
+escape, not per-probe kill rate — sloppy-manifold params stay
+protected (`screen_drop_null` doctrine).
+
+**(b) Simulation-based calibration.** The anchor-refit path is
+inference machinery and gets audited as such: draw θ* from the
+`deriveParams` prior, generate telemetry under it, refit, and
+require rank uniformity of θ* within the refit ensemble over
+`sbc_draws` replications (`sbc_bins` bins, Talts et al. 2020
+simultaneous band). The refit fits anchor BANDS — membership
+loss, never midpoint distance (`anchor_pointfit_null`); SINGLE-
+grade rows carry `rep_shrink` (OSC 2015 direction).
+
+**(c) Metamorphic relations.** Eight directional laws
+(validation-design.md §196 table MR1–MR8: cue/delay/
+interference monotonicity, arousal band, repetition,
+semantic-vs-episodic age gradient, rumination asymmetry,
+recognition ≥ recall) hold for EVERY profile — they encode
+direction, not magnitude, so they are laws outside FDR: one
+failure = FAIL. Tightness is itself audited: per-operator
+inverted builds must trip ≥ `mr_detect_min` relations or the
+MR is vacuous.
+
+**(d) Live invariants + golden regression.** Canary locked-null
+checks run per live tick (modLedger monotonicity, tier-boundary
+emission sampling at `live_emit_frac`); a trip BLOCKs and
+quarantines the run's verdicts; injected violations must
+surface within `live_detect_ticks`; monitors-off releases are
+`live_off_null` BLOCK. Drift watch runs the §14.5b e-processes
+on live emission statistics — alarm suspends release pending
+fixed-n confirmation, never convicts alone. `goldDiff` compares
+pinned-seed transcript digests against `gold_tol`; specVersion-
+bumped re-baselines require a ledger `rebaseline` row.
+
+| param | default | notes |
+|---|---|---|
+| cover_min | 1.0 | harness — gated-param coverage floor |
+| mut_escape_max | 0.15 | pop — tolerated family-level mutant escape |
+| sbc_draws / sbc_bins | 256 / 20 | harness — SBC replication count / rank bins |
+| mr_detect_min | 0.8 | pop — inverted-build MR kill floor (tightness) |
+| live_detect_ticks / live_emit_frac | 500 / 0.05 | harness — canary latency / emission sample rate |
+| gold_tol | 0.02 | harness — golden digest L∞ tolerance |
+| cover_exempt / mut_whitelist / anchor_pointfit / live_off | 0.0 each | locked nulls — §14.6a–d |
+
+Probes P1006–P1016 in validation-design.md §198.
 
 ## 15. Composition, context, and surface annex (new in v5.18)
 
