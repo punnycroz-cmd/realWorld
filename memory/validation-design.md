@@ -11190,3 +11190,101 @@ probes are discriminators, not detectors.
   not lit constants. → spec §§6.273–6.280; probes P1146–P1155.
 
 Probe registry: P1–P1155 (v108 adds P1146–P1155).
+
+## 226. v109 suite — forgetting-curves X (P1156–P1165)
+
+- **P1156 aggregation artifact (MUST — §14.8):** pooled
+  retention over heterogeneous records must fit a power
+  function at least as well as a pooled exponential, while
+  per-record exponential fits hold — reproducing Anderson &
+  Tweney 1997's artifact proves the mixture is real
+  heterogeneity, not a fitted power term.
+- **P1157 heterogeneity is load-bearing (MUST):** parameter-
+  homogeneous build (all decay traits at mean) must lose the
+  slow tail — pooled curve steepens toward the common
+  exponential; a surviving tail flags a smuggled mechanism.
+- **P1158 interference-dominance (MUST — locked
+  decay_pure_null):** event-density × retention-interval
+  factorial at fixed elapsed time: dense-arm retention <
+  quiet-arm retention ≥25% — a clock-only LTM build cannot
+  produce the interaction (McGeoch 1932 leg).
+- **P1159 per-record need (SHOULD):** matched records with
+  uses{5,last 10d} vs uses{0}: first shows τ_eff up-shift
+  bounded by need_shift_cap; retrieval drive identical
+  (need_uses_null leg — Anderson & Milson 1989).
+- **P1160 competitive release (SHOULD):** kill competitor B
+  in pair {A,B}: A retrieval p rises ≥ relief_min within
+  relief_tau; n_sim must drop (relief_dead_null leg — Nørby
+  2015; Storm & Levy 2012).
+- **P1161 supersede loser (SHOULD):** old-vs-new lock-code
+  pair: free recall returns new ≥80%; forced recall of old
+  succeeds at reduced weight (updt_loser_pen) — demoted, not
+  deleted.
+- **P1162 generalization dividend (SHOULD):** genericized
+  records answer schema queries after verbatim death —
+  detail loss feeds the schema (§4.3, no new machinery).
+- **P1163 remember→know shift (MUST — locked rk_fake_null):**
+  tracked records at 1d/7d/30d/90d: `epist` shifts
+  remember→know monotonically (Gardiner & Java 1990); know-
+  status emissions carry zero binding-field detail; know
+  confidence ≤ know_conf_cap.
+- **P1164 output interference (SHOULD):** fixed 6-item
+  retrievable set, free-recall bouts: early emissions
+  displace later items; same-class emissions hurt more
+  (oi_cat_mult); oi_perm_null leg — nothing persists past
+  bout end (Smith 1971; Roediger & Schmidt 1980).
+- **P1165 quiet-stall (COULD — emergent):** identical dusk
+  records: quiet-window retention > equal-length dense
+  window, gap attributable to starved n_sim inflow (audit
+  leg), never a sleep hazard multiplier (decay_sleep_leg
+  frozen — Jenkins & Dallenbach 1924 emergent).
+
+Registry: P1–P1165. v109 suite: P1156, P1157, P1158, P1163
+MUST (two aggregation-artifact contracts + two locked-null
+probes); P1159–P1162, P1164 SHOULD; P1165 COULD. Theme: the
+curve's pooled shape, its split cause, and its status tag are
+all emergence claims — the probes exist to keep anyone from
+hard-coding what must be emergent.
+
+## 227. Sources verified this version (P1156–P1165 backing)
+
+- **Aggregation artifact:** Anderson & Tweney 1997 (*Mem.
+  Cognit.* 25:724 — exponential individuals average to power-
+  looking groups → P1156); Myung, Kim & Pitt 2000 (*JEP:LMC*
+  26:168 — fit-the-individual response); Brown & Heathcote
+  2003 (same artifact in practice data → P1157).
+- **Need probability:** Anderson & Milson 1989 (*Psychol.
+  Rev.* 96:703 — need ∝ recency-power + saturating frequency
+  → §4.62/P1159); Anderson & Schooler 1991 (class leg,
+  already §4.39).
+- **Decay vs interference:** McGeoch 1932 (*Psychol. Rev.*
+  39:352 — execution of pure decay → decay_pure_null);
+  McGeoch & Irion 1952; Brown 1958 (*QJEP* — seconds-scale
+  clock decay survives); Barrouillet, Bernardin & Camos 2004
+  (*JEP:G* 133:83 — TBRS attention-gated decay → buffer tier);
+  Wixted 2004 (*Annu. Rev. Psychol.* 55:235 — modern
+  synthesis → decay_true 0.15 knob); Jenkins & Dallenbach
+  1924 (quiet-stall emergence → P1165).
+- **Remember→know:** Gardiner & Java 1990 (*Mem. Cognit.*
+  18:23 — R declines, K flat/rises → P1163); Gardiner,
+  Ramponi & Richardson-Klavehn 1998 (*Mem. Cognit.* 26:617 —
+  shift is manipulable); Tunney 2010 (item-level transitions).
+- **Adaptive forgetting:** Nørby 2015 (*Perspect. Psychol.
+  Sci.* 10:551 — PI relief, updating, generalization →
+  §4.63); Storm & Levy 2012 (*Mem. Cognit.* 40:827 — RIF
+  impairment predicts practiced recall → relief_min
+  direction); Levy, McVeigh, Marful & Anderson 2007
+  (*Psychol. Sci.* 18:456 — retrieval-specific).
+- **Output interference:** Smith 1971 (*JEP* 91:195 —
+  category output position); Roediger & Schmidt 1980
+  (*JEP:HLM* 6:91 — bout accumulation → oi_bout_k); Tulving
+  & Arbuckle 1966 (input/output split).
+- **Marked hypothesis:** decay_true 0.15, need_rec_* weights
+  and exponents, relief_min 0.05, updt_loser_pen 0.15,
+  rk_bind_n 2/rk_bind_floor 0.02/know_conf_cap 0.75,
+  oi_bout_k 0.03/oi_cat_mult 1.5 — magnitudes are RW
+  calibration targets, not lit constants; the locked nulls
+  carry the lit-backed claims. → spec §§4.61–4.63,
+  §§5.114–5.115, §14.8; probes P1156–P1165.
+
+Probe registry: P1–P1165 (v109 adds P1156–P1165).

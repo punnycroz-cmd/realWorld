@@ -4542,3 +4542,50 @@ this version.
   dissociation marker (established association, debated
   valence — coping vs symptom); all ten pop constants are
   priors awaiting population calibration (P1122–P1133).
+
+## 84. v109 sources — forgetting-curves X (FC Part X → spec v5.57)
+
+- **Aggregation artifact (the average that lies):** Anderson &
+  Tweney 1997 (*Mem. Cognit.* 25:724 — verified: exponential
+  individuals average to a better-fitting power curve; the
+  slow tail is heterogeneity residue); Myung, Kim & Pitt 2000
+  (*JEP:LMC* 26:168); Brown & Heathcote 2003. Consequence:
+  §14.8 two-fit reporting; the pooled power tail is an
+  emergence target (P1156/P1157), never a fitted term.
+- **Need per record:** Anderson & Milson 1989 (*Psychol.
+  Rev.* 96:703 — verified: P(need) from the item's own usage
+  history — recency-power + saturating frequency). Spec
+  §4.62 `uses[]`/`need_p` descends §4.39's class EMA to the
+  record; retention-side only (need_uses_null).
+- **Decay executed and paroled:** McGeoch 1932 (*Psychol.
+  Rev.* 39:352 — verified: interpolated activity, not time,
+  causes LTM loss); McGeoch & Irion 1952; Brown 1958
+  (*QJEP*); Peterson & Peterson 1959; Barrouillet, Bernardin
+  & Camos 2004 (*JEP:G* 133:83 — TBRS: buffer decay is real
+  but attention-gated); Wixted 2004 (*Annu. Rev. Psychol.*
+  55:235 — synthesis: LTM interference-dominated, residual
+  clock open). Spec §4.61 `decay_true` split: 0.15 LTM /
+  frozen 1.0 buffer; `decay_pure_null` locked; sleep stays
+  consolidation (`decay_sleep_leg` frozen) — Jenkins &
+  Dallenbach quiet-stall emerges (P1165).
+- **Status downgrade:** Gardiner & Java 1990 (*Mem. Cognit.*
+  18:23 — verified: remember responses decay, know flat/
+  rising); Gardiner, Ramponi & Richardson-Klavehn 1998;
+  Tunney 2010. Spec §5.114 `epist` emission tag from
+  binding-field survival; `know_conf_cap`; `rk_fake_null`
+  (no narrated detail from a know); `rk_tone` frozen.
+- **Forgetting earns its keep:** Nørby 2015 (*Perspect.
+  Psychol. Sci.* 10:551 — verified: adaptive value of loss —
+  PI relief, updating, generalization); Storm & Levy 2012
+  (*Mem. Cognit.* 40:827 — RIF impairment correlates with
+  practiced recall); Levy et al. 2007 (*Psychol. Sci.* 18:456).
+  Spec §4.63 `relief_dead_null` + measurable release floor +
+  `updt_loser_pen` demote-not-delete.
+- **The bout's bill:** Smith 1971 (*JEP* 91:195); Roediger &
+  Schmidt 1980 (*JEP:HLM* 6:91); Tulving & Arbuckle 1966.
+  Spec §5.115 `oi_bout_k`/`oi_cat_mult` session accumulator;
+  `oi_perm_null` (never persists).
+- **Marked hypothesis:** all magnitudes (decay_true, need_*,
+  relief_min, rk_*, oi_*) are RW calibration targets — the
+  literature supplies direction and ordering, the spec
+  supplies the numbers, the probes police the boundary.

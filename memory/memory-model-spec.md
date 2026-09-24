@@ -1,5 +1,37 @@
-# Memory Model Spec v5.56 — implementable human-like memory for RW characters
+# Memory Model Spec v5.57 — implementable human-like memory for RW characters
 
+> **v5.57 note (forgetting-curves X — the average that lies, the
+> decay that was paroled, and forgetting that pays):**
+> `memory/forgetting-curves.md` Part X (§§46–50) + spec
+> §§4.61–4.63, §§5.114–5.115, §14.8. **Decay is split, not
+> replaced** — LTM hazard becomes `decay_true`·clock +
+> (1−`decay_true`)·interference over the live `n_sim` ledger
+> (McGeoch 1932's execution honored: `decay_pure_null` makes a
+> clock-only LTM a spec violation); the §32.1 buffer tier keeps
+> pure attention-gated clock decay (`decay_true` frozen 1.0).
+> **Need probability descends to the record** — `uses[]`
+> timestamps → `need_p` (recency-power + frequency-log; Anderson
+> & Milson 1989) stacked with the §4.39 class EMA under
+> `need_shift_cap`; retention-side only (`need_uses_null`).
+> **Forgetting pays** — competitive release: `n_sim` counts live
+> records only (`relief_dead_null`), a measurable release floor
+> (`relief_min`/`relief_tau`), and `updt_loser_pen` demotes
+> superseded records without deleting them (Nørby 2015; Storm &
+> Levy 2012). **Emission gains an epistemic status** —
+> `epist:"remember"|"know"|"guess"` derived from binding-field
+> survival (Gardiner & Java 1990's R→K shift is emergent, not
+> scripted); `know` caps confidence at `know_conf_cap` and may
+> not emit bound detail (`rk_fake_null`). **The bout bills the
+> pool** — session output interference `oi_bout_k` (+`oi_cat_mult`
+> same-class; Smith 1971, Roediger & Schmidt 1980), session-local
+> only (`oi_perm_null`). **New validation contract §14.8** —
+> the aggregation artifact (Anderson & Tweney 1997): pooled-vs-
+> per-record curve reporting; reproducing the artifact is a MUST
+> probe (P1156), heterogeneity is load-bearing (P1157). Locked
+> nulls: `decay_pure_null`, `need_uses_null`, `relief_dead_null`,
+> `rk_fake_null`, `oi_perm_null`. Frozen: `decay_sleep_leg`,
+> `rk_tone`, buffer-tier `decay_true`=1.0. Probes P1156–P1165.
+>
 > **v5.56 note (encoding-mechanics IX — the derived boundary and
 > the sloped gates):** `memory/encoding-mechanics.md` Part IX
 > (§§110–122) + spec §§6.273–6.280 retire the last informal
@@ -5844,6 +5876,61 @@ Encoding skew only. **Locked `sdep_recall_null`:** sleep
 debt never enters the retrieval equation — retrieval costs
 ride `daLoad`, no double-count.
 
+### 4.61 The split hazard — `decay_true` (new in v5.57)
+
+FC§46.3; McGeoch 1932; McGeoch & Irion 1952; Brown 1958;
+Barrouillet et al. 2004 (TBRS); Wixted 2004. The decay leg is
+decomposed:
+
+```
+hazard = decay_true·h_clock(t) + (1 − decay_true)·h_intf(n_sim events since mint)
+decay_true ≈ 0.15 episodic/semantic LTM  (buffer tier frozen 1.0)
+```
+
+`h_intf` accumulates over intervening cue-similar events (the
+§4.2 `n_sim` ledger — live records only, §4.63); §4.40
+throughput pressure and quiet-period stall both emerge from
+this leg rather than separate modifiers. Sleep/waking
+multipliers stay as **consolidation** legs on E/edges — frozen
+`decay_sleep_leg`: never hazard multipliers. **Locked
+`decay_pure_null`:** LTM hazard may not be clock-only — a
+`decay_true`=1.0 LTM build fails P1158's density×time
+interaction.
+
+### 4.62 Need, per record — `uses[]`/`need_p` (new in v5.57)
+
+FC§46.2; Anderson & Milson 1989 (need ∝ recency-power +
+saturating frequency — the same shape as strength). Each
+record carries `uses[]` (timestamps appended on retrieval +
+re-encode; compacted to {count, last_t, ema_gap} past
+`uses_cap` 8):
+
+```
+need_p  = need_rec_w·Σ_u(1+(now−t_u)/1d)^−need_rec_b + need_freq_w·log(1+n_uses)
+τ_eff   = τ·(1 + need_tau_gain·z_class + need_rec_gain·z(need_p))
+need_shift_cap 0.6 — combined leg capped ±60%
+```
+
+`need_rec_w` 0.5, `need_rec_b` 0.6, `need_freq_w` 0.15,
+`need_rec_gain` 0.5. **Locked `need_uses_null`:** `uses[]`
+never enters retrieval drive — service history extends life,
+not findability.
+
+### 4.63 Competitive release — `relief_*`/`updt_loser_pen` (new in v5.57)
+
+FC§46.5; Nørby 2015; Storm & Levy 2012; Levy et al. 2007.
+**Locked `relief_dead_null`:** `n_sim` is defined over the
+live set — an archived record's contribution to survivors'
+interference falls to zero immediately. Measurable-release
+contract: paired cue-similar {A,B}, kill B → A's retrieval p
+must rise ≥ `relief_min` (0.05) within `relief_tau` (2d).
+Supersede pairs: the loser keeps its residual but its drive in
+the shared cue class loses `updt_loser_pen` (0.15) — demoted,
+never deleted; recallable under effort, never wins the race.
+Generalization dividend stays emergent (§4.3 genericize feeds
+schema queries after verbatim death — P1162 asserts, no new
+params).
+
 ---
 
 ## 5. Retrieval — probabilistic, cue-driven (rewritten in v0.2)
@@ -8603,6 +8690,40 @@ m.emotional.arousal_at_mint|)`, `arousal_match_w` 0.08
 panic-era records and vice versa — the §5.112 perceptual
 bypass is what still reaches state-locked trauma records.
 No age leg (P1071, COULD).
+
+### 5.114 The status of a memory — `epist` (new in v5.57)
+
+FC§46.4; Gardiner & Java 1990; Gardiner, Ramponi &
+Richardson-Klavehn 1998; Tunney 2010. present() tags each
+surfaced record `epist:"remember"|"know"|"guess"` from the
+field-survival profile:
+
+```
+remember: ≥rk_bind_n (2) binding fields {verbatim.when,
+          ctx.where, source} alive at strength ≥ rk_bind_floor 0.02
+know:     core content alive, binding dead → confidence
+          capped at know_conf_cap 0.75
+guess:    schema-reconstruction only (existing fill path, marked)
+```
+
+The R→K downgrade is emergent — binding fields decay fastest
+(§4 context dies first) so the same record downgrades on
+schedule. **Locked `rk_fake_null`:** a `know`-status emission
+carries no bound when/where/source detail — cannot narrate the
+scene from thin air. **Frozen `rk_tone`:** emission metadata;
+never alters stored strength; takes no side on the
+two-process debate.
+
+### 5.115 The bout bills the pool — `oi_bout_*` (new in v5.57)
+
+FC§46.6; Smith 1971; Roediger & Schmidt 1980; Tulving &
+Arbuckle 1966. Within one recall bout (a present() session or
+voluntary search): each emitted candidate raises session
+interference — `drive' = drive·(1 − oi_bout_k·k_emitted)`,
+`oi_bout_k` 0.03; same-cue-class emissions cost
+`oi_cat_mult` (1.5×). Reset at bout end. **Locked
+`oi_perm_null`:** writes nothing to records — session-local
+interference, distinct from the RIF suppression ledger.
 
 ---
 
@@ -16089,6 +16210,27 @@ MemoryParams = {
 //   `watch_min` on monitoring Intentions; Event/char flag
 //   `goal:"impression"`. All snapshot-additive; absent = legacy
 //   (dIdx absent → boundary:true behaves as v1.2 flag).
+// v5.57 additions (forgetting-curves X — FC§§46–50)
+// pop constants
+"decay_true": 0.15,                            // §4.61 [0–0.4]; buffer tier frozen 1.0
+"need_rec_w": 0.5, "need_rec_b": 0.6,
+"need_freq_w": 0.15, "need_rec_gain": 0.5,
+"need_shift_cap": 0.6, "uses_cap": 8,          // §4.62
+"relief_min": 0.05, "relief_tau": 2.0,
+"updt_loser_pen": 0.15,                        // §4.63
+"rk_bind_n": 2, "rk_bind_floor": 0.02,
+"know_conf_cap": 0.75,                         // §5.114
+"oi_bout_k": 0.03, "oi_cat_mult": 1.5,         // §5.115
+// v5.57 locked nulls: decay_pure_null (P1158); need_uses_null
+//   (P1159 leg); relief_dead_null (P1160 leg); rk_fake_null
+//   (P1163); oi_perm_null (P1164 leg).
+// v5.57 frozen: decay_sleep_leg (sleep = consolidation leg,
+//   never hazard multiplier); rk_tone (epist never writes
+//   strength); buffer-tier decay_true = 1.0.
+// v5.57 fields/state: record `uses[]` timestamps (compacted
+//   past uses_cap); emission tag `epist`; session accumulator
+//   `oi_bout_acc` (bout-local, never persisted). All snapshot-
+//   additive; absent = legacy.
 // v5.52 additions (social-memory XI — SM§§151–160)
 "sleeper_tag_decay": 1.4, "sleeper_gain": 0.05,
 "sleeper_msg_min": 0.35,                         // §6.257
@@ -18933,6 +19075,45 @@ not resolved (DEBATED magnitude). P509/P511.
     + 1 frozen.
   - Probes P1146–P1155.
 
+- v5.57 additions (forgetting-curves X — FC§§46–50, spec
+  §§4.61–4.63, §§5.114–5.115, §14.8):
+  - **Hazard split contract:** LTM `hazard` must keep the
+    interference leg dominant (`decay_true` ≤ 0.4 for LTM
+    classes); the buffer tier stays pure clock, attention-
+    gated. A clock-only LTM build is a spec violation
+    (`decay_pure_null`, P1158). Sleep effects act at
+    consolidation (`decay_sleep_leg` frozen) — never as
+    hazard multipliers; the quiet-window stall emerges from
+    the interference leg's starved n_sim inflow.
+  - **uses[] contract:** record `uses[]` is appended on
+    retrieval + re-encode only; it feeds `need_p` → τ_eff
+    and nothing else (`need_uses_null` — never a drive term).
+    Compaction past `uses_cap` preserves {count, last_t,
+    ema_gap}.
+  - **Release contract:** `n_sim` counts live records only
+    (`relief_dead_null`); archival must measurably relieve
+    cue-similar survivors (≥ `relief_min` in `relief_tau`);
+    `updt_loser_pen` demotes supersede losers without
+    deleting them.
+  - **epist contract:** present() emissions carry
+    `epist:"remember"|"know"|"guess"`; `know` caps confidence
+    at `know_conf_cap` and emits NO binding-field detail
+    (`rk_fake_null`); `guess` emissions must be marked as
+    reconstruction. `rk_tone` frozen — never write-back.
+  - **Bout contract:** `oi_bout_acc` is session-local state;
+    it multiplies drive within the bout and is discarded
+    (`oi_perm_null` — never persisted, distinct from RIF).
+  - **§14.8 curve-reporting contract:** retention validations
+    report per-record AND pooled fits; the pooled power-over-
+    exponential artifact must reproduce (P1156) and must
+    collapse under trait homogenization (P1157).
+  - **Locked boundaries game-systems must honor:**
+    `decay_pure_null`, `need_uses_null`, `relief_dead_null`,
+    `rk_fake_null`, `oi_perm_null`; frozen `decay_sleep_leg`,
+    `rk_tone`, buffer `decay_true`=1.0.
+  - **New params (§7):** 15 scalars + 5 locked nulls +
+    3 frozen. Probes P1156–P1165.
+
 ## 11. Formal annex — simOp and the distribution axioms (new in v2.1)
 
 ### 11.1 `simOp(a, b, mask)` — the only similarity function
@@ -19358,6 +19539,29 @@ verdict is `censor_edit_null`. Truncated arms may alarm via the
 | inert_field / negctrl / sham_dose / impute / censor_edit | 0.0 each | locked nulls — §14.7a–b |
 
 Probes P1134–P1145 in validation-design.md §222.
+
+### 14.8 Aggregation-artifact reporting (new in v5.57)
+
+FC§46.1; Anderson & Tweney 1997; Myung, Kim & Pitt 2000;
+Brown & Heathcote 2003. Any retention-curve validation must
+report TWO fits, not one:
+
+1. **Per-record fit** — survival fit on individual records
+   (the spec's generative truth; exponential-family).
+2. **Pooled fit** — survival pooled across heterogeneous
+   records/classes, fit against both exponential and power;
+   the artifact REQUIRES pooled power ≥ pooled exponential
+   (P1156).
+
+A pooled curve that decomposes back into heterogeneous
+exponential individuals is correct; a pooled slow tail that
+survives trait homogenization (all decay traits at mean)
+flags a smuggled mechanism (P1157). Rationale: the
+population-level power tail is produced BY trait/need/n_sim
+heterogeneity — the heterogeneity is load-bearing, and the
+battery's job is to prove it, not to fit the famous shape.
+
+Probes P1156–P1157 in validation-design.md §226.
 
 ## 15. Composition, context, and surface annex (new in v5.18)
 
