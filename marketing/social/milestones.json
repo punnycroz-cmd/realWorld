@@ -1,48 +1,212 @@
 {
-  "version": 139,
-  "schema": "social-milestones/v1",
-  "notes": "Trigger table for social/drafts/milestone-posts.md. Counters are read from a JSON snapshot (game feed + analytics, once live) or passed by hand; tools/milestone_check.py reports which posts are unlocked. LOCAL ONLY: unlocking a milestone never posts anything.",
-  "counter_sources": {
-    "watchers_peak": "analytics: concurrent spectator peak (ANALYTICS.md funnel)",
-    "requests_filed": "public feed: count of request events",
-    "requests_declined": "public feed: requests with declined status",
-    "cosponsors_on_one_request": "public feed: max sponsor count on a single request",
-    "characters_hired": "public feed: character-created / hire events",
-    "rent_cycles_closed": "leases ledger / history browser",
-    "leases_run": "leases ledger",
-    "leases_paid_on_time": "leases ledger",
-    "disputes_filed": "public feed: housing/admin events",
-    "public_rulings": "public feed: housing/admin ruling events",
-    "days_since_launch": "calendar vs launch_date in schedule.json",
-    "requests_filed_last_week": "public feed: trailing 7d request count",
-    "viewer_clips_reshared": "human-counted: granted reshare permissions logged in post-review.md consent ledger"
+ "version": 169,
+ "schema": "social-milestones/v1",
+ "notes": "Trigger table for social/drafts/milestone-posts.md. Counters are read from a JSON snapshot (game feed + analytics, once live) or passed by hand; tools/milestone_check.py reports which posts are unlocked. LOCAL ONLY: unlocking a milestone never posts anything.",
+ "counter_sources": {
+  "watchers_peak": "analytics: concurrent spectator peak (ANALYTICS.md funnel)",
+  "requests_filed": "public feed: count of request events",
+  "requests_declined": "public feed: requests with declined status",
+  "cosponsors_on_one_request": "public feed: max sponsor count on a single request",
+  "characters_hired": "public feed: character-created / hire events",
+  "rent_cycles_closed": "leases ledger / history browser",
+  "leases_run": "leases ledger",
+  "leases_paid_on_time": "leases ledger",
+  "disputes_filed": "public feed: housing/admin events",
+  "public_rulings": "public feed: housing/admin ruling events",
+  "days_since_launch": "calendar vs launch_date in schedule.json",
+  "requests_filed_last_week": "public feed: trailing 7d request count",
+  "viewer_clips_reshared": "human-counted: granted reshare permissions logged in post-review.md consent ledger",
+  "returning_viewers_7d": "analytics: unique viewers who watched on >=2 distinct days in the trailing 7d (ANALYTICS.md return-visit cohort)"
+ },
+ "milestones": [
+  {
+   "id": "M1",
+   "draft": "milestone-posts.md",
+   "title": "first request filed",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "requests_filed",
+    "op": ">=",
+    "value": 1
+   }
   },
-  "milestones": [
-    {"id": "M1", "draft": "milestone-posts.md", "title": "first request filed", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "requests_filed", "op": ">=", "value": 1}},
-    {"id": "M2", "draft": "milestone-posts.md", "title": "100 concurrent watchers", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "watchers_peak", "op": ">=", "value": 100}},
-    {"id": "M3", "draft": "milestone-posts.md", "title": "first character hired", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "characters_hired", "op": ">=", "value": 1}},
-    {"id": "M4", "draft": "milestone-posts.md", "title": "first co-sponsored request", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "cosponsors_on_one_request", "op": ">=", "value": 2}},
-    {"id": "M5", "draft": "milestone-posts.md", "title": "first declined request", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "requests_declined", "op": ">=", "value": 1},
-     "hold_until": "appeal window closed (72h per moderation appeal_flow)"},
-    {"id": "M6", "draft": "milestone-posts.md", "title": "first rent cycle closed", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "rent_cycles_closed", "op": ">=", "value": 1}},
-    {"id": "M7", "draft": "milestone-posts.md", "title": "request-count thresholds", "channels": ["x", "bluesky"], "fires": "at-thresholds",
-     "when": {"counter": "requests_filed", "op": ">=", "value": 1000},
-     "thresholds": [1000, 5000, 10000]},
-    {"id": "M8", "draft": "milestone-posts.md", "title": "week-one numbers post", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "days_since_launch", "op": ">=", "value": 7},
-     "owner_gate": true},
-    {"id": "M9", "draft": "milestone-posts.md", "title": "first public ruling", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "public_rulings", "op": ">=", "value": 1}},
-    {"id": "M10", "draft": "milestone-posts.md", "title": "quiet-week honesty card", "channels": ["x", "bluesky"], "fires": "monthly-max",
-     "when": {"counter": "requests_filed_last_week", "op": "<=", "value": 10},
-     "min_days_since_launch": 14},
-    {"id": "M11", "draft": "milestone-posts.md", "title": "first viewer clip reshared", "channels": ["x", "bluesky"], "fires": "once",
-     "when": {"counter": "viewer_clips_reshared", "op": ">=", "value": 1}}
-  ]
+  {
+   "id": "M2",
+   "draft": "milestone-posts.md",
+   "title": "100 concurrent watchers",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "watchers_peak",
+    "op": ">=",
+    "value": 100
+   }
+  },
+  {
+   "id": "M3",
+   "draft": "milestone-posts.md",
+   "title": "first character hired",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "characters_hired",
+    "op": ">=",
+    "value": 1
+   }
+  },
+  {
+   "id": "M4",
+   "draft": "milestone-posts.md",
+   "title": "first co-sponsored request",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "cosponsors_on_one_request",
+    "op": ">=",
+    "value": 2
+   }
+  },
+  {
+   "id": "M5",
+   "draft": "milestone-posts.md",
+   "title": "first declined request",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "requests_declined",
+    "op": ">=",
+    "value": 1
+   },
+   "hold_until": "appeal window closed (72h per moderation appeal_flow)"
+  },
+  {
+   "id": "M6",
+   "draft": "milestone-posts.md",
+   "title": "first rent cycle closed",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "rent_cycles_closed",
+    "op": ">=",
+    "value": 1
+   }
+  },
+  {
+   "id": "M7",
+   "draft": "milestone-posts.md",
+   "title": "request-count thresholds",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "at-thresholds",
+   "when": {
+    "counter": "requests_filed",
+    "op": ">=",
+    "value": 1000
+   },
+   "thresholds": [
+    1000,
+    5000,
+    10000
+   ]
+  },
+  {
+   "id": "M8",
+   "draft": "milestone-posts.md",
+   "title": "week-one numbers post",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "days_since_launch",
+    "op": ">=",
+    "value": 7
+   },
+   "owner_gate": true
+  },
+  {
+   "id": "M9",
+   "draft": "milestone-posts.md",
+   "title": "first public ruling",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "public_rulings",
+    "op": ">=",
+    "value": 1
+   }
+  },
+  {
+   "id": "M10",
+   "draft": "milestone-posts.md",
+   "title": "quiet-week honesty card",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "monthly-max",
+   "when": {
+    "counter": "requests_filed_last_week",
+    "op": "<=",
+    "value": 10
+   },
+   "min_days_since_launch": 14
+  },
+  {
+   "id": "M11",
+   "draft": "milestone-posts.md",
+   "title": "first viewer clip reshared",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "viewer_clips_reshared",
+    "op": ">=",
+    "value": 1
+   }
+  },
+  {
+   "id": "M12",
+   "draft": "milestone-posts.md",
+   "title": "first return-visit cohort (production-3 north star)",
+   "channels": [
+    "x",
+    "bluesky"
+   ],
+   "fires": "once",
+   "when": {
+    "counter": "returning_viewers_7d",
+    "op": ">=",
+    "value": 100
+   },
+   "min_days_since_launch": 8
+  }
+ ]
 }
