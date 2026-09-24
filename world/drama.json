@@ -1,6 +1,6 @@
 {
- "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
- "schema_version": "drama-v5",
+ "doc": "world/drama-notes.md is canonical for direction. This file is the machine-readable mirror: seed registry, knowledge matrix, tension edges, pacing knobs, interference matrix, calibration, comedy duty, residue nursery, daypart dramaturgy, offscreen doctrine, surface aftercare, cooling grammar, double-surface contingency, fair misfires, posture vocabulary. INTERNAL ONLY — names secrets; never reachable from any player-facing schema (feed, briefings, whitelist, mod console).",
+ "schema_version": "drama-v6",
  "seed_states": [
   "dormant",
   "pressured",
@@ -902,6 +902,50 @@
    ],
    "legible_shadow": "the bench math ending the day; a last look carried home",
    "exhaustion": "nightly by construction; they notice and carry — they never pursue, and the lap never produces a first knower (§7)"
+  },
+  {
+   "id": "P-23",
+   "condition": "laundry-night overlap — the laundromat's weekly evening crowd putting mains in the same folding line",
+   "produced_by": "Golden Hour's ordinary weekly rhythm",
+   "feeds": [
+    "F2",
+    "F3"
+   ],
+   "legible_shadow": "two dryers and a shared wait; folding side by side; the long quiet of a rinse cycle",
+   "exhaustion": "weekly by construction; the laundromat is whisper-grade — shared time, never staging"
+  },
+  {
+   "id": "P-24",
+   "condition": "the borrowed-thing return trip — an object lent weeks ago finally coming back (umbrella, book, dish)",
+   "produced_by": "the block's ordinary borrowing texture",
+   "feeds": [
+    "F4",
+    "F3"
+   ],
+   "legible_shadow": "the return as a second knock; a reason for contact already spent once",
+   "exhaustion": "rare — a return invented weekly is a prop department; objects return once"
+  },
+  {
+   "id": "P-25",
+   "condition": "a venue's posted closed day — supply run, deep clean, a real reason on the door",
+   "produced_by": "the businesses' own closure cadence",
+   "feeds": [
+    "F6",
+    "F1"
+   ],
+   "legible_shadow": "a sign on the door; regulars rerouted to a second-choice counter",
+   "exhaustion": "rare + real reason only — a venue never closes for pressure; the closure reroutes presence, it doesn't aim it"
+  },
+  {
+   "id": "P-26",
+   "condition": "the group errand — one car, three errands, a shared ride",
+   "produced_by": "neighbors' ordinary cooperation",
+   "feeds": [
+    "F2",
+    "F5"
+   ],
+   "legible_shadow": "who's in the car and who sits where; an errand that took longer than its list",
+   "exhaustion": "monthly at most — a ride arranged to isolate two people is staging"
   }
  ],
  "state_evidence": {
@@ -1655,6 +1699,73 @@
    "one window at a time — overlapping surface windows is a stacked week with extra steps; §31 governs which aftercare may echo where",
    "aftercare spends nothing — the window is a spend ban on new pressure routes; texture isn't spend, it's residue landing",
    "the window ends when the routines do — recovery is observed, not declared; state moves per §21 evidence"
+  ]
+ },
+ "cooling_grammar": {
+  "doc": "drama-notes §40 — how a pressured fuse goes quiet; shadows thin because producing conditions thin, never by scrubbing",
+  "rules": [
+   "descent goes through the rungs — a brink-loud seed passes through the pressure rung on the way down; a cliff-edge (brink to nothing overnight) reads as scripted",
+   "afterglow is required — a cooled seed keeps whisper-grade texture for at least one drift-review window after its last pressured day",
+   "cooling spends nothing and refunds nothing — budget is per-window, not an account",
+   "re-pressuring needs fresh §21 qualifying evidence — residual warmth can't keep a fuse warm",
+   "a surfaced fuse never cools — surface events route to §38 aftercare and §15 residue, not back down the ladder"
+  ]
+ },
+ "double_surface": {
+  "doc": "drama-notes §41 — two fuses surfacing in one window is canon; the contingency is handled, never prevented",
+  "rules": [
+   "it is canon — nobody delays a second surface to protect the first's window; a held beat is a script",
+   "the louder fuse's aftercare governs the calendar — louder is observed from ledger-visible movement, never assigned; if neither is louder, §38 applies to both",
+   "protections never mask — §31 masking dims display ceilings only; the quieter fuse's §38 protected column holds in full",
+   "recovery windows merge, not stack — one shared recovery of the longer window's length, still a spend ban",
+   "the archive must separate them — two surfaces ledgered as one composite beat is an archive failure (§11.10)",
+   "the drift review flags it `compound_surface` — observed, logged, never untangled"
+  ]
+ },
+ "fair_misfires": {
+  "doc": "drama-notes §42 — honest ambiguity: behavior that reads as a tell but isn't; a puzzle-box block is off-register",
+  "rules": [
+   "whisper-rung only — a tell-reading behavior that isn't a tell may exist freely at whisper grade; at pressure and brink rungs a shadow must belong to its true seed",
+   "retroactive fairness is the test — knowing the truth, a rewatch must read the misfire as the ordinary thing it was (§32's rewatch test in reverse)",
+   "never aimed — a misfire engineered to land a specific wrong conclusion is scripting aimed at the audience (§37 forbids direction-by-viewer)",
+   "they spend nothing and are never scheduled — 'a misleading glance' is a reading, not a condition; there is no misfire lever",
+   "corrections apply to the audience too — the block never stages a scene to correct a spectator's wrong read; the archive's honesty is the correction"
+  ]
+ },
+ "posture_vocabulary": {
+  "doc": "drama-notes §43 — the only five postures a drift review may write into the budget posture; written to drama.json and the drift record, never to the world",
+  "postures": [
+   {
+    "id": "prefer",
+    "args": "fuse",
+    "meaning": "if this fuse's own routes produce events this window, spend there first — the soft steering the showrunner is allowed"
+   },
+   {
+    "id": "hold",
+    "args": "fuse",
+    "meaning": "keep this fuse at slow tick even if its routes produce — shadows stay under the pressure rung; the events still land, the emphasis doesn't follow"
+   },
+   {
+    "id": "shed",
+    "args": "fuse",
+    "meaning": "prefer letting this fuse's conditions thin — no new spends; cooling grammar (§40) applies"
+   },
+   {
+    "id": "observe",
+    "args": null,
+    "meaning": "no preference — the manager only watches; the quiet-week default and the stall posture (§25)"
+   },
+   {
+    "id": "recovery",
+    "args": null,
+    "meaning": "forced, not chosen — auto-set by a surface/resolution per §8; expires when the review observes the routines settled (§38)"
+   }
+  ],
+  "rules": [
+   "one posture per fuse per window — a posture is a preference among conditions the world already produces; it cannot create a condition, and prefer on a fuse whose routes don't fire spends nothing",
+   "recovery outranks every other posture and cancels any prefer on contact",
+   "a posture that reads as a plan is a violation — 'prefer F2 until it surfaces' names an outcome (§19.5); the legal form is re-decided every review",
+   "postures are the audit trail — the budget ledger records posture + spend per window; 'emergence' is also a recorded answer"
   ]
  }
 }

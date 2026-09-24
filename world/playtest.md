@@ -1,4 +1,4 @@
-# Playtest Harness — "Real World / The Mission" (world v93)
+# Playtest Harness — "Real World / The Mission" (world v94)
 
 How a human playtests this build today, and how findings get home. Machine-readable
 scenario contract: `world/playtest.json`. Runnable harness: `world/playtest.html`
@@ -229,6 +229,14 @@ One person can wear every hat; four real testers is the intended shape.
   rides both exports, gates the handoff list), the per-finding
   [world-playtest-finding] copy block, the step n/a sweep, and the
   harness gate's v93 marks at key rw_playtest_v93.
+  PT85 (drama board v94) is a showrunner-side audit — drama.json at
+  schema drama-v6 carries the cooling grammar (rung descent, afterglow,
+  no refund, surfaced never cools), the double-surface contingency
+  (canon + merge-not-stack + protections never mask), the fair-misfire
+  register (whisper-only, retroactive fairness, never aimed), and the
+  five-posture vocabulary (prefer/hold/shed/observe/recovery); the
+  pressure catalog runs P-01–P-26; drama.html renders all four new
+  sections; §19 legality checked line by line.
 
 ## 3. Running a session
 

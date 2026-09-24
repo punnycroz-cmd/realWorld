@@ -609,6 +609,58 @@ const PUB = Object.values(PT.surfaces)
         if (!AFC || AFC.length !== fuses.size)
           add(g, 'fail', 'drama.html', null, 'AFTERCARE count != fuses');
       }
+      /* ---- v94 blocks (schema drama-v6 or later) ---- */
+      if (/^drama-v[6-9]\d*$/.test(D.schema_version || '')) {
+        /* cooling_grammar: rules must keep the rung-descent + no-refund shape (§40) */
+        const CG = D.cooling_grammar || {};
+        if (!(CG.rules || []).length) add(g, 'fail', 'drama.json', null, 'cooling_grammar.rules empty');
+        if (!(CG.rules || []).some(r => /rung/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'cooling_grammar must keep descent through the rungs (no cliff-edges)');
+        if (!(CG.rules || []).some(r => /never cools|surfaced/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'cooling_grammar must fence surfaced fuses out of cooling');
+        /* double_surface: rules must carry canon + protections-never-mask (§41) */
+        const DS = D.double_surface || {};
+        if (!(DS.rules || []).length) add(g, 'fail', 'drama.json', null, 'double_surface.rules empty');
+        if (!(DS.rules || []).some(r => /canon/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface must declare two-in-one-window canon, never prevented');
+        if (!(DS.rules || []).some(r => /never mask|protected/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface must keep §38 protections unmaskable');
+        if (!(DS.rules || []).some(r => /merge/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'double_surface recovery windows must merge, not stack');
+        /* fair_misfires: whisper-rung-only + retroactive fairness + never aimed (§42) */
+        const FM = D.fair_misfires || {};
+        if (!(FM.rules || []).length) add(g, 'fail', 'drama.json', null, 'fair_misfires.rules empty');
+        if (!(FM.rules || []).some(r => /whisper/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must cap misleads at the whisper rung');
+        if (!(FM.rules || []).some(r => /rewatch|retroactive/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must carry the retroactive-fairness test');
+        if (!(FM.rules || []).some(r => /never aimed|wrong conclusion/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'fair_misfires must forbid aimed misleads');
+        /* posture_vocabulary: exactly the five postures; rules fence world-writes (§43) */
+        const PV = D.posture_vocabulary || {};
+        const POSTS = new Set((PV.postures || []).map(p => p.id));
+        for (const p of ['prefer', 'hold', 'shed', 'observe', 'recovery'])
+          if (!POSTS.has(p)) add(g, 'fail', 'drama.json', null, `posture_vocabulary.postures missing "${p}"`);
+        for (const p of PV.postures || [])
+          if (!p.meaning) add(g, 'fail', 'drama.json', null, `posture ${p.id}: missing meaning`);
+        if (!(PV.rules || []).some(r => /never to the world|cannot create/i.test(r)))
+          add(g, 'fail', 'drama.json', null, 'posture_vocabulary.rules must fence postures off world state');
+        /* drama.html mirror: new sections render, row counts agree */
+        for (const id of ['cooling', 'dsurf', 'misfire', 'posture'])
+          if (!H.includes(`id="${id}"`)) add(g, 'fail', 'drama.html', null, `missing #${id} section`);
+        const CLG = grab('COOLING'), DSF = grab('DSURF'), MSF = grab('MISFIRE'),
+              PST = grab('POSTURE'), PSR = grab('POSTURERULES');
+        if (!CLG || CLG.length !== (CG.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'COOLING count != cooling_grammar.rules');
+        if (!DSF || DSF.length !== (DS.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'DSURF count != double_surface.rules');
+        if (!MSF || MSF.length !== (FM.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'MISFIRE count != fair_misfires.rules');
+        if (!PST || PST.length !== (PV.postures || []).length)
+          add(g, 'fail', 'drama.html', null, 'POSTURE count != posture_vocabulary.postures');
+        if (!PSR || PSR.length !== (PV.rules || []).length)
+          add(g, 'fail', 'drama.html', null, 'POSTURERULES count != posture_vocabulary.rules');
+      }
     }
     /* seeds must never be reachable from spectator contracts */
     for (const f of ['feed.json', 'history.json', 'requests.json', 'moderation.json', 'creation.json'])

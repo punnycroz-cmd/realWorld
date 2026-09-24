@@ -5,7 +5,7 @@
 <title>INTERNAL — Drama Direction Board (The Mission)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <!--
-  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52 + v66 + v80. NOT a spectator surface.
+  INTERNAL SHOWRUNNER TOOL — world v10, extended v24 + v38 + v52 + v66 + v80 + v94. NOT a spectator surface.
   This board renders every secret on the block (world/drama.json mirror).
   It must never be linked, embedded, screenshotted for marketing, or
   reachable from any player-facing surface (feed.html, history.html,
@@ -68,7 +68,7 @@
 <header>
   <div><span class="logo">Drama Direction <span>Board</span></span>
     <span class="warn">Internal — secrets present — never ship</span></div>
-  <div class="sub">The Mission · world v80 · mirrors <code>world/drama.json</code> (schema drama-v5) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
+  <div class="sub">The Mission · world v94 · mirrors <code>world/drama.json</code> (schema drama-v6) · canonical: <code>world/drama-notes.md</code> · states are observed, never assigned</div>
 </header>
 <main>
   <h2>Season fuse map</h2>
@@ -115,6 +115,15 @@
   <table id="aftercare"><thead><tr><th>Fuse</th><th>Window texture</th><th>Protected</th></tr></thead><tbody></tbody></table>
   <h2>Residue nursery <span style="text-transform:none;color:var(--dim)">(§34 — candidate seeds, dormant-only, promotion at a declared boundary)</span></h2>
   <table id="nursery"><thead><tr><th>Id</th><th>From</th><th>Tendency</th><th>Promotion needs</th></tr></thead><tbody></tbody></table>
+  <h2>Cooling grammar <span style="text-transform:none;color:var(--dim)">(§40 — a pressured fuse goes quiet through the rungs, never off a cliff)</span></h2>
+  <ul class="never" id="cooling"></ul>
+  <h2>Double-surface contingency <span style="text-transform:none;color:var(--dim)">(§41 — two surfaces in one window is canon; handled, never prevented)</span></h2>
+  <ul class="never" id="dsurf"></ul>
+  <h2>Fair misfires <span style="text-transform:none;color:var(--dim)">(§42 — honest ambiguity; whisper-rung only, never aimed)</span></h2>
+  <ul class="never" id="misfire"></ul>
+  <h2>Posture vocabulary <span style="text-transform:none;color:var(--dim)">(§43 — the only five postures a drift review may set; written to notes, never the world)</span></h2>
+  <table id="posture"><thead><tr><th>Posture</th><th>Args</th><th>Meaning</th></tr></thead><tbody></tbody></table>
+  <ul class="never" id="posturerules"></ul>
   <h2>Note legality checklist <span style="text-transform:none;color:var(--dim)">(§19 — all six must pass)</span></h2>
   <ul class="never" id="legal"></ul>
   <h2>Never list</h2>
@@ -225,7 +234,11 @@ const PCAT=[
  ["P-19","Curb night — bins out on the shared curb before collection","the buildings' weekly sanitation routine","F5 · S4","bins side by side; a held curb conversation; who takes whose bins back","weekly by construction; the curb is whisper-grade only"],
  ["P-20","Shift-change handoff — the between-shifts ten minutes","venues' posted shift schedules (jobs/shifts cadence)","F2 · F6","two staff in the doorway; a handoff that runs long; the apron change","posted schedule only — never extended for pressure; once per boundary"],
  ["P-21","The shared-landing mail sort","multi-unit shared mailboxes + ordinary mis-sorts","S4 · F1","mail set aside on the ledge; a name the building doesn't know held a beat too long","daily cadence; two mis-sorts in a week is a scripted beat"],
- ["P-22","The chorus's last lap — Esther + Ray's final bench","the park chorus's own schedule","all (echo)","the bench math ending the day; a last look carried home","nightly by construction; they notice and carry, never pursue"]];
+ ["P-22","The chorus's last lap — Esther + Ray's final bench","the park chorus's own schedule","all (echo)","the bench math ending the day; a last look carried home","nightly by construction; they notice and carry, never pursue"],
+ ["P-23","Laundry-night overlap — mains in the same folding line","Golden Hour's ordinary weekly rhythm","F2 · F3","two dryers and a shared wait; the long quiet of a rinse cycle","weekly by construction; whisper-grade — shared time, never staging"],
+ ["P-24","The borrowed-thing return trip — umbrella, book, dish coming back","the block's ordinary borrowing texture","F4 · F3","the return as a second knock; a reason already spent once","rare — a return invented weekly is a prop department; objects return once"],
+ ["P-25","A venue's posted closed day — supply run, deep clean","the businesses' own closure cadence","F6 · F1","a sign on the door; regulars rerouted to a second-choice counter","rare + real reason only — a venue never closes for pressure"],
+ ["P-26","The group errand — one car, three errands, a shared ride","neighbors' ordinary cooperation","F2 · F5","who's in the car, who sits where; an errand longer than its list","monthly at most — a ride arranged to isolate two people is staging"]];
 const EVID=[
  ["dormant → pressured","a ledger event traceable to a listed pressure_route within ~3 block days","manager intent · spectator chatter · a near-miss with no ledger event · another seed already pressured"],
  ["pressured → surfaced","the fact crossing to a must-not-know via a listed reveal vector, with a legible shadow","a rumor (can't mint seed facts) · interior realization · player hope"],
@@ -358,6 +371,36 @@ const NURSERY=[
  ["N2","F6","Marisol's first secret of her own — the banker of everyone's secrets holding one","the secret itself, authored in C1's bible at promotion"],
  ["N3","F2","the flat's new arrangement as its own tension","the resolved shape of 9457, observed in canon"],
  ["N4","F4","the 3 p.m. monument — the ritual's new shape carrying its own next question","the post-F4 shape of the ritual; promotion waits for residue to have one"]];
+const COOLING=[
+ "descent goes through the rungs — a brink-loud seed passes through the pressure rung on the way down; a cliff-edge (brink to nothing overnight) reads as scripted",
+ "afterglow is required — a cooled seed keeps whisper-grade texture for at least one drift-review window after its last pressured day",
+ "cooling spends nothing and refunds nothing — budget is per-window, not an account",
+ "re-pressuring needs fresh §21 qualifying evidence — residual warmth can't keep a fuse warm",
+ "a surfaced fuse never cools — surface events route to §38 aftercare and §15 residue, not back down the ladder"];
+const DSURF=[
+ "it is canon — nobody delays a second surface to protect the first's window; a held beat is a script",
+ "the louder fuse's aftercare governs the calendar — louder is observed from ledger-visible movement, never assigned; if neither is louder, §38 applies to both",
+ "protections never mask — §31 masking dims display ceilings only; the quieter fuse's §38 protected column holds in full",
+ "recovery windows merge, not stack — one shared recovery of the longer window's length, still a spend ban",
+ "the archive must separate them — two surfaces ledgered as one composite beat is an archive failure (§11.10)",
+ "the drift review flags it 'compound_surface' — observed, logged, never untangled"];
+const MISFIRE=[
+ "whisper-rung only — a tell-reading behavior that isn't a tell may exist freely at whisper grade; at pressure and brink rungs a shadow must belong to its true seed",
+ "retroactive fairness is the test — knowing the truth, a rewatch must read the misfire as the ordinary thing it was (§32's rewatch test in reverse)",
+ "never aimed — a misfire engineered to land a specific wrong conclusion is scripting aimed at the audience (§37 forbids direction-by-viewer)",
+ "they spend nothing and are never scheduled — 'a misleading glance' is a reading, not a condition; there is no misfire lever",
+ "corrections apply to the audience too — the block never stages a scene to correct a spectator's wrong read; the archive's honesty is the correction"];
+const POSTURE=[
+ ["prefer","fuse","if this fuse's own routes produce events this window, spend there first — the soft steering the showrunner is allowed"],
+ ["hold","fuse","keep this fuse at slow tick even if its routes produce — shadows stay under the pressure rung; the events still land, the emphasis doesn't follow"],
+ ["shed","fuse","prefer letting this fuse's conditions thin — no new spends; cooling grammar (§40) applies"],
+ ["observe","—","no preference — the manager only watches; the quiet-week default and the stall posture (§25)"],
+ ["recovery","—","forced, not chosen — auto-set by a surface/resolution per §8; expires when the review observes the routines settled (§38)"]];
+const POSTURERULES=[
+ "one posture per fuse per window — a posture is a preference among conditions the world already produces; it cannot create a condition",
+ "recovery outranks every other posture and cancels any prefer on contact",
+ "a posture that reads as a plan is a violation — 'prefer F2 until it surfaces' names an outcome (§19.5); the legal form is re-decided every review",
+ "postures are the audit trail — the budget ledger records posture + spend per window; 'emergence' is also a recorded answer"];
 const LEGAL=[
  "Is it a disposition, condition, weight, or protection?",
  "Could the feed falsify it in a week? (outcome claim → rewrite)",
@@ -414,6 +457,12 @@ document.querySelector('#aftercare tbody').innerHTML=AFTERCARE.map(r=>
  `<tr><td class="c"><b>${r[0]}</b></td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('');
 document.querySelector('#nursery tbody').innerHTML=NURSERY.map(r=>
  `<tr><td class="c">${r[0]}</td><td class="c">${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join('');
+document.getElementById('cooling').innerHTML=COOLING.map(n=>`<li>${n}</li>`).join('');
+document.getElementById('dsurf').innerHTML=DSURF.map(n=>`<li>${n}</li>`).join('');
+document.getElementById('misfire').innerHTML=MISFIRE.map(n=>`<li>${n}</li>`).join('');
+document.querySelector('#posture tbody').innerHTML=POSTURE.map(r=>
+ `<tr><td class="c"><b>${r[0]}</b></td><td class="c">${r[1]}</td><td>${r[2]}</td></tr>`).join('');
+document.getElementById('posturerules').innerHTML=POSTURERULES.map(n=>`<li>${n}</li>`).join('');
 document.getElementById('legal').innerHTML=LEGAL.map((n,i)=>`<li>${i+1}. ${n}</li>`).join('');
 document.getElementById('never').innerHTML=NEVER.map(n=>`<li>${n}</li>`).join('');
 </script>
