@@ -1,6 +1,12 @@
 # Community Funnel — Real World ("The Mission")
 
-**Version:** v114 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+**Version:** v129 · 2026-09-23 · branch `sf/marketing` · LOCAL ONLY
+(v129 added the recognition layer: NEW `community/regulars-program.md` —
+the `@regular` spec: observable-only eligibility, opt-in conferral with
+copy-ready DM, consent-gated site roster, never-purchasable rule, explicit
+firewall from `mod-ramp.md`. `site/community.html` gained a rendered sample
+recap issue (the v24 demo draft, clearly labeled demo data, styled by a new
+`.recap-issue` block in style.css) and a regulars line on the Join rung.)
 (v114 rebuilt `site/community.html` end-to-end: the v9 page predated the
 whole ops kit, so it now carries the real offer — the fixed weekly
 programming grid (recap 18:00 / open-rumor 18:05 / clinic Wed 19:00 /
@@ -99,6 +105,7 @@ numbers from the events capture + manual Discord counts).
 | Feedback router — `tools/feedback_router.py` + `community/feedback-batch.template.md` | §7 loop automation: sanitized batch → ready-to-paste inbox entry grouped by owning track | BUILT (v54) |
 | Feed-mirror curation spec — `community/feed-mirror.md` | `#the-feed` manual mirror: selection criteria, verbatim post format, daily routine, bot-scaling trigger | BUILT (v69), OWNER-GATED to run — day-0 dep (D0.8b) |
 | Mod ramp — `community/mod-ramp.md` | Day-14 moderator kit: when/who to recruit, the ask, onboarding, decide-vs-escalate scope, `#mod-log` format, offboarding | BUILT (v69), OWNER-GATED to run |
+| Regulars — `community/regulars-program.md` | Stage 2→5 identity layer: `@regular` recognition role — observable eligibility (no points), opt-in conferral DM, consent-gated site roster, never purchasable, firewall from mod selection | BUILT (v129), OWNER-GATED to run — activates day-30+ |
 | Programming calendar — `community/programming-calendar.md` | Stage 2 retention: one weekly grid all cadence slots land on (recap, rumor thread, clinic, town hall) with quiet-week fallbacks + copy-ready prompts | BUILT (v84), OWNER-GATED to run |
 | Clips channel — `community/clips-and-highlights.md` | Stage 5 advocacy: `#clips` member-capture spec — pin-ready rules, upstream flow into socials/recap/scorecard, creator boundary | BUILT (v84), OWNER-GATED to run |
 | Incident comms — `community/incident-comms.md` | Trust layer: community-facing incident playbook — classes, response clocks, copy-ready holding statements, one-voice rule | BUILT (v84), OWNER-GATED to run |

@@ -727,3 +727,29 @@ body[data-pricing="final"] .prov-only { display: none !important; }
 .fieldcard-status span { font-weight: 700; font-variant-numeric: tabular-nums; }
 .sim-actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 @media (max-width: 700px) { .fieldcard-list { grid-template-columns: 1fr; } }
+
+/* v129 — community page: sample recap issue + regulars line */
+.recap-issue {
+  background: var(--bg-2); border: 1px solid var(--border);
+  border-left: 4px solid var(--accent);
+  border-radius: var(--radius); padding: 20px 24px;
+  font-size: 15.5px; line-height: 1.65;
+}
+.recap-issue h3 { margin-top: 0; }
+.recap-issue ul { margin: 8px 0 14px; padding-left: 22px; }
+.recap-issue .issue-meta {
+  font-size: 13px; color: var(--muted); margin-bottom: 12px;
+  text-transform: uppercase; letter-spacing: .06em;
+}
+.recap-issue .issue-foot {
+  border-top: 1px dashed var(--border); margin-top: 14px; padding-top: 12px;
+  color: var(--muted); font-size: 14px;
+}
+.regulars-line {
+  display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+  margin-top: 10px; font-size: 14.5px; color: var(--muted);
+}
+.regulars-line .tag {
+  background: var(--panel); border: 1px solid var(--border);
+  border-radius: 999px; padding: 2px 12px; color: var(--accent-2); font-weight: 600;
+}
