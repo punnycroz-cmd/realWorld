@@ -23,11 +23,11 @@ capture with HUD visible, say so on screen.
 | # | Shot | How to capture | Why it exists |
 |---|------|----------------|---------------|
 | B1 | **The block wakes up** — top-down over 24th & Mission, morning light, residents leaving for work | `V` top view, camera mark on the block, 4× speed, 8–10s | Establishes "persistent world" in one image — motion continues unscripted |
-| B2 | **Fog rolls in** — same framing as B1 while Karl (the marine layer) sheets over the rooftops | Hold the B1 mark; let weather change live, or use a queued weather request | The signature look — matching still is `screenshots/v53-A.png` |
+| B2 | **Fog rolls in** — same framing as B1 while Karl (the marine layer) sheets over the rooftops | Hold the B1 mark; let weather change live, or use a queued weather request | The signature look — matching still is `screenshots/v55-A.png` |
 | B3 | **Street-level follow** — track one resident down the sidewalk under the ficuses, fog or clear | `V` street view, `T` on a named resident, slow scroll-dolly push | The "Truman" shot — you're watching a person, not controlling them |
 | B4 | **The request lands** — a public-feed request resolves on camera (e.g. a weather ask clears the fog, an event spawns a crowd) | Frame the venue/street, keep the feed edge in frame, let the request resolve live | The whole pitch: watch free → pay to reach in → everyone sees it happen |
-| B5 | **Dolores from above** — palm allée, worn desire-lines, residents crossing the park | `V` top view over the park, 2×–4×, slow `WASD` drift along a path | Scale shot; matching still is `screenshots/v53-C.png` |
-| B6 | **Director mode set piece** — REC cluster + DIRECTOR badge, golden-hour facades, a named resident in frame | `C` director mode at ~16:30, mark on a corner (Carme's corner reads well) | The "film set" framing; matching still is `screenshots/v53-D.png` |
+| B5 | **Dolores from above** — palm allée, worn desire-lines, residents crossing the park | `V` top view over the park, 2×–4×, slow `WASD` drift along a path | Scale shot; matching still is `screenshots/v55-C.png` |
+| B6 | **Director mode set piece** — REC cluster + DIRECTOR badge, golden-hour facades, a named resident in frame | `C` director mode at ~16:30, mark on a corner (Carme's corner reads well) | The "film set" framing; matching still is `screenshots/v55-D.png` |
 
 ## Optional color shots
 

@@ -1,7 +1,19 @@
 # Press Kit — changelog / freshness record
 
 Newest first. Journalists: the screenshot filenames encode the renderer
-build they were captured from (v53-* is the current development build).
+build they were captured from (v55-* is the current development build).
+
+## v107 — 2026-09-23
+- Screenshots rebased v53→**v55** (the September turn: contour-following
+  mow stripes on the Dolores lawns, autumn crown sets — ginkgo gold,
+  rust, wine — gust-driven leaf-fall and sidewalk litter, fallen palm
+  fronds; includes the v54 facade dressing: window boxes, AC sleeves,
+  Juliet rails, house numbers, stoop pots, A-boards). Site shots, kit
+  screenshots, key art, banners, og-card, store capsules rebaked;
+  captions, README, fact-sheet, index, contact-sheet, deadline-desk,
+  b-roll refs updated.
+- NEW `whats-new.md` — build-highlights sheet covering the v53→v54→v55
+  arc so press can write "what changed" pieces without archaeology.
 
 ## v100 — 2026-09-23
 - Screenshots rebased v51→**v53** (curb-edge street furniture — hydrants,

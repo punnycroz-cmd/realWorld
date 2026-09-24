@@ -12,31 +12,32 @@ keyart/keyart-square.png    1080x1080
   Square key art for feeds and thumbnails. Tagline: "Watch free. Pay to
   reach in."
 
-screenshots/v53-A.png       1440x900 (approx)
-  The Mission block around 24th and Mission from overhead on an autumn
-  afternoon (Day 22, 16:30): street grid, parked cars, crosswalks, and
-  curb-edge props — hydrants, news boxes, bike racks — read clearly.
-  The resident inspector is open on Jules, a hired resident, mid-routine
+screenshots/v55-A.png       1440x900 (approx)
+  The Mission block around 24th and Mission from overhead on a late-
+  September afternoon: street grid, parked cars, crosswalks, curb-edge
+  props — and the first turn of fall. Ginkgo crowns go gold, a few
+  crowns rust and wine, leaf litter speckles the sidewalks. The
+  resident inspector is open on Jules, a hired resident, mid-routine
   — needs, mood, and recent thoughts are all spectator-readable. The
   HUD shown is the real spectator chrome of the development build.
 
-screenshots/v53-B.png       1440x900 (approx)
-  Street-level view up the block past storefronts and stoops: autumn
-  leaves drift through the frame, parked cars line the curb, and
-  residents (Dani, Priya, Jules) carry name tags overhead. The
-  inspector stays open on Jules.
+screenshots/v55-B.png       1440x900 (approx)
+  Street-level view up the block past facaded storefronts and stoops:
+  a gust shakes loose a drizzle of leaves, parked cars line the curb,
+  and residents carry name tags overhead. Window boxes, AC sleeves,
+  and stoop pots dress the frontages — the v54/v55 dressing pass.
 
-screenshots/v53-C.png       1440x900 (approx)
-  The park from above as Karl — the marine layer — pools at the edges
-  of the frame: mature crowns, worn desire-lines, tennis courts, and
-  picnic blankets scattered across the lawns show through the thinning
-  fog. The neighborhood's back yard under a moving edge, not a blanket.
+screenshots/v55-C.png       1440x900 (approx)
+  Dolores Park from above in September: mow stripes follow the lawn
+  contours, the palm allée drops a frond or two, crowns carry the
+  early leaf-turn, and picnickers share the grass with fallen-leaf
+  speckle. A maintained city park, not open field.
 
-screenshots/v53-D.png       1440x900 (approx)
+screenshots/v55-D.png       1440x900 (approx)
   Director mode over the rooftops under a clean autumn sky: REC cluster
-  and DIRECTOR badge up top, shopfront awnings and pastel facades step
-  with the block, leaves drift across the lens. The camera treats the
-  neighborhood like a film set.
+  and DIRECTOR badge up top, dressed facades step with the block,
+  turned crowns and drifting leaves cross the lens. The camera treats
+  the neighborhood like a film set.
 
 screenshots/v16-int-cafe.png
   Interior vignette: inside the corner café — interiors render behind the
@@ -46,7 +47,7 @@ screenshots/v16-int-flat.png
   Interior vignette: a residential flat — where the residents actually live.
 
 screenshots/v1-A.png / v1-B.png
-  First art pass, for before/after coverage. Pair with v53-A / v53-B.
+  First art pass, for before/after coverage. Pair with v55-A / v55-B.
 
 logos/logo-primary.svg/.png    Light-text lockup — DARK BACKGROUNDS ONLY.
 logos/logo-primary-dark.svg    Dark-ink lockup — light/white backgrounds.

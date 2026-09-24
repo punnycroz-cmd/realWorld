@@ -34,6 +34,9 @@ Contents
                      deadline: three checkable facts, a verbatim-safe
                      paragraph, three go-to images, the five mistakes
                      to avoid, corrections policy
+  whats-new.md       Build-highlights sheet: what changed in the renderer
+                     v53 → v54 → v55, for "what's new" coverage and
+                     update posts
   contact-sheet.html Printable visual index of every image asset in the
                      kit — thumbnails + exact filenames; Print → PDF works
   captions.txt       Caption + credit line for every image
@@ -55,14 +58,14 @@ Contents
                      content inside center safe zones.
   screenshots/       Real captures of the current development build
                      (.png + .webp companions).
-                     v53-* = current renderer (murals, parody signage,
-                     polychrome trim, fire escapes, stoops, garage bays,
-                     false-front gables, lived-in ground line — areaway
-                     lightwells, toter bins, tag ghosts, cornice pigeons —
-                     curb-edge street furniture: hydrants, trash cans,
-                     news boxes, bike racks; park picnic blankets;
-                     Mission ficus street trees, Dolores palm allée +
-                     worn desire-lines, parked cars);
+                     v55-* = current renderer (September turn: ginkgo
+                     gold / rust / wine crown sets, contour-following
+                     mow stripes on the Dolores lawns, gust-driven
+                     leaf-fall, fallen palm fronds, leaf litter on
+                     sidewalks — on top of the v54 facade dressing:
+                     window boxes, AC sleeves, Juliet rails, house
+                     numbers, stoop pots, A-boards; and the v53 street
+                     furniture + palm allée work);
                      v16-int-* = interior vignettes (café + flat);
                      v1-*  = early pass, useful for before/after coverage.
 

@@ -5,10 +5,15 @@ then the one thing that matters. Never "screenshot of a game." Keep
 under ~125 chars where the platform warns; the long version is for the
 site, the short for X/Bluesky/Mastodon.
 
-## Published shots (`site/shots/`, development build v53)
+## Published shots (`site/shots/`, development build v55 current; v54/v53 kept for era posts)
 
 | File | Alt text |
 |---|---|
+| `v55-A` | Top-down view of the Mission block in late September — street grid, crosswalks, parked cars, ginkgo crowns turning gold, leaf litter on the sidewalks; the resident inspector is open on Jules. Development build. |
+| `v55-B` | Street-level view up the block past dressed facades — window boxes, stoop pots, parked cars at the curb, a gust of leaves, residents named overhead. Development build. |
+| `v55-C` | Dolores Park from overhead in September — mow stripes following the lawn contours, the tightened palm allée, crowns carrying the early leaf-turn. Development build. |
+| `v55-D` | Director-mode street view under a clean autumn sky — REC cluster and DIRECTOR badge, dressed facades stepping with the block, turned crowns and leaves across the lens. Development build. |
+| `v54-A`–`v54-D` | The facade-pass build — window boxes, AC sleeves, Juliet rails, house numbers, stoop pots on every frontage. Kept for era/before-after posts; v55 is the current build. |
 | `v53-A` | Top-down view of the Mission block around 24th and Mission on an autumn afternoon — street grid, crosswalks, parked cars, and curb-edge props read clearly; the resident inspector is open on Jules with needs, mood, and recent thoughts. Development build. |
 | `v53-B` | Street-level view up the block past storefront facades and stoops — parked cars at the curb, residents (Dani, Priya, Jules) named overhead, Karl's haze softening the far end of the street. Development build. |
 | `v53-C` | Dolores Park from overhead under thinning fog — tree crowns, worn paths, tennis courts, and picnic blankets scattered across the lawns; the marine layer pools at the frame's edges. Development build. |
