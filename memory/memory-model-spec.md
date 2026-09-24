@@ -1,4 +1,46 @@
-# Memory Model Spec v5.83 — implementable human-like memory for RW characters
+# Memory Model Spec v5.84 — implementable human-like memory for RW characters
+
+> **v5.84 note (false-memory VI — the label
+> that blesses the unlabeled, the correction
+> that needs a cause, the verbatim veto, the
+> stance you never held, the count that tells
+> a story, the selfish shrink, and the rumor
+> that keeps the teeth):** `memory/false-
+> memory.md` Part VI (§§65–74) prices seven
+> directional-distortion channels. **Implied
+> truth** — warning one rumor boosts untagged
+> corpus-mates (`imptruth_gain`), verified
+> tags reverse it (Pennycook et al. 2020,
+> verified); `imptruth_free_null`. **Causal-
+> gap corrections** — `alt_cause` fills the
+> causal slot and drops residue to
+> `cie_resid_alt` (Johnson & Seifert 1994;
+> Chan et al. 2017 meta); `corr_alt_equal_null`.
+> **Verbatim veto** — surviving verbatim
+> contradictors suppress false candidates at
+> emission (`rtr_*`, recollection rejection —
+> Brainerd/Reyna 2003; Rotello & Heit 2000);
+> `rtr_free_null`. **Stance swap** —
+> `about_own_stance` accounts can flip stance
+> fields; confabulated justifications drive
+> the lasting shift (Strandberg et al. 2018,
+> verified); `sswap_last_null`. **Frequency
+> emission** — emitted counts sample instances
+> and salience, never read the honest `freq`
+> store raw (Lichtenstein et al. 1978;
+> Tversky & Kahneman 1973); `freq_verid_null`.
+> **Selfish shrink** — self-benefit magnitudes
+> emit pulled toward authored `fair_std`,
+> gated on standard violation + responsibility
+> (Carlson et al. 2020, verified N=3190);
+> `selfdir_flat_null`. **Threat transmission**
+> — hazard-tagged fields survive rumor hops
+> and sharpen per hop (Fessler et al. 2014;
+> Heath et al. 2001); `dread_flat_null`.
+> §5.169 + §§6.401–6.406; §7 +22 scalars
+> +1 trait +1 account flag +4 fields +7 locked
+> nulls; probes P1485–P1491.
+> (Prior notes v4.x–v5.83 in the version log.)
 
 > **v5.83 note (emotional-memory XII — the blind
 > beat, the wound that re-lives, the ping that
@@ -11653,6 +11695,34 @@ an atypical top-R record, forecast error vs the
 mean must exceed `fc_dev` (0.2) — mean-prediction
 is the failure mode.
 
+### 5.169 The verbatim veto — `rtr_*` recollection rejection (new in v5.84)
+
+FM§67; **Brainerd, Reyna, Wright & Mojardin
+2003** (*J. Memory Lang.* 48:762 — verified);
+**Rotello & Heit 2000** (*J. Memory Lang.*
+43:359). At emission, after the candidate
+sample is drawn but before commit: for each
+drawn candidate V on field f, if a
+`verbatim:true` survivor W (strength ≥
+`rtr_min_str` 0.35) contradicts V on the same
+slot, suppress V at
+`rtr_p` (0.7)·W.strength/(W.strength +
+V.candStrength). Suppressed V isn't deleted —
+it loses the round and gains `veto_scar`;
+each scar halves its next veto threshold.
+Applies only to non-verbatim candidates
+(told_by/phantom/inferred/schema) — verbatim
+can veto the lie, never another verbatim;
+verbatim-vs-verbatim resolves by strength as
+before. Age comes free via the `k_verbatim`
+survival leg — children veto suggested lures
+better (verbatim-bound), old profiles lose the
+veto with the trace (stacks with §6.109).
+Locked `rtr_free_null` (P1487): a false
+candidate facing a surviving verbatim
+contradictor must emit below the no-veto
+baseline; removing the veto fails.
+
 ---
 
 ## 6. Distortion — the operators that make characters wrong
@@ -19143,6 +19213,147 @@ intrusion weight scales with `rej_sens`. Feeds
 unambiguous affiliation events — the bias needs
 fog to work.
 
+### 6.401 Labeling some blesses the rest — `imptruth_*` (new in v5.84)
+
+FM§65; **Pennycook, Bear, Collins & Rand
+2020** (*Manag. Sci.* 66:4944 — verified,
+N=5,271/1,568; verified-tag arm eliminates
+the effect). On any warn/dispute event
+visible to C within `imptruth_win` (48h) over
+a shared corpus (same channel/venue/clique —
+scope tag on the rumor hash): every other
+pending rumor candidate sharing the scope and
+carrying no correction tag gains
+`believe_p += imptruth_gain (0.08)·(1−believe_p)`
+once, and gets `imptruth_boost:true` — INFERRED
+tier (an inference about vetting, never
+OBSERVED). If the session also mints a
+`verified:true` tag on a corpus-mate,
+`imptruth_gain` → `imptruth_verified` (−0.03)
+for remaining untagged items — ambiguity
+removed, the unlabeled read as unvetted.
+Age: ×(1 + `imptruth_age_k` (0.5)·
+(age_eff−40)/40). Locked `imptruth_free_null`
+(P1485): warning one rumor must move believe_p
+on untagged corpus-mates — a warning with no
+cross-item backwash fails.
+
+### 6.402 The correction needs a cause — `corr_alt_*` (new in v5.84)
+
+FM§66; **Johnson & Seifert 1994**
+(*JEP:LMC* 20:1420 — verified); **Chan,
+Jones, Jamieson & Albarracín 2017** (*Psychol.
+Bull.* 143:1241 meta — verified); Ecker,
+Lewandowsky & Tang 2010. Correction accounts
+(§6.6) gain optional `alt_cause:{value}`. On
+successful retract_p: bare retraction keeps
+`cie_residual` (0.3); `alt_cause` that links
+the record's evClust causal slot drops residue
+to `cie_resid_alt` (0.12) and itself encodes
+as a competing candidate at `cand_base_str·
+corr_alt_cred` (0.9·corrector trust);
+`alt_cause` with no causal slot →
+`cie_resid_mid` (0.22). Ordering strictly
+alt < mid < bare (P1486). Locked
+`corr_alt_equal_null`: a retraction carrying
+a causal alternative may not leave bare-
+retraction residue.
+
+### 6.403 The stance swap — `sswap_*` (new in v5.84)
+
+FM§68; **Strandberg, Sivén, Hall, Johansson
+& Pärnamets 2018** (*JEP:G* 147:1382 —
+verified, N=140+232, ~50% acceptance,
+confabulation drives the one-week lasting
+shift); Hall et al. 2012/2013. hearAccount
+flag `about_own_stance:true` — a resident
+asserting what C previously believed. If the
+asserted value differs from the stance field
+by > `sswap_min_gap` (0.3): P(accept-as-own) =
+`sswap_p` (0.45)·sourceCredibility·
+(1−stance_field_strength)·(1−meta_mem).
+Acceptance mints candidate `prov:"restated"`
+(INFERRED) AND fires §6.79 reason mints FOR
+the swapped stance at `sswap_justify_str`
+(0.5) — the confab payload. Each accepted
+swap that minted ≥1 justification promotes
+the candidate to primary at `sswap_last_k`
+(0.3) per emission — defending it moves it.
+Locked `sswap_last_null` (P1488): an accepted
+swap that minted no justification may not
+promote — hearing it isn't holding it.
+
+### 6.404 The count that tells a story — `freq_emit` (new in v5.84)
+
+FM§69; **Lichtenstein, Slovic, Fischhoff,
+Layman & Combs 1978** (*JEP:HLM* 4:551 —
+verified); **Tversky & Kahneman 1973**;
+Jonides & Naveh-Benjamin 1987 (compression).
+Emitted counts never read `freq` raw:
+
+```
+emit_n = round( freq_stored^freq_verid_w (0.8)
+    · exp(freq_sal_bias (1.0)·(meanSalience−0.5))
+    + freq_rumor_add (0.35)·n_heard_only )
+freq_stored ≤ 3 → emitted = freq_stored
+clamp ≥1 if any instance survives; ≤ freq_cap
+```
+
+Report-level only — the `freq` store field is
+bit-identical after emission (P1489, MUST).
+Serial retells re-sample: dramatic counts
+creep up, routine counts creep down. Locked
+`freq_verid_null`: emitted count = stored
+count for salient/forgettable mixes is the
+failure mode.
+
+### 6.405 The selfish shrink — `selfdir_*` (new in v5.84)
+
+FM§70; **Carlson, Maréchal, Oud, Fehr &
+Crockett 2020** (*Nat. Commun.* 11:2100 —
+verified, five experiments N=3190, incentive-
+robust, own-standard-gated, responsibility-
+gated); Kouchaki & Gino 2011 (vividness leg —
+this is the directional leg). On emission of
+a self-authored action record with a
+magnitude field and `benefits_self:true`:
+`emit_val = stored + selfdir_k (0.4)·
+(fair_std − stored)` — only when
+stored < `fair_std` (authored trait [0,1],
+default 0.5; the violator gate) AND the
+record is not `resp:"diffused"` (responsibility
+gate — diffused multiplies the shift by 0).
+Emitted inflated values re-encode as
+`origin:"self_guess"` candidates at
+`selfdir_reenc` (0.15)·cand_base_str — the
+flattered version can become the remembered
+version over retells. Locked
+`selfdir_flat_null` (P1490): records above
+fair_std or diffused must emit flat; a
+symmetric upward drift fails.
+
+### 6.406 The rumor keeps the teeth — `dread_tx_*` (new in v5.84)
+
+FM§71; **Fessler, Pisor & Navarrete 2014**
+(*Hum. Nat.* 25:241 — verified, negatively
+biased credulity); **Heath, Bell & Sternberg
+2001** (*JPSP* 81:1028 — emotional selection);
+Walker & Blaine 1991 (dread-rumor
+persistence). In §6.12 per-field survival,
+fields flagged `threat_relevant` (valence<−0.3
+∧ topic ∈ {harm, loss, betrayal, hazard},
+tagged at encode by the §4 arousal leg) gain
+P(survive) += `dread_tx_gain` (0.2) and their
+emitted magnitude sharpens toward the
+threatening pole by `dread_tx_sharp` (0.15)·
+|valence| per hop. Receiver side: incoming
+hazard-topic claims multiply cred_p by
+(1 + `dread_tx_cred` (0.15)). `phantom:true`
+records excluded — already at the lure pole.
+Locked `dread_flat_null` (P1491): matched
+valence± rumor chains must show the survival/
+sharpening asymmetry.
+
 All weights live in one per-character params object. Profiles doc assigns
 values; game-systems stores it on the character record.
 
@@ -21649,6 +21860,33 @@ MemoryParams = {
 "mse_learn_dn": 0.08, "mse_learn_up": 0.04,   // §5.164
 "plag_p": "knot:0.05@55,0.08@65,0.14@75,0.2@85",
 "plag_thresh": 0.3, "plag_conf": 1.0,         // §6.399
+// v5.84 additions (false-memory VI v138 —
+//   FM§§65–74, §5.169 + §§6.401–6.406)
+"imptruth_gain": 0.08, "imptruth_win": 48,
+"imptruth_verified": -0.03, "imptruth_age_k": 0.5, // §6.401
+"cie_resid_alt": 0.12, "cie_resid_mid": 0.22,
+"corr_alt_cred": 0.9,                    // §6.402
+"sswap_p": 0.45, "sswap_min_gap": 0.3,
+"sswap_justify_str": 0.5, "sswap_last_k": 0.3, // §6.403
+"freq_verid_w": 0.8, "freq_sal_bias": 1.0,
+"freq_rumor_add": 0.35, "freq_cap": 12, // §6.404
+"selfdir_k": 0.4, "selfdir_reenc": 0.15, // §6.405
+"rtr_p": 0.7, "rtr_min_str": 0.35,       // §5.169
+"dread_tx_gain": 0.2, "dread_tx_sharp": 0.15,
+"dread_tx_cred": 0.15,                   // §6.406
+// v5.84 traits/fields/state: authored trait
+//   `fair_std` [0,1]; account flag
+//   `about_own_stance`; correction field
+//   `alt_cause`; record fields
+//   `imptruth_boost`, `veto_scar`,
+//   `benefits_self`/`resp`, `threat_relevant`.
+// v5.84 locked nulls: imptruth_free_null
+//   (P1485); corr_alt_equal_null (P1486);
+//   rtr_free_null (P1487); sswap_last_null
+//   (P1488); freq_verid_null (P1489);
+//   selfdir_flat_null (P1490);
+//   dread_flat_null (P1491). All snapshot-
+//   additive; absent = legacy.
 // v5.83 additions (emotional-memory XII v137 —
 //   EM§§154–163, §§4.105–4.109 + §§5.165–5.168 +
 //   §6.400)
@@ -24801,6 +25039,60 @@ not resolved (DEBATED magnitude). P509/P511.
     `transf`/`affect_prior` fields with INFERRED
     provenance; `share_count`/`shared:true` fields.
   - Probes P1331–P1340.
+- v5.84 additions (false-memory.md Part VI
+  §§65–74 — the label that blesses the
+  unlabeled, the correction that needs a cause,
+  the verbatim veto, the stance you never
+  held, the count that tells a story, the
+  selfish shrink, the rumor that keeps the
+  teeth):
+  - **Implied-truth contract (§6.401):** warn/
+    dispute events boost untagged corpus-mates
+    once within `imptruth_win`; `verified`
+    tags flip the sign; `imptruth_boost`
+    field is INFERRED tier — the UI must
+    never render it OBSERVED;
+    `imptruth_free_null` (P1485).
+  - **Causal-gap contract (§6.402):**
+    `alt_cause` on corrections drops
+    continued-influence residue only when it
+    fills the event's causal slot — the
+    strict ladder alt < mid < bare;
+    `corr_alt_equal_null` (P1486).
+  - **Verbatim-veto contract (§5.169):**
+    verbatim survivors suppress contradicting
+    non-verbatim candidates at emission;
+    `veto_scar` halves re-offer; verbatim
+    never vetoes verbatim; `rtr_free_null`
+    (P1487).
+  - **Stance-swap contract (§6.403):**
+    `about_own_stance` accounts flip stance
+    candidates at `sswap_p`; `prov:"restated"`
+    INFERRED; promotion to primary only via
+    minted justifications (`sswap_last_k`);
+    `sswap_last_null` (P1488).
+  - **Frequency contract (§6.404):** emitted
+    counts sample salience-weighted
+    instances + rumor adds; stored `freq`
+    bit-identical (report-only);
+    `freq_verid_null` (P1489).
+  - **Selfish-shrink contract (§6.405):**
+    self-benefit magnitudes emit pulled
+    toward authored `fair_std`, gated on
+    violation + non-diffused responsibility;
+    flattered values re-encode as
+    self_guess candidates;
+    `selfdir_flat_null` (P1490).
+  - **Threat-transmission contract
+    (§6.406):** `threat_relevant` fields
+    survive hops and sharpen per hop;
+    receiver cred premium on hazard topics;
+    phantoms exempt; `dread_flat_null`
+    (P1491).
+  - **New params (§7):** 22 scalars + 1
+    authored trait (`fair_std`) + 1 account
+    flag + 4 record fields + 7 locked nulls.
+  - Probes P1485–P1491.
 - v5.82 additions (age-decline.md Part XII
   §§167–176 — the mouth that wanders, the idea
   that changes owners, the dyad that edits, the

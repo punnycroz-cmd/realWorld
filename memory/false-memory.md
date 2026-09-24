@@ -5906,3 +5906,497 @@ Probes (extends registry past P1340):
   bias vs reporting bias) is unresolved in the
   literature — we put the overshoot at emission so
   the fact ledger stays scorable.
+
+
+---
+
+# PART VI (v138) — the directional channels: which way the lie
+# leans, who the veto protects, and the labels that lie by
+# leaving things unlabeled
+
+Parts I–V priced the *existence* of false memories: suggestion
+channels, candidate competition, conformance, instruments. What
+remained unpriced is that distortion has a *direction* — toward
+the self-flattering count, toward the feared version, toward
+whatever the untagged neighbor implies. Part VI adds seven
+channels where the sign of the error is the phenomenon.
+
+## 65. Labeling some blesses the rest — the implied-truth
+## backwash
+
+- **Pennycook, Bear, Collins & Rand 2020** (*Manag. Sci.*
+  66:4944 — verified: Study 1 N=5,271, Study 2 N=1,568):
+  attaching "disputed" warnings to a *subset* of false headlines
+  raised perceived accuracy of **untagged** false headlines
+  relative to a no-warning control — readers reason that
+  unlabeled means unflagged-means-passed. The authors' Bayesian
+  model makes the effect *rational* under ambiguity about
+  whether untagged items were checked.
+- **The kill condition is as important as the effect:** when
+  *true* headlines got "verified" tags too — removing the
+  ambiguity — the implied-truth boost eliminated and slightly
+  *reversed*. An unlabeled claim only inherits credibility when
+  the label's absence can't distinguish "checked-and-true" from
+  "never checked."
+- Distinct from §6.230 `debunk_fam_gain` (a warning that
+  *repeats the claim* boosts familiarity → truth on THAT item)
+  and §6.165 `warn_decay` (the tag rots). This is cross-item:
+  the warning event on rumor A raises believe_p on rumor B.
+
+**[CONSENSUS effect (two large studies + formal model); the
+verification-reversal arm is one study, [ESTABLISHED but less
+replicated]; RW magnitude HYPOTHESIS]**
+
+**Spec consequence (new §6.401 — `imptruth_*`):**
+
+```
+on any warn/dispute event visible to character C within
+    imptruth_win (48 sim-hours) over a shared corpus (same
+    channel, same venue, same clique — scope tagged on the
+    rumor content hash):
+  for each OTHER pending/rumor candidate in C's store sharing
+      that scope and carrying NO correction tag:
+      believe_p += imptruth_gain·(1 − believe_p)
+      // imptruth_gain 0.08 — small, once, at the moment the
+      // neighbor gets tagged, not per-hearing
+      and stamp field `imptruth_boost:true` (INFERRED tier —
+      the boost is an inference about vetting, never OBSERVED)
+  if the same session mints a `verified:true` tag on any
+      corpus-mate claim: imptruth_gain → imptruth_verified
+      (−0.03, sign flips — verified tags disambiguate and the
+      unlabeled read as unvetted, slightly discounted)
+age interaction: imptruth_gain scales ×(1 + imptruth_age_k·
+    (age_eff−40)/40) — older profiles, whose truth judgments
+    lean hardest on source-fluency signals (§15 AD),
+    inherit the most backwash
+```
+
+## 66. The correction needs a cause — causal-gap corrections
+
+- **Johnson & Seifert 1994** (*JEP:LMC* 20:1420 — the "kept
+  influence" paradigm, verified): subjects who heard the
+  warehouse-fire rumor attributed to careless storage kept
+  citing it after a bare retraction — but a correction supplying
+  an **alternative causal agent** (arson) cut continued
+  influence sharply. Retraction removes a claim; only an
+  alternative fills the hole the claim was filling.
+- **Chan, Jones, Hall Jamieson & Albarracín 2017** (*Psychol.
+  Bull.* 143:1241 — verified meta-analysis, 64 studies):
+  debunking is more effective when it supplies a coherent
+  alternative account; bare "that's false" corrections produce
+  partial, often small, residue reductions — and corrections
+  that merely repeat the misinfo can backfire.
+- **Ecker, Lewandowsky & Tang 2010** (*Mem. Cogn.* 38:1087 —
+  verified): explicit warnings reduced but never eliminated
+  continued influence — consistent with §6.6's `cie_residual`;
+  the new finding being priced is the *alternative-cause* split.
+
+**[CONSENSUS at the qualitative level — alternative-outperforms-
+denial is a stable meta result; the residue RATIO is HYPOTHESIS]**
+
+**Spec consequence (new §6.402 — `corr_alt_*`):**
+
+```
+correction accounts (§6.6) gain optional field
+    `alt_cause:{value}` — the corrector supplies WHAT actually
+    happened, not just that the prior was false
+on successful retract_p roll:
+  bare retraction: cie_residual stays at 0.3 (unchanged)
+  alt_cause present AND alt_cause links into the record's
+      evClust (§14/§63 bundle — causal slot must exist to fill):
+      cie_residual → cie_resid_alt (0.12); the alternative
+      itself encodes as a competing candidate at cand_base_str·
+      corr_alt_cred (0.9·corrector trust) — it can win emission
+  alt_cause present but NO causal slot in the event bundle
+      (loose gossip, no mechanism to fill): cie_resid_mid 0.22 —
+      alternatives only help where causality was doing work
+net: a bare "I never said that" leaves the residue; "it wasn't
+    me, it was the night-shift guy" moves it — the model's
+    rumor ecology now prices *retraction quality*, not just
+    retraction presence
+```
+
+## 67. The verbatim veto — recollection rejection protects
+## where gist deceives
+
+- **Brainerd, Reyna, Wright & Mojardin 2003** (*J. Memory Lang.*
+  48:762 — verified): "recollection rejection" — a verbatim
+  trace of the target actively *vetoes* a gist-consistent lure
+  ("I remember it was pen, so it can't have been pencil");
+  false alarms drop below the familiarity baseline when
+  verbatim survives. The DRM literature's protective arm.
+- **Rotello & Heit 2000** (*J. Memory Lang.* 43:359 — verified):
+  recall-to-reject in associative recognition; the mechanism is
+  retrieval-side — the lure candidate is generated, then
+  suppressed, not never-formed.
+- **Developmental inversion (verified — Brainerd & Reyna
+  program):** children, verbatim-bound (AD§13, §367), run the
+  veto *better* on suggested details than adults do — their
+  immunity is to the gist channel, not to suggestion. Older
+  adults lose verbatim (§6.109 stack) → the veto collapses,
+  which is why gist-false alarms climb twice over the lifespan.
+  This formalizes the informal "verbatim veto-tag fades"
+  comment in §4.79.
+
+**[CONSENSUS mechanism (recollection rejection is replicated
+across paradigms); the per-field RW implementation is
+HYPOTHESIS-shaped by the literature]**
+
+**Spec consequence (new §5.169 — `rtr_*`):**
+
+```
+at emission, after the candidate sample is drawn but before
+    the emission is committed: for each drawn candidate value V
+    on field f, scan co-encoded sibling records + the field's
+    own candidate list for a `verbatim:true` survivor W with
+    strength ≥ rtr_min_str (0.35) that CONTRADICTS V on the
+    same slot:
+      P(suppress V) = rtr_p (0.7)·(W.strength / (W.strength +
+          V.candStrength)) // strong verbatim usually wins;
+          // at parity it's a coin-ish flip toward truth
+  suppressed candidates aren't deleted — they lose the round
+    (status quo ante), and each suppression adds `veto_scar`
+    to V: next retrieval rtr_p for V halves (repeatedly
+    vetoed lures stop being offered — a cheap approximation
+    of the lure's discredit)
+age curve: rtr_min_str multiplies by the verbatim-survival
+    leg already in the profile (k_verbatim curve) — no new
+    age params; the veto is as good as the verbatim it reads
+locked direction: rtr only suppresses FALSE candidates
+    (provenance told_by/phantom/inferred) — a verbatim trace
+    cannot veto another verbatim trace; verbatim-vs-verbatim
+    conflicts resolve by strength as before
+```
+
+## 68. The stance swap — you defend the opinion you never held
+
+- **Strandberg, Sivén, Hall, Johansson & Pärnamets 2018**
+  (*JEP:G* 147:1382 — verified: Exp 1 N=140, Exp 2 N=232):
+  covertly reversed answers on salient political questions;
+  ~half the reversals were accepted as the subject's own —
+  and subjects *confabulated arguments* for the flipped
+  position. Crucially, the group that confabulated arguments
+  showed **lastingly shifted attitudes** one week later;
+  correction rates tracked analytical skill, not political
+  involvement.
+- **Hall, Johansson & Strandberg 2012** (*PLoS ONE* 7:e45457 —
+  verified) and Hall et al. 2013 (*PLoS ONE* 8:e60554 — poll-
+  scale replication): the same swap moves moral and
+  questionnaire responses; §6.18/§6.46 priced the *choice*
+  version (own pick manipulated). This is the stance version —
+  the manipulated object is a belief record, and the payload is
+  confabulated justification (§6.79 reason fields minted to
+  order).
+- Self-perception theory (Bem 1972) is the mechanism reading:
+  people infer attitudes from observed behavior — including a
+  behavior they never performed but believe they did.
+
+**[ESTABLISHED effect within the choice-blindness program
+(multiple replications, one-week durability); generalization to
+everyday attitude drift is our HYPOTHESIS — the lab swap is an
+act of the experimenter, RW has no operator doing the swap; in
+RW the swap arrives via §6.3 misinformation *about the
+character's own stated position* ("you said you were against
+it")]**
+
+**Spec consequence (new §6.403 — `sswap_*`):**
+
+```
+hearAccount may carry `about_own_stance:true` — a co-resident
+    asserting what C previously said/believed. If the asserted
+    value differs from C's stance record field by more than
+    sswap_min_gap (0.3 on the stance scale):
+      P(accept-as-own) = sswap_p (0.45 — Strandberg's ~50%
+          correction → ~50% acceptance)·sourceCredibility·
+          (1 − stance_field_strength)·(1 − analytic_cor)
+          // analytic_cor: authored-trait proxy for the
+          // correction correlate (uses existing meta_mem or
+          // wm_capacity — no new trait)
+  on acceptance: the stance record's field gains candidate
+      value=asserted with `prov:"restated"` (INFERRED tier) AND
+      §6.79 reason mints fire — arguments FOR the swapped
+      stance encode at sswap_justify_str (0.5) — the confab
+      payload, the part that makes it stick
+  persistence leg: each accepted-swap emission that mints
+      ≥1 justification adds sswap_last_k (0.3) chance the
+      swapped candidate PROMOTES to primary on the stance
+      field — Strandberg's lasting-shift arm: defending it
+      is what moves it, not hearing it
+  locked direction: acceptance requires the assertive
+      account; self-originated stance drift stays in §6.17
+      consistency pull
+```
+
+## 69. The count that tells a story — frequency estimates
+## sample, they don't count
+
+- **Lichtenstein, Slovic, Fischhoff, Layman & Combs 1978**
+  (*JEP:HLM* 4:551 — the classic, verified): judged frequency
+  of lethal events — dramatic causes (homicide, tornado,
+  flood) overestimated, mundane killers (diabetes, stroke)
+  underestimated; the bias tracks media-salience, not base
+  rates. The stored `freq` counter is near-veridical (§1
+  "frequency is free", Hasher & Zacks) — the *emitted* count
+  is not.
+- **Tversky & Kahneman 1973** (*Cogn. Psychol.* 5:207 —
+  availability heuristic): frequency/ probability judged by
+  ease of retrieval — sampled instances, not tallies.
+- **Jonides & Naveh-Benjamin 1987** (*JML* 26:89 — verified):
+  frequency knowledge has a compressive response function —
+  accurate at 1–3, logarithmic compression thereafter; "several
+  times" is a log-bucket, not an integer.
+- Consequence: "he's been late *five* times" can be a count of
+  two true lates, one rumor-heard late, and availability
+  padding — and the speaker believes the number.
+
+**[CONSENSUS on direction + compression; the instance-sampling
+formula is our formalization (HYPOTHESIS at parameter level)]**
+
+**Spec consequence (new §6.404 — `freq_emit`):**
+
+```
+emitted counts for "how many times did X" queries do NOT read
+    the freq accumulator directly:
+  emit_n = round( freq_stored^freq_verid_w   // partial veridical
+      · exp(freq_sal_bias·(meanSalience − 0.5))  // salient
+      // instances count heavier — freq_sal_bias 1.0 means
+      // vivid events are roughly double-counted at emission
+      + freq_rumor_add·n_heard_only )         // rumor-heard
+      // instances add to the count at freq_rumor_add (0.35)
+      // — the teller counts what they heard AS IF observed
+  small-N floor: freq_stored ≤ 3 → emitted = freq_stored
+      (subitizing range is honest — Jonides)
+  never below 1 if any instance survives retrieval; never
+      above freq_cap (log-compression bound ~ ln(N)+1 scale)
+the stored freq field is NEVER written by emission — the lie
+    lives in the report (report-level only, P1490-pinned);
+    serial retells re-sample → counts fluctuate upward over
+    tellings for dramatic events, downward for routine ones
+```
+
+## 70. The selfish shrink — the deed bends toward the
+## self-image, not just the fade
+
+- **Carlson, Maréchal, Oud, Fehr & Crockett 2020** (*Nat.
+  Commun.* 11:2100 — verified: five experiments, N=3190):
+  people recalled having been **more generous** than they were,
+  even incentivized for accuracy — but only when the choice
+  *violated their own fairness standard* (subjective, per-
+  person), and only while they held themselves responsible
+  (the effect vanished under diffused responsibility). The
+  magnitude field drifts directionally toward the self-image.
+- **Kouchaki & Gino 2011** (*PNAS* — already cited for the
+  `transg` vividness leg): unethical acts' *details* fade —
+  this section adds what that paper's paradigm doesn't measure:
+  the *direction* of the surviving numbers. Vividness dies
+  AND the remembered amount bends. Complementary, not
+  competing.
+- RW consequence-continuity payload: the favor's giver and
+  receiver hold asymmetric ledgers (§6.136), and now the
+  *giver's* magnitude drifts up while the *receiver's* stays —
+  two honest disagreeing books on one promise, the Astra
+  mandate's core pattern.
+
+**[CONSENSUS effect in the fairness domain (N=3190, pre-
+registered arms); extension to favors/self-dealing generally is
+HYPOTHESIS]**
+
+**Spec consequence (new §6.405 — `selfdir_*`):**
+
+```
+on emission of a self-authored action record with a magnitude/
+    quantity field AND `benefits_self:true`:
+  violator gate (Carlson's crucial boundary): the shift applies
+      only if stored value < fair_std (the character's own
+      authored standard — trait `fair_std` [0,1], 0.5 default);
+      above-standard givers remember accurately — there is no
+      shrink of virtue, only of its shortfall
+  resp gate: if the record carries `resp:"diffused"` (shared
+      decision, coerced, role-mandated), multiplier → 0 —
+      responsibility diffusion kills the effect (Exp 4b arm)
+  emit_val = stored + selfdir_k·(fair_std − stored)
+      // selfdir_k 0.4 — pulled ~40% toward own standard;
+      // a cheapskate with fair_std 0.5 who gave 0.2 reports
+      // ~0.32, believes it, passes most lie detectors of
+      // self-knowledge
+  writeback: emitted (inflated) values re-encode as weak
+      self_guess candidates (§13) at selfdir_reenc (0.15)·
+      cand_base_str — the flattered version can become the
+      remembered version over retells
+locked: selfdir_flat_null — records lacking benefits_self or
+    fair_std violation shift NOTHING; symmetric upward drift
+    on all magnitudes fails P1491
+```
+
+## 71. The rumor keeps the teeth — threat weighting in
+## transmission
+
+- **Fessler, Pisor & Navarrete 2014** (*Hum. Nat.* 25:241 —
+  verified, "negatively biased credulity"): negatively-framed
+  (hazard-relevant) information is transmitted more and
+  believed more than positively-framed equivalents; credible
+  hazard claims survive scrutiny better than credible benefit
+  claims — a receiver-side AND transmitter-side asymmetry.
+- **Heath, Bell & Sternberg 2001** (*JPSP* 81:1028 — verified):
+  emotional selection in urban legends — disgust/high-arousal
+  content wins transmission independent of truth.
+- **Walker & Blaine 1991** (*Soc. Psych. Q.* — dread-rumor
+  persistence): disaster-dread rumors ran longest and widest
+  in the studied communities — threat content is the survival
+  niche.
+- §6.12 currently levels all fields at `level_frac` and pulls
+  gist toward schema — valence-conditioned field survival is
+  absent. The rumor ecology under-predicts that the scariest
+  version of the story is the one that circulates.
+
+**[CONSENSUS direction (multiple paradigms, field + lab);
+magnitude for a small fictional neighborhood is HYPOTHESIS]**
+
+**Spec consequence (new §6.406 — `dread_tx_*`):**
+
+```
+in §6.12 per-field survival, before the schema gate:
+  if field carries threat_relevant (valence<−0.3 AND topic ∈
+      {harm, loss, betrayal, hazard} — tagged at encode by the
+      §4 arousal leg): P(survive) += dread_tx_gain (0.2) and
+      the field's emitted magnitude sharpens toward the
+      threatening pole at dread_tx_sharp (0.15)·|valence|
+      per hop — the rumor grows teeth as it travels
+  believe_p term for incoming threat claims: cred_p multiplied
+      by (1 + dread_tx_cred (0.15)) when topic is hazard-relevant
+      — the receiver-side arm (Fessler: neg-biased CREDULITY,
+      not just neg-biased transmission)
+  cap: dread_tx applies only to first-hand corpus claims
+      (prov OBSERVED/told_by) — `phantom:true` records can't
+      sharpen further (they're already at the lure pole)
+```
+
+## 72. Spec changes in v5.84 (summary)
+
+- **§5.169** — the verbatim veto: `rtr_*` recollection-
+  rejection suppression of false candidates at emission;
+  `veto_scar` decay on repeat-vetoed lures; verbatim-vs-
+  verbatim exempt.
+- **§6.401** — implied truth: `imptruth_gain`/`imptruth_win`/
+  `imptruth_verified`/`imptruth_age_k`; `imptruth_boost` field
+  (INFERRED).
+- **§6.402** — causal-gap corrections: `alt_cause` field on
+  correction accounts; `cie_resid_alt`/`cie_resid_mid`;
+  `corr_alt_cred` for the alternative's candidate strength.
+- **§6.403** — stance swap: `sswap_*`; `about_own_stance`
+  account flag; `prov:"restated"` candidates; justification-
+  mint coupling to §6.79; `sswap_last_k` promotion leg.
+- **§6.404** — frequency emission: `freq_verid_w`,
+  `freq_sal_bias`, `freq_rumor_add`, `freq_cap`; report-only,
+  store untouched.
+- **§6.405** — selfish shrink: `selfdir_k`, `selfdir_reenc`,
+  `benefits_self`/`fair_std`/`resp` fields+trait.
+- **§6.406** — threat transmission: `dread_tx_gain`,
+  `dread_tx_sharp`, `dread_tx_cred`; `threat_relevant` field
+  flag.
+- **§7:** +22 scalars +1 authored trait (`fair_std`) +1 account
+  flag +4 record fields (`imptruth_boost`, `alt_cause`,
+  `veto_scar`, `benefits_self`/`resp` reuse) +7 locked nulls.
+- Probes **P1485–P1491** (validation-design §278).
+
+## 73. Parameter guidance and probes
+
+| param | default | range | anchor |
+|---|---|---|---|
+| imptruth_gain | 0.08 | 0.03–0.15 | Pennycook 2020 — small shift on untagged items |
+| imptruth_win | 48 h | 24–168 h | HYPOTHESIS — session/corpus scope |
+| imptruth_verified | −0.03 | −0.1–0 | verified-tag reversal arm |
+| imptruth_age_k | 0.5 | 0–1 | AD§15 knowledge-shield gradient |
+| cie_resid_alt | 0.12 | 0.05–0.2 | Ecker/Chan residue reduction |
+| cie_resid_mid | 0.22 | 0.15–0.3 | alternative without causal slot |
+| corr_alt_cred | 0.9 | 0.7–1.0 | corrector-trust multiplier |
+| rtr_p | 0.7 | 0.5–0.9 | recollection-rejection strength |
+| rtr_min_str | 0.35 | 0.2–0.5 | verbatim survival floor for veto |
+| sswap_p | 0.45 | 0.3–0.6 | Strandberg ~50% acceptance |
+| sswap_min_gap | 0.3 | 0.2–0.5 | detectable-flip threshold |
+| sswap_justify_str | 0.5 | 0.3–0.7 | confab payload strength |
+| sswap_last_k | 0.3 | 0.15–0.5 | confab→lasting-shift share |
+| freq_verid_w | 0.8 | 0.6–1.0 | partial count fidelity |
+| freq_sal_bias | 1.0 | 0.5–1.5 | Lichtenstein dramatic-overcount |
+| freq_rumor_add | 0.35 | 0.1–0.6 | heard-but-unseen counts in |
+| freq_cap | log | — | compressive bound |
+| selfdir_k | 0.4 | 0.2–0.6 | Carlson recall inflation |
+| selfdir_reenc | 0.15 | 0.05–0.3 | flattered-value re-encode |
+| dread_tx_gain | 0.2 | 0.1–0.35 | Fessler transmission premium |
+| dread_tx_sharp | 0.15 | 0.05–0.3 | per-hop threat sharpening |
+| dread_tx_cred | 0.15 | 0.05–0.3 | receiver credulity premium |
+
+**Probes (P1485–P1491):**
+
+- **P1485 implied truth (MUST — sign-locked):** warn rumor A in
+  a shared corpus → untagged corpus-mate B's believe_p rises
+  vs no-warning control; with a `verified` tag present in the
+  same session, B's boost flips sign or vanishes. FAIL if the
+  warning event changes nothing outside its target.
+- **P1486 causal-gap (MUST):** correction with `alt_cause`
+  linking the event's causal slot leaves residue ≈
+  cie_resid_alt; bare retraction leaves cie_residual;
+  alternative WITHOUT a slot → cie_resid_mid. Ordering
+  strictly alt < mid < bare.
+- **P1487 verbatim veto (MUST):** plant a gist-consistent
+  told_by lure against a surviving verbatim contradictor —
+  lure emission suppressed at ~rtr_p·strength ratio; after 3
+  suppressed rounds the lure's offer rate halves; young-child
+  profile suppresses suggested lures MORE than adult on
+  verbatim-surviving fields (inversion), old profile less.
+- **P1488 stance swap (SHOULD):** assertive about_own_stance
+  account with gap > sswap_min_gap → ~sswap_p acceptance,
+  minted justifications present on accepted swaps; accepted+
+  justified swaps promote to primary at ~sswap_last_k over
+  subsequent emissions; diffused/strong-stance records resist.
+- **P1489 frequency emission (MUST — report-only):** stored
+  freq=2 with high salience emits >2; stored freq=2 low
+  salience + 2 heard-only instances emits ~2–3; freq ≤3 arm
+  exact; freq field itself bit-identical after emission —
+  FAIL if the store mutates.
+- **P1490 selfish shrink (MUST — gate-locked):** below-`fair_std`
+  self-benefit magnitudes emit shifted toward fair_std by
+  ~selfdir_k; above-standard emit unshifted; `resp:diffused`
+  records flat. Three-arm gate is the probe.
+- **P1491 threat transmission (SHOULD):** matched valence±
+  rumor chains — threat_relevant fields survive hops at
+  +dread_tx_gain and magnitudes sharpen per hop; receiver
+  cred_p premium on hazard topics; phantom records excluded.
+
+## 74. Honest limits (Part VI)
+
+- **Implied truth is a news-feed finding** — the corpus-scope
+  assumption (shared venue/channel/clique) is our
+  generalization to a talk ecology; the lab version is a
+  per-item interface decision, not a social network effect.
+  imptruth_win and scope are the least-measured parameters.
+- **cie_resid_alt 0.12 is a ratio guess** — Johnson & Seifert
+  and the Chan meta give *directions* (alt < bare), not
+  residue constants; the three-tier ladder is ours.
+- **rtr_p is the cleanest mechanism in this part** —
+  recollection rejection is directly demonstrated, and the
+  strength-ratio formula is a standard competitive-sampling
+  composition; what's unmeasured is its rate at
+  *autobiographical* field granularity.
+- **sswap_p 0.45 is a lab manipulation acceptance rate** — in
+  RW no operator flips the record; the swap arrives as
+  social assertion, so effective rates will be lower (the
+  account must first clear §6.3's gate). The durable-shift
+  leg (sswap_last_k) is the confabulation finding applied to
+  our §6.79 machinery — plausible, not priced by the source.
+- **freq_emit conflates availability and anchoring** — the
+  Lichtenstein biases are judgment-domain findings applied
+  to count emission; the salience-exponential form is ours.
+- **selfdir needs `fair_std` and `benefits_self` tags** —
+  absent them the channel is dormant by design; world-builder
+  must author fairness standards (which is itself valuable
+  profile surface — the miser who thinks he's generous).
+- **dread_tx assumes threat tagging at encode** — depends on
+  the §4 arousal leg writing valence+topic on rumor fields;
+  untagged gossip gets no teeth.
+- **No new erase channels:** every mechanism here writes,
+  competes, or biases reports — nothing deletes the ledger.
+  The consistency is deliberate: RW characters may be wrong,
+  but the fact ledger stays scorable, and INFERRED-tier flags
+  (`imptruth_boost`, `prov:"restated"`) keep the observation
+  UI honest.

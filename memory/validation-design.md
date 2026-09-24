@@ -14652,3 +14652,148 @@ backing)
 
 → memory-model-spec.md v5.83 §§4.105–4.109 +
 §§5.165–5.168 + §6.400; probes P1475–P1484.
+
+## 278. v138 probe specs (P1485–P1491 — false-memory VI:
+which way the lies lean)
+
+Registry extends P1–P1484. Sources in §279.
+
+- **P1485 implied truth (MUST — sign-locked,
+  `imptruth_free_null`):** corpus {A,B,C}
+  rumor claims with shared scope tag; issue a
+  warn/dispute on A only → B and C believe_p
+  rise by ~`imptruth_gain·(1−believe_p)` vs a
+  no-warning control run (CRN-matched); a
+  second arm with a `verified` tag on A shows
+  the boost flipping to `imptruth_verified`
+  or vanishing. FAIL if B/C are unmoved, or if
+  the boost repeats on a second warning of A
+  (once-per-corpus-mate).
+- **P1486 causal-gap ladder (MUST —
+  `corr_alt_equal_null`):** three-arm
+  correction on a planted misinfo field —
+  bare retraction, `alt_cause` that fills the
+  event's causal slot, `alt_cause` with no
+  slot — must order residue strictly
+  `cie_resid_alt` < `cie_resid_mid` <
+  `cie_residual`; alt-with-slot also mints the
+  alternative as a live candidate; alt-without-
+  slot mints the candidate but does not drop
+  residue to the low tier.
+- **P1487 verbatim veto (MUST —
+  `rtr_free_null`):** against a surviving
+  `verbatim:true` contradictor (strength ≥
+  `rtr_min_str`), a gist-consistent `told_by`
+  lure's emission rate falls to
+  ~`rtr_p·W/(W+V)` of baseline; after ≥3
+  suppressed rounds the lure's offer rate
+  halves (`veto_scar`); verbatim-vs-verbatim
+  conflicts show no suppression; child profile
+  (verbatim-bound) suppresses MORE than adult
+  on verbatim-surviving fields — the inversion
+  arm is mandatory, not decorative.
+- **P1488 stance swap (SHOULD —
+  `sswap_last_null`):** `about_own_stance`
+  account asserting a stance > `sswap_min_gap`
+  from the record → acceptance ~`sswap_p`·
+  credibility·strength legs; accepted swaps
+  carry `prov:"restated"` and ≥1 §6.79
+  justification mint; over 3+ emissions,
+  justified-accepted swaps promote to primary
+  at ~`sswap_last_k`; accepted swaps with the
+  justification leg disabled never promote.
+- **P1489 frequency emission (MUST —
+  report-only, `freq_verid_null`):**
+  freq_stored=2 high-salience emits >2;
+  freq_stored=2 low-salience + 2 heard-only
+  instances emits ~2–3 (rumor adds counted,
+  discounted); freq≤3 low-salience no-heard
+  arm emits exact; the `freq` store field is
+  bit-identical before and after every
+  emission — any store mutation fails.
+- **P1490 selfish shrink (MUST — three-arm
+  gate, `selfdir_flat_null`):** `benefits_self`
+  magnitude records — (a) stored < fair_std,
+  non-diffused → emit ≈ stored + `selfdir_k·
+  (fair_std−stored)` upward; (b) stored ≥
+  fair_std → flat; (c) `resp:"diffused"` →
+  flat. Any shift in (b) or (c) fails; a
+  downward shift in (a) fails.
+- **P1491 threat transmission (SHOULD —
+  `dread_flat_null`):** matched valence±
+  rumor chains over ≥4 hops — `threat_relevant`
+  fields survive at +`dread_tx_gain` and their
+  emitted magnitudes sharpen toward the
+  threat pole ~`dread_tx_sharp·|valence|`/hop;
+  hazard-topic hearer cred_p carries the
+  `dread_tx_cred` premium; `phantom:true`
+  records show no sharpening.
+
+## 279. Sources verified this version (P1485–P1491
+backing)
+
+- **Pennycook, Bear, Collins & Rand 2020**
+  (*Manag. Sci.* 66:4944 — verified: Study 1
+  N=5,271, Study 2 N=1,568; warnings on a
+  subset raise perceived accuracy of untagged
+  false items; verified-tags-on-true arm
+  eliminates/slightly reverses the effect;
+  Bayesian-rational account by the authors).
+- **Johnson & Seifert 1994** (*JEP:LMC*
+  20:1420 — verified: warehouse-fire paradigm;
+  alternative-cause corrections cut continued
+  influence vs bare retraction); **Chan,
+  Jones, Hall Jamieson & Albarracín 2017**
+  (*Psychol. Bull.* 143:1241 — verified meta,
+  64 studies: detailed/alternative corrections
+  outperform; bare corrections leave
+  residue); Ecker, Lewandowsky & Tang 2010
+  (*Mem. Cogn.* 38:1087 — warnings reduce,
+  never eliminate).
+- **Brainerd, Reyna, Wright & Mojardin 2003**
+  (*J. Memory Lang.* 48:762 — verified:
+  recollection rejection; verbatim survivor
+  vetoes gist-consistent lure below
+  familiarity baseline); **Rotello & Heit
+  2000** (*J. Memory Lang.* 43:359 — recall-
+  to-reject, retrieval-side); Brainerd &
+  Reyna program for the developmental
+  inversion (verbatim-bound children).
+- **Strandberg, Sivén, Hall, Johansson &
+  Pärnamets 2018** (*JEP:G* 147:1382 —
+  verified: N=140+232, ~50% of manipulated
+  survey answers accepted as own,
+  confabulated arguments present, lasting
+  attitude shift at 1 week larger with
+  confabulation; correction tracks analytic
+  skill); Hall, Johansson & Strandberg 2012
+  (*PLoS ONE* 7:e45457); Hall et al. 2013
+  (*PLoS ONE* 8:e60554).
+- **Lichtenstein, Slovic, Fischhoff, Layman &
+  Combs 1978** (*JEP:HLM* 4:551 — verified
+  classic: judged frequency of lethal events,
+  dramatic overestimate / mundane
+  underestimate tracks salience);
+  **Tversky & Kahneman 1973** (*Cogn.
+  Psychol.* 5:207 — availability heuristic);
+  **Jonides & Naveh-Benjamin 1987** (*JML*
+  26:89 — compressive frequency response,
+  accurate ≤3).
+- **Carlson, Maréchal, Oud, Fehr & Crockett
+  2020** (*Nat. Commun.* 11:2100 — verified:
+  five experiments, N=3190; recalled
+  generosity inflated toward own fairness
+  standard; violator-only; responsibility
+  diffusion abolishes; incentive-robust);
+  Kouchaki & Gino 2011 (*PNAS* — unethical
+  amnesia, the vividness/decay leg).
+- **Fessler, Pisor & Navarrete 2014** (*Hum.
+  Nat.* 25:241 — verified: negatively biased
+  credulity, transmission + receiver arms);
+  **Heath, Bell & Sternberg 2001** (*JPSP*
+  81:1028 — emotional selection in legends);
+  Walker & Blaine 1991 (*Soc. Psych. Q.* —
+  dread-rumor persistence).
+
+→ memory-model-spec.md v5.84 §5.169 +
+§§6.401–6.406; probes P1485–P1491.
